@@ -18,7 +18,7 @@
     <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
       <div class="flex items-center space-x-2">
         <i data-lucide="home" class="w-6 h-6"></i>
-        <h1 class="text-xl font-bold tracking-wide">LorongKita <span class="text-indigo-200 text-sm font-normal">| Block A</span></h1>
+        <h1 class="text-xl font-bold tracking-wide">Flamboyan IV <span class="text-indigo-200 text-sm font-normal">| RT 001/026</span></h1>
       </div>
       <nav class="hidden md:flex space-x-6 font-medium text-sm">
         <a href="#keuangan" class="hover:text-indigo-200 transition">Laporan Keuangan</a>
@@ -41,17 +41,18 @@
   <!-- Main Content -->
   <main class="max-w-6xl mx-auto px-4 py-8 flex-grow space-y-12">
 
-    <!-- SECTION 1: LAPORAN KEUANGAN (AUTO FROM GOOGLE SHEETS) -->
+    <!-- SECTION 1: LAPORAN KEUANGAN -->
     <section id="keuangan" class="scroll-mt-20">
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center space-x-2">
           <i data-lucide="wallet" class="w-6 h-6 text-indigo-600"></i>
           <h3 class="text-2xl font-bold text-slate-900">Laporan Keuangan Kas</h3>
         </div>
-        <span class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full">Live Google Sheets</span>
+        <!-- LABEL UPDATE OTOMATIS -->
+        <span id="label-update-kas" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full">Update Rincian Kas</span>
       </div>
 
-      <!-- Ringkasan Kas (Cards) -->
+      <!-- Ringkasan Kas -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
           <p class="text-sm font-medium text-slate-500 mb-1">Total Pemasukan</p>
@@ -70,7 +71,7 @@
         </div>
       </div>
 
-      <!-- Tabel Transaksi Terakhir -->
+      <!-- Tabel Transaksi -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
           <h4 class="font-semibold text-slate-700">Rincian Transaksi Terakhir</h4>
@@ -87,45 +88,36 @@
               </tr>
             </thead>
             <tbody id="tabel-transaksi" class="divide-y divide-slate-100">
-              <!-- Data dari Google Sheets akan masuk di sini -->
             </tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <!-- SECTION 2: DOKUMENTASI KEGIATAN -->
+    <!-- SECTION 2: DOKUMENTASI KEGIATAN (TOP 3 + POPUP) -->
     <section id="kegiatan" class="scroll-mt-20">
-      <div class="flex items-center space-x-2 mb-6">
-        <i data-lucide="camera" class="w-6 h-6 text-indigo-600"></i>
-        <h3 class="text-2xl font-bold text-slate-900">Dokumentasi Kegiatan</h3>
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="camera" class="w-6 h-6 text-indigo-600"></i>
+          <h3 class="text-2xl font-bold text-slate-900">Dokumentasi Kegiatan</h3>
+        </div>
+        <!-- Tombol Lihat Semua (Desktop) -->
+        <button onclick="openModalDokumentasi()" class="hidden md:flex items-center space-x-1 text-sm text-indigo-600 font-semibold hover:text-indigo-800 transition">
+          <span>Lihat Semua Foto</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-          <img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=600&q=80" alt="Kerja Bakti" class="w-full h-48 object-cover">
-          <div class="p-4">
-            <span class="text-xs text-indigo-600 font-semibold">01 September 2026</span>
-            <h4 class="font-bold text-lg text-slate-800 mt-1">Kerja Bakti Bersih Lorong</h4>
-            <p class="text-slate-600 text-sm mt-2">Gotong royong pembersihan selokan dan perapihan tanaman di sepanjang lorong.</p>
-          </div>
-        </div>
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-          <img src="https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=600&q=80" alt="Malam Tirakatan" class="w-full h-48 object-cover">
-          <div class="p-4">
-            <span class="text-xs text-indigo-600 font-semibold">16 Agustus 2026</span>
-            <h4 class="font-bold text-lg text-slate-800 mt-1">Syukuran & Malam Keakraban</h4>
-            <p class="text-slate-600 text-sm mt-2">Acara makan bersama warga lorong dalam rangka menyambut HUT RI.</p>
-          </div>
-        </div>
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-          <img src="https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=600&q=80" alt="Rapat Rutin" class="w-full h-48 object-cover">
-          <div class="p-4">
-            <span class="text-xs text-indigo-600 font-semibold">05 Agustus 2026</span>
-            <h4 class="font-bold text-lg text-slate-800 mt-1">Rapat Musyawarah Bulanan</h4>
-            <p class="text-slate-600 text-sm mt-2">Pembahasan keamanan lorong dan penyusunan anggaran kegiatan bulanan.</p>
-          </div>
-        </div>
+      <!-- Container Top 3 Kartu -->
+      <div id="container-dokumentasi-top3" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <p class="text-slate-400 text-sm col-span-3">Memuat dokumentasi...</p>
+      </div>
+
+      <!-- Tombol Lihat Semua (Mobile) -->
+      <div class="mt-6 text-center md:hidden">
+        <button onclick="openModalDokumentasi()" class="w-full bg-indigo-50 text-indigo-700 font-semibold py-2.5 rounded-xl border border-indigo-100 hover:bg-indigo-100 transition">
+          Lihat Semua Foto Kegiatan
+        </button>
       </div>
     </section>
 
@@ -169,6 +161,26 @@
 
   </main>
 
+  <!-- MODAL / POP-UP GALERI SEMUA FOTO -->
+  <div id="modal-dokumentasi" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-5xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+      <!-- Modal Header -->
+      <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+        <div>
+          <h3 class="text-xl font-bold text-slate-900">Arsip Dokumentasi Kegiatan</h3>
+          <p class="text-xs text-slate-500">Seluruh album foto & kegiatan warga Flamboyan IV</p>
+        </div>
+        <button onclick="closeModalDokumentasi()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+      <!-- Modal Content (Grid All Photos) -->
+      <div id="container-dokumentasi-all" class="p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Seluruh Foto Akan Muncul Di Sini -->
+      </div>
+    </div>
+  </div>
+
   <footer class="bg-slate-900 text-slate-400 py-6 text-center text-sm border-t border-slate-800">
     <p>&copy; 2026 Paguyuban Warga Lorong Perumahan. Dikelola secara swadaya & transparan.</p>
   </footer>
@@ -176,37 +188,76 @@
   <script>
     lucide.createIcons();
 
-    // ISIKAN LINK CSV GOOGLE SHEETS ANDA DI ANTARA TANDA PETIK
-    const GOOGLE_SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWusYrLoxh9Jesx0PpBefZm4MhXjSQkAt9o9GnAZjvAGE4TkSxpTf9pyxUzWUA5yw-U0fwwXhldsKo/pub?gid=70481261&single=true&output=csv';
+    // 1. LINK CSV UNTUK KEUANGAN (Tempel link CSV Sheet Web Anda di sini)
+    const CSV_KEUANGAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWusYrLoxh9Jesx0PpBefZm4MhXjSQkAt9o9GnAZjvAGE4TkSxpTf9pyxUzWUA5yw-U0fwwXhldsKo/pub?gid=70481261&single=true&output=csv';
+
+    // 2. LINK CSV UNTUK DOKUMENTASI (Tempel link CSV Sheet Dokumentasi Anda di sini)
+    const CSV_DOKUMENTASI_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?output=csv';
 
     function formatRupiah(angka) {
       return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
     }
 
-    if (!GOOGLE_SHEETS_CSV_URL || GOOGLE_SHEETS_CSV_URL.includes('PASTE_LINK_CSV_GOOGLE_SHEETS_DI_SINI')) {
-      document.getElementById('loading-status').innerText = 'Link Google Sheets belum dipasang';
-    } else {
-      Papa.parse(GOOGLE_SHEETS_CSV_URL, {
+    // Modal Controller
+    function openModalDokumentasi() {
+      document.getElementById('modal-dokumentasi').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModalDokumentasi() {
+      document.getElementById('modal-dokumentasi').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+
+    // --- PROSES KEUANGAN ---
+    if (CSV_KEUANGAN_URL && !CSV_KEUANGAN_URL.includes('PASTE_LINK_CSV')) {
+      Papa.parse(CSV_KEUANGAN_URL, {
         download: true,
         header: true,
         complete: function(results) {
-          const data = results.data;
+          const rawData = results.data.filter(row => {
+            const keys = Object.keys(row);
+            return keys.length >= 4 && row[keys[0]] && row[keys[3]];
+          });
+
           let totalPemasukan = 0;
           let totalPengeluaran = 0;
+
+          // Hitung total kas dari seluruh data (urut asli)
+          rawData.forEach(row => {
+            const keys = Object.keys(row);
+            const kategori = (row[keys[2]] || '').trim();
+            const rawJumlah = row[keys[3]];
+
+            let cleanedJumlah = rawJumlah.toString().replace(/\./g, '').replace(/,/g, '');
+            const jumlah = parseFloat(cleanedJumlah.replace(/[^0-9-]/g, '')) || 0;
+
+            if (kategori.toLowerCase() === 'pemasukan') {
+              totalPemasukan += jumlah;
+            } else {
+              totalPengeluaran += jumlah;
+            }
+          });
+
+          // Dapatkan tanggal transaksi paling baru sebelum dibalik
+          if (rawData.length > 0) {
+            const lastRow = rawData[rawData.length - 1];
+            const lastTanggal = lastRow[Object.keys(lastRow)[0]];
+            if (lastTanggal) {
+              document.getElementById('label-update-kas').innerText = 'Update: ' + lastTanggal;
+            }
+          }
+
+          // Balik urutan data agar transaksi terbaru berada di PALING ATAS tabel
+          const displayData = [...rawData].reverse();
           let tbodyHTML = '';
 
-          data.forEach(row => {
+          displayData.forEach(row => {
             const keys = Object.keys(row);
-            if (keys.length < 4) return;
-
             const tanggal = row[keys[0]];
             const keterangan = row[keys[1]] || '-';
             const kategori = (row[keys[2]] || '').trim();
             const rawJumlah = row[keys[3]];
 
-            if (!tanggal || !rawJumlah) return;
-
-            // Membuang titik/koma format ribuan agar terbaca utuh sebagai angka bulat
             let cleanedJumlah = rawJumlah.toString().replace(/\./g, '').replace(/,/g, '');
             const jumlah = parseFloat(cleanedJumlah.replace(/[^0-9-]/g, '')) || 0;
 
@@ -214,11 +265,9 @@
             let textJumlah = '';
 
             if (kategori.toLowerCase() === 'pemasukan') {
-              totalPemasukan += jumlah;
               badgeKategori = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 rounded">Pemasukan</span>`;
               textJumlah = `<span class="text-emerald-600 font-semibold">+ ${formatRupiah(jumlah)}</span>`;
             } else {
-              totalPengeluaran += jumlah;
               badgeKategori = `<span class="px-2 py-0.5 text-xs bg-rose-100 text-rose-800 rounded">Pengeluaran</span>`;
               textJumlah = `<span class="text-rose-600 font-semibold">- ${formatRupiah(jumlah)}</span>`;
             }
@@ -238,9 +287,53 @@
           document.getElementById('total-pengeluaran').innerText = formatRupiah(totalPengeluaran);
           document.getElementById('sisa-saldo').innerText = formatRupiah(totalPemasukan - totalPengeluaran);
           document.getElementById('loading-status').innerText = 'Terhubung live';
-        },
-        error: function(err) {
-          document.getElementById('loading-status').innerText = 'Gagal memuat data Google Sheets';
+        }
+      });
+    }
+
+    // --- PROSES DOKUMENTASI (TOP 3 + POPUP ALL) ---
+    if (CSV_DOKUMENTASI_URL && !CSV_DOKUMENTASI_URL.includes('PASTE_LINK_CSV')) {
+      Papa.parse(CSV_DOKUMENTASI_URL, {
+        download: true,
+        header: true,
+        complete: function(results) {
+          const rawData = results.data.filter(row => {
+            const keys = Object.keys(row);
+            return keys.length >= 2 && row[keys[0]] && row[keys[1]];
+          });
+
+          // Balik urutan dokumentasi agar kegiatan terbaru muncul paling awal
+          const displayData = [...rawData].reverse();
+
+          let top3HTML = '';
+          let allHTML = '';
+
+          displayData.forEach((row, index) => {
+            const keys = Object.keys(row);
+            const tanggal = row[keys[0]];
+            const judul = row[keys[1]];
+            const deskripsi = row[keys[2]] || '';
+            let foto = row[keys[3]] || 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=600&q=80';
+
+            const cardContent = `
+              <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition">
+                <img src="${foto}" alt="${judul}" class="w-full h-48 object-cover" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=600&q=80'">
+                <div class="p-4">
+                  <span class="text-xs text-indigo-600 font-semibold">${tanggal}</span>
+                  <h4 class="font-bold text-lg text-slate-800 mt-1">${judul}</h4>
+                  <p class="text-slate-600 text-sm mt-2">${deskripsi}</p>
+                </div>
+              </div>
+            `;
+
+            if (index < 3) {
+              top3HTML += cardContent;
+            }
+            allHTML += cardContent;
+          });
+
+          document.getElementById('container-dokumentasi-top3').innerHTML = top3HTML || '<p class="text-slate-400 text-sm col-span-3">Belum ada dokumentasi kegiatan.</p>';
+          document.getElementById('container-dokumentasi-all').innerHTML = allHTML || '<p class="text-slate-400 text-sm col-span-3">Belum ada dokumentasi kegiatan.</p>';
         }
       });
     }
