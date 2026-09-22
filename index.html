@@ -209,7 +209,7 @@
     }
 
     // --- PROSES KEUANGAN ---
-    if (CSV_KEUANGAN_URL && !CSV_KEUANGAN_URL.includes('PASTE_LINK_CSV')) {
+    if (CSV_KEUANGAN_URL && !CSV_KEUANGAN_URL.includes('https://docs.google.com/spreadsheets/d/e/2PACX-1vTWusYrLoxh9Jesx0PpBefZm4MhXjSQkAt9o9GnAZjvAGE4TkSxpTf9pyxUzWUA5yw-U0fwwXhldsKo/pub?gid=70481261&single=true&output=csv')) {
       Papa.parse(CSV_KEUANGAN_URL, {
         download: true,
         header: true,
@@ -292,7 +292,7 @@
     }
 
     // --- PROSES DOKUMENTASI (TOP 3 + POPUP ALL) ---
-    if (CSV_DOKUMENTASI_URL && !CSV_DOKUMENTASI_URL.includes('PASTE_LINK_CSV')) {
+    if (CSV_DOKUMENTASI_URL && !CSV_DOKUMENTASI_URL.includes('https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?output=csv')) {
       Papa.parse(CSV_DOKUMENTASI_URL, {
         download: true,
         header: true,
