@@ -181,6 +181,17 @@
     </div>
   </div>
 
+  <!-- LIGHTBOX MODAL (POP-UP PRATINJAU FOTO FULL TANPA CROP) -->
+  <div id="lightbox-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] hidden flex items-center justify-center p-4" onclick="closeLightbox()">
+    <div class="relative max-w-4xl max-h-[90vh] flex flex-col items-center" onclick="event.stopPropagation()">
+      <button onclick="closeLightbox()" class="absolute -top-10 right-0 text-white hover:text-slate-300 transition">
+        <i data-lucide="x" class="w-8 h-8"></i>
+      </button>
+      <img id="lightbox-img" src="" alt="Foto Full" class="max-w-full max-h-[80vh] rounded-lg shadow-2xl object-contain">
+      <p id="lightbox-caption" class="text-white text-center mt-3 text-sm font-medium"></p>
+    </div>
+  </div>
+
   <footer class="bg-slate-900 text-slate-400 py-6 text-center text-sm border-t border-slate-800">
     <p>&copy; 2026 Paguyuban Warga Lorong Perumahan. Dikelola secara swadaya & transparan.</p>
   </footer>
@@ -201,12 +212,13 @@
       return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
     }
 
-    // Fungsi Pengubah Link Google Drive Menjadi Image Direct Link
+    // Fungsi Otomatis Membersihkan Link (Hapus Kurung Siku, Spasi, & Convert Drive ID)
     function fixDriveUrl(url) {
       if (!url) return PLACEHOLDER_IMG;
-      let cleanUrl = url.trim().replace(/^httphttps:/i, 'https:').replace(/^http:/i, 'https:');
+      let cleanUrl = url.toString().replace(/[\[\]'"]/g, '').trim();
+      cleanUrl = cleanUrl.replace(/^httphttps:/i, 'https:').replace(/^http:/i, 'https:');
       
-      if (cleanUrl.includes('drive.google.com')) {
+      if (cleanUrl.includes('drive.google.com') || cleanUrl.includes('lh3.googleusercontent.com')) {
         const match = cleanUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || cleanUrl.match(/id=([a-zA-Z0-9_-]+)/);
         if (match && match[1]) {
           return 'https://lh3.googleusercontent.com/d/' + match[1];
@@ -215,7 +227,7 @@
       return cleanUrl;
     }
 
-    // Modal Controller
+    // Modal Controller (Semua Foto)
     function openModalDokumentasi() {
       document.getElementById('modal-dokumentasi').classList.remove('hidden');
       document.body.style.overflow = 'hidden';
@@ -223,6 +235,16 @@
     function closeModalDokumentasi() {
       document.getElementById('modal-dokumentasi').classList.add('hidden');
       document.body.style.overflow = 'auto';
+    }
+
+    // Lightbox Controller (Foto Full Utuh)
+    function openLightbox(imgSrc, caption) {
+      document.getElementById('lightbox-img').src = imgSrc;
+      document.getElementById('lightbox-caption').innerText = caption;
+      document.getElementById('lightbox-modal').classList.remove('hidden');
+    }
+    function closeLightbox() {
+      document.getElementById('lightbox-modal').classList.add('hidden');
     }
 
     // --- PROSES KEUANGAN ---
@@ -336,9 +358,15 @@
             let foto = fixDriveUrl(rawFoto);
 
             const cardContent = `
-              <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition">
-                <img src="${foto}" alt="${judul}" loading="lazy" referrerpolicy="no-referrer" class="w-full h-48 object-cover bg-slate-100" onerror="this.src='${PLACEHOLDER_IMG}'">
-                <div class="p-4">
+              <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition flex flex-col">
+                <div class="relative cursor-pointer overflow-hidden group" onclick="openLightbox('${foto}', '${judul} - ${tanggal}')">
+                  <img src="${foto}" alt="${judul}" loading="lazy" referrerpolicy="no-referrer" class="w-full h-48 object-cover bg-slate-100 group-hover:scale-105 transition duration-300" onerror="this.src='${PLACEHOLDER_IMG}'">
+                  <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1">
+                    <i data-lucide="maximize-2" class="w-4 h-4"></i>
+                    <span>Klik Foto Penuh</span>
+                  </div>
+                </div>
+                <div class="p-4 flex-grow">
                   <span class="text-xs text-indigo-600 font-semibold">${tanggal}</span>
                   <h4 class="font-bold text-lg text-slate-800 mt-1">${judul}</h4>
                   <p class="text-slate-600 text-sm mt-2">${deskripsi}</p>
@@ -352,6 +380,7 @@
 
           document.getElementById('container-dokumentasi-top3').innerHTML = top3HTML || '<p class="text-slate-400 text-sm col-span-3">Belum ada dokumentasi kegiatan.</p>';
           document.getElementById('container-dokumentasi-all').innerHTML = allHTML || '<p class="text-slate-400 text-sm col-span-3">Belum ada dokumentasi kegiatan.</p>';
+          lucide.createIcons();
         }
       });
     }
