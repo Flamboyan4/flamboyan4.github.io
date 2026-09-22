@@ -188,11 +188,14 @@
   <script>
     lucide.createIcons();
 
-    // 1. LINK CSV UNTUK KEUANGAN (Tempel link CSV Sheet Web Anda di sini)
+    // 1. LINK CSV UNTUK KEUANGAN
     const CSV_KEUANGAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWusYrLoxh9Jesx0PpBefZm4MhXjSQkAt9o9GnAZjvAGE4TkSxpTf9pyxUzWUA5yw-U0fwwXhldsKo/pub?gid=70481261&single=true&output=csv';
 
-    // 2. LINK CSV UNTUK DOKUMENTASI (Tempel link CSV Sheet Dokumentasi Anda di sini)
+    // 2. LINK CSV UNTUK DOKUMENTASI
     const CSV_DOKUMENTASI_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?output=csv';
+
+    // SVG Placeholder Gambar Ringan (Bila Gambar Error / Belum Diisi)
+    const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='100%25' height='100%25' fill='%23f1f5f9'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='18' fill='%2394a3b8' text-anchor='middle' dy='.3em'%3EDokumentasi Kegiatan%3C/text%3E%3C/svg%3E";
 
     function formatRupiah(angka) {
       return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
@@ -222,7 +225,6 @@
           let totalPemasukan = 0;
           let totalPengeluaran = 0;
 
-          // Hitung total kas dari seluruh data (urut asli)
           rawData.forEach(row => {
             const keys = Object.keys(row);
             const kategori = (row[keys[2]] || '').trim();
@@ -238,7 +240,6 @@
             }
           });
 
-          // Dapatkan tanggal transaksi paling baru sebelum dibalik
           if (rawData.length > 0) {
             const lastRow = rawData[rawData.length - 1];
             const lastTanggal = lastRow[Object.keys(lastRow)[0]];
@@ -247,7 +248,6 @@
             }
           }
 
-          // Balik urutan data agar transaksi terbaru berada di PALING ATAS tabel
           const displayData = [...rawData].reverse();
           let tbodyHTML = '';
 
@@ -291,7 +291,7 @@
       });
     }
 
-    // --- PROSES DOKUMENTASI (TOP 3 + POPUP ALL) ---
+    // --- PROSES DOKUMENTASI (OPTIMIZED LOADING) ---
     if (CSV_DOKUMENTASI_URL && !CSV_DOKUMENTASI_URL.includes('https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?output=csv')) {
       Papa.parse(CSV_DOKUMENTASI_URL, {
         download: true,
@@ -302,7 +302,6 @@
             return keys.length >= 2 && row[keys[0]] && row[keys[1]];
           });
 
-          // Balik urutan dokumentasi agar kegiatan terbaru muncul paling awal
           const displayData = [...rawData].reverse();
 
           let top3HTML = '';
@@ -313,11 +312,13 @@
             const tanggal = row[keys[0]];
             const judul = row[keys[1]];
             const deskripsi = row[keys[2]] || '';
-            let foto = row[keys[3]] || 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=600&q=80';
+            let foto = (row[keys[3]] || '').trim();
+
+            if (!foto) foto = PLACEHOLDER_IMG;
 
             const cardContent = `
               <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition">
-                <img src="${foto}" alt="${judul}" class="w-full h-48 object-cover" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=600&q=80'">
+                <img src="${foto}" alt="${judul}" loading="lazy" class="w-full h-48 object-cover bg-slate-100" onerror="this.src='${PLACEHOLDER_IMG}'">
                 <div class="p-4">
                   <span class="text-xs text-indigo-600 font-semibold">${tanggal}</span>
                   <h4 class="font-bold text-lg text-slate-800 mt-1">${judul}</h4>
