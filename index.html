@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lorong Pesona Kahuripan 2</title>
+  <title>Website Lorong Perumahan Kita</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons CDN -->
@@ -18,7 +18,7 @@
     <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
       <div class="flex items-center space-x-2">
         <i data-lucide="home" class="w-6 h-6"></i>
-        <h1 class="text-xl font-bold tracking-wide">Flamboyan IV <span class="text-indigo-200 text-sm font-normal">| RT 001/026</span></h1>
+        <h1 class="text-xl font-bold tracking-wide">LorongKita <span class="text-indigo-200 text-sm font-normal">| Block A</span></h1>
       </div>
       <nav class="hidden md:flex space-x-6 font-medium text-sm">
         <a href="#keuangan" class="hover:text-indigo-200 transition">Laporan Keuangan</a>
@@ -48,7 +48,7 @@
           <i data-lucide="wallet" class="w-6 h-6 text-indigo-600"></i>
           <h3 class="text-2xl font-bold text-slate-900">Laporan Keuangan Kas</h3>
         </div>
-        <span class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full">Otomatis dari Google Sheets</span>
+        <span class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full">Live Google Sheets</span>
       </div>
 
       <!-- Ringkasan Kas (Cards) -->
@@ -176,66 +176,72 @@
   <script>
     lucide.createIcons();
 
-    // ISIKAN LINK CSV GOOGLE SHEETS ANDA DI SINI
+    // ISIKAN LINK CSV GOOGLE SHEETS ANDA DI ANTARA TANDA PETIK
     const GOOGLE_SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWusYrLoxh9Jesx0PpBefZm4MhXjSQkAt9o9GnAZjvAGE4TkSxpTf9pyxUzWUA5yw-U0fwwXhldsKo/pub?gid=70481261&single=true&output=csv';
 
     function formatRupiah(angka) {
       return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
     }
 
-    // Mengambil dan memproses data dari Google Sheets
-    Papa.parse(GOOGLE_SHEETS_CSV_URL, {
-      download: true,
-      header: true,
-      complete: function(results) {
-        const data = results.data;
-        let totalPemasukan = 0;
-        let totalPengeluaran = 0;
-        let tbodyHTML = '';
+    if (!GOOGLE_SHEETS_CSV_URL || GOOGLE_SHEETS_CSV_URL.includes('PASTE_LINK_CSV_GOOGLE_SHEETS_DI_SINI')) {
+      document.getElementById('loading-status').innerText = 'Link Google Sheets belum dipasang';
+    } else {
+      Papa.parse(GOOGLE_SHEETS_CSV_URL, {
+        download: true,
+        header: true,
+        complete: function(results) {
+          const data = results.data;
+          let totalPemasukan = 0;
+          let totalPengeluaran = 0;
+          let tbodyHTML = '';
 
-        data.forEach(row => {
-          // Lewati jika baris kosong
-          if (!row.Tanggal || !row.Jumlah) return;
+          data.forEach(row => {
+            const keys = Object.keys(row);
+            if (keys.length < 4) return;
 
-          const tanggal = row.Tanggal;
-          const keterangan = row.Keterangan || '-';
-          const kategori = (row.Kategori || '').trim();
-          const jumlah = parseFloat(row.Jumlah.toString().replace(/[^0-9.-]+/g, '')) || 0;
+            const tanggal = row[keys[0]];
+            const keterangan = row[keys[1]] || '-';
+            const kategori = (row[keys[2]] || '').trim();
+            const rawJumlah = row[keys[3]];
 
-          let badgeKategori = '';
-          let textJumlah = '';
+            if (!tanggal || !rawJumlah) return;
 
-          if (kategori.toLowerCase() === 'pemasukan') {
-            totalPemasukan += jumlah;
-            badgeKategori = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 rounded">Pemasukan</span>`;
-            textJumlah = `<span class="text-emerald-600 font-semibold">+ ${formatRupiah(jumlah)}</span>`;
-          } else {
-            totalPengeluaran += jumlah;
-            badgeKategori = `<span class="px-2 py-0.5 text-xs bg-rose-100 text-rose-800 rounded">Pengeluaran</span>`;
-            textJumlah = `<span class="text-rose-600 font-semibold">- ${formatRupiah(jumlah)}</span>`;
-          }
+            const jumlah = parseFloat(rawJumlah.toString().replace(/[^0-9.-]+/g, '')) || 0;
 
-          tbodyHTML += `
-            <tr>
-              <td class="p-3 text-slate-500">${tanggal}</td>
-              <td class="p-3 font-medium">${keterangan}</td>
-              <td class="p-3">${badgeKategori}</td>
-              <td class="p-3 text-right">${textJumlah}</td>
-            </tr>
-          `;
-        });
+            let badgeKategori = '';
+            let textJumlah = '';
 
-        // Update DOM / Tampilan Website
-        document.getElementById('tabel-transaksi').innerHTML = tbodyHTML;
-        document.getElementById('total-pemasukan').innerText = formatRupiah(totalPemasukan);
-        document.getElementById('total-pengeluaran').innerText = formatRupiah(totalPengeluaran);
-        document.getElementById('sisa-saldo').innerText = formatRupiah(totalPemasukan - totalPengeluaran);
-        document.getElementById('loading-status').innerText = 'Terhubung live';
-      },
-      error: function(err) {
-        document.getElementById('loading-status').innerText = 'Gagal memuat data dari Google Sheets';
-      }
-    });
+            if (kategori.toLowerCase() === 'pemasukan') {
+              totalPemasukan += jumlah;
+              badgeKategori = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 rounded">Pemasukan</span>`;
+              textJumlah = `<span class="text-emerald-600 font-semibold">+ ${formatRupiah(jumlah)}</span>`;
+            } else {
+              totalPengeluaran += jumlah;
+              badgeKategori = `<span class="px-2 py-0.5 text-xs bg-rose-100 text-rose-800 rounded">Pengeluaran</span>`;
+              textJumlah = `<span class="text-rose-600 font-semibold">- ${formatRupiah(jumlah)}</span>`;
+            }
+
+            tbodyHTML += `
+              <tr>
+                <td class="p-3 text-slate-500">${tanggal}</td>
+                <td class="p-3 font-medium">${keterangan}</td>
+                <td class="p-3">${badgeKategori}</td>
+                <td class="p-3 text-right">${textJumlah}</td>
+              </tr>
+            `;
+          });
+
+          document.getElementById('tabel-transaksi').innerHTML = tbodyHTML || '<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada transaksi</td></tr>';
+          document.getElementById('total-pemasukan').innerText = formatRupiah(totalPemasukan);
+          document.getElementById('total-pengeluaran').innerText = formatRupiah(totalPengeluaran);
+          document.getElementById('sisa-saldo').innerText = formatRupiah(totalPemasukan - totalPengeluaran);
+          document.getElementById('loading-status').innerText = 'Terhubung live';
+        },
+        error: function(err) {
+          document.getElementById('loading-status').innerText = 'Gagal memuat data Google Sheets';
+        }
+      });
+    }
   </script>
 </body>
 </html>
