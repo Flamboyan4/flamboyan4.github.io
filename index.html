@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Website Lorong Perumahan Kita</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+
+  <!-- Header / Navigation -->
+  <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i data-lucide="home" class="w-6 h-6"></i>
+        <h1 class="text-xl font-bold tracking-wide">LorongKita <span class="text-indigo-200 text-sm font-normal">| Block A</span></h1>
+      </div>
+      <nav class="hidden md:flex space-x-6 font-medium text-sm">
+        <a href="#keuangan" class="hover:text-indigo-200 transition">Laporan Keuangan</a>
+        <a href="#kegiatan" class="hover:text-indigo-200 transition">Dokumentasi</a>
+        <a href="#rencana" class="hover:text-indigo-200 transition">Rencana Kerja</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="bg-indigo-600 text-white py-12 px-4 text-center">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-3xl md:text-4xl font-extrabold mb-3">Portal Informasi & Transparansi Lorong</h2>
+      <p class="text-indigo-100 text-base md:text-lg">
+        Satu wadah untuk keterbukaan kas warga, dokumentasi silaturahmi, dan koordinasi rencana kegiatan bersama.
+      </p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 py-8 flex-grow space-y-12">
+
+    <!-- SECTION 1: LAPORAN KEUANGAN (UTAMA) -->
+    <section id="keuangan" class="scroll-mt-20">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="wallet" class="w-6 h-6 text-indigo-600"></i>
+          <h3 class="text-2xl font-bold text-slate-900">Laporan Keuangan Kas</h3>
+        </div>
+        <span class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full">Update: September 2026</span>
+      </div>
+
+      <!-- Ringkasan Kas (Cards) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+          <p class="text-sm font-medium text-slate-500 mb-1">Total Pemasukan</p>
+          <p class="text-2xl font-bold text-emerald-600">Rp 4.500.000</p>
+          <p class="text-xs text-slate-400 mt-2">*Termasuk iuran bulanan & donasi</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+          <p class="text-sm font-medium text-slate-500 mb-1">Total Pengeluaran</p>
+          <p class="text-2xl font-bold text-rose-600">Rp 1.250.000</p>
+          <p class="text-xs text-slate-400 mt-2">*Pemeliharaan & acara warga</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-indigo-100 bg-indigo-50/50">
+          <p class="text-sm font-medium text-indigo-700 mb-1">Sisa Saldo Kas</p>
+          <p class="text-2xl font-bold text-indigo-900">Rp 3.250.000</p>
+          <p class="text-xs text-indigo-600 mt-2">*Saldo aktif saat ini</p>
+        </div>
+      </div>
+
+      <!-- Tabel Transaksi Terakhir -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-4 border-b border-slate-100 bg-slate-50">
+          <h4 class="font-semibold text-slate-700">Rincian Transaksi Terakhir</h4>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="border-b border-slate-200 bg-slate-100/60 text-slate-600">
+                <th class="p-3">Tanggal</th>
+                <th class="p-3">Keterangan</th>
+                <th class="p-3">Kategori</th>
+                <th class="p-3 text-right">Jumlah</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr>
+                <td class="p-3 text-slate-500">15 Sep 2026</td>
+                <td class="p-3 font-medium">Iuran Bulanan Warga (September)</td>
+                <td class="p-3"><span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 rounded">Pemasukan</span></td>
+                <td class="p-3 text-right text-emerald-600 font-semibold">+ Rp 1.500.000</td>
+              </tr>
+              <tr>
+                <td class="p-3 text-slate-500">10 Sep 2026</td>
+                <td class="p-3 font-medium">Pembelian Lampu LED Lorong (3 pcs)</td>
+                <td class="p-3"><span class="px-2 py-0.5 text-xs bg-rose-100 text-rose-800 rounded">Pengeluaran</span></td>
+                <td class="p-3 text-right text-rose-600 font-semibold">- Rp 250.000</td>
+              </tr>
+              <tr>
+                <td class="p-3 text-slate-500">01 Sep 2026</td>
+                <td class="p-3 font-medium">Konsumsi Kerja Bakti Bersama</td>
+                <td class="p-3"><span class="px-2 py-0.5 text-xs bg-rose-100 text-rose-800 rounded">Pengeluaran</span></td>
+                <td class="p-3 text-right text-rose-600 font-semibold">- Rp 1.000.000</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: DOKUMENTASI KEGIATAN -->
+    <section id="kegiatan" class="scroll-mt-20">
+      <div class="flex items-center space-x-2 mb-6">
+        <i data-lucide="camera" class="w-6 h-6 text-indigo-600"></i>
+        <h3 class="text-2xl font-bold text-slate-900">Dokumentasi Kegiatan</h3>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Card 1 -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=600&q=80" alt="Kerja Bakti" class="w-full h-48 object-cover">
+          <div class="p-4">
+            <span class="text-xs text-indigo-600 font-semibold">01 September 2026</span>
+            <h4 class="font-bold text-lg text-slate-800 mt-1">Kerja Bakti Bersih Lorong</h4>
+            <p class="text-slate-600 text-sm mt-2">Gotong royong pembersihan selokan dan perapihan tanaman di sepanjang lorong.</p>
+          </div>
+        </div>
+        <!-- Card 2 -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=600&q=80" alt="Malam Tirakatan" class="w-full h-48 object-cover">
+          <div class="p-4">
+            <span class="text-xs text-indigo-600 font-semibold">16 Agustus 2026</span>
+            <h4 class="font-bold text-lg text-slate-800 mt-1">Syukuran & Malam Keakraban</h4>
+            <p class="text-slate-600 text-sm mt-2">Acara makan bersama warga lorong dalam rangka menyambut HUT RI.</p>
+          </div>
+        </div>
+        <!-- Card 3 -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=600&q=80" alt="Rapat Rutin" class="w-full h-48 object-cover">
+          <div class="p-4">
+            <span class="text-xs text-indigo-600 font-semibold">05 Agustus 2026</span>
+            <h4 class="font-bold text-lg text-slate-800 mt-1">Rapat Musyawarah Bulanan</h4>
+            <p class="text-slate-600 text-sm mt-2">Pembahasan keamanan lorong dan penyusunan anggaran kegiatan bulanan.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: RENCANA KEGIATAN -->
+    <section id="rencana" class="scroll-mt-20">
+      <div class="flex items-center space-x-2 mb-6">
+        <i data-lucide="calendar-check" class="w-6 h-6 text-indigo-600"></i>
+        <h3 class="text-2xl font-bold text-slate-900">Rencana Kegiatan Mendatang</h3>
+      </div>
+
+      <div class="space-y-4">
+        <!-- Item Rencana 1 -->
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex items-start space-x-4">
+            <div class="bg-indigo-100 text-indigo-700 p-3 rounded-lg font-bold text-center min-w-[60px]">
+              <span class="block text-xl">15</span>
+              <span class="text-xs uppercase">Okt</span>
+            </div>
+            <div>
+              <h4 class="font-bold text-slate-800 text-lg">Pemasangan Portabel CCTV Lorong</h4>
+              <p class="text-slate-600 text-sm">Peningkatan fasilitas keamanan di area pintu masuk utama lorong.</p>
+            </div>
+          </div>
+          <span class="bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full w-fit">Tahap Perancangan</span>
+        </div>
+
+        <!-- Item Rencana 2 -->
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex items-start space-x-4">
+            <div class="bg-indigo-100 text-indigo-700 p-3 rounded-lg font-bold text-center min-w-[60px]">
+              <span class="block text-xl">28</span>
+              <span class="text-xs uppercase">Okt</span>
+            </div>
+            <div>
+              <h4 class="font-bold text-slate-800 text-lg">Penanaman Tanaman Hias & Pot Seragam</h4>
+              <p class="text-slate-600 text-sm">Penghijauan area depan rumah warga agar lorong terlihat asri dan rapi.</p>
+            </div>
+          </div>
+          <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full w-fit">Direncanakan</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 text-slate-400 py-6 text-center text-sm border-t border-slate-800">
+    <p>&copy; 2026 Paguyuban Warga Lorong Perumahan. Dikelola secara swadaya & transparan.</p>
+  </footer>
+
+  <!-- Script untuk Icon Lucide -->
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
