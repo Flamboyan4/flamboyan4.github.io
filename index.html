@@ -206,7 +206,9 @@
 
             if (!tanggal || !rawJumlah) return;
 
-            const jumlah = parseFloat(rawJumlah.toString().replace(/[^0-9.-]+/g, '')) || 0;
+            // Membuang titik/koma format ribuan agar terbaca utuh sebagai angka bulat
+            let cleanedJumlah = rawJumlah.toString().replace(/\./g, '').replace(/,/g, '');
+            const jumlah = parseFloat(cleanedJumlah.replace(/[^0-9-]/g, '')) || 0;
 
             let badgeKategori = '';
             let textJumlah = '';
