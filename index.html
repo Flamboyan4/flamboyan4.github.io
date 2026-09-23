@@ -121,14 +121,15 @@
       </div>
     </section>
 
-    <!-- SECTION 3: RENCANA KEGIATAN -->
+    <!-- SECTION 3: RENCANA KEGIATAN (SORTED BY STATUS PRIORITY) -->
     <section id="rencana" class="scroll-mt-20 w-full">
       <div class="flex items-center space-x-2 mb-6">
         <i data-lucide="calendar-check" class="w-6 h-6 text-indigo-600 shrink-0"></i>
         <h3 class="text-xl md:text-2xl font-bold text-slate-900">Rencana Kegiatan Mendatang</h3>
       </div>
 
-      <div id="container-rencana" class="space-y-4 w-full">
+      <!-- Container Scrollable -->
+      <div id="container-rencana" class="space-y-4 w-full max-h-[380px] overflow-y-auto pr-1">
         <p class="text-slate-400 text-sm">Memuat rencana kegiatan...</p>
       </div>
     </section>
@@ -193,7 +194,7 @@
     // 2. LINK CSV DOKUMENTASI
     const CSV_DOKUMENTASI_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?output=csv';
 
-    // 3. LINK CSV RENCANA KEGIATAN (Opsional, isi jika sudah dibuat)
+    // 3. LINK CSV RENCANA KEGIATAN (Tempel link CSV Rencana Kegiatan jika ada)
     const CSV_RENCANA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSsygpwTSzO0bZrdoO6sRyFbH0jrHaTJN0g6vIKtGnGMlP3Ot3CCd9V0PPG7vWr_mxztobwrR_8iLx1/pub?output=csv';
 
     // SVG Placeholder Gambar
@@ -369,7 +370,7 @@
       });
     }
 
-    // --- PROSES DOKUMENTASI (MULTI-FOTO / SLIDER SUPPORT) ---
+    // --- PROSES DOKUMENTASI ---
     if (CSV_DOKUMENTASI_URL && CSV_DOKUMENTASI_URL.startsWith('http')) {
       Papa.parse(CSV_DOKUMENTASI_URL, {
         download: true,
@@ -392,14 +393,11 @@
             const deskripsi = row[keys[2]] || '';
             let rawFotoString = row[keys[3]] || '';
             
-            // Hitung jumlah foto jika dipisahkan tanda koma
             const photoList = rawFotoString.split(',').filter(p => p.trim() !== '');
             const photoCount = photoList.length;
             
-            // Ambil foto pertama sebagai sampul
             let firstFoto = fixDriveUrl(photoList[0] || '');
 
-            // Escape tanda petik untuk fungsi onclick
             const safePhotoString = rawFotoString.replace(/'/g, "\\'");
             const safeTitle = (judul + ' - ' + tanggal).replace(/'/g, "\\'");
 
@@ -440,7 +438,7 @@
       });
     }
 
-    // --- PROSES RENCANA KEGIATAN ---
+    // --- PROSES RENCANA KEGIATAN (PENGURUTAN BERDASARKAN STATUS & RECENCY) ---
     if (CSV_RENCANA_URL && CSV_RENCANA_URL.startsWith('http')) {
       Papa.parse(CSV_RENCANA_URL, {
         download: true,
@@ -451,20 +449,43 @@
             return values.length >= 2 && values[0] && values[0].toString().trim() !== '';
           });
 
+          // Mengelompokkan berdasarkan kelompok status
+          const onProgressList = [];
+          const direncanakanList = [];
+          const selesaiList = [];
+
+          // Membaca dari data terbaru (reverse)
+          [...rawData].reverse().forEach(row => {
+            const keys = Object.keys(row);
+            const status = (row[keys[3]] || 'Direncanakan').trim().toLowerCase();
+
+            if (status.includes('progress') || status.includes('rancang') || status.includes('jalan')) {
+              onProgressList.push(row);
+            } else if (status.includes('selesai')) {
+              selesaiList.push(row);
+            } else {
+              direncanakanList.push(row);
+            }
+          });
+
+          // Urutan Prioritas: On Progress -> Direncanakan -> Selesai
+          const displayData = [...onProgressList, ...direncanakanList, ...selesaiList];
+
           let rencanaHTML = '';
 
-          rawData.forEach(row => {
+          displayData.forEach(row => {
             const keys = Object.keys(row);
             const tanggal = row[keys[0]] || '-';
             const judul = row[keys[1]] || '-';
             const deskripsi = row[keys[2]] || '';
-            const status = (row[keys[3]] || 'Direncanakan').trim();
+            const status = (row[keys[3]] || 'Direncanakan').trim().toLowerCase();
 
-            let statusBadge = `<span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full w-fit">Direncanakan</span>`;
-            if (status.toLowerCase().includes('perancangan')) {
-              statusBadge = `<span class="bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full w-fit">Tahap Perancangan</span>`;
-            } else if (status.toLowerCase().includes('selesai')) {
-              statusBadge = `<span class="bg-emerald-100 text-emerald-800 text-xs font-semibold px-3 py-1 rounded-full w-fit">Selesai</span>`;
+            let statusBadge = `<span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full w-fit whitespace-nowrap">Direncanakan</span>`;
+            
+            if (status.includes('progress') || status.includes('rancang') || status.includes('jalan')) {
+              statusBadge = `<span class="bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full w-fit whitespace-nowrap">On Progress</span>`;
+            } else if (status.includes('selesai')) {
+              statusBadge = `<span class="bg-emerald-100 text-emerald-800 text-xs font-semibold px-3 py-1 rounded-full w-fit whitespace-nowrap">Selesai</span>`;
             }
 
             const dateParts = tanggal.split(' ');
@@ -492,7 +513,7 @@
         }
       });
     } else {
-      // Default
+      // Default Preview Tampilan
       document.getElementById('container-rencana').innerHTML = `
         <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
           <div class="flex items-start space-x-4">
@@ -505,7 +526,7 @@
               <p class="text-slate-600 text-xs md:text-sm break-words">Peningkatan fasilitas keamanan di area pintu masuk utama lorong.</p>
             </div>
           </div>
-          <span class="bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full w-fit">Tahap Perancangan</span>
+          <span class="bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full w-fit whitespace-nowrap">On Progress</span>
         </div>
         <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
           <div class="flex items-start space-x-4">
@@ -518,7 +539,7 @@
               <p class="text-slate-600 text-xs md:text-sm break-words">Penghijauan area depan rumah warga agar lorong terlihat asri dan rapi.</p>
             </div>
           </div>
-          <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full w-fit">Direncanakan</span>
+          <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full w-fit whitespace-nowrap">Direncanakan</span>
         </div>
       `;
     }
