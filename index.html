@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="overflow-x-hidden">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Website Lorong Perumahan Kita</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Flamboyan IV | Portal Informasi & Transparansi Lorong</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons CDN -->
@@ -11,14 +11,14 @@
   <!-- PapaParse untuk membaca Google Sheets CSV -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 </head>
-<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen overflow-x-hidden w-full">
 
   <!-- Header / Navigation -->
-  <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-50">
+  <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-50 w-full">
     <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
       <div class="flex items-center space-x-2">
-        <i data-lucide="home" class="w-6 h-6"></i>
-        <h1 class="text-xl font-bold tracking-wide">Flamboyan IV <span class="text-indigo-200 text-sm font-normal">| RT 001/026</span></h1>
+        <i data-lucide="home" class="w-6 h-6 shrink-0"></i>
+        <h1 class="text-lg md:text-xl font-bold tracking-wide">Flamboyan IV <span class="text-indigo-200 text-xs md:text-sm font-normal">| RT 001/026</span></h1>
       </div>
       <nav class="hidden md:flex space-x-6 font-medium text-sm">
         <a href="#keuangan" class="hover:text-indigo-200 transition">Laporan Keuangan</a>
@@ -29,62 +29,62 @@
   </header>
 
   <!-- Hero Section -->
-  <section class="bg-indigo-600 text-white py-12 px-4 text-center">
+  <section class="bg-indigo-600 text-white py-10 px-4 text-center w-full">
     <div class="max-w-3xl mx-auto">
-      <h2 class="text-3xl md:text-4xl font-extrabold mb-3">Portal Informasi & Transparansi Lorong</h2>
-      <p class="text-indigo-100 text-base md:text-lg">
+      <h2 class="text-2xl md:text-4xl font-extrabold mb-3 leading-tight break-words">Portal Informasi & Transparansi Lorong</h2>
+      <p class="text-indigo-100 text-sm md:text-lg break-words">
         Satu wadah untuk keterbukaan kas warga, dokumentasi silaturahmi, dan koordinasi rencana kegiatan bersama.
       </p>
     </div>
   </section>
 
   <!-- Main Content -->
-  <main class="max-w-6xl mx-auto px-4 py-8 flex-grow space-y-12">
+  <main class="max-w-6xl mx-auto px-4 py-8 flex-grow space-y-12 w-full overflow-hidden">
 
     <!-- SECTION 1: LAPORAN KEUANGAN -->
-    <section id="keuangan" class="scroll-mt-20">
-      <div class="flex items-center justify-between mb-6">
+    <section id="keuangan" class="scroll-mt-20 w-full">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
         <div class="flex items-center space-x-2">
-          <i data-lucide="wallet" class="w-6 h-6 text-indigo-600"></i>
-          <h3 class="text-2xl font-bold text-slate-900">Laporan Keuangan Kas</h3>
+          <i data-lucide="wallet" class="w-6 h-6 text-indigo-600 shrink-0"></i>
+          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Laporan Keuangan Kas</h3>
         </div>
         <!-- LABEL UPDATE OTOMATIS -->
-        <span id="label-update-kas" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full">Update Rincian Kas</span>
+        <span id="label-update-kas" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full whitespace-nowrap">Update Rincian Kas</span>
       </div>
 
       <!-- Ringkasan Kas -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-          <p class="text-sm font-medium text-slate-500 mb-1">Total Pemasukan</p>
-          <p id="total-pemasukan" class="text-2xl font-bold text-emerald-600">Rp 0</p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 w-full">
+        <div class="bg-white p-5 md:p-6 rounded-xl shadow-sm border border-slate-200">
+          <p class="text-xs md:text-sm font-medium text-slate-500 mb-1">Total Pemasukan</p>
+          <p id="total-pemasukan" class="text-xl md:text-2xl font-bold text-emerald-600">Rp 0</p>
           <p class="text-xs text-slate-400 mt-2">*Termasuk iuran bulanan & donasi</p>
         </div>
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-          <p class="text-sm font-medium text-slate-500 mb-1">Total Pengeluaran</p>
-          <p id="total-pengeluaran" class="text-2xl font-bold text-rose-600">Rp 0</p>
+        <div class="bg-white p-5 md:p-6 rounded-xl shadow-sm border border-slate-200">
+          <p class="text-xs md:text-sm font-medium text-slate-500 mb-1">Total Pengeluaran</p>
+          <p id="total-pengeluaran" class="text-xl md:text-2xl font-bold text-rose-600">Rp 0</p>
           <p class="text-xs text-slate-400 mt-2">*Pemeliharaan & acara warga</p>
         </div>
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-indigo-100 bg-indigo-50/50">
-          <p class="text-sm font-medium text-indigo-700 mb-1">Sisa Saldo Kas</p>
-          <p id="sisa-saldo" class="text-2xl font-bold text-indigo-900">Rp 0</p>
+        <div class="bg-white p-5 md:p-6 rounded-xl shadow-sm border border-indigo-100 bg-indigo-50/50">
+          <p class="text-xs md:text-sm font-medium text-indigo-700 mb-1">Sisa Saldo Kas</p>
+          <p id="sisa-saldo" class="text-xl md:text-2xl font-bold text-indigo-900">Rp 0</p>
           <p class="text-xs text-indigo-600 mt-2">*Saldo aktif saat ini</p>
         </div>
       </div>
 
       <!-- Tabel Transaksi -->
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
         <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-          <h4 class="font-semibold text-slate-700">Rincian Transaksi Terakhir</h4>
+          <h4 class="font-semibold text-slate-700 text-sm md:text-base">Rincian Transaksi Terakhir</h4>
           <span id="loading-status" class="text-xs text-slate-500">Memuat data...</span>
         </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse text-sm">
+        <div class="overflow-x-auto w-full">
+          <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[500px]">
             <thead>
               <tr class="border-b border-slate-200 bg-slate-100/60 text-slate-600">
-                <th class="p-3">Tanggal</th>
-                <th class="p-3">Keterangan</th>
-                <th class="p-3">Kategori</th>
-                <th class="p-3 text-right">Jumlah</th>
+                <th class="p-3 w-1/4">Tanggal</th>
+                <th class="p-3 w-2/4">Keterangan</th>
+                <th class="p-3 w-1/6">Kategori</th>
+                <th class="p-3 text-right w-1/4">Jumlah</th>
               </tr>
             </thead>
             <tbody id="tabel-transaksi" class="divide-y divide-slate-100">
@@ -95,11 +95,11 @@
     </section>
 
     <!-- SECTION 2: DOKUMENTASI KEGIATAN -->
-    <section id="kegiatan" class="scroll-mt-20">
+    <section id="kegiatan" class="scroll-mt-20 w-full">
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center space-x-2">
-          <i data-lucide="camera" class="w-6 h-6 text-indigo-600"></i>
-          <h3 class="text-2xl font-bold text-slate-900">Dokumentasi Kegiatan</h3>
+          <i data-lucide="camera" class="w-6 h-6 text-indigo-600 shrink-0"></i>
+          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Dokumentasi Kegiatan</h3>
         </div>
         <!-- Tombol Lihat Semua (Desktop) -->
         <button onclick="openModalDokumentasi()" class="hidden md:flex items-center space-x-1 text-sm text-indigo-600 font-semibold hover:text-indigo-800 transition">
@@ -109,8 +109,8 @@
       </div>
 
       <!-- Container Top 3 Kartu -->
-      <div id="container-dokumentasi-top3" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <p class="text-slate-400 text-sm col-span-3">Belum ada dokumentasi kegiatan.</p>
+      <div id="container-dokumentasi-top3" class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+        <p class="text-slate-400 text-sm col-span-1 md:col-span-3">Memuat dokumentasi...</p>
       </div>
 
       <!-- Tombol Lihat Semua (Mobile) -->
@@ -122,97 +122,92 @@
     </section>
 
     <!-- SECTION 3: RENCANA KEGIATAN -->
-    <section id="rencana" class="scroll-mt-20">
+    <section id="rencana" class="scroll-mt-20 w-full">
       <div class="flex items-center space-x-2 mb-6">
-        <i data-lucide="calendar-check" class="w-6 h-6 text-indigo-600"></i>
-        <h3 class="text-2xl font-bold text-slate-900">Rencana Kegiatan Mendatang</h3>
+        <i data-lucide="calendar-check" class="w-6 h-6 text-indigo-600 shrink-0"></i>
+        <h3 class="text-xl md:text-2xl font-bold text-slate-900">Rencana Kegiatan Mendatang</h3>
       </div>
 
-      <div class="space-y-4">
-        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div class="flex items-start space-x-4">
-            <div class="bg-indigo-100 text-indigo-700 p-3 rounded-lg font-bold text-center min-w-[60px]">
-              <span class="block text-xl">15</span>
-              <span class="text-xs uppercase">Okt</span>
-            </div>
-            <div>
-              <h4 class="font-bold text-slate-800 text-lg">Pemasangan Portabel CCTV Lorong</h4>
-              <p class="text-slate-600 text-sm">Peningkatan fasilitas keamanan di area pintu masuk utama lorong.</p>
-            </div>
-          </div>
-          <span class="bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full w-fit">Tahap Perancangan</span>
-        </div>
-
-        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div class="flex items-start space-x-4">
-            <div class="bg-indigo-100 text-indigo-700 p-3 rounded-lg font-bold text-center min-w-[60px]">
-              <span class="block text-xl">28</span>
-              <span class="text-xs uppercase">Okt</span>
-            </div>
-            <div>
-              <h4 class="font-bold text-slate-800 text-lg">Penanaman Tanaman Hias & Pot Seragam</h4>
-              <p class="text-slate-600 text-sm">Penghijauan area depan rumah warga agar lorong terlihat asri dan rapi.</p>
-            </div>
-          </div>
-          <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full w-fit">Direncanakan</span>
-        </div>
+      <div id="container-rencana" class="space-y-4 w-full">
+        <p class="text-slate-400 text-sm">Memuat rencana kegiatan...</p>
       </div>
     </section>
 
   </main>
 
   <!-- MODAL / POP-UP GALERI SEMUA FOTO -->
-  <div id="modal-dokumentasi" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+  <div id="modal-dokumentasi" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4">
     <div class="bg-white w-full max-w-5xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
-      <!-- Modal Header -->
-      <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+      <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
         <div>
-          <h3 class="text-xl font-bold text-slate-900">Arsip Dokumentasi Kegiatan</h3>
+          <h3 class="text-lg md:text-xl font-bold text-slate-900">Arsip Dokumentasi Kegiatan</h3>
           <p class="text-xs text-slate-500">Seluruh album foto & kegiatan warga Flamboyan IV</p>
         </div>
         <button onclick="closeModalDokumentasi()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
-          <i data-lucide="x" class="w-6 h-6"></i>
+          <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
         </button>
       </div>
-      <!-- Modal Content (Grid All Photos) -->
-      <div id="container-dokumentasi-all" class="p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Seluruh Foto Akan Muncul Di Sini -->
+      <div id="container-dokumentasi-all" class="p-4 md:p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
       </div>
     </div>
   </div>
 
-  <!-- LIGHTBOX MODAL (POP-UP PRATINJAU FOTO FULL TANPA CROP) -->
-  <div id="lightbox-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] hidden flex items-center justify-center p-4" onclick="closeLightbox()">
-    <div class="relative max-w-4xl max-h-[90vh] flex flex-col items-center" onclick="event.stopPropagation()">
-      <button onclick="closeLightbox()" class="absolute -top-10 right-0 text-white hover:text-slate-300 transition">
-        <i data-lucide="x" class="w-8 h-8"></i>
-      </button>
-      <img id="lightbox-img" src="" alt="Foto Full" class="max-w-full max-h-[80vh] rounded-lg shadow-2xl object-contain">
-      <p id="lightbox-caption" class="text-white text-center mt-3 text-sm font-medium"></p>
+  <!-- LIGHTBOX MODAL WITH SLIDER -->
+  <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-center p-2 md:p-4" onclick="closeLightbox()">
+    <button onclick="closeLightbox()" class="absolute top-3 right-3 text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition z-20">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    
+    <div class="relative w-full max-w-4xl max-h-[85vh] flex flex-col items-center justify-center px-2" onclick="event.stopPropagation()">
+      <!-- Image Container -->
+      <div class="relative w-full flex items-center justify-center">
+        <img id="lightbox-img" src="" alt="Foto Full" class="max-w-full max-h-[70vh] md:max-h-[75vh] rounded-lg shadow-2xl object-contain select-none">
+        
+        <!-- Navigation Buttons -->
+        <button id="btn-prev-photo" onclick="changePhoto(-1)" class="absolute left-1 md:left-2 bg-black/50 hover:bg-black/80 text-white p-2 md:p-3 rounded-full transition backdrop-blur-sm hidden">
+          <i data-lucide="chevron-left" class="w-6 h-6"></i>
+        </button>
+        <button id="btn-next-photo" onclick="changePhoto(1)" class="absolute right-1 md:right-2 bg-black/50 hover:bg-black/80 text-white p-2 md:p-3 rounded-full transition backdrop-blur-sm hidden">
+          <i data-lucide="chevron-right" class="w-6 h-6"></i>
+        </button>
+      </div>
+
+      <!-- Caption & Indicator -->
+      <div class="text-center mt-3 text-white">
+        <p id="lightbox-caption" class="text-xs md:text-sm font-semibold tracking-wide"></p>
+        <p id="lightbox-counter" class="text-xs text-slate-400 mt-1 hidden"></p>
+      </div>
     </div>
   </div>
 
-  <footer class="bg-slate-900 text-slate-400 py-6 text-center text-sm border-t border-slate-800">
-    <p>&copy; 2026 Warga Flamboyan IV Pesona Kahuripan 2. Dikelola secara swadaya & transparan.</p>
+  <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs md:text-sm border-t border-slate-800 w-full">
+    <p>&copy; 2026 Paguyuban Warga Lorong Perumahan. Dikelola secara swadaya & transparan.</p>
   </footer>
 
   <script>
     lucide.createIcons();
 
-    // 1. LINK CSV UNTUK KEUANGAN
+    // 1. LINK CSV KEUANGAN
     const CSV_KEUANGAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWusYrLoxh9Jesx0PpBefZm4MhXjSQkAt9o9GnAZjvAGE4TkSxpTf9pyxUzWUA5yw-U0fwwXhldsKo/pub?gid=70481261&single=true&output=csv';
 
-    // 2. LINK CSV UNTUK DOKUMENTASI
+    // 2. LINK CSV DOKUMENTASI
     const CSV_DOKUMENTASI_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?output=csv';
+
+    // 3. LINK CSV RENCANA KEGIATAN (Opsional, isi jika sudah dibuat)
+    const CSV_RENCANA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSsygpwTSzO0bZrdoO6sRyFbH0jrHaTJN0g6vIKtGnGMlP3Ot3CCd9V0PPG7vWr_mxztobwrR_8iLx1/pub?output=csv';
 
     // SVG Placeholder Gambar
     const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='100%25' height='100%25' fill='%23f1f5f9'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='18' fill='%2394a3b8' text-anchor='middle' dy='.3em'%3EDokumentasi Kegiatan%3C/text%3E%3C/svg%3E";
+
+    // Global Slider Variables
+    let currentPhotoList = [];
+    let currentPhotoIndex = 0;
+    let currentPhotoCaption = '';
 
     function formatRupiah(angka) {
       return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
     }
 
-    // Fungsi Otomatis Membersihkan Link (Hapus Kurung Siku, Spasi, & Convert Drive ID)
     function fixDriveUrl(url) {
       if (!url) return PLACEHOLDER_IMG;
       let cleanUrl = url.toString().replace(/[\[\]'"]/g, '').trim();
@@ -227,7 +222,6 @@
       return cleanUrl;
     }
 
-    // Modal Controller (Semua Foto)
     function openModalDokumentasi() {
       document.getElementById('modal-dokumentasi').classList.remove('hidden');
       document.body.style.overflow = 'hidden';
@@ -237,14 +231,56 @@
       document.body.style.overflow = 'auto';
     }
 
-    // Lightbox Controller (Foto Full Utuh)
-    function openLightbox(imgSrc, caption) {
-      document.getElementById('lightbox-img').src = imgSrc;
-      document.getElementById('lightbox-caption').innerText = caption;
+    // Lightbox Slider Controller
+    function openLightboxSlider(photoUrlsString, caption) {
+      const rawUrls = photoUrlsString.split(',');
+      currentPhotoList = rawUrls.map(u => fixDriveUrl(u)).filter(u => u && u !== '');
+      
+      if (currentPhotoList.length === 0) {
+        currentPhotoList = [PLACEHOLDER_IMG];
+      }
+      
+      currentPhotoIndex = 0;
+      currentPhotoCaption = caption;
+
+      updateLightboxView();
       document.getElementById('lightbox-modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
     }
+
+    function updateLightboxView() {
+      document.getElementById('lightbox-img').src = currentPhotoList[currentPhotoIndex];
+      document.getElementById('lightbox-caption').innerText = currentPhotoCaption;
+
+      const btnPrev = document.getElementById('btn-prev-photo');
+      const btnNext = document.getElementById('btn-next-photo');
+      const counter = document.getElementById('lightbox-counter');
+
+      if (currentPhotoList.length > 1) {
+        btnPrev.classList.remove('hidden');
+        btnNext.classList.remove('hidden');
+        counter.classList.remove('hidden');
+        counter.innerText = `Foto ${currentPhotoIndex + 1} dari ${currentPhotoList.length}`;
+      } else {
+        btnPrev.classList.add('hidden');
+        btnNext.classList.add('hidden');
+        counter.classList.add('hidden');
+      }
+    }
+
+    function changePhoto(direction) {
+      currentPhotoIndex += direction;
+      if (currentPhotoIndex < 0) {
+        currentPhotoIndex = currentPhotoList.length - 1;
+      } else if (currentPhotoIndex >= currentPhotoList.length) {
+        currentPhotoIndex = 0;
+      }
+      updateLightboxView();
+    }
+
     function closeLightbox() {
       document.getElementById('lightbox-modal').classList.add('hidden');
+      document.body.style.overflow = 'auto';
     }
 
     // --- PROSES KEUANGAN ---
@@ -316,10 +352,10 @@
 
             tbodyHTML += `
               <tr>
-                <td class="p-3 text-slate-500">${tanggal}</td>
-                <td class="p-3 font-medium">${keterangan}</td>
+                <td class="p-3 text-slate-500 whitespace-nowrap">${tanggal}</td>
+                <td class="p-3 font-medium break-words">${keterangan}</td>
                 <td class="p-3">${badgeKategori}</td>
-                <td class="p-3 text-right">${textJumlah}</td>
+                <td class="p-3 text-right whitespace-nowrap">${textJumlah}</td>
               </tr>
             `;
           });
@@ -333,7 +369,7 @@
       });
     }
 
-    // --- PROSES DOKUMENTASI ---
+    // --- PROSES DOKUMENTASI (MULTI-FOTO / SLIDER SUPPORT) ---
     if (CSV_DOKUMENTASI_URL && CSV_DOKUMENTASI_URL.startsWith('http')) {
       Papa.parse(CSV_DOKUMENTASI_URL, {
         download: true,
@@ -354,22 +390,41 @@
             const tanggal = row[keys[0]];
             const judul = row[keys[1]];
             const deskripsi = row[keys[2]] || '';
-            let rawFoto = row[keys[3]] || '';
-            let foto = fixDriveUrl(rawFoto);
+            let rawFotoString = row[keys[3]] || '';
+            
+            // Hitung jumlah foto jika dipisahkan tanda koma
+            const photoList = rawFotoString.split(',').filter(p => p.trim() !== '');
+            const photoCount = photoList.length;
+            
+            // Ambil foto pertama sebagai sampul
+            let firstFoto = fixDriveUrl(photoList[0] || '');
+
+            // Escape tanda petik untuk fungsi onclick
+            const safePhotoString = rawFotoString.replace(/'/g, "\\'");
+            const safeTitle = (judul + ' - ' + tanggal).replace(/'/g, "\\'");
+
+            let badgeMultiPhoto = '';
+            if (photoCount > 1) {
+              badgeMultiPhoto = `<span class="absolute top-2 right-2 bg-black/70 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center space-x-1">
+                <i data-lucide="layers" class="w-3 h-3"></i>
+                <span>${photoCount} Foto</span>
+              </span>`;
+            }
 
             const cardContent = `
-              <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition flex flex-col">
-                <div class="relative cursor-pointer overflow-hidden group" onclick="openLightbox('${foto}', '${judul} - ${tanggal}')">
-                  <img src="${foto}" alt="${judul}" loading="lazy" referrerpolicy="no-referrer" class="w-full h-48 object-cover bg-slate-100 group-hover:scale-105 transition duration-300" onerror="this.src='${PLACEHOLDER_IMG}'">
-                  <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1">
+              <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition flex flex-col w-full">
+                <div class="relative cursor-pointer overflow-hidden group bg-slate-100" onclick="openLightboxSlider('${safePhotoString}', '${safeTitle}')">
+                  <img src="${firstFoto}" alt="${judul}" loading="lazy" referrerpolicy="no-referrer" class="w-full h-48 object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${PLACEHOLDER_IMG}'">
+                  ${badgeMultiPhoto}
+                  <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1">
                     <i data-lucide="maximize-2" class="w-4 h-4"></i>
-                    <span>Klik Foto Penuh</span>
+                    <span>Klik Lihat Foto (${photoCount})</span>
                   </div>
                 </div>
                 <div class="p-4 flex-grow">
                   <span class="text-xs text-indigo-600 font-semibold">${tanggal}</span>
-                  <h4 class="font-bold text-lg text-slate-800 mt-1">${judul}</h4>
-                  <p class="text-slate-600 text-sm mt-2">${deskripsi}</p>
+                  <h4 class="font-bold text-base md:text-lg text-slate-800 mt-1 break-words">${judul}</h4>
+                  <p class="text-slate-600 text-xs md:text-sm mt-2 break-words">${deskripsi}</p>
                 </div>
               </div>
             `;
@@ -378,11 +433,94 @@
             allHTML += cardContent;
           });
 
-          document.getElementById('container-dokumentasi-top3').innerHTML = top3HTML || '<p class="text-slate-400 text-sm col-span-3">Belum ada dokumentasi kegiatan.</p>';
-          document.getElementById('container-dokumentasi-all').innerHTML = allHTML || '<p class="text-slate-400 text-sm col-span-3">Belum ada dokumentasi kegiatan.</p>';
+          document.getElementById('container-dokumentasi-top3').innerHTML = top3HTML || '<p class="text-slate-400 text-sm col-span-1 md:col-span-3">Belum ada dokumentasi kegiatan.</p>';
+          document.getElementById('container-dokumentasi-all').innerHTML = allHTML || '<p class="text-slate-400 text-sm col-span-1 md:col-span-3">Belum ada dokumentasi kegiatan.</p>';
           lucide.createIcons();
         }
       });
+    }
+
+    // --- PROSES RENCANA KEGIATAN ---
+    if (CSV_RENCANA_URL && CSV_RENCANA_URL.startsWith('http')) {
+      Papa.parse(CSV_RENCANA_URL, {
+        download: true,
+        header: true,
+        complete: function(results) {
+          const rawData = results.data.filter(row => {
+            const values = Object.values(row);
+            return values.length >= 2 && values[0] && values[0].toString().trim() !== '';
+          });
+
+          let rencanaHTML = '';
+
+          rawData.forEach(row => {
+            const keys = Object.keys(row);
+            const tanggal = row[keys[0]] || '-';
+            const judul = row[keys[1]] || '-';
+            const deskripsi = row[keys[2]] || '';
+            const status = (row[keys[3]] || 'Direncanakan').trim();
+
+            let statusBadge = `<span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full w-fit">Direncanakan</span>`;
+            if (status.toLowerCase().includes('perancangan')) {
+              statusBadge = `<span class="bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full w-fit">Tahap Perancangan</span>`;
+            } else if (status.toLowerCase().includes('selesai')) {
+              statusBadge = `<span class="bg-emerald-100 text-emerald-800 text-xs font-semibold px-3 py-1 rounded-full w-fit">Selesai</span>`;
+            }
+
+            const dateParts = tanggal.split(' ');
+            const dateNum = dateParts[0] || '1';
+            const dateMonth = dateParts[1] || 'Okt';
+
+            rencanaHTML += `
+              <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
+                <div class="flex items-start space-x-4">
+                  <div class="bg-indigo-100 text-indigo-700 p-3 rounded-lg font-bold text-center min-w-[55px] shrink-0">
+                    <span class="block text-lg md:text-xl">${dateNum}</span>
+                    <span class="text-[10px] md:text-xs uppercase">${dateMonth}</span>
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-slate-800 text-base md:text-lg break-words">${judul}</h4>
+                    <p class="text-slate-600 text-xs md:text-sm break-words">${deskripsi}</p>
+                  </div>
+                </div>
+                ${statusBadge}
+              </div>
+            `;
+          });
+
+          document.getElementById('container-rencana').innerHTML = rencanaHTML || '<p class="text-slate-400 text-sm">Belum ada rencana kegiatan.</p>';
+        }
+      });
+    } else {
+      // Default
+      document.getElementById('container-rencana').innerHTML = `
+        <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
+          <div class="flex items-start space-x-4">
+            <div class="bg-indigo-100 text-indigo-700 p-3 rounded-lg font-bold text-center min-w-[55px] shrink-0">
+              <span class="block text-lg md:text-xl">15</span>
+              <span class="text-[10px] md:text-xs uppercase">Okt</span>
+            </div>
+            <div>
+              <h4 class="font-bold text-slate-800 text-base md:text-lg break-words">Pemasangan Portabel CCTV Lorong</h4>
+              <p class="text-slate-600 text-xs md:text-sm break-words">Peningkatan fasilitas keamanan di area pintu masuk utama lorong.</p>
+            </div>
+          </div>
+          <span class="bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full w-fit">Tahap Perancangan</span>
+        </div>
+        <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
+          <div class="flex items-start space-x-4">
+            <div class="bg-indigo-100 text-indigo-700 p-3 rounded-lg font-bold text-center min-w-[55px] shrink-0">
+              <span class="block text-lg md:text-xl">28</span>
+              <span class="text-[10px] md:text-xs uppercase">Okt</span>
+            </div>
+            <div>
+              <h4 class="font-bold text-slate-800 text-base md:text-lg break-words">Penanaman Tanaman Hias & Pot Seragam</h4>
+              <p class="text-slate-600 text-xs md:text-sm break-words">Penghijauan area depan rumah warga agar lorong terlihat asri dan rapi.</p>
+            </div>
+          </div>
+          <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full w-fit">Direncanakan</span>
+        </div>
+      `;
     }
   </script>
 </body>
