@@ -115,27 +115,27 @@
 
       <!-- Card Highlight Tuan Rumah Arisan -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 w-full">
-        <!-- Arisan Bulan Ini -->
-        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+        <!-- Arisan Bulan Ini (HIGHLIGHT UNGU GRADIENT) -->
+        <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white p-5 rounded-xl shadow-md flex items-center justify-between">
           <div>
-            <span class="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Arisan Bulan Ini</span>
-            <h4 id="arisan-bulan-ini-nama" class="text-lg md:text-xl font-bold text-slate-800 mt-1">-</h4>
-            <p id="arisan-bulan-ini-tgl" class="text-xs text-slate-500 mt-0.5">-</p>
+            <span class="text-xs font-semibold text-indigo-200 uppercase tracking-wider">Arisan Bulan Ini</span>
+            <h4 id="arisan-bulan-ini-nama" class="text-lg md:text-xl font-bold mt-1">Memuat data...</h4>
+            <p id="arisan-bulan-ini-tgl" class="text-xs text-indigo-200 mt-0.5">-</p>
           </div>
-          <div class="bg-emerald-100 text-emerald-700 p-3 rounded-full">
-            <i data-lucide="check-circle" class="w-6 h-6"></i>
+          <div id="arisan-bulan-ini-icon-bg" class="p-3 rounded-full bg-white/20 backdrop-blur-sm">
+            <i id="arisan-bulan-ini-icon" data-lucide="home" class="w-6 h-6 text-white"></i>
           </div>
         </div>
 
-        <!-- Tuan Rumah Selanjutnya -->
-        <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white p-5 rounded-xl shadow-md flex items-center justify-between">
+        <!-- Tuan Rumah Selanjutnya (WARNA PUTIH) -->
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
           <div>
-            <span class="text-xs font-semibold text-indigo-200 uppercase tracking-wider">Tuan Rumah Selanjutnya (Bulan Depan)</span>
-            <h4 id="arisan-selanjutnya-nama" class="text-lg md:text-xl font-bold mt-1">Memuat data...</h4>
-            <p id="arisan-selanjutnya-tgl" class="text-xs text-indigo-200 mt-0.5">-</p>
+            <span class="text-xs font-semibold text-indigo-600 uppercase tracking-wider">Tuan Rumah Selanjutnya (Bulan Depan)</span>
+            <h4 id="arisan-selanjutnya-nama" class="text-lg md:text-xl font-bold text-slate-800 mt-1">-</h4>
+            <p id="arisan-selanjutnya-tgl" class="text-xs text-slate-500 mt-0.5">-</p>
           </div>
-          <div class="bg-white/20 p-3 rounded-full backdrop-blur-sm">
-            <i data-lucide="home" class="w-6 h-6 text-white"></i>
+          <div class="bg-indigo-50 text-indigo-600 p-3 rounded-full border border-indigo-100">
+            <i data-lucide="hourglass" class="w-6 h-6"></i>
           </div>
         </div>
       </div>
@@ -757,7 +757,7 @@
       });
     }
 
-    // --- PROSES ARISAN ---
+    // --- PROSES ARISAN (LOGIKA IKON & HIGHLIGHT BARU) ---
     if (CSV_ARISAN_URL && CSV_ARISAN_URL.startsWith('http')) {
       Papa.parse(CSV_ARISAN_URL, {
         download: true,
@@ -781,19 +781,31 @@
             if (ket.includes('bulan ini')) {
               arisanIni = row;
             }
-            if (ket.includes('selanjutnya') || ket.includes('tuan rumah')) {
-              arisanLanjut = row;
-            } else if (!arisanLanjut && status.includes('belum')) {
+            if (ket.includes('selanjutnya') || ket.includes('tuan rumah selanjutnya')) {
               arisanLanjut = row;
             }
           });
 
+          // Render Kartu Arisan Bulan Ini (Highlight Ungu)
           if (arisanIni) {
             const k = Object.keys(arisanIni);
+            const statusIni = (arisanIni[k[2]] || '').toString().toLowerCase();
             document.getElementById('arisan-bulan-ini-nama').innerText = arisanIni[k[1]] || '-';
             document.getElementById('arisan-bulan-ini-tgl').innerText = arisanIni[k[0]] || '-';
+
+            const iconContainer = document.getElementById('arisan-bulan-ini-icon-bg');
+            
+            // Cek apakah arisan bulan ini sudah dilaksanakan atau belum
+            if (statusIni.includes('sudah')) {
+              iconContainer.className = "p-3 rounded-full bg-emerald-500/30 text-emerald-300";
+              iconContainer.innerHTML = `<i data-lucide="check-circle-2" class="w-6 h-6"></i>`;
+            } else {
+              iconContainer.className = "p-3 rounded-full bg-white/20 backdrop-blur-sm text-white";
+              iconContainer.innerHTML = `<i data-lucide="home" class="w-6 h-6"></i>`;
+            }
           }
 
+          // Render Kartu Tuan Rumah Selanjutnya (Kartu Putih)
           if (arisanLanjut) {
             const k = Object.keys(arisanLanjut);
             document.getElementById('arisan-selanjutnya-nama').innerText = arisanLanjut[k[1]] || '-';
@@ -805,6 +817,7 @@
 
           document.getElementById('tabel-arisan-all').innerHTML = tbodyAllHTML;
           document.getElementById('loading-status-arisan').innerText = 'Terhubung live';
+          lucide.createIcons();
         }
       });
     }
