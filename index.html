@@ -21,7 +21,8 @@
         <h1 class="text-lg md:text-xl font-bold tracking-wide">Flamboyan IV <span class="text-indigo-200 text-xs md:text-sm font-normal">| RT 001/026</span></h1>
       </a>
       <nav class="hidden md:flex space-x-6 font-medium text-sm">
-        <a href="#keuangan" class="hover:text-indigo-200 transition">Laporan Keuangan</a>
+        <a href="#keuangan" class="hover:text-indigo-200 transition">Keuangan</a>
+        <a href="#arisan" class="hover:text-indigo-200 transition">Jadwal Arisan</a>
         <a href="#jersey" class="hover:text-indigo-200 transition">Jersey Lorong</a>
         <a href="#kegiatan" class="hover:text-indigo-200 transition">Dokumentasi</a>
         <a href="#rencana" class="hover:text-indigo-200 transition">Rencana Kerja</a>
@@ -34,7 +35,7 @@
     <div class="max-w-3xl mx-auto">
       <h2 class="text-2xl md:text-4xl font-extrabold mb-3 leading-tight break-words">Portal Informasi & Transparansi Lorong</h2>
       <p class="text-indigo-100 text-sm md:text-lg break-words">
-        Satu wadah untuk keterbukaan kas warga, pemesanan jersey, dokumentasi silaturahmi, dan rencana kegiatan bersama.
+        Satu wadah untuk keterbukaan kas warga, jadwal arisan, pemesanan jersey, dokumentasi, dan rencana kegiatan bersama.
       </p>
     </div>
   </section>
@@ -102,7 +103,53 @@
       </div>
     </section>
 
-    <!-- SECTION 2: PEMESANAN & PROGRES JERSEY LORONG -->
+    <!-- SECTION 2: JADWAL & TUAN RUMAH ARISAN -->
+    <section id="arisan" class="scroll-mt-20 w-full">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="users" class="w-6 h-6 text-indigo-600 shrink-0"></i>
+          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Jadwal Arisan Warga</h3>
+        </div>
+        <span id="loading-status-arisan" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full whitespace-nowrap">Memuat Jadwal...</span>
+      </div>
+
+      <!-- Card Highlight Tuan Rumah Arisan -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 w-full">
+        <!-- Arisan Bulan Ini -->
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+          <div>
+            <span class="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Arisan Bulan Ini</span>
+            <h4 id="arisan-bulan-ini-nama" class="text-lg md:text-xl font-bold text-slate-800 mt-1">-</h4>
+            <p id="arisan-bulan-ini-tgl" class="text-xs text-slate-500 mt-0.5">-</p>
+          </div>
+          <div class="bg-emerald-100 text-emerald-700 p-3 rounded-full">
+            <i data-lucide="check-circle" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <!-- Tuan Rumah Selanjutnya -->
+        <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white p-5 rounded-xl shadow-md flex items-center justify-between">
+          <div>
+            <span class="text-xs font-semibold text-indigo-200 uppercase tracking-wider">Tuan Rumah Selanjutnya (Bulan Depan)</span>
+            <h4 id="arisan-selanjutnya-nama" class="text-lg md:text-xl font-bold mt-1">Memuat data...</h4>
+            <p id="arisan-selanjutnya-tgl" class="text-xs text-indigo-200 mt-0.5">-</p>
+          </div>
+          <div class="bg-white/20 p-3 rounded-full backdrop-blur-sm">
+            <i data-lucide="home" class="w-6 h-6 text-white"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tombol Buka Pop-up Seluruh Jadwal Arisan -->
+      <div class="text-center">
+        <button onclick="openModalArisan()" class="w-full md:w-auto bg-white hover:bg-slate-100 text-indigo-700 font-semibold px-6 py-3 rounded-xl border border-indigo-200 shadow-sm transition inline-flex items-center justify-center space-x-2">
+          <i data-lucide="calendar" class="w-4 h-4"></i>
+          <span>Lihat Seluruh Jadwal & Riwayat Arisan</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- SECTION 3: PEMESANAN & PROGRES JERSEY LORONG -->
     <section id="jersey" class="scroll-mt-20 w-full">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
         <div class="flex items-center space-x-2">
@@ -175,7 +222,7 @@
       </div>
     </section>
 
-    <!-- SECTION 3: DOKUMENTASI KEGIATAN -->
+    <!-- SECTION 4: DOKUMENTASI KEGIATAN -->
     <section id="kegiatan" class="scroll-mt-20 w-full">
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center space-x-2">
@@ -199,7 +246,7 @@
       </div>
     </section>
 
-    <!-- SECTION 4: RENCANA KEGIATAN -->
+    <!-- SECTION 5: RENCANA KEGIATAN -->
     <section id="rencana" class="scroll-mt-20 w-full">
       <div class="flex items-center space-x-2 mb-6">
         <i data-lucide="calendar-check" class="w-6 h-6 text-indigo-600 shrink-0"></i>
@@ -212,6 +259,38 @@
     </section>
 
   </main>
+
+  <!-- MODAL JADWAL ARISAN LENGKAP -->
+  <div id="modal-arisan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4">
+    <div class="bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+      <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+        <div>
+          <h3 class="text-lg md:text-xl font-bold text-slate-900">Jadwal & Putaran Arisan Warga</h3>
+          <p class="text-xs text-slate-500">Daftar giliran arisan lorong Flamboyan IV</p>
+        </div>
+        <button onclick="closeModalArisan()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
+          <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
+        </button>
+      </div>
+      <div class="p-4 border-b border-slate-100">
+        <input type="text" id="search-arisan" onkeyup="filterArisanModal()" placeholder="Cari bulan, nama, atau blok..." class="w-full text-xs md:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      </div>
+      <div class="overflow-x-auto overflow-y-auto flex-grow p-4">
+        <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[500px]">
+          <thead>
+            <tr class="border-b border-slate-200 bg-slate-100/60 text-slate-600">
+              <th class="p-3 w-1/4">Bulan</th>
+              <th class="p-3 w-2/4">Nama & Blok</th>
+              <th class="p-3 text-center w-1/6">Status</th>
+              <th class="p-3 w-1/4">Keterangan</th>
+            </tr>
+          </thead>
+          <tbody id="tabel-arisan-all" class="divide-y divide-slate-100">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
   <!-- MODAL ARSIP KEUANGAN LENGKAP -->
   <div id="modal-keuangan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4">
@@ -329,6 +408,7 @@
     lucide.createIcons();
 
     const CSV_KEUANGAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWusYrLoxh9Jesx0PpBefZm4MhXjSQkAt9o9GnAZjvAGE4TkSxpTf9pyxUzWUA5yw-U0fwwXhldsKo/pub?gid=70481261&single=true&output=csv';
+    const CSV_ARISAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDP-SfyNfaIFW_nfWSnLM3fQsJVRcuu5Las-tG78JPdp7u6hqWGulXS2sakYtKlWr81xPqrDGagwVC/pub?output=csv';
     const CSV_JERSEY_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT3Bj1vmC1kB_csd4rsznskdyAzORPAyT5J8sDEZTheBoHDn6sJToLGXiM0Ju-F_l3ThRbsntCzZSFA/pub?output=csv';
     const FOLDER_JERSEY_URL = 'https://drive.google.com/drive/folders/1_VH_MHlOhA_tSXPsw1ztJEf3fVydU7gE';
     const CSV_DOKUMENTASI_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?output=csv';
@@ -341,6 +421,7 @@
     let currentPhotoIndex = 0;
     let currentPhotoCaption = '';
     let globalKeuanganData = [];
+    let globalArisanData = [];
     let globalJerseyData = [];
     const folderCache = {};
 
@@ -385,6 +466,15 @@
     }
     function closeModalKeuangan() {
       document.getElementById('modal-keuangan').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+
+    function openModalArisan() {
+      document.getElementById('modal-arisan').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModalArisan() {
+      document.getElementById('modal-arisan').classList.add('hidden');
       document.body.style.overflow = 'auto';
     }
 
@@ -529,7 +619,43 @@
       document.getElementById('tabel-transaksi-all').innerHTML = html || '<tr><td colspan="4" class="p-4 text-center text-slate-400">Tidak ada transaksi yang cocok</td></tr>';
     }
 
-    // --- RENDER TABEL JERSEY (DENGAN URUTAN ANTREAN SPREADSHEET) ---
+    // --- RENDER TABEL ARISAN ---
+    function renderArisanRow(row) {
+      const keys = Object.keys(row);
+      const bulan = row[keys[0]] || '-';
+      const namaBlok = row[keys[1]] || '-';
+      const statusRaw = (row[keys[2]] || '').toString().trim();
+      const ket = row[keys[3]] || '-';
+
+      let statusBadge = `<span class="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded">Belum</span>`;
+      
+      if (statusRaw.toLowerCase().includes('sudah')) {
+        statusBadge = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 font-semibold rounded inline-flex items-center space-x-1"><span>✓</span><span>Sudah</span></span>`;
+      }
+
+      return `
+        <tr>
+          <td class="p-3 font-medium text-slate-600 whitespace-nowrap">${bulan}</td>
+          <td class="p-3 font-bold text-slate-800 break-words">${namaBlok}</td>
+          <td class="p-3 text-center whitespace-nowrap">${statusBadge}</td>
+          <td class="p-3 text-xs text-slate-500 break-words">${ket}</td>
+        </tr>
+      `;
+    }
+
+    function filterArisanModal() {
+      const keyword = document.getElementById('search-arisan').value.toLowerCase();
+      let html = '';
+      globalArisanData.forEach(row => {
+        const text = Object.values(row).join(' ').toLowerCase();
+        if (text.includes(keyword)) {
+          html += renderArisanRow(row);
+        }
+      });
+      document.getElementById('tabel-arisan-all').innerHTML = html || '<tr><td colspan="4" class="p-4 text-center text-slate-400">Tidak ada data arisan yang cocok</td></tr>';
+    }
+
+    // --- RENDER TABEL JERSEY ---
     function renderJerseyRow(row) {
       const keys = Object.keys(row);
       const no = row[keys[0]] || '-';
@@ -631,7 +757,59 @@
       });
     }
 
-    // --- PROSES JERSEY (URUT SESUAI SPREADSHEET 1, 2, 3...) ---
+    // --- PROSES ARISAN ---
+    if (CSV_ARISAN_URL && CSV_ARISAN_URL.startsWith('http')) {
+      Papa.parse(CSV_ARISAN_URL, {
+        download: true,
+        header: true,
+        complete: function(results) {
+          const rawData = results.data.filter(row => {
+            const values = Object.values(row);
+            return values.length >= 2 && values[0] && values[0].toString().trim() !== '';
+          });
+
+          globalArisanData = rawData;
+
+          let arisanIni = null;
+          let arisanLanjut = null;
+
+          globalArisanData.forEach(row => {
+            const keys = Object.keys(row);
+            const ket = (row[keys[3]] || '').toString().toLowerCase();
+            const status = (row[keys[2]] || '').toString().toLowerCase();
+
+            if (ket.includes('bulan ini')) {
+              arisanIni = row;
+            }
+            if (ket.includes('selanjutnya') || ket.includes('tuan rumah')) {
+              arisanLanjut = row;
+            } else if (!arisanLanjut && status.includes('belum')) {
+              arisanLanjut = row;
+            }
+          });
+
+          if (arisanIni) {
+            const k = Object.keys(arisanIni);
+            document.getElementById('arisan-bulan-ini-nama').innerText = arisanIni[k[1]] || '-';
+            document.getElementById('arisan-bulan-ini-tgl').innerText = arisanIni[k[0]] || '-';
+          }
+
+          if (arisanLanjut) {
+            const k = Object.keys(arisanLanjut);
+            document.getElementById('arisan-selanjutnya-nama').innerText = arisanLanjut[k[1]] || '-';
+            document.getElementById('arisan-selanjutnya-tgl').innerText = `Pelaksanaan: ${arisanLanjut[k[0]] || '-'}`;
+          }
+
+          let tbodyAllHTML = '';
+          globalArisanData.forEach(row => { tbodyAllHTML += renderArisanRow(row); });
+
+          document.getElementById('tabel-arisan-all').innerHTML = tbodyAllHTML;
+          document.getElementById('loading-status-arisan').innerText = 'Terhubung live';
+        }
+      });
+    }
+
+    // --- PROSES JERSEY ---
     if (CSV_JERSEY_URL && CSV_JERSEY_URL.startsWith('http')) {
       Papa.parse(CSV_JERSEY_URL, {
         download: true,
@@ -642,7 +820,6 @@
             return values.length >= 2 && values[1] && values[1].toString().trim() !== '';
           });
 
-          // Menggunakan data asli tanpa di-reverse (sesuai antrean pemesan)
           globalJerseyData = rawData;
 
           let countLunas = 0;
@@ -659,7 +836,6 @@
           document.getElementById('total-lunas-jersey').innerText = `${countLunas} Orang`;
           document.getElementById('total-dp-jersey').innerText = `${countDP} Orang`;
 
-          // Tampilkan 10 pemesan pertama (No 1-10) di halaman utama
           const top10Jersey = globalJerseyData.slice(0, 10);
           let tbodyHTML = '';
           top10Jersey.forEach(row => { tbodyHTML += renderJerseyRow(row); });
