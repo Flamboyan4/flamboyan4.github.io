@@ -121,7 +121,7 @@
       </div>
     </section>
 
-    <!-- SECTION 3: RENCANA KEGIATAN (SORTED BY STATUS PRIORITY) -->
+    <!-- SECTION 3: RENCANA KEGIATAN -->
     <section id="rencana" class="scroll-mt-20 w-full">
       <div class="flex items-center space-x-2 mb-6">
         <i data-lucide="calendar-check" class="w-6 h-6 text-indigo-600 shrink-0"></i>
@@ -221,6 +221,22 @@
         }
       }
       return cleanUrl;
+    }
+
+    function parseDateBadge(dateStr) {
+      if (!dateStr) return { day: '-', month: 'OKT' };
+      // Memilah tanggal berdasarkan spasi, strip (-), atau garis miring (/)
+      const parts = dateStr.trim().split(/[\s\-\/\.]+/);
+      if (parts.length >= 2) {
+        return {
+          day: parts[0],
+          month: parts[1]
+        };
+      }
+      return {
+        day: dateStr,
+        month: ''
+      };
     }
 
     function openModalDokumentasi() {
@@ -438,7 +454,7 @@
       });
     }
 
-    // --- PROSES RENCANA KEGIATAN (PENGURUTAN BERDASARKAN STATUS & RECENCY) ---
+    // --- PROSES RENCANA KEGIATAN (FIX PARSING TANGGAL & STATUS) ---
     if (CSV_RENCANA_URL && CSV_RENCANA_URL.startsWith('http')) {
       Papa.parse(CSV_RENCANA_URL, {
         download: true,
@@ -449,12 +465,10 @@
             return values.length >= 2 && values[0] && values[0].toString().trim() !== '';
           });
 
-          // Mengelompokkan berdasarkan kelompok status
           const onProgressList = [];
           const direncanakanList = [];
           const selesaiList = [];
 
-          // Membaca dari data terbaru (reverse)
           [...rawData].reverse().forEach(row => {
             const keys = Object.keys(row);
             const status = (row[keys[3]] || 'Direncanakan').trim().toLowerCase();
@@ -468,7 +482,6 @@
             }
           });
 
-          // Urutan Prioritas: On Progress -> Direncanakan -> Selesai
           const displayData = [...onProgressList, ...direncanakanList, ...selesaiList];
 
           let rencanaHTML = '';
@@ -488,16 +501,14 @@
               statusBadge = `<span class="bg-emerald-100 text-emerald-800 text-xs font-semibold px-3 py-1 rounded-full w-fit whitespace-nowrap">Selesai</span>`;
             }
 
-            const dateParts = tanggal.split(' ');
-            const dateNum = dateParts[0] || '1';
-            const dateMonth = dateParts[1] || 'Okt';
+            const dateInfo = parseDateBadge(tanggal);
 
             rencanaHTML += `
               <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
                 <div class="flex items-start space-x-4">
-                  <div class="bg-indigo-100 text-indigo-700 p-3 rounded-lg font-bold text-center min-w-[55px] shrink-0">
-                    <span class="block text-lg md:text-xl">${dateNum}</span>
-                    <span class="text-[10px] md:text-xs uppercase">${dateMonth}</span>
+                  <div class="bg-indigo-100 text-indigo-700 p-3 rounded-lg font-bold text-center min-w-[65px] shrink-0">
+                    <span class="block text-base md:text-lg leading-tight">${dateInfo.day}</span>
+                    ${dateInfo.month ? `<span class="text-[10px] md:text-xs uppercase block mt-0.5">${dateInfo.month}</span>` : ''}
                   </div>
                   <div>
                     <h4 class="font-bold text-slate-800 text-base md:text-lg break-words">${judul}</h4>
@@ -517,29 +528,29 @@
       document.getElementById('container-rencana').innerHTML = `
         <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
           <div class="flex items-start space-x-4">
-            <div class="bg-indigo-100 text-indigo-700 p-3 rounded-lg font-bold text-center min-w-[55px] shrink-0">
-              <span class="block text-lg md:text-xl">15</span>
-              <span class="text-[10px] md:text-xs uppercase">Okt</span>
+            <div class="bg-indigo-100 text-indigo-700 p-3 rounded-lg font-bold text-center min-w-[65px] shrink-0">
+              <span class="block text-base md:text-lg leading-tight">5-Sep</span>
+              <span class="text-[10px] md:text-xs uppercase block mt-0.5">2026</span>
             </div>
             <div>
-              <h4 class="font-bold text-slate-800 text-base md:text-lg break-words">Pemasangan Portabel CCTV Lorong</h4>
-              <p class="text-slate-600 text-xs md:text-sm break-words">Peningkatan fasilitas keamanan di area pintu masuk utama lorong.</p>
+              <h4 class="font-bold text-slate-800 text-base md:text-lg break-words">Rencana Pembangunan Gapura</h4>
+              <p class="text-slate-600 text-xs md:text-sm break-words">Pembangunan gapura di area pintu masuk jalan utama lorong, masih tahap pengumpulan dana</p>
             </div>
           </div>
           <span class="bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full w-fit whitespace-nowrap">On Progress</span>
         </div>
         <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
           <div class="flex items-start space-x-4">
-            <div class="bg-indigo-100 text-indigo-700 p-3 rounded-lg font-bold text-center min-w-[55px] shrink-0">
-              <span class="block text-lg md:text-xl">28</span>
-              <span class="text-[10px] md:text-xs uppercase">Okt</span>
+            <div class="bg-indigo-100 text-indigo-700 p-3 rounded-lg font-bold text-center min-w-[65px] shrink-0">
+              <span class="block text-base md:text-lg leading-tight">5-Sep</span>
+              <span class="text-[10px] md:text-xs uppercase block mt-0.5">2026</span>
             </div>
             <div>
-              <h4 class="font-bold text-slate-800 text-base md:text-lg break-words">Penanaman Tanaman Hias & Pot Seragam</h4>
-              <p class="text-slate-600 text-xs md:text-sm break-words">Penghijauan area depan rumah warga agar lorong terlihat asri dan rapi.</p>
+              <h4 class="font-bold text-slate-800 text-base md:text-lg break-words">Pembuatan Jersey</h4>
+              <p class="text-slate-600 text-xs md:text-sm break-words">Pembuatan jersey untuk lorong agar bisa seragam saat mengikuti perlombaan dibidang olahraga</p>
             </div>
           </div>
-          <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full w-fit whitespace-nowrap">Direncanakan</span>
+          <span class="bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full w-fit whitespace-nowrap">On Progress</span>
         </div>
       `;
     }
