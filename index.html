@@ -70,12 +70,13 @@
         </div>
       </div>
 
-      <!-- Tabel Transaksi -->
+      <!-- Tabel Transaksi Maksimal 10 Item Tanpa Double Scroll -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
         <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-          <h4 class="font-semibold text-slate-700 text-sm md:text-base">Rincian Transaksi Terakhir</h4>
+          <h4 class="font-semibold text-slate-700 text-sm md:text-base">Rincian 10 Transaksi Terakhir</h4>
           <span id="loading-status" class="text-xs text-slate-500">Memuat data...</span>
         </div>
+        
         <div class="overflow-x-auto w-full">
           <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[500px]">
             <thead>
@@ -89,6 +90,14 @@
             <tbody id="tabel-transaksi" class="divide-y divide-slate-100">
             </tbody>
           </table>
+        </div>
+
+        <!-- Tombol Buka Riwayat Lengkap -->
+        <div id="btn-container-keuangan-all" class="p-3 border-t border-slate-100 bg-slate-50 text-center hidden">
+          <button onclick="openModalKeuangan()" class="text-xs md:text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition inline-flex items-center space-x-1">
+            <span>Lihat Seluruh Riwayat Transaksi</span>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
         </div>
       </div>
     </section>
@@ -130,6 +139,38 @@
     </section>
 
   </main>
+
+  <!-- MODAL / POP-UP ARSIP KEUANGAN LENGKAP -->
+  <div id="modal-keuangan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4">
+    <div class="bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+      <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+        <div>
+          <h3 class="text-lg md:text-xl font-bold text-slate-900">Arsip Seluruh Transaksi Kas</h3>
+          <p class="text-xs text-slate-500">Riwayat pemasukan & pengeluaran kas Flamboyan IV</p>
+        </div>
+        <button onclick="closeModalKeuangan()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
+          <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
+        </button>
+      </div>
+      <div class="p-4 border-b border-slate-100">
+        <input type="text" id="search-keuangan" onkeyup="filterKeuanganModal()" placeholder="Cari transaksi..." class="w-full text-xs md:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      </div>
+      <div class="overflow-x-auto overflow-y-auto flex-grow p-4">
+        <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[500px]">
+          <thead>
+            <tr class="border-b border-slate-200 bg-slate-100/60 text-slate-600">
+              <th class="p-3 w-1/4">Tanggal</th>
+              <th class="p-3 w-2/4">Keterangan</th>
+              <th class="p-3 w-1/6">Kategori</th>
+              <th class="p-3 text-right w-1/4">Jumlah</th>
+            </tr>
+          </thead>
+          <tbody id="tabel-transaksi-all" class="divide-y divide-slate-100">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
   <!-- MODAL / POP-UP GALERI SEMUA FOTO -->
   <div id="modal-dokumentasi" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4">
@@ -180,16 +221,9 @@
   <script>
     lucide.createIcons();
 
-    // 1. LINK CSV KEUANGAN
     const CSV_KEUANGAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWusYrLoxh9Jesx0PpBefZm4MhXjSQkAt9o9GnAZjvAGE4TkSxpTf9pyxUzWUA5yw-U0fwwXhldsKo/pub?gid=70481261&single=true&output=csv';
-
-    // 2. LINK CSV DOKUMENTASI
     const CSV_DOKUMENTASI_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?output=csv';
-
-    // 3. LINK GOOGLE APPS SCRIPT WEB APP
     const FOLDER_API_URL = 'https://script.google.com/macros/s/AKfycbzHAEtAvJw6v7pJ9Zl0Q_rue_xokRLfTF3zThZINtzyRMatAE_5GScgxUUjJKaw2kvBgw/exec';
-
-    // 4. LINK CSV RENCANA KEGIATAN
     const CSV_RENCANA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSsygpwTSzO0bZrdoO6sRyFbH0jrHaTJN0g6vIKtGnGMlP3Ot3CCd9V0PPG7vWr_mxztobwrR_8iLx1/pub?output=csv';
 
     const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='100%25' height='100%25' fill='%23f1f5f9'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='18' fill='%2394a3b8' text-anchor='middle' dy='.3em'%3EDokumentasi Kegiatan%3C/text%3E%3C/svg%3E";
@@ -197,6 +231,7 @@
     let currentPhotoList = [];
     let currentPhotoIndex = 0;
     let currentPhotoCaption = '';
+    let globalKeuanganData = [];
     const folderCache = {};
 
     function formatRupiah(angka) {
@@ -205,7 +240,8 @@
 
     function extractFolderId(url) {
       if (!url) return null;
-      const cleanUrl = url.toString().replace(/[\[\]'"]/g, '').trim();
+      let cleanUrl = url.toString().replace(/[\[\]'"]/g, '').trim();
+      cleanUrl = cleanUrl.split('?')[0];
       const match = cleanUrl.match(/\/folders\/([a-zA-Z0-9_-]+)/) || cleanUrl.match(/id=([a-zA-Z0-9_-]+)/);
       return match ? match[1] : null;
     }
@@ -233,6 +269,15 @@
       return { day: dateStr, month: '' };
     }
 
+    function openModalKeuangan() {
+      document.getElementById('modal-keuangan').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModalKeuangan() {
+      document.getElementById('modal-keuangan').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+
     function openModalDokumentasi() {
       document.getElementById('modal-dokumentasi').classList.remove('hidden');
       document.body.style.overflow = 'hidden';
@@ -249,7 +294,7 @@
       try {
         const response = await fetch(`${FOLDER_API_URL}?folderId=${folderId}`);
         const data = await response.json();
-        if (data && data.images) {
+        if (data && data.images && data.images.length > 0) {
           folderCache[folderId] = data.images;
           return data.images;
         }
@@ -319,6 +364,51 @@
       document.body.style.overflow = 'auto';
     }
 
+    function renderTableRow(row) {
+      const keys = Object.keys(row);
+      const tanggal = row[keys[0]];
+      const keterangan = row[keys[1]] || '-';
+      const kategori = (row[keys[2]] || '').trim();
+      const rawJumlah = row[keys[3]];
+
+      if (!rawJumlah) return '';
+
+      let cleanedJumlah = rawJumlah.toString().replace(/\./g, '').replace(/,/g, '');
+      const jumlah = parseFloat(cleanedJumlah.replace(/[^0-9-]/g, '')) || 0;
+
+      let badgeKategori = '';
+      let textJumlah = '';
+
+      if (kategori.toLowerCase() === 'pemasukan') {
+        badgeKategori = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 rounded">Pemasukan</span>`;
+        textJumlah = `<span class="text-emerald-600 font-semibold">+ ${formatRupiah(jumlah)}</span>`;
+      } else {
+        badgeKategori = `<span class="px-2 py-0.5 text-xs bg-rose-100 text-rose-800 rounded">Pengeluaran</span>`;
+        textJumlah = `<span class="text-rose-600 font-semibold">- ${formatRupiah(jumlah)}</span>`;
+      }
+
+      return `
+        <tr>
+          <td class="p-3 text-slate-500 whitespace-nowrap">${tanggal}</td>
+          <td class="p-3 font-medium break-words">${keterangan}</td>
+          <td class="p-3">${badgeKategori}</td>
+          <td class="p-3 text-right whitespace-nowrap">${textJumlah}</td>
+        </tr>
+      `;
+    }
+
+    function filterKeuanganModal() {
+      const keyword = document.getElementById('search-keuangan').value.toLowerCase();
+      let html = '';
+      globalKeuanganData.forEach(row => {
+        const text = Object.values(row).join(' ').toLowerCase();
+        if (text.includes(keyword)) {
+          html += renderTableRow(row);
+        }
+      });
+      document.getElementById('tabel-transaksi-all').innerHTML = html || '<tr><td colspan="4" class="p-4 text-center text-slate-400">Tidak ada transaksi yang cocok</td></tr>';
+    }
+
     // --- PROSES KEUANGAN ---
     if (CSV_KEUANGAN_URL && CSV_KEUANGAN_URL.startsWith('http')) {
       Papa.parse(CSV_KEUANGAN_URL, {
@@ -355,52 +445,38 @@
             if (lastTanggal) document.getElementById('label-update-kas').innerText = 'Update: ' + lastTanggal;
           }
 
-          const displayData = [...rawData].reverse();
+          globalKeuanganData = [...rawData].reverse();
+          
+          // Ambil Maksimal 10 Item Pertama untuk Halaman Utama
+          const top10Data = globalKeuanganData.slice(0, 10);
           let tbodyHTML = '';
+          top10Data.forEach(row => {
+            tbodyHTML += renderTableRow(row);
+          });
 
-          displayData.forEach(row => {
-            const keys = Object.keys(row);
-            const tanggal = row[keys[0]];
-            const keterangan = row[keys[1]] || '-';
-            const kategori = (row[keys[2]] || '').trim();
-            const rawJumlah = row[keys[3]];
-
-            if (!rawJumlah) return;
-
-            let cleanedJumlah = rawJumlah.toString().replace(/\./g, '').replace(/,/g, '');
-            const jumlah = parseFloat(cleanedJumlah.replace(/[^0-9-]/g, '')) || 0;
-
-            let badgeKategori = '';
-            let textJumlah = '';
-
-            if (kategori.toLowerCase() === 'pemasukan') {
-              badgeKategori = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 rounded">Pemasukan</span>`;
-              textJumlah = `<span class="text-emerald-600 font-semibold">+ ${formatRupiah(jumlah)}</span>`;
-            } else {
-              badgeKategori = `<span class="px-2 py-0.5 text-xs bg-rose-100 text-rose-800 rounded">Pengeluaran</span>`;
-              textJumlah = `<span class="text-rose-600 font-semibold">- ${formatRupiah(jumlah)}</span>`;
-            }
-
-            tbodyHTML += `
-              <tr>
-                <td class="p-3 text-slate-500 whitespace-nowrap">${tanggal}</td>
-                <td class="p-3 font-medium break-words">${keterangan}</td>
-                <td class="p-3">${badgeKategori}</td>
-                <td class="p-3 text-right whitespace-nowrap">${textJumlah}</td>
-              </tr>
-            `;
+          // Render Semua Data untuk Modal Pop-Up
+          let tbodyAllHTML = '';
+          globalKeuanganData.forEach(row => {
+            tbodyAllHTML += renderTableRow(row);
           });
 
           document.getElementById('tabel-transaksi').innerHTML = tbodyHTML || '<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada transaksi</td></tr>';
+          document.getElementById('tabel-transaksi-all').innerHTML = tbodyAllHTML;
+          
           document.getElementById('total-pemasukan').innerText = formatRupiah(totalPemasukan);
           document.getElementById('total-pengeluaran').innerText = formatRupiah(totalPengeluaran);
           document.getElementById('sisa-saldo').innerText = formatRupiah(totalPemasukan - totalPengeluaran);
           document.getElementById('loading-status').innerText = 'Terhubung live';
+
+          // Jika data lebih dari 10, tampilkan tombol "Lihat Semua"
+          if (globalKeuanganData.length > 10) {
+            document.getElementById('btn-container-keuangan-all').classList.remove('hidden');
+          }
         }
       });
     }
 
-    // --- PROSES DOKUMENTASI (LINK FOLDER & MULTI-LINK SUPPORT) ---
+    // --- PROSES DOKUMENTASI ---
     if (CSV_DOKUMENTASI_URL && CSV_DOKUMENTASI_URL.startsWith('http')) {
       Papa.parse(CSV_DOKUMENTASI_URL, {
         download: true,
@@ -431,7 +507,7 @@
             if (folderId && FOLDER_API_URL.startsWith('http')) {
               const imgs = await fetchFolderImages(folderId);
               if (imgs.length > 0) firstFoto = imgs[0];
-              badgeText = `${imgs.length || 'Album'} Foto`;
+              badgeText = imgs.length > 0 ? `${imgs.length} Foto` : 'Album Foto';
             } else {
               const photoList = rawFotoString.split(',').filter(p => p.trim() !== '');
               firstFoto = fixDriveUrl(photoList[0] || '');
@@ -547,35 +623,6 @@
           document.getElementById('container-rencana').innerHTML = rencanaHTML || '<p class="text-slate-400 text-sm">Belum ada rencana kegiatan.</p>';
         }
       });
-    } else {
-      document.getElementById('container-rencana').innerHTML = `
-        <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
-          <div class="flex items-start space-x-4">
-            <div class="bg-indigo-100 text-indigo-700 p-3 rounded-lg font-bold text-center min-w-[65px] shrink-0">
-              <span class="block text-base md:text-lg leading-tight">5-Sep</span>
-              <span class="text-[10px] md:text-xs uppercase block mt-0.5">2026</span>
-            </div>
-            <div>
-              <h4 class="font-bold text-slate-800 text-base md:text-lg break-words">Rencana Pembangunan Gapura</h4>
-              <p class="text-slate-600 text-xs md:text-sm break-words">Pembangunan gapura di area pintu masuk jalan utama lorong, masih tahap pengumpulan dana</p>
-            </div>
-          </div>
-          <span class="bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full w-fit whitespace-nowrap">On Progress</span>
-        </div>
-        <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
-          <div class="flex items-start space-x-4">
-            <div class="bg-indigo-100 text-indigo-700 p-3 rounded-lg font-bold text-center min-w-[65px] shrink-0">
-              <span class="block text-base md:text-lg leading-tight">5-Sep</span>
-              <span class="text-[10px] md:text-xs uppercase block mt-0.5">2026</span>
-            </div>
-            <div>
-              <h4 class="font-bold text-slate-800 text-base md:text-lg break-words">Pembuatan Jersey</h4>
-              <p class="text-slate-600 text-xs md:text-sm break-words">Pembuatan jersey untuk lorong agar bisa seragam saat mengikuti perlombaan dibidang olahraga</p>
-            </div>
-          </div>
-          <span class="bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full w-fit whitespace-nowrap">On Progress</span>
-        </div>
-      `;
     }
   </script>
 </body>
