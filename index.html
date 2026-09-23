@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="overflow-x-hidden">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -11,12 +11,11 @@
   <!-- PapaParse untuk membaca Google Sheets CSV -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 </head>
-<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen overflow-x-hidden w-full">
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full">
 
   <!-- Header / Navigation -->
   <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-50 w-full">
     <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-      <!-- LINK HOME PADA IKON RUMAH & TULISAN FLAMBOYAN IV -->
       <a href="#" class="flex items-center space-x-2 hover:opacity-90 transition group cursor-pointer">
         <i data-lucide="home" class="w-6 h-6 shrink-0 group-hover:scale-110 transition"></i>
         <h1 class="text-lg md:text-xl font-bold tracking-wide">Flamboyan IV <span class="text-indigo-200 text-xs md:text-sm font-normal">| RT 001/026</span></h1>
@@ -40,7 +39,7 @@
   </section>
 
   <!-- Main Content -->
-  <main class="max-w-6xl mx-auto px-4 py-8 flex-grow space-y-12 w-full overflow-hidden">
+  <main class="max-w-6xl mx-auto px-4 py-8 flex-grow space-y-12 w-full">
 
     <!-- SECTION 1: LAPORAN KEUANGAN -->
     <section id="keuangan" class="scroll-mt-20 w-full">
@@ -49,7 +48,6 @@
           <i data-lucide="wallet" class="w-6 h-6 text-indigo-600 shrink-0"></i>
           <h3 class="text-xl md:text-2xl font-bold text-slate-900">Laporan Keuangan Kas</h3>
         </div>
-        <!-- LABEL UPDATE OTOMATIS -->
         <span id="label-update-kas" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full whitespace-nowrap">Update Rincian Kas</span>
       </div>
 
@@ -102,19 +100,16 @@
           <i data-lucide="camera" class="w-6 h-6 text-indigo-600 shrink-0"></i>
           <h3 class="text-xl md:text-2xl font-bold text-slate-900">Dokumentasi Kegiatan</h3>
         </div>
-        <!-- Tombol Lihat Semua (Desktop) -->
         <button onclick="openModalDokumentasi()" class="hidden md:flex items-center space-x-1 text-sm text-indigo-600 font-semibold hover:text-indigo-800 transition">
           <span>Lihat Semua Foto</span>
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </button>
       </div>
 
-      <!-- Container Top 3 Kartu -->
       <div id="container-dokumentasi-top3" class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
         <p class="text-slate-400 text-sm col-span-1 md:col-span-3">Memuat dokumentasi...</p>
       </div>
 
-      <!-- Tombol Lihat Semua (Mobile) -->
       <div class="mt-6 text-center md:hidden">
         <button onclick="openModalDokumentasi()" class="w-full bg-indigo-50 text-indigo-700 font-semibold py-2.5 rounded-xl border border-indigo-100 hover:bg-indigo-100 transition">
           Lihat Semua Foto Kegiatan
@@ -129,7 +124,6 @@
         <h3 class="text-xl md:text-2xl font-bold text-slate-900">Rencana Kegiatan Mendatang</h3>
       </div>
 
-      <!-- Container Scrollable -->
       <div id="container-rencana" class="space-y-4 w-full max-h-[380px] overflow-y-auto pr-1">
         <p class="text-slate-400 text-sm">Memuat rencana kegiatan...</p>
       </div>
@@ -161,11 +155,9 @@
     </button>
     
     <div class="relative w-full max-w-4xl max-h-[85vh] flex flex-col items-center justify-center px-2" onclick="event.stopPropagation()">
-      <!-- Image Container -->
       <div class="relative w-full flex items-center justify-center">
         <img id="lightbox-img" src="" alt="Foto Full" class="max-w-full max-h-[70vh] md:max-h-[75vh] rounded-lg shadow-2xl object-contain select-none">
         
-        <!-- Navigation Buttons -->
         <button id="btn-prev-photo" onclick="changePhoto(-1)" class="absolute left-1 md:left-2 bg-black/50 hover:bg-black/80 text-white p-2 md:p-3 rounded-full transition backdrop-blur-sm hidden">
           <i data-lucide="chevron-left" class="w-6 h-6"></i>
         </button>
@@ -174,7 +166,6 @@
         </button>
       </div>
 
-      <!-- Caption & Indicator -->
       <div class="text-center mt-3 text-white">
         <p id="lightbox-caption" class="text-xs md:text-sm font-semibold tracking-wide"></p>
         <p id="lightbox-counter" class="text-xs text-slate-400 mt-1 hidden"></p>
@@ -195,19 +186,28 @@
     // 2. LINK CSV DOKUMENTASI
     const CSV_DOKUMENTASI_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?output=csv';
 
-    // 3. LINK CSV RENCANA KEGIATAN
+    // 3. LINK GOOGLE APPS SCRIPT WEB APP
+    const FOLDER_API_URL = 'https://script.google.com/macros/s/AKfycbzHAEtAvJw6v7pJ9Zl0Q_rue_xokRLfTF3zThZINtzyRMatAE_5GScgxUUjJKaw2kvBgw/exec';
+
+    // 4. LINK CSV RENCANA KEGIATAN
     const CSV_RENCANA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSsygpwTSzO0bZrdoO6sRyFbH0jrHaTJN0g6vIKtGnGMlP3Ot3CCd9V0PPG7vWr_mxztobwrR_8iLx1/pub?output=csv';
 
-    // SVG Placeholder Gambar
     const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='100%25' height='100%25' fill='%23f1f5f9'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='18' fill='%2394a3b8' text-anchor='middle' dy='.3em'%3EDokumentasi Kegiatan%3C/text%3E%3C/svg%3E";
 
-    // Global Slider Variables
     let currentPhotoList = [];
     let currentPhotoIndex = 0;
     let currentPhotoCaption = '';
+    const folderCache = {};
 
     function formatRupiah(angka) {
       return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
+    }
+
+    function extractFolderId(url) {
+      if (!url) return null;
+      const cleanUrl = url.toString().replace(/[\[\]'"]/g, '').trim();
+      const match = cleanUrl.match(/\/folders\/([a-zA-Z0-9_-]+)/) || cleanUrl.match(/id=([a-zA-Z0-9_-]+)/);
+      return match ? match[1] : null;
     }
 
     function fixDriveUrl(url) {
@@ -228,15 +228,9 @@
       if (!dateStr) return { day: '-', month: 'OKT' };
       const parts = dateStr.trim().split(/[\s\-\/\.]+/);
       if (parts.length >= 2) {
-        return {
-          day: parts[0],
-          month: parts[1]
-        };
+        return { day: parts[0], month: parts[1] };
       }
-      return {
-        day: dateStr,
-        month: ''
-      };
+      return { day: dateStr, month: '' };
     }
 
     function openModalDokumentasi() {
@@ -248,21 +242,49 @@
       document.body.style.overflow = 'auto';
     }
 
-    // Lightbox Slider Controller
-    function openLightboxSlider(photoUrlsString, caption) {
-      const rawUrls = photoUrlsString.split(',');
-      currentPhotoList = rawUrls.map(u => fixDriveUrl(u)).filter(u => u && u !== '');
+    async function fetchFolderImages(folderId) {
+      if (!FOLDER_API_URL || !FOLDER_API_URL.startsWith('http')) return [];
+      if (folderCache[folderId]) return folderCache[folderId];
       
-      if (currentPhotoList.length === 0) {
-        currentPhotoList = [PLACEHOLDER_IMG];
+      try {
+        const response = await fetch(`${FOLDER_API_URL}?folderId=${folderId}`);
+        const data = await response.json();
+        if (data && data.images) {
+          folderCache[folderId] = data.images;
+          return data.images;
+        }
+      } catch (e) {
+        console.error("Gagal membaca folder:", e);
       }
+      return [];
+    }
+
+    async function openLightboxFolderOrList(rawString, caption) {
+      const folderId = extractFolderId(rawString);
       
+      if (folderId && FOLDER_API_URL.startsWith('http')) {
+        document.getElementById('lightbox-caption').innerText = "Memuat foto dari folder...";
+        document.getElementById('lightbox-img').src = PLACEHOLDER_IMG;
+        document.getElementById('lightbox-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+
+        const images = await fetchFolderImages(folderId);
+        if (images.length > 0) {
+          currentPhotoList = images;
+        } else {
+          currentPhotoList = [PLACEHOLDER_IMG];
+        }
+      } else {
+        const rawUrls = rawString.split(',');
+        currentPhotoList = rawUrls.map(u => fixDriveUrl(u)).filter(u => u && u !== '');
+        if (currentPhotoList.length === 0) currentPhotoList = [PLACEHOLDER_IMG];
+        document.getElementById('lightbox-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      }
+
       currentPhotoIndex = 0;
       currentPhotoCaption = caption;
-
       updateLightboxView();
-      document.getElementById('lightbox-modal').classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
     }
 
     function updateLightboxView() {
@@ -287,11 +309,8 @@
 
     function changePhoto(direction) {
       currentPhotoIndex += direction;
-      if (currentPhotoIndex < 0) {
-        currentPhotoIndex = currentPhotoList.length - 1;
-      } else if (currentPhotoIndex >= currentPhotoList.length) {
-        currentPhotoIndex = 0;
-      }
+      if (currentPhotoIndex < 0) currentPhotoIndex = currentPhotoList.length - 1;
+      else if (currentPhotoIndex >= currentPhotoList.length) currentPhotoIndex = 0;
       updateLightboxView();
     }
 
@@ -326,19 +345,14 @@
             let cleanedJumlah = rawJumlah.toString().replace(/\./g, '').replace(/,/g, '');
             const jumlah = parseFloat(cleanedJumlah.replace(/[^0-9-]/g, '')) || 0;
 
-            if (kategori.toLowerCase() === 'pemasukan') {
-              totalPemasukan += jumlah;
-            } else if (kategori.toLowerCase() === 'pengeluaran') {
-              totalPengeluaran += jumlah;
-            }
+            if (kategori.toLowerCase() === 'pemasukan') totalPemasukan += jumlah;
+            else if (kategori.toLowerCase() === 'pengeluaran') totalPengeluaran += jumlah;
           });
 
           if (rawData.length > 0) {
             const lastRow = rawData[rawData.length - 1];
             const lastTanggal = lastRow[Object.keys(lastRow)[0]];
-            if (lastTanggal) {
-              document.getElementById('label-update-kas').innerText = 'Update: ' + lastTanggal;
-            }
+            if (lastTanggal) document.getElementById('label-update-kas').innerText = 'Update: ' + lastTanggal;
           }
 
           const displayData = [...rawData].reverse();
@@ -386,12 +400,12 @@
       });
     }
 
-    // --- PROSES DOKUMENTASI ---
+    // --- PROSES DOKUMENTASI (LINK FOLDER & MULTI-LINK SUPPORT) ---
     if (CSV_DOKUMENTASI_URL && CSV_DOKUMENTASI_URL.startsWith('http')) {
       Papa.parse(CSV_DOKUMENTASI_URL, {
         download: true,
         header: true,
-        complete: function(results) {
+        complete: async function(results) {
           const rawData = results.data.filter(row => {
             const values = Object.values(row);
             return values.length >= 2 && values[0] && values[0].toString().trim() !== '';
@@ -402,37 +416,47 @@
           let top3HTML = '';
           let allHTML = '';
 
-          displayData.forEach((row, index) => {
+          for (let index = 0; index < displayData.length; index++) {
+            const row = displayData[index];
             const keys = Object.keys(row);
             const tanggal = row[keys[0]];
             const judul = row[keys[1]];
             const deskripsi = row[keys[2]] || '';
             let rawFotoString = row[keys[3]] || '';
             
-            const photoList = rawFotoString.split(',').filter(p => p.trim() !== '');
-            const photoCount = photoList.length;
-            
-            let firstFoto = fixDriveUrl(photoList[0] || '');
+            const folderId = extractFolderId(rawFotoString);
+            let firstFoto = PLACEHOLDER_IMG;
+            let badgeText = '';
+
+            if (folderId && FOLDER_API_URL.startsWith('http')) {
+              const imgs = await fetchFolderImages(folderId);
+              if (imgs.length > 0) firstFoto = imgs[0];
+              badgeText = `${imgs.length || 'Album'} Foto`;
+            } else {
+              const photoList = rawFotoString.split(',').filter(p => p.trim() !== '');
+              firstFoto = fixDriveUrl(photoList[0] || '');
+              if (photoList.length > 1) badgeText = `${photoList.length} Foto`;
+            }
 
             const safePhotoString = rawFotoString.replace(/'/g, "\\'");
             const safeTitle = (judul + ' - ' + tanggal).replace(/'/g, "\\'");
 
             let badgeMultiPhoto = '';
-            if (photoCount > 1) {
+            if (badgeText) {
               badgeMultiPhoto = `<span class="absolute top-2 right-2 bg-black/70 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center space-x-1">
-                <i data-lucide="layers" class="w-3 h-3"></i>
-                <span>${photoCount} Foto</span>
+                <i data-lucide="folder" class="w-3 h-3"></i>
+                <span>${badgeText}</span>
               </span>`;
             }
 
             const cardContent = `
               <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition flex flex-col w-full">
-                <div class="relative cursor-pointer overflow-hidden group bg-slate-100" onclick="openLightboxSlider('${safePhotoString}', '${safeTitle}')">
+                <div class="relative cursor-pointer overflow-hidden group bg-slate-100" onclick="openLightboxFolderOrList('${safePhotoString}', '${safeTitle}')">
                   <img src="${firstFoto}" alt="${judul}" loading="lazy" referrerpolicy="no-referrer" class="w-full h-48 object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${PLACEHOLDER_IMG}'">
                   ${badgeMultiPhoto}
                   <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1">
                     <i data-lucide="maximize-2" class="w-4 h-4"></i>
-                    <span>Klik Lihat Foto (${photoCount})</span>
+                    <span>Buka Album Foto</span>
                   </div>
                 </div>
                 <div class="p-4 flex-grow">
@@ -445,7 +469,7 @@
 
             if (index < 3) top3HTML += cardContent;
             allHTML += cardContent;
-          });
+          }
 
           document.getElementById('container-dokumentasi-top3').innerHTML = top3HTML || '<p class="text-slate-400 text-sm col-span-1 md:col-span-3">Belum ada dokumentasi kegiatan.</p>';
           document.getElementById('container-dokumentasi-all').innerHTML = allHTML || '<p class="text-slate-400 text-sm col-span-1 md:col-span-3">Belum ada dokumentasi kegiatan.</p>';
@@ -524,7 +548,6 @@
         }
       });
     } else {
-      // Default Preview Tampilan
       document.getElementById('container-rencana').innerHTML = `
         <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
           <div class="flex items-start space-x-4">
