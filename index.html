@@ -16,10 +16,11 @@
   <!-- Header / Navigation -->
   <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-50 w-full">
     <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-      <div class="flex items-center space-x-2">
-        <i data-lucide="home" class="w-6 h-6 shrink-0"></i>
+      <!-- LINK HOME PADA IKON RUMAH & TULISAN FLAMBOYAN IV -->
+      <a href="#" class="flex items-center space-x-2 hover:opacity-90 transition group cursor-pointer">
+        <i data-lucide="home" class="w-6 h-6 shrink-0 group-hover:scale-110 transition"></i>
         <h1 class="text-lg md:text-xl font-bold tracking-wide">Flamboyan IV <span class="text-indigo-200 text-xs md:text-sm font-normal">| RT 001/026</span></h1>
-      </div>
+      </a>
       <nav class="hidden md:flex space-x-6 font-medium text-sm">
         <a href="#keuangan" class="hover:text-indigo-200 transition">Laporan Keuangan</a>
         <a href="#kegiatan" class="hover:text-indigo-200 transition">Dokumentasi</a>
@@ -194,7 +195,7 @@
     // 2. LINK CSV DOKUMENTASI
     const CSV_DOKUMENTASI_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?output=csv';
 
-    // 3. LINK CSV RENCANA KEGIATAN (Tempel link CSV Rencana Kegiatan jika ada)
+    // 3. LINK CSV RENCANA KEGIATAN
     const CSV_RENCANA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSsygpwTSzO0bZrdoO6sRyFbH0jrHaTJN0g6vIKtGnGMlP3Ot3CCd9V0PPG7vWr_mxztobwrR_8iLx1/pub?output=csv';
 
     // SVG Placeholder Gambar
@@ -225,7 +226,6 @@
 
     function parseDateBadge(dateStr) {
       if (!dateStr) return { day: '-', month: 'OKT' };
-      // Memilah tanggal berdasarkan spasi, strip (-), atau garis miring (/)
       const parts = dateStr.trim().split(/[\s\-\/\.]+/);
       if (parts.length >= 2) {
         return {
@@ -454,7 +454,7 @@
       });
     }
 
-    // --- PROSES RENCANA KEGIATAN (FIX PARSING TANGGAL & STATUS) ---
+    // --- PROSES RENCANA KEGIATAN ---
     if (CSV_RENCANA_URL && CSV_RENCANA_URL.startsWith('http')) {
       Papa.parse(CSV_RENCANA_URL, {
         download: true,
