@@ -115,7 +115,7 @@
 
       <!-- Card Highlight Tuan Rumah Arisan -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 w-full">
-        <!-- Arisan Bulan Ini (HIGHLIGHT UNGU GRADIENT) -->
+        <!-- Arisan Bulan Ini (HIGHLIGHT UNGU GRADIENT - IKON RUMAH) -->
         <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white p-5 rounded-xl shadow-md flex items-center justify-between">
           <div>
             <span class="text-xs font-semibold text-indigo-200 uppercase tracking-wider">Arisan Bulan Ini</span>
@@ -127,7 +127,7 @@
           </div>
         </div>
 
-        <!-- Tuan Rumah Selanjutnya (WARNA PUTIH) -->
+        <!-- Tuan Rumah Selanjutnya (WARNA PUTIH - IKON KALENDER) -->
         <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
           <div>
             <span class="text-xs font-semibold text-indigo-600 uppercase tracking-wider">Tuan Rumah Selanjutnya (Bulan Depan)</span>
@@ -135,7 +135,7 @@
             <p id="arisan-selanjutnya-tgl" class="text-xs text-slate-500 mt-0.5">-</p>
           </div>
           <div class="bg-indigo-50 text-indigo-600 p-3 rounded-full border border-indigo-100">
-            <i data-lucide="hourglass" class="w-6 h-6"></i>
+            <i data-lucide="calendar" class="w-6 h-6"></i>
           </div>
         </div>
       </div>
@@ -143,7 +143,7 @@
       <!-- Tombol Buka Pop-up Seluruh Jadwal Arisan -->
       <div class="text-center">
         <button onclick="openModalArisan()" class="w-full md:w-auto bg-white hover:bg-slate-100 text-indigo-700 font-semibold px-6 py-3 rounded-xl border border-indigo-200 shadow-sm transition inline-flex items-center justify-center space-x-2">
-          <i data-lucide="calendar" class="w-4 h-4"></i>
+          <i data-lucide="calendar-days" class="w-4 h-4"></i>
           <span>Lihat Seluruh Jadwal & Riwayat Arisan</span>
         </button>
       </div>
@@ -262,7 +262,7 @@
 
   <!-- MODAL JADWAL ARISAN LENGKAP -->
   <div id="modal-arisan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4">
-    <div class="bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+    <div class="bg-white w-full max-w-3xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
         <div>
           <h3 class="text-lg md:text-xl font-bold text-slate-900">Jadwal & Putaran Arisan Warga</h3>
@@ -276,13 +276,12 @@
         <input type="text" id="search-arisan" onkeyup="filterArisanModal()" placeholder="Cari bulan, nama, atau blok..." class="w-full text-xs md:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
       </div>
       <div class="overflow-x-auto overflow-y-auto flex-grow p-4">
-        <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[500px]">
+        <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[450px]">
           <thead>
             <tr class="border-b border-slate-200 bg-slate-100/60 text-slate-600">
-              <th class="p-3 w-1/4">Bulan</th>
-              <th class="p-3 w-2/4">Nama & Blok</th>
+              <th class="p-3 w-1/3">Bulan</th>
+              <th class="p-3 w-1/2">Nama & Blok</th>
               <th class="p-3 text-center w-1/6">Status</th>
-              <th class="p-3 w-1/4">Keterangan</th>
             </tr>
           </thead>
           <tbody id="tabel-arisan-all" class="divide-y divide-slate-100">
@@ -625,20 +624,28 @@
       const bulan = row[keys[0]] || '-';
       const namaBlok = row[keys[1]] || '-';
       const statusRaw = (row[keys[2]] || '').toString().trim();
-      const ket = row[keys[3]] || '-';
+      const ket = (row[keys[3]] || '').toString().toLowerCase();
 
       let statusBadge = `<span class="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded">Belum</span>`;
-      
+      let rowStyle = '';
+
       if (statusRaw.toLowerCase().includes('sudah')) {
         statusBadge = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 font-semibold rounded inline-flex items-center space-x-1"><span>✓</span><span>Sudah</span></span>`;
       }
 
+      if (ket.includes('bulan ini')) {
+        rowStyle = 'class="bg-indigo-50/80 font-semibold text-indigo-900"';
+        statusBadge += ` <span class="ml-1 px-2 py-0.5 text-[10px] bg-indigo-600 text-white rounded-full">Bulan Ini</span>`;
+      } else if (ket.includes('selanjutnya') || ket.includes('tuan rumah')) {
+        rowStyle = 'class="bg-amber-50/80 font-semibold text-amber-900"';
+        statusBadge += ` <span class="ml-1 px-2 py-0.5 text-[10px] bg-amber-600 text-white rounded-full">Bulan Depan</span>`;
+      }
+
       return `
-        <tr>
-          <td class="p-3 font-medium text-slate-600 whitespace-nowrap">${bulan}</td>
-          <td class="p-3 font-bold text-slate-800 break-words">${namaBlok}</td>
+        <tr ${rowStyle}>
+          <td class="p-3 whitespace-nowrap">${bulan}</td>
+          <td class="p-3 break-words">${namaBlok}</td>
           <td class="p-3 text-center whitespace-nowrap">${statusBadge}</td>
-          <td class="p-3 text-xs text-slate-500 break-words">${ket}</td>
         </tr>
       `;
     }
@@ -652,7 +659,7 @@
           html += renderArisanRow(row);
         }
       });
-      document.getElementById('tabel-arisan-all').innerHTML = html || '<tr><td colspan="4" class="p-4 text-center text-slate-400">Tidak ada data arisan yang cocok</td></tr>';
+      document.getElementById('tabel-arisan-all').innerHTML = html || '<tr><td colspan="3" class="p-4 text-center text-slate-400">Tidak ada data arisan yang cocok</td></tr>';
     }
 
     // --- RENDER TABEL JERSEY ---
@@ -757,7 +764,7 @@
       });
     }
 
-    // --- PROSES ARISAN (LOGIKA IKON & HIGHLIGHT BARU) ---
+    // --- PROSES ARISAN (RUMAH BULAN INI, KALENDER BULAN DEPAN) ---
     if (CSV_ARISAN_URL && CSV_ARISAN_URL.startsWith('http')) {
       Papa.parse(CSV_ARISAN_URL, {
         download: true,
@@ -776,7 +783,6 @@
           globalArisanData.forEach(row => {
             const keys = Object.keys(row);
             const ket = (row[keys[3]] || '').toString().toLowerCase();
-            const status = (row[keys[2]] || '').toString().toLowerCase();
 
             if (ket.includes('bulan ini')) {
               arisanIni = row;
@@ -786,7 +792,7 @@
             }
           });
 
-          // Render Kartu Arisan Bulan Ini (Highlight Ungu)
+          // Render Kartu Arisan Bulan Ini (Highlight Ungu -> Ikon Rumah / Ceklis)
           if (arisanIni) {
             const k = Object.keys(arisanIni);
             const statusIni = (arisanIni[k[2]] || '').toString().toLowerCase();
@@ -795,7 +801,6 @@
 
             const iconContainer = document.getElementById('arisan-bulan-ini-icon-bg');
             
-            // Cek apakah arisan bulan ini sudah dilaksanakan atau belum
             if (statusIni.includes('sudah')) {
               iconContainer.className = "p-3 rounded-full bg-emerald-500/30 text-emerald-300";
               iconContainer.innerHTML = `<i data-lucide="check-circle-2" class="w-6 h-6"></i>`;
@@ -805,7 +810,7 @@
             }
           }
 
-          // Render Kartu Tuan Rumah Selanjutnya (Kartu Putih)
+          // Render Kartu Tuan Rumah Selanjutnya (Kartu Putih -> Ikon Kalender)
           if (arisanLanjut) {
             const k = Object.keys(arisanLanjut);
             document.getElementById('arisan-selanjutnya-nama').innerText = arisanLanjut[k[1]] || '-';
