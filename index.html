@@ -115,7 +115,7 @@
 
       <!-- Card Highlight Tuan Rumah Arisan -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 w-full">
-        <!-- Arisan Bulan Ini (HIGHLIGHT UNGU GRADIENT - IKON RUMAH) -->
+        <!-- Arisan Bulan Ini -->
         <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white p-5 rounded-xl shadow-md flex items-center justify-between">
           <div>
             <span class="text-xs font-semibold text-indigo-200 uppercase tracking-wider">Arisan Bulan Ini</span>
@@ -127,7 +127,7 @@
           </div>
         </div>
 
-        <!-- Tuan Rumah Selanjutnya (WARNA PUTIH - IKON KALENDER) -->
+        <!-- Tuan Rumah Selanjutnya -->
         <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
           <div>
             <span class="text-xs font-semibold text-indigo-600 uppercase tracking-wider">Tuan Rumah Selanjutnya (Bulan Depan)</span>
@@ -149,7 +149,7 @@
       </div>
     </section>
 
-    <!-- SECTION 3: PEMESANAN & PROGRES JERSEY LORONG -->
+    <!-- SECTION 3: PEMESANAN & PROGRES JERSEY LORONG (SIDE-BY-SIDE DESIGN) -->
     <section id="jersey" class="scroll-mt-20 w-full">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
         <div class="flex items-center space-x-2">
@@ -178,47 +178,56 @@
         </div>
       </div>
 
-      <!-- Preview Foto Desain Jersey & Size Chart -->
-      <div class="mb-8">
-        <h4 class="font-bold text-slate-800 text-sm md:text-base mb-3 flex items-center space-x-2">
-          <i data-lucide="image" class="w-4 h-4 text-indigo-600"></i>
-          <span>Desain & Panduan Ukuran (Size Chart)</span>
-        </h4>
-        <div id="container-foto-jersey" class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-          <p class="text-slate-400 text-sm col-span-3">Memuat gambar desain jersey...</p>
-        </div>
-      </div>
-
-      <!-- Tabel Daftar Pemesan Jersey -->
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
-        <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-          <h4 class="font-semibold text-slate-700 text-sm md:text-base">Daftar Pemesan Jersey (Sesuai Urutan Antrean)</h4>
-          <span id="loading-status-jersey" class="text-xs text-slate-500">Memuat data...</span>
-        </div>
+      <!-- CONTAINER BERDAMPINGAN: FOTO DESAIN (KIRI) & TABEL 5 BARIS (KANAN) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
         
-        <div class="overflow-x-auto w-full">
-          <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[600px]">
-            <thead>
-              <tr class="border-b border-slate-200 bg-slate-100/60 text-slate-600">
-                <th class="p-3 w-12 text-center">No</th>
-                <th class="p-3 w-1/3">Nama & Blok</th>
-                <th class="p-3">Lengan</th>
-                <th class="p-3">Ukuran</th>
-                <th class="p-3">Nama & No. Punggung</th>
-                <th class="p-3 text-center">Status</th>
-              </tr>
-            </thead>
-            <tbody id="tabel-jersey" class="divide-y divide-slate-100">
-            </tbody>
-          </table>
+        <!-- Sisi Kiri: Preview 1 Foto Desain Jersey -->
+        <div class="lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
+          <div class="p-3 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+            <h4 class="font-semibold text-slate-700 text-xs md:text-sm flex items-center space-x-1.5">
+              <i data-lucide="image" class="w-4 h-4 text-indigo-600"></i>
+              <span>Desain & Size Chart</span>
+            </h4>
+            <span class="text-[11px] text-indigo-600 font-semibold cursor-pointer hover:underline" onclick="openLightboxFolderOrList(FOLDER_JERSEY_URL, 'Desain Jersey & Size Chart')">Buka Galeri</span>
+          </div>
+          <div id="container-foto-jersey-single" class="relative group cursor-pointer bg-slate-100 overflow-hidden min-h-[260px] flex items-center justify-center" onclick="openLightboxFolderOrList(FOLDER_JERSEY_URL, 'Desain Jersey & Size Chart')">
+            <p class="text-slate-400 text-xs p-4">Memuat gambar desain...</p>
+          </div>
         </div>
 
-        <div id="btn-container-jersey-all" class="p-3 border-t border-slate-100 bg-slate-50 text-center hidden">
-          <button onclick="openModalJersey()" class="text-xs md:text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition inline-flex items-center space-x-1">
-            <span>Lihat Seluruh Daftar Pemesan Jersey</span>
-            <i data-lucide="chevron-right" class="w-4 h-4"></i>
-          </button>
+        <!-- Sisi Kanan: Tabel 5 Pemesan Pertama -->
+        <div class="lg:col-span-7 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col justify-between h-full">
+          <div>
+            <div class="p-3.5 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+              <h4 class="font-semibold text-slate-700 text-xs md:text-sm">Daftar Pemesan Jersey (5 Terbaru)</h4>
+              <span id="loading-status-jersey" class="text-xs text-slate-500">Memuat data...</span>
+            </div>
+            
+            <div class="overflow-x-auto w-full">
+              <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[500px]">
+                <thead>
+                  <tr class="border-b border-slate-200 bg-slate-100/60 text-slate-600">
+                    <th class="p-2.5 w-10 text-center">No</th>
+                    <th class="p-2.5">Nama & Blok</th>
+                    <th class="p-2.5">Ukuran</th>
+                    <th class="p-2.5">Nama/No Punggung</th>
+                    <th class="p-2.5 text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="tabel-jersey" class="divide-y divide-slate-100">
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="btn-container-jersey-all" class="p-3 border-t border-slate-100 bg-slate-50 text-center">
+            <button onclick="openModalJersey()" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition inline-flex items-center space-x-1">
+              <span>Lihat Seluruh Daftar Pemesan</span>
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+          </div>
         </div>
+
       </div>
     </section>
 
@@ -662,12 +671,11 @@
       document.getElementById('tabel-arisan-all').innerHTML = html || '<tr><td colspan="3" class="p-4 text-center text-slate-400">Tidak ada data arisan yang cocok</td></tr>';
     }
 
-    // --- RENDER TABEL JERSEY ---
+    // --- RENDER TABEL JERSEY (HANYA 5 BARIS UNTUK PRANALA UTAMA) ---
     function renderJerseyRow(row) {
       const keys = Object.keys(row);
       const no = row[keys[0]] || '-';
       const namaBlok = row[keys[1]] || '-';
-      const lengan = row[keys[2]] || '-';
       const ukuran = row[keys[3]] || '-';
       const namaNoPunggung = row[keys[4]] || '-';
       const statusRaw = (row[keys[5]] || '').toString().trim();
@@ -682,12 +690,11 @@
 
       return `
         <tr>
-          <td class="p-3 text-center text-slate-500 font-mono">${no}</td>
-          <td class="p-3 font-bold text-slate-800 break-words">${namaBlok}</td>
-          <td class="p-3 text-slate-600 whitespace-nowrap">${lengan}</td>
-          <td class="p-3 font-semibold text-indigo-700 whitespace-nowrap">${ukuran}</td>
-          <td class="p-3 text-slate-700 break-words">${namaNoPunggung}</td>
-          <td class="p-3 text-center whitespace-nowrap">${statusBadge}</td>
+          <td class="p-2.5 text-center text-slate-500 font-mono">${no}</td>
+          <td class="p-2.5 font-bold text-slate-800 break-words">${namaBlok}</td>
+          <td class="p-2.5 font-semibold text-indigo-700 whitespace-nowrap">${ukuran}</td>
+          <td class="p-2.5 text-slate-700 break-words">${namaNoPunggung}</td>
+          <td class="p-2.5 text-center whitespace-nowrap">${statusBadge}</td>
         </tr>
       `;
     }
@@ -698,7 +705,31 @@
       globalJerseyData.forEach(row => {
         const text = Object.values(row).join(' ').toLowerCase();
         if (text.includes(keyword)) {
-          html += renderJerseyRow(row);
+          const keys = Object.keys(row);
+          const no = row[keys[0]] || '-';
+          const namaBlok = row[keys[1]] || '-';
+          const lengan = row[keys[2]] || '-';
+          const ukuran = row[keys[3]] || '-';
+          const namaNoPunggung = row[keys[4]] || '-';
+          const statusRaw = (row[keys[5]] || '').toString().trim();
+
+          let statusBadge = `<span class="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded">Belum</span>`;
+          if (statusRaw.toLowerCase().includes('lunas')) {
+            statusBadge = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 font-semibold rounded">✓ Lunas</span>`;
+          } else if (statusRaw.toLowerCase().includes('dp')) {
+            statusBadge = `<span class="px-2 py-0.5 text-xs bg-amber-100 text-amber-800 font-semibold rounded">⏳ DP 50%</span>`;
+          }
+
+          html += `
+            <tr>
+              <td class="p-3 text-center text-slate-500 font-mono">${no}</td>
+              <td class="p-3 font-bold text-slate-800 break-words">${namaBlok}</td>
+              <td class="p-3 text-slate-600 whitespace-nowrap">${lengan}</td>
+              <td class="p-3 font-semibold text-indigo-700 whitespace-nowrap">${ukuran}</td>
+              <td class="p-3 text-slate-700 break-words">${namaNoPunggung}</td>
+              <td class="p-3 text-center whitespace-nowrap">${statusBadge}</td>
+            </tr>
+          `;
         }
       });
       document.getElementById('tabel-jersey-all').innerHTML = html || '<tr><td colspan="6" class="p-4 text-center text-slate-400">Tidak ada pemesan yang cocok</td></tr>';
@@ -764,7 +795,7 @@
       });
     }
 
-    // --- PROSES ARISAN (RUMAH BULAN INI, KALENDER BULAN DEPAN) ---
+    // --- PROSES ARISAN ---
     if (CSV_ARISAN_URL && CSV_ARISAN_URL.startsWith('http')) {
       Papa.parse(CSV_ARISAN_URL, {
         download: true,
@@ -792,7 +823,6 @@
             }
           });
 
-          // Render Kartu Arisan Bulan Ini (Highlight Ungu -> Ikon Rumah / Ceklis)
           if (arisanIni) {
             const k = Object.keys(arisanIni);
             const statusIni = (arisanIni[k[2]] || '').toString().toLowerCase();
@@ -810,7 +840,6 @@
             }
           }
 
-          // Render Kartu Tuan Rumah Selanjutnya (Kartu Putih -> Ikon Kalender)
           if (arisanLanjut) {
             const k = Object.keys(arisanLanjut);
             document.getElementById('arisan-selanjutnya-nama').innerText = arisanLanjut[k[1]] || '-';
@@ -827,7 +856,7 @@
       });
     }
 
-    // --- PROSES JERSEY ---
+    // --- PROSES JERSEY (HANYA MENGAMBIL 5 BARIS PERTAMA KANAN) ---
     if (CSV_JERSEY_URL && CSV_JERSEY_URL.startsWith('http')) {
       Papa.parse(CSV_JERSEY_URL, {
         download: true,
@@ -854,44 +883,63 @@
           document.getElementById('total-lunas-jersey').innerText = `${countLunas} Orang`;
           document.getElementById('total-dp-jersey').innerText = `${countDP} Orang`;
 
-          const top10Jersey = globalJerseyData.slice(0, 10);
+          // AMBIL HANYA 5 PEMESAN PERTAMA
+          const top5Jersey = globalJerseyData.slice(0, 5);
           let tbodyHTML = '';
-          top10Jersey.forEach(row => { tbodyHTML += renderJerseyRow(row); });
+          top5Jersey.forEach(row => { tbodyHTML += renderJerseyRow(row); });
 
           let tbodyAllHTML = '';
-          globalJerseyData.forEach(row => { tbodyAllHTML += renderJerseyRow(row); });
+          globalJerseyData.forEach(row => { 
+            const keys = Object.keys(row);
+            const no = row[keys[0]] || '-';
+            const namaBlok = row[keys[1]] || '-';
+            const lengan = row[keys[2]] || '-';
+            const ukuran = row[keys[3]] || '-';
+            const namaNoPunggung = row[keys[4]] || '-';
+            const statusRaw = (row[keys[5]] || '').toString().trim();
 
-          document.getElementById('tabel-jersey').innerHTML = tbodyHTML || '<tr><td colspan="6" class="p-4 text-center text-slate-400">Belum ada data pemesan</td></tr>';
+            let statusBadge = `<span class="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded">Belum</span>`;
+            if (statusRaw.toLowerCase().includes('lunas')) {
+              statusBadge = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 font-semibold rounded">✓ Lunas</span>`;
+            } else if (statusRaw.toLowerCase().includes('dp')) {
+              statusBadge = `<span class="px-2 py-0.5 text-xs bg-amber-100 text-amber-800 font-semibold rounded">⏳ DP 50%</span>`;
+            }
+
+            tbodyAllHTML += `
+              <tr>
+                <td class="p-3 text-center text-slate-500 font-mono">${no}</td>
+                <td class="p-3 font-bold text-slate-800 break-words">${namaBlok}</td>
+                <td class="p-3 text-slate-600 whitespace-nowrap">${lengan}</td>
+                <td class="p-3 font-semibold text-indigo-700 whitespace-nowrap">${ukuran}</td>
+                <td class="p-3 text-slate-700 break-words">${namaNoPunggung}</td>
+                <td class="p-3 text-center whitespace-nowrap">${statusBadge}</td>
+              </tr>
+            `;
+          });
+
+          document.getElementById('tabel-jersey').innerHTML = tbodyHTML || '<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada pemesan</td></tr>';
           document.getElementById('tabel-jersey-all').innerHTML = tbodyAllHTML;
           document.getElementById('loading-status-jersey').innerText = 'Terhubung live';
-
-          if (globalJerseyData.length > 10) {
-            document.getElementById('btn-container-jersey-all').classList.remove('hidden');
-          }
         }
       });
     }
 
-    // Load Gambar Desain Jersey dari Folder
+    // Load Gambar Desain Jersey (Single Preview dengan Lightbox Slide)
     (async function loadJerseyImages() {
       const folderId = extractFolderId(FOLDER_JERSEY_URL);
       if (folderId && FOLDER_API_URL.startsWith('http')) {
         const images = await fetchFolderImages(folderId);
         if (images && images.length > 0) {
-          let html = '';
-          images.forEach((imgUrl, idx) => {
-            html += `
-              <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden cursor-pointer group" onclick="openLightboxFolderOrList('${FOLDER_JERSEY_URL}', 'Desain Jersey & Size Chart')">
-                <img src="${imgUrl}" alt="Desain Jersey ${idx+1}" loading="lazy" class="w-full h-48 object-cover group-hover:scale-105 transition duration-300">
-                <div class="p-2 text-center bg-slate-50 border-t border-slate-100">
-                  <span class="text-xs font-semibold text-slate-600">Lihat Foto Full</span>
-                </div>
-              </div>
-            `;
-          });
-          document.getElementById('container-foto-jersey').innerHTML = html;
+          document.getElementById('container-foto-jersey-single').innerHTML = `
+            <img src="${images[0]}" alt="Desain Jersey Main" loading="lazy" class="w-full h-64 object-cover group-hover:scale-105 transition duration-300">
+            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1 backdrop-blur-[2px]">
+              <i data-lucide="maximize-2" class="w-4 h-4"></i>
+              <span>Buka Galeri Foto Desain (${images.length})</span>
+            </div>
+          `;
+          lucide.createIcons();
         } else {
-          document.getElementById('container-foto-jersey').innerHTML = '<p class="text-slate-400 text-sm col-span-3">Belum ada foto desain jersey di folder.</p>';
+          document.getElementById('container-foto-jersey-single').innerHTML = '<p class="text-slate-400 text-xs p-4">Belum ada foto di folder.</p>';
         }
       }
     })();
