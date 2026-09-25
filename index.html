@@ -149,7 +149,7 @@
       </div>
     </section>
 
-    <!-- SECTION 3: PEMESANAN & PROGRES JERSEY LORONG (SIDE-BY-SIDE DESIGN) -->
+    <!-- SECTION 3: PEMESANAN & PROGRES JERSEY LORONG -->
     <section id="jersey" class="scroll-mt-20 w-full">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
         <div class="flex items-center space-x-2">
@@ -181,7 +181,7 @@
       <!-- CONTAINER BERDAMPINGAN: FOTO DESAIN (KIRI) & TABEL 5 BARIS (KANAN) -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
         
-        <!-- Sisi Kiri: Preview 1 Foto Desain Jersey -->
+        <!-- Sisi Kiri: Preview Foto Utama (Nomor 1) -->
         <div class="lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
           <div class="p-3 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
             <h4 class="font-semibold text-slate-700 text-xs md:text-sm flex items-center space-x-1.5">
@@ -512,8 +512,10 @@
         const response = await fetch(`${FOLDER_API_URL}?folderId=${folderId}`);
         const data = await response.json();
         if (data && data.images && data.images.length > 0) {
-          folderCache[folderId] = data.images;
-          return data.images;
+          // SORTING DENGAN METODE NATURAL DARI NAMA FILE / URL (01, 02, DST.)
+          const sortedImages = data.images.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+          folderCache[folderId] = sortedImages;
+          return sortedImages;
         }
       } catch (e) {
         console.error("Gagal membaca folder:", e);
@@ -671,7 +673,7 @@
       document.getElementById('tabel-arisan-all').innerHTML = html || '<tr><td colspan="3" class="p-4 text-center text-slate-400">Tidak ada data arisan yang cocok</td></tr>';
     }
 
-    // --- RENDER TABEL JERSEY (HANYA 5 BARIS UNTUK PRANALA UTAMA) ---
+    // --- RENDER TABEL JERSEY ---
     function renderJerseyRow(row) {
       const keys = Object.keys(row);
       const no = row[keys[0]] || '-';
@@ -856,7 +858,7 @@
       });
     }
 
-    // --- PROSES JERSEY (HANYA MENGAMBIL 5 BARIS PERTAMA KANAN) ---
+    // --- PROSES JERSEY ---
     if (CSV_JERSEY_URL && CSV_JERSEY_URL.startsWith('http')) {
       Papa.parse(CSV_JERSEY_URL, {
         download: true,
@@ -883,7 +885,6 @@
           document.getElementById('total-lunas-jersey').innerText = `${countLunas} Orang`;
           document.getElementById('total-dp-jersey').innerText = `${countDP} Orang`;
 
-          // AMBIL HANYA 5 PEMESAN PERTAMA
           const top5Jersey = globalJerseyData.slice(0, 5);
           let tbodyHTML = '';
           top5Jersey.forEach(row => { tbodyHTML += renderJerseyRow(row); });
@@ -924,7 +925,7 @@
       });
     }
 
-    // Load Gambar Desain Jersey (Single Preview dengan Lightbox Slide)
+    // Load Gambar Desain Jersey (Single Preview dari foto nomor 1 secara alfabetis)
     (async function loadJerseyImages() {
       const folderId = extractFolderId(FOLDER_JERSEY_URL);
       if (folderId && FOLDER_API_URL.startsWith('http')) {
