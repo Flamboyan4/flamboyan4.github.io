@@ -13,20 +13,13 @@
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full">
 
-  <!-- Header / Navigation -->
+  <!-- Header / Navigation (BERSIH TANPA TAB NAVIGASI KANAN) -->
   <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-50 w-full">
     <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
       <a href="#" class="flex items-center space-x-2 hover:opacity-90 transition group cursor-pointer">
         <i data-lucide="home" class="w-6 h-6 shrink-0 group-hover:scale-110 transition"></i>
         <h1 class="text-lg md:text-xl font-bold tracking-wide">Flamboyan IV <span class="text-indigo-200 text-xs md:text-sm font-normal">| RT 001/026</span></h1>
       </a>
-      <nav class="hidden md:flex space-x-6 font-medium text-sm">
-        <a href="#keuangan" class="hover:text-indigo-200 transition">Keuangan</a>
-        <a href="#arisan" class="hover:text-indigo-200 transition">Jadwal Arisan</a>
-        <a href="#jersey" class="hover:text-indigo-200 transition">Jersey Lorong</a>
-        <a href="#kegiatan" class="hover:text-indigo-200 transition">Dokumentasi</a>
-        <a href="#rencana" class="hover:text-indigo-200 transition">Rencana Kerja</a>
-      </nav>
     </div>
   </header>
 
@@ -178,7 +171,7 @@
         </div>
       </div>
 
-      <!-- CONTAINER BERDAMPINGAN: FOTO DESAIN (KIRI) & TABEL 5 BARIS (KANAN) -->
+      <!-- CONTAINER BERDAMPINGAN: FOTO DESAIN & TABEL 5 BARIS -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
         
         <!-- Sisi Kiri: Preview Foto Utama (Nomor 1) -->
@@ -512,7 +505,6 @@
         const response = await fetch(`${FOLDER_API_URL}?folderId=${folderId}`);
         const data = await response.json();
         if (data && data.images && data.images.length > 0) {
-          // SORTING DENGAN METODE NATURAL DARI NAMA FILE / URL (01, 02, DST.)
           const sortedImages = data.images.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
           folderCache[folderId] = sortedImages;
           return sortedImages;
@@ -925,7 +917,7 @@
       });
     }
 
-    // Load Gambar Desain Jersey (Single Preview dari foto nomor 1 secara alfabetis)
+    // Load Gambar Desain Jersey
     (async function loadJerseyImages() {
       const folderId = extractFolderId(FOLDER_JERSEY_URL);
       if (folderId && FOLDER_API_URL.startsWith('http')) {
