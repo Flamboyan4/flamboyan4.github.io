@@ -911,7 +911,7 @@
     }
     function closeModalEventDetail() { if(activeModalsStack.includes('modal-event-detail')) history.back(); }
 
-    // AMAN & HANDAL: FUNGSI MEMBACA FILE GOOGLE DRIVE SERTA MENGURUTKAN NAMA FILE (1, 2, 3, DST)
+    // DENGAN PERBAIKAN BUG ANGKA (1, 2, 3, DST.): MEMBACA FOLDER GOOGLE DRIVE DENGAN SANGAT AMAN
     async function fetchFolderFiles(folderId) {
       if (!FOLDER_API_URL || !FOLDER_API_URL.startsWith('http')) return [];
       if (folderCache[folderId]) return folderCache[folderId];
@@ -919,30 +919,32 @@
       try {
         const response = await fetch(`${FOLDER_API_URL}?folderId=${folderId}`);
         const data = await response.json();
-        let items = [];
+        let rawItems = [];
         
         if (data && data.files && Array.isArray(data.files) && data.files.length > 0) {
-          items = data.files.map(f => {
-            if (typeof f === 'string') return { type: 'image', url: fixDriveUrl(f), name: f };
-            return {
-              type: f.type || 'image',
-              url: fixDriveUrl(f.url || f.link || f.src || ''),
-              name: f.name || f.title || f.filename || (f.url ? f.url.split('/').pop() : '')
-            };
-          });
+          rawItems = data.files;
         } else if (data && data.images && Array.isArray(data.images) && data.images.length > 0) {
-          items = data.images.map(img => {
-            if (typeof img === 'string') return { type: 'image', url: fixDriveUrl(img), name: img };
-            return {
-              type: img.type || 'image',
-              url: fixDriveUrl(img.url || img.link || ''),
-              name: img.name || img.title || (img.url ? img.url.split('/').pop() : '')
-            };
-          });
+          rawItems = data.images;
+        } else if (Array.isArray(data) && data.length > 0) {
+          rawItems = data;
         }
 
+        let items = rawItems.map((f, i) => {
+          if (typeof f === 'string' || typeof f === 'number') {
+            const strVal = String(f);
+            return { type: 'image', url: fixDriveUrl(strVal), name: strVal };
+          }
+          const rawUrl = f.url || f.link || f.src || f.downloadUrl || '';
+          const nameVal = f.name !== undefined && f.name !== null ? String(f.name) : (f.title !== undefined && f.title !== null ? String(f.title) : String(i + 1));
+          return {
+            type: f.type || 'image',
+            url: fixDriveUrl(rawUrl),
+            name: nameVal
+          };
+        }).filter(item => item.url && item.url !== '' && item.url !== PLACEHOLDER_IMG);
+
         if (items.length > 0) {
-          // URUTAN NATURAL SANGAT AKURAT (1, 2, 3, DST)
+          // SORTING ALPHANUMERIC / NATURAL SORT YANG AMAN DARI BUG ANGKA
           items.sort((a, b) => {
             const nameA = String(a.name || '');
             const nameB = String(b.name || '');
@@ -1272,12 +1274,11 @@
       document.getElementById('tabel-transaksi-all').innerHTML = html || '<tr><td colspan="4" class="p-4 text-center text-slate-400">Tidak ada transaksi yang cocok</td></tr>';
     }
 
-    function renderArisanRow(row) {
+    function renderArisanRow(row, isCurrentMonth, isNextMonth) {
       const keys = Object.keys(row);
       const bulan = row[keys[0]] || '-';
       const namaBlok = row[keys[1]] || '-';
       const statusRaw = (row[keys[2]] || '').toString().trim();
-      const ket = (row[keys[3]] || '').toString().toLowerCase();
 
       let statusBadge = `<span class="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded">Belum</span>`;
       let rowStyle = '';
@@ -1286,10 +1287,10 @@
         statusBadge = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 font-semibold rounded inline-flex items-center space-x-1"><span>✓</span><span>Sudah</span></span>`;
       }
 
-      if (ket.includes('bulan ini')) {
+      if (isCurrentMonth) {
         rowStyle = 'class="bg-indigo-50/80 font-semibold text-indigo-900"';
         statusBadge += ` <span class="ml-1 px-2 py-0.5 text-[10px] bg-indigo-600 text-white rounded-full">Bulan Ini</span>`;
-      } else if (ket.includes('selanjutnya') || ket.includes('tuan rumah')) {
+      } else if (isNextMonth) {
         rowStyle = 'class="bg-amber-50/80 font-semibold text-amber-900"';
         statusBadge += ` <span class="ml-1 px-2 py-0.5 text-[10px] bg-amber-600 text-white rounded-full">Bulan Depan</span>`;
       }
@@ -1306,10 +1307,27 @@
     function filterArisanModal() {
       const keyword = document.getElementById('search-arisan').value.toLowerCase();
       let html = '';
-      globalArisanData.forEach(row => {
+
+      const now = new Date();
+      const monthNamesIndo = ["januari", "februari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember"];
+      const currentMonthStr = monthNamesIndo[now.getMonth()];
+      const currentYearStr = now.getFullYear().toString();
+
+      let currentIdx = -1;
+      globalArisanData.forEach((row, idx) => {
+        const k = Object.keys(row);
+        const bulanText = (row[k[0]] || '').toString().toLowerCase();
+        if (bulanText.includes(currentMonthStr) && bulanText.includes(currentYearStr)) {
+          currentIdx = idx;
+        }
+      });
+
+      globalArisanData.forEach((row, idx) => {
         const text = Object.values(row).join(' ').toLowerCase();
         if (text.includes(keyword)) {
-          html += renderArisanRow(row);
+          const isCurrent = (idx === currentIdx);
+          const isNext = (currentIdx !== -1 && idx === currentIdx + 1);
+          html += renderArisanRow(row, isCurrent, isNext);
         }
       });
       document.getElementById('tabel-arisan-all').innerHTML = html || '<tr><td colspan="3" class="p-4 text-center text-slate-400">Tidak ada data arisan yang cocok</td></tr>';
@@ -1428,15 +1446,35 @@
           });
 
           globalArisanData = rawData;
+
+          // LOGIKA OTOMATIS BERBASIS BULAN & TAHUN SAAT INI
+          const now = new Date();
+          const monthNamesIndo = ["januari", "februari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember"];
+          const currentMonthStr = monthNamesIndo[now.getMonth()];
+          const currentYearStr = now.getFullYear().toString();
+
           let arisanIni = null;
           let arisanLanjut = null;
+          let currentIdx = -1;
 
-          globalArisanData.forEach(row => {
+          // Cari baris yang cocok dengan bulan & tahun saat ini
+          globalArisanData.forEach((row, idx) => {
             const keys = Object.keys(row);
-            const ket = (row[keys[3]] || '').toString().toLowerCase();
-            if (ket.includes('bulan ini')) arisanIni = row;
-            if (ket.includes('selanjutnya') || ket.includes('tuan rumah selanjutnya')) arisanLanjut = row;
+            const bulanText = (row[keys[0]] || '').toString().toLowerCase();
+            if (bulanText.includes(currentMonthStr) && bulanText.includes(currentYearStr)) {
+              arisanIni = row;
+              currentIdx = idx;
+            }
           });
+
+          // Baris selanjutnya otomatis dijadikan tuan rumah bulan depan
+          if (currentIdx !== -1 && currentIdx + 1 < globalArisanData.length) {
+            arisanLanjut = globalArisanData[currentIdx + 1];
+          }
+
+          // Fallback jika tidak ada yang cocok persis
+          if (!arisanIni && globalArisanData.length > 0) arisanIni = globalArisanData[0];
+          if (!arisanLanjut && globalArisanData.length > 1) arisanLanjut = globalArisanData[1];
 
           if (arisanIni) {
             const k = Object.keys(arisanIni);
@@ -1460,7 +1498,11 @@
           }
 
           let tbodyAllHTML = '';
-          globalArisanData.forEach(row => { tbodyAllHTML += renderArisanRow(row); });
+          globalArisanData.forEach((row, idx) => { 
+            const isCurrent = (idx === currentIdx);
+            const isNext = (currentIdx !== -1 && idx === currentIdx + 1);
+            tbodyAllHTML += renderArisanRow(row, isCurrent, isNext); 
+          });
 
           document.getElementById('tabel-arisan-all').innerHTML = tbodyAllHTML;
           document.getElementById('loading-status-arisan').innerText = 'Terhubung live';
