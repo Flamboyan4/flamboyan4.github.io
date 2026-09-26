@@ -548,17 +548,26 @@
   <footer class="bg-slate-900 text-slate-400 pt-8 pb-6 border-t border-slate-800 w-full">
     <div class="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 text-sm">
       
-      <!-- Info Transfer Bank -->
-      <div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
-        <div class="flex items-center space-x-2 mb-3 text-indigo-300">
-          <i data-lucide="credit-card" class="w-5 h-5"></i>
-          <h4 class="font-bold text-white">Pembayaran Transfer Bank</h4>
-        </div>
-        <p class="text-xs mb-1">Silakan transfer kas/arisan/donasi ke rekening:</p>
-        <div class="bg-slate-900 p-3 rounded-lg border border-slate-700 font-mono">
-          <p class="text-white font-bold tracking-wider">1330022606479</p>
-          <p class="text-xs mt-1 text-slate-300">A/N <span class="font-bold">ROSALINDA</span></p>
-          <p class="text-xs text-slate-500 mt-0.5">Bank Mandiri</p>
+      <!-- Info Transfer Bank (Dilengkapi Tombol Salin) -->
+      <div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center space-x-2 mb-3 text-indigo-300">
+            <i data-lucide="credit-card" class="w-5 h-5"></i>
+            <h4 class="font-bold text-white">Pembayaran Transfer Bank</h4>
+          </div>
+          <p class="text-xs mb-2">Silakan transfer kas/arisan/donasi ke rekening:</p>
+          
+          <div class="bg-slate-900 p-3.5 rounded-lg border border-slate-700 flex items-center justify-between">
+            <div class="font-mono">
+              <p id="teks-norek" class="text-white font-bold tracking-wider text-base md:text-lg">1330022606479</p>
+              <p class="text-xs mt-0.5 text-slate-300">A/N <span class="font-bold">ROSALINDA</span> (Bank Mandiri)</p>
+            </div>
+            <!-- Tombol Salin Norek -->
+            <button onclick="salinNorek()" id="btn-salin" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center space-x-1.5 shrink-0 shadow-sm active:scale-95">
+              <i data-lucide="copy" class="w-4 h-4"></i>
+              <span id="btn-salin-text">Salin</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -575,7 +584,6 @@
              <div class="absolute inset-0 bg-slate-900/10 backdrop-blur-[2px] flex items-center justify-center rounded-sm">
                  <span class="bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded">QRIS Segera Hadir</span>
              </div>
-             <!-- Ganti div kotak-kotak ini dengan tag <img> gambar QRIS asli nanti -->
             <div class="grid grid-cols-3 gap-1 w-full h-full opacity-30">
                 <div class="bg-black rounded-tl-md"></div><div class="bg-black"></div><div class="bg-black rounded-tr-md"></div>
                 <div class="bg-black"></div><div class="bg-white"></div><div class="bg-black"></div>
@@ -601,6 +609,27 @@
       if (e.ctrlKey && e.keyCode === 85) return false;
     }
 
+    // Fungsi Tombol Salin Nomor Rekening
+    function salinNorek() {
+      const norek = "1330022606479";
+      navigator.clipboard.writeText(norek).then(() => {
+        const textSpan = document.getElementById('btn-salin-text');
+        const btn = document.getElementById('btn-salin');
+        
+        textSpan.innerText = "Tersalin!";
+        btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-500');
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
+        
+        setTimeout(() => {
+          textSpan.innerText = "Salin";
+          btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-500');
+          btn.classList.add('bg-indigo-600', 'hover:bg-indigo-500');
+        }, 2000);
+      }).catch(err => {
+        alert("Gagal menyalin nomor rekening.");
+      });
+    }
+
     const CSV_KEUANGAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWusYrLoxh9Jesx0PpBefZm4MhXjSQkAt9o9GnAZjvAGE4TkSxpTf9pyxUzWUA5yw-U0fwwXhldsKo/pub?gid=70481261&single=true&output=csv';
     const CSV_ARISAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDP-SfyNfaIFW_nfWSnLM3fQsJVRcuu5Las-tG78JPdp7u6hqWGulXS2sakYtKlWr81xPqrDGagwVC/pub?output=csv';
     const CSV_JERSEY_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT3Bj1vmC1kB_csd4rsznskdyAzORPAyT5J8sDEZTheBoHDn6sJToLGXiM0Ju-F_l3ThRbsntCzZSFA/pub?output=csv';
@@ -621,7 +650,7 @@
     let globalArisanData = [];
     let globalJerseyData = [];
     let globalRencanaData = [];
-    let activeModalsStack = []; // Stack untuk melacak modal yang sedang terbuka
+    let activeModalsStack = [];
     const folderCache = {};
 
     let calendarDate = new Date();
@@ -652,7 +681,6 @@
       return cleanUrl;
     }
 
-    // --- MANAJEMEN MODAL & INTEGRASI TOMBOL BACK HP (HISTORY API) ---
     function openModal(id) {
       const el = document.getElementById(id);
       if (!el) return;
@@ -660,7 +688,6 @@
       el.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
 
-      // Dorong history state baru agar tombol back HP mendeteksi penutupan modal
       history.pushState({ modalOpen: id }, '', '#' + id);
       activeModalsStack.push(id);
 
@@ -690,20 +717,15 @@
         document.body.style.overflow = 'auto';
       }
 
-      // Hapus dari stack jika ada
       const index = activeModalsStack.indexOf(id);
       if (index > -1) {
         activeModalsStack.splice(index, 1);
       }
     }
 
-    // Listener tombol Back (Kembali) di HP / Browser
     window.addEventListener('popstate', function(event) {
       if (activeModalsStack.length > 0) {
-        // Ambil modal paling atas yang sedang terbuka
         const topModalId = activeModalsStack[activeModalsStack.length - 1];
-        
-        // Tutup modal secara visual tanpa memicu history.back() ganda
         const el = document.getElementById(topModalId);
         if (el) {
           if (topModalId === 'modal-saran') {
@@ -1325,7 +1347,6 @@
       });
     }
 
-    // --- LOGIKA KALENDER DENGAN OTOMATISASI ARISAN (SABTU MINGGU KEDUA) ---
     function renderCalendar() {
       const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
       const year = calendarDate.getFullYear();
