@@ -1295,16 +1295,13 @@
 
             if (folderId) {
               badgeText = 'Album Media';
-              // Ambil thumbnail langsung jika folder API tersedia atau gunakan placeholder awal
               if (folderCache[folderId] && folderCache[folderId].length > 0) {
                 firstFoto = folderCache[folderId][0].url;
                 badgeText = `${folderCache[folderId].length} Media`;
               } else {
-                // Fetch di background untuk memperbarui thumbnail secara instan
                 fetchFolderFiles(folderId).then(files => {
                   if (files && files.length > 0) {
                     const imgItem = files.find(f => f.type === 'image') || files[0];
-                    // Update elemen gambar di DOM secara dinamis jika sudah siap
                     const imgEls = document.querySelectorAll(`[data-folder-id="${folderId}"] img`);
                     imgEls.forEach(img => { img.src = imgItem.url; });
                     const badgeEls = document.querySelectorAll(`[data-folder-badge="${folderId}"] span`);
@@ -1331,7 +1328,7 @@
 
             const cardContent = `
               <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition flex flex-col w-full">
-                <div class="relative cursor-pointer overflow-hidden group bg-slate-100 h-48 flex items-center justify-center" data-folder-id="${folderId || ''}" onclick="openGalleryGridModal('${safePhotoString}', '${safeTitle}')">
+                <div class="relative cursor-pointer overflow-hidden group bg-slate-100 h-48 w-full flex items-center justify-center shrink-0" data-folder-id="${folderId || ''}" onclick="openGalleryGridModal('${safePhotoString}', '${safeTitle}')">
                   <img src="${firstFoto}" alt="${judul}" loading="lazy" referrerpolicy="no-referrer" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${PLACEHOLDER_IMG}'">
                   ${badgeMultiPhoto}
                   <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1 z-20">
@@ -1339,10 +1336,16 @@
                     <span>Buka Galeri Media</span>
                   </div>
                 </div>
-                <div class="p-4 flex-grow">
-                  <span class="text-xs text-indigo-600 font-semibold">${tanggal}</span>
-                  <h4 class="font-bold text-base md:text-lg text-slate-800 mt-1 break-words">${judul}</h4>
-                  <p class="text-slate-600 text-xs md:text-sm mt-2 break-words">${deskripsi}</p>
+                <div class="p-4 flex-grow flex flex-col justify-between">
+                  <div>
+                    <span class="text-xs text-indigo-600 font-semibold">${tanggal}</span>
+                    <h4 class="font-bold text-base md:text-lg text-slate-800 mt-1 break-words">${judul}</h4>
+                    <p class="text-slate-600 text-xs md:text-sm mt-2 break-words">${deskripsi}</p>
+                  </div>
+                  <button onclick="openGalleryGridModal('${safePhotoString}', '${safeTitle}')" class="mt-4 w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-2 rounded-lg text-xs transition flex items-center justify-center space-x-1">
+                    <i data-lucide="images" class="w-4 h-4"></i>
+                    <span>Lihat Foto & Video Kegiatan</span>
+                  </button>
                 </div>
               </div>
             `;
@@ -1510,7 +1513,7 @@
               judul,
               deskripsi,
               status,
-              isGolor
+            	isGolor
             };
           });
 
