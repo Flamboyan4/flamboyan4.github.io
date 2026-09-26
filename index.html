@@ -19,6 +19,9 @@
       -ms-user-select: none;
       user-select: none;
     }
+    html {
+      scroll-behavior: smooth;
+    }
   </style>
 </head>
 
@@ -540,7 +543,7 @@
     </div>
   </div>
 
-  <!-- LIGHTBOX MODAL FULLSCREEN (SMOOTH DRAG/PAN INTERACTION FIX) -->
+  <!-- LIGHTBOX MODAL FULLSCREEN -->
   <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-center p-2 md:p-4 overflow-hidden" onclick="closeLightbox()">
     
     <!-- Tombol Kontrol Kanan Atas -->
@@ -603,14 +606,26 @@
     </div>
   </div>
 
-  <!-- FLOATING ACTION BUTTON (KOTAK SARAN) -->
-  <button onclick="openModalSaran()" class="fixed bottom-6 right-6 md:bottom-8 md:right-8 bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-2xl hover:shadow-indigo-500/50 transition-all transform hover:scale-110 z-40 group flex items-center justify-center">
-    <i data-lucide="message-square-plus" class="w-6 h-6 md:w-7 md:h-7"></i>
-    <!-- Tooltip -->
-    <span class="absolute right-full mr-4 bg-slate-800 text-white text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-      Kirim Saran
-    </span>
-  </button>
+  <!-- FLOATING ACTION BUTTON CONTAINER (SCROLL TO TOP & KOTAK SARAN) -->
+  <div class="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-40 flex flex-col items-center space-y-3">
+    
+    <!-- TOMBOL SCROLL TO TOP (HANYA MUNCUL SAAT DI-SCROLL KE BAWAH) -->
+    <button id="btn-scroll-top" onclick="scrollToTop()" class="bg-slate-800/90 hover:bg-indigo-600 text-white p-3 md:p-3.5 rounded-full shadow-xl transition-all duration-300 opacity-0 pointer-events-none transform translate-y-4 hover:scale-110 group flex items-center justify-center border border-white/20" title="Kembali Ke Atas">
+      <i data-lucide="arrow-up" class="w-5 h-5 md:w-6 md:h-6"></i>
+      <span class="absolute right-full mr-3 bg-slate-800 text-white text-xs font-semibold px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+        Ke Atas
+      </span>
+    </button>
+
+    <!-- TOMBOL KOTAK SARAN -->
+    <button onclick="openModalSaran()" class="bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-2xl hover:shadow-indigo-500/50 transition-all transform hover:scale-110 group flex items-center justify-center">
+      <i data-lucide="message-square-plus" class="w-6 h-6 md:w-7 md:h-7"></i>
+      <span class="absolute right-full mr-3 bg-slate-800 text-white text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+        Kirim Saran
+      </span>
+    </button>
+
+  </div>
 
   <!-- Footer dengan Info Pembayaran -->
   <footer class="bg-slate-900 text-slate-400 pt-8 pb-6 border-t border-slate-800 w-full">
@@ -639,25 +654,23 @@
         </div>
       </div>
 
-      <!-- Info QRIS -->
+      <!-- Info QRIS (Foto Berasal dari Google Drive ID & Langsung Download saat Diklik) -->
       <div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700 flex flex-col justify-center items-center text-center">
          <div class="flex items-center space-x-2 mb-2 text-indigo-300">
           <i data-lucide="qr-code" class="w-5 h-5"></i>
-          <h4 class="font-bold text-white">Pembayaran QRIS</h4>
+          <h4 class="font-bold text-white">Pembayaran QRIS Warga</h4>
         </div>
-        <p class="text-xs mb-3">Scan kode QRIS di bawah ini menggunakan e-Wallet atau M-Banking (Gopay, OVO, Dana, dll).</p>
+        <p class="text-xs mb-3">Scan QRIS di bawah ini atau <span class="text-indigo-300 font-semibold underline">klik gambar untuk mengunduh</span> file QRIS.</p>
         
-        <!-- Placeholder QRIS -->
-        <div class="w-32 h-32 bg-white rounded-lg p-2 flex items-center justify-center border-4 border-indigo-500 relative">
-             <div class="absolute inset-0 bg-slate-900/10 backdrop-blur-[2px] flex items-center justify-center rounded-sm">
-                 <span class="bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded">QRIS Segera Hadir</span>
-             </div>
-            <div class="grid grid-cols-3 gap-1 w-full h-full opacity-30">
-                <div class="bg-black rounded-tl-md"></div><div class="bg-black"></div><div class="bg-black rounded-tr-md"></div>
-                <div class="bg-black"></div><div class="bg-white"></div><div class="bg-black"></div>
-                <div class="bg-black rounded-bl-md"></div><div class="bg-black"></div><div class="bg-black rounded-br-md"></div>
-            </div>
-        </div>
+        <!-- Gambar QRIS Natural (Langsung Unduh) -->
+        <a href="https://lh3.googleusercontent.com/d/1AmN4HMVPrmUNqC1SNB5YU6Qn69J1xeu3" download="Flamboyan4_QRIS_Pembayaran.png" target="_blank" class="relative group cursor-pointer inline-block max-w-[200px] overflow-hidden rounded-xl border-2 border-indigo-500/80 shadow-lg hover:border-indigo-400 transition transform hover:scale-105 active:scale-95">
+          <img src="https://lh3.googleusercontent.com/d/1AmN4HMVPrmUNqC1SNB5YU6Qn69J1xeu3" alt="QRIS Flamboyan 4" class="w-full h-auto object-contain bg-white p-2">
+          
+          <div class="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition duration-300 flex flex-col items-center justify-center text-white text-xs font-bold space-y-1 p-2">
+            <i data-lucide="download" class="w-6 h-6 animate-bounce"></i>
+            <span>Klik Untuk Unduh</span>
+          </div>
+        </a>
       </div>
 
     </div>
@@ -669,6 +682,25 @@
 
   <script>
     lucide.createIcons();
+
+    // INTERAKSI DETEKSI SCROLL UNTUK TOMBOL SCROLL TO TOP
+    window.addEventListener('scroll', function() {
+      const btnScroll = document.getElementById('btn-scroll-top');
+      if (window.scrollY > 300) {
+        btnScroll.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+        btnScroll.classList.add('opacity-100', 'translate-y-0');
+      } else {
+        btnScroll.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+        btnScroll.classList.remove('opacity-100', 'translate-y-0');
+      }
+    });
+
+    function scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
 
     // DUKUNGAN INTERAKSI KEYBOARD KOMPUTER (PANAH KIRI/KANAN & ESCAPE)
     document.addEventListener('keydown', function(e) {
@@ -1013,7 +1045,6 @@
       translateY = 0;
       applyTransform(img);
 
-      // SCROLL WHEEL MOUSE PC
       img.parentElement.addEventListener('wheel', (e) => {
         e.preventDefault();
         const delta = e.deltaY > 0 ? -0.3 : 0.3;
@@ -1023,7 +1054,6 @@
         applyTransform(img);
       }, { passive: false });
 
-      // DRAG MOUSE PC (SMOOTH & HALUS SANGAT RESPONSIF)
       img.addEventListener('mousedown', (e) => {
         if (zoomScale > 1) {
           e.preventDefault();
@@ -1055,7 +1085,6 @@
       window.addEventListener('mousemove', handleGlobalMouseMove);
       window.addEventListener('mouseup', handleGlobalMouseUp);
 
-      // TOUCH MOBILE
       img.addEventListener('touchstart', (e) => {
         if (e.touches.length === 2) {
           startDist = Math.hypot(
