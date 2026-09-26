@@ -10,6 +10,8 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- PapaParse untuk membaca Google Sheets CSV -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <!-- Panzoom CDN untuk Gestur Pinch-to-Zoom & Drag Foto di HP -->
+  <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
   
   <style>
     /* Mencegah teks diblok/disorot untuk dicopas */
@@ -477,16 +479,13 @@
     </div>
   </div>
 
-  <!-- LIGHTBOX MODAL FULLSCREEN (DENGAN TOMBOL ZOOM & SLIDE) -->
-  <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-center p-2 md:p-4 overflow-auto" onclick="closeLightbox()">
+  <!-- LIGHTBOX MODAL FULLSCREEN (DENGAN GESTUR CUBIT/PINCH & SLIDE) -->
+  <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-center p-2 md:p-4 touch-none select-none" onclick="closeLightbox()">
     
-    <!-- Tombol Kontrol Kanan Atas (Zoom In, Zoom Out, Close) -->
+    <!-- Tombol Kontrol Kanan Atas -->
     <div class="absolute top-3 right-3 flex items-center space-x-2 z-20">
-      <button onclick="zoomIn(event)" class="text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition shadow-md" title="Perbesar Foto">
-        <i data-lucide="zoom-in" class="w-5 h-5"></i>
-      </button>
-      <button onclick="zoomOut(event)" class="text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition shadow-md" title="Perkecil Foto">
-        <i data-lucide="zoom-out" class="w-5 h-5"></i>
+      <button onclick="resetZoom(event)" class="text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition shadow-md text-xs font-semibold px-3" title="Reset Ukuran">
+        Reset Zoom
       </button>
       <button onclick="closeLightbox()" class="text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition shadow-md" title="Tutup">
         <i data-lucide="x" class="w-5 h-5"></i>
@@ -504,10 +503,17 @@
     </button>
     
     <div class="relative w-full max-w-5xl flex flex-col items-center justify-center px-2 my-auto" onclick="event.stopPropagation()">
-      <div id="lightbox-media-container" class="relative w-full flex items-center justify-center overflow-auto max-h-[75vh]">
+      
+      <!-- Petunjuk Gestur Cubit / Geser -->
+      <span class="text-[11px] text-slate-400 mb-2 flex items-center space-x-1 bg-slate-900/80 px-3 py-1 rounded-full border border-slate-800">
+        <i data-lucide="move" class="w-3.5 h-3.5"></i>
+        <span>Gunakan 2 jari untuk mencubit (zoom) & usap untuk menggeser foto</span>
+      </span>
+
+      <div id="lightbox-media-container" class="relative w-full flex items-center justify-center overflow-hidden max-h-[72vh] rounded-xl">
       </div>
 
-      <div class="text-center mt-4 text-white">
+      <div class="text-center mt-3 text-white">
         <p id="lightbox-caption" class="text-xs md:text-sm font-semibold tracking-wide"></p>
         <p id="lightbox-counter" class="text-xs text-slate-400 mt-1 hidden"></p>
       </div>
@@ -654,7 +660,7 @@
     let currentMediaList = [];
     let currentPhotoIndex = 0;
     let currentPhotoCaption = '';
-    let currentZoom = 1; // Variabel skala zoom foto
+    let panzoomInstance = null; // Instance Panzoom untuk Gestur Cubit
     let globalKeuanganData = [];
     let globalArisanData = [];
     let globalJerseyData = [];
@@ -863,7 +869,6 @@
 
     function openLightboxFromIndex(index) {
       currentPhotoIndex = index;
-      currentZoom = 1; // Reset zoom saat buka foto baru
       openModal('lightbox-modal');
       updateLightboxView();
     }
@@ -872,7 +877,6 @@
         if(event) event.stopPropagation();
         if (currentMediaList.length <= 1) return;
         currentPhotoIndex = (currentPhotoIndex + 1) % currentMediaList.length;
-        currentZoom = 1;
         updateLightboxView();
     }
 
@@ -880,38 +884,13 @@
         if(event) event.stopPropagation();
         if (currentMediaList.length <= 1) return;
         currentPhotoIndex = (currentPhotoIndex - 1 + currentMediaList.length) % currentMediaList.length;
-        currentZoom = 1;
         updateLightboxView();
     }
 
-    // Fungsi Zoom In, Zoom Out, dan Toggle Double Click
-    function zoomIn(event) {
-      if(event) event.stopPropagation();
-      if (currentZoom < 3) {
-        currentZoom += 0.5;
-        applyZoom();
-      }
-    }
-
-    function zoomOut(event) {
-      if(event) event.stopPropagation();
-      if (currentZoom > 1) {
-        currentZoom -= 0.5;
-        applyZoom();
-      }
-    }
-
-    function toggleZoom(event) {
-      if(event) event.stopPropagation();
-      currentZoom = currentZoom === 1 ? 2 : 1;
-      applyZoom();
-    }
-
-    function applyZoom() {
-      const imgEl = document.getElementById('lightbox-active-img');
-      if (imgEl) {
-        imgEl.style.transform = `scale(${currentZoom})`;
-        imgEl.style.transition = 'transform 0.25s ease-in-out';
+    function resetZoom(event) {
+      if (event) event.stopPropagation();
+      if (panzoomInstance) {
+        panzoomInstance.reset();
       }
     }
 
@@ -919,14 +898,36 @@
       const item = currentMediaList[currentPhotoIndex];
       const container = document.getElementById('lightbox-media-container');
 
+      // Hancurkan instance Panzoom sebelumnya jika ada
+      if (panzoomInstance) {
+        panzoomInstance.destroy();
+        panzoomInstance = null;
+      }
+
       if (item.type === 'video') {
         container.innerHTML = `
           <iframe src="${item.url}" class="w-full max-w-3xl h-[60vh] md:h-[70vh] rounded-lg shadow-2xl bg-black" allow="autoplay" allowfullscreen></iframe>
         `;
       } else {
         container.innerHTML = `
-          <img id="lightbox-active-img" src="${item.url}" alt="Foto Full" ondblclick="toggleZoom(event)" class="max-w-full max-h-[70vh] md:max-h-[75vh] rounded-lg shadow-2xl object-contain select-none cursor-zoom-in" style="transform: scale(1); transition: transform 0.25s ease-in-out;">
+          <img id="panzoom-element" src="${item.url}" alt="Foto Full" class="max-w-full max-h-[70vh] rounded-lg shadow-2xl object-contain select-none cursor-grab active:cursor-grabbing">
         `;
+
+        // Inisialisasi Panzoom untuk mengaktifkan Gestur Cubit (Pinch) & Geser (Pan)
+        setTimeout(() => {
+          const elem = document.getElementById('panzoom-element');
+          if (elem && typeof Panzoom !== 'undefined') {
+            panzoomInstance = Panzoom(elem, {
+              maxScale: 4,
+              minScale: 1,
+              contain: 'outside',
+              startTransform: 'scale(1)'
+            });
+            
+            // Aktifkan Zoom dengan roda Mouse (Desktop)
+            elem.parentElement.addEventListener('wheel', panzoomInstance.zoomWithWheel);
+          }
+        }, 50);
       }
 
       document.getElementById('lightbox-caption').innerText = currentPhotoCaption;
@@ -952,8 +953,11 @@
       if(activeModalsStack.includes('lightbox-modal')) {
         history.back();
       }
+      if (panzoomInstance) {
+        panzoomInstance.destroy();
+        panzoomInstance = null;
+      }
       document.getElementById('lightbox-media-container').innerHTML = '';
-      currentZoom = 1;
     }
 
     const formSaran = document.getElementById("form-saran");
