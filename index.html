@@ -621,9 +621,9 @@
     let globalArisanData = [];
     let globalJerseyData = [];
     let globalRencanaData = [];
+    let activeModalsStack = []; // Stack untuk melacak modal yang sedang terbuka
     const folderCache = {};
 
-    // DATES & CALENDAR CONTROL
     let calendarDate = new Date();
 
     function formatRupiah(angka) {
@@ -652,66 +652,87 @@
       return cleanUrl;
     }
 
-    // Modal Control Functions
+    // --- MANAJEMEN MODAL & INTEGRASI TOMBOL BACK HP (HISTORY API) ---
     function openModal(id) {
-      document.getElementById(id).classList.remove('hidden');
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      el.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
+
+      // Dorong history state baru agar tombol back HP mendeteksi penutupan modal
+      history.pushState({ modalOpen: id }, '', '#' + id);
+      activeModalsStack.push(id);
+
       if(id === 'modal-saran') {
           setTimeout(() => {
-            document.getElementById(id).classList.remove('opacity-0');
-            document.getElementById(id).children[0].classList.remove('scale-95');
+            el.classList.remove('opacity-0');
+            el.children[0].classList.remove('scale-95');
           }, 10);
       }
     }
+
     function closeModal(id) {
+      const el = document.getElementById(id);
+      if (!el || el.classList.contains('hidden')) return;
+
       if(id === 'modal-saran') {
-          document.getElementById(id).classList.add('opacity-0');
-          document.getElementById(id).children[0].classList.add('scale-95');
+          el.classList.add('opacity-0');
+          el.children[0].classList.add('scale-95');
           setTimeout(() => {
-              document.getElementById(id).classList.add('hidden');
+              el.classList.add('hidden');
               document.body.style.overflow = 'auto';
               document.getElementById('saran-status').classList.add('hidden');
               document.getElementById('form-saran').reset();
           }, 300);
       } else {
-        document.getElementById(id).classList.add('hidden');
+        el.classList.add('hidden');
         document.body.style.overflow = 'auto';
+      }
+
+      // Hapus dari stack jika ada
+      const index = activeModalsStack.indexOf(id);
+      if (index > -1) {
+        activeModalsStack.splice(index, 1);
       }
     }
 
-    function openModalKeuangan() { openModal('modal-keuangan'); }
-    function closeModalKeuangan() { closeModal('modal-keuangan'); }
-    function openModalArisan() { openModal('modal-arisan'); }
-    function closeModalArisan() { closeModal('modal-arisan'); }
-    function openModalJersey() { openModal('modal-jersey'); }
-    function closeModalJersey() { closeModal('modal-jersey'); }
-    function openModalDokumentasi() { openModal('modal-dokumentasi'); }
-    function closeModalDokumentasi() { closeModal('modal-dokumentasi'); }
-    function openModalSaran() { openModal('modal-saran'); }
-    function closeModalSaran() { closeModal('modal-saran'); }
-
-    // AJAX Formspree submission
-    const formSaran = document.getElementById("form-saran");
-    formSaran.addEventListener("submit", async function(event) {
-        event.preventDefault();
-        const data = new FormData(event.target);
-        try {
-            const response = await fetch(event.target.action, {
-                method: formSaran.method,
-                body: data,
-                headers: { 'Accept': 'application/json' }
-            });
-            if (response.ok) {
-                document.getElementById('saran-status').classList.remove('hidden');
-                formSaran.reset();
-                setTimeout(closeModalSaran, 2500);
-            } else {
-                alert("Ups! Gagal mengirim pesan. Silakan coba lagi.");
-            }
-        } catch (error) {
-            alert("Ups! Gagal mengirim pesan. Periksa koneksi internet Anda.");
+    // Listener tombol Back (Kembali) di HP / Browser
+    window.addEventListener('popstate', function(event) {
+      if (activeModalsStack.length > 0) {
+        // Ambil modal paling atas yang sedang terbuka
+        const topModalId = activeModalsStack[activeModalsStack.length - 1];
+        
+        // Tutup modal secara visual tanpa memicu history.back() ganda
+        const el = document.getElementById(topModalId);
+        if (el) {
+          if (topModalId === 'modal-saran') {
+            el.classList.add('opacity-0');
+            el.children[0].classList.add('scale-95');
+            setTimeout(() => { el.classList.add('hidden'); document.body.style.overflow = 'auto'; }, 300);
+          } else {
+            el.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+          }
         }
+        activeModalsStack.pop();
+      }
     });
+
+    function openModalKeuangan() { openModal('modal-keuangan'); }
+    function closeModalKeuangan() { if(activeModalsStack.includes('modal-keuangan')) history.back(); }
+    
+    function openModalArisan() { openModal('modal-arisan'); }
+    function closeModalArisan() { if(activeModalsStack.includes('modal-arisan')) history.back(); }
+    
+    function openModalJersey() { openModal('modal-jersey'); }
+    function closeModalJersey() { if(activeModalsStack.includes('modal-jersey')) history.back(); }
+    
+    function openModalDokumentasi() { openModal('modal-dokumentasi'); }
+    function closeModalDokumentasi() { if(activeModalsStack.includes('modal-dokumentasi')) history.back(); }
+    
+    function openModalSaran() { openModal('modal-saran'); }
+    function closeModalSaran() { if(activeModalsStack.includes('modal-saran')) history.back(); }
 
     function openModalEventDetail(dateStr, eventItems) {
       document.getElementById('modal-event-date').innerText = `Kegiatan: ${dateStr}`;
@@ -733,8 +754,7 @@
       document.getElementById('modal-event-body').innerHTML = html;
       openModal('modal-event-detail');
     }
-
-    function closeModalEventDetail() { closeModal('modal-event-detail'); }
+    function closeModalEventDetail() { if(activeModalsStack.includes('modal-event-detail')) history.back(); }
 
     async function fetchFolderFiles(folderId) {
       if (!FOLDER_API_URL || !FOLDER_API_URL.startsWith('http')) return [];
@@ -762,8 +782,7 @@
       document.getElementById('gallery-grid-title').innerText = title || "Galeri Album";
       document.getElementById('gallery-grid-container').innerHTML = '<p class="text-slate-400 text-xs col-span-full text-center py-8">Memuat seluruh media album...</p>';
       
-      document.getElementById('modal-gallery-grid').classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
+      openModal('modal-gallery-grid');
 
       const folderId = extractFolderId(rawString);
       let mediaItems = [];
@@ -809,14 +828,11 @@
       lucide.createIcons();
     }
 
-    function closeGalleryGridModal() {
-      document.getElementById('modal-gallery-grid').classList.add('hidden');
-      document.body.style.overflow = 'auto';
-    }
+    function closeGalleryGridModal() { if(activeModalsStack.includes('modal-gallery-grid')) history.back(); }
 
     function openLightboxFromIndex(index) {
       currentPhotoIndex = index;
-      document.getElementById('lightbox-modal').classList.remove('hidden');
+      openModal('lightbox-modal');
       updateLightboxView();
     }
 
@@ -868,9 +884,33 @@
     }
 
     function closeLightbox() {
-      document.getElementById('lightbox-modal').classList.add('hidden');
+      if(activeModalsStack.includes('lightbox-modal')) {
+        history.back();
+      }
       document.getElementById('lightbox-media-container').innerHTML = '';
     }
+
+    const formSaran = document.getElementById("form-saran");
+    formSaran.addEventListener("submit", async function(event) {
+        event.preventDefault();
+        const data = new FormData(event.target);
+        try {
+            const response = await fetch(event.target.action, {
+                method: formSaran.method,
+                body: data,
+                headers: { 'Accept': 'application/json' }
+            });
+            if (response.ok) {
+                document.getElementById('saran-status').classList.remove('hidden');
+                formSaran.reset();
+                setTimeout(closeModalSaran, 2500);
+            } else {
+                alert("Ups! Gagal mengirim pesan. Silakan coba lagi.");
+            }
+        } catch (error) {
+            alert("Ups! Gagal mengirim pesan. Periksa koneksi internet Anda.");
+        }
+    });
 
     function renderTableRow(row) {
       const keys = Object.keys(row);
@@ -1299,12 +1339,11 @@
       const today = new Date();
       const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
 
-      // Fungsi helper untuk mencari Tanggal Sabtu di Minggu Kedua bulan ini
       let secondSaturdayDate = null;
       let saturdayCount = 0;
       for (let d = 1; d <= daysInMonth; d++) {
         let checkDate = new Date(year, month, d);
-        if (checkDate.getDay() === 6) { // Hari Sabtu
+        if (checkDate.getDay() === 6) {
           saturdayCount++;
           if (saturdayCount === 2) {
             secondSaturdayDate = d;
@@ -1315,19 +1354,15 @@
 
       let gridHTML = '';
 
-      // Offset Hari Kosong
       for (let i = 0; i < firstDay; i++) {
         gridHTML += `<div class="p-2 min-h-[42px]"></div>`;
       }
 
-      // Render Hari-Hari
       for (let day = 1; day <= daysInMonth; day++) {
         const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         
-        // Cari kegiatan manual dari CSV Rencana
         let dayEvents = globalRencanaData.filter(item => item.parsedDate === dateKey);
 
-        // OTOMATISASI: Jika tanggal ini adalah Sabtu Minggu Kedua, tambahkan Jadwal Arisan
         if (day === secondSaturdayDate) {
           dayEvents.push({
             tanggalStr: `${day} ${monthNames[month]} ${year}`,
@@ -1367,7 +1402,6 @@
         const safeDateStr = `${day} ${monthNames[month]} ${year}`;
         const clickAttr = hasEvent ? `onclick='openModalEventDetail("${safeDateStr}", ${JSON.stringify(dayEvents).replace(/'/g, "&apos;")})'` : '';
 
-        // Teks badge di kotak tanggal
         let badgeLabel = '📌 Acara';
         if (isGolor) badgeLabel = '🧹 Golor';
         else if (day === secondSaturdayDate) badgeLabel = '🏠 Arisan';
@@ -1398,7 +1432,6 @@
       renderCalendar();
     }
 
-    // MEMBACA CSV RENCANA KEGIATAN & DETEKSI GOLOR
     if (CSV_RENCANA_URL && CSV_RENCANA_URL.startsWith('http')) {
       Papa.parse(CSV_RENCANA_URL, {
         download: true,
