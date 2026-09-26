@@ -22,42 +22,36 @@
     html {
       scroll-behavior: smooth;
     }
-    /* Mencegah default touch action saat swipe kalender di HP */
     .touch-pan-y {
       touch-action: pan-y;
     }
   </style>
 </head>
 
-<!-- Menambahkan Event Listener Anti Klik Kanan & Anti Shortcut -->
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full" oncontextmenu="return false;" onkeydown="return disableInspect(event)">
 
   <!-- Header / Navigation -->
   <header class="bg-gradient-to-r from-indigo-950 via-indigo-900 to-indigo-950 text-white border-b border-indigo-800/40 sticky top-0 z-50 w-full transition-all shadow-md">
     <div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between relative">
       
-      <!-- Icon Home di Sebelah Kiri -->
       <a href="#" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 transition group shrink-0">
         <i data-lucide="home" class="w-5 h-5 text-indigo-200 group-hover:scale-110 transition"></i>
       </a>
 
-      <!-- Judul Flamboyan 4 (Sesuai Permintaan 2: Menyembunyikan Pesona Kahuripan 2 di Tampilan HP) -->
       <div class="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none w-full max-w-xl px-12">
         <h1 class="text-sm sm:text-base md:text-lg font-bold tracking-wide text-white whitespace-nowrap overflow-hidden text-ellipsis">
           Flamboyan 4 <span class="hidden sm:inline font-normal text-indigo-200/80 text-xs sm:text-sm">| RT 001 RW 026 Pesona Kahuripan 2</span>
         </h1>
       </div>
 
-      <!-- Placeholder Kosong Kanan untuk Menjaga Keseimbangan Flex Layout -->
       <div class="w-9 h-9 opacity-0 pointer-events-none"></div>
 
     </div>
   </header>
 
-  <!-- Hero Section Opsi 1 Tanpa Slideshow Foto (Sesuai Permintaan 1) -->
+  <!-- Hero Section Opsi 1 -->
   <section class="relative bg-gradient-to-br from-indigo-950 via-indigo-900 to-violet-900 text-white py-14 md:py-20 px-4 overflow-hidden w-full border-b border-indigo-800/40">
     
-    <!-- Pola Grid Abstrak & Efek Cahaya Glow -->
     <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px]"></div>
     <div class="absolute -top-24 -left-20 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -73,7 +67,6 @@
         </p>
       </div>
 
-      <!-- Quick Action Buttons / Chip Navigasi Sampul -->
       <div class="pt-2 flex flex-wrap justify-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-medium">
         <a href="#keuangan" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
           <i data-lucide="wallet" class="w-4 h-4 text-emerald-400"></i>
@@ -109,9 +102,7 @@
         <span id="label-update-kas" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full whitespace-nowrap">Update Rincian Kas</span>
       </div>
 
-      <!-- Ringkasan Kas -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 w-full">
-        <!-- Kartu Total Pemasukan -->
         <div onclick="openModalKeuanganFiltered('pemasukan')" class="bg-white p-5 md:p-6 rounded-xl shadow-sm border border-slate-200 hover:border-emerald-300 hover:shadow-md transition cursor-pointer group relative">
           <div class="flex justify-between items-start">
             <p class="text-xs md:text-sm font-medium text-slate-500 mb-1">Total Pemasukan</p>
@@ -121,7 +112,6 @@
           <p class="text-xs text-slate-400 mt-2">*Klik untuk lihat khusus pemasukan</p>
         </div>
 
-        <!-- Kartu Total Pengeluaran -->
         <div onclick="openModalKeuanganFiltered('pengeluaran')" class="bg-white p-5 md:p-6 rounded-xl shadow-sm border border-slate-200 hover:border-rose-300 hover:shadow-md transition cursor-pointer group relative">
           <div class="flex justify-between items-start">
             <p class="text-xs md:text-sm font-medium text-slate-500 mb-1">Total Pengeluaran</p>
@@ -131,7 +121,6 @@
           <p class="text-xs text-slate-400 mt-2">*Klik untuk lihat khusus pengeluaran</p>
         </div>
 
-        <!-- Kartu Sisa Saldo Kas -->
         <div class="bg-white p-5 md:p-6 rounded-xl shadow-sm border border-indigo-100 bg-indigo-50/50">
           <p class="text-xs md:text-sm font-medium text-indigo-700 mb-1">Sisa Saldo Kas</p>
           <p id="sisa-saldo" class="text-xl md:text-2xl font-bold text-indigo-900">Rp 0</p>
@@ -139,7 +128,6 @@
         </div>
       </div>
 
-      <!-- Tabel Transaksi -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
         <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
           <h4 class="font-semibold text-slate-700 text-sm md:text-base">Rincian 10 Transaksi Terakhir</h4>
@@ -170,7 +158,7 @@
       </div>
     </section>
 
-    <!-- SECTION 2: JADWAL & TUAN RUMAH ARISAN -->
+    <!-- SECTION 2: JADWAL ARISAN -->
     <section id="arisan" class="scroll-mt-20 w-full">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
         <div class="flex items-center space-x-2">
@@ -180,7 +168,6 @@
         <span id="loading-status-arisan" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full whitespace-nowrap">Memuat Jadwal...</span>
       </div>
 
-      <!-- Card Highlight Tuan Rumah Arisan -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
         <div onclick="openModalArisan()" class="bg-gradient-to-r from-indigo-600 to-indigo-800 hover:from-indigo-700 hover:to-indigo-900 text-white p-5 rounded-xl shadow-md flex items-center justify-between cursor-pointer transition transform hover:-translate-y-0.5 active:scale-98 group">
           <div>
@@ -212,10 +199,9 @@
       </div>
     </section>
 
-    <!-- SECTION 3: BERDAMPINGAN - PEMESANAN JERSEY & PEMBANGUNAN GAPURA -->
+    <!-- SECTION 3: JERSEY & GAPURA -->
     <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch w-full">
 
-      <!-- SISI KIRI: PEMESANAN JERSEY -->
       <div id="jersey" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between h-full">
         <div>
           <div class="flex items-center justify-between mb-4">
@@ -252,7 +238,6 @@
         </button>
       </div>
 
-      <!-- SISI KANAN: PROGRAM PEMBANGUNAN GAPURA -->
       <div id="gapura" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between h-full">
         <div>
           <div class="flex items-center justify-between mb-4">
@@ -323,7 +308,7 @@
       </div>
     </section>
 
-    <!-- SECTION 5: RENCANA KEGIATAN & KALENDER GOLOR/KERJA BAKTI -->
+    <!-- SECTION 5: RENCANA KEGIATAN & KALENDER -->
     <section id="rencana" class="scroll-mt-20 w-full space-y-6">
       <div class="flex items-center space-x-2">
         <i data-lucide="calendar-check" class="w-6 h-6 text-indigo-600 shrink-0"></i>
@@ -332,22 +317,20 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        <!-- SISI KIRI: KALENDER INTERAKTIF DENGAN SWIPE DONG/SWIPE TOUCH HP & PANAH KEYBOARD (Sesuai Permintaan 4) -->
         <div id="calendar-wrapper" class="lg:col-span-7 bg-white p-5 rounded-xl shadow-sm border border-slate-200 select-none touch-pan-y">
           <div class="flex items-center justify-between mb-4">
             <h4 id="calendar-month-year" class="font-bold text-slate-800 text-base md:text-lg">Bulan Tahun</h4>
             <div class="flex items-center space-x-1">
-              <button onclick="changeMonth(-1)" class="p-1.5 hover:bg-slate-100 rounded-lg transition text-slate-600" title="Bulan Sebelumnya (Atau Panah Kiri Keyboard)">
+              <button onclick="changeMonth(-1)" class="p-1.5 hover:bg-slate-100 rounded-lg transition text-slate-600" title="Bulan Sebelumnya">
                 <i data-lucide="chevron-left" class="w-5 h-5"></i>
               </button>
               <button onclick="resetToCurrentMonth()" class="px-2.5 py-1 text-xs font-semibold bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition">Hari Ini</button>
-              <button onclick="changeMonth(1)" class="p-1.5 hover:bg-slate-100 rounded-lg transition text-slate-600" title="Bulan Berikutnya (Atau Panah Kanan Keyboard)">
+              <button onclick="changeMonth(1)" class="p-1.5 hover:bg-slate-100 rounded-lg transition text-slate-600" title="Bulan Berikutnya">
                 <i data-lucide="chevron-right" class="w-5 h-5"></i>
               </button>
             </div>
           </div>
 
-          <!-- Keterangan Warna Badges -->
           <div class="flex flex-wrap items-center justify-between gap-2 mb-4 text-[11px] text-slate-500 border-b border-slate-100 pb-2">
             <div class="flex items-center space-x-3">
               <div class="flex items-center space-x-1">
@@ -362,17 +345,14 @@
             <span class="text-[10px] text-slate-400 italic hidden sm:inline">*Usap/Swipe di HP untuk ganti bulan</span>
           </div>
 
-          <!-- Grid Hari Kalender -->
           <div class="grid grid-cols-7 gap-1 text-center font-bold text-xs text-slate-400 mb-2">
             <div>Ming</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div>
           </div>
 
           <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 text-xs">
-            <!-- Grid Tanggal Dihasilkan via JS -->
           </div>
         </div>
 
-        <!-- SISI KANAN: LIST DAFTAR RENCANA KEGIATAN (5 COLUMNS) -->
         <div class="lg:col-span-5 bg-white p-5 rounded-xl shadow-sm border border-slate-200">
           <h4 class="font-bold text-slate-800 text-base mb-3 flex items-center space-x-1.5">
             <i data-lucide="list-todo" class="w-4 h-4 text-indigo-600"></i>
@@ -389,33 +369,31 @@
 
   </main>
 
-  <!-- MODAL DETAIL CATATAN KALENDER SAAT TANGGAL DIKLIK -->
-  <div id="modal-event-detail" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="handleOutsideClick(event, 'modal-event-detail')">
+  <!-- MODALS CONTAINER -->
+  <div id="modal-event-detail" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="closeModalDirect('modal-event-detail')">
     <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col" onclick="event.stopPropagation()">
       <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-indigo-50">
         <div class="flex items-center space-x-2">
           <i data-lucide="bell" class="w-5 h-5 text-indigo-600"></i>
           <h3 id="modal-event-date" class="font-bold text-slate-800 text-sm md:text-base">Detail Kegiatan</h3>
         </div>
-        <button onclick="closeModalEventDetail()" class="p-1 text-slate-400 hover:text-slate-600 rounded-full transition">
+        <button onclick="closeModalDirect('modal-event-detail')" class="p-1 text-slate-400 hover:text-slate-600 rounded-full transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
       <div id="modal-event-body" class="p-5 space-y-3 text-xs md:text-sm">
-        <!-- Detail Catatan via JS -->
       </div>
     </div>
   </div>
 
-  <!-- ALL POPUP MODALS DENGAN KANVAS OUTSIDE-CLICK & ESC KEY (Sesuai Permintaan 3) -->
-  <div id="modal-arisan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="handleOutsideClick(event, 'modal-arisan')">
+  <div id="modal-arisan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="closeModalDirect('modal-arisan')">
     <div class="bg-white w-full max-w-3xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
         <div>
           <h3 class="text-lg md:text-xl font-bold text-slate-900">Jadwal & Putaran Arisan Warga</h3>
           <p class="text-xs text-slate-500">Daftar giliran arisan lorong Flamboyan 4</p>
         </div>
-        <button onclick="closeModalArisan()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
+        <button onclick="closeModalDirect('modal-arisan')" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
           <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
         </button>
       </div>
@@ -438,14 +416,14 @@
     </div>
   </div>
 
-  <div id="modal-keuangan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="handleOutsideClick(event, 'modal-keuangan')">
+  <div id="modal-keuangan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="closeModalDirect('modal-keuangan')">
     <div class="bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
         <div>
           <h3 class="text-lg md:text-xl font-bold text-slate-900">Arsip Seluruh Transaksi Kas</h3>
           <p class="text-xs text-slate-500">Riwayat pemasukan & pengeluaran kas Flamboyan 4</p>
         </div>
-        <button onclick="closeModalKeuangan()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
+        <button onclick="closeModalDirect('modal-keuangan')" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
           <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
         </button>
       </div>
@@ -469,14 +447,14 @@
     </div>
   </div>
 
-  <div id="modal-jersey" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="handleOutsideClick(event, 'modal-jersey')">
+  <div id="modal-jersey" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="closeModalDirect('modal-jersey')">
     <div class="bg-white w-full max-w-5xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
         <div>
           <h3 class="text-lg md:text-xl font-bold text-slate-900">Seluruh Daftar Pemesan Jersey</h3>
           <p class="text-xs text-slate-500">Data ukuran, pilihan lengan, dan status pembayaran warga</p>
         </div>
-        <button onclick="closeModalJersey()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
+        <button onclick="closeModalDirect('modal-jersey')" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
           <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
         </button>
       </div>
@@ -502,14 +480,14 @@
     </div>
   </div>
 
-  <div id="modal-dokumentasi" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="handleOutsideClick(event, 'modal-dokumentasi')">
+  <div id="modal-dokumentasi" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="closeModalDirect('modal-dokumentasi')">
     <div class="bg-white w-full max-w-5xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
         <div>
           <h3 class="text-lg md:text-xl font-bold text-slate-900">Arsip Dokumentasi Kegiatan</h3>
           <p class="text-xs text-slate-500">Seluruh album foto & kegiatan warga Flamboyan 4</p>
         </div>
-        <button onclick="closeModalDokumentasi()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
+        <button onclick="closeModalDirect('modal-dokumentasi')" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
           <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
         </button>
       </div>
@@ -518,15 +496,15 @@
     </div>
   </div>
 
-  <!-- MODAL GRID POP-UP GALERI FOTO & VIDEO -->
-  <div id="modal-gallery-grid" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[80] hidden flex items-center justify-center p-3 md:p-6" onclick="handleOutsideClick(event, 'modal-gallery-grid')">
+  <!-- MODAL GRID POP-UP GALERI -->
+  <div id="modal-gallery-grid" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[80] hidden flex items-center justify-center p-3 md:p-6" onclick="closeModalDirect('modal-gallery-grid')">
     <div class="bg-white w-full max-w-5xl max-h-[85vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
         <div>
           <h3 id="gallery-grid-title" class="text-base md:text-lg font-bold text-slate-900">Galeri Album</h3>
           <p id="gallery-grid-subtitle" class="text-xs text-slate-500">Klik salah satu media untuk melihat/memutar</p>
         </div>
-        <button onclick="closeGalleryGridModal()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
+        <button onclick="closeModalDirect('modal-gallery-grid')" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
           <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
         </button>
       </div>
@@ -536,14 +514,14 @@
     </div>
   </div>
 
-  <!-- LIGHTBOX MODAL FULLSCREEN -->
-  <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-center p-2 md:p-4 overflow-hidden" onclick="closeLightbox()">
+  <!-- LIGHTBOX MODAL FULLSCREEN (DIPERBAIKI: HILANGKAN EVENT STOPPROPAGATION YG MEMBLOKIR KLIK DILUAR FOTO) -->
+  <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-center p-2 md:p-4 overflow-hidden" onclick="closeModalDirect('lightbox-modal')">
     
-    <div class="absolute top-3 right-3 flex items-center space-x-2 z-30">
+    <div class="absolute top-3 right-3 flex items-center space-x-2 z-30" onclick="event.stopPropagation()">
       <button onclick="resetLightboxZoom(event)" id="btn-reset-zoom" class="text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition shadow-md text-xs font-semibold px-3 hidden" title="Reset Ukuran">
         Reset Zoom
       </button>
-      <button onclick="closeLightbox()" class="text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition shadow-md" title="Tutup (Esc)">
+      <button onclick="closeModalDirect('lightbox-modal')" class="text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition shadow-md" title="Tutup (Esc)">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
     </div>
@@ -556,11 +534,11 @@
       <i data-lucide="chevron-right" class="w-6 h-6 md:w-8 md:h-8"></i>
     </button>
     
-    <div class="relative w-full max-w-5xl h-full flex flex-col items-center justify-center px-2 my-auto" onclick="event.stopPropagation()">
+    <div class="relative w-full max-w-5xl h-full flex flex-col items-center justify-center px-2 my-auto">
       <div id="lightbox-media-container" class="relative w-full h-[75vh] flex items-center justify-center overflow-hidden">
       </div>
 
-      <div class="text-center mt-3 text-white z-20">
+      <div class="text-center mt-3 text-white z-20 pointer-events-none">
         <p id="lightbox-caption" class="text-xs md:text-sm font-semibold tracking-wide"></p>
         <p id="lightbox-counter" class="text-xs text-slate-400 mt-1 hidden"></p>
       </div>
@@ -568,14 +546,14 @@
   </div>
 
   <!-- MODAL KOTAK SARAN -->
-  <div id="modal-saran" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4 opacity-0 transition-opacity duration-300" onclick="handleOutsideClick(event, 'modal-saran')">
+  <div id="modal-saran" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4 opacity-0 transition-opacity duration-300" onclick="closeModalDirect('modal-saran')">
     <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col transform scale-95 transition-transform duration-300" onclick="event.stopPropagation()">
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-indigo-600 text-white">
         <div class="flex items-center space-x-2">
           <i data-lucide="message-square" class="w-5 h-5"></i>
           <h3 class="font-bold text-sm md:text-base">Kotak Saran Flamboyan 4</h3>
         </div>
-        <button onclick="closeModalSaran()" class="p-1 text-indigo-200 hover:text-white rounded-full transition">
+        <button onclick="closeModalDirect('modal-saran')" class="p-1 text-indigo-200 hover:text-white rounded-full transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -614,7 +592,7 @@
 
   </div>
 
-  <!-- Footer dengan Info Pembayaran -->
+  <!-- Footer -->
   <footer class="bg-slate-900 text-slate-400 pt-8 pb-6 border-t border-slate-800 w-full">
     <div class="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 text-sm">
       
@@ -666,7 +644,6 @@
   <script>
     lucide.createIcons();
 
-    // INTERAKSI DETEKSI SCROLL UNTUK TOMBOL SCROLL TO TOP
     window.addEventListener('scroll', function() {
       const btnScroll = document.getElementById('btn-scroll-top');
       if (window.scrollY > 300) {
@@ -679,54 +656,106 @@
     });
 
     function scrollToTop() {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // FUNGSI UNTUK MENUTUP POPUP VIA MOUSE CLICK DILUAR KOTAK (Sesuai Permintaan 3)
-    function handleOutsideClick(event, modalId) {
-      if (event.target.id === modalId) {
-        closeModalById(modalId);
+    // MANAJEMEN PENUTUPAN MODAL TERPUSAT & BEBAS BUG
+    let activeModalsStack = [];
+
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      el.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+
+      if (!activeModalsStack.includes(id)) {
+        activeModalsStack.push(id);
+        history.pushState({ modalOpen: id }, '', '#' + id);
+      }
+
+      if(id === 'modal-saran') {
+          setTimeout(() => {
+            el.classList.remove('opacity-0');
+            el.children[0].classList.remove('scale-95');
+          }, 10);
       }
     }
 
-    // DUKUNGAN INTERAKSI KEYBOARD: ESCAPE UNTUK MENUTUP POPUP & PANAH UNTUK LIGHTBOX / KALENDER (Sesuai Permintaan 3 & 4)
+    function closeModalDirect(id) {
+      const el = document.getElementById(id);
+      if (!el || el.classList.contains('hidden')) return;
+
+      if (id === 'modal-saran') {
+        el.classList.add('opacity-0');
+        el.children[0].classList.add('scale-95');
+        setTimeout(() => {
+          el.classList.add('hidden');
+          document.body.style.overflow = 'auto';
+          document.getElementById('saran-status').classList.add('hidden');
+          document.getElementById('form-saran').reset();
+        }, 300);
+      } else {
+        el.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+      }
+
+      if (id === 'lightbox-modal') {
+        document.getElementById('lightbox-media-container').innerHTML = '';
+        resetLightboxZoom();
+      }
+
+      const idx = activeModalsStack.indexOf(id);
+      if (idx > -1) {
+        activeModalsStack.splice(idx, 1);
+        if (history.state && history.state.modalOpen === id) {
+          history.back();
+        }
+      }
+    }
+
+    window.addEventListener('popstate', function(event) {
+      if (activeModalsStack.length > 0) {
+        const topModalId = activeModalsStack.pop();
+        const el = document.getElementById(topModalId);
+        if (el) {
+          if (topModalId === 'modal-saran') {
+            el.classList.add('opacity-0');
+            el.children[0].classList.add('scale-95');
+            setTimeout(() => { el.classList.add('hidden'); document.body.style.overflow = 'auto'; }, 300);
+          } else {
+            el.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+          }
+          if (topModalId === 'lightbox-modal') {
+            document.getElementById('lightbox-media-container').innerHTML = '';
+            resetLightboxZoom();
+          }
+        }
+      }
+    });
+
     document.addEventListener('keydown', function(e) {
       if (e.keyCode === 123) return false;
       if (e.ctrlKey && e.shiftKey && e.keyCode === 73) return false;
       if (e.ctrlKey && e.shiftKey && e.keyCode === 74) return false;
       if (e.ctrlKey && e.keyCode === 85) return false;
 
-      // 1. Jika Lightbox Aktif
-      const lightbox = document.getElementById('lightbox-modal');
-      if (lightbox && !lightbox.classList.contains('hidden')) {
-        if (e.key === 'ArrowRight') {
-          nextLightboxMedia(e);
-        } else if (e.key === 'ArrowLeft') {
-          prevLightboxMedia(e);
-        } else if (e.key === 'Escape') {
-          closeLightbox();
-        }
-        return;
-      }
-
-      // 2. Jika ada Modal Aktif -> Tutup via ESC (Sesuai Permintaan 3)
       if (activeModalsStack.length > 0) {
-        if (e.key === 'Escape') {
-          const topModalId = activeModalsStack[activeModalsStack.length - 1];
-          closeModalById(topModalId);
+        const topModalId = activeModalsStack[activeModalsStack.length - 1];
+
+        if (topModalId === 'lightbox-modal') {
+          if (e.key === 'ArrowRight') nextLightboxMedia(e);
+          else if (e.key === 'ArrowLeft') prevLightboxMedia(e);
+          else if (e.key === 'Escape') closeModalDirect('lightbox-modal');
+        } else {
+          if (e.key === 'Escape') closeModalDirect(topModalId);
         }
         return;
       }
 
-      // 3. Jika Tidak Ada Modal Aktif -> Navigasi Kalender via Panah Keyboard PC (Sesuai Permintaan 4)
-      if (e.key === 'ArrowRight') {
-        changeMonth(1);
-      } else if (e.key === 'ArrowLeft') {
-        changeMonth(-1);
-      }
+      if (e.key === 'ArrowRight') changeMonth(1);
+      else if (e.key === 'ArrowLeft') changeMonth(-1);
     });
 
     function disableInspect(e) {
@@ -776,7 +805,6 @@
     let globalArisanData = [];
     let globalJerseyData = [];
     let globalRencanaData = [];
-    let activeModalsStack = [];
     const folderCache = {};
 
     let calendarDate = new Date();
@@ -807,77 +835,6 @@
       return cleanUrl;
     }
 
-    function openModal(id) {
-      const el = document.getElementById(id);
-      if (!el) return;
-
-      el.classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
-
-      history.pushState({ modalOpen: id }, '', '#' + id);
-      activeModalsStack.push(id);
-
-      if(id === 'modal-saran') {
-          setTimeout(() => {
-            el.classList.remove('opacity-0');
-            el.children[0].classList.remove('scale-95');
-          }, 10);
-      }
-    }
-
-    function closeModalById(id) {
-      if (id === 'lightbox-modal') {
-        closeLightbox();
-        return;
-      }
-      closeModal(id);
-      if (history.state && history.state.modalOpen === id) {
-        history.back();
-      }
-    }
-
-    function closeModal(id) {
-      const el = document.getElementById(id);
-      if (!el || el.classList.contains('hidden')) return;
-
-      if(id === 'modal-saran') {
-          el.classList.add('opacity-0');
-          el.children[0].classList.add('scale-95');
-          setTimeout(() => {
-              el.classList.add('hidden');
-              document.body.style.overflow = 'auto';
-              document.getElementById('saran-status').classList.add('hidden');
-              document.getElementById('form-saran').reset();
-          }, 300);
-      } else {
-        el.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-      }
-
-      const index = activeModalsStack.indexOf(id);
-      if (index > -1) {
-        activeModalsStack.splice(index, 1);
-      }
-    }
-
-    window.addEventListener('popstate', function(event) {
-      if (activeModalsStack.length > 0) {
-        const topModalId = activeModalsStack[activeModalsStack.length - 1];
-        const el = document.getElementById(topModalId);
-        if (el) {
-          if (topModalId === 'modal-saran') {
-            el.classList.add('opacity-0');
-            el.children[0].classList.add('scale-95');
-            setTimeout(() => { el.classList.add('hidden'); document.body.style.overflow = 'auto'; }, 300);
-          } else {
-            el.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-          }
-        }
-        activeModalsStack.pop();
-      }
-    });
-
     function openModalKeuangan() { 
       document.getElementById('search-keuangan').value = '';
       filterKeuanganModal();
@@ -890,15 +847,10 @@
       openModal('modal-keuangan');
     }
 
-    function closeModalKeuangan() { closeModalById('modal-keuangan'); }
     function openModalArisan() { openModal('modal-arisan'); }
-    function closeModalArisan() { closeModalById('modal-arisan'); }
     function openModalJersey() { openModal('modal-jersey'); }
-    function closeModalJersey() { closeModalById('modal-jersey'); }
     function openModalDokumentasi() { openModal('modal-dokumentasi'); }
-    function closeModalDokumentasi() { closeModalById('modal-dokumentasi'); }
     function openModalSaran() { openModal('modal-saran'); }
-    function closeModalSaran() { closeModalById('modal-saran'); }
 
     function openModalEventDetail(dateStr, eventItems) {
       document.getElementById('modal-event-date').innerText = `Kegiatan: ${dateStr}`;
@@ -920,7 +872,6 @@
       document.getElementById('modal-event-body').innerHTML = html;
       openModal('modal-event-detail');
     }
-    function closeModalEventDetail() { closeModalById('modal-event-detail'); }
 
     async function fetchFolderFiles(folderId) {
       if (!FOLDER_API_URL || !FOLDER_API_URL.startsWith('http')) return [];
@@ -1018,8 +969,6 @@
       document.getElementById('gallery-grid-container').innerHTML = gridHTML;
       lucide.createIcons();
     }
-
-    function closeGalleryGridModal() { closeModalById('modal-gallery-grid'); }
 
     function openLightboxFromIndex(index) {
       currentPhotoIndex = index;
@@ -1178,11 +1127,11 @@
 
       if (item.type === 'video') {
         container.innerHTML = `
-          <iframe src="${item.url}" class="w-full max-w-3xl h-full rounded-lg shadow-2xl bg-black" allow="autoplay" allowfullscreen></iframe>
+          <iframe src="${item.url}" class="w-full max-w-3xl h-full rounded-lg shadow-2xl bg-black" allow="autoplay" allowfullscreen onclick="event.stopPropagation()"></iframe>
         `;
       } else {
         container.innerHTML = `
-          <img id="lightbox-active-img" src="${item.url}" alt="Foto Full" class="max-w-full max-h-full rounded-lg shadow-2xl object-contain select-none transition-transform duration-75">
+          <img id="lightbox-active-img" src="${item.url}" alt="Foto Full" class="max-w-full max-h-full rounded-lg shadow-2xl object-contain select-none transition-transform duration-75" onclick="event.stopPropagation()">
         `;
         const img = document.getElementById('lightbox-active-img');
         if (img) initImageZoomEvents(img);
@@ -1207,14 +1156,6 @@
       lucide.createIcons();
     }
 
-    function closeLightbox() {
-      if(activeModalsStack.includes('lightbox-modal')) {
-        closeModalById('lightbox-modal');
-      }
-      document.getElementById('lightbox-media-container').innerHTML = '';
-      resetLightboxZoom();
-    }
-
     const formSaran = document.getElementById("form-saran");
     formSaran.addEventListener("submit", async function(event) {
         event.preventDefault();
@@ -1228,7 +1169,7 @@
             if (response.ok) {
                 document.getElementById('saran-status').classList.remove('hidden');
                 formSaran.reset();
-                setTimeout(closeModalSaran, 2500);
+                setTimeout(() => closeModalDirect('modal-saran'), 2500);
             } else {
                 alert("Ups! Gagal mengirim pesan. Silakan coba lagi.");
             }
@@ -1804,7 +1745,6 @@
       renderCalendar();
     }
 
-    // INTERAKSI TOUCH SWIPE JARI PADA KALENDER UNTUK LAYAR HP (Sesuai Permintaan 4)
     let touchStartX = 0;
     let touchStartY = 0;
     let touchEndX = 0;
@@ -1828,13 +1768,10 @@
       const swipeDistanceX = touchEndX - touchStartX;
       const swipeDistanceY = touchEndY - touchStartY;
       
-      // Memastikan swipe dominan ke horisontal (bukan scroll vertikal)
       if (Math.abs(swipeDistanceX) > Math.abs(swipeDistanceY) && Math.abs(swipeDistanceX) > 40) {
         if (swipeDistanceX < 0) {
-          // Swipe Kiri -> Bulan Berikutnya
           changeMonth(1);
         } else {
-          // Swipe Kanan -> Bulan Sebelumnya
           changeMonth(-1);
         }
       }
