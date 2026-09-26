@@ -145,7 +145,7 @@
     <!-- SECTION 3: BERDAMPINGAN - PEMESANAN JERSEY (KIRI) & PEMBANGUNAN GAPURA (KANAN) -->
     <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch w-full">
 
-      <!-- SISI KIRI: PEMESANAN JERSEY LORONG (RINGKAS) -->
+      <!-- SISI KIRI: PEMESANAN JERSEY LORONG -->
       <div id="jersey" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between h-full">
         <div>
           <div class="flex items-center justify-between mb-4">
@@ -157,7 +157,7 @@
           </div>
 
           <!-- Foto Preview Jersey Single -->
-          <div id="container-foto-jersey-single" class="relative group cursor-pointer bg-slate-100 rounded-lg overflow-hidden h-44 flex items-center justify-center mb-4" onclick="openLightboxFolderOrList(FOLDER_JERSEY_URL, 'Desain Jersey & Size Chart')">
+          <div id="container-foto-jersey-single" class="relative group cursor-pointer bg-slate-100 rounded-lg overflow-hidden h-44 flex items-center justify-center mb-4" onclick="openGalleryGridModal(FOLDER_JERSEY_URL, 'Desain Jersey & Size Chart')">
             <p class="text-slate-400 text-xs">Memuat gambar desain...</p>
           </div>
 
@@ -196,7 +196,7 @@
           </div>
 
           <!-- Foto Preview Gapura -->
-          <div id="container-foto-gapura" class="relative group cursor-pointer bg-slate-100 rounded-lg overflow-hidden h-44 flex items-center justify-center mb-4" onclick="openLightboxFolderOrList(FOLDER_GAPURA_URL, 'Desain Pembangunan Gapura')">
+          <div id="container-foto-gapura" class="relative group cursor-pointer bg-slate-100 rounded-lg overflow-hidden h-44 flex items-center justify-center mb-4" onclick="openGalleryGridModal(FOLDER_GAPURA_URL, 'Desain Pembangunan Gapura')">
             <p class="text-slate-400 text-xs">Memuat gambar gapura...</p>
           </div>
 
@@ -207,7 +207,6 @@
               <span id="gapura-percent" class="font-bold text-indigo-600">0%</span>
             </div>
             
-            <!-- Progress Bar Bar -->
             <div class="w-full bg-slate-100 rounded-full h-3.5 overflow-hidden p-0.5 border border-slate-200">
               <div id="gapura-progress-bar" class="bg-indigo-600 h-full rounded-full transition-all duration-500 w-0"></div>
             </div>
@@ -369,7 +368,7 @@
     </div>
   </div>
 
-  <!-- MODAL GALERI SEMUA FOTO -->
+  <!-- MODAL GALERI SEMUA FOTO KETIKA DIKLIK -->
   <div id="modal-dokumentasi" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4">
     <div class="bg-white w-full max-w-5xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
@@ -386,7 +385,25 @@
     </div>
   </div>
 
-  <!-- LIGHTBOX MODAL WITH SLIDER -->
+  <!-- MODAL GRID POP-UP GALERI FOTO (BERTUMPUK KOTAK-KOTAK) -->
+  <div id="modal-gallery-grid" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[80] hidden flex items-center justify-center p-3 md:p-6">
+    <div class="bg-white w-full max-w-5xl max-h-[85vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+      <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+        <div>
+          <h3 id="gallery-grid-title" class="text-base md:text-lg font-bold text-slate-900">Galeri Foto Album</h3>
+          <p id="gallery-grid-subtitle" class="text-xs text-slate-500">Klik salah satu foto untuk melihat ukuran penuh</p>
+        </div>
+        <button onclick="closeGalleryGridModal()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
+          <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
+        </button>
+      </div>
+      <div id="gallery-grid-container" class="p-4 md:p-6 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
+        <p class="text-slate-400 text-xs col-span-full text-center">Memuat seluruh foto...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIGHTBOX MODAL FULLSCREEN (HANYA MUNCUL SAAT SALAH SATU FOTO GRID DIKLIK) -->
   <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-center p-2 md:p-4" onclick="closeLightbox()">
     <button onclick="closeLightbox()" class="absolute top-3 right-3 text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition z-20">
       <i data-lucide="x" class="w-6 h-6"></i>
@@ -527,31 +544,54 @@
       return [];
     }
 
-    async function openLightboxFolderOrList(rawString, caption) {
-      const folderId = extractFolderId(rawString);
-      
-      if (folderId && FOLDER_API_URL.startsWith('http')) {
-        document.getElementById('lightbox-caption').innerText = "Memuat foto dari folder...";
-        document.getElementById('lightbox-img').src = PLACEHOLDER_IMG;
-        document.getElementById('lightbox-modal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
+    // --- BUKA MODAL GALERI GRID KOTAK-KOTAK (TAHAP 1) ---
+    async function openGalleryGridModal(rawString, title) {
+      document.getElementById('gallery-grid-title').innerText = title || "Galeri Foto Album";
+      document.getElementById('gallery-grid-container').innerHTML = '<p class="text-slate-400 text-xs col-span-full text-center py-8">Memuat seluruh foto album...</p>';
+      document.getElementById('modal-gallery-grid').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
 
-        const images = await fetchFolderImages(folderId);
-        if (images.length > 0) {
-          currentPhotoList = images;
-        } else {
-          currentPhotoList = [PLACEHOLDER_IMG];
-        }
+      const folderId = extractFolderId(rawString);
+      let photos = [];
+
+      if (folderId && FOLDER_API_URL.startsWith('http')) {
+        photos = await fetchFolderImages(folderId);
       } else {
         const rawUrls = rawString.split(',');
-        currentPhotoList = rawUrls.map(u => fixDriveUrl(u)).filter(u => u && u !== '');
-        if (currentPhotoList.length === 0) currentPhotoList = [PLACEHOLDER_IMG];
-        document.getElementById('lightbox-modal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
+        photos = rawUrls.map(u => fixDriveUrl(u)).filter(u => u && u !== '');
       }
 
-      currentPhotoIndex = 0;
-      currentPhotoCaption = caption;
+      if (!photos || photos.length === 0) photos = [PLACEHOLDER_IMG];
+      currentPhotoList = photos;
+      currentPhotoCaption = title;
+
+      let gridHTML = '';
+      photos.forEach((imgUrl, index) => {
+        gridHTML += `
+          <div class="relative group cursor-pointer bg-slate-100 rounded-xl overflow-hidden shadow-sm aspect-square border border-slate-200" onclick="openLightboxFromIndex(${index})">
+            <img src="${imgUrl}" alt="Foto ${index+1}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold">
+              <i data-lucide="maximize-2" class="w-5 h-5"></i>
+            </div>
+            <span class="absolute bottom-1 right-1 bg-black/60 text-white text-[9px] px-1.5 py-0.5 rounded font-mono">${index+1}</span>
+          </div>
+        `;
+      });
+
+      document.getElementById('gallery-grid-subtitle').innerText = `${photos.length} Foto ditemukan - Klik salah satu untuk membesarkan`;
+      document.getElementById('gallery-grid-container').innerHTML = gridHTML;
+      lucide.createIcons();
+    }
+
+    function closeGalleryGridModal() {
+      document.getElementById('modal-gallery-grid').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+
+    // --- BUKA LIGHTBOX FULLSCREEN SAAT FOTO GRID DIKLIK (TAHAP 2) ---
+    function openLightboxFromIndex(index) {
+      currentPhotoIndex = index;
+      document.getElementById('lightbox-modal').classList.remove('hidden');
       updateLightboxView();
     }
 
@@ -584,7 +624,6 @@
 
     function closeLightbox() {
       document.getElementById('lightbox-modal').classList.add('hidden');
-      document.body.style.overflow = 'auto';
     }
 
     // --- RENDER TABEL KEUANGAN ---
@@ -773,7 +812,7 @@
             document.getElementById('btn-container-keuangan-all').classList.remove('hidden');
           }
 
-          // HITUNG OTO MATIS DANA GAPURA
+          // HITUNG DANA GAPURA
           const terkumpul = Math.max(0, sisaSaldo);
           const persen = Math.min(100, Math.round((terkumpul / TARGET_DANA_GAPURA) * 100));
           const kurang = Math.max(0, TARGET_DANA_GAPURA - terkumpul);
@@ -918,7 +957,7 @@
           document.getElementById('container-foto-jersey-single').innerHTML = `
             <img src="${images[0]}" alt="Desain Jersey" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1 backdrop-blur-[1px]">
-              <i data-lucide="maximize-2" class="w-4 h-4"></i>
+              <i data-lucide="layout-grid" class="w-4 h-4"></i>
               <span>Buka Galeri foto jersey (${images.length})</span>
             </div>
           `;
@@ -933,8 +972,8 @@
           document.getElementById('container-foto-gapura').innerHTML = `
             <img src="${gapuraImages[0]}" alt="Desain Gapura" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1 backdrop-blur-[1px]">
-              <i data-lucide="maximize-2" class="w-4 h-4"></i>
-              <span>Lihat Desain Gapura Full (${gapuraImages.length})</span>
+              <i data-lucide="layout-grid" class="w-4 h-4"></i>
+              <span>Lihat Desain Gapura (${gapuraImages.length})</span>
             </div>
           `;
         }
@@ -942,7 +981,7 @@
       lucide.createIcons();
     })();
 
-    // --- PROSES DOKUMENTASI ---
+    // --- PROSES DOKUMENTASI KEGIATAN ---
     if (CSV_DOKUMENTASI_URL && CSV_DOKUMENTASI_URL.startsWith('http')) {
       Papa.parse(CSV_DOKUMENTASI_URL, {
         download: true,
@@ -993,12 +1032,12 @@
 
             const cardContent = `
               <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition flex flex-col w-full">
-                <div class="relative cursor-pointer overflow-hidden group bg-slate-100" onclick="openLightboxFolderOrList('${safePhotoString}', '${safeTitle}')">
+                <div class="relative cursor-pointer overflow-hidden group bg-slate-100" onclick="openGalleryGridModal('${safePhotoString}', '${safeTitle}')">
                   <img src="${firstFoto}" alt="${judul}" loading="lazy" referrerpolicy="no-referrer" class="w-full h-48 object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${PLACEHOLDER_IMG}'">
                   ${badgeMultiPhoto}
                   <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1">
-                    <i data-lucide="maximize-2" class="w-4 h-4"></i>
-                    <span>Buka Album Foto</span>
+                    <i data-lucide="layout-grid" class="w-4 h-4"></i>
+                    <span>Buka Galeri Foto</span>
                   </div>
                 </div>
                 <div class="p-4 flex-grow">
