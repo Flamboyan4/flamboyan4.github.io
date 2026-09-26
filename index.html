@@ -47,40 +47,69 @@
     </div>
   </header>
 
-  <!-- Hero Section Gelap & Elegan (Kembali ke Versi Tidak Silau) -->
-  <section class="relative bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white py-14 sm:py-20 md:py-24 px-4 overflow-hidden w-full border-b border-indigo-900/40">
+  <!-- Hero Section Opsi 2: Split Layout & Dynamic Photo Collage -->
+  <section class="relative bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white py-12 md:py-16 px-4 overflow-hidden w-full border-b border-indigo-900/40">
     
-    <!-- Pola Grid Geometris Abstrak & Efek Cahaya Glow Lembut -->
+    <!-- Pola Grid Abstrak & Efek Cahaya Glow -->
     <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px]"></div>
     <div class="absolute -top-24 -left-20 w-80 h-80 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="absolute -bottom-24 -right-20 w-96 h-96 bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
-    <div class="max-w-4xl mx-auto text-center relative z-10 space-y-8">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
+      
+      <!-- Sisi Kiri: Judul Utama & Quick Action Navigasi -->
+      <div class="lg:col-span-7 text-center lg:text-left space-y-6">
+        <h2 class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
+          Transparansi & Kebersamaan <br>
+          <span class="bg-gradient-to-r from-amber-200 via-indigo-200 to-white bg-clip-text text-transparent">Warga Flamboyan 4</span>
+        </h2>
 
-      <!-- Judul Utama Besar -->
-      <h2 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-tight drop-shadow-md">
-        Transparansi & Kebersamaan <br class="hidden sm:inline">
-        <span class="bg-gradient-to-r from-amber-200 via-indigo-200 to-white bg-clip-text text-transparent">Warga Flamboyan 4</span>
-      </h2>
+        <!-- Quick Action Buttons / Chip Navigasi Sampul -->
+        <div class="pt-2 flex flex-wrap justify-center lg:justify-start gap-2.5 sm:gap-3 text-xs sm:text-sm font-medium">
+          <a href="#keuangan" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
+            <i data-lucide="wallet" class="w-4 h-4 text-emerald-400"></i>
+            <span>Kas Warga</span>
+          </a>
+          <a href="#arisan" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
+            <i data-lucide="calendar" class="w-4 h-4 text-amber-300"></i>
+            <span>Jadwal Arisan</span>
+          </a>
+          <a href="#jersey" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
+            <i data-lucide="shirt" class="w-4 h-4 text-sky-300"></i>
+            <span>Order Jersey</span>
+          </a>
+          <a href="#rencana" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
+            <i data-lucide="calendar-check" class="w-4 h-4 text-pink-300"></i>
+            <span>Kalender Kerja Bakti</span>
+          </a>
+        </div>
+      </div>
 
-      <!-- Quick Action Buttons / Chip Navigasi Sampul -->
-      <div class="pt-2 flex flex-wrap justify-center gap-3 sm:gap-4 text-xs sm:text-sm font-medium">
-        <a href="#keuangan" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 sm:px-5 py-3 rounded-xl transition flex items-center space-x-2.5 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
-          <i data-lucide="wallet" class="w-5 h-5 text-emerald-400"></i>
-          <span>Kas Warga</span>
-        </a>
-        <a href="#arisan" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 sm:px-5 py-3 rounded-xl transition flex items-center space-x-2.5 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
-          <i data-lucide="calendar" class="w-5 h-5 text-amber-300"></i>
-          <span>Jadwal Arisan</span>
-        </a>
-        <a href="#jersey" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 sm:px-5 py-3 rounded-xl transition flex items-center space-x-2.5 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
-          <i data-lucide="shirt" class="w-5 h-5 text-sky-300"></i>
-          <span>Order Jersey</span>
-        </a>
-        <a href="#rencana" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 sm:px-5 py-3 rounded-xl transition flex items-center space-x-2.5 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
-          <i data-lucide="calendar-check" class="w-5 h-5 text-pink-300"></i>
-          <span>Kalender Kerja Bakti</span>
-        </a>
+      <!-- Sisi Kanan: Kolase Foto Visual Interaktif -->
+      <div class="lg:col-span-5 relative h-64 sm:h-72 w-full flex items-center justify-center">
+        <!-- Frame Foto 1 (Kiri Belakang) -->
+        <div class="absolute left-4 sm:left-8 top-2 w-40 sm:w-48 h-48 sm:h-56 bg-slate-800 rounded-2xl p-2 shadow-2xl border border-white/20 -rotate-6 hover:rotate-0 hover:scale-110 hover:z-30 transition duration-300 cursor-pointer overflow-hidden group">
+          <div id="hero-collage-1" class="w-full h-full rounded-xl overflow-hidden bg-slate-900 flex items-center justify-center">
+            <i data-lucide="image" class="w-8 h-8 text-slate-600"></i>
+          </div>
+          <span class="absolute bottom-3 left-3 bg-black/60 text-[10px] text-white px-2 py-0.5 rounded backdrop-blur-sm">Kegiatan Lorong</span>
+        </div>
+
+        <!-- Frame Foto 2 (Kanan Belakang) -->
+        <div class="absolute right-4 sm:right-8 bottom-2 w-40 sm:w-48 h-48 sm:h-56 bg-slate-800 rounded-2xl p-2 shadow-2xl border border-white/20 rotate-6 hover:rotate-0 hover:scale-110 hover:z-30 transition duration-300 cursor-pointer overflow-hidden group">
+          <div id="hero-collage-2" class="w-full h-full rounded-xl overflow-hidden bg-slate-900 flex items-center justify-center">
+            <i data-lucide="image" class="w-8 h-8 text-slate-600"></i>
+          </div>
+          <span class="absolute bottom-3 left-3 bg-black/60 text-[10px] text-white px-2 py-0.5 rounded backdrop-blur-sm">Guyub Warga</span>
+        </div>
+
+        <!-- Card Badge Tengah (Gaya Lorong Aktif) -->
+        <div class="absolute z-20 bg-indigo-900/90 backdrop-blur-md border border-indigo-400/40 px-4 py-2.5 rounded-2xl shadow-2xl text-center space-y-0.5 pointer-events-none">
+          <p class="text-xs font-bold text-amber-300 flex items-center justify-center space-x-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Lorong Flamboyan 4</span>
+          </p>
+          <p class="text-[10px] text-indigo-200">Keluarga Besar RT 001 RW 026</p>
+        </div>
       </div>
 
     </div>
@@ -1481,6 +1510,15 @@
               const photoList = rawFotoString.split(',').filter(p => p.trim() !== '');
               firstFoto = fixDriveUrl(photoList[0] || '');
               if (photoList.length > 1) badgeText = `${photoList.length} Foto`;
+            }
+
+            // ISI KOFOTO KANAN HERO COLLAGE SECARA OTOMATIS DARI CSV DOKUMENTASI
+            if (index === 0) {
+              const el1 = document.getElementById('hero-collage-1');
+              if (el1) el1.innerHTML = `<img src="${firstFoto}" class="w-full h-full object-cover" alt="Collage 1">`;
+            } else if (index === 1) {
+              const el2 = document.getElementById('hero-collage-2');
+              if (el2) el2.innerHTML = `<img src="${firstFoto}" class="w-full h-full object-cover" alt="Collage 2">`;
             }
 
             const safePhotoString = rawFotoString.replace(/'/g, "\\\'");
