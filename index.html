@@ -267,19 +267,86 @@
       </div>
     </section>
 
-    <!-- SECTION 5: RENCANA KEGIATAN -->
-    <section id="rencana" class="scroll-mt-20 w-full">
-      <div class="flex items-center space-x-2 mb-6">
+    <!-- SECTION 5: RENCANA KEGIATAN & KALENDER GOLOR/KERJA BAKTI -->
+    <section id="rencana" class="scroll-mt-20 w-full space-y-6">
+      <div class="flex items-center space-x-2">
         <i data-lucide="calendar-check" class="w-6 h-6 text-indigo-600 shrink-0"></i>
-        <h3 class="text-xl md:text-2xl font-bold text-slate-900">Rencana Kegiatan Mendatang</h3>
+        <h3 class="text-xl md:text-2xl font-bold text-slate-900">Rencana Kegiatan & Kalender Kerja Bakti</h3>
       </div>
 
-      <div id="container-rencana" class="space-y-4 w-full max-h-[380px] overflow-y-auto pr-1">
-        <p class="text-slate-400 text-sm">Memuat rencana kegiatan...</p>
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- SISI KIRI: KALENDER INTERAKTIF (7 COLUMNS) -->
+        <div class="lg:col-span-7 bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between mb-4">
+            <h4 id="calendar-month-year" class="font-bold text-slate-800 text-base md:text-lg">Bulan Tahun</h4>
+            <div class="flex items-center space-x-1">
+              <button onclick="changeMonth(-1)" class="p-1.5 hover:bg-slate-100 rounded-lg transition text-slate-600">
+                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+              </button>
+              <button onclick="resetToCurrentMonth()" class="px-2.5 py-1 text-xs font-semibold bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition">Hari Ini</button>
+              <button onclick="changeMonth(1)" class="p-1.5 hover:bg-slate-100 rounded-lg transition text-slate-600">
+                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Keterangan Warna Badges -->
+          <div class="flex items-center space-x-4 mb-4 text-[11px] text-slate-500 border-b border-slate-100 pb-2">
+            <div class="flex items-center space-x-1">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
+              <span class="font-medium text-amber-800">Golor / Kerja Bakti</span>
+            </div>
+            <div class="flex items-center space-x-1">
+              <span class="w-2.5 h-2.5 rounded-full bg-indigo-600 inline-block"></span>
+              <span>Kegiatan Warga</span>
+            </div>
+          </div>
+
+          <!-- Grid Hari Kalender -->
+          <div class="grid grid-cols-7 gap-1 text-center font-bold text-xs text-slate-400 mb-2">
+            <div>Ming</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div>
+          </div>
+
+          <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 text-xs">
+            <!-- Grid Tanggal Dihasilkan via JS -->
+          </div>
+        </div>
+
+        <!-- SISI KANAN: LIST DAFTAR RENCANA KEGIATAN (5 COLUMNS) -->
+        <div class="lg:col-span-5 bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+          <h4 class="font-bold text-slate-800 text-base mb-3 flex items-center space-x-1.5">
+            <i data-lucide="list-todo" class="w-4 h-4 text-indigo-600"></i>
+            <span>Daftar Rencana mendatangi</span>
+          </h4>
+
+          <div id="container-rencana" class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+            <p class="text-slate-400 text-xs">Memuat rencana kegiatan...</p>
+          </div>
+        </div>
+
       </div>
     </section>
 
   </main>
+
+  <!-- MODAL DETAIL CATATAN KALENDER SAAT TANGGAL DIKLIK -->
+  <div id="modal-event-detail" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+      <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-indigo-50">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="bell" class="w-5 h-5 text-indigo-600"></i>
+          <h3 id="modal-event-date" class="font-bold text-slate-800 text-sm md:text-base">Detail Kegiatan</h3>
+        </div>
+        <button onclick="closeModalEventDetail()" class="p-1 text-slate-400 hover:text-slate-600 rounded-full transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="modal-event-body" class="p-5 space-y-3 text-xs md:text-sm">
+        <!-- Detail Catatan Ditinggalkan via JS -->
+      </div>
+    </div>
+  </div>
 
   <!-- MODALS ARISAN, KEUANGAN, JERSEY, DOKUMENTASI -->
   <div id="modal-arisan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4">
@@ -410,7 +477,7 @@
     </div>
   </div>
 
-  <!-- LIGHTBOX MODAL FULLSCREEN (MENDUKUNG GAMBAR & PLAYER VIDEO) -->
+  <!-- LIGHTBOX MODAL FULLSCREEN -->
   <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-center p-2 md:p-4" onclick="closeLightbox()">
     <button onclick="closeLightbox()" class="absolute top-3 right-3 text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition z-20">
       <i data-lucide="x" class="w-6 h-6"></i>
@@ -435,12 +502,11 @@
   <script>
     lucide.createIcons();
 
-    // SKRIP UNTUK MENCEGAH SHORTCUT INSPECT ELEMENT
     function disableInspect(e) {
-      if (e.keyCode === 123) return false; // F12
-      if (e.ctrlKey && e.shiftKey && e.keyCode === 73) return false; // Ctrl+Shift+I
-      if (e.ctrlKey && e.shiftKey && e.keyCode === 74) return false; // Ctrl+Shift+J
-      if (e.ctrlKey && e.keyCode === 85) return false; // Ctrl+U (View Source)
+      if (e.keyCode === 123) return false;
+      if (e.ctrlKey && e.shiftKey && e.keyCode === 73) return false;
+      if (e.ctrlKey && e.shiftKey && e.keyCode === 74) return false;
+      if (e.ctrlKey && e.keyCode === 85) return false;
     }
 
     const CSV_KEUANGAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWusYrLoxh9Jesx0PpBefZm4MhXjSQkAt9o9GnAZjvAGE4TkSxpTf9pyxUzWUA5yw-U0fwwXhldsKo/pub?gid=70481261&single=true&output=csv';
@@ -462,7 +528,11 @@
     let globalKeuanganData = [];
     let globalArisanData = [];
     let globalJerseyData = [];
+    let globalRencanaData = [];
     const folderCache = {};
+
+    // DATES & CALENDAR CONTROL
+    let calendarDate = new Date();
 
     function formatRupiah(angka) {
       return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
@@ -532,6 +602,33 @@
     }
     function closeModalDokumentasi() {
       document.getElementById('modal-dokumentasi').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+
+    function openModalEventDetail(dateStr, eventItems) {
+      document.getElementById('modal-event-date').innerText = `Kegiatan: ${dateStr}`;
+      let html = '';
+      eventItems.forEach(item => {
+        const isGolor = item.isGolor;
+        const badgeBg = isGolor ? 'bg-amber-100 text-amber-900 border-amber-200' : 'bg-indigo-50 text-indigo-900 border-indigo-100';
+        const typeLabel = isGolor ? '🧹 GOLOR / KERJA BAKTI' : '📌 KEGIATAN WARGA';
+        
+        html += `
+          <div class="p-3 rounded-xl border ${badgeBg} space-y-1">
+            <span class="font-extrabold text-[10px] uppercase tracking-wider block">${typeLabel}</span>
+            <h5 class="font-bold text-sm text-slate-800">${item.judul}</h5>
+            <p class="text-slate-600 text-xs">${item.deskripsi || 'Tidak ada catatan tambahan.'}</p>
+            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-white border border-slate-200 mt-1">${item.status}</span>
+          </div>
+        `;
+      });
+      document.getElementById('modal-event-body').innerHTML = html;
+      document.getElementById('modal-event-detail').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModalEventDetail() {
+      document.getElementById('modal-event-detail').classList.add('hidden');
       document.body.style.overflow = 'auto';
     }
 
@@ -1088,7 +1185,89 @@
       });
     }
 
-    // --- PROSES RENCANA KEGIATAN ---
+    // --- LOGIKA KALENDER & RENCANA KEGIATAN ---
+    function renderCalendar() {
+      const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      const year = calendarDate.getFullYear();
+      const month = calendarDate.getMonth();
+
+      document.getElementById('calendar-month-year').innerText = `${monthNames[month]} ${year}`;
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      
+      const today = new Date();
+      const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+
+      let gridHTML = '';
+
+      // Offset Hari Kosong
+      for (let i = 0; i < firstDay; i++) {
+        gridHTML += `<div class="p-2 min-h-[42px]"></div>`;
+      }
+
+      // Render Hari-Hari
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        // Cari kegiatan di tanggal ini
+        const dayEvents = globalRencanaData.filter(item => item.parsedDate === dateKey);
+
+        let isGolor = false;
+        let hasEvent = dayEvents.length > 0;
+
+        if (hasEvent) {
+          isGolor = dayEvents.some(e => e.isGolor);
+        }
+
+        let dayClass = "p-1.5 min-h-[44px] border border-slate-100 rounded-lg flex flex-col items-center justify-between relative transition hover:border-indigo-300";
+        let badgeClass = "";
+
+        if (isCurrentMonth && day === today.getDate()) {
+          dayClass += " bg-indigo-50/60 font-bold border-indigo-200";
+        }
+
+        if (hasEvent) {
+          dayClass += " cursor-pointer shadow-sm";
+          if (isGolor) {
+            badgeClass = "bg-amber-500 text-white font-bold";
+            dayClass += " bg-amber-50 border-amber-300 hover:bg-amber-100";
+          } else {
+            badgeClass = "bg-indigo-600 text-white font-bold";
+            dayClass += " bg-indigo-50 border-indigo-300 hover:bg-indigo-100";
+          }
+        }
+
+        const safeDateStr = `${day} ${monthNames[month]} ${year}`;
+        const clickAttr = hasEvent ? `onclick='openModalEventDetail("${safeDateStr}", ${JSON.stringify(dayEvents).replace(/'/g, "&apos;")})'` : '';
+
+        gridHTML += `
+          <div class="${dayClass}" ${clickAttr}>
+            <span class="${isCurrentMonth && day === today.getDate() ? 'text-indigo-700 font-black' : 'text-slate-700'}">${day}</span>
+            ${hasEvent ? `
+              <span class="w-full text-[9px] py-0.5 px-1 rounded truncate text-center mt-1 ${badgeClass}">
+                ${isGolor ? '🧹 Golor' : '📌 Acara'}
+              </span>
+            ` : ''}
+          </div>
+        `;
+      }
+
+      document.getElementById('calendar-days-grid').innerHTML = gridHTML;
+      lucide.createIcons();
+    }
+
+    function changeMonth(direction) {
+      calendarDate.setMonth(calendarDate.getMonth() + direction);
+      renderCalendar();
+    }
+
+    function resetToCurrentMonth() {
+      calendarDate = new Date();
+      renderCalendar();
+    }
+
+    // MEMBACA CSV RENCANA KEGIATAN & DETEKSI GOLOR
     if (CSV_RENCANA_URL && CSV_RENCANA_URL.startsWith('http')) {
       Papa.parse(CSV_RENCANA_URL, {
         download: true,
@@ -1099,64 +1278,81 @@
             return values.length >= 2 && values[0] && values[0].toString().trim() !== '';
           });
 
-          const onProgressList = [];
-          const direncanakanList = [];
-          const selesaiList = [];
-
-          [...rawData].reverse().forEach(row => {
+          globalRencanaData = rawData.map(row => {
             const keys = Object.keys(row);
-            const status = (row[keys[3]] || 'Direncanakan').trim().toLowerCase();
+            const tanggalStr = row[keys[0]] || '';
+            const judul = row[keys[1]] || '';
+            const deskripsi = row[keys[2]] || '';
+            const status = row[keys[3]] || 'Direncanakan';
 
-            if (status.includes('progress') || status.includes('rancang') || status.includes('jalan')) {
-              onProgressList.push(row);
-            } else if (status.includes('selesai')) {
-              selesaiList.push(row);
-            } else {
-              direncanakanList.push(row);
+            // Cek Kata Kunci Golor / Kerja Bakti
+            const combinedText = (judul + " " + deskripsi).toLowerCase();
+            const isGolor = combinedText.includes('golor') || combinedText.includes('kerja bakti') || combinedText.includes('kerjabakti') || combinedText.includes('gotong royong');
+
+            // Format tanggal standar (YYYY-MM-DD)
+            let parsedDate = '';
+            const dateParts = tanggalStr.trim().split(/[\s\-\/\.]+/);
+            if (dateParts.length >= 3) {
+              let day = dateParts[0].padStart(2, '0');
+              let month = dateParts[1];
+              let year = dateParts[2];
+
+              // Konversi Nama Bulan ke Angka jika Bahasa Indonesia
+              const monthMap = { 'jan': '01', 'feb': '02', 'mar': '03', 'apr': '04', 'mei': '05', 'jun': '06', 'jul': '07', 'agu': '08', 'sep': '09', 'okt': '10', 'nov': '11', 'des': '12' };
+              for (let key in monthMap) {
+                if (month.toLowerCase().startsWith(key)) {
+                  month = monthMap[key];
+                  break;
+                }
+              }
+              if (month.length === 1) month = month.padStart(2, '0');
+              if (year.length === 2) year = '20' + year;
+
+              parsedDate = `${year}-${month}-${day}`;
             }
+
+            return {
+              tanggalStr,
+              parsedDate,
+              judul,
+              deskripsi,
+              status,
+              isGolor
+            };
           });
 
-          const displayData = [...onProgressList, ...direncanakanList, ...selesaiList];
-
+          // Render List Rencana Kegiatan
           let rencanaHTML = '';
-
-          displayData.forEach(row => {
-            const keys = Object.keys(row);
-            const tanggal = row[keys[0]] || '-';
-            const judul = row[keys[1]] || '-';
-            const deskripsi = row[keys[2]] || '';
-            const status = (row[keys[3]] || 'Direncanakan').trim().toLowerCase();
-
-            let statusBadge = `<span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full w-fit whitespace-nowrap">Direncanakan</span>`;
-            
-            if (status.includes('progress') || status.includes('rancang') || status.includes('jalan')) {
-              statusBadge = `<span class="bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full w-fit whitespace-nowrap">On Progress</span>`;
-            } else if (status.includes('selesai')) {
-              statusBadge = `<span class="bg-emerald-100 text-emerald-800 text-xs font-semibold px-3 py-1 rounded-full w-fit whitespace-nowrap">Selesai</span>`;
+          [...globalRencanaData].reverse().forEach(item => {
+            let statusBadge = `<span class="bg-blue-100 text-blue-800 text-[10px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap">Direncanakan</span>`;
+            if (item.status.toLowerCase().includes('progress')) {
+              statusBadge = `<span class="bg-amber-100 text-amber-800 text-[10px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap">On Progress</span>`;
+            } else if (item.status.toLowerCase().includes('selesai')) {
+              statusBadge = `<span class="bg-emerald-100 text-emerald-800 text-[10px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap">Selesai</span>`;
             }
 
-            const dateInfo = parseDateBadge(tanggal);
+            const golorTag = item.isGolor ? `<span class="bg-amber-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mr-1">🧹 Golor</span>` : '';
 
             rencanaHTML += `
-              <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
-                <div class="flex items-start space-x-4">
-                  <div class="bg-indigo-100 text-indigo-700 p-3 rounded-lg font-bold text-center min-w-[65px] shrink-0">
-                    <span class="block text-base md:text-lg leading-tight">${dateInfo.day}</span>
-                    ${dateInfo.month ? `<span class="text-[10px] md:text-xs uppercase block mt-0.5">${dateInfo.month}</span>` : ''}
-                  </div>
-                  <div>
-                    <h4 class="font-bold text-slate-800 text-base md:text-lg break-words">${judul}</h4>
-                    <p class="text-slate-600 text-xs md:text-sm break-words">${deskripsi}</p>
-                  </div>
+              <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 flex flex-col justify-between gap-1">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-indigo-600">${item.tanggalStr}</span>
+                  ${statusBadge}
                 </div>
-                ${statusBadge}
+                <h5 class="font-bold text-slate-800 text-xs md:text-sm mt-0.5">${golorTag}${item.judul}</h5>
+                <p class="text-slate-500 text-[11px]">${item.deskripsi}</p>
               </div>
             `;
           });
 
-          document.getElementById('container-rencana').innerHTML = rencanaHTML || '<p class="text-slate-400 text-sm">Belum ada rencana kegiatan.</p>';
+          document.getElementById('container-rencana').innerHTML = rencanaHTML || '<p class="text-slate-400 text-xs">Belum ada rencana kegiatan.</p>';
+
+          // Jalankan Render Kalender
+          renderCalendar();
         }
       });
+    } else {
+      renderCalendar();
     }
   </script>
 </body>
