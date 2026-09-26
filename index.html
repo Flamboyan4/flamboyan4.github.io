@@ -25,74 +25,63 @@
 <!-- Menambahkan Event Listener Anti Klik Kanan & Anti Shortcut -->
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full" oncontextmenu="return false;" onkeydown="return disableInspect(event)">
 
-  <!-- Header / Navigation Modern -->
-  <header class="bg-slate-900/90 backdrop-blur-md text-white border-b border-white/10 sticky top-0 z-50 w-full transition-all">
-    <div class="max-w-6xl mx-auto px-4 py-3.5 flex justify-between items-center">
-      <a href="#" class="flex items-center space-x-3 group cursor-pointer">
-        <div class="p-2 rounded-xl bg-indigo-600/30 border border-indigo-400/30 group-hover:bg-indigo-600/50 transition">
-          <i data-lucide="home" class="w-5 h-5 text-indigo-300 shrink-0 group-hover:scale-110 transition"></i>
-        </div>
-        <div>
-          <h1 class="text-base md:text-lg font-bold tracking-wide text-white leading-none">
-            Flamboyan 4 
-          </h1>
-          <p class="text-indigo-200/80 text-[11px] font-normal mt-0.5">
-            RT 001 RW 026 <span class="hidden sm:inline">| Pesona Kahuripan 2</span>
-          </p>
-        </div>
+  <!-- Header / Navigation -->
+  <header class="bg-indigo-900/90 backdrop-blur-md text-white border-b border-white/10 sticky top-0 z-50 w-full transition-all">
+    <div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between relative">
+      
+      <!-- Icon Home di Sebelah Kiri -->
+      <a href="#" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 transition group shrink-0">
+        <i data-lucide="home" class="w-5 h-5 text-indigo-200 group-hover:scale-110 transition"></i>
       </a>
 
-      <!-- Quick Action Mini Pill -->
-      <a href="#saran" onclick="openModalSaran()" class="hidden sm:flex items-center space-x-1.5 text-xs bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-400/30 text-indigo-100 px-3 py-1.5 rounded-full transition shadow-sm">
-        <i data-lucide="message-square" class="w-3.5 h-3.5 text-indigo-300"></i>
-        <span>Kotak Saran</span>
-      </a>
+      <!-- Judul Flamboyan 4 Dibuat Tepat di Tengah (Centered) -->
+      <div class="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none">
+        <h1 class="text-base sm:text-lg font-bold tracking-wide text-white leading-none">
+          Flamboyan 4 
+        </h1>
+        <p class="text-indigo-200/80 text-[10px] sm:text-[11px] font-normal mt-0.5 whitespace-nowrap">
+          RT 001 RW 026 <span class="hidden sm:inline">| Pesona Kahuripan 2</span>
+        </p>
+      </div>
+
+      <!-- Placeholder Kosong Kanan untuk Menjaga Keseimbangan Flex Layout -->
+      <div class="w-9 h-9 opacity-0 pointer-events-none"></div>
+
     </div>
   </header>
 
-  <!-- Hero Section Modern (Opsi 1: Glassmorphism & Floating Quick-Links) -->
-  <section class="relative bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white py-14 md:py-20 px-4 overflow-hidden w-full border-b border-indigo-900/40">
+  <!-- Hero Section Ceria & Elegan -->
+  <section class="relative bg-gradient-to-br from-indigo-700 via-indigo-600 to-violet-700 text-white py-14 sm:py-20 md:py-24 px-4 overflow-hidden w-full shadow-lg">
     
-    <!-- Pola Grid Geometris Abstrak & Efek Cahaya Glow -->
-    <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px]"></div>
-    <div class="absolute -top-24 -left-20 w-80 h-80 bg-indigo-600/25 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="absolute -bottom-24 -right-20 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
+    <!-- Pola Grid Abstrak & Efek Cahaya Pendaran Terang (Ceria) -->
+    <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff12_1px,transparent_1px),linear-gradient(to_bottom,#ffffff12_1px,transparent_1px)] bg-[size:28px_28px]"></div>
+    <div class="absolute -top-24 -left-20 w-80 h-80 bg-sky-400/30 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-24 -right-20 w-96 h-96 bg-amber-400/20 rounded-full blur-3xl pointer-events-none"></div>
 
-    <div class="max-w-4xl mx-auto text-center relative z-10 space-y-6">
-      
-      <!-- Status Badge Melayang -->
-      <div class="inline-flex items-center space-x-2 bg-indigo-500/10 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-indigo-400/20 text-xs text-indigo-200 shadow-sm">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span>Portal Informasi Terpadu & Real-Time</span>
-      </div>
+    <div class="max-w-4xl mx-auto text-center relative z-10 space-y-8">
 
-      <!-- Judul Sampul Utama -->
-      <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
+      <!-- Judul Utama Besar -->
+      <h2 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-tight drop-shadow-md">
         Transparansi & Kebersamaan <br class="hidden sm:inline">
-        <span class="bg-gradient-to-r from-amber-200 via-indigo-200 to-white bg-clip-text text-transparent">Warga Flamboyan 4</span>
+        <span class="bg-gradient-to-r from-amber-200 via-yellow-100 to-white bg-clip-text text-transparent">Warga Flamboyan 4</span>
       </h2>
 
-      <!-- Deskripsi -->
-      <p class="text-slate-300 text-xs sm:text-sm md:text-base max-w-2xl mx-auto font-normal leading-relaxed">
-        Satu platform untuk keterbukaan kas warga, jadwal arisan bulanan, informasi pembangunan gapura, dan dokumentasi kegiatan bersama.
-      </p>
-
-      <!-- Quick Action Buttons / Chip Navigasi Sampul -->
-      <div class="pt-4 flex flex-wrap justify-center gap-2.5 sm:gap-3 text-xs">
-        <a href="#keuangan" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-sm hover:border-indigo-400/50">
-          <i data-lucide="wallet" class="w-4 h-4 text-emerald-400"></i>
+      <!-- Quick Action Buttons / Chip Navigasi Sampul dengan Icon Sedikit Diperbesar -->
+      <div class="pt-2 flex flex-wrap justify-center gap-3 sm:gap-4 text-xs sm:text-sm font-medium">
+        <a href="#keuangan" class="bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/25 text-white px-4 sm:px-5 py-3 rounded-xl transition flex items-center space-x-2.5 shadow-md hover:scale-105 active:scale-95">
+          <i data-lucide="wallet" class="w-5 h-5 text-emerald-300"></i>
           <span>Kas Warga</span>
         </a>
-        <a href="#arisan" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-sm hover:border-indigo-400/50">
-          <i data-lucide="calendar" class="w-4 h-4 text-amber-300"></i>
+        <a href="#arisan" class="bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/25 text-white px-4 sm:px-5 py-3 rounded-xl transition flex items-center space-x-2.5 shadow-md hover:scale-105 active:scale-95">
+          <i data-lucide="calendar" class="w-5 h-5 text-amber-300"></i>
           <span>Jadwal Arisan</span>
         </a>
-        <a href="#jersey" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-sm hover:border-indigo-400/50">
-          <i data-lucide="shirt" class="w-4 h-4 text-indigo-300"></i>
+        <a href="#jersey" class="bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/25 text-white px-4 sm:px-5 py-3 rounded-xl transition flex items-center space-x-2.5 shadow-md hover:scale-105 active:scale-95">
+          <i data-lucide="shirt" class="w-5 h-5 text-sky-300"></i>
           <span>Order Jersey</span>
         </a>
-        <a href="#rencana" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-sm hover:border-indigo-400/50">
-          <i data-lucide="calendar-check" class="w-4 h-4 text-sky-300"></i>
+        <a href="#rencana" class="bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/25 text-white px-4 sm:px-5 py-3 rounded-xl transition flex items-center space-x-2.5 shadow-md hover:scale-105 active:scale-95">
+          <i data-lucide="calendar-check" class="w-5 h-5 text-pink-300"></i>
           <span>Kalender Kerja Bakti</span>
         </a>
       </div>
