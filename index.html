@@ -3,22 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Flamboyan IV | Portal Informasi & Transparansi Lorong</title>
+  <title>Flamboyan 4 | Portal Informasi & Transparansi Lorong</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- PapaParse untuk membaca Google Sheets CSV -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  
+  <style>
+    /* Mencegah teks diblok/disorot untuk dicopas */
+    body {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+  </style>
 </head>
-<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full">
+
+<!-- Menambahkan Event Listener Anti Klik Kanan & Anti Shortcut -->
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full" oncontextmenu="return false;" onkeydown="return disableInspect(event)">
 
   <!-- Header / Navigation -->
   <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-50 w-full">
     <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
       <a href="#" class="flex items-center space-x-2 hover:opacity-90 transition group cursor-pointer">
         <i data-lucide="home" class="w-6 h-6 shrink-0 group-hover:scale-110 transition"></i>
-        <h1 class="text-lg md:text-xl font-bold tracking-wide">Flamboyan IV <span class="text-indigo-200 text-xs md:text-sm font-normal">| RT 001/026</span></h1>
+        <h1 class="text-lg md:text-xl font-bold tracking-wide">
+          Flamboyan 4 
+          <span class="text-indigo-200 text-xs md:text-sm font-normal">
+            | RT 001 RW 026<span class="hidden md:inline"> Pesona kahuripan 2</span>
+          </span>
+        </h1>
       </a>
     </div>
   </header>
@@ -270,7 +287,7 @@
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
         <div>
           <h3 class="text-lg md:text-xl font-bold text-slate-900">Jadwal & Putaran Arisan Warga</h3>
-          <p class="text-xs text-slate-500">Daftar giliran arisan lorong Flamboyan IV</p>
+          <p class="text-xs text-slate-500">Daftar giliran arisan lorong Flamboyan 4</p>
         </div>
         <button onclick="closeModalArisan()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
           <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
@@ -300,7 +317,7 @@
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
         <div>
           <h3 class="text-lg md:text-xl font-bold text-slate-900">Arsip Seluruh Transaksi Kas</h3>
-          <p class="text-xs text-slate-500">Riwayat pemasukan & pengeluaran kas Flamboyan IV</p>
+          <p class="text-xs text-slate-500">Riwayat pemasukan & pengeluaran kas Flamboyan 4</p>
         </div>
         <button onclick="closeModalKeuangan()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
           <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
@@ -364,7 +381,7 @@
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
         <div>
           <h3 class="text-lg md:text-xl font-bold text-slate-900">Arsip Dokumentasi Kegiatan</h3>
-          <p class="text-xs text-slate-500">Seluruh album foto & kegiatan warga Flamboyan IV</p>
+          <p class="text-xs text-slate-500">Seluruh album foto & kegiatan warga Flamboyan 4</p>
         </div>
         <button onclick="closeModalDokumentasi()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
           <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
@@ -410,12 +427,21 @@
     </div>
   </div>
 
+  <!-- Footer -->
   <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs md:text-sm border-t border-slate-800 w-full">
-    <p>&copy; 2026 Paguyuban Warga Lorong Perumahan. Dikelola secara swadaya & transparan.</p>
+    <p>&copy; 2026 Humas 3 Warga Flamboyan 4. Dikelola secara swadaya & transparan.</p>
   </footer>
 
   <script>
     lucide.createIcons();
+
+    // SKRIP UNTUK MENCEGAH SHORTCUT INSPECT ELEMENT
+    function disableInspect(e) {
+      if (e.keyCode === 123) return false; // F12
+      if (e.ctrlKey && e.shiftKey && e.keyCode === 73) return false; // Ctrl+Shift+I
+      if (e.ctrlKey && e.shiftKey && e.keyCode === 74) return false; // Ctrl+Shift+J
+      if (e.ctrlKey && e.keyCode === 85) return false; // Ctrl+U (View Source)
+    }
 
     const CSV_KEUANGAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWusYrLoxh9Jesx0PpBefZm4MhXjSQkAt9o9GnAZjvAGE4TkSxpTf9pyxUzWUA5yw-U0fwwXhldsKo/pub?gid=70481261&single=true&output=csv';
     const CSV_ARISAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDP-SfyNfaIFW_nfWSnLM3fQsJVRcuu5Las-tG78JPdp7u6hqWGulXS2sakYtKlWr81xPqrDGagwVC/pub?output=csv';
@@ -425,7 +451,6 @@
     const CSV_DOKUMENTASI_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?output=csv';
     const CSV_RENCANA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSsygpwTSzO0bZrdoO6sRyFbH0jrHaTJN0g6vIKtGnGMlP3Ot3CCd9V0PPG7vWr_mxztobwrR_8iLx1/pub?output=csv';
     
-    // URL API DEPLOYMENT TERBARU ANDA
     const FOLDER_API_URL = 'https://script.google.com/macros/s/AKfycby25m-xARHOT0JHnlaAzQuoS9Wy6h436JCe7K81_WRtMHv6z8bR4O8tK1lILFT7qE1ipQ/exec';
 
     const TARGET_DANA_GAPURA = 6500000;
