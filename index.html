@@ -10,8 +10,6 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- PapaParse untuk membaca Google Sheets CSV -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-  <!-- Panzoom CDN untuk Gestur Pinch-to-Zoom & Drag Foto di HP -->
-  <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
   
   <style>
     /* Mencegah teks diblok/disorot untuk dicopas */
@@ -479,12 +477,12 @@
     </div>
   </div>
 
-  <!-- LIGHTBOX MODAL FULLSCREEN (DENGAN GESTUR CUBIT/PINCH & SLIDE) -->
-  <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-center p-2 md:p-4 touch-none select-none" onclick="closeLightbox()">
+  <!-- LIGHTBOX MODAL FULLSCREEN (STABIL & DENGAN FITUR ZOOM GESTUR CUBIT NATIVE) -->
+  <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-center p-2 md:p-4 overflow-hidden" onclick="closeLightbox()">
     
-    <!-- Tombol Kontrol Kanan Atas -->
-    <div class="absolute top-3 right-3 flex items-center space-x-2 z-20">
-      <button onclick="resetZoom(event)" class="text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition shadow-md text-xs font-semibold px-3" title="Reset Ukuran">
+    <!-- Tombol Tutup Kanan Atas -->
+    <div class="absolute top-3 right-3 flex items-center space-x-2 z-30">
+      <button onclick="resetLightboxZoom(event)" id="btn-reset-zoom" class="text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition shadow-md text-xs font-semibold px-3 hidden" title="Reset Ukuran">
         Reset Zoom
       </button>
       <button onclick="closeLightbox()" class="text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition shadow-md" title="Tutup">
@@ -493,27 +491,20 @@
     </div>
 
     <!-- Tombol Previous (Kiri) -->
-    <button id="lightbox-prev" onclick="prevLightboxMedia(event)" class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 text-white bg-slate-800/80 hover:bg-slate-700 p-2 md:p-3 rounded-full transition z-20 hidden">
+    <button id="lightbox-prev" onclick="prevLightboxMedia(event)" class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 text-white bg-slate-800/80 hover:bg-slate-700 p-2 md:p-3 rounded-full transition z-30 hidden">
       <i data-lucide="chevron-left" class="w-6 h-6 md:w-8 md:h-8"></i>
     </button>
 
     <!-- Tombol Next (Kanan) -->
-    <button id="lightbox-next" onclick="nextLightboxMedia(event)" class="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 text-white bg-slate-800/80 hover:bg-slate-700 p-2 md:p-3 rounded-full transition z-20 hidden">
+    <button id="lightbox-next" onclick="nextLightboxMedia(event)" class="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 text-white bg-slate-800/80 hover:bg-slate-700 p-2 md:p-3 rounded-full transition z-30 hidden">
       <i data-lucide="chevron-right" class="w-6 h-6 md:w-8 md:h-8"></i>
     </button>
     
-    <div class="relative w-full max-w-5xl flex flex-col items-center justify-center px-2 my-auto" onclick="event.stopPropagation()">
-      
-      <!-- Petunjuk Gestur Cubit / Geser -->
-      <span class="text-[11px] text-slate-400 mb-2 flex items-center space-x-1 bg-slate-900/80 px-3 py-1 rounded-full border border-slate-800">
-        <i data-lucide="move" class="w-3.5 h-3.5"></i>
-        <span>Gunakan 2 jari untuk mencubit (zoom) & usap untuk menggeser foto</span>
-      </span>
-
-      <div id="lightbox-media-container" class="relative w-full flex items-center justify-center overflow-hidden max-h-[72vh] rounded-xl">
+    <div class="relative w-full max-w-5xl h-full flex flex-col items-center justify-center px-2 my-auto" onclick="event.stopPropagation()">
+      <div id="lightbox-media-container" class="relative w-full h-[75vh] flex items-center justify-center overflow-hidden">
       </div>
 
-      <div class="text-center mt-3 text-white">
+      <div class="text-center mt-3 text-white z-20">
         <p id="lightbox-caption" class="text-xs md:text-sm font-semibold tracking-wide"></p>
         <p id="lightbox-counter" class="text-xs text-slate-400 mt-1 hidden"></p>
       </div>
@@ -660,7 +651,6 @@
     let currentMediaList = [];
     let currentPhotoIndex = 0;
     let currentPhotoCaption = '';
-    let panzoomInstance = null; // Instance Panzoom untuk Gestur Cubit
     let globalKeuanganData = [];
     let globalArisanData = [];
     let globalJerseyData = [];
@@ -887,47 +877,112 @@
         updateLightboxView();
     }
 
-    function resetZoom(event) {
-      if (event) event.stopPropagation();
-      if (panzoomInstance) {
-        panzoomInstance.reset();
+    // NATIVE INTERACTIVE TOUCH GESTURES (PINCH, PAN, DOUBLE-TAP)
+    let zoomScale = 1;
+    let translateX = 0;
+    let translateY = 0;
+    let startDist = 0;
+    let startScale = 1;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let lastTapTime = 0;
+
+    function applyTransform(img) {
+      if (!img) return;
+      img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${zoomScale})`;
+      const resetBtn = document.getElementById('btn-reset-zoom');
+      if (resetBtn) {
+        if (zoomScale > 1.05) resetBtn.classList.remove('hidden');
+        else resetBtn.classList.add('hidden');
       }
+    }
+
+    function resetLightboxZoom(event) {
+      if (event) event.stopPropagation();
+      zoomScale = 1;
+      translateX = 0;
+      translateY = 0;
+      const img = document.getElementById('lightbox-active-img');
+      if (img) {
+        img.style.transition = 'transform 0.25s ease-out';
+        applyTransform(img);
+        setTimeout(() => { img.style.transition = 'none'; }, 250);
+      }
+    }
+
+    function initImageTouchEvents(img) {
+      zoomScale = 1;
+      translateX = 0;
+      translateY = 0;
+      applyTransform(img);
+
+      img.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+          startDist = Math.hypot(
+            e.touches[0].pageX - e.touches[1].pageX,
+            e.touches[0].pageY - e.touches[1].pageY
+          );
+          startScale = zoomScale;
+        } else if (e.touches.length === 1) {
+          isDragging = true;
+          startX = e.touches[0].pageX - translateX;
+          startY = e.touches[0].pageY - translateY;
+
+          const currentTime = new Date().getTime();
+          const tapLength = currentTime - lastTapTime;
+          if (tapLength < 300 && tapLength > 0) {
+            e.preventDefault();
+            if (zoomScale > 1) {
+              resetLightboxZoom();
+            } else {
+              zoomScale = 2.5;
+              translateX = 0;
+              translateY = 0;
+              img.style.transition = 'transform 0.25s ease-out';
+              applyTransform(img);
+              setTimeout(() => { img.style.transition = 'none'; }, 250);
+            }
+          }
+          lastTapTime = currentTime;
+        }
+      }, { passive: false });
+
+      img.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2) {
+          e.preventDefault();
+          const currentDist = Math.hypot(
+            e.touches[0].pageX - e.touches[1].pageX,
+            e.touches[0].pageY - e.touches[1].pageY
+          );
+          zoomScale = Math.min(Math.max(startScale * (currentDist / startDist), 1), 4);
+          if (zoomScale === 1) { translateX = 0; translateY = 0; }
+          applyTransform(img);
+        } else if (e.touches.length === 1 && isDragging && zoomScale > 1) {
+          e.preventDefault();
+          translateX = e.touches[0].pageX - startX;
+          translateY = e.touches[0].pageY - startY;
+          applyTransform(img);
+        }
+      }, { passive: false });
+
+      img.addEventListener('touchend', () => { isDragging = false; });
     }
 
     function updateLightboxView() {
       const item = currentMediaList[currentPhotoIndex];
       const container = document.getElementById('lightbox-media-container');
 
-      // Hancurkan instance Panzoom sebelumnya jika ada
-      if (panzoomInstance) {
-        panzoomInstance.destroy();
-        panzoomInstance = null;
-      }
-
       if (item.type === 'video') {
         container.innerHTML = `
-          <iframe src="${item.url}" class="w-full max-w-3xl h-[60vh] md:h-[70vh] rounded-lg shadow-2xl bg-black" allow="autoplay" allowfullscreen></iframe>
+          <iframe src="${item.url}" class="w-full max-w-3xl h-full rounded-lg shadow-2xl bg-black" allow="autoplay" allowfullscreen></iframe>
         `;
       } else {
         container.innerHTML = `
-          <img id="panzoom-element" src="${item.url}" alt="Foto Full" class="max-w-full max-h-[70vh] rounded-lg shadow-2xl object-contain select-none cursor-grab active:cursor-grabbing">
+          <img id="lightbox-active-img" src="${item.url}" alt="Foto Full" class="max-w-full max-h-full rounded-lg shadow-2xl object-contain select-none cursor-grab active:cursor-grabbing">
         `;
-
-        // Inisialisasi Panzoom untuk mengaktifkan Gestur Cubit (Pinch) & Geser (Pan)
-        setTimeout(() => {
-          const elem = document.getElementById('panzoom-element');
-          if (elem && typeof Panzoom !== 'undefined') {
-            panzoomInstance = Panzoom(elem, {
-              maxScale: 4,
-              minScale: 1,
-              contain: 'outside',
-              startTransform: 'scale(1)'
-            });
-            
-            // Aktifkan Zoom dengan roda Mouse (Desktop)
-            elem.parentElement.addEventListener('wheel', panzoomInstance.zoomWithWheel);
-          }
-        }, 50);
+        const img = document.getElementById('lightbox-active-img');
+        if (img) initImageTouchEvents(img);
       }
 
       document.getElementById('lightbox-caption').innerText = currentPhotoCaption;
@@ -953,11 +1008,8 @@
       if(activeModalsStack.includes('lightbox-modal')) {
         history.back();
       }
-      if (panzoomInstance) {
-        panzoomInstance.destroy();
-        panzoomInstance = null;
-      }
       document.getElementById('lightbox-media-container').innerHTML = '';
+      resetLightboxZoom();
     }
 
     const formSaran = document.getElementById("form-saran");
@@ -1374,18 +1426,19 @@
               </span>`;
             }
 
+            // CARD TAMPILAN DOKUMENTASI DENGAN JUDUL & TANGGAL DI ATAS
             const cardContent = `
               <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition flex flex-col w-full">
-                <!-- FOTO PREVIEW DENGAN TINGGI MINIMUM DIKUNCI (H-52 / 208px) & TIDAK MENYUSUT (SHRINK-0) -->
+                <!-- JUDUL DAN TANGGAL DI ATAS FOTO PREVIEW -->
+                <div class="p-3.5 bg-slate-50 border-b border-slate-100">
+                  <span class="text-[10px] text-indigo-600 font-bold block uppercase tracking-wider mb-0.5">${tanggal}</span>
+                  <h4 class="text-slate-800 font-bold text-sm md:text-base leading-snug break-words">${judul}</h4>
+                </div>
+
+                <!-- FOTO PREVIEW -->
                 <div class="relative cursor-pointer overflow-hidden group bg-slate-100 h-52 min-h-[208px] w-full flex items-center justify-center shrink-0" data-folder-id="${folderId || ''}" onclick="openGalleryGridModal('${safePhotoString}', '${safeTitle}')">
                   <img src="${firstFoto}" alt="${judul}" loading="lazy" referrerpolicy="no-referrer" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${PLACEHOLDER_IMG}'">
                   
-                  <!-- OVERLAY JUDUL & TANGGAL ELEGAN DI BAWAH FOTO PREVIEW -->
-                  <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-3.5 pt-8 z-10">
-                    <span class="text-[10px] text-indigo-200 font-bold block uppercase tracking-wider">${tanggal}</span>
-                    <h4 class="text-white font-bold text-sm md:text-base leading-snug drop-shadow-md truncate">${judul}</h4>
-                  </div>
-
                   ${badgeMultiPhoto}
                   <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1 z-20">
                     <i data-lucide="layout-grid" class="w-4 h-4"></i>
