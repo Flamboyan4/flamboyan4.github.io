@@ -51,7 +51,7 @@
   </section>
 
   <!-- Main Content -->
-  <main class="max-w-6xl mx-auto px-4 py-8 flex-grow space-y-12 w-full">
+  <main class="max-w-6xl mx-auto px-4 py-8 flex-grow space-y-12 w-full relative">
 
     <!-- SECTION 1: LAPORAN KEUANGAN -->
     <section id="keuangan" class="scroll-mt-20 w-full">
@@ -477,26 +477,119 @@
     </div>
   </div>
 
-  <!-- LIGHTBOX MODAL FULLSCREEN -->
+  <!-- LIGHTBOX MODAL FULLSCREEN (DENGAN TOMBOL SLIDE NEXT & PREV) -->
   <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-center p-2 md:p-4" onclick="closeLightbox()">
+    
+    <!-- Tombol Close (Silang) -->
     <button onclick="closeLightbox()" class="absolute top-3 right-3 text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition z-20">
       <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+
+    <!-- Tombol Previous (Kiri) -->
+    <button id="lightbox-prev" onclick="prevLightboxMedia(event)" class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 text-white bg-slate-800/80 hover:bg-slate-700 p-2 md:p-3 rounded-full transition z-20 hidden">
+      <i data-lucide="chevron-left" class="w-6 h-6 md:w-8 md:h-8"></i>
+    </button>
+
+    <!-- Tombol Next (Kanan) -->
+    <button id="lightbox-next" onclick="nextLightboxMedia(event)" class="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 text-white bg-slate-800/80 hover:bg-slate-700 p-2 md:p-3 rounded-full transition z-20 hidden">
+      <i data-lucide="chevron-right" class="w-6 h-6 md:w-8 md:h-8"></i>
     </button>
     
     <div class="relative w-full max-w-4xl max-h-[85vh] flex flex-col items-center justify-center px-2" onclick="event.stopPropagation()">
       <div id="lightbox-media-container" class="relative w-full flex items-center justify-center">
       </div>
 
-      <div class="text-center mt-3 text-white">
+      <div class="text-center mt-4 text-white">
         <p id="lightbox-caption" class="text-xs md:text-sm font-semibold tracking-wide"></p>
         <p id="lightbox-counter" class="text-xs text-slate-400 mt-1 hidden"></p>
       </div>
     </div>
   </div>
 
-  <!-- Footer -->
-  <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs md:text-sm border-t border-slate-800 w-full">
-    <p>&copy; 2026 Humas 3 Warga Flamboyan 4. Dikelola secara swadaya & transparan.</p>
+  <!-- MODAL KOTAK SARAN -->
+  <div id="modal-saran" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4 opacity-0 transition-opacity duration-300">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col transform scale-95 transition-transform duration-300">
+      <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-indigo-600 text-white">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="message-square" class="w-5 h-5"></i>
+          <h3 class="font-bold text-sm md:text-base">Kotak Saran Anonim</h3>
+        </div>
+        <button onclick="closeModalSaran()" class="p-1 text-indigo-200 hover:text-white rounded-full transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-5 space-y-4">
+        <p class="text-xs text-slate-500">Pesan ini akan dikirim secara rahasia dan aman ke email pengurus. Identitas Anda tidak akan direkam.</p>
+        
+        <!-- FORM FORMSPREE -->
+        <!-- GANTI "your-email@example.com" DENGAN EMAIL ANDA -->
+        <form action="https://formspree.io/f/xbjnapko" method="POST" id="form-saran">
+            <textarea name="pesan" rows="5" placeholder="Ketik saran, laporan, atau keluhan Anda di sini..." class="w-full p-3 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none bg-slate-50" required></textarea>
+            
+            <button type="submit" class="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition flex items-center justify-center space-x-2 shadow-sm">
+                <i data-lucide="send" class="w-4 h-4"></i>
+                <span>Kirim Saran</span>
+            </button>
+        </form>
+        <p id="saran-status" class="text-xs text-center text-emerald-600 font-semibold hidden">Terima kasih! Pesan Anda telah terkirim.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOATING ACTION BUTTON (KOTAK SARAN) -->
+  <button onclick="openModalSaran()" class="fixed bottom-6 right-6 md:bottom-8 md:right-8 bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-2xl hover:shadow-indigo-500/50 transition-all transform hover:scale-110 z-40 group flex items-center justify-center">
+    <i data-lucide="message-square-plus" class="w-6 h-6 md:w-7 md:h-7"></i>
+    <!-- Tooltip -->
+    <span class="absolute right-full mr-4 bg-slate-800 text-white text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+      Kirim Saran
+    </span>
+  </button>
+
+  <!-- Footer dengan Info Pembayaran -->
+  <footer class="bg-slate-900 text-slate-400 pt-8 pb-6 border-t border-slate-800 w-full">
+    <div class="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 text-sm">
+      
+      <!-- Info Transfer Bank -->
+      <div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+        <div class="flex items-center space-x-2 mb-3 text-indigo-300">
+          <i data-lucide="credit-card" class="w-5 h-5"></i>
+          <h4 class="font-bold text-white">Pembayaran Transfer Bank</h4>
+        </div>
+        <p class="text-xs mb-1">Silakan transfer kas/arisan/donasi ke rekening:</p>
+        <div class="bg-slate-900 p-3 rounded-lg border border-slate-700 font-mono">
+          <p class="text-white font-bold tracking-wider">1330022606479</p>
+          <p class="text-xs mt-1 text-slate-300">A/N <span class="font-bold">ROSALINDA</span></p>
+          <p class="text-xs text-slate-500 mt-0.5">Bank Mandiri</p>
+        </div>
+      </div>
+
+      <!-- Info QRIS -->
+      <div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700 flex flex-col justify-center items-center text-center">
+         <div class="flex items-center space-x-2 mb-2 text-indigo-300">
+          <i data-lucide="qr-code" class="w-5 h-5"></i>
+          <h4 class="font-bold text-white">Pembayaran QRIS</h4>
+        </div>
+        <p class="text-xs mb-3">Scan kode QRIS di bawah ini menggunakan e-Wallet atau M-Banking (Gopay, OVO, Dana, dll).</p>
+        
+        <!-- Placeholder QRIS -->
+        <div class="w-32 h-32 bg-white rounded-lg p-2 flex items-center justify-center border-4 border-indigo-500 relative">
+             <div class="absolute inset-0 bg-slate-900/10 backdrop-blur-[2px] flex items-center justify-center rounded-sm">
+                 <span class="bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded">QRIS Segera Hadir</span>
+             </div>
+             <!-- Ganti div kotak-kotak ini dengan tag <img> gambar QRIS asli nanti -->
+            <div class="grid grid-cols-3 gap-1 w-full h-full opacity-30">
+                <div class="bg-black rounded-tl-md"></div><div class="bg-black"></div><div class="bg-black rounded-tr-md"></div>
+                <div class="bg-black"></div><div class="bg-white"></div><div class="bg-black"></div>
+                <div class="bg-black rounded-bl-md"></div><div class="bg-black"></div><div class="bg-black rounded-br-md"></div>
+            </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="text-center text-xs md:text-sm pt-4 border-t border-slate-800">
+      <p>&copy; 2026 Humas 3 Warga Flamboyan 4. Dikelola secara swadaya & transparan.</p>
+    </div>
   </footer>
 
   <script>
@@ -569,41 +662,69 @@
       return { day: dateStr, month: '' };
     }
 
-    function openModalKeuangan() {
-      document.getElementById('modal-keuangan').classList.remove('hidden');
+    // Modal Control Functions
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
       document.body.style.overflow = 'hidden';
+      // Animasi khusus modal saran
+      if(id === 'modal-saran') {
+          setTimeout(() => {
+            document.getElementById(id).classList.remove('opacity-0');
+            document.getElementById(id).children[0].classList.remove('scale-95');
+          }, 10);
+      }
     }
-    function closeModalKeuangan() {
-      document.getElementById('modal-keuangan').classList.add('hidden');
-      document.body.style.overflow = 'auto';
+    function closeModal(id) {
+      // Animasi khusus modal saran
+      if(id === 'modal-saran') {
+          document.getElementById(id).classList.add('opacity-0');
+          document.getElementById(id).children[0].classList.add('scale-95');
+          setTimeout(() => {
+              document.getElementById(id).classList.add('hidden');
+              document.body.style.overflow = 'auto';
+              // Reset status kirim jika ditutup
+              document.getElementById('saran-status').classList.add('hidden');
+              document.getElementById('form-saran').reset();
+          }, 300);
+      } else {
+        document.getElementById(id).classList.add('hidden');
+        document.body.style.overflow = 'auto';
+      }
     }
 
-    function openModalArisan() {
-      document.getElementById('modal-arisan').classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
-    }
-    function closeModalArisan() {
-      document.getElementById('modal-arisan').classList.add('hidden');
-      document.body.style.overflow = 'auto';
-    }
+    function openModalKeuangan() { openModal('modal-keuangan'); }
+    function closeModalKeuangan() { closeModal('modal-keuangan'); }
+    function openModalArisan() { openModal('modal-arisan'); }
+    function closeModalArisan() { closeModal('modal-arisan'); }
+    function openModalJersey() { openModal('modal-jersey'); }
+    function closeModalJersey() { closeModal('modal-jersey'); }
+    function openModalDokumentasi() { openModal('modal-dokumentasi'); }
+    function closeModalDokumentasi() { closeModal('modal-dokumentasi'); }
+    function openModalSaran() { openModal('modal-saran'); }
+    function closeModalSaran() { closeModal('modal-saran'); }
 
-    function openModalJersey() {
-      document.getElementById('modal-jersey').classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
-    }
-    function closeModalJersey() {
-      document.getElementById('modal-jersey').classList.add('hidden');
-      document.body.style.overflow = 'auto';
-    }
-
-    function openModalDokumentasi() {
-      document.getElementById('modal-dokumentasi').classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
-    }
-    function closeModalDokumentasi() {
-      document.getElementById('modal-dokumentasi').classList.add('hidden');
-      document.body.style.overflow = 'auto';
-    }
+    // AJAX Formspree submission (Kirim tanpa pindah halaman)
+    const formSaran = document.getElementById("form-saran");
+    formSaran.addEventListener("submit", async function(event) {
+        event.preventDefault();
+        const data = new FormData(event.target);
+        try {
+            const response = await fetch(event.target.action, {
+                method: formSaran.method,
+                body: data,
+                headers: { 'Accept': 'application/json' }
+            });
+            if (response.ok) {
+                document.getElementById('saran-status').classList.remove('hidden');
+                formSaran.reset();
+                setTimeout(closeModalSaran, 2500); // Tutup otomatis setelah 2.5 dtk
+            } else {
+                alert("Ups! Gagal mengirim pesan. Silakan coba lagi.");
+            }
+        } catch (error) {
+            alert("Ups! Gagal mengirim pesan. Periksa koneksi internet Anda.");
+        }
+    });
 
     function openModalEventDetail(dateStr, eventItems) {
       document.getElementById('modal-event-date').innerText = `Kegiatan: ${dateStr}`;
@@ -623,14 +744,10 @@
         `;
       });
       document.getElementById('modal-event-body').innerHTML = html;
-      document.getElementById('modal-event-detail').classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
+      openModal('modal-event-detail');
     }
 
-    function closeModalEventDetail() {
-      document.getElementById('modal-event-detail').classList.add('hidden');
-      document.body.style.overflow = 'auto';
-    }
+    function closeModalEventDetail() { closeModal('modal-event-detail'); }
 
     async function fetchFolderFiles(folderId) {
       if (!FOLDER_API_URL || !FOLDER_API_URL.startsWith('http')) return [];
@@ -658,6 +775,7 @@
     async function openGalleryGridModal(rawString, title) {
       document.getElementById('gallery-grid-title').innerText = title || "Galeri Album";
       document.getElementById('gallery-grid-container').innerHTML = '<p class="text-slate-400 text-xs col-span-full text-center py-8">Memuat seluruh media album...</p>';
+      
       document.getElementById('modal-gallery-grid').classList.remove('hidden');
       document.body.style.overflow = 'hidden';
 
@@ -710,11 +828,25 @@
       document.body.style.overflow = 'auto';
     }
 
-    // --- BUKA LIGHTBOX FULLSCREEN ---
+    // --- BUKA LIGHTBOX FULLSCREEN & KONTROL SLIDE ---
     function openLightboxFromIndex(index) {
       currentPhotoIndex = index;
       document.getElementById('lightbox-modal').classList.remove('hidden');
       updateLightboxView();
+    }
+
+    function nextLightboxMedia(event) {
+        if(event) event.stopPropagation(); // Cegah modal tertutup saat klik tombol
+        if (currentMediaList.length <= 1) return;
+        currentPhotoIndex = (currentPhotoIndex + 1) % currentMediaList.length; // Looping ke depan
+        updateLightboxView();
+    }
+
+    function prevLightboxMedia(event) {
+        if(event) event.stopPropagation(); // Cegah modal tertutup saat klik tombol
+        if (currentMediaList.length <= 1) return;
+        currentPhotoIndex = (currentPhotoIndex - 1 + currentMediaList.length) % currentMediaList.length; // Looping ke belakang
+        updateLightboxView();
     }
 
     function updateLightboxView() {
@@ -734,12 +866,21 @@
       document.getElementById('lightbox-caption').innerText = currentPhotoCaption;
 
       const counter = document.getElementById('lightbox-counter');
+      const btnPrev = document.getElementById('lightbox-prev');
+      const btnNext = document.getElementById('lightbox-next');
+
       if (currentMediaList.length > 1) {
         counter.classList.remove('hidden');
         counter.innerText = `Media ${currentPhotoIndex + 1} dari ${currentMediaList.length}`;
+        btnPrev.classList.remove('hidden');
+        btnNext.classList.remove('hidden');
       } else {
         counter.classList.add('hidden');
+        btnPrev.classList.add('hidden');
+        btnNext.classList.add('hidden');
       }
+      
+      lucide.createIcons(); // Re-render icons if needed
     }
 
     function closeLightbox() {
@@ -1321,11 +1462,29 @@
             };
           });
 
+          // Mengurutkan Rencana Berdasarkan Prioritas Status (On Progress -> Direncanakan -> Selesai)
+          const onProgressList = [];
+          const direncanakanList = [];
+          const selesaiList = [];
+
+          [...globalRencanaData].reverse().forEach(item => {
+            const statusLcase = item.status.toLowerCase();
+            if (statusLcase.includes('progress') || statusLcase.includes('rancang') || statusLcase.includes('jalan')) {
+              onProgressList.push(item);
+            } else if (statusLcase.includes('selesai')) {
+              selesaiList.push(item);
+            } else {
+              direncanakanList.push(item);
+            }
+          });
+
+          const displayData = [...onProgressList, ...direncanakanList, ...selesaiList];
+
           // Render List Rencana Kegiatan
           let rencanaHTML = '';
-          [...globalRencanaData].reverse().forEach(item => {
+          displayData.forEach(item => {
             let statusBadge = `<span class="bg-blue-100 text-blue-800 text-[10px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap">Direncanakan</span>`;
-            if (item.status.toLowerCase().includes('progress')) {
+            if (item.status.toLowerCase().includes('progress') || item.status.toLowerCase().includes('rancang') || item.status.toLowerCase().includes('jalan')) {
               statusBadge = `<span class="bg-amber-100 text-amber-800 text-[10px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap">On Progress</span>`;
             } else if (item.status.toLowerCase().includes('selesai')) {
               statusBadge = `<span class="bg-emerald-100 text-emerald-800 text-[10px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap">Selesai</span>`;
