@@ -292,14 +292,14 @@
           </div>
 
           <!-- Keterangan Warna Badges -->
-          <div class="flex items-center space-x-4 mb-4 text-[11px] text-slate-500 border-b border-slate-100 pb-2">
+          <div class="flex flex-wrap items-center gap-3 mb-4 text-[11px] text-slate-500 border-b border-slate-100 pb-2">
             <div class="flex items-center space-x-1">
               <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
               <span class="font-medium text-amber-800">Golor / Kerja Bakti</span>
             </div>
             <div class="flex items-center space-x-1">
               <span class="w-2.5 h-2.5 rounded-full bg-indigo-600 inline-block"></span>
-              <span>Kegiatan Warga</span>
+              <span>Kegiatan Warga / Arisan</span>
             </div>
           </div>
 
@@ -512,7 +512,7 @@
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-indigo-600 text-white">
         <div class="flex items-center space-x-2">
           <i data-lucide="message-square" class="w-5 h-5"></i>
-          <h3 class="font-bold text-sm md:text-base">Kotak Saran Anonim</h3>
+          <h3 class="font-bold text-sm md:text-base">Kotak Saran Flamboyan 4</h3>
         </div>
         <button onclick="closeModalSaran()" class="p-1 text-indigo-200 hover:text-white rounded-full transition">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -652,20 +652,10 @@
       return cleanUrl;
     }
 
-    function parseDateBadge(dateStr) {
-      if (!dateStr) return { day: '-', month: 'OKT' };
-      const parts = dateStr.trim().split(/[\s\-\/\.]+/);
-      if (parts.length >= 2) {
-        return { day: parts[0], month: parts[1] };
-      }
-      return { day: dateStr, month: '' };
-    }
-
     // Modal Control Functions
     function openModal(id) {
       document.getElementById(id).classList.remove('hidden');
       document.body.style.overflow = 'hidden';
-      // Animasi khusus modal saran
       if(id === 'modal-saran') {
           setTimeout(() => {
             document.getElementById(id).classList.remove('opacity-0');
@@ -674,14 +664,12 @@
       }
     }
     function closeModal(id) {
-      // Animasi khusus modal saran
       if(id === 'modal-saran') {
           document.getElementById(id).classList.add('opacity-0');
           document.getElementById(id).children[0].classList.add('scale-95');
           setTimeout(() => {
               document.getElementById(id).classList.add('hidden');
               document.body.style.overflow = 'auto';
-              // Reset status kirim jika ditutup
               document.getElementById('saran-status').classList.add('hidden');
               document.getElementById('form-saran').reset();
           }, 300);
@@ -702,7 +690,7 @@
     function openModalSaran() { openModal('modal-saran'); }
     function closeModalSaran() { closeModal('modal-saran'); }
 
-    // AJAX Formspree submission (Kirim tanpa pindah halaman)
+    // AJAX Formspree submission
     const formSaran = document.getElementById("form-saran");
     formSaran.addEventListener("submit", async function(event) {
         event.preventDefault();
@@ -716,7 +704,7 @@
             if (response.ok) {
                 document.getElementById('saran-status').classList.remove('hidden');
                 formSaran.reset();
-                setTimeout(closeModalSaran, 2500); // Tutup otomatis setelah 2.5 dtk
+                setTimeout(closeModalSaran, 2500);
             } else {
                 alert("Ups! Gagal mengirim pesan. Silakan coba lagi.");
             }
@@ -731,7 +719,7 @@
       eventItems.forEach(item => {
         const isGolor = item.isGolor;
         const badgeBg = isGolor ? 'bg-amber-100 text-amber-900 border-amber-200' : 'bg-indigo-50 text-indigo-900 border-indigo-100';
-        const typeLabel = isGolor ? '🧹 GOLOR / KERJA BAKTI' : '📌 KEGIATAN WARGA';
+        const typeLabel = isGolor ? '🧹 GOLOR / KERJA BAKTI' : '📌 KEGIATAN WARGA / ARISAN';
         
         html += `
           <div class="p-3 rounded-xl border ${badgeBg} space-y-1">
@@ -770,7 +758,6 @@
       return [];
     }
 
-    // --- BUKA MODAL GALERI GRID ---
     async function openGalleryGridModal(rawString, title) {
       document.getElementById('gallery-grid-title').innerText = title || "Galeri Album";
       document.getElementById('gallery-grid-container').innerHTML = '<p class="text-slate-400 text-xs col-span-full text-center py-8">Memuat seluruh media album...</p>';
@@ -827,7 +814,6 @@
       document.body.style.overflow = 'auto';
     }
 
-    // --- BUKA LIGHTBOX FULLSCREEN & KONTROL SLIDE ---
     function openLightboxFromIndex(index) {
       currentPhotoIndex = index;
       document.getElementById('lightbox-modal').classList.remove('hidden');
@@ -835,16 +821,16 @@
     }
 
     function nextLightboxMedia(event) {
-        if(event) event.stopPropagation(); // Cegah modal tertutup saat klik tombol
+        if(event) event.stopPropagation();
         if (currentMediaList.length <= 1) return;
-        currentPhotoIndex = (currentPhotoIndex + 1) % currentMediaList.length; // Looping ke depan
+        currentPhotoIndex = (currentPhotoIndex + 1) % currentMediaList.length;
         updateLightboxView();
     }
 
     function prevLightboxMedia(event) {
-        if(event) event.stopPropagation(); // Cegah modal tertutup saat klik tombol
+        if(event) event.stopPropagation();
         if (currentMediaList.length <= 1) return;
-        currentPhotoIndex = (currentPhotoIndex - 1 + currentMediaList.length) % currentMediaList.length; // Looping ke belakang
+        currentPhotoIndex = (currentPhotoIndex - 1 + currentMediaList.length) % currentMediaList.length;
         updateLightboxView();
     }
 
@@ -878,8 +864,7 @@
         btnPrev.classList.add('hidden');
         btnNext.classList.add('hidden');
       }
-      
-      lucide.createIcons(); // Re-render icons if needed
+      lucide.createIcons();
     }
 
     function closeLightbox() {
@@ -887,7 +872,6 @@
       document.getElementById('lightbox-media-container').innerHTML = '';
     }
 
-    // --- RENDER TABEL KEUANGAN ---
     function renderTableRow(row) {
       const keys = Object.keys(row);
       const tanggal = row[keys[0]];
@@ -933,7 +917,6 @@
       document.getElementById('tabel-transaksi-all').innerHTML = html || '<tr><td colspan="4" class="p-4 text-center text-slate-400">Tidak ada transaksi yang cocok</td></tr>';
     }
 
-    // --- RENDER TABEL ARISAN ---
     function renderArisanRow(row) {
       const keys = Object.keys(row);
       const bulan = row[keys[0]] || '-';
@@ -977,7 +960,6 @@
       document.getElementById('tabel-arisan-all').innerHTML = html || '<tr><td colspan="3" class="p-4 text-center text-slate-400">Tidak ada data arisan yang cocok</td></tr>';
     }
 
-    // --- RENDER TABEL JERSEY ---
     function filterJerseyModal() {
       const keyword = document.getElementById('search-jersey').value.toLowerCase();
       let html = '';
@@ -1014,7 +996,6 @@
       document.getElementById('tabel-jersey-all').innerHTML = html || '<tr><td colspan="6" class="p-4 text-center text-slate-400">Tidak ada pemesan yang cocok</td></tr>';
     }
 
-    // --- PROSES KEUANGAN & PROGRESS BAR GAPURA ---
     if (CSV_KEUANGAN_URL && CSV_KEUANGAN_URL.startsWith('http')) {
       Papa.parse(CSV_KEUANGAN_URL, {
         download: true,
@@ -1031,15 +1012,11 @@
           rawData.forEach(row => {
             const keys = Object.keys(row);
             if (keys.length < 4) return;
-
             const kategori = (row[keys[2]] || '').trim();
             const rawJumlah = row[keys[3]];
-
             if (!rawJumlah) return;
-
             let cleanedJumlah = rawJumlah.toString().replace(/\./g, '').replace(/,/g, '');
             const jumlah = parseFloat(cleanedJumlah.replace(/[^0-9-]/g, '')) || 0;
-
             if (kategori.toLowerCase() === 'pemasukan') totalPemasukan += jumlah;
             else if (kategori.toLowerCase() === 'pengeluaran') totalPengeluaran += jumlah;
           });
@@ -1073,7 +1050,6 @@
             document.getElementById('btn-container-keuangan-all').classList.remove('hidden');
           }
 
-          // HITUNG DANA GAPURA
           const terkumpul = Math.max(0, sisaSaldo);
           const persen = Math.min(100, Math.round((terkumpul / TARGET_DANA_GAPURA) * 100));
           const kurang = Math.max(0, TARGET_DANA_GAPURA - terkumpul);
@@ -1086,7 +1062,6 @@
       });
     }
 
-    // --- PROSES ARISAN ---
     if (CSV_ARISAN_URL && CSV_ARISAN_URL.startsWith('http')) {
       Papa.parse(CSV_ARISAN_URL, {
         download: true,
@@ -1098,20 +1073,14 @@
           });
 
           globalArisanData = rawData;
-
           let arisanIni = null;
           let arisanLanjut = null;
 
           globalArisanData.forEach(row => {
             const keys = Object.keys(row);
             const ket = (row[keys[3]] || '').toString().toLowerCase();
-
-            if (ket.includes('bulan ini')) {
-              arisanIni = row;
-            }
-            if (ket.includes('selanjutnya') || ket.includes('tuan rumah selanjutnya')) {
-              arisanLanjut = row;
-            }
+            if (ket.includes('bulan ini')) arisanIni = row;
+            if (ket.includes('selanjutnya') || ket.includes('tuan rumah selanjutnya')) arisanLanjut = row;
           });
 
           if (arisanIni) {
@@ -1119,9 +1088,7 @@
             const statusIni = (arisanIni[k[2]] || '').toString().toLowerCase();
             document.getElementById('arisan-bulan-ini-nama').innerText = arisanIni[k[1]] || '-';
             document.getElementById('arisan-bulan-ini-tgl').innerText = arisanIni[k[0]] || '-';
-
             const iconContainer = document.getElementById('arisan-bulan-ini-icon-bg');
-            
             if (statusIni.includes('sudah')) {
               iconContainer.className = "p-3 rounded-full bg-emerald-500/30 text-emerald-300";
               iconContainer.innerHTML = `<i data-lucide="check-circle-2" class="w-6 h-6"></i>`;
@@ -1147,7 +1114,6 @@
       });
     }
 
-    // --- PROSES JERSEY ---
     if (CSV_JERSEY_URL && CSV_JERSEY_URL.startsWith('http')) {
       Papa.parse(CSV_JERSEY_URL, {
         download: true,
@@ -1159,7 +1125,6 @@
           });
 
           globalJerseyData = rawData;
-
           let countLunas = 0;
           let countDP = 0;
 
@@ -1208,9 +1173,7 @@
       });
     }
 
-    // Load Gambar Desain Jersey & Gapura
     (async function loadJerseyAndGapuraImages() {
-      // 1. Foto Jersey
       const folderJerseyId = extractFolderId(FOLDER_JERSEY_URL);
       if (folderJerseyId && FOLDER_API_URL.startsWith('http')) {
         const files = await fetchFolderFiles(folderJerseyId);
@@ -1226,7 +1189,6 @@
         }
       }
 
-      // 2. Foto Gapura
       const folderGapuraId = extractFolderId(FOLDER_GAPURA_URL);
       if (folderGapuraId && FOLDER_API_URL.startsWith('http')) {
         const gapuraFiles = await fetchFolderFiles(folderGapuraId);
@@ -1244,7 +1206,6 @@
       lucide.createIcons();
     })();
 
-    // --- PROSES DOKUMENTASI KEGIATAN ---
     if (CSV_DOKUMENTASI_URL && CSV_DOKUMENTASI_URL.startsWith('http')) {
       Papa.parse(CSV_DOKUMENTASI_URL, {
         download: true,
@@ -1256,7 +1217,6 @@
           });
 
           const displayData = [...rawData].reverse();
-
           let top3HTML = '';
           let allHTML = '';
 
@@ -1325,7 +1285,7 @@
       });
     }
 
-    // --- LOGIKA KALENDER & RENCANA KEGIATAN ---
+    // --- LOGIKA KALENDER DENGAN OTOMATISASI ARISAN (SABTU MINGGU KEDUA) ---
     function renderCalendar() {
       const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
       const year = calendarDate.getFullYear();
@@ -1339,6 +1299,20 @@
       const today = new Date();
       const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
 
+      // Fungsi helper untuk mencari Tanggal Sabtu di Minggu Kedua bulan ini
+      let secondSaturdayDate = null;
+      let saturdayCount = 0;
+      for (let d = 1; d <= daysInMonth; d++) {
+        let checkDate = new Date(year, month, d);
+        if (checkDate.getDay() === 6) { // Hari Sabtu
+          saturdayCount++;
+          if (saturdayCount === 2) {
+            secondSaturdayDate = d;
+            break;
+          }
+        }
+      }
+
       let gridHTML = '';
 
       // Offset Hari Kosong
@@ -1350,8 +1324,20 @@
       for (let day = 1; day <= daysInMonth; day++) {
         const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         
-        // Cari kegiatan di tanggal ini
-        const dayEvents = globalRencanaData.filter(item => item.parsedDate === dateKey);
+        // Cari kegiatan manual dari CSV Rencana
+        let dayEvents = globalRencanaData.filter(item => item.parsedDate === dateKey);
+
+        // OTOMATISASI: Jika tanggal ini adalah Sabtu Minggu Kedua, tambahkan Jadwal Arisan
+        if (day === secondSaturdayDate) {
+          dayEvents.push({
+            tanggalStr: `${day} ${monthNames[month]} ${year}`,
+            parsedDate: dateKey,
+            judul: "Arisan Warga Flamboyan 4",
+            deskripsi: "Putaran bulanan arisan warga rutin (Sabtu Minggu ke-2).",
+            status: "Terjadwal",
+            isGolor: false
+          });
+        }
 
         let isGolor = false;
         let hasEvent = dayEvents.length > 0;
@@ -1381,12 +1367,17 @@
         const safeDateStr = `${day} ${monthNames[month]} ${year}`;
         const clickAttr = hasEvent ? `onclick='openModalEventDetail("${safeDateStr}", ${JSON.stringify(dayEvents).replace(/'/g, "&apos;")})'` : '';
 
+        // Teks badge di kotak tanggal
+        let badgeLabel = '📌 Acara';
+        if (isGolor) badgeLabel = '🧹 Golor';
+        else if (day === secondSaturdayDate) badgeLabel = '🏠 Arisan';
+
         gridHTML += `
           <div class="${dayClass}" ${clickAttr}>
             <span class="${isCurrentMonth && day === today.getDate() ? 'text-indigo-700 font-black' : 'text-slate-700'}">${day}</span>
             ${hasEvent ? `
               <span class="w-full text-[9px] py-0.5 px-1 rounded truncate text-center mt-1 ${badgeClass}">
-                ${isGolor ? '🧹 Golor' : '📌 Acara'}
+                ${badgeLabel}
               </span>
             ` : ''}
           </div>
@@ -1425,11 +1416,9 @@
             const deskripsi = row[keys[2]] || '';
             const status = row[keys[3]] || 'Direncanakan';
 
-            // Cek Kata Kunci Golor / Kerja Bakti
             const combinedText = (judul + " " + deskripsi).toLowerCase();
             const isGolor = combinedText.includes('golor') || combinedText.includes('kerja bakti') || combinedText.includes('kerjabakti') || combinedText.includes('gotong royong');
 
-            // Format tanggal standar (YYYY-MM-DD)
             let parsedDate = '';
             const dateParts = tanggalStr.trim().split(/[\s\-\/\.]+/);
             if (dateParts.length >= 3) {
@@ -1437,7 +1426,6 @@
               let month = dateParts[1];
               let year = dateParts[2];
 
-              // Konversi Nama Bulan ke Angka jika Bahasa Indonesia
               const monthMap = { 'jan': '01', 'feb': '02', 'mar': '03', 'apr': '04', 'mei': '05', 'jun': '06', 'jul': '07', 'agu': '08', 'sep': '09', 'okt': '10', 'nov': '11', 'des': '12' };
               for (let key in monthMap) {
                 if (month.toLowerCase().startsWith(key)) {
@@ -1461,7 +1449,6 @@
             };
           });
 
-          // Mengurutkan Rencana Berdasarkan Prioritas Status (On Progress -> Direncanakan -> Selesai)
           const onProgressList = [];
           const direncanakanList = [];
           const selesaiList = [];
@@ -1479,7 +1466,6 @@
 
           const displayData = [...onProgressList, ...direncanakanList, ...selesaiList];
 
-          // Render List Rencana Kegiatan
           let rencanaHTML = '';
           displayData.forEach(item => {
             let statusBadge = `<span class="bg-blue-100 text-blue-800 text-[10px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap">Direncanakan</span>`;
@@ -1504,8 +1490,6 @@
           });
 
           document.getElementById('container-rencana').innerHTML = rencanaHTML || '<p class="text-slate-400 text-xs">Belum ada rencana kegiatan.</p>';
-
-          // Jalankan Render Kalender
           renderCalendar();
         }
       });
