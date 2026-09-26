@@ -477,10 +477,10 @@
     </div>
   </div>
 
-  <!-- LIGHTBOX MODAL FULLSCREEN (STABIL & DENGAN FITUR ZOOM GESTUR CUBIT NATIVE) -->
+  <!-- LIGHTBOX MODAL FULLSCREEN (DENGAN SCROLL MOUSE + CUBIT LAYAR SENTUH) -->
   <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-center p-2 md:p-4 overflow-hidden" onclick="closeLightbox()">
     
-    <!-- Tombol Tutup Kanan Atas -->
+    <!-- Tombol Kontrol Kanan Atas -->
     <div class="absolute top-3 right-3 flex items-center space-x-2 z-30">
       <button onclick="resetLightboxZoom(event)" id="btn-reset-zoom" class="text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition shadow-md text-xs font-semibold px-3 hidden" title="Reset Ukuran">
         Reset Zoom
@@ -877,7 +877,7 @@
         updateLightboxView();
     }
 
-    // NATIVE INTERACTIVE TOUCH GESTURES (PINCH, PAN, DOUBLE-TAP)
+    // MULTI-DEVICE INTERACTIVE ZOOM (DESKTOP: SCROLL & DRAG, MOBILE: PINCH & TOUCH)
     let zoomScale = 1;
     let translateX = 0;
     let translateY = 0;
@@ -911,12 +911,45 @@
       }
     }
 
-    function initImageTouchEvents(img) {
+    function initImageZoomEvents(img) {
       zoomScale = 1;
       translateX = 0;
       translateY = 0;
       applyTransform(img);
 
+      // 1. DUKUNGAN MOUSE SCROLL WHEEL UNTUK KOMPUTER / LAPTOP
+      img.parentElement.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.25 : 0.25;
+        zoomScale = Math.min(Math.max(zoomScale + delta, 1), 5);
+        if (zoomScale === 1) { translateX = 0; translateY = 0; }
+        applyTransform(img);
+      }, { passive: false });
+
+      // 2. DUKUNGAN DRAG MOUSE UNTUK KOMPUTER
+      img.addEventListener('mousedown', (e) => {
+        if (zoomScale > 1) {
+          isDragging = true;
+          startX = e.clientX - translateX;
+          startY = e.clientY - translateY;
+          img.style.cursor = 'grabbing';
+        }
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (isDragging && zoomScale > 1) {
+          translateX = e.clientX - startX;
+          translateY = e.clientY - startY;
+          applyTransform(img);
+        }
+      });
+
+      window.addEventListener('mouseup', () => {
+        isDragging = false;
+        if (img) img.style.cursor = zoomScale > 1 ? 'grab' : 'default';
+      });
+
+      // 3. DUKUNGAN LAYAR SENTUH HP (CUBIT 2 JARI & DOUBLE TAP)
       img.addEventListener('touchstart', (e) => {
         if (e.touches.length === 2) {
           startDist = Math.hypot(
@@ -955,7 +988,7 @@
             e.touches[0].pageX - e.touches[1].pageX,
             e.touches[0].pageY - e.touches[1].pageY
           );
-          zoomScale = Math.min(Math.max(startScale * (currentDist / startDist), 1), 4);
+          zoomScale = Math.min(Math.max(startScale * (currentDist / startDist), 1), 5);
           if (zoomScale === 1) { translateX = 0; translateY = 0; }
           applyTransform(img);
         } else if (e.touches.length === 1 && isDragging && zoomScale > 1) {
@@ -982,7 +1015,7 @@
           <img id="lightbox-active-img" src="${item.url}" alt="Foto Full" class="max-w-full max-h-full rounded-lg shadow-2xl object-contain select-none cursor-grab active:cursor-grabbing">
         `;
         const img = document.getElementById('lightbox-active-img');
-        if (img) initImageTouchEvents(img);
+        if (img) initImageZoomEvents(img);
       }
 
       document.getElementById('lightbox-caption').innerText = currentPhotoCaption;
