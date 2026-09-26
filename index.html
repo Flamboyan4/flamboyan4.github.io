@@ -911,7 +911,7 @@
     }
     function closeModalEventDetail() { if(activeModalsStack.includes('modal-event-detail')) history.back(); }
 
-    // FUNGSI MEMBACA FILE GOOGLE DRIVE DENGAN URUTAN NAMA (1, 2, 3, DST)
+    // AMAN & HANDAL: FUNGSI MEMBACA FILE GOOGLE DRIVE SERTA MENGURUTKAN NAMA FILE (1, 2, 3, DST)
     async function fetchFolderFiles(folderId) {
       if (!FOLDER_API_URL || !FOLDER_API_URL.startsWith('http')) return [];
       if (folderCache[folderId]) return folderCache[folderId];
@@ -921,17 +921,31 @@
         const data = await response.json();
         let items = [];
         
-        if (data && data.files && data.files.length > 0) {
-          items = data.files;
-        } else if (data && data.images && data.images.length > 0) {
-          items = data.images.map(url => ({ type: 'image', url: url }));
+        if (data && data.files && Array.isArray(data.files) && data.files.length > 0) {
+          items = data.files.map(f => {
+            if (typeof f === 'string') return { type: 'image', url: fixDriveUrl(f), name: f };
+            return {
+              type: f.type || 'image',
+              url: fixDriveUrl(f.url || f.link || f.src || ''),
+              name: f.name || f.title || f.filename || (f.url ? f.url.split('/').pop() : '')
+            };
+          });
+        } else if (data && data.images && Array.isArray(data.images) && data.images.length > 0) {
+          items = data.images.map(img => {
+            if (typeof img === 'string') return { type: 'image', url: fixDriveUrl(img), name: img };
+            return {
+              type: img.type || 'image',
+              url: fixDriveUrl(img.url || img.link || ''),
+              name: img.name || img.title || (img.url ? img.url.split('/').pop() : '')
+            };
+          });
         }
 
         if (items.length > 0) {
-          // URUTAN NAMA SECARA ALAMIAH / NATURAL SORTING (1, 2, 3, DST)
+          // URUTAN NATURAL SANGAT AKURAT (1, 2, 3, DST)
           items.sort((a, b) => {
-            const nameA = a.name || a.title || '';
-            const nameB = b.name || b.title || '';
+            const nameA = String(a.name || '');
+            const nameB = String(b.name || '');
             return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
           });
           
