@@ -25,8 +25,8 @@
 <!-- Menambahkan Event Listener Anti Klik Kanan & Anti Shortcut -->
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full" oncontextmenu="return false;" onkeydown="return disableInspect(event)">
 
-  <!-- Header / Navigation (Warna Senada dengan Base Indigo/Violet) -->
-  <header class="bg-indigo-950/95 backdrop-blur-md text-white border-b border-white/10 sticky top-0 z-50 w-full transition-all">
+  <!-- Header / Navigation (Menyatu Senada dengan Sampul Hero) -->
+  <header class="bg-gradient-to-r from-indigo-950 via-indigo-900 to-indigo-950 text-white border-b border-indigo-800/40 sticky top-0 z-50 w-full transition-all shadow-md">
     <div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between relative">
       
       <!-- Icon Home di Sebelah Kiri -->
@@ -47,8 +47,8 @@
     </div>
   </header>
 
-  <!-- Hero Section Senada dengan Card Arisan & Kotak Saran (Gradasi Indigo ke Violet) -->
-  <section class="relative bg-gradient-to-br from-indigo-900 via-indigo-800 to-violet-900 text-white py-12 md:py-16 px-4 overflow-hidden w-full border-b border-indigo-700/40">
+  <!-- Hero Section Warna Senada dengan Header & Kotak Saran -->
+  <section class="relative bg-gradient-to-br from-indigo-950 via-indigo-900 to-violet-900 text-white py-12 md:py-16 px-4 overflow-hidden w-full border-b border-indigo-800/40">
     
     <!-- Pola Grid Abstrak & Efek Cahaya Glow -->
     <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px]"></div>
@@ -56,12 +56,14 @@
 
     <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
       
-      <!-- Sisi Kiri: Judul Utama & Quick Action Navigasi -->
+      <!-- Sisi Kiri: Judul Utama Disesuaikan Lebarnya Sejajar dengan Ujung Chip Navigasi -->
       <div class="lg:col-span-7 text-center lg:text-left space-y-6">
-        <h2 class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
-          Transparansi & Kebersamaan <br>
-          <span class="bg-gradient-to-r from-amber-200 via-yellow-100 to-white bg-clip-text text-transparent">Warga Flamboyan 4</span>
-        </h2>
+        <div class="max-w-xl mx-auto lg:mx-0">
+          <h2 class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
+            Transparansi & Kebersamaan <br>
+            <span class="bg-gradient-to-r from-amber-200 via-yellow-100 to-white bg-clip-text text-transparent">Warga Flamboyan 4</span>
+          </h2>
+        </div>
 
         <!-- Quick Action Buttons / Chip Navigasi Sampul -->
         <div class="pt-2 flex flex-wrap justify-center lg:justify-start gap-2.5 sm:gap-3 text-xs sm:text-sm font-medium">
@@ -84,9 +86,9 @@
         </div>
       </div>
 
-      <!-- Sisi Kanan: Frame Memanjang Foto Berganti Otomatis (Slideshow) -->
+      <!-- Sisi Kanan: Frame Memanjang Foto Berganti Otomatis -->
       <div class="lg:col-span-5 relative w-full h-52 sm:h-60 rounded-2xl overflow-hidden bg-slate-900 border-2 border-white/20 shadow-2xl group cursor-pointer" onclick="openModalDokumentasi()">
-        <img id="hero-slideshow-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='100%25' height='100%25' fill='%231e1b4b'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='18' fill='%23818cf8' text-anchor='middle' dy='.3em'%3EMemuat Foto Kegiatan...%3C/text%3E%3C/svg%3E" alt="Foto Kegiatan Warga" class="w-full h-full object-cover transition-all duration-700 group-hover:scale-105">
+        <img id="hero-slideshow-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='100%25' height='100%25' fill='%231e1b4b'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='18' fill='%23818cf8' text-anchor='middle' dy='.3em'%3EDokumentasi Kegiatan Warga%3C/text%3E%3C/svg%3E" alt="Foto Kegiatan Warga" class="w-full h-full object-cover transition-all duration-700 group-hover:scale-105">
         
         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-4">
           <p id="hero-slideshow-caption" class="text-xs font-semibold text-white tracking-wide truncate">Dokumentasi Kegiatan Warga</p>
@@ -104,7 +106,7 @@
   <!-- Main Content -->
   <main class="max-w-6xl mx-auto px-4 py-8 flex-grow space-y-12 w-full relative">
 
-    <!-- SECTION 1: LAPORAN KEUANGAN (KARTU PEMASUKAN & PENGELUARAN BISA DIKLIK TO FILTER) -->
+    <!-- SECTION 1: LAPORAN KEUANGAN -->
     <section id="keuangan" class="scroll-mt-20 w-full">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
         <div class="flex items-center space-x-2">
@@ -116,7 +118,7 @@
 
       <!-- Ringkasan Kas -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 w-full">
-        <!-- Kartu Total Pemasukan (Clickable Filter Modal) -->
+        <!-- Kartu Total Pemasukan -->
         <div onclick="openModalKeuanganFiltered('pemasukan')" class="bg-white p-5 md:p-6 rounded-xl shadow-sm border border-slate-200 hover:border-emerald-300 hover:shadow-md transition cursor-pointer group relative">
           <div class="flex justify-between items-start">
             <p class="text-xs md:text-sm font-medium text-slate-500 mb-1">Total Pemasukan</p>
@@ -126,7 +128,7 @@
           <p class="text-xs text-slate-400 mt-2">*Klik untuk lihat khusus pemasukan</p>
         </div>
 
-        <!-- Kartu Total Pengeluaran (Clickable Filter Modal) -->
+        <!-- Kartu Total Pengeluaran -->
         <div onclick="openModalKeuanganFiltered('pengeluaran')" class="bg-white p-5 md:p-6 rounded-xl shadow-sm border border-slate-200 hover:border-rose-300 hover:shadow-md transition cursor-pointer group relative">
           <div class="flex justify-between items-start">
             <p class="text-xs md:text-sm font-medium text-slate-500 mb-1">Total Pengeluaran</p>
@@ -175,7 +177,7 @@
       </div>
     </section>
 
-    <!-- SECTION 2: JADWAL & TUAN RUMAH ARISAN (KARTU LANGSUNG BISA DIKLIK) -->
+    <!-- SECTION 2: JADWAL & TUAN RUMAH ARISAN -->
     <section id="arisan" class="scroll-mt-20 w-full">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
         <div class="flex items-center space-x-2">
@@ -185,7 +187,7 @@
         <span id="loading-status-arisan" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full whitespace-nowrap">Memuat Jadwal...</span>
       </div>
 
-      <!-- Card Highlight Tuan Rumah Arisan (Interactive & Clickable) -->
+      <!-- Card Highlight Tuan Rumah Arisan -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
         <div onclick="openModalArisan()" class="bg-gradient-to-r from-indigo-600 to-indigo-800 hover:from-indigo-700 hover:to-indigo-900 text-white p-5 rounded-xl shadow-md flex items-center justify-between cursor-pointer transition transform hover:-translate-y-0.5 active:scale-98 group">
           <div>
@@ -538,7 +540,7 @@
     </div>
   </div>
 
-  <!-- LIGHTBOX MODAL FULLSCREEN (SUPPORT DUKUNGAN KEYBOARD PANAH & ESCAPE) -->
+  <!-- LIGHTBOX MODAL FULLSCREEN (SMOOTH DRAG/PAN INTERACTION FIX) -->
   <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-center p-2 md:p-4 overflow-hidden" onclick="closeLightbox()">
     
     <!-- Tombol Kontrol Kanan Atas -->
@@ -670,13 +672,11 @@
 
     // DUKUNGAN INTERAKSI KEYBOARD KOMPUTER (PANAH KIRI/KANAN & ESCAPE)
     document.addEventListener('keydown', function(e) {
-      // Mencegah Inspect Element
       if (e.keyCode === 123) return false;
       if (e.ctrlKey && e.shiftKey && e.keyCode === 73) return false;
       if (e.ctrlKey && e.shiftKey && e.keyCode === 74) return false;
       if (e.ctrlKey && e.keyCode === 85) return false;
 
-      // Navigasi Lightbox Galeri Foto jika Modal Sedang Terbuka
       const lightbox = document.getElementById('lightbox-modal');
       if (lightbox && !lightbox.classList.contains('hidden')) {
         if (e.key === 'ArrowRight') {
@@ -728,7 +728,7 @@
     const FOLDER_API_URL = 'https://script.google.com/macros/s/AKfycby25m-xARHOT0JHnlaAzQuoS9Wy6h436JCe7K81_WRtMHv6z8bR4O8tK1lILFT7qE1ipQ/exec';
 
     const TARGET_DANA_GAPURA = 6500000;
-    const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='100%25' height='100%25' fill='%23f1f5f9'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='18' fill='%2394a3b8' text-anchor='middle' dy='.3em'%3EGambaran Desain%3C/text%3E%3C/svg%3E";
+    const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='100%25' height='100%25' fill='%231e1b4b'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='18' fill='%23818cf8' text-anchor='middle' dy='.3em'%3EDokumentasi Kegiatan Warga%3C/text%3E%3C/svg%3E";
 
     let currentMediaList = [];
     let currentPhotoIndex = 0;
@@ -837,7 +837,6 @@
       openModal('modal-keuangan'); 
     }
 
-    // FUNGSI MEMBUKA MODAL KEUANGAN DENGAN FILTER PEMASUKAN ATAU PENGELUARAN SAJA
     function openModalKeuanganFiltered(filterType) {
       document.getElementById('search-keuangan').value = filterType;
       filterKeuanganModal();
@@ -974,7 +973,7 @@
         updateLightboxView();
     }
 
-    // MULTI-DEVICE INTERACTIVE ZOOM
+    // MULTI-DEVICE INTERACTIVE ZOOM & SMOOTH DRAGGING FIX UNTUK PC
     let zoomScale = 1;
     let translateX = 0;
     let translateY = 0;
@@ -987,7 +986,7 @@
 
     function applyTransform(img) {
       if (!img) return;
-      img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${zoomScale})`;
+      img.style.transform = `translate3d(${translateX}px, ${translateY}px, 0px) scale(${zoomScale})`;
       const resetBtn = document.getElementById('btn-reset-zoom');
       if (resetBtn) {
         if (zoomScale > 1.05) resetBtn.classList.remove('hidden');
@@ -1002,9 +1001,9 @@
       translateY = 0;
       const img = document.getElementById('lightbox-active-img');
       if (img) {
-        img.style.transition = 'transform 0.25s ease-out';
+        img.style.transition = 'transform 0.2s ease-out';
         applyTransform(img);
-        setTimeout(() => { img.style.transition = 'none'; }, 250);
+        setTimeout(() => { img.style.transition = 'none'; }, 200);
       }
     }
 
@@ -1014,16 +1013,20 @@
       translateY = 0;
       applyTransform(img);
 
+      // SCROLL WHEEL MOUSE PC
       img.parentElement.addEventListener('wheel', (e) => {
         e.preventDefault();
-        const delta = e.deltaY > 0 ? -0.25 : 0.25;
+        const delta = e.deltaY > 0 ? -0.3 : 0.3;
         zoomScale = Math.min(Math.max(zoomScale + delta, 1), 5);
         if (zoomScale === 1) { translateX = 0; translateY = 0; }
+        img.style.cursor = zoomScale > 1 ? 'grab' : 'default';
         applyTransform(img);
       }, { passive: false });
 
+      // DRAG MOUSE PC (SMOOTH & HALUS SANGAT RESPONSIF)
       img.addEventListener('mousedown', (e) => {
         if (zoomScale > 1) {
+          e.preventDefault();
           isDragging = true;
           startX = e.clientX - translateX;
           startY = e.clientY - translateY;
@@ -1031,19 +1034,28 @@
         }
       });
 
-      window.addEventListener('mousemove', (e) => {
+      const handleGlobalMouseMove = (e) => {
         if (isDragging && zoomScale > 1) {
+          e.preventDefault();
           translateX = e.clientX - startX;
           translateY = e.clientY - startY;
-          applyTransform(img);
+          requestAnimationFrame(() => applyTransform(img));
         }
-      });
+      };
 
-      window.addEventListener('mouseup', () => {
-        isDragging = false;
-        if (img) img.style.cursor = zoomScale > 1 ? 'grab' : 'default';
-      });
+      const handleGlobalMouseUp = () => {
+        if (isDragging) {
+          isDragging = false;
+          if (img) img.style.cursor = zoomScale > 1 ? 'grab' : 'default';
+        }
+      };
 
+      window.removeEventListener('mousemove', handleGlobalMouseMove);
+      window.removeEventListener('mouseup', handleGlobalMouseUp);
+      window.addEventListener('mousemove', handleGlobalMouseMove);
+      window.addEventListener('mouseup', handleGlobalMouseUp);
+
+      // TOUCH MOBILE
       img.addEventListener('touchstart', (e) => {
         if (e.touches.length === 2) {
           startDist = Math.hypot(
@@ -1066,9 +1078,9 @@
               zoomScale = 2.5;
               translateX = 0;
               translateY = 0;
-              img.style.transition = 'transform 0.25s ease-out';
+              img.style.transition = 'transform 0.2s ease-out';
               applyTransform(img);
-              setTimeout(() => { img.style.transition = 'none'; }, 250);
+              setTimeout(() => { img.style.transition = 'none'; }, 200);
             }
           }
           lastTapTime = currentTime;
@@ -1089,7 +1101,7 @@
           e.preventDefault();
           translateX = e.touches[0].pageX - startX;
           translateY = e.touches[0].pageY - startY;
-          applyTransform(img);
+          requestAnimationFrame(() => applyTransform(img));
         }
       }, { passive: false });
 
@@ -1106,7 +1118,7 @@
         `;
       } else {
         container.innerHTML = `
-          <img id="lightbox-active-img" src="${item.url}" alt="Foto Full" class="max-w-full max-h-full rounded-lg shadow-2xl object-contain select-none cursor-grab active:cursor-grabbing">
+          <img id="lightbox-active-img" src="${item.url}" alt="Foto Full" class="max-w-full max-h-full rounded-lg shadow-2xl object-contain select-none transition-transform duration-75">
         `;
         const img = document.getElementById('lightbox-active-img');
         if (img) initImageZoomEvents(img);
@@ -1495,7 +1507,6 @@
       lucide.createIcons();
     })();
 
-    // FUNGSI SLIDESHOW OTOMATIS DI HERO BANNER SAMPUL
     function startHeroSlideshow() {
       if (!slideshowPhotos || slideshowPhotos.length === 0) return;
       if (slideshowTimer) clearInterval(slideshowTimer);
@@ -1514,14 +1525,14 @@
             imgEl.style.opacity = '1';
           }, 300);
         }
-      }, 4000); // Berganti tiap 4 detik
+      }, 4000);
     }
 
     if (CSV_DOKUMENTASI_URL && CSV_DOKUMENTASI_URL.startsWith('http')) {
       Papa.parse(CSV_DOKUMENTASI_URL, {
         download: true,
         header: true,
-        complete: function(results) {
+        complete: async function(results) {
           const rawData = results.data.filter(row => {
             const values = Object.values(row);
             return values.length >= 2 && values[0] && values[0].toString().trim() !== '';
@@ -1532,7 +1543,8 @@
           let allHTML = '';
           slideshowPhotos = [];
 
-          displayData.forEach((row, index) => {
+          for (let index = 0; index < displayData.length; index++) {
+            const row = displayData[index];
             const keys = Object.keys(row);
             const tanggal = row[keys[0]];
             const judul = row[keys[1]];
@@ -1545,19 +1557,11 @@
 
             if (folderId) {
               badgeText = 'Album Media';
-              if (folderCache[folderId] && folderCache[folderId].length > 0) {
-                firstFoto = folderCache[folderId][0].url;
-                badgeText = `${folderCache[folderId].length} Media`;
-              } else {
-                fetchFolderFiles(folderId).then(files => {
-                  if (files && files.length > 0) {
-                    const imgItem = files.find(f => f.type === 'image') || files[0];
-                    const imgEls = document.querySelectorAll(`[data-folder-id="${folderId}"] img`);
-                    imgEls.forEach(img => { img.src = imgItem.url; });
-                    const badgeEls = document.querySelectorAll(`[data-folder-badge="${folderId}"] span`);
-                    badgeEls.forEach(b => { b.innerText = `${files.length} Media`; });
-                  }
-                });
+              const files = await fetchFolderFiles(folderId);
+              if (files && files.length > 0) {
+                const imgItem = files.find(f => f.type === 'image') || files[0];
+                firstFoto = imgItem.url;
+                badgeText = `${files.length} Media`;
               }
             } else {
               const photoList = rawFotoString.split(',').filter(p => p.trim() !== '');
@@ -1565,7 +1569,6 @@
               if (photoList.length > 1) badgeText = `${photoList.length} Foto`;
             }
 
-            // KUMPULKAN FOTO UNTUK SLIDESHOW HERO BANNER
             if (firstFoto && firstFoto !== PLACEHOLDER_IMG) {
               slideshowPhotos.push({
                 url: firstFoto,
@@ -1584,16 +1587,13 @@
               </span>`;
             }
 
-            // CARD TAMPILAN DOKUMENTASI DENGAN JUDUL & TANGGAL DI ATAS
             const cardContent = `
               <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition flex flex-col w-full">
-                <!-- JUDUL DAN TANGGAL DI ATAS FOTO PREVIEW -->
                 <div class="p-3.5 bg-slate-50 border-b border-slate-100">
                   <span class="text-[10px] text-indigo-600 font-bold block uppercase tracking-wider mb-0.5">${tanggal}</span>
                   <h4 class="text-slate-800 font-bold text-sm md:text-base leading-snug break-words">${judul}</h4>
                 </div>
 
-                <!-- FOTO PREVIEW -->
                 <div class="relative cursor-pointer overflow-hidden group bg-slate-100 h-52 min-h-[208px] w-full flex items-center justify-center shrink-0" data-folder-id="${folderId || ''}" onclick="openGalleryGridModal('${safePhotoString}', '${safeTitle}')">
                   <img src="${firstFoto}" alt="${judul}" loading="lazy" referrerpolicy="no-referrer" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${PLACEHOLDER_IMG}'">
                   
@@ -1604,7 +1604,6 @@
                   </div>
                 </div>
 
-                <!-- DESKRIPSI & TOMBOL -->
                 <div class="p-4 flex-grow flex flex-col justify-between">
                   <div>
                     <p class="text-slate-600 text-xs md:text-sm break-words">${deskripsi}</p>
@@ -1619,13 +1618,12 @@
 
             if (index < 3) top3HTML += cardContent;
             allHTML += cardContent;
-          });
+          }
 
           document.getElementById('container-dokumentasi-top3').innerHTML = top3HTML || '<p class="text-slate-400 text-sm col-span-1 md:col-span-3">Belum ada dokumentasi kegiatan.</p>';
           document.getElementById('container-dokumentasi-all').innerHTML = allHTML || '<p class="text-slate-400 text-sm col-span-1 md:col-span-3">Belum ada dokumentasi kegiatan.</p>';
           lucide.createIcons();
 
-          // KICKSTART SLIDESHOW HERO FOTO
           if (slideshowPhotos.length > 0) {
             document.getElementById('hero-slideshow-img').src = slideshowPhotos[0].url;
             document.getElementById('hero-slideshow-caption').innerText = slideshowPhotos[0].caption;
