@@ -26,7 +26,7 @@
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full" oncontextmenu="return false;" onkeydown="return disableInspect(event)">
 
   <!-- Header / Navigation -->
-  <header class="bg-indigo-900/90 backdrop-blur-md text-white border-b border-white/10 sticky top-0 z-50 w-full transition-all">
+  <header class="bg-slate-900/95 backdrop-blur-md text-white border-b border-white/10 sticky top-0 z-50 w-full transition-all">
     <div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between relative">
       
       <!-- Icon Home di Sebelah Kiri -->
@@ -34,14 +34,11 @@
         <i data-lucide="home" class="w-5 h-5 text-indigo-200 group-hover:scale-110 transition"></i>
       </a>
 
-      <!-- Judul Flamboyan 4 Dibuat Tepat di Tengah (Centered) -->
-      <div class="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none">
-        <h1 class="text-base sm:text-lg font-bold tracking-wide text-white leading-none">
-          Flamboyan 4 
+      <!-- Judul Flamboyan 4 Dibuat 1 Baris Sejajar di Tengah -->
+      <div class="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none w-full max-w-xl px-12">
+        <h1 class="text-sm sm:text-base md:text-lg font-bold tracking-wide text-white whitespace-nowrap overflow-hidden text-ellipsis">
+          Flamboyan 4 <span class="font-normal text-indigo-200/80 text-xs sm:text-sm">| RT 001 RW 026 Pesona Kahuripan 2</span>
         </h1>
-        <p class="text-indigo-200/80 text-[10px] sm:text-[11px] font-normal mt-0.5 whitespace-nowrap">
-          RT 001 RW 026 <span class="hidden sm:inline">| Pesona Kahuripan 2</span>
-        </p>
       </div>
 
       <!-- Placeholder Kosong Kanan untuk Menjaga Keseimbangan Flex Layout -->
@@ -50,37 +47,37 @@
     </div>
   </header>
 
-  <!-- Hero Section Ceria & Elegan -->
-  <section class="relative bg-gradient-to-br from-indigo-700 via-indigo-600 to-violet-700 text-white py-14 sm:py-20 md:py-24 px-4 overflow-hidden w-full shadow-lg">
+  <!-- Hero Section Gelap & Elegan (Kembali ke Versi Tidak Silau) -->
+  <section class="relative bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white py-14 sm:py-20 md:py-24 px-4 overflow-hidden w-full border-b border-indigo-900/40">
     
-    <!-- Pola Grid Abstrak & Efek Cahaya Pendaran Terang (Ceria) -->
-    <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff12_1px,transparent_1px),linear-gradient(to_bottom,#ffffff12_1px,transparent_1px)] bg-[size:28px_28px]"></div>
-    <div class="absolute -top-24 -left-20 w-80 h-80 bg-sky-400/30 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="absolute -bottom-24 -right-20 w-96 h-96 bg-amber-400/20 rounded-full blur-3xl pointer-events-none"></div>
+    <!-- Pola Grid Geometris Abstrak & Efek Cahaya Glow Lembut -->
+    <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px]"></div>
+    <div class="absolute -top-24 -left-20 w-80 h-80 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-24 -right-20 w-96 h-96 bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
     <div class="max-w-4xl mx-auto text-center relative z-10 space-y-8">
 
       <!-- Judul Utama Besar -->
       <h2 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-tight drop-shadow-md">
         Transparansi & Kebersamaan <br class="hidden sm:inline">
-        <span class="bg-gradient-to-r from-amber-200 via-yellow-100 to-white bg-clip-text text-transparent">Warga Flamboyan 4</span>
+        <span class="bg-gradient-to-r from-amber-200 via-indigo-200 to-white bg-clip-text text-transparent">Warga Flamboyan 4</span>
       </h2>
 
-      <!-- Quick Action Buttons / Chip Navigasi Sampul dengan Icon Sedikit Diperbesar -->
+      <!-- Quick Action Buttons / Chip Navigasi Sampul -->
       <div class="pt-2 flex flex-wrap justify-center gap-3 sm:gap-4 text-xs sm:text-sm font-medium">
-        <a href="#keuangan" class="bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/25 text-white px-4 sm:px-5 py-3 rounded-xl transition flex items-center space-x-2.5 shadow-md hover:scale-105 active:scale-95">
-          <i data-lucide="wallet" class="w-5 h-5 text-emerald-300"></i>
+        <a href="#keuangan" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 sm:px-5 py-3 rounded-xl transition flex items-center space-x-2.5 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
+          <i data-lucide="wallet" class="w-5 h-5 text-emerald-400"></i>
           <span>Kas Warga</span>
         </a>
-        <a href="#arisan" class="bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/25 text-white px-4 sm:px-5 py-3 rounded-xl transition flex items-center space-x-2.5 shadow-md hover:scale-105 active:scale-95">
+        <a href="#arisan" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 sm:px-5 py-3 rounded-xl transition flex items-center space-x-2.5 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
           <i data-lucide="calendar" class="w-5 h-5 text-amber-300"></i>
           <span>Jadwal Arisan</span>
         </a>
-        <a href="#jersey" class="bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/25 text-white px-4 sm:px-5 py-3 rounded-xl transition flex items-center space-x-2.5 shadow-md hover:scale-105 active:scale-95">
+        <a href="#jersey" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 sm:px-5 py-3 rounded-xl transition flex items-center space-x-2.5 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
           <i data-lucide="shirt" class="w-5 h-5 text-sky-300"></i>
           <span>Order Jersey</span>
         </a>
-        <a href="#rencana" class="bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/25 text-white px-4 sm:px-5 py-3 rounded-xl transition flex items-center space-x-2.5 shadow-md hover:scale-105 active:scale-95">
+        <a href="#rencana" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 sm:px-5 py-3 rounded-xl transition flex items-center space-x-2.5 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
           <i data-lucide="calendar-check" class="w-5 h-5 text-pink-300"></i>
           <span>Kalender Kerja Bakti</span>
         </a>
@@ -152,7 +149,7 @@
       </div>
     </section>
 
-    <!-- SECTION 2: JADWAL & TUAN RUMAH ARISAN -->
+    <!-- SECTION 2: JADWAL & TUAN RUMAH ARISAN (KARTU LANGSUNG BISA DIKLIK) -->
     <section id="arisan" class="scroll-mt-20 w-full">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
         <div class="flex items-center space-x-2">
@@ -162,36 +159,35 @@
         <span id="loading-status-arisan" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full whitespace-nowrap">Memuat Jadwal...</span>
       </div>
 
-      <!-- Card Highlight Tuan Rumah Arisan -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 w-full">
-        <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white p-5 rounded-xl shadow-md flex items-center justify-between">
+      <!-- Card Highlight Tuan Rumah Arisan (Interactive & Clickable) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        <div onclick="openModalArisan()" class="bg-gradient-to-r from-indigo-600 to-indigo-800 hover:from-indigo-700 hover:to-indigo-900 text-white p-5 rounded-xl shadow-md flex items-center justify-between cursor-pointer transition transform hover:-translate-y-0.5 active:scale-98 group">
           <div>
-            <span class="text-xs font-semibold text-indigo-200 uppercase tracking-wider">Arisan Bulan Ini</span>
+            <span class="text-xs font-semibold text-indigo-200 uppercase tracking-wider flex items-center space-x-1">
+              <span>Arisan Bulan Ini</span>
+              <i data-lucide="external-link" class="w-3 h-3 text-indigo-300 opacity-70 group-hover:opacity-100"></i>
+            </span>
             <h4 id="arisan-bulan-ini-nama" class="text-lg md:text-xl font-bold mt-1">Memuat data...</h4>
             <p id="arisan-bulan-ini-tgl" class="text-xs text-indigo-200 mt-0.5">-</p>
           </div>
-          <div id="arisan-bulan-ini-icon-bg" class="p-3 rounded-full bg-white/20 backdrop-blur-sm">
+          <div id="arisan-bulan-ini-icon-bg" class="p-3 rounded-full bg-white/20 backdrop-blur-sm group-hover:scale-110 transition">
             <i id="arisan-bulan-ini-icon" data-lucide="home" class="w-6 h-6 text-white"></i>
           </div>
         </div>
 
-        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+        <div onclick="openModalArisan()" class="bg-white hover:bg-slate-50 p-5 rounded-xl shadow-sm border border-slate-200 hover:border-indigo-300 flex items-center justify-between cursor-pointer transition transform hover:-translate-y-0.5 active:scale-98 group">
           <div>
-            <span class="text-xs font-semibold text-indigo-600 uppercase tracking-wider">Tuan Rumah Selanjutnya (Bulan Depan)</span>
+            <span class="text-xs font-semibold text-indigo-600 uppercase tracking-wider flex items-center space-x-1">
+              <span>Tuan Rumah Selanjutnya (Bulan Depan)</span>
+              <i data-lucide="external-link" class="w-3 h-3 text-indigo-400 opacity-70 group-hover:opacity-100"></i>
+            </span>
             <h4 id="arisan-selanjutnya-nama" class="text-lg md:text-xl font-bold text-slate-800 mt-1">-</h4>
             <p id="arisan-selanjutnya-tgl" class="text-xs text-slate-500 mt-0.5">-</p>
           </div>
-          <div class="bg-indigo-50 text-indigo-600 p-3 rounded-full border border-indigo-100">
+          <div class="bg-indigo-50 text-indigo-600 p-3 rounded-full border border-indigo-100 group-hover:scale-110 transition">
             <i data-lucide="calendar" class="w-6 h-6"></i>
           </div>
         </div>
-      </div>
-
-      <div class="text-center">
-        <button onclick="openModalArisan()" class="w-full md:w-auto bg-white hover:bg-slate-100 text-indigo-700 font-semibold px-6 py-3 rounded-xl border border-indigo-200 shadow-sm transition inline-flex items-center justify-center space-x-2">
-          <i data-lucide="calendar-days" class="w-4 h-4"></i>
-          <span>Lihat Seluruh Jadwal & Riwayat Arisan</span>
-        </button>
       </div>
     </section>
 
