@@ -911,6 +911,7 @@
     }
     function closeModalEventDetail() { if(activeModalsStack.includes('modal-event-detail')) history.back(); }
 
+    // FUNGSI MEMBACA FILE GOOGLE DRIVE DENGAN URUTAN NAMA (1, 2, 3, DST)
     async function fetchFolderFiles(folderId) {
       if (!FOLDER_API_URL || !FOLDER_API_URL.startsWith('http')) return [];
       if (folderCache[folderId]) return folderCache[folderId];
@@ -918,14 +919,24 @@
       try {
         const response = await fetch(`${FOLDER_API_URL}?folderId=${folderId}`);
         const data = await response.json();
+        let items = [];
         
         if (data && data.files && data.files.length > 0) {
-          folderCache[folderId] = data.files;
-          return data.files;
+          items = data.files;
         } else if (data && data.images && data.images.length > 0) {
-          const converted = data.images.map(url => ({ type: 'image', url: url }));
-          folderCache[folderId] = converted;
-          return converted;
+          items = data.images.map(url => ({ type: 'image', url: url }));
+        }
+
+        if (items.length > 0) {
+          // URUTAN NAMA SECARA ALAMIAH / NATURAL SORTING (1, 2, 3, DST)
+          items.sort((a, b) => {
+            const nameA = a.name || a.title || '';
+            const nameB = b.name || b.title || '';
+            return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
+          });
+          
+          folderCache[folderId] = items;
+          return items;
         }
       } catch (e) {
         console.error("Gagal membaca folder:", e);
