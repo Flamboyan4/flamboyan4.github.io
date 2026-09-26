@@ -108,7 +108,6 @@
 
       <!-- Card Highlight Tuan Rumah Arisan -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 w-full">
-        <!-- Arisan Bulan Ini -->
         <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white p-5 rounded-xl shadow-md flex items-center justify-between">
           <div>
             <span class="text-xs font-semibold text-indigo-200 uppercase tracking-wider">Arisan Bulan Ini</span>
@@ -120,7 +119,6 @@
           </div>
         </div>
 
-        <!-- Tuan Rumah Selanjutnya -->
         <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
           <div>
             <span class="text-xs font-semibold text-indigo-600 uppercase tracking-wider">Tuan Rumah Selanjutnya (Bulan Depan)</span>
@@ -133,7 +131,6 @@
         </div>
       </div>
 
-      <!-- Tombol Buka Pop-up Seluruh Jadwal Arisan -->
       <div class="text-center">
         <button onclick="openModalArisan()" class="w-full md:w-auto bg-white hover:bg-slate-100 text-indigo-700 font-semibold px-6 py-3 rounded-xl border border-indigo-200 shadow-sm transition inline-flex items-center justify-center space-x-2">
           <i data-lucide="calendar-days" class="w-4 h-4"></i>
@@ -142,10 +139,10 @@
       </div>
     </section>
 
-    <!-- SECTION 3: BERDAMPINGAN - PEMESANAN JERSEY (KIRI) & PEMBANGUNAN GAPURA (KANAN) -->
+    <!-- SECTION 3: BERDAMPINGAN - PEMESANAN JERSEY & PEMBANGUNAN GAPURA -->
     <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch w-full">
 
-      <!-- SISI KIRI: PEMESANAN JERSEY LORONG -->
+      <!-- SISI KIRI: PEMESANAN JERSEY -->
       <div id="jersey" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between h-full">
         <div>
           <div class="flex items-center justify-between mb-4">
@@ -156,12 +153,10 @@
             <span class="text-[10px] bg-amber-100 text-amber-800 font-semibold px-2.5 py-1 rounded-full">Tahap DP</span>
           </div>
 
-          <!-- Foto Preview Jersey Single -->
           <div id="container-foto-jersey-single" class="relative group cursor-pointer bg-slate-100 rounded-lg overflow-hidden h-44 flex items-center justify-center mb-4" onclick="openGalleryGridModal(FOLDER_JERSEY_URL, 'Desain Jersey & Size Chart')">
             <p class="text-slate-400 text-xs">Memuat gambar desain...</p>
           </div>
 
-          <!-- Rangkuman Ringkas Pemesanan -->
           <div class="grid grid-cols-3 gap-2 text-center mb-4">
             <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
               <p class="text-[10px] text-slate-500 font-medium">Total Pemesan</p>
@@ -184,7 +179,7 @@
         </button>
       </div>
 
-      <!-- SISI KANAN: PROGRAM PEMBANGUNAN GAPURA LORONG -->
+      <!-- SISI KANAN: PROGRAM PEMBANGUNAN GAPURA -->
       <div id="gapura" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between h-full">
         <div>
           <div class="flex items-center justify-between mb-4">
@@ -195,12 +190,10 @@
             <span class="text-[10px] bg-indigo-100 text-indigo-800 font-semibold px-2.5 py-1 rounded-full">Penggalangan Dana</span>
           </div>
 
-          <!-- Foto Preview Gapura -->
           <div id="container-foto-gapura" class="relative group cursor-pointer bg-slate-100 rounded-lg overflow-hidden h-44 flex items-center justify-center mb-4" onclick="openGalleryGridModal(FOLDER_GAPURA_URL, 'Desain Pembangunan Gapura')">
             <p class="text-slate-400 text-xs">Memuat gambar gapura...</p>
           </div>
 
-          <!-- Progress Bar & Detail Dana -->
           <div class="space-y-3">
             <div class="flex justify-between items-center text-xs">
               <span class="font-semibold text-slate-700">Progres Pengumpulan Dana</span>
@@ -241,7 +234,7 @@
           <h3 class="text-xl md:text-2xl font-bold text-slate-900">Dokumentasi Kegiatan</h3>
         </div>
         <button onclick="openModalDokumentasi()" class="hidden md:flex items-center space-x-1 text-sm text-indigo-600 font-semibold hover:text-indigo-800 transition">
-          <span>Lihat Semua Foto</span>
+          <span>Lihat Semua Foto & Video</span>
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </button>
       </div>
@@ -252,7 +245,7 @@
 
       <div class="mt-6 text-center md:hidden">
         <button onclick="openModalDokumentasi()" class="w-full bg-indigo-50 text-indigo-700 font-semibold py-2.5 rounded-xl border border-indigo-100 hover:bg-indigo-100 transition">
-          Lihat Semua Foto Kegiatan
+          Lihat Semua Dokumentasi Kegiatan
         </button>
       </div>
     </section>
@@ -271,7 +264,7 @@
 
   </main>
 
-  <!-- MODAL JADWAL ARISAN LENGKAP -->
+  <!-- MODALS ARISAN, KEUANGAN, JERSEY, DOKUMENTASI -->
   <div id="modal-arisan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4">
     <div class="bg-white w-full max-w-3xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
@@ -302,7 +295,6 @@
     </div>
   </div>
 
-  <!-- MODAL ARSIP KEUANGAN LENGKAP -->
   <div id="modal-keuangan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4">
     <div class="bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
@@ -334,7 +326,6 @@
     </div>
   </div>
 
-  <!-- MODAL DAFTAR PEMESAN JERSEY LENGKAP -->
   <div id="modal-jersey" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4">
     <div class="bg-white w-full max-w-5xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
@@ -368,7 +359,6 @@
     </div>
   </div>
 
-  <!-- MODAL GALERI SEMUA FOTO KETIKA DIKLIK -->
   <div id="modal-dokumentasi" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4">
     <div class="bg-white w-full max-w-5xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
@@ -385,40 +375,32 @@
     </div>
   </div>
 
-  <!-- MODAL GRID POP-UP GALERI FOTO (BERTUMPUK KOTAK-KOTAK) -->
+  <!-- MODAL GRID POP-UP GALERI FOTO & VIDEO -->
   <div id="modal-gallery-grid" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[80] hidden flex items-center justify-center p-3 md:p-6">
     <div class="bg-white w-full max-w-5xl max-h-[85vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
         <div>
-          <h3 id="gallery-grid-title" class="text-base md:text-lg font-bold text-slate-900">Galeri Foto Album</h3>
-          <p id="gallery-grid-subtitle" class="text-xs text-slate-500">Klik salah satu foto untuk melihat ukuran penuh</p>
+          <h3 id="gallery-grid-title" class="text-base md:text-lg font-bold text-slate-900">Galeri Album</h3>
+          <p id="gallery-grid-subtitle" class="text-xs text-slate-500">Klik salah satu media untuk melihat/memutar</p>
         </div>
         <button onclick="closeGalleryGridModal()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
           <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
         </button>
       </div>
       <div id="gallery-grid-container" class="p-4 md:p-6 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
-        <p class="text-slate-400 text-xs col-span-full text-center">Memuat seluruh foto...</p>
+        <p class="text-slate-400 text-xs col-span-full text-center">Memuat seluruh media album...</p>
       </div>
     </div>
   </div>
 
-  <!-- LIGHTBOX MODAL FULLSCREEN (HANYA MUNCUL SAAT SALAH SATU FOTO GRID DIKLIK) -->
+  <!-- LIGHTBOX MODAL FULLSCREEN (MENDUKUNG GAMBAR & PLAYER VIDEO) -->
   <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-center p-2 md:p-4" onclick="closeLightbox()">
     <button onclick="closeLightbox()" class="absolute top-3 right-3 text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition z-20">
       <i data-lucide="x" class="w-6 h-6"></i>
     </button>
     
     <div class="relative w-full max-w-4xl max-h-[85vh] flex flex-col items-center justify-center px-2" onclick="event.stopPropagation()">
-      <div class="relative w-full flex items-center justify-center">
-        <img id="lightbox-img" src="" alt="Foto Full" class="max-w-full max-h-[70vh] md:max-h-[75vh] rounded-lg shadow-2xl object-contain select-none">
-        
-        <button id="btn-prev-photo" onclick="changePhoto(-1)" class="absolute left-1 md:left-2 bg-black/50 hover:bg-black/80 text-white p-2 md:p-3 rounded-full transition backdrop-blur-sm hidden">
-          <i data-lucide="chevron-left" class="w-6 h-6"></i>
-        </button>
-        <button id="btn-next-photo" onclick="changePhoto(1)" class="absolute right-1 md:right-2 bg-black/50 hover:bg-black/80 text-white p-2 md:p-3 rounded-full transition backdrop-blur-sm hidden">
-          <i data-lucide="chevron-right" class="w-6 h-6"></i>
-        </button>
+      <div id="lightbox-media-container" class="relative w-full flex items-center justify-center">
       </div>
 
       <div class="text-center mt-3 text-white">
@@ -442,12 +424,14 @@
     const FOLDER_GAPURA_URL = 'https://drive.google.com/drive/folders/1Zs2RlbHTvNc9RDhbc1TlgcptXeNhnrQ5';
     const CSV_DOKUMENTASI_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?output=csv';
     const CSV_RENCANA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSsygpwTSzO0bZrdoO6sRyFbH0jrHaTJN0g6vIKtGnGMlP3Ot3CCd9V0PPG7vWr_mxztobwrR_8iLx1/pub?output=csv';
-    const FOLDER_API_URL = 'https://script.google.com/macros/s/AKfycbzHAEtAvJw6v7pJ9Zl0Q_rue_xokRLfTF3zThZINtzyRMatAE_5GScgxUUjJKaw2kvBgw/exec';
+    
+    // URL API DEPLOYMENT TERBARU ANDA
+    const FOLDER_API_URL = 'https://script.google.com/macros/s/AKfycby25m-xARHOT0JHnlaAzQuoS9Wy6h436JCe7K81_WRtMHv6z8bR4O8tK1lILFT7qE1ipQ/exec';
 
     const TARGET_DANA_GAPURA = 6500000;
     const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='100%25' height='100%25' fill='%23f1f5f9'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='18' fill='%2394a3b8' text-anchor='middle' dy='.3em'%3EGambaran Desain%3C/text%3E%3C/svg%3E";
 
-    let currentPhotoList = [];
+    let currentMediaList = [];
     let currentPhotoIndex = 0;
     let currentPhotoCaption = '';
     let globalKeuanganData = [];
@@ -526,17 +510,21 @@
       document.body.style.overflow = 'auto';
     }
 
-    async function fetchFolderImages(folderId) {
+    async function fetchFolderFiles(folderId) {
       if (!FOLDER_API_URL || !FOLDER_API_URL.startsWith('http')) return [];
       if (folderCache[folderId]) return folderCache[folderId];
       
       try {
         const response = await fetch(`${FOLDER_API_URL}?folderId=${folderId}`);
         const data = await response.json();
-        if (data && data.images && data.images.length > 0) {
-          const sortedImages = data.images.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
-          folderCache[folderId] = sortedImages;
-          return sortedImages;
+        
+        if (data && data.files && data.files.length > 0) {
+          folderCache[folderId] = data.files;
+          return data.files;
+        } else if (data && data.images && data.images.length > 0) {
+          const converted = data.images.map(url => ({ type: 'image', url: url }));
+          folderCache[folderId] = converted;
+          return converted;
         }
       } catch (e) {
         console.error("Gagal membaca folder:", e);
@@ -544,41 +532,53 @@
       return [];
     }
 
-    // --- BUKA MODAL GALERI GRID KOTAK-KOTAK (TAHAP 1) ---
+    // --- BUKA MODAL GALERI GRID ---
     async function openGalleryGridModal(rawString, title) {
-      document.getElementById('gallery-grid-title').innerText = title || "Galeri Foto Album";
-      document.getElementById('gallery-grid-container').innerHTML = '<p class="text-slate-400 text-xs col-span-full text-center py-8">Memuat seluruh foto album...</p>';
+      document.getElementById('gallery-grid-title').innerText = title || "Galeri Album";
+      document.getElementById('gallery-grid-container').innerHTML = '<p class="text-slate-400 text-xs col-span-full text-center py-8">Memuat seluruh media album...</p>';
       document.getElementById('modal-gallery-grid').classList.remove('hidden');
       document.body.style.overflow = 'hidden';
 
       const folderId = extractFolderId(rawString);
-      let photos = [];
+      let mediaItems = [];
 
       if (folderId && FOLDER_API_URL.startsWith('http')) {
-        photos = await fetchFolderImages(folderId);
+        mediaItems = await fetchFolderFiles(folderId);
       } else {
         const rawUrls = rawString.split(',');
-        photos = rawUrls.map(u => fixDriveUrl(u)).filter(u => u && u !== '');
+        mediaItems = rawUrls.map(u => ({ type: 'image', url: fixDriveUrl(u) })).filter(u => u.url && u.url !== '');
       }
 
-      if (!photos || photos.length === 0) photos = [PLACEHOLDER_IMG];
-      currentPhotoList = photos;
+      if (!mediaItems || mediaItems.length === 0) mediaItems = [{ type: 'image', url: PLACEHOLDER_IMG }];
+      currentMediaList = mediaItems;
       currentPhotoCaption = title;
 
       let gridHTML = '';
-      photos.forEach((imgUrl, index) => {
-        gridHTML += `
-          <div class="relative group cursor-pointer bg-slate-100 rounded-xl overflow-hidden shadow-sm aspect-square border border-slate-200" onclick="openLightboxFromIndex(${index})">
-            <img src="${imgUrl}" alt="Foto ${index+1}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold">
-              <i data-lucide="maximize-2" class="w-5 h-5"></i>
+      mediaItems.forEach((item, index) => {
+        if (item.type === 'video') {
+          gridHTML += `
+            <div class="relative group cursor-pointer bg-slate-900 rounded-xl overflow-hidden shadow-sm aspect-square border border-slate-700 flex items-center justify-center" onclick="openLightboxFromIndex(${index})">
+              <div class="p-3 bg-red-600 text-white rounded-full shadow-lg group-hover:scale-110 transition duration-300">
+                <i data-lucide="play" class="w-6 h-6 fill-current"></i>
+              </div>
+              <span class="absolute top-2 left-2 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">Video</span>
+              <span class="absolute bottom-1 right-1 bg-black/60 text-white text-[9px] px-1.5 py-0.5 rounded font-mono">${index+1}</span>
             </div>
-            <span class="absolute bottom-1 right-1 bg-black/60 text-white text-[9px] px-1.5 py-0.5 rounded font-mono">${index+1}</span>
-          </div>
-        `;
+          `;
+        } else {
+          gridHTML += `
+            <div class="relative group cursor-pointer bg-slate-100 rounded-xl overflow-hidden shadow-sm aspect-square border border-slate-200" onclick="openLightboxFromIndex(${index})">
+              <img src="${item.url}" alt="Foto ${index+1}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold">
+                <i data-lucide="maximize-2" class="w-5 h-5"></i>
+              </div>
+              <span class="absolute bottom-1 right-1 bg-black/60 text-white text-[9px] px-1.5 py-0.5 rounded font-mono">${index+1}</span>
+            </div>
+          `;
+        }
       });
 
-      document.getElementById('gallery-grid-subtitle').innerText = `${photos.length} Foto ditemukan - Klik salah satu untuk membesarkan`;
+      document.getElementById('gallery-grid-subtitle').innerText = `${mediaItems.length} File media ditemukan - Klik untuk membuka/memutar`;
       document.getElementById('gallery-grid-container').innerHTML = gridHTML;
       lucide.createIcons();
     }
@@ -588,7 +588,7 @@
       document.body.style.overflow = 'auto';
     }
 
-    // --- BUKA LIGHTBOX FULLSCREEN SAAT FOTO GRID DIKLIK (TAHAP 2) ---
+    // --- BUKA LIGHTBOX FULLSCREEN ---
     function openLightboxFromIndex(index) {
       currentPhotoIndex = index;
       document.getElementById('lightbox-modal').classList.remove('hidden');
@@ -596,34 +596,33 @@
     }
 
     function updateLightboxView() {
-      document.getElementById('lightbox-img').src = currentPhotoList[currentPhotoIndex];
+      const item = currentMediaList[currentPhotoIndex];
+      const container = document.getElementById('lightbox-media-container');
+
+      if (item.type === 'video') {
+        container.innerHTML = `
+          <iframe src="${item.url}" class="w-full max-w-3xl h-[60vh] md:h-[70vh] rounded-lg shadow-2xl bg-black" allow="autoplay" allowfullscreen></iframe>
+        `;
+      } else {
+        container.innerHTML = `
+          <img src="${item.url}" alt="Foto Full" class="max-w-full max-h-[70vh] md:max-h-[75vh] rounded-lg shadow-2xl object-contain select-none">
+        `;
+      }
+
       document.getElementById('lightbox-caption').innerText = currentPhotoCaption;
 
-      const btnPrev = document.getElementById('btn-prev-photo');
-      const btnNext = document.getElementById('btn-next-photo');
       const counter = document.getElementById('lightbox-counter');
-
-      if (currentPhotoList.length > 1) {
-        btnPrev.classList.remove('hidden');
-        btnNext.classList.remove('hidden');
+      if (currentMediaList.length > 1) {
         counter.classList.remove('hidden');
-        counter.innerText = `Foto ${currentPhotoIndex + 1} dari ${currentPhotoList.length}`;
+        counter.innerText = `Media ${currentPhotoIndex + 1} dari ${currentMediaList.length}`;
       } else {
-        btnPrev.classList.add('hidden');
-        btnNext.classList.add('hidden');
         counter.classList.add('hidden');
       }
     }
 
-    function changePhoto(direction) {
-      currentPhotoIndex += direction;
-      if (currentPhotoIndex < 0) currentPhotoIndex = currentPhotoList.length - 1;
-      else if (currentPhotoIndex >= currentPhotoList.length) currentPhotoIndex = 0;
-      updateLightboxView();
-    }
-
     function closeLightbox() {
       document.getElementById('lightbox-modal').classList.add('hidden');
+      document.getElementById('lightbox-media-container').innerHTML = '';
     }
 
     // --- RENDER TABEL KEUANGAN ---
@@ -952,13 +951,14 @@
       // 1. Foto Jersey
       const folderJerseyId = extractFolderId(FOLDER_JERSEY_URL);
       if (folderJerseyId && FOLDER_API_URL.startsWith('http')) {
-        const images = await fetchFolderImages(folderJerseyId);
-        if (images && images.length > 0) {
+        const files = await fetchFolderFiles(folderJerseyId);
+        if (files && files.length > 0) {
+          const firstImg = files.find(f => f.type === 'image') || files[0];
           document.getElementById('container-foto-jersey-single').innerHTML = `
-            <img src="${images[0]}" alt="Desain Jersey" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+            <img src="${firstImg.url}" alt="Desain Jersey" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1 backdrop-blur-[1px]">
               <i data-lucide="layout-grid" class="w-4 h-4"></i>
-              <span>Buka Galeri foto jersey (${images.length})</span>
+              <span>Buka Galeri foto jersey (${files.length})</span>
             </div>
           `;
         }
@@ -967,13 +967,14 @@
       // 2. Foto Gapura
       const folderGapuraId = extractFolderId(FOLDER_GAPURA_URL);
       if (folderGapuraId && FOLDER_API_URL.startsWith('http')) {
-        const gapuraImages = await fetchFolderImages(folderGapuraId);
-        if (gapuraImages && gapuraImages.length > 0) {
+        const gapuraFiles = await fetchFolderFiles(folderGapuraId);
+        if (gapuraFiles && gapuraFiles.length > 0) {
+          const firstGapuraImg = gapuraFiles.find(f => f.type === 'image') || gapuraFiles[0];
           document.getElementById('container-foto-gapura').innerHTML = `
-            <img src="${gapuraImages[0]}" alt="Desain Gapura" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+            <img src="${firstGapuraImg.url}" alt="Desain Gapura" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1 backdrop-blur-[1px]">
               <i data-lucide="layout-grid" class="w-4 h-4"></i>
-              <span>Lihat Desain Gapura (${gapuraImages.length})</span>
+              <span>Lihat Desain Gapura (${gapuraFiles.length})</span>
             </div>
           `;
         }
@@ -1010,9 +1011,12 @@
             let badgeText = '';
 
             if (folderId && FOLDER_API_URL.startsWith('http')) {
-              const imgs = await fetchFolderImages(folderId);
-              if (imgs.length > 0) firstFoto = imgs[0];
-              badgeText = imgs.length > 0 ? `${imgs.length} Foto` : 'Album Foto';
+              const files = await fetchFolderFiles(folderId);
+              if (files.length > 0) {
+                const imgItem = files.find(f => f.type === 'image');
+                firstFoto = imgItem ? imgItem.url : PLACEHOLDER_IMG;
+              }
+              badgeText = files.length > 0 ? `${files.length} Media` : 'Album Media';
             } else {
               const photoList = rawFotoString.split(',').filter(p => p.trim() !== '');
               firstFoto = fixDriveUrl(photoList[0] || '');
@@ -1037,7 +1041,7 @@
                   ${badgeMultiPhoto}
                   <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1">
                     <i data-lucide="layout-grid" class="w-4 h-4"></i>
-                    <span>Buka Galeri Foto</span>
+                    <span>Buka Galeri Media</span>
                   </div>
                 </div>
                 <div class="p-4 flex-grow">
