@@ -13,7 +13,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full">
 
-  <!-- Header / Navigation (BERSIH TANPA TAB NAVIGASI KANAN) -->
+  <!-- Header / Navigation -->
   <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-50 w-full">
     <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
       <a href="#" class="flex items-center space-x-2 hover:opacity-90 transition group cursor-pointer">
@@ -142,86 +142,96 @@
       </div>
     </section>
 
-    <!-- SECTION 3: PEMESANAN & PROGRES JERSEY LORONG -->
-    <section id="jersey" class="scroll-mt-20 w-full">
-      <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
-        <div class="flex items-center space-x-2">
-          <i data-lucide="shirt" class="w-6 h-6 text-indigo-600 shrink-0"></i>
-          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Pemesanan Jersey Lorong</h3>
-        </div>
-        <span class="text-xs bg-amber-100 text-amber-800 font-semibold px-3 py-1 rounded-full whitespace-nowrap">Tahap Pengumpulan DP</span>
-      </div>
+    <!-- SECTION 3: BERDAMPINGAN - PEMESANAN JERSEY (KIRI) & PEMBANGUNAN GAPURA (KANAN) -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch w-full">
 
-      <!-- Ringkasan Jersey -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 w-full">
-        <div class="bg-white p-5 md:p-6 rounded-xl shadow-sm border border-slate-200">
-          <p class="text-xs md:text-sm font-medium text-slate-500 mb-1">Total Pemesan</p>
-          <p id="total-pemesan-jersey" class="text-xl md:text-2xl font-bold text-indigo-600">0 Orang</p>
-          <p class="text-xs text-slate-400 mt-2">*Pesanan terdaftar di sheet</p>
-        </div>
-        <div class="bg-white p-5 md:p-6 rounded-xl shadow-sm border border-slate-200">
-          <p class="text-xs md:text-sm font-medium text-slate-500 mb-1">Sudah Lunas</p>
-          <p id="total-lunas-jersey" class="text-xl md:text-2xl font-bold text-emerald-600">0 Orang</p>
-          <p class="text-xs text-slate-400 mt-2">*Pembayaran 100% tuntas</p>
-        </div>
-        <div class="bg-white p-5 md:p-6 rounded-xl shadow-sm border border-slate-200 bg-amber-50/30">
-          <p class="text-xs md:text-sm font-medium text-amber-700 mb-1">DP 50% / Belum Lunas</p>
-          <p id="total-dp-jersey" class="text-xl md:text-2xl font-bold text-amber-600">0 Orang</p>
-          <p class="text-xs text-amber-600 mt-2">*Tahap penyelesaian pembayaran</p>
-        </div>
-      </div>
-
-      <!-- CONTAINER BERDAMPINGAN: FOTO DESAIN & TABEL 5 BARIS -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
-        
-        <!-- Sisi Kiri: Preview Foto Utama (Nomor 1) -->
-        <div class="lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
-          <div class="p-3 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
-            <h4 class="font-semibold text-slate-700 text-xs md:text-sm flex items-center space-x-1.5">
-              <i data-lucide="image" class="w-4 h-4 text-indigo-600"></i>
-              <span>Desain & Size Chart</span>
-            </h4>
-            <span class="text-[11px] text-indigo-600 font-semibold cursor-pointer hover:underline" onclick="openLightboxFolderOrList(FOLDER_JERSEY_URL, 'Desain Jersey & Size Chart')">Buka Galeri</span>
+      <!-- SISI KIRI: PEMESANAN JERSEY LORONG (RINGKAS) -->
+      <div id="jersey" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between h-full">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-2">
+              <i data-lucide="shirt" class="w-5 h-5 text-indigo-600 shrink-0"></i>
+              <h3 class="text-lg md:text-xl font-bold text-slate-900">Pemesanan Jersey</h3>
+            </div>
+            <span class="text-[10px] bg-amber-100 text-amber-800 font-semibold px-2.5 py-1 rounded-full">Tahap DP</span>
           </div>
-          <div id="container-foto-jersey-single" class="relative group cursor-pointer bg-slate-100 overflow-hidden min-h-[260px] flex items-center justify-center" onclick="openLightboxFolderOrList(FOLDER_JERSEY_URL, 'Desain Jersey & Size Chart')">
-            <p class="text-slate-400 text-xs p-4">Memuat gambar desain...</p>
+
+          <!-- Foto Preview Jersey Single -->
+          <div id="container-foto-jersey-single" class="relative group cursor-pointer bg-slate-100 rounded-lg overflow-hidden h-44 flex items-center justify-center mb-4" onclick="openLightboxFolderOrList(FOLDER_JERSEY_URL, 'Desain Jersey & Size Chart')">
+            <p class="text-slate-400 text-xs">Memuat gambar desain...</p>
+          </div>
+
+          <!-- Rangkuman Ringkas Pemesanan -->
+          <div class="grid grid-cols-3 gap-2 text-center mb-4">
+            <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+              <p class="text-[10px] text-slate-500 font-medium">Total Pemesan</p>
+              <p id="total-pemesan-jersey" class="text-sm font-bold text-indigo-600 mt-0.5">0 Orang</p>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+              <p class="text-[10px] text-slate-500 font-medium">Sudah Lunas</p>
+              <p id="total-lunas-jersey" class="text-sm font-bold text-emerald-600 mt-0.5">0 Orang</p>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+              <p class="text-[10px] text-slate-500 font-medium">DP 50% / Belum</p>
+              <p id="total-dp-jersey" class="text-sm font-bold text-amber-600 mt-0.5">0 Orang</p>
+            </div>
           </div>
         </div>
 
-        <!-- Sisi Kanan: Tabel 5 Pemesan Pertama -->
-        <div class="lg:col-span-7 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col justify-between h-full">
-          <div>
-            <div class="p-3.5 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-              <h4 class="font-semibold text-slate-700 text-xs md:text-sm">Daftar Pemesan Jersey (5 Terbaru)</h4>
-              <span id="loading-status-jersey" class="text-xs text-slate-500">Memuat data...</span>
+        <button onclick="openModalJersey()" class="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-2.5 rounded-lg border border-indigo-100 transition text-xs flex items-center justify-center space-x-1">
+          <span>Lihat Selengkapnya & Daftar Pemesan</span>
+          <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- SISI KANAN: PROGRAM PEMBANGUNAN GAPURA LORONG -->
+      <div id="gapura" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between h-full">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-2">
+              <i data-lucide="landmark" class="w-5 h-5 text-indigo-600 shrink-0"></i>
+              <h3 class="text-lg md:text-xl font-bold text-slate-900">Pembangunan Gapura</h3>
+            </div>
+            <span class="text-[10px] bg-indigo-100 text-indigo-800 font-semibold px-2.5 py-1 rounded-full">Penggalangan Dana</span>
+          </div>
+
+          <!-- Foto Preview Gapura -->
+          <div id="container-foto-gapura" class="relative group cursor-pointer bg-slate-100 rounded-lg overflow-hidden h-44 flex items-center justify-center mb-4" onclick="openLightboxFolderOrList(FOLDER_GAPURA_URL, 'Desain Pembangunan Gapura')">
+            <p class="text-slate-400 text-xs">Memuat gambar gapura...</p>
+          </div>
+
+          <!-- Progress Bar & Detail Dana -->
+          <div class="space-y-3">
+            <div class="flex justify-between items-center text-xs">
+              <span class="font-semibold text-slate-700">Progres Pengumpulan Dana</span>
+              <span id="gapura-percent" class="font-bold text-indigo-600">0%</span>
             </div>
             
-            <div class="overflow-x-auto w-full">
-              <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[500px]">
-                <thead>
-                  <tr class="border-b border-slate-200 bg-slate-100/60 text-slate-600">
-                    <th class="p-2.5 w-10 text-center">No</th>
-                    <th class="p-2.5">Nama & Blok</th>
-                    <th class="p-2.5">Ukuran</th>
-                    <th class="p-2.5">Nama/No Punggung</th>
-                    <th class="p-2.5 text-center">Status</th>
-                  </tr>
-                </thead>
-                <tbody id="tabel-jersey" class="divide-y divide-slate-100">
-                </tbody>
-              </table>
+            <!-- Progress Bar Bar -->
+            <div class="w-full bg-slate-100 rounded-full h-3.5 overflow-hidden p-0.5 border border-slate-200">
+              <div id="gapura-progress-bar" class="bg-indigo-600 h-full rounded-full transition-all duration-500 w-0"></div>
             </div>
-          </div>
 
-          <div id="btn-container-jersey-all" class="p-3 border-t border-slate-100 bg-slate-50 text-center">
-            <button onclick="openModalJersey()" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition inline-flex items-center space-x-1">
-              <span>Lihat Seluruh Daftar Pemesan</span>
-              <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </button>
+            <div class="grid grid-cols-3 gap-2 text-center pt-1 text-xs">
+              <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                <p class="text-[10px] text-slate-400">Target Dana</p>
+                <p class="font-bold text-slate-700 mt-0.5">Rp 6.500.000</p>
+              </div>
+              <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                <p class="text-[10px] text-slate-400">Terkumpul (Kas)</p>
+                <p id="gapura-terkumpul" class="font-bold text-emerald-600 mt-0.5">Rp 0</p>
+              </div>
+              <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                <p class="text-[10px] text-slate-400">Kekurangan</p>
+                <p id="gapura-kurang" class="font-bold text-rose-600 mt-0.5">Rp 0</p>
+              </div>
+            </div>
           </div>
         </div>
 
+        <p class="text-[11px] text-slate-400 text-center italic mt-4">*Persentase diambil otomatis dari Sisa Saldo Kas Aktif.</p>
       </div>
+
     </section>
 
     <!-- SECTION 4: DOKUMENTASI KEGIATAN -->
@@ -412,11 +422,13 @@
     const CSV_ARISAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDP-SfyNfaIFW_nfWSnLM3fQsJVRcuu5Las-tG78JPdp7u6hqWGulXS2sakYtKlWr81xPqrDGagwVC/pub?output=csv';
     const CSV_JERSEY_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT3Bj1vmC1kB_csd4rsznskdyAzORPAyT5J8sDEZTheBoHDn6sJToLGXiM0Ju-F_l3ThRbsntCzZSFA/pub?output=csv';
     const FOLDER_JERSEY_URL = 'https://drive.google.com/drive/folders/1_VH_MHlOhA_tSXPsw1ztJEf3fVydU7gE';
+    const FOLDER_GAPURA_URL = 'https://drive.google.com/drive/folders/1Zs2RlbHTvNc9RDhbc1TlgcptXeNhnrQ5';
     const CSV_DOKUMENTASI_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?output=csv';
     const CSV_RENCANA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSsygpwTSzO0bZrdoO6sRyFbH0jrHaTJN0g6vIKtGnGMlP3Ot3CCd9V0PPG7vWr_mxztobwrR_8iLx1/pub?output=csv';
     const FOLDER_API_URL = 'https://script.google.com/macros/s/AKfycbzHAEtAvJw6v7pJ9Zl0Q_rue_xokRLfTF3zThZINtzyRMatAE_5GScgxUUjJKaw2kvBgw/exec';
 
-    const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='100%25' height='100%25' fill='%23f1f5f9'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='18' fill='%2394a3b8' text-anchor='middle' dy='.3em'%3EDesain Jersey%3C/text%3E%3C/svg%3E";
+    const TARGET_DANA_GAPURA = 6500000;
+    const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='100%25' height='100%25' fill='%23f1f5f9'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='18' fill='%2394a3b8' text-anchor='middle' dy='.3em'%3EGambaran Desain%3C/text%3E%3C/svg%3E";
 
     let currentPhotoList = [];
     let currentPhotoIndex = 0;
@@ -666,33 +678,6 @@
     }
 
     // --- RENDER TABEL JERSEY ---
-    function renderJerseyRow(row) {
-      const keys = Object.keys(row);
-      const no = row[keys[0]] || '-';
-      const namaBlok = row[keys[1]] || '-';
-      const ukuran = row[keys[3]] || '-';
-      const namaNoPunggung = row[keys[4]] || '-';
-      const statusRaw = (row[keys[5]] || '').toString().trim();
-
-      let statusBadge = `<span class="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded">Belum</span>`;
-      
-      if (statusRaw.toLowerCase().includes('lunas')) {
-        statusBadge = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 font-semibold rounded inline-flex items-center space-x-1"><span>✓</span><span>Lunas</span></span>`;
-      } else if (statusRaw.toLowerCase().includes('dp')) {
-        statusBadge = `<span class="px-2 py-0.5 text-xs bg-amber-100 text-amber-800 font-semibold rounded inline-flex items-center space-x-1"><span>⏳</span><span>DP 50%</span></span>`;
-      }
-
-      return `
-        <tr>
-          <td class="p-2.5 text-center text-slate-500 font-mono">${no}</td>
-          <td class="p-2.5 font-bold text-slate-800 break-words">${namaBlok}</td>
-          <td class="p-2.5 font-semibold text-indigo-700 whitespace-nowrap">${ukuran}</td>
-          <td class="p-2.5 text-slate-700 break-words">${namaNoPunggung}</td>
-          <td class="p-2.5 text-center whitespace-nowrap">${statusBadge}</td>
-        </tr>
-      `;
-    }
-
     function filterJerseyModal() {
       const keyword = document.getElementById('search-jersey').value.toLowerCase();
       let html = '';
@@ -729,7 +714,7 @@
       document.getElementById('tabel-jersey-all').innerHTML = html || '<tr><td colspan="6" class="p-4 text-center text-slate-400">Tidak ada pemesan yang cocok</td></tr>';
     }
 
-    // --- PROSES KEUANGAN ---
+    // --- PROSES KEUANGAN & PROGRESS BAR GAPURA ---
     if (CSV_KEUANGAN_URL && CSV_KEUANGAN_URL.startsWith('http')) {
       Papa.parse(CSV_KEUANGAN_URL, {
         download: true,
@@ -759,6 +744,8 @@
             else if (kategori.toLowerCase() === 'pengeluaran') totalPengeluaran += jumlah;
           });
 
+          const sisaSaldo = totalPemasukan - totalPengeluaran;
+
           if (rawData.length > 0) {
             const lastRow = rawData[rawData.length - 1];
             const lastTanggal = lastRow[Object.keys(lastRow)[0]];
@@ -779,12 +766,22 @@
           
           document.getElementById('total-pemasukan').innerText = formatRupiah(totalPemasukan);
           document.getElementById('total-pengeluaran').innerText = formatRupiah(totalPengeluaran);
-          document.getElementById('sisa-saldo').innerText = formatRupiah(totalPemasukan - totalPengeluaran);
+          document.getElementById('sisa-saldo').innerText = formatRupiah(sisaSaldo);
           document.getElementById('loading-status').innerText = 'Terhubung live';
 
           if (globalKeuanganData.length > 10) {
             document.getElementById('btn-container-keuangan-all').classList.remove('hidden');
           }
+
+          // HITUNG OTO MATIS DANA GAPURA
+          const terkumpul = Math.max(0, sisaSaldo);
+          const persen = Math.min(100, Math.round((terkumpul / TARGET_DANA_GAPURA) * 100));
+          const kurang = Math.max(0, TARGET_DANA_GAPURA - terkumpul);
+
+          document.getElementById('gapura-percent').innerText = `${persen}%`;
+          document.getElementById('gapura-progress-bar').style.width = `${persen}%`;
+          document.getElementById('gapura-terkumpul').innerText = formatRupiah(terkumpul);
+          document.getElementById('gapura-kurang').innerText = formatRupiah(kurang);
         }
       });
     }
@@ -877,10 +874,6 @@
           document.getElementById('total-lunas-jersey').innerText = `${countLunas} Orang`;
           document.getElementById('total-dp-jersey').innerText = `${countDP} Orang`;
 
-          const top5Jersey = globalJerseyData.slice(0, 5);
-          let tbodyHTML = '';
-          top5Jersey.forEach(row => { tbodyHTML += renderJerseyRow(row); });
-
           let tbodyAllHTML = '';
           globalJerseyData.forEach(row => { 
             const keys = Object.keys(row);
@@ -910,31 +903,43 @@
             `;
           });
 
-          document.getElementById('tabel-jersey').innerHTML = tbodyHTML || '<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada pemesan</td></tr>';
           document.getElementById('tabel-jersey-all').innerHTML = tbodyAllHTML;
-          document.getElementById('loading-status-jersey').innerText = 'Terhubung live';
         }
       });
     }
 
-    // Load Gambar Desain Jersey
-    (async function loadJerseyImages() {
-      const folderId = extractFolderId(FOLDER_JERSEY_URL);
-      if (folderId && FOLDER_API_URL.startsWith('http')) {
-        const images = await fetchFolderImages(folderId);
+    // Load Gambar Desain Jersey & Gapura
+    (async function loadJerseyAndGapuraImages() {
+      // 1. Foto Jersey
+      const folderJerseyId = extractFolderId(FOLDER_JERSEY_URL);
+      if (folderJerseyId && FOLDER_API_URL.startsWith('http')) {
+        const images = await fetchFolderImages(folderJerseyId);
         if (images && images.length > 0) {
           document.getElementById('container-foto-jersey-single').innerHTML = `
-            <img src="${images[0]}" alt="Desain Jersey Main" loading="lazy" class="w-full h-64 object-cover group-hover:scale-105 transition duration-300">
-            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1 backdrop-blur-[2px]">
+            <img src="${images[0]}" alt="Desain Jersey" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1 backdrop-blur-[1px]">
               <i data-lucide="maximize-2" class="w-4 h-4"></i>
-              <span>Buka Galeri Foto Desain (${images.length})</span>
+              <span>Buka Galeri foto jersey (${images.length})</span>
             </div>
           `;
-          lucide.createIcons();
-        } else {
-          document.getElementById('container-foto-jersey-single').innerHTML = '<p class="text-slate-400 text-xs p-4">Belum ada foto di folder.</p>';
         }
       }
+
+      // 2. Foto Gapura
+      const folderGapuraId = extractFolderId(FOLDER_GAPURA_URL);
+      if (folderGapuraId && FOLDER_API_URL.startsWith('http')) {
+        const gapuraImages = await fetchFolderImages(folderGapuraId);
+        if (gapuraImages && gapuraImages.length > 0) {
+          document.getElementById('container-foto-gapura').innerHTML = `
+            <img src="${gapuraImages[0]}" alt="Desain Gapura" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1 backdrop-blur-[1px]">
+              <i data-lucide="maximize-2" class="w-4 h-4"></i>
+              <span>Lihat Desain Gapura Full (${gapuraImages.length})</span>
+            </div>
+          `;
+        }
+      }
+      lucide.createIcons();
     })();
 
     // --- PROSES DOKUMENTASI ---
