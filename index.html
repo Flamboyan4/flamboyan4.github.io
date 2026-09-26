@@ -1272,7 +1272,7 @@
       Papa.parse(CSV_DOKUMENTASI_URL, {
         download: true,
         header: true,
-        complete: async function(results) {
+        complete: function(results) {
           const rawData = results.data.filter(row => {
             const values = Object.values(row);
             return values.length >= 2 && values[0] && values[0].toString().trim() !== '';
@@ -1282,8 +1282,7 @@
           let top3HTML = '';
           let allHTML = '';
 
-          for (let index = 0; index < displayData.length; index++) {
-            const row = displayData[index];
+          displayData.forEach((row, index) => {
             const keys = Object.keys(row);
             const tanggal = row[keys[0]];
             const judul = row[keys[1]];
@@ -1294,25 +1293,37 @@
             let firstFoto = PLACEHOLDER_IMG;
             let badgeText = '';
 
-            if (folderId && FOLDER_API_URL.startsWith('http')) {
-              const files = await fetchFolderFiles(folderId);
-              if (files.length > 0) {
-                const imgItem = files.find(f => f.type === 'image');
-                firstFoto = imgItem ? imgItem.url : PLACEHOLDER_IMG;
+            if (folderId) {
+              badgeText = 'Album Media';
+              // Ambil thumbnail langsung jika folder API tersedia atau gunakan placeholder awal
+              if (folderCache[folderId] && folderCache[folderId].length > 0) {
+                firstFoto = folderCache[folderId][0].url;
+                badgeText = `${folderCache[folderId].length} Media`;
+              } else {
+                // Fetch di background untuk memperbarui thumbnail secara instan
+                fetchFolderFiles(folderId).then(files => {
+                  if (files && files.length > 0) {
+                    const imgItem = files.find(f => f.type === 'image') || files[0];
+                    // Update elemen gambar di DOM secara dinamis jika sudah siap
+                    const imgEls = document.querySelectorAll(`[data-folder-id="${folderId}"] img`);
+                    imgEls.forEach(img => { img.src = imgItem.url; });
+                    const badgeEls = document.querySelectorAll(`[data-folder-badge="${folderId}"] span`);
+                    badgeEls.forEach(b => { b.innerText = `${files.length} Media`; });
+                  }
+                });
               }
-              badgeText = files.length > 0 ? `${files.length} Media` : 'Album Media';
             } else {
               const photoList = rawFotoString.split(',').filter(p => p.trim() !== '');
               firstFoto = fixDriveUrl(photoList[0] || '');
               if (photoList.length > 1) badgeText = `${photoList.length} Foto`;
             }
 
-            const safePhotoString = rawFotoString.replace(/'/g, "\\'");
-            const safeTitle = (judul + ' - ' + tanggal).replace(/'/g, "\\'");
+            const safePhotoString = rawFotoString.replace(/'/g, "\\\'");
+            const safeTitle = (judul + ' - ' + tanggal).replace(/'/g, "\\\'");
 
             let badgeMultiPhoto = '';
             if (badgeText) {
-              badgeMultiPhoto = `<span class="absolute top-2 right-2 bg-black/70 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center space-x-1">
+              badgeMultiPhoto = `<span data-folder-badge="${folderId || ''}" class="absolute top-2 right-2 bg-black/70 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center space-x-1 z-10">
                 <i data-lucide="folder" class="w-3 h-3"></i>
                 <span>${badgeText}</span>
               </span>`;
@@ -1320,10 +1331,10 @@
 
             const cardContent = `
               <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition flex flex-col w-full">
-                <div class="relative cursor-pointer overflow-hidden group bg-slate-100" onclick="openGalleryGridModal('${safePhotoString}', '${safeTitle}')">
-                  <img src="${firstFoto}" alt="${judul}" loading="lazy" referrerpolicy="no-referrer" class="w-full h-48 object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${PLACEHOLDER_IMG}'">
+                <div class="relative cursor-pointer overflow-hidden group bg-slate-100 h-48 flex items-center justify-center" data-folder-id="${folderId || ''}" onclick="openGalleryGridModal('${safePhotoString}', '${safeTitle}')">
+                  <img src="${firstFoto}" alt="${judul}" loading="lazy" referrerpolicy="no-referrer" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${PLACEHOLDER_IMG}'">
                   ${badgeMultiPhoto}
-                  <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1">
+                  <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1 z-20">
                     <i data-lucide="layout-grid" class="w-4 h-4"></i>
                     <span>Buka Galeri Media</span>
                   </div>
@@ -1338,7 +1349,7 @@
 
             if (index < 3) top3HTML += cardContent;
             allHTML += cardContent;
-          }
+          });
 
           document.getElementById('container-dokumentasi-top3').innerHTML = top3HTML || '<p class="text-slate-400 text-sm col-span-1 md:col-span-3">Belum ada dokumentasi kegiatan.</p>';
           document.getElementById('container-dokumentasi-all').innerHTML = allHTML || '<p class="text-slate-400 text-sm col-span-1 md:col-span-3">Belum ada dokumentasi kegiatan.</p>';
