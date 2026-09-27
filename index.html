@@ -556,7 +556,7 @@
       <i data-lucide="chevron-right" class="w-6 h-6 md:w-8 md:h-8"></i>
     </button>
     
-    <!-- Container Utama Media (HTML5 Player Native Bersih Tanpa Kontrol Bertumpuk) -->
+    <!-- Container Utama Media (Clean Google Stream Player) -->
     <div id="lightbox-media-container" class="relative w-full flex-grow flex items-center justify-center my-auto overflow-hidden">
     </div>
 
@@ -1194,24 +1194,20 @@
       if (resetBtn) resetBtn.classList.add('hidden');
 
       if (item.type === 'video') {
-        // Ambil File ID Google Drive dari URL
         const fileId = extractDriveFileId(item.rawUrl || item.url);
-        // Direct stream URL Google Drive untuk video HTML5 native
-        const streamUrl = fileId 
-          ? `https://drive.google.com/uc?export=download&id=${fileId}` 
+        // Link preview Google Drive resmi yang diisi styling rapi khusus HP
+        const embedUrl = fileId 
+          ? `https://drive.google.com/file/d/${fileId}/preview` 
           : item.url;
 
         container.innerHTML = `
-          <div class="relative w-full h-full max-h-[75vh] flex items-center justify-center p-2" onclick="event.stopPropagation()">
-            <video 
-              controls 
-              playsinline 
-              webkit-playsinline 
-              preload="metadata"
-              class="w-full max-w-sm sm:max-w-md md:max-w-xl max-h-[65vh] rounded-xl shadow-2xl bg-black object-contain mx-auto">
-              <source src="${streamUrl}" type="video/mp4">
-              Browser Anda tidak mendukung pemutaran video ini.
-            </video>
+          <div class="relative w-full h-[65vh] max-w-sm sm:max-w-md md:max-w-xl mx-auto rounded-xl overflow-hidden bg-black shadow-2xl flex items-center justify-center" onclick="event.stopPropagation()">
+            <iframe 
+              src="${embedUrl}" 
+              class="w-full h-full border-0 rounded-xl" 
+              allow="autoplay; encrypted-media" 
+              allowfullscreen>
+            </iframe>
           </div>
         `;
       } else {
