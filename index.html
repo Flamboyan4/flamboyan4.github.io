@@ -99,24 +99,33 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 w-full items-center">
+        <!-- Pemasukan Card -->
         <div onclick="openModalKeuanganFiltered('pemasukan')" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-300 hover:shadow-md transition cursor-pointer group relative">
           <div class="flex justify-between items-start">
-            <p class="text-xs md:text-sm font-medium text-slate-500 mb-1">Total Pemasukan</p>
+            <p class="text-xs md:text-sm font-medium text-slate-500 mb-1">Pemasukan Bulan Ini</p>
             <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-600 transition"></i>
           </div>
-          <p id="total-pemasukan" class="text-xl md:text-2xl font-bold text-emerald-600">Rp 0</p>
-          <p class="text-xs text-slate-400 mt-2">*Klik untuk lihat khusus pemasukan</p>
+          <p id="pemasukan-bulan-ini" class="text-xl md:text-2xl font-bold text-emerald-600">Rp 0</p>
+          <div class="mt-3 pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
+            <span class="text-slate-400">Total Kumulatif:</span>
+            <span id="total-pemasukan-all" class="font-bold text-slate-700">Rp 0</span>
+          </div>
         </div>
 
+        <!-- Pengeluaran Card -->
         <div onclick="openModalKeuanganFiltered('pengeluaran')" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-rose-300 hover:shadow-md transition cursor-pointer group relative">
           <div class="flex justify-between items-start">
-            <p class="text-xs md:text-sm font-medium text-slate-500 mb-1">Total Pengeluaran</p>
+            <p class="text-xs md:text-sm font-medium text-slate-500 mb-1">Pengeluaran Bulan Ini</p>
             <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-400 group-hover:text-rose-600 transition"></i>
           </div>
-          <p id="total-pengeluaran" class="text-xl md:text-2xl font-bold text-rose-600">Rp 0</p>
-          <p class="text-xs text-slate-400 mt-2">*Klik untuk lihat khusus pengeluaran</p>
+          <p id="pengeluaran-bulan-ini" class="text-xl md:text-2xl font-bold text-rose-600">Rp 0</p>
+          <div class="mt-3 pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
+            <span class="text-slate-400">Total Kumulatif:</span>
+            <span id="total-pengeluaran-all" class="font-bold text-slate-700">Rp 0</span>
+          </div>
         </div>
 
+        <!-- Sisa Saldo Kas Utama -->
         <div class="bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-950 p-6 rounded-2xl shadow-lg border-2 border-indigo-500/40 text-white relative overflow-hidden transform md:-translate-y-1">
           <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
           <div class="flex items-center justify-between mb-1">
@@ -1403,6 +1412,7 @@
       document.getElementById('tabel-jersey-all').innerHTML = html || '<tr><td colspan="6" class="p-4 text-center text-slate-400">Tidak ada pemesan yang cocok</td></tr>';
     }
 
+    // PROSES PERHITUNGAN KEUANGAN
     if (CSV_KEUANGAN_URL && CSV_KEUANGAN_URL.startsWith('http')) {
       Papa.parse(CSV_KEUANGAN_URL, {
         download: true,
@@ -1413,22 +1423,53 @@
             return values.length >= 2 && values[0] && values[0].toString().trim() !== '';
           });
 
-          let totalPemasukan = 0;
-          let totalPengeluaran = 0;
+          const now = new Date();
+          const currentMonth = now.getMonth() + 1; // 1-12
+          const currentYear = now.getFullYear();
+
+          let totalPemasukanAll = 0;
+          let totalPengeluaranAll = 0;
+          let totalPemasukanBulanIni = 0;
+          let totalPengeluaranBulanIni = 0;
 
           rawData.forEach(row => {
             const keys = Object.keys(row);
             if (keys.length < 4) return;
+
+            const tglStr = (row[keys[0]] || '').toString().trim();
             const kategori = (row[keys[2]] || '').trim();
             const rawJumlah = row[keys[3]];
             if (!rawJumlah) return;
+
             let cleanedJumlah = rawJumlah.toString().replace(/\./g, '').replace(/,/g, '');
             const jumlah = parseFloat(cleanedJumlah.replace(/[^0-9-]/g, '')) || 0;
-            if (kategori.toLowerCase() === 'pemasukan') totalPemasukan += jumlah;
-            else if (kategori.toLowerCase() === 'pengeluaran') totalPengeluaran += jumlah;
+
+            // 1. Akumulasi Keseluruhan (All-time)
+            if (kategori.toLowerCase() === 'pemasukan') totalPemasukanAll += jumlah;
+            else if (kategori.toLowerCase() === 'pengeluaran') totalPengeluaranAll += jumlah;
+
+            // 2. Akumulasi Bulan Ini
+            const dateParts = tglStr.split(/[\s\-\/\.]+/);
+            if (dateParts.length >= 3) {
+              let month, year;
+              if (dateParts[0].length === 4) {
+                // YYYY-MM-DD
+                year = parseInt(dateParts[0]);
+                month = parseInt(dateParts[1]);
+              } else {
+                // DD/MM/YYYY
+                month = parseInt(dateParts[1]);
+                year = parseInt(dateParts[2]);
+              }
+
+              if (month === currentMonth && year === currentYear) {
+                if (kategori.toLowerCase() === 'pemasukan') totalPemasukanBulanIni += jumlah;
+                else if (kategori.toLowerCase() === 'pengeluaran') totalPengeluaranBulanIni += jumlah;
+              }
+            }
           });
 
-          const sisaSaldo = totalPemasukan - totalPengeluaran;
+          const sisaSaldo = totalPemasukanAll - totalPengeluaranAll;
 
           if (rawData.length > 0) {
             const lastRow = rawData[rawData.length - 1];
@@ -1448,8 +1489,13 @@
           document.getElementById('tabel-transaksi').innerHTML = tbodyHTML || '<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada transaksi</td></tr>';
           document.getElementById('tabel-transaksi-all').innerHTML = tbodyAllHTML;
           
-          document.getElementById('total-pemasukan').innerText = formatRupiah(totalPemasukan);
-          document.getElementById('total-pengeluaran').innerText = formatRupiah(totalPengeluaran);
+          // Render Angka Bulan Ini (Besar) & Kumulatif (Kecil)
+          document.getElementById('pemasukan-bulan-ini').innerText = formatRupiah(totalPemasukanBulanIni);
+          document.getElementById('total-pemasukan-all').innerText = formatRupiah(totalPemasukanAll);
+          
+          document.getElementById('pengeluaran-bulan-ini').innerText = formatRupiah(totalPengeluaranBulanIni);
+          document.getElementById('total-pengeluaran-all').innerText = formatRupiah(totalPengeluaranAll);
+
           document.getElementById('sisa-saldo').innerText = formatRupiah(sisaSaldo);
           document.getElementById('loading-status').innerText = 'Terhubung live';
 
