@@ -827,6 +827,7 @@
     let globalArisanData = [];
     let globalJerseyData = [];
     let globalRencanaData = [];
+    let currentArisanIdxGlobal = -1;
     const folderCache = {};
 
     let calendarDate = new Date();
@@ -1322,12 +1323,22 @@
       }
 
       let rowBg = '';
-      if (isCurrent) rowBg = 'bg-indigo-50/80 font-bold';
-      else if (isNext) rowBg = 'bg-amber-50/50';
+      let badgeTag = '';
+
+      if (isCurrent) {
+        rowBg = 'bg-indigo-50/90 font-bold border-l-4 border-indigo-600';
+        badgeTag = `<span class="ml-2 px-2 py-0.5 text-[10px] bg-indigo-600 text-white font-extrabold rounded-md uppercase tracking-wider inline-block">🏠 Bulan Ini</span>`;
+      } else if (isNext) {
+        rowBg = 'bg-amber-50/70 border-l-4 border-amber-500';
+        badgeTag = `<span class="ml-2 px-2 py-0.5 text-[10px] bg-amber-500 text-white font-extrabold rounded-md uppercase tracking-wider inline-block">📅 Bulan Depan</span>`;
+      }
 
       return `
-        <tr class="${rowBg}">
-          <td class="p-3 text-slate-700 whitespace-nowrap">${bulan}</td>
+        <tr class="${rowBg} hover:bg-slate-100/60 transition">
+          <td class="p-3 text-slate-700 whitespace-nowrap font-medium">
+            <span>${bulan}</span>
+            ${badgeTag}
+          </td>
           <td class="p-3 font-semibold text-slate-800 break-words">${namaBlok}</td>
           <td class="p-3 text-center whitespace-nowrap">${statusBadge}</td>
         </tr>
@@ -1337,10 +1348,12 @@
     function filterArisanModal() {
       const keyword = document.getElementById('search-arisan').value.toLowerCase();
       let html = '';
-      globalArisanData.forEach(row => {
+      globalArisanData.forEach((row, idx) => {
         const text = Object.values(row).join(' ').toLowerCase();
         if (text.includes(keyword)) {
-          html += renderArisanRow(row);
+          const isCurrent = (idx === currentArisanIdxGlobal);
+          const isNext = (currentArisanIdxGlobal !== -1 && idx === currentArisanIdxGlobal + 1);
+          html += renderArisanRow(row, isCurrent, isNext);
         }
       });
       document.getElementById('tabel-arisan-all').innerHTML = html || '<tr><td colspan="3" class="p-4 text-center text-slate-400">Tidak ada jadwal arisan yang cocok</td></tr>';
@@ -1551,19 +1564,19 @@
 
           let arisanIni = null;
           let arisanLanjut = null;
-          let currentIdx = -1;
+          currentArisanIdxGlobal = -1;
 
           globalArisanData.forEach((row, idx) => {
             const keys = Object.keys(row);
             const bulanText = (row[keys[0]] || '').toString().toLowerCase();
             if (bulanText.includes(currentMonthStr) && bulanText.includes(currentYearStr)) {
               arisanIni = row;
-              currentIdx = idx;
+              currentArisanIdxGlobal = idx;
             }
           });
 
-          if (currentIdx !== -1 && currentIdx + 1 < globalArisanData.length) {
-            arisanLanjut = globalArisanData[currentIdx + 1];
+          if (currentArisanIdxGlobal !== -1 && currentArisanIdxGlobal + 1 < globalArisanData.length) {
+            arisanLanjut = globalArisanData[currentArisanIdxGlobal + 1];
           }
 
           if (!arisanIni && globalArisanData.length > 0) arisanIni = globalArisanData[0];
@@ -1592,8 +1605,8 @@
 
           let tbodyAllHTML = '';
           globalArisanData.forEach((row, idx) => { 
-            const isCurrent = (idx === currentIdx);
-            const isNext = (currentIdx !== -1 && idx === currentIdx + 1);
+            const isCurrent = (idx === currentArisanIdxGlobal);
+            const isNext = (currentArisanIdxGlobal !== -1 && idx === currentArisanIdxGlobal + 1);
             tbodyAllHTML += renderArisanRow(row, isCurrent, isNext); 
           });
 
