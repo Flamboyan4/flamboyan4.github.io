@@ -556,7 +556,7 @@
       <i data-lucide="chevron-right" class="w-6 h-6 md:w-8 md:h-8"></i>
     </button>
     
-    <!-- Container Utama Media (Video HTML5 Standard Tanpa Kontrol Ganda Google Drive) -->
+    <!-- Container Utama Media (Player Video Resmi Google Drive yang Aman & Stabil) -->
     <div id="lightbox-media-container" class="relative w-full flex-grow flex items-center justify-center my-auto overflow-hidden">
     </div>
 
@@ -855,11 +855,11 @@
       return cleanUrl;
     }
 
-    function getDriveDirectVideoUrl(url) {
+    function getDriveVideoEmbedUrl(url) {
       const fileId = extractDriveFileId(url);
       if (fileId) {
-        // Menggunakan direct link stream Google Drive agar bisa diputar langsung via tag <video> standar HTML5
-        return `https://docs.google.com/uc?export=download&id=${fileId}`;
+        // Menggunakan link preview embed resmi Google Drive
+        return `https://drive.google.com/file/d/${fileId}/preview`;
       }
       return url;
     }
@@ -931,7 +931,7 @@
           
           return {
             type: isVid ? 'video' : 'image',
-            url: isVid ? getDriveDirectVideoUrl(rawUrl) : fixDriveUrl(rawUrl),
+            url: isVid ? getDriveVideoEmbedUrl(rawUrl) : fixDriveUrl(rawUrl),
             rawUrl: rawUrl,
             name: nameVal
           };
@@ -970,7 +970,7 @@
           const isVid = /\.(mp4|mkv|mov|webm|avi)$/i.test(u);
           return {
             type: isVid ? 'video' : 'image',
-            url: isVid ? getDriveDirectVideoUrl(u) : fixDriveUrl(u),
+            url: isVid ? getDriveVideoEmbedUrl(u) : fixDriveUrl(u),
             rawUrl: u
           };
         }).filter(u => u.url && u.url !== '');
@@ -1203,10 +1203,10 @@
       if (resetBtn) resetBtn.classList.add('hidden');
 
       if (item.type === 'video') {
-        // Menggunakan tag HTML5 video murni agar bersih, bebas dari kontrol ganda bawaan Google Drive
+        // Menggunakan iframe Google Drive resmi agar video dapat diputar stabil dan lancar di semua perangkat (HP & PC)
         container.innerHTML = `
           <div class="relative w-full h-full max-h-[75vh] flex items-center justify-center p-2" onclick="event.stopPropagation()">
-            <video src="${item.url}" controls autoplay playsinline class="max-w-full max-h-[75vh] rounded-xl shadow-2xl bg-black object-contain mx-auto"></video>
+            <iframe src="${item.url}" class="w-full max-w-sm sm:max-w-md md:max-w-2xl h-[65vh] sm:h-[70vh] rounded-xl shadow-2xl bg-black border-0 mx-auto" allow="autoplay; encrypted-media" allowfullscreen></iframe>
           </div>
         `;
       } else {
