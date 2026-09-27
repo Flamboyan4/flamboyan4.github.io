@@ -102,7 +102,7 @@
         <!-- Pemasukan Card -->
         <div onclick="openModalKeuanganFiltered('pemasukan')" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-300 hover:shadow-md transition cursor-pointer group relative">
           <div class="flex justify-between items-start">
-            <p class="text-xs md:text-sm font-medium text-slate-500 mb-1">Pemasukan Bulan Ini</p>
+            <p id="label-pemasukan-bulan" class="text-xs md:text-sm font-medium text-slate-500 mb-1">Pemasukan Bulan Ini</p>
             <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-600 transition"></i>
           </div>
           <p id="pemasukan-bulan-ini" class="text-xl md:text-2xl font-bold text-emerald-600">Rp 0</p>
@@ -115,7 +115,7 @@
         <!-- Pengeluaran Card -->
         <div onclick="openModalKeuanganFiltered('pengeluaran')" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-rose-300 hover:shadow-md transition cursor-pointer group relative">
           <div class="flex justify-between items-start">
-            <p class="text-xs md:text-sm font-medium text-slate-500 mb-1">Pengeluaran Bulan Ini</p>
+            <p id="label-pengeluaran-bulan" class="text-xs md:text-sm font-medium text-slate-500 mb-1">Pengeluaran Bulan Ini</p>
             <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-400 group-hover:text-rose-600 transition"></i>
           </div>
           <p id="pengeluaran-bulan-ini" class="text-xl md:text-2xl font-bold text-rose-600">Rp 0</p>
@@ -1317,102 +1317,52 @@
       document.getElementById('tabel-transaksi-all').innerHTML = html || '<tr><td colspan="4" class="p-4 text-center text-slate-400">Tidak ada transaksi yang cocok</td></tr>';
     }
 
-    function renderArisanRow(row, isCurrentMonth, isNextMonth) {
-      const keys = Object.keys(row);
-      const bulan = row[keys[0]] || '-';
-      const namaBlok = row[keys[1]] || '-';
-      const statusRaw = (row[keys[2]] || '').toString().trim();
+    function parseRowDate(dateStr) {
+      if (!dateStr) return null;
+      let cleanStr = dateStr.toString().trim().toLowerCase();
+      
+      const monthMap = {
+        'jan': 0, 'januari': 0, 'january': 0,
+        'feb': 1, 'februari': 1, 'february': 1,
+        'mar': 2, 'maret': 2, 'march': 2,
+        'apr': 3, 'april': 3,
+        'mei': 4, 'may': 4,
+        'jun': 5, 'juni': 5, 'june': 5,
+        'jul': 6, 'juli': 6, 'july': 6,
+        'agu': 7, 'agustus': 7, 'aug': 7, 'august': 7,
+        'sep': 8, 'september': 8,
+        'okt': 9, 'oktober': 9, 'oct': 9, 'october': 9,
+        'nov': 10, 'november': 10,
+        'des': 11, 'desember': 11, 'dec': 11, 'december': 11
+      };
 
-      let statusBadge = `<span class="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded">Belum</span>`;
-      let rowStyle = '';
+      const parts = cleanStr.split(/[\s\-\/\.]+/);
+      if (parts.length >= 3) {
+        let day, month, year;
 
-      if (statusRaw.toLowerCase().includes('sudah')) {
-        statusBadge = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 font-semibold rounded inline-flex items-center space-x-1"><span>✓</span><span>Sudah</span></span>`;
-      }
-
-      if (isCurrentMonth) {
-        rowStyle = 'class="bg-indigo-50/80 font-semibold text-indigo-900"';
-        statusBadge += ` <span class="ml-1 px-2 py-0.5 text-[10px] bg-indigo-600 text-white rounded-full">Bulan Ini</span>`;
-      } else if (isNextMonth) {
-        rowStyle = 'class="bg-amber-50/80 font-semibold text-amber-900"';
-        statusBadge += ` <span class="ml-1 px-2 py-0.5 text-[10px] bg-amber-600 text-white rounded-full">Bulan Depan</span>`;
-      }
-
-      return `
-        <tr ${rowStyle}>
-          <td class="p-3 whitespace-nowrap">${bulan}</td>
-          <td class="p-3 break-words">${namaBlok}</td>
-          <td class="p-3 text-center whitespace-nowrap">${statusBadge}</td>
-        </tr>
-      `;
-    }
-
-    function filterArisanModal() {
-      const keyword = document.getElementById('search-arisan').value.toLowerCase();
-      let html = '';
-
-      const now = new Date();
-      const monthNamesIndo = ["januari", "februari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember"];
-      const currentMonthStr = monthNamesIndo[now.getMonth()];
-      const currentYearStr = now.getFullYear().toString();
-
-      let currentIdx = -1;
-      globalArisanData.forEach((row, idx) => {
-        const k = Object.keys(row);
-        const bulanText = (row[k[0]] || '').toString().toLowerCase();
-        if (bulanText.includes(currentMonthStr) && bulanText.includes(currentYearStr)) {
-          currentIdx = idx;
-        }
-      });
-
-      globalArisanData.forEach((row, idx) => {
-        const text = Object.values(row).join(' ').toLowerCase();
-        if (text.includes(keyword)) {
-          const isCurrent = (idx === currentIdx);
-          const isNext = (currentIdx !== -1 && idx === currentIdx + 1);
-          html += renderArisanRow(row, isCurrent, isNext);
-        }
-      });
-      document.getElementById('tabel-arisan-all').innerHTML = html || '<tr><td colspan="3" class="p-4 text-center text-slate-400">Tidak ada data arisan yang cocok</td></tr>';
-    }
-
-    function filterJerseyModal() {
-      const keyword = document.getElementById('search-jersey').value.toLowerCase();
-      let html = '';
-      globalJerseyData.forEach(row => {
-        const text = Object.values(row).join(' ').toLowerCase();
-        if (text.includes(keyword)) {
-          const keys = Object.keys(row);
-          const no = row[keys[0]] || '-';
-          const namaBlok = row[keys[1]] || '-';
-          const lengan = row[keys[2]] || '-';
-          const ukuran = row[keys[3]] || '-';
-          const namaNoPunggung = row[keys[4]] || '-';
-          const statusRaw = (row[keys[5]] || '').toString().trim();
-
-          let statusBadge = `<span class="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded">Belum</span>`;
-          if (statusRaw.toLowerCase().includes('lunas')) {
-            statusBadge = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 font-semibold rounded">✓ Lunas</span>`;
-          } else if (statusRaw.toLowerCase().includes('dp')) {
-            statusBadge = `<span class="px-2 py-0.5 text-xs bg-amber-100 text-amber-800 font-semibold rounded">⏳ DP 50%</span>`;
+        if (parts[0].length === 4) {
+          year = parseInt(parts[0]);
+          month = parseInt(parts[1]) - 1;
+          day = parseInt(parts[2]);
+        } else {
+          day = parseInt(parts[0]);
+          if (isNaN(parts[1])) {
+            month = monthMap[parts[1]] !== undefined ? monthMap[parts[1]] : -1;
+          } else {
+            month = parseInt(parts[1]) - 1;
           }
-
-          html += `
-            <tr>
-              <td class="p-3 text-center text-slate-500 font-mono">${no}</td>
-              <td class="p-3 font-bold text-slate-800 break-words">${namaBlok}</td>
-              <td class="p-3 text-slate-600 whitespace-nowrap">${lengan}</td>
-              <td class="p-3 font-semibold text-indigo-700 whitespace-nowrap">${ukuran}</td>
-              <td class="p-3 text-slate-700 break-words">${namaNoPunggung}</td>
-              <td class="p-3 text-center whitespace-nowrap">${statusBadge}</td>
-            </tr>
-          `;
+          year = parseInt(parts[2]);
+          if (year < 100) year += 2000;
         }
-      });
-      document.getElementById('tabel-jersey-all').innerHTML = html || '<tr><td colspan="6" class="p-4 text-center text-slate-400">Tidak ada pemesan yang cocok</td></tr>';
+
+        if (month >= 0 && month <= 11 && year > 2000) {
+          return { day, month, year };
+        }
+      }
+      return null;
     }
 
-    // PROSES PERHITUNGAN KEUANGAN
+    // PROSES PERHITUNGAN KEUANGAN PRESISI
     if (CSV_KEUANGAN_URL && CSV_KEUANGAN_URL.startsWith('http')) {
       Papa.parse(CSV_KEUANGAN_URL, {
         download: true,
@@ -1424,19 +1374,22 @@
           });
 
           const now = new Date();
-          const currentMonth = now.getMonth() + 1; // 1-12
+          const currentMonth = now.getMonth();
           const currentYear = now.getFullYear();
 
           let totalPemasukanAll = 0;
           let totalPengeluaranAll = 0;
-          let totalPemasukanBulanIni = 0;
-          let totalPengeluaranBulanIni = 0;
+
+          let targetMonth = currentMonth;
+          let targetYear = currentYear;
+
+          let latestDate = null;
 
           rawData.forEach(row => {
             const keys = Object.keys(row);
             if (keys.length < 4) return;
 
-            const tglStr = (row[keys[0]] || '').toString().trim();
+            const tglStr = row[keys[0]];
             const kategori = (row[keys[2]] || '').trim();
             const rawJumlah = row[keys[3]];
             if (!rawJumlah) return;
@@ -1444,30 +1397,54 @@
             let cleanedJumlah = rawJumlah.toString().replace(/\./g, '').replace(/,/g, '');
             const jumlah = parseFloat(cleanedJumlah.replace(/[^0-9-]/g, '')) || 0;
 
-            // 1. Akumulasi Keseluruhan (All-time)
             if (kategori.toLowerCase() === 'pemasukan') totalPemasukanAll += jumlah;
             else if (kategori.toLowerCase() === 'pengeluaran') totalPengeluaranAll += jumlah;
 
-            // 2. Akumulasi Bulan Ini
-            const dateParts = tglStr.split(/[\s\-\/\.]+/);
-            if (dateParts.length >= 3) {
-              let month, year;
-              if (dateParts[0].length === 4) {
-                // YYYY-MM-DD
-                year = parseInt(dateParts[0]);
-                month = parseInt(dateParts[1]);
-              } else {
-                // DD/MM/YYYY
-                month = parseInt(dateParts[1]);
-                year = parseInt(dateParts[2]);
-              }
-
-              if (month === currentMonth && year === currentYear) {
-                if (kategori.toLowerCase() === 'pemasukan') totalPemasukanBulanIni += jumlah;
-                else if (kategori.toLowerCase() === 'pengeluaran') totalPengeluaranBulanIni += jumlah;
+            const parsed = parseRowDate(tglStr);
+            if (parsed) {
+              if (!latestDate || (parsed.year > latestDate.year) || (parsed.year === latestDate.year && parsed.month > latestDate.month)) {
+                latestDate = parsed;
               }
             }
           });
+
+          let hasCurrentMonthData = rawData.some(row => {
+            const parsed = parseRowDate(row[Object.keys(row)[0]]);
+            return parsed && parsed.month === currentMonth && parsed.year === currentYear;
+          });
+
+          if (!hasCurrentMonthData && latestDate) {
+            targetMonth = latestDate.month;
+            targetYear = latestDate.year;
+          }
+
+          let totalPemasukanBulanTarget = 0;
+          let totalPengeluaranBulanTarget = 0;
+
+          rawData.forEach(row => {
+            const keys = Object.keys(row);
+            if (keys.length < 4) return;
+
+            const tglStr = row[keys[0]];
+            const kategori = (row[keys[2]] || '').trim();
+            const rawJumlah = row[keys[3]];
+            if (!rawJumlah) return;
+
+            let cleanedJumlah = rawJumlah.toString().replace(/\./g, '').replace(/,/g, '');
+            const jumlah = parseFloat(cleanedJumlah.replace(/[^0-9-]/g, '')) || 0;
+
+            const parsed = parseRowDate(tglStr);
+            if (parsed && parsed.month === targetMonth && parsed.year === targetYear) {
+              if (kategori.toLowerCase() === 'pemasukan') totalPemasukanBulanTarget += jumlah;
+              else if (kategori.toLowerCase() === 'pengeluaran') totalPengeluaranBulanTarget += jumlah;
+            }
+          });
+
+          const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+          const labelBulan = `${monthNames[targetMonth]} ${targetYear}`;
+
+          document.getElementById('label-pemasukan-bulan').innerText = `Pemasukan (${labelBulan})`;
+          document.getElementById('label-pengeluaran-bulan').innerText = `Pengeluaran (${labelBulan})`;
 
           const sisaSaldo = totalPemasukanAll - totalPengeluaranAll;
 
@@ -1489,11 +1466,10 @@
           document.getElementById('tabel-transaksi').innerHTML = tbodyHTML || '<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada transaksi</td></tr>';
           document.getElementById('tabel-transaksi-all').innerHTML = tbodyAllHTML;
           
-          // Render Angka Bulan Ini (Besar) & Kumulatif (Kecil)
-          document.getElementById('pemasukan-bulan-ini').innerText = formatRupiah(totalPemasukanBulanIni);
+          document.getElementById('pemasukan-bulan-ini').innerText = formatRupiah(totalPemasukanBulanTarget);
           document.getElementById('total-pemasukan-all').innerText = formatRupiah(totalPemasukanAll);
           
-          document.getElementById('pengeluaran-bulan-ini').innerText = formatRupiah(totalPengeluaranBulanIni);
+          document.getElementById('pengeluaran-bulan-ini').innerText = formatRupiah(totalPengeluaranBulanTarget);
           document.getElementById('total-pengeluaran-all').innerText = formatRupiah(totalPengeluaranAll);
 
           document.getElementById('sisa-saldo').innerText = formatRupiah(sisaSaldo);
