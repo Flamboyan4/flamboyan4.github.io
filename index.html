@@ -1195,32 +1195,34 @@
 
       if (item.type === 'video') {
         const fileId = extractDriveFileId(item.rawUrl || item.url);
+        
+        // Link untuk embed iframe di web
         const embedUrl = fileId 
           ? `https://drive.google.com/file/d/${fileId}/preview` 
           : item.url;
+          
+        // Ini perbaikannya: Link resmi Google Drive Viewer untuk tombol eksternal
+        const viewUrl = fileId 
+          ? `https://drive.google.com/file/d/${fileId}/view` 
+          : (item.rawUrl || item.url);
 
-        // Memaksa frame menjadi mendatar (aspect-video / 16:9) agar UI Drive tidak bertumpuk
+        // Frame dikembalikan ke vertikal (h-[65vh]) agar video tidak kegelapan
         container.innerHTML = `
-          <div class="relative w-full max-w-sm sm:max-w-md md:max-w-2xl mx-auto rounded-xl overflow-hidden bg-slate-900 shadow-2xl flex flex-col" onclick="event.stopPropagation()">
+          <div class="relative w-full h-[65vh] max-w-sm sm:max-w-md md:max-w-xl mx-auto rounded-xl overflow-hidden bg-black shadow-2xl flex flex-col items-center justify-center" onclick="event.stopPropagation()">
             
-            <!-- Area Iframe Landscape -->
-            <div class="w-full aspect-video bg-black relative">
-              <iframe 
-                src="${embedUrl}" 
-                class="absolute top-0 left-0 w-full h-full border-0" 
-                allow="autoplay; encrypted-media; fullscreen" 
-                allowfullscreen>
-              </iframe>
-            </div>
+            <iframe 
+              src="${embedUrl}" 
+              class="w-full h-full border-0 relative z-0" 
+              allow="autoplay; encrypted-media; fullscreen" 
+              allowfullscreen>
+            </iframe>
 
-            <!-- Area Tombol Fullscreen -->
-            <div class="w-full p-3 flex justify-center bg-slate-800 border-t border-slate-700">
-                <a href="${item.rawUrl || item.url}" target="_blank" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs md:text-sm font-semibold px-5 py-2.5 rounded-full shadow-lg flex items-center space-x-2 transition active:scale-95">
-                    <i data-lucide="maximize" class="w-4 h-4 md:w-5 md:h-5"></i>
-                    <span>Buka Layar Penuh</span>
+            <div class="absolute bottom-4 md:bottom-6 z-10 w-full flex justify-center pointer-events-none">
+                <a href="${viewUrl}" target="_blank" class="pointer-events-auto bg-indigo-600/90 hover:bg-indigo-500 text-white text-[11px] md:text-sm font-semibold px-5 py-2.5 rounded-full backdrop-blur-sm shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-indigo-400/30 flex items-center space-x-2 transition active:scale-95">
+                    <i data-lucide="external-link" class="w-4 h-4 md:w-5 md:h-5"></i>
+                    <span>Buka Penuh di Layar (App)</span>
                 </a>
             </div>
-
           </div>
         `;
       } else {
