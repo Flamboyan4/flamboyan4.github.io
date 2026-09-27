@@ -106,7 +106,6 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 w-full items-center">
-        
         <!-- Total Pemasukan -->
         <div onclick="openModalKeuanganFiltered('pemasukan')" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-300 hover:shadow-md transition cursor-pointer group relative">
           <div class="flex justify-between items-start">
@@ -140,7 +139,6 @@
             <span>Saldo riil bersih siap pakai saat ini</span>
           </p>
         </div>
-
       </div>
 
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
@@ -311,7 +309,6 @@
             <i data-lucide="arrow-right" class="w-4 h-4"></i>
           </button>
           
-          <!-- Tombol Panah Navigasi Slider -->
           <div class="flex items-center space-x-1">
             <button onclick="scrollDokumentasi(-1)" class="p-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-full shadow-sm text-slate-600 transition active:scale-90" title="Geser Kiri">
               <i data-lucide="chevron-left" class="w-4 h-4"></i>
@@ -323,7 +320,6 @@
         </div>
       </div>
 
-      <!-- Container Slider dengan CSS Snap -->
       <div id="slider-dokumentasi" class="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar py-2 w-full">
         <p class="text-slate-400 text-sm py-4">Memuat dokumentasi...</p>
       </div>
@@ -535,7 +531,6 @@
 
   <!-- LIGHTBOX MODAL FULLSCREEN -->
   <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-center p-2 md:p-4 overflow-hidden" onclick="closeModalDirect('lightbox-modal')">
-    
     <div class="absolute top-3 right-3 flex items-center space-x-2 z-30" onclick="event.stopPropagation()">
       <button onclick="resetLightboxZoom(event)" id="btn-reset-zoom" class="text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition shadow-md text-xs font-semibold px-3 hidden" title="Reset Ukuran">
         Reset Zoom
@@ -673,7 +668,6 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // MANAJEMEN PENUTUPAN MODAL TERPUSAT
     let activeModalsStack = [];
 
     function openModal(id) {
@@ -835,18 +829,31 @@
       return match ? match[1] : null;
     }
 
+    function extractDriveFileId(url) {
+      if (!url) return null;
+      let cleanUrl = url.toString().replace(/[\[\]'"]/g, '').trim();
+      const match = cleanUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || cleanUrl.match(/id=([a-zA-Z0-9_-]+)/);
+      return match ? match[1] : null;
+    }
+
     function fixDriveUrl(url) {
       if (!url) return PLACEHOLDER_IMG;
       let cleanUrl = url.toString().replace(/[\[\]'"]/g, '').trim();
       cleanUrl = cleanUrl.replace(/^httphttps:/i, 'https:').replace(/^http:/i, 'https:');
       
-      if (cleanUrl.includes('drive.google.com') || cleanUrl.includes('lh3.googleusercontent.com')) {
-        const match = cleanUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || cleanUrl.match(/id=([a-zA-Z0-9_-]+)/);
-        if (match && match[1]) {
-          return 'https://lh3.googleusercontent.com/d/' + match[1];
-        }
+      const fileId = extractDriveFileId(cleanUrl);
+      if (fileId) {
+        return 'https://lh3.googleusercontent.com/d/' + fileId;
       }
       return cleanUrl;
+    }
+
+    function getDriveVideoEmbedUrl(url) {
+      const fileId = extractDriveFileId(url);
+      if (fileId) {
+        return `https://drive.google.com/file/d/${fileId}/preview`;
+      }
+      return url;
     }
 
     function openModalKeuangan() { 
@@ -907,13 +914,17 @@
         let items = rawItems.map((f, i) => {
           if (typeof f === 'string' || typeof f === 'number') {
             const strVal = String(f);
-            return { type: 'image', url: fixDriveUrl(strVal), name: strVal };
+            return { type: 'image', url: fixDriveUrl(strVal), rawUrl: strVal, name: strVal };
           }
           const rawUrl = f.url || f.link || f.src || f.downloadUrl || '';
           const nameVal = f.name !== undefined && f.name !== null ? String(f.name) : (f.title !== undefined && f.title !== null ? String(f.title) : String(i + 1));
+          
+          const isVid = f.type === 'video' || (f.mimeType && f.mimeType.includes('video')) || /\.(mp4|mkv|mov|webm|avi)$/i.test(nameVal);
+          
           return {
-            type: f.type || 'image',
-            url: fixDriveUrl(rawUrl),
+            type: isVid ? 'video' : 'image',
+            url: isVid ? getDriveVideoEmbedUrl(rawUrl) : fixDriveUrl(rawUrl),
+            rawUrl: rawUrl,
             name: nameVal
           };
         }).filter(item => item.url && item.url !== '' && item.url !== PLACEHOLDER_IMG);
@@ -947,7 +958,14 @@
         mediaItems = await fetchFolderFiles(folderId);
       } else {
         const rawUrls = rawString.split(',');
-        mediaItems = rawUrls.map(u => ({ type: 'image', url: fixDriveUrl(u) })).filter(u => u.url && u.url !== '');
+        mediaItems = rawUrls.map(u => {
+          const isVid = /\.(mp4|mkv|mov|webm|avi)$/i.test(u);
+          return {
+            type: isVid ? 'video' : 'image',
+            url: isVid ? getDriveVideoEmbedUrl(u) : fixDriveUrl(u),
+            rawUrl: u
+          };
+        }).filter(u => u.url && u.url !== '');
       }
 
       if (!mediaItems || mediaItems.length === 0) mediaItems = [{ type: 'image', url: PLACEHOLDER_IMG }];
@@ -959,11 +977,11 @@
         if (item.type === 'video') {
           gridHTML += `
             <div class="relative group cursor-pointer bg-slate-900 rounded-xl overflow-hidden shadow-sm aspect-square border border-slate-700 flex items-center justify-center" onclick="openLightboxFromIndex(${index})">
-              <div class="p-3 bg-red-600 text-white rounded-full shadow-lg group-hover:scale-110 transition duration-300">
+              <div class="p-3 bg-red-600/90 text-white rounded-full shadow-lg group-hover:scale-110 transition duration-300 z-10">
                 <i data-lucide="play" class="w-6 h-6 fill-current"></i>
               </div>
-              <span class="absolute top-2 left-2 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">Video</span>
-              <span class="absolute bottom-1 right-1 bg-black/60 text-white text-[9px] px-1.5 py-0.5 rounded font-mono">${index+1}</span>
+              <span class="absolute top-2 left-2 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded uppercase z-10">Video</span>
+              <span class="absolute bottom-1 right-1 bg-black/60 text-white text-[9px] px-1.5 py-0.5 rounded font-mono z-10">${index+1}</span>
             </div>
           `;
         } else {
@@ -1139,9 +1157,14 @@
       const item = currentMediaList[currentPhotoIndex];
       const container = document.getElementById('lightbox-media-container');
 
+      const resetBtn = document.getElementById('btn-reset-zoom');
+      if (resetBtn) resetBtn.classList.add('hidden');
+
       if (item.type === 'video') {
         container.innerHTML = `
-          <iframe src="${item.url}" class="w-full max-w-3xl h-full rounded-lg shadow-2xl bg-black" allow="autoplay" allowfullscreen onclick="event.stopPropagation()"></iframe>
+          <div class="w-full max-w-4xl aspect-video rounded-xl overflow-hidden shadow-2xl bg-black flex items-center justify-center border border-slate-800" onclick="event.stopPropagation()">
+            <iframe src="${item.url}" class="w-full h-full border-0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+          </div>
         `;
       } else {
         container.innerHTML = `
@@ -1562,7 +1585,6 @@
       lucide.createIcons();
     })();
 
-    // FUNGSI SCROLL SLIDER DOKUMENTASI (TOMBOL & KEYBOARD)
     function scrollDokumentasi(direction) {
       const slider = document.getElementById('slider-dokumentasi');
       if (!slider) return;
@@ -1584,7 +1606,6 @@
           let sliderHTML = '';
           let allHTML = '';
 
-          // Maksimal 10 item untuk preview di slider
           const sliderLimit = Math.min(10, displayData.length);
 
           for (let index = 0; index < displayData.length; index++) {
