@@ -12,7 +12,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   
   <style>
-    /* Mencegah teks diblok/disorot untuk dicopas */
     body {
       -webkit-user-select: none;
       -moz-user-select: none;
@@ -25,14 +24,12 @@
     .touch-pan-y {
       touch-action: pan-y;
     }
-    /* Hide scrollbar for Chrome, Safari and Opera */
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
-    /* Hide scrollbar for IE, Edge and Firefox */
     .no-scrollbar {
-      -ms-overflow-style: none;  /* IE and Edge */
-      scrollbar-width: none;  /* Firefox */
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
   </style>
 </head>
@@ -42,19 +39,15 @@
   <!-- Header / Navigation -->
   <header class="bg-gradient-to-r from-indigo-950 via-indigo-900 to-indigo-950 text-white border-b border-indigo-800/40 sticky top-0 z-50 w-full transition-all shadow-md">
     <div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between relative">
-      
       <a href="#" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 transition group shrink-0">
         <i data-lucide="home" class="w-5 h-5 text-indigo-200 group-hover:scale-110 transition"></i>
       </a>
-
       <div class="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none w-full max-w-xl px-12">
         <h1 class="text-sm sm:text-base md:text-lg font-bold tracking-wide text-white whitespace-nowrap overflow-hidden text-ellipsis">
           Flamboyan 4 <span class="hidden sm:inline font-normal text-indigo-200/80 text-xs sm:text-sm">| RT 001 RW 026 Pesona Kahuripan 2</span>
         </h1>
       </div>
-
       <div class="w-9 h-9 opacity-0 pointer-events-none"></div>
-
     </div>
   </header>
 
@@ -86,7 +79,7 @@
         </a>
         <a href="#rencana" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
           <i data-lucide="calendar-check" class="w-4 h-4 text-pink-300"></i>
-          <span>Kalender Kerja Bakti</span>
+          <span>Kalender Kegiatan</span>
         </a>
       </div>
     </div>
@@ -106,7 +99,6 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 w-full items-center">
-        <!-- Total Pemasukan -->
         <div onclick="openModalKeuanganFiltered('pemasukan')" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-300 hover:shadow-md transition cursor-pointer group relative">
           <div class="flex justify-between items-start">
             <p class="text-xs md:text-sm font-medium text-slate-500 mb-1">Total Pemasukan</p>
@@ -116,7 +108,6 @@
           <p class="text-xs text-slate-400 mt-2">*Klik untuk lihat khusus pemasukan</p>
         </div>
 
-        <!-- Total Pengeluaran -->
         <div onclick="openModalKeuanganFiltered('pengeluaran')" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-rose-300 hover:shadow-md transition cursor-pointer group relative">
           <div class="flex justify-between items-start">
             <p class="text-xs md:text-sm font-medium text-slate-500 mb-1">Total Pengeluaran</p>
@@ -126,7 +117,6 @@
           <p class="text-xs text-slate-400 mt-2">*Klik untuk lihat khusus pengeluaran</p>
         </div>
 
-        <!-- Sisa Saldo Kas (HIGHLIGHTED CARD) -->
         <div class="bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-950 p-6 rounded-2xl shadow-lg border-2 border-indigo-500/40 text-white relative overflow-hidden transform md:-translate-y-1">
           <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
           <div class="flex items-center justify-between mb-1">
@@ -157,8 +147,7 @@
                 <th class="p-3 text-right w-1/4">Jumlah</th>
               </tr>
             </thead>
-            <tbody id="tabel-transaksi" class="divide-y divide-slate-100">
-            </tbody>
+            <tbody id="tabel-transaksi" class="divide-y divide-slate-100"></tbody>
           </table>
         </div>
 
@@ -295,7 +284,7 @@
       </div>
     </section>
 
-    <!-- SECTION 4: DOKUMENTASI KEGIATAN (SLIDER INTERAKTIF HP & PC) -->
+    <!-- SECTION 4: DOKUMENTASI KEGIATAN -->
     <section id="kegiatan" class="scroll-mt-20 w-full">
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center space-x-2">
@@ -325,11 +314,11 @@
       </div>
     </section>
 
-    <!-- SECTION 5: RENCANA KEGIATAN & KALENDER -->
+    <!-- SECTION 5: KALENDER KEGIATAN -->
     <section id="rencana" class="scroll-mt-20 w-full space-y-6">
       <div class="flex items-center space-x-2">
         <i data-lucide="calendar-check" class="w-6 h-6 text-indigo-600 shrink-0"></i>
-        <h3 class="text-xl md:text-2xl font-bold text-slate-900">Rencana Kegiatan & Kalender Kerja Bakti</h3>
+        <h3 class="text-xl md:text-2xl font-bold text-slate-900">Kalender Kegiatan</h3>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -365,8 +354,7 @@
             <div>Ming</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div>
           </div>
 
-          <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 text-xs">
-          </div>
+          <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 text-xs"></div>
         </div>
 
         <div class="lg:col-span-5 bg-white p-5 rounded-xl shadow-sm border border-slate-200">
@@ -396,8 +384,7 @@
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
-      <div id="modal-event-body" class="p-5 space-y-3 text-xs md:text-sm">
-      </div>
+      <div id="modal-event-body" class="p-5 space-y-3 text-xs md:text-sm"></div>
     </div>
   </div>
 
@@ -424,8 +411,7 @@
               <th class="p-3 text-center w-1/6">Status</th>
             </tr>
           </thead>
-          <tbody id="tabel-arisan-all" class="divide-y divide-slate-100">
-          </tbody>
+          <tbody id="tabel-arisan-all" class="divide-y divide-slate-100"></tbody>
         </table>
       </div>
     </div>
@@ -455,8 +441,7 @@
               <th class="p-3 text-right w-1/4">Jumlah</th>
             </tr>
           </thead>
-          <tbody id="tabel-transaksi-all" class="divide-y divide-slate-100">
-          </tbody>
+          <tbody id="tabel-transaksi-all" class="divide-y divide-slate-100"></tbody>
         </table>
       </div>
     </div>
@@ -488,8 +473,7 @@
               <th class="p-3 text-center">Status</th>
             </tr>
           </thead>
-          <tbody id="tabel-jersey-all" class="divide-y divide-slate-100">
-          </tbody>
+          <tbody id="tabel-jersey-all" class="divide-y divide-slate-100"></tbody>
         </table>
       </div>
     </div>
@@ -506,8 +490,7 @@
           <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
         </button>
       </div>
-      <div id="container-dokumentasi-all" class="p-4 md:p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-      </div>
+      <div id="container-dokumentasi-all" class="p-4 md:p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6"></div>
     </div>
   </div>
 
@@ -530,9 +513,8 @@
   </div>
 
   <!-- LIGHTBOX MODAL FULLSCREEN -->
-  <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-between p-3 md:p-6 overflow-hidden select-none" onclick="closeModalDirect('lightbox-modal')">
+  <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-between p-3 md:p-6 overflow-hidden select-none" onclick="closeLightboxModal()">
     
-    <!-- Header Modal -->
     <div class="w-full flex items-center justify-between z-30 pb-2" onclick="event.stopPropagation()">
       <p id="lightbox-caption" class="text-xs md:text-sm font-semibold tracking-wide text-white truncate max-w-[70%]"></p>
       
@@ -540,27 +522,22 @@
         <button onclick="resetLightboxZoom(event)" id="btn-reset-zoom" class="text-white bg-slate-800/80 hover:bg-slate-700 p-1.5 px-3 rounded-full transition shadow-md text-xs font-semibold hidden" title="Reset Ukuran">
           Reset Zoom
         </button>
-        <button onclick="closeModalDirect('lightbox-modal')" class="text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition shadow-md" title="Tutup (Esc)">
+        <button onclick="closeLightboxModal()" class="text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition shadow-md" title="Tutup ke Galeri">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
     </div>
 
-    <!-- Panah Kiri -->
     <button id="lightbox-prev" onclick="prevLightboxMedia(event)" class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 text-white bg-slate-800/80 hover:bg-slate-700 p-2 md:p-3 rounded-full transition z-30 hidden" title="Panah Kiri">
       <i data-lucide="chevron-left" class="w-6 h-6 md:w-8 md:h-8"></i>
     </button>
 
-    <!-- Panah Kanan -->
     <button id="lightbox-next" onclick="nextLightboxMedia(event)" class="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 text-white bg-slate-800/80 hover:bg-slate-700 p-2 md:p-3 rounded-full transition z-30 hidden" title="Panah Kanan">
       <i data-lucide="chevron-right" class="w-6 h-6 md:w-8 md:h-8"></i>
     </button>
     
-    <!-- Container Utama Media -->
-    <div id="lightbox-media-container" class="relative w-full flex-grow flex items-center justify-center my-auto overflow-hidden">
-    </div>
+    <div id="lightbox-media-container" class="relative w-full flex-grow flex items-center justify-center my-auto overflow-hidden"></div>
 
-    <!-- Footer Counter -->
     <div class="w-full text-center z-30 pt-2">
       <p id="lightbox-counter" class="text-xs text-slate-400 font-mono hidden"></p>
     </div>
@@ -729,6 +706,29 @@
       }
     }
 
+    // Fungsi khusus menutup lightbox agar kembali ke modal galeri grid (bukan langsung tertutup total ke halaman utama)
+    function closeLightboxModal() {
+      const lightbox = document.getElementById('lightbox-modal');
+      if (!lightbox || lightbox.classList.contains('hidden')) return;
+
+      lightbox.classList.add('hidden');
+      document.getElementById('lightbox-media-container').innerHTML = '';
+      resetLightboxZoom();
+
+      const idx = activeModalsStack.indexOf('lightbox-modal');
+      if (idx > -1) {
+        activeModalsStack.splice(idx, 1);
+        if (history.state && history.state.modalOpen === 'lightbox-modal') {
+          history.back();
+        }
+      }
+      
+      // Jika galeri grid masih ada di tumpukan modal, pastikan scroll body tetap terkunci
+      if (activeModalsStack.includes('modal-gallery-grid')) {
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
     window.addEventListener('popstate', function(event) {
       if (activeModalsStack.length > 0) {
         const topModalId = activeModalsStack.pop();
@@ -740,7 +740,7 @@
             setTimeout(() => { el.classList.add('hidden'); document.body.style.overflow = 'auto'; }, 300);
           } else {
             el.classList.add('hidden');
-            document.body.style.overflow = 'auto';
+            if (activeModalsStack.length === 0) document.body.style.overflow = 'auto';
           }
           if (topModalId === 'lightbox-modal') {
             document.getElementById('lightbox-media-container').innerHTML = '';
@@ -762,7 +762,7 @@
         if (topModalId === 'lightbox-modal') {
           if (e.key === 'ArrowRight') nextLightboxMedia(e);
           else if (e.key === 'ArrowLeft') prevLightboxMedia(e);
-          else if (e.key === 'Escape') closeModalDirect('lightbox-modal');
+          else if (e.key === 'Escape') closeLightboxModal();
         } else {
           if (e.key === 'Escape') closeModalDirect(topModalId);
         }
@@ -1195,39 +1195,25 @@
 
       if (item.type === 'video') {
         const fileId = extractDriveFileId(item.rawUrl || item.url);
-        
-        // Direct link streaming video
-        const videoStreamUrl = fileId 
-          ? `https://lh3.googleusercontent.com/d/${fileId}` 
-          : item.url;
-          
-        // Web Viewer resmi Drive untuk opsi buka eksternal
-        const viewUrl = fileId 
-          ? `https://drive.google.com/file/d/${fileId}/view` 
-          : (item.rawUrl || item.url);
+        const embedUrl = fileId ? `https://drive.google.com/file/d/${fileId}/preview` : item.url;
+        const videoStreamUrl = fileId ? `https://lh3.googleusercontent.com/d/${fileId}` : item.url;
+        const viewUrl = fileId ? `https://drive.google.com/file/d/${fileId}/view` : (item.rawUrl || item.url);
 
-        // Menggunakan Tag <video> Asli HP (Tanpa Frame/Iframe Google)
         container.innerHTML = `
           <div class="relative w-full max-h-[75vh] max-w-sm sm:max-w-md md:max-w-xl mx-auto rounded-xl overflow-hidden bg-black shadow-2xl flex flex-col items-center justify-center" onclick="event.stopPropagation()">
-            
-            <video 
-              controls 
-              playsinline
-              preload="metadata"
-              src="${videoStreamUrl}" 
-              class="w-full max-h-[70vh] rounded-lg object-contain bg-black">
-              Browser Anda tidak mendukung pemutar video ini.
-            </video>
-
-            <!-- Opsi Tombol Alternatif Jika Koneksi Internet Memblokir Direct Stream -->
-            <div class="p-2 w-full bg-slate-900 border-t border-slate-800 flex items-center justify-between px-4">
-                <span class="text-[10px] text-slate-400">Video bermasalah?</span>
+            <div class="w-full h-[55vh] md:h-[60vh] relative bg-black">
+              <iframe src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen class="w-full h-full border-0"></iframe>
+            </div>
+            <div class="p-2.5 w-full bg-slate-900 border-t border-slate-800 flex items-center justify-between px-4">
+                <a href="${videoStreamUrl}" download class="text-[11px] text-indigo-300 hover:text-white font-medium flex items-center space-x-1">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                    <span>Unduh Video</span>
+                </a>
                 <a href="${viewUrl}" target="_blank" class="bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-semibold px-3 py-1.5 rounded-full shadow flex items-center space-x-1 transition active:scale-95">
                     <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
                     <span>Buka Video di Tab Baru</span>
                 </a>
             </div>
-
           </div>
         `;
       } else {
