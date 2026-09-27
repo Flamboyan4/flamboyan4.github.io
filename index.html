@@ -529,7 +529,7 @@
     </div>
   </div>
 
-  <!-- LIGHTBOX MODAL FULLSCREEN (DESAIN MOBILE REVISED) -->
+  <!-- LIGHTBOX MODAL FULLSCREEN -->
   <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-between p-3 md:p-6 overflow-hidden select-none" onclick="closeModalDirect('lightbox-modal')">
     
     <!-- Header Modal -->
@@ -556,7 +556,7 @@
       <i data-lucide="chevron-right" class="w-6 h-6 md:w-8 md:h-8"></i>
     </button>
     
-    <!-- Container Utama Media (Adaptif Vertikal / Horisontal) -->
+    <!-- Container Utama Media (Clean Google Drive Player, No Overlap) -->
     <div id="lightbox-media-container" class="relative w-full flex-grow flex items-center justify-center my-auto overflow-hidden">
     </div>
 
@@ -1169,8 +1169,8 @@
 
       if (item.type === 'video') {
         container.innerHTML = `
-          <div class="relative w-full max-w-4xl h-full max-h-[75vh] flex items-center justify-center p-1" onclick="event.stopPropagation()">
-            <iframe src="${item.url}" class="w-full h-full max-h-[70vh] rounded-xl shadow-2xl bg-black border border-slate-800 object-contain" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+          <div class="relative w-full h-full max-h-[75vh] flex items-center justify-center" onclick="event.stopPropagation()">
+            <iframe src="${item.url}" class="w-full h-full max-h-[72vh] rounded-xl shadow-2xl bg-black border-0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
           </div>
         `;
       } else {
