@@ -556,7 +556,7 @@
       <i data-lucide="chevron-right" class="w-6 h-6 md:w-8 md:h-8"></i>
     </button>
     
-    <!-- Container Utama Media (Clean Google Stream Player) -->
+    <!-- Container Utama Media -->
     <div id="lightbox-media-container" class="relative w-full flex-grow flex items-center justify-center my-auto overflow-hidden">
     </div>
 
@@ -1195,19 +1195,32 @@
 
       if (item.type === 'video') {
         const fileId = extractDriveFileId(item.rawUrl || item.url);
-        // Link preview Google Drive resmi yang diisi styling rapi khusus HP
         const embedUrl = fileId 
           ? `https://drive.google.com/file/d/${fileId}/preview` 
           : item.url;
 
+        // Memaksa frame menjadi mendatar (aspect-video / 16:9) agar UI Drive tidak bertumpuk
         container.innerHTML = `
-          <div class="relative w-full h-[65vh] max-w-sm sm:max-w-md md:max-w-xl mx-auto rounded-xl overflow-hidden bg-black shadow-2xl flex items-center justify-center" onclick="event.stopPropagation()">
-            <iframe 
-              src="${embedUrl}" 
-              class="w-full h-full border-0 rounded-xl" 
-              allow="autoplay; encrypted-media" 
-              allowfullscreen>
-            </iframe>
+          <div class="relative w-full max-w-sm sm:max-w-md md:max-w-2xl mx-auto rounded-xl overflow-hidden bg-slate-900 shadow-2xl flex flex-col" onclick="event.stopPropagation()">
+            
+            <!-- Area Iframe Landscape -->
+            <div class="w-full aspect-video bg-black relative">
+              <iframe 
+                src="${embedUrl}" 
+                class="absolute top-0 left-0 w-full h-full border-0" 
+                allow="autoplay; encrypted-media; fullscreen" 
+                allowfullscreen>
+              </iframe>
+            </div>
+
+            <!-- Area Tombol Fullscreen -->
+            <div class="w-full p-3 flex justify-center bg-slate-800 border-t border-slate-700">
+                <a href="${item.rawUrl || item.url}" target="_blank" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs md:text-sm font-semibold px-5 py-2.5 rounded-full shadow-lg flex items-center space-x-2 transition active:scale-95">
+                    <i data-lucide="maximize" class="w-4 h-4 md:w-5 md:h-5"></i>
+                    <span>Buka Layar Penuh</span>
+                </a>
+            </div>
+
           </div>
         `;
       } else {
