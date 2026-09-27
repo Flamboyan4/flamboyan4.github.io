@@ -571,7 +571,7 @@
     </div>
   </div>
 
-  <!-- FLOATING ACTION BUTTON CONTAINER (DI-FIX Z-INDEX NYA) -->
+  <!-- FLOATING ACTION BUTTON CONTAINER -->
   <div class="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50 flex flex-col items-center space-y-3 pointer-events-none">
     <button id="btn-scroll-top" onclick="scrollToTop()" class="bg-slate-800/95 hover:bg-indigo-600 text-white p-3 md:p-3.5 rounded-full shadow-2xl transition-all duration-300 opacity-0 pointer-events-none transform translate-y-4 hover:scale-110 group flex items-center justify-center border border-white/20 active:scale-95" title="Kembali Ke Atas">
       <i data-lucide="arrow-up" class="w-5 h-5 md:w-6 md:h-6"></i>
@@ -637,7 +637,6 @@
   <script>
     lucide.createIcons();
 
-    // SCRIPT PERBAIKAN TOMBOL KE ATAS
     window.addEventListener('scroll', function() {
       const btnScroll = document.getElementById('btn-scroll-top');
       if (!btnScroll) return;
@@ -1185,7 +1184,6 @@
       img.addEventListener('touchend', () => { isDragging = false; });
     }
 
-    // SCRIPT PERBAIKAN PEMUTAR VIDEO (IFRAME PREVIEW GOOGLE DRIVE)
     function updateLightboxView() {
       const item = currentMediaList[currentPhotoIndex];
       const container = document.getElementById('lightbox-media-container');
