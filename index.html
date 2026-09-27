@@ -874,7 +874,12 @@
       openModal('modal-keuangan');
     }
 
-    function openModalArisan() { openModal('modal-arisan'); }
+    function openModalArisan() { 
+      document.getElementById('search-arisan').value = '';
+      filterArisanModal();
+      openModal('modal-arisan'); 
+    }
+    
     function openModalJersey() { openModal('modal-jersey'); }
     function openModalDokumentasi() { openModal('modal-dokumentasi'); }
     function openModalSaran() { openModal('modal-saran'); }
@@ -1303,6 +1308,42 @@
           <td class="p-3 text-right whitespace-nowrap">${textJumlah}</td>
         </tr>
       `;
+    }
+
+    function renderArisanRow(row, isCurrent = false, isNext = false) {
+      const keys = Object.keys(row);
+      const bulan = row[keys[0]] || '-';
+      const namaBlok = row[keys[1]] || '-';
+      const statusRaw = (row[keys[2]] || '').toString().trim();
+
+      let statusBadge = `<span class="px-2 py-0.5 text-xs bg-amber-100 text-amber-800 rounded">Belum</span>`;
+      if (statusRaw.toLowerCase().includes('sudah') || statusRaw.toLowerCase().includes('selesai') || statusRaw.toLowerCase().includes('lunas')) {
+        statusBadge = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 font-semibold rounded">✓ Sudah</span>`;
+      }
+
+      let rowBg = '';
+      if (isCurrent) rowBg = 'bg-indigo-50/80 font-bold';
+      else if (isNext) rowBg = 'bg-amber-50/50';
+
+      return `
+        <tr class="${rowBg}">
+          <td class="p-3 text-slate-700 whitespace-nowrap">${bulan}</td>
+          <td class="p-3 font-semibold text-slate-800 break-words">${namaBlok}</td>
+          <td class="p-3 text-center whitespace-nowrap">${statusBadge}</td>
+        </tr>
+      `;
+    }
+
+    function filterArisanModal() {
+      const keyword = document.getElementById('search-arisan').value.toLowerCase();
+      let html = '';
+      globalArisanData.forEach(row => {
+        const text = Object.values(row).join(' ').toLowerCase();
+        if (text.includes(keyword)) {
+          html += renderArisanRow(row);
+        }
+      });
+      document.getElementById('tabel-arisan-all').innerHTML = html || '<tr><td colspan="3" class="p-4 text-center text-slate-400">Tidak ada jadwal arisan yang cocok</td></tr>';
     }
 
     function filterKeuanganModal() {
