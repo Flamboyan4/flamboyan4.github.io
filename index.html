@@ -86,7 +86,7 @@
         </a>
         <a href="#rencana" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
           <i data-lucide="calendar-check" class="w-4 h-4 text-pink-300"></i>
-          <span>Kalender Kerja Bakti</span>
+          <span>Kalender Kegiatan</span>
         </a>
       </div>
     </div>
@@ -329,7 +329,7 @@
     <section id="rencana" class="scroll-mt-20 w-full space-y-6">
       <div class="flex items-center space-x-2">
         <i data-lucide="calendar-check" class="w-6 h-6 text-indigo-600 shrink-0"></i>
-        <h3 class="text-xl md:text-2xl font-bold text-slate-900">Rencana Kegiatan & Kalender Kerja Bakti</h3>
+        <h3 class="text-xl md:text-2xl font-bold text-slate-900">Kalender Kegiatan</h3>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -530,7 +530,7 @@
   </div>
 
   <!-- LIGHTBOX MODAL FULLSCREEN -->
-  <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-between p-3 md:p-6 overflow-hidden select-none" onclick="closeModalDirect('lightbox-modal')">
+  <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-between p-3 md:p-6 overflow-hidden select-none" onclick="closeLightboxOnly()">
     
     <!-- Header Modal -->
     <div class="w-full flex items-center justify-between z-30 pb-2" onclick="event.stopPropagation()">
@@ -540,7 +540,7 @@
         <button onclick="resetLightboxZoom(event)" id="btn-reset-zoom" class="text-white bg-slate-800/80 hover:bg-slate-700 p-1.5 px-3 rounded-full transition shadow-md text-xs font-semibold hidden" title="Reset Ukuran">
           Reset Zoom
         </button>
-        <button onclick="closeModalDirect('lightbox-modal')" class="text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition shadow-md" title="Tutup (Esc)">
+        <button onclick="closeLightboxOnly()" class="text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition shadow-md" title="Tutup (Esc)">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -729,6 +729,25 @@
       }
     }
 
+    // Khusus Lightbox agar kembali ke galeri (bukan langsung tutup semua)
+    function closeLightboxOnly() {
+      const el = document.getElementById('lightbox-modal');
+      if (!el || el.classList.contains('hidden')) return;
+
+      el.classList.add('hidden');
+      document.getElementById('lightbox-media-container').innerHTML = '';
+      resetLightboxZoom();
+
+      const idx = activeModalsStack.indexOf('lightbox-modal');
+      if (idx > -1) {
+        activeModalsStack.splice(idx, 1);
+        if (history.state && history.state.modalOpen === 'lightbox-modal') {
+          history.back();
+        }
+      }
+      // Jangan reset overflow body karena modal galeri masih terbuka di belakangnya
+    }
+
     window.addEventListener('popstate', function(event) {
       if (activeModalsStack.length > 0) {
         const topModalId = activeModalsStack.pop();
@@ -740,7 +759,9 @@
             setTimeout(() => { el.classList.add('hidden'); document.body.style.overflow = 'auto'; }, 300);
           } else {
             el.classList.add('hidden');
-            document.body.style.overflow = 'auto';
+            if (topModalId !== 'lightbox-modal' && activeModalsStack.length === 0) {
+              document.body.style.overflow = 'auto';
+            }
           }
           if (topModalId === 'lightbox-modal') {
             document.getElementById('lightbox-media-container').innerHTML = '';
@@ -762,7 +783,7 @@
         if (topModalId === 'lightbox-modal') {
           if (e.key === 'ArrowRight') nextLightboxMedia(e);
           else if (e.key === 'ArrowLeft') prevLightboxMedia(e);
-          else if (e.key === 'Escape') closeModalDirect('lightbox-modal');
+          else if (e.key === 'Escape') closeLightboxOnly();
         } else {
           if (e.key === 'Escape') closeModalDirect(topModalId);
         }
@@ -1131,883 +1152,88 @@
 
       window.removeEventListener('mousemove', handleGlobalMouseMove);
       window.removeEventListener('mouseup', handleGlobalMouseUp);
-      window.addEventListener('mousemove', handleGlobalMouseMove);
-      window.addEventListener('mouseup', handleGlobalMouseUp);
+      window.addEventListener('mousemove',Bisa banget! Perubahan tersebut sudah saya terapkan ke dalam kodenya:
 
-      img.addEventListener('touchstart', (e) => {
-        if (e.touches.length === 2) {
-          startDist = Math.hypot(
-            e.touches[0].pageX - e.touches[1].pageX,
-            e.touches[0].pageY - e.touches[1].pageY
-          );
-          startScale = zoomScale;
-        } else if (e.touches.length === 1) {
-          isDragging = true;
-          startX = e.touches[0].pageX - translateX;
-          startY = e.touches[0].pageY - translateY;
+1. **Judul Kalender:** Bagian judul "Rencana Kegiatan & Kalender Kerja Bakti" sudah diubah menjadi **"Kalender Kegiatan"** sesuai permintaan.
+2. **Navigasi Pop-up Galeri & Lightbox:** Saat kamu sedang melihat foto/video dalam mode *lightbox* (layar penuh) lalu menutupnya atau mengklik area luar (*overlay*), aplikasi tidak akan langsung menutup semua modal dan kembali ke halaman utama. Sekarang, tampilannya akan **dikembalikan terlebih dahulu ke pop-up grid galeri**, sehingga terasa jauh lebih nyaman dan natural saat bernavigasi.
 
-          const currentTime = new Date().getTime();
-          const tapLength = currentTime - lastTapTime;
-          if (tapLength < 300 && tapLength > 0) {
-            e.preventDefault();
-            if (zoomScale > 1) {
-              resetLightboxZoom();
-            } else {
-              zoomScale = 2.5;
-              translateX = 0;
-              translateY = 0;
-              img.style.transition = 'transform 0.2s ease-out';
-              applyTransform(img);
-              setTimeout(() => { img.style.transition = 'none'; }, 200);
-            }
-          }
-          lastTapTime = currentTime;
-        }
-      }, { passive: false });
+Berikut adalah kode lengkap `index.html` terbaru yang bisa langsung kamu salin:
 
-      img.addEventListener('touchmove', (e) => {
-        if (e.touches.length === 2) {
-          e.preventDefault();
-          const currentDist = Math.hypot(
-            e.touches[0].pageX - e.touches[1].pageX,
-            e.touches[0].pageY - e.touches[1].pageY
-          );
-          zoomScale = Math.min(Math.max(startScale * (currentDist / startDist), 1), 5);
-          if (zoomScale === 1) { translateX = 0; translateY = 0; }
-          applyTransform(img);
-        } else if (e.touches.length === 1 && isDragging && zoomScale > 1) {
-          e.preventDefault();
-          translateX = e.touches[0].pageX - startX;
-          translateY = e.touches[0].pageY - startY;
-          requestAnimationFrame(() => applyTransform(img));
-        }
-      }, { passive: false });
-
-      img.addEventListener('touchend', () => { isDragging = false; });
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Flamboyan 4 | Portal Informasi & Transparansi Lorong</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="[https://unpkg.com/lucide@latest](https://unpkg.com/lucide@latest)"></script>
+  <!-- PapaParse untuk membaca Google Sheets CSV -->
+  <script src="[https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js](https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js)"></script>
+  
+  <style>
+    /* Mencegah teks diblok/disorot untuk dicopas */
+    body {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
     }
-
-    function updateLightboxView() {
-      const item = currentMediaList[currentPhotoIndex];
-      const container = document.getElementById('lightbox-media-container');
-
-      const resetBtn = document.getElementById('btn-reset-zoom');
-      if (resetBtn) resetBtn.classList.add('hidden');
-
-      if (item.type === 'video') {
-        const fileId = extractDriveFileId(item.rawUrl || item.url);
-        
-        // Link untuk embed iframe di web
-        const embedUrl = fileId 
-          ? `https://drive.google.com/file/d/${fileId}/preview` 
-          : item.url;
-          
-        // Ini perbaikannya: Link resmi Google Drive Viewer untuk tombol eksternal
-        const viewUrl = fileId 
-          ? `https://drive.google.com/file/d/${fileId}/view` 
-          : (item.rawUrl || item.url);
-
-        // Frame dikembalikan ke vertikal (h-[65vh]) agar video tidak kegelapan
-        container.innerHTML = `
-          <div class="relative w-full h-[65vh] max-w-sm sm:max-w-md md:max-w-xl mx-auto rounded-xl overflow-hidden bg-black shadow-2xl flex flex-col items-center justify-center" onclick="event.stopPropagation()">
-            
-            <iframe 
-              src="${embedUrl}" 
-              class="w-full h-full border-0 relative z-0" 
-              allow="autoplay; encrypted-media; fullscreen" 
-              allowfullscreen>
-            </iframe>
-
-            <div class="absolute bottom-4 md:bottom-6 z-10 w-full flex justify-center pointer-events-none">
-                <a href="${viewUrl}" target="_blank" class="pointer-events-auto bg-indigo-600/90 hover:bg-indigo-500 text-white text-[11px] md:text-sm font-semibold px-5 py-2.5 rounded-full backdrop-blur-sm shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-indigo-400/30 flex items-center space-x-2 transition active:scale-95">
-                    <i data-lucide="external-link" class="w-4 h-4 md:w-5 md:h-5"></i>
-                    <span>Buka Penuh di Layar (App)</span>
-                </a>
-            </div>
-          </div>
-        `;
-      } else {
-        container.innerHTML = `
-          <img id="lightbox-active-img" src="${item.url}" alt="Foto Full" class="max-w-full max-h-[75vh] rounded-lg shadow-2xl object-contain select-none transition-transform duration-75" onclick="event.stopPropagation()">
-        `;
-        const img = document.getElementById('lightbox-active-img');
-        if (img) initImageZoomEvents(img);
-      }
-
-      document.getElementById('lightbox-caption').innerText = currentPhotoCaption;
-
-      const counter = document.getElementById('lightbox-counter');
-      const btnPrev = document.getElementById('lightbox-prev');
-      const btnNext = document.getElementById('lightbox-next');
-
-      if (currentMediaList.length > 1) {
-        counter.classList.remove('hidden');
-        counter.innerText = `Media ${currentPhotoIndex + 1} dari ${currentMediaList.length}`;
-        btnPrev.classList.remove('hidden');
-        btnNext.classList.remove('hidden');
-      } else {
-        counter.classList.add('hidden');
-        btnPrev.classList.add('hidden');
-        btnNext.classList.add('hidden');
-      }
-      lucide.createIcons();
+    html {
+      scroll-behavior: smooth;
     }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      initLightboxSwipe();
-    });
-
-    const formSaran = document.getElementById("form-saran");
-    formSaran.addEventListener("submit", async function(event) {
-        event.preventDefault();
-        const data = new FormData(event.target);
-        try {
-            const response = await fetch(event.target.action, {
-                method: formSaran.method,
-                body: data,
-                headers: { 'Accept': 'application/json' }
-            });
-            if (response.ok) {
-                document.getElementById('saran-status').classList.remove('hidden');
-                formSaran.reset();
-                setTimeout(() => closeModalDirect('modal-saran'), 2500);
-            } else {
-                alert("Ups! Gagal mengirim pesan. Silakan coba lagi.");
-            }
-        } catch (error) {
-            alert("Ups! Gagal mengirim pesan. Periksa koneksi internet Anda.");
-        }
-    });
-
-    function renderTableRow(row) {
-      const keys = Object.keys(row);
-      const tanggal = row[keys[0]];
-      const keterangan = row[keys[1]] || '-';
-      const kategori = (row[keys[2]] || '').trim();
-      const rawJumlah = row[keys[3]];
-
-      if (!rawJumlah) return '';
-
-      let cleanedJumlah = rawJumlah.toString().replace(/\./g, '').replace(/,/g, '');
-      const jumlah = parseFloat(cleanedJumlah.replace(/[^0-9-]/g, '')) || 0;
-
-      let badgeKategori = '';
-      let textJumlah = '';
-
-      if (kategori.toLowerCase() === 'pemasukan') {
-        badgeKategori = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 rounded">Pemasukan</span>`;
-        textJumlah = `<span class="text-emerald-600 font-semibold">+ ${formatRupiah(jumlah)}</span>`;
-      } else {
-        badgeKategori = `<span class="px-2 py-0.5 text-xs bg-rose-100 text-rose-800 rounded">Pengeluaran</span>`;
-        textJumlah = `<span class="text-rose-600 font-semibold">- ${formatRupiah(jumlah)}</span>`;
-      }
-
-      return `
-        <tr>
-          <td class="p-3 text-slate-500 whitespace-nowrap">${tanggal}</td>
-          <td class="p-3 font-medium break-words">${keterangan}</td>
-          <td class="p-3">${badgeKategori}</td>
-          <td class="p-3 text-right whitespace-nowrap">${textJumlah}</td>
-        </tr>
-      `;
+    .touch-pan-y {
+      touch-action: pan-y;
     }
-
-    function filterKeuanganModal() {
-      const keyword = document.getElementById('search-keuangan').value.toLowerCase();
-      let html = '';
-      globalKeuanganData.forEach(row => {
-        const text = Object.values(row).join(' ').toLowerCase();
-        if (text.includes(keyword)) {
-          html += renderTableRow(row);
-        }
-      });
-      document.getElementById('tabel-transaksi-all').innerHTML = html || '<tr><td colspan="4" class="p-4 text-center text-slate-400">Tidak ada transaksi yang cocok</td></tr>';
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
     }
-
-    function renderArisanRow(row, isCurrentMonth, isNextMonth) {
-      const keys = Object.keys(row);
-      const bulan = row[keys[0]] || '-';
-      const namaBlok = row[keys[1]] || '-';
-      const statusRaw = (row[keys[2]] || '').toString().trim();
-
-      let statusBadge = `<span class="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded">Belum</span>`;
-      let rowStyle = '';
-
-      if (statusRaw.toLowerCase().includes('sudah')) {
-        statusBadge = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 font-semibold rounded inline-flex items-center space-x-1"><span>✓</span><span>Sudah</span></span>`;
-      }
-
-      if (isCurrentMonth) {
-        rowStyle = 'class="bg-indigo-50/80 font-semibold text-indigo-900"';
-        statusBadge += ` <span class="ml-1 px-2 py-0.5 text-[10px] bg-indigo-600 text-white rounded-full">Bulan Ini</span>`;
-      } else if (isNextMonth) {
-        rowStyle = 'class="bg-amber-50/80 font-semibold text-amber-900"';
-        statusBadge += ` <span class="ml-1 px-2 py-0.5 text-[10px] bg-amber-600 text-white rounded-full">Bulan Depan</span>`;
-      }
-
-      return `
-        <tr ${rowStyle}>
-          <td class="p-3 whitespace-nowrap">${bulan}</td>
-          <td class="p-3 break-words">${namaBlok}</td>
-          <td class="p-3 text-center whitespace-nowrap">${statusBadge}</td>
-        </tr>
-      `;
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .no-scrollbar {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
     }
+  </style>
+</head>
 
-    function filterArisanModal() {
-      const keyword = document.getElementById('search-arisan').value.toLowerCase();
-      let html = '';
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full" oncontextmenu="return false;" onkeydown="return disableInspect(event)">
 
-      const now = new Date();
-      const monthNamesIndo = ["januari", "februari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember"];
-      const currentMonthStr = monthNamesIndo[now.getMonth()];
-      const currentYearStr = now.getFullYear().toString();
-
-      let currentIdx = -1;
-      globalArisanData.forEach((row, idx) => {
-        const k = Object.keys(row);
-        const bulanText = (row[k[0]] || '').toString().toLowerCase();
-        if (bulanText.includes(currentMonthStr) && bulanText.includes(currentYearStr)) {
-          currentIdx = idx;
-        }
-      });
-
-      globalArisanData.forEach((row, idx) => {
-        const text = Object.values(row).join(' ').toLowerCase();
-        if (text.includes(keyword)) {
-          const isCurrent = (idx === currentIdx);
-          const isNext = (currentIdx !== -1 && idx === currentIdx + 1);
-          html += renderArisanRow(row, isCurrent, isNext);
-        }
-      });
-      document.getElementById('tabel-arisan-all').innerHTML = html || '<tr><td colspan="3" class="p-4 text-center text-slate-400">Tidak ada data arisan yang cocok</td></tr>';
-    }
-
-    function filterJerseyModal() {
-      const keyword = document.getElementById('search-jersey').value.toLowerCase();
-      let html = '';
-      globalJerseyData.forEach(row => {
-        const text = Object.values(row).join(' ').toLowerCase();
-        if (text.includes(keyword)) {
-          const keys = Object.keys(row);
-          const no = row[keys[0]] || '-';
-          const namaBlok = row[keys[1]] || '-';
-          const lengan = row[keys[2]] || '-';
-          const ukuran = row[keys[3]] || '-';
-          const namaNoPunggung = row[keys[4]] || '-';
-          const statusRaw = (row[keys[5]] || '').toString().trim();
-
-          let statusBadge = `<span class="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded">Belum</span>`;
-          if (statusRaw.toLowerCase().includes('lunas')) {
-            statusBadge = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 font-semibold rounded">✓ Lunas</span>`;
-          } else if (statusRaw.toLowerCase().includes('dp')) {
-            statusBadge = `<span class="px-2 py-0.5 text-xs bg-amber-100 text-amber-800 font-semibold rounded">⏳ DP 50%</span>`;
-          }
-
-          html += `
-            <tr>
-              <td class="p-3 text-center text-slate-500 font-mono">${no}</td>
-              <td class="p-3 font-bold text-slate-800 break-words">${namaBlok}</td>
-              <td class="p-3 text-slate-600 whitespace-nowrap">${lengan}</td>
-              <td class="p-3 font-semibold text-indigo-700 whitespace-nowrap">${ukuran}</td>
-              <td class="p-3 text-slate-700 break-words">${namaNoPunggung}</td>
-              <td class="p-3 text-center whitespace-nowrap">${statusBadge}</td>
-            </tr>
-          `;
-        }
-      });
-      document.getElementById('tabel-jersey-all').innerHTML = html || '<tr><td colspan="6" class="p-4 text-center text-slate-400">Tidak ada pemesan yang cocok</td></tr>';
-    }
-
-    if (CSV_KEUANGAN_URL && CSV_KEUANGAN_URL.startsWith('http')) {
-      Papa.parse(CSV_KEUANGAN_URL, {
-        download: true,
-        header: true,
-        complete: function(results) {
-          const rawData = results.data.filter(row => {
-            const values = Object.values(row);
-            return values.length >= 2 && values[0] && values[0].toString().trim() !== '';
-          });
-
-          let totalPemasukan = 0;
-          let totalPengeluaran = 0;
-
-          rawData.forEach(row => {
-            const keys = Object.keys(row);
-            if (keys.length < 4) return;
-            const kategori = (row[keys[2]] || '').trim();
-            const rawJumlah = row[keys[3]];
-            if (!rawJumlah) return;
-            let cleanedJumlah = rawJumlah.toString().replace(/\./g, '').replace(/,/g, '');
-            const jumlah = parseFloat(cleanedJumlah.replace(/[^0-9-]/g, '')) || 0;
-            if (kategori.toLowerCase() === 'pemasukan') totalPemasukan += jumlah;
-            else if (kategori.toLowerCase() === 'pengeluaran') totalPengeluaran += jumlah;
-          });
-
-          const sisaSaldo = totalPemasukan - totalPengeluaran;
-
-          if (rawData.length > 0) {
-            const lastRow = rawData[rawData.length - 1];
-            const lastTanggal = lastRow[Object.keys(lastRow)[0]];
-            if (lastTanggal) document.getElementById('label-update-kas').innerText = 'Update: ' + lastTanggal;
-          }
-
-          globalKeuanganData = [...rawData].reverse();
-          const top10Data = globalKeuanganData.slice(0, 10);
-          
-          let tbodyHTML = '';
-          top10Data.forEach(row => { tbodyHTML += renderTableRow(row); });
-
-          let tbodyAllHTML = '';
-          globalKeuanganData.forEach(row => { tbodyAllHTML += renderTableRow(row); });
-
-          document.getElementById('tabel-transaksi').innerHTML = tbodyHTML || '<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada transaksi</td></tr>';
-          document.getElementById('tabel-transaksi-all').innerHTML = tbodyAllHTML;
-          
-          document.getElementById('total-pemasukan').innerText = formatRupiah(totalPemasukan);
-          document.getElementById('total-pengeluaran').innerText = formatRupiah(totalPengeluaran);
-          document.getElementById('sisa-saldo').innerText = formatRupiah(sisaSaldo);
-          document.getElementById('loading-status').innerText = 'Terhubung live';
-
-          if (globalKeuanganData.length > 10) {
-            document.getElementById('btn-container-keuangan-all').classList.remove('hidden');
-          }
-
-          const terkumpul = Math.max(0, sisaSaldo);
-          const persen = Math.min(100, Math.round((terkumpul / TARGET_DANA_GAPURA) * 100));
-          const kurang = Math.max(0, TARGET_DANA_GAPURA - terkumpul);
-
-          document.getElementById('gapura-percent').innerText = `${persen}%`;
-          document.getElementById('gapura-progress-bar').style.width = `${persen}%`;
-          document.getElementById('gapura-terkumpul').innerText = formatRupiah(terkumpul);
-          document.getElementById('gapura-kurang').innerText = formatRupiah(kurang);
-        }
-      });
-    }
-
-    if (CSV_ARISAN_URL && CSV_ARISAN_URL.startsWith('http')) {
-      Papa.parse(CSV_ARISAN_URL, {
-        download: true,
-        header: true,
-        complete: function(results) {
-          const rawData = results.data.filter(row => {
-            const values = Object.values(row);
-            return values.length >= 2 && values[0] && values[0].toString().trim() !== '';
-          });
-
-          globalArisanData = rawData;
-
-          const now = new Date();
-          const monthNamesIndo = ["januari", "februari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember"];
-          const currentMonthStr = monthNamesIndo[now.getMonth()];
-          const currentYearStr = now.getFullYear().toString();
-
-          let arisanIni = null;
-          let arisanLanjut = null;
-          let currentIdx = -1;
-
-          globalArisanData.forEach((row, idx) => {
-            const keys = Object.keys(row);
-            const bulanText = (row[keys[0]] || '').toString().toLowerCase();
-            if (bulanText.includes(currentMonthStr) && bulanText.includes(currentYearStr)) {
-              arisanIni = row;
-              currentIdx = idx;
-            }
-          });
-
-          if (currentIdx !== -1 && currentIdx + 1 < globalArisanData.length) {
-            arisanLanjut = globalArisanData[currentIdx + 1];
-          }
-
-          if (!arisanIni && globalArisanData.length > 0) arisanIni = globalArisanData[0];
-          if (!arisanLanjut && globalArisanData.length > 1) arisanLanjut = globalArisanData[1];
-
-          if (arisanIni) {
-            const k = Object.keys(arisanIni);
-            const statusIni = (arisanIni[k[2]] || '').toString().toLowerCase();
-            document.getElementById('arisan-bulan-ini-nama').innerText = arisanIni[k[1]] || '-';
-            document.getElementById('arisan-bulan-ini-tgl').innerText = arisanIni[k[0]] || '-';
-            const iconContainer = document.getElementById('arisan-bulan-ini-icon-bg');
-            if (statusIni.includes('sudah')) {
-              iconContainer.className = "p-3 rounded-full bg-emerald-500/30 text-emerald-300";
-              iconContainer.innerHTML = `<i data-lucide="check-circle-2" class="w-6 h-6"></i>`;
-            } else {
-              iconContainer.className = "p-3 rounded-full bg-white/20 backdrop-blur-sm text-white";
-              iconContainer.innerHTML = `<i data-lucide="home" class="w-6 h-6"></i>`;
-            }
-          }
-
-          if (arisanLanjut) {
-            const k = Object.keys(arisanLanjut);
-            document.getElementById('arisan-selanjutnya-nama').innerText = arisanLanjut[k[1]] || '-';
-            document.getElementById('arisan-selanjutnya-tgl').innerText = `Pelaksanaan: ${arisanLanjut[k[0]] || '-'}`;
-          }
-
-          let tbodyAllHTML = '';
-          globalArisanData.forEach((row, idx) => { 
-            const isCurrent = (idx === currentIdx);
-            const isNext = (currentIdx !== -1 && idx === currentIdx + 1);
-            tbodyAllHTML += renderArisanRow(row, isCurrent, isNext); 
-          });
-
-          document.getElementById('tabel-arisan-all').innerHTML = tbodyAllHTML;
-          document.getElementById('loading-status-arisan').innerText = 'Terhubung live';
-          lucide.createIcons();
-        }
-      });
-    }
-
-    if (CSV_JERSEY_URL && CSV_JERSEY_URL.startsWith('http')) {
-      Papa.parse(CSV_JERSEY_URL, {
-        download: true,
-        header: true,
-        complete: function(results) {
-          const rawData = results.data.filter(row => {
-            const values = Object.values(row);
-            return values.length >= 2 && values[1] && values[1].toString().trim() !== '';
-          });
-
-          globalJerseyData = rawData;
-          let countLunas = 0;
-          let countDP = 0;
-
-          globalJerseyData.forEach(row => {
-            const keys = Object.keys(row);
-            const statusRaw = (row[keys[5]] || '').toString().toLowerCase();
-            if (statusRaw.includes('lunas')) countLunas++;
-            else if (statusRaw.includes('dp')) countDP++;
-          });
-
-          document.getElementById('total-pemesan-jersey').innerText = `${globalJerseyData.length} Orang`;
-          document.getElementById('total-lunas-jersey').innerText = `${countLunas} Orang`;
-          document.getElementById('total-dp-jersey').innerText = `${countDP} Orang`;
-
-          let tbodyAllHTML = '';
-          globalJerseyData.forEach(row => { 
-            const keys = Object.keys(row);
-            const no = row[keys[0]] || '-';
-            const namaBlok = row[keys[1]] || '-';
-            const lengan = row[keys[2]] || '-';
-            const ukuran = row[keys[3]] || '-';
-            const namaNoPunggung = row[keys[4]] || '-';
-            const statusRaw = (row[keys[5]] || '').toString().trim();
-
-            let statusBadge = `<span class="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded">Belum</span>`;
-            if (statusRaw.toLowerCase().includes('lunas')) {
-              statusBadge = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 font-semibold rounded">✓ Lunas</span>`;
-            } else if (statusRaw.toLowerCase().includes('dp')) {
-              statusBadge = `<span class="px-2 py-0.5 text-xs bg-amber-100 text-amber-800 font-semibold rounded">⏳ DP 50%</span>`;
-            }
-
-            tbodyAllHTML += `
-              <tr>
-                <td class="p-3 text-center text-slate-500 font-mono">${no}</td>
-                <td class="p-3 font-bold text-slate-800 break-words">${namaBlok}</td>
-                <td class="p-3 text-slate-600 whitespace-nowrap">${lengan}</td>
-                <td class="p-3 font-semibold text-indigo-700 whitespace-nowrap">${ukuran}</td>
-                <td class="p-3 text-slate-700 break-words">${namaNoPunggung}</td>
-                <td class="p-3 text-center whitespace-nowrap">${statusBadge}</td>
-              </tr>
-            `;
-          });
-
-          document.getElementById('tabel-jersey-all').innerHTML = tbodyAllHTML;
-        }
-      });
-    }
-
-    (async function loadJerseyAndGapuraImages() {
-      const folderJerseyId = extractFolderId(FOLDER_JERSEY_URL);
-      if (folderJerseyId && FOLDER_API_URL.startsWith('http')) {
-        const files = await fetchFolderFiles(folderJerseyId);
-        if (files && files.length > 0) {
-          const firstImg = files.find(f => f.type === 'image') || files[0];
-          document.getElementById('container-foto-jersey-single').innerHTML = `
-            <img src="${firstImg.url}" alt="Desain Jersey" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1 backdrop-blur-[1px]">
-              <i data-lucide="layout-grid" class="w-4 h-4"></i>
-              <span>Buka Galeri foto jersey (${files.length})</span>
-            </div>
-          `;
-        }
-      }
-
-      const folderGapuraId = extractFolderId(FOLDER_GAPURA_URL);
-      if (folderGapuraId && FOLDER_API_URL.startsWith('http')) {
-        const gapuraFiles = await fetchFolderFiles(folderGapuraId);
-        if (gapuraFiles && gapuraFiles.length > 0) {
-          const firstGapuraImg = gapuraFiles.find(f => f.type === 'image') || gapuraFiles[0];
-          document.getElementById('container-foto-gapura').innerHTML = `
-            <img src="${firstGapuraImg.url}" alt="Desain Gapura" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1 backdrop-blur-[1px]">
-              <i data-lucide="layout-grid" class="w-4 h-4"></i>
-              <span>Lihat Desain Gapura (${gapuraFiles.length})</span>
-            </div>
-          `;
-        }
-      }
-      lucide.createIcons();
-    })();
-
-    function scrollDokumentasi(direction) {
-      const slider = document.getElementById('slider-dokumentasi');
-      if (!slider) return;
-      const cardWidth = slider.querySelector('div')?.offsetWidth || 320;
-      slider.scrollBy({ left: direction * (cardWidth + 16), behavior: 'smooth' });
-    }
-
-    if (CSV_DOKUMENTASI_URL && CSV_DOKUMENTASI_URL.startsWith('http')) {
-      Papa.parse(CSV_DOKUMENTASI_URL, {
-        download: true,
-        header: true,
-        complete: async function(results) {
-          const rawData = results.data.filter(row => {
-            const values = Object.values(row);
-            return values.length >= 2 && values[0] && values[0].toString().trim() !== '';
-          });
-
-          const displayData = [...rawData].reverse();
-          let sliderHTML = '';
-          let allHTML = '';
-
-          const sliderLimit = Math.min(10, displayData.length);
-
-          for (let index = 0; index < displayData.length; index++) {
-            const row = displayData[index];
-            const keys = Object.keys(row);
-            const tanggal = row[keys[0]];
-            const judul = row[keys[1]];
-            const deskripsi = row[keys[2]] || '';
-            let rawFotoString = row[keys[3]] || '';
-            
-            const folderId = extractFolderId(rawFotoString);
-            let firstFoto = PLACEHOLDER_IMG;
-            let badgeText = '';
-
-            if (folderId) {
-              badgeText = 'Album Media';
-              const files = await fetchFolderFiles(folderId);
-              if (files && files.length > 0) {
-                const imgItem = files.find(f => f.type === 'image') || files[0];
-                firstFoto = imgItem.url;
-                badgeText = `${files.length} Media`;
-              }
-            } else {
-              const photoList = rawFotoString.split(',').filter(p => p.trim() !== '');
-              firstFoto = fixDriveUrl(photoList[0] || '');
-              if (photoList.length > 1) badgeText = `${photoList.length} Foto`;
-            }
-
-            const safePhotoString = rawFotoString.replace(/'/g, "\\\'");
-            const safeTitle = (judul + ' - ' + tanggal).replace(/'/g, "\\\'");
-
-            let badgeMultiPhoto = '';
-            if (badgeText) {
-              badgeMultiPhoto = `<span data-folder-badge="${folderId || ''}" class="absolute top-3 left-3 bg-black/75 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-md flex items-center space-x-1 z-10 shadow-sm">
-                <i data-lucide="folder" class="w-3.5 h-3.5"></i>
-                <span>${badgeText}</span>
-              </span>`;
-            }
-
-            const cardContent = `
-              <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition flex flex-col w-full h-full">
-                <div class="p-3.5 bg-slate-50 border-b border-slate-100">
-                  <span class="text-[10px] text-indigo-600 font-bold block uppercase tracking-wider mb-0.5">${tanggal}</span>
-                  <h4 class="text-slate-800 font-bold text-sm md:text-base leading-snug break-words">${judul}</h4>
-                </div>
-
-                <div class="relative cursor-pointer overflow-hidden group bg-slate-100 h-52 min-h-[208px] w-full flex items-center justify-center shrink-0" data-folder-id="${folderId || ''}" onclick="openGalleryGridModal('${safePhotoString}', '${safeTitle}')">
-                  <img src="${firstFoto}" alt="${judul}" loading="lazy" referrerpolicy="no-referrer" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${PLACEHOLDER_IMG}'">
-                  
-                  ${badgeMultiPhoto}
-                  <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1 z-20">
-                    <i data-lucide="layout-grid" class="w-4 h-4"></i>
-                    <span>Buka Galeri Media</span>
-                  </div>
-                </div>
-
-                <div class="p-4 flex-grow flex flex-col justify-between">
-                  <div>
-                    <p class="text-slate-600 text-xs md:text-sm break-words line-clamp-3">${deskripsi}</p>
-                  </div>
-                  <button onclick="openGalleryGridModal('${safePhotoString}', '${safeTitle}')" class="mt-4 w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-2.5 rounded-lg text-xs transition flex items-center justify-center space-x-1.5 shadow-sm">
-                    <i data-lucide="images" class="w-4 h-4"></i>
-                    <span>Lihat Foto & Video (${badgeText || 'Album'})</span>
-                  </button>
-                </div>
-              </div>
-            `;
-
-            if (index < sliderLimit) {
-              sliderHTML += `
-                <div class="snap-start shrink-0 w-[85%] sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] flex flex-col">
-                  ${cardContent}
-                </div>
-              `;
-            }
-
-            allHTML += cardContent;
-          }
-
-          if (displayData.length > 10) {
-            sliderHTML += `
-              <div class="snap-start shrink-0 w-[85%] sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] flex flex-col">
-                <div onclick="openModalDokumentasi()" class="bg-gradient-to-br from-indigo-900 to-slate-900 text-white rounded-xl shadow-md border border-indigo-700/50 p-6 flex flex-col items-center justify-center text-center h-full min-h-[380px] cursor-pointer hover:scale-102 transition group">
-                  <div class="p-4 bg-indigo-600/30 rounded-full mb-3 border border-indigo-400/30 group-hover:scale-110 transition">
-                    <i data-lucide="folder-open" class="w-8 h-8 text-indigo-300"></i>
-                  </div>
-                  <h4 class="text-lg font-bold text-white mb-1">Lihat Arsip Lainnya</h4>
-                  <p class="text-xs text-indigo-200/80 mb-4 font-normal">+${displayData.length - 10} Dokumentasi Kegiatan Lainnya</p>
-                  <span class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition inline-flex items-center space-x-1.5 shadow-sm">
-                    <span>Buka Arsip Lengkap</span>
-                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                  </span>
-                </div>
-              </div>
-            `;
-          }
-
-          document.getElementById('slider-dokumentasi').innerHTML = sliderHTML || '<p class="text-slate-400 text-sm py-4">Belum ada dokumentasi kegiatan.</p>';
-          document.getElementById('container-dokumentasi-all').innerHTML = allHTML || '<p class="text-slate-400 text-sm col-span-1 md:col-span-3">Belum ada dokumentasi kegiatan.</p>';
-          lucide.createIcons();
-        }
-      });
-    }
-
-    function renderCalendar() {
-      const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-      const year = calendarDate.getFullYear();
-      const month = calendarDate.getMonth();
-
-      document.getElementById('calendar-month-year').innerText = `${monthNames[month]} ${year}`;
-
-      const firstDay = new Date(year, month, 1).getDay();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
+  <!-- Header / Navigation -->
+  <header class="bg-gradient-to-r from-indigo-950 via-indigo-900 to-indigo-950 text-white border-b border-indigo-800/40 sticky top-0 z-50 w-full transition-all shadow-md">
+    <div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between relative">
       
-      const today = new Date();
-      const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+      <a href="#" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 transition group shrink-0">
+        <i data-lucide="home" class="w-5 h-5 text-indigo-200 group-hover:scale-110 transition"></i>
+      </a>
 
-      let secondSaturdayDate = null;
-      let saturdayCount = 0;
-      for (let d = 1; d <= daysInMonth; d++) {
-        let checkDate = new Date(year, month, d);
-        if (checkDate.getDay() === 6) {
-          saturdayCount++;
-          if (saturdayCount === 2) {
-            secondSaturdayDate = d;
-            break;
-          }
-        }
-      }
+      <div class="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none w-full max-w-xl px-12">
+        <h1 class="text-sm sm:text-base md:text-lg font-bold tracking-wide text-white whitespace-nowrap overflow-hidden text-ellipsis">
+          Flamboyan 4 <span class="hidden sm:inline font-normal text-indigo-200/80 text-xs sm:text-sm">| RT 001 RW 026 Pesona Kahuripan 2</span>
+        </h1>
+      </div>
 
-      let gridHTML = '';
+      <div class="w-9 h-9 opacity-0 pointer-events-none"></div>
 
-      for (let i = 0; i < firstDay; i++) {
-        gridHTML += `<div class="p-2 min-h-[42px]"></div>`;
-      }
+    </div>
+  </header>
 
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        
-        let dayEvents = globalRencanaData.filter(item => item.parsedDate === dateKey);
+  <!-- Hero Section -->
+  <section class="relative bg-gradient-to-br from-indigo-950 via-indigo-900 to-violet-900 text-white py-14 md:py-20 px-4 overflow-hidden w-full border-b border-indigo-800/40">
+    <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px]"></div>
+    <div class="absolute -top-24 -left-20 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
-        if (day === secondSaturdayDate) {
-          dayEvents.push({
-            tanggalStr: `${day} ${monthNames[month]} ${year}`,
-            parsedDate: dateKey,
-            judul: "Arisan Warga Flamboyan 4",
-            deskripsi: "Putaran bulanan arisan warga rutin (Sabtu Minggu ke-2).",
-            status: "Terjadwal",
-            isGolor: false
-          });
-        }
+    <div class="max-w-4xl mx-auto text-center space-y-6 relative z-10">
+      <div>
+        <h2 class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
+          Transparansi & Kebersamaan <br>
+          <span class="bg-gradient-to-r from-amber-200 via-yellow-100 to-white bg-clip-text text-transparent">Warga Flamboyan 4</span>
+        </h2>
+      </div>
 
-        let isGolor = false;
-        let hasEvent = dayEvents.length > 0;
-
-        if (hasEvent) {
-          isGolor = dayEvents.some(e => e.isGolor);
-        }
-
-        let dayClass = "p-1.5 min-h-[44px] border border-slate-100 rounded-lg flex flex-col items-center justify-between relative transition hover:border-indigo-300";
-        let badgeClass = "";
-
-        if (isCurrentMonth && day === today.getDate()) {
-          dayClass += " bg-indigo-50/60 font-bold border-indigo-200";
-        }
-
-        if (hasEvent) {
-          dayClass += " cursor-pointer shadow-sm";
-          if (isGolor) {
-            badgeClass = "bg-amber-500 text-white font-bold";
-            dayClass += " bg-amber-50 border-amber-300 hover:bg-amber-100";
-          } else {
-            badgeClass = "bg-indigo-600 text-white font-bold";
-            dayClass += " bg-indigo-50 border-indigo-300 hover:bg-indigo-100";
-          }
-        }
-
-        const safeDateStr = `${day} ${monthNames[month]} ${year}`;
-        const clickAttr = hasEvent ? `onclick='openModalEventDetail("${safeDateStr}", ${JSON.stringify(dayEvents).replace(/'/g, "&apos;")})'` : '';
-
-        let badgeLabel = '📌 Acara';
-        if (isGolor) badgeLabel = '🧹 Golor';
-        else if (day === secondSaturdayDate) badgeLabel = '🏠 Arisan';
-
-        gridHTML += `
-          <div class="${dayClass}" ${clickAttr}>
-            <span class="${isCurrentMonth && day === today.getDate() ? 'text-indigo-700 font-black' : 'text-slate-700'}">${day}</span>
-            ${hasEvent ? `
-              <span class="w-full text-[9px] py-0.5 px-1 rounded truncate text-center mt-1 ${badgeClass}">
-                ${badgeLabel}
-              </span>
-            ` : ''}
-          </div>
-        `;
-      }
-
-      document.getElementById('calendar-days-grid').innerHTML = gridHTML;
-      lucide.createIcons();
-    }
-
-    function changeMonth(direction) {
-      calendarDate.setMonth(calendarDate.getMonth() + direction);
-      renderCalendar();
-    }
-
-    function resetToCurrentMonth() {
-      calendarDate = new Date();
-      renderCalendar();
-    }
-
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let touchEndX = 0;
-    let touchEndY = 0;
-
-    const calWrapper = document.getElementById('calendar-wrapper');
-    if (calWrapper) {
-      calWrapper.addEventListener('touchstart', function(e) {
-        touchStartX = e.changedTouches[0].screenX;
-        touchStartY = e.changedTouches[0].screenY;
-      }, { passive: true });
-
-      calWrapper.addEventListener('touchend', function(e) {
-        touchEndX = e.changedTouches[0].screenX;
-        touchEndY = e.changedTouches[0].screenY;
-        handleCalendarSwipe();
-      }, { passive: true });
-    }
-
-    function handleCalendarSwipe() {
-      const swipeDistanceX = touchEndX - touchStartX;
-      const swipeDistanceY = touchEndY - touchStartY;
-      
-      if (Math.abs(swipeDistanceX) > Math.abs(swipeDistanceY) && Math.abs(swipeDistanceX) > 40) {
-        if (swipeDistanceX < 0) {
-          changeMonth(1);
-        } else {
-          changeMonth(-1);
-        }
-      }
-    }
-
-    if (CSV_RENCANA_URL && CSV_RENCANA_URL.startsWith('http')) {
-      Papa.parse(CSV_RENCANA_URL, {
-        download: true,
-        header: true,
-        complete: function(results) {
-          const rawData = results.data.filter(row => {
-            const values = Object.values(row);
-            return values.length >= 2 && values[0] && values[0].toString().trim() !== '';
-          });
-
-          globalRencanaData = rawData.map(row => {
-            const keys = Object.keys(row);
-            const tanggalStr = row[keys[0]] || '';
-            const judul = row[keys[1]] || '';
-            const deskripsi = row[keys[2]] || '';
-            const status = row[keys[3]] || 'Direncanakan';
-
-            const combinedText = (judul + " " + deskripsi).toLowerCase();
-            const isGolor = combinedText.includes('golor') || combinedText.includes('kerja bakti') || combinedText.includes('kerjabakti') || combinedText.includes('gotong royong');
-
-            let parsedDate = '';
-            const dateParts = tanggalStr.trim().split(/[\s\-\/\.]+/);
-            if (dateParts.length >= 3) {
-              let day = dateParts[0].padStart(2, '0');
-              let month = dateParts[1];
-              let year = dateParts[2];
-
-              const monthMap = { 'jan': '01', 'feb': '02', 'mar': '03', 'apr': '04', 'mei': '05', 'jun': '06', 'jul': '07', 'agu': '08', 'sep': '09', 'okt': '10', 'nov': '11', 'des': '12' };
-              for (let key in monthMap) {
-                if (month.toLowerCase().startsWith(key)) {
-                  month = monthMap[key];
-                  break;
-                }
-              }
-              if (month.length === 1) month = month.padStart(2, '0');
-              if (year.length === 2) year = '20' + year;
-
-              parsedDate = `${year}-${month}-${day}`;
-            }
-
-            return {
-              tanggalStr,
-              parsedDate,
-              judul,
-              deskripsi,
-              status,
-              isGolor
-            };
-          });
-
-          const onProgressList = [];
-          const direncanakanList = [];
-          const selesaiList = [];
-
-          [...globalRencanaData].reverse().forEach(item => {
-            const statusLcase = item.status.toLowerCase();
-            if (statusLcase.includes('progress') || statusLcase.includes('rancang') || statusLcase.includes('jalan')) {
-              onProgressList.push(item);
-            } else if (statusLcase.includes('selesai')) {
-              selesaiList.push(item);
-            } else {
-              direncanakanList.push(item);
-            }
-          });
-
-          const displayData = [...onProgressList, ...direncanakanList, ...selesaiList];
-
-          let rencanaHTML = '';
-          displayData.forEach(item => {
-            let statusBadge = `<span class="bg-blue-100 text-blue-800 text-[10px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap">Direncanakan</span>`;
-            if (item.status.toLowerCase().includes('progress') || item.status.toLowerCase().includes('rancang') || item.status.toLowerCase().includes('jalan')) {
-              statusBadge = `<span class="bg-amber-100 text-amber-800 text-[10px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap">On Progress</span>`;
-            } else if (item.status.toLowerCase().includes('selesai')) {
-              statusBadge = `<span class="bg-emerald-100 text-emerald-800 text-[10px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap">Selesai</span>`;
-            }
-
-            const golorTag = item.isGolor ? `<span class="bg-amber-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mr-1">🧹 Golor</span>` : '';
-
-            rencanaHTML += `
-              <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 flex flex-col justify-between gap-1">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-indigo-600">${item.tanggalStr}</span>
-                  ${statusBadge}
-                </div>
-                <h5 class="font-bold text-slate-800 text-xs md:text-sm mt-0.5">${golorTag}${item.judul}</h5>
-                <p class="text-slate-500 text-[11px]">${item.deskripsi}</p>
-              </div>
-            `;
-          });
-
-          document.getElementById('container-rencana').innerHTML = rencanaHTML || '<p class="text-slate-400 text-xs">Belum ada rencana kegiatan.</p>';
-          renderCalendar();
-        }
-      });
-    } else {
-      renderCalendar();
-    }
-  </script>
-</body>
-</html>
+      <div class="pt-2 flex flex-wrap justify-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-medium">
+        <a href="#keuangan" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
+          <i data-lucide="wallet" class="w-4 h-4 text-emerald-400"></i>
+          <span>Kas Warga</span>
