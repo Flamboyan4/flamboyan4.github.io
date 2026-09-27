@@ -556,7 +556,7 @@
       <i data-lucide="chevron-right" class="w-6 h-6 md:w-8 md:h-8"></i>
     </button>
     
-    <!-- Container Utama Media (Player Video Resmi Google Drive yang Aman & Stabil) -->
+    <!-- Container Utama Media (HTML5 Player Native Bersih Tanpa Kontrol Bertumpuk) -->
     <div id="lightbox-media-container" class="relative w-full flex-grow flex items-center justify-center my-auto overflow-hidden">
     </div>
 
@@ -855,15 +855,6 @@
       return cleanUrl;
     }
 
-    function getDriveVideoEmbedUrl(url) {
-      const fileId = extractDriveFileId(url);
-      if (fileId) {
-        // Menggunakan link preview embed resmi Google Drive
-        return `https://drive.google.com/file/d/${fileId}/preview`;
-      }
-      return url;
-    }
-
     function openModalKeuangan() { 
       document.getElementById('search-keuangan').value = '';
       filterKeuanganModal();
@@ -931,7 +922,7 @@
           
           return {
             type: isVid ? 'video' : 'image',
-            url: isVid ? getDriveVideoEmbedUrl(rawUrl) : fixDriveUrl(rawUrl),
+            url: isVid ? rawUrl : fixDriveUrl(rawUrl),
             rawUrl: rawUrl,
             name: nameVal
           };
@@ -970,7 +961,7 @@
           const isVid = /\.(mp4|mkv|mov|webm|avi)$/i.test(u);
           return {
             type: isVid ? 'video' : 'image',
-            url: isVid ? getDriveVideoEmbedUrl(u) : fixDriveUrl(u),
+            url: isVid ? u : fixDriveUrl(u),
             rawUrl: u
           };
         }).filter(u => u.url && u.url !== '');
@@ -1203,10 +1194,24 @@
       if (resetBtn) resetBtn.classList.add('hidden');
 
       if (item.type === 'video') {
-        // Menggunakan iframe Google Drive resmi agar video dapat diputar stabil dan lancar di semua perangkat (HP & PC)
+        // Ambil File ID Google Drive dari URL
+        const fileId = extractDriveFileId(item.rawUrl || item.url);
+        // Direct stream URL Google Drive untuk video HTML5 native
+        const streamUrl = fileId 
+          ? `https://drive.google.com/uc?export=download&id=${fileId}` 
+          : item.url;
+
         container.innerHTML = `
           <div class="relative w-full h-full max-h-[75vh] flex items-center justify-center p-2" onclick="event.stopPropagation()">
-            <iframe src="${item.url}" class="w-full max-w-sm sm:max-w-md md:max-w-2xl h-[65vh] sm:h-[70vh] rounded-xl shadow-2xl bg-black border-0 mx-auto" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            <video 
+              controls 
+              playsinline 
+              webkit-playsinline 
+              preload="metadata"
+              class="w-full max-w-sm sm:max-w-md md:max-w-xl max-h-[65vh] rounded-xl shadow-2xl bg-black object-contain mx-auto">
+              <source src="${streamUrl}" type="video/mp4">
+              Browser Anda tidak mendukung pemutaran video ini.
+            </video>
           </div>
         `;
       } else {
