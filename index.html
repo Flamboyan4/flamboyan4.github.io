@@ -73,10 +73,6 @@
           <i data-lucide="calendar" class="w-4 h-4 text-amber-300"></i>
           <span>Jadwal Arisan</span>
         </a>
-        <a href="#cctv" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
-          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
-          <span>Akses CCTV</span>
-        </a>
         <a href="#jersey" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
           <i data-lucide="shirt" class="w-4 h-4 text-sky-300"></i>
           <span>Order Jersey</span>
@@ -91,76 +87,6 @@
 
   <!-- Main Content -->
   <main class="max-w-6xl mx-auto px-4 py-8 flex-grow space-y-12 w-full relative">
-
-    <!-- SECTION PANTAUAN CCTV LORONG -->
-    <section id="cctv" class="scroll-mt-20 w-full">
-      <div class="bg-slate-900 text-white p-5 md:p-6 rounded-2xl shadow-xl border border-slate-800">
-        <div class="flex flex-wrap items-center justify-between gap-2 mb-4 pb-4 border-b border-slate-800">
-          <div class="flex items-center space-x-2">
-            <i data-lucide="shield-check" class="w-6 h-6 text-emerald-400"></i>
-            <h3 class="text-xl md:text-2xl font-bold">Pantauan CCTV Lorong Flamboyan 4</h3>
-          </div>
-          <span class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold px-3 py-1 rounded-full flex items-center space-x-1.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>SISTEM CCTV AKTIF</span>
-          </span>
-        </div>
-
-        <!-- Info & Kredensial Akses Aplikasi HP -->
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-          <div class="md:col-span-8 space-y-4 text-xs">
-            <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/60 space-y-2">
-              <h4 class="font-bold text-sm text-indigo-300 flex items-center space-x-1.5">
-                <i data-lucide="smartphone" class="w-4 h-4"></i>
-                <span>Cara Akses Pantauan via Aplikasi HP (XMEye / iCSee)</span>
-              </h4>
-              <p class="text-slate-300 leading-relaxed">
-                Warga dapat memantau CCTV lorong secara langsung melalui aplikasi <span class="font-semibold text-white">XMEye</span> atau <span class="font-semibold text-white">iCSee</span> di HP Android / iOS menggunakan kredensial berikut:
-              </p>
-              
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-[11px] pt-2">
-                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
-                  <span class="text-slate-400 block text-[10px]">Cloud ID / Serial:</span>
-                  <span class="text-amber-300 font-bold select-all">4d765c6bfe978361cnt5</span>
-                </div>
-                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
-                  <span class="text-slate-400 block text-[10px]">Username:</span>
-                  <span class="text-indigo-300 font-bold select-all">prww</span>
-                </div>
-                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
-                  <span class="text-slate-400 block text-[10px]">Password:</span>
-                  <span class="text-emerald-300 font-bold select-all">NdI9xLx8</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-800/40 p-3 rounded-xl border border-slate-700/40">
-              <span class="text-slate-300 text-[11px]">Belum memiliki aplikasinya di HP?</span>
-              <div class="flex items-center space-x-2">
-                <a href="https://play.google.com/store/apps/details?id=com.mobile.myeye" target="_blank" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3.5 py-1.5 rounded-lg transition inline-flex items-center space-x-1 shadow-sm">
-                  <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                  <span>Unduh Aplikasi XMEye</span>
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Kartu QR Code Login -->
-          <div class="md:col-span-4 bg-slate-800/60 p-4 rounded-xl border border-slate-700/60 flex flex-col items-center justify-center text-center">
-            <p class="text-xs font-bold text-slate-200 mb-2 flex items-center space-x-1">
-              <i data-lucide="qr-code" class="w-4 h-4 text-indigo-400"></i>
-              <span>Scan QR Code Login HP</span>
-            </p>
-            
-            <div class="bg-white p-2.5 rounded-xl shadow-md cursor-pointer hover:scale-105 transition" onclick="openGalleryGridModal('https://lh3.googleusercontent.com/d/YOUR_DRIVE_FILE_ID', 'QR Code Login CCTV Flamboyan 4')">
-              <img src="https://lh3.googleusercontent.com/d/YOUR_DRIVE_FILE_ID" alt="QR Code CCTV" class="w-32 h-32 object-contain rounded" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'128\' height=\'128\' viewBox=\'0 0 128 128\'%3E%3Crect width=\'100%25\' height=\'100%25\' fill=\'%23ffffff\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'sans-serif\' font-size=\'10\' fill=\'%2364748b\' text-anchor=\'middle\' dy=\'.3em\'%3EQR Code CCTV%3C/text%3E%3C/svg%3E'">
-            </div>
-            
-            <p class="text-[10px] text-slate-400 mt-2">Buka aplikasi XMEye -> Klik ikon Scan (+) -> Arahkan ke QR Code ini</p>
-          </div>
-        </div>
-      </div>
-    </section>
 
     <!-- SECTION 1: LAPORAN KEUANGAN -->
     <section id="keuangan" class="scroll-mt-20 w-full">
