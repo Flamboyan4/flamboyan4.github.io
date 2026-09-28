@@ -53,7 +53,7 @@
 
   <!-- Hero Section -->
   <section class="relative bg-gradient-to-br from-indigo-950 via-indigo-900 to-violet-900 text-white py-14 md:py-20 px-4 overflow-hidden w-full border-b border-indigo-800/40">
-    <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px]"></div>
+    <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px]"></div>
     <div class="absolute -top-24 -left-20 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
     <div class="max-w-4xl mx-auto text-center space-y-6 relative z-10">
@@ -73,6 +73,10 @@
           <i data-lucide="calendar" class="w-4 h-4 text-amber-300"></i>
           <span>Jadwal Arisan</span>
         </a>
+        <a href="#cctv" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
+          <i data-lucide="video" class="w-4 h-4 text-red-400"></i>
+          <span>Live CCTV</span>
+        </a>
         <a href="#jersey" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
           <i data-lucide="shirt" class="w-4 h-4 text-sky-300"></i>
           <span>Order Jersey</span>
@@ -87,6 +91,56 @@
 
   <!-- Main Content -->
   <main class="max-w-6xl mx-auto px-4 py-8 flex-grow space-y-12 w-full relative">
+
+    <!-- SECTION LIVE CCTV LORONG -->
+    <section id="cctv" class="scroll-mt-20 w-full">
+      <div class="bg-slate-900 text-white p-5 md:p-6 rounded-2xl shadow-xl border border-slate-800">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4 pb-4 border-b border-slate-800">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="video" class="w-6 h-6 text-red-500 animate-pulse"></i>
+            <h3 class="text-xl md:text-2xl font-bold">Pantauan Live CCTV Lorong</h3>
+          </div>
+          <span class="text-xs bg-red-500/20 text-red-400 border border-red-500/30 font-semibold px-3 py-1 rounded-full flex items-center space-x-1.5">
+            <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+            <span>LIVE REALTIME</span>
+          </span>
+        </div>
+
+        <!-- Video Player iFrame Container -->
+        <div class="relative w-full aspect-video rounded-xl overflow-hidden bg-black border border-slate-800 shadow-inner flex items-center justify-center">
+          <!-- Tempelkan Link Embed YouTube Live / Stream OBS di parameter src di bawah -->
+          <iframe 
+            id="cctv-iframe"
+            src="https://www.youtube.com/embed/live_stream?channel=YOUR_CHANNEL_ID" 
+            title="Live CCTV Flamboyan 4"
+            class="w-full h-full border-0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+          </iframe>
+        </div>
+
+        <!-- Info Cloud ID & Aplikasi HP Warga -->
+        <div class="mt-4 pt-4 border-t border-slate-800/80 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          <div class="bg-slate-800/60 p-3.5 rounded-xl border border-slate-700/60">
+            <p class="text-slate-400 font-medium">Serial Number / Cloud ID (Aplikasi XMeye / iCSee):</p>
+            <div class="flex items-center justify-between mt-1">
+              <span class="font-mono text-amber-300 font-bold text-sm md:text-base tracking-widest select-all">4d765c6bfe978361cnt5</span>
+              <span class="text-[10px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded font-mono">User: prww</span>
+            </div>
+          </div>
+          <div class="bg-slate-800/60 p-3.5 rounded-xl border border-slate-700/60 flex items-center justify-between">
+            <div>
+              <p class="text-slate-300 font-semibold">Buka via Aplikasi HP?</p>
+              <p class="text-[11px] text-slate-400">Unduh XMeye di Play Store / App Store</p>
+            </div>
+            <a href="https://play.google.com/store/apps/details?id=com.mobile.myeye" target="_blank" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3.5 py-2 rounded-lg transition inline-flex items-center space-x-1 shrink-0 shadow-sm">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              <span>Unduh XMeye</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- SECTION 1: LAPORAN KEUANGAN -->
     <section id="keuangan" class="scroll-mt-20 w-full">
