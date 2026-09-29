@@ -98,7 +98,7 @@
   <!-- Main Content -->
   <main class="max-w-6xl mx-auto px-4 py-8 flex-grow space-y-12 w-full relative">
 
-    <!-- SECTION 0: CCTV WEB VMS MONITORING (7 KAMERA) WITH QR SCANNER -->
+    <!-- SECTION 0: CCTV WEB VMS MONITORING (7 KAMERA) WITH QR SCANNER & FILE UPLOAD -->
     <section id="cctv-vms" class="scroll-mt-20 w-full space-y-4">
       <div class="bg-slate-900 text-white p-5 md:p-6 rounded-2xl shadow-xl border border-slate-800 relative overflow-hidden">
         
@@ -123,7 +123,7 @@
 
             <button onclick="openQrScannerModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-md active:scale-95">
               <i data-lucide="qr-code" class="w-4 h-4"></i>
-              <span>Scan QR DVR</span>
+              <span>Scan / Upload QR</span>
             </button>
 
             <button onclick="refreshAllCctv()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 p-2 rounded-xl transition" title="Refresh Semua Stream">
@@ -136,9 +136,9 @@
         <div id="vms-pairing-alert" class="mt-4 p-3 bg-indigo-950/80 border border-indigo-800/60 rounded-xl text-xs text-indigo-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div class="flex items-center space-x-2">
             <i data-lucide="info" class="w-4 h-4 text-indigo-400 shrink-0"></i>
-            <span>Scan QR Code Serial/Cloud ID DVR dari aplikasi HP/Monitor pos sekali saja untuk menyambungkan seluruh 7 kamera.</span>
+            <span>Scan QR Code dari kamera HP / unggah foto QR dari PC untuk menyambungkan seluruh 7 kamera lorong.</span>
           </div>
-          <button onclick="openQrScannerModal()" class="text-xs font-bold text-emerald-400 hover:underline whitespace-nowrap">Scan Sekarang &rarr;</button>
+          <button onclick="openQrScannerModal()" class="text-xs font-bold text-emerald-400 hover:underline whitespace-nowrap">Hubungkan &rarr;</button>
         </div>
 
         <!-- GRID 7 KAMERA CCTV -->
@@ -158,7 +158,7 @@
               <div id="cctv-placeholder-1" class="text-center p-4">
                 <i data-lucide="video-off" class="w-8 h-8 text-slate-600 mx-auto mb-2"></i>
                 <p class="text-[11px] text-slate-400">Kamera Portal Depan</p>
-                <p class="text-[9px] text-slate-500 mt-0.5">Scan QR DVR untuk memutar stream</p>
+                <p class="text-[9px] text-slate-500 mt-0.5">Scan/Upload QR DVR untuk memutar</p>
               </div>
             </div>
             <div class="p-2 bg-slate-900/80 border-t border-slate-800 flex justify-between items-center text-[10px] text-slate-400">
@@ -184,7 +184,7 @@
               <div id="cctv-placeholder-2" class="text-center p-4">
                 <i data-lucide="video-off" class="w-8 h-8 text-slate-600 mx-auto mb-2"></i>
                 <p class="text-[11px] text-slate-400">Kamera Gang Utama 1</p>
-                <p class="text-[9px] text-slate-500 mt-0.5">Scan QR DVR untuk memutar stream</p>
+                <p class="text-[9px] text-slate-500 mt-0.5">Scan/Upload QR DVR untuk memutar</p>
               </div>
             </div>
             <div class="p-2 bg-slate-900/80 border-t border-slate-800 flex justify-between items-center text-[10px] text-slate-400">
@@ -210,7 +210,7 @@
               <div id="cctv-placeholder-3" class="text-center p-4">
                 <i data-lucide="video-off" class="w-8 h-8 text-slate-600 mx-auto mb-2"></i>
                 <p class="text-[11px] text-slate-400">Kamera Gang Utama 2</p>
-                <p class="text-[9px] text-slate-500 mt-0.5">Scan QR DVR untuk memutar stream</p>
+                <p class="text-[9px] text-slate-500 mt-0.5">Scan/Upload QR DVR untuk memutar</p>
               </div>
             </div>
             <div class="p-2 bg-slate-900/80 border-t border-slate-800 flex justify-between items-center text-[10px] text-slate-400">
@@ -236,7 +236,7 @@
               <div id="cctv-placeholder-4" class="text-center p-4">
                 <i data-lucide="video-off" class="w-8 h-8 text-slate-600 mx-auto mb-2"></i>
                 <p class="text-[11px] text-slate-400">Kamera Pos Kamling</p>
-                <p class="text-[9px] text-slate-500 mt-0.5">Scan QR DVR untuk memutar stream</p>
+                <p class="text-[9px] text-slate-500 mt-0.5">Scan/Upload QR DVR untuk memutar</p>
               </div>
             </div>
             <div class="p-2 bg-slate-900/80 border-t border-slate-800 flex justify-between items-center text-[10px] text-slate-400">
@@ -262,7 +262,7 @@
               <div id="cctv-placeholder-5" class="text-center p-4">
                 <i data-lucide="video-off" class="w-8 h-8 text-slate-600 mx-auto mb-2"></i>
                 <p class="text-[11px] text-slate-400">Kamera Blok Belakang 1</p>
-                <p class="text-[9px] text-slate-500 mt-0.5">Scan QR DVR untuk memutar stream</p>
+                <p class="text-[9px] text-slate-500 mt-0.5">Scan/Upload QR DVR untuk memutar</p>
               </div>
             </div>
             <div class="p-2 bg-slate-900/80 border-t border-slate-800 flex justify-between items-center text-[10px] text-slate-400">
@@ -288,7 +288,7 @@
               <div id="cctv-placeholder-6" class="text-center p-4">
                 <i data-lucide="video-off" class="w-8 h-8 text-slate-600 mx-auto mb-2"></i>
                 <p class="text-[11px] text-slate-400">Kamera Blok Belakang 2</p>
-                <p class="text-[9px] text-slate-500 mt-0.5">Scan QR DVR untuk memutar stream</p>
+                <p class="text-[9px] text-slate-500 mt-0.5">Scan/Upload QR DVR untuk memutar</p>
               </div>
             </div>
             <div class="p-2 bg-slate-900/80 border-t border-slate-800 flex justify-between items-center text-[10px] text-slate-400">
@@ -314,7 +314,7 @@
               <div id="cctv-placeholder-7" class="text-center p-4">
                 <i data-lucide="video-off" class="w-8 h-8 text-slate-600 mx-auto mb-2"></i>
                 <p class="text-[11px] text-slate-400">Kamera Ujung Lorong</p>
-                <p class="text-[9px] text-slate-500 mt-0.5">Scan QR DVR untuk memutar stream</p>
+                <p class="text-[9px] text-slate-500 mt-0.5">Scan/Upload QR DVR untuk memutar</p>
               </div>
             </div>
             <div class="p-2 bg-slate-900/80 border-t border-slate-800 flex justify-between items-center text-[10px] text-slate-400">
@@ -717,13 +717,13 @@
 
   </main>
 
-  <!-- MODAL SCANNER QR CODE DVR CCTV -->
+  <!-- MODAL SCANNER QR CODE & UPLOAD FILE QR FOR PC/MOBILE -->
   <div id="modal-qr-scanner" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="closeQrScannerModal()">
     <div class="bg-slate-900 text-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-slate-800" onclick="event.stopPropagation()">
       <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-950">
         <div class="flex items-center space-x-2">
           <i data-lucide="qr-code" class="w-5 h-5 text-emerald-400"></i>
-          <h3 class="font-bold text-sm md:text-base text-white">Scan QR Code DVR CCTV</h3>
+          <h3 class="font-bold text-sm md:text-base text-white">Pairing QR Code DVR CCTV</h3>
         </div>
         <button onclick="closeQrScannerModal()" class="p-1 text-slate-400 hover:text-white rounded-full transition">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -731,18 +731,38 @@
       </div>
 
       <div class="p-5 space-y-4 text-center">
-        <p class="text-xs text-slate-300">Arahkan kamera HP ke **QR Code Cloud ID / Serial Number** pada stiker DVR, layar monitor pos, atau aplikasi XMeye HP.</p>
-
-        <!-- Kamera Viewport HTML5 QR Code -->
-        <div class="relative w-full aspect-square bg-black rounded-xl overflow-hidden border-2 border-emerald-500/50 shadow-inner flex items-center justify-center">
-          <div id="qr-reader" class="w-full h-full"></div>
+        <!-- Opsi Tab Navigasi: Kamera vs Upload File -->
+        <div class="flex rounded-xl bg-slate-950 p-1 border border-slate-800 text-xs font-semibold">
+          <button id="btn-tab-camera" onclick="switchQrTab('camera')" class="flex-1 py-1.5 rounded-lg bg-indigo-600 text-white transition">Kamera HP/Webcam</button>
+          <button id="btn-tab-upload" onclick="switchQrTab('upload')" class="flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white transition">Upload File Foto QR</button>
         </div>
 
-        <div class="pt-2 border-t border-slate-800 space-y-2">
-          <p class="text-[10px] text-slate-400">Atau masukkan Serial Number / Cloud ID secara manual:</p>
+        <!-- TAB 1: Pemindai Kamera Live -->
+        <div id="tab-content-camera" class="space-y-2">
+          <p class="text-xs text-slate-300">Arahkan kamera ke **QR Code Serial Number/Cloud ID** pada layar DVR pos atau HP.</p>
+          <div class="relative w-full aspect-square bg-black rounded-xl overflow-hidden border-2 border-emerald-500/50 shadow-inner flex items-center justify-center">
+            <div id="qr-reader" class="w-full h-full"></div>
+          </div>
+        </div>
+
+        <!-- TAB 2: Upload Gambar/Screenshot QR Code -->
+        <div id="tab-content-upload" class="hidden space-y-3 py-2">
+          <p class="text-xs text-slate-300">Pilih file foto/screenshot QR Code DVR dari komputer/HP Anda:</p>
+          <label class="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-indigo-500/50 hover:border-emerald-400 rounded-xl cursor-pointer bg-slate-950/60 hover:bg-slate-950 transition p-4">
+            <i data-lucide="image-plus" class="w-8 h-8 text-indigo-400 mb-2"></i>
+            <span class="text-xs text-slate-300 font-semibold">Klik untuk Memilih File Foto QR</span>
+            <span class="text-[10px] text-slate-500 mt-1">Format: PNG, JPG, JPEG, WEBP</span>
+            <input type="file" id="qr-file-input" accept="image/*" class="hidden" onchange="handleQrFileUpload(event)">
+          </label>
+          <p id="qr-file-status" class="text-xs font-bold text-emerald-400 hidden"></p>
+        </div>
+
+        <!-- Input Manual Serial Number -->
+        <div class="pt-3 border-t border-slate-800 space-y-2">
+          <p class="text-[10px] text-slate-400">Atau ketik Serial Number / Cloud ID secara manual:</p>
           <div class="flex items-center space-x-2">
             <input type="text" id="manual-cloud-id" placeholder="Contoh: 0a91f82e8b991204" class="w-full text-xs px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500">
-            <button onclick="connectManualCloudId()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2 rounded-lg transition shrink-0">Hubungkan</button>
+            <button onclick="connectManualCloudId()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2 rounded-lg transition shrink-0 active:scale-95">Hubungkan</button>
           </div>
         </div>
       </div>
@@ -1009,7 +1029,7 @@
     </div>
   </footer>
 
-  <!-- SCRIPT KONTROL VMS SCANNER QR CODE & FUNGSI UTAMA -->
+  <!-- SCRIPT KONTROL VMS SCANNER, FILE UPLOAD & LOGIK UTAMA -->
   <script>
     lucide.createIcons();
 
@@ -1018,12 +1038,33 @@
 
     function openQrScannerModal() {
       openModal('modal-qr-scanner');
-      startQrCodeScanner();
+      switchQrTab('camera');
     }
 
     function closeQrScannerModal() {
       stopQrCodeScanner();
       closeModalDirect('modal-qr-scanner');
+    }
+
+    function switchQrTab(tabType) {
+      const btnCam = document.getElementById('btn-tab-camera');
+      const btnUp = document.getElementById('btn-tab-upload');
+      const contentCam = document.getElementById('tab-content-camera');
+      const contentUp = document.getElementById('tab-content-upload');
+
+      if (tabType === 'camera') {
+        btnCam.className = "flex-1 py-1.5 rounded-lg bg-indigo-600 text-white transition font-bold";
+        btnUp.className = "flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+        contentCam.classList.remove('hidden');
+        contentUp.classList.add('hidden');
+        startQrCodeScanner();
+      } else {
+        btnUp.className = "flex-1 py-1.5 rounded-lg bg-indigo-600 text-white transition font-bold";
+        btnCam.className = "flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+        contentUp.classList.remove('hidden');
+        contentCam.classList.add('hidden');
+        stopQrCodeScanner();
+      }
     }
 
     function startQrCodeScanner() {
@@ -1033,7 +1074,7 @@
       const config = { fps: 10, qrbox: { width: 220, height: 220 } };
       html5QrCodeScanner.start({ facingMode: "environment" }, config, onScanSuccess)
         .catch(err => {
-          console.error("Gagal membuka kamera QR:", err);
+          console.warn("Kamera tidak ditemukan / ditolak, dapat gunakan tab Upload Foto QR:", err);
         });
     }
 
@@ -1042,7 +1083,7 @@
         html5QrCodeScanner.stop().then(() => {
           html5QrCodeScanner.clear();
           html5QrCodeScanner = null;
-        }).catch(err => { console.error("Gagal stop QR:", err); html5QrCodeScanner = null; });
+        }).catch(err => { html5QrCodeScanner = null; });
       }
     }
 
@@ -1050,7 +1091,32 @@
       if (!decodedText) return;
       stopQrCodeScanner();
       closeModalDirect('modal-qr-scanner');
+      parseAndConnectQrText(decodedText);
+    }
 
+    function handleQrFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const statusEl = document.getElementById('qr-file-status');
+      statusEl.classList.remove('hidden');
+      statusEl.innerText = "Membaca file gambar...";
+
+      const html5QrCode = new Html5Qrcode("qr-reader");
+      html5QrCode.scanFile(file, true)
+        .then(qrCodeMessage => {
+          statusEl.innerText = "✓ QR Code berhasil dibaca!";
+          setTimeout(() => {
+            closeModalDirect('modal-qr-scanner');
+            parseAndConnectQrText(qrCodeMessage);
+          }, 400);
+        })
+        .catch(err => {
+          statusEl.innerText = "❌ Gagal membaca QR dari file. Pastikan foto QR cukup jelas.";
+        });
+    }
+
+    function parseAndConnectQrText(decodedText) {
       let extractedId = decodedText.trim();
       const match = decodedText.match(/sn=([a-zA-Z0-9_-]+)/i) || decodedText.match(/id=([a-zA-Z0-9_-]+)/i) || decodedText.match(/([a-zA-Z0-9]{16,32})/);
       if (match) extractedId = match[1];
@@ -1067,6 +1133,7 @@
     }
 
     function processPairingCctv(cloudId) {
+      if (!cloudId) return;
       savedCloudId = cloudId;
       localStorage.setItem('flamboyan4_cctv_cloud_id', cloudId);
 
