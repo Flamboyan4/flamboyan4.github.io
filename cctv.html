@@ -4,67 +4,34 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Live CCTV Lorong | Flamboyan 4</title>
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- HTML5 QR Code Scanner Library -->
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <!-- Library HLS.js Murni JS untuk Browser -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
-    body {
-      background-color: #0f172a;
-      color: #f8fafc;
-      user-select: none;
-    }
+    body { background-color: #0f172a; color: #f8fafc; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans">
 
-  <!-- Header VMS Dedicated -->
-  <header class="bg-slate-900 border-b border-slate-800 px-4 py-3 sticky top-0 z-40 shadow-lg">
+  <header class="bg-slate-900 border-b border-slate-800 px-4 py-3 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <a href="index.html" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center space-x-1 text-xs font-semibold">
+        <a href="index.html" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center space-x-1">
           <i data-lucide="arrow-left" class="w-4 h-4"></i>
           <span>Kembali ke Portal</span>
         </a>
-        <div class="h-5 w-[1px] bg-slate-700 hidden sm:block"></div>
-        <h1 class="text-sm sm:text-base font-bold text-white flex items-center space-x-2">
+        <h1 class="text-sm font-bold text-white flex items-center space-x-2">
           <i data-lucide="video" class="w-5 h-5 text-emerald-400"></i>
           <span>Web VMS Monitoring CCTV Lorong</span>
         </h1>
       </div>
-
-      <div class="flex items-center space-x-2">
-        <div id="vms-status-badge" class="bg-rose-500/20 text-rose-300 border border-rose-500/30 px-3 py-1 rounded-xl text-xs font-semibold flex items-center space-x-1.5">
-          <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-          <span id="vms-status-text">Belum Pairing</span>
-        </div>
-
-        <button onclick="openQrModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-md">
-          <i data-lucide="qr-code" class="w-4 h-4"></i>
-          <span class="hidden sm:inline">Pairing QR / Serial</span>
-        </button>
-      </div>
     </div>
   </header>
 
-  <!-- Main Grid CCTV -->
   <main class="max-w-7xl mx-auto p-4 flex-grow w-full space-y-4">
-
-    <!-- Petunjuk Singkat -->
-    <div id="pairing-notice" class="bg-indigo-950/80 border border-indigo-800/80 p-3.5 rounded-xl text-xs text-indigo-200 flex flex-col sm:flex-row items-center justify-between gap-2">
-      <div class="flex items-center space-x-2">
-        <i data-lucide="info" class="w-4 h-4 text-indigo-400 shrink-0"></i>
-        <span>Scan QR Code dari DVR/HP atau masukkan Serial Number untuk membuka siaran 7 kamera secara bersamaan.</span>
-      </div>
-      <button onclick="openQrModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1 rounded-lg text-xs transition">Hubungkan Sekarang &rarr;</button>
-    </div>
-
-    <!-- GRID 7 KAMERA -->
+    <!-- Grid 7 Kamera CCTV -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-
-      <!-- TEMPLATE KAMERA 1 s/d 7 -->
       <script>
         const camTitles = [
           "CAM 01 - Portal Gerbang Depan",
@@ -88,115 +55,62 @@
               </div>
 
               <div class="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
-                <iframe id="cctv-frame-${i}" class="w-full h-full border-0 hidden" allow="autoplay; fullscreen" allowfullscreen></iframe>
+                <!-- HTML5 Canvas / Video JS Player -->
+                <canvas id="cctv-canvas-${i}" class="w-full h-full hidden object-contain"></canvas>
+                <video id="cctv-video-${i}" class="w-full h-full hidden" autoplay muted playsinline></video>
+                
                 <div id="cctv-placeholder-${i}" class="text-center p-4">
                   <i data-lucide="video-off" class="w-8 h-8 text-slate-600 mx-auto mb-2"></i>
                   <p class="text-xs text-slate-400 font-medium">${camTitles[i-1]}</p>
-                  <p class="text-[10px] text-slate-500 mt-1">Belum Terhubung</p>
+                  <p class="text-[10px] text-slate-500 mt-1">Gunakan mode HTTP/HLS atau DDNS</p>
                 </div>
               </div>
 
               <div class="p-2 bg-slate-950 border-t border-slate-800 flex justify-between items-center text-[11px] text-slate-400">
-                <button onclick="openDirectStream(${i})" class="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center space-x-1">
+                <button onclick="startJsSnapshotStream(${i})" class="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center space-x-1">
+                  <i data-lucide="play" class="w-3.5 h-3.5"></i>
+                  <span>Putar JS Stream</span>
+                </button>
+                <a href="http://192.168.1.2" target="_blank" class="hover:text-white flex items-center space-x-1">
                   <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-                  <span>Buka Tab Baru</span>
-                </button>
-                <button onclick="fullscreenCam('cctv-frame-${i}')" class="hover:text-white flex items-center space-x-1">
-                  <i data-lucide="maximize" class="w-3.5 h-3.5"></i>
-                  <span>Layar Penuh</span>
-                </button>
+                  <span>Akses DVR Direct</span>
+                </a>
               </div>
             </div>
           `);
         }
       </script>
-
     </div>
   </main>
-
-  <!-- MODAL PAIRING QR CODE & SERIAL NUMBER -->
-  <div id="modal-qr" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4" onclick="closeQrModal()">
-    <div class="bg-slate-900 border border-slate-800 text-white w-full max-w-md rounded-2xl shadow-2xl p-5 space-y-4" onclick="event.stopPropagation()">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 class="font-bold text-sm md:text-base flex items-center space-x-2">
-          <i data-lucide="qr-code" class="w-5 h-5 text-emerald-400"></i>
-          <span>Pairing Kamera CCTV</span>
-        </h3>
-        <button onclick="closeQrModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-      </div>
-
-      <div class="space-y-3">
-        <label class="block text-xs text-slate-300 font-medium">Masukkan Serial Number / Cloud ID / URL Stream DVR:</label>
-        <input type="text" id="input-sn" placeholder="Contoh: 8lcd0nS9... atau URL rtsp.me" class="w-full text-xs p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-indigo-500">
-
-        <button onclick="connectCctvManual()" class="w-full bg-indigo-600 hover:bg-indigo-500 font-bold py-2.5 rounded-xl text-xs transition">Hubungkan CCTV</button>
-      </div>
-    </div>
-  </div>
 
   <script>
     lucide.createIcons();
 
-    let activeCloudId = localStorage.getItem('flamboyan4_cctv_cloud_id') || '';
+    // SCRIPT JAVASCRIPT UNTUK MEMUTAR CAMERA SNAPSHOT LOOP DIRECT DARI BROWSER
+    function startJsSnapshotStream(channel) {
+      const canvas = document.getElementById(`cctv-canvas-${channel}`);
+      const placeholder = document.getElementById(`cctv-placeholder-${channel}`);
+      const ctx = canvas.getContext('2d');
 
-    function openQrModal() {
-      document.getElementById('modal-qr').classList.remove('hidden');
-    }
+      placeholder.classList.add('hidden');
+      canvas.classList.remove('hidden');
 
-    function closeQrModal() {
-      document.getElementById('modal-qr').classList.add('hidden');
-    }
-
-    function connectCctvManual() {
-      const val = document.getElementById('input-sn').value.trim();
-      if (!val) return alert("Masukkan Serial Number / Link Stream DVR terlebih dahulu.");
+      // Alamat IP DVR Lokal
+      const dvrIp = "192.168.1.2"; //[cite: 2]
       
-      activeCloudId = val;
-      localStorage.setItem('flamboyan4_cctv_cloud_id', val);
-      closeQrModal();
-      applyCctvStreams();
+      // Mengambil snapshot frame tiap 1 detik menggunakan Pure JS Image
+      setInterval(() => {
+        const img = new Image();
+        // Endpoint snapshot umum DVR Xiongmai/XMEye/Hikvision
+        img.src = `http://${dvrIp}/cgi-bin/snapshot.cgi?channel=${channel}&time=` + new Date().getTime();
+        
+        img.onload = function() {
+          canvas.width = img.width || 640;
+          canvas.height = img.height || 360;
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        };
+      }, 1000);
     }
-
-    function applyCctvStreams() {
-      if (!activeCloudId) return;
-
-      document.getElementById('vms-status-badge').className = "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-xl text-xs font-semibold flex items-center space-x-1.5";
-      document.getElementById('vms-status-text').innerText = "Terhubung";
-      document.getElementById('pairing-notice').classList.add('hidden');
-
-      for (let ch = 1; ch <= 7; ch++) {
-        const iframe = document.getElementById(`cctv-frame-${ch}`);
-        const placeholder = document.getElementById(`cctv-placeholder-${ch}`);
-
-        let streamUrl = activeCloudId;
-        if (!streamUrl.startsWith('http')) {
-          streamUrl = `https://rtsp.me/embed/${activeCloudId}/?channel=${ch}`;
-        }
-
-        iframe.src = streamUrl;
-        iframe.classList.remove('hidden');
-        placeholder.classList.add('hidden');
-      }
-    }
-
-    function openDirectStream(ch) {
-      if (!activeCloudId) return openQrModal();
-      let streamUrl = activeCloudId;
-      if (!streamUrl.startsWith('http')) {
-        streamUrl = `https://rtsp.me/embed/${activeCloudId}/?channel=${ch}`;
-      }
-      window.open(streamUrl, '_blank');
-    }
-
-    function fullscreenCam(frameId) {
-      const elem = document.getElementById(frameId);
-      if (elem.requestFullscreen) elem.requestFullscreen();
-      else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      if (activeCloudId) applyCctvStreams();
-    });
   </script>
 </body>
 </html>
