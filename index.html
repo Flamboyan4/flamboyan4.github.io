@@ -99,8 +99,8 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 w-full items-center">
-        <!-- Pemasukan Card with Month Navigation Slider -->
-        <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-300 hover:shadow-md transition relative flex flex-col justify-between">
+        <!-- Pemasukan Card with Slider & Gesture/Keyboard Support -->
+        <div id="card-pemasukan" tabindex="0" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-300 hover:shadow-md transition relative flex flex-col justify-between touch-pan-y focus:outline-none focus:ring-2 focus:ring-emerald-400/50 select-none">
           <div>
             <div class="flex items-center justify-between mb-2">
               <span id="label-pemasukan-bulan" class="text-xs md:text-sm font-semibold text-slate-500">Pemasukan Bulan Ini</span>
@@ -128,8 +128,8 @@
           </div>
         </div>
 
-        <!-- Pengeluaran Card with Month Navigation Slider -->
-        <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-rose-300 hover:shadow-md transition relative flex flex-col justify-between">
+        <!-- Pengeluaran Card with Slider & Gesture/Keyboard Support -->
+        <div id="card-pengeluaran" tabindex="0" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-rose-300 hover:shadow-md transition relative flex flex-col justify-between touch-pan-y focus:outline-none focus:ring-2 focus:ring-rose-400/50 select-none">
           <div>
             <div class="flex items-center justify-between mb-2">
               <span id="label-pengeluaran-bulan" class="text-xs md:text-sm font-semibold text-slate-500">Pengeluaran Bulan Ini</span>
@@ -1352,8 +1352,62 @@
       lucide.createIcons();
     }
 
+    // INTERAKTIVITAS GESTUR USAP (HP) & KEYBOARD PANAH (PC) PADA KARTU KEUANGAN
+    function initCardGesturesAndKeyboard() {
+      setupCardInteractions('card-pemasukan', changeMonthPemasukan);
+      setupCardInteractions('card-pengeluaran', changeMonthPengeluaran);
+    }
+
+    function setupCardInteractions(cardId, changeMonthFn) {
+      const card = document.getElementById(cardId);
+      if (!card) return;
+
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let touchEndX = 0;
+      let touchEndY = 0;
+
+      card.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+      }, { passive: true });
+
+      card.addEventListener('touchend', function(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        touchEndY = e.changedTouches[0].screenY;
+        const diffX = touchEndX - touchStartX;
+        const diffY = touchEndY - touchStartY;
+
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 35) {
+          if (diffX < 0) {
+            changeMonthFn(1);
+          } else {
+            changeMonthFn(-1);
+          }
+        }
+      }, { passive: true });
+
+      let isHovered = false;
+      card.addEventListener('mouseenter', () => { isHovered = true; });
+      card.addEventListener('mouseleave', () => { isHovered = false; });
+
+      document.addEventListener('keydown', function(e) {
+        if (activeModalsStack.length > 0) return;
+        if (isHovered || document.activeElement === card) {
+          if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            changeMonthFn(-1);
+          } else if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            changeMonthFn(1);
+          }
+        }
+      });
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       initLightboxSwipe();
+      initCardGesturesAndKeyboard();
     });
 
     function scrollProjek(direction) {
