@@ -88,7 +88,7 @@
   <!-- Main Content -->
   <main class="max-w-6xl mx-auto px-4 py-8 flex-grow space-y-12 w-full relative">
 
-    <!-- SECTION 1: LAPORAN KEUANGAN -->
+    <!-- SECTION 1: LAPORAN KEUANGAN WITH MONTHLY SLIDERS -->
     <section id="keuangan" class="scroll-mt-20 w-full">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
         <div class="flex items-center space-x-2">
@@ -99,27 +99,59 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 w-full items-center">
-        <!-- Pemasukan Card -->
-        <div onclick="openModalKeuanganFiltered('pemasukan')" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-300 hover:shadow-md transition cursor-pointer group relative">
-          <div class="flex justify-between items-start">
-            <p id="label-pemasukan-bulan" class="text-xs md:text-sm font-medium text-slate-500 mb-1">Pemasukan Bulan Ini</p>
-            <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-600 transition"></i>
+        <!-- Pemasukan Card with Month Navigation Slider -->
+        <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-300 hover:shadow-md transition relative flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span id="label-pemasukan-bulan" class="text-xs md:text-sm font-semibold text-slate-500">Pemasukan Bulan Ini</span>
+              <div class="flex items-center space-x-1">
+                <button onclick="changeMonthPemasukan(-1)" class="p-1 hover:bg-slate-100 rounded text-slate-500 transition" title="Bulan Sebelumnya">
+                  <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                </button>
+                <button onclick="changeMonthPemasukan(1)" class="p-1 hover:bg-slate-100 rounded text-slate-500 transition" title="Bulan Berikutnya">
+                  <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+            
+            <div onclick="openModalKeuanganFiltered('pemasukan')" class="cursor-pointer group">
+              <div class="flex items-center justify-between">
+                <p id="pemasukan-bulan-ini" class="text-xl md:text-2xl font-bold text-emerald-600">Rp 0</p>
+                <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-600 transition"></i>
+              </div>
+            </div>
           </div>
-          <p id="pemasukan-bulan-ini" class="text-xl md:text-2xl font-bold text-emerald-600">Rp 0</p>
-          <div class="mt-3 pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
+
+          <div class="mt-4 pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
             <span class="text-slate-400">Total Kumulatif:</span>
             <span id="total-pemasukan-all" class="font-bold text-slate-700">Rp 0</span>
           </div>
         </div>
 
-        <!-- Pengeluaran Card -->
-        <div onclick="openModalKeuanganFiltered('pengeluaran')" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-rose-300 hover:shadow-md transition cursor-pointer group relative">
-          <div class="flex justify-between items-start">
-            <p id="label-pengeluaran-bulan" class="text-xs md:text-sm font-medium text-slate-500 mb-1">Pengeluaran Bulan Ini</p>
-            <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-400 group-hover:text-rose-600 transition"></i>
+        <!-- Pengeluaran Card with Month Navigation Slider -->
+        <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-rose-300 hover:shadow-md transition relative flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span id="label-pengeluaran-bulan" class="text-xs md:text-sm font-semibold text-slate-500">Pengeluaran Bulan Ini</span>
+              <div class="flex items-center space-x-1">
+                <button onclick="changeMonthPengeluaran(-1)" class="p-1 hover:bg-slate-100 rounded text-slate-500 transition" title="Bulan Sebelumnya">
+                  <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                </button>
+                <button onclick="changeMonthPengeluaran(1)" class="p-1 hover:bg-slate-100 rounded text-slate-500 transition" title="Bulan Berikutnya">
+                  <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+            
+            <div onclick="openModalKeuanganFiltered('pengeluaran')" class="cursor-pointer group">
+              <div class="flex items-center justify-between">
+                <p id="pengeluaran-bulan-ini" class="text-xl md:text-2xl font-bold text-rose-600">Rp 0</p>
+                <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-400 group-hover:text-rose-600 transition"></i>
+              </div>
+            </div>
           </div>
-          <p id="pengeluaran-bulan-ini" class="text-xl md:text-2xl font-bold text-rose-600">Rp 0</p>
-          <div class="mt-3 pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
+
+          <div class="mt-4 pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
             <span class="text-slate-400">Total Kumulatif:</span>
             <span id="total-pengeluaran-all" class="font-bold text-slate-700">Rp 0</span>
           </div>
@@ -210,7 +242,7 @@
       </div>
     </section>
 
-    <!-- SECTION 3: SLIDER PROJEK WARGA (JERSEY, GAPURA, BANK SAMPAH) -->
+    <!-- SECTION 3: SLIDER PROJEK WARGA -->
     <section id="projek" class="scroll-mt-20 w-full space-y-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
@@ -228,7 +260,6 @@
         </div>
       </div>
 
-      <!-- HORIZONTAL SLIDER CAROUSEL -->
       <div id="slider-projek" class="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar py-1 w-full">
         
         <!-- CARD 1: JERSEY -->
@@ -311,7 +342,7 @@
           </div>
         </div>
 
-        <!-- CARD 3: BANK SAMPAH (PROJEK BARU) -->
+        <!-- CARD 3: BANK SAMPAH -->
         <div id="bank-sampah" class="snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-2">
@@ -322,7 +353,6 @@
               <span class="text-[10px] bg-sky-100 text-sky-800 font-semibold px-2 py-0.5 rounded-full">Perencanaan</span>
             </div>
 
-            <!-- Visual Graphic / Illustration Box -->
             <div class="bg-gradient-to-br from-emerald-800 to-teal-900 text-white rounded-lg h-32 p-3.5 flex flex-col justify-between relative overflow-hidden mb-3">
               <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-emerald-400/20 rounded-full blur-xl pointer-events-none"></div>
               
@@ -894,6 +924,10 @@
     let globalRencanaData = [];
     let currentArisanIdxGlobal = -1;
     const folderCache = {};
+
+    let monthlyKeuanganList = []; 
+    let currentPemasukanMonthIndex = 0;
+    let currentPengeluaranMonthIndex = 0;
 
     let calendarDate = new Date();
 
@@ -1489,7 +1523,39 @@
       return null;
     }
 
-    // PROSES PERHITUNGAN KEUANGAN PRESISI
+    function updatePemasukanCardView() {
+      if (monthlyKeuanganList.length === 0) return;
+      const m = monthlyKeuanganList[currentPemasukanMonthIndex];
+      const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      document.getElementById('label-pemasukan-bulan').innerText = `Pemasukan (${monthNames[m.month]} ${m.year})`;
+      document.getElementById('pemasukan-bulan-ini').innerText = formatRupiah(m.pemasukan);
+    }
+
+    function updatePengeluaranCardView() {
+      if (monthlyKeuanganList.length === 0) return;
+      const m = monthlyKeuanganList[currentPengeluaranMonthIndex];
+      const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      document.getElementById('label-pengeluaran-bulan').innerText = `Pengeluaran (${monthNames[m.month]} ${m.year})`;
+      document.getElementById('pengeluaran-bulan-ini').innerText = formatRupiah(m.pengeluaran);
+    }
+
+    function changeMonthPemasukan(direction) {
+      if (monthlyKeuanganList.length === 0) return;
+      currentPemasukanMonthIndex += direction;
+      if (currentPemasukanMonthIndex < 0) currentPemasukanMonthIndex = 0;
+      if (currentPemasukanMonthIndex >= monthlyKeuanganList.length) currentPemasukanMonthIndex = monthlyKeuanganList.length - 1;
+      updatePemasukanCardView();
+    }
+
+    function changeMonthPengeluaran(direction) {
+      if (monthlyKeuanganList.length === 0) return;
+      currentPengeluaranMonthIndex += direction;
+      if (currentPengeluaranMonthIndex < 0) currentPengeluaranMonthIndex = 0;
+      if (currentPengeluaranMonthIndex >= monthlyKeuanganList.length) currentPengeluaranMonthIndex = monthlyKeuanganList.length - 1;
+      updatePengeluaranCardView();
+    }
+
+    // PROSES PERHITUNGAN KEUANGAN PRESISI WITH SLIDER BULAN
     if (CSV_KEUANGAN_URL && CSV_KEUANGAN_URL.startsWith('http')) {
       Papa.parse(CSV_KEUANGAN_URL, {
         download: true,
@@ -1500,17 +1566,10 @@
             return values.length >= 2 && values[0] && values[0].toString().trim() !== '';
           });
 
-          const now = new Date();
-          const currentMonth = now.getMonth();
-          const currentYear = now.getFullYear();
-
           let totalPemasukanAll = 0;
           let totalPengeluaranAll = 0;
 
-          let targetMonth = currentMonth;
-          let targetYear = currentYear;
-
-          let latestDate = null;
+          const monthlyMap = {};
 
           rawData.forEach(row => {
             const keys = Object.keys(row);
@@ -1529,49 +1588,27 @@
 
             const parsed = parseRowDate(tglStr);
             if (parsed) {
-              if (!latestDate || (parsed.year > latestDate.year) || (parsed.year === latestDate.year && parsed.month > latestDate.month)) {
-                latestDate = parsed;
+              const key = `${parsed.year}-${String(parsed.month + 1).padStart(2, '0')}`;
+              if (!monthlyMap[key]) {
+                monthlyMap[key] = { year: parsed.year, month: parsed.month, pemasukan: 0, pengeluaran: 0 };
               }
+              if (kategori.toLowerCase() === 'pemasukan') monthlyMap[key].pemasukan += jumlah;
+              else if (kategori.toLowerCase() === 'pengeluaran') monthlyMap[key].pengeluaran += jumlah;
             }
           });
 
-          let hasCurrentMonthData = rawData.some(row => {
-            const parsed = parseRowDate(row[Object.keys(row)[0]]);
-            return parsed && parsed.month === currentMonth && parsed.year === currentYear;
+          monthlyKeuanganList = Object.values(monthlyMap);
+          monthlyKeuanganList.sort((a, b) => {
+            if (a.year !== b.year) return a.year - b.year;
+            return a.month - b.month;
           });
 
-          if (!hasCurrentMonthData && latestDate) {
-            targetMonth = latestDate.month;
-            targetYear = latestDate.year;
+          if (monthlyKeuanganList.length > 0) {
+            currentPemasukanMonthIndex = monthlyKeuanganList.length - 1;
+            currentPengeluaranMonthIndex = monthlyKeuanganList.length - 1;
+            updatePemasukanCardView();
+            updatePengeluaranCardView();
           }
-
-          let totalPemasukanBulanTarget = 0;
-          let totalPengeluaranBulanTarget = 0;
-
-          rawData.forEach(row => {
-            const keys = Object.keys(row);
-            if (keys.length < 4) return;
-
-            const tglStr = row[keys[0]];
-            const kategori = (row[keys[2]] || '').trim();
-            const rawJumlah = row[keys[3]];
-            if (!rawJumlah) return;
-
-            let cleanedJumlah = rawJumlah.toString().replace(/\./g, '').replace(/,/g, '');
-            const jumlah = parseFloat(cleanedJumlah.replace(/[^0-9-]/g, '')) || 0;
-
-            const parsed = parseRowDate(tglStr);
-            if (parsed && parsed.month === targetMonth && parsed.year === targetYear) {
-              if (kategori.toLowerCase() === 'pemasukan') totalPemasukanBulanTarget += jumlah;
-              else if (kategori.toLowerCase() === 'pengeluaran') totalPengeluaranBulanTarget += jumlah;
-            }
-          });
-
-          const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-          const labelBulan = `${monthNames[targetMonth]} ${targetYear}`;
-
-          document.getElementById('label-pemasukan-bulan').innerText = `Pemasukan (${labelBulan})`;
-          document.getElementById('label-pengeluaran-bulan').innerText = `Pengeluaran (${labelBulan})`;
 
           const sisaSaldo = totalPemasukanAll - totalPengeluaranAll;
 
@@ -1593,10 +1630,7 @@
           document.getElementById('tabel-transaksi').innerHTML = tbodyHTML || '<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada transaksi</td></tr>';
           document.getElementById('tabel-transaksi-all').innerHTML = tbodyAllHTML;
           
-          document.getElementById('pemasukan-bulan-ini').innerText = formatRupiah(totalPemasukanBulanTarget);
           document.getElementById('total-pemasukan-all').innerText = formatRupiah(totalPemasukanAll);
-          
-          document.getElementById('pengeluaran-bulan-ini').innerText = formatRupiah(totalPengeluaranBulanTarget);
           document.getElementById('total-pengeluaran-all').innerText = formatRupiah(totalPengeluaranAll);
 
           document.getElementById('sisa-saldo').innerText = formatRupiah(sisaSaldo);
