@@ -73,9 +73,9 @@
           <i data-lucide="calendar" class="w-4 h-4 text-amber-300"></i>
           <span>Jadwal Arisan</span>
         </a>
-        <a href="#proyek" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
-          <i data-lucide="briefcase" class="w-4 h-4 text-sky-300"></i>
-          <span>Program Warga</span>
+        <a href="#projek" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
+          <i data-lucide="folder-kanban" class="w-4 h-4 text-sky-300"></i>
+          <span>Projek Warga</span>
         </a>
         <a href="#rencana" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
           <i data-lucide="calendar-check" class="w-4 h-4 text-pink-300"></i>
@@ -210,118 +210,148 @@
       </div>
     </section>
 
-    <!-- SECTION 3: PROYEK & PROGRAM (SLIDER) -->
-    <section id="proyek" class="scroll-mt-20 w-full">
-      <div class="flex items-center justify-between mb-4">
+    <!-- SECTION 3: SLIDER PROJEK WARGA (JERSEY, GAPURA, BANK SAMPAH) -->
+    <section id="projek" class="scroll-mt-20 w-full space-y-4">
+      <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
-          <i data-lucide="briefcase" class="w-6 h-6 text-indigo-600 shrink-0"></i>
-          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Program & Proyek</h3>
+          <i data-lucide="folder-kanban" class="w-6 h-6 text-indigo-600 shrink-0"></i>
+          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Projek & Pembangunan Lorong</h3>
         </div>
-        
+
         <div class="flex items-center space-x-1">
-          <button onclick="scrollProyek(-1)" class="p-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-full shadow-sm text-slate-600 transition active:scale-90" title="Geser Kiri">
+          <button onclick="scrollProjek(-1)" class="p-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-full shadow-sm text-slate-600 transition active:scale-90" title="Geser Kiri">
             <i data-lucide="chevron-left" class="w-4 h-4"></i>
           </button>
-          <button onclick="scrollProyek(1)" class="p-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-full shadow-sm text-slate-600 transition active:scale-90" title="Geser Kanan">
+          <button onclick="scrollProjek(1)" class="p-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-full shadow-sm text-slate-600 transition active:scale-90" title="Geser Kanan">
             <i data-lucide="chevron-right" class="w-4 h-4"></i>
           </button>
         </div>
       </div>
 
-      <div id="slider-proyek" class="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar py-2 w-full items-stretch">
+      <!-- HORIZONTAL SLIDER CAROUSEL -->
+      <div id="slider-projek" class="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar py-1 w-full">
         
         <!-- CARD 1: JERSEY -->
-        <div class="snap-center shrink-0 w-[90%] sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] flex flex-col bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center space-x-2">
-              <i data-lucide="shirt" class="w-5 h-5 text-indigo-600 shrink-0"></i>
-              <h3 class="text-lg font-bold text-slate-900">Pemesanan Jersey</h3>
+        <div id="jersey" class="snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center space-x-1.5">
+                <i data-lucide="shirt" class="w-4 h-4 text-indigo-600 shrink-0"></i>
+                <h4 class="text-base font-bold text-slate-900">Pemesanan Jersey</h4>
+              </div>
+              <span class="text-[10px] bg-amber-100 text-amber-800 font-semibold px-2 py-0.5 rounded-full">Tahap DP</span>
             </div>
-            <span class="text-[10px] bg-amber-100 text-amber-800 font-semibold px-2.5 py-1 rounded-full">Tahap DP</span>
+
+            <div id="container-foto-jersey-single" class="relative group cursor-pointer bg-slate-100 rounded-lg overflow-hidden h-32 flex items-center justify-center mb-3" onclick="openGalleryGridModal(FOLDER_JERSEY_URL, 'Desain Jersey & Size Chart')">
+              <p class="text-slate-400 text-xs">Memuat gambar desain...</p>
+            </div>
+
+            <div class="grid grid-cols-3 gap-1.5 text-center mb-3">
+              <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
+                <p class="text-[9px] text-slate-500 font-medium">Pemesan</p>
+                <p id="total-pemesan-jersey" class="text-xs font-bold text-indigo-600 mt-0.5">0 Orang</p>
+              </div>
+              <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
+                <p class="text-[9px] text-slate-500 font-medium">Lunas</p>
+                <p id="total-lunas-jersey" class="text-xs font-bold text-emerald-600 mt-0.5">0 Orang</p>
+              </div>
+              <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
+                <p class="text-[9px] text-slate-500 font-medium">DP 50% / Belum</p>
+                <p id="total-dp-jersey" class="text-xs font-bold text-amber-600 mt-0.5">0 Orang</p>
+              </div>
+            </div>
           </div>
 
-          <div id="container-foto-jersey-single" class="relative group cursor-pointer bg-slate-100 rounded-lg overflow-hidden h-40 flex items-center justify-center mb-4" onclick="openGalleryGridModal(FOLDER_JERSEY_URL, 'Desain Jersey & Size Chart')">
-            <p class="text-slate-400 text-xs">Memuat gambar desain...</p>
-          </div>
-
-          <div class="grid grid-cols-3 gap-2 text-center mb-4 flex-grow">
-            <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-              <p class="text-[10px] text-slate-500 font-medium">Total Pemesan</p>
-              <p id="total-pemesan-jersey" class="text-sm font-bold text-indigo-600 mt-0.5">0 Org</p>
-            </div>
-            <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-              <p class="text-[10px] text-slate-500 font-medium">Sudah Lunas</p>
-              <p id="total-lunas-jersey" class="text-sm font-bold text-emerald-600 mt-0.5">0 Org</p>
-            </div>
-            <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-              <p class="text-[10px] text-slate-500 font-medium">DP 50%</p>
-              <p id="total-dp-jersey" class="text-sm font-bold text-amber-600 mt-0.5">0 Org</p>
-            </div>
-          </div>
-
-          <button onclick="openModalJersey()" class="w-full mt-auto bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-2.5 rounded-lg border border-indigo-100 transition text-xs flex items-center justify-center space-x-1">
+          <button onclick="openModalJersey()" class="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-2 rounded-lg border border-indigo-100 transition text-xs flex items-center justify-center space-x-1">
             <span>Lihat Daftar Pemesan</span>
-            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
           </button>
         </div>
 
         <!-- CARD 2: GAPURA -->
-        <div class="snap-center shrink-0 w-[90%] sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] flex flex-col bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center space-x-2">
-              <i data-lucide="landmark" class="w-5 h-5 text-indigo-600 shrink-0"></i>
-              <h3 class="text-lg font-bold text-slate-900">Gapura</h3>
-            </div>
-            <span class="text-[10px] bg-indigo-100 text-indigo-800 font-semibold px-2.5 py-1 rounded-full">Penggalangan</span>
-          </div>
-
-          <div id="container-foto-gapura" class="relative group cursor-pointer bg-slate-100 rounded-lg overflow-hidden h-40 flex items-center justify-center mb-4" onclick="openGalleryGridModal(FOLDER_GAPURA_URL, 'Desain Gapura')">
-            <p class="text-slate-400 text-xs">Memuat gambar gapura...</p>
-          </div>
-
-          <div class="space-y-3 flex-grow">
-            <div class="flex justify-between items-center text-xs">
-              <span class="font-semibold text-slate-700">Progres Dana</span>
-              <span id="gapura-percent" class="font-bold text-indigo-600">0%</span>
-            </div>
-            
-            <div class="w-full bg-slate-100 rounded-full h-3.5 overflow-hidden p-0.5 border border-slate-200">
-              <div id="gapura-progress-bar" class="bg-indigo-600 h-full rounded-full transition-all duration-500 w-0"></div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-2 text-center pt-1 text-xs">
-              <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                <p class="text-[10px] text-slate-400">Terkumpul</p>
-                <p id="gapura-terkumpul" class="font-bold text-emerald-600 mt-0.5">Rp 0</p>
+        <div id="gapura" class="snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center space-x-1.5">
+                <i data-lucide="landmark" class="w-4 h-4 text-indigo-600 shrink-0"></i>
+                <h4 class="text-base font-bold text-slate-900">Gapura</h4>
               </div>
-              <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                <p class="text-[10px] text-slate-400">Kekurangan</p>
-                <p id="gapura-kurang" class="font-bold text-rose-600 mt-0.5">Rp 0</p>
+              <span class="text-[10px] bg-indigo-100 text-indigo-800 font-semibold px-2 py-0.5 rounded-full">Penggalangan Dana</span>
+            </div>
+
+            <div id="container-foto-gapura" class="relative group cursor-pointer bg-slate-100 rounded-lg overflow-hidden h-32 flex items-center justify-center mb-3" onclick="openGalleryGridModal(FOLDER_GAPURA_URL, 'Desain Pembangunan Gapura')">
+              <p class="text-slate-400 text-xs">Memuat gambar gapura...</p>
+            </div>
+
+            <div class="space-y-2 mb-3">
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-semibold text-slate-700 text-[11px]">Progres Pengumpulan Dana</span>
+                <span id="gapura-percent" class="font-bold text-indigo-600 text-[11px]">0%</span>
+              </div>
+              
+              <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden p-0.5 border border-slate-200">
+                <div id="gapura-progress-bar" class="bg-indigo-600 h-full rounded-full transition-all duration-500 w-0"></div>
+              </div>
+
+              <div class="grid grid-cols-3 gap-1 text-center pt-0.5 text-[10px]">
+                <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
+                  <p class="text-[9px] text-slate-400">Target</p>
+                  <p class="font-bold text-slate-700 mt-0.5 text-[11px]">Rp 6,5Jt</p>
+                </div>
+                <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
+                  <p class="text-[9px] text-slate-400">Terkumpul</p>
+                  <p id="gapura-terkumpul" class="font-bold text-emerald-600 mt-0.5 text-[11px]">Rp 0</p>
+                </div>
+                <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
+                  <p class="text-[9px] text-slate-400">Sisa</p>
+                  <p id="gapura-kurang" class="font-bold text-rose-600 mt-0.5 text-[11px]">Rp 0</p>
+                </div>
               </div>
             </div>
           </div>
-          <p class="text-[10px] text-slate-400 text-center italic mt-3">*Dana diambil otomatis dari Sisa Kas Aktif.</p>
         </div>
 
-        <!-- CARD 3: BANK SAMPAH -->
-        <div class="snap-center shrink-0 w-[90%] sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] flex flex-col bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center space-x-2">
-              <i data-lucide="recycle" class="w-5 h-5 text-indigo-600 shrink-0"></i>
-              <h3 class="text-lg font-bold text-slate-900">Bank Sampah</h3>
+        <!-- CARD 3: BANK SAMPAH (PROJEK BARU) -->
+        <div id="bank-sampah" class="snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center space-x-1.5">
+                <i data-lucide="recycle" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+                <h4 class="text-base font-bold text-slate-900">Bank Sampah Lorong</h4>
+              </div>
+              <span class="text-[10px] bg-sky-100 text-sky-800 font-semibold px-2 py-0.5 rounded-full">Perencanaan</span>
             </div>
-            <span class="text-[10px] bg-slate-100 text-slate-600 font-semibold px-2.5 py-1 rounded-full border border-slate-200">Perencanaan</span>
+
+            <!-- Visual Graphic / Illustration Box -->
+            <div class="bg-gradient-to-br from-emerald-800 to-teal-900 text-white rounded-lg h-32 p-3.5 flex flex-col justify-between relative overflow-hidden mb-3">
+              <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-emerald-400/20 rounded-full blur-xl pointer-events-none"></div>
+              
+              <div class="flex items-center justify-between relative z-10">
+                <span class="text-[10px] font-mono bg-emerald-500/30 text-emerald-200 px-2 py-0.5 rounded border border-emerald-400/30">Langkah 1</span>
+                <i data-lucide="sprout" class="w-5 h-5 text-emerald-300"></i>
+              </div>
+
+              <div class="relative z-10 space-y-0.5">
+                <p class="text-xs font-bold text-emerald-100">Pembersihan & Persiapan Drop Point</p>
+                <p class="text-[10px] text-emerald-200/80 leading-tight">Pengelolaan sampah anorganik terpilah untuk kas tambahan warga.</p>
+              </div>
+            </div>
+
+            <div class="space-y-1.5 text-xs text-slate-600">
+              <div class="flex items-center space-x-2 text-[11px]">
+                <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
+                <span>Tahap: Pembersihan area pemilahan</span>
+              </div>
+              <div class="flex items-center space-x-2 text-[11px]">
+                <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-500 shrink-0"></i>
+                <span>Agenda: Pembuatan tong/wadah drop point</span>
+              </div>
+            </div>
           </div>
 
-          <div class="flex-grow flex flex-col justify-center items-center text-center p-6 bg-slate-50 border border-slate-100 rounded-xl mb-4">
-            <i data-lucide="hammer" class="w-10 h-10 text-slate-300 mb-3"></i>
-            <p class="text-xs text-slate-500 font-medium">Dalam tahap perencanaan, pembersihan & persiapan pembuatan <span class="font-bold text-slate-700">Drop Point</span> di area warga.</p>
+          <div class="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 italic">
+            <span>*Dikelola bersama Tim Kebersihan</span>
           </div>
-          
-          <button disabled class="w-full mt-auto bg-slate-100 text-slate-400 font-semibold py-2.5 rounded-lg border border-slate-200 transition text-xs flex items-center justify-center space-x-1 cursor-not-allowed">
-            <i data-lucide="clock" class="w-4 h-4"></i>
-            <span>Segera Hadir</span>
-          </button>
         </div>
 
       </div>
@@ -707,7 +737,7 @@
 
       if (!activeModalsStack.includes(id)) {
         activeModalsStack.push(id);
-        window.history.pushState({ modalId: id }, '');
+        history.pushState({ modalId: id }, '', `#${id}`);
       }
 
       if(id === 'modal-saran') {
@@ -750,7 +780,23 @@
     }
 
     function closeLightboxModal() {
-      closeModalDirect('lightbox-modal');
+      const lightbox = document.getElementById('lightbox-modal');
+      if (!lightbox || lightbox.classList.contains('hidden')) return;
+
+      lightbox.classList.add('hidden');
+      document.getElementById('lightbox-media-container').innerHTML = '';
+      resetLightboxZoom();
+
+      const idx = activeModalsStack.indexOf('lightbox-modal');
+      if (idx > -1) {
+        activeModalsStack.splice(idx, 1);
+      }
+
+      if (activeModalsStack.includes('modal-gallery-grid')) {
+        document.body.style.overflow = 'hidden';
+      } else if (activeModalsStack.length === 0) {
+        document.body.style.overflow = 'auto';
+      }
     }
 
     window.addEventListener('popstate', function(event) {
@@ -788,9 +834,9 @@
         if (topModalId === 'lightbox-modal') {
           if (e.key === 'ArrowRight') nextLightboxMedia(e);
           else if (e.key === 'ArrowLeft') prevLightboxMedia(e);
-          else if (e.key === 'Escape') closeLightboxModal();
+          else if (e.key === 'Escape') history.back();
         } else {
-          if (e.key === 'Escape') closeModalDirect(topModalId);
+          if (e.key === 'Escape') history.back();
         }
         return;
       }
@@ -1276,6 +1322,13 @@
       initLightboxSwipe();
     });
 
+    function scrollProjek(direction) {
+      const slider = document.getElementById('slider-projek');
+      if (!slider) return;
+      const cardWidth = slider.querySelector('div')?.offsetWidth || 320;
+      slider.scrollBy({ left: direction * (cardWidth + 16), behavior: 'smooth' });
+    }
+
     const formSaran = document.getElementById("form-saran");
     formSaran.addEventListener("submit", async function(event) {
         event.preventDefault();
@@ -1289,7 +1342,7 @@
             if (response.ok) {
                 document.getElementById('saran-status').classList.remove('hidden');
                 formSaran.reset();
-                setTimeout(() => closeModalDirect('modal-saran'), 2500);
+                setTimeout(() => history.back(), 2500);
             } else {
                 alert("Ups! Gagal mengirim pesan. Silakan coba lagi.");
             }
@@ -1436,6 +1489,7 @@
       return null;
     }
 
+    // PROSES PERHITUNGAN KEUANGAN PRESISI
     if (CSV_KEUANGAN_URL && CSV_KEUANGAN_URL.startsWith('http')) {
       Papa.parse(CSV_KEUANGAN_URL, {
         download: true,
@@ -1657,9 +1711,9 @@
             else if (statusRaw.includes('dp')) countDP++;
           });
 
-          document.getElementById('total-pemesan-jersey').innerText = `${globalJerseyData.length} Org`;
-          document.getElementById('total-lunas-jersey').innerText = `${countLunas} Org`;
-          document.getElementById('total-dp-jersey').innerText = `${countDP} Org`;
+          document.getElementById('total-pemesan-jersey').innerText = `${globalJerseyData.length} Orang`;
+          document.getElementById('total-lunas-jersey').innerText = `${countLunas} Orang`;
+          document.getElementById('total-dp-jersey').innerText = `${countDP} Orang`;
 
           let tbodyAllHTML = '';
           globalJerseyData.forEach(row => { 
@@ -1695,13 +1749,6 @@
       });
     }
 
-    function scrollProyek(direction) {
-      const slider = document.getElementById('slider-proyek');
-      if (!slider) return;
-      const cardWidth = slider.querySelector('div')?.offsetWidth || 300;
-      slider.scrollBy({ left: direction * (cardWidth + 16), behavior: 'smooth' });
-    }
-
     (async function loadJerseyAndGapuraImages() {
       const folderJerseyId = extractFolderId(FOLDER_JERSEY_URL);
       if (folderJerseyId && FOLDER_API_URL.startsWith('http')) {
@@ -1712,7 +1759,7 @@
             <img src="${firstImg.url}" alt="Desain Jersey" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1 backdrop-blur-[1px]">
               <i data-lucide="layout-grid" class="w-4 h-4"></i>
-              <span>Buka Galeri foto jersey (${files.length})</span>
+              <span>Galeri Foto Jersey (${files.length})</span>
             </div>
           `;
         }
@@ -1727,7 +1774,7 @@
             <img src="${firstGapuraImg.url}" alt="Desain Gapura" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1 backdrop-blur-[1px]">
               <i data-lucide="layout-grid" class="w-4 h-4"></i>
-              <span>Lihat Desain Gapura (${gapuraFiles.length})</span>
+              <span>Desain Gapura (${gapuraFiles.length})</span>
             </div>
           `;
         }
