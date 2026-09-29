@@ -3,15 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Flamboyan 4 | Portal Informasi & CCTV VMS Lorong</title>
+  <title>Flamboyan 4 | Portal Informasi Warga Lorong</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- PapaParse untuk membaca Google Sheets CSV -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-  <!-- HTML5 QR Code Scanner Library -->
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   
   <style>
     body {
@@ -33,11 +31,6 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
-    /* QR Scanner Video Fit */
-    #qr-reader video {
-      object-fit: cover !important;
-      border-radius: 0.75rem;
-    }
   </style>
 </head>
 
@@ -54,9 +47,10 @@
           Flamboyan 4 <span class="hidden sm:inline font-normal text-indigo-200/80 text-xs sm:text-sm">| RT 001 RW 026 Pesona Kahuripan 2</span>
         </h1>
       </div>
-      <a href="#cctv-vms" class="p-2 rounded-xl bg-indigo-600/80 hover:bg-indigo-500 border border-indigo-400/40 transition group shrink-0 flex items-center space-x-1 text-xs font-semibold">
+      <!-- Tombol Mengarah ke Laman Baru cctv.html -->
+      <a href="cctv.html" class="p-2 rounded-xl bg-indigo-600/80 hover:bg-indigo-500 border border-indigo-400/40 transition group shrink-0 flex items-center space-x-1.5 text-xs font-semibold">
         <i data-lucide="video" class="w-4 h-4 text-emerald-300"></i>
-        <span class="hidden sm:inline">CCTV</span>
+        <span class="hidden sm:inline">Live CCTV</span>
       </a>
     </div>
   </header>
@@ -75,9 +69,10 @@
       </div>
 
       <div class="pt-2 flex flex-wrap justify-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-medium">
-        <a href="#cctv-vms" class="bg-emerald-600/90 hover:bg-emerald-500 border border-emerald-400/40 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95">
+        <!-- Shortcut ke Laman CCTV Baru -->
+        <a href="cctv.html" class="bg-emerald-600/90 hover:bg-emerald-500 border border-emerald-400/40 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95">
           <i data-lucide="video" class="w-4 h-4 text-emerald-200"></i>
-          <span>Live CCTV (7 Kamera)</span>
+          <span>Pantau CCTV (7 Kamera)</span>
         </a>
         <a href="#keuangan" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
           <i data-lucide="wallet" class="w-4 h-4 text-emerald-400"></i>
@@ -97,238 +92,6 @@
 
   <!-- Main Content -->
   <main class="max-w-6xl mx-auto px-4 py-8 flex-grow space-y-12 w-full relative">
-
-    <!-- SECTION 0: CCTV WEB VMS MONITORING (7 KAMERA) WITH QR SCANNER & FILE UPLOAD -->
-    <section id="cctv-vms" class="scroll-mt-20 w-full space-y-4">
-      <div class="bg-slate-900 text-white p-5 md:p-6 rounded-2xl shadow-xl border border-slate-800 relative overflow-hidden">
-        
-        <!-- Header CCTV VMS -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800">
-          <div>
-            <div class="flex items-center space-x-2">
-              <span class="p-1.5 bg-emerald-500/20 text-emerald-400 rounded-lg border border-emerald-500/30">
-                <i data-lucide="video" class="w-5 h-5"></i>
-              </span>
-              <h3 class="text-xl md:text-2xl font-bold text-white tracking-wide">Web VMS Live CCTV Lorong</h3>
-            </div>
-            <p class="text-xs text-slate-400 mt-1">Pemantauan 7 Kamera Keamanan Lorong Flamboyan 4 secara Real-time</p>
-          </div>
-
-          <!-- Status Token & Control Buttons -->
-          <div class="flex flex-wrap items-center gap-2">
-            <div id="vms-status-badge" class="bg-rose-500/20 text-rose-300 border border-rose-500/30 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5">
-              <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-              <span id="vms-status-text">Perlu Pairing QR DVR</span>
-            </div>
-
-            <button onclick="openQrScannerModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-md active:scale-95">
-              <i data-lucide="qr-code" class="w-4 h-4"></i>
-              <span>Scan / Upload QR</span>
-            </button>
-
-            <button onclick="refreshAllCctv()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 p-2 rounded-xl transition" title="Refresh Semua Stream">
-              <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Banner Informasi Pairing QR -->
-        <div id="vms-pairing-alert" class="mt-4 p-3 bg-indigo-950/80 border border-indigo-800/60 rounded-xl text-xs text-indigo-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div class="flex items-center space-x-2">
-            <i data-lucide="info" class="w-4 h-4 text-indigo-400 shrink-0"></i>
-            <span>Scan QR Code dari kamera HP / unggah foto QR dari PC untuk menyambungkan seluruh 7 kamera lorong.</span>
-          </div>
-          <button onclick="openQrScannerModal()" class="text-xs font-bold text-emerald-400 hover:underline whitespace-nowrap">Hubungkan &rarr;</button>
-        </div>
-
-        <!-- GRID 7 KAMERA CCTV -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
-
-          <!-- KAMERA 1 -->
-          <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex flex-col justify-between group">
-            <div class="p-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs">
-              <span class="font-bold text-slate-200 flex items-center space-x-1.5">
-                <i data-lucide="camera" class="w-3.5 h-3.5 text-indigo-400"></i>
-                <span>CAM 01 - Portal Gerbang Depan</span>
-              </span>
-              <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-mono">LIVE</span>
-            </div>
-            <div class="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
-              <iframe id="cctv-stream-1" class="w-full h-full border-0 hidden" allowfullscreen></iframe>
-              <div id="cctv-placeholder-1" class="text-center p-4">
-                <i data-lucide="video-off" class="w-8 h-8 text-slate-600 mx-auto mb-2"></i>
-                <p class="text-[11px] text-slate-400">Kamera Portal Depan</p>
-                <p class="text-[9px] text-slate-500 mt-0.5">Scan/Upload QR DVR untuk memutar</p>
-              </div>
-            </div>
-            <div class="p-2 bg-slate-900/80 border-t border-slate-800 flex justify-between items-center text-[10px] text-slate-400">
-              <span>Channel 1</span>
-              <button onclick="fullscreenCamera('cctv-stream-1')" class="hover:text-white transition flex items-center space-x-1">
-                <i data-lucide="maximize" class="w-3 h-3"></i>
-                <span>Perbesar</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- KAMERA 2 -->
-          <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex flex-col justify-between group">
-            <div class="p-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs">
-              <span class="font-bold text-slate-200 flex items-center space-x-1.5">
-                <i data-lucide="camera" class="w-3.5 h-3.5 text-indigo-400"></i>
-                <span>CAM 02 - Gang Utama 1</span>
-              </span>
-              <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-mono">LIVE</span>
-            </div>
-            <div class="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
-              <iframe id="cctv-stream-2" class="w-full h-full border-0 hidden" allowfullscreen></iframe>
-              <div id="cctv-placeholder-2" class="text-center p-4">
-                <i data-lucide="video-off" class="w-8 h-8 text-slate-600 mx-auto mb-2"></i>
-                <p class="text-[11px] text-slate-400">Kamera Gang Utama 1</p>
-                <p class="text-[9px] text-slate-500 mt-0.5">Scan/Upload QR DVR untuk memutar</p>
-              </div>
-            </div>
-            <div class="p-2 bg-slate-900/80 border-t border-slate-800 flex justify-between items-center text-[10px] text-slate-400">
-              <span>Channel 2</span>
-              <button onclick="fullscreenCamera('cctv-stream-2')" class="hover:text-white transition flex items-center space-x-1">
-                <i data-lucide="maximize" class="w-3 h-3"></i>
-                <span>Perbesar</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- KAMERA 3 -->
-          <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex flex-col justify-between group">
-            <div class="p-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs">
-              <span class="font-bold text-slate-200 flex items-center space-x-1.5">
-                <i data-lucide="camera" class="w-3.5 h-3.5 text-indigo-400"></i>
-                <span>CAM 03 - Gang Utama 2</span>
-              </span>
-              <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-mono">LIVE</span>
-            </div>
-            <div class="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
-              <iframe id="cctv-stream-3" class="w-full h-full border-0 hidden" allowfullscreen></iframe>
-              <div id="cctv-placeholder-3" class="text-center p-4">
-                <i data-lucide="video-off" class="w-8 h-8 text-slate-600 mx-auto mb-2"></i>
-                <p class="text-[11px] text-slate-400">Kamera Gang Utama 2</p>
-                <p class="text-[9px] text-slate-500 mt-0.5">Scan/Upload QR DVR untuk memutar</p>
-              </div>
-            </div>
-            <div class="p-2 bg-slate-900/80 border-t border-slate-800 flex justify-between items-center text-[10px] text-slate-400">
-              <span>Channel 3</span>
-              <button onclick="fullscreenCamera('cctv-stream-3')" class="hover:text-white transition flex items-center space-x-1">
-                <i data-lucide="maximize" class="w-3 h-3"></i>
-                <span>Perbesar</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- KAMERA 4 -->
-          <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex flex-col justify-between group">
-            <div class="p-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs">
-              <span class="font-bold text-slate-200 flex items-center space-x-1.5">
-                <i data-lucide="camera" class="w-3.5 h-3.5 text-indigo-400"></i>
-                <span>CAM 04 - Area Pos Kamling</span>
-              </span>
-              <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-mono">LIVE</span>
-            </div>
-            <div class="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
-              <iframe id="cctv-stream-4" class="w-full h-full border-0 hidden" allowfullscreen></iframe>
-              <div id="cctv-placeholder-4" class="text-center p-4">
-                <i data-lucide="video-off" class="w-8 h-8 text-slate-600 mx-auto mb-2"></i>
-                <p class="text-[11px] text-slate-400">Kamera Pos Kamling</p>
-                <p class="text-[9px] text-slate-500 mt-0.5">Scan/Upload QR DVR untuk memutar</p>
-              </div>
-            </div>
-            <div class="p-2 bg-slate-900/80 border-t border-slate-800 flex justify-between items-center text-[10px] text-slate-400">
-              <span>Channel 4</span>
-              <button onclick="fullscreenCamera('cctv-stream-4')" class="hover:text-white transition flex items-center space-x-1">
-                <i data-lucide="maximize" class="w-3 h-3"></i>
-                <span>Perbesar</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- KAMERA 5 -->
-          <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex flex-col justify-between group">
-            <div class="p-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs">
-              <span class="font-bold text-slate-200 flex items-center space-x-1.5">
-                <i data-lucide="camera" class="w-3.5 h-3.5 text-indigo-400"></i>
-                <span>CAM 05 - Blok Belakang 1</span>
-              </span>
-              <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-mono">LIVE</span>
-            </div>
-            <div class="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
-              <iframe id="cctv-stream-5" class="w-full h-full border-0 hidden" allowfullscreen></iframe>
-              <div id="cctv-placeholder-5" class="text-center p-4">
-                <i data-lucide="video-off" class="w-8 h-8 text-slate-600 mx-auto mb-2"></i>
-                <p class="text-[11px] text-slate-400">Kamera Blok Belakang 1</p>
-                <p class="text-[9px] text-slate-500 mt-0.5">Scan/Upload QR DVR untuk memutar</p>
-              </div>
-            </div>
-            <div class="p-2 bg-slate-900/80 border-t border-slate-800 flex justify-between items-center text-[10px] text-slate-400">
-              <span>Channel 5</span>
-              <button onclick="fullscreenCamera('cctv-stream-5')" class="hover:text-white transition flex items-center space-x-1">
-                <i data-lucide="maximize" class="w-3 h-3"></i>
-                <span>Perbesar</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- KAMERA 6 -->
-          <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex flex-col justify-between group">
-            <div class="p-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs">
-              <span class="font-bold text-slate-200 flex items-center space-x-1.5">
-                <i data-lucide="camera" class="w-3.5 h-3.5 text-indigo-400"></i>
-                <span>CAM 06 - Blok Belakang 2</span>
-              </span>
-              <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-mono">LIVE</span>
-            </div>
-            <div class="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
-              <iframe id="cctv-stream-6" class="w-full h-full border-0 hidden" allowfullscreen></iframe>
-              <div id="cctv-placeholder-6" class="text-center p-4">
-                <i data-lucide="video-off" class="w-8 h-8 text-slate-600 mx-auto mb-2"></i>
-                <p class="text-[11px] text-slate-400">Kamera Blok Belakang 2</p>
-                <p class="text-[9px] text-slate-500 mt-0.5">Scan/Upload QR DVR untuk memutar</p>
-              </div>
-            </div>
-            <div class="p-2 bg-slate-900/80 border-t border-slate-800 flex justify-between items-center text-[10px] text-slate-400">
-              <span>Channel 6</span>
-              <button onclick="fullscreenCamera('cctv-stream-6')" class="hover:text-white transition flex items-center space-x-1">
-                <i data-lucide="maximize" class="w-3 h-3"></i>
-                <span>Perbesar</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- KAMERA 7 -->
-          <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex flex-col justify-between group sm:col-span-2 lg:col-span-1">
-            <div class="p-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs">
-              <span class="font-bold text-slate-200 flex items-center space-x-1.5">
-                <i data-lucide="camera" class="w-3.5 h-3.5 text-indigo-400"></i>
-                <span>CAM 07 - Sudut Ujung Lorong</span>
-              </span>
-              <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-mono">LIVE</span>
-            </div>
-            <div class="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
-              <iframe id="cctv-stream-7" class="w-full h-full border-0 hidden" allowfullscreen></iframe>
-              <div id="cctv-placeholder-7" class="text-center p-4">
-                <i data-lucide="video-off" class="w-8 h-8 text-slate-600 mx-auto mb-2"></i>
-                <p class="text-[11px] text-slate-400">Kamera Ujung Lorong</p>
-                <p class="text-[9px] text-slate-500 mt-0.5">Scan/Upload QR DVR untuk memutar</p>
-              </div>
-            </div>
-            <div class="p-2 bg-slate-900/80 border-t border-slate-800 flex justify-between items-center text-[10px] text-slate-400">
-              <span>Channel 7</span>
-              <button onclick="fullscreenCamera('cctv-stream-7')" class="hover:text-white transition flex items-center space-x-1">
-                <i data-lucide="maximize" class="w-3 h-3"></i>
-                <span>Perbesar</span>
-              </button>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </section>
 
     <!-- SECTION 1: LAPORAN KEUANGAN -->
     <section id="keuangan" class="scroll-mt-20 w-full">
@@ -717,59 +480,7 @@
 
   </main>
 
-  <!-- MODAL SCANNER QR CODE & UPLOAD FILE QR FOR PC/MOBILE -->
-  <div id="modal-qr-scanner" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="closeQrScannerModal()">
-    <div class="bg-slate-900 text-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-slate-800" onclick="event.stopPropagation()">
-      <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-950">
-        <div class="flex items-center space-x-2">
-          <i data-lucide="qr-code" class="w-5 h-5 text-emerald-400"></i>
-          <h3 class="font-bold text-sm md:text-base text-white">Pairing QR Code DVR CCTV</h3>
-        </div>
-        <button onclick="closeQrScannerModal()" class="p-1 text-slate-400 hover:text-white rounded-full transition">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <div class="p-5 space-y-4 text-center">
-        <!-- Opsi Tab Navigasi: Kamera vs Upload File -->
-        <div class="flex rounded-xl bg-slate-950 p-1 border border-slate-800 text-xs font-semibold">
-          <button id="btn-tab-camera" onclick="switchQrTab('camera')" class="flex-1 py-1.5 rounded-lg bg-indigo-600 text-white transition">Kamera HP/Webcam</button>
-          <button id="btn-tab-upload" onclick="switchQrTab('upload')" class="flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white transition">Upload File Foto QR</button>
-        </div>
-
-        <!-- TAB 1: Pemindai Kamera Live -->
-        <div id="tab-content-camera" class="space-y-2">
-          <p class="text-xs text-slate-300">Arahkan kamera ke **QR Code Serial Number/Cloud ID** pada layar DVR pos atau HP.</p>
-          <div class="relative w-full aspect-square bg-black rounded-xl overflow-hidden border-2 border-emerald-500/50 shadow-inner flex items-center justify-center">
-            <div id="qr-reader" class="w-full h-full"></div>
-          </div>
-        </div>
-
-        <!-- TAB 2: Upload Gambar/Screenshot QR Code -->
-        <div id="tab-content-upload" class="hidden space-y-3 py-2">
-          <p class="text-xs text-slate-300">Pilih file foto/screenshot QR Code DVR dari komputer/HP Anda:</p>
-          <label class="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-indigo-500/50 hover:border-emerald-400 rounded-xl cursor-pointer bg-slate-950/60 hover:bg-slate-950 transition p-4">
-            <i data-lucide="image-plus" class="w-8 h-8 text-indigo-400 mb-2"></i>
-            <span class="text-xs text-slate-300 font-semibold">Klik untuk Memilih File Foto QR</span>
-            <span class="text-[10px] text-slate-500 mt-1">Format: PNG, JPG, JPEG, WEBP</span>
-            <input type="file" id="qr-file-input" accept="image/*" class="hidden" onchange="handleQrFileUpload(event)">
-          </label>
-          <p id="qr-file-status" class="text-xs font-bold text-emerald-400 hidden"></p>
-        </div>
-
-        <!-- Input Manual Serial Number -->
-        <div class="pt-3 border-t border-slate-800 space-y-2">
-          <p class="text-[10px] text-slate-400">Atau ketik Serial Number / Cloud ID secara manual:</p>
-          <div class="flex items-center space-x-2">
-            <input type="text" id="manual-cloud-id" placeholder="Contoh: 0a91f82e8b991204" class="w-full text-xs px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500">
-            <button onclick="connectManualCloudId()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2 rounded-lg transition shrink-0 active:scale-95">Hubungkan</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- OTHER MODALS CONTAINER -->
+  <!-- MODALS CONTAINER -->
   <div id="modal-event-detail" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="closeModalDirect('modal-event-detail')">
     <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col" onclick="event.stopPropagation()">
       <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-indigo-50">
@@ -1029,152 +740,9 @@
     </div>
   </footer>
 
-  <!-- SCRIPT KONTROL VMS SCANNER, FILE UPLOAD & LOGIK UTAMA -->
+  <!-- SCRIPT KONTROL LOGIKA PORTAL -->
   <script>
     lucide.createIcons();
-
-    let html5QrCodeScanner = null;
-    let savedCloudId = localStorage.getItem('flamboyan4_cctv_cloud_id') || '';
-
-    function openQrScannerModal() {
-      openModal('modal-qr-scanner');
-      switchQrTab('camera');
-    }
-
-    function closeQrScannerModal() {
-      stopQrCodeScanner();
-      closeModalDirect('modal-qr-scanner');
-    }
-
-    function switchQrTab(tabType) {
-      const btnCam = document.getElementById('btn-tab-camera');
-      const btnUp = document.getElementById('btn-tab-upload');
-      const contentCam = document.getElementById('tab-content-camera');
-      const contentUp = document.getElementById('tab-content-upload');
-
-      if (tabType === 'camera') {
-        btnCam.className = "flex-1 py-1.5 rounded-lg bg-indigo-600 text-white transition font-bold";
-        btnUp.className = "flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
-        contentCam.classList.remove('hidden');
-        contentUp.classList.add('hidden');
-        startQrCodeScanner();
-      } else {
-        btnUp.className = "flex-1 py-1.5 rounded-lg bg-indigo-600 text-white transition font-bold";
-        btnCam.className = "flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
-        contentUp.classList.remove('hidden');
-        contentCam.classList.add('hidden');
-        stopQrCodeScanner();
-      }
-    }
-
-    function startQrCodeScanner() {
-      if (html5QrCodeScanner) return;
-      html5QrCodeScanner = new Html5Qrcode("qr-reader");
-
-      const config = { fps: 10, qrbox: { width: 220, height: 220 } };
-      html5QrCodeScanner.start({ facingMode: "environment" }, config, onScanSuccess)
-        .catch(err => {
-          console.warn("Kamera tidak ditemukan / ditolak, dapat gunakan tab Upload Foto QR:", err);
-        });
-    }
-
-    function stopQrCodeScanner() {
-      if (html5QrCodeScanner) {
-        html5QrCodeScanner.stop().then(() => {
-          html5QrCodeScanner.clear();
-          html5QrCodeScanner = null;
-        }).catch(err => { html5QrCodeScanner = null; });
-      }
-    }
-
-    function onScanSuccess(decodedText) {
-      if (!decodedText) return;
-      stopQrCodeScanner();
-      closeModalDirect('modal-qr-scanner');
-      parseAndConnectQrText(decodedText);
-    }
-
-    function handleQrFileUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const statusEl = document.getElementById('qr-file-status');
-      statusEl.classList.remove('hidden');
-      statusEl.innerText = "Membaca file gambar...";
-
-      const html5QrCode = new Html5Qrcode("qr-reader");
-      html5QrCode.scanFile(file, true)
-        .then(qrCodeMessage => {
-          statusEl.innerText = "✓ QR Code berhasil dibaca!";
-          setTimeout(() => {
-            closeModalDirect('modal-qr-scanner');
-            parseAndConnectQrText(qrCodeMessage);
-          }, 400);
-        })
-        .catch(err => {
-          statusEl.innerText = "❌ Gagal membaca QR dari file. Pastikan foto QR cukup jelas.";
-        });
-    }
-
-    function parseAndConnectQrText(decodedText) {
-      let extractedId = decodedText.trim();
-      const match = decodedText.match(/sn=([a-zA-Z0-9_-]+)/i) || decodedText.match(/id=([a-zA-Z0-9_-]+)/i) || decodedText.match(/([a-zA-Z0-9]{16,32})/);
-      if (match) extractedId = match[1];
-
-      processPairingCctv(extractedId);
-    }
-
-    function connectManualCloudId() {
-      const val = document.getElementById('manual-cloud-id').value.trim();
-      if (!val) { alert("Masukkan Serial Number / Cloud ID terlebih dahulu."); return; }
-      stopQrCodeScanner();
-      closeModalDirect('modal-qr-scanner');
-      processPairingCctv(val);
-    }
-
-    function processPairingCctv(cloudId) {
-      if (!cloudId) return;
-      savedCloudId = cloudId;
-      localStorage.setItem('flamboyan4_cctv_cloud_id', cloudId);
-
-      const statusBadge = document.getElementById('vms-status-badge');
-      statusBadge.className = "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5";
-      document.getElementById('vms-status-text').innerText = `Terhubung: ${cloudId.substring(0, 8)}...`;
-      
-      const alertBox = document.getElementById('vms-pairing-alert');
-      if (alertBox) alertBox.classList.add('hidden');
-
-      for (let ch = 1; ch <= 7; ch++) {
-        const streamFrame = document.getElementById(`cctv-stream-${ch}`);
-        const placeholder = document.getElementById(`cctv-placeholder-${ch}`);
-        
-        if (streamFrame && placeholder) {
-          const embedUrl = `https://rtsp.me/embed/${cloudId}/?channel=${ch}`;
-          streamFrame.src = embedUrl;
-          streamFrame.classList.remove('hidden');
-          placeholder.classList.add('hidden');
-        }
-      }
-    }
-
-    function refreshAllCctv() {
-      if (!savedCloudId) { openQrScannerModal(); return; }
-      processPairingCctv(savedCloudId);
-    }
-
-    function fullscreenCamera(iframeId) {
-      const elem = document.getElementById(iframeId);
-      if (!elem) return;
-      if (elem.requestFullscreen) elem.requestFullscreen();
-      else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
-      else if (elem.msRequestFullscreen) elem.msRequestFullscreen();
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      if (savedCloudId) {
-        processPairingCctv(savedCloudId);
-      }
-    });
 
     window.addEventListener('scroll', function() {
       const btnScroll = document.getElementById('btn-scroll-top');
