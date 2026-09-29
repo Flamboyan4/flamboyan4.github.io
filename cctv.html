@@ -4,34 +4,64 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Live CCTV Lorong | Flamboyan 4</title>
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Library HLS.js Murni JS untuk Browser -->
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
-    body { background-color: #0f172a; color: #f8fafc; }
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      user-select: none;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans">
 
-  <header class="bg-slate-900 border-b border-slate-800 px-4 py-3 sticky top-0 z-40">
+  <!-- Header VMS Dedicated -->
+  <header class="bg-slate-900 border-b border-slate-800 px-4 py-3 sticky top-0 z-40 shadow-lg">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <a href="index.html" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center space-x-1">
+        <a href="index.html" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center space-x-1 text-xs font-semibold">
           <i data-lucide="arrow-left" class="w-4 h-4"></i>
           <span>Kembali ke Portal</span>
         </a>
-        <h1 class="text-sm font-bold text-white flex items-center space-x-2">
+        <div class="h-5 w-[1px] bg-slate-700 hidden sm:block"></div>
+        <h1 class="text-sm sm:text-base font-bold text-white flex items-center space-x-2">
           <i data-lucide="video" class="w-5 h-5 text-emerald-400"></i>
           <span>Web VMS Monitoring CCTV Lorong</span>
         </h1>
       </div>
+
+      <div class="flex items-center space-x-2">
+        <div id="vms-status-badge" class="bg-rose-500/20 text-rose-300 border border-rose-500/30 px-3 py-1 rounded-xl text-xs font-semibold flex items-center space-x-1.5">
+          <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+          <span id="vms-status-text">Belum Terhubung</span>
+        </div>
+
+        <button onclick="openModalPairing()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-md">
+          <i data-lucide="link" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Hubungkan Stream</span>
+        </button>
+      </div>
     </div>
   </header>
 
+  <!-- Main Grid CCTV -->
   <main class="max-w-7xl mx-auto p-4 flex-grow w-full space-y-4">
-    <!-- Grid 7 Kamera CCTV -->
+
+    <!-- Petunjuk Singkat -->
+    <div id="pairing-notice" class="bg-indigo-950/80 border border-indigo-800/80 p-3.5 rounded-xl text-xs text-indigo-200 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div class="flex items-center space-x-2">
+        <i data-lucide="info" class="w-4 h-4 text-indigo-400 shrink-0"></i>
+        <span>Masukkan URL Stream HTTPS / Embed ID RTSP.me untuk menampilkan siaran 7 kamera secara real-time.</span>
+      </div>
+      <button onclick="openModalPairing()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1 rounded-lg text-xs transition shrink-0">Input Link Stream &rarr;</button>
+    </div>
+
+    <!-- GRID 7 KAMERA -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
       <script>
         const camTitles = [
           "CAM 01 - Portal Gerbang Depan",
@@ -45,7 +75,7 @@
 
         for (let i = 1; i <= 7; i++) {
           document.write(`
-            <div class="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden flex flex-col justify-between shadow-md">
+            <div id="card-cam-${i}" class="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden flex flex-col justify-between shadow-md transition-all">
               <div class="p-2.5 bg-slate-950 border-b border-slate-800 flex items-center justify-between text-xs">
                 <span class="font-bold text-slate-200 flex items-center space-x-1.5">
                   <i data-lucide="camera" class="w-3.5 h-3.5 text-indigo-400"></i>
@@ -54,63 +84,128 @@
                 <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-mono">CH ${i}</span>
               </div>
 
-              <div class="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
-                <!-- HTML5 Canvas / Video JS Player -->
-                <canvas id="cctv-canvas-${i}" class="w-full h-full hidden object-contain"></canvas>
-                <video id="cctv-video-${i}" class="w-full h-full hidden" autoplay muted playsinline></video>
+              <div id="container-cam-${i}" class="relative aspect-video bg-black flex items-center justify-center overflow-hidden group">
+                <iframe id="cctv-frame-${i}" class="w-full h-full border-0 hidden" allow="autoplay; fullscreen" allowfullscreen></iframe>
                 
                 <div id="cctv-placeholder-${i}" class="text-center p-4">
                   <i data-lucide="video-off" class="w-8 h-8 text-slate-600 mx-auto mb-2"></i>
                   <p class="text-xs text-slate-400 font-medium">${camTitles[i-1]}</p>
-                  <p class="text-[10px] text-slate-500 mt-1">Gunakan mode HTTP/HLS atau DDNS</p>
+                  <p class="text-[10px] text-slate-500 mt-1">Siaran Belum Dihubungkan</p>
                 </div>
               </div>
 
               <div class="p-2 bg-slate-950 border-t border-slate-800 flex justify-between items-center text-[11px] text-slate-400">
-                <button onclick="startJsSnapshotStream(${i})" class="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center space-x-1">
-                  <i data-lucide="play" class="w-3.5 h-3.5"></i>
-                  <span>Putar JS Stream</span>
-                </button>
-                <a href="http://192.168.1.2" target="_blank" class="hover:text-white flex items-center space-x-1">
+                <button onclick="openDirectTab(${i})" class="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center space-x-1">
                   <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-                  <span>Akses DVR Direct</span>
-                </a>
+                  <span>Buka Tab Baru</span>
+                </button>
+                
+                <button onclick="fullscreenCam(${i})" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1 rounded-lg font-semibold flex items-center space-x-1.5 transition active:scale-95">
+                  <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-emerald-400"></i>
+                  <span>Layar Penuh</span>
+                </button>
               </div>
             </div>
           `);
         }
       </script>
+
     </div>
   </main>
+
+  <!-- MODAL INPUT STREAM LINK -->
+  <div id="modal-pairing" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4" onclick="closeModalPairing()">
+    <div class="bg-slate-900 border border-slate-800 text-white w-full max-w-md rounded-2xl shadow-2xl p-5 space-y-4" onclick="event.stopPropagation()">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-sm md:text-base flex items-center space-x-2">
+          <i data-lucide="link" class="w-5 h-5 text-emerald-400"></i>
+          <span>Pengaturan URL Stream CCTV</span>
+        </h3>
+        <button onclick="closeModalPairing()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div class="space-y-3">
+        <label class="block text-xs text-slate-300 font-medium">Masukkan Embed ID RTSP.me / URL Stream HTTPS:</label>
+        <input type="text" id="input-stream-url" placeholder="Contoh: https://rtsp.me/embed/8lcd0nS9/..." class="w-full text-xs p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-indigo-500 font-mono">
+
+        <button onclick="saveStreamUrl()" class="w-full bg-indigo-600 hover:bg-indigo-500 font-bold py-2.5 rounded-xl text-xs transition">Simpan & Tampilkan</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     lucide.createIcons();
 
-    // SCRIPT JAVASCRIPT UNTUK MEMUTAR CAMERA SNAPSHOT LOOP DIRECT DARI BROWSER
-    function startJsSnapshotStream(channel) {
-      const canvas = document.getElementById(`cctv-canvas-${channel}`);
-      const placeholder = document.getElementById(`cctv-placeholder-${channel}`);
-      const ctx = canvas.getContext('2d');
+    let activeStreamUrl = localStorage.getItem('flamboyan4_cctv_stream_url') || '';
 
-      placeholder.classList.add('hidden');
-      canvas.classList.remove('hidden');
-
-      // Alamat IP DVR Lokal
-      const dvrIp = "192.168.1.2"; //[cite: 2]
-      
-      // Mengambil snapshot frame tiap 1 detik menggunakan Pure JS Image
-      setInterval(() => {
-        const img = new Image();
-        // Endpoint snapshot umum DVR Xiongmai/XMEye/Hikvision
-        img.src = `http://${dvrIp}/cgi-bin/snapshot.cgi?channel=${channel}&time=` + new Date().getTime();
-        
-        img.onload = function() {
-          canvas.width = img.width || 640;
-          canvas.height = img.height || 360;
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        };
-      }, 1000);
+    function openModalPairing() {
+      document.getElementById('modal-pairing').classList.remove('hidden');
     }
+
+    function closeModalPairing() {
+      document.getElementById('modal-pairing').classList.add('hidden');
+    }
+
+    function saveStreamUrl() {
+      const val = document.getElementById('input-stream-url').value.trim();
+      if (!val) return alert("Masukkan URL Stream / Embed ID terlebih dahulu.");
+      
+      activeStreamUrl = val;
+      localStorage.setItem('flamboyan4_cctv_stream_url', val);
+      closeModalPairing();
+      applyStreams();
+    }
+
+    function applyStreams() {
+      if (!activeStreamUrl) return;
+
+      document.getElementById('vms-status-badge').className = "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-xl text-xs font-semibold flex items-center space-x-1.5";
+      document.getElementById('vms-status-text').innerText = "Terhubung";
+      document.getElementById('pairing-notice').classList.add('hidden');
+
+      for (let ch = 1; ch <= 7; ch++) {
+        const iframe = document.getElementById(`cctv-frame-${ch}`);
+        const placeholder = document.getElementById(`cctv-placeholder-${ch}`);
+
+        let finalUrl = activeStreamUrl;
+        if (!finalUrl.startsWith('http')) {
+          finalUrl = `https://rtsp.me/embed/${activeStreamUrl}/?channel=${ch}`;
+        }
+
+        iframe.src = finalUrl;
+        iframe.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+      }
+    }
+
+    function openDirectTab(ch) {
+      if (!activeStreamUrl) return openModalPairing();
+      let finalUrl = activeStreamUrl;
+      if (!finalUrl.startsWith('http')) {
+        finalUrl = `https://rtsp.me/embed/${activeStreamUrl}/?channel=${ch}`;
+      }
+      window.open(finalUrl, '_blank');
+    }
+
+    function fullscreenCam(ch) {
+      const container = document.getElementById(`container-cam-${ch}`);
+      if (!container) return;
+
+      if (container.requestFullscreen) {
+        container.requestFullscreen();
+      } else if (container.webkitRequestFullscreen) {
+        container.webkitRequestFullscreen();
+      } else if (container.msRequestFullscreen) {
+        container.msRequestFullscreen();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (activeStreamUrl) {
+        document.getElementById('input-stream-url').value = activeStreamUrl;
+        applyStreams();
+      }
+    });
   </script>
 </body>
 </html>
