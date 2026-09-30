@@ -1044,9 +1044,8 @@
     const FOLDER_JERSEY_URL = 'https://drive.google.com/drive/folders/1_VH_MHlOhA_tSXPsw1ztJEf3fVydU7gE';
     const FOLDER_GAPURA_URL = 'https://drive.google.com/drive/folders/1Zs2RlbHTvNc9RDhbc1TlgcptXeNhnrQ5';
     
-    const FOLDER_API_URL = 'https://script.google.com/macros/s/AKfycbyOgZkE4BOK-zhTX48EqjHrP4JNwIOwLZ48wp5XSFKkvjebYc47PjtGPHHGLAnJFLsbIQ/exec';
-    const CHAT_API_URL = 'https://script.google.com/macros/s/AKfycbyOgZkE4BOK-zhTX48EqjHrP4JNwIOwLZ48wp5XSFKkvjebYc47PjtGPHHGLAnJFLsbIQ/exec';
-    const CHAT_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=1384643354&single=true&output=csv';
+    const FOLDER_API_URL = 'https://script.google.com/macros/s/AKfycbyes6A9_9EQ8vIYtf75cGgC9sKAZBvMewxEhYRSThjMAlBYqnkmKpa3yoPOtN0FEG92Zg/exec';
+    const CHAT_API_URL = 'https://script.google.com/macros/s/AKfycbyes6A9_9EQ8vIYtf75cGgC9sKAZBvMewxEhYRSThjMAlBYqnkmKpa3yoPOtN0FEG92Zg/exec';
 
     const TARGET_DANA_GAPURA = 6500000;
     const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='100%25' height='100%25' fill='%231e1b4b'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='18' fill='%23818cf8' text-anchor='middle' dy='.3em'%3EDokumentasi Kegiatan Warga%3C/text%3E%3C/svg%3E";
@@ -1102,7 +1101,7 @@
       return cleanUrl;
     }
 
-    // LOGIKA OBROLAN WARGA MENGGUNAKAN GET PARAMETER (STABIL & AMAN)
+    // LOGIKA OBROLAN WARGA MENGGUNAKAN GET PARAMETER (TERHUBUNG KE doGet)
     let globalKomentarList = [];
 
     function insertEmoticon(emot) {
@@ -1111,103 +1110,18 @@
       txt.focus();
     }
 
-    async function fetchKomentarOnline() {
+    function fetchKomentarOnline() {
       if (!CHAT_API_URL || !CHAT_API_URL.startsWith('http')) return;
 
-      try {
-        // Cache-busting supaya browser tidak memakai hasil GET lama.
-        const response = await fetch(`${CHAT_API_URL}?t=${Date.now()}`, {
-          method: 'GET',
-          mode: 'cors',
-          cache: 'no-store'
-        });
-
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-        const res = await response.json();
-
-        if (res && res.status === 'success' && Array.isArray(res.data)) {
-          globalKomentarList = [...res.data].reverse();
-          renderKomentarWarga();
-          return;
-        }
-
-        throw new Error(res && res.message ? res.message : 'Format data tidak valid');
-      } catch (err) {
-        console.log("Gagal memuat obrolan dari Apps Script:", err);
-
-        // Fallback: baca CSV publik jika endpoint Apps Script sedang bermasalah.
-        try {
-          const csvResponse = await fetch(`${CHAT_CSV_URL}&t=${Date.now()}`, {
-            cache: 'no-store'
-          });
-
-          if (!csvResponse.ok) throw new Error(`CSV HTTP ${csvResponse.status}`);
-
-          const csvText = await csvResponse.text();
-          const rows = parseCSVChat(csvText);
-
-          if (rows.length > 0) {
-            globalKomentarList = rows.reverse();
+      fetch(CHAT_API_URL)
+        .then(response => response.json())
+        .then(res => {
+          if (res && res.data && Array.isArray(res.data)) {
+            globalKomentarList = res.data.reverse();
             renderKomentarWarga();
           }
-        } catch (csvErr) {
-          console.log("Gagal memuat obrolan dari CSV:", csvErr);
-        }
-      }
-    }
-
-    function parseCSVChat(csvText) {
-      const rows = [];
-      let row = [];
-      let cell = '';
-      let inQuotes = false;
-
-      for (let i = 0; i < csvText.length; i++) {
-        const char = csvText[i];
-        const next = csvText[i + 1];
-
-        if (char === '"') {
-          if (inQuotes && next === '"') {
-            cell += '"';
-            i++;
-          } else {
-            inQuotes = !inQuotes;
-          }
-        } else if (char === ',' && !inQuotes) {
-          row.push(cell);
-          cell = '';
-        } else if ((char === '\n' || char === '\r') && !inQuotes) {
-          if (char === '\r' && next === '\n') i++;
-          row.push(cell);
-          cell = '';
-
-          if (row.some(v => String(v).trim() !== '')) {
-            rows.push(row);
-          }
-          row = [];
-        } else {
-          cell += char;
-        }
-      }
-
-      if (cell !== '' || row.length > 0) {
-        row.push(cell);
-        if (row.some(v => String(v).trim() !== '')) {
-          rows.push(row);
-        }
-      }
-
-      if (rows.length <= 1) return [];
-
-      // Asumsi kolom sheet Obrolan: Waktu | Nama | Pesan
-      return rows.slice(1)
-        .filter(r => r.length >= 3 && (r[0] || r[1] || r[2]))
-        .map(r => ({
-          waktu: r[0] ? String(r[0]) : '',
-          nama: r[1] ? String(r[1]) : 'Warga',
-          pesan: r[2] ? String(r[2]) : ''
-        }));
+        })
+        .catch(err => console.log("Gagal memuat obrolan:", err));
     }
 
     function renderKomentarWarga() {
@@ -1247,90 +1161,32 @@
 
     async function tambahKomentarWarga(e) {
       e.preventDefault();
+      const namaInput = document.getElementById('komentar-nama').value.trim();
+      const pesanInput = document.getElementById('komentar-pesan').value.trim();
 
-      const namaEl = document.getElementById('komentar-nama');
-      const pesanEl = document.getElementById('komentar-pesan');
+      if (!namaInput || !pesanInput) return;
+
       const btnSubmit = document.getElementById('btn-submit-chat');
-
-      const namaInput = namaEl ? namaEl.value.trim() : '';
-      const pesanInput = pesanEl ? pesanEl.value.trim() : '';
-
-      if (!namaInput || !pesanInput) {
-        alert('Nama dan pesan harus diisi.');
-        return;
-      }
-
-      if (!CHAT_API_URL || !CHAT_API_URL.startsWith('http')) {
-        alert('URL Apps Script belum diatur.');
-        return;
-      }
-
       btnSubmit.disabled = true;
-      btnSubmit.innerHTML = `<span>Mengirim...</span>`;
+      btnSubmit.innerHTML = `<span>Menyimpan...</span>`;
+
+      const targetUrl = `${CHAT_API_URL}?nama=${encodeURIComponent(namaInput)}&pesan=${encodeURIComponent(pesanInput)}`;
 
       try {
-        /*
-         * PENTING:
-         * Apps Script Anda sudah memiliki doPost(e).
-         * Karena itu komentar dikirim dengan POST, bukan GET.
-         *
-         * URLSearchParams memakai application/x-www-form-urlencoded,
-         * sehingga request tidak membutuhkan preflight OPTIONS seperti
-         * JSON POST dengan Content-Type application/json.
-         */
-        const body = new URLSearchParams();
-        body.append('nama', namaInput);
-        body.append('pesan', pesanInput);
-
-        const response = await fetch(CHAT_API_URL, {
-          method: 'POST',
-          body: body
-        });
-
-        /*
-         * Jika Apps Script mengembalikan response yang bisa dibaca,
-         * kita cek statusnya. Jika browser terkena pembatasan CORS,
-         * request POST tetap bisa sudah diterima oleh Apps Script;
-         * karena itu kita lanjutkan dengan reload data.
-         */
-        if (response && response.type !== 'opaque') {
-          try {
-            const result = await response.json();
-
-            if (result && result.status === 'error') {
-              throw new Error(result.message || 'Apps Script menolak data.');
-            }
-          } catch (parseErr) {
-            // Response bukan JSON yang bisa dibaca; jangan anggap gagal
-            // jika request HTTP-nya sendiri sudah selesai.
-          }
-        }
-
-        // Bersihkan form setelah request dikirim.
-        pesanEl.value = '';
-
-        btnSubmit.innerHTML = `<span>Terkirim, memuat...</span>`;
-
-        // Beri waktu Spreadsheet selesai appendRow(), lalu ambil data terbaru.
-        setTimeout(async () => {
-          await fetchKomentarOnline();
-
-          btnSubmit.disabled = false;
-          btnSubmit.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>Kirim Komentar</span>`;
-          lucide.createIcons();
-        }, 1200);
-
+        await fetch(targetUrl, { method: 'GET', mode: 'cors' });
       } catch (err) {
-        console.error('Gagal mengirim komentar:', err);
+        const img = new Image();
+        img.src = targetUrl;
+      }
 
+      document.getElementById('komentar-pesan').value = '';
+
+      setTimeout(() => {
+        fetchKomentarOnline();
         btnSubmit.disabled = false;
         btnSubmit.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>Kirim Komentar</span>`;
         lucide.createIcons();
-
-        alert(
-          'Komentar belum berhasil dikirim. Coba lagi beberapa saat.'
-        );
-      }
+      }, 2000);
     }
 
     function openModalKeuangan() { 
