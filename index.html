@@ -980,7 +980,7 @@
     });
   </script>
 
-  <!-- SCRIPT KONTROL LOGIKA PORTAL LAINNYA -->
+  <!-- SCRIPT KONTROL LOGIKA PORTAL UTAMA -->
   <script>
     if (window.location.hash || window.location.pathname.endsWith('index.html')) {
       history.replaceState(null, document.title, window.location.pathname.replace(/index\.html$/, '') + window.location.search);
@@ -1082,6 +1082,7 @@
       });
     }
 
+    // LIST LINK CSV SPREADSHEET
     const CSV_KEUANGAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=422555783&single=true&output=csv';
     const CSV_DOKUMENTASI_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=0&single=true&output=csv';
     const CSV_ARISAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=53284271&single=true&output=csv';
@@ -1112,13 +1113,6 @@
       return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
     }
 
-    function extractFolderId(url) {
-      if (!url) return null;
-      let cleanUrl = url.toString().replace(/[\[\]'"]/g, '').trim().split('?')[0];
-      const match = cleanUrl.match(/\/folders\/([a-zA-Z0-9_-]+)/) || cleanUrl.match(/id=([a-zA-Z0-9_-]+)/);
-      return match ? match[1] : null;
-    }
-
     function extractDriveFileId(url) {
       if (!url) return null;
       let cleanUrl = url.toString().replace(/[\[\]'"]/g, '').trim();
@@ -1146,20 +1140,438 @@
     function openModalDokumentasi() { openModal('modal-dokumentasi'); }
     function openModalSaran() { openModal('modal-saran'); }
 
+    // PARSE KEUANGAN
     if (CSV_KEUANGAN_URL) {
       Papa.parse(CSV_KEUANGAN_URL, { download: true, header: true, complete: function(results) {
-        let rawData = results.data.filter(row => Object.values(row)[0]);
+        globalKeuanganData = results.data.filter(row => Object.values(row)[0]);
         let totalMasuk = 0, totalKeluar = 0;
-        rawData.forEach(row => {
+        let mapBulan = {};
+        
+        globalKeuanganData.forEach(row => {
+          let tglStr = Object.values(row)[0]?.trim();
+          let ket = Object.values(row)[1]?.trim();
+          let kat = Object.values(row)[2]?.trim().toLowerCase();
           let jml = parseFloat(Object.values(row)[3]?.toString().replace(/[^0-9-]/g, '')) || 0;
-          if (Object.values(row)[2]?.trim().toLowerCase() === 'pemasukan') totalMasuk += jml;
+
+          if (kat === 'pemasukan') totalMasuk += jml;
           else totalKeluar += jml;
+
+          if (tglStr) {
+            let parts = tglStr.split(/[-/]/);
+            if (parts.length >= 2) {
+              let m = parts[1].trim();
+              let y = parts[0].trim().length === 4 ? parts[0].trim() : parts[parts.length-1].trim();
+              let kMonth = y + '-' + m;
+              if (!mapBulan[kMonth]) mapBulan[kMonth] = { masuk: 0, keluar: 0, label: m + '/' + y };
+              if (kat === 'pemasukan') mapBulan[kMonth].masuk += jml;
+              else mapBulan[kMonth].keluar += jml;
+            }
+          }
         });
+
         document.getElementById('total-pemasukan-all').innerText = formatRupiah(totalMasuk);
         document.getElementById('total-pengeluaran-all').innerText = formatRupiah(totalKeluar);
         document.getElementById('sisa-saldo').innerText = formatRupiah(totalMasuk - totalKeluar);
         document.getElementById('loading-status').innerText = 'Terhubung live';
+
+        monthlyKeuanganList = Object.keys(mapBulan).sort().map(k => mapBulan[k]);
+        if (monthlyKeuanganList.length > 0) {
+          currentPemasukanMonthIndex = monthlyKeuanganList.length - 1;
+          currentPengeluaranMonthIndex = monthlyKeuanganList.length - 1;
+          updateCardBulanKeuangan();
+        }
+
+        renderTabelTransaksi(globalKeuanganData.slice(-10).reverse(), 'tabel-transaksi');
+        renderTabelTransaksi(globalKeuanganData.slice().reverse(), 'tabel-transaksi-all');
+        document.getElementById('btn-container-keuangan-all').classList.remove('hidden');
       }});
+    }
+
+    function renderTabelTransaksi(data, elementId) {
+      const tbody = document.getElementById(elementId);
+      if (!tbody) return;
+      if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">Tidak ada data transaksi</td></tr>`;
+        return;
+      }
+      let html = '';
+      data.forEach(row => {
+        let cols = Object.values(row);
+        let tgl = cols[0] || '-';
+        let ket = cols[1] || '-';
+        let kat = cols[2] || '-';
+        let jml = parseFloat(cols[3]?.toString().replace(/[^0-9-]/g, '')) || 0;
+        let isMasuk = kat.toLowerCase() === 'pemasukan';
+        html += `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-3 text-slate-600 font-mono text-xs">${tgl}</td>
+            <td class="p-3 text-slate-800 font-medium">${ket}</td>
+            <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${isMasuk ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${kat}</span></td>
+            <td class="p-3 text-right font-bold ${isMasuk ? 'text-emerald-600' : 'text-rose-600'}">${isMasuk ? '+' : '-'} ${formatRupiah(Math.abs(jml))}</td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+    }
+
+    function changeMonthPemasukan(dir) {
+      if (monthlyKeuanganList.length === 0) return;
+      currentPemasukanMonthIndex += dir;
+      if (currentPemasukanMonthIndex < 0) currentPemasukanMonthIndex = 0;
+      if (currentPemasukanMonthIndex >= monthlyKeuanganList.length) currentPemasukanMonthIndex = monthlyKeuanganList.length - 1;
+      updateCardBulanKeuangan();
+    }
+
+    function changeMonthPengeluaran(dir) {
+      if (monthlyKeuanganList.length === 0) return;
+      currentPengeluaranMonthIndex += dir;
+      if (currentPengeluaranMonthIndex < 0) currentPengeluaranMonthIndex = 0;
+      if (currentPengeluaranMonthIndex >= monthlyKeuanganList.length) currentPengeluaranMonthIndex = monthlyKeuanganList.length - 1;
+      updateCardBulanKeuangan();
+    }
+
+    function updateCardBulanKeuangan() {
+      if (monthlyKeuanganList[currentPemasukanMonthIndex]) {
+        let mData = monthlyKeuanganList[currentPemasukanMonthIndex];
+        document.getElementById('label-pemasukan-bulan').innerText = `Pemasukan (${mData.label})`;
+        document.getElementById('pemasukan-bulan-ini').innerText = formatRupiah(mData.masuk);
+      }
+      if (monthlyKeuanganList[currentPengeluaranMonthIndex]) {
+        let mData = monthlyKeuanganList[currentPengeluaranMonthIndex];
+        document.getElementById('label-pengeluaran-bulan').innerText = `Pengeluaran (${mData.label})`;
+        document.getElementById('pengeluaran-bulan-ini').innerText = formatRupiah(mData.keluar);
+      }
+    }
+
+    function filterKeuanganModal() {
+      let q = document.getElementById('search-keuangan').value.toLowerCase();
+      let filtered = globalKeuanganData.filter(row => Object.values(row).some(val => val?.toString().toLowerCase().includes(q)));
+      renderTabelTransaksi(filtered.reverse(), 'tabel-transaksi-all');
+    }
+
+    // PARSE ARISAN
+    if (CSV_ARISAN_URL) {
+      Papa.parse(CSV_ARISAN_URL, { download: true, header: true, complete: function(results) {
+        globalArisanData = results.data.filter(row => Object.values(row)[0]);
+        let today = new Date();
+        let curMonthName = today.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+        
+        let foundIdx = -1;
+        globalArisanData.forEach((row, idx) => {
+          let bulan = Object.values(row)[0] || '';
+          if (bulan.toLowerCase().includes(today.toLocaleDateString('id-ID', { month: 'long' }).toLowerCase()) || bulan.toLowerCase().includes(today.getFullYear().toString())) {
+            foundIdx = idx;
+          }
+        });
+
+        if (foundIdx === -1 && globalArisanData.length > 0) foundIdx = 0;
+        currentArisanIdxGlobal = foundIdx;
+
+        if (foundIdx > -1 && globalArisanData[foundIdx]) {
+          let curr = globalArisanData[foundIdx];
+          let next = globalArisanData[foundIdx + 1] || globalArisanData[0];
+          
+          document.getElementById('arisan-bulan-ini-nama').innerText = Object.values(curr)[1] || '-';
+          document.getElementById('arisan-bulan-ini-tgl').innerText = Object.values(curr)[0] || '-';
+          
+          if (next) {
+            document.getElementById('arisan-selanjutnya-nama').innerText = Object.values(next)[1] || '-';
+            document.getElementById('arisan-selanjutnya-tgl').innerText = Object.values(next)[0] || '-';
+          }
+        }
+        document.getElementById('loading-status-arisan').innerText = 'Jadwal Aktif';
+        renderTabelArisan(globalArisanData, 'tabel-arisan-all');
+      }});
+    }
+
+    function renderTabelArisan(data, elementId) {
+      const tbody = document.getElementById(elementId);
+      if (!tbody) return;
+      let html = '';
+      data.forEach((row, idx) => {
+        let cols = Object.values(row);
+        let bulan = cols[0] || '-';
+        let nama = cols[1] || '-';
+        let status = cols[2] || 'Belum';
+        let isAktif = idx === currentArisanIdxGlobal;
+        html += `
+          <tr class="${isAktif ? 'bg-indigo-50/80 font-semibold' : 'hover:bg-slate-50'} transition">
+            <td class="p-3 text-slate-700">${bulan}</td>
+            <td class="p-3 text-slate-900">${nama}</td>
+            <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${status.toLowerCase() === 'selesai' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${status}</span></td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+    }
+
+    function filterArisanModal() {
+      let q = document.getElementById('search-arisan').value.toLowerCase();
+      let filtered = globalArisanData.filter(row => Object.values(row).some(val => val?.toString().toLowerCase().includes(q)));
+      renderTabelArisan(filtered, 'tabel-arisan-all');
+    }
+
+    // PARSE RENCANA & KALENDER
+    if (CSV_RENCANA_URL) {
+      Papa.parse(CSV_RENCANA_URL, { download: true, header: true, complete: function(results) {
+        globalRencanaData = results.data.filter(row => Object.values(row)[0]);
+        renderCalendar();
+        renderRencanaList();
+      }});
+    }
+
+    function renderCalendar() {
+      const grid = document.getElementById('calendar-days-grid');
+      const monthYearLabel = document.getElementById('calendar-month-year');
+      if (!grid || !monthYearLabel) return;
+
+      let year = calendarDate.getFullYear();
+      let month = calendarDate.getMonth();
+      
+      monthYearLabel.innerText = calendarDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+
+      let firstDay = new Date(year, month, 1).getDay();
+      let totalDays = new Date(year, month + 1, 0).getDate();
+
+      let html = '';
+      for (let i = 0; i < firstDay; i++) {
+        html += `<div></div>`;
+      }
+
+      let today = new Date();
+      for (let d = 1; d <= totalDays; d++) {
+        let dStr = `${year}-${String(month+1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        let matches = globalRencanaData.filter(row => Object.values(row)[0]?.trim().startsWith(dStr) || Object.values(row)[0]?.trim() === `${d} ${calendarDate.toLocaleDateString('id-ID', {month:'short'})}`);
+        let hasEvent = matches.length > 0;
+        let isGorol = matches.some(m => Object.values(m)[1]?.toLowerCase().includes('gorol') || Object.values(m)[1]?.toLowerCase().includes('kerja bakti'));
+
+        let isToday = (d === today.getDate() && month === today.getMonth() && year === today.getFullYear());
+
+        html += `
+          <div onclick="openCalendarDetail('${dStr}')" class="h-10 sm:h-12 flex flex-col items-center justify-center rounded-xl cursor-pointer transition relative border ${isToday ? 'border-indigo-600 bg-indigo-50 font-bold text-indigo-900' : 'border-slate-100 hover:bg-slate-100 text-slate-700'}">
+            <span class="text-xs">${d}</span>
+            ${hasEvent ? `<span class="w-1.5 h-1.5 rounded-full ${isGorol ? 'bg-amber-500' : 'bg-indigo-600'} mt-1"></span>` : ''}
+          </div>
+        `;
+      }
+      grid.innerHTML = html;
+    }
+
+    function changeMonth(dir) {
+      calendarDate.setMonth(calendarDate.getMonth() + dir);
+      renderCalendar();
+    }
+
+    function resetToCurrentMonth() {
+      calendarDate = new Date();
+      renderCalendar();
+    }
+
+    function renderRencanaList() {
+      const container = document.getElementById('container-rencana');
+      if (!container) return;
+      if (globalRencanaData.length === 0) {
+        container.innerHTML = `<p class="text-slate-400 text-xs">Belum ada agenda kegiatan mendatang.</p>`;
+        return;
+      }
+      let html = '';
+      globalRencanaData.forEach(row => {
+        let cols = Object.values(row);
+        let tgl = cols[0] || '-';
+        let nama = cols[1] || '-';
+        let ket = cols[2] || '-';
+        let isGorol = nama.toLowerCase().includes('gorol') || nama.toLowerCase().includes('kerja bakti');
+        html += `
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex items-start space-x-3">
+            <div class="p-2 rounded-lg ${isGorol ? 'bg-amber-100 text-amber-700' : 'bg-indigo-100 text-indigo-700'} shrink-0 mt-0.5">
+              <i data-lucide="${isGorol ? 'shovel' : 'calendar'}" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <p class="font-bold text-slate-800 text-xs md:text-sm">${nama}</p>
+              <p class="text-[11px] text-slate-500 mt-0.5">${tgl} - ${ket}</p>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+      lucide.createIcons();
+    }
+
+    function openCalendarDetail(dateStr) {
+      let matches = globalRencanaData.filter(row => Object.values(row)[0]?.trim().startsWith(dateStr));
+      if (matches.length === 0) return;
+      let bodyHtml = '';
+      matches.forEach(m => {
+        let cols = Object.values(m);
+        bodyHtml += `<div class="p-3 bg-slate-50 rounded-xl border"><p class="font-bold text-slate-800">${cols[1]}</p><p class="text-xs text-slate-500 mt-1">${cols[2] || ''}</p></div>`;
+      });
+      document.getElementById('modal-event-date').innerText = `Agenda Tanggal ${dateStr}`;
+      document.getElementById('modal-event-body').innerHTML = bodyHtml;
+      openModal('modal-event-detail');
+    }
+
+    // PARSE DOKUMENTASI
+    if (CSV_DOKUMENTASI_URL) {
+      Papa.parse(CSV_DOKUMENTASI_URL, { download: true, header: true, complete: function(results) {
+        let data = results.data.filter(row => Object.values(row)[0]);
+        let slider = document.getElementById('slider-dokumentasi');
+        let modalContainer = document.getElementById('container-dokumentasi-all');
+        if (!slider || !modalContainer) return;
+
+        if (data.length === 0) {
+          slider.innerHTML = `<p class="text-slate-400 text-xs">Belum ada dokumentasi.</p>`;
+          modalContainer.innerHTML = `<p class="text-slate-400 text-xs col-span-full text-center">Belum ada dokumentasi.</p>`;
+          return;
+        }
+
+        let htmlSlider = '';
+        let htmlModal = '';
+        data.forEach(row => {
+          let cols = Object.values(row);
+          let judul = cols[0] || 'Kegiatan';
+          let imgUrl = fixDriveUrl(cols[1]);
+          htmlSlider += `
+            <div class="snap-start shrink-0 w-[260px] sm:w-[280px] bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden group cursor-pointer" onclick="openGalleryGridModal('${cols[1]}', '${judul}')">
+              <div class="h-36 bg-slate-100 overflow-hidden relative">
+                <img src="${imgUrl}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${PLACEHOLDER_IMG}'">
+              </div>
+              <div class="p-3"><h4 class="font-bold text-slate-800 text-xs md:text-sm truncate">${judul}</h4></div>
+            </div>
+          `;
+          htmlModal += `
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden cursor-pointer group" onclick="openGalleryGridModal('${cols[1]}', '${judul}')">
+              <div class="h-40 bg-slate-100 overflow-hidden relative">
+                <img src="${imgUrl}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${PLACEHOLDER_IMG}'">
+              </div>
+              <div class="p-3.5"><h4 class="font-bold text-slate-800 text-sm">${judul}</h4></div>
+            </div>
+          `;
+        });
+        slider.innerHTML = htmlSlider;
+        modalContainer.innerHTML = htmlModal;
+      }});
+    }
+
+    function scrollDokumentasi(dir) {
+      const slider = document.getElementById('slider-dokumentasi');
+      if (slider) slider.scrollBy({ left: dir * 300, behavior: 'smooth' });
+    }
+    function scrollProjek(dir) {
+      const slider = document.getElementById('slider-projek');
+      if (slider) slider.scrollBy({ left: dir * 350, behavior: 'smooth' });
+    }
+
+    // PARSE JERSEY BAPAK & IBU
+    function loadJerseyData() {
+      if (CSV_JERSEY_BAPAK_URL) {
+        Papa.parse(CSV_JERSEY_BAPAK_URL, { download: true, header: true, complete: function(results) {
+          globalJerseyBapakData = results.data.filter(row => Object.values(row)[0]);
+          document.getElementById('badge-count-bapak').innerText = globalJerseyBapakData.length;
+          updateJerseySummaryCard();
+        }});
+      }
+      if (CSV_JERSEY_IBU_URL) {
+        Papa.parse(CSV_JERSEY_IBU_URL, { download: true, header: true, complete: function(results) {
+          globalJerseyIbuData = results.data.filter(row => Object.values(row)[0]);
+          document.getElementById('badge-count-ibu').innerText = globalJerseyIbuData.length;
+        }});
+      }
+    }
+    loadJerseyData();
+
+    function switchJerseyTab(tab) {
+      currentJerseyTab = tab;
+      const btnBapak = document.getElementById('tab-jersey-bapak');
+      const btnIbu = document.getElementById('tab-jersey-ibu');
+      const labelKat = document.getElementById('label-tab-kategori');
+
+      if (tab === 'bapak') {
+        btnBapak.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-indigo-600 text-white border-indigo-600 shadow-sm";
+        btnIbu.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-white text-slate-600 border-slate-200 hover:bg-slate-100";
+        labelKat.innerText = "(Bapak)";
+        renderTabelJersey(globalJerseyBapakData);
+      } else {
+        btnIbu.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-indigo-600 text-white border-indigo-600 shadow-sm";
+        btnBapak.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-white text-slate-600 border-slate-200 hover:bg-slate-100";
+        labelKat.innerText = "(Ibu)";
+        renderTabelJersey(globalJerseyIbuData);
+      }
+    }
+
+    function renderTabelJersey(data) {
+      const tbody = document.getElementById('tabel-jersey-all');
+      if (!tbody) return;
+      if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">Belum ada data pemesan</td></tr>`;
+        return;
+      }
+      let totalTagihan = 0, totalTerkumpul = 0;
+      let html = '';
+      data.forEach((row, idx) => {
+        let cols = Object.values(row);
+        let nama = cols[1] || '-';
+        let lengan = cols[2] || '-';
+        let ukuran = cols[3] || '-';
+        let punggung = cols[4] || '-';
+        let bayar = parseFloat(cols[5]?.toString().replace(/[^0-9-]/g, '')) || 0;
+        let status = cols[6] || 'DP';
+        
+        totalTagihan += 120000; // Standar harga estimasi
+        totalTerkumpul += bayar;
+
+        html += `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-3 text-center text-slate-500 font-mono">${idx+1}</td>
+            <td class="p-3 font-bold text-slate-800">${nama}</td>
+            <td class="p-3 text-slate-600">${lengan}</td>
+            <td class="p-3 font-semibold text-indigo-600">${ukuran}</td>
+            <td class="p-3 text-slate-700">${punggung}</td>
+            <td class="p-3 text-right font-mono font-bold text-emerald-600">${formatRupiah(bayar)}</td>
+            <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${status.toLowerCase().includes('lunas') ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${status}</span></td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+      document.getElementById('modal-jersey-total-tagihan').innerText = formatRupiah(totalTagihan);
+      document.getElementById('modal-jersey-terkumpul').innerText = formatRupiah(totalTerkumpul);
+      document.getElementById('modal-jersey-sisa').innerText = formatRupiah(Math.max(0, totalTagihan - totalTerkumpul));
+    }
+
+    function updateJerseySummaryCard() {
+      let totalPsn = globalJerseyBapakData.length + globalJerseyIbuData.length;
+      let totalUang = 0;
+      globalJerseyBapakData.forEach(r => totalUang += parseFloat(Object.values(r)[5]?.toString().replace(/[^0-9-]/g, '')) || 0);
+      globalJerseyIbuData.forEach(r => totalUang += parseFloat(Object.values(r)[5]?.toString().replace(/[^0-9-]/g, '')) || 0);
+      
+      document.getElementById('total-pemesan-jersey').innerText = `${totalPsn} Orang`;
+      document.getElementById('card-jersey-terkumpul').innerText = formatRupiah(totalUang);
+    }
+
+    function filterJerseyModal() {
+      let q = document.getElementById('search-jersey').value.toLowerCase();
+      let sourceData = currentJerseyTab === 'bapak' ? globalJerseyBapakData : globalJerseyIbuData;
+      let filtered = sourceData.filter(row => Object.values(row).some(val => val?.toString().toLowerCase().includes(q)));
+      renderTabelJersey(filtered);
+    }
+
+    function openGalleryGridModal(url, title) {
+      document.getElementById('gallery-grid-title').innerText = title;
+      let container = document.getElementById('gallery-grid-container');
+      let fileId = extractDriveFileId(url);
+      let imgFull = fileId ? 'https://lh3.googleusercontent.com/d/' + fileId : PLACEHOLDER_IMG;
+      
+      container.innerHTML = `
+        <div class="bg-slate-100 rounded-xl overflow-hidden h-44 cursor-pointer relative group" onclick="openLightboxDirect('${imgFull}', '${title}')">
+          <img src="${imgFull}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${PLACEHOLDER_IMG}'">
+        </div>
+      `;
+      openModal('modal-gallery-grid');
+    }
+
+    function openLightboxDirect(imgUrl, caption) {
+      document.getElementById('lightbox-caption').innerText = caption;
+      document.getElementById('lightbox-media-container').innerHTML = `<img src="${imgUrl}" class="max-h-[80vh] max-w-full object-contain rounded-lg">`;
+      openModal('lightbox-modal');
     }
   </script>
 </body>
