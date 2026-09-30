@@ -505,7 +505,7 @@
       </div>
     </section>
 
-    <!-- SECTION 6: INTERAKSI & OBROLAN WARGA (DENGAN EMOTIKON KASKUS) -->
+    <!-- SECTION 6: INTERAKSI & OBROLAN WARGA (DENGAN EMOTIKON KASKUS + MEKANISME BERSAHKAN CHAT) -->
     <section id="komentar-warga" class="scroll-mt-20 w-full space-y-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
@@ -541,7 +541,7 @@
                 <button type="button" onclick="insertEmoticon(' (^_^) ')" title="Senyum" class="px-2 py-1 text-xs bg-slate-100 hover:bg-amber-100 rounded border border-slate-200 transition">😊 (^_^) </button>
                 <button type="button" onclick="insertEmoticon(' :ngakak ')" title="Ngakak" class="px-2 py-1 text-xs bg-slate-100 hover:bg-amber-100 rounded border border-slate-200 transition">🤣 :ngakak</button>
                 <button type="button" onclick="insertEmoticon(' :malu ')" title="Malu" class="px-2 py-1 text-xs bg-slate-100 hover:bg-amber-100 rounded border border-slate-200 transition">😳 :malu</button>
-                <button type="button" onclick="insertEmoticon(' :sundul ')" title="Sundul" class="px-2 py-1 text-xs bg-slate-100 hover:bg-amber-100 rounded border border-slate-200 transition">☝️️ :sundul</button>
+                <button type="button" onclick="insertEmoticon(' :sundul ')" title="Sundul" class="px-2 py-1 text-xs bg-slate-100 hover:bg-amber-100 rounded border border-slate-200 transition">☝ :sundul</button>
                 <button type="button" onclick="insertEmoticon(' :jempol ')" title="Jempol" class="px-2 py-1 text-xs bg-slate-100 hover:bg-amber-100 rounded border border-slate-200 transition">👍 :jempol</button>
                 <button type="button" onclick="insertEmoticon(' :coffee ')" title="Ngopi" class="px-2 py-1 text-xs bg-slate-100 hover:bg-amber-100 rounded border border-slate-200 transition">☕ :coffee</button>
                 <button type="button" onclick="insertEmoticon(' :mantap ')" title="Mantap" class="px-2 py-1 text-xs bg-slate-100 hover:bg-amber-100 rounded border border-slate-200 transition">🔥 :mantap</button>
@@ -555,14 +555,20 @@
           </form>
         </div>
 
-        <!-- LIST KOMENTAR WARGA (DITAMPILKAN 5, SISANYA SCROLL) -->
+        <!-- LIST KOMENTAR WARGA (DITAMPILKAN 5, SISANYA SCROLL + TOMBOL BERSIHKAN) -->
         <div class="lg:col-span-7 space-y-2 w-full">
           <div class="flex items-center justify-between mb-2 border-b border-slate-100 pb-2">
             <h4 class="font-bold text-slate-800 text-sm flex items-center space-x-1.5">
               <i data-lucide="message-circle" class="w-4 h-4 text-indigo-600"></i>
               <span>Obrolan Terkini</span>
             </h4>
-            <span id="total-komentar-badge" class="text-[11px] text-slate-500 font-mono">0 Komentar</span>
+            <div class="flex items-center space-x-2">
+              <span id="total-komentar-badge" class="text-[11px] text-slate-500 font-mono">0 Komentar</span>
+              <button onclick="bersihkanSemuaChat()" class="text-[11px] text-rose-600 hover:text-rose-800 font-semibold bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2 py-0.5 rounded transition flex items-center space-x-1" title="Bersihkan Obrolan">
+                <i data-lucide="trash-2" class="w-3 h-3"></i>
+                <span>Hapus Obrolan</span>
+              </button>
+            </div>
           </div>
 
           <!-- KOTAK SCROLL MAKSIMAL 5 BARIS TERLIHAT (~360px) -->
@@ -821,7 +827,7 @@
     </button>
   </div>
 
-  <!-- FOOTER DESAIN SIMPEL DENGAN TOMBOL REKENING & QRIS -->
+  <!-- FOOTER TANPA NOMOR REKENING DI TAMPILAN (SALIN OTOMATIS) -->
   <footer class="bg-slate-900 text-slate-400 pt-6 pb-6 border-t border-slate-800 w-full">
     <div class="max-w-6xl mx-auto px-4">
       <div class="bg-slate-800/60 p-4 md:p-5 rounded-2xl border border-slate-700/80 mb-6">
@@ -837,24 +843,24 @@
           <!-- REKENING 1: MANDIRI -->
           <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 flex items-center justify-between">
             <div>
-              <p class="text-white font-bold">Mandiri (Rosalinda)</p>
-              <p class="text-[11px] text-slate-400 font-mono">1330022606479</p>
+              <p class="text-white font-bold">Mandiri</p>
+              <p class="text-[11px] text-slate-400">A/N ROSALINDA</p>
             </div>
             <button onclick="salinNorekEx('1330022606479', 'btn-salin-1', 'btn-text-1')" id="btn-salin-1" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center space-x-1 shrink-0 active:scale-95">
               <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-              <span id="btn-text-1">Salin</span>
+              <span id="btn-text-1">Salin Norek</span>
             </button>
           </div>
 
           <!-- REKENING 2: SEABANK -->
           <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 flex items-center justify-between">
             <div>
-              <p class="text-white font-bold">SeaBank (Heri Juwandi)</p>
-              <p class="text-[11px] text-slate-400 font-mono">901493321399</p>
+              <p class="text-white font-bold">SeaBank</p>
+              <p class="text-[11px] text-slate-400">A/N HERI JUWANDI</p>
             </div>
             <button onclick="salinNorekEx('901493321399', 'btn-salin-2', 'btn-text-2')" id="btn-salin-2" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center space-x-1 shrink-0 active:scale-95">
               <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-              <span id="btn-text-2">Salin</span>
+              <span id="btn-text-2">Salin Norek</span>
             </button>
           </div>
 
@@ -862,7 +868,7 @@
           <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 flex items-center justify-between">
             <div>
               <p class="text-white font-bold">QRIS Pembayaran</p>
-              <p class="text-[11px] text-slate-400">Scan via All E-Wallet/Bank</p>
+              <p class="text-[11px] text-slate-400">All E-Wallet/Bank</p>
             </div>
             <a href="https://lh3.googleusercontent.com/d/1__HrmelJmm4moxTdZr4hMM-Yv5AYJC31" download="Flamboyan4_QRIS_Pembayaran.png" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center space-x-1 shrink-0 active:scale-95">
               <i data-lucide="download" class="w-3.5 h-3.5"></i>
@@ -1034,7 +1040,7 @@
         btn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
         
         setTimeout(() => {
-          textSpan.innerText = "Salin";
+          textSpan.innerText = "Salin Norek";
           btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-500');
           btn.classList.add('bg-indigo-600', 'hover:bg-indigo-500');
         }, 2000);
@@ -1110,11 +1116,8 @@
       return cleanUrl;
     }
 
-    // LOGIKA OBROLAN WARGA (LOCALSTORAGE)
-    let globalKomentarList = JSON.parse(localStorage.getItem('flamboyan4_komentar')) || [
-      { nama: "Pak Heri (A5/41)", pesan: "Siap mang golek jersey udah mendarat 👍 :jempol :mantap", waktu: "30 Sep, 14:10" },
-      { nama: "Pak Kasmali (A5/44)", pesan: "Mantap pak humas! Portal makin gokil. 👍 :sundul", waktu: "30 Sep, 12:30" }
-    ];
+    // LOGIKA OBROLAN WARGA (BERSIH DARI DUMMY)
+    let globalKomentarList = JSON.parse(localStorage.getItem('flamboyan4_komentar')) || [];
 
     function insertEmoticon(emot) {
       const txt = document.getElementById('komentar-pesan');
@@ -1182,6 +1185,19 @@
       document.getElementById('komentar-pesan').value = '';
 
       renderKomentarWarga();
+    }
+
+    // MEKANISME MEMBERSIHKAN CHAT WARGA
+    function bersihkanSemuaChat() {
+      if (globalKomentarList.length === 0) {
+        alert("Kotak obrolan sudah kosong!");
+        return;
+      }
+      if (confirm("Apakah Anda yakin ingin menghapus seluruh obrolan warga?")) {
+        globalKomentarList = [];
+        localStorage.removeItem('flamboyan4_komentar');
+        renderKomentarWarga();
+      }
     }
 
     function openModalKeuangan() { 
