@@ -564,7 +564,7 @@
     </div>
   </div>
 
-  <!-- MODAL JERSEY WITH DUAL TAB & RINCIAN DANA HANYA DI POP-UP -->
+  <!-- MODAL JERSEY WITH DUAL TAB & RINCIAN DANA DI POP-UP -->
   <div id="modal-jersey" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="closeModalDirect('modal-jersey')">
     <div class="bg-white w-full max-w-5xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
@@ -589,7 +589,7 @@
         </button>
       </div>
 
-      <!-- HEADER RINCIAN DANA DI DALAM MODAL -->
+      <!-- HEADER RINCIAN DANA DI DALAM MODAL POP-UP -->
       <div class="px-4 py-3 bg-indigo-950 text-white border-b border-indigo-800 grid grid-cols-3 gap-2 text-center text-xs">
         <div class="bg-indigo-900/60 p-2 rounded-lg border border-indigo-800">
           <p class="text-[10px] text-indigo-300">Total Tagihan <span id="label-tab-kategori" class="font-semibold">(Bapak)</span></p>
@@ -1848,37 +1848,58 @@
       });
     }
 
-    // EKSTRAKSI NOMINAL HARGA DARI KOLOM "PEMBAYARAN"
+    // FUNGSI MEMBACA NOMINAL PEMBAYARAN SECARA PRESISI
     function getNominalHargaJerseyRow(row) {
+      if (!row) return 0;
       const keys = Object.keys(row);
       if (keys.length === 0) return 0;
 
+      // Cari kolom yang bernama "Pembayaran" (Bukan "Status Pembayaran")
       let targetKey = keys.find(k => {
-        const lk = k.toLowerCase();
-        return lk.includes('pembayaran') || lk.includes('harga') || lk.includes('nominal') || lk.includes('bayar') || lk.includes('tagihan');
+        const lk = k.toLowerCase().trim();
+        return lk === 'pembayaran' || (lk.includes('pembayaran') && !lk.includes('status'));
       });
 
+      // Jika tidak ketemu persis, cari yang mengandung kata harga/nominal/tagihan
       if (!targetKey) {
-        if (keys.length >= 6) targetKey = keys[5];
+        targetKey = keys.find(k => {
+          const lk = k.toLowerCase().trim();
+          return lk.includes('harga') || lk.includes('nominal') || lk.includes('tagihan');
+        });
+      }
+
+      // Cadangan fallback jika header tidak sesuai
+      if (!targetKey) {
+        if (keys.length >= 7) targetKey = keys[6]; // Kolom ke-7 (Index 6)
         else targetKey = keys[keys.length - 1];
       }
 
       const val = row[targetKey];
       if (!val) return 0;
 
-      let cleaned = val.toString().replace(/\./g, '').replace(/,/g, '');
-      const num = parseFloat(cleaned.replace(/[^0-9-]/g, '')) || 0;
+      // Parsing format angka Indonesia (contoh: Rp90.000 -> 90000)
+      let strVal = val.toString().trim();
+      strVal = strVal.replace(/rp/gi, '').replace(/\s+/g, '');
+      strVal = strVal.replace(/\./g, ''); // Hapus titik ribuan
+      strVal = strVal.replace(/,/g, '.'); // Ganti koma desimal jika ada
+
+      const num = parseFloat(strVal) || 0;
       return num;
     }
 
-    // EKSTRAKSI STATUS PEMBAYARAN
+    // FUNGSI MEMBACA STATUS PEMBAYARAN (Lunas / DP 50% / -)
     function getStatusJerseyRow(row) {
+      if (!row) return '';
       const keys = Object.keys(row);
-      let targetKey = keys.find(k => k.toLowerCase().includes('status'));
+      
+      // Cari kolom yang mengandung kata "Status"
+      let targetKey = keys.find(k => k.toLowerCase().trim().includes('status'));
+
       if (!targetKey) {
-        if (keys.length >= 6) targetKey = keys[4];
+        if (keys.length >= 6) targetKey = keys[5]; // Kolom ke-6 (Index 5)
         else targetKey = keys[keys.length - 1];
       }
+
       return (row[targetKey] || '').toString().trim();
     }
 
@@ -1901,8 +1922,11 @@
       filterJerseyModal();
     }
 
+    // FUNGSI RENDER SATU BARIS TABEL
     function renderJerseyRow(row) {
       const keys = Object.keys(row);
+      
+      // Mengambil nilai berdasarkan urutan atau kunci header
       const no = row[keys[0]] || '-';
       const namaBlok = row[keys[1]] || '-';
       const lengan = row[keys[2]] || '-';
@@ -1912,7 +1936,7 @@
       const hargaNominal = getNominalHargaJerseyRow(row);
       const statusRaw = getStatusJerseyRow(row);
 
-      let statusBadge = `<span class="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded">-</span>`;
+      let statusBadge = `<span class="px-2 py-0.5 text-xs bg-slate-100 text-slate-400 rounded">-</span>`;
       if (statusRaw.toLowerCase().includes('lunas')) {
         statusBadge = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 font-semibold rounded">Lunas</span>`;
       } else if (statusRaw.toLowerCase().includes('dp')) {
@@ -1989,7 +2013,7 @@
       document.getElementById('total-lunas-jersey').innerText = `${countLunas} Orang`;
       document.getElementById('total-dp-jersey').innerText = `${countDP} Orang`;
 
-      // HANYA UPDATE DANA TERKUMPUL DI CARD HOMEPAGE
+      // UPDATE DANA TERKUMPUL DI CARD HOMEPAGE
       document.getElementById('card-jersey-terkumpul').innerText = formatRupiah(grandTotalTerkumpul);
 
       document.getElementById('badge-count-bapak').innerText = globalJerseyBapakData.length;
