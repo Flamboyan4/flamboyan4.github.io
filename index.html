@@ -504,7 +504,7 @@
       </div>
     </section>
 
-    <!-- SECTION 6: INTERAKSI & OBROLAN WARGA (LIVE SPREADSHEET CHAT) -->
+    <!-- SECTION 6: INTERAKSI & OBROLAN WARGA (LIVE CSV + SPREADSHEET CHAT) -->
     <section id="komentar-warga" class="scroll-mt-20 w-full space-y-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
@@ -536,7 +536,7 @@
               <textarea id="komentar-pesan" required rows="3" placeholder="Ketik obrolan, info, atau sapaan warga di sini..." class="w-full text-xs md:text-sm px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white resize-none"></textarea>
             </div>
 
-            <!-- TOMBOL EMOJI UNICODE NATIVE (PASTI MUNCUL & BISA DIKLIK) -->
+            <!-- TOMBOL EMOJI UNICODE NATIVE (PASTI MUNCUL & LUCU) -->
             <div>
               <label class="block text-[11px] font-semibold text-slate-500 mb-1">Klik Emoticon:</label>
               <div class="flex flex-wrap gap-1.5 bg-white p-2 rounded-lg border border-slate-200 items-center">
@@ -1057,10 +1057,11 @@
     const CSV_JERSEY_BAPAK_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=878370178&single=true&output=csv';
     const CSV_JERSEY_IBU_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=1755921986&single=true&output=csv';
 
+    // LINK CSV & APPS SCRIPT UNTUK OBROLAN WARGA ONLINE
+    const CSV_CHAT_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=1384643354&single=true&output=csv';
     const FOLDER_JERSEY_URL = 'https://drive.google.com/drive/folders/1_VH_MHlOhA_tSXPsw1ztJEf3fVydU7gE';
     const FOLDER_GAPURA_URL = 'https://drive.google.com/drive/folders/1Zs2RlbHTvNc9RDhbc1TlgcptXeNhnrQ5';
     
-    // API URL TERGABUNG UNTUK CHAT SPREADSHEET ONLINE DAN GDRIVE FOLDER
     const FOLDER_API_URL = 'https://script.google.com/macros/s/AKfycbyfl6UwXtU_ThyZypwtUCWXUEsjLTJyLxYQ9tH1AMFWn6JkKTNfgw8TTpPAoRaWjNnJMw/exec';
     const CHAT_API_URL = 'https://script.google.com/macros/s/AKfycbyfl6UwXtU_ThyZypwtUCWXUEsjLTJyLxYQ9tH1AMFWn6JkKTNfgw8TTpPAoRaWjNnJMw/exec';
 
@@ -1118,7 +1119,7 @@
       return cleanUrl;
     }
 
-    // LOGIKA OBROLAN WARGA LIVE ONLINE (GOOGLE SPREADSHEET CHAT)
+    // LOGIKA OBROLAN WARGA LIVE ONLINE (READ CSV + WRITE APPS SCRIPT)
     let globalKomentarList = [];
 
     function insertEmoticon(emot) {
@@ -1127,18 +1128,33 @@
       txt.focus();
     }
 
-    async function fetchKomentarOnline() {
-      if (!CHAT_API_URL) return;
-      try {
-        const res = await fetch(CHAT_API_URL);
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          globalKomentarList = [...data].reverse(); // Pesan terbaru di atas
-          renderKomentarWarga();
+    function fetchKomentarOnline() {
+      if (!CSV_CHAT_URL || !CSV_CHAT_URL.startsWith('http')) return;
+
+      Papa.parse(CSV_CHAT_URL, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+          if (results && results.data) {
+            const validData = results.data.filter(row => {
+              const vals = Object.values(row);
+              return vals.length >= 2 && vals[1] && vals[1].toString().trim() !== '';
+            });
+
+            globalKomentarList = validData.reverse().map(row => {
+              const keys = Object.keys(row);
+              return {
+                waktu: row[keys[0]] || '',
+                nama: row[keys[1]] || 'Warga',
+                pesan: row[keys[2]] || ''
+              };
+            });
+
+            renderKomentarWarga();
+          }
         }
-      } catch (err) {
-        console.error("Gagal memuat chat online:", err);
-      }
+      });
     }
 
     function renderKomentarWarga() {
@@ -1164,8 +1180,8 @@
           <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80 flex items-start justify-between gap-2 hover:bg-slate-100/50 transition">
             <div class="space-y-1 w-full">
               <div class="flex items-center justify-between">
-                <span class="font-bold text-xs md:text-sm text-indigo-950">${item.nama || 'Warga'}</span>
-                <span class="text-[10px] text-slate-400 font-mono">${item.waktu || ''}</span>
+                <span class="font-bold text-xs md:text-sm text-indigo-950">${item.nama}</span>
+                <span class="text-[10px] text-slate-400 font-mono">${item.waktu}</span>
               </div>
               <p class="text-xs md:text-sm text-slate-700 leading-relaxed break-words whitespace-pre-line">${cleanPesan}</p>
             </div>
@@ -1202,7 +1218,7 @@
           btnSubmit.disabled = false;
           btnSubmit.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>Kirim Komentar</span>`;
           lucide.createIcons();
-        }, 1200);
+        }, 1500);
 
       } catch (err) {
         alert("Gagal mengirim komentar. Periksa koneksi internet Anda.");
@@ -1663,7 +1679,7 @@
       initLightboxSwipe();
       initCardGesturesAndKeyboard();
       fetchKomentarOnline();
-      setInterval(fetchKomentarOnline, 5000); // Otomatis refresh obrolan setiap 5 detik
+      setInterval(fetchKomentarOnline, 5000); // Otomatis perbarui obrolan tiap 5 detik
     });
 
     function scrollProjek(direction) {
