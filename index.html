@@ -55,6 +55,10 @@
           <i data-lucide="wallet" class="w-4 h-4 text-emerald-400"></i>
           <span>Kas Warga</span>
         </a>
+        <a href="#arisan" class="bg-white/10 hover:bg-white/25 backdrop-blur-md border border-white/20 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md">
+          <i data-lucide="calendar" class="w-4 h-4 text-amber-300"></i>
+          <span>Jadwal Arisan</span>
+        </a>
         <a href="#kegiatan" class="bg-white/10 hover:bg-white/25 backdrop-blur-md border border-white/20 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md">
           <i data-lucide="camera" class="w-4 h-4 text-sky-300"></i>
           <span>Dokumentasi</span>
@@ -93,7 +97,27 @@
       </div>
     </section>
 
-    <!-- SECTION 2: DOKUMENTASI KEGIATAN -->
+    <!-- SECTION 2: JADWAL ARISAN -->
+    <section id="arisan" class="scroll-mt-20 w-full">
+      <div class="flex items-center space-x-2 mb-6">
+        <i data-lucide="users" class="w-6 h-6 text-indigo-600 shrink-0"></i>
+        <h3 class="text-xl md:text-2xl font-bold text-slate-900">Jadwal Arisan Warga</h3>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white p-5 rounded-xl shadow-md">
+          <span class="text-xs font-semibold text-indigo-200 uppercase">Arisan Bulan Ini</span>
+          <h4 id="arisan-bulan-ini-nama" class="text-lg md:text-xl font-bold mt-1">Memuat data...</h4>
+          <p id="arisan-bulan-ini-tgl" class="text-xs text-indigo-200 mt-0.5">-</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+          <span class="text-xs font-semibold text-indigo-600 uppercase">Tuan Rumah Selanjutnya</span>
+          <h4 id="arisan-selanjutnya-nama" class="text-lg md:text-xl font-bold text-slate-800 mt-1">-</h4>
+          <p id="arisan-selanjutnya-tgl" class="text-xs text-slate-500 mt-0.5">-</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: DOKUMENTASI KEGIATAN -->
     <section id="kegiatan" class="scroll-mt-20 w-full">
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center space-x-2">
@@ -107,7 +131,7 @@
       </div>
     </section>
 
-    <!-- SECTION 3: OBROLAN & SAPA WARGA (TANPA NOTIF LIVE FIREBASE & JUDUL "NAMA" SAJA) -->
+    <!-- SECTION 4: OBROLAN & SAPA WARGA -->
     <section id="komentar-warga" class="scroll-mt-20 w-full space-y-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
@@ -277,7 +301,7 @@
     });
   </script>
 
-  <!-- SCRIPT LOGIKA GOOGLE SHEETS & IMAGE LOADER -->
+  <!-- SCRIPT LOGIKA GOOGLE SHEETS CSV & IMAGE LOADER -->
   <script>
     lucide.createIcons();
 
@@ -289,6 +313,8 @@
 
     const CSV_KEUANGAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=422555783&single=true&output=csv';
     const CSV_DOKUMENTASI_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=0&single=true&output=csv';
+    const CSV_ARISAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=53284271&single=true&output=csv';
+    
     const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='100%25' height='100%25' fill='%231e1b4b'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='18' fill='%23818cf8' text-anchor='middle' dy='.3em'%3EDokumentasi Kegiatan Warga%3C/text%3E%3C/svg%3E";
 
     function extractDriveFileId(url) {
@@ -319,6 +345,29 @@
         document.getElementById('total-pemasukan-all').innerText = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(totalMasuk);
         document.getElementById('total-pengeluaran-all').innerText = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(totalKeluar);
         document.getElementById('sisa-saldo').innerText = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(totalMasuk - totalKeluar);
+      }});
+    }
+
+    // Load Arisan
+    if (CSV_ARISAN_URL) {
+      Papa.parse(CSV_ARISAN_URL, { download: true, header: true, complete: function(results) {
+        let data = results.data.filter(row => Object.values(row)[0]);
+        if (data.length > 0) {
+          let today = new Date();
+          let foundIdx = 0;
+          data.forEach((row, idx) => {
+            let bulan = Object.values(row)[0] || '';
+            if (bulan.toLowerCase().includes(today.toLocaleDateString('id-ID', { month: 'long' }).toLowerCase())) {
+              foundIdx = idx;
+            }
+          });
+          let curr = data[foundIdx] || data[0];
+          let next = data[foundIdx + 1] || data[0];
+          document.getElementById('arisan-bulan-ini-nama').innerText = Object.values(curr)[1] || '-';
+          document.getElementById('arisan-bulan-ini-tgl').innerText = Object.values(curr)[0] || '-';
+          document.getElementById('arisan-selanjutnya-nama').innerText = Object.values(next)[1] || '-';
+          document.getElementById('arisan-selanjutnya-tgl').innerText = Object.values(next)[0] || '-';
+        }
       }});
     }
 
