@@ -504,7 +504,7 @@
       </div>
     </section>
 
-    <!-- SECTION 6: INTERAKSI & OBROLAN WARGA (DENGAN EMOTIKON GAMBAR MOVING GIF) -->
+    <!-- SECTION 6: INTERAKSI & OBROLAN WARGA (DENGAN EMOJI NATIVE UNICODE) -->
     <section id="komentar-warga" class="scroll-mt-20 w-full space-y-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
@@ -533,28 +533,20 @@
               <textarea id="komentar-pesan" required rows="3" placeholder="Ketik obrolan, info, atau sapaan warga di sini..." class="w-full text-xs md:text-sm px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white resize-none"></textarea>
             </div>
 
-            <!-- EMOTIKON GAMBAR MOVING GIF (TANPA KATA KASKUS DI JUDUL) -->
+            <!-- TOMBOL EMOJI UNICODE NATIVE (PASTI MUNCUL & LUCU-LUCU) -->
             <div>
               <label class="block text-[11px] font-semibold text-slate-500 mb-1">Klik Emoticon:</label>
-              <div class="flex flex-wrap gap-2 bg-white p-2.5 rounded-lg border border-slate-200 items-center">
-                <button type="button" onclick="insertEmoticon(' :ngakak ')" title="Ngakak" class="p-1.5 bg-slate-50 hover:bg-amber-100 rounded border border-slate-200 transition transform hover:scale-110">
-                  <img src="https://s.kaskus.id/images/smilies/smilies_15.gif" alt="ngakak" class="w-6 h-6 object-contain">
-                </button>
-                <button type="button" onclick="insertEmoticon(' :malu ')" title="Malu" class="p-1.5 bg-slate-50 hover:bg-amber-100 rounded border border-slate-200 transition transform hover:scale-110">
-                  <img src="https://s.kaskus.id/images/smilies/smilies_11.gif" alt="malu" class="w-6 h-6 object-contain">
-                </button>
-                <button type="button" onclick="insertEmoticon(' :sundul ')" title="Sundul" class="p-1.5 bg-slate-50 hover:bg-amber-100 rounded border border-slate-200 transition transform hover:scale-110">
-                  <img src="https://s.kaskus.id/images/smilies/smilies_47.gif" alt="sundul" class="w-6 h-6 object-contain">
-                </button>
-                <button type="button" onclick="insertEmoticon(' :jempol ')" title="Jempol" class="p-1.5 bg-slate-50 hover:bg-amber-100 rounded border border-slate-200 transition transform hover:scale-110">
-                  <img src="https://s.kaskus.id/images/smilies/smilies_28.gif" alt="jempol" class="w-6 h-6 object-contain">
-                </button>
-                <button type="button" onclick="insertEmoticon(' :coffee ')" title="Ngopi" class="p-1.5 bg-slate-50 hover:bg-amber-100 rounded border border-slate-200 transition transform hover:scale-110">
-                  <img src="https://s.kaskus.id/images/smilies/smilies_33.gif" alt="coffee" class="w-6 h-6 object-contain">
-                </button>
-                <button type="button" onclick="insertEmoticon(' :mikir ')" title="Mikir" class="p-1.5 bg-slate-50 hover:bg-amber-100 rounded border border-slate-200 transition transform hover:scale-110">
-                  <img src="https://s.kaskus.id/images/smilies/smilies_07.gif" alt="mikir" class="w-6 h-6 object-contain">
-                </button>
+              <div class="flex flex-wrap gap-1.5 bg-white p-2 rounded-lg border border-slate-200 items-center">
+                <button type="button" onclick="insertEmoticon('😂')" class="text-xl p-1.5 hover:bg-slate-100 active:scale-125 transition rounded">😂</button>
+                <button type="button" onclick="insertEmoticon('🤣')" class="text-xl p-1.5 hover:bg-slate-100 active:scale-125 transition rounded">🤣</button>
+                <button type="button" onclick="insertEmoticon('😊')" class="text-xl p-1.5 hover:bg-slate-100 active:scale-125 transition rounded">😊</button>
+                <button type="button" onclick="insertEmoticon('🙏')" class="text-xl p-1.5 hover:bg-slate-100 active:scale-125 transition rounded">🙏</button>
+                <button type="button" onclick="insertEmoticon('👍')" class="text-xl p-1.5 hover:bg-slate-100 active:scale-125 transition rounded">👍</button>
+                <button type="button" onclick="insertEmoticon('☕')" class="text-xl p-1.5 hover:bg-slate-100 active:scale-125 transition rounded">☕</button>
+                <button type="button" onclick="insertEmoticon('🔥')" class="text-xl p-1.5 hover:bg-slate-100 active:scale-125 transition rounded">🔥</button>
+                <button type="button" onclick="insertEmoticon('👏')" class="text-xl p-1.5 hover:bg-slate-100 active:scale-125 transition rounded">👏</button>
+                <button type="button" onclick="insertEmoticon('💪')" class="text-xl p-1.5 hover:bg-slate-100 active:scale-125 transition rounded">💪</button>
+                <button type="button" onclick="insertEmoticon('😎')" class="text-xl p-1.5 hover:bg-slate-100 active:scale-125 transition rounded">😎</button>
               </div>
             </div>
 
@@ -1124,7 +1116,7 @@
       return cleanUrl;
     }
 
-    // LOGIKA OBROLAN WARGA (DENGAN EMOTIKON GAMBAR MOVING GIF)
+    // LOGIKA OBROLAN WARGA (DENGAN EMOJI UNICODE NATIVE)
     let globalKomentarList = JSON.parse(localStorage.getItem('flamboyan4_komentar')) || [];
 
     function insertEmoticon(emot) {
@@ -1147,13 +1139,10 @@
 
       let html = '';
       globalKomentarList.forEach((item) => {
-        let textFormatted = item.pesan
-          .replace(/:ngakak/g, '<img src="https://s.kaskus.id/images/smilies/smilies_15.gif" class="inline-block w-6 h-6 align-middle" alt="ngakak">')
-          .replace(/:malu/g, '<img src="https://s.kaskus.id/images/smilies/smilies_11.gif" class="inline-block w-6 h-6 align-middle" alt="malu">')
-          .replace(/:sundul/g, '<img src="https://s.kaskus.id/images/smilies/smilies_47.gif" class="inline-block w-6 h-6 align-middle" alt="sundul">')
-          .replace(/:jempol/g, '<img src="https://s.kaskus.id/images/smilies/smilies_28.gif" class="inline-block w-6 h-6 align-middle" alt="jempol">')
-          .replace(/:coffee/g, '<img src="https://s.kaskus.id/images/smilies/smilies_33.gif" class="inline-block w-6 h-6 align-middle" alt="coffee">')
-          .replace(/:mikir/g, '<img src="https://s.kaskus.id/images/smilies/smilies_07.gif" class="inline-block w-6 h-6 align-middle" alt="mikir">');
+        let cleanPesan = item.pesan
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
 
         html += `
           <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80 flex items-start justify-between gap-2 hover:bg-slate-100/50 transition">
@@ -1162,7 +1151,7 @@
                 <span class="font-bold text-xs md:text-sm text-indigo-950">${item.nama}</span>
                 <span class="text-[10px] text-slate-400 font-mono">${item.waktu}</span>
               </div>
-              <p class="text-xs md:text-sm text-slate-700 leading-relaxed break-words">${textFormatted}</p>
+              <p class="text-xs md:text-sm text-slate-700 leading-relaxed break-words whitespace-pre-line">${cleanPesan}</p>
             </div>
           </div>
         `;
@@ -2540,7 +2529,6 @@
             const status = row[keys[3]] || 'Direncanakan';
 
             const combinedText = (judul + " " + deskripsi).toLowerCase();
-            // DETEKSI KATA GOROL, GOLOR (SEBAGAI BACKUP ALIAS), KERJA BAKTI, DLL.
             const isGorol = combinedText.includes('gorol') || combinedText.includes('golor') || combinedText.includes('kerja bakti') || combinedText.includes('kerjabakti') || combinedText.includes('gotong royong');
 
             let parsedDate = '';
