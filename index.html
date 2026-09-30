@@ -267,7 +267,7 @@
 
       <div id="slider-projek" class="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar py-1 w-full">
         
-        <!-- CARD 1: JERSEY -->
+        <!-- CARD 1: JERSEY WITH FINANCIAL SUMMARY -->
         <div id="jersey" class="snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-2">
@@ -278,11 +278,11 @@
               <span class="text-[10px] bg-amber-100 text-amber-800 font-semibold px-2 py-0.5 rounded-full">Tahap DP</span>
             </div>
 
-            <div id="container-foto-jersey-single" class="relative group cursor-pointer bg-slate-100 rounded-lg overflow-hidden h-32 flex items-center justify-center mb-3" onclick="openGalleryGridModal(FOLDER_JERSEY_URL, 'Desain Jersey & Size Chart')">
+            <div id="container-foto-jersey-single" class="relative group cursor-pointer bg-slate-100 rounded-lg overflow-hidden h-28 flex items-center justify-center mb-2.5" onclick="openGalleryGridModal(FOLDER_JERSEY_URL, 'Desain Jersey & Size Chart')">
               <p class="text-slate-400 text-xs">Memuat gambar desain...</p>
             </div>
 
-            <div class="grid grid-cols-3 gap-1.5 text-center mb-3">
+            <div class="grid grid-cols-3 gap-1.5 text-center mb-2">
               <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
                 <p class="text-[9px] text-slate-500 font-medium">Total Pemesan</p>
                 <p id="total-pemesan-jersey" class="text-xs font-bold text-indigo-600 mt-0.5">0 Orang</p>
@@ -296,10 +296,26 @@
                 <p id="total-dp-jersey" class="text-xs font-bold text-amber-600 mt-0.5">0 Orang</p>
               </div>
             </div>
+
+            <!-- REKAP KEUANGAN JERSEY DI CARD -->
+            <div class="bg-slate-900 text-white rounded-lg p-2.5 space-y-1 mb-2">
+              <div class="flex justify-between items-center text-[10px]">
+                <span class="text-slate-400">Total Tagihan Jersey:</span>
+                <span id="card-jersey-total-tagihan" class="font-bold text-slate-200">Rp 0</span>
+              </div>
+              <div class="flex justify-between items-center text-[11px] pt-1 border-t border-slate-800">
+                <span class="text-emerald-400 font-semibold">Terkumpul (Lunas/DP):</span>
+                <span id="card-jersey-terkumpul" class="font-bold text-emerald-300">Rp 0</span>
+              </div>
+              <div class="flex justify-between items-center text-[10px]">
+                <span class="text-rose-300">Sisa Tagihan:</span>
+                <span id="card-jersey-sisa" class="font-bold text-rose-400">Rp 0</span>
+              </div>
+            </div>
           </div>
 
           <button onclick="openModalJersey()" class="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-2 rounded-lg border border-indigo-100 transition text-xs flex items-center justify-center space-x-1">
-            <span>Lihat Daftar Pemesan</span>
+            <span>Lihat Rincian Pemesan & Dana</span>
             <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
           </button>
         </div>
@@ -555,13 +571,13 @@
     </div>
   </div>
 
-  <!-- MODAL JERSEY WITH DUAL TAB (BAPAK-BAPAK & IBU-IBU) -->
+  <!-- MODAL JERSEY WITH DUAL TAB & DANA SUMMARY -->
   <div id="modal-jersey" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="closeModalDirect('modal-jersey')">
     <div class="bg-white w-full max-w-5xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
         <div>
           <h3 class="text-lg md:text-xl font-bold text-slate-900">Daftar Pemesan Jersey Warga</h3>
-          <p class="text-xs text-slate-500">Data ukuran, pilihan lengan, dan status pembayaran warga</p>
+          <p class="text-xs text-slate-500">Data ukuran, pilihan lengan, tagihan, dan status pembayaran warga</p>
         </div>
         <button onclick="closeModalDirect('modal-jersey')" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
           <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
@@ -580,19 +596,36 @@
         </button>
       </div>
 
+      <!-- HEADER RINCIAN DANA MODAL -->
+      <div class="px-4 py-3 bg-indigo-950 text-white border-b border-indigo-800 grid grid-cols-3 gap-2 text-center text-xs">
+        <div class="bg-indigo-900/60 p-2 rounded-lg border border-indigo-800">
+          <p class="text-[10px] text-indigo-300">Total Tagihan <span id="label-tab-kategori" class="font-semibold">(Bapak)</span></p>
+          <p id="modal-jersey-total-tagihan" class="font-bold text-white text-xs md:text-sm mt-0.5">Rp 0</p>
+        </div>
+        <div class="bg-emerald-950/80 p-2 rounded-lg border border-emerald-800/80">
+          <p class="text-[10px] text-emerald-300">Dana Terkumpul (DP/Lunas)</p>
+          <p id="modal-jersey-terkumpul" class="font-bold text-emerald-400 text-xs md:text-sm mt-0.5">Rp 0</p>
+        </div>
+        <div class="bg-rose-950/80 p-2 rounded-lg border border-rose-800/80">
+          <p class="text-[10px] text-rose-300">Sisa Kekurangan Dana</p>
+          <p id="modal-jersey-sisa" class="font-bold text-rose-400 text-xs md:text-sm mt-0.5">Rp 0</p>
+        </div>
+      </div>
+
       <div class="p-4 border-b border-slate-100">
         <input type="text" id="search-jersey" onkeyup="filterJerseyModal()" placeholder="Cari nama, blok, atau no. punggung..." class="w-full text-xs md:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
       </div>
 
       <div class="overflow-x-auto overflow-y-auto flex-grow p-4">
-        <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[600px]">
+        <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[650px]">
           <thead>
             <tr class="border-b border-slate-200 bg-slate-100/60 text-slate-600">
               <th class="p-3 w-12 text-center">No</th>
-              <th class="p-3 w-1/3">Nama & Blok</th>
+              <th class="p-3 w-1/4">Nama & Blok</th>
               <th class="p-3">Lengan</th>
               <th class="p-3">Ukuran</th>
               <th class="p-3">Nama & No. Punggung</th>
+              <th class="p-3 text-right">Tagihan</th>
               <th class="p-3 text-center">Status</th>
             </tr>
           </thead>
@@ -1822,18 +1855,55 @@
       });
     }
 
+    // FUNGSI EKSTRAKSI NOMINAL HARGA DARI ROW CSV
+    function getNominalHargaJerseyRow(row) {
+      const keys = Object.keys(row);
+      if (keys.length === 0) return 0;
+
+      // Cari kunci/header yang mengandung kata nominal / harga / bayar / tagihan
+      let targetKey = keys.find(k => {
+        const lk = k.toLowerCase();
+        return lk.includes('harga') || lk.includes('nominal') || lk.includes('bayar') || lk.includes('tagihan') || lk.includes('biaya');
+      });
+
+      // Jika tidak ditemukan secara spesifik, periksa kolom ke-6, ke-5, atau kolom terakhir
+      if (!targetKey) {
+        if (keys.length >= 7) targetKey = keys[5];
+        else targetKey = keys[keys.length - 1];
+      }
+
+      const val = row[targetKey];
+      if (!val) return 0;
+
+      let cleaned = val.toString().replace(/\./g, '').replace(/,/g, '');
+      const num = parseFloat(cleaned.replace(/[^0-9-]/g, '')) || 0;
+      return num;
+    }
+
+    function getStatusJerseyRow(row) {
+      const keys = Object.keys(row);
+      let targetKey = keys.find(k => k.toLowerCase().includes('status'));
+      if (!targetKey) {
+        targetKey = keys[keys.length - 1];
+      }
+      return (row[targetKey] || '').toString().trim();
+    }
+
     // FUNGSI GANTI TAB JERSEY (BAPAK / IBU)
     function switchJerseyTab(tab) {
       currentJerseyTab = tab;
       const btnBapak = document.getElementById('tab-jersey-bapak');
       const btnIbu = document.getElementById('tab-jersey-ibu');
+      const labelTab = document.getElementById('label-tab-kategori');
 
       if (tab === 'bapak') {
         btnBapak.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-indigo-600 text-white border-indigo-600 shadow-sm";
         btnIbu.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-white text-slate-600 border-slate-200 hover:bg-slate-100";
+        if (labelTab) labelTab.innerText = "(Bapak-bapak)";
       } else {
         btnIbu.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-indigo-600 text-white border-indigo-600 shadow-sm";
         btnBapak.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-white text-slate-600 border-slate-200 hover:bg-slate-100";
+        if (labelTab) labelTab.innerText = "(Ibu-ibu)";
       }
       filterJerseyModal();
     }
@@ -1845,7 +1915,9 @@
       const lengan = row[keys[2]] || '-';
       const ukuran = row[keys[3]] || '-';
       const namaNoPunggung = row[keys[4]] || '-';
-      const statusRaw = (row[keys[5]] || '').toString().trim();
+      
+      const hargaNominal = getNominalHargaJerseyRow(row);
+      const statusRaw = getStatusJerseyRow(row);
 
       let statusBadge = `<span class="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded">Belum</span>`;
       if (statusRaw.toLowerCase().includes('lunas')) {
@@ -1855,12 +1927,13 @@
       }
 
       return `
-        <tr>
+        <tr class="hover:bg-slate-50 transition">
           <td class="p-3 text-center text-slate-500 font-mono">${no}</td>
           <td class="p-3 font-bold text-slate-800 break-words">${namaBlok}</td>
           <td class="p-3 text-slate-600 whitespace-nowrap">${lengan}</td>
           <td class="p-3 font-semibold text-indigo-700 whitespace-nowrap">${ukuran}</td>
           <td class="p-3 text-slate-700 break-words">${namaNoPunggung}</td>
+          <td class="p-3 text-right font-bold text-slate-800 whitespace-nowrap">${hargaNominal > 0 ? formatRupiah(hargaNominal) : '-'}</td>
           <td class="p-3 text-center whitespace-nowrap">${statusBadge}</td>
         </tr>
       `;
@@ -1871,31 +1944,67 @@
       const activeData = (currentJerseyTab === 'bapak') ? globalJerseyBapakData : globalJerseyIbuData;
 
       let html = '';
+      let activeTotalTagihan = 0;
+      let activeTerkumpul = 0;
+
       activeData.forEach(row => {
         const text = Object.values(row).join(' ').toLowerCase();
         if (text.includes(keyword)) {
           html += renderJerseyRow(row);
         }
+
+        const nominal = getNominalHargaJerseyRow(row);
+        const status = getStatusJerseyRow(row).toLowerCase();
+
+        activeTotalTagihan += nominal;
+        if (status.includes('lunas')) {
+          activeTerkumpul += nominal;
+        } else if (status.includes('dp')) {
+          activeTerkumpul += (nominal * 0.5);
+        }
       });
 
-      document.getElementById('tabel-jersey-all').innerHTML = html || `<tr><td colspan="6" class="p-4 text-center text-slate-400">Tidak ada pemesan ${currentJerseyTab === 'bapak' ? 'Bapak-bapak' : 'Ibu-ibu'} yang cocok</td></tr>`;
+      const activeSisa = Math.max(0, activeTotalTagihan - activeTerkumpul);
+
+      document.getElementById('modal-jersey-total-tagihan').innerText = formatRupiah(activeTotalTagihan);
+      document.getElementById('modal-jersey-terkumpul').innerText = formatRupiah(activeTerkumpul);
+      document.getElementById('modal-jersey-sisa').innerText = formatRupiah(activeSisa);
+
+      document.getElementById('tabel-jersey-all').innerHTML = html || `<tr><td colspan="7" class="p-4 text-center text-slate-400">Tidak ada pemesan ${currentJerseyTab === 'bapak' ? 'Bapak-bapak' : 'Ibu-ibu'} yang cocok</td></tr>`;
     }
 
     function calculateTotalJerseyRekap() {
       const allCombined = [...globalJerseyBapakData, ...globalJerseyIbuData];
       let countLunas = 0;
       let countDP = 0;
+      let grandTotalTagihan = 0;
+      let grandTotalTerkumpul = 0;
 
       allCombined.forEach(row => {
-        const keys = Object.keys(row);
-        const statusRaw = (row[keys[5]] || '').toString().toLowerCase();
-        if (statusRaw.includes('lunas')) countLunas++;
-        else if (statusRaw.includes('dp')) countDP++;
+        const statusRaw = getStatusJerseyRow(row).toLowerCase();
+        const nominal = getNominalHargaJerseyRow(row);
+
+        grandTotalTagihan += nominal;
+
+        if (statusRaw.includes('lunas')) {
+          countLunas++;
+          grandTotalTerkumpul += nominal;
+        } else if (statusRaw.includes('dp')) {
+          countDP++;
+          grandTotalTerkumpul += (nominal * 0.5);
+        }
       });
+
+      const grandSisa = Math.max(0, grandTotalTagihan - grandTotalTerkumpul);
 
       document.getElementById('total-pemesan-jersey').innerText = `${allCombined.length} Orang`;
       document.getElementById('total-lunas-jersey').innerText = `${countLunas} Orang`;
       document.getElementById('total-dp-jersey').innerText = `${countDP} Orang`;
+
+      // UPDATE FINANSIAL CARD JERSEY DI HOMEPAGE
+      document.getElementById('card-jersey-total-tagihan').innerText = formatRupiah(grandTotalTagihan);
+      document.getElementById('card-jersey-terkumpul').innerText = formatRupiah(grandTotalTerkumpul);
+      document.getElementById('card-jersey-sisa').innerText = formatRupiah(grandSisa);
 
       document.getElementById('badge-count-bapak').innerText = globalJerseyBapakData.length;
       document.getElementById('badge-count-ibu').innerText = globalJerseyIbuData.length;
