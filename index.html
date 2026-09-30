@@ -488,7 +488,7 @@
           <i data-lucide="bell" class="w-5 h-5 text-indigo-600"></i>
           <h3 id="modal-event-date" class="font-bold text-slate-800 text-sm md:text-base">Detail Kegiatan</h3>
         </div>
-        <button onclick="closeModalDirect('modal-event-date')" class="p-1 text-slate-400 hover:text-slate-600 rounded-full transition">
+        <button onclick="closeModalDirect('modal-event-detail')" class="p-1 text-slate-400 hover:text-slate-600 rounded-full transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -935,18 +935,16 @@
       });
     }
 
-    const CSV_KEUANGAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWusYrLoxh9Jesx0PpBefZm4MhXjSQkAt9o9GnAZjvAGE4TkSxpTf9pyxUzWUA5yw-U0fwwXhldsKo/pub?gid=70481261&single=true&output=csv';
-    const CSV_ARISAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDP-SfyNfaIFW_nfWSnLM3fQsJVRcuu5Las-tG78JPdp7u6hqWGulXS2sakYtKlWr81xPqrDGagwVC/pub?output=csv';
-    
-    // LINK JERSEY SHEET 1 (BAPAK-BAPAK) & SHEET 2 (IBU-IBU)
-    const CSV_JERSEY_BAPAK_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT3Bj1vmC1kB_csd4rsznskdyAzORPAyT5J8sDEZTheBoHDn6sJToLGXiM0Ju-F_l3ThRbsntCzZSFA/pub?output=csv';
-    const CSV_JERSEY_IBU_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT3Bj1vmC1kB_csd4rsznskdyAzORPAyT5J8sDEZTheBoHDn6sJToLGXiM0Ju-F_l3ThRbsntCzZSFA/pub?gid=141754739&single=true&output=csv';
+    // LIST LINK CSV TERPUSAT DARI 1 FILE GOOGLE SHEETS
+    const CSV_KEUANGAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=422555783&single=true&output=csv';
+    const CSV_DOKUMENTASI_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=0&single=true&output=csv';
+    const CSV_ARISAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=53284271&single=true&output=csv';
+    const CSV_RENCANA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=781301604&single=true&output=csv';
+    const CSV_JERSEY_BAPAK_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=878370178&single=true&output=csv';
+    const CSV_JERSEY_IBU_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=1755921986&single=true&output=csv';
 
     const FOLDER_JERSEY_URL = 'https://drive.google.com/drive/folders/1_VH_MHlOhA_tSXPsw1ztJEf3fVydU7gE';
     const FOLDER_GAPURA_URL = 'https://drive.google.com/drive/folders/1Zs2RlbHTvNc9RDhbc1TlgcptXeNhnrQ5';
-    const CSV_DOKUMENTASI_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?output=csv';
-    const CSV_RENCANA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSsygpwTSzO0bZrdoO6sRyFbH0jrHaTJN0g6vIKtGnGMlP3Ot3CCd9V0PPG7vWr_mxztobwrR_8iLx1/pub?output=csv';
-    
     const FOLDER_API_URL = 'https://script.google.com/macros/s/AKfycbyfl6UwXtU_ThyZypwtUCWXUEsjLTJyLxYQ9tH1AMFWn6JkKTNfgw8TTpPAoRaWjNnJMw/exec';
 
     const TARGET_DANA_GAPURA = 6500000;
