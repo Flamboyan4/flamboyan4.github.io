@@ -504,14 +504,17 @@
       </div>
     </section>
 
-    <!-- SECTION 6: INTERAKSI & OBROLAN WARGA (DENGAN EMOJI NATIVE UNICODE) -->
+    <!-- SECTION 6: INTERAKSI & OBROLAN WARGA (LIVE SPREADSHEET CHAT) -->
     <section id="komentar-warga" class="scroll-mt-20 w-full space-y-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
           <i data-lucide="messages-square" class="w-6 h-6 text-indigo-600 shrink-0"></i>
           <h3 class="text-xl md:text-2xl font-bold text-slate-900">Obrolan & Sapa Warga</h3>
         </div>
-        <span class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full">Papan Warga</span>
+        <div class="flex items-center space-x-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full">Live Online</span>
+        </div>
       </div>
 
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -533,7 +536,7 @@
               <textarea id="komentar-pesan" required rows="3" placeholder="Ketik obrolan, info, atau sapaan warga di sini..." class="w-full text-xs md:text-sm px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white resize-none"></textarea>
             </div>
 
-            <!-- TOMBOL EMOJI UNICODE NATIVE (PASTI MUNCUL & LUCU-LUCU) -->
+            <!-- TOMBOL EMOJI UNICODE NATIVE (PASTI MUNCUL & BISA DIKLIK) -->
             <div>
               <label class="block text-[11px] font-semibold text-slate-500 mb-1">Klik Emoticon:</label>
               <div class="flex flex-wrap gap-1.5 bg-white p-2 rounded-lg border border-slate-200 items-center">
@@ -550,7 +553,7 @@
               </div>
             </div>
 
-            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-lg text-xs md:text-sm transition flex items-center justify-center space-x-1.5 shadow-sm active:scale-95">
+            <button type="submit" id="btn-submit-chat" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-lg text-xs md:text-sm transition flex items-center justify-center space-x-1.5 shadow-sm active:scale-95">
               <i data-lucide="send" class="w-4 h-4"></i>
               <span>Kirim Komentar</span>
             </button>
@@ -566,15 +569,11 @@
             </h4>
             <div class="flex items-center space-x-2">
               <span id="total-komentar-badge" class="text-[11px] text-slate-500 font-mono">0 Komentar</span>
-              <button onclick="bersihkanSemuaChat()" class="text-[11px] text-rose-600 hover:text-rose-800 font-semibold bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2 py-0.5 rounded transition flex items-center space-x-1" title="Bersihkan Obrolan">
-                <i data-lucide="trash-2" class="w-3 h-3"></i>
-                <span>Hapus Obrolan</span>
-              </button>
             </div>
           </div>
 
           <div id="container-komentar-list" class="space-y-3 max-h-[360px] overflow-y-auto pr-1.5 custom-scroll">
-            <p class="text-slate-400 text-xs italic text-center py-8">Belum ada obrolan. Yuk jadi yang pertama menyapa!</p>
+            <p class="text-slate-400 text-xs italic text-center py-8">Memuat obrolan warga...</p>
           </div>
         </div>
       </div>
@@ -1060,7 +1059,10 @@
 
     const FOLDER_JERSEY_URL = 'https://drive.google.com/drive/folders/1_VH_MHlOhA_tSXPsw1ztJEf3fVydU7gE';
     const FOLDER_GAPURA_URL = 'https://drive.google.com/drive/folders/1Zs2RlbHTvNc9RDhbc1TlgcptXeNhnrQ5';
+    
+    // API URL TERGABUNG UNTUK CHAT SPREADSHEET ONLINE DAN GDRIVE FOLDER
     const FOLDER_API_URL = 'https://script.google.com/macros/s/AKfycbyfl6UwXtU_ThyZypwtUCWXUEsjLTJyLxYQ9tH1AMFWn6JkKTNfgw8TTpPAoRaWjNnJMw/exec';
+    const CHAT_API_URL = 'https://script.google.com/macros/s/AKfycbyfl6UwXtU_ThyZypwtUCWXUEsjLTJyLxYQ9tH1AMFWn6JkKTNfgw8TTpPAoRaWjNnJMw/exec';
 
     const TARGET_DANA_GAPURA = 6500000;
     const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='100%25' height='100%25' fill='%231e1b4b'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='18' fill='%23818cf8' text-anchor='middle' dy='.3em'%3EDokumentasi Kegiatan Warga%3C/text%3E%3C/svg%3E";
@@ -1116,13 +1118,27 @@
       return cleanUrl;
     }
 
-    // LOGIKA OBROLAN WARGA (DENGAN EMOJI UNICODE NATIVE)
-    let globalKomentarList = JSON.parse(localStorage.getItem('flamboyan4_komentar')) || [];
+    // LOGIKA OBROLAN WARGA LIVE ONLINE (GOOGLE SPREADSHEET CHAT)
+    let globalKomentarList = [];
 
     function insertEmoticon(emot) {
       const txt = document.getElementById('komentar-pesan');
       txt.value += emot;
       txt.focus();
+    }
+
+    async function fetchKomentarOnline() {
+      if (!CHAT_API_URL) return;
+      try {
+        const res = await fetch(CHAT_API_URL);
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          globalKomentarList = [...data].reverse(); // Pesan terbaru di atas
+          renderKomentarWarga();
+        }
+      } catch (err) {
+        console.error("Gagal memuat chat online:", err);
+      }
     }
 
     function renderKomentarWarga() {
@@ -1139,7 +1155,7 @@
 
       let html = '';
       globalKomentarList.forEach((item) => {
-        let cleanPesan = item.pesan
+        let cleanPesan = (item.pesan || '')
           .replace(/&/g, "&amp;")
           .replace(/</g, "&lt;")
           .replace(/>/g, "&gt;");
@@ -1148,8 +1164,8 @@
           <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80 flex items-start justify-between gap-2 hover:bg-slate-100/50 transition">
             <div class="space-y-1 w-full">
               <div class="flex items-center justify-between">
-                <span class="font-bold text-xs md:text-sm text-indigo-950">${item.nama}</span>
-                <span class="text-[10px] text-slate-400 font-mono">${item.waktu}</span>
+                <span class="font-bold text-xs md:text-sm text-indigo-950">${item.nama || 'Warga'}</span>
+                <span class="text-[10px] text-slate-400 font-mono">${item.waktu || ''}</span>
               </div>
               <p class="text-xs md:text-sm text-slate-700 leading-relaxed break-words whitespace-pre-line">${cleanPesan}</p>
             </div>
@@ -1160,39 +1176,39 @@
       container.innerHTML = html;
     }
 
-    function tambahKomentarWarga(e) {
+    async function tambahKomentarWarga(e) {
       e.preventDefault();
       const namaInput = document.getElementById('komentar-nama').value.trim();
       const pesanInput = document.getElementById('komentar-pesan').value.trim();
 
       if (!namaInput || !pesanInput) return;
 
-      const now = new Date();
-      const dateStr = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
-      const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-      const waktuLengkap = `${dateStr}, ${timeStr}`;
+      const btnSubmit = document.getElementById('btn-submit-chat');
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = `<span>Mengirim...</span>`;
 
-      globalKomentarList.unshift({
-        nama: namaInput,
-        pesan: pesanInput,
-        waktu: waktuLengkap
-      });
+      try {
+        await fetch(CHAT_API_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nama: namaInput, pesan: pesanInput })
+        });
 
-      localStorage.setItem('flamboyan4_komentar', JSON.stringify(globalKomentarList));
-      document.getElementById('komentar-pesan').value = '';
+        document.getElementById('komentar-pesan').value = '';
 
-      renderKomentarWarga();
-    }
+        setTimeout(() => {
+          fetchKomentarOnline();
+          btnSubmit.disabled = false;
+          btnSubmit.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>Kirim Komentar</span>`;
+          lucide.createIcons();
+        }, 1200);
 
-    function bersihkanSemuaChat() {
-      if (globalKomentarList.length === 0) {
-        alert("Kotak obrolan sudah kosong!");
-        return;
-      }
-      if (confirm("Apakah Anda yakin ingin menghapus seluruh obrolan warga?")) {
-        globalKomentarList = [];
-        localStorage.removeItem('flamboyan4_komentar');
-        renderKomentarWarga();
+      } catch (err) {
+        alert("Gagal mengirim komentar. Periksa koneksi internet Anda.");
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>Kirim Komentar</span>`;
+        lucide.createIcons();
       }
     }
 
@@ -1646,7 +1662,8 @@
     document.addEventListener('DOMContentLoaded', () => {
       initLightboxSwipe();
       initCardGesturesAndKeyboard();
-      renderKomentarWarga();
+      fetchKomentarOnline();
+      setInterval(fetchKomentarOnline, 5000); // Otomatis refresh obrolan setiap 5 detik
     });
 
     function scrollProjek(direction) {
