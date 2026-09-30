@@ -12,46 +12,20 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   
   <style>
-    body {
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-    html {
-      scroll-behavior: smooth;
-    }
-    .touch-pan-y {
-      touch-action: pan-y;
-    }
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    .custom-scroll::-webkit-scrollbar {
-      width: 5px;
-    }
-    .custom-scroll::-webkit-scrollbar-track {
-      background: #f1f5f9;
-      border-radius: 4px;
-    }
-    .custom-scroll::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 4px;
-    }
-    .custom-scroll::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
+    body { user-select: none; }
+    html { scroll-behavior: smooth; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .custom-scroll::-webkit-scrollbar { width: 5px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
   </style>
 </head>
 
-<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full" oncontextmenu="return false;" onkeydown="return disableInspect(event)">
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full">
 
   <!-- Header / Navigation -->
-  <header class="bg-gradient-to-r from-indigo-950 via-indigo-900 to-indigo-950 text-white border-b border-indigo-800/40 sticky top-0 z-40 w-full transition-all shadow-md">
+  <header class="bg-gradient-to-r from-indigo-950 via-indigo-900 to-indigo-950 text-white border-b border-indigo-800/40 sticky top-0 z-40 w-full shadow-md">
     <div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between relative">
       <a href="#" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 transition group shrink-0">
         <i data-lucide="home" class="w-5 h-5 text-indigo-200 group-hover:scale-110 transition"></i>
@@ -61,7 +35,6 @@
           Flamboyan 4 <span class="hidden sm:inline font-normal text-indigo-200/80 text-xs sm:text-sm">| RT 001 RW 026 Pesona Kahuripan 2</span>
         </h1>
       </div>
-      <!-- Tombol Navigasi CCTV di Navbar -->
       <a href="cctv.html" class="p-2 rounded-xl bg-indigo-600/80 hover:bg-indigo-500 border border-indigo-400/40 transition group shrink-0 flex items-center space-x-1.5 text-xs font-semibold">
         <i data-lucide="video" class="w-4 h-4 text-emerald-300"></i>
         <span class="hidden sm:inline">Live CCTV</span>
@@ -71,36 +44,22 @@
 
   <!-- Hero Section -->
   <section class="relative bg-gradient-to-br from-indigo-950 via-indigo-900 to-violet-900 text-white py-14 md:py-20 px-4 overflow-hidden w-full border-b border-indigo-800/40">
-    <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px]"></div>
-    <div class="absolute -top-24 -left-20 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
-
     <div class="max-w-4xl mx-auto text-center space-y-6 relative z-10">
-      <div>
-        <h2 class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
-          Transparansi & Kebersamaan <br>
-          <span class="bg-gradient-to-r from-amber-200 via-yellow-100 to-white bg-clip-text text-transparent">Warga Flamboyan 4</span>
-        </h2>
-      </div>
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
+        Transparansi & Kebersamaan <br>
+        <span class="bg-gradient-to-r from-amber-200 via-yellow-100 to-white bg-clip-text text-transparent">Warga Flamboyan 4</span>
+      </h2>
 
-      <!-- Navigasi Cepat Utama -->
       <div class="pt-2 flex flex-wrap justify-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-medium">
-        <a href="#keuangan" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
+        <a href="#keuangan" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md">
           <i data-lucide="wallet" class="w-4 h-4 text-emerald-400"></i>
           <span>Kas Warga</span>
         </a>
-        <a href="#arisan" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
-          <i data-lucide="calendar" class="w-4 h-4 text-amber-300"></i>
-          <span>Jadwal Arisan</span>
+        <a href="#kegiatan" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md">
+          <i data-lucide="camera" class="w-4 h-4 text-sky-300"></i>
+          <span>Dokumentasi</span>
         </a>
-        <a href="#projek" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
-          <i data-lucide="folder-kanban" class="w-4 h-4 text-sky-300"></i>
-          <span>Projek Warga</span>
-        </a>
-        <a href="#rencana" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
-          <i data-lucide="calendar-check" class="w-4 h-4 text-indigo-300"></i>
-          <span>Kalender Kegiatan</span>
-        </a>
-        <a href="#komentar-warga" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
+        <a href="#komentar-warga" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md">
           <i data-lucide="messages-square" class="w-4 h-4 text-amber-400"></i>
           <span>Obrolan Warga</span>
         </a>
@@ -113,333 +72,33 @@
 
     <!-- SECTION 1: LAPORAN KEUANGAN -->
     <section id="keuangan" class="scroll-mt-20 w-full">
-      <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
-        <div class="flex items-center space-x-2">
-          <i data-lucide="wallet" class="w-6 h-6 text-indigo-600 shrink-0"></i>
-          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Laporan Keuangan Kas</h3>
-        </div>
-        <span id="label-update-kas" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full whitespace-nowrap">Update Rincian Kas</span>
+      <div class="flex items-center space-x-2 mb-6">
+        <i data-lucide="wallet" class="w-6 h-6 text-indigo-600 shrink-0"></i>
+        <h3 class="text-xl md:text-2xl font-bold text-slate-900">Laporan Keuangan Kas</h3>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 w-full items-center">
-        <!-- Pemasukan Card -->
-        <div id="card-pemasukan" tabindex="0" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-300 hover:shadow-md transition relative flex flex-col justify-between touch-pan-y focus:outline-none focus:ring-2 focus:ring-emerald-400/50 select-none">
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span id="label-pemasukan-bulan" class="text-xs md:text-sm font-semibold text-slate-500">Pemasukan Bulan Ini</span>
-              <div class="flex items-center space-x-1">
-                <button onclick="changeMonthPemasukan(-1)" class="p-1 hover:bg-slate-100 rounded text-slate-500 transition" title="Bulan Sebelumnya">
-                  <i data-lucide="chevron-left" class="w-4 h-4"></i>
-                </button>
-                <button onclick="changeMonthPemasukan(1)" class="p-1 hover:bg-slate-100 rounded text-slate-500 transition" title="Bulan Berikutnya">
-                  <i data-lucide="chevron-right" class="w-4 h-4"></i>
-                </button>
-              </div>
-            </div>
-            
-            <div onclick="openModalKeuanganFiltered('pemasukan')" class="cursor-pointer group">
-              <div class="flex items-center justify-between">
-                <p id="pemasukan-bulan-ini" class="text-xl md:text-2xl font-bold text-emerald-600">Rp 0</p>
-                <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-600 transition"></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-4 pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
-            <span class="text-slate-400">Total Kumulatif:</span>
-            <span id="total-pemasukan-all" class="font-bold text-slate-700">Rp 0</span>
-          </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 w-full">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+          <p class="text-xs font-semibold text-slate-500 mb-1">Pemasukan Total</p>
+          <p id="total-pemasukan-all" class="text-xl md:text-2xl font-bold text-emerald-600">Rp 0</p>
         </div>
-
-        <!-- Pengeluaran Card -->
-        <div id="card-pengeluaran" tabindex="0" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-rose-300 hover:shadow-md transition relative flex flex-col justify-between touch-pan-y focus:outline-none focus:ring-2 focus:ring-rose-400/50 select-none">
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span id="label-pengeluaran-bulan" class="text-xs md:text-sm font-semibold text-slate-500">Pengeluaran Bulan Ini</span>
-              <div class="flex items-center space-x-1">
-                <button onclick="changeMonthPengeluaran(-1)" class="p-1 hover:bg-slate-100 rounded text-slate-500 transition" title="Bulan Sebelumnya">
-                  <i data-lucide="chevron-left" class="w-4 h-4"></i>
-                </button>
-                <button onclick="changeMonthPengeluaran(1)" class="p-1 hover:bg-slate-100 rounded text-slate-500 transition" title="Bulan Berikutnya">
-                  <i data-lucide="chevron-right" class="w-4 h-4"></i>
-                </button>
-              </div>
-            </div>
-            
-            <div onclick="openModalKeuanganFiltered('pengeluaran')" class="cursor-pointer group">
-              <div class="flex items-center justify-between">
-                <p id="pengeluaran-bulan-ini" class="text-xl md:text-2xl font-bold text-rose-600">Rp 0</p>
-                <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-400 group-hover:text-rose-600 transition"></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-4 pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
-            <span class="text-slate-400">Total Kumulatif:</span>
-            <span id="total-pengeluaran-all" class="font-bold text-slate-700">Rp 0</span>
-          </div>
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+          <p class="text-xs font-semibold text-slate-500 mb-1">Pengeluaran Total</p>
+          <p id="total-pengeluaran-all" class="text-xl md:text-2xl font-bold text-rose-600">Rp 0</p>
         </div>
-
-        <!-- Sisa Saldo Kas Utama -->
-        <div class="bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-950 p-6 rounded-2xl shadow-lg border-2 border-indigo-500/40 text-white relative overflow-hidden transform md:-translate-y-1">
-          <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
-          <div class="flex items-center justify-between mb-1">
-            <p class="text-xs md:text-sm font-semibold text-indigo-200 uppercase tracking-wider">Sisa Saldo Kas Utama</p>
-            <span class="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-400/30">Aktif</span>
-          </div>
-          <p id="sisa-saldo" class="text-2xl md:text-3xl font-black tracking-tight text-white mt-1">Rp 0</p>
-          <p class="text-xs text-indigo-200/80 mt-2 font-normal flex items-center space-x-1">
-            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-400 shrink-0"></i>
-            <span>Saldo riil bersih siap pakai saat ini</span>
-          </p>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
-        <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-          <h4 class="font-semibold text-slate-700 text-sm md:text-base">Rincian 10 Transaksi Terakhir</h4>
-          <span id="loading-status" class="text-xs text-slate-500">Memuat data...</span>
-        </div>
-        
-        <div class="overflow-x-auto w-full">
-          <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[500px]">
-            <thead>
-              <tr class="border-b border-slate-200 bg-slate-100/60 text-slate-600">
-                <th class="p-3 w-1/4">Tanggal</th>
-                <th class="p-3 w-2/4">Keterangan</th>
-                <th class="p-3 w-1/6">Kategori</th>
-                <th class="p-3 text-right w-1/4">Jumlah</th>
-              </tr>
-            </thead>
-            <tbody id="tabel-transaksi" class="divide-y divide-slate-100"></tbody>
-          </table>
-        </div>
-
-        <div id="btn-container-keuangan-all" class="p-3 border-t border-slate-100 bg-slate-50 text-center hidden">
-          <button onclick="openModalKeuangan()" class="text-xs md:text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition inline-flex items-center space-x-1">
-            <span>Lihat Seluruh Riwayat Transaksi</span>
-            <i data-lucide="chevron-right" class="w-4 h-4"></i>
-          </button>
+        <div class="bg-gradient-to-br from-indigo-900 to-indigo-950 p-5 rounded-2xl shadow-lg text-white">
+          <p class="text-xs font-semibold text-indigo-200 uppercase">Sisa Saldo Kas Utama</p>
+          <p id="sisa-saldo" class="text-2xl md:text-3xl font-black text-white mt-1">Rp 0</p>
         </div>
       </div>
     </section>
 
-    <!-- SECTION 2: JADWAL ARISAN -->
-    <section id="arisan" class="scroll-mt-20 w-full">
-      <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
-        <div class="flex items-center space-x-2">
-          <i data-lucide="users" class="w-6 h-6 text-indigo-600 shrink-0"></i>
-          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Jadwal Arisan Warga</h3>
-        </div>
-        <span id="loading-status-arisan" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full whitespace-nowrap">Memuat Jadwal...</span>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-        <div onclick="openModalArisan()" class="bg-gradient-to-r from-indigo-600 to-indigo-800 hover:from-indigo-700 hover:to-indigo-900 text-white p-5 rounded-xl shadow-md flex items-center justify-between cursor-pointer transition transform hover:-translate-y-0.5 active:scale-98 group">
-          <div>
-            <span class="text-xs font-semibold text-indigo-200 uppercase tracking-wider flex items-center space-x-1">
-              <span>Arisan Bulan Ini</span>
-              <i data-lucide="external-link" class="w-3 h-3 text-indigo-300 opacity-70 group-hover:opacity-100"></i>
-            </span>
-            <h4 id="arisan-bulan-ini-nama" class="text-lg md:text-xl font-bold mt-1">Memuat data...</h4>
-            <p id="arisan-bulan-ini-tgl" class="text-xs text-indigo-200 mt-0.5">-</p>
-          </div>
-          <div id="arisan-bulan-ini-icon-bg" class="p-3 rounded-full bg-white/20 backdrop-blur-sm group-hover:scale-110 transition">
-            <i id="arisan-bulan-ini-icon" data-lucide="home" class="w-6 h-6 text-white"></i>
-          </div>
-        </div>
-
-        <div onclick="openModalArisan()" class="bg-white hover:bg-slate-50 p-5 rounded-xl shadow-sm border border-slate-200 hover:border-indigo-300 flex items-center justify-between cursor-pointer transition transform hover:-translate-y-0.5 active:scale-98 group">
-          <div>
-            <span class="text-xs font-semibold text-indigo-600 uppercase tracking-wider flex items-center space-x-1">
-              <span>Tuan Rumah Selanjutnya (Bulan Depan)</span>
-              <i data-lucide="external-link" class="w-3 h-3 text-indigo-400 opacity-70 group-hover:opacity-100"></i>
-            </span>
-            <h4 id="arisan-selanjutnya-nama" class="text-lg md:text-xl font-bold text-slate-800 mt-1">-</h4>
-            <p id="arisan-selanjutnya-tgl" class="text-xs text-slate-500 mt-0.5">-</p>
-          </div>
-          <div class="bg-indigo-50 text-indigo-600 p-3 rounded-full border border-indigo-100 group-hover:scale-110 transition">
-            <i data-lucide="calendar" class="w-6 h-6"></i>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SECTION 3: SLIDER PROJEK WARGA -->
-    <section id="projek" class="scroll-mt-20 w-full space-y-4">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-2">
-          <i data-lucide="folder-kanban" class="w-6 h-6 text-indigo-600 shrink-0"></i>
-          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Projek & Pembangunan Lorong</h3>
-        </div>
-
-        <div class="flex items-center space-x-1">
-          <button onclick="scrollProjek(-1)" class="p-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-full shadow-sm text-slate-600 transition active:scale-90" title="Geser Kiri">
-            <i data-lucide="chevron-left" class="w-4 h-4"></i>
-          </button>
-          <button onclick="scrollProjek(1)" class="p-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-full shadow-sm text-slate-600 transition active:scale-90" title="Geser Kanan">
-            <i data-lucide="chevron-right" class="w-4 h-4"></i>
-          </button>
-        </div>
-      </div>
-
-      <div id="slider-projek" class="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar py-1 w-full">
-        
-        <!-- CARD 1: JERSEY -->
-        <div id="jersey" class="snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center space-x-1.5">
-                <i data-lucide="shirt" class="w-4 h-4 text-indigo-600 shrink-0"></i>
-                <h4 class="text-base font-bold text-slate-900">Pemesanan Jersey</h4>
-              </div>
-              <span class="text-[10px] bg-amber-100 text-amber-800 font-semibold px-2 py-0.5 rounded-full">Tahap DP</span>
-            </div>
-
-            <div id="container-foto-jersey-single" class="relative group cursor-pointer bg-slate-100 rounded-lg overflow-hidden h-28 flex items-center justify-center mb-2.5" onclick="openGalleryGridModal(FOLDER_JERSEY_URL, 'Desain Jersey & Size Chart')">
-              <p class="text-slate-400 text-xs">Memuat gambar desain...</p>
-            </div>
-
-            <div class="grid grid-cols-3 gap-1.5 text-center mb-2">
-              <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
-                <p class="text-[9px] text-slate-500 font-medium">Total Pemesan</p>
-                <p id="total-pemesan-jersey" class="text-xs font-bold text-indigo-600 mt-0.5">0 Orang</p>
-              </div>
-              <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
-                <p class="text-[9px] text-slate-500 font-medium">Lunas</p>
-                <p id="total-lunas-jersey" class="text-xs font-bold text-emerald-600 mt-0.5">0 Orang</p>
-              </div>
-              <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
-                <p class="text-[9px] text-slate-500 font-medium">DP 50% / Belum</p>
-                <p id="total-dp-jersey" class="text-xs font-bold text-amber-600 mt-0.5">0 Orang</p>
-              </div>
-            </div>
-
-            <div class="bg-emerald-950/90 text-white rounded-lg p-2.5 mb-2 border border-emerald-800/80 flex items-center justify-between">
-              <div class="flex items-center space-x-1.5">
-                <i data-lucide="coins" class="w-4 h-4 text-emerald-400"></i>
-                <span class="text-xs font-medium text-emerald-200">Dana Terkumpul:</span>
-              </div>
-              <span id="card-jersey-terkumpul" class="font-bold text-emerald-300 text-sm">Rp 0</span>
-            </div>
-          </div>
-
-          <button onclick="openModalJersey()" class="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-2 rounded-lg border border-indigo-100 transition text-xs flex items-center justify-center space-x-1">
-            <span>Lihat Rincian Pemesanan & Dana</span>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-          </button>
-        </div>
-
-        <!-- CARD 2: GAPURA -->
-        <div id="gapura" class="snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center space-x-1.5">
-                <i data-lucide="landmark" class="w-4 h-4 text-indigo-600 shrink-0"></i>
-                <h4 class="text-base font-bold text-slate-900">Gapura</h4>
-              </div>
-              <span class="text-[10px] bg-indigo-100 text-indigo-800 font-semibold px-2 py-0.5 rounded-full">Penggalangan Dana</span>
-            </div>
-
-            <div id="container-foto-gapura" class="relative group cursor-pointer bg-slate-100 rounded-lg overflow-hidden h-32 flex items-center justify-center mb-3" onclick="openGalleryGridModal(FOLDER_GAPURA_URL, 'Desain Pembangunan Gapura')">
-              <p class="text-slate-400 text-xs">Memuat gambar gapura...</p>
-            </div>
-
-            <div class="space-y-2 mb-3">
-              <div class="flex justify-between items-center text-xs">
-                <span class="font-semibold text-slate-700 text-[11px]">Progres Pengumpulan Dana</span>
-                <span id="gapura-percent" class="font-bold text-indigo-600 text-[11px]">0%</span>
-              </div>
-              
-              <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden p-0.5 border border-slate-200">
-                <div id="gapura-progress-bar" class="bg-indigo-600 h-full rounded-full transition-all duration-500 w-0"></div>
-              </div>
-
-              <div class="grid grid-cols-3 gap-1 text-center pt-0.5 text-[10px]">
-                <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
-                  <p class="text-[9px] text-slate-400">Target</p>
-                  <p class="font-bold text-slate-700 mt-0.5 text-[11px]">Rp 6,5Jt</p>
-                </div>
-                <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
-                  <p class="text-[9px] text-slate-400">Terkumpul</p>
-                  <p id="gapura-terkumpul" class="font-bold text-emerald-600 mt-0.5 text-[11px]">Rp 0</p>
-                </div>
-                <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
-                  <p class="text-[9px] text-slate-400">Sisa</p>
-                  <p id="gapura-kurang" class="font-bold text-rose-600 mt-0.5 text-[11px]">Rp 0</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- CARD 3: BANK SAMPAH -->
-        <div id="bank-sampah" class="snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center space-x-1.5">
-                <i data-lucide="recycle" class="w-4 h-4 text-emerald-600 shrink-0"></i>
-                <h4 class="text-base font-bold text-slate-900">Bank Sampah Lorong</h4>
-              </div>
-              <span class="text-[10px] bg-sky-100 text-sky-800 font-semibold px-2 py-0.5 rounded-full">Perencanaan</span>
-            </div>
-
-            <div class="bg-gradient-to-br from-emerald-800 to-teal-900 text-white rounded-lg h-32 p-3.5 flex flex-col justify-between relative overflow-hidden mb-3">
-              <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-emerald-400/20 rounded-full blur-xl pointer-events-none"></div>
-              
-              <div class="flex items-center justify-between relative z-10">
-                <span class="text-[10px] font-mono bg-emerald-500/30 text-emerald-200 px-2 py-0.5 rounded border border-emerald-400/30">Langkah 1</span>
-                <i data-lucide="sprout" class="w-5 h-5 text-emerald-300"></i>
-              </div>
-
-              <div class="relative z-10 space-y-0.5">
-                <p class="text-xs font-bold text-emerald-100">Pembersihan & Persiapan Drop Point</p>
-                <p class="text-[10px] text-emerald-200/80 leading-tight">Pengelolaan sampah anorganik terpilah untuk kas tambahan warga.</p>
-              </div>
-            </div>
-
-            <div class="space-y-1.5 text-xs text-slate-600">
-              <div class="flex items-center space-x-2 text-[11px]">
-                <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
-                <span>Tahap: Pembersihan area pemilahan</span>
-              </div>
-              <div class="flex items-center space-x-2 text-[11px]">
-                <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-500 shrink-0"></i>
-                <span>Agenda: Pembuatan tong/wadah drop point</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 italic">
-            <span>*Dikelola bersama Tim Kebersihan</span>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- SECTION 4: DOKUMENTASI KEGIATAN -->
+    <!-- SECTION 2: DOKUMENTASI KEGIATAN (DENGAN FIX IMAGE DRIVE) -->
     <section id="kegiatan" class="scroll-mt-20 w-full">
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center space-x-2">
           <i data-lucide="camera" class="w-6 h-6 text-indigo-600 shrink-0"></i>
           <h3 class="text-xl md:text-2xl font-bold text-slate-900">Dokumentasi Kegiatan</h3>
-        </div>
-        
-        <div class="flex items-center space-x-3">
-          <button onclick="openModalDokumentasi()" class="hidden sm:flex items-center space-x-1 text-sm text-indigo-600 font-semibold hover:text-indigo-800 transition">
-            <span>Lihat Semua</span>
-            <i data-lucide="arrow-right" class="w-4 h-4"></i>
-          </button>
-          
-          <div class="flex items-center space-x-1">
-            <button onclick="scrollDokumentasi(-1)" class="p-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-full shadow-sm text-slate-600 transition active:scale-90" title="Geser Kiri">
-              <i data-lucide="chevron-left" class="w-4 h-4"></i>
-            </button>
-            <button onclick="scrollDokumentasi(1)" class="p-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-full shadow-sm text-slate-600 transition active:scale-90" title="Geser Kanan">
-              <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </button>
-          </div>
         </div>
       </div>
 
@@ -448,63 +107,7 @@
       </div>
     </section>
 
-    <!-- SECTION 5: KALENDER KEGIATAN -->
-    <section id="rencana" class="scroll-mt-20 w-full space-y-6">
-      <div class="flex items-center space-x-2">
-        <i data-lucide="calendar-check" class="w-6 h-6 text-indigo-600 shrink-0"></i>
-        <h3 class="text-xl md:text-2xl font-bold text-slate-900">Kalender Kegiatan</h3>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        <div id="calendar-wrapper" class="lg:col-span-7 bg-white p-5 rounded-xl shadow-sm border border-slate-200 select-none touch-pan-y">
-          <div class="flex items-center justify-between mb-4">
-            <h4 id="calendar-month-year" class="font-bold text-slate-800 text-base md:text-lg">Bulan Tahun</h4>
-            <div class="flex items-center space-x-1">
-              <button onclick="changeMonth(-1)" class="p-1.5 hover:bg-slate-100 rounded-lg transition text-slate-600" title="Bulan Sebelumnya">
-                <i data-lucide="chevron-left" class="w-5 h-5"></i>
-              </button>
-              <button onclick="resetToCurrentMonth()" class="px-2.5 py-1 text-xs font-semibold bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition">Hari Ini</button>
-              <button onclick="changeMonth(1)" class="p-1.5 hover:bg-slate-100 rounded-lg transition text-slate-600" title="Bulan Berikutnya">
-                <i data-lucide="chevron-right" class="w-5 h-5"></i>
-              </button>
-            </div>
-          </div>
-
-          <div class="flex flex-wrap items-center justify-between gap-2 mb-4 text-[11px] text-slate-500 border-b border-slate-100 pb-2">
-            <div class="flex items-center space-x-3">
-              <div class="flex items-center space-x-1">
-                <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
-                <span class="font-medium text-amber-800">Gorol / Kerja Bakti</span>
-              </div>
-              <div class="flex items-center space-x-1">
-                <span class="w-2.5 h-2.5 rounded-full bg-indigo-600 inline-block"></span>
-                <span>Kegiatan Warga / Arisan</span>
-              </div>
-            </div>
-            <span class="text-[10px] text-slate-400 italic hidden sm:inline">*Usap/Swipe di HP untuk ganti bulan</span>
-          </div>
-
-          <div class="grid grid-cols-7 gap-1 text-center font-bold text-xs text-slate-400 mb-2">
-            <div>Ming</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div>
-          </div>
-
-          <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 text-xs"></div>
-        </div>
-
-        <div class="lg:col-span-5 bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-          <h4 class="font-bold text-slate-800 text-base mb-3 flex items-center space-x-1.5">
-            <i data-lucide="list-todo" class="w-4 h-4 text-indigo-600"></i>
-            <span>Daftar Rencana mendatang</span>
-          </h4>
-
-          <div id="container-rencana" class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
-            <p class="text-slate-400 text-xs">Memuat rencana kegiatan...</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SECTION 6: INTERAKSI & OBROLAN WARGA (DENGAN FIREBASE REALTIME) -->
+    <!-- SECTION 3: OBROLAN & SAPA WARGA (FIREBASE REALTIME) -->
     <section id="komentar-warga" class="scroll-mt-20 w-full space-y-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
@@ -518,7 +121,8 @@
       </div>
 
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        <!-- FORM KIRIM KOMENTAR -->
+        
+        <!-- FORM KIRIM PESAN -->
         <div class="lg:col-span-5 bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
           <h4 class="font-bold text-slate-800 text-sm flex items-center space-x-1.5">
             <i data-lucide="message-square-plus" class="w-4 h-4 text-indigo-600"></i>
@@ -536,20 +140,16 @@
               <textarea id="komentar-pesan" required rows="3" placeholder="Ketik obrolan, info, atau sapaan warga di sini..." class="w-full text-xs md:text-sm px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white resize-none"></textarea>
             </div>
 
-            <!-- TOMBOL EMOJI UNICODE NATIVE -->
+            <!-- EMOJI QUICK BUTTONS -->
             <div>
               <label class="block text-[11px] font-semibold text-slate-500 mb-1">Klik Emoticon:</label>
               <div class="flex flex-wrap gap-1.5 bg-white p-2 rounded-lg border border-slate-200 items-center">
-                <button type="button" onclick="insertEmoticon('😂')" class="text-xl p-1.5 hover:bg-slate-100 active:scale-125 transition rounded">😂</button>
-                <button type="button" onclick="insertEmoticon('🤣')" class="text-xl p-1.5 hover:bg-slate-100 active:scale-125 transition rounded">🤣</button>
-                <button type="button" onclick="insertEmoticon('😊')" class="text-xl p-1.5 hover:bg-slate-100 active:scale-125 transition rounded">😊</button>
-                <button type="button" onclick="insertEmoticon('🙏')" class="text-xl p-1.5 hover:bg-slate-100 active:scale-125 transition rounded">🙏</button>
-                <button type="button" onclick="insertEmoticon('👍')" class="text-xl p-1.5 hover:bg-slate-100 active:scale-125 transition rounded">👍</button>
-                <button type="button" onclick="insertEmoticon('☕')" class="text-xl p-1.5 hover:bg-slate-100 active:scale-125 transition rounded">☕</button>
-                <button type="button" onclick="insertEmoticon('🔥')" class="text-xl p-1.5 hover:bg-slate-100 active:scale-125 transition rounded">🔥</button>
-                <button type="button" onclick="insertEmoticon('👏')" class="text-xl p-1.5 hover:bg-slate-100 active:scale-125 transition rounded">👏</button>
-                <button type="button" onclick="insertEmoticon('💪')" class="text-xl p-1.5 hover:bg-slate-100 active:scale-125 transition rounded">💪</button>
-                <button type="button" onclick="insertEmoticon('😎')" class="text-xl p-1.5 hover:bg-slate-100 active:scale-125 transition rounded">😎</button>
+                <button type="button" onclick="insertEmoticon('😂')" class="text-xl p-1 hover:bg-slate-100 rounded">😂</button>
+                <button type="button" onclick="insertEmoticon('😊')" class="text-xl p-1 hover:bg-slate-100 rounded">😊</button>
+                <button type="button" onclick="insertEmoticon('🙏')" class="text-xl p-1 hover:bg-slate-100 rounded">🙏</button>
+                <button type="button" onclick="insertEmoticon('👍')" class="text-xl p-1 hover:bg-slate-100 rounded">👍</button>
+                <button type="button" onclick="insertEmoticon('🔥')" class="text-xl p-1 hover:bg-slate-100 rounded">🔥</button>
+                <button type="button" onclick="insertEmoticon('☕')" class="text-xl p-1 hover:bg-slate-100 rounded">☕</button>
               </div>
             </div>
 
@@ -560,331 +160,32 @@
           </form>
         </div>
 
-        <!-- LIST KOMENTAR WARGA -->
+        <!-- LIST OBROLAN -->
         <div class="lg:col-span-7 space-y-2 w-full">
           <div class="flex items-center justify-between mb-2 border-b border-slate-100 pb-2">
             <h4 class="font-bold text-slate-800 text-sm flex items-center space-x-1.5">
               <i data-lucide="message-circle" class="w-4 h-4 text-indigo-600"></i>
               <span>Obrolan Terkini</span>
             </h4>
-            <div class="flex items-center space-x-2">
-              <span id="total-komentar-badge" class="text-[11px] text-slate-500 font-mono">0 Komentar</span>
-            </div>
+            <span id="total-komentar-badge" class="text-[11px] text-slate-500 font-mono">0 Komentar</span>
           </div>
 
           <div id="container-komentar-list" class="space-y-3 max-h-[360px] overflow-y-auto pr-1.5 custom-scroll">
             <p class="text-slate-400 text-xs italic text-center py-8">Memuat obrolan warga...</p>
           </div>
         </div>
+
       </div>
     </section>
 
   </main>
 
-  <!-- MODALS CONTAINER -->
-  <div id="modal-event-detail" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="closeModalDirect('modal-event-detail')">
-    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col" onclick="event.stopPropagation()">
-      <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-indigo-50">
-        <div class="flex items-center space-x-2">
-          <i data-lucide="bell" class="w-5 h-5 text-indigo-600"></i>
-          <h3 id="modal-event-date" class="font-bold text-slate-800 text-sm md:text-base">Detail Kegiatan</h3>
-        </div>
-        <button onclick="closeModalDirect('modal-event-detail')" class="p-1 text-slate-400 hover:text-slate-600 rounded-full transition">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-      <div id="modal-event-body" class="p-5 space-y-3 text-xs md:text-sm"></div>
-    </div>
-  </div>
-
-  <div id="modal-arisan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="closeModalDirect('modal-arisan')">
-    <div class="bg-white w-full max-w-3xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
-      <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-        <div>
-          <h3 class="text-lg md:text-xl font-bold text-slate-900">Jadwal & Putaran Arisan Warga</h3>
-          <p class="text-xs text-slate-500">Daftar giliran arisan lorong Flamboyan 4</p>
-        </div>
-        <button onclick="closeModalDirect('modal-arisan')" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
-          <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
-        </button>
-      </div>
-      <div class="p-4 border-b border-slate-100">
-        <input type="text" id="search-arisan" onkeyup="filterArisanModal()" placeholder="Cari bulan, nama, atau blok..." class="w-full text-xs md:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-      </div>
-      <div class="overflow-x-auto overflow-y-auto flex-grow p-4">
-        <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[450px]">
-          <thead>
-            <tr class="border-b border-slate-200 bg-slate-100/60 text-slate-600">
-              <th class="p-3 w-1/3">Bulan</th>
-              <th class="p-3 w-1/2">Nama & Blok</th>
-              <th class="p-3 text-center w-1/6">Status</th>
-            </tr>
-          </thead>
-          <tbody id="tabel-arisan-all" class="divide-y divide-slate-100"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <div id="modal-keuangan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="closeModalDirect('modal-keuangan')">
-    <div class="bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
-      <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-        <div>
-          <h3 class="text-lg md:text-xl font-bold text-slate-900">Arsip Seluruh Transaksi Kas</h3>
-          <p class="text-xs text-slate-500">Riwayat pemasukan & pengeluaran kas Flamboyan 4</p>
-        </div>
-        <button onclick="closeModalDirect('modal-keuangan')" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
-          <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
-        </button>
-      </div>
-      <div class="p-4 border-b border-slate-100">
-        <input type="text" id="search-keuangan" onkeyup="filterKeuanganModal()" placeholder="Cari transaksi..." class="w-full text-xs md:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-      </div>
-      <div class="overflow-x-auto overflow-y-auto flex-grow p-4">
-        <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[500px]">
-          <thead>
-            <tr class="border-b border-slate-200 bg-slate-100/60 text-slate-600">
-              <th class="p-3 w-1/4">Tanggal</th>
-              <th class="p-3 w-2/4">Keterangan</th>
-              <th class="p-3 w-1/6">Kategori</th>
-              <th class="p-3 text-right w-1/4">Jumlah</th>
-            </tr>
-          </thead>
-          <tbody id="tabel-transaksi-all" class="divide-y divide-slate-100"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL JERSEY -->
-  <div id="modal-jersey" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="closeModalDirect('modal-jersey')">
-    <div class="bg-white w-full max-w-5xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
-      <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-        <div>
-          <h3 class="text-lg md:text-xl font-bold text-slate-900">Daftar Pemesan Jersey Warga</h3>
-          <p class="text-xs text-slate-500">Data ukuran, pilihan lengan, tagihan, dan status pembayaran warga</p>
-        </div>
-        <button onclick="closeModalDirect('modal-jersey')" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
-          <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
-        </button>
-      </div>
-
-      <!-- NAVIGATION TAB BAPAK / IBU -->
-      <div class="px-4 pt-3 pb-2 border-b border-slate-200 bg-slate-50/80 flex items-center space-x-2">
-        <button id="tab-jersey-bapak" onclick="switchJerseyTab('bapak')" class="flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-indigo-600 text-white border-indigo-600 shadow-sm">
-          <span>👨 Pemesan Bapak-Bapak</span>
-          <span id="badge-count-bapak" class="bg-white/20 text-white px-2 py-0.5 rounded-full text-[10px]">0</span>
-        </button>
-        <button id="tab-jersey-ibu" onclick="switchJerseyTab('ibu')" class="flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-white text-slate-600 border-slate-200 hover:bg-slate-100">
-          <span>👩 Pemesan Ibu-Ibu</span>
-          <span id="badge-count-ibu" class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full text-[10px]">0</span>
-        </button>
-      </div>
-
-      <!-- HEADER RINCIAN DANA DI DALAM MODAL POP-UP -->
-      <div class="px-4 py-3 bg-indigo-950 text-white border-b border-indigo-800 grid grid-cols-3 gap-2 text-center text-xs">
-        <div class="bg-indigo-900/60 p-2 rounded-lg border border-indigo-800">
-          <p class="text-[10px] text-indigo-300">Total Tagihan <span id="label-tab-kategori" class="font-semibold">(Bapak)</span></p>
-          <p id="modal-jersey-total-tagihan" class="font-bold text-white text-xs md:text-sm mt-0.5">Rp 0</p>
-        </div>
-        <div class="bg-emerald-950/80 p-2 rounded-lg border border-emerald-800/80">
-          <p class="text-[10px] text-emerald-300">Dana Terkumpul (DP/Lunas)</p>
-          <p id="modal-jersey-terkumpul" class="font-bold text-emerald-400 text-xs md:text-sm mt-0.5">Rp 0</p>
-        </div>
-        <div class="bg-rose-950/80 p-2 rounded-lg border border-rose-800/80">
-          <p class="text-[10px] text-rose-300">Sisa Kekurangan Dana</p>
-          <p id="modal-jersey-sisa" class="font-bold text-rose-400 text-xs md:text-sm mt-0.5">Rp 0</p>
-        </div>
-      </div>
-
-      <div class="p-4 border-b border-slate-100">
-        <input type="text" id="search-jersey" onkeyup="filterJerseyModal()" placeholder="Cari nama, blok, atau no. punggung..." class="w-full text-xs md:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-      </div>
-
-      <div class="overflow-x-auto overflow-y-auto flex-grow p-4">
-        <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[650px]">
-          <thead>
-            <tr class="border-b border-slate-200 bg-slate-100/60 text-slate-600">
-              <th class="p-3 w-12 text-center">No</th>
-              <th class="p-3 w-1/4">Nama & Blok</th>
-              <th class="p-3">Lengan</th>
-              <th class="p-3">Ukuran</th>
-              <th class="p-3">Nama & No. Punggung</th>
-              <th class="p-3 text-right">Pembayaran</th>
-              <th class="p-3 text-center">Status</th>
-            </tr>
-          </thead>
-          <tbody id="tabel-jersey-all" class="divide-y divide-slate-100"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <div id="modal-dokumentasi" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="closeModalDirect('modal-dokumentasi')">
-    <div class="bg-white w-full max-w-5xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
-      <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-        <div>
-          <h3 class="text-lg md:text-xl font-bold text-slate-900">Arsip Dokumentasi Kegiatan</h3>
-          <p class="text-xs text-slate-500">Seluruh album foto & kegiatan warga Flamboyan 4</p>
-        </div>
-        <button onclick="closeModalDirect('modal-dokumentasi')" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
-          <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
-        </button>
-      </div>
-      <div id="container-dokumentasi-all" class="p-4 md:p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6"></div>
-    </div>
-  </div>
-
-  <!-- MODAL GRID POP-UP GALERI -->
-  <div id="modal-gallery-grid" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[80] hidden flex items-center justify-center p-3 md:p-6" onclick="closeModalDirect('modal-gallery-grid')">
-    <div class="bg-white w-full max-w-5xl max-h-[85vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
-      <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-        <div>
-          <h3 id="gallery-grid-title" class="text-base md:text-lg font-bold text-slate-900">Galeri Album</h3>
-          <p id="gallery-grid-subtitle" class="text-xs text-slate-500">Klik salah satu media untuk melihat/memutar</p>
-        </div>
-        <button onclick="closeModalDirect('modal-gallery-grid')" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
-          <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
-        </button>
-      </div>
-      <div id="gallery-grid-container" class="p-4 md:p-6 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
-        <p class="text-slate-400 text-xs col-span-full text-center">Memuat seluruh media album...</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- LIGHTBOX MODAL FULLSCREEN -->
-  <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-between p-3 md:p-6 overflow-hidden select-none" onclick="closeLightboxModal()">
-    <div class="w-full flex items-center justify-between z-30 pb-2" onclick="event.stopPropagation()">
-      <p id="lightbox-caption" class="text-xs md:text-sm font-semibold tracking-wide text-white truncate max-w-[70%]"></p>
-      <div class="flex items-center space-x-2">
-        <button onclick="resetLightboxZoom(event)" id="btn-reset-zoom" class="text-white bg-slate-800/80 hover:bg-slate-700 p-1.5 px-3 rounded-full transition shadow-md text-xs font-semibold hidden" title="Reset Ukuran">
-          Reset Zoom
-        </button>
-        <button onclick="closeLightboxModal()" class="text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition shadow-md" title="Kembali Ke Galeri">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-    </div>
-
-    <button id="lightbox-prev" onclick="prevLightboxMedia(event)" class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 text-white bg-slate-800/80 hover:bg-slate-700 p-2 md:p-3 rounded-full transition z-30 hidden" title="Panah Kiri">
-      <i data-lucide="chevron-left" class="w-6 h-6 md:w-8 md:h-8"></i>
-    </button>
-
-    <button id="lightbox-next" onclick="nextLightboxMedia(event)" class="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 text-white bg-slate-800/80 hover:bg-slate-700 p-2 md:p-3 rounded-full transition z-30 hidden" title="Panah Kanan">
-      <i data-lucide="chevron-right" class="w-6 h-6 md:w-8 md:h-8"></i>
-    </button>
-    
-    <div id="lightbox-media-container" class="relative w-full flex-grow flex items-center justify-center my-auto overflow-hidden"></div>
-
-    <div class="w-full text-center z-30 pt-2">
-      <p id="lightbox-counter" class="text-xs text-slate-400 font-mono hidden"></p>
-    </div>
-  </div>
-
-  <!-- MODAL KOTAK SARAN -->
-  <div id="modal-saran" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4 opacity-0 transition-opacity duration-300" onclick="closeModalDirect('modal-saran')">
-    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col transform scale-95 transition-transform duration-300" onclick="event.stopPropagation()">
-      <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-indigo-600 text-white">
-        <div class="flex items-center space-x-2">
-          <i data-lucide="message-square" class="w-5 h-5"></i>
-          <h3 class="font-bold text-sm md:text-base">Kotak Saran Flamboyan 4</h3>
-        </div>
-        <button onclick="closeModalDirect('modal-saran')" class="p-1 text-indigo-200 hover:text-white rounded-full transition">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-      <div class="p-5 space-y-4">
-        <p class="text-xs text-slate-500">Pesan ini akan dikirim secara rahasia dan aman ke email pengurus. Identitas Anda tidak akan direkam.</p>
-        
-        <form action="https://formspree.io/f/mgavlbyn" method="POST" id="form-saran">
-            <textarea name="pesan" rows="5" placeholder="Ketik saran, laporan, atau keluhan Anda di sini..." class="w-full p-3 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none bg-slate-50" required></textarea>
-            
-            <button type="submit" class="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition flex items-center justify-center space-x-2 shadow-sm">
-                <i data-lucide="send" class="w-4 h-4"></i>
-                <span>Kirim Saran</span>
-            </button>
-        </form>
-        <p id="saran-status" class="text-xs text-center text-emerald-600 font-semibold hidden">Terima kasih! Pesan Anda telah terkirim.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- FLOATING ACTION BUTTON CONTAINER -->
-  <div class="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50 flex flex-col items-center space-y-3 pointer-events-none">
-    <button id="btn-scroll-top" onclick="scrollToTop()" class="bg-slate-800/95 hover:bg-indigo-600 text-white p-3 md:p-3.5 rounded-full shadow-2xl transition-all duration-300 opacity-0 pointer-events-none transform translate-y-4 hover:scale-110 group flex items-center justify-center border border-white/20 active:scale-95" title="Kembali Ke Atas">
-      <i data-lucide="arrow-up" class="w-5 h-5 md:w-6 md:h-6"></i>
-      <span class="absolute right-full mr-3 bg-slate-800 text-white text-xs font-semibold px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-        Ke Atas
-      </span>
-    </button>
-
-    <button onclick="openModalSaran()" class="bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-2xl hover:shadow-indigo-500/50 transition-all transform hover:scale-110 group flex items-center justify-center pointer-events-auto active:scale-95">
-      <i data-lucide="message-square-plus" class="w-6 h-6 md:w-7 md:h-7"></i>
-      <span class="absolute right-full mr-3 bg-slate-800 text-white text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-        Kirim Saran
-      </span>
-    </button>
-  </div>
-
   <!-- FOOTER -->
-  <footer class="bg-slate-900 text-slate-400 pt-6 pb-6 border-t border-slate-800 w-full">
-    <div class="max-w-6xl mx-auto px-4">
-      <div class="bg-slate-800/60 p-4 md:p-5 rounded-2xl border border-slate-700/80 mb-6">
-        <div class="flex items-center justify-between border-b border-slate-700/60 pb-3 mb-3">
-          <div class="flex items-center space-x-2 text-white">
-            <i data-lucide="credit-card" class="w-5 h-5 text-indigo-400"></i>
-            <h4 class="font-bold text-sm md:text-base">Pembayaran & Kas Warga</h4>
-          </div>
-          <span class="text-[11px] text-slate-400">Pilih Rekening / QRIS</span>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-          <!-- REKENING 1: MANDIRI -->
-          <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 flex items-center justify-between">
-            <div>
-              <p class="text-white font-bold">Mandiri</p>
-              <p class="text-[11px] text-slate-400">A/N ROSALINDA</p>
-            </div>
-            <button onclick="salinNorekEx('1330022606479', 'btn-salin-1', 'btn-text-1')" id="btn-salin-1" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center space-x-1 shrink-0 active:scale-95">
-              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-              <span id="btn-text-1">Salin Norek</span>
-            </button>
-          </div>
-
-          <!-- REKENING 2: SEABANK -->
-          <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 flex items-center justify-between">
-            <div>
-              <p class="text-white font-bold">SeaBank</p>
-              <p class="text-[11px] text-slate-400">A/N HERI JUWANDI</p>
-            </div>
-            <button onclick="salinNorekEx('901493321399', 'btn-salin-2', 'btn-text-2')" id="btn-salin-2" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center space-x-1 shrink-0 active:scale-95">
-              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-              <span id="btn-text-2">Salin Norek</span>
-            </button>
-          </div>
-
-          <!-- QRIS SIMPEL TOMBOL UNDUH -->
-          <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 flex items-center justify-between">
-            <div>
-              <p class="text-white font-bold">QRIS Pembayaran</p>
-              <p class="text-[11px] text-slate-400">All E-Wallet/Bank</p>
-            </div>
-            <a href="https://lh3.googleusercontent.com/d/1__HrmelJmm4moxTdZr4hMM-Yv5AYJC31" download="Flamboyan4_QRIS_Pembayaran.png" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center space-x-1 shrink-0 active:scale-95">
-              <i data-lucide="download" class="w-3.5 h-3.5"></i>
-              <span>Unduh QR</span>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <div class="text-center text-xs md:text-sm pt-2">
-        <p>&copy; 2026 Humas 3 Warga Flamboyan 4. Dikelola secara swadaya & transparan.</p>
-      </div>
-    </div>
+  <footer class="bg-slate-900 text-slate-400 py-6 border-t border-slate-800 w-full mt-12 text-center text-xs">
+    <p>&copy; 2026 Humas 3 Warga Flamboyan 4. Dikelola secara swadaya & transparan.</p>
   </footer>
 
-  <!-- FIREBASE SDK (MODULAR CDN) DENGAN KONFIGURASI PAK HERI -->
+  <!-- FIREBASE SCRIPT (MODULAR CDN) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, push, onValue, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -964,7 +265,7 @@
           .replace(/>/g, "&gt;");
 
         html += `
-          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80 flex items-start justify-between gap-2 hover:bg-slate-100/50 transition">
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80 flex items-start justify-between gap-2 hover:bg-slate-100 transition">
             <div class="space-y-1 w-full">
               <div class="flex items-center justify-between">
                 <span class="font-bold text-xs md:text-sm text-indigo-950">${item.nama}</span>
@@ -980,138 +281,19 @@
     });
   </script>
 
-  <!-- SCRIPT KONTROL LOGIKA PORTAL UTAMA -->
+  <!-- SCRIPT LOGIKA GOOGLE SHEETS & IMAGE LOADER -->
   <script>
-    if (window.location.hash || window.location.pathname.endsWith('index.html')) {
-      history.replaceState(null, document.title, window.location.pathname.replace(/index\.html$/, '') + window.location.search);
-    }
-
     lucide.createIcons();
 
-    window.addEventListener('scroll', function() {
-      const btnScroll = document.getElementById('btn-scroll-top');
-      if (!btnScroll) return;
-      if (window.scrollY > 250) {
-        btnScroll.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
-        btnScroll.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
-      } else {
-        btnScroll.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
-        btnScroll.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
-      }
-    });
-
-    function scrollToTop() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    function insertEmoticon(emot) {
+      const txt = document.getElementById('komentar-pesan');
+      txt.value += emot;
+      txt.focus();
     }
 
-    let activeModalsStack = [];
-
-    function openModal(id) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
-      if (!activeModalsStack.includes(id)) activeModalsStack.push(id);
-      if(id === 'modal-saran') {
-          setTimeout(() => {
-            el.classList.remove('opacity-0');
-            el.children[0].classList.remove('scale-95');
-          }, 10);
-      }
-    }
-
-    function closeModalDirect(id) {
-      const el = document.getElementById(id);
-      if (!el || el.classList.contains('hidden')) return;
-
-      if (id === 'modal-saran') {
-        el.classList.add('opacity-0');
-        el.children[0].classList.add('scale-95');
-        setTimeout(() => {
-          el.classList.add('hidden');
-          document.getElementById('saran-status').classList.add('hidden');
-          document.getElementById('form-saran').reset();
-        }, 300);
-      } else {
-        el.classList.add('hidden');
-      }
-
-      if (id === 'lightbox-modal') {
-        document.getElementById('lightbox-media-container').innerHTML = '';
-        resetLightboxZoom();
-      }
-
-      const idx = activeModalsStack.indexOf(id);
-      if (idx > -1) activeModalsStack.splice(idx, 1);
-
-      if (activeModalsStack.length === 0) {
-        document.body.style.overflow = 'auto';
-        history.replaceState(null, document.title, window.location.pathname.replace(/index\.html$/, '') + window.location.search);
-      }
-    }
-
-    function closeLightboxModal() {
-      const lightbox = document.getElementById('lightbox-modal');
-      if (!lightbox || lightbox.classList.contains('hidden')) return;
-      lightbox.classList.add('hidden');
-      document.getElementById('lightbox-media-container').innerHTML = '';
-      resetLightboxZoom();
-      const idx = activeModalsStack.indexOf('lightbox-modal');
-      if (idx > -1) activeModalsStack.splice(idx, 1);
-      if (activeModalsStack.length === 0) document.body.style.overflow = 'auto';
-    }
-
-    document.addEventListener('keydown', function(e) {
-      if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73) || (e.ctrlKey && e.keyCode === 85)) return false;
-    });
-
-    function disableInspect(e) {
-      if (e.keyCode === 123) return false;
-    }
-
-    function salinNorekEx(norek, btnId, textId) {
-      navigator.clipboard.writeText(norek).then(() => {
-        const textSpan = document.getElementById(textId);
-        const btn = document.getElementById(btnId);
-        textSpan.innerText = "Tersalin!";
-        btn.className = "bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center space-x-1 shrink-0 active:scale-95";
-        setTimeout(() => {
-          textSpan.innerText = "Salin Norek";
-          btn.className = "bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center space-x-1 shrink-0 active:scale-95";
-        }, 2000);
-      });
-    }
-
-    // LIST LINK CSV SPREADSHEET
     const CSV_KEUANGAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=422555783&single=true&output=csv';
     const CSV_DOKUMENTASI_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=0&single=true&output=csv';
-    const CSV_ARISAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=53284271&single=true&output=csv';
-    const CSV_RENCANA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=781301604&single=true&output=csv';
-    const CSV_JERSEY_BAPAK_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=878370178&single=true&output=csv';
-    const CSV_JERSEY_IBU_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=1755921986&single=true&output=csv';
-
-    const FOLDER_JERSEY_URL = 'https://drive.google.com/drive/folders/1_VH_MHlOhA_tSXPsw1ztJEf3fVydU7gE';
-    const FOLDER_GAPURA_URL = 'https://drive.google.com/drive/folders/1Zs2RlbHTvNc9RDhbc1TlgcptXeNhnrQ5';
-    const FOLDER_API_URL = 'https://script.google.com/macros/s/AKfycbyes6A9_9EQ8vIYtf75cGgC9sKAZBvMewxEhYRSThjMAlBYqnkmKpa3yoPOtN0FEG92Zg/exec';
-
-    const TARGET_DANA_GAPURA = 6500000;
     const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='100%25' height='100%25' fill='%231e1b4b'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='18' fill='%23818cf8' text-anchor='middle' dy='.3em'%3EDokumentasi Kegiatan Warga%3C/text%3E%3C/svg%3E";
-
-    let globalKeuanganData = [];
-    let globalArisanData = [];
-    let globalJerseyBapakData = [];
-    let globalJerseyIbuData = [];
-    let currentJerseyTab = 'bapak';
-    let globalRencanaData = [];
-    let currentArisanIdxGlobal = -1;
-    let monthlyKeuanganList = []; 
-    let currentPemasukanMonthIndex = 0;
-    let currentPengeluaranMonthIndex = 0;
-    let calendarDate = new Date();
-
-    function formatRupiah(angka) {
-      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
-    }
 
     function extractDriveFileId(url) {
       if (!url) return null;
@@ -1127,451 +309,51 @@
       return fileId ? 'https://lh3.googleusercontent.com/d/' + fileId : cleanUrl;
     }
 
-    function insertEmoticon(emot) {
-      const txt = document.getElementById('komentar-pesan');
-      txt.value += emot;
-      txt.focus();
-    }
-
-    function openModalKeuangan() { openModal('modal-keuangan'); }
-    function openModalKeuanganFiltered(type) { document.getElementById('search-keuangan').value = type; openModal('modal-keuangan'); }
-    function openModalArisan() { openModal('modal-arisan'); }
-    function openModalJersey() { switchJerseyTab('bapak'); openModal('modal-jersey'); }
-    function openModalDokumentasi() { openModal('modal-dokumentasi'); }
-    function openModalSaran() { openModal('modal-saran'); }
-
-    // PARSE KEUANGAN
+    // Load Keuangan
     if (CSV_KEUANGAN_URL) {
       Papa.parse(CSV_KEUANGAN_URL, { download: true, header: true, complete: function(results) {
-        globalKeuanganData = results.data.filter(row => Object.values(row)[0]);
+        let data = results.data.filter(row => Object.values(row)[0]);
         let totalMasuk = 0, totalKeluar = 0;
-        let mapBulan = {};
-        
-        globalKeuanganData.forEach(row => {
-          let tglStr = Object.values(row)[0]?.trim();
-          let ket = Object.values(row)[1]?.trim();
+        data.forEach(row => {
           let kat = Object.values(row)[2]?.trim().toLowerCase();
           let jml = parseFloat(Object.values(row)[3]?.toString().replace(/[^0-9-]/g, '')) || 0;
-
           if (kat === 'pemasukan') totalMasuk += jml;
           else totalKeluar += jml;
-
-          if (tglStr) {
-            let parts = tglStr.split(/[-/]/);
-            if (parts.length >= 2) {
-              let m = parts[1].trim();
-              let y = parts[0].trim().length === 4 ? parts[0].trim() : parts[parts.length-1].trim();
-              let kMonth = y + '-' + m;
-              if (!mapBulan[kMonth]) mapBulan[kMonth] = { masuk: 0, keluar: 0, label: m + '/' + y };
-              if (kat === 'pemasukan') mapBulan[kMonth].masuk += jml;
-              else mapBulan[kMonth].keluar += jml;
-            }
-          }
         });
-
-        document.getElementById('total-pemasukan-all').innerText = formatRupiah(totalMasuk);
-        document.getElementById('total-pengeluaran-all').innerText = formatRupiah(totalKeluar);
-        document.getElementById('sisa-saldo').innerText = formatRupiah(totalMasuk - totalKeluar);
-        document.getElementById('loading-status').innerText = 'Terhubung live';
-
-        monthlyKeuanganList = Object.keys(mapBulan).sort().map(k => mapBulan[k]);
-        if (monthlyKeuanganList.length > 0) {
-          currentPemasukanMonthIndex = monthlyKeuanganList.length - 1;
-          currentPengeluaranMonthIndex = monthlyKeuanganList.length - 1;
-          updateCardBulanKeuangan();
-        }
-
-        renderTabelTransaksi(globalKeuanganData.slice(-10).reverse(), 'tabel-transaksi');
-        renderTabelTransaksi(globalKeuanganData.slice().reverse(), 'tabel-transaksi-all');
-        document.getElementById('btn-container-keuangan-all').classList.remove('hidden');
+        document.getElementById('total-pemasukan-all').innerText = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(totalMasuk);
+        document.getElementById('total-pengeluaran-all').innerText = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(totalKeluar);
+        document.getElementById('sisa-saldo').innerText = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(totalMasuk - totalKeluar);
       }});
     }
 
-    function renderTabelTransaksi(data, elementId) {
-      const tbody = document.getElementById(elementId);
-      if (!tbody) return;
-      if (data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">Tidak ada data transaksi</td></tr>`;
-        return;
-      }
-      let html = '';
-      data.forEach(row => {
-        let cols = Object.values(row);
-        let tgl = cols[0] || '-';
-        let ket = cols[1] || '-';
-        let kat = cols[2] || '-';
-        let jml = parseFloat(cols[3]?.toString().replace(/[^0-9-]/g, '')) || 0;
-        let isMasuk = kat.toLowerCase() === 'pemasukan';
-        html += `
-          <tr class="hover:bg-slate-50 transition">
-            <td class="p-3 text-slate-600 font-mono text-xs">${tgl}</td>
-            <td class="p-3 text-slate-800 font-medium">${ket}</td>
-            <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${isMasuk ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${kat}</span></td>
-            <td class="p-3 text-right font-bold ${isMasuk ? 'text-emerald-600' : 'text-rose-600'}">${isMasuk ? '+' : '-'} ${formatRupiah(Math.abs(jml))}</td>
-          </tr>
-        `;
-      });
-      tbody.innerHTML = html;
-    }
-
-    function changeMonthPemasukan(dir) {
-      if (monthlyKeuanganList.length === 0) return;
-      currentPemasukanMonthIndex += dir;
-      if (currentPemasukanMonthIndex < 0) currentPemasukanMonthIndex = 0;
-      if (currentPemasukanMonthIndex >= monthlyKeuanganList.length) currentPemasukanMonthIndex = monthlyKeuanganList.length - 1;
-      updateCardBulanKeuangan();
-    }
-
-    function changeMonthPengeluaran(dir) {
-      if (monthlyKeuanganList.length === 0) return;
-      currentPengeluaranMonthIndex += dir;
-      if (currentPengeluaranMonthIndex < 0) currentPengeluaranMonthIndex = 0;
-      if (currentPengeluaranMonthIndex >= monthlyKeuanganList.length) currentPengeluaranMonthIndex = monthlyKeuanganList.length - 1;
-      updateCardBulanKeuangan();
-    }
-
-    function updateCardBulanKeuangan() {
-      if (monthlyKeuanganList[currentPemasukanMonthIndex]) {
-        let mData = monthlyKeuanganList[currentPemasukanMonthIndex];
-        document.getElementById('label-pemasukan-bulan').innerText = `Pemasukan (${mData.label})`;
-        document.getElementById('pemasukan-bulan-ini').innerText = formatRupiah(mData.masuk);
-      }
-      if (monthlyKeuanganList[currentPengeluaranMonthIndex]) {
-        let mData = monthlyKeuanganList[currentPengeluaranMonthIndex];
-        document.getElementById('label-pengeluaran-bulan').innerText = `Pengeluaran (${mData.label})`;
-        document.getElementById('pengeluaran-bulan-ini').innerText = formatRupiah(mData.keluar);
-      }
-    }
-
-    function filterKeuanganModal() {
-      let q = document.getElementById('search-keuangan').value.toLowerCase();
-      let filtered = globalKeuanganData.filter(row => Object.values(row).some(val => val?.toString().toLowerCase().includes(q)));
-      renderTabelTransaksi(filtered.reverse(), 'tabel-transaksi-all');
-    }
-
-    // PARSE ARISAN
-    if (CSV_ARISAN_URL) {
-      Papa.parse(CSV_ARISAN_URL, { download: true, header: true, complete: function(results) {
-        globalArisanData = results.data.filter(row => Object.values(row)[0]);
-        let today = new Date();
-        let curMonthName = today.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-        
-        let foundIdx = -1;
-        globalArisanData.forEach((row, idx) => {
-          let bulan = Object.values(row)[0] || '';
-          if (bulan.toLowerCase().includes(today.toLocaleDateString('id-ID', { month: 'long' }).toLowerCase()) || bulan.toLowerCase().includes(today.getFullYear().toString())) {
-            foundIdx = idx;
-          }
-        });
-
-        if (foundIdx === -1 && globalArisanData.length > 0) foundIdx = 0;
-        currentArisanIdxGlobal = foundIdx;
-
-        if (foundIdx > -1 && globalArisanData[foundIdx]) {
-          let curr = globalArisanData[foundIdx];
-          let next = globalArisanData[foundIdx + 1] || globalArisanData[0];
-          
-          document.getElementById('arisan-bulan-ini-nama').innerText = Object.values(curr)[1] || '-';
-          document.getElementById('arisan-bulan-ini-tgl').innerText = Object.values(curr)[0] || '-';
-          
-          if (next) {
-            document.getElementById('arisan-selanjutnya-nama').innerText = Object.values(next)[1] || '-';
-            document.getElementById('arisan-selanjutnya-tgl').innerText = Object.values(next)[0] || '-';
-          }
-        }
-        document.getElementById('loading-status-arisan').innerText = 'Jadwal Aktif';
-        renderTabelArisan(globalArisanData, 'tabel-arisan-all');
-      }});
-    }
-
-    function renderTabelArisan(data, elementId) {
-      const tbody = document.getElementById(elementId);
-      if (!tbody) return;
-      let html = '';
-      data.forEach((row, idx) => {
-        let cols = Object.values(row);
-        let bulan = cols[0] || '-';
-        let nama = cols[1] || '-';
-        let status = cols[2] || 'Belum';
-        let isAktif = idx === currentArisanIdxGlobal;
-        html += `
-          <tr class="${isAktif ? 'bg-indigo-50/80 font-semibold' : 'hover:bg-slate-50'} transition">
-            <td class="p-3 text-slate-700">${bulan}</td>
-            <td class="p-3 text-slate-900">${nama}</td>
-            <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${status.toLowerCase() === 'selesai' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${status}</span></td>
-          </tr>
-        `;
-      });
-      tbody.innerHTML = html;
-    }
-
-    function filterArisanModal() {
-      let q = document.getElementById('search-arisan').value.toLowerCase();
-      let filtered = globalArisanData.filter(row => Object.values(row).some(val => val?.toString().toLowerCase().includes(q)));
-      renderTabelArisan(filtered, 'tabel-arisan-all');
-    }
-
-    // PARSE RENCANA & KALENDER
-    if (CSV_RENCANA_URL) {
-      Papa.parse(CSV_RENCANA_URL, { download: true, header: true, complete: function(results) {
-        globalRencanaData = results.data.filter(row => Object.values(row)[0]);
-        renderCalendar();
-        renderRencanaList();
-      }});
-    }
-
-    function renderCalendar() {
-      const grid = document.getElementById('calendar-days-grid');
-      const monthYearLabel = document.getElementById('calendar-month-year');
-      if (!grid || !monthYearLabel) return;
-
-      let year = calendarDate.getFullYear();
-      let month = calendarDate.getMonth();
-      
-      monthYearLabel.innerText = calendarDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-
-      let firstDay = new Date(year, month, 1).getDay();
-      let totalDays = new Date(year, month + 1, 0).getDate();
-
-      let html = '';
-      for (let i = 0; i < firstDay; i++) {
-        html += `<div></div>`;
-      }
-
-      let today = new Date();
-      for (let d = 1; d <= totalDays; d++) {
-        let dStr = `${year}-${String(month+1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-        let matches = globalRencanaData.filter(row => Object.values(row)[0]?.trim().startsWith(dStr) || Object.values(row)[0]?.trim() === `${d} ${calendarDate.toLocaleDateString('id-ID', {month:'short'})}`);
-        let hasEvent = matches.length > 0;
-        let isGorol = matches.some(m => Object.values(m)[1]?.toLowerCase().includes('gorol') || Object.values(m)[1]?.toLowerCase().includes('kerja bakti'));
-
-        let isToday = (d === today.getDate() && month === today.getMonth() && year === today.getFullYear());
-
-        html += `
-          <div onclick="openCalendarDetail('${dStr}')" class="h-10 sm:h-12 flex flex-col items-center justify-center rounded-xl cursor-pointer transition relative border ${isToday ? 'border-indigo-600 bg-indigo-50 font-bold text-indigo-900' : 'border-slate-100 hover:bg-slate-100 text-slate-700'}">
-            <span class="text-xs">${d}</span>
-            ${hasEvent ? `<span class="w-1.5 h-1.5 rounded-full ${isGorol ? 'bg-amber-500' : 'bg-indigo-600'} mt-1"></span>` : ''}
-          </div>
-        `;
-      }
-      grid.innerHTML = html;
-    }
-
-    function changeMonth(dir) {
-      calendarDate.setMonth(calendarDate.getMonth() + dir);
-      renderCalendar();
-    }
-
-    function resetToCurrentMonth() {
-      calendarDate = new Date();
-      renderCalendar();
-    }
-
-    function renderRencanaList() {
-      const container = document.getElementById('container-rencana');
-      if (!container) return;
-      if (globalRencanaData.length === 0) {
-        container.innerHTML = `<p class="text-slate-400 text-xs">Belum ada agenda kegiatan mendatang.</p>`;
-        return;
-      }
-      let html = '';
-      globalRencanaData.forEach(row => {
-        let cols = Object.values(row);
-        let tgl = cols[0] || '-';
-        let nama = cols[1] || '-';
-        let ket = cols[2] || '-';
-        let isGorol = nama.toLowerCase().includes('gorol') || nama.toLowerCase().includes('kerja bakti');
-        html += `
-          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex items-start space-x-3">
-            <div class="p-2 rounded-lg ${isGorol ? 'bg-amber-100 text-amber-700' : 'bg-indigo-100 text-indigo-700'} shrink-0 mt-0.5">
-              <i data-lucide="${isGorol ? 'shovel' : 'calendar'}" class="w-4 h-4"></i>
-            </div>
-            <div>
-              <p class="font-bold text-slate-800 text-xs md:text-sm">${nama}</p>
-              <p class="text-[11px] text-slate-500 mt-0.5">${tgl} - ${ket}</p>
-            </div>
-          </div>
-        `;
-      });
-      container.innerHTML = html;
-      lucide.createIcons();
-    }
-
-    function openCalendarDetail(dateStr) {
-      let matches = globalRencanaData.filter(row => Object.values(row)[0]?.trim().startsWith(dateStr));
-      if (matches.length === 0) return;
-      let bodyHtml = '';
-      matches.forEach(m => {
-        let cols = Object.values(m);
-        bodyHtml += `<div class="p-3 bg-slate-50 rounded-xl border"><p class="font-bold text-slate-800">${cols[1]}</p><p class="text-xs text-slate-500 mt-1">${cols[2] || ''}</p></div>`;
-      });
-      document.getElementById('modal-event-date').innerText = `Agenda Tanggal ${dateStr}`;
-      document.getElementById('modal-event-body').innerHTML = bodyHtml;
-      openModal('modal-event-detail');
-    }
-
-    // PARSE DOKUMENTASI
+    // Load Dokumentasi & Gambar Google Drive
     if (CSV_DOKUMENTASI_URL) {
       Papa.parse(CSV_DOKUMENTASI_URL, { download: true, header: true, complete: function(results) {
         let data = results.data.filter(row => Object.values(row)[0]);
         let slider = document.getElementById('slider-dokumentasi');
-        let modalContainer = document.getElementById('container-dokumentasi-all');
-        if (!slider || !modalContainer) return;
+        if (!slider) return;
 
         if (data.length === 0) {
           slider.innerHTML = `<p class="text-slate-400 text-xs">Belum ada dokumentasi.</p>`;
-          modalContainer.innerHTML = `<p class="text-slate-400 text-xs col-span-full text-center">Belum ada dokumentasi.</p>`;
           return;
         }
 
-        let htmlSlider = '';
-        let htmlModal = '';
+        let html = '';
         data.forEach(row => {
           let cols = Object.values(row);
           let judul = cols[0] || 'Kegiatan';
           let imgUrl = fixDriveUrl(cols[1]);
-          htmlSlider += `
-            <div class="snap-start shrink-0 w-[260px] sm:w-[280px] bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden group cursor-pointer" onclick="openGalleryGridModal('${cols[1]}', '${judul}')">
+          html += `
+            <div class="snap-start shrink-0 w-[260px] sm:w-[280px] bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden group">
               <div class="h-36 bg-slate-100 overflow-hidden relative">
                 <img src="${imgUrl}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${PLACEHOLDER_IMG}'">
               </div>
               <div class="p-3"><h4 class="font-bold text-slate-800 text-xs md:text-sm truncate">${judul}</h4></div>
             </div>
           `;
-          htmlModal += `
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden cursor-pointer group" onclick="openGalleryGridModal('${cols[1]}', '${judul}')">
-              <div class="h-40 bg-slate-100 overflow-hidden relative">
-                <img src="${imgUrl}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${PLACEHOLDER_IMG}'">
-              </div>
-              <div class="p-3.5"><h4 class="font-bold text-slate-800 text-sm">${judul}</h4></div>
-            </div>
-          `;
         });
-        slider.innerHTML = htmlSlider;
-        modalContainer.innerHTML = htmlModal;
+        slider.innerHTML = html;
       }});
-    }
-
-    function scrollDokumentasi(dir) {
-      const slider = document.getElementById('slider-dokumentasi');
-      if (slider) slider.scrollBy({ left: dir * 300, behavior: 'smooth' });
-    }
-    function scrollProjek(dir) {
-      const slider = document.getElementById('slider-projek');
-      if (slider) slider.scrollBy({ left: dir * 350, behavior: 'smooth' });
-    }
-
-    // PARSE JERSEY BAPAK & IBU
-    function loadJerseyData() {
-      if (CSV_JERSEY_BAPAK_URL) {
-        Papa.parse(CSV_JERSEY_BAPAK_URL, { download: true, header: true, complete: function(results) {
-          globalJerseyBapakData = results.data.filter(row => Object.values(row)[0]);
-          document.getElementById('badge-count-bapak').innerText = globalJerseyBapakData.length;
-          updateJerseySummaryCard();
-        }});
-      }
-      if (CSV_JERSEY_IBU_URL) {
-        Papa.parse(CSV_JERSEY_IBU_URL, { download: true, header: true, complete: function(results) {
-          globalJerseyIbuData = results.data.filter(row => Object.values(row)[0]);
-          document.getElementById('badge-count-ibu').innerText = globalJerseyIbuData.length;
-        }});
-      }
-    }
-    loadJerseyData();
-
-    function switchJerseyTab(tab) {
-      currentJerseyTab = tab;
-      const btnBapak = document.getElementById('tab-jersey-bapak');
-      const btnIbu = document.getElementById('tab-jersey-ibu');
-      const labelKat = document.getElementById('label-tab-kategori');
-
-      if (tab === 'bapak') {
-        btnBapak.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-indigo-600 text-white border-indigo-600 shadow-sm";
-        btnIbu.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-white text-slate-600 border-slate-200 hover:bg-slate-100";
-        labelKat.innerText = "(Bapak)";
-        renderTabelJersey(globalJerseyBapakData);
-      } else {
-        btnIbu.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-indigo-600 text-white border-indigo-600 shadow-sm";
-        btnBapak.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-white text-slate-600 border-slate-200 hover:bg-slate-100";
-        labelKat.innerText = "(Ibu)";
-        renderTabelJersey(globalJerseyIbuData);
-      }
-    }
-
-    function renderTabelJersey(data) {
-      const tbody = document.getElementById('tabel-jersey-all');
-      if (!tbody) return;
-      if (data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">Belum ada data pemesan</td></tr>`;
-        return;
-      }
-      let totalTagihan = 0, totalTerkumpul = 0;
-      let html = '';
-      data.forEach((row, idx) => {
-        let cols = Object.values(row);
-        let nama = cols[1] || '-';
-        let lengan = cols[2] || '-';
-        let ukuran = cols[3] || '-';
-        let punggung = cols[4] || '-';
-        let bayar = parseFloat(cols[5]?.toString().replace(/[^0-9-]/g, '')) || 0;
-        let status = cols[6] || 'DP';
-        
-        totalTagihan += 120000; // Standar harga estimasi
-        totalTerkumpul += bayar;
-
-        html += `
-          <tr class="hover:bg-slate-50 transition">
-            <td class="p-3 text-center text-slate-500 font-mono">${idx+1}</td>
-            <td class="p-3 font-bold text-slate-800">${nama}</td>
-            <td class="p-3 text-slate-600">${lengan}</td>
-            <td class="p-3 font-semibold text-indigo-600">${ukuran}</td>
-            <td class="p-3 text-slate-700">${punggung}</td>
-            <td class="p-3 text-right font-mono font-bold text-emerald-600">${formatRupiah(bayar)}</td>
-            <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${status.toLowerCase().includes('lunas') ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${status}</span></td>
-          </tr>
-        `;
-      });
-      tbody.innerHTML = html;
-      document.getElementById('modal-jersey-total-tagihan').innerText = formatRupiah(totalTagihan);
-      document.getElementById('modal-jersey-terkumpul').innerText = formatRupiah(totalTerkumpul);
-      document.getElementById('modal-jersey-sisa').innerText = formatRupiah(Math.max(0, totalTagihan - totalTerkumpul));
-    }
-
-    function updateJerseySummaryCard() {
-      let totalPsn = globalJerseyBapakData.length + globalJerseyIbuData.length;
-      let totalUang = 0;
-      globalJerseyBapakData.forEach(r => totalUang += parseFloat(Object.values(r)[5]?.toString().replace(/[^0-9-]/g, '')) || 0);
-      globalJerseyIbuData.forEach(r => totalUang += parseFloat(Object.values(r)[5]?.toString().replace(/[^0-9-]/g, '')) || 0);
-      
-      document.getElementById('total-pemesan-jersey').innerText = `${totalPsn} Orang`;
-      document.getElementById('card-jersey-terkumpul').innerText = formatRupiah(totalUang);
-    }
-
-    function filterJerseyModal() {
-      let q = document.getElementById('search-jersey').value.toLowerCase();
-      let sourceData = currentJerseyTab === 'bapak' ? globalJerseyBapakData : globalJerseyIbuData;
-      let filtered = sourceData.filter(row => Object.values(row).some(val => val?.toString().toLowerCase().includes(q)));
-      renderTabelJersey(filtered);
-    }
-
-    function openGalleryGridModal(url, title) {
-      document.getElementById('gallery-grid-title').innerText = title;
-      let container = document.getElementById('gallery-grid-container');
-      let fileId = extractDriveFileId(url);
-      let imgFull = fileId ? 'https://lh3.googleusercontent.com/d/' + fileId : PLACEHOLDER_IMG;
-      
-      container.innerHTML = `
-        <div class="bg-slate-100 rounded-xl overflow-hidden h-44 cursor-pointer relative group" onclick="openLightboxDirect('${imgFull}', '${title}')">
-          <img src="${imgFull}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${PLACEHOLDER_IMG}'">
-        </div>
-      `;
-      openModal('modal-gallery-grid');
-    }
-
-    function openLightboxDirect(imgUrl, caption) {
-      document.getElementById('lightbox-caption').innerText = caption;
-      document.getElementById('lightbox-media-container').innerHTML = `<img src="${imgUrl}" class="max-h-[80vh] max-w-full object-contain rounded-lg">`;
-      openModal('lightbox-modal');
     }
   </script>
 </body>
