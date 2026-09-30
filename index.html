@@ -1854,13 +1854,11 @@
       const keys = Object.keys(row);
       if (keys.length === 0) return 0;
 
-      // Cari kolom yang bernama "Pembayaran" (Bukan "Status Pembayaran")
       let targetKey = keys.find(k => {
         const lk = k.toLowerCase().trim();
         return lk === 'pembayaran' || (lk.includes('pembayaran') && !lk.includes('status'));
       });
 
-      // Jika tidak ketemu persis, cari yang mengandung kata harga/nominal/tagihan
       if (!targetKey) {
         targetKey = keys.find(k => {
           const lk = k.toLowerCase().trim();
@@ -1868,20 +1866,18 @@
         });
       }
 
-      // Cadangan fallback jika header tidak sesuai
       if (!targetKey) {
-        if (keys.length >= 7) targetKey = keys[6]; // Kolom ke-7 (Index 6)
+        if (keys.length >= 7) targetKey = keys[6];
         else targetKey = keys[keys.length - 1];
       }
 
       const val = row[targetKey];
       if (!val) return 0;
 
-      // Parsing format angka Indonesia (contoh: Rp90.000 -> 90000)
       let strVal = val.toString().trim();
       strVal = strVal.replace(/rp/gi, '').replace(/\s+/g, '');
-      strVal = strVal.replace(/\./g, ''); // Hapus titik ribuan
-      strVal = strVal.replace(/,/g, '.'); // Ganti koma desimal jika ada
+      strVal = strVal.replace(/\./g, '');
+      strVal = strVal.replace(/,/g, '.');
 
       const num = parseFloat(strVal) || 0;
       return num;
@@ -1892,11 +1888,10 @@
       if (!row) return '';
       const keys = Object.keys(row);
       
-      // Cari kolom yang mengandung kata "Status"
       let targetKey = keys.find(k => k.toLowerCase().trim().includes('status'));
 
       if (!targetKey) {
-        if (keys.length >= 6) targetKey = keys[5]; // Kolom ke-6 (Index 5)
+        if (keys.length >= 6) targetKey = keys[5];
         else targetKey = keys[keys.length - 1];
       }
 
@@ -1922,11 +1917,10 @@
       filterJerseyModal();
     }
 
-    // FUNGSI RENDER SATU BARIS TABEL
+    // FUNGSI RENDER SATU BARIS TABEL (NILAI TERBAYAR SESUAI STATUS)
     function renderJerseyRow(row) {
       const keys = Object.keys(row);
       
-      // Mengambil nilai berdasarkan urutan atau kunci header
       const no = row[keys[0]] || '-';
       const namaBlok = row[keys[1]] || '-';
       const lengan = row[keys[2]] || '-';
@@ -1934,13 +1928,19 @@
       const namaNoPunggung = row[keys[4]] || '-';
       
       const hargaNominal = getNominalHargaJerseyRow(row);
-      const statusRaw = getStatusJerseyRow(row);
+      const statusRaw = getStatusJerseyRow(row).toLowerCase();
 
+      let nominalMasuk = 0;
       let statusBadge = `<span class="px-2 py-0.5 text-xs bg-slate-100 text-slate-400 rounded">-</span>`;
-      if (statusRaw.toLowerCase().includes('lunas')) {
+
+      if (statusRaw.includes('lunas')) {
+        nominalMasuk = hargaNominal;
         statusBadge = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 font-semibold rounded">Lunas</span>`;
-      } else if (statusRaw.toLowerCase().includes('dp')) {
+      } else if (statusRaw.includes('dp')) {
+        nominalMasuk = hargaNominal * 0.5;
         statusBadge = `<span class="px-2 py-0.5 text-xs bg-rose-100 text-rose-800 font-semibold rounded">DP 50%</span>`;
+      } else {
+        nominalMasuk = 0;
       }
 
       return `
@@ -1950,7 +1950,7 @@
           <td class="p-3 text-slate-600 whitespace-nowrap">${lengan}</td>
           <td class="p-3 font-semibold text-indigo-700 whitespace-nowrap">${ukuran}</td>
           <td class="p-3 text-slate-700 break-words">${namaNoPunggung}</td>
-          <td class="p-3 text-right font-bold text-slate-800 whitespace-nowrap">${hargaNominal > 0 ? formatRupiah(hargaNominal) : '-'}</td>
+          <td class="p-3 text-right font-bold text-slate-800 whitespace-nowrap">${nominalMasuk > 0 ? formatRupiah(nominalMasuk) : '-'}</td>
           <td class="p-3 text-center whitespace-nowrap">${statusBadge}</td>
         </tr>
       `;
