@@ -11,6 +11,10 @@
   <!-- PapaParse untuk membaca Google Sheets CSV -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   
+  <!-- Firebase SDK (Compat v8) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  
   <style>
     body {
       -webkit-user-select: none;
@@ -504,7 +508,7 @@
       </div>
     </section>
 
-    <!-- SECTION 6: INTERAKSI & OBROLAN WARGA -->
+    <!-- SECTION 6: INTERAKSI & OBROLAN WARGA (FIREBASE REALTIME) -->
     <section id="komentar-warga" class="scroll-mt-20 w-full space-y-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
@@ -513,7 +517,7 @@
         </div>
         <div class="flex items-center space-x-2">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full">Live Online</span>
+          <span class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full">Live Firebase</span>
         </div>
       </div>
 
@@ -1040,12 +1044,18 @@
     const CSV_JERSEY_BAPAK_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=878370178&single=true&output=csv';
     const CSV_JERSEY_IBU_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=1755921986&single=true&output=csv';
 
-    // LINK APPS SCRIPT TERBARU PAK HERI
     const FOLDER_JERSEY_URL = 'https://drive.google.com/drive/folders/1_VH_MHlOhA_tSXPsw1ztJEf3fVydU7gE';
     const FOLDER_GAPURA_URL = 'https://drive.google.com/drive/folders/1Zs2RlbHTvNc9RDhbc1TlgcptXeNhnrQ5';
-    
     const FOLDER_API_URL = 'https://script.google.com/macros/s/AKfycbyes6A9_9EQ8vIYtf75cGgC9sKAZBvMewxEhYRSThjMAlBYqnkmKpa3yoPOtN0FEG92Zg/exec';
-    const CHAT_API_URL = 'https://script.google.com/macros/s/AKfycbyes6A9_9EQ8vIYtf75cGgC9sKAZBvMewxEhYRSThjMAlBYqnkmKpa3yoPOtN0FEG92Zg/exec';
+
+    // INISIALISASI FIREBASE REALTIME DATABASE UNTUK CHAT
+    const firebaseConfig = {
+      databaseURL: "https://flamboyan4-default-rtdb.firebaseio.com/"
+    };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const dbRef = firebase.database().ref('komentar_warga');
 
     const TARGET_DANA_GAPURA = 6500000;
     const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='100%25' height='100%25' fill='%231e1b4b'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='18' fill='%23818cf8' text-anchor='middle' dy='.3em'%3EDokumentasi Kegiatan Warga%3C/text%3E%3C/svg%3E";
@@ -1101,7 +1111,7 @@
       return cleanUrl;
     }
 
-    // LOGIKA OBROLAN WARGA MENGGUNAKAN GET PARAMETER (TERHUBUNG KE doGet)
+    // LOGIKA OBROLAN WARGA MENGGUNAKAN FIREBASE REALTIME DATABASE
     let globalKomentarList = [];
 
     function insertEmoticon(emot) {
@@ -1110,18 +1120,21 @@
       txt.focus();
     }
 
-    function fetchKomentarOnline() {
-      if (!CHAT_API_URL || !CHAT_API_URL.startsWith('http')) return;
-
-      fetch(CHAT_API_URL)
-        .then(response => response.json())
-        .then(res => {
-          if (res && res.data && Array.isArray(res.data)) {
-            globalKomentarList = res.data.reverse();
-            renderKomentarWarga();
-          }
-        })
-        .catch(err => console.log("Gagal memuat obrolan:", err));
+    function listenKomentarFirebase() {
+      dbRef.limitToLast(50).on('value', (snapshot) => {
+        const data = snapshot.val();
+        globalKomentarList = [];
+        if (data) {
+          Object.keys(data).forEach(key => {
+            globalKomentarList.push({ id: key, ...data[key] });
+          });
+          // Urutkan dari yang terbaru di atas
+          globalKomentarList.reverse();
+        }
+        renderKomentarWarga();
+      }, (error) => {
+        console.error("Gagal mendengarkan data Firebase:", error);
+      });
     }
 
     function renderKomentarWarga() {
@@ -1148,7 +1161,7 @@
             <div class="space-y-1 w-full">
               <div class="flex items-center justify-between">
                 <span class="font-bold text-xs md:text-sm text-indigo-950">${item.nama}</span>
-                <span class="text-[10px] text-slate-400 font-mono">${item.waktu}</span>
+                <span class="text-[10px] text-slate-400 font-mono">${item.waktu || ''}</span>
               </div>
               <p class="text-xs md:text-sm text-slate-700 leading-relaxed break-words whitespace-pre-line">${cleanPesan}</p>
             </div>
@@ -1159,7 +1172,7 @@
       container.innerHTML = html;
     }
 
-    async function tambahKomentarWarga(e) {
+    function tambahKomentarWarga(e) {
       e.preventDefault();
       const namaInput = document.getElementById('komentar-nama').value.trim();
       const pesanInput = document.getElementById('komentar-pesan').value.trim();
@@ -1168,25 +1181,26 @@
 
       const btnSubmit = document.getElementById('btn-submit-chat');
       btnSubmit.disabled = true;
-      btnSubmit.innerHTML = `<span>Menyimpan...</span>`;
+      btnSubmit.innerHTML = `<span>Mengirim...</span>`;
 
-      const targetUrl = `${CHAT_API_URL}?nama=${encodeURIComponent(namaInput)}&pesan=${encodeURIComponent(pesanInput)}`;
+      const now = new Date();
+      const waktuFormatted = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ', ' + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 
-      try {
-        await fetch(targetUrl, { method: 'GET', mode: 'cors' });
-      } catch (err) {
-        const img = new Image();
-        img.src = targetUrl;
-      }
-
-      document.getElementById('komentar-pesan').value = '';
-
-      setTimeout(() => {
-        fetchKomentarOnline();
+      dbRef.push({
+        nama: namaInput,
+        pesan: pesanInput,
+        waktu: waktuFormatted,
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+      }).then(() => {
+        document.getElementById('komentar-pesan').value = '';
         btnSubmit.disabled = false;
         btnSubmit.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>Kirim Komentar</span>`;
         lucide.createIcons();
-      }, 2000);
+      }).catch((err) => {
+        alert("Gagal mengirim pesan ke Firebase: " + err.message);
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>Kirim Komentar</span>`;
+      });
     }
 
     function openModalKeuangan() { 
@@ -1639,8 +1653,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       initLightboxSwipe();
       initCardGesturesAndKeyboard();
-      fetchKomentarOnline();
-      setInterval(fetchKomentarOnline, 5000);
+      listenKomentarFirebase();
     });
 
     function scrollProjek(direction) {
@@ -2528,7 +2541,7 @@
             const dateParts = tanggalStr.trim().split(/[\s\-\/\.]+/);
             if (dateParts.length >= 3) {
               let day = dateParts[0].padStart(2, '0');
-              let month = dateParts[1];
+              let month = dateParts.label || dateParts[1];
               let year = dateParts[2];
 
               const monthMap = { 'jan': '01', 'feb': '02', 'mar': '03', 'apr': '04', 'mei': '05', 'jun': '06', 'jul': '07', 'agu': '08', 'sep': '09', 'okt': '10', 'nov': '11', 'des': '12' };
