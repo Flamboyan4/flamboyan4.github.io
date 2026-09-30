@@ -11,10 +11,6 @@
   <!-- PapaParse untuk membaca Google Sheets CSV -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   
-  <!-- Firebase SDK (Compat v8) -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-  
   <style>
     body {
       -webkit-user-select: none;
@@ -888,6 +884,10 @@
     </div>
   </footer>
 
+  <!-- Firebase App & Realtime Database CDN (Compat v8 versi stabil untuk script tag HTML) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
   <!-- SCRIPT KONTROL LOGIKA PORTAL -->
   <script>
     // BERSIHKAN BUNTUT #index.html DAN HASHTAG MODAL DARI SEARCH BAR BROWSER
@@ -1048,10 +1048,18 @@
     const FOLDER_GAPURA_URL = 'https://drive.google.com/drive/folders/1Zs2RlbHTvNc9RDhbc1TlgcptXeNhnrQ5';
     const FOLDER_API_URL = 'https://script.google.com/macros/s/AKfycbyes6A9_9EQ8vIYtf75cGgC9sKAZBvMewxEhYRSThjMAlBYqnkmKpa3yoPOtN0FEG92Zg/exec';
 
-    // INISIALISASI FIREBASE REALTIME DATABASE UNTUK CHAT
+    // INISIALISASI FIREBASE SESUAI CONFIG PAK HERI
     const firebaseConfig = {
-      databaseURL: "https://flamboyan4-default-rtdb.firebaseio.com/"
+      apiKey: "AIzaSyAZ8gg6e0oTJ7xGoFudQxyCdzObRipWk_4",
+      authDomain: "flamboyan4-chat.firebaseapp.com",
+      databaseURL: "https://flamboyan4-chat-default-rtdb.firebaseio.com",
+      projectId: "flamboyan4-chat",
+      storageBucket: "flamboyan4-chat.firebasestorage.app",
+      messagingSenderId: "28700002867",
+      appId: "1:28700002867:web:047bb6930d4436ed837146",
+      measurementId: "G-DB8E547HKY"
     };
+
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
     }
@@ -1128,7 +1136,6 @@
           Object.keys(data).forEach(key => {
             globalKomentarList.push({ id: key, ...data[key] });
           });
-          // Urutkan dari yang terbaru di atas
           globalKomentarList.reverse();
         }
         renderKomentarWarga();
@@ -2541,7 +2548,7 @@
             const dateParts = tanggalStr.trim().split(/[\s\-\/\.]+/);
             if (dateParts.length >= 3) {
               let day = dateParts[0].padStart(2, '0');
-              let month = dateParts.label || dateParts[1];
+              let month = dateParts[1];
               let year = dateParts[2];
 
               const monthMap = { 'jan': '01', 'feb': '02', 'mar': '03', 'apr': '04', 'mei': '05', 'jun': '06', 'jul': '07', 'agu': '08', 'sep': '09', 'okt': '10', 'nov': '11', 'des': '12' };
