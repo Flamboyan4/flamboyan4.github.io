@@ -1044,8 +1044,8 @@
     const FOLDER_JERSEY_URL = 'https://drive.google.com/drive/folders/1_VH_MHlOhA_tSXPsw1ztJEf3fVydU7gE';
     const FOLDER_GAPURA_URL = 'https://drive.google.com/drive/folders/1Zs2RlbHTvNc9RDhbc1TlgcptXeNhnrQ5';
     
-    const FOLDER_API_URL = 'https://script.google.com/macros/s/AKfycbwhxvQY-se9WFvlkABZfXP3NCfRpaKGgF2FtMtSltWeebXm-o9fcp1-OUrWuhIZkFHdfQ/exec';
-    const CHAT_API_URL = 'https://script.google.com/macros/s/AKfycbwhxvQY-se9WFvlkABZfXP3NCfRpaKGgF2FtMtSltWeebXm-o9fcp1-OUrWuhIZkFHdfQ/exec';
+    const FOLDER_API_URL = 'https://script.google.com/macros/s/AKfycbwSrJdV2Ppw1h0i4te2ls4fjzl4eU6PM6mKzSrc-Iyf0USkaoUGdQwzyXbnGTx-c5UhJA/exec';
+    const CHAT_API_URL = 'https://script.google.com/macros/s/AKfycbwSrJdV2Ppw1h0i4te2ls4fjzl4eU6PM6mKzSrc-Iyf0USkaoUGdQwzyXbnGTx-c5UhJA/exec';
 
     const TARGET_DANA_GAPURA = 6500000;
     const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='100%25' height='100%25' fill='%231e1b4b'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='18' fill='%23818cf8' text-anchor='middle' dy='.3em'%3EDokumentasi Kegiatan Warga%3C/text%3E%3C/svg%3E";
@@ -1101,7 +1101,7 @@
       return cleanUrl;
     }
 
-    // LOGIKA OBROLAN WARGA REAL-TIME VIA APPS SCRIPT JSON
+    // LOGIKA OBROLAN WARGA REAL-TIME (GET PARAMETER MENGHINDARI BLOKIR CORS)
     let globalKomentarList = [];
 
     function insertEmoticon(emot) {
@@ -1168,46 +1168,27 @@
 
       const btnSubmit = document.getElementById('btn-submit-chat');
       btnSubmit.disabled = true;
-      btnSubmit.innerHTML = `<span>Mengirim...</span>`;
+      btnSubmit.innerHTML = `<span>Menyimpan...</span>`;
 
-      // 1. Tampilkan TEPAT SEKETIKA di layar HP/browser warga
-      const now = new Date();
-      const options = { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' };
-      const timeStr = now.toLocaleDateString('id-ID', options).replace('.', ':');
+      // Kirim data via URL parameter GET (Metode paling aman tembus CORS Google Apps Script & tersimpan permanen)
+      const targetUrl = `${CHAT_API_URL}?nama=${encodeURIComponent(namaInput)}&pesan=${encodeURIComponent(pesanInput)}`;
 
-      const pesanBaru = {
-        waktu: timeStr,
-        nama: namaInput,
-        pesan: pesanInput
-      };
-
-      globalKomentarList.unshift(pesanBaru);
-      renderKomentarWarga();
+      try {
+        await fetch(targetUrl, { method: 'GET', mode: 'cors' });
+      } catch (err) {
+        // Fallback jika diblokir browser, gunakan Image Beacon agar data tetap terkirim
+        const img = new Image();
+        img.src = targetUrl;
+      }
 
       document.getElementById('komentar-pesan').value = '';
 
-      // 2. Kirim data ke Apps Script secara terpisah di latar belakang
-      try {
-        const formData = new URLSearchParams();
-        formData.append('nama', namaInput);
-        formData.append('pesan', pesanInput);
-
-        await fetch(CHAT_API_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: formData.toString()
-        });
-      } catch (err) {
-        console.log("Error posting:", err);
-      }
-
-      // 3. Ambil data terbaru lagi setelah 2 detik
+      // Tunggu sebentar lalu ambil data terbaru dari server Google Sheets
       setTimeout(() => {
+        fetchKomentarOnline();
         btnSubmit.disabled = false;
         btnSubmit.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>Kirim Komentar</span>`;
         lucide.createIcons();
-        fetchKomentarOnline();
       }, 2000);
     }
 
