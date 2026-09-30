@@ -267,7 +267,7 @@
 
       <div id="slider-projek" class="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar py-1 w-full">
         
-        <!-- CARD 1: JERSEY WITH FINANCIAL SUMMARY -->
+        <!-- CARD 1: JERSEY HANYA MENAMPILKAN DANA TERKUMPUL -->
         <div id="jersey" class="snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-2">
@@ -297,25 +297,18 @@
               </div>
             </div>
 
-            <!-- REKAP KEUANGAN JERSEY DI CARD -->
-            <div class="bg-slate-900 text-white rounded-lg p-2.5 space-y-1 mb-2">
-              <div class="flex justify-between items-center text-[10px]">
-                <span class="text-slate-400">Total Tagihan Jersey:</span>
-                <span id="card-jersey-total-tagihan" class="font-bold text-slate-200">Rp 0</span>
+            <!-- TAMPILAN HANYA DANA MASUK / TERKUMPUL DI CARD -->
+            <div class="bg-emerald-950/90 text-white rounded-lg p-2.5 mb-2 border border-emerald-800/80 flex items-center justify-between">
+              <div class="flex items-center space-x-1.5">
+                <i data-lucide="coins" class="w-4 h-4 text-emerald-400"></i>
+                <span class="text-xs font-medium text-emerald-200">Dana Terkumpul:</span>
               </div>
-              <div class="flex justify-between items-center text-[11px] pt-1 border-t border-slate-800">
-                <span class="text-emerald-400 font-semibold">Terkumpul (Lunas/DP):</span>
-                <span id="card-jersey-terkumpul" class="font-bold text-emerald-300">Rp 0</span>
-              </div>
-              <div class="flex justify-between items-center text-[10px]">
-                <span class="text-rose-300">Sisa Tagihan:</span>
-                <span id="card-jersey-sisa" class="font-bold text-rose-400">Rp 0</span>
-              </div>
+              <span id="card-jersey-terkumpul" class="font-bold text-emerald-300 text-sm">Rp 0</span>
             </div>
           </div>
 
           <button onclick="openModalJersey()" class="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-2 rounded-lg border border-indigo-100 transition text-xs flex items-center justify-center space-x-1">
-            <span>Lihat Rincian Pemesan & Dana</span>
+            <span>Lihat Rincian Pemesanan & Dana</span>
             <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
           </button>
         </div>
@@ -571,7 +564,7 @@
     </div>
   </div>
 
-  <!-- MODAL JERSEY WITH DUAL TAB & DANA SUMMARY -->
+  <!-- MODAL JERSEY WITH DUAL TAB & RINCIAN DANA HANYA DI POP-UP -->
   <div id="modal-jersey" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="closeModalDirect('modal-jersey')">
     <div class="bg-white w-full max-w-5xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
@@ -596,7 +589,7 @@
         </button>
       </div>
 
-      <!-- HEADER RINCIAN DANA MODAL -->
+      <!-- HEADER RINCIAN DANA DI DALAM MODAL -->
       <div class="px-4 py-3 bg-indigo-950 text-white border-b border-indigo-800 grid grid-cols-3 gap-2 text-center text-xs">
         <div class="bg-indigo-900/60 p-2 rounded-lg border border-indigo-800">
           <p class="text-[10px] text-indigo-300">Total Tagihan <span id="label-tab-kategori" class="font-semibold">(Bapak)</span></p>
@@ -625,7 +618,7 @@
               <th class="p-3">Lengan</th>
               <th class="p-3">Ukuran</th>
               <th class="p-3">Nama & No. Punggung</th>
-              <th class="p-3 text-right">Tagihan</th>
+              <th class="p-3 text-right">Pembayaran</th>
               <th class="p-3 text-center">Status</th>
             </tr>
           </thead>
@@ -1855,20 +1848,18 @@
       });
     }
 
-    // FUNGSI EKSTRAKSI NOMINAL HARGA DARI ROW CSV
+    // EKSTRAKSI NOMINAL HARGA DARI KOLOM "PEMBAYARAN"
     function getNominalHargaJerseyRow(row) {
       const keys = Object.keys(row);
       if (keys.length === 0) return 0;
 
-      // Cari kunci/header yang mengandung kata nominal / harga / bayar / tagihan
       let targetKey = keys.find(k => {
         const lk = k.toLowerCase();
-        return lk.includes('harga') || lk.includes('nominal') || lk.includes('bayar') || lk.includes('tagihan') || lk.includes('biaya');
+        return lk.includes('pembayaran') || lk.includes('harga') || lk.includes('nominal') || lk.includes('bayar') || lk.includes('tagihan');
       });
 
-      // Jika tidak ditemukan secara spesifik, periksa kolom ke-6, ke-5, atau kolom terakhir
       if (!targetKey) {
-        if (keys.length >= 7) targetKey = keys[5];
+        if (keys.length >= 6) targetKey = keys[5];
         else targetKey = keys[keys.length - 1];
       }
 
@@ -1880,11 +1871,13 @@
       return num;
     }
 
+    // EKSTRAKSI STATUS PEMBAYARAN
     function getStatusJerseyRow(row) {
       const keys = Object.keys(row);
       let targetKey = keys.find(k => k.toLowerCase().includes('status'));
       if (!targetKey) {
-        targetKey = keys[keys.length - 1];
+        if (keys.length >= 6) targetKey = keys[4];
+        else targetKey = keys[keys.length - 1];
       }
       return (row[targetKey] || '').toString().trim();
     }
@@ -1919,11 +1912,11 @@
       const hargaNominal = getNominalHargaJerseyRow(row);
       const statusRaw = getStatusJerseyRow(row);
 
-      let statusBadge = `<span class="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded">Belum</span>`;
+      let statusBadge = `<span class="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded">-</span>`;
       if (statusRaw.toLowerCase().includes('lunas')) {
-        statusBadge = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 font-semibold rounded">✓ Lunas</span>`;
+        statusBadge = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 font-semibold rounded">Lunas</span>`;
       } else if (statusRaw.toLowerCase().includes('dp')) {
-        statusBadge = `<span class="px-2 py-0.5 text-xs bg-amber-100 text-amber-800 font-semibold rounded">⏳ DP 50%</span>`;
+        statusBadge = `<span class="px-2 py-0.5 text-xs bg-rose-100 text-rose-800 font-semibold rounded">DP 50%</span>`;
       }
 
       return `
@@ -1977,14 +1970,11 @@
       const allCombined = [...globalJerseyBapakData, ...globalJerseyIbuData];
       let countLunas = 0;
       let countDP = 0;
-      let grandTotalTagihan = 0;
       let grandTotalTerkumpul = 0;
 
       allCombined.forEach(row => {
         const statusRaw = getStatusJerseyRow(row).toLowerCase();
         const nominal = getNominalHargaJerseyRow(row);
-
-        grandTotalTagihan += nominal;
 
         if (statusRaw.includes('lunas')) {
           countLunas++;
@@ -1995,16 +1985,12 @@
         }
       });
 
-      const grandSisa = Math.max(0, grandTotalTagihan - grandTotalTerkumpul);
-
       document.getElementById('total-pemesan-jersey').innerText = `${allCombined.length} Orang`;
       document.getElementById('total-lunas-jersey').innerText = `${countLunas} Orang`;
       document.getElementById('total-dp-jersey').innerText = `${countDP} Orang`;
 
-      // UPDATE FINANSIAL CARD JERSEY DI HOMEPAGE
-      document.getElementById('card-jersey-total-tagihan').innerText = formatRupiah(grandTotalTagihan);
+      // HANYA UPDATE DANA TERKUMPUL DI CARD HOMEPAGE
       document.getElementById('card-jersey-terkumpul').innerText = formatRupiah(grandTotalTerkumpul);
-      document.getElementById('card-jersey-sisa').innerText = formatRupiah(grandSisa);
 
       document.getElementById('badge-count-bapak').innerText = globalJerseyBapakData.length;
       document.getElementById('badge-count-ibu').innerText = globalJerseyIbuData.length;
