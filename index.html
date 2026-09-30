@@ -525,16 +525,15 @@
             <span>Tulis Pesan / Sapaan</span>
           </h4>
           
-          <!-- FORM DENGAN TARGET IFRAME TERSEMBUNYI UNTUK MENEMBUS CORS -->
-          <form id="form-komentar" action="https://script.google.com/macros/s/AKfycbyOgZkE4BOK-zhTX48EqjHrP4JNwIOwLZ48wp5XSFKkvjebYc47PjtGPHHGLAnJFLsbIQ/exec" method="POST" target="hidden-iframe" onsubmit="handleKomentarSubmit(event)" class="space-y-3">
+          <form id="form-komentar" onsubmit="tambahKomentarWarga(event)" class="space-y-3">
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Nama & Blok Rumah</label>
-              <input type="text" name="nama" id="komentar-nama" required placeholder="Contoh: Pak Heri (A5/41)" class="w-full text-xs md:text-sm px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+              <input type="text" id="komentar-nama" required placeholder="Contoh: Pak Heri (A5/41)" class="w-full text-xs md:text-sm px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
             </div>
 
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Pesan / Komentar</label>
-              <textarea name="pesan" id="komentar-pesan" required rows="3" placeholder="Ketik obrolan, info, atau sapaan warga di sini..." class="w-full text-xs md:text-sm px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white resize-none"></textarea>
+              <textarea id="komentar-pesan" required rows="3" placeholder="Ketik obrolan, info, atau sapaan warga di sini..." class="w-full text-xs md:text-sm px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white resize-none"></textarea>
             </div>
 
             <!-- TOMBOL EMOJI UNICODE NATIVE -->
@@ -559,8 +558,6 @@
               <span>Kirim Komentar</span>
             </button>
           </form>
-          <!-- IFRAME TERSEMBUNYI AGAR TIDAK ADA HALAMAN YANG RELOAD -->
-          <iframe name="hidden-iframe" id="hidden-iframe" style="display:none;"></iframe>
         </div>
 
         <!-- LIST KOMENTAR WARGA -->
@@ -1035,14 +1032,13 @@
       });
     }
 
-    // LIST LINK CSV TERPUSAT (LINK CSV OBROLAN TERBARU SUDAH DIPASANG)
+    // LIST LINK CSV TERPUSAT
     const CSV_KEUANGAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=422555783&single=true&output=csv';
     const CSV_DOKUMENTASI_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=0&single=true&output=csv';
     const CSV_ARISAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=53284271&single=true&output=csv';
     const CSV_RENCANA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=781301604&single=true&output=csv';
     const CSV_JERSEY_BAPAK_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=878370178&single=true&output=csv';
     const CSV_JERSEY_IBU_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=1755921986&single=true&output=csv';
-    const CSV_OBROLAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=1384643354&single=true&output=csv';
 
     // LINK APPS SCRIPT TERBARU PAK HERI
     const FOLDER_JERSEY_URL = 'https://drive.google.com/drive/folders/1_VH_MHlOhA_tSXPsw1ztJEf3fVydU7gE';
@@ -1082,7 +1078,7 @@
       if (!url) return null;
       let cleanUrl = url.toString().replace(/[\[\]'"]/g, '').trim();
       cleanUrl = cleanUrl.split('?')[0];
-      const match = cleanUrl.match(/\/folders\/([a-zA-Z0-9_-]+/) || cleanUrl.match(/id=([a-zA-Z0-9_-]+)/);
+      const match = cleanUrl.match(/\/folders\/([a-zA-Z0-9_-]+)/) || cleanUrl.match(/id=([a-zA-Z0-9_-]+)/);
       return match ? match[1] : null;
     }
 
@@ -1105,7 +1101,7 @@
       return cleanUrl;
     }
 
-    // LOGIKA OBROLAN WARGA MENGGUNAKAN CSV PUBLISHED (LANGSUNG MUNCUL DI BROWSER MANAPUN)
+    // LOGIKA OBROLAN WARGA MENGGUNAKAN GET PARAMETER (STABIL & AMAN)
     let globalKomentarList = [];
 
     function insertEmoticon(emot) {
@@ -1115,32 +1111,17 @@
     }
 
     function fetchKomentarOnline() {
-      if (!CSV_OBROLAN_URL || !CSV_OBROLAN_URL.startsWith('http')) return;
+      if (!CHAT_API_URL || !CHAT_API_URL.startsWith('http')) return;
 
-      Papa.parse(CSV_OBROLAN_URL, {
-        download: true,
-        header: true,
-        complete: function(results) {
-          const rawData = results.data.filter(row => {
-            const values = Object.values(row);
-            return values.length >= 2 && (values[0] || values[1] || values[2]);
-          });
-
-          globalKomentarList = rawData.reverse().map(row => {
-            const keys = Object.keys(row);
-            return {
-              waktu: row[keys[0]] || '',
-              nama: row[keys[1]] || 'Warga',
-              pesan: row[keys[2]] || ''
-            };
-          });
-
-          renderKomentarWarga();
-        },
-        error: function(err) {
-          console.log("Gagal memuat CSV obrolan:", err);
-        }
-      });
+      fetch(CHAT_API_URL)
+        .then(response => response.json())
+        .then(res => {
+          if (res && res.data && Array.isArray(res.data)) {
+            globalKomentarList = res.data.reverse();
+            renderKomentarWarga();
+          }
+        })
+        .catch(err => console.log("Gagal memuat obrolan:", err));
     }
 
     function renderKomentarWarga() {
@@ -1178,7 +1159,8 @@
       container.innerHTML = html;
     }
 
-    function handleKomentarSubmit(e) {
+    async function tambahKomentarWarga(e) {
+      e.preventDefault();
       const namaInput = document.getElementById('komentar-nama').value.trim();
       const pesanInput = document.getElementById('komentar-pesan').value.trim();
 
@@ -1186,29 +1168,25 @@
 
       const btnSubmit = document.getElementById('btn-submit-chat');
       btnSubmit.disabled = true;
-      btnSubmit.innerHTML = `<span>Mengirim ke Sheet...</span>`;
+      btnSubmit.innerHTML = `<span>Menyimpan...</span>`;
 
-      // Tampilkan langsung secara instan di layar lokal
-      const now = new Date();
-      const options = { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' };
-      const timeStr = now.toLocaleDateString('id-ID', options).replace('.', ':');
+      const targetUrl = `${CHAT_API_URL}?nama=${encodeURIComponent(namaInput)}&pesan=${encodeURIComponent(pesanInput)}`;
 
-      globalKomentarList.unshift({
-        waktu: timeStr,
-        nama: namaInput,
-        pesan: pesanInput
-      });
-      renderKomentarWarga();
+      try {
+        await fetch(targetUrl, { method: 'GET', mode: 'cors' });
+      } catch (err) {
+        const img = new Image();
+        img.src = targetUrl;
+      }
 
       document.getElementById('komentar-pesan').value = '';
 
-      // Setelah 3 detik, kembalikan tombol dan sinkronkan ulang dari CSV Google Sheets
       setTimeout(() => {
         fetchKomentarOnline();
         btnSubmit.disabled = false;
         btnSubmit.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>Kirim Komentar</span>`;
         lucide.createIcons();
-      }, 3000);
+      }, 2000);
     }
 
     function openModalKeuangan() { 
@@ -1662,7 +1640,7 @@
       initLightboxSwipe();
       initCardGesturesAndKeyboard();
       fetchKomentarOnline();
-      setInterval(fetchKomentarOnline, 6000);
+      setInterval(fetchKomentarOnline, 5000);
     });
 
     function scrollProjek(direction) {
