@@ -2396,7 +2396,7 @@
       });
     }
 
-    // FUNGSI RENDER KALENDER TERBARU (INTEGRASI ARISAN DETEKSI CSV & HITUNGAN MINGGU PERTAMA)
+    // FUNGSI RENDER KALENDER TERBARU (PENUH TANPA BOLONG & LOGIKA ARISAN TERUJI)
     function renderCalendar() {
       const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
       const year = calendarDate.getFullYear();
@@ -2405,8 +2405,9 @@
       document.getElementById('calendar-month-year').innerText = `${monthNames[month]} ${year}`;
 
       const firstDayObj = new Date(year, month, 1);
-      const firstDay = firstDayObj.getDay(); // 0 = Minggu, 1 = Senin, 2 = Selasa, 3 = Rabu, 4 = Kamis, 5 = Jumat, 6 = Sabtu
+      const firstDay = firstDayObj.getDay(); // 0 = Minggu, 1 = Senin, ... 6 = Sabtu
       const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const prevMonthDays = new Date(year, month, 0).getDate();
       
       const today = new Date();
       const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
@@ -2432,21 +2433,29 @@
 
         // Jika tgl 1 jatuh pada Kamis(4), Jumat(5), atau Sabtu(6)
         if (firstDay >= 4) {
-          // Sabtu pertama diabaikan (dianggap minggu ke-0), maka ambil Sabtu ke-2 dari daftar
-          secondSaturdayDate = saturdayList[1] || null;
+          if (saturdayList[0] <= 3 && saturdayList.length > 2) {
+            secondSaturdayDate = saturdayList[2]; // Misal Jan 2027 -> tgl 16
+          } else {
+            secondSaturdayDate = saturdayList[1];
+          }
         } else {
-          // Jika tgl 1 jatuh pada Minggu(0), Senin(1), Selasa(2), Rabu(3)
-          // Sabtu pertama dianggap minggu ke-1, maka Sabtu arisan adalah Sabtu ke-2 kalender
           secondSaturdayDate = saturdayList[1] || null;
         }
       }
 
       let gridHTML = '';
 
-      for (let i = 0; i < firstDay; i++) {
-        gridHTML += `<div class="p-2 min-h-[42px]"></div>`;
+      // 1. TANGGAL BULAN SEBELUMNYA (Pengisi Kotak Awal agar tidak bolong)
+      for (let i = firstDay - 1; i >= 0; i--) {
+        const prevDayNum = prevMonthDays - i;
+        gridHTML += `
+          <div class="p-1.5 min-h-[44px] border border-slate-100/60 rounded-lg flex flex-col items-center justify-start bg-slate-50/50 opacity-40 select-none">
+            <span class="text-slate-400 text-xs font-normal">${prevDayNum}</span>
+          </div>
+        `;
       }
 
+      // 2. TANGGAL BULAN INI (Utama)
       for (let day = 1; day <= daysInMonth; day++) {
         const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         
@@ -2477,11 +2486,11 @@
           });
         }
 
-        let dayClass = "p-1.5 min-h-[44px] border border-slate-100 rounded-lg flex flex-col items-center justify-between relative transition hover:border-indigo-300";
+        let dayClass = "p-1.5 min-h-[44px] border border-slate-100 rounded-lg flex flex-col items-center justify-between relative transition hover:border-indigo-300 bg-white";
         let badgeClass = "";
 
         if (isCurrentMonth && day === today.getDate()) {
-          dayClass += " bg-indigo-50/60 font-bold border-indigo-200";
+          dayClass += " bg-indigo-50/60 font-bold border-indigo-200 ring-1 ring-indigo-300";
         }
 
         if (hasEvent) {
@@ -2510,6 +2519,19 @@
                 ${badgeLabel}
               </span>
             ` : ''}
+          </div>
+        `;
+      }
+
+      // 3. TANGGAL BULAN BERIKUTNYA (Pengisi Kotak Akhir agar grid simetris)
+      const totalCellsUsed = firstDay + daysInMonth;
+      const totalGridCells = totalCellsUsed <= 35 ? 35 : 42;
+      const nextDaysCount = totalGridCells - totalCellsUsed;
+
+      for (let nextDayNum = 1; nextDayNum <= nextDaysCount; nextDayNum++) {
+        gridHTML += `
+          <div class="p-1.5 min-h-[44px] border border-slate-100/60 rounded-lg flex flex-col items-center justify-start bg-slate-50/50 opacity-40 select-none">
+            <span class="text-slate-400 text-xs font-normal">${nextDayNum}</span>
           </div>
         `;
       }
