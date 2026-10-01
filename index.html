@@ -504,16 +504,17 @@
       </div>
     </section>
 
-    <!-- SECTION 6: INTERAKSI & OBROLAN WARGA (FIREBASE REALTIME) -->
+    <!-- SECTION 6: INTERAKSI & OBROLAN WARGA -->
     <section id="komentar-warga" class="scroll-mt-20 w-full space-y-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
           <i data-lucide="messages-square" class="w-6 h-6 text-indigo-600 shrink-0"></i>
           <h3 class="text-xl md:text-2xl font-bold text-slate-900">Obrolan & Sapa Warga</h3>
         </div>
+        <!-- BADGE STATUS LIVE SUDAH DIPERBARUI -->
         <div class="flex items-center space-x-2">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full">Live Firebase</span>
+          <span class="text-xs bg-emerald-100 text-emerald-800 font-semibold px-3 py-1 rounded-full">Online</span>
         </div>
       </div>
 
@@ -884,7 +885,7 @@
     </div>
   </footer>
 
-  <!-- Firebase App & Realtime Database CDN (Compat v8 versi stabil untuk script tag HTML) -->
+  <!-- Firebase App & Realtime Database CDN (Compat v8) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -913,6 +914,7 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    // SYSTEM CONTROL MODAL & HANDLER TOMBOL BACK HP (HISTORY API)
     let activeModalsStack = [];
 
     function openModal(id) {
@@ -924,17 +926,19 @@
 
       if (!activeModalsStack.includes(id)) {
         activeModalsStack.push(id);
+        // Dorong history state baru agar tombol Back HP berfungsi menutup modal
+        history.pushState({ modalId: id }, '', window.location.pathname + window.location.search);
       }
 
-      if(id === 'modal-saran') {
-          setTimeout(() => {
-            el.classList.remove('opacity-0');
-            el.children[0].classList.remove('scale-95');
-          }, 10);
+      if (id === 'modal-saran') {
+        setTimeout(() => {
+          el.classList.remove('opacity-0');
+          el.children[0].classList.remove('scale-95');
+        }, 10);
       }
     }
 
-    function closeModalDirect(id) {
+    function closeModalDirect(id, isPopState = false) {
       const el = document.getElementById(id);
       if (!el || el.classList.contains('hidden')) return;
 
@@ -943,15 +947,18 @@
         el.children[0].classList.add('scale-95');
         setTimeout(() => {
           el.classList.add('hidden');
-          document.getElementById('saran-status').classList.add('hidden');
-          document.getElementById('form-saran').reset();
+          const statusEl = document.getElementById('saran-status');
+          if (statusEl) statusEl.classList.add('hidden');
+          const formEl = document.getElementById('form-saran');
+          if (formEl) formEl.reset();
         }, 300);
       } else {
         el.classList.add('hidden');
       }
 
       if (id === 'lightbox-modal') {
-        document.getElementById('lightbox-media-container').innerHTML = '';
+        const container = document.getElementById('lightbox-media-container');
+        if (container) container.innerHTML = '';
         resetLightboxZoom();
       }
 
@@ -960,32 +967,27 @@
         activeModalsStack.splice(idx, 1);
       }
 
+      // Jika modal ditutup dengan klik tombol 'X' / luar area (bukan via tombol Back HP), mundurkan riwayat browser
+      if (!isPopState) {
+        history.back();
+      }
+
       if (activeModalsStack.length === 0) {
         document.body.style.overflow = 'auto';
-        history.replaceState(null, document.title, window.location.pathname.replace(/index\.html$/, '') + window.location.search);
       }
     }
 
     function closeLightboxModal() {
-      const lightbox = document.getElementById('lightbox-modal');
-      if (!lightbox || lightbox.classList.contains('hidden')) return;
-
-      lightbox.classList.add('hidden');
-      document.getElementById('lightbox-media-container').innerHTML = '';
-      resetLightboxZoom();
-
-      const idx = activeModalsStack.indexOf('lightbox-modal');
-      if (idx > -1) {
-        activeModalsStack.splice(idx, 1);
-      }
-
-      if (activeModalsStack.includes('modal-gallery-grid')) {
-        document.body.style.overflow = 'hidden';
-      } else if (activeModalsStack.length === 0) {
-        document.body.style.overflow = 'auto';
-        history.replaceState(null, document.title, window.location.pathname.replace(/index\.html$/, '') + window.location.search);
-      }
+      closeModalDirect('lightbox-modal');
     }
+
+    // Mendengarkan saat warga menekan tombol 'Back' / 'Kembali' di HP
+    window.addEventListener('popstate', function (e) {
+      if (activeModalsStack.length > 0) {
+        const topModalId = activeModalsStack[activeModalsStack.length - 1];
+        closeModalDirect(topModalId, true);
+      }
+    });
 
     document.addEventListener('keydown', function(e) {
       if (e.keyCode === 123) return false;
@@ -999,7 +1001,7 @@
         if (topModalId === 'lightbox-modal') {
           if (e.key === 'ArrowRight') nextLightboxMedia(e);
           else if (e.key === 'ArrowLeft') prevLightboxMedia(e);
-          else if (e.key === 'Escape') closeLightboxModal();
+          else if (e.key === 'Escape') closeModalDirect('lightbox-modal');
         } else {
           if (e.key === 'Escape') closeModalDirect(topModalId);
         }
@@ -1048,7 +1050,7 @@
     const FOLDER_GAPURA_URL = 'https://drive.google.com/drive/folders/1Zs2RlbHTvNc9RDhbc1TlgcptXeNhnrQ5';
     const FOLDER_API_URL = 'https://script.google.com/macros/s/AKfycbyes6A9_9EQ8vIYtf75cGgC9sKAZBvMewxEhYRSThjMAlBYqnkmKpa3yoPOtN0FEG92Zg/exec';
 
-    // INISIALISASI FIREBASE SESUAI CONFIG PAK HERI
+    // INISIALISASI FIREBASE REALTIME DATABASE UNTUK CHAT
     const firebaseConfig = {
       apiKey: "AIzaSyAZ8gg6e0oTJ7xGoFudQxyCdzObRipWk_4",
       authDomain: "flamboyan4-chat.firebaseapp.com",
@@ -1204,7 +1206,7 @@
         btnSubmit.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>Kirim Komentar</span>`;
         lucide.createIcons();
       }).catch((err) => {
-        alert("Gagal mengirim pesan ke Firebase: " + err.message);
+        alert("Gagal mengirim pesan: " + err.message);
         btnSubmit.disabled = false;
         btnSubmit.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>Kirim Komentar</span>`;
       });
