@@ -35,6 +35,7 @@
     .custom-scroll::-webkit-scrollbar-thumb:hover {
       background: #94a3b8;
     }
+
     /* Styling khusus isi Google Doc di dalam Modal Pop-up */
     .doc-content-wrapper {
       color: #334155;
@@ -66,6 +67,30 @@
       margin: 1rem auto;
       display: block;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Styling Tambahan untuk Tabel Google Doc di Modal */
+    .doc-content-wrapper table {
+      width: 100% !important;
+      border-collapse: collapse !important;
+      margin: 1rem 0 !important;
+      font-size: 0.85rem !important;
+      display: table !important;
+    }
+    .doc-content-wrapper td, 
+    .doc-content-wrapper th {
+      border: 1px solid #cbd5e1 !important; /* Warna garis border abu-abu rapi */
+      padding: 8px 12px !important;
+      vertical-align: top !important;
+      word-break: break-word !important;
+    }
+    .doc-content-wrapper tr:nth-child(even) {
+      background-color: #f8fafc !important; /* Selang-seling warna abu muda */
+    }
+    .doc-content-wrapper th {
+      background-color: #f1f5f9 !important;
+      font-weight: 700 !important;
+      color: #0f172a !important;
     }
   </style>
 </head>
@@ -200,7 +225,6 @@
       return cleanUrl;
     }
 
-    // HANDLER BACK BUTTON HP & HISTORY API DEEP LINKING
     function openModalDocRapat(rapatId, isFromHash = false) {
       const rapatItem = globalRapatData.find(item => item.id === rapatId);
       if (!rapatItem) return;
@@ -234,6 +258,12 @@
           .then(htmlText => {
             const parser = new DOMParser();
             const doc = parser.parseFromString(htmlText, 'text/html');
+            
+            // Hapus atribut style bawaan Google Doc yang sering bikin kacau lebar elemen
+            doc.querySelectorAll('*').forEach(el => {
+              el.removeAttribute('style');
+            });
+
             const bodyContent = doc.querySelector('body')?.innerHTML || '<p class="text-slate-400 text-xs">Tidak ada teks notulensi.</p>';
             
             document.getElementById('modal-rapat-body').innerHTML = bodyContent;
