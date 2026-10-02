@@ -313,7 +313,7 @@
                 <p id="total-lunas-jersey" class="text-xs font-bold text-emerald-600 mt-0.5">0 Orang</p>
               </div>
               <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
-                <p class="text-[9px] text-slate-500 font-medium">DP 50% / Belum</p>
+                <p class="text-[9px] text-slate-500 font-medium">DP / Cicil</p>
                 <p id="total-dp-jersey" class="text-xs font-bold text-amber-600 mt-0.5">0 Orang</p>
               </div>
             </div>
@@ -868,7 +868,7 @@
             </button>
           </div>
 
-          <!-- QRIS SIMPEL TOMBOL UNDUH -->
+          <!-- QRIS SIMPEL TOMBOL UNDUH TERBARU -->
           <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 flex items-center justify-between">
             <div>
               <p class="text-white font-bold">QRIS Pembayaran</p>
@@ -982,7 +982,6 @@
       closeModalDirect('lightbox-modal');
     }
 
-    // Menangani tombol Back HP
     window.addEventListener('popstate', function (e) {
       if (activeModalsStack.length > 0) {
         const topModalId = activeModalsStack[activeModalsStack.length - 1];
@@ -2092,6 +2091,34 @@
       return (row[targetKey] || '').toString().trim();
     }
 
+    function getNominalJerseyMasuk(row) {
+      if (!row) return 0;
+      const statusRaw = getStatusJerseyRow(row).toString().trim();
+      const totalHarga = getNominalHargaJerseyRow(row);
+
+      // Jika LUNAS, dihitung penuh
+      if (statusRaw.toLowerCase().includes('lunas')) {
+        return totalHarga;
+      }
+
+      // Ekstrak angka nominal dari teks status (contoh: "Dp Rp50000" -> 50000)
+      const digitsMatch = statusRaw.match(/\d+/g);
+      if (digitsMatch) {
+        let extractedNum = parseFloat(digitsMatch.join(''));
+        if (extractedNum < 1000 && extractedNum > 0) {
+          extractedNum = extractedNum * 1000; // Mengantisipasi penulisan "50" / "20"
+        }
+        return extractedNum;
+      }
+
+      // Default jika hanya ditulis "DP" tanpa angka, dihitung 50%
+      if (statusRaw.toLowerCase().includes('dp') || statusRaw.toLowerCase().includes('cicil')) {
+        return totalHarga * 0.5;
+      }
+
+      return 0;
+    }
+
     function switchJerseyTab(tab) {
       currentJerseyTab = tab;
       const btnBapak = document.getElementById('tab-jersey-bapak');
@@ -2119,20 +2146,17 @@
       const ukuran = row[keys[3]] || '-';
       const namaNoPunggung = row[keys[4]] || '-';
       
-      const hargaNominal = getNominalHargaJerseyRow(row);
+      const totalHarga = getNominalHargaJerseyRow(row);
+      const nominalMasuk = getNominalJerseyMasuk(row);
       const statusRaw = getStatusJerseyRow(row).toLowerCase();
 
-      let nominalMasuk = 0;
       let statusBadge = `<span class="px-2 py-0.5 text-xs bg-slate-100 text-slate-400 rounded">-</span>`;
 
       if (statusRaw.includes('lunas')) {
-        nominalMasuk = hargaNominal;
         statusBadge = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 font-semibold rounded">Lunas</span>`;
-      } else if (statusRaw.includes('dp')) {
-        nominalMasuk = hargaNominal * 0.5;
-        statusBadge = `<span class="px-2 py-0.5 text-xs bg-rose-100 text-rose-800 font-semibold rounded">DP 50%</span>`;
-      } else {
-        nominalMasuk = 0;
+      } else if (nominalMasuk > 0 && totalHarga > 0) {
+        const persen = Math.round((nominalMasuk / totalHarga) * 100);
+        statusBadge = `<span class="px-2 py-0.5 text-xs bg-amber-100 text-amber-800 font-semibold rounded">DP ${persen}%</span>`;
       }
 
       return `
@@ -2162,15 +2186,11 @@
           html += renderJerseyRow(row);
         }
 
-        const nominal = getNominalHargaJerseyRow(row);
-        const status = getStatusJerseyRow(row).toLowerCase();
+        const totalHarga = getNominalHargaJerseyRow(row);
+        const nominalMasuk = getNominalJerseyMasuk(row);
 
-        activeTotalTagihan += nominal;
-        if (status.includes('lunas')) {
-          activeTerkumpul += nominal;
-        } else if (status.includes('dp')) {
-          activeTerkumpul += (nominal * 0.5);
-        }
+        activeTotalTagihan += totalHarga;
+        activeTerkumpul += nominalMasuk;
       });
 
       const activeSisa = Math.max(0, activeTotalTagihan - activeTerkumpul);
@@ -2190,14 +2210,14 @@
 
       allCombined.forEach(row => {
         const statusRaw = getStatusJerseyRow(row).toLowerCase();
-        const nominal = getNominalHargaJerseyRow(row);
+        const nominalMasuk = getNominalJerseyMasuk(row);
+
+        grandTotalTerkumpul += nominalMasuk;
 
         if (statusRaw.includes('lunas')) {
           countLunas++;
-          grandTotalTerkumpul += nominal;
-        } else if (statusRaw.includes('dp')) {
+        } else if (nominalMasuk > 0) {
           countDP++;
-          grandTotalTerkumpul += (nominal * 0.5);
         }
       });
 
@@ -2399,7 +2419,7 @@
       });
     }
 
-    // FUNGSI RENDER KALENDER TERBARU (PENUH TANPA BOLONG & LOGIKA ARISAN TERUJI)
+    // FUNGSI RENDER KALENDER TERBARU
     function renderCalendar() {
       const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
       const year = calendarDate.getFullYear();
@@ -2408,14 +2428,13 @@
       document.getElementById('calendar-month-year').innerText = `${monthNames[month]} ${year}`;
 
       const firstDayObj = new Date(year, month, 1);
-      const firstDay = firstDayObj.getDay(); // 0 = Minggu, 1 = Senin, ... 6 = Sabtu
+      const firstDay = firstDayObj.getDay();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       const prevMonthDays = new Date(year, month, 0).getDate();
       
       const today = new Date();
       const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
 
-      // Cek apakah ada kegiatan arisan manual dari CSV rencana
       const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
       const hasSpecificArisanInCsv = globalRencanaData.some(item => {
         if (!item.parsedDate || !item.parsedDate.startsWith(monthPrefix)) return false;
@@ -2423,21 +2442,19 @@
         return txt.includes('arisan');
       });
 
-      // Hitung Sabtu Arisan Default berdasarkan aturan kelayakan minggu pertama
       let secondSaturdayDate = null;
       if (!hasSpecificArisanInCsv) {
         let saturdayList = [];
         for (let d = 1; d <= daysInMonth; d++) {
           let checkDate = new Date(year, month, d);
-          if (checkDate.getDay() === 6) { // 6 = Sabtu
+          if (checkDate.getDay() === 6) {
             saturdayList.push(d);
           }
         }
 
-        // Jika tgl 1 jatuh pada Kamis(4), Jumat(5), atau Sabtu(6)
         if (firstDay >= 4) {
           if (saturdayList[0] <= 3 && saturdayList.length > 2) {
-            secondSaturdayDate = saturdayList[2]; // Misal Jan 2027 -> tgl 16
+            secondSaturdayDate = saturdayList[2];
           } else {
             secondSaturdayDate = saturdayList[1];
           }
@@ -2448,7 +2465,6 @@
 
       let gridHTML = '';
 
-      // 1. TANGGAL BULAN SEBELUMNYA (Pengisi Kotak Awal agar tidak bolong)
       for (let i = firstDay - 1; i >= 0; i--) {
         const prevDayNum = prevMonthDays - i;
         gridHTML += `
@@ -2458,7 +2474,6 @@
         `;
       }
 
-      // 2. TANGGAL BULAN INI (Utama)
       for (let day = 1; day <= daysInMonth; day++) {
         const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         
@@ -2526,7 +2541,6 @@
         `;
       }
 
-      // 3. TANGGAL BULAN BERIKUTNYA (Pengisi Kotak Akhir agar grid simetris)
       const totalCellsUsed = firstDay + daysInMonth;
       const totalGridCells = totalCellsUsed <= 35 ? 35 : 42;
       const nextDaysCount = totalGridCells - totalCellsUsed;
