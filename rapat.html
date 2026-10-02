@@ -36,61 +36,13 @@
       background: #94a3b8;
     }
 
-    /* Styling Tampilan Presisi Google Doc di Modal */
-    .doc-content-wrapper {
-      color: #1e293b;
-      font-size: 0.9rem;
-      line-height: 1.6;
-    }
-    .doc-content-wrapper p {
-      margin-bottom: 0.6rem;
-    }
-    .doc-content-wrapper h1, .doc-content-wrapper h2, .doc-content-wrapper h3 {
-      font-weight: 700;
-      color: #0f172a;
-      margin-top: 1rem;
-      margin-bottom: 0.5rem;
-    }
-    .doc-content-wrapper h1 { font-size: 1.3rem; }
-    .doc-content-wrapper h2 { font-size: 1.15rem; }
-    .doc-content-wrapper h3 { font-size: 1rem; }
-    .doc-content-wrapper ul, .doc-content-wrapper ol {
-      margin-left: 1.25rem;
-      margin-bottom: 0.75rem;
-    }
-    .doc-content-wrapper ul { list-style-type: disc; }
-    .doc-content-wrapper ol { list-style-type: decimal; }
-    .doc-content-wrapper img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 0.5rem;
-      margin: 0.75rem auto;
-      display: block;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-    }
-
-    /* Styling Tabel Rapi Sesuai Dokumen Asli */
-    .doc-content-wrapper table {
-      width: 100% !important;
-      border-collapse: collapse !important;
-      margin: 0.8rem 0 !important;
-      font-size: 0.85rem !important;
-      table-layout: auto !important;
-    }
-    .doc-content-wrapper td, 
-    .doc-content-wrapper th {
-      border: 1px solid #cbd5e1 !important;
-      padding: 6px 10px !important;
-      vertical-align: top !important;
-      word-break: normal !important;
-    }
-    .doc-content-wrapper tr:nth-child(even) {
-      background-color: #f8fafc !important;
-    }
-    .doc-content-wrapper th {
-      background-color: #f1f5f9 !important;
-      font-weight: 700 !important;
-      color: #0f172a !important;
+    /* Container khusus penampil PDF */
+    .pdf-viewer-container {
+      width: 100%;
+      height: 72vh;
+      border: 0;
+      border-radius: 0.75rem;
+      background-color: #0f172a;
     }
   </style>
 </head>
@@ -101,7 +53,7 @@
   <header class="bg-gradient-to-r from-indigo-950 via-indigo-900 to-indigo-950 text-white border-b border-indigo-800/40 sticky top-0 z-40 w-full shadow-md">
     <div class="max-w-6xl mx-auto px-3 sm:px-4 py-3 flex items-center justify-between relative">
       
-      <!-- Tombol Kembali: Hanya ikon panah di HP, plus teks di layar sedang/besar -->
+      <!-- Tombol Kembali: Ikon panah di HP, plus teks di layar sedang/besar -->
       <a href="index.html" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 transition group shrink-0 flex items-center space-x-1.5 text-xs font-semibold">
         <i data-lucide="arrow-left" class="w-4 h-4 text-indigo-200 group-hover:-translate-x-0.5 transition"></i>
         <span class="hidden sm:inline">Portal Utama</span>
@@ -126,8 +78,6 @@
   <section class="relative bg-gradient-to-br from-indigo-950 via-indigo-900 to-violet-900 text-white py-10 md:py-14 px-4 overflow-hidden w-full border-b border-indigo-800/40">
     <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px]"></div>
     <div class="max-w-4xl mx-auto text-center space-y-2.5 relative z-10">
-      
-      <!-- Judul Hero Section Diubah Menjadi Notulensi Rapat -->
       <h2 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight">
         Notulensi Rapat
       </h2>
@@ -156,16 +106,16 @@
   </main>
 
   <!-- MODAL POPUP NOTULENSI LENGKAP -->
-  <div id="modal-doc-rapat" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-6" onclick="closeModalDocRapat()">
-    <div class="bg-white w-full max-w-3xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
+  <div id="modal-doc-rapat" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-5" onclick="closeModalDocRapat()">
+    <div class="bg-white w-full max-w-4xl max-h-[92vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
       
       <!-- Modal Header -->
-      <div class="p-4 md:p-5 border-b border-slate-100 flex items-start justify-between bg-slate-50 shrink-0">
-        <div class="space-y-1 pr-4">
+      <div class="p-3.5 sm:p-4 border-b border-slate-100 flex items-start justify-between bg-slate-50 shrink-0">
+        <div class="space-y-0.5 pr-4">
           <span id="modal-rapat-tgl" class="text-[11px] font-bold text-indigo-600 uppercase tracking-wider block">-</span>
-          <h3 id="modal-rapat-judul" class="text-base md:text-lg font-bold text-slate-900 leading-snug">Detail Notulensi Rapat</h3>
+          <h3 id="modal-rapat-judul" class="text-sm sm:text-base md:text-lg font-bold text-slate-900 leading-snug">Detail Notulensi Rapat</h3>
         </div>
-        <button onclick="closeModalDocRapat()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition shrink-0">
+        <button onclick="closeModalDocRapat()" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition shrink-0">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -177,14 +127,14 @@
           <span id="text-copy-modal-link">Bagikan / Salin Link</span>
         </button>
         <a id="btn-open-doc-external" href="#" target="_blank" class="text-emerald-300 hover:underline flex items-center space-x-1 text-[11px]">
-          <span>Buka Google Doc Asli</span>
+          <span>Buka / Unduh File Asli</span>
           <i data-lucide="external-link" class="w-3 h-3"></i>
         </a>
       </div>
 
-      <!-- Modal Body (Isi Dokumen Google Doc Bersih) -->
-      <div id="modal-rapat-body" class="p-4 sm:p-6 overflow-y-auto flex-grow custom-scroll doc-content-wrapper">
-        <p class="text-slate-400 text-xs text-center py-10">Memuat isi notulensi rapat...</p>
+      <!-- Modal Body (Viewer PDF / Doc) -->
+      <div id="modal-rapat-body" class="p-2 sm:p-4 overflow-y-auto flex-grow custom-scroll">
+        <p class="text-slate-400 text-xs text-center py-10">Memuat dokumen notulensi...</p>
       </div>
     </div>
   </div>
@@ -208,7 +158,7 @@
     function extractDriveFileId(url) {
       if (!url) return null;
       let cleanUrl = url.toString().replace(/[\[\]'"]/g, '').trim();
-      const match = cleanUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || cleanUrl.match(/id=([a-zA-Z0-9_-]+)/);
+      const match = cleanUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || cleanUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || cleanUrl.match(/id=([a-zA-Z0-9_-]+)/);
       return match ? match[1] : null;
     }
 
@@ -241,7 +191,7 @@
       document.getElementById('modal-rapat-body').innerHTML = `
         <div class="flex flex-col items-center justify-center py-12 space-y-3">
           <div class="w-7 h-7 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-          <p class="text-xs text-slate-500 font-medium">Sedang menyedot isi notulensi dari Google Doc...</p>
+          <p class="text-xs text-slate-500 font-medium">Sedang memuat dokumen notulensi...</p>
         </div>
       `;
 
@@ -253,7 +203,11 @@
       }
       isModalOpenStack = true;
 
-      const docId = extractGoogleDocId(rapatItem.docUrl);
+      const rawUrl = rapatItem.docUrl || '';
+      const docId = extractGoogleDocId(rawUrl);
+      const driveFileId = extractDriveFileId(rawUrl);
+
+      // JIKA LINK ADALAH GOOGLE DOC BIAYA
       if (docId) {
         const fetchUrl = `https://docs.google.com/feeds/download/documents/export/Export?id=${docId}&exportFormat=html`;
         fetch(fetchUrl)
@@ -261,29 +215,32 @@
           .then(htmlText => {
             const parser = new DOMParser();
             const doc = parser.parseFromString(htmlText, 'text/html');
-            
-            // Bersihkan styling inline bawaan yang kaku agar layout fleksibel dan presisi
             doc.querySelectorAll('*').forEach(el => {
               el.removeAttribute('style');
               el.removeAttribute('width');
               el.removeAttribute('height');
             });
-
             const bodyContent = doc.querySelector('body')?.innerHTML || '<p class="text-slate-400 text-xs">Tidak ada teks notulensi.</p>';
-            
-            document.getElementById('modal-rapat-body').innerHTML = bodyContent;
+            document.getElementById('modal-rapat-body').innerHTML = `<div class="doc-content-wrapper">${bodyContent}</div>`;
           })
           .catch(err => {
             document.getElementById('modal-rapat-body').innerHTML = `
               <div class="p-4 bg-amber-50 rounded-xl border border-amber-200 text-amber-800 text-xs space-y-2">
-                <p class="font-bold">Gagal memuat otomatis isi Google Doc.</p>
-                <p>Pastikan hak akses file Google Doc sudah di-set ke <strong>"Anyone with the link can view"</strong>.</p>
-                <a href="${rapatItem.docUrl}" target="_blank" class="inline-block bg-amber-600 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-amber-700 transition">Buka Langsung di Google Docs</a>
+                <p class="font-bold">Gagal memuat otomatis isi dokumen.</p>
+                <a href="${rapatItem.docUrl}" target="_blank" class="inline-block bg-amber-600 text-white px-3 py-1.5 rounded-lg font-bold">Buka Langsung Dokumen</a>
               </div>
             `;
           });
-      } else {
-        document.getElementById('modal-rapat-body').innerHTML = `<p class="text-rose-500 text-xs">Link Google Doc tidak valid.</p>`;
+      } 
+      // JIKA LINK ADALAH FILE PDF GOOGLE DRIVE
+      else if (driveFileId) {
+        const embedPdfUrl = `https://drive.google.com/file/d/${driveFileId}/preview`;
+        document.getElementById('modal-rapat-body').innerHTML = `
+          <iframe src="${embedPdfUrl}" class="pdf-viewer-container" allow="autoplay"></iframe>
+        `;
+      } 
+      else {
+        document.getElementById('modal-rapat-body').innerHTML = `<p class="text-rose-500 text-xs text-center py-8">Link dokumen tidak valid.</p>`;
       }
     }
 
@@ -294,6 +251,9 @@
       modal.classList.add('hidden');
       document.body.style.overflow = 'auto';
       isModalOpenStack = false;
+
+      // Kosongkan iframe agar hemat RAM HP warga
+      document.getElementById('modal-rapat-body').innerHTML = '';
 
       if (!isPopState) {
         history.pushState(null, '', window.location.pathname + window.location.search);
