@@ -36,85 +36,14 @@
       background: #94a3b8;
     }
 
-    /* Container khusus penampil PDF */
-    .pdf-viewer-container {
+    /* Container Khusus Penampil Google Doc & PDF Perfect View */
+    .doc-iframe-container {
       width: 100%;
-      height: 72vh;
+      height: 75vh;
       border: 0;
       border-radius: 0.75rem;
-      background-color: #0f172a;
-    }
-
-    /* Styling Presisi Isi Google Doc di Dalam Modal */
-    .doc-content-wrapper {
-      color: #1e293b;
-      font-size: 0.925rem;
-      line-height: 1.65;
-    }
-    .doc-content-wrapper p {
-      margin-bottom: 0.6rem;
-    }
-    .doc-content-wrapper h1, 
-    .doc-content-wrapper h2, 
-    .doc-content-wrapper h3, 
-    .doc-content-wrapper h4 {
-      font-weight: 700 !important;
-      color: #0f172a !important;
-      margin-top: 1.2rem;
-      margin-bottom: 0.5rem;
-    }
-    .doc-content-wrapper h1 { font-size: 1.35rem !important; }
-    .doc-content-wrapper h2 { font-size: 1.2rem !important; }
-    .doc-content-wrapper h3 { font-size: 1.05rem !important; }
-
-    /* Perbaikan Numbering & Bullets */
-    .doc-content-wrapper ul {
-      list-style-type: disc !important;
-      padding-left: 1.5rem !important;
-      margin-bottom: 0.75rem !important;
-    }
-    .doc-content-wrapper ol {
-      list-style-type: decimal !important;
-      padding-left: 1.5rem !important;
-      margin-bottom: 0.75rem !important;
-    }
-    .doc-content-wrapper li {
-      margin-bottom: 0.25rem !important;
-      display: list-item !important;
-    }
-
-    /* Perbaikan Gambar Google Doc */
-    .doc-content-wrapper img {
-      max-width: 100% !important;
-      height: auto !important;
-      border-radius: 0.5rem;
-      margin: 0.75rem auto;
-      display: block;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    /* Perbaikan Tabel Google Doc Agar Bergaris Rapi */
-    .doc-content-wrapper table {
-      width: 100% !important;
-      border-collapse: collapse !important;
-      margin: 1rem 0 !important;
-      font-size: 0.85rem !important;
-      display: table !important;
-    }
-    .doc-content-wrapper td, 
-    .doc-content-wrapper th {
-      border: 1px solid #cbd5e1 !important; /* Garis tepi abu-abu rapi */
-      padding: 8px 12px !important;
-      vertical-align: top !important;
-      word-break: normal !important;
-    }
-    .doc-content-wrapper tr:nth-child(even) {
-      background-color: #f8fafc !important;
-    }
-    .doc-content-wrapper th {
-      background-color: #f1f5f9 !important;
-      font-weight: 700 !important;
-      color: #0f172a !important;
+      background-color: #ffffff;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
     }
   </style>
 </head>
@@ -179,7 +108,7 @@
 
   <!-- MODAL POPUP NOTULENSI LENGKAP -->
   <div id="modal-doc-rapat" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-5" onclick="closeModalDocRapat()">
-    <div class="bg-white w-full max-w-4xl max-h-[92vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
+    <div class="bg-white w-full max-w-5xl max-h-[94vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
       
       <!-- Modal Header -->
       <div class="p-3.5 sm:p-4 border-b border-slate-100 flex items-start justify-between bg-slate-50 shrink-0">
@@ -204,8 +133,8 @@
         </a>
       </div>
 
-      <!-- Modal Body (Viewer PDF / Doc Rapi) -->
-      <div id="modal-rapat-body" class="p-4 sm:p-6 overflow-y-auto flex-grow custom-scroll">
+      <!-- Modal Body (Iframe Penampil Google Doc Perfect Match) -->
+      <div id="modal-rapat-body" class="p-2 sm:p-4 bg-slate-100 overflow-y-auto flex-grow custom-scroll">
         <p class="text-slate-400 text-xs text-center py-10">Memuat dokumen notulensi...</p>
       </div>
     </div>
@@ -260,13 +189,6 @@
       document.getElementById('modal-rapat-judul').innerText = rapatItem.judul;
       document.getElementById('btn-open-doc-external').href = rapatItem.docUrl;
 
-      document.getElementById('modal-rapat-body').innerHTML = `
-        <div class="flex flex-col items-center justify-center py-12 space-y-3">
-          <div class="w-7 h-7 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-          <p class="text-xs text-slate-500 font-medium">Sedang memuat dokumen notulensi...</p>
-        </div>
-      `;
-
       document.getElementById('modal-doc-rapat').classList.remove('hidden');
       document.body.style.overflow = 'hidden';
 
@@ -279,38 +201,18 @@
       const docId = extractGoogleDocId(rawUrl);
       const driveFileId = extractDriveFileId(rawUrl);
 
-      // 1. JIKA LINK ADALAH GOOGLE DOC BIAYA
+      // 1. JIKA LINK ADALAH GOOGLE DOCS (DIBUKA MENGGUNAKAN EMBEDDED PUB/PREVIEW VIEWER PERFECT MATCH)
       if (docId) {
-        const fetchUrl = `https://docs.google.com/feeds/download/documents/export/Export?id=${docId}&exportFormat=html`;
-        fetch(fetchUrl)
-          .then(res => res.text())
-          .then(htmlText => {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlText, 'text/html');
-            
-            // Hanya hapus atribut dimensi width/height yang kaku, tetapi simpan style teks & formatting
-            doc.querySelectorAll('*').forEach(el => {
-              el.removeAttribute('width');
-              el.removeAttribute('height');
-            });
-
-            const bodyContent = doc.querySelector('body')?.innerHTML || '<p class="text-slate-400 text-xs">Tidak ada teks notulensi.</p>';
-            document.getElementById('modal-rapat-body').innerHTML = `<div class="doc-content-wrapper">${bodyContent}</div>`;
-          })
-          .catch(err => {
-            document.getElementById('modal-rapat-body').innerHTML = `
-              <div class="p-4 bg-amber-50 rounded-xl border border-amber-200 text-amber-800 text-xs space-y-2">
-                <p class="font-bold">Gagal memuat otomatis isi dokumen.</p>
-                <a href="${rapatItem.docUrl}" target="_blank" class="inline-block bg-amber-600 text-white px-3 py-1.5 rounded-lg font-bold">Buka Langsung Dokumen</a>
-              </div>
-            `;
-          });
+        const embedDocUrl = `https://docs.google.com/document/d/${docId}/pub?embedded=true`;
+        document.getElementById('modal-rapat-body').innerHTML = `
+          <iframe src="${embedDocUrl}" class="doc-iframe-container"></iframe>
+        `;
       } 
       // 2. JIKA LINK ADALAH FILE PDF GOOGLE DRIVE
       else if (driveFileId) {
         const embedPdfUrl = `https://drive.google.com/file/d/${driveFileId}/preview`;
         document.getElementById('modal-rapat-body').innerHTML = `
-          <iframe src="${embedPdfUrl}" class="pdf-viewer-container" allow="autoplay"></iframe>
+          <iframe src="${embedPdfUrl}" class="doc-iframe-container" allow="autoplay"></iframe>
         `;
       } 
       else {
