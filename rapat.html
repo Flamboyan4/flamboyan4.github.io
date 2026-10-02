@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Hasil & Notulensi Rapat | Flamboyan 4</title>
+  <title>Notulensi Rapat | Flamboyan 4</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons CDN -->
@@ -36,14 +36,14 @@
       background: #94a3b8;
     }
 
-    /* Styling khusus isi Google Doc di dalam Modal Pop-up */
+    /* Styling Tampilan Presisi Google Doc di Modal */
     .doc-content-wrapper {
-      color: #334155;
-      font-size: 0.875rem;
-      line-height: 1.625;
+      color: #1e293b;
+      font-size: 0.9rem;
+      line-height: 1.6;
     }
     .doc-content-wrapper p {
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.6rem;
     }
     .doc-content-wrapper h1, .doc-content-wrapper h2, .doc-content-wrapper h3 {
       font-weight: 700;
@@ -51,8 +51,8 @@
       margin-top: 1rem;
       margin-bottom: 0.5rem;
     }
-    .doc-content-wrapper h1 { font-size: 1.25rem; }
-    .doc-content-wrapper h2 { font-size: 1.125rem; }
+    .doc-content-wrapper h1 { font-size: 1.3rem; }
+    .doc-content-wrapper h2 { font-size: 1.15rem; }
     .doc-content-wrapper h3 { font-size: 1rem; }
     .doc-content-wrapper ul, .doc-content-wrapper ol {
       margin-left: 1.25rem;
@@ -63,29 +63,29 @@
     .doc-content-wrapper img {
       max-width: 100%;
       height: auto;
-      border-radius: 0.75rem;
-      margin: 1rem auto;
+      border-radius: 0.5rem;
+      margin: 0.75rem auto;
       display: block;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
     }
 
-    /* Styling Tambahan untuk Tabel Google Doc di Modal */
+    /* Styling Tabel Rapi Sesuai Dokumen Asli */
     .doc-content-wrapper table {
       width: 100% !important;
       border-collapse: collapse !important;
-      margin: 1rem 0 !important;
+      margin: 0.8rem 0 !important;
       font-size: 0.85rem !important;
-      display: table !important;
+      table-layout: auto !important;
     }
     .doc-content-wrapper td, 
     .doc-content-wrapper th {
-      border: 1px solid #cbd5e1 !important; /* Warna garis border abu-abu rapi */
-      padding: 8px 12px !important;
+      border: 1px solid #cbd5e1 !important;
+      padding: 6px 10px !important;
       vertical-align: top !important;
-      word-break: break-word !important;
+      word-break: normal !important;
     }
     .doc-content-wrapper tr:nth-child(even) {
-      background-color: #f8fafc !important; /* Selang-seling warna abu muda */
+      background-color: #f8fafc !important;
     }
     .doc-content-wrapper th {
       background-color: #f1f5f9 !important;
@@ -99,17 +99,23 @@
 
   <!-- Header / Navigation -->
   <header class="bg-gradient-to-r from-indigo-950 via-indigo-900 to-indigo-950 text-white border-b border-indigo-800/40 sticky top-0 z-40 w-full shadow-md">
-    <div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between relative">
-      <a href="index.html" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 transition group shrink-0 flex items-center space-x-1.5 text-xs font-semibold">
+    <div class="max-w-6xl mx-auto px-3 sm:px-4 py-3 flex items-center justify-between relative">
+      
+      <!-- Tombol Kembali: Hanya ikon panah di HP, plus teks di layar sedang/besar -->
+      <a href="index.html" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 transition group shrink-0 flex items-center space-x-1.5 text-xs font-semibold">
         <i data-lucide="arrow-left" class="w-4 h-4 text-indigo-200 group-hover:-translate-x-0.5 transition"></i>
-        <span>Portal Utama</span>
+        <span class="hidden sm:inline">Portal Utama</span>
       </a>
-      <div class="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none w-full max-w-md px-12">
-        <h1 class="text-sm sm:text-base font-bold tracking-wide text-white whitespace-nowrap overflow-hidden text-ellipsis">
-          Hasil & Notulensi Rapat <span class="hidden sm:inline font-normal text-indigo-200/80 text-xs">| Flamboyan 4</span>
+
+      <!-- Title Navbar Tetap Flamboyan 4 -->
+      <div class="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none w-full max-w-xs sm:max-w-md px-10">
+        <h1 class="text-xs sm:text-base font-bold tracking-wide text-white whitespace-nowrap overflow-hidden text-ellipsis">
+          Flamboyan 4
         </h1>
       </div>
-      <a href="cctv.html" class="p-2 rounded-xl bg-indigo-600/80 hover:bg-indigo-500 border border-indigo-400/40 transition group shrink-0 flex items-center space-x-1.5 text-xs font-semibold">
+
+      <!-- Live CCTV Button -->
+      <a href="cctv.html" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-indigo-600/80 hover:bg-indigo-500 border border-indigo-400/40 transition group shrink-0 flex items-center space-x-1.5 text-xs font-semibold">
         <i data-lucide="video" class="w-4 h-4 text-emerald-300"></i>
         <span class="hidden sm:inline">Live CCTV</span>
       </a>
@@ -119,13 +125,11 @@
   <!-- Hero Banner Section -->
   <section class="relative bg-gradient-to-br from-indigo-950 via-indigo-900 to-violet-900 text-white py-10 md:py-14 px-4 overflow-hidden w-full border-b border-indigo-800/40">
     <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px]"></div>
-    <div class="max-w-4xl mx-auto text-center space-y-3 relative z-10">
-      <div class="inline-flex items-center space-x-2 bg-indigo-500/20 border border-indigo-400/30 px-3 py-1 rounded-full text-xs text-indigo-200 font-medium">
-        <i data-lucide="file-text" class="w-3.5 h-3.5 text-amber-300"></i>
-        <span>Arsip Keputusan Warga</span>
-      </div>
+    <div class="max-w-4xl mx-auto text-center space-y-2.5 relative z-10">
+      
+      <!-- Judul Hero Section Diubah Menjadi Notulensi Rapat -->
       <h2 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight">
-        Dokumentasi & Notulensi Rapat
+        Notulensi Rapat
       </h2>
       <p class="text-xs sm:text-sm text-indigo-200/90 max-w-xl mx-auto leading-relaxed">
         Kumpulan catatan, kesepakatan, dan hasil musyawarah warga Lorong Flamboyan 4.
@@ -166,7 +170,7 @@
         </button>
       </div>
 
-      <!-- Action Bar Modal (Tombol Buka Google Doc & Salin Link) -->
+      <!-- Action Bar Modal -->
       <div class="px-4 py-2 bg-indigo-950 text-white flex items-center justify-between text-xs shrink-0">
         <button onclick="copyCurrentRapatLink()" id="btn-copy-modal-link" class="bg-white/10 hover:bg-white/20 text-indigo-200 px-3 py-1 rounded-lg transition flex items-center space-x-1.5 active:scale-95">
           <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
@@ -178,8 +182,8 @@
         </a>
       </div>
 
-      <!-- Modal Body (Isi Dokumen Google Doc) -->
-      <div id="modal-rapat-body" class="p-5 overflow-y-auto flex-grow custom-scroll doc-content-wrapper">
+      <!-- Modal Body (Isi Dokumen Google Doc Bersih) -->
+      <div id="modal-rapat-body" class="p-4 sm:p-6 overflow-y-auto flex-grow custom-scroll doc-content-wrapper">
         <p class="text-slate-400 text-xs text-center py-10">Memuat isi notulensi rapat...</p>
       </div>
     </div>
@@ -249,7 +253,6 @@
       }
       isModalOpenStack = true;
 
-      // Ambil isi Google Doc via ekspor HTML
       const docId = extractGoogleDocId(rapatItem.docUrl);
       if (docId) {
         const fetchUrl = `https://docs.google.com/feeds/download/documents/export/Export?id=${docId}&exportFormat=html`;
@@ -259,9 +262,11 @@
             const parser = new DOMParser();
             const doc = parser.parseFromString(htmlText, 'text/html');
             
-            // Hapus atribut style bawaan Google Doc yang sering bikin kacau lebar elemen
+            // Bersihkan styling inline bawaan yang kaku agar layout fleksibel dan presisi
             doc.querySelectorAll('*').forEach(el => {
               el.removeAttribute('style');
+              el.removeAttribute('width');
+              el.removeAttribute('height');
             });
 
             const bodyContent = doc.querySelector('body')?.innerHTML || '<p class="text-slate-400 text-xs">Tidak ada teks notulensi.</p>';
@@ -363,14 +368,12 @@
       container.innerHTML = html;
       lucide.createIcons();
 
-      // Cek apakah ada hashtag/deep link saat halaman pertama kali dimuat
       if (window.location.hash) {
         const targetId = window.location.hash.substring(1);
         openModalDocRapat(targetId, true);
       }
     }
 
-    // BACA CSV HASIL RAPAT
     if (CSV_RAPAT_URL && CSV_RAPAT_URL.startsWith('http')) {
       Papa.parse(CSV_RAPAT_URL, {
         download: true,
@@ -384,7 +387,7 @@
           globalRapatData = rawData.map((row, index) => {
             const keys = Object.keys(row);
             return {
-              id: 'rapat-' + (rawData.length - index), // ID Unik untuk Deep Link
+              id: 'rapat-' + (rawData.length - index),
               tanggal: row[keys[0]] || '-',
               judul: row[keys[1]] || 'Hasil Rapat Warga',
               deskripsi: row[keys[2]] || '',
