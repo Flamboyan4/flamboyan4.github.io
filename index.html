@@ -629,12 +629,14 @@
       </div>
     </div>
   </div>
-
+  
+<!-- MODAL KEUANGAN -->
   <div id="modal-keuangan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="closeModalDirect('modal-keuangan')">
     <div class="bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
         <div>
-          <h3 class="text-lg md:text-xl font-bold text-slate-900">Arsip Seluruh Transaksi Kas</h3>
+         <!-- ID modal-keuangan-title ditambahkan di sini -->
+         <h3 id="modal-keuangan-title" class="text-lg md:text-xl font-bold text-slate-900">Arsip Seluruh Transaksi Kas</h3>
           <p class="text-xs text-slate-500">Riwayat pemasukan & pengeluaran kas Flamboyan 4</p>
         </div>
         <button onclick="closeModalDirect('modal-keuangan')" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
@@ -1211,15 +1213,40 @@
         btnSubmit.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>Kirim Komentar</span>`;
       });
     }
+let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
 
-    function openModalKeuangan() { 
+    function openModalKeuangan() {
+      currentKeuanganFilterType = 'all';
+      document.getElementById('modal-keuangan-title').innerText = 'Arsip Seluruh Transaksi Kas';
+      document.getElementById('search-keuangan').placeholder = 'Cari transaksi...';
       document.getElementById('search-keuangan').value = '';
       filterKeuanganModal();
-      openModal('modal-keuangan'); 
+      openModal('modal-keuangan');
     }
 
     function openModalKeuanganFiltered(filterType) {
-      document.getElementById('search-keuangan').value = filterType;
+      currentKeuanganFilterType = filterType;
+      
+      let targetMonthObj = null;
+      if (filterType === 'pemasukan' && monthlyKeuanganList.length > 0) {
+        targetMonthObj = monthlyKeuanganList[currentPemasukanMonthIndex];
+      } else if (filterType === 'pengeluaran' && monthlyKeuanganList.length > 0) {
+        targetMonthObj = monthlyKeuanganList[currentPengeluaranMonthIndex];
+      }
+
+      const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      
+      if (targetMonthObj) {
+        const titleText = filterType === 'pemasukan' ? 'Rincian Pemasukan' : 'Rincian Pengeluaran';
+        const monthLabel = `${monthNames[targetMonthObj.month]} ${targetMonthObj.year}`;
+        document.getElementById('modal-keuangan-title').innerText = `${titleText} (${monthLabel})`;
+        document.getElementById('search-keuangan').placeholder = `Cari transaksi ${filterType} ${monthLabel}...`;
+      } else {
+        document.getElementById('modal-keuangan-title').innerText = 'Arsip Seluruh Transaksi Kas';
+        document.getElementById('search-keuangan').placeholder = 'Cari transaksi...';
+      }
+
+      document.getElementById('search-keuangan').value = '';
       filterKeuanganModal();
       openModal('modal-keuangan');
     }
@@ -1787,14 +1814,48 @@
 
     function filterKeuanganModal() {
       const keyword = document.getElementById('search-keuangan').value.toLowerCase();
+      
+      let targetMonthObj = null;
+      if (currentKeuanganFilterType === 'pemasukan' && monthlyKeuanganList.length > 0) {
+        targetMonthObj = monthlyKeuanganList[currentPemasukanMonthIndex];
+      } else if (currentKeuanganFilterType === 'pengeluaran' && monthlyKeuanganList.length > 0) {
+        targetMonthObj = monthlyKeuanganList[currentPengeluaranMonthIndex];
+      }
+
       let html = '';
+      let filteredCount = 0;
+
       globalKeuanganData.forEach(row => {
-        const text = Object.values(row).join(' ').toLowerCase();
-        if (text.includes(keyword)) {
-          html += renderTableRow(row);
+        const keys = Object.keys(row);
+        if (keys.length < 4) return;
+
+        const tglStr = row[keys[0]];
+        const kategori = (row[keys[2]] || '').trim().toLowerCase();
+        const textFull = Object.values(row).join(' ').toLowerCase();
+
+        // 1. Filter Jenis Transaksi (Pemasukan / Pengeluaran)
+        if (currentKeuanganFilterType !== 'all' && kategori !== currentKeuanganFilterType) {
+          return;
         }
+
+        // 2. Filter Sesuai Bulan Aktif Card
+        if (targetMonthObj) {
+          const parsed = parseRowDate(tglStr);
+          if (!parsed || parsed.month !== targetMonthObj.month || parsed.year !== targetMonthObj.year) {
+            return;
+          }
+        }
+
+        // 3. Filter Kata Kunci Pencarian
+        if (keyword && !textFull.includes(keyword)) {
+          return;
+        }
+
+        html += renderTableRow(row);
+        filteredCount++;
       });
-      document.getElementById('tabel-transaksi-all').innerHTML = html || '<tr><td colspan="4" class="p-4 text-center text-slate-400">Tidak ada transaksi yang cocok</td></tr>';
+
+      document.getElementById('tabel-transaksi-all').innerHTML = html || `<tr><td colspan="4" class="p-6 text-center text-slate-400 text-xs">Tidak ada transaksi ${currentKeuanganFilterType !== 'all' ? currentKeuanganFilterType : ''} yang ditemukan untuk periode ini.</td></tr>`;
     }
 
     function parseRowDate(dateStr) {
