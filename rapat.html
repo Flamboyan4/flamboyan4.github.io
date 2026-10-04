@@ -45,7 +45,7 @@
       background-color: #0f172a;
     }
 
-    /* TYPOGRAPHY ARTIKEL NOTULENSI (UNTUK LINK GOOGLE DOC) */
+    /* TYPOGRAPHY ARTIKEL NOTULENSI (UNTUK GOOGLE DOC) */
     .doc-article-content {
       color: #334155;
       font-size: 0.9rem;
@@ -71,17 +71,42 @@
       margin-bottom: 0.6rem !important;
     }
 
+    /* FIX DUA PENOMORAN & ALFABET SUB-LIST (A, B, C / a, b, c) */
     .doc-article-content ul,
     .doc-article-content ol {
       margin-top: 0.4rem !important;
       margin-bottom: 0.8rem !important;
-      padding-left: 1.4rem !important;
+      padding-left: 1.5rem !important;
     }
+
+    /* Default list utama */
     .doc-article-content ul { list-style-type: disc !important; }
     .doc-article-content ol { list-style-type: decimal !important; }
+
+    /* Sub-list tingkat 2 (Otomatis Alfabet/Huruf Kecil a, b, c) */
+    .doc-article-content ol ol,
+    .doc-article-content ul ol,
+    .doc-article-content ol[type="a"],
+    .doc-article-content ol[style*="lower-alpha"] { 
+      list-style-type: lower-alpha !important; 
+    }
+
+    /* Sub-list tingkat 2 khusus kapital (A, B, C) */
+    .doc-article-content ol[type="A"],
+    .doc-article-content ol[style*="upper-alpha"] { 
+      list-style-type: upper-alpha !important; 
+    }
+
+    /* Sub-list tingkat 3 (Otomatis Romawi i, ii, iii) */
+    .doc-article-content ol ol ol,
+    .doc-article-content ul ol ol { 
+      list-style-type: lower-roman !important; 
+    }
+
     .doc-article-content li {
       margin-bottom: 0.3rem !important;
       padding-left: 0.2rem !important;
+      display: list-item !important;
     }
 
     /* PERBAIKAN TABEL RINGKAS & PROPORSIAL */
@@ -285,15 +310,8 @@
       const docId = extractGoogleDocId(rawUrl);
       const driveFileId = extractDriveFileId(rawUrl);
 
-      // OPSI A: JIKA TERDETEKSI SEBAGAI LINK FILE PDF GOOGLE DRIVE
-      if (driveFileId && !rawUrl.includes('/document/d/')) {
-        const embedPdfUrl = `https://drive.google.com/file/d/${driveFileId}/preview`;
-        document.getElementById('modal-rapat-body').innerHTML = `
-          <iframe src="${embedPdfUrl}" class="pdf-viewer-container" allow="autoplay"></iframe>
-        `;
-      } 
-      // OPSI B: JIKA LINK ADALAH GOOGLE DOCS (DIRENDER SEBAGAI ARTIKEL RAPI)
-      else if (docId) {
+      // JIKA TEKSTUAL GOOGLE DOCS (DIBUAT ARTIKEL RAPI)
+      if (docId) {
         const fetchUrl = `https://docs.google.com/feeds/download/documents/export/Export?id=${docId}&exportFormat=html`;
         fetch(fetchUrl)
           .then(res => res.text())
@@ -301,7 +319,7 @@
             const parser = new DOMParser();
             const doc = parser.parseFromString(htmlText, 'text/html');
             
-            // Hapus atribut kaku dimensi
+            // Hapus dimensi kaku
             doc.querySelectorAll('*').forEach(el => {
               el.removeAttribute('width');
               el.removeAttribute('height');
@@ -319,6 +337,13 @@
               </div>
             `;
           });
+      } 
+      // JIKA LINK PDF GOOGLE DRIVE
+      else if (driveFileId) {
+        const embedPdfUrl = `https://drive.google.com/file/d/${driveFileId}/preview`;
+        document.getElementById('modal-rapat-body').innerHTML = `
+          <iframe src="${embedPdfUrl}" class="pdf-viewer-container" allow="autoplay"></iframe>
+        `;
       } 
       else {
         document.getElementById('modal-rapat-body').innerHTML = `
@@ -429,10 +454,13 @@
             return values.length >= 2 && values[0] && values[0].toString().trim() !== '';
           });
 
-          globalRapatData = rawData.map((row, index) => {
+          // PEMBARUAN URUTAN: DIBALIK AGAR KEGIATAN TERBARU MUNCUL PALING ATAS
+          const sortedData = [...rawData].reverse();
+
+          globalRapatData = sortedData.map((row, index) => {
             const keys = Object.keys(row);
             return {
-              id: 'rapat-' + (rawData.length - index),
+              id: 'rapat-' + (sortedData.length - index),
               tanggal: row[keys[0]] || '-',
               judul: row[keys[1]] || 'Hasil Rapat Warga',
               deskripsi: row[keys[2]] || '',
