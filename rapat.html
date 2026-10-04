@@ -45,68 +45,16 @@
       background-color: #0f172a;
     }
 
-    /* TYPOGRAPHY ARTIKEL NOTULENSI (PRESISI GOOGLE DOCS) */
-    .doc-article-content {
+    /* TYPOGRAPHY ARTIKEL NOTULENSI (MEN penyesuaian LOKAL UNTUK ISU GOOGLE DOCS) */
+    .doc-article-wrapper {
       color: #334155;
       font-size: 0.9rem;
       line-height: 1.6;
       word-break: break-word;
     }
 
-    .doc-article-content h1, 
-    .doc-article-content h2, 
-    .doc-article-content h3, 
-    .doc-article-content h4 {
-      font-weight: 700 !important;
-      color: #0f172a !important;
-      margin-top: 1.25rem !important;
-      margin-bottom: 0.5rem !important;
-      line-height: 1.3 !important;
-    }
-    .doc-article-content h1 { font-size: 1.25rem !important; text-align: center !important; }
-    .doc-article-content h2 { font-size: 1.1rem !important; }
-    .doc-article-content h3 { font-size: 1rem !important; }
-
-    .doc-article-content p {
-      margin-bottom: 0.6rem !important;
-    }
-
-    /* PENANGANAN PRESISI PENOMORAN GOOGLE DOCS */
-    .doc-article-content ul,
-    .doc-article-content ol {
-      margin-top: 0.4rem !important;
-      margin-bottom: 0.8rem !important;
-      padding-left: 1.6rem !important;
-    }
-
-    .doc-article-content ol {
-      list-style-position: outside !important;
-    }
-
-    /* Menjaga Jenis List Berdasarkan Atribut Google Docs */
-    .doc-article-content ol[type="A"],
-    .doc-article-content ol[style*="upper-alpha"] {
-      list-style-type: upper-alpha !important;
-    }
-
-    .doc-article-content ol[type="a"],
-    .doc-article-content ol[style*="lower-alpha"] {
-      list-style-type: lower-alpha !important;
-    }
-
-    .doc-article-content ol[type="1"],
-    .doc-article-content ol[style*="decimal"] {
-      list-style-type: decimal !important;
-    }
-
-    .doc-article-content li {
-      margin-bottom: 0.35rem !important;
-      padding-left: 0.2rem !important;
-      display: list-item !important;
-    }
-
-    /* PERBAIKAN TABEL RINGKAS & PROPORSIAL */
-    .doc-article-content table {
+    /* Jaga agar tabel dari Google Doc tampil rapi & bergaris */
+    .doc-article-wrapper table {
       width: 100% !important;
       border-collapse: collapse !important;
       margin: 0.85rem 0 !important;
@@ -114,28 +62,27 @@
       border-radius: 0.375rem;
       overflow: hidden;
     }
-    .doc-article-content td,
-    .doc-article-content th {
+    .doc-article-wrapper td,
+    .doc-article-wrapper th {
       border: 1px solid #cbd5e1 !important;
       padding: 6px 10px !important;
       vertical-align: top !important;
-      font-weight: normal !important;
-      text-transform: none !important;
     }
-    .doc-article-content tr:nth-child(even) {
+    .doc-article-wrapper tr:nth-child(even) {
       background-color: #f8fafc !important;
     }
-    .doc-article-content table tr td:first-child,
-    .doc-article-content th {
+    .doc-article-wrapper table tr td:first-child,
+    .doc-article-wrapper th {
       font-weight: 600 !important;
       color: #0f172a !important;
       width: 30% !important;
     }
-    .doc-article-content th {
+    .doc-article-wrapper th {
       background-color: #f1f5f9 !important;
     }
 
-    .doc-article-content img {
+    /* Atur Gambar Dalam Artikel */
+    .doc-article-wrapper img {
       max-width: 100% !important;
       height: auto !important;
       border-radius: 0.5rem;
@@ -175,7 +122,7 @@
 
   <!-- Hero Banner Section -->
   <section class="relative bg-gradient-to-br from-indigo-950 via-indigo-900 to-violet-900 text-white py-10 md:py-14 px-4 overflow-hidden w-full border-b border-indigo-800/40">
-    <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px]"></div>
+    <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px]"></div>
     <div class="max-w-4xl mx-auto text-center space-y-2.5 relative z-10">
       <h2 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight">
         Notulensi Rapat
@@ -232,7 +179,7 @@
       </div>
 
       <!-- Modal Body (Bisa Nampil PDF Native atau Artikel Doc Rapi) -->
-      <div id="modal-rapat-body" class="p-4 sm:p-6 overflow-y-auto flex-grow custom-scroll doc-article-content">
+      <div id="modal-rapat-body" class="p-4 sm:p-6 overflow-y-auto flex-grow custom-scroll doc-article-wrapper">
         <p class="text-slate-400 text-xs text-center py-10">Memuat dokumen notulensi...</p>
       </div>
     </div>
@@ -306,7 +253,7 @@
       const docId = extractGoogleDocId(rawUrl);
       const driveFileId = extractDriveFileId(rawUrl);
 
-      // JIKA TEKSTUAL GOOGLE DOCS
+      // MENGAMBIL ISI GOOGLE DOCS DENGAN MENJAGA ATURAN STYLE PENOMORAN ASLI
       if (docId) {
         const fetchUrl = `https://docs.google.com/feeds/download/documents/export/Export?id=${docId}&exportFormat=html`;
         fetch(fetchUrl)
@@ -314,23 +261,21 @@
           .then(htmlText => {
             const parser = new DOMParser();
             const doc = parser.parseFromString(htmlText, 'text/html');
-            
-            // Hapus dimensi kaku bawaan
-            doc.querySelectorAll('*').forEach(el => {
-              el.removeAttribute('width');
-              el.removeAttribute('height');
+
+            // Ambil seluruh isi tag <style> agar CSS penomoran Google Docs tetap utuh
+            let docStyles = '';
+            doc.querySelectorAll('style').forEach(s => {
+              docStyles += s.innerHTML;
             });
 
-            // BERSIHKAN STYLE BANTUAN GOOGLE DOCS YANG MEMAKSA LIST LIST-STYLE NONE
-            doc.querySelectorAll('style').forEach(styleTag => {
-              let cssText = styleTag.textContent || '';
-              // Hapus aturan CSS bawaan yang menyembunyikan bullet/numbering
-              cssText = cssText.replace(/list-style-type:\s*none;?/g, '');
-              styleTag.textContent = cssText;
-            });
-
+            // Ambil isi body dokumen
             const bodyContent = doc.querySelector('body')?.innerHTML || '<p class="text-slate-400 text-xs">Tidak ada teks notulensi.</p>';
-            document.getElementById('modal-rapat-body').innerHTML = bodyContent;
+
+            // Tampilkan style asli + isi dokumen secara terenkapsulasi
+            document.getElementById('modal-rapat-body').innerHTML = `
+              <style>${docStyles}</style>
+              <div class="doc-parsed-content">${bodyContent}</div>
+            `;
           })
           .catch(err => {
             document.getElementById('modal-rapat-body').innerHTML = `
