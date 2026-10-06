@@ -117,7 +117,6 @@
         
         <!-- Container Gambar Slider -->
         <div id="banner-slider-wrapper" class="flex transition-transform duration-500 ease-in-out w-full">
-          <!-- Placeholder Loading -->
           <div class="w-full shrink-0 aspect-[21/6] sm:aspect-[21/5] bg-slate-800 flex items-center justify-center text-slate-400 text-xs">
             <span>Memuat banner kegiatan...</span>
           </div>
@@ -400,7 +399,7 @@
 
   </main>
 
-  <!-- MODAL KEUANGAN (TERFILTER PER BULAN / DUA OPSI SAMPAI ALL) -->
+  <!-- MODAL KEUANGAN -->
   <div id="modal-keuangan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="closeModalDirect('modal-keuangan')">
     <div class="bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
@@ -431,7 +430,7 @@
     </div>
   </div>
 
-  <!-- MODAL PEMESANAN JERSEY (REKAP BERLATAR PUTIH BERSIH / OUTLINE BORDER) -->
+  <!-- MODAL PEMESANAN JERSEY -->
   <div id="modal-jersey" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="closeModalDirect('modal-jersey')">
     <div class="bg-white w-full max-w-4xl max-h-[92vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
       
@@ -505,7 +504,7 @@
     <p>&copy; 2026 Humas 3 Warga Flamboyan 4. Dikelola secara swadaya & transparan.</p>
   </footer>
 
-  <!-- SCRIPT UTAMA KONTROL LOGIKA DAN DATA CSV -->
+  <!-- SCRIPT UTAMA -->
   <script>
     lucide.createIcons();
 
@@ -547,29 +546,28 @@
       return cleanUrl;
     }
 
-    // --- LOGIKA BANNER SLIDER (POLOSAN + TOUCH SWIPE RESPONSIVE) ---
-    function handleTouchStart(e) {
-      touchStartX = e.changedTouches[0].screenX;
+    function parseRupiahVal(valStr) {
+      if (!valStr) return 0;
+      let clean = valStr.toString().replace(/[^0-9]/g, '');
+      return parseInt(clean) || 0;
     }
 
-    function handleTouchEnd(e) {
-      touchEndX = e.changedTouches[0].screenX;
-      handleSwipeGesture();
+    function formatRupiahDisplay(num) {
+      return 'Rp ' + (num || 0).toLocaleString('id-ID');
     }
 
+    // --- BANNER SLIDER LOGIC ---
+    function handleTouchStart(e) { touchStartX = e.changedTouches[0].screenX; }
+    function handleTouchEnd(e) { touchEndX = e.changedTouches[0].screenX; handleSwipeGesture(); }
     function handleSwipeGesture() {
       const swipeThreshold = 40;
-      if (touchStartX - touchEndX > swipeThreshold) {
-        nextBannerSlide();
-      } else if (touchEndX - touchStartX > swipeThreshold) {
-        prevBannerSlide();
-      }
+      if (touchStartX - touchEndX > swipeThreshold) nextBannerSlide();
+      else if (touchEndX - touchStartX > swipeThreshold) prevBannerSlide();
     }
 
     function renderBannerSlider() {
       const wrapper = document.getElementById('banner-slider-wrapper');
       const dotsContainer = document.getElementById('banner-dots-container');
-
       if (!wrapper) return;
 
       if (!bannerData || bannerData.length === 0) {
@@ -606,7 +604,6 @@
 
       wrapper.innerHTML = slidesHtml;
       if (dotsContainer) dotsContainer.innerHTML = dotsHtml;
-
       lucide.createIcons();
       startBannerAutoSlide();
     }
@@ -614,16 +611,10 @@
     function updateBannerSlidePosition() {
       const wrapper = document.getElementById('banner-slider-wrapper');
       const dots = document.querySelectorAll('#banner-dots-container button');
-
       if (!wrapper) return;
       wrapper.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
-
       dots.forEach((dot, idx) => {
-        if (idx === currentBannerIndex) {
-          dot.className = 'w-6 h-2.5 bg-white rounded-full transition-all';
-        } else {
-          dot.className = 'w-2.5 h-2.5 bg-white/50 hover:bg-white/80 rounded-full transition-all';
-        }
+        dot.className = idx === currentBannerIndex ? 'w-6 h-2.5 bg-white rounded-full transition-all' : 'w-2.5 h-2.5 bg-white/50 hover:bg-white/80 rounded-full transition-all';
       });
     }
 
@@ -650,15 +641,11 @@
     function startBannerAutoSlide() {
       if (bannerInterval) clearInterval(bannerInterval);
       if (bannerData.length > 1) {
-        bannerInterval = setInterval(() => {
-          nextBannerSlide();
-        }, 4500);
+        bannerInterval = setInterval(() => { nextBannerSlide(); }, 4500);
       }
     }
 
-    function resetBannerTimer() {
-      startBannerAutoSlide();
-    }
+    function resetBannerTimer() { startBannerAutoSlide(); }
 
     function handleBannerClick(url) {
       if (!url || url === '#' || url.trim() === '') return;
@@ -670,7 +657,7 @@
       }
     }
 
-    // --- LOGIKA MODAL POPUP KEUANGAN TERFILTER PER BULAN ---
+    // --- MODAL & FILTER KEUANGAN LOGIC ---
     function openModalDirect(modalId) {
       document.getElementById(modalId).classList.remove('hidden');
       document.body.style.overflow = 'hidden';
@@ -728,61 +715,25 @@
       }
 
       let html = '';
-      let filteredCount = 0;
 
-      globalKeuanganData.forEach(row => {
-        const keys = Object.keys(row);
-        if (keys.length < 4) return;
+      globalKeuanganData.forEach(item => {
+        const tglStr = item.tanggal;
+        const kat = item.kategori;
+        const textFull = `${item.tanggal} ${item.keterangan} ${item.kategori} ${item.jumlah}`.toLowerCase();
 
-        const tglStr = row[keys[0]];
-        const kategori = (row[keys[2]] || '').trim().toLowerCase();
-        const textFull = Object.values(row).join(' ').toLowerCase();
+        if (currentKeuanganFilterType !== 'all' && kat !== currentKeuanganFilterType) return;
 
-        // 1. Filter Jenis Transaksi (Pemasukan / Pengeluaran)
-        if (currentKeuanganFilterType !== 'all' && kategori !== currentKeuanganFilterType) {
-          return;
-        }
-
-        // 2. Filter Sesuai Bulan Aktif Card
         if (targetMonthObj) {
           const parsed = parseRowDate(tglStr);
-          if (!parsed || parsed.month !== targetMonthObj.month || parsed.year !== targetMonthObj.year) {
-            return;
-          }
+          if (!parsed || parsed.month !== targetMonthObj.month || parsed.year !== targetMonthObj.year) return;
         }
 
-        // 3. Filter Kata Kunci Pencarian
-        if (keyword && !textFull.includes(keyword)) {
-          return;
-        }
+        if (keyword && !textFull.includes(keyword)) return;
 
-        html += renderTableRow(row);
-        filteredCount++;
+        html += renderTableRowObj(item);
       });
 
-      document.getElementById('tabel-transaksi-all').innerHTML = html || `<tr><td colspan="4" class="p-6 text-center text-slate-400 text-xs">Tidak ada transaksi ${currentKeuanganFilterType !== 'all' ? currentKeuanganFilterType : ''} yang ditemukan untuk periode ini.</td></tr>`;
-    }
-
-    function renderTableRow(row) {
-      const keys = Object.keys(row);
-      const tgl = row[keys[0]] || '-';
-      const ket = row[keys[1]] || '-';
-      const kat = (row[keys[2]] || '').trim().toLowerCase();
-      const val = row[keys[3]] || '0';
-
-      const isPemasukan = kat === 'pemasukan';
-      const badgeClass = isPemasukan ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800';
-      const valClass = isPemasukan ? 'text-emerald-600 font-bold' : 'text-rose-600 font-bold';
-      const valSign = isPemasukan ? '+ ' : '- ';
-
-      return `
-        <tr class="hover:bg-slate-50 transition">
-          <td class="p-3 font-medium text-slate-600">${tgl}</td>
-          <td class="p-3 text-slate-900 font-medium">${ket}</td>
-          <td class="p-3"><span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${badgeClass}">${kat}</span></td>
-          <td class="p-3 text-right ${valClass}">${valSign}${val}</td>
-        </tr>
-      `;
+      document.getElementById('tabel-transaksi-all').innerHTML = html || `<tr><td colspan="4" class="p-6 text-center text-slate-400 text-xs">Tidak ada transaksi yang cocok.</td></tr>`;
     }
 
     function parseRowDate(dateStr) {
@@ -808,12 +759,24 @@
       return { month, year };
     }
 
-    // --- LOGIKA MODAL JERSEY (TABEL & REKAP BERLATAR PUTIH BERSIH) ---
-    function openModalJersey() {
-      switchJerseyTab('bapak');
-      openModalDirect('modal-jersey');
+    function renderTableRowObj(item) {
+      const isPemasukan = item.kategori === 'pemasukan';
+      const badgeClass = isPemasukan ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800';
+      const valClass = isPemasukan ? 'text-emerald-600 font-bold' : 'text-rose-600 font-bold';
+      const valSign = isPemasukan ? '+ ' : '- ';
+
+      return `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="p-3 font-medium text-slate-600 whitespace-nowrap">${item.tanggal}</td>
+          <td class="p-3 text-slate-900 font-medium">${item.keterangan}</td>
+          <td class="p-3"><span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${badgeClass}">${item.kategori}</span></td>
+          <td class="p-3 text-right ${valClass} whitespace-nowrap">${valSign}${formatRupiahDisplay(item.nominal)}</td>
+        </tr>
+      `;
     }
 
+    // --- JERSEY MODAL LOGIC ---
+    function openModalJersey() { switchJerseyTab('bapak'); openModalDirect('modal-jersey'); }
     function switchJerseyTab(kategori) {
       activeJerseyTab = kategori;
       const btnBapak = document.getElementById('tab-jersey-bapak');
@@ -829,18 +792,7 @@
         btnBapak.className = "flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-white text-slate-600 hover:bg-slate-200";
         labelKategori.innerText = "(Ibu)";
       }
-
       renderJerseyModalContent();
-    }
-
-    function parseRupiahVal(valStr) {
-      if (!valStr) return 0;
-      let clean = valStr.toString().replace(/[^0-9]/g, '');
-      return parseInt(clean) || 0;
-    }
-
-    function formatRupiahDisplay(num) {
-      return 'Rp ' + num.toLocaleString('id-ID');
     }
 
     function renderJerseyModalContent() {
@@ -852,7 +804,7 @@
       let html = '';
       let filteredCount = 0;
 
-      dataSet.forEach((row, index) => {
+      dataSet.forEach((row) => {
         const keys = Object.keys(row);
         if (keys.length < 5) return;
 
@@ -864,7 +816,7 @@
         const statusStr = (row[keys[5]] || '').trim();
 
         const bayarNominal = parseRupiahVal(bayarStr);
-        const hargaJersey = 90000; // Standar harga jersey
+        const hargaJersey = 90000;
 
         totalTagihan += hargaJersey;
         totalTerkumpul += bayarNominal;
@@ -899,15 +851,12 @@
       document.getElementById('modal-jersey-total-tagihan').innerText = formatRupiahDisplay(totalTagihan);
       document.getElementById('modal-jersey-terkumpul').innerText = formatRupiahDisplay(totalTerkumpul);
       document.getElementById('modal-jersey-sisa').innerText = formatRupiahDisplay(sisaKekurangan > 0 ? sisaKekurangan : 0);
-
       document.getElementById('tabel-jersey-body').innerHTML = html || `<tr><td colspan="7" class="p-6 text-center text-slate-400 text-xs">Tidak ada data pemesan.</td></tr>`;
     }
 
-    function filterJerseyTable() {
-      renderJerseyModalContent();
-    }
+    function filterJerseyTable() { renderJerseyModalContent(); }
 
-    // --- PEMBACAAN DATA CSV GOOGLE SHEETS ---
+    // --- PROSES READ DATA CSV BANNER ---
     if (CSV_BANNER_URL && CSV_BANNER_URL.startsWith('http')) {
       Papa.parse(CSV_BANNER_URL, {
         download: true,
@@ -924,36 +873,149 @@
               linkTarget: row[keys[2]] || '#'
             };
           });
-
           renderBannerSlider();
         }
       });
     }
 
+    // --- PROSES READ DATA CSV KEUANGAN (DENGAN SAFE PARSING) ---
     if (CSV_KEUANGAN_URL && CSV_KEUANGAN_URL.startsWith('http')) {
       Papa.parse(CSV_KEUANGAN_URL, {
         download: true,
-        header: true,
+        header: false, // Membaca per-baris indeks tanpa tergantung nama kolom header
         complete: function(results) {
-          const rawData = results.data.filter(row => {
-            const vals = Object.values(row);
-            return vals.length >= 3 && vals[0] && vals[0].toString().trim() !== '';
+          const rows = results.data.slice(1); // Skip header
+
+          const parsedList = [];
+          let totalPemasukanAll = 0;
+          let totalPengeluaranAll = 0;
+
+          rows.forEach(row => {
+            if (!row || row.length < 3) return;
+
+            const tgl = (row[0] || '').trim();
+            if (!tgl) return;
+
+            // Mencari kolom nominal dan kategori secara dinamis & aman
+            let ket = '';
+            let kat = '';
+            let nominal = 0;
+
+            for (let i = 1; i < row.length; i++) {
+              const val = (row[i] || '').toString().trim();
+              const lower = val.toLowerCase();
+
+              if (lower === 'pemasukan' || lower === 'pengeluaran') {
+                kat = lower;
+              } else if (parseRupiahVal(val) > 0 && nominal === 0) {
+                nominal = parseRupiahVal(val);
+              } else if (!ket && val !== '') {
+                ket = val;
+              }
+            }
+
+            if (!kat) kat = 'pemasukan';
+
+            if (kat === 'pemasukan') totalPemasukanAll += nominal;
+            if (kat === 'pengeluaran') totalPengeluaranAll += nominal;
+
+            parsedList.push({
+              tanggal: tgl,
+              keterangan: ket || 'Kas Warga',
+              kategori: kat,
+              nominal: nominal,
+              jumlah: formatRupiahDisplay(nominal)
+            });
           });
 
-          globalKeuanganData = rawData;
+          globalKeuanganData = parsedList;
           document.getElementById('last-update-keuangan').innerText = 'Terhubung Live';
 
-          // Tampilkan 10 Transaksi Terakhir
-          let html10 = '';
-          const slice10 = rawData.slice(-10).reverse();
-          slice10.forEach(row => {
-            html10 += renderTableRow(row);
+          // Group per Bulan
+          const monthGroupMap = {};
+          parsedList.forEach(item => {
+            const parsed = parseRowDate(item.tanggal);
+            if (parsed) {
+              const key = `${parsed.year}-${parsed.month}`;
+              if (!monthGroupMap[key]) {
+                monthGroupMap[key] = { year: parsed.year, month: parsed.month, pemasukan: 0, pengeluaran: 0 };
+              }
+              if (item.kategori === 'pemasukan') monthGroupMap[key].pemasukan += item.nominal;
+              if (item.kategori === 'pengeluaran') monthGroupMap[key].pengeluaran += item.nominal;
+            }
           });
-          document.getElementById('tabel-10-terakhir').innerHTML = html10 || `<tr><td colspan="4" class="p-4 text-center text-slate-400 text-xs">Belum ada catatan keuangan.</td></tr>`;
+
+          monthlyKeuanganList = Object.values(monthGroupMap).sort((a, b) => (a.year * 12 + a.month) - (b.year * 12 + b.month));
+
+          if (monthlyKeuanganList.length > 0) {
+            currentPemasukanMonthIndex = monthlyKeuanganList.length - 1;
+            currentPengeluaranMonthIndex = monthlyKeuanganList.length - 1;
+            updatePemasukanCardDisplay();
+            updatePengeluaranCardDisplay();
+          }
+
+          // Update Total Kas & Saldo
+          const saldoBersih = totalPemasukanAll - totalPengeluaranAll;
+          document.getElementById('stat-pemasukan-total').innerText = formatRupiahDisplay(totalPemasukanAll);
+          document.getElementById('stat-pengeluaran-total').innerText = formatRupiahDisplay(totalPengeluaranAll);
+          document.getElementById('stat-saldo-kas').innerText = formatRupiahDisplay(saldoBersih);
+
+          // Render 10 Transaksi Terakhir
+          let html10 = '';
+          const slice10 = parsedList.slice(-10).reverse();
+          slice10.forEach(item => {
+            html10 += renderTableRowObj(item);
+          });
+          document.getElementById('tabel-10-terakhir').innerHTML = html10 || `<tr><td colspan="4" class="p-4 text-center text-slate-400 text-xs">Belum ada transaksi.</td></tr>`;
         }
       });
     }
 
+    function updatePemasukanCardDisplay() {
+      if (monthlyKeuanganList.length === 0) return;
+      const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      const currentObj = monthlyKeuanganList[currentPemasukanMonthIndex];
+      document.getElementById('label-pemasukan-bulan').innerText = `Pemasukan (${monthNames[currentObj.month]} ${currentObj.year})`;
+      document.getElementById('stat-pemasukan-bulan').innerText = formatRupiahDisplay(currentObj.pemasukan);
+    }
+
+    function updatePengeluaranCardDisplay() {
+      if (monthlyKeuanganList.length === 0) return;
+      const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      const currentObj = monthlyKeuanganList[currentPengeluaranMonthIndex];
+      document.getElementById('label-pengeluaran-bulan').innerText = `Pengeluaran (${monthNames[currentObj.month]} ${currentObj.year})`;
+      document.getElementById('stat-pengeluaran-bulan').innerText = formatRupiahDisplay(currentObj.pengeluaran);
+    }
+
+    function prevMonthPemasukan() {
+      if (currentPemasukanMonthIndex > 0) {
+        currentPemasukanMonthIndex--;
+        updatePemasukanCardDisplay();
+      }
+    }
+
+    function nextMonthPemasukan() {
+      if (currentPemasukanMonthIndex < monthlyKeuanganList.length - 1) {
+        currentPemasukanMonthIndex++;
+        updatePemasukanCardDisplay();
+      }
+    }
+
+    function prevMonthPengeluaran() {
+      if (currentPengeluaranMonthIndex > 0) {
+        currentPengeluaranMonthIndex--;
+        updatePengeluaranCardDisplay();
+      }
+    }
+
+    function nextMonthPengeluaran() {
+      if (currentPengeluaranMonthIndex < monthlyKeuanganList.length - 1) {
+        currentPengeluaranMonthIndex++;
+        updatePengeluaranCardDisplay();
+      }
+    }
+
+    // --- READ CSV JERSEY ---
     if (CSV_JERSEY_URL && CSV_JERSEY_URL.startsWith('http')) {
       Papa.parse(CSV_JERSEY_URL, {
         download: true,
@@ -964,7 +1026,6 @@
             return vals.length >= 2 && vals[0] && vals[0].toString().trim() !== '';
           });
 
-          // Pisahkan Data Pemesan Bapak & Ibu
           globalJerseyDataBapak = [];
           globalJerseyDataIbu = [];
 
@@ -978,17 +1039,13 @@
               return;
             }
 
-            if (isIbuSection) {
-              globalJerseyDataIbu.push(row);
-            } else {
-              globalJerseyDataBapak.push(row);
-            }
+            if (isIbuSection) globalJerseyDataIbu.push(row);
+            else globalJerseyDataBapak.push(row);
           });
 
           document.getElementById('badge-count-bapak').innerText = globalJerseyDataBapak.length;
           document.getElementById('badge-count-ibu').innerText = globalJerseyDataIbu.length;
 
-          // Update Ringkasan Stat Card Jersey di Halaman Utama
           const totalPemesan = globalJerseyDataBapak.length + globalJerseyDataIbu.length;
           document.getElementById('jersey-stat-total').innerText = totalPemesan + ' Orang';
         }
