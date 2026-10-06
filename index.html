@@ -113,7 +113,31 @@
 
   <!-- Main Content -->
   <main class="max-w-6xl mx-auto px-4 py-8 flex-grow space-y-12 w-full relative">
+    <!-- SECTION BANNER IKLAN / KEGIATAN FLAMBOYAN 4 (SLIDER DINAMIK) -->
+    <section class="mb-8 w-full">
+      <div class="relative w-full overflow-hidden rounded-2xl shadow-sm border border-slate-200 bg-slate-900 group">
+        
+        <!-- Container Gambar Slider -->
+        <div id="banner-slider-wrapper" class="flex transition-transform duration-500 ease-in-out w-full">
+          <!-- Placeholder Loading -->
+          <div class="w-full shrink-0 aspect-[21/6] sm:aspect-[21/5] bg-slate-800 flex items-center justify-center text-slate-400 text-xs">
+            <span>Memuat banner kegiatan...</span>
+          </div>
+        </div>
 
+        <!-- Tombol Navigasi Kiri & Kanan -->
+        <button onclick="prevBannerSlide()" class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white p-2 rounded-full backdrop-blur-sm transition opacity-0 group-hover:opacity-100 focus:outline-none">
+          <i data-lucide="chevron-left" class="w-5 h-5"></i>
+        </button>
+        <button onclick="nextBannerSlide()" class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white p-2 rounded-full backdrop-blur-sm transition opacity-0 group-hover:opacity-100 focus:outline-none">
+          <i data-lucide="chevron-right" class="w-5 h-5"></i>
+        </button>
+
+        <!-- Titik Indikator (Dots) -->
+        <div id="banner-dots-container" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-2 z-10"></div>
+      </div>
+    </section>
+    
     <!-- SECTION 1: LAPORAN KEUANGAN -->
     <section id="keuangan" class="scroll-mt-20 w-full">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
@@ -1053,6 +1077,141 @@
     const FOLDER_GAPURA_URL = 'https://drive.google.com/drive/folders/1Zs2RlbHTvNc9RDhbc1TlgcptXeNhnrQ5';
     const FOLDER_API_URL = 'https://script.google.com/macros/s/AKfycbyes6A9_9EQ8vIYtf75cGgC9sKAZBvMewxEhYRSThjMAlBYqnkmKpa3yoPOtN0FEG92Zg/exec';
 
+    // Link CSV Banner Google Sheets Pak Heri (gid=780113187)
+    const CSV_BANNER_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=780113187&single=true&output=csv';
+
+    let bannerData = [];
+    let currentBannerIndex = 0;
+    let bannerInterval = null;
+
+    function renderBannerSlider() {
+      const wrapper = document.getElementById('banner-slider-wrapper');
+      const dotsContainer = document.getElementById('banner-dots-container');
+
+      if (!wrapper) return;
+
+      if (!bannerData || bannerData.length === 0) {
+        wrapper.innerHTML = `
+          <div class="w-full shrink-0 aspect-[21/6] sm:aspect-[21/5] bg-gradient-to-r from-indigo-950 via-indigo-900 to-indigo-950 text-white p-6 flex flex-col justify-center items-center text-center space-y-2">
+            <h3 class="font-black text-base sm:text-xl">Portal Informasi Lorong Flamboyan 4</h3>
+            <p class="text-xs text-indigo-200">Kumpulan kegiatan, kas, dan projek swadaya warga.</p>
+          </div>
+        `;
+        if (dotsContainer) dotsContainer.innerHTML = '';
+        return;
+      }
+
+      let slidesHtml = '';
+      let dotsHtml = '';
+
+      bannerData.forEach((item, index) => {
+        const imageUrl = fixDriveUrl(item.fotoUrl);
+        const targetLink = item.linkTarget && item.linkTarget.trim() !== '' ? item.linkTarget : '#';
+
+        slidesHtml += `
+          <div class="w-full shrink-0 aspect-[21/6] sm:aspect-[21/5] relative overflow-hidden cursor-pointer" onclick="handleBannerClick('${targetLink}')">
+            <img src="${imageUrl}" alt="${item.judul || 'Banner Kegiatan'}" class="w-full h-full object-cover hover:scale-102 transition duration-500" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'1200\' height=\'350\' viewBox=\'0 0 1200 350\'%3E%3Crect width=\'100%25\' height=\'100%25\' fill=\'%231e1b4b\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'sans-serif\' font-size=\'24\' fill=\'%23818cf8\' text-anchor=\'middle\' dy=\'.3em\'%3EKegiatan Flamboyan 4%3C/text%3E%3C/svg%3E'">
+            ${item.judul ? `
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-4 sm:p-6">
+                <p class="text-white font-bold text-xs sm:text-base drop-shadow-md">${item.judul}</p>
+              </div>
+            ` : ''}
+          </div>
+        `;
+
+        dotsHtml += `
+          <button onclick="goToBannerSlide(${index})" class="h-2.5 rounded-full transition-all ${index === 0 ? 'bg-white w-6' : 'bg-white/50 hover:bg-white/80 w-2.5'}"></button>
+        `;
+      });
+
+      wrapper.innerHTML = slidesHtml;
+      if (dotsContainer) dotsContainer.innerHTML = dotsHtml;
+
+      lucide.createIcons();
+      startBannerAutoSlide();
+    }
+
+    function updateBannerSlidePosition() {
+      const wrapper = document.getElementById('banner-slider-wrapper');
+      const dots = document.querySelectorAll('#banner-dots-container button');
+
+      if (!wrapper) return;
+      wrapper.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
+
+      dots.forEach((dot, idx) => {
+        if (idx === currentBannerIndex) {
+          dot.className = 'w-6 h-2.5 bg-white rounded-full transition-all';
+        } else {
+          dot.className = 'w-2.5 h-2.5 bg-white/50 hover:bg-white/80 rounded-full transition-all';
+        }
+      });
+    }
+
+    function nextBannerSlide() {
+      if (bannerData.length <= 1) return;
+      currentBannerIndex = (currentBannerIndex + 1) % bannerData.length;
+      updateBannerSlidePosition();
+      resetBannerTimer();
+    }
+
+    function prevBannerSlide() {
+      if (bannerData.length <= 1) return;
+      currentBannerIndex = (currentBannerIndex - 1 + bannerData.length) % bannerData.length;
+      updateBannerSlidePosition();
+      resetBannerTimer();
+    }
+
+    function goToBannerSlide(index) {
+      currentBannerIndex = index;
+      updateBannerSlidePosition();
+      resetBannerTimer();
+    }
+
+    function startBannerAutoSlide() {
+      if (bannerInterval) clearInterval(bannerInterval);
+      if (bannerData.length > 1) {
+        bannerInterval = setInterval(() => {
+          nextBannerSlide();
+        }, 4500); // Bertukar otomatis setiap 4.5 detik
+      }
+    }
+
+    function resetBannerTimer() {
+      startBannerAutoSlide();
+    }
+
+    function handleBannerClick(url) {
+      if (!url || url === '#' || url.trim() === '') return;
+      if (url.startsWith('#')) {
+        const el = document.querySelector(url);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.location.href = url;
+      }
+    }
+
+    // Membaca data CSV Banner
+    if (CSV_BANNER_URL && CSV_BANNER_URL.startsWith('http')) {
+      Papa.parse(CSV_BANNER_URL, {
+        download: true,
+        header: true,
+        complete: function(results) {
+          bannerData = results.data.filter(row => {
+            const vals = Object.values(row);
+            return vals.length >= 1 && vals[0] && vals[0].toString().trim() !== '';
+          }).map(row => {
+            const keys = Object.keys(row);
+            return {
+              judul: row[keys[0]] || '',
+              fotoUrl: row[keys[1]] || '',
+              linkTarget: row[keys[2]] || '#'
+            };
+          });
+
+          renderBannerSlider();
+        }
+      });
+    }
     // INISIALISASI FIREBASE REALTIME DATABASE UNTUK CHAT
     const firebaseConfig = {
       apiKey: "AIzaSyAZ8gg6e0oTJ7xGoFudQxyCdzObRipWk_4",
