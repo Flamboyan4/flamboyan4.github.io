@@ -1267,11 +1267,12 @@ let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
     function openModalDokumentasi() { openModal('modal-dokumentasi'); }
     function openModalSaran() { openModal('modal-saran'); }
 
-    function openModalEventDetail(dateStr, eventItems, dateIso) {
+   function openModalEventDetail(dateStr, eventItems, dateIso) {
   document.getElementById('modal-event-date').innerText = `Kegiatan: ${dateStr}`;
   
-  // Buat URL Unik berdasarkan tanggal kegiatan
-  const shareUrl = dateIso ? `${window.location.origin}${window.location.pathname}#event=${dateIso}` : window.location.href;
+  // Gunakan Query Parameter ?event= agar aman dibuka dari WhatsApp/Browser
+  const baseUrl = window.location.origin + window.location.pathname;
+  const shareUrl = dateIso ? `${baseUrl}?event=${dateIso}` : baseUrl;
 
   let html = `
     <div class="mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
@@ -1313,7 +1314,6 @@ let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// Fungsi Pembantu Salin Link Agenda
 function salinLinkAgenda(url) {
   navigator.clipboard.writeText(url).then(() => {
     const txt = document.getElementById('text-copy-agenda');
@@ -2781,21 +2781,26 @@ function salinLinkAgenda(url) {
 
           document.getElementById('container-rencana').innerHTML = rencanaHTML || '<p class="text-slate-400 text-xs">Belum ada rencana kegiatan.</p>';
           renderCalendar();
+          // Deteksi Otomatis parameter ?event=YYYY-MM-DD saat link dibuka dari WhatsApp
+          const urlParams = new URLSearchParams(window.location.search);
+          const targetDateIso = urlParams.get('event');
 
-          // Cek jika halaman dibuka dari link bagikan agenda (contoh: #event=2026-10-11)
-          if (window.location.hash && window.location.hash.includes('#event=')) {
-            const targetDateIso = window.location.hash.replace('#event=', '').trim();
+          if (targetDateIso) {
             const matchingEvents = globalRencanaData.filter(item => item.parsedDate === targetDateIso);
             
             if (matchingEvents.length > 0) {
-              const [year, month, day] = targetDateIso.split('-');
+              const dateParts = targetDateIso.split('-');
+              const year = dateParts[0];
+              const month = parseInt(dateParts[1]);
+              const day = parseInt(dateParts[2]);
               const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-              const safeDateStr = `${parseInt(day)} ${monthNames[parseInt(month) - 1]} ${year}`;
+              const safeDateStr = `${day} ${monthNames[month - 1]} ${year}`;
               
-              document.getElementById('rencana')?.scrollIntoView({ behavior: 'smooth' });
               setTimeout(() => {
+                const elRencana = document.getElementById('rencana');
+                if (elRencana) elRencana.scrollIntoView({ behavior: 'smooth' });
                 openModalEventDetail(safeDateStr, matchingEvents, targetDateIso);
-              }, 600);
+              }, 700);
             }
           }
         }
