@@ -2834,7 +2834,7 @@ function salinLinkAgenda(url) {
     }
 
     // ==========================================
-// BANNER SLIDER SCRIPT (ISOLATED)
+// BANNER SLIDER SCRIPT (ISOLATED & ADJUSTED)
 // ==========================================
 (function() {
   const CSV_BANNER_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=780113187&single=true&output=csv";
@@ -2845,6 +2845,17 @@ function salinLinkAgenda(url) {
   let touchStartX = 0;
   let touchEndX = 0;
 
+  // Ubah link Google Drive biasa menjadi Direct Image Link
+  function formatImageUrl(rawUrl) {
+    if (!rawUrl) return '';
+    let url = rawUrl.trim();
+    if (url.includes('drive.google.com/file/d/')) {
+      const fileId = url.split('/file/d/')[1].split('/')[0];
+      return `https://drive.google.com/uc?export=view&id=${fileId}`;
+    }
+    return url;
+  }
+
   function initBanner() {
     if (typeof Papa === 'undefined' || !CSV_BANNER_URL) return;
 
@@ -2854,8 +2865,9 @@ function salinLinkAgenda(url) {
       complete: function(results) {
         if (results && results.data) {
           bannerData = results.data.filter(row => {
-            const values = Object.values(row);
-            return values.length > 0 && values[0] && values[0].toString().trim() !== '';
+            // Kolom B (Link Foto) harus terisi
+            const photoUrl = row['Link Foto / Drive'] || row['Link Foto'] || Object.values(row)[1];
+            return photoUrl && photoUrl.toString().trim() !== '';
           });
 
           if (bannerData.length > 0) {
@@ -2877,17 +2889,15 @@ function salinLinkAgenda(url) {
     let dotsHTML = '';
 
     bannerData.forEach((item, index) => {
-      const keys = Object.keys(item);
-      const imgUrl = item[keys[0]] || '';
-      const title = item[keys[1]] || '';
-      const linkTarget = item[keys[2]] || '#';
+      // Pembacaan kolom presisi sesuai struktur Google Sheets Anda
+      const rawImgUrl = item['Link Foto / Drive'] || item['Link Foto'] || Object.values(item)[1] || '';
+      const linkTarget = item['Link Tujuan (Target)'] || item['Link Tujuan'] || Object.values(item)[2] || '#';
+
+      const imgUrl = formatImageUrl(rawImgUrl);
 
       trackHTML += `
-        <a href="${linkTarget}" class="w-full h-full flex-shrink-0 relative block overflow-hidden group/item">
-          <img src="${imgUrl}" alt="${title}" class="w-full h-full object-cover object-center transition-transform duration-500 group-hover/item:scale-105" />
-          ${title ? `<div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent p-3 sm:p-4 text-white">
-            <p class="text-xs sm:text-sm md:text-base font-semibold truncate">${title}</p>
-          </div>` : ''}
+        <a href="${linkTarget}" class="w-full h-full flex-shrink-0 relative block overflow-hidden">
+          <img src="${imgUrl}" alt="Banner ${index + 1}" class="w-full h-full object-cover object-center transition-transform duration-500 hover:scale-105" />
         </a>
       `;
 
@@ -2969,6 +2979,7 @@ function salinLinkAgenda(url) {
     initBanner();
   }
 })();
+
   </script>
 </body>
 </html>
