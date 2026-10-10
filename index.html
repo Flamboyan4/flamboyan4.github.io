@@ -2833,8 +2833,8 @@ function salinLinkAgenda(url) {
       renderCalendar();
     }
 
-    // ==========================================
-// BANNER SLIDER SCRIPT (ISOLATED & ADJUSTED)
+   // ==========================================
+// BANNER SLIDER SCRIPT (DIRECT DRIVE FIX)
 // ==========================================
 (function() {
   const CSV_BANNER_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=780113187&single=true&output=csv";
@@ -2845,13 +2845,15 @@ function salinLinkAgenda(url) {
   let touchStartX = 0;
   let touchEndX = 0;
 
-  // Ubah link Google Drive biasa menjadi Direct Image Link
+  // Konversi otomatis link Google Drive biasa menjadi Direct Image URL yang tidak diblokir browser
   function formatImageUrl(rawUrl) {
     if (!rawUrl) return '';
     let url = rawUrl.trim();
-    if (url.includes('drive.google.com/file/d/')) {
-      const fileId = url.split('/file/d/')[1].split('/')[0];
-      return `https://drive.google.com/uc?export=view&id=${fileId}`;
+    if (url.includes('drive.google.com')) {
+      const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if (match && match[1]) {
+        return `https://lh3.googleusercontent.com/d/${match[1]}`;
+      }
     }
     return url;
   }
@@ -2865,8 +2867,8 @@ function salinLinkAgenda(url) {
       complete: function(results) {
         if (results && results.data) {
           bannerData = results.data.filter(row => {
-            // Kolom B (Link Foto) harus terisi
-            const photoUrl = row['Link Foto / Drive'] || row['Link Foto'] || Object.values(row)[1];
+            const values = Object.values(row);
+            const photoUrl = values[1] || values[0];
             return photoUrl && photoUrl.toString().trim() !== '';
           });
 
@@ -2889,15 +2891,15 @@ function salinLinkAgenda(url) {
     let dotsHTML = '';
 
     bannerData.forEach((item, index) => {
-      // Pembacaan kolom presisi sesuai struktur Google Sheets Anda
-      const rawImgUrl = item['Link Foto / Drive'] || item['Link Foto'] || Object.values(item)[1] || '';
-      const linkTarget = item['Link Tujuan (Target)'] || item['Link Tujuan'] || Object.values(item)[2] || '#';
+      const values = Object.values(item);
+      const rawImgUrl = values[1] || ''; // Kolom B: Link Foto
+      const linkTarget = values[2] || '#'; // Kolom C: Link Tujuan
 
       const imgUrl = formatImageUrl(rawImgUrl);
 
       trackHTML += `
         <a href="${linkTarget}" class="w-full h-full flex-shrink-0 relative block overflow-hidden">
-          <img src="${imgUrl}" alt="Banner ${index + 1}" class="w-full h-full object-cover object-center transition-transform duration-500 hover:scale-105" />
+          <img src="${imgUrl}" alt="" class="w-full h-full object-cover object-center transition-transform duration-500 hover:scale-105" />
         </a>
       `;
 
