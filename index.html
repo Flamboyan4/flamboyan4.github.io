@@ -1267,36 +1267,64 @@ let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
     function openModalDokumentasi() { openModal('modal-dokumentasi'); }
     function openModalSaran() { openModal('modal-saran'); }
 
-    function openModalEventDetail(dateStr, eventItems) {
-      document.getElementById('modal-event-date').innerText = `Kegiatan: ${dateStr}`;
-      let html = '';
-      eventItems.forEach(item => {
-        const isGorol = item.isGorol;
-        const isArisan = item.isArisan;
-        
-        let badgeBg = 'bg-indigo-50 text-indigo-900 border-indigo-100';
-        let typeLabel = '📌 KEGIATAN WARGA';
+    function openModalEventDetail(dateStr, eventItems, dateIso) {
+  document.getElementById('modal-event-date').innerText = `Kegiatan: ${dateStr}`;
+  
+  // Buat URL Unik berdasarkan tanggal kegiatan
+  const shareUrl = dateIso ? `${window.location.origin}${window.location.pathname}#event=${dateIso}` : window.location.href;
 
-        if (isGorol) {
-          badgeBg = 'bg-amber-100 text-amber-900 border-amber-200';
-          typeLabel = '🧹 GOROL / KERJA BAKTI';
-        } else if (isArisan) {
-          badgeBg = 'bg-indigo-100 text-indigo-900 border-indigo-200';
-          typeLabel = '🏠 ARISAN WARGA';
-        }
-        
-        html += `
-          <div class="p-3 rounded-xl border ${badgeBg} space-y-1">
-            <span class="font-extrabold text-[10px] uppercase tracking-wider block">${typeLabel}</span>
-            <h5 class="font-bold text-sm text-slate-800">${item.judul}</h5>
-            <p class="text-slate-600 text-xs">${item.deskripsi || 'Tidak ada catatan tambahan.'}</p>
-            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-white border border-slate-200 mt-1">${item.status}</span>
-          </div>
-        `;
-      });
-      document.getElementById('modal-event-body').innerHTML = html;
-      openModal('modal-event-detail');
+  let html = `
+    <div class="mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
+      <span class="text-[11px] text-slate-500">Bagikan agenda ini ke warga:</span>
+      <button onclick="salinLinkAgenda('${shareUrl}')" id="btn-copy-agenda" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-3 py-1.5 rounded-lg text-xs transition flex items-center space-x-1.5 shadow-sm active:scale-95">
+        <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+        <span id="text-copy-agenda">Salin Link Agenda</span>
+      </button>
+    </div>
+  `;
+
+  eventItems.forEach(item => {
+    const isGorol = item.isGorol;
+    const isArisan = item.isArisan;
+    
+    let badgeBg = 'bg-indigo-50 text-indigo-900 border-indigo-100';
+    let typeLabel = '📌 KEGIATAN WARGA';
+
+    if (isGorol) {
+      badgeBg = 'bg-amber-100 text-amber-900 border-amber-200';
+      typeLabel = '🧹 GOROL / KERJA BAKTI';
+    } else if (isArisan) {
+      badgeBg = 'bg-indigo-100 text-indigo-900 border-indigo-200';
+      typeLabel = '🏠 ARISAN WARGA';
     }
+    
+    html += `
+      <div class="p-3 rounded-xl border ${badgeBg} space-y-1 mb-2">
+        <span class="font-extrabold text-[10px] uppercase tracking-wider block">${typeLabel}</span>
+        <h5 class="font-bold text-sm text-slate-800">${item.judul}</h5>
+        <p class="text-slate-600 text-xs">${item.deskripsi || 'Tidak ada catatan tambahan.'}</p>
+        <span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-white border border-slate-200 mt-1">${item.status}</span>
+      </div>
+    `;
+  });
+
+  document.getElementById('modal-event-body').innerHTML = html;
+  openModal('modal-event-detail');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+// Fungsi Pembantu Salin Link Agenda
+function salinLinkAgenda(url) {
+  navigator.clipboard.writeText(url).then(() => {
+    const txt = document.getElementById('text-copy-agenda');
+    if (txt) {
+      txt.innerText = 'Link Tersalin!';
+      setTimeout(() => { txt.innerText = 'Salin Link Agenda'; }, 2000);
+    }
+  }).catch(() => {
+    alert("Link agenda: " + url);
+  });
+}
 
     async function fetchFolderFiles(folderId) {
       if (!FOLDER_API_URL || !FOLDER_API_URL.startsWith('http')) return [];
@@ -2585,8 +2613,8 @@ let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
         }
 
         const safeDateStr = `${day} ${monthNames[month]} ${year}`;
-        const clickAttr = hasEvent ? `onclick='openModalEventDetail("${safeDateStr}", ${JSON.stringify(dayEvents).replace(/'/g, "&apos;")})'` : '';
-
+       const clickAttr = hasEvent ? `onclick='openModalEventDetail("${safeDateStr}", ${JSON.stringify(dayEvents).replace(/'/g, "&apos;")}, "${dateKey}")'` : '';
+        
         let badgeLabel = '📌 Acara';
         if (isArisan) badgeLabel = '🏠 Arisan';
         else if (isGorol) badgeLabel = '🧹 Gorol';
@@ -2753,6 +2781,23 @@ let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
 
           document.getElementById('container-rencana').innerHTML = rencanaHTML || '<p class="text-slate-400 text-xs">Belum ada rencana kegiatan.</p>';
           renderCalendar();
+
+          // Cek jika halaman dibuka dari link bagikan agenda (contoh: #event=2026-10-11)
+          if (window.location.hash && window.location.hash.includes('#event=')) {
+            const targetDateIso = window.location.hash.replace('#event=', '').trim();
+            const matchingEvents = globalRencanaData.filter(item => item.parsedDate === targetDateIso);
+            
+            if (matchingEvents.length > 0) {
+              const [year, month, day] = targetDateIso.split('-');
+              const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+              const safeDateStr = `${parseInt(day)} ${monthNames[parseInt(month) - 1]} ${year}`;
+              
+              document.getElementById('rencana')?.scrollIntoView({ behavior: 'smooth' });
+              setTimeout(() => {
+                openModalEventDetail(safeDateStr, matchingEvents, targetDateIso);
+              }, 600);
+            }
+          }
         }
       });
     } else {
