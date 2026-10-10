@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Notulensi Rapat | Flamboyan 4</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -36,15 +36,7 @@
       background: #94a3b8;
     }
 
-    /* Container Khusus Penampil PDF Perfect Native View */
-    .pdf-viewer-container {
-      width: 100%;
-      height: 76vh;
-      border: 0;
-      border-radius: 0.75rem;
-      background-color: #0f172a;
-    }
-
+   
     /* TYPOGRAPHY ARTIKEL NOTULENSI (MEN penyesuaian LOKAL UNTUK ISU GOOGLE DOCS) */
     .doc-article-wrapper {
       color: #334155;
@@ -152,18 +144,25 @@
   </main>
 
   <!-- MODAL POPUP NOTULENSI LENGKAP -->
-  <div id="modal-doc-rapat" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-5" onclick="closeModalDocRapat()">
-    <div class="bg-white w-full max-w-4xl max-h-[94vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
+  <div id="modal-doc-rapat" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex flex-col items-center justify-center p-2 sm:p-4" onclick="closeModalDocRapat()">
+    <div class="bg-white w-full max-w-4xl h-[92vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden mx-auto" onclick="event.stopPropagation()">
       
       <!-- Modal Header -->
-      <div class="p-3.5 sm:p-4 border-b border-slate-100 flex items-start justify-between bg-slate-50 shrink-0">
-        <div class="space-y-0.5 pr-4">
-          <span id="modal-rapat-tgl" class="text-[11px] font-bold text-indigo-600 uppercase tracking-wider block">-</span>
-          <h3 id="modal-rapat-judul" class="text-sm sm:text-base md:text-lg font-bold text-slate-900 leading-snug">Detail Notulensi Rapat</h3>
+      <div class="p-3.5 border-b border-slate-200 bg-slate-50 flex items-center justify-between shrink-0">
+        <div class="space-y-0.5 pr-2 overflow-hidden">
+          <span id="modal-rapat-tgl" class="text-[11px] font-bold text-indigo-600 uppercase tracking-wider block">Detail Rapat</span>
+          <h3 id="modal-rapat-judul" class="text-xs sm:text-sm md:text-base font-bold text-slate-900 leading-snug truncate">Detail Notulensi Rapat</h3>
         </div>
-        <button onclick="closeModalDocRapat()" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition shrink-0">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        
+        <div class="flex items-center space-x-2 shrink-0">
+          <a id="btn-open-doc-external" href="#" target="_blank" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold px-2.5 py-1.5 rounded-lg text-xs transition flex items-center space-x-1 border border-indigo-200">
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline">Buka Fullscreen</span>
+          </a>
+          <button onclick="closeModalDocRapat()" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition shrink-0">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
       </div>
 
       <!-- Action Bar Modal -->
@@ -172,16 +171,14 @@
           <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
           <span id="text-copy-modal-link">Bagikan / Salin Link</span>
         </button>
-        <a id="btn-open-doc-external" href="#" target="_blank" class="text-emerald-300 hover:underline flex items-center space-x-1 text-[11px]">
-          <span>Buka / Unduh File Asli</span>
-          <i data-lucide="external-link" class="w-3 h-3"></i>
-        </a>
+        <span class="text-[11px] text-indigo-300 hidden sm:inline">Flamboyan 4 Document Viewer</span>
       </div>
 
-      <!-- Modal Body (Bisa Nampil PDF Native atau Artikel Doc Rapi) -->
-      <div id="modal-rapat-body" class="p-4 sm:p-6 overflow-y-auto flex-grow custom-scroll doc-article-wrapper">
+      <!-- Modal Body (Viewer PDF Presisi di Tengah) -->
+      <div id="modal-rapat-body" class="flex-grow w-full h-full bg-slate-900 relative overflow-hidden flex items-center justify-center">
         <p class="text-slate-400 text-xs text-center py-10">Memuat dokumen notulensi...</p>
       </div>
+
     </div>
   </div>
 
@@ -290,9 +287,9 @@
       // JIKA LINK PDF GOOGLE DRIVE
       else if (driveFileId) {
         const embedPdfUrl = `https://drive.google.com/file/d/${driveFileId}/preview`;
-        document.getElementById('modal-rapat-body').innerHTML = `
-          <iframe src="${embedPdfUrl}" class="pdf-viewer-container" allow="autoplay"></iframe>
-        `;
+       document.getElementById('modal-rapat-body').innerHTML = `
+  <iframe src="${embedPdfUrl}" class="w-full h-full border-0 block mx-auto my-0" allow="autoplay"></iframe>
+`;
       } 
       else {
         document.getElementById('modal-rapat-body').innerHTML = `
