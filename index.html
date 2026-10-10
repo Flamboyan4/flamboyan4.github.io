@@ -1987,151 +1987,6 @@ function salinLinkAgenda(url) {
       updatePengeluaranCardView();
     }
     
-// URL CSV Banner
-const CSV_BANNER_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=780113187&single=true&output=csv";
-
-let bannerData = [];
-let currentBannerIndex = 0;
-let bannerInterval = null;
-let touchStartX = 0;
-let touchEndX = 0;
-
-// 1. Fetch Data Banner dari CSV Google Sheets
-if (typeof Papa !== 'undefined' && CSV_BANNER_URL) {
-  Papa.parse(CSV_BANNER_URL, {
-    download: true,
-    header: true,
-    complete: function(results) {
-      if (results.data && results.data.length > 0) {
-        // Filter baris yang punya URL Gambar valid
-        bannerData = results.data.filter(row => {
-          const keys = Object.keys(row);
-          return row[keys[0]] && row[keys[0]].trim() !== '';
-        });
-
-        if (bannerData.length > 0) {
-          renderBannerSlider();
-          startAutoSlide();
-          setupBannerGestures();
-        }
-      }
-    }
-  });
-}
-
-// 2. Render Slider & Dots
-function renderBannerSlider() {
-  const track = document.getElementById('banner-track');
-  const dotsContainer = document.getElementById('banner-dots');
-  if (!track) return;
-
-  let trackHTML = '';
-  let dotsHTML = '';
-
-  bannerData.forEach((item, index) => {
-    const keys = Object.keys(item);
-    const imgUrl = item[keys[0]] || '';
-    const title = item[keys[1]] || '';
-    const linkTarget = item[keys[2]] || '#';
-
-    trackHTML += `
-      <a href="${linkTarget}" class="w-full h-full flex-shrink-0 relative block overflow-hidden group/item">
-        <img src="${imgUrl}" alt="${title}" class="w-full h-full object-cover object-center transition-transform duration-500 group-hover/item:scale-105" />
-        ${title ? `<div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent p-3 sm:p-4 text-white">
-          <p class="text-xs sm:text-sm md:text-base font-semibold truncate">${title}</p>
-        </div>` : ''}
-      </a>
-    `;
-
-    dotsHTML += `
-      <button onclick="goToBanner(${index})" class="banner-dot w-2 h-2 sm:w-2.5 sm:2.5 rounded-full bg-white/50 transition-all ${index === 0 ? 'bg-white w-5 sm:w-6' : ''}"></button>
-    `;
-  });
-
-  track.innerHTML = trackHTML;
-  dotsContainer.innerHTML = dotsHTML;
-  updateBannerPosition();
-}
-
-// 3. Navigasi Slider
-function updateBannerPosition() {
-  const track = document.getElementById('banner-track');
-  if (!track) return;
-
-  track.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
-
-  // Update Tampilan Dots
-  const dots = document.querySelectorAll('.banner-dot');
-  dots.forEach((dot, idx) => {
-    if (idx === currentBannerIndex) {
-      dot.className = 'banner-dot h-2 sm:h-2.5 rounded-full bg-white w-5 sm:w-6 transition-all';
-    } else {
-      dot.className = 'banner-dot w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-white/50 transition-all';
-    }
-  });
-}
-
-function moveBanner(direction) {
-  if (bannerData.length === 0) return;
-  currentBannerIndex = (currentBannerIndex + direction + bannerData.length) % bannerData.length;
-  updateBannerPosition();
-  resetAutoSlide();
-}
-
-function goToBanner(index) {
-  currentBannerIndex = index;
-  updateBannerPosition();
-  resetAutoSlide();
-}
-
-// 4. Auto Slide (4-5 Detik)
-function startAutoSlide() {
-  if (bannerInterval) clearInterval(bannerInterval);
-  bannerInterval = setInterval(() => {
-    moveBanner(1);
-  }, 4500);
-}
-
-function resetAutoSlide() {
-  startAutoSlide();
-}
-
-// 5. Gestur Swiping HP & Navigasi Panah Keyboard PC
-function setupBannerGestures() {
-  const container = document.getElementById('banner-slider-container');
-  if (!container) return;
-
-  // Gestur Layar Sentuh HP
-  container.addEventListener('touchstart', (e) => {
-    touchStartX = e.changedTouches[0].screenX;
-  }, { passive: true });
-
-  container.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    handleSwipe();
-  }, { passive: true });
-
-  function handleSwipe() {
-    const swipeThreshold = 40;
-    if (touchEndX < touchStartX - swipeThreshold) {
-      moveBanner(1); // Geser Kiri -> Banner Selanjutnya
-    } else if (touchEndX > touchStartX + swipeThreshold) {
-      moveBanner(-1); // Geser Kanan -> Banner Sebelumnya
-    }
-  }
-
-  // Navigasi Keyboard PC (Panah Kiri / Panah Kanan)
-  document.addEventListener('keydown', (e) => {
-    // Jalankan navigasi hanya jika slider terlihat
-    const rect = container.getBoundingClientRect();
-    const isVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
-
-    if (isVisible) {
-      if (e.key === 'ArrowLeft') moveBanner(-1);
-      if (e.key === 'ArrowRight') moveBanner(1);
-    }
-  });
-}
     // PROSES PERHITUNGAN KEUANGAN
     if (CSV_KEUANGAN_URL && CSV_KEUANGAN_URL.startsWith('http')) {
       Papa.parse(CSV_KEUANGAN_URL, {
@@ -2676,7 +2531,151 @@ function setupBannerGestures() {
         }
       });
     }
+// URL CSV Banner
+const CSV_BANNER_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=780113187&single=true&output=csv";
 
+let bannerData = [];
+let currentBannerIndex = 0;
+let bannerInterval = null;
+let touchStartX = 0;
+let touchEndX = 0;
+
+// 1. Fetch Data Banner dari CSV Google Sheets
+if (typeof Papa !== 'undefined' && CSV_BANNER_URL) {
+  Papa.parse(CSV_BANNER_URL, {
+    download: true,
+    header: true,
+    complete: function(results) {
+      if (results.data && results.data.length > 0) {
+        // Filter baris yang punya URL Gambar valid
+        bannerData = results.data.filter(row => {
+          const keys = Object.keys(row);
+          return row[keys[0]] && row[keys[0]].trim() !== '';
+        });
+
+        if (bannerData.length > 0) {
+          renderBannerSlider();
+          startAutoSlide();
+          setupBannerGestures();
+        }
+      }
+    }
+  });
+}
+
+// 2. Render Slider & Dots
+function renderBannerSlider() {
+  const track = document.getElementById('banner-track');
+  const dotsContainer = document.getElementById('banner-dots');
+  if (!track) return;
+
+  let trackHTML = '';
+  let dotsHTML = '';
+
+  bannerData.forEach((item, index) => {
+    const keys = Object.keys(item);
+    const imgUrl = item[keys[0]] || '';
+    const title = item[keys[1]] || '';
+    const linkTarget = item[keys[2]] || '#';
+
+    trackHTML += `
+      <a href="${linkTarget}" class="w-full h-full flex-shrink-0 relative block overflow-hidden group/item">
+        <img src="${imgUrl}" alt="${title}" class="w-full h-full object-cover object-center transition-transform duration-500 group-hover/item:scale-105" />
+        ${title ? `<div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent p-3 sm:p-4 text-white">
+          <p class="text-xs sm:text-sm md:text-base font-semibold truncate">${title}</p>
+        </div>` : ''}
+      </a>
+    `;
+
+    dotsHTML += `
+      <button onclick="goToBanner(${index})" class="banner-dot w-2 h-2 sm:w-2.5 sm:2.5 rounded-full bg-white/50 transition-all ${index === 0 ? 'bg-white w-5 sm:w-6' : ''}"></button>
+    `;
+  });
+
+  track.innerHTML = trackHTML;
+  dotsContainer.innerHTML = dotsHTML;
+  updateBannerPosition();
+}
+
+// 3. Navigasi Slider
+function updateBannerPosition() {
+  const track = document.getElementById('banner-track');
+  if (!track) return;
+
+  track.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
+
+  // Update Tampilan Dots
+  const dots = document.querySelectorAll('.banner-dot');
+  dots.forEach((dot, idx) => {
+    if (idx === currentBannerIndex) {
+      dot.className = 'banner-dot h-2 sm:h-2.5 rounded-full bg-white w-5 sm:w-6 transition-all';
+    } else {
+      dot.className = 'banner-dot w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-white/50 transition-all';
+    }
+  });
+}
+
+function moveBanner(direction) {
+  if (bannerData.length === 0) return;
+  currentBannerIndex = (currentBannerIndex + direction + bannerData.length) % bannerData.length;
+  updateBannerPosition();
+  resetAutoSlide();
+}
+
+function goToBanner(index) {
+  currentBannerIndex = index;
+  updateBannerPosition();
+  resetAutoSlide();
+}
+
+// 4. Auto Slide (4-5 Detik)
+function startAutoSlide() {
+  if (bannerInterval) clearInterval(bannerInterval);
+  bannerInterval = setInterval(() => {
+    moveBanner(1);
+  }, 4500);
+}
+
+function resetAutoSlide() {
+  startAutoSlide();
+}
+
+// 5. Gestur Swiping HP & Navigasi Panah Keyboard PC
+function setupBannerGestures() {
+  const container = document.getElementById('banner-slider-container');
+  if (!container) return;
+
+  // Gestur Layar Sentuh HP
+  container.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  container.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  }, { passive: true });
+
+  function handleSwipe() {
+    const swipeThreshold = 40;
+    if (touchEndX < touchStartX - swipeThreshold) {
+      moveBanner(1); // Geser Kiri -> Banner Selanjutnya
+    } else if (touchEndX > touchStartX + swipeThreshold) {
+      moveBanner(-1); // Geser Kanan -> Banner Sebelumnya
+    }
+  }
+
+  // Navigasi Keyboard PC (Panah Kiri / Panah Kanan)
+  document.addEventListener('keydown', (e) => {
+    // Jalankan navigasi hanya jika slider terlihat
+    const rect = container.getBoundingClientRect();
+    const isVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
+
+    if (isVisible) {
+      if (e.key === 'ArrowLeft') moveBanner(-1);
+      if (e.key === 'ArrowRight') moveBanner(1);
+    }
+  });
+}
     // FUNGSI RENDER KALENDER TERBARU
     function renderCalendar() {
       const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
