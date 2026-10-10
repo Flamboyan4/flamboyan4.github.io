@@ -113,30 +113,7 @@
 
   <!-- Main Content -->
   <main class="max-w-6xl mx-auto px-4 py-8 flex-grow space-y-12 w-full relative">
-    <!-- BANNER SLIDER DYNAMIK -->
-<section class="max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-2">
-  <div id="banner-slider-container" class="relative w-full rounded-2xl overflow-hidden shadow-lg bg-slate-100 group aspect-[3/1] sm:aspect-[3.5/1] md:aspect-[4/1]">
-    
-    <!-- Track Gambar Slider -->
-    <div id="banner-track" class="flex w-full h-full transition-transform duration-500 ease-out cursor-grab active:cursor-grabbing">
-      <!-- Item banner akan diisi secara otomatis dari CSV -->
-      <div class="w-full h-full flex items-center justify-center text-slate-400 text-xs sm:text-sm">
-        <i data-lucide="loader-2" class="w-5 h-5 animate-spin mr-2"></i> Memuat banner...
-      </div>
-    </div>
 
-    <!-- Tombol Navigasi Kiri / Kanan -->
-    <button id="btn-banner-prev" onclick="moveBanner(-1)" class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 bg-slate-900/40 hover:bg-slate-900/70 text-white p-2 rounded-full backdrop-blur-sm transition opacity-0 group-hover:opacity-100 focus:opacity-100 z-10">
-      <i data-lucide="chevron-left" class="w-4 h-4 sm:w-6 sm:h-6"></i>
-    </button>
-    <button id="btn-banner-next" onclick="moveBanner(1)" class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 bg-slate-900/40 hover:bg-slate-900/70 text-white p-2 rounded-full backdrop-blur-sm transition opacity-0 group-hover:opacity-100 focus:opacity-100 z-10">
-      <i data-lucide="chevron-right" class="w-4 h-4 sm:w-6 sm:h-6"></i>
-    </button>
-
-    <!-- Indikator Dots -->
-    <div id="banner-dots" class="absolute bottom-2 sm:bottom-3 left-1/2 -translate-x-1/2 flex space-x-1.5 sm:space-x-2 z-10"></div>
-  </div>
-</section>
     <!-- SECTION 1: LAPORAN KEUANGAN -->
     <section id="keuangan" class="scroll-mt-20 w-full">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
@@ -1986,7 +1963,7 @@ function salinLinkAgenda(url) {
       if (currentPengeluaranMonthIndex >= monthlyKeuanganList.length) currentPengeluaranMonthIndex = monthlyKeuanganList.length - 1;
       updatePengeluaranCardView();
     }
-    
+
     // PROSES PERHITUNGAN KEUANGAN
     if (CSV_KEUANGAN_URL && CSV_KEUANGAN_URL.startsWith('http')) {
       Papa.parse(CSV_KEUANGAN_URL, {
@@ -2831,142 +2808,6 @@ function salinLinkAgenda(url) {
     } else {
       renderCalendar();
     }
-    // 1. Deklarasi URL dan Variabel Banner
-const CSV_BANNER_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=780113187&single=true&output=csv";
-
-let bannerData = [];
-let currentBannerIndex = 0;
-let bannerInterval = null;
-let touchStartX = 0;
-let touchEndX = 0;
-
-// 2. Fungsi Load Banner CSV (Aman dari Bentrok)
-function loadBannerData() {
-  if (typeof Papa === 'undefined' || !CSV_BANNER_URL) return;
-
-  Papa.parse(CSV_BANNER_URL, {
-    download: true,
-    header: true,
-    complete: function(results) {
-      if (results && results.data && results.data.length > 0) {
-        bannerData = results.data.filter(row => {
-          const keys = Object.keys(row);
-          return row[keys[0]] && row[keys[0]].toString().trim() !== '';
-        });
-
-        if (bannerData.length > 0) {
-          renderBannerSlider();
-          startAutoSlide();
-          setupBannerGestures();
-        }
-      }
-    },
-    error: function(err) {
-      console.log("Banner CSV load skipped or error:", err);
-    }
-  });
-}
-
-// 3. Render Slider
-function renderBannerSlider() {
-  const track = document.getElementById('banner-track');
-  const dotsContainer = document.getElementById('banner-dots');
-  if (!track) return;
-
-  let trackHTML = '';
-  let dotsHTML = '';
-
-  bannerData.forEach((item, index) => {
-    const keys = Object.keys(item);
-    const imgUrl = item[keys[0]] || '';
-    const title = item[keys[1]] || '';
-    const linkTarget = item[keys[2]] || '#';
-
-    trackHTML += `
-      <a href="${linkTarget}" class="w-full h-full flex-shrink-0 relative block overflow-hidden group/item">
-        <img src="${imgUrl}" alt="${title}" class="w-full h-full object-cover object-center transition-transform duration-500 group-hover/item:scale-105" />
-        ${title ? `<div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent p-3 sm:p-4 text-white">
-          <p class="text-xs sm:text-sm md:text-base font-semibold truncate">${title}</p>
-        </div>` : ''}
-      </a>
-    `;
-
-    dotsHTML += `
-      <button onclick="goToBanner(${index})" class="banner-dot w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-white/50 transition-all ${index === 0 ? 'bg-white w-5 sm:w-6' : ''}"></button>
-    `;
-  });
-
-  track.innerHTML = trackHTML;
-  if (dotsContainer) dotsContainer.innerHTML = dotsHTML;
-  updateBannerPosition();
-}
-
-function updateBannerPosition() {
-  const track = document.getElementById('banner-track');
-  if (!track) return;
-
-  track.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
-
-  const dots = document.querySelectorAll('.banner-dot');
-  dots.forEach((dot, idx) => {
-    if (idx === currentBannerIndex) {
-      dot.className = 'banner-dot h-2 sm:h-2.5 rounded-full bg-white w-5 sm:w-6 transition-all';
-    } else {
-      dot.className = 'banner-dot w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-white/50 transition-all';
-    }
-  });
-}
-
-function moveBanner(direction) {
-  if (bannerData.length === 0) return;
-  currentBannerIndex = (currentBannerIndex + direction + bannerData.length) % bannerData.length;
-  updateBannerPosition();
-  resetAutoSlide();
-}
-
-function goToBanner(index) {
-  currentBannerIndex = index;
-  updateBannerPosition();
-  resetAutoSlide();
-}
-
-function startAutoSlide() {
-  if (bannerInterval) clearInterval(bannerInterval);
-  bannerInterval = setInterval(() => { moveBanner(1); }, 4500);
-}
-
-function resetAutoSlide() {
-  startAutoSlide();
-}
-
-function setupBannerGestures() {
-  const container = document.getElementById('banner-slider-container');
-  if (!container) return;
-
-  container.addEventListener('touchstart', (e) => {
-    touchStartX = e.changedTouches[0].screenX;
-  }, { passive: true });
-
-  container.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    const swipeThreshold = 40;
-    if (touchEndX < touchStartX - swipeThreshold) moveBanner(1);
-    else if (touchEndX > touchStartX + swipeThreshold) moveBanner(-1);
-  }, { passive: true });
-
-  document.addEventListener('keydown', (e) => {
-    const rect = container.getBoundingClientRect();
-    if (rect.top >= 0 && rect.bottom <= window.innerHeight) {
-      if (e.key === 'ArrowLeft') moveBanner(-1);
-      if (e.key === 'ArrowRight') moveBanner(1);
-    }
-  });
-}
-
-// 4. Panggil pemuatan banner saat dokumen selesai dimuat
-document.addEventListener('DOMContentLoaded', () => {
-  loadBannerData();
-});
   </script>
 </body>
 </html>
