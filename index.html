@@ -5,6 +5,837 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Flamboyan 4 | Portal Informasi Warga Lorong</title>
   
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.1/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+  <style>
+    body { user-select: none; }
+    html { scroll-behavior: smooth; }
+    .touch-pan-y { touch-action: pan-y; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .custom-scroll::-webkit-scrollbar { width: 5px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full" oncontextmenu="return false;" onkeydown="return disableInspect(event)">
+
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-indigo-950 via-indigo-900 to-indigo-950 text-white border-b border-indigo-800/40 sticky top-0 z-40 w-full shadow-md">
+    <div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between relative">
+      <a href="#" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 transition group shrink-0">
+        <i data-lucide="home" class="w-5 h-5 text-indigo-200"></i>
+      </a>
+      <div class="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none w-full max-w-xs sm:max-w-xl px-2">
+        <h1 class="text-xs sm:text-base md:text-lg font-bold tracking-wide text-white whitespace-nowrap overflow-hidden text-ellipsis">
+          Flamboyan 4 <span class="hidden sm:inline font-normal text-indigo-200/80 text-xs sm:text-sm">| RT 001 RW 026 Pesona Kahuripan 2</span>
+        </h1>
+      </div>
+      <div class="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
+        <a href="rapat.html" class="p-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 transition text-xs font-semibold text-amber-200 flex items-center space-x-1.5">
+          <i data-lucide="file-text" class="w-4 h-4 text-amber-300"></i>
+          <span class="hidden sm:inline">Hasil Rapat</span>
+        </a>
+        <a href="cctv.html" class="p-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 border border-indigo-400/40 transition text-xs font-semibold text-white flex items-center space-x-1.5">
+          <i data-lucide="video" class="w-4 h-4 text-emerald-300"></i>
+          <span class="hidden sm:inline">Live CCTV</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative bg-gradient-to-br from-indigo-950 via-indigo-900 to-violet-900 text-white py-10 md:py-14 px-4 text-center border-b border-indigo-800/40 overflow-hidden">
+    <div class="max-w-4xl mx-auto space-y-5 relative z-10">
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
+        Transparansi & Kebersamaan <br>
+        <span class="bg-gradient-to-r from-amber-200 via-yellow-100 to-white bg-clip-text text-transparent">Warga Flamboyan 4</span>
+      </h2>
+
+      <!-- Navigasi Cepat -->
+      <div class="pt-2 flex flex-wrap justify-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-medium">
+        <a href="#keuangan" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2 rounded-xl transition flex items-center space-x-2">
+          <i data-lucide="wallet" class="w-4 h-4 text-emerald-400"></i>
+          <span>Kas Warga</span>
+        </a>
+        <a href="#arisan" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2 rounded-xl transition flex items-center space-x-2">
+          <i data-lucide="calendar" class="w-4 h-4 text-amber-300"></i>
+          <span>Jadwal Arisan</span>
+        </a>
+        <a href="#projek" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2 rounded-xl transition flex items-center space-x-2">
+          <i data-lucide="folder-kanban" class="w-4 h-4 text-sky-300"></i>
+          <span>Projek Warga</span>
+        </a>
+        <a href="#rencana" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2 rounded-xl transition flex items-center space-x-2">
+          <i data-lucide="calendar-check" class="w-4 h-4 text-indigo-300"></i>
+          <span>Kalender Kegiatan</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 py-8 flex-grow space-y-12 w-full">
+
+    <!-- BANNER SLIDER DYNAMIC -->
+    <section id="banner-slider-section" class="w-full relative">
+      <div id="banner-slider-container" class="relative bg-slate-900 rounded-2xl overflow-hidden shadow-md border border-slate-200">
+        <div id="banner-slides-track" class="flex transition-transform duration-500 ease-out w-full cursor-pointer touch-pan-y">
+          <div class="w-full shrink-0 h-40 sm:h-56 md:h-72 bg-slate-800 flex items-center justify-center text-slate-400 text-xs sm:text-sm">
+            Memuat banner...
+          </div>
+        </div>
+
+        <button onclick="prevBannerSlide(event)" class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white p-2 rounded-full backdrop-blur-sm z-10" title="Banner Sebelumnya">
+          <i data-lucide="chevron-left" class="w-5 h-5"></i>
+        </button>
+        <button onclick="nextBannerSlide(event)" class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white p-2 rounded-full backdrop-blur-sm z-10" title="Banner Selanjutnya">
+          <i data-lucide="chevron-right" class="w-5 h-5"></i>
+        </button>
+
+        <div id="banner-dots-container" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center space-x-2 z-10"></div>
+      </div>
+    </section>
+
+    <!-- SECTION 1: LAPORAN KEUANGAN -->
+    <section id="keuangan" class="scroll-mt-20 w-full">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="wallet" class="w-6 h-6 text-indigo-600 shrink-0"></i>
+          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Laporan Keuangan Kas</h3>
+        </div>
+        <span id="label-update-kas" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full whitespace-nowrap">Update Rincian Kas</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 w-full items-center">
+        <!-- Pemasukan Card -->
+        <div id="card-pemasukan" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between mb-2">
+            <span id="label-pemasukan-bulan" class="text-xs font-semibold text-slate-500">Pemasukan Bulan Ini</span>
+            <div class="flex items-center space-x-1">
+              <button onclick="changeMonthPemasukan(-1)" class="p-1 hover:bg-slate-100 rounded text-slate-500"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+              <button onclick="changeMonthPemasukan(1)" class="p-1 hover:bg-slate-100 rounded text-slate-500"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+            </div>
+          </div>
+          <p id="pemasukan-bulan-ini" class="text-xl md:text-2xl font-bold text-emerald-600 cursor-pointer" onclick="openModalKeuanganFiltered('pemasukan')">Rp 0</p>
+          <div class="mt-4 pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
+            <span class="text-slate-400">Total Kumulatif:</span>
+            <span id="total-pemasukan-all" class="font-bold text-slate-700">Rp 0</span>
+          </div>
+        </div>
+
+        <!-- Pengeluaran Card -->
+        <div id="card-pengeluaran" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between mb-2">
+            <span id="label-pengeluaran-bulan" class="text-xs font-semibold text-slate-500">Pengeluaran Bulan Ini</span>
+            <div class="flex items-center space-x-1">
+              <button onclick="changeMonthPengeluaran(-1)" class="p-1 hover:bg-slate-100 rounded text-<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Flamboyan 4 | Portal Informasi Warga Lorong</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.1/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+  <style>
+    body { user-select: none; }
+    html { scroll-behavior: smooth; }
+    .touch-pan-y { touch-action: pan-y; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .custom-scroll::-webkit-scrollbar { width: 5px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full" oncontextmenu="return false;" onkeydown="return disableInspect(event)">
+
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-indigo-950 via-indigo-900 to-indigo-950 text-white border-b border-indigo-800/40 sticky top-0 z-40 w-full shadow-md">
+    <div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between relative">
+      <a href="#" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 transition group shrink-0">
+        <i data-lucide="home" class="w-5 h-5 text-indigo-200"></i>
+      </a>
+      <div class="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none w-full max-w-xs sm:max-w-xl px-2">
+        <h1 class="text-xs sm:text-base md:text-lg font-bold tracking-wide text-white whitespace-nowrap overflow-hidden text-ellipsis">
+          Flamboyan 4 <span class="hidden sm:inline font-normal text-indigo-200/80 text-xs sm:text-sm">| RT 001 RW 026 Pesona Kahuripan 2</span>
+        </h1>
+      </div>
+      <div class="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
+        <a href="rapat.html" class="p-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 transition text-xs font-semibold text-amber-200 flex items-center space-x-1.5">
+          <i data-lucide="file-text" class="w-4 h-4 text-amber-300"></i>
+          <span class="hidden sm:inline">Hasil Rapat</span>
+        </a>
+        <a href="cctv.html" class="p-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 border border-indigo-400/40 transition text-xs font-semibold text-white flex items-center space-x-1.5">
+          <i data-lucide="video" class="w-4 h-4 text-emerald-300"></i>
+          <span class="hidden sm:inline">Live CCTV</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative bg-gradient-to-br from-indigo-950 via-indigo-900 to-violet-900 text-white py-10 md:py-14 px-4 text-center border-b border-indigo-800/40 overflow-hidden">
+    <div class="max-w-4xl mx-auto space-y-5 relative z-10">
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
+        Transparansi & Kebersamaan <br>
+        <span class="bg-gradient-to-r from-amber-200 via-yellow-100 to-white bg-clip-text text-transparent">Warga Flamboyan 4</span>
+      </h2>
+
+      <!-- Navigasi Cepat -->
+      <div class="pt-2 flex flex-wrap justify-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-medium">
+        <a href="#keuangan" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2 rounded-xl transition flex items-center space-x-2">
+          <i data-lucide="wallet" class="w-4 h-4 text-emerald-400"></i>
+          <span>Kas Warga</span>
+        </a>
+        <a href="#arisan" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2 rounded-xl transition flex items-center space-x-2">
+          <i data-lucide="calendar" class="w-4 h-4 text-amber-300"></i>
+          <span>Jadwal Arisan</span>
+        </a>
+        <a href="#projek" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2 rounded-xl transition flex items-center space-x-2">
+          <i data-lucide="folder-kanban" class="w-4 h-4 text-sky-300"></i>
+          <span>Projek Warga</span>
+        </a>
+        <a href="#rencana" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2 rounded-xl transition flex items-center space-x-2">
+          <i data-lucide="calendar-check" class="w-4 h-4 text-indigo-300"></i>
+          <span>Kalender Kegiatan</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 py-8 flex-grow space-y-12 w-full">
+
+    <!-- BANNER SLIDER DYNAMIC -->
+    <section id="banner-slider-section" class="w-full relative">
+      <div id="banner-slider-container" class="relative bg-slate-900 rounded-2xl overflow-hidden shadow-md border border-slate-200">
+        <div id="banner-slides-track" class="flex transition-transform duration-500 ease-out w-full cursor-pointer touch-pan-y">
+          <div class="w-full shrink-0 h-40 sm:h-56 md:h-72 bg-slate-800 flex items-center justify-center text-slate-400 text-xs sm:text-sm">
+            Memuat banner...
+          </div>
+        </div>
+
+        <button onclick="prevBannerSlide(event)" class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white p-2 rounded-full backdrop-blur-sm z-10" title="Banner Sebelumnya">
+          <i data-lucide="chevron-left" class="w-5 h-5"></i>
+        </button>
+        <button onclick="nextBannerSlide(event)" class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white p-2 rounded-full backdrop-blur-sm z-10" title="Banner Selanjutnya">
+          <i data-lucide="chevron-right" class="w-5 h-5"></i>
+        </button>
+
+        <div id="banner-dots-container" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center space-x-2 z-10"></div>
+      </div>
+    </section>
+
+    <!-- SECTION 1: LAPORAN KEUANGAN -->
+    <section id="keuangan" class="scroll-mt-20 w-full">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="wallet" class="w-6 h-6 text-indigo-600 shrink-0"></i>
+          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Laporan Keuangan Kas</h3>
+        </div>
+        <span id="label-update-kas" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full whitespace-nowrap">Update Rincian Kas</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 w-full items-center">
+        <!-- Pemasukan Card -->
+        <div id="card-pemasukan" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between mb-2">
+            <span id="label-pemasukan-bulan" class="text-xs font-semibold text-slate-500">Pemasukan Bulan Ini</span>
+            <div class="flex items-center space-x-1">
+              <button onclick="changeMonthPemasukan(-1)" class="p-1 hover:bg-slate-100 rounded text-slate-500"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+              <button onclick="changeMonthPemasukan(1)" class="p-1 hover:bg-slate-100 rounded text-slate-500"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+            </div>
+          </div>
+          <p id="pemasukan-bulan-ini" class="text-xl md:text-2xl font-bold text-emerald-600 cursor-pointer" onclick="openModalKeuanganFiltered('pemasukan')">Rp 0</p>
+          <div class="mt-4 pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
+            <span class="text-slate-400">Total Kumulatif:</span>
+            <span id="total-pemasukan-all" class="font-bold text-slate-700">Rp 0</span>
+          </div>
+        </div>
+
+        <!-- Pengeluaran Card -->
+        <div id="card-pengeluaran" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between mb-2">
+            <span id="label-pengeluaran-bulan" class="text-xs font-semibold text-slate-500">Pengeluaran Bulan Ini</span>
+            <div class="flex items-center space-x-1">
+              <button onclick="changeMonthPengeluaran(-1)" class="p-1 hover:bg-slate-100 rounded text-slate-500"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+              <button onclick="changeMonthPengeluaran(1)" class="p-1 hover:bg-slate-100 rounded text-slate-500"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+            </div>
+          </div>
+          <p id="pengeluaran-bulan-ini" class="text-xl md:text-2xl font-bold text-rose-600 cursor-pointer" onclick="openModalKeuanganFiltered('pengeluaran')">Rp 0</p>
+          <div class="mt-4 pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
+            <span class="text-slate-400">Total Kumulatif:</span>
+            <span id="total-pengeluaran-all" class="font-bold text-slate-700">Rp 0</span>
+          </div>
+        </div>
+
+        <!-- Saldo Kas Utama -->
+        <div class="bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-950 p-6 rounded-2xl shadow-lg border-2 border-indigo-500/40 text-white">
+          <div class="flex items-center justify-between mb-1">
+            <p class="text-xs font-semibold text-indigo-200 uppercase tracking-wider">Sisa Saldo Kas Utama</p>
+            <span class="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-400/30">Aktif</span>
+          </div>
+          <p id="sisa-saldo" class="text-2xl md:text-3xl font-black mt-1">Rp 0</p>
+          <p class="text-xs text-indigo-200/80 mt-2 font-normal flex items-center space-x-1">
+            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>Saldo riil bersih siap pakai saat ini</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
+        <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+          <h4 class="font-semibold text-slate-700 text-sm md:text-base">Rincian Transaksi Kas</h4>
+          <span id="loading-status" class="text-xs text-slate-500">Memuat data...</span>
+        </div>
+        <div class="overflow-x-auto w-full">
+          <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[500px]">
+            <thead>
+              <tr class="border-b border-slate-200 bg-slate-100/60 text-slate-600">
+                <th class="p-3 w-1/4">Tanggal</th>
+                <th class="p-3 w-2/4">Keterangan</th>
+                <th class="p-3 w-1/6">Kategori</th>
+                <th class="p-3 text-right w-1/4">Jumlah</th>
+              </tr>
+            </thead>
+            <tbody id="tabel-transaksi" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+        <div id="btn-container-keuangan-all" class="p-3 border-t border-slate-100 bg-slate-50 text-center">
+          <button onclick="openModalKeuangan()" class="text-xs md:text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition inline-flex items-center space-x-1">
+            <span>Lihat Seluruh Riwayat Transaksi</span>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: JADWAL ARISAN -->
+    <section id="arisan" class="scroll-mt-20 w-full">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="users" class="w-6 h-6 text-indigo-600"></i>
+          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Jadwal Arisan Warga</h3>
+        </div>
+        <span id="loading-status-arisan" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full">Memuat...</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        <div onclick="openModalArisan()" class="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white p-5 rounded-xl shadow-md flex items-center justify-between cursor-pointer hover:from-indigo-700">
+          <div>
+            <span class="text-xs font-semibold text-indigo-200 uppercase">Arisan Bulan Ini</span>
+            <h4 id="arisan-bulan-ini-nama" class="text-lg md:text-xl font-bold mt-1">-</h4>
+            <p id="arisan-bulan-ini-tgl" class="text-xs text-indigo-200 mt-0.5">-</p>
+          </div>
+          <div id="arisan-bulan-ini-icon-bg" class="p-3 rounded-full bg-white/20 text-white">
+            <i data-lucide="home" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <div onclick="openModalArisan()" class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between cursor-pointer hover:bg-slate-50">
+          <div>
+            <span class="text-xs font-semibold text-indigo-600 uppercase">Tuan Rumah Bulan Depan</span>
+            <h4 id="arisan-selanjutnya-nama" class="text-lg md:text-xl font-bold text-slate-800 mt-1">-</h4>
+            <p id="arisan-selanjutnya-tgl" class="text-xs text-slate-500 mt-0.5">-</p>
+          </div>
+          <div class="bg-indigo-50 text-indigo-600 p-3 rounded-full">
+            <i data-lucide="calendar" class="w-6 h-6"></i>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: PROJEK WARGA -->
+    <section id="projek" class="scroll-mt-20 w-full space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="folder-kanban" class="w-6 h-6 text-indigo-600"></i>
+          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Projek & Pembangunan Lorong</h3>
+        </div>
+      </div>
+
+      <div id="slider-projek" class="flex gap-4 overflow-x-auto snap-x no-scrollbar py-1 w-full">
+        <!-- Jersey Card -->
+        <div class="snap-start shrink-0 w-[88%] sm:w-[340px] bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="text-base font-bold text-slate-900">Pemesanan Jersey</h4>
+              <span class="text-[10px] bg-amber-100 text-amber-800 font-semibold px-2 py-0.5 rounded-full">Tahap DP</span>
+            </div>
+            <div id="container-foto-jersey-single" class="bg-slate-100 rounded-lg overflow-hidden h-28 flex items-center justify-center mb-2.5 cursor-pointer" onclick="openGalleryGridModal(FOLDER_JERSEY_URL, 'Desain Jersey')">
+              <p class="text-slate-400 text-xs">Memuat foto...</p>
+            </div>
+            <div class="grid grid-cols-3 gap-1.5 text-center mb-2">
+              <div class="bg-slate-50 p-1.5 rounded-lg border"><p class="text-[9px] text-slate-500">Pemesan</p><p id="total-pemesan-jersey" class="text-xs font-bold text-indigo-600">0 Orang</p></div>
+              <div class="bg-slate-50 p-1.5 rounded-lg border"><p class="text-[9px] text-slate-500">Lunas</p><p id="total-lunas-jersey" class="text-xs font-bold text-emerald-600">0 Orang</p></div>
+              <div class="bg-slate-50 p-1.5 rounded-lg border"><p class="text-[9px] text-slate-500">DP/Cicil</p><p id="total-dp-jersey" class="text-xs font-bold text-amber-600">0 Orang</p></div>
+            </div>
+            <div class="bg-emerald-950/90 text-white rounded-lg p-2.5 mb-2 flex justify-between items-center">
+              <span class="text-xs text-emerald-200">Terkumpul:</span>
+              <span id="card-jersey-terkumpul" class="font-bold text-emerald-300 text-sm">Rp 0</span>
+            </div>
+          </div>
+          <button onclick="openModalJersey()" class="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-2 rounded-lg text-xs flex items-center justify-center space-x-1">
+            <span>Rincian Pemesanan</span>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
+        <!-- Gapura Card -->
+        <div class="snap-start shrink-0 w-[88%] sm:w-[340px] bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="text-base font-bold text-slate-900">Gapura Lorong</h4>
+              <span class="text-[10px] bg-indigo-100 text-indigo-800 font-semibold px-2 py-0.5 rounded-full">Penggalangan</span>
+            </div>
+            <div id="container-foto-gapura" class="bg-slate-100 rounded-lg overflow-hidden h-32 flex items-center justify-center mb-3 cursor-pointer" onclick="openGalleryGridModal(FOLDER_GAPURA_URL, 'Desain Gapura')">
+              <p class="text-slate-400 text-xs">Memuat foto...</p>
+            </div>
+            <div class="space-y-2 mb-2">
+              <div class="flex justify-between text-xs">
+                <span class="font-semibold text-slate-700">Progres Dana</span>
+                <span id="gapura-percent" class="font-bold text-indigo-600">0%</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border">
+                <div id="gapura-progress-bar" class="bg-indigo-600 h-full w-0 transition-all duration-500"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bank Sampah Card -->
+        <div onclick="window.location.href='banksampah.html'" class="snap-start shrink-0 w-[88%] sm:w-[340px] bg-white hover:bg-emerald-50/30 rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col justify-between cursor-pointer">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="text-base font-bold text-slate-900">Bank Sampah Lorong</h4>
+              <span class="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full">Aktif</span>
+            </div>
+            <div class="bg-gradient-to-br from-emerald-800 to-teal-900 text-white rounded-lg h-32 p-3 flex flex-col justify-between">
+              <span class="text-[10px] font-mono bg-emerald-500/30 text-emerald-200 px-2 py-0.5 rounded w-max">Langkah 1</span>
+              <div>
+                <p class="text-xs font-bold text-emerald-100">Drop Point Pemisahan Sampah</p>
+                <p class="text-[10px] text-emerald-200/80">Pengelolaan sampah anorganik terpilah.</p>
+              </div>
+            </div>
+          </div>
+          <div class="mt-3 text-xs text-emerald-600 font-semibold flex items-center justify-between">
+            <span>Buka Laman Pengelolaan</span>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: DOKUMENTASI KEGIATAN -->
+    <section id="kegiatan" class="scroll-mt-20 w-full">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="camera" class="w-6 h-6 text-indigo-600"></i>
+          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Dokumentasi Kegiatan</h3>
+        </div>
+        <button onclick="openModalDokumentasi()" class="text-sm text-indigo-600 font-semibold hover:text-indigo-800 flex items-center space-x-1">
+          <span>Lihat Semua</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div id="slider-dokumentasi" class="flex gap-4 overflow-x-auto snap-x no-scrollbar py-2 w-full">
+        <p class="text-slate-400 text-sm py-4">Memuat dokumentasi...</p>
+      </div>
+    </section>
+
+    <!-- SECTION 5: KALENDER KEGIATAN -->
+    <section id="rencana" class="scroll-mt-20 w-full space-y-6">
+      <div class="flex items-center space-x-2">
+        <i data-lucide="calendar-check" class="w-6 h-6 text-indigo-600"></i>
+        <h3 class="text-xl md:text-2xl font-bold text-slate-900">Kalender Kegiatan</h3>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div class="lg:col-span-7 bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between mb-4">
+            <h4 id="calendar-month-year" class="font-bold text-slate-800 text-base md:text-lg">Bulan Tahun</h4>
+            <div class="flex items-center space-x-1">
+              <button onclick="changeMonth(-1)" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+              <button onclick="resetToCurrentMonth()" class="px-2.5 py-1 text-xs font-semibold bg-indigo-50 text-indigo-600 rounded-lg">Hari Ini</button>
+              <button onclick="changeMonth(1)" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+            </div>
+          </div>
+          <div class="grid grid-cols-7 gap-1 text-center font-bold text-xs text-slate-400 mb-2">
+            <div>Ming</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div>
+          </div>
+          <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 text-xs"></div>
+        </div>
+
+        <div class="lg:col-span-5 bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+          <h4 class="font-bold text-slate-800 text-base mb-3 flex items-center space-x-1.5">
+            <i data-lucide="list-todo" class="w-4 h-4 text-indigo-600"></i>
+            <span>Rencana Kegiatan Mendatang</span>
+          </h4>
+          <div id="container-rencana" class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+            <p class="text-slate-400 text-xs">Memuat rencana...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: OBROLAN WARGA -->
+    <section id="komentar-warga" class="scroll-mt-20 w-full space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="messages-square" class="w-6 h-6 text-indigo-600"></i>
+          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Obrolan & Sapa Warga</h3>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-5 bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+          <h4 class="font-bold text-slate-800 text-sm">Tulis Pesan / Sapaan</h4>
+          <form id="form-komentar" onsubmit="tambahKomentarWarga(event)" class="space-y-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Nama</label>
+              <input type="text" id="komentar-nama" required placeholder="Contoh: Pak Heri" class="w-full text-xs px-3 py-2 border rounded-lg bg-white">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Pesan / Komentar</label>
+              <textarea id="komentar-pesan" required rows="3" placeholder="Ketik obrolan warga..." class="w-full text-xs px-3 py-2 border rounded-lg bg-white resize-none"></textarea>
+            </div>
+            <button type="submit" id="btn-submit-chat" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-lg text-xs flex items-center justify-center space-x-1.5">
+              <i data-lucide="send" class="w-4 h-4"></i>
+              <span>Kirim Komentar</span>
+            </button>
+          </form>
+        </div>
+
+        <div class="lg:col-span-7 space-y-2 w-full">
+          <div class="flex items-center justify-between border-b pb-2">
+            <h4 class="font-bold text-slate-800 text-sm">Obrolan Terkini</h4>
+            <span id="total-komentar-badge" class="text-[11px] text-slate-500 font-mono">0 Komentar</span>
+          </div>
+          <div id="container-komentar-list" class="space-y-3 max-h-[360px] overflow-y-auto pr-1.5 custom-scroll">
+            <p class="text-slate-400 text-xs text-center py-8">Memuat obrolan...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODALS -->
+  <div id="modal-keuangan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3" onclick="closeModalDirect('modal-keuangan')">
+    <div class="bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
+      <div class="p-4 border-b flex justify-between items-center bg-slate-50">
+        <h3 id="modal-keuangan-title" class="font-bold text-slate-900">Arsip Transaksi Kas</h3>
+        <button onclick="closeModalDirect('modal-keuangan')" class="p-2 text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="p-4 border-b"><input type="text" id="search-keuangan" onkeyup="filterKeuanganModal()" placeholder="Cari transaksi..." class="w-full text-xs p-2 border rounded-lg"></div>
+      <div class="overflow-auto p-4"><table class="w-full text-left text-xs min-w-[500px]"><thead><tr class="border-b bg-slate-100"><th class="p-2">Tanggal</th><th class="p-2">Keterangan</th><th class="p-2">Kategori</th><th class="p-2 text-right">Jumlah</th></tr></thead><tbody id="tabel-transaksi-all" class="divide-y"></tbody></table></div>
+    </div>
+  </div>
+
+  <div id="modal-arisan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3" onclick="closeModalDirect('modal-arisan')">
+    <div class="bg-white w-full max-w-3xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
+      <div class="p-4 border-b flex justify-between items-center bg-slate-50">
+        <h3 class="font-bold text-slate-900">Jadwal Arisan Warga</h3>
+        <button onclick="closeModalDirect('modal-arisan')" class="p-2 text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="p-4 border-b"><input type="text" id="search-arisan" onkeyup="filterArisanModal()" placeholder="Cari arisan..." class="w-full text-xs p-2 border rounded-lg"></div>
+      <div class="overflow-auto p-4"><table class="w-full text-left text-xs min-w-[450px]"><thead><tr class="border-b bg-slate-100"><th class="p-2">Bulan</th><th class="p-2">Nama & Blok</th><th class="p-2 text-center">Status</th></tr></thead><tbody id="tabel-arisan-all" class="divide-y"></tbody></table></div>
+    </div>
+  </div>
+
+  <div id="modal-jersey" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3" onclick="closeModalDirect('modal-jersey')">
+    <div class="bg-white w-full max-w-5xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
+      <div class="p-4 border-b flex justify-between items-center bg-slate-50">
+        <h3 class="font-bold text-slate-900">Daftar Pemesan Jersey</h3>
+        <button onclick="closeModalDirect('modal-jersey')" class="p-2 text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="p-3 border-b bg-slate-50 flex space-x-2">
+        <button id="tab-jersey-bapak" onclick="switchJerseyTab('bapak')" class="flex-1 py-1.5 rounded-lg font-bold text-xs bg-indigo-600 text-white">👨 Bapak-Bapak (<span id="badge-count-bapak">0</span>)</button>
+        <button id="tab-jersey-ibu" onclick="switchJerseyTab('ibu')" class="flex-1 py-1.5 rounded-lg font-bold text-xs bg-white text-slate-600 border">👩 Ibu-Ibu (<span id="badge-count-ibu">0</span>)</button>
+      </div>
+      <div class="p-4 border-b"><input type="text" id="search-jersey" onkeyup="filterJerseyModal()" placeholder="Cari pemesan..." class="w-full text-xs p-2 border rounded-lg"></div>
+      <div class="overflow-auto p-4"><table class="w-full text-left text-xs min-w-[650px]"><thead><tr class="border-b bg-slate-100"><th class="p-2 text-center">No</th><th class="p-2">Nama</th><th class="p-2">Lengan</th><th class="p-2">Ukuran</th><th class="p-2">No. Punggung</th><th class="p-2 text-right">Pembayaran</th><th class="p-2 text-center">Status</th></tr></thead><tbody id="tabel-jersey-all" class="divide-y"></tbody></table></div>
+    </div>
+  </div>
+
+  <div id="modal-dokumentasi" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3" onclick="closeModalDirect('modal-dokumentasi')">
+    <div class="bg-white w-full max-w-5xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
+      <div class="p-4 border-b flex justify-between items-center bg-slate-50">
+        <h3 class="font-bold text-slate-900">Arsip Dokumentasi Kegiatan</h3>
+        <button onclick="closeModalDirect('modal-dokumentasi')" class="p-2 text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div id="container-dokumentasi-all" class="p-4 overflow-y-auto grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+    </div>
+  </div>
+
+  <div id="modal-gallery-grid" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[80] hidden flex items-center justify-center p-3" onclick="closeModalDirect('modal-gallery-grid')">
+    <div class="bg-white w-full max-w-5xl max-h-[85vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
+      <div class="p-4 border-b flex justify-between items-center bg-slate-50">
+        <h3 id="gallery-grid-title" class="font-bold text-slate-900">Galeri Album</h3>
+        <button onclick="closeModalDirect('modal-gallery-grid')" class="p-2 text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div id="gallery-grid-container" class="p-4 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs mt-auto">
+    <p>&copy; 2026 Humas 3 Warga Flamboyan 4. Dikelola secara swadaya & transparan.</p>
+  </footer>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <!-- SCRIPT LOGIKA UTAMA -->
+  <script>
+    const CSV_BANNER_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=780113187&single=true&output=csv';
+    const CSV_KEUANGAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=422555783&single=true&output=csv';
+    const CSV_DOKUMENTASI_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=0&single=true&output=csv';
+    const CSV_ARISAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=53284271&single=true&output=csv';
+    const CSV_RENCANA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=781301604&single=true&output=csv';
+    const CSV_JERSEY_BAPAK_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=878370178&single=true&output=csv';
+    const CSV_JERSEY_IBU_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=1755921986&single=true&output=csv';
+
+    const FOLDER_JERSEY_URL = 'https://drive.google.com/drive/folders/1_VH_MHlOhA_tSXPsw1ztJEf3fVydU7gE';
+    const FOLDER_GAPURA_URL = 'https://drive.google.com/drive/folders/1Zs2RlbHTvNc9RDhbc1TlgcptXeNhnrQ5';
+    const FOLDER_API_URL = 'https://script.google.com/macros/s/AKfycbyes6A9_9EQ8vIYtf75cGgC9sKAZBvMewxEhYRSThjMAlBYqnkmKpa3yoPOtN0FEG92Zg/exec';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAZ8gg6e0oTJ7xGoFudQxyCdzObRipWk_4",
+      authDomain: "flamboyan4-chat.firebaseapp.com",
+      databaseURL: "https://flamboyan4-chat-default-rtdb.firebaseio.com",
+      projectId: "flamboyan4-chat",
+      storageBucket: "flamboyan4-chat.firebasestorage.app",
+      messagingSenderId: "28700002867",
+      appId: "1:28700002867:web:047bb6930d4436ed837146"
+    };
+
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const dbRef = (typeof firebase !== 'undefined' && firebase.database) ? firebase.database().ref('komentar_warga') : null;
+
+    const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='100%25' height='100%25' fill='%231e1b4b'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='18' fill='%23818cf8' text-anchor='middle' dy='.3em'%3EFlamboyan 4%3C/text%3E%3C/svg%3E";
+
+    let bannerData = [];
+    let currentBannerIndex = 0;
+    let bannerInterval = null;
+    let globalKeuanganData = [];
+    let globalArisanData = [];
+    let globalJerseyBapakData = [];
+    let globalJerseyIbuData = [];
+    let currentJerseyTab = 'bapak';
+    let calendarDate = new Date();
+
+    function safeCreateIcons() {
+      if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+    }
+
+    function disableInspect(e) {
+      if (e.keyCode === 123) return false;
+      if (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) return false;
+      if (e.ctrlKey && e.keyCode === 85) return false;
+    }
+
+    function formatRupiah(angka) {
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
+    }
+
+    function fixDriveUrl(url) {
+      if (!url) return PLACEHOLDER_IMG;
+      let cleanUrl = url.toString().trim();
+      const match = cleanUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || cleanUrl.match(/id=([a-zA-Z0-9_-]+)/);
+      if (match && match[1]) return 'https://lh3.googleusercontent.com/d/' + match[1];
+      return cleanUrl;
+    }
+
+    function renderBannerSlides() {
+      const track = document.getElementById('banner-slides-track');
+      const dotsContainer = document.getElementById('banner-dots-container');
+      if (!track || !dotsContainer) return;
+
+      if (!bannerData || bannerData.length === 0) {
+        track.innerHTML = `<div class="w-full shrink-0 h-40 sm:h-56 md:h-72 bg-slate-800 flex items-center justify-center text-slate-400 text-xs sm:text-sm">Belum ada banner aktif.</div>`;
+        dotsContainer.innerHTML = '';
+        return;
+      }
+
+      let trackHTML = '';
+      let dotsHTML = '';
+
+      bannerData.forEach((item, idx) => {
+        const imageSrc = fixDriveUrl(item.image);
+        const targetUrl = item.link || '#';
+
+        trackHTML += `
+          <a href="${targetUrl}" class="w-full shrink-0 relative block h-40 sm:h-56 md:h-72 bg-slate-900 overflow-hidden">
+            <img src="${imageSrc}" alt="Banner ${idx + 1}" loading="lazy" class="w-full h-full object-cover transition duration-500 hover:scale-105" onerror="this.src='${PLACEHOLDER_IMG}'">
+          </a>
+        `;
+
+        dotsHTML += `<button onclick="goToBannerSlide(${idx}, event)" class="w-2.5 h-2.5 rounded-full transition-all duration-300 ${idx === 0 ? 'bg-white w-5' : 'bg-white/50'}"></button>`;
+      });
+
+      track.innerHTML = trackHTML;
+      dotsContainer.innerHTML = dotsHTML;
+      updateBannerSlidePosition();
+      startBannerAutoPlay();
+      safeCreateIcons();
+    }
+
+    function updateBannerSlidePosition() {
+      const track = document.getElementById('banner-slides-track');
+      if (track) track.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
+    }
+
+    function nextBannerSlide(e) {
+      if (e) e.stopPropagation();
+      if (bannerData.length === 0) return;
+      currentBannerIndex = (currentBannerIndex + 1) % bannerData.length;
+      updateBannerSlidePosition();
+    }
+
+    function prevBannerSlide(e) {
+      if (e) e.stopPropagation();
+      if (bannerData.length === 0) return;
+      currentBannerIndex = (currentBannerIndex - 1 + bannerData.length) % bannerData.length;
+      updateBannerSlidePosition();
+    }
+
+    function goToBannerSlide(index, e) {
+      if (e) e.stopPropagation();
+      currentBannerIndex = index;
+      updateBannerSlidePosition();
+    }
+
+    function startBannerAutoPlay() {
+      if (bannerInterval) clearInterval(bannerInterval);
+      if (bannerData.length > 1) {
+        bannerInterval = setInterval(() => { nextBannerSlide(); }, 4500);
+      }
+    }
+
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('hidden');
+    }
+
+    function closeModalDirect(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('hidden');
+    }
+
+    function openModalKeuangan() { openModal('modal-keuangan'); }
+    function openModalArisan() { openModal('modal-arisan'); }
+    function openModalJersey() { switchJerseyTab('bapak'); openModal('modal-jersey'); }
+    function openModalDokumentasi() { openModal('modal-dokumentasi'); }
+
+    function loadAllPortalData() {
+      safeCreateIcons();
+
+      // 1. CSV Banner
+      if (window.Papa && CSV_BANNER_URL) {
+        Papa.parse(CSV_BANNER_URL, {
+          download: true,
+          header: false,
+          complete: function(results) {
+            if (results.data && results.data.length > 1) {
+              const rows = results.data.slice(1);
+              bannerData = rows.map(r => ({
+                title: r[0] || '',
+                image: r[1] || '',
+                link: r[2] || '#'
+              })).filter(i => i.image && i.image.trim() !== '');
+
+              renderBannerSlides();
+            }
+          }
+        });
+      }
+
+      // 2. CSV Keuangan
+      if (window.Papa && CSV_KEUANGAN_URL) {
+        Papa.parse(CSV_KEUANGAN_URL, {
+          download: true,
+          header: false,
+          complete: function(results) {
+            if (!results.data || results.data.length <= 1) return;
+            const rows = results.data.slice(1).filter(r => r.length >= 4 && r[0] && r[0].trim() !== '');
+
+            let masuk = 0, keluar = 0;
+            rows.forEach(row => {
+              const kat = (row[2] || '').trim().toLowerCase();
+              const num = parseFloat((row[3] || '0').replace(/\./g, '').replace(/,/g, '').replace(/[^0-9-]/g, '')) || 0;
+
+              if (kat.includes('masuk')) masuk += num;
+              else if (kat.includes('keluar')) keluar += num;
+            });
+
+            document.getElementById('pemasukan-bulan-ini').innerText = formatRupiah(masuk);
+            document.getElementById('pengeluaran-bulan-ini').innerText = formatRupiah(keluar);
+            document.getElementById('sisa-saldo').innerText = formatRupiah(masuk - keluar);
+            document.getElementById('total-pemasukan-all').innerText = formatRupiah(masuk);
+            document.getElementById('total-pengeluaran-all').innerText = formatRupiah(keluar);
+            document.getElementById('loading-status').innerText = 'Terhubung live';
+
+            if (rows.length > 0 && rows[rows.length - 1][0]) {
+              document.getElementById('label-update-kas').innerText = 'Update: ' + rows[rows.length - 1][0];
+            }
+
+            const top10 = [...rows].reverse().slice(0, 10);
+            let tbodyHTML = '';
+            top10.forEach(r => {
+              const isMasuk = (r[2] || '').toLowerCase().includes('masuk');
+              const num = parseFloat((r[3] || '0').replace(/\./g, '').replace(/,/g, '').replace(/[^0-9-]/g, '')) || 0;
+              tbodyHTML += `<tr><td class="p-3 text-slate-500">${r[0]}</td><td class="p-3 font-medium">${r[1] || '-'}</td><td class="p-3"><span class="px-2 py-0.5 text-xs ${isMasuk ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'} rounded">${r[2]}</span></td><td class="p-3 text-right font-semibold ${isMasuk ? 'text-emerald-600' : 'text-rose-600'}">${isMasuk ? '+' : '-'} ${formatRupiah(num)}</td></tr>`;
+            });
+            document.getElementById('tabel-transaksi').innerHTML = tbodyHTML;
+            safeCreateIcons();
+          }
+        });
+      }
+
+      // 3. CSV Arisan
+      if (window.Papa && CSV_ARISAN_URL) {
+        Papa.parse(CSV_ARISAN_URL, {
+          download: true,
+          header: false,
+          complete: function(results) {
+            if (!results.data || results.data.length <= 1) return;
+            const rows = results.data.slice(1);
+            if (rows.length > 0) {
+              document.getElementById('arisan-bulan-ini-nama').innerText = rows[0][1] || '-';
+              document.getElementById('arisan-bulan-ini-tgl').innerText = rows[0][0] || '-';
+            }
+            if (rows.length > 1) {
+              document.getElementById('arisan-selanjutnya-nama').innerText = rows[1][1] || '-';
+              document.getElementById('arisan-selanjutnya-tgl').innerText = 'Pelaksanaan: ' + (rows[1][0] || '-');
+            }
+            document.getElementById('loading-status-arisan').innerText = 'Terhubung live';
+          }
+        });
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAllPortalData();
+    });
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Flamboyan 4 | Portal Informasi Warga Lorong</title>
+  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons CDN -->
