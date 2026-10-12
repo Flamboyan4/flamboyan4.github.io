@@ -79,7 +79,7 @@
   <!-- HERO SECTION -->
 <section class="relative bg-gradient-to-br from-indigo-950 via-indigo-900 to-slate-900 text-white py-6 sm:py-12 md:py-16 px-4 overflow-hidden">
   
-  <!-- Grid Background Pattern (Opsional) -->
+  <!-- Grid Background Pattern -->
   <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
 
   <div class="relative max-w-4xl mx-auto text-center space-y-3 sm:space-y-6">
@@ -127,7 +127,7 @@
 
     <!-- BANNER SLIDER DYNAMIK -->
   <section class="w-full mb-6">
-    <div id="banner-slider-container" class="relative w-full rounded-2xl overflow-hidden shadow-lg bg-slate-100 group aspect-[2.6/1] sm:aspect-[3.2/1]">
+    <div id="banner-slider-container" class="relative w-full rounded-2xl overflow-hidden shadow-lg bg-slate-900 group aspect-[16/6] sm:aspect-[3.2/1]">
       
       <!-- Track Gambar Slider -->
       <div id="banner-track" class="flex w-full h-full transition-transform duration-500 ease-out cursor-grab active:cursor-grabbing">
@@ -2909,9 +2909,9 @@ function salinLinkAgenda(url) {
       const imgUrl = formatImageUrl(rawImgUrl);
 
       trackHTML += `
-        <a href="${linkTarget}" class="w-full h-full flex-shrink-0 relative block overflow-hidden">
-          <img src="${imgUrl}" alt="" class="w-full h-full object-contain object-center transition-transform duration-500 hover:scale-105" />
-        </a>
+      <a href="${linkTarget}" class="w-full h-full flex-shrink-0 relative block overflow-hidden">
+      <img src="${imgUrl}" alt="" class="w-full h-full object-cover object-center transition-transform duration-500 hover:scale-105" />
+      </a>
       `;
 
       dotsHTML += `
