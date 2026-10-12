@@ -79,41 +79,41 @@
   <!-- HERO SECTION -->
 <section class="relative bg-gradient-to-br from-indigo-950 via-indigo-900 to-slate-900 text-white py-6 sm:py-12 md:py-16 px-4 overflow-hidden">
   
-  <!-- Grid Background Pattern -->
-  <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+  <!-- Grid Pattern Kotak-Kotak Asli -->
+  <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: url(&quot;data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 0V30M0 1H30' stroke='white' stroke-opacity='0.25' stroke-width='1'/%3E%3C/svg%3E&quot;); bg-repeat: repeat;"></div>
 
-  <div class="relative max-w-4xl mx-auto text-center space-y-3 sm:space-y-6">
+  <div class="relative max-w-4xl mx-auto text-center space-y-3 sm:space-y-6 z-10">
     
-    <!-- Judul Hero Section -->
+    <!-- Judul Hero dengan Gradasi Kuning ke Putih -->
     <h1 class="text-xl sm:text-3xl md:text-5xl font-black tracking-tight leading-snug sm:leading-tight">
       Transparansi & Kebersamaan <br class="hidden sm:inline" />
-      <span class="text-amber-300">Warga Flamboyan 4</span>
+      <span class="bg-gradient-to-r from-amber-200 via-amber-300 to-white bg-clip-text text-transparent">Warga Flamboyan 4</span>
     </h1>
 
-    <!-- Tombol Navigasi Cepat (Icon Only di HP, Teks + Icon di PC) -->
+    <!-- Tombol Navigasi Cepat (Icon-only di HP, Icon + Teks di PC) -->
     <div class="flex items-center justify-center gap-2 sm:gap-3 pt-1 sm:pt-2">
       
       <!-- Kas Warga -->
       <a href="#keuangan" title="Kas Warga" class="flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl sm:rounded-2xl backdrop-blur-md transition group text-xs sm:text-sm font-semibold">
-        <i data-lucide="wallet" class="w-4 h-4 sm:w-4 sm:h-4 text-emerald-400 group-hover:scale-110 transition-transform"></i>
+        <i data-lucide="wallet" class="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform"></i>
         <span class="hidden sm:inline ml-2">Kas Warga</span>
       </a>
 
       <!-- Jadwal Arisan -->
       <a href="#arisan" title="Jadwal Arisan" class="flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl sm:rounded-2xl backdrop-blur-md transition group text-xs sm:text-sm font-semibold">
-        <i data-lucide="calendar" class="w-4 h-4 sm:w-4 sm:h-4 text-amber-300 group-hover:scale-110 transition-transform"></i>
+        <i data-lucide="calendar" class="w-4 h-4 text-amber-300 group-hover:scale-110 transition-transform"></i>
         <span class="hidden sm:inline ml-2">Jadwal Arisan</span>
       </a>
 
       <!-- Projek Warga -->
       <a href="#projek" title="Projek Warga" class="flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl sm:rounded-2xl backdrop-blur-md transition group text-xs sm:text-sm font-semibold">
-        <i data-lucide="folder-kanban" class="w-4 h-4 sm:w-4 sm:h-4 text-indigo-300 group-hover:scale-110 transition-transform"></i>
+        <i data-lucide="folder-kanban" class="w-4 h-4 text-indigo-300 group-hover:scale-110 transition-transform"></i>
         <span class="hidden sm:inline ml-2">Projek Warga</span>
       </a>
 
       <!-- Kalender Kegiatan -->
       <a href="#rencana" title="Kalender Kegiatan" class="flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl sm:rounded-2xl backdrop-blur-md transition group text-xs sm:text-sm font-semibold">
-        <i data-lucide="calendar-check" class="w-4 h-4 sm:w-4 sm:h-4 text-purple-300 group-hover:scale-110 transition-transform"></i>
+        <i data-lucide="calendar-check" class="w-4 h-4 text-purple-300 group-hover:scale-110 transition-transform"></i>
         <span class="hidden sm:inline ml-2">Kalender Kegiatan</span>
       </a>
 
@@ -127,7 +127,7 @@
 
     <!-- BANNER SLIDER DYNAMIK -->
   <section class="w-full mb-6">
-    <div id="banner-slider-container" class="relative w-full rounded-2xl overflow-hidden shadow-lg bg-slate-900 group aspect-[16/6] sm:aspect-[3.2/1]">
+    <div id="banner-slider-container" class="relative w-full rounded-2xl overflow-hidden shadow-lg bg-slate-950 group aspect-[1920/450]">
       
       <!-- Track Gambar Slider -->
       <div id="banner-track" class="flex w-full h-full transition-transform duration-500 ease-out cursor-grab active:cursor-grabbing">
@@ -2909,8 +2909,8 @@ function salinLinkAgenda(url) {
       const imgUrl = formatImageUrl(rawImgUrl);
 
       trackHTML += `
-      <a href="${linkTarget}" class="w-full h-full flex-shrink-0 relative block overflow-hidden">
-      <img src="${imgUrl}" alt="" class="w-full h-full object-cover object-center transition-transform duration-500 hover:scale-105" />
+      <a href="${linkTarget}" class="w-full h-full flex-shrink-0 relative block overflow-hidden bg-slate-950">
+      <img src="${imgUrl}" alt="" class="w-full h-full object-contain object-center transition-transform duration-500 hover:scale-105" />
       </a>
       `;
 
