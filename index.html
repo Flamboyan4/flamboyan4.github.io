@@ -76,40 +76,51 @@
     </div>
   </header>
 
-  <!-- Hero Section -->
-  <section class="relative bg-gradient-to-br from-indigo-950 via-indigo-900 to-violet-900 text-white py-12 md:py-16 px-4 overflow-hidden w-full border-b border-indigo-800/40">
-    <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px]"></div>
-    <div class="absolute -top-24 -left-20 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+  <!-- HERO SECTION -->
+<section class="relative bg-gradient-to-br from-indigo-950 via-indigo-900 to-slate-900 text-white py-6 sm:py-12 md:py-16 px-4 overflow-hidden">
+  
+  <!-- Grid Background Pattern (Opsional) -->
+  <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
 
-    <div class="max-w-4xl mx-auto text-center space-y-6 relative z-10">
-      <div>
-        <h2 class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
-          Transparansi & Kebersamaan <br>
-          <span class="bg-gradient-to-r from-amber-200 via-yellow-100 to-white bg-clip-text text-transparent">Warga Flamboyan 4</span>
-        </h2>
-      </div>
+  <div class="relative max-w-4xl mx-auto text-center space-y-3 sm:space-y-6">
+    
+    <!-- Judul Hero Section -->
+    <h1 class="text-xl sm:text-3xl md:text-5xl font-black tracking-tight leading-snug sm:leading-tight">
+      Transparansi & Kebersamaan <br class="hidden sm:inline" />
+      <span class="text-amber-300">Warga Flamboyan 4</span>
+    </h1>
 
-      <!-- Navigasi Cepat Utama -->
-      <div class="pt-2 flex flex-wrap justify-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-medium">
-        <a href="#keuangan" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
-          <i data-lucide="wallet" class="w-4 h-4 text-emerald-400"></i>
-          <span>Kas Warga</span>
-        </a>
-        <a href="#arisan" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
-          <i data-lucide="calendar" class="w-4 h-4 text-amber-300"></i>
-          <span>Jadwal Arisan</span>
-        </a>
-        <a href="#projek" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
-          <i data-lucide="folder-kanban" class="w-4 h-4 text-sky-300"></i>
-          <span>Projek Warga</span>
-        </a>
-        <a href="#rencana" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95 hover:border-indigo-400/50">
-          <i data-lucide="calendar-check" class="w-4 h-4 text-indigo-300"></i>
-          <span>Kalender Kegiatan</span>
-        </a>
-      </div>
+    <!-- Tombol Navigasi Cepat (Icon Only di HP, Teks + Icon di PC) -->
+    <div class="flex items-center justify-center gap-2 sm:gap-3 pt-1 sm:pt-2">
+      
+      <!-- Kas Warga -->
+      <a href="#keuangan" title="Kas Warga" class="flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl sm:rounded-2xl backdrop-blur-md transition group text-xs sm:text-sm font-semibold">
+        <i data-lucide="wallet" class="w-4 h-4 sm:w-4 sm:h-4 text-emerald-400 group-hover:scale-110 transition-transform"></i>
+        <span class="hidden sm:inline ml-2">Kas Warga</span>
+      </a>
+
+      <!-- Jadwal Arisan -->
+      <a href="#arisan" title="Jadwal Arisan" class="flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl sm:rounded-2xl backdrop-blur-md transition group text-xs sm:text-sm font-semibold">
+        <i data-lucide="calendar" class="w-4 h-4 sm:w-4 sm:h-4 text-amber-300 group-hover:scale-110 transition-transform"></i>
+        <span class="hidden sm:inline ml-2">Jadwal Arisan</span>
+      </a>
+
+      <!-- Projek Warga -->
+      <a href="#projek" title="Projek Warga" class="flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl sm:rounded-2xl backdrop-blur-md transition group text-xs sm:text-sm font-semibold">
+        <i data-lucide="folder-kanban" class="w-4 h-4 sm:w-4 sm:h-4 text-indigo-300 group-hover:scale-110 transition-transform"></i>
+        <span class="hidden sm:inline ml-2">Projek Warga</span>
+      </a>
+
+      <!-- Kalender Kegiatan -->
+      <a href="#rencana" title="Kalender Kegiatan" class="flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl sm:rounded-2xl backdrop-blur-md transition group text-xs sm:text-sm font-semibold">
+        <i data-lucide="calendar-check" class="w-4 h-4 sm:w-4 sm:h-4 text-purple-300 group-hover:scale-110 transition-transform"></i>
+        <span class="hidden sm:inline ml-2">Kalender Kegiatan</span>
+      </a>
+
     </div>
-  </section>
+
+  </div>
+</section>
 
   <!-- Main Content -->
   <main class="max-w-6xl mx-auto px-4 py-8 flex-grow space-y-12 w-full relative">
