@@ -127,7 +127,7 @@
 
     <!-- BANNER SLIDER DYNAMIK -->
   <section class="w-full mb-6">
-    <div id="banner-slider-container" class="relative w-full rounded-2xl overflow-hidden shadow-lg bg-slate-950 group aspect-[1920/450]">
+    <div id="banner-slider-container" class="relative w-full rounded-2xl overflow-hidden shadow-lg bg-slate-100 group aspect-[2.4/1] sm:aspect-[3.2/1] md:aspect-[4.27/1]">
       
       <!-- Track Gambar Slider -->
       <div id="banner-track" class="flex w-full h-full transition-transform duration-500 ease-out cursor-grab active:cursor-grabbing">
@@ -2909,10 +2909,10 @@ function salinLinkAgenda(url) {
       const imgUrl = formatImageUrl(rawImgUrl);
 
       trackHTML += `
-      <a href="${linkTarget}" class="w-full h-full flex-shrink-0 relative block overflow-hidden bg-slate-950">
-      <img src="${imgUrl}" alt="" class="w-full h-full object-contain object-center transition-transform duration-500 hover:scale-105" />
-      </a>
-      `;
+  <a href="${linkTarget}" class="w-full h-full flex-shrink-0 relative block overflow-hidden bg-slate-100">
+    <img src="${imgUrl}" alt="" class="w-full h-full object-cover object-center transition-transform duration-500 hover:scale-[1.03]" />
+  </a>
+`;
 
       dotsHTML += `
         <button onclick="window.goToBanner(${index})" class="banner-dot w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-white/50 transition-all ${index === 0 ? 'bg-white w-5 sm:w-6' : ''}"></button>
