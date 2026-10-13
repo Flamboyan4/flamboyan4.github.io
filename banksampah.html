@@ -2260,6 +2260,32 @@ function parseLaporanNumber(value) {
     color: #334155;
   }
 
+.single-signature {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  margin-top: 12px;
+}
+
+.single-signature .signature {
+  width: 220px;
+}
+
+.single-signature .signature-role {
+  min-height: auto;
+  margin-bottom: 3px;
+}
+
+.single-signature .signature-space {
+  height: 65px;
+}
+
+.single-signature .signature-name {
+  border-top: 1px solid #64748b;
+  padding-top: 5px;
+  margin-top: 0;
+}
+
   .footer {
     display: flex;
     justify-content: space-between;
@@ -2315,27 +2341,33 @@ function parseLaporanNumber(value) {
 
   <h2 class="section-title">📊 Ringkasan Kinerja Bulanan</h2>
 
-  <div class="summary">
-    <div class="metric">
-      <div class="metric-label">Sampah Terkumpul</div>
-      <div class="metric-value">${angka(totalBerat)} Kg</div>
-    </div>
+  
+<div class="summary">
+  <div class="metric">
+    <div class="metric-label">Sampah Terkumpul</div>
+    <div class="metric-value">${angka(totalBerat)} Kg</div>
+  </div>
 
-    <div class="metric">
-      <div class="metric-label">Tabungan Warga</div>
-      <div class="metric-value">${rupiah(totalTabungan)}</div>
-    </div>
+  <div class="metric">
+    <div class="metric-label">Tabungan Warga</div>
+    <div class="metric-value">${rupiah(totalTabungan)}</div>
+  </div>
 
-    <div class="metric blue">
-      <div class="metric-label">Cashflow Masuk</div>
-      <div class="metric-value">${rupiah(totalKasMasuk)}</div>
-    </div>
+  <div class="metric blue">
+    <div class="metric-label">Total Pemasukan Kas</div>
+    <div class="metric-value">${rupiah(totalKasMasuk)}</div>
+  </div>
 
-    <div class="metric dark">
-      <div class="metric-label">Sisa Saldo Kas</div>
-      <div class="metric-value">${rupiah(saldoKasKeseluruhan)}</div>
+  <div class="metric"
+       style="background:#fff1f2;border-color:#fecdd3">
+    <div class="metric-label" style="color:#be123c">
+      Total Pengeluaran Kas
+    </div>
+    <div class="metric-value" style="color:#be123c">
+      ${rupiah(totalKasKeluar)}
     </div>
   </div>
+</div>
 
   <h2 class="section-title">📦 Rincian Pemilahan Sampah Anorganik</h2>
 
@@ -2466,16 +2498,32 @@ function parseLaporanNumber(value) {
 
   </div>
 
-  <div class="balance-box">
-    <div>
-      <div class="balance-label">SISA SALDO KAS OVERALL TERSEDIA</div>
-      <div style="font-size:8px;color:#64748b;margin-top:3px">
-        Akumulasi pemasukan dikurangi pengeluaran kas keseluruhan
-      </div>
+ 
+<div class="balance-box">
+  <div style="flex:1">
+    <div class="balance-label">
+      SISA SALDO KAS KESELURUHAN
     </div>
 
-    <div class="balance-value">${rupiah(saldoKasKeseluruhan)}</div>
+    <div style="font-size:8px;color:#64748b;margin-top:5px">
+      Total pemasukan:
+      ${rupiah(kasMasukKeseluruhan)}
+    </div>
+
+    <div style="font-size:8px;color:#64748b;margin-top:3px">
+      Total pengeluaran:
+      ${rupiah(kasKeluarKeseluruhan)}
+    </div>
+
+    <div style="font-size:8px;color:#64748b;margin-top:3px">
+      Pemasukan dikurangi pengeluaran
+    </div>
   </div>
+
+  <div class="balance-value">
+    ${rupiah(saldoKasKeseluruhan)}
+  </div>
+</div>
 
   <h2 class="approval-title">✍️ Lembar Pengesahan Laporan Bulanan</h2>
 
@@ -2484,30 +2532,23 @@ function parseLaporanNumber(value) {
     untuk keperluan administrasi Bank Sampah Flamboyan 4.
   </p>
 
-  <div class="signatures">
+  
+<div class="signatures single-signature">
+  <div class="signature">
+    <div class="signature-role">Mengetahui,</div>
 
-    <div class="signature">
-      <div class="signature-role">Ketua Pengelola</div>
-      <div class="signature-space"></div>
-      <div class="signature-line"></div>
-      <div class="signature-name">( Nama Ketua )</div>
+    <div class="signature-role">
+      Humas Flamboyan 4
     </div>
 
-    <div class="signature">
-      <div class="signature-role">Bendahara Kas</div>
-      <div class="signature-space"></div>
-      <div class="signature-line"></div>
-      <div class="signature-name">( Nama Bendahara )</div>
-    </div>
+    <div class="signature-space"></div>
 
-    <div class="signature">
-      <div class="signature-role">Mengetahui, Humas RT</div>
-      <div class="signature-space"></div>
-      <div class="signature-line"></div>
-      <div class="signature-name">( Nama Pengurus )</div>
+    <div class="signature-name" style="font-weight:bold">
+      Heri Juwandi
     </div>
-
   </div>
+</div>
+
 
   <footer class="footer">
     <span>Laporan Resmi Bank Sampah Flamboyan 4</span>
