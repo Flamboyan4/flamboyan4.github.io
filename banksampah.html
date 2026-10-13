@@ -318,25 +318,28 @@
     </div>
   </div>
 
-  <!-- TIER 3: LIGHTBOX MODAL FULLSCREEN -->
-  <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-between p-3 md:p-6" onclick="tutupLightbox()">
+  <!-- TIER 3: LIGHTBOX MODAL FULLSCREEN (DENGAN ZOOM & SWIPE) -->
+  <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-between p-3 md:p-6 select-none" onclick="tutupLightbox()">
     <div class="w-full flex items-center justify-between z-30 pb-2" onclick="event.stopPropagation()">
       <p id="lightbox-caption" class="text-xs md:text-sm font-semibold tracking-wide text-white truncate max-w-[70%]" title=""></p>
       <div class="flex items-center space-x-2">
+        <button onclick="resetLightboxZoom(event)" id="btn-reset-zoom" class="text-white bg-slate-800/80 hover:bg-slate-700 px-3 py-1.5 rounded-full text-xs font-semibold transition shadow-md hidden">
+          Reset Zoom
+        </button>
         <button onclick="tutupLightbox()" class="text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition shadow-md">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
     </div>
 
-    <button onclick="geserLightbox(-1)" class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-30 text-white bg-slate-800/80 hover:bg-slate-700 p-3 rounded-full transition shadow-lg">
+    <button onclick="event.stopPropagation(); geserLightbox(-1)" class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-30 text-white bg-slate-800/80 hover:bg-slate-700 p-3 rounded-full transition shadow-lg">
       <i data-lucide="chevron-left" class="w-6 h-6 md:w-8 md:h-8"></i>
     </button>
-    <button onclick="geserLightbox(1)" class="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-30 text-white bg-slate-800/80 hover:bg-slate-700 p-3 rounded-full transition shadow-lg">
+    <button onclick="event.stopPropagation(); geserLightbox(1)" class="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-30 text-white bg-slate-800/80 hover:bg-slate-700 p-3 rounded-full transition shadow-lg">
       <i data-lucide="chevron-right" class="w-6 h-6 md:w-8 md:h-8"></i>
     </button>
 
-    <div id="lightbox-media-container" class="relative w-full flex-grow flex items-center justify-center my-auto overflow-hidden"></div>
+    <div id="lightbox-media-container" class="relative w-full flex-grow flex items-center justify-center my-auto overflow-hidden touch-none" onclick="event.stopPropagation()"></div>
 
     <div class="w-full text-center z-30 pt-2">
       <p id="lightbox-counter" class="text-xs text-slate-400 font-mono"></p>
@@ -372,6 +375,17 @@
     let globalAlbums = [];
     let currentAlbumItems = [];
     let currentLightboxIndex = 0;
+
+    // VARIABEL ZOOM & SWIPE LIGHTBOX
+    let currentScale = 1;
+    let panX = 0;
+    let panY = 0;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let lastTouchDist = 0;
 
     function parseNumberFlexible(val) {
       if (!val) return 0;
@@ -653,6 +667,7 @@
     }
 
     function bukaArsipGaleriModal() {
+      history.pushState({ modal: 'arsip' }, '', '#galeri');
       const grid = document.getElementById('arsip-album-grid');
       let html = '';
 
@@ -681,15 +696,13 @@
     function tutupArsipGaleriModal() {
       document.getElementById('modal-arsip-galeri').classList.add('hidden');
     }
-    function tutupArsipGaleriOnBackdrop(e) {
-      if (e.target.id === 'modal-arsip-galeri') tutupArsipGaleriModal();
-    }
 
     async function bukaAlbumIndex(idx) {
       const album = globalAlbums[idx];
       if (!album) return;
 
-      tutupArsipGaleriModal();
+      history.pushState({ modal: 'grid' }, '', '#album');
+      document.getElementById('modal-arsip-galeri').classList.add('hidden');
       document.getElementById('gallery-grid-title').innerText = album.judul;
       document.getElementById('gallery-grid-subtitle').innerText = album.deskripsi || album.tanggal;
       document.getElementById('gallery-grid-container').innerHTML = `<p class="text-slate-400 text-xs col-span-full text-center py-6">Memuat foto dari Google Drive...</p>`;
@@ -742,13 +755,16 @@
       document.getElementById('modal-gallery-grid').classList.add('hidden');
     }
 
+    // LIGHTBOX DENGAN PEMUTAR VIDEO & ZOOM & SWIPE GESTUR
     function bukaLightbox(index) {
       currentLightboxIndex = index;
+      history.pushState({ modal: 'lightbox' }, '', '#lightbox');
       renderLightbox();
       document.getElementById('lightbox-modal').classList.remove('hidden');
     }
 
     function renderLightbox() {
+      resetZoomState();
       const item = currentAlbumItems[currentLightboxIndex];
       if (!item) return;
 
@@ -757,10 +773,154 @@
       document.getElementById('lightbox-counter').innerText = `${currentLightboxIndex + 1} dari ${currentAlbumItems.length}`;
 
       if (item.type === 'video') {
-        container.innerHTML = `<video src="${item.url}" controls autoplay class="max-h-[70vh] max-w-full rounded-xl shadow-2xl"></video>`;
+        container.innerHTML = `
+          <div class="relative w-full h-full flex items-center justify-center">
+            <iframe src="https://drive.google.com/file/d/${item.id}/preview" class="w-full max-w-4xl h-[70vh] rounded-xl shadow-2xl border-0" allow="autoplay" allowfullscreen></iframe>
+          </div>
+        `;
+        document.getElementById('btn-reset-zoom').classList.add('hidden');
       } else {
-        container.innerHTML = `<img src="${item.url}" class="max-h-[70vh] max-w-full h-auto object-contain rounded-xl shadow-2xl">`;
+        container.innerHTML = `
+          <div id="zoom-wrapper" class="relative w-full h-full flex items-center justify-center overflow-hidden">
+            <img id="lightbox-img" src="${item.url}" class="max-h-[75vh] max-w-full object-contain transition-transform duration-75 select-none" draggable="false">
+          </div>
+        `;
+        setupZoomAndSwipeHandlers();
       }
+    }
+
+    function resetZoomState() {
+      currentScale = 1;
+      panX = 0;
+      panY = 0;
+      const img = document.getElementById('lightbox-img');
+      if (img) {
+        img.style.transform = `translate(0px, 0px) scale(1)`;
+      }
+      const btnReset = document.getElementById('btn-reset-zoom');
+      if (btnReset) btnReset.classList.add('hidden');
+    }
+
+    function resetLightboxZoom(e) {
+      if(e) e.stopPropagation();
+      resetZoomState();
+    }
+
+    function updateTransform() {
+      const img = document.getElementById('lightbox-img');
+      if (!img) return;
+      img.style.transform = `translate(${panX}px, ${panY}px) scale(${currentScale})`;
+      const btnReset = document.getElementById('btn-reset-zoom');
+      if (btnReset) {
+        if (currentScale > 1) btnReset.classList.remove('hidden');
+        else btnReset.classList.add('hidden');
+      }
+    }
+
+    function setupZoomAndSwipeHandlers() {
+      const wrapper = document.getElementById('zoom-wrapper');
+      const img = document.getElementById('lightbox-img');
+      if (!wrapper || !img) return;
+
+      // Mouse drag untuk pan saat zoom
+      wrapper.addEventListener('mousedown', (e) => {
+        if (currentScale <= 1) {
+          touchStartX = e.clientX;
+          isDragging = false;
+          return;
+        }
+        isDragging = true;
+        startX = e.clientX - panX;
+        startY = e.clientY - panY;
+        e.preventDefault();
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging || currentScale <= 1) return;
+        panX = e.clientX - startX;
+        panY = e.clientY - startY;
+        updateTransform();
+      });
+
+      window.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
+
+      // Touch events untuk Mobile (Swipe, Pinch Zoom, Pan)
+      wrapper.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+          if (currentScale > 1) {
+            isDragging = true;
+            startX = e.touches[0].clientX - panX;
+            startY = e.touches[0].clientY - panY;
+          }
+        } else if (e.touches.length === 2) {
+          isDragging = false;
+          lastTouchDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+        }
+      }, { passive: true });
+
+      wrapper.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2) {
+          // Pinch Zoom
+          const dist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          if (lastTouchDist > 0) {
+            let scaleFactor = dist / lastTouchDist;
+            currentScale = Math.min(Math.max(1, currentScale * scaleFactor), 4);
+            updateTransform();
+          }
+          lastTouchDist = dist;
+        } else if (e.touches.length === 1 && isDragging && currentScale > 1) {
+          // Pan saat ter-zoom
+          panX = e.touches[0].clientX - startX;
+          panY = e.touches[0].clientY - startY;
+          updateTransform();
+        }
+      }, { passive: true });
+
+      wrapper.addEventListener('touchend', (e) => {
+        if (e.touches.length < 2) lastTouchDist = 0;
+        if (e.touches.length === 0) {
+          isDragging = false;
+          // Deteksi Swipe Kiri/Kanan jika tidak sedang zoom
+          if (currentScale === 1) {
+            let touchEndX = e.changedTouches[0].clientX;
+            let touchEndY = e.changedTouches[0].clientY;
+            let diffX = touchEndX - touchStartX;
+            let diffY = touchEndY - touchStartY;
+
+            if (Math.abs(diffX) > 60 && Math.abs(diffY) < 80) {
+              if (diffX > 0) geserLightbox(-1); // Swipe Kanan -> Sebelumnya
+              else geserLightbox(1);            // Swipe Kiri -> Berikutnya
+            }
+          }
+        }
+      });
+
+      // Double tap untuk zoom in/out
+      let lastTap = 0;
+      wrapper.addEventListener('touchend', (e) => {
+        let currentTime = new Date().getTime();
+        let tapLength = currentTime - lastTap;
+        if (tapLength < 300 && tapLength > 0) {
+          if (currentScale > 1) {
+            resetZoomState();
+          } else {
+            currentScale = 2.5;
+            updateTransform();
+          }
+          e.preventDefault();
+        }
+        lastTap = currentTime;
+      });
     }
 
     function geserLightbox(dir) {
@@ -773,7 +933,24 @@
     function tutupLightbox() {
       document.getElementById('lightbox-modal').classList.add('hidden');
       document.getElementById('lightbox-media-container').innerHTML = '';
+      resetZoomState();
     }
+
+    // MENGATUR TOMBOL BACK HP (HISTORY API) AGAR MENUTUP MODAL BERTAHAP
+    window.addEventListener('popstate', function(event) {
+      const lightbox = document.getElementById('lightbox-modal');
+      const galleryGrid = document.getElementById('modal-gallery-grid');
+      const arsipModal = document.getElementById('modal-arsip-galeri');
+
+      if (!lightbox.classList.contains('hidden')) {
+        lightbox.classList.add('hidden');
+        document.getElementById('lightbox-media-container').innerHTML = '';
+      } else if (!galleryGrid.classList.contains('hidden')) {
+        galleryGrid.classList.add('hidden');
+      } else if (!arsipModal.classList.contains('hidden')) {
+        arsipModal.classList.add('hidden');
+      }
+    });
 
     function bukaRincianWarga(namaBlok, totalBerat, totalSaldo) {
       document.getElementById('modal-nama-warga').innerText = namaBlok;
