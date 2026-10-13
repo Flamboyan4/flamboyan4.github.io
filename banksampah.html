@@ -16,187 +16,197 @@
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between select-none">
 
-  <!-- HEADER / NAVBAR -->
-  <header class="bg-emerald-900 text-white shadow-md sticky top-0 z-40">
-    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-      <a href="index.html" class="inline-flex items-center space-x-2 text-xs font-semibold bg-emerald-800/80 hover:bg-emerald-800 px-3 py-2 rounded-xl transition text-emerald-100 border border-emerald-700/50">
-        <i data-lucide="arrow-left" class="w-4 h-4"></i>
-        <span>Portal Utama</span>
-      </a>
-      <div class="flex items-center space-x-2">
-        <i data-lucide="recycle" class="w-5 h-5 text-emerald-400"></i>
-        <h1 class="font-bold text-sm sm:text-base tracking-wide">Bank Sampah Flamboyan 4</h1>
+  <!-- HEADER NAVBAR RINGKAS -->
+<header class="bg-emerald-950 text-white sticky top-0 z-40 shadow-md">
+  <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+    <a href="index.html" class="flex items-center gap-2 text-emerald-100 hover:text-white transition font-medium text-xs sm:text-sm">
+      <i data-lucide="arrow-left" class="w-5 h-5"></i>
+      <span class="hidden sm:inline">Portal Utama</span>
+    </a>
+    <div class="flex items-center gap-2">
+      <i data-lucide="recycle" class="w-5 h-5 text-emerald-400"></i>
+      <h1 class="font-bold text-sm sm:text-base tracking-wide">Bank Sampah Flamboyan 4</h1>
+    </div>
+    <div class="w-8 sm:w-20"></div>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+
+  <!-- HERO SECTION -->
+  <div class="text-center space-y-1 max-w-2xl mx-auto">
+    <h2 class="text-xl sm:text-2xl font-extrabold text-emerald-950 tracking-tight">Pengelolaan & Tabungan Sampah Warga</h2>
+    <p class="text-xs text-slate-600">Pusat informasi pemilahan sampah anorganik, rekap tabungan warga, kas pengelola, dan rincian setoran berkala.</p>
+  </div>
+
+  <!-- 3 KARTU RINGKASAN DATA ATAS -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <div class="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between">
+      <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Total Sampah Terkumpul</span>
+      <div class="mt-1">
+        <span id="total-sampah-terkumpul" class="text-xl sm:text-2xl font-black text-emerald-900">0.0 Kg</span>
+        <p class="text-[11px] text-slate-500">Anorganik terpilah</p>
       </div>
-      <div class="w-20"></div>
     </div>
-  </header>
-
-  <!-- MAIN CONTENT -->
-  <main class="max-w-6xl mx-auto px-4 py-6 sm:py-8 flex-grow w-full space-y-6">
-
-    <!-- HERO SECTION -->
-    <div class="text-center space-y-2 max-w-2xl mx-auto">
-      <h2 class="text-2xl sm:text-3xl font-extrabold text-emerald-950 tracking-tight">Pengelolaan & Tabungan Sampah Warga</h2>
-      <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-        Pusat informasi pemilahan sampah anorganik, rekap tabungan warga, kas pengelola, dan rincian setoran berkala.
-      </p>
+    <div class="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between">
+      <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Total Nilai Tabungan Warga</span>
+      <div class="mt-1">
+        <span id="total-nilai-tabungan" class="text-xl sm:text-2xl font-black text-emerald-900">Rp 0</span>
+        <p class="text-[11px] text-slate-500">Siap dicairkan / diakumulasi</p>
+      </div>
     </div>
-    
-<!-- BANNER PROGRES & FOTO PERKEMBANGAN BANK SAMPAH -->
-      <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-emerald-100/80 my-6">
-        <div class="flex flex-col md:flex-row items-center gap-6">
-          <!-- Foto Progres Kegiatan -->
-          <div class="w-full md:w-1/3 h-52 bg-slate-100 rounded-xl overflow-hidden relative border border-slate-200 shrink-0">
-            <img id="progres-foto-kegiatan" src="" alt="Foto Progres Bank Sampah" class="w-full h-full object-cover hidden" onload="this.classList.remove('hidden'); document.getElementById('progres-foto-skeleton').classList.add('hidden');">
-            <div id="progres-foto-skeleton" class="absolute inset-0 flex items-center justify-center text-slate-400 text-xs font-medium bg-slate-50">
-              <i data-lucide="image" class="w-5 h-5 mr-2 opacity-50"></i> Memuat Foto Kegiatan...
-            </div>
+    <div class="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between">
+      <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Kas Operasional Bank Sampah</span>
+      <div class="mt-1">
+        <span id="kas-operasional-bank-sampah" class="text-xl sm:text-2xl font-black text-emerald-900">Rp 0</span>
+        <p class="text-[11px] text-slate-500">Saldo bersih pengelola & lorong</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 & 3. BANNER SLIDER PROGRES KONTRAK & RINGKAS -->
+  <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-emerald-100 relative">
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2">
+        <i data-lucide="trending-up" class="w-4 h-4 text-emerald-600"></i>
+        <h3 class="text-sm font-bold text-slate-800">Progres Perkembangan Bank Sampah</h3>
+      </div>
+      <!-- Tombol Navigasi Slider Progres -->
+      <div class="flex items-center gap-1.5">
+        <button id="btn-prev-progres" onclick="slideProgres(-1)" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition">
+          <i data-lucide="chevron-left" class="w-4 h-4"></i>
+        </button>
+        <span id="progres-slide-indicator" class="text-xs font-semibold text-slate-500 px-1">1 / 1</span>
+        <button id="btn-next-progres" onclick="slideProgres(1)" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition">
+          <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Container Slider Progres -->
+    <div class="flex flex-col md:flex-row items-center gap-4">
+      <div class="w-full md:w-1/3 h-36 bg-slate-100 rounded-xl overflow-hidden relative border border-slate-200 shrink-0">
+        <img id="progres-foto-kegiatan" src="" alt="Foto Progres" class="w-full h-full object-cover hidden" onload="this.classList.remove('hidden'); document.getElementById('progres-foto-skeleton').classList.add('hidden');">
+        <div id="progres-foto-skeleton" class="absolute inset-0 flex items-center justify-center text-slate-400 text-xs bg-slate-50">
+          Memuat Foto...
+        </div>
+      </div>
+
+      <div class="w-full md:w-2/3 flex flex-col justify-between space-y-2">
+        <div>
+          <div class="flex items-center gap-2 mb-1 flex-wrap">
+            <span id="progres-badge-langkah" class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2 py-0.5 rounded-full">Langkah 1</span>
+            <span id="progres-badge-status" class="bg-emerald-600 text-white text-[11px] font-semibold px-2 py-0.5 rounded-full">Selesai</span>
+            <span id="progres-tanggal" class="text-slate-400 text-[11px] ml-auto font-medium">11-Okt-2026</span>
           </div>
+          <h4 id="progres-judul-kegiatan" class="text-base font-bold text-slate-800">Judul Kegiatan</h4>
+          <p id="progres-deskripsi-kegiatan" class="text-slate-600 text-xs leading-relaxed line-clamp-2">Deskripsi singkat kegiatan.</p>
+        </div>
 
-          <!-- Rincian Progres & Agenda -->
-          <div class="w-full md:w-2/3 flex flex-col justify-between h-full space-y-3">
-            <div>
-              <div class="flex items-center gap-2 mb-2 flex-wrap">
-                <span id="progres-badge-langkah" class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-full">Langkah 1</span>
-                <span id="progres-badge-status" class="bg-emerald-600 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">Selesai</span>
-                <span id="progres-tanggal" class="text-slate-400 text-xs ml-auto font-medium">11-Okt-2026</span>
-              </div>
-              <h3 id="progres-judul-kegiatan" class="text-lg sm:text-xl font-bold text-slate-800 mb-1">Pembersihan & Persiapan Drop Point</h3>
-              <p id="progres-deskripsi-kegiatan" class="text-slate-600 text-xs sm:text-sm leading-relaxed">Pengelolaan sampah anorganik terpilah untuk kas tambahan warga.</p>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-slate-100">
-              <div class="flex items-start gap-2 bg-slate-50/80 p-2.5 rounded-lg border border-slate-100">
-                <div class="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 shrink-0"></div>
-                <div>
-                  <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Tahap Saat Ini</p>
-                  <p id="progres-tahap-detail" class="text-xs font-semibold text-slate-700 mt-0.5">Pembersihan area pemilahan</p>
-                </div>
-              </div>
-              <div class="flex items-start gap-2 bg-slate-50/80 p-2.5 rounded-lg border border-slate-100">
-                <div class="w-2 h-2 rounded-full bg-amber-500 mt-1.5 shrink-0"></div>
-                <div>
-                  <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Agenda Selanjutnya</p>
-                  <p id="progres-agenda-berikut" class="text-xs font-semibold text-slate-700 mt-0.5">Pembuatan tong/wadah drop point</p>
-                </div>
-              </div>
-            </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-slate-100">
+          <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+            <p class="text-[9px] text-slate-400 font-bold uppercase">Tahap Saat Ini</p>
+            <p id="progres-tahap-detail" class="text-xs font-semibold text-slate-700 truncate">-</p>
+          </div>
+          <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+            <p class="text-[9px] text-slate-400 font-bold uppercase">Agenda Selanjutnya</p>
+            <p id="progres-agenda-berikut" class="text-xs font-semibold text-slate-700 truncate">-</p>
           </div>
         </div>
       </div>
-    
-    <!-- 3 KARTU RINGKASAN DATA ATAS -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div class="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between space-y-2">
-        <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">Total Sampah Terkumpul</span>
-        <div>
-          <span id="total-sampah-terkumpul" class="text-2xl sm:text-3xl font-black text-emerald-900">0 Kg</span>
-          <p class="text-xs text-slate-500 mt-0.5">Anorganik terpilah</p>
-        </div>
-      </div>
+    </div>
+  </div>
 
-      <div class="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between space-y-2">
-        <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">Total Nilai Tabungan Warga</span>
-        <div>
-          <span id="total-nilai-tabungan" class="text-2xl sm:text-3xl font-black text-emerald-900">Rp 0</span>
-          <p class="text-xs text-slate-500 mt-0.5">Siap dicairkan / diakumulasi</p>
-        </div>
+  <!-- 4. TABEL REKAP TABUNGAN SAMPAH (MAX 10 BARIS + SCROLL) -->
+  <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-100">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+      <div>
+        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+          <i data-lucide="table" class="w-4 h-4 text-emerald-600"></i>
+          Rekap Tabungan Sampah Warga
+        </h3>
+        <p class="text-xs text-slate-500">Klik nama warga untuk melihat riwayat rincian setoran</p>
       </div>
-
-      <div class="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between space-y-2">
-        <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">Kas Operasional Bank Sampah</span>
-        <div>
-          <span id="kas-operasional-bank-sampah" class="text-2xl sm:text-3xl font-black text-emerald-900">Rp 0</span>
-          <p class="text-xs text-slate-500 mt-0.5">Saldo bersih pengelola & lorong</p>
-        </div>
-      </div>
+      <input type="text" id="input-cari-warga" onkeyup="window.cariWarga()" placeholder="Cari nama / blok..." class="px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg w-full sm:w-56 focus:outline-none focus:border-emerald-500">
     </div>
 
-    <!-- TABEL REKAP TABUNGAN WARGA -->
-    <div class="bg-white rounded-2xl border border-emerald-100 shadow-sm overflow-hidden p-4 sm:p-6 space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h3 class="text-base font-bold text-slate-800 flex items-center space-x-2">
-            <i data-lucide="table" class="w-4 h-4 text-emerald-600"></i>
-            <span>Rekap Tabungan Sampah Warga</span>
-          </h3>
-          <p class="text-xs text-slate-500">Klik nama warga untuk melihat riwayat rincian setoran</p>
-        </div>
-        <div>
-          <input type="text" id="input-cari-warga" onkeyup="window.cariWarga()" placeholder="Cari nama / blok..." class="w-full sm:w-64 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-emerald-500 transition">
-        </div>
-      </div>
-
-      <div class="overflow-x-auto rounded-xl border border-slate-100">
-        <table class="w-full text-left text-xs sm:text-sm">
-          <thead class="bg-emerald-50/70 text-emerald-950 font-bold border-b border-emerald-100">
+    <!-- Tampilan Scrollbar Tabel Maksimal 10 Baris -->
+    <div class="overflow-x-auto">
+      <div class="max-h-[400px] overflow-y-auto rounded-xl border border-slate-100">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-emerald-50/80 text-emerald-900 font-bold sticky top-0 z-10">
             <tr>
-              <th class="p-3 w-12">No</th>
+              <th class="p-3 w-12 text-center">No</th>
               <th class="p-3">Nama & Blok</th>
               <th class="p-3">Setoran Terakhir</th>
-              <th class="p-3">Total Berat (Kg)</th>
-              <th class="p-3">Saldo Tabungan</th>
+              <th class="p-3 text-right">Total Berat (Kg)</th>
+              <th class="p-3 text-right">Saldo Tabungan</th>
             </tr>
           </thead>
-          <tbody id="tbody-rekap-warga" class="divide-y divide-slate-100">
-            <tr>
-              <td colspan="5" class="p-4 text-center text-slate-400">Memuat data tabungan warga...</td>
-            </tr>
+          <tbody id="tabel-rekap-warga" class="divide-y divide-slate-100">
+            <!-- Diisi oleh JS -->
           </tbody>
         </table>
       </div>
     </div>
+  </div>
 
-    <!-- SECTION INVENTARIS & DOKUMENTASI -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      
-      <!-- KARTU INVENTARIS -->
-      <div class="bg-white rounded-2xl border border-emerald-100 shadow-sm p-5 flex flex-col justify-between space-y-4">
-        <div class="flex items-center space-x-2 border-b border-slate-100 pb-3">
-          <div class="p-2 bg-emerald-50 text-emerald-700 rounded-xl">
-            <i data-lucide="boxes" class="w-5 h-5"></i>
-          </div>
-          <div>
-            <h3 class="font-bold text-slate-800 text-sm sm:text-base">Daftar Inventaris Bank Sampah</h3>
-            <p class="text-xs text-slate-500">Peralatan & aset operasional pengelola</p>
-          </div>
-        </div>
-        
-        <div id="preview-inventaris-container" class="grid grid-cols-3 gap-2 py-1">
-          <div class="text-xs text-slate-400 col-span-3 text-center py-2">Memuat inventaris...</div>
-        </div>
-
-        <button onclick="window.openModal('modal-inventaris')" class="w-full py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 border border-emerald-200/60">
-          <span>Lihat Semua Inventaris</span>
-          <i data-lucide="arrow-right" class="w-4 h-4"></i>
-        </button>
+  <!-- 5. KARTU SLIDER DOKUMENTASI & GALERI KONTRAK RINGKAS -->
+  <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-100">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+          <i data-lucide="camera" class="w-4 h-4 text-emerald-600"></i>
+          Dokumentasi & Galeri Kegiatan
+        </h3>
+        <p class="text-xs text-slate-500">Foto dan video kegiatan pemilahan & bank sampah</p>
       </div>
-
-      <!-- KARTU DOKUMENTASI -->
-      <div class="bg-white rounded-2xl border border-emerald-100 shadow-sm p-5 flex flex-col justify-between space-y-4">
-        <div class="flex items-center space-x-2 border-b border-slate-100 pb-3">
-          <div class="p-2 bg-emerald-50 text-emerald-700 rounded-xl">
-            <i data-lucide="camera" class="w-5 h-5"></i>
-          </div>
-          <div>
-            <h3 class="font-bold text-slate-800 text-sm sm:text-base">Dokumentasi Pemilahan & Kegiatan</h3>
-            <p class="text-xs text-slate-500">Galeri foto aktivitas warga & tim</p>
-          </div>
-        </div>
-
-        <div id="preview-dokumentasi-container" class="grid grid-cols-3 gap-2 py-1">
-          <div class="text-xs text-slate-400 col-span-3 text-center py-2">Memuat foto kegiatan...</div>
-        </div>
-
-        <button onclick="window.openModal('modal-dokumentasi')" class="w-full py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 border border-emerald-200/60">
-          <span>Lihat Galeri Dokumentasi</span>
-          <i data-lucide="arrow-right" class="w-4 h-4"></i>
-        </button>
-      </div>
-
+      <button onclick="bukaGaleriModal()" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200">
+        Buka Galeri <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+      </button>
     </div>
 
-  </main>
+    <!-- Preview Single Slide Banner -->
+    <div onclick="bukaGaleriModal()" class="relative h-48 sm:h-64 rounded-xl overflow-hidden bg-slate-900 cursor-pointer group shadow-sm">
+      <img id="galeri-preview-img" src="" alt="Galeri Preview" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition duration-300">
+      <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-4">
+        <div class="text-white">
+          <span class="bg-emerald-600 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Preview Galeri</span>
+          <p id="galeri-preview-title" class="text-sm font-bold mt-1">Lihat Dokumentasi Lengkap</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- 6 & 7. MODAL GALERI POPUP (FOTO & VIDEO RESPONSIF + BACKDROP / ESC / BACK BUTTON INTERCEPT) -->
+<div id="modal-galeri" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6" onclick="tutupGaleriModalOnBackdrop(event)">
+  <div class="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative" onclick="event.stopPropagation()">
+    <!-- Header Modal Galeri -->
+    <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
+      <h3 class="font-bold text-sm sm:text-base flex items-center gap-2">
+        <i data-lucide="image" class="w-4 h-4 text-emerald-400"></i> Galeri Dokumentasi & Video
+      </h3>
+      <button onclick="tutupGaleriModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- Modal Content Penampil Media Utama -->
+    <div class="p-4 flex-grow overflow-y-auto space-y-4 bg-slate-950 flex flex-col items-center justify-center">
+      <div id="galeri-media-container" class="w-full max-h-[60vh] flex items-center justify-center overflow-hidden rounded-xl bg-black">
+        <!-- Disisipkan Video/Foto via JS -->
+      </div>
+      <p id="galeri-caption" class="text-xs text-slate-300 text-center font-medium"></p>
+    </div>
+
+    <!-- Thumbnails Navigasi Galeri -->
+    <div id="galeri-thumbnails" class="p-3 bg-slate-900 border-t border-slate-800 flex gap-2 overflow-x-auto">
+      <!-- Thumbnail item diisi JS -->
+    </div>
+  </div>
+</div>
 
   <!-- FOOTER -->
   <footer class="bg-slate-900 text-slate-400 text-xs py-6 border-t border-slate-800 mt-12">
@@ -940,6 +950,158 @@
 
     // Jalankan otomatis
     document.addEventListener('DOMContentLoaded', loadProgresBankSampahDetail);
+
+    // Global Variables untuk Slider Progres
+let globalProgresList = [];
+let currentProgresIndex = 0;
+
+// 1. Fungsi Slider Progres
+function renderProgresSlide(index) {
+  if (globalProgresList.length === 0) return;
+  if (index < 0) index = 0;
+  if (index >= globalProgresList.length) index = globalProgresList.length - 1;
+  currentProgresIndex = index;
+
+  const item = globalProgresList[currentProgresIndex];
+
+  document.getElementById('progres-slide-indicator').innerText = `${currentProgresIndex + 1} / ${globalProgresList.length}`;
+  document.getElementById('progres-badge-langkah').innerText = item.langkah;
+  document.getElementById('progres-badge-status').innerText = item.status;
+  document.getElementById('progres-tanggal').innerText = item.tanggal;
+  document.getElementById('progres-judul-kegiatan').innerText = item.judul;
+  document.getElementById('progres-deskripsi-kegiatan').innerText = item.deskripsi;
+  document.getElementById('progres-tahap-detail').innerText = item.tahapDetail.replace(/^Tahap:\s*/i, '');
+  document.getElementById('progres-agenda-berikut').innerText = item.agendaBerikut.replace(/^Agenda:\s*/i, '');
+
+  const imgEl = document.getElementById('progres-foto-kegiatan');
+  if (imgEl && item.urlFoto) {
+    imgEl.src = item.urlFoto;
+  }
+}
+
+function slideProgres(direction) {
+  renderProgresSlide(currentProgresIndex + direction);
+}
+
+// Override Pembaca CSV Progres
+async function loadProgresBankSampahDetail() {
+  try {
+    const response = await fetch(CSV_PROGRES_URL);
+    const csvText = await response.text();
+    const lines = csvText.split('\n').map(l => l.trim()).filter(l => l);
+    if (lines.length <= 1) return;
+
+    globalProgresList = lines.slice(1).map(line => {
+      const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"\vert{}"$/g, '').trim());
+      return {
+        tanggal: cols[0] || '',
+        langkah: cols[1] || '',
+        judul: cols[2] || '',
+        deskripsi: cols[3] || '',
+        status: cols[4] || '',
+        tahapDetail: cols[5] || '',
+        agendaBerikut: cols[6] || '',
+        urlFoto: formatDriveImgUrl(cols[7] || '')
+      };
+    });
+
+    // Default ke progres yang terbaru
+    renderProgresSlide(globalProgresList.length - 1);
+  } catch (err) {
+    console.error("Gagal memuat CSV progres:", err);
+  }
+}
+
+// 2. LOGIKA GALERI POPUP INTERAKTIF (Backdrop, ESC Key, & Tombol Back HP)
+let isGaleriOpen = false;
+
+function bukaGaleriModal() {
+  const modal = document.getElementById('modal-galeri');
+  if (!modal) return;
+
+  modal.classList.remove('hidden');
+  isGaleriOpen = true;
+
+  // Render media pertama dari data progres/dokumentasi
+  if (globalProgresList.length > 0) {
+    tampilkanMediaGaleri(0);
+    renderThumbnailsGaleri();
+  }
+
+  // Push State Ke History Browser untuk Menghadapkan Tombol Back HP
+  history.pushState({ modalOpen: true }, "");
+}
+
+function tutupGaleriModal() {
+  const modal = document.getElementById('modal-galeri');
+  if (!modal || !isGaleriOpen) return;
+
+  modal.classList.add('hidden');
+  isGaleriOpen = false;
+
+  // Hentikan video jika ada yang sedang diputar
+  const container = document.getElementById('galeri-media-container');
+  if (container) container.innerHTML = '';
+}
+
+function tutupGaleriModalOnBackdrop(e) {
+  if (e.target.id === 'modal-galeri') {
+    tutupGaleriModal();
+  }
+}
+
+// Menangani Tombol ESC Keyboard
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && isGaleriOpen) {
+    tutupGaleriModal();
+  }
+});
+
+// Menangani Tombol Back di Browser/HP (popstate)
+window.addEventListener('popstate', function(e) {
+  if (isGaleriOpen) {
+    tutupGaleriModal();
+  }
+});
+
+// Penampil Media (Foto / Video Responsif)
+function tampilkanMediaGaleri(index) {
+  const item = globalProgresList[index];
+  if (!item) return;
+
+  const container = document.getElementById('galeri-media-container');
+  const caption = document.getElementById('galeri-caption');
+
+  caption.innerText = `${item.judul} - ${item.tanggal}`;
+
+  // Deteksi jika link merupakan video YouTube / MP4
+  if (item.urlFoto.includes('youtube.com') || item.urlFoto.includes('youtu.be')) {
+    const embedUrl = item.urlFoto.replace('watch?v=', 'embed/');
+    container.innerHTML = `<iframe src="${embedUrl}" class="w-full h-64 sm:h-96 rounded-xl" frameborder="0" allowfullscreen></iframe>`;
+  } else {
+    container.innerHTML = `<img src="${item.urlFoto}" alt="Dokumentasi" class="max-h-[55vh] w-auto object-contain rounded-xl">`;
+  }
+}
+
+function renderThumbnailsGaleri() {
+  const thumbBox = document.getElementById('galeri-thumbnails');
+  if (!thumbBox) return;
+
+  let html = '';
+  globalProgresList.forEach((item, idx) => {
+    html += `
+      <div onclick="tampilkanMediaGaleri(${idx})" class="w-16 h-12 bg-slate-800 rounded-lg overflow-hidden shrink-0 border border-slate-700 cursor-pointer hover:border-emerald-500 transition">
+        <img src="${item.urlFoto}" class="w-full h-full object-cover">
+      </div>
+    `;
+  });
+  thumbBox.innerHTML = html;
+}
+
+// Inisialisasi
+document.addEventListener('DOMContentLoaded', function() {
+  loadProgresBankSampahDetail();
+});
     
   </script>
 </body>
