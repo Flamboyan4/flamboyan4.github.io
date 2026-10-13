@@ -436,7 +436,8 @@
         const namaBlok = values[1] || '-';
         const setoranTerakhir = values[2] || '-';
         const totalBeratWarga = parseFloat(values[3]) || 0;
-        const totalSaldoWarga = parseFloat(values[4]) || 0;
+        let rawSaldoWarga = (values[4] || '0').toString().replace(/[^0-9]/g, '');
+        const totalSaldoWarga = parseFloat(rawSaldoWarga) || 0;
 
         totalSampahAll += totalBeratWarga;
         totalSaldoAll += totalSaldoWarga;
@@ -469,7 +470,8 @@
       let totalKasOps = 0;
       globalRiwayatData.forEach(r => {
         const vals = Object.values(r);
-        const kasRow = parseFloat(vals[9]) || 0;
+        let rawKas = (vals[9] || '0').toString().replace(/[^0-9]/g, '');
+        const kasRow = parseFloat(rawKas) || 0;
         totalKasOps += kasRow;
       });
 
