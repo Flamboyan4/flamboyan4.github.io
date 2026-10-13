@@ -1356,6 +1356,26 @@
       await loadInventaris();
       await loadDokumentasi();
     });
+
+    // Tutup modal otomatis saat area luar/blank area diklik
+window.addEventListener('click', function(e) {
+  const modalIds = [
+    'modal-rincian', 
+    'modal-sampah-bulan', 
+    'modal-tabungan-bulan', 
+    'modal-cashflow-bulan',
+    'modal-arsip-galeri',
+    'modal-gallery-grid'
+  ];
+
+  modalIds.forEach(id => {
+    const modalEl = document.getElementById(id);
+    if (modalEl && e.target === modalEl) {
+      modalEl.classList.add('hidden');
+    }
+  });
+});
+    
   </script>
 </body>
 </html>
