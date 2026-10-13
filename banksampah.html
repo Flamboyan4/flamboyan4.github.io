@@ -1794,78 +1794,48 @@ function prosesCetakPDF() {
     page-break-before: always;
   }
 
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
-    border-bottom: 2px solid #047857;
-    padding-bottom: 8px;
-    margin-bottom: 12px;
-  }
-
-.kop-bank {
+  
+.header-laporan {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 14px;
-  margin-bottom: 18px;
-  padding-bottom: 12px;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  padding-bottom: 10px;
+  margin-bottom: 16px;
   border-bottom: 2px solid #222;
 }
 
-.kop-bank .logo-bank {
-  width: 72px;
-  height: 72px;
+.logo-bank {
+  width: 64px;
+  height: 64px;
   object-fit: contain;
   flex-shrink: 0;
 }
 
-.kop-bank .identitas-bank {
-  text-align: left;
+.header-identitas {
+  flex: 1;
+  min-width: 0;
 }
 
-.kop-bank .nama-bank {
-  font-size: 20px;
+.header-identitas .title {
+  font-size: 18px;
   font-weight: 800;
   margin: 0 0 4px;
-  text-transform: uppercase;
 }
 
-.kop-bank .subjudul-bank {
-  font-size: 11px;
-  margin: 0;
+.header-identitas .subtitle,
+.header-identitas .periode {
+  font-size: 10px;
+  margin: 3px 0;
 }
 
-  .title {
-    font-size: 17px;
-    color: #064e3b;
-    margin: 0 0 4px;
-  }
+.header-laporan .badge {
+  flex-shrink: 0;
+  font-size: 9px;
+  white-space: nowrap;
+}
 
-  .subtitle {
-    font-size: 9px;
-    color: #475569;
-    margin: 2px 0;
-  }
-
-  .periode {
-    font-size: 10px;
-    font-weight: bold;
-    color: #047857;
-    margin: 5px 0 0;
-  }
-
-  .badge {
-    font-size: 8px;
-    font-weight: bold;
-    color: #065f46;
-    background: #d1fae5;
-    padding: 5px 7px;
-    border: 1px solid #a7f3d0;
-    border-radius: 4px;
-    white-space: nowrap;
-  }
 
   h2 {
     font-size: 11px;
@@ -2059,25 +2029,24 @@ function prosesCetakPDF() {
 <section>
   <header class="header">
   
-<div class="kop-bank">
+<div class="header-laporan">
   <img
     class="logo-bank"
     src="https://drive.google.com/thumbnail?id=1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8&sz=w500"
     alt="Logo Bank Sampah Flamboyan 4"
   >
 
-  <div class="identitas-bank">
-    <p class="nama-bank">BANK SAMPAH FLAMBOYAN 4</p>
-    <p class="subjudul-bank">Laporan Administrasi dan Keuangan</p>
+  <div class="header-identitas">
+    <h1 class="title">BANK SAMPAH FLAMBOYAN 4</h1>
+    <p class="subtitle">
+      RT 001 RW 026 Pesona Kahuripan 2, Desa Sukamanah, Kec. Klapanunggal
+    </p>
+    <p class="periode">${esc(periode)}</p>
   </div>
+
+  <span class="badge">LAPORAN RESMI</span>
 </div>
 
-    <div>
-      <h1 class="title">BANK SAMPAH FLAMBOYAN 4</h1>
-      <p class="subtitle">RT 001 RW 026 Pesona Kahuripan 2, Desa Sukamanah, Kec. Klapanunggal</p>
-      <p class="periode">${esc(periode)}</p>
-    </div>
-    <span class="badge">LAPORAN RESMI</span>
   </header>
 
   <h2>Ringkasan Kinerja</h2>
