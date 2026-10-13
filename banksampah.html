@@ -40,7 +40,7 @@
     <!-- 1. 3 KARTU RINGKASAN DATA TOTALAN -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-5">
       
-      <!-- Card 1: Total Sampah (Klik untuk Rincian Jenis Sampah) -->
+      <!-- Card 1: Total Sampah -->
       <div onclick="bukaPopupTotalSampah()" class="bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-emerald-500 hover:shadow-md transition group">
         <div class="flex items-center justify-between">
           <span class="text-xs font-bold tracking-wider text-slate-400 uppercase group-hover:text-emerald-700 transition">Total Sampah Terkumpul</span>
@@ -52,7 +52,7 @@
         </div>
       </div>
 
-      <!-- Card 2: Total Tabungan Warga (Klik untuk Daftar Nama & Nominal Saja) -->
+      <!-- Card 2: Total Tabungan Warga -->
       <div onclick="bukaPopupTotalTabungan()" class="bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-emerald-500 hover:shadow-md transition group">
         <div class="flex items-center justify-between">
           <span class="text-xs font-bold tracking-wider text-slate-400 uppercase group-hover:text-emerald-700 transition">Total Nilai Tabungan Warga</span>
@@ -154,7 +154,7 @@
               <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-3.5">
                 <div class="text-white">
                   <span class="bg-emerald-600 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Buka Galeri</span>
-                  <p id="galeri-preview-caption" class="text-xs sm:text-sm font-bold mt-1">Album Kegiatan Warga</p>
+                  <p class="text-xs sm:text-sm font-bold mt-1">Album Kegiatan Warga</p>
                 </div>
               </div>
             </div>
@@ -281,13 +281,13 @@
     </div>
   </div>
 
-  <!-- TIER 1: MODAL ARSIP DOKUMENTASI KEGIATAN -->
+  <!-- TIER 1: MODAL ARSIP DOKUMENTASI (PILIH ALBUM) -->
   <div id="modal-arsip-galeri" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6" onclick="tutupArsipGaleriOnBackdrop(event)">
     <div class="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative border border-slate-100" onclick="event.stopPropagation()">
       <div class="p-4 sm:p-5 bg-white border-b border-slate-100 flex items-center justify-between">
         <div>
           <h3 class="font-extrabold text-base sm:text-xl text-slate-900">Arsip Dokumentasi Kegiatan</h3>
-          <p class="text-xs sm:text-sm text-slate-500">Seluruh album foto & kegiatan warga Flamboyan 4</p>
+          <p class="text-xs sm:text-sm text-slate-500">Pilih album kegiatan warga</p>
         </div>
         <button onclick="tutupArsipGaleriModal()" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -295,57 +295,71 @@
       </div>
 
       <div id="arsip-album-grid" class="p-4 sm:p-6 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 bg-slate-50/50">
-        <!-- Diisi JS Album -->
-      </div>
-    </div>
-  </div>
-
-  <!-- TIER 2: MODAL ISI MEDIA ALBUM -->
-  <div id="modal-isi-album" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6" onclick="tutupIsiAlbumOnBackdrop(event)">
-    <div class="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative border border-slate-100" onclick="event.stopPropagation()">
-      <div class="p-4 sm:p-5 bg-white border-b border-slate-100 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <button onclick="kembaliKeArsipAlbum()" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 flex items-center justify-center transition">
-            <i data-lucide="arrow-left" class="w-5 h-5"></i>
-          </button>
-          <div>
-            <h3 id="isi-album-title" class="font-extrabold text-base sm:text-xl text-slate-900">Judul Album</h3>
-            <p id="isi-album-subtext" class="text-xs sm:text-sm text-slate-500">Klik media untuk memperbesar</p>
-          </div>
-        </div>
-        <button onclick="tutupIsiAlbumModal()" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <div id="isi-album-media-grid" class="p-4 sm:p-6 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 bg-slate-50/50">
         <!-- Diisi JS -->
       </div>
     </div>
   </div>
 
-  <!-- TIER 3: LIGHTBOX PENUH -->
+  <!-- TIER 2: MODAL GRID POP-UP ISI ALBUM -->
+  <div id="modal-gallery-grid" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[80] hidden flex items-center justify-center p-3 md:p-6" onclick="tutupGalleryGrid()">
+    <div class="bg-white w-full max-w-5xl max-h-[85vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
+      <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+        <div>
+          <h3 id="gallery-grid-title" class="text-base md:text-lg font-bold text-slate-900">Galeri Album</h3>
+          <p id="gallery-grid-subtitle" class="text-xs text-slate-500">Klik salah satu media untuk melihat/memutar</p>
+        </div>
+        <button onclick="tutupGalleryGrid()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
+          <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
+        </button>
+      </div>
+      <div id="gallery-grid-container" class="p-4 md:p-6 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
+        <p class="text-slate-400 text-xs col-span-full text-center">Memuat seluruh media album...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIER 3: LIGHTBOX MODAL FULLSCREEN -->
+  <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-between p-3 md:p-6" onclick="tutupLightbox()">
+    <div class="w-full flex items-center justify-between z-30 pb-2" onclick="event.stopPropagation()">
+      <p id="lightbox-caption" class="text-xs md:text-sm font-semibold tracking-wide text-white truncate max-w-[70%]" title=""></p>
+      <div class="flex items-center space-x-2">
+        <button onclick="tutupLightbox()" class="text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition shadow-md">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+
+    <button onclick="geserLightbox(-1)" class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-30 text-white bg-slate-800/80 hover:bg-slate-700 p-3 rounded-full transition shadow-lg">
+      <i data-lucide="chevron-left" class="w-6 h-6 md:w-8 md:h-8"></i>
+    </button>
+    <button onclick="geserLightbox(1)" class="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-30 text-white bg-slate-800/80 hover:bg-slate-700 p-3 rounded-full transition shadow-lg">
+      <i data-lucide="chevron-right" class="w-6 h-6 md:w-8 md:h-8"></i>
+    </button>
+
+    <div id="lightbox-media-container" class="relative w-full flex-grow flex items-center justify-center my-auto overflow-hidden"></div>
+
+    <div class="w-full text-center z-30 pt-2">
+      <p id="lightbox-counter" class="text-xs text-slate-400 font-mono"></p>
+    </div>
+  </div>
+
+  <!-- SINGLE PLAYER LIGHTBOX -->
   <div id="modal-single-player" class="fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-2 sm:p-6" onclick="tutupSinglePlayerOnBackdrop(event)">
     <div class="relative w-full max-w-4xl h-full max-h-[90vh] flex flex-col items-center justify-center" onclick="event.stopPropagation()">
       <button onclick="tutupSinglePlayer()" class="absolute top-2 right-2 sm:-top-10 sm:-right-2 z-50 w-10 h-10 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center transition shadow-lg">
         <i data-lucide="x" class="w-6 h-6"></i>
       </button>
-      <button onclick="geserMedia(-1)" class="absolute left-2 sm:-left-12 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center transition shadow-lg">
-        <i data-lucide="chevron-left" class="w-7 h-7"></i>
-      </button>
-      <button onclick="geserMedia(1)" class="absolute right-2 sm:-right-12 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center transition shadow-lg">
-        <i data-lucide="chevron-right" class="w-7 h-7"></i>
-      </button>
       <div id="single-player-container" class="w-full flex-grow flex items-center justify-center overflow-hidden rounded-2xl bg-black/40 p-2"></div>
       <div class="mt-3 text-center space-y-1">
         <p id="single-player-caption" class="text-xs sm:text-sm font-semibold text-white tracking-wide"></p>
-        <p id="single-player-counter" class="text-[11px] text-slate-400 font-medium"></p>
       </div>
     </div>
   </div>
 
   <!-- SCRIPT UTAMA -->
   <script>
+    const APPS_SCRIPT_PROXY_URL = "https://script.google.com/macros/s/AKfycbwRWCAhBEQigUBxmq8DPhc8nklkhfAr0GAuxpSvufBsg2XWvgBx02P2Isg6KwqAgsnouA/exec";
+
     const CSV_REKAP_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=0&single=true&output=csv";
     const CSV_RIWAYAT_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=1811693263&single=true&output=csv";
     const CSV_INVENTARIS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=1819624619&single=true&output=csv";
@@ -355,12 +369,9 @@
     let globalRekapData = [];
     let globalRiwayatData = [];
     let globalProgresList = [];
-    let globalDokumentasiList = [];
-    let globalInventarisList = [];
-
+    let globalAlbums = [];
     let currentAlbumItems = [];
-    let currentIndex = 0;
-    let currentAlbumTitle = '';
+    let currentLightboxIndex = 0;
 
     function parseNumberFlexible(val) {
       if (!val) return 0;
@@ -386,17 +397,14 @@
       });
     }
 
-    // 1. DATA REKAP & RIWAYAT WARGA
     async function loadDataUtama() {
       try {
         const [resRekap, resRiwayat] = await Promise.all([
           fetch(CSV_REKAP_URL + "&t=" + Date.now()),
           fetch(CSV_RIWAYAT_URL + "&t=" + Date.now())
         ]);
-
         globalRekapData = parseCSV(await resRekap.text());
         globalRiwayatData = parseCSV(await resRiwayat.text());
-
         renderTabelWarga(globalRekapData);
         updateKasOperasional(globalRiwayatData);
       } catch (err) {
@@ -438,10 +446,8 @@
       });
 
       tbody.innerHTML = html || `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada data tabungan warga.</td></tr>`;
-
       if (document.getElementById('total-sampah-terkumpul')) document.getElementById('total-sampah-terkumpul').innerText = `${totalSampahAll.toFixed(1)} Kg`;
       if (document.getElementById('total-nilai-tabungan')) document.getElementById('total-nilai-tabungan').innerText = `Rp ${Math.round(totalSaldoAll).toLocaleString('id-ID')}`;
-      
       if (window.lucide) lucide.createIcons();
     }
 
@@ -461,7 +467,6 @@
       renderTabelWarga(filtered);
     }
 
-    // 2. POPUP CARD 1 & CARD 2
     function bukaPopupTotalSampah() {
       let totalKardus = 0, totalBotol = 0, totalGelas = 0, totalKaleng = 0;
       globalRiwayatData.forEach(r => {
@@ -492,12 +497,8 @@
       `;
       document.getElementById('modal-total-sampah').classList.remove('hidden');
     }
-    function tutupPopupTotalSampah() {
-      document.getElementById('modal-total-sampah').classList.add('hidden');
-    }
-    function tutupPopupTotalSampahOnBackdrop(e) {
-      if (e.target.id === 'modal-total-sampah') tutupPopupTotalSampah();
-    }
+    function tutupPopupTotalSampah() { document.getElementById('modal-total-sampah').classList.add('hidden'); }
+    function tutupPopupTotalSampahOnBackdrop(e) { if (e.target.id === 'modal-total-sampah') tutupPopupTotalSampah(); }
 
     function bukaPopupTotalTabungan() {
       const tbody = document.getElementById('content-tabel-tabungan-singkat');
@@ -516,14 +517,9 @@
       tbody.innerHTML = html || `<tr><td colspan="2" class="p-4 text-center text-slate-400">Belum ada data.</td></tr>`;
       document.getElementById('modal-total-tabungan').classList.remove('hidden');
     }
-    function tutupPopupTotalTabungan() {
-      document.getElementById('modal-total-tabungan').classList.add('hidden');
-    }
-    function tutupPopupTotalTabunganOnBackdrop(e) {
-      if (e.target.id === 'modal-total-tabungan') tutupPopupTotalTabungan();
-    }
+    function tutupPopupTotalTabungan() { document.getElementById('modal-total-tabungan').classList.add('hidden'); }
+    function tutupPopupTotalTabunganOnBackdrop(e) { if (e.target.id === 'modal-total-tabungan') tutupPopupTotalTabungan(); }
 
-    // 3. PROGRES & INVENTARIS
     async function loadProgresBankSampahDetail() {
       try {
         const response = await fetch(CSV_PROGRES_URL + "&t=" + Date.now());
@@ -559,7 +555,7 @@
               </div>
               <div class="flex gap-3.5 items-center cursor-pointer" onclick="bukaLightboxSingle('${item.urlFoto}', '${item.judul}')">
                 <div class="w-16 h-16 sm:w-20 sm:h-20 bg-slate-100 rounded-xl overflow-hidden shrink-0 border border-slate-200">
-                  <img src="${item.urlFoto}" alt="Foto" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1532996122724-e3c3fa9a0d3f?w=400';">
+                  <img src="${item.urlFoto}" alt="Foto" class="w-full h-full object-cover">
                 </div>
                 <div class="min-w-0 flex-grow">
                   <h4 class="text-sm sm:text-base font-bold text-slate-800 line-clamp-1">${item.judul}</h4>
@@ -586,26 +582,26 @@
         const container = document.getElementById('container-inventaris-list');
         if (!container) return;
 
-        globalInventarisList = [];
+        let inventarisList = [];
         rows.forEach(r => {
           const nama = r[0] || '-';
           const qty = r[1] || '0';
           const urlRaw = r[3] || r[2] || '';
           const urlFoto = formatDriveImgUrl(urlRaw);
           if (nama !== '-' && nama !== 'Nama Barang') {
-            globalInventarisList.push({ nama, qty, urlFoto });
+            inventarisList.push({ nama, qty, urlFoto });
           }
         });
 
         let html = '';
-        globalInventarisList.forEach(item => {
+        inventarisList.forEach(item => {
           const hasImg = item.urlFoto && item.urlFoto.startsWith('http');
           const clickAttr = hasImg ? `onclick="bukaLightboxSingle('${item.urlFoto}', '${item.nama}')"` : '';
           const cursorClass = hasImg ? 'cursor-pointer hover:border-emerald-300 transition' : '';
           html += `
             <div ${clickAttr} class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs sm:text-sm ${cursorClass}">
               <div class="flex items-center gap-2.5 min-w-0">
-                ${hasImg ? `<img src="${item.urlFoto}" class="w-9 h-9 rounded-lg object-cover shrink-0 border border-slate-200" onerror="this.style.display='none'">` : `<div class="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0 text-emerald-700"><i data-lucide="box" class="w-4 h-4"></i></div>`}
+                ${hasImg ? `<img src="${item.urlFoto}" class="w-9 h-9 rounded-lg object-cover shrink-0 border border-slate-200">` : `<div class="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0 text-emerald-700"><i data-lucide="box" class="w-4 h-4"></i></div>`}
                 <span class="font-semibold text-slate-700 truncate">${item.nama}</span>
               </div>
               <span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full text-xs shrink-0 ml-2">${item.qty} Unit</span>
@@ -619,61 +615,166 @@
       }
     }
 
-    // 4. DOKUMENTASI (EKSTRAKSI FILE ID LANGSUNG / AMAN)
     async function loadDokumentasi() {
       try {
         const response = await fetch(CSV_DOKUMENTASI_URL + "&t=" + Date.now());
         const rows = parseCSV(await response.text());
-        const albumMap = {};
+        globalAlbums = [];
 
         for (const r of rows) {
-          const judul = r[0] || 'Kegiatan Bank Sampah';
-          const tanggal = r[1] || '11-Okt-2026';
-          const seluruhUrl = r.slice(2).join(' ');
+          const tanggal = r[0] || '';
+          const judul = r[1] || '';
+          const deskripsi = r[2] || '';
+          const folderUrl = r[3] || '';
 
-          if (!albumMap[judul]) {
-            albumMap[judul] = { judul, tanggal, items: [] };
-          }
+          if (!judul) continue;
 
-          // Ekstraksi SEMUA File ID GDrive yang ada di baris tersebut
-          const regexGdrive = /(?:\/d\/|\/file\/d\/|id=)([a-zA-Z0-9_-]{25,})/g;
-          let match;
-          while ((match = regexGdrive.exec(seluruhUrl)) !== null) {
-            const fileUrl = `https://lh3.googleusercontent.com/d/${match[1]}`;
-            if (!albumMap[judul].items.find(i => i.url === fileUrl)) {
-              albumMap[judul].items.push({ url: fileUrl, isVideo: false });
-            }
-          }
+          let folderId = '';
+          const match = folderUrl.match(/(?:folders\/|id=)([a-zA-Z0-9_-]+)/);
+          if (match && match[1]) folderId = match[1];
 
-          // Ekstraksi Link YouTube
-          const regexYt = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{10,12})/g;
-          while ((match = regexYt.exec(seluruhUrl)) !== null) {
-            const ytUrl = `https://www.youtube.com/watch?v=${match[1]}`;
-            if (!albumMap[judul].items.find(i => i.url === ytUrl)) {
-              albumMap[judul].items.push({ url: ytUrl, isVideo: true });
-            }
-          }
+          globalAlbums.push({ tanggal, judul, deskripsi, folderId, items: [] });
         }
 
-        globalDokumentasiList = Object.values(albumMap).filter(a => a.items.length > 0);
-        const previewImg = document.getElementById('galeri-preview-img');
-        const captionPreview = document.getElementById('galeri-preview-caption');
-
-        if (globalDokumentasiList.length > 0) {
-          const firstAlbum = globalDokumentasiList[0];
-          if (captionPreview) captionPreview.innerText = firstAlbum.judul;
-          if (previewImg && firstAlbum.items.length > 0) {
-            previewImg.src = firstAlbum.items[0].url;
-          }
-        } else if (globalProgresList.length > 0 && previewImg) {
-          previewImg.src = globalProgresList[0].urlFoto;
+        if (globalAlbums.length > 0 && globalAlbums[0].folderId) {
+          try {
+            const resFiles = await fetch(`${APPS_SCRIPT_PROXY_URL}?folderId=${globalAlbums[0].folderId}`);
+            const dataFiles = await resFiles.json();
+            if (dataFiles.files && dataFiles.files.length > 0) {
+              document.getElementById('galeri-preview-img').src = dataFiles.files[0].url;
+            }
+          } catch (e) {}
+        } else if (globalProgresList.length > 0) {
+          document.getElementById('galeri-preview-img').src = globalProgresList[0].urlFoto;
         }
       } catch (err) {
         console.error("Gagal memuat dokumentasi:", err);
       }
     }
 
-    // 5. MODAL RINCIAN WARGA
+    function bukaArsipGaleriModal() {
+      const grid = document.getElementById('arsip-album-grid');
+      let html = '';
+
+      globalAlbums.forEach((album, idx) => {
+        html += `
+          <div onclick="bukaAlbumIndex(${idx})" class="bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-emerald-500 shadow-xs hover:shadow-md cursor-pointer transition group">
+            <div class="p-4">
+              <span class="text-xs font-bold text-emerald-600 tracking-wider uppercase">${album.tanggal}</span>
+              <h4 class="text-sm md:text-base font-bold text-slate-800 line-clamp-1 mt-1 group-hover:text-emerald-700 transition">${album.judul}</h4>
+              <p class="text-xs text-slate-500 line-clamp-2 mt-1">${album.deskripsi}</p>
+            </div>
+            <div class="px-4 pb-4">
+              <span class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
+                <i data-lucide="folder" class="w-3.5 h-3.5"></i> Lihat Album
+              </span>
+            </div>
+          </div>
+        `;
+      });
+
+      grid.innerHTML = html || `<p class="text-sm text-slate-400 col-span-3 text-center py-8">Belum ada album kegiatan.</p>`;
+      if (window.lucide) lucide.createIcons();
+      document.getElementById('modal-arsip-galeri').classList.remove('hidden');
+    }
+
+    function tutupArsipGaleriModal() {
+      document.getElementById('modal-arsip-galeri').classList.add('hidden');
+    }
+    function tutupArsipGaleriOnBackdrop(e) {
+      if (e.target.id === 'modal-arsip-galeri') tutupArsipGaleriModal();
+    }
+
+    async function bukaAlbumIndex(idx) {
+      const album = globalAlbums[idx];
+      if (!album) return;
+
+      tutupArsipGaleriModal();
+      document.getElementById('gallery-grid-title').innerText = album.judul;
+      document.getElementById('gallery-grid-subtitle').innerText = album.deskripsi || album.tanggal;
+      document.getElementById('gallery-grid-container').innerHTML = `<p class="text-slate-400 text-xs col-span-full text-center py-6">Memuat foto dari Google Drive...</p>`;
+      document.getElementById('modal-gallery-grid').classList.remove('hidden');
+
+      try {
+        if (album.items.length === 0 && album.folderId) {
+          const res = await fetch(`${APPS_SCRIPT_PROXY_URL}?folderId=${album.folderId}`);
+          const data = await res.json();
+          album.items = data.files || [];
+        }
+
+        currentAlbumItems = album.items;
+        const container = document.getElementById('gallery-grid-container');
+
+        if (currentAlbumItems.length === 0) {
+          container.innerHTML = `<p class="text-slate-400 text-xs col-span-full text-center py-6">Tidak ada media di dalam folder ini.</p>`;
+          return;
+        }
+
+        let html = '';
+        currentAlbumItems.forEach((item, i) => {
+          if (item.type === 'video') {
+            html += `
+              <div onclick="bukaLightbox(${i})" class="h-40 md:h-48 bg-slate-900 rounded-xl overflow-hidden relative border border-slate-200 hover:border-emerald-500 cursor-pointer shadow-xs group">
+                <div class="absolute inset-0 flex items-center justify-center z-10">
+                  <div class="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition">
+                    <i data-lucide="play" class="w-4 h-4 fill-white ml-0.5"></i>
+                  </div>
+                </div>
+                <div class="absolute top-2 left-2 z-10 bg-red-600 text-white text-[9px] font-bold px-2 py-0.5 rounded">VIDEO</div>
+              </div>
+            `;
+          } else {
+            html += `
+              <div onclick="bukaLightbox(${i})" class="h-40 md:h-48 bg-slate-100 rounded-xl overflow-hidden border border-slate-200 hover:border-emerald-500 cursor-pointer shadow-xs group relative">
+                <img src="${item.url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+              </div>
+            `;
+          }
+        });
+        container.innerHTML = html;
+        if (window.lucide) lucide.createIcons();
+      } catch (err) {
+        document.getElementById('gallery-grid-container').innerHTML = `<p class="text-red-500 text-xs col-span-full text-center py-6">Gagal memuat folder dari Google Drive.</p>`;
+      }
+    }
+
+    function tutupGalleryGrid() {
+      document.getElementById('modal-gallery-grid').classList.add('hidden');
+    }
+
+    function bukaLightbox(index) {
+      currentLightboxIndex = index;
+      renderLightbox();
+      document.getElementById('lightbox-modal').classList.remove('hidden');
+    }
+
+    function renderLightbox() {
+      const item = currentAlbumItems[currentLightboxIndex];
+      if (!item) return;
+
+      const container = document.getElementById('lightbox-media-container');
+      document.getElementById('lightbox-caption').innerText = item.name || 'Dokumentasi Warga';
+      document.getElementById('lightbox-counter').innerText = `${currentLightboxIndex + 1} dari ${currentAlbumItems.length}`;
+
+      if (item.type === 'video') {
+        container.innerHTML = `<video src="${item.url}" controls autoplay class="max-h-[70vh] max-w-full rounded-xl shadow-2xl"></video>`;
+      } else {
+        container.innerHTML = `<img src="${item.url}" class="max-h-[70vh] max-w-full h-auto object-contain rounded-xl shadow-2xl">`;
+      }
+    }
+
+    function geserLightbox(dir) {
+      currentLightboxIndex += dir;
+      if (currentLightboxIndex < 0) currentLightboxIndex = currentAlbumItems.length - 1;
+      else if (currentLightboxIndex >= currentAlbumItems.length) currentLightboxIndex = 0;
+      renderLightbox();
+    }
+
+    function tutupLightbox() {
+      document.getElementById('lightbox-modal').classList.add('hidden');
+      document.getElementById('lightbox-media-container').innerHTML = '';
+    }
+
     function bukaRincianWarga(namaBlok, totalBerat, totalSaldo) {
       document.getElementById('modal-nama-warga').innerText = namaBlok;
       document.getElementById('modal-total-berat').innerText = `${totalBerat.toFixed(1)} Kg`;
@@ -707,155 +808,34 @@
       tbody.innerHTML = html || `<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada catatan setoran.</td></tr>`;
       document.getElementById('modal-rincian').classList.remove('hidden');
     }
-    function tutupRincianWarga() {
-      document.getElementById('modal-rincian').classList.add('hidden');
-    }
-    function tutupRincianWargaOnBackdrop(e) {
-      if (e.target.id === 'modal-rincian') tutupRincianWarga();
-    }
-
-    // 6. GALERI & LIGHTBOX
-    function bukaArsipGaleriModal() {
-      const modal = document.getElementById('modal-arsip-galeri');
-      const grid = document.getElementById('arsip-album-grid');
-      let html = '';
-
-      globalDokumentasiList.forEach((album, idx) => {
-        let coverImg = album.items.length > 0 ? album.items[0].url : (globalProgresList[0]?.urlFoto || '');
-        html += `
-          <div onclick="bukaIsiAlbumModal(${idx})" class="bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-emerald-500 shadow-xs hover:shadow-md cursor-pointer transition group">
-            <div class="p-3.5 bg-white border-b border-slate-50">
-              <span class="text-xs font-bold text-emerald-600 tracking-wider uppercase">${album.tanggal}</span>
-              <h4 class="text-sm font-bold text-slate-800 line-clamp-1 mt-0.5 group-hover:text-emerald-700 transition">${album.judul}</h4>
-            </div>
-            <div class="h-32 bg-slate-900 relative overflow-hidden">
-              <img src="${coverImg}" class="w-full h-full object-cover opacity-85 group-hover:scale-105 transition duration-300">
-              <div class="absolute bottom-2.5 left-2.5 bg-slate-950/80 text-white text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1.5 border border-slate-700/50">
-                <i data-lucide="folder" class="w-3.5 h-3.5 text-emerald-400"></i> ${album.items.length} Media
-              </div>
-            </div>
-          </div>
-        `;
-      });
-
-      grid.innerHTML = html || `<p class="text-sm text-slate-400 col-span-3 text-center py-8">Belum ada album atau link foto belum dimasukkan di CSV.</p>`;
-      if (window.lucide) lucide.createIcons();
-      modal.classList.remove('hidden');
-    }
-
-    function tutupArsipGaleriModal() {
-      document.getElementById('modal-arsip-galeri').classList.add('hidden');
-    }
-    function tutupArsipGaleriOnBackdrop(e) {
-      if (e.target.id === 'modal-arsip-galeri') tutupArsipGaleriModal();
-    }
-
-    function bukaIsiAlbumModal(albumIndex) {
-      const album = globalDokumentasiList[albumIndex];
-      if (!album) return;
-
-      currentAlbumItems = album.items;
-      currentAlbumTitle = album.judul;
-
-      document.getElementById('isi-album-title').innerText = `${album.judul} - ${album.tanggal}`;
-      document.getElementById('isi-album-subtext').innerText = `${album.items.length} File media ditemukan - Klik untuk memperbesar`;
-
-      const grid = document.getElementById('isi-album-media-grid');
-      let html = '';
-      album.items.forEach((item, idx) => {
-        if (item.isVideo) {
-          html += `
-            <div onclick="bukaLightboxIndex(${idx})" class="h-44 sm:h-56 bg-slate-900 rounded-2xl overflow-hidden relative border border-slate-200 hover:border-emerald-500 cursor-pointer shadow-xs group">
-              <div class="absolute inset-0 flex items-center justify-center z-10">
-                <div class="w-11 h-11 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition">
-                  <i data-lucide="play" class="w-5 h-5 fill-white ml-0.5"></i>
-                </div>
-              </div>
-              <div class="absolute top-2.5 left-2.5 z-10 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">VIDEO</div>
-            </div>
-          `;
-        } else {
-          html += `
-            <div onclick="bukaLightboxIndex(${idx})" class="h-44 sm:h-56 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 hover:border-emerald-500 cursor-pointer shadow-xs group relative">
-              <img src="${item.url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-            </div>
-          `;
-        }
-      });
-
-      grid.innerHTML = html;
-      if (window.lucide) lucide.createIcons();
-      tutupArsipGaleriModal();
-      document.getElementById('modal-isi-album').classList.remove('hidden');
-    }
-
-    function kembaliKeArsipAlbum() {
-      tutupIsiAlbumModal();
-      bukaArsipGaleriModal();
-    }
-    function tutupIsiAlbumModal() {
-      document.getElementById('modal-isi-album').classList.add('hidden');
-    }
-    function tutupIsiAlbumOnBackdrop(e) {
-      if (e.target.id === 'modal-isi-album') tutupIsiAlbumModal();
-    }
-
-    function bukaLightboxIndex(index) {
-      currentIndex = index;
-      renderLightboxCurrent();
-      document.getElementById('modal-single-player').classList.remove('hidden');
-    }
+    function tutupRincianWarga() { document.getElementById('modal-rincian').classList.add('hidden'); }
+    function tutupRincianWargaOnBackdrop(e) { if (e.target.id === 'modal-rincian') tutupRincianWarga(); }
 
     function bukaLightboxSingle(url, title) {
-      currentAlbumItems = [{ url: url, isVideo: false }];
-      currentIndex = 0;
-      currentAlbumTitle = title;
-      renderLightboxCurrent();
+      const container = document.getElementById('single-player-container');
+      document.getElementById('single-player-caption').innerText = title;
+      container.innerHTML = `<img src="${url}" class="max-h-[70vh] max-w-full h-auto object-contain rounded-xl shadow-2xl">`;
       document.getElementById('modal-single-player').classList.remove('hidden');
     }
-
-    function renderLightboxCurrent() {
-      const item = currentAlbumItems[currentIndex];
-      if (!item) return;
-
-      const container = document.getElementById('single-player-container');
-      document.getElementById('single-player-caption').innerText = currentAlbumTitle;
-      document.getElementById('single-player-counter').innerText = `Media ${currentIndex + 1} dari ${currentAlbumItems.length}`;
-
-      if (item.isVideo) {
-        container.innerHTML = `<video src="${item.url}" controls autoplay class="max-h-[70vh] max-w-full rounded-xl shadow-2xl"></video>`;
-      } else {
-        container.innerHTML = `<img src="${item.url}" class="max-h-[70vh] max-w-full h-auto object-contain rounded-xl shadow-2xl">`;
-      }
-    }
-
-    function geserMedia(direction) {
-      currentIndex += direction;
-      if (currentIndex < 0) currentIndex = currentAlbumItems.length - 1;
-      else if (currentIndex >= currentAlbumItems.length) currentIndex = 0;
-      renderLightboxCurrent();
-    }
-
     function tutupSinglePlayer() {
       document.getElementById('modal-single-player').classList.add('hidden');
       document.getElementById('single-player-container').innerHTML = '';
     }
-    function tutupSinglePlayerOnBackdrop(e) {
-      if (e.target.id === 'modal-single-player') tutupSinglePlayer();
-    }
+    function tutupSinglePlayerOnBackdrop(e) { if (e.target.id === 'modal-single-player') tutupSinglePlayer(); }
 
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
-        tutupSinglePlayer();
-        tutupIsiAlbumModal();
+        tutupLightbox();
+        tutupGalleryGrid();
         tutupArsipGaleriModal();
+        tutupSinglePlayer();
         tutupRincianWarga();
         tutupPopupTotalSampah();
         tutupPopupTotalTabungan();
       } else if (e.key === 'ArrowLeft') {
-        geserMedia(-1);
+        geserLightbox(-1);
       } else if (e.key === 'ArrowRight') {
-        geserMedia(1);
+        geserLightbox(1);
       }
     });
 
