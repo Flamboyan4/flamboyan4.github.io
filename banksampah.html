@@ -559,7 +559,7 @@
               </div>
               <div class="flex gap-3.5 items-center cursor-pointer" onclick="bukaLightboxSingle('${item.urlFoto}', '${item.judul}')">
                 <div class="w-16 h-16 sm:w-20 sm:h-20 bg-slate-100 rounded-xl overflow-hidden shrink-0 border border-slate-200">
-                  <img src="${item.urlFoto}" alt="Foto" class="w-full h-full object-cover">
+                  <img src="${item.urlFoto}" alt="Foto" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1532996122724-e3c3fa9a0d3f?w=400';">
                 </div>
                 <div class="min-w-0 flex-grow">
                   <h4 class="text-sm sm:text-base font-bold text-slate-800 line-clamp-1">${item.judul}</h4>
@@ -605,7 +605,7 @@
           html += `
             <div ${clickAttr} class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs sm:text-sm ${cursorClass}">
               <div class="flex items-center gap-2.5 min-w-0">
-                ${hasImg ? `<img src="${item.urlFoto}" class="w-9 h-9 rounded-lg object-cover shrink-0 border border-slate-200">` : `<div class="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0 text-emerald-700"><i data-lucide="box" class="w-4 h-4"></i></div>`}
+                ${hasImg ? `<img src="${item.urlFoto}" class="w-9 h-9 rounded-lg object-cover shrink-0 border border-slate-200" onerror="this.style.display='none'">` : `<div class="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0 text-emerald-700"><i data-lucide="box" class="w-4 h-4"></i></div>`}
                 <span class="font-semibold text-slate-700 truncate">${item.nama}</span>
               </div>
               <span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full text-xs shrink-0 ml-2">${item.qty} Unit</span>
@@ -619,7 +619,7 @@
       }
     }
 
-    // 4. DOKUMENTASI (ANTI-MACET: AMBIL FILE ID SATUAN / THUMBNAIL FOLDER)
+    // 4. DOKUMENTASI (EKSTRAKSI FILE ID LANGSUNG / AMAN)
     async function loadDokumentasi() {
       try {
         const response = await fetch(CSV_DOKUMENTASI_URL + "&t=" + Date.now());
@@ -635,17 +635,7 @@
             albumMap[judul] = { judul, tanggal, items: [] };
           }
 
-          // Tangkap link folder GDrive
-          const folderMatch = seluruhUrl.match(/\/folders\/([a-zA-Z0-9_-]+)/);
-          if (folderMatch && folderMatch[1]) {
-            const folderId = folderMatch[1];
-            const folderThumbUrl = `https://drive.google.com/thumbnail?id=${folderId}&sz=w1000`;
-            if (!albumMap[judul].items.find(i => i.url === folderThumbUrl)) {
-              albumMap[judul].items.push({ url: folderThumbUrl, isVideo: false });
-            }
-          }
-
-          // Tangkap link file satuan / gambar
+          // Ekstraksi SEMUA File ID GDrive yang ada di baris tersebut
           const regexGdrive = /(?:\/d\/|\/file\/d\/|id=)([a-zA-Z0-9_-]{25,})/g;
           let match;
           while ((match = regexGdrive.exec(seluruhUrl)) !== null) {
@@ -655,7 +645,7 @@
             }
           }
 
-          // Tangkap link YouTube
+          // Ekstraksi Link YouTube
           const regexYt = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{10,12})/g;
           while ((match = regexYt.exec(seluruhUrl)) !== null) {
             const ytUrl = `https://www.youtube.com/watch?v=${match[1]}`;
@@ -675,6 +665,8 @@
           if (previewImg && firstAlbum.items.length > 0) {
             previewImg.src = firstAlbum.items[0].url;
           }
+        } else if (globalProgresList.length > 0 && previewImg) {
+          previewImg.src = globalProgresList[0].urlFoto;
         }
       } catch (err) {
         console.error("Gagal memuat dokumentasi:", err);
@@ -729,7 +721,7 @@
       let html = '';
 
       globalDokumentasiList.forEach((album, idx) => {
-        let coverImg = album.items.length > 0 ? album.items[0].url : '';
+        let coverImg = album.items.length > 0 ? album.items[0].url : (globalProgresList[0]?.urlFoto || '');
         html += `
           <div onclick="bukaIsiAlbumModal(${idx})" class="bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-emerald-500 shadow-xs hover:shadow-md cursor-pointer transition group">
             <div class="p-3.5 bg-white border-b border-slate-50">
@@ -746,7 +738,7 @@
         `;
       });
 
-      grid.innerHTML = html || `<p class="text-sm text-slate-400 col-span-3 text-center py-8">Belum ada album.</p>`;
+      grid.innerHTML = html || `<p class="text-sm text-slate-400 col-span-3 text-center py-8">Belum ada album atau link foto belum dimasukkan di CSV.</p>`;
       if (window.lucide) lucide.createIcons();
       modal.classList.remove('hidden');
     }
