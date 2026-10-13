@@ -2020,16 +2020,84 @@ function prosesCetakPDF() {
   @media screen {
     body { max-width: 186mm; margin: 15px auto; }
   }
+
+  
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 36mm 12mm 12mm;
+  }
+
+  .header-cetak {
+    position: fixed;
+    top: -27mm;
+    left: 0;
+    right: 0;
+    height: 23mm;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #222;
+    background: white;
+    z-index: 1000;
+  }
+
+  .header-cetak .logo-bank {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+
+  .header-cetak .header-identitas {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .header-cetak .title {
+    font-size: 15px;
+    font-weight: 800;
+    margin: 0 0 3px;
+  }
+
+  .header-cetak .subtitle,
+  .header-cetak .periode {
+    font-size: 9px;
+    margin: 2px 0;
+  }
+
+  .header-cetak .badge {
+    font-size: 8px;
+    white-space: nowrap;
+  }
+
+  /* Sembunyikan kop lama agar tidak rangkap */
+  section > .header,
+  section > .header-laporan {
+    display: none !important;
+  }
+
+  /* Judul kolom tetap diulang ketika tabel berlanjut */
+  thead {
+    display: table-header-group;
+  }
+
+  tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+  
 </style>
 </head>
 
 <body>
 
-<!-- BAGIAN 1: RINGKASAN DAN TABUNGAN WARGA -->
-<section>
-  <header class="header">
-  
-<div class="header-laporan">
+<body>
+
+<header class="header-laporan header-cetak">
   <img
     class="logo-bank"
     src="https://drive.google.com/thumbnail?id=1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8&sz=w500"
@@ -2039,16 +2107,17 @@ function prosesCetakPDF() {
   <div class="header-identitas">
     <h1 class="title">BANK SAMPAH FLAMBOYAN 4</h1>
     <p class="subtitle">
-      RT 001 RW 026 Pesona Kahuripan 2, Desa Sukamanah, Kec. Klapanunggal
+      Pesona Kahuripan 2 Jl Flamboyan 4 RT 001 RW 026,
+      Desa Cikahuripan, Kec. Klapanunggal, Kab. Bogor
     </p>
     <p class="periode">${esc(periode)}</p>
   </div>
 
   <span class="badge">LAPORAN RESMI</span>
-</div>
+</header>
 
-  </header>
-
+<!-- BAGIAN 1: RINGKASAN DAN TABUNGAN WARGA -->
+<section>
   <h2>Ringkasan Kinerja</h2>
   <div class="summary">
     <div class="metric">
