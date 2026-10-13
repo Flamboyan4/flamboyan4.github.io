@@ -3037,17 +3037,10 @@ async function loadProgresBankSampahIndex() {
       };
     });
 
-    // AMBIL HANYA 1 LANGKAH YANG SEDANG BERJALAN (Status bukan 'Selesai')
-    let progresAktif = dataList.find(d => d.status.toLowerCase() !== 'selesai');
-    
-    // Jika semua langkah sudah selesai, ambil langkah paling terakhir
-    if (!progresAktif && dataList.length > 0) {
-      progresAktif = dataList[dataList.length - 1];
-    }
-
+    // Cari langkah yang statusnya bukan selesai / proses paling baru
+    const progresAktif = dataList.find(d => d.status.toLowerCase() !== 'selesai') || dataList[dataList.length - 1];
     if (!progresAktif) return;
 
-    // Update elemen HTML secara bersih (Hanya 1 langkah aktif)
     if (document.getElementById('bs-step-tag')) document.getElementById('bs-step-tag').innerText = progresAktif.langkah;
     if (document.getElementById('bs-title')) document.getElementById('bs-title').innerText = progresAktif.judul;
     if (document.getElementById('bs-desc')) document.getElementById('bs-desc').innerText = progresAktif.deskripsi;
