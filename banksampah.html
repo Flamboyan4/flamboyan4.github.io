@@ -37,29 +37,30 @@
       <p class="text-xs sm:text-sm text-slate-600">Pusat informasi pemilahan sampah anorganik, rekap tabungan warga, kas pengelola, dan rincian setoran berkala.</p>
     </div>
 
-    <!-- 1. 3 KARTU RINGKASAN DATA TOTALAN (BISA DIKLIK) -->
+    <!-- 1. 3 KARTU RINGKASAN DATA TOTALAN -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-5">
+      
       <!-- Card 1: Total Sampah (Klik untuk Rincian Jenis Sampah) -->
-      <div onclick="bukaPopupRincianSampah()" class="bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm hover:border-emerald-500 hover:shadow-md cursor-pointer transition flex flex-col justify-between group">
+      <div onclick="bukaPopupTotalSampah()" class="bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-emerald-500 hover:shadow-md transition group">
         <div class="flex items-center justify-between">
           <span class="text-xs font-bold tracking-wider text-slate-400 uppercase group-hover:text-emerald-700 transition">Total Sampah Terkumpul</span>
-          <i data-lucide="info" class="w-4 h-4 text-slate-400 group-hover:text-emerald-600"></i>
+          <i data-lucide="info" class="w-4 h-4 text-emerald-600 opacity-60 group-hover:opacity-100"></i>
         </div>
         <div class="mt-2">
           <span id="total-sampah-terkumpul" class="text-2xl sm:text-3xl font-black text-emerald-900">0.0 Kg</span>
-          <p class="text-xs sm:text-sm text-slate-500 mt-1">Klik untuk rincian jenis sampah</p>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">Klik untuk rincian jenis sampah →</p>
         </div>
       </div>
 
-      <!-- Card 2: Total Tabungan Warga (Klik untuk Daftar Nama & Nominal) -->
-      <div onclick="bukaPopupTabunganWarga()" class="bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm hover:border-emerald-500 hover:shadow-md cursor-pointer transition flex flex-col justify-between group">
+      <!-- Card 2: Total Tabungan Warga (Klik untuk Daftar Nama & Nominal Saja) -->
+      <div onclick="bukaPopupTotalTabungan()" class="bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-emerald-500 hover:shadow-md transition group">
         <div class="flex items-center justify-between">
           <span class="text-xs font-bold tracking-wider text-slate-400 uppercase group-hover:text-emerald-700 transition">Total Nilai Tabungan Warga</span>
-          <i data-lucide="users" class="w-4 h-4 text-slate-400 group-hover:text-emerald-600"></i>
+          <i data-lucide="users" class="w-4 h-4 text-emerald-600 opacity-60 group-hover:opacity-100"></i>
         </div>
         <div class="mt-2">
           <span id="total-nilai-tabungan" class="text-2xl sm:text-3xl font-black text-emerald-900">Rp 0</span>
-          <p class="text-xs sm:text-sm text-slate-500 mt-1">Klik untuk daftar tabungan warga</p>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">Klik untuk daftar tabungan warga →</p>
         </div>
       </div>
 
@@ -153,7 +154,7 @@
               <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-3.5">
                 <div class="text-white">
                   <span class="bg-emerald-600 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Buka Galeri</span>
-                  <p id="galeri-preview-caption" class="text-xs sm:text-sm font-bold mt-1">Gorol dan Pembuatan Bank Sampah</p>
+                  <p id="galeri-preview-caption" class="text-xs sm:text-sm font-bold mt-1">Album Kegiatan Warga</p>
                 </div>
               </div>
             </div>
@@ -230,37 +231,39 @@
     </div>
   </div>
 
-  <!-- MODAL BARU: RINCIAN JENIS SAMPAH (DARI CARD 1) -->
-  <div id="modal-rincian-sampah" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5" onclick="tutupPopupRincianSampahOnBackdrop(event)">
+  <!-- MODAL: RINCIAN TOTAL JENIS SAMPAH -->
+  <div id="modal-total-sampah" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5" onclick="tutupPopupTotalSampahOnBackdrop(event)">
     <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl relative border border-slate-100" onclick="event.stopPropagation()">
       <div class="p-4 sm:p-5 bg-emerald-900 text-white flex items-center justify-between">
         <div>
           <h3 class="font-extrabold text-base sm:text-xl">Rincian Jenis Sampah</h3>
           <p class="text-emerald-200 text-xs sm:text-sm">Akumulasi seluruh setoran warga</p>
         </div>
-        <button onclick="tutupPopupRincianSampah()" class="w-9 h-9 rounded-full bg-emerald-800/80 hover:bg-emerald-700 text-white flex items-center justify-center transition">
+        <button onclick="tutupPopupTotalSampah()" class="w-9 h-9 rounded-full bg-emerald-800/80 hover:bg-emerald-700 text-white flex items-center justify-center transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
-      <div class="p-4 sm:p-6 space-y-3 max-h-[75vh] overflow-y-auto" id="list-rincian-jenis-sampah">
-        <!-- Diisi JS -->
+      <div class="p-4 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+        <div id="content-rincian-jenis-sampah" class="space-y-3">
+          <!-- Diisi JS -->
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- MODAL BARU: DAFTAR TABUNGAN WARGA (DARI CARD 2) -->
-  <div id="modal-tabungan-warga" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5" onclick="tutupPopupTabunganWargaOnBackdrop(event)">
+  <!-- MODAL: DAFTAR NAMA & NOMINAL TABUNGAN -->
+  <div id="modal-total-tabungan" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5" onclick="tutupPopupTotalTabunganOnBackdrop(event)">
     <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl relative border border-slate-100" onclick="event.stopPropagation()">
       <div class="p-4 sm:p-5 bg-emerald-900 text-white flex items-center justify-between">
         <div>
           <h3 class="font-extrabold text-base sm:text-xl">Daftar Tabungan Warga</h3>
-          <p class="text-emerald-200 text-xs sm:text-sm">Nama warga & nominal tabungan</p>
+          <p class="text-emerald-200 text-xs sm:text-sm">Nama warga dan nominal tabungan</p>
         </div>
-        <button onclick="tutupPopupTabunganWarga()" class="w-9 h-9 rounded-full bg-emerald-800/80 hover:bg-emerald-700 text-white flex items-center justify-center transition">
+        <button onclick="tutupPopupTotalTabungan()" class="w-9 h-9 rounded-full bg-emerald-800/80 hover:bg-emerald-700 text-white flex items-center justify-center transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
-      <div class="p-4 sm:p-6 max-h-[75vh] overflow-y-auto">
+      <div class="p-4 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto">
         <div class="overflow-x-auto rounded-xl border border-slate-200">
           <table class="w-full text-left text-xs sm:text-sm">
             <thead class="bg-slate-100 text-slate-700 font-bold">
@@ -269,7 +272,7 @@
                 <th class="p-3 text-right">Nominal Tabungan</th>
               </tr>
             </thead>
-            <tbody id="tabel-list-tabungan-warga" class="divide-y divide-slate-100 bg-white">
+            <tbody id="content-tabel-tabungan-singkat" class="divide-y divide-slate-100 bg-white">
               <!-- Diisi JS -->
             </tbody>
           </table>
@@ -297,7 +300,7 @@
     </div>
   </div>
 
-  <!-- TIER 2: MODAL ISI MEDIA ALBUM (GRID FOTO / VIDEO) -->
+  <!-- TIER 2: MODAL ISI MEDIA ALBUM -->
   <div id="modal-isi-album" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6" onclick="tutupIsiAlbumOnBackdrop(event)">
     <div class="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative border border-slate-100" onclick="event.stopPropagation()">
       <div class="p-4 sm:p-5 bg-white border-b border-slate-100 flex items-center justify-between">
@@ -307,7 +310,7 @@
           </button>
           <div>
             <h3 id="isi-album-title" class="font-extrabold text-base sm:text-xl text-slate-900">Judul Album</h3>
-            <p id="isi-album-subtext" class="text-xs sm:text-sm text-slate-500">Klik media untuk melihat ukuran penuh</p>
+            <p id="isi-album-subtext" class="text-xs sm:text-sm text-slate-500">Klik media untuk memperbesar</p>
           </div>
         </div>
         <button onclick="tutupIsiAlbumModal()" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
@@ -321,31 +324,23 @@
     </div>
   </div>
 
-  <!-- TIER 3: LIGHTBOX PENUH DENGAN TOMBOL PANAH -->
+  <!-- TIER 3: LIGHTBOX PENUH -->
   <div id="modal-single-player" class="fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-2 sm:p-6" onclick="tutupSinglePlayerOnBackdrop(event)">
     <div class="relative w-full max-w-4xl h-full max-h-[90vh] flex flex-col items-center justify-center" onclick="event.stopPropagation()">
-      
       <button onclick="tutupSinglePlayer()" class="absolute top-2 right-2 sm:-top-10 sm:-right-2 z-50 w-10 h-10 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center transition shadow-lg">
         <i data-lucide="x" class="w-6 h-6"></i>
       </button>
-
       <button onclick="geserMedia(-1)" class="absolute left-2 sm:-left-12 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center transition shadow-lg">
         <i data-lucide="chevron-left" class="w-7 h-7"></i>
       </button>
-
       <button onclick="geserMedia(1)" class="absolute right-2 sm:-right-12 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center transition shadow-lg">
         <i data-lucide="chevron-right" class="w-7 h-7"></i>
       </button>
-
-      <div id="single-player-container" class="w-full flex-grow flex items-center justify-center overflow-hidden rounded-2xl bg-black/40 p-2">
-        <!-- Disisipkan via JS -->
-      </div>
-
+      <div id="single-player-container" class="w-full flex-grow flex items-center justify-center overflow-hidden rounded-2xl bg-black/40 p-2"></div>
       <div class="mt-3 text-center space-y-1">
         <p id="single-player-caption" class="text-xs sm:text-sm font-semibold text-white tracking-wide"></p>
         <p id="single-player-counter" class="text-[11px] text-slate-400 font-medium"></p>
       </div>
-
     </div>
   </div>
 
@@ -466,12 +461,73 @@
       renderTabelWarga(filtered);
     }
 
-    // 2. PROGRES BANK SAMPAH
+    // 2. POPUP CARD 1 & CARD 2
+    function bukaPopupTotalSampah() {
+      let totalKardus = 0, totalBotol = 0, totalGelas = 0, totalKaleng = 0;
+      globalRiwayatData.forEach(r => {
+        totalKardus += parseNumberFlexible(r[2]);
+        totalBotol += parseNumberFlexible(r[3]);
+        totalGelas += parseNumberFlexible(r[4]);
+        totalKaleng += parseNumberFlexible(r[5]);
+      });
+
+      const container = document.getElementById('content-rincian-jenis-sampah');
+      container.innerHTML = `
+        <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+          <span class="font-bold text-slate-700">Kardus / Kertas</span>
+          <span class="font-black text-emerald-900">${totalKardus.toFixed(1)} Kg</span>
+        </div>
+        <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+          <span class="font-bold text-slate-700">Botol Plastik</span>
+          <span class="font-black text-emerald-900">${totalBotol.toFixed(1)} Kg</span>
+        </div>
+        <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+          <span class="font-bold text-slate-700">Gelas Plastik</span>
+          <span class="font-black text-emerald-900">${totalGelas.toFixed(1)} Kg</span>
+        </div>
+        <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+          <span class="font-bold text-slate-700">Kaleng / Logam</span>
+          <span class="font-black text-emerald-900">${totalKaleng.toFixed(1)} Kg</span>
+        </div>
+      `;
+      document.getElementById('modal-total-sampah').classList.remove('hidden');
+    }
+    function tutupPopupTotalSampah() {
+      document.getElementById('modal-total-sampah').classList.add('hidden');
+    }
+    function tutupPopupTotalSampahOnBackdrop(e) {
+      if (e.target.id === 'modal-total-sampah') tutupPopupTotalSampah();
+    }
+
+    function bukaPopupTotalTabungan() {
+      const tbody = document.getElementById('content-tabel-tabungan-singkat');
+      let html = '';
+      globalRekapData.forEach(row => {
+        const namaBlok = row[1] || '-';
+        if (!namaBlok || namaBlok === '#N/A') return;
+        const totalSaldoWarga = parseNumberFlexible(row[4]);
+        html += `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-3 font-bold text-slate-800">${namaBlok}</td>
+            <td class="p-3 text-right font-black text-emerald-700">Rp ${Math.round(totalSaldoWarga).toLocaleString('id-ID')}</td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html || `<tr><td colspan="2" class="p-4 text-center text-slate-400">Belum ada data.</td></tr>`;
+      document.getElementById('modal-total-tabungan').classList.remove('hidden');
+    }
+    function tutupPopupTotalTabungan() {
+      document.getElementById('modal-total-tabungan').classList.add('hidden');
+    }
+    function tutupPopupTotalTabunganOnBackdrop(e) {
+      if (e.target.id === 'modal-total-tabungan') tutupPopupTotalTabungan();
+    }
+
+    // 3. PROGRES & INVENTARIS
     async function loadProgresBankSampahDetail() {
       try {
         const response = await fetch(CSV_PROGRES_URL + "&t=" + Date.now());
         const rows = parseCSV(await response.text());
-
         globalProgresList = rows.map(cols => ({
           tanggal: cols[0] || '',
           langkah: cols[1] || '',
@@ -485,7 +541,6 @@
 
         const container = document.getElementById('container-progres-cards');
         if (!container) return;
-
         if (globalProgresList.length === 0) {
           container.innerHTML = `<p class="text-sm text-slate-400 italic p-2 col-span-full">Belum ada progres.</p>`;
           return;
@@ -495,7 +550,6 @@
         globalProgresList.forEach((item) => {
           const isSelesai = item.status.toLowerCase() === 'selesai';
           const badgeClass = isSelesai ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-white';
-
           html += `
             <div class="snap-start shrink-0 min-w-[280px] sm:min-w-0 bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between space-y-3">
               <div class="flex items-center justify-between">
@@ -503,7 +557,6 @@
                 <span class="${badgeClass} text-xs font-semibold px-2.5 py-0.5 rounded-md">${item.status}</span>
                 <span class="text-slate-400 text-xs ml-auto font-medium">${item.tanggal}</span>
               </div>
-
               <div class="flex gap-3.5 items-center cursor-pointer" onclick="bukaLightboxSingle('${item.urlFoto}', '${item.judul}')">
                 <div class="w-16 h-16 sm:w-20 sm:h-20 bg-slate-100 rounded-xl overflow-hidden shrink-0 border border-slate-200">
                   <img src="${item.urlFoto}" alt="Foto" class="w-full h-full object-cover">
@@ -513,7 +566,6 @@
                   <p class="text-xs sm:text-sm text-slate-500 line-clamp-2 leading-relaxed mt-1">${item.deskripsi}</p>
                 </div>
               </div>
-
               <div class="pt-2.5 border-t border-slate-100 text-xs sm:text-sm space-y-1">
                 <div class="truncate"><span class="text-slate-400 font-medium">Tahap:</span> <span class="font-semibold text-slate-700">${item.tahapDetail.replace(/^Tahap:\s*/i, '')}</span></div>
                 <div class="truncate"><span class="text-slate-400 font-medium">Agenda:</span> <span class="font-semibold text-slate-700">${item.agendaBerikut.replace(/^Agenda:\s*/i, '')}</span></div>
@@ -521,14 +573,12 @@
             </div>
           `;
         });
-
         container.innerHTML = html;
       } catch (err) {
         console.error("Gagal memuat progres:", err);
       }
     }
 
-    // 3. INVENTARIS
     async function loadInventaris() {
       try {
         const response = await fetch(CSV_INVENTARIS_URL + "&t=" + Date.now());
@@ -547,17 +597,11 @@
           }
         });
 
-        if (globalInventarisList.length === 0) {
-          container.innerHTML = `<p class="text-xs sm:text-sm text-slate-400 italic">Belum ada data inventaris.</p>`;
-          return;
-        }
-
         let html = '';
         globalInventarisList.forEach(item => {
           const hasImg = item.urlFoto && item.urlFoto.startsWith('http');
           const clickAttr = hasImg ? `onclick="bukaLightboxSingle('${item.urlFoto}', '${item.nama}')"` : '';
           const cursorClass = hasImg ? 'cursor-pointer hover:border-emerald-300 transition' : '';
-
           html += `
             <div ${clickAttr} class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs sm:text-sm ${cursorClass}">
               <div class="flex items-center gap-2.5 min-w-0">
@@ -575,7 +619,7 @@
       }
     }
 
-    // 4. DOKUMENTASI & PREVIEW GALERI (ANTI "MEMUAT GALERI...")
+    // 4. DOKUMENTASI (ANTI-MACET: AMBIL FILE ID SATUAN / THUMBNAIL FOLDER)
     async function loadDokumentasi() {
       try {
         const response = await fetch(CSV_DOKUMENTASI_URL + "&t=" + Date.now());
@@ -591,42 +635,30 @@
             albumMap[judul] = { judul, tanggal, items: [] };
           }
 
+          // Tangkap link folder GDrive
           const folderMatch = seluruhUrl.match(/\/folders\/([a-zA-Z0-9_-]+)/);
           if (folderMatch && folderMatch[1]) {
             const folderId = folderMatch[1];
-            try {
-              const resFolder = await fetch(`https://script.google.com/macros/s/AKfycbz_DriveProxy/exec?folderId=${folderId}`);
-              if (resFolder.ok) {
-                const folderFiles = await resFolder.json();
-                if (Array.isArray(folderFiles) && folderFiles.length > 0) {
-                  folderFiles.forEach(f => {
-                    const fileUrl = f.url || `https://lh3.googleusercontent.com/d/${f.id}`;
-                    if (!albumMap[judul].items.find(i => i.url === fileUrl)) {
-                      albumMap[judul].items.push({
-                        url: fileUrl,
-                        isVideo: f.mimeType?.includes('video') || f.isVideo
-                      });
-                    }
-                  });
-                }
-              }
-            } catch (e) {}
+            const folderThumbUrl = `https://drive.google.com/thumbnail?id=${folderId}&sz=w1000`;
+            if (!albumMap[judul].items.find(i => i.url === folderThumbUrl)) {
+              albumMap[judul].items.push({ url: folderThumbUrl, isVideo: false });
+            }
           }
 
+          // Tangkap link file satuan / gambar
           const regexGdrive = /(?:\/d\/|\/file\/d\/|id=)([a-zA-Z0-9_-]{25,})/g;
           let match;
           while ((match = regexGdrive.exec(seluruhUrl)) !== null) {
-            const fileId = match[1];
-            const fileUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
+            const fileUrl = `https://lh3.googleusercontent.com/d/${match[1]}`;
             if (!albumMap[judul].items.find(i => i.url === fileUrl)) {
               albumMap[judul].items.push({ url: fileUrl, isVideo: false });
             }
           }
 
+          // Tangkap link YouTube
           const regexYt = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{10,12})/g;
           while ((match = regexYt.exec(seluruhUrl)) !== null) {
-            const ytId = match[1];
-            const ytUrl = `https://www.youtube.com/watch?v=${ytId}`;
+            const ytUrl = `https://www.youtube.com/watch?v=${match[1]}`;
             if (!albumMap[judul].items.find(i => i.url === ytUrl)) {
               albumMap[judul].items.push({ url: ytUrl, isVideo: true });
             }
@@ -634,7 +666,6 @@
         }
 
         globalDokumentasiList = Object.values(albumMap).filter(a => a.items.length > 0);
-
         const previewImg = document.getElementById('galeri-preview-img');
         const captionPreview = document.getElementById('galeri-preview-caption');
 
@@ -644,92 +675,13 @@
           if (previewImg && firstAlbum.items.length > 0) {
             previewImg.src = firstAlbum.items[0].url;
           }
-        } else if (globalProgresList.length > 0) {
-          // Fallback instan jika dokumentasi kosong agar gambar preview tetap muncul
-          if (captionPreview) captionPreview.innerText = globalProgresList[0].judul;
-          if (previewImg) previewImg.src = globalProgresList[0].urlFoto;
         }
       } catch (err) {
         console.error("Gagal memuat dokumentasi:", err);
       }
     }
 
-    // 5. POPUP KLIK CARD 1 (RINCIAN TOTAL SAMPAH)
-    function bukaPopupRincianSampah() {
-      let totalKardus = 0;
-      let totalBotol = 0;
-      let totalGelas = 0;
-      let totalKaleng = 0;
-
-      globalRiwayatData.forEach(r => {
-        totalKardus += parseNumberFlexible(r[2]);
-        totalBotol += parseNumberFlexible(r[3]);
-        totalGelas += parseNumberFlexible(r[4]);
-        totalKaleng += parseNumberFlexible(r[5]);
-      });
-
-      const container = document.getElementById('list-rincian-jenis-sampah');
-      container.innerHTML = `
-        <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-100">
-          <span class="font-semibold text-slate-700">Kardus / Karton</span>
-          <span class="font-black text-emerald-900">${totalKardus.toFixed(1)} Kg</span>
-        </div>
-        <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-100">
-          <span class="font-semibold text-slate-700">Botol Plastik</span>
-          <span class="font-black text-emerald-900">${totalBotol.toFixed(1)} Kg</span>
-        </div>
-        <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-100">
-          <span class="font-semibold text-slate-700">Gelas Plastik / PET</span>
-          <span class="font-black text-emerald-900">${totalGelas.toFixed(1)} Kg</span>
-        </div>
-        <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-100">
-          <span class="font-semibold text-slate-700">Kaleng / Logam</span>
-          <span class="font-black text-emerald-900">${totalKaleng.toFixed(1)} Kg</span>
-        </div>
-      `;
-
-      document.getElementById('modal-rincian-sampah').classList.remove('hidden');
-    }
-
-    function tutupPopupRincianSampah() {
-      document.getElementById('modal-rincian-sampah').classList.add('hidden');
-    }
-
-    function tutupPopupRincianSampahOnBackdrop(e) {
-      if (e.target.id === 'modal-rincian-sampah') tutupPopupRincianSampah();
-    }
-
-    // 6. POPUP KLIK CARD 2 (DAFTAR TABUNGAN WARGA)
-    function bukaPopupTabunganWarga() {
-      const tbody = document.getElementById('tabel-list-tabungan-warga');
-      let html = '';
-
-      globalRekapData.forEach(row => {
-        const namaBlok = row[1] || '-';
-        if (!namaBlok || namaBlok === '#N/A') return;
-        const saldoWarga = parseNumberFlexible(row[4]);
-
-        html += `
-          <tr class="hover:bg-slate-50 transition">
-            <td class="p-3 font-bold text-slate-800">${namaBlok}</td>
-            <td class="p-3 text-right font-extrabold text-emerald-700">Rp ${Math.round(saldoWarga).toLocaleString('id-ID')}</td>
-          </tr>
-        `;
-      });
-
-      tbody.innerHTML = html || `<tr><td colspan="2" class="p-4 text-center text-slate-400">Belum ada data.</td></tr>`;
-      document.getElementById('modal-tabungan-warga').classList.remove('hidden');
-    }
-
-    function tutupPopupTabunganWarga() {
-      document.getElementById('modal-tabungan-warga').classList.add('hidden');
-    }
-
-    function tutupPopupTabunganWargaOnBackdrop(e) {
-      if (e.target.id === 'modal-tabungan-warga') tutupPopupTabunganWarga();
-    }
-
-    // 7. RINCIAN WARGA MODAL (DARI TABEL)
+    // 5. MODAL RINCIAN WARGA
     function bukaRincianWarga(namaBlok, totalBerat, totalSaldo) {
       document.getElementById('modal-nama-warga').innerText = namaBlok;
       document.getElementById('modal-total-berat').innerText = `${totalBerat.toFixed(1)} Kg`;
@@ -738,36 +690,31 @@
       const riwayat = globalRiwayatData.filter(r => (r[0] || '').toString().trim().toLowerCase() === namaBlok.trim().toLowerCase());
       const tbody = document.getElementById('modal-tabel-riwayat');
 
-      if (riwayat.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada catatan setoran.</td></tr>`;
-      } else {
-        let html = '';
-        riwayat.forEach(r => {
-          const kardus = parseNumberFlexible(r[2]);
-          const botol = parseNumberFlexible(r[3]);
-          const gelas = parseNumberFlexible(r[4]);
-          const kaleng = parseNumberFlexible(r[5]);
-          let items = [];
-          if (kardus > 0) items.push(`Kardus: ${kardus}kg`);
-          if (botol > 0) items.push(`Botol: ${botol}kg`);
-          if (gelas > 0) items.push(`Gelas: ${gelas}kg`);
-          if (kaleng > 0) items.push(`Kaleng: ${kaleng}kg`);
+      let html = '';
+      riwayat.forEach(r => {
+        const kardus = parseNumberFlexible(r[2]);
+        const botol = parseNumberFlexible(r[3]);
+        const gelas = parseNumberFlexible(r[4]);
+        const kaleng = parseNumberFlexible(r[5]);
+        let items = [];
+        if (kardus > 0) items.push(`Kardus: ${kardus}kg`);
+        if (botol > 0) items.push(`Botol: ${botol}kg`);
+        if (gelas > 0) items.push(`Gelas: ${gelas}kg`);
+        if (kaleng > 0) items.push(`Kaleng: ${kaleng}kg`);
 
-          const nominal = parseNumberFlexible(r[7]);
-          html += `
-            <tr class="hover:bg-slate-50 transition">
-              <td class="p-3 text-slate-600 font-medium whitespace-nowrap">${r[1] || '-'}</td>
-              <td class="p-3 font-semibold text-slate-800">${items.join(', ') || '-'}</td>
-              <td class="p-3 text-right font-bold text-slate-700 whitespace-nowrap">${parseNumberFlexible(r[6]).toFixed(1)} Kg</td>
-              <td class="p-3 text-right font-extrabold text-emerald-700 whitespace-nowrap">Rp ${Math.round(nominal).toLocaleString('id-ID')}</td>
-            </tr>
-          `;
-        });
-        tbody.innerHTML = html;
-      }
+        const nominal = parseNumberFlexible(r[7]);
+        html += `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-3 text-slate-600 font-medium whitespace-nowrap">${r[1] || '-'}</td>
+            <td class="p-3 font-semibold text-slate-800">${items.join(', ') || '-'}</td>
+            <td class="p-3 text-right font-bold text-slate-700 whitespace-nowrap">${parseNumberFlexible(r[6]).toFixed(1)} Kg</td>
+            <td class="p-3 text-right font-extrabold text-emerald-700 whitespace-nowrap">Rp ${Math.round(nominal).toLocaleString('id-ID')}</td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html || `<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada catatan setoran.</td></tr>`;
       document.getElementById('modal-rincian').classList.remove('hidden');
     }
-
     function tutupRincianWarga() {
       document.getElementById('modal-rincian').classList.add('hidden');
     }
@@ -775,38 +722,31 @@
       if (e.target.id === 'modal-rincian') tutupRincianWarga();
     }
 
-    // 8. LOGIKA MODAL GALERI & LIGHTBOX
+    // 6. GALERI & LIGHTBOX
     function bukaArsipGaleriModal() {
       const modal = document.getElementById('modal-arsip-galeri');
       const grid = document.getElementById('arsip-album-grid');
-      if (!modal || !grid) return;
-
       let html = '';
-      if (globalDokumentasiList.length === 0) {
-        html = `<p class="text-sm text-slate-400 col-span-3 text-center py-8">Memuat galeri dari folder...</p>`;
-      } else {
-        globalDokumentasiList.forEach((album, idx) => {
-          let coverImg = album.items.length > 0 ? album.items[0].url : '';
-          const fallbackCover = globalProgresList.length > 0 ? globalProgresList[0].urlFoto : '';
 
-          html += `
-            <div onclick="bukaIsiAlbumModal(${idx})" class="bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-emerald-500 shadow-xs hover:shadow-md cursor-pointer transition group">
-              <div class="p-3.5 bg-white border-b border-slate-50">
-                <span class="text-xs font-bold text-emerald-600 tracking-wider uppercase">${album.tanggal}</span>
-                <h4 class="text-sm font-bold text-slate-800 line-clamp-1 mt-0.5 group-hover:text-emerald-700 transition">${album.judul}</h4>
-              </div>
-              <div class="h-32 bg-slate-900 relative overflow-hidden">
-                <img src="${coverImg}" class="w-full h-full object-cover opacity-85 group-hover:scale-105 transition duration-300" onerror="this.onerror=null; this.src='${fallbackCover}';">
-                <div class="absolute bottom-2.5 left-2.5 bg-slate-950/80 text-white text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1.5 border border-slate-700/50">
-                  <i data-lucide="folder" class="w-3.5 h-3.5 text-emerald-400"></i> ${album.items.length} Media
-                </div>
+      globalDokumentasiList.forEach((album, idx) => {
+        let coverImg = album.items.length > 0 ? album.items[0].url : '';
+        html += `
+          <div onclick="bukaIsiAlbumModal(${idx})" class="bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-emerald-500 shadow-xs hover:shadow-md cursor-pointer transition group">
+            <div class="p-3.5 bg-white border-b border-slate-50">
+              <span class="text-xs font-bold text-emerald-600 tracking-wider uppercase">${album.tanggal}</span>
+              <h4 class="text-sm font-bold text-slate-800 line-clamp-1 mt-0.5 group-hover:text-emerald-700 transition">${album.judul}</h4>
+            </div>
+            <div class="h-32 bg-slate-900 relative overflow-hidden">
+              <img src="${coverImg}" class="w-full h-full object-cover opacity-85 group-hover:scale-105 transition duration-300">
+              <div class="absolute bottom-2.5 left-2.5 bg-slate-950/80 text-white text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1.5 border border-slate-700/50">
+                <i data-lucide="folder" class="w-3.5 h-3.5 text-emerald-400"></i> ${album.items.length} Media
               </div>
             </div>
-          `;
-        });
-      }
+          </div>
+        `;
+      });
 
-      grid.innerHTML = html;
+      grid.innerHTML = html || `<p class="text-sm text-slate-400 col-span-3 text-center py-8">Belum ada album.</p>`;
       if (window.lucide) lucide.createIcons();
       modal.classList.remove('hidden');
     }
@@ -825,14 +765,11 @@
       currentAlbumItems = album.items;
       currentAlbumTitle = album.judul;
 
-      const modalIsi = document.getElementById('modal-isi-album');
       document.getElementById('isi-album-title').innerText = `${album.judul} - ${album.tanggal}`;
       document.getElementById('isi-album-subtext').innerText = `${album.items.length} File media ditemukan - Klik untuk memperbesar`;
 
       const grid = document.getElementById('isi-album-media-grid');
       let html = '';
-      const fallback = globalProgresList.length > 0 ? globalProgresList[0].urlFoto : '';
-
       album.items.forEach((item, idx) => {
         if (item.isVideo) {
           html += `
@@ -848,7 +785,7 @@
         } else {
           html += `
             <div onclick="bukaLightboxIndex(${idx})" class="h-44 sm:h-56 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 hover:border-emerald-500 cursor-pointer shadow-xs group relative">
-              <img src="${item.url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.onerror=null; this.src='${fallback}';">
+              <img src="${item.url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
             </div>
           `;
         }
@@ -856,16 +793,14 @@
 
       grid.innerHTML = html;
       if (window.lucide) lucide.createIcons();
-
       tutupArsipGaleriModal();
-      modalIsi.classList.remove('hidden');
+      document.getElementById('modal-isi-album').classList.remove('hidden');
     }
 
     function kembaliKeArsipAlbum() {
       tutupIsiAlbumModal();
       bukaArsipGaleriModal();
     }
-
     function tutupIsiAlbumModal() {
       document.getElementById('modal-isi-album').classList.add('hidden');
     }
@@ -892,19 +827,11 @@
       if (!item) return;
 
       const container = document.getElementById('single-player-container');
-      const caption = document.getElementById('single-player-caption');
-      const counter = document.getElementById('single-player-counter');
-
-      caption.innerText = currentAlbumTitle;
-      counter.innerText = `Media ${currentIndex + 1} dari ${currentAlbumItems.length}`;
+      document.getElementById('single-player-caption').innerText = currentAlbumTitle;
+      document.getElementById('single-player-counter').innerText = `Media ${currentIndex + 1} dari ${currentAlbumItems.length}`;
 
       if (item.isVideo) {
-        if (item.url.includes('youtube.com') || item.url.includes('youtu.be')) {
-          let videoId = item.url.includes('youtu.be/') ? item.url.split('youtu.be/')[1].split('?')[0] : item.url.split('v=')[1]?.split('&')[0];
-          container.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" class="w-full aspect-video rounded-xl shadow-2xl" frameborder="0" allowfullscreen></iframe>`;
-        } else {
-          container.innerHTML = `<video src="${item.url}" controls autoplay class="max-h-[70vh] max-w-full rounded-xl shadow-2xl"></video>`;
-        }
+        container.innerHTML = `<video src="${item.url}" controls autoplay class="max-h-[70vh] max-w-full rounded-xl shadow-2xl"></video>`;
       } else {
         container.innerHTML = `<img src="${item.url}" class="max-h-[70vh] max-w-full h-auto object-contain rounded-xl shadow-2xl">`;
       }
@@ -912,11 +839,8 @@
 
     function geserMedia(direction) {
       currentIndex += direction;
-      if (currentIndex < 0) {
-        currentIndex = currentAlbumItems.length - 1;
-      } else if (currentIndex >= currentAlbumItems.length) {
-        currentIndex = 0;
-      }
+      if (currentIndex < 0) currentIndex = currentAlbumItems.length - 1;
+      else if (currentIndex >= currentAlbumItems.length) currentIndex = 0;
       renderLightboxCurrent();
     }
 
@@ -934,8 +858,8 @@
         tutupIsiAlbumModal();
         tutupArsipGaleriModal();
         tutupRincianWarga();
-        tutupPopupRincianSampah();
-        tutupPopupTabunganWarga();
+        tutupPopupTotalSampah();
+        tutupPopupTotalTabungan();
       } else if (e.key === 'ArrowLeft') {
         geserMedia(-1);
       } else if (e.key === 'ArrowRight') {
