@@ -13,7 +13,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased font-sans min-h-screen flex flex-col">
 
-  <!-- HEADER NAVBAR -->
+  <!-- HEADER NAVBAR RINGKAS -->
   <header class="bg-emerald-950 text-white sticky top-0 z-40 shadow-md">
     <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
       <a href="index.html" class="flex items-center gap-2 text-emerald-100 hover:text-white transition font-medium text-xs sm:text-sm">
@@ -29,77 +29,78 @@
   </header>
 
   <!-- MAIN CONTENT -->
-  <main class="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-6 flex-grow w-full">
+  <main class="max-w-6xl mx-auto px-3 sm:px-6 py-5 sm:py-8 space-y-6 flex-grow w-full">
 
     <!-- HERO SECTION -->
-    <div class="text-center space-y-1 max-w-2xl mx-auto">
-      <h2 class="text-xl sm:text-2xl font-extrabold text-emerald-950 tracking-tight">Pengelolaan & Tabungan Sampah Warga</h2>
+    <div class="text-center space-y-1.5 max-w-2xl mx-auto">
+      <h2 class="text-xl sm:text-3xl font-extrabold text-emerald-950 tracking-tight">Pengelolaan & Tabungan Sampah Warga</h2>
       <p class="text-xs sm:text-sm text-slate-600">Pusat informasi pemilahan sampah anorganik, rekap tabungan warga, kas pengelola, dan rincian setoran berkala.</p>
     </div>
 
-    <!-- 1. SLIDER CARD PROGRES BANK SAMPAH -->
-    <div class="space-y-2">
+    <!-- 1. SLIDER CARD PROGRES BANK SAMPAH (MEMENUHI LEBAR PC PAS 100%) -->
+    <div class="space-y-3">
       <div class="flex items-center justify-between px-1">
-        <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-          <i data-lucide="trending-up" class="w-4 h-4 text-emerald-600"></i>
+        <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
+          <i data-lucide="trending-up" class="w-5 h-5 text-emerald-600"></i>
           Progres Perkembangan Bank Sampah
         </h3>
-        <p class="text-xs text-slate-400">Geser kesamping →</p>
+        <p class="text-xs text-slate-400 lg:hidden">Geser kesamping →</p>
       </div>
 
-      <div id="container-progres-cards" class="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory no-scrollbar">
-        <div class="text-xs text-slate-400 p-3 italic">Memuat progres...</div>
+      <!-- Grid responsif di PC, Scrollable di HP -->
+      <div id="container-progres-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 snap-x snap-mandatory no-scrollbar">
+        <div class="text-sm text-slate-400 p-4 italic col-span-full">Memuat progres...</div>
       </div>
     </div>
 
     <!-- 2. 3 KARTU RINGKASAN DATA TOTALAN -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-      <div class="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-5">
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between">
         <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">Total Sampah Terkumpul</span>
         <div class="mt-2">
           <span id="total-sampah-terkumpul" class="text-2xl sm:text-3xl font-black text-emerald-900">0.0 Kg</span>
-          <p class="text-xs text-slate-500 mt-0.5">Anorganik terpilah</p>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">Anorganik terpilah</p>
         </div>
       </div>
-      <div class="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between">
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between">
         <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">Total Nilai Tabungan Warga</span>
         <div class="mt-2">
           <span id="total-nilai-tabungan" class="text-2xl sm:text-3xl font-black text-emerald-900">Rp 0</span>
-          <p class="text-xs text-slate-500 mt-0.5">Siap dicairkan / diakumulasi</p>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">Siap dicairkan / diakumulasi</p>
         </div>
       </div>
-      <div class="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between">
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between">
         <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">Kas Operasional Bank Sampah</span>
         <div class="mt-2">
           <span id="kas-operasional-bank-sampah" class="text-2xl sm:text-3xl font-black text-emerald-900">Rp 0</span>
-          <p class="text-xs text-slate-500 mt-0.5">Saldo bersih pengelola & lorong</p>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">Saldo bersih pengelola & lorong</p>
         </div>
       </div>
     </div>
 
     <!-- 3. TABEL REKAP TABUNGAN SAMPAH WARGA -->
-    <div class="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-slate-100">
+    <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-100">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div>
-          <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
-            <i data-lucide="table" class="w-4 h-4 text-emerald-600"></i>
+          <h3 class="text-base sm:text-lg font-bold text-slate-800 flex items-center gap-2">
+            <i data-lucide="table" class="w-5 h-5 text-emerald-600"></i>
             Rekap Tabungan Sampah Warga
           </h3>
-          <p class="text-xs text-slate-500">Klik nama warga untuk melihat riwayat rincian setoran</p>
+          <p class="text-xs sm:text-sm text-slate-500">Klik nama warga untuk melihat riwayat rincian setoran</p>
         </div>
-        <input type="text" id="input-cari-warga" onkeyup="cariWarga()" placeholder="Cari nama / blok..." class="px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg w-full sm:w-60 focus:outline-none focus:border-emerald-500">
+        <input type="text" id="input-cari-warga" onkeyup="cariWarga()" placeholder="Cari nama / blok..." class="px-3.5 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl w-full sm:w-64 focus:outline-none focus:border-emerald-500">
       </div>
 
       <div class="overflow-x-auto">
-        <div class="max-h-[380px] overflow-y-auto rounded-lg border border-slate-100">
+        <div class="max-h-[400px] overflow-y-auto rounded-xl border border-slate-100">
           <table class="w-full text-left text-xs sm:text-sm">
             <thead class="bg-emerald-50/90 text-emerald-900 font-bold sticky top-0 z-10">
               <tr>
-                <th class="p-3 w-12 text-center">No</th>
-                <th class="p-3">Nama & Blok</th>
-                <th class="p-3">Setoran Terakhir</th>
-                <th class="p-3 text-right">Total Berat (Kg)</th>
-                <th class="p-3 text-right">Saldo Tabungan</th>
+                <th class="p-3.5 w-12 text-center">No</th>
+                <th class="p-3.5">Nama & Blok</th>
+                <th class="p-3.5">Setoran Terakhir</th>
+                <th class="p-3.5 text-right">Total Berat (Kg)</th>
+                <th class="p-3.5 text-right">Saldo Tabungan</th>
               </tr>
             </thead>
             <tbody id="tabel-rekap-warga" class="divide-y divide-slate-100">
@@ -110,54 +111,54 @@
       </div>
     </div>
 
-    <!-- 4. SLIDER INVENTARIS & DOKUMENTASI -->
-    <div class="space-y-2">
+    <!-- 4. INVENTARIS & DOKUMENTASI (PILIHAN 2 KOLOM RATA SAMPING PC) -->
+    <div class="space-y-3">
       <div class="flex items-center justify-between px-1">
-        <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-          <i data-lucide="boxes" class="w-4 h-4 text-emerald-600"></i>
+        <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
+          <i data-lucide="boxes" class="w-5 h-5 text-emerald-600"></i>
           Inventaris & Dokumentasi Kegiatan
         </h3>
-        <p class="text-xs text-slate-400">Geser kesamping →</p>
+        <p class="text-xs text-slate-400 lg:hidden">Geser kesamping →</p>
       </div>
 
-      <div id="container-inventaris-dokumentasi" class="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory no-scrollbar">
+      <div id="container-inventaris-dokumentasi" class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-5 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 snap-x snap-mandatory no-scrollbar">
         
         <!-- Card Inventaris -->
-        <div class="snap-start shrink-0 w-[290px] sm:w-[350px] bg-white rounded-xl p-4 shadow-sm border border-slate-100 flex flex-col justify-between">
+        <div class="snap-start shrink-0 min-w-[280px] lg:min-w-0 bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-1">
-              <h4 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-2">
+              <h4 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
                 <i data-lucide="box" class="w-4 h-4 text-emerald-600"></i>
                 Inventaris Bank Sampah
               </h4>
             </div>
-            <p class="text-xs text-slate-500 mb-3">Peralatan dan barang terdaftar</p>
-            <div id="container-inventaris-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+            <p class="text-xs sm:text-sm text-slate-500 mb-3">Klik item untuk melihat foto peralatan</p>
+            <div id="container-inventaris-list" class="space-y-2 max-h-52 overflow-y-auto pr-1">
               <p class="text-xs text-slate-400 italic">Memuat data inventaris...</p>
             </div>
           </div>
         </div>
 
         <!-- Card Dokumentasi -->
-        <div class="snap-start shrink-0 w-[290px] sm:w-[350px] bg-white rounded-xl p-4 shadow-sm border border-slate-100 flex flex-col justify-between">
+        <div class="snap-start shrink-0 min-w-[280px] lg:min-w-0 bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-1">
-              <h4 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-2">
+              <h4 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
                 <i data-lucide="camera" class="w-4 h-4 text-emerald-600"></i>
                 Dokumentasi Kegiatan
               </h4>
-              <button onclick="bukaGaleriModal()" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
-                Galeri <i data-lucide="external-link" class="w-3 h-3"></i>
+              <button onclick="bukaArsipGaleriModal()" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1.5 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
+                Galeri <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
               </button>
             </div>
-            <p class="text-xs text-slate-500 mb-3">Foto & Video kegiatan warga</p>
+            <p class="text-xs sm:text-sm text-slate-500 mb-3">Foto & Video kegiatan warga</p>
             
-            <div onclick="bukaGaleriModal()" class="relative h-32 rounded-lg overflow-hidden bg-slate-900 cursor-pointer group border border-slate-200">
+            <div onclick="bukaArsipGaleriModal()" class="relative h-36 rounded-xl overflow-hidden bg-slate-900 cursor-pointer group border border-slate-200">
               <img id="galeri-preview-img" src="" alt="Galeri Preview" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition duration-300">
-              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-3">
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-3.5">
                 <div class="text-white">
-                  <span class="bg-emerald-600 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">Buka Galeri</span>
-                  <p id="galeri-preview-caption" class="text-xs font-bold mt-0.5">Klik untuk melihat semua foto & video</p>
+                  <span class="bg-emerald-600 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Buka Galeri</span>
+                  <p id="galeri-preview-caption" class="text-xs sm:text-sm font-bold mt-1">Gorol & Pembuatan Bank Sampah</p>
                 </div>
               </div>
             </div>
@@ -170,43 +171,43 @@
   </main>
 
   <!-- FOOTER -->
-  <footer class="bg-slate-900 text-slate-400 text-xs py-4 border-t border-slate-800 mt-6 text-center">
+  <footer class="bg-slate-900 text-slate-400 text-xs sm:text-sm py-5 border-t border-slate-800 mt-8 text-center">
     <p>© 2026 Lorong Flamboyan 4 - Pesona Kahuripan 2</p>
   </footer>
 
   <!-- MODAL RINCIAN WARGA -->
-  <div id="modal-rincian" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3" onclick="tutupRincianWargaOnBackdrop(event)">
+  <div id="modal-rincian" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4" onclick="tutupRincianWargaOnBackdrop(event)">
     <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl relative" onclick="event.stopPropagation()">
-      <div class="p-4 bg-emerald-900 text-white flex items-center justify-between">
+      <div class="p-4 sm:p-5 bg-emerald-900 text-white flex items-center justify-between">
         <div>
-          <h3 id="modal-nama-warga" class="font-bold text-base">Pak Heri</h3>
-          <p class="text-emerald-200 text-xs">Riwayat setoran sampah anorganik</p>
+          <h3 id="modal-nama-warga" class="font-bold text-base sm:text-lg">Pak Heri</h3>
+          <p class="text-emerald-200 text-xs sm:text-sm">Riwayat setoran sampah anorganik</p>
         </div>
         <button onclick="tutupRincianWarga()" class="w-8 h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center">
-          <i data-lucide="x" class="w-4 h-4"></i>
+          <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
-      <div class="p-4 space-y-3 max-h-[80vh] overflow-y-auto">
-        <div class="grid grid-cols-2 gap-2 bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+      <div class="p-4 sm:p-5 space-y-4 max-h-[80vh] overflow-y-auto">
+        <div class="grid grid-cols-2 gap-3 bg-emerald-50 p-3.5 rounded-xl border border-emerald-100">
           <div>
             <p class="text-xs text-slate-500 font-bold uppercase">Total Berat</p>
-            <p id="modal-total-berat" class="text-base font-black text-emerald-950">0 Kg</p>
+            <p id="modal-total-berat" class="text-lg font-black text-emerald-950">0 Kg</p>
           </div>
           <div>
             <p class="text-xs text-slate-500 font-bold uppercase">Total Saldo Tabungan</p>
-            <p id="modal-total-saldo" class="text-base font-black text-emerald-950">Rp 0</p>
+            <p id="modal-total-saldo" class="text-lg font-black text-emerald-950">Rp 0</p>
           </div>
         </div>
         <div>
           <h4 class="text-xs font-bold text-slate-700 mb-2">CATATAN SETORAN</h4>
-          <div class="overflow-x-auto rounded-lg border border-slate-100">
-            <table class="w-full text-left text-xs">
+          <div class="overflow-x-auto rounded-xl border border-slate-100">
+            <table class="w-full text-left text-xs sm:text-sm">
               <thead class="bg-slate-50 text-slate-600 font-semibold">
                 <tr>
-                  <th class="p-2">Tanggal</th>
-                  <th class="p-2">Rincian Sampah (Kg)</th>
-                  <th class="p-2 text-right">Total Berat</th>
-                  <th class="p-2 text-right">Nominal</th>
+                  <th class="p-2.5">Tanggal</th>
+                  <th class="p-2.5">Rincian Sampah (Kg)</th>
+                  <th class="p-2.5 text-right">Total Berat</th>
+                  <th class="p-2.5 text-right">Nominal</th>
                 </tr>
               </thead>
               <tbody id="modal-tabel-riwayat" class="divide-y divide-slate-100">
@@ -219,27 +220,66 @@
     </div>
   </div>
 
-  <!-- MODAL GALERI POPUP -->
-  <div id="modal-galeri" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-3" onclick="tutupGaleriModalOnBackdrop(event)">
-    <div class="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative" onclick="event.stopPropagation()">
-      <div class="p-3 bg-slate-900 text-white flex items-center justify-between">
-        <h3 id="galeri-title-header" class="font-bold text-xs sm:text-sm flex items-center gap-2">
-          <i data-lucide="image" class="w-4 h-4 text-emerald-400"></i> Galeri Dokumentasi Kegiatan
-        </h3>
-        <button onclick="tutupGaleriModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center">
-          <i data-lucide="x" class="w-4 h-4"></i>
+  <!-- TIER 1: MODAL ARSIP DOKUMENTASI KEGIATAN (LATAR PUTIH BERSIH) -->
+  <div id="modal-arsip-galeri" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6" onclick="tutupArsipGaleriOnBackdrop(event)">
+    <div class="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative border border-slate-100" onclick="event.stopPropagation()">
+      <div class="p-4 sm:p-5 bg-white border-b border-slate-100 flex items-center justify-between">
+        <div>
+          <h3 class="font-extrabold text-base sm:text-xl text-slate-900">Arsip Dokumentasi Kegiatan</h3>
+          <p class="text-xs sm:text-sm text-slate-500">Seluruh album foto & kegiatan warga Flamboyan 4</p>
+        </div>
+        <button onclick="tutupArsipGaleriModal()" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <div class="p-3 flex-grow overflow-y-auto space-y-2 bg-slate-950 flex flex-col items-center justify-center min-h-[250px]">
-        <div id="galeri-media-container" class="w-full max-h-[60vh] flex items-center justify-center overflow-hidden rounded-xl bg-black">
-          <!-- Disisipkan Media via JS -->
+      <div id="arsip-album-grid" class="p-4 sm:p-6 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 bg-slate-50/50">
+        <!-- Diisi JS Album -->
+      </div>
+    </div>
+  </div>
+
+  <!-- TIER 2: MODAL ISI MEDIA ALBUM (GRID FOTO & VIDEO) -->
+  <div id="modal-isi-album" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6" onclick="tutupIsiAlbumOnBackdrop(event)">
+    <div class="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative border border-slate-100" onclick="event.stopPropagation()">
+      <div class="p-4 sm:p-5 bg-white border-b border-slate-100 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button onclick="kembaliKeArsipAlbum()" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 flex items-center justify-center transition">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+          </button>
+          <div>
+            <h3 id="isi-album-title" class="font-extrabold text-base sm:text-xl text-slate-900">Gorol dan Pembuatan Bank Sampah</h3>
+            <p id="isi-album-subtext" class="text-xs sm:text-sm text-slate-500">Klik media untuk melihat/memutar ukuran penuh</p>
+          </div>
         </div>
-        <p id="galeri-caption" class="text-xs text-slate-300 text-center font-medium"></p>
+        <button onclick="tutupIsiAlbumModal()" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
       </div>
 
-      <div id="galeri-thumbnails" class="p-2 bg-slate-900 border-t border-slate-800 flex gap-2 overflow-x-auto">
-        <!-- Thumbnail item -->
+      <div id="isi-album-media-grid" class="p-4 sm:p-6 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 bg-slate-50/50">
+        <!-- Diisi JS Foto/Video -->
+      </div>
+    </div>
+  </div>
+
+  <!-- TIER 3: POPUP PENAMPIL MEDIA PENUH (SINGLE PHOTO / VIDEO PLAYER) -->
+  <div id="modal-single-player" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6" onclick="tutupSinglePlayerOnBackdrop(event)">
+    <div class="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative border border-slate-100" onclick="event.stopPropagation()">
+      <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
+        <h3 id="single-player-title" class="font-bold text-xs sm:text-sm flex items-center gap-2">
+          <i data-lucide="image" class="w-4 h-4 text-emerald-400"></i> Preview Media
+        </h3>
+        <button onclick="tutupSinglePlayer()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-4 flex-grow overflow-y-auto bg-slate-950 flex flex-col items-center justify-center min-h-[280px]">
+        <div id="single-player-container" class="w-full max-h-[60vh] flex items-center justify-center overflow-hidden rounded-xl bg-black">
+          <!-- Disisipkan Video/Foto -->
+        </div>
+        <p id="single-player-caption" class="text-xs sm:text-sm text-slate-300 text-center font-medium mt-3"></p>
       </div>
     </div>
   </div>
@@ -266,7 +306,6 @@
 
     function formatDriveImgUrl(url) {
       if (!url) return '';
-      if (url.includes('/drive/folders/')) return url;
       const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
       if (match && match[1]) {
         return `https://lh3.googleusercontent.com/d/${match[1]}`;
@@ -325,14 +364,14 @@
 
         html += `
           <tr onclick="bukaRincianWarga('${namaBlok}', ${totalBeratWarga}, ${totalSaldoWarga})" class="hover:bg-emerald-50/60 cursor-pointer transition">
-            <td class="p-3 text-center text-slate-400 font-medium">${idx + 1}</td>
-            <td class="p-3 font-bold text-emerald-950 flex items-center justify-between">
+            <td class="p-3.5 text-center text-slate-400 font-medium">${idx + 1}</td>
+            <td class="p-3.5 font-bold text-emerald-950 flex items-center justify-between">
               <span>${namaBlok}</span>
               <i data-lucide="chevron-right" class="w-4 h-4 opacity-50"></i>
             </td>
-            <td class="p-3 text-slate-500">${setoranTerakhir}</td>
-            <td class="p-3 text-right font-semibold text-slate-700">${totalBeratWarga.toFixed(1)} Kg</td>
-            <td class="p-3 text-right font-bold text-emerald-700">Rp ${Math.round(totalSaldoWarga).toLocaleString('id-ID')}</td>
+            <td class="p-3.5 text-slate-500">${setoranTerakhir}</td>
+            <td class="p-3.5 text-right font-semibold text-slate-700">${totalBeratWarga.toFixed(1)} Kg</td>
+            <td class="p-3.5 text-right font-bold text-emerald-700">Rp ${Math.round(totalSaldoWarga).toLocaleString('id-ID')}</td>
           </tr>
         `;
       });
@@ -361,7 +400,7 @@
       renderTabelWarga(filtered);
     }
 
-    // 2. PROGRES BANK SAMPAH
+    // 2. PROGRES BANK SAMPAH (TAMPILAN CARD DIPERBESAR & PRESISI)
     async function loadProgresBankSampahDetail() {
       try {
         const response = await fetch(CSV_PROGRES_URL + "&t=" + Date.now());
@@ -383,7 +422,7 @@
         if (!container) return;
 
         if (globalProgresList.length === 0) {
-          container.innerHTML = `<p class="text-xs text-slate-400 italic p-2">Belum ada progres.</p>`;
+          container.innerHTML = `<p class="text-sm text-slate-400 italic p-2 col-span-full">Belum ada progres.</p>`;
           return;
         }
 
@@ -393,26 +432,26 @@
           const badgeClass = isSelesai ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-white';
 
           html += `
-            <div class="snap-start shrink-0 w-[270px] sm:w-[310px] bg-white p-3.5 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between space-y-2">
+            <div class="snap-start shrink-0 min-w-[280px] sm:min-w-0 bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between space-y-3">
               <div class="flex items-center justify-between">
-                <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded">${item.langkah}</span>
-                <span class="${badgeClass} text-xs font-semibold px-2 py-0.5 rounded">${item.status}</span>
+                <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-md">${item.langkah}</span>
+                <span class="${badgeClass} text-xs font-semibold px-2.5 py-0.5 rounded-md">${item.status}</span>
                 <span class="text-slate-400 text-xs ml-auto font-medium">${item.tanggal}</span>
               </div>
 
-              <div class="flex gap-3 items-center cursor-pointer" onclick="bukaPreviewFoto('${item.urlFoto}', '${item.judul}')">
-                <div class="w-16 h-16 bg-slate-100 rounded-lg overflow-hidden shrink-0 border border-slate-200">
+              <div class="flex gap-3.5 items-center cursor-pointer" onclick="bukaSinglePlayer('${item.urlFoto}', '${item.judul}')">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 bg-slate-100 rounded-xl overflow-hidden shrink-0 border border-slate-200">
                   <img src="${item.urlFoto}" alt="Foto" class="w-full h-full object-cover">
                 </div>
                 <div class="min-w-0 flex-grow">
-                  <h4 class="text-xs sm:text-sm font-bold text-slate-800 truncate">${item.judul}</h4>
-                  <p class="text-xs text-slate-500 line-clamp-2 leading-tight mt-0.5">${item.deskripsi}</p>
+                  <h4 class="text-sm sm:text-base font-bold text-slate-800 line-clamp-1">${item.judul}</h4>
+                  <p class="text-xs sm:text-sm text-slate-500 line-clamp-2 leading-relaxed mt-1">${item.deskripsi}</p>
                 </div>
               </div>
 
-              <div class="pt-2 border-t border-slate-100 text-xs space-y-0.5">
-                <div class="truncate"><span class="text-slate-400">Tahap:</span> <span class="font-semibold text-slate-700">${item.tahapDetail.replace(/^Tahap:\s*/i, '')}</span></div>
-                <div class="truncate"><span class="text-slate-400">Agenda:</span> <span class="font-semibold text-slate-700">${item.agendaBerikut.replace(/^Agenda:\s*/i, '')}</span></div>
+              <div class="pt-2.5 border-t border-slate-100 text-xs sm:text-sm space-y-1">
+                <div class="truncate"><span class="text-slate-400 font-medium">Tahap:</span> <span class="font-semibold text-slate-700">${item.tahapDetail.replace(/^Tahap:\s*/i, '')}</span></div>
+                <div class="truncate"><span class="text-slate-400 font-medium">Agenda:</span> <span class="font-semibold text-slate-700">${item.agendaBerikut.replace(/^Agenda:\s*/i, '')}</span></div>
               </div>
             </div>
           `;
@@ -448,23 +487,23 @@
         });
 
         if (globalInventarisList.length === 0) {
-          container.innerHTML = `<p class="text-xs text-slate-400 italic">Belum ada data inventaris.</p>`;
+          container.innerHTML = `<p class="text-xs sm:text-sm text-slate-400 italic">Belum ada data inventaris.</p>`;
           return;
         }
 
         let html = '';
         globalInventarisList.forEach(item => {
           const hasImg = item.urlFoto && item.urlFoto.startsWith('http');
-          const clickAttr = hasImg ? `onclick="bukaPreviewFoto('${item.urlFoto}', '${item.nama}')"` : '';
+          const clickAttr = hasImg ? `onclick="bukaSinglePlayer('${item.urlFoto}', '${item.nama}')"` : '';
           const cursorClass = hasImg ? 'cursor-pointer hover:border-emerald-300 transition' : '';
 
           html += `
-            <div ${clickAttr} class="flex items-center justify-between bg-slate-50 p-2 rounded-lg border border-slate-100 text-xs ${cursorClass}">
-              <div class="flex items-center gap-2 min-w-0">
-                ${hasImg ? `<img src="${item.urlFoto}" class="w-8 h-8 rounded object-cover shrink-0 border border-slate-200">` : `<div class="w-8 h-8 rounded bg-emerald-100 flex items-center justify-center shrink-0 text-emerald-700"><i data-lucide="box" class="w-4 h-4"></i></div>`}
+            <div ${clickAttr} class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs sm:text-sm ${cursorClass}">
+              <div class="flex items-center gap-2.5 min-w-0">
+                ${hasImg ? `<img src="${item.urlFoto}" class="w-9 h-9 rounded-lg object-cover shrink-0 border border-slate-200">` : `<div class="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0 text-emerald-700"><i data-lucide="box" class="w-4 h-4"></i></div>`}
                 <span class="font-semibold text-slate-700 truncate">${item.nama}</span>
               </div>
-              <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full text-xs shrink-0 ml-2">${item.qty} Unit</span>
+              <span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full text-xs shrink-0 ml-2">${item.qty} Unit</span>
             </div>
           `;
         });
@@ -475,46 +514,56 @@
       }
     }
 
-    // 4. DOKUMENTASI (PENGGABUNGAN DATA & FALLBACK PROGRES)
+    // 4. DOKUMENTASI MULTI-ALBUM
     async function loadDokumentasi() {
       try {
         const response = await fetch(CSV_DOKUMENTASI_URL + "&t=" + Date.now());
         const csvText = await response.text();
         const rows = parseCSV(csvText);
 
-        globalDokumentasiList = [];
+        const albumMap = {};
 
         rows.forEach(r => {
           const judul = r[0] || 'Kegiatan Bank Sampah';
-          const tanggal = r[1] || '';
-          const deskripsi = r[2] || '';
+          const tanggal = r[1] || '11-Okt-2026';
           const urlRaw = r[3] || r[2] || '';
+          const urlFormatted = formatDriveImgUrl(urlRaw);
 
-          if (urlRaw && urlRaw.startsWith('http')) {
-            globalDokumentasiList.push({
+          if (!albumMap[judul]) {
+            albumMap[judul] = {
               judul,
               tanggal,
-              deskripsi,
-              url: formatDriveImgUrl(urlRaw),
-              isFolder: urlRaw.includes('/drive/folders/')
+              items: []
+            };
+          }
+
+          if (urlFormatted && urlFormatted.startsWith('http')) {
+            albumMap[judul].items.push({
+              url: urlFormatted,
+              isVideo: urlFormatted.includes('youtube.com') || urlFormatted.includes('youtu.be')
             });
           }
         });
 
-        // Set Gambar Preview di Kartu Utama
+        globalDokumentasiList = Object.values(albumMap);
+
+        if (globalDokumentasiList.length === 0 && globalProgresList.length > 0) {
+          globalDokumentasiList = [{
+            judul: 'Gorol dan Pembuatan Bank Sampah',
+            tanggal: '11-Okt-2026',
+            items: globalProgresList.map(p => ({ url: p.urlFoto, isVideo: false }))
+          }];
+        }
+
         const previewImg = document.getElementById('galeri-preview-img');
         const captionPreview = document.getElementById('galeri-preview-caption');
 
         if (globalDokumentasiList.length > 0) {
-          const item = globalDokumentasiList[0];
-          if (captionPreview) captionPreview.innerText = item.judul;
-          if (previewImg && item.url && !item.isFolder) {
-            previewImg.src = item.url;
-          } else if (globalProgresList.length > 0) {
-            previewImg.src = globalProgresList[0].urlFoto;
+          const firstAlbum = globalDokumentasiList[0];
+          if (captionPreview) captionPreview.innerText = firstAlbum.judul;
+          if (previewImg && firstAlbum.items.length > 0) {
+            previewImg.src = firstAlbum.items[0].url;
           }
-        } else if (globalProgresList.length > 0 && previewImg) {
-          previewImg.src = globalProgresList[0].urlFoto;
         }
       } catch (err) {
         console.error("Gagal memuat dokumentasi:", err);
@@ -531,7 +580,7 @@
       const tbody = document.getElementById('modal-tabel-riwayat');
 
       if (riwayat.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-slate-400">Belum ada catatan setoran.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="p-3.5 text-center text-slate-400">Belum ada catatan setoran.</td></tr>`;
       } else {
         let html = '';
         riwayat.forEach(r => {
@@ -550,10 +599,10 @@
 
           html += `
             <tr class="hover:bg-slate-50">
-              <td class="p-2 text-slate-500">${r[1] || '-'}</td>
-              <td class="p-2 font-medium text-slate-700">${items.join(', ') || '-'}</td>
-              <td class="p-2 text-right font-semibold text-slate-700">${parseNumberFlexible(r[6]).toFixed(1)} Kg</td>
-              <td class="p-2 text-right font-bold text-emerald-700">Rp ${Math.round(nominal).toLocaleString('id-ID')}</td>
+              <td class="p-2.5 text-slate-500">${r[1] || '-'}</td>
+              <td class="p-2.5 font-medium text-slate-700">${items.join(', ') || '-'}</td>
+              <td class="p-2.5 text-right font-semibold text-slate-700">${parseNumberFlexible(r[6]).toFixed(1)} Kg</td>
+              <td class="p-2.5 text-right font-bold text-emerald-700">Rp ${Math.round(nominal).toLocaleString('id-ID')}</td>
             </tr>
           `;
         });
@@ -571,110 +620,160 @@
       if (e.target.id === 'modal-rincian') tutupRincianWarga();
     }
 
-    // 6. POPUP PREVIEW FOTO SINGLE (INVENTARIS / PROGRES)
-    function bukaPreviewFoto(urlFoto, judul) {
-      if (!urlFoto) return;
-      const modal = document.getElementById('modal-galeri');
-      const container = document.getElementById('galeri-media-container');
-      const caption = document.getElementById('galeri-caption');
-      const thumbBox = document.getElementById('galeri-thumbnails');
+    // 6. LOGIKA MODAL GALERI 2-TIER (LATAR PUTIH BERSIH)
+    function bukaArsipGaleriModal() {
+      const modal = document.getElementById('modal-arsip-galeri');
+      const grid = document.getElementById('arsip-album-grid');
+      if (!modal || !grid) return;
 
-      caption.innerText = judul || '';
-      container.innerHTML = `<img src="${urlFoto}" class="max-h-[60vh] max-w-full h-auto object-contain rounded-xl">`;
-      if (thumbBox) thumbBox.innerHTML = '';
-
-      modal.classList.remove('hidden');
-      isGaleriOpen = true;
-      history.pushState({ modalGaleriOpen: true }, "");
-    }
-
-    // 7. GALERI MODAL POPUP (TETAP DI DALAM WEBSITE)
-    let isGaleriOpen = false;
-
-    function bukaGaleriModal() {
-      const modal = document.getElementById('modal-galeri');
-      if (!modal) return;
-      modal.classList.remove('hidden');
-      isGaleriOpen = true;
-
-      // Gabungkan data dokumentasi dan foto progres sebagai cadangan galeri
-      let mediaList = [];
-      if (globalDokumentasiList.length > 0) {
-        mediaList = globalDokumentasiList;
+      let html = '';
+      if (globalDokumentasiList.length === 0) {
+        html = `<p class="text-sm text-slate-400 col-span-3 text-center py-8">Belum ada album dokumentasi.</p>`;
       } else {
-        mediaList = globalProgresList.map(p => ({
-          judul: p.judul,
-          tanggal: p.tanggal,
-          url: p.urlFoto,
-          isFolder: false
-        }));
+        globalDokumentasiList.forEach((album, idx) => {
+          const coverImg = album.items.length > 0 ? album.items[0].url : '';
+          const countMedia = album.items.length;
+
+          html += `
+            <div onclick="bukaIsiAlbumModal(${idx})" class="bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-emerald-500 shadow-xs hover:shadow-md cursor-pointer transition group">
+              <div class="p-3.5 bg-white border-b border-slate-50">
+                <span class="text-xs font-bold text-emerald-600 tracking-wider uppercase">${album.tanggal}</span>
+                <h4 class="text-sm font-bold text-slate-800 line-clamp-1 mt-0.5 group-hover:text-emerald-700 transition">${album.judul}</h4>
+              </div>
+              <div class="h-32 bg-slate-900 relative overflow-hidden">
+                <img src="${coverImg}" class="w-full h-full object-cover opacity-85 group-hover:scale-105 transition duration-300">
+                <div class="absolute bottom-2.5 left-2.5 bg-slate-950/80 text-white text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1.5 border border-slate-700/50">
+                  <i data-lucide="folder" class="w-3.5 h-3.5 text-emerald-400"></i> ${countMedia} Media
+                </div>
+              </div>
+            </div>
+          `;
+        });
       }
 
-      if (mediaList.length > 0) {
-        tampilkanMediaGaleri(0, mediaList);
-        renderThumbnailsGaleri(mediaList);
-      }
-      history.pushState({ modalGaleriOpen: true }, "");
+      grid.innerHTML = html;
+      if (window.lucide) lucide.createIcons();
+
+      modal.classList.remove('hidden');
+      history.pushState({ modalArsipOpen: true }, "");
     }
 
-    function tutupGaleriModal() {
-      const modal = document.getElementById('modal-galeri');
-      if (!modal || !isGaleriOpen) return;
-      modal.classList.add('hidden');
-      isGaleriOpen = false;
-      document.getElementById('galeri-media-container').innerHTML = '';
+    function tutupArsipGaleriModal() {
+      const modal = document.getElementById('modal-arsip-galeri');
+      if (modal) modal.classList.add('hidden');
     }
 
-    function tutupGaleriModalOnBackdrop(e) {
-      if (e.target.id === 'modal-galeri') tutupGaleriModal();
+    function tutupArsipGaleriOnBackdrop(e) {
+      if (e.target.id === 'modal-arsip-galeri') tutupArsipGaleriModal();
     }
 
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && isGaleriOpen) tutupGaleriModal();
-    });
+    let currentActiveAlbumIndex = 0;
 
-    window.addEventListener('popstate', function(e) {
-      if (isGaleriOpen) tutupGaleriModal();
-    });
+    function bukaIsiAlbumModal(albumIndex) {
+      currentActiveAlbumIndex = albumIndex;
+      const album = globalDokumentasiList[albumIndex];
+      if (!album) return;
 
-    function tampilkanMediaGaleri(index, list) {
-      const mediaList = list || (globalDokumentasiList.length > 0 ? globalDokumentasiList : globalProgresList.map(p => ({ judul: p.judul, tanggal: p.tanggal, url: p.urlFoto })));
-      const item = mediaList[index];
-      if (!item) return;
+      const modalIsi = document.getElementById('modal-isi-album');
+      const titleEl = document.getElementById('isi-album-title');
+      const subtextEl = document.getElementById('isi-album-subtext');
+      const grid = document.getElementById('isi-album-media-grid');
 
-      document.getElementById('galeri-caption').innerText = `${item.judul} ${item.tanggal ? '- ' + item.tanggal : ''}`;
-      const container = document.getElementById('galeri-media-container');
+      if (titleEl) titleEl.innerText = `${album.judul} - ${album.tanggal}`;
+      if (subtextEl) subtextEl.innerText = `${album.items.length} file media ditemukan - Klik untuk membuka/memutar`;
 
-      const url = item.url || item.urlFoto || '';
+      let html = '';
+      album.items.forEach((item, mediaIdx) => {
+        if (item.isVideo) {
+          html += `
+            <div onclick="bukaSinglePlayer('${item.url}', '${album.judul}')" class="h-44 sm:h-56 bg-slate-900 rounded-2xl overflow-hidden relative border border-slate-200 hover:border-emerald-500 cursor-pointer shadow-xs group">
+              <div class="absolute inset-0 flex items-center justify-center z-10">
+                <div class="w-11 h-11 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition">
+                  <i data-lucide="play" class="w-5 h-5 fill-white ml-0.5"></i>
+                </div>
+              </div>
+              <div class="absolute top-2.5 left-2.5 z-10 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">VIDEO</div>
+            </div>
+          `;
+        } else {
+          html += `
+            <div onclick="bukaSinglePlayer('${item.url}', '${album.judul}')" class="h-44 sm:h-56 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 hover:border-emerald-500 cursor-pointer shadow-xs group relative">
+              <img src="${item.url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+            </div>
+          `;
+        }
+      });
 
-      if (item.isFolder) {
-        // Jika link berupa folder Drive, tampilkan embed frame Drive di dalam modal tanpa keluar dari web
-        const folderId = url.split('/folders/')[1]?.split('?')[0];
-        container.innerHTML = `<iframe src="https://drive.google.com/embeddedfolderview?id=${folderId}#grid" class="w-full h-[55vh] rounded-xl border border-slate-800" frameborder="0"></iframe>`;
-      } else if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      grid.innerHTML = html;
+      if (window.lucide) lucide.createIcons();
+
+      tutupArsipGaleriModal();
+      modalIsi.classList.remove('hidden');
+      history.pushState({ modalIsiAlbumOpen: true }, "");
+    }
+
+    function kembaliKeArsipAlbum() {
+      tutupIsiAlbumModal();
+      bukaArsipGaleriModal();
+    }
+
+    function tutupIsiAlbumModal() {
+      const modal = document.getElementById('modal-isi-album');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function tutupIsiAlbumOnBackdrop(e) {
+      if (e.target.id === 'modal-isi-album') tutupIsiAlbumModal();
+    }
+
+    // TIER 3: SINGLE MEDIA PLAYER POPUP
+    function bukaSinglePlayer(url, title) {
+      if (!url) return;
+      const modal = document.getElementById('modal-single-player');
+      const container = document.getElementById('single-player-container');
+      const caption = document.getElementById('single-player-caption');
+
+      if (caption) caption.innerText = title || '';
+
+      if (url.includes('youtube.com') || url.includes('youtu.be')) {
         let videoId = url.includes('youtu.be/') ? url.split('youtu.be/')[1].split('?')[0] : url.split('v=')[1]?.split('&')[0];
         container.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" class="w-full aspect-video rounded-xl" frameborder="0" allowfullscreen></iframe>`;
       } else {
-        container.innerHTML = `<img src="${url}" alt="Dokumentasi" class="max-h-[60vh] max-w-full h-auto object-contain rounded-xl">`;
+        container.innerHTML = `<img src="${url}" class="max-h-[60vh] max-w-full h-auto object-contain rounded-xl">`;
+      }
+
+      modal.classList.remove('hidden');
+      history.pushState({ modalSinglePlayerOpen: true }, "");
+    }
+
+    function tutupSinglePlayer() {
+      const modal = document.getElementById('modal-single-player');
+      if (modal) {
+        modal.classList.add('hidden');
+        document.getElementById('single-player-container').innerHTML = '';
       }
     }
 
-    function renderThumbnailsGaleri(list) {
-      const mediaList = list || (globalDokumentasiList.length > 0 ? globalDokumentasiList : globalProgresList.map(p => ({ judul: p.judul, tanggal: p.tanggal, url: p.urlFoto })));
-      const thumbBox = document.getElementById('galeri-thumbnails');
-      if (!thumbBox) return;
-      let html = '';
-      mediaList.forEach((item, idx) => {
-        const url = item.url || item.urlFoto || '';
-        html += `
-          <div onclick="tampilkanMediaGaleri(${idx})" class="w-14 h-10 bg-slate-800 rounded overflow-hidden shrink-0 border border-slate-700 cursor-pointer hover:border-emerald-500 transition flex items-center justify-center text-[10px] text-white">
-            ${item.isFolder ? `<i data-lucide="folder" class="w-5 h-5 text-emerald-400"></i>` : `<img src="${url}" class="w-full h-full object-cover">`}
-          </div>
-        `;
-      });
-      thumbBox.innerHTML = html;
-      if (window.lucide) lucide.createIcons();
+    function tutupSinglePlayerOnBackdrop(e) {
+      if (e.target.id === 'modal-single-player') tutupSinglePlayer();
     }
+
+    // INTERSEPSI NAVIGASI KEYBOARD ESC & BACK BUTTON HP
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        tutupSinglePlayer();
+        tutupIsiAlbumModal();
+        tutupArsipGaleriModal();
+        tutupRincianWarga();
+      }
+    });
+
+    window.addEventListener('popstate', function(e) {
+      tutupSinglePlayer();
+      tutupIsiAlbumModal();
+      tutupArsipGaleriModal();
+      tutupRincianWarga();
+    });
 
     // INIT AUTOMATIC
     document.addEventListener('DOMContentLoaded', async () => {
