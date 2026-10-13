@@ -14,7 +14,7 @@
   <!-- PapaParse untuk membaca CSV Google Sheets -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between select-none">
 
   <!-- HEADER / NAVBAR -->
   <header class="bg-emerald-900 text-white shadow-md sticky top-0 z-40">
@@ -243,7 +243,7 @@
     </div>
   </div>
 
-  <!-- MODAL POPUP 4: GALERI ALBUM FOTO & VIDEO LENGKAP -->
+  <!-- MODAL POPUP 4: GALERI ALBUM GRID ALL FOTO & VIDEO -->
   <div id="modal-album-folder" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-6 hidden">
     <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
       <div class="bg-emerald-900 text-white p-4 flex items-center justify-between">
@@ -262,15 +262,45 @@
     </div>
   </div>
 
-  <!-- MODAL POPUP 5: PRATINJAU FOTO FULL -->
-  <div id="modal-preview-foto" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden" onclick="window.closeModal('modal-preview-foto')">
-    <div class="relative max-w-4xl w-full flex flex-col items-center" onclick="event.stopPropagation()">
-      <button onclick="window.closeModal('modal-preview-foto')" class="absolute -top-10 right-0 text-white hover:text-emerald-400 transition">
-        <i data-lucide="x" class="w-8 h-8"></i>
+  <!-- MODAL POPUP 5: VIEWER SLIDER FOTO & VIDEO (TOUCH SWIPE & KEYBOARD) -->
+  <div id="modal-preview-slider" class="fixed inset-0 bg-black/95 backdrop-blur-md z-50 flex flex-col items-center justify-between p-3 sm:p-6 hidden" onclick="window.closeModal('modal-preview-slider')">
+    
+    <!-- Top Bar Header Modal Slider -->
+    <div class="w-full flex items-center justify-between text-white z-10" onclick="event.stopPropagation()">
+      <span id="slider-counter" class="text-xs font-bold bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-full text-emerald-400">
+        Media 1 dari 1
+      </span>
+      <button onclick="window.closeModal('modal-preview-slider')" class="p-2 text-slate-300 hover:text-white transition">
+        <i data-lucide="x" class="w-7 h-7"></i>
       </button>
-      <img id="img-preview-full" src="" alt="Pratinjau Foto" class="max-h-[80vh] w-auto object-contain rounded-xl shadow-2xl">
-      <p id="caption-preview-full" class="text-white text-xs sm:text-sm font-semibold mt-3 text-center bg-slate-900/80 px-4 py-2 rounded-full border border-slate-700"></p>
     </div>
+
+    <!-- Area Media Display Interaktif (Support Touch Swipe) -->
+    <div id="slider-touch-area" class="relative max-w-5xl w-full flex-grow flex items-center justify-center my-2 select-none overflow-hidden" onclick="event.stopPropagation()">
+      
+      <!-- Tombol Navigasi Kiri (PC) -->
+      <button id="btn-prev-media" onclick="window.prevMedia()" class="absolute left-2 sm:left-4 z-20 p-3 rounded-full bg-slate-900/60 hover:bg-slate-800/90 text-white border border-slate-700 backdrop-blur-sm transition">
+        <i data-lucide="chevron-left" class="w-6 h-6"></i>
+      </button>
+
+      <!-- Kontainer Tampilan Media (Gambar / Video) -->
+      <div id="slider-media-content" class="w-full h-full flex items-center justify-center p-2">
+        <!-- Elemen img atau iframe disuntikkan secara dinamis -->
+      </div>
+
+      <!-- Tombol Navigasi Kanan (PC) -->
+      <button id="btn-next-media" onclick="window.nextMedia()" class="absolute right-2 sm:right-4 z-20 p-3 rounded-full bg-slate-900/60 hover:bg-slate-800/90 text-white border border-slate-700 backdrop-blur-sm transition">
+        <i data-lucide="chevron-right" class="w-6 h-6"></i>
+      </button>
+
+    </div>
+
+    <!-- Bottom Bar Caption Modal Slider -->
+    <div class="w-full flex flex-col items-center z-10" onclick="event.stopPropagation()">
+      <p id="slider-caption" class="text-white text-xs sm:text-sm font-semibold text-center bg-slate-900/80 px-4 py-2 rounded-full border border-slate-700 max-w-xl truncate"></p>
+      <p class="text-[10px] text-slate-400 mt-1 sm:hidden">Tip: Usap / Swipe layar ke kiri/kanan untuk berpindah foto</p>
+    </div>
+
   </div>
 
   <!-- SCRIPT INTEGRASI GOOGLE SHEETS & APPS SCRIPT -->
@@ -289,6 +319,10 @@
     let globalInventarisData = [];
     let globalDokumentasiData = [];
     const folderFilesCache = {};
+
+    // State Variabel Slider Media
+    let activeMediaList = [];
+    let currentMediaIndex = 0;
 
     // Helper Async Resolving Seluruh Berkas Media dari Folder
     async function fetchFolderFiles(url) {
@@ -310,7 +344,7 @@
       return [];
     }
 
-    // Helper Sampul Cepat (Gunakan File Pertama atau Link File Langsung)
+    // Helper Sampul Cepat
     async function getCoverUrl(url) {
       if (!url || !url.trim()) return 'https://placehold.co/400x300/emerald/white?text=No+Image';
       const cleanUrl = url.trim();
@@ -463,7 +497,7 @@
 
         if (previewBox) {
           previewBox.innerHTML += `
-            <div onclick="window.bukaFotoFull('${coverUrl}', '${nama}')" class="aspect-square bg-slate-100 rounded-xl overflow-hidden border border-slate-200 cursor-pointer group relative">
+            <div onclick="window.bukaSingleFotoViewer('${coverUrl}', '${nama}')" class="aspect-square bg-slate-100 rounded-xl overflow-hidden border border-slate-200 cursor-pointer group relative">
               <img src="${coverUrl}" alt="${nama}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
               <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition"></div>
             </div>
@@ -481,7 +515,7 @@
 
         if (gridModal) {
           gridModal.innerHTML += `
-            <div onclick="window.bukaFotoFull('${coverUrl}', '${nama} (${qty})')" class="bg-slate-50 rounded-xl overflow-hidden border border-slate-200 hover:shadow-md transition cursor-pointer group flex flex-col">
+            <div onclick="window.bukaSingleFotoViewer('${coverUrl}', '${nama} (${qty})')" class="bg-slate-50 rounded-xl overflow-hidden border border-slate-200 hover:shadow-md transition cursor-pointer group flex flex-col">
               <div class="aspect-square overflow-hidden bg-slate-200 relative">
                 <img src="${coverUrl}" alt="${nama}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
                 <span class="absolute top-2 right-2 bg-emerald-900/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-full backdrop-blur-sm">${kondisi}</span>
@@ -562,7 +596,7 @@
       if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    // Fungsi Buka Album Pop-up Berisi Semua Foto & Video Folder
+    // Buka Popup Grid Album Folder
     window.bukaAlbumFolder = async function(encodedJudul, encodedUrl) {
       const judul = decodeURIComponent(encodedJudul);
       const rawUrl = decodeURIComponent(encodedUrl);
@@ -585,11 +619,14 @@
 
       document.getElementById('album-subtitle').innerText = `${files.length} Berkas Media (Foto & Video)`;
 
+      // Simpan data media folder ini ke activeMediaList untuk Slider
+      activeMediaList = files;
+
       let html = '';
-      files.forEach((file) => {
+      files.forEach((file, index) => {
         if (file.type === 'image') {
           html += `
-            <div onclick="window.bukaFotoFull('${file.url}', '${file.name}')" class="aspect-square bg-slate-100 rounded-xl overflow-hidden border border-slate-200 cursor-pointer group relative">
+            <div onclick="window.bukaSliderViewer(${index})" class="aspect-square bg-slate-100 rounded-xl overflow-hidden border border-slate-200 cursor-pointer group relative">
               <img src="${file.url}" alt="${file.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
               <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
                 <i data-lucide="maximize-2" class="w-5 h-5 text-white"></i>
@@ -598,12 +635,12 @@
           `;
         } else if (file.type === 'video') {
           html += `
-            <div class="aspect-square bg-slate-900 rounded-xl overflow-hidden border border-slate-200 relative group">
+            <div onclick="window.bukaSliderViewer(${index})" class="aspect-square bg-slate-900 rounded-xl overflow-hidden border border-slate-200 relative group cursor-pointer">
               <iframe src="${file.url}" class="w-full h-full border-0 pointer-events-none"></iframe>
-              <a href="${file.url}" target="_blank" class="absolute inset-0 bg-black/40 hover:bg-black/20 transition flex flex-col items-center justify-center text-white text-xs font-bold space-y-1">
+              <div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition flex flex-col items-center justify-center text-white text-xs font-bold space-y-1">
                 <i data-lucide="play-circle" class="w-8 h-8 text-emerald-400"></i>
                 <span>Putar Video</span>
-              </a>
+              </div>
             </div>
           `;
         }
@@ -612,6 +649,106 @@
       container.innerHTML = html;
       if (typeof lucide !== 'undefined') lucide.createIcons();
     };
+
+    // Single Foto Viewer (Inventaris)
+    window.bukaSingleFotoViewer = function(imgUrl, caption) {
+      activeMediaList = [{ type: 'image', url: imgUrl, name: caption }];
+      window.bukaSliderViewer(0);
+    };
+
+    // FUNGSI SLIDER VIEWER LENGKAP (TOUCH SWIPE & KEYBOARD)
+    window.bukaSliderViewer = function(index) {
+      if (!activeMediaList || activeMediaList.length === 0) return;
+      currentMediaIndex = index;
+      renderCurrentMedia();
+      window.openModal('modal-preview-slider');
+    };
+
+    function renderCurrentMedia() {
+      const media = activeMediaList[currentMediaIndex];
+      const contentBox = document.getElementById('slider-media-content');
+      const counterBox = document.getElementById('slider-counter');
+      const captionBox = document.getElementById('slider-caption');
+
+      if (!media) return;
+
+      counterBox.innerText = `Berkas ${currentMediaIndex + 1} dari ${activeMediaList.length}`;
+      captionBox.innerText = media.name || 'Dokumentasi Bank Sampah';
+
+      if (media.type === 'image') {
+        contentBox.innerHTML = `
+          <img src="${media.url}" alt="${media.name}" class="max-h-[78vh] max-w-full w-auto object-contain rounded-xl shadow-2xl transition duration-300">
+        `;
+      } else if (media.type === 'video') {
+        contentBox.innerHTML = `
+          <div class="w-full max-w-3xl aspect-video rounded-xl overflow-hidden bg-black shadow-2xl border border-slate-800">
+            <iframe src="${media.url}" class="w-full h-full border-0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+          </div>
+        `;
+      }
+
+      // Sembunyikan tombol navigasi jika hanya 1 media
+      const btnPrev = document.getElementById('btn-prev-media');
+      const btnNext = document.getElementById('btn-next-media');
+      if (activeMediaList.length <= 1) {
+        if (btnPrev) btnPrev.classList.add('hidden');
+        if (btnNext) btnNext.classList.add('hidden');
+      } else {
+        if (btnPrev) btnPrev.classList.remove('hidden');
+        if (btnNext) btnNext.classList.remove('hidden');
+      }
+    }
+
+    window.nextMedia = function() {
+      if (activeMediaList.length <= 1) return;
+      currentMediaIndex = (currentMediaIndex + 1) % activeMediaList.length;
+      renderCurrentMedia();
+    };
+
+    window.prevMedia = function() {
+      if (activeMediaList.length <= 1) return;
+      currentMediaIndex = (currentMediaIndex - 1 + activeMediaList.length) % activeMediaList.length;
+      renderCurrentMedia();
+    };
+
+    // FITUR SWIPE TOUCH HP (USAP JARI KE KIRI / KANAN)
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    const touchArea = document.getElementById('slider-touch-area');
+    if (touchArea) {
+      touchArea.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+      }, false);
+
+      touchArea.addEventListener('touchend', function(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipeGesture();
+      }, false);
+    }
+
+    function handleSwipeGesture() {
+      const swipeThreshold = 40; // Batas minimal jarak usap dalam piksel
+      if (touchEndX < touchStartX - swipeThreshold) {
+        window.nextMedia(); // Usap Ke Kiri -> Foto Selanjutnya
+      } else if (touchEndX > touchStartX + swipeThreshold) {
+        window.prevMedia(); // Usap Ke Kanan -> Foto Sebelumnya
+      }
+    }
+
+    // FITUR NAVIGASI KEYBOARD (PC / LAPTOP)
+    document.addEventListener('keydown', function(e) {
+      const sliderModal = document.getElementById('modal-preview-slider');
+      if (sliderModal && !sliderModal.classList.contains('hidden')) {
+        if (e.key === 'ArrowRight') {
+          window.nextMedia();
+        } else if (e.key === 'ArrowLeft') {
+          window.prevMedia();
+        } else if (e.key === 'Escape') {
+          window.closeModal('modal-preview-slider');
+        }
+      }
+    });
 
     window.bukaRincianWarga = function(namaBlok, totalBerat, totalSaldo) {
       const modal = document.getElementById('modal-rincian-warga');
@@ -657,14 +794,6 @@
       }
 
       window.openModal('modal-rincian-warga');
-    };
-
-    window.bukaFotoFull = function(imgUrl, caption) {
-      const elImg = document.getElementById('img-preview-full');
-      const elCap = document.getElementById('caption-preview-full');
-      if (elImg) elImg.src = imgUrl;
-      if (elCap) elCap.innerText = caption;
-      window.openModal('modal-preview-foto');
     };
 
     window.cariWarga = function() {
