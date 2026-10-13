@@ -138,7 +138,7 @@
             <p class="text-xs sm:text-sm text-slate-500 mb-3">Foto & Video kegiatan warga</p>
             
             <div onclick="bukaArsipGaleriModal()" class="relative h-36 rounded-xl overflow-hidden bg-slate-900 cursor-pointer group border border-slate-200">
-              <img id="galeri-preview-img" src="" alt="Galeri Preview" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition duration-300">
+              <img id="galeri-preview-img" src="" alt="Galeri Preview" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition duration-300" onerror="this.onerror=null; if(globalProgresList.length>0) this.src=globalProgresList[0].urlFoto;">
               <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-3.5">
                 <div class="text-white">
                   <span class="bg-emerald-600 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Buka Galeri</span>
@@ -152,7 +152,7 @@
       </div>
     </div>
 
-    <!-- 4. CARD PROGRES BANK SAMPAH (PALING BAWAH) -->
+    <!-- 4. CARD PROGRES BANK SAMPAH (POSISI PALING BAWAH) -->
     <div class="space-y-3 pt-2">
       <div class="flex items-center justify-between px-1">
         <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
@@ -169,47 +169,47 @@
 
   </main>
 
-  <!-- FOOTER SAMA PRESISI PORTAL UTAMA -->
+  <!-- FOOTER -->
   <footer class="bg-slate-900 text-slate-400 text-xs sm:text-sm py-5 border-t border-slate-800 mt-8 text-center">
     <p>© 2026 Humas 3 Warga Flamboyan 4. Dikelola secara swadaya & transparan.</p>
   </footer>
 
-  <!-- MODAL RINCIAN WARGA -->
-  <div id="modal-rincian" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4" onclick="tutupRincianWargaOnBackdrop(event)">
-    <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl relative" onclick="event.stopPropagation()">
+  <!-- MODAL RINCIAN WARGA (DIBUAT LEBIH LEGA max-w-2xl) -->
+  <div id="modal-rincian" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5" onclick="tutupRincianWargaOnBackdrop(event)">
+    <div class="bg-white rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl relative border border-slate-100" onclick="event.stopPropagation()">
       <div class="p-4 sm:p-5 bg-emerald-900 text-white flex items-center justify-between">
         <div>
-          <h3 id="modal-nama-warga" class="font-bold text-base sm:text-lg">Pak Heri</h3>
+          <h3 id="modal-nama-warga" class="font-extrabold text-base sm:text-xl">Pak Heri</h3>
           <p class="text-emerald-200 text-xs sm:text-sm">Riwayat setoran sampah anorganik</p>
         </div>
-        <button onclick="tutupRincianWarga()" class="w-8 h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center">
+        <button onclick="tutupRincianWarga()" class="w-9 h-9 rounded-full bg-emerald-800/80 hover:bg-emerald-700 text-white flex items-center justify-center transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
-      <div class="p-4 sm:p-5 space-y-4 max-h-[80vh] overflow-y-auto">
-        <div class="grid grid-cols-2 gap-3 bg-emerald-50 p-3.5 rounded-xl border border-emerald-100">
+      <div class="p-4 sm:p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+        <div class="grid grid-cols-2 gap-3 sm:gap-4 bg-emerald-50 p-4 rounded-xl border border-emerald-100">
           <div>
-            <p class="text-xs text-slate-500 font-bold uppercase">Total Berat</p>
-            <p id="modal-total-berat" class="text-lg font-black text-emerald-950">0 Kg</p>
+            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Total Berat</p>
+            <p id="modal-total-berat" class="text-xl sm:text-2xl font-black text-emerald-950 mt-0.5">0 Kg</p>
           </div>
           <div>
-            <p class="text-xs text-slate-500 font-bold uppercase">Total Saldo Tabungan</p>
-            <p id="modal-total-saldo" class="text-lg font-black text-emerald-950">Rp 0</p>
+            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Total Saldo Tabungan</p>
+            <p id="modal-total-saldo" class="text-xl sm:text-2xl font-black text-emerald-950 mt-0.5">Rp 0</p>
           </div>
         </div>
         <div>
-          <h4 class="text-xs font-bold text-slate-700 mb-2">CATATAN SETORAN</h4>
-          <div class="overflow-x-auto rounded-xl border border-slate-100">
+          <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2.5">CATATAN SETORAN</h4>
+          <div class="overflow-x-auto rounded-xl border border-slate-200">
             <table class="w-full text-left text-xs sm:text-sm">
-              <thead class="bg-slate-50 text-slate-600 font-semibold">
+              <thead class="bg-slate-100 text-slate-700 font-bold">
                 <tr>
-                  <th class="p-2.5">Tanggal</th>
-                  <th class="p-2.5">Rincian Sampah (Kg)</th>
-                  <th class="p-2.5 text-right">Total Berat</th>
-                  <th class="p-2.5 text-right">Nominal</th>
+                  <th class="p-3 w-28 whitespace-nowrap">Tanggal</th>
+                  <th class="p-3">Rincian Sampah (Kg)</th>
+                  <th class="p-3 text-right whitespace-nowrap">Total Berat</th>
+                  <th class="p-3 text-right whitespace-nowrap">Nominal</th>
                 </tr>
               </thead>
-              <tbody id="modal-tabel-riwayat" class="divide-y divide-slate-100">
+              <tbody id="modal-tabel-riwayat" class="divide-y divide-slate-100 bg-white">
                 <!-- Diisi JS -->
               </tbody>
             </table>
@@ -219,7 +219,7 @@
     </div>
   </div>
 
-  <!-- TIER 1: MODAL ARSIP DOKUMENTASI KEGIATAN (LATAR PUTIH BERSIH) -->
+  <!-- TIER 1: MODAL ARSIP DOKUMENTASI KEGIATAN -->
   <div id="modal-arsip-galeri" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6" onclick="tutupArsipGaleriOnBackdrop(event)">
     <div class="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative border border-slate-100" onclick="event.stopPropagation()">
       <div class="p-4 sm:p-5 bg-white border-b border-slate-100 flex items-center justify-between">
@@ -238,7 +238,7 @@
     </div>
   </div>
 
-  <!-- TIER 2: MODAL ISI MEDIA ALBUM (GRID FOTO & VIDEO) -->
+  <!-- TIER 2: MODAL ISI MEDIA ALBUM -->
   <div id="modal-isi-album" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6" onclick="tutupIsiAlbumOnBackdrop(event)">
     <div class="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative border border-slate-100" onclick="event.stopPropagation()">
       <div class="p-4 sm:p-5 bg-white border-b border-slate-100 flex items-center justify-between">
@@ -529,16 +529,17 @@
 
         const albumMap = {};
 
-        for (const r of rows) {
+        rows.forEach(r => {
           const judul = r[0] || 'Kegiatan Bank Sampah';
           const tanggal = r[1] || '11-Okt-2026';
           const urlRaw = r[3] || r[2] || '';
 
           if (!albumMap[judul]) {
+            const folderId = extractDriveFolderId(urlRaw);
             albumMap[judul] = {
               judul,
               tanggal,
-              folderId: extractDriveFolderId(urlRaw),
+              folderId: folderId,
               items: []
             };
           }
@@ -546,23 +547,6 @@
           if (urlRaw.includes('/drive/folders/')) {
             const folderId = extractDriveFolderId(urlRaw);
             albumMap[judul].folderId = folderId;
-            
-            try {
-              const resFolder = await fetch(`https://script.google.com/macros/s/AKfycbz_DriveProxy/exec?folderId=${folderId}`);
-              if (resFolder.ok) {
-                const folderFiles = await resFolder.json();
-                if (Array.isArray(folderFiles) && folderFiles.length > 0) {
-                  albumMap[judul].items = folderFiles.map(f => ({
-                    url: f.url || `https://lh3.googleusercontent.com/d/${f.id}`,
-                    isVideo: f.mimeType?.includes('video') || f.isVideo
-                  }));
-                }
-              }
-            } catch (e) {
-              albumMap[judul].items = [
-                { url: `https://drive.google.com/thumbnail?id=${folderId}&sz=w800`, isVideo: false }
-              ];
-            }
           } else if (urlRaw.startsWith('http')) {
             const urlFormatted = formatDriveImgUrl(urlRaw);
             albumMap[judul].items.push({
@@ -570,7 +554,7 @@
               isVideo: urlFormatted.includes('youtube.com') || urlFormatted.includes('youtu.be')
             });
           }
-        }
+        });
 
         globalDokumentasiList = Object.values(albumMap);
 
@@ -580,12 +564,17 @@
         if (globalDokumentasiList.length > 0) {
           const firstAlbum = globalDokumentasiList[0];
           if (captionPreview) captionPreview.innerText = firstAlbum.judul;
+
           if (previewImg) {
+            let coverSrc = '';
             if (firstAlbum.items.length > 0) {
-              previewImg.src = firstAlbum.items[0].url;
+              coverSrc = firstAlbum.items[0].url;
             } else if (firstAlbum.folderId) {
-              previewImg.src = `https://drive.google.com/thumbnail?id=${firstAlbum.folderId}&sz=w800`;
+              coverSrc = `https://drive.google.com/thumbnail?id=${firstAlbum.folderId}&sz=w800`;
+            } else if (globalProgresList.length > 0) {
+              coverSrc = globalProgresList[0].urlFoto;
             }
+            previewImg.src = coverSrc;
           }
         }
       } catch (err) {
@@ -603,7 +592,7 @@
       const tbody = document.getElementById('modal-tabel-riwayat');
 
       if (riwayat.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="p-3.5 text-center text-slate-400">Belum ada catatan setoran.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada catatan setoran.</td></tr>`;
       } else {
         let html = '';
         riwayat.forEach(r => {
@@ -621,11 +610,11 @@
           const nominal = parseNumberFlexible(r[7]);
 
           html += `
-            <tr class="hover:bg-slate-50">
-              <td class="p-2.5 text-slate-500">${r[1] || '-'}</td>
-              <td class="p-2.5 font-medium text-slate-700">${items.join(', ') || '-'}</td>
-              <td class="p-2.5 text-right font-semibold text-slate-700">${parseNumberFlexible(r[6]).toFixed(1)} Kg</td>
-              <td class="p-2.5 text-right font-bold text-emerald-700">Rp ${Math.round(nominal).toLocaleString('id-ID')}</td>
+            <tr class="hover:bg-slate-50 transition">
+              <td class="p-3 text-slate-600 font-medium whitespace-nowrap">${r[1] || '-'}</td>
+              <td class="p-3 font-semibold text-slate-800">${items.join(', ') || '-'}</td>
+              <td class="p-3 text-right font-bold text-slate-700 whitespace-nowrap">${parseNumberFlexible(r[6]).toFixed(1)} Kg</td>
+              <td class="p-3 text-right font-extrabold text-emerald-700 whitespace-nowrap">Rp ${Math.round(nominal).toLocaleString('id-ID')}</td>
             </tr>
           `;
         });
@@ -654,8 +643,8 @@
         html = `<p class="text-sm text-slate-400 col-span-3 text-center py-8">Belum ada album dokumentasi.</p>`;
       } else {
         globalDokumentasiList.forEach((album, idx) => {
-          let coverImg = album.items.length > 0 ? album.items[0].url : `https://drive.google.com/thumbnail?id=${album.folderId}&sz=w800`;
-          const countMedia = album.items.length || 30;
+          let coverImg = album.items.length > 0 ? album.items[0].url : (album.folderId ? `https://drive.google.com/thumbnail?id=${album.folderId}&sz=w800` : (globalProgresList.length > 0 ? globalProgresList[0].urlFoto : ''));
+          const countMedia = album.items.length || (globalProgresList.length > 0 ? globalProgresList.length : 1);
 
           html += `
             <div onclick="bukaIsiAlbumModal(${idx})" class="bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-emerald-500 shadow-xs hover:shadow-md cursor-pointer transition group">
@@ -664,7 +653,7 @@
                 <h4 class="text-sm font-bold text-slate-800 line-clamp-1 mt-0.5 group-hover:text-emerald-700 transition">${album.judul}</h4>
               </div>
               <div class="h-32 bg-slate-900 relative overflow-hidden">
-                <img src="${coverImg}" class="w-full h-full object-cover opacity-85 group-hover:scale-105 transition duration-300">
+                <img src="${coverImg}" class="w-full h-full object-cover opacity-85 group-hover:scale-105 transition duration-300" onerror="this.onerror=null; if(globalProgresList.length>0) this.src=globalProgresList[0].urlFoto;">
                 <div class="absolute bottom-2.5 left-2.5 bg-slate-950/80 text-white text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1.5 border border-slate-700/50">
                   <i data-lucide="folder" class="w-3.5 h-3.5 text-emerald-400"></i> ${countMedia} Media
                 </div>
@@ -703,11 +692,13 @@
       const grid = document.getElementById('isi-album-media-grid');
 
       if (titleEl) titleEl.innerText = `${album.judul} - ${album.tanggal}`;
-      
-      const itemsToRender = album.items;
-      const count = itemsToRender.length || 30;
 
-      if (subtextEl) subtextEl.innerText = `${count} File media ditemukan - Klik untuk membuka/memutar`;
+      let itemsToRender = album.items.slice();
+      if (itemsToRender.length === 0 && globalProgresList.length > 0) {
+        itemsToRender = globalProgresList.map(p => ({ url: p.urlFoto, isVideo: false }));
+      }
+
+      if (subtextEl) subtextEl.innerText = `${itemsToRender.length} File media ditemukan - Klik untuk membuka/memutar`;
 
       let html = '';
       itemsToRender.forEach((item) => {
