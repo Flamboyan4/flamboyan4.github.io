@@ -1478,23 +1478,6 @@ window.addEventListener('click', function(e) {
 });
 
     // FITUR EXPORT PDF
-function bukaModalExportPDF() {
-  const el = document.getElementById('modal-export-pdf');
-  if (el) el.classList.remove('hidden');
-}
-
-function tutupModalExportPDF() {
-  const el = document.getElementById('modal-export-pdf');
-  if (el) el.classList.add('hidden');
-}
-
-function toggleTipeExport() {
-  const tipe = document.getElementById('export-tipe').value;
-  document.getElementById('opt-bulanan').classList.toggle('hidden', tipe !== 'bulanan');
-  document.getElementById('opt-rentang').classList.toggle('hidden', tipe !== 'rentang');
-  document.getElementById('opt-tahunan').classList.toggle('hidden', tipe !== 'tahunan');
-}
-
 function prosesCetakPDF() {
   const tipe = document.getElementById('export-tipe').value;
   let judulPeriode = "";
@@ -1513,74 +1496,47 @@ function prosesCetakPDF() {
     judulPeriode = "Laporan Tahunan " + thn;
   }
 
-  let totalBerat = 0;
-  let totalTabungan = 0;
+  // 1. Ambil Angka Ringkasan Langsung Dari Tampilan Elemen Halaman
+  const elBerat = document.getElementById('metric-total-berat');
+  const elTabungan = document.getElementById('metric-tabungan-warga');
+  const elMasuk = document.getElementById('metric-cash-in');
+  const elSaldo = document.getElementById('metric-sisa-kas');
+
+  const valBerat = elBerat ? elBerat.innerText : '0.0 Kg';
+  const valTabungan = elTabungan ? elTabungan.innerText : 'Rp 0';
+  const valMasuk = elMasuk ? elMasuk.innerText : 'Rp 0';
+  const valSaldo = elSaldo ? elSaldo.innerText : 'Rp 0';
+
+  // 2. Baca Seluruh Isi Tabel Rekap Warga Langsung dari DOM (Halaman Utama)
   let tabelRowsHTML = "";
+  const tbody = document.getElementById('tbody-rekap-warga');
 
-  // 1. Dapatkan data dari variabel aktif dataRekapWarga atau dataTabungan
-  let listData = [];
-  if (typeof dataRekapWarga !== 'undefined' && Array.isArray(dataRekapWarga) && dataRekapWarga.length > 0) {
-    listData = dataRekapWarga;
-  } else if (typeof dataTabungan !== 'undefined' && Array.isArray(dataTabungan) && dataTabungan.length > 0) {
-    listData = dataTabungan;
-  } else if (typeof rawRekapData !== 'undefined' && Array.isArray(rawRekapData) && rawRekapData.length > 0) {
-    listData = rawRekapData;
-  }
+  if (tbody) {
+    const trs = tbody.getElementsByTagName('tr');
+    let nomor = 1;
 
-  if (listData.length > 0) {
-    listData.forEach((item, idx) => {
-      const nama = item.nama || item.namaWarga || item.nama_blok || 'Warga';
-      const blok = item.blok ? `(${item.blok})` : '';
-      const tgl = item.setoranTerakhir || item.tgl || '15-Okt-2026';
-      const b = parseFloat(item.totalBerat || item.berat || 0);
-      const s = parseFloat(item.saldoTabungan || item.saldo || 0);
+    for (let i = 0; i < trs.length; i++) {
+      const tds = trs[i].getElementsByTagName('td');
+      if (tds.length >= 4) {
+        const textRow = trs[i].innerText;
+        // Abaikan jika baris mengandung kata "Memuat"
+        if (!textRow.includes('Memuat') && !textRow.includes('Belum ada')) {
+          const namaBlok = tds[1] ? tds[1].innerHTML : '';
+          const setoranTgl = tds[2] ? tds[2].innerText : '-';
+          const beratKg = tds[3] ? tds[3].innerText : '0 Kg';
+          const saldoRp = tds[4] ? tds[4].innerText : 'Rp 0';
 
-      totalBerat += b;
-      totalTabungan += s;
-
-      tabelRowsHTML += `
-        <tr style="border-bottom: 1px solid #e2e8f0;">
-          <td style="padding: 7px; text-align: center; color: #64748b;">${idx + 1}</td>
-          <td style="padding: 7px; font-weight: 600; color: #0f172a;">${nama} <span style="color:#64748b; font-weight:normal;">${blok}</span></td>
-          <td style="padding: 7px; text-align: center; color: #475569;">${tgl}</td>
-          <td style="padding: 7px; text-align: center; font-weight: bold; color: #047857;">${b.toFixed(1)} Kg</td>
-          <td style="padding: 7px; text-align: right; font-weight: bold; color: #064e3b;">Rp ${Math.round(s).toLocaleString('id-ID')}</td>
-        </tr>
-      `;
-    });
-  } else {
-    // 2. Jika variabel kosong, sapu/baca elemen baris tabel HTML yang ada di layar
-    const tbody = document.getElementById('tbody-rekap-warga');
-    if (tbody) {
-      const rows = tbody.querySelectorAll('tr');
-      let no = 1;
-      rows.forEach(tr => {
-        const cols = tr.querySelectorAll('td');
-        if (cols.length >= 4) {
-          const cNama = cols[1] ? cols[1].innerText.trim() : '';
-          const cTgl = cols[2] ? cols[2].innerText.trim() : '-';
-          const cBeratStr = cols[3] ? cols[3].innerText.trim() : '0';
-          const cSaldoStr = cols[cols.length - 1] ? cols[cols.length - 1].innerText.trim() : '0';
-
-          const b = parseFloat(cBeratStr.replace(/[^0-9.]/g, '')) || 0;
-          const s = parseFloat(cSaldoStr.replace(/[^0-9]/g, '')) || 0;
-
-          if (cNama && !cNama.includes('Memuat') && !cNama.includes('Belum ada')) {
-            totalBerat += b;
-            totalTabungan += s;
-
-            tabelRowsHTML += `
-              <tr style="border-bottom: 1px solid #e2e8f0;">
-                <td style="padding: 7px; text-align: center; color: #64748b;">${no++}</td>
-                <td style="padding: 7px; font-weight: 600; color: #0f172a;">${cNama}</td>
-                <td style="padding: 7px; text-align: center; color: #475569;">${cTgl}</td>
-                <td style="padding: 7px; text-align: center; font-weight: bold; color: #047857;">${b.toFixed(1)} Kg</td>
-                <td style="padding: 7px; text-align: right; font-weight: bold; color: #064e3b;">Rp ${Math.round(s).toLocaleString('id-ID')}</td>
-              </tr>
-            `;
-          }
+          tabelRowsHTML += `
+            <tr style="border-bottom: 1px solid #e2e8f0;">
+              <td style="padding: 8px; text-align: center; color: #64748b;">${nomor++}</td>
+              <td style="padding: 8px; font-weight: 600; color: #0f172a;">${namaBlok}</td>
+              <td style="padding: 8px; text-align: center; color: #475569;">${setoranTgl}</td>
+              <td style="padding: 8px; text-align: center; font-weight: bold; color: #047857;">${beratKg}</td>
+              <td style="padding: 8px; text-align: right; font-weight: bold; color: #064e3b;">${saldoRp}</td>
+            </tr>
+          `;
         }
-      });
+      }
     }
   }
 
@@ -1588,8 +1544,9 @@ function prosesCetakPDF() {
     tabelRowsHTML = `<tr><td colspan="5" style="text-align:center; padding: 15px; color: #94a3b8;">Belum ada data tabungan warga.</td></tr>`;
   }
 
+  // 3. Cetak Ke Jendela Baru
   const printWindow = window.open('', '_blank');
-  if (!printWindow) return alert("Pop-up diblokir oleh browser. Izinkan pop-up untuk mencetak.");
+  if (!printWindow) return alert("Pop-up diblokir browser. Mohon izinkan pop-up.");
 
   const htmlContent = `
     <!DOCTYPE html>
@@ -1599,7 +1556,7 @@ function prosesCetakPDF() {
       <style>
         @page { size: A4; margin: 12mm; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #fff; color: #1e293b; margin: 0; padding: 0; font-size: 11px; }
-        .header { border-bottom: 2px solid #065f46; padding-bottom: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .header { border-bottom: 2px solid #065f46; padding-bottom: 8px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
         .title { font-size: 16px; font-weight: bold; color: #064e3b; margin: 0; text-transform: uppercase; }
         .subtitle { font-size: 10px; color: #475569; margin: 2px 0; }
         .badge { background: #d1fae5; color: #065f46; font-weight: bold; font-size: 9px; padding: 3px 8px; border-radius: 12px; border: 1px solid #a7f3d0; }
@@ -1609,10 +1566,10 @@ function prosesCetakPDF() {
         .box-label { font-size: 9px; font-weight: bold; color: #64748b; text-transform: uppercase; }
         .box-val { font-size: 13px; font-weight: bold; margin-top: 2px; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 10px; }
-        th { background: #ecfdf5; color: #064e3b; font-weight: bold; padding: 7px; border-bottom: 1px solid #a7f3d0; text-align: left; }
+        table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 10px; }
+        th { background: #ecfdf5; color: #064e3b; font-weight: bold; padding: 8px; border-bottom: 1px solid #a7f3d0; text-align: left; }
         
-        .ttd-container { display: flex; justify-content: space-between; margin-top: 45px; text-align: center; }
+        .ttd-container { display: flex; justify-content: space-between; margin-top: 50px; text-align: center; }
         .ttd-box { width: 40%; }
         .ttd-space { height: 55px; }
         .ttd-name { font-weight: bold; border-bottom: 1px solid #475569; display: inline-block; padding: 0 15px; color: #0f172a; }
@@ -1632,27 +1589,27 @@ function prosesCetakPDF() {
         </div>
       </div>
 
-      <!-- RINGKASAN METRICS -->
+      <!-- METRICS BOX -->
       <div class="grid-summary">
         <div class="box">
           <div class="box-label">Total Sampah</div>
-          <div class="box-val" style="color:#047857;">${totalBerat.toFixed(1)} Kg</div>
+          <div class="box-val" style="color:#047857;">${valBerat}</div>
         </div>
         <div class="box">
           <div class="box-label">Tabungan Warga</div>
-          <div class="box-val" style="color:#064e3b;">Rp ${Math.round(totalTabungan).toLocaleString('id-ID')}</div>
+          <div class="box-val" style="color:#064e3b;">${valTabungan}</div>
         </div>
         <div class="box">
           <div class="box-label">Pemasukan Kas</div>
-          <div class="box-val" style="color:#1d4ed8;">Rp ${Math.round(totalTabungan).toLocaleString('id-ID')}</div>
+          <div class="box-val" style="color:#1d4ed8;">${valMasuk}</div>
         </div>
         <div class="box">
           <div class="box-label">Sisa Saldo Kas</div>
-          <div class="box-val" style="color:#0f766e;">Rp ${Math.round(totalTabungan).toLocaleString('id-ID')}</div>
+          <div class="box-val" style="color:#0f766e;">${valSaldo}</div>
         </div>
       </div>
 
-      <!-- TABEL REKAPITULASI TABUNGAN WARGA -->
+      <!-- TABEL REKAPITULASI WARGA -->
       <div style="margin-top: 10px;">
         <div style="font-weight: bold; font-size: 11px; color: #064e3b; margin-bottom: 4px;">Rekapitulasi Tabungan Sampah Warga</div>
         <table>
