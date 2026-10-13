@@ -2022,6 +2022,7 @@ function prosesCetakPDF() {
   }
 
   
+
 @media print {
   @page {
     size: A4 portrait;
@@ -2029,65 +2030,31 @@ function prosesCetakPDF() {
   }
 
   .header-cetak {
-    position: fixed;
+    display: flex !important;
+    position: fixed !important;
     top: -27mm;
     left: 0;
     right: 0;
     height: 23mm;
-    display: flex;
     align-items: center;
     gap: 10px;
     padding-bottom: 5px;
     border-bottom: 2px solid #222;
-    background: white;
-    z-index: 1000;
+    background: #fff !important;
+    color: #1e293b !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 9999;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 
-  .header-cetak .logo-bank {
-    width: 52px;
-    height: 52px;
-    object-fit: contain;
-    flex-shrink: 0;
-  }
-
-  .header-cetak .header-identitas {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .header-cetak .title {
-    font-size: 15px;
-    font-weight: 800;
-    margin: 0 0 3px;
-  }
-
-  .header-cetak .subtitle,
-  .header-cetak .periode {
-    font-size: 9px;
-    margin: 2px 0;
-  }
-
-  .header-cetak .badge {
-    font-size: 8px;
-    white-space: nowrap;
-  }
-
-  /* Sembunyikan kop lama agar tidak rangkap */
-  section > .header,
-  section > .header-laporan {
-    display: none !important;
-  }
-
-  /* Judul kolom tetap diulang ketika tabel berlanjut */
-  thead {
-    display: table-header-group;
-  }
-
-  tr {
-    break-inside: avoid;
-    page-break-inside: avoid;
+  .header-cetak img {
+    display: block !important;
+    visibility: visible !important;
   }
 }
+
 
   
 </style>
