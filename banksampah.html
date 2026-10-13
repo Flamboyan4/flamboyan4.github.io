@@ -37,73 +37,78 @@
       <p class="text-xs sm:text-sm text-slate-600">Pusat informasi pemilahan sampah anorganik, rekap tabungan warga, cashflow bulanan, dan rincian setoran berkala.</p>
     </div>
 
-    <!-- 1. 4 KARTU RINGKASAN DATA BULANAN & KAS -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
-      
-      <!-- Card 1: Total Sampah Bulanan -->
-      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between relative group">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">Sampah Terkumpul</span>
-          <div class="flex items-center gap-1">
-            <button onclick="geserBulanCard('sampah', -1)" class="w-6 h-6 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition" title="Bulan Sebelumnya"><i data-lucide="chevron-left" class="w-3.5 h-3.5"></i></button>
-            <button onclick="geserBulanCard('sampah', 1)" class="w-6 h-6 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition" title="Bulan Berikutnya"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></button>
+    <!-- 1. 4 KARTU RINGKASAN DATA BULANAN & KAS (MENYAMPING DI HP) -->
+    <div class="space-y-2">
+      <div class="flex items-center justify-between px-1 lg:hidden">
+        <span class="text-xs text-slate-400">Geser kartu ke samping →</span>
+      </div>
+      <div class="flex lg:grid lg:grid-cols-4 gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-2">
+        
+        <!-- Card 1: Total Sampah Bulanan -->
+        <div class="snap-start shrink-0 w-[82%] sm:w-[60%] lg:w-auto bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between relative group">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">Sampah Terkumpul</span>
+            <div class="flex items-center gap-1">
+              <button onclick="geserBulanCard('sampah', -1)" class="w-6 h-6 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition" title="Bulan Sebelumnya"><i data-lucide="chevron-left" class="w-3.5 h-3.5"></i></button>
+              <button onclick="geserBulanCard('sampah', 1)" class="w-6 h-6 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition" title="Bulan Berikutnya"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></button>
+            </div>
+          </div>
+          <div class="mt-2 cursor-pointer" onclick="bukaPopupSampahBulanIni()">
+            <span id="label-bulan-sampah" class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block">Bulan Ini</span>
+            <span id="val-sampah-bulanan" class="text-2xl sm:text-3xl font-black text-emerald-900">0.0 Kg</span>
+            <p class="text-xs text-slate-500 mt-1">Klik rincian jenis sampah →</p>
           </div>
         </div>
-        <div class="mt-2 cursor-pointer" onclick="bukaPopupSampahBulanIni()">
-          <span id="label-bulan-sampah" class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block">Bulan Ini</span>
-          <span id="val-sampah-bulanan" class="text-2xl sm:text-3xl font-black text-emerald-900">0.0 Kg</span>
-          <p class="text-xs text-slate-500 mt-1">Klik rincian jenis sampah →</p>
-        </div>
-      </div>
 
-      <!-- Card 2: Tabungan Warga Bulanan -->
-      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between relative group">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">Tabungan Warga</span>
-          <div class="flex items-center gap-1">
-            <button onclick="geserBulanCard('tabungan', -1)" class="w-6 h-6 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition" title="Bulan Sebelumnya"><i data-lucide="chevron-left" class="w-3.5 h-3.5"></i></button>
-            <button onclick="geserBulanCard('tabungan', 1)" class="w-6 h-6 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition" title="Bulan Berikutnya"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></button>
+        <!-- Card 2: Tabungan Warga Bulanan -->
+        <div class="snap-start shrink-0 w-[82%] sm:w-[60%] lg:w-auto bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between relative group">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">Tabungan Warga</span>
+            <div class="flex items-center gap-1">
+              <button onclick="geserBulanCard('tabungan', -1)" class="w-6 h-6 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition" title="Bulan Sebelumnya"><i data-lucide="chevron-left" class="w-3.5 h-3.5"></i></button>
+              <button onclick="geserBulanCard('tabungan', 1)" class="w-6 h-6 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition" title="Bulan Berikutnya"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></button>
+            </div>
+          </div>
+          <div class="mt-2 cursor-pointer" onclick="bukaPopupTabunganBulanIni()">
+            <span id="label-bulan-tabungan" class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block">Bulan Ini</span>
+            <span id="val-tabungan-bulanan" class="text-2xl sm:text-3xl font-black text-emerald-900">Rp 0</span>
+            <p class="text-xs text-slate-500 mt-1">Klik daftar setoran warga →</p>
           </div>
         </div>
-        <div class="mt-2 cursor-pointer" onclick="bukaPopupTabunganBulanIni()">
-          <span id="label-bulan-tabungan" class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block">Bulan Ini</span>
-          <span id="val-tabungan-bulanan" class="text-2xl sm:text-3xl font-black text-emerald-900">Rp 0</span>
-          <p class="text-xs text-slate-500 mt-1">Klik daftar setoran warga →</p>
-        </div>
-      </div>
 
-      <!-- Card 3: Cashflow Masuk / Keluar Bulanan -->
-      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between relative group">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">Cashflow (Masuk / Keluar)</span>
-          <div class="flex items-center gap-1">
-            <button onclick="geserBulanCard('cashflow', -1)" class="w-6 h-6 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition" title="Bulan Sebelumnya"><i data-lucide="chevron-left" class="w-3.5 h-3.5"></i></button>
-            <button onclick="geserBulanCard('cashflow', 1)" class="w-6 h-6 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition" title="Bulan Berikutnya"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></button>
+        <!-- Card 3: Cashflow (Masuk / Keluar) Bulanan -->
+        <div class="snap-start shrink-0 w-[82%] sm:w-[60%] lg:w-auto bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between relative group">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">Cashflow (Masuk/Keluar)</span>
+            <div class="flex items-center gap-1">
+              <button onclick="geserBulanCard('cashflow', -1)" class="w-6 h-6 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition" title="Bulan Sebelumnya"><i data-lucide="chevron-left" class="w-3.5 h-3.5"></i></button>
+              <button onclick="geserBulanCard('cashflow', 1)" class="w-6 h-6 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition" title="Bulan Berikutnya"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></button>
+            </div>
+          </div>
+          <div class="mt-2 cursor-pointer" onclick="bukaPopupCashflowBulanIni()">
+            <span id="label-bulan-cashflow" class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block">Bulan Ini</span>
+            <div class="flex items-baseline gap-1.5">
+              <span id="val-cashflow-masuk" class="text-base sm:text-lg font-black text-emerald-800" title="Pemasukan">Rp 0</span>
+              <span class="text-xs text-slate-400">/</span>
+              <span id="val-cashflow-keluar" class="text-base sm:text-lg font-black text-rose-700" title="Pengeluaran">Rp 0</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">Klik rincian cashflow →</p>
           </div>
         </div>
-        <div class="mt-2 cursor-pointer" onclick="bukaPopupCashflowBulanIni()">
-          <span id="label-bulan-cashflow" class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block">Bulan Ini</span>
-          <div class="flex items-baseline gap-2">
-            <span id="val-cashflow-masuk" class="text-lg sm:text-xl font-black text-emerald-800" title="Pemasukan">Rp 0</span>
-            <span class="text-xs text-slate-400">/</span>
-            <span id="val-cashflow-keluar" class="text-lg sm:text-xl font-black text-rose-700" title="Pengeluaran">Rp 0</span>
+
+        <!-- Card 4: Sisa Saldo Kas Tersedia -->
+        <div class="snap-start shrink-0 w-[82%] sm:w-[60%] lg:w-auto bg-emerald-900 text-white p-4 sm:p-5 rounded-2xl shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold tracking-wider text-emerald-200 uppercase">Sisa Saldo Kas</span>
+            <i data-lucide="wallet" class="w-4 h-4 text-emerald-300"></i>
           </div>
-          <p class="text-xs text-slate-500 mt-1">Klik rincian kas bulanan →</p>
+          <div class="mt-2">
+            <span id="val-sisa-saldo-kas" class="text-2xl sm:text-3xl font-black text-white">Rp 0</span>
+            <p class="text-xs text-emerald-200 mt-1">Akumulasi bersih kas keseluruhan</p>
+          </div>
         </div>
-      </div>
 
-      <!-- Card 4: Sisa Saldo Kas Tersedia -->
-      <div class="bg-emerald-900 text-white p-4 sm:p-5 rounded-2xl shadow-sm flex flex-col justify-between">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-bold tracking-wider text-emerald-200 uppercase">Sisa Saldo Kas Tersedia</span>
-          <i data-lucide="wallet" class="w-4 h-4 text-emerald-300"></i>
-        </div>
-        <div class="mt-2">
-          <span id="val-sisa-saldo-kas" class="text-2xl sm:text-3xl font-black text-white">Rp 0</span>
-          <p class="text-xs text-emerald-200 mt-1">Akumulasi bersih kas keseluruhan</p>
-        </div>
       </div>
-
     </div>
 
     <!-- 2. TABEL REKAP TABUNGAN SAMPAH WARGA -->
@@ -501,22 +506,22 @@
       });
     }
 
-    // Ekstrak bulan dari format tanggal (misal: "10-Okt-2026" atau "2026-10-10" dll)
+    // Pembersih & Ekstrak Bulan yang robust (mencegah salah baca angka bulan mentah)
     function ekstrakBulanTahun(tglStr) {
       if (!tglStr) return 'Lainnya';
       const clean = tglStr.trim();
-      // Contoh format DD-MMM-YYYY (10-Okt-2026)
+      // Jika format tanggal mengandung huruf bulan (misal Okt, Oktober, Oct)
       const parts = clean.split(/[-/]/);
       if (parts.length >= 3) {
         let bln = parts[1];
         let thn = parts[2];
-        if (thn.length === 2) thn = '20' + thn;
+        if (thn && thn.length === 2) thn = '20' + thn;
         if (isNaN(bln)) {
-          return `${bln} ${thn}`;
+          return `${bln} ${thn || ''}`.trim();
         } else {
           const months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
           let bNum = parseInt(bln, 10);
-          if (bNum >= 1 && bNum <= 12) return `${months[bNum]} ${thn}`;
+          if (bNum >= 1 && bNum <= 12) return `${months[bNum]} ${thn || '2026'}`;
         }
       }
       return clean;
@@ -536,15 +541,15 @@
         // Kumpulkan semua bulan unik dari riwayat setoran & pengeluaran
         let setBulan = new Set();
         globalRiwayatData.forEach(r => {
-          if (r[1]) setBulan.add(ekstrakBulanTahun(r[1]));
+          if (r[1] && r[1] !== 'Tanggal') setBulan.add(ekstrakBulanTahun(r[1]));
         });
         globalPengeluaranData.forEach(r => {
-          if (r[0]) setBulan.add(ekstrakBulanTahun(r[0]));
+          // Kolom 0 di pengeluaran adalah tanggal
+          if (r[0] && r[0] !== 'Tanggal') setBulan.add(ekstrakBulanTahun(r[0]));
         });
 
-        listBulanUnik = Array.from(setBulan);
-        // Urutkan atau jadikan bulan terbaru di indeks terakhir / pertama
-        if (listBulanUnik.length === 0) listBulanUnik = ['Bulan Ini'];
+        listBulanUnik = Array.from(setBulan).filter(b => b && b !== 'Lainnya' && b !== 'Tanggal');
+        if (listBulanUnik.length === 0) listBulanUnik = ['Okt 2026'];
         
         indexBulanSampah = listBulanUnik.length - 1;
         indexBulanTabungan = listBulanUnik.length - 1;
@@ -591,9 +596,9 @@
 
     // UPDATE CARD BULANAN BERDASARKAN INDEKS SLIDE
     function updateSemuaCardBulanan() {
-      const bulanAktifSampah = listBulanUnik[indexBulanSampah] || 'Bulan Ini';
-      const bulanAktifTabungan = listBulanUnik[indexBulanTabungan] || 'Bulan Ini';
-      const bulanAktifCashflow = listBulanUnik[indexBulanCashflow] || 'Bulan Ini';
+      const bulanAktifSampah = listBulanUnik[indexBulanSampah] || 'Okt 2026';
+      const bulanAktifTabungan = listBulanUnik[indexBulanTabungan] || 'Okt 2026';
+      const bulanAktifCashflow = listBulanUnik[indexBulanCashflow] || 'Okt 2026';
 
       // 1. Card Sampah
       document.getElementById('label-bulan-sampah').innerText = bulanAktifSampah;
@@ -610,7 +615,7 @@
       let totalTabunganBulan = 0;
       globalRiwayatData.forEach(r => {
         if (ekstrakBulanTahun(r[1]) === bulanAktifTabungan) {
-          totalTabunganBulan += parseNumberFlexible(r[7]); // nominal
+          totalTabunganBulan += parseNumberFlexible(r[7]); // nominal tabungan
         }
       });
       document.getElementById('val-tabungan-bulanan').innerText = `Rp ${Math.round(totalTabunganBulan).toLocaleString('id-ID')}`;
@@ -626,7 +631,7 @@
       let totalKeluarBulan = 0;
       globalPengeluaranData.forEach(r => {
         if (ekstrakBulanTahun(r[0]) === bulanAktifCashflow) {
-          totalKeluarBulan += parseNumberFlexible(r[2]); // nominal pengeluaran
+          totalKeluarBulan += parseNumberFlexible(r[2]); // nominal pengeluaran di kolom indeks 2
         }
       });
       document.getElementById('val-cashflow-masuk').innerText = `Rp ${Math.round(totalMasukBulan).toLocaleString('id-ID')}`;
@@ -665,7 +670,7 @@
     // MODAL KLIK KARTU BULANAN
     function bukaPopupSampahBulanIni() {
       history.pushState({ modal: 'sampahbulan' }, '', '#sampahbulan');
-      const bulan = listBulanUnik[indexBulanSampah] || 'Bulan Ini';
+      const bulan = listBulanUnik[indexBulanSampah] || 'Okt 2026';
       document.getElementById('modal-sampah-title').innerText = 'Rincian Jenis Sampah';
       document.getElementById('modal-sampah-subtitle').innerText = `Periode: ${bulan}`;
 
@@ -693,7 +698,7 @@
 
     function bukaPopupTabunganBulanIni() {
       history.pushState({ modal: 'tabunganbulan' }, '', '#tabunganbulan');
-      const bulan = listBulanUnik[indexBulanTabungan] || 'Bulan Ini';
+      const bulan = listBulanUnik[indexBulanTabungan] || 'Okt 2026';
       document.getElementById('modal-tabungan-title').innerText = 'Setoran Tabungan Warga';
       document.getElementById('modal-tabungan-subtitle').innerText = `Periode: ${bulan}`;
 
@@ -719,7 +724,7 @@
 
     function bukaPopupCashflowBulanIni() {
       history.pushState({ modal: 'cashflowbulan' }, '', '#cashflowbulan');
-      const bulan = listBulanUnik[indexBulanCashflow] || 'Bulan Ini';
+      const bulan = listBulanUnik[indexBulanCashflow] || 'Okt 2026';
       document.getElementById('modal-cashflow-title').innerText = 'Rincian Cashflow Bulanan';
       document.getElementById('modal-cashflow-subtitle').innerText = `Periode: ${bulan}`;
 
