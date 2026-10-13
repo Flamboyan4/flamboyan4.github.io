@@ -6,10 +6,14 @@
   <title>Bank Sampah | Lorong Flamboyan 4</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased font-sans min-h-screen flex flex-col">
 
-  <!-- HEADER NAVBAR RINGKAS -->
+  <!-- HEADER NAVBAR -->
   <header class="bg-emerald-950 text-white sticky top-0 z-40 shadow-md">
     <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
       <a href="index.html" class="flex items-center gap-2 text-emerald-100 hover:text-white transition font-medium text-xs sm:text-sm">
@@ -25,79 +29,77 @@
   </header>
 
   <!-- MAIN CONTENT -->
-  <main class="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-5 flex-grow w-full">
+  <main class="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-6 flex-grow w-full">
 
     <!-- HERO SECTION -->
     <div class="text-center space-y-1 max-w-2xl mx-auto">
-      <h2 class="text-lg sm:text-2xl font-extrabold text-emerald-950 tracking-tight">Pengelolaan & Tabungan Sampah Warga</h2>
-      <p class="text-[11px] sm:text-xs text-slate-600">Pusat informasi pemilahan sampah anorganik, rekap tabungan warga, kas pengelola, dan rincian setoran berkala.</p>
+      <h2 class="text-xl sm:text-2xl font-extrabold text-emerald-950 tracking-tight">Pengelolaan & Tabungan Sampah Warga</h2>
+      <p class="text-xs sm:text-sm text-slate-600">Pusat informasi pemilahan sampah anorganik, rekap tabungan warga, kas pengelola, dan rincian setoran berkala.</p>
     </div>
 
-    <!-- 1. SLIDER CARD PROGRES (DERETAN KARTU KECIL BERJAJAR KE SAMPING) -->
+    <!-- 1. SLIDER CARD PROGRES BANK SAMPAH (SLIDER HORIZONTAL KECIL) -->
     <div class="space-y-2">
       <div class="flex items-center justify-between px-1">
-        <h3 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+        <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
           <i data-lucide="trending-up" class="w-4 h-4 text-emerald-600"></i>
           Progres Perkembangan Bank Sampah
         </h3>
-        <p class="text-[10px] text-slate-400">Geser untuk melihat langkah lainnya →</p>
+        <p class="text-xs text-slate-400">Geser kesamping →</p>
       </div>
 
-      <!-- Container Grid/Scroll Horizontal Kartu Progres -->
-      <div id="container-progres-cards" class="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-none">
-        <!-- Diisi JS berbentuk deretan kartu kecil seukuran card totalan -->
+      <div id="container-progres-cards" class="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory no-scrollbar">
         <div class="text-xs text-slate-400 p-3 italic">Memuat progres...</div>
       </div>
     </div>
 
-    <!-- 2. 3 KARTU RINGKASAN TOTALAN DATA -->
+    <!-- 2. 3 KARTU RINGKASAN DATA TOTALAN -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-      <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between">
-        <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Total Sampah Terkumpul</span>
-        <div class="mt-1">
-          <span id="total-sampah-terkumpul" class="text-xl sm:text-2xl font-black text-emerald-900">0.0 Kg</span>
-          <p class="text-[11px] text-slate-500">Anorganik terpilah</p>
+      <div class="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between">
+        <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">Total Sampah Terkumpul</span>
+        <div class="mt-2">
+          <span id="total-sampah-terkumpul" class="text-2xl sm:text-3xl font-black text-emerald-900">0.0 Kg</span>
+          <p class="text-xs text-slate-500 mt-0.5">Anorganik terpilah</p>
         </div>
       </div>
-      <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between">
-        <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Total Nilai Tabungan Warga</span>
-        <div class="mt-1">
-          <span id="total-nilai-tabungan" class="text-xl sm:text-2xl font-black text-emerald-900">Rp 0</span>
-          <p class="text-[11px] text-slate-500">Siap dicairkan / diakumulasi</p>
+      <div class="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between">
+        <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">Total Nilai Tabungan Warga</span>
+        <div class="mt-2">
+          <span id="total-nilai-tabungan" class="text-2xl sm:text-3xl font-black text-emerald-900">Rp 0</span>
+          <p class="text-xs text-slate-500 mt-0.5">Siap dicairkan / diakumulasi</p>
         </div>
       </div>
-      <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between">
-        <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Kas Operasional Bank Sampah</span>
-        <div class="mt-1">
-          <span id="kas-operasional-bank-sampah" class="text-xl sm:text-2xl font-black text-emerald-900">Rp 0</span>
-          <p class="text-[11px] text-slate-500">Saldo bersih pengelola & lorong</p>
+      <div class="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between">
+        <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">Kas Operasional Bank Sampah</span>
+        <div class="mt-2">
+          <span id="kas-operasional-bank-sampah" class="text-2xl sm:text-3xl font-black text-emerald-900">Rp 0</span>
+          <p class="text-xs text-slate-500 mt-0.5">Saldo bersih pengelola & lorong</p>
         </div>
       </div>
     </div>
 
     <!-- 3. TABEL REKAP TABUNGAN SAMPAH WARGA -->
     <div class="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-slate-100">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div>
-          <h3 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-1.5">
+          <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
             <i data-lucide="table" class="w-4 h-4 text-emerald-600"></i>
             Rekap Tabungan Sampah Warga
           </h3>
-          <p class="text-[11px] text-slate-500">Klik nama warga untuk melihat riwayat rincian setoran</p>
+          <p class="text-xs text-slate-500">Klik nama warga untuk melihat riwayat rincian setoran</p>
         </div>
-        <input type="text" id="input-cari-warga" onkeyup="cariWarga()" placeholder="Cari nama / blok..." class="px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg w-full sm:w-56 focus:outline-none focus:border-emerald-500">
+        <input type="text" id="input-cari-warga" onkeyup="cariWarga()" placeholder="Cari nama / blok..." class="px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg w-full sm:w-60 focus:outline-none focus:border-emerald-500">
       </div>
 
       <div class="overflow-x-auto">
         <div class="max-h-[380px] overflow-y-auto rounded-lg border border-slate-100">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-emerald-50/80 text-emerald-900 font-bold sticky top-0 z-10">
+          <table class="w-full text-left text-xs sm:text-sm">
+            <thead class="bg-emerald-50/90 text-emerald-900 font-bold sticky top-0 z-10">
               <tr>
-                <th class="p-2.5 w-10 text-center">No</th>
-                <th class="p-2.5">Nama & Blok</th>
-                <th class="p-2.5">Setoran Terakhir</th>
-                <th class="p-2.5 text-right">Total Berat (Kg)</th>
-                <th class="p-2.5 text-right">Saldo Tabungan</th>
+                <th class="p-3 w-12 text-center">No</th>
+                <th class="p-3">Nama & Blok</th>
+                <th class="p-3">Setoran Terakhir</th>
+                <th class="p-3 text-right">Total Berat (Kg)</th>
+                <th class="p-3 text-right">Saldo Tabungan</th>
               </tr>
             </thead>
             <tbody id="tabel-rekap-warga" class="divide-y divide-slate-100">
@@ -108,51 +110,62 @@
       </div>
     </div>
 
-    <!-- 4. KARTU INVENTARIS & DOKUMENTASI -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      
-      <!-- Kartu Inventaris -->
-      <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-100 flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <h3 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-1.5">
-              <i data-lucide="box" class="w-4 h-4 text-emerald-600"></i>
-              Daftar Inventaris Bank Sampah
-            </h3>
-          </div>
-          <p class="text-[11px] text-slate-500 mb-2">Peralatan dan wadah penampungan terdaftar</p>
-          <div id="container-inventaris" class="space-y-1.5 max-h-40 overflow-y-auto pr-1">
-            <p class="text-xs text-slate-400 italic">Memuat data inventaris...</p>
-          </div>
-        </div>
+    <!-- 4. SLIDER GABUNGAN: DAFTAR INVENTARIS & DOKUMENTASI (SAMPINGAN SLIDE ATAS HP) -->
+    <div class="space-y-2">
+      <div class="flex items-center justify-between px-1">
+        <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+          <i data-lucide="boxes" class="w-4 h-4 text-emerald-600"></i>
+          Inventaris & Dokumentasi Kegiatan
+        </h3>
+        <p class="text-xs text-slate-400">Geser kesamping →</p>
       </div>
 
-      <!-- Kartu Dokumentasi Kegiatan -->
-      <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-100 flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <h3 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-1.5">
-              <i data-lucide="camera" class="w-4 h-4 text-emerald-600"></i>
-              Dokumentasi & Kegiatan
-            </h3>
-            <button onclick="bukaGaleriModal()" class="text-[10px] font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 bg-emerald-50 px-2 py-1 rounded border border-emerald-200">
-              Buka Galeri <i data-lucide="external-link" class="w-3 h-3"></i>
-            </button>
+      <!-- Container Card Horizontal (Slide Kiri/Kanan) -->
+      <div id="container-inventaris-dokumentasi" class="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory no-scrollbar">
+        
+        <!-- Card 1: Inventaris -->
+        <div class="snap-start shrink-0 w-[290px] sm:w-[350px] bg-white rounded-xl p-4 shadow-sm border border-slate-100 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-2">
+                <i data-lucide="box" class="w-4 h-4 text-emerald-600"></i>
+                Inventaris Bank Sampah
+              </h4>
+            </div>
+            <p class="text-xs text-slate-500 mb-3">Peralatan dan wadah penampungan</p>
+            <div id="container-inventaris-list" class="space-y-2 max-h-44 overflow-y-auto pr-1">
+              <p class="text-xs text-slate-400 italic">Memuat data inventaris...</p>
+            </div>
           </div>
-          <p class="text-[11px] text-slate-500 mb-2">Aktivitas pemilahan dan penimbangan warga</p>
-          
-          <div onclick="bukaGaleriModal()" class="relative h-28 rounded-lg overflow-hidden bg-slate-900 cursor-pointer group border border-slate-200">
-            <img id="galeri-preview-img" src="" alt="Galeri Preview" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition duration-300">
-            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-2.5">
-              <div class="text-white">
-                <span class="bg-emerald-600 text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">Galeri Dokumentasi</span>
-                <p class="text-xs font-bold mt-0.5">Klik untuk membuka galeri foto & video</p>
+        </div>
+
+        <!-- Card 2: Galeri Dokumentasi -->
+        <div class="snap-start shrink-0 w-[290px] sm:w-[350px] bg-white rounded-xl p-4 shadow-sm border border-slate-100 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-2">
+                <i data-lucide="camera" class="w-4 h-4 text-emerald-600"></i>
+                Dokumentasi Kegiatan
+              </h4>
+              <button onclick="bukaGaleriModal()" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
+                Galeri <i data-lucide="external-link" class="w-3 h-3"></i>
+              </button>
+            </div>
+            <p class="text-xs text-slate-500 mb-3">Foto & Video pemilahan sampah warga</p>
+            
+            <div onclick="bukaGaleriModal()" class="relative h-32 rounded-lg overflow-hidden bg-slate-900 cursor-pointer group border border-slate-200">
+              <img id="galeri-preview-img" src="" alt="Galeri Preview" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition duration-300">
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-3">
+                <div class="text-white">
+                  <span class="bg-emerald-600 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">Buka Galeri</span>
+                  <p class="text-xs font-bold mt-0.5">Klik untuk melihat semua foto & video</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
+      </div>
     </div>
 
   </main>
@@ -167,21 +180,21 @@
     <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl relative" onclick="event.stopPropagation()">
       <div class="p-4 bg-emerald-900 text-white flex items-center justify-between">
         <div>
-          <h3 id="modal-nama-warga" class="font-bold text-base">Pak Heri (Ali)</h3>
+          <h3 id="modal-nama-warga" class="font-bold text-base">Pak Heri</h3>
           <p class="text-emerald-200 text-xs">Riwayat setoran sampah anorganik</p>
         </div>
-        <button onclick="tutupRincianWarga()" class="w-7 h-7 rounded-full bg-emerald-800 text-white flex items-center justify-center">
+        <button onclick="tutupRincianWarga()" class="w-8 h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
       <div class="p-4 space-y-3 max-h-[80vh] overflow-y-auto">
         <div class="grid grid-cols-2 gap-2 bg-emerald-50 p-3 rounded-xl border border-emerald-100">
           <div>
-            <p class="text-[10px] text-slate-500 font-bold uppercase">Total Berat</p>
+            <p class="text-xs text-slate-500 font-bold uppercase">Total Berat</p>
             <p id="modal-total-berat" class="text-base font-black text-emerald-950">0 Kg</p>
           </div>
           <div>
-            <p class="text-[10px] text-slate-500 font-bold uppercase">Total Saldo Tabungan</p>
+            <p class="text-xs text-slate-500 font-bold uppercase">Total Saldo Tabungan</p>
             <p id="modal-total-saldo" class="text-base font-black text-emerald-950">Rp 0</p>
           </div>
         </div>
@@ -207,14 +220,14 @@
     </div>
   </div>
 
-  <!-- MODAL GALERI POPUP (FOTO & VIDEO) -->
+  <!-- MODAL GALERI POPUP -->
   <div id="modal-galeri" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-3" onclick="tutupGaleriModalOnBackdrop(event)">
     <div class="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative" onclick="event.stopPropagation()">
       <div class="p-3 bg-slate-900 text-white flex items-center justify-between">
         <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
           <i data-lucide="image" class="w-4 h-4 text-emerald-400"></i> Galeri Dokumentasi & Video
         </h3>
-        <button onclick="tutupGaleriModal()" class="w-7 h-7 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center">
+        <button onclick="tutupGaleriModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
@@ -232,9 +245,8 @@
     </div>
   </div>
 
-  <!-- SCRIPT UTAMA MEWARISI TEPAT KETIGA LINK TERBARU -->
+  <!-- SCRIPT UTAMA -->
   <script>
-    // CSV URLS TERBARU (DIKONFIRMASI LENGKAP)
     const CSV_REKAP_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=0&single=true&output=csv";
     const CSV_RIWAYAT_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=1811693263&single=true&output=csv";
     const CSV_INVENTARIS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=1819624619&single=true&output=csv";
@@ -246,6 +258,15 @@
     let globalProgresList = [];
     let globalDokumentasiList = [];
 
+    // HELPER NUMBER & STRING PARSER MATANG
+    function parseNumberFlexible(val) {
+      if (!val) return 0;
+      let cleaned = val.toString().trim();
+      cleaned = cleaned.replace(/[^0-9,-]/g, ''); // Hapus "Rp", "Kg", dsb.
+      cleaned = cleaned.replace(',', '.'); // Ubah koma ke titik desimal
+      return parseFloat(cleaned) || 0;
+    }
+
     function formatDriveImgUrl(url) {
       if (!url) return '';
       const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
@@ -256,6 +277,7 @@
     }
 
     function parseCSV(text) {
+      if (!text) return [];
       const lines = text.split('\n').map(l => l.trim()).filter(l => l);
       if (lines.length <= 1) return [];
       return lines.slice(1).map(line => {
@@ -263,12 +285,12 @@
       });
     }
 
-    // 1. DATA REKAP & RIWAYAT WARGA
+    // 1. MEMUAT DATA REKAP & RIWAYAT WARGA
     async function loadDataUtama() {
       try {
         const [resRekap, resRiwayat] = await Promise.all([
-          fetch(CSV_REKAP_URL),
-          fetch(CSV_RIWAYAT_URL)
+          fetch(CSV_REKAP_URL + "&t=" + Date.now()),
+          fetch(CSV_RIWAYAT_URL + "&t=" + Date.now())
         ]);
 
         const textRekap = await resRekap.text();
@@ -280,7 +302,7 @@
         renderTabelWarga(globalRekapData);
         updateKasOperasional(globalRiwayatData);
       } catch (err) {
-        console.error("Gagal memuat data rekap:", err);
+        console.error("Gagal memuat data utama:", err);
       }
     }
 
@@ -297,25 +319,22 @@
         if (!namaBlok || namaBlok === '#N/A') return;
 
         const setoranTerakhir = row[2] || '-';
-        const parseKg = (val) => parseFloat((val || '0').toString().replace(',', '.')) || 0;
-        const totalBeratWarga = parseKg(row[3]);
-        
-        let rawSaldoWarga = (row[4] || '0').toString().replace(/[^0-9]/g, '');
-        const totalSaldoWarga = parseFloat(rawSaldoWarga) || 0;
+        const totalBeratWarga = parseNumberFlexible(row[3]);
+        const totalSaldoWarga = parseNumberFlexible(row[4]);
 
         totalSampahAll += totalBeratWarga;
         totalSaldoAll += totalSaldoWarga;
 
         html += `
           <tr onclick="bukaRincianWarga('${namaBlok}', ${totalBeratWarga}, ${totalSaldoWarga})" class="hover:bg-emerald-50/60 cursor-pointer transition">
-            <td class="p-2.5 text-center text-slate-400 font-medium">${idx + 1}</td>
-            <td class="p-2.5 font-bold text-emerald-950 flex items-center justify-between">
+            <td class="p-3 text-center text-slate-400 font-medium">${idx + 1}</td>
+            <td class="p-3 font-bold text-emerald-950 flex items-center justify-between">
               <span>${namaBlok}</span>
-              <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-50"></i>
+              <i data-lucide="chevron-right" class="w-4 h-4 opacity-50"></i>
             </td>
-            <td class="p-2.5 text-slate-500">${setoranTerakhir}</td>
-            <td class="p-2.5 text-right font-semibold text-slate-700">${totalBeratWarga.toFixed(1)} Kg</td>
-            <td class="p-2.5 text-right font-bold text-emerald-700">Rp ${Math.round(totalSaldoWarga).toLocaleString('id-ID')}</td>
+            <td class="p-3 text-slate-500">${setoranTerakhir}</td>
+            <td class="p-3 text-right font-semibold text-slate-700">${totalBeratWarga.toFixed(1)} Kg</td>
+            <td class="p-3 text-right font-bold text-emerald-700">Rp ${Math.round(totalSaldoWarga).toLocaleString('id-ID')}</td>
           </tr>
         `;
       });
@@ -331,8 +350,7 @@
     function updateKasOperasional(riwayatRows) {
       let totalKas = 0;
       riwayatRows.forEach(vals => {
-        let rawKas = (vals[9] || '0').toString().replace(/[^0-9]/g, '');
-        totalKas += parseFloat(rawKas) || 0;
+        totalKas += parseNumberFlexible(vals[9]);
       });
       if (document.getElementById('kas-operasional-bank-sampah')) {
         document.getElementById('kas-operasional-bank-sampah').innerText = `Rp ${Math.round(totalKas).toLocaleString('id-ID')}`;
@@ -345,10 +363,10 @@
       renderTabelWarga(filtered);
     }
 
-    // 2. RENDER DERETAN KARTU PROGRES KECIL (CAROUSEL SLIDER HORIZONTAL)
+    // 2. LOAD PROGRES BANK SAMPAH
     async function loadProgresBankSampahDetail() {
       try {
-        const response = await fetch(CSV_PROGRES_URL);
+        const response = await fetch(CSV_PROGRES_URL + "&t=" + Date.now());
         const csvText = await response.text();
         const rows = parseCSV(csvText);
 
@@ -377,24 +395,24 @@
           const badgeClass = isSelesai ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-white';
 
           html += `
-            <div class="snap-start shrink-0 w-[270px] sm:w-[300px] bg-white p-3 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between space-y-2">
+            <div class="snap-start shrink-0 w-[270px] sm:w-[310px] bg-white p-3.5 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between space-y-2">
               <div class="flex items-center justify-between">
-                <span class="bg-emerald-100 text-emerald-800 text-[9px] font-bold px-1.5 py-0.5 rounded">${item.langkah}</span>
-                <span class="${badgeClass} text-[9px] font-semibold px-1.5 py-0.5 rounded">${item.status}</span>
-                <span class="text-slate-400 text-[9px] ml-auto font-medium">${item.tanggal}</span>
+                <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded">${item.langkah}</span>
+                <span class="${badgeClass} text-xs font-semibold px-2 py-0.5 rounded">${item.status}</span>
+                <span class="text-slate-400 text-xs ml-auto font-medium">${item.tanggal}</span>
               </div>
 
-              <div class="flex gap-2.5 items-center">
+              <div class="flex gap-3 items-center">
                 <div class="w-16 h-16 bg-slate-100 rounded-lg overflow-hidden shrink-0 border border-slate-200">
                   <img src="${item.urlFoto}" alt="Foto" class="w-full h-full object-cover">
                 </div>
                 <div class="min-w-0 flex-grow">
-                  <h4 class="text-xs font-bold text-slate-800 truncate">${item.judul}</h4>
-                  <p class="text-[10px] text-slate-500 line-clamp-2 leading-tight mt-0.5">${item.deskripsi}</p>
+                  <h4 class="text-xs sm:text-sm font-bold text-slate-800 truncate">${item.judul}</h4>
+                  <p class="text-xs text-slate-500 line-clamp-2 leading-tight mt-0.5">${item.deskripsi}</p>
                 </div>
               </div>
 
-              <div class="pt-1.5 border-t border-slate-100 text-[9px] space-y-0.5">
+              <div class="pt-2 border-t border-slate-100 text-xs space-y-0.5">
                 <div class="truncate"><span class="text-slate-400">Tahap:</span> <span class="font-semibold text-slate-700">${item.tahapDetail.replace(/^Tahap:\s*/i, '')}</span></div>
                 <div class="truncate"><span class="text-slate-400">Agenda:</span> <span class="font-semibold text-slate-700">${item.agendaBerikut.replace(/^Agenda:\s*/i, '')}</span></div>
               </div>
@@ -408,18 +426,18 @@
       }
     }
 
-    // 3. DATA INVENTARIS
+    // 3. LOAD INVENTARIS
     async function loadInventaris() {
       try {
-        const response = await fetch(CSV_INVENTARIS_URL);
+        const response = await fetch(CSV_INVENTARIS_URL + "&t=" + Date.now());
         const csvText = await response.text();
         const rows = parseCSV(csvText);
-        const container = document.getElementById('container-inventaris');
+        const container = document.getElementById('container-inventaris-list');
 
         if (!container) return;
 
         if (rows.length === 0) {
-          container.innerHTML = `<p class="text-xs text-slate-400">Belum ada data inventaris.</p>`;
+          container.innerHTML = `<p class="text-xs text-slate-400 italic">Belum ada data inventaris.</p>`;
           return;
         }
 
@@ -427,8 +445,8 @@
         rows.forEach(r => {
           html += `
             <div class="flex items-center justify-between bg-slate-50 p-2 rounded-lg border border-slate-100 text-xs">
-              <span class="font-semibold text-slate-700">${r[0] || '-'}</span>
-              <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full text-[10px]">${r[1] || '0'} Unit</span>
+              <span class="font-semibold text-slate-700 truncate pr-2">${r[0] || '-'}</span>
+              <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full text-xs shrink-0">${r[1] || '0'} Unit</span>
             </div>
           `;
         });
@@ -438,10 +456,10 @@
       }
     }
 
-    // 4. DATA DOKUMENTASI & GALERI
+    // 4. LOAD DOKUMENTASI
     async function loadDokumentasi() {
       try {
-        const response = await fetch(CSV_DOKUMENTASI_URL);
+        const response = await fetch(CSV_DOKUMENTASI_URL + "&t=" + Date.now());
         const csvText = await response.text();
         const rows = parseCSV(csvText);
 
@@ -452,7 +470,7 @@
         }));
 
         const previewImg = document.getElementById('galeri-preview-img');
-        if (previewImg && globalDokumentasiList.length > 0) {
+        if (previewImg && globalDokumentasiList.length > 0 && globalDokumentasiList[0].url) {
           previewImg.src = globalDokumentasiList[0].url;
         }
       } catch (err) {
@@ -474,11 +492,10 @@
       } else {
         let html = '';
         riwayat.forEach(r => {
-          const parseKg = (val) => parseFloat((val || '0').toString().replace(',', '.')) || 0;
-          const kardus = parseKg(r[2]);
-          const botol = parseKg(r[3]);
-          const gelas = parseKg(r[4]);
-          const kaleng = parseKg(r[5]);
+          const kardus = parseNumberFlexible(r[2]);
+          const botol = parseNumberFlexible(r[3]);
+          const gelas = parseNumberFlexible(r[4]);
+          const kaleng = parseNumberFlexible(r[5]);
           
           let items = [];
           if (kardus > 0) items.push(`Kardus: ${kardus}kg`);
@@ -486,14 +503,13 @@
           if (gelas > 0) items.push(`Gelas: ${gelas}kg`);
           if (kaleng > 0) items.push(`Kaleng: ${kaleng}kg`);
 
-          let rawNominal = (r[7] || '0').toString().replace(/[^0-9]/g, '');
-          const nominal = parseFloat(rawNominal) || 0;
+          const nominal = parseNumberFlexible(r[7]);
 
           html += `
             <tr class="hover:bg-slate-50">
               <td class="p-2 text-slate-500">${r[1] || '-'}</td>
               <td class="p-2 font-medium text-slate-700">${items.join(', ') || '-'}</td>
-              <td class="p-2 text-right font-semibold text-slate-700">${parseKg(r[6]).toFixed(1)} Kg</td>
+              <td class="p-2 text-right font-semibold text-slate-700">${parseNumberFlexible(r[6]).toFixed(1)} Kg</td>
               <td class="p-2 text-right font-bold text-emerald-700">Rp ${Math.round(nominal).toLocaleString('id-ID')}</td>
             </tr>
           `;
@@ -583,12 +599,12 @@
       thumbBox.innerHTML = html;
     }
 
-    // INIT AUTOMATIC
-    document.addEventListener('DOMContentLoaded', () => {
-      loadDataUtama();
-      loadProgresBankSampahDetail();
-      loadInventaris();
-      loadDokumentasi();
+    // INIT AUTOMATIC TERSTRUKTUR & STABIL
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadDataUtama();
+      await loadProgresBankSampahDetail();
+      await loadInventaris();
+      await loadDokumentasi();
     });
   </script>
 </body>
