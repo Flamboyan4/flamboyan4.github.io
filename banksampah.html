@@ -770,11 +770,13 @@
         riwayat.forEach(r => {
           const vals = Object.values(r);
           const tgl = vals[1] || '-';
-          const kardus = parseFloat(vals[2]) || 0;
-          const botol = parseFloat(vals[3]) || 0;
-          const gelas = parseFloat(vals[4]) || 0;
-          const kaleng = parseFloat(vals[5]) || 0;
-          const totalBeratRow = parseFloat(vals[6]) || 0;
+          const parseKg = (val) => parseFloat((val || '0').toString().replace(',', '.')) || 0;
+
+          const kardus = parseKg(vals[2]);
+          const botol = parseKg(vals[3]);
+          const gelas = parseKg(vals[4]);
+          const kaleng = parseKg(vals[5]);
+          const totalBeratRow = parseKg(vals[6]);
           let rawNominal = (vals[7] || '0').toString().replace(/[^0-9]/g, '');
           const nominalRow = parseFloat(rawNominal) || 0;
 
