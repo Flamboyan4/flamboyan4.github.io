@@ -1498,10 +1498,14 @@ function toggleTipeExport() {
 function prosesCetakPDF() {
   const tipe = document.getElementById('export-tipe').value;
   let judulPeriode = "";
+  let targetBulan = "";
+  let targetTahun = "";
 
   if (tipe === 'bulanan') {
     const bln = document.getElementById('export-bulan-single').selectedOptions[0].text;
     const thn = document.getElementById('export-tahun-single').value;
+    targetBulan = document.getElementById('export-bulan-single').value;
+    targetTahun = thn;
     judulPeriode = "Periode: " + bln + " " + thn;
   } else if (tipe === 'rentang') {
     const awal = document.getElementById('export-bulan-awal').selectedOptions[0].text;
@@ -1510,32 +1514,157 @@ function prosesCetakPDF() {
     judulPeriode = "Periode: " + awal + " s.d " + akhir + " " + thn;
   } else {
     const thn = document.getElementById('export-tahun-full').value;
+    targetTahun = thn;
     judulPeriode = "Laporan Tahunan " + thn;
+  }
+
+  // Hitung angka rekap dinamis
+  let totalBerat = 0;
+  let totalTabungan = 0;
+  let cashIn = 0;
+  let cashOut = 0;
+
+  if (typeof rawRiwayatData !== 'undefined' && rawRiwayatData.length > 0) {
+    rawRiwayatData.forEach(r => {
+      totalBerat += (r.berat || 0);
+    });
+  }
+
+  if (typeof rawRekapData !== 'undefined' && rawRekapData.length > 0) {
+    rawRekapData.forEach(r => {
+      totalTabungan += (r.saldo || 0);
+    });
+  }
+
+  if (typeof rawPengeluaranData !== 'undefined' && rawPengeluaranData.length > 0) {
+    rawPengeluaranData.forEach(p => {
+      cashOut += (p.nominal || 0);
+    });
+  }
+
+  // Susun Tabel Tabungan Warga
+  let tabelWargaHTML = "";
+  if (typeof rawRekapData !== 'undefined' && rawRekapData.length > 0) {
+    tabelWargaHTML = rawRekapData.map((w, i) => `
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 6px; text-align: center;">${i+1}</td>
+        <td style="padding: 6px; font-weight: 600;">${w.nama} <span style="color:#64748b; font-weight:normal;">(${w.blok})</span></td>
+        <td style="padding: 6px; text-align: center; color:#475569;">Oktober 2026</td>
+        <td style="padding: 6px; text-align: center; font-weight:bold; color:#047857;">${(w.berat || 0).toFixed(1)} Kg</td>
+        <td style="padding: 6px; text-align: right; font-weight:bold; color:#064e3b;">Rp ${(w.saldo || 0).toLocaleString('id-ID')}</td>
+      </tr>
+    `).join('');
+  } else {
+    tabelWargaHTML = `<tr><td colspan="5" style="text-align:center; padding: 12px; color: #94a3b8;">Tidak ada data tabungan warga.</td></tr>`;
   }
 
   const printWindow = window.open('', '_blank');
   if (!printWindow) return alert("Pop-up diblokir oleh browser. Izinkan pop-up untuk mencetak.");
 
-  const htmlContent = '<!DOCTYPE html>' +
-    '<html lang="id"><head><title>Laporan Bank Sampah - ' + judulPeriode + '</title>' +
-    '<script src="https://cdn.tailwindcss.com"><\/script>' +
-    '<style>@page { size: A4; margin: 15mm; } body { font-family: sans-serif; background: #fff; color: #1e293b; }</style>' +
-    '</head><body class="p-6 space-y-6">' +
-    '<div class="border-b-2 border-emerald-800 pb-4 flex justify-between items-center">' +
-    '<div><h1 class="text-xl font-bold text-emerald-900 tracking-wide uppercase">BANK SAMPAH FLAMBOYAN 4</h1>' +
-    '<p class="text-xs text-slate-600">RT 001 RW 026 Pesona Kahuripan 2, Desa Sukamanah, Kec. Klapanunggal</p>' +
-    '<p class="text-xs font-semibold text-emerald-700 mt-1">' + judulPeriode + '</p></div>' +
-    '<div><span class="inline-block bg-emerald-100 text-emerald-800 font-bold text-xs px-3 py-1 rounded-full border border-emerald-300">LAPORAN RESMI</span></div>' +
-    '</div>' +
-    '<div class="text-xs text-slate-600 border-l-4 border-emerald-500 pl-3 py-1 bg-emerald-50/50">' +
-    '<p>Dokumen ini menyajikan rekapitulasi resmi setoran anorganik warga, tabungan terakumulasi, serta arus kas operasional Bank Sampah Lorong Flamboyan 4.</p>' +
-    '</div>' +
-    '<div class="pt-16 grid grid-cols-2 text-center text-xs">' +
-    '<div><p class="text-slate-500">Mengetahui,</p><p class="font-bold text-slate-800 mt-0.5">Humas Flamboyan 4</p><div class="h-16"></div><p class="font-bold border-b border-slate-400 inline-block px-4">( Pak Heri / Humas )</p></div>' +
-    '<div><p class="text-slate-500">Dibuat Oleh,</p><p class="font-bold text-slate-800 mt-0.5">Pengelola Bank Sampah</p><div class="h-16"></div><p class="font-bold border-b border-slate-400 inline-block px-4">( Tim Pengelola )</p></div>' +
-    '</div>' +
-    '<script>window.onload = function() { setTimeout(function() { window.print(); }, 600); };<\/script>' +
-    '</body></html>';
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+      <title>Laporan Bank Sampah - ${judulPeriode}</title>
+      <style>
+        @page { size: A4; margin: 12mm; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #fff; color: #1e293b; margin: 0; padding: 0; font-size: 11px; }
+        .header { border-bottom: 2px solid #065f46; padding-bottom: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .title { font-size: 16px; font-weight: bold; color: #064e3b; margin: 0; text-transform: uppercase; }
+        .subtitle { font-size: 10px; color: #475569; margin: 2px 0; }
+        .badge { background: #d1fae5; color: #065f46; font-weight: bold; font-size: 9px; padding: 3px 8px; border-radius: 12px; border: 1px solid #a7f3d0; }
+        
+        .grid-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+        .box { border: 1px solid #cbd5e1; background: #f8fafc; padding: 8px; border-radius: 6px; text-align: center; }
+        .box-label { font-size: 9px; font-weight: bold; color: #64748b; text-transform: uppercase; }
+        .box-val { font-size: 13px; font-weight: bold; margin-top: 2px; }
+        
+        table { w-full; width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 10px; }
+        th { background: #ecfdf5; color: #064e3b; font-weight: bold; padding: 6px; border-bottom: 1px solid #a7f3d0; text-align: left; }
+        
+        .ttd-container { display: flex; justify-content: space-between; margin-top: 35px; text-align: center; }
+        .ttd-box { width: 40%; }
+        .ttd-space { height: 50px; }
+        .ttd-name { font-weight: bold; border-bottom: 1px solid #64748b; display: inline-block; padding: 0 15px; }
+      </style>
+    </head>
+    <body>
+      
+      <!-- HEADER -->
+      <div class="header">
+        <div>
+          <h1 class="title">BANK SAMPAH FLAMBOYAN 4</h1>
+          <p class="subtitle">RT 001 RW 026 Pesona Kahuripan 2, Desa Sukamanah, Kec. Klapanunggal</p>
+          <p class="subtitle" style="font-weight:bold; color:#047857;">${judulPeriode}</p>
+        </div>
+        <div>
+          <span class="badge">LAPORAN RESMI</span>
+        </div>
+      </div>
+
+      <!-- METRICS BOX -->
+      <div class="grid-summary">
+        <div class="box">
+          <div class="box-label">Total Sampah</div>
+          <div class="box-val" style="color:#047857;">${totalBerat.toFixed(1)} Kg</div>
+        </div>
+        <div class="box">
+          <div class="box-label">Tabungan Warga</div>
+          <div class="box-val" style="color:#064e3b;">Rp ${totalTabungan.toLocaleString('id-ID')}</div>
+        </div>
+        <div class="box">
+          <div class="box-label">Pemasukan Kas</div>
+          <div class="box-val" style="color:#1d4ed8;">Rp ${totalTabungan.toLocaleString('id-ID')}</div>
+        </div>
+        <div class="box">
+          <div class="box-label">Sisa Saldo Kas</div>
+          <div class="box-val" style="color:#0f766e;">Rp ${totalTabungan.toLocaleString('id-ID')}</div>
+        </div>
+      </div>
+
+      <!-- TABEL REKAP SETORAN WARGA -->
+      <div style="margin-top: 10px;">
+        <div style="font-weight: bold; font-size: 11px; color: #064e3b; margin-bottom: 4px;">Rekapitulasi Tabungan Sampah Warga</div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 30px; text-align: center;">No</th>
+              <th>Nama & Blok Warga</th>
+              <th style="text-align: center;">Setoran Terakhir</th>
+              <th style="text-align: center;">Total Berat</th>
+              <th style="text-align: right;">Saldo Tabungan</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tabelWargaHTML}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- LEMBAR PENGESAHAN -->
+      <div class="ttd-container">
+        <div class="ttd-box">
+          <p style="color:#64748b; margin:0;">Mengetahui,</p>
+          <p style="font-weight:bold; margin:2px 0;">Humas Flamboyan 4</p>
+          <div class="ttd-space"></div>
+          <p class="ttd-name">( Pak Heri Juwandi )</p>
+        </div>
+        <div class="ttd-box">
+          <p style="color:#64748b; margin:0;">Dibuat Oleh,</p>
+          <p style="font-weight:bold; margin:2px 0;">Pengelola Bank Sampah</p>
+          <div class="ttd-space"></div>
+          <p class="ttd-name">( Tim Pengelola )</p>
+        </div>
+      </div>
+
+      <script>
+        window.onload = function() {
+          setTimeout(function() { window.print(); }, 500);
+        };
+      <\/script>
+    </body>
+    </html>
+  `;
 
   printWindow.document.write(htmlContent);
   printWindow.document.close();
