@@ -34,44 +34,76 @@
     <!-- HERO SECTION -->
     <div class="text-center space-y-1.5 max-w-2xl mx-auto">
       <h2 class="text-xl sm:text-3xl font-extrabold text-emerald-950 tracking-tight">Pengelolaan & Tabungan Sampah Warga</h2>
-      <p class="text-xs sm:text-sm text-slate-600">Pusat informasi pemilahan sampah anorganik, rekap tabungan warga, kas pengelola, dan rincian setoran berkala.</p>
+      <p class="text-xs sm:text-sm text-slate-600">Pusat informasi pemilahan sampah anorganik, rekap tabungan warga, cashflow bulanan, dan rincian setoran berkala.</p>
     </div>
 
-    <!-- 1. 3 KARTU RINGKASAN DATA TOTALAN -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-5">
+    <!-- 1. 4 KARTU RINGKASAN DATA BULANAN & KAS -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
       
-      <!-- Card 1: Total Sampah -->
-      <div onclick="bukaPopupTotalSampah()" class="bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-emerald-500 hover:shadow-md transition group">
+      <!-- Card 1: Total Sampah Bulanan -->
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between relative group">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-bold tracking-wider text-slate-400 uppercase group-hover:text-emerald-700 transition">Total Sampah Terkumpul</span>
-          <i data-lucide="info" class="w-4 h-4 text-emerald-600 opacity-60 group-hover:opacity-100"></i>
+          <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">Sampah Terkumpul</span>
+          <div class="flex items-center gap-1">
+            <button onclick="geserBulanCard('sampah', -1)" class="w-6 h-6 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition" title="Bulan Sebelumnya"><i data-lucide="chevron-left" class="w-3.5 h-3.5"></i></button>
+            <button onclick="geserBulanCard('sampah', 1)" class="w-6 h-6 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition" title="Bulan Berikutnya"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></button>
+          </div>
         </div>
-        <div class="mt-2">
-          <span id="total-sampah-terkumpul" class="text-2xl sm:text-3xl font-black text-emerald-900">0.0 Kg</span>
-          <p class="text-xs sm:text-sm text-slate-500 mt-1">Klik untuk rincian jenis sampah →</p>
+        <div class="mt-2 cursor-pointer" onclick="bukaPopupSampahBulanIni()">
+          <span id="label-bulan-sampah" class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block">Bulan Ini</span>
+          <span id="val-sampah-bulanan" class="text-2xl sm:text-3xl font-black text-emerald-900">0.0 Kg</span>
+          <p class="text-xs text-slate-500 mt-1">Klik rincian jenis sampah →</p>
         </div>
       </div>
 
-      <!-- Card 2: Total Tabungan Warga -->
-      <div onclick="bukaPopupTotalTabungan()" class="bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-emerald-500 hover:shadow-md transition group">
+      <!-- Card 2: Tabungan Warga Bulanan -->
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between relative group">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-bold tracking-wider text-slate-400 uppercase group-hover:text-emerald-700 transition">Total Nilai Tabungan Warga</span>
-          <i data-lucide="users" class="w-4 h-4 text-emerald-600 opacity-60 group-hover:opacity-100"></i>
+          <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">Tabungan Warga</span>
+          <div class="flex items-center gap-1">
+            <button onclick="geserBulanCard('tabungan', -1)" class="w-6 h-6 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition" title="Bulan Sebelumnya"><i data-lucide="chevron-left" class="w-3.5 h-3.5"></i></button>
+            <button onclick="geserBulanCard('tabungan', 1)" class="w-6 h-6 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition" title="Bulan Berikutnya"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></button>
+          </div>
         </div>
-        <div class="mt-2">
-          <span id="total-nilai-tabungan" class="text-2xl sm:text-3xl font-black text-emerald-900">Rp 0</span>
-          <p class="text-xs sm:text-sm text-slate-500 mt-1">Klik untuk daftar tabungan warga →</p>
+        <div class="mt-2 cursor-pointer" onclick="bukaPopupTabunganBulanIni()">
+          <span id="label-bulan-tabungan" class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block">Bulan Ini</span>
+          <span id="val-tabungan-bulanan" class="text-2xl sm:text-3xl font-black text-emerald-900">Rp 0</span>
+          <p class="text-xs text-slate-500 mt-1">Klik daftar setoran warga →</p>
         </div>
       </div>
 
-      <!-- Card 3: Kas Operasional -->
-      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between">
-        <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">Kas Operasional Bank Sampah</span>
-        <div class="mt-2">
-          <span id="kas-operasional-bank-sampah" class="text-2xl sm:text-3xl font-black text-emerald-900">Rp 0</span>
-          <p class="text-xs sm:text-sm text-slate-500 mt-1">Saldo bersih pengelola & lorong</p>
+      <!-- Card 3: Cashflow Masuk / Keluar Bulanan -->
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between relative group">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">Cashflow (Masuk / Keluar)</span>
+          <div class="flex items-center gap-1">
+            <button onclick="geserBulanCard('cashflow', -1)" class="w-6 h-6 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition" title="Bulan Sebelumnya"><i data-lucide="chevron-left" class="w-3.5 h-3.5"></i></button>
+            <button onclick="geserBulanCard('cashflow', 1)" class="w-6 h-6 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition" title="Bulan Berikutnya"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+        <div class="mt-2 cursor-pointer" onclick="bukaPopupCashflowBulanIni()">
+          <span id="label-bulan-cashflow" class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block">Bulan Ini</span>
+          <div class="flex items-baseline gap-2">
+            <span id="val-cashflow-masuk" class="text-lg sm:text-xl font-black text-emerald-800" title="Pemasukan">Rp 0</span>
+            <span class="text-xs text-slate-400">/</span>
+            <span id="val-cashflow-keluar" class="text-lg sm:text-xl font-black text-rose-700" title="Pengeluaran">Rp 0</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-1">Klik rincian kas bulanan →</p>
         </div>
       </div>
+
+      <!-- Card 4: Sisa Saldo Kas Tersedia -->
+      <div class="bg-emerald-900 text-white p-4 sm:p-5 rounded-2xl shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold tracking-wider text-emerald-200 uppercase">Sisa Saldo Kas Tersedia</span>
+          <i data-lucide="wallet" class="w-4 h-4 text-emerald-300"></i>
+        </div>
+        <div class="mt-2">
+          <span id="val-sisa-saldo-kas" class="text-2xl sm:text-3xl font-black text-white">Rp 0</span>
+          <p class="text-xs text-emerald-200 mt-1">Akumulasi bersih kas keseluruhan</p>
+        </div>
+      </div>
+
     </div>
 
     <!-- 2. TABEL REKAP TABUNGAN SAMPAH WARGA -->
@@ -231,35 +263,33 @@
     </div>
   </div>
 
-  <!-- MODAL: RINCIAN TOTAL JENIS SAMPAH -->
-  <div id="modal-total-sampah" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5" onclick="tutupPopupTotalSampahOnBackdrop(event)">
+  <!-- MODAL: RINCIAN SAMPAH BULANAN -->
+  <div id="modal-sampah-bulan" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5" onclick="tutupPopupSampahBulanOnBackdrop(event)">
     <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl relative border border-slate-100" onclick="event.stopPropagation()">
       <div class="p-4 sm:p-5 bg-emerald-900 text-white flex items-center justify-between">
         <div>
-          <h3 class="font-extrabold text-base sm:text-xl">Rincian Jenis Sampah</h3>
-          <p class="text-emerald-200 text-xs sm:text-sm">Akumulasi seluruh setoran warga</p>
+          <h3 id="modal-sampah-title" class="font-extrabold text-base sm:text-xl">Rincian Sampah</h3>
+          <p id="modal-sampah-subtitle" class="text-emerald-200 text-xs sm:text-sm">Bulan ini</p>
         </div>
-        <button onclick="tutupPopupTotalSampah()" class="w-9 h-9 rounded-full bg-emerald-800/80 hover:bg-emerald-700 text-white flex items-center justify-center transition">
+        <button onclick="tutupPopupSampahBulanIni()" class="w-9 h-9 rounded-full bg-emerald-800/80 hover:bg-emerald-700 text-white flex items-center justify-center transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
-      <div class="p-4 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto">
-        <div id="content-rincian-jenis-sampah" class="space-y-3">
-          <!-- Diisi JS -->
-        </div>
+      <div class="p-4 sm:p-6 space-y-3 max-h-[75vh] overflow-y-auto" id="content-rincian-sampah-bulan">
+        <!-- Diisi JS -->
       </div>
     </div>
   </div>
 
-  <!-- MODAL: DAFTAR NAMA & NOMINAL TABUNGAN -->
-  <div id="modal-total-tabungan" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5" onclick="tutupPopupTotalTabunganOnBackdrop(event)">
+  <!-- MODAL: DAFTAR TABUNGAN WARGA BULANAN -->
+  <div id="modal-tabungan-bulan" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5" onclick="tutupPopupTabunganBulanOnBackdrop(event)">
     <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl relative border border-slate-100" onclick="event.stopPropagation()">
       <div class="p-4 sm:p-5 bg-emerald-900 text-white flex items-center justify-between">
         <div>
-          <h3 class="font-extrabold text-base sm:text-xl">Daftar Tabungan Warga</h3>
-          <p class="text-emerald-200 text-xs sm:text-sm">Nama warga dan nominal tabungan</p>
+          <h3 id="modal-tabungan-title" class="font-extrabold text-base sm:text-xl">Setoran Tabungan Warga</h3>
+          <p id="modal-tabungan-subtitle" class="text-emerald-200 text-xs sm:text-sm">Bulan ini</p>
         </div>
-        <button onclick="tutupPopupTotalTabungan()" class="w-9 h-9 rounded-full bg-emerald-800/80 hover:bg-emerald-700 text-white flex items-center justify-center transition">
+        <button onclick="tutupPopupTabunganBulanIni()" class="w-9 h-9 rounded-full bg-emerald-800/80 hover:bg-emerald-700 text-white flex items-center justify-center transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -268,14 +298,66 @@
           <table class="w-full text-left text-xs sm:text-sm">
             <thead class="bg-slate-100 text-slate-700 font-bold">
               <tr>
-                <th class="p-3">Nama & Blok Warga</th>
+                <th class="p-3">Nama Warga</th>
                 <th class="p-3 text-right">Nominal Tabungan</th>
               </tr>
             </thead>
-            <tbody id="content-tabel-tabungan-singkat" class="divide-y divide-slate-100 bg-white">
+            <tbody id="content-tabel-tabungan-bulan" class="divide-y divide-slate-100 bg-white">
               <!-- Diisi JS -->
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CASHFLOW BULANAN (MASUK & KELUAR) -->
+  <div id="modal-cashflow-bulan" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5" onclick="tutupPopupCashflowBulanOnBackdrop(event)">
+    <div class="bg-white rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl relative border border-slate-100" onclick="event.stopPropagation()">
+      <div class="p-4 sm:p-5 bg-emerald-900 text-white flex items-center justify-between">
+        <div>
+          <h3 id="modal-cashflow-title" class="font-extrabold text-base sm:text-xl">Rincian Cashflow Bulanan</h3>
+          <p id="modal-cashflow-subtitle" class="text-emerald-200 text-xs sm:text-sm">Bulan ini</p>
+        </div>
+        <button onclick="tutupPopupCashflowBulanIni()" class="w-9 h-9 rounded-full bg-emerald-800/80 hover:bg-emerald-700 text-white flex items-center justify-center transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-4 sm:p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+        <div>
+          <h4 class="text-xs font-bold text-emerald-800 uppercase tracking-wider mb-2">Pemasukan / Kas Masuk</h4>
+          <div class="overflow-x-auto rounded-xl border border-slate-200">
+            <table class="w-full text-left text-xs sm:text-sm">
+              <thead class="bg-slate-100 text-slate-700 font-bold">
+                <tr>
+                  <th class="p-3">Tanggal</th>
+                  <th class="p-3">Keterangan / Warga</th>
+                  <th class="p-3 text-right">Nominal</th>
+                </tr>
+              </thead>
+              <tbody id="modal-tabel-cashflow-masuk" class="divide-y divide-slate-100 bg-white">
+                <!-- Diisi JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold text-rose-800 uppercase tracking-wider mb-2">Pengeluaran / Kas Keluar</h4>
+          <div class="overflow-x-auto rounded-xl border border-slate-200">
+            <table class="w-full text-left text-xs sm:text-sm">
+              <thead class="bg-slate-100 text-slate-700 font-bold">
+                <tr>
+                  <th class="p-3">Tanggal</th>
+                  <th class="p-3">Keperluan / Keterangan</th>
+                  <th class="p-3 text-right">Nominal</th>
+                </tr>
+              </thead>
+              <tbody id="modal-tabel-cashflow-keluar" class="divide-y divide-slate-100 bg-white">
+                <!-- Diisi JS -->
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -351,7 +433,7 @@
     <div class="w-full flex items-center justify-between z-30 pb-2" onclick="event.stopPropagation()">
       <p id="single-player-caption" class="text-xs md:text-sm font-semibold tracking-wide text-white truncate max-w-[70%]"></p>
       <div class="flex items-center space-x-2">
-        <button onclick="resetSingleZoomState(event)" id="btn-reset-single-zoom" class="text-white bg-slate-800/80 hover:bg-slate-700 px-3 py-1.5 rounded-full text-xs font-semibold transition shadow-md hidden">
+        <button onclick="resetSingleZoomStateEvent(event)" id="btn-reset-single-zoom" class="text-white bg-slate-800/80 hover:bg-slate-700 px-3 py-1.5 rounded-full text-xs font-semibold transition shadow-md hidden">
           Reset Zoom
         </button>
         <button onclick="tutupSinglePlayer()" class="text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition shadow-md">
@@ -370,22 +452,29 @@
 
     const CSV_REKAP_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=0&single=true&output=csv";
     const CSV_RIWAYAT_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=1811693263&single=true&output=csv";
+    const CSV_PENGELUARAN_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=1835559780&single=true&output=csv";
     const CSV_INVENTARIS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=1819624619&single=true&output=csv";
     const CSV_DOKUMENTASI_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=160734221&single=true&output=csv";
     const CSV_PROGRES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=315371679&single=true&output=csv";
 
     let globalRekapData = [];
     let globalRiwayatData = [];
+    let globalPengeluaranData = [];
+
+    // DATA BULANAN UNTUK KARTU
+    let listBulanUnik = [];
+    let indexBulanSampah = 0;
+    let indexBulanTabungan = 0;
+    let indexBulanCashflow = 0;
+
     let globalProgresList = [];
     let globalAlbums = [];
     let currentAlbumItems = [];
     let currentLightboxIndex = 0;
 
-    // VARIABEL ZOOM & SWIPE LIGHTBOX
+    // ZOOM & SWIPE
     let currentScale = 1, panX = 0, panY = 0, isDragging = false, startX = 0, startY = 0;
     let touchStartX = 0, touchStartY = 0, lastTouchDist = 0;
-
-    // VARIABEL ZOOM SINGLE PLAYER
     let singleScale = 1, singlePanX = 0, singlePanY = 0, isSingleDragging = false, singleStartX = 0, singleStartY = 0, singleLastTouchDist = 0;
 
     function parseNumberFlexible(val) {
@@ -412,16 +501,58 @@
       });
     }
 
+    // Ekstrak bulan dari format tanggal (misal: "10-Okt-2026" atau "2026-10-10" dll)
+    function ekstrakBulanTahun(tglStr) {
+      if (!tglStr) return 'Lainnya';
+      const clean = tglStr.trim();
+      // Contoh format DD-MMM-YYYY (10-Okt-2026)
+      const parts = clean.split(/[-/]/);
+      if (parts.length >= 3) {
+        let bln = parts[1];
+        let thn = parts[2];
+        if (thn.length === 2) thn = '20' + thn;
+        if (isNaN(bln)) {
+          return `${bln} ${thn}`;
+        } else {
+          const months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+          let bNum = parseInt(bln, 10);
+          if (bNum >= 1 && bNum <= 12) return `${months[bNum]} ${thn}`;
+        }
+      }
+      return clean;
+    }
+
     async function loadDataUtama() {
       try {
-        const [resRekap, resRiwayat] = await Promise.all([
+        const [resRekap, resRiwayat, resPengeluaran] = await Promise.all([
           fetch(CSV_REKAP_URL + "&t=" + Date.now()),
-          fetch(CSV_RIWAYAT_URL + "&t=" + Date.now())
+          fetch(CSV_RIWAYAT_URL + "&t=" + Date.now()),
+          fetch(CSV_PENGELUARAN_URL + "&t=" + Date.now())
         ]);
         globalRekapData = parseCSV(await resRekap.text());
         globalRiwayatData = parseCSV(await resRiwayat.text());
+        globalPengeluaranData = parseCSV(await resPengeluaran.text());
+
+        // Kumpulkan semua bulan unik dari riwayat setoran & pengeluaran
+        let setBulan = new Set();
+        globalRiwayatData.forEach(r => {
+          if (r[1]) setBulan.add(ekstrakBulanTahun(r[1]));
+        });
+        globalPengeluaranData.forEach(r => {
+          if (r[0]) setBulan.add(ekstrakBulanTahun(r[0]));
+        });
+
+        listBulanUnik = Array.from(setBulan);
+        // Urutkan atau jadikan bulan terbaru di indeks terakhir / pertama
+        if (listBulanUnik.length === 0) listBulanUnik = ['Bulan Ini'];
+        
+        indexBulanSampah = listBulanUnik.length - 1;
+        indexBulanTabungan = listBulanUnik.length - 1;
+        indexBulanCashflow = listBulanUnik.length - 1;
+
         renderTabelWarga(globalRekapData);
-        updateKasOperasional(globalRiwayatData);
+        updateSemuaCardBulanan();
+        updateSisaSaldoKas();
       } catch (err) {
         console.error("Gagal memuat data utama:", err);
       }
@@ -432,9 +563,6 @@
       if (!tbody) return;
 
       let html = '';
-      let totalSampahAll = 0;
-      let totalSaldoAll = 0;
-
       data.forEach((row, idx) => {
         const namaBlok = row[1] || '-';
         if (!namaBlok || namaBlok === '#N/A') return;
@@ -442,9 +570,6 @@
         const setoranTerakhir = row[2] || '-';
         const totalBeratWarga = parseNumberFlexible(row[3]);
         const totalSaldoWarga = parseNumberFlexible(row[4]);
-
-        totalSampahAll += totalBeratWarga;
-        totalSaldoAll += totalSaldoWarga;
 
         html += `
           <tr onclick="bukaRincianWarga('${namaBlok}', ${totalBeratWarga}, ${totalSaldoWarga})" class="hover:bg-emerald-50/60 cursor-pointer transition">
@@ -461,19 +586,74 @@
       });
 
       tbody.innerHTML = html || `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada data tabungan warga.</td></tr>`;
-      if (document.getElementById('total-sampah-terkumpul')) document.getElementById('total-sampah-terkumpul').innerText = `${totalSampahAll.toFixed(1)} Kg`;
-      if (document.getElementById('total-nilai-tabungan')) document.getElementById('total-nilai-tabungan').innerText = `Rp ${Math.round(totalSaldoAll).toLocaleString('id-ID')}`;
       if (window.lucide) lucide.createIcons();
     }
 
-    function updateKasOperasional(riwayatRows) {
-      let totalKas = 0;
-      riwayatRows.forEach(vals => {
-        totalKas += parseNumberFlexible(vals[9]);
+    // UPDATE CARD BULANAN BERDASARKAN INDEKS SLIDE
+    function updateSemuaCardBulanan() {
+      const bulanAktifSampah = listBulanUnik[indexBulanSampah] || 'Bulan Ini';
+      const bulanAktifTabungan = listBulanUnik[indexBulanTabungan] || 'Bulan Ini';
+      const bulanAktifCashflow = listBulanUnik[indexBulanCashflow] || 'Bulan Ini';
+
+      // 1. Card Sampah
+      document.getElementById('label-bulan-sampah').innerText = bulanAktifSampah;
+      let totalSampahBulan = 0;
+      globalRiwayatData.forEach(r => {
+        if (ekstrakBulanTahun(r[1]) === bulanAktifSampah) {
+          totalSampahBulan += parseNumberFlexible(r[6]); // total berat
+        }
       });
-      if (document.getElementById('kas-operasional-bank-sampah')) {
-        document.getElementById('kas-operasional-bank-sampah').innerText = `Rp ${Math.round(totalKas).toLocaleString('id-ID')}`;
+      document.getElementById('val-sampah-bulanan').innerText = `${totalSampahBulan.toFixed(1)} Kg`;
+
+      // 2. Card Tabungan Warga
+      document.getElementById('label-bulan-tabungan').innerText = bulanAktifTabungan;
+      let totalTabunganBulan = 0;
+      globalRiwayatData.forEach(r => {
+        if (ekstrakBulanTahun(r[1]) === bulanAktifTabungan) {
+          totalTabunganBulan += parseNumberFlexible(r[7]); // nominal
+        }
+      });
+      document.getElementById('val-tabungan-bulanan').innerText = `Rp ${Math.round(totalTabunganBulan).toLocaleString('id-ID')}`;
+
+      // 3. Card Cashflow (Masuk / Keluar)
+      document.getElementById('label-bulan-cashflow').innerText = bulanAktifCashflow;
+      let totalMasukBulan = 0;
+      globalRiwayatData.forEach(r => {
+        if (ekstrakBulanTahun(r[1]) === bulanAktifCashflow) {
+          totalMasukBulan += parseNumberFlexible(r[9]); // kas masuk
+        }
+      });
+      let totalKeluarBulan = 0;
+      globalPengeluaranData.forEach(r => {
+        if (ekstrakBulanTahun(r[0]) === bulanAktifCashflow) {
+          totalKeluarBulan += parseNumberFlexible(r[2]); // nominal pengeluaran
+        }
+      });
+      document.getElementById('val-cashflow-masuk').innerText = `Rp ${Math.round(totalMasukBulan).toLocaleString('id-ID')}`;
+      document.getElementById('val-cashflow-keluar').innerText = `Rp ${Math.round(totalKeluarBulan).toLocaleString('id-ID')}`;
+    }
+
+    function updateSisaSaldoKas() {
+      let totalMasukAll = 0;
+      globalRiwayatData.forEach(r => { totalMasukAll += parseNumberFlexible(r[9]); });
+      let totalKeluarAll = 0;
+      globalPengeluaranData.forEach(r => { totalKeluarAll += parseNumberFlexible(r[2]); });
+
+      const sisaSaldo = totalMasukAll - totalKeluarAll;
+      const el = document.getElementById('val-sisa-saldo-kas');
+      if (el) el.innerText = `Rp ${Math.round(sisaSaldo).toLocaleString('id-ID')}`;
+    }
+
+    function geserBulanCard(tipe, dir) {
+      if (listBulanUnik.length === 0) return;
+      if (tipe === 'sampah') {
+        indexBulanSampah = (indexBulanSampah + dir + listBulanUnik.length) % listBulanUnik.length;
+      } else if (tipe === 'tabungan') {
+        indexBulanTabungan = (indexBulanTabungan + dir + listBulanUnik.length) % listBulanUnik.length;
+      } else if (tipe === 'cashflow') {
+        indexBulanCashflow = (indexBulanCashflow + dir + listBulanUnik.length) % listBulanUnik.length;
       }
+      updateSemuaCardBulanan();
     }
 
     function cariWarga() {
@@ -482,60 +662,111 @@
       renderTabelWarga(filtered);
     }
 
-    function bukaPopupTotalSampah() {
-      history.pushState({ modal: 'totalsampah' }, '', '#totalsampah');
-      let totalKardus = 0, totalBotol = 0, totalGelas = 0, totalKaleng = 0;
+    // MODAL KLIK KARTU BULANAN
+    function bukaPopupSampahBulanIni() {
+      history.pushState({ modal: 'sampahbulan' }, '', '#sampahbulan');
+      const bulan = listBulanUnik[indexBulanSampah] || 'Bulan Ini';
+      document.getElementById('modal-sampah-title').innerText = 'Rincian Jenis Sampah';
+      document.getElementById('modal-sampah-subtitle').innerText = `Periode: ${bulan}`;
+
+      let kardus = 0, botol = 0, gelas = 0, kaleng = 0;
       globalRiwayatData.forEach(r => {
-        totalKardus += parseNumberFlexible(r[2]);
-        totalBotol += parseNumberFlexible(r[3]);
-        totalGelas += parseNumberFlexible(r[4]);
-        totalKaleng += parseNumberFlexible(r[5]);
+        if (ekstrakBulanTahun(r[1]) === bulan) {
+          kardus += parseNumberFlexible(r[2]);
+          botol += parseNumberFlexible(r[3]);
+          gelas += parseNumberFlexible(r[4]);
+          kaleng += parseNumberFlexible(r[5]);
+        }
       });
 
-      const container = document.getElementById('content-rincian-jenis-sampah');
+      const container = document.getElementById('content-rincian-sampah-bulan');
       container.innerHTML = `
-        <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-          <span class="font-bold text-slate-700">Kardus / Kertas</span>
-          <span class="font-black text-emerald-900">${totalKardus.toFixed(1)} Kg</span>
-        </div>
-        <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-          <span class="font-bold text-slate-700">Botol Plastik</span>
-          <span class="font-black text-emerald-900">${totalBotol.toFixed(1)} Kg</span>
-        </div>
-        <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-          <span class="font-bold text-slate-700">Gelas Plastik</span>
-          <span class="font-black text-emerald-900">${totalGelas.toFixed(1)} Kg</span>
-        </div>
-        <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-          <span class="font-bold text-slate-700">Kaleng / Logam</span>
-          <span class="font-black text-emerald-900">${totalKaleng.toFixed(1)} Kg</span>
-        </div>
+        <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-100"><span class="font-bold text-slate-700">Kardus / Kertas</span><span class="font-black text-emerald-900">${kardus.toFixed(1)} Kg</span></div>
+        <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-100"><span class="font-bold text-slate-700">Botol Plastik</span><span class="font-black text-emerald-900">${botol.toFixed(1)} Kg</span></div>
+        <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-100"><span class="font-bold text-slate-700">Gelas Plastik</span><span class="font-black text-emerald-900">${gelas.toFixed(1)} Kg</span></div>
+        <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-100"><span class="font-bold text-slate-700">Kaleng / Logam</span><span class="font-black text-emerald-900">${kaleng.toFixed(1)} Kg</span></div>
       `;
-      document.getElementById('modal-total-sampah').classList.remove('hidden');
+      document.getElementById('modal-sampah-bulan').classList.remove('hidden');
     }
-    function tutupPopupTotalSampah() { document.getElementById('modal-total-sampah').classList.add('hidden'); }
-    function tutupPopupTotalSampahOnBackdrop(e) { if (e.target.id === 'modal-total-sampah') tutupPopupTotalSampah(); }
+    function tutupPopupSampahBulanIni() { document.getElementById('modal-sampah-bulan').classList.add('hidden'); }
+    function tutupPopupSampahBulanOnBackdrop(e) { if (e.target.id === 'modal-sampah-bulan') tutupPopupSampahBulanIni(); }
 
-    function bukaPopupTotalTabungan() {
-      history.pushState({ modal: 'totaltabungan' }, '', '#totaltabungan');
-      const tbody = document.getElementById('content-tabel-tabungan-singkat');
+    function bukaPopupTabunganBulanIni() {
+      history.pushState({ modal: 'tabunganbulan' }, '', '#tabunganbulan');
+      const bulan = listBulanUnik[indexBulanTabungan] || 'Bulan Ini';
+      document.getElementById('modal-tabungan-title').innerText = 'Setoran Tabungan Warga';
+      document.getElementById('modal-tabungan-subtitle').innerText = `Periode: ${bulan}`;
+
+      const tbody = document.getElementById('content-tabel-tabungan-bulan');
       let html = '';
-      globalRekapData.forEach(row => {
-        const namaBlok = row[1] || '-';
-        if (!namaBlok || namaBlok === '#N/A') return;
-        const totalSaldoWarga = parseNumberFlexible(row[4]);
-        html += `
-          <tr class="hover:bg-slate-50 transition">
-            <td class="p-3 font-bold text-slate-800">${namaBlok}</td>
-            <td class="p-3 text-right font-black text-emerald-700">Rp ${Math.round(totalSaldoWarga).toLocaleString('id-ID')}</td>
-          </tr>
-        `;
+      globalRiwayatData.forEach(r => {
+        if (ekstrakBulanTahun(r[1]) === bulan) {
+          const nama = r[0] || '-';
+          const nominal = parseNumberFlexible(r[7]);
+          html += `
+            <tr class="hover:bg-slate-50 transition">
+              <td class="p-3 font-bold text-slate-800">${nama}</td>
+              <td class="p-3 text-right font-black text-emerald-700">Rp ${Math.round(nominal).toLocaleString('id-ID')}</td>
+            </tr>
+          `;
+        }
       });
-      tbody.innerHTML = html || `<tr><td colspan="2" class="p-4 text-center text-slate-400">Belum ada data.</td></tr>`;
-      document.getElementById('modal-total-tabungan').classList.remove('hidden');
+      tbody.innerHTML = html || `<tr><td colspan="2" class="p-4 text-center text-slate-400">Belum ada setoran pada periode ini.</td></tr>`;
+      document.getElementById('modal-tabungan-bulan').classList.remove('hidden');
     }
-    function tutupPopupTotalTabungan() { document.getElementById('modal-total-tabungan').classList.add('hidden'); }
-    function tutupPopupTotalTabunganOnBackdrop(e) { if (e.target.id === 'modal-total-tabungan') tutupPopupTotalTabungan(); }
+    function tutupPopupTabunganBulanIni() { document.getElementById('modal-tabungan-bulan').classList.add('hidden'); }
+    function tutupPopupTabunganBulanOnBackdrop(e) { if (e.target.id === 'modal-tabungan-bulan') tutupPopupTabunganBulanIni(); }
+
+    function bukaPopupCashflowBulanIni() {
+      history.pushState({ modal: 'cashflowbulan' }, '', '#cashflowbulan');
+      const bulan = listBulanUnik[indexBulanCashflow] || 'Bulan Ini';
+      document.getElementById('modal-cashflow-title').innerText = 'Rincian Cashflow Bulanan';
+      document.getElementById('modal-cashflow-subtitle').innerText = `Periode: ${bulan}`;
+
+      // Tabel Masuk
+      const tbodyMasuk = document.getElementById('modal-tabel-cashflow-masuk');
+      let htmlMasuk = '';
+      globalRiwayatData.forEach(r => {
+        if (ekstrakBulanTahun(r[1]) === bulan) {
+          const tgl = r[1] || '-';
+          const ket = r[0] || '-';
+          const nominal = parseNumberFlexible(r[9]);
+          if (nominal > 0) {
+            htmlMasuk += `
+              <tr class="hover:bg-slate-50 transition">
+                <td class="p-3 text-slate-600">${tgl}</td>
+                <td class="p-3 font-semibold text-slate-800">${ket}</td>
+                <td class="p-3 text-right font-bold text-emerald-700">Rp ${Math.round(nominal).toLocaleString('id-ID')}</td>
+              </tr>
+            `;
+          }
+        }
+      });
+      tbodyMasuk.innerHTML = htmlMasuk || `<tr><td colspan="3" class="p-3 text-center text-slate-400">Tidak ada pemasukan kas pada periode ini.</td></tr>`;
+
+      // Tabel Keluar
+      const tbodyKeluar = document.getElementById('modal-tabel-cashflow-keluar');
+      let htmlKeluar = '';
+      globalPengeluaranData.forEach(r => {
+        if (ekstrakBulanTahun(r[0]) === bulan) {
+          const tgl = r[0] || '-';
+          const keperluan = r[1] || '-';
+          const nominal = parseNumberFlexible(r[2]);
+          htmlKeluar += `
+            <tr class="hover:bg-slate-50 transition">
+              <td class="p-3 text-slate-600">${tgl}</td>
+              <td class="p-3 font-semibold text-slate-800">${keperluan}</td>
+              <td class="p-3 text-right font-bold text-rose-700">Rp ${Math.round(nominal).toLocaleString('id-ID')}</td>
+            </tr>
+          `;
+        }
+      });
+      tbodyKeluar.innerHTML = htmlKeluar || `<tr><td colspan="3" class="p-3 text-center text-slate-400">Tidak ada pengeluaran kas pada periode ini.</td></tr>`;
+
+      document.getElementById('modal-cashflow-bulan').classList.remove('hidden');
+    }
+    function tutupPopupCashflowBulanIni() { document.getElementById('modal-cashflow-bulan').classList.add('hidden'); }
+    function tutupPopupCashflowBulanOnBackdrop(e) { if (e.target.id === 'modal-cashflow-bulan') tutupPopupCashflowBulanIni(); }
 
     async function loadProgresBankSampahDetail() {
       try {
@@ -793,19 +1024,14 @@
     }
 
     function resetZoomState() {
-      currentScale = 1;
-      panX = 0;
-      panY = 0;
+      currentScale = 1; panX = 0; panY = 0;
       const img = document.getElementById('lightbox-img');
       if (img) img.style.transform = `translate(0px, 0px) scale(1)`;
       const btnReset = document.getElementById('btn-reset-zoom');
       if (btnReset) btnReset.classList.add('hidden');
     }
 
-    function resetLightboxZoom(e) {
-      if(e) e.stopPropagation();
-      resetZoomState();
-    }
+    function resetLightboxZoom(e) { if(e) e.stopPropagation(); resetZoomState(); }
 
     function updateTransform() {
       const img = document.getElementById('lightbox-img');
@@ -825,16 +1051,13 @@
 
       wrapper.addEventListener('mousedown', (e) => {
         if (currentScale <= 1) { touchStartX = e.clientX; isDragging = false; return; }
-        isDragging = true;
-        startX = e.clientX - panX;
-        startY = e.clientY - panY;
+        isDragging = true; startX = e.clientX - panX; startY = e.clientY - panY;
         e.preventDefault();
       });
 
       window.addEventListener('mousemove', (e) => {
         if (!isDragging || currentScale <= 1) return;
-        panX = e.clientX - startX;
-        panY = e.clientY - startY;
+        panX = e.clientX - startX; panY = e.clientY - startY;
         updateTransform();
       });
 
@@ -842,13 +1065,8 @@
 
       wrapper.addEventListener('touchstart', (e) => {
         if (e.touches.length === 1) {
-          touchStartX = e.touches[0].clientX;
-          touchStartY = e.touches[0].clientY;
-          if (currentScale > 1) {
-            isDragging = true;
-            startX = e.touches[0].clientX - panX;
-            startY = e.touches[0].clientY - panY;
-          }
+          touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY;
+          if (currentScale > 1) { isDragging = true; startX = e.touches[0].clientX - panX; startY = e.touches[0].clientY - panY; }
         } else if (e.touches.length === 2) {
           isDragging = false;
           lastTouchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
@@ -865,8 +1083,7 @@
           }
           lastTouchDist = dist;
         } else if (e.touches.length === 1 && isDragging && currentScale > 1) {
-          panX = e.touches[0].clientX - startX;
-          panY = e.touches[0].clientY - startY;
+          panX = e.touches[0].clientX - startX; panY = e.touches[0].clientY - startY;
           updateTransform();
         }
       }, { passive: true });
@@ -927,19 +1144,14 @@
     }
 
     function resetSingleZoomState() {
-      singleScale = 1;
-      singlePanX = 0;
-      singlePanY = 0;
+      singleScale = 1; singlePanX = 0; singlePanY = 0;
       const img = document.getElementById('single-player-img');
       if (img) img.style.transform = `translate(0px, 0px) scale(1)`;
       const btnReset = document.getElementById('btn-reset-single-zoom');
       if (btnReset) btnReset.classList.add('hidden');
     }
 
-    function resetSingleZoomStateEvent(e) {
-      if(e) e.stopPropagation();
-      resetSingleZoomState();
-    }
+    function resetSingleZoomStateEvent(e) { if(e) e.stopPropagation(); resetSingleZoomState(); }
 
     function updateSingleTransform() {
       const img = document.getElementById('single-player-img');
@@ -960,15 +1172,13 @@
       wrapper.addEventListener('mousedown', (e) => {
         if (singleScale <= 1) return;
         isSingleDragging = true;
-        singleStartX = e.clientX - singlePanX;
-        singleStartY = e.clientY - singlePanY;
+        singleStartX = e.clientX - singlePanX; singleStartY = e.clientY - singlePanY;
         e.preventDefault();
       });
 
       window.addEventListener('mousemove', (e) => {
         if (!isSingleDragging || singleScale <= 1) return;
-        singlePanX = e.clientX - singleStartX;
-        singlePanY = e.clientY - singleStartY;
+        singlePanX = e.clientX - singleStartX; singlePanY = e.clientY - singleStartY;
         updateSingleTransform();
       });
 
@@ -978,8 +1188,7 @@
         if (e.touches.length === 1) {
           if (singleScale > 1) {
             isSingleDragging = true;
-            singleStartX = e.touches[0].clientX - singlePanX;
-            singleStartY = e.touches[0].clientY - singlePanY;
+            singleStartX = e.touches[0].clientX - singlePanX; singleStartY = e.touches[0].clientY - singlePanY;
           }
         } else if (e.touches.length === 2) {
           isSingleDragging = false;
@@ -997,8 +1206,7 @@
           }
           singleLastTouchDist = dist;
         } else if (e.touches.length === 1 && isSingleDragging && singleScale > 1) {
-          singlePanX = e.touches[0].clientX - singleStartX;
-          singlePanY = e.touches[0].clientY - singleStartY;
+          singlePanX = e.touches[0].clientX - singleStartX; singlePanY = e.touches[0].clientY - singleStartY;
           updateSingleTransform();
         }
       }, { passive: true });
@@ -1028,30 +1236,19 @@
 
     // PENGATUR TOMBOL BACK HP & ESC PC (UNIVERSAL UNTUK SEMUA MODAL)
     window.addEventListener('popstate', function(event) {
-      const lightbox = document.getElementById('lightbox-modal');
-      const galleryGrid = document.getElementById('modal-gallery-grid');
-      const arsipModal = document.getElementById('modal-arsip-galeri');
-      const singleModal = document.getElementById('modal-single-player');
-      const modalRincian = document.getElementById('modal-rincian');
-      const modalSampah = document.getElementById('modal-total-sampah');
-      const modalTabungan = document.getElementById('modal-total-tabungan');
-
-      if (!lightbox.classList.contains('hidden')) {
-        lightbox.classList.add('hidden');
-        document.getElementById('lightbox-media-container').innerHTML = '';
-      } else if (!singleModal.classList.contains('hidden')) {
-        singleModal.classList.add('hidden');
-        document.getElementById('single-player-container').innerHTML = '';
-      } else if (!galleryGrid.classList.contains('hidden')) {
-        galleryGrid.classList.add('hidden');
-      } else if (!arsipModal.classList.contains('hidden')) {
-        arsipModal.classList.add('hidden');
-      } else if (!modalRincian.classList.contains('hidden')) {
-        modalRincian.classList.add('hidden');
-      } else if (!modalSampah.classList.contains('hidden')) {
-        modalSampah.classList.add('hidden');
-      } else if (!modalTabungan.classList.contains('hidden')) {
-        modalTabungan.classList.add('hidden');
+      const modals = [
+        'lightbox-modal', 'modal-single-player', 'modal-gallery-grid', 
+        'modal-arsip-galeri', 'modal-rincian', 'modal-sampah-bulan', 
+        'modal-tabungan-bulan', 'modal-cashflow-bulan'
+      ];
+      for (let mId of modals) {
+        const el = document.getElementById(mId);
+        if (el && !el.classList.contains('hidden')) {
+          el.classList.add('hidden');
+          if (mId === 'lightbox-modal') document.getElementById('lightbox-media-container').innerHTML = '';
+          if (mId === 'modal-single-player') document.getElementById('single-player-container').innerHTML = '';
+          break;
+        }
       }
     });
 
@@ -1099,8 +1296,9 @@
         tutupArsipGaleriModal();
         tutupSinglePlayer();
         tutupRincianWarga();
-        tutupPopupTotalSampah();
-        tutupPopupTotalTabungan();
+        tutupPopupSampahBulanIni();
+        tutupPopupTabunganBulanIni();
+        tutupPopupCashflowBulanIni();
       } else if (e.key === 'ArrowLeft') {
         geserLightbox(-1);
       } else if (e.key === 'ArrowRight') {
