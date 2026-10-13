@@ -2993,6 +2993,55 @@ function salinLinkAgenda(url) {
   }
 })();
 
+    // URL CSV Progres Bank Sampah
+const CSV_PROGRES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=315371679&single=true&output=csv";
+
+async function loadProgresBankSampahIndex() {
+  try {
+    const response = await fetch(CSV_PROGRES_URL);
+    const csvText = await response.text();
+    const lines = csvText.split('\n').map(l => l.trim()).filter(l => l);
+    if (lines.length <= 1) return;
+
+    const dataList = lines.slice(1).map(line => {
+      const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"\vert{}"$/g, '').trim());
+      return {
+        tanggal: cols[0] || '',
+        langkah: cols[1] || '',
+        judul: cols[2] || '',
+        deskripsi: cols[3] || '',
+        status: cols[4] || '',
+        tahapDetail: cols[5] || '',
+        agendaBerikut: cols[6] || ''
+      };
+    });
+
+    // Ambil data langkah yang aktif (status Selesai/Proses paling baru)
+    const progresAktif = dataList.filter(d => d.status.toLowerCase() === 'selesai' || d.status.toLowerCase() === 'proses').pop() || dataList[dataList.length - 1];
+
+    if (!progresAktif) return;
+
+    // Update langsung ke ID elemen HTML index.html
+    const elTag = document.getElementById('bs-step-tag');
+    const elTitle = document.getElementById('bs-step-title');
+    const elDesc = document.getElementById('bs-step-desc');
+    const elInfo1 = document.getElementById('bs-info-1');
+    const elInfo2 = document.getElementById('bs-info-2');
+
+    if (elTag) elTag.innerText = progresAktif.langkah;
+    if (elTitle) elTitle.innerText = progresAktif.judul;
+    if (elDesc) elDesc.innerText = progresAktif.deskripsi;
+    if (elInfo1) elInfo1.innerText = `Tahap: ${progresAktif.tahapDetail.replace(/^Tahap:\s*/i, '')}`;
+    if (elInfo2) elInfo2.innerText = `Agenda: ${progresAktif.agendaBerikut.replace(/^Agenda:\s*/i, '')}`;
+
+  } catch (err) {
+    console.error("Gagal memuat progres bank sampah di index:", err);
+  }
+}
+
+// Jalankan otomatis saat halaman selesai dimuat
+document.addEventListener('DOMContentLoaded', loadProgresBankSampahIndex);
+    
   </script>
 </body>
 </html>
