@@ -1513,67 +1513,75 @@ function prosesCetakPDF() {
     judulPeriode = "Laporan Tahunan " + thn;
   }
 
-  // Ambil data langsung dari variabel global aktif atau pembacaan elemen tabel
-  let sourceRekap = (typeof dataTabungan !== 'undefined' && dataTabungan.length > 0) ? dataTabungan : 
-                    (typeof rawRekapData !== 'undefined' && rawRekapData.length > 0) ? rawRekapData : [];
-
   let totalBerat = 0;
   let totalTabungan = 0;
   let tabelRowsHTML = "";
 
-  // Jika variabel array terisi
-  if (sourceRekap.length > 0) {
-    sourceRekap.forEach((w, i) => {
-      const b = parseFloat(w.totalBerat || w.berat || 0);
-      const s = parseFloat(w.saldoTabungan || w.saldo || 0);
-      const nama = w.namaWarga || w.nama || 'Warga';
-      const blok = w.blok || '';
-      const tgl = w.setoranTerakhir || 'Oktober 2026';
+  // 1. Dapatkan data dari variabel aktif dataRekapWarga atau dataTabungan
+  let listData = [];
+  if (typeof dataRekapWarga !== 'undefined' && Array.isArray(dataRekapWarga) && dataRekapWarga.length > 0) {
+    listData = dataRekapWarga;
+  } else if (typeof dataTabungan !== 'undefined' && Array.isArray(dataTabungan) && dataTabungan.length > 0) {
+    listData = dataTabungan;
+  } else if (typeof rawRekapData !== 'undefined' && Array.isArray(rawRekapData) && rawRekapData.length > 0) {
+    listData = rawRekapData;
+  }
+
+  if (listData.length > 0) {
+    listData.forEach((item, idx) => {
+      const nama = item.nama || item.namaWarga || item.nama_blok || 'Warga';
+      const blok = item.blok ? `(${item.blok})` : '';
+      const tgl = item.setoranTerakhir || item.tgl || '15-Okt-2026';
+      const b = parseFloat(item.totalBerat || item.berat || 0);
+      const s = parseFloat(item.saldoTabungan || item.saldo || 0);
 
       totalBerat += b;
       totalTabungan += s;
 
       tabelRowsHTML += `
         <tr style="border-bottom: 1px solid #e2e8f0;">
-          <td style="padding: 7px; text-align: center; color: #64748b;">${i+1}</td>
-          <td style="padding: 7px; font-weight: 600; color: #0f172a;">${nama} ${blok ? `<span style="color:#64748b; font-weight:normal;">(${blok})</span>` : ''}</td>
+          <td style="padding: 7px; text-align: center; color: #64748b;">${idx + 1}</td>
+          <td style="padding: 7px; font-weight: 600; color: #0f172a;">${nama} <span style="color:#64748b; font-weight:normal;">${blok}</span></td>
           <td style="padding: 7px; text-align: center; color: #475569;">${tgl}</td>
           <td style="padding: 7px; text-align: center; font-weight: bold; color: #047857;">${b.toFixed(1)} Kg</td>
-          <td style="padding: 7px; text-align: right; font-weight: bold; color: #064e3b;">Rp ${s.toLocaleString('id-ID')}</td>
+          <td style="padding: 7px; text-align: right; font-weight: bold; color: #064e3b;">Rp ${Math.round(s).toLocaleString('id-ID')}</td>
         </tr>
       `;
     });
   } else {
-    // Fallback: Ambil data langsung dari baris Tabel HTML di layar jika variabel kosong
-    const trEls = document.querySelectorAll('#tbody-rekap-warga tr');
-    let idx = 1;
-    trEls.forEach(tr => {
-      const tds = tr.querySelectorAll('td');
-      if (tds.length >= 5) {
-        const no = tds[0].innerText.trim();
-        const nama = tds[1].innerText.trim();
-        const tgl = tds[2].innerText.trim();
-        const beratStr = tds[3].innerText.trim();
-        const saldoStr = tds[4].innerText.trim();
+    // 2. Jika variabel kosong, sapu/baca elemen baris tabel HTML yang ada di layar
+    const tbody = document.getElementById('tbody-rekap-warga');
+    if (tbody) {
+      const rows = tbody.querySelectorAll('tr');
+      let no = 1;
+      rows.forEach(tr => {
+        const cols = tr.querySelectorAll('td');
+        if (cols.length >= 4) {
+          const cNama = cols[1] ? cols[1].innerText.trim() : '';
+          const cTgl = cols[2] ? cols[2].innerText.trim() : '-';
+          const cBeratStr = cols[3] ? cols[3].innerText.trim() : '0';
+          const cSaldoStr = cols[cols.length - 1] ? cols[cols.length - 1].innerText.trim() : '0';
 
-        const b = parseFloat(beratStr.replace(/[^0-9.]/g, '')) || 0;
-        const s = parseFloat(saldoStr.replace(/[^0-9]/g, '')) || 0;
+          const b = parseFloat(cBeratStr.replace(/[^0-9.]/g, '')) || 0;
+          const s = parseFloat(cSaldoStr.replace(/[^0-9]/g, '')) || 0;
 
-        totalBerat += b;
-        totalTabungan += s;
+          if (cNama && !cNama.includes('Memuat') && !cNama.includes('Belum ada')) {
+            totalBerat += b;
+            totalTabungan += s;
 
-        tabelRowsHTML += `
-          <tr style="border-bottom: 1px solid #e2e8f0;">
-            <td style="padding: 7px; text-align: center; color: #64748b;">${no || idx}</td>
-            <td style="padding: 7px; font-weight: 600; color: #0f172a;">${nama}</td>
-            <td style="padding: 7px; text-align: center; color: #475569;">${tgl}</td>
-            <td style="padding: 7px; text-align: center; font-weight: bold; color: #047857;">${beratStr}</td>
-            <td style="padding: 7px; text-align: right; font-weight: bold; color: #064e3b;">${saldoStr}</td>
-          </tr>
-        `;
-        idx++;
-      }
-    });
+            tabelRowsHTML += `
+              <tr style="border-bottom: 1px solid #e2e8f0;">
+                <td style="padding: 7px; text-align: center; color: #64748b;">${no++}</td>
+                <td style="padding: 7px; font-weight: 600; color: #0f172a;">${cNama}</td>
+                <td style="padding: 7px; text-align: center; color: #475569;">${cTgl}</td>
+                <td style="padding: 7px; text-align: center; font-weight: bold; color: #047857;">${b.toFixed(1)} Kg</td>
+                <td style="padding: 7px; text-align: right; font-weight: bold; color: #064e3b;">Rp ${Math.round(s).toLocaleString('id-ID')}</td>
+              </tr>
+            `;
+          }
+        }
+      });
+    }
   }
 
   if (!tabelRowsHTML) {
@@ -1632,15 +1640,15 @@ function prosesCetakPDF() {
         </div>
         <div class="box">
           <div class="box-label">Tabungan Warga</div>
-          <div class="box-val" style="color:#064e3b;">Rp ${totalTabungan.toLocaleString('id-ID')}</div>
+          <div class="box-val" style="color:#064e3b;">Rp ${Math.round(totalTabungan).toLocaleString('id-ID')}</div>
         </div>
         <div class="box">
           <div class="box-label">Pemasukan Kas</div>
-          <div class="box-val" style="color:#1d4ed8;">Rp ${totalTabungan.toLocaleString('id-ID')}</div>
+          <div class="box-val" style="color:#1d4ed8;">Rp ${Math.round(totalTabungan).toLocaleString('id-ID')}</div>
         </div>
         <div class="box">
           <div class="box-label">Sisa Saldo Kas</div>
-          <div class="box-val" style="color:#0f766e;">Rp ${totalTabungan.toLocaleString('id-ID')}</div>
+          <div class="box-val" style="color:#0f766e;">Rp ${Math.round(totalTabungan).toLocaleString('id-ID')}</div>
         </div>
       </div>
 
