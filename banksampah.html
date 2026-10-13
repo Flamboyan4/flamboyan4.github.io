@@ -24,6 +24,12 @@
         <i data-lucide="recycle" class="w-5 h-5 text-emerald-400"></i>
         <h1 class="font-bold text-sm sm:text-base tracking-wide">Bank Sampah Flamboyan 4</h1>
       </div>
+      <div class="flex items-center gap-2">
+  <button onclick="bukaModalExportPDF()" class="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white font-semibold text-xs px-3 py-1.5 rounded-lg shadow-sm transition">
+    <i data-lucide="printer" class="w-4 h-4"></i>
+    <span class="hidden sm:inline">Cetak PDF</span>
+  </button>
+</div>
       <div class="w-8 sm:w-20"></div>
     </div>
   </header>
@@ -367,7 +373,104 @@
       </div>
     </div>
   </div>
+  
+<!-- MODAL OPTION EXPORT PDF -->
+<div id="modal-export-pdf" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl border border-slate-100 relative space-y-5">
+    
+    <!-- Header Modal -->
+    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+      <div class="flex items-center gap-2 text-emerald-800 font-bold text-base">
+        <i data-lucide="file-text" class="w-5 h-5 text-emerald-600"></i>
+        <span>Cetak Laporan Bank Sampah (PDF)</span>
+      </div>
+      <button onclick="tutupModalExportPDF()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
 
+    <!-- Form Pilihan Rentang Waktu -->
+    <div class="space-y-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Tipe Laporan:</label>
+        <select id="export-tipe" onchange="toggleTipeExport()" class="w-full text-sm border border-slate-300 rounded-xl p-2.5 bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+          <option value="bulanan">Laporan Per Bulan</option>
+          <option value="rentang">Rentang Bulan (A s/d B)</option>
+          <option value="tahunan">Laporan Tahunan Penuh</option>
+        </select>
+      </div>
+
+      <!-- Opsi Per Bulan -->
+      <div id="opt-bulanan" class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Bulan:</label>
+          <select id="export-bulan-single" class="w-full text-xs border border-slate-300 rounded-lg p-2 bg-white">
+            <option value="01">Januari</option>
+            <option value="02">Februari</option>
+            <option value="03">Maret</option>
+            <option value="04">April</option>
+            <option value="05">Mei</option>
+            <option value="06">Juni</option>
+            <option value="07">Juli</option>
+            <option value="08">Agustus</option>
+            <option value="09">September</option>
+            <option value="10" selected>Oktober</option>
+            <option value="11">November</option>
+            <option value="12">Desember</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Tahun:</label>
+          <input type="number" id="export-tahun-single" value="2026" class="w-full text-xs border border-slate-300 rounded-lg p-2 bg-white">
+        </div>
+      </div>
+
+      <!-- Opsi Rentang Bulan -->
+      <div id="opt-rentang" class="space-y-2 hidden">
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">Dari Bulan:</label>
+            <select id="export-bulan-awal" class="w-full text-xs border border-slate-300 rounded-lg p-2 bg-white">
+              <option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option>
+              <option value="04">April</option><option value="05">Mei</option><option value="06">Juni</option>
+              <option value="07">Juli</option><option value="08">Agustus</option><option value="09">September</option>
+              <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">Sampai Bulan:</label>
+            <select id="export-bulan-akhir" class="w-full text-xs border border-slate-300 rounded-lg p-2 bg-white">
+              <option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option>
+              <option value="04">April</option><option value="05">Mei</option><option value="06">Juni</option>
+              <option value="07">Juli</option><option value="08">Agustus</option><option value="09">September</option>
+              <option value="10" selected>Oktober</option><option value="11">November</option><option value="12">Desember</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Tahun:</label>
+          <input type="number" id="export-tahun-rentang" value="2026" class="w-full text-xs border border-slate-300 rounded-lg p-2 bg-white">
+        </div>
+      </div>
+
+      <!-- Opsi Tahunan -->
+      <div id="opt-tahunan" class="hidden">
+        <label class="block text-xs text-slate-500 mb-1">Pilih Tahun:</label>
+        <input type="number" id="export-tahun-full" value="2026" class="w-full text-xs border border-slate-300 rounded-lg p-2 bg-white">
+      </div>
+    </div>
+
+    <!-- Tombol Aksi -->
+    <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+      <button onclick="tutupModalExportPDF()" class="px-4 py-2 text-xs font-semibold text-slate-500 hover:text-slate-700">Batal</button>
+      <button onclick="prosesCetakPDF()" class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md transition">
+        <i data-lucide="printer" class="w-4 h-4"></i>
+        <span>Generasikan & Cetak PDF</span>
+      </button>
+    </div>
+
+  </div>
+</div>
   <!-- TIER 1: MODAL ARSIP DOKUMENTASI (PILIH ALBUM) -->
   <div id="modal-arsip-galeri" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6" onclick="tutupArsipGaleriOnBackdrop(event)">
     <div class="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative border border-slate-100" onclick="event.stopPropagation()">
@@ -1390,6 +1493,126 @@ window.addEventListener('click', function(e) {
     }
   });
 });
+    
+  // Buka & Tutup Modal Export
+function bukaModalExportPDF() {
+  document.getElementById('modal-export-pdf').classList.remove('hidden');
+}
+
+function tutupModalExportPDF() {
+  document.getElementById('modal-export-pdf').classList.add('hidden');
+}
+
+// Ganti Tampilan Input Berdasarkan Tipe Export
+function toggleTipeExport() {
+  const tipe = document.getElementById('export-tipe').value;
+  document.getElementById('opt-bulanan').classList.toggle('hidden', tipe !== 'bulanan');
+  document.getElementById('opt-rentang').classList.toggle('hidden', tipe !== 'rentang');
+  document.getElementById('opt-tahunan').classList.toggle('hidden', tipe !== 'tahunan');
+}
+
+// Fungsi Utama Generasi & Cetak Laporan PDF
+function prosesCetakPDF() {
+  const tipe = document.getElementById('export-tipe').value;
+  let judulPeriode = "";
+
+  if (tipe === 'bulanan') {
+    const bln = document.getElementById('export-bulan-single').selectedOptions[0].text;
+    const thn = document.getElementById('export-tahun-single').value;
+    judulPeriode = `Periode: ${bln} ${thn}`;
+  } else if (tipe === 'rentang') {
+    const awal = document.getElementById('export-bulan-awal').selectedOptions[0].text;
+    const akhir = document.getElementById('export-bulan-akhir').selectedOptions[0].text;
+    const thn = document.getElementById('export-tahun-rentang').value;
+    judulPeriode = `Periode: ${awal} s.d ${akhir} ${thn}`;
+  } else {
+    const thn = document.getElementById('export-tahun-full').value;
+    judulPeriode = `Laporan Tahunan ${thn}`;
+  }
+
+  // Buka jendela baru untuk tampilan cetak rapi PDF
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+      <title>Laporan Resmi Bank Sampah - ${judulPeriode}</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <style>
+        @page { size: A4; margin: 15mm; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fff; color: #1e293b; }
+      </style>
+    </head>
+    <body class="p-4 space-y-6">
+      
+      <!-- HEADER LAPORAN -->
+      <div class="border-b-2 border-emerald-800 pb-4 flex justify-between items-center">
+        <div>
+          <h1 class="text-xl font-bold text-emerald-900 tracking-wide uppercase">BANK SAMPAH FLAMBOYAN 4</h1>
+          <p class="text-xs text-slate-600">RT 001 RW 026 Pesona Kahuripan 2, Desa Sukamanah, Kec. Klapanunggal</p>
+          <p class="text-xs font-semibold text-emerald-700 mt-1">${judulPeriode}</p>
+        </div>
+        <div class="text-right">
+          <span class="inline-block bg-emerald-100 text-emerald-800 font-bold text-xs px-3 py-1 rounded-full border border-emerald-300">LAPORAN RESMI</span>
+        </div>
+      </div>
+
+      <!-- RINGKASAN EXEC (SUMMARY BOX) -->
+      <div class="grid grid-cols-4 gap-3 text-center">
+        <div class="border border-slate-200 p-2.5 rounded-lg bg-slate-50">
+          <p class="text-[10px] text-slate-500 font-bold uppercase">Total Sampah</p>
+          <p class="text-sm font-bold text-emerald-700 mt-0.5" id="p-sampah">0.0 Kg</p>
+        </div>
+        <div class="border border-slate-200 p-2.5 rounded-lg bg-slate-50">
+          <p class="text-[10px] text-slate-500 font-bold uppercase">Tabungan Warga</p>
+          <p class="text-sm font-bold text-emerald-700 mt-0.5" id="p-tabungan">Rp 0</p>
+        </div>
+        <div class="border border-slate-200 p-2.5 rounded-lg bg-slate-50">
+          <p class="text-[10px] text-slate-500 font-bold uppercase">Pemasukan Kas</p>
+          <p class="text-sm font-bold text-blue-700 mt-0.5" id="p-masuk">Rp 0</p>
+        </div>
+        <div class="border border-slate-200 p-2.5 rounded-lg bg-slate-50">
+          <p class="text-[10px] text-slate-500 font-bold uppercase">Pengeluaran Kas</p>
+          <p class="text-sm font-bold text-rose-700 mt-0.5" id="p-keluar">Rp 0</p>
+        </div>
+      </div>
+
+      <!-- CATATAN DOKUMEN -->
+      <div class="text-xs text-slate-600 border-l-4 border-emerald-500 pl-3 py-1 bg-emerald-50/50">
+        <p>Dokumen ini menyajikan rekapitulasi setoran anorganik warga, tabungan terakumulasi, serta arus kas operasional Bank Sampah Lorong Flamboyan 4.</p>
+      </div>
+
+      <!-- PENGESAHAN DENGAN HUMAS FLAMBOYAN 4 -->
+      <div class="pt-10 grid grid-cols-2 text-center text-xs">
+        <div>
+          <p class="text-slate-500">Mengetahui,</p>
+          <p class="font-bold text-slate-800 mt-0.5">Humas Flamboyan 4</p>
+          <div class="h-16"></div>
+          <p class="font-bold border-b border-slate-400 inline-block px-4">( Pak Heri / Humas )</p>
+        </div>
+        <div>
+          <p class="text-slate-500">Dibuat Oleh,</p>
+          <p class="font-bold text-slate-800 mt-0.5">Pengelola Bank Sampah</p>
+          <div class="h-16"></div>
+          <p class="font-bold border-b border-slate-400 inline-block px-4">( Tim Pengelola )</p>
+        </div>
+      </div>
+
+      <script>
+        // Cetak otomatis saat dokumen siap
+        window.onload = function() {
+          setTimeout(() => {
+            window.print();
+          }, 800);
+        };
+      <\/script>
+    </body>
+    </html>
+  `);
+
+  printWindow.document.close();
+  tutupModalExportPDF();
+}
     
   </script>
 </body>
