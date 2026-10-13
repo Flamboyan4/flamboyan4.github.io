@@ -1804,6 +1804,39 @@ function prosesCetakPDF() {
     margin-bottom: 12px;
   }
 
+.kop-bank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #222;
+}
+
+.kop-bank .logo-bank {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.kop-bank .identitas-bank {
+  text-align: left;
+}
+
+.kop-bank .nama-bank {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0 0 4px;
+  text-transform: uppercase;
+}
+
+.kop-bank .subjudul-bank {
+  font-size: 11px;
+  margin: 0;
+}
+
   .title {
     font-size: 17px;
     color: #064e3b;
@@ -2025,6 +2058,20 @@ function prosesCetakPDF() {
 <!-- BAGIAN 1: RINGKASAN DAN TABUNGAN WARGA -->
 <section>
   <header class="header">
+  
+<div class="kop-bank">
+  <img
+    class="logo-bank"
+    src="https://drive.google.com/thumbnail?id=1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8&sz=w500"
+    alt="Logo Bank Sampah Flamboyan 4"
+  >
+
+  <div class="identitas-bank">
+    <p class="nama-bank">BANK SAMPAH FLAMBOYAN 4</p>
+    <p class="subjudul-bank">Laporan Administrasi dan Keuangan</p>
+  </div>
+</div>
+
     <div>
       <h1 class="title">BANK SAMPAH FLAMBOYAN 4</h1>
       <p class="subtitle">RT 001 RW 026 Pesona Kahuripan 2, Desa Sukamanah, Kec. Klapanunggal</p>
