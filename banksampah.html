@@ -18,7 +18,7 @@
 
   <!-- HEADER / NAVBAR -->
   <header class="bg-emerald-900 text-white shadow-md sticky top-0 z-40">
-    <div class="max-w-6xl mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
       <a href="index.html" class="inline-flex items-center space-x-2 text-xs font-semibold bg-emerald-800/80 hover:bg-emerald-800 px-3 py-2 rounded-xl transition text-emerald-100 border border-emerald-700/50">
         <i data-lucide="arrow-left" class="w-4 h-4"></i>
         <span>Portal Utama</span>
@@ -27,10 +27,7 @@
         <i data-lucide="recycle" class="w-5 h-5 text-emerald-400"></i>
         <h1 class="font-bold text-sm sm:text-base tracking-wide">Bank Sampah Flamboyan 4</h1>
       </div>
-      <a href="pembukuan.html" class="inline-flex items-center space-x-1.5 text-xs font-bold bg-emerald-700 hover:bg-emerald-600 px-3 py-2 rounded-xl transition text-white border border-emerald-600/50 shadow-sm">
-        <i data-lucide="wallet" class="w-4 h-4"></i>
-        <span class="hidden sm:inline">Kas Lorong</span>
-      </a>
+      <div class="w-20"></div>
     </div>
   </header>
 
@@ -47,8 +44,6 @@
 
     <!-- 3 KARTU RINGKASAN DATA ATAS -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      
-      <!-- Kartu 1: Total Sampah Terkumpul -->
       <div class="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between space-y-2">
         <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">Total Sampah Terkumpul</span>
         <div>
@@ -57,7 +52,6 @@
         </div>
       </div>
 
-      <!-- Kartu 2: Total Nilai Tabungan Warga -->
       <div class="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between space-y-2">
         <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">Total Nilai Tabungan Warga</span>
         <div>
@@ -66,7 +60,6 @@
         </div>
       </div>
 
-      <!-- Kartu 3: Kas Operasional Bank Sampah -->
       <div class="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between space-y-2">
         <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">Kas Operasional Bank Sampah</span>
         <div>
@@ -74,7 +67,6 @@
           <p class="text-xs text-slate-500 mt-0.5">Saldo bersih pengelola & lorong</p>
         </div>
       </div>
-
     </div>
 
     <!-- TABEL REKAP TABUNGAN WARGA -->
@@ -85,17 +77,13 @@
             <i data-lucide="table" class="w-4 h-4 text-emerald-600"></i>
             <span>Rekap Tabungan Sampah Warga</span>
           </h3>
-          <p class="text-xs text-slate-500">Update berkala per minggu & bulan. Klik nama warga untuk detail setoran.</p>
+          <p class="text-xs text-slate-500">Klik nama warga untuk melihat riwayat rincian setoran</p>
         </div>
-        
-        <!-- Search Filter Nama -->
-        <div class="relative w-full sm:w-64">
-          <input type="text" id="input-search-warga" onkeyup="filterWargaTable()" placeholder="Cari nama / blok..." class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 pl-8 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
-          <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
+        <div>
+          <input type="text" id="input-cari-warga" onkeyup="window.cariWarga()" placeholder="Cari nama / blok..." class="w-full sm:w-64 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-emerald-500 transition">
         </div>
       </div>
 
-      <!-- Tabel -->
       <div class="overflow-x-auto rounded-xl border border-slate-100">
         <table class="w-full text-left text-xs sm:text-sm">
           <thead class="bg-emerald-50/70 text-emerald-950 font-bold border-b border-emerald-100">
@@ -131,7 +119,6 @@
           </div>
         </div>
         
-        <!-- Preview Mini Grid Inventaris -->
         <div id="preview-inventaris-container" class="grid grid-cols-3 gap-2 py-1">
           <div class="text-xs text-slate-400 col-span-3 text-center py-2">Memuat inventaris...</div>
         </div>
@@ -154,7 +141,6 @@
           </div>
         </div>
 
-        <!-- Preview Mini Grid Dokumentasi -->
         <div id="preview-dokumentasi-container" class="grid grid-cols-3 gap-2 py-1">
           <div class="text-xs text-slate-400 col-span-3 text-center py-2">Memuat foto kegiatan...</div>
         </div>
@@ -170,16 +156,14 @@
   </main>
 
   <!-- FOOTER -->
-  <footer class="bg-emerald-950 text-emerald-200/70 text-xs py-6 border-t border-emerald-900 mt-12">
+  <footer class="bg-slate-900 text-slate-400 text-xs py-6 border-t border-slate-800 mt-12">
     <div class="max-w-6xl mx-auto px-4 text-center space-y-1">
-      <p class="font-medium text-emerald-100">© 2026 Tim Bank Sampah Lorong Flamboyan 4. Lingkungan Bersih, Warga Sejahtera.</p>
-      <p class="text-[11px] text-emerald-400/60">Sistem Informasi Pengelolaan Sampah Anorganik & Kas Lingkungan</p>
+      <p class="font-medium text-slate-300">Bank Sampah Lorong Flamboyan 4</p>
+      <p class="text-[11px] text-slate-500">Sistem Informasi Pengelolaan Sampah Anorganik & Kas Lingkungan</p>
     </div>
   </footer>
 
-  <!-- ========================================== -->
   <!-- MODAL POPUP 1: RINCIAN WARGA -->
-  <!-- ========================================== -->
   <div id="modal-rincian-warga" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
       <div class="bg-emerald-900 text-white p-4 sm:p-5 flex items-center justify-between">
@@ -216,7 +200,6 @@
               </tr>
             </thead>
             <tbody id="modal-tabel-riwayat" class="divide-y divide-slate-100">
-              <!-- Data riwayat terisi otomatis -->
             </tbody>
           </table>
         </div>
@@ -224,9 +207,7 @@
     </div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- MODAL POPUP 2: INVENTARIS (GRID) -->
-  <!-- ========================================== -->
+  <!-- MODAL POPUP 2: GALERI INVENTARIS -->
   <div id="modal-inventaris" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
       <div class="bg-emerald-900 text-white p-4 flex items-center justify-between">
@@ -240,14 +221,11 @@
       </div>
       
       <div id="grid-inventaris-modal" class="p-4 sm:p-6 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-        <!-- Item barang terisi otomatis -->
       </div>
     </div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- MODAL POPUP 3: DOKUMENTASI (GAYA INDEX) -->
-  <!-- ========================================== -->
+  <!-- MODAL POPUP 3: GALERI DOKUMENTASI -->
   <div id="modal-dokumentasi" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
       <div class="bg-emerald-900 text-white p-4 flex items-center justify-between">
@@ -261,55 +239,72 @@
       </div>
 
       <div id="grid-dokumentasi-modal" class="p-4 sm:p-6 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        <!-- Item dokumentasi terisi otomatis -->
       </div>
     </div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- MODAL POPUP 4: VIEW FOTO PRATINJAU FULL -->
-  <!-- ========================================== -->
+  <!-- MODAL POPUP 4: PRATINJAU FOTO FULL -->
   <div id="modal-preview-foto" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden" onclick="window.closeModal('modal-preview-foto')">
     <div class="relative max-w-3xl w-full flex flex-col items-center" onclick="event.stopPropagation()">
       <button onclick="window.closeModal('modal-preview-foto')" class="absolute -top-10 right-0 text-white hover:text-emerald-400 transition">
         <i data-lucide="x" class="w-8 h-8"></i>
       </button>
       <img id="img-preview-full" src="" alt="Pratinjau Foto" class="max-h-[75vh] w-auto object-contain rounded-xl shadow-2xl">
-      <p id="caption-preview-full" class="text-white text-sm font-semibold mt-3 text-center bg-slate-900/80 px-4 py-2 rounded-full border border-slate-700"></p>
+      <p id="caption-preview-full" class="text-white text-sm font-semibold mt-3 text-center bg-slate-900/70 px-4 py-2 rounded-full border border-slate-700"></p>
     </div>
   </div>
 
-  <!-- SCRIPT INTEGRASI GOOGLE SHEETS -->
+  <!-- SCRIPT INTEGRASI GOOGLE SHEETS & APPS SCRIPT -->
   <script>
   (function() {
-    // URL CSV Google Sheets Terpublikasi
     const CSV_REKAP_WARGA = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=0&single=true&output=csv";
     const CSV_RIWAYAT_SETOR = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=1811693263&single=true&output=csv";
     const CSV_INVENTARIS = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=1819624619&single=true&output=csv";
     const CSV_DOKUMENTASI = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=160734221&single=true&output=csv";
 
+    // Google Apps Script Web App URL milik Anda
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxZ0rbzVq5TkkTGYDNA3cVU5F0NDG_wFNKumZ9ddkE1z-8ngSI9mFnKT86Vlqfq0QpMoQ/exec";
+
     let globalRekapData = [];
     let globalRiwayatData = [];
     let globalInventarisData = [];
     let globalDokumentasiData = [];
+    const folderImageCache = {};
 
-    // Helper konversi URL Google Drive ke URL Gambar Langsung
-    function formatDriveUrl(url) {
+    // Helper Async Resolving Gambar (Bisa dari File Drive Langsung maupun Folder via Apps Script)
+    async function resolveImageUrl(url) {
       if (!url || !url.trim()) return 'https://placehold.co/400x300/emerald/white?text=No+Image';
       const cleanUrl = url.trim();
-      if (cleanUrl.includes('drive.google.com')) {
-        const matches = cleanUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
-        if (matches && matches[1]) {
-          return `https://lh3.googleusercontent.com/d/${matches[1]}`;
+
+      // 1. Jika berupa Link File Google Drive biasa
+      if (cleanUrl.includes('drive.google.com') && !cleanUrl.includes('/folders/')) {
+        const fileMatch = cleanUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+        if (fileMatch && fileMatch[1]) {
+          return `https://lh3.googleusercontent.com/d/${fileMatch[1]}`;
         }
       }
+
+      // 2. Jika berupa Link Folder Google Drive -> Minta Apps Script cari foto pertama
+      if (cleanUrl.includes('drive.google.com/drive/folders/') || cleanUrl.includes('folders/')) {
+        if (folderImageCache[cleanUrl]) return folderImageCache[cleanUrl];
+        try {
+          const res = await fetch(`${APPS_SCRIPT_URL}?url=${encodeURIComponent(cleanUrl)}`);
+          const data = await res.json();
+          if (data.status === 'success' && data.imageUrl) {
+            folderImageCache[cleanUrl] = data.imageUrl;
+            return data.imageUrl;
+          }
+        } catch (e) {
+          console.error("Gagal mengambil gambar folder via Apps Script:", e);
+        }
+      }
+
       return cleanUrl;
     }
 
     function initBankSampah() {
       if (typeof Papa === 'undefined') return;
 
-      // 1. Fetch Tab Rekap Warga
       Papa.parse(CSV_REKAP_WARGA, {
         download: true,
         header: true,
@@ -322,7 +317,6 @@
         }
       });
 
-      // 2. Fetch Tab Riwayat Setoran
       Papa.parse(CSV_RIWAYAT_SETOR, {
         download: true,
         header: true,
@@ -335,7 +329,6 @@
         }
       });
 
-      // 3. Fetch Tab Inventaris
       Papa.parse(CSV_INVENTARIS, {
         download: true,
         header: true,
@@ -348,7 +341,6 @@
         }
       });
 
-      // 4. Fetch Tab Dokumentasi
       Papa.parse(CSV_DOKUMENTASI, {
         download: true,
         header: true,
@@ -362,7 +354,6 @@
       });
     }
 
-    // Render Tabel Rekap Warga
     function renderTabelWarga() {
       const tbody = document.getElementById('tbody-rekap-warga');
       if (!tbody) return;
@@ -388,9 +379,9 @@
         totalSaldoAll += totalSaldoWarga;
 
         html += `
-          <tr onclick="window.bukaRincianWarga('${namaBlok}', ${totalBeratWarga}, ${totalSaldoWarga})" class="hover:bg-emerald-50/60 cursor-pointer transition border-b border-slate-100">
+          <tr onclick="window.bukaRincianWarga('${namaBlok}', ${totalBeratWarga}, ${totalSaldoWarga})" class="hover:bg-emerald-50/60 cursor-pointer transition border-b border-slate-100 baris-warga">
             <td class="p-3 font-semibold text-slate-500">${no}</td>
-            <td class="p-3 font-bold text-emerald-950 hover:text-emerald-600 flex items-center space-x-1">
+            <td class="p-3 font-bold text-emerald-950 hover:text-emerald-600 flex items-center space-x-1 cell-nama">
               <span>${namaBlok}</span>
               <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-50"></i>
             </td>
@@ -411,7 +402,6 @@
       if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    // Update Kas Operasional (Kolom J di Riwayat Setor)
     function updateKasOperasional() {
       let totalKasOps = 0;
       globalRiwayatData.forEach(r => {
@@ -426,8 +416,7 @@
       }
     }
 
-    // Render Inventaris
-    function renderInventaris() {
+    async function renderInventaris() {
       const previewBox = document.getElementById('preview-inventaris-container');
       const gridModal = document.getElementById('grid-inventaris-modal');
 
@@ -437,47 +426,50 @@
       }
 
       // Mini Preview (3 Teratas)
-      let previewHTML = '';
-      globalInventarisData.slice(0, 3).forEach(item => {
+      if (previewBox) previewBox.innerHTML = '';
+      for (let i = 0; i < Math.min(3, globalInventarisData.length); i++) {
+        const item = globalInventarisData[i];
         const vals = Object.values(item);
         const nama = vals[0] || 'Barang';
-        const imgUrl = formatDriveUrl(vals[3]);
-        previewHTML += `
-          <div onclick="window.bukaFotoFull('${imgUrl}', '${nama}')" class="aspect-square bg-slate-100 rounded-xl overflow-hidden border border-slate-200 cursor-pointer group relative">
-            <img src="${imgUrl}" alt="${nama}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-            <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition"></div>
-          </div>
-        `;
-      });
-      if (previewBox) previewBox.innerHTML = previewHTML;
+        const imgUrl = await resolveImageUrl(vals[3]);
+
+        if (previewBox) {
+          previewBox.innerHTML += `
+            <div onclick="window.bukaFotoFull('${imgUrl}', '${nama}')" class="aspect-square bg-slate-100 rounded-xl overflow-hidden border border-slate-200 cursor-pointer group relative">
+              <img src="${imgUrl}" alt="${nama}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+              <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition"></div>
+            </div>
+          `;
+        }
+      }
 
       // Modal Grid
-      let gridHTML = '';
-      globalInventarisData.forEach(item => {
+      if (gridModal) gridModal.innerHTML = '';
+      for (let item of globalInventarisData) {
         const vals = Object.values(item);
         const nama = vals[0] || '-';
         const qty = vals[1] || '-';
         const kondisi = vals[2] || '-';
-        const imgUrl = formatDriveUrl(vals[3]);
+        const imgUrl = await resolveImageUrl(vals[3]);
 
-        gridHTML += `
-          <div onclick="window.bukaFotoFull('${imgUrl}', '${nama} (${qty})')" class="bg-slate-50 rounded-xl overflow-hidden border border-slate-200 hover:shadow-md transition cursor-pointer group flex flex-col">
-            <div class="aspect-square overflow-hidden bg-slate-200 relative">
-              <img src="${imgUrl}" alt="${nama}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-              <span class="absolute top-2 right-2 bg-emerald-900/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-full backdrop-blur-sm">${kondisi}</span>
+        if (gridModal) {
+          gridModal.innerHTML += `
+            <div onclick="window.bukaFotoFull('${imgUrl}', '${nama} (${qty})')" class="bg-slate-50 rounded-xl overflow-hidden border border-slate-200 hover:shadow-md transition cursor-pointer group flex flex-col">
+              <div class="aspect-square overflow-hidden bg-slate-200 relative">
+                <img src="${imgUrl}" alt="${nama}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                <span class="absolute top-2 right-2 bg-emerald-900/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-full backdrop-blur-sm">${kondisi}</span>
+              </div>
+              <div class="p-3 flex-grow flex flex-col justify-between">
+                <h4 class="font-bold text-slate-800 text-xs sm:text-sm line-clamp-1">${nama}</h4>
+                <span class="text-[11px] text-slate-500 font-medium mt-1">${qty}</span>
+              </div>
             </div>
-            <div class="p-3 flex-grow flex flex-col justify-between">
-              <h4 class="font-bold text-slate-800 text-xs sm:text-sm line-clamp-1">${nama}</h4>
-              <span class="text-[11px] text-slate-500 font-medium mt-1">${qty}</span>
-            </div>
-          </div>
-        `;
-      });
-      if (gridModal) gridModal.innerHTML = gridHTML;
+          `;
+        }
+      }
     }
 
-    // Render Dokumentasi
-    function renderDokumentasi() {
+    async function renderDokumentasi() {
       const previewBox = document.getElementById('preview-dokumentasi-container');
       const gridModal = document.getElementById('grid-dokumentasi-modal');
 
@@ -487,52 +479,57 @@
       }
 
       // Mini Preview (3 Teratas)
-      let previewHTML = '';
-      globalDokumentasiData.slice(0, 3).forEach(item => {
+      if (previewBox) previewBox.innerHTML = '';
+      for (let i = 0; i < Math.min(3, globalDokumentasiData.length); i++) {
+        const item = globalDokumentasiData[i];
         const vals = Object.values(item);
         const judul = vals[0] || 'Kegiatan';
-        const imgUrl = formatDriveUrl(vals[3]);
-        previewHTML += `
-          <div onclick="window.bukaFotoFull('${imgUrl}', '${judul}')" class="aspect-square bg-slate-100 rounded-xl overflow-hidden border border-slate-200 cursor-pointer group relative">
-            <img src="${imgUrl}" alt="${judul}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-            <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition"></div>
-          </div>
-        `;
-      });
-      if (previewBox) previewBox.innerHTML = previewHTML;
+        const rawUrl = vals[3] || '';
+        const imgUrl = await resolveImageUrl(rawUrl);
 
-      // Modal Grid (Gaya Index)
-      let gridHTML = '';
-      globalDokumentasiData.forEach(item => {
+        if (previewBox) {
+          previewBox.innerHTML += `
+            <div onclick="window.bukaFotoFull('${imgUrl}', '${judul}')" class="aspect-square bg-slate-100 rounded-xl overflow-hidden border border-slate-200 cursor-pointer group relative">
+              <img src="${imgUrl}" alt="${judul}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+              <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition"></div>
+            </div>
+          `;
+        }
+      }
+
+      // Modal Grid
+      if (gridModal) gridModal.innerHTML = '';
+      for (let item of globalDokumentasiData) {
         const vals = Object.values(item);
         const judul = vals[0] || '-';
         const tgl = vals[1] || '-';
         const ket = vals[2] || '';
-        const imgUrl = formatDriveUrl(vals[3]);
+        const rawUrl = vals[3] || '';
+        const imgUrl = await resolveImageUrl(rawUrl);
 
-        gridHTML += `
-          <div class="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col">
-            <div class="aspect-video bg-slate-100 overflow-hidden cursor-pointer relative group" onclick="window.bukaFotoFull('${imgUrl}', '${judul}')">
-              <img src="${imgUrl}" alt="${judul}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-              <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                <i data-lucide="maximize-2" class="w-6 h-6 text-white"></i>
+        if (gridModal) {
+          gridModal.innerHTML += `
+            <div class="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col">
+              <div class="aspect-video bg-slate-100 overflow-hidden cursor-pointer relative group" onclick="window.bukaFotoFull('${imgUrl}', '${judul}')">
+                <img src="${imgUrl}" alt="${judul}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                  <i data-lucide="maximize-2" class="w-6 h-6 text-white"></i>
+                </div>
+              </div>
+              <div class="p-3.5 flex-grow flex flex-col justify-between space-y-1.5">
+                <div>
+                  <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100 inline-block mb-1">${tgl}</span>
+                  <h4 class="font-bold text-slate-800 text-xs sm:text-sm leading-snug">${judul}</h4>
+                  <p class="text-xs text-slate-500 mt-1 line-clamp-2">${ket}</p>
+                </div>
               </div>
             </div>
-            <div class="p-3.5 flex-grow flex flex-col justify-between space-y-1.5">
-              <div>
-                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100 inline-block mb-1">${tgl}</span>
-                <h4 class="font-bold text-slate-800 text-xs sm:text-sm leading-snug">${judul}</h4>
-                <p class="text-xs text-slate-500 mt-1 line-clamp-2">${ket}</p>
-              </div>
-            </div>
-          </div>
-        `;
-      });
-      if (gridModal) gridModal.innerHTML = gridHTML;
+          `;
+        }
+      }
       if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    // Modal Handlers
     window.bukaRincianWarga = function(namaBlok, totalBerat, totalSaldo) {
       const modal = document.getElementById('modal-rincian-warga');
       if (!modal) return;
@@ -587,6 +584,21 @@
       window.openModal('modal-preview-foto');
     };
 
+    window.cariWarga = function() {
+      const input = document.getElementById('input-cari-warga');
+      const filter = input.value.toLowerCase();
+      const rows = document.querySelectorAll('.baris-warga');
+
+      rows.forEach(row => {
+        const text = row.querySelector('.cell-nama')?.textContent.toLowerCase() || '';
+        if (text.includes(filter)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    };
+
     window.openModal = function(id) {
       const m = document.getElementById(id);
       if (m) m.classList.remove('hidden');
@@ -596,26 +608,6 @@
     window.closeModal = function(id) {
       const m = document.getElementById(id);
       if (m) m.classList.add('hidden');
-    };
-
-    // Filter Pencarian Tabel Warga
-    window.filterWargaTable = function() {
-      const input = document.getElementById('input-search-warga');
-      const filter = input.value.toLowerCase();
-      const tbody = document.getElementById('tbody-rekap-warga');
-      const trs = tbody.getElementsByTagName('tr');
-
-      for (let i = 0; i < trs.length; i++) {
-        const tdNama = trs[i].getElementsByTagName('td')[1];
-        if (tdNama) {
-          const txtValue = tdNama.textContent || tdNama.innerText;
-          if (txtValue.toLowerCase().indexOf(filter) > -1) {
-            trs[i].style.display = "";
-          } else {
-            trs[i].style.display = "none";
-          }
-        }
-      }
     };
 
     if (document.readyState === 'loading') {
