@@ -31,31 +31,31 @@
   </div>
 </header>
 
-<main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+<main class="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-5">
 
   <!-- HERO SECTION -->
   <div class="text-center space-y-1 max-w-2xl mx-auto">
-    <h2 class="text-xl sm:text-2xl font-extrabold text-emerald-950 tracking-tight">Pengelolaan & Tabungan Sampah Warga</h2>
-    <p class="text-xs text-slate-600">Pusat informasi pemilahan sampah anorganik, rekap tabungan warga, kas pengelola, dan rincian setoran berkala.</p>
+    <h2 class="text-lg sm:text-2xl font-extrabold text-emerald-950 tracking-tight">Pengelolaan & Tabungan Sampah Warga</h2>
+    <p class="text-[11px] sm:text-xs text-slate-600">Pusat informasi pemilahan sampah anorganik, rekap tabungan warga, kas pengelola, dan rincian setoran berkala.</p>
   </div>
 
   <!-- 3 KARTU RINGKASAN DATA ATAS -->
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-    <div class="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between">
+    <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between">
       <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Total Sampah Terkumpul</span>
       <div class="mt-1">
         <span id="total-sampah-terkumpul" class="text-xl sm:text-2xl font-black text-emerald-900">0.0 Kg</span>
         <p class="text-[11px] text-slate-500">Anorganik terpilah</p>
       </div>
     </div>
-    <div class="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between">
+    <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between">
       <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Total Nilai Tabungan Warga</span>
       <div class="mt-1">
         <span id="total-nilai-tabungan" class="text-xl sm:text-2xl font-black text-emerald-900">Rp 0</span>
         <p class="text-[11px] text-slate-500">Siap dicairkan / diakumulasi</p>
       </div>
     </div>
-    <div class="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between">
+    <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between">
       <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Kas Operasional Bank Sampah</span>
       <div class="mt-1">
         <span id="kas-operasional-bank-sampah" class="text-xl sm:text-2xl font-black text-emerald-900">Rp 0</span>
@@ -64,64 +64,65 @@
     </div>
   </div>
 
-  <!-- 2 & 3. BANNER SLIDER PROGRES KONTRAK & RINGKAS -->
-  <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-emerald-100 relative">
+  <!-- PROGRES PERKEMBANGAN BANK SAMPAH (UKURAN DIPADATKAN & DIKUNCI KONSISTEN) -->
+  <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-emerald-100">
     <div class="flex items-center justify-between mb-3">
       <div class="flex items-center gap-2">
         <i data-lucide="trending-up" class="w-4 h-4 text-emerald-600"></i>
-        <h3 class="text-sm font-bold text-slate-800">Progres Perkembangan Bank Sampah</h3>
+        <h3 class="text-xs sm:text-sm font-bold text-slate-800">Progres Perkembangan Bank Sampah</h3>
       </div>
-      <!-- Tombol Navigasi Slider Progres -->
       <div class="flex items-center gap-1.5">
-        <button id="btn-prev-progres" onclick="slideProgres(-1)" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition">
+        <button onclick="slideProgres(-1)" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition">
           <i data-lucide="chevron-left" class="w-4 h-4"></i>
         </button>
         <span id="progres-slide-indicator" class="text-xs font-semibold text-slate-500 px-1">1 / 1</span>
-        <button id="btn-next-progres" onclick="slideProgres(1)" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition">
+        <button onclick="slideProgres(1)" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-800 flex items-center justify-center transition">
           <i data-lucide="chevron-right" class="w-4 h-4"></i>
         </button>
       </div>
     </div>
 
-    <!-- Container Slider Progres -->
-    <div class="flex flex-col md:flex-row items-center gap-4">
-      <div class="w-full md:w-1/3 h-36 bg-slate-100 rounded-xl overflow-hidden relative border border-slate-200 shrink-0">
+    <!-- Layout Grid Konsisten Kiri-Kanan -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+      <!-- Container Foto Terkunci Rasio 16:9 Tetap -->
+      <div class="md:col-span-5 aspect-[16/9] bg-slate-100 rounded-xl overflow-hidden relative border border-slate-200 shrink-0 w-full">
         <img id="progres-foto-kegiatan" src="" alt="Foto Progres" class="w-full h-full object-cover hidden" onload="this.classList.remove('hidden'); document.getElementById('progres-foto-skeleton').classList.add('hidden');">
-        <div id="progres-foto-skeleton" class="absolute inset-0 flex items-center justify-center text-slate-400 text-xs bg-slate-50">
+        <div id="progres-foto-skeleton" class="absolute inset-0 flex items-center justify-center text-slate-400 text-xs bg-slate-50 font-medium">
           Memuat Foto...
         </div>
       </div>
 
-      <div class="w-full md:w-2/3 flex flex-col justify-between space-y-2">
+      <!-- Rincian Progres Teks -->
+      <div class="md:col-span-7 space-y-2.5">
         <div>
-          <div class="flex items-center gap-2 mb-1 flex-wrap">
-            <span id="progres-badge-langkah" class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2 py-0.5 rounded-full">Langkah 1</span>
-            <span id="progres-badge-status" class="bg-emerald-600 text-white text-[11px] font-semibold px-2 py-0.5 rounded-full">Selesai</span>
-            <span id="progres-tanggal" class="text-slate-400 text-[11px] ml-auto font-medium">11-Okt-2026</span>
+          <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+            <span id="progres-badge-langkah" class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">Langkah 1</span>
+            <span id="progres-badge-status" class="bg-emerald-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">Selesai</span>
+            <span id="progres-tanggal" class="text-slate-400 text-[10px] ml-auto font-medium">11-Okt-2026</span>
           </div>
-          <h4 id="progres-judul-kegiatan" class="text-base font-bold text-slate-800">Judul Kegiatan</h4>
-          <p id="progres-deskripsi-kegiatan" class="text-slate-600 text-xs leading-relaxed line-clamp-2">Deskripsi singkat kegiatan.</p>
+          <h4 id="progres-judul-kegiatan" class="text-sm sm:text-base font-bold text-slate-800">Judul Kegiatan</h4>
+          <p id="progres-deskripsi-kegiatan" class="text-slate-600 text-xs leading-relaxed line-clamp-2 mt-0.5">Deskripsi singkat kegiatan.</p>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-slate-100">
           <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
-            <p class="text-[9px] text-slate-400 font-bold uppercase">Tahap Saat Ini</p>
-            <p id="progres-tahap-detail" class="text-xs font-semibold text-slate-700 truncate">-</p>
+            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Tahap Saat Ini</p>
+            <p id="progres-tahap-detail" class="text-xs font-semibold text-slate-700 truncate mt-0.5">-</p>
           </div>
           <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
-            <p class="text-[9px] text-slate-400 font-bold uppercase">Agenda Selanjutnya</p>
-            <p id="progres-agenda-berikut" class="text-xs font-semibold text-slate-700 truncate">-</p>
+            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Agenda Selanjutnya</p>
+            <p id="progres-agenda-berikut" class="text-xs font-semibold text-slate-700 truncate mt-0.5">-</p>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 4. TABEL REKAP TABUNGAN SAMPAH (MAX 10 BARIS + SCROLL) -->
+  <!-- TABEL REKAP TABUNGAN SAMPAH (MAKSIMAL 10 BARIS + SCROLLBAR) -->
   <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-100">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
       <div>
-        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+        <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
           <i data-lucide="table" class="w-4 h-4 text-emerald-600"></i>
           Rekap Tabungan Sampah Warga
         </h3>
@@ -130,9 +131,8 @@
       <input type="text" id="input-cari-warga" onkeyup="window.cariWarga()" placeholder="Cari nama / blok..." class="px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg w-full sm:w-56 focus:outline-none focus:border-emerald-500">
     </div>
 
-    <!-- Tampilan Scrollbar Tabel Maksimal 10 Baris -->
     <div class="overflow-x-auto">
-      <div class="max-h-[400px] overflow-y-auto rounded-xl border border-slate-100">
+      <div class="max-h-[380px] overflow-y-auto rounded-xl border border-slate-100">
         <table class="w-full text-left text-xs">
           <thead class="bg-emerald-50/80 text-emerald-900 font-bold sticky top-0 z-10">
             <tr>
@@ -144,38 +144,60 @@
             </tr>
           </thead>
           <tbody id="tabel-rekap-warga" class="divide-y divide-slate-100">
-            <!-- Diisi oleh JS -->
+            <!-- Diisi JS -->
           </tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- 5. KARTU SLIDER DOKUMENTASI & GALERI KONTRAK RINGKAS -->
-  <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-100">
-    <div class="flex items-center justify-between mb-4">
+  <!-- KARTU INVENTARIS & DOKUMENTASI (KEMBALI TERSEDIA DENGAN DUA SLIDER SLIDE SAMPING) -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    
+    <!-- Kartu Inventaris -->
+    <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col justify-between">
       <div>
-        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-          <i data-lucide="camera" class="w-4 h-4 text-emerald-600"></i>
-          Dokumentasi & Galeri Kegiatan
-        </h3>
-        <p class="text-xs text-slate-500">Foto dan video kegiatan pemilahan & bank sampah</p>
-      </div>
-      <button onclick="bukaGaleriModal()" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200">
-        Buka Galeri <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-      </button>
-    </div>
-
-    <!-- Preview Single Slide Banner -->
-    <div onclick="bukaGaleriModal()" class="relative h-48 sm:h-64 rounded-xl overflow-hidden bg-slate-900 cursor-pointer group shadow-sm">
-      <img id="galeri-preview-img" src="" alt="Galeri Preview" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition duration-300">
-      <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-4">
-        <div class="text-white">
-          <span class="bg-emerald-600 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Preview Galeri</span>
-          <p id="galeri-preview-title" class="text-sm font-bold mt-1">Lihat Dokumentasi Lengkap</p>
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
+            <i data-lucide="box" class="w-4 h-4 text-emerald-600"></i>
+            Daftar Inventaris Bank Sampah
+          </h3>
+        </div>
+        <p class="text-xs text-slate-500 mb-3">Peralatan dan wadah penampungan terdaftar</p>
+        <div id="container-inventaris" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+          <!-- Diisi JS dari CSV Inventaris -->
+          <p class="text-xs text-slate-400 italic">Memuat inventaris...</p>
         </div>
       </div>
     </div>
+
+    <!-- Kartu Dokumentasi Kegiatan -->
+    <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
+            <i data-lucide="camera" class="w-4 h-4 text-emerald-600"></i>
+            Dokumentasi & Kegiatan
+          </h3>
+          <button onclick="bukaGaleriModal()" class="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+            Buka Galeri <i data-lucide="external-link" class="w-3 h-3"></i>
+          </button>
+        </div>
+        <p class="text-xs text-slate-500 mb-3">Aktivitas pemilahan dan penimbangan warga</p>
+        
+        <!-- Preview Galeri Slider Hemat Tempat (Aspect 16:9) -->
+        <div onclick="bukaGaleriModal()" class="relative aspect-[16/9] rounded-xl overflow-hidden bg-slate-900 cursor-pointer group shadow-sm border border-slate-200">
+          <img id="galeri-preview-img" src="" alt="Galeri Preview" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition duration-300">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-3">
+            <div class="text-white">
+              <span class="bg-emerald-600 text-[9px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Galeri Foto & Video</span>
+              <p id="galeri-preview-title" class="text-xs font-bold mt-1">Klik untuk membuka popup galeri</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
 </main>
@@ -891,71 +913,22 @@
     }
   })();
 
-    // URL CSV Progres Bank Sampah
-    const CSV_PROGRES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=315371679&single=true&output=csv";
+    // URL CSV Progres
+const CSV_PROGRES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=315371679&single=true&output=csv";
 
-    // Konversi Tautan Google Drive ke Link Gambar Langsung
-    function formatDriveImgUrl(url) {
-      if (!url) return '';
-      const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-      if (match && match[1]) {
-        return `https://lh3.googleusercontent.com/d/${match[1]}`;
-      }
-      return url;
-    }
-
-    async function loadProgresBankSampahDetail() {
-      try {
-        const response = await fetch(CSV_PROGRES_URL);
-        const csvText = await response.text();
-        const lines = csvText.split('\n').map(l => l.trim()).filter(l => l);
-        if (lines.length <= 1) return;
-
-        const dataList = lines.slice(1).map(line => {
-          const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"\vert{}"$/g, '').trim());
-          return {
-            tanggal: cols[0] || '',
-            langkah: cols[1] || '',
-            judul: cols[2] || '',
-            deskripsi: cols[3] || '',
-            status: cols[4] || '',
-            tahapDetail: cols[5] || '',
-            agendaBerikut: cols[6] || '',
-            urlFoto: formatDriveImgUrl(cols[7] || '')
-          };
-        });
-
-        // Ambil data langkah yang aktif (status Selesai/Proses paling baru)
-        const progresAktif = dataList.filter(d => d.status.toLowerCase() === 'selesai' || d.status.toLowerCase() === 'proses').pop() || dataList[dataList.length - 1];
-
-        if (!progresAktif) return;
-
-        // Render ke elemen
-        if (document.getElementById('progres-badge-langkah')) document.getElementById('progres-badge-langkah').innerText = progresAktif.langkah;
-        if (document.getElementById('progres-badge-status')) document.getElementById('progres-badge-status').innerText = progresAktif.status;
-        if (document.getElementById('progres-tanggal')) document.getElementById('progres-tanggal').innerText = progresAktif.tanggal;
-        if (document.getElementById('progres-judul-kegiatan')) document.getElementById('progres-judul-kegiatan').innerText = progresAktif.judul;
-        if (document.getElementById('progres-deskripsi-kegiatan')) document.getElementById('progres-deskripsi-kegiatan').innerText = progresAktif.deskripsi;
-        if (document.getElementById('progres-tahap-detail')) document.getElementById('progres-tahap-detail').innerText = progresAktif.tahapDetail.replace(/^Tahap:\s*/i, '');
-        if (document.getElementById('progres-agenda-berikut')) document.getElementById('progres-agenda-berikut').innerText = progresAktif.agendaBerikut.replace(/^Agenda:\s*/i, '');
-
-        const imgEl = document.getElementById('progres-foto-kegiatan');
-        if (imgEl && progresAktif.urlFoto) {
-          imgEl.src = progresAktif.urlFoto;
-        }
-      } catch (err) {
-        console.error("Gagal membaca CSV progres bank sampah:", err);
-      }
-    }
-
-    // Jalankan otomatis
-    document.addEventListener('DOMContentLoaded', loadProgresBankSampahDetail);
-
-    // Global Variables untuk Slider Progres
 let globalProgresList = [];
 let currentProgresIndex = 0;
 
-// 1. Fungsi Slider Progres
+function formatDriveImgUrl(url) {
+  if (!url) return '';
+  const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (match && match[1]) {
+    return `https://lh3.googleusercontent.com/d/${match[1]}`;
+  }
+  return url;
+}
+
+// 1. Render Slider Progres
 function renderProgresSlide(index) {
   if (globalProgresList.length === 0) return;
   if (index < 0) index = 0;
@@ -964,14 +937,14 @@ function renderProgresSlide(index) {
 
   const item = globalProgresList[currentProgresIndex];
 
-  document.getElementById('progres-slide-indicator').innerText = `${currentProgresIndex + 1} / ${globalProgresList.length}`;
-  document.getElementById('progres-badge-langkah').innerText = item.langkah;
-  document.getElementById('progres-badge-status').innerText = item.status;
-  document.getElementById('progres-tanggal').innerText = item.tanggal;
-  document.getElementById('progres-judul-kegiatan').innerText = item.judul;
-  document.getElementById('progres-deskripsi-kegiatan').innerText = item.deskripsi;
-  document.getElementById('progres-tahap-detail').innerText = item.tahapDetail.replace(/^Tahap:\s*/i, '');
-  document.getElementById('progres-agenda-berikut').innerText = item.agendaBerikut.replace(/^Agenda:\s*/i, '');
+  if (document.getElementById('progres-slide-indicator')) document.getElementById('progres-slide-indicator').innerText = `${currentProgresIndex + 1} / ${globalProgresList.length}`;
+  if (document.getElementById('progres-badge-langkah')) document.getElementById('progres-badge-langkah').innerText = item.langkah;
+  if (document.getElementById('progres-badge-status')) document.getElementById('progres-badge-status').innerText = item.status;
+  if (document.getElementById('progres-tanggal')) document.getElementById('progres-tanggal').innerText = item.tanggal;
+  if (document.getElementById('progres-judul-kegiatan')) document.getElementById('progres-judul-kegiatan').innerText = item.judul;
+  if (document.getElementById('progres-deskripsi-kegiatan')) document.getElementById('progres-deskripsi-kegiatan').innerText = item.deskripsi;
+  if (document.getElementById('progres-tahap-detail')) document.getElementById('progres-tahap-detail').innerText = item.tahapDetail.replace(/^Tahap:\s*/i, '');
+  if (document.getElementById('progres-agenda-berikut')) document.getElementById('progres-agenda-berikut').innerText = item.agendaBerikut.replace(/^Agenda:\s*/i, '');
 
   const imgEl = document.getElementById('progres-foto-kegiatan');
   if (imgEl && item.urlFoto) {
@@ -983,7 +956,6 @@ function slideProgres(direction) {
   renderProgresSlide(currentProgresIndex + direction);
 }
 
-// Override Pembaca CSV Progres
 async function loadProgresBankSampahDetail() {
   try {
     const response = await fetch(CSV_PROGRES_URL);
@@ -1005,14 +977,20 @@ async function loadProgresBankSampahDetail() {
       };
     });
 
-    // Default ke progres yang terbaru
+    // Default ke langkah paling akhir
     renderProgresSlide(globalProgresList.length - 1);
+
+    // Set preview foto galeri bawah dari gambar terbaru
+    const previewImg = document.getElementById('galeri-preview-img');
+    if (previewImg && globalProgresList.length > 0) {
+      previewImg.src = globalProgresList[globalProgresList.length - 1].urlFoto;
+    }
   } catch (err) {
-    console.error("Gagal memuat CSV progres:", err);
+    console.error("Gagal memuat progres bank sampah:", err);
   }
 }
 
-// 2. LOGIKA GALERI POPUP INTERAKTIF (Backdrop, ESC Key, & Tombol Back HP)
+// 2. GALERI POPUP INTERAKTIF LENGKAP (FOTO & VIDEO)
 let isGaleriOpen = false;
 
 function bukaGaleriModal() {
@@ -1022,14 +1000,13 @@ function bukaGaleriModal() {
   modal.classList.remove('hidden');
   isGaleriOpen = true;
 
-  // Render media pertama dari data progres/dokumentasi
   if (globalProgresList.length > 0) {
-    tampilkanMediaGaleri(0);
+    tampilkanMediaGaleri(globalProgresList.length - 1);
     renderThumbnailsGaleri();
   }
 
-  // Push State Ke History Browser untuk Menghadapkan Tombol Back HP
-  history.pushState({ modalOpen: true }, "");
+  // Intersepsi Tombol Back HP
+  history.pushState({ modalGaleriOpen: true }, "");
 }
 
 function tutupGaleriModal() {
@@ -1039,7 +1016,6 @@ function tutupGaleriModal() {
   modal.classList.add('hidden');
   isGaleriOpen = false;
 
-  // Hentikan video jika ada yang sedang diputar
   const container = document.getElementById('galeri-media-container');
   if (container) container.innerHTML = '';
 }
@@ -1050,21 +1026,20 @@ function tutupGaleriModalOnBackdrop(e) {
   }
 }
 
-// Menangani Tombol ESC Keyboard
+// Tutup dengan ESC
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape' && isGaleriOpen) {
     tutupGaleriModal();
   }
 });
 
-// Menangani Tombol Back di Browser/HP (popstate)
+// Tutup dengan Tombol Back HP
 window.addEventListener('popstate', function(e) {
   if (isGaleriOpen) {
     tutupGaleriModal();
   }
 });
 
-// Penampil Media (Foto / Video Responsif)
 function tampilkanMediaGaleri(index) {
   const item = globalProgresList[index];
   if (!item) return;
@@ -1072,14 +1047,21 @@ function tampilkanMediaGaleri(index) {
   const container = document.getElementById('galeri-media-container');
   const caption = document.getElementById('galeri-caption');
 
-  caption.innerText = `${item.judul} - ${item.tanggal}`;
+  if (caption) caption.innerText = `${item.judul} - ${item.tanggal}`;
 
-  // Deteksi jika link merupakan video YouTube / MP4
+  if (!container) return;
+
+  // Deteksi Video YouTube / MP4 / Drive Video
   if (item.urlFoto.includes('youtube.com') || item.urlFoto.includes('youtu.be')) {
-    const embedUrl = item.urlFoto.replace('watch?v=', 'embed/');
-    container.innerHTML = `<iframe src="${embedUrl}" class="w-full h-64 sm:h-96 rounded-xl" frameborder="0" allowfullscreen></iframe>`;
+    let videoId = '';
+    if (item.urlFoto.includes('youtu.be/')) {
+      videoId = item.urlFoto.split('youtu.be/')[1].split('?')[0];
+    } else {
+      videoId = item.urlFoto.split('v=')[1]?.split('&')[0];
+    }
+    container.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" class="w-full aspect-video rounded-xl shadow-lg" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
   } else {
-    container.innerHTML = `<img src="${item.urlFoto}" alt="Dokumentasi" class="max-h-[55vh] w-auto object-contain rounded-xl">`;
+    container.innerHTML = `<img src="${item.urlFoto}" alt="Dokumentasi" class="max-h-[60vh] max-w-full w-auto h-auto object-contain rounded-xl shadow-lg">`;
   }
 }
 
@@ -1098,7 +1080,6 @@ function renderThumbnailsGaleri() {
   thumbBox.innerHTML = html;
 }
 
-// Inisialisasi
 document.addEventListener('DOMContentLoaded', function() {
   loadProgresBankSampahDetail();
 });
