@@ -2,154 +2,632 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bank Sampah | Lorong Flamboyan 4</title>
+  
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- PapaParse untuk membaca CSV Google Sheets -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-
-  <style>
-    body {
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-    html {
-      scroll-behavior: smooth;
-    }
-  </style>
 </head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
 
-<body class="bg-emerald-50/40 text-slate-800 flex flex-col min-h-screen w-full" oncontextmenu="return false;">
-
-  <!-- Header / Navigation -->
-  <header class="bg-gradient-to-r from-emerald-950 via-teal-900 to-emerald-950 text-white border-b border-emerald-800/40 sticky top-0 z-40 w-full shadow-md">
-    <div class="max-w-6xl mx-auto px-3 sm:px-4 py-3 flex items-center justify-between relative">
-      <a href="index.html" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 transition group shrink-0 flex items-center space-x-1.5 text-xs font-semibold">
-        <i data-lucide="arrow-left" class="w-4 h-4 text-emerald-200 group-hover:-translate-x-0.5 transition"></i>
-        <span class="hidden sm:inline">Portal Utama</span>
+  <!-- HEADER / NAVBAR -->
+  <header class="bg-emerald-900 text-white shadow-md sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
+      <a href="index.html" class="inline-flex items-center space-x-2 text-xs font-semibold bg-emerald-800/80 hover:bg-emerald-800 px-3 py-2 rounded-xl transition text-emerald-100 border border-emerald-700/50">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Portal Utama</span>
       </a>
-
-      <div class="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none w-full max-w-xs sm:max-w-md px-10">
-        <h1 class="text-xs sm:text-base font-bold tracking-wide text-white whitespace-nowrap overflow-hidden text-ellipsis flex items-center justify-center space-x-1.5">
-          <i data-lucide="recycle" class="w-4 h-4 text-emerald-400"></i>
-          <span>Bank Sampah Flamboyan 4</span>
-        </h1>
+      <div class="flex items-center space-x-2">
+        <i data-lucide="recycle" class="w-5 h-5 text-emerald-400"></i>
+        <h1 class="font-bold text-sm sm:text-base tracking-wide">Bank Sampah Flamboyan 4</h1>
       </div>
-
-      <a href="index.html#keuangan" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-emerald-600/80 hover:bg-emerald-500 border border-emerald-400/40 transition group shrink-0 flex items-center space-x-1.5 text-xs font-semibold">
-        <i data-lucide="wallet" class="w-4 h-4 text-emerald-200"></i>
+      <a href="pembukuan.html" class="inline-flex items-center space-x-1.5 text-xs font-bold bg-emerald-700 hover:bg-emerald-600 px-3 py-2 rounded-xl transition text-white border border-emerald-600/50 shadow-sm">
+        <i data-lucide="wallet" class="w-4 h-4"></i>
         <span class="hidden sm:inline">Kas Lorong</span>
       </a>
     </div>
   </header>
 
-  <!-- Hero Banner Soft Green -->
-  <section class="relative bg-gradient-to-br from-emerald-900 via-teal-800 to-emerald-950 text-white py-10 md:py-14 px-4 overflow-hidden w-full border-b border-emerald-700/40">
-    <div class="max-w-4xl mx-auto text-center space-y-2.5 relative z-10">
-      <span class="bg-emerald-500/30 text-emerald-200 border border-emerald-400/30 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider inline-block">
-        🌱 Lingkungan Bersih & Berdaya
-      </span>
-      <h2 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight">
-        Pengelolaan & Tabungan Sampah Warga
-      </h2>
-      <p class="text-xs sm:text-sm text-emerald-100/90 max-w-xl mx-auto leading-relaxed">
-        Pusat informasi pemilahan sampah anorganik, rekap tabungan warga, kas pengelolaan, dan daftar inventaris tim operasional.
+  <!-- MAIN CONTENT -->
+  <main class="max-w-6xl mx-auto px-4 py-6 sm:py-8 flex-grow w-full space-y-6">
+
+    <!-- HERO SECTION -->
+    <div class="text-center space-y-2 max-w-2xl mx-auto">
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-emerald-950 tracking-tight">Pengelolaan & Tabungan Sampah Warga</h2>
+      <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+        Pusat informasi pemilahan sampah anorganik, rekap tabungan warga, kas pengelola, dan rincian setoran berkala.
       </p>
     </div>
-  </section>
 
-  <!-- Main Content -->
-  <main class="max-w-6xl mx-auto px-4 py-8 flex-grow space-y-10 w-full">
-
-    <!-- RINGKASAN KAS & TABUNGAN BANk SAMPAH -->
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="bg-white p-5 rounded-2xl border border-emerald-200 shadow-sm">
-        <span class="text-xs font-bold text-slate-500 uppercase">Total Sampah Terkumpul</span>
-        <p id="stat-total-kg" class="text-2xl font-black text-emerald-700 mt-1">0 Kg</p>
-        <span class="text-[11px] text-slate-400">Anorganik terpilah</span>
-      </div>
-
-      <div class="bg-white p-5 rounded-2xl border border-emerald-200 shadow-sm">
-        <span class="text-xs font-bold text-slate-500 uppercase">Total Nilai Tabungan Warga</span>
-        <p id="stat-total-tabungan" class="text-2xl font-black text-teal-700 mt-1">Rp 0</p>
-        <span class="text-[11px] text-slate-400">Siap dicairkan / diakumulasi</span>
-      </div>
-
-      <div class="bg-white p-5 rounded-2xl border border-emerald-200 shadow-sm">
-        <span class="text-xs font-bold text-slate-500 uppercase">Kas Operasional Bank Sampah</span>
-        <p id="stat-kas-bs" class="text-2xl font-black text-emerald-800 mt-1">Rp 0</p>
-        <span class="text-[11px] text-slate-400">Saldo bersih pengelola</span>
-      </div>
-    </section>
-
-    <!-- TABEL REKAP TABUNGAN WARGA PER MINGGU / BULAN -->
-    <section class="bg-white rounded-2xl shadow-sm border border-emerald-200/80 overflow-hidden">
-      <div class="p-4 border-b border-emerald-100 bg-emerald-50/50 flex flex-wrap justify-between items-center gap-2">
+    <!-- 3 KARTU RINGKASAN DATA ATAS -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      
+      <!-- Kartu 1: Total Sampah Terkumpul -->
+      <div class="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between space-y-2">
+        <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">Total Sampah Terkumpul</span>
         <div>
-          <h3 class="font-bold text-slate-800 text-sm md:text-base flex items-center space-x-2">
+          <span id="total-sampah-terkumpul" class="text-2xl sm:text-3xl font-black text-emerald-900">0 Kg</span>
+          <p class="text-xs text-slate-500 mt-0.5">Anorganik terpilah</p>
+        </div>
+      </div>
+
+      <!-- Kartu 2: Total Nilai Tabungan Warga -->
+      <div class="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between space-y-2">
+        <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">Total Nilai Tabungan Warga</span>
+        <div>
+          <span id="total-nilai-tabungan" class="text-2xl sm:text-3xl font-black text-emerald-900">Rp 0</span>
+          <p class="text-xs text-slate-500 mt-0.5">Siap dicairkan / diakumulasi</p>
+        </div>
+      </div>
+
+      <!-- Kartu 3: Kas Operasional Bank Sampah -->
+      <div class="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between space-y-2">
+        <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">Kas Operasional Bank Sampah</span>
+        <div>
+          <span id="kas-operasional-bank-sampah" class="text-2xl sm:text-3xl font-black text-emerald-900">Rp 0</span>
+          <p class="text-xs text-slate-500 mt-0.5">Saldo bersih pengelola & lorong</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TABEL REKAP TABUNGAN WARGA -->
+    <div class="bg-white rounded-2xl border border-emerald-100 shadow-sm overflow-hidden p-4 sm:p-6 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h3 class="text-base font-bold text-slate-800 flex items-center space-x-2">
             <i data-lucide="table" class="w-4 h-4 text-emerald-600"></i>
             <span>Rekap Tabungan Sampah Warga</span>
           </h3>
-          <p class="text-xs text-slate-500">Update berkala per minggu & bulan</p>
+          <p class="text-xs text-slate-500">Update berkala per minggu & bulan. Klik nama warga untuk detail setoran.</p>
         </div>
-        <input type="text" id="search-tabungan" onkeyup="filterTabungan()" placeholder="Cari nama / blok..." class="text-xs px-3 py-1.5 border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
+        
+        <!-- Search Filter Nama -->
+        <div class="relative w-full sm:w-64">
+          <input type="text" id="input-search-warga" onkeyup="filterWargaTable()" placeholder="Cari nama / blok..." class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 pl-8 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
+          <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
+        </div>
       </div>
 
-      <div class="overflow-x-auto p-4">
-        <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[550px]">
-          <thead>
-            <tr class="border-b border-emerald-200 bg-emerald-100/50 text-emerald-950 font-bold">
-              <th class="p-3">No</th>
+      <!-- Tabel -->
+      <div class="overflow-x-auto rounded-xl border border-slate-100">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-emerald-50/70 text-emerald-950 font-bold border-b border-emerald-100">
+            <tr>
+              <th class="p-3 w-12">No</th>
               <th class="p-3">Nama & Blok</th>
-              <th class="p-3 text-center">Setoran Terakhir</th>
-              <th class="p-3 text-right">Total Berat (Kg)</th>
-              <th class="p-3 text-right">Saldo Tabungan</th>
+              <th class="p-3">Setoran Terakhir</th>
+              <th class="p-3">Total Berat (Kg)</th>
+              <th class="p-3">Saldo Tabungan</th>
             </tr>
           </thead>
-          <tbody id="tabel-tabungan-body" class="divide-y divide-emerald-50">
-            <tr><td colspan="5" class="p-4 text-center text-slate-400">Memuat data tabungan warga...</td></tr>
+          <tbody id="tbody-rekap-warga" class="divide-y divide-slate-100">
+            <tr>
+              <td colspan="5" class="p-4 text-center text-slate-400">Memuat data tabungan warga...</td>
+            </tr>
           </tbody>
         </table>
       </div>
-    </section>
+    </div>
 
-    <!-- INVENTARIS & DOKUMENTASI BANk SAMPAH -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- DAFTAR INVENTARIS -->
-      <section class="bg-white p-5 rounded-2xl shadow-sm border border-emerald-200 space-y-3">
-        <h3 class="font-bold text-slate-800 text-sm md:text-base flex items-center space-x-2 border-b border-emerald-100 pb-2">
-          <i data-lucide="boxes" class="w-4 h-4 text-emerald-600"></i>
-          <span>Daftar Inventaris Bank Sampah</span>
-        </h3>
-        <div id="container-inventaris" class="space-y-2 text-xs">
-          <p class="text-slate-400">Memuat inventaris...</p>
+    <!-- SECTION INVENTARIS & DOKUMENTASI -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      
+      <!-- KARTU INVENTARIS -->
+      <div class="bg-white rounded-2xl border border-emerald-100 shadow-sm p-5 flex flex-col justify-between space-y-4">
+        <div class="flex items-center space-x-2 border-b border-slate-100 pb-3">
+          <div class="p-2 bg-emerald-50 text-emerald-700 rounded-xl">
+            <i data-lucide="boxes" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-800 text-sm sm:text-base">Daftar Inventaris Bank Sampah</h3>
+            <p class="text-xs text-slate-500">Peralatan & aset operasional pengelola</p>
+          </div>
         </div>
-      </section>
+        
+        <!-- Preview Mini Grid Inventaris -->
+        <div id="preview-inventaris-container" class="grid grid-cols-3 gap-2 py-1">
+          <div class="text-xs text-slate-400 col-span-3 text-center py-2">Memuat inventaris...</div>
+        </div>
 
-      <!-- DOKUMENTASI KEGIATAN -->
-      <section class="bg-white p-5 rounded-2xl shadow-sm border border-emerald-200 space-y-3">
-        <h3 class="font-bold text-slate-800 text-sm md:text-base flex items-center space-x-2 border-b border-emerald-100 pb-2">
-          <i data-lucide="camera" class="w-4 h-4 text-emerald-600"></i>
-          <span>Dokumentasi Pemilahan & Kegiatan</span>
-        </h3>
-        <div id="container-dokumentasi-bs" class="grid grid-cols-2 gap-2">
-          <p class="text-slate-400 text-xs col-span-2">Memuat foto kegiatan...</p>
+        <button onclick="window.openModal('modal-inventaris')" class="w-full py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 border border-emerald-200/60">
+          <span>Lihat Semua Inventaris</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- KARTU DOKUMENTASI -->
+      <div class="bg-white rounded-2xl border border-emerald-100 shadow-sm p-5 flex flex-col justify-between space-y-4">
+        <div class="flex items-center space-x-2 border-b border-slate-100 pb-3">
+          <div class="p-2 bg-emerald-50 text-emerald-700 rounded-xl">
+            <i data-lucide="camera" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-800 text-sm sm:text-base">Dokumentasi Pemilahan & Kegiatan</h3>
+            <p class="text-xs text-slate-500">Galeri foto aktivitas warga & tim</p>
+          </div>
         </div>
-      </section>
+
+        <!-- Preview Mini Grid Dokumentasi -->
+        <div id="preview-dokumentasi-container" class="grid grid-cols-3 gap-2 py-1">
+          <div class="text-xs text-slate-400 col-span-3 text-center py-2">Memuat foto kegiatan...</div>
+        </div>
+
+        <button onclick="window.openModal('modal-dokumentasi')" class="w-full py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 border border-emerald-200/60">
+          <span>Lihat Galeri Dokumentasi</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+
     </div>
 
   </main>
 
-  <!-- Footer -->
-  <footer class="bg-emerald-950 text-emerald-300 py-6 border-t border-emerald-800 text-center text-xs w-full">
-    <p>&copy; 2026 Tim Bank Sampah Lorong Flamboyan 4. Lingkungan Bersih, Warga Sejahtera.</p>
+  <!-- FOOTER -->
+  <footer class="bg-emerald-950 text-emerald-200/70 text-xs py-6 border-t border-emerald-900 mt-12">
+    <div class="max-w-6xl mx-auto px-4 text-center space-y-1">
+      <p class="font-medium text-emerald-100">© 2026 Tim Bank Sampah Lorong Flamboyan 4. Lingkungan Bersih, Warga Sejahtera.</p>
+      <p class="text-[11px] text-emerald-400/60">Sistem Informasi Pengelolaan Sampah Anorganik & Kas Lingkungan</p>
+    </div>
   </footer>
 
+  <!-- ========================================== -->
+  <!-- MODAL POPUP 1: RINCIAN WARGA -->
+  <!-- ========================================== -->
+  <div id="modal-rincian-warga" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="bg-emerald-900 text-white p-4 sm:p-5 flex items-center justify-between">
+        <div>
+          <h3 id="modal-nama-warga" class="text-lg sm:text-xl font-bold">Rincian Tabungan</h3>
+          <p class="text-xs text-emerald-200">Riwayat setoran sampah anorganik</p>
+        </div>
+        <button onclick="window.closeModal('modal-rincian-warga')" class="p-1.5 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 p-4 bg-emerald-50/60 border-b border-emerald-100">
+        <div class="bg-white p-3 rounded-xl border border-emerald-100">
+          <span class="text-[11px] font-bold text-slate-400 uppercase block">Total Akumulasi Berat</span>
+          <span id="modal-total-berat" class="text-base sm:text-lg font-black text-emerald-800">0 Kg</span>
+        </div>
+        <div class="bg-white p-3 rounded-xl border border-emerald-100">
+          <span class="text-[11px] font-bold text-slate-400 uppercase block">Total Saldo Tabungan</span>
+          <span id="modal-total-saldo" class="text-base sm:text-lg font-black text-emerald-800">Rp 0</span>
+        </div>
+      </div>
+
+      <div class="p-4 overflow-y-auto flex-grow space-y-3">
+        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Catatan Setoran</h4>
+        <div class="overflow-x-auto rounded-xl border border-slate-200">
+          <table class="w-full text-xs text-left">
+            <thead class="bg-slate-100 text-slate-600 font-bold border-b border-slate-200">
+              <tr>
+                <th class="p-2.5">Tanggal</th>
+                <th class="p-2.5">Rincian Sampah (Kg)</th>
+                <th class="p-2.5 text-right">Total Berat</th>
+                <th class="p-2.5 text-right">Nominal</th>
+              </tr>
+            </thead>
+            <tbody id="modal-tabel-riwayat" class="divide-y divide-slate-100">
+              <!-- Data riwayat terisi otomatis -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL POPUP 2: INVENTARIS (GRID) -->
+  <!-- ========================================== -->
+  <div id="modal-inventaris" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+      <div class="bg-emerald-900 text-white p-4 flex items-center justify-between">
+        <div>
+          <h3 class="text-base sm:text-lg font-bold">Daftar Inventaris Bank Sampah</h3>
+          <p class="text-xs text-emerald-200">Aset & peralatan operasional Flamboyan 4</p>
+        </div>
+        <button onclick="window.closeModal('modal-inventaris')" class="p-1.5 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      
+      <div id="grid-inventaris-modal" class="p-4 sm:p-6 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+        <!-- Item barang terisi otomatis -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL POPUP 3: DOKUMENTASI (GAYA INDEX) -->
+  <!-- ========================================== -->
+  <div id="modal-dokumentasi" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="bg-emerald-900 text-white p-4 flex items-center justify-between">
+        <div>
+          <h3 class="text-base sm:text-lg font-bold">Dokumentasi Kegiatan Bank Sampah</h3>
+          <p class="text-xs text-emerald-200">Foto & catatan aktivitas pemilahan sampah</p>
+        </div>
+        <button onclick="window.closeModal('modal-dokumentasi')" class="p-1.5 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div id="grid-dokumentasi-modal" class="p-4 sm:p-6 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <!-- Item dokumentasi terisi otomatis -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL POPUP 4: VIEW FOTO PRATINJAU FULL -->
+  <!-- ========================================== -->
+  <div id="modal-preview-foto" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden" onclick="window.closeModal('modal-preview-foto')">
+    <div class="relative max-w-3xl w-full flex flex-col items-center" onclick="event.stopPropagation()">
+      <button onclick="window.closeModal('modal-preview-foto')" class="absolute -top-10 right-0 text-white hover:text-emerald-400 transition">
+        <i data-lucide="x" class="w-8 h-8"></i>
+      </button>
+      <img id="img-preview-full" src="" alt="Pratinjau Foto" class="max-h-[75vh] w-auto object-contain rounded-xl shadow-2xl">
+      <p id="caption-preview-full" class="text-white text-sm font-semibold mt-3 text-center bg-slate-900/80 px-4 py-2 rounded-full border border-slate-700"></p>
+    </div>
+  </div>
+
+  <!-- SCRIPT INTEGRASI GOOGLE SHEETS -->
   <script>
-    lucide.createIcons();
-    // Script pembaca CSV Bank Sampah akan kita hubungkan ke link Google Sheets Bank Sampah Bapak
+  (function() {
+    // URL CSV Google Sheets Terpublikasi
+    const CSV_REKAP_WARGA = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=0&single=true&output=csv";
+    const CSV_RIWAYAT_SETOR = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=1811693263&single=true&output=csv";
+    const CSV_INVENTARIS = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=1819624619&single=true&output=csv";
+    const CSV_DOKUMENTASI = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=160734221&single=true&output=csv";
+
+    let globalRekapData = [];
+    let globalRiwayatData = [];
+    let globalInventarisData = [];
+    let globalDokumentasiData = [];
+
+    // Helper konversi URL Google Drive ke URL Gambar Langsung
+    function formatDriveUrl(url) {
+      if (!url || !url.trim()) return 'https://placehold.co/400x300/emerald/white?text=No+Image';
+      const cleanUrl = url.trim();
+      if (cleanUrl.includes('drive.google.com')) {
+        const matches = cleanUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+        if (matches && matches[1]) {
+          return `https://lh3.googleusercontent.com/d/${matches[1]}`;
+        }
+      }
+      return cleanUrl;
+    }
+
+    function initBankSampah() {
+      if (typeof Papa === 'undefined') return;
+
+      // 1. Fetch Tab Rekap Warga
+      Papa.parse(CSV_REKAP_WARGA, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(res) {
+          if (res && res.data) {
+            globalRekapData = res.data.filter(row => Object.values(row)[1]);
+            renderTabelWarga();
+          }
+        }
+      });
+
+      // 2. Fetch Tab Riwayat Setoran
+      Papa.parse(CSV_RIWAYAT_SETOR, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(res) {
+          if (res && res.data) {
+            globalRiwayatData = res.data.filter(row => Object.values(row)[0]);
+            updateKasOperasional();
+          }
+        }
+      });
+
+      // 3. Fetch Tab Inventaris
+      Papa.parse(CSV_INVENTARIS, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(res) {
+          if (res && res.data) {
+            globalInventarisData = res.data.filter(row => Object.values(row)[0]);
+            renderInventaris();
+          }
+        }
+      });
+
+      // 4. Fetch Tab Dokumentasi
+      Papa.parse(CSV_DOKUMENTASI, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(res) {
+          if (res && res.data) {
+            globalDokumentasiData = res.data.filter(row => Object.values(row)[0]);
+            renderDokumentasi();
+          }
+        }
+      });
+    }
+
+    // Render Tabel Rekap Warga
+    function renderTabelWarga() {
+      const tbody = document.getElementById('tbody-rekap-warga');
+      if (!tbody) return;
+
+      if (globalRekapData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada data tabungan warga.</td></tr>`;
+        return;
+      }
+
+      let html = '';
+      let totalSampahAll = 0;
+      let totalSaldoAll = 0;
+
+      globalRekapData.forEach((row, idx) => {
+        const values = Object.values(row);
+        const no = values[0] || (idx + 1);
+        const namaBlok = values[1] || '-';
+        const setoranTerakhir = values[2] || '-';
+        const totalBeratWarga = parseFloat(values[3]) || 0;
+        const totalSaldoWarga = parseFloat(values[4]) || 0;
+
+        totalSampahAll += totalBeratWarga;
+        totalSaldoAll += totalSaldoWarga;
+
+        html += `
+          <tr onclick="window.bukaRincianWarga('${namaBlok}', ${totalBeratWarga}, ${totalSaldoWarga})" class="hover:bg-emerald-50/60 cursor-pointer transition border-b border-slate-100">
+            <td class="p-3 font-semibold text-slate-500">${no}</td>
+            <td class="p-3 font-bold text-emerald-950 hover:text-emerald-600 flex items-center space-x-1">
+              <span>${namaBlok}</span>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-50"></i>
+            </td>
+            <td class="p-3 text-slate-600">${setoranTerakhir}</td>
+            <td class="p-3 font-semibold text-slate-700">${totalBeratWarga.toFixed(1)} Kg</td>
+            <td class="p-3 font-bold text-emerald-700">Rp ${Math.round(totalSaldoWarga).toLocaleString('id-ID')}</td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = html;
+
+      const elTotalSampah = document.getElementById('total-sampah-terkumpul');
+      const elTotalSaldo = document.getElementById('total-nilai-tabungan');
+      if (elTotalSampah) elTotalSampah.innerText = `${totalSampahAll.toFixed(1)} Kg`;
+      if (elTotalSaldo) elTotalSaldo.innerText = `Rp ${Math.round(totalSaldoAll).toLocaleString('id-ID')}`;
+
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    // Update Kas Operasional (Kolom J di Riwayat Setor)
+    function updateKasOperasional() {
+      let totalKasOps = 0;
+      globalRiwayatData.forEach(r => {
+        const vals = Object.values(r);
+        const kasRow = parseFloat(vals[9]) || 0;
+        totalKasOps += kasRow;
+      });
+
+      const elKasOps = document.getElementById('kas-operasional-bank-sampah');
+      if (elKasOps) {
+        elKasOps.innerText = `Rp ${Math.round(totalKasOps).toLocaleString('id-ID')}`;
+      }
+    }
+
+    // Render Inventaris
+    function renderInventaris() {
+      const previewBox = document.getElementById('preview-inventaris-container');
+      const gridModal = document.getElementById('grid-inventaris-modal');
+
+      if (!globalInventarisData.length) {
+        if (previewBox) previewBox.innerHTML = `<div class="text-xs text-slate-400 col-span-3 text-center py-2">Belum ada inventaris.</div>`;
+        return;
+      }
+
+      // Mini Preview (3 Teratas)
+      let previewHTML = '';
+      globalInventarisData.slice(0, 3).forEach(item => {
+        const vals = Object.values(item);
+        const nama = vals[0] || 'Barang';
+        const imgUrl = formatDriveUrl(vals[3]);
+        previewHTML += `
+          <div onclick="window.bukaFotoFull('${imgUrl}', '${nama}')" class="aspect-square bg-slate-100 rounded-xl overflow-hidden border border-slate-200 cursor-pointer group relative">
+            <img src="${imgUrl}" alt="${nama}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+            <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition"></div>
+          </div>
+        `;
+      });
+      if (previewBox) previewBox.innerHTML = previewHTML;
+
+      // Modal Grid
+      let gridHTML = '';
+      globalInventarisData.forEach(item => {
+        const vals = Object.values(item);
+        const nama = vals[0] || '-';
+        const qty = vals[1] || '-';
+        const kondisi = vals[2] || '-';
+        const imgUrl = formatDriveUrl(vals[3]);
+
+        gridHTML += `
+          <div onclick="window.bukaFotoFull('${imgUrl}', '${nama} (${qty})')" class="bg-slate-50 rounded-xl overflow-hidden border border-slate-200 hover:shadow-md transition cursor-pointer group flex flex-col">
+            <div class="aspect-square overflow-hidden bg-slate-200 relative">
+              <img src="${imgUrl}" alt="${nama}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+              <span class="absolute top-2 right-2 bg-emerald-900/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-full backdrop-blur-sm">${kondisi}</span>
+            </div>
+            <div class="p-3 flex-grow flex flex-col justify-between">
+              <h4 class="font-bold text-slate-800 text-xs sm:text-sm line-clamp-1">${nama}</h4>
+              <span class="text-[11px] text-slate-500 font-medium mt-1">${qty}</span>
+            </div>
+          </div>
+        `;
+      });
+      if (gridModal) gridModal.innerHTML = gridHTML;
+    }
+
+    // Render Dokumentasi
+    function renderDokumentasi() {
+      const previewBox = document.getElementById('preview-dokumentasi-container');
+      const gridModal = document.getElementById('grid-dokumentasi-modal');
+
+      if (!globalDokumentasiData.length) {
+        if (previewBox) previewBox.innerHTML = `<div class="text-xs text-slate-400 col-span-3 text-center py-2">Belum ada foto kegiatan.</div>`;
+        return;
+      }
+
+      // Mini Preview (3 Teratas)
+      let previewHTML = '';
+      globalDokumentasiData.slice(0, 3).forEach(item => {
+        const vals = Object.values(item);
+        const judul = vals[0] || 'Kegiatan';
+        const imgUrl = formatDriveUrl(vals[3]);
+        previewHTML += `
+          <div onclick="window.bukaFotoFull('${imgUrl}', '${judul}')" class="aspect-square bg-slate-100 rounded-xl overflow-hidden border border-slate-200 cursor-pointer group relative">
+            <img src="${imgUrl}" alt="${judul}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+            <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition"></div>
+          </div>
+        `;
+      });
+      if (previewBox) previewBox.innerHTML = previewHTML;
+
+      // Modal Grid (Gaya Index)
+      let gridHTML = '';
+      globalDokumentasiData.forEach(item => {
+        const vals = Object.values(item);
+        const judul = vals[0] || '-';
+        const tgl = vals[1] || '-';
+        const ket = vals[2] || '';
+        const imgUrl = formatDriveUrl(vals[3]);
+
+        gridHTML += `
+          <div class="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col">
+            <div class="aspect-video bg-slate-100 overflow-hidden cursor-pointer relative group" onclick="window.bukaFotoFull('${imgUrl}', '${judul}')">
+              <img src="${imgUrl}" alt="${judul}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+              <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                <i data-lucide="maximize-2" class="w-6 h-6 text-white"></i>
+              </div>
+            </div>
+            <div class="p-3.5 flex-grow flex flex-col justify-between space-y-1.5">
+              <div>
+                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100 inline-block mb-1">${tgl}</span>
+                <h4 class="font-bold text-slate-800 text-xs sm:text-sm leading-snug">${judul}</h4>
+                <p class="text-xs text-slate-500 mt-1 line-clamp-2">${ket}</p>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      if (gridModal) gridModal.innerHTML = gridHTML;
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    // Modal Handlers
+    window.bukaRincianWarga = function(namaBlok, totalBerat, totalSaldo) {
+      const modal = document.getElementById('modal-rincian-warga');
+      if (!modal) return;
+
+      document.getElementById('modal-nama-warga').innerText = namaBlok;
+      document.getElementById('modal-total-berat').innerText = `${totalBerat.toFixed(1)} Kg`;
+      document.getElementById('modal-total-saldo').innerText = `Rp ${Math.round(totalSaldo).toLocaleString('id-ID')}`;
+
+      const riwayat = globalRiwayatData.filter(r => Object.values(r)[0]?.toString().trim().toLowerCase() === namaBlok.trim().toLowerCase());
+      const tbodyRiwayat = document.getElementById('modal-tabel-riwayat');
+
+      if (riwayat.length === 0) {
+        tbodyRiwayat.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada catatan setoran.</td></tr>`;
+      } else {
+        let html = '';
+        riwayat.forEach(r => {
+          const vals = Object.values(r);
+          const tgl = vals[1] || '-';
+          const kardus = parseFloat(vals[2]) || 0;
+          const botol = parseFloat(vals[3]) || 0;
+          const gelas = parseFloat(vals[4]) || 0;
+          const kaleng = parseFloat(vals[5]) || 0;
+          const totalBeratRow = parseFloat(vals[6]) || 0;
+          const nominalRow = parseFloat(vals[7]) || 0;
+
+          let rincianItem = [];
+          if (kardus > 0) rincianItem.push(`Kardus: ${kardus}kg`);
+          if (botol > 0) rincianItem.push(`Botol: ${botol}kg`);
+          if (gelas > 0) rincianItem.push(`Gelas: ${gelas}kg`);
+          if (kaleng > 0) rincianItem.push(`Kaleng: ${kaleng}kg`);
+
+          html += `
+            <tr>
+              <td class="p-2.5 text-slate-600 font-medium whitespace-nowrap">${tgl}</td>
+              <td class="p-2.5 text-slate-700">${rincianItem.join(', ') || '-'}</td>
+              <td class="p-2.5 text-right font-semibold text-slate-800 whitespace-nowrap">${totalBeratRow.toFixed(1)} Kg</td>
+              <td class="p-2.5 text-right font-bold text-emerald-700 whitespace-nowrap">Rp ${Math.round(nominalRow).toLocaleString('id-ID')}</td>
+            </tr>
+          `;
+        });
+        tbodyRiwayat.innerHTML = html;
+      }
+
+      window.openModal('modal-rincian-warga');
+    };
+
+    window.bukaFotoFull = function(imgUrl, caption) {
+      const elImg = document.getElementById('img-preview-full');
+      const elCap = document.getElementById('caption-preview-full');
+      if (elImg) elImg.src = imgUrl;
+      if (elCap) elCap.innerText = caption;
+      window.openModal('modal-preview-foto');
+    };
+
+    window.openModal = function(id) {
+      const m = document.getElementById(id);
+      if (m) m.classList.remove('hidden');
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    };
+
+    window.closeModal = function(id) {
+      const m = document.getElementById(id);
+      if (m) m.classList.add('hidden');
+    };
+
+    // Filter Pencarian Tabel Warga
+    window.filterWargaTable = function() {
+      const input = document.getElementById('input-search-warga');
+      const filter = input.value.toLowerCase();
+      const tbody = document.getElementById('tbody-rekap-warga');
+      const trs = tbody.getElementsByTagName('tr');
+
+      for (let i = 0; i < trs.length; i++) {
+        const tdNama = trs[i].getElementsByTagName('td')[1];
+        if (tdNama) {
+          const txtValue = tdNama.textContent || tdNama.innerText;
+          if (txtValue.toLowerCase().indexOf(filter) > -1) {
+            trs[i].style.display = "";
+          } else {
+            trs[i].style.display = "none";
+          }
+        }
+      }
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        initBankSampah();
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+      });
+    } else {
+      initBankSampah();
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+  })();
   </script>
 </body>
 </html>
