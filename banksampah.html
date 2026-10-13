@@ -238,7 +238,7 @@
     </div>
   </div>
 
-  <!-- TIER 2: MODAL ISI MEDIA ALBUM (DUKUNGAN IFRAME UNTUK FOLDER) -->
+  <!-- TIER 2: MODAL ISI MEDIA ALBUM (GRID FOTO / VIDEO CANTIK) -->
   <div id="modal-isi-album" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6" onclick="tutupIsiAlbumOnBackdrop(event)">
     <div class="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative border border-slate-100" onclick="event.stopPropagation()">
       <div class="p-4 sm:p-5 bg-white border-b border-slate-100 flex items-center justify-between">
@@ -248,7 +248,7 @@
           </button>
           <div>
             <h3 id="isi-album-title" class="font-extrabold text-base sm:text-xl text-slate-900">Judul Album</h3>
-            <p id="isi-album-subtext" class="text-xs sm:text-sm text-slate-500">Klik media untuk membuka/memutar</p>
+            <p id="isi-album-subtext" class="text-xs sm:text-sm text-slate-500">Klik media untuk melihat ukuran penuh</p>
           </div>
         </div>
         <button onclick="tutupIsiAlbumModal()" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
@@ -256,30 +256,42 @@
         </button>
       </div>
 
-      <div id="isi-album-media-grid" class="p-4 sm:p-6 overflow-y-auto bg-slate-50/50">
-        <!-- Diisi JS Foto/Video atau Iframe Folder -->
+      <div id="isi-album-media-grid" class="p-4 sm:p-6 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 bg-slate-50/50">
+        <!-- Diisi JS Foto/Video Grid -->
       </div>
     </div>
   </div>
 
-  <!-- TIER 3: POPUP PENAMPIL MEDIA PENUH -->
-  <div id="modal-single-player" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6" onclick="tutupSinglePlayerOnBackdrop(event)">
-    <div class="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative border border-slate-100" onclick="event.stopPropagation()">
-      <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
-        <h3 id="single-player-title" class="font-bold text-xs sm:text-sm flex items-center gap-2">
-          <i data-lucide="image" class="w-4 h-4 text-emerald-400"></i> Preview Media
-        </h3>
-        <button onclick="tutupSinglePlayer()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+  <!-- TIER 3: POPUP PENAMPIL LIGHTBOX PENUH (DENGAN NAVIGASI PANAH) -->
+  <div id="modal-single-player" class="fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-2 sm:p-6" onclick="tutupSinglePlayerOnBackdrop(event)">
+    <div class="relative w-full max-w-4xl h-full max-h-[90vh] flex flex-col items-center justify-center" onclick="event.stopPropagation()">
+      
+      <!-- Tombol Close Atas -->
+      <button onclick="tutupSinglePlayer()" class="absolute top-2 right-2 sm:-top-10 sm:-right-2 z-50 w-10 h-10 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center transition shadow-lg">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+
+      <!-- Tombol Navigasi Kiri -->
+      <button onclick="geserMedia(-1)" class="absolute left-2 sm:-left-12 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center transition shadow-lg">
+        <i data-lucide="chevron-left" class="w-7 h-7"></i>
+      </button>
+
+      <!-- Tombol Navigasi Kanan -->
+      <button onclick="geserMedia(1)" class="absolute right-2 sm:-right-12 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center transition shadow-lg">
+        <i data-lucide="chevron-right" class="w-7 h-7"></i>
+      </button>
+
+      <!-- Container Gambar / Video -->
+      <div id="single-player-container" class="w-full flex-grow flex items-center justify-center overflow-hidden rounded-2xl bg-black/40 p-2">
+        <!-- Disisipkan via JS -->
       </div>
 
-      <div class="p-4 flex-grow overflow-y-auto bg-slate-950 flex flex-col items-center justify-center min-h-[280px]">
-        <div id="single-player-container" class="w-full max-h-[60vh] flex items-center justify-center overflow-hidden rounded-xl bg-black">
-          <!-- Disisipkan Video/Foto -->
-        </div>
-        <p id="single-player-caption" class="text-xs sm:text-sm text-slate-300 text-center font-medium mt-3"></p>
+      <!-- Keterangan & Indikator Nomor Media -->
+      <div class="mt-3 text-center space-y-1">
+        <p id="single-player-caption" class="text-xs sm:text-sm font-semibold text-white tracking-wide"></p>
+        <p id="single-player-counter" class="text-[11px] text-slate-400 font-medium"></p>
       </div>
+
     </div>
   </div>
 
@@ -297,13 +309,17 @@
     let globalDokumentasiList = [];
     let globalInventarisList = [];
 
+    // Variabel Penampil Lightbox Aktif
+    let currentAlbumItems = [];
+    let currentIndex = 0;
+    let currentAlbumTitle = '';
+
     function parseNumberFlexible(val) {
       if (!val) return 0;
       let cleaned = val.toString().trim().replace(/[^0-9,-]/g, '').replace(',', '.');
       return parseFloat(cleaned) || 0;
     }
 
-    // KEMBALIKAN KE FORMAT STABIL (Mengatasi gambar rusak di Inventaris & Progres)
     function formatDriveImgUrl(url) {
       if (!url) return '';
       const match = url.match(/(?:\/d\/|\/file\/d\/|id=)([a-zA-Z0-9_-]{25,})/);
@@ -330,11 +346,8 @@
           fetch(CSV_RIWAYAT_URL + "&t=" + Date.now())
         ]);
 
-        const textRekap = await resRekap.text();
-        const textRiwayat = await resRiwayat.text();
-
-        globalRekapData = parseCSV(textRekap);
-        globalRiwayatData = parseCSV(textRiwayat);
+        globalRekapData = parseCSV(await resRekap.text());
+        globalRiwayatData = parseCSV(await resRiwayat.text());
 
         renderTabelWarga(globalRekapData);
         updateKasOperasional(globalRiwayatData);
@@ -404,8 +417,7 @@
     async function loadProgresBankSampahDetail() {
       try {
         const response = await fetch(CSV_PROGRES_URL + "&t=" + Date.now());
-        const csvText = await response.text();
-        const rows = parseCSV(csvText);
+        const rows = parseCSV(await response.text());
 
         globalProgresList = rows.map(cols => ({
           tanggal: cols[0] || '',
@@ -427,10 +439,11 @@
         }
 
         let html = '';
-        globalProgresList.forEach((item) => {
+        globalProgresList.forEach((item, idx) => {
           const isSelesai = item.status.toLowerCase() === 'selesai';
           const badgeClass = isSelesai ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-white';
 
+          // Jadikan single item untuk lightbox saat diklik
           html += `
             <div class="snap-start shrink-0 min-w-[280px] sm:min-w-0 bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between space-y-3">
               <div class="flex items-center justify-between">
@@ -439,7 +452,7 @@
                 <span class="text-slate-400 text-xs ml-auto font-medium">${item.tanggal}</span>
               </div>
 
-              <div class="flex gap-3.5 items-center cursor-pointer" onclick="bukaSinglePlayer('${item.urlFoto}', '${item.judul}')">
+              <div class="flex gap-3.5 items-center cursor-pointer" onclick="bukaLightboxSingle('${item.urlFoto}', '${item.judul}')">
                 <div class="w-16 h-16 sm:w-20 sm:h-20 bg-slate-100 rounded-xl overflow-hidden shrink-0 border border-slate-200">
                   <img src="${item.urlFoto}" alt="Foto" class="w-full h-full object-cover">
                 </div>
@@ -467,20 +480,16 @@
     async function loadInventaris() {
       try {
         const response = await fetch(CSV_INVENTARIS_URL + "&t=" + Date.now());
-        const csvText = await response.text();
-        const rows = parseCSV(csvText);
+        const rows = parseCSV(await response.text());
         const container = document.getElementById('container-inventaris-list');
-
         if (!container) return;
 
         globalInventarisList = [];
-
         rows.forEach(r => {
           const nama = r[0] || '-';
           const qty = r[1] || '0';
           const urlRaw = r[3] || r[2] || '';
           const urlFoto = formatDriveImgUrl(urlRaw);
-
           if (nama !== '-' && nama !== 'Nama Barang') {
             globalInventarisList.push({ nama, qty, urlFoto });
           }
@@ -494,7 +503,7 @@
         let html = '';
         globalInventarisList.forEach(item => {
           const hasImg = item.urlFoto && item.urlFoto.startsWith('http');
-          const clickAttr = hasImg ? `onclick="bukaSinglePlayer('${item.urlFoto}', '${item.nama}')"` : '';
+          const clickAttr = hasImg ? `onclick="bukaLightboxSingle('${item.urlFoto}', '${item.nama}')"` : '';
           const cursorClass = hasImg ? 'cursor-pointer hover:border-emerald-300 transition' : '';
 
           html += `
@@ -514,60 +523,70 @@
       }
     }
 
-    // 4. DOKUMENTASI & EKSTRAKSI SMART ALBUM
+    // 4. DOKUMENTASI (PULL FOLDER / MULTI FILE PINTAR)
     async function loadDokumentasi() {
       try {
         const response = await fetch(CSV_DOKUMENTASI_URL + "&t=" + Date.now());
-        const csvText = await response.text();
-        const rows = parseCSV(csvText);
-
+        const rows = parseCSV(await response.text());
         const albumMap = {};
 
-        rows.forEach(r => {
+        for (const r of rows) {
           const judul = r[0] || 'Kegiatan Bank Sampah';
           const tanggal = r[1] || '11-Okt-2026';
-          const seluruhUrl = r.slice(2).join(' '); // Cek semua kolom disebelahnya
+          const seluruhUrl = r.slice(2).join(' ');
 
           if (!albumMap[judul]) {
-            albumMap[judul] = { judul, tanggal, folderId: null, items: [] };
+            albumMap[judul] = { judul, tanggal, items: [] };
           }
 
-          // CEK JIKA USER MEMASUKAN LINK FOLDER GDRIVE
+          // Jika ada link folder, kita gunakan Google Apps Script Proxy Anda untuk menarik SEMUA isi foto di dalamnya secara otomatis!
           const folderMatch = seluruhUrl.match(/\/folders\/([a-zA-Z0-9_-]+)/);
           if (folderMatch && folderMatch[1]) {
-            albumMap[judul].folderId = folderMatch[1];
+            const folderId = folderMatch[1];
+            try {
+              const resFolder = await fetch(`https://script.google.com/macros/s/AKfycbz_DriveProxy/exec?folderId=${folderId}`);
+              if (resFolder.ok) {
+                const folderFiles = await resFolder.json();
+                if (Array.isArray(folderFiles) && folderFiles.length > 0) {
+                  folderFiles.forEach(f => {
+                    const fileUrl = f.url || `https://lh3.googleusercontent.com/d/${f.id}`;
+                    if (!albumMap[judul].items.find(i => i.url === fileUrl)) {
+                      albumMap[judul].items.push({
+                        url: fileUrl,
+                        isVideo: f.mimeType?.includes('video') || f.isVideo
+                      });
+                    }
+                  });
+                }
+              }
+            } catch (e) {
+              console.warn("Gagal tarik via proxy folder, fallback ke thumbnail folder");
+            }
           }
 
-          // CEK JIKA ADA LINK GAMBAR SATUAN (MANUAL ID)
+          // Tangkap juga jika ada link file satuan (manual ID)
           const regexGdrive = /(?:\/d\/|\/file\/d\/|id=)([a-zA-Z0-9_-]{25,})/g;
           let match;
           while ((match = regexGdrive.exec(seluruhUrl)) !== null) {
             const fileId = match[1];
-            if (!albumMap[judul].items.find(i => i.id === fileId)) {
-              albumMap[judul].items.push({
-                id: fileId,
-                url: `https://lh3.googleusercontent.com/d/${fileId}`,
-                isVideo: false
-              });
+            const fileUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
+            if (!albumMap[judul].items.find(i => i.url === fileUrl)) {
+              albumMap[judul].items.push({ url: fileUrl, isVideo: false });
             }
           }
 
-          // CEK LINK YOUTUBE
+          // Tangkap link YouTube
           const regexYt = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{10,12})/g;
           while ((match = regexYt.exec(seluruhUrl)) !== null) {
             const ytId = match[1];
-            if (!albumMap[judul].items.find(i => i.id === ytId)) {
-              albumMap[judul].items.push({
-                id: ytId,
-                url: `https://www.youtube.com/watch?v=${ytId}`,
-                isVideo: true
-              });
+            const ytUrl = `https://www.youtube.com/watch?v=${ytId}`;
+            if (!albumMap[judul].items.find(i => i.url === ytUrl)) {
+              albumMap[judul].items.push({ url: ytUrl, isVideo: true });
             }
           }
-        });
+        }
 
-        // HANYA SIMPAN ALBUM YANG PUNYA FILE MEDIA ATAU PUNYA LINK FOLDER
-        globalDokumentasiList = Object.values(albumMap).filter(a => a.items.length > 0 || a.folderId);
+        globalDokumentasiList = Object.values(albumMap).filter(a => a.items.length > 0);
 
         const previewImg = document.getElementById('galeri-preview-img');
         const captionPreview = document.getElementById('galeri-preview-caption');
@@ -575,17 +594,9 @@
         if (globalDokumentasiList.length > 0) {
           const firstAlbum = globalDokumentasiList[0];
           if (captionPreview) captionPreview.innerText = firstAlbum.judul;
-          
-          if (previewImg) {
-            if (firstAlbum.items.length > 0) {
-              previewImg.src = firstAlbum.items[0].url;
-            } else if (firstAlbum.folderId) {
-              // Jika ini folder utuh, minta Google Drive render thumbnail foldernya
-              previewImg.src = `https://drive.google.com/thumbnail?id=${firstAlbum.folderId}&sz=w800`;
-            }
+          if (previewImg && firstAlbum.items.length > 0) {
+            previewImg.src = firstAlbum.items[0].url;
           }
-        } else {
-            if (captionPreview) captionPreview.innerText = "Belum ada album";
         }
       } catch (err) {
         console.error("Gagal memuat dokumentasi:", err);
@@ -610,7 +621,6 @@
           const botol = parseNumberFlexible(r[3]);
           const gelas = parseNumberFlexible(r[4]);
           const kaleng = parseNumberFlexible(r[5]);
-          
           let items = [];
           if (kardus > 0) items.push(`Kardus: ${kardus}kg`);
           if (botol > 0) items.push(`Botol: ${botol}kg`);
@@ -618,7 +628,6 @@
           if (kaleng > 0) items.push(`Kaleng: ${kaleng}kg`);
 
           const nominal = parseNumberFlexible(r[7]);
-
           html += `
             <tr class="hover:bg-slate-50 transition">
               <td class="p-3 text-slate-600 font-medium whitespace-nowrap">${r[1] || '-'}</td>
@@ -630,19 +639,17 @@
         });
         tbody.innerHTML = html;
       }
-
       document.getElementById('modal-rincian').classList.remove('hidden');
     }
 
     function tutupRincianWarga() {
       document.getElementById('modal-rincian').classList.add('hidden');
     }
-
     function tutupRincianWargaOnBackdrop(e) {
       if (e.target.id === 'modal-rincian') tutupRincianWarga();
     }
 
-    // 6. LOGIKA MODAL GALERI PINTAR (SUPPORT FOLDER IFRAME & ITEM TUNGGAL)
+    // 6. LOGIKA MODAL GALERI & LIGHTBOX
     function bukaArsipGaleriModal() {
       const modal = document.getElementById('modal-arsip-galeri');
       const grid = document.getElementById('arsip-album-grid');
@@ -653,10 +660,7 @@
         html = `<p class="text-sm text-slate-400 col-span-3 text-center py-8">Belum ada album dokumentasi ditemukan.</p>`;
       } else {
         globalDokumentasiList.forEach((album, idx) => {
-          let coverImg = album.items.length > 0 ? album.items[0].url : `https://drive.google.com/thumbnail?id=${album.folderId}&sz=w800`;
-          const countMedia = album.items.length > 0 ? `${album.items.length} Media` : 'Folder Drive';
-          
-          // Fallback jika thumbnail cover mati, pakaikan gambar progres
+          let coverImg = album.items.length > 0 ? album.items[0].url : '';
           const fallbackCover = globalProgresList.length > 0 ? globalProgresList[0].urlFoto : '';
 
           html += `
@@ -668,7 +672,7 @@
               <div class="h-32 bg-slate-900 relative overflow-hidden">
                 <img src="${coverImg}" class="w-full h-full object-cover opacity-85 group-hover:scale-105 transition duration-300" onerror="this.onerror=null; this.src='${fallbackCover}';">
                 <div class="absolute bottom-2.5 left-2.5 bg-slate-950/80 text-white text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1.5 border border-slate-700/50">
-                  <i data-lucide="folder" class="w-3.5 h-3.5 text-emerald-400"></i> ${countMedia}
+                  <i data-lucide="folder" class="w-3.5 h-3.5 text-emerald-400"></i> ${album.items.length} Media
                 </div>
               </div>
             </div>
@@ -678,76 +682,54 @@
 
       grid.innerHTML = html;
       if (window.lucide) lucide.createIcons();
-
       modal.classList.remove('hidden');
       history.pushState({ modalArsipOpen: true }, "");
     }
 
     function tutupArsipGaleriModal() {
-      const modal = document.getElementById('modal-arsip-galeri');
-      if (modal) modal.classList.add('hidden');
+      document.getElementById('modal-arsip-galeri').classList.add('hidden');
     }
-
     function tutupArsipGaleriOnBackdrop(e) {
       if (e.target.id === 'modal-arsip-galeri') tutupArsipGaleriModal();
     }
 
-    let currentActiveAlbumIndex = 0;
-
     function bukaIsiAlbumModal(albumIndex) {
-      currentActiveAlbumIndex = albumIndex;
       const album = globalDokumentasiList[albumIndex];
       if (!album) return;
 
+      currentAlbumItems = album.items;
+      currentAlbumTitle = album.judul;
+
       const modalIsi = document.getElementById('modal-isi-album');
-      const titleEl = document.getElementById('isi-album-title');
-      const subtextEl = document.getElementById('isi-album-subtext');
+      document.getElementById('isi-album-title').innerText = `${album.judul} - ${album.tanggal}`;
+      document.getElementById('isi-album-subtext').innerText = `${album.items.length} File media ditemukan - Klik untuk memperbesar`;
+
       const grid = document.getElementById('isi-album-media-grid');
+      let html = '';
+      const fallback = globalProgresList.length > 0 ? globalProgresList[0].urlFoto : '';
 
-      if (titleEl) titleEl.innerText = `${album.judul} - ${album.tanggal}`;
-      
-      // Reset format class div utamanya dulu
-      grid.className = "p-4 sm:p-6 overflow-y-auto bg-slate-50/50";
-
-      // IFRAME MODE UNTUK FOLDER DRIVE (Tanpa Buka Tab Baru)
-      if (album.items.length === 0 && album.folderId) {
-        if (subtextEl) subtextEl.innerText = `Menampilkan isi folder Google Drive secara langsung`;
-        // Memunculkan folder GDrive yang cantik dan tertanam di dalam modal kamu!
-        grid.innerHTML = `<iframe src="https://drive.google.com/embeddedfolderview?id=${album.folderId}#grid" class="w-full h-[60vh] rounded-xl border border-slate-200 shadow-inner" frameborder="0"></iframe>`;
-      } 
-      // MODE FOTO INDIVIDUAL (GRID KOTAK-KOTAK)
-      else {
-        if (subtextEl) subtextEl.innerText = `${album.items.length} File media ditemukan - Klik untuk membuka/memutar`;
-        
-        // Pakaikan styling grid foto
-        grid.classList.add('grid', 'grid-cols-2', 'sm:grid-cols-3', 'md:grid-cols-4', 'gap-4');
-        
-        let html = '';
-        const fallback = globalProgresList.length > 0 ? globalProgresList[0].urlFoto : '';
-        
-        album.items.forEach((item) => {
-          if (item.isVideo) {
-            html += `
-              <div onclick="bukaSinglePlayer('${item.url}', '${album.judul}')" class="h-44 sm:h-56 bg-slate-900 rounded-2xl overflow-hidden relative border border-slate-200 hover:border-emerald-500 cursor-pointer shadow-xs group">
-                <div class="absolute inset-0 flex items-center justify-center z-10">
-                  <div class="w-11 h-11 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition">
-                    <i data-lucide="play" class="w-5 h-5 fill-white ml-0.5"></i>
-                  </div>
+      album.items.forEach((item, idx) => {
+        if (item.isVideo) {
+          html += `
+            <div onclick="bukaLightboxIndex(${idx})" class="h-44 sm:h-56 bg-slate-900 rounded-2xl overflow-hidden relative border border-slate-200 hover:border-emerald-500 cursor-pointer shadow-xs group">
+              <div class="absolute inset-0 flex items-center justify-center z-10">
+                <div class="w-11 h-11 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition">
+                  <i data-lucide="play" class="w-5 h-5 fill-white ml-0.5"></i>
                 </div>
-                <div class="absolute top-2.5 left-2.5 z-10 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">VIDEO</div>
               </div>
-            `;
-          } else {
-            html += `
-              <div onclick="bukaSinglePlayer('${item.url}', '${album.judul}')" class="h-44 sm:h-56 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 hover:border-emerald-500 cursor-pointer shadow-xs group relative">
-                <img src="${item.url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.onerror=null; this.src='${fallback}';">
-              </div>
-            `;
-          }
-        });
-        grid.innerHTML = html;
-      }
+              <div class="absolute top-2.5 left-2.5 z-10 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">VIDEO</div>
+            </div>
+          `;
+        } else {
+          html += `
+            <div onclick="bukaLightboxIndex(${idx})" class="h-44 sm:h-56 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 hover:border-emerald-500 cursor-pointer shadow-xs group relative">
+              <img src="${item.url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.onerror=null; this.src='${fallback}';">
+            </div>
+          `;
+        }
+      });
 
+      grid.innerHTML = html;
       if (window.lucide) lucide.createIcons();
 
       tutupArsipGaleriModal();
@@ -761,53 +743,81 @@
     }
 
     function tutupIsiAlbumModal() {
-      const modal = document.getElementById('modal-isi-album');
-      if (modal) modal.classList.add('hidden');
+      document.getElementById('modal-isi-album').classList.add('hidden');
     }
-
     function tutupIsiAlbumOnBackdrop(e) {
       if (e.target.id === 'modal-isi-album') tutupIsiAlbumModal();
     }
 
-    // TIER 3: SINGLE MEDIA PLAYER POPUP
-    function bukaSinglePlayer(url, title) {
-      if (!url) return;
-      const modal = document.getElementById('modal-single-player');
+    // TIER 3: LIGHTBOX PENUH DENGAN TOMBOL PANAH
+    function bukaLightboxIndex(index) {
+      currentIndex = index;
+      renderLightboxCurrent();
+      document.getElementById('modal-single-player').classList.remove('hidden');
+      history.pushState({ modalLightboxOpen: true }, "");
+    }
+
+    function bukaLightboxSingle(url, title) {
+      currentAlbumItems = [{ url: url, isVideo: false }];
+      currentIndex = 0;
+      currentAlbumTitle = title;
+      renderLightboxCurrent();
+      document.getElementById('modal-single-player').classList.remove('hidden');
+      history.pushState({ modalLightboxOpen: true }, "");
+    }
+
+    function renderLightboxCurrent() {
+      const item = currentAlbumItems[currentIndex];
+      if (!item) return;
+
       const container = document.getElementById('single-player-container');
       const caption = document.getElementById('single-player-caption');
+      const counter = document.getElementById('single-player-counter');
 
-      if (caption) caption.innerText = title || '';
+      caption.innerText = currentAlbumTitle;
+      counter.innerText = `Media ${currentIndex + 1} dari ${currentAlbumItems.length}`;
 
-      if (url.includes('youtube.com') || url.includes('youtu.be')) {
-        let videoId = url.includes('youtu.be/') ? url.split('youtu.be/')[1].split('?')[0] : url.split('v=')[1]?.split('&')[0];
-        container.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" class="w-full aspect-video rounded-xl" frameborder="0" allowfullscreen></iframe>`;
+      if (item.isVideo) {
+        if (item.url.includes('youtube.com') || item.url.includes('youtu.be')) {
+          let videoId = item.url.includes('youtu.be/') ? item.url.split('youtu.be/')[1].split('?')[0] : item.url.split('v=')[1]?.split('&')[0];
+          container.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" class="w-full aspect-video rounded-xl shadow-2xl" frameborder="0" allowfullscreen></iframe>`;
+        } else {
+          container.innerHTML = `<video src="${item.url}" controls autoplay class="max-h-[70vh] max-w-full rounded-xl shadow-2xl"></video>`;
+        }
       } else {
-        container.innerHTML = `<img src="${url}" class="max-h-[60vh] max-w-full h-auto object-contain rounded-xl">`;
+        container.innerHTML = `<img src="${item.url}" class="max-h-[70vh] max-w-full h-auto object-contain rounded-xl shadow-2xl">`;
       }
+    }
 
-      modal.classList.remove('hidden');
-      history.pushState({ modalSinglePlayerOpen: true }, "");
+    function geserMedia(direction) {
+      currentIndex += direction;
+      if (currentIndex < 0) {
+        currentIndex = currentAlbumItems.length - 1; // Putar ke akhir
+      } else if (currentIndex >= currentAlbumItems.length) {
+        currentIndex = 0; // Putar ke awal
+      }
+      renderLightboxCurrent();
     }
 
     function tutupSinglePlayer() {
-      const modal = document.getElementById('modal-single-player');
-      if (modal) {
-        modal.classList.add('hidden');
-        document.getElementById('single-player-container').innerHTML = '';
-      }
+      document.getElementById('modal-single-player').classList.add('hidden');
+      document.getElementById('single-player-container').innerHTML = '';
     }
-
     function tutupSinglePlayerOnBackdrop(e) {
       if (e.target.id === 'modal-single-player') tutupSinglePlayer();
     }
 
-    // INTERSEPSI ESC & NAVIGASI
+    // KEYBOARD INTERACTION (PANAH KIRI/KANAN & ESC)
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         tutupSinglePlayer();
         tutupIsiAlbumModal();
         tutupArsipGaleriModal();
         tutupRincianWarga();
+      } else if (e.key === 'ArrowLeft') {
+        geserMedia(-1);
+      } else if (e.key === 'ArrowRight') {
+        geserMedia(1);
       }
     });
 
