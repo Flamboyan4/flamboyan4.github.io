@@ -107,7 +107,7 @@
       </div>
     </div>
 
-    <!-- 3. INVENTARIS & DOKUMENTASI -->
+    <!-- 3. INVENTARIS & DOKUMENTASI (LAYOUT MENYAMPING DI HP) -->
     <div class="space-y-3">
       <div class="flex items-center justify-between px-1">
         <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
@@ -117,10 +117,10 @@
         <p class="text-xs text-slate-400 lg:hidden">Geser kesamping →</p>
       </div>
 
-      <div id="container-inventaris-dokumentasi" class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-5 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 snap-x snap-mandatory no-scrollbar">
+      <div class="flex lg:grid lg:grid-cols-2 gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-2">
         
         <!-- Card Inventaris -->
-        <div class="snap-start shrink-0 min-w-[280px] lg:min-w-0 bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col justify-between">
+        <div class="snap-start shrink-0 w-[85%] sm:w-[70%] lg:w-auto bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-1">
               <h4 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
@@ -136,7 +136,7 @@
         </div>
 
         <!-- Card Dokumentasi -->
-        <div class="snap-start shrink-0 min-w-[280px] lg:min-w-0 bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col justify-between">
+        <div class="snap-start shrink-0 w-[85%] sm:w-[70%] lg:w-auto bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-1">
               <h4 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
@@ -164,7 +164,7 @@
       </div>
     </div>
 
-    <!-- 4. CARD PROGRES BANK SAMPAH -->
+    <!-- 4. CARD PROGRES BANK SAMPAH (LAYOUT MENYAMPING DI HP) -->
     <div class="space-y-3 pt-2">
       <div class="flex items-center justify-between px-1">
         <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
@@ -174,7 +174,7 @@
         <p class="text-xs text-slate-400 lg:hidden">Geser kesamping →</p>
       </div>
 
-      <div id="container-progres-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 snap-x snap-mandatory no-scrollbar">
+      <div id="container-progres-cards" class="flex lg:grid lg:grid-cols-3 gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-2">
         <div class="text-sm text-slate-400 p-4 italic col-span-full">Memuat progres...</div>
       </div>
     </div>
@@ -346,17 +346,22 @@
     </div>
   </div>
 
-  <!-- SINGLE PLAYER LIGHTBOX -->
-  <div id="modal-single-player" class="fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-2 sm:p-6" onclick="tutupSinglePlayerOnBackdrop(event)">
-    <div class="relative w-full max-w-4xl h-full max-h-[90vh] flex flex-col items-center justify-center" onclick="event.stopPropagation()">
-      <button onclick="tutupSinglePlayer()" class="absolute top-2 right-2 sm:-top-10 sm:-right-2 z-50 w-10 h-10 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center transition shadow-lg">
-        <i data-lucide="x" class="w-6 h-6"></i>
-      </button>
-      <div id="single-player-container" class="w-full flex-grow flex items-center justify-center overflow-hidden rounded-2xl bg-black/40 p-2"></div>
-      <div class="mt-3 text-center space-y-1">
-        <p id="single-player-caption" class="text-xs sm:text-sm font-semibold text-white tracking-wide"></p>
+  <!-- SINGLE PLAYER / LIGHTBOX GAMBAR TUNGGAL (UNTUK INVENTARIS & PROGRES) -->
+  <div id="modal-single-player" class="fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-between p-3 md:p-6 select-none" onclick="tutupSinglePlayer()">
+    <div class="w-full flex items-center justify-between z-30 pb-2" onclick="event.stopPropagation()">
+      <p id="single-player-caption" class="text-xs md:text-sm font-semibold tracking-wide text-white truncate max-w-[70%]"></p>
+      <div class="flex items-center space-x-2">
+        <button onclick="resetSingleZoomState(event)" id="btn-reset-single-zoom" class="text-white bg-slate-800/80 hover:bg-slate-700 px-3 py-1.5 rounded-full text-xs font-semibold transition shadow-md hidden">
+          Reset Zoom
+        </button>
+        <button onclick="tutupSinglePlayer()" class="text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition shadow-md">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
       </div>
     </div>
+
+    <div id="single-player-container" class="relative w-full flex-grow flex items-center justify-center my-auto overflow-hidden touch-none" onclick="event.stopPropagation()"></div>
+    <div class="w-full text-center z-30 pt-2"><p class="text-xs text-slate-400 font-mono">Foto Detail</p></div>
   </div>
 
   <!-- SCRIPT UTAMA -->
@@ -377,15 +382,11 @@
     let currentLightboxIndex = 0;
 
     // VARIABEL ZOOM & SWIPE LIGHTBOX
-    let currentScale = 1;
-    let panX = 0;
-    let panY = 0;
-    let isDragging = false;
-    let startX = 0;
-    let startY = 0;
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let lastTouchDist = 0;
+    let currentScale = 1, panX = 0, panY = 0, isDragging = false, startX = 0, startY = 0;
+    let touchStartX = 0, touchStartY = 0, lastTouchDist = 0;
+
+    // VARIABEL ZOOM SINGLE PLAYER
+    let singleScale = 1, singlePanX = 0, singlePanY = 0, isSingleDragging = false, singleStartX = 0, singleStartY = 0, singleLastTouchDist = 0;
 
     function parseNumberFlexible(val) {
       if (!val) return 0;
@@ -482,6 +483,7 @@
     }
 
     function bukaPopupTotalSampah() {
+      history.pushState({ modal: 'totalsampah' }, '', '#totalsampah');
       let totalKardus = 0, totalBotol = 0, totalGelas = 0, totalKaleng = 0;
       globalRiwayatData.forEach(r => {
         totalKardus += parseNumberFlexible(r[2]);
@@ -515,6 +517,7 @@
     function tutupPopupTotalSampahOnBackdrop(e) { if (e.target.id === 'modal-total-sampah') tutupPopupTotalSampah(); }
 
     function bukaPopupTotalTabungan() {
+      history.pushState({ modal: 'totaltabungan' }, '', '#totaltabungan');
       const tbody = document.getElementById('content-tabel-tabungan-singkat');
       let html = '';
       globalRekapData.forEach(row => {
@@ -561,7 +564,7 @@
           const isSelesai = item.status.toLowerCase() === 'selesai';
           const badgeClass = isSelesai ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-white';
           html += `
-            <div class="snap-start shrink-0 min-w-[280px] sm:min-w-0 bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between space-y-3">
+            <div class="snap-start shrink-0 w-[85%] sm:w-[70%] lg:w-auto bg-white p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between space-y-3">
               <div class="flex items-center justify-between">
                 <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-md">${item.langkah}</span>
                 <span class="${badgeClass} text-xs font-semibold px-2.5 py-0.5 rounded-md">${item.status}</span>
@@ -755,7 +758,7 @@
       document.getElementById('modal-gallery-grid').classList.add('hidden');
     }
 
-    // LIGHTBOX DENGAN PEMUTAR VIDEO & ZOOM & SWIPE GESTUR
+    // LIGHTBOX DENGAN ZOOM & SWIPE GESTUR
     function bukaLightbox(index) {
       currentLightboxIndex = index;
       history.pushState({ modal: 'lightbox' }, '', '#lightbox');
@@ -794,9 +797,7 @@
       panX = 0;
       panY = 0;
       const img = document.getElementById('lightbox-img');
-      if (img) {
-        img.style.transform = `translate(0px, 0px) scale(1)`;
-      }
+      if (img) img.style.transform = `translate(0px, 0px) scale(1)`;
       const btnReset = document.getElementById('btn-reset-zoom');
       if (btnReset) btnReset.classList.add('hidden');
     }
@@ -822,13 +823,8 @@
       const img = document.getElementById('lightbox-img');
       if (!wrapper || !img) return;
 
-      // Mouse drag untuk pan saat zoom
       wrapper.addEventListener('mousedown', (e) => {
-        if (currentScale <= 1) {
-          touchStartX = e.clientX;
-          isDragging = false;
-          return;
-        }
+        if (currentScale <= 1) { touchStartX = e.clientX; isDragging = false; return; }
         isDragging = true;
         startX = e.clientX - panX;
         startY = e.clientY - panY;
@@ -842,11 +838,8 @@
         updateTransform();
       });
 
-      window.addEventListener('mouseup', () => {
-        isDragging = false;
-      });
+      window.addEventListener('mouseup', () => { isDragging = false; });
 
-      // Touch events untuk Mobile (Swipe, Pinch Zoom, Pan)
       wrapper.addEventListener('touchstart', (e) => {
         if (e.touches.length === 1) {
           touchStartX = e.touches[0].clientX;
@@ -858,20 +851,13 @@
           }
         } else if (e.touches.length === 2) {
           isDragging = false;
-          lastTouchDist = Math.hypot(
-            e.touches[0].clientX - e.touches[1].clientX,
-            e.touches[0].clientY - e.touches[1].clientY
-          );
+          lastTouchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
         }
       }, { passive: true });
 
       wrapper.addEventListener('touchmove', (e) => {
         if (e.touches.length === 2) {
-          // Pinch Zoom
-          const dist = Math.hypot(
-            e.touches[0].clientX - e.touches[1].clientX,
-            e.touches[0].clientY - e.touches[1].clientY
-          );
+          const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
           if (lastTouchDist > 0) {
             let scaleFactor = dist / lastTouchDist;
             currentScale = Math.min(Math.max(1, currentScale * scaleFactor), 4);
@@ -879,7 +865,6 @@
           }
           lastTouchDist = dist;
         } else if (e.touches.length === 1 && isDragging && currentScale > 1) {
-          // Pan saat ter-zoom
           panX = e.touches[0].clientX - startX;
           panY = e.touches[0].clientY - startY;
           updateTransform();
@@ -890,33 +875,23 @@
         if (e.touches.length < 2) lastTouchDist = 0;
         if (e.touches.length === 0) {
           isDragging = false;
-          // Deteksi Swipe Kiri/Kanan jika tidak sedang zoom
           if (currentScale === 1) {
-            let touchEndX = e.changedTouches[0].clientX;
-            let touchEndY = e.changedTouches[0].clientY;
-            let diffX = touchEndX - touchStartX;
-            let diffY = touchEndY - touchStartY;
-
+            let diffX = e.changedTouches[0].clientX - touchStartX;
+            let diffY = e.changedTouches[0].clientY - touchStartY;
             if (Math.abs(diffX) > 60 && Math.abs(diffY) < 80) {
-              if (diffX > 0) geserLightbox(-1); // Swipe Kanan -> Sebelumnya
-              else geserLightbox(1);            // Swipe Kiri -> Berikutnya
+              if (diffX > 0) geserLightbox(-1);
+              else geserLightbox(1);
             }
           }
         }
       });
 
-      // Double tap untuk zoom in/out
       let lastTap = 0;
       wrapper.addEventListener('touchend', (e) => {
         let currentTime = new Date().getTime();
         let tapLength = currentTime - lastTap;
         if (tapLength < 300 && tapLength > 0) {
-          if (currentScale > 1) {
-            resetZoomState();
-          } else {
-            currentScale = 2.5;
-            updateTransform();
-          }
+          if (currentScale > 1) { resetZoomState(); } else { currentScale = 2.5; updateTransform(); }
           e.preventDefault();
         }
         lastTap = currentTime;
@@ -936,23 +911,152 @@
       resetZoomState();
     }
 
-    // MENGATUR TOMBOL BACK HP (HISTORY API) AGAR MENUTUP MODAL BERTAHAP
+    // SINGLE PLAYER ZOOM & SWIPE UNTUK INVENTARIS & PROGRES
+    function bukaLightboxSingle(url, title) {
+      history.pushState({ modal: 'single' }, '', '#detail');
+      document.getElementById('single-player-caption').innerText = title;
+      resetSingleZoomState();
+      const container = document.getElementById('single-player-container');
+      container.innerHTML = `
+        <div id="single-zoom-wrapper" class="relative w-full h-full flex items-center justify-center overflow-hidden">
+          <img id="single-player-img" src="${url}" class="max-h-[75vh] max-w-full object-contain transition-transform duration-75 select-none" draggable="false">
+        </div>
+      `;
+      setupSingleZoomHandlers();
+      document.getElementById('modal-single-player').classList.remove('hidden');
+    }
+
+    function resetSingleZoomState() {
+      singleScale = 1;
+      singlePanX = 0;
+      singlePanY = 0;
+      const img = document.getElementById('single-player-img');
+      if (img) img.style.transform = `translate(0px, 0px) scale(1)`;
+      const btnReset = document.getElementById('btn-reset-single-zoom');
+      if (btnReset) btnReset.classList.add('hidden');
+    }
+
+    function resetSingleZoomStateEvent(e) {
+      if(e) e.stopPropagation();
+      resetSingleZoomState();
+    }
+
+    function updateSingleTransform() {
+      const img = document.getElementById('single-player-img');
+      if (!img) return;
+      img.style.transform = `translate(${singlePanX}px, ${singlePanY}px) scale(${singleScale})`;
+      const btnReset = document.getElementById('btn-reset-single-zoom');
+      if (btnReset) {
+        if (singleScale > 1) btnReset.classList.remove('hidden');
+        else btnReset.classList.add('hidden');
+      }
+    }
+
+    function setupSingleZoomHandlers() {
+      const wrapper = document.getElementById('single-zoom-wrapper');
+      const img = document.getElementById('single-player-img');
+      if (!wrapper || !img) return;
+
+      wrapper.addEventListener('mousedown', (e) => {
+        if (singleScale <= 1) return;
+        isSingleDragging = true;
+        singleStartX = e.clientX - singlePanX;
+        singleStartY = e.clientY - singlePanY;
+        e.preventDefault();
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isSingleDragging || singleScale <= 1) return;
+        singlePanX = e.clientX - singleStartX;
+        singlePanY = e.clientY - singleStartY;
+        updateSingleTransform();
+      });
+
+      window.addEventListener('mouseup', () => { isSingleDragging = false; });
+
+      wrapper.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+          if (singleScale > 1) {
+            isSingleDragging = true;
+            singleStartX = e.touches[0].clientX - singlePanX;
+            singleStartY = e.touches[0].clientY - singlePanY;
+          }
+        } else if (e.touches.length === 2) {
+          isSingleDragging = false;
+          singleLastTouchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        }
+      }, { passive: true });
+
+      wrapper.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2) {
+          const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+          if (singleLastTouchDist > 0) {
+            let scaleFactor = dist / singleLastTouchDist;
+            singleScale = Math.min(Math.max(1, singleScale * scaleFactor), 4);
+            updateSingleTransform();
+          }
+          singleLastTouchDist = dist;
+        } else if (e.touches.length === 1 && isSingleDragging && singleScale > 1) {
+          singlePanX = e.touches[0].clientX - singleStartX;
+          singlePanY = e.touches[0].clientY - singleStartY;
+          updateSingleTransform();
+        }
+      }, { passive: true });
+
+      wrapper.addEventListener('touchend', (e) => {
+        if (e.touches.length < 2) singleLastTouchDist = 0;
+        if (e.touches.length === 0) isSingleDragging = false;
+      });
+
+      let lastTap = 0;
+      wrapper.addEventListener('touchend', (e) => {
+        let currentTime = new Date().getTime();
+        let tapLength = currentTime - lastTap;
+        if (tapLength < 300 && tapLength > 0) {
+          if (singleScale > 1) { resetSingleZoomState(); } else { singleScale = 2.5; updateSingleTransform(); }
+          e.preventDefault();
+        }
+        lastTap = currentTime;
+      });
+    }
+
+    function tutupSinglePlayer() {
+      document.getElementById('modal-single-player').classList.add('hidden');
+      document.getElementById('single-player-container').innerHTML = '';
+      resetSingleZoomState();
+    }
+
+    // PENGATUR TOMBOL BACK HP & ESC PC (UNIVERSAL UNTUK SEMUA MODAL)
     window.addEventListener('popstate', function(event) {
       const lightbox = document.getElementById('lightbox-modal');
       const galleryGrid = document.getElementById('modal-gallery-grid');
       const arsipModal = document.getElementById('modal-arsip-galeri');
+      const singleModal = document.getElementById('modal-single-player');
+      const modalRincian = document.getElementById('modal-rincian');
+      const modalSampah = document.getElementById('modal-total-sampah');
+      const modalTabungan = document.getElementById('modal-total-tabungan');
 
       if (!lightbox.classList.contains('hidden')) {
         lightbox.classList.add('hidden');
         document.getElementById('lightbox-media-container').innerHTML = '';
+      } else if (!singleModal.classList.contains('hidden')) {
+        singleModal.classList.add('hidden');
+        document.getElementById('single-player-container').innerHTML = '';
       } else if (!galleryGrid.classList.contains('hidden')) {
         galleryGrid.classList.add('hidden');
       } else if (!arsipModal.classList.contains('hidden')) {
         arsipModal.classList.add('hidden');
+      } else if (!modalRincian.classList.contains('hidden')) {
+        modalRincian.classList.add('hidden');
+      } else if (!modalSampah.classList.contains('hidden')) {
+        modalSampah.classList.add('hidden');
+      } else if (!modalTabungan.classList.contains('hidden')) {
+        modalTabungan.classList.add('hidden');
       }
     });
 
     function bukaRincianWarga(namaBlok, totalBerat, totalSaldo) {
+      history.pushState({ modal: 'rincianwarga' }, '', '#warga');
       document.getElementById('modal-nama-warga').innerText = namaBlok;
       document.getElementById('modal-total-berat').innerText = `${totalBerat.toFixed(1)} Kg`;
       document.getElementById('modal-total-saldo').innerText = `Rp ${Math.round(totalSaldo).toLocaleString('id-ID')}`;
@@ -987,18 +1091,6 @@
     }
     function tutupRincianWarga() { document.getElementById('modal-rincian').classList.add('hidden'); }
     function tutupRincianWargaOnBackdrop(e) { if (e.target.id === 'modal-rincian') tutupRincianWarga(); }
-
-    function bukaLightboxSingle(url, title) {
-      const container = document.getElementById('single-player-container');
-      document.getElementById('single-player-caption').innerText = title;
-      container.innerHTML = `<img src="${url}" class="max-h-[70vh] max-w-full h-auto object-contain rounded-xl shadow-2xl">`;
-      document.getElementById('modal-single-player').classList.remove('hidden');
-    }
-    function tutupSinglePlayer() {
-      document.getElementById('modal-single-player').classList.add('hidden');
-      document.getElementById('single-player-container').innerHTML = '';
-    }
-    function tutupSinglePlayerOnBackdrop(e) { if (e.target.id === 'modal-single-player') tutupSinglePlayer(); }
 
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
