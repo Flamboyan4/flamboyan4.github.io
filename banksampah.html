@@ -138,7 +138,7 @@
             <p class="text-xs sm:text-sm text-slate-500 mb-3">Foto & Video kegiatan warga</p>
             
             <div onclick="bukaArsipGaleriModal()" class="relative h-36 rounded-xl overflow-hidden bg-slate-900 cursor-pointer group border border-slate-200">
-              <img id="galeri-preview-img" src="" alt="Galeri Preview" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition duration-300" onerror="this.onerror=null; if(globalProgresList.length>0) this.src=globalProgresList[0].urlFoto;">
+              <img id="galeri-preview-img" src="" alt="Galeri Preview" class="w-full h-full object-cover opacity-85 group-hover:scale-105 transition duration-300">
               <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-3.5">
                 <div class="text-white">
                   <span class="bg-emerald-600 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Buka Galeri</span>
@@ -152,7 +152,7 @@
       </div>
     </div>
 
-    <!-- 4. CARD PROGRES BANK SAMPAH (POSISI PALING BAWAH) -->
+    <!-- 4. CARD PROGRES BANK SAMPAH (PALING BAWAH) -->
     <div class="space-y-3 pt-2">
       <div class="flex items-center justify-between px-1">
         <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
@@ -174,7 +174,7 @@
     <p>© 2026 Humas 3 Warga Flamboyan 4. Dikelola secara swadaya & transparan.</p>
   </footer>
 
-  <!-- MODAL RINCIAN WARGA (DIBUAT LEBIH LEGA max-w-2xl) -->
+  <!-- MODAL RINCIAN WARGA -->
   <div id="modal-rincian" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5" onclick="tutupRincianWargaOnBackdrop(event)">
     <div class="bg-white rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl relative border border-slate-100" onclick="event.stopPropagation()">
       <div class="p-4 sm:p-5 bg-emerald-900 text-white flex items-center justify-between">
@@ -520,7 +520,7 @@
       }
     }
 
-    // 4. DOKUMENTASI
+    // 4. DOKUMENTASI (PERBAIKAN TOTAL AMBIL URL FOLDER DRIVE DARI SPREADSHEET)
     async function loadDokumentasi() {
       try {
         const response = await fetch(CSV_DOKUMENTASI_URL + "&t=" + Date.now());
@@ -539,15 +539,13 @@
             albumMap[judul] = {
               judul,
               tanggal,
+              rawUrl: urlRaw,
               folderId: folderId,
               items: []
             };
           }
 
-          if (urlRaw.includes('/drive/folders/')) {
-            const folderId = extractDriveFolderId(urlRaw);
-            albumMap[judul].folderId = folderId;
-          } else if (urlRaw.startsWith('http')) {
+          if (urlRaw.startsWith('http') && !urlRaw.includes('/drive/folders/')) {
             const urlFormatted = formatDriveImgUrl(urlRaw);
             albumMap[judul].items.push({
               url: urlFormatted,
@@ -570,11 +568,19 @@
             if (firstAlbum.items.length > 0) {
               coverSrc = firstAlbum.items[0].url;
             } else if (firstAlbum.folderId) {
-              coverSrc = `https://drive.google.com/thumbnail?id=${firstAlbum.folderId}&sz=w800`;
+              // URL render Thumbnail Folder Drive tanpa error!
+              coverSrc = `https://lh3.googleusercontent.com/d/${firstAlbum.folderId}`;
             } else if (globalProgresList.length > 0) {
               coverSrc = globalProgresList[0].urlFoto;
             }
+            
             previewImg.src = coverSrc;
+            // Fallback jika Google Drive memblokir hotlink
+            previewImg.onerror = function() {
+              if (globalProgresList.length > 0) {
+                this.src = globalProgresList[0].urlFoto;
+              }
+            };
           }
         }
       } catch (err) {
@@ -643,8 +649,8 @@
         html = `<p class="text-sm text-slate-400 col-span-3 text-center py-8">Belum ada album dokumentasi.</p>`;
       } else {
         globalDokumentasiList.forEach((album, idx) => {
-          let coverImg = album.items.length > 0 ? album.items[0].url : (album.folderId ? `https://drive.google.com/thumbnail?id=${album.folderId}&sz=w800` : (globalProgresList.length > 0 ? globalProgresList[0].urlFoto : ''));
-          const countMedia = album.items.length || (globalProgresList.length > 0 ? globalProgresList.length : 1);
+          let coverImg = album.items.length > 0 ? album.items[0].url : (album.folderId ? `https://lh3.googleusercontent.com/d/${album.folderId}` : (globalProgresList.length > 0 ? globalProgresList[0].urlFoto : ''));
+          const fallbackImg = globalProgresList.length > 0 ? globalProgresList[0].urlFoto : '';
 
           html += `
             <div onclick="bukaIsiAlbumModal(${idx})" class="bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-emerald-500 shadow-xs hover:shadow-md cursor-pointer transition group">
@@ -653,9 +659,9 @@
                 <h4 class="text-sm font-bold text-slate-800 line-clamp-1 mt-0.5 group-hover:text-emerald-700 transition">${album.judul}</h4>
               </div>
               <div class="h-32 bg-slate-900 relative overflow-hidden">
-                <img src="${coverImg}" class="w-full h-full object-cover opacity-85 group-hover:scale-105 transition duration-300" onerror="this.onerror=null; if(globalProgresList.length>0) this.src=globalProgresList[0].urlFoto;">
+                <img src="${coverImg}" class="w-full h-full object-cover opacity-85 group-hover:scale-105 transition duration-300" onerror="this.onerror=null; this.src='${fallbackImg}';">
                 <div class="absolute bottom-2.5 left-2.5 bg-slate-950/80 text-white text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1.5 border border-slate-700/50">
-                  <i data-lucide="folder" class="w-3.5 h-3.5 text-emerald-400"></i> ${countMedia} Media
+                  <i data-lucide="folder" class="w-3.5 h-3.5 text-emerald-400"></i> ${album.items.length || '3+'} Media
                 </div>
               </div>
             </div>
@@ -686,22 +692,22 @@
       const album = globalDokumentasiList[albumIndex];
       if (!album) return;
 
+      // Jika diisi link folder, langsung buka link Google Drive di tab baru!
+      if (album.items.length === 0 && album.rawUrl) {
+        window.open(album.rawUrl, '_blank');
+        return;
+      }
+
       const modalIsi = document.getElementById('modal-isi-album');
       const titleEl = document.getElementById('isi-album-title');
       const subtextEl = document.getElementById('isi-album-subtext');
       const grid = document.getElementById('isi-album-media-grid');
 
       if (titleEl) titleEl.innerText = `${album.judul} - ${album.tanggal}`;
-
-      let itemsToRender = album.items.slice();
-      if (itemsToRender.length === 0 && globalProgresList.length > 0) {
-        itemsToRender = globalProgresList.map(p => ({ url: p.urlFoto, isVideo: false }));
-      }
-
-      if (subtextEl) subtextEl.innerText = `${itemsToRender.length} File media ditemukan - Klik untuk membuka/memutar`;
+      if (subtextEl) subtextEl.innerText = `${album.items.length} File media ditemukan - Klik untuk membuka/memutar`;
 
       let html = '';
-      itemsToRender.forEach((item) => {
+      album.items.forEach((item) => {
         if (item.isVideo) {
           html += `
             <div onclick="bukaSinglePlayer('${item.url}', '${album.judul}')" class="h-44 sm:h-56 bg-slate-900 rounded-2xl overflow-hidden relative border border-slate-200 hover:border-emerald-500 cursor-pointer shadow-xs group">
