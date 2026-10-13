@@ -462,6 +462,11 @@
               </div>
             </div>
           </div>
+
+          <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-emerald-600 font-semibold">
+            <span>Buka Laman Pengelolaan</span>
+            <i data-lucide="chevron-right" class="w-4 h-4 group-hover:translate-x-1 transition"></i>
+          </div>
         </div>
 
       </div>
@@ -3018,47 +3023,24 @@ function formatDriveImgUrl(url) {
 
 async function loadProgresBankSampahIndex() {
   try {
-    const response = await fetch(CSV_PROGRES_URL + "&t=" + Date.now());
+    const response = await fetch(CSV_PROGRES_URL);
     const csvText = await response.text();
     const lines = csvText.split('\n').map(l => l.trim()).filter(l => l);
     if (lines.length <= 1) return;
 
     const dataList = lines.slice(1).map(line => {
-      const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
+      const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"\vert{}"$/g, '').trim());
       return {
         tanggal: cols[0] || '',
         langkah: cols[1] || '',
         judul: cols[2] || '',
         deskripsi: cols[3] || '',
-        status: (cols[4] || '').trim(),
+        status: cols[4] || '',
         tahapDetail: cols[5] || '',
         agendaBerikut: cols[6] || '',
-        urlFoto: formatDriveImgUrl(cols[7] || '')
+        urlFoto: cols[7] || ''
       };
     });
-
-    // AMBIL HANYA 1 LANGKAH YANG SEDANG BERJALAN (Status bukan 'Selesai')
-    let progresAktif = dataList.find(d => d.status.toLowerCase() !== 'selesai');
-    
-    // Jika semua langkah sudah selesai, ambil langkah paling terakhir
-    if (!progresAktif && dataList.length > 0) {
-      progresAktif = dataList[dataList.length - 1];
-    }
-
-    if (!progresAktif) return;
-
-    // Update elemen HTML secara bersih (Hanya 1 langkah aktif)
-    if (document.getElementById('bs-step-tag')) document.getElementById('bs-step-tag').innerText = progresAktif.langkah;
-    if (document.getElementById('bs-title')) document.getElementById('bs-title').innerText = progresAktif.judul;
-    if (document.getElementById('bs-desc')) document.getElementById('bs-desc').innerText = progresAktif.deskripsi;
-    if (document.getElementById('bs-info-1')) document.getElementById('bs-info-1').innerText = progresAktif.tahapDetail;
-    if (document.getElementById('bs-info-2')) document.getElementById('bs-info-2').innerText = progresAktif.agendaBerikut;
-    if (document.getElementById('bs-bg-img')) document.getElementById('bs-bg-img').src = progresAktif.urlFoto;
-
-  } catch (err) {
-    console.error("Gagal memuat progres bank sampah index:", err);
-  }
-}
 
     // Ambil data langkah yang aktif (status Selesai/Proses paling baru)
     const progresAktif = dataList.filter(d => d.status.toLowerCase() === 'selesai' || d.status.toLowerCase() === 'proses').pop() || dataList[dataList.length - 1];
