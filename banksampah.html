@@ -433,20 +433,23 @@
     </div>
   </div>
 
-  <!-- SINGLE PLAYER / LIGHTBOX GAMBAR TUNGGAL (UNTUK INVENTARIS & PROGRES) -->
-  <div id="modal-single-player" class="fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-between p-3 md:p-6 select-none" onclick="tutupSinglePlayer()">
-    <div class="w-full flex items-center justify-between z-30 pb-2" onclick="event.stopPropagation()">
-      <p id="single-player-caption" class="text-xs md:text-sm font-semibold tracking-wide text-white truncate max-w-[70%]"></p>
-      <div class="flex items-center space-x-2">
-        <button onclick="resetSingleZoomStateEvent(event)" id="btn-reset-single-zoom" class="text-white bg-slate-800/80 hover:bg-slate-700 px-3 py-1.5 rounded-full text-xs font-semibold transition shadow-md hidden">
-          Reset Zoom
-        </button>
-        <button onclick="tutupSinglePlayer()" class="text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition shadow-md">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
+  <!-- SINGLE PLAYER / LIGHTBOX GAMBAR TUNGGAL -->
+<div id="modal-single-player" class="fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-between p-3 md:p-6 select-none cursor-pointer" onclick="tutupSinglePlayer()">
+  <div class="w-full flex items-center justify-between z-30 pb-2" onclick="event.stopPropagation()">
+    <p id="single-player-caption" class="text-xs md:text-sm font-semibold tracking-wide text-white truncate max-w-[70%]"></p>
+    <div class="flex items-center space-x-2">
+      <button onclick="resetSingleZoomStateEvent(event)" id="btn-reset-single-zoom" class="text-white bg-slate-800/80 hover:bg-slate-700 px-3 py-1.5 rounded-full text-xs font-semibold transition shadow-md hidden">
+        Reset Zoom
+      </button>
+      <button onclick="tutupSinglePlayer()" class="text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-full transition shadow-md">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
     </div>
+  </div>
 
+  <div id="single-player-container" class="relative w-full flex-grow flex items-center justify-center my-auto overflow-hidden touch-none pointer-events-none"></div>
+  <div class="w-full text-center z-30 pt-2"><p class="text-xs text-slate-400 font-mono">Foto Detail</p></div>
+</div>
     <div id="single-player-container" class="relative w-full flex-grow flex items-center justify-center my-auto overflow-hidden touch-none" onclick="event.stopPropagation()"></div>
     <div class="w-full text-center z-30 pt-2"><p class="text-xs text-slate-400 font-mono">Foto Detail</p></div>
   </div>
@@ -1174,18 +1177,18 @@
 
     // SINGLE PLAYER ZOOM & SWIPE UNTUK INVENTARIS & PROGRES
     function bukaLightboxSingle(url, title) {
-      history.pushState({ modal: 'single' }, '', '#detail');
-      document.getElementById('single-player-caption').innerText = title;
-      resetSingleZoomState();
-      const container = document.getElementById('single-player-container');
-      container.innerHTML = `
-        <div id="single-zoom-wrapper" class="relative w-full h-full flex items-center justify-center overflow-hidden">
-          <img id="single-player-img" src="${url}" class="max-h-[75vh] max-w-full object-contain transition-transform duration-75 select-none" draggable="false">
-        </div>
-      `;
-      setupSingleZoomHandlers();
-      document.getElementById('modal-single-player').classList.remove('hidden');
-    }
+  history.pushState({ modal: 'single' }, '', '#detail');
+  document.getElementById('single-player-caption').innerText = title;
+  resetSingleZoomState();
+  const container = document.getElementById('single-player-container');
+  container.innerHTML = `
+    <div id="single-zoom-wrapper" class="relative w-full h-full flex items-center justify-center overflow-hidden pointer-events-auto">
+      <img id="single-player-img" src="${url}" class="max-h-[75vh] max-w-full object-contain transition-transform duration-75 select-none" draggable="false">
+    </div>
+  `;
+  setupSingleZoomHandlers();
+  document.getElementById('modal-single-player').classList.remove('hidden');
+}
 
     function resetSingleZoomState() {
       singleScale = 1; singlePanX = 0; singlePanY = 0;
