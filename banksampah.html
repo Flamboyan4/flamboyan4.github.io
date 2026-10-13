@@ -225,13 +225,13 @@
     </div>
   </div>
 
-  <!-- MODAL POPUP 3: GALERI DOKUMENTASI -->
+  <!-- MODAL POPUP 3: LIST KEGIATAN DOKUMENTASI -->
   <div id="modal-dokumentasi" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
       <div class="bg-emerald-900 text-white p-4 flex items-center justify-between">
         <div>
           <h3 class="text-base sm:text-lg font-bold">Dokumentasi Kegiatan Bank Sampah</h3>
-          <p class="text-xs text-emerald-200">Foto & catatan aktivitas pemilahan sampah</p>
+          <p class="text-xs text-emerald-200">Daftar album kegiatan warga Flamboyan 4</p>
         </div>
         <button onclick="window.closeModal('modal-dokumentasi')" class="p-1.5 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-white transition">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -243,14 +243,33 @@
     </div>
   </div>
 
-  <!-- MODAL POPUP 4: PRATINJAU FOTO FULL -->
-  <div id="modal-preview-foto" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden" onclick="window.closeModal('modal-preview-foto')">
-    <div class="relative max-w-3xl w-full flex flex-col items-center" onclick="event.stopPropagation()">
+  <!-- MODAL POPUP 4: GALERI ALBUM FOTO & VIDEO LENGKAP -->
+  <div id="modal-album-folder" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-6 hidden">
+    <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <div class="bg-emerald-900 text-white p-4 flex items-center justify-between">
+        <div>
+          <h3 id="album-title" class="text-base sm:text-lg font-bold">Galeri Album Kegiatan</h3>
+          <p id="album-subtitle" class="text-xs text-emerald-200">Memuat berkas media...</p>
+        </div>
+        <button onclick="window.closeModal('modal-album-folder')" class="p-1.5 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div id="album-media-container" class="p-4 sm:p-6 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        <div class="col-span-full py-12 text-center text-slate-400 text-xs">Memuat seluruh foto dan video dari Google Drive...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL POPUP 5: PRATINJAU FOTO FULL -->
+  <div id="modal-preview-foto" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden" onclick="window.closeModal('modal-preview-foto')">
+    <div class="relative max-w-4xl w-full flex flex-col items-center" onclick="event.stopPropagation()">
       <button onclick="window.closeModal('modal-preview-foto')" class="absolute -top-10 right-0 text-white hover:text-emerald-400 transition">
         <i data-lucide="x" class="w-8 h-8"></i>
       </button>
-      <img id="img-preview-full" src="" alt="Pratinjau Foto" class="max-h-[75vh] w-auto object-contain rounded-xl shadow-2xl">
-      <p id="caption-preview-full" class="text-white text-sm font-semibold mt-3 text-center bg-slate-900/70 px-4 py-2 rounded-full border border-slate-700"></p>
+      <img id="img-preview-full" src="" alt="Pratinjau Foto" class="max-h-[80vh] w-auto object-contain rounded-xl shadow-2xl">
+      <p id="caption-preview-full" class="text-white text-xs sm:text-sm font-semibold mt-3 text-center bg-slate-900/80 px-4 py-2 rounded-full border border-slate-700"></p>
     </div>
   </div>
 
@@ -262,21 +281,40 @@
     const CSV_INVENTARIS = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=1819624619&single=true&output=csv";
     const CSV_DOKUMENTASI = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=160734221&single=true&output=csv";
 
-    // URL Apps Script Web App Baru
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzn_i8nYvXh73fBAtjuX39hlWz8lcq9DVa7mdm0s3IQzofV6v6xhTUe_X5FiNXNLbY4Rw/exec";
+    // URL Apps Script Terbaru Anda
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzj5TErQ8vBSCTBvaP6mv0uTrROZ_wJc5bnKFSlNcYCQetdeoU89G0yeYrM1SP8XxIGQA/exec";
 
     let globalRekapData = [];
     let globalRiwayatData = [];
     let globalInventarisData = [];
     let globalDokumentasiData = [];
-    const folderImageCache = {};
+    const folderFilesCache = {};
 
-    // Helper Async Resolving Gambar
-    async function resolveImageUrl(url) {
+    // Helper Async Resolving Seluruh Berkas Media dari Folder
+    async function fetchFolderFiles(url) {
+      if (!url || !url.trim()) return [];
+      const cleanUrl = url.trim();
+
+      if (folderFilesCache[cleanUrl]) return folderFilesCache[cleanUrl];
+
+      try {
+        const res = await fetch(`${APPS_SCRIPT_URL}?url=${encodeURIComponent(cleanUrl)}`);
+        const data = await res.json();
+        if (data.status === 'success' && data.files && data.files.length > 0) {
+          folderFilesCache[cleanUrl] = data.files;
+          return data.files;
+        }
+      } catch (e) {
+        console.error("Gagal mengambil daftar berkas folder via Apps Script:", e);
+      }
+      return [];
+    }
+
+    // Helper Sampul Cepat (Gunakan File Pertama atau Link File Langsung)
+    async function getCoverUrl(url) {
       if (!url || !url.trim()) return 'https://placehold.co/400x300/emerald/white?text=No+Image';
       const cleanUrl = url.trim();
 
-      // 1. Jika berupa Link File Google Drive biasa
       if (cleanUrl.includes('drive.google.com') && !cleanUrl.includes('/folders/')) {
         const fileMatch = cleanUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
         if (fileMatch && fileMatch[1]) {
@@ -284,22 +322,13 @@
         }
       }
 
-      // 2. Jika berupa Link Folder Google Drive -> Minta Apps Script
-      if (cleanUrl.includes('drive.google.com/drive/folders/') || cleanUrl.includes('folders/')) {
-        if (folderImageCache[cleanUrl]) return folderImageCache[cleanUrl];
-        try {
-          const res = await fetch(`${APPS_SCRIPT_URL}?url=${encodeURIComponent(cleanUrl)}`);
-          const data = await res.json();
-          if (data.status === 'success' && data.imageUrl) {
-            folderImageCache[cleanUrl] = data.imageUrl;
-            return data.imageUrl;
-          }
-        } catch (e) {
-          console.error("Gagal mengambil gambar folder via Apps Script:", e);
-        }
+      const files = await fetchFolderFiles(cleanUrl);
+      if (files.length > 0) {
+        const imgFile = files.find(f => f.type === 'image') || files[0];
+        return imgFile.url;
       }
 
-      return cleanUrl;
+      return 'https://placehold.co/400x300/emerald/white?text=Folder+Drive';
     }
 
     function initBankSampah() {
@@ -425,38 +454,36 @@
         return;
       }
 
-      // Mini Preview (3 Teratas)
       if (previewBox) previewBox.innerHTML = '';
       for (let i = 0; i < Math.min(3, globalInventarisData.length); i++) {
         const item = globalInventarisData[i];
         const vals = Object.values(item);
         const nama = vals[0] || 'Barang';
-        const imgUrl = await resolveImageUrl(vals[3]);
+        const coverUrl = await getCoverUrl(vals[3]);
 
         if (previewBox) {
           previewBox.innerHTML += `
-            <div onclick="window.bukaFotoFull('${imgUrl}', '${nama}')" class="aspect-square bg-slate-100 rounded-xl overflow-hidden border border-slate-200 cursor-pointer group relative">
-              <img src="${imgUrl}" alt="${nama}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+            <div onclick="window.bukaFotoFull('${coverUrl}', '${nama}')" class="aspect-square bg-slate-100 rounded-xl overflow-hidden border border-slate-200 cursor-pointer group relative">
+              <img src="${coverUrl}" alt="${nama}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
               <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition"></div>
             </div>
           `;
         }
       }
 
-      // Modal Grid
       if (gridModal) gridModal.innerHTML = '';
       for (let item of globalInventarisData) {
         const vals = Object.values(item);
         const nama = vals[0] || '-';
         const qty = vals[1] || '-';
         const kondisi = vals[2] || '-';
-        const imgUrl = await resolveImageUrl(vals[3]);
+        const coverUrl = await getCoverUrl(vals[3]);
 
         if (gridModal) {
           gridModal.innerHTML += `
-            <div onclick="window.bukaFotoFull('${imgUrl}', '${nama} (${qty})')" class="bg-slate-50 rounded-xl overflow-hidden border border-slate-200 hover:shadow-md transition cursor-pointer group flex flex-col">
+            <div onclick="window.bukaFotoFull('${coverUrl}', '${nama} (${qty})')" class="bg-slate-50 rounded-xl overflow-hidden border border-slate-200 hover:shadow-md transition cursor-pointer group flex flex-col">
               <div class="aspect-square overflow-hidden bg-slate-200 relative">
-                <img src="${imgUrl}" alt="${nama}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                <img src="${coverUrl}" alt="${nama}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
                 <span class="absolute top-2 right-2 bg-emerald-900/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-full backdrop-blur-sm">${kondisi}</span>
               </div>
               <div class="p-3 flex-grow flex flex-col justify-between">
@@ -478,26 +505,26 @@
         return;
       }
 
-      // Mini Preview (3 Teratas)
       if (previewBox) previewBox.innerHTML = '';
       for (let i = 0; i < Math.min(3, globalDokumentasiData.length); i++) {
         const item = globalDokumentasiData[i];
         const vals = Object.values(item);
         const judul = vals[0] || 'Kegiatan';
         const rawUrl = vals[3] || '';
-        const imgUrl = await resolveImageUrl(rawUrl);
+        const coverUrl = await getCoverUrl(rawUrl);
 
         if (previewBox) {
           previewBox.innerHTML += `
-            <div onclick="window.bukaFotoFull('${imgUrl}', '${judul}')" class="aspect-square bg-slate-100 rounded-xl overflow-hidden border border-slate-200 cursor-pointer group relative">
-              <img src="${imgUrl}" alt="${judul}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-              <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition"></div>
+            <div onclick="window.bukaAlbumFolder('${encodeURIComponent(judul)}', '${encodeURIComponent(rawUrl)}')" class="aspect-square bg-slate-100 rounded-xl overflow-hidden border border-slate-200 cursor-pointer group relative">
+              <img src="${coverUrl}" alt="${judul}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+              <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold">
+                <i data-lucide="images" class="w-5 h-5"></i>
+              </div>
             </div>
           `;
         }
       }
 
-      // Modal Grid
       if (gridModal) gridModal.innerHTML = '';
       for (let item of globalDokumentasiData) {
         const vals = Object.values(item);
@@ -505,15 +532,16 @@
         const tgl = vals[1] || '-';
         const ket = vals[2] || '';
         const rawUrl = vals[3] || '';
-        const imgUrl = await resolveImageUrl(rawUrl);
+        const coverUrl = await getCoverUrl(rawUrl);
 
         if (gridModal) {
           gridModal.innerHTML += `
             <div class="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col">
-              <div class="aspect-video bg-slate-100 overflow-hidden cursor-pointer relative group" onclick="window.bukaFotoFull('${imgUrl}', '${judul}')">
-                <img src="${imgUrl}" alt="${judul}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                  <i data-lucide="maximize-2" class="w-6 h-6 text-white"></i>
+              <div class="aspect-video bg-slate-100 overflow-hidden cursor-pointer relative group" onclick="window.bukaAlbumFolder('${encodeURIComponent(judul)}', '${encodeURIComponent(rawUrl)}')">
+                <img src="${coverUrl}" alt="${judul}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center space-x-2 text-white font-bold text-xs">
+                  <i data-lucide="images" class="w-5 h-5"></i>
+                  <span>Buka Semua Foto & Video</span>
                 </div>
               </div>
               <div class="p-3.5 flex-grow flex flex-col justify-between space-y-1.5">
@@ -522,6 +550,10 @@
                   <h4 class="font-bold text-slate-800 text-xs sm:text-sm leading-snug">${judul}</h4>
                   <p class="text-xs text-slate-500 mt-1 line-clamp-2">${ket}</p>
                 </div>
+                <button onclick="window.bukaAlbumFolder('${encodeURIComponent(judul)}', '${encodeURIComponent(rawUrl)}')" class="mt-2 inline-flex items-center space-x-1 text-xs font-bold text-emerald-700 hover:text-emerald-800">
+                  <span>Lihat Album Lengkap</span>
+                  <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                </button>
               </div>
             </div>
           `;
@@ -529,6 +561,57 @@
       }
       if (typeof lucide !== 'undefined') lucide.createIcons();
     }
+
+    // Fungsi Buka Album Pop-up Berisi Semua Foto & Video Folder
+    window.bukaAlbumFolder = async function(encodedJudul, encodedUrl) {
+      const judul = decodeURIComponent(encodedJudul);
+      const rawUrl = decodeURIComponent(encodedUrl);
+
+      document.getElementById('album-title').innerText = judul;
+      document.getElementById('album-subtitle').innerText = "Sedang memuat seluruh isi foto & video...";
+      
+      const container = document.getElementById('album-media-container');
+      container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 text-xs animate-pulse">Memuat seluruh foto dan video dari Google Drive...</div>`;
+      
+      window.openModal('modal-album-folder');
+
+      const files = await fetchFolderFiles(rawUrl);
+
+      if (!files || files.length === 0) {
+        container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 text-xs">Tidak ada berkas media di dalam folder ini.</div>`;
+        document.getElementById('album-subtitle').innerText = "0 Berkas";
+        return;
+      }
+
+      document.getElementById('album-subtitle').innerText = `${files.length} Berkas Media (Foto & Video)`;
+
+      let html = '';
+      files.forEach((file) => {
+        if (file.type === 'image') {
+          html += `
+            <div onclick="window.bukaFotoFull('${file.url}', '${file.name}')" class="aspect-square bg-slate-100 rounded-xl overflow-hidden border border-slate-200 cursor-pointer group relative">
+              <img src="${file.url}" alt="${file.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+              <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                <i data-lucide="maximize-2" class="w-5 h-5 text-white"></i>
+              </div>
+            </div>
+          `;
+        } else if (file.type === 'video') {
+          html += `
+            <div class="aspect-square bg-slate-900 rounded-xl overflow-hidden border border-slate-200 relative group">
+              <iframe src="${file.url}" class="w-full h-full border-0 pointer-events-none"></iframe>
+              <a href="${file.url}" target="_blank" class="absolute inset-0 bg-black/40 hover:bg-black/20 transition flex flex-col items-center justify-center text-white text-xs font-bold space-y-1">
+                <i data-lucide="play-circle" class="w-8 h-8 text-emerald-400"></i>
+                <span>Putar Video</span>
+              </a>
+            </div>
+          `;
+        }
+      });
+
+      container.innerHTML = html;
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    };
 
     window.bukaRincianWarga = function(namaBlok, totalBerat, totalSaldo) {
       const modal = document.getElementById('modal-rincian-warga');
