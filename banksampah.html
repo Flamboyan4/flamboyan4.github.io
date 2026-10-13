@@ -262,8 +262,8 @@
     const CSV_INVENTARIS = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=1819624619&single=true&output=csv";
     const CSV_DOKUMENTASI = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=160734221&single=true&output=csv";
 
-    // Google Apps Script Web App URL milik Anda
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxZ0rbzVq5TkkTGYDNA3cVU5F0NDG_wFNKumZ9ddkE1z-8ngSI9mFnKT86Vlqfq0QpMoQ/exec";
+    // URL Apps Script Web App Baru
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzn_i8nYvXh73fBAtjuX39hlWz8lcq9DVa7mdm0s3IQzofV6v6xhTUe_X5FiNXNLbY4Rw/exec";
 
     let globalRekapData = [];
     let globalRiwayatData = [];
@@ -271,7 +271,7 @@
     let globalDokumentasiData = [];
     const folderImageCache = {};
 
-    // Helper Async Resolving Gambar (Bisa dari File Drive Langsung maupun Folder via Apps Script)
+    // Helper Async Resolving Gambar
     async function resolveImageUrl(url) {
       if (!url || !url.trim()) return 'https://placehold.co/400x300/emerald/white?text=No+Image';
       const cleanUrl = url.trim();
@@ -284,7 +284,7 @@
         }
       }
 
-      // 2. Jika berupa Link Folder Google Drive -> Minta Apps Script cari foto pertama
+      // 2. Jika berupa Link Folder Google Drive -> Minta Apps Script
       if (cleanUrl.includes('drive.google.com/drive/folders/') || cleanUrl.includes('folders/')) {
         if (folderImageCache[cleanUrl]) return folderImageCache[cleanUrl];
         try {
