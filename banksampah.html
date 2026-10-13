@@ -37,7 +37,7 @@
       <p class="text-xs sm:text-sm text-slate-600">Pusat informasi pemilahan sampah anorganik, rekap tabungan warga, kas pengelola, dan rincian setoran berkala.</p>
     </div>
 
-    <!-- 1. SLIDER CARD PROGRES BANK SAMPAH (MEMENUHI LEBAR PC PAS 100%) -->
+    <!-- 1. SLIDER CARD PROGRES BANK SAMPAH -->
     <div class="space-y-3">
       <div class="flex items-center justify-between px-1">
         <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
@@ -47,7 +47,6 @@
         <p class="text-xs text-slate-400 lg:hidden">Geser kesamping →</p>
       </div>
 
-      <!-- Grid responsif di PC, Scrollable di HP -->
       <div id="container-progres-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 snap-x snap-mandatory no-scrollbar">
         <div class="text-sm text-slate-400 p-4 italic col-span-full">Memuat progres...</div>
       </div>
@@ -111,7 +110,7 @@
       </div>
     </div>
 
-    <!-- 4. INVENTARIS & DOKUMENTASI (PILIHAN 2 KOLOM RATA SAMPING PC) -->
+    <!-- 4. INVENTARIS & DOKUMENTASI (2 KOLOM SIMETRIS PC) -->
     <div class="space-y-3">
       <div class="flex items-center justify-between px-1">
         <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
@@ -134,7 +133,7 @@
             </div>
             <p class="text-xs sm:text-sm text-slate-500 mb-3">Klik item untuk melihat foto peralatan</p>
             <div id="container-inventaris-list" class="space-y-2 max-h-52 overflow-y-auto pr-1">
-              <p class="text-xs text-slate-400 italic">Memuat data inventaris...</p>
+              <p class="text-xs sm:text-sm text-slate-400 italic">Memuat data inventaris...</p>
             </div>
           </div>
         </div>
@@ -263,7 +262,7 @@
     </div>
   </div>
 
-  <!-- TIER 3: POPUP PENAMPIL MEDIA PENUH (SINGLE PHOTO / VIDEO PLAYER) -->
+  <!-- TIER 3: POPUP PENAMPIL MEDIA PENUH -->
   <div id="modal-single-player" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6" onclick="tutupSinglePlayerOnBackdrop(event)">
     <div class="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative border border-slate-100" onclick="event.stopPropagation()">
       <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
@@ -306,6 +305,9 @@
 
     function formatDriveImgUrl(url) {
       if (!url) return '';
+      // Jika link berupa folder Drive, kembalikan URL aslinya
+      if (url.includes('/drive/folders/')) return url;
+      
       const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
       if (match && match[1]) {
         return `https://lh3.googleusercontent.com/d/${match[1]}`;
@@ -400,7 +402,7 @@
       renderTabelWarga(filtered);
     }
 
-    // 2. PROGRES BANK SAMPAH (TAMPILAN CARD DIPERBESAR & PRESISI)
+    // 2. PROGRES BANK SAMPAH
     async function loadProgresBankSampahDetail() {
       try {
         const response = await fetch(CSV_PROGRES_URL + "&t=" + Date.now());
@@ -514,7 +516,7 @@
       }
     }
 
-    // 4. DOKUMENTASI MULTI-ALBUM
+    // 4. DOKUMENTASI (PENGHUBUNG LINK CSV AMAN)
     async function loadDokumentasi() {
       try {
         const response = await fetch(CSV_DOKUMENTASI_URL + "&t=" + Date.now());
@@ -547,23 +549,26 @@
 
         globalDokumentasiList = Object.values(albumMap);
 
-        if (globalDokumentasiList.length === 0 && globalProgresList.length > 0) {
-          globalDokumentasiList = [{
-            judul: 'Gorol dan Pembuatan Bank Sampah',
-            tanggal: '11-Okt-2026',
-            items: globalProgresList.map(p => ({ url: p.urlFoto, isVideo: false }))
-          }];
+        // Jika tab Dokumentasi kosong / URL folder drive, cadangkan foto dari Progres
+        let coverUrl = '';
+        if (globalDokumentasiList.length > 0 && globalDokumentasiList[0].items.length > 0) {
+          coverUrl = globalDokumentasiList[0].items[0].url;
         }
 
+        if ((!coverUrl || coverUrl.includes('/drive/folders/')) && globalProgresList.length > 0) {
+          coverUrl = globalProgresList[0].urlFoto;
+        }
+
+        // Set Gambar Preview di Kartu Utama
         const previewImg = document.getElementById('galeri-preview-img');
         const captionPreview = document.getElementById('galeri-preview-caption');
 
-        if (globalDokumentasiList.length > 0) {
-          const firstAlbum = globalDokumentasiList[0];
-          if (captionPreview) captionPreview.innerText = firstAlbum.judul;
-          if (previewImg && firstAlbum.items.length > 0) {
-            previewImg.src = firstAlbum.items[0].url;
-          }
+        if (captionPreview && globalDokumentasiList.length > 0) {
+          captionPreview.innerText = globalDokumentasiList[0].judul;
+        }
+
+        if (previewImg && coverUrl) {
+          previewImg.src = coverUrl;
         }
       } catch (err) {
         console.error("Gagal memuat dokumentasi:", err);
@@ -631,8 +636,12 @@
         html = `<p class="text-sm text-slate-400 col-span-3 text-center py-8">Belum ada album dokumentasi.</p>`;
       } else {
         globalDokumentasiList.forEach((album, idx) => {
-          const coverImg = album.items.length > 0 ? album.items[0].url : '';
-          const countMedia = album.items.length;
+          let coverImg = album.items.length > 0 ? album.items[0].url : '';
+          if ((!coverImg || coverImg.includes('/drive/folders/')) && globalProgresList.length > 0) {
+            coverImg = globalProgresList[0].urlFoto;
+          }
+
+          const countMedia = album.items.length || globalProgresList.length;
 
           html += `
             <div onclick="bukaIsiAlbumModal(${idx})" class="bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-emerald-500 shadow-xs hover:shadow-md cursor-pointer transition group">
@@ -680,10 +689,16 @@
       const grid = document.getElementById('isi-album-media-grid');
 
       if (titleEl) titleEl.innerText = `${album.judul} - ${album.tanggal}`;
-      if (subtextEl) subtextEl.innerText = `${album.items.length} file media ditemukan - Klik untuk membuka/memutar`;
+      
+      let itemsToRender = album.items.filter(i => !i.url.includes('/drive/folders/'));
+      if (itemsToRender.length === 0 && globalProgresList.length > 0) {
+        itemsToRender = globalProgresList.map(p => ({ url: p.urlFoto, isVideo: false }));
+      }
+
+      if (subtextEl) subtextEl.innerText = `${itemsToRender.length} file media ditemukan - Klik untuk membuka/memutar`;
 
       let html = '';
-      album.items.forEach((item, mediaIdx) => {
+      itemsToRender.forEach((item) => {
         if (item.isVideo) {
           html += `
             <div onclick="bukaSinglePlayer('${item.url}', '${album.judul}')" class="h-44 sm:h-56 bg-slate-900 rounded-2xl overflow-hidden relative border border-slate-200 hover:border-emerald-500 cursor-pointer shadow-xs group">
@@ -758,7 +773,7 @@
       if (e.target.id === 'modal-single-player') tutupSinglePlayer();
     }
 
-    // INTERSEPSI NAVIGASI KEYBOARD ESC & BACK BUTTON HP
+    // INTERSEPSI ESC & NAVIGASI
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         tutupSinglePlayer();
@@ -775,7 +790,7 @@
       tutupRincianWarga();
     });
 
-    // INIT AUTOMATIC
+    // INIT AUTOMATIC TERURUT (PROGRES DAHULU BARU DOKUMENTASI)
     document.addEventListener('DOMContentLoaded', async () => {
       await loadDataUtama();
       await loadProgresBankSampahDetail();
