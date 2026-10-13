@@ -773,7 +773,8 @@
           const gelas = parseFloat(vals[4]) || 0;
           const kaleng = parseFloat(vals[5]) || 0;
           const totalBeratRow = parseFloat(vals[6]) || 0;
-          const nominalRow = parseFloat(vals[7]) || 0;
+          let rawNominal = (vals[7] || '0').toString().replace(/[^0-9]/g, '');
+          const nominalRow = parseFloat(rawNominal) || 0;
 
           let rincianItem = [];
           if (kardus > 0) rincianItem.push(`Kardus: ${kardus}kg`);
