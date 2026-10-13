@@ -37,7 +37,7 @@
       <p class="text-xs sm:text-sm text-slate-600">Pusat informasi pemilahan sampah anorganik, rekap tabungan warga, kas pengelola, dan rincian setoran berkala.</p>
     </div>
 
-    <!-- 1. SLIDER CARD PROGRES BANK SAMPAH (SLIDER HORIZONTAL KECIL) -->
+    <!-- 1. SLIDER CARD PROGRES BANK SAMPAH -->
     <div class="space-y-2">
       <div class="flex items-center justify-between px-1">
         <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
@@ -110,7 +110,7 @@
       </div>
     </div>
 
-    <!-- 4. SLIDER GABUNGAN: DAFTAR INVENTARIS & DOKUMENTASI (SAMPINGAN SLIDE ATAS HP) -->
+    <!-- 4. SLIDER INVENTARIS & DOKUMENTASI -->
     <div class="space-y-2">
       <div class="flex items-center justify-between px-1">
         <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
@@ -120,29 +120,28 @@
         <p class="text-xs text-slate-400">Geser kesamping →</p>
       </div>
 
-      <!-- Container Card Horizontal (Slide Kiri/Kanan) -->
       <div id="container-inventaris-dokumentasi" class="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory no-scrollbar">
         
-        <!-- Card 1: Inventaris -->
+        <!-- Card Inventaris -->
         <div class="snap-start shrink-0 w-[290px] sm:w-[350px] bg-white rounded-xl p-4 shadow-sm border border-slate-100 flex flex-col justify-between">
           <div>
-            <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center justify-between mb-1">
               <h4 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-2">
                 <i data-lucide="box" class="w-4 h-4 text-emerald-600"></i>
                 Inventaris Bank Sampah
               </h4>
             </div>
-            <p class="text-xs text-slate-500 mb-3">Peralatan dan wadah penampungan</p>
-            <div id="container-inventaris-list" class="space-y-2 max-h-44 overflow-y-auto pr-1">
+            <p class="text-xs text-slate-500 mb-3">Peralatan dan barang terdaftar</p>
+            <div id="container-inventaris-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
               <p class="text-xs text-slate-400 italic">Memuat data inventaris...</p>
             </div>
           </div>
         </div>
 
-        <!-- Card 2: Galeri Dokumentasi -->
+        <!-- Card Dokumentasi -->
         <div class="snap-start shrink-0 w-[290px] sm:w-[350px] bg-white rounded-xl p-4 shadow-sm border border-slate-100 flex flex-col justify-between">
           <div>
-            <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center justify-between mb-1">
               <h4 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-2">
                 <i data-lucide="camera" class="w-4 h-4 text-emerald-600"></i>
                 Dokumentasi Kegiatan
@@ -151,14 +150,14 @@
                 Galeri <i data-lucide="external-link" class="w-3 h-3"></i>
               </button>
             </div>
-            <p class="text-xs text-slate-500 mb-3">Foto & Video pemilahan sampah warga</p>
+            <p class="text-xs text-slate-500 mb-3">Foto & Video kegiatan warga</p>
             
             <div onclick="bukaGaleriModal()" class="relative h-32 rounded-lg overflow-hidden bg-slate-900 cursor-pointer group border border-slate-200">
               <img id="galeri-preview-img" src="" alt="Galeri Preview" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition duration-300">
               <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-3">
                 <div class="text-white">
                   <span class="bg-emerald-600 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">Buka Galeri</span>
-                  <p class="text-xs font-bold mt-0.5">Klik untuk melihat semua foto & video</p>
+                  <p id="galeri-preview-caption" class="text-xs font-bold mt-0.5">Klik untuk melihat semua foto & video</p>
                 </div>
               </div>
             </div>
@@ -224,23 +223,23 @@
   <div id="modal-galeri" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-3" onclick="tutupGaleriModalOnBackdrop(event)">
     <div class="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative" onclick="event.stopPropagation()">
       <div class="p-3 bg-slate-900 text-white flex items-center justify-between">
-        <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-          <i data-lucide="image" class="w-4 h-4 text-emerald-400"></i> Galeri Dokumentasi & Video
+        <h3 id="galeri-title-header" class="font-bold text-xs sm:text-sm flex items-center gap-2">
+          <i data-lucide="image" class="w-4 h-4 text-emerald-400"></i> Galeri Dokumentasi Kegiatan
         </h3>
         <button onclick="tutupGaleriModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
 
-      <div class="p-3 flex-grow overflow-y-auto space-y-2 bg-slate-950 flex flex-col items-center justify-center">
+      <div class="p-3 flex-grow overflow-y-auto space-y-2 bg-slate-950 flex flex-col items-center justify-center min-h-[250px]">
         <div id="galeri-media-container" class="w-full max-h-[60vh] flex items-center justify-center overflow-hidden rounded-xl bg-black">
-          <!-- Disisipkan Video/Foto via JS -->
+          <!-- Disisipkan Media via JS -->
         </div>
         <p id="galeri-caption" class="text-xs text-slate-300 text-center font-medium"></p>
       </div>
 
       <div id="galeri-thumbnails" class="p-2 bg-slate-900 border-t border-slate-800 flex gap-2 overflow-x-auto">
-        <!-- Thumbnail item diisi JS -->
+        <!-- Thumbnail item -->
       </div>
     </div>
   </div>
@@ -257,18 +256,17 @@
     let globalRiwayatData = [];
     let globalProgresList = [];
     let globalDokumentasiList = [];
+    let globalInventarisList = [];
 
-    // HELPER NUMBER & STRING PARSER MATANG
     function parseNumberFlexible(val) {
       if (!val) return 0;
-      let cleaned = val.toString().trim();
-      cleaned = cleaned.replace(/[^0-9,-]/g, ''); // Hapus "Rp", "Kg", dsb.
-      cleaned = cleaned.replace(',', '.'); // Ubah koma ke titik desimal
+      let cleaned = val.toString().trim().replace(/[^0-9,-]/g, '').replace(',', '.');
       return parseFloat(cleaned) || 0;
     }
 
     function formatDriveImgUrl(url) {
       if (!url) return '';
+      if (url.includes('/drive/folders/')) return url;
       const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
       if (match && match[1]) {
         return `https://lh3.googleusercontent.com/d/${match[1]}`;
@@ -285,7 +283,7 @@
       });
     }
 
-    // 1. MEMUAT DATA REKAP & RIWAYAT WARGA
+    // 1. DATA REKAP & RIWAYAT WARGA
     async function loadDataUtama() {
       try {
         const [resRekap, resRiwayat] = await Promise.all([
@@ -363,7 +361,7 @@
       renderTabelWarga(filtered);
     }
 
-    // 2. LOAD PROGRES BANK SAMPAH
+    // 2. PROGRES BANK SAMPAH
     async function loadProgresBankSampahDetail() {
       try {
         const response = await fetch(CSV_PROGRES_URL + "&t=" + Date.now());
@@ -402,7 +400,7 @@
                 <span class="text-slate-400 text-xs ml-auto font-medium">${item.tanggal}</span>
               </div>
 
-              <div class="flex gap-3 items-center">
+              <div class="flex gap-3 items-center cursor-pointer" onclick="bukaPreviewFoto('${item.urlFoto}', '${item.judul}')">
                 <div class="w-16 h-16 bg-slate-100 rounded-lg overflow-hidden shrink-0 border border-slate-200">
                   <img src="${item.urlFoto}" alt="Foto" class="w-full h-full object-cover">
                 </div>
@@ -426,7 +424,7 @@
       }
     }
 
-    // 3. LOAD INVENTARIS
+    // 3. INVENTARIS
     async function loadInventaris() {
       try {
         const response = await fetch(CSV_INVENTARIS_URL + "&t=" + Date.now());
@@ -436,42 +434,87 @@
 
         if (!container) return;
 
-        if (rows.length === 0) {
+        globalInventarisList = [];
+
+        rows.forEach(r => {
+          const nama = r[0] || '-';
+          const qty = r[1] || '0';
+          const urlRaw = r[3] || r[2] || '';
+          const urlFoto = formatDriveImgUrl(urlRaw);
+
+          if (nama !== '-' && nama !== 'Nama Barang') {
+            globalInventarisList.push({ nama, qty, urlFoto });
+          }
+        });
+
+        if (globalInventarisList.length === 0) {
           container.innerHTML = `<p class="text-xs text-slate-400 italic">Belum ada data inventaris.</p>`;
           return;
         }
 
         let html = '';
-        rows.forEach(r => {
+        globalInventarisList.forEach(item => {
+          const hasImg = item.urlFoto && item.urlFoto.startsWith('http');
+          const clickAttr = hasImg ? `onclick="bukaPreviewFoto('${item.urlFoto}', '${item.nama}')"` : '';
+          const cursorClass = hasImg ? 'cursor-pointer hover:border-emerald-300 transition' : '';
+
           html += `
-            <div class="flex items-center justify-between bg-slate-50 p-2 rounded-lg border border-slate-100 text-xs">
-              <span class="font-semibold text-slate-700 truncate pr-2">${r[0] || '-'}</span>
-              <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full text-xs shrink-0">${r[1] || '0'} Unit</span>
+            <div ${clickAttr} class="flex items-center justify-between bg-slate-50 p-2 rounded-lg border border-slate-100 text-xs ${cursorClass}">
+              <div class="flex items-center gap-2 min-w-0">
+                ${hasImg ? `<img src="${item.urlFoto}" class="w-8 h-8 rounded object-cover shrink-0 border border-slate-200">` : `<div class="w-8 h-8 rounded bg-emerald-100 flex items-center justify-center shrink-0 text-emerald-700"><i data-lucide="box" class="w-4 h-4"></i></div>`}
+                <span class="font-semibold text-slate-700 truncate">${item.nama}</span>
+              </div>
+              <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full text-xs shrink-0 ml-2">${item.qty} Unit</span>
             </div>
           `;
         });
         container.innerHTML = html;
+        if (window.lucide) lucide.createIcons();
       } catch (err) {
         console.error("Gagal memuat inventaris:", err);
       }
     }
 
-    // 4. LOAD DOKUMENTASI
+    // 4. DOKUMENTASI (PENGGABUNGAN DATA & FALLBACK PROGRES)
     async function loadDokumentasi() {
       try {
         const response = await fetch(CSV_DOKUMENTASI_URL + "&t=" + Date.now());
         const csvText = await response.text();
         const rows = parseCSV(csvText);
 
-        globalDokumentasiList = rows.map(r => ({
-          judul: r[0] || 'Kegiatan Bank Sampah',
-          tanggal: r[1] || '',
-          url: formatDriveImgUrl(r[2] || '')
-        }));
+        globalDokumentasiList = [];
 
+        rows.forEach(r => {
+          const judul = r[0] || 'Kegiatan Bank Sampah';
+          const tanggal = r[1] || '';
+          const deskripsi = r[2] || '';
+          const urlRaw = r[3] || r[2] || '';
+
+          if (urlRaw && urlRaw.startsWith('http')) {
+            globalDokumentasiList.push({
+              judul,
+              tanggal,
+              deskripsi,
+              url: formatDriveImgUrl(urlRaw),
+              isFolder: urlRaw.includes('/drive/folders/')
+            });
+          }
+        });
+
+        // Set Gambar Preview di Kartu Utama
         const previewImg = document.getElementById('galeri-preview-img');
-        if (previewImg && globalDokumentasiList.length > 0 && globalDokumentasiList[0].url) {
-          previewImg.src = globalDokumentasiList[0].url;
+        const captionPreview = document.getElementById('galeri-preview-caption');
+
+        if (globalDokumentasiList.length > 0) {
+          const item = globalDokumentasiList[0];
+          if (captionPreview) captionPreview.innerText = item.judul;
+          if (previewImg && item.url && !item.isFolder) {
+            previewImg.src = item.url;
+          } else if (globalProgresList.length > 0) {
+            previewImg.src = globalProgresList[0].urlFoto;
+          }
+        } else if (globalProgresList.length > 0 && previewImg) {
+          previewImg.src = globalProgresList[0].urlFoto;
         }
       } catch (err) {
         console.error("Gagal memuat dokumentasi:", err);
@@ -528,7 +571,24 @@
       if (e.target.id === 'modal-rincian') tutupRincianWarga();
     }
 
-    // 6. GALERI POPUP INTERAKTIF
+    // 6. POPUP PREVIEW FOTO SINGLE (INVENTARIS / PROGRES)
+    function bukaPreviewFoto(urlFoto, judul) {
+      if (!urlFoto) return;
+      const modal = document.getElementById('modal-galeri');
+      const container = document.getElementById('galeri-media-container');
+      const caption = document.getElementById('galeri-caption');
+      const thumbBox = document.getElementById('galeri-thumbnails');
+
+      caption.innerText = judul || '';
+      container.innerHTML = `<img src="${urlFoto}" class="max-h-[60vh] max-w-full h-auto object-contain rounded-xl">`;
+      if (thumbBox) thumbBox.innerHTML = '';
+
+      modal.classList.remove('hidden');
+      isGaleriOpen = true;
+      history.pushState({ modalGaleriOpen: true }, "");
+    }
+
+    // 7. GALERI MODAL POPUP (TETAP DI DALAM WEBSITE)
     let isGaleriOpen = false;
 
     function bukaGaleriModal() {
@@ -537,7 +597,19 @@
       modal.classList.remove('hidden');
       isGaleriOpen = true;
 
-      const mediaList = globalDokumentasiList.length > 0 ? globalDokumentasiList : globalProgresList;
+      // Gabungkan data dokumentasi dan foto progres sebagai cadangan galeri
+      let mediaList = [];
+      if (globalDokumentasiList.length > 0) {
+        mediaList = globalDokumentasiList;
+      } else {
+        mediaList = globalProgresList.map(p => ({
+          judul: p.judul,
+          tanggal: p.tanggal,
+          url: p.urlFoto,
+          isFolder: false
+        }));
+      }
+
       if (mediaList.length > 0) {
         tampilkanMediaGaleri(0, mediaList);
         renderThumbnailsGaleri(mediaList);
@@ -566,7 +638,7 @@
     });
 
     function tampilkanMediaGaleri(index, list) {
-      const mediaList = list || (globalDokumentasiList.length > 0 ? globalDokumentasiList : globalProgresList);
+      const mediaList = list || (globalDokumentasiList.length > 0 ? globalDokumentasiList : globalProgresList.map(p => ({ judul: p.judul, tanggal: p.tanggal, url: p.urlFoto })));
       const item = mediaList[index];
       if (!item) return;
 
@@ -575,7 +647,11 @@
 
       const url = item.url || item.urlFoto || '';
 
-      if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      if (item.isFolder) {
+        // Jika link berupa folder Drive, tampilkan embed frame Drive di dalam modal tanpa keluar dari web
+        const folderId = url.split('/folders/')[1]?.split('?')[0];
+        container.innerHTML = `<iframe src="https://drive.google.com/embeddedfolderview?id=${folderId}#grid" class="w-full h-[55vh] rounded-xl border border-slate-800" frameborder="0"></iframe>`;
+      } else if (url.includes('youtube.com') || url.includes('youtu.be')) {
         let videoId = url.includes('youtu.be/') ? url.split('youtu.be/')[1].split('?')[0] : url.split('v=')[1]?.split('&')[0];
         container.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" class="w-full aspect-video rounded-xl" frameborder="0" allowfullscreen></iframe>`;
       } else {
@@ -584,22 +660,23 @@
     }
 
     function renderThumbnailsGaleri(list) {
-      const mediaList = list || (globalDokumentasiList.length > 0 ? globalDokumentasiList : globalProgresList);
+      const mediaList = list || (globalDokumentasiList.length > 0 ? globalDokumentasiList : globalProgresList.map(p => ({ judul: p.judul, tanggal: p.tanggal, url: p.urlFoto })));
       const thumbBox = document.getElementById('galeri-thumbnails');
       if (!thumbBox) return;
       let html = '';
       mediaList.forEach((item, idx) => {
         const url = item.url || item.urlFoto || '';
         html += `
-          <div onclick="tampilkanMediaGaleri(${idx})" class="w-14 h-10 bg-slate-800 rounded overflow-hidden shrink-0 border border-slate-700 cursor-pointer hover:border-emerald-500 transition">
-            <img src="${url}" class="w-full h-full object-cover">
+          <div onclick="tampilkanMediaGaleri(${idx})" class="w-14 h-10 bg-slate-800 rounded overflow-hidden shrink-0 border border-slate-700 cursor-pointer hover:border-emerald-500 transition flex items-center justify-center text-[10px] text-white">
+            ${item.isFolder ? `<i data-lucide="folder" class="w-5 h-5 text-emerald-400"></i>` : `<img src="${url}" class="w-full h-full object-cover">`}
           </div>
         `;
       });
       thumbBox.innerHTML = html;
+      if (window.lucide) lucide.createIcons();
     }
 
-    // INIT AUTOMATIC TERSTRUKTUR & STABIL
+    // INIT AUTOMATIC
     document.addEventListener('DOMContentLoaded', async () => {
       await loadDataUtama();
       await loadProgresBankSampahDetail();
