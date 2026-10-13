@@ -33,56 +33,21 @@
       <p class="text-[11px] sm:text-xs text-slate-600">Pusat informasi pemilahan sampah anorganik, rekap tabungan warga, kas pengelola, dan rincian setoran berkala.</p>
     </div>
 
-    <!-- 1. SLIDER CARD PROGRES BANK SAMPAH (DI ATAS REKAP TOTALAN, RINGKAS & SWIPEABLE) -->
-    <div class="bg-white rounded-xl p-3 sm:p-4 shadow-sm border border-emerald-100 relative group overflow-hidden" id="progres-slider-container">
-      <div class="flex items-center justify-between mb-2">
-        <div class="flex items-center gap-1.5">
+    <!-- 1. SLIDER CARD PROGRES (DERETAN KARTU KECIL BERJAJAR KE SAMPING) -->
+    <div class="space-y-2">
+      <div class="flex items-center justify-between px-1">
+        <h3 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
           <i data-lucide="trending-up" class="w-4 h-4 text-emerald-600"></i>
-          <h3 class="text-xs font-bold text-slate-800">Progres Perkembangan Bank Sampah</h3>
-        </div>
-        <span id="progres-slide-indicator" class="text-[10px] font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">1 / 1</span>
+          Progres Perkembangan Bank Sampah
+        </h3>
+        <p class="text-[10px] text-slate-400">Geser untuk melihat langkah lainnya →</p>
       </div>
 
-      <!-- Content Ringkas Seukuran Card Totalan -->
-      <div class="flex items-center gap-3">
-        <!-- Thumbnail Foto Kecil (Ratio 1:1 / Square Ringkas) -->
-        <div class="w-20 sm:w-28 h-20 sm:h-24 bg-slate-100 rounded-lg overflow-hidden relative border border-slate-200 shrink-0">
-          <img id="progres-foto-kegiatan" src="" alt="Foto Progres" class="w-full h-full object-cover hidden" onload="this.classList.remove('hidden'); document.getElementById('progres-foto-skeleton').classList.add('hidden');">
-          <div id="progres-foto-skeleton" class="absolute inset-0 flex items-center justify-center text-slate-400 text-[10px] bg-slate-50 text-center p-1">
-            Memuat...
-          </div>
-        </div>
-
-        <!-- Detail Teks Progres Ringkas -->
-        <div class="flex-grow min-w-0 space-y-1">
-          <div class="flex items-center gap-1.5 flex-wrap">
-            <span id="progres-badge-langkah" class="bg-emerald-100 text-emerald-800 text-[9px] font-bold px-1.5 py-0.5 rounded">Langkah 1</span>
-            <span id="progres-badge-status" class="bg-emerald-600 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded">Selesai</span>
-            <span id="progres-tanggal" class="text-slate-400 text-[10px] ml-auto">11-Okt-2026</span>
-          </div>
-          <h4 id="progres-judul-kegiatan" class="text-xs sm:text-sm font-bold text-slate-800 truncate">Judul Kegiatan</h4>
-          <p id="progres-deskripsi-kegiatan" class="text-slate-600 text-[11px] line-clamp-1 leading-tight">Deskripsi singkat kegiatan.</p>
-          
-          <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-100 text-[10px]">
-            <div class="truncate">
-              <span class="text-slate-400 font-medium">Tahap:</span>
-              <span id="progres-tahap-detail" class="font-semibold text-slate-700 truncate ml-0.5">-</span>
-            </div>
-            <div class="truncate">
-              <span class="text-slate-400 font-medium">Agenda:</span>
-              <span id="progres-agenda-berikut" class="font-semibold text-slate-700 truncate ml-0.5">-</span>
-            </div>
-          </div>
-        </div>
+      <!-- Container Grid/Scroll Horizontal Kartu Progres -->
+      <div id="container-progres-cards" class="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-none">
+        <!-- Diisi JS berbentuk deretan kartu kecil seukuran card totalan -->
+        <div class="text-xs text-slate-400 p-3 italic">Memuat progres...</div>
       </div>
-
-      <!-- Tombol Navigasi Kanan-Kiri Melayang (Otomatis muncul saat Hover) -->
-      <button onclick="slideProgres(-1)" class="absolute left-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-slate-900/60 hover:bg-emerald-600 text-white flex items-center justify-center transition opacity-0 group-hover:opacity-100 shadow z-10">
-        <i data-lucide="chevron-left" class="w-4 h-4"></i>
-      </button>
-      <button onclick="slideProgres(1)" class="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-slate-900/60 hover:bg-emerald-600 text-white flex items-center justify-center transition opacity-0 group-hover:opacity-100 shadow z-10">
-        <i data-lucide="chevron-right" class="w-4 h-4"></i>
-      </button>
     </div>
 
     <!-- 2. 3 KARTU RINGKASAN TOTALAN DATA -->
@@ -110,7 +75,7 @@
       </div>
     </div>
 
-    <!-- 3. TABEL REKAP TABUNGAN SAMPAH WARGA (MAX 10 BARIS + SCROLLBAR) -->
+    <!-- 3. TABEL REKAP TABUNGAN SAMPAH WARGA -->
     <div class="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-slate-100">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
         <div>
@@ -143,7 +108,7 @@
       </div>
     </div>
 
-    <!-- 4. KARTU INVENTARIS & DOKUMENTASI (SAMPINGAN) -->
+    <!-- 4. KARTU INVENTARIS & DOKUMENTASI -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       
       <!-- Kartu Inventaris -->
@@ -176,7 +141,6 @@
           </div>
           <p class="text-[11px] text-slate-500 mb-2">Aktivitas pemilahan dan penimbangan warga</p>
           
-          <!-- Single Preview Galeri Banner -->
           <div onclick="bukaGaleriModal()" class="relative h-28 rounded-lg overflow-hidden bg-slate-900 cursor-pointer group border border-slate-200">
             <img id="galeri-preview-img" src="" alt="Galeri Preview" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition duration-300">
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-2.5">
@@ -268,18 +232,19 @@
     </div>
   </div>
 
-  <!-- SCRIPT UTAMA -->
+  <!-- SCRIPT UTAMA MEWARISI TEPAT KETIGA LINK TERBARU -->
   <script>
-    // CSV URLS
+    // CSV URLS TERBARU (DIKONFIRMASI LENGKAP)
     const CSV_REKAP_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=0&single=true&output=csv";
-    const CSV_RIWAYAT_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=1811656885&single=true&output=csv";
+    const CSV_RIWAYAT_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=1811693263&single=true&output=csv";
+    const CSV_INVENTARIS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=1819624619&single=true&output=csv";
+    const CSV_DOKUMENTASI_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=160734221&single=true&output=csv";
     const CSV_PROGRES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=315371679&single=true&output=csv";
-    const CSV_INVENTARIS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=2040003011&single=true&output=csv";
 
     let globalRekapData = [];
     let globalRiwayatData = [];
     let globalProgresList = [];
-    let currentProgresIndex = 0;
+    let globalDokumentasiList = [];
 
     function formatDriveImgUrl(url) {
       if (!url) return '';
@@ -288,6 +253,14 @@
         return `https://lh3.googleusercontent.com/d/${match[1]}`;
       }
       return url;
+    }
+
+    function parseCSV(text) {
+      const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+      if (lines.length <= 1) return [];
+      return lines.slice(1).map(line => {
+        return line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"\vert{}"$/g, '').trim());
+      });
     }
 
     // 1. DATA REKAP & RIWAYAT WARGA
@@ -307,16 +280,8 @@
         renderTabelWarga(globalRekapData);
         updateKasOperasional(globalRiwayatData);
       } catch (err) {
-        console.error("Gagal memuat data utama:", err);
+        console.error("Gagal memuat data rekap:", err);
       }
-    }
-
-    function parseCSV(text) {
-      const lines = text.split('\n').map(l => l.trim()).filter(l => l);
-      if (lines.length <= 1) return [];
-      return lines.slice(1).map(line => {
-        return line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"\vert{}"$/g, '').trim());
-      });
     }
 
     function renderTabelWarga(data) {
@@ -380,34 +345,7 @@
       renderTabelWarga(filtered);
     }
 
-    // 2. PROGRES SLIDER
-    function renderProgresSlide(index) {
-      if (globalProgresList.length === 0) return;
-      if (index < 0) index = 0;
-      if (index >= globalProgresList.length) index = globalProgresList.length - 1;
-      currentProgresIndex = index;
-
-      const item = globalProgresList[currentProgresIndex];
-
-      if (document.getElementById('progres-slide-indicator')) document.getElementById('progres-slide-indicator').innerText = `${currentProgresIndex + 1} / ${globalProgresList.length}`;
-      if (document.getElementById('progres-badge-langkah')) document.getElementById('progres-badge-langkah').innerText = item.langkah;
-      if (document.getElementById('progres-badge-status')) document.getElementById('progres-badge-status').innerText = item.status;
-      if (document.getElementById('progres-tanggal')) document.getElementById('progres-tanggal').innerText = item.tanggal;
-      if (document.getElementById('progres-judul-kegiatan')) document.getElementById('progres-judul-kegiatan').innerText = item.judul;
-      if (document.getElementById('progres-deskripsi-kegiatan')) document.getElementById('progres-deskripsi-kegiatan').innerText = item.deskripsi;
-      if (document.getElementById('progres-tahap-detail')) document.getElementById('progres-tahap-detail').innerText = item.tahapDetail.replace(/^Tahap:\s*/i, '');
-      if (document.getElementById('progres-agenda-berikut')) document.getElementById('progres-agenda-berikut').innerText = item.agendaBerikut.replace(/^Agenda:\s*/i, '');
-
-      const imgEl = document.getElementById('progres-foto-kegiatan');
-      if (imgEl && item.urlFoto) {
-        imgEl.src = item.urlFoto;
-      }
-    }
-
-    function slideProgres(direction) {
-      renderProgresSlide(currentProgresIndex + direction);
-    }
-
+    // 2. RENDER DERETAN KARTU PROGRES KECIL (CAROUSEL SLIDER HORIZONTAL)
     async function loadProgresBankSampahDetail() {
       try {
         const response = await fetch(CSV_PROGRES_URL);
@@ -425,17 +363,52 @@
           urlFoto: formatDriveImgUrl(cols[7] || '')
         }));
 
-        if (globalProgresList.length > 0) {
-          renderProgresSlide(globalProgresList.length - 1);
-          const previewImg = document.getElementById('galeri-preview-img');
-          if (previewImg) previewImg.src = globalProgresList[globalProgresList.length - 1].urlFoto;
+        const container = document.getElementById('container-progres-cards');
+        if (!container) return;
+
+        if (globalProgresList.length === 0) {
+          container.innerHTML = `<p class="text-xs text-slate-400 italic p-2">Belum ada progres.</p>`;
+          return;
         }
+
+        let html = '';
+        globalProgresList.forEach((item) => {
+          const isSelesai = item.status.toLowerCase() === 'selesai';
+          const badgeClass = isSelesai ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-white';
+
+          html += `
+            <div class="snap-start shrink-0 w-[270px] sm:w-[300px] bg-white p-3 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="bg-emerald-100 text-emerald-800 text-[9px] font-bold px-1.5 py-0.5 rounded">${item.langkah}</span>
+                <span class="${badgeClass} text-[9px] font-semibold px-1.5 py-0.5 rounded">${item.status}</span>
+                <span class="text-slate-400 text-[9px] ml-auto font-medium">${item.tanggal}</span>
+              </div>
+
+              <div class="flex gap-2.5 items-center">
+                <div class="w-16 h-16 bg-slate-100 rounded-lg overflow-hidden shrink-0 border border-slate-200">
+                  <img src="${item.urlFoto}" alt="Foto" class="w-full h-full object-cover">
+                </div>
+                <div class="min-w-0 flex-grow">
+                  <h4 class="text-xs font-bold text-slate-800 truncate">${item.judul}</h4>
+                  <p class="text-[10px] text-slate-500 line-clamp-2 leading-tight mt-0.5">${item.deskripsi}</p>
+                </div>
+              </div>
+
+              <div class="pt-1.5 border-t border-slate-100 text-[9px] space-y-0.5">
+                <div class="truncate"><span class="text-slate-400">Tahap:</span> <span class="font-semibold text-slate-700">${item.tahapDetail.replace(/^Tahap:\s*/i, '')}</span></div>
+                <div class="truncate"><span class="text-slate-400">Agenda:</span> <span class="font-semibold text-slate-700">${item.agendaBerikut.replace(/^Agenda:\s*/i, '')}</span></div>
+              </div>
+            </div>
+          `;
+        });
+
+        container.innerHTML = html;
       } catch (err) {
         console.error("Gagal memuat progres:", err);
       }
     }
 
-    // 3. INVENTARIS DATA
+    // 3. DATA INVENTARIS
     async function loadInventaris() {
       try {
         const response = await fetch(CSV_INVENTARIS_URL);
@@ -465,7 +438,29 @@
       }
     }
 
-    // 4. RINCIAN WARGA MODAL
+    // 4. DATA DOKUMENTASI & GALERI
+    async function loadDokumentasi() {
+      try {
+        const response = await fetch(CSV_DOKUMENTASI_URL);
+        const csvText = await response.text();
+        const rows = parseCSV(csvText);
+
+        globalDokumentasiList = rows.map(r => ({
+          judul: r[0] || 'Kegiatan Bank Sampah',
+          tanggal: r[1] || '',
+          url: formatDriveImgUrl(r[2] || '')
+        }));
+
+        const previewImg = document.getElementById('galeri-preview-img');
+        if (previewImg && globalDokumentasiList.length > 0) {
+          previewImg.src = globalDokumentasiList[0].url;
+        }
+      } catch (err) {
+        console.error("Gagal memuat dokumentasi:", err);
+      }
+    }
+
+    // 5. RINCIAN WARGA MODAL
     function bukaRincianWarga(namaBlok, totalBerat, totalSaldo) {
       document.getElementById('modal-nama-warga').innerText = namaBlok;
       document.getElementById('modal-total-berat').innerText = `${totalBerat.toFixed(1)} Kg`;
@@ -517,7 +512,7 @@
       if (e.target.id === 'modal-rincian') tutupRincianWarga();
     }
 
-    // 5. GALERI POPUP INTERAKTIF
+    // 6. GALERI POPUP INTERAKTIF
     let isGaleriOpen = false;
 
     function bukaGaleriModal() {
@@ -526,9 +521,10 @@
       modal.classList.remove('hidden');
       isGaleriOpen = true;
 
-      if (globalProgresList.length > 0) {
-        tampilkanMediaGaleri(globalProgresList.length - 1);
-        renderThumbnailsGaleri();
+      const mediaList = globalDokumentasiList.length > 0 ? globalDokumentasiList : globalProgresList;
+      if (mediaList.length > 0) {
+        tampilkanMediaGaleri(0, mediaList);
+        renderThumbnailsGaleri(mediaList);
       }
       history.pushState({ modalGaleriOpen: true }, "");
     }
@@ -553,46 +549,38 @@
       if (isGaleriOpen) tutupGaleriModal();
     });
 
-    function tampilkanMediaGaleri(index) {
-      const item = globalProgresList[index];
+    function tampilkanMediaGaleri(index, list) {
+      const mediaList = list || (globalDokumentasiList.length > 0 ? globalDokumentasiList : globalProgresList);
+      const item = mediaList[index];
       if (!item) return;
 
-      document.getElementById('galeri-caption').innerText = `${item.judul} - ${item.tanggal}`;
+      document.getElementById('galeri-caption').innerText = `${item.judul} ${item.tanggal ? '- ' + item.tanggal : ''}`;
       const container = document.getElementById('galeri-media-container');
 
-      if (item.urlFoto.includes('youtube.com') || item.urlFoto.includes('youtu.be')) {
-        let videoId = item.urlFoto.includes('youtu.be/') ? item.urlFoto.split('youtu.be/')[1].split('?')[0] : item.urlFoto.split('v=')[1]?.split('&')[0];
+      const url = item.url || item.urlFoto || '';
+
+      if (url.includes('youtube.com') || url.includes('youtu.be')) {
+        let videoId = url.includes('youtu.be/') ? url.split('youtu.be/')[1].split('?')[0] : url.split('v=')[1]?.split('&')[0];
         container.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" class="w-full aspect-video rounded-xl" frameborder="0" allowfullscreen></iframe>`;
       } else {
-        container.innerHTML = `<img src="${item.urlFoto}" alt="Dokumentasi" class="max-h-[60vh] max-w-full h-auto object-contain rounded-xl">`;
+        container.innerHTML = `<img src="${url}" alt="Dokumentasi" class="max-h-[60vh] max-w-full h-auto object-contain rounded-xl">`;
       }
     }
 
-    function renderThumbnailsGaleri() {
+    function renderThumbnailsGaleri(list) {
+      const mediaList = list || (globalDokumentasiList.length > 0 ? globalDokumentasiList : globalProgresList);
       const thumbBox = document.getElementById('galeri-thumbnails');
       if (!thumbBox) return;
       let html = '';
-      globalProgresList.forEach((item, idx) => {
+      mediaList.forEach((item, idx) => {
+        const url = item.url || item.urlFoto || '';
         html += `
           <div onclick="tampilkanMediaGaleri(${idx})" class="w-14 h-10 bg-slate-800 rounded overflow-hidden shrink-0 border border-slate-700 cursor-pointer hover:border-emerald-500 transition">
-            <img src="${item.urlFoto}" class="w-full h-full object-cover">
+            <img src="${url}" class="w-full h-full object-cover">
           </div>
         `;
       });
       thumbBox.innerHTML = html;
-    }
-
-    // GESTUR SWIPE HP UNTUK CARD PROGRES
-    let touchStartX = 0;
-    let touchEndX = 0;
-    const sliderContainer = document.getElementById('progres-slider-container');
-    if (sliderContainer) {
-      sliderContainer.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX, { passive: true });
-      sliderContainer.addEventListener('touchend', e => {
-        touchEndX = e.changedTouches[0].screenX;
-        if (touchEndX < touchStartX - 40) slideProgres(1);
-        if (touchEndX > touchStartX + 40) slideProgres(-1);
-      }, { passive: true });
     }
 
     // INIT AUTOMATIC
@@ -600,6 +588,7 @@
       loadDataUtama();
       loadProgresBankSampahDetail();
       loadInventaris();
+      loadDokumentasi();
     });
   </script>
 </body>
