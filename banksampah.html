@@ -1357,7 +1357,7 @@
       await loadDokumentasi();
     });
 
-    // Tutup modal otomatis saat area luar/blank area diklik
+    // Tutup modal/popup/lightbox saat area luar (blank area) diklik
 window.addEventListener('click', function(e) {
   const modalIds = [
     'modal-rincian', 
@@ -1365,13 +1365,25 @@ window.addEventListener('click', function(e) {
     'modal-tabungan-bulan', 
     'modal-cashflow-bulan',
     'modal-arsip-galeri',
-    'modal-gallery-grid'
+    'modal-gallery-grid',
+    'lightbox-modal',
+    'modal-single-player'
   ];
 
   modalIds.forEach(id => {
     const modalEl = document.getElementById(id);
     if (modalEl && e.target === modalEl) {
       modalEl.classList.add('hidden');
+      
+      // Khusus lightbox gambar/video, bersihkan konten saat ditutup
+      if (id === 'lightbox-modal') {
+        const container = document.getElementById('lightbox-media-container');
+        if (container) container.innerHTML = '';
+      }
+      if (id === 'modal-single-player') {
+        const container = document.getElementById('single-player-container');
+        if (container) container.innerHTML = '';
+      }
     }
   });
 });
