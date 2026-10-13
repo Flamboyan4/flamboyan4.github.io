@@ -54,7 +54,7 @@
             </div>
           </div>
           <div class="mt-2 cursor-pointer" onclick="bukaPopupSampahBulanIni()">
-            <span id="label-bulan-sampah" class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block">Bulan Ini</span>
+            <span id="label-bulan-sampah" class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block">Memuat...</span>
             <span id="val-sampah-bulanan" class="text-2xl sm:text-3xl font-black text-emerald-900">0.0 Kg</span>
             <p class="text-xs text-slate-500 mt-1">Klik rincian jenis sampah →</p>
           </div>
@@ -70,7 +70,7 @@
             </div>
           </div>
           <div class="mt-2 cursor-pointer" onclick="bukaPopupTabunganBulanIni()">
-            <span id="label-bulan-tabungan" class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block">Bulan Ini</span>
+            <span id="label-bulan-tabungan" class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block">Memuat...</span>
             <span id="val-tabungan-bulanan" class="text-2xl sm:text-3xl font-black text-emerald-900">Rp 0</span>
             <p class="text-xs text-slate-500 mt-1">Klik daftar setoran warga →</p>
           </div>
@@ -86,7 +86,7 @@
             </div>
           </div>
           <div class="mt-2 cursor-pointer" onclick="bukaPopupCashflowBulanIni()">
-            <span id="label-bulan-cashflow" class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block">Bulan Ini</span>
+            <span id="label-bulan-cashflow" class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block">Memuat...</span>
             <div class="flex items-baseline gap-1.5">
               <span id="val-cashflow-masuk" class="text-base sm:text-lg font-black text-emerald-800" title="Pemasukan">Rp 0</span>
               <span class="text-xs text-slate-400">/</span>
@@ -464,7 +464,7 @@
 
     let globalRekapData = [];
     let globalRiwayatData = [];
-    let globalPengeluaranData = [];
+    let globalPengeluaranClean = [];
 
     // DATA BULANAN UNTUK KARTU
     let listBulanUnik = [];
@@ -506,25 +506,40 @@
       });
     }
 
-    // Pembersih & Ekstrak Bulan yang robust (mencegah salah baca angka bulan mentah)
+    // Ekstraksi Bulan Strictly Valid
     function ekstrakBulanTahun(tglStr) {
-      if (!tglStr) return 'Lainnya';
+      if (!tglStr) return null;
       const clean = tglStr.trim();
-      // Jika format tanggal mengandung huruf bulan (misal Okt, Oktober, Oct)
+      // Abaikan kata header & angka tunggal urutan (seperti 1, 2, 3)
+      if (!clean || clean.length < 3 || /^(tanggal|no|nama|total|#n\/a|\d+)$/i.test(clean)) return null;
+
+      const months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+      
       const parts = clean.split(/[-/]/);
       if (parts.length >= 3) {
         let bln = parts[1];
         let thn = parts[2];
         if (thn && thn.length === 2) thn = '20' + thn;
+        if (!thn || thn.length < 4) thn = '2026';
+
         if (isNaN(bln)) {
-          return `${bln} ${thn || ''}`.trim();
+          return `${bln.substring(0, 3)} ${thn}`;
         } else {
-          const months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
           let bNum = parseInt(bln, 10);
-          if (bNum >= 1 && bNum <= 12) return `${months[bNum]} ${thn || '2026'}`;
+          if (bNum >= 1 && bNum <= 12) return `${months[bNum]} ${thn}`;
         }
       }
-      return clean;
+
+      const matchText = clean.match(/([a-zA-Z]+)\s*(\d{4})?/);
+      if (matchText) {
+        let mName = matchText[1].substring(0, 3);
+        let mYear = matchText[2] || '2026';
+        if (mName.length >= 3 && !/^(tan|no|nam|tot)$/i.test(mName)) {
+          return `${mName} ${mYear}`;
+        }
+      }
+
+      return null;
     }
 
     async function loadDataUtama() {
@@ -534,21 +549,48 @@
           fetch(CSV_RIWAYAT_URL + "&t=" + Date.now()),
           fetch(CSV_PENGELUARAN_URL + "&t=" + Date.now())
         ]);
+
         globalRekapData = parseCSV(await resRekap.text());
         globalRiwayatData = parseCSV(await resRiwayat.text());
-        globalPengeluaranData = parseCSV(await resPengeluaran.text());
+        
+        // Membaca CSV Pengeluaran secara presisi berdasarkan screenshot (Kolom B: Tanggal, Kolom C: Keterangan, Kolom D: Nominal)
+        const rawPengeluaran = parseCSV(await resPengeluaran.text());
+        globalPengeluaranClean = [];
 
-        // Kumpulkan semua bulan unik dari riwayat setoran & pengeluaran
+        rawPengeluaran.forEach(r => {
+          // Cari kolom mana yang berisi tanggal valid (misal 11-Okt-2026)
+          let tgl = r[1] || r[0] || '';
+          let ket = r[2] || r[1] || '-';
+          let nom = parseNumberFlexible(r[3] || r[2]);
+
+          // Jika kolom 1 adalah angka urut "1", geser baca kolom selanjutnya
+          if (/^\d+$/.test(tgl.trim()) && r[2]) {
+            tgl = r[2];
+            ket = r[3] || '-';
+            nom = parseNumberFlexible(r[4] || r[3]);
+          }
+
+          if (tgl && tgl.toLowerCase() !== 'tanggal') {
+            globalPengeluaranClean.push({
+              tanggal: tgl,
+              keperluan: ket,
+              nominal: nom
+            });
+          }
+        });
+
+        // Kumpulkan semua bulan unik dari riwayat & pengeluaran
         let setBulan = new Set();
         globalRiwayatData.forEach(r => {
-          if (r[1] && r[1] !== 'Tanggal') setBulan.add(ekstrakBulanTahun(r[1]));
+          let b = ekstrakBulanTahun(r[1]);
+          if (b) setBulan.add(b);
         });
-        globalPengeluaranData.forEach(r => {
-          // Kolom 0 di pengeluaran adalah tanggal
-          if (r[0] && r[0] !== 'Tanggal') setBulan.add(ekstrakBulanTahun(r[0]));
+        globalPengeluaranClean.forEach(p => {
+          let b = ekstrakBulanTahun(p.tanggal);
+          if (b) setBulan.add(b);
         });
 
-        listBulanUnik = Array.from(setBulan).filter(b => b && b !== 'Lainnya' && b !== 'Tanggal');
+        listBulanUnik = Array.from(setBulan);
         if (listBulanUnik.length === 0) listBulanUnik = ['Okt 2026'];
         
         indexBulanSampah = listBulanUnik.length - 1;
@@ -570,7 +612,7 @@
       let html = '';
       data.forEach((row, idx) => {
         const namaBlok = row[1] || '-';
-        if (!namaBlok || namaBlok === '#N/A') return;
+        if (!namaBlok || namaBlok === '#N/A' || namaBlok.toLowerCase() === 'nama & blok') return;
 
         const setoranTerakhir = row[2] || '-';
         const totalBeratWarga = parseNumberFlexible(row[3]);
@@ -605,7 +647,7 @@
       let totalSampahBulan = 0;
       globalRiwayatData.forEach(r => {
         if (ekstrakBulanTahun(r[1]) === bulanAktifSampah) {
-          totalSampahBulan += parseNumberFlexible(r[6]); // total berat
+          totalSampahBulan += parseNumberFlexible(r[6]);
         }
       });
       document.getElementById('val-sampah-bulanan').innerText = `${totalSampahBulan.toFixed(1)} Kg`;
@@ -615,7 +657,7 @@
       let totalTabunganBulan = 0;
       globalRiwayatData.forEach(r => {
         if (ekstrakBulanTahun(r[1]) === bulanAktifTabungan) {
-          totalTabunganBulan += parseNumberFlexible(r[7]); // nominal tabungan
+          totalTabunganBulan += parseNumberFlexible(r[7]);
         }
       });
       document.getElementById('val-tabungan-bulanan').innerText = `Rp ${Math.round(totalTabunganBulan).toLocaleString('id-ID')}`;
@@ -625,13 +667,13 @@
       let totalMasukBulan = 0;
       globalRiwayatData.forEach(r => {
         if (ekstrakBulanTahun(r[1]) === bulanAktifCashflow) {
-          totalMasukBulan += parseNumberFlexible(r[9]); // kas masuk
+          totalMasukBulan += parseNumberFlexible(r[9]);
         }
       });
       let totalKeluarBulan = 0;
-      globalPengeluaranData.forEach(r => {
-        if (ekstrakBulanTahun(r[0]) === bulanAktifCashflow) {
-          totalKeluarBulan += parseNumberFlexible(r[2]); // nominal pengeluaran di kolom indeks 2
+      globalPengeluaranClean.forEach(p => {
+        if (ekstrakBulanTahun(p.tanggal) === bulanAktifCashflow) {
+          totalKeluarBulan += p.nominal;
         }
       });
       document.getElementById('val-cashflow-masuk').innerText = `Rp ${Math.round(totalMasukBulan).toLocaleString('id-ID')}`;
@@ -642,7 +684,7 @@
       let totalMasukAll = 0;
       globalRiwayatData.forEach(r => { totalMasukAll += parseNumberFlexible(r[9]); });
       let totalKeluarAll = 0;
-      globalPengeluaranData.forEach(r => { totalKeluarAll += parseNumberFlexible(r[2]); });
+      globalPengeluaranClean.forEach(p => { totalKeluarAll += p.nominal; });
 
       const sisaSaldo = totalMasukAll - totalKeluarAll;
       const el = document.getElementById('val-sisa-saldo-kas');
@@ -752,16 +794,13 @@
       // Tabel Keluar
       const tbodyKeluar = document.getElementById('modal-tabel-cashflow-keluar');
       let htmlKeluar = '';
-      globalPengeluaranData.forEach(r => {
-        if (ekstrakBulanTahun(r[0]) === bulan) {
-          const tgl = r[0] || '-';
-          const keperluan = r[1] || '-';
-          const nominal = parseNumberFlexible(r[2]);
+      globalPengeluaranClean.forEach(p => {
+        if (ekstrakBulanTahun(p.tanggal) === bulan) {
           htmlKeluar += `
             <tr class="hover:bg-slate-50 transition">
-              <td class="p-3 text-slate-600">${tgl}</td>
-              <td class="p-3 font-semibold text-slate-800">${keperluan}</td>
-              <td class="p-3 text-right font-bold text-rose-700">Rp ${Math.round(nominal).toLocaleString('id-ID')}</td>
+              <td class="p-3 text-slate-600">${p.tanggal}</td>
+              <td class="p-3 font-semibold text-slate-800">${p.keperluan}</td>
+              <td class="p-3 text-right font-bold text-rose-700">Rp ${Math.round(p.nominal).toLocaleString('id-ID')}</td>
             </tr>
           `;
         }
@@ -841,7 +880,7 @@
           const qty = r[1] || '0';
           const urlRaw = r[3] || r[2] || '';
           const urlFoto = formatDriveImgUrl(urlRaw);
-          if (nama !== '-' && nama !== 'Nama Barang') {
+          if (nama !== '-' && nama.toLowerCase() !== 'nama barang') {
             inventarisList.push({ nama, qty, urlFoto });
           }
         });
@@ -880,7 +919,7 @@
           const deskripsi = r[2] || '';
           const folderUrl = r[3] || '';
 
-          if (!judul) continue;
+          if (!judul || judul.toLowerCase() === 'judul') continue;
 
           let folderId = '';
           const match = folderUrl.match(/(?:folders\/|id=)([a-zA-Z0-9_-]+)/);
