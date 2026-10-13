@@ -1517,11 +1517,11 @@ function prosesCetakPDF() {
     judulPeriode = "Laporan Tahunan " + thnFull;
   }
 
-  // 1. Ambil Angka Ringkasan Langsung Dari Layar
-  var elBerat = document.getElementById('metric-total-berat');
-  var elTabungan = document.getElementById('metric-tabungan-warga');
-  var elMasuk = document.getElementById('metric-cash-in');
-  var elSaldo = document.getElementById('metric-sisa-kas');
+  // 1. Ambil ringkasan dari elemen dashboard yang benar
+  var elBerat = document.getElementById('val-sampah-bulanan');
+  var elTabungan = document.getElementById('val-tabungan-bulanan');
+  var elMasuk = document.getElementById('val-cashflow-masuk');
+  var elSaldo = document.getElementById('val-sisa-saldo-kas');
 
   var valBerat = elBerat ? elBerat.innerText : '0.0 Kg';
   var valTabungan = elTabungan ? elTabungan.innerText : 'Rp 0';
@@ -1530,7 +1530,7 @@ function prosesCetakPDF() {
 
   // 2. Salin Data Tabel dari Layar
   var tabelRowsHTML = "";
-  var tbody = document.getElementById('tbody-rekap-warga');
+  var tbody = document.getElementById('tabel-rekap-warga');
 
   if (tbody) {
     var trs = tbody.getElementsByTagName('tr');
@@ -1541,7 +1541,7 @@ function prosesCetakPDF() {
       if (tds.length >= 4) {
         var textRow = trs[i].innerText;
         if (!textRow.includes('Memuat') && !textRow.includes('Belum ada')) {
-          var namaBlok = tds[1] ? tds[1].innerHTML : '';
+          var namaBlok = tds[1] ? tds[1].innerText.trim() : '';
           var setoranTgl = tds[2] ? tds[2].innerText : '-';
           var beratKg = tds[3] ? tds[3].innerText : '0 Kg';
           var saldoRp = tds[4] ? tds[4].innerText : 'Rp 0';
