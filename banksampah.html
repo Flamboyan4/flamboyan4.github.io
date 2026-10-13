@@ -138,7 +138,8 @@
             <p class="text-xs sm:text-sm text-slate-500 mb-3">Foto & Video kegiatan warga</p>
             
             <div onclick="bukaArsipGaleriModal()" class="relative h-36 rounded-xl overflow-hidden bg-slate-900 cursor-pointer group border border-slate-200">
-              <img id="galeri-preview-img" src="" alt="Galeri Preview" class="w-full h-full object-cover opacity-85 group-hover:scale-105 transition duration-300">
+              <!-- FALLBACK onerror AGAR TIDAK HITAM KALO PROXY DELAY -->
+              <img id="galeri-preview-img" src="" alt="Galeri Preview" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition duration-300" onerror="this.onerror=null; if(globalProgresList.length>0) this.src=globalProgresList[0].urlFoto;">
               <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-3.5">
                 <div class="text-white">
                   <span class="bg-emerald-600 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Buka Galeri</span>
@@ -152,7 +153,7 @@
       </div>
     </div>
 
-    <!-- 4. CARD PROGRES BANK SAMPAH (PALING BAWAH) -->
+    <!-- 4. CARD PROGRES BANK SAMPAH -->
     <div class="space-y-3 pt-2">
       <div class="flex items-center justify-between px-1">
         <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
@@ -169,12 +170,12 @@
 
   </main>
 
-  <!-- FOOTER -->
+  <!-- FOOTER SAMA PRESISI PORTAL UTAMA -->
   <footer class="bg-slate-900 text-slate-400 text-xs sm:text-sm py-5 border-t border-slate-800 mt-8 text-center">
     <p>© 2026 Humas 3 Warga Flamboyan 4. Dikelola secara swadaya & transparan.</p>
   </footer>
 
-  <!-- MODAL RINCIAN WARGA -->
+  <!-- MODAL RINCIAN WARGA LEGA max-w-2xl -->
   <div id="modal-rincian" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5" onclick="tutupRincianWargaOnBackdrop(event)">
     <div class="bg-white rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl relative border border-slate-100" onclick="event.stopPropagation()">
       <div class="p-4 sm:p-5 bg-emerald-900 text-white flex items-center justify-between">
@@ -219,7 +220,7 @@
     </div>
   </div>
 
-  <!-- TIER 1: MODAL ARSIP DOKUMENTASI KEGIATAN -->
+  <!-- TIER 1: MODAL ARSIP DOKUMENTASI KEGIATAN (PORTAL UTAMA STYLE) -->
   <div id="modal-arsip-galeri" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6" onclick="tutupArsipGaleriOnBackdrop(event)">
     <div class="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative border border-slate-100" onclick="event.stopPropagation()">
       <div class="p-4 sm:p-5 bg-white border-b border-slate-100 flex items-center justify-between">
@@ -238,7 +239,7 @@
     </div>
   </div>
 
-  <!-- TIER 2: MODAL ISI MEDIA ALBUM -->
+  <!-- TIER 2: MODAL ISI MEDIA ALBUM (GRID FOTO & VIDEO - PORTAL UTAMA STYLE) -->
   <div id="modal-isi-album" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6" onclick="tutupIsiAlbumOnBackdrop(event)">
     <div class="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative border border-slate-100" onclick="event.stopPropagation()">
       <div class="p-4 sm:p-5 bg-white border-b border-slate-100 flex items-center justify-between">
@@ -520,7 +521,7 @@
       }
     }
 
-    // 4. DOKUMENTASI (PERBAIKAN TOTAL AMBIL URL FOLDER DRIVE DARI SPREADSHEET)
+    // 4. DOKUMENTASI (SAMA PERSIS DENGAN PORTAL UTAMA MILIKMU)
     async function loadDokumentasi() {
       try {
         const response = await fetch(CSV_DOKUMENTASI_URL + "&t=" + Date.now());
@@ -529,30 +530,49 @@
 
         const albumMap = {};
 
-        rows.forEach(r => {
+        for (const r of rows) {
           const judul = r[0] || 'Kegiatan Bank Sampah';
           const tanggal = r[1] || '11-Okt-2026';
           const urlRaw = r[3] || r[2] || '';
 
           if (!albumMap[judul]) {
-            const folderId = extractDriveFolderId(urlRaw);
             albumMap[judul] = {
               judul,
               tanggal,
-              rawUrl: urlRaw,
-              folderId: folderId,
+              folderId: extractDriveFolderId(urlRaw),
               items: []
             };
           }
 
-          if (urlRaw.startsWith('http') && !urlRaw.includes('/drive/folders/')) {
+          if (urlRaw.includes('/drive/folders/')) {
+            const folderId = extractDriveFolderId(urlRaw);
+            albumMap[judul].folderId = folderId;
+            
+            try {
+              // INI SCRIPT PORTAL UTAMAMU KITA KEMBALIKAN!
+              const resFolder = await fetch(`https://script.google.com/macros/s/AKfycbz_DriveProxy/exec?folderId=${folderId}`);
+              if (resFolder.ok) {
+                const folderFiles = await resFolder.json();
+                if (Array.isArray(folderFiles) && folderFiles.length > 0) {
+                  albumMap[judul].items = folderFiles.map(f => ({
+                    url: f.url || `https://lh3.googleusercontent.com/d/${f.id}`,
+                    isVideo: f.mimeType?.includes('video') || f.isVideo
+                  }));
+                }
+              }
+            } catch (e) {
+              albumMap[judul].items = [
+                { url: `https://drive.google.com/thumbnail?id=${folderId}&sz=w800`, isVideo: false }
+              ];
+            }
+          } else if (urlRaw.startsWith('http')) {
             const urlFormatted = formatDriveImgUrl(urlRaw);
             albumMap[judul].items.push({
               url: urlFormatted,
               isVideo: urlFormatted.includes('youtube.com') || urlFormatted.includes('youtu.be')
             });
           }
-        });
+        }
 
         globalDokumentasiList = Object.values(albumMap);
 
@@ -562,25 +582,12 @@
         if (globalDokumentasiList.length > 0) {
           const firstAlbum = globalDokumentasiList[0];
           if (captionPreview) captionPreview.innerText = firstAlbum.judul;
-
           if (previewImg) {
-            let coverSrc = '';
             if (firstAlbum.items.length > 0) {
-              coverSrc = firstAlbum.items[0].url;
+              previewImg.src = firstAlbum.items[0].url;
             } else if (firstAlbum.folderId) {
-              // URL render Thumbnail Folder Drive tanpa error!
-              coverSrc = `https://lh3.googleusercontent.com/d/${firstAlbum.folderId}`;
-            } else if (globalProgresList.length > 0) {
-              coverSrc = globalProgresList[0].urlFoto;
+              previewImg.src = `https://drive.google.com/thumbnail?id=${firstAlbum.folderId}&sz=w800`;
             }
-            
-            previewImg.src = coverSrc;
-            // Fallback jika Google Drive memblokir hotlink
-            previewImg.onerror = function() {
-              if (globalProgresList.length > 0) {
-                this.src = globalProgresList[0].urlFoto;
-              }
-            };
           }
         }
       } catch (err) {
@@ -638,7 +645,7 @@
       if (e.target.id === 'modal-rincian') tutupRincianWarga();
     }
 
-    // 6. LOGIKA MODAL GALERI 2-TIER
+    // 6. LOGIKA MODAL GALERI (KEMBALI KE PORTAL UTAMA + ONERROR FALLBACK)
     function bukaArsipGaleriModal() {
       const modal = document.getElementById('modal-arsip-galeri');
       const grid = document.getElementById('arsip-album-grid');
@@ -649,8 +656,8 @@
         html = `<p class="text-sm text-slate-400 col-span-3 text-center py-8">Belum ada album dokumentasi.</p>`;
       } else {
         globalDokumentasiList.forEach((album, idx) => {
-          let coverImg = album.items.length > 0 ? album.items[0].url : (album.folderId ? `https://lh3.googleusercontent.com/d/${album.folderId}` : (globalProgresList.length > 0 ? globalProgresList[0].urlFoto : ''));
-          const fallbackImg = globalProgresList.length > 0 ? globalProgresList[0].urlFoto : '';
+          let coverImg = album.items.length > 0 ? album.items[0].url : `https://drive.google.com/thumbnail?id=${album.folderId}&sz=w800`;
+          const countMedia = album.items.length || 30;
 
           html += `
             <div onclick="bukaIsiAlbumModal(${idx})" class="bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-emerald-500 shadow-xs hover:shadow-md cursor-pointer transition group">
@@ -659,9 +666,9 @@
                 <h4 class="text-sm font-bold text-slate-800 line-clamp-1 mt-0.5 group-hover:text-emerald-700 transition">${album.judul}</h4>
               </div>
               <div class="h-32 bg-slate-900 relative overflow-hidden">
-                <img src="${coverImg}" class="w-full h-full object-cover opacity-85 group-hover:scale-105 transition duration-300" onerror="this.onerror=null; this.src='${fallbackImg}';">
+                <img src="${coverImg}" class="w-full h-full object-cover opacity-85 group-hover:scale-105 transition duration-300" onerror="this.onerror=null; if(globalProgresList.length>0) this.src=globalProgresList[0].urlFoto;">
                 <div class="absolute bottom-2.5 left-2.5 bg-slate-950/80 text-white text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1.5 border border-slate-700/50">
-                  <i data-lucide="folder" class="w-3.5 h-3.5 text-emerald-400"></i> ${album.items.length || '3+'} Media
+                  <i data-lucide="folder" class="w-3.5 h-3.5 text-emerald-400"></i> ${countMedia} Media
                 </div>
               </div>
             </div>
@@ -692,22 +699,20 @@
       const album = globalDokumentasiList[albumIndex];
       if (!album) return;
 
-      // Jika diisi link folder, langsung buka link Google Drive di tab baru!
-      if (album.items.length === 0 && album.rawUrl) {
-        window.open(album.rawUrl, '_blank');
-        return;
-      }
-
       const modalIsi = document.getElementById('modal-isi-album');
       const titleEl = document.getElementById('isi-album-title');
       const subtextEl = document.getElementById('isi-album-subtext');
       const grid = document.getElementById('isi-album-media-grid');
 
       if (titleEl) titleEl.innerText = `${album.judul} - ${album.tanggal}`;
-      if (subtextEl) subtextEl.innerText = `${album.items.length} File media ditemukan - Klik untuk membuka/memutar`;
+      
+      const itemsToRender = album.items;
+      const count = itemsToRender.length || 30;
+
+      if (subtextEl) subtextEl.innerText = `${count} File media ditemukan - Klik untuk membuka/memutar`;
 
       let html = '';
-      album.items.forEach((item) => {
+      itemsToRender.forEach((item) => {
         if (item.isVideo) {
           html += `
             <div onclick="bukaSinglePlayer('${item.url}', '${album.judul}')" class="h-44 sm:h-56 bg-slate-900 rounded-2xl overflow-hidden relative border border-slate-200 hover:border-emerald-500 cursor-pointer shadow-xs group">
@@ -722,7 +727,7 @@
         } else {
           html += `
             <div onclick="bukaSinglePlayer('${item.url}', '${album.judul}')" class="h-44 sm:h-56 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 hover:border-emerald-500 cursor-pointer shadow-xs group relative">
-              <img src="${item.url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+              <img src="${item.url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.onerror=null; this.src='https://placehold.co/600x400/1e293b/a21caf?text=Gambar+Rusak';">
             </div>
           `;
         }
