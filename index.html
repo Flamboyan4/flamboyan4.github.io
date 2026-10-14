@@ -2508,12 +2508,9 @@ function salinLinkAgenda(url) {
     }
 
     function openDokumentasiPreviewAktif() {
-      if (!globalDokumentasiPreview.length) {
-        openModalDokumentasi();
-        return;
-      }
-      const item = globalDokumentasiPreview[dokumentasiPreviewIndex];
-      openGalleryGridModal(item.rawFotoString || '', `${item.judul || 'Dokumentasi'} - ${item.tanggal || ''}`);
+      // Card Dokumentasi selalu membuka daftar album/kelompok dokumentasi terlebih dahulu.
+      // Pengunjung kemudian memilih album mana yang ingin dibuka.
+      openModalDokumentasi();
     }
 
     function openInventarisWargaFoto(url, title) {
