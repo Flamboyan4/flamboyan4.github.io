@@ -729,7 +729,6 @@
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
         <div>
           <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2"><i data-lucide="printer" class="w-5 h-5 text-indigo-600"></i>Cetak Laporan Keuangan</h3>
-          <p class="text-xs text-slate-500 mt-1">Pilih periode laporan yang akan dicetak.</p>
         </div>
         <button onclick="closeModalCetakKas()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
@@ -770,9 +769,6 @@
         <div id="cetak-kas-tahunan" class="hidden">
           <label class="block text-xs font-semibold text-slate-500 mb-1">Tahun</label>
           <input id="cetak-kas-tahun-full" type="number" min="2000" max="2100" class="w-full border border-slate-200 rounded-xl px-3 py-2.5" />
-        </div>
-        <div class="pt-2 border-t border-slate-100">
-          <p class="text-[11px] text-slate-500 leading-relaxed">Laporan dibuat rapat dan berkesinambungan. Baris tabel tidak akan dipotong di tengah halaman, dan bagian pengesahan akan dipindahkan utuh ke halaman berikutnya bila ruang tersisa tidak cukup.</p>
         </div>
         <button onclick="cetakLaporanKas()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl py-3 transition flex items-center justify-center gap-2">
           <i data-lucide="printer" class="w-4 h-4"></i><span>Buka Tampilan Cetak</span>
