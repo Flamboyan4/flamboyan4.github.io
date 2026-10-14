@@ -253,36 +253,120 @@
       const docId = extractGoogleDocId(rawUrl);
       const driveFileId = extractDriveFileId(rawUrl);
 
-      // MENGAMBIL ISI GOOGLE DOCS DENGAN MENJAGA ATURAN STYLE PENOMORAN ASLI
+      // GOOGLE DOCS -> HTML RESPONSIVE, TETAP MEMPERTAHANKAN STYLE ASLI GOOGLE DOCS
       if (docId) {
         const fetchUrl = `https://docs.google.com/feeds/download/documents/export/Export?id=${docId}&exportFormat=html`;
-        fetch(fetchUrl)
-          .then(res => res.text())
+
+        fetch(fetchUrl, { cache: 'no-store' })
+          .then(res => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return res.text();
+          })
           .then(htmlText => {
             const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlText, 'text/html');
+            const exportedDoc = parser.parseFromString(htmlText, 'text/html');
 
-            // Ambil seluruh isi tag <style> agar CSS penomoran Google Docs tetap utuh
-            let docStyles = '';
-            doc.querySelectorAll('style').forEach(s => {
-              docStyles += s.innerHTML;
-            });
+            // Jika Google mengembalikan halaman login / error, jangan ditampilkan sebagai dokumen.
+            const exportedBodyText = (exportedDoc.body?.innerText || '').toLowerCase();
+            if (
+              !exportedDoc.body ||
+              exportedBodyText.includes('sign in') ||
+              exportedBodyText.includes('accounts.google.com')
+            ) {
+              throw new Error('Google Doc tidak dapat diekspor sebagai HTML publik.');
+            }
 
-            // Ambil isi body dokumen
-            const bodyContent = doc.querySelector('body')?.innerHTML || '<p class="text-slate-400 text-xs">Tidak ada teks notulensi.</p>';
+            // Tambahkan viewport di dokumen iframe agar pinch-zoom HP tetap diizinkan.
+            let viewport = exportedDoc.querySelector('meta[name="viewport"]');
+            if (!viewport) {
+              viewport = exportedDoc.createElement('meta');
+              viewport.setAttribute('name', 'viewport');
+              exportedDoc.head.prepend(viewport);
+            }
+            viewport.setAttribute(
+              'content',
+              'width=device-width, initial-scale=1, minimum-scale=0.5, maximum-scale=5, user-scalable=yes'
+            );
 
-            // Tampilkan style asli + isi dokumen secara terenkapsulasi
-            document.getElementById('modal-rapat-body').innerHTML = `
-              <style>${docStyles}</style>
-              <div class="doc-parsed-content">${bodyContent}</div>
+            // CSS ini hanya mengatur wadah agar responsif. Style teks, bold, ukuran huruf,
+            // tabel, bullet dan numbering dari Google Docs tetap dipertahankan.
+            const responsiveStyle = exportedDoc.createElement('style');
+            responsiveStyle.textContent = `
+              :root {
+                color-scheme: light;
+              }
+              html {
+                background: #e2e8f0 !important;
+                min-height: 100%;
+                touch-action: pan-x pan-y pinch-zoom;
+              }
+              body {
+                box-sizing: border-box !important;
+                width: min(100%, 850px) !important;
+                max-width: 850px !important;
+                min-height: 100vh !important;
+                margin: 0 auto !important;
+                padding: clamp(18px, 5vw, 72px) !important;
+                background: #ffffff !important;
+                overflow-wrap: anywhere;
+                -webkit-user-select: text !important;
+                user-select: text !important;
+                touch-action: pan-x pan-y pinch-zoom;
+                box-shadow: 0 0 24px rgba(15, 23, 42, 0.10);
+              }
+              img, svg, canvas {
+                max-width: 100% !important;
+                height: auto !important;
+              }
+              table {
+                max-width: 100% !important;
+              }
+              td, th {
+                overflow-wrap: anywhere;
+              }
+              @media (max-width: 640px) {
+                html {
+                  background: #ffffff !important;
+                }
+                body {
+                  width: 100% !important;
+                  max-width: none !important;
+                  padding: 18px 14px 32px !important;
+                  box-shadow: none !important;
+                }
+                table {
+                  width: 100% !important;
+                  table-layout: auto !important;
+                }
+                td, th {
+                  min-width: 0 !important;
+                  word-break: break-word;
+                }
+              }
             `;
+            exportedDoc.head.appendChild(responsiveStyle);
+
+            const serializedHtml = '<!DOCTYPE html>\n' + exportedDoc.documentElement.outerHTML;
+            const body = document.getElementById('modal-rapat-body');
+
+            // Iframe srcdoc mengisolasi CSS Google Docs dari CSS website.
+            // Dengan begitu style asli Google Docs tidak saling timpa dengan Tailwind.
+            const iframe = document.createElement('iframe');
+            iframe.setAttribute('title', rapatItem.judul || 'Dokumen hasil rapat');
+            iframe.setAttribute('class', 'w-full h-full border-0 block bg-white');
+            iframe.setAttribute('allow', 'fullscreen');
+            iframe.srcdoc = serializedHtml;
+
+            body.innerHTML = '';
+            body.appendChild(iframe);
           })
           .catch(err => {
+            console.error('Gagal memuat Google Doc sebagai HTML:', err);
             document.getElementById('modal-rapat-body').innerHTML = `
-              <div class="p-4 bg-amber-50 rounded-xl border border-amber-200 text-amber-800 text-xs space-y-2">
-                <p class="font-bold">Gagal memuat otomatis isi Google Doc.</p>
-                <p>Pastikan hak akses file Google Doc sudah di-set ke <strong>"Anyone with the link can view"</strong>.</p>
-                <a href="${rapatItem.docUrl}" target="_blank" class="inline-block bg-amber-600 text-white px-3 py-1.5 rounded-lg font-bold">Buka Langsung di Google Docs</a>
+              <div class="m-4 max-w-xl p-4 bg-amber-50 rounded-xl border border-amber-200 text-amber-900 text-xs space-y-2">
+                <p class="font-bold">Google Doc tidak dapat dimuat sebagai HTML.</p>
+                <p>Pastikan dokumen dapat dilihat oleh siapa pun yang memiliki link. Dokumen PDF tetap akan menggunakan penampil PDF seperti biasa.</p>
+                <a href="${rapatItem.docUrl}" target="_blank" rel="noopener" class="inline-flex bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-lg font-bold">Buka Langsung di Google Docs</a>
               </div>
             `;
           });
