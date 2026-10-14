@@ -111,6 +111,15 @@
             <span id="val-sisa-saldo-kas" class="text-2xl sm:text-3xl font-black text-white">Rp 0</span>
             <p class="text-xs text-emerald-200 mt-1">Akumulasi bersih kas keseluruhan</p>
           </div>
+          <div class="mt-3 pt-3 border-t border-emerald-700/80 flex items-center gap-2 text-[11px] sm:text-xs text-emerald-100">
+            <button onclick="geserBulanCard('saldo', -1)" class="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 text-emerald-50 flex items-center justify-center transition" title="Bulan Sebelumnya"><i data-lucide="chevron-left" class="w-3.5 h-3.5"></i></button>
+            <div class="flex-1 text-center leading-tight">
+              <span id="label-bulan-saldo-kas" class="font-medium text-emerald-100">Saldo Okt 2026</span>
+              <span class="mx-1 opacity-60">•</span>
+              <span id="val-saldo-bulanan-kas" class="font-extrabold text-white">Rp 0</span>
+            </div>
+            <button onclick="geserBulanCard('saldo', 1)" class="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 text-emerald-50 flex items-center justify-center transition" title="Bulan Berikutnya"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></button>
+          </div>
         </div>
 
       </div>
@@ -556,6 +565,7 @@
     let indexBulanSampah = 0;
     let indexBulanTabungan = 0;
     let indexBulanCashflow = 0;
+    let indexBulanSaldoKas = 0;
 
     let globalProgresList = [];
     let globalAlbums = [];
@@ -683,6 +693,7 @@
         indexBulanSampah = listBulanUnik.length - 1;
         indexBulanTabungan = listBulanUnik.length - 1;
         indexBulanCashflow = listBulanUnik.length - 1;
+        indexBulanSaldoKas = listBulanUnik.length - 1;
 
         renderTabelWarga(globalRekapData);
         updateSemuaCardBulanan();
@@ -728,6 +739,7 @@
       const bulanAktifSampah = listBulanUnik[indexBulanSampah] || 'Okt 2026';
       const bulanAktifTabungan = listBulanUnik[indexBulanTabungan] || 'Okt 2026';
       const bulanAktifCashflow = listBulanUnik[indexBulanCashflow] || 'Okt 2026';
+      const bulanAktifSaldo = listBulanUnik[indexBulanSaldoKas] || 'Okt 2026';
 
       // 1. Card Sampah
       document.getElementById('label-bulan-sampah').innerText = bulanAktifSampah;
@@ -765,6 +777,23 @@
       });
       document.getElementById('val-cashflow-masuk').innerText = `Rp ${Math.round(totalMasukBulan).toLocaleString('id-ID')}`;
       document.getElementById('val-cashflow-keluar').innerText = `Rp ${Math.round(totalKeluarBulan).toLocaleString('id-ID')}`;
+
+      // 4. Card Sisa Saldo Kas Bulanan
+      let saldoBulan = 0;
+      globalRiwayatData.forEach(r => {
+        if (ekstrakBulanTahun(r[1]) === bulanAktifSaldo) {
+          saldoBulan += parseLaporanNumber(r[9]);
+        }
+      });
+      globalPengeluaranClean.forEach(p => {
+        if (ekstrakBulanTahun(p.tanggal) === bulanAktifSaldo) {
+          saldoBulan -= p.nominal;
+        }
+      });
+      const labelSaldo = document.getElementById('label-bulan-saldo-kas');
+      const valSaldo = document.getElementById('val-saldo-bulanan-kas');
+      if (labelSaldo) labelSaldo.innerText = `Saldo ${bulanAktifSaldo}`;
+      if (valSaldo) valSaldo.innerText = `Rp ${Math.round(saldoBulan).toLocaleString('id-ID')}`;
     }
 
     function updateSisaSaldoKas() {
@@ -786,6 +815,8 @@
         indexBulanTabungan = (indexBulanTabungan + dir + listBulanUnik.length) % listBulanUnik.length;
       } else if (tipe === 'cashflow') {
         indexBulanCashflow = (indexBulanCashflow + dir + listBulanUnik.length) % listBulanUnik.length;
+      } else if (tipe === 'saldo') {
+        indexBulanSaldoKas = (indexBulanSaldoKas + dir + listBulanUnik.length) % listBulanUnik.length;
       }
       updateSemuaCardBulanan();
     }
@@ -1787,6 +1818,7 @@ function prosesCetakPDF() {
   );
 
   const saldoKeseluruhan = masukSemua - keluarSemua;
+  const saldoPeriode = totalMasuk - totalKeluar;
 
   // -----------------------------------------------------
   // D. REKAP TABUNGAN WARGA
@@ -1885,10 +1917,6 @@ function prosesCetakPDF() {
     print-color-adjust: exact;
   }
 
-  .page-start {
-    break-before: page;
-    page-break-before: always;
-  }
 
   
 .header-laporan {
@@ -1941,7 +1969,7 @@ function prosesCetakPDF() {
 
   .summary {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 7px;
     margin-bottom: 12px;
   }
@@ -2000,7 +2028,7 @@ function prosesCetakPDF() {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
-    font-size: 9px;
+    font-size: 10px;
     margin-top: 5px;
   }
 
@@ -2015,17 +2043,21 @@ function prosesCetakPDF() {
 
   th {
     text-align: left;
-    padding: 7px 5px;
+    padding: 5px 5px;
     color: #064e3b;
     background: #ecfdf5;
     border-bottom: 1px solid #a7f3d0;
+    font-size: 10px;
+    line-height: 1.25;
   }
 
   td {
-    padding: 6px 5px;
+    padding: 4px 5px;
     border-bottom: 1px solid #e2e8f0;
     vertical-align: top;
     overflow-wrap: anywhere;
+    font-size: 10px;
+    line-height: 1.25;
   }
 
   .center { text-align: center; }
@@ -2079,13 +2111,13 @@ function prosesCetakPDF() {
   }
 
   .approval {
-    break-before: page;
-    page-break-before: always;
     text-align: center;
-    padding-top: 20px;
+    padding-top: 10px;
+    margin-top: 18px;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    border-top: 1px solid #cbd5e1;
   }
-
-  .approval h2 { font-size: 12px; }
 
   .signature {
     width: 240px;
@@ -2163,6 +2195,14 @@ function prosesCetakPDF() {
       <div class="metric-label">Total Pengeluaran Kas</div>
       <div class="metric-value" style="color:#be123c">${rp(totalKeluar)}</div>
     </div>
+    <div class="metric">
+      <div class="metric-label">Sisa Saldo Periode</div>
+      <div class="metric-value" style="color:#065f46">${rp(saldoPeriode)}</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Sisa Saldo Keseluruhan</div>
+      <div class="metric-value" style="color:#065f46">${rp(saldoKeseluruhan)}</div>
+    </div>
   </div>
 
   <h2>Rincian Pemilahan Sampah Anorganik</h2>
@@ -2205,22 +2245,8 @@ function prosesCetakPDF() {
     </thead>
     <tbody>${rowsWarga}</tbody>
   </table>
-  <div class="footer">Laporan Bank Sampah Flamboyan 4 • ${esc(periode)}</div>
-</section>
 
-<!-- BAGIAN 2: PEMBUKUAN KAS, DIMULAI DI HALAMAN BARU -->
-<section class="page-start">
-  <header class="header">
-    <div>
-      <h1 class="title">BANK SAMPAH FLAMBOYAN 4</h1>
-      <p class="subtitle">Pembukuan Kas Operasional</p>
-      <p class="periode">${esc(periode)}</p>
-    </div>
-    <span class="badge">LAPORAN RESMI</span>
-  </header>
-
-  <h2>Rincian Pemasukan dan Pengeluaran Kas</h2>
-
+  <h2>Pembukuan Kas Operasional</h2>
   <div class="cash-grid">
     <div>
       <p class="cash-title" style="color:#047857">Pemasukan Kas</p>
@@ -2247,37 +2273,25 @@ function prosesCetakPDF() {
 
   <div class="balance-box">
     <div>
-      <div class="balance-label">SISA SALDO KAS KESELURUHAN</div>
-      <div style="margin-top:5px">Akumulasi seluruh pemasukan dikurangi pengeluaran</div>
-      <div style="margin-top:4px">Pemasukan: ${rp(masukSemua)}</div>
-      <div style="margin-top:3px">Pengeluaran: ${rp(keluarSemua)}</div>
+      <div class="balance-label">RINGKASAN SALDO KAS</div>
+      <div style="margin-top:5px">Sisa saldo periode: <strong>${rp(saldoPeriode)}</strong></div>
+      <div style="margin-top:3px">Sisa saldo keseluruhan: <strong>${rp(saldoKeseluruhan)}</strong></div>
+      <div style="margin-top:3px">Akumulasi pemasukan: ${rp(masukSemua)}</div>
+      <div style="margin-top:3px">Akumulasi pengeluaran: ${rp(keluarSemua)}</div>
     </div>
     <div class="balance-value">${rp(saldoKeseluruhan)}</div>
   </div>
 
-  <div class="footer">Laporan Bank Sampah Flamboyan 4 • ${esc(periode)}</div>
-</section>
-
-<!-- BAGIAN 3: PENGESAHAN DI HALAMAN TERSENDIRI -->
-<section class="approval">
-  <header class="header">
-    <div>
-      <h1 class="title">BANK SAMPAH FLAMBOYAN 4</h1>
-      <p class="subtitle">Lembar Pengesahan Laporan</p>
-      <p class="periode">${esc(periode)}</p>
-    </div>
-    <span class="badge">PENGESAHAN</span>
-  </header>
-
-  <h2>Lembar Pengesahan Laporan</h2>
-  <p>Demikian laporan Bank Sampah Flamboyan 4 ini dibuat untuk keperluan administrasi dan dokumentasi.</p>
-
-  <div class="signature">
+  <div class="approval">
     <p>Mengetahui,</p>
     <p><strong>Humas Flamboyan 4</strong></p>
-    <div class="signature-space"></div>
-    <div class="signature-name">Heri Juwandi</div>
+    <div class="signature">
+      <div class="signature-space"></div>
+      <div class="signature-name">Heri Juwandi</div>
+    </div>
   </div>
+
+  <div class="footer">Laporan Bank Sampah Flamboyan 4 • ${esc(periode)}</div>
 </section>
 
 <script>
