@@ -235,6 +235,19 @@
             <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-400 shrink-0"></i>
             <span>Saldo riil bersih siap pakai saat ini</span>
           </p>
+
+          <div class="mt-3 pt-2.5 border-t border-white/15 flex items-center justify-between gap-2">
+            <button onclick="changeMonthSaldo(-1)" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-indigo-100 transition" title="Bulan Sebelumnya">
+              <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+            </button>
+            <div class="min-w-0 text-center flex-1">
+              <p id="label-saldo-bulan" class="text-[10px] md:text-[11px] text-indigo-200/80 font-medium truncate">Saldo bulan</p>
+              <p id="saldo-bulan" class="text-sm md:text-base font-bold text-white mt-0.5">Rp 0</p>
+            </div>
+            <button onclick="changeMonthSaldo(1)" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-indigo-100 transition" title="Bulan Berikutnya">
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -2079,6 +2092,31 @@ function salinLinkAgenda(url) {
       return null;
     }
 
+    let currentSaldoMonthIndex = 0;
+
+    function updateSaldoCardView() {
+      if (monthlyKeuanganList.length === 0) return;
+      const m = monthlyKeuanganList[currentSaldoMonthIndex];
+      const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      const saldoBulan = (m.pemasukan || 0) - (m.pengeluaran || 0);
+      const label = document.getElementById('label-saldo-bulan');
+      const value = document.getElementById('saldo-bulan');
+      if (label) label.innerText = `Saldo ${monthNames[m.month]} ${m.year}`;
+      if (value) {
+        value.innerText = formatRupiah(saldoBulan);
+        value.classList.toggle('text-rose-300', saldoBulan < 0);
+        value.classList.toggle('text-white', saldoBulan >= 0);
+      }
+    }
+
+    function changeMonthSaldo(direction) {
+      if (monthlyKeuanganList.length === 0) return;
+      currentSaldoMonthIndex += direction;
+      if (currentSaldoMonthIndex < 0) currentSaldoMonthIndex = 0;
+      if (currentSaldoMonthIndex >= monthlyKeuanganList.length) currentSaldoMonthIndex = monthlyKeuanganList.length - 1;
+      updateSaldoCardView();
+    }
+
     function updatePemasukanCardView() {
       if (monthlyKeuanganList.length === 0) return;
       const m = monthlyKeuanganList[currentPemasukanMonthIndex];
@@ -2346,8 +2384,10 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
           if (monthlyKeuanganList.length > 0) {
             currentPemasukanMonthIndex = monthlyKeuanganList.length - 1;
             currentPengeluaranMonthIndex = monthlyKeuanganList.length - 1;
+            currentSaldoMonthIndex = monthlyKeuanganList.length - 1;
             updatePemasukanCardView();
             updatePengeluaranCardView();
+            updateSaldoCardView();
           }
 
           const sisaSaldo = totalPemasukanAll - totalPengeluaranAll;
