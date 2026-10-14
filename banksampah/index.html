@@ -51,7 +51,6 @@
     <!-- 1. 4 KARTU RINGKASAN DATA BULANAN & KAS (MENYAMPING DI HP) -->
     <div class="space-y-2">
       <div class="flex items-center justify-between px-1 lg:hidden">
-        <span class="text-xs text-slate-400">Geser kartu ke samping →</span>
       </div>
       <div class="flex lg:grid lg:grid-cols-4 gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-2">
         
@@ -144,16 +143,16 @@
         <input type="text" id="input-cari-warga" onkeyup="cariWarga()" placeholder="Cari nama / blok..." class="px-3.5 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl w-full sm:w-64 focus:outline-none focus:border-emerald-500">
       </div>
 
-      <div class="overflow-x-auto">
-        <div class="max-h-[400px] overflow-y-auto rounded-xl border border-slate-100">
-          <table class="w-full text-left text-xs sm:text-sm">
+      <div class="overflow-x-auto rounded-xl border border-slate-100">
+        <div class="overflow-y-auto">
+          <table class="w-full text-left text-xs sm:text-sm" style="min-width:760px;">
             <thead class="bg-emerald-50/90 text-emerald-900 font-bold sticky top-0 z-10">
               <tr>
-                <th class="p-3.5 w-12 text-center">No</th>
-                <th class="p-3.5">Nama & Blok</th>
-                <th class="p-3.5">Setoran Terakhir</th>
-                <th class="p-3.5 text-right">Total Berat (Kg)</th>
-                <th class="p-3.5 text-right">Saldo Tabungan</th>
+                <th class="p-3.5 w-12 text-center whitespace-nowrap">No</th>
+                <th class="p-3.5 whitespace-nowrap">Nama & Blok</th>
+                <th class="p-3.5 whitespace-nowrap">Setoran Terakhir</th>
+                <th class="p-3.5 text-right whitespace-nowrap">Total Berat (Kg)</th>
+                <th class="p-3.5 text-right whitespace-nowrap">Saldo Tabungan</th>
               </tr>
             </thead>
             <tbody id="tabel-rekap-warga" class="divide-y divide-slate-100">
@@ -161,6 +160,11 @@
             </tbody>
           </table>
         </div>
+      </div>
+      <div id="rekap-warga-actions" class="mt-3 flex justify-center hidden">
+        <button id="btn-toggle-rekap-warga" type="button" onclick="toggleRekapWarga()" class="px-4 py-2 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs sm:text-sm font-bold hover:bg-emerald-100 transition">
+          Lihat lengkap
+        </button>
       </div>
     </div>
 
@@ -248,9 +252,14 @@
           <h3 id="modal-nama-warga" class="font-extrabold text-base sm:text-xl">Pak Heri</h3>
           <p class="text-emerald-200 text-xs sm:text-sm">Riwayat setoran sampah anorganik</p>
         </div>
-        <button onclick="tutupRincianWarga()" class="w-9 h-9 rounded-full bg-emerald-800/80 hover:bg-emerald-700 text-white flex items-center justify-center transition">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="bukaModalCetakWarga()" title="Cetak Rincian Setoran" class="w-9 h-9 rounded-full bg-amber-500/20 hover:bg-amber-500/35 text-amber-200 hover:text-white flex items-center justify-center transition border border-amber-400/30">
+            <i data-lucide="printer" class="w-4.5 h-4.5"></i>
+          </button>
+          <button onclick="tutupRincianWarga()" class="w-9 h-9 rounded-full bg-emerald-800/80 hover:bg-emerald-700 text-white flex items-center justify-center transition">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
       </div>
       <div class="p-4 sm:p-6 space-y-4 max-h-[80vh] overflow-y-auto">
         <div class="grid grid-cols-2 gap-3 sm:gap-4 bg-emerald-50 p-4 rounded-xl border border-emerald-100">
@@ -385,6 +394,91 @@
     </div>
   </div>
   
+<!-- MODAL CETAK RINCIAN WARGA -->
+<div id="modal-cetak-warga" class="fixed inset-0 z-[60] hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="tutupModalCetakWargaOnBackdrop(event)">
+  <div class="bg-white w-full max-w-md rounded-2xl p-5 sm:p-6 shadow-2xl border border-slate-100 relative space-y-5" onclick="event.stopPropagation()">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+      <div>
+        <div class="flex items-center gap-2 text-emerald-800 font-bold text-base">
+          <i data-lucide="printer" class="w-5 h-5 text-emerald-600"></i>
+          <span>Cetak Rincian Setoran</span>
+        </div>
+        <p id="cetak-warga-nama" class="text-xs text-slate-500 mt-1">Warga</p>
+      </div>
+      <button onclick="tutupModalCetakWarga()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <div class="space-y-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Periode:</label>
+        <select id="cetak-warga-tipe" onchange="toggleCetakWargaTipe()" class="w-full text-sm border border-slate-300 rounded-xl p-2.5 bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+          <option value="bulanan">Per Bulan</option>
+          <option value="rentang">Rentang Bulan</option>
+          <option value="tahunan">Tahunan</option>
+        </select>
+      </div>
+
+      <div id="cetak-warga-opt-bulanan" class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Bulan:</label>
+          <select id="cetak-warga-bulan" class="w-full text-xs border border-slate-300 rounded-lg p-2 bg-white">
+            <option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option>
+            <option value="04">April</option><option value="05">Mei</option><option value="06">Juni</option>
+            <option value="07">Juli</option><option value="08">Agustus</option><option value="09">September</option>
+            <option value="10" selected>Oktober</option><option value="11">November</option><option value="12">Desember</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Tahun:</label>
+          <input type="number" id="cetak-warga-tahun" value="2026" class="w-full text-xs border border-slate-300 rounded-lg p-2 bg-white">
+        </div>
+      </div>
+
+      <div id="cetak-warga-opt-rentang" class="hidden space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">Dari Bulan:</label>
+            <select id="cetak-warga-bulan-awal" class="w-full text-xs border border-slate-300 rounded-lg p-2 bg-white">
+              <option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option>
+              <option value="04">April</option><option value="05">Mei</option><option value="06">Juni</option>
+              <option value="07">Juli</option><option value="08">Agustus</option><option value="09">September</option>
+              <option value="10" selected>Oktober</option><option value="11">November</option><option value="12">Desember</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">Sampai Bulan:</label>
+            <select id="cetak-warga-bulan-akhir" class="w-full text-xs border border-slate-300 rounded-lg p-2 bg-white">
+              <option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option>
+              <option value="04">April</option><option value="05">Mei</option><option value="06">Juni</option>
+              <option value="07">Juli</option><option value="08">Agustus</option><option value="09">September</option>
+              <option value="10" selected>Oktober</option><option value="11">November</option><option value="12">Desember</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Tahun:</label>
+          <input type="number" id="cetak-warga-tahun-rentang" value="2026" class="w-full text-xs border border-slate-300 rounded-lg p-2 bg-white">
+        </div>
+      </div>
+
+      <div id="cetak-warga-opt-tahunan" class="hidden">
+        <label class="block text-xs text-slate-500 mb-1">Tahun:</label>
+        <input type="number" id="cetak-warga-tahun-full" value="2026" class="w-full text-xs border border-slate-300 rounded-lg p-2 bg-white">
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+      <button onclick="tutupModalCetakWarga()" class="px-4 py-2 text-xs font-semibold text-slate-500 hover:text-slate-700">Batal</button>
+      <button onclick="prosesCetakRincianWarga()" class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md transition">
+        <i data-lucide="printer" class="w-4 h-4"></i>
+        <span>Cetak</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL OPTION EXPORT PDF -->
 <div id="modal-export-pdf" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
   <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl border border-slate-100 relative space-y-5" onclick="event.stopPropagation()">
@@ -1043,34 +1137,66 @@
       }
     }
 
-    function renderTabelWarga(data) {
+    let tampilSemuaRekapWarga = false;
+    let dataRekapWargaAktif = [];
+
+    function toggleRekapWarga() {
+      tampilSemuaRekapWarga = !tampilSemuaRekapWarga;
+      renderTabelWarga(dataRekapWargaAktif, true);
+    }
+
+    function renderTabelWarga(data, dariToggle = false) {
       const tbody = document.getElementById('tabel-rekap-warga');
       if (!tbody) return;
 
-      let html = '';
-      data.forEach((row, idx) => {
-        const namaBlok = row[1] || '-';
-        if (!namaBlok || namaBlok === '#N/A' || namaBlok.toLowerCase() === 'nama & blok') return;
+      if (!dariToggle) {
+        dataRekapWargaAktif = Array.isArray(data) ? data : [];
+        tampilSemuaRekapWarga = false;
+      }
 
+      const rowsValid = dataRekapWargaAktif.filter(row => {
+        const nama = (row[1] || '').toString().trim();
+        return nama && nama !== '#N/A' && nama.toLowerCase() !== 'nama & blok';
+      });
+
+      const rowsTampil = tampilSemuaRekapWarga ? rowsValid : rowsValid.slice(0, 5);
+      let html = '';
+
+      rowsTampil.forEach((row, idx) => {
+        const namaBlok = row[1] || '-';
         const setoranTerakhir = row[2] || '-';
         const totalBeratWarga = parseLaporanNumber(row[3]);
         const totalSaldoWarga = parseLaporanNumber(row[4]);
 
         html += `
-          <tr onclick="bukaRincianWarga('${namaBlok}', ${totalBeratWarga}, ${totalSaldoWarga})" class="hover:bg-emerald-50/60 cursor-pointer transition">
-            <td class="p-3.5 text-center text-slate-400 font-medium">${idx + 1}</td>
-            <td class="p-3.5 font-bold text-emerald-950 flex items-center justify-between">
-              <span>${namaBlok}</span>
-              <i data-lucide="chevron-right" class="w-4 h-4 opacity-50"></i>
+          <tr onclick="bukaRincianWarga('${namaBlok.replace(/'/g, "\'")}', ${totalBeratWarga}, ${totalSaldoWarga})" class="hover:bg-emerald-50/60 cursor-pointer transition">
+            <td class="p-3.5 text-center text-slate-400 font-medium whitespace-nowrap">${idx + 1}</td>
+            <td class="p-3.5 font-bold text-emerald-950 whitespace-nowrap">
+              <div class="flex items-center justify-between gap-3">
+                <span>${namaBlok}</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 opacity-50 shrink-0"></i>
+              </div>
             </td>
-            <td class="p-3.5 text-slate-500">${setoranTerakhir}</td>
-            <td class="p-3.5 text-right font-semibold text-slate-700">${totalBeratWarga.toFixed(1)} Kg</td>
-            <td class="p-3.5 text-right font-bold text-emerald-700">Rp ${Math.round(totalSaldoWarga).toLocaleString('id-ID')}</td>
+            <td class="p-3.5 text-slate-500 whitespace-nowrap">${setoranTerakhir}</td>
+            <td class="p-3.5 text-right font-semibold text-slate-700 whitespace-nowrap">${totalBeratWarga.toFixed(1)} Kg</td>
+            <td class="p-3.5 text-right font-bold text-emerald-700 whitespace-nowrap">Rp ${Math.round(totalSaldoWarga).toLocaleString('id-ID')}</td>
           </tr>
         `;
       });
 
       tbody.innerHTML = html || `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada data tabungan warga.</td></tr>`;
+
+      const actions = document.getElementById('rekap-warga-actions');
+      const btn = document.getElementById('btn-toggle-rekap-warga');
+      if (actions && btn) {
+        if (rowsValid.length > 5) {
+          actions.classList.remove('hidden');
+          btn.innerText = tampilSemuaRekapWarga ? 'Tampilkan 5 baris' : `Lihat lengkap (${rowsValid.length})`;
+        } else {
+          actions.classList.add('hidden');
+        }
+      }
+
       if (window.lucide) lucide.createIcons();
     }
 
@@ -1849,7 +1975,7 @@
       }
 
       const modals = [
-        'modal-single-player', 'modal-rincian', 'modal-sampah-bulan',
+        'modal-single-player', 'modal-rincian', 'modal-cetak-warga', 'modal-sampah-bulan',
         'modal-tabungan-bulan', 'modal-cashflow-bulan'
       ];
       for (let mId of modals) {
@@ -1862,8 +1988,121 @@
       }
     });
 
+    let wargaAktifCetak = '';
+
+    function bulanSekarangUntukFormCetak() {
+      const now = new Date();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const yy = now.getFullYear();
+      ['cetak-warga-bulan','cetak-warga-bulan-awal','cetak-warga-bulan-akhir'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = mm;
+      });
+      ['cetak-warga-tahun','cetak-warga-tahun-rentang','cetak-warga-tahun-full'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = yy;
+      });
+    }
+
+    function bukaModalCetakWarga() {
+      if (!wargaAktifCetak) return;
+      bulanSekarangUntukFormCetak();
+      const nama = document.getElementById('cetak-warga-nama');
+      if (nama) nama.innerText = wargaAktifCetak;
+      toggleCetakWargaTipe();
+      document.getElementById('modal-cetak-warga').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function tutupModalCetakWarga() {
+      document.getElementById('modal-cetak-warga')?.classList.add('hidden');
+    }
+    function tutupModalCetakWargaOnBackdrop(e) {
+      if (e.target.id === 'modal-cetak-warga') tutupModalCetakWarga();
+    }
+
+    function toggleCetakWargaTipe() {
+      const tipe = document.getElementById('cetak-warga-tipe')?.value || 'bulanan';
+      document.getElementById('cetak-warga-opt-bulanan')?.classList.toggle('hidden', tipe !== 'bulanan');
+      document.getElementById('cetak-warga-opt-rentang')?.classList.toggle('hidden', tipe !== 'rentang');
+      document.getElementById('cetak-warga-opt-tahunan')?.classList.toggle('hidden', tipe !== 'tahunan');
+    }
+
+    function tanggalKeObj(tglStr) {
+      if (!tglStr) return null;
+      const s = String(tglStr).trim();
+      const bulanMap = {jan:0,feb:1,mar:2,apr:3,mei:4,jun:5,jul:6,ags:7,agu:7,sep:8,okt:9,oct:9,nov:10,des:11,dec:11};
+      if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+        const [y,m,d] = s.split('-').map(Number); return new Date(y,m-1,d);
+      }
+      const p = s.split(/[-/]/);
+      if (p.length >= 3) {
+        let d = parseInt(p[0],10), mraw = String(p[1]).toLowerCase(), y = parseInt(p[2],10);
+        if (y < 100) y += 2000;
+        let m = /^\d+$/.test(mraw) ? parseInt(mraw,10)-1 : (bulanMap[mraw.substring(0,3)] ?? -1);
+        if (d && m >= 0 && y) return new Date(y,m,d);
+      }
+      return null;
+    }
+
+    function prosesCetakRincianWarga() {
+      if (!wargaAktifCetak) return;
+      const tipe = document.getElementById('cetak-warga-tipe')?.value || 'bulanan';
+      const bulanNama = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+      let mulai, akhir, labelPeriode;
+
+      if (tipe === 'bulanan') {
+        const m = parseInt(document.getElementById('cetak-warga-bulan').value,10)-1;
+        const y = parseInt(document.getElementById('cetak-warga-tahun').value,10);
+        mulai = new Date(y,m,1); akhir = new Date(y,m+1,0,23,59,59,999);
+        labelPeriode = `${bulanNama[m]} ${y}`;
+      } else if (tipe === 'rentang') {
+        const ma = parseInt(document.getElementById('cetak-warga-bulan-awal').value,10)-1;
+        const mb = parseInt(document.getElementById('cetak-warga-bulan-akhir').value,10)-1;
+        const y = parseInt(document.getElementById('cetak-warga-tahun-rentang').value,10);
+        if (ma > mb) { alert('Bulan awal tidak boleh setelah bulan akhir.'); return; }
+        mulai = new Date(y,ma,1); akhir = new Date(y,mb+1,0,23,59,59,999);
+        labelPeriode = `${bulanNama[ma]} s/d ${bulanNama[mb]} ${y}`;
+      } else {
+        const y = parseInt(document.getElementById('cetak-warga-tahun-full').value,10);
+        mulai = new Date(y,0,1); akhir = new Date(y,11,31,23,59,59,999);
+        labelPeriode = `Tahun ${y}`;
+      }
+
+      const data = globalRiwayatData
+        .filter(r => (r[0] || '').toString().trim().toLowerCase() === wargaAktifCetak.trim().toLowerCase())
+        .map(r => ({ r, d: tanggalKeObj(r[1]) }))
+        .filter(x => x.d && x.d >= mulai && x.d <= akhir)
+        .sort((a,b) => a.d - b.d);
+
+      const totalBerat = data.reduce((s,x) => s + parseLaporanNumber(x.r[6]), 0);
+      const totalTabungan = data.reduce((s,x) => s + parseLaporanNumber(x.r[7]), 0);
+      const esc = v => String(v ?? '-').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      const rp = v => 'Rp ' + Math.round(v || 0).toLocaleString('id-ID');
+
+      let rows = '';
+      data.forEach((x,i) => {
+        const r=x.r;
+        const kardus=parseLaporanNumber(r[2]), botol=parseLaporanNumber(r[3]), gelas=parseLaporanNumber(r[4]), kaleng=parseLaporanNumber(r[5]);
+        const rincian=[];
+        if(kardus>0) rincian.push(`Kardus: ${kardus} Kg`);
+        if(botol>0) rincian.push(`Botol: ${botol} Kg`);
+        if(gelas>0) rincian.push(`Gelas: ${gelas} Kg`);
+        if(kaleng>0) rincian.push(`Kaleng: ${kaleng} Kg`);
+        rows += `<tr><td>${i+1}</td><td>${esc(r[1]||'-')}</td><td>${esc(rincian.join(', ')||'-')}</td><td class="num">${parseLaporanNumber(r[6]).toFixed(1)} Kg</td><td class="num">${rp(parseLaporanNumber(r[7]))}</td></tr>`;
+      });
+      if (!rows) rows = '<tr><td colspan="5" class="empty">Tidak ada setoran pada periode ini.</td></tr>';
+
+      const w = window.open('', '_blank');
+      if (!w) { alert('Popup diblokir browser. Izinkan popup untuk mencetak laporan.'); return; }
+      w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Rincian Setoran - ${esc(wargaAktifCetak)}</title><style>
+        @page{size:A4 portrait;margin:14mm}*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#1f2937;font-size:11px;margin:0}.wrap{max-width:780px;margin:0 auto}.head{text-align:center;margin-bottom:14px}.head h1{font-size:17px;margin:0 0 4px;color:#064e3b}.head p{margin:2px 0;color:#475569}.summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.box{border:1px solid #bbf7d0;background:#f0fdf4;padding:10px;border-radius:7px}.box .lbl{font-size:9px;text-transform:uppercase;color:#64748b;font-weight:700}.box .val{font-size:15px;font-weight:800;color:#065f46;margin-top:3px}table{width:100%;border-collapse:collapse;margin-top:10px}th{background:#ecfdf5;color:#065f46;font-weight:700;padding:7px;border:1px solid #d1fae5}td{padding:7px;border-bottom:1px solid #e5e7eb;vertical-align:top}td:first-child{text-align:center;width:32px}.num{text-align:right;white-space:nowrap}.empty{text-align:center;color:#94a3b8;padding:16px}.foot{margin-top:18px;font-size:9px;color:#64748b}.sign{margin-top:28px;text-align:center;width:210px;margin-left:auto;break-inside:avoid}.sign .space{height:52px}.sign b{display:block}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}tr{break-inside:avoid}}
+      </style></head><body><div class="wrap"><div class="head"><h1>Rincian Setoran Sampah Warga</h1><p><b>${esc(wargaAktifCetak)}</b></p><p>Periode: ${esc(labelPeriode)}</p></div><div class="summary"><div class="box"><div class="lbl">Total Berat</div><div class="val">${totalBerat.toFixed(1)} Kg</div></div><div class="box"><div class="lbl">Total Tabungan</div><div class="val">${rp(totalTabungan)}</div></div></div><table><thead><tr><th>No</th><th>Tanggal</th><th>Rincian Sampah</th><th>Total Berat</th><th>Tabungan</th></tr></thead><tbody>${rows}</tbody></table><div class="foot">Data bersumber dari pembukuan Bank Sampah Flamboyan 4 pada flamboyan4.web.id</div><div class="sign">Mengetahui,<br>Humas Flamboyan 4<div class="space"></div><b>Heri Juwandi</b></div></div><script>window.onload=()=>{window.print();}<\/script></body></html>`);
+      w.document.close();
+      tutupModalCetakWarga();
+    }
+
     function bukaRincianWarga(namaBlok, totalBerat, totalSaldo) {
       history.pushState({ modal: 'rincianwarga' }, '', '#warga');
+      wargaAktifCetak = namaBlok;
       document.getElementById('modal-nama-warga').innerText = namaBlok;
       document.getElementById('modal-total-berat').innerText = `${totalBerat.toFixed(1)} Kg`;
       document.getElementById('modal-total-saldo').innerText = `Rp ${Math.round(totalSaldo).toLocaleString('id-ID')}`;
@@ -1937,6 +2176,7 @@
 window.addEventListener('click', function(e) {
   const modalIds = [
     'modal-rincian',
+    'modal-cetak-warga',
     'modal-sampah-bulan',
     'modal-tabungan-bulan',
     'modal-cashflow-bulan',
