@@ -556,46 +556,6 @@
     const CSV_DOKUMENTASI_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=160734221&single=true&output=csv";
     const CSV_PROGRES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=315371679&single=true&output=csv";
 
-    // =====================================================
-    // SUMBER DATA LANGSUNG GOOGLE SHEETS (lebih cepat)
-    // =====================================================
-    const BANK_SAMPAH_SHEET_ID = "1DRurG_1CTwBBOwTEJRLUiGORQOr9iN68tU_mj_CbDrs";
-    const BANK_SAMPAH_GIDS = {
-      rekap: "0",
-      riwayat: "1811693263",
-      pengeluaran: "1835559780",
-      inventaris: "1819624619",
-      dokumentasi: "160734221",
-      progres: "315371679"
-    };
-
-    function gvizCsvUrl(gid) {
-      const nonce = Date.now() + '-' + Math.random().toString(36).slice(2);
-      return `https://docs.google.com/spreadsheets/d/${BANK_SAMPAH_SHEET_ID}/gviz/tq?tqx=out:csv&gid=${encodeURIComponent(gid)}&_=${nonce}`;
-    }
-
-    async function fetchSheetCsv(gid, fallbackUrl) {
-      // Utamakan GViz dari Spreadsheet ID asli. Jika akses anonim GViz
-      // belum diizinkan, otomatis kembali ke URL Publish-to-web lama.
-      const tryFetch = async (url) => {
-        const res = await fetch(url, { cache: 'no-store' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const body = await res.text();
-        const head = body.slice(0, 300).toLowerCase();
-        if (head.includes('<!doctype html') || head.includes('<html') || head.includes('accounts.google.com')) {
-          throw new Error('Sumber CSV meminta login');
-        }
-        return body;
-      };
-
-      try {
-        return await tryFetch(gvizCsvUrl(gid));
-      } catch (err) {
-        const sep = fallbackUrl.includes('?') ? '&' : '?';
-        return await tryFetch(`${fallbackUrl}${sep}_=${Date.now()}`);
-      }
-    }
-
     let globalRekapData = [];
     let globalRiwayatData = [];
     let globalPengeluaranClean = [];
@@ -681,17 +641,17 @@
 
     async function loadDataUtama() {
       try {
-        const [csvRekap, csvRiwayat, csvPengeluaran] = await Promise.all([
-          fetchSheetCsv(BANK_SAMPAH_GIDS.rekap, CSV_REKAP_URL),
-          fetchSheetCsv(BANK_SAMPAH_GIDS.riwayat, CSV_RIWAYAT_URL),
-          fetchSheetCsv(BANK_SAMPAH_GIDS.pengeluaran, CSV_PENGELUARAN_URL)
+        const [resRekap, resRiwayat, resPengeluaran] = await Promise.all([
+          fetch(CSV_REKAP_URL + "&t=" + Date.now()),
+          fetch(CSV_RIWAYAT_URL + "&t=" + Date.now()),
+          fetch(CSV_PENGELUARAN_URL + "&t=" + Date.now())
         ]);
 
-        globalRekapData = parseCSV(csvRekap);
-        globalRiwayatData = parseCSV(csvRiwayat);
+        globalRekapData = parseCSV(await resRekap.text());
+        globalRiwayatData = parseCSV(await resRiwayat.text());
         
         // Membaca CSV Pengeluaran secara presisi berdasarkan screenshot (Kolom B: Tanggal, Kolom C: Keterangan, Kolom D: Nominal)
-        const rawPengeluaran = parseCSV(csvPengeluaran);
+        const rawPengeluaran = parseCSV(await resPengeluaran.text());
         globalPengeluaranClean = [];
 
         rawPengeluaran.forEach(r => {
@@ -1597,34 +1557,11 @@
       }
     });
 
-    let bankSampahRefreshBusy = false;
-    let bankSampahRefreshSeq = 0;
-
-    async function refreshBankSampahSekali() {
-      if (bankSampahRefreshBusy) return;
-      bankSampahRefreshBusy = true;
-      const seq = ++bankSampahRefreshSeq;
-      try {
-        await Promise.all([
-          loadDataUtama(),
-          loadProgresBankSampahDetail(),
-          loadInventaris(),
-          loadDokumentasi()
-        ]);
-      } finally {
-        if (seq === bankSampahRefreshSeq) bankSampahRefreshBusy = false;
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', refreshBankSampahSekali);
-
-    // Browser HP/desktop kadang mengembalikan halaman dari back-forward cache.
-    // Saat itu data lama di memori halaman direfresh sekali, tanpa polling terus-menerus.
-    window.addEventListener('pageshow', (event) => {
-      if (event.persisted) {
-        bankSampahRefreshBusy = false;
-        refreshBankSampahSekali();
-      }
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadDataUtama();
+      await loadProgresBankSampahDetail();
+      await loadInventaris();
+      await loadDokumentasi();
     });
 
     // Tutup modal/popup/lightbox saat area luar (blank area) diklik
