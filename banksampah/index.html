@@ -556,6 +556,54 @@
     const CSV_DOKUMENTASI_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=160734221&single=true&output=csv";
     const CSV_PROGRES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=315371679&single=true&output=csv";
 
+    // =====================================================
+    // SUMBER DATA CEPAT / AUTO-SYNC
+    // =====================================================
+    // Jika nanti Anda punya URL Google Sheet asli berbentuk:
+    // https://docs.google.com/spreadsheets/d/XXXXXXXXXXXX/edit
+    // isi ID-nya di bawah. Semua data akan otomatis memakai GViz CSV
+    // yang biasanya lebih cepat daripada Publish to Web.
+    // Bila dibiarkan kosong, web tetap berjalan memakai URL publish lama.
+    const GOOGLE_SHEET_ID = "";
+
+    const SHEET_GIDS = {
+      rekap: "0",
+      riwayat: "1811693263",
+      pengeluaran: "1835559780",
+      inventaris: "1819624619",
+      dokumentasi: "160734221",
+      progres: "315371679"
+    };
+
+    function buildSheetCsvUrl(gid, fallbackUrl) {
+      if (GOOGLE_SHEET_ID && GOOGLE_SHEET_ID.trim()) {
+        return `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID.trim()}/gviz/tq?tqx=out:csv&gid=${encodeURIComponent(gid)}`;
+      }
+      return fallbackUrl;
+    }
+
+    async function fetchFreshCsv(gid, fallbackUrl, options = {}) {
+      const { attempts = 2, delay = 800 } = options;
+      let lastError;
+      for (let i = 0; i < attempts; i++) {
+        try {
+          const base = buildSheetCsvUrl(gid, fallbackUrl);
+          const join = base.includes('?') ? '&' : '?';
+          const url = `${base}${join}_=${Date.now()}_${Math.random().toString(36).slice(2)}`;
+          const response = await fetch(url, {
+            cache: 'no-store',
+            headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+          });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return await response.text();
+        } catch (err) {
+          lastError = err;
+          if (i < attempts - 1) await new Promise(r => setTimeout(r, delay));
+        }
+      }
+      throw lastError || new Error('Gagal mengambil data spreadsheet');
+    }
+
     let globalRekapData = [];
     let globalRiwayatData = [];
     let globalPengeluaranClean = [];
@@ -641,17 +689,17 @@
 
     async function loadDataUtama() {
       try {
-        const [resRekap, resRiwayat, resPengeluaran] = await Promise.all([
-          fetch(CSV_REKAP_URL + "&t=" + Date.now()),
-          fetch(CSV_RIWAYAT_URL + "&t=" + Date.now()),
-          fetch(CSV_PENGELUARAN_URL + "&t=" + Date.now())
+        const [csvRekap, csvRiwayat, csvPengeluaran] = await Promise.all([
+          fetchFreshCsv(SHEET_GIDS.rekap, CSV_REKAP_URL),
+          fetchFreshCsv(SHEET_GIDS.riwayat, CSV_RIWAYAT_URL),
+          fetchFreshCsv(SHEET_GIDS.pengeluaran, CSV_PENGELUARAN_URL)
         ]);
 
-        globalRekapData = parseCSV(await resRekap.text());
-        globalRiwayatData = parseCSV(await resRiwayat.text());
+        globalRekapData = parseCSV(csvRekap);
+        globalRiwayatData = parseCSV(csvRiwayat);
         
         // Membaca CSV Pengeluaran secara presisi berdasarkan screenshot (Kolom B: Tanggal, Kolom C: Keterangan, Kolom D: Nominal)
-        const rawPengeluaran = parseCSV(await resPengeluaran.text());
+        const rawPengeluaran = parseCSV(csvPengeluaran);
         globalPengeluaranClean = [];
 
         rawPengeluaran.forEach(r => {
@@ -932,8 +980,8 @@
 
     async function loadProgresBankSampahDetail() {
       try {
-        const response = await fetch(CSV_PROGRES_URL + "&t=" + Date.now());
-        const rows = parseCSV(await response.text());
+        const csvProgres = await fetchFreshCsv(SHEET_GIDS.progres, CSV_PROGRES_URL);
+        const rows = parseCSV(csvProgres);
         globalProgresList = rows.map(cols => ({
           tanggal: cols[0] || '',
           langkah: cols[1] || '',
@@ -987,8 +1035,8 @@
 
     async function loadInventaris() {
       try {
-        const response = await fetch(CSV_INVENTARIS_URL + "&t=" + Date.now());
-        const rows = parseCSV(await response.text());
+        const csvInventaris = await fetchFreshCsv(SHEET_GIDS.inventaris, CSV_INVENTARIS_URL);
+        const rows = parseCSV(csvInventaris);
         const container = document.getElementById('container-inventaris-list');
         if (!container) return;
 
@@ -1064,8 +1112,8 @@
 
     async function loadDokumentasi() {
       try {
-        const response = await fetch(CSV_DOKUMENTASI_URL + "&t=" + Date.now());
-        const rows = parseCSV(await response.text());
+        const csvDokumentasi = await fetchFreshCsv(SHEET_GIDS.dokumentasi, CSV_DOKUMENTASI_URL);
+        const rows = parseCSV(csvDokumentasi);
         globalAlbums = [];
 
         for (const r of rows) {
@@ -2313,6 +2361,51 @@ function prosesCetakPDF() {
 }
 
     
-  </script>
+  
+
+    // =====================================================
+    // AUTO-SYNC DATA
+    // =====================================================
+    // Refresh data otomatis tanpa perlu reload halaman berkali-kali.
+    // Saat memakai Publish to Web, perubahan dari Google sendiri kadang
+    // tetap terlambat; polling ini membuat halaman mengambil versi terbaru
+    // segera setelah Google memperbaruinya.
+    let autoSyncTimer = null;
+    let autoSyncBusy = false;
+
+    async function refreshSemuaDataBankSampah() {
+      if (autoSyncBusy) return;
+      autoSyncBusy = true;
+      try {
+        const tasks = [];
+        if (typeof loadDataUtama === 'function') tasks.push(loadDataUtama());
+        else if (typeof fetchDataUtama === 'function') tasks.push(fetchDataUtama());
+        else if (typeof loadData === 'function') tasks.push(loadData());
+        if (typeof loadProgresBankSampahDetail === 'function') tasks.push(loadProgresBankSampahDetail());
+        else if (typeof fetchProgres === 'function') tasks.push(fetchProgres());
+        else if (typeof loadProgres === 'function') tasks.push(loadProgres());
+        if (typeof fetchInventaris === 'function') tasks.push(fetchInventaris());
+        else if (typeof loadInventaris === 'function') tasks.push(loadInventaris());
+        if (typeof fetchDokumentasi === 'function') tasks.push(fetchDokumentasi());
+        else if (typeof loadDokumentasi === 'function') tasks.push(loadDokumentasi());
+        if (tasks.length) await Promise.allSettled(tasks);
+      } finally {
+        autoSyncBusy = false;
+      }
+    }
+
+    function mulaiAutoSyncBankSampah() {
+      if (autoSyncTimer) clearInterval(autoSyncTimer);
+      autoSyncTimer = setInterval(refreshSemuaDataBankSampah, 15000);
+    }
+
+    window.addEventListener('focus', () => { refreshSemuaDataBankSampah(); });
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) refreshSemuaDataBankSampah();
+    });
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(mulaiAutoSyncBankSampah, 3000);
+    });
+</script>
 </body>
 </html>
