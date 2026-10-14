@@ -472,33 +472,63 @@
       </div>
     </section>
 
-    <!-- SECTION 4: DOKUMENTASI KEGIATAN -->
-    <section id="kegiatan" class="scroll-mt-20 w-full">
-      <div class="flex items-center justify-between mb-4">
+    <!-- SECTION 4: DOKUMENTASI & INVENTARIS -->
+    <section id="kegiatan" class="scroll-mt-20 w-full space-y-3">
+      <div class="flex items-center justify-between px-1">
         <div class="flex items-center space-x-2">
-          <i data-lucide="camera" class="w-6 h-6 text-indigo-600 shrink-0"></i>
-          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Dokumentasi Kegiatan</h3>
+          <i data-lucide="images" class="w-6 h-6 text-indigo-600 shrink-0"></i>
+          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Dokumentasi & Inventaris</h3>
         </div>
-        
-        <div class="flex items-center space-x-3">
-          <button onclick="openModalDokumentasi()" class="hidden sm:flex items-center space-x-1 text-sm text-indigo-600 font-semibold hover:text-indigo-800 transition">
-            <span>Lihat Semua</span>
-            <i data-lucide="arrow-right" class="w-4 h-4"></i>
-          </button>
-          
-          <div class="flex items-center space-x-1">
-            <button onclick="scrollDokumentasi(-1)" class="p-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-full shadow-sm text-slate-600 transition active:scale-90" title="Geser Kiri">
-              <i data-lucide="chevron-left" class="w-4 h-4"></i>
-            </button>
-            <button onclick="scrollDokumentasi(1)" class="p-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-full shadow-sm text-slate-600 transition active:scale-90" title="Geser Kanan">
-              <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </button>
-          </div>
-        </div>
+        <p class="text-xs text-slate-400 lg:hidden">Geser kesamping →</p>
       </div>
 
-      <div id="slider-dokumentasi" class="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar py-2 w-full">
-        <p class="text-slate-400 text-sm py-4">Memuat dokumentasi...</p>
+      <div class="flex lg:grid lg:grid-cols-2 gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-2">
+        <!-- Card Dokumentasi - selalu pertama di HP -->
+        <div class="snap-start shrink-0 w-[88%] sm:w-[72%] lg:w-auto bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <h4 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
+                <i data-lucide="camera" class="w-4 h-4 text-indigo-600"></i>
+                Dokumentasi Kegiatan
+              </h4>
+              <button onclick="openModalDokumentasi()" class="text-xs font-bold text-indigo-700 hover:text-indigo-800 flex items-center gap-1.5 bg-indigo-50 px-3 py-1.5 rounded-xl border border-indigo-200">
+                Galeri <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-500 mb-3">Preview berganti otomatis dari dokumentasi kegiatan warga</p>
+
+            <div onclick="openDokumentasiPreviewAktif()" class="relative h-44 sm:h-52 rounded-xl overflow-hidden bg-slate-900 cursor-pointer group border border-slate-200">
+              <img id="dokumentasi-preview-img" src="" alt="Preview Dokumentasi" class="w-full h-full object-cover opacity-85 group-hover:scale-105 transition-all duration-500">
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/10 to-transparent flex items-end p-3.5">
+                <div class="text-white min-w-0 w-full">
+                  <div class="flex items-center justify-between gap-2 mb-1">
+                    <span id="dokumentasi-preview-tanggal" class="bg-indigo-600 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Memuat...</span>
+                    <span id="dokumentasi-preview-counter" class="text-[10px] bg-black/40 px-2 py-0.5 rounded-md">-</span>
+                  </div>
+                  <p id="dokumentasi-preview-judul" class="text-xs sm:text-sm font-bold line-clamp-1">Memuat dokumentasi...</p>
+                  <p id="dokumentasi-preview-desc" class="text-[10px] sm:text-xs text-slate-200 mt-0.5 line-clamp-1">Silakan tunggu</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Inventaris -->
+        <div class="snap-start shrink-0 w-[88%] sm:w-[72%] lg:w-auto bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <h4 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
+                <i data-lucide="box" class="w-4 h-4 text-indigo-600"></i>
+                Inventaris Warga
+              </h4>
+              <span id="inventaris-warga-count" class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">0 Item</span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-500 mb-3">Peralatan bersama yang tercatat dan dapat dipantau warga</p>
+            <div id="container-inventaris-warga" class="space-y-2 max-h-52 overflow-y-auto pr-1 custom-scroll">
+              <p class="text-xs sm:text-sm text-slate-400 italic">Data inventaris belum dihubungkan.</p>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1094,6 +1124,8 @@
     // LIST LINK CSV TERPUSAT
     const CSV_KEUANGAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=422555783&single=true&output=csv';
     const CSV_DOKUMENTASI_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=0&single=true&output=csv';
+    // Isi URL CSV sheet inventaris warga di sini jika sheet sudah tersedia.
+    const CSV_INVENTARIS_WARGA_URL = '';
     const CSV_ARISAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=53284271&single=true&output=csv';
     const CSV_RENCANA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=781301604&single=true&output=csv';
     const CSV_JERSEY_BAPAK_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=878370178&single=true&output=csv';
@@ -1124,6 +1156,9 @@
     const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='100%25' height='100%25' fill='%231e1b4b'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='18' fill='%23818cf8' text-anchor='middle' dy='.3em'%3EDokumentasi Kegiatan Warga%3C/text%3E%3C/svg%3E";
 
     let currentMediaList = [];
+    let globalDokumentasiPreview = [];
+    let dokumentasiPreviewIndex = 0;
+    let dokumentasiPreviewTimer = null;
     let currentPhotoIndex = 0;
     let currentPhotoCaption = '';
     let globalKeuanganData = [];
@@ -2433,10 +2468,121 @@ function salinLinkAgenda(url) {
     })();
 
     function scrollDokumentasi(direction) {
+      // Dipertahankan untuk kompatibilitas tombol/skrip lama jika masih terpanggil.
       const slider = document.getElementById('slider-dokumentasi');
       if (!slider) return;
       const cardWidth = slider.querySelector('div')?.offsetWidth || 320;
       slider.scrollBy({ left: direction * (cardWidth + 16), behavior: 'smooth' });
+    }
+
+    function updateDokumentasiPreview() {
+      if (!globalDokumentasiPreview.length) return;
+      if (dokumentasiPreviewIndex >= globalDokumentasiPreview.length) dokumentasiPreviewIndex = 0;
+      const item = globalDokumentasiPreview[dokumentasiPreviewIndex];
+      const img = document.getElementById('dokumentasi-preview-img');
+      const tanggal = document.getElementById('dokumentasi-preview-tanggal');
+      const judul = document.getElementById('dokumentasi-preview-judul');
+      const desc = document.getElementById('dokumentasi-preview-desc');
+      const counter = document.getElementById('dokumentasi-preview-counter');
+      if (!img) return;
+
+      img.style.opacity = '0.25';
+      setTimeout(() => {
+        img.src = item.preview || PLACEHOLDER_IMG;
+        img.onload = () => { img.style.opacity = '0.85'; };
+        img.onerror = () => { img.src = PLACEHOLDER_IMG; img.style.opacity = '0.85'; };
+        if (tanggal) tanggal.innerText = item.tanggal || 'Dokumentasi';
+        if (judul) judul.innerText = item.judul || 'Album Kegiatan Warga';
+        if (desc) desc.innerText = item.deskripsi || 'Klik untuk membuka album';
+        if (counter) counter.innerText = `${dokumentasiPreviewIndex + 1} / ${globalDokumentasiPreview.length}`;
+      }, 180);
+    }
+
+    function mulaiRotasiDokumentasiPreview() {
+      if (dokumentasiPreviewTimer) clearInterval(dokumentasiPreviewTimer);
+      if (globalDokumentasiPreview.length <= 1) return;
+      dokumentasiPreviewTimer = setInterval(() => {
+        dokumentasiPreviewIndex = (dokumentasiPreviewIndex + 1) % globalDokumentasiPreview.length;
+        updateDokumentasiPreview();
+      }, 5000);
+    }
+
+    function openDokumentasiPreviewAktif() {
+      if (!globalDokumentasiPreview.length) {
+        openModalDokumentasi();
+        return;
+      }
+      const item = globalDokumentasiPreview[dokumentasiPreviewIndex];
+      openGalleryGridModal(item.rawFotoString || '', `${item.judul || 'Dokumentasi'} - ${item.tanggal || ''}`);
+    }
+
+    function openInventarisWargaFoto(url, title) {
+      if (!url) return;
+      currentMediaList = [{ type: 'image', url: url, rawUrl: url }];
+      currentPhotoIndex = 0;
+      currentPhotoCaption = title || 'Inventaris Warga';
+      openModal('lightbox-modal');
+      renderLightboxMedia();
+    }
+
+    function loadInventarisWarga() {
+      const container = document.getElementById('container-inventaris-warga');
+      const badge = document.getElementById('inventaris-warga-count');
+      if (!container) return;
+
+      if (!CSV_INVENTARIS_WARGA_URL || !CSV_INVENTARIS_WARGA_URL.startsWith('http')) {
+        container.innerHTML = `<div class="bg-slate-50 border border-dashed border-slate-200 rounded-xl p-4 text-center">
+          <i data-lucide="clipboard-list" class="w-5 h-5 text-slate-400 mx-auto mb-2"></i>
+          <p class="text-xs font-semibold text-slate-600">Inventaris siap digunakan</p>
+          <p class="text-[10px] text-slate-400 mt-1">Hubungkan URL CSV Google Spreadsheet inventaris warga.</p>
+        </div>`;
+        if (badge) badge.innerText = 'Belum Terhubung';
+        if (window.lucide) lucide.createIcons();
+        return;
+      }
+
+      Papa.parse(CSV_INVENTARIS_WARGA_URL, {
+        download: true,
+        header: true,
+        complete: function(results) {
+          const rows = results.data.filter(row => Object.values(row).some(v => String(v || '').trim() !== ''));
+          let items = [];
+          rows.forEach(row => {
+            const vals = Object.values(row);
+            const nama = String(vals[0] || '').trim();
+            if (!nama || nama.toLowerCase().includes('nama barang')) return;
+            const qty = String(vals[1] || '0').trim();
+            const kondisi = String(vals[2] || '').trim();
+            const rawFoto = String(vals[3] || '').trim();
+            items.push({ nama, qty, kondisi, foto: rawFoto ? fixDriveUrl(rawFoto) : '' });
+          });
+
+          if (badge) badge.innerText = `${items.length} Item`;
+          if (!items.length) {
+            container.innerHTML = '<p class="text-xs text-slate-400 italic">Belum ada data inventaris.</p>';
+            return;
+          }
+
+          container.innerHTML = items.map(item => {
+            const safeTitle = item.nama.replace(/'/g, "\'");
+            const safeFoto = item.foto.replace(/'/g, "\'");
+            return `<div ${item.foto ? `onclick="openInventarisWargaFoto('${safeFoto}', '${safeTitle}')"` : ''} class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs sm:text-sm ${item.foto ? 'cursor-pointer hover:border-indigo-300 transition' : ''}">
+              <div class="flex items-center gap-2.5 min-w-0">
+                ${item.foto ? `<img src="${item.foto}" class="w-9 h-9 rounded-lg object-cover shrink-0 border border-slate-200" onerror="this.style.display='none'">` : `<div class="w-9 h-9 rounded-lg bg-indigo-100 flex items-center justify-center shrink-0 text-indigo-700"><i data-lucide="box" class="w-4 h-4"></i></div>`}
+                <div class="min-w-0">
+                  <span class="font-semibold text-slate-700 truncate block">${item.nama}</span>
+                  ${item.kondisi ? `<span class="text-[10px] text-slate-400 truncate block">${item.kondisi}</span>` : ''}
+                </div>
+              </div>
+              <span class="bg-indigo-100 text-indigo-800 font-bold px-2.5 py-0.5 rounded-full text-xs shrink-0 ml-2">${item.qty} Unit</span>
+            </div>`;
+          }).join('');
+          if (window.lucide) lucide.createIcons();
+        },
+        error: function() {
+          container.innerHTML = '<p class="text-xs text-rose-500">Gagal memuat inventaris warga.</p>';
+        }
+      });
     }
 
     if (CSV_DOKUMENTASI_URL && CSV_DOKUMENTASI_URL.startsWith('http')) {
@@ -2450,10 +2596,8 @@ function salinLinkAgenda(url) {
           });
 
           const displayData = [...rawData].reverse();
-          let sliderHTML = '';
           let allHTML = '';
-
-          const sliderLimit = Math.min(10, displayData.length);
+          globalDokumentasiPreview = [];
 
           for (let index = 0; index < displayData.length; index++) {
             const row = displayData[index];
@@ -2462,7 +2606,7 @@ function salinLinkAgenda(url) {
             const judul = row[keys[1]];
             const deskripsi = row[keys[2]] || '';
             let rawFotoString = row[keys[3]] || '';
-            
+
             const folderId = extractFolderId(rawFotoString);
             let firstFoto = PLACEHOLDER_IMG;
             let badgeText = '';
@@ -2481,81 +2625,51 @@ function salinLinkAgenda(url) {
               if (photoList.length > 1) badgeText = `${photoList.length} Foto`;
             }
 
-            const safePhotoString = rawFotoString.replace(/'/g, "\\\'");
-            const safeTitle = (judul + ' - ' + tanggal).replace(/'/g, "\\\'");
+            globalDokumentasiPreview.push({ tanggal, judul, deskripsi, rawFotoString, preview: firstFoto });
 
+            const safePhotoString = rawFotoString.replace(/'/g, "\'");
+            const safeTitle = (judul + ' - ' + tanggal).replace(/'/g, "\'");
             let badgeMultiPhoto = '';
             if (badgeText) {
-              badgeMultiPhoto = `<span data-folder-badge="${folderId || ''}" class="absolute top-3 left-3 bg-black/75 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-md flex items-center space-x-1 z-10 shadow-sm">
-                <i data-lucide="folder" class="w-3.5 h-3.5"></i>
-                <span>${badgeText}</span>
-              </span>`;
+              badgeMultiPhoto = `<span data-folder-badge="${folderId || ''}" class="absolute top-3 left-3 bg-black/75 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-md flex items-center space-x-1 z-10 shadow-sm"><i data-lucide="folder" class="w-3.5 h-3.5"></i><span>${badgeText}</span></span>`;
             }
 
-            const cardContent = `
-              <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition flex flex-col w-full h-full">
-                <div class="p-3.5 bg-slate-50 border-b border-slate-100">
-                  <span class="text-[10px] text-indigo-600 font-bold block uppercase tracking-wider mb-0.5">${tanggal}</span>
-                  <h4 class="text-slate-800 font-bold text-sm md:text-base leading-snug break-words">${judul}</h4>
-                </div>
-
-                <div class="relative cursor-pointer overflow-hidden group bg-slate-100 h-52 min-h-[208px] w-full flex items-center justify-center shrink-0" data-folder-id="${folderId || ''}" onclick="openGalleryGridModal('${safePhotoString}', '${safeTitle}')">
-                  <img src="${firstFoto}" alt="${judul}" loading="lazy" referrerpolicy="no-referrer" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${PLACEHOLDER_IMG}'">
-                  
-                  ${badgeMultiPhoto}
-                  <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1 z-20">
-                    <i data-lucide="layout-grid" class="w-4 h-4"></i>
-                    <span>Buka Galeri Media</span>
-                  </div>
-                </div>
-
-                <div class="p-4 flex-grow flex flex-col justify-between">
-                  <div>
-                    <p class="text-slate-600 text-xs md:text-sm break-words line-clamp-3">${deskripsi}</p>
-                  </div>
-                  <button onclick="openGalleryGridModal('${safePhotoString}', '${safeTitle}')" class="mt-4 w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-2.5 rounded-lg text-xs transition flex items-center justify-center space-x-1.5 shadow-sm">
-                    <i data-lucide="images" class="w-4 h-4"></i>
-                    <span>Lihat Foto & Video (${badgeText || 'Album'})</span>
-                  </button>
-                </div>
+            allHTML += `<div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition flex flex-col w-full h-full">
+              <div class="p-3.5 bg-slate-50 border-b border-slate-100">
+                <span class="text-[10px] text-indigo-600 font-bold block uppercase tracking-wider mb-0.5">${tanggal}</span>
+                <h4 class="text-slate-800 font-bold text-sm md:text-base leading-snug break-words">${judul}</h4>
               </div>
-            `;
-
-            if (index < sliderLimit) {
-              sliderHTML += `
-                <div class="snap-start shrink-0 w-[85%] sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] flex flex-col">
-                  ${cardContent}
-                </div>
-              `;
-            }
-
-            allHTML += cardContent;
+              <div class="relative cursor-pointer overflow-hidden group bg-slate-100 h-40 md:h-48 w-full flex items-center justify-center shrink-0" data-folder-id="${folderId || ''}" onclick="openGalleryGridModal('${safePhotoString}', '${safeTitle}')">
+                <img src="${firstFoto}" alt="${judul}" loading="lazy" referrerpolicy="no-referrer" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${PLACEHOLDER_IMG}'">
+                ${badgeMultiPhoto}
+                <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1 z-20"><i data-lucide="layout-grid" class="w-4 h-4"></i><span>Buka Galeri Media</span></div>
+              </div>
+              <div class="p-4 flex-grow flex flex-col justify-between">
+                <p class="text-slate-600 text-xs md:text-sm break-words line-clamp-3">${deskripsi}</p>
+                <button onclick="openGalleryGridModal('${safePhotoString}', '${safeTitle}')" class="mt-4 w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-2.5 rounded-lg text-xs transition flex items-center justify-center space-x-1.5 shadow-sm"><i data-lucide="images" class="w-4 h-4"></i><span>Lihat Foto & Video (${badgeText || 'Album'})</span></button>
+              </div>
+            </div>`;
           }
 
-          if (displayData.length > 10) {
-            sliderHTML += `
-              <div class="snap-start shrink-0 w-[85%] sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] flex flex-col">
-                <div onclick="openModalDokumentasi()" class="bg-gradient-to-br from-indigo-900 to-slate-900 text-white rounded-xl shadow-md border border-indigo-700/50 p-6 flex flex-col items-center justify-center text-center h-full min-h-[380px] cursor-pointer hover:scale-102 transition group">
-                  <div class="p-4 bg-indigo-600/30 rounded-full mb-3 border border-indigo-400/30 group-hover:scale-110 transition">
-                    <i data-lucide="folder-open" class="w-8 h-8 text-indigo-300"></i>
-                  </div>
-                  <h4 class="text-lg font-bold text-white mb-1">Lihat Arsip Lainnya</h4>
-                  <p class="text-xs text-indigo-200/80 mb-4 font-normal">+${displayData.length - 10} Dokumentasi Kegiatan Lainnya</p>
-                  <span class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition inline-flex items-center space-x-1.5 shadow-sm">
-                    <span>Buka Arsip Lengkap</span>
-                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                  </span>
-                </div>
-              </div>
-            `;
+          const previewImg = document.getElementById('dokumentasi-preview-img');
+          if (!globalDokumentasiPreview.length && previewImg) {
+            previewImg.src = PLACEHOLDER_IMG;
+            document.getElementById('dokumentasi-preview-judul').innerText = 'Belum ada dokumentasi';
+            document.getElementById('dokumentasi-preview-desc').innerText = 'Dokumentasi kegiatan akan tampil di sini';
+            document.getElementById('dokumentasi-preview-tanggal').innerText = 'Dokumentasi';
+          } else {
+            dokumentasiPreviewIndex = 0;
+            updateDokumentasiPreview();
+            mulaiRotasiDokumentasiPreview();
           }
 
-          document.getElementById('slider-dokumentasi').innerHTML = sliderHTML || '<p class="text-slate-400 text-sm py-4">Belum ada dokumentasi kegiatan.</p>';
           document.getElementById('container-dokumentasi-all').innerHTML = allHTML || '<p class="text-slate-400 text-sm col-span-1 md:col-span-3">Belum ada dokumentasi kegiatan.</p>';
-          lucide.createIcons();
+          if (window.lucide) lucide.createIcons();
         }
       });
     }
+
+    loadInventarisWarga();
 
     // FUNGSI RENDER KALENDER TERBARU
     function renderCalendar() {
