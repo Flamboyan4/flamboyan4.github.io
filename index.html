@@ -994,6 +994,7 @@
 
     // SYSTEM CONTROL MODAL & HANDLER TOMBOL BACK HP (HISTORY API)
     let activeModalsStack = [];
+    let suppressNextModalPopstate = false; // cegah history.back() menutup modal induk juga
 
     function openModal(id) {
       const el = document.getElementById(id);
@@ -1045,6 +1046,9 @@
       }
 
       if (!isPopState) {
+        // Saat tombol X / backdrop menutup modal, sinkronkan history tanpa
+        // memicu popstate untuk menutup modal induk (mis. daftar album).
+        suppressNextModalPopstate = true;
         history.back();
       }
 
@@ -1058,6 +1062,10 @@
     }
 
     window.addEventListener('popstate', function (e) {
+      if (suppressNextModalPopstate) {
+        suppressNextModalPopstate = false;
+        return;
+      }
       if (activeModalsStack.length > 0) {
         const topModalId = activeModalsStack[activeModalsStack.length - 1];
         closeModalDirect(topModalId, true);
