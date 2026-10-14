@@ -27,9 +27,15 @@
         <i data-lucide="recycle" class="w-5 h-5 text-emerald-400"></i>
         <h1 class="font-bold text-sm sm:text-base tracking-wide">Bank Sampah Flamboyan 4</h1>
       </div>
-      <button onclick="bukaModalExportPDF()" title="Cetak Laporan PDF" class="flex items-center justify-center w-9 h-9 bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 hover:text-amber-100 rounded-xl transition border border-amber-500/30">
-  <i data-lucide="printer" class="w-5 h-5"></i>
-</button>
+      <div class="flex items-center gap-2">
+        <button onclick="bukaModalInputSetoran()" title="Input Setoran Warga" class="flex items-center justify-center gap-1.5 h-9 px-2.5 sm:px-3 bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-200 hover:text-white rounded-xl transition border border-emerald-400/30">
+          <i data-lucide="plus-circle" class="w-5 h-5"></i>
+          <span class="hidden sm:inline text-xs font-bold">Input Setoran</span>
+        </button>
+        <button onclick="bukaModalExportPDF()" title="Cetak Laporan PDF" class="flex items-center justify-center w-9 h-9 bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 hover:text-amber-100 rounded-xl transition border border-amber-500/30">
+          <i data-lucide="printer" class="w-5 h-5"></i>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -545,9 +551,86 @@
   <div class="w-full text-center z-30 pt-2"><p class="text-xs text-slate-400 font-mono">Foto Detail</p></div>
 </div>
 
+  <!-- MODAL INPUT SETORAN WARGA -->
+  <div id="modal-input-setoran" class="fixed inset-0 z-[70] hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5" onclick="tutupModalInputSetoranOnBackdrop(event)">
+    <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden border border-slate-100" onclick="event.stopPropagation()">
+      <div class="px-4 sm:px-5 py-4 bg-emerald-950 text-white flex items-center justify-between">
+        <div>
+          <h3 class="font-extrabold text-base sm:text-lg flex items-center gap-2">
+            <i data-lucide="recycle" class="w-5 h-5 text-emerald-300"></i>
+            Input Setoran Sampah
+          </h3>
+          <p class="text-xs text-emerald-200 mt-0.5">Pilih nama warga dan isi berat sampah.</p>
+        </div>
+        <button onclick="tutupModalInputSetoran()" class="p-2 rounded-full hover:bg-white/10 transition" aria-label="Tutup">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="form-input-setoran" class="p-4 sm:p-5 space-y-4" onsubmit="simpanSetoranWarga(event)">
+        <div>
+          <label for="input-setoran-nama" class="block text-xs font-bold text-slate-700 mb-1.5">Nama Warga</label>
+          <select id="input-setoran-nama" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-emerald-500">
+            <option value="">Memuat daftar warga...</option>
+          </select>
+          <p id="status-daftar-warga" class="text-[11px] text-slate-400 mt-1"></p>
+        </div>
+
+        <div>
+          <label for="input-setoran-tanggal" class="block text-xs font-bold text-slate-700 mb-1.5">Tanggal</label>
+          <input id="input-setoran-tanggal" type="date" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div>
+          <p class="text-xs font-bold text-slate-700 mb-2">Berat Sampah (Kg)</p>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="block">
+              <span class="block text-[11px] text-slate-500 mb-1">Kardus / Kertas</span>
+              <input id="input-setoran-kardus" type="number" min="0" step="0.01" inputmode="decimal" value="0" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500" oninput="hitungTotalSetoran()">
+            </label>
+            <label class="block">
+              <span class="block text-[11px] text-slate-500 mb-1">Botol Plastik</span>
+              <input id="input-setoran-botol" type="number" min="0" step="0.01" inputmode="decimal" value="0" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500" oninput="hitungTotalSetoran()">
+            </label>
+            <label class="block">
+              <span class="block text-[11px] text-slate-500 mb-1">Gelas Plastik</span>
+              <input id="input-setoran-gelas" type="number" min="0" step="0.01" inputmode="decimal" value="0" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500" oninput="hitungTotalSetoran()">
+            </label>
+            <label class="block">
+              <span class="block text-[11px] text-slate-500 mb-1">Kaleng / Logam</span>
+              <input id="input-setoran-kaleng" type="number" min="0" step="0.01" inputmode="decimal" value="0" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500" oninput="hitungTotalSetoran()">
+            </label>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between bg-emerald-50 border border-emerald-100 rounded-xl px-3.5 py-3">
+          <span class="text-xs font-bold text-emerald-800">Total Berat</span>
+          <span id="input-setoran-total" class="text-lg font-black text-emerald-950">0 Kg</span>
+        </div>
+
+        <div id="input-setoran-error" class="hidden text-xs font-medium text-rose-700 bg-rose-50 border border-rose-100 rounded-xl px-3 py-2.5"></div>
+
+        <div class="flex gap-2 pt-1">
+          <button type="button" onclick="tutupModalInputSetoran()" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition">Batal</button>
+          <button id="btn-simpan-setoran" type="submit" class="flex-[1.4] py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition flex items-center justify-center gap-2">
+            <i data-lucide="save" class="w-4 h-4"></i>
+            <span>Simpan Setoran</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST SETORAN -->
+  <div id="toast-setoran" class="fixed left-1/2 -translate-x-1/2 bottom-5 z-[90] hidden bg-emerald-950 text-white px-4 py-2.5 rounded-xl shadow-2xl text-xs font-semibold items-center gap-2">
+    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-300"></i>
+    <span id="toast-setoran-text">Setoran berhasil disimpan.</span>
+  </div>
+
   <!-- SCRIPT UTAMA -->
   <script>
-    const APPS_SCRIPT_PROXY_URL = "https://script.google.com/macros/s/AKfycbyYoPQcEnNJX91qy_yGC-HY-sC9iY54KJPuZMOV4pvxFDEmSvjOa0CxK3B9g4mXMl1otg/exec";
+    const APPS_SCRIPT_PROXY_URL = "https://script.google.com/macros/s/AKfycbw_hwot5ecITBDLtXrZyE1Kb4ykH6el5YM4jylM97nldf6Yhu_bDc4qvbF_NovjrJJl0w/exec";
+    const CSV_DAFTAR_WARGA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=810048072&single=true&output=csv";
 
     const CSV_REKAP_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=0&single=true&output=csv";
     const CSV_RIWAYAT_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=1811693263&single=true&output=csv";
@@ -637,6 +720,204 @@
       }
 
       return null;
+    }
+
+    // =====================================================
+    // INPUT SETORAN WARGA
+    // =====================================================
+    function tanggalHariIniJakarta() {
+      const now = new Date();
+      const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit'
+      }).formatToParts(now);
+      const obj = Object.fromEntries(parts.map(p => [p.type, p.value]));
+      return `${obj.year}-${obj.month}-${obj.day}`;
+    }
+
+    function setLoadingSimpanSetoran(loading) {
+      const btn = document.getElementById('btn-simpan-setoran');
+      if (!btn) return;
+      btn.disabled = loading;
+      btn.classList.toggle('opacity-60', loading);
+      btn.classList.toggle('cursor-not-allowed', loading);
+      const span = btn.querySelector('span');
+      if (span) span.innerText = loading ? 'Menyimpan...' : 'Simpan Setoran';
+    }
+
+    async function bukaModalInputSetoran() {
+      const modal = document.getElementById('modal-input-setoran');
+      if (!modal) return;
+      document.getElementById('input-setoran-tanggal').value = tanggalHariIniJakarta();
+      ['kardus','botol','gelas','kaleng'].forEach(k => {
+        const el = document.getElementById(`input-setoran-${k}`);
+        if (el) el.value = '0';
+      });
+      hitungTotalSetoran();
+      document.getElementById('input-setoran-error').classList.add('hidden');
+      modal.classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+      await muatDaftarWargaInput();
+    }
+
+    function tutupModalInputSetoran() {
+      const modal = document.getElementById('modal-input-setoran');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function tutupModalInputSetoranOnBackdrop(e) {
+      if (e.target && e.target.id === 'modal-input-setoran') tutupModalInputSetoran();
+    }
+
+    function hitungTotalSetoran() {
+      const angka = id => Math.max(0, Number(document.getElementById(id)?.value || 0) || 0);
+      const total = angka('input-setoran-kardus') + angka('input-setoran-botol') + angka('input-setoran-gelas') + angka('input-setoran-kaleng');
+      const el = document.getElementById('input-setoran-total');
+      if (el) el.innerText = `${total.toLocaleString('id-ID', { maximumFractionDigits: 2 })} Kg`;
+      return total;
+    }
+
+    function normalisasiDaftarWarga(rows) {
+      if (!Array.isArray(rows) || rows.length === 0) return [];
+      let nameCol = 0;
+      const header = rows[0].map(v => String(v || '').trim().toLowerCase());
+      const idx = header.findIndex(v => /nama|warga|blok/.test(v));
+      if (idx >= 0) nameCol = idx;
+      const start = idx >= 0 ? 1 : 0;
+      const names = [];
+      for (let i = start; i < rows.length; i++) {
+        const name = String(rows[i][nameCol] || '').trim();
+        if (!name || /^nama/i.test(name)) continue;
+        names.push(name);
+      }
+      return [...new Set(names)].sort((a,b) => a.localeCompare(b, 'id', { numeric: true, sensitivity: 'base' }));
+    }
+
+    async function muatDaftarWargaInput() {
+      const select = document.getElementById('input-setoran-nama');
+      const status = document.getElementById('status-daftar-warga');
+      if (!select) return;
+      select.innerHTML = '<option value="">Memuat daftar warga...</option>';
+      if (status) status.innerText = '';
+
+      let names = [];
+      // Utama: baca langsung melalui Apps Script agar perubahan nama cepat masuk.
+      try {
+        const url = `${APPS_SCRIPT_PROXY_URL}?action=daftarWarga&_=${Date.now()}`;
+        const res = await fetch(url, { cache: 'no-store' });
+        const json = await res.json();
+        if (json && json.status === 'success' && Array.isArray(json.data)) {
+          names = json.data.map(v => String(v || '').trim()).filter(Boolean);
+        }
+      } catch (err) {
+        console.warn('Daftar warga via Apps Script gagal, pakai CSV fallback.', err);
+      }
+
+      // Fallback: CSV publik daftar warga.
+      if (names.length === 0) {
+        try {
+          const res = await fetch(CSV_DAFTAR_WARGA_URL + '&t=' + Date.now(), { cache: 'no-store' });
+          names = normalisasiDaftarWarga(parseCSV(await res.text()));
+          if (status) status.innerText = 'Daftar warga dibaca dari CSV.';
+        } catch (err) {
+          console.error('Gagal memuat daftar warga:', err);
+        }
+      }
+
+      names = [...new Set(names)].sort((a,b) => a.localeCompare(b, 'id', { numeric: true, sensitivity: 'base' }));
+      select.innerHTML = '<option value="">Pilih nama warga...</option>' + names.map(n => `<option value="${n.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}">${n.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</option>`).join('');
+      if (status) status.innerText = names.length ? `${names.length} nama tersedia` : 'Daftar warga belum tersedia.';
+    }
+
+    function refreshRingkasanSetelahInput() {
+      let setBulan = new Set();
+      globalRiwayatData.forEach(r => {
+        const b = ekstrakBulanTahun(r[1]);
+        if (b) setBulan.add(b);
+      });
+      globalPengeluaranClean.forEach(p => {
+        const b = ekstrakBulanTahun(p.tanggal);
+        if (b) setBulan.add(b);
+      });
+      listBulanUnik = Array.from(setBulan);
+      if (listBulanUnik.length === 0) listBulanUnik = ['Okt 2026'];
+      indexBulanSampah = listBulanUnik.length - 1;
+      indexBulanTabungan = listBulanUnik.length - 1;
+      indexBulanCashflow = listBulanUnik.length - 1;
+      indexBulanSaldoKas = listBulanUnik.length - 1;
+      renderTabelWarga(globalRekapData);
+      updateSemuaCardBulanan();
+      updateSisaSaldoKas();
+    }
+
+    function tampilkanToastSetoran(message) {
+      const toast = document.getElementById('toast-setoran');
+      const textEl = document.getElementById('toast-setoran-text');
+      if (!toast) return;
+      if (textEl) textEl.innerText = message || 'Setoran berhasil disimpan.';
+      toast.classList.remove('hidden');
+      toast.classList.add('flex');
+      if (window.lucide) lucide.createIcons();
+      clearTimeout(window.__toastSetoranTimer);
+      window.__toastSetoranTimer = setTimeout(() => {
+        toast.classList.add('hidden');
+        toast.classList.remove('flex');
+      }, 3000);
+    }
+
+    async function simpanSetoranWarga(event) {
+      event.preventDefault();
+      const errBox = document.getElementById('input-setoran-error');
+      errBox.classList.add('hidden');
+
+      const nama = String(document.getElementById('input-setoran-nama')?.value || '').trim();
+      const tanggal = String(document.getElementById('input-setoran-tanggal')?.value || '').trim();
+      const kardus = Math.max(0, Number(document.getElementById('input-setoran-kardus')?.value || 0) || 0);
+      const botol = Math.max(0, Number(document.getElementById('input-setoran-botol')?.value || 0) || 0);
+      const gelas = Math.max(0, Number(document.getElementById('input-setoran-gelas')?.value || 0) || 0);
+      const kaleng = Math.max(0, Number(document.getElementById('input-setoran-kaleng')?.value || 0) || 0);
+      const total = kardus + botol + gelas + kaleng;
+
+      if (!nama) {
+        errBox.innerText = 'Pilih nama warga dari daftar.';
+        errBox.classList.remove('hidden');
+        return;
+      }
+      if (!tanggal) {
+        errBox.innerText = 'Tanggal wajib diisi.';
+        errBox.classList.remove('hidden');
+        return;
+      }
+      if (total <= 0) {
+        errBox.innerText = 'Isi minimal satu jenis sampah dengan berat lebih dari 0 Kg.';
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      setLoadingSimpanSetoran(true);
+      try {
+        const params = new URLSearchParams({
+          action: 'setoran', nama, tanggal,
+          kardus: String(kardus), botol: String(botol), gelas: String(gelas), kaleng: String(kaleng),
+          _: String(Date.now())
+        });
+        const res = await fetch(`${APPS_SCRIPT_PROXY_URL}?${params.toString()}`, { cache: 'no-store' });
+        const json = await res.json();
+        if (!json || json.status !== 'success') throw new Error(json?.message || 'Gagal menyimpan setoran.');
+
+        // Apps Script mengembalikan data terbaru langsung dari Sheet, jadi tidak menunggu cache CSV.
+        if (Array.isArray(json.riwayat)) globalRiwayatData = json.riwayat;
+        if (Array.isArray(json.rekap)) globalRekapData = json.rekap;
+        refreshRingkasanSetelahInput();
+
+        tutupModalInputSetoran();
+        tampilkanToastSetoran(json.message || 'Setoran berhasil disimpan.');
+      } catch (err) {
+        console.error('Simpan setoran gagal:', err);
+        errBox.innerText = err.message || 'Gagal menyimpan setoran. Coba lagi.';
+        errBox.classList.remove('hidden');
+      } finally {
+        setLoadingSimpanSetoran(false);
+      }
     }
 
     async function loadDataUtama() {
