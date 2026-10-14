@@ -629,7 +629,7 @@
 
   <!-- SCRIPT UTAMA -->
   <script>
-    const APPS_SCRIPT_PROXY_URL = "https://script.google.com/macros/s/AKfycbzhNF-Bl0OJ2_dwelpvOlugz6K4rzAllwfN6-kTwLR6aEzF_HQRXaQZu2nVk1lu5iMg/exec";
+    const APPS_SCRIPT_PROXY_URL = "https://script.google.com/macros/s/AKfycbxzl1tOx89JL-DQdKy2jWwX-bFYjieHhtmQR_ge_IiO9bhEqdD-sfhcFvCUwV6QNB62dA/exec";
     const CSV_DAFTAR_WARGA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=810048072&single=true&output=csv";
 
     const CSV_REKAP_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=0&single=true&output=csv";
@@ -720,6 +720,44 @@
       }
 
       return null;
+    }
+
+    function getTanggalSortValue(tglStr, fallbackIndex = 0) {
+      if (!tglStr) return fallbackIndex;
+      const clean = String(tglStr).trim();
+      if (!clean) return fallbackIndex;
+
+      const bulanMap = {
+        jan: 0, feb: 1, mar: 2, apr: 3, mei: 4, jun: 5,
+        jul: 6, ags: 7, agu: 7, sep: 8, okt: 9, oct: 9, nov: 10, des: 11, dec: 11
+      };
+
+      if (/^\d{4}-\d{2}-\d{2}$/.test(clean)) {
+        const d = new Date(clean + 'T00:00:00');
+        const t = d.getTime();
+        return isNaN(t) ? fallbackIndex : t;
+      }
+
+      const parts = clean.split(/[-/]/);
+      if (parts.length >= 3) {
+        const day = parseInt(parts[0], 10) || 1;
+        let monthRaw = String(parts[1] || '').toLowerCase();
+        let year = parseInt(parts[2], 10) || 2026;
+        if (year < 100) year += 2000;
+
+        let monthIndex = -1;
+        if (/^\d+$/.test(monthRaw)) {
+          monthIndex = Math.max(0, Math.min(11, parseInt(monthRaw, 10) - 1));
+        } else {
+          monthIndex = bulanMap[monthRaw.substring(0, 3)] ?? bulanMap[monthRaw] ?? -1;
+        }
+
+        if (monthIndex >= 0) {
+          return new Date(year, monthIndex, day).getTime();
+        }
+      }
+
+      return fallbackIndex;
     }
 
     // =====================================================
@@ -1165,19 +1203,31 @@
       document.getElementById('modal-tabungan-subtitle').innerText = `Periode: ${bulan}`;
 
       const tbody = document.getElementById('content-tabel-tabungan-bulan');
-      let html = '';
-      globalRiwayatData.forEach(r => {
+      const totalPerNama = {};
+
+      globalRiwayatData.forEach((r, idx) => {
         if (ekstrakBulanTahun(r[1]) === bulan) {
-          const nama = r[0] || '-';
-          const nominal = parseLaporanNumber(r[7]);
-          html += `
-            <tr class="hover:bg-slate-50 transition">
-              <td class="p-3 font-bold text-slate-800">${nama}</td>
-              <td class="p-3 text-right font-black text-emerald-700">Rp ${Math.round(nominal).toLocaleString('id-ID')}</td>
-            </tr>
-          `;
+          const nama = (r[0] || '-').toString().trim();
+          if (!nama || nama === '-') return;
+          if (!totalPerNama[nama]) totalPerNama[nama] = 0;
+          totalPerNama[nama] += parseLaporanNumber(r[7]);
         }
       });
+
+      let html = '';
+      globalRekapData.forEach(r => {
+        const nama = (r[1] || '').toString().trim();
+        if (!nama || nama.toLowerCase() === 'nama & blok') return;
+        const nominal = totalPerNama[nama] || 0;
+        if (nominal <= 0) return;
+        html += `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-3 font-bold text-slate-800">${nama}</td>
+            <td class="p-3 text-right font-black text-emerald-700">Rp ${Math.round(nominal).toLocaleString('id-ID')}</td>
+          </tr>
+        `;
+      });
+
       tbody.innerHTML = html || `<tr><td colspan="2" class="p-4 text-center text-slate-400">Belum ada setoran pada periode ini.</td></tr>`;
       document.getElementById('modal-tabungan-bulan').classList.remove('hidden');
     }
@@ -1192,38 +1242,48 @@
 
       // Tabel Masuk
       const tbodyMasuk = document.getElementById('modal-tabel-cashflow-masuk');
+      const dataMasuk = globalRiwayatData
+        .map((r, idx) => ({ row: r, idx }))
+        .filter(item => ekstrakBulanTahun(item.row[1]) === bulan && parseLaporanNumber(item.row[9]) > 0)
+        .sort((a, b) => {
+          const dateDiff = getTanggalSortValue(b.row[1], b.idx) - getTanggalSortValue(a.row[1], a.idx);
+          return dateDiff !== 0 ? dateDiff : b.idx - a.idx;
+        });
       let htmlMasuk = '';
-      globalRiwayatData.forEach(r => {
-        if (ekstrakBulanTahun(r[1]) === bulan) {
-          const tgl = r[1] || '-';
-          const ket = r[0] || '-';
-          const nominal = parseLaporanNumber(r[9]);
-          if (nominal > 0) {
-            htmlMasuk += `
-              <tr class="hover:bg-slate-50 transition">
-                <td class="p-3 text-slate-600">${tgl}</td>
-                <td class="p-3 font-semibold text-slate-800">${ket}</td>
-                <td class="p-3 text-right font-bold text-emerald-700">Rp ${Math.round(nominal).toLocaleString('id-ID')}</td>
-              </tr>
-            `;
-          }
-        }
+      dataMasuk.forEach(item => {
+        const r = item.row;
+        const tgl = r[1] || '-';
+        const ket = r[0] || '-';
+        const nominal = parseLaporanNumber(r[9]);
+        htmlMasuk += `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-3 text-slate-600">${tgl}</td>
+            <td class="p-3 font-semibold text-slate-800">${ket}</td>
+            <td class="p-3 text-right font-bold text-emerald-700">Rp ${Math.round(nominal).toLocaleString('id-ID')}</td>
+          </tr>
+        `;
       });
       tbodyMasuk.innerHTML = htmlMasuk || `<tr><td colspan="3" class="p-3 text-center text-slate-400">Tidak ada pemasukan kas pada periode ini.</td></tr>`;
 
       // Tabel Keluar
       const tbodyKeluar = document.getElementById('modal-tabel-cashflow-keluar');
+      const dataKeluar = globalPengeluaranClean
+        .map((p, idx) => ({ item: p, idx }))
+        .filter(x => ekstrakBulanTahun(x.item.tanggal) === bulan)
+        .sort((a, b) => {
+          const dateDiff = getTanggalSortValue(b.item.tanggal, b.idx) - getTanggalSortValue(a.item.tanggal, a.idx);
+          return dateDiff !== 0 ? dateDiff : b.idx - a.idx;
+        });
       let htmlKeluar = '';
-      globalPengeluaranClean.forEach(p => {
-        if (ekstrakBulanTahun(p.tanggal) === bulan) {
-          htmlKeluar += `
-            <tr class="hover:bg-slate-50 transition">
-              <td class="p-3 text-slate-600">${p.tanggal}</td>
-              <td class="p-3 font-semibold text-slate-800">${p.keperluan}</td>
-              <td class="p-3 text-right font-bold text-rose-700">Rp ${Math.round(p.nominal).toLocaleString('id-ID')}</td>
-            </tr>
-          `;
-        }
+      dataKeluar.forEach(x => {
+        const p = x.item;
+        htmlKeluar += `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-3 text-slate-600">${p.tanggal}</td>
+            <td class="p-3 font-semibold text-slate-800">${p.keperluan}</td>
+            <td class="p-3 text-right font-bold text-rose-700">Rp ${Math.round(p.nominal).toLocaleString('id-ID')}</td>
+          </tr>
+        `;
       });
       tbodyKeluar.innerHTML = htmlKeluar || `<tr><td colspan="3" class="p-3 text-center text-slate-400">Tidak ada pengeluaran kas pada periode ini.</td></tr>`;
 
@@ -1808,11 +1868,18 @@
       document.getElementById('modal-total-berat').innerText = `${totalBerat.toFixed(1)} Kg`;
       document.getElementById('modal-total-saldo').innerText = `Rp ${Math.round(totalSaldo).toLocaleString('id-ID')}`;
 
-      const riwayat = globalRiwayatData.filter(r => (r[0] || '').toString().trim().toLowerCase() === namaBlok.trim().toLowerCase());
+      const riwayat = globalRiwayatData
+        .map((r, idx) => ({ row: r, idx }))
+        .filter(item => (item.row[0] || '').toString().trim().toLowerCase() === namaBlok.trim().toLowerCase())
+        .sort((a, b) => {
+          const dateDiff = getTanggalSortValue(b.row[1], b.idx) - getTanggalSortValue(a.row[1], a.idx);
+          return dateDiff !== 0 ? dateDiff : b.idx - a.idx;
+        });
       const tbody = document.getElementById('modal-tabel-riwayat');
 
       let html = '';
-      riwayat.forEach(r => {
+      riwayat.forEach(item => {
+        const r = item.row;
         const kardus = parseLaporanNumber(r[2]);
         const botol = parseLaporanNumber(r[3]);
         const gelas = parseLaporanNumber(r[4]);
@@ -2547,31 +2614,16 @@ function prosesCetakPDF() {
     </thead>
     <tbody>${rowsWarga}</tbody>
   </table>
+  <div class="cash-total">Total Masuk: ${rp(totalMasuk)}</div>
 
-  <h2>Pembukuan Kas Operasional</h2>
-  <div class="cash-grid">
-    <div>
-      <p class="cash-title" style="color:#047857">Pemasukan Kas</p>
-      <table>
-        <thead>
-          <tr><th style="width:28%">Tanggal</th><th>Keterangan</th><th class="right">Nominal</th></tr>
-        </thead>
-        <tbody>${rowsMasuk}</tbody>
-      </table>
-      <div class="cash-total">Total Masuk: ${rp(totalMasuk)}</div>
-    </div>
-
-    <div>
-      <p class="cash-title" style="color:#be123c">Pengeluaran Kas</p>
-      <table>
-        <thead>
-          <tr><th style="width:28%">Tanggal</th><th>Keperluan</th><th class="right">Nominal</th></tr>
-        </thead>
-        <tbody>${rowsKeluar}</tbody>
-      </table>
-      <div class="cash-total">Total Keluar: ${rp(totalKeluar)}</div>
-    </div>
-  </div>
+  <h2 style="color:#be123c">Pengeluaran Kas</h2>
+  <table>
+    <thead>
+      <tr><th style="width:28%">Tanggal</th><th>Keperluan</th><th class="right">Nominal</th></tr>
+    </thead>
+    <tbody>${rowsKeluar}</tbody>
+  </table>
+  <div class="cash-total">Total Keluar: ${rp(totalKeluar)}</div>
 
   <div class="balance-box">
     <div>
