@@ -557,16 +557,10 @@
     const CSV_PROGRES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=315371679&single=true&output=csv";
 
     // =====================================================
-    // SUMBER DATA CEPAT / AUTO-SYNC
+    // SUMBER DATA LANGSUNG GOOGLE SHEETS (lebih cepat)
     // =====================================================
-    // Jika nanti Anda punya URL Google Sheet asli berbentuk:
-    // https://docs.google.com/spreadsheets/d/XXXXXXXXXXXX/edit
-    // isi ID-nya di bawah. Semua data akan otomatis memakai GViz CSV
-    // yang biasanya lebih cepat daripada Publish to Web.
-    // Bila dibiarkan kosong, web tetap berjalan memakai URL publish lama.
-    const GOOGLE_SHEET_ID = "";
-
-    const SHEET_GIDS = {
+    const BANK_SAMPAH_SHEET_ID = "1DRurG_1CTwBBOwTEJRLUiGORQOr9iN68tU_mj_CbDrs";
+    const BANK_SAMPAH_GIDS = {
       rekap: "0",
       riwayat: "1811693263",
       pengeluaran: "1835559780",
@@ -575,33 +569,31 @@
       progres: "315371679"
     };
 
-    function buildSheetCsvUrl(gid, fallbackUrl) {
-      if (GOOGLE_SHEET_ID && GOOGLE_SHEET_ID.trim()) {
-        return `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID.trim()}/gviz/tq?tqx=out:csv&gid=${encodeURIComponent(gid)}`;
-      }
-      return fallbackUrl;
+    function gvizCsvUrl(gid) {
+      const nonce = Date.now() + '-' + Math.random().toString(36).slice(2);
+      return `https://docs.google.com/spreadsheets/d/${BANK_SAMPAH_SHEET_ID}/gviz/tq?tqx=out:csv&gid=${encodeURIComponent(gid)}&_=${nonce}`;
     }
 
-    async function fetchFreshCsv(gid, fallbackUrl, options = {}) {
-      const { attempts = 2, delay = 800 } = options;
-      let lastError;
-      for (let i = 0; i < attempts; i++) {
-        try {
-          const base = buildSheetCsvUrl(gid, fallbackUrl);
-          const join = base.includes('?') ? '&' : '?';
-          const url = `${base}${join}_=${Date.now()}_${Math.random().toString(36).slice(2)}`;
-          const response = await fetch(url, {
-            cache: 'no-store',
-            headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
-          });
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
-          return await response.text();
-        } catch (err) {
-          lastError = err;
-          if (i < attempts - 1) await new Promise(r => setTimeout(r, delay));
+    async function fetchSheetCsv(gid, fallbackUrl) {
+      // Utamakan GViz dari Spreadsheet ID asli. Jika akses anonim GViz
+      // belum diizinkan, otomatis kembali ke URL Publish-to-web lama.
+      const tryFetch = async (url) => {
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const body = await res.text();
+        const head = body.slice(0, 300).toLowerCase();
+        if (head.includes('<!doctype html') || head.includes('<html') || head.includes('accounts.google.com')) {
+          throw new Error('Sumber CSV meminta login');
         }
+        return body;
+      };
+
+      try {
+        return await tryFetch(gvizCsvUrl(gid));
+      } catch (err) {
+        const sep = fallbackUrl.includes('?') ? '&' : '?';
+        return await tryFetch(`${fallbackUrl}${sep}_=${Date.now()}`);
       }
-      throw lastError || new Error('Gagal mengambil data spreadsheet');
     }
 
     let globalRekapData = [];
@@ -690,9 +682,9 @@
     async function loadDataUtama() {
       try {
         const [csvRekap, csvRiwayat, csvPengeluaran] = await Promise.all([
-          fetchFreshCsv(SHEET_GIDS.rekap, CSV_REKAP_URL),
-          fetchFreshCsv(SHEET_GIDS.riwayat, CSV_RIWAYAT_URL),
-          fetchFreshCsv(SHEET_GIDS.pengeluaran, CSV_PENGELUARAN_URL)
+          fetchSheetCsv(BANK_SAMPAH_GIDS.rekap, CSV_REKAP_URL),
+          fetchSheetCsv(BANK_SAMPAH_GIDS.riwayat, CSV_RIWAYAT_URL),
+          fetchSheetCsv(BANK_SAMPAH_GIDS.pengeluaran, CSV_PENGELUARAN_URL)
         ]);
 
         globalRekapData = parseCSV(csvRekap);
@@ -980,8 +972,8 @@
 
     async function loadProgresBankSampahDetail() {
       try {
-        const csvProgres = await fetchFreshCsv(SHEET_GIDS.progres, CSV_PROGRES_URL);
-        const rows = parseCSV(csvProgres);
+        const response = await fetch(CSV_PROGRES_URL + "&t=" + Date.now());
+        const rows = parseCSV(await response.text());
         globalProgresList = rows.map(cols => ({
           tanggal: cols[0] || '',
           langkah: cols[1] || '',
@@ -1035,8 +1027,8 @@
 
     async function loadInventaris() {
       try {
-        const csvInventaris = await fetchFreshCsv(SHEET_GIDS.inventaris, CSV_INVENTARIS_URL);
-        const rows = parseCSV(csvInventaris);
+        const response = await fetch(CSV_INVENTARIS_URL + "&t=" + Date.now());
+        const rows = parseCSV(await response.text());
         const container = document.getElementById('container-inventaris-list');
         if (!container) return;
 
@@ -1112,8 +1104,8 @@
 
     async function loadDokumentasi() {
       try {
-        const csvDokumentasi = await fetchFreshCsv(SHEET_GIDS.dokumentasi, CSV_DOKUMENTASI_URL);
-        const rows = parseCSV(csvDokumentasi);
+        const response = await fetch(CSV_DOKUMENTASI_URL + "&t=" + Date.now());
+        const rows = parseCSV(await response.text());
         globalAlbums = [];
 
         for (const r of rows) {
@@ -1605,11 +1597,34 @@
       }
     });
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      await loadDataUtama();
-      await loadProgresBankSampahDetail();
-      await loadInventaris();
-      await loadDokumentasi();
+    let bankSampahRefreshBusy = false;
+    let bankSampahRefreshSeq = 0;
+
+    async function refreshBankSampahSekali() {
+      if (bankSampahRefreshBusy) return;
+      bankSampahRefreshBusy = true;
+      const seq = ++bankSampahRefreshSeq;
+      try {
+        await Promise.all([
+          loadDataUtama(),
+          loadProgresBankSampahDetail(),
+          loadInventaris(),
+          loadDokumentasi()
+        ]);
+      } finally {
+        if (seq === bankSampahRefreshSeq) bankSampahRefreshBusy = false;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', refreshBankSampahSekali);
+
+    // Browser HP/desktop kadang mengembalikan halaman dari back-forward cache.
+    // Saat itu data lama di memori halaman direfresh sekali, tanpa polling terus-menerus.
+    window.addEventListener('pageshow', (event) => {
+      if (event.persisted) {
+        bankSampahRefreshBusy = false;
+        refreshBankSampahSekali();
+      }
     });
 
     // Tutup modal/popup/lightbox saat area luar (blank area) diklik
@@ -2361,51 +2376,6 @@ function prosesCetakPDF() {
 }
 
     
-  
-
-    // =====================================================
-    // AUTO-SYNC DATA
-    // =====================================================
-    // Refresh data otomatis tanpa perlu reload halaman berkali-kali.
-    // Saat memakai Publish to Web, perubahan dari Google sendiri kadang
-    // tetap terlambat; polling ini membuat halaman mengambil versi terbaru
-    // segera setelah Google memperbaruinya.
-    let autoSyncTimer = null;
-    let autoSyncBusy = false;
-
-    async function refreshSemuaDataBankSampah() {
-      if (autoSyncBusy) return;
-      autoSyncBusy = true;
-      try {
-        const tasks = [];
-        if (typeof loadDataUtama === 'function') tasks.push(loadDataUtama());
-        else if (typeof fetchDataUtama === 'function') tasks.push(fetchDataUtama());
-        else if (typeof loadData === 'function') tasks.push(loadData());
-        if (typeof loadProgresBankSampahDetail === 'function') tasks.push(loadProgresBankSampahDetail());
-        else if (typeof fetchProgres === 'function') tasks.push(fetchProgres());
-        else if (typeof loadProgres === 'function') tasks.push(loadProgres());
-        if (typeof fetchInventaris === 'function') tasks.push(fetchInventaris());
-        else if (typeof loadInventaris === 'function') tasks.push(loadInventaris());
-        if (typeof fetchDokumentasi === 'function') tasks.push(fetchDokumentasi());
-        else if (typeof loadDokumentasi === 'function') tasks.push(loadDokumentasi());
-        if (tasks.length) await Promise.allSettled(tasks);
-      } finally {
-        autoSyncBusy = false;
-      }
-    }
-
-    function mulaiAutoSyncBankSampah() {
-      if (autoSyncTimer) clearInterval(autoSyncTimer);
-      autoSyncTimer = setInterval(refreshSemuaDataBankSampah, 15000);
-    }
-
-    window.addEventListener('focus', () => { refreshSemuaDataBankSampah(); });
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) refreshSemuaDataBankSampah();
-    });
-    window.addEventListener('DOMContentLoaded', () => {
-      setTimeout(mulaiAutoSyncBankSampah, 3000);
-    });
-</script>
+  </script>
 </body>
 </html>
