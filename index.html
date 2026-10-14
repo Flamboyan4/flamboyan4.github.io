@@ -327,14 +327,14 @@
       <div id="slider-projek" class="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar py-1 w-full">
         
         <!-- CARD 1: JERSEY -->
-        <div id="jersey" class="snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col justify-between">
+        <div id="jersey" class="order-3 snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-2">
               <div class="flex items-center space-x-1.5">
                 <i data-lucide="shirt" class="w-4 h-4 text-indigo-600 shrink-0"></i>
-                <h4 class="text-base font-bold text-slate-900">Pemesanan Jersey</h4>
+                <h4 id="project-title-jersey" class="text-base font-bold text-slate-900">Pemesanan Jersey</h4>
               </div>
-              <span class="text-[10px] bg-amber-100 text-amber-800 font-semibold px-2 py-0.5 rounded-full">Tahap DP</span>
+              <span id="project-status-jersey" class="text-[10px] bg-amber-100 text-amber-800 font-semibold px-2 py-0.5 rounded-full">Tahap DP</span>
             </div>
 
             <div id="container-foto-jersey-single" class="relative group cursor-pointer bg-slate-100 rounded-lg overflow-hidden h-28 flex items-center justify-center mb-2.5" onclick="openGalleryGridModal(FOLDER_JERSEY_URL, 'Desain Jersey & Size Chart')">
@@ -372,14 +372,14 @@
         </div>
 
         <!-- CARD 2: GAPURA -->
-        <div id="gapura" class="snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col justify-between">
+        <div id="gapura" class="order-2 snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-2">
               <div class="flex items-center space-x-1.5">
                 <i data-lucide="landmark" class="w-4 h-4 text-indigo-600 shrink-0"></i>
-                <h4 class="text-base font-bold text-slate-900">Gapura</h4>
+                <h4 id="project-title-gapura" class="text-base font-bold text-slate-900">Gapura</h4>
               </div>
-              <span class="text-[10px] bg-indigo-100 text-indigo-800 font-semibold px-2 py-0.5 rounded-full">Penggalangan Dana</span>
+              <span id="project-status-gapura" class="text-[10px] bg-indigo-100 text-indigo-800 font-semibold px-2 py-0.5 rounded-full">Penggalangan Dana</span>
             </div>
 
             <div id="container-foto-gapura" class="relative group cursor-pointer bg-slate-100 rounded-lg overflow-hidden h-32 flex items-center justify-center mb-3" onclick="openGalleryGridModal(FOLDER_GAPURA_URL, 'Desain Pembangunan Gapura')">
@@ -415,12 +415,12 @@
         </div>
 
         <!-- CARD 3: BANK SAMPAH (TERHUBUNG KE BANKSAMPAH.HTML) -->
-        <div id="bank-sampah" onclick="window.location.href='/banksampah/'" class="snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white hover:bg-emerald-50/30 rounded-xl shadow-sm border border-slate-200 hover:border-emerald-400 p-4 flex flex-col justify-between cursor-pointer transition transform hover:-translate-y-1 active:scale-98 group">
+        <div id="bank-sampah" onclick="window.location.href='/banksampah/'" class="order-1 snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white hover:bg-emerald-50/30 rounded-xl shadow-sm border border-slate-200 hover:border-emerald-400 p-4 flex flex-col justify-between cursor-pointer transition transform hover:-translate-y-1 active:scale-98 group">
           <div>
             <div class="flex items-center justify-between mb-2">
               <div class="flex items-center space-x-1.5">
                 <i data-lucide="recycle" class="w-4 h-4 text-emerald-600 shrink-0"></i>
-                <h4 class="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition">Bank Sampah Lorong</h4>
+                <h4 id="project-title-banksampah" class="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition">Bank Sampah Lorong</h4>
               </div>
               <span id="bs-status-badge" class="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full">Aktif</span>
             </div>
@@ -1125,7 +1125,7 @@
     const CSV_KEUANGAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=422555783&single=true&output=csv';
     const CSV_DOKUMENTASI_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=0&single=true&output=csv';
     // Isi URL CSV sheet inventaris warga di sini jika sheet sudah tersedia.
-    const CSV_INVENTARIS_WARGA_URL = '';
+    const CSV_INVENTARIS_WARGA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=492423764&single=true&output=csv';
     const CSV_ARISAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=53284271&single=true&output=csv';
     const CSV_RENCANA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=781301604&single=true&output=csv';
     const CSV_JERSEY_BAPAK_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=878370178&single=true&output=csv';
@@ -3119,6 +3119,157 @@ function salinLinkAgenda(url) {
     initBanner();
   }
 })();
+
+    // MASTER PROJECT CARD - dikontrol dari Google Spreadsheet
+    const CSV_PROJECT_CARD_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=40982005&single=true&output=csv";
+
+    function normalizeProjectType(value) {
+      return String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '');
+    }
+
+    function projectBadgeClasses(status) {
+      const st = String(status || '').toLowerCase();
+      if (st.includes('selesai')) return 'bg-emerald-100 text-emerald-800';
+      if (st.includes('aktif') || st.includes('proses') || st.includes('berjalan')) return 'bg-emerald-100 text-emerald-800';
+      if (st.includes('dana') || st.includes('dp') || st.includes('cicil')) return 'bg-amber-100 text-amber-800';
+      if (st.includes('rencana') || st.includes('persiapan')) return 'bg-indigo-100 text-indigo-800';
+      return 'bg-slate-100 text-slate-700';
+    }
+
+    function setProjectBadge(el, status) {
+      if (!el) return;
+      el.textContent = status || 'Aktif';
+      el.className = `text-[10px] font-semibold px-2 py-0.5 rounded-full ${projectBadgeClasses(status)}`;
+    }
+
+    function createGenericProjectCard(row) {
+      const slider = document.getElementById('slider-projek');
+      if (!slider) return null;
+      const typeKey = normalizeProjectType(row.jenis || row.nama);
+      const id = `project-generic-${typeKey || Math.random().toString(36).slice(2)}`;
+      const card = document.createElement('div');
+      card.id = id;
+      card.dataset.dynamicProject = 'true';
+      card.className = 'snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col justify-between';
+      card.innerHTML = `
+        <div>
+          <div class="flex items-center justify-between mb-3 gap-3">
+            <div class="flex items-center space-x-1.5 min-w-0">
+              <i data-lucide="folder-kanban" class="w-4 h-4 text-indigo-600 shrink-0"></i>
+              <h4 class="project-generic-title text-base font-bold text-slate-900 truncate"></h4>
+            </div>
+            <span class="project-generic-status text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0"></span>
+          </div>
+          <div class="rounded-lg bg-gradient-to-br from-indigo-50 to-slate-50 border border-indigo-100 p-5 min-h-[128px] flex flex-col items-center justify-center text-center">
+            <i data-lucide="construction" class="w-8 h-8 text-indigo-500 mb-2"></i>
+            <p class="text-xs text-slate-500">Informasi projek warga</p>
+            <p class="project-generic-name text-sm font-bold text-slate-800 mt-1"></p>
+          </div>
+        </div>
+        <a class="project-generic-link mt-3 w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-2 rounded-lg border border-indigo-100 transition text-xs flex items-center justify-center space-x-1 hidden">
+          <span>Buka Projek</span><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+        </a>`;
+      slider.appendChild(card);
+      return card;
+    }
+
+    function applyProjectLink(card, link, typeKey) {
+      if (!card) return;
+      const clean = String(link || '').trim();
+      if (typeKey === 'banksampah') {
+        card.onclick = clean ? () => { window.location.href = clean; } : null;
+        card.classList.toggle('cursor-pointer', !!clean);
+      }
+      const a = card.querySelector('.project-generic-link');
+      if (a) {
+        if (clean) {
+          a.href = clean;
+          a.classList.remove('hidden');
+        } else {
+          a.removeAttribute('href');
+          a.classList.add('hidden');
+        }
+      }
+    }
+
+    async function loadProjectCards() {
+      const slider = document.getElementById('slider-projek');
+      if (!slider) return;
+      try {
+        const response = await fetch(CSV_PROJECT_CARD_URL + '&t=' + Date.now());
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const csvText = await response.text();
+        const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+        const rows = (parsed.data || []).map(r => ({
+          urutan: parseInt(r['Urutan'] || r['urutan'] || 999, 10) || 999,
+          nama: String(r['Nama Projek'] || r['Nama project'] || r['nama projek'] || '').trim(),
+          jenis: String(r['Jenis'] || r['jenis'] || '').trim(),
+          status: String(r['Status'] || r['status'] || '').trim(),
+          tampil: String(r['Tampil'] || r['tampil'] || '').trim().toUpperCase(),
+          link: String(r['Link'] || r['link'] || '').trim()
+        })).filter(r => r.nama || r.jenis);
+
+        // Bersihkan card generik hasil load sebelumnya.
+        slider.querySelectorAll('[data-dynamic-project="true"]').forEach(el => el.remove());
+
+        const knownCards = {
+          banksampah: document.getElementById('bank-sampah'),
+          gapura: document.getElementById('gapura'),
+          jersey: document.getElementById('jersey')
+        };
+        const knownSeen = new Set();
+
+        rows.sort((a,b) => a.urutan - b.urutan).forEach(row => {
+          const typeKey = normalizeProjectType(row.jenis);
+          let key = typeKey;
+          if (['banksampah','banksampahlorong'].includes(typeKey)) key = 'banksampah';
+          if (['pemesananjersey','jerseywarga'].includes(typeKey)) key = 'jersey';
+
+          let card = knownCards[key] || null;
+          if (card) knownSeen.add(key);
+          else card = createGenericProjectCard(row);
+          if (!card) return;
+
+          card.style.order = String(row.urutan);
+          const show = ['YA','YES','Y','TRUE','1','TAMPIL'].includes(row.tampil);
+          card.classList.toggle('hidden', !show);
+
+          if (key === 'banksampah') {
+            const title = document.getElementById('project-title-banksampah');
+            if (title && row.nama) title.textContent = row.nama;
+            setProjectBadge(document.getElementById('bs-status-badge'), row.status);
+          } else if (key === 'gapura') {
+            const title = document.getElementById('project-title-gapura');
+            if (title && row.nama) title.textContent = row.nama;
+            setProjectBadge(document.getElementById('project-status-gapura'), row.status);
+          } else if (key === 'jersey') {
+            const title = document.getElementById('project-title-jersey');
+            if (title && row.nama) title.textContent = row.nama;
+            setProjectBadge(document.getElementById('project-status-jersey'), row.status);
+          } else {
+            const title = card.querySelector('.project-generic-title');
+            const name = card.querySelector('.project-generic-name');
+            const badge = card.querySelector('.project-generic-status');
+            if (title) title.textContent = row.nama || row.jenis || 'Projek Warga';
+            if (name) name.textContent = row.nama || row.jenis || 'Projek Warga';
+            setProjectBadge(badge, row.status);
+          }
+          applyProjectLink(card, row.link, key);
+        });
+
+        // Master Sheet menjadi sumber utama: card bawaan yang tidak ada di Sheet disembunyikan.
+        Object.entries(knownCards).forEach(([key, card]) => {
+          if (card && !knownSeen.has(key)) card.classList.add('hidden');
+        });
+
+        if (window.lucide) lucide.createIcons();
+      } catch (err) {
+        console.error('Gagal memuat Master Project Card:', err);
+        // Jika Sheet gagal dibaca, card bawaan tetap tampil sebagai fallback.
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadProjectCards);
 
     // URL CSV Progres Bank Sampah
 const CSV_PROGRES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=315371679&single=true&output=csv";
