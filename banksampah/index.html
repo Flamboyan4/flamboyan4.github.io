@@ -2454,6 +2454,22 @@ function prosesCetakPDF() {
     border-top: 1px solid #cbd5e1;
   }
 
+
+  .expense-table th {
+    color: #9f1239;
+    background: #fff1f2;
+    border-bottom: 1px solid #fecdd3;
+  }
+
+  .expense-table td {
+    border-bottom-color: #ffe4e6;
+  }
+
+  .expense-total {
+    color: #be123c;
+    border-top-color: #fecdd3;
+  }
+
   .balance-box {
     margin-top: 14px;
     border: 1px solid #86efac;
@@ -2617,13 +2633,13 @@ function prosesCetakPDF() {
   <div class="cash-total">Total Masuk: ${rp(totalMasuk)}</div>
 
   <h2 style="color:#be123c">Pengeluaran Kas</h2>
-  <table>
+  <table class="expense-table">
     <thead>
       <tr><th style="width:28%">Tanggal</th><th>Keperluan</th><th class="right">Nominal</th></tr>
     </thead>
     <tbody>${rowsKeluar}</tbody>
   </table>
-  <div class="cash-total">Total Keluar: ${rp(totalKeluar)}</div>
+  <div class="cash-total expense-total">Total Keluar: ${rp(totalKeluar)}</div>
 
   <div class="balance-box">
     <div>
