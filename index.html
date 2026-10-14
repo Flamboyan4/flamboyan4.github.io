@@ -2519,7 +2519,10 @@ function salinLinkAgenda(url) {
       currentPhotoIndex = 0;
       currentPhotoCaption = title || 'Inventaris Warga';
       openModal('lightbox-modal');
-      renderLightboxMedia();
+      // Gunakan renderer lightbox yang sama dengan galeri dokumentasi.
+      // Sebelumnya memanggil renderLightboxMedia() yang tidak tersedia,
+      // sehingga modal terbuka tetapi isinya kosong.
+      updateLightboxView();
     }
 
     function loadInventarisWarga() {
