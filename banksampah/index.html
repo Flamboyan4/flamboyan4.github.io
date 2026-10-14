@@ -1081,8 +1081,8 @@
       }
     }
 
-    function bukaArsipGaleriModal() {
-      history.pushState({ modal: 'arsip' }, '', '#galeri');
+    function bukaArsipGaleriModal(tambahHistory = true) {
+      if (tambahHistory) history.pushState({ modal: 'arsip' }, '', '#galeri');
       const grid = document.getElementById('arsip-album-grid');
       let html = '';
 
@@ -1110,6 +1110,12 @@
 
     function tutupArsipGaleriModal() {
       document.getElementById('modal-arsip-galeri').classList.add('hidden');
+    }
+
+    function tutupArsipGaleriOnBackdrop(event) {
+      if (event && event.target && event.target.id === 'modal-arsip-galeri') {
+        tutupArsipGaleriModal();
+      }
     }
 
     async function bukaAlbumIndex(idx) {
@@ -1166,8 +1172,12 @@
       }
     }
 
-    function tutupGalleryGrid() {
+    function tutupGalleryGrid(kembaliKeArsip = true) {
       document.getElementById('modal-gallery-grid').classList.add('hidden');
+      if (kembaliKeArsip) {
+        // Kembali ke daftar album, bukan langsung ke halaman Bank Sampah.
+        bukaArsipGaleriModal(false);
+      }
     }
 
     // LIGHTBOX DENGAN ZOOM & SWIPE GESTUR
@@ -1426,18 +1436,33 @@
       resetSingleZoomState();
     }
 
-    // PENGATUR TOMBOL BACK HP & ESC PC (UNIVERSAL UNTUK SEMUA MODAL)
+    // PENGATUR TOMBOL BACK HP: tutup satu tingkat saja.
     window.addEventListener('popstate', function(event) {
+      const lightbox = document.getElementById('lightbox-modal');
+      const gallery = document.getElementById('modal-gallery-grid');
+      const arsip = document.getElementById('modal-arsip-galeri');
+
+      if (lightbox && !lightbox.classList.contains('hidden')) {
+        tutupLightbox();
+        return;
+      }
+      if (gallery && !gallery.classList.contains('hidden')) {
+        tutupGalleryGrid(true);
+        return;
+      }
+      if (arsip && !arsip.classList.contains('hidden')) {
+        tutupArsipGaleriModal();
+        return;
+      }
+
       const modals = [
-        'lightbox-modal', 'modal-single-player', 'modal-gallery-grid', 
-        'modal-arsip-galeri', 'modal-rincian', 'modal-sampah-bulan', 
+        'modal-single-player', 'modal-rincian', 'modal-sampah-bulan',
         'modal-tabungan-bulan', 'modal-cashflow-bulan'
       ];
       for (let mId of modals) {
         const el = document.getElementById(mId);
         if (el && !el.classList.contains('hidden')) {
           el.classList.add('hidden');
-          if (mId === 'lightbox-modal') document.getElementById('lightbox-media-container').innerHTML = '';
           if (mId === 'modal-single-player') document.getElementById('single-player-container').innerHTML = '';
           break;
         }
@@ -1483,9 +1508,12 @@
 
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
-        tutupLightbox();
-        tutupGalleryGrid();
-        tutupArsipGaleriModal();
+        const lightbox = document.getElementById('lightbox-modal');
+        const gallery = document.getElementById('modal-gallery-grid');
+        const arsip = document.getElementById('modal-arsip-galeri');
+        if (lightbox && !lightbox.classList.contains('hidden')) return tutupLightbox();
+        if (gallery && !gallery.classList.contains('hidden')) return tutupGalleryGrid(true);
+        if (arsip && !arsip.classList.contains('hidden')) return tutupArsipGaleriModal();
         tutupSinglePlayer();
         tutupRincianWarga();
         tutupPopupSampahBulanIni();
@@ -1522,6 +1550,14 @@ window.addEventListener('click', function(e) {
   modalIds.forEach(id => {
     const modalEl = document.getElementById(id);
     if (modalEl && e.target === modalEl) {
+      if (id === 'modal-gallery-grid') {
+        tutupGalleryGrid(true);
+        return;
+      }
+      if (id === 'modal-arsip-galeri') {
+        tutupArsipGaleriModal();
+        return;
+      }
       modalEl.classList.add('hidden');
       
       // Khusus lightbox gambar/video, bersihkan konten saat ditutup
