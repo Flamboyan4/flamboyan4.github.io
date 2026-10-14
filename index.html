@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Flamboyan 4 | Portal Informasi Warga Lorong</title>
+  <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8">
+  <link rel="shortcut icon" href="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8">
+  <link rel="apple-touch-icon" href="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8">
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons CDN -->
@@ -64,7 +67,7 @@
 
       <!-- Navigasi Kanan Navbar (Hasil Rapat & Live CCTV) -->
       <div class="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
-        <a href="rapat.html" class="p-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 transition group flex items-center space-x-1.5 text-xs font-semibold text-amber-200">
+        <a href="/rapat/" class="p-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 transition group flex items-center space-x-1.5 text-xs font-semibold text-amber-200">
           <i data-lucide="file-text" class="w-4 h-4 text-amber-300"></i>
           <span class="hidden sm:inline">Hasil Rapat</span>
         </a>
@@ -412,7 +415,7 @@
         </div>
 
         <!-- CARD 3: BANK SAMPAH (TERHUBUNG KE BANKSAMPAH.HTML) -->
-        <div id="bank-sampah" onclick="window.location.href='banksampah.html'" class="snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white hover:bg-emerald-50/30 rounded-xl shadow-sm border border-slate-200 hover:border-emerald-400 p-4 flex flex-col justify-between cursor-pointer transition transform hover:-translate-y-1 active:scale-98 group">
+        <div id="bank-sampah" onclick="window.location.href='/banksampah/'" class="snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white hover:bg-emerald-50/30 rounded-xl shadow-sm border border-slate-200 hover:border-emerald-400 p-4 flex flex-col justify-between cursor-pointer transition transform hover:-translate-y-1 active:scale-98 group">
           <div>
             <div class="flex items-center justify-between mb-2">
               <div class="flex items-center space-x-1.5">
@@ -808,7 +811,7 @@
   </div>
 
   <!-- LIGHTBOX MODAL FULLSCREEN -->
-  <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-between p-3 md:p-6 overflow-hidden select-none" onclick="closeLightboxModal()">
+  <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col items-center justify-between px-3 md:p-6 overflow-hidden select-none" style="min-height:100dvh; padding-top:max(0.75rem, env(safe-area-inset-top)); padding-bottom:max(0.75rem, env(safe-area-inset-bottom));" onclick="closeLightboxModal()">
     <div class="w-full flex items-center justify-between z-30 pb-2" onclick="event.stopPropagation()">
       <p id="lightbox-caption" class="text-xs md:text-sm font-semibold tracking-wide text-white truncate max-w-[70%]"></p>
       <div class="flex items-center space-x-2">
@@ -1455,22 +1458,20 @@ function salinLinkAgenda(url) {
       mediaItems.forEach((item, index) => {
         if (item.type === 'video') {
           gridHTML += `
-            <div class="relative group cursor-pointer bg-slate-900 rounded-xl overflow-hidden shadow-sm aspect-square border border-slate-700 flex items-center justify-center" onclick="openLightboxFromIndex(${index})">
+            <div class="h-40 md:h-48 relative group cursor-pointer bg-slate-900 rounded-xl overflow-hidden shadow-sm border border-slate-200 flex items-center justify-center" onclick="openLightboxFromIndex(${index})">
               <div class="p-3 bg-red-600/90 text-white rounded-full shadow-lg group-hover:scale-110 transition duration-300 z-10">
                 <i data-lucide="play" class="w-6 h-6 fill-current"></i>
               </div>
               <span class="absolute top-2 left-2 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded uppercase z-10">Video</span>
-              <span class="absolute bottom-1 right-1 bg-black/60 text-white text-[9px] px-1.5 py-0.5 rounded font-mono z-10">${index+1}</span>
             </div>
           `;
         } else {
           gridHTML += `
-            <div class="relative group cursor-pointer bg-slate-100 rounded-xl overflow-hidden shadow-sm aspect-square border border-slate-200" onclick="openLightboxFromIndex(${index})">
+            <div class="h-40 md:h-48 relative group cursor-pointer bg-slate-100 rounded-xl overflow-hidden shadow-sm border border-slate-200" onclick="openLightboxFromIndex(${index})">
               <img src="${item.url}" alt="Foto ${index+1}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
               <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold">
                 <i data-lucide="maximize-2" class="w-5 h-5"></i>
               </div>
-              <span class="absolute bottom-1 right-1 bg-black/60 text-white text-[9px] px-1.5 py-0.5 rounded font-mono">${index+1}</span>
             </div>
           `;
         }
@@ -1680,11 +1681,11 @@ function salinLinkAgenda(url) {
         const viewUrl = fileId ? `https://drive.google.com/file/d/${fileId}/view` : (item.rawUrl || item.url);
 
         container.innerHTML = `
-          <div class="relative w-full max-h-[75vh] max-w-sm sm:max-w-md md:max-w-xl mx-auto rounded-xl overflow-hidden bg-black shadow-2xl flex flex-col items-center justify-center" onclick="event.stopPropagation()">
-            <div class="w-full h-[55vh] md:h-[60vh] relative bg-black">
-              <iframe src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen class="w-full h-full border-0"></iframe>
+          <div class="relative w-full max-w-sm sm:max-w-md md:max-w-2xl mx-auto rounded-xl overflow-hidden bg-black shadow-2xl flex flex-col items-center justify-center" style="max-height:calc(100dvh - 8.5rem);" onclick="event.stopPropagation()">
+            <div class="w-full relative bg-black flex items-center justify-center" style="height:min(62dvh, calc(100dvh - 12rem)); min-height:280px;">
+              <iframe src="${embedUrl}" allow="autoplay; encrypted-media; fullscreen" allowfullscreen class="absolute inset-0 w-full h-full border-0 block"></iframe>
             </div>
-            <div class="p-2.5 w-full bg-slate-900 border-t border-slate-800 flex items-center justify-between px-4">
+            <div class="p-2.5 w-full bg-slate-900 border-t border-slate-800 flex items-center justify-between px-3 sm:px-4 shrink-0">
                 <span class="text-[10px] text-slate-400">Video bermasalah?</span>
                 <a href="${viewUrl}" target="_blank" class="bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg shadow flex items-center space-x-1 transition active:scale-95">
                     <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
