@@ -475,7 +475,6 @@
           <i data-lucide="images" class="w-6 h-6 text-indigo-600 shrink-0"></i>
           <h3 class="text-xl md:text-2xl font-bold text-slate-900">Dokumentasi & Inventaris</h3>
         </div>
-        <p class="text-xs text-slate-400 lg:hidden">Geser kesamping →</p>
       </div>
 
       <div class="flex lg:grid lg:grid-cols-2 gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-2">
@@ -491,8 +490,6 @@
                 Galeri <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
               </button>
             </div>
-            <p class="text-xs sm:text-sm text-slate-500 mb-3">Preview berganti otomatis dari dokumentasi kegiatan warga</p>
-
             <div onclick="openDokumentasiPreviewAktif()" class="relative h-44 sm:h-52 rounded-xl overflow-hidden bg-slate-900 cursor-pointer group border border-slate-200">
               <img id="dokumentasi-preview-img" src="" alt="Preview Dokumentasi" class="w-full h-full object-cover opacity-85 group-hover:scale-105 transition-all duration-500">
               <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/10 to-transparent flex items-end p-3.5">
@@ -519,7 +516,6 @@
               </h4>
               <span id="inventaris-warga-count" class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">0 Item</span>
             </div>
-            <p class="text-xs sm:text-sm text-slate-500 mb-3">Peralatan bersama yang tercatat dan dapat dipantau warga</p>
             <div id="container-inventaris-warga" class="space-y-2 max-h-52 overflow-y-auto pr-1 custom-scroll">
               <p class="text-xs sm:text-sm text-slate-400 italic">Data inventaris belum dihubungkan.</p>
             </div>
@@ -536,7 +532,7 @@
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        <div id="calendar-wrapper" class="lg:col-span-7 bg-white p-5 rounded-xl shadow-sm border border-slate-200 select-none touch-pan-y">
+        <div id="calendar-wrapper" class="lg:col-span-6 bg-white p-5 rounded-xl shadow-sm border border-slate-200 select-none touch-pan-y">
           <div class="flex items-center justify-between mb-4">
             <h4 id="calendar-month-year" class="font-bold text-slate-800 text-base md:text-lg">Bulan Tahun</h4>
             <div class="flex items-center space-x-1">
@@ -571,7 +567,7 @@
           <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 text-xs"></div>
         </div>
 
-        <div class="lg:col-span-5 bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+        <div class="lg:col-span-6 bg-white p-5 rounded-xl shadow-sm border border-slate-200">
           <h4 class="font-bold text-slate-800 text-base mb-3 flex items-center space-x-1.5">
             <i data-lucide="list-todo" class="w-4 h-4 text-indigo-600"></i>
             <span>Daftar Rencana mendatang</span>
@@ -2627,19 +2623,19 @@ function salinLinkAgenda(url) {
               badgeMultiPhoto = `<span data-folder-badge="${folderId || ''}" class="absolute top-3 left-3 bg-black/75 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-md flex items-center space-x-1 z-10 shadow-sm"><i data-lucide="folder" class="w-3.5 h-3.5"></i><span>${badgeText}</span></span>`;
             }
 
-            allHTML += `<div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition flex flex-col w-full h-full">
+            allHTML += `<div role="button" tabindex="0" onclick="openGalleryGridModal('${safePhotoString}', '${safeTitle}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openGalleryGridModal('${safePhotoString}', '${safeTitle}')}" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md hover:border-indigo-300 transition flex flex-col w-full h-full cursor-pointer group active:scale-[0.99]">
               <div class="p-3.5 bg-slate-50 border-b border-slate-100">
                 <span class="text-[10px] text-indigo-600 font-bold block uppercase tracking-wider mb-0.5">${tanggal}</span>
-                <h4 class="text-slate-800 font-bold text-sm md:text-base leading-snug break-words">${judul}</h4>
+                <h4 class="text-slate-800 font-bold text-sm md:text-base leading-snug break-words group-hover:text-indigo-700 transition">${judul}</h4>
               </div>
-              <div class="relative cursor-pointer overflow-hidden group bg-slate-100 h-40 md:h-48 w-full flex items-center justify-center shrink-0" data-folder-id="${folderId || ''}" onclick="openGalleryGridModal('${safePhotoString}', '${safeTitle}')">
+              <div class="relative overflow-hidden bg-slate-100 h-40 md:h-48 w-full items-center justify-center shrink-0 hidden sm:flex" data-folder-id="${folderId || ''}">
                 <img src="${firstFoto}" alt="${judul}" loading="lazy" referrerpolicy="no-referrer" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${PLACEHOLDER_IMG}'">
                 ${badgeMultiPhoto}
                 <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1 z-20"><i data-lucide="layout-grid" class="w-4 h-4"></i><span>Buka Galeri Media</span></div>
               </div>
-              <div class="p-4 flex-grow flex flex-col justify-between">
-                <p class="text-slate-600 text-xs md:text-sm break-words line-clamp-3">${deskripsi}</p>
-                <button onclick="openGalleryGridModal('${safePhotoString}', '${safeTitle}')" class="mt-4 w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-2.5 rounded-lg text-xs transition flex items-center justify-center space-x-1.5 shadow-sm"><i data-lucide="images" class="w-4 h-4"></i><span>Lihat Foto & Video (${badgeText || 'Album'})</span></button>
+              <div class="p-4 flex-grow flex items-center justify-between gap-3">
+                <p class="text-slate-600 text-xs md:text-sm break-words line-clamp-2">${deskripsi || 'Buka album dokumentasi'}</p>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-indigo-500 shrink-0 sm:hidden"></i>
               </div>
             </div>`;
           }
