@@ -629,7 +629,7 @@
 
   <!-- SCRIPT UTAMA -->
   <script>
-    const APPS_SCRIPT_PROXY_URL = "https://script.google.com/macros/s/AKfycbw_hwot5ecITBDLtXrZyE1Kb4ykH6el5YM4jylM97nldf6Yhu_bDc4qvbF_NovjrJJl0w/exec";
+    const APPS_SCRIPT_PROXY_URL = "https://script.google.com/macros/s/AKfycbyP8e5T6y15h4BK-F93i_5mbX8h7bQyJ2e_MidLszZlbP1TCXNrmHNPPEzFXdY082G3UA/exec";
     const CSV_DAFTAR_WARGA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=810048072&single=true&output=csv";
 
     const CSV_REKAP_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ1KzgZXl59vL9GgcGSIFSnePtYoOkY9hBupwChGdUcVEStYjv39PTXnQkBzl9MRUHPh1mhfOiuB5C/pub?gid=0&single=true&output=csv";
@@ -779,17 +779,43 @@
     function normalisasiDaftarWarga(rows) {
       if (!Array.isArray(rows) || rows.length === 0) return [];
       let nameCol = 0;
-      const header = rows[0].map(v => String(v || '').trim().toLowerCase());
-      const idx = header.findIndex(v => /nama|warga|blok/.test(v));
-      if (idx >= 0) nameCol = idx;
-      const start = idx >= 0 ? 1 : 0;
+      const firstRow = rows[0].map(v => String(v || '').trim().toLowerCase());
+      const headerIdx = firstRow.findIndex(v => /^(nama|nama warga|nama & blok|warga|blok)$/.test(v));
+      const hasHeader = headerIdx >= 0;
+      if (hasHeader) nameCol = headerIdx;
+      const startRow = hasHeader ? 1 : 0;
       const names = [];
-      for (let i = start; i < rows.length; i++) {
+      const seen = new Set();
+      for (let i = startRow; i < rows.length; i++) {
         const name = String(rows[i][nameCol] || '').trim();
-        if (!name || /^nama/i.test(name)) continue;
-        names.push(name);
+        if (!name) continue;
+        const key = name.toLowerCase();
+        if (!seen.has(key)) {
+          seen.add(key);
+          names.push(name);
+        }
       }
-      return [...new Set(names)].sort((a,b) => a.localeCompare(b, 'id', { numeric: true, sensitivity: 'base' }));
+      return names; // pertahankan urutan persis seperti sheet Daftar_Warga
+    }
+
+    function jsonpRequest(params = {}, timeoutMs = 20000) {
+      return new Promise((resolve, reject) => {
+        const cb = '__bs_cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+        const script = document.createElement('script');
+        const timer = setTimeout(() => cleanup(new Error('Koneksi ke Apps Script timeout.')), timeoutMs);
+        function cleanup(err, data) {
+          clearTimeout(timer);
+          try { delete window[cb]; } catch (_) { window[cb] = undefined; }
+          if (script.parentNode) script.parentNode.removeChild(script);
+          if (err) reject(err); else resolve(data);
+        }
+        window[cb] = data => cleanup(null, data);
+        const qs = new URLSearchParams({ ...params, callback: cb, _: String(Date.now()) });
+        script.src = `${APPS_SCRIPT_PROXY_URL}?${qs.toString()}`;
+        script.async = true;
+        script.onerror = () => cleanup(new Error('Gagal terhubung ke Apps Script.'));
+        document.head.appendChild(script);
+      });
     }
 
     async function muatDaftarWargaInput() {
@@ -800,11 +826,9 @@
       if (status) status.innerText = '';
 
       let names = [];
-      // Utama: baca langsung melalui Apps Script agar perubahan nama cepat masuk.
+      // Utama: baca langsung melalui Apps Script via JSONP (lebih aman dari masalah CORS browser).
       try {
-        const url = `${APPS_SCRIPT_PROXY_URL}?action=daftarWarga&_=${Date.now()}`;
-        const res = await fetch(url, { cache: 'no-store' });
-        const json = await res.json();
+        const json = await jsonpRequest({ action: 'daftarWarga' });
         if (json && json.status === 'success' && Array.isArray(json.data)) {
           names = json.data.map(v => String(v || '').trim()).filter(Boolean);
         }
@@ -823,7 +847,7 @@
         }
       }
 
-      names = [...new Set(names)].sort((a,b) => a.localeCompare(b, 'id', { numeric: true, sensitivity: 'base' }));
+      names = [...new Map(names.map(n => [n.toLowerCase(), n])).values()]; // urutan mengikuti sheet
       select.innerHTML = '<option value="">Pilih nama warga...</option>' + names.map(n => `<option value="${n.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}">${n.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</option>`).join('');
       if (status) status.innerText = names.length ? `${names.length} nama tersedia` : 'Daftar warga belum tersedia.';
     }
@@ -895,13 +919,10 @@
 
       setLoadingSimpanSetoran(true);
       try {
-        const params = new URLSearchParams({
+        const json = await jsonpRequest({
           action: 'setoran', nama, tanggal,
-          kardus: String(kardus), botol: String(botol), gelas: String(gelas), kaleng: String(kaleng),
-          _: String(Date.now())
-        });
-        const res = await fetch(`${APPS_SCRIPT_PROXY_URL}?${params.toString()}`, { cache: 'no-store' });
-        const json = await res.json();
+          kardus: String(kardus), botol: String(botol), gelas: String(gelas), kaleng: String(kaleng)
+        }, 30000);
         if (!json || json.status !== 'success') throw new Error(json?.message || 'Gagal menyimpan setoran.');
 
         // Apps Script mengembalikan data terbaru langsung dari Sheet, jadi tidak menunggu cache CSV.
