@@ -155,7 +155,13 @@
           <i data-lucide="wallet" class="w-6 h-6 text-indigo-600 shrink-0"></i>
           <h3 class="text-xl md:text-2xl font-bold text-slate-900">Laporan Keuangan Kas</h3>
         </div>
-        <span id="label-update-kas" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full whitespace-nowrap">Update Rincian Kas</span>
+        <div class="flex items-center gap-2 flex-wrap justify-end">
+          <span id="label-update-kas" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full whitespace-nowrap">Update Rincian Kas</span>
+          <button onclick="openModalCetakKas()" class="inline-flex items-center gap-1.5 text-xs bg-slate-900 hover:bg-slate-800 text-white font-semibold px-3 py-1.5 rounded-full transition shadow-sm" title="Cetak laporan keuangan">
+            <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+            <span>Cetak Laporan</span>
+          </button>
+        </div>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 w-full items-center">
@@ -703,7 +709,65 @@
     </div>
   </div>
   
-<!-- MODAL KEUANGAN -->
+<!-- MODAL CETAK LAPORAN KEUANGAN -->
+  <div id="modal-cetak-kas" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="closeModalCetakKas()">
+    <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden" onclick="event.stopPropagation()">
+      <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2"><i data-lucide="printer" class="w-5 h-5 text-indigo-600"></i>Cetak Laporan Keuangan</h3>
+          <p class="text-xs text-slate-500 mt-1">Pilih periode laporan yang akan dicetak.</p>
+        </div>
+        <button onclick="closeModalCetakKas()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="p-5 space-y-4 text-sm">
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5">Jenis Periode</label>
+          <select id="cetak-kas-tipe" onchange="updateCetakKasFields()" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="bulanan">Bulanan</option>
+            <option value="rentang">Rentang Bulan</option>
+            <option value="tahunan">Tahunan</option>
+            <option value="semua">Semua Transaksi</option>
+          </select>
+        </div>
+        <div id="cetak-kas-bulanan" class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Bulan</label>
+            <select id="cetak-kas-bulan" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Tahun</label>
+            <input id="cetak-kas-tahun" type="number" min="2000" max="2100" class="w-full border border-slate-200 rounded-xl px-3 py-2.5" />
+          </div>
+        </div>
+        <div id="cetak-kas-rentang" class="hidden grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Bulan Awal</label>
+            <select id="cetak-kas-bulan-awal" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Bulan Akhir</label>
+            <select id="cetak-kas-bulan-akhir" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white"></select>
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Tahun</label>
+            <input id="cetak-kas-tahun-rentang" type="number" min="2000" max="2100" class="w-full border border-slate-200 rounded-xl px-3 py-2.5" />
+          </div>
+        </div>
+        <div id="cetak-kas-tahunan" class="hidden">
+          <label class="block text-xs font-semibold text-slate-500 mb-1">Tahun</label>
+          <input id="cetak-kas-tahun-full" type="number" min="2000" max="2100" class="w-full border border-slate-200 rounded-xl px-3 py-2.5" />
+        </div>
+        <div class="pt-2 border-t border-slate-100">
+          <p class="text-[11px] text-slate-500 leading-relaxed">Laporan dibuat rapat dan berkesinambungan. Baris tabel tidak akan dipotong di tengah halaman, dan bagian pengesahan akan dipindahkan utuh ke halaman berikutnya bila ruang tersisa tidak cukup.</p>
+        </div>
+        <button onclick="cetakLaporanKas()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl py-3 transition flex items-center justify-center gap-2">
+          <i data-lucide="printer" class="w-4 h-4"></i><span>Buka Tampilan Cetak</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL KEUANGAN -->
   <div id="modal-keuangan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="closeModalDirect('modal-keuangan')">
     <div class="bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
@@ -2045,6 +2109,155 @@ function salinLinkAgenda(url) {
       if (currentPengeluaranMonthIndex < 0) currentPengeluaranMonthIndex = 0;
       if (currentPengeluaranMonthIndex >= monthlyKeuanganList.length) currentPengeluaranMonthIndex = monthlyKeuanganList.length - 1;
       updatePengeluaranCardView();
+    }
+
+    // CETAK LAPORAN KEUANGAN KAS
+    const bulanNamaCetakKas = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+    function isiSelectBulanCetakKas() {
+      const ids = ['cetak-kas-bulan', 'cetak-kas-bulan-awal', 'cetak-kas-bulan-akhir'];
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el || el.options.length) return;
+        bulanNamaCetakKas.forEach((nama, i) => {
+          const opt = document.createElement('option');
+          opt.value = i;
+          opt.textContent = nama;
+          el.appendChild(opt);
+        });
+      });
+    }
+
+    function openModalCetakKas() {
+      isiSelectBulanCetakKas();
+      const now = new Date();
+      let month = now.getMonth(), year = now.getFullYear();
+      if (monthlyKeuanganList.length) {
+        const last = monthlyKeuanganList[monthlyKeuanganList.length - 1];
+        month = last.month; year = last.year;
+      }
+      document.getElementById('cetak-kas-bulan').value = month;
+      document.getElementById('cetak-kas-bulan-awal').value = month;
+      document.getElementById('cetak-kas-bulan-akhir').value = month;
+      document.getElementById('cetak-kas-tahun').value = year;
+      document.getElementById('cetak-kas-tahun-rentang').value = year;
+      document.getElementById('cetak-kas-tahun-full').value = year;
+      document.getElementById('cetak-kas-tipe').value = 'bulanan';
+      updateCetakKasFields();
+      document.getElementById('modal-cetak-kas').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeModalCetakKas() {
+      document.getElementById('modal-cetak-kas')?.classList.add('hidden');
+    }
+
+    function updateCetakKasFields() {
+      const tipe = document.getElementById('cetak-kas-tipe')?.value || 'bulanan';
+      document.getElementById('cetak-kas-bulanan')?.classList.toggle('hidden', tipe !== 'bulanan');
+      document.getElementById('cetak-kas-rentang')?.classList.toggle('hidden', tipe !== 'rentang');
+      document.getElementById('cetak-kas-tahunan')?.classList.toggle('hidden', tipe !== 'tahunan');
+    }
+
+    function escapeCetakKas(v) {
+      return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    function nominalCetakKas(raw) {
+      if (typeof raw === 'number') return raw;
+      const s = String(raw ?? '').replace(/\./g,'').replace(/,/g,'').replace(/[^0-9-]/g,'');
+      return parseFloat(s) || 0;
+    }
+
+    function cetakLaporanKas() {
+      if (!Array.isArray(globalKeuanganData) || globalKeuanganData.length === 0) {
+        alert('Data keuangan belum tersedia. Tunggu data selesai dimuat lalu coba kembali.');
+        return;
+      }
+
+      const tipe = document.getElementById('cetak-kas-tipe').value;
+      let periode = 'Semua Transaksi';
+      let filterFn = () => true;
+
+      if (tipe === 'bulanan') {
+        const month = Number(document.getElementById('cetak-kas-bulan').value);
+        const year = Number(document.getElementById('cetak-kas-tahun').value);
+        periode = `Periode ${bulanNamaCetakKas[month]} ${year}`;
+        filterFn = row => {
+          const keys = Object.keys(row), d = parseRowDate(row[keys[0]]);
+          return d && d.month === month && d.year === year;
+        };
+      } else if (tipe === 'rentang') {
+        const awal = Number(document.getElementById('cetak-kas-bulan-awal').value);
+        const akhir = Number(document.getElementById('cetak-kas-bulan-akhir').value);
+        const year = Number(document.getElementById('cetak-kas-tahun-rentang').value);
+        if (awal > akhir) return alert('Bulan awal tidak boleh lebih besar dari bulan akhir.');
+        periode = `Periode ${bulanNamaCetakKas[awal]} s.d. ${bulanNamaCetakKas[akhir]} ${year}`;
+        filterFn = row => {
+          const keys = Object.keys(row), d = parseRowDate(row[keys[0]]);
+          return d && d.year === year && d.month >= awal && d.month <= akhir;
+        };
+      } else if (tipe === 'tahunan') {
+        const year = Number(document.getElementById('cetak-kas-tahun-full').value);
+        periode = `Laporan Tahunan ${year}`;
+        filterFn = row => {
+          const keys = Object.keys(row), d = parseRowDate(row[keys[0]]);
+          return d && d.year === year;
+        };
+      }
+
+      let data = globalKeuanganData.filter(filterFn).slice();
+      data.sort((a,b) => {
+        const ka=Object.keys(a), kb=Object.keys(b);
+        const da=parseRowDate(a[ka[0]]), db=parseRowDate(b[kb[0]]);
+        if (!da || !db) return 0;
+        return new Date(da.year,da.month,da.day||1) - new Date(db.year,db.month,db.day||1);
+      });
+
+      let totalMasuk=0, totalKeluar=0;
+      let rows='';
+      data.forEach((row,idx) => {
+        const keys=Object.keys(row);
+        if (keys.length < 4) return;
+        const tanggal=row[keys[0]] || '-';
+        const keterangan=row[keys[1]] || '-';
+        const kategori=String(row[keys[2]] || '').trim();
+        const jumlah=nominalCetakKas(row[keys[3]]);
+        if (kategori.toLowerCase()==='pemasukan') totalMasuk += jumlah;
+        if (kategori.toLowerCase()==='pengeluaran') totalKeluar += jumlah;
+        rows += `<tr>
+          <td class="c">${idx+1}</td>
+          <td class="nowrap">${escapeCetakKas(tanggal)}</td>
+          <td>${escapeCetakKas(keterangan)}</td>
+          <td class="c">${escapeCetakKas(kategori)}</td>
+          <td class="r ${kategori.toLowerCase()==='pemasukan'?'masuk':'keluar'}">${escapeCetakKas(formatRupiah(jumlah))}</td>
+        </tr>`;
+      });
+      if (!rows) rows='<tr><td colspan="5" class="empty">Tidak ada transaksi pada periode ini.</td></tr>';
+      const saldo=totalMasuk-totalKeluar;
+      const tanggalCetak = new Date().toLocaleDateString('id-ID', {day:'2-digit',month:'long',year:'numeric'});
+
+      const w=window.open('', '_blank');
+      if (!w) return alert('Pop-up diblokir. Izinkan pop-up lalu coba kembali.');
+      w.document.write(`<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Laporan Keuangan Kas - ${escapeCetakKas(periode)}</title>
+<style>
+@page{size:A4 portrait;margin:11mm 12mm 12mm}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#1e293b;font-size:9.5px;line-height:1.35;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.header{display:flex;align-items:center;gap:12px;border-bottom:2px solid #1e293b;padding-bottom:9px;margin-bottom:10px;break-inside:avoid;page-break-inside:avoid}.logo{width:54px;height:54px;object-fit:contain}.headtext{flex:1}.headtext h1{font-size:16px;margin:0 0 3px;font-weight:800}.headtext p{margin:2px 0;color:#475569}.periode{font-weight:700;color:#312e81!important}.badge{font-size:8px;font-weight:700;border:1px solid #c7d2fe;background:#eef2ff;color:#3730a3;padding:4px 7px;border-radius:12px;white-space:nowrap}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:9px 0 11px;break-inside:avoid;page-break-inside:avoid}.metric{border:1px solid #cbd5e1;border-radius:5px;padding:8px}.mlabel{font-size:7.5px;color:#64748b;text-transform:uppercase;font-weight:700}.mvalue{font-size:12px;font-weight:800;margin-top:3px}.masuk{color:#047857}.keluar{color:#be123c}.saldo{color:#3730a3}
+h2{font-size:10.5px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collapse:collapse;table-layout:fixed}thead{display:table-header-group}tfoot{display:table-footer-group}tr{break-inside:avoid;page-break-inside:avoid}th{background:#f1f5f9;color:#334155;font-size:8.5px;text-align:left;border:1px solid #cbd5e1;padding:5px}td{border:1px solid #dbe3ec;padding:4.5px 5px;vertical-align:top;overflow-wrap:anywhere}.c{text-align:center}.r{text-align:right}.nowrap{white-space:nowrap}.empty{text-align:center;color:#64748b;padding:12px}
+.totalbox{margin-top:8px;border:1px solid #cbd5e1;background:#f8fafc;padding:7px 9px;display:grid;grid-template-columns:1fr auto;gap:3px 12px;break-inside:avoid;page-break-inside:avoid}.totalbox strong{font-size:10.5px}.approval{margin-top:15mm;text-align:center;break-inside:avoid;page-break-inside:avoid}.approval>div{width:75mm;max-width:100%;margin:0 auto}.sign-title{font-size:9px;margin-bottom:23mm}.sign-line{border-top:1px solid #475569;padding-top:4px;font-size:9px;font-weight:700}.note{margin-top:8px;font-size:7.5px;color:#64748b;border-top:1px solid #e2e8f0;padding-top:5px}
+@media screen{body{max-width:186mm;margin:14px auto;padding:0 4px;background:white}}
+</style></head><body>
+<header class="header"><img class="logo" src="https://drive.google.com/thumbnail?id=1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8&sz=w300" alt="Logo"><div class="headtext"><h1>LAPORAN KEUANGAN KAS WARGA FLAMBOYAN 4</h1><p>RT 001 RW 026 Pesona Kahuripan 2</p><p class="periode">${escapeCetakKas(periode)}</p></div><span class="badge">LAPORAN KAS</span></header>
+<div class="summary"><div class="metric"><div class="mlabel">Total Pemasukan</div><div class="mvalue masuk">${escapeCetakKas(formatRupiah(totalMasuk))}</div></div><div class="metric"><div class="mlabel">Total Pengeluaran</div><div class="mvalue keluar">${escapeCetakKas(formatRupiah(totalKeluar))}</div></div><div class="metric"><div class="mlabel">Saldo Periode</div><div class="mvalue saldo">${escapeCetakKas(formatRupiah(saldo))}</div></div></div>
+<h2>Rincian Transaksi</h2><table><colgroup><col style="width:6%"><col style="width:17%"><col style="width:42%"><col style="width:15%"><col style="width:20%"></colgroup><thead><tr><th class="c">No</th><th>Tanggal</th><th>Keterangan</th><th class="c">Kategori</th><th class="r">Jumlah</th></tr></thead><tbody>${rows}</tbody></table>
+<div class="totalbox"><span>Total Pemasukan</span><strong class="masuk">${escapeCetakKas(formatRupiah(totalMasuk))}</strong><span>Total Pengeluaran</span><strong class="keluar">${escapeCetakKas(formatRupiah(totalKeluar))}</strong><span>Saldo Akhir Periode</span><strong class="saldo">${escapeCetakKas(formatRupiah(saldo))}</strong></div>
+<section class="approval"><div><div class="sign-title">Mengetahui,<br>Humas Flamboyan 4</div><div class="sign-line">Heri Juwandi</div></div></section>
+<div class="note">Dicetak pada ${escapeCetakKas(tanggalCetak)} • Flamboyan 4 • Data bersumber dari pembukuan kas pada portal warga.</div>
+<script>window.onload=()=>{setTimeout(()=>window.print(),350)}<\/script></body></html>`);
+      w.document.close();
+      closeModalCetakKas();
     }
 
     // PROSES PERHITUNGAN KEUANGAN
