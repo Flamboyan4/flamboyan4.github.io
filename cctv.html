@@ -2,210 +2,283 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Live CCTV Lorong | Flamboyan 4</title>
-  <!-- Tailwind CSS CDN -->
+  <link rel="icon" href="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" type="image/png">
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
   <style>
-    body {
-      background-color: #0f172a;
-      color: #f8fafc;
-      user-select: none;
-    }
+    body { background:#0f172a; color:#f8fafc; user-select:none; }
+    video { background:#000; }
+    .safe-top { padding-top: env(safe-area-inset-top); }
+    .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
   </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans">
+<body class="min-h-screen flex flex-col font-sans safe-top safe-bottom">
 
-  <!-- Header VMS Dedicated -->
-  <header class="bg-slate-900 border-b border-slate-800 px-4 py-3 sticky top-0 z-40 shadow-lg">
-    <div class="max-w-7xl mx-auto flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <a href="index.html" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center space-x-1 text-xs font-semibold">
-          <i data-lucide="arrow-left" class="w-4 h-4"></i>
-          <span>Kembali ke Portal</span>
-        </a>
-        <div class="h-5 w-[1px] bg-slate-700 hidden sm:block"></div>
-        <h1 class="text-sm sm:text-base font-bold text-white flex items-center space-x-2">
-          <i data-lucide="video" class="w-5 h-5 text-emerald-400"></i>
-          <span>Web VMS Monitoring CCTV Lorong</span>
-        </h1>
-      </div>
-
-      <div class="flex items-center space-x-2">
-        <div id="vms-status-badge" class="bg-rose-500/20 text-rose-300 border border-rose-500/30 px-3 py-1 rounded-xl text-xs font-semibold flex items-center space-x-1.5">
-          <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-          <span id="vms-status-text">Belum Terhubung</span>
-        </div>
-
-        <button onclick="openModalPairing()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-md">
-          <i data-lucide="link" class="w-4 h-4"></i>
-          <span class="hidden sm:inline">Hubungkan Stream</span>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Grid CCTV -->
-  <main class="max-w-7xl mx-auto p-4 flex-grow w-full space-y-4">
-
-    <!-- Petunjuk Singkat -->
-    <div id="pairing-notice" class="bg-indigo-950/80 border border-indigo-800/80 p-3.5 rounded-xl text-xs text-indigo-200 flex flex-col sm:flex-row items-center justify-between gap-2">
-      <div class="flex items-center space-x-2">
-        <i data-lucide="info" class="w-4 h-4 text-indigo-400 shrink-0"></i>
-        <span>Masukkan URL Stream HTTPS / Embed ID RTSP.me untuk menampilkan siaran 7 kamera secara real-time.</span>
-      </div>
-      <button onclick="openModalPairing()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1 rounded-lg text-xs transition shrink-0">Input Link Stream &rarr;</button>
+<header class="bg-slate-900 border-b border-slate-800 px-3 sm:px-4 py-3 sticky top-0 z-40 shadow-lg">
+  <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
+    <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+      <a href="/" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center gap-1 text-xs font-semibold shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i><span class="hidden sm:inline">Kembali ke Portal</span>
+      </a>
+      <div class="h-5 w-px bg-slate-700 hidden sm:block"></div>
+      <h1 class="text-xs sm:text-base font-bold text-white flex items-center gap-2 truncate">
+        <i data-lucide="video" class="w-5 h-5 text-emerald-400 shrink-0"></i>
+        <span class="truncate">Live CCTV Flamboyan 4</span>
+      </h1>
     </div>
 
-    <!-- GRID 7 KAMERA -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-
-      <script>
-        const camTitles = [
-          "CAM 01 - Portal Gerbang Depan",
-          "CAM 02 - Gang Utama 1",
-          "CAM 03 - Gang Utama 2",
-          "CAM 04 - Area Pos Kamling",
-          "CAM 05 - Blok Belakang 1",
-          "CAM 06 - Blok Belakang 2",
-          "CAM 07 - Sudut Ujung Lorong"
-        ];
-
-        for (let i = 1; i <= 7; i++) {
-          document.write(`
-            <div id="card-cam-${i}" class="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden flex flex-col justify-between shadow-md transition-all">
-              <div class="p-2.5 bg-slate-950 border-b border-slate-800 flex items-center justify-between text-xs">
-                <span class="font-bold text-slate-200 flex items-center space-x-1.5">
-                  <i data-lucide="camera" class="w-3.5 h-3.5 text-indigo-400"></i>
-                  <span>${camTitles[i-1]}</span>
-                </span>
-                <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-mono">CH ${i}</span>
-              </div>
-
-              <div id="container-cam-${i}" class="relative aspect-video bg-black flex items-center justify-center overflow-hidden group">
-                <iframe id="cctv-frame-${i}" class="w-full h-full border-0 hidden" allow="autoplay; fullscreen" allowfullscreen></iframe>
-                
-                <div id="cctv-placeholder-${i}" class="text-center p-4">
-                  <i data-lucide="video-off" class="w-8 h-8 text-slate-600 mx-auto mb-2"></i>
-                  <p class="text-xs text-slate-400 font-medium">${camTitles[i-1]}</p>
-                  <p class="text-[10px] text-slate-500 mt-1">Siaran Belum Dihubungkan</p>
-                </div>
-              </div>
-
-              <div class="p-2 bg-slate-950 border-t border-slate-800 flex justify-between items-center text-[11px] text-slate-400">
-                <button onclick="openDirectTab(${i})" class="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center space-x-1">
-                  <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-                  <span>Buka Tab Baru</span>
-                </button>
-                
-                <button onclick="fullscreenCam(${i})" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1 rounded-lg font-semibold flex items-center space-x-1.5 transition active:scale-95">
-                  <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-emerald-400"></i>
-                  <span>Layar Penuh</span>
-                </button>
-              </div>
-            </div>
-          `);
-        }
-      </script>
-
+    <div class="flex items-center gap-2 shrink-0">
+      <div id="vms-status-badge" class="bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2.5 sm:px-3 py-1 rounded-xl text-[10px] sm:text-xs font-semibold flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+        <span id="vms-status-text">Gateway belum diatur</span>
+      </div>
+      <button onclick="openModalGateway()" class="bg-indigo-600 hover:bg-indigo-500 text-white p-2 sm:px-3 sm:py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md">
+        <i data-lucide="settings-2" class="w-4 h-4"></i><span class="hidden sm:inline">Gateway</span>
+      </button>
     </div>
-  </main>
+  </div>
+</header>
 
-  <!-- MODAL INPUT STREAM LINK -->
-  <div id="modal-pairing" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4" onclick="closeModalPairing()">
-    <div class="bg-slate-900 border border-slate-800 text-white w-full max-w-md rounded-2xl shadow-2xl p-5 space-y-4" onclick="event.stopPropagation()">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 class="font-bold text-sm md:text-base flex items-center space-x-2">
-          <i data-lucide="link" class="w-5 h-5 text-emerald-400"></i>
-          <span>Pengaturan URL Stream CCTV</span>
-        </h3>
-        <button onclick="closeModalPairing()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+<main class="max-w-7xl mx-auto p-3 sm:p-4 flex-grow w-full space-y-4">
+  <div id="pairing-notice" class="bg-indigo-950/80 border border-indigo-800/80 p-3.5 rounded-xl text-xs text-indigo-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+    <div class="flex items-start gap-2 leading-relaxed">
+      <i data-lucide="info" class="w-4 h-4 text-indigo-400 shrink-0 mt-0.5"></i>
+      <span>Halaman GitHub Pages ini menampilkan stream dari gateway HTTPS. CloudID/username/password CCTV tidak disimpan di web. Jalankan bridge XMEye/VMS + MediaMTX pada PC/VPS, lalu masukkan URL gateway HTTPS di sini.</span>
+    </div>
+    <button onclick="openModalGateway()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shrink-0">Atur Gateway →</button>
+  </div>
+
+  <div id="grid-cctv" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+</main>
+
+<div id="modal-gateway" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4" onclick="closeModalGateway()">
+  <div class="bg-slate-900 border border-slate-700 text-white w-full max-w-lg rounded-2xl shadow-2xl p-5 space-y-4" onclick="event.stopPropagation()">
+    <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+      <div>
+        <h3 class="font-bold text-sm md:text-base flex items-center gap-2"><i data-lucide="server" class="w-5 h-5 text-emerald-400"></i> Gateway Streaming</h3>
+        <p class="text-[11px] text-slate-400 mt-1">Tidak menyimpan password CCTV. Hanya URL gateway publik.</p>
+      </div>
+      <button onclick="closeModalGateway()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+
+    <div class="space-y-3">
+      <div>
+        <label class="block text-xs text-slate-300 font-medium mb-1.5">URL Gateway HTTPS</label>
+        <input type="url" id="input-gateway-url" placeholder="https://cctv.flamboyan4.web.id" class="w-full text-xs p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-indigo-500 font-mono">
+        <p class="text-[10px] text-slate-500 mt-1.5">Contoh endpoint HLS: /cam01/index.m3u8 sampai /cam07/index.m3u8</p>
       </div>
 
-      <div class="space-y-3">
-        <label class="block text-xs text-slate-300 font-medium">Masukkan Embed ID RTSP.me / URL Stream HTTPS:</label>
-        <input type="text" id="input-stream-url" placeholder="Contoh: https://rtsp.me/embed/8lcd0nS9/..." class="w-full text-xs p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-indigo-500 font-mono">
+      <div>
+        <label class="block text-xs text-slate-300 font-medium mb-1.5">Mode Player</label>
+        <select id="input-player-mode" class="w-full text-xs p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-indigo-500">
+          <option value="hls">HLS (direkomendasikan untuk GitHub Pages)</option>
+          <option value="webrtc">MediaMTX WebRTC iframe</option>
+        </select>
+      </div>
 
-        <button onclick="saveStreamUrl()" class="w-full bg-indigo-600 hover:bg-indigo-500 font-bold py-2.5 rounded-xl text-xs transition">Simpan & Tampilkan</button>
+      <div class="grid grid-cols-2 gap-2">
+        <button onclick="saveGateway()" class="bg-indigo-600 hover:bg-indigo-500 font-bold py-2.5 rounded-xl text-xs transition">Simpan & Tampilkan</button>
+        <button onclick="clearGateway()" class="bg-slate-800 hover:bg-slate-700 font-bold py-2.5 rounded-xl text-xs transition">Hapus Pengaturan</button>
       </div>
     </div>
   </div>
+</div>
 
-  <script>
+<script>
+  const camTitles = [
+    "CAM 01 - Portal Gerbang Depan",
+    "CAM 02 - Gang Utama 1",
+    "CAM 03 - Gang Utama 2",
+    "CAM 04 - Area Pos Kamling",
+    "CAM 05 - Blok Belakang 1",
+    "CAM 06 - Blok Belakang 2",
+    "CAM 07 - Sudut Ujung Lorong"
+  ];
+
+  let gatewayUrl = localStorage.getItem('flamboyan4_cctv_gateway_url') || '';
+  let playerMode = localStorage.getItem('flamboyan4_cctv_player_mode') || 'hls';
+  const hlsInstances = {};
+
+  function renderCards() {
+    const grid = document.getElementById('grid-cctv');
+    grid.innerHTML = camTitles.map((title, idx) => {
+      const ch = idx + 1;
+      return `
+        <section class="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden shadow-md">
+          <div class="p-2.5 bg-slate-950 border-b border-slate-800 flex items-center justify-between text-xs">
+            <span class="font-bold text-slate-200 flex items-center gap-1.5 min-w-0">
+              <i data-lucide="camera" class="w-3.5 h-3.5 text-indigo-400 shrink-0"></i>
+              <span class="truncate">${title}</span>
+            </span>
+            <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-mono shrink-0">CH ${ch}</span>
+          </div>
+
+          <div id="container-cam-${ch}" class="relative aspect-video bg-black flex items-center justify-center overflow-hidden group">
+            <video id="video-cam-${ch}" class="w-full h-full object-contain hidden" controls playsinline muted autoplay></video>
+            <iframe id="iframe-cam-${ch}" class="w-full h-full border-0 hidden" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+            <div id="placeholder-cam-${ch}" class="text-center p-4">
+              <i data-lucide="video-off" class="w-8 h-8 text-slate-600 mx-auto mb-2"></i>
+              <p class="text-xs text-slate-400 font-medium">${title}</p>
+              <p id="status-cam-${ch}" class="text-[10px] text-slate-500 mt-1">Menunggu gateway</p>
+            </div>
+          </div>
+
+          <div class="p-2 bg-slate-950 border-t border-slate-800 flex justify-between items-center text-[11px] text-slate-400">
+            <button onclick="reloadCam(${ch})" class="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i><span>Muat Ulang</span>
+            </button>
+            <button onclick="fullscreenCam(${ch})" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1 rounded-lg font-semibold flex items-center gap-1.5 transition active:scale-95">
+              <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-emerald-400"></i><span>Layar Penuh</span>
+            </button>
+          </div>
+        </section>`;
+    }).join('');
     lucide.createIcons();
+  }
 
-    let activeStreamUrl = localStorage.getItem('flamboyan4_cctv_stream_url') || '';
+  function normalizeBase(url) { return url.replace(/\/+$/, ''); }
 
-    function openModalPairing() {
-      document.getElementById('modal-pairing').classList.remove('hidden');
+  function setGlobalStatus(ok, text) {
+    const badge = document.getElementById('vms-status-badge');
+    const label = document.getElementById('vms-status-text');
+    if (ok) {
+      badge.className = 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 sm:px-3 py-1 rounded-xl text-[10px] sm:text-xs font-semibold flex items-center gap-1.5';
+      badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span><span id="vms-status-text"></span>';
+      document.getElementById('vms-status-text').innerText = text;
+    } else {
+      badge.className = 'bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2.5 sm:px-3 py-1 rounded-xl text-[10px] sm:text-xs font-semibold flex items-center gap-1.5';
+      badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span><span id="vms-status-text"></span>';
+      document.getElementById('vms-status-text').innerText = text;
+    }
+  }
+
+  function stopCam(ch) {
+    if (hlsInstances[ch]) { try { hlsInstances[ch].destroy(); } catch(e) {} delete hlsInstances[ch]; }
+    const video = document.getElementById(`video-cam-${ch}`);
+    const iframe = document.getElementById(`iframe-cam-${ch}`);
+    if (video) { try { video.pause(); } catch(e) {} video.removeAttribute('src'); video.load(); video.classList.add('hidden'); }
+    if (iframe) { iframe.src = 'about:blank'; iframe.classList.add('hidden'); }
+  }
+
+  function loadCam(ch) {
+    stopCam(ch);
+    const placeholder = document.getElementById(`placeholder-cam-${ch}`);
+    const status = document.getElementById(`status-cam-${ch}`);
+    const video = document.getElementById(`video-cam-${ch}`);
+    const iframe = document.getElementById(`iframe-cam-${ch}`);
+
+    if (!gatewayUrl) {
+      placeholder.classList.remove('hidden');
+      status.innerText = 'Menunggu gateway';
+      return;
     }
 
-    function closeModalPairing() {
-      document.getElementById('modal-pairing').classList.add('hidden');
-    }
+    const base = normalizeBase(gatewayUrl);
+    status.innerText = 'Menghubungkan...';
+    placeholder.classList.remove('hidden');
 
-    function saveStreamUrl() {
-      const val = document.getElementById('input-stream-url').value.trim();
-      if (!val) return alert("Masukkan URL Stream / Embed ID terlebih dahulu.");
-      
-      activeStreamUrl = val;
-      localStorage.setItem('flamboyan4_cctv_stream_url', val);
-      closeModalPairing();
-      applyStreams();
-    }
-
-    function applyStreams() {
-      if (!activeStreamUrl) return;
-
-      document.getElementById('vms-status-badge').className = "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-xl text-xs font-semibold flex items-center space-x-1.5";
-      document.getElementById('vms-status-text').innerText = "Terhubung";
-      document.getElementById('pairing-notice').classList.add('hidden');
-
-      for (let ch = 1; ch <= 7; ch++) {
-        const iframe = document.getElementById(`cctv-frame-${ch}`);
-        const placeholder = document.getElementById(`cctv-placeholder-${ch}`);
-
-        let finalUrl = activeStreamUrl;
-        if (!finalUrl.startsWith('http')) {
-          finalUrl = `https://rtsp.me/embed/${activeStreamUrl}/?channel=${ch}`;
-        }
-
-        iframe.src = finalUrl;
-        iframe.classList.remove('hidden');
+    if (playerMode === 'webrtc') {
+      // MediaMTX built-in WebRTC reader page: https://host:8889/cam01/
+      iframe.src = `${base}/cam${String(ch).padStart(2,'0')}/`;
+      iframe.onload = () => {
         placeholder.classList.add('hidden');
-      }
+        iframe.classList.remove('hidden');
+      };
+      return;
     }
 
-    function openDirectTab(ch) {
-      if (!activeStreamUrl) return openModalPairing();
-      let finalUrl = activeStreamUrl;
-      if (!finalUrl.startsWith('http')) {
-        finalUrl = `https://rtsp.me/embed/${activeStreamUrl}/?channel=${ch}`;
-      }
-      window.open(finalUrl, '_blank');
+    const hlsUrl = `${base}/cam${String(ch).padStart(2,'0')}/index.m3u8`;
+
+    if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = hlsUrl;
+      video.addEventListener('loadedmetadata', () => {
+        placeholder.classList.add('hidden');
+        video.classList.remove('hidden');
+        video.play().catch(()=>{});
+      }, { once:true });
+      video.addEventListener('error', () => { status.innerText = 'Stream tidak dapat diputar'; }, { once:true });
+    } else if (window.Hls && Hls.isSupported()) {
+      const hls = new Hls({
+        lowLatencyMode: true,
+        liveSyncDurationCount: 2,
+        liveMaxLatencyDurationCount: 5,
+        enableWorker: true
+      });
+      hlsInstances[ch] = hls;
+      hls.loadSource(hlsUrl);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        placeholder.classList.add('hidden');
+        video.classList.remove('hidden');
+        video.play().catch(()=>{});
+      });
+      hls.on(Hls.Events.ERROR, (_, data) => {
+        if (data.fatal) {
+          placeholder.classList.remove('hidden');
+          video.classList.add('hidden');
+          status.innerText = 'Gateway/stream belum siap';
+        }
+      });
+    } else {
+      status.innerText = 'Browser tidak mendukung HLS';
     }
+  }
 
-    function fullscreenCam(ch) {
-      const container = document.getElementById(`container-cam-${ch}`);
-      if (!container) return;
-
-      if (container.requestFullscreen) {
-        container.requestFullscreen();
-      } else if (container.webkitRequestFullscreen) {
-        container.webkitRequestFullscreen();
-      } else if (container.msRequestFullscreen) {
-        container.msRequestFullscreen();
-      }
+  function applyStreams() {
+    if (!gatewayUrl) {
+      setGlobalStatus(false, 'Gateway belum diatur');
+      document.getElementById('pairing-notice').classList.remove('hidden');
+      for (let ch=1; ch<=7; ch++) loadCam(ch);
+      return;
     }
+    setGlobalStatus(true, 'Gateway tersimpan');
+    document.getElementById('pairing-notice').classList.add('hidden');
+    for (let ch=1; ch<=7; ch++) loadCam(ch);
+  }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      if (activeStreamUrl) {
-        document.getElementById('input-stream-url').value = activeStreamUrl;
-        applyStreams();
-      }
-    });
-  </script>
+  function reloadCam(ch) { loadCam(ch); }
+
+  function fullscreenCam(ch) {
+    const container = document.getElementById(`container-cam-${ch}`);
+    if (!container) return;
+    const fn = container.requestFullscreen || container.webkitRequestFullscreen || container.msRequestFullscreen;
+    if (fn) fn.call(container);
+  }
+
+  function openModalGateway() {
+    document.getElementById('input-gateway-url').value = gatewayUrl;
+    document.getElementById('input-player-mode').value = playerMode;
+    document.getElementById('modal-gateway').classList.remove('hidden');
+  }
+  function closeModalGateway() { document.getElementById('modal-gateway').classList.add('hidden'); }
+
+  function saveGateway() {
+    const url = document.getElementById('input-gateway-url').value.trim();
+    const mode = document.getElementById('input-player-mode').value;
+    if (!url) return alert('Masukkan URL gateway HTTPS terlebih dahulu.');
+    if (!/^https:\/\//i.test(url)) return alert('Karena website GitHub memakai HTTPS, gateway juga harus HTTPS.');
+    gatewayUrl = normalizeBase(url);
+    playerMode = mode;
+    localStorage.setItem('flamboyan4_cctv_gateway_url', gatewayUrl);
+    localStorage.setItem('flamboyan4_cctv_player_mode', playerMode);
+    closeModalGateway();
+    applyStreams();
+  }
+
+  function clearGateway() {
+    gatewayUrl = '';
+    localStorage.removeItem('flamboyan4_cctv_gateway_url');
+    closeModalGateway();
+    applyStreams();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    renderCards();
+    applyStreams();
+  });
+</script>
 </body>
 </html>
