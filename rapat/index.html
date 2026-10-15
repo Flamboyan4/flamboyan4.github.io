@@ -324,6 +324,33 @@
               td, th {
                 overflow-wrap: anywhere;
               }
+
+              /* Desktop: beri ruang baca yang lebih nyaman tanpa mengubah layout dokumen. */
+              @media (min-width: 641px) {
+                body {
+                  font-size: 15px !important;
+                  line-height: 1.55 !important;
+                }
+                body p {
+                  line-height: 1.58 !important;
+                  margin-top: 0 !important;
+                  margin-bottom: 0.72em !important;
+                }
+                body li {
+                  line-height: 1.52 !important;
+                  margin-bottom: 0.28em !important;
+                }
+                body ul, body ol {
+                  margin-top: 0.38em !important;
+                  margin-bottom: 0.82em !important;
+                }
+                body h1, body h2, body h3, body h4, body h5, body h6 {
+                  line-height: 1.32 !important;
+                  margin-top: 0.85em !important;
+                  margin-bottom: 0.45em !important;
+                }
+              }
+
               @media (max-width: 640px) {
                 html {
                   background: #ffffff !important;
