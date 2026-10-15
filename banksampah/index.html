@@ -2321,6 +2321,12 @@ function prosesCetakPDF() {
       : 'Periode: ' + bulanNama[awal - 1] + ' s.d. ' +
         bulanNama[akhir - 1] + ' ' + tahun;
 
+  const labelSaldoAkhir = tipe === 'tahunan'
+    ? 'Saldo Akhir Tahun ' + tahun
+    : awal === akhir
+      ? 'Saldo Akhir ' + bulanNama[awal - 1] + ' ' + tahun
+      : 'Saldo Akhir ' + bulanNama[awal - 1] + '–' + bulanNama[akhir - 1] + ' ' + tahun;
+
   // -----------------------------------------------------
   // B. MEMBACA TANGGAL DAN FILTER PERIODE
   // -----------------------------------------------------
@@ -2429,32 +2435,86 @@ function prosesCetakPDF() {
   const saldoKeseluruhan = masukSemua - keluarSemua;
   const saldoPeriode = totalMasuk - totalKeluar;
 
+  function sebelumPeriode(tanggal) {
+    const d = tanggalInfo(tanggal);
+    if (!d) return false;
+    if (d.tahun < tahun) return true;
+    return d.tahun === tahun && d.bulan < awal;
+  }
+
+  const masukSebelumnya = riwayat.reduce(
+    (sum, r) => sum + (sebelumPeriode(r[1]) ? num(r[9]) : 0), 0
+  );
+  const keluarSebelumnya = pengeluaran.reduce(
+    (sum, p) => sum + (sebelumPeriode(p.tanggal) ? num(p.nominal) : 0), 0
+  );
+  const saldoSebelumnya = masukSebelumnya - keluarSebelumnya;
+  const saldoAkhirPeriode = saldoSebelumnya + saldoPeriode;
+
   // -----------------------------------------------------
-  // D. REKAP TABUNGAN WARGA
+  // D. REKAP TABUNGAN WARGA (KHUSUS PERIODE LAPORAN)
   // -----------------------------------------------------
   let rowsWarga = '';
   let no = 0;
 
+  const rekapPeriode = new Map();
+  riwayatPeriode.forEach((r, idx) => {
+    const nama = String(r[0] || '').trim();
+    if (!nama) return;
+    const key = nama.toLowerCase();
+    if (!rekapPeriode.has(key)) {
+      rekapPeriode.set(key, {
+        nama,
+        totalBerat: 0,
+        totalTabungan: 0,
+        setoranTerakhir: r[1] || '-',
+        sortValue: typeof getTanggalSortValue === 'function' ? getTanggalSortValue(r[1], idx) : idx
+      });
+    }
+    const obj = rekapPeriode.get(key);
+    obj.totalBerat += num(r[6]);
+    obj.totalTabungan += num(r[7]);
+    const sv = typeof getTanggalSortValue === 'function' ? getTanggalSortValue(r[1], idx) : idx;
+    if (sv >= obj.sortValue) {
+      obj.sortValue = sv;
+      obj.setoranTerakhir = r[1] || obj.setoranTerakhir;
+    }
+  });
+
+  const sudahTampil = new Set();
   rekap.forEach(r => {
     const nama = String(r[1] || '').trim();
-
-    if (!nama || nama === '#N/A' ||
-        /nama.*blok/i.test(nama)) return;
-
+    if (!nama || nama === '#N/A' || /nama.*blok/i.test(nama)) return;
+    const key = nama.toLowerCase();
+    const data = rekapPeriode.get(key);
+    if (!data) return;
+    sudahTampil.add(key);
     no++;
-
     rowsWarga += `
       <tr>
         <td class="center">${no}</td>
-        <td>${esc(nama)}</td>
-        <td class="center">${esc(r[2] || '-')}</td>
-        <td class="center">${esc(r[3] || '0')}</td>
-        <td class="right">${esc(r[4] || 'Rp 0')}</td>
+        <td>${esc(data.nama)}</td>
+        <td class="center">${esc(data.setoranTerakhir)}</td>
+        <td class="center">${kg(data.totalBerat)} Kg</td>
+        <td class="right">${rp(data.totalTabungan)}</td>
+      </tr>`;
+  });
+
+  rekapPeriode.forEach((data, key) => {
+    if (sudahTampil.has(key)) return;
+    no++;
+    rowsWarga += `
+      <tr>
+        <td class="center">${no}</td>
+        <td>${esc(data.nama)}</td>
+        <td class="center">${esc(data.setoranTerakhir)}</td>
+        <td class="center">${kg(data.totalBerat)} Kg</td>
+        <td class="right">${rp(data.totalTabungan)}</td>
       </tr>`;
   });
 
   if (!rowsWarga) {
-    rowsWarga = '<tr><td colspan="5" class="empty">Belum ada data tabungan warga.</td></tr>';
+    rowsWarga = '<tr><td colspan="5" class="empty">Belum ada data tabungan warga pada periode ini.</td></tr>';
   }
 
   // -----------------------------------------------------
@@ -2813,20 +2873,12 @@ function prosesCetakPDF() {
       <div class="metric-value">${rp(totalTabungan)}</div>
     </div>
     <div class="metric">
-      <div class="metric-label">Total Pemasukan Kas</div>
-      <div class="metric-value" style="color:#1d4ed8">${rp(totalMasuk)}</div>
+      <div class="metric-label">Saldo Sebelumnya</div>
+      <div class="metric-value" style="color:#475569">${rp(saldoSebelumnya)}</div>
     </div>
     <div class="metric">
-      <div class="metric-label">Total Pengeluaran Kas</div>
-      <div class="metric-value" style="color:#be123c">${rp(totalKeluar)}</div>
-    </div>
-    <div class="metric">
-      <div class="metric-label">Sisa Saldo Periode</div>
-      <div class="metric-value" style="color:#065f46">${rp(saldoPeriode)}</div>
-    </div>
-    <div class="metric">
-      <div class="metric-label">Sisa Saldo Keseluruhan</div>
-      <div class="metric-value" style="color:#065f46">${rp(saldoKeseluruhan)}</div>
+      <div class="metric-label">${esc(labelSaldoAkhir)}</div>
+      <div class="metric-value" style="color:#065f46">${rp(saldoAkhirPeriode)}</div>
     </div>
   </div>
 
@@ -2881,16 +2933,6 @@ function prosesCetakPDF() {
   </table>
   <div class="cash-total expense-total">Total Keluar: ${rp(totalKeluar)}</div>
 
-  <div class="balance-box">
-    <div>
-      <div class="balance-label">RINGKASAN SALDO KAS</div>
-      <div style="margin-top:5px">Sisa saldo periode: <strong>${rp(saldoPeriode)}</strong></div>
-      <div style="margin-top:3px">Sisa saldo keseluruhan: <strong>${rp(saldoKeseluruhan)}</strong></div>
-      <div style="margin-top:3px">Akumulasi pemasukan: ${rp(masukSemua)}</div>
-      <div style="margin-top:3px">Akumulasi pengeluaran: ${rp(keluarSemua)}</div>
-    </div>
-    <div class="balance-value">${rp(saldoKeseluruhan)}</div>
-  </div>
 
   <div class="approval">
     <p>Mengetahui,</p>
