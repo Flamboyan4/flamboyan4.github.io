@@ -14,6 +14,7 @@
   .field{width:100%;border:1px solid #ddd6fe;background:#fff;border-radius:12px;padding:.72rem .85rem;outline:none}
   .field:focus{box-shadow:0 0 0 3px #ede9fe;border-color:#8b5cf6}
 </style>
+  <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8">
 </head>
 <body>
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
@@ -174,15 +175,17 @@
 </div>
 
 <script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrI9BXhRXOJyQTNIc0W1CbNUNqZinZGiUZCNCoB4OhaeF706WQXJl_-FucMcZLKgms/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSe7bAW5eAmvtoau0_fzpGAddiS53tD41rFM0saROgOblFommVZyxaM6LZlEWYSidt/exec';
 let DATA={config:{},rumah:[],warga:[],riwayat:[]};
+let RIWAYAT_LOADED=false;
+let RIWAYAT_LOADING=null;
 let RIWAYAT_SEMUA=false;
 const BULAN=['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 function rupiah(n){return 'Rp '+Math.round(Number(n)||0).toLocaleString('id-ID')}
 function jsonp(url,params={}){return new Promise((resolve,reject)=>{const cb='__cb_'+Date.now()+'_'+Math.random().toString(36).slice(2);const s=document.createElement('script');const q=new URLSearchParams({...params,callback:cb});window[cb]=d=>{cleanup();resolve(d)};function cleanup(){try{delete window[cb]}catch(e){}s.remove()}s.onerror=()=>{cleanup();reject(new Error('Gagal menghubungi Apps Script.'))};s.src=url+'?'+q.toString();document.body.appendChild(s);setTimeout(()=>{if(window[cb]){cleanup();reject(new Error('Koneksi timeout.'))}},20000)})}
 function status(t,type='info'){const e=document.getElementById('status-box');e.className='mb-5 rounded-xl border px-4 py-3 text-sm';if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');else if(type==='success')e.classList.add('bg-violet-50','border-violet-200','text-violet-700');else e.classList.add('bg-slate-50','border-slate-200','text-slate-600');e.textContent=t}
 function hideStatus(){document.getElementById('status-box').classList.add('hidden')}
-async function muatUlang(){status('Memuat data...');try{const r=await jsonp(APPS_SCRIPT_URL,{action:'bootstrap',t:Date.now()});if(r.status!=='success')throw new Error(r.message||'Gagal');DATA.config=r.config||{};document.getElementById('backend-version').textContent=r.version?('Backend '+r.version):'Backend lama';DATA.rumah=r.rumah||[];DATA.warga=r.warga||[];renderSemua();await loadRiwayat(true);status('Data berhasil dimuat.','success');setTimeout(hideStatus,1200)}catch(e){status(e.message,'error')}}
+async function muatUlang(){status('Memuat data...');try{const r=await jsonp(APPS_SCRIPT_URL,{action:'bootstrap',t:Date.now()});if(r.status!=='success')throw new Error(r.message||'Gagal');DATA.config=r.config||{};document.getElementById('backend-version').textContent=r.version?('Backend '+r.version):'Backend lama';DATA.rumah=r.rumah||[];DATA.warga=r.warga||[];renderSemua();await loadRiwayat(true,true);status('Data berhasil dimuat.','success');setTimeout(hideStatus,1200)}catch(e){status(e.message,'error')}}
 function renderSemua(){const total=DATA.rumah.length,dihuni=DATA.rumah.filter(x=>(x.statusRumah||'').toLowerCase()==='dihuni').length,kosong=DATA.rumah.filter(x=>(x.statusRumah||'').toLowerCase()==='kosong').length,aktif=DATA.warga.filter(x=>['ya','aktif'].includes((x.statusAktif||'').toLowerCase())).length,kontrak=DATA.warga.filter(x=>['ya','aktif'].includes((x.statusAktif||'').toLowerCase())&&(x.statusTinggal||'').toLowerCase()==='kontrak').length;document.getElementById('sum-unit').textContent=total;document.getElementById('sum-dihuni').textContent=dihuni;document.getElementById('sum-kosong').textContent=kosong;document.getElementById('sum-warga').textContent=aktif;document.getElementById('sum-kontrak').textContent=kontrak;document.getElementById('ringkasan-hunian').innerHTML=`<div class="flex justify-between py-2 border-b border-violet-50"><span>Total unit terdata</span><b>${total}</b></div><div class="flex justify-between py-2 border-b border-violet-50"><span>Dihuni</span><b class="text-violet-700">${dihuni}</b></div><div class="flex justify-between py-2 border-b border-violet-50"><span>Kosong</span><b class="text-amber-600">${kosong}</b></div><div class="flex justify-between py-2"><span>Kontrak aktif</span><b class="text-fuchsia-700">${kontrak}</b></div>`;document.getElementById('ringkasan-tarif').innerHTML=`<div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">IURAN BULANAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_BULANAN)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">KEBERSIHAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_KEBERSIHAN)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">KAS LORONG</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_KAS_LORONG)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">ARISAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_ARISAN)}</div></div>`;renderRumah();renderWarga();renderConfig();isiForm();lucide.createIcons()}
 function isiForm(){const sel=document.getElementById('inp-warga');const old=sel.value;sel.innerHTML='<option value="">Pilih warga...</option>'+DATA.warga.filter(w=>['ya','aktif'].includes((w.statusAktif||'').toLowerCase())).map(w=>`<option value="${w.idWarga}">${w.nama} (${w.blok}/${w.noRumah})</option>`).join('');if(old)sel.value=old;const now=new Date();document.getElementById('inp-tanggal').value=now.toISOString().slice(0,10);document.getElementById('inp-tahun').value=now.getFullYear();document.getElementById('inp-bulan').innerHTML=BULAN.slice(1).map((b,i)=>`<option value="${i+1}">${b}</option>`).join('');document.getElementById('inp-bulan').value=now.getMonth()+1;updatePreview()}
 function periodeList(b,y,j){const a=[];let m=Number(b),yr=Number(y);for(let i=0;i<Number(j);i++){a.push(BULAN[m]+' '+yr);m++;if(m>12){m=1;yr++}}return a}
@@ -193,19 +196,52 @@ async function simpanIuran(ev){ev.preventDefault();const idWarga=document.getEle
     document.getElementById('inp-warga').value='';
     document.getElementById('inp-jumlah').value='1';
     updatePreview();
-    await loadRiwayat(true);
+    await loadRiwayat(true,true);
     window.scrollTo({top:0,behavior:'smooth'});
     setTimeout(hideStatus,5000)}catch(e){saveStatus(e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}}
 
-async function loadRiwayat(silent=false){
-  try{
-    if(!silent) riwayatMsg('Memuat riwayat...','info');
-    const r=await jsonp(APPS_SCRIPT_URL,{action:'riwayatpembayaran',t:Date.now()});
-    if(!r||r.status!=='success') throw new Error(r?.message||'Gagal memuat riwayat.');
-    DATA.riwayat=r.data||[];
+async function loadRiwayat(silent=false, force=false){
+  // Cegah dua request riwayat berjalan bersamaan.
+  if (RIWAYAT_LOADING) return RIWAYAT_LOADING;
+  if (RIWAYAT_LOADED && !force){
     renderRiwayat();
-    if(!silent){riwayatMsg('Riwayat diperbarui.','success');setTimeout(()=>document.getElementById('riwayat-status').classList.add('hidden'),1200)}
-  }catch(e){riwayatMsg(e.message||String(e),'error')}
+    return DATA.riwayat;
+  }
+
+  RIWAYAT_LOADING = (async()=>{
+    try{
+      if(!silent) riwayatMsg('Memuat riwayat...','info');
+      const r=await jsonp(APPS_SCRIPT_URL,{action:'riwayatpembayaran',t:Date.now()});
+      if(!r||r.status!=='success') throw new Error(r?.message||'Gagal memuat riwayat.');
+      DATA.riwayat=r.data||[];
+      RIWAYAT_LOADED=true;
+      renderRiwayat();
+
+      // Jika data berhasil datang, jangan sisakan pesan timeout lama.
+      const box=document.getElementById('riwayat-status');
+      if(box) box.classList.add('hidden');
+
+      if(!silent){
+        riwayatMsg('Riwayat diperbarui.','success');
+        setTimeout(()=>document.getElementById('riwayat-status')?.classList.add('hidden'),1200);
+      }
+      return DATA.riwayat;
+    }catch(e){
+      // Kalau data riwayat sebenarnya sudah pernah berhasil dimuat,
+      // abaikan timeout request duplikat/stale.
+      if(RIWAYAT_LOADED && String(e.message||e).toLowerCase().includes('timeout')){
+        renderRiwayat();
+        document.getElementById('riwayat-status')?.classList.add('hidden');
+        return DATA.riwayat;
+      }
+      riwayatMsg(e.message||String(e),'error');
+      throw e;
+    }finally{
+      RIWAYAT_LOADING=null;
+    }
+  })();
+
+  return RIWAYAT_LOADING;
 }
 function riwayatMsg(t,type='info'){
   const e=document.getElementById('riwayat-status');if(!e)return;
@@ -227,7 +263,9 @@ function renderRiwayat(){
   tbody.innerHTML=rows.map(x=>{
     const batal=x.status==='BATAL';
     const badge=batal?'<span class="px-2 py-1 rounded-full bg-slate-100 text-slate-500 text-xs font-bold">BATAL</span>':(x.locked?'<span class="px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">TERKUNCI</span>':'<span class="px-2 py-1 rounded-full bg-violet-100 text-violet-700 text-xs font-bold">AKTIF</span>');
-    const aksi=x.canEdit?`<div class="flex justify-end gap-2"><button onclick="bukaEdit('${x.idPembayaran}')" class="px-3 py-1.5 rounded-lg border border-violet-200 text-violet-700 font-bold hover:bg-violet-50">Edit</button><button onclick="batalkanPembayaran('${x.idPembayaran}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold hover:bg-red-50">Batalkan</button></div>`:(x.locked?'<span class="text-xs text-slate-400">Sudah dibukukan</span>':'-');
+    const aksi=x.locked
+      ? '<span class="text-xs text-slate-400">Sudah dibukukan</span>'
+      : `<div class="flex justify-end gap-2">${x.canEdit?`<button onclick="bukaEdit('${x.idPembayaran}')" class="px-3 py-1.5 rounded-lg border border-violet-200 text-violet-700 font-bold hover:bg-violet-50">Edit</button>`:''}<button onclick="hapusPembayaran('${x.idPembayaran}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold hover:bg-red-50">Hapus</button></div>`;
     return `<tr class="${batal?'opacity-55':''} hover:bg-violet-50/30"><td class="p-3 whitespace-nowrap">${x.tanggal||'-'}</td><td class="p-3"><div class="font-bold">${x.nama||'-'}</div><div class="text-xs text-slate-400">${x.blok||''}/${x.noRumah||''} • ${x.idPembayaran}</div></td><td class="p-3">${(x.periode||[]).join(', ')||'-'}</td><td class="p-3 text-right font-black">${rupiah(x.totalDiterima)}</td><td class="p-3">${x.metode||'-'}</td><td class="p-3 text-center">${badge}</td><td class="p-3 text-right">${aksi}</td></tr>`;
   }).join('')||'<tr><td colspan="7" class="p-6 text-center text-slate-400">Belum ada riwayat pembayaran.</td></tr>';
   const b=document.getElementById('btn-riwayat-more');if(total>10){b.classList.remove('hidden');b.textContent=RIWAYAT_SEMUA?'Tampilkan 10 terbaru':'Lihat semua ('+total+')'}else b.classList.add('hidden');
@@ -247,16 +285,32 @@ function updateEditPreview(){
 }
 function editMsg(t,type='info'){const e=document.getElementById('edit-status');e.className='rounded-xl border px-4 py-3 text-sm';if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');else e.classList.add('bg-violet-50','border-violet-200','text-violet-700');e.textContent=t}
 async function simpanEdit(ev){
-  ev.preventDefault();const btn=document.getElementById('btn-edit-save');btn.disabled=true;btn.classList.add('opacity-60');editMsg('Menyimpan perubahan...');try{const p={action:'updatepembayaran',idPembayaran:document.getElementById('edit-id').value,idWarga:document.getElementById('edit-warga').value,tanggal:document.getElementById('edit-tanggal').value,metode:document.getElementById('edit-metode').value,bulan:document.getElementById('edit-bulan').value,tahun:document.getElementById('edit-tahun').value,jumlahBulan:document.getElementById('edit-jumlah').value,catatan:document.getElementById('edit-catatan').value,t:Date.now()};const r=await jsonp(APPS_SCRIPT_URL,p);if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memperbarui.');editMsg('Perubahan berhasil disimpan.','success');await loadRiwayat(true);setTimeout(()=>{tutupEdit();renderRiwayat()},500)}catch(e){editMsg(e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}
+  ev.preventDefault();const btn=document.getElementById('btn-edit-save');btn.disabled=true;btn.classList.add('opacity-60');editMsg('Menyimpan perubahan...');try{const p={action:'updatepembayaran',idPembayaran:document.getElementById('edit-id').value,idWarga:document.getElementById('edit-warga').value,tanggal:document.getElementById('edit-tanggal').value,metode:document.getElementById('edit-metode').value,bulan:document.getElementById('edit-bulan').value,tahun:document.getElementById('edit-tahun').value,jumlahBulan:document.getElementById('edit-jumlah').value,catatan:document.getElementById('edit-catatan').value,t:Date.now()};const r=await jsonp(APPS_SCRIPT_URL,p);if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memperbarui.');editMsg('Perubahan berhasil disimpan.','success');await loadRiwayat(true,true);setTimeout(()=>{tutupEdit();renderRiwayat()},500)}catch(e){editMsg(e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}
 }
-async function batalkanPembayaran(id){
-  const x=DATA.riwayat.find(r=>r.idPembayaran===id);if(!x||!x.canCancel){riwayatMsg('Transaksi ini tidak dapat dibatalkan.','error');return}if(!confirm(`Batalkan pembayaran ${x.nama} untuk ${(x.periode||[]).join(', ')}?\n\nData tidak dihapus permanen dan tetap tersimpan sebagai riwayat BATAL.`))return;try{riwayatMsg('Membatalkan transaksi...');const r=await jsonp(APPS_SCRIPT_URL,{action:'batalkanpembayaran',idPembayaran:id,alasan:'Dibatalkan dari web',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan.');await loadRiwayat(true);renderRiwayat();riwayatMsg(r.message||'Pembayaran dibatalkan.','success')}catch(e){riwayatMsg(e.message||String(e),'error')}
-}
+async function hapusPembayaran(id){
+  const x=DATA.riwayat.find(r=>r.idPembayaran===id);
+  if(!x){riwayatMsg('Transaksi tidak ditemukan.','error');return}
+  if(x.locked){
+    riwayatMsg('Transaksi sudah masuk pembukuan kas dan tidak boleh dihapus.','error');
+    return;
+  }
 
-function renderRumah(){const q=(document.getElementById('cari-rumah')?.value||'').toLowerCase();const a=DATA.rumah.filter(r=>[r.blok,r.noRumah,r.namaPemilik,r.statusRumah,r.tipeUnit,r.keterangan].join(' ').toLowerCase().includes(q));document.getElementById('tbody-rumah').innerHTML=a.map(r=>`<tr class="hover:bg-violet-50/40"><td class="p-3 text-center text-slate-400">${r.noUrut||'-'}</td><td class="p-3 font-bold">${r.blok||'-'}</td><td class="p-3 font-bold">${r.noRumah||'-'}</td><td class="p-3">${r.statusRumah||'-'}</td><td class="p-3">${r.tipeUnit||'-'}</td><td class="p-3">${r.namaPemilik||'-'}</td><td class="p-3 text-slate-500">${r.keterangan||'-'}</td></tr>`).join('')||'<tr><td colspan="7" class="p-5 text-center text-slate-400">Tidak ada data.</td></tr>'}
-function renderWarga(){const q=(document.getElementById('cari-warga')?.value||'').toLowerCase();const a=DATA.warga.filter(r=>[r.nama,r.blok,r.noRumah,r.statusTinggal,r.keterangan].join(' ').toLowerCase().includes(q));document.getElementById('tbody-warga').innerHTML=a.map(r=>`<tr class="hover:bg-violet-50/40"><td class="p-3 text-center text-slate-400">${r.noUrutRumah||'-'}</td><td class="p-3 font-bold">${r.nama||'-'}</td><td class="p-3">${r.blok}/${r.noRumah}</td><td class="p-3">${r.statusTinggal||'-'}</td><td class="p-3 text-center">${r.statusAktif||'-'}</td><td class="p-3 text-center font-bold">${r.qtyIuranBulanan||0}x</td><td class="p-3 text-center font-bold">${r.qtyKebersihan||0}x</td><td class="p-3 text-center font-bold">${r.qtyKasLorong||0}x</td><td class="p-3 text-center font-bold">${r.qtyArisan||0}x</td><td class="p-3 text-slate-500">${r.keterangan||'-'}</td></tr>`).join('')||'<tr><td colspan="10" class="p-5 text-center text-slate-400">Tidak ada data.</td></tr>'}
-function renderConfig(){const m={TARIF_BULANAN:'Tarif Iuran Bulanan',TARIF_KEBERSIHAN:'Tarif Kebersihan',TARIF_KAS_LORONG:'Tarif Kas Lorong',TARIF_ARISAN:'Tarif Arisan',TANGGAL_SETOR_RT:'Tanggal Setor RT',BATAS_PERIODE_KAS:'Batas Periode Kas'};document.getElementById('config-list').innerHTML=Object.entries(DATA.config).map(([k,v])=>`<div class="rounded-xl border border-violet-100 bg-white p-4"><div class="text-[11px] font-bold text-slate-400 uppercase">${m[k]||k}</div><div class="mt-1 font-black text-lg text-violet-950">${k.startsWith('TARIF_')?rupiah(v):v}</div></div>`).join('')}
-function gantiTab(n,b){document.querySelectorAll('.tab-panel').forEach(x=>x.classList.add('hidden'));document.getElementById('tab-'+n).classList.remove('hidden');document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(n==='riwayat')loadRiwayat(true)}
-document.addEventListener('DOMContentLoaded',()=>{lucide.createIcons();muatUlang()});
-</script>
-</body></html>
+  const periode=(x.periode||[]).join(', ');
+  if(!confirm(`Hapus permanen pembayaran ${x.nama}${periode?` untuk ${periode}`:''}?\n\nData akan dihapus dari PEMBAYARAN dan ALOKASI_IURAN. Tindakan ini tidak bisa dibatalkan.`)) return;
+
+  try{
+    riwayatMsg('Menghapus transaksi...');
+    const r=await jsonp(APPS_SCRIPT_URL,{
+      action:'hapuspembayaran',
+      idPembayaran:id,
+      t:Date.now()
+    });
+    if(!r||r.status!=='success') throw new Error(r?.message||'Gagal menghapus transaksi.');
+
+    await loadRiwayat(true,true);
+    renderRiwayat();
+    riwayatMsg(r.message||'Pembayaran berhasil dihapus.','success');
+  }catch(e){
+    riwayatMsg(e.message||String(e),'error');
+  }
+}>
