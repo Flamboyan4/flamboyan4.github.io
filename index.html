@@ -2212,12 +2212,16 @@ function salinLinkAgenda(url) {
 
       const tipe = document.getElementById('cetak-kas-tipe').value;
       let periode = 'Semua Transaksi';
+      let labelSaldoAkhir = 'Saldo Akhir';
       let filterFn = () => true;
+      let batasAwalSaldo = null;
 
       if (tipe === 'bulanan') {
         const month = Number(document.getElementById('cetak-kas-bulan').value);
         const year = Number(document.getElementById('cetak-kas-tahun').value);
         periode = `Periode ${bulanNamaCetakKas[month]} ${year}`;
+        labelSaldoAkhir = `Saldo Akhir ${bulanNamaCetakKas[month]} ${year}`;
+        batasAwalSaldo = new Date(year, month, 1, 0, 0, 0, 0);
         filterFn = row => {
           const keys = Object.keys(row), d = parseRowDate(row[keys[0]]);
           return d && d.month === month && d.year === year;
@@ -2228,6 +2232,8 @@ function salinLinkAgenda(url) {
         const year = Number(document.getElementById('cetak-kas-tahun-rentang').value);
         if (awal > akhir) return alert('Bulan awal tidak boleh lebih besar dari bulan akhir.');
         periode = `Periode ${bulanNamaCetakKas[awal]} s.d. ${bulanNamaCetakKas[akhir]} ${year}`;
+        labelSaldoAkhir = `Saldo Akhir ${bulanNamaCetakKas[awal]}–${bulanNamaCetakKas[akhir]} ${year}`;
+        batasAwalSaldo = new Date(year, awal, 1, 0, 0, 0, 0);
         filterFn = row => {
           const keys = Object.keys(row), d = parseRowDate(row[keys[0]]);
           return d && d.year === year && d.month >= awal && d.month <= akhir;
@@ -2235,6 +2241,8 @@ function salinLinkAgenda(url) {
       } else if (tipe === 'tahunan') {
         const year = Number(document.getElementById('cetak-kas-tahun-full').value);
         periode = `Laporan Tahunan ${year}`;
+        labelSaldoAkhir = `Saldo Akhir Tahun ${year}`;
+        batasAwalSaldo = new Date(year, 0, 1, 0, 0, 0, 0);
         filterFn = row => {
           const keys = Object.keys(row), d = parseRowDate(row[keys[0]]);
           return d && d.year === year;
@@ -2291,18 +2299,26 @@ function salinLinkAgenda(url) {
       }
 
       let totalMasukKumulatif = 0, totalKeluarKumulatif = 0;
+      let masukSebelumnya = 0, keluarSebelumnya = 0;
       globalKeuanganData.forEach(row => {
         const keys = Object.keys(row);
         if (keys.length < 4) return;
         const d = parseRowDate(row[keys[0]]);
         if (!d) return;
         const dt = new Date(d.year, d.month, d.day || 1);
-        if (batasSaldo && dt > batasSaldo) return;
         const kategori = String(row[keys[2]] || '').trim().toLowerCase();
         const jumlah = nominalCetakKas(row[keys[3]]);
-        if (kategori === 'pemasukan') totalMasukKumulatif += jumlah;
-        if (kategori === 'pengeluaran') totalKeluarKumulatif += jumlah;
+
+        if (!batasSaldo || dt <= batasSaldo) {
+          if (kategori === 'pemasukan') totalMasukKumulatif += jumlah;
+          if (kategori === 'pengeluaran') totalKeluarKumulatif += jumlah;
+        }
+        if (batasAwalSaldo && dt < batasAwalSaldo) {
+          if (kategori === 'pemasukan') masukSebelumnya += jumlah;
+          if (kategori === 'pengeluaran') keluarSebelumnya += jumlah;
+        }
       });
+      const saldoSebelumnya = batasAwalSaldo ? (masukSebelumnya - keluarSebelumnya) : 0;
       const saldoTersedia = totalMasukKumulatif - totalKeluarKumulatif;
 
       const tanggalCetak = new Date().toLocaleDateString('id-ID', {day:'2-digit',month:'long',year:'numeric'});
@@ -2320,9 +2336,9 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 @media screen{body{max-width:186mm;margin:14px auto;padding:0 4px;background:white}}
 </style></head><body>
 <header class="header"><img class="logo" src="https://drive.google.com/thumbnail?id=1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8&sz=w300" alt="Logo"><div class="headtext"><h1>LAPORAN KEUANGAN KAS WARGA FLAMBOYAN 4</h1><p>RT 001 RW 026 Pesona Kahuripan 2</p><p class="periode">${escapeCetakKas(periode)}</p></div><span class="badge">LAPORAN KAS</span></header>
-<div class="summary"><div class="metric"><div class="mlabel">Total Pemasukan</div><div class="mvalue masuk">${escapeCetakKas(formatRupiah(totalMasuk))}</div></div><div class="metric"><div class="mlabel">Total Pengeluaran</div><div class="mvalue keluar">${escapeCetakKas(formatRupiah(totalKeluar))}</div></div><div class="metric"><div class="mlabel">Saldo Periode</div><div class="mvalue saldo">${escapeCetakKas(formatRupiah(saldo))}</div></div><div class="metric"><div class="mlabel">Saldo Tersedia</div><div class="mvalue tersedia">${escapeCetakKas(formatRupiah(saldoTersedia))}</div></div></div>
+<div class="summary"><div class="metric"><div class="mlabel">Saldo Sebelumnya</div><div class="mvalue saldo">${escapeCetakKas(formatRupiah(saldoSebelumnya))}</div></div><div class="metric"><div class="mlabel">Total Pemasukan</div><div class="mvalue masuk">${escapeCetakKas(formatRupiah(totalMasuk))}</div></div><div class="metric"><div class="mlabel">Total Pengeluaran</div><div class="mvalue keluar">${escapeCetakKas(formatRupiah(totalKeluar))}</div></div><div class="metric"><div class="mlabel">${escapeCetakKas(labelSaldoAkhir)}</div><div class="mvalue tersedia">${escapeCetakKas(formatRupiah(saldoTersedia))}</div></div></div>
 <h2>Rincian Transaksi</h2><table><colgroup><col style="width:6%"><col style="width:17%"><col style="width:43%"><col style="width:17%"><col style="width:17%"></colgroup><thead><tr><th class="c">No</th><th>Tanggal</th><th>Keterangan</th><th class="r">Debit</th><th class="r">Kredit</th></tr></thead><tbody>${rows}</tbody></table>
-<div class="totalbox"><span>Total Debit</span><strong class="masuk">${escapeCetakKas(formatRupiah(totalMasuk))}</strong><span>Total Kredit</span><strong class="keluar">${escapeCetakKas(formatRupiah(totalKeluar))}</strong><span>Saldo Periode</span><strong class="saldo">${escapeCetakKas(formatRupiah(saldo))}</strong><span>Total Saldo Tersedia</span><strong class="tersedia">${escapeCetakKas(formatRupiah(saldoTersedia))}</strong></div>
+
 <section class="approval"><div><div class="sign-title">Mengetahui,<br>Humas Flamboyan 4</div><div class="sign-line">Heri Juwandi</div></div></section>
 <div class="note">Dicetak pada ${escapeCetakKas(tanggalCetak)} • Flamboyan 4 • Data bersumber dari pembukuan kas pada flamboyan4.web.id</div>
 <script>window.onload=()=>{setTimeout(()=>window.print(),350)}<\/script></body></html>`);
