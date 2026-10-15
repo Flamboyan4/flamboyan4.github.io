@@ -238,52 +238,29 @@
 </div>
 
 <script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyol1l00WtmabPPId_RvJ1R-kkNf19p6bpbfWKMpY57K5d8L1fG69WgvS-s7cnNSlCT/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSe7bAW5eAmvtoau0_fzpGAddiS53tD41rFM0saROgOblFommVZyxaM6LZlEWYSidt/exec';
+const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyol1l00WtmabPPId_RvJ1R-kkNf19p6bpbfWKMpY57K5d8L1fG69WgvS-s7cnNSlCT/exec';
 let DATA={config:{},rumah:[],warga:[],riwayat:[],kas:null};
 let RIWAYAT_LOADED=false;
 let RIWAYAT_LOADING=null;
 let RIWAYAT_SEMUA=false;
-const MASTER_CACHE_KEY='flamboyan4_pembukuan_master_v1';
-function simpanMasterCache(){
-  try{
-    localStorage.setItem(MASTER_CACHE_KEY,JSON.stringify({
-      ts:Date.now(),config:DATA.config,rumah:DATA.rumah,warga:DATA.warga
-    }));
-  }catch(e){}
-}
-function muatMasterCache(){
-  try{
-    const c=JSON.parse(localStorage.getItem(MASTER_CACHE_KEY)||'null');
-    if(!c||!Array.isArray(c.rumah)||!Array.isArray(c.warga))return false;
-    DATA.config=c.config||{};
-    DATA.rumah=c.rumah||[];
-    DATA.warga=c.warga||[];
-    renderSemua();
-    status('Menampilkan data terakhir sambil memperbarui...','info');
-    return true;
-  }catch(e){return false}
-}
-
 const BULAN=['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 function rupiah(n){return 'Rp '+Math.round(Number(n)||0).toLocaleString('id-ID')}
-function jsonp(url,params={}){return new Promise((resolve,reject)=>{const cb='__cb_'+Date.now()+'_'+Math.random().toString(36).slice(2);const s=document.createElement('script');const q=new URLSearchParams({...params,callback:cb});window[cb]=d=>{cleanup();resolve(d)};function cleanup(){try{delete window[cb]}catch(e){}s.remove()}s.onerror=()=>{cleanup();reject(new Error('Gagal menghubungi Apps Script.'))};s.src=url+'?'+q.toString();document.body.appendChild(s);setTimeout(()=>{if(window[cb]){cleanup();reject(new Error('Koneksi timeout.'))}},30000)})}
+function jsonp(url,params={}){return new Promise((resolve,reject)=>{const cb='__cb_'+Date.now()+'_'+Math.random().toString(36).slice(2);const s=document.createElement('script');const q=new URLSearchParams({...params,callback:cb});window[cb]=d=>{cleanup();resolve(d)};function cleanup(){try{delete window[cb]}catch(e){}s.remove()}s.onerror=()=>{cleanup();reject(new Error('Gagal menghubungi Apps Script.'))};s.src=url+'?'+q.toString();document.body.appendChild(s);setTimeout(()=>{if(window[cb]){cleanup();reject(new Error('Koneksi timeout.'))}},20000)})}
 function status(t,type='info'){const e=document.getElementById('status-box');e.className='mb-5 rounded-xl border px-4 py-3 text-sm';if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');else if(type==='success')e.classList.add('bg-violet-50','border-violet-200','text-violet-700');else e.classList.add('bg-slate-50','border-slate-200','text-slate-600');e.textContent=t}
 function hideStatus(){document.getElementById('status-box').classList.add('hidden')}
 async function muatUlang(){
   status('Memuat data...');
   try{
     const r=await jsonp(APPS_SCRIPT_URL,{action:'bootstrap',t:Date.now()});
-    if(r.status!=='success')throw new Error(r.message||'Gagal');
+    if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memuat data utama.');
     DATA.config=r.config||{};
-    document.getElementById('backend-version').textContent=r.version?('Backend '+r.version):'Backend lama';
+    document.getElementById('backend-version').textContent=r.version?('Core '+r.version):'Core aktif';
     DATA.rumah=r.rumah||[];
     DATA.warga=r.warga||[];
     renderSemua();
-    simpanMasterCache();
-    status('Data siap.','success');
-    setTimeout(hideStatus,900);
-
-    // Riwayat dimuat di belakang layar. Tidak menahan dashboard utama.
+    status('Data berhasil dimuat.','success');
+    setTimeout(hideStatus,1000);
     loadRiwayat(true,true).catch(()=>{});
   }catch(e){
     status(e.message||String(e),'error');
@@ -432,12 +409,12 @@ async function loadPembukuanKas(){
   initKasControls();
   try{
     kasMsg('Memuat data pembukuan kas...');
-    const r=await jsonp(APPS_SCRIPT_URL,{action:'datapembukuankas',bulan:document.getElementById('kas-filter-bulan').value,tahun:document.getElementById('kas-filter-tahun').value,t:Date.now()});
+    const r=await jsonp(BATCH_SCRIPT_URL,{action:'datapembukuankas',bulan:document.getElementById('kas-filter-bulan').value,tahun:document.getElementById('kas-filter-tahun').value,t:Date.now()});
     if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memuat pembukuan kas.');
     DATA.kas=r.data;
     renderPembukuanKas();
     document.getElementById('kas-status').classList.add('hidden');
-  }catch(e){kasMsg(e.message||String(e),'error')}
+  }catch(e){kasMsg('Koneksi modul Pembukuan Kas gagal: '+(e.message||String(e)),'error')}
 }
 function renderPembukuanKas(){
   const d=DATA.kas||{belum:[],sudah:[],ringkasan:{},batches:[]};
@@ -482,23 +459,23 @@ async function buatBatchKas(){
   const btn=document.getElementById('btn-buat-batch');btn.disabled=true;btn.classList.add('opacity-60');
   try{
     kasMsg('Membuat batch pembukuan...');
-    const r=await jsonp(APPS_SCRIPT_URL,{action:'buatbatchkas',idAlokasi:a.map(x=>x.idAlokasi).join(','),tanggalPembukuan:document.getElementById('batch-tanggal').value,bulanPembukuan:document.getElementById('batch-bulan').value,tahunPembukuan:document.getElementById('batch-tahun').value,keterangan:document.getElementById('batch-keterangan').value,t:Date.now()});
+    const r=await jsonp(BATCH_SCRIPT_URL,{action:'buatbatchkas',idAlokasi:a.map(x=>x.idAlokasi).join(','),tanggalPembukuan:document.getElementById('batch-tanggal').value,bulanPembukuan:document.getElementById('batch-bulan').value,tahunPembukuan:document.getElementById('batch-tahun').value,keterangan:document.getElementById('batch-keterangan').value,t:Date.now()});
     if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membuat batch.');
     kasMsg(`${r.idBatch} berhasil dibuat • ${r.jumlahPembayaran}x • ${rupiah(r.nominal)}`,'success');
     await loadPembukuanKas();
     await loadRiwayat(true,true);
-  }catch(e){kasMsg(e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}
+  }catch(e){kasMsg('Koneksi modul Pembukuan Kas gagal: '+(e.message||String(e)),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}
 }
 async function batalkanBatchKas(id){
   if(!confirm(`Batalkan batch ${id}?\n\nTransaksi di dalam batch akan kembali berstatus BELUM dan dapat dibukukan ulang.`))return;
   try{
     kasMsg('Membatalkan batch...');
-    const r=await jsonp(APPS_SCRIPT_URL,{action:'batalkanbatchkas',idBatch:id,t:Date.now()});
+    const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkanbatchkas',idBatch:id,t:Date.now()});
     if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan batch.');
     kasMsg(r.message||'Batch berhasil dibatalkan.','success');
     await loadPembukuanKas();
     await loadRiwayat(true,true);
-  }catch(e){kasMsg(e.message||String(e),'error')}
+  }catch(e){kasMsg('Koneksi modul Pembukuan Kas gagal: '+(e.message||String(e)),'error')}
 }
 
 function renderRumah(){const q=(document.getElementById('cari-rumah')?.value||'').toLowerCase();const a=DATA.rumah.filter(r=>[r.blok,r.noRumah,r.namaPemilik,r.statusRumah,r.tipeUnit,r.keterangan].join(' ').toLowerCase().includes(q));document.getElementById('tbody-rumah').innerHTML=a.map(r=>`<tr class="hover:bg-violet-50/40"><td class="p-3 text-center text-slate-400">${r.noUrut||'-'}</td><td class="p-3 font-bold">${r.blok||'-'}</td><td class="p-3 font-bold">${r.noRumah||'-'}</td><td class="p-3">${r.statusRumah||'-'}</td><td class="p-3">${r.tipeUnit||'-'}</td><td class="p-3">${r.namaPemilik||'-'}</td><td class="p-3 text-slate-500">${r.keterangan||'-'}</td></tr>`).join('')||'<tr><td colspan="7" class="p-5 text-center text-slate-400">Tidak ada data.</td></tr>'}
