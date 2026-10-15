@@ -42,6 +42,7 @@
     <div class="p-3 border-b border-violet-100 flex gap-2 overflow-x-auto scrollbar-thin">
       <button class="tab-btn active px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap" onclick="gantiTab('dashboard',this)">Ringkasan</button>
       <button class="tab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="gantiTab('input',this)">Input Iuran</button>
+      <button class="tab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="gantiTab('riwayat',this)">Riwayat Pembayaran</button>
       <button class="tab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="gantiTab('rumah',this)">Data Rumah</button>
       <button class="tab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="gantiTab('warga',this)">Data Warga</button>
       <button class="tab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="gantiTab('config',this)">Tarif & Aturan</button>
@@ -89,6 +90,44 @@
       </div>
     </div>
 
+
+    <div id="tab-riwayat" class="tab-panel hidden p-4 sm:p-5">
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-3 mb-4">
+        <div>
+          <h2 class="font-black text-xl text-violet-950">Riwayat Pembayaran</h2>
+          <p class="text-sm text-slate-500 mt-1">Transaksi terbaru ditampilkan paling atas.</p>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
+          <input id="cari-riwayat" oninput="renderRiwayat()" placeholder="Cari nama / rumah / periode..." class="field sm:w-64">
+          <select id="filter-riwayat" onchange="renderRiwayat()" class="field sm:w-40">
+            <option value="AKTIF">Aktif</option>
+            <option value="SEMUA">Semua</option>
+            <option value="BATAL">Dibatalkan</option>
+          </select>
+        </div>
+      </div>
+      <div id="riwayat-status" class="hidden mb-3 rounded-xl border px-4 py-3 text-sm"></div>
+      <div class="overflow-x-auto rounded-xl border border-violet-100 scrollbar-thin">
+        <table class="min-w-[980px] w-full text-sm">
+          <thead class="bg-violet-50 text-violet-950">
+            <tr>
+              <th class="p-3 text-left">Tanggal</th>
+              <th class="p-3 text-left">Nama & Rumah</th>
+              <th class="p-3 text-left">Periode</th>
+              <th class="p-3 text-right">Total</th>
+              <th class="p-3 text-left">Metode</th>
+              <th class="p-3 text-center">Status</th>
+              <th class="p-3 text-right">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-riwayat" class="divide-y divide-violet-50"></tbody>
+        </table>
+      </div>
+      <div class="mt-3 flex justify-center">
+        <button id="btn-riwayat-more" onclick="toggleRiwayatSemua()" class="hidden px-4 py-2 rounded-xl border border-violet-200 text-violet-700 bg-white hover:bg-violet-50 text-sm font-bold">Lihat semua</button>
+      </div>
+    </div>
+
     <div id="tab-rumah" class="tab-panel hidden p-4 sm:p-5">
       <div class="flex flex-col sm:flex-row justify-between gap-3 mb-4"><div><h2 class="font-black text-lg">Data Rumah</h2><p class="text-sm text-slate-500">Urutan mengikuti No Urut rumah.</p></div><input id="cari-rumah" oninput="renderRumah()" placeholder="Cari blok / nomor / pemilik..." class="field sm:max-w-xs"></div>
       <div class="overflow-x-auto rounded-xl border border-violet-100 scrollbar-thin"><table class="min-w-[850px] w-full text-sm"><thead class="bg-violet-50"><tr><th class="p-3">No</th><th class="p-3 text-left">Blok</th><th class="p-3 text-left">No Rumah</th><th class="p-3 text-left">Status</th><th class="p-3 text-left">Tipe Unit</th><th class="p-3 text-left">Pemilik</th><th class="p-3 text-left">Keterangan</th></tr></thead><tbody id="tbody-rumah" class="divide-y divide-violet-50"></tbody></table></div>
@@ -103,15 +142,47 @@
   </section>
 </main>
 
+<div id="modal-edit" class="hidden fixed inset-0 z-[80] bg-slate-950/35 backdrop-blur-[1px] p-4 overflow-y-auto">
+  <div class="min-h-full flex items-center justify-center">
+    <div class="w-full max-w-2xl bg-white rounded-2xl border border-violet-100 shadow-2xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-violet-100 flex items-center justify-between">
+        <div><div class="font-black text-lg text-violet-950">Edit Pembayaran</div><div id="edit-id-label" class="text-xs text-slate-400 mt-0.5"></div></div>
+        <button onclick="tutupEdit()" class="w-9 h-9 rounded-xl hover:bg-violet-50 text-slate-500 flex items-center justify-center"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form onsubmit="simpanEdit(event)" class="p-5 space-y-4">
+        <input id="edit-id" type="hidden">
+        <div><label class="text-sm font-bold">Nama Warga</label><select id="edit-warga" class="field mt-1" onchange="updateEditPreview()"></select></div>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div><label class="text-sm font-bold">Tanggal Bayar</label><input id="edit-tanggal" type="date" class="field mt-1" required></div>
+          <div><label class="text-sm font-bold">Metode Pembayaran</label><select id="edit-metode" class="field mt-1"><option>Cash</option><option>QRIS</option><option>Transfer Mandiri</option></select></div>
+        </div>
+        <div class="grid sm:grid-cols-3 gap-4">
+          <div><label class="text-sm font-bold">Bulan Pertama</label><select id="edit-bulan" class="field mt-1" onchange="updateEditPreview()"></select></div>
+          <div><label class="text-sm font-bold">Tahun</label><input id="edit-tahun" type="number" min="2020" max="2100" class="field mt-1" onchange="updateEditPreview()"></div>
+          <div><label class="text-sm font-bold">Jumlah Bulan</label><select id="edit-jumlah" class="field mt-1" onchange="updateEditPreview()"><option value="1">1 bulan</option><option value="2">2 bulan</option><option value="3">3 bulan</option></select></div>
+        </div>
+        <div id="edit-preview" class="rounded-xl bg-violet-50 border border-violet-100 p-4 text-sm"></div>
+        <div><label class="text-sm font-bold">Catatan</label><input id="edit-catatan" class="field mt-1"></div>
+        <div id="edit-status" class="hidden rounded-xl border px-4 py-3 text-sm"></div>
+        <div class="grid grid-cols-2 gap-3">
+          <button type="button" onclick="tutupEdit()" class="rounded-xl border border-slate-200 py-3 font-bold text-slate-600">Batal</button>
+          <button id="btn-edit-save" type="submit" class="rounded-xl bg-violet-600 hover:bg-violet-700 text-white py-3 font-black">Simpan Perubahan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwyeyBQcbPTMjPPqD-yjGoaMTG76Kbl9j7ePA2CVz9nhp8I8wC_qVm3VbaOatV6XMm6/exec';
-let DATA={config:{},rumah:[],warga:[]};
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrI9BXhRXOJyQTNIc0W1CbNUNqZinZGiUZCNCoB4OhaeF706WQXJl_-FucMcZLKgms/exec';
+let DATA={config:{},rumah:[],warga:[],riwayat:[]};
+let RIWAYAT_SEMUA=false;
 const BULAN=['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 function rupiah(n){return 'Rp '+Math.round(Number(n)||0).toLocaleString('id-ID')}
 function jsonp(url,params={}){return new Promise((resolve,reject)=>{const cb='__cb_'+Date.now()+'_'+Math.random().toString(36).slice(2);const s=document.createElement('script');const q=new URLSearchParams({...params,callback:cb});window[cb]=d=>{cleanup();resolve(d)};function cleanup(){try{delete window[cb]}catch(e){}s.remove()}s.onerror=()=>{cleanup();reject(new Error('Gagal menghubungi Apps Script.'))};s.src=url+'?'+q.toString();document.body.appendChild(s);setTimeout(()=>{if(window[cb]){cleanup();reject(new Error('Koneksi timeout.'))}},20000)})}
 function status(t,type='info'){const e=document.getElementById('status-box');e.className='mb-5 rounded-xl border px-4 py-3 text-sm';if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');else if(type==='success')e.classList.add('bg-violet-50','border-violet-200','text-violet-700');else e.classList.add('bg-slate-50','border-slate-200','text-slate-600');e.textContent=t}
 function hideStatus(){document.getElementById('status-box').classList.add('hidden')}
-async function muatUlang(){status('Memuat data...');try{const r=await jsonp(APPS_SCRIPT_URL,{action:'bootstrap',t:Date.now()});if(r.status!=='success')throw new Error(r.message||'Gagal');DATA.config=r.config||{};document.getElementById('backend-version').textContent=r.version?('Backend '+r.version):'Backend lama';DATA.rumah=r.rumah||[];DATA.warga=r.warga||[];renderSemua();status('Data berhasil dimuat.','success');setTimeout(hideStatus,1200)}catch(e){status(e.message,'error')}}
+async function muatUlang(){status('Memuat data...');try{const r=await jsonp(APPS_SCRIPT_URL,{action:'bootstrap',t:Date.now()});if(r.status!=='success')throw new Error(r.message||'Gagal');DATA.config=r.config||{};document.getElementById('backend-version').textContent=r.version?('Backend '+r.version):'Backend lama';DATA.rumah=r.rumah||[];DATA.warga=r.warga||[];renderSemua();await loadRiwayat(true);status('Data berhasil dimuat.','success');setTimeout(hideStatus,1200)}catch(e){status(e.message,'error')}}
 function renderSemua(){const total=DATA.rumah.length,dihuni=DATA.rumah.filter(x=>(x.statusRumah||'').toLowerCase()==='dihuni').length,kosong=DATA.rumah.filter(x=>(x.statusRumah||'').toLowerCase()==='kosong').length,aktif=DATA.warga.filter(x=>['ya','aktif'].includes((x.statusAktif||'').toLowerCase())).length,kontrak=DATA.warga.filter(x=>['ya','aktif'].includes((x.statusAktif||'').toLowerCase())&&(x.statusTinggal||'').toLowerCase()==='kontrak').length;document.getElementById('sum-unit').textContent=total;document.getElementById('sum-dihuni').textContent=dihuni;document.getElementById('sum-kosong').textContent=kosong;document.getElementById('sum-warga').textContent=aktif;document.getElementById('sum-kontrak').textContent=kontrak;document.getElementById('ringkasan-hunian').innerHTML=`<div class="flex justify-between py-2 border-b border-violet-50"><span>Total unit terdata</span><b>${total}</b></div><div class="flex justify-between py-2 border-b border-violet-50"><span>Dihuni</span><b class="text-violet-700">${dihuni}</b></div><div class="flex justify-between py-2 border-b border-violet-50"><span>Kosong</span><b class="text-amber-600">${kosong}</b></div><div class="flex justify-between py-2"><span>Kontrak aktif</span><b class="text-fuchsia-700">${kontrak}</b></div>`;document.getElementById('ringkasan-tarif').innerHTML=`<div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">IURAN BULANAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_BULANAN)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">KEBERSIHAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_KEBERSIHAN)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">KAS LORONG</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_KAS_LORONG)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">ARISAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_ARISAN)}</div></div>`;renderRumah();renderWarga();renderConfig();isiForm();lucide.createIcons()}
 function isiForm(){const sel=document.getElementById('inp-warga');const old=sel.value;sel.innerHTML='<option value="">Pilih warga...</option>'+DATA.warga.filter(w=>['ya','aktif'].includes((w.statusAktif||'').toLowerCase())).map(w=>`<option value="${w.idWarga}">${w.nama} (${w.blok}/${w.noRumah})</option>`).join('');if(old)sel.value=old;const now=new Date();document.getElementById('inp-tanggal').value=now.toISOString().slice(0,10);document.getElementById('inp-tahun').value=now.getFullYear();document.getElementById('inp-bulan').innerHTML=BULAN.slice(1).map((b,i)=>`<option value="${i+1}">${b}</option>`).join('');document.getElementById('inp-bulan').value=now.getMonth()+1;updatePreview()}
 function periodeList(b,y,j){const a=[];let m=Number(b),yr=Number(y);for(let i=0;i<Number(j);i++){a.push(BULAN[m]+' '+yr);m++;if(m>12){m=1;yr++}}return a}
@@ -122,12 +193,70 @@ async function simpanIuran(ev){ev.preventDefault();const idWarga=document.getEle
     document.getElementById('inp-warga').value='';
     document.getElementById('inp-jumlah').value='1';
     updatePreview();
+    await loadRiwayat(true);
     window.scrollTo({top:0,behavior:'smooth'});
     setTimeout(hideStatus,5000)}catch(e){saveStatus(e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}}
+
+async function loadRiwayat(silent=false){
+  try{
+    if(!silent) riwayatMsg('Memuat riwayat...','info');
+    const r=await jsonp(APPS_SCRIPT_URL,{action:'riwayatpembayaran',t:Date.now()});
+    if(!r||r.status!=='success') throw new Error(r?.message||'Gagal memuat riwayat.');
+    DATA.riwayat=r.data||[];
+    renderRiwayat();
+    if(!silent){riwayatMsg('Riwayat diperbarui.','success');setTimeout(()=>document.getElementById('riwayat-status').classList.add('hidden'),1200)}
+  }catch(e){riwayatMsg(e.message||String(e),'error')}
+}
+function riwayatMsg(t,type='info'){
+  const e=document.getElementById('riwayat-status');if(!e)return;
+  e.className='mb-3 rounded-xl border px-4 py-3 text-sm';
+  if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');
+  else if(type==='success')e.classList.add('bg-violet-50','border-violet-200','text-violet-700');
+  else e.classList.add('bg-slate-50','border-slate-200','text-slate-600');e.textContent=t;
+}
+function renderRiwayat(){
+  const tbody=document.getElementById('tbody-riwayat');if(!tbody)return;
+  const q=(document.getElementById('cari-riwayat')?.value||'').toLowerCase();
+  const f=document.getElementById('filter-riwayat')?.value||'AKTIF';
+  let rows=DATA.riwayat.filter(x=>{
+    if(f!=='SEMUA'&&x.status!==f)return false;
+    const hay=[x.nama,x.blok,x.noRumah,(x.periode||[]).join(' '),x.metode,x.idPembayaran].join(' ').toLowerCase();
+    return hay.includes(q);
+  });
+  const total=rows.length;if(!RIWAYAT_SEMUA)rows=rows.slice(0,10);
+  tbody.innerHTML=rows.map(x=>{
+    const batal=x.status==='BATAL';
+    const badge=batal?'<span class="px-2 py-1 rounded-full bg-slate-100 text-slate-500 text-xs font-bold">BATAL</span>':(x.locked?'<span class="px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">TERKUNCI</span>':'<span class="px-2 py-1 rounded-full bg-violet-100 text-violet-700 text-xs font-bold">AKTIF</span>');
+    const aksi=x.canEdit?`<div class="flex justify-end gap-2"><button onclick="bukaEdit('${x.idPembayaran}')" class="px-3 py-1.5 rounded-lg border border-violet-200 text-violet-700 font-bold hover:bg-violet-50">Edit</button><button onclick="batalkanPembayaran('${x.idPembayaran}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold hover:bg-red-50">Batalkan</button></div>`:(x.locked?'<span class="text-xs text-slate-400">Sudah dibukukan</span>':'-');
+    return `<tr class="${batal?'opacity-55':''} hover:bg-violet-50/30"><td class="p-3 whitespace-nowrap">${x.tanggal||'-'}</td><td class="p-3"><div class="font-bold">${x.nama||'-'}</div><div class="text-xs text-slate-400">${x.blok||''}/${x.noRumah||''} • ${x.idPembayaran}</div></td><td class="p-3">${(x.periode||[]).join(', ')||'-'}</td><td class="p-3 text-right font-black">${rupiah(x.totalDiterima)}</td><td class="p-3">${x.metode||'-'}</td><td class="p-3 text-center">${badge}</td><td class="p-3 text-right">${aksi}</td></tr>`;
+  }).join('')||'<tr><td colspan="7" class="p-6 text-center text-slate-400">Belum ada riwayat pembayaran.</td></tr>';
+  const b=document.getElementById('btn-riwayat-more');if(total>10){b.classList.remove('hidden');b.textContent=RIWAYAT_SEMUA?'Tampilkan 10 terbaru':'Lihat semua ('+total+')'}else b.classList.add('hidden');
+}
+function toggleRiwayatSemua(){RIWAYAT_SEMUA=!RIWAYAT_SEMUA;renderRiwayat()}
+function isiEditOptions(){
+  document.getElementById('edit-warga').innerHTML=DATA.warga.filter(w=>['ya','aktif'].includes((w.statusAktif||'').toLowerCase())).map(w=>`<option value="${w.idWarga}">${w.nama} (${w.blok}/${w.noRumah})</option>`).join('');
+  document.getElementById('edit-bulan').innerHTML=BULAN.slice(1).map((b,i)=>`<option value="${i+1}">${b}</option>`).join('');
+}
+function bukaEdit(id){
+  const x=DATA.riwayat.find(r=>r.idPembayaran===id);if(!x||!x.canEdit){riwayatMsg('Transaksi ini tidak dapat diedit.','error');return}
+  isiEditOptions();document.getElementById('edit-id').value=id;document.getElementById('edit-id-label').textContent=id;document.getElementById('edit-warga').value=x.idWarga;document.getElementById('edit-tanggal').value=x.tanggalIso||'';document.getElementById('edit-metode').value=x.metode||'Cash';document.getElementById('edit-bulan').value=x.bulanAwal||1;document.getElementById('edit-tahun').value=x.tahunAwal||new Date().getFullYear();document.getElementById('edit-jumlah').value=String(x.jumlahBulan||1);document.getElementById('edit-catatan').value=x.catatan||'';document.getElementById('edit-status').classList.add('hidden');updateEditPreview();document.getElementById('modal-edit').classList.remove('hidden');document.body.style.overflow='hidden';lucide.createIcons();
+}
+function tutupEdit(){document.getElementById('modal-edit').classList.add('hidden');document.body.style.overflow=''}
+function updateEditPreview(){
+  const w=DATA.warga.find(x=>x.idWarga===document.getElementById('edit-warga').value);const box=document.getElementById('edit-preview');if(!w){box.textContent='Pilih warga.';return}const c=DATA.config;const per=(w.qtyIuranBulanan*(c.TARIF_BULANAN||0))+(w.qtyKebersihan*(c.TARIF_KEBERSIHAN||0))+(w.qtyKasLorong*(c.TARIF_KAS_LORONG||0))+(w.qtyArisan*(c.TARIF_ARISAN||0));const j=Number(document.getElementById('edit-jumlah').value||1);box.innerHTML=`<div class="flex flex-col sm:flex-row justify-between gap-2"><div><div class="text-xs text-slate-500">Periode</div><div class="font-bold">${periodeList(document.getElementById('edit-bulan').value,document.getElementById('edit-tahun').value,j).join(', ')}</div></div><div class="sm:text-right"><div class="text-xs text-slate-500">Total</div><div class="font-black text-xl text-violet-700">${rupiah(per*j)}</div></div></div>`;
+}
+function editMsg(t,type='info'){const e=document.getElementById('edit-status');e.className='rounded-xl border px-4 py-3 text-sm';if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');else e.classList.add('bg-violet-50','border-violet-200','text-violet-700');e.textContent=t}
+async function simpanEdit(ev){
+  ev.preventDefault();const btn=document.getElementById('btn-edit-save');btn.disabled=true;btn.classList.add('opacity-60');editMsg('Menyimpan perubahan...');try{const p={action:'updatepembayaran',idPembayaran:document.getElementById('edit-id').value,idWarga:document.getElementById('edit-warga').value,tanggal:document.getElementById('edit-tanggal').value,metode:document.getElementById('edit-metode').value,bulan:document.getElementById('edit-bulan').value,tahun:document.getElementById('edit-tahun').value,jumlahBulan:document.getElementById('edit-jumlah').value,catatan:document.getElementById('edit-catatan').value,t:Date.now()};const r=await jsonp(APPS_SCRIPT_URL,p);if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memperbarui.');editMsg('Perubahan berhasil disimpan.','success');await loadRiwayat(true);setTimeout(()=>{tutupEdit();renderRiwayat()},500)}catch(e){editMsg(e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}
+}
+async function batalkanPembayaran(id){
+  const x=DATA.riwayat.find(r=>r.idPembayaran===id);if(!x||!x.canCancel){riwayatMsg('Transaksi ini tidak dapat dibatalkan.','error');return}if(!confirm(`Batalkan pembayaran ${x.nama} untuk ${(x.periode||[]).join(', ')}?\n\nData tidak dihapus permanen dan tetap tersimpan sebagai riwayat BATAL.`))return;try{riwayatMsg('Membatalkan transaksi...');const r=await jsonp(APPS_SCRIPT_URL,{action:'batalkanpembayaran',idPembayaran:id,alasan:'Dibatalkan dari web',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan.');await loadRiwayat(true);renderRiwayat();riwayatMsg(r.message||'Pembayaran dibatalkan.','success')}catch(e){riwayatMsg(e.message||String(e),'error')}
+}
+
 function renderRumah(){const q=(document.getElementById('cari-rumah')?.value||'').toLowerCase();const a=DATA.rumah.filter(r=>[r.blok,r.noRumah,r.namaPemilik,r.statusRumah,r.tipeUnit,r.keterangan].join(' ').toLowerCase().includes(q));document.getElementById('tbody-rumah').innerHTML=a.map(r=>`<tr class="hover:bg-violet-50/40"><td class="p-3 text-center text-slate-400">${r.noUrut||'-'}</td><td class="p-3 font-bold">${r.blok||'-'}</td><td class="p-3 font-bold">${r.noRumah||'-'}</td><td class="p-3">${r.statusRumah||'-'}</td><td class="p-3">${r.tipeUnit||'-'}</td><td class="p-3">${r.namaPemilik||'-'}</td><td class="p-3 text-slate-500">${r.keterangan||'-'}</td></tr>`).join('')||'<tr><td colspan="7" class="p-5 text-center text-slate-400">Tidak ada data.</td></tr>'}
 function renderWarga(){const q=(document.getElementById('cari-warga')?.value||'').toLowerCase();const a=DATA.warga.filter(r=>[r.nama,r.blok,r.noRumah,r.statusTinggal,r.keterangan].join(' ').toLowerCase().includes(q));document.getElementById('tbody-warga').innerHTML=a.map(r=>`<tr class="hover:bg-violet-50/40"><td class="p-3 text-center text-slate-400">${r.noUrutRumah||'-'}</td><td class="p-3 font-bold">${r.nama||'-'}</td><td class="p-3">${r.blok}/${r.noRumah}</td><td class="p-3">${r.statusTinggal||'-'}</td><td class="p-3 text-center">${r.statusAktif||'-'}</td><td class="p-3 text-center font-bold">${r.qtyIuranBulanan||0}x</td><td class="p-3 text-center font-bold">${r.qtyKebersihan||0}x</td><td class="p-3 text-center font-bold">${r.qtyKasLorong||0}x</td><td class="p-3 text-center font-bold">${r.qtyArisan||0}x</td><td class="p-3 text-slate-500">${r.keterangan||'-'}</td></tr>`).join('')||'<tr><td colspan="10" class="p-5 text-center text-slate-400">Tidak ada data.</td></tr>'}
 function renderConfig(){const m={TARIF_BULANAN:'Tarif Iuran Bulanan',TARIF_KEBERSIHAN:'Tarif Kebersihan',TARIF_KAS_LORONG:'Tarif Kas Lorong',TARIF_ARISAN:'Tarif Arisan',TANGGAL_SETOR_RT:'Tanggal Setor RT',BATAS_PERIODE_KAS:'Batas Periode Kas'};document.getElementById('config-list').innerHTML=Object.entries(DATA.config).map(([k,v])=>`<div class="rounded-xl border border-violet-100 bg-white p-4"><div class="text-[11px] font-bold text-slate-400 uppercase">${m[k]||k}</div><div class="mt-1 font-black text-lg text-violet-950">${k.startsWith('TARIF_')?rupiah(v):v}</div></div>`).join('')}
-function gantiTab(n,b){document.querySelectorAll('.tab-panel').forEach(x=>x.classList.add('hidden'));document.getElementById('tab-'+n).classList.remove('hidden');document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active')}
+function gantiTab(n,b){document.querySelectorAll('.tab-panel').forEach(x=>x.classList.add('hidden'));document.getElementById('tab-'+n).classList.remove('hidden');document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(n==='riwayat')loadRiwayat(true)}
 document.addEventListener('DOMContentLoaded',()=>{lucide.createIcons();muatUlang()});
 </script>
 </body></html>
