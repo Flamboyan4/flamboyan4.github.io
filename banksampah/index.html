@@ -2327,6 +2327,13 @@ function prosesCetakPDF() {
       ? 'Saldo Akhir ' + bulanNama[awal - 1] + ' ' + tahun
       : 'Saldo Akhir ' + bulanNama[awal - 1] + '–' + bulanNama[akhir - 1] + ' ' + tahun;
 
+
+  const labelSaldoPeriode = tipe === 'tahunan'
+    ? 'Saldo Tahun ' + tahun
+    : awal === akhir
+      ? 'Saldo ' + bulanNama[awal - 1] + ' ' + tahun
+      : 'Saldo ' + bulanNama[awal - 1] + '–' + bulanNama[akhir - 1] + ' ' + tahun;
+
   // -----------------------------------------------------
   // B. MEMBACA TANGGAL DAN FILTER PERIODE
   // -----------------------------------------------------
@@ -2638,7 +2645,7 @@ function prosesCetakPDF() {
 
   .summary {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 7px;
     margin-bottom: 12px;
   }
@@ -2646,19 +2653,20 @@ function prosesCetakPDF() {
   .metric {
     border: 1px solid #cbd5e1;
     border-radius: 5px;
-    padding: 9px;
+    padding: 7px 5px;
     text-align: center;
   }
 
   .metric-label {
-    font-size: 8px;
+    font-size: 7.2px;
+    line-height: 1.2;
     font-weight: bold;
     color: #64748b;
     text-transform: uppercase;
   }
 
   .metric-value {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: bold;
     margin-top: 4px;
     overflow-wrap: anywhere;
@@ -2875,6 +2883,10 @@ function prosesCetakPDF() {
     <div class="metric">
       <div class="metric-label">Saldo Sebelumnya</div>
       <div class="metric-value" style="color:#475569">${rp(saldoSebelumnya)}</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">${esc(labelSaldoPeriode)}</div>
+      <div class="metric-value" style="color:#4f46e5">${rp(saldoPeriode)}</div>
     </div>
     <div class="metric">
       <div class="metric-label">${esc(labelSaldoAkhir)}</div>
