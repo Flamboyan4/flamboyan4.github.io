@@ -130,7 +130,6 @@
       </div>
     </div>
 
-
     <div id="tab-kas" class="tab-panel hidden p-4 sm:p-5">
       <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-3 mb-5">
         <div>
@@ -192,6 +191,7 @@
       </div>
     </div>
 
+
     <div id="tab-rumah" class="tab-panel hidden p-4 sm:p-5">
       <div class="flex flex-col sm:flex-row justify-between gap-3 mb-4"><div><h2 class="font-black text-lg">Data Rumah</h2><p class="text-sm text-slate-500">Urutan mengikuti No Urut rumah.</p></div><input id="cari-rumah" oninput="renderRumah()" placeholder="Cari blok / nomor / pemilik..." class="field sm:max-w-xs"></div>
       <div class="overflow-x-auto rounded-xl border border-violet-100 scrollbar-thin"><table class="min-w-[850px] w-full text-sm"><thead class="bg-violet-50"><tr><th class="p-3">No</th><th class="p-3 text-left">Blok</th><th class="p-3 text-left">No Rumah</th><th class="p-3 text-left">Status</th><th class="p-3 text-left">Tipe Unit</th><th class="p-3 text-left">Pemilik</th><th class="p-3 text-left">Keterangan</th></tr></thead><tbody id="tbody-rumah" class="divide-y divide-violet-50"></tbody></table></div>
@@ -240,7 +240,7 @@
 <script>
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSe7bAW5eAmvtoau0_fzpGAddiS53tD41rFM0saROgOblFommVZyxaM6LZlEWYSidt/exec';
 const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyol1l00WtmabPPId_RvJ1R-kkNf19p6bpbfWKMpY57K5d8L1fG69WgvS-s7cnNSlCT/exec';
-let DATA={config:{},rumah:[],warga:[],riwayat:[],kas:null};
+let DATA={config:{},rumah:[],warga:[],riwayat:[]};
 let RIWAYAT_LOADED=false;
 let RIWAYAT_LOADING=null;
 let RIWAYAT_SEMUA=false;
@@ -249,23 +249,7 @@ function rupiah(n){return 'Rp '+Math.round(Number(n)||0).toLocaleString('id-ID')
 function jsonp(url,params={}){return new Promise((resolve,reject)=>{const cb='__cb_'+Date.now()+'_'+Math.random().toString(36).slice(2);const s=document.createElement('script');const q=new URLSearchParams({...params,callback:cb});window[cb]=d=>{cleanup();resolve(d)};function cleanup(){try{delete window[cb]}catch(e){}s.remove()}s.onerror=()=>{cleanup();reject(new Error('Gagal menghubungi Apps Script.'))};s.src=url+'?'+q.toString();document.body.appendChild(s);setTimeout(()=>{if(window[cb]){cleanup();reject(new Error('Koneksi timeout.'))}},20000)})}
 function status(t,type='info'){const e=document.getElementById('status-box');e.className='mb-5 rounded-xl border px-4 py-3 text-sm';if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');else if(type==='success')e.classList.add('bg-violet-50','border-violet-200','text-violet-700');else e.classList.add('bg-slate-50','border-slate-200','text-slate-600');e.textContent=t}
 function hideStatus(){document.getElementById('status-box').classList.add('hidden')}
-async function muatUlang(){
-  status('Memuat data...');
-  try{
-    const r=await jsonp(APPS_SCRIPT_URL,{action:'bootstrap',t:Date.now()});
-    if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memuat data utama.');
-    DATA.config=r.config||{};
-    document.getElementById('backend-version').textContent=r.version?('Core '+r.version):'Core aktif';
-    DATA.rumah=r.rumah||[];
-    DATA.warga=r.warga||[];
-    renderSemua();
-    status('Data berhasil dimuat.','success');
-    setTimeout(hideStatus,1000);
-    loadRiwayat(true,true).catch(()=>{});
-  }catch(e){
-    status(e.message||String(e),'error');
-  }
-}
+async function muatUlang(){status('Memuat data...');try{const r=await jsonp(APPS_SCRIPT_URL,{action:'bootstrap',t:Date.now()});if(r.status!=='success')throw new Error(r.message||'Gagal');DATA.config=r.config||{};document.getElementById('backend-version').textContent=r.version?('Backend '+r.version):'Backend lama';DATA.rumah=r.rumah||[];DATA.warga=r.warga||[];renderSemua();await loadRiwayat(true,true);status('Data berhasil dimuat.','success');setTimeout(hideStatus,1200)}catch(e){status(e.message,'error')}}
 function renderSemua(){const total=DATA.rumah.length,dihuni=DATA.rumah.filter(x=>(x.statusRumah||'').toLowerCase()==='dihuni').length,kosong=DATA.rumah.filter(x=>(x.statusRumah||'').toLowerCase()==='kosong').length,aktif=DATA.warga.filter(x=>['ya','aktif'].includes((x.statusAktif||'').toLowerCase())).length,kontrak=DATA.warga.filter(x=>['ya','aktif'].includes((x.statusAktif||'').toLowerCase())&&(x.statusTinggal||'').toLowerCase()==='kontrak').length;document.getElementById('sum-unit').textContent=total;document.getElementById('sum-dihuni').textContent=dihuni;document.getElementById('sum-kosong').textContent=kosong;document.getElementById('sum-warga').textContent=aktif;document.getElementById('sum-kontrak').textContent=kontrak;document.getElementById('ringkasan-hunian').innerHTML=`<div class="flex justify-between py-2 border-b border-violet-50"><span>Total unit terdata</span><b>${total}</b></div><div class="flex justify-between py-2 border-b border-violet-50"><span>Dihuni</span><b class="text-violet-700">${dihuni}</b></div><div class="flex justify-between py-2 border-b border-violet-50"><span>Kosong</span><b class="text-amber-600">${kosong}</b></div><div class="flex justify-between py-2"><span>Kontrak aktif</span><b class="text-fuchsia-700">${kontrak}</b></div>`;document.getElementById('ringkasan-tarif').innerHTML=`<div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">IURAN BULANAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_BULANAN)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">KEBERSIHAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_KEBERSIHAN)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">KAS LORONG</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_KAS_LORONG)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">ARISAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_ARISAN)}</div></div>`;renderRumah();renderWarga();renderConfig();isiForm();lucide.createIcons()}
 function isiForm(){const sel=document.getElementById('inp-warga');const old=sel.value;sel.innerHTML='<option value="">Pilih warga...</option>'+DATA.warga.filter(w=>['ya','aktif'].includes((w.statusAktif||'').toLowerCase())).map(w=>`<option value="${w.idWarga}">${w.nama} (${w.blok}/${w.noRumah})</option>`).join('');if(old)sel.value=old;const now=new Date();document.getElementById('inp-tanggal').value=now.toISOString().slice(0,10);document.getElementById('inp-tahun').value=now.getFullYear();document.getElementById('inp-bulan').innerHTML=BULAN.slice(1).map((b,i)=>`<option value="${i+1}">${b}</option>`).join('');document.getElementById('inp-bulan').value=now.getMonth()+1;updatePreview()}
 function periodeList(b,y,j){const a=[];let m=Number(b),yr=Number(y);for(let i=0;i<Number(j);i++){a.push(BULAN[m]+' '+yr);m++;if(m>12){m=1;yr++}}return a}
@@ -383,15 +367,9 @@ async function hapusPembayaran(id){
   }catch(e){riwayatMsg(e.message||String(e),'error')}
 }
 
-
-function kasMsg(t,type='info'){
-  const e=document.getElementById('kas-status');if(!e)return;
-  e.className='mb-4 rounded-xl border px-4 py-3 text-sm';
-  if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');
-  else if(type==='success')e.classList.add('bg-violet-50','border-violet-200','text-violet-700');
-  else e.classList.add('bg-slate-50','border-slate-200','text-slate-600');
-  e.textContent=t;
-}
+function renderRumah(){const q=(document.getElementById('cari-rumah')?.value||'').toLowerCase();const a=DATA.rumah.filter(r=>[r.blok,r.noRumah,r.namaPemilik,r.statusRumah,r.tipeUnit,r.keterangan].join(' ').toLowerCase().includes(q));document.getElementById('tbody-rumah').innerHTML=a.map(r=>`<tr class="hover:bg-violet-50/40"><td class="p-3 text-center text-slate-400">${r.noUrut||'-'}</td><td class="p-3 font-bold">${r.blok||'-'}</td><td class="p-3 font-bold">${r.noRumah||'-'}</td><td class="p-3">${r.statusRumah||'-'}</td><td class="p-3">${r.tipeUnit||'-'}</td><td class="p-3">${r.namaPemilik||'-'}</td><td class="p-3 text-slate-500">${r.keterangan||'-'}</td></tr>`).join('')||'<tr><td colspan="7" class="p-5 text-center text-slate-400">Tidak ada data.</td></tr>'}
+function renderWarga(){const q=(document.getElementById('cari-warga')?.value||'').toLowerCase();const a=DATA.warga.filter(r=>[r.nama,r.blok,r.noRumah,r.statusTinggal,r.keterangan].join(' ').toLowerCase().includes(q));document.getElementById('tbody-warga').innerHTML=a.map(r=>`<tr class="hover:bg-violet-50/40"><td class="p-3 text-center text-slate-400">${r.noUrutRumah||'-'}</td><td class="p-3 font-bold">${r.nama||'-'}</td><td class="p-3">${r.blok}/${r.noRumah}</td><td class="p-3">${r.statusTinggal||'-'}</td><td class="p-3 text-center">${r.statusAktif||'-'}</td><td class="p-3 text-center font-bold">${r.qtyIuranBulanan||0}x</td><td class="p-3 text-center font-bold">${r.qtyKebersihan||0}x</td><td class="p-3 text-center font-bold">${r.qtyKasLorong||0}x</td><td class="p-3 text-center font-bold">${r.qtyArisan||0}x</td><td class="p-3 text-slate-500">${r.keterangan||'-'}</td></tr>`).join('')||'<tr><td colspan="10" class="p-5 text-center text-slate-400">Tidak ada data.</td></tr>'}
+function renderConfig(){const m={TARIF_BULANAN:'Tarif Iuran Bulanan',TARIF_KEBERSIHAN:'Tarif Kebersihan',TARIF_KAS_LORONG:'Tarif Kas Lorong',TARIF_ARISAN:'Tarif Arisan',TANGGAL_SETOR_RT:'Tanggal Setor RT',BATAS_PERIODE_KAS:'Batas Periode Kas'};document.getElementById('config-list').innerHTML=Object.entries(DATA.config).map(([k,v])=>`<div class="rounded-xl border border-violet-100 bg-white p-4"><div class="text-[11px] font-bold text-slate-400 uppercase">${m[k]||k}</div><div class="mt-1 font-black text-lg text-violet-950">${k.startsWith('TARIF_')?rupiah(v):v}</div></div>`).join('')}
 function initKasControls(){
   const now=new Date();
   const bulan=document.getElementById('kas-filter-bulan');
@@ -414,7 +392,7 @@ async function loadPembukuanKas(){
     DATA.kas=r.data;
     renderPembukuanKas();
     document.getElementById('kas-status').classList.add('hidden');
-  }catch(e){kasMsg('Koneksi modul Pembukuan Kas gagal: '+(e.message||String(e)),'error')}
+  }catch(e){kasMsg(e.message||String(e),'error')}
 }
 function renderPembukuanKas(){
   const d=DATA.kas||{belum:[],sudah:[],ringkasan:{},batches:[]};
@@ -464,7 +442,7 @@ async function buatBatchKas(){
     kasMsg(`${r.idBatch} berhasil dibuat • ${r.jumlahPembayaran}x • ${rupiah(r.nominal)}`,'success');
     await loadPembukuanKas();
     await loadRiwayat(true,true);
-  }catch(e){kasMsg('Koneksi modul Pembukuan Kas gagal: '+(e.message||String(e)),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}
+  }catch(e){kasMsg(e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}
 }
 async function batalkanBatchKas(id){
   if(!confirm(`Batalkan batch ${id}?\n\nTransaksi di dalam batch akan kembali berstatus BELUM dan dapat dibukukan ulang.`))return;
@@ -475,7 +453,7 @@ async function batalkanBatchKas(id){
     kasMsg(r.message||'Batch berhasil dibatalkan.','success');
     await loadPembukuanKas();
     await loadRiwayat(true,true);
-  }catch(e){kasMsg('Koneksi modul Pembukuan Kas gagal: '+(e.message||String(e)),'error')}
+  }catch(e){kasMsg(e.message||String(e),'error')}
 }
 
 function renderRumah(){const q=(document.getElementById('cari-rumah')?.value||'').toLowerCase();const a=DATA.rumah.filter(r=>[r.blok,r.noRumah,r.namaPemilik,r.statusRumah,r.tipeUnit,r.keterangan].join(' ').toLowerCase().includes(q));document.getElementById('tbody-rumah').innerHTML=a.map(r=>`<tr class="hover:bg-violet-50/40"><td class="p-3 text-center text-slate-400">${r.noUrut||'-'}</td><td class="p-3 font-bold">${r.blok||'-'}</td><td class="p-3 font-bold">${r.noRumah||'-'}</td><td class="p-3">${r.statusRumah||'-'}</td><td class="p-3">${r.tipeUnit||'-'}</td><td class="p-3">${r.namaPemilik||'-'}</td><td class="p-3 text-slate-500">${r.keterangan||'-'}</td></tr>`).join('')||'<tr><td colspan="7" class="p-5 text-center text-slate-400">Tidak ada data.</td></tr>'}
@@ -486,11 +464,15 @@ function gantiTab(n,b){
   document.getElementById('tab-'+n).classList.remove('hidden');
   document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
   b.classList.add('active');
+
   if(n==='riwayat'){
     if(RIWAYAT_LOADED) renderRiwayat();
     else loadRiwayat(true).catch(()=>{});
   }
-  if(n==='kas') loadPembukuanKas();
+
+  if(n==='kas'){
+    loadPembukuanKas().catch(()=>{});
+  }
 }
 document.addEventListener('DOMContentLoaded',()=>{lucide.createIcons();initKasControls();const ket=document.getElementById('batch-keterangan');if(ket)ket.addEventListener('input',()=>ket.dataset.edited='1');muatUlang()});
 </script>
