@@ -290,27 +290,32 @@ async function simpanEdit(ev){
 async function hapusPembayaran(id){
   const x=DATA.riwayat.find(r=>r.idPembayaran===id);
   if(!x){riwayatMsg('Transaksi tidak ditemukan.','error');return}
-  if(x.locked){
-    riwayatMsg('Transaksi sudah masuk pembukuan kas dan tidak boleh dihapus.','error');
-    return;
-  }
-
+  if(x.locked){riwayatMsg('Transaksi sudah masuk pembukuan kas dan tidak boleh dihapus.','error');return}
   const periode=(x.periode||[]).join(', ');
-  if(!confirm(`Hapus permanen pembayaran ${x.nama}${periode?` untuk ${periode}`:''}?\n\nData akan dihapus dari PEMBAYARAN dan ALOKASI_IURAN. Tindakan ini tidak bisa dibatalkan.`)) return;
-
+  if(!confirm(`Hapus permanen pembayaran ${x.nama}${periode?` untuk ${periode}`:''}?\n\nData akan dihapus dari PEMBAYARAN dan ALOKASI_IURAN. Tindakan ini tidak bisa dibatalkan.`))return;
   try{
     riwayatMsg('Menghapus transaksi...');
-    const r=await jsonp(APPS_SCRIPT_URL,{
-      action:'hapuspembayaran',
-      idPembayaran:id,
-      t:Date.now()
-    });
-    if(!r||r.status!=='success') throw new Error(r?.message||'Gagal menghapus transaksi.');
-
+    const r=await jsonp(APPS_SCRIPT_URL,{action:'hapuspembayaran',idPembayaran:id,t:Date.now()});
+    if(!r||r.status!=='success')throw new Error(r?.message||'Gagal menghapus transaksi.');
     await loadRiwayat(true,true);
     renderRiwayat();
     riwayatMsg(r.message||'Pembayaran berhasil dihapus.','success');
-  }catch(e){
-    riwayatMsg(e.message||String(e),'error');
+  }catch(e){riwayatMsg(e.message||String(e),'error')}
+}
+
+function renderRumah(){const q=(document.getElementById('cari-rumah')?.value||'').toLowerCase();const a=DATA.rumah.filter(r=>[r.blok,r.noRumah,r.namaPemilik,r.statusRumah,r.tipeUnit,r.keterangan].join(' ').toLowerCase().includes(q));document.getElementById('tbody-rumah').innerHTML=a.map(r=>`<tr class="hover:bg-violet-50/40"><td class="p-3 text-center text-slate-400">${r.noUrut||'-'}</td><td class="p-3 font-bold">${r.blok||'-'}</td><td class="p-3 font-bold">${r.noRumah||'-'}</td><td class="p-3">${r.statusRumah||'-'}</td><td class="p-3">${r.tipeUnit||'-'}</td><td class="p-3">${r.namaPemilik||'-'}</td><td class="p-3 text-slate-500">${r.keterangan||'-'}</td></tr>`).join('')||'<tr><td colspan="7" class="p-5 text-center text-slate-400">Tidak ada data.</td></tr>'}
+function renderWarga(){const q=(document.getElementById('cari-warga')?.value||'').toLowerCase();const a=DATA.warga.filter(r=>[r.nama,r.blok,r.noRumah,r.statusTinggal,r.keterangan].join(' ').toLowerCase().includes(q));document.getElementById('tbody-warga').innerHTML=a.map(r=>`<tr class="hover:bg-violet-50/40"><td class="p-3 text-center text-slate-400">${r.noUrutRumah||'-'}</td><td class="p-3 font-bold">${r.nama||'-'}</td><td class="p-3">${r.blok}/${r.noRumah}</td><td class="p-3">${r.statusTinggal||'-'}</td><td class="p-3 text-center">${r.statusAktif||'-'}</td><td class="p-3 text-center font-bold">${r.qtyIuranBulanan||0}x</td><td class="p-3 text-center font-bold">${r.qtyKebersihan||0}x</td><td class="p-3 text-center font-bold">${r.qtyKasLorong||0}x</td><td class="p-3 text-center font-bold">${r.qtyArisan||0}x</td><td class="p-3 text-slate-500">${r.keterangan||'-'}</td></tr>`).join('')||'<tr><td colspan="10" class="p-5 text-center text-slate-400">Tidak ada data.</td></tr>'}
+function renderConfig(){const m={TARIF_BULANAN:'Tarif Iuran Bulanan',TARIF_KEBERSIHAN:'Tarif Kebersihan',TARIF_KAS_LORONG:'Tarif Kas Lorong',TARIF_ARISAN:'Tarif Arisan',TANGGAL_SETOR_RT:'Tanggal Setor RT',BATAS_PERIODE_KAS:'Batas Periode Kas'};document.getElementById('config-list').innerHTML=Object.entries(DATA.config).map(([k,v])=>`<div class="rounded-xl border border-violet-100 bg-white p-4"><div class="text-[11px] font-bold text-slate-400 uppercase">${m[k]||k}</div><div class="mt-1 font-black text-lg text-violet-950">${k.startsWith('TARIF_')?rupiah(v):v}</div></div>`).join('')}
+function gantiTab(n,b){
+  document.querySelectorAll('.tab-panel').forEach(x=>x.classList.add('hidden'));
+  document.getElementById('tab-'+n).classList.remove('hidden');
+  document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  if(n==='riwayat'){
+    if(RIWAYAT_LOADED) renderRiwayat();
+    else loadRiwayat(true).catch(()=>{});
   }
-}>
+}
+document.addEventListener('DOMContentLoaded',()=>{lucide.createIcons();muatUlang()});
+</script>
+</body></html>
