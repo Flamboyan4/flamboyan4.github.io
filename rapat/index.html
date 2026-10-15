@@ -361,7 +361,8 @@
                 }
                 body div,
                 body section,
-                body article {
+                body article,
+                body figure {
                   max-width: 100% !important;
                 }
 
@@ -369,11 +370,18 @@
                 img, svg, canvas {
                   display: block !important;
                   max-width: 100% !important;
-                  width: auto !important;
+                  width: 100% !important;
                   height: auto !important;
                   object-fit: contain !important;
                   margin-left: auto !important;
                   margin-right: auto !important;
+                }
+                figure, p > span:has(img), div:has(> img), span:has(> img) {
+                  width: 100% !important;
+                  max-width: 100% !important;
+                  height: auto !important;
+                  overflow: visible !important;
+                  transform: none !important;
                 }
 
                 /* Tabel saja yang boleh digeser horizontal bila memang lebar. */
@@ -395,6 +403,42 @@
               }
             `;
             exportedDoc.head.appendChild(responsiveStyle);
+
+            // Rapikan gambar hasil export Google Docs. Google sering membungkus gambar
+            // dengan span/div berukuran tetap sehingga di HP tetap melebar meskipun
+            // tag <img> sudah max-width:100%. Lepaskan ukuran tetap pada gambar dan
+            // wrapper terdekat agar benar-benar mengikuti lebar layar.
+            exportedDoc.querySelectorAll('img').forEach((img) => {
+              img.removeAttribute('width');
+              img.removeAttribute('height');
+              img.style.setProperty('max-width', '100%', 'important');
+              img.style.setProperty('width', '100%', 'important');
+              img.style.setProperty('height', 'auto', 'important');
+              img.style.setProperty('object-fit', 'contain', 'important');
+              img.style.setProperty('display', 'block', 'important');
+              img.style.setProperty('margin-left', 'auto', 'important');
+              img.style.setProperty('margin-right', 'auto', 'important');
+
+              let parent = img.parentElement;
+              let depth = 0;
+              while (parent && parent !== exportedDoc.body && depth < 4) {
+                const inline = parent.getAttribute('style') || '';
+                // Wrapper gambar Google Docs biasanya memiliki width/height/overflow tetap.
+                if (/width\s*:|height\s*:|overflow\s*:|transform\s*:/i.test(inline) ||
+                    ['SPAN', 'DIV', 'P'].includes(parent.tagName)) {
+                  parent.style.setProperty('max-width', '100%', 'important');
+                  parent.style.setProperty('width', '100%', 'important');
+                  parent.style.setProperty('height', 'auto', 'important');
+                  parent.style.setProperty('overflow', 'visible', 'important');
+                  parent.style.setProperty('transform', 'none', 'important');
+                  if (parent.tagName === 'SPAN') {
+                    parent.style.setProperty('display', 'block', 'important');
+                  }
+                }
+                parent = parent.parentElement;
+                depth++;
+              }
+            });
 
             const serializedHtml = '<!DOCTYPE html>\n' + exportedDoc.documentElement.outerHTML;
             const body = document.getElementById('modal-rapat-body');
