@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Pembukuan Flamboyan 4</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    html { scroll-behavior:smooth; }
+    body { background:#f8fafc; }
+    .tab-btn.active { background:#065f46; color:white; }
+    .card { box-shadow:0 6px 24px rgba(15,23,42,.06); }
+    .scrollbar-thin::-webkit-scrollbar { height:7px; width:7px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:999px; }
+  </style>
+</head>
+<body class="text-slate-800">
+
+<header class="sticky top-0 z-40 bg-emerald-950 text-white border-b border-emerald-900">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="w-9 h-9 rounded-xl bg-emerald-800 flex items-center justify-center shrink-0">
+        <i data-lucide="book-open-check" class="w-5 h-5"></i>
+      </div>
+      <div class="min-w-0">
+        <div class="font-black leading-tight truncate">Pembukuan Flamboyan 4</div>
+        <div class="text-[11px] text-emerald-200 truncate">Dashboard Administrasi Internal</div>
+      </div>
+    </div>
+    <button onclick="muatUlang()" class="w-10 h-10 rounded-xl bg-emerald-900 hover:bg-emerald-800 flex items-center justify-center transition" title="Muat ulang">
+      <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+    </button>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+  <section class="mb-5">
+    <h1 class="text-2xl sm:text-3xl font-black text-slate-900">Administrasi Warga & Pembukuan</h1>
+    <p class="text-sm text-slate-500 mt-1">Versi awal — membaca master rumah, warga, dan konfigurasi dari spreadsheet privat.</p>
+  </section>
+
+  <div id="status-box" class="mb-5 hidden rounded-xl border px-4 py-3 text-sm"></div>
+
+  <section class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
+    <div class="card bg-white rounded-2xl border border-slate-200 p-4">
+      <div class="text-[11px] font-bold uppercase tracking-wide text-slate-400">Total Unit</div>
+      <div id="sum-unit" class="text-2xl font-black mt-2">0</div>
+    </div>
+    <div class="card bg-white rounded-2xl border border-slate-200 p-4">
+      <div class="text-[11px] font-bold uppercase tracking-wide text-slate-400">Dihuni</div>
+      <div id="sum-dihuni" class="text-2xl font-black text-emerald-700 mt-2">0</div>
+    </div>
+    <div class="card bg-white rounded-2xl border border-slate-200 p-4">
+      <div class="text-[11px] font-bold uppercase tracking-wide text-slate-400">Rumah Kosong</div>
+      <div id="sum-kosong" class="text-2xl font-black text-amber-600 mt-2">0</div>
+    </div>
+    <div class="card bg-white rounded-2xl border border-slate-200 p-4">
+      <div class="text-[11px] font-bold uppercase tracking-wide text-slate-400">Warga Aktif</div>
+      <div id="sum-warga" class="text-2xl font-black text-blue-700 mt-2">0</div>
+    </div>
+    <div class="card bg-white rounded-2xl border border-slate-200 p-4 col-span-2 lg:col-span-1">
+      <div class="text-[11px] font-bold uppercase tracking-wide text-slate-400">Kontrak Aktif</div>
+      <div id="sum-kontrak" class="text-2xl font-black text-violet-700 mt-2">0</div>
+    </div>
+  </section>
+
+  <section class="card bg-white rounded-2xl border border-slate-200 overflow-hidden">
+    <div class="p-3 border-b border-slate-200 flex gap-2 overflow-x-auto scrollbar-thin">
+      <button class="tab-btn active whitespace-nowrap px-4 py-2 rounded-xl text-sm font-bold" data-tab="dashboard" onclick="gantiTab('dashboard', this)">
+        Ringkasan
+      </button>
+      <button class="tab-btn whitespace-nowrap px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-100" data-tab="rumah" onclick="gantiTab('rumah', this)">
+        Data Rumah
+      </button>
+      <button class="tab-btn whitespace-nowrap px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-100" data-tab="warga" onclick="gantiTab('warga', this)">
+        Data Warga
+      </button>
+      <button class="tab-btn whitespace-nowrap px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-100" data-tab="config" onclick="gantiTab('config', this)">
+        Tarif & Aturan
+      </button>
+    </div>
+
+    <div id="tab-dashboard" class="tab-panel p-4 sm:p-5">
+      <div class="grid lg:grid-cols-2 gap-4">
+        <div class="rounded-2xl border border-slate-200 p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="font-black">Ringkasan Hunian</h2>
+            <i data-lucide="house" class="w-5 h-5 text-emerald-700"></i>
+          </div>
+          <div id="ringkasan-hunian" class="space-y-2 text-sm text-slate-600">Memuat...</div>
+        </div>
+        <div class="rounded-2xl border border-slate-200 p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="font-black">Tarif Aktif</h2>
+            <i data-lucide="wallet-cards" class="w-5 h-5 text-emerald-700"></i>
+          </div>
+          <div id="ringkasan-tarif" class="grid grid-cols-2 gap-3">Memuat...</div>
+        </div>
+      </div>
+
+      <div class="mt-5 rounded-2xl bg-amber-50 border border-amber-200 p-4">
+        <div class="flex gap-3">
+          <i data-lucide="shield-check" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+          <div class="text-sm text-amber-900">
+            <div class="font-bold">Tahap 1 masih read-only.</div>
+            <div class="mt-1 text-amber-800">Belum ada tombol input transaksi. Data sensitif seperti No HP, agama, tanggal lahir, kategori sosial, dan kontak pemilik belum dikirim ke halaman ini.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-rumah" class="tab-panel hidden p-4 sm:p-5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <div>
+          <h2 class="font-black text-lg">Data Rumah</h2>
+          <p class="text-sm text-slate-500">Urutan mengikuti No Urut pada DATA_RUMAH.</p>
+        </div>
+        <input id="cari-rumah" oninput="renderRumah()" placeholder="Cari blok / nomor / pemilik..." class="w-full sm:w-72 px-4 py-2.5 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-emerald-200">
+      </div>
+      <div class="overflow-x-auto rounded-xl border border-slate-200 scrollbar-thin">
+        <table class="min-w-[850px] w-full text-sm">
+          <thead class="bg-slate-100">
+            <tr>
+              <th class="p-3 text-center">No</th>
+              <th class="p-3 text-left">Blok</th>
+              <th class="p-3 text-left">No Rumah</th>
+              <th class="p-3 text-left">Status</th>
+              <th class="p-3 text-left">Tipe Unit</th>
+              <th class="p-3 text-left">Pemilik</th>
+              <th class="p-3 text-left">Keterangan</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-rumah" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-warga" class="tab-panel hidden p-4 sm:p-5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <div>
+          <h2 class="font-black text-lg">Data Warga</h2>
+          <p class="text-sm text-slate-500">Posisi warga mengikuti urutan rumah, bukan urutan ID.</p>
+        </div>
+        <input id="cari-warga" oninput="renderWarga()" placeholder="Cari nama / blok / rumah..." class="w-full sm:w-72 px-4 py-2.5 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-emerald-200">
+      </div>
+      <div class="overflow-x-auto rounded-xl border border-slate-200 scrollbar-thin">
+        <table class="min-w-[1050px] w-full text-sm">
+          <thead class="bg-emerald-50 text-emerald-950">
+            <tr>
+              <th class="p-3 text-center">No</th>
+              <th class="p-3 text-left">Nama</th>
+              <th class="p-3 text-left">Rumah</th>
+              <th class="p-3 text-left">Tinggal</th>
+              <th class="p-3 text-center">Aktif</th>
+              <th class="p-3 text-center">Bulanan</th>
+              <th class="p-3 text-center">Kebersihan</th>
+              <th class="p-3 text-center">Kas</th>
+              <th class="p-3 text-center">Arisan</th>
+              <th class="p-3 text-left">Keterangan</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-warga" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-config" class="tab-panel hidden p-4 sm:p-5">
+      <h2 class="font-black text-lg mb-4">Tarif & Aturan</h2>
+      <div id="config-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx1hSjfRS2dypu9pnndGv3jieim2nT5l7d74ldC4IIxPdRIwMxIbq7JKI11mD9Dogkk/exec';
+
+let DATA = {
+  config: {},
+  rumah: [],
+  warga: []
+};
+
+function jsonp(url, params={}) {
+  return new Promise((resolve, reject) => {
+    const cb = '__cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    const script = document.createElement('script');
+    const query = new URLSearchParams({...params, callback: cb});
+
+    window[cb] = (data) => {
+      cleanup();
+      resolve(data);
+    };
+
+    function cleanup() {
+      try { delete window[cb]; } catch(e) {}
+      script.remove();
+    }
+
+    script.onerror = () => {
+      cleanup();
+      reject(new Error('Gagal menghubungi Apps Script.'));
+    };
+
+    script.src = url + '?' + query.toString();
+    document.body.appendChild(script);
+
+    setTimeout(() => {
+      if (window[cb]) {
+        cleanup();
+        reject(new Error('Koneksi ke Apps Script timeout.'));
+      }
+    }, 15000);
+  });
+}
+
+function rupiah(n) {
+  return 'Rp ' + Math.round(Number(n)||0).toLocaleString('id-ID');
+}
+
+function tampilStatus(teks, tipe='info') {
+  const el = document.getElementById('status-box');
+  el.classList.remove('hidden','bg-red-50','border-red-200','text-red-700','bg-emerald-50','border-emerald-200','text-emerald-700','bg-blue-50','border-blue-200','text-blue-700');
+  if (tipe === 'error') el.classList.add('bg-red-50','border-red-200','text-red-700');
+  else if (tipe === 'success') el.classList.add('bg-emerald-50','border-emerald-200','text-emerald-700');
+  else el.classList.add('bg-blue-50','border-blue-200','text-blue-700');
+  el.textContent = teks;
+}
+
+function sembunyikanStatus() {
+  document.getElementById('status-box').classList.add('hidden');
+}
+
+async function muatUlang() {
+  tampilStatus('Memuat data pembukuan...', 'info');
+  try {
+    const res = await jsonp(APPS_SCRIPT_URL, {action:'bootstrap', t:Date.now()});
+    if (!res || res.status !== 'success') throw new Error(res?.message || 'Respons Apps Script tidak valid.');
+
+    DATA.config = res.config || {};
+    DATA.rumah = Array.isArray(res.rumah) ? res.rumah : [];
+    DATA.warga = Array.isArray(res.warga) ? res.warga : [];
+
+    renderSemua();
+    tampilStatus('Data berhasil dimuat.', 'success');
+    setTimeout(sembunyikanStatus, 1800);
+  } catch(err) {
+    tampilStatus(err.message || String(err), 'error');
+  }
+}
+
+function renderSemua() {
+  const total = DATA.rumah.length;
+  const dihuni = DATA.rumah.filter(x => (x.statusRumah||'').toLowerCase() === 'dihuni').length;
+  const kosong = DATA.rumah.filter(x => (x.statusRumah||'').toLowerCase() === 'kosong').length;
+  const aktif = DATA.warga.filter(x => ['ya','aktif'].includes((x.statusAktif||'').toLowerCase())).length;
+  const kontrak = DATA.warga.filter(x =>
+    ['ya','aktif'].includes((x.statusAktif||'').toLowerCase()) &&
+    (x.statusTinggal||'').toLowerCase() === 'kontrak'
+  ).length;
+
+  document.getElementById('sum-unit').textContent = total;
+  document.getElementById('sum-dihuni').textContent = dihuni;
+  document.getElementById('sum-kosong').textContent = kosong;
+  document.getElementById('sum-warga').textContent = aktif;
+  document.getElementById('sum-kontrak').textContent = kontrak;
+
+  document.getElementById('ringkasan-hunian').innerHTML = `
+    <div class="flex justify-between py-2 border-b border-slate-100"><span>Total unit terdata</span><b>${total}</b></div>
+    <div class="flex justify-between py-2 border-b border-slate-100"><span>Dihuni</span><b class="text-emerald-700">${dihuni}</b></div>
+    <div class="flex justify-between py-2 border-b border-slate-100"><span>Kosong</span><b class="text-amber-600">${kosong}</b></div>
+    <div class="flex justify-between py-2"><span>Kontrak aktif</span><b class="text-violet-700">${kontrak}</b></div>
+  `;
+
+  document.getElementById('ringkasan-tarif').innerHTML = `
+    <div class="rounded-xl bg-slate-50 p-3"><div class="text-[11px] text-slate-400 font-bold">IURAN BULANAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_BULANAN)}</div></div>
+    <div class="rounded-xl bg-slate-50 p-3"><div class="text-[11px] text-slate-400 font-bold">KEBERSIHAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_KEBERSIHAN)}</div></div>
+    <div class="rounded-xl bg-slate-50 p-3"><div class="text-[11px] text-slate-400 font-bold">KAS LORONG</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_KAS_LORONG)}</div></div>
+    <div class="rounded-xl bg-slate-50 p-3"><div class="text-[11px] text-slate-400 font-bold">ARISAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_ARISAN)}</div></div>
+  `;
+
+  renderRumah();
+  renderWarga();
+  renderConfig();
+  if (window.lucide) lucide.createIcons();
+}
+
+function renderRumah() {
+  const q = (document.getElementById('cari-rumah')?.value || '').toLowerCase();
+  const rows = DATA.rumah.filter(r => {
+    const hay = [r.blok,r.noRumah,r.namaPemilik,r.statusRumah,r.tipeUnit,r.keterangan].join(' ').toLowerCase();
+    return hay.includes(q);
+  });
+
+  const tbody = document.getElementById('tbody-rumah');
+  tbody.innerHTML = rows.map(r => `
+    <tr class="hover:bg-slate-50">
+      <td class="p-3 text-center text-slate-400">${r.noUrut || '-'}</td>
+      <td class="p-3 font-bold">${r.blok || '-'}</td>
+      <td class="p-3 font-bold">${r.noRumah || '-'}</td>
+      <td class="p-3"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${(r.statusRumah||'').toLowerCase()==='kosong'?'bg-amber-100 text-amber-700':'bg-emerald-100 text-emerald-700'}">${r.statusRumah || '-'}</span></td>
+      <td class="p-3">${r.tipeUnit || '-'}</td>
+      <td class="p-3">${r.namaPemilik || '-'}</td>
+      <td class="p-3 text-slate-500">${r.keterangan || '-'}</td>
+    </tr>`).join('') || `<tr><td colspan="7" class="p-5 text-center text-slate-400">Tidak ada data.</td></tr>`;
+}
+
+function renderWarga() {
+  const q = (document.getElementById('cari-warga')?.value || '').toLowerCase();
+  const rows = DATA.warga.filter(r => {
+    const hay = [r.nama,r.blok,r.noRumah,r.statusTinggal,r.keterangan].join(' ').toLowerCase();
+    return hay.includes(q);
+  });
+
+  const tbody = document.getElementById('tbody-warga');
+  tbody.innerHTML = rows.map(r => `
+    <tr class="hover:bg-emerald-50/40">
+      <td class="p-3 text-center text-slate-400">${r.noUrutRumah || '-'}</td>
+      <td class="p-3 font-bold">${r.nama || '-'}</td>
+      <td class="p-3">${(r.blok||'') + '/' + (r.noRumah||'')}</td>
+      <td class="p-3">${r.statusTinggal || '-'}</td>
+      <td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${['ya','aktif'].includes((r.statusAktif||'').toLowerCase())?'bg-emerald-100 text-emerald-700':'bg-slate-100 text-slate-500'}">${r.statusAktif || '-'}</span></td>
+      <td class="p-3 text-center font-bold">${r.qtyIuranBulanan || 0}x</td>
+      <td class="p-3 text-center font-bold">${r.qtyKebersihan || 0}x</td>
+      <td class="p-3 text-center font-bold">${r.qtyKasLorong || 0}x</td>
+      <td class="p-3 text-center font-bold">${r.qtyArisan || 0}x</td>
+      <td class="p-3 text-slate-500">${r.keterangan || '-'}</td>
+    </tr>`).join('') || `<tr><td colspan="10" class="p-5 text-center text-slate-400">Tidak ada data.</td></tr>`;
+}
+
+function renderConfig() {
+  const map = {
+    TARIF_BULANAN:'Tarif Iuran Bulanan',
+    TARIF_KEBERSIHAN:'Tarif Kebersihan',
+    TARIF_KAS_LORONG:'Tarif Kas Lorong',
+    TARIF_ARISAN:'Tarif Arisan',
+    TANGGAL_SETOR_RT:'Tanggal Setor RT',
+    BATAS_PERIODE_KAS:'Batas Periode Kas'
+  };
+
+  document.getElementById('config-list').innerHTML = Object.entries(DATA.config).map(([k,v]) => `
+    <div class="rounded-xl border border-slate-200 p-4">
+      <div class="text-[11px] font-bold text-slate-400 uppercase">${map[k] || k}</div>
+      <div class="mt-1 font-black text-lg">${k.startsWith('TARIF_') ? rupiah(v) : v}</div>
+    </div>
+  `).join('');
+}
+
+function gantiTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(x => x.classList.add('hidden'));
+  document.getElementById('tab-' + name).classList.remove('hidden');
+  document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.lucide) lucide.createIcons();
+  muatUlang();
+});
+</script>
+</body>
+</html>
