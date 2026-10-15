@@ -238,17 +238,57 @@
 </div>
 
 <script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytYviIcgMQfRfv6a2RhFFEIHMQWsQmgH5EQjpaVGE_7hrYaZmWkqk4x_lgKrn1IcE0/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyol1l00WtmabPPId_RvJ1R-kkNf19p6bpbfWKMpY57K5d8L1fG69WgvS-s7cnNSlCT/exec';
 let DATA={config:{},rumah:[],warga:[],riwayat:[],kas:null};
 let RIWAYAT_LOADED=false;
 let RIWAYAT_LOADING=null;
 let RIWAYAT_SEMUA=false;
+const MASTER_CACHE_KEY='flamboyan4_pembukuan_master_v1';
+function simpanMasterCache(){
+  try{
+    localStorage.setItem(MASTER_CACHE_KEY,JSON.stringify({
+      ts:Date.now(),config:DATA.config,rumah:DATA.rumah,warga:DATA.warga
+    }));
+  }catch(e){}
+}
+function muatMasterCache(){
+  try{
+    const c=JSON.parse(localStorage.getItem(MASTER_CACHE_KEY)||'null');
+    if(!c||!Array.isArray(c.rumah)||!Array.isArray(c.warga))return false;
+    DATA.config=c.config||{};
+    DATA.rumah=c.rumah||[];
+    DATA.warga=c.warga||[];
+    renderSemua();
+    status('Menampilkan data terakhir sambil memperbarui...','info');
+    return true;
+  }catch(e){return false}
+}
+
 const BULAN=['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 function rupiah(n){return 'Rp '+Math.round(Number(n)||0).toLocaleString('id-ID')}
-function jsonp(url,params={}){return new Promise((resolve,reject)=>{const cb='__cb_'+Date.now()+'_'+Math.random().toString(36).slice(2);const s=document.createElement('script');const q=new URLSearchParams({...params,callback:cb});window[cb]=d=>{cleanup();resolve(d)};function cleanup(){try{delete window[cb]}catch(e){}s.remove()}s.onerror=()=>{cleanup();reject(new Error('Gagal menghubungi Apps Script.'))};s.src=url+'?'+q.toString();document.body.appendChild(s);setTimeout(()=>{if(window[cb]){cleanup();reject(new Error('Koneksi timeout.'))}},20000)})}
+function jsonp(url,params={}){return new Promise((resolve,reject)=>{const cb='__cb_'+Date.now()+'_'+Math.random().toString(36).slice(2);const s=document.createElement('script');const q=new URLSearchParams({...params,callback:cb});window[cb]=d=>{cleanup();resolve(d)};function cleanup(){try{delete window[cb]}catch(e){}s.remove()}s.onerror=()=>{cleanup();reject(new Error('Gagal menghubungi Apps Script.'))};s.src=url+'?'+q.toString();document.body.appendChild(s);setTimeout(()=>{if(window[cb]){cleanup();reject(new Error('Koneksi timeout.'))}},30000)})}
 function status(t,type='info'){const e=document.getElementById('status-box');e.className='mb-5 rounded-xl border px-4 py-3 text-sm';if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');else if(type==='success')e.classList.add('bg-violet-50','border-violet-200','text-violet-700');else e.classList.add('bg-slate-50','border-slate-200','text-slate-600');e.textContent=t}
 function hideStatus(){document.getElementById('status-box').classList.add('hidden')}
-async function muatUlang(){status('Memuat data...');try{const r=await jsonp(APPS_SCRIPT_URL,{action:'bootstrap',t:Date.now()});if(r.status!=='success')throw new Error(r.message||'Gagal');DATA.config=r.config||{};document.getElementById('backend-version').textContent=r.version?('Backend '+r.version):'Backend lama';DATA.rumah=r.rumah||[];DATA.warga=r.warga||[];renderSemua();await loadRiwayat(true,true);status('Data berhasil dimuat.','success');setTimeout(hideStatus,1200)}catch(e){status(e.message,'error')}}
+async function muatUlang(){
+  status('Memuat data...');
+  try{
+    const r=await jsonp(APPS_SCRIPT_URL,{action:'bootstrap',t:Date.now()});
+    if(r.status!=='success')throw new Error(r.message||'Gagal');
+    DATA.config=r.config||{};
+    document.getElementById('backend-version').textContent=r.version?('Backend '+r.version):'Backend lama';
+    DATA.rumah=r.rumah||[];
+    DATA.warga=r.warga||[];
+    renderSemua();
+    simpanMasterCache();
+    status('Data siap.','success');
+    setTimeout(hideStatus,900);
+
+    // Riwayat dimuat di belakang layar. Tidak menahan dashboard utama.
+    loadRiwayat(true,true).catch(()=>{});
+  }catch(e){
+    status(e.message||String(e),'error');
+  }
+}
 function renderSemua(){const total=DATA.rumah.length,dihuni=DATA.rumah.filter(x=>(x.statusRumah||'').toLowerCase()==='dihuni').length,kosong=DATA.rumah.filter(x=>(x.statusRumah||'').toLowerCase()==='kosong').length,aktif=DATA.warga.filter(x=>['ya','aktif'].includes((x.statusAktif||'').toLowerCase())).length,kontrak=DATA.warga.filter(x=>['ya','aktif'].includes((x.statusAktif||'').toLowerCase())&&(x.statusTinggal||'').toLowerCase()==='kontrak').length;document.getElementById('sum-unit').textContent=total;document.getElementById('sum-dihuni').textContent=dihuni;document.getElementById('sum-kosong').textContent=kosong;document.getElementById('sum-warga').textContent=aktif;document.getElementById('sum-kontrak').textContent=kontrak;document.getElementById('ringkasan-hunian').innerHTML=`<div class="flex justify-between py-2 border-b border-violet-50"><span>Total unit terdata</span><b>${total}</b></div><div class="flex justify-between py-2 border-b border-violet-50"><span>Dihuni</span><b class="text-violet-700">${dihuni}</b></div><div class="flex justify-between py-2 border-b border-violet-50"><span>Kosong</span><b class="text-amber-600">${kosong}</b></div><div class="flex justify-between py-2"><span>Kontrak aktif</span><b class="text-fuchsia-700">${kontrak}</b></div>`;document.getElementById('ringkasan-tarif').innerHTML=`<div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">IURAN BULANAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_BULANAN)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">KEBERSIHAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_KEBERSIHAN)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">KAS LORONG</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_KAS_LORONG)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">ARISAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_ARISAN)}</div></div>`;renderRumah();renderWarga();renderConfig();isiForm();lucide.createIcons()}
 function isiForm(){const sel=document.getElementById('inp-warga');const old=sel.value;sel.innerHTML='<option value="">Pilih warga...</option>'+DATA.warga.filter(w=>['ya','aktif'].includes((w.statusAktif||'').toLowerCase())).map(w=>`<option value="${w.idWarga}">${w.nama} (${w.blok}/${w.noRumah})</option>`).join('');if(old)sel.value=old;const now=new Date();document.getElementById('inp-tanggal').value=now.toISOString().slice(0,10);document.getElementById('inp-tahun').value=now.getFullYear();document.getElementById('inp-bulan').innerHTML=BULAN.slice(1).map((b,i)=>`<option value="${i+1}">${b}</option>`).join('');document.getElementById('inp-bulan').value=now.getMonth()+1;updatePreview()}
 function periodeList(b,y,j){const a=[];let m=Number(b),yr=Number(y);for(let i=0;i<Number(j);i++){a.push(BULAN[m]+' '+yr);m++;if(m>12){m=1;yr++}}return a}
