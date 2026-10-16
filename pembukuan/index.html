@@ -200,7 +200,7 @@
 
           <div class="grid sm:grid-cols-2 gap-4">
             <div><label class="text-sm font-bold">Kategori</label><select id="trx-kategori" class="field mt-1" required></select></div>
-            <div><label class="text-sm font-bold">Nominal</label><input id="trx-nominal" type="number" min="1" step="1" class="field mt-1" placeholder="0" required></div>
+            <div><label class="text-sm font-bold">Nominal</label><input id="trx-nominal" type="text" inputmode="numeric" autocomplete="off" class="field mt-1" placeholder="0" required oninput="formatNominalInput(this)"></div>
           </div>
 
           <div><label class="text-sm font-bold">Keterangan</label><input id="trx-keterangan" class="field mt-1" placeholder="Contoh: Donasi Gorol" required></div>
@@ -413,6 +413,7 @@
 <script>
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrI9BXhRXOJyQTNIc0W1CbNUNqZinZGiUZCNCoB4OhaeF706WQXJl_-FucMcZLKgms/exec';
 const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzx691t9eDpt6Wu2MBdnYod9auEq55ReujztqZh16XjpLkCbxzRrgCkvoJE42Lq9XXS/exec';
+const DELETE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSe7bAW5eAmvtoau0_fzpGAddiS53tD41rFM0saROgOblFommVZyxaM6LZlEWYSidt/exec';
 let DATA={config:{},rumah:[],warga:[],riwayat:[]};
 let RIWAYAT_SEMUA=false;
 let RIWAYAT_KAS=[];
@@ -466,7 +467,9 @@ function renderRiwayat(){
   tbody.innerHTML=rows.map(x=>{
     const batal=x.status==='BATAL';
     const badge=batal?'<span class="px-2 py-1 rounded-full bg-slate-100 text-slate-500 text-xs font-bold">BATAL</span>':(x.locked?'<span class="px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">TERKUNCI</span>':'<span class="px-2 py-1 rounded-full bg-violet-100 text-violet-700 text-xs font-bold">AKTIF</span>');
-    const aksi=x.canEdit?`<div class="flex justify-end gap-2"><button onclick="bukaEdit('${x.idPembayaran}')" class="px-3 py-1.5 rounded-lg border border-violet-200 text-violet-700 font-bold hover:bg-violet-50">Edit</button><button onclick="batalkanPembayaran('${x.idPembayaran}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold hover:bg-red-50">Batalkan</button></div>`:(x.locked?'<span class="text-xs text-slate-400">Sudah dibukukan</span>':'-');
+    const aksi=x.locked
+      ? '<span class="text-xs text-slate-400">Sudah dibukukan</span>'
+      : `<div class="flex justify-end gap-2 flex-wrap">${x.canEdit?`<button onclick="bukaEdit('${x.idPembayaran}')" class="px-3 py-1.5 rounded-lg border border-violet-200 text-violet-700 font-bold hover:bg-violet-50">Edit</button>`:''}${x.canCancel&&x.status!=='BATAL'?`<button onclick="batalkanPembayaran('${x.idPembayaran}')" class="px-3 py-1.5 rounded-lg border border-amber-200 text-amber-700 font-bold hover:bg-amber-50">Batalkan</button>`:''}<button onclick="hapusPembayaran('${x.idPembayaran}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold hover:bg-red-50">Hapus</button></div>`;
     return `<tr class="${batal?'opacity-55':''} hover:bg-violet-50/30"><td class="p-3 whitespace-nowrap">${x.tanggal||'-'}</td><td class="p-3"><div class="font-bold">${x.nama||'-'}</div><div class="text-xs text-slate-400">${x.blok||''}/${x.noRumah||''} • ${x.idPembayaran}</div></td><td class="p-3">${(x.periode||[]).join(', ')||'-'}</td><td class="p-3 text-right font-black">${rupiah(x.totalDiterima)}</td><td class="p-3">${x.metode||'-'}</td><td class="p-3 text-center">${badge}</td><td class="p-3 text-right">${aksi}</td></tr>`;
   }).join('')||'<tr><td colspan="7" class="p-6 text-center text-slate-400">Belum ada riwayat pembayaran.</td></tr>';
   const b=document.getElementById('btn-riwayat-more');if(total>10){b.classList.remove('hidden');b.textContent=RIWAYAT_SEMUA?'Tampilkan 10 terbaru':'Lihat semua ('+total+')'}else b.classList.add('hidden');
@@ -491,6 +494,23 @@ async function simpanEdit(ev){
 async function batalkanPembayaran(id){
   const x=DATA.riwayat.find(r=>r.idPembayaran===id);if(!x||!x.canCancel){riwayatMsg('Transaksi ini tidak dapat dibatalkan.','error');return}if(!confirm(`Batalkan pembayaran ${x.nama} untuk ${(x.periode||[]).join(', ')}?\n\nData tidak dihapus permanen dan tetap tersimpan sebagai riwayat BATAL.`))return;try{riwayatMsg('Membatalkan transaksi...');const r=await jsonp(APPS_SCRIPT_URL,{action:'batalkanpembayaran',idPembayaran:id,alasan:'Dibatalkan dari web',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan.');await loadRiwayat(true);renderRiwayat();riwayatMsg(r.message||'Pembayaran dibatalkan.','success')}catch(e){riwayatMsg(e.message||String(e),'error')}
 }
+
+async function hapusPembayaran(id){
+  const x=DATA.riwayat.find(r=>r.idPembayaran===id);
+  if(!x){riwayatMsg('Transaksi tidak ditemukan.','error');return}
+  if(x.locked){riwayatMsg('Transaksi sudah masuk pembukuan kas dan tidak boleh dihapus. Batalkan batch terlebih dahulu.','error');return}
+  const periode=(x.periode||[]).join(', ');
+  if(!confirm(`Hapus permanen pembayaran ${x.nama}${periode?` untuk ${periode}`:''}?\n\nData di PEMBAYARAN dan ALOKASI_IURAN akan dihapus. Tindakan ini tidak bisa dibatalkan.`))return;
+  try{
+    riwayatMsg('Menghapus permanen transaksi...');
+    const r=await jsonp(DELETE_SCRIPT_URL,{action:'hapuspembayaran',idPembayaran:id,t:Date.now()});
+    if(!r||r.status!=='success')throw new Error(r?.message||'Gagal menghapus transaksi.');
+    await loadRiwayat(true);
+    renderRiwayat();
+    riwayatMsg(r.message||'Pembayaran berhasil dihapus permanen.','success');
+  }catch(e){riwayatMsg(e.message||String(e),'error')}
+}
+
 
 
 let KAS_DATA={belum:[],sudah:[],batches:[],ringkasan:{}};
@@ -538,7 +558,7 @@ async function batalkanBatchKas(id){if(!confirm(`Batalkan batch ${id}?\n\nTransa
 
 
 
-const KATEGORI_PEMASUKAN=['Donasi','Denda Gorol','Dana Kebersihan RT','Sumbangan','Lainnya'];
+const KATEGORI_PEMASUKAN=['Donasi','Denda Gorol','Dana Kebersihan RT','Lainnya'];
 const KATEGORI_PENGELUARAN=['Operasional','Kebersihan','Konsumsi','Kegiatan','Perbaikan / Fasilitas','Lainnya'];
 
 function initTransaksiKasUi(){
@@ -569,13 +589,19 @@ function trxMsg(t,type='info'){
   e.textContent=t;
 }
 
+function formatNominalInput(el){
+  const angka=String(el.value||'').replace(/\D/g,'');
+  el.value=angka?Number(angka).toLocaleString('id-ID'):'';
+}
+function nominalAngka(id){return String(document.getElementById(id)?.value||'').replace(/\D/g,'')}
+
 async function simpanTransaksiKas(ev){
   ev.preventDefault();
   const btn=document.getElementById('btn-trx-simpan');btn.disabled=true;btn.classList.add('opacity-60');
   try{
     trxMsg('Menyimpan transaksi...');
     const bulan=Number(document.getElementById('trx-bulan').value),tahun=Number(document.getElementById('trx-tahun').value);
-    const r=await jsonp(BATCH_SCRIPT_URL,{action:'inputtransaksikas',tanggal:document.getElementById('trx-tanggal').value,jenis:document.getElementById('trx-jenis').value,kategori:document.getElementById('trx-kategori').value,keterangan:document.getElementById('trx-keterangan').value,nominal:document.getElementById('trx-nominal').value,metode:document.getElementById('trx-metode').value,periode:`${BULAN[bulan]} ${tahun}`,catatan:document.getElementById('trx-catatan').value,t:Date.now()});
+    const r=await jsonp(BATCH_SCRIPT_URL,{action:'inputtransaksikas',tanggal:document.getElementById('trx-tanggal').value,jenis:document.getElementById('trx-jenis').value,kategori:document.getElementById('trx-kategori').value,keterangan:document.getElementById('trx-keterangan').value,nominal:nominalAngka('trx-nominal'),metode:document.getElementById('trx-metode').value,periode:`${BULAN[bulan]} ${tahun}`,catatan:document.getElementById('trx-catatan').value,t:Date.now()});
     if(!r||r.status!=='success')throw new Error(r?.message||'Gagal menyimpan transaksi.');
     trxMsg(`${r.idTransaksi} berhasil disimpan.`,'success');
     document.getElementById('trx-keterangan').value='';document.getElementById('trx-nominal').value='';document.getElementById('trx-catatan').value='';
@@ -591,14 +617,18 @@ function histKasMsg(t,type='info'){
 async function loadRiwayatKas(silent=false){
   try{
     if(!silent)histKasMsg('Memuat riwayat kas...');
-    const r=await jsonp(BATCH_SCRIPT_URL,{action:'datatransaksikas',t:Date.now()});
+    const r=await jsonp(BATCH_SCRIPT_URL,{action:'datatransaksikas',status:'SEMUA',t:Date.now()});
     if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memuat riwayat kas.');
     const rawKas = r.data;
     RIWAYAT_KAS = Array.isArray(rawKas)
       ? rawKas
-      : (Array.isArray(rawKas?.data)
-          ? rawKas.data
-          : (Array.isArray(r.transaksi) ? r.transaksi : []));
+      : (Array.isArray(rawKas?.rows)
+          ? rawKas.rows
+          : (Array.isArray(rawKas?.data)
+              ? rawKas.data
+              : (Array.isArray(r.rows)
+                  ? r.rows
+                  : (Array.isArray(r.transaksi) ? r.transaksi : []))));
     renderRiwayatKas();
     if(!silent){histKasMsg('Riwayat kas diperbarui.','success');setTimeout(()=>document.getElementById('hist-kas-status')?.classList.add('hidden'),1000)}
   }catch(e){histKasMsg(e.message||String(e),'error')}
