@@ -604,12 +604,12 @@
 </style>
 
 
-<style id="v6188-dropdown-unclip">
-/* v6.18.8 - custom dropdown tidak terpotong oleh kartu utama */
+<style id="v6189-dropdown-layer-fix">
+/* v6.18.9 - dropdown tetap keluar dari card, tapi tidak mengambang di atas drawer/menu */
 main > section.card{overflow:visible!important}
-.custom-select-wrap{z-index:90}
-.custom-select-wrap.open{z-index:300}
-.custom-select-panel{z-index:350!important}
+.custom-select-wrap{z-index:auto!important}
+.custom-select-wrap.open{z-index:50!important}
+.custom-select-panel{z-index:60!important}
 @media (min-width:641px){
   .custom-select-panel{max-height:min(420px,calc(100vh - 32px))!important}
   .cs-list{max-height:min(340px,calc(100vh - 120px))!important}
@@ -1789,10 +1789,10 @@ function printLaporan(){
   setTimeout(()=>{if(document.title===judulBaru)document.title=judulLama},1500);
 }
 
-function bukaMenu(){const d=document.getElementById('side-drawer');d.classList.add('open');d.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';lucide.createIcons()}
+function bukaMenu(){document.querySelectorAll('.custom-select-wrap.open').forEach(x=>x.classList.remove('open'));const d=document.getElementById('side-drawer');d.classList.add('open');d.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';lucide.createIcons()}
 function tutupMenu(){const d=document.getElementById('side-drawer');d.classList.remove('open');d.setAttribute('aria-hidden','true');document.body.style.overflow=''}
 
-function pilihMenu(n){
+function pilihMenu(n){document.querySelectorAll('.custom-select-wrap.open').forEach(x=>x.classList.remove('open'));
   const meta={
     input:['Input Iuran Warga',''],
     transaksi:['Debit / Kredit',''],
