@@ -1142,7 +1142,6 @@ function setModeLaporan(mode,autoload=true){
   ['kas','rt','arisan','denda'].forEach(x=>{document.getElementById('report-'+x+'-panel')?.classList.toggle('hidden',REPORT_MODE!==x);document.getElementById('report-'+x+'-filter')?.classList.toggle('hidden',REPORT_MODE!==x)});
   document.querySelectorAll('.report-mode-btn').forEach(b=>{b.classList.remove('active','bg-violet-600','text-white');b.classList.add('bg-white','text-slate-600')});
   const a=document.getElementById('report-mode-'+REPORT_MODE);if(a){a.classList.add('active','bg-violet-600','text-white');a.classList.remove('bg-white','text-slate-600')}
-  updateReportResponsible();
   if(autoload)loadLaporan();
 }
 function reportMsg(text,type='info'){const e=document.getElementById('report-status');if(!e)return;e.className='mt-3 rounded-xl border px-4 py-3 text-sm '+(type==='error'?'border-red-200 bg-red-50 text-red-700':type==='success'?'border-emerald-200 bg-emerald-50 text-emerald-700':'border-violet-100 bg-violet-50 text-violet-700');e.textContent=text;e.classList.remove('hidden')}
@@ -1174,7 +1173,7 @@ async function loadLaporan(){
     else if(REPORT_MODE==='arisan'){REPORT_DATA_ARISAN=r.data;renderLaporanArisan(r.data)}
     else if(REPORT_MODE==='denda'){REPORT_DATA_DENDA=r.data;renderLaporanDenda(r.data)}
     else{REPORT_DATA_KAS=r.data;renderLaporanKas(r.data)}
-    updateReportResponsible();reportMsg('Laporan berhasil dimuat.','success');setTimeout(()=>{if(requestSeq===REPORT_REQUEST_SEQ)document.getElementById('report-status')?.classList.add('hidden')},900)
+    reportMsg('Laporan berhasil dimuat.','success');setTimeout(()=>{if(requestSeq===REPORT_REQUEST_SEQ)document.getElementById('report-status')?.classList.add('hidden')},900)
   }catch(e){if(requestSeq!==REPORT_REQUEST_SEQ)return;reportMsg(e.message||String(e),'error')}
 }
 function renderLaporanKas(d){
