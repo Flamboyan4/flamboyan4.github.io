@@ -62,6 +62,21 @@
   #history-batch-panel table{min-width:720px!important}
 }
 
+
+  /* v5.0 - stabilkan state tombol aktif di mobile */
+  button{-webkit-tap-highlight-color:transparent}
+  .process-btn.active,.history-btn.active,.drawer-item.active,.loan-mode-btn.active,
+  .process-btn.active:focus,.history-btn.active:focus,.drawer-item.active:focus,.loan-mode-btn.active:focus,
+  .process-btn.active:active,.history-btn.active:active,.drawer-item.active:active,.loan-mode-btn.active:active,
+  .process-btn.active:focus-visible,.history-btn.active:focus-visible,.drawer-item.active:focus-visible,.loan-mode-btn.active:focus-visible{
+    background:#7c3aed!important;color:#fff!important;border-color:#7c3aed!important;
+  }
+  .process-btn:focus,.history-btn:focus,.drawer-item:focus,.loan-mode-btn:focus{outline:none}
+  .process-btn:focus-visible,.history-btn:focus-visible,.drawer-item:focus-visible,.loan-mode-btn:focus-visible{box-shadow:0 0 0 3px #ddd6fe}
+  #tab-pinjaman{min-width:0;max-width:100%;overflow-x:hidden}
+  #tab-pinjaman .loan-scroll{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y}
+  #tab-pinjaman .loan-scroll table{width:max-content;min-width:860px}
+
 </style>
   <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8">
 </head>
@@ -90,6 +105,7 @@
         <button data-menu-target="input" onclick="pilihMenu('input')" class="drawer-item active w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm"><i data-lucide="wallet-cards" class="w-4 h-4"></i><span>Input Iuran</span></button>
         <button data-menu-target="transaksi" onclick="pilihMenu('transaksi')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="arrow-left-right" class="w-4 h-4"></i><span>Pemasukan / Pengeluaran</span></button>
         <button data-menu-target="kas" onclick="pilihMenu('kas')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="notebook-tabs" class="w-4 h-4"></i><span>Pembukuan Kas</span></button>
+        <button data-menu-target="pinjaman" onclick="pilihMenu('pinjaman')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="hand-coins" class="w-4 h-4"></i><span>Pinjaman Warga</span></button>
       </div>
 
       <div class="text-[11px] font-black uppercase tracking-wider text-slate-400 px-2 mt-6 mb-2">Riwayat</div>
@@ -119,6 +135,7 @@
         <button data-process-target="input" class="process-btn active px-4 py-2 rounded-xl border border-violet-200 text-sm font-bold whitespace-nowrap" onclick="pilihMenu('input')">Input Iuran</button>
         <button data-process-target="transaksi" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('transaksi')">Pemasukan / Pengeluaran</button>
         <button data-process-target="kas" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('kas')">Pembukuan Kas</button>
+        <button data-process-target="pinjaman" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('pinjaman')">Pinjaman Warga</button>
       </div>
       <button onclick="bukaMenu()" class="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl border border-violet-100 text-violet-700 text-sm font-bold hover:bg-violet-50"><i data-lucide="menu" class="w-4 h-4"></i> Menu</button>
     </div>
@@ -275,12 +292,56 @@
 
     </div>
 
+    <div id="tab-pinjaman" class="tab-panel hidden p-4 sm:p-5">
+      <div class="max-w-5xl mx-auto">
+        <div class="mb-5">
+          <h2 class="font-black text-xl text-violet-950">Pinjaman Warga</h2>
+          <p class="text-sm text-slate-500 mt-1">Pinjaman otomatis tercatat sebagai pengeluaran kas. Pembayaran otomatis tercatat sebagai pemasukan kas.</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 mb-5">
+          <button id="loan-mode-buat" type="button" class="loan-mode-btn active rounded-xl border border-violet-200 bg-violet-600 text-white font-bold py-3" onclick="setLoanMode('buat')">Buat Pinjaman</button>
+          <button id="loan-mode-bayar" type="button" class="loan-mode-btn rounded-xl border border-violet-100 bg-white text-slate-600 font-bold py-3 hover:bg-violet-50" onclick="setLoanMode('bayar')">Pembayaran Pinjaman</button>
+        </div>
+
+        <div id="loan-form-buat" class="rounded-2xl border border-violet-100 p-4 sm:p-5">
+          <form onsubmit="simpanPinjaman(event)" class="space-y-4">
+            <div><label class="text-sm font-bold">Nama Warga</label><select id="loan-warga" class="field mt-1" required><option value="">Pilih warga...</option></select></div>
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div><label class="text-sm font-bold">Tanggal Pinjaman</label><input id="loan-tanggal" type="date" class="field mt-1" required></div>
+              <div><label class="text-sm font-bold">Metode Pencairan</label><select id="loan-metode" class="field mt-1"><option>Cash</option><option>QRIS</option><option>Transfer Mandiri</option></select></div>
+            </div>
+            <div><label class="text-sm font-bold">Nominal Pinjaman</label><input id="loan-nominal" type="text" inputmode="numeric" class="field mt-1" placeholder="0" oninput="formatNominalInput(this)" required></div>
+            <div><label class="text-sm font-bold">Keterangan</label><input id="loan-keterangan" class="field mt-1" placeholder="Contoh: Pinjaman kas warga" required></div>
+            <div id="loan-status" class="hidden rounded-xl border px-4 py-3 text-sm"></div>
+            <button id="loan-btn-simpan" class="w-full rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-black py-3.5">Simpan Pinjaman</button>
+          </form>
+        </div>
+
+        <div id="loan-form-bayar" class="hidden rounded-2xl border border-violet-100 p-4 sm:p-5">
+          <form onsubmit="simpanPembayaranPinjaman(event)" class="space-y-4">
+            <div><label class="text-sm font-bold">Pinjaman Aktif</label><select id="payloan-id" class="field mt-1" onchange="previewPinjaman()" required><option value="">Pilih pinjaman...</option></select></div>
+            <div id="payloan-preview" class="rounded-xl bg-violet-50 border border-violet-100 p-4 text-sm text-slate-600">Pilih pinjaman untuk melihat sisa.</div>
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div><label class="text-sm font-bold">Tanggal Pembayaran</label><input id="payloan-tanggal" type="date" class="field mt-1" required></div>
+              <div><label class="text-sm font-bold">Metode</label><select id="payloan-metode" class="field mt-1"><option>Cash</option><option>QRIS</option><option>Transfer Mandiri</option></select></div>
+            </div>
+            <div><label class="text-sm font-bold">Nominal Pembayaran</label><input id="payloan-nominal" type="text" inputmode="numeric" class="field mt-1" placeholder="0" oninput="formatNominalInput(this)" required></div>
+            <div><label class="text-sm font-bold">Keterangan <span class="font-normal text-slate-400">(opsional)</span></label><input id="payloan-keterangan" class="field mt-1" placeholder="Contoh: Cicilan pinjaman"></div>
+            <div id="payloan-status" class="hidden rounded-xl border px-4 py-3 text-sm"></div>
+            <button id="payloan-btn-simpan" class="w-full rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-black py-3.5">Simpan Pembayaran</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <div id="tab-riwayat" class="tab-panel hidden p-4 sm:p-5">
       <div class="mb-5">
         <div class="flex gap-2 overflow-x-auto scrollbar-thin">
           <button id="history-btn-iuran" class="history-btn active px-4 py-2 rounded-xl border border-violet-200 text-sm font-bold whitespace-nowrap" onclick="pilihRiwayat('iuran')">Riwayat Iuran</button>
           <button id="history-btn-kasumum" class="history-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihRiwayat('kasumum')">Riwayat Kas</button>
           <button id="history-btn-batch" class="history-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihRiwayat('batch')">Riwayat Batch Kas</button>
+        <button id="history-btn-pinjaman" onclick="pilihRiwayat('pinjaman')" class="history-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50">Riwayat Pinjaman</button>
         </div>
       </div>
 
@@ -339,6 +400,33 @@
           <table class="min-w-[930px] w-full text-sm">
             <thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-left">Tanggal</th><th class="p-3 text-left">Jenis</th><th class="p-3 text-left">Kategori</th><th class="p-3 text-left">Keterangan</th><th class="p-3 text-right">Debit</th><th class="p-3 text-right">Kredit</th><th class="p-3 text-left">Metode</th><th class="p-3 text-center">Status</th><th class="p-3 text-right">Aksi</th></tr></thead>
             <tbody id="tbody-riwayat-kas" class="divide-y divide-violet-50"><tr><td colspan="9" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="history-pinjaman-panel" class="hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+          <div><h2 class="font-black text-xl text-violet-950">Riwayat Pinjaman Warga</h2><p class="text-sm text-slate-500 mt-1">Pinjaman, sisa, dan pembayaran warga.</p></div>
+          <button onclick="loadPinjaman()" class="px-4 py-2 rounded-xl bg-violet-600 text-white font-bold">Muat Ulang</button>
+        </div>
+        <div id="hist-loan-status" class="hidden mb-3 rounded-xl border px-4 py-3 text-sm"></div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+          <div class="rounded-xl border border-violet-100 p-3"><div class="text-[10px] font-bold text-slate-400">PINJAMAN AKTIF</div><div id="loan-sum-count" class="text-xl font-black mt-1">0</div></div>
+          <div class="rounded-xl border border-violet-100 p-3"><div class="text-[10px] font-bold text-slate-400">TOTAL PINJAMAN</div><div id="loan-sum-total" class="text-xl font-black mt-1">Rp 0</div></div>
+          <div class="rounded-xl border border-violet-100 p-3"><div class="text-[10px] font-bold text-slate-400">SUDAH DIBAYAR</div><div id="loan-sum-paid" class="text-xl font-black mt-1 text-emerald-700">Rp 0</div></div>
+          <div class="rounded-xl border border-violet-100 p-3"><div class="text-[10px] font-bold text-slate-400">SISA PINJAMAN</div><div id="loan-sum-sisa" class="text-xl font-black mt-1 text-red-600">Rp 0</div></div>
+        </div>
+        <div class="loan-scroll history-scroll rounded-xl border border-violet-100">
+          <table class="min-w-[980px] w-full text-sm">
+            <thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-left">Tanggal</th><th class="p-3 text-left">Warga</th><th class="p-3 text-right">Pinjaman</th><th class="p-3 text-right">Dibayar</th><th class="p-3 text-right">Sisa</th><th class="p-3 text-center">Status</th><th class="p-3 text-left">Keterangan</th><th class="p-3 text-right">Aksi</th></tr></thead>
+            <tbody id="tbody-riwayat-pinjaman" class="divide-y divide-violet-50"><tr><td colspan="8" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody>
+          </table>
+        </div>
+        <div class="mt-5 mb-2"><h3 class="font-black text-violet-950">Riwayat Pembayaran Pinjaman</h3><p class="text-xs text-slate-500 mt-1">Pembayaran aktif maupun yang dibatalkan tetap tersimpan sebagai histori.</p></div>
+        <div class="loan-scroll history-scroll rounded-xl border border-violet-100">
+          <table class="min-w-[850px] w-full text-sm">
+            <thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-left">Tanggal</th><th class="p-3 text-left">Warga</th><th class="p-3 text-left">ID Pinjaman</th><th class="p-3 text-right">Nominal</th><th class="p-3 text-left">Metode</th><th class="p-3 text-center">Status</th><th class="p-3 text-right">Aksi</th></tr></thead>
+            <tbody id="tbody-riwayat-bayar-pinjaman" class="divide-y divide-violet-50"><tr><td colspan="7" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -417,6 +505,7 @@ const DELETE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSe7bAW5eAmv
 let DATA={config:{},rumah:[],warga:[],riwayat:[]};
 let RIWAYAT_SEMUA=false;
 let RIWAYAT_KAS=[];
+let DATA_PINJAMAN={rows:[],aktif:[],ringkasan:{}};
 const BULAN=['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 function rupiah(n){return 'Rp '+Math.round(Number(n)||0).toLocaleString('id-ID')}
 function jsonp(url,params={}){return new Promise((resolve,reject)=>{const cb='__cb_'+Date.now()+'_'+Math.random().toString(36).slice(2);const s=document.createElement('script');const q=new URLSearchParams({...params,callback:cb});window[cb]=d=>{cleanup();resolve(d)};function cleanup(){try{delete window[cb]}catch(e){}s.remove()}s.onerror=()=>{cleanup();reject(new Error('Gagal menghubungi Apps Script.'))};s.src=url+'?'+q.toString();document.body.appendChild(s);setTimeout(()=>{if(window[cb]){cleanup();reject(new Error('Koneksi timeout.'))}},20000)})}
@@ -646,6 +735,81 @@ async function batalkanTransaksiKas(id){
   try{histKasMsg('Membatalkan transaksi...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkantransaksikas',idTransaksi:id,t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan.');await loadRiwayatKas(true);histKasMsg(r.message||'Transaksi dibatalkan.','success')}catch(e){histKasMsg(e.message||String(e),'error')}
 }
 
+
+function loanMsg(id,t,type='info'){
+  const e=document.getElementById(id);if(!e)return;e.className='rounded-xl border px-4 py-3 text-sm';
+  if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');
+  else if(type==='success')e.classList.add('bg-violet-50','border-violet-200','text-violet-700');
+  else e.classList.add('bg-slate-50','border-slate-200','text-slate-600');
+  e.textContent=t;e.classList.remove('hidden');
+}
+function setLoanMode(mode){
+  document.getElementById('loan-form-buat')?.classList.toggle('hidden',mode!=='buat');
+  document.getElementById('loan-form-bayar')?.classList.toggle('hidden',mode!=='bayar');
+  document.querySelectorAll('.loan-mode-btn').forEach(x=>x.classList.remove('active'));
+  document.getElementById('loan-mode-'+mode)?.classList.add('active');
+  if(mode==='bayar')previewPinjaman();
+}
+function initPinjamanUi(){
+  const now=new Date().toISOString().slice(0,10);
+  const t1=document.getElementById('loan-tanggal'),t2=document.getElementById('payloan-tanggal');if(t1&&!t1.value)t1.value=now;if(t2&&!t2.value)t2.value=now;
+  const s=document.getElementById('loan-warga');
+  if(s&&DATA.warga?.length){const cur=s.value;s.innerHTML='<option value="">Pilih warga...</option>'+DATA.warga.filter(w=>(w.statusAktif||'').toUpperCase()!=='TIDAK').map(w=>`<option value="${w.idWarga}">${w.nama} • ${w.blok}/${w.noRumah}</option>`).join('');s.value=cur}
+  setLoanMode('buat');
+}
+async function loadPinjaman(silent=false){
+  try{
+    if(!silent)loanMsg('hist-loan-status','Memuat data pinjaman...');
+    const r=await jsonp(BATCH_SCRIPT_URL,{action:'datapinjaman',t:Date.now()});
+    if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memuat pinjaman.');
+    DATA_PINJAMAN=r.data||{rows:[],aktif:[],ringkasan:{}};
+    renderPinjaman();isiPinjamanAktif();
+    if(!silent){loanMsg('hist-loan-status','Data pinjaman diperbarui.','success');setTimeout(()=>document.getElementById('hist-loan-status')?.classList.add('hidden'),1000)}
+  }catch(e){loanMsg('hist-loan-status',e.message||String(e),'error')}
+}
+function isiPinjamanAktif(){
+  const s=document.getElementById('payloan-id');if(!s)return;const cur=s.value;
+  s.innerHTML='<option value="">Pilih pinjaman...</option>'+(DATA_PINJAMAN.aktif||[]).map(x=>`<option value="${x.idPinjaman}">${x.nama} • ${x.blok}/${x.noRumah} • Sisa ${rupiah(x.sisaPinjaman)}</option>`).join('');
+  if((DATA_PINJAMAN.aktif||[]).some(x=>x.idPinjaman===cur))s.value=cur;previewPinjaman();
+}
+function previewPinjaman(){
+  const id=document.getElementById('payloan-id')?.value;const e=document.getElementById('payloan-preview');if(!e)return;
+  const x=(DATA_PINJAMAN.rows||[]).find(a=>a.idPinjaman===id);
+  e.innerHTML=x?`<div class="font-black text-violet-950">${x.nama} • ${x.blok}/${x.noRumah}</div><div class="grid grid-cols-3 gap-2 mt-2"><div><span class="text-xs text-slate-400">Pinjaman</span><div class="font-bold">${rupiah(x.nominalPinjaman)}</div></div><div><span class="text-xs text-slate-400">Dibayar</span><div class="font-bold text-emerald-700">${rupiah(x.totalDibayar)}</div></div><div><span class="text-xs text-slate-400">Sisa</span><div class="font-black text-red-600">${rupiah(x.sisaPinjaman)}</div></div></div>`:'Pilih pinjaman untuk melihat sisa.';
+}
+async function simpanPinjaman(ev){
+  ev.preventDefault();const btn=document.getElementById('loan-btn-simpan');btn.disabled=true;btn.classList.add('opacity-60');
+  try{
+    loanMsg('loan-status','Menyimpan pinjaman...');
+    const r=await jsonp(BATCH_SCRIPT_URL,{action:'buatpinjaman',idWarga:document.getElementById('loan-warga').value,tanggal:document.getElementById('loan-tanggal').value,nominal:nominalAngka('loan-nominal'),metode:document.getElementById('loan-metode').value,keterangan:document.getElementById('loan-keterangan').value,t:Date.now()});
+    if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membuat pinjaman.');
+    loanMsg('loan-status',`${r.idPinjaman} berhasil dibuat • ${rupiah(r.nominal||0)}`,'success');document.getElementById('loan-nominal').value='';document.getElementById('loan-keterangan').value='';await loadPinjaman(true);await loadRiwayatKas(true);
+  }catch(e){loanMsg('loan-status',e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}
+}
+async function simpanPembayaranPinjaman(ev){
+  ev.preventDefault();const btn=document.getElementById('payloan-btn-simpan');btn.disabled=true;btn.classList.add('opacity-60');
+  try{
+    loanMsg('payloan-status','Menyimpan pembayaran...');
+    const r=await jsonp(BATCH_SCRIPT_URL,{action:'bayarpinjaman',idPinjaman:document.getElementById('payloan-id').value,tanggal:document.getElementById('payloan-tanggal').value,nominal:nominalAngka('payloan-nominal'),metode:document.getElementById('payloan-metode').value,keterangan:document.getElementById('payloan-keterangan').value,t:Date.now()});
+    if(!r||r.status!=='success')throw new Error(r?.message||'Gagal menyimpan pembayaran.');
+    loanMsg('payloan-status',`${r.idPembayaranPinjaman} berhasil • Sisa ${rupiah(r.sisaPinjaman||0)}`,'success');document.getElementById('payloan-nominal').value='';document.getElementById('payloan-keterangan').value='';await loadPinjaman(true);await loadRiwayatKas(true);
+  }catch(e){loanMsg('payloan-status',e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}
+}
+function renderPinjaman(){
+  const r=DATA_PINJAMAN.ringkasan||{};
+  const el=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};el('loan-sum-count',r.jumlahPinjamanAktif||0);el('loan-sum-total',rupiah(r.totalPinjamanAktif||0));el('loan-sum-paid',rupiah(r.totalTerbayarAktif||0));el('loan-sum-sisa',rupiah(r.totalSisa||0));
+  const tb=document.getElementById('tbody-riwayat-pinjaman');if(!tb)return;
+  tb.innerHTML=(DATA_PINJAMAN.rows||[]).map(x=>{const batal=x.status==='BATAL',lunas=x.status==='LUNAS';const badge=batal?'bg-slate-100 text-slate-500':(lunas?'bg-emerald-100 text-emerald-700':'bg-violet-100 text-violet-700');let aksi='-';if(!batal&&!lunas){aksi=`<button onclick="pilihMenu('pinjaman');setTimeout(()=>{setLoanMode('bayar');document.getElementById('payloan-id').value='${x.idPinjaman}';previewPinjaman()},50)" class="px-3 py-1.5 rounded-lg border border-violet-200 text-violet-700 font-bold mr-1">Bayar</button>`}if(!batal&&(x.totalDibayar||0)===0){aksi+=`<button onclick="batalkanPinjaman('${x.idPinjaman}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold">Batalkan</button>`}return `<tr class="${batal?'opacity-55':''}"><td class="p-3 whitespace-nowrap">${x.tanggalPinjaman||'-'}</td><td class="p-3"><div class="font-bold">${x.nama||'-'}</div><div class="text-xs text-slate-400">${x.blok||''}/${x.noRumah||''} • ${x.idPinjaman}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominalPinjaman||0)}</td><td class="p-3 text-right font-bold text-emerald-700">${rupiah(x.totalDibayar||0)}</td><td class="p-3 text-right font-black text-red-600">${rupiah(x.sisaPinjaman||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${badge}">${x.status}</span></td><td class="p-3">${x.keterangan||'-'}</td><td class="p-3 text-right whitespace-nowrap">${aksi}</td></tr>`}).join('')||'<tr><td colspan="8" class="p-6 text-center text-slate-400">Belum ada data pinjaman.</td></tr>';
+  const tbBayar=document.getElementById('tbody-riwayat-bayar-pinjaman');
+  if(tbBayar){
+    const bayar=[];(DATA_PINJAMAN.rows||[]).forEach(x=>(x.pembayaran||[]).forEach(b=>bayar.push({...b,nama:x.nama,blok:x.blok,noRumah:x.noRumah,idPinjaman:x.idPinjaman})));
+    tbBayar.innerHTML=bayar.map(b=>{const batal=(b.status||'').toUpperCase()==='BATAL';return `<tr class="${batal?'opacity-55':''}"><td class="p-3 whitespace-nowrap">${b.tanggalBayar||'-'}</td><td class="p-3"><div class="font-bold">${b.nama||'-'}</div><div class="text-xs text-slate-400">${b.blok||''}/${b.noRumah||''}</div></td><td class="p-3 font-bold">${b.idPinjaman||'-'}<div class="text-xs text-slate-400">${b.idPembayaranPinjaman||''}</div></td><td class="p-3 text-right font-black text-emerald-700">${rupiah(b.nominalBayar||0)}</td><td class="p-3">${b.metode||'-'}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${batal?'bg-slate-100 text-slate-500':'bg-violet-100 text-violet-700'}">${b.status||'AKTIF'}</span></td><td class="p-3 text-right">${batal?'-':`<button onclick="batalkanPembayaranPinjaman('${b.idPembayaranPinjaman}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold">Batalkan</button>`}</td></tr>`}).join('')||'<tr><td colspan="7" class="p-6 text-center text-slate-400">Belum ada pembayaran pinjaman.</td></tr>';
+  }
+}
+async function batalkanPembayaranPinjaman(id){if(!confirm(`Batalkan pembayaran pinjaman ${id}?`))return;try{loanMsg('hist-loan-status','Membatalkan pembayaran...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkanpembayaranpinjaman',idPembayaranPinjaman:id,alasan:'Dibatalkan dari web',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan pembayaran.');await loadPinjaman(true);await loadRiwayatKas(true);loanMsg('hist-loan-status',r.message||'Pembayaran dibatalkan.','success')}catch(e){loanMsg('hist-loan-status',e.message||String(e),'error')}}
+
+async function batalkanPinjaman(id){if(!confirm(`Batalkan pinjaman ${id}?`))return;try{loanMsg('hist-loan-status','Membatalkan pinjaman...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkanpinjaman',idPinjaman:id,alasan:'Dibatalkan dari web',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan pinjaman.');await loadPinjaman(true);await loadRiwayatKas(true);loanMsg('hist-loan-status',r.message||'Pinjaman dibatalkan.','success')}catch(e){loanMsg('hist-loan-status',e.message||String(e),'error')}}
+
 function bukaMenu(){const d=document.getElementById('side-drawer');d.classList.add('open');d.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';lucide.createIcons()}
 function tutupMenu(){const d=document.getElementById('side-drawer');d.classList.remove('open');d.setAttribute('aria-hidden','true');document.body.style.overflow=''}
 
@@ -654,6 +818,7 @@ function pilihMenu(n){
     input:['Input Iuran Warga','Pencatatan pembayaran iuran warga.'],
     transaksi:['Pemasukan / Pengeluaran','Pencatatan transaksi kas selain Kas Lorong dari iuran warga.'],
     kas:['Pembukuan Kas','Kelompokkan Kas Lorong yang diterima ke dalam batch pembukuan.'],
+    pinjaman:['Pinjaman Warga','Kelola pinjaman dan pembayaran pinjaman warga.'],
     riwayat:['Riwayat & Histori','Riwayat transaksi dan batch pembukuan.'],
     dashboard:['Ringkasan Data','Ringkasan master hunian dan tarif sebagai data acuan.'],
     rumah:['Data Rumah','Data unit rumah sebagai acuan administrasi.'],
@@ -671,6 +836,7 @@ function pilihMenu(n){
   if(n==='riwayat'){loadRiwayat(true);pilihRiwayat('iuran')}
   if(n==='transaksi')initTransaksiKasUi();
   if(n==='kas'){if(!KAS_LOADED)loadPembukuanKas();else renderPembukuanKas()}
+  if(n==='pinjaman'){initPinjamanUi();loadPinjaman(true)}
   tutupMenu();
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -679,11 +845,13 @@ function pilihRiwayat(type){
   document.getElementById('history-iuran-panel')?.classList.toggle('hidden',type!=='iuran');
   document.getElementById('history-kasumum-panel')?.classList.toggle('hidden',type!=='kasumum');
   document.getElementById('history-batch-panel')?.classList.toggle('hidden',type!=='batch');
+  document.getElementById('history-pinjaman-panel')?.classList.toggle('hidden',type!=='pinjaman');
   document.querySelectorAll('.history-btn').forEach(x=>x.classList.remove('active'));
   document.getElementById('history-btn-'+type)?.classList.add('active');
   if(type==='iuran')loadRiwayat(true);
   if(type==='kasumum')loadRiwayatKas();
   if(type==='batch')muatRiwayatBatch();
+  if(type==='pinjaman')loadPinjaman();
 }
 
 function initHistoryBatchFilters(){
