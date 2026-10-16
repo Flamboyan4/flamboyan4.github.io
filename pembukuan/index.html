@@ -332,11 +332,11 @@
     <div id="group-nav-inputdata" class="group-nav">
       <div class="tabs-scroll flex gap-2">
         <button data-process-target="input" class="process-btn active px-4 py-2 rounded-xl border border-violet-200 text-sm font-bold whitespace-nowrap" onclick="pilihMenu('input')">Input Iuran</button>
-        <button data-process-target="transaksi" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('transaksi')">Pemasukan / Pengeluaran</button>
-        <button data-process-target="kas" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('kas')">Pembukuan Kas</button>
-        <button data-process-target="pinjaman" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('pinjaman')">Pinjaman Warga</button>
+        <button data-process-target="transaksi" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('transaksi')">Debit / Kredit</button>
+        <button data-process-target="kas" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('kas')">Pembukuan</button>
+        <button data-process-target="pinjaman" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('pinjaman')">Pinjaman</button>
         <button data-process-target="talangan" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('talangan')">Talangan</button>
-        <button data-process-target="denda" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('denda')">Denda Gorol</button>
+        <button data-process-target="denda" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('denda')">Denda</button>
       </div>
     </div>
     <div id="group-nav-dataacuan" class="group-nav hidden">
@@ -403,43 +403,29 @@
 
     <div id="tab-transaksi" class="tab-panel hidden p-4 sm:p-5">
       <div class="max-w-6xl mx-auto">
-        <div class="mb-5">
-          <h2 class="font-black text-xl text-violet-950">Input Pemasukan / Pengeluaran</h2>
-          <p class="text-sm text-slate-500 mt-1">Untuk transaksi kas selain Kas Lorong dari iuran warga.</p>
-        </div>
+        
 
-        <form id="form-transaksi-kas" onsubmit="simpanTransaksiKas(event)" class="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-12 lg:gap-4 desktop-compact-form">
-          <div>
+        <form id="form-transaksi-kas" onsubmit="simpanTransaksiKas(event)" class="trx-layout space-y-4 lg:space-y-0">
+          <div class="trx-type">
             <label class="text-sm font-bold">Jenis Transaksi</label>
             <div class="grid grid-cols-2 gap-2 mt-1">
-              <button id="btn-jenis-pemasukan" type="button" onclick="setJenisKas('Pemasukan')" class="kas-jenis-btn rounded-xl border border-violet-200 bg-violet-600 text-white font-bold py-3">Pemasukan</button>
-              <button id="btn-jenis-pengeluaran" type="button" onclick="setJenisKas('Pengeluaran')" class="kas-jenis-btn rounded-xl border border-violet-100 bg-white text-slate-600 font-bold py-3 hover:bg-violet-50">Pengeluaran</button>
+              <button id="btn-jenis-pemasukan" type="button" onclick="setJenisKas('Pemasukan')" class="kas-jenis-btn rounded-xl border border-violet-200 bg-violet-600 text-white font-bold py-3">Debit</button>
+              <button id="btn-jenis-pengeluaran" type="button" onclick="setJenisKas('Pengeluaran')" class="kas-jenis-btn rounded-xl border border-violet-100 bg-white text-slate-600 font-bold py-3 hover:bg-violet-50">Kredit</button>
             </div>
             <input id="trx-jenis" type="hidden" value="Pemasukan">
           </div>
+          <div class="trx-date"><label class="text-sm font-bold">Tanggal</label><input id="trx-tanggal" type="date" class="field mt-1" required></div>
 
-          <div class="grid sm:grid-cols-2 gap-4">
-            <div><label class="text-sm font-bold">Tanggal</label><input id="trx-tanggal" type="date" class="field mt-1" required></div>
-            <div><label class="text-sm font-bold">Metode</label><select id="trx-metode" class="field mt-1"><option>Cash</option><option>QRIS</option><option>Transfer Mandiri</option></select></div>
-          </div>
+          <div class="trx-nominal"><label class="text-sm font-bold">Nominal</label><input id="trx-nominal" type="text" inputmode="numeric" autocomplete="off" class="field mt-1" placeholder="0" required oninput="formatNominalInput(this)"></div>
+          <div class="trx-method"><label class="text-sm font-bold">Metode</label><select id="trx-metode" class="field mt-1"><option>Cash</option><option>QRIS</option><option>Transfer Mandiri</option></select></div>
+          <div class="trx-category"><label class="text-sm font-bold">Kategori</label><select id="trx-kategori" class="field mt-1" required></select></div>
+          <div class="trx-month"><label class="text-sm font-bold">Bulan</label><select id="trx-bulan" class="field mt-1"></select></div>
+          <div class="trx-year"><label class="text-sm font-bold">Tahun</label><input id="trx-tahun" type="number" min="2020" max="2100" class="field mt-1"></div>
 
-          <div class="grid sm:grid-cols-2 gap-4">
-            <div><label class="text-sm font-bold">Kategori</label><select id="trx-kategori" class="field mt-1" required></select></div>
-            <div><label class="text-sm font-bold">Nominal</label><input id="trx-nominal" type="text" inputmode="numeric" autocomplete="off" class="field mt-1" placeholder="0" required oninput="formatNominalInput(this)"></div>
-          </div>
-
-          <div><label class="text-sm font-bold">Keterangan</label><input id="trx-keterangan" class="field mt-1" placeholder="Contoh: Donasi Gorol" required></div>
-
-          <div class="grid sm:grid-cols-2 gap-4">
-            <div><label class="text-sm font-bold">Bulan Periode</label><select id="trx-bulan" class="field mt-1"></select></div>
-            <div><label class="text-sm font-bold">Tahun Periode</label><input id="trx-tahun" type="number" min="2020" max="2100" class="field mt-1"></div>
-          </div>
-
-          <div><label class="text-sm font-bold">Catatan <span class="font-normal text-slate-400">(opsional)</span></label><input id="trx-catatan" class="field mt-1" placeholder="Catatan tambahan"></div>
-
-          <div id="trx-status" class="hidden rounded-xl border px-4 py-3 text-sm"></div>
-
-          <button id="btn-trx-simpan" type="submit" class="w-full rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-black py-3.5 flex items-center justify-center gap-2"><i data-lucide="save" class="w-4 h-4"></i>Simpan Transaksi Kas</button>
+          <div class="trx-desc"><label class="text-sm font-bold">Keterangan</label><input id="trx-keterangan" class="field mt-1" placeholder="Contoh: Donasi Gorol" required></div>
+          <div class="trx-note"><label class="text-sm font-bold">Catatan <span class="font-normal text-slate-400">(opsional)</span></label><input id="trx-catatan" class="field mt-1" placeholder="Catatan tambahan"></div>
+          <div id="trx-status" class="trx-status hidden rounded-xl border px-4 py-3 text-sm"></div>
+          <button id="btn-trx-simpan" type="submit" class="trx-save w-full rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-black py-3.5 flex items-center justify-center gap-2"><i data-lucide="save" class="w-4 h-4"></i>Simpan Transaksi</button>
         </form>
       </div>
     </div>
@@ -508,8 +494,8 @@
         </div>
 
         <div class="grid grid-cols-2 gap-2 mb-5">
-          <button id="loan-mode-buat" type="button" class="loan-mode-btn active rounded-xl border border-violet-200 bg-violet-600 text-white font-bold py-3" onclick="setLoanMode('buat')">Buat Pinjaman</button>
-          <button id="loan-mode-bayar" type="button" class="loan-mode-btn rounded-xl border border-violet-100 bg-white text-slate-600 font-bold py-3 hover:bg-violet-50" onclick="setLoanMode('bayar')">Pembayaran Pinjaman</button>
+          <button id="loan-mode-buat" type="button" class="loan-mode-btn active rounded-xl border border-violet-200 bg-violet-600 text-white font-bold py-3" onclick="setLoanMode('buat')">Catat</button>
+          <button id="loan-mode-bayar" type="button" class="loan-mode-btn rounded-xl border border-violet-100 bg-white text-slate-600 font-bold py-3 hover:bg-violet-50" onclick="setLoanMode('bayar')">Bayar</button>
         </div>
 
         <div id="loan-form-buat" class="rounded-2xl border border-violet-100 p-4 sm:p-5">
@@ -562,8 +548,8 @@
       <div class="max-w-6xl mx-auto">
         <div class="mb-5"><h2 class="font-black text-xl text-violet-950">Denda Gorol</h2><p class="text-sm text-slate-500 mt-1">Catat warga yang terkena denda kerja bakti/gorol. Pembayaran denda otomatis masuk sebagai pemasukan Kas Warga.</p></div>
         <div class="grid grid-cols-2 gap-2 mb-5">
-          <button id="btn-denda-catat" onclick="setModeDenda('catat')" class="denda-mode-btn active rounded-xl border border-violet-200 bg-violet-600 text-white font-black py-3">Catat Denda</button>
-          <button id="btn-denda-bayar" onclick="setModeDenda('bayar')" class="denda-mode-btn rounded-xl border border-violet-100 bg-white text-slate-600 font-black py-3">Pembayaran Denda</button>
+          <button id="btn-denda-catat" onclick="setModeDenda('catat')" class="denda-mode-btn active rounded-xl border border-violet-200 bg-violet-600 text-white font-black py-3">Catat</button>
+          <button id="btn-denda-bayar" onclick="setModeDenda('bayar')" class="denda-mode-btn rounded-xl border border-violet-100 bg-white text-slate-600 font-black py-3">Bayar</button>
         </div>
 
         <div id="denda-panel-catat" class="rounded-2xl border border-violet-100 p-4 sm:p-5">
@@ -888,7 +874,19 @@ let RIWAYAT_KAS=[];
 let DATA_PINJAMAN={rows:[],aktif:[],ringkasan:{}};
 const BULAN=['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 function rupiah(n){return 'Rp '+Math.round(Number(n)||0).toLocaleString('id-ID')}
-function jsonp(url,params={}){return new Promise((resolve,reject)=>{const cb='__cb_'+Date.now()+'_'+Math.random().toString(36).slice(2);const s=document.createElement('script');const q=new URLSearchParams({...params,callback:cb});window[cb]=d=>{cleanup();resolve(d)};function cleanup(){try{delete window[cb]}catch(e){}s.remove()}s.onerror=()=>{cleanup();reject(new Error('Gagal menghubungi Apps Script.'))};s.src=url+'?'+q.toString();document.body.appendChild(s);setTimeout(()=>{if(window[cb]){cleanup();reject(new Error('Koneksi timeout.'))}},45000)})}
+function jsonp(url,params={}){
+  const attempt=(n)=>new Promise((resolve,reject)=>{
+    const cb='__cb_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+    const s=document.createElement('script');let settled=false;let timer=null;
+    const q=new URLSearchParams({...params,callback:cb,_r:n});
+    function cleanup(){if(timer)clearTimeout(timer);try{delete window[cb]}catch(e){};try{s.remove()}catch(e){}}
+    window[cb]=d=>{if(settled)return;settled=true;cleanup();resolve(d)};
+    s.onerror=()=>{if(settled)return;settled=true;cleanup();reject(new Error('Gagal menghubungi Apps Script.'))};
+    s.src=url+'?'+q.toString();document.body.appendChild(s);
+    timer=setTimeout(()=>{if(settled)return;settled=true;cleanup();reject(new Error('Koneksi timeout.'))},65000);
+  });
+  return attempt(1).catch(err=>new Promise(r=>setTimeout(r,900)).then(()=>attempt(2)).catch(()=>{throw err}));
+}
 function status(t,type='info'){const e=document.getElementById('status-box');e.className='mb-5 rounded-xl border px-4 py-3 text-sm';if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');else if(type==='success')e.classList.add('bg-violet-50','border-violet-200','text-violet-700');else e.classList.add('bg-slate-50','border-slate-200','text-slate-600');e.textContent=t}
 function hideStatus(){document.getElementById('status-box').classList.add('hidden')}
 async function muatUlang(){status('Memuat data...');try{const r=await jsonp(APPS_SCRIPT_URL,{action:'bootstrap',t:Date.now()});if(r.status!=='success')throw new Error(r.message||'Gagal');DATA.config=r.config||{};document.getElementById('backend-version').textContent=r.version?('Backend '+r.version):'Backend lama';DATA.rumah=r.rumah||[];DATA.warga=r.warga||[];renderSemua();await loadRiwayat(true);status('Data berhasil dimuat.','success');setTimeout(hideStatus,1200)}catch(e){status(e.message,'error')}}
@@ -1387,11 +1385,11 @@ function tutupMenu(){const d=document.getElementById('side-drawer');d.classList.
 function pilihMenu(n){
   const meta={
     input:['Input Iuran Warga',''],
-    transaksi:['Pemasukan / Pengeluaran','Pencatatan transaksi kas selain Kas Lorong dari iuran warga.'],
-    kas:['Pembukuan Kas',''],
-    pinjaman:['Pinjaman Warga',''],
+    transaksi:['Debit / Kredit',''],
+    kas:['Pembukuan',''],
+    pinjaman:['Pinjaman',''],
     talangan:['Talangan Iuran','Kelola talangan Iuran Bulanan + Kebersihan warga.'],
-    denda:['Denda Gorol',''],
+    denda:['Denda',''],
     laporan:['Laporan & Rekap',''],
     riwayat:['Riwayat & Histori','Riwayat transaksi dan batch pembukuan.'],
     dashboard:['Ringkasan Data','Ringkasan master hunian dan tarif sebagai data acuan.'],
@@ -1517,6 +1515,95 @@ document.addEventListener('DOMContentLoaded',()=>{lucide.createIcons();initKasUi
   function init(){document.querySelectorAll('select.field').forEach(enhance);document.addEventListener('click',e=>{if(!e.target.closest('.custom-select-wrap'))closeAll()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAll()});}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
   window.refreshAllCustomSelects=()=>document.querySelectorAll('select.field').forEach(s=>STATE.has(s)?refresh(s):enhance(s));
+})();
+</script>
+
+
+<style id="v617-polish">
+/* v6.17 - alur form, mode Catat/Bayar, label laporan, history, mobile dropdown */
+@media(min-width:1024px){
+  .trx-layout{display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr));gap:12px!important;align-items:end}
+  .trx-type{grid-column:span 5}.trx-date{grid-column:span 3}.trx-nominal{grid-column:span 2}.trx-method{grid-column:span 2}
+  .trx-category{grid-column:span 3}.trx-month{grid-column:span 2}.trx-year{grid-column:span 2}
+  .trx-desc{grid-column:span 6}.trx-note{grid-column:span 6}.trx-status,.trx-save{grid-column:1/-1}
+  #tab-pinjaman .max-w-5xl>.grid.grid-cols-2,#tab-denda .max-w-6xl>.grid.grid-cols-2{display:flex!important;grid-column:1/-1!important;gap:8px!important;margin:0 0 2px 0!important}
+  #tab-pinjaman .loan-mode-btn,#tab-denda .denda-mode-btn{display:inline-flex!important;width:auto!important;min-width:110px!important;padding:.65rem 1.15rem!important;align-items:center;justify-content:center}
+  #loan-form-buat.mode-inactive,#loan-form-bayar.mode-inactive,#denda-panel-catat.mode-inactive,#denda-panel-bayar.mode-inactive{pointer-events:none!important;opacity:.34!important}
+  #tab-laporan label{font-size:12px!important;line-height:1.2!important;display:block!important;margin-bottom:4px!important;color:#64748b!important}
+  #report-pinjaman-filter,#report-rt-filter,#report-arisan-filter,#report-denda-filter,#report-talangan-filter{align-items:flex-end!important}
+  #report-pinjaman-filter{display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-end!important}
+  #report-pinjaman-filter.hidden{display:none!important}
+}
+/* Hilangkan judul internal berulang di Riwayat; tab sudah cukup menjadi konteks */
+#history-iuran-panel>.flex>div:first-child,#history-kasumum-panel>.flex>div:first-child,
+#history-pinjaman-panel>.flex>div:first-child,#history-talangan-panel>.flex>div:first-child,#history-denda-panel>.flex>div:first-child,
+#history-batch-panel>.batch-head>div:first-child{display:none!important}
+#history-iuran-panel>.flex,#history-kasumum-panel>.flex,#history-pinjaman-panel>.flex,#history-talangan-panel>.flex,#history-denda-panel>.flex,#history-batch-panel>.batch-head{justify-content:flex-end!important}
+/* Mode buttons always visible */
+.loan-mode-btn,.denda-mode-btn{visibility:visible!important}
+/* Mobile dropdown: tap backdrop closes, menu stays compact */
+@media(max-width:640px){
+  .custom-select-panel{max-height:68vh!important}
+  .cs-list{max-height:54vh!important}
+  .trx-layout>div{margin-bottom:.7rem}
+  #tab-laporan label{font-size:12px!important;display:block!important;margin-bottom:4px!important}
+}
+</style>
+<script id="v617-behavior">
+(function(){
+  // Make resident list truly two columns even when option text contains house in the last parentheses.
+  function splitResidentText(text){
+    text=String(text||'').trim();
+    const m=text.match(/\s*(?:[•·-]\s*|\()([A-Za-z0-9]+\/[A-Za-z0-9]+)\)?\s*$/);
+    if(!m)return {name:text,house:''};
+    return {name:text.slice(0,m.index).trim(),house:m[1]};
+  }
+  window.__splitResidentText=splitResidentText;
+
+  // Inactive panels switch through buttons only; buttons remain usable and obvious.
+  const oldLoan=window.setLoanMode;
+  window.setLoanMode=function(mode){if(oldLoan)oldLoan(mode);
+    document.getElementById('loan-form-buat')?.classList.toggle('mode-inactive',mode!=='buat');
+    document.getElementById('loan-form-bayar')?.classList.toggle('mode-inactive',mode!=='bayar');
+  };
+  const oldDenda=window.setModeDenda;
+  window.setModeDenda=function(mode){if(oldDenda)oldDenda(mode);
+    document.getElementById('denda-panel-catat')?.classList.toggle('mode-inactive',mode!=='catat');
+    document.getElementById('denda-panel-bayar')?.classList.toggle('mode-inactive',mode!=='bayar');
+  };
+
+  // Mobile back button closes custom dropdown first instead of leaving the page.
+  let dropdownHistory=false, closingFromPop=false;
+  function openWrap(){return document.querySelector('.custom-select-wrap.open')}
+  function closeDropdowns(fromPop){document.querySelectorAll('.custom-select-wrap.open').forEach(w=>w.classList.remove('open'));if(dropdownHistory&&!fromPop){closingFromPop=true;history.back()}dropdownHistory=false}
+  document.addEventListener('click',function(e){
+    const open=openWrap();if(!open)return;
+    const btn=e.target.closest('.custom-select-btn'),panel=e.target.closest('.custom-select-panel');
+    if(!btn&&!panel){e.preventDefault();closeDropdowns(false)}
+  },true);
+  document.addEventListener('click',function(e){
+    const btn=e.target.closest('.custom-select-btn');if(!btn)return;
+    setTimeout(()=>{if(openWrap()&&!dropdownHistory){history.pushState({customDropdown:true},'');dropdownHistory=true}},0);
+  });
+  window.addEventListener('popstate',function(){
+    if(closingFromPop){closingFromPop=false;return}
+    if(openWrap()||dropdownHistory){closeDropdowns(true)}
+  });
+
+  // After custom dropdowns exist, normalize resident rows using the visible option text as a fallback.
+  function normalizeResidentRows(){
+    document.querySelectorAll('.custom-select-wrap').forEach(w=>{
+      const sel=w.querySelector('select');if(!sel||!['inp-warga','edit-warga','loan-warga','tal-warga','denda-warga'].includes(sel.id))return;
+      w.querySelectorAll('.cs-option').forEach(o=>{
+        const val=o.dataset.value;if(!val)return;const opt=[...sel.options].find(x=>String(x.value)===String(val));if(!opt)return;
+        const parts=splitResidentText(opt.textContent);const row=o.querySelector('.cs-resident-row');if(row){const n=row.querySelector('.cs-name'),h=row.querySelector('.cs-house');if(n)n.textContent=parts.name;if(h)h.textContent=parts.house}
+      });
+      const selected=sel.options[sel.selectedIndex];const value=w.querySelector('.cs-value.resident-value');if(selected&&selected.value&&value){const parts=splitResidentText(selected.textContent);value.querySelector('.rv-name')&&(value.querySelector('.rv-name').textContent=parts.name);value.querySelector('.rv-house')&&(value.querySelector('.rv-house').textContent=parts.house)}
+    })
+  }
+  const mo=new MutationObserver(()=>normalizeResidentRows());
+  document.addEventListener('DOMContentLoaded',()=>{setTimeout(()=>{normalizeResidentRows();mo.observe(document.body,{childList:true,subtree:true})},300)});
+  document.addEventListener('change',e=>{if(e.target.matches('select'))setTimeout(normalizeResidentRows,0)},true);
 })();
 </script>
 
