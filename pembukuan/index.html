@@ -1579,7 +1579,7 @@ document.addEventListener('DOMContentLoaded',()=>{lucide.createIcons();initKasUi
   document.addEventListener('click',function(e){
     const open=openWrap();if(!open)return;
     const btn=e.target.closest('.custom-select-btn'),panel=e.target.closest('.custom-select-panel');
-    if(!btn&&!panel){e.preventDefault();closeDropdowns(false)}
+    if(!btn&&!panel){closeDropdowns(false)}
   },true);
   document.addEventListener('click',function(e){
     const btn=e.target.closest('.custom-select-btn');if(!btn)return;
@@ -1601,9 +1601,16 @@ document.addEventListener('DOMContentLoaded',()=>{lucide.createIcons();initKasUi
       const selected=sel.options[sel.selectedIndex];const value=w.querySelector('.cs-value.resident-value');if(selected&&selected.value&&value){const parts=splitResidentText(selected.textContent);value.querySelector('.rv-name')&&(value.querySelector('.rv-name').textContent=parts.name);value.querySelector('.rv-house')&&(value.querySelector('.rv-house').textContent=parts.house)}
     })
   }
-  const mo=new MutationObserver(()=>normalizeResidentRows());
-  document.addEventListener('DOMContentLoaded',()=>{setTimeout(()=>{normalizeResidentRows();mo.observe(document.body,{childList:true,subtree:true})},300)});
-  document.addEventListener('change',e=>{if(e.target.matches('select'))setTimeout(normalizeResidentRows,0)},true);
+  // Hindari MutationObserver pada seluruh body karena dapat memicu loop render terus-menerus.
+  // Cukup normalisasi saat halaman siap, dropdown dibuka, dan nilai select berubah.
+  function scheduleResidentNormalize(){
+    if(window.__residentNormalizeTimer)clearTimeout(window.__residentNormalizeTimer);
+    window.__residentNormalizeTimer=setTimeout(normalizeResidentRows,20);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(normalizeResidentRows,350),{once:true});
+  else setTimeout(normalizeResidentRows,350);
+  document.addEventListener('change',e=>{if(e.target.matches('select'))scheduleResidentNormalize()},true);
+  document.addEventListener('click',e=>{if(e.target.closest('.custom-select-btn'))scheduleResidentNormalize()},true);
 })();
 </script>
 
