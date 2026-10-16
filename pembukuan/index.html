@@ -242,6 +242,53 @@
     .custom-select-btn{min-height:44px;padding:.62rem .72rem}
   }
 
+
+  /* v6.16 - tata letak lebih padat, desktop efisien, laporan satu baris */
+  #page-subtitle{display:none!important}
+  #tab-input .max-w-6xl>div.mb-5,
+  #tab-transaksi .max-w-6xl>div.mb-5,
+  #tab-pinjaman .max-w-5xl>div.mb-5,
+  #tab-talangan .max-w-6xl>div.mb-5,
+  #tab-denda .max-w-6xl>div.mb-5{display:none!important}
+  .custom-select-btn .cs-value.resident-value{width:100%;display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:.75rem;align-items:center}
+  .custom-select-btn .resident-value .rv-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .custom-select-btn .resident-value .rv-house{text-align:right;color:#64748b;font-weight:800;white-space:nowrap}
+  @media(max-width:640px){.custom-select-btn .cs-value.resident-value{grid-template-columns:minmax(0,1fr) 78px;gap:.5rem}}
+  @media(min-width:1024px){
+    main{padding-top:1.15rem!important} main>section.mb-5{margin-bottom:.8rem!important}.group-nav{padding:.65rem .75rem!important}
+    #tab-pinjaman .max-w-5xl,#tab-denda .max-w-6xl{max-width:none!important;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:start}
+    #tab-pinjaman .max-w-5xl>.grid.grid-cols-2,#tab-denda .max-w-6xl>.grid.grid-cols-2{grid-column:1/-1;margin-bottom:0!important;gap:8px}
+    #loan-form-buat,#loan-form-bayar,#denda-panel-catat,#denda-panel-bayar{display:block!important;grid-column:auto!important;padding:14px!important;border-radius:14px!important;transition:opacity .16s,filter .16s,box-shadow .16s}
+    #loan-form-buat.mode-inactive,#loan-form-bayar.mode-inactive,#denda-panel-catat.mode-inactive,#denda-panel-bayar.mode-inactive,#loan-form-buat.hidden,#loan-form-bayar.hidden,#denda-panel-catat.hidden,#denda-panel-bayar.hidden{opacity:.38;filter:saturate(.55);pointer-events:none;background:#fafafa}
+    #loan-form-buat:not(.mode-inactive),#loan-form-bayar:not(.mode-inactive),#denda-panel-catat:not(.mode-inactive),#denda-panel-bayar:not(.mode-inactive){box-shadow:0 8px 22px rgba(91,33,182,.06)}
+    #loan-form-buat form,#loan-form-bayar form,#denda-panel-catat form,#denda-panel-bayar form{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px!important}
+    #loan-form-buat form>div:first-child,#loan-form-bayar form>div:first-child,#denda-panel-catat form>div:first-child,#denda-panel-bayar form>div:first-child{grid-column:1/-1}
+    #loan-form-buat form>.grid,#loan-form-bayar form>.grid,#denda-panel-catat form>.grid,#denda-panel-bayar form>.grid{display:contents!important}
+    #loan-form-bayar #payloan-preview,#denda-panel-bayar #bayar-denda-preview{grid-column:1/-1;padding:10px 12px!important}
+    #loan-form-buat form>#loan-status,#loan-form-bayar form>#payloan-status,#denda-panel-catat form>#denda-status,#denda-panel-bayar form>#bayar-denda-status{grid-column:1/-1}
+    #loan-form-buat form>button,#loan-form-bayar form>button,#denda-panel-catat form>button,#denda-panel-bayar form>button{grid-column:1/-1;padding:.75rem!important}
+    #tab-talangan .desktop-compact-form{gap:10px 12px!important}#tab-talangan .desktop-compact-form>div:nth-child(4){padding:12px!important}#tab-talangan .desktop-compact-form>button{padding:.75rem!important}
+    #tab-kas>.flex.flex-col{align-items:center!important;justify-content:flex-start!important;margin-bottom:12px!important}#tab-kas>.flex.flex-col>div:first-child{display:none!important}
+    .kas-period-controls{display:flex!important;flex-wrap:nowrap!important;align-items:center!important;gap:8px!important}.kas-period-controls .custom-select-wrap{width:140px!important;margin-top:0!important;flex:0 0 140px}.kas-period-controls .custom-select-btn{min-height:42px!important;padding:.55rem .68rem!important}.kas-period-controls input{width:105px!important;min-height:42px!important}.kas-period-controls button{height:42px!important;padding:.55rem 1rem!important}
+    .kas-summary{margin-bottom:12px!important;gap:8px!important}.kas-summary>div{padding:11px 13px!important}.kas-layout{gap:12px!important}.kas-batch-card{padding:13px!important}
+    #tab-laporan .no-print{margin-bottom:12px!important}#tab-laporan .no-print>.space-y-4>div:nth-child(2){display:none!important}#tab-laporan .no-print>.space-y-4{gap:0!important}
+    #tab-laporan .no-print>.mt-4{display:flex!important;align-items:flex-end!important;gap:8px!important;flex-wrap:nowrap!important;margin-top:10px!important}
+    #tab-laporan .no-print>.mt-4>div[id$="-filter"]:not(.hidden){display:flex!important;align-items:flex-end!important;gap:8px!important;max-width:none!important;flex:1 1 auto}
+    #report-kas-filter>div{display:flex!important;align-items:flex-end!important;gap:8px!important;width:100%}#report-kas-filter>div>div{min-width:0!important}
+    #report-kas-filter #report-kas-periode-bulan,#report-kas-filter #report-kas-periode-rentang-bulan,#report-kas-filter #report-kas-periode-rentang-tahun{display:flex!important;align-items:flex-end!important;gap:8px!important;grid-column:auto!important}
+    #report-kas-filter #report-kas-periode-bulan.hidden,#report-kas-filter #report-kas-periode-rentang-bulan.hidden,#report-kas-filter #report-kas-periode-tahun.hidden,#report-kas-filter #report-kas-periode-rentang-tahun.hidden{display:none!important}
+    #report-kas-filter .custom-select-wrap{width:145px!important;margin-top:.2rem!important}#report-kas-filter input.field{width:110px!important}
+    #report-rt-filter>div,#report-arisan-filter>div,#report-denda-filter>div,#report-talangan-filter>div{width:150px!important}#report-pinjaman-filter{width:180px!important;flex:0 0 180px!important}
+    #tab-laporan .no-print>.mt-4>div:last-child{display:flex!important;gap:8px!important;max-width:none!important;flex:0 0 auto!important}
+    #tab-laporan .no-print>.mt-4>div:last-child button{width:auto!important;min-width:120px;padding:.68rem 1rem!important;white-space:nowrap}
+    #tab-laporan .field,#tab-laporan .custom-select-btn{min-height:42px!important;padding:.55rem .65rem!important}#tab-laporan label{font-size:10px!important}
+  }
+  @media(max-width:640px){
+    #tab-kas .kas-scroll table{min-width:510px!important}#tab-pinjaman .loan-scroll table{min-width:590px!important}#tab-riwayat .history-scroll table{min-width:540px!important}#history-batch-panel table{min-width:570px!important}
+    .kas-scroll th,.kas-scroll td,.history-scroll th,.history-scroll td,.loan-scroll th,.loan-scroll td,.report-table-wrap th,.report-table-wrap td{padding:.42rem .45rem!important;font-size:.75rem!important;line-height:1.18!important}
+    .report-table-wrap table{font-size:.75rem!important}main{padding-top:1rem!important}main>section.mb-5{margin-bottom:.7rem!important}#page-title{font-size:1.3rem!important}
+  }
+
 </style>
   <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8">
 </head>
@@ -1095,8 +1142,9 @@ function loanMsg(id,t,type='info'){
   e.textContent=t;e.classList.remove('hidden');
 }
 function setLoanMode(mode){
-  document.getElementById('loan-form-buat')?.classList.toggle('hidden',mode!=='buat');
-  document.getElementById('loan-form-bayar')?.classList.toggle('hidden',mode!=='bayar');
+  const formBuat=document.getElementById('loan-form-buat'),formBayar=document.getElementById('loan-form-bayar');
+  formBuat?.classList.toggle('hidden',mode!=='buat');formBayar?.classList.toggle('hidden',mode!=='bayar');
+  formBuat?.classList.toggle('mode-inactive',mode!=='buat');formBayar?.classList.toggle('mode-inactive',mode!=='bayar');
   document.querySelectorAll('.loan-mode-btn').forEach(x=>{
     x.classList.remove('active','bg-violet-600','text-white','border-violet-200');
     x.classList.add('bg-white','text-slate-600','border-violet-100');
@@ -1202,6 +1250,7 @@ function initDendaUi(){
 function setModeDenda(mode){
   const catat=document.getElementById('denda-panel-catat'),bayar=document.getElementById('denda-panel-bayar'),b1=document.getElementById('btn-denda-catat'),b2=document.getElementById('btn-denda-bayar');
   catat?.classList.toggle('hidden',mode!=='catat');bayar?.classList.toggle('hidden',mode!=='bayar');
+  catat?.classList.toggle('mode-inactive',mode!=='catat');bayar?.classList.toggle('mode-inactive',mode!=='bayar');
   [b1,b2].forEach(b=>{if(!b)return;b.classList.remove('active','bg-violet-600','text-white','border-violet-200','bg-white','text-slate-600','border-violet-100')});
   const on=mode==='catat'?b1:b2,off=mode==='catat'?b2:b1;on?.classList.add('active','bg-violet-600','text-white','border-violet-200');off?.classList.add('bg-white','text-slate-600','border-violet-100');
   if(mode==='bayar'){renderDendaBayarOptions();previewBayarDenda()}
@@ -1337,13 +1386,13 @@ function tutupMenu(){const d=document.getElementById('side-drawer');d.classList.
 
 function pilihMenu(n){
   const meta={
-    input:['Input Iuran Warga','Pencatatan pembayaran iuran warga.'],
+    input:['Input Iuran Warga',''],
     transaksi:['Pemasukan / Pengeluaran','Pencatatan transaksi kas selain Kas Lorong dari iuran warga.'],
-    kas:['Pembukuan Kas','Kelompokkan Kas Lorong yang diterima ke dalam batch pembukuan.'],
-    pinjaman:['Pinjaman Warga','Kelola pinjaman dan pembayaran pinjaman warga.'],
+    kas:['Pembukuan Kas',''],
+    pinjaman:['Pinjaman Warga',''],
     talangan:['Talangan Iuran','Kelola talangan Iuran Bulanan + Kebersihan warga.'],
-    denda:['Denda Gorol','Catat denda gorol dan pembayaran denda warga.'],
-    laporan:['Laporan & Rekap','Laporan kas, setoran RT, arisan, denda, pinjaman, dan talangan.'],
+    denda:['Denda Gorol',''],
+    laporan:['Laporan & Rekap',''],
     riwayat:['Riwayat & Histori','Riwayat transaksi dan batch pembukuan.'],
     dashboard:['Ringkasan Data','Ringkasan master hunian dan tarif sebagai data acuan.'],
     rumah:['Data Rumah','Data unit rumah sebagai acuan administrasi.'],
@@ -1418,7 +1467,8 @@ document.addEventListener('DOMContentLoaded',()=>{lucide.createIcons();initKasUi
   const RESIDENT_IDS=new Set(['inp-warga','edit-warga','loan-warga','tal-warga','denda-warga']);
   const STATE=new WeakMap();
   function getResidentMeta(value){
-    const w=(window.DATA&&Array.isArray(DATA.warga))?DATA.warga.find(x=>String(x.idWarga)===String(value)):null;
+    const warga=(typeof DATA!=='undefined'&&DATA&&Array.isArray(DATA.warga))?DATA.warga:[];
+    const w=warga.find(x=>String(x.idWarga)===String(value));
     return w?{name:w.nama||'',house:[w.blok,w.noRumah].filter(Boolean).join('/')}:null;
   }
   function closeAll(except){document.querySelectorAll('.custom-select-wrap.open').forEach(w=>{if(w!==except)w.classList.remove('open')})}
@@ -1436,7 +1486,12 @@ document.addEventListener('DOMContentLoaded',()=>{lucide.createIcons();initKasUi
   function refresh(select){
     const st=STATE.get(select);if(!st)return;
     const isResident=RESIDENT_IDS.has(select.id);const selected=select.options[select.selectedIndex];
-    if(isResident && selected?.value){const m=getResidentMeta(selected.value);st.value.textContent=m?`${m.name}  •  ${m.house}`:selected.textContent}else st.value.textContent=selected?.textContent||'Pilih...';
+    st.value.classList.remove('resident-value');st.value.innerHTML='';
+    if(isResident && selected?.value){
+      const m=getResidentMeta(selected.value);
+      if(m){st.value.classList.add('resident-value');const n=document.createElement('span');n.className='rv-name';n.textContent=m.name;const h=document.createElement('span');h.className='rv-house';h.textContent=m.house;st.value.append(n,h)}
+      else st.value.textContent=selected.textContent;
+    }else st.value.textContent=selected?.textContent||'Pilih...';
     const q=(st.search?.value||'').trim().toLowerCase();st.list.innerHTML='';
     const opts=[...select.options].filter(o=>!o.disabled).filter(o=>!q || o.textContent.toLowerCase().includes(q) || (isResident&&getResidentMeta(o.value)&&(`${getResidentMeta(o.value).name} ${getResidentMeta(o.value).house}`).toLowerCase().includes(q)));
     if(isResident){const head=document.createElement('div');head.className='cs-resident-head';head.innerHTML='<span>Nama Warga</span><span style="text-align:right">Blok/No</span>';st.list.append(head)}
