@@ -309,7 +309,7 @@
             <div><label class="text-sm font-bold">Nama Warga</label><select id="loan-warga" class="field mt-1" required><option value="">Pilih warga...</option></select></div>
             <div class="grid sm:grid-cols-2 gap-4">
               <div><label class="text-sm font-bold">Tanggal Pinjaman</label><input id="loan-tanggal" type="date" class="field mt-1" required></div>
-              <div><label class="text-sm font-bold">Metode Pencairan</label><select id="loan-metode" class="field mt-1"><option>Cash</option><option>QRIS</option><option>Transfer Mandiri</option></select></div>
+              <div><label class="text-sm font-bold">Metode Pencairan</label><div class="field mt-1 flex items-center bg-slate-50 text-slate-700 font-semibold">Cash <span class="ml-2 text-xs font-normal text-slate-400">(Kas Warga)</span></div><input type="hidden" id="loan-metode" value="Cash"></div>
             </div>
             <div><label class="text-sm font-bold">Nominal Pinjaman</label><input id="loan-nominal" type="text" inputmode="numeric" class="field mt-1" placeholder="0" oninput="formatNominalInput(this)" required></div>
             <div><label class="text-sm font-bold">Keterangan</label><input id="loan-keterangan" class="field mt-1" placeholder="Contoh: Pinjaman kas warga" required></div>
@@ -667,6 +667,23 @@ function setJenisKas(jenis){
   if(jenis==='Pemasukan'){masuk.classList.add(...aktif);keluar.classList.add(...non)}else{keluar.classList.add(...aktif);masuk.classList.add(...non)}
   const opts=jenis==='Pemasukan'?KATEGORI_PEMASUKAN:KATEGORI_PENGELUARAN;
   document.getElementById('trx-kategori').innerHTML=opts.map(x=>`<option value="${x}">${x}</option>`).join('');
+
+  // Metode disesuaikan dengan arah arus kas:
+  // pemasukan boleh Cash / QRIS / Transfer Mandiri,
+  // pengeluaran selalu berasal dari Kas Warga (Cash).
+  const metode=document.getElementById('trx-metode');
+  if(metode){
+    if(jenis==='Pemasukan'){
+      metode.innerHTML='<option>Cash</option><option>QRIS</option><option>Transfer Mandiri</option>';
+      metode.disabled=false;
+      metode.classList.remove('bg-slate-50','text-slate-500');
+    }else{
+      metode.innerHTML='<option value="Cash">Cash (Kas Warga)</option>';
+      metode.value='Cash';
+      metode.disabled=true;
+      metode.classList.add('bg-slate-50','text-slate-500');
+    }
+  }
 }
 
 function trxMsg(t,type='info'){
