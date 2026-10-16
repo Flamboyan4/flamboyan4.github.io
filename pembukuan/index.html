@@ -71,6 +71,7 @@
       <div class="text-[11px] font-black uppercase tracking-wider text-slate-400 px-2 mb-2">Proses Pembukuan</div>
       <div class="space-y-2">
         <button data-menu-target="input" onclick="pilihMenu('input')" class="drawer-item active w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm"><i data-lucide="wallet-cards" class="w-4 h-4"></i><span>Input Iuran</span></button>
+        <button data-menu-target="transaksi" onclick="pilihMenu('transaksi')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="arrow-left-right" class="w-4 h-4"></i><span>Pemasukan / Pengeluaran</span></button>
         <button data-menu-target="kas" onclick="pilihMenu('kas')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="notebook-tabs" class="w-4 h-4"></i><span>Pembukuan Kas</span></button>
       </div>
 
@@ -99,6 +100,7 @@
     <div class="p-3 border-b border-violet-100 flex items-center justify-between gap-3">
       <div class="flex gap-2 overflow-x-auto scrollbar-thin">
         <button data-process-target="input" class="process-btn active px-4 py-2 rounded-xl border border-violet-200 text-sm font-bold whitespace-nowrap" onclick="pilihMenu('input')">Input Iuran</button>
+        <button data-process-target="transaksi" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('transaksi')">Pemasukan / Pengeluaran</button>
         <button data-process-target="kas" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('kas')">Pembukuan Kas</button>
       </div>
       <button onclick="bukaMenu()" class="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl border border-violet-100 text-violet-700 text-sm font-bold hover:bg-violet-50"><i data-lucide="menu" class="w-4 h-4"></i> Menu</button>
@@ -155,6 +157,50 @@
     </div>
 
 
+
+
+    <div id="tab-transaksi" class="tab-panel hidden p-4 sm:p-5">
+      <div class="max-w-3xl mx-auto">
+        <div class="mb-5">
+          <h2 class="font-black text-xl text-violet-950">Input Pemasukan / Pengeluaran</h2>
+          <p class="text-sm text-slate-500 mt-1">Untuk transaksi kas selain Kas Lorong dari iuran warga.</p>
+        </div>
+
+        <form id="form-transaksi-kas" onsubmit="simpanTransaksiKas(event)" class="space-y-4">
+          <div>
+            <label class="text-sm font-bold">Jenis Transaksi</label>
+            <div class="grid grid-cols-2 gap-2 mt-1">
+              <button id="btn-jenis-pemasukan" type="button" onclick="setJenisKas('Pemasukan')" class="kas-jenis-btn rounded-xl border border-violet-200 bg-violet-600 text-white font-bold py-3">Pemasukan</button>
+              <button id="btn-jenis-pengeluaran" type="button" onclick="setJenisKas('Pengeluaran')" class="kas-jenis-btn rounded-xl border border-violet-100 bg-white text-slate-600 font-bold py-3 hover:bg-violet-50">Pengeluaran</button>
+            </div>
+            <input id="trx-jenis" type="hidden" value="Pemasukan">
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div><label class="text-sm font-bold">Tanggal</label><input id="trx-tanggal" type="date" class="field mt-1" required></div>
+            <div><label class="text-sm font-bold">Metode</label><select id="trx-metode" class="field mt-1"><option>Cash</option><option>QRIS</option><option>Transfer Mandiri</option></select></div>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div><label class="text-sm font-bold">Kategori</label><select id="trx-kategori" class="field mt-1" required></select></div>
+            <div><label class="text-sm font-bold">Nominal</label><input id="trx-nominal" type="number" min="1" step="1" class="field mt-1" placeholder="0" required></div>
+          </div>
+
+          <div><label class="text-sm font-bold">Keterangan</label><input id="trx-keterangan" class="field mt-1" placeholder="Contoh: Donasi Gorol" required></div>
+
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div><label class="text-sm font-bold">Bulan Periode</label><select id="trx-bulan" class="field mt-1"></select></div>
+            <div><label class="text-sm font-bold">Tahun Periode</label><input id="trx-tahun" type="number" min="2020" max="2100" class="field mt-1"></div>
+          </div>
+
+          <div><label class="text-sm font-bold">Catatan <span class="font-normal text-slate-400">(opsional)</span></label><input id="trx-catatan" class="field mt-1" placeholder="Catatan tambahan"></div>
+
+          <div id="trx-status" class="hidden rounded-xl border px-4 py-3 text-sm"></div>
+
+          <button id="btn-trx-simpan" type="submit" class="w-full rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-black py-3.5 flex items-center justify-center gap-2"><i data-lucide="save" class="w-4 h-4"></i>Simpan Transaksi Kas</button>
+        </form>
+      </div>
+    </div>
 
     <div id="tab-kas" class="tab-panel hidden p-4 sm:p-5 min-w-0">
       <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-3 mb-5">
@@ -216,6 +262,7 @@
       <div class="mb-5">
         <div class="flex gap-2 overflow-x-auto scrollbar-thin">
           <button id="history-btn-iuran" class="history-btn active px-4 py-2 rounded-xl border border-violet-200 text-sm font-bold whitespace-nowrap" onclick="pilihRiwayat('iuran')">Riwayat Iuran</button>
+          <button id="history-btn-kasumum" class="history-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihRiwayat('kasumum')">Riwayat Kas</button>
           <button id="history-btn-batch" class="history-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihRiwayat('batch')">Riwayat Batch Kas</button>
         </div>
       </div>
@@ -256,6 +303,27 @@
       <div class="mt-3 flex justify-center">
         <button id="btn-riwayat-more" onclick="toggleRiwayatSemua()" class="hidden px-4 py-2 rounded-xl border border-violet-200 text-violet-700 bg-white hover:bg-violet-50 text-sm font-bold">Lihat semua</button>
       </div>
+      </div>
+
+
+      <div id="history-kasumum-panel" class="hidden">
+        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-3 mb-4">
+          <div>
+            <h2 class="font-black text-xl text-violet-950">Riwayat Kas Warga</h2>
+            <p class="text-sm text-slate-500 mt-1">Pemasukan dan pengeluaran dari buku kas baru.</p>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
+            <input id="cari-trx-kas" oninput="renderRiwayatKas()" placeholder="Cari kategori / keterangan..." class="field sm:w-64">
+            <select id="filter-trx-kas" onchange="renderRiwayatKas()" class="field sm:w-40"><option value="AKTIF">Aktif</option><option value="SEMUA">Semua</option><option value="BATAL">Batal</option></select>
+          </div>
+        </div>
+        <div id="hist-kas-status" class="hidden mb-3 rounded-xl border px-4 py-3 text-sm"></div>
+        <div class="overflow-x-auto rounded-xl border border-violet-100 scrollbar-thin">
+          <table class="min-w-[930px] w-full text-sm">
+            <thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-left">Tanggal</th><th class="p-3 text-left">Jenis</th><th class="p-3 text-left">Kategori</th><th class="p-3 text-left">Keterangan</th><th class="p-3 text-right">Debit</th><th class="p-3 text-right">Kredit</th><th class="p-3 text-left">Metode</th><th class="p-3 text-center">Status</th><th class="p-3 text-right">Aksi</th></tr></thead>
+            <tbody id="tbody-riwayat-kas" class="divide-y divide-violet-50"><tr><td colspan="9" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody>
+          </table>
+        </div>
       </div>
 
       <div id="history-batch-panel" class="hidden">
@@ -330,6 +398,7 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrI9BXhRXOJyQT
 const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzx691t9eDpt6Wu2MBdnYod9auEq55ReujztqZh16XjpLkCbxzRrgCkvoJE42Lq9XXS/exec';
 let DATA={config:{},rumah:[],warga:[],riwayat:[]};
 let RIWAYAT_SEMUA=false;
+let RIWAYAT_KAS=[];
 const BULAN=['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 function rupiah(n){return 'Rp '+Math.round(Number(n)||0).toLocaleString('id-ID')}
 function jsonp(url,params={}){return new Promise((resolve,reject)=>{const cb='__cb_'+Date.now()+'_'+Math.random().toString(36).slice(2);const s=document.createElement('script');const q=new URLSearchParams({...params,callback:cb});window[cb]=d=>{cleanup();resolve(d)};function cleanup(){try{delete window[cb]}catch(e){}s.remove()}s.onerror=()=>{cleanup();reject(new Error('Gagal menghubungi Apps Script.'))};s.src=url+'?'+q.toString();document.body.appendChild(s);setTimeout(()=>{if(window[cb]){cleanup();reject(new Error('Koneksi timeout.'))}},20000)})}
@@ -451,12 +520,85 @@ async function buatBatchKas(){
 async function batalkanBatchKas(id){if(!confirm(`Batalkan batch ${id}?\n\nTransaksi akan kembali ke status BELUM.`))return;try{kasMsg('Membatalkan batch...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkanbatchkas',idBatch:id,alasan:'Dibatalkan dari web',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan batch.');kasMsg(r.message||'Batch dibatalkan.','success');await loadPembukuanKas();await loadRiwayat(true)}catch(e){kasMsg(e.message||String(e),'error')}}
 
 
+
+const KATEGORI_PEMASUKAN=['Donasi','Denda Gorol','Dana Kebersihan RT','Kas Susulan','Sumbangan','Pengembalian Pinjaman','Lainnya'];
+const KATEGORI_PENGELUARAN=['Operasional','Kebersihan','Konsumsi','Kegiatan','Perbaikan / Fasilitas','Lainnya'];
+
+function initTransaksiKasUi(){
+  const now=new Date();
+  const t=document.getElementById('trx-tanggal');if(t)t.value=now.toISOString().slice(0,10);
+  const b=document.getElementById('trx-bulan');if(b){b.innerHTML=BULAN.slice(1).map((x,i)=>`<option value="${i+1}">${x}</option>`).join('');b.value=now.getMonth()+1}
+  const y=document.getElementById('trx-tahun');if(y)y.value=now.getFullYear();
+  setJenisKas('Pemasukan');
+}
+
+function setJenisKas(jenis){
+  document.getElementById('trx-jenis').value=jenis;
+  const masuk=document.getElementById('btn-jenis-pemasukan'),keluar=document.getElementById('btn-jenis-pengeluaran');
+  const aktif=['bg-violet-600','text-white','border-violet-200'];
+  const non=['bg-white','text-slate-600','border-violet-100'];
+  [masuk,keluar].forEach(x=>{if(!x)return;x.classList.remove(...aktif,...non)});
+  if(jenis==='Pemasukan'){masuk.classList.add(...aktif);keluar.classList.add(...non)}else{keluar.classList.add(...aktif);masuk.classList.add(...non)}
+  const opts=jenis==='Pemasukan'?KATEGORI_PEMASUKAN:KATEGORI_PENGELUARAN;
+  document.getElementById('trx-kategori').innerHTML=opts.map(x=>`<option value="${x}">${x}</option>`).join('');
+}
+
+function trxMsg(t,type='info'){
+  const e=document.getElementById('trx-status');if(!e)return;
+  e.className='rounded-xl border px-4 py-3 text-sm';
+  if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');
+  else if(type==='success')e.classList.add('bg-violet-50','border-violet-200','text-violet-700');
+  else e.classList.add('bg-slate-50','border-slate-200','text-slate-600');
+  e.textContent=t;
+}
+
+async function simpanTransaksiKas(ev){
+  ev.preventDefault();
+  const btn=document.getElementById('btn-trx-simpan');btn.disabled=true;btn.classList.add('opacity-60');
+  try{
+    trxMsg('Menyimpan transaksi...');
+    const bulan=Number(document.getElementById('trx-bulan').value),tahun=Number(document.getElementById('trx-tahun').value);
+    const r=await jsonp(BATCH_SCRIPT_URL,{action:'inputtransaksikas',tanggal:document.getElementById('trx-tanggal').value,jenis:document.getElementById('trx-jenis').value,kategori:document.getElementById('trx-kategori').value,keterangan:document.getElementById('trx-keterangan').value,nominal:document.getElementById('trx-nominal').value,metode:document.getElementById('trx-metode').value,periode:`${BULAN[bulan]} ${tahun}`,catatan:document.getElementById('trx-catatan').value,t:Date.now()});
+    if(!r||r.status!=='success')throw new Error(r?.message||'Gagal menyimpan transaksi.');
+    trxMsg(`${r.idTransaksi} berhasil disimpan.`,'success');
+    document.getElementById('trx-keterangan').value='';document.getElementById('trx-nominal').value='';document.getElementById('trx-catatan').value='';
+    await loadRiwayatKas(true);
+  }catch(e){trxMsg(e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}
+}
+
+function histKasMsg(t,type='info'){
+  const e=document.getElementById('hist-kas-status');if(!e)return;e.className='mb-3 rounded-xl border px-4 py-3 text-sm';
+  if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');else if(type==='success')e.classList.add('bg-violet-50','border-violet-200','text-violet-700');else e.classList.add('bg-slate-50','border-slate-200','text-slate-600');e.textContent=t;
+}
+
+async function loadRiwayatKas(silent=false){
+  try{
+    if(!silent)histKasMsg('Memuat riwayat kas...');
+    const r=await jsonp(BATCH_SCRIPT_URL,{action:'datatransaksikas',t:Date.now()});
+    if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memuat riwayat kas.');
+    RIWAYAT_KAS=r.data||[];renderRiwayatKas();
+    if(!silent){histKasMsg('Riwayat kas diperbarui.','success');setTimeout(()=>document.getElementById('hist-kas-status')?.classList.add('hidden'),1000)}
+  }catch(e){histKasMsg(e.message||String(e),'error')}
+}
+
+function renderRiwayatKas(){
+  const q=(document.getElementById('cari-trx-kas')?.value||'').toLowerCase();const f=document.getElementById('filter-trx-kas')?.value||'AKTIF';
+  const rows=RIWAYAT_KAS.filter(x=>{if(f!=='SEMUA'&&(x.status||'AKTIF')!==f)return false;return [x.jenis,x.kategori,x.keterangan,x.metode,x.periode,x.idTransaksi].join(' ').toLowerCase().includes(q)});
+  document.getElementById('tbody-riwayat-kas').innerHTML=rows.map(x=>{const batal=x.status==='BATAL';const debit=x.debit?rupiah(x.debit):'-',kredit=x.kredit?rupiah(x.kredit):'-';const aksi=(!batal&&x.sumber!=='BATCH_KAS')?`<button onclick="batalkanTransaksiKas('${x.idTransaksi}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold hover:bg-red-50">Batalkan</button>`:(x.sumber==='BATCH_KAS'?'<span class="text-xs text-slate-400">Kelola via Batch</span>':'-');return `<tr class="${batal?'opacity-55':''} hover:bg-violet-50/30"><td class="p-3 whitespace-nowrap">${x.tanggal||'-'}</td><td class="p-3 font-bold">${x.jenis||'-'}</td><td class="p-3">${x.kategori||'-'}</td><td class="p-3"><div class="font-bold">${x.keterangan||'-'}</div><div class="text-xs text-slate-400">${x.idTransaksi||''} • ${x.sumber||''}</div></td><td class="p-3 text-right font-black text-emerald-700">${debit}</td><td class="p-3 text-right font-black text-red-600">${kredit}</td><td class="p-3">${x.metode||'-'}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${batal?'bg-slate-100 text-slate-500':'bg-violet-100 text-violet-700'}">${x.status||'AKTIF'}</span></td><td class="p-3 text-right">${aksi}</td></tr>`}).join('')||'<tr><td colspan="9" class="p-6 text-center text-slate-400">Belum ada transaksi kas.</td></tr>';
+}
+
+async function batalkanTransaksiKas(id){
+  if(!confirm(`Batalkan transaksi ${id}?`))return;
+  try{histKasMsg('Membatalkan transaksi...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkantransaksikas',idTransaksi:id,t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan.');await loadRiwayatKas(true);histKasMsg(r.message||'Transaksi dibatalkan.','success')}catch(e){histKasMsg(e.message||String(e),'error')}
+}
+
 function bukaMenu(){const d=document.getElementById('side-drawer');d.classList.add('open');d.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';lucide.createIcons()}
 function tutupMenu(){const d=document.getElementById('side-drawer');d.classList.remove('open');d.setAttribute('aria-hidden','true');document.body.style.overflow=''}
 
 function pilihMenu(n){
   const meta={
     input:['Input Iuran Warga','Pencatatan pembayaran iuran warga.'],
+    transaksi:['Pemasukan / Pengeluaran','Pencatatan transaksi kas selain Kas Lorong dari iuran warga.'],
     kas:['Pembukuan Kas','Kelompokkan Kas Lorong yang diterima ke dalam batch pembukuan.'],
     riwayat:['Riwayat & Histori','Riwayat transaksi dan batch pembukuan.'],
     dashboard:['Ringkasan Data','Ringkasan master hunian dan tarif sebagai data acuan.'],
@@ -473,6 +615,7 @@ function pilihMenu(n){
   document.getElementById('page-title').textContent=meta[n]?.[0]||'Pembukuan Flamboyan 4';
   document.getElementById('page-subtitle').textContent=meta[n]?.[1]||'';
   if(n==='riwayat'){loadRiwayat(true);pilihRiwayat('iuran')}
+  if(n==='transaksi')initTransaksiKasUi();
   if(n==='kas'){if(!KAS_LOADED)loadPembukuanKas();else renderPembukuanKas()}
   tutupMenu();
   window.scrollTo({top:0,behavior:'smooth'});
@@ -480,10 +623,12 @@ function pilihMenu(n){
 
 function pilihRiwayat(type){
   document.getElementById('history-iuran-panel')?.classList.toggle('hidden',type!=='iuran');
+  document.getElementById('history-kasumum-panel')?.classList.toggle('hidden',type!=='kasumum');
   document.getElementById('history-batch-panel')?.classList.toggle('hidden',type!=='batch');
   document.querySelectorAll('.history-btn').forEach(x=>x.classList.remove('active'));
   document.getElementById('history-btn-'+type)?.classList.add('active');
   if(type==='iuran')loadRiwayat(true);
+  if(type==='kasumum')loadRiwayatKas();
   if(type==='batch')muatRiwayatBatch();
 }
 
@@ -506,6 +651,6 @@ function renderRumah(){const q=(document.getElementById('cari-rumah')?.value||''
 function renderWarga(){const q=(document.getElementById('cari-warga')?.value||'').toLowerCase();const a=DATA.warga.filter(r=>[r.nama,r.blok,r.noRumah,r.statusTinggal,r.keterangan].join(' ').toLowerCase().includes(q));document.getElementById('tbody-warga').innerHTML=a.map(r=>`<tr class="hover:bg-violet-50/40"><td class="p-3 text-center text-slate-400">${r.noUrutRumah||'-'}</td><td class="p-3 font-bold">${r.nama||'-'}</td><td class="p-3">${r.blok}/${r.noRumah}</td><td class="p-3">${r.statusTinggal||'-'}</td><td class="p-3 text-center">${r.statusAktif||'-'}</td><td class="p-3 text-center font-bold">${r.qtyIuranBulanan||0}x</td><td class="p-3 text-center font-bold">${r.qtyKebersihan||0}x</td><td class="p-3 text-center font-bold">${r.qtyKasLorong||0}x</td><td class="p-3 text-center font-bold">${r.qtyArisan||0}x</td><td class="p-3 text-slate-500">${r.keterangan||'-'}</td></tr>`).join('')||'<tr><td colspan="10" class="p-5 text-center text-slate-400">Tidak ada data.</td></tr>'}
 function renderConfig(){const m={TARIF_BULANAN:'Tarif Iuran Bulanan',TARIF_KEBERSIHAN:'Tarif Kebersihan',TARIF_KAS_LORONG:'Tarif Kas Lorong',TARIF_ARISAN:'Tarif Arisan',TANGGAL_SETOR_RT:'Tanggal Setor RT',BATAS_PERIODE_KAS:'Batas Periode Kas'};document.getElementById('config-list').innerHTML=Object.entries(DATA.config).map(([k,v])=>`<div class="rounded-xl border border-violet-100 bg-white p-4"><div class="text-[11px] font-bold text-slate-400 uppercase">${m[k]||k}</div><div class="mt-1 font-black text-lg text-violet-950">${k.startsWith('TARIF_')?rupiah(v):v}</div></div>`).join('')}
 function gantiTab(n,b){pilihMenu(n)}
-document.addEventListener('DOMContentLoaded',()=>{lucide.createIcons();initKasUi();initHistoryBatchFilters();pilihMenu('input');muatUlang()});
+document.addEventListener('DOMContentLoaded',()=>{lucide.createIcons();initKasUi();initTransaksiKasUi();initHistoryBatchFilters();pilihMenu('input');muatUlang()});
 </script>
 </body></html>
