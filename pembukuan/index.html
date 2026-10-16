@@ -289,6 +289,26 @@
     .report-table-wrap table{font-size:.75rem!important}main{padding-top:1rem!important}main>section.mb-5{margin-bottom:.7rem!important}#page-title{font-size:1.3rem!important}
   }
 
+
+/* v6.18 - compact print & annual close */
+@media print{
+  @page{size:A4 portrait;margin:10mm 12mm}
+  #report-arisan-panel .report-letterhead{margin-bottom:8px!important}
+  #report-arisan-panel>div.mb-5{text-align:center!important;margin-bottom:8px!important}
+  #report-arisan-panel>div.grid.grid-cols-2.sm\:grid-cols-4{gap:5px!important;margin-bottom:8px!important}
+  #report-arisan-panel .report-card{padding:6px 8px!important;border-radius:8px!important}
+  #report-arisan-panel .report-card>div:first-child{font-size:8.5px!important;line-height:1!important}
+  #report-arisan-panel .report-card>div[id]{font-size:13px!important;line-height:1.1!important;margin-top:3px!important}
+  #report-arisan-panel table{font-size:10.5px!important;min-width:0!important;width:100%!important}
+  #report-arisan-panel table th,#report-arisan-panel table td{padding:3px 6px!important;line-height:1.1!important;height:auto!important}
+  #report-arisan-panel table .px-2{padding-left:5px!important;padding-right:5px!important}
+  #report-arisan-panel table .py-1{padding-top:2px!important;padding-bottom:2px!important}
+  #report-arisan-panel .report-table-wrap{border-radius:8px!important;overflow:visible!important}
+  #report-tahunan-panel table{font-size:10.5px!important}
+  #report-tahunan-panel table th,#report-tahunan-panel table td{padding:4px 6px!important;line-height:1.15!important}
+  #report-tahunan-panel .report-card{padding:7px!important}
+}
+
 </style>
   <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8">
 
@@ -480,8 +500,7 @@
   #tab-laporan .report-table-wrap th,#tab-laporan .report-table-wrap td{padding:10px 12px!important;line-height:1.3!important}
   #tab-laporan .report-card .text-\[11px\]{font-size:12px!important}
   #tab-laporan .report-card .text-xl{font-size:19px!important}
-  #report-rt-panel .report-role-badge{border-radius:4px!important;padding:3px 7px!important;box-shadow:none!important;font-size:12px!important;font-weight:600!important}
-  #report-rt-panel .report-qty-badge{border-radius:4px!important;padding:2px 5px!important;box-shadow:none!important}
+  #report-rt-panel .report-role-badge{border-radius:4px!important;padding:3px 7px!important;box-shadow:none!important}
 }
 
 /* Print: margin A4 normal; jangan ikutkan padding layar. */
@@ -492,6 +511,35 @@
 }
 </style>
 
+
+<style>
+/* v6.18.2 - mobile custom dropdown ditempatkan di atas viewport agar tidak tertutup keyboard */
+@media (max-width: 640px){
+  .custom-select-panel{
+    position:fixed!important;
+    z-index:110!important;
+    left:12px!important;
+    right:12px!important;
+    top:max(10px, env(safe-area-inset-top))!important;
+    bottom:auto!important;
+    max-height:min(68dvh, 520px)!important;
+    border-radius:18px!important;
+    overflow:hidden!important;
+  }
+  .cs-list{
+    max-height:min(54dvh, 410px)!important;
+    overflow-y:auto!important;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+  .cs-search-wrap{
+    position:sticky;
+    top:0;
+    z-index:2;
+    background:#fff;
+  }
+}
+</style>
 </head>
 <body>
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
@@ -792,8 +840,9 @@
               <button id="report-mode-denda" onclick="setModeLaporan('denda')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Denda</button>
               <button id="report-mode-pinjaman" onclick="setModeLaporan('pinjaman')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Pinjaman</button>
               <button id="report-mode-talangan" onclick="setModeLaporan('talangan')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Talangan</button>
+              <button id="report-mode-tahunan" onclick="setModeLaporan('tahunan')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Tutup Buku</button>
             </div>
-            <div><h2 class="font-black text-xl text-violet-950">Laporan & Rekap</h2><p class="text-sm text-slate-500 mt-1">Rekap kas warga, setoran RT, arisan, denda, pinjaman, dan talangan berdasarkan data pembukuan.</p></div>
+            <div><h2 class="font-black text-xl text-violet-950">Laporan & Rekap</h2><p class="text-sm text-slate-500 mt-1">Rekap pembukuan dan laporan tahunan.</p></div>
           </div>
           <div class="mt-4 space-y-3">
             <div id="report-kas-filter" class="space-y-3">
@@ -810,6 +859,7 @@
             <div id="report-denda-filter" class="hidden grid sm:grid-cols-3 gap-3 max-w-2xl"><div><label class="text-xs font-bold text-slate-500">Bulan</label><select id="report-denda-bulan" class="field mt-1"></select></div><div><label class="text-xs font-bold text-slate-500">Tahun</label><input id="report-denda-tahun" type="number" class="field mt-1" min="2020" max="2100"></div><div><label class="text-xs font-bold text-slate-500">Status</label><select id="report-denda-status-filter" class="field mt-1"><option value="SEMUA">Semua</option><option value="BELUM">Belum Bayar</option><option value="LUNAS">Lunas</option><option value="BATAL">Batal</option></select></div></div>
             <div id="report-pinjaman-filter" class="hidden max-w-sm"><label class="text-xs font-bold text-slate-500">Status</label><select id="report-pinjaman-status-filter" class="field mt-1"><option value="SEMUA">Semua</option><option value="AKTIF">Aktif</option><option value="LUNAS">Lunas</option><option value="BATAL">Batal</option></select></div>
             <div id="report-talangan-filter" class="hidden grid sm:grid-cols-3 gap-3 max-w-2xl"><div><label class="text-xs font-bold text-slate-500">Bulan</label><select id="report-talangan-bulan" class="field mt-1"></select></div><div><label class="text-xs font-bold text-slate-500">Tahun</label><input id="report-talangan-tahun" type="number" class="field mt-1" min="2020" max="2100"></div><div><label class="text-xs font-bold text-slate-500">Status</label><select id="report-talangan-status-filter" class="field mt-1"><option value="SEMUA">Semua</option><option value="MENUNGGU">Menunggu</option><option value="LUNAS">Lunas</option><option value="BATAL">Batal</option></select></div></div>
+            <div id="report-tahunan-filter" class="hidden max-w-sm"><div><label class="text-xs font-bold text-slate-500">Tahun</label><input id="report-tahunan-tahun" type="number" class="field mt-1" min="2020" max="2100"></div></div>
             <div class="grid sm:grid-cols-2 gap-3 max-w-xl"><button onclick="loadLaporan()" class="rounded-xl bg-violet-600 text-white font-black px-5 py-3">Muat Laporan</button><button onclick="printLaporan()" class="rounded-xl border border-violet-200 text-violet-700 font-black px-5 py-3"><span class="inline-flex items-center gap-2"><i data-lucide="printer" class="w-4 h-4"></i>Print</span></button></div>
           </div>
           <div id="report-status" class="hidden mt-3 rounded-xl border px-4 py-3 text-sm"></div>
@@ -880,6 +930,28 @@
             <div class="no-print mb-3 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 px-4 py-3 text-sm">Detail nama hanya untuk administrasi internal. Saat dicetak, laporan Talangan menampilkan rekap tanpa nama warga.</div>
             <div class="no-print report-table-wrap overflow-x-auto rounded-2xl border border-violet-100"><table class="w-full text-sm min-w-[1050px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center">No</th><th class="p-3 text-left">Warga</th><th class="p-3 text-right">Talangan</th><th class="p-3 text-right">Diganti</th><th class="p-3 text-right">Sisa</th><th class="p-3 text-center">Status</th><th class="p-3 text-center">Pembukuan</th><th class="p-3 text-left">Batas / Pelunasan</th></tr></thead><tbody id="report-talangan-tbody" class="divide-y divide-violet-50"><tr><td colspan="8" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody></table></div>
             <div class="print-only hidden report-table-wrap rounded-2xl border border-violet-100"><table class="w-full text-sm"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-left">Status</th><th class="p-3 text-center">Jumlah</th><th class="p-3 text-right">Nominal</th><th class="p-3 text-right">Sisa</th></tr></thead><tbody id="report-talangan-print-tbody"></tbody></table></div>
+          <div id="report-tahunan-panel" class="hidden">
+            <div class="report-letterhead"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4 <span class="kop-unit">(HUMAS 3)</span></div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
+            <div class="mb-4 text-center"><h2 class="font-black text-2xl text-violet-950">REKAP & TUTUP BUKU TAHUNAN</h2><p id="report-tahunan-period" class="text-sm text-slate-500 mt-1"></p></div>
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-2 mb-4">
+              <div class="report-card rounded-xl border border-violet-100 p-3"><div class="text-[11px] uppercase text-slate-400">Saldo Awal</div><div id="rep-tahunan-awal" class="text-lg font-black mt-1">Rp 0</div></div>
+              <div class="report-card rounded-xl border border-violet-100 p-3"><div class="text-[11px] uppercase text-slate-400">Pemasukan</div><div id="rep-tahunan-masuk" class="text-lg font-black text-emerald-700 mt-1">Rp 0</div></div>
+              <div class="report-card rounded-xl border border-violet-100 p-3"><div class="text-[11px] uppercase text-slate-400">Pengeluaran</div><div id="rep-tahunan-keluar" class="text-lg font-black text-red-600 mt-1">Rp 0</div></div>
+              <div class="report-card rounded-xl border border-violet-100 p-3"><div class="text-[11px] uppercase text-slate-400">Saldo Periode</div><div id="rep-tahunan-net" class="text-lg font-black mt-1">Rp 0</div></div>
+              <div class="report-card rounded-xl border border-violet-100 p-3"><div class="text-[11px] uppercase text-slate-400">Saldo Akhir</div><div id="rep-tahunan-akhir" class="text-lg font-black text-violet-700 mt-1">Rp 0</div></div>
+            </div>
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-2 mb-4">
+              <div class="report-card rounded-xl border border-violet-100 p-3"><div class="text-[11px] uppercase text-slate-400">Setoran RT</div><div id="rep-tahunan-rt" class="text-base font-black mt-1">Rp 0</div></div>
+              <div class="report-card rounded-xl border border-violet-100 p-3"><div class="text-[11px] uppercase text-slate-400">Arisan</div><div id="rep-tahunan-arisan" class="text-base font-black mt-1">Rp 0</div></div>
+              <div class="report-card rounded-xl border border-violet-100 p-3"><div class="text-[11px] uppercase text-slate-400">Denda Masuk</div><div id="rep-tahunan-denda" class="text-base font-black mt-1">Rp 0</div></div>
+              <div class="report-card rounded-xl border border-violet-100 p-3"><div class="text-[11px] uppercase text-slate-400">Sisa Pinjaman</div><div id="rep-tahunan-pinjaman" class="text-base font-black text-red-600 mt-1">Rp 0</div></div>
+              <div class="report-card rounded-xl border border-violet-100 p-3"><div class="text-[11px] uppercase text-slate-400">Sisa Talangan</div><div id="rep-tahunan-talangan" class="text-base font-black text-red-600 mt-1">Rp 0</div></div>
+            </div>
+            <div id="report-tahunan-status" class="no-print mb-3 rounded-xl border border-violet-100 bg-violet-50 px-4 py-3 text-sm text-violet-800">Muat rekap tahunan untuk melihat status tutup buku.</div>
+            <div class="report-table-wrap overflow-x-auto rounded-xl border border-violet-100"><table class="w-full text-sm"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-2 text-left">Bulan</th><th class="p-2 text-right">Pemasukan</th><th class="p-2 text-right">Pengeluaran</th><th class="p-2 text-right">Saldo Periode</th><th class="p-2 text-right">Setoran RT</th><th class="p-2 text-right">Arisan</th><th class="p-2 text-right">Denda</th></tr></thead><tbody id="report-tahunan-tbody"></tbody></table></div>
+            <div class="no-print mt-4 flex flex-wrap gap-2 justify-end"><button id="btn-tutup-buku" onclick="prosesTutupBuku()" class="hidden rounded-xl bg-violet-700 text-white px-5 py-3 font-black">Tutup Buku Tahun Ini</button></div>
+          </div>
+
           </div>
         </div>
       </div>
@@ -1056,7 +1128,7 @@
 
 <script>
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrI9BXhRXOJyQTNIc0W1CbNUNqZinZGiUZCNCoB4OhaeF706WQXJl_-FucMcZLKgms/exec';
-const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzUSGasVkux8afifT0FClp39wKCEW13zruPU_iwbQlt3AHztuYJ7twyKYXVpYYZXFrQ/exec';
+const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxR9rcRqlouHi0d236BVOdj-58TFM7yScW3EcW3dDAybB0efwl_1jjO6NQVDSGsIyfm/exec';
 const DELETE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSe7bAW5eAmvtoau0_fzpGAddiS53tD41rFM0saROgOblFommVZyxaM6LZlEWYSidt/exec';
 let DATA={config:{},rumah:[],warga:[],riwayat:[]};
 let RIWAYAT_SEMUA=false;
@@ -1435,7 +1507,8 @@ async function batalkanTalangan(id){if(!confirm(`Batalkan talangan ${id}?\n\nJik
 
 
 let DATA_DENDA={rows:[],aktif:[],ringkasan:{}};
-let REPORT_MODE='kas', REPORT_DATA_KAS=null, REPORT_DATA_RT=null, REPORT_DATA_ARISAN=null, REPORT_DATA_DENDA=null, REPORT_DATA_PINJAMAN=null, REPORT_DATA_TALANGAN=null;
+let DENDA_LOADED=false, DENDA_LOADING=null;
+let REPORT_MODE='kas', REPORT_DATA_KAS=null, REPORT_DATA_RT=null, REPORT_DATA_ARISAN=null, REPORT_DATA_DENDA=null, REPORT_DATA_PINJAMAN=null, REPORT_DATA_TALANGAN=null, REPORT_DATA_TAHUNAN=null;
 function dendaMsg(id,t,type='info'){const e=document.getElementById(id);if(!e)return;e.className='rounded-xl border px-4 py-3 text-sm';if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');else if(type==='success')e.classList.add('bg-emerald-50','border-emerald-200','text-emerald-700');else e.classList.add('bg-slate-50','border-slate-200','text-slate-600');e.textContent=t;e.classList.remove('hidden')}
 function initDendaUi(){
   const s=document.getElementById('denda-warga');if(s){const cur=s.value;s.innerHTML='<option value="">Pilih warga...</option>'+DATA.warga.filter(w=>['ya','aktif'].includes((w.statusAktif||'').toLowerCase())).map(w=>`<option value="${w.idWarga}">${w.nama} • ${w.blok}/${w.noRumah}</option>`).join('');if(DATA.warga.some(w=>w.idWarga===cur))s.value=cur}
@@ -1450,14 +1523,30 @@ function setModeDenda(mode){
   const on=mode==='catat'?b1:b2,off=mode==='catat'?b2:b1;on?.classList.add('active','bg-violet-600','text-white','border-violet-200');off?.classList.add('bg-white','text-slate-600','border-violet-100');
   if(mode==='bayar'){renderDendaBayarOptions();previewBayarDenda()}
 }
-async function loadDenda(silent=false){try{if(!silent)dendaMsg('hist-denda-status','Memuat data denda...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'datadenda',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memuat denda.');DATA_DENDA=r.data||{rows:[],aktif:[],ringkasan:{}};renderDendaHistory();renderDendaBayarOptions();if(!silent){dendaMsg('hist-denda-status','Data denda diperbarui.','success');setTimeout(()=>document.getElementById('hist-denda-status')?.classList.add('hidden'),1000)}}catch(e){dendaMsg('hist-denda-status',e.message||String(e),'error')}}
+async function loadDenda(silent=false,force=false){
+  if(DENDA_LOADED&&!force){renderDendaHistory();renderDendaBayarOptions();return DATA_DENDA}
+  if(DENDA_LOADING&&!force)return DENDA_LOADING;
+  DENDA_LOADING=(async()=>{
+    try{
+      if(!silent)dendaMsg('hist-denda-status','Memuat data denda...');
+      const r=await jsonp(BATCH_SCRIPT_URL,{action:'datadenda',t:Date.now()});
+      if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memuat denda.');
+      DATA_DENDA=r.data||{rows:[],aktif:[],ringkasan:{}}; DENDA_LOADED=true;
+      renderDendaHistory();renderDendaBayarOptions();
+      if(!silent){dendaMsg('hist-denda-status','Data denda diperbarui.','success');setTimeout(()=>document.getElementById('hist-denda-status')?.classList.add('hidden'),1000)}
+      return DATA_DENDA;
+    }catch(e){dendaMsg('hist-denda-status',e.message||String(e),'error');throw e}
+    finally{DENDA_LOADING=null}
+  })();
+  return DENDA_LOADING;
+}
 function renderDendaBayarOptions(){const s=document.getElementById('bayar-denda-id');if(!s)return;const cur=s.value;s.innerHTML='<option value="">Pilih denda...</option>'+((DATA_DENDA.aktif||[]).map(x=>`<option value="${x.idDenda}">${x.nama} • ${x.blok}/${x.noRumah} • ${x.tanggalKegiatan} • ${rupiah(x.nominal)}</option>`).join(''));if((DATA_DENDA.aktif||[]).some(x=>x.idDenda===cur))s.value=cur}
 function previewBayarDenda(){const id=document.getElementById('bayar-denda-id')?.value,e=document.getElementById('bayar-denda-preview');if(!e)return;const x=(DATA_DENDA.aktif||[]).find(v=>v.idDenda===id);if(!x){e.textContent='Pilih denda untuk melihat detail.';return}e.innerHTML=`<div class="font-black text-violet-950">${x.nama} • ${x.blok}/${x.noRumah}</div><div class="mt-1">${x.namaKegiatan} • ${x.tanggalKegiatan}</div><div class="text-xl font-black text-violet-700 mt-2">${rupiah(x.nominal)}</div>${x.keterangan?`<div class="text-xs text-slate-500 mt-1">${x.keterangan}</div>`:''}`}
-async function simpanDenda(ev){ev.preventDefault();const btn=document.getElementById('denda-btn-simpan');btn.disabled=true;btn.classList.add('opacity-60');try{dendaMsg('denda-status','Menyimpan denda...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'buatdenda',idWarga:document.getElementById('denda-warga').value,tanggalKegiatan:document.getElementById('denda-tanggal').value,namaKegiatan:document.getElementById('denda-kegiatan').value,nominal:nominalAngka('denda-nominal'),keterangan:document.getElementById('denda-keterangan').value,t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal menyimpan denda.');dendaMsg('denda-status',`${r.idDenda} berhasil dicatat • ${rupiah(r.nominal||0)}`,'success');document.getElementById('denda-warga').value='';document.getElementById('denda-keterangan').value='';await loadDenda(true)}catch(e){dendaMsg('denda-status',e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}}
-async function bayarDenda(ev){ev.preventDefault();const btn=document.getElementById('bayar-denda-btn');btn.disabled=true;btn.classList.add('opacity-60');try{dendaMsg('bayar-denda-status','Menyimpan pembayaran...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'bayardenda',idDenda:document.getElementById('bayar-denda-id').value,tanggalBayar:document.getElementById('bayar-denda-tanggal').value,metode:document.getElementById('bayar-denda-metode').value,t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membayar denda.');dendaMsg('bayar-denda-status',`Pembayaran berhasil • ${rupiah(r.nominal||0)}`,'success');await loadDenda(true);await loadRiwayatKas(true);document.getElementById('bayar-denda-id').value='';previewBayarDenda()}catch(e){dendaMsg('bayar-denda-status',e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}}
+async function simpanDenda(ev){ev.preventDefault();const btn=document.getElementById('denda-btn-simpan');btn.disabled=true;btn.classList.add('opacity-60');try{dendaMsg('denda-status','Menyimpan denda...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'buatdenda',idWarga:document.getElementById('denda-warga').value,tanggalKegiatan:document.getElementById('denda-tanggal').value,namaKegiatan:document.getElementById('denda-kegiatan').value,nominal:nominalAngka('denda-nominal'),keterangan:document.getElementById('denda-keterangan').value,t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal menyimpan denda.');dendaMsg('denda-status',`${r.idDenda} berhasil dicatat • ${rupiah(r.nominal||0)}`,'success');document.getElementById('denda-warga').value='';document.getElementById('denda-keterangan').value='';await loadDenda(true,true)}catch(e){dendaMsg('denda-status',e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}}
+async function bayarDenda(ev){ev.preventDefault();const btn=document.getElementById('bayar-denda-btn');btn.disabled=true;btn.classList.add('opacity-60');try{dendaMsg('bayar-denda-status','Menyimpan pembayaran...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'bayardenda',idDenda:document.getElementById('bayar-denda-id').value,tanggalBayar:document.getElementById('bayar-denda-tanggal').value,metode:document.getElementById('bayar-denda-metode').value,t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membayar denda.');dendaMsg('bayar-denda-status',`Pembayaran berhasil • ${rupiah(r.nominal||0)}`,'success');await loadDenda(true,true);await loadRiwayatKas(true);document.getElementById('bayar-denda-id').value='';previewBayarDenda()}catch(e){dendaMsg('bayar-denda-status',e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}}
 function renderDendaHistory(){const r=DATA_DENDA.ringkasan||{},set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('denda-sum-belum-count',r.jumlahBelum||0);set('denda-sum-belum',rupiah(r.nominalBelum||0));set('denda-sum-lunas-count',r.jumlahLunas||0);set('denda-sum-lunas',rupiah(r.nominalLunas||0));const tb=document.getElementById('tbody-riwayat-denda');if(!tb)return;tb.innerHTML=(DATA_DENDA.rows||[]).map(x=>{const batal=x.status==='BATAL',lunas=x.status==='LUNAS';const badge=batal?'bg-slate-100 text-slate-500':lunas?'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700';let aksi='-';if(x.status==='BELUM')aksi=`<button onclick="batalkanDenda('${x.idDenda}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold">Batalkan</button>`;if(lunas)aksi=`<button onclick="batalkanPembayaranDenda('${x.idDenda}')" class="px-3 py-1.5 rounded-lg border border-amber-200 text-amber-700 font-bold">Batalkan Bayar</button>`;return `<tr class="${batal?'opacity-55':''}"><td class="p-3"><div class="font-bold">${histDate(x.tanggalKegiatan)}</div><div class="text-xs text-slate-400">${x.idDenda||''}</div></td><td class="p-3"><div class="font-bold">${x.nama||'-'}</div><div class="text-xs text-slate-400">${x.blok||''}/${x.noRumah||''}</div></td><td class="p-3"><div class="font-bold">${x.namaKegiatan||'-'}</div><div class="text-xs text-slate-400">${x.keterangan||''}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominal||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${badge}">${x.status||'BELUM'}</span></td><td class="p-3">${lunas?`${histDate(x.tanggalBayar)}<div class="text-xs text-slate-400">${x.metode||''} • ${x.idTransaksiKas||''}</div>`:'-'}</td><td class="p-3 text-right">${aksi}</td></tr>`}).join('')||'<tr><td colspan="7" class="p-6 text-center text-slate-400">Belum ada data denda.</td></tr>'}
-async function batalkanDenda(id){if(!confirm(`Batalkan denda ${id}?`))return;try{dendaMsg('hist-denda-status','Membatalkan denda...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkandenda',idDenda:id,alasan:'Dibatalkan dari web',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan denda.');await loadDenda(true);dendaMsg('hist-denda-status',r.message||'Denda dibatalkan.','success')}catch(e){dendaMsg('hist-denda-status',e.message||String(e),'error')}}
-async function batalkanPembayaranDenda(id){if(!confirm(`Batalkan pembayaran denda ${id}?\n\nTransaksi pemasukan Kas Warga terkait juga akan dibatalkan.`))return;try{dendaMsg('hist-denda-status','Membatalkan pembayaran denda...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkanpembayarandenda',idDenda:id,t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan pembayaran.');await loadDenda(true);await loadRiwayatKas(true);dendaMsg('hist-denda-status',r.message||'Pembayaran denda dibatalkan.','success')}catch(e){dendaMsg('hist-denda-status',e.message||String(e),'error')}}
+async function batalkanDenda(id){if(!confirm(`Batalkan denda ${id}?`))return;try{dendaMsg('hist-denda-status','Membatalkan denda...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkandenda',idDenda:id,alasan:'Dibatalkan dari web',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan denda.');await loadDenda(true,true);dendaMsg('hist-denda-status',r.message||'Denda dibatalkan.','success')}catch(e){dendaMsg('hist-denda-status',e.message||String(e),'error')}}
+async function batalkanPembayaranDenda(id){if(!confirm(`Batalkan pembayaran denda ${id}?\n\nTransaksi pemasukan Kas Warga terkait juga akan dibatalkan.`))return;try{dendaMsg('hist-denda-status','Membatalkan pembayaran denda...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkanpembayarandenda',idDenda:id,t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan pembayaran.');await loadDenda(true,true);await loadRiwayatKas(true);dendaMsg('hist-denda-status',r.message||'Pembayaran denda dibatalkan.','success')}catch(e){dendaMsg('hist-denda-status',e.message||String(e),'error')}}
 
 
 function isiBulanSelect(id){const e=document.getElementById(id);if(e&&!e.options.length)e.innerHTML=BULAN.slice(1).map((b,i)=>`<option value="${i+1}">${b}</option>`).join('')}
@@ -1472,7 +1561,7 @@ function initLaporanUi(){
     'report-kas-bulan':now.getMonth()+1,'report-kas-tahun':now.getFullYear(),
     'report-kas-mulai-bulan':now.getMonth()+1,'report-kas-mulai-tahun':now.getFullYear(),
     'report-kas-sampai-bulan':now.getMonth()+1,'report-kas-sampai-tahun':now.getFullYear(),
-    'report-kas-tahun-tunggal':now.getFullYear(),'report-kas-tahun-awal':now.getFullYear(),'report-kas-tahun-akhir':now.getFullYear()
+    'report-kas-tahun-tunggal':now.getFullYear(),'report-kas-tahun-awal':now.getFullYear(),'report-kas-tahun-akhir':now.getFullYear(),'report-tahunan-tahun':now.getFullYear()
   };
   Object.entries(vals).forEach(([id,v])=>{const e=document.getElementById(id);if(e&&!e.value)e.value=v});
   updateKasPeriodControls();
@@ -1485,8 +1574,8 @@ function updateKasPeriodControls(){
   document.getElementById(map[mode])?.classList.remove('hidden');
 }
 function setModeLaporan(mode,autoload=true){
-  const allowed=['kas','rt','arisan','denda','pinjaman','talangan'];REPORT_MODE=allowed.includes(mode)?mode:'kas';
-  ['kas','rt','arisan','denda','pinjaman','talangan'].forEach(x=>{document.getElementById('report-'+x+'-panel')?.classList.toggle('hidden',REPORT_MODE!==x);document.getElementById('report-'+x+'-filter')?.classList.toggle('hidden',REPORT_MODE!==x)});
+  const allowed=['kas','rt','arisan','denda','pinjaman','talangan','tahunan'];REPORT_MODE=allowed.includes(mode)?mode:'kas';
+  ['kas','rt','arisan','denda','pinjaman','talangan','tahunan'].forEach(x=>{document.getElementById('report-'+x+'-panel')?.classList.toggle('hidden',REPORT_MODE!==x);document.getElementById('report-'+x+'-filter')?.classList.toggle('hidden',REPORT_MODE!==x)});
   document.querySelectorAll('.report-mode-btn').forEach(b=>{b.classList.remove('active','bg-violet-600','text-white');b.classList.add('bg-white','text-slate-600')});
   const a=document.getElementById('report-mode-'+REPORT_MODE);if(a){a.classList.add('active','bg-violet-600','text-white');a.classList.remove('bg-white','text-slate-600')}
   if(autoload)loadLaporan();
@@ -1516,6 +1605,8 @@ async function loadLaporan(){
       const status=document.getElementById('report-pinjaman-status-filter')?.value||'SEMUA';p={action:'laporanpinjaman',status,t:Date.now()};
     }else if(REPORT_MODE==='talangan'){
       const bulan=Number(document.getElementById('report-talangan-bulan')?.value),tahun=Number(document.getElementById('report-talangan-tahun')?.value),status=document.getElementById('report-talangan-status-filter')?.value||'SEMUA';if(!bulan||!tahun)return;p={action:'laporantalangan',bulan,tahun,status,t:Date.now()};
+    }else if(REPORT_MODE==='tahunan'){
+      const tahun=Number(document.getElementById('report-tahunan-tahun')?.value);if(!tahun)return;p={action:'laporantahunan',tahun,t:Date.now()};
     }else p=getKasReportParams();
     const r=await jsonp(BATCH_SCRIPT_URL,p);
     if(requestSeq!==REPORT_REQUEST_SEQ)return;
@@ -1525,6 +1616,7 @@ async function loadLaporan(){
     else if(REPORT_MODE==='denda'){REPORT_DATA_DENDA=r.data;renderLaporanDenda(r.data)}
     else if(REPORT_MODE==='pinjaman'){REPORT_DATA_PINJAMAN=r.data;renderLaporanPinjaman(r.data)}
     else if(REPORT_MODE==='talangan'){REPORT_DATA_TALANGAN=r.data;renderLaporanTalangan(r.data)}
+    else if(REPORT_MODE==='tahunan'){REPORT_DATA_TAHUNAN=r.data;renderLaporanTahunan(r.data)}
     else{REPORT_DATA_KAS=r.data;renderLaporanKas(r.data)}
     reportMsg('Laporan berhasil dimuat.','success');setTimeout(()=>{if(requestSeq===REPORT_REQUEST_SEQ)document.getElementById('report-status')?.classList.add('hidden')},900)
   }catch(e){if(requestSeq!==REPORT_REQUEST_SEQ)return;reportMsg(e.message||String(e),'error')}
@@ -1545,7 +1637,7 @@ function badgeKeteranganRt(k){
   if(l.includes('humas')) cls='bg-sky-700 text-white border-sky-700';
   else if(l.includes('ketua rt')) cls='bg-amber-600 text-white border-amber-600';
   else if(l.includes('2x')||l.includes('2 x')||l.includes('dua kali')) cls='bg-emerald-700 text-white border-emerald-700';
-  return `<span class="report-role-badge inline-block rounded-md border px-2 py-1 text-xs font-semibold ${cls}">${esc(t)}</span>`;
+  return `<span class="inline-block rounded-md border px-2 py-1 text-xs font-black ${cls}">${esc(t)}</span>`;
 }
 function renderLaporanRt(d){d=d||{};const r=d.ringkasan||{},rows=Array.isArray(d.rows)?d.rows:[],set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};const orangBulanan=rows.filter(x=>Number(x.nominalBulanan||0)>0).length;const orangKebersihan=rows.filter(x=>Number(x.nominalKebersihan||0)>0).length;set('report-rt-period',`Periode ${d.namaBulan||''} ${d.tahun||''}`);set('report-rt-foot-bulanan',rupiah(r.totalBulanan||0));set('report-rt-foot-keb',rupiah(r.totalKebersihan||0));set('report-rt-foot-bulanan-count',`${orangBulanan} orang`);set('report-rt-foot-keb-count',`${orangKebersihan} orang`);set('report-rt-foot-total',rupiah(r.totalSetoran||0));const note=document.getElementById('rep-rt-talangan-note');if(note){note.classList.toggle('hidden',!(r.talanganCount>0));note.textContent=`Catatan internal: ${r.talanganCount||0} warga pada laporan ini ditutup melalui talangan. Keterangan ini tidak ikut saat dicetak.`}const tb=document.getElementById('report-rt-tbody');if(tb)tb.innerHTML=rows.map((x,i)=>`<tr><td class="p-3 text-center">${i+1}</td><td class="p-3 font-bold">${esc(x.nama||'-')}</td><td class="p-3">${esc(x.blok||'')}/${esc(x.noRumah||'')}</td><td class="p-3">${badgeKeteranganRt(x.keterangan)}</td><td class="p-3 text-right">${rupiah(x.nominalBulanan||0)}${Number(x.qtyBulanan)>1?` <span class="report-qty-badge">${x.qtyBulanan}x</span>`:''}</td><td class="p-3 text-right">${rupiah(x.nominalKebersihan||0)}${Number(x.qtyKebersihan)>1?` <span class="report-qty-badge">${x.qtyKebersihan}x</span>`:''}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada data setoran pada periode ini.</td></tr>'}
 function renderLaporanArisan(d){
@@ -1587,6 +1679,14 @@ function renderLaporanArisan(d){
 function renderLaporanDenda(d){d=d||{};const r=d.ringkasan||{},rows=d.rows||[],set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('report-denda-period',`Periode ${d.namaBulan||''} ${d.tahun||''}${d.statusFilter&&d.statusFilter!=='SEMUA'?' • '+d.statusFilter:''}`);set('rep-denda-belum',r.jumlahBelum||0);set('rep-denda-nominal-belum',rupiah(r.nominalBelum||0));set('rep-denda-lunas',r.jumlahLunas||0);set('rep-denda-nominal-lunas',rupiah(r.nominalLunas||0));const tb=document.getElementById('report-denda-tbody');if(tb)tb.innerHTML=rows.map((x,i)=>`<tr><td class="p-3 text-center">${i+1}</td><td class="p-3 font-bold">${x.nama||'-'}</td><td class="p-3">${x.blok||''}/${x.noRumah||''}</td><td class="p-3"><div class="font-bold">${x.namaKegiatan||'-'}</div><div class="text-xs text-slate-400">${x.tanggalKegiatan||''}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominal||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${x.status==='LUNAS'?'bg-emerald-100 text-emerald-700':x.status==='BATAL'?'bg-slate-100 text-slate-500':'bg-red-100 text-red-700'}">${x.status||'BELUM'}</span></td><td class="p-3">${x.status==='LUNAS'?`${histDate(x.tanggalBayar)}<div class="text-xs text-slate-400">${x.metode||''}</div>`:'-'}</td></tr>`).join('')||'<tr><td colspan="7" class="p-6 text-center text-slate-400">Tidak ada data denda pada filter ini.</td></tr>'}
 function renderLaporanPinjaman(d){d=d||{};const r=d.ringkasan||{},rows=d.rows||[],set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('report-pinjaman-period',`Posisi pinjaman terkini${d.statusFilter&&d.statusFilter!=='SEMUA'?' • '+d.statusFilter:''}`);set('rep-pinjaman-aktif',r.jumlahAktif||0);set('rep-pinjaman-total',rupiah(r.totalPinjaman||0));set('rep-pinjaman-dibayar',rupiah(r.totalDibayar||0));set('rep-pinjaman-sisa',rupiah(r.totalSisa||0));const tb=document.getElementById('report-pinjaman-tbody');if(tb)tb.innerHTML=rows.map((x,i)=>{const st=x.status||'AKTIF',badge=st==='LUNAS'?'bg-emerald-100 text-emerald-700':st==='BATAL'?'bg-slate-100 text-slate-500':'bg-amber-100 text-amber-700';return `<tr class="${st==='BATAL'?'opacity-55':''}"><td class="p-3 text-center">${i+1}</td><td class="p-3"><div class="font-bold">${esc(x.nama||'-')}</div><div class="text-xs text-slate-400">${esc(x.blok||'')}/${esc(x.noRumah||'')}<span class="no-print"> • ${esc(x.idPinjaman||'')}</span></div></td><td class="p-3 whitespace-nowrap">${histDate(x.tanggalPinjaman)}</td><td class="p-3 text-right font-black">${rupiah(x.nominalPinjaman||0)}</td><td class="p-3 text-right font-bold text-emerald-700">${rupiah(x.totalDibayar||0)}</td><td class="p-3 text-right font-black text-red-600">${rupiah(x.sisaPinjaman||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${badge}">${esc(st)}</span></td><td class="p-3">${esc(x.keterangan||'-')}</td></tr>`}).join('')||'<tr><td colspan="8" class="p-6 text-center text-slate-400">Tidak ada data pinjaman pada filter ini.</td></tr>'}
 function renderLaporanTalangan(d){d=d||{};const r=d.ringkasan||{},rows=d.rows||[],set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('report-talangan-period',`Periode ${d.namaBulan||''} ${d.tahun||''}${d.statusFilter&&d.statusFilter!=='SEMUA'?' • '+d.statusFilter:''}`);set('rep-talangan-jumlah',r.jumlah||0);set('rep-talangan-total',rupiah(r.totalTalangan||0));set('rep-talangan-diganti',rupiah(r.totalDiganti||0));set('rep-talangan-sisa',rupiah(r.totalSisa||0));const tb=document.getElementById('report-talangan-tbody');if(tb)tb.innerHTML=rows.map((x,i)=>{const st=String(x.status||'MENUNGGU').toUpperCase(),badge=st==='LUNAS'?'bg-emerald-100 text-emerald-700':st==='BATAL'?'bg-slate-100 text-slate-500':'bg-amber-100 text-amber-700';return `<tr class="${st==='BATAL'?'opacity-55':''}"><td class="p-3 text-center">${i+1}</td><td class="p-3"><div class="font-bold">${esc(x.nama||'-')}</div><div class="text-xs text-slate-400">${esc(x.blok||'')}/${esc(x.noRumah||'')} • ${esc(x.idTalangan||'')}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominalTalangan||0)}</td><td class="p-3 text-right font-bold text-emerald-700">${rupiah(x.nominalDiganti||0)}</td><td class="p-3 text-right font-black text-red-600">${rupiah(x.sisaTalangan||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${badge}">${esc(st)}</span></td><td class="p-3 text-center">${esc(x.statusPembukuan||'-')}</td><td class="p-3"><div>${esc(x.tanggalJatuhTempo||'-')}</div>${x.tanggalLunas?`<div class="text-xs text-emerald-700 mt-1">Lunas ${esc(x.tanggalLunas)}</div>`:''}</td></tr>`}).join('')||'<tr><td colspan="8" class="p-6 text-center text-slate-400">Tidak ada data talangan pada filter ini.</td></tr>';const pt=document.getElementById('report-talangan-print-tbody');if(pt)pt.innerHTML=(d.rekapStatus||[]).map(x=>`<tr><td class="p-3 font-bold">${esc(x.status)}</td><td class="p-3 text-center">${x.jumlah||0}</td><td class="p-3 text-right font-bold">${rupiah(x.nominal||0)}</td><td class="p-3 text-right font-black">${rupiah(x.sisa||0)}</td></tr>`).join('')}
+function renderLaporanTahunan(d){
+  d=d||{};const r=d.ringkasan||{},set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+  set('report-tahunan-period',`Tahun ${d.tahun||''}`);set('rep-tahunan-awal',rupiah(r.saldoAwal||0));set('rep-tahunan-masuk',rupiah(r.pemasukan||0));set('rep-tahunan-keluar',rupiah(r.pengeluaran||0));set('rep-tahunan-net',rupiah(r.saldoPeriode||0));set('rep-tahunan-akhir',rupiah(r.saldoAkhir||0));set('rep-tahunan-rt',rupiah(r.totalSetoranRT||0));set('rep-tahunan-arisan',rupiah(r.totalArisan||0));set('rep-tahunan-denda',rupiah(r.totalDendaMasuk||0));set('rep-tahunan-pinjaman',rupiah(r.sisaPinjaman||0));set('rep-tahunan-talangan',rupiah(r.sisaTalangan||0));
+  const tb=document.getElementById('report-tahunan-tbody');if(tb)tb.innerHTML=(d.bulanan||[]).map(x=>`<tr><td class="p-2">${esc(x.namaBulan||'-')}</td><td class="p-2 text-right">${rupiah(x.pemasukan||0)}</td><td class="p-2 text-right">${rupiah(x.pengeluaran||0)}</td><td class="p-2 text-right ${Number(x.saldoPeriode||0)<0?'text-red-600':'text-emerald-700'}">${rupiah(x.saldoPeriode||0)}</td><td class="p-2 text-right">${rupiah(x.setoranRT||0)}</td><td class="p-2 text-right">${rupiah(x.arisan||0)}</td><td class="p-2 text-right">${rupiah(x.dendaMasuk||0)}</td></tr>`).join('');
+  const st=document.getElementById('report-tahunan-status'),btn=document.getElementById('btn-tutup-buku');if(st){if(d.sudahDitutup){st.className='no-print mb-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800';st.textContent=`Tahun ${d.tahun} sudah ditutup${d.tutupBuku?.tanggalTutup?' pada '+d.tutupBuku.tanggalTutup:''}. Saldo awal ${Number(d.tahun)+1}: ${rupiah(d.saldoAwalTahunBerikutnya||0)}.`}else if(d.bisaDitutup){st.className='no-print mb-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800';st.textContent=`Rekap ${d.tahun} siap ditutup. Saldo akhir akan menjadi saldo awal ${Number(d.tahun)+1}.`}else{st.className='no-print mb-3 rounded-xl border border-violet-100 bg-violet-50 px-4 py-3 text-sm text-violet-800';st.textContent=`Rekap ${d.tahun} dapat dipantau sekarang. Tutup buku baru aktif pada 31 Desember ${d.tahun} atau setelah tahun berakhir.`}}
+  if(btn){btn.classList.toggle('hidden',!d.bisaDitutup);btn.textContent=`Tutup Buku ${d.tahun||''}`}
+}
+async function prosesTutupBuku(){const d=REPORT_DATA_TAHUNAN;if(!d?.bisaDitutup)return;const tahun=d.tahun;if(!confirm(`Tutup buku tahun ${tahun}?\n\nSaldo akhir akan disimpan sebagai snapshot penutup tahun. Data transaksi lama tidak dihapus.`))return;try{reportMsg(`Menutup buku ${tahun}...`);const r=await jsonp(BATCH_SCRIPT_URL,{action:'tutupbuku',tahun,konfirmasi:'TUTUP',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal menutup buku.');await loadLaporan();reportMsg(r.message||`Tutup buku ${tahun} berhasil.`,'success')}catch(e){reportMsg(e.message||String(e),'error')}}
 function getNamaFileLaporan(){
   const clean=s=>String(s||'').replace(/[\\/:*?"<>|]+/g,' ').replace(/\s+/g,' ').trim();
   if(REPORT_MODE==='rt'){
@@ -1598,6 +1698,7 @@ function getNamaFileLaporan(){
   if(REPORT_MODE==='denda')return clean(`Laporan Denda Gorol ${REPORT_DATA_DENDA?.namaBulan||''} ${REPORT_DATA_DENDA?.tahun||''}`);
   if(REPORT_MODE==='pinjaman')return clean(`Laporan Pinjaman Warga ${REPORT_DATA_PINJAMAN?.statusFilter&&REPORT_DATA_PINJAMAN.statusFilter!=='SEMUA'?REPORT_DATA_PINJAMAN.statusFilter:''}`);
   if(REPORT_MODE==='talangan')return clean(`Rekap Talangan Iuran ${REPORT_DATA_TALANGAN?.namaBulan||''} ${REPORT_DATA_TALANGAN?.tahun||''}`);
+  if(REPORT_MODE==='tahunan')return clean(`Tutup Buku Flamboyan 4 ${REPORT_DATA_TAHUNAN?.tahun||document.getElementById('report-tahunan-tahun')?.value||''}`);
   const label=REPORT_DATA_KAS?.labelPeriode||document.getElementById('report-kas-subtitle')?.textContent||'';
   return clean(`Laporan Pembukuan Kas ${label}`);
 }
