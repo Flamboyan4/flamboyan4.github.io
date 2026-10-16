@@ -629,6 +629,8 @@ main > section.card{overflow:visible!important}
 @media(max-width:640px){
   .custom-select-panel{position:fixed!important;left:12px!important;right:12px!important;bottom:auto!important;max-height:none!important;z-index:110!important}
   .cs-list{max-height:none!important}
+  /* v6.19.2: dropdown HP tanpa backdrop gelap / kain hitam */
+  .custom-select-wrap.open:before{display:none!important;content:none!important;background:transparent!important}
 }
 </style>
 </head>
