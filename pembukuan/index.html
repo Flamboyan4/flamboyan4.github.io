@@ -11,6 +11,9 @@
   .card{box-shadow:0 8px 26px rgba(109,40,217,.07)}
   .tab-btn.active{background:#7c3aed;color:#fff}
   .scrollbar-thin::-webkit-scrollbar{height:7px;width:7px}.scrollbar-thin::-webkit-scrollbar-thumb{background:#ddd6fe;border-radius:999px}
+  .tabs-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none}
+  .tabs-scroll::-webkit-scrollbar{display:none;width:0;height:0}
+  .group-nav{padding:.75rem;border-bottom:1px solid #ede9fe;background:#fff}
   .field{width:100%;border:1px solid #ddd6fe;background:#fff;border-radius:12px;padding:.72rem .85rem;outline:none}
   .field:focus{box-shadow:0 0 0 3px #ede9fe;border-color:#8b5cf6}
 
@@ -188,34 +191,14 @@
       <button onclick="tutupMenu()" class="w-9 h-9 rounded-xl hover:bg-violet-50 text-slate-500 flex items-center justify-center"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
     <div class="p-4 overflow-y-auto">
-      <div class="text-[11px] font-black uppercase tracking-wider text-slate-400 px-2 mb-2">Proses Pembukuan</div>
+      <div class="text-[11px] font-black uppercase tracking-wider text-slate-400 px-2 mb-2">Navigasi</div>
       <div class="space-y-2">
-        <button data-menu-target="input" onclick="pilihMenu('input')" class="drawer-item active w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm"><i data-lucide="wallet-cards" class="w-4 h-4"></i><span>Input Iuran</span></button>
-        <button data-menu-target="transaksi" onclick="pilihMenu('transaksi')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="arrow-left-right" class="w-4 h-4"></i><span>Pemasukan / Pengeluaran</span></button>
-        <button data-menu-target="kas" onclick="pilihMenu('kas')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="notebook-tabs" class="w-4 h-4"></i><span>Pembukuan Kas</span></button>
-        <button data-menu-target="pinjaman" onclick="pilihMenu('pinjaman')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="hand-coins" class="w-4 h-4"></i><span>Pinjaman Warga</span></button>
-        <button data-menu-target="talangan" onclick="pilihMenu('talangan')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="shield-check" class="w-4 h-4"></i><span>Talangan Iuran</span></button>
-        <button data-menu-target="denda" onclick="pilihMenu('denda')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="badge-dollar-sign" class="w-4 h-4"></i><span>Denda Gorol</span></button>
+        <button data-menu-group="inputdata" onclick="pilihMenu('input')" class="drawer-item active w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm"><i data-lucide="square-pen" class="w-4 h-4"></i><span>Input Data</span></button>
+        <button data-menu-group="riwayat" onclick="pilihMenu('riwayat')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="history" class="w-4 h-4"></i><span>Riwayat</span></button>
+        <button data-menu-group="laporan" onclick="pilihMenu('laporan')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="file-chart-column" class="w-4 h-4"></i><span>Laporan & Rekap</span></button>
+        <button data-menu-group="dataacuan" onclick="pilihMenu('dashboard')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="database" class="w-4 h-4"></i><span>Data Acuan</span></button>
       </div>
-
-      <div class="text-[11px] font-black uppercase tracking-wider text-slate-400 px-2 mt-6 mb-2">Riwayat</div>
-      <div class="space-y-2">
-        <button data-menu-target="riwayat" onclick="pilihMenu('riwayat')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="history" class="w-4 h-4"></i><span>Riwayat & Histori</span></button>
-      </div>
-
-      <div class="text-[11px] font-black uppercase tracking-wider text-slate-400 px-2 mt-6 mb-2">Laporan</div>
-      <div class="space-y-2">
-        <button data-menu-target="laporan" onclick="pilihMenu('laporan')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="file-chart-column" class="w-4 h-4"></i><span>Laporan & Rekap</span></button>
-      </div>
-
-      <div class="text-[11px] font-black uppercase tracking-wider text-slate-400 px-2 mt-6 mb-2">Data Acuan</div>
-      <div class="space-y-2">
-        <button data-menu-target="dashboard" onclick="pilihMenu('dashboard')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="layout-dashboard" class="w-4 h-4"></i><span>Ringkasan Data</span></button>
-        <button data-menu-target="rumah" onclick="pilihMenu('rumah')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="house" class="w-4 h-4"></i><span>Data Rumah</span></button>
-        <button data-menu-target="warga" onclick="pilihMenu('warga')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="users" class="w-4 h-4"></i><span>Data Warga</span></button>
-        <button data-menu-target="config" onclick="pilihMenu('config')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="settings-2" class="w-4 h-4"></i><span>Tarif & Aturan</span></button>
-      </div>
-    </div>
+    </div>    </div>
   </aside>
 </div>
 
@@ -225,8 +208,8 @@
 
 
   <section class="card bg-white rounded-2xl border border-violet-100 overflow-hidden">
-    <div class="p-3 border-b border-violet-100 flex items-center justify-between gap-3">
-      <div class="flex gap-2 overflow-x-auto scrollbar-thin">
+    <div id="group-nav-inputdata" class="group-nav">
+      <div class="tabs-scroll flex gap-2">
         <button data-process-target="input" class="process-btn active px-4 py-2 rounded-xl border border-violet-200 text-sm font-bold whitespace-nowrap" onclick="pilihMenu('input')">Input Iuran</button>
         <button data-process-target="transaksi" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('transaksi')">Pemasukan / Pengeluaran</button>
         <button data-process-target="kas" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('kas')">Pembukuan Kas</button>
@@ -234,7 +217,14 @@
         <button data-process-target="talangan" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('talangan')">Talangan</button>
         <button data-process-target="denda" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('denda')">Denda Gorol</button>
       </div>
-      <button onclick="bukaMenu()" class="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl border border-violet-100 text-violet-700 text-sm font-bold hover:bg-violet-50"><i data-lucide="menu" class="w-4 h-4"></i> Menu</button>
+    </div>
+    <div id="group-nav-dataacuan" class="group-nav hidden">
+      <div class="tabs-scroll flex gap-2">
+        <button data-process-target="dashboard" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('dashboard')">Ringkasan</button>
+        <button data-process-target="rumah" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('rumah')">Data Rumah</button>
+        <button data-process-target="warga" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('warga')">Data Warga</button>
+        <button data-process-target="config" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('config')">Tarif & Aturan</button>
+      </div>
     </div>
 
     <div id="tab-dashboard" class="tab-panel hidden p-4 sm:p-5">
@@ -482,9 +472,8 @@
     <div id="tab-laporan" class="tab-panel hidden p-4 sm:p-5">
       <div class="max-w-6xl mx-auto">
         <div class="no-print mb-5">
-          <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
-            <div><h2 class="font-black text-xl text-violet-950">Laporan & Rekap</h2><p class="text-sm text-slate-500 mt-1">Rekap kas warga, setoran RT, arisan, denda, pinjaman, dan talangan berdasarkan data pembukuan.</p></div>
-            <div class="flex gap-2 overflow-x-auto scrollbar-thin">
+          <div class="space-y-4">
+            <div class="tabs-scroll flex gap-2">
               <button id="report-mode-kas" onclick="setModeLaporan('kas')" class="report-mode-btn active px-4 py-2 rounded-xl border border-violet-200 bg-violet-600 text-white text-sm font-black whitespace-nowrap">Kas Warga</button>
               <button id="report-mode-rt" onclick="setModeLaporan('rt')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Setoran RT</button>
               <button id="report-mode-arisan" onclick="setModeLaporan('arisan')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Arisan</button>
@@ -492,6 +481,7 @@
               <button id="report-mode-pinjaman" onclick="setModeLaporan('pinjaman')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Pinjaman</button>
               <button id="report-mode-talangan" onclick="setModeLaporan('talangan')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Talangan</button>
             </div>
+            <div><h2 class="font-black text-xl text-violet-950">Laporan & Rekap</h2><p class="text-sm text-slate-500 mt-1">Rekap kas warga, setoran RT, arisan, denda, pinjaman, dan talangan berdasarkan data pembukuan.</p></div>
           </div>
           <div class="mt-4 space-y-3">
             <div id="report-kas-filter" class="space-y-3">
@@ -585,7 +575,7 @@
 
     <div id="tab-riwayat" class="tab-panel hidden p-4 sm:p-5">
       <div class="mb-5">
-        <div class="flex gap-2 overflow-x-auto scrollbar-thin">
+        <div class="tabs-scroll flex gap-2">
           <button id="history-btn-iuran" class="history-btn active px-4 py-2 rounded-xl border border-violet-200 text-sm font-bold whitespace-nowrap" onclick="pilihRiwayat('iuran')">Riwayat Iuran</button>
           <button id="history-btn-kasumum" class="history-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihRiwayat('kasumum')">Riwayat Kas</button>
           <button id="history-btn-batch" class="history-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihRiwayat('batch')">Riwayat Batch Kas</button>
@@ -1288,8 +1278,13 @@ function pilihMenu(n){
   };
   document.querySelectorAll('.tab-panel').forEach(x=>x.classList.add('hidden'));
   const panel=document.getElementById('tab-'+n);if(panel)panel.classList.remove('hidden');
+  const inputGroup=['input','transaksi','kas','pinjaman','talangan','denda'];
+  const dataGroup=['dashboard','rumah','warga','config'];
+  const group=inputGroup.includes(n)?'inputdata':dataGroup.includes(n)?'dataacuan':n;
   document.querySelectorAll('.drawer-item').forEach(x=>x.classList.remove('active'));
-  document.querySelector(`[data-menu-target="${n}"]`)?.classList.add('active');
+  document.querySelector(`[data-menu-group="${group}"]`)?.classList.add('active');
+  document.getElementById('group-nav-inputdata')?.classList.toggle('hidden',group!=='inputdata');
+  document.getElementById('group-nav-dataacuan')?.classList.toggle('hidden',group!=='dataacuan');
   document.querySelectorAll('.process-btn').forEach(x=>x.classList.remove('active'));
   document.querySelector(`[data-process-target="${n}"]`)?.classList.add('active');
   document.getElementById('page-title').textContent=meta[n]?.[0]||'Pembukuan Flamboyan 4';
