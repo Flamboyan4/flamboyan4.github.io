@@ -475,10 +475,12 @@
       <div class="max-w-6xl mx-auto">
         <div class="no-print mb-5">
           <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
-            <div><h2 class="font-black text-xl text-violet-950">Laporan & Rekap</h2><p class="text-sm text-slate-500 mt-1">Rekap kas warga dan laporan setoran RT berdasarkan data pembukuan.</p></div>
+            <div><h2 class="font-black text-xl text-violet-950">Laporan & Rekap</h2><p class="text-sm text-slate-500 mt-1">Rekap kas warga, setoran RT, arisan, dan denda berdasarkan data pembukuan.</p></div>
             <div class="flex gap-2 overflow-x-auto scrollbar-thin">
               <button id="report-mode-kas" onclick="setModeLaporan('kas')" class="report-mode-btn active px-4 py-2 rounded-xl border border-violet-200 bg-violet-600 text-white text-sm font-black whitespace-nowrap">Kas Warga</button>
               <button id="report-mode-rt" onclick="setModeLaporan('rt')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Setoran RT</button>
+              <button id="report-mode-arisan" onclick="setModeLaporan('arisan')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Arisan</button>
+              <button id="report-mode-denda" onclick="setModeLaporan('denda')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Denda</button>
             </div>
           </div>
           <div class="mt-4 space-y-3">
@@ -492,7 +494,9 @@
               </div>
             </div>
             <div id="report-rt-filter" class="hidden grid grid-cols-2 gap-3 max-w-md"><div><label class="text-xs font-bold text-slate-500">Bulan</label><select id="report-bulan" class="field mt-1"></select></div><div><label class="text-xs font-bold text-slate-500">Tahun</label><input id="report-tahun" type="number" class="field mt-1" min="2020" max="2100"></div></div>
-            <div class="grid sm:grid-cols-2 gap-3"><button onclick="loadLaporan()" class="rounded-xl bg-violet-600 text-white font-black px-5 py-3">Muat Laporan</button><button onclick="printLaporan()" class="rounded-xl border border-violet-200 text-violet-700 font-black px-5 py-3"><span class="inline-flex items-center gap-2"><i data-lucide="printer" class="w-4 h-4"></i>Print</span></button></div>
+            <div id="report-arisan-filter" class="hidden grid grid-cols-2 gap-3 max-w-md"><div><label class="text-xs font-bold text-slate-500">Bulan</label><select id="report-arisan-bulan" class="field mt-1"></select></div><div><label class="text-xs font-bold text-slate-500">Tahun</label><input id="report-arisan-tahun" type="number" class="field mt-1" min="2020" max="2100"></div></div>
+            <div id="report-denda-filter" class="hidden grid sm:grid-cols-3 gap-3 max-w-2xl"><div><label class="text-xs font-bold text-slate-500">Bulan</label><select id="report-denda-bulan" class="field mt-1"></select></div><div><label class="text-xs font-bold text-slate-500">Tahun</label><input id="report-denda-tahun" type="number" class="field mt-1" min="2020" max="2100"></div><div><label class="text-xs font-bold text-slate-500">Status</label><select id="report-denda-status-filter" class="field mt-1"><option value="SEMUA">Semua</option><option value="BELUM">Belum Bayar</option><option value="LUNAS">Lunas</option><option value="BATAL">Batal</option></select></div></div>
+            <div class="grid sm:grid-cols-2 gap-3 max-w-xl"><button onclick="loadLaporan()" class="rounded-xl bg-violet-600 text-white font-black px-5 py-3">Muat Laporan</button><button onclick="printLaporan()" class="rounded-xl border border-violet-200 text-violet-700 font-black px-5 py-3"><span class="inline-flex items-center gap-2"><i data-lucide="printer" class="w-4 h-4"></i>Print</span></button></div>
           </div>
           <div id="report-status" class="hidden mt-3 rounded-xl border px-4 py-3 text-sm"></div>
         </div>
@@ -519,9 +523,23 @@
             <div class="mb-5 text-center"><h2 class="font-black text-2xl text-violet-950">LAPORAN SETORAN IURAN WARGA</h2><p class="font-bold mt-1">Flamboyan 4 • RT 001 RW 026</p><p id="report-rt-period" class="text-sm text-slate-500 mt-1"></p></div>
             <div id="rep-rt-talangan-note" class="no-print hidden mb-3 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 px-4 py-3 text-sm"></div>
             <div class="report-table-wrap overflow-x-auto rounded-2xl border border-violet-100">
-              <table class="w-full text-sm min-w-[760px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center w-14">No</th><th class="p-3 text-left">Nama</th><th class="p-3 text-left">Blok/No Rumah</th><th class="p-3 text-right">Iuran Bulanan</th><th class="p-3 text-right">Kebersihan</th></tr></thead><tbody id="report-rt-tbody" class="divide-y divide-violet-50"><tr><td colspan="5" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody><tfoot class="bg-violet-50 font-black"><tr><td colspan="3" class="p-3 text-right">TOTAL</td><td class="p-3 text-right"><div id="report-rt-foot-bulanan">Rp 0</div><div id="report-rt-foot-bulanan-count" class="mt-1 text-xs font-semibold text-slate-500">0 orang</div></td><td class="p-3 text-right"><div id="report-rt-foot-keb">Rp 0</div><div id="report-rt-foot-keb-count" class="mt-1 text-xs font-semibold text-slate-500">0 orang</div></td></tr><tr><td colspan="4" class="p-3 text-right">TOTAL SETORAN</td><td id="report-rt-foot-total" class="p-3 text-right">Rp 0</td></tr></tfoot></table>
+              <table class="w-full text-sm min-w-[760px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center w-14">No</th><th class="p-3 text-left">Nama</th><th class="p-3 text-left">Blok/No Rumah</th><th class="p-3 text-left">Keterangan</th><th class="p-3 text-right">Iuran Bulanan</th><th class="p-3 text-right">Kebersihan</th></tr></thead><tbody id="report-rt-tbody" class="divide-y divide-violet-50"><tr><td colspan="6" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody><tfoot class="bg-violet-50 font-black"><tr><td colspan="4" class="p-3 text-right">TOTAL</td><td class="p-3 text-right"><div id="report-rt-foot-bulanan">Rp 0</div><div id="report-rt-foot-bulanan-count" class="mt-1 text-xs font-semibold text-slate-500">0 orang</div></td><td class="p-3 text-right"><div id="report-rt-foot-keb">Rp 0</div><div id="report-rt-foot-keb-count" class="mt-1 text-xs font-semibold text-slate-500">0 orang</div></td></tr><tr><td colspan="4" class="p-3 text-right">TOTAL SETORAN</td><td id="report-rt-foot-total" class="p-3 text-right">Rp 0</td></tr></tfoot></table>
             </div>
-            <div class="mt-6 text-right text-sm font-bold">Humas Flamboyan 4</div>
+            <div class="mt-5 text-right text-sm font-bold text-slate-600 print:text-black">Humas Flamboyan 4</div>
+          </div>
+
+          <div id="report-arisan-panel" class="hidden">
+            <div class="report-letterhead"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4</div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
+            <div class="mb-5 text-center"><h2 class="font-black text-2xl text-violet-950">LAPORAN ARISAN WARGA</h2><p id="report-arisan-period" class="text-sm text-slate-500 mt-1"></p></div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5"><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Peserta</div><div id="rep-arisan-peserta" class="text-xl font-black mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sudah Bayar</div><div id="rep-arisan-lunas" class="text-xl font-black text-emerald-700 mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Belum Bayar</div><div id="rep-arisan-belum" class="text-xl font-black text-red-600 mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Terkumpul</div><div id="rep-arisan-total" class="text-xl font-black text-violet-700 mt-2">Rp 0</div></div></div>
+            <div class="report-table-wrap overflow-x-auto rounded-2xl border border-violet-100"><table class="w-full text-sm min-w-[820px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center w-14">No</th><th class="p-3 text-left">Nama</th><th class="p-3 text-left">Blok/No Rumah</th><th class="p-3 text-center">Qty</th><th class="p-3 text-right">Nominal</th><th class="p-3 text-center">Status</th><th class="p-3 text-left">Metode</th></tr></thead><tbody id="report-arisan-tbody" class="divide-y divide-violet-50"><tr><td colspan="7" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody><tfoot class="bg-violet-50 font-black"><tr><td colspan="4" class="p-3 text-right">TOTAL TERKUMPUL</td><td id="report-arisan-foot-total" class="p-3 text-right">Rp 0</td><td colspan="2"></td></tr></tfoot></table></div>
+          </div>
+
+          <div id="report-denda-panel" class="hidden">
+            <div class="report-letterhead"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4</div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
+            <div class="mb-5 text-center"><h2 class="font-black text-2xl text-violet-950">LAPORAN DENDA GOROL</h2><p id="report-denda-period" class="text-sm text-slate-500 mt-1"></p></div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5"><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Belum Bayar</div><div id="rep-denda-belum" class="text-xl font-black text-red-600 mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Nominal Belum</div><div id="rep-denda-nominal-belum" class="text-xl font-black text-red-600 mt-2">Rp 0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sudah Bayar</div><div id="rep-denda-lunas" class="text-xl font-black text-emerald-700 mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Pemasukan Denda</div><div id="rep-denda-nominal-lunas" class="text-xl font-black text-violet-700 mt-2">Rp 0</div></div></div>
+            <div class="report-table-wrap overflow-x-auto rounded-2xl border border-violet-100"><table class="w-full text-sm min-w-[980px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center">No</th><th class="p-3 text-left">Nama</th><th class="p-3 text-left">Rumah</th><th class="p-3 text-left">Kegiatan</th><th class="p-3 text-right">Denda</th><th class="p-3 text-center">Status</th><th class="p-3 text-left">Pembayaran</th></tr></thead><tbody id="report-denda-tbody" class="divide-y divide-violet-50"><tr><td colspan="7" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody></table></div>
           </div>
         </div>
       </div>
@@ -713,7 +731,7 @@
 
 <script>
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrI9BXhRXOJyQTNIc0W1CbNUNqZinZGiUZCNCoB4OhaeF706WQXJl_-FucMcZLKgms/exec';
-const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx4PnNyj5Fb5qTsfTPNRY6mQwPK26V5MqohG9lke2UQEiPd-qmgd2OMBpJ3kVp34YcB/exec';
+const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx00q95KbHF4QOAr4gEk1FrQl4DSELD1K39muZO-yCfvNZ-qTunTcc3xBKjkU-qUciY/exec';
 const DELETE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSe7bAW5eAmvtoau0_fzpGAddiS53tD41rFM0saROgOblFommVZyxaM6LZlEWYSidt/exec';
 let DATA={config:{},rumah:[],warga:[],riwayat:[]};
 let RIWAYAT_SEMUA=false;
@@ -1072,7 +1090,7 @@ async function batalkanTalangan(id){if(!confirm(`Batalkan talangan ${id}?\n\nJik
 
 
 let DATA_DENDA={rows:[],aktif:[],ringkasan:{}};
-let REPORT_MODE='kas', REPORT_DATA_KAS=null, REPORT_DATA_RT=null;
+let REPORT_MODE='kas', REPORT_DATA_KAS=null, REPORT_DATA_RT=null, REPORT_DATA_ARISAN=null, REPORT_DATA_DENDA=null;
 function dendaMsg(id,t,type='info'){const e=document.getElementById(id);if(!e)return;e.className='rounded-xl border px-4 py-3 text-sm';if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');else if(type==='success')e.classList.add('bg-emerald-50','border-emerald-200','text-emerald-700');else e.classList.add('bg-slate-50','border-slate-200','text-slate-600');e.textContent=t;e.classList.remove('hidden')}
 function initDendaUi(){
   const s=document.getElementById('denda-warga');if(s){const cur=s.value;s.innerHTML='<option value="">Pilih warga...</option>'+DATA.warga.filter(w=>['ya','aktif'].includes((w.statusAktif||'').toLowerCase())).map(w=>`<option value="${w.idWarga}">${w.nama} • ${w.blok}/${w.noRumah}</option>`).join('');if(DATA.warga.some(w=>w.idWarga===cur))s.value=cur}
@@ -1099,9 +1117,11 @@ async function batalkanPembayaranDenda(id){if(!confirm(`Batalkan pembayaran dend
 function isiBulanSelect(id){const e=document.getElementById(id);if(e&&!e.options.length)e.innerHTML=BULAN.slice(1).map((b,i)=>`<option value="${i+1}">${b}</option>`).join('')}
 function initLaporanUi(){
   const now=new Date();
-  ['report-bulan','report-kas-bulan','report-kas-mulai-bulan','report-kas-sampai-bulan'].forEach(isiBulanSelect);
+  ['report-bulan','report-arisan-bulan','report-denda-bulan','report-kas-bulan','report-kas-mulai-bulan','report-kas-sampai-bulan'].forEach(isiBulanSelect);
   const vals={
     'report-bulan':now.getMonth()+1,'report-tahun':now.getFullYear(),
+    'report-arisan-bulan':now.getMonth()+1,'report-arisan-tahun':now.getFullYear(),
+    'report-denda-bulan':now.getMonth()+1,'report-denda-tahun':now.getFullYear(),
     'report-kas-bulan':now.getMonth()+1,'report-kas-tahun':now.getFullYear(),
     'report-kas-mulai-bulan':now.getMonth()+1,'report-kas-mulai-tahun':now.getFullYear(),
     'report-kas-sampai-bulan':now.getMonth()+1,'report-kas-sampai-tahun':now.getFullYear(),
@@ -1118,13 +1138,11 @@ function updateKasPeriodControls(){
   document.getElementById(map[mode])?.classList.remove('hidden');
 }
 function setModeLaporan(mode,autoload=true){
-  REPORT_MODE=mode==='rt'?'rt':'kas';
-  document.getElementById('report-kas-panel')?.classList.toggle('hidden',REPORT_MODE!=='kas');
-  document.getElementById('report-rt-panel')?.classList.toggle('hidden',REPORT_MODE!=='rt');
-  document.getElementById('report-kas-filter')?.classList.toggle('hidden',REPORT_MODE!=='kas');
-  document.getElementById('report-rt-filter')?.classList.toggle('hidden',REPORT_MODE!=='rt');
+  const allowed=['kas','rt','arisan','denda'];REPORT_MODE=allowed.includes(mode)?mode:'kas';
+  ['kas','rt','arisan','denda'].forEach(x=>{document.getElementById('report-'+x+'-panel')?.classList.toggle('hidden',REPORT_MODE!==x);document.getElementById('report-'+x+'-filter')?.classList.toggle('hidden',REPORT_MODE!==x)});
   document.querySelectorAll('.report-mode-btn').forEach(b=>{b.classList.remove('active','bg-violet-600','text-white');b.classList.add('bg-white','text-slate-600')});
   const a=document.getElementById('report-mode-'+REPORT_MODE);if(a){a.classList.add('active','bg-violet-600','text-white');a.classList.remove('bg-white','text-slate-600')}
+  updateReportResponsible();
   if(autoload)loadLaporan();
 }
 function reportMsg(text,type='info'){const e=document.getElementById('report-status');if(!e)return;e.className='mt-3 rounded-xl border px-4 py-3 text-sm '+(type==='error'?'border-red-200 bg-red-50 text-red-700':type==='success'?'border-emerald-200 bg-emerald-50 text-emerald-700':'border-violet-100 bg-violet-50 text-violet-700');e.textContent=text;e.classList.remove('hidden')}
@@ -1143,14 +1161,20 @@ async function loadLaporan(){
     reportMsg('Memuat laporan...');
     let p;
     if(REPORT_MODE==='rt'){
-      const bulan=Number(document.getElementById('report-bulan')?.value),tahun=Number(document.getElementById('report-tahun')?.value);if(!bulan||!tahun)return;
-      p={action:'laporanrt',bulan,tahun,t:Date.now()};
+      const bulan=Number(document.getElementById('report-bulan')?.value),tahun=Number(document.getElementById('report-tahun')?.value);if(!bulan||!tahun)return;p={action:'laporanrt',bulan,tahun,t:Date.now()};
+    }else if(REPORT_MODE==='arisan'){
+      const bulan=Number(document.getElementById('report-arisan-bulan')?.value),tahun=Number(document.getElementById('report-arisan-tahun')?.value);if(!bulan||!tahun)return;p={action:'laporanarisan',bulan,tahun,t:Date.now()};
+    }else if(REPORT_MODE==='denda'){
+      const bulan=Number(document.getElementById('report-denda-bulan')?.value),tahun=Number(document.getElementById('report-denda-tahun')?.value),status=document.getElementById('report-denda-status-filter')?.value||'SEMUA';if(!bulan||!tahun)return;p={action:'laporandenda',bulan,tahun,status,t:Date.now()};
     }else p=getKasReportParams();
     const r=await jsonp(BATCH_SCRIPT_URL,p);
     if(requestSeq!==REPORT_REQUEST_SEQ)return;
     if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memuat laporan.');
-    if(REPORT_MODE==='rt'){REPORT_DATA_RT=r.data;renderLaporanRt(r.data)}else{REPORT_DATA_KAS=r.data;renderLaporanKas(r.data)};
-    reportMsg('Laporan berhasil dimuat.','success');setTimeout(()=>{if(requestSeq===REPORT_REQUEST_SEQ)document.getElementById('report-status')?.classList.add('hidden')},900)
+    if(REPORT_MODE==='rt'){REPORT_DATA_RT=r.data;renderLaporanRt(r.data)}
+    else if(REPORT_MODE==='arisan'){REPORT_DATA_ARISAN=r.data;renderLaporanArisan(r.data)}
+    else if(REPORT_MODE==='denda'){REPORT_DATA_DENDA=r.data;renderLaporanDenda(r.data)}
+    else{REPORT_DATA_KAS=r.data;renderLaporanKas(r.data)}
+    updateReportResponsible();reportMsg('Laporan berhasil dimuat.','success');setTimeout(()=>{if(requestSeq===REPORT_REQUEST_SEQ)document.getElementById('report-status')?.classList.add('hidden')},900)
   }catch(e){if(requestSeq!==REPORT_REQUEST_SEQ)return;reportMsg(e.message||String(e),'error')}
 }
 function renderLaporanKas(d){
@@ -1161,15 +1185,27 @@ function renderLaporanKas(d){
   const tb=document.getElementById('report-kas-tbody');if(tb)tb.innerHTML=(d.rows||[]).map(x=>`<tr><td class="p-3 whitespace-nowrap">${x.tanggal||'-'}</td><td class="p-3"><div class="font-bold">${x.keterangan||'-'}</div><div class="text-xs text-slate-400">${x.idTransaksi||''} • ${x.sumber||''}</div></td><td class="p-3">${x.kategori||'-'}</td><td class="p-3 text-right font-bold text-emerald-700">${x.debit?rupiah(x.debit):'-'}</td><td class="p-3 text-right font-bold text-red-600">${x.kredit?rupiah(x.kredit):'-'}</td><td class="p-3 text-right font-black">${rupiah(x.saldo||0)}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada transaksi pada periode ini.</td></tr>';
   const y=document.getElementById('report-kas-tahunan'),rekap=d.periodeBulanan||d.tahunan||[];if(y)y.innerHTML=rekap.map(x=>`<div class="rounded-xl border border-violet-100 p-3"><div class="font-bold">${x.namaBulan} ${x.tahun||''}</div><div class="mt-1 text-xs text-slate-500">Masuk ${rupiah(x.debit)} • Keluar ${rupiah(x.kredit)}</div><div class="mt-1 font-black ${x.net<0?'text-red-600':x.net>0?'text-emerald-700':'text-violet-700'}">Saldo periode ${rupiah(x.net)}</div></div>`).join('')
 }
-function renderLaporanRt(d){d=d||{};const r=d.ringkasan||{},rows=Array.isArray(d.rows)?d.rows:[],set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};const orangBulanan=rows.filter(x=>Number(x.nominalBulanan||0)>0).length;const orangKebersihan=rows.filter(x=>Number(x.nominalKebersihan||0)>0).length;set('report-rt-period',`Periode ${d.namaBulan||''} ${d.tahun||''}`);set('report-rt-foot-bulanan',rupiah(r.totalBulanan||0));set('report-rt-foot-keb',rupiah(r.totalKebersihan||0));set('report-rt-foot-bulanan-count',`${orangBulanan} orang`);set('report-rt-foot-keb-count',`${orangKebersihan} orang`);set('report-rt-foot-total',rupiah(r.totalSetoran||0));const note=document.getElementById('rep-rt-talangan-note');if(note){note.classList.toggle('hidden',!(r.talanganCount>0));note.textContent=`Catatan internal: ${r.talanganCount||0} warga pada laporan ini ditutup melalui talangan. Keterangan ini tidak ikut saat dicetak.`}const tb=document.getElementById('report-rt-tbody');if(tb)tb.innerHTML=rows.map((x,i)=>`<tr><td class="p-3 text-center">${i+1}</td><td class="p-3 font-bold">${x.nama||'-'}</td><td class="p-3">${x.blok||''}/${x.noRumah||''}</td><td class="p-3 text-right">${rupiah(x.nominalBulanan||0)}${Number(x.qtyBulanan)>1?` <span class="report-qty-badge">${x.qtyBulanan}x</span>`:''}</td><td class="p-3 text-right">${rupiah(x.nominalKebersihan||0)}${Number(x.qtyKebersihan)>1?` <span class="report-qty-badge">${x.qtyKebersihan}x</span>`:''}</td></tr>`).join('')||'<tr><td colspan="5" class="p-6 text-center text-slate-400">Belum ada data setoran pada periode ini.</td></tr>'}
+function badgeKeteranganRt(k){
+  const t=String(k||'').trim(); if(!t) return '<span class="text-slate-300">-</span>';
+  const l=t.toLowerCase();
+  let cls='bg-violet-100 text-violet-700 border-violet-200';
+  if(l.includes('humas')) cls='bg-sky-100 text-sky-700 border-sky-200';
+  else if(l.includes('ketua rt')) cls='bg-amber-100 text-amber-800 border-amber-200';
+  else if(l.includes('2x')||l.includes('2 x')||l.includes('dua kali')) cls='bg-emerald-100 text-emerald-700 border-emerald-200';
+  return `<span class="inline-block rounded-full border px-2 py-1 text-[11px] font-black ${cls}">${esc(t)}</span>`;
+}
+function renderLaporanRt(d){d=d||{};const r=d.ringkasan||{},rows=Array.isArray(d.rows)?d.rows:[],set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};const orangBulanan=rows.filter(x=>Number(x.nominalBulanan||0)>0).length;const orangKebersihan=rows.filter(x=>Number(x.nominalKebersihan||0)>0).length;set('report-rt-period',`Periode ${d.namaBulan||''} ${d.tahun||''}`);set('report-rt-foot-bulanan',rupiah(r.totalBulanan||0));set('report-rt-foot-keb',rupiah(r.totalKebersihan||0));set('report-rt-foot-bulanan-count',`${orangBulanan} orang`);set('report-rt-foot-keb-count',`${orangKebersihan} orang`);set('report-rt-foot-total',rupiah(r.totalSetoran||0));const note=document.getElementById('rep-rt-talangan-note');if(note){note.classList.toggle('hidden',!(r.talanganCount>0));note.textContent=`Catatan internal: ${r.talanganCount||0} warga pada laporan ini ditutup melalui talangan. Keterangan ini tidak ikut saat dicetak.`}const tb=document.getElementById('report-rt-tbody');if(tb)tb.innerHTML=rows.map((x,i)=>`<tr><td class="p-3 text-center">${i+1}</td><td class="p-3 font-bold">${esc(x.nama||'-')}</td><td class="p-3">${esc(x.blok||'')}/${esc(x.noRumah||'')}</td><td class="p-3">${badgeKeteranganRt(x.keterangan)}</td><td class="p-3 text-right">${rupiah(x.nominalBulanan||0)}${Number(x.qtyBulanan)>1?` <span class="report-qty-badge">${x.qtyBulanan}x</span>`:''}</td><td class="p-3 text-right">${rupiah(x.nominalKebersihan||0)}${Number(x.qtyKebersihan)>1?` <span class="report-qty-badge">${x.qtyKebersihan}x</span>`:''}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada data setoran pada periode ini.</td></tr>'}
+function renderLaporanArisan(d){d=d||{};const r=d.ringkasan||{},rows=d.rows||[],set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('report-arisan-period',`Periode ${d.namaBulan||''} ${d.tahun||''}`);set('rep-arisan-peserta',r.jumlahPeserta||0);set('rep-arisan-lunas',r.jumlahLunas||0);set('rep-arisan-belum',r.jumlahBelum||0);set('rep-arisan-total',rupiah(r.totalBayar||0));set('report-arisan-foot-total',rupiah(r.totalBayar||0));const tb=document.getElementById('report-arisan-tbody');if(tb)tb.innerHTML=rows.map((x,i)=>`<tr><td class="p-3 text-center">${i+1}</td><td class="p-3 font-bold">${x.nama||'-'}</td><td class="p-3">${x.blok||''}/${x.noRumah||''}</td><td class="p-3 text-center">${x.qtyArisan||1}x</td><td class="p-3 text-right font-bold">${rupiah(x.nominalBayar||x.nominalWajib||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${x.status==='LUNAS'?'bg-emerald-100 text-emerald-700':'bg-red-100 text-red-700'}">${x.status||'BELUM'}</span></td><td class="p-3">${x.metode||'-'}</td></tr>`).join('')||'<tr><td colspan="7" class="p-6 text-center text-slate-400">Belum ada peserta arisan.</td></tr>'}
+function renderLaporanDenda(d){d=d||{};const r=d.ringkasan||{},rows=d.rows||[],set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('report-denda-period',`Periode ${d.namaBulan||''} ${d.tahun||''}${d.statusFilter&&d.statusFilter!=='SEMUA'?' • '+d.statusFilter:''}`);set('rep-denda-belum',r.jumlahBelum||0);set('rep-denda-nominal-belum',rupiah(r.nominalBelum||0));set('rep-denda-lunas',r.jumlahLunas||0);set('rep-denda-nominal-lunas',rupiah(r.nominalLunas||0));const tb=document.getElementById('report-denda-tbody');if(tb)tb.innerHTML=rows.map((x,i)=>`<tr><td class="p-3 text-center">${i+1}</td><td class="p-3 font-bold">${x.nama||'-'}</td><td class="p-3">${x.blok||''}/${x.noRumah||''}</td><td class="p-3"><div class="font-bold">${x.namaKegiatan||'-'}</div><div class="text-xs text-slate-400">${x.tanggalKegiatan||''}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominal||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${x.status==='LUNAS'?'bg-emerald-100 text-emerald-700':x.status==='BATAL'?'bg-slate-100 text-slate-500':'bg-red-100 text-red-700'}">${x.status||'BELUM'}</span></td><td class="p-3">${x.status==='LUNAS'?`${x.tanggalBayar||'-'}<div class="text-xs text-slate-400">${x.metode||''}</div>`:'-'}</td></tr>`).join('')||'<tr><td colspan="7" class="p-6 text-center text-slate-400">Tidak ada data denda pada filter ini.</td></tr>'}
 function getNamaFileLaporan(){
   const clean=s=>String(s||'').replace(/[\\/:*?"<>|]+/g,' ').replace(/\s+/g,' ').trim();
   if(REPORT_MODE==='rt'){
-    const bulan=Number(document.getElementById('report-bulan')?.value||0);
-    const tahun=document.getElementById('report-tahun')?.value||'';
-    const namaBulan=BULAN[bulan-1]||REPORT_DATA_RT?.namaBulan||'';
+    const namaBulan=REPORT_DATA_RT?.namaBulan||BULAN[Number(document.getElementById('report-bulan')?.value||0)-1]||'';
+    const tahun=REPORT_DATA_RT?.tahun||document.getElementById('report-tahun')?.value||'';
     return clean(`Laporan Setoran RT ${namaBulan} ${tahun}`);
   }
+  if(REPORT_MODE==='arisan')return clean(`Laporan Arisan ${REPORT_DATA_ARISAN?.namaBulan||''} ${REPORT_DATA_ARISAN?.tahun||''}`);
+  if(REPORT_MODE==='denda')return clean(`Laporan Denda Gorol ${REPORT_DATA_DENDA?.namaBulan||''} ${REPORT_DATA_DENDA?.tahun||''}`);
   const label=REPORT_DATA_KAS?.labelPeriode||document.getElementById('report-kas-subtitle')?.textContent||'';
   return clean(`Laporan Pembukuan Kas ${label}`);
 }
@@ -1194,7 +1230,7 @@ function pilihMenu(n){
     pinjaman:['Pinjaman Warga','Kelola pinjaman dan pembayaran pinjaman warga.'],
     talangan:['Talangan Iuran','Kelola talangan Iuran Bulanan + Kebersihan warga.'],
     denda:['Denda Gorol','Catat denda gorol dan pembayaran denda warga.'],
-    laporan:['Laporan & Rekap','Laporan kas warga dan setoran iuran ke RT.'],
+    laporan:['Laporan & Rekap','Laporan kas, setoran RT, arisan, dan denda warga.'],
     riwayat:['Riwayat & Histori','Riwayat transaksi dan batch pembukuan.'],
     dashboard:['Ringkasan Data','Ringkasan master hunian dan tarif sebagai data acuan.'],
     rumah:['Data Rumah','Data unit rumah sebagai acuan administrasi.'],
