@@ -94,12 +94,24 @@
   .kas-jenis-btn:focus-visible:not(.active),.loan-mode-btn:focus-visible:not(.active){box-shadow:0 0 0 3px #ddd6fe}
 
 
+  /* Kop standar untuk semua laporan yang dicetak */
+  .report-letterhead{display:flex;align-items:center;gap:14px;padding:0 0 12px;margin:0 0 16px;border-bottom:2px solid #5b21b6}
+  .report-letterhead img{width:58px;height:58px;object-fit:contain;flex:0 0 auto}
+  .report-letterhead .kop-text{line-height:1.25}
+  .report-letterhead .kop-name{font-size:18px;font-weight:900;color:#2e1065;letter-spacing:.2px}
+  .report-letterhead .kop-sub{font-size:12px;font-weight:700;color:#475569;margin-top:3px}
+  @media(max-width:640px){.report-letterhead img{width:48px;height:48px}.report-letterhead .kop-name{font-size:16px}}
+
 @media print {
   body{background:#fff!important;color:#111!important}
   body *{visibility:hidden!important}
   #report-print-area,#report-print-area *{visibility:visible!important}
   #report-print-area{position:absolute!important;left:0!important;top:0!important;width:100%!important;padding:0!important;margin:0!important}
   .no-print{display:none!important}
+  .report-letterhead{display:flex!important;align-items:center!important;gap:12px!important;margin:0 0 10px!important;padding:0 0 9px!important;border-bottom:1.5px solid #5b21b6!important}
+  .report-letterhead img{width:52px!important;height:52px!important;object-fit:contain!important}
+  .report-letterhead .kop-name{font-size:16px!important;line-height:1.15!important;color:#2e1065!important}
+  .report-letterhead .kop-sub{font-size:10.5px!important;line-height:1.2!important;color:#334155!important;margin-top:2px!important}
   #report-rt-panel .mb-5{margin-bottom:10px!important}
   #report-rt-panel h2{font-size:20px!important;line-height:1.15!important}
   #report-rt-panel p{font-size:12px!important}
@@ -442,37 +454,47 @@
               <button id="report-mode-rt" onclick="setModeLaporan('rt')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Setoran RT</button>
             </div>
           </div>
-          <div class="grid grid-cols-2 lg:grid-cols-[180px_150px_auto_auto] gap-3 mt-4">
-            <div><label class="text-xs font-bold text-slate-500">Bulan</label><select id="report-bulan" class="field mt-1"></select></div>
-            <div><label class="text-xs font-bold text-slate-500">Tahun</label><input id="report-tahun" type="number" class="field mt-1" min="2020" max="2100"></div>
-            <button onclick="loadLaporan()" class="self-end rounded-xl bg-violet-600 text-white font-black px-5 py-3">Muat Laporan</button>
-            <button onclick="printLaporan()" class="self-end rounded-xl border border-violet-200 text-violet-700 font-black px-5 py-3"><span class="inline-flex items-center gap-2"><i data-lucide="printer" class="w-4 h-4"></i>Print</span></button>
+          <div class="mt-4 space-y-3">
+            <div id="report-kas-filter" class="space-y-3">
+              <div class="grid sm:grid-cols-[220px_1fr] gap-3">
+                <div><label class="text-xs font-bold text-slate-500">Jenis Periode</label><select id="report-kas-jenis" class="field mt-1" onchange="updateKasPeriodControls()"><option value="bulan">1 Bulan</option><option value="rentang_bulan">Rentang Bulan</option><option value="tahun">1 Tahun</option><option value="rentang_tahun">Rentang Tahun</option></select></div>
+                <div id="report-kas-periode-bulan" class="grid grid-cols-2 gap-3"><div><label class="text-xs font-bold text-slate-500">Bulan</label><select id="report-kas-bulan" class="field mt-1"></select></div><div><label class="text-xs font-bold text-slate-500">Tahun</label><input id="report-kas-tahun" type="number" class="field mt-1" min="2020" max="2100"></div></div>
+                <div id="report-kas-periode-rentang-bulan" class="hidden sm:col-span-2 grid grid-cols-2 lg:grid-cols-4 gap-3"><div><label class="text-xs font-bold text-slate-500">Bulan Awal</label><select id="report-kas-mulai-bulan" class="field mt-1"></select></div><div><label class="text-xs font-bold text-slate-500">Tahun Awal</label><input id="report-kas-mulai-tahun" type="number" class="field mt-1" min="2020" max="2100"></div><div><label class="text-xs font-bold text-slate-500">Bulan Akhir</label><select id="report-kas-sampai-bulan" class="field mt-1"></select></div><div><label class="text-xs font-bold text-slate-500">Tahun Akhir</label><input id="report-kas-sampai-tahun" type="number" class="field mt-1" min="2020" max="2100"></div></div>
+                <div id="report-kas-periode-tahun" class="hidden"><label class="text-xs font-bold text-slate-500">Tahun</label><input id="report-kas-tahun-tunggal" type="number" class="field mt-1" min="2020" max="2100"></div>
+                <div id="report-kas-periode-rentang-tahun" class="hidden sm:col-span-2 grid grid-cols-2 gap-3"><div><label class="text-xs font-bold text-slate-500">Tahun Awal</label><input id="report-kas-tahun-awal" type="number" class="field mt-1" min="2020" max="2100"></div><div><label class="text-xs font-bold text-slate-500">Tahun Akhir</label><input id="report-kas-tahun-akhir" type="number" class="field mt-1" min="2020" max="2100"></div></div>
+              </div>
+            </div>
+            <div id="report-rt-filter" class="hidden grid grid-cols-2 gap-3 max-w-md"><div><label class="text-xs font-bold text-slate-500">Bulan</label><select id="report-bulan" class="field mt-1"></select></div><div><label class="text-xs font-bold text-slate-500">Tahun</label><input id="report-tahun" type="number" class="field mt-1" min="2020" max="2100"></div></div>
+            <div class="grid sm:grid-cols-2 gap-3"><button onclick="loadLaporan()" class="rounded-xl bg-violet-600 text-white font-black px-5 py-3">Muat Laporan</button><button onclick="printLaporan()" class="rounded-xl border border-violet-200 text-violet-700 font-black px-5 py-3"><span class="inline-flex items-center gap-2"><i data-lucide="printer" class="w-4 h-4"></i>Print</span></button></div>
           </div>
           <div id="report-status" class="hidden mt-3 rounded-xl border px-4 py-3 text-sm"></div>
         </div>
 
         <div id="report-print-area">
           <div id="report-kas-panel">
+            <div class="report-letterhead"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4</div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
             <div class="mb-4"><h2 id="report-kas-title" class="font-black text-2xl text-violet-950">Laporan Kas Warga</h2><p id="report-kas-subtitle" class="text-sm text-slate-500 mt-1"></p></div>
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+            <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3 mb-5">
               <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Saldo Awal</div><div id="rep-kas-awal" class="text-xl font-black mt-2">Rp 0</div></div>
               <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Pemasukan</div><div id="rep-kas-debit" class="text-xl font-black text-emerald-700 mt-2">Rp 0</div></div>
               <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Pengeluaran</div><div id="rep-kas-kredit" class="text-xl font-black text-red-600 mt-2">Rp 0</div></div>
+              <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Saldo Periode</div><div id="rep-kas-net" class="text-xl font-black text-violet-700 mt-2">Rp 0</div></div>
               <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Saldo Akhir</div><div id="rep-kas-akhir" class="text-xl font-black text-violet-700 mt-2">Rp 0</div></div>
             </div>
             <div class="report-table-wrap overflow-x-auto rounded-2xl border border-violet-100">
               <table class="w-full text-sm min-w-[900px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-left">Tanggal</th><th class="p-3 text-left">Keterangan</th><th class="p-3 text-left">Kategori</th><th class="p-3 text-right">Debit</th><th class="p-3 text-right">Kredit</th><th class="p-3 text-right">Saldo</th></tr></thead><tbody id="report-kas-tbody" class="divide-y divide-violet-50"><tr><td colspan="6" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody></table>
             </div>
-            <div class="mt-6 no-print"><h3 class="font-black text-violet-950 mb-3">Rekap Tahunan</h3><div id="report-kas-tahunan" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2"></div></div>
+            <div class="mt-6 no-print"><h3 class="font-black text-violet-950 mb-3">Rekap Per Bulan</h3><div id="report-kas-tahunan" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2"></div></div>
           </div>
 
           <div id="report-rt-panel" class="hidden">
+            <div class="report-letterhead"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4</div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
             <div class="mb-5 text-center"><h2 class="font-black text-2xl text-violet-950">LAPORAN SETORAN IURAN WARGA</h2><p class="font-bold mt-1">Flamboyan 4 • RT 001 RW 026</p><p id="report-rt-period" class="text-sm text-slate-500 mt-1"></p></div>
             <div id="rep-rt-talangan-note" class="no-print hidden mb-3 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 px-4 py-3 text-sm"></div>
             <div class="report-table-wrap overflow-x-auto rounded-2xl border border-violet-100">
               <table class="w-full text-sm min-w-[760px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center w-14">No</th><th class="p-3 text-left">Nama</th><th class="p-3 text-left">Blok/No Rumah</th><th class="p-3 text-right">Iuran Bulanan</th><th class="p-3 text-right">Kebersihan</th></tr></thead><tbody id="report-rt-tbody" class="divide-y divide-violet-50"><tr><td colspan="5" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody><tfoot class="bg-violet-50 font-black"><tr><td colspan="3" class="p-3 text-right">TOTAL</td><td class="p-3 text-right"><div id="report-rt-foot-bulanan">Rp 0</div><div id="report-rt-foot-bulanan-count" class="mt-1 text-xs font-semibold text-slate-500">0 orang</div></td><td class="p-3 text-right"><div id="report-rt-foot-keb">Rp 0</div><div id="report-rt-foot-keb-count" class="mt-1 text-xs font-semibold text-slate-500">0 orang</div></td></tr><tr><td colspan="4" class="p-3 text-right">TOTAL SETORAN</td><td id="report-rt-foot-total" class="p-3 text-right">Rp 0</td></tr></tfoot></table>
             </div>
-            <div class="signature-area mt-10 grid grid-cols-2 gap-12 text-center text-sm"><div><div>Diserahkan oleh,</div><div class="signature-space h-16"></div><div class="font-bold">Humas Flamboyan 4</div></div><div><div>Diterima oleh,</div><div class="signature-space h-16"></div><div class="font-bold">Ketua RT 001</div></div></div>
+            <div class="mt-6 text-right text-sm font-bold">Humas Flamboyan 4</div>
           </div>
         </div>
       </div>
@@ -664,7 +686,7 @@
 
 <script>
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrI9BXhRXOJyQTNIc0W1CbNUNqZinZGiUZCNCoB4OhaeF706WQXJl_-FucMcZLKgms/exec';
-const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby8mJvvGhnkXmps1HtKEaqdnSKgnSQIvBWxAz0N7tuEAKIoGDq0i0ZCRFLK_n167iXr/exec';
+const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx4PnNyj5Fb5qTsfTPNRY6mQwPK26V5MqohG9lke2UQEiPd-qmgd2OMBpJ3kVp34YcB/exec';
 const DELETE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSe7bAW5eAmvtoau0_fzpGAddiS53tD41rFM0saROgOblFommVZyxaM6LZlEWYSidt/exec';
 let DATA={config:{},rumah:[],warga:[],riwayat:[]};
 let RIWAYAT_SEMUA=false;
@@ -1047,26 +1069,67 @@ async function batalkanDenda(id){if(!confirm(`Batalkan denda ${id}?`))return;try
 async function batalkanPembayaranDenda(id){if(!confirm(`Batalkan pembayaran denda ${id}?\n\nTransaksi pemasukan Kas Warga terkait juga akan dibatalkan.`))return;try{dendaMsg('hist-denda-status','Membatalkan pembayaran denda...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkanpembayarandenda',idDenda:id,t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan pembayaran.');await loadDenda(true);await loadRiwayatKas(true);dendaMsg('hist-denda-status',r.message||'Pembayaran denda dibatalkan.','success')}catch(e){dendaMsg('hist-denda-status',e.message||String(e),'error')}}
 
 
+function isiBulanSelect(id){const e=document.getElementById(id);if(e&&!e.options.length)e.innerHTML=BULAN.slice(1).map((b,i)=>`<option value="${i+1}">${b}</option>`).join('')}
 function initLaporanUi(){
-  const now=new Date(),m=document.getElementById('report-bulan'),y=document.getElementById('report-tahun');
-  if(m&&!m.options.length){m.innerHTML=BULAN.slice(1).map((b,i)=>`<option value="${i+1}">${b}</option>`).join('')}
-  if(m&&!m.value)m.value=now.getMonth()+1;if(m)m.value=m.value||String(now.getMonth()+1);if(y&&!y.value)y.value=now.getFullYear();
+  const now=new Date();
+  ['report-bulan','report-kas-bulan','report-kas-mulai-bulan','report-kas-sampai-bulan'].forEach(isiBulanSelect);
+  const vals={
+    'report-bulan':now.getMonth()+1,'report-tahun':now.getFullYear(),
+    'report-kas-bulan':now.getMonth()+1,'report-kas-tahun':now.getFullYear(),
+    'report-kas-mulai-bulan':now.getMonth()+1,'report-kas-mulai-tahun':now.getFullYear(),
+    'report-kas-sampai-bulan':now.getMonth()+1,'report-kas-sampai-tahun':now.getFullYear(),
+    'report-kas-tahun-tunggal':now.getFullYear(),'report-kas-tahun-awal':now.getFullYear(),'report-kas-tahun-akhir':now.getFullYear()
+  };
+  Object.entries(vals).forEach(([id,v])=>{const e=document.getElementById(id);if(e&&!e.value)e.value=v});
+  updateKasPeriodControls();
   setModeLaporan(REPORT_MODE||'kas',false);
+}
+function updateKasPeriodControls(){
+  const mode=document.getElementById('report-kas-jenis')?.value||'bulan';
+  const map={bulan:'report-kas-periode-bulan',rentang_bulan:'report-kas-periode-rentang-bulan',tahun:'report-kas-periode-tahun',rentang_tahun:'report-kas-periode-rentang-tahun'};
+  Object.values(map).forEach(id=>document.getElementById(id)?.classList.add('hidden'));
+  document.getElementById(map[mode])?.classList.remove('hidden');
 }
 function setModeLaporan(mode,autoload=true){
   REPORT_MODE=mode==='rt'?'rt':'kas';
   document.getElementById('report-kas-panel')?.classList.toggle('hidden',REPORT_MODE!=='kas');
   document.getElementById('report-rt-panel')?.classList.toggle('hidden',REPORT_MODE!=='rt');
+  document.getElementById('report-kas-filter')?.classList.toggle('hidden',REPORT_MODE!=='kas');
+  document.getElementById('report-rt-filter')?.classList.toggle('hidden',REPORT_MODE!=='rt');
   document.querySelectorAll('.report-mode-btn').forEach(b=>{b.classList.remove('active','bg-violet-600','text-white');b.classList.add('bg-white','text-slate-600')});
   const a=document.getElementById('report-mode-'+REPORT_MODE);if(a){a.classList.add('active','bg-violet-600','text-white');a.classList.remove('bg-white','text-slate-600')}
   if(autoload)loadLaporan();
 }
 function reportMsg(text,type='info'){const e=document.getElementById('report-status');if(!e)return;e.className='mt-3 rounded-xl border px-4 py-3 text-sm '+(type==='error'?'border-red-200 bg-red-50 text-red-700':type==='success'?'border-emerald-200 bg-emerald-50 text-emerald-700':'border-violet-100 bg-violet-50 text-violet-700');e.textContent=text;e.classList.remove('hidden')}
-async function loadLaporan(){
-  const bulan=Number(document.getElementById('report-bulan')?.value),tahun=Number(document.getElementById('report-tahun')?.value);if(!bulan||!tahun)return;
-  try{reportMsg('Memuat laporan...');const action=REPORT_MODE==='rt'?'laporanrt':'laporankas';const r=await jsonp(BATCH_SCRIPT_URL,{action,bulan,tahun,t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memuat laporan.');if(REPORT_MODE==='rt'){REPORT_DATA_RT=r.data;renderLaporanRt(r.data)}else{REPORT_DATA_KAS=r.data;renderLaporanKas(r.data)};reportMsg('Laporan berhasil dimuat.','success');setTimeout(()=>document.getElementById('report-status')?.classList.add('hidden'),900)}catch(e){reportMsg(e.message||String(e),'error')}
+function getKasReportParams(){
+  const mode=document.getElementById('report-kas-jenis')?.value||'bulan', p={action:'laporankas',mode,t:Date.now()};
+  if(mode==='bulan'){p.bulan=document.getElementById('report-kas-bulan').value;p.tahun=document.getElementById('report-kas-tahun').value}
+  else if(mode==='rentang_bulan'){p.mulaiBulan=document.getElementById('report-kas-mulai-bulan').value;p.mulaiTahun=document.getElementById('report-kas-mulai-tahun').value;p.sampaiBulan=document.getElementById('report-kas-sampai-bulan').value;p.sampaiTahun=document.getElementById('report-kas-sampai-tahun').value}
+  else if(mode==='tahun'){p.tahun=document.getElementById('report-kas-tahun-tunggal').value}
+  else {p.mulaiTahun=document.getElementById('report-kas-tahun-awal').value;p.sampaiTahun=document.getElementById('report-kas-tahun-akhir').value}
+  return p;
 }
-function renderLaporanKas(d){d=d||{};const r=d.ringkasan||{};const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('report-kas-title','Laporan Kas Warga');set('report-kas-subtitle',`${d.namaBulan||''} ${d.tahun||''}`);set('rep-kas-awal',rupiah(r.saldoAwal||0));set('rep-kas-debit',rupiah(r.debit||0));set('rep-kas-kredit',rupiah(r.kredit||0));set('rep-kas-akhir',rupiah(r.saldoAkhir||0));const tb=document.getElementById('report-kas-tbody');if(tb)tb.innerHTML=(d.rows||[]).map(x=>`<tr><td class="p-3 whitespace-nowrap">${x.tanggal||'-'}</td><td class="p-3"><div class="font-bold">${x.keterangan||'-'}</div><div class="text-xs text-slate-400">${x.idTransaksi||''} • ${x.sumber||''}</div></td><td class="p-3">${x.kategori||'-'}</td><td class="p-3 text-right font-bold text-emerald-700">${x.debit?rupiah(x.debit):'-'}</td><td class="p-3 text-right font-bold text-red-600">${x.kredit?rupiah(x.kredit):'-'}</td><td class="p-3 text-right font-black">${rupiah(x.saldo||0)}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada transaksi pada periode ini.</td></tr>';const y=document.getElementById('report-kas-tahunan');if(y)y.innerHTML=(d.tahunan||[]).map(x=>`<div class="rounded-xl border border-violet-100 p-3"><div class="font-bold">${x.namaBulan}</div><div class="mt-1 text-xs text-slate-500">Masuk ${rupiah(x.debit)} • Keluar ${rupiah(x.kredit)}</div><div class="mt-1 font-black ${x.net<0?'text-red-600':'text-violet-700'}">Net ${rupiah(x.net)}</div></div>`).join('')}
+async function loadLaporan(){
+  try{
+    reportMsg('Memuat laporan...');
+    let p;
+    if(REPORT_MODE==='rt'){
+      const bulan=Number(document.getElementById('report-bulan')?.value),tahun=Number(document.getElementById('report-tahun')?.value);if(!bulan||!tahun)return;
+      p={action:'laporanrt',bulan,tahun,t:Date.now()};
+    }else p=getKasReportParams();
+    const r=await jsonp(BATCH_SCRIPT_URL,p);if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memuat laporan.');
+    if(REPORT_MODE==='rt'){REPORT_DATA_RT=r.data;renderLaporanRt(r.data)}else{REPORT_DATA_KAS=r.data;renderLaporanKas(r.data)};
+    reportMsg('Laporan berhasil dimuat.','success');setTimeout(()=>document.getElementById('report-status')?.classList.add('hidden'),900)
+  }catch(e){reportMsg(e.message||String(e),'error')}
+}
+function renderLaporanKas(d){
+  d=d||{};const r=d.ringkasan||{};const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+  set('report-kas-title','Laporan Kas Warga');set('report-kas-subtitle',d.labelPeriode||'');
+  set('rep-kas-awal',rupiah(r.saldoAwal||0));set('rep-kas-debit',rupiah(r.debit||0));set('rep-kas-kredit',rupiah(r.kredit||0));set('rep-kas-net',rupiah(r.saldoPeriode||0));set('rep-kas-akhir',rupiah(r.saldoAkhir||0));
+  const net=document.getElementById('rep-kas-net');if(net){net.classList.remove('text-red-600','text-emerald-700','text-violet-700');net.classList.add(Number(r.saldoPeriode||0)<0?'text-red-600':Number(r.saldoPeriode||0)>0?'text-emerald-700':'text-violet-700')}
+  const tb=document.getElementById('report-kas-tbody');if(tb)tb.innerHTML=(d.rows||[]).map(x=>`<tr><td class="p-3 whitespace-nowrap">${x.tanggal||'-'}</td><td class="p-3"><div class="font-bold">${x.keterangan||'-'}</div><div class="text-xs text-slate-400">${x.idTransaksi||''} • ${x.sumber||''}</div></td><td class="p-3">${x.kategori||'-'}</td><td class="p-3 text-right font-bold text-emerald-700">${x.debit?rupiah(x.debit):'-'}</td><td class="p-3 text-right font-bold text-red-600">${x.kredit?rupiah(x.kredit):'-'}</td><td class="p-3 text-right font-black">${rupiah(x.saldo||0)}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada transaksi pada periode ini.</td></tr>';
+  const y=document.getElementById('report-kas-tahunan'),rekap=d.periodeBulanan||d.tahunan||[];if(y)y.innerHTML=rekap.map(x=>`<div class="rounded-xl border border-violet-100 p-3"><div class="font-bold">${x.namaBulan} ${x.tahun||''}</div><div class="mt-1 text-xs text-slate-500">Masuk ${rupiah(x.debit)} • Keluar ${rupiah(x.kredit)}</div><div class="mt-1 font-black ${x.net<0?'text-red-600':x.net>0?'text-emerald-700':'text-violet-700'}">Saldo periode ${rupiah(x.net)}</div></div>`).join('')
+}
 function renderLaporanRt(d){d=d||{};const r=d.ringkasan||{},rows=Array.isArray(d.rows)?d.rows:[],set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};const orangBulanan=rows.filter(x=>Number(x.nominalBulanan||0)>0).length;const orangKebersihan=rows.filter(x=>Number(x.nominalKebersihan||0)>0).length;set('report-rt-period',`Periode ${d.namaBulan||''} ${d.tahun||''}`);set('report-rt-foot-bulanan',rupiah(r.totalBulanan||0));set('report-rt-foot-keb',rupiah(r.totalKebersihan||0));set('report-rt-foot-bulanan-count',`${orangBulanan} orang`);set('report-rt-foot-keb-count',`${orangKebersihan} orang`);set('report-rt-foot-total',rupiah(r.totalSetoran||0));const note=document.getElementById('rep-rt-talangan-note');if(note){note.classList.toggle('hidden',!(r.talanganCount>0));note.textContent=`Catatan internal: ${r.talanganCount||0} warga pada laporan ini ditutup melalui talangan. Keterangan ini tidak ikut saat dicetak.`}const tb=document.getElementById('report-rt-tbody');if(tb)tb.innerHTML=rows.map((x,i)=>`<tr><td class="p-3 text-center">${i+1}</td><td class="p-3 font-bold">${x.nama||'-'}</td><td class="p-3">${x.blok||''}/${x.noRumah||''}</td><td class="p-3 text-right">${rupiah(x.nominalBulanan||0)}${Number(x.qtyBulanan)>1?` <span class="report-qty-badge">${x.qtyBulanan}x</span>`:''}</td><td class="p-3 text-right">${rupiah(x.nominalKebersihan||0)}${Number(x.qtyKebersihan)>1?` <span class="report-qty-badge">${x.qtyKebersihan}x</span>`:''}</td></tr>`).join('')||'<tr><td colspan="5" class="p-6 text-center text-slate-400">Belum ada data setoran pada periode ini.</td></tr>'}
 function printLaporan(){window.print()}
 
