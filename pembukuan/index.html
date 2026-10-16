@@ -123,6 +123,7 @@
         <button data-menu-target="kas" onclick="pilihMenu('kas')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="notebook-tabs" class="w-4 h-4"></i><span>Pembukuan Kas</span></button>
         <button data-menu-target="pinjaman" onclick="pilihMenu('pinjaman')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="hand-coins" class="w-4 h-4"></i><span>Pinjaman Warga</span></button>
         <button data-menu-target="talangan" onclick="pilihMenu('talangan')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="shield-check" class="w-4 h-4"></i><span>Talangan Iuran</span></button>
+        <button data-menu-target="denda" onclick="pilihMenu('denda')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="badge-dollar-sign" class="w-4 h-4"></i><span>Denda Gorol</span></button>
       </div>
 
       <div class="text-[11px] font-black uppercase tracking-wider text-slate-400 px-2 mt-6 mb-2">Riwayat</div>
@@ -154,6 +155,7 @@
         <button data-process-target="kas" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('kas')">Pembukuan Kas</button>
         <button data-process-target="pinjaman" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('pinjaman')">Pinjaman Warga</button>
         <button data-process-target="talangan" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('talangan')">Talangan</button>
+        <button data-process-target="denda" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('denda')">Denda Gorol</button>
       </div>
       <button onclick="bukaMenu()" class="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl border border-violet-100 text-violet-700 text-sm font-bold hover:bg-violet-50"><i data-lucide="menu" class="w-4 h-4"></i> Menu</button>
     </div>
@@ -368,6 +370,37 @@
       </div>
     </div>
 
+    <div id="tab-denda" class="tab-panel hidden p-4 sm:p-5">
+      <div class="max-w-4xl mx-auto">
+        <div class="mb-5"><h2 class="font-black text-xl text-violet-950">Denda Gorol</h2><p class="text-sm text-slate-500 mt-1">Catat warga yang terkena denda kerja bakti/gorol. Pembayaran denda otomatis masuk sebagai pemasukan Kas Warga.</p></div>
+        <div class="grid grid-cols-2 gap-2 mb-5">
+          <button id="btn-denda-catat" onclick="setModeDenda('catat')" class="denda-mode-btn active rounded-xl border border-violet-200 bg-violet-600 text-white font-black py-3">Catat Denda</button>
+          <button id="btn-denda-bayar" onclick="setModeDenda('bayar')" class="denda-mode-btn rounded-xl border border-violet-100 bg-white text-slate-600 font-black py-3">Pembayaran Denda</button>
+        </div>
+
+        <div id="denda-panel-catat" class="rounded-2xl border border-violet-100 p-4 sm:p-5">
+          <form id="form-denda-catat" onsubmit="simpanDenda(event)" class="space-y-4">
+            <div><label class="text-sm font-bold">Nama Warga</label><select id="denda-warga" class="field mt-1" required><option value="">Pilih warga...</option></select></div>
+            <div class="grid sm:grid-cols-2 gap-4"><div><label class="text-sm font-bold">Tanggal Kegiatan</label><input id="denda-tanggal" type="date" class="field mt-1" required></div><div><label class="text-sm font-bold">Nama Kegiatan</label><input id="denda-kegiatan" class="field mt-1" value="Gorol / Kerja Bakti" required></div></div>
+            <div><label class="text-sm font-bold">Nominal Denda</label><input id="denda-nominal" type="text" inputmode="numeric" class="field mt-1" value="20.000" oninput="formatNominalInput(this)" required></div>
+            <div><label class="text-sm font-bold">Keterangan <span class="font-normal text-slate-400">(opsional)</span></label><input id="denda-keterangan" class="field mt-1" placeholder="Contoh: Tidak hadir gorol rutin"></div>
+            <div id="denda-status" class="hidden rounded-xl border px-4 py-3 text-sm"></div>
+            <button id="denda-btn-simpan" class="w-full rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-black py-3.5">Simpan Denda</button>
+          </form>
+        </div>
+
+        <div id="denda-panel-bayar" class="hidden rounded-2xl border border-violet-100 p-4 sm:p-5">
+          <form id="form-denda-bayar" onsubmit="bayarDenda(event)" class="space-y-4">
+            <div><label class="text-sm font-bold">Denda Belum Dibayar</label><select id="bayar-denda-id" class="field mt-1" onchange="previewBayarDenda()"><option value="">Pilih denda...</option></select></div>
+            <div id="bayar-denda-preview" class="rounded-xl border border-violet-100 bg-violet-50/50 p-4 text-sm text-slate-500">Pilih denda untuk melihat detail.</div>
+            <div class="grid sm:grid-cols-2 gap-4"><div><label class="text-sm font-bold">Tanggal Pembayaran</label><input id="bayar-denda-tanggal" type="date" class="field mt-1" required></div><div><label class="text-sm font-bold">Metode</label><select id="bayar-denda-metode" class="field mt-1"><option>Cash</option><option>QRIS</option><option>Transfer Mandiri</option></select></div></div>
+            <div id="bayar-denda-status" class="hidden rounded-xl border px-4 py-3 text-sm"></div>
+            <button id="bayar-denda-btn" class="w-full rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-black py-3.5">Simpan Pembayaran Denda</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <div id="tab-riwayat" class="tab-panel hidden p-4 sm:p-5">
       <div class="mb-5">
         <div class="flex gap-2 overflow-x-auto scrollbar-thin">
@@ -376,6 +409,7 @@
           <button id="history-btn-batch" class="history-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihRiwayat('batch')">Riwayat Batch Kas</button>
         <button id="history-btn-pinjaman" onclick="pilihRiwayat('pinjaman')" class="history-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50">Riwayat Pinjaman</button>
         <button id="history-btn-talangan" onclick="pilihRiwayat('talangan')" class="history-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50">Riwayat Talangan</button>
+        <button id="history-btn-denda" onclick="pilihRiwayat('denda')" class="history-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50">Riwayat Denda</button>
         </div>
       </div>
 
@@ -472,6 +506,18 @@
         <div class="history-scroll overflow-x-auto rounded-xl border border-violet-100 scrollbar-thin"><table class="min-w-[1000px] w-full text-sm"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-left">Periode</th><th class="p-3 text-left">Warga</th><th class="p-3 text-right">Talangan</th><th class="p-3 text-right">Diganti</th><th class="p-3 text-right">Sisa</th><th class="p-3 text-center">Status</th><th class="p-3 text-center">Pembukuan</th><th class="p-3 text-left">Pembayaran Pelunasan</th><th class="p-3 text-right">Aksi</th></tr></thead><tbody id="tbody-riwayat-talangan" class="divide-y divide-violet-50"><tr><td colspan="9" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody></table></div>
       </div>
 
+      <div id="history-denda-panel" class="hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3"><div><h2 class="font-black text-xl text-violet-950">Riwayat Denda Gorol</h2><p class="text-sm text-slate-500 mt-1">Denda belum dibayar dan pembayaran yang sudah masuk ke Kas Warga.</p></div><button onclick="loadDenda()" class="px-4 py-2 rounded-xl bg-violet-600 text-white font-bold">Muat Ulang</button></div>
+        <div id="hist-denda-status" class="hidden mb-3 rounded-xl border px-4 py-3 text-sm"></div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+          <div class="rounded-xl border border-violet-100 p-3"><div class="text-[10px] font-bold text-slate-400">BELUM BAYAR</div><div id="denda-sum-belum-count" class="text-xl font-black mt-1">0</div></div>
+          <div class="rounded-xl border border-violet-100 p-3"><div class="text-[10px] font-bold text-slate-400">NOMINAL BELUM</div><div id="denda-sum-belum" class="text-xl font-black mt-1 text-red-600">Rp 0</div></div>
+          <div class="rounded-xl border border-violet-100 p-3"><div class="text-[10px] font-bold text-slate-400">SUDAH LUNAS</div><div id="denda-sum-lunas-count" class="text-xl font-black mt-1">0</div></div>
+          <div class="rounded-xl border border-violet-100 p-3"><div class="text-[10px] font-bold text-slate-400">PEMASUKAN DENDA</div><div id="denda-sum-lunas" class="text-xl font-black mt-1 text-emerald-700">Rp 0</div></div>
+        </div>
+        <div class="history-scroll overflow-x-auto rounded-xl border border-violet-100 scrollbar-thin"><table class="min-w-[980px] w-full text-sm"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-left">Tanggal</th><th class="p-3 text-left">Warga</th><th class="p-3 text-left">Kegiatan</th><th class="p-3 text-right">Nominal</th><th class="p-3 text-center">Status</th><th class="p-3 text-left">Pembayaran</th><th class="p-3 text-right">Aksi</th></tr></thead><tbody id="tbody-riwayat-denda" class="divide-y divide-violet-50"><tr><td colspan="7" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody></table></div>
+      </div>
+
       <div id="history-batch-panel" class="hidden">
         <div class="batch-head flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-4">
           <div><h2 class="font-black text-xl text-violet-950">Riwayat Batch Kas</h2><p class="text-sm text-slate-500 mt-1">Histori pengelompokan Kas Lorong yang sudah dibukukan.</p></div>
@@ -541,7 +587,7 @@
 
 <script>
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrI9BXhRXOJyQTNIc0W1CbNUNqZinZGiUZCNCoB4OhaeF706WQXJl_-FucMcZLKgms/exec';
-const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyv3ds_B4N6fsJT0F6PSWdLDICc1zHQ4LqeNemJEqBIo9sFVB-1hK-BG1rc98pSAkX6/exec';
+const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxAKYGOReLOGWV7MYW419WWMIqxIjTt1sEPc2PdfEQX_ZtG8XZKuDf16gTschkwetF7/exec';
 const DELETE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSe7bAW5eAmvtoau0_fzpGAddiS53tD41rFM0saROgOblFommVZyxaM6LZlEWYSidt/exec';
 let DATA={config:{},rumah:[],warga:[],riwayat:[]};
 let RIWAYAT_SEMUA=false;
@@ -689,7 +735,7 @@ async function batalkanBatchKas(id){if(!confirm(`Batalkan batch ${id}?\n\nTransa
 
 
 
-const KATEGORI_PEMASUKAN=['Donasi','Denda Gorol','Dana Kebersihan RT','Lainnya'];
+const KATEGORI_PEMASUKAN=['Donasi','Dana Kebersihan RT','Lainnya'];
 const KATEGORI_PENGELUARAN=['Operasional','Kebersihan','Konsumsi','Kegiatan','Perbaikan / Fasilitas','Lainnya'];
 
 function initTransaksiKasUi(){
@@ -898,6 +944,30 @@ function renderTalangan(){
 }
 async function batalkanTalangan(id){if(!confirm(`Batalkan talangan ${id}?\n\nJika talangan sudah sempat masuk pembukuan karena melewati batas 14 hari, transaksi pengeluarannya juga akan ikut dibatalkan.`))return;try{talMsg('hist-tal-status','Membatalkan talangan...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkantalangan',idTalangan:id,alasan:'Dibatalkan dari web',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan talangan.');await loadTalangan(true);await loadRiwayatKas(true);talMsg('hist-tal-status',r.message||'Talangan dibatalkan.','success')}catch(e){talMsg('hist-tal-status',e.message||String(e),'error')}}
 
+
+let DATA_DENDA={rows:[],aktif:[],ringkasan:{}};
+function dendaMsg(id,t,type='info'){const e=document.getElementById(id);if(!e)return;e.className='rounded-xl border px-4 py-3 text-sm';if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');else if(type==='success')e.classList.add('bg-emerald-50','border-emerald-200','text-emerald-700');else e.classList.add('bg-slate-50','border-slate-200','text-slate-600');e.textContent=t;e.classList.remove('hidden')}
+function initDendaUi(){
+  const s=document.getElementById('denda-warga');if(s){const cur=s.value;s.innerHTML='<option value="">Pilih warga...</option>'+DATA.warga.filter(w=>['ya','aktif'].includes((w.statusAktif||'').toLowerCase())).map(w=>`<option value="${w.idWarga}">${w.nama} • ${w.blok}/${w.noRumah}</option>`).join('');if(DATA.warga.some(w=>w.idWarga===cur))s.value=cur}
+  const now=localDateInput();if(document.getElementById('denda-tanggal')&&!document.getElementById('denda-tanggal').value)document.getElementById('denda-tanggal').value=now;if(document.getElementById('bayar-denda-tanggal')&&!document.getElementById('bayar-denda-tanggal').value)document.getElementById('bayar-denda-tanggal').value=now;
+  loadDenda(true);
+}
+function setModeDenda(mode){
+  const catat=document.getElementById('denda-panel-catat'),bayar=document.getElementById('denda-panel-bayar'),b1=document.getElementById('btn-denda-catat'),b2=document.getElementById('btn-denda-bayar');
+  catat?.classList.toggle('hidden',mode!=='catat');bayar?.classList.toggle('hidden',mode!=='bayar');
+  [b1,b2].forEach(b=>{if(!b)return;b.classList.remove('active','bg-violet-600','text-white','border-violet-200','bg-white','text-slate-600','border-violet-100')});
+  const on=mode==='catat'?b1:b2,off=mode==='catat'?b2:b1;on?.classList.add('active','bg-violet-600','text-white','border-violet-200');off?.classList.add('bg-white','text-slate-600','border-violet-100');
+  if(mode==='bayar'){renderDendaBayarOptions();previewBayarDenda()}
+}
+async function loadDenda(silent=false){try{if(!silent)dendaMsg('hist-denda-status','Memuat data denda...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'datadenda',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memuat denda.');DATA_DENDA=r.data||{rows:[],aktif:[],ringkasan:{}};renderDendaHistory();renderDendaBayarOptions();if(!silent){dendaMsg('hist-denda-status','Data denda diperbarui.','success');setTimeout(()=>document.getElementById('hist-denda-status')?.classList.add('hidden'),1000)}}catch(e){dendaMsg('hist-denda-status',e.message||String(e),'error')}}
+function renderDendaBayarOptions(){const s=document.getElementById('bayar-denda-id');if(!s)return;const cur=s.value;s.innerHTML='<option value="">Pilih denda...</option>'+((DATA_DENDA.aktif||[]).map(x=>`<option value="${x.idDenda}">${x.nama} • ${x.blok}/${x.noRumah} • ${x.tanggalKegiatan} • ${rupiah(x.nominal)}</option>`).join(''));if((DATA_DENDA.aktif||[]).some(x=>x.idDenda===cur))s.value=cur}
+function previewBayarDenda(){const id=document.getElementById('bayar-denda-id')?.value,e=document.getElementById('bayar-denda-preview');if(!e)return;const x=(DATA_DENDA.aktif||[]).find(v=>v.idDenda===id);if(!x){e.textContent='Pilih denda untuk melihat detail.';return}e.innerHTML=`<div class="font-black text-violet-950">${x.nama} • ${x.blok}/${x.noRumah}</div><div class="mt-1">${x.namaKegiatan} • ${x.tanggalKegiatan}</div><div class="text-xl font-black text-violet-700 mt-2">${rupiah(x.nominal)}</div>${x.keterangan?`<div class="text-xs text-slate-500 mt-1">${x.keterangan}</div>`:''}`}
+async function simpanDenda(ev){ev.preventDefault();const btn=document.getElementById('denda-btn-simpan');btn.disabled=true;btn.classList.add('opacity-60');try{dendaMsg('denda-status','Menyimpan denda...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'buatdenda',idWarga:document.getElementById('denda-warga').value,tanggalKegiatan:document.getElementById('denda-tanggal').value,namaKegiatan:document.getElementById('denda-kegiatan').value,nominal:nominalAngka('denda-nominal'),keterangan:document.getElementById('denda-keterangan').value,t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal menyimpan denda.');dendaMsg('denda-status',`${r.idDenda} berhasil dicatat • ${rupiah(r.nominal||0)}`,'success');document.getElementById('denda-warga').value='';document.getElementById('denda-keterangan').value='';await loadDenda(true)}catch(e){dendaMsg('denda-status',e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}}
+async function bayarDenda(ev){ev.preventDefault();const btn=document.getElementById('bayar-denda-btn');btn.disabled=true;btn.classList.add('opacity-60');try{dendaMsg('bayar-denda-status','Menyimpan pembayaran...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'bayardenda',idDenda:document.getElementById('bayar-denda-id').value,tanggalBayar:document.getElementById('bayar-denda-tanggal').value,metode:document.getElementById('bayar-denda-metode').value,t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membayar denda.');dendaMsg('bayar-denda-status',`Pembayaran berhasil • ${rupiah(r.nominal||0)}`,'success');await loadDenda(true);await loadRiwayatKas(true);document.getElementById('bayar-denda-id').value='';previewBayarDenda()}catch(e){dendaMsg('bayar-denda-status',e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}}
+function renderDendaHistory(){const r=DATA_DENDA.ringkasan||{},set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('denda-sum-belum-count',r.jumlahBelum||0);set('denda-sum-belum',rupiah(r.nominalBelum||0));set('denda-sum-lunas-count',r.jumlahLunas||0);set('denda-sum-lunas',rupiah(r.nominalLunas||0));const tb=document.getElementById('tbody-riwayat-denda');if(!tb)return;tb.innerHTML=(DATA_DENDA.rows||[]).map(x=>{const batal=x.status==='BATAL',lunas=x.status==='LUNAS';const badge=batal?'bg-slate-100 text-slate-500':lunas?'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700';let aksi='-';if(x.status==='BELUM')aksi=`<button onclick="batalkanDenda('${x.idDenda}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold">Batalkan</button>`;if(lunas)aksi=`<button onclick="batalkanPembayaranDenda('${x.idDenda}')" class="px-3 py-1.5 rounded-lg border border-amber-200 text-amber-700 font-bold">Batalkan Bayar</button>`;return `<tr class="${batal?'opacity-55':''}"><td class="p-3"><div class="font-bold">${x.tanggalKegiatan||'-'}</div><div class="text-xs text-slate-400">${x.idDenda||''}</div></td><td class="p-3"><div class="font-bold">${x.nama||'-'}</div><div class="text-xs text-slate-400">${x.blok||''}/${x.noRumah||''}</div></td><td class="p-3"><div class="font-bold">${x.namaKegiatan||'-'}</div><div class="text-xs text-slate-400">${x.keterangan||''}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominal||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${badge}">${x.status||'BELUM'}</span></td><td class="p-3">${lunas?`${x.tanggalBayar||'-'}<div class="text-xs text-slate-400">${x.metode||''} • ${x.idTransaksiKas||''}</div>`:'-'}</td><td class="p-3 text-right">${aksi}</td></tr>`}).join('')||'<tr><td colspan="7" class="p-6 text-center text-slate-400">Belum ada data denda.</td></tr>'}
+async function batalkanDenda(id){if(!confirm(`Batalkan denda ${id}?`))return;try{dendaMsg('hist-denda-status','Membatalkan denda...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkandenda',idDenda:id,alasan:'Dibatalkan dari web',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan denda.');await loadDenda(true);dendaMsg('hist-denda-status',r.message||'Denda dibatalkan.','success')}catch(e){dendaMsg('hist-denda-status',e.message||String(e),'error')}}
+async function batalkanPembayaranDenda(id){if(!confirm(`Batalkan pembayaran denda ${id}?\n\nTransaksi pemasukan Kas Warga terkait juga akan dibatalkan.`))return;try{dendaMsg('hist-denda-status','Membatalkan pembayaran denda...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkanpembayarandenda',idDenda:id,t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan pembayaran.');await loadDenda(true);await loadRiwayatKas(true);dendaMsg('hist-denda-status',r.message||'Pembayaran denda dibatalkan.','success')}catch(e){dendaMsg('hist-denda-status',e.message||String(e),'error')}}
+
 function bukaMenu(){const d=document.getElementById('side-drawer');d.classList.add('open');d.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';lucide.createIcons()}
 function tutupMenu(){const d=document.getElementById('side-drawer');d.classList.remove('open');d.setAttribute('aria-hidden','true');document.body.style.overflow=''}
 
@@ -908,6 +978,7 @@ function pilihMenu(n){
     kas:['Pembukuan Kas','Kelompokkan Kas Lorong yang diterima ke dalam batch pembukuan.'],
     pinjaman:['Pinjaman Warga','Kelola pinjaman dan pembayaran pinjaman warga.'],
     talangan:['Talangan Iuran','Kelola talangan Iuran Bulanan + Kebersihan warga.'],
+    denda:['Denda Gorol','Catat denda gorol dan pembayaran denda warga.'],
     riwayat:['Riwayat & Histori','Riwayat transaksi dan batch pembukuan.'],
     dashboard:['Ringkasan Data','Ringkasan master hunian dan tarif sebagai data acuan.'],
     rumah:['Data Rumah','Data unit rumah sebagai acuan administrasi.'],
@@ -927,6 +998,7 @@ function pilihMenu(n){
   if(n==='kas'){if(!KAS_LOADED)loadPembukuanKas();else renderPembukuanKas()}
   if(n==='pinjaman'){initPinjamanUi();loadPinjaman(true)}
   if(n==='talangan'){initTalanganUi();loadTalangan(true)}
+  if(n==='denda')initDendaUi();
   tutupMenu();
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -937,6 +1009,7 @@ function pilihRiwayat(type){
   document.getElementById('history-batch-panel')?.classList.toggle('hidden',type!=='batch');
   document.getElementById('history-pinjaman-panel')?.classList.toggle('hidden',type!=='pinjaman');
   document.getElementById('history-talangan-panel')?.classList.toggle('hidden',type!=='talangan');
+  document.getElementById('history-denda-panel')?.classList.toggle('hidden',type!=='denda');
   document.querySelectorAll('.history-btn').forEach(x=>x.classList.remove('active'));
   document.getElementById('history-btn-'+type)?.classList.add('active');
   if(type==='iuran')loadRiwayat(true);
@@ -944,6 +1017,7 @@ function pilihRiwayat(type){
   if(type==='batch')muatRiwayatBatch();
   if(type==='pinjaman')loadPinjaman();
   if(type==='talangan')loadTalangan();
+  if(type==='denda')loadDenda();
 }
 
 function initHistoryBatchFilters(){
