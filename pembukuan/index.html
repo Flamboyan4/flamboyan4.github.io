@@ -13,23 +13,75 @@
   .scrollbar-thin::-webkit-scrollbar{height:7px;width:7px}.scrollbar-thin::-webkit-scrollbar-thumb{background:#ddd6fe;border-radius:999px}
   .field{width:100%;border:1px solid #ddd6fe;background:#fff;border-radius:12px;padding:.72rem .85rem;outline:none}
   .field:focus{box-shadow:0 0 0 3px #ede9fe;border-color:#8b5cf6}
+
+  .side-drawer{position:fixed;inset:0;z-index:90;pointer-events:none}
+  .side-drawer.open{pointer-events:auto}
+  .drawer-backdrop{position:absolute;inset:0;background:rgba(15,23,42,.28);opacity:0;transition:.2s}
+  .side-drawer.open .drawer-backdrop{opacity:1}
+  .drawer-panel{position:absolute;left:0;top:0;bottom:0;width:min(320px,88vw);background:#fff;border-right:1px solid #ede9fe;transform:translateX(-102%);transition:.22s;box-shadow:18px 0 50px rgba(76,29,149,.12);display:flex;flex-direction:column}
+  .side-drawer.open .drawer-panel{transform:translateX(0)}
+  .drawer-item.active{background:#7c3aed;color:#fff;border-color:#7c3aed}
+  .process-btn.active,.history-btn.active{background:#7c3aed;color:#fff;border-color:#7c3aed}
 </style>
   <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8">
 </head>
 <body>
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-violet-100 text-violet-700 flex items-center justify-center"><i data-lucide="book-open-check" class="w-5 h-5"></i></div>
-      <div><div class="font-black text-violet-950">Pembukuan Flamboyan 4</div><div class="text-[11px] text-violet-500">Dashboard Administrasi Internal <span id="backend-version" class="ml-2 text-[10px] text-violet-500"></span></div></div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <button onclick="bukaMenu()" class="w-10 h-10 rounded-xl bg-violet-50 text-violet-700 hover:bg-violet-100 flex items-center justify-center shrink-0" aria-label="Buka menu"><i data-lucide="menu" class="w-5 h-5"></i></button>
+      <div class="w-10 h-10 rounded-xl bg-violet-100 text-violet-700 flex items-center justify-center shrink-0"><i data-lucide="book-open-check" class="w-5 h-5"></i></div>
+      <div class="min-w-0"><div class="font-black text-violet-950 truncate">Pembukuan Flamboyan 4</div><div class="text-[11px] text-violet-500 truncate">Dashboard Administrasi Internal <span id="backend-version" class="ml-2 text-[10px] text-violet-500"></span></div></div>
     </div>
-    <button onclick="muatUlang()" class="w-10 h-10 rounded-xl bg-violet-50 text-violet-700 hover:bg-violet-100 flex items-center justify-center"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
+    <button onclick="muatUlang()" class="w-10 h-10 rounded-xl bg-violet-50 text-violet-700 hover:bg-violet-100 flex items-center justify-center shrink-0"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
   </div>
 </header>
 
+<div id="side-drawer" class="side-drawer" aria-hidden="true">
+  <div class="drawer-backdrop" onclick="tutupMenu()"></div>
+  <aside class="drawer-panel">
+    <div class="h-16 px-4 flex items-center justify-between border-b border-violet-100">
+      <div><div class="font-black text-violet-950">Menu Pembukuan</div><div class="text-[11px] text-slate-400">Flamboyan 4</div></div>
+      <button onclick="tutupMenu()" class="w-9 h-9 rounded-xl hover:bg-violet-50 text-slate-500 flex items-center justify-center"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <div class="p-4 overflow-y-auto">
+      <div class="text-[11px] font-black uppercase tracking-wider text-slate-400 px-2 mb-2">Proses Pembukuan</div>
+      <div class="space-y-2">
+        <button data-menu-target="input" onclick="pilihMenu('input')" class="drawer-item active w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm"><i data-lucide="wallet-cards" class="w-4 h-4"></i><span>Input Iuran</span></button>
+        <button data-menu-target="kas" onclick="pilihMenu('kas')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="notebook-tabs" class="w-4 h-4"></i><span>Pembukuan Kas</span></button>
+      </div>
+
+      <div class="text-[11px] font-black uppercase tracking-wider text-slate-400 px-2 mt-6 mb-2">Riwayat</div>
+      <div class="space-y-2">
+        <button data-menu-target="riwayat" onclick="pilihMenu('riwayat')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="history" class="w-4 h-4"></i><span>Riwayat & Histori</span></button>
+      </div>
+
+      <div class="text-[11px] font-black uppercase tracking-wider text-slate-400 px-2 mt-6 mb-2">Data Acuan</div>
+      <div class="space-y-2">
+        <button data-menu-target="dashboard" onclick="pilihMenu('dashboard')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="layout-dashboard" class="w-4 h-4"></i><span>Ringkasan Data</span></button>
+        <button data-menu-target="rumah" onclick="pilihMenu('rumah')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="house" class="w-4 h-4"></i><span>Data Rumah</span></button>
+        <button data-menu-target="warga" onclick="pilihMenu('warga')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="users" class="w-4 h-4"></i><span>Data Warga</span></button>
+        <button data-menu-target="config" onclick="pilihMenu('config')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="settings-2" class="w-4 h-4"></i><span>Tarif & Aturan</span></button>
+      </div>
+    </div>
+  </aside>
+</div>
+
 <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-  <section class="mb-5"><h1 class="text-2xl sm:text-3xl font-black text-violet-950">Administrasi Warga & Pembukuan</h1><p class="text-sm text-slate-500 mt-1">Sistem internal Flamboyan 4</p></section>
+  <section class="mb-5"><h1 id="page-title" class="text-2xl sm:text-3xl font-black text-violet-950">Input Iuran Warga</h1><p id="page-subtitle" class="text-sm text-slate-500 mt-1">Pencatatan pembayaran iuran warga.</p></section>
   <div id="status-box" class="mb-5 hidden rounded-xl border px-4 py-3 text-sm"></div>
+
+
+  <section class="card bg-white rounded-2xl border border-violet-100 overflow-hidden">
+    <div class="p-3 border-b border-violet-100 flex items-center justify-between gap-3">
+      <div class="flex gap-2 overflow-x-auto scrollbar-thin">
+        <button data-process-target="input" class="process-btn active px-4 py-2 rounded-xl border border-violet-200 text-sm font-bold whitespace-nowrap" onclick="pilihMenu('input')">Input Iuran</button>
+        <button data-process-target="kas" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('kas')">Pembukuan Kas</button>
+      </div>
+      <button onclick="bukaMenu()" class="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl border border-violet-100 text-violet-700 text-sm font-bold hover:bg-violet-50"><i data-lucide="menu" class="w-4 h-4"></i> Menu</button>
+    </div>
+
+    <div id="tab-dashboard" class="tab-panel hidden p-4 sm:p-5">
 
   <section class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
     <div class="card bg-white rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Total Unit</div><div id="sum-unit" class="text-2xl font-black mt-2">0</div></div>
@@ -38,26 +90,13 @@
     <div class="card bg-white rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Warga Aktif</div><div id="sum-warga" class="text-2xl font-black text-violet-700 mt-2">0</div></div>
     <div class="card bg-white rounded-2xl border border-violet-100 p-4 col-span-2 lg:col-span-1"><div class="text-[11px] font-bold uppercase text-slate-400">Kontrak Aktif</div><div id="sum-kontrak" class="text-2xl font-black text-fuchsia-700 mt-2">0</div></div>
   </section>
-
-  <section class="card bg-white rounded-2xl border border-violet-100 overflow-hidden">
-    <div class="p-3 border-b border-violet-100 flex gap-2 overflow-x-auto scrollbar-thin">
-      <button class="tab-btn active px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap" onclick="gantiTab('dashboard',this)">Ringkasan</button>
-      <button class="tab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="gantiTab('input',this)">Input Iuran</button>
-      <button class="tab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="gantiTab('kas',this)">Pembukuan Kas</button>
-      <button class="tab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="gantiTab('riwayat',this)">Riwayat Pembayaran</button>
-      <button class="tab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="gantiTab('rumah',this)">Data Rumah</button>
-      <button class="tab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="gantiTab('warga',this)">Data Warga</button>
-      <button class="tab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="gantiTab('config',this)">Tarif & Aturan</button>
-    </div>
-
-    <div id="tab-dashboard" class="tab-panel p-4 sm:p-5">
       <div class="grid lg:grid-cols-2 gap-4">
         <div class="rounded-2xl border border-violet-100 p-4"><div class="flex justify-between mb-3"><h2 class="font-black">Ringkasan Hunian</h2><i data-lucide="house" class="w-5 h-5 text-violet-600"></i></div><div id="ringkasan-hunian" class="space-y-2 text-sm text-slate-600">Memuat...</div></div>
         <div class="rounded-2xl border border-violet-100 p-4"><div class="flex justify-between mb-3"><h2 class="font-black">Tarif Aktif</h2><i data-lucide="wallet-cards" class="w-5 h-5 text-violet-600"></i></div><div id="ringkasan-tarif" class="grid grid-cols-2 gap-3">Memuat...</div></div>
       </div>
     </div>
 
-    <div id="tab-input" class="tab-panel hidden p-4 sm:p-5">
+    <div id="tab-input" class="tab-panel p-4 sm:p-5">
       <div class="max-w-3xl mx-auto">
         <div class="mb-5"><h2 class="font-black text-xl text-violet-950">Input Iuran Warga</h2><p class="text-sm text-slate-500 mt-1">Pilih warga dan periode. Nominal dihitung otomatis dari tarif dan kondisi warga.</p></div>
         <form id="form-iuran" onsubmit="simpanIuran(event)" class="space-y-4">
@@ -148,18 +187,18 @@
         </div>
       </div>
 
-      <div class="mt-7">
-        <div class="font-black text-violet-950 mb-3">Riwayat Batch</div>
-        <div class="overflow-x-auto rounded-xl border border-violet-100 scrollbar-thin">
-          <table class="min-w-[760px] w-full text-sm">
-            <thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-left">Tanggal</th><th class="p-3 text-left">ID Batch</th><th class="p-3 text-left">Keterangan</th><th class="p-3 text-center">Jumlah</th><th class="p-3 text-right">Nominal</th><th class="p-3 text-right">Aksi</th></tr></thead>
-            <tbody id="kas-tbody-batch" class="divide-y divide-violet-50"><tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada data.</td></tr></tbody>
-          </table>
-        </div>
-      </div>
     </div>
 
     <div id="tab-riwayat" class="tab-panel hidden p-4 sm:p-5">
+      <div class="mb-5">
+        <div class="flex gap-2 overflow-x-auto scrollbar-thin">
+          <button id="history-btn-iuran" class="history-btn active px-4 py-2 rounded-xl border border-violet-200 text-sm font-bold whitespace-nowrap" onclick="pilihRiwayat('iuran')">Riwayat Iuran</button>
+          <button id="history-btn-batch" class="history-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihRiwayat('batch')">Riwayat Batch Kas</button>
+        </div>
+      </div>
+
+      <div id="history-iuran-panel">
+
       <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-3 mb-4">
         <div>
           <h2 class="font-black text-xl text-violet-950">Riwayat Pembayaran</h2>
@@ -193,6 +232,28 @@
       </div>
       <div class="mt-3 flex justify-center">
         <button id="btn-riwayat-more" onclick="toggleRiwayatSemua()" class="hidden px-4 py-2 rounded-xl border border-violet-200 text-violet-700 bg-white hover:bg-violet-50 text-sm font-bold">Lihat semua</button>
+      </div>
+      </div>
+
+      <div id="history-batch-panel" class="hidden">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-4">
+          <div><h2 class="font-black text-xl text-violet-950">Riwayat Batch Kas</h2><p class="text-sm text-slate-500 mt-1">Histori pengelompokan Kas Lorong yang sudah dibukukan.</p></div>
+          <div class="flex gap-2">
+            <select id="hist-batch-bulan" class="field !w-auto min-w-[140px]"></select>
+            <input id="hist-batch-tahun" type="number" min="2020" max="2100" class="field !w-28">
+            <button onclick="muatRiwayatBatch()" class="px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold">Muat</button>
+          </div>
+        </div>
+
+      <div class="">
+        
+        <div class="overflow-x-auto rounded-xl border border-violet-100 scrollbar-thin">
+          <table class="min-w-[760px] w-full text-sm">
+            <thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-left">Tanggal</th><th class="p-3 text-left">ID Batch</th><th class="p-3 text-left">Keterangan</th><th class="p-3 text-center">Jumlah</th><th class="p-3 text-right">Nominal</th><th class="p-3 text-right">Aksi</th></tr></thead>
+            <tbody id="kas-tbody-batch" class="divide-y divide-violet-50"><tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada data.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
       </div>
     </div>
 
@@ -366,10 +427,62 @@ async function buatBatchKas(){
 }
 async function batalkanBatchKas(id){if(!confirm(`Batalkan batch ${id}?\n\nTransaksi akan kembali ke status BELUM.`))return;try{kasMsg('Membatalkan batch...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkanbatchkas',idBatch:id,alasan:'Dibatalkan dari web',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan batch.');kasMsg(r.message||'Batch dibatalkan.','success');await loadPembukuanKas();await loadRiwayat(true)}catch(e){kasMsg(e.message||String(e),'error')}}
 
+
+function bukaMenu(){const d=document.getElementById('side-drawer');d.classList.add('open');d.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';lucide.createIcons()}
+function tutupMenu(){const d=document.getElementById('side-drawer');d.classList.remove('open');d.setAttribute('aria-hidden','true');document.body.style.overflow=''}
+
+function pilihMenu(n){
+  const meta={
+    input:['Input Iuran Warga','Pencatatan pembayaran iuran warga.'],
+    kas:['Pembukuan Kas','Kelompokkan Kas Lorong yang diterima ke dalam batch pembukuan.'],
+    riwayat:['Riwayat & Histori','Riwayat transaksi dan batch pembukuan.'],
+    dashboard:['Ringkasan Data','Ringkasan master hunian dan tarif sebagai data acuan.'],
+    rumah:['Data Rumah','Data unit rumah sebagai acuan administrasi.'],
+    warga:['Data Warga','Data warga aktif dan kondisi iurannya.'],
+    config:['Tarif & Aturan','Tarif dan aturan yang menjadi acuan perhitungan.']
+  };
+  document.querySelectorAll('.tab-panel').forEach(x=>x.classList.add('hidden'));
+  const panel=document.getElementById('tab-'+n);if(panel)panel.classList.remove('hidden');
+  document.querySelectorAll('.drawer-item').forEach(x=>x.classList.remove('active'));
+  document.querySelector(`[data-menu-target="${n}"]`)?.classList.add('active');
+  document.querySelectorAll('.process-btn').forEach(x=>x.classList.remove('active'));
+  document.querySelector(`[data-process-target="${n}"]`)?.classList.add('active');
+  document.getElementById('page-title').textContent=meta[n]?.[0]||'Pembukuan Flamboyan 4';
+  document.getElementById('page-subtitle').textContent=meta[n]?.[1]||'';
+  if(n==='riwayat'){loadRiwayat(true);pilihRiwayat('iuran')}
+  if(n==='kas'){if(!KAS_LOADED)loadPembukuanKas();else renderPembukuanKas()}
+  tutupMenu();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function pilihRiwayat(type){
+  document.getElementById('history-iuran-panel')?.classList.toggle('hidden',type!=='iuran');
+  document.getElementById('history-batch-panel')?.classList.toggle('hidden',type!=='batch');
+  document.querySelectorAll('.history-btn').forEach(x=>x.classList.remove('active'));
+  document.getElementById('history-btn-'+type)?.classList.add('active');
+  if(type==='iuran')loadRiwayat(true);
+  if(type==='batch')muatRiwayatBatch();
+}
+
+function initHistoryBatchFilters(){
+  const now=new Date();const opts=BULAN.slice(1).map((b,i)=>`<option value="${i+1}">${b}</option>`).join('');
+  const m=document.getElementById('hist-batch-bulan'),y=document.getElementById('hist-batch-tahun');
+  if(m){m.innerHTML=opts;m.value=now.getMonth()+1}if(y)y.value=now.getFullYear();
+}
+
+async function muatRiwayatBatch(){
+  const m=document.getElementById('hist-batch-bulan'),y=document.getElementById('hist-batch-tahun');
+  if(!m||!y)return;
+  const kasM=document.getElementById('kas-bulan-iuran'),kasY=document.getElementById('kas-tahun-iuran');
+  if(kasM)kasM.value=m.value;if(kasY)kasY.value=y.value;
+  await loadPembukuanKas();
+  renderPembukuanKas();
+}
+
 function renderRumah(){const q=(document.getElementById('cari-rumah')?.value||'').toLowerCase();const a=DATA.rumah.filter(r=>[r.blok,r.noRumah,r.namaPemilik,r.statusRumah,r.tipeUnit,r.keterangan].join(' ').toLowerCase().includes(q));document.getElementById('tbody-rumah').innerHTML=a.map(r=>`<tr class="hover:bg-violet-50/40"><td class="p-3 text-center text-slate-400">${r.noUrut||'-'}</td><td class="p-3 font-bold">${r.blok||'-'}</td><td class="p-3 font-bold">${r.noRumah||'-'}</td><td class="p-3">${r.statusRumah||'-'}</td><td class="p-3">${r.tipeUnit||'-'}</td><td class="p-3">${r.namaPemilik||'-'}</td><td class="p-3 text-slate-500">${r.keterangan||'-'}</td></tr>`).join('')||'<tr><td colspan="7" class="p-5 text-center text-slate-400">Tidak ada data.</td></tr>'}
 function renderWarga(){const q=(document.getElementById('cari-warga')?.value||'').toLowerCase();const a=DATA.warga.filter(r=>[r.nama,r.blok,r.noRumah,r.statusTinggal,r.keterangan].join(' ').toLowerCase().includes(q));document.getElementById('tbody-warga').innerHTML=a.map(r=>`<tr class="hover:bg-violet-50/40"><td class="p-3 text-center text-slate-400">${r.noUrutRumah||'-'}</td><td class="p-3 font-bold">${r.nama||'-'}</td><td class="p-3">${r.blok}/${r.noRumah}</td><td class="p-3">${r.statusTinggal||'-'}</td><td class="p-3 text-center">${r.statusAktif||'-'}</td><td class="p-3 text-center font-bold">${r.qtyIuranBulanan||0}x</td><td class="p-3 text-center font-bold">${r.qtyKebersihan||0}x</td><td class="p-3 text-center font-bold">${r.qtyKasLorong||0}x</td><td class="p-3 text-center font-bold">${r.qtyArisan||0}x</td><td class="p-3 text-slate-500">${r.keterangan||'-'}</td></tr>`).join('')||'<tr><td colspan="10" class="p-5 text-center text-slate-400">Tidak ada data.</td></tr>'}
 function renderConfig(){const m={TARIF_BULANAN:'Tarif Iuran Bulanan',TARIF_KEBERSIHAN:'Tarif Kebersihan',TARIF_KAS_LORONG:'Tarif Kas Lorong',TARIF_ARISAN:'Tarif Arisan',TANGGAL_SETOR_RT:'Tanggal Setor RT',BATAS_PERIODE_KAS:'Batas Periode Kas'};document.getElementById('config-list').innerHTML=Object.entries(DATA.config).map(([k,v])=>`<div class="rounded-xl border border-violet-100 bg-white p-4"><div class="text-[11px] font-bold text-slate-400 uppercase">${m[k]||k}</div><div class="mt-1 font-black text-lg text-violet-950">${k.startsWith('TARIF_')?rupiah(v):v}</div></div>`).join('')}
-function gantiTab(n,b){document.querySelectorAll('.tab-panel').forEach(x=>x.classList.add('hidden'));document.getElementById('tab-'+n).classList.remove('hidden');document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(n==='riwayat')loadRiwayat(true);if(n==='kas'){if(!KAS_LOADED)loadPembukuanKas();else renderPembukuanKas()}}
-document.addEventListener('DOMContentLoaded',()=>{lucide.createIcons();initKasUi();muatUlang()});
+function gantiTab(n,b){pilihMenu(n)}
+document.addEventListener('DOMContentLoaded',()=>{lucide.createIcons();initKasUi();initHistoryBatchFilters();pilihMenu('input');muatUlang()});
 </script>
 </body></html>
