@@ -168,6 +168,80 @@
   #report-pinjaman-panel th,#report-pinjaman-panel td,#report-talangan-panel th,#report-talangan-panel td{padding:6px 7px!important;line-height:1.2!important}
   @page{size:A4 portrait;margin:10mm}
 }
+
+
+  /* v6.15 - optimasi desktop, tabel mobile, dan custom dropdown */
+  @media (min-width:1024px){
+    #tab-input .desktop-compact-form>*,#tab-transaksi .desktop-compact-form>*,#tab-talangan .desktop-compact-form>*{min-width:0}
+    #tab-input .desktop-compact-form>div:nth-child(1){grid-column:span 6}
+    #tab-input .desktop-compact-form>div:nth-child(2){grid-column:span 6}
+    #tab-input .desktop-compact-form>div:nth-child(3){grid-column:span 6}
+    #tab-input .desktop-compact-form>div:nth-child(4){grid-column:7 / span 6;grid-row:1 / span 3}
+    #tab-input .desktop-compact-form>div:nth-child(5){grid-column:span 6}
+    #tab-input .desktop-compact-form>div:nth-child(6){grid-column:span 6}
+    #tab-input .desktop-compact-form>button{grid-column:span 6;align-self:end}
+    #tab-input #preview-detail .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+
+    #tab-transaksi .desktop-compact-form>div:nth-child(1){grid-column:span 4}
+    #tab-transaksi .desktop-compact-form>div:nth-child(2){grid-column:span 4}
+    #tab-transaksi .desktop-compact-form>div:nth-child(3){grid-column:span 4}
+    #tab-transaksi .desktop-compact-form>div:nth-child(4){grid-column:span 6}
+    #tab-transaksi .desktop-compact-form>div:nth-child(5){grid-column:span 6}
+    #tab-transaksi .desktop-compact-form>div:nth-child(6){grid-column:span 6}
+    #tab-transaksi .desktop-compact-form>div:nth-child(7){grid-column:span 6}
+    #tab-transaksi .desktop-compact-form>button{grid-column:span 6}
+
+    #tab-talangan .desktop-compact-form>div:nth-child(1){grid-column:span 5}
+    #tab-talangan .desktop-compact-form>div:nth-child(2){grid-column:span 7}
+    #tab-talangan .desktop-compact-form>div:nth-child(3){grid-column:span 5}
+    #tab-talangan .desktop-compact-form>div:nth-child(4){grid-column:6 / span 7;grid-row:2 / span 2}
+    #tab-talangan .desktop-compact-form>div:nth-child(5){grid-column:span 5}
+    #tab-talangan .desktop-compact-form>div:nth-child(6){grid-column:span 7}
+    #tab-talangan .desktop-compact-form>button{grid-column:span 5}
+  }
+
+  /* horizontal table scrolling remains usable, but scrollbar is visually hidden */
+  .kas-scroll,.history-scroll,.loan-scroll,.report-table-wrap{scrollbar-width:none!important;-ms-overflow-style:none!important}
+  .kas-scroll::-webkit-scrollbar,.history-scroll::-webkit-scrollbar,.loan-scroll::-webkit-scrollbar,.report-table-wrap::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
+  @media(max-width:640px){
+    #tab-kas .kas-scroll table{min-width:590px!important}
+    #tab-pinjaman .loan-scroll table{min-width:690px!important}
+    #tab-riwayat .history-scroll table{min-width:620px!important}
+    #history-batch-panel table{min-width:650px!important}
+    .kas-scroll th,.kas-scroll td,.history-scroll th,.history-scroll td,.loan-scroll th,.loan-scroll td,.report-table-wrap th,.report-table-wrap td{padding:.55rem .6rem!important;white-space:nowrap}
+    .kas-scroll table,.history-scroll table,.loan-scroll table,.report-table-wrap table{font-size:.82rem!important}
+    #tab-kas .kas-scroll th:first-child,#tab-kas .kas-scroll td:first-child{padding-left:.55rem!important}
+  }
+
+  /* Custom select replaces Android/iOS native full-screen picker */
+  .select-enhanced{position:absolute!important;opacity:0!important;pointer-events:none!important;width:1px!important;height:1px!important;padding:0!important;margin:0!important}
+  .custom-select-wrap{position:relative;width:100%;margin-top:.25rem}
+  .custom-select-btn{width:100%;min-height:46px;border:1px solid #ddd6fe;background:#fff;border-radius:12px;padding:.68rem .8rem;display:flex;align-items:center;justify-content:space-between;gap:.65rem;text-align:left;color:#1e293b}
+  .custom-select-btn:focus-visible{outline:none;box-shadow:0 0 0 3px #ede9fe;border-color:#8b5cf6}
+  .custom-select-btn .cs-value{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .custom-select-btn .cs-arrow{flex:0 0 auto;color:#7c3aed;transition:transform .16s}
+  .custom-select-wrap.open .cs-arrow{transform:rotate(180deg)}
+  .custom-select-panel{position:absolute;z-index:80;left:0;right:0;top:calc(100% + 6px);background:#fff;border:1px solid #ddd6fe;border-radius:14px;box-shadow:0 18px 45px rgba(46,16,101,.16);overflow:hidden;display:none}
+  .custom-select-wrap.open .custom-select-panel{display:block}
+  .cs-search-wrap{padding:.65rem;border-bottom:1px solid #f1f5f9;background:#fafaff}
+  .cs-search{width:100%;border:1px solid #ddd6fe;border-radius:10px;padding:.62rem .72rem;outline:none}
+  .cs-search:focus{border-color:#8b5cf6;box-shadow:0 0 0 2px #ede9fe}
+  .cs-list{max-height:290px;overflow:auto;scrollbar-width:none}
+  .cs-list::-webkit-scrollbar{display:none}
+  .cs-option{width:100%;display:flex;align-items:center;gap:.7rem;padding:.7rem .8rem;border-bottom:1px solid #f1f5f9;text-align:left;background:#fff}
+  .cs-option:last-child{border-bottom:0}.cs-option:hover,.cs-option.active{background:#f5f3ff}.cs-option.selected{background:#ede9fe;color:#5b21b6;font-weight:800}
+  .cs-option .cs-check{margin-left:auto;color:#7c3aed;opacity:0}.cs-option.selected .cs-check{opacity:1}
+  .cs-resident-head,.cs-resident-row{display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:.75rem;align-items:center;width:100%}
+  .cs-resident-head{padding:.45rem .8rem;font-size:.68rem;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;background:#fafaff;border-bottom:1px solid #f1f5f9}
+  .cs-resident-row .cs-name{min-width:0;white-space:normal;line-height:1.25}.cs-resident-row .cs-house{text-align:right;color:#64748b;font-weight:800;white-space:nowrap}
+  .cs-empty{padding:1rem;text-align:center;color:#94a3b8;font-size:.85rem}
+  @media(max-width:640px){
+    .custom-select-panel{position:fixed;z-index:110;left:12px;right:12px;top:auto;bottom:12px;border-radius:18px;max-height:72vh;box-shadow:0 20px 70px rgba(15,23,42,.28)}
+    .custom-select-wrap.open:before{content:"";position:fixed;z-index:109;inset:0;background:rgba(15,23,42,.28)}
+    .cs-list{max-height:56vh}.cs-option{padding:.72rem .85rem}.cs-resident-head,.cs-resident-row{grid-template-columns:minmax(0,1fr) 82px}
+    .custom-select-btn{min-height:44px;padding:.62rem .72rem}
+  }
+
 </style>
   <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8">
 </head>
@@ -243,9 +317,9 @@
     </div>
 
     <div id="tab-input" class="tab-panel p-4 sm:p-5">
-      <div class="max-w-3xl mx-auto">
+      <div class="max-w-6xl mx-auto">
         <div class="mb-5"><h2 class="font-black text-xl text-violet-950">Input Iuran Warga</h2><p class="text-sm text-slate-500 mt-1">Pilih warga dan periode. Nominal dihitung otomatis dari tarif dan kondisi warga.</p></div>
-        <form id="form-iuran" onsubmit="simpanIuran(event)" class="space-y-4">
+        <form id="form-iuran" onsubmit="simpanIuran(event)" class="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-12 lg:gap-4 desktop-compact-form">
           <div><label class="text-sm font-bold">Nama Warga</label><select id="inp-warga" class="field mt-1" onchange="updatePreview()"><option value="">Pilih warga...</option></select></div>
           <div class="grid sm:grid-cols-2 gap-4">
             <div><label class="text-sm font-bold">Tanggal Bayar</label><input id="inp-tanggal" type="date" class="field mt-1" required></div>
@@ -281,13 +355,13 @@
 
 
     <div id="tab-transaksi" class="tab-panel hidden p-4 sm:p-5">
-      <div class="max-w-3xl mx-auto">
+      <div class="max-w-6xl mx-auto">
         <div class="mb-5">
           <h2 class="font-black text-xl text-violet-950">Input Pemasukan / Pengeluaran</h2>
           <p class="text-sm text-slate-500 mt-1">Untuk transaksi kas selain Kas Lorong dari iuran warga.</p>
         </div>
 
-        <form id="form-transaksi-kas" onsubmit="simpanTransaksiKas(event)" class="space-y-4">
+        <form id="form-transaksi-kas" onsubmit="simpanTransaksiKas(event)" class="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-12 lg:gap-4 desktop-compact-form">
           <div>
             <label class="text-sm font-bold">Jenis Transaksi</label>
             <div class="grid grid-cols-2 gap-2 mt-1">
@@ -423,9 +497,9 @@
     </div>
 
     <div id="tab-talangan" class="tab-panel hidden p-4 sm:p-5">
-      <div class="max-w-3xl mx-auto">
+      <div class="max-w-6xl mx-auto">
         <div class="mb-5"><h2 class="font-black text-xl text-violet-950">Talangan Iuran Warga</h2><p class="text-sm text-slate-500 mt-1">Kas menalangi Iuran Bulanan + Kebersihan. Talangan ditahan dari pembukuan selama 14 hari setelah tanggal setor RT. Jika warga membayar sebelum batas itu, talangan selesai tanpa muncul sebagai pengeluaran kas.</p></div>
-        <form id="form-talangan" onsubmit="simpanTalangan(event)" class="space-y-4">
+        <form id="form-talangan" onsubmit="simpanTalangan(event)" class="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-12 lg:gap-4 desktop-compact-form">
           <div><label class="text-sm font-bold">Nama Warga</label><select id="tal-warga" class="field mt-1" onchange="previewTalangan()"><option value="">Pilih warga...</option></select></div>
           <div class="grid sm:grid-cols-2 gap-4"><div><label class="text-sm font-bold">Tanggal Talangan</label><input id="tal-tanggal" type="date" class="field mt-1" required></div><div><label class="text-sm font-bold">Sumber Dana</label><input value="Cash (Kas Warga)" class="field mt-1 bg-slate-50" readonly></div></div>
           <div class="grid sm:grid-cols-2 gap-4"><div><label class="text-sm font-bold">Bulan</label><select id="tal-bulan" class="field mt-1" onchange="previewTalangan()"></select></div><div><label class="text-sm font-bold">Tahun</label><input id="tal-tahun" type="number" min="2020" max="2100" class="field mt-1" onchange="previewTalangan()"></div></div>
@@ -438,7 +512,7 @@
     </div>
 
     <div id="tab-denda" class="tab-panel hidden p-4 sm:p-5">
-      <div class="max-w-4xl mx-auto">
+      <div class="max-w-6xl mx-auto">
         <div class="mb-5"><h2 class="font-black text-xl text-violet-950">Denda Gorol</h2><p class="text-sm text-slate-500 mt-1">Catat warga yang terkena denda kerja bakti/gorol. Pembayaran denda otomatis masuk sebagai pemasukan Kas Warga.</p></div>
         <div class="grid grid-cols-2 gap-2 mb-5">
           <button id="btn-denda-catat" onclick="setModeDenda('catat')" class="denda-mode-btn active rounded-xl border border-violet-200 bg-violet-600 text-white font-black py-3">Catat Denda</button>
@@ -1338,4 +1412,57 @@ function renderConfig(){const m={TARIF_BULANAN:'Tarif Iuran Bulanan',TARIF_KEBER
 function gantiTab(n,b){pilihMenu(n)}
 document.addEventListener('DOMContentLoaded',()=>{lucide.createIcons();initKasUi();initTransaksiKasUi();initHistoryBatchFilters();pilihMenu('input');muatUlang()});
 </script>
+
+<script>
+(function(){
+  const RESIDENT_IDS=new Set(['inp-warga','edit-warga','loan-warga','tal-warga','denda-warga']);
+  const STATE=new WeakMap();
+  function getResidentMeta(value){
+    const w=(window.DATA&&Array.isArray(DATA.warga))?DATA.warga.find(x=>String(x.idWarga)===String(value)):null;
+    return w?{name:w.nama||'',house:[w.blok,w.noRumah].filter(Boolean).join('/')}:null;
+  }
+  function closeAll(except){document.querySelectorAll('.custom-select-wrap.open').forEach(w=>{if(w!==except)w.classList.remove('open')})}
+  function buildOption(select,opt,isResident){
+    const btn=document.createElement('button');btn.type='button';btn.className='cs-option'+(String(select.value)===String(opt.value)?' selected':'');btn.dataset.value=opt.value;
+    if(isResident && opt.value){
+      const meta=getResidentMeta(opt.value);const row=document.createElement('span');row.className='cs-resident-row';
+      const n=document.createElement('span');n.className='cs-name';n.textContent=meta?.name||opt.textContent;
+      const h=document.createElement('span');h.className='cs-house';h.textContent=meta?.house||'';row.append(n,h);btn.append(row);
+    } else { const t=document.createElement('span');t.className='min-w-0';t.textContent=opt.textContent;btn.append(t); }
+    const ck=document.createElement('span');ck.className='cs-check';ck.textContent='✓';btn.append(ck);
+    btn.addEventListener('click',()=>{select.value=opt.value;select.dispatchEvent(new Event('change',{bubbles:true}));refresh(select);const st=STATE.get(select);st?.wrap.classList.remove('open')});
+    return btn;
+  }
+  function refresh(select){
+    const st=STATE.get(select);if(!st)return;
+    const isResident=RESIDENT_IDS.has(select.id);const selected=select.options[select.selectedIndex];
+    if(isResident && selected?.value){const m=getResidentMeta(selected.value);st.value.textContent=m?`${m.name}  •  ${m.house}`:selected.textContent}else st.value.textContent=selected?.textContent||'Pilih...';
+    const q=(st.search?.value||'').trim().toLowerCase();st.list.innerHTML='';
+    const opts=[...select.options].filter(o=>!o.disabled).filter(o=>!q || o.textContent.toLowerCase().includes(q) || (isResident&&getResidentMeta(o.value)&&(`${getResidentMeta(o.value).name} ${getResidentMeta(o.value).house}`).toLowerCase().includes(q)));
+    if(isResident){const head=document.createElement('div');head.className='cs-resident-head';head.innerHTML='<span>Nama Warga</span><span style="text-align:right">Blok/No</span>';st.list.append(head)}
+    if(!opts.length){const e=document.createElement('div');e.className='cs-empty';e.textContent='Tidak ada pilihan.';st.list.append(e);return}
+    opts.forEach(o=>st.list.append(buildOption(select,o,isResident)));
+  }
+  function enhance(select){
+    if(STATE.has(select)||select.dataset.noCustom==='1')return;
+    const wrap=document.createElement('div');wrap.className='custom-select-wrap';
+    const btn=document.createElement('button');btn.type='button';btn.className='custom-select-btn';btn.innerHTML='<span class="cs-value"></span><span class="cs-arrow">⌄</span>';
+    const panel=document.createElement('div');panel.className='custom-select-panel';
+    const isResident=RESIDENT_IDS.has(select.id);let search=null;
+    if(isResident || select.options.length>8){const sw=document.createElement('div');sw.className='cs-search-wrap';search=document.createElement('input');search.type='search';search.className='cs-search';search.placeholder=isResident?'Cari nama / blok rumah...':'Cari pilihan...';sw.append(search);panel.append(sw)}
+    const list=document.createElement('div');list.className='cs-list';panel.append(list);
+    select.parentNode.insertBefore(wrap,select);wrap.append(select,btn,panel);select.classList.add('select-enhanced');
+    STATE.set(select,{wrap,btn,panel,list,search,value:btn.querySelector('.cs-value')});
+    btn.addEventListener('click',()=>{const will=!wrap.classList.contains('open');closeAll(wrap);wrap.classList.toggle('open',will);if(will){refresh(select);setTimeout(()=>search?.focus(),40)}});
+    search?.addEventListener('input',()=>refresh(select));
+    select.addEventListener('change',()=>refresh(select));
+    const mo=new MutationObserver(()=>refresh(select));mo.observe(select,{childList:true,subtree:true,characterData:true});
+    refresh(select);
+  }
+  function init(){document.querySelectorAll('select.field').forEach(enhance);document.addEventListener('click',e=>{if(!e.target.closest('.custom-select-wrap'))closeAll()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAll()});}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+  window.refreshAllCustomSelects=()=>document.querySelectorAll('select.field').forEach(s=>STATE.has(s)?refresh(s):enhance(s));
+})();
+</script>
+
 </body></html>
