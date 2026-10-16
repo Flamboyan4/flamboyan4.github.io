@@ -22,6 +22,29 @@
   .side-drawer.open .drawer-panel{transform:translateX(0)}
   .drawer-item.active{background:#7c3aed;color:#fff;border-color:#7c3aed}
   .process-btn.active,.history-btn.active{background:#7c3aed;color:#fff;border-color:#7c3aed}
+
+  /* Pembukuan Kas - responsive mobile */
+  #tab-kas{min-width:0;max-width:100%;overflow-x:hidden}
+  #tab-kas .kas-layout>*{min-width:0}
+  #tab-kas .kas-scroll{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-inline:contain;touch-action:pan-x pan-y}
+  #tab-kas .kas-scroll table{width:max-content;min-width:760px}
+  #tab-kas .kas-batch-card{min-width:0;width:100%;max-width:100%}
+  @media (max-width:640px){
+    #tab-kas{padding:1rem}
+    #tab-kas .kas-period-controls{display:grid;grid-template-columns:minmax(0,1fr) 105px;gap:.5rem;width:100%}
+    #tab-kas .kas-period-controls .field{min-width:0!important;width:100%!important}
+    #tab-kas .kas-period-controls button{grid-column:1/-1;width:100%}
+    #tab-kas .kas-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+    #tab-kas .kas-summary>div{min-width:0;padding:.8rem}
+    #tab-kas .kas-summary .text-2xl{font-size:1.2rem;line-height:1.5rem}
+    #tab-kas .kas-layout{display:block}
+    #tab-kas .kas-batch-card{margin-top:1.25rem;padding:1rem}
+    #tab-kas .kas-batch-card .grid.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    #tab-kas .kas-book-period{grid-template-columns:minmax(0,1fr) 105px!important}
+    #tab-kas .kas-book-period>*{min-width:0}
+    #tab-kas .kas-scroll{margin-right:0}
+    #tab-kas .kas-scroll::-webkit-scrollbar{height:6px}
+  }
 </style>
   <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8">
 </head>
@@ -133,13 +156,13 @@
 
 
 
-    <div id="tab-kas" class="tab-panel hidden p-4 sm:p-5">
+    <div id="tab-kas" class="tab-panel hidden p-4 sm:p-5 min-w-0">
       <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-3 mb-5">
         <div>
           <h2 class="font-black text-xl text-violet-950">Pembukuan Kas Lorong</h2>
           <p class="text-sm text-slate-500 mt-1">Kelompokkan Kas Lorong yang sudah diterima menjadi satu batch pembukuan.</p>
         </div>
-        <div class="flex flex-wrap gap-2">
+        <div class="kas-period-controls flex flex-wrap gap-2 min-w-0">
           <select id="kas-bulan-iuran" class="field !w-auto min-w-[145px]"></select>
           <input id="kas-tahun-iuran" type="number" min="2020" max="2100" class="field !w-28">
           <button type="button" onclick="loadPembukuanKas()" class="px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold">Muat</button>
@@ -148,20 +171,20 @@
 
       <div id="kas-status" class="hidden mb-4 rounded-xl border px-4 py-3 text-sm"></div>
 
-      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+      <div class="kas-summary grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         <div class="rounded-xl border border-violet-100 bg-violet-50/50 p-4"><div class="text-[10px] font-bold text-slate-400">BELUM DIBUKUKAN</div><div id="kas-count-belum" class="text-2xl font-black text-violet-700 mt-1">0</div></div>
         <div class="rounded-xl border border-violet-100 bg-violet-50/50 p-4"><div class="text-[10px] font-bold text-slate-400">NOMINAL BELUM</div><div id="kas-nominal-belum" class="text-2xl font-black text-violet-700 mt-1">Rp 0</div></div>
         <div class="rounded-xl border border-slate-200 bg-slate-50 p-4"><div class="text-[10px] font-bold text-slate-400">SUDAH DIBUKUKAN</div><div id="kas-count-sudah" class="text-2xl font-black mt-1">0</div></div>
         <div class="rounded-xl border border-slate-200 bg-slate-50 p-4"><div class="text-[10px] font-bold text-slate-400">NOMINAL SUDAH</div><div id="kas-nominal-sudah" class="text-2xl font-black mt-1">Rp 0</div></div>
       </div>
 
-      <div class="grid xl:grid-cols-[1.55fr_.85fr] gap-5">
-        <div>
+      <div class="kas-layout grid xl:grid-cols-[1.55fr_.85fr] gap-5 min-w-0">
+        <div class="min-w-0">
           <div class="flex items-center justify-between gap-3 mb-3">
             <div><div class="font-black text-violet-950">Transaksi Belum Dibukukan</div><div class="text-xs text-slate-500 mt-0.5">Centang Kas Lorong yang ingin dimasukkan dalam batch.</div></div>
             <button type="button" onclick="pilihSemuaKas()" class="text-sm font-bold text-violet-700">Pilih semua</button>
           </div>
-          <div class="overflow-x-auto rounded-xl border border-violet-100 scrollbar-thin">
+          <div class="kas-scroll overflow-x-auto rounded-xl border border-violet-100 scrollbar-thin">
             <table class="min-w-[760px] w-full text-sm">
               <thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 w-12"></th><th class="p-3 text-left">Warga</th><th class="p-3 text-left">Tanggal Bayar</th><th class="p-3 text-center">Qty Kas</th><th class="p-3 text-right">Nominal</th><th class="p-3 text-left">Metode</th></tr></thead>
               <tbody id="kas-tbody-belum" class="divide-y divide-violet-50"><tr><td colspan="6" class="p-6 text-center text-slate-400">Buka menu ini untuk memuat data.</td></tr></tbody>
@@ -169,7 +192,7 @@
           </div>
         </div>
 
-        <div class="rounded-2xl border border-violet-100 bg-violet-50/45 p-4 h-fit">
+        <div class="kas-batch-card rounded-2xl border border-violet-100 bg-violet-50/45 p-4 h-fit">
           <div class="font-black text-violet-950 mb-4">Buat Batch Pembukuan</div>
           <div class="grid grid-cols-2 gap-3 mb-4">
             <div class="bg-white rounded-xl border border-violet-100 p-3"><div class="text-[10px] font-bold text-slate-400">TERPILIH</div><div id="kas-terpilih-count" class="text-lg font-black mt-1">0</div></div>
@@ -177,7 +200,7 @@
           </div>
           <div class="space-y-3">
             <div><label class="text-sm font-bold">Tanggal Pembukuan</label><input id="kas-tanggal-buku" type="date" class="field mt-1"></div>
-            <div class="grid grid-cols-2 gap-3">
+            <div class="kas-book-period grid grid-cols-2 gap-3">
               <div><label class="text-sm font-bold">Bulan Buku</label><select id="kas-bulan-buku" class="field mt-1"></select></div>
               <div><label class="text-sm font-bold">Tahun Buku</label><input id="kas-tahun-buku" type="number" min="2020" max="2100" class="field mt-1"></div>
             </div>
