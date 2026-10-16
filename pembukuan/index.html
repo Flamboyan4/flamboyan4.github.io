@@ -540,6 +540,69 @@
   }
 }
 </style>
+
+<style id="v6187-print-tahunan-compact">
+@media print{
+  /* Tutup Buku: pertahankan layout web yang ringkas, 5 kartu per baris */
+  #report-tahunan-panel .report-letterhead{margin-bottom:8px!important;padding-bottom:7px!important}
+  #report-tahunan-panel .report-letterhead img{width:44px!important;height:44px!important}
+  #report-tahunan-panel .report-letterhead .kop-name{font-size:14px!important}
+  #report-tahunan-panel .report-letterhead .kop-sub{font-size:9px!important}
+  #report-tahunan-panel>div.mb-4.text-center{margin-bottom:7px!important}
+  #report-tahunan-panel>div.mb-4.text-center h2{font-size:16px!important;line-height:1.05!important}
+  #report-tahunan-panel>div.mb-4.text-center p{font-size:9px!important;margin-top:2px!important}
+
+  #report-tahunan-panel>div.grid.grid-cols-2.lg\:grid-cols-5{
+    display:grid!important;
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    gap:5px!important;
+    margin-bottom:6px!important;
+  }
+  #report-tahunan-panel .report-card{
+    padding:6px 7px!important;
+    min-width:0!important;
+    border-radius:7px!important;
+    break-inside:avoid!important;
+  }
+  #report-tahunan-panel .report-card>div:first-child{
+    font-size:7.5px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+  }
+  #report-tahunan-panel .report-card>div[id]{
+    font-size:11.5px!important;
+    line-height:1.08!important;
+    margin-top:3px!important;
+    white-space:nowrap!important;
+  }
+
+  #report-tahunan-panel .report-table-wrap{
+    margin-top:7px!important;
+    border-radius:7px!important;
+    overflow:visible!important;
+  }
+  #report-tahunan-panel table{
+    width:100%!important;
+    min-width:0!important;
+    table-layout:fixed!important;
+    font-size:8.8px!important;
+  }
+  #report-tahunan-panel table th,#report-tahunan-panel table td{
+    padding:3px 4px!important;
+    line-height:1.08!important;
+    white-space:nowrap!important;
+  }
+  #report-tahunan-panel table th{font-size:8px!important}
+  #report-tahunan-panel table th:nth-child(1){width:14%!important}
+  #report-tahunan-panel table th:nth-child(2),
+  #report-tahunan-panel table th:nth-child(3),
+  #report-tahunan-panel table th:nth-child(4){width:15%!important}
+  #report-tahunan-panel table th:nth-child(5),
+  #report-tahunan-panel table th:nth-child(6),
+  #report-tahunan-panel table th:nth-child(7){width:13.67%!important}
+}
+</style>
+
 </head>
 <body>
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
