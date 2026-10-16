@@ -291,6 +291,137 @@
 
 </style>
   <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8">
+
+<style id="v6172-debit-credit-precise">
+/* Desktop Debit/Kredit: alur kiri -> kanan seperti contoh pengguna */
+@media (min-width:1024px){
+  #tab-transaksi .trx-layout{
+    display:grid!important;
+    grid-template-columns:repeat(12,minmax(0,1fr))!important;
+    grid-template-rows:auto auto auto auto!important;
+    gap:12px 12px!important;
+    align-items:end!important;
+  }
+  #tab-transaksi .trx-type{grid-column:1 / 5!important;grid-row:1!important}
+  #tab-transaksi .trx-date{grid-column:5 / 7!important;grid-row:1!important}
+  #tab-transaksi .trx-desc{grid-column:7 / 13!important;grid-row:1!important}
+
+  #tab-transaksi .trx-nominal{grid-column:1 / 3!important;grid-row:2!important}
+  #tab-transaksi .trx-method{grid-column:3 / 5!important;grid-row:2!important}
+  #tab-transaksi .trx-category{grid-column:5 / 7!important;grid-row:2!important}
+  #tab-transaksi .trx-note{grid-column:7 / 13!important;grid-row:2!important}
+
+  #tab-transaksi .trx-month{grid-column:1 / 4!important;grid-row:3!important}
+  #tab-transaksi .trx-year{grid-column:4 / 7!important;grid-row:3!important}
+  #tab-transaksi .trx-save{grid-column:7 / 13!important;grid-row:3!important;height:100%!important;min-height:48px!important}
+  #tab-transaksi .trx-status{grid-column:1 / 13!important;grid-row:4!important}
+
+  #tab-transaksi .field,
+  #tab-transaksi .kas-jenis-btn,
+  #tab-transaksi .trx-save{min-height:48px!important}
+  #tab-transaksi .trx-type>div{height:48px!important}
+  #tab-transaksi .trx-type .kas-jenis-btn{height:48px!important;padding-top:0!important;padding-bottom:0!important}
+  #tab-transaksi label{display:block!important;margin-bottom:4px!important;line-height:1.2!important}
+}
+</style>
+
+<style id="v6174-history-report-polish">
+/* Riwayat: desktop tables must fit the card instead of running off-screen. */
+@media screen and (min-width: 768px){
+  #tab-riwayat .history-scroll,
+  #tab-riwayat .loan-scroll,
+  #tab-riwayat .overflow-x-auto{overflow-x:hidden!important}
+  #tab-riwayat table{width:100%!important;min-width:0!important;table-layout:fixed!important;font-size:13px!important}
+  #tab-riwayat th,#tab-riwayat td{padding:9px 8px!important;white-space:normal!important;overflow-wrap:anywhere!important;vertical-align:middle!important;line-height:1.25!important}
+  #tab-riwayat th:last-child,#tab-riwayat td:last-child{text-align:center!important}
+  #tab-riwayat td:last-child>div{justify-content:center!important}
+  #tab-riwayat td .text-xs{font-size:11px!important;line-height:1.2!important}
+
+  /* Iuran */
+  #history-iuran-panel th:nth-child(1){width:12%} #history-iuran-panel th:nth-child(2){width:22%}
+  #history-iuran-panel th:nth-child(3){width:16%} #history-iuran-panel th:nth-child(4){width:12%}
+  #history-iuran-panel th:nth-child(5){width:10%} #history-iuran-panel th:nth-child(6){width:10%}
+  #history-iuran-panel th:nth-child(7){width:18%}
+
+  /* Kas */
+  #history-kasumum-panel th:nth-child(1){width:11%} #history-kasumum-panel th:nth-child(2){width:10%}
+  #history-kasumum-panel th:nth-child(3){width:12%} #history-kasumum-panel th:nth-child(4){width:25%}
+  #history-kasumum-panel th:nth-child(5){width:10%} #history-kasumum-panel th:nth-child(6){width:10%}
+  #history-kasumum-panel th:nth-child(7){width:8%} #history-kasumum-panel th:nth-child(8){width:7%}
+  #history-kasumum-panel th:nth-child(9){width:9%}
+
+  /* Pinjaman */
+  #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(1){width:11%}
+  #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(2){width:19%}
+  #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(3),
+  #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(4),
+  #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(5){width:10%}
+  #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(6){width:9%}
+  #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(7){width:20%}
+  #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(8){width:11%}
+  #history-pinjaman-panel .loan-scroll:last-of-type th:nth-child(1){width:12%}
+  #history-pinjaman-panel .loan-scroll:last-of-type th:nth-child(2){width:21%}
+  #history-pinjaman-panel .loan-scroll:last-of-type th:nth-child(3){width:18%}
+  #history-pinjaman-panel .loan-scroll:last-of-type th:nth-child(4){width:13%}
+  #history-pinjaman-panel .loan-scroll:last-of-type th:nth-child(5){width:11%}
+  #history-pinjaman-panel .loan-scroll:last-of-type th:nth-child(6){width:10%}
+  #history-pinjaman-panel .loan-scroll:last-of-type th:nth-child(7){width:15%}
+
+  /* Talangan */
+  #history-talangan-panel th:nth-child(1){width:11%} #history-talangan-panel th:nth-child(2){width:16%}
+  #history-talangan-panel th:nth-child(3){width:10%} #history-talangan-panel th:nth-child(4){width:9%}
+  #history-talangan-panel th:nth-child(5){width:9%} #history-talangan-panel th:nth-child(6){width:9%}
+  #history-talangan-panel th:nth-child(7){width:12%} #history-talangan-panel th:nth-child(8){width:15%}
+  #history-talangan-panel th:nth-child(9){width:9%}
+
+  /* Denda */
+  #history-denda-panel th:nth-child(1){width:12%} #history-denda-panel th:nth-child(2){width:18%}
+  #history-denda-panel th:nth-child(3){width:23%} #history-denda-panel th:nth-child(4){width:11%}
+  #history-denda-panel th:nth-child(5){width:10%} #history-denda-panel th:nth-child(6){width:16%}
+  #history-denda-panel th:nth-child(7){width:10%}
+
+  /* Batch */
+  #history-batch-panel th:nth-child(1){width:12%} #history-batch-panel th:nth-child(2){width:14%}
+  #history-batch-panel th:nth-child(3){width:34%} #history-batch-panel th:nth-child(4){width:10%}
+  #history-batch-panel th:nth-child(5){width:15%} #history-batch-panel th:nth-child(6){width:15%}
+}
+
+/* On phones, swipe still works but scrollbar stays invisible. */
+@media screen and (max-width: 767px){
+  #tab-riwayat .history-scroll,#tab-riwayat .loan-scroll,#tab-riwayat .overflow-x-auto{overflow-x:auto!important;-webkit-overflow-scrolling:touch!important}
+  #tab-riwayat table{font-size:12px!important}
+  #tab-riwayat th,#tab-riwayat td{padding:7px 7px!important}
+}
+
+/* Report screen view: use the available width and make text comfortably readable. */
+@media screen{
+  #tab-laporan .report-letterhead .kop-name{font-size:20px!important}
+  #tab-laporan .report-letterhead .kop-unit{font-size:.72em;font-weight:900;letter-spacing:0}
+  #tab-laporan .report-letterhead .kop-sub{font-size:13px!important}
+  #tab-laporan #report-print-area h2{font-size:24px!important;line-height:1.15!important}
+  #tab-laporan #report-print-area p{font-size:14px!important}
+  #tab-laporan .report-table-wrap{overflow-x:auto!important}
+  #tab-laporan .report-table-wrap table{width:100%!important;min-width:0!important;table-layout:auto!important;font-size:15px!important}
+  #tab-laporan .report-table-wrap th{font-size:14px!important;font-weight:900!important}
+  #tab-laporan .report-table-wrap th,#tab-laporan .report-table-wrap td{padding:10px 10px!important;line-height:1.3!important;white-space:normal!important;vertical-align:middle!important}
+  #tab-laporan .report-card{padding:10px 12px!important}
+  #tab-laporan .report-card .text-xl{font-size:18px!important}
+  #report-rt-panel table{table-layout:fixed!important}
+  #report-rt-panel th:nth-child(1){width:6%}
+  #report-rt-panel th:nth-child(2){width:20%}
+  #report-rt-panel th:nth-child(3){width:16%}
+  #report-rt-panel th:nth-child(4){width:22%}
+  #report-rt-panel th:nth-child(5){width:18%}
+  #report-rt-panel th:nth-child(6){width:18%}
+  #report-rt-panel td:nth-child(5),#report-rt-panel td:nth-child(6){font-size:15px!important}
+}
+
+/* Print keeps compact sizing from existing print stylesheet. */
+@media print{
+  .report-letterhead .kop-unit{font-size:.72em!important}
+}
+</style>
+
 </head>
 <body>
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
@@ -324,7 +455,7 @@
 </div>
 
 <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-  <section class="mb-5"><h1 id="page-title" class="text-2xl sm:text-3xl font-black text-violet-950">Input Iuran Warga</h1><p id="page-subtitle" class="text-sm text-slate-500 mt-1">Pencatatan pembayaran iuran warga.</p></section>
+  <section id="page-heading" class="mb-5"><h1 id="page-title" class="text-2xl sm:text-3xl font-black text-violet-950">Input Iuran Warga</h1><p id="page-subtitle" class="text-sm text-slate-500 mt-1">Pencatatan pembayaran iuran warga.</p></section>
   <div id="status-box" class="mb-5 hidden rounded-xl border px-4 py-3 text-sm"></div>
 
 
@@ -334,9 +465,9 @@
         <button data-process-target="input" class="process-btn active px-4 py-2 rounded-xl border border-violet-200 text-sm font-bold whitespace-nowrap" onclick="pilihMenu('input')">Input Iuran</button>
         <button data-process-target="transaksi" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('transaksi')">Debit / Kredit</button>
         <button data-process-target="kas" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('kas')">Pembukuan</button>
-        <button data-process-target="pinjaman" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('pinjaman')">Pinjaman</button>
         <button data-process-target="talangan" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('talangan')">Talangan</button>
         <button data-process-target="denda" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('denda')">Denda</button>
+        <button data-process-target="pinjaman" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('pinjaman')">Pinjaman</button>
       </div>
     </div>
     <div id="group-nav-dataacuan" class="group-nav hidden">
@@ -612,7 +743,7 @@
 
         <div id="report-print-area">
           <div id="report-kas-panel">
-            <div class="report-letterhead"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4</div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
+            <div class="report-letterhead"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4 <span class="kop-unit">(HUMAS 3)</span></div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
             <div class="mb-4"><h2 id="report-kas-title" class="font-black text-2xl text-violet-950">Laporan Kas Warga</h2><p id="report-kas-subtitle" class="text-sm text-slate-500 mt-1"></p></div>
             <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3 mb-5">
               <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Saldo Awal</div><div id="rep-kas-awal" class="text-xl font-black mt-2">Rp 0</div></div>
@@ -628,8 +759,8 @@
           </div>
 
           <div id="report-rt-panel" class="hidden">
-            <div class="report-letterhead"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4</div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
-            <div class="mb-5 text-center"><h2 class="font-black text-2xl text-violet-950">LAPORAN SETORAN IURAN WARGA</h2><p class="font-bold mt-1">Flamboyan 4 • RT 001 RW 026</p><p id="report-rt-period" class="text-sm text-slate-500 mt-1"></p></div>
+            <div class="report-letterhead"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4 <span class="kop-unit">(HUMAS 3)</span></div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
+            <div class="mb-5 text-center"><h2 class="font-black text-2xl text-violet-950">LAPORAN SETORAN IURAN WARGA</h2><p id="report-rt-period" class="text-sm text-slate-500 mt-1"></p></div>
             <div id="rep-rt-talangan-note" class="no-print hidden mb-3 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 px-4 py-3 text-sm"></div>
             <div class="report-table-wrap overflow-x-auto rounded-2xl border border-violet-100">
               <table class="w-full text-sm min-w-[760px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center w-14">No</th><th class="p-3 text-left">Nama</th><th class="p-3 text-left">Blok/No Rumah</th><th class="p-3 text-left">Keterangan</th><th class="p-3 text-right">Iuran Bulanan</th><th class="p-3 text-right">Kebersihan</th></tr></thead><tbody id="report-rt-tbody" class="divide-y divide-violet-50"><tr><td colspan="6" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody><tfoot class="bg-violet-50 font-black"><tr><td colspan="4" class="p-3 text-right">TOTAL</td><td class="p-3 text-right"><div id="report-rt-foot-bulanan">Rp 0</div><div id="report-rt-foot-bulanan-count" class="mt-1 text-xs font-semibold text-slate-500">0 orang</div></td><td class="p-3 text-right"><div id="report-rt-foot-keb">Rp 0</div><div id="report-rt-foot-keb-count" class="mt-1 text-xs font-semibold text-slate-500">0 orang</div></td></tr><tr><td colspan="4" class="p-3 text-right">TOTAL SETORAN</td><td id="report-rt-foot-total" class="p-3 text-right">Rp 0</td></tr></tfoot></table>
@@ -638,21 +769,21 @@
           </div>
 
           <div id="report-arisan-panel" class="hidden">
-            <div class="report-letterhead"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4</div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
+            <div class="report-letterhead"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4 <span class="kop-unit">(HUMAS 3)</span></div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
             <div class="mb-5 text-center"><h2 class="font-black text-2xl text-violet-950">LAPORAN ARISAN WARGA</h2><p id="report-arisan-period" class="text-sm text-slate-500 mt-1"></p></div>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5"><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Peserta</div><div id="rep-arisan-peserta" class="text-xl font-black mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sudah Bayar</div><div id="rep-arisan-lunas" class="text-xl font-black text-emerald-700 mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Belum Bayar</div><div id="rep-arisan-belum" class="text-xl font-black text-red-600 mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Terkumpul</div><div id="rep-arisan-total" class="text-xl font-black text-violet-700 mt-2">Rp 0</div></div></div>
             <div class="report-table-wrap overflow-x-auto rounded-2xl border border-violet-100"><table class="w-full text-sm min-w-[820px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center w-14">No</th><th class="p-3 text-left">Nama</th><th class="p-3 text-left">Blok/No Rumah</th><th class="p-3 text-center">Qty</th><th class="p-3 text-right">Nominal</th><th class="p-3 text-center">Status</th><th class="p-3 text-left">Metode</th></tr></thead><tbody id="report-arisan-tbody" class="divide-y divide-violet-50"><tr><td colspan="7" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody><tfoot class="bg-violet-50 font-black"><tr><td colspan="4" class="p-3 text-right">TOTAL TERKUMPUL</td><td id="report-arisan-foot-total" class="p-3 text-right">Rp 0</td><td colspan="2"></td></tr></tfoot></table></div>
           </div>
 
           <div id="report-denda-panel" class="hidden">
-            <div class="report-letterhead"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4</div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
+            <div class="report-letterhead"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4 <span class="kop-unit">(HUMAS 3)</span></div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
             <div class="mb-5 text-center"><h2 class="font-black text-2xl text-violet-950">LAPORAN DENDA GOROL</h2><p id="report-denda-period" class="text-sm text-slate-500 mt-1"></p></div>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5"><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Belum Bayar</div><div id="rep-denda-belum" class="text-xl font-black text-red-600 mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Nominal Belum</div><div id="rep-denda-nominal-belum" class="text-xl font-black text-red-600 mt-2">Rp 0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sudah Bayar</div><div id="rep-denda-lunas" class="text-xl font-black text-emerald-700 mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Pemasukan Denda</div><div id="rep-denda-nominal-lunas" class="text-xl font-black text-violet-700 mt-2">Rp 0</div></div></div>
             <div class="report-table-wrap overflow-x-auto rounded-2xl border border-violet-100"><table class="w-full text-sm min-w-[980px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center">No</th><th class="p-3 text-left">Nama</th><th class="p-3 text-left">Rumah</th><th class="p-3 text-left">Kegiatan</th><th class="p-3 text-right">Denda</th><th class="p-3 text-center">Status</th><th class="p-3 text-left">Pembayaran</th></tr></thead><tbody id="report-denda-tbody" class="divide-y divide-violet-50"><tr><td colspan="7" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody></table></div>
           </div>
 
           <div id="report-pinjaman-panel" class="hidden">
-            <div class="report-letterhead"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4</div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
+            <div class="report-letterhead"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4 <span class="kop-unit">(HUMAS 3)</span></div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
             <div class="mb-5 text-center"><h2 class="font-black text-2xl text-violet-950">LAPORAN PINJAMAN WARGA</h2><p id="report-pinjaman-period" class="text-sm text-slate-500 mt-1">Posisi pinjaman terkini</p></div>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
               <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Pinjaman Aktif</div><div id="rep-pinjaman-aktif" class="text-xl font-black text-amber-700 mt-2">0</div></div>
@@ -664,7 +795,7 @@
           </div>
 
           <div id="report-talangan-panel" class="hidden">
-            <div class="report-letterhead"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4</div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
+            <div class="report-letterhead"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4 <span class="kop-unit">(HUMAS 3)</span></div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
             <div class="mb-5 text-center"><h2 class="font-black text-2xl text-violet-950">REKAP TALANGAN IURAN</h2><p id="report-talangan-period" class="text-sm text-slate-500 mt-1"></p></div>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
               <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Jumlah Talangan</div><div id="rep-talangan-jumlah" class="text-xl font-black mt-2">0</div></div>
@@ -681,6 +812,9 @@
     </div>
 
     <div id="tab-riwayat" class="tab-panel hidden p-4 sm:p-5">
+      <div class="mb-4">
+        <h2 class="font-black text-2xl text-violet-950">Riwayat & Histori</h2>
+      </div>
       <div class="mb-5">
         <div class="tabs-scroll flex gap-2">
           <button id="history-btn-iuran" class="history-btn active px-4 py-2 rounded-xl border border-violet-200 text-sm font-bold whitespace-nowrap" onclick="pilihRiwayat('iuran')">Riwayat Iuran</button>
@@ -921,6 +1055,13 @@ function riwayatMsg(t,type='info'){
   else if(type==='success')e.classList.add('bg-violet-50','border-violet-200','text-violet-700');
   else e.classList.add('bg-slate-50','border-slate-200','text-slate-600');e.textContent=t;
 }
+
+function histDate(v){
+  const t=String(v||'').trim();
+  if(!t) return '-';
+  return t.split(/[ T]/)[0] || '-';
+}
+
 function renderRiwayat(){
   const tbody=document.getElementById('tbody-riwayat');if(!tbody)return;
   const q=(document.getElementById('cari-riwayat')?.value||'').toLowerCase();
@@ -937,7 +1078,7 @@ function renderRiwayat(){
     const aksi=x.locked
       ? '<span class="text-xs text-slate-400">Sudah dibukukan</span>'
       : `<div class="flex justify-end gap-2 flex-wrap">${x.canEdit?`<button onclick="bukaEdit('${x.idPembayaran}')" class="px-3 py-1.5 rounded-lg border border-violet-200 text-violet-700 font-bold hover:bg-violet-50">Edit</button>`:''}${x.canCancel&&x.status!=='BATAL'?`<button onclick="batalkanPembayaran('${x.idPembayaran}')" class="px-3 py-1.5 rounded-lg border border-amber-200 text-amber-700 font-bold hover:bg-amber-50">Batalkan</button>`:''}<button onclick="hapusPembayaran('${x.idPembayaran}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold hover:bg-red-50">Hapus</button></div>`;
-    return `<tr class="${batal?'opacity-55':''} hover:bg-violet-50/30"><td class="p-3 whitespace-nowrap">${x.tanggal||'-'}</td><td class="p-3"><div class="font-bold">${x.nama||'-'}</div><div class="text-xs text-slate-400">${x.blok||''}/${x.noRumah||''} • ${x.idPembayaran}</div></td><td class="p-3">${(x.periode||[]).join(', ')||'-'}</td><td class="p-3 text-right font-black">${rupiah(x.totalDiterima)}</td><td class="p-3">${x.metode||'-'}</td><td class="p-3 text-center">${badge}</td><td class="p-3 text-right">${aksi}</td></tr>`;
+    return `<tr class="${batal?'opacity-55':''} hover:bg-violet-50/30"><td class="p-3 whitespace-nowrap">${histDate(x.tanggal)}</td><td class="p-3"><div class="font-bold">${x.nama||'-'}</div><div class="text-xs text-slate-400">${x.blok||''}/${x.noRumah||''} • ${x.idPembayaran}</div></td><td class="p-3">${(x.periode||[]).join(', ')||'-'}</td><td class="p-3 text-right font-black">${rupiah(x.totalDiterima)}</td><td class="p-3">${x.metode||'-'}</td><td class="p-3 text-center">${badge}</td><td class="p-3 text-right">${aksi}</td></tr>`;
   }).join('')||'<tr><td colspan="7" class="p-6 text-center text-slate-400">Belum ada riwayat pembayaran.</td></tr>';
   const b=document.getElementById('btn-riwayat-more');if(total>10){b.classList.remove('hidden');b.textContent=RIWAYAT_SEMUA?'Tampilkan 10 terbaru':'Lihat semua ('+total+')'}else b.classList.add('hidden');
 }
@@ -1011,8 +1152,8 @@ async function loadPembukuanKas(){
 function renderPembukuanKas(){
   const r=KAS_DATA.ringkasan||{};
   document.getElementById('kas-count-belum').textContent=r.qtyBelum||0;document.getElementById('kas-nominal-belum').textContent=rupiah(r.nominalBelum||0);document.getElementById('kas-count-sudah').textContent=r.qtySudah||0;document.getElementById('kas-nominal-sudah').textContent=rupiah(r.nominalSudah||0);
-  document.getElementById('kas-tbody-belum').innerHTML=(KAS_DATA.belum||[]).map(x=>`<tr class="hover:bg-violet-50/30"><td class="p-3 text-center"><input type="checkbox" class="kas-check w-4 h-4 accent-violet-600" value="${x.idAlokasi}" data-nominal="${Number(x.nominalKasLorong)||0}" onchange="updateKasTerpilih()"></td><td class="p-3"><div class="font-bold">${x.nama||'-'}</div><div class="text-xs text-slate-400">${x.blok||''}/${x.noRumah||''}</div></td><td class="p-3">${x.tanggalBayar||'-'}</td><td class="p-3 text-center font-bold">${x.qtyKasLorong||0}x</td><td class="p-3 text-right font-black">${rupiah(x.nominalKasLorong||0)}</td><td class="p-3">${x.metode||'-'}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Tidak ada Kas Lorong yang belum dibukukan pada periode ini.</td></tr>';
-  document.getElementById('kas-tbody-batch').innerHTML=(KAS_DATA.batches||[]).map(x=>`<tr class="hover:bg-violet-50/30"><td class="p-3">${x.tanggalPembukuan||'-'}</td><td class="p-3 font-bold">${x.idBatch||'-'}</td><td class="p-3">${x.keterangan||'-'}</td><td class="p-3 text-center">${x.jumlahPembayaran||0}</td><td class="p-3 text-right font-black">${rupiah(x.nominal||0)}</td><td class="p-3 text-right"><button onclick="batalkanBatchKas('${x.idBatch}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold hover:bg-red-50">Batalkan</button></td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada batch pada periode ini.</td></tr>';
+  document.getElementById('kas-tbody-belum').innerHTML=(KAS_DATA.belum||[]).map(x=>`<tr class="hover:bg-violet-50/30"><td class="p-3 text-center"><input type="checkbox" class="kas-check w-4 h-4 accent-violet-600" value="${x.idAlokasi}" data-nominal="${Number(x.nominalKasLorong)||0}" onchange="updateKasTerpilih()"></td><td class="p-3"><div class="font-bold">${x.nama||'-'}</div><div class="text-xs text-slate-400">${x.blok||''}/${x.noRumah||''}</div></td><td class="p-3">${histDate(x.tanggalBayar)}</td><td class="p-3 text-center font-bold">${x.qtyKasLorong||0}x</td><td class="p-3 text-right font-black">${rupiah(x.nominalKasLorong||0)}</td><td class="p-3">${x.metode||'-'}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Tidak ada Kas Lorong yang belum dibukukan pada periode ini.</td></tr>';
+  document.getElementById('kas-tbody-batch').innerHTML=(KAS_DATA.batches||[]).map(x=>`<tr class="hover:bg-violet-50/30"><td class="p-3">${histDate(x.tanggalPembukuan)}</td><td class="p-3 font-bold">${x.idBatch||'-'}</td><td class="p-3">${x.keterangan||'-'}</td><td class="p-3 text-center">${x.jumlahPembayaran||0}</td><td class="p-3 text-right font-black">${rupiah(x.nominal||0)}</td><td class="p-3 text-right"><button onclick="batalkanBatchKas('${x.idBatch}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold hover:bg-red-50">Batalkan</button></td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada batch pada periode ini.</td></tr>';
   updateKasTerpilih();
 }
 function pilihSemuaKas(){const a=[...document.querySelectorAll('.kas-check')],all=a.length&&a.every(x=>x.checked);a.forEach(x=>x.checked=!all);updateKasTerpilih()}
@@ -1123,7 +1264,7 @@ function renderRiwayatKas(){
   const q=(document.getElementById('cari-trx-kas')?.value||'').toLowerCase();const f=document.getElementById('filter-trx-kas')?.value||'AKTIF';
   const sumberKas = Array.isArray(RIWAYAT_KAS) ? RIWAYAT_KAS : [];
   const rows=sumberKas.filter(x=>{if(f!=='SEMUA'&&(x.status||'AKTIF')!==f)return false;return [x.jenis,x.kategori,x.keterangan,x.metode,x.periode,x.idTransaksi].join(' ').toLowerCase().includes(q)});
-  document.getElementById('tbody-riwayat-kas').innerHTML=rows.map(x=>{const batal=x.status==='BATAL';const debit=x.debit?rupiah(x.debit):'-',kredit=x.kredit?rupiah(x.kredit):'-';const aksi=(!batal&&x.sumber!=='BATCH_KAS')?`<button onclick="batalkanTransaksiKas('${x.idTransaksi}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold hover:bg-red-50">Batalkan</button>`:(x.sumber==='BATCH_KAS'?'<span class="text-xs text-slate-400">Kelola via Batch</span>':'-');return `<tr class="${batal?'opacity-55':''} hover:bg-violet-50/30"><td class="p-3 whitespace-nowrap">${x.tanggal||'-'}</td><td class="p-3 font-bold">${x.jenis||'-'}</td><td class="p-3">${x.kategori||'-'}</td><td class="p-3"><div class="font-bold">${x.keterangan||'-'}</div><div class="text-xs text-slate-400">${x.idTransaksi||''} • ${x.sumber||''}</div></td><td class="p-3 text-right font-black text-emerald-700">${debit}</td><td class="p-3 text-right font-black text-red-600">${kredit}</td><td class="p-3">${x.metode||'-'}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${batal?'bg-slate-100 text-slate-500':'bg-violet-100 text-violet-700'}">${x.status||'AKTIF'}</span></td><td class="p-3 text-right">${aksi}</td></tr>`}).join('')||'<tr><td colspan="9" class="p-6 text-center text-slate-400">Belum ada transaksi kas.</td></tr>';
+  document.getElementById('tbody-riwayat-kas').innerHTML=rows.map(x=>{const batal=x.status==='BATAL';const debit=x.debit?rupiah(x.debit):'-',kredit=x.kredit?rupiah(x.kredit):'-';const aksi=(!batal&&x.sumber!=='BATCH_KAS')?`<button onclick="batalkanTransaksiKas('${x.idTransaksi}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold hover:bg-red-50">Batalkan</button>`:(x.sumber==='BATCH_KAS'?'<span class="text-xs text-slate-400">Kelola via Batch</span>':'-');return `<tr class="${batal?'opacity-55':''} hover:bg-violet-50/30"><td class="p-3 whitespace-nowrap">${histDate(x.tanggal)}</td><td class="p-3 font-bold">${x.jenis||'-'}</td><td class="p-3">${x.kategori||'-'}</td><td class="p-3"><div class="font-bold">${x.keterangan||'-'}</div><div class="text-xs text-slate-400">${x.idTransaksi||''} • ${x.sumber||''}</div></td><td class="p-3 text-right font-black text-emerald-700">${debit}</td><td class="p-3 text-right font-black text-red-600">${kredit}</td><td class="p-3">${x.metode||'-'}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${batal?'bg-slate-100 text-slate-500':'bg-violet-100 text-violet-700'}">${x.status||'AKTIF'}</span></td><td class="p-3 text-right">${aksi}</td></tr>`}).join('')||'<tr><td colspan="9" class="p-6 text-center text-slate-400">Belum ada transaksi kas.</td></tr>';
 }
 
 async function batalkanTransaksiKas(id){
@@ -1203,11 +1344,11 @@ function renderPinjaman(){
   const r=DATA_PINJAMAN.ringkasan||{};
   const el=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};el('loan-sum-count',r.jumlahPinjamanAktif||0);el('loan-sum-total',rupiah(r.totalPinjamanAktif||0));el('loan-sum-paid',rupiah(r.totalTerbayarAktif||0));el('loan-sum-sisa',rupiah(r.totalSisa||0));
   const tb=document.getElementById('tbody-riwayat-pinjaman');if(!tb)return;
-  tb.innerHTML=(DATA_PINJAMAN.rows||[]).map(x=>{const batal=x.status==='BATAL',lunas=x.status==='LUNAS';const badge=batal?'bg-slate-100 text-slate-500':(lunas?'bg-emerald-100 text-emerald-700':'bg-violet-100 text-violet-700');let aksi='-';if(!batal&&!lunas){aksi=`<button onclick="pilihMenu('pinjaman');setTimeout(()=>{setLoanMode('bayar');document.getElementById('payloan-id').value='${x.idPinjaman}';previewPinjaman()},50)" class="px-3 py-1.5 rounded-lg border border-violet-200 text-violet-700 font-bold mr-1">Bayar</button>`}if(!batal&&(x.totalDibayar||0)===0){aksi+=`<button onclick="batalkanPinjaman('${x.idPinjaman}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold">Batalkan</button>`}return `<tr class="${batal?'opacity-55':''}"><td class="p-3 whitespace-nowrap">${x.tanggalPinjaman||'-'}</td><td class="p-3"><div class="font-bold">${x.nama||'-'}</div><div class="text-xs text-slate-400">${x.blok||''}/${x.noRumah||''} • ${x.idPinjaman}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominalPinjaman||0)}</td><td class="p-3 text-right font-bold text-emerald-700">${rupiah(x.totalDibayar||0)}</td><td class="p-3 text-right font-black text-red-600">${rupiah(x.sisaPinjaman||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${badge}">${x.status}</span></td><td class="p-3">${x.keterangan||'-'}</td><td class="p-3 text-right whitespace-nowrap">${aksi}</td></tr>`}).join('')||'<tr><td colspan="8" class="p-6 text-center text-slate-400">Belum ada data pinjaman.</td></tr>';
+  tb.innerHTML=(DATA_PINJAMAN.rows||[]).map(x=>{const batal=x.status==='BATAL',lunas=x.status==='LUNAS';const badge=batal?'bg-slate-100 text-slate-500':(lunas?'bg-emerald-100 text-emerald-700':'bg-violet-100 text-violet-700');let aksi='-';if(!batal&&!lunas){aksi=`<button onclick="pilihMenu('pinjaman');setTimeout(()=>{setLoanMode('bayar');document.getElementById('payloan-id').value='${x.idPinjaman}';previewPinjaman()},50)" class="px-3 py-1.5 rounded-lg border border-violet-200 text-violet-700 font-bold mr-1">Bayar</button>`}if(!batal&&(x.totalDibayar||0)===0){aksi+=`<button onclick="batalkanPinjaman('${x.idPinjaman}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold">Batalkan</button>`}return `<tr class="${batal?'opacity-55':''}"><td class="p-3 whitespace-nowrap">${histDate(x.tanggalPinjaman)}</td><td class="p-3"><div class="font-bold">${x.nama||'-'}</div><div class="text-xs text-slate-400">${x.blok||''}/${x.noRumah||''} • ${x.idPinjaman}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominalPinjaman||0)}</td><td class="p-3 text-right font-bold text-emerald-700">${rupiah(x.totalDibayar||0)}</td><td class="p-3 text-right font-black text-red-600">${rupiah(x.sisaPinjaman||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${badge}">${x.status}</span></td><td class="p-3">${x.keterangan||'-'}</td><td class="p-3 text-right whitespace-nowrap">${aksi}</td></tr>`}).join('')||'<tr><td colspan="8" class="p-6 text-center text-slate-400">Belum ada data pinjaman.</td></tr>';
   const tbBayar=document.getElementById('tbody-riwayat-bayar-pinjaman');
   if(tbBayar){
     const bayar=[];(DATA_PINJAMAN.rows||[]).forEach(x=>(x.pembayaran||[]).forEach(b=>bayar.push({...b,nama:x.nama,blok:x.blok,noRumah:x.noRumah,idPinjaman:x.idPinjaman})));
-    tbBayar.innerHTML=bayar.map(b=>{const batal=(b.status||'').toUpperCase()==='BATAL';return `<tr class="${batal?'opacity-55':''}"><td class="p-3 whitespace-nowrap">${b.tanggalBayar||'-'}</td><td class="p-3"><div class="font-bold">${b.nama||'-'}</div><div class="text-xs text-slate-400">${b.blok||''}/${b.noRumah||''}</div></td><td class="p-3 font-bold">${b.idPinjaman||'-'}<div class="text-xs text-slate-400">${b.idPembayaranPinjaman||''}</div></td><td class="p-3 text-right font-black text-emerald-700">${rupiah(b.nominalBayar||0)}</td><td class="p-3">${b.metode||'-'}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${batal?'bg-slate-100 text-slate-500':'bg-violet-100 text-violet-700'}">${b.status||'AKTIF'}</span></td><td class="p-3 text-right">${batal?'-':`<button onclick="batalkanPembayaranPinjaman('${b.idPembayaranPinjaman}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold">Batalkan</button>`}</td></tr>`}).join('')||'<tr><td colspan="7" class="p-6 text-center text-slate-400">Belum ada pembayaran pinjaman.</td></tr>';
+    tbBayar.innerHTML=bayar.map(b=>{const batal=(b.status||'').toUpperCase()==='BATAL';return `<tr class="${batal?'opacity-55':''}"><td class="p-3 whitespace-nowrap">${histDate(b.tanggalBayar)}</td><td class="p-3"><div class="font-bold">${b.nama||'-'}</div><div class="text-xs text-slate-400">${b.blok||''}/${b.noRumah||''}</div></td><td class="p-3 font-bold">${b.idPinjaman||'-'}<div class="text-xs text-slate-400">${b.idPembayaranPinjaman||''}</div></td><td class="p-3 text-right font-black text-emerald-700">${rupiah(b.nominalBayar||0)}</td><td class="p-3">${b.metode||'-'}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${batal?'bg-slate-100 text-slate-500':'bg-violet-100 text-violet-700'}">${b.status||'AKTIF'}</span></td><td class="p-3 text-right">${batal?'-':`<button onclick="batalkanPembayaranPinjaman('${b.idPembayaranPinjaman}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold">Batalkan</button>`}</td></tr>`}).join('')||'<tr><td colspan="7" class="p-6 text-center text-slate-400">Belum ada pembayaran pinjaman.</td></tr>';
   }
 }
 async function batalkanPembayaranPinjaman(id){if(!confirm(`Batalkan pembayaran pinjaman ${id}?`))return;try{loanMsg('hist-loan-status','Membatalkan pembayaran...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkanpembayaranpinjaman',idPembayaranPinjaman:id,alasan:'Dibatalkan dari web',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan pembayaran.');await loadPinjaman(true);await loadRiwayatKas(true);loanMsg('hist-loan-status',r.message||'Pembayaran dibatalkan.','success')}catch(e){loanMsg('hist-loan-status',e.message||String(e),'error')}}
@@ -1231,7 +1372,7 @@ function renderTalangan(){
       ? '<span class="px-2 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">DIBUKUKAN</span>'
       : (lunas?'<span class="px-2 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700">TIDAK PERNAH MASUK</span>':'<span class="px-2 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-700">DITAHAN</span>');
     const aksi=(!batal&&!lunas&&(x.nominalDiganti||0)===0)?`<button onclick="batalkanTalangan('${x.idTalangan}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold">Batalkan</button>`:'-';
-    return `<tr class="${batal?'opacity-55':''}"><td class="p-3"><div class="font-bold">${x.bulan} ${x.tahun}</div><div class="text-xs text-slate-400">${x.tanggalTalangan||''} • ${x.idTalangan}</div><div class="text-[11px] text-violet-600 mt-1">Batas: ${x.tanggalJatuhTempo||'-'}</div></td><td class="p-3"><div class="font-bold">${x.nama||'-'}</div><div class="text-xs text-slate-400">${x.blok||''}/${x.noRumah||''}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominalTalangan||0)}</td><td class="p-3 text-right font-bold text-emerald-700">${rupiah(x.nominalDiganti||0)}</td><td class="p-3 text-right font-black text-red-600">${rupiah(x.sisaTalangan||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${badge}">${x.status}</span></td><td class="p-3 text-center">${buku}</td><td class="p-3">${x.idPembayaranPelunasan||'-'}${x.tanggalLunas?`<div class="text-xs text-slate-400">${x.tanggalLunas}</div>`:''}</td><td class="p-3 text-right">${aksi}</td></tr>`
+    return `<tr class="${batal?'opacity-55':''}"><td class="p-3"><div class="font-bold">${x.bulan} ${x.tahun}</div><div class="text-xs text-slate-400">${histDate(x.tanggalTalangan)} • ${x.idTalangan}</div><div class="text-[11px] text-violet-600 mt-1">Batas: ${x.tanggalJatuhTempo||'-'}</div></td><td class="p-3"><div class="font-bold">${x.nama||'-'}</div><div class="text-xs text-slate-400">${x.blok||''}/${x.noRumah||''}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominalTalangan||0)}</td><td class="p-3 text-right font-bold text-emerald-700">${rupiah(x.nominalDiganti||0)}</td><td class="p-3 text-right font-black text-red-600">${rupiah(x.sisaTalangan||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${badge}">${x.status}</span></td><td class="p-3 text-center">${buku}</td><td class="p-3">${x.idPembayaranPelunasan||'-'}${x.tanggalLunas?`<div class="text-xs text-slate-400">${histDate(x.tanggalLunas)}</div>`:''}</td><td class="p-3 text-right">${aksi}</td></tr>`
   }).join('')||'<tr><td colspan="9" class="p-6 text-center text-slate-400">Belum ada data talangan.</td></tr>'
 }
 async function batalkanTalangan(id){if(!confirm(`Batalkan talangan ${id}?\n\nJika talangan sudah sempat masuk pembukuan karena melewati batas 14 hari, transaksi pengeluarannya juga akan ikut dibatalkan.`))return;try{talMsg('hist-tal-status','Membatalkan talangan...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkantalangan',idTalangan:id,alasan:'Dibatalkan dari web',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan talangan.');await loadTalangan(true);await loadRiwayatKas(true);talMsg('hist-tal-status',r.message||'Talangan dibatalkan.','success')}catch(e){talMsg('hist-tal-status',e.message||String(e),'error')}}
@@ -1258,7 +1399,7 @@ function renderDendaBayarOptions(){const s=document.getElementById('bayar-denda-
 function previewBayarDenda(){const id=document.getElementById('bayar-denda-id')?.value,e=document.getElementById('bayar-denda-preview');if(!e)return;const x=(DATA_DENDA.aktif||[]).find(v=>v.idDenda===id);if(!x){e.textContent='Pilih denda untuk melihat detail.';return}e.innerHTML=`<div class="font-black text-violet-950">${x.nama} • ${x.blok}/${x.noRumah}</div><div class="mt-1">${x.namaKegiatan} • ${x.tanggalKegiatan}</div><div class="text-xl font-black text-violet-700 mt-2">${rupiah(x.nominal)}</div>${x.keterangan?`<div class="text-xs text-slate-500 mt-1">${x.keterangan}</div>`:''}`}
 async function simpanDenda(ev){ev.preventDefault();const btn=document.getElementById('denda-btn-simpan');btn.disabled=true;btn.classList.add('opacity-60');try{dendaMsg('denda-status','Menyimpan denda...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'buatdenda',idWarga:document.getElementById('denda-warga').value,tanggalKegiatan:document.getElementById('denda-tanggal').value,namaKegiatan:document.getElementById('denda-kegiatan').value,nominal:nominalAngka('denda-nominal'),keterangan:document.getElementById('denda-keterangan').value,t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal menyimpan denda.');dendaMsg('denda-status',`${r.idDenda} berhasil dicatat • ${rupiah(r.nominal||0)}`,'success');document.getElementById('denda-warga').value='';document.getElementById('denda-keterangan').value='';await loadDenda(true)}catch(e){dendaMsg('denda-status',e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}}
 async function bayarDenda(ev){ev.preventDefault();const btn=document.getElementById('bayar-denda-btn');btn.disabled=true;btn.classList.add('opacity-60');try{dendaMsg('bayar-denda-status','Menyimpan pembayaran...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'bayardenda',idDenda:document.getElementById('bayar-denda-id').value,tanggalBayar:document.getElementById('bayar-denda-tanggal').value,metode:document.getElementById('bayar-denda-metode').value,t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membayar denda.');dendaMsg('bayar-denda-status',`Pembayaran berhasil • ${rupiah(r.nominal||0)}`,'success');await loadDenda(true);await loadRiwayatKas(true);document.getElementById('bayar-denda-id').value='';previewBayarDenda()}catch(e){dendaMsg('bayar-denda-status',e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}}
-function renderDendaHistory(){const r=DATA_DENDA.ringkasan||{},set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('denda-sum-belum-count',r.jumlahBelum||0);set('denda-sum-belum',rupiah(r.nominalBelum||0));set('denda-sum-lunas-count',r.jumlahLunas||0);set('denda-sum-lunas',rupiah(r.nominalLunas||0));const tb=document.getElementById('tbody-riwayat-denda');if(!tb)return;tb.innerHTML=(DATA_DENDA.rows||[]).map(x=>{const batal=x.status==='BATAL',lunas=x.status==='LUNAS';const badge=batal?'bg-slate-100 text-slate-500':lunas?'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700';let aksi='-';if(x.status==='BELUM')aksi=`<button onclick="batalkanDenda('${x.idDenda}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold">Batalkan</button>`;if(lunas)aksi=`<button onclick="batalkanPembayaranDenda('${x.idDenda}')" class="px-3 py-1.5 rounded-lg border border-amber-200 text-amber-700 font-bold">Batalkan Bayar</button>`;return `<tr class="${batal?'opacity-55':''}"><td class="p-3"><div class="font-bold">${x.tanggalKegiatan||'-'}</div><div class="text-xs text-slate-400">${x.idDenda||''}</div></td><td class="p-3"><div class="font-bold">${x.nama||'-'}</div><div class="text-xs text-slate-400">${x.blok||''}/${x.noRumah||''}</div></td><td class="p-3"><div class="font-bold">${x.namaKegiatan||'-'}</div><div class="text-xs text-slate-400">${x.keterangan||''}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominal||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${badge}">${x.status||'BELUM'}</span></td><td class="p-3">${lunas?`${x.tanggalBayar||'-'}<div class="text-xs text-slate-400">${x.metode||''} • ${x.idTransaksiKas||''}</div>`:'-'}</td><td class="p-3 text-right">${aksi}</td></tr>`}).join('')||'<tr><td colspan="7" class="p-6 text-center text-slate-400">Belum ada data denda.</td></tr>'}
+function renderDendaHistory(){const r=DATA_DENDA.ringkasan||{},set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('denda-sum-belum-count',r.jumlahBelum||0);set('denda-sum-belum',rupiah(r.nominalBelum||0));set('denda-sum-lunas-count',r.jumlahLunas||0);set('denda-sum-lunas',rupiah(r.nominalLunas||0));const tb=document.getElementById('tbody-riwayat-denda');if(!tb)return;tb.innerHTML=(DATA_DENDA.rows||[]).map(x=>{const batal=x.status==='BATAL',lunas=x.status==='LUNAS';const badge=batal?'bg-slate-100 text-slate-500':lunas?'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700';let aksi='-';if(x.status==='BELUM')aksi=`<button onclick="batalkanDenda('${x.idDenda}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold">Batalkan</button>`;if(lunas)aksi=`<button onclick="batalkanPembayaranDenda('${x.idDenda}')" class="px-3 py-1.5 rounded-lg border border-amber-200 text-amber-700 font-bold">Batalkan Bayar</button>`;return `<tr class="${batal?'opacity-55':''}"><td class="p-3"><div class="font-bold">${histDate(x.tanggalKegiatan)}</div><div class="text-xs text-slate-400">${x.idDenda||''}</div></td><td class="p-3"><div class="font-bold">${x.nama||'-'}</div><div class="text-xs text-slate-400">${x.blok||''}/${x.noRumah||''}</div></td><td class="p-3"><div class="font-bold">${x.namaKegiatan||'-'}</div><div class="text-xs text-slate-400">${x.keterangan||''}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominal||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${badge}">${x.status||'BELUM'}</span></td><td class="p-3">${lunas?`${histDate(x.tanggalBayar)}<div class="text-xs text-slate-400">${x.metode||''} • ${x.idTransaksiKas||''}</div>`:'-'}</td><td class="p-3 text-right">${aksi}</td></tr>`}).join('')||'<tr><td colspan="7" class="p-6 text-center text-slate-400">Belum ada data denda.</td></tr>'}
 async function batalkanDenda(id){if(!confirm(`Batalkan denda ${id}?`))return;try{dendaMsg('hist-denda-status','Membatalkan denda...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkandenda',idDenda:id,alasan:'Dibatalkan dari web',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan denda.');await loadDenda(true);dendaMsg('hist-denda-status',r.message||'Denda dibatalkan.','success')}catch(e){dendaMsg('hist-denda-status',e.message||String(e),'error')}}
 async function batalkanPembayaranDenda(id){if(!confirm(`Batalkan pembayaran denda ${id}?\n\nTransaksi pemasukan Kas Warga terkait juga akan dibatalkan.`))return;try{dendaMsg('hist-denda-status','Membatalkan pembayaran denda...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkanpembayarandenda',idDenda:id,t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan pembayaran.');await loadDenda(true);await loadRiwayatKas(true);dendaMsg('hist-denda-status',r.message||'Pembayaran denda dibatalkan.','success')}catch(e){dendaMsg('hist-denda-status',e.message||String(e),'error')}}
 
@@ -1337,22 +1478,22 @@ function renderLaporanKas(d){
   set('report-kas-title','Laporan Kas Warga');set('report-kas-subtitle',d.labelPeriode||'');
   set('rep-kas-awal',rupiah(r.saldoAwal||0));set('rep-kas-debit',rupiah(r.debit||0));set('rep-kas-kredit',rupiah(r.kredit||0));set('rep-kas-net',rupiah(r.saldoPeriode||0));set('rep-kas-akhir',rupiah(r.saldoAkhir||0));
   const net=document.getElementById('rep-kas-net');if(net){net.classList.remove('text-red-600','text-emerald-700','text-violet-700');net.classList.add(Number(r.saldoPeriode||0)<0?'text-red-600':Number(r.saldoPeriode||0)>0?'text-emerald-700':'text-violet-700')}
-  const tb=document.getElementById('report-kas-tbody');if(tb)tb.innerHTML=(d.rows||[]).map(x=>`<tr><td class="p-3 whitespace-nowrap">${x.tanggal||'-'}</td><td class="p-3"><div class="font-bold">${x.keterangan||'-'}</div><div class="text-xs text-slate-400">${x.idTransaksi||''} • ${x.sumber||''}</div></td><td class="p-3">${x.kategori||'-'}</td><td class="p-3 text-right font-bold text-emerald-700">${x.debit?rupiah(x.debit):'-'}</td><td class="p-3 text-right font-bold text-red-600">${x.kredit?rupiah(x.kredit):'-'}</td><td class="p-3 text-right font-black">${rupiah(x.saldo||0)}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada transaksi pada periode ini.</td></tr>';
+  const tb=document.getElementById('report-kas-tbody');if(tb)tb.innerHTML=(d.rows||[]).map(x=>`<tr><td class="p-3 whitespace-nowrap">${histDate(x.tanggal)}</td><td class="p-3"><div class="font-bold">${x.keterangan||'-'}</div><div class="text-xs text-slate-400">${x.idTransaksi||''} • ${x.sumber||''}</div></td><td class="p-3">${x.kategori||'-'}</td><td class="p-3 text-right font-bold text-emerald-700">${x.debit?rupiah(x.debit):'-'}</td><td class="p-3 text-right font-bold text-red-600">${x.kredit?rupiah(x.kredit):'-'}</td><td class="p-3 text-right font-black">${rupiah(x.saldo||0)}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada transaksi pada periode ini.</td></tr>';
   const y=document.getElementById('report-kas-tahunan'),rekap=d.periodeBulanan||d.tahunan||[];if(y)y.innerHTML=rekap.map(x=>`<div class="rounded-xl border border-violet-100 p-3"><div class="font-bold">${x.namaBulan} ${x.tahun||''}</div><div class="mt-1 text-xs text-slate-500">Masuk ${rupiah(x.debit)} • Keluar ${rupiah(x.kredit)}</div><div class="mt-1 font-black ${x.net<0?'text-red-600':x.net>0?'text-emerald-700':'text-violet-700'}">Saldo periode ${rupiah(x.net)}</div></div>`).join('')
 }
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function badgeKeteranganRt(k){
   const t=String(k||'').trim(); if(!t) return '<span class="text-slate-300">-</span>';
   const l=t.toLowerCase();
-  let cls='bg-violet-100 text-violet-700 border-violet-200';
-  if(l.includes('humas')) cls='bg-sky-100 text-sky-700 border-sky-200';
-  else if(l.includes('ketua rt')) cls='bg-amber-100 text-amber-800 border-amber-200';
-  else if(l.includes('2x')||l.includes('2 x')||l.includes('dua kali')) cls='bg-emerald-100 text-emerald-700 border-emerald-200';
-  return `<span class="inline-block rounded-full border px-2 py-1 text-[11px] font-black ${cls}">${esc(t)}</span>`;
+  let cls='bg-violet-700 text-white border-violet-700';
+  if(l.includes('humas')) cls='bg-sky-700 text-white border-sky-700';
+  else if(l.includes('ketua rt')) cls='bg-amber-600 text-white border-amber-600';
+  else if(l.includes('2x')||l.includes('2 x')||l.includes('dua kali')) cls='bg-emerald-700 text-white border-emerald-700';
+  return `<span class="inline-block rounded-md border px-2 py-1 text-xs font-black ${cls}">${esc(t)}</span>`;
 }
 function renderLaporanRt(d){d=d||{};const r=d.ringkasan||{},rows=Array.isArray(d.rows)?d.rows:[],set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};const orangBulanan=rows.filter(x=>Number(x.nominalBulanan||0)>0).length;const orangKebersihan=rows.filter(x=>Number(x.nominalKebersihan||0)>0).length;set('report-rt-period',`Periode ${d.namaBulan||''} ${d.tahun||''}`);set('report-rt-foot-bulanan',rupiah(r.totalBulanan||0));set('report-rt-foot-keb',rupiah(r.totalKebersihan||0));set('report-rt-foot-bulanan-count',`${orangBulanan} orang`);set('report-rt-foot-keb-count',`${orangKebersihan} orang`);set('report-rt-foot-total',rupiah(r.totalSetoran||0));const note=document.getElementById('rep-rt-talangan-note');if(note){note.classList.toggle('hidden',!(r.talanganCount>0));note.textContent=`Catatan internal: ${r.talanganCount||0} warga pada laporan ini ditutup melalui talangan. Keterangan ini tidak ikut saat dicetak.`}const tb=document.getElementById('report-rt-tbody');if(tb)tb.innerHTML=rows.map((x,i)=>`<tr><td class="p-3 text-center">${i+1}</td><td class="p-3 font-bold">${esc(x.nama||'-')}</td><td class="p-3">${esc(x.blok||'')}/${esc(x.noRumah||'')}</td><td class="p-3">${badgeKeteranganRt(x.keterangan)}</td><td class="p-3 text-right">${rupiah(x.nominalBulanan||0)}${Number(x.qtyBulanan)>1?` <span class="report-qty-badge">${x.qtyBulanan}x</span>`:''}</td><td class="p-3 text-right">${rupiah(x.nominalKebersihan||0)}${Number(x.qtyKebersihan)>1?` <span class="report-qty-badge">${x.qtyKebersihan}x</span>`:''}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada data setoran pada periode ini.</td></tr>'}
 function renderLaporanArisan(d){d=d||{};const r=d.ringkasan||{},rows=d.rows||[],set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('report-arisan-period',`Periode ${d.namaBulan||''} ${d.tahun||''}`);set('rep-arisan-peserta',r.jumlahPeserta||0);set('rep-arisan-lunas',r.jumlahLunas||0);set('rep-arisan-belum',r.jumlahBelum||0);set('rep-arisan-total',rupiah(r.totalBayar||0));set('report-arisan-foot-total',rupiah(r.totalBayar||0));const tb=document.getElementById('report-arisan-tbody');if(tb)tb.innerHTML=rows.map((x,i)=>`<tr><td class="p-3 text-center">${i+1}</td><td class="p-3 font-bold">${x.nama||'-'}</td><td class="p-3">${x.blok||''}/${x.noRumah||''}</td><td class="p-3 text-center">${x.qtyArisan||1}x</td><td class="p-3 text-right font-bold">${rupiah(x.nominalBayar||x.nominalWajib||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${x.status==='LUNAS'?'bg-emerald-100 text-emerald-700':'bg-red-100 text-red-700'}">${x.status||'BELUM'}</span></td><td class="p-3">${x.metode||'-'}</td></tr>`).join('')||'<tr><td colspan="7" class="p-6 text-center text-slate-400">Belum ada peserta arisan.</td></tr>'}
-function renderLaporanDenda(d){d=d||{};const r=d.ringkasan||{},rows=d.rows||[],set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('report-denda-period',`Periode ${d.namaBulan||''} ${d.tahun||''}${d.statusFilter&&d.statusFilter!=='SEMUA'?' • '+d.statusFilter:''}`);set('rep-denda-belum',r.jumlahBelum||0);set('rep-denda-nominal-belum',rupiah(r.nominalBelum||0));set('rep-denda-lunas',r.jumlahLunas||0);set('rep-denda-nominal-lunas',rupiah(r.nominalLunas||0));const tb=document.getElementById('report-denda-tbody');if(tb)tb.innerHTML=rows.map((x,i)=>`<tr><td class="p-3 text-center">${i+1}</td><td class="p-3 font-bold">${x.nama||'-'}</td><td class="p-3">${x.blok||''}/${x.noRumah||''}</td><td class="p-3"><div class="font-bold">${x.namaKegiatan||'-'}</div><div class="text-xs text-slate-400">${x.tanggalKegiatan||''}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominal||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${x.status==='LUNAS'?'bg-emerald-100 text-emerald-700':x.status==='BATAL'?'bg-slate-100 text-slate-500':'bg-red-100 text-red-700'}">${x.status||'BELUM'}</span></td><td class="p-3">${x.status==='LUNAS'?`${x.tanggalBayar||'-'}<div class="text-xs text-slate-400">${x.metode||''}</div>`:'-'}</td></tr>`).join('')||'<tr><td colspan="7" class="p-6 text-center text-slate-400">Tidak ada data denda pada filter ini.</td></tr>'}
+function renderLaporanDenda(d){d=d||{};const r=d.ringkasan||{},rows=d.rows||[],set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('report-denda-period',`Periode ${d.namaBulan||''} ${d.tahun||''}${d.statusFilter&&d.statusFilter!=='SEMUA'?' • '+d.statusFilter:''}`);set('rep-denda-belum',r.jumlahBelum||0);set('rep-denda-nominal-belum',rupiah(r.nominalBelum||0));set('rep-denda-lunas',r.jumlahLunas||0);set('rep-denda-nominal-lunas',rupiah(r.nominalLunas||0));const tb=document.getElementById('report-denda-tbody');if(tb)tb.innerHTML=rows.map((x,i)=>`<tr><td class="p-3 text-center">${i+1}</td><td class="p-3 font-bold">${x.nama||'-'}</td><td class="p-3">${x.blok||''}/${x.noRumah||''}</td><td class="p-3"><div class="font-bold">${x.namaKegiatan||'-'}</div><div class="text-xs text-slate-400">${x.tanggalKegiatan||''}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominal||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${x.status==='LUNAS'?'bg-emerald-100 text-emerald-700':x.status==='BATAL'?'bg-slate-100 text-slate-500':'bg-red-100 text-red-700'}">${x.status||'BELUM'}</span></td><td class="p-3">${x.status==='LUNAS'?`${histDate(x.tanggalBayar)}<div class="text-xs text-slate-400">${x.metode||''}</div>`:'-'}</td></tr>`).join('')||'<tr><td colspan="7" class="p-6 text-center text-slate-400">Tidak ada data denda pada filter ini.</td></tr>'}
 function renderLaporanPinjaman(d){d=d||{};const r=d.ringkasan||{},rows=d.rows||[],set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('report-pinjaman-period',`Posisi pinjaman terkini${d.statusFilter&&d.statusFilter!=='SEMUA'?' • '+d.statusFilter:''}`);set('rep-pinjaman-aktif',r.jumlahAktif||0);set('rep-pinjaman-total',rupiah(r.totalPinjaman||0));set('rep-pinjaman-dibayar',rupiah(r.totalDibayar||0));set('rep-pinjaman-sisa',rupiah(r.totalSisa||0));const tb=document.getElementById('report-pinjaman-tbody');if(tb)tb.innerHTML=rows.map((x,i)=>{const st=x.status||'AKTIF',badge=st==='LUNAS'?'bg-emerald-100 text-emerald-700':st==='BATAL'?'bg-slate-100 text-slate-500':'bg-amber-100 text-amber-700';return `<tr class="${st==='BATAL'?'opacity-55':''}"><td class="p-3 text-center">${i+1}</td><td class="p-3"><div class="font-bold">${esc(x.nama||'-')}</div><div class="text-xs text-slate-400">${esc(x.blok||'')}/${esc(x.noRumah||'')} • ${esc(x.idPinjaman||'')}</div></td><td class="p-3 whitespace-nowrap">${esc(x.tanggalPinjaman||'-')}</td><td class="p-3 text-right font-black">${rupiah(x.nominalPinjaman||0)}</td><td class="p-3 text-right font-bold text-emerald-700">${rupiah(x.totalDibayar||0)}</td><td class="p-3 text-right font-black text-red-600">${rupiah(x.sisaPinjaman||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${badge}">${esc(st)}</span></td><td class="p-3">${esc(x.keterangan||'-')}</td></tr>`}).join('')||'<tr><td colspan="8" class="p-6 text-center text-slate-400">Tidak ada data pinjaman pada filter ini.</td></tr>'}
 function renderLaporanTalangan(d){d=d||{};const r=d.ringkasan||{},rows=d.rows||[],set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('report-talangan-period',`Periode ${d.namaBulan||''} ${d.tahun||''}${d.statusFilter&&d.statusFilter!=='SEMUA'?' • '+d.statusFilter:''}`);set('rep-talangan-jumlah',r.jumlah||0);set('rep-talangan-total',rupiah(r.totalTalangan||0));set('rep-talangan-diganti',rupiah(r.totalDiganti||0));set('rep-talangan-sisa',rupiah(r.totalSisa||0));const tb=document.getElementById('report-talangan-tbody');if(tb)tb.innerHTML=rows.map((x,i)=>{const st=String(x.status||'MENUNGGU').toUpperCase(),badge=st==='LUNAS'?'bg-emerald-100 text-emerald-700':st==='BATAL'?'bg-slate-100 text-slate-500':'bg-amber-100 text-amber-700';return `<tr class="${st==='BATAL'?'opacity-55':''}"><td class="p-3 text-center">${i+1}</td><td class="p-3"><div class="font-bold">${esc(x.nama||'-')}</div><div class="text-xs text-slate-400">${esc(x.blok||'')}/${esc(x.noRumah||'')} • ${esc(x.idTalangan||'')}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominalTalangan||0)}</td><td class="p-3 text-right font-bold text-emerald-700">${rupiah(x.nominalDiganti||0)}</td><td class="p-3 text-right font-black text-red-600">${rupiah(x.sisaTalangan||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${badge}">${esc(st)}</span></td><td class="p-3 text-center">${esc(x.statusPembukuan||'-')}</td><td class="p-3"><div>${esc(x.tanggalJatuhTempo||'-')}</div>${x.tanggalLunas?`<div class="text-xs text-emerald-700 mt-1">Lunas ${esc(x.tanggalLunas)}</div>`:''}</td></tr>`}).join('')||'<tr><td colspan="8" class="p-6 text-center text-slate-400">Tidak ada data talangan pada filter ini.</td></tr>';const pt=document.getElementById('report-talangan-print-tbody');if(pt)pt.innerHTML=(d.rekapStatus||[]).map(x=>`<tr><td class="p-3 font-bold">${esc(x.status)}</td><td class="p-3 text-center">${x.jumlah||0}</td><td class="p-3 text-right font-bold">${rupiah(x.nominal||0)}</td><td class="p-3 text-right font-black">${rupiah(x.sisa||0)}</td></tr>`).join('')}
 function getNamaFileLaporan(){
@@ -1410,6 +1551,7 @@ function pilihMenu(n){
   document.querySelector(`[data-process-target="${n}"]`)?.classList.add('active');
   document.getElementById('page-title').textContent=meta[n]?.[0]||'Pembukuan Flamboyan 4';
   document.getElementById('page-subtitle').textContent=meta[n]?.[1]||'';
+  document.getElementById('page-heading')?.classList.toggle('hidden',n==='riwayat');
   if(n==='riwayat'){loadRiwayat(true);pilihRiwayat('iuran')}
   if(n==='transaksi')initTransaksiKasUi();
   if(n==='kas'){if(!KAS_LOADED)loadPembukuanKas();else renderPembukuanKas()}
@@ -1547,6 +1689,21 @@ document.addEventListener('DOMContentLoaded',()=>{lucide.createIcons();initKasUi
   .cs-list{max-height:54vh!important}
   .trx-layout>div{margin-bottom:.7rem}
   #tab-laporan label{font-size:12px!important;display:block!important;margin-bottom:4px!important}
+}
+
+/* v6.17.3 - batasi tinggi daftar transaksi pembukuan agar seimbang dengan panel batch */
+@media (min-width: 641px){
+  #tab-kas .kas-scroll{
+    max-height:380px;
+    overflow-y:auto!important;
+    overflow-x:auto!important;
+    scrollbar-gutter:stable;
+  }
+  #tab-kas .kas-scroll thead{
+    position:sticky;
+    top:0;
+    z-index:2;
+  }
 }
 </style>
 <script id="v617-behavior">
