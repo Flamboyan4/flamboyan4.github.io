@@ -817,6 +817,186 @@ main > section.card{overflow:visible!important}
 }
 </style>
 
+
+<style id="v6209-mobile-column-spacing-fix">
+/* v6.20.9 — HP: KECILKAN JARAK ANTAR KOLOM, BUKAN FONT.
+   Font dikembalikan ke ukuran normal; tabel mengikuti lebar isi agar tidak ada ruang kosong besar. */
+@media screen and (max-width:767px){
+  /* Kembalikan ukuran tulisan seperti sebelum eksperimen compact. */
+  #tab-riwayat table,
+  #tab-kas table,
+  #tab-pinjaman table,
+  #tab-talangan table,
+  #tab-denda table,
+  #tab-laporan table{
+    font-size:12px!important;
+    line-height:1.25!important;
+  }
+  #tab-riwayat th,#tab-kas th,#tab-pinjaman th,#tab-talangan th,#tab-denda th,#tab-laporan th{
+    font-size:12px!important;
+  }
+
+  /* Ini inti perubahan: ruang kiri-kanan sel dipersempit, tinggi tetap nyaman. */
+  #tab-riwayat th,#tab-riwayat td,
+  #tab-kas th,#tab-kas td,
+  #tab-pinjaman th,#tab-pinjaman td,
+  #tab-talangan th,#tab-talangan td,
+  #tab-denda th,#tab-denda td,
+  #tab-laporan th,#tab-laporan td{
+    padding-top:7px!important;
+    padding-bottom:7px!important;
+    padding-left:3px!important;
+    padding-right:3px!important;
+    line-height:1.25!important;
+  }
+
+  /* Hapus lebar tabel paksa 430/560/515 dst. Biarkan kolom rapat mengikuti isi. */
+  #tab-riwayat table,
+  #tab-kas table,
+  #tab-pinjaman table,
+  #tab-talangan table,
+  #tab-denda table,
+  #tab-laporan table{
+    width:max-content!important;
+    min-width:100%!important;
+    table-layout:auto!important;
+  }
+
+  /* Kolom teks boleh membungkus agar tidak memaksa tabel jadi terlalu panjang. */
+  #tab-riwayat td,
+  #tab-kas td,
+  #tab-pinjaman td,
+  #tab-talangan td,
+  #tab-denda td,
+  #tab-laporan td{
+    white-space:normal!important;
+    overflow-wrap:normal!important;
+    word-break:normal!important;
+  }
+
+  /* Angka, status, tanggal dan tombol jangan pecah baris. */
+  #tab-riwayat .text-right,#tab-kas .text-right,#tab-pinjaman .text-right,#tab-talangan .text-right,#tab-denda .text-right,#tab-laporan .text-right,
+  #tab-riwayat td:last-child,#tab-kas td:last-child,#tab-pinjaman td:last-child,#tab-talangan td:last-child,#tab-denda td:last-child,
+  #tab-riwayat button,#tab-kas button,#tab-pinjaman button,#tab-talangan button,#tab-denda button{
+    white-space:nowrap!important;
+  }
+
+  /* Tombol tidak dikecilkan font-nya; hanya padding horizontalnya yang dirapatkan sedikit. */
+  #tab-riwayat td:last-child button,
+  #tab-kas td:last-child button,
+  #tab-pinjaman td:last-child button,
+  #tab-talangan td:last-child button,
+  #tab-denda td:last-child button{
+    font-size:12px!important;
+    padding-left:6px!important;
+    padding-right:6px!important;
+  }
+
+  /* Riwayat Iuran: kolom yang biasanya menimbulkan ruang kosong besar dibuat selebar konten. */
+  #history-iuran-panel th,
+  #history-iuran-panel td{width:auto!important;min-width:0!important}
+  #history-iuran-panel th:nth-child(2),#history-iuran-panel td:nth-child(2){max-width:130px!important}
+  #history-iuran-panel th:nth-child(3),#history-iuran-panel td:nth-child(3){max-width:110px!important}
+
+  /* Riwayat Pinjaman: tetap rapat tetapi tombol aksi muat. */
+  #history-pinjaman-panel > .loan-scroll > table th,
+  #history-pinjaman-panel > .loan-scroll > table td{width:auto!important;min-width:0!important}
+  #history-pinjaman-panel > .loan-scroll > table td:nth-child(2){max-width:125px!important}
+  #history-pinjaman-panel > .loan-scroll > table td:nth-child(7){max-width:120px!important}
+  #history-pinjaman-panel > .loan-scroll > table td:nth-child(8)>div{gap:3px!important}
+}
+</style>
+
+
+
+<style id="v6210-true-column-gap-fix">
+/* v6.20.10 — HP: yang dipadatkan adalah JARAK ANTAR KOLOM, bukan ukuran teks.
+   Target visual: A   B   C, bukan A                 B                 C. */
+@media screen and (max-width:767px){
+  /* Kembalikan tab Riwayat seperti proporsi semula. */
+  #tab-riwayat > .bg-white .tabs-scroll{
+    gap:8px!important;
+    padding:0!important;
+  }
+  #tab-riwayat .history-btn{
+    font-size:14px!important;
+    line-height:20px!important;
+    padding:8px 16px!important;
+    min-width:max-content!important;
+    border-radius:12px!important;
+  }
+
+  /* Semua tabel HP: jangan paksa tabel memenuhi lebar card / angka pixel tertentu. */
+  #tab-riwayat table,
+  #tab-kas table,
+  #tab-pinjaman table,
+  #tab-talangan table,
+  #tab-denda table,
+  #tab-laporan table{
+    width:auto!important;
+    min-width:0!important;
+    max-width:none!important;
+    table-layout:auto!important;
+  }
+
+  /* Inti perbaikan: lebar kolom mengikuti ISI, tanpa persentase / ruang kosong buatan. */
+  #tab-riwayat th,#tab-riwayat td,
+  #tab-kas th,#tab-kas td,
+  #tab-pinjaman th,#tab-pinjaman td,
+  #tab-talangan th,#tab-talangan td,
+  #tab-denda th,#tab-denda td,
+  #tab-laporan th,#tab-laporan td{
+    width:auto!important;
+    min-width:0!important;
+    max-width:none!important;
+    padding-left:4px!important;
+    padding-right:4px!important;
+    /* jangan sentuh font-size / vertical spacing */
+  }
+
+  /* Kolom teks panjang boleh membungkus supaya tidak mendorong kolom lain terlalu jauh. */
+  #tab-riwayat td,
+  #tab-kas td,
+  #tab-pinjaman td,
+  #tab-talangan td,
+  #tab-denda td,
+  #tab-laporan td{
+    white-space:normal!important;
+  }
+  /* Data pendek tetap satu baris. */
+  #tab-riwayat td.text-right,#tab-kas td.text-right,#tab-pinjaman td.text-right,#tab-talangan td.text-right,#tab-denda td.text-right,#tab-laporan td.text-right,
+  #tab-riwayat td:last-child,#tab-kas td:last-child,#tab-pinjaman td:last-child,#tab-talangan td:last-child,#tab-denda td:last-child,
+  #tab-riwayat button,#tab-kas table button,#tab-pinjaman table button,#tab-talangan table button,#tab-denda table button{
+    white-space:nowrap!important;
+  }
+
+  /* Riwayat Pinjaman: hapus semua pembagian % lama; Aksi hanya selebar tombol. */
+  #history-pinjaman-panel > .loan-scroll > table th,
+  #history-pinjaman-panel > .loan-scroll > table td{
+    width:auto!important;
+    min-width:0!important;
+    max-width:none!important;
+  }
+  #history-pinjaman-panel > .loan-scroll > table td:nth-child(2){max-width:118px!important}
+  #history-pinjaman-panel > .loan-scroll > table td:nth-child(7){max-width:105px!important}
+  #history-pinjaman-panel > .loan-scroll > table td:nth-child(8)>div{
+    gap:4px!important;
+    justify-content:flex-start!important;
+  }
+
+  /* Riwayat Iuran: jangan ada kolom yang mengembang hanya karena w-full/min-width lama. */
+  #history-iuran-panel .history-scroll table,
+  #history-kasumum-panel .history-scroll table,
+  #history-batch-panel table,
+  #history-talangan-panel .loan-scroll table,
+  #history-denda-panel .loan-scroll table,
+  .loan-payment-history .loan-scroll table{
+    width:auto!important;
+    min-width:0!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
