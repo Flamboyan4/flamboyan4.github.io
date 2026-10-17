@@ -2048,9 +2048,9 @@ main > section.card{overflow:visible!important}
 </div>
 
 <script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzjRsDpr1oT8eWV0lPlnoDzMPiq0KXwD_kZ3sThRd5-82F3dYvq0PciZFDZ7aQibqty/exec';
-const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzjRsDpr1oT8eWV0lPlnoDzMPiq0KXwD_kZ3sThRd5-82F3dYvq0PciZFDZ7aQibqty/exec';
-const DELETE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzjRsDpr1oT8eWV0lPlnoDzMPiq0KXwD_kZ3sThRd5-82F3dYvq0PciZFDZ7aQibqty/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5JfsKTAoRZEt30uA4zt-SRCJJXObsj0Q0MIluN-NhpvMQDcqw2cTntATSM24F3D0k/exec';
+const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5JfsKTAoRZEt30uA4zt-SRCJJXObsj0Q0MIluN-NhpvMQDcqw2cTntATSM24F3D0k/exec';
+const DELETE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5JfsKTAoRZEt30uA4zt-SRCJJXObsj0Q0MIluN-NhpvMQDcqw2cTntATSM24F3D0k/exec';
 let DATA={config:{},rumah:[],warga:[],riwayat:[]};
 let RIWAYAT_SEMUA=false;
 let RIWAYAT_KAS=[];
@@ -3555,7 +3555,7 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
 
 <style id="v6222-dynamic-parent-dropdown-expand">
 /* =========================================================
-   v6.22.2 — Dynamic Parent Expansion
+   v6.22.3 — Dynamic Parent Expansion
    Parent card hanya memanjang bila dropdown/popover benar-benar
    melewati batas bawah card. Dropdown pendek tidak mengubah layout.
    ========================================================= */
@@ -3698,4 +3698,52 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
 })();
 </script>
 
+\n<style id="v6223-report-talangan-history-filter-fix">
+/* v6.22.3 — visual polish */
+@media screen and (max-width:767px){
+  /* Riwayat Iuran: status filter dibuat seimbang dengan filter laporan */
+  #history-iuran-panel .history-iuran-search{
+    grid-template-columns:minmax(0,1.25fr) minmax(150px,.75fr)!important;
+    gap:8px!important;
+    align-items:stretch!important;
+  }
+  #history-iuran-panel .history-iuran-search input,
+  #history-iuran-panel .history-iuran-search select,
+  #history-iuran-panel .history-iuran-search .custom-select-btn{
+    min-height:50px!important;
+    height:50px!important;
+    font-size:16px!important;
+    line-height:1.15!important;
+  }
+  #history-iuran-panel .history-iuran-search .custom-select-panel .cs-option{
+    font-size:15px!important;
+    min-height:44px!important;
+    padding:10px 12px!important;
+  }
+
+  /* Laporan Talangan: hanya tabel yang scroll horizontal, panel/card tidak ikut melebar */
+  #report-talangan-panel{width:100%!important;max-width:100%!important;min-width:0!important;overflow:hidden!important;}
+  #report-talangan-panel > *{max-width:100%!important;min-width:0!important;}
+  #report-talangan-panel .grid{width:100%!important;max-width:100%!important;}
+  #report-talangan-panel .report-table-wrap{
+    width:100%!important;max-width:100%!important;min-width:0!important;
+    overflow-x:auto!important;-webkit-overflow-scrolling:touch!important;
+    border-radius:14px!important;
+  }
+  #report-talangan-panel .report-table-wrap table{
+    width:max-content!important;min-width:720px!important;table-layout:auto!important;
+  }
+  #report-talangan-panel .report-card{min-width:0!important;width:100%!important;}
+  #report-talangan-panel h2{font-size:24px!important;line-height:1.08!important;word-break:normal!important;}
+  #report-talangan-panel p{font-size:14px!important;line-height:1.35!important;}
+
+  /* summary card tetap dua kolom proporsional di HP */
+  #report-talangan-panel .grid.sm\\:grid-cols-2,
+  #report-talangan-panel .grid.lg\\:grid-cols-4{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+</style>
+
+\n<style id="v6224-mobile-custom-date">\n/* v6.22.4 — Custom calendar untuk seluruh input tanggal di HP */\n.mobile-date-wrap{position:relative;width:100%}\n.mobile-date-button{display:none}\n.mobile-date-source.mobile-date-hidden{position:absolute!important;opacity:0!important;pointer-events:none!important;width:1px!important;height:1px!important;left:0!important;bottom:0!important;padding:0!important;border:0!important}\n.mdp-pop{display:none;position:absolute;left:0;top:calc(100% + 7px);z-index:320;width:min(318px,calc(100vw - 32px));background:#fff;border:1px solid #ddd6fe;border-radius:16px;padding:10px;box-shadow:0 18px 55px rgba(46,16,101,.18)}\n.mobile-date-wrap.open .mdp-pop{display:block}\n.mdp-head{display:grid;grid-template-columns:36px 1fr 36px;align-items:center;gap:4px;margin-bottom:8px}\n.mdp-nav{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#6d28d9}\n.mdp-nav:active{background:#f5f3ff}\n.mdp-title{height:38px;border-radius:10px;font-weight:900;color:#2e1065;text-align:center}\n.mdp-week,.mdp-days{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}\n.mdp-week div{text-align:center;font-size:10px;font-weight:800;color:#64748b;padding:4px 0}\n.mdp-day{aspect-ratio:1/1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px}\n.mdp-day.muted{color:#cbd5e1}.mdp-day.selected{background:#7c3aed;color:#fff;font-weight:900}.mdp-day.today:not(.selected){box-shadow:inset 0 0 0 1px #8b5cf6;color:#6d28d9;font-weight:800}\n.mdp-months,.mdp-years{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}\n.mdp-month,.mdp-year{min-height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px}\n.mdp-month.selected,.mdp-year.selected{background:#7c3aed;color:#fff;font-weight:900}\n@media(max-width:767px){\n  .mobile-date-button{display:flex;width:100%;min-height:48px;border:1px solid #ddd6fe;background:#fff;border-radius:12px;padding:.72rem 2.55rem .72rem .85rem;align-items:center;font-size:16px;text-align:left;color:#1e1b2e;position:relative}\n  .mobile-date-button:focus{outline:none;box-shadow:0 0 0 3px #ede9fe;border-color:#8b5cf6}\n  .mobile-date-button svg{position:absolute;right:13px;width:19px;height:19px;color:#6d28d9}\n  .mobile-date-wrap.open{z-index:310}\n}\n</style>\n<script id="v6224-mobile-custom-date-script">\n(function(){\n  const MF=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];\n  const MS=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];\n  const WK=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];\n  const views=new WeakMap();\n  let historyMarker=false, suppressPop=false;\n  const isMobile=()=>matchMedia('(max-width:767px)').matches;\n  const p2=n=>String(n).padStart(2,'0');\n  function parse(v){const m=String(v||'').match(/^(\\d{4})-(\\d{2})-(\\d{2})$/);const d=new Date();return m?{y:+m[1],m:+m[2],d:+m[3]}:{y:d.getFullYear(),m:d.getMonth()+1,d:d.getDate()}}\n  function iso(p){return `${p.y}-${p2(p.m)}-${p2(p.d)}`}\n  function show(v){if(!v)return 'Pilih tanggal';const p=parse(v);return `${p.d} ${MF[p.m-1]} ${p.y}`}\n  function closeNativeDateCalendars(){document.querySelectorAll('.mobile-date-wrap.open').forEach(x=>{x.classList.remove('open');resetExpand(x)});}\n  function anyCalendarOpen(){return !!document.querySelector('.upr-control.open,.mobile-date-wrap.open')}\n  function ensureHistoryMarker(){if(!isMobile()||historyMarker)return;try{history.pushState({...(history.state||{}),__calendarOpen:true},'',location.href);historyMarker=true}catch(e){}}\n  function clearHistoryMarker(){if(!historyMarker)return;historyMarker=false;suppressPop=true;try{history.back()}catch(e){suppressPop=false}}\n  window.addEventListener('popstate',()=>{\n    if(suppressPop){suppressPop=false;return}\n    if(anyCalendarOpen()){\n      document.querySelectorAll('.upr-control.open').forEach(x=>x.classList.remove('open'));\n      closeNativeDateCalendars();\n      historyMarker=false;\n    }\n  });\n  function maybeSyncHistory(){setTimeout(()=>{if(anyCalendarOpen())ensureHistoryMarker();else if(historyMarker)clearHistoryMarker()},0)}\n  document.addEventListener('click',e=>{if(e.target.closest('.upr-field,.mobile-date-button,.upr-day,.upr-month,.upr-year,.mdp-pop'))maybeSyncHistory()},true);\n  document.addEventListener('pointerdown',e=>{if(!e.target.closest('.mobile-date-wrap')){closeNativeDateCalendars();maybeSyncHistory()}},true);\n\n  function expandParent(w){\n    setTimeout(()=>{\n      const pop=w.querySelector('.mdp-pop'); if(!pop||!w.classList.contains('open'))return;\n      const parent=w.closest('.card,.rounded-2xl.border,#tab-iuran,#tab-transaksi,#tab-kas,#tab-talangan,#tab-denda,#tab-pinjaman'); if(!parent)return;\n      const pr=parent.getBoundingClientRect(),rr=pop.getBoundingClientRect(),extra=Math.ceil(rr.bottom-pr.bottom+12);\n      if(extra>0){parent.dataset.mdpPad=parent.style.paddingBottom||'';parent.style.paddingBottom=`calc(${getComputedStyle(parent).paddingBottom} + ${extra}px)`}\n    },30);\n  }\n  function resetExpand(w){const parent=w.closest('.card,.rounded-2xl.border,#tab-iuran,#tab-transaksi,#tab-kas,#tab-talangan,#tab-denda,#tab-pinjaman');if(parent&&'mdpPad' in parent.dataset){parent.style.paddingBottom=parent.dataset.mdpPad;delete parent.dataset.mdpPad}}\n\n  function render(w){\n    const input=w.querySelector('.mobile-date-source'),pop=w.querySelector('.mdp-pop'),sel=parse(input.value);\n    let v=views.get(w)||{mode:'day',y:sel.y,m:sel.m};views.set(w,v);\n    if(v.mode==='month'){\n      pop.innerHTML=`<div class="mdp-head"><button type="button" class="mdp-nav" data-shift="-1">‹</button><button type="button" class="mdp-title" data-mode="year">${v.y}</button><button type="button" class="mdp-nav" data-shift="1">›</button></div><div class="mdp-months">${MS.map((n,i)=>`<button type="button" class="mdp-month ${sel.y===v.y&&sel.m===i+1?'selected':''}" data-month="${i+1}">${n}</button>`).join('')}</div>`;\n    }else if(v.mode==='year'){\n      const start=Math.floor(v.y/10)*10;let ys='';for(let y=start-1;y<=start+10;y++)ys+=`<button type="button" class="mdp-year ${sel.y===y?'selected':''}" data-year="${y}">${y}</button>`;\n      pop.innerHTML=`<div class="mdp-head"><button type="button" class="mdp-nav" data-yshift="-10">‹</button><div class="mdp-title flex items-center justify-center">${start} – ${start+9}</div><button type="button" class="mdp-nav" data-yshift="10">›</button></div><div class="mdp-years">${ys}</div>`;\n    }else{\n      const first=new Date(v.y,v.m-1,1),sd=first.getDay(),days=new Date(v.y,v.m,0).getDate(),prev=new Date(v.y,v.m-1,0).getDate(),today=new Date();let cells='';\n      for(let i=0;i<42;i++){let y=v.y,m=v.m,d,mut=false;if(i<sd){d=prev-sd+i+1;m--;if(m<1){m=12;y--}mut=true}else if(i>=sd+days){d=i-(sd+days)+1;m++;if(m>12){m=1;y++}mut=true}else d=i-sd+1;const ss=sel.y===y&&sel.m===m&&sel.d===d,tt=today.getFullYear()===y&&today.getMonth()+1===m&&today.getDate()===d;cells+=`<button type="button" class="mdp-day ${mut?'muted':''} ${ss?'selected':''} ${tt?'today':''}" data-date="${y}-${p2(m)}-${p2(d)}">${d}</button>`}\n      pop.innerHTML=`<div class="mdp-head"><button type="button" class="mdp-nav" data-mshift="-1">‹</button><button type="button" class="mdp-title" data-mode="month">${MF[v.m-1]} ${v.y}</button><button type="button" class="mdp-nav" data-mshift="1">›</button></div><div class="mdp-week">${WK.map(x=>`<div>${x}</div>`).join('')}</div><div class="mdp-days">${cells}</div>`;\n    }\n  }\n  function syncOne(input){const w=input.closest('.mobile-date-wrap');if(!w)return;const t=w.querySelector('.mobile-date-text');if(t)t.textContent=show(input.value)}\n  function open(w){document.querySelectorAll('.mobile-date-wrap.open').forEach(x=>{if(x!==w){x.classList.remove('open');resetExpand(x)}});document.querySelectorAll('.upr-control.open').forEach(x=>x.classList.remove('open'));const input=w.querySelector('.mobile-date-source'),p=parse(input.value);views.set(w,{mode:'day',y:p.y,m:p.m});render(w);w.classList.add('open');expandParent(w);ensureHistoryMarker()}\n  function attach(input){\n    if(input.dataset.mobileCustomDate==='1')return;input.dataset.mobileCustomDate='1';input.classList.add('mobile-date-source');\n    const w=document.createElement('div');w.className='mobile-date-wrap mt-1';input.parentNode.insertBefore(w,input);w.appendChild(input);\n    const b=document.createElement('button');b.type='button';b.className='mobile-date-button';b.innerHTML='<span class="mobile-date-text"></span><i data-lucide="calendar-days"></i>';w.appendChild(b);\n    const pop=document.createElement('div');pop.className='mdp-pop';w.appendChild(pop);\n    if(isMobile()){input.dataset.wasRequired=input.required?'1':'0';input.required=false;input.type='hidden';input.classList.add('mobile-date-hidden')}\n    syncOne(input);b.addEventListener('click',()=>w.classList.contains('open')?(w.classList.remove('open'),resetExpand(w),maybeSyncHistory()):open(w));\n    pop.addEventListener('click',e=>{\n      const v=views.get(w),input=w.querySelector('.mobile-date-source');\n      if(e.target.closest('[data-mode]')){v.mode=e.target.closest('[data-mode]').dataset.mode;render(w);return}\n      if(e.target.closest('[data-mshift]')){v.m+=+e.target.closest('[data-mshift]').dataset.mshift;if(v.m<1){v.m=12;v.y--}if(v.m>12){v.m=1;v.y++}render(w);return}\n      if(e.target.closest('[data-shift]')){v.y+=+e.target.closest('[data-shift]').dataset.shift;render(w);return}\n      if(e.target.closest('[data-yshift]')){v.y+=+e.target.closest('[data-yshift]').dataset.yshift;render(w);return}\n      if(e.target.closest('[data-month]')){v.m=+e.target.closest('[data-month]').dataset.month;v.mode='day';render(w);return}\n      if(e.target.closest('[data-year]')){v.y=+e.target.closest('[data-year]').dataset.year;v.mode='month';render(w);return}\n      const d=e.target.closest('[data-date]');if(d){input.value=d.dataset.date;input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));syncOne(input);w.classList.remove('open');resetExpand(w);maybeSyncHistory()}\n    });\n    input.addEventListener('change',()=>syncOne(input));\n  }\n  function init(){if(!isMobile())return;document.querySelectorAll('input[type="date"]').forEach(attach);try{lucide.createIcons()}catch(e){};setInterval(()=>document.querySelectorAll('.mobile-date-source').forEach(syncOne),1200)}\n  document.addEventListener('submit',e=>{if(!isMobile())return;const missing=[...e.target.querySelectorAll('.mobile-date-source')].find(i=>i.dataset.wasRequired==='1'&&!i.value);if(missing){e.preventDefault();const w=missing.closest('.mobile-date-wrap');open(w);alert('Tanggal belum dipilih.')}},true);\n  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,300));else setTimeout(init,300);\n})();\n</script>\n
 </body></html>
