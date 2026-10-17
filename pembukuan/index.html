@@ -1431,6 +1431,22 @@ main > section.card{overflow:visible!important}
 }
 </style>
 
+
+<!-- v6.23.5 ALIGN IURAN SAVE BUTTON -->
+<style>
+@media (min-width:1024px){
+  #tab-input #form-iuran > div:nth-child(5){
+    grid-column:1 / span 6 !important;
+    grid-row:4 !important;
+  }
+  #tab-input #form-iuran > #btn-simpan{
+    grid-column:7 / span 6 !important;
+    grid-row:4 !important;
+    align-self:start !important;
+    margin-top:24px !important;
+  }
+}
+</style>
 </head>
 <body>
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
