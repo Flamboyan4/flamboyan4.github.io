@@ -249,9 +249,9 @@
   #page-subtitle{display:none!important}
   #tab-input .max-w-6xl>div.mb-5,
   #tab-transaksi .max-w-6xl>div.mb-5,
-  #tab-pinjaman .max-w-5xl>div.mb-5,
-  #tab-talangan .max-w-6xl>div.mb-5,
-  #tab-denda .max-w-6xl>div.mb-5{display:none!important}
+  #tab-pinjaman .max-w-5xl>div.mb-5:first-child,
+  #tab-talangan .max-w-6xl>div.mb-5:first-child,
+  #tab-denda .max-w-6xl>div.mb-5:first-child{display:none!important}
   .custom-select-btn .cs-value.resident-value{width:100%;display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:.75rem;align-items:center}
   .custom-select-btn .resident-value .rv-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .custom-select-btn .resident-value .rv-house{text-align:right;color:#64748b;font-weight:800;white-space:nowrap}
@@ -1366,7 +1366,7 @@ main > section.card{overflow:visible!important}
         </div>
 
         <div class="mode-switch grid grid-cols-2 gap-2 mb-5">
-          <button id="loan-mode-buat" type="button" class="loan-mode-btn active rounded-xl border border-violet-200 bg-violet-600 text-white font-bold py-3" onclick="setLoanMode('buat')">Catat</button>
+          <button id="loan-mode-buat" type="button" class="loan-mode-btn active rounded-xl border border-violet-200 bg-violet-600 text-white font-bold py-3" onclick="setLoanMode('buat')">Buat</button>
           <button id="loan-mode-bayar" type="button" class="loan-mode-btn rounded-xl border border-violet-100 bg-white text-slate-600 font-bold py-3 hover:bg-violet-50" onclick="setLoanMode('bayar')">Bayar</button>
         </div>
 
@@ -1424,7 +1424,7 @@ main > section.card{overflow:visible!important}
       <div class="max-w-6xl mx-auto">
         <div class="mb-5"><h2 class="font-black text-xl text-violet-950">Denda Gorol</h2><p class="text-sm text-slate-500 mt-1">Catat warga yang terkena denda kerja bakti/gorol. Pembayaran denda otomatis masuk sebagai pemasukan Kas Warga.</p></div>
         <div class="mode-switch grid grid-cols-2 gap-2 mb-5">
-          <button id="btn-denda-catat" onclick="setModeDenda('catat')" class="denda-mode-btn active rounded-xl border border-violet-200 bg-violet-600 text-white font-black py-3">Catat</button>
+          <button id="btn-denda-catat" onclick="setModeDenda('catat')" class="denda-mode-btn active rounded-xl border border-violet-200 bg-violet-600 text-white font-black py-3">Buat</button>
           <button id="btn-denda-bayar" onclick="setModeDenda('bayar')" class="denda-mode-btn rounded-xl border border-violet-100 bg-white text-slate-600 font-black py-3">Bayar</button>
         </div>
 
@@ -2839,4 +2839,25 @@ async function hapusPinjamanPermanen(id){const x=(DATA_PINJAMAN.rows||[]).find(v
 })();
 </script>
 
+
+<style id="v6213-mobile-buat-bayar-real-fix">
+/* v6.20.13 — FIX nyata: selector lama div.mb-5 sempat menyembunyikan mode-switch. */
+@media screen and (max-width:767px){
+  #tab-pinjaman > .max-w-5xl > .mode-switch.grid.grid-cols-2.mb-5,
+  #tab-denda > .max-w-6xl > .mode-switch.grid.grid-cols-2.mb-5{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    gap:8px!important;
+    margin:0 0 14px!important;
+    width:100%!important;
+    visibility:visible!important;
+    opacity:1!important;
+  }
+  #tab-pinjaman > .max-w-5xl > .mode-switch > button,
+  #tab-denda > .max-w-6xl > .mode-switch > button{
+    display:flex!important;align-items:center!important;justify-content:center!important;
+    min-height:46px!important;width:100%!important;
+  }
+}
+</style>
 </body></html>
