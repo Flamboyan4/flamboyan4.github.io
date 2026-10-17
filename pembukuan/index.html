@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Pembukuan Flamboyan 4</title>
-<!-- Build: v6.20.2 UNIFIED BACKEND FINAL TEST -->
+<!-- Build: v6.20.3 UNIFIED BACKEND FINAL TEST -->
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
@@ -642,6 +642,27 @@ main > section.card{overflow:visible!important}
 .edit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.edit-grid .full{grid-column:1/-1}.edit-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
 @media(max-width:640px){.edit-modal{align-items:flex-end;padding:10px}.edit-modal-card{width:100%;max-height:84vh;border-radius:18px}.edit-grid{grid-template-columns:1fr}.edit-grid .full{grid-column:auto}}
 </style>
+
+<style id="v6203-loan-history-layout">
+/* Riwayat Pinjaman: beri ruang lebih besar untuk kolom Aksi agar tombol tidak terpotong. */
+@media screen and (min-width:768px){
+  #history-pinjaman-panel .loan-scroll:first-of-type table{table-layout:fixed!important;width:100%!important;min-width:0!important}
+  #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(1){width:10%!important}
+  #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(2){width:16%!important}
+  #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(3){width:9%!important}
+  #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(4){width:9%!important}
+  #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(5){width:9%!important}
+  #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(6){width:8%!important}
+  #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(7){width:15%!important}
+  #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(8){width:24%!important}
+  #history-pinjaman-panel .loan-scroll:first-of-type td:nth-child(8)>div{justify-content:flex-end!important;flex-wrap:nowrap!important;gap:5px!important}
+  #history-pinjaman-panel .loan-scroll:first-of-type td:nth-child(8) button{padding:6px 8px!important;font-size:12px!important;white-space:nowrap!important}
+}
+#loan-payment-history>summary{list-style:none}
+#loan-payment-history>summary::-webkit-details-marker{display:none}
+#loan-payment-history[open]>summary span:last-child::after{content:' • Tutup'}
+</style>
+
 </head>
 <body>
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
@@ -1164,13 +1185,19 @@ main > section.card{overflow:visible!important}
             <tbody id="tbody-riwayat-pinjaman" class="divide-y divide-violet-50"><tr><td colspan="8" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody>
           </table>
         </div>
-        <div class="mt-5 mb-2"><h3 class="font-black text-violet-950">Riwayat Pembayaran Pinjaman</h3><p class="text-xs text-slate-500 mt-1">Pembayaran aktif maupun yang dibatalkan tetap tersimpan sebagai histori.</p></div>
-        <div class="loan-scroll history-scroll rounded-xl border border-violet-100">
-          <table class="min-w-[850px] w-full text-sm">
-            <thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-left">Tanggal</th><th class="p-3 text-left">Warga</th><th class="p-3 text-left">ID Pinjaman</th><th class="p-3 text-right">Nominal</th><th class="p-3 text-left">Metode</th><th class="p-3 text-center">Status</th><th class="p-3 text-right">Aksi</th></tr></thead>
-            <tbody id="tbody-riwayat-bayar-pinjaman" class="divide-y divide-violet-50"><tr><td colspan="7" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody>
-          </table>
-        </div>
+        <details id="loan-payment-history" class="mt-5 rounded-xl border border-violet-100 bg-white overflow-hidden">
+          <summary class="cursor-pointer select-none px-4 py-3 bg-violet-50/60 text-violet-950 font-black flex items-center justify-between gap-3">
+            <span>Detail Cicilan / Pembayaran Pinjaman</span>
+            <span class="text-xs font-bold text-violet-600">Lihat histori</span>
+          </summary>
+          <div class="px-4 pt-3 pb-2 text-xs text-slate-500">Bagian ini berisi transaksi pembayaran/cicilan satu per satu untuk audit. Ringkasan pinjamannya tetap ada pada tabel utama di atas.</div>
+          <div class="loan-scroll history-scroll border-t border-violet-100">
+            <table class="min-w-[850px] w-full text-sm">
+              <thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-left">Tanggal</th><th class="p-3 text-left">Warga</th><th class="p-3 text-left">ID Pinjaman</th><th class="p-3 text-right">Nominal</th><th class="p-3 text-left">Metode</th><th class="p-3 text-center">Status</th><th class="p-3 text-right">Aksi</th></tr></thead>
+              <tbody id="tbody-riwayat-bayar-pinjaman" class="divide-y divide-violet-50"><tr><td colspan="7" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody>
+            </table>
+          </div>
+        </details>
       </div>
 
       <div id="history-talangan-panel" class="hidden">
