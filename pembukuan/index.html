@@ -1140,6 +1140,63 @@ main > section.card{overflow:visible!important}
 }
 </style>
 
+<!-- v6.21.0 HISTORY FILTER + ICON ACTIONS + DATE SORT -->
+
+<style id="v6214-history-filter-icon-sort">
+/* v6.21.0 — riwayat: filter periode, aksi icon, proporsi kolom rapat & konsisten */
+.history-iuran-filter{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.history-period-box,.history-iuran-search{display:flex;align-items:center;gap:8px;min-width:0}
+.history-period-box>.field{width:150px}
+.history-period-box>div>.field{width:145px}
+.history-range-box{display:flex;align-items:center;gap:6px}
+.history-range-sep{font-size:12px;font-weight:800;color:#64748b;white-space:nowrap}
+.history-iuran-search{margin-left:auto}
+.history-iuran-search input{width:220px}
+.history-iuran-search select{width:120px}
+
+.action-icons{display:flex;justify-content:flex-end;align-items:center;gap:5px;flex-wrap:nowrap;white-space:nowrap}
+.action-icon{width:34px;height:34px;padding:0!important;display:inline-flex;align-items:center;justify-content:center;border-radius:9px;border:1px solid #ddd6fe;background:#fff;flex:0 0 auto;transition:.15s}
+.action-icon svg{width:16px;height:16px;stroke-width:2.2}
+.action-icon.violet{color:#6d28d9;border-color:#ddd6fe}.action-icon.violet:hover{background:#f5f3ff}
+.action-icon.amber{color:#b45309;border-color:#fde68a}.action-icon.amber:hover{background:#fffbeb}
+.action-icon.red{color:#dc2626;border-color:#fecaca}.action-icon.red:hover{background:#fef2f2}
+.action-icon.emerald{color:#047857;border-color:#a7f3d0}.action-icon.emerald:hover{background:#ecfdf5}
+
+/* Desktop: kolom jangan dibesarkan hanya untuk memenuhi layar. Ruang diberikan sesuai isi. */
+@media screen and (min-width:768px){
+  #history-iuran-panel table{table-layout:auto!important;min-width:760px!important}
+  #history-iuran-panel th,#history-iuran-panel td{padding-left:8px!important;padding-right:8px!important}
+  #history-iuran-panel th:nth-child(1),#history-iuran-panel td:nth-child(1){white-space:nowrap;width:1%}
+  #history-iuran-panel th:nth-child(2),#history-iuran-panel td:nth-child(2){white-space:nowrap;width:1%}
+  #history-iuran-panel th:nth-child(3),#history-iuran-panel td:nth-child(3){white-space:nowrap;width:1%}
+  #history-iuran-panel th:nth-child(4),#history-iuran-panel td:nth-child(4){white-space:nowrap;width:1%}
+  #history-iuran-panel th:nth-child(5),#history-iuran-panel td:nth-child(5){white-space:nowrap;width:1%}
+  #history-iuran-panel th:nth-child(6),#history-iuran-panel td:nth-child(6){white-space:nowrap;width:1%}
+  #tab-riwayat .history-scroll table{table-layout:auto!important}
+  #tab-riwayat .history-scroll th,#tab-riwayat .history-scroll td{padding-left:8px!important;padding-right:8px!important}
+}
+
+@media screen and (max-width:767px){
+  .history-iuran-filter{display:block}
+  .history-period-box{display:grid;grid-template-columns:120px minmax(150px,1fr);gap:7px;width:100%}
+  .history-period-box>.field,.history-period-box>div>.field{width:100%!important}
+  .history-range-box{grid-column:1/-1;display:grid;grid-template-columns:1fr auto 1fr;gap:5px}
+  .history-iuran-search{display:grid;grid-template-columns:minmax(0,1fr) 105px;gap:7px;width:100%;margin-top:7px}
+  .history-iuran-search input,.history-iuran-search select{width:100%!important}
+  .action-icons{gap:4px}
+  .action-icon{width:31px;height:31px;border-radius:8px}
+  .action-icon svg{width:15px;height:15px}
+  /* font tetap; yang dipadatkan adalah padding horizontal dan ruang kolom */
+  #tab-riwayat table{font-size:inherit!important}
+  #tab-riwayat th,#tab-riwayat td{padding-left:5px!important;padding-right:5px!important}
+  #history-iuran-panel table{min-width:650px!important}
+  #history-iuran-panel td:nth-child(2)>div:first-child,
+  #history-pinjaman-panel td:nth-child(2)>div:first-child,
+  #history-talangan-panel td:nth-child(2)>div:first-child,
+  #history-denda-panel td:nth-child(2)>div:first-child{white-space:nowrap!important}
+}
+</style>
+
 </head>
 <body>
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
@@ -1461,8 +1518,8 @@ main > section.card{overflow:visible!important}
               <button id="report-mode-rt" onclick="setModeLaporan('rt')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Setoran RT</button>
               <button id="report-mode-arisan" onclick="setModeLaporan('arisan')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Arisan</button>
               <button id="report-mode-denda" onclick="setModeLaporan('denda')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Denda</button>
-              <button id="report-mode-pinjaman" onclick="setModeLaporan('pinjaman')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Pinjaman</button>
               <button id="report-mode-talangan" onclick="setModeLaporan('talangan')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Talangan</button>
+              <button id="report-mode-pinjaman" onclick="setModeLaporan('pinjaman')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Pinjaman</button>
               <button id="report-mode-tahunan" onclick="setModeLaporan('tahunan')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Tutup Buku</button>
             </div>
             <div><h2 class="font-black text-xl text-violet-950">Laporan & Rekap</h2><p class="text-sm text-slate-500 mt-1">Rekap pembukuan dan laporan tahunan.</p></div>
@@ -1591,18 +1648,29 @@ main > section.card{overflow:visible!important}
           <button id="history-btn-iuran" class="history-btn active px-4 py-2 rounded-xl border border-violet-200 text-sm font-bold whitespace-nowrap" onclick="pilihRiwayat('iuran')">Riwayat Iuran</button>
           <button id="history-btn-kasumum" class="history-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihRiwayat('kasumum')">Riwayat Kas</button>
           <button id="history-btn-batch" class="history-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihRiwayat('batch')">Riwayat Batch Kas</button>
-        <button id="history-btn-pinjaman" onclick="pilihRiwayat('pinjaman')" class="history-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50">Riwayat Pinjaman</button>
         <button id="history-btn-talangan" onclick="pilihRiwayat('talangan')" class="history-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50">Riwayat Talangan</button>
         <button id="history-btn-denda" onclick="pilihRiwayat('denda')" class="history-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50">Riwayat Denda</button>
+        <button id="history-btn-pinjaman" onclick="pilihRiwayat('pinjaman')" class="history-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50">Riwayat Pinjaman</button>
         </div>
       </div>
 
       <div id="history-iuran-panel">
 
-      <div class="flex justify-end mb-3">
-        <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
-          <input id="cari-riwayat" oninput="renderRiwayat()" placeholder="Cari nama / rumah / periode..." class="field sm:w-64">
-          <select id="filter-riwayat" onchange="renderRiwayat()" class="field sm:w-40">
+      <div class="history-iuran-filter mb-3">
+        <div class="history-period-box">
+          <select id="riwayat-period-mode" onchange="updateRiwayatPeriodControls();renderRiwayat()" class="field">
+            <option value="bulan">Bulanan</option>
+            <option value="rentang">Rentang Bulan</option>
+            <option value="tahun">Tahunan</option>
+            <option value="semua">Semua Periode</option>
+          </select>
+          <div id="riwayat-period-bulan"><input id="riwayat-period-month" type="month" onchange="renderRiwayat()" class="field"></div>
+          <div id="riwayat-period-rentang" class="hidden history-range-box"><input id="riwayat-period-start" type="month" onchange="renderRiwayat()" class="field"><span class="history-range-sep">s.d.</span><input id="riwayat-period-end" type="month" onchange="renderRiwayat()" class="field"></div>
+          <div id="riwayat-period-tahun" class="hidden"><input id="riwayat-period-year" type="number" min="2020" max="2100" onchange="renderRiwayat()" class="field" placeholder="Tahun"></div>
+        </div>
+        <div class="history-iuran-search">
+          <input id="cari-riwayat" oninput="renderRiwayat()" placeholder="Cari nama / rumah..." class="field">
+          <select id="filter-riwayat" onchange="renderRiwayat()" class="field">
             <option value="AKTIF">Aktif</option>
             <option value="SEMUA">Semua</option>
             <option value="BATAL">Dibatalkan</option>
@@ -1611,12 +1679,11 @@ main > section.card{overflow:visible!important}
       </div>
       <div id="riwayat-status" class="hidden mb-3 rounded-xl border px-4 py-3 text-sm"></div>
       <div class="overflow-x-auto rounded-xl border border-violet-100 scrollbar-thin">
-        <table class="min-w-[980px] w-full text-sm">
+        <table class="min-w-[760px] w-full text-sm">
           <thead class="bg-violet-50 text-violet-950">
             <tr>
               <th class="p-3 text-left">Tanggal</th>
               <th class="p-3 text-left">Warga</th>
-              <th class="p-3 text-left">Periode</th>
               <th class="p-3 text-right">Total</th>
               <th class="p-3 text-left">Metode</th>
               <th class="p-3 text-center">Status</th>
@@ -1857,27 +1924,78 @@ function histDate(v){
   if(!t) return '-';
   return t.split(/[ T]/)[0] || '-';
 }
+function historyDateTs(v){
+  const s=String(v||'').trim(); if(!s)return 0;
+  let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return new Date(+m[1],+m[2]-1,+m[3]).getTime();
+  m=s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);if(m)return new Date(+m[3],+m[2]-1,+m[1]).getTime();
+  const d=Date.parse(s);return Number.isFinite(d)?d:0;
+}
+function newestFirst(arr,key){return [...(arr||[])].sort((a,b)=>historyDateTs(b?.[key])-historyDateTs(a?.[key]))}
+function refreshHistoryIcons(){requestAnimationFrame(()=>{try{lucide.createIcons()}catch(e){}})}
+function actionIcon(icon,title,onclick,tone='violet'){
+  const safeTitle=String(title||'').replace(/"/g,'&quot;');
+  return `<button type="button" class="action-icon ${tone}" title="${safeTitle}" aria-label="${safeTitle}" onclick="${onclick}"><i data-lucide="${icon}"></i></button>`;
+}
+function initRiwayatPeriodFilter(){
+  const now=new Date(),ym=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const m=document.getElementById('riwayat-period-month'),s=document.getElementById('riwayat-period-start'),e=document.getElementById('riwayat-period-end'),y=document.getElementById('riwayat-period-year');
+  if(m&&!m.value)m.value=ym;if(s&&!s.value)s.value=ym;if(e&&!e.value)e.value=ym;if(y&&!y.value)y.value=now.getFullYear();
+  updateRiwayatPeriodControls();
+}
+function updateRiwayatPeriodControls(){
+  const mode=document.getElementById('riwayat-period-mode')?.value||'bulan';
+  document.getElementById('riwayat-period-bulan')?.classList.toggle('hidden',mode!=='bulan');
+  document.getElementById('riwayat-period-rentang')?.classList.toggle('hidden',mode!=='rentang');
+  document.getElementById('riwayat-period-tahun')?.classList.toggle('hidden',mode!=='tahun');
+}
+function monthKeyFromLabel(label){
+  const s=String(label||'').trim();const m=s.match(/^([^\d]+?)\s+(\d{4})$/);if(!m)return '';
+  const idx=BULAN.findIndex(x=>x.toLowerCase()===m[1].trim().toLowerCase());return idx>0?`${m[2]}-${String(idx).padStart(2,'0')}`:'';
+}
+function paymentMonthKeys(x){
+  let keys=(x?.periode||[]).map(monthKeyFromLabel).filter(Boolean);
+  if(!keys.length&&x?.tahunAwal&&x?.bulanAwal){
+    let y=Number(x.tahunAwal),m=Number(x.bulanAwal),n=Math.max(1,Number(x.jumlahBulan)||1);
+    for(let i=0;i<n;i++){keys.push(`${y}-${String(m).padStart(2,'0')}`);m++;if(m>12){m=1;y++}}
+  }
+  return keys;
+}
+function matchRiwayatPeriod(x){
+  const mode=document.getElementById('riwayat-period-mode')?.value||'bulan';if(mode==='semua')return true;
+  const keys=paymentMonthKeys(x);if(!keys.length)return true;
+  if(mode==='bulan'){const k=document.getElementById('riwayat-period-month')?.value||'';return !k||keys.includes(k)}
+  if(mode==='tahun'){const y=String(document.getElementById('riwayat-period-year')?.value||'');return !y||keys.some(k=>k.startsWith(y+'-'))}
+  const a=document.getElementById('riwayat-period-start')?.value||'',b=document.getElementById('riwayat-period-end')?.value||'';if(!a&&!b)return true;
+  const lo=a||'0000-01',hi=b||'9999-12';return keys.some(k=>k>=lo&&k<=hi);
+}
 
 function renderRiwayat(){
   const tbody=document.getElementById('tbody-riwayat');if(!tbody)return;
   const q=(document.getElementById('cari-riwayat')?.value||'').toLowerCase();
   const f=document.getElementById('filter-riwayat')?.value||'AKTIF';
-  let rows=DATA.riwayat.filter(x=>{
+  let rows=(DATA.riwayat||[]).filter(x=>{
     if(f!=='SEMUA'&&x.status!==f)return false;
+    if(!matchRiwayatPeriod(x))return false;
     const hay=[x.nama,x.blok,x.noRumah,(x.periode||[]).join(' '),x.metode,x.idPembayaran].join(' ').toLowerCase();
     return hay.includes(q);
-  });
+  }).sort((a,b)=>historyDateTs(b.tanggal)-historyDateTs(a.tanggal));
   const total=rows.length;if(!RIWAYAT_SEMUA)rows=rows.slice(0,10);
   tbody.innerHTML=rows.map(x=>{
     const batal=x.status==='BATAL';
     const badge=batal?'<span class="px-2 py-1 rounded-full bg-slate-100 text-slate-500 text-xs font-bold">BATAL</span>':(x.locked?'<span class="px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">TERKUNCI</span>':'<span class="px-2 py-1 rounded-full bg-violet-100 text-violet-700 text-xs font-bold">AKTIF</span>');
     const bolehHapus=x.jenisPembayaran!=='PELUNASAN_KAS'||x.status==='BATAL';
-    const aksi=x.locked
-      ? '<span class="text-xs text-slate-400">Sudah dibukukan</span>'
-      : `<div class="flex justify-end gap-2 flex-wrap">${x.canEdit?`<button onclick="bukaEdit('${x.idPembayaran}')" class="px-3 py-1.5 rounded-lg border border-violet-200 text-violet-700 font-bold hover:bg-violet-50">Edit</button>`:''}${x.canCancel&&x.status!=='BATAL'?`<button onclick="batalkanPembayaran('${x.idPembayaran}')" class="px-3 py-1.5 rounded-lg border border-amber-200 text-amber-700 font-bold hover:bg-amber-50">Batalkan</button>`:''}${bolehHapus?`<button onclick="hapusPembayaran('${x.idPembayaran}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold hover:bg-red-50">Hapus</button>`:''}</div>`;
-    return `<tr class="${batal?'opacity-55':''} hover:bg-violet-50/30"><td class="p-3 whitespace-nowrap">${histDate(x.tanggal)}</td><td class="p-3"><div class="font-bold">${x.nama||'-'}</div><div class="text-xs text-slate-400">${x.blok||''}/${x.noRumah||''} • ${x.idPembayaran}</div></td><td class="p-3">${(x.periode||[]).join(', ')||'-'}</td><td class="p-3 text-right"><div class="font-black">${rupiah(x.totalDiterima)}</div>${Number(x.kekuranganKasLorong||0)>0?`<div class="text-xs font-bold text-amber-700">Kurang Kas ${rupiah(x.kekuranganKasLorong)}</div>`:''}${x.jenisPembayaran==='PELUNASAN_KAS'?'<div class="text-xs text-emerald-700 font-bold">Pelunasan Kas</div>':''}</td><td class="p-3">${x.metode||'-'}</td><td class="p-3 text-center">${badge}</td><td class="p-3 text-right">${aksi}</td></tr>`;
-  }).join('')||'<tr><td colspan="7" class="p-6 text-center text-slate-400">Belum ada riwayat pembayaran.</td></tr>';
+    const actions=[];
+    if(x.locked) actions.push('<span class="text-xs text-slate-400">Sudah dibukukan</span>');
+    else{
+      if(x.canEdit)actions.push(actionIcon('pencil','Edit',`bukaEdit('${x.idPembayaran}')`,'violet'));
+      if(x.canCancel&&x.status!=='BATAL')actions.push(actionIcon('circle-x','Batal',`batalkanPembayaran('${x.idPembayaran}')`,'amber'));
+      if(bolehHapus)actions.push(actionIcon('trash-2','Hapus',`hapusPembayaran('${x.idPembayaran}')`,'red'));
+    }
+    const aksi=`<div class="action-icons">${actions.join('')}</div>`;
+    return `<tr class="${batal?'opacity-55':''} hover:bg-violet-50/30"><td class="p-3 whitespace-nowrap">${histDate(x.tanggal)}</td><td class="p-3"><div class="font-bold whitespace-nowrap">${x.nama||'-'}</div><div class="text-xs text-slate-400 whitespace-nowrap">${x.blok||''}/${x.noRumah||''} • ${x.idPembayaran}</div></td><td class="p-3 text-right whitespace-nowrap"><div class="font-black">${rupiah(x.totalDiterima)}</div>${Number(x.kekuranganKasLorong||0)>0?`<div class="text-xs font-bold text-amber-700">Kurang Kas ${rupiah(x.kekuranganKasLorong)}</div>`:''}${x.jenisPembayaran==='PELUNASAN_KAS'?'<div class="text-xs text-emerald-700 font-bold">Pelunasan Kas</div>':''}</td><td class="p-3 whitespace-nowrap">${x.metode||'-'}</td><td class="p-3 text-center">${badge}</td><td class="p-3 text-right">${aksi}</td></tr>`;
+  }).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada riwayat pembayaran pada periode ini.</td></tr>';
   const b=document.getElementById('btn-riwayat-more');if(total>10){b.classList.remove('hidden');b.textContent=RIWAYAT_SEMUA?'Tampilkan 10 terbaru':'Lihat semua ('+total+')'}else b.classList.add('hidden');
+  refreshHistoryIcons();
 }
 function toggleRiwayatSemua(){RIWAYAT_SEMUA=!RIWAYAT_SEMUA;renderRiwayat()}
 function isiEditOptions(){
@@ -1951,7 +2069,8 @@ function renderPembukuanKas(){
   const r=KAS_DATA.ringkasan||{};
   document.getElementById('kas-count-belum').textContent=r.qtyBelum||0;document.getElementById('kas-nominal-belum').textContent=rupiah(r.nominalBelum||0);document.getElementById('kas-count-sudah').textContent=r.qtySudah||0;document.getElementById('kas-nominal-sudah').textContent=rupiah(r.nominalSudah||0);
   document.getElementById('kas-tbody-belum').innerHTML=(KAS_DATA.belum||[]).map(x=>`<tr class="hover:bg-violet-50/30"><td class="p-3 text-center"><input type="checkbox" class="kas-check w-4 h-4 accent-violet-600" value="${x.idAlokasi}" data-nominal="${Number(x.nominalKasLorong)||0}" onchange="updateKasTerpilih()"></td><td class="p-3"><div class="font-bold">${x.nama||'-'}</div><div class="text-xs text-slate-400">${x.blok||''}/${x.noRumah||''}</div></td><td class="p-3">${histDate(x.tanggalBayar)}</td><td class="p-3 text-center font-bold">${x.qtyKasLorong||0}x</td><td class="p-3 text-right font-black">${rupiah(x.nominalKasLorong||0)}</td><td class="p-3">${x.metode||'-'}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Tidak ada Kas Lorong yang belum dibukukan pada periode ini.</td></tr>';
-  document.getElementById('kas-tbody-batch').innerHTML=(KAS_DATA.batches||[]).map(x=>`<tr class="hover:bg-violet-50/30"><td class="p-3">${histDate(x.tanggalPembukuan)}</td><td class="p-3 font-bold">${x.idBatch||'-'}</td><td class="p-3">${x.keterangan||'-'}</td><td class="p-3 text-center">${x.jumlahPembayaran||0}</td><td class="p-3 text-right font-black">${rupiah(x.nominal||0)}</td><td class="p-3 text-right"><button onclick="batalkanBatchKas('${x.idBatch}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold hover:bg-red-50">Batalkan</button></td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada batch pada periode ini.</td></tr>';
+  document.getElementById('kas-tbody-batch').innerHTML=newestFirst(KAS_DATA.batches,'tanggalPembukuan').map(x=>`<tr class="hover:bg-violet-50/30"><td class="p-3">${histDate(x.tanggalPembukuan)}</td><td class="p-3 font-bold">${x.idBatch||'-'}</td><td class="p-3">${x.keterangan||'-'}</td><td class="p-3 text-center">${x.jumlahPembayaran||0}</td><td class="p-3 text-right font-black">${rupiah(x.nominal||0)}</td><td class="p-3 text-right"><div class="action-icons">${actionIcon('circle-x','Batal',`batalkanBatchKas('${x.idBatch}')`,'red')}</div></td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada batch pada periode ini.</td></tr>';
+  refreshHistoryIcons();
   updateKasTerpilih();
 }
 function pilihSemuaKas(){const a=[...document.querySelectorAll('.kas-check')],all=a.length&&a.every(x=>x.checked);a.forEach(x=>x.checked=!all);updateKasTerpilih()}
@@ -2061,16 +2180,17 @@ async function loadRiwayatKas(silent=false){
 function renderRiwayatKas(){
   const q=(document.getElementById('cari-trx-kas')?.value||'').toLowerCase();const f=document.getElementById('filter-trx-kas')?.value||'AKTIF';
   const sumberKas = Array.isArray(RIWAYAT_KAS) ? RIWAYAT_KAS : [];
-  const rows=sumberKas.filter(x=>{if(f!=='SEMUA'&&(x.status||'AKTIF')!==f)return false;return [x.jenis,x.kategori,x.keterangan,x.metode,x.periode,x.idTransaksi].join(' ').toLowerCase().includes(q)});
+  const rows=sumberKas.filter(x=>{if(f!=='SEMUA'&&(x.status||'AKTIF')!==f)return false;return [x.jenis,x.kategori,x.keterangan,x.metode,x.periode,x.idTransaksi].join(' ').toLowerCase().includes(q)}).sort((a,b)=>historyDateTs(b.tanggal)-historyDateTs(a.tanggal));
   document.getElementById('tbody-riwayat-kas').innerHTML=rows.map(x=>{
     const batal=x.status==='BATAL',debit=x.debit?rupiah(x.debit):'-',kredit=x.kredit?rupiah(x.kredit):'-';
     let aksi='-';
     if(!batal&&x.sumber==='INPUT_WEB'){
-      aksi=`<div class="flex gap-1 justify-end"><button onclick="bukaEditKas('${x.idTransaksi}')" class="px-3 py-1.5 rounded-lg border border-violet-200 text-violet-700 font-bold hover:bg-violet-50">Edit</button><button onclick="batalkanTransaksiKas('${x.idTransaksi}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold hover:bg-red-50">Batalkan</button></div>`;
+      aksi=`<div class="action-icons">${actionIcon('pencil','Edit',`bukaEditKas('${x.idTransaksi}')`,'violet')}${actionIcon('circle-x','Batal',`batalkanTransaksiKas('${x.idTransaksi}')`,'red')}</div>`;
     }else if(!batal&&x.sumber==='BATCH_KAS') aksi='<span class="text-xs text-slate-400">Kelola via Batch</span>';
     else if(!batal) aksi='<span class="text-xs text-slate-400">Edit via modul asal</span>';
     return `<tr class="${batal?'opacity-55':''} hover:bg-violet-50/30"><td class="p-3 whitespace-nowrap">${histDate(x.tanggal)}</td><td class="p-3 font-bold">${x.jenis||'-'}</td><td class="p-3">${x.kategori||'-'}</td><td class="p-3"><div class="font-bold">${x.keterangan||'-'}</div><div class="no-print text-xs text-slate-400">${x.idTransaksi||''} • ${x.sumber||''}</div></td><td class="p-3 text-right font-black text-emerald-700">${debit}</td><td class="p-3 text-right font-black text-red-600">${kredit}</td><td class="p-3">${x.metode||'-'}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${batal?'bg-slate-100 text-slate-500':'bg-violet-100 text-violet-700'}">${x.status||'AKTIF'}</span></td><td class="p-3 text-right">${aksi}</td></tr>`
   }).join('')||'<tr><td colspan="9" class="p-6 text-center text-slate-400">Belum ada transaksi kas.</td></tr>';
+  refreshHistoryIcons();
 }
 
 async function batalkanTransaksiKas(id){
@@ -2150,20 +2270,23 @@ function renderPinjaman(){
   const r=DATA_PINJAMAN.ringkasan||{};
   const el=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};el('loan-sum-count',r.jumlahPinjamanAktif||0);el('loan-sum-total',rupiah(r.totalPinjamanAktif||0));el('loan-sum-paid',rupiah(r.totalTerbayarAktif||0));el('loan-sum-sisa',rupiah(r.totalSisa||0));
   const tb=document.getElementById('tbody-riwayat-pinjaman');if(!tb)return;
-  tb.innerHTML=(DATA_PINJAMAN.rows||[]).map(x=>{
+  const pinRows=newestFirst(DATA_PINJAMAN.rows,'tanggalPinjaman');
+  tb.innerHTML=pinRows.map(x=>{
     const batal=x.status==='BATAL',lunas=x.status==='LUNAS';const badge=batal?'bg-slate-100 text-slate-500':(lunas?'bg-emerald-100 text-emerald-700':'bg-violet-100 text-violet-700');let aksi='-';
     if(!batal&&!lunas){
-      aksi=`<div class="flex gap-1 justify-end"><button onclick="pilihMenu('pinjaman');setTimeout(()=>{setLoanMode('bayar');document.getElementById('payloan-id').value='${x.idPinjaman}';previewPinjaman()},50)" class="px-3 py-1.5 rounded-lg border border-violet-200 text-violet-700 font-bold">Bayar</button><button onclick="bukaEditPinjaman('${x.idPinjaman}')" class="px-3 py-1.5 rounded-lg border border-violet-200 text-violet-700 font-bold">Edit</button>${(x.totalDibayar||0)===0?`<button onclick="batalkanPinjaman('${x.idPinjaman}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold">Batalkan</button>`:''}</div>`;
-    }else if(lunas){
-      aksi=`<button onclick="hapusPinjamanPermanen('${x.idPinjaman}')" class="px-3 py-1.5 rounded-lg border border-red-300 text-red-700 font-bold hover:bg-red-50">Hapus</button>`;
-    }
-    return `<tr class="${batal?'opacity-55':''}"><td class="p-3 whitespace-nowrap">${histDate(x.tanggalPinjaman)}</td><td class="p-3"><div class="font-bold">${x.nama||'-'}</div><div class="text-xs text-slate-400">${x.blok||''}/${x.noRumah||''} • ${x.idPinjaman}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominalPinjaman||0)}</td><td class="p-3 text-right font-bold text-emerald-700">${rupiah(x.totalDibayar||0)}</td><td class="p-3 text-right font-black text-red-600">${rupiah(x.sisaPinjaman||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${badge}">${x.status}</span></td><td class="p-3">${x.keterangan||'-'}</td><td class="p-3 text-right whitespace-nowrap">${aksi}</td></tr>`
+      const acts=[actionIcon('wallet-cards','Bayar',`pilihMenu('pinjaman');setTimeout(()=>{setLoanMode('bayar');document.getElementById('payloan-id').value='${x.idPinjaman}';previewPinjaman()},50)`,'emerald'),actionIcon('pencil','Edit',`bukaEditPinjaman('${x.idPinjaman}')`,'violet')];
+      if((x.totalDibayar||0)===0)acts.push(actionIcon('circle-x','Batal',`batalkanPinjaman('${x.idPinjaman}')`,'red'));
+      aksi=`<div class="action-icons">${acts.join('')}</div>`;
+    }else if(lunas){aksi=`<div class="action-icons">${actionIcon('trash-2','Hapus',`hapusPinjamanPermanen('${x.idPinjaman}')`,'red')}</div>`}
+    return `<tr class="${batal?'opacity-55':''}"><td class="p-3 whitespace-nowrap">${histDate(x.tanggalPinjaman)}</td><td class="p-3"><div class="font-bold whitespace-nowrap">${x.nama||'-'}</div><div class="text-xs text-slate-400 whitespace-nowrap">${x.blok||''}/${x.noRumah||''} • ${x.idPinjaman}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominalPinjaman||0)}</td><td class="p-3 text-right font-bold text-emerald-700">${rupiah(x.totalDibayar||0)}</td><td class="p-3 text-right font-black text-red-600">${rupiah(x.sisaPinjaman||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${badge}">${x.status}</span></td><td class="p-3">${x.keterangan||'-'}</td><td class="p-3 text-right whitespace-nowrap">${aksi}</td></tr>`
   }).join('')||'<tr><td colspan="8" class="p-6 text-center text-slate-400">Belum ada data pinjaman.</td></tr>';
   const tbBayar=document.getElementById('tbody-riwayat-bayar-pinjaman');
   if(tbBayar){
-    const bayar=[];(DATA_PINJAMAN.rows||[]).forEach(x=>(x.pembayaran||[]).forEach(b=>bayar.push({...b,nama:x.nama,blok:x.blok,noRumah:x.noRumah,idPinjaman:x.idPinjaman})));
-    tbBayar.innerHTML=bayar.map(b=>{const batal=(b.status||'').toUpperCase()==='BATAL';return `<tr class="${batal?'opacity-55':''}"><td class="p-3 whitespace-nowrap">${histDate(b.tanggalBayar)}</td><td class="p-3"><div class="font-bold">${b.nama||'-'}</div><div class="text-xs text-slate-400">${b.blok||''}/${b.noRumah||''}</div></td><td class="p-3 font-bold">${b.idPinjaman||'-'}<div class="text-xs text-slate-400">${b.idPembayaranPinjaman||''}</div></td><td class="p-3 text-right font-black text-emerald-700">${rupiah(b.nominalBayar||0)}</td><td class="p-3">${b.metode||'-'}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${batal?'bg-slate-100 text-slate-500':'bg-violet-100 text-violet-700'}">${b.status||'AKTIF'}</span></td><td class="p-3 text-right">${batal?'-':`<button onclick="batalkanPembayaranPinjaman('${b.idPembayaranPinjaman}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold">Batalkan</button>`}</td></tr>`}).join('')||'<tr><td colspan="7" class="p-6 text-center text-slate-400">Belum ada pembayaran pinjaman.</td></tr>';
+    const bayar=[];pinRows.forEach(x=>(x.pembayaran||[]).forEach(b=>bayar.push({...b,nama:x.nama,blok:x.blok,noRumah:x.noRumah,idPinjaman:x.idPinjaman})));
+    bayar.sort((a,b)=>historyDateTs(b.tanggalBayar)-historyDateTs(a.tanggalBayar));
+    tbBayar.innerHTML=bayar.map(b=>{const batal=(b.status||'').toUpperCase()==='BATAL';const act=batal?'-':`<div class="action-icons">${actionIcon('circle-x','Batal',`batalkanPembayaranPinjaman('${b.idPembayaranPinjaman}')`,'red')}</div>`;return `<tr class="${batal?'opacity-55':''}"><td class="p-3 whitespace-nowrap">${histDate(b.tanggalBayar)}</td><td class="p-3"><div class="font-bold whitespace-nowrap">${b.nama||'-'}</div><div class="text-xs text-slate-400 whitespace-nowrap">${b.blok||''}/${b.noRumah||''}</div></td><td class="p-3 font-bold">${b.idPinjaman||'-'}<div class="text-xs text-slate-400">${b.idPembayaranPinjaman||''}</div></td><td class="p-3 text-right font-black text-emerald-700">${rupiah(b.nominalBayar||0)}</td><td class="p-3">${b.metode||'-'}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${batal?'bg-slate-100 text-slate-500':'bg-violet-100 text-violet-700'}">${b.status||'AKTIF'}</span></td><td class="p-3 text-right">${act}</td></tr>`}).join('')||'<tr><td colspan="7" class="p-6 text-center text-slate-400">Belum ada pembayaran pinjaman.</td></tr>';
   }
+  refreshHistoryIcons();
 }
 
 async function batalkanPembayaranPinjaman(id){if(!confirm(`Batalkan pembayaran pinjaman ${id}?`))return;try{loanMsg('hist-loan-status','Membatalkan pembayaran...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkanpembayaranpinjaman',idPembayaranPinjaman:id,alasan:'Dibatalkan dari web',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan pembayaran.');await loadPinjaman(true);await loadRiwayatKas(true);loanMsg('hist-loan-status',r.message||'Pembayaran dibatalkan.','success')}catch(e){loanMsg('hist-loan-status',e.message||String(e),'error')}}
@@ -2180,16 +2303,17 @@ function renderTalangan(){
   const r=DATA_TALANGAN.ringkasan||{},set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
   set('tal-sum-count',r.jumlahAktif||0);set('tal-sum-total',rupiah(r.totalTalanganAktif||0));set('tal-sum-paid',rupiah(r.totalSudahDigantiAktif||0));set('tal-sum-sisa',rupiah(r.totalSisa||0));
   const tb=document.getElementById('tbody-riwayat-talangan');if(!tb)return;
-  tb.innerHTML=(DATA_TALANGAN.rows||[]).map(x=>{
+  const rows=newestFirst(DATA_TALANGAN.rows,'tanggalTalangan');
+  tb.innerHTML=rows.map(x=>{
     const batal=x.status==='BATAL',lunas=x.status==='LUNAS';
     const badge=batal?'bg-slate-100 text-slate-500':(lunas?'bg-emerald-100 text-emerald-700':'bg-violet-100 text-violet-700');
-    const buku=x.statusPembukuan==='DIBUKUKAN'
-      ? '<span class="px-2 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">DIBUKUKAN</span>'
-      : (lunas?'<span class="px-2 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700">BELUM MASUK</span>':'<span class="px-2 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-700">DITAHAN</span>');
-    const aksi=(!batal&&!lunas&&(x.nominalDiganti||0)===0)?`<button onclick="batalkanTalangan('${x.idTalangan}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold">Batalkan</button>`:'-';
-    return `<tr class="${batal?'opacity-55':''}"><td class="p-3"><div class="font-bold">${x.bulan} ${x.tahun}</div><div class="text-xs text-slate-400">${histDate(x.tanggalTalangan)} • ${x.idTalangan}</div><div class="text-[11px] text-violet-600 mt-1">Batas: ${x.tanggalJatuhTempo||'-'}</div></td><td class="p-3"><div class="font-bold">${x.nama||'-'}</div><div class="text-xs text-slate-400">${x.blok||''}/${x.noRumah||''}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominalTalangan||0)}</td><td class="p-3 text-right font-bold text-emerald-700">${rupiah(x.nominalDiganti||0)}</td><td class="p-3 text-right font-black text-red-600">${rupiah(x.sisaTalangan||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${badge}">${x.status}</span></td><td class="p-3 text-center">${buku}</td><td class="p-3">${x.idPembayaranPelunasan||'-'}${x.tanggalLunas?`<div class="text-xs text-slate-400">${histDate(x.tanggalLunas)}</div>`:''}</td><td class="p-3 text-right">${aksi}</td></tr>`
-  }).join('')||'<tr><td colspan="9" class="p-6 text-center text-slate-400">Belum ada data talangan.</td></tr>'
+    const buku=x.statusPembukuan==='DIBUKUKAN'?'<span class="px-2 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">DIBUKUKAN</span>':(lunas?'<span class="px-2 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700">BELUM MASUK</span>':'<span class="px-2 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-700">DITAHAN</span>');
+    const aksi=(!batal&&!lunas&&(x.nominalDiganti||0)===0)?`<div class="action-icons">${actionIcon('circle-x','Batal',`batalkanTalangan('${x.idTalangan}')`,'red')}</div>`:'-';
+    return `<tr class="${batal?'opacity-55':''}"><td class="p-3"><div class="font-bold">${x.bulan} ${x.tahun}</div><div class="text-xs text-slate-400">${histDate(x.tanggalTalangan)} • ${x.idTalangan}</div><div class="text-[11px] text-violet-600 mt-1">Batas: ${x.tanggalJatuhTempo||'-'}</div></td><td class="p-3"><div class="font-bold whitespace-nowrap">${x.nama||'-'}</div><div class="text-xs text-slate-400 whitespace-nowrap">${x.blok||''}/${x.noRumah||''}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominalTalangan||0)}</td><td class="p-3 text-right font-bold text-emerald-700">${rupiah(x.nominalDiganti||0)}</td><td class="p-3 text-right font-black text-red-600">${rupiah(x.sisaTalangan||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${badge}">${x.status}</span></td><td class="p-3 text-center">${buku}</td><td class="p-3">${x.idPembayaranPelunasan||'-'}${x.tanggalLunas?`<div class="text-xs text-slate-400">${histDate(x.tanggalLunas)}</div>`:''}</td><td class="p-3 text-right">${aksi}</td></tr>`
+  }).join('')||'<tr><td colspan="9" class="p-6 text-center text-slate-400">Belum ada data talangan.</td></tr>';
+  refreshHistoryIcons();
 }
+
 async function batalkanTalangan(id){if(!confirm(`Batalkan talangan ${id}?\n\nJika talangan sudah sempat masuk pembukuan karena melewati batas 14 hari, transaksi pengeluarannya juga akan ikut dibatalkan.`))return;try{talMsg('hist-tal-status','Membatalkan talangan...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkantalangan',idTalangan:id,alasan:'Dibatalkan dari web',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan talangan.');await loadTalangan(true);await loadRiwayatKas(true);talMsg('hist-tal-status',r.message||'Talangan dibatalkan.','success')}catch(e){talMsg('hist-tal-status',e.message||String(e),'error')}}
 
 
@@ -2230,7 +2354,13 @@ function renderDendaBayarOptions(){const s=document.getElementById('bayar-denda-
 function previewBayarDenda(){const id=document.getElementById('bayar-denda-id')?.value,e=document.getElementById('bayar-denda-preview');if(!e)return;const x=(DATA_DENDA.aktif||[]).find(v=>v.idDenda===id);if(!x){e.textContent='Pilih denda untuk melihat detail.';return}e.innerHTML=`<div class="font-black text-violet-950">${x.nama} • ${x.blok}/${x.noRumah}</div><div class="mt-1">${x.namaKegiatan} • ${x.tanggalKegiatan}</div><div class="text-xl font-black text-violet-700 mt-2">${rupiah(x.nominal)}</div>${x.keterangan?`<div class="text-xs text-slate-500 mt-1">${x.keterangan}</div>`:''}`}
 async function simpanDenda(ev){ev.preventDefault();const btn=document.getElementById('denda-btn-simpan');btn.disabled=true;btn.classList.add('opacity-60');try{dendaMsg('denda-status','Menyimpan denda...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'buatdenda',idWarga:document.getElementById('denda-warga').value,tanggalKegiatan:document.getElementById('denda-tanggal').value,namaKegiatan:document.getElementById('denda-kegiatan').value,nominal:nominalAngka('denda-nominal'),keterangan:document.getElementById('denda-keterangan').value,t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal menyimpan denda.');dendaMsg('denda-status',`${r.idDenda} berhasil dicatat • ${rupiah(r.nominal||0)}`,'success');document.getElementById('denda-warga').value='';document.getElementById('denda-keterangan').value='';await loadDenda(true,true)}catch(e){dendaMsg('denda-status',e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}}
 async function bayarDenda(ev){ev.preventDefault();const btn=document.getElementById('bayar-denda-btn');btn.disabled=true;btn.classList.add('opacity-60');try{dendaMsg('bayar-denda-status','Menyimpan pembayaran...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'bayardenda',idDenda:document.getElementById('bayar-denda-id').value,tanggalBayar:document.getElementById('bayar-denda-tanggal').value,metode:document.getElementById('bayar-denda-metode').value,t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membayar denda.');dendaMsg('bayar-denda-status',`Pembayaran berhasil • ${rupiah(r.nominal||0)}`,'success');await loadDenda(true,true);await loadRiwayatKas(true);document.getElementById('bayar-denda-id').value='';previewBayarDenda()}catch(e){dendaMsg('bayar-denda-status',e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}}
-function renderDendaHistory(){const r=DATA_DENDA.ringkasan||{},set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('denda-sum-belum-count',r.jumlahBelum||0);set('denda-sum-belum',rupiah(r.nominalBelum||0));set('denda-sum-lunas-count',r.jumlahLunas||0);set('denda-sum-lunas',rupiah(r.nominalLunas||0));const tb=document.getElementById('tbody-riwayat-denda');if(!tb)return;tb.innerHTML=(DATA_DENDA.rows||[]).map(x=>{const batal=x.status==='BATAL',lunas=x.status==='LUNAS';const badge=batal?'bg-slate-100 text-slate-500':lunas?'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700';let aksi='-';if(x.status==='BELUM')aksi=`<button onclick="batalkanDenda('${x.idDenda}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold">Batalkan</button>`;if(lunas)aksi=`<button onclick="batalkanPembayaranDenda('${x.idDenda}')" class="px-3 py-1.5 rounded-lg border border-amber-200 text-amber-700 font-bold">Batalkan Bayar</button>`;return `<tr class="${batal?'opacity-55':''}"><td class="p-3"><div class="font-bold">${histDate(x.tanggalKegiatan)}</div><div class="text-xs text-slate-400">${x.idDenda||''}</div></td><td class="p-3"><div class="font-bold">${x.nama||'-'}</div><div class="text-xs text-slate-400">${x.blok||''}/${x.noRumah||''}</div></td><td class="p-3"><div class="font-bold">${x.namaKegiatan||'-'}</div><div class="text-xs text-slate-400">${x.keterangan||''}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominal||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${badge}">${x.status||'BELUM'}</span></td><td class="p-3">${lunas?`${histDate(x.tanggalBayar)}<div class="text-xs text-slate-400">${x.metode||''} • ${x.idTransaksiKas||''}</div>`:'-'}</td><td class="p-3 text-right">${aksi}</td></tr>`}).join('')||'<tr><td colspan="7" class="p-6 text-center text-slate-400">Belum ada data denda.</td></tr>'}
+function renderDendaHistory(){
+  const r=DATA_DENDA.ringkasan||{},set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('denda-sum-belum-count',r.jumlahBelum||0);set('denda-sum-belum',rupiah(r.nominalBelum||0));set('denda-sum-lunas-count',r.jumlahLunas||0);set('denda-sum-lunas',rupiah(r.nominalLunas||0));const tb=document.getElementById('tbody-riwayat-denda');if(!tb)return;
+  const rows=newestFirst(DATA_DENDA.rows,'tanggalKegiatan');
+  tb.innerHTML=rows.map(x=>{const batal=x.status==='BATAL',lunas=x.status==='LUNAS';const badge=batal?'bg-slate-100 text-slate-500':lunas?'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700';let aksi='-';if(x.status==='BELUM')aksi=`<div class="action-icons">${actionIcon('circle-x','Batal',`batalkanDenda('${x.idDenda}')`,'red')}</div>`;if(lunas)aksi=`<div class="action-icons">${actionIcon('rotate-ccw','Batal Bayar',`batalkanPembayaranDenda('${x.idDenda}')`,'amber')}</div>`;return `<tr class="${batal?'opacity-55':''}"><td class="p-3"><div class="font-bold">${histDate(x.tanggalKegiatan)}</div><div class="text-xs text-slate-400">${x.idDenda||''}</div></td><td class="p-3"><div class="font-bold whitespace-nowrap">${x.nama||'-'}</div><div class="text-xs text-slate-400 whitespace-nowrap">${x.blok||''}/${x.noRumah||''}</div></td><td class="p-3"><div class="font-bold">${x.namaKegiatan||'-'}</div><div class="text-xs text-slate-400">${x.keterangan||''}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominal||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${badge}">${x.status||'BELUM'}</span></td><td class="p-3">${lunas?`${histDate(x.tanggalBayar)}<div class="text-xs text-slate-400">${x.metode||''} • ${x.idTransaksiKas||''}</div>`:'-'}</td><td class="p-3 text-right">${aksi}</td></tr>`}).join('')||'<tr><td colspan="7" class="p-6 text-center text-slate-400">Belum ada data denda.</td></tr>';
+  refreshHistoryIcons();
+}
+
 async function batalkanDenda(id){if(!confirm(`Batalkan denda ${id}?`))return;try{dendaMsg('hist-denda-status','Membatalkan denda...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkandenda',idDenda:id,alasan:'Dibatalkan dari web',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan denda.');await loadDenda(true,true);dendaMsg('hist-denda-status',r.message||'Denda dibatalkan.','success')}catch(e){dendaMsg('hist-denda-status',e.message||String(e),'error')}}
 async function batalkanPembayaranDenda(id){if(!confirm(`Batalkan pembayaran denda ${id}?\n\nTransaksi pemasukan Kas Warga terkait juga akan dibatalkan.`))return;try{dendaMsg('hist-denda-status','Membatalkan pembayaran denda...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkanpembayarandenda',idDenda:id,t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan pembayaran.');await loadDenda(true,true);await loadRiwayatKas(true);dendaMsg('hist-denda-status',r.message||'Pembayaran denda dibatalkan.','success')}catch(e){dendaMsg('hist-denda-status',e.message||String(e),'error')}}
 
@@ -2487,7 +2617,7 @@ function renderRumah(){const q=(document.getElementById('cari-rumah')?.value||''
 function renderWarga(){const q=(document.getElementById('cari-warga')?.value||'').toLowerCase();const a=DATA.warga.filter(r=>[r.nama,r.blok,r.noRumah,r.statusTinggal,r.keterangan].join(' ').toLowerCase().includes(q));document.getElementById('tbody-warga').innerHTML=a.map(r=>`<tr class="hover:bg-violet-50/40"><td class="p-3 text-center text-slate-400">${r.noUrutRumah||'-'}</td><td class="p-3 font-bold">${r.nama||'-'}</td><td class="p-3">${r.blok}/${r.noRumah}</td><td class="p-3">${r.statusTinggal||'-'}</td><td class="p-3 text-center">${r.statusAktif||'-'}</td><td class="p-3 text-center font-bold">${r.qtyIuranBulanan||0}x</td><td class="p-3 text-center font-bold">${r.qtyKebersihan||0}x</td><td class="p-3 text-center font-bold">${r.qtyKasLorong||0}x</td><td class="p-3 text-center font-bold">${r.qtyArisan||0}x</td><td class="p-3 text-slate-500">${r.keterangan||'-'}</td></tr>`).join('')||'<tr><td colspan="10" class="p-5 text-center text-slate-400">Tidak ada data.</td></tr>'}
 function renderConfig(){const m={TARIF_BULANAN:'Tarif Iuran Bulanan',TARIF_KEBERSIHAN:'Tarif Kebersihan',TARIF_KAS_LORONG:'Tarif Kas Lorong',TARIF_ARISAN:'Tarif Arisan',TANGGAL_SETOR_RT:'Tanggal Setor RT',BATAS_PERIODE_KAS:'Batas Periode Kas'};document.getElementById('config-list').innerHTML=Object.entries(DATA.config).map(([k,v])=>`<div class="rounded-xl border border-violet-100 bg-white p-4"><div class="text-[11px] font-bold text-slate-400 uppercase">${m[k]||k}</div><div class="mt-1 font-black text-lg text-violet-950">${k.startsWith('TARIF_')?rupiah(v):v}</div></div>`).join('')}
 function gantiTab(n,b){pilihMenu(n)}
-document.addEventListener('DOMContentLoaded',()=>{lucide.createIcons();initKasUi();initTransaksiKasUi();initHistoryBatchFilters();pilihMenu('input');muatUlang()});
+document.addEventListener('DOMContentLoaded',()=>{lucide.createIcons();initKasUi();initTransaksiKasUi();initHistoryBatchFilters();initRiwayatPeriodFilter();pilihMenu('input');muatUlang()});
 </script>
 
 <script>
