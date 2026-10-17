@@ -2626,7 +2626,7 @@ function renderRiwayat(){
     const bolehHapus=x.jenisPembayaran!=='PELUNASAN_KAS'||x.status==='BATAL';
     const actions=[];
     if(x.locked){
-      if(x.canCorrectMigrationDate)actions.push(actionIcon('calendar-pen','Koreksi tanggal migrasi',`bukaKoreksiMigrasi('${x.idPembayaran}')`,'violet'));
+      if(x.canCorrectMigrationDate)actions.push(`<button type="button" class="action-icon violet" title="Koreksi tanggal migrasi" aria-label="Koreksi tanggal migrasi" onclick="bukaKoreksiMigrasi('${x.idPembayaran}')"><span aria-hidden="true" style="font-size:17px;line-height:1">📅</span></button>`);
       actions.push('<span class="text-xs text-slate-400">Sudah dibukukan</span>');
     }
     else{
@@ -3226,15 +3226,6 @@ function printKasSepertiLamanUtama(){
 <div class="totalbox"><span>Total Kas Masuk</span><strong class="masuk">${escapePrint(rupiah(r.debit||0))}</strong><span>Total Kas Keluar</span><strong class="keluar">${escapePrint(rupiah(r.kredit||0))}</strong></div>
 <section class="approval"><div><div class="sign-title">Mengetahui,<br>Humas Flamboyan 4</div><div class="sign-line">Heri Juwandi</div></div></section>
 <div class="note">Dicetak pada ${escapePrint(tanggalCetak)} • Flamboyan 4 • Data bersumber dari pembukuan kas pada flamboyan4.web.id</div><script>window.onload=()=>{setTimeout(()=>window.print(),350)}<\/script>
-<div id="modal-koreksi-migrasi" class="hidden fixed inset-0 z-[160] bg-slate-950/50 p-4 items-center justify-center" style="display:none">
- <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-5 space-y-4">
-  <div><h3 class="text-lg font-black text-violet-950">Koreksi Tanggal Migrasi</h3><p class="text-sm text-slate-500 mt-1" id="km-desc"></p></div>
-  <div><label class="text-sm font-bold text-slate-700" for="km-date">Tanggal pembayaran yang benar</label><input id="km-date" type="date" class="field mt-2 w-full"></div>
-  <p class="text-xs text-amber-800 bg-amber-50 rounded-lg p-3">Hanya tanggal bayar Iuran yang diperbaiki. Periode Iuran, nominal, dan transaksi Kas gabungan tidak bergeser.</p>
-  <div id="km-status" class="text-sm text-red-600 hidden"></div>
-  <div class="flex gap-2 justify-end"><button type="button" onclick="tutupKoreksiMigrasi()" class="rounded-xl border border-slate-200 px-4 py-2 font-bold">Batal</button><button id="km-save" type="button" onclick="simpanKoreksiMigrasi()" class="rounded-xl bg-violet-600 text-white px-4 py-2 font-bold">Simpan Koreksi</button></div>
- </div>
-</div>
 </body></html>`); w.document.close();
 }
 function printRtSepertiLamanUtama(){
@@ -4532,5 +4523,17 @@ async function bulkPreviewAll(){if(!BULK.iuran.length||!BULK.kas.length){bulkMsg
 async function bulkImportType(action,rows,extra={}){const all=[];for(const c of bulkChunks(rows,8)){const r=await jsonp(APPS_SCRIPT_URL,{action,rows:JSON.stringify(c),...extra,t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Import gagal.');all.push(...(r.results||[]))}return all}
 async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Import ${BULK.iuran.length} baris Iuran dan ${BULK.kas.length} baris Kas?\n\nData identik tidak akan didobel. Jika ada data manual yang berbeda dan masih aman diedit, data CSV akan menjadi acuan.`))return;BULK.busy=true;bulkRefreshControls();try{bulkMsg('Mengimpor Kas terlebih dahulu...');const rk=await bulkImportType('bulkimportkas',BULK.kas);const badK=rk.filter(x=>['error','conflict'].includes(x.state));if(badK.length)throw new Error(`Import Kas berhenti: ${badK.length} baris bermasalah.`);bulkMsg('Kas selesai. Mengimpor Iuran dan menandai porsi Kas historis sudah dibukukan...');const ri=await bulkImportType('bulkimportiuran',BULK.iuran,{historicalKasBooked:'1'});const badI=ri.filter(x=>['error','conflict'].includes(x.state));if(badI.length)throw new Error(`Import Iuran selesai sebagian: ${badI.length} baris bermasalah.`);BULK.ready=false;await muatUlang();await bulkPreviewAll();bulkMsg(`Import selesai. Kas: ${rk.filter(x=>x.state==='inserted').length} baru, ${rk.filter(x=>x.state==='updated').length} diperbarui. Iuran: ${ri.filter(x=>x.state==='inserted').length} baru, ${ri.filter(x=>x.state==='updated').length} diperbarui. Data sama tidak didobel.`,'success')}catch(e){bulkMsg(e.message||String(e),'error')}finally{BULK.busy=false;bulkRefreshControls()}}
 </script>
+
+
+<!-- Popup koreksi tanggal migrasi: berada di DOM utama, bukan dokumen print -->
+<div id="modal-koreksi-migrasi" class="fixed inset-0 z-[160] bg-slate-950/50 p-4 items-center justify-center" style="display:none">
+ <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-5 space-y-4">
+  <div><h3 class="text-lg font-black text-violet-950">Koreksi Tanggal Migrasi</h3><p class="text-sm text-slate-500 mt-1" id="km-desc"></p></div>
+  <div><label class="text-sm font-bold text-slate-700" for="km-date">Tanggal pembayaran yang benar</label><input id="km-date" type="date" class="field mt-2 w-full"></div>
+  <p class="text-xs text-amber-800 bg-amber-50 rounded-lg p-3">Hanya tanggal bayar Iuran yang diperbaiki. Periode Iuran, nominal, dan transaksi Kas gabungan tidak bergeser.</p>
+  <div id="km-status" class="text-sm text-red-600 hidden"></div>
+  <div class="flex gap-2 justify-end"><button type="button" onclick="tutupKoreksiMigrasi()" class="rounded-xl border border-slate-200 px-4 py-2 font-bold">Batal</button><button id="km-save" type="button" onclick="simpanKoreksiMigrasi()" class="rounded-xl bg-violet-600 text-white px-4 py-2 font-bold">Simpan Koreksi</button></div>
+ </div>
+</div>
 
 </body></html>
