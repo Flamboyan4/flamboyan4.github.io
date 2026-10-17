@@ -2338,9 +2338,9 @@ main > section.card{overflow:visible!important}
 </div>
 
 <script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwmI7Gw3JCMg1Cb2CCHgXULcOxdEIDkOc4dPl8soHHJXZ3mUC1G9diZn4kNEXzoMrU/exec';
-const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwmI7Gw3JCMg1Cb2CCHgXULcOxdEIDkOc4dPl8soHHJXZ3mUC1G9diZn4kNEXzoMrU/exec';
-const DELETE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwmI7Gw3JCMg1Cb2CCHgXULcOxdEIDkOc4dPl8soHHJXZ3mUC1G9diZn4kNEXzoMrU/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbweT9t7MhE-DiZWF1h5bhBT2myXbluVRSkBIhxnyA54BDleVi2iovZPaMwl9UJkkw6o/exec';
+const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbweT9t7MhE-DiZWF1h5bhBT2myXbluVRSkBIhxnyA54BDleVi2iovZPaMwl9UJkkw6o/exec';
+const DELETE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbweT9t7MhE-DiZWF1h5bhBT2myXbluVRSkBIhxnyA54BDleVi2iovZPaMwl9UJkkw6o/exec';
 let DATA={config:{},rumah:[],warga:[],riwayat:[]};
 let RIWAYAT_SEMUA=false;
 let RIWAYAT_KAS=[];
@@ -2625,7 +2625,10 @@ function renderRiwayat(){
     const badge=batal?'<span class="px-2 py-1 rounded-full bg-slate-100 text-slate-500 text-xs font-bold">BATAL</span>':(x.locked?'<span class="px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">TERKUNCI</span>':'<span class="px-2 py-1 rounded-full bg-violet-100 text-violet-700 text-xs font-bold">AKTIF</span>');
     const bolehHapus=x.jenisPembayaran!=='PELUNASAN_KAS'||x.status==='BATAL';
     const actions=[];
-    if(x.locked) actions.push('<span class="text-xs text-slate-400">Sudah dibukukan</span>');
+    if(x.locked){
+      if(x.canCorrectMigrationDate)actions.push(actionIcon('calendar-pen','Koreksi tanggal migrasi',`bukaKoreksiMigrasi('${x.idPembayaran}')`,'violet'));
+      actions.push('<span class="text-xs text-slate-400">Sudah dibukukan</span>');
+    }
     else{
       if(x.canEdit)actions.push(actionIcon('pencil','Edit',`bukaEdit('${x.idPembayaran}')`,'violet'));
       if(x.canCancel&&x.status!=='BATAL')actions.push(actionIcon('circle-x','Batal',`batalkanPembayaran('${x.idPembayaran}')`,'amber'));
@@ -2637,6 +2640,32 @@ function renderRiwayat(){
   const b=document.getElementById('btn-riwayat-more');if(total>10){b.classList.remove('hidden');b.textContent=RIWAYAT_SEMUA?'Tampilkan 10 terbaru':'Lihat semua ('+total+')'}else b.classList.add('hidden');
   refreshHistoryIcons();
 }
+
+let KOREKSI_MIGRASI_ID='';
+function bukaKoreksiMigrasi(id){
+ const x=(DATA.riwayat||[]).find(r=>r.idPembayaran===id);
+ if(!x||!x.canCorrectMigrationDate){riwayatMsg('Hanya transaksi migrasi terkunci yang dapat dikoreksi.','error');return;}
+ KOREKSI_MIGRASI_ID=id;
+ document.getElementById('km-desc').textContent=`${x.nama||''} • ${id} • tanggal lama ${histDate(x.tanggal)}`;
+ document.getElementById('km-date').value=x.tanggalIso||'';
+ document.getElementById('km-status').classList.add('hidden');
+ document.getElementById('modal-koreksi-migrasi').style.display='flex';
+}
+function tutupKoreksiMigrasi(){document.getElementById('modal-koreksi-migrasi').style.display='none';KOREKSI_MIGRASI_ID='';}
+async function simpanKoreksiMigrasi(){
+ const id=KOREKSI_MIGRASI_ID,tanggalBaru=document.getElementById('km-date').value;
+ const msg=document.getElementById('km-status'),btn=document.getElementById('km-save');
+ msg.classList.remove('hidden');
+ if(!tanggalBaru){msg.textContent='Pilih tanggal yang benar.';return;}
+ if(!confirm(`Koreksi tanggal bayar ${id} ke ${tanggalBaru}? Nominal, alokasi dan Kas gabungan tidak berubah.`))return;
+ btn.disabled=true;msg.textContent='Menyimpan koreksi...';
+ try{
+  const r=await jsonp(APPS_SCRIPT_URL,{action:'koreksitanggalmigrasi',idPembayaran:id,tanggalBaru,t:Date.now()});
+  if(!r||r.status!=='success')throw new Error(r?.message||'Gagal menyimpan koreksi.');
+  tutupKoreksiMigrasi();await loadRiwayat(true);riwayatMsg(r.message||'Koreksi tersimpan.','success');
+ }catch(e){msg.textContent=e.message||String(e)}finally{btn.disabled=false;}
+}
+
 function toggleRiwayatSemua(){RIWAYAT_SEMUA=!RIWAYAT_SEMUA;renderRiwayat()}
 function isiEditOptions(){
   document.getElementById('edit-warga').innerHTML=DATA.warga.filter(w=>['ya','aktif'].includes((w.statusAktif||'').toLowerCase())).map(w=>`<option value="${w.idWarga}">${w.nama} (${w.blok}/${w.noRumah})</option>`).join('');
@@ -3196,7 +3225,17 @@ function printKasSepertiLamanUtama(){
 <h2>Rincian Transaksi</h2><table><colgroup><col style="width:5%"><col style="width:15%"><col style="width:34%"><col style="width:14%"><col style="width:14%"><col style="width:18%"></colgroup><thead><tr><th>No</th><th>Tanggal</th><th>Keterangan</th><th class="r">Debit</th><th class="r">Kredit</th><th class="r">Saldo</th></tr></thead><tbody>${rows}</tbody></table>
 <div class="totalbox"><span>Total Kas Masuk</span><strong class="masuk">${escapePrint(rupiah(r.debit||0))}</strong><span>Total Kas Keluar</span><strong class="keluar">${escapePrint(rupiah(r.kredit||0))}</strong></div>
 <section class="approval"><div><div class="sign-title">Mengetahui,<br>Humas Flamboyan 4</div><div class="sign-line">Heri Juwandi</div></div></section>
-<div class="note">Dicetak pada ${escapePrint(tanggalCetak)} • Flamboyan 4 • Data bersumber dari pembukuan kas pada flamboyan4.web.id</div><script>window.onload=()=>{setTimeout(()=>window.print(),350)}<\/script></body></html>`); w.document.close();
+<div class="note">Dicetak pada ${escapePrint(tanggalCetak)} • Flamboyan 4 • Data bersumber dari pembukuan kas pada flamboyan4.web.id</div><script>window.onload=()=>{setTimeout(()=>window.print(),350)}<\/script>
+<div id="modal-koreksi-migrasi" class="hidden fixed inset-0 z-[160] bg-slate-950/50 p-4 items-center justify-center" style="display:none">
+ <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-5 space-y-4">
+  <div><h3 class="text-lg font-black text-violet-950">Koreksi Tanggal Migrasi</h3><p class="text-sm text-slate-500 mt-1" id="km-desc"></p></div>
+  <div><label class="text-sm font-bold text-slate-700" for="km-date">Tanggal pembayaran yang benar</label><input id="km-date" type="date" class="field mt-2 w-full"></div>
+  <p class="text-xs text-amber-800 bg-amber-50 rounded-lg p-3">Hanya tanggal bayar Iuran yang diperbaiki. Periode Iuran, nominal, dan transaksi Kas gabungan tidak bergeser.</p>
+  <div id="km-status" class="text-sm text-red-600 hidden"></div>
+  <div class="flex gap-2 justify-end"><button type="button" onclick="tutupKoreksiMigrasi()" class="rounded-xl border border-slate-200 px-4 py-2 font-bold">Batal</button><button id="km-save" type="button" onclick="simpanKoreksiMigrasi()" class="rounded-xl bg-violet-600 text-white px-4 py-2 font-bold">Simpan Koreksi</button></div>
+ </div>
+</div>
+</body></html>`); w.document.close();
 }
 function printRtSepertiLamanUtama(){
   const d=REPORT_DATA_RT||{}; const rows=(d.rows||[]); const periode=[d.namaBulan,d.tahun].filter(Boolean).join(' ');
