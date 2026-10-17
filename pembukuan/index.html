@@ -1605,6 +1605,25 @@ main > section.card{overflow:visible!important}
   #report-kas-panel .kas-report-badge{display:none}
 }
 </style>
+
+<style id="v6263-iuran-counts-two-rows">
+/* Jumlah bayar/belum tetap di kanan card, tetapi dua baris supaya tidak menabrak nominal. */
+.iuran-summary-tile.has-meta{grid-template-columns:minmax(0,1fr) max-content!important;align-items:center!important;column-gap:7px!important}
+.iuran-summary-tile.has-meta .iq-main{min-width:0!important}
+.iuran-summary-tile.has-meta .iq-counts{display:flex!important;flex-direction:column!important;align-items:flex-end!important;justify-content:center!important;min-width:0!important;white-space:normal!important;text-align:right!important;line-height:1.25!important;font-size:11px!important}
+.iuran-summary-tile.has-meta .iq-count-desktop{display:flex!important;flex-direction:column!important;align-items:flex-end!important;gap:2px!important}
+.iuran-summary-tile.has-meta .iq-count-desktop>span{white-space:nowrap!important}
+.iuran-summary-tile.has-meta .iq-count-mobile{display:none!important}
+@media(max-width:767px){
+ .iuran-summary-tile.has-meta{column-gap:3px!important}
+ .iuran-summary-tile.has-meta .iq-counts{font-size:9px!important}
+ .iuran-summary-tile.has-meta .iq-count-desktop{display:none!important}
+ .iuran-summary-tile.has-meta .iq-count-mobile{display:flex!important;flex-direction:column!important;align-items:flex-end!important;gap:5px!important}
+ .iuran-summary-tile.has-meta .iq-count-mobile-line{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:4px!important;white-space:nowrap!important}
+ .iuran-summary-tile.has-meta .iq-count-mobile .mitem{display:inline-flex!important;gap:2px!important;align-items:center!important}
+ .iuran-summary-tile.has-meta .iq-count-mobile svg{width:11px!important;height:11px!important;flex:none!important}
+}
+</style>
 </head>
 <body oncontextmenu="return false;">
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
@@ -2543,9 +2562,9 @@ function iuranQuickPeriodLabel(){
 let IURAN_QUICK_DATA=null,IURAN_QUICK_REQ=0;
 function iqCountHtml(c){
   c=c||{};const l=Number(c.lunas||0),s=Number(c.sebagian||0),b=Number(c.belum||0);
-  const desktop=s>0?`${l} lunas • ${s} sebagian • ${b} belum`:`${l} bayar • ${b} belum`;
+  const paid=s>0?`${l} lunas${s?` · ${s} sebagian`:''}`:`${l} bayar`;
   const partial=s>0?`<span class="mitem" title="Sebagian"><i data-lucide="circle-dot"></i>${s}</span>`:'';
-  return `<span class="iq-count-desktop">${desktop}</span><span class="iq-count-mobile"><span class="mitem" title="Sudah bayar"><i data-lucide="circle-check"></i>${l}</span>${partial}<span class="mitem" title="Belum bayar"><i data-lucide="circle"></i>${b}</span></span>`;
+  return `<span class="iq-count-desktop"><span>${paid}</span><span>${b} belum</span></span><span class="iq-count-mobile"><span class="iq-count-mobile-line"><span class="mitem" title="Sudah bayar"><i data-lucide="circle-check"></i>${l}</span>${partial}</span><span class="iq-count-mobile-line"><span class="mitem" title="Belum bayar"><i data-lucide="circle"></i>${b}</span></span></span>`;
 }
 function renderIuranQuickSummary(data){
   const box=document.getElementById('iuran-quick-summary');if(!box)return;
