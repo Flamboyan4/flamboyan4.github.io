@@ -2719,4 +2719,124 @@ async function hapusPinjamanPermanen(id){const x=(DATA_PINJAMAN.rows||[]).find(v
   window.addEventListener('resize',positionOpenDropdown);
 })();
 </script>
+
+
+<style id="v6212-mobile-mode-table-fullwidth-fix">
+/* v6.20.12 — fokus: tombol Buat/Bayar pasti tampil di HP + tabel riwayat utuh sampai tepi.
+   Tidak mengecilkan font; hanya membenahi layout, proporsi, dan visual table. */
+@media screen and (max-width:767px){
+  /* === PINJAMAN & DENDA: mode Buat/Bayar selalu terlihat === */
+  #tab-pinjaman .mode-switch,
+  #tab-denda .mode-switch{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:8px!important;
+    width:100%!important;
+    margin:0 0 14px 0!important;
+    position:relative!important;
+    visibility:visible!important;
+    opacity:1!important;
+    z-index:5!important;
+  }
+  #tab-pinjaman .mode-switch .loan-mode-btn,
+  #tab-denda .mode-switch .denda-mode-btn{
+    display:flex!important;
+    width:100%!important;
+    min-width:0!important;
+    min-height:44px!important;
+    padding:10px 12px!important;
+    align-items:center!important;
+    justify-content:center!important;
+    visibility:visible!important;
+    opacity:1!important;
+    font-size:14px!important;
+    line-height:1.2!important;
+  }
+  #loan-form-buat.hidden,#loan-form-bayar.hidden,
+  #denda-panel-catat.hidden,#denda-panel-bayar.hidden{display:none!important}
+  #loan-form-buat:not(.hidden),#loan-form-bayar:not(.hidden),
+  #denda-panel-catat:not(.hidden),#denda-panel-bayar:not(.hidden){
+    display:block!important;opacity:1!important;filter:none!important;pointer-events:auto!important;
+  }
+
+  /* === RIWAYAT: wrapper selalu selebar card dan scroll hanya isi tabel === */
+  #tab-riwayat .history-scroll,
+  #tab-riwayat .loan-scroll,
+  #tab-riwayat .overflow-x-auto{
+    width:100%!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+  }
+
+  /* Header/background/garis harus membentang penuh sampai ujung tabel. */
+  #tab-riwayat table{
+    min-width:100%!important;
+    border-spacing:0!important;
+  }
+  #tab-riwayat table thead,
+  #tab-riwayat table thead tr{
+    background:#f5f3ff!important;
+  }
+  #tab-riwayat table thead th{
+    background:#f5f3ff!important;
+  }
+  #tab-riwayat table tbody tr{background:#fff!important}
+  #tab-riwayat table tbody td{border-bottom:1px solid #ede9fe!important}
+  #tab-riwayat table tbody tr:last-child td{border-bottom:0!important}
+
+  /* Setiap tabel tetap minimal memenuhi viewport card. Jika kontennya lebih panjang, baru scroll. */
+  #history-iuran-panel table{width:max(100%,660px)!important}
+  #history-kasumum-panel table{width:max(100%,780px)!important}
+  #history-batch-panel table{width:max(100%,620px)!important}
+  #history-pinjaman-panel > .loan-scroll > table{width:max(100%,790px)!important}
+  .loan-payment-history .loan-scroll table{width:max(100%,660px)!important}
+  #history-talangan-panel table{width:max(100%,820px)!important}
+  #history-denda-panel table{width:max(100%,675px)!important}
+
+  /* Nama warga tetap satu baris. */
+  #history-iuran-panel td:nth-child(2),
+  #history-pinjaman-panel > .loan-scroll > table td:nth-child(2),
+  .loan-payment-history td:nth-child(2),
+  #history-talangan-panel td:nth-child(2),
+  #history-denda-panel td:nth-child(2){white-space:nowrap!important}
+
+  /* Kolom Aksi: jangan pernah memotong tombol terakhir. */
+  #history-pinjaman-panel > .loan-scroll > table td:last-child,
+  #history-talangan-panel td:last-child,
+  #history-denda-panel td:last-child,
+  #history-kasumum-panel td:last-child{
+    white-space:nowrap!important;
+    overflow:visible!important;
+  }
+  #history-pinjaman-panel > .loan-scroll > table td:last-child > div,
+  #history-talangan-panel td:last-child > div,
+  #history-denda-panel td:last-child > div,
+  #history-kasumum-panel td:last-child > div{
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    gap:4px!important;
+    align-items:center!important;
+  }
+
+  /* Singkatkan panel detail agar tetap proporsional. */
+  .loan-payment-history>summary{gap:10px!important}
+  .loan-payment-history>summary strong,
+  .loan-payment-history>summary>span:first-child{line-height:1.2!important}
+}
+</style>
+
+<script id="v6212-mobile-mode-labels-fix">
+(function(){
+  function apply(){
+    const lb=document.getElementById('loan-mode-buat');
+    const db=document.getElementById('btn-denda-catat');
+    if(lb) lb.textContent='Buat';
+    if(db) db.textContent='Buat';
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',apply); else apply();
+})();
+</script>
+
 </body></html>
