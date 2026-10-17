@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Pembukuan Flamboyan 4</title>
-<!-- Build: v6.23.2 YEAR CLOSING + QUICK IURAN SUMMARY + Backend 2.7.1 -->
+<!-- Build: v6.24.0 IURAN ALLOCATION COUNTS + CASH POSITION + RESTORE LOAN PREDEPLOY -->
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
@@ -1432,6 +1432,23 @@ main > section.card{overflow:visible!important}
 </style>
 
 
+<style id="v6240-iuran-counts-cash-position">
+.iuran-summary-tile.has-meta{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px}
+.iq-main{min-width:0;display:flex;flex-direction:column;justify-content:center}
+.iq-counts{font-size:9.5px;line-height:1.2;font-weight:800;color:#64748b;text-align:right;white-space:nowrap}
+.iq-count-mobile{display:none;align-items:center;gap:6px;color:#64748b}
+.iq-count-mobile .mitem{display:inline-flex;align-items:center;gap:2px}.iq-count-mobile svg{width:12px;height:12px}
+.kas-position-value{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;min-width:0}
+.kas-position-meta{font-size:9.5px;line-height:1.25;color:#64748b;font-weight:700;text-align:right;white-space:nowrap}
+.kas-position-mobile{display:none;align-items:center;gap:7px;font-size:10px;font-weight:800;color:#64748b;white-space:nowrap}
+.kas-position-mobile .mitem{display:inline-flex;align-items:center;gap:2px}.kas-position-mobile svg{width:12px;height:12px}
+@media(max-width:767px){
+  .iuran-summary-tile.has-meta{gap:4px}.iq-count-desktop{display:none}.iq-count-mobile{display:flex}
+  .iq-counts{font-size:9px}.iq-count-mobile{gap:4px}.iq-count-mobile svg{width:11px;height:11px}
+  .kas-position-meta{display:none}.kas-position-mobile{display:flex;gap:4px;font-size:9px}.kas-position-mobile svg{width:11px;height:11px}
+}
+</style>
+
 <!-- v6.23.5 ALIGN IURAN SAVE BUTTON -->
 <style>
 @media (min-width:1024px){
@@ -1810,7 +1827,7 @@ main > section.card{overflow:visible!important}
               <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Pemasukan</div><div id="rep-kas-debit" class="text-xl font-black text-emerald-700 mt-2">Rp 0</div></div>
               <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Pengeluaran</div><div id="rep-kas-kredit" class="text-xl font-black text-red-600 mt-2">Rp 0</div></div>
               <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Saldo Periode</div><div id="rep-kas-net" class="text-xl font-black text-violet-700 mt-2">Rp 0</div></div>
-              <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Saldo Akhir</div><div id="rep-kas-akhir" class="text-xl font-black text-violet-700 mt-2">Rp 0</div></div>
+              <div class="report-card rounded-2xl border border-violet-100 p-4"><div id="rep-kas-akhir-label" class="text-[11px] font-bold uppercase text-slate-400">Saldo Akhir</div><div class="kas-position-value mt-2"><div id="rep-kas-akhir" class="text-xl font-black text-violet-700">Rp 0</div><div id="rep-kas-posisi" class="no-print hidden"></div></div></div>
             </div>
             <div class="report-table-wrap overflow-x-auto rounded-2xl border border-violet-100">
               <table class="w-full text-sm min-w-[900px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-left">Tanggal</th><th class="p-3 text-left">Keterangan</th><th class="p-3 text-left">Kategori</th><th class="p-3 text-right">Debit</th><th class="p-3 text-right">Kredit</th><th class="p-3 text-right">Saldo</th></tr></thead><tbody id="report-kas-tbody" class="divide-y divide-violet-50"><tr><td colspan="6" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody></table>
@@ -1953,10 +1970,10 @@ main > section.card{overflow:visible!important}
           <div class="iuran-quick-note">Alokasi &amp; posisi uang</div>
         </div>
         <div class="iuran-quick-grid">
-          <div class="iuran-summary-tile is-main"><span>Total Masuk</span><strong id="iq-total">Rp0</strong></div>
-          <div class="iuran-summary-tile"><span>Setoran RT</span><strong id="iq-rt">Rp0</strong></div>
-          <div class="iuran-summary-tile"><span>Kas Lorong</span><strong id="iq-kas">Rp0</strong></div>
-          <div class="iuran-summary-tile"><span>Arisan</span><strong id="iq-arisan">Rp0</strong></div>
+          <div class="iuran-summary-tile is-main has-meta"><div class="iq-main"><span>Total Masuk</span><strong id="iq-total">Rp0</strong></div><div id="iq-count-total" class="iq-counts"></div></div>
+          <div class="iuran-summary-tile has-meta"><div class="iq-main"><span>Setoran RT</span><strong id="iq-rt">Rp0</strong></div><div id="iq-count-rt" class="iq-counts"></div></div>
+          <div class="iuran-summary-tile has-meta"><div class="iq-main"><span>Kas Lorong</span><strong id="iq-kas">Rp0</strong></div><div id="iq-count-kas" class="iq-counts"></div></div>
+          <div class="iuran-summary-tile has-meta"><div class="iq-main"><span>Arisan</span><strong id="iq-arisan">Rp0</strong></div><div id="iq-count-arisan" class="iq-counts"></div></div>
           <div class="iuran-summary-tile money"><span>Cash</span><strong id="iq-cash">Rp0</strong></div>
           <div class="iuran-summary-tile money"><span>QRIS</span><strong id="iq-qris">Rp0</strong></div>
           <div class="iuran-summary-tile money"><span>Rek. Mandiri</span><strong id="iq-mandiri">Rp0</strong></div>
@@ -2116,9 +2133,9 @@ main > section.card{overflow:visible!important}
 </div>
 
 <script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx3ZI6Dx_yLCC9SrFeQ7qL2C-JA5e3_j08UbfNlmz2bTEXXeEIHRrZ1zwvL4H2Py0gt/exec';
-const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx3ZI6Dx_yLCC9SrFeQ7qL2C-JA5e3_j08UbfNlmz2bTEXXeEIHRrZ1zwvL4H2Py0gt/exec';
-const DELETE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx3ZI6Dx_yLCC9SrFeQ7qL2C-JA5e3_j08UbfNlmz2bTEXXeEIHRrZ1zwvL4H2Py0gt/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzlF4N7Fp6dbQzHdQvHFbvXMQiuX-3HhkMVKWde3GzB4V4Jp7FDy4LGjfBMe70-JkXW/exec';
+const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzlF4N7Fp6dbQzHdQvHFbvXMQiuX-3HhkMVKWde3GzB4V4Jp7FDy4LGjfBMe70-JkXW/exec';
+const DELETE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzlF4N7Fp6dbQzHdQvHFbvXMQiuX-3HhkMVKWde3GzB4V4Jp7FDy4LGjfBMe70-JkXW/exec';
 let DATA={config:{},rumah:[],warga:[],riwayat:[]};
 let RIWAYAT_SEMUA=false;
 let RIWAYAT_KAS=[];
@@ -2232,6 +2249,7 @@ async function loadRiwayat(silent=false){
     if(!r||r.status!=='success') throw new Error(r?.message||'Gagal memuat riwayat.');
     DATA.riwayat=r.data||[];
     renderRiwayat();
+    loadIuranQuickSummary();
     if(!silent){riwayatMsg('Riwayat diperbarui.','success');setTimeout(()=>document.getElementById('riwayat-status').classList.add('hidden'),1200)}
   }catch(e){riwayatMsg(e.message||String(e),'error')}
 }
@@ -2336,29 +2354,40 @@ function iuranQuickPeriodLabel(){
   }catch(e){}
   return 'Periode aktif';
 }
-function renderIuranQuickSummary(){
-  const box=document.getElementById('iuran-quick-summary'); if(!box)return;
+let IURAN_QUICK_DATA=null,IURAN_QUICK_REQ=0;
+function iqCountHtml(c){
+  c=c||{};const l=Number(c.lunas||0),s=Number(c.sebagian||0),b=Number(c.belum||0);
+  const desktop=s>0?`${l} lunas • ${s} sebagian • ${b} belum`:`${l} bayar • ${b} belum`;
+  const partial=s>0?`<span class="mitem" title="Sebagian"><i data-lucide="circle-dot"></i>${s}</span>`:'';
+  return `<span class="iq-count-desktop">${desktop}</span><span class="iq-count-mobile"><span class="mitem" title="Sudah bayar"><i data-lucide="circle-check"></i>${l}</span>${partial}<span class="mitem" title="Belum bayar"><i data-lucide="circle"></i>${b}</span></span>`;
+}
+function renderIuranQuickSummary(data){
+  const box=document.getElementById('iuran-quick-summary');if(!box)return;
+  if(data)IURAN_QUICK_DATA=data;
+  const d=IURAN_QUICK_DATA;
+  if(d&&d.totals){
+    const t=d.totals,c=d.counts||{};const put=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=rupiah(v||0)};
+    put('iq-total',t.totalMasuk);put('iq-rt',t.setoranRT);put('iq-kas',t.kasLorong);put('iq-arisan',t.arisan);put('iq-cash',t.cash);put('iq-qris',t.qris);put('iq-mandiri',t.mandiri);put('iq-selisih',t.selisih);
+    ['total','rt','kas','arisan'].forEach(k=>{const e=document.getElementById('iq-count-'+k);if(e)e.innerHTML=iqCountHtml(c[k])});
+    const p=document.getElementById('iuran-quick-period');if(p)p.textContent=d.labelPeriode||iuranQuickPeriodLabel();
+    const sc=document.getElementById('iq-selisih-card');if(sc)sc.classList.toggle('has-diff',Math.abs(Number(t.selisih||0))>.5);
+    try{lucide.createIcons()}catch(_e){}
+    return;
+  }
+  // Fallback lama bila backend baru belum dideploy.
   const active=(DATA.riwayat||[]).filter(x=>x.status==='AKTIF'&&matchRiwayatPeriod(x));
-  const n=k=>active.reduce((s,x)=>s+(Number(x?.[k])||0),0);
-  const total=n('totalDiterima'), rt=n('totalSetoranRT'), kas=n('totalKasLorong'), arisan=n('totalArisan');
-  let cash=0,qris=0,mandiri=0;
-  active.forEach(x=>{
-    const v=Number(x.totalDiterima)||0, m=String(x.metode||'').toLowerCase();
-    if(m.includes('cash')||m.includes('tunai')) cash+=v;
-    else if(m.includes('qris')||m==='qr'||m.includes('qr ')) qris+=v;
-    else if(m.includes('mandiri')) mandiri+=v;
-  });
-  const selisih=Math.round(total-rt-kas-arisan);
-  const put=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=rupiah(v)};
-  put('iq-total',total); put('iq-rt',rt); put('iq-kas',kas); put('iq-arisan',arisan);
-  put('iq-cash',cash); put('iq-qris',qris); put('iq-mandiri',mandiri); put('iq-selisih',selisih);
-  const p=document.getElementById('iuran-quick-period');if(p)p.textContent=iuranQuickPeriodLabel();
-  const c=document.getElementById('iq-selisih-card');if(c)c.classList.toggle('has-diff',Math.abs(selisih)>0.5);
+  const n=k=>active.reduce((s,x)=>s+(Number(x?.[k])||0),0),total=n('totalDiterima'),rt=n('totalSetoranRT'),kas=n('totalKasLorong'),arisan=n('totalArisan');let cash=0,qris=0,mandiri=0;
+  active.forEach(x=>{const v=Number(x.totalDiterima)||0,m=String(x.metode||'').toLowerCase();if(m.includes('cash')||m.includes('tunai'))cash+=v;else if(m.includes('qris')||m==='qr'||m.includes('qr '))qris+=v;else if(m.includes('mandiri'))mandiri+=v});
+  const selisih=Math.round(total-rt-kas-arisan),put=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=rupiah(v)};put('iq-total',total);put('iq-rt',rt);put('iq-kas',kas);put('iq-arisan',arisan);put('iq-cash',cash);put('iq-qris',qris);put('iq-mandiri',mandiri);put('iq-selisih',selisih);const p=document.getElementById('iuran-quick-period');if(p)p.textContent=iuranQuickPeriodLabel();const sc=document.getElementById('iq-selisih-card');if(sc)sc.classList.toggle('has-diff',Math.abs(selisih)>.5);
+}
+async function loadIuranQuickSummary(){
+  const req=++IURAN_QUICK_REQ;
+  try{const prm=window.UPR?.params?window.UPR.params('history-iuran'):{};const r=await jsonp(APPS_SCRIPT_URL,{action:'iuranquicksummary',...prm,t:Date.now()});if(req!==IURAN_QUICK_REQ)return;if(!r||r.status!=='success')throw new Error(r?.message||'Gagal');renderIuranQuickSummary(r.data||null)}catch(e){if(req!==IURAN_QUICK_REQ)return;IURAN_QUICK_DATA=null;renderIuranQuickSummary()}
 }
 
 function renderRiwayat(){
   const tbody=document.getElementById('tbody-riwayat');if(!tbody)return;
-  renderIuranQuickSummary();
+  if(!IURAN_QUICK_DATA)renderIuranQuickSummary();
   const q=(document.getElementById('cari-riwayat')?.value||'').toLowerCase();
   const f=document.getElementById('filter-riwayat')?.value||'AKTIF';
   let rows=(DATA.riwayat||[]).filter(x=>{
@@ -2665,7 +2694,7 @@ function renderPinjaman(){
       const acts=[actionIcon('wallet-cards','Bayar',`pilihMenu('pinjaman');setTimeout(()=>{setLoanMode('bayar');document.getElementById('payloan-id').value='${x.idPinjaman}';previewPinjaman()},50)`,'emerald'),actionIcon('pencil','Edit',`bukaEditPinjaman('${x.idPinjaman}')`,'violet')];
       if((x.totalDibayar||0)===0)acts.push(actionIcon('circle-x','Batal',`batalkanPinjaman('${x.idPinjaman}')`,'red'));
       aksi=`<div class="action-icons">${acts.join('')}</div>`;
-    }else if(lunas){aksi=`<div class="action-icons">${actionIcon('trash-2','Hapus',`hapusPinjamanPermanen('${x.idPinjaman}')`,'red')}</div>`}
+    }else if(batal){aksi=`<div class="action-icons">${actionIcon('rotate-ccw','Pulihkan',`pulihkanPinjaman('${x.idPinjaman}')`,'violet')}</div>`}else if(lunas){aksi=`<div class="action-icons">${actionIcon('trash-2','Hapus',`hapusPinjamanPermanen('${x.idPinjaman}')`,'red')}</div>`}
     return `<tr class="${batal?'opacity-55':''}"><td class="p-3 whitespace-nowrap">${histDate(x.tanggalPinjaman)}</td><td class="p-3"><div class="font-bold whitespace-nowrap">${x.nama||'-'}</div><div class="text-xs text-slate-400 whitespace-nowrap">${x.blok||''}/${x.noRumah||''} • ${x.idPinjaman}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominalPinjaman||0)}</td><td class="p-3 text-right font-bold text-emerald-700">${rupiah(x.totalDibayar||0)}</td><td class="p-3 text-right font-black text-red-600">${rupiah(x.sisaPinjaman||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${badge}">${x.status}</span></td><td class="p-3">${x.keterangan||'-'}</td><td class="p-3 text-right whitespace-nowrap">${aksi}</td></tr>`
   }).join('')||'<tr><td colspan="8" class="p-6 text-center text-slate-400">Belum ada data pinjaman.</td></tr>';
   const tbBayar=document.getElementById('tbody-riwayat-bayar-pinjaman');
@@ -2680,6 +2709,8 @@ function renderPinjaman(){
 async function batalkanPembayaranPinjaman(id){if(!confirm(`Batalkan pembayaran pinjaman ${id}?`))return;try{loanMsg('hist-loan-status','Membatalkan pembayaran...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkanpembayaranpinjaman',idPembayaranPinjaman:id,alasan:'Dibatalkan dari web',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan pembayaran.');await loadPinjaman(true);await loadRiwayatKas(true);loanMsg('hist-loan-status',r.message||'Pembayaran dibatalkan.','success')}catch(e){loanMsg('hist-loan-status',e.message||String(e),'error')}}
 
 async function batalkanPinjaman(id){if(!confirm(`Batalkan pinjaman ${id}?`))return;try{loanMsg('hist-loan-status','Membatalkan pinjaman...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'batalkanpinjaman',idPinjaman:id,alasan:'Dibatalkan dari web',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan pinjaman.');await loadPinjaman(true);await loadRiwayatKas(true);loanMsg('hist-loan-status',r.message||'Pinjaman dibatalkan.','success')}catch(e){loanMsg('hist-loan-status',e.message||String(e),'error')}}
+
+async function pulihkanPinjaman(id){if(!confirm(`Pulihkan pinjaman ${id} menjadi AKTIF lagi?\n\nPinjaman akan dapat dibayar kembali. Setelah LUNAS, tombol Hapus akan tersedia untuk membersihkan data uji.`))return;try{loanMsg('hist-loan-status','Memulihkan pinjaman...');const r=await jsonp(BATCH_SCRIPT_URL,{action:'pulihkanpinjaman',idPinjaman:id,t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memulihkan pinjaman.');await loadPinjaman(true);await loadRiwayatKas(true);loanMsg('hist-loan-status',r.message||'Pinjaman dipulihkan.','success')}catch(e){loanMsg('hist-loan-status',e.message||String(e),'error')}}
 
 let DATA_TALANGAN={rows:[],aktif:[],ringkasan:{}};
 function talMsg(id,t,type='info'){const e=document.getElementById(id);if(!e)return;e.className='rounded-xl border px-4 py-3 text-sm';if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');else if(type==='success')e.classList.add('bg-violet-50','border-violet-200','text-violet-700');else e.classList.add('bg-slate-50','border-slate-200','text-slate-600');e.textContent=t}
@@ -2828,7 +2859,9 @@ async function loadLaporan(){
 function renderLaporanKas(d){
   d=d||{};const r=d.ringkasan||{};const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
   set('report-kas-title','Laporan Kas Warga');set('report-kas-subtitle',d.labelPeriode||'');
-  set('rep-kas-awal',rupiah(r.saldoAwal||0));set('rep-kas-debit',rupiah(r.debit||0));set('rep-kas-kredit',rupiah(r.kredit||0));set('rep-kas-net',rupiah(r.saldoPeriode||0));set('rep-kas-akhir',rupiah(r.saldoAkhir||0));
+  set('rep-kas-awal',rupiah(r.saldoAwal||0));set('rep-kas-debit',rupiah(r.debit||0));set('rep-kas-kredit',rupiah(r.kredit||0));set('rep-kas-net',rupiah(r.saldoPeriode||0));
+  const pos=d.posisiKas||null,hasReserve=!!(pos&&Number(pos.danaTeralokasi||0)>0);set('rep-kas-akhir-label',hasReserve?'Saldo Tersedia':'Saldo Akhir');set('rep-kas-akhir',rupiah(hasReserve?pos.saldoTersedia:(r.saldoAkhir||0)));
+  const pe=document.getElementById('rep-kas-posisi');if(pe){pe.classList.toggle('hidden',!hasReserve);if(hasReserve){pe.innerHTML=`<div class="kas-position-meta"><div>Riil ${rupiah(pos.saldoRiil||0)}</div><div>Teralokasi ${rupiah(pos.danaTeralokasi||0)}</div></div><div class="kas-position-mobile"><span class="mitem" title="Saldo riil"><i data-lucide="wallet-cards"></i>${rupiah(pos.saldoRiil||0)}</span><span class="mitem" title="Dana teralokasi bulan depan"><i data-lucide="lock-keyhole"></i>${rupiah(pos.danaTeralokasi||0)}</span></div>`;try{lucide.createIcons()}catch(_e){}}else pe.innerHTML=''}
   const net=document.getElementById('rep-kas-net');if(net){net.classList.remove('text-red-600','text-emerald-700','text-violet-700');net.classList.add(Number(r.saldoPeriode||0)<0?'text-red-600':Number(r.saldoPeriode||0)>0?'text-emerald-700':'text-violet-700')}
   const tb=document.getElementById('report-kas-tbody');if(tb)tb.innerHTML=(d.rows||[]).map(x=>`<tr><td class="p-3 whitespace-nowrap">${histDate(x.tanggal)}</td><td class="p-3"><div class="font-bold">${x.keterangan||'-'}</div><div class="no-print text-xs text-slate-400">${x.idTransaksi||''} • ${x.sumber||''}</div></td><td class="p-3">${x.kategori||'-'}</td><td class="p-3 text-right font-bold text-emerald-700">${x.debit?rupiah(x.debit):'-'}</td><td class="p-3 text-right font-bold text-red-600">${x.kredit?rupiah(x.kredit):'-'}</td><td class="p-3 text-right font-black">${rupiah(x.saldo||0)}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada transaksi pada periode ini.</td></tr>';
   const y=document.getElementById('report-kas-tahunan'),rekap=d.periodeBulanan||d.tahunan||[];if(y)y.innerHTML=rekap.map(x=>`<div class="rounded-xl border border-violet-100 p-3"><div class="font-bold">${x.namaBulan} ${x.tahun||''}</div><div class="mt-1 text-xs text-slate-500">Masuk ${rupiah(x.debit)} • Keluar ${rupiah(x.kredit)}</div><div class="mt-1 font-black ${x.net<0?'text-red-600':x.net>0?'text-emerald-700':'text-violet-700'}">Saldo periode ${rupiah(x.net)}</div></div>`).join('')
@@ -3656,7 +3689,7 @@ function day(k,side,v){const s=st(k),sel=pv(s.level,s[side]),y=v.y,m=v.m,f=new D
 function mon(k,side,v){const s=st(k),sel=pv(s.level,s[side]),y=v.y;return `<div class="upr-head"><button class="upr-nav" onclick="UPR.shift('${k}','${side}','month',-1)"><i data-lucide="chevron-left"></i></button><button class="upr-title" onclick="UPR.view('${k}','${side}','year')">${y}</button><button class="upr-nav" onclick="UPR.shift('${k}','${side}','month',1)"><i data-lucide="chevron-right"></i></button></div><div class="upr-level-note">Pilih bulan • klik tahun untuk memilih per tahun</div><div class="upr-months">${MS.map((n,i)=>`<button class="upr-month ${s.level==='month'&&sel.y===y&&sel.m===i+1?'selected':''}" onclick="UPR.pick('${k}','${side}','month',${y},${i+1},1)">${n}</button>`).join('')}</div>`}
 function yr(k,side,v){const s=st(k),sel=pv(s.level,s[side]),a=Math.floor(v.y/10)*10;let z='';for(let y=a-1;y<=a+10;y++)z+=`<button class="upr-year ${s.level==='year'&&sel.y===y?'selected':''}" onclick="UPR.pick('${k}','${side}','year',${y},1,1)">${y}</button>`;return `<div class="upr-head"><button class="upr-nav" onclick="UPR.shift('${k}','${side}','year',-1)"><i data-lucide="chevron-left"></i></button><div class="upr-title flex items-center justify-center">${a} – ${a+9}</div><button class="upr-nav" onclick="UPR.shift('${k}','${side}','year',1)"><i data-lucide="chevron-right"></i></button></div><div class="upr-level-note">Pilih tahun</div><div class="upr-years">${z}</div>`}
 function rp(k,side){const c=document.querySelector(`.upr-control[data-key="${k}"][data-side="${side}"]`);if(!c)return;const s=st(k),b=pv(s.level,s[side]),v=VW[k+'|'+side]||(VW[k+'|'+side]={mode:'day',y:b.y,m:b.m});c.querySelector('.upr-pop').innerHTML=v.mode==='month'?mon(k,side,v):v.mode==='year'?yr(k,side,v):day(k,side,v);try{lucide.createIcons()}catch(e){}}
-window.UPR={open(k,side,b){const c=b.closest('.upr-control'),w=c.classList.contains('open');ca();if(w)return;const s=st(k),p=pv(s.level,s[side]);VW[k+'|'+side]={mode:'day',y:p.y,m:p.m};c.classList.add('open');rp(k,side)},view(k,side,m){VW[k+'|'+side].mode=m;rp(k,side)},shift(k,side,m,d){const v=VW[k+'|'+side];if(m==='day'){v.m+=d;if(v.m<1){v.m=12;v.y--}if(v.m>12){v.m=1;v.y++}}else if(m==='month')v.y+=d;else v.y+=d*10;rp(k,side)},pick(k,side,l,y,m,d){const s=st(k),v=mv(l,{y,m,d});if(s.level!==l){s.level=l;s.from=v;s.to=v}else s[side]=v;if(rank(l,s.from)>rank(l,s.to)){if(side==='from')s.to=s.from;else s.from=s.to}rf(k);ca();if(k==='history-iuran'){window.RIWAYAT_SEMUA=false;window.renderRiwayat?.()}},state:k=>({...st(k)}),params:k=>{const s=st(k);return{periodLevel:s.level,periodFrom:s.from,periodTo:s.to}},range:k=>bounds(st(k))};document.addEventListener('pointerdown',e=>{if(!e.target.closest('.upr-control'))ca()});
+window.UPR={open(k,side,b){const c=b.closest('.upr-control'),w=c.classList.contains('open');ca();if(w)return;const s=st(k),p=pv(s.level,s[side]);VW[k+'|'+side]={mode:'day',y:p.y,m:p.m};c.classList.add('open');rp(k,side)},view(k,side,m){VW[k+'|'+side].mode=m;rp(k,side)},shift(k,side,m,d){const v=VW[k+'|'+side];if(m==='day'){v.m+=d;if(v.m<1){v.m=12;v.y--}if(v.m>12){v.m=1;v.y++}}else if(m==='month')v.y+=d;else v.y+=d*10;rp(k,side)},pick(k,side,l,y,m,d){const s=st(k),v=mv(l,{y,m,d});if(s.level!==l){s.level=l;s.from=v;s.to=v}else s[side]=v;if(rank(l,s.from)>rank(l,s.to)){if(side==='from')s.to=s.from;else s.from=s.to}rf(k);ca();if(k==='history-iuran'){window.RIWAYAT_SEMUA=false;window.IURAN_QUICK_DATA=null;window.renderRiwayat?.();window.loadIuranQuickSummary?.()}},state:k=>({...st(k)}),params:k=>{const s=st(k);return{periodLevel:s.level,periodFrom:s.from,periodTo:s.to}},range:k=>bounds(st(k))};document.addEventListener('pointerdown',e=>{if(!e.target.closest('.upr-control'))ca()});
 function mount(){const b=document.querySelector('#history-iuran-panel .history-period-box');if(b)b.innerHTML=html('history-iuran');rf('history-iuran');const defs=[['report-kas-filter','report-kas',''],['report-rt-filter','report-rt',''],['report-arisan-filter','report-arisan',''],['report-denda-filter','report-denda','<select id="report-denda-status-filter" class="field upr-filter-status"><option value="SEMUA">Semua</option><option value="BELUM">Belum Bayar</option><option value="LUNAS">Lunas</option><option value="BATAL">Batal</option></select>'],['report-pinjaman-filter','report-pinjaman','<select id="report-pinjaman-status-filter" class="field upr-filter-status"><option value="SEMUA">Semua</option><option value="AKTIF">Aktif</option><option value="LUNAS">Lunas</option><option value="BATAL">Batal</option></select>'],['report-talangan-filter','report-talangan','<select id="report-talangan-status-filter" class="field upr-filter-status"><option value="SEMUA">Semua</option><option value="MENUNGGU">Menunggu</option><option value="LUNAS">Lunas</option><option value="BATAL">Batal</option></select>']];defs.forEach(([id,k,x])=>{const e=document.getElementById(id);if(e){e.className=(e.className||'').replace(/\bgrid\b|\bspace-y-3\b|\bmax-w-\S+/g,'').trim();e.innerHTML=`<div class="report-universal-filter">${html(k)}${x}</div>`;rf(k)}});setTimeout(()=>window.refreshAllCustomSelects?.(),30)}
 window.matchRiwayatPeriod=function(x){const t=window.historyDateTs?.(x?.tanggal)||0;if(!t)return false;const r=UPR.range('history-iuran');return t>=r.start&&t<=r.end};window.getKasReportParams=function(){return{action:'laporankas',...UPR.params('report-kas'),t:Date.now()}};
 window.loadLaporan=async function(){const q=++REPORT_REQUEST_SEQ;try{reportMsg('Memuat laporan...');let p;if(REPORT_MODE==='rt')p={action:'laporanrt',...UPR.params('report-rt'),t:Date.now()};else if(REPORT_MODE==='arisan')p={action:'laporanarisan',...UPR.params('report-arisan'),t:Date.now()};else if(REPORT_MODE==='denda')p={action:'laporandenda',...UPR.params('report-denda'),status:document.getElementById('report-denda-status-filter')?.value||'SEMUA',t:Date.now()};else if(REPORT_MODE==='pinjaman')p={action:'laporanpinjaman',...UPR.params('report-pinjaman'),status:document.getElementById('report-pinjaman-status-filter')?.value||'SEMUA',t:Date.now()};else if(REPORT_MODE==='talangan')p={action:'laporantalangan',...UPR.params('report-talangan'),status:document.getElementById('report-talangan-status-filter')?.value||'SEMUA',t:Date.now()};else if(REPORT_MODE==='tahunan'){const y=Number(document.getElementById('report-tahunan-tahun')?.value);if(!y)return;p={action:'laporantahunan',tahun:y,t:Date.now()}}else p=getKasReportParams();const r=await jsonp(BATCH_SCRIPT_URL,p);if(q!==REPORT_REQUEST_SEQ)return;if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memuat laporan.');if(REPORT_MODE==='rt'){REPORT_DATA_RT=r.data;renderLaporanRt(r.data)}else if(REPORT_MODE==='arisan'){REPORT_DATA_ARISAN=r.data;renderLaporanArisan(r.data)}else if(REPORT_MODE==='denda'){REPORT_DATA_DENDA=r.data;renderLaporanDenda(r.data)}else if(REPORT_MODE==='pinjaman'){REPORT_DATA_PINJAMAN=r.data;renderLaporanPinjaman(r.data)}else if(REPORT_MODE==='talangan'){REPORT_DATA_TALANGAN=r.data;renderLaporanTalangan(r.data)}else if(REPORT_MODE==='tahunan'){REPORT_DATA_TAHUNAN=r.data;renderLaporanTahunan(r.data)}else{REPORT_DATA_KAS=r.data;renderLaporanKas(r.data)}reportMsg('Laporan berhasil dimuat.','success');setTimeout(()=>{if(q===REPORT_REQUEST_SEQ)document.getElementById('report-status')?.classList.add('hidden')},900)}catch(e){if(q!==REPORT_REQUEST_SEQ)return;reportMsg(e.message||String(e),'error')}};
@@ -4148,7 +4181,7 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
 
 
 <script>
-// v6.23.6 - disable right-click/context menu on page body
+// v6.23.7 - disable right-click/context menu on page body
 document.addEventListener('contextmenu', function(e){
   const t = e.target;
   if (!t) return;
