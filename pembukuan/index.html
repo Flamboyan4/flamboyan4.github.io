@@ -1730,7 +1730,7 @@ main > section.card{overflow:visible!important}
               <button id="report-mode-denda" onclick="setModeLaporan('denda')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Denda</button>
               <button id="report-mode-talangan" onclick="setModeLaporan('talangan')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Talangan</button>
               <button id="report-mode-pinjaman" onclick="setModeLaporan('pinjaman')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Pinjaman</button>
-              <button id="report-mode-tahunan" onclick="setModeLaporan('tahunan')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Tutup Buku</button>
+              <button id="report-mode-tahunan" onclick="setModeLaporan('tahunan')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Tutup Buku & Arsip</button>
             </div>
             <div><h2 class="font-black text-xl text-violet-950">Laporan & Rekap</h2><p class="text-sm text-slate-500 mt-1">Rekap pembukuan dan laporan tahunan.</p></div>
           </div>
@@ -1749,7 +1749,13 @@ main > section.card{overflow:visible!important}
             <div id="report-denda-filter" class="hidden grid sm:grid-cols-3 gap-3 max-w-2xl"><div><label class="text-xs font-bold text-slate-500">Bulan</label><select id="report-denda-bulan" class="field mt-1"></select></div><div><label class="text-xs font-bold text-slate-500">Tahun</label><input id="report-denda-tahun" type="number" class="field mt-1" min="2020" max="2100"></div><div><label class="text-xs font-bold text-slate-500">Status</label><select id="report-denda-status-filter" class="field mt-1"><option value="SEMUA">Semua</option><option value="BELUM">Belum Bayar</option><option value="LUNAS">Lunas</option><option value="BATAL">Batal</option></select></div></div>
             <div id="report-pinjaman-filter" class="hidden max-w-sm"><label class="text-xs font-bold text-slate-500">Status</label><select id="report-pinjaman-status-filter" class="field mt-1"><option value="SEMUA">Semua</option><option value="AKTIF">Aktif</option><option value="LUNAS">Lunas</option><option value="BATAL">Batal</option></select></div>
             <div id="report-talangan-filter" class="hidden grid sm:grid-cols-3 gap-3 max-w-2xl"><div><label class="text-xs font-bold text-slate-500">Bulan</label><select id="report-talangan-bulan" class="field mt-1"></select></div><div><label class="text-xs font-bold text-slate-500">Tahun</label><input id="report-talangan-tahun" type="number" class="field mt-1" min="2020" max="2100"></div><div><label class="text-xs font-bold text-slate-500">Status</label><select id="report-talangan-status-filter" class="field mt-1"><option value="SEMUA">Semua</option><option value="MENUNGGU">Menunggu</option><option value="LUNAS">Lunas</option><option value="BATAL">Batal</option></select></div></div>
-            <div id="report-tahunan-filter" class="hidden max-w-sm"><div><label class="text-xs font-bold text-slate-500">Tahun</label><input id="report-tahunan-tahun" type="number" class="field mt-1" min="2020" max="2100"></div></div>
+            <div id="report-tahunan-filter" class="hidden year-close-filter">
+  <div class="year-close-toolbar">
+    <div class="year-close-select-wrap"><label class="text-xs font-bold text-slate-500">Tahun Buku</label><select id="report-tahunan-tahun" class="field mt-1"></select></div>
+    <div id="year-lock-badge" class="year-lock-badge open"><i data-lucide="unlock" class="w-4 h-4"></i><span>TERBUKA</span></div>
+    <button id="btn-year-archive" type="button" onclick="openYearArchive()" class="hidden year-archive-btn"><i data-lucide="archive" class="w-4 h-4"></i> Arsip</button>
+  </div>
+</div>
             <div class="grid sm:grid-cols-2 gap-3 max-w-xl"><button onclick="loadLaporan()" class="rounded-xl bg-violet-600 text-white font-black px-5 py-3">Muat Laporan</button><button onclick="printLaporan()" class="rounded-xl border border-violet-200 text-violet-700 font-black px-5 py-3"><span class="inline-flex items-center gap-2"><i data-lucide="printer" class="w-4 h-4"></i>Print</span></button></div>
           </div>
           <div id="report-status" class="hidden mt-3 rounded-xl border px-4 py-3 text-sm"></div>
@@ -1843,6 +1849,7 @@ main > section.card{overflow:visible!important}
             </div>
             <div id="report-tahunan-status" class="no-print mb-3 rounded-xl border border-violet-100 bg-violet-50 px-4 py-3 text-sm text-violet-800">Muat rekap tahunan untuk melihat status tutup buku.</div>
             <div id="report-tahunan-arsip" class="no-print mb-3 hidden rounded-xl border border-violet-100 bg-white px-4 py-3 text-sm"></div>
+            <div id="year-archive-detail" class="no-print hidden mb-4 year-archive-detail"></div>
             <div class="report-table-wrap overflow-x-auto rounded-xl border border-violet-100"><table class="w-full text-sm"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-2 text-left">Bulan</th><th class="p-2 text-right">Pemasukan</th><th class="p-2 text-right">Pengeluaran</th><th class="p-2 text-right">Saldo Periode</th><th class="p-2 text-right">Setoran RT</th><th class="p-2 text-right">Arisan</th><th class="p-2 text-right">Denda</th></tr></thead><tbody id="report-tahunan-tbody"></tbody></table></div>
             <div class="no-print mt-4 flex flex-wrap gap-2 justify-end"><button id="btn-tutup-buku" onclick="prosesTutupBuku()" class="hidden rounded-xl bg-violet-700 text-white px-5 py-3 font-black">Tutup Buku Tahun Ini</button></div>
           </div>
@@ -2048,9 +2055,9 @@ main > section.card{overflow:visible!important}
 </div>
 
 <script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5JfsKTAoRZEt30uA4zt-SRCJJXObsj0Q0MIluN-NhpvMQDcqw2cTntATSM24F3D0k/exec';
-const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5JfsKTAoRZEt30uA4zt-SRCJJXObsj0Q0MIluN-NhpvMQDcqw2cTntATSM24F3D0k/exec';
-const DELETE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5JfsKTAoRZEt30uA4zt-SRCJJXObsj0Q0MIluN-NhpvMQDcqw2cTntATSM24F3D0k/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyiF4CivwcVvqz3iBJ9mhftiMIi8TZRxvB3VDe9gYQPbbox62Q0QzZ5nDAoxE8C0pVD/exec';
+const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyiF4CivwcVvqz3iBJ9mhftiMIi8TZRxvB3VDe9gYQPbbox62Q0QzZ5nDAoxE8C0pVD/exec';
+const DELETE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyiF4CivwcVvqz3iBJ9mhftiMIi8TZRxvB3VDe9gYQPbbox62Q0QzZ5nDAoxE8C0pVD/exec';
 let DATA={config:{},rumah:[],warga:[],riwayat:[]};
 let RIWAYAT_SEMUA=false;
 let RIWAYAT_KAS=[];
@@ -3918,6 +3925,96 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
     const btn=dx<0?navs[navs.length-1]:navs[0];
     btn?.click();
   },{passive:true});
+})();
+</script>
+
+\n<style id="v6230-year-closing-ui">
+/* v6.23.0 — Tutup Buku, Arsip & Year Lock */
+.year-close-filter{max-width:none!important}
+.year-close-toolbar{display:flex;align-items:end;gap:10px;flex-wrap:wrap}
+.year-close-select-wrap{width:170px}
+.year-lock-badge{height:46px;display:inline-flex;align-items:center;gap:7px;padding:0 14px;border-radius:12px;font-size:12px;font-weight:900;border:1px solid}
+.year-lock-badge.open{background:#f5f3ff;border-color:#ddd6fe;color:#6d28d9}
+.year-lock-badge.closed{background:#ecfdf5;border-color:#a7f3d0;color:#047857}
+.year-archive-btn{height:46px;display:inline-flex;align-items:center;gap:7px;padding:0 15px;border:1px solid #ddd6fe;border-radius:12px;background:#fff;color:#6d28d9;font-weight:900}
+.year-archive-btn:hover{background:#f5f3ff}
+.year-archive-detail{border:1px solid #ddd6fe;border-radius:16px;background:#faf9ff;padding:14px}
+.year-archive-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.year-archive-card{border:1px solid #ede9fe;background:white;border-radius:12px;padding:10px}
+.year-archive-card .k{font-size:10px;color:#94a3b8;font-weight:800;text-transform:uppercase}
+.year-archive-card .v{margin-top:3px;font-size:14px;font-weight:900;color:#2e1065}
+.year-lock-warning{margin:10px 0 0;border:1px solid #fecaca;background:#fef2f2;color:#b91c1c;border-radius:12px;padding:10px 12px;font-size:12px;font-weight:700}
+.year-locked-control{opacity:.55!important;cursor:not-allowed!important}
+#report-tahunan-arsip .archive-year-list{display:flex;gap:8px;flex-wrap:wrap}
+#report-tahunan-arsip .archive-year-chip{display:inline-flex;align-items:center;gap:7px;padding:8px 11px;border-radius:10px;border:1px solid #ddd6fe;background:#f5f3ff;color:#5b21b6;font-weight:900}
+@media(max-width:640px){
+ .year-close-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end}
+ .year-close-select-wrap{width:100%}
+ .year-lock-badge{height:44px;padding:0 11px}
+ .year-archive-btn{grid-column:1/-1;width:100%;justify-content:center;height:44px}
+ .year-archive-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+</style>
+<script id="v6230-year-closing-script">
+(function(){
+  const CLOSED_YEAR_CACHE={};
+  const YEAR_SAVE_BUTTONS={
+    input:['btn-simpan','kurang-kas-btn'],transaksi:['btn-trx-simpan'],kas:['kas-btn-buat'],talangan:['tal-btn-simpan'],denda:['denda-btn-simpan','bayar-denda-btn'],pinjaman:['loan-btn-simpan','payloan-btn-simpan']
+  };
+  function nYear(v){const n=Number(v);return n>=2000&&n<=2200?n:0}
+  function dateYear(v){const m=String(v||'').match(/^(\\d{4})-/);return m?nYear(m[1]):0}
+  async function getYearStatus(y,force=false){
+    y=nYear(y);if(!y)return null;if(CLOSED_YEAR_CACHE[y]&&!force)return CLOSED_YEAR_CACHE[y];
+    try{const r=await jsonp(APPS_SCRIPT_URL,{action:'statustahun',tahun:y,t:Date.now()});if(r&&r.status==='success'){CLOSED_YEAR_CACHE[y]=r.data;return r.data}}catch(e){console.warn('status tahun',e)}return null;
+  }
+  function fillYearSelect(){
+    const s=document.getElementById('report-tahunan-tahun');if(!s||s.tagName!=='SELECT')return;
+    const now=new Date().getFullYear(),cur=Number(s.value)||now;let h='';
+    for(let y=now+1;y>=2020;y--)h+=`<option value="${y}">${y}</option>`;s.innerHTML=h;s.value=String(cur>=2020?cur:now);
+    s.onchange=()=>{updateYearBadge();};
+  }
+  async function updateYearBadge(){
+    const y=Number(document.getElementById('report-tahunan-tahun')?.value)||new Date().getFullYear(),st=await getYearStatus(y);
+    const b=document.getElementById('year-lock-badge'),a=document.getElementById('btn-year-archive');if(!b)return st;
+    const closed=!!st?.ditutup;b.className='year-lock-badge '+(closed?'closed':'open');b.innerHTML=`<i data-lucide="${closed?'lock':'unlock'}" class="w-4 h-4"></i><span>${closed?'DITUTUP':'TERBUKA'}</span>`;
+    a?.classList.toggle('hidden',!closed);try{lucide.createIcons()}catch(e){}return st;
+  }
+  window.openYearArchive=async function(){
+    const y=Number(document.getElementById('report-tahunan-tahun')?.value),host=document.getElementById('year-archive-detail');if(!y||!host)return;
+    host.classList.remove('hidden');host.innerHTML='<div class="text-sm text-slate-500">Memuat arsip resmi...</div>';
+    try{const r=await jsonp(APPS_SCRIPT_URL,{action:'detailarsip',tahun:y,t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memuat arsip.');const d=r.data||{},rec=d.record||{},mods=d.modul||{};
+      const available=Object.keys(mods).filter(k=>mods[k]);
+      host.innerHTML=`<div class="flex items-center justify-between gap-3 mb-3"><div><div class="font-black text-violet-950">Arsip Resmi ${y}</div><div class="text-xs text-slate-500 mt-1">${esc(rec.tanggalTutup||'')} • ${esc(rec.idArsip||'')}</div></div><span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-black">TERKUNCI</span></div><div class="year-archive-grid"><div class="year-archive-card"><div class="k">Saldo Awal</div><div class="v">${rupiah(rec.saldoAwal||0)}</div></div><div class="year-archive-card"><div class="k">Pemasukan</div><div class="v text-emerald-700">${rupiah(rec.pemasukan||0)}</div></div><div class="year-archive-card"><div class="k">Pengeluaran</div><div class="v text-red-600">${rupiah(rec.pengeluaran||0)}</div></div><div class="year-archive-card"><div class="k">Saldo Akhir</div><div class="v">${rupiah(rec.saldoAkhir||0)}</div></div></div><div class="text-xs text-slate-500 mt-3">Snapshot tersedia: ${available.map(esc).join(' • ')||'-'}</div>`;
+    }catch(e){host.innerHTML=`<div class="text-sm text-red-600">${esc(e.message||String(e))}</div>`}
+  };
+  const oldRenderArchive=window.renderArsipTahunan;
+  window.renderArsipTahunan=function(){
+    const e=document.getElementById('report-tahunan-arsip');if(!e)return;const a=REPORT_ARSIP_TAHUNAN||[];if(!a.length){e.classList.add('hidden');return}
+    e.classList.remove('hidden');e.innerHTML=`<div class="font-black text-violet-950 mb-2">Arsip Tahun Ditutup</div><div class="archive-year-list">${a.map(x=>`<button type="button" class="archive-year-chip" onclick="document.getElementById('report-tahunan-tahun').value='${x.tahun}';loadLaporan();setTimeout(openYearArchive,250)"><i data-lucide="archive" class="w-4 h-4"></i>${x.tahun} • ${rupiah(x.saldoAkhir||0)}</button>`).join('')}</div>`;try{lucide.createIcons()}catch(err){}
+  };
+  const oldRenderYear=window.renderLaporanTahunan;
+  window.renderLaporanTahunan=function(d){oldRenderYear(d);updateYearBadge();const detail=document.getElementById('year-archive-detail');if(detail&&!d?.sudahDitutup)detail.classList.add('hidden');};
+  const oldClose=window.prosesTutupBuku;
+  window.prosesTutupBuku=async function(){await oldClose();Object.keys(CLOSED_YEAR_CACHE).forEach(k=>delete CLOSED_YEAR_CACHE[k]);await updateYearBadge();};
+
+  function activeYearForTab(tab){
+    if(tab==='input')return nYear(document.getElementById('inp-tahun')?.value)||dateYear(document.getElementById('inp-tanggal')?.value);
+    if(tab==='transaksi')return nYear(document.getElementById('trx-tahun')?.value)||dateYear(document.getElementById('trx-tanggal')?.value);
+    if(tab==='kas')return nYear(document.getElementById('kas-tahun-buku')?.value)||nYear(document.getElementById('kas-tahun-iuran')?.value);
+    if(tab==='talangan')return nYear(document.getElementById('tal-tahun')?.value)||dateYear(document.getElementById('tal-tanggal')?.value);
+    if(tab==='denda'){const bayar=!document.getElementById('denda-panel-bayar')?.classList.contains('hidden');return dateYear(document.getElementById(bayar?'bayar-denda-tanggal':'denda-tanggal')?.value)}
+    if(tab==='pinjaman'){const bayar=!document.getElementById('loan-form-bayar')?.classList.contains('hidden');return dateYear(document.getElementById(bayar?'payloan-tanggal':'loan-tanggal')?.value)}
+    return 0;
+  }
+  async function applyInputYearLock(tab){
+    const y=activeYearForTab(tab),ids=YEAR_SAVE_BUTTONS[tab]||[];if(!y)return;const st=await getYearStatus(y),locked=!!st?.ditutup;
+    ids.forEach(id=>{const b=document.getElementById(id);if(!b)return;b.disabled=locked;b.classList.toggle('year-locked-control',locked);b.title=locked?`Tahun ${y} sudah ditutup dan terkunci.`:''});
+    const panel=document.getElementById('tab-'+tab);if(!panel)return;let w=panel.querySelector(':scope > .year-lock-warning');if(locked){if(!w){w=document.createElement('div');w.className='year-lock-warning';panel.prepend(w)}w.textContent=`Tahun ${y} sudah DITUTUP. Input/perubahan untuk tahun ini dikunci oleh backend.`}else w?.remove();
+  }
+  ['input','transaksi','kas','talangan','denda','pinjaman'].forEach(tab=>{
+    const p=document.getElementById('tab-'+tab);if(!p)return;p.addEventListener('change',()=>setTimeout(()=>applyInputYearLock(tab),60));p.addEventListener('click',()=>setTimeout(()=>applyInputYearLock(tab),80));
+  });
+  fillYearSelect();updateYearBadge();setTimeout(()=>{try{lucide.createIcons()}catch(e){}},20);
 })();
 </script>
 
