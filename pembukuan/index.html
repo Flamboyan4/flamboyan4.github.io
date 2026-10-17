@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Pembukuan Flamboyan 4</title>
-<!-- Build: v6.22.5 MOBILE CUSTOM CALENDAR + BACK FIX + Backend 2.6.1 -->
+<!-- Build: v6.22.6 CLEAN UI + SWIPE CALENDAR + Backend 2.6.1 -->
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
@@ -3698,7 +3698,7 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
 })();
 </script>
 
-\n<style id="v6223-report-talangan-history-filter-fix">
+<style id="v6223-report-talangan-history-filter-fix">
 /* v6.22.3 — visual polish */
 @media screen and (max-width:767px){
   /* Riwayat Iuran: status filter dibuat seimbang dengan filter laporan */
@@ -3861,6 +3861,63 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
   }
   document.addEventListener('pointerdown',e=>{if(!e.target.closest('.mdc-wrap,.upr-control')&&anyCalendarOpen())closeAllCalendars(true)},true);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,250));else setTimeout(init,250);
+})();
+</script>
+
+
+<style id="v6226-clean-ui-fixes">
+/* v6.22.6 — cleanup + compact report toolbar + swipe calendar */
+
+/* Kas Warga: tombol Muat/Print menempel setelah filter, sama seperti laporan lain */
+@media screen and (min-width:768px){
+  #tab-laporan .no-print>.mt-4{justify-content:flex-start!important}
+  #report-kas-filter{
+    flex:0 0 auto!important;
+    width:auto!important;
+    max-width:none!important;
+  }
+  #report-kas-filter>.report-universal-filter{
+    width:auto!important;
+    flex:0 0 auto!important;
+  }
+  #tab-laporan .no-print>.mt-4>div:last-child{
+    margin-left:0!important;
+    flex:0 0 auto!important;
+  }
+}
+
+/* Sentuhan kalender lebih natural di HP */
+@media screen and (max-width:767px){
+  .upr-pop,.mdc-pop{
+    touch-action:pan-y!important;
+    overscroll-behavior:contain;
+    -webkit-user-select:none;
+    user-select:none;
+  }
+}
+</style>
+<script id="v6226-calendar-swipe">
+(function(){
+  let startX=0,startY=0,target=null;
+  const MIN=42;
+  function isCalendarPop(el){return !!el?.closest?.('.upr-pop,.mdc-pop')}
+  document.addEventListener('touchstart',function(e){
+    const pop=e.target.closest?.('.upr-pop,.mdc-pop');
+    if(!pop||!e.touches||e.touches.length!==1)return;
+    target=pop;startX=e.touches[0].clientX;startY=e.touches[0].clientY;
+  },{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(!target||!e.changedTouches||!e.changedTouches.length){target=null;return}
+    const dx=e.changedTouches[0].clientX-startX;
+    const dy=e.changedTouches[0].clientY-startY;
+    const pop=target;target=null;
+    if(Math.abs(dx)<MIN||Math.abs(dx)<=Math.abs(dy)*1.15)return;
+    const navs=pop.querySelectorAll('.upr-nav,.mdc-nav');
+    if(navs.length<2)return;
+    // geser ke kiri = periode berikutnya, geser ke kanan = periode sebelumnya
+    const btn=dx<0?navs[navs.length-1]:navs[0];
+    btn?.click();
+  },{passive:true});
 })();
 </script>
 
