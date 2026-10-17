@@ -1196,7 +1196,9 @@
     }
 
     // LIST LINK CSV TERPUSAT
-    const CSV_KEUANGAN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=422555783&single=true&output=csv';
+    const PEMBUKUAN_API_URL = 'https://script.google.com/macros/s/AKfycbwmI7Gw3JCMg1Cb2CCHgXULcOxdEIDkOc4dPl8soHHJXZ3mUC1G9diZn4kNEXzoMrU/exec';
+    // Keuangan laman utama sekarang langsung membaca Buku Kas dari backend Pembukuan.
+    // CSV_KEUANGAN_URL lama tidak dipakai lagi.
     const CSV_DOKUMENTASI_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=0&single=true&output=csv';
     // Isi URL CSV sheet inventaris warga di sini jika sheet sudah tersedia.
     const CSV_INVENTARIS_WARGA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=492423764&single=true&output=csv';
@@ -2351,103 +2353,165 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       closeModalCetakKas();
     }
 
-    // PROSES PERHITUNGAN KEUANGAN
-    if (CSV_KEUANGAN_URL && CSV_KEUANGAN_URL.startsWith('http')) {
-      Papa.parse(CSV_KEUANGAN_URL, {
-        download: true,
-        header: true,
-        complete: function(results) {
-          const rawData = results.data.filter(row => {
-            const values = Object.values(row);
-            return values.length >= 2 && values[0] && values[0].toString().trim() !== '';
-          });
+    // PROSES PERHITUNGAN KEUANGAN - LANGSUNG DARI BACKEND PEMBUKUAN
+    async function loadKeuanganDariPembukuan() {
+      try {
+        const statusEl = document.getElementById('loading-status');
+        if (statusEl) statusEl.innerText = 'Menghubungkan pembukuan...';
 
-          let totalPemasukanAll = 0;
-          let totalPengeluaranAll = 0;
-
-          const monthlyMap = {};
-
-          rawData.forEach(row => {
-            const keys = Object.keys(row);
-            if (keys.length < 4) return;
-
-            const tglStr = row[keys[0]];
-            const kategori = (row[keys[2]] || '').trim();
-            const rawJumlah = row[keys[3]];
-            if (!rawJumlah) return;
-
-            let cleanedJumlah = rawJumlah.toString().replace(/\./g, '').replace(/,/g, '');
-            const jumlah = parseFloat(cleanedJumlah.replace(/[^0-9-]/g, '')) || 0;
-
-            if (kategori.toLowerCase() === 'pemasukan') totalPemasukanAll += jumlah;
-            else if (kategori.toLowerCase() === 'pengeluaran') totalPengeluaranAll += jumlah;
-
-            const parsed = parseRowDate(tglStr);
-            if (parsed) {
-              const key = `${parsed.year}-${String(parsed.month + 1).padStart(2, '0')}`;
-              if (!monthlyMap[key]) {
-                monthlyMap[key] = { year: parsed.year, month: parsed.month, pemasukan: 0, pengeluaran: 0 };
-              }
-              if (kategori.toLowerCase() === 'pemasukan') monthlyMap[key].pemasukan += jumlah;
-              else if (kategori.toLowerCase() === 'pengeluaran') monthlyMap[key].pengeluaran += jumlah;
-            }
-          });
-
-          monthlyKeuanganList = Object.values(monthlyMap);
-          monthlyKeuanganList.sort((a, b) => {
-            if (a.year !== b.year) return a.year - b.year;
-            return a.month - b.month;
-          });
-
-          if (monthlyKeuanganList.length > 0) {
-            currentPemasukanMonthIndex = monthlyKeuanganList.length - 1;
-            currentPengeluaranMonthIndex = monthlyKeuanganList.length - 1;
-            currentSaldoMonthIndex = monthlyKeuanganList.length - 1;
-            updatePemasukanCardView();
-            updatePengeluaranCardView();
-            updateSaldoCardView();
-          }
-
-          const sisaSaldo = totalPemasukanAll - totalPengeluaranAll;
-
-          if (rawData.length > 0) {
-            const lastRow = rawData[rawData.length - 1];
-            const lastTanggal = lastRow[Object.keys(lastRow)[0]];
-            if (lastTanggal) document.getElementById('label-update-kas').innerText = 'Update: ' + lastTanggal;
-          }
-
-          globalKeuanganData = [...rawData].reverse();
-          const top10Data = globalKeuanganData.slice(0, 10);
-          
-          let tbodyHTML = '';
-          top10Data.forEach(row => { tbodyHTML += renderTableRow(row); });
-
-          let tbodyAllHTML = '';
-          globalKeuanganData.forEach(row => { tbodyAllHTML += renderTableRow(row); });
-
-          document.getElementById('tabel-transaksi').innerHTML = tbodyHTML || '<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada transaksi</td></tr>';
-          document.getElementById('tabel-transaksi-all').innerHTML = tbodyAllHTML;
-          
-          document.getElementById('total-pemasukan-all').innerText = formatRupiah(totalPemasukanAll);
-          document.getElementById('total-pengeluaran-all').innerText = formatRupiah(totalPengeluaranAll);
-
-          document.getElementById('sisa-saldo').innerText = formatRupiah(sisaSaldo);
-          document.getElementById('loading-status').innerText = 'Terhubung live';
-
-          if (globalKeuanganData.length > 10) {
-            document.getElementById('btn-container-keuangan-all').classList.remove('hidden');
-          }
-
-          const terkumpul = Math.max(0, sisaSaldo);
-          const persen = Math.min(100, Math.round((terkumpul / TARGET_DANA_GAPURA) * 100));
-          const kurang = Math.max(0, TARGET_DANA_GAPURA - terkumpul);
-
-          document.getElementById('gapura-percent').innerText = `${persen}%`;
-          document.getElementById('gapura-progress-bar').style.width = `${persen}%`;
-          document.getElementById('gapura-terkumpul').innerText = formatRupiah(terkumpul);
-          document.getElementById('gapura-kurang').innerText = formatRupiah(kurang);
+        const result = await new Promise((resolve, reject) => {
+          const callbackName = '__pembukuanKasCb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+          const script = document.createElement('script');
+          const cleanup = () => {
+            try { delete window[callbackName]; } catch (_) { window[callbackName] = undefined; }
+            if (script.parentNode) script.parentNode.removeChild(script);
+          };
+          const timer = setTimeout(() => {
+            cleanup();
+            reject(new Error('Timeout menghubungkan Pembukuan'));
+          }, 15000);
+          window[callbackName] = (data) => {
+            clearTimeout(timer);
+            cleanup();
+            resolve(data);
+          };
+          script.onerror = () => {
+            clearTimeout(timer);
+            cleanup();
+            reject(new Error('Gagal memuat API Pembukuan'));
+          };
+          script.src = `${PEMBUKUAN_API_URL}?action=datatransaksikas&status=AKTIF&callback=${encodeURIComponent(callbackName)}&_=${Date.now()}`;
+          script.async = true;
+          document.head.appendChild(script);
+        });
+        if (!result || result.status !== 'success' || !result.data) {
+          throw new Error((result && result.message) || 'Data pembukuan tidak valid.');
         }
-      });
+
+        const sourceRows = Array.isArray(result.data.rows) ? result.data.rows : [];
+
+        // Bentuk data disamakan dengan struktur lama supaya tampilan, modal,
+        // pencarian dan cetak laporan yang sudah stabil tidak perlu dirombak.
+        const rawData = sourceRows.map(item => {
+          const jenisBackend = (item.jenis || '').toString().trim().toLowerCase();
+          const debit = Number(item.debit || 0);
+          const kredit = Number(item.kredit || 0);
+
+          // Backend Pembukuan memakai istilah Debit/Kredit, sedangkan laman utama
+          // sejak awal memakai Pemasukan/Pengeluaran. Normalisasi di sini agar
+          // seluruh fungsi lama (card, modal, filter, cetak) tetap bekerja.
+          let jenis = '';
+          let nominal = 0;
+          if (jenisBackend === 'debit' || debit > 0) {
+            jenis = 'Pemasukan';
+            nominal = debit;
+          } else if (jenisBackend === 'kredit' || kredit > 0) {
+            jenis = 'Pengeluaran';
+            nominal = kredit;
+          }
+
+          return {
+            'Tanggal': item.tanggal || '',
+            'Keterangan': item.keterangan || item.kategori || '-',
+            'Jenis': jenis,
+            'Nominal': nominal,
+            'Catatan': item.catatan || '',
+            '_idTransaksi': item.idTransaksi || '',
+            '_kategori': item.kategori || '',
+            '_metode': item.metode || '',
+            '_sumber': item.sumber || ''
+          };
+        }).filter(row => row.Tanggal && row.Nominal > 0 && row.Jenis);
+
+        let totalPemasukanAll = 0;
+        let totalPengeluaranAll = 0;
+        const monthlyMap = {};
+
+        rawData.forEach(row => {
+          const kategori = (row.Jenis || '').trim().toLowerCase();
+          const jumlah = Number(row.Nominal || 0);
+
+          if (kategori === 'pemasukan') totalPemasukanAll += jumlah;
+          else if (kategori === 'pengeluaran') totalPengeluaranAll += jumlah;
+
+          const parsed = parseRowDate(row.Tanggal);
+          if (parsed) {
+            const key = `${parsed.year}-${String(parsed.month + 1).padStart(2, '0')}`;
+            if (!monthlyMap[key]) {
+              monthlyMap[key] = { year: parsed.year, month: parsed.month, pemasukan: 0, pengeluaran: 0 };
+            }
+            if (kategori === 'pemasukan') monthlyMap[key].pemasukan += jumlah;
+            else if (kategori === 'pengeluaran') monthlyMap[key].pengeluaran += jumlah;
+          }
+        });
+
+        monthlyKeuanganList = Object.values(monthlyMap).sort((a, b) => {
+          if (a.year !== b.year) return a.year - b.year;
+          return a.month - b.month;
+        });
+
+        if (monthlyKeuanganList.length > 0) {
+          currentPemasukanMonthIndex = monthlyKeuanganList.length - 1;
+          currentPengeluaranMonthIndex = monthlyKeuanganList.length - 1;
+          currentSaldoMonthIndex = monthlyKeuanganList.length - 1;
+          updatePemasukanCardView();
+          updatePengeluaranCardView();
+          updateSaldoCardView();
+        }
+
+        const sisaSaldo = totalPemasukanAll - totalPengeluaranAll;
+
+        // Backend sudah mengirim terbaru lebih dulu; pertahankan urutan itu.
+        globalKeuanganData = rawData;
+        const top10Data = globalKeuanganData.slice(0, 10);
+
+        let tbodyHTML = '';
+        top10Data.forEach(row => { tbodyHTML += renderTableRow(row); });
+
+        let tbodyAllHTML = '';
+        globalKeuanganData.forEach(row => { tbodyAllHTML += renderTableRow(row); });
+
+        document.getElementById('tabel-transaksi').innerHTML = tbodyHTML || '<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada transaksi</td></tr>';
+        document.getElementById('tabel-transaksi-all').innerHTML = tbodyAllHTML || '<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada transaksi</td></tr>';
+
+        document.getElementById('total-pemasukan-all').innerText = formatRupiah(totalPemasukanAll);
+        document.getElementById('total-pengeluaran-all').innerText = formatRupiah(totalPengeluaranAll);
+        document.getElementById('sisa-saldo').innerText = formatRupiah(sisaSaldo);
+
+        if (statusEl) statusEl.innerText = 'Terhubung ke Pembukuan';
+
+        if (globalKeuanganData.length > 10) {
+          document.getElementById('btn-container-keuangan-all').classList.remove('hidden');
+        } else {
+          document.getElementById('btn-container-keuangan-all').classList.add('hidden');
+        }
+
+        // Update mengikuti transaksi paling baru dari Buku Kas.
+        if (globalKeuanganData.length > 0 && globalKeuanganData[0].Tanggal) {
+          const updateEl = document.getElementById('label-update-kas');
+          if (updateEl) updateEl.innerText = 'Update: ' + globalKeuanganData[0].Tanggal;
+        }
+
+        // Progress Gapura tetap memakai saldo kas yang sama seperti sebelumnya.
+        const terkumpul = Math.max(0, sisaSaldo);
+        const persen = Math.min(100, Math.round((terkumpul / TARGET_DANA_GAPURA) * 100));
+        const kurang = Math.max(0, TARGET_DANA_GAPURA - terkumpul);
+        document.getElementById('gapura-percent').innerText = `${persen}%`;
+        document.getElementById('gapura-progress-bar').style.width = `${persen}%`;
+        document.getElementById('gapura-terkumpul').innerText = formatRupiah(terkumpul);
+        document.getElementById('gapura-kurang').innerText = formatRupiah(kurang);
+
+      } catch (err) {
+        console.error('Gagal memuat keuangan dari Pembukuan:', err);
+        const statusEl = document.getElementById('loading-status');
+        if (statusEl) statusEl.innerText = 'Gagal terhubung';
+      }
+    }
+
+    if (document.readyState === 'complete') {
+      setTimeout(loadKeuanganDariPembukuan, 0);
+    } else {
+      window.addEventListener('load', loadKeuanganDariPembukuan, { once: true });
     }
 
     if (CSV_ARISAN_URL && CSV_ARISAN_URL.startsWith('http')) {
