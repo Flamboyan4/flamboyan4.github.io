@@ -1510,6 +1510,7 @@ main > section.card{overflow:visible!important}
         <button data-process-target="talangan" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('talangan')">Talangan</button>
         <button data-process-target="denda" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('denda')">Denda</button>
         <button data-process-target="pinjaman" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('pinjaman')">Pinjaman</button>
+        <button data-process-target="importbulk" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('importbulk')"><span class="inline-flex items-center gap-2"><i data-lucide="file-up" class="w-4 h-4"></i>Import Bulk</span></button>
       </div>
     </div>
     <div id="group-nav-dataacuan" class="group-nav hidden">
@@ -1775,6 +1776,45 @@ main > section.card{overflow:visible!important}
       </div>
     </div>
 
+
+
+    <div id="tab-importbulk" class="tab-panel hidden p-4 sm:p-5">
+      <div class="max-w-6xl mx-auto">
+        <div class="mb-5 flex items-start justify-between gap-4 flex-wrap">
+          <div><h2 class="font-black text-xl text-violet-950">Import Bulk Migrasi</h2><p class="text-sm text-slate-500 mt-1">Upload CSV Iuran dan Kas. Sistem memeriksa dulu sebelum menyimpan dan tidak membuat data identik menjadi dobel.</p></div>
+          <div class="px-3 py-2 rounded-xl bg-amber-50 border border-amber-200 text-xs font-bold text-amber-700">Bulk = sumber data utama migrasi</div>
+        </div>
+        <div class="bulk-note rounded-2xl border border-violet-100 bg-violet-50/40 p-4 mb-4 text-sm text-slate-600">
+          <b class="text-violet-900">Untuk migrasi ini upload kedua file sekaligus.</b> Kas CSV menjadi ledger historis, sedangkan porsi Kas Lorong dari Iuran ditandai sudah dibukukan agar tidak masuk dua kali.
+        </div>
+        <div class="grid md:grid-cols-2 gap-4 mb-4">
+          <label class="bulk-file-card rounded-2xl border border-violet-100 p-4 cursor-pointer hover:bg-violet-50/30">
+            <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-violet-100 text-violet-700 flex items-center justify-center"><i data-lucide="users" class="w-5 h-5"></i></div><div class="min-w-0"><div class="font-black text-violet-950">CSV Iuran</div><div id="bulk-iuran-file-label" class="text-xs text-slate-400 truncate">Belum dipilih</div></div></div>
+            <input id="bulk-iuran-file" type="file" accept=".csv,text/csv" class="hidden" onchange="bulkFileChanged('iuran',this)">
+          </label>
+          <label class="bulk-file-card rounded-2xl border border-violet-100 p-4 cursor-pointer hover:bg-violet-50/30">
+            <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="wallet-cards" class="w-5 h-5"></i></div><div class="min-w-0"><div class="font-black text-violet-950">CSV Kas / Debit Kredit</div><div id="bulk-kas-file-label" class="text-xs text-slate-400 truncate">Belum dipilih</div></div></div>
+            <input id="bulk-kas-file" type="file" accept=".csv,text/csv" class="hidden" onchange="bulkFileChanged('kas',this)">
+          </label>
+        </div>
+        <div class="flex flex-wrap gap-2 mb-4">
+          <button id="bulk-btn-preview" type="button" onclick="bulkPreviewAll()" class="rounded-xl bg-violet-600 text-white font-black px-5 py-3 disabled:opacity-40"><span class="inline-flex items-center gap-2"><i data-lucide="scan-search" class="w-4 h-4"></i>Periksa Data</span></button>
+          <button id="bulk-btn-import" type="button" onclick="bulkImportAll()" disabled class="rounded-xl bg-emerald-600 text-white font-black px-5 py-3 disabled:opacity-40"><span class="inline-flex items-center gap-2"><i data-lucide="database-zap" class="w-4 h-4"></i>Import Semua Data Valid</span></button>
+        </div>
+        <div id="bulk-status" class="hidden mb-4 rounded-xl border px-4 py-3 text-sm"></div>
+        <div id="bulk-summary" class="hidden grid grid-cols-2 sm:grid-cols-5 gap-3 mb-4">
+          <div class="rounded-xl border border-violet-100 p-3"><div class="text-[10px] font-black uppercase text-slate-400">Total</div><div id="bulk-sum-total" class="text-xl font-black">0</div></div>
+          <div class="rounded-xl border border-emerald-100 p-3"><div class="text-[10px] font-black uppercase text-slate-400">Baru</div><div id="bulk-sum-new" class="text-xl font-black text-emerald-700">0</div></div>
+          <div class="rounded-xl border border-sky-100 p-3"><div class="text-[10px] font-black uppercase text-slate-400">Perbarui</div><div id="bulk-sum-update" class="text-xl font-black text-sky-700">0</div></div>
+          <div class="rounded-xl border border-slate-200 p-3"><div class="text-[10px] font-black uppercase text-slate-400">Sudah Sama</div><div id="bulk-sum-same" class="text-xl font-black text-slate-600">0</div></div>
+          <div class="rounded-xl border border-red-100 p-3 col-span-2 sm:col-span-1"><div class="text-[10px] font-black uppercase text-slate-400">Perlu Cek</div><div id="bulk-sum-bad" class="text-xl font-black text-red-600">0</div></div>
+        </div>
+        <div id="bulk-preview-wrap" class="hidden rounded-2xl border border-violet-100 overflow-hidden">
+          <div class="px-4 py-3 border-b border-violet-100 flex items-center justify-between gap-3"><div class="font-black text-violet-950">Preview Import</div><div class="text-xs text-slate-400">Tidak ada penyimpanan saat preview</div></div>
+          <div class="overflow-x-auto max-h-[520px]"><table class="w-full text-sm bulk-table"><thead class="bg-violet-50 text-violet-900 sticky top-0"><tr><th class="p-3 text-left">Sumber</th><th class="p-3 text-left">Baris</th><th class="p-3 text-left">Data</th><th class="p-3 text-right">Nominal</th><th class="p-3 text-left">Status</th><th class="p-3 text-left">Keterangan</th></tr></thead><tbody id="bulk-preview-body" class="divide-y divide-violet-50"></tbody></table></div>
+        </div>
+      </div>
+    </div>
 
     <div id="tab-laporan" class="tab-panel hidden p-4 sm:p-5">
       <div class="max-w-6xl mx-auto">
@@ -2133,9 +2173,9 @@ main > section.card{overflow:visible!important}
 </div>
 
 <script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzlF4N7Fp6dbQzHdQvHFbvXMQiuX-3HhkMVKWde3GzB4V4Jp7FDy4LGjfBMe70-JkXW/exec';
-const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzlF4N7Fp6dbQzHdQvHFbvXMQiuX-3HhkMVKWde3GzB4V4Jp7FDy4LGjfBMe70-JkXW/exec';
-const DELETE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzlF4N7Fp6dbQzHdQvHFbvXMQiuX-3HhkMVKWde3GzB4V4Jp7FDy4LGjfBMe70-JkXW/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwmI7Gw3JCMg1Cb2CCHgXULcOxdEIDkOc4dPl8soHHJXZ3mUC1G9diZn4kNEXzoMrU/exec';
+const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwmI7Gw3JCMg1Cb2CCHgXULcOxdEIDkOc4dPl8soHHJXZ3mUC1G9diZn4kNEXzoMrU/exec';
+const DELETE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwmI7Gw3JCMg1Cb2CCHgXULcOxdEIDkOc4dPl8soHHJXZ3mUC1G9diZn4kNEXzoMrU/exec';
 let DATA={config:{},rumah:[],warga:[],riwayat:[]};
 let RIWAYAT_SEMUA=false;
 let RIWAYAT_KAS=[];
@@ -2968,6 +3008,7 @@ function pilihMenu(n){document.querySelectorAll('.custom-select-wrap.open').forE
     transaksi:['Debit / Kredit',''],
     kas:['Pembukuan',''],
     pinjaman:['Pinjaman',''],
+    importbulk:['Import Bulk Migrasi','Upload CSV Iuran dan Kas dengan pemeriksaan duplikat sebelum disimpan.'],
     talangan:['Talangan Iuran','Kelola talangan Iuran Bulanan + Kebersihan warga.'],
     denda:['Denda',''],
     laporan:['Laporan & Rekap',''],
@@ -2979,7 +3020,7 @@ function pilihMenu(n){document.querySelectorAll('.custom-select-wrap.open').forE
   };
   document.querySelectorAll('.tab-panel').forEach(x=>x.classList.add('hidden'));
   const panel=document.getElementById('tab-'+n);if(panel)panel.classList.remove('hidden');
-  const inputGroup=['input','transaksi','kas','pinjaman','talangan','denda'];
+  const inputGroup=['input','transaksi','kas','pinjaman','talangan','denda','importbulk'];
   const dataGroup=['dashboard','rumah','warga','config'];
   const group=inputGroup.includes(n)?'inputdata':dataGroup.includes(n)?'dataacuan':n;
   document.querySelectorAll('.drawer-item').forEach(x=>x.classList.remove('active'));
@@ -2998,6 +3039,7 @@ function pilihMenu(n){document.querySelectorAll('.custom-select-wrap.open').forE
   if(n==='talangan'){initTalanganUi();loadTalangan(true)}
   if(n==='denda'){initDendaUi();loadDenda(true);}
   if(n==='laporan'){initLaporanUi();loadLaporan()}
+  if(n==='importbulk'){bulkRefreshControls();lucide.createIcons()}
   tutupMenu();
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -4188,4 +4230,28 @@ document.addEventListener('contextmenu', function(e){
   e.preventDefault();
 }, true);
 </script>
+
+<style>
+.bulk-table th,.bulk-table td{white-space:nowrap;vertical-align:top}.bulk-table td:nth-child(3),.bulk-table td:nth-child(6){white-space:normal;min-width:220px}.bulk-badge{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:900}.bulk-badge.new{background:#dcfce7;color:#047857}.bulk-badge.update{background:#e0f2fe;color:#0369a1}.bulk-badge.same{background:#f1f5f9;color:#475569}.bulk-badge.error,.bulk-badge.conflict{background:#fee2e2;color:#b91c1c}.bulk-warning{margin-top:4px;color:#b45309;font-size:11px;font-weight:700}
+@media(max-width:640px){#tab-importbulk{padding:14px!important}.bulk-file-card{padding:12px!important}.bulk-table{font-size:12px!important}.bulk-table th,.bulk-table td{padding:9px!important}.bulk-table td:nth-child(3),.bulk-table td:nth-child(6){min-width:180px}.bulk-note{font-size:12px!important}}
+</style>
+<script>
+/* v6.25.0 - Import Bulk CSV aman / authoritative */
+const BULK={iuran:[],kas:[],preview:[],ready:false,busy:false};
+function bulkMsg(msg,type='info'){const e=document.getElementById('bulk-status');if(!e)return;e.className='mb-4 rounded-xl border px-4 py-3 text-sm';e.classList.remove('hidden');if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');else if(type==='success')e.classList.add('bg-emerald-50','border-emerald-200','text-emerald-700');else e.classList.add('bg-slate-50','border-slate-200','text-slate-600');e.textContent=msg}
+function bulkCSV(text){const out=[];let row=[],cell='',q=false;for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];if(q){if(c==='"'&&n==='"'){cell+='"';i++}else if(c==='"')q=false;else cell+=c}else{if(c==='"')q=true;else if(c===','){row.push(cell);cell=''}else if(c==='\n'){row.push(cell);out.push(row);row=[];cell=''}else if(c!=='\r')cell+=c}}if(cell.length||row.length){row.push(cell);out.push(row)}return out.filter(r=>r.some(x=>String(x).trim()!==''))}
+function bulkObjects(text){const a=bulkCSV(text);if(!a.length)return[];const head=a[0].map(x=>String(x).replace(/^\uFEFF/,'').trim());return a.slice(1).map((r,i)=>{const o={rowNo:i+2};head.forEach((k,j)=>o[k]=String(r[j]??'').trim());return o})}
+function bulkMapIuran(rows){return rows.map(r=>({rowNo:r.rowNo,tanggalBayar:r['Tanggal Bayar']||r['Tanggal']||'',nama:r['Nama']||'',rumah:r['Rumah']||'',bulanIuran:r['Bulan Iuran']||r['Bulan']||'',tahun:r['Tahun']||r['Tahun Iuran']||'',nominal:r['Nominal']||'',metode:r['Metode']||'',catatan:r['Catatan']||''}))}
+function bulkMapKas(rows){return rows.map(r=>({rowNo:r.rowNo,tanggal:r['Tanggal']||'',keterangan:r['Keterangan']||'',jenis:r['Jenis']||'',nominal:r['Nominal']||'',catatan:r['Catatan']||''}))}
+async function bulkFileChanged(type,input){try{const f=input.files?.[0];if(!f)return;const txt=await f.text(),rows=bulkObjects(txt);BULK[type]=type==='iuran'?bulkMapIuran(rows):bulkMapKas(rows);document.getElementById(`bulk-${type}-file-label`).textContent=`${f.name} • ${BULK[type].length} baris`;BULK.preview=[];BULK.ready=false;document.getElementById('bulk-btn-import').disabled=true;document.getElementById('bulk-preview-wrap').classList.add('hidden');document.getElementById('bulk-summary').classList.add('hidden');bulkMsg(`${type==='iuran'?'Iuran':'Kas'} terbaca ${BULK[type].length} baris. Klik Periksa Data setelah kedua file dipilih.`);bulkRefreshControls()}catch(e){bulkMsg(e.message||String(e),'error')}}
+function bulkRefreshControls(){const b=document.getElementById('bulk-btn-preview');if(b)b.disabled=BULK.busy||!BULK.iuran.length||!BULK.kas.length;const imp=document.getElementById('bulk-btn-import');if(imp)imp.disabled=BULK.busy||!BULK.ready}
+function bulkChunks(arr,n=10){const o=[];for(let i=0;i<arr.length;i+=n)o.push(arr.slice(i,i+n));return o}
+async function bulkPreviewType(type,rows){const out=[];for(const c of bulkChunks(rows,10)){const r=await jsonp(APPS_SCRIPT_URL,{action:'bulkpreview',jenis:type,rows:JSON.stringify(c),t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Preview bulk gagal.');out.push(...(r.data?.rows||[]))}return out.map(x=>({...x,source:type}))}
+function bulkStateBadge(s,label){return `<span class="bulk-badge ${esc(s)}">${esc(label||s)}</span>`}
+function bulkRenderPreview(){const rows=BULK.preview;const cnt={new:0,update:0,same:0,error:0,conflict:0};rows.forEach(x=>cnt[x.state]=(cnt[x.state]||0)+1);document.getElementById('bulk-sum-total').textContent=rows.length;document.getElementById('bulk-sum-new').textContent=cnt.new||0;document.getElementById('bulk-sum-update').textContent=cnt.update||0;document.getElementById('bulk-sum-same').textContent=cnt.same||0;document.getElementById('bulk-sum-bad').textContent=(cnt.error||0)+(cnt.conflict||0);document.getElementById('bulk-summary').classList.remove('hidden');document.getElementById('bulk-preview-wrap').classList.remove('hidden');document.getElementById('bulk-preview-body').innerHTML=rows.map(x=>{const data=x.source==='iuran'?`<div class="font-bold">${esc(x.nama||'-')} • ${esc(x.rumah||'-')}</div><div class="text-xs text-slate-400">${esc(x.periode||'')} • bayar ${esc(x.tanggal||'-')}</div>`:`<div class="font-bold">${esc(x.keterangan||'-')}</div><div class="text-xs text-slate-400">${esc(x.tanggal||'-')}</div>`;const warns=(x.warnings||[]).map(w=>`<div class="bulk-warning">⚠ ${esc(w)}</div>`).join('');return `<tr><td class="p-3 font-bold">${x.source==='iuran'?'Iuran':'Kas'}</td><td class="p-3">${x.rowNo}</td><td class="p-3">${data}</td><td class="p-3 text-right font-black">${rupiah(x.nominal||0)}</td><td class="p-3">${bulkStateBadge(x.state,x.label)}</td><td class="p-3">${esc(x.detail||'')}${warns}</td></tr>`}).join('');lucide.createIcons()}
+async function bulkPreviewAll(){if(!BULK.iuran.length||!BULK.kas.length){bulkMsg('Pilih CSV Iuran dan CSV Kas terlebih dahulu.','error');return}BULK.busy=true;bulkRefreshControls();try{bulkMsg('Memeriksa data Iuran dan Kas...');const i=await bulkPreviewType('iuran',BULK.iuran),k=await bulkPreviewType('kas',BULK.kas);BULK.preview=[...i,...k];bulkRenderPreview();const hard=BULK.preview.filter(x=>['error','conflict'].includes(x.state));BULK.ready=hard.length===0;if(hard.length)bulkMsg(`Preview selesai. Ada ${hard.length} baris yang perlu diperiksa; import dikunci sampai masalah diperbaiki.`,'error');else bulkMsg(`Preview aman: ${BULK.preview.length} baris diperiksa. Data identik akan dilewati, data lama yang berbeda akan mengikuti CSV.`,'success')}catch(e){BULK.ready=false;bulkMsg(e.message||String(e),'error')}finally{BULK.busy=false;bulkRefreshControls()}}
+async function bulkImportType(action,rows,extra={}){const all=[];for(const c of bulkChunks(rows,8)){const r=await jsonp(APPS_SCRIPT_URL,{action,rows:JSON.stringify(c),...extra,t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Import gagal.');all.push(...(r.results||[]))}return all}
+async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Import ${BULK.iuran.length} baris Iuran dan ${BULK.kas.length} baris Kas?\n\nData identik tidak akan didobel. Jika ada data manual yang berbeda dan masih aman diedit, data CSV akan menjadi acuan.`))return;BULK.busy=true;bulkRefreshControls();try{bulkMsg('Mengimpor Kas terlebih dahulu...');const rk=await bulkImportType('bulkimportkas',BULK.kas);const badK=rk.filter(x=>['error','conflict'].includes(x.state));if(badK.length)throw new Error(`Import Kas berhenti: ${badK.length} baris bermasalah.`);bulkMsg('Kas selesai. Mengimpor Iuran dan menandai porsi Kas historis sudah dibukukan...');const ri=await bulkImportType('bulkimportiuran',BULK.iuran,{historicalKasBooked:'1'});const badI=ri.filter(x=>['error','conflict'].includes(x.state));if(badI.length)throw new Error(`Import Iuran selesai sebagian: ${badI.length} baris bermasalah.`);BULK.ready=false;await muatUlang();await bulkPreviewAll();bulkMsg(`Import selesai. Kas: ${rk.filter(x=>x.state==='inserted').length} baru, ${rk.filter(x=>x.state==='updated').length} diperbarui. Iuran: ${ri.filter(x=>x.state==='inserted').length} baru, ${ri.filter(x=>x.state==='updated').length} diperbarui. Data sama tidak didobel.`,'success')}catch(e){bulkMsg(e.message||String(e),'error')}finally{BULK.busy=false;bulkRefreshControls()}}
+</script>
+
 </body></html>
