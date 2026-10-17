@@ -49,6 +49,7 @@
       background: #94a3b8;
     }
   </style>
+  <!-- PATCH: Finance table readability + date-only display v4 -->
 </head>
 
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full" oncontextmenu="return false;" onkeydown="return disableInspect(event)">
@@ -259,7 +260,7 @@
         </div>
         
         <div class="overflow-x-auto w-full">
-          <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[500px]">
+          <table class="w-full text-left border-collapse text-sm md:text-base min-w-[500px]">
             <thead>
               <tr class="border-b border-slate-200 bg-slate-100/60 text-slate-600">
                 <th class="p-3 w-1/4">Tanggal</th>
@@ -794,7 +795,7 @@
         <input type="text" id="search-keuangan" onkeyup="filterKeuanganModal()" placeholder="Cari transaksi..." class="w-full text-xs md:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
       </div>
       <div class="overflow-x-auto overflow-y-auto flex-grow p-4">
-        <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[500px]">
+        <table class="w-full text-left border-collapse text-sm md:text-base min-w-[500px]">
           <thead>
             <tr class="border-b border-slate-200 bg-slate-100/60 text-slate-600">
               <th class="p-3 w-1/4">Tanggal</th>
@@ -1919,9 +1920,22 @@ function salinLinkAgenda(url) {
         }
     });
 
+    function formatTanggalKeuanganDisplay(value) {
+      const raw = String(value || '').trim();
+      if (!raw) return '-';
+      // Backend dapat mengirim tanggal sebagai "dd/mm/yyyy HH:mm:ss".
+      // Web utama hanya menampilkan tanggal karena jam tidak pernah diinput warga.
+      const m = raw.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+      if (m) return `${m[1].padStart(2,'0')}/${m[2].padStart(2,'0')}/${m[3]}`;
+      const iso = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+      if (iso) return `${iso[3].padStart(2,'0')}/${iso[2].padStart(2,'0')}/${iso[1]}`;
+      // Fallback aman: buang bagian jam bila ada.
+      return raw.replace(/\s+\d{1,2}:\d{2}(?::\d{2})?.*$/, '');
+    }
+
     function renderTableRow(row) {
       const keys = Object.keys(row);
-      const tanggal = row[keys[0]];
+      const tanggal = formatTanggalKeuanganDisplay(row[keys[0]]);
       const keterangan = row[keys[1]] || '-';
       const kategori = (row[keys[2]] || '').trim();
       const rawJumlah = row[keys[3]];
@@ -1935,19 +1949,19 @@ function salinLinkAgenda(url) {
       let textJumlah = '';
 
       if (kategori.toLowerCase() === 'pemasukan') {
-        badgeKategori = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 rounded">Pemasukan</span>`;
+        badgeKategori = `<span class="px-2.5 py-1 text-sm bg-emerald-100 text-emerald-800 rounded">Pemasukan</span>`;
         textJumlah = `<span class="text-emerald-600 font-semibold">+ ${formatRupiah(jumlah)}</span>`;
       } else {
-        badgeKategori = `<span class="px-2 py-0.5 text-xs bg-rose-100 text-rose-800 rounded">Pengeluaran</span>`;
+        badgeKategori = `<span class="px-2.5 py-1 text-sm bg-rose-100 text-rose-800 rounded">Pengeluaran</span>`;
         textJumlah = `<span class="text-rose-600 font-semibold">- ${formatRupiah(jumlah)}</span>`;
       }
 
       return `
         <tr>
-          <td class="p-3 text-slate-500 whitespace-nowrap">${tanggal}</td>
-          <td class="p-3 font-medium break-words">${keterangan}</td>
-          <td class="p-3">${badgeKategori}</td>
-          <td class="p-3 text-right whitespace-nowrap">${textJumlah}</td>
+          <td class="px-3 py-3.5 text-slate-600 whitespace-nowrap">${tanggal}</td>
+          <td class="px-3 py-3.5 font-medium break-words text-slate-800">${keterangan}</td>
+          <td class="px-3 py-3.5">${badgeKategori}</td>
+          <td class="px-3 py-3.5 text-right whitespace-nowrap">${textJumlah}</td>
         </tr>
       `;
     }
@@ -2489,7 +2503,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         // Update mengikuti transaksi paling baru dari Buku Kas.
         if (globalKeuanganData.length > 0 && globalKeuanganData[0].Tanggal) {
           const updateEl = document.getElementById('label-update-kas');
-          if (updateEl) updateEl.innerText = 'Update: ' + globalKeuanganData[0].Tanggal;
+          if (updateEl) updateEl.innerText = 'Update: ' + formatTanggalKeuanganDisplay(globalKeuanganData[0].Tanggal);
         }
 
         // Progress Gapura tetap memakai saldo kas yang sama seperti sebelumnya.
