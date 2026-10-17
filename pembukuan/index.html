@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Pembukuan Flamboyan 4</title>
-<!-- Build: v6.22.6 CLEAN UI + SWIPE CALENDAR + Backend 2.6.1 -->
+<!-- Build: v6.23.2 YEAR CLOSING + QUICK IURAN SUMMARY + Backend 2.7.1 -->
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
@@ -1407,6 +1407,30 @@ main > section.card{overflow:visible!important}
 }
 </style>
 
+
+<style id="v6231-iuran-quick-summary">
+.iuran-quick-summary{border:1px solid #ede9fe;background:linear-gradient(180deg,#fcfbff 0%,#fff 100%);border-radius:16px;padding:12px}
+.iuran-quick-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+.iuran-quick-title{font-size:14px;line-height:1.15;font-weight:900;color:#2e1065}
+.iuran-quick-period{font-size:11px;line-height:1.15;color:#7c3aed;font-weight:700;margin-top:2px}
+.iuran-quick-note{font-size:10px;line-height:1.1;color:#94a3b8;white-space:nowrap}
+.iuran-quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.iuran-summary-tile{min-width:0;border:1px solid #eee9fb;background:#fff;border-radius:11px;padding:8px 9px;display:flex;flex-direction:column;justify-content:center;min-height:58px}
+.iuran-summary-tile span{font-size:10px;line-height:1.05;color:#64748b;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.iuran-summary-tile strong{font-size:14px;line-height:1.12;color:#1e293b;font-weight:900;margin-top:4px;white-space:nowrap;letter-spacing:-.2px}
+.iuran-summary-tile.is-main{background:#f5f3ff;border-color:#ddd6fe}.iuran-summary-tile.is-main strong{color:#5b21b6}
+.iuran-summary-tile.money{background:#fafafa}.iuran-summary-tile.check{background:#f8fafc}
+.iuran-summary-tile.check:not(.has-diff) strong{color:#059669}.iuran-summary-tile.check.has-diff{background:#fff7ed;border-color:#fed7aa}.iuran-summary-tile.check.has-diff strong{color:#c2410c}
+@media(max-width:767px){
+  .iuran-quick-summary{padding:9px;border-radius:14px}
+  .iuran-quick-head{margin-bottom:7px}
+  .iuran-quick-title{font-size:13px}.iuran-quick-period{font-size:10px}.iuran-quick-note{display:none}
+  .iuran-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .iuran-summary-tile{min-height:49px;padding:6px 8px;border-radius:9px}
+  .iuran-summary-tile span{font-size:9.5px}.iuran-summary-tile strong{font-size:13px;margin-top:3px}
+}
+</style>
+
 </head>
 <body>
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
@@ -1903,6 +1927,27 @@ main > section.card{overflow:visible!important}
         </div>
       </div>
       <div id="riwayat-status" class="hidden mb-3 rounded-xl border px-4 py-3 text-sm"></div>
+
+      <section id="iuran-quick-summary" class="iuran-quick-summary mb-3" aria-label="Ringkasan cepat iuran">
+        <div class="iuran-quick-head">
+          <div>
+            <div class="iuran-quick-title">Ringkasan Iuran</div>
+            <div id="iuran-quick-period" class="iuran-quick-period">Periode aktif</div>
+          </div>
+          <div class="iuran-quick-note">Alokasi &amp; posisi uang</div>
+        </div>
+        <div class="iuran-quick-grid">
+          <div class="iuran-summary-tile is-main"><span>Total Masuk</span><strong id="iq-total">Rp0</strong></div>
+          <div class="iuran-summary-tile"><span>Setoran RT</span><strong id="iq-rt">Rp0</strong></div>
+          <div class="iuran-summary-tile"><span>Kas Lorong</span><strong id="iq-kas">Rp0</strong></div>
+          <div class="iuran-summary-tile"><span>Arisan</span><strong id="iq-arisan">Rp0</strong></div>
+          <div class="iuran-summary-tile money"><span>Cash</span><strong id="iq-cash">Rp0</strong></div>
+          <div class="iuran-summary-tile money"><span>QRIS</span><strong id="iq-qris">Rp0</strong></div>
+          <div class="iuran-summary-tile money"><span>Rek. Mandiri</span><strong id="iq-mandiri">Rp0</strong></div>
+          <div id="iq-selisih-card" class="iuran-summary-tile check"><span>Selisih</span><strong id="iq-selisih">Rp0</strong></div>
+        </div>
+      </section>
+
       <div class="overflow-x-auto rounded-xl border border-violet-100 scrollbar-thin">
         <table class="min-w-[760px] w-full text-sm">
           <thead class="bg-violet-50 text-violet-950">
@@ -2055,9 +2100,9 @@ main > section.card{overflow:visible!important}
 </div>
 
 <script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyiF4CivwcVvqz3iBJ9mhftiMIi8TZRxvB3VDe9gYQPbbox62Q0QzZ5nDAoxE8C0pVD/exec';
-const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyiF4CivwcVvqz3iBJ9mhftiMIi8TZRxvB3VDe9gYQPbbox62Q0QzZ5nDAoxE8C0pVD/exec';
-const DELETE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyiF4CivwcVvqz3iBJ9mhftiMIi8TZRxvB3VDe9gYQPbbox62Q0QzZ5nDAoxE8C0pVD/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx3ZI6Dx_yLCC9SrFeQ7qL2C-JA5e3_j08UbfNlmz2bTEXXeEIHRrZ1zwvL4H2Py0gt/exec';
+const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx3ZI6Dx_yLCC9SrFeQ7qL2C-JA5e3_j08UbfNlmz2bTEXXeEIHRrZ1zwvL4H2Py0gt/exec';
+const DELETE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx3ZI6Dx_yLCC9SrFeQ7qL2C-JA5e3_j08UbfNlmz2bTEXXeEIHRrZ1zwvL4H2Py0gt/exec';
 let DATA={config:{},rumah:[],warga:[],riwayat:[]};
 let RIWAYAT_SEMUA=false;
 let RIWAYAT_KAS=[];
@@ -2229,8 +2274,37 @@ function matchRiwayatPeriod(x){
   return keys.some(k=>k>=lo&&k<=hi);
 }
 
+function iuranQuickPeriodLabel(){
+  try{
+    const a=document.querySelector('.upr-control[data-key="history-iuran"][data-side="from"] .upr-field-text')?.textContent?.trim()||'';
+    const b=document.querySelector('.upr-control[data-key="history-iuran"][data-side="to"] .upr-field-text')?.textContent?.trim()||'';
+    if(a&&b) return a===b?a:`${a} s.d. ${b}`;
+  }catch(e){}
+  return 'Periode aktif';
+}
+function renderIuranQuickSummary(){
+  const box=document.getElementById('iuran-quick-summary'); if(!box)return;
+  const active=(DATA.riwayat||[]).filter(x=>x.status==='AKTIF'&&matchRiwayatPeriod(x));
+  const n=k=>active.reduce((s,x)=>s+(Number(x?.[k])||0),0);
+  const total=n('totalDiterima'), rt=n('totalSetoranRT'), kas=n('totalKasLorong'), arisan=n('totalArisan');
+  let cash=0,qris=0,mandiri=0;
+  active.forEach(x=>{
+    const v=Number(x.totalDiterima)||0, m=String(x.metode||'').toLowerCase();
+    if(m.includes('cash')||m.includes('tunai')) cash+=v;
+    else if(m.includes('qris')||m==='qr'||m.includes('qr ')) qris+=v;
+    else if(m.includes('mandiri')) mandiri+=v;
+  });
+  const selisih=Math.round(total-rt-kas-arisan);
+  const put=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=rupiah(v)};
+  put('iq-total',total); put('iq-rt',rt); put('iq-kas',kas); put('iq-arisan',arisan);
+  put('iq-cash',cash); put('iq-qris',qris); put('iq-mandiri',mandiri); put('iq-selisih',selisih);
+  const p=document.getElementById('iuran-quick-period');if(p)p.textContent=iuranQuickPeriodLabel();
+  const c=document.getElementById('iq-selisih-card');if(c)c.classList.toggle('has-diff',Math.abs(selisih)>0.5);
+}
+
 function renderRiwayat(){
   const tbody=document.getElementById('tbody-riwayat');if(!tbody)return;
+  renderIuranQuickSummary();
   const q=(document.getElementById('cari-riwayat')?.value||'').toLowerCase();
   const f=document.getElementById('filter-riwayat')?.value||'AKTIF';
   let rows=(DATA.riwayat||[]).filter(x=>{
@@ -3929,7 +4003,7 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
 </script>
 
 \n<style id="v6230-year-closing-ui">
-/* v6.23.0 — Tutup Buku, Arsip & Year Lock */
+/* v6.23.1 — Tutup Buku, Arsip & Year Lock */
 .year-close-filter{max-width:none!important}
 .year-close-toolbar{display:flex;align-items:end;gap:10px;flex-wrap:wrap}
 .year-close-select-wrap{width:170px}
