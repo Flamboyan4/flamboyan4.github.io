@@ -3529,4 +3529,173 @@ function pl(d){return d?.labelPeriode||d?.periode?.label||''}const a=window.rend
 })();
 </script>
 
+
+<style id="v6221-report-filter-calendar-layout-fix">
+main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan .no-print,#tab-laporan .max-w-6xl{overflow:visible!important}
+.upr-control.open{z-index:240!important}.upr-pop{z-index:260!important;max-height:min(520px,calc(100vh - 24px));overflow-y:auto}
+@media screen and (min-width:768px){
+#report-rt-filter,#report-arisan-filter,#report-denda-filter,#report-talangan-filter,#report-pinjaman-filter{width:auto!important;max-width:none!important;flex:0 1 auto!important;min-width:0!important}
+#report-rt-filter>.report-universal-filter,#report-arisan-filter>.report-universal-filter,#report-denda-filter>.report-universal-filter,#report-talangan-filter>.report-universal-filter,#report-pinjaman-filter>.report-universal-filter{display:flex!important;flex-direction:row!important;align-items:center!important;flex-wrap:nowrap!important;gap:10px!important;width:auto!important;max-width:100%!important}
+#report-rt-filter .upr-range,#report-arisan-filter .upr-range,#report-denda-filter .upr-range,#report-talangan-filter .upr-range,#report-pinjaman-filter .upr-range{flex:0 0 auto!important;width:auto!important}
+#report-rt-filter .upr-field,#report-arisan-filter .upr-field,#report-denda-filter .upr-field,#report-talangan-filter .upr-field,#report-pinjaman-filter .upr-field{width:190px!important}
+#report-denda-filter .upr-filter-status,#report-talangan-filter .upr-filter-status,#report-pinjaman-filter .upr-filter-status{width:150px!important;min-width:150px!important;flex:0 0 150px!important}
+}
+@media screen and (max-width:767px){
+#tab-laporan .report-universal-filter{display:block!important;width:100%!important}
+#tab-laporan .report-universal-filter .upr-range{display:grid!important;grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr)!important;gap:4px!important;align-items:center!important;width:100%!important;margin-bottom:7px!important}
+#tab-laporan .upr-field{min-height:44px!important;height:44px!important;font-size:13px!important;line-height:1.1!important;padding:8px 30px 8px 10px!important;border-radius:11px!important}
+#tab-laporan .upr-field svg{width:15px!important;height:15px!important;right:9px!important}
+#tab-laporan .upr-sep{font-size:11px!important;text-align:center!important}
+#tab-laporan .upr-filter-status{width:100%!important;min-height:44px!important;height:44px!important;font-size:14px!important;padding-top:7px!important;padding-bottom:7px!important}
+#tab-laporan .upr-pop{width:min(300px,calc(100vw - 30px))!important;max-width:calc(100vw - 30px)!important}
+#tab-laporan .no-print .mt-4>.grid button{min-height:48px!important;padding-top:10px!important;padding-bottom:10px!important}
+}
+</style>
+
+
+<style id="v6222-dynamic-parent-dropdown-expand">
+/* =========================================================
+   v6.22.2 — Dynamic Parent Expansion
+   Parent card hanya memanjang bila dropdown/popover benar-benar
+   melewati batas bawah card. Dropdown pendek tidak mengubah layout.
+   ========================================================= */
+.dropdown-expand-parent{
+  transition:padding-bottom .18s ease;
+}
+/* Pastikan dropdown absolut boleh terlihat selama proses pengukuran. */
+.dropdown-expand-parent,
+.dropdown-expand-parent > *{
+  overflow:visible;
+}
+</style>
+<script id="v6222-dynamic-parent-dropdown-expand-script">
+(function(){
+  const BASE = new WeakMap();
+  const ACTIVE = new WeakMap();
+  let raf1=0, raf2=0;
+
+  function px(v){const n=parseFloat(v);return Number.isFinite(n)?n:0}
+
+  function isUsableParent(el){
+    if(!el || el===document.body || el===document.documentElement) return false;
+    const r=el.getBoundingClientRect();
+    return r.width>120 && r.height>70;
+  }
+
+  function findParent(anchor){
+    /* Prioritas: card visual terdekat. Jika tidak ada, pakai section.card utama. */
+    let n=anchor?.parentElement;
+    while(n && n!==document.body){
+      if(n.matches?.('[data-dropdown-expand-parent], .rounded-2xl.border, .rounded-xl.border, section.card, .card') && isUsableParent(n)){
+        /* Hindari menjadikan field/popup kecil sebagai parent. */
+        if(!n.classList.contains('custom-select-panel') && !n.classList.contains('upr-pop')) return n;
+      }
+      n=n.parentElement;
+    }
+    return anchor?.closest?.('section.card, .card') || null;
+  }
+
+  function ensureBase(parent){
+    if(!BASE.has(parent)){
+      const cs=getComputedStyle(parent);
+      BASE.set(parent,{paddingBottom:px(cs.paddingBottom), inline:parent.style.paddingBottom||''});
+    }
+    parent.classList.add('dropdown-expand-parent');
+    return BASE.get(parent);
+  }
+
+  function restore(parent){
+    if(!parent) return;
+    const b=BASE.get(parent);
+    if(!b) return;
+    parent.style.paddingBottom=b.inline;
+    parent.classList.remove('dropdown-expand-parent');
+    ACTIVE.delete(parent);
+  }
+
+  function panelIsOpen(panel){
+    if(!panel) return false;
+    const cs=getComputedStyle(panel);
+    if(cs.display==='none' || cs.visibility==='hidden' || Number(cs.opacity)===0) return false;
+    const r=panel.getBoundingClientRect();
+    return r.width>0 && r.height>0;
+  }
+
+  function collectOpenAbsolutePanels(){
+    const out=[];
+    document.querySelectorAll('.upr-control.open .upr-pop, .custom-select-wrap.open .custom-select-panel').forEach(panel=>{
+      if(!panelIsOpen(panel)) return;
+      const cs=getComputedStyle(panel);
+      /* Dropdown search HP yang fixed/naik di atas keyboard tidak ikut membesarkan card. */
+      if(cs.position!=='absolute') return;
+      const anchor=panel.closest('.upr-control, .custom-select-wrap');
+      if(anchor) out.push({panel,anchor});
+    });
+    return out;
+  }
+
+  function recalc(){
+    cancelAnimationFrame(raf1);cancelAnimationFrame(raf2);
+    raf1=requestAnimationFrame(()=>{
+      raf2=requestAnimationFrame(()=>{
+        const items=collectOpenAbsolutePanels();
+        const needed=new Map();
+
+        items.forEach(({panel,anchor})=>{
+          const parent=findParent(anchor);if(!parent)return;
+          const base=ensureBase(parent);
+
+          /* Ukur dari kondisi dasar agar padding tidak terus bertambah tiap kalkulasi. */
+          parent.style.paddingBottom=base.paddingBottom+'px';
+          const pr=parent.getBoundingClientRect();
+          const dr=panel.getBoundingClientRect();
+          const extra=Math.max(0, Math.ceil(dr.bottom + 12 - pr.bottom));
+          if(extra>0) needed.set(parent,Math.max(needed.get(parent)||0,extra));
+          else if(!needed.has(parent)) needed.set(parent,0);
+        });
+
+        /* Pulihkan parent lama yang dropdown-nya sudah tertutup. */
+        document.querySelectorAll('.dropdown-expand-parent').forEach(parent=>{
+          if(!needed.has(parent)) restore(parent);
+        });
+
+        /* Tambahkan ruang hanya sebesar bagian dropdown yang keluar dari card. */
+        needed.forEach((extra,parent)=>{
+          const base=ensureBase(parent);
+          if(extra>0){
+            parent.style.paddingBottom=(base.paddingBottom+extra)+'px';
+            ACTIVE.set(parent,extra);
+          }else{
+            restore(parent);
+          }
+        });
+      });
+    });
+  }
+
+  /* Pantau buka/tutup dropdown custom dan kalender universal. */
+  const mo=new MutationObserver(muts=>{
+    if(muts.some(m=>m.type==='attributes' && m.attributeName==='class')) recalc();
+  });
+  mo.observe(document.documentElement,{subtree:true,attributes:true,attributeFilter:['class']});
+
+  document.addEventListener('click',()=>setTimeout(recalc,0),true);
+  window.addEventListener('resize',recalc,{passive:true});
+  window.addEventListener('orientationchange',()=>setTimeout(recalc,120),{passive:true});
+  document.addEventListener('scroll',()=>{
+    if(document.querySelector('.upr-control.open .upr-pop, .custom-select-wrap.open .custom-select-panel')) recalc();
+  },true);
+
+  /* Bila isi dropdown berubah setelah dibuka (mis. hasil search), ukur ulang. */
+  const ro=('ResizeObserver' in window)?new ResizeObserver(()=>recalc()):null;
+  if(ro){
+    const watch=()=>document.querySelectorAll('.upr-pop,.custom-select-panel').forEach(x=>{try{ro.observe(x)}catch(e){}});
+    watch();
+    new MutationObserver(watch).observe(document.body,{childList:true,subtree:true});
+  }
+
+  window.recalcDropdownParentExpansion=recalc;
+})();
+</script>
+
 </body></html>
