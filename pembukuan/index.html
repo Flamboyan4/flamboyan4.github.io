@@ -2150,17 +2150,55 @@ function updateNominalParsialInfo(){
   if(kurang>0){info.className='text-[11px] mt-1 text-amber-700 font-bold';info.textContent=`Kurang ${rupiah(kurang)} → otomatis dicatat sebagai kekurangan Kas Lorong.`;return}
   info.className='text-[11px] mt-1 text-emerald-700';info.textContent='Pembayaran penuh.';
 }
-function saveStatus(t,type='info'){const e=document.getElementById('save-status');if(!e)return;e.className='rounded-xl border px-4 py-3 text-sm';if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');else if(type==='success')e.classList.add('bg-violet-50','border-violet-200','text-violet-700');else e.classList.add('bg-slate-50','border-slate-200','text-slate-600');e.textContent=t;}
-async function simpanIuran(ev){ev.preventDefault();const idWarga=document.getElementById('inp-warga').value;if(!idWarga){saveStatus('Pilih warga terlebih dahulu.','error');return}const btn=document.getElementById('btn-simpan');btn.disabled=true;btn.classList.add('opacity-60');saveStatus('Menyimpan pembayaran...');try{const p={action:'simpaniuran',idWarga,tanggal:document.getElementById('inp-tanggal').value,tahun:document.getElementById('inp-tahun').value,bulan:document.getElementById('inp-bulan').value,jumlahBulan:document.getElementById('inp-jumlah').value,nominalDibayar:document.getElementById('inp-nominal-dibayar').value,metode:document.getElementById('inp-metode').value,catatan:document.getElementById('inp-catatan').value,t:Date.now()};const r=await jsonp(APPS_SCRIPT_URL,p);if(!r||r.status!=='success')throw new Error(r?.message||'Gagal menyimpan.');let talInfo='';try{const tr=await jsonp(BATCH_SCRIPT_URL,{action:'sinkrontalanganpembayaran',idPembayaran:r.idPembayaran,t:Date.now()});if(tr?.status==='success'&&Number(tr.nominal||0)>0)talInfo=` • Penggantian talangan ${rupiah(tr.nominal)}`}catch(te){console.warn('Sinkron talangan:',te)}saveStatus(`${r.message||'Pembayaran berhasil disimpan.'} • ${r.periode.join(', ')} • diterima ${rupiah(r.totalDiterima)}${Number(r.kekuranganKasLorong||0)>0?` • kurang Kas ${rupiah(r.kekuranganKasLorong)}`:''}${talInfo}`,'success');
-    document.getElementById('inp-catatan').value='';
-    document.getElementById('inp-warga').value='';
-    document.getElementById('inp-jumlah').value='1';
-    const nd=document.getElementById('inp-nominal-dibayar');if(nd){nd.dataset.edited='';nd.value=''}
-    updatePreview();
-    await loadRiwayat(true);
-    await loadKekuranganKas(true).catch(()=>{});
-    window.scrollTo({top:0,behavior:'smooth'});
-    setTimeout(hideStatus,5000)}catch(e){saveStatus(e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}}
+let saveStatusTimer=null;
+function hideSaveStatus(){const e=document.getElementById('save-status');if(e)e.classList.add('hidden')}
+function saveStatus(t,type='info',autoHideMs=0){
+  const e=document.getElementById('save-status');if(!e)return;
+  if(saveStatusTimer){clearTimeout(saveStatusTimer);saveStatusTimer=null}
+  e.className='fixed z-[120] left-1/2 -translate-x-1/2 bottom-5 w-[calc(100%-2rem)] max-w-lg rounded-xl border px-4 py-3 text-sm shadow-xl backdrop-blur-sm';
+  if(type==='error')e.classList.add('bg-red-50/95','border-red-200','text-red-700');
+  else if(type==='success')e.classList.add('bg-violet-50/95','border-violet-200','text-violet-700');
+  else e.classList.add('bg-white/95','border-slate-200','text-slate-600');
+  e.textContent=t;
+  if(autoHideMs>0)saveStatusTimer=setTimeout(hideSaveStatus,autoHideMs);
+}
+function resetIuranFormAfterSave(){
+  const now=new Date();
+  const warga=document.getElementById('inp-warga');if(warga)warga.value='';
+  const tanggal=document.getElementById('inp-tanggal');if(tanggal)tanggal.value=now.toISOString().slice(0,10);
+  const metode=document.getElementById('inp-metode');if(metode)metode.value='Cash';
+  const bulan=document.getElementById('inp-bulan');if(bulan)bulan.value=String(now.getMonth()+1);
+  const tahun=document.getElementById('inp-tahun');if(tahun)tahun.value=String(now.getFullYear());
+  const jumlah=document.getElementById('inp-jumlah');if(jumlah)jumlah.value='1';
+  const catatan=document.getElementById('inp-catatan');if(catatan)catatan.value='';
+  const nominal=document.getElementById('inp-nominal-dibayar');if(nominal){nominal.value='';delete nominal.dataset.edited}
+  updatePreview();
+  updateNominalParsialInfo();
+  window.refreshAllCustomSelects?.();
+}
+async function simpanIuran(ev){
+  ev.preventDefault();
+  const idWarga=document.getElementById('inp-warga').value;
+  if(!idWarga){saveStatus('Pilih warga terlebih dahulu.','error',2600);return}
+  const btn=document.getElementById('btn-simpan');btn.disabled=true;btn.classList.add('opacity-60');
+  saveStatus('Menyimpan pembayaran...');
+  try{
+    const p={action:'simpaniuran',idWarga,tanggal:document.getElementById('inp-tanggal').value,tahun:document.getElementById('inp-tahun').value,bulan:document.getElementById('inp-bulan').value,jumlahBulan:document.getElementById('inp-jumlah').value,nominalDibayar:document.getElementById('inp-nominal-dibayar').value,metode:document.getElementById('inp-metode').value,catatan:document.getElementById('inp-catatan').value,t:Date.now()};
+    const r=await jsonp(APPS_SCRIPT_URL,p);if(!r||r.status!=='success')throw new Error(r?.message||'Gagal menyimpan.');
+    let talInfo='';
+    try{const tr=await jsonp(BATCH_SCRIPT_URL,{action:'sinkrontalanganpembayaran',idPembayaran:r.idPembayaran,t:Date.now()});if(tr?.status==='success'&&Number(tr.nominal||0)>0)talInfo=` • Penggantian talangan ${rupiah(tr.nominal)}`}catch(te){console.warn('Sinkron talangan:',te)}
+    const periode=Array.isArray(r.periode)?r.periode.join(', '):(r.periode||'');
+    saveStatus(`Pembayaran berhasil disimpan${periode?` • ${periode}`:''} • diterima ${rupiah(r.totalDiterima)}${Number(r.kekuranganKasLorong||0)>0?` • kurang Kas ${rupiah(r.kekuranganKasLorong)}`:''}${talInfo}`,'success',2300);
+    resetIuranFormAfterSave();
+    await Promise.all([loadRiwayat(true),loadKekuranganKas(true).catch(()=>{})]);
+  }catch(e){saveStatus(e.message||String(e),'error',4200)}
+  finally{btn.disabled=false;btn.classList.remove('opacity-60')}
+}
+
+['inp-warga','inp-tanggal','inp-metode','inp-bulan','inp-tahun','inp-jumlah','inp-nominal-dibayar','inp-catatan'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el){const clear=()=>{if(!document.getElementById('save-status')?.classList.contains('hidden'))hideSaveStatus()};el.addEventListener('change',clear);el.addEventListener('input',clear)}
+});
 
 let DATA_KEKURANGAN_KAS={rows:[],totalKekurangan:0,jumlah:0};
 async function loadKekuranganKas(silent=false){
