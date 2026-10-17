@@ -2480,19 +2480,37 @@ async function loadIuranQuickSummary(){
   try{const prm=window.UPR?.params?window.UPR.params('history-iuran'):{};const r=await jsonp(APPS_SCRIPT_URL,{action:'iuranquicksummary',...prm,t:Date.now()});if(req!==IURAN_QUICK_REQ)return;if(!r||r.status!=='success')throw new Error(r?.message||'Gagal');renderIuranQuickSummary(r.data||null)}catch(e){if(req!==IURAN_QUICK_REQ)return;IURAN_QUICK_DATA=null;renderIuranQuickSummary()}
 }
 
+function normRiwayatSearch(v){
+  return String(v??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+}
+function riwayatResidentInfo(x){
+  const warga=(DATA.warga||[]).find(w=>String(w.idWarga||'')===String(x.idWarga||''));
+  const blok=String(x.blok||x.blokRumah||warga?.blok||'').trim();
+  const noRumah=String(x.noRumah||x.nomorRumah||x.no_rumah||warga?.noRumah||'').trim();
+  const rumah=String(x.rumah||'').trim() || [blok,noRumah].filter(Boolean).join('/');
+  return {warga,blok,noRumah,rumah};
+}
 function renderRiwayat(){
   const tbody=document.getElementById('tbody-riwayat');if(!tbody)return;
   if(!IURAN_QUICK_DATA)renderIuranQuickSummary();
-  const q=(document.getElementById('cari-riwayat')?.value||'').toLowerCase();
+  const qRaw=(document.getElementById('cari-riwayat')?.value||'').trim().toLowerCase();
+  const qNorm=normRiwayatSearch(qRaw);
   const f=document.getElementById('filter-riwayat')?.value||'AKTIF';
   let rows=(DATA.riwayat||[]).filter(x=>{
     if(f!=='SEMUA'&&x.status!==f)return false;
     if(!matchRiwayatPeriod(x))return false;
-    const hay=[x.nama,x.blok,x.noRumah,(x.periode||[]).join(' '),x.metode,x.idPembayaran].join(' ').toLowerCase();
-    return hay.includes(q);
+    if(!qRaw)return true;
+    const info=riwayatResidentInfo(x);
+    const nama=x.nama||info.warga?.nama||'';
+    const rumahVariants=[info.rumah,[info.blok,info.noRumah].filter(Boolean).join(' '),`${info.blok}${info.noRumah}`];
+    const fields=[nama,x.idWarga,x.idPembayaran,x.metode,(x.periode||[]).join(' '),...rumahVariants];
+    const hayRaw=fields.join(' ').toLowerCase();
+    const hayNorm=normRiwayatSearch(fields.join(' '));
+    return hayRaw.includes(qRaw) || (qNorm && hayNorm.includes(qNorm));
   }).sort((a,b)=>historyDateTs(b.tanggal)-historyDateTs(a.tanggal));
   const total=rows.length;if(!RIWAYAT_SEMUA)rows=rows.slice(0,10);
   tbody.innerHTML=rows.map(x=>{
+    const info=riwayatResidentInfo(x);
     const batal=x.status==='BATAL';
     const badge=batal?'<span class="px-2 py-1 rounded-full bg-slate-100 text-slate-500 text-xs font-bold">BATAL</span>':(x.locked?'<span class="px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">TERKUNCI</span>':'<span class="px-2 py-1 rounded-full bg-violet-100 text-violet-700 text-xs font-bold">AKTIF</span>');
     const bolehHapus=x.jenisPembayaran!=='PELUNASAN_KAS'||x.status==='BATAL';
@@ -2504,7 +2522,7 @@ function renderRiwayat(){
       if(bolehHapus)actions.push(actionIcon('trash-2','Hapus',`hapusPembayaran('${x.idPembayaran}')`,'red'));
     }
     const aksi=`<div class="action-icons">${actions.join('')}</div>`;
-    return `<tr class="${batal?'opacity-55':''} hover:bg-violet-50/30"><td class="p-3 whitespace-nowrap">${histDate(x.tanggal)}</td><td class="p-3"><div class="font-bold whitespace-nowrap">${x.nama||'-'}</div><div class="text-xs text-slate-400 whitespace-nowrap">${x.blok||''}/${x.noRumah||''} • ${x.idPembayaran}</div></td><td class="p-3 text-right whitespace-nowrap"><div class="font-black">${rupiah(x.totalDiterima)}</div>${Number(x.kekuranganKasLorong||0)>0?`<div class="text-xs font-bold text-amber-700">Kurang Kas ${rupiah(x.kekuranganKasLorong)}</div>`:''}${x.jenisPembayaran==='PELUNASAN_KAS'?'<div class="text-xs text-emerald-700 font-bold">Pelunasan Kas</div>':''}</td><td class="p-3 whitespace-nowrap">${x.metode||'-'}</td><td class="p-3 text-center">${badge}</td><td class="p-3 text-right">${aksi}</td></tr>`;
+    return `<tr class="${batal?'opacity-55':''} hover:bg-violet-50/30"><td class="p-3 whitespace-nowrap">${histDate(x.tanggal)}</td><td class="p-3"><div class="font-bold whitespace-nowrap">${x.nama||'-'}</div><div class="text-xs text-slate-400 whitespace-nowrap">${info.rumah||'-'} • ${x.idPembayaran}</div></td><td class="p-3 text-right whitespace-nowrap"><div class="font-black">${rupiah(x.totalDiterima)}</div>${Number(x.kekuranganKasLorong||0)>0?`<div class="text-xs font-bold text-amber-700">Kurang Kas ${rupiah(x.kekuranganKasLorong)}</div>`:''}${x.jenisPembayaran==='PELUNASAN_KAS'?'<div class="text-xs text-emerald-700 font-bold">Pelunasan Kas</div>':''}</td><td class="p-3 whitespace-nowrap">${x.metode||'-'}</td><td class="p-3 text-center">${badge}</td><td class="p-3 text-right">${aksi}</td></tr>`;
   }).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada riwayat pembayaran pada periode ini.</td></tr>';
   const b=document.getElementById('btn-riwayat-more');if(total>10){b.classList.remove('hidden');b.textContent=RIWAYAT_SEMUA?'Tampilkan 10 terbaru':'Lihat semua ('+total+')'}else b.classList.add('hidden');
   refreshHistoryIcons();
