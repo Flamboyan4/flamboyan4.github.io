@@ -1519,6 +1519,91 @@ main > section.card{overflow:visible!important}
   #report-rt-panel .report-letterhead .kop-sub{font-size:9px!important}
 }
 </style>
+
+<style id="v6260-main-report-style-sync">
+/* Laporan Kas mengikuti gaya formal laman utama: 3 ringkasan, tabel bersih, total di bawah. */
+#report-kas-panel .kas-report-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}
+#report-kas-panel .kas-report-brand{display:flex;align-items:flex-start;gap:13px;min-width:0}
+#report-kas-panel .kas-report-brand img{width:58px;height:58px;object-fit:contain;flex:none}
+#report-kas-panel .kas-report-brand h2{font-size:20px;line-height:1.15;font-weight:900;color:#1e293b;margin:0}
+#report-kas-panel .kas-report-address{font-size:12px;color:#64748b;margin-top:5px}
+#report-kas-panel .kas-report-period{font-size:12px;font-weight:800;color:#4338ca;margin-top:4px}
+#report-kas-panel .kas-report-badge{flex:none;border:1px solid #ddd6fe;background:#f5f3ff;color:#5b21b6;border-radius:999px;padding:7px 11px;font-size:10px;font-weight:900}
+#report-kas-panel .kas-report-rule{height:3px;background:#1e293b;margin:14px 0 15px}
+#report-kas-panel .kas-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:15px}
+#report-kas-panel .kas-summary-card{border:1px solid #dbe1ea;border-radius:10px;padding:12px 13px;background:#fff}
+#report-kas-panel .kas-summary-label{font-size:10px;font-weight:900;color:#64748b;text-transform:uppercase}
+#report-kas-panel .kas-summary-value{font-size:19px;line-height:1.2;font-weight:900;margin-top:7px}
+#report-kas-panel .kas-detail-title{font-size:15px;font-weight:900;color:#334155;margin:0 0 8px}
+#report-kas-panel .kas-report-table-wrap{border:1px solid #cbd5e1;border-radius:0!important;overflow:hidden}
+#report-kas-panel .kas-report-table{border-collapse:collapse;table-layout:fixed;font-size:13px}
+#report-kas-panel .kas-report-table th{background:#f1f5f9;color:#334155;font-weight:900;border-right:1px solid #cbd5e1;border-bottom:1px solid #cbd5e1;padding:8px 9px}
+#report-kas-panel .kas-report-table td{border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;padding:8px 9px;vertical-align:middle}
+#report-kas-panel .kas-report-table th:last-child,#report-kas-panel .kas-report-table td:last-child{border-right:0}
+#report-kas-panel .kas-report-table th:nth-child(1),#report-kas-panel .kas-report-table td:nth-child(1){width:7%}
+#report-kas-panel .kas-report-table th:nth-child(2),#report-kas-panel .kas-report-table td:nth-child(2){width:20%}
+#report-kas-panel .kas-report-table th:nth-child(3),#report-kas-panel .kas-report-table td:nth-child(3){width:43%}
+#report-kas-panel .kas-report-table th:nth-child(4),#report-kas-panel .kas-report-table td:nth-child(4),#report-kas-panel .kas-report-table th:nth-child(5),#report-kas-panel .kas-report-table td:nth-child(5){width:15%}
+#report-kas-panel .kas-report-totals{border:1px solid #cbd5e1;border-top:0;background:#f8fafc;padding:9px 12px}
+#report-kas-panel .kas-report-totals>div{display:flex;justify-content:space-between;gap:15px;padding:3px 0;font-size:13px}
+#report-kas-panel .kas-report-signature{width:260px;margin:58px auto 0;text-align:center;font-size:12px;color:#334155}
+#report-kas-panel .kas-sign-space{height:58px}
+#report-kas-panel .kas-sign-line{border-top:1px solid #64748b;margin:0 auto 6px;width:100%}
+#report-kas-panel .kas-report-footer{margin-top:18px;padding-top:8px;border-top:1px solid #e2e8f0;font-size:9.5px;color:#64748b}
+
+/* Setoran RT dibuat seperti tabel laporan utama: grid tegas, header abu-abu, rapi tanpa badge. */
+#report-rt-panel .report-table-wrap{border:1px solid #cbd5e1!important;border-radius:0!important}
+#report-rt-panel table{border-collapse:collapse!important}
+#report-rt-panel thead{background:#f1f5f9!important;color:#334155!important}
+#report-rt-panel th{font-weight:900!important;border-right:1px solid #cbd5e1!important;border-bottom:1px solid #cbd5e1!important}
+#report-rt-panel td{border-right:1px solid #e2e8f0!important;border-bottom:1px solid #e2e8f0!important}
+#report-rt-panel th:last-child,#report-rt-panel td:last-child{border-right:0!important}
+#report-rt-panel tfoot{background:#f8fafc!important;color:#111827!important}
+#report-rt-panel td.report-ket-rt,#report-rt-panel td.report-ket-humas,#report-rt-panel td.report-ket-keb2x,#report-rt-panel td.report-ket-note{color:#111827!important;font-weight:600!important}
+
+@media print{
+  @page{size:A4 portrait;margin:11mm 12mm}
+  #report-print-area{width:auto!important}
+  #report-kas-panel .kas-report-head{gap:12px!important}
+  #report-kas-panel .kas-report-brand img{width:50px!important;height:50px!important}
+  #report-kas-panel .kas-report-brand h2{font-size:16.5px!important}
+  #report-kas-panel .kas-report-address,#report-kas-panel .kas-report-period{font-size:10px!important}
+  #report-kas-panel .kas-report-badge{font-size:8.5px!important;padding:5px 8px!important}
+  #report-kas-panel .kas-report-rule{height:2px!important;margin:10px 0 12px!important}
+  #report-kas-panel .kas-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important;margin-bottom:11px!important}
+  #report-kas-panel .kas-summary-card{padding:8px 9px!important;border-radius:6px!important}
+  #report-kas-panel .kas-summary-label{font-size:8.5px!important}
+  #report-kas-panel .kas-summary-value{font-size:14.5px!important;margin-top:5px!important}
+  #report-kas-panel .kas-detail-title{font-size:11.5px!important;margin-bottom:5px!important}
+  #report-kas-panel .kas-report-table{font-size:10.2px!important;min-width:0!important;width:100%!important}
+  #report-kas-panel .kas-report-table th,#report-kas-panel .kas-report-table td{padding:5px 6px!important;line-height:1.2!important}
+  #report-kas-panel .kas-report-table th{font-size:9.8px!important}
+  #report-kas-panel .kas-report-totals{padding:6px 8px!important}
+  #report-kas-panel .kas-report-totals>div{font-size:10.2px!important;padding:2px 0!important}
+  #report-kas-panel .kas-report-signature{margin-top:42px!important;width:230px!important;font-size:10px!important}
+  #report-kas-panel .kas-sign-space{height:45px!important}
+  #report-kas-panel .kas-report-footer{margin-top:12px!important;font-size:8px!important}
+  /* metadata saldo riil/teralokasi tetap internal, tidak memenuhi laporan cetak */
+  #report-kas-panel #rep-kas-posisi{display:none!important}
+
+  #report-rt-panel .report-table-wrap{width:100%!important;max-width:none!important;margin:0!important}
+  #report-rt-panel table{font-size:10.6px!important;width:100%!important;table-layout:fixed!important}
+  #report-rt-panel th,#report-rt-panel td{padding:4.5px 5px!important;line-height:1.2!important}
+  #report-rt-panel thead th{font-size:10px!important;background:#f1f5f9!important}
+  #report-rt-panel tfoot td{font-size:10.5px!important;padding:5px!important}
+  #report-rt-panel th:nth-child(1),#report-rt-panel td:nth-child(1){width:6%!important}
+  #report-rt-panel th:nth-child(2),#report-rt-panel td:nth-child(2){width:25%!important}
+  #report-rt-panel th:nth-child(3),#report-rt-panel td:nth-child(3){width:13%!important}
+  #report-rt-panel th:nth-child(4),#report-rt-panel td:nth-child(4){width:24%!important}
+  #report-rt-panel th:nth-child(5),#report-rt-panel td:nth-child(5),#report-rt-panel th:nth-child(6),#report-rt-panel td:nth-child(6){width:16%!important}
+  #report-rt-panel .mt-5.text-right{width:100%!important;max-width:none!important;margin:24px 0 0!important;font-size:10.5px!important}
+}
+@media(max-width:640px){
+  #report-kas-panel .kas-summary-grid{grid-template-columns:1fr}
+  #report-kas-panel .kas-report-brand h2{font-size:16px}
+  #report-kas-panel .kas-report-badge{display:none}
+}
+</style>
 </head>
 <body oncontextmenu="return false;">
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
@@ -1915,18 +2000,23 @@ main > section.card{overflow:visible!important}
 
         <div id="report-print-area">
           <div id="report-kas-panel">
-            <div class="report-letterhead"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4 <span class="kop-unit">(HUMAS 3)</span></div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
-            <div class="mb-4"><h2 id="report-kas-title" class="font-black text-2xl text-violet-950">Laporan Kas Warga</h2><p id="report-kas-subtitle" class="text-sm text-slate-500 mt-1"></p></div>
-            <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3 mb-5">
-              <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Saldo Awal</div><div id="rep-kas-awal" class="text-xl font-black mt-2">Rp 0</div></div>
-              <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Pemasukan</div><div id="rep-kas-debit" class="text-xl font-black text-emerald-700 mt-2">Rp 0</div></div>
-              <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Pengeluaran</div><div id="rep-kas-kredit" class="text-xl font-black text-red-600 mt-2">Rp 0</div></div>
-              <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Saldo Periode</div><div id="rep-kas-net" class="text-xl font-black text-violet-700 mt-2">Rp 0</div></div>
-              <div class="report-card rounded-2xl border border-violet-100 p-4"><div id="rep-kas-akhir-label" class="text-[11px] font-bold uppercase text-slate-400">Saldo Akhir</div><div class="kas-position-value mt-2"><div id="rep-kas-akhir" class="text-xl font-black text-violet-700">Rp 0</div><div id="rep-kas-posisi" class="no-print hidden"></div></div></div>
+            <div class="kas-report-head">
+              <div class="kas-report-brand"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"><div><h2 id="report-kas-title">LAPORAN KEUANGAN KAS WARGA FLAMBOYAN 4</h2><div class="kas-report-address">RT 001 RW 026 Pesona Kahuripan 2</div><div id="report-kas-subtitle" class="kas-report-period"></div></div></div>
+              <div class="kas-report-badge">LAPORAN KAS</div>
             </div>
-            <div class="report-table-wrap overflow-x-auto rounded-2xl border border-violet-100">
-              <table class="w-full text-sm min-w-[900px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-left">Tanggal</th><th class="p-3 text-left">Keterangan</th><th class="p-3 text-left">Kategori</th><th class="p-3 text-right">Debit</th><th class="p-3 text-right">Kredit</th><th class="p-3 text-right">Saldo</th></tr></thead><tbody id="report-kas-tbody" class="divide-y divide-violet-50"><tr><td colspan="6" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody></table>
+            <div class="kas-report-rule"></div>
+            <div class="kas-summary-grid">
+              <div class="kas-summary-card"><div class="kas-summary-label">SALDO SEBELUMNYA</div><div id="rep-kas-awal" class="kas-summary-value text-violet-800">Rp 0</div></div>
+              <div class="kas-summary-card"><div id="rep-kas-net-label" class="kas-summary-label">SALDO KAS PERIODE</div><div id="rep-kas-net" class="kas-summary-value text-emerald-700">Rp 0</div></div>
+              <div class="kas-summary-card"><div id="rep-kas-akhir-label" class="kas-summary-label">SALDO AKHIR</div><div class="kas-position-value"><div id="rep-kas-akhir" class="kas-summary-value text-teal-700">Rp 0</div><div id="rep-kas-posisi" class="no-print hidden"></div></div></div>
             </div>
+            <h3 class="kas-detail-title">Rincian Transaksi</h3>
+            <div class="report-table-wrap kas-report-table-wrap overflow-x-auto">
+              <table class="kas-report-table w-full"><thead><tr><th class="text-center">No</th><th class="text-center">Tanggal</th><th class="text-left">Keterangan</th><th class="text-right">Debit</th><th class="text-right">Kredit</th></tr></thead><tbody id="report-kas-tbody"><tr><td colspan="5" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody></table>
+            </div>
+            <div class="kas-report-totals"><div><span>Total Kas Masuk</span><strong id="rep-kas-debit" class="text-emerald-700">Rp 0</strong></div><div><span>Total Kas Keluar</span><strong id="rep-kas-kredit" class="text-red-600">Rp 0</strong></div></div>
+            <div class="kas-report-signature"><div>Mengetahui,</div><div>Humas Flamboyan 4</div><div class="kas-sign-space"></div><div class="kas-sign-line"></div><strong>Heri Juwandi</strong></div>
+            <div class="kas-report-footer">Data bersumber dari pembukuan kas pada flamboyan4.web.id</div>
             <div class="mt-6 no-print"><h3 class="font-black text-violet-950 mb-3">Rekap Per Bulan</h3><div id="report-kas-tahunan" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2"></div></div>
           </div>
 
@@ -2971,12 +3061,14 @@ async function loadLaporan(){
 }
 function renderLaporanKas(d){
   d=d||{};const r=d.ringkasan||{};const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
-  set('report-kas-title','Laporan Kas Warga');set('report-kas-subtitle',d.labelPeriode||'');
+  const periode=(d.labelPeriode||'').replace(/^Periode\s*/i,'').trim();
+  set('report-kas-title','LAPORAN KEUANGAN KAS WARGA FLAMBOYAN 4');set('report-kas-subtitle',periode?`Periode ${periode}`:'');
   set('rep-kas-awal',rupiah(r.saldoAwal||0));set('rep-kas-debit',rupiah(r.debit||0));set('rep-kas-kredit',rupiah(r.kredit||0));set('rep-kas-net',rupiah(r.saldoPeriode||0));
-  const pos=d.posisiKas||null,hasReserve=!!(pos&&Number(pos.danaTeralokasi||0)>0);set('rep-kas-akhir-label',hasReserve?'Saldo Tersedia':'Saldo Akhir');set('rep-kas-akhir',rupiah(hasReserve?pos.saldoTersedia:(r.saldoAkhir||0)));
+  set('rep-kas-net-label',periode?`SALDO KAS ${periode.toUpperCase()}`:'SALDO KAS PERIODE');
+  const pos=d.posisiKas||null,hasReserve=!!(pos&&Number(pos.danaTeralokasi||0)>0);set('rep-kas-akhir-label',hasReserve?'SALDO TERSEDIA':(periode?`SALDO AKHIR ${periode.toUpperCase()}`:'SALDO AKHIR'));set('rep-kas-akhir',rupiah(hasReserve?pos.saldoTersedia:(r.saldoAkhir||0)));
   const pe=document.getElementById('rep-kas-posisi');if(pe){pe.classList.toggle('hidden',!hasReserve);if(hasReserve){pe.innerHTML=`<div class="kas-position-meta"><div>Riil ${rupiah(pos.saldoRiil||0)}</div><div>Teralokasi ${rupiah(pos.danaTeralokasi||0)}</div></div><div class="kas-position-mobile"><span class="mitem" title="Saldo riil"><i data-lucide="wallet-cards"></i>${rupiah(pos.saldoRiil||0)}</span><span class="mitem" title="Dana teralokasi bulan depan"><i data-lucide="lock-keyhole"></i>${rupiah(pos.danaTeralokasi||0)}</span></div>`;try{lucide.createIcons()}catch(_e){}}else pe.innerHTML=''}
   const net=document.getElementById('rep-kas-net');if(net){net.classList.remove('text-red-600','text-emerald-700','text-violet-700');net.classList.add(Number(r.saldoPeriode||0)<0?'text-red-600':Number(r.saldoPeriode||0)>0?'text-emerald-700':'text-violet-700')}
-  const tb=document.getElementById('report-kas-tbody');if(tb)tb.innerHTML=(d.rows||[]).map(x=>`<tr><td class="p-3 whitespace-nowrap">${histDate(x.tanggal)}</td><td class="p-3"><div class="font-bold">${x.keterangan||'-'}</div><div class="no-print text-xs text-slate-400">${x.idTransaksi||''} • ${x.sumber||''}</div></td><td class="p-3">${x.kategori||'-'}</td><td class="p-3 text-right font-bold text-emerald-700">${x.debit?rupiah(x.debit):'-'}</td><td class="p-3 text-right font-bold text-red-600">${x.kredit?rupiah(x.kredit):'-'}</td><td class="p-3 text-right font-black">${rupiah(x.saldo||0)}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada transaksi pada periode ini.</td></tr>';
+  const tb=document.getElementById('report-kas-tbody');if(tb)tb.innerHTML=(d.rows||[]).map((x,i)=>`<tr><td class="text-center">${i+1}</td><td class="text-center whitespace-nowrap">${histDate(x.tanggal)}</td><td><div>${esc(x.keterangan||'-')}</div><div class="no-print text-xs text-slate-400">${esc(x.idTransaksi||'')} • ${esc(x.sumber||'')}</div></td><td class="text-right font-bold text-emerald-700">${x.debit?rupiah(x.debit):''}</td><td class="text-right font-bold text-red-600">${x.kredit?rupiah(x.kredit):''}</td></tr>`).join('')||'<tr><td colspan="5" class="p-6 text-center text-slate-400">Belum ada transaksi pada periode ini.</td></tr>';
   const y=document.getElementById('report-kas-tahunan'),rekap=d.periodeBulanan||d.tahunan||[];if(y)y.innerHTML=rekap.map(x=>`<div class="rounded-xl border border-violet-100 p-3"><div class="font-bold">${x.namaBulan} ${x.tahun||''}</div><div class="mt-1 text-xs text-slate-500">Masuk ${rupiah(x.debit)} • Keluar ${rupiah(x.kredit)}</div><div class="mt-1 font-black ${x.net<0?'text-red-600':x.net>0?'text-emerald-700':'text-violet-700'}">Saldo periode ${rupiah(x.net)}</div></div>`).join('')
 }
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
