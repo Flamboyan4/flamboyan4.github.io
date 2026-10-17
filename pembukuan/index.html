@@ -997,6 +997,149 @@ main > section.card{overflow:visible!important}
 }
 </style>
 
+
+<style id="v6211-table-balance-fix">
+/* v6.20.11 — HP table balance: font normal, gap antar kolom rapat, tiap tabel punya lebar proporsional.
+   Prinsip: nama warga satu baris, header singkat, tombol tidak terpotong, scroll horizontal tetap pendek. */
+@media screen and (max-width:767px){
+  /* Kembalikan ukuran tipografi tabel ke text-sm normal. */
+  #tab-riwayat table,#tab-kas table,#tab-pinjaman table,#tab-talangan table,#tab-denda table,#tab-laporan table,
+  #tab-rumah table,#tab-warga table{
+    font-size:14px!important;
+    line-height:1.25!important;
+  }
+  #tab-riwayat th,#tab-kas th,#tab-pinjaman th,#tab-talangan th,#tab-denda th,#tab-laporan th,
+  #tab-rumah th,#tab-warga th{
+    font-size:14px!important;
+    line-height:1.2!important;
+  }
+
+  /* Yang dipadatkan adalah SPASI horizontal sel, bukan font. */
+  #tab-riwayat th,#tab-riwayat td,#tab-kas th,#tab-kas td,#tab-pinjaman th,#tab-pinjaman td,
+  #tab-talangan th,#tab-talangan td,#tab-denda th,#tab-denda td,#tab-laporan th,#tab-laporan td,
+  #tab-rumah th,#tab-rumah td,#tab-warga th,#tab-warga td{
+    padding-top:8px!important;
+    padding-bottom:8px!important;
+    padding-left:5px!important;
+    padding-right:5px!important;
+  }
+
+  /* Jangan biarkan aturan max-content lama membuat tabel menumpuk/mengecil tidak wajar. */
+  #tab-riwayat table,#tab-kas table,#tab-pinjaman table,#tab-talangan table,#tab-denda table,#tab-laporan table,
+  #tab-rumah table,#tab-warga table{
+    table-layout:fixed!important;
+    max-width:none!important;
+  }
+
+  /* RIWAYAT IURAN */
+  #history-iuran-panel table{width:660px!important;min-width:660px!important}
+  #history-iuran-panel th:nth-child(1),#history-iuran-panel td:nth-child(1){width:88px!important}
+  #history-iuran-panel th:nth-child(2),#history-iuran-panel td:nth-child(2){width:135px!important;white-space:nowrap!important}
+  #history-iuran-panel th:nth-child(3),#history-iuran-panel td:nth-child(3){width:105px!important}
+  #history-iuran-panel th:nth-child(4),#history-iuran-panel td:nth-child(4){width:85px!important;white-space:nowrap!important}
+  #history-iuran-panel th:nth-child(5),#history-iuran-panel td:nth-child(5){width:80px!important;white-space:nowrap!important}
+  #history-iuran-panel th:nth-child(6),#history-iuran-panel td:nth-child(6){width:65px!important;white-space:nowrap!important}
+  #history-iuran-panel th:nth-child(7),#history-iuran-panel td:nth-child(7){width:102px!important;white-space:nowrap!important}
+
+  /* RIWAYAT KAS */
+  #history-kasumum-panel table{width:780px!important;min-width:780px!important}
+  #history-kasumum-panel th:nth-child(1),#history-kasumum-panel td:nth-child(1){width:88px!important}
+  #history-kasumum-panel th:nth-child(2),#history-kasumum-panel td:nth-child(2){width:78px!important}
+  #history-kasumum-panel th:nth-child(3),#history-kasumum-panel td:nth-child(3){width:92px!important}
+  #history-kasumum-panel th:nth-child(4),#history-kasumum-panel td:nth-child(4){width:145px!important}
+  #history-kasumum-panel th:nth-child(5),#history-kasumum-panel td:nth-child(5){width:78px!important;white-space:nowrap!important}
+  #history-kasumum-panel th:nth-child(6),#history-kasumum-panel td:nth-child(6){width:78px!important;white-space:nowrap!important}
+  #history-kasumum-panel th:nth-child(7),#history-kasumum-panel td:nth-child(7){width:75px!important;white-space:nowrap!important}
+  #history-kasumum-panel th:nth-child(8),#history-kasumum-panel td:nth-child(8){width:66px!important;white-space:nowrap!important}
+  #history-kasumum-panel th:nth-child(9),#history-kasumum-panel td:nth-child(9){width:80px!important;white-space:nowrap!important}
+
+  /* RIWAYAT PINJAMAN — nama 1 baris, 3 tombol aksi tetap utuh. */
+  #history-pinjaman-panel > .loan-scroll > table{width:790px!important;min-width:790px!important;table-layout:fixed!important}
+  #history-pinjaman-panel > .loan-scroll > table th:nth-child(1),#history-pinjaman-panel > .loan-scroll > table td:nth-child(1){width:88px!important}
+  #history-pinjaman-panel > .loan-scroll > table th:nth-child(2),#history-pinjaman-panel > .loan-scroll > table td:nth-child(2){width:135px!important;white-space:nowrap!important}
+  #history-pinjaman-panel > .loan-scroll > table th:nth-child(3),#history-pinjaman-panel > .loan-scroll > table td:nth-child(3){width:78px!important}
+  #history-pinjaman-panel > .loan-scroll > table th:nth-child(4),#history-pinjaman-panel > .loan-scroll > table td:nth-child(4){width:78px!important}
+  #history-pinjaman-panel > .loan-scroll > table th:nth-child(5),#history-pinjaman-panel > .loan-scroll > table td:nth-child(5){width:72px!important}
+  #history-pinjaman-panel > .loan-scroll > table th:nth-child(6),#history-pinjaman-panel > .loan-scroll > table td:nth-child(6){width:68px!important;white-space:nowrap!important}
+  #history-pinjaman-panel > .loan-scroll > table th:nth-child(7),#history-pinjaman-panel > .loan-scroll > table td:nth-child(7){width:105px!important}
+  #history-pinjaman-panel > .loan-scroll > table th:nth-child(8),#history-pinjaman-panel > .loan-scroll > table td:nth-child(8){width:166px!important;white-space:nowrap!important}
+  #history-pinjaman-panel > .loan-scroll > table td:nth-child(8)>div{gap:4px!important;justify-content:flex-start!important;flex-wrap:nowrap!important}
+
+  /* DETAIL CICILAN */
+  .loan-payment-history .loan-scroll table{width:660px!important;min-width:660px!important;table-layout:fixed!important}
+  .loan-payment-history th:nth-child(1),.loan-payment-history td:nth-child(1){width:88px!important}
+  .loan-payment-history th:nth-child(2),.loan-payment-history td:nth-child(2){width:135px!important;white-space:nowrap!important}
+  .loan-payment-history th:nth-child(3),.loan-payment-history td:nth-child(3){width:82px!important}
+  .loan-payment-history th:nth-child(4),.loan-payment-history td:nth-child(4){width:82px!important;white-space:nowrap!important}
+  .loan-payment-history th:nth-child(5),.loan-payment-history td:nth-child(5){width:78px!important}
+  .loan-payment-history th:nth-child(6),.loan-payment-history td:nth-child(6){width:70px!important;white-space:nowrap!important}
+  .loan-payment-history th:nth-child(7),.loan-payment-history td:nth-child(7){width:125px!important;white-space:nowrap!important}
+
+  /* RIWAYAT TALANGAN — header dipendekkan; nama warga 1 baris. */
+  #history-talangan-panel table{width:820px!important;min-width:820px!important;table-layout:fixed!important}
+  #history-talangan-panel th:nth-child(1),#history-talangan-panel td:nth-child(1){width:108px!important}
+  #history-talangan-panel th:nth-child(2),#history-talangan-panel td:nth-child(2){width:125px!important;white-space:nowrap!important}
+  #history-talangan-panel th:nth-child(3),#history-talangan-panel td:nth-child(3){width:80px!important}
+  #history-talangan-panel th:nth-child(4),#history-talangan-panel td:nth-child(4){width:75px!important}
+  #history-talangan-panel th:nth-child(5),#history-talangan-panel td:nth-child(5){width:70px!important}
+  #history-talangan-panel th:nth-child(6),#history-talangan-panel td:nth-child(6){width:68px!important;white-space:nowrap!important}
+  #history-talangan-panel th:nth-child(7),#history-talangan-panel td:nth-child(7){width:86px!important}
+  #history-talangan-panel th:nth-child(8),#history-talangan-panel td:nth-child(8){width:108px!important}
+  #history-talangan-panel th:nth-child(9),#history-talangan-panel td:nth-child(9){width:100px!important;white-space:nowrap!important}
+
+  /* RIWAYAT DENDA */
+  #history-denda-panel table{width:675px!important;min-width:675px!important;table-layout:fixed!important}
+  #history-denda-panel th:nth-child(1),#history-denda-panel td:nth-child(1){width:88px!important}
+  #history-denda-panel th:nth-child(2),#history-denda-panel td:nth-child(2){width:125px!important;white-space:nowrap!important}
+  #history-denda-panel th:nth-child(3),#history-denda-panel td:nth-child(3){width:125px!important}
+  #history-denda-panel th:nth-child(4),#history-denda-panel td:nth-child(4){width:82px!important}
+  #history-denda-panel th:nth-child(5),#history-denda-panel td:nth-child(5){width:70px!important;white-space:nowrap!important}
+  #history-denda-panel th:nth-child(6),#history-denda-panel td:nth-child(6){width:105px!important}
+  #history-denda-panel th:nth-child(7),#history-denda-panel td:nth-child(7){width:80px!important;white-space:nowrap!important}
+
+  /* RIWAYAT BATCH */
+  #history-batch-panel table{width:620px!important;min-width:620px!important;table-layout:fixed!important}
+  #history-batch-panel th:nth-child(1),#history-batch-panel td:nth-child(1){width:88px!important}
+  #history-batch-panel th:nth-child(2),#history-batch-panel td:nth-child(2){width:90px!important}
+  #history-batch-panel th:nth-child(3),#history-batch-panel td:nth-child(3){width:155px!important}
+  #history-batch-panel th:nth-child(4),#history-batch-panel td:nth-child(4){width:70px!important}
+  #history-batch-panel th:nth-child(5),#history-batch-panel td:nth-child(5){width:95px!important}
+  #history-batch-panel th:nth-child(6),#history-batch-panel td:nth-child(6){width:122px!important;white-space:nowrap!important}
+
+  /* Laporan: tetap ringkas tetapi tidak saling tumpuk. */
+  #report-kas-panel table{width:650px!important;min-width:650px!important}
+  #report-rt-panel table{width:650px!important;min-width:650px!important}
+  #report-arisan-panel table{width:640px!important;min-width:640px!important}
+  #report-denda-panel table{width:675px!important;min-width:675px!important}
+  #report-pinjaman-panel table{width:740px!important;min-width:740px!important}
+  #report-talangan-panel table{width:780px!important;min-width:780px!important}
+
+  /* Data acuan: jangan terlalu panjang saat digeser. */
+  #tab-rumah table{width:650px!important;min-width:650px!important}
+  #tab-warga table{width:820px!important;min-width:820px!important}
+
+  /* Nama warga/pemilik jangan dipatahkan menjadi Pak + nama di baris berikutnya. */
+  #history-iuran-panel td:nth-child(2),#history-pinjaman-panel td:nth-child(2),#history-talangan-panel td:nth-child(2),#history-denda-panel td:nth-child(2),
+  .loan-payment-history td:nth-child(2),#report-rt-panel td:nth-child(2),#report-arisan-panel td:nth-child(2),#report-denda-panel td:nth-child(2),
+  #report-pinjaman-panel td:nth-child(2),#report-talangan-panel td:nth-child(2),#tab-warga td:nth-child(2),#tab-rumah td:nth-child(6){
+    white-space:nowrap!important;
+    word-break:keep-all!important;
+    overflow-wrap:normal!important;
+  }
+
+  /* Tombol aksi tidak boleh menabrak batas kanan. */
+  #tab-riwayat td:last-child,#tab-kas td:last-child,#tab-pinjaman td:last-child,#tab-talangan td:last-child,#tab-denda td:last-child{
+    white-space:nowrap!important;
+    padding-right:8px!important;
+  }
+  #tab-riwayat td:last-child button,#tab-kas td:last-child button,#tab-pinjaman td:last-child button,#tab-talangan td:last-child button,#tab-denda td:last-child button{
+    font-size:14px!important;
+    padding:5px 8px!important;
+    line-height:1.15!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
@@ -1039,7 +1182,7 @@ main > section.card{overflow:visible!important}
       <div class="tabs-scroll flex gap-2">
         <button data-process-target="input" class="process-btn active px-4 py-2 rounded-xl border border-violet-200 text-sm font-bold whitespace-nowrap" onclick="pilihMenu('input')">Input Iuran</button>
         <button data-process-target="transaksi" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('transaksi')">Debit / Kredit</button>
-        <button data-process-target="kas" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('kas')">Pembukuan</button>
+        <button data-process-target="kas" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('kas')">Buku Kas</button>
         <button data-process-target="talangan" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('talangan')">Talangan</button>
         <button data-process-target="denda" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('denda')">Denda</button>
         <button data-process-target="pinjaman" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('pinjaman')">Pinjaman</button>
@@ -1367,7 +1510,7 @@ main > section.card{overflow:visible!important}
             <div class="mb-5 text-center"><h2 class="font-black text-2xl text-violet-950">LAPORAN SETORAN IURAN WARGA</h2><p id="report-rt-period" class="text-sm text-slate-500 mt-1"></p></div>
             <div id="rep-rt-talangan-note" class="no-print hidden mb-3 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 px-4 py-3 text-sm"></div>
             <div class="report-table-wrap overflow-x-auto rounded-2xl border border-violet-100">
-              <table class="w-full text-sm min-w-[760px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center w-14">No</th><th class="p-3 text-left">Nama</th><th class="p-3 text-left">Blok/No Rumah</th><th class="p-3 text-left">Keterangan</th><th class="p-3 text-right">Iuran Bulanan</th><th class="p-3 text-right">Kebersihan</th></tr></thead><tbody id="report-rt-tbody" class="divide-y divide-violet-50"><tr><td colspan="6" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody><tfoot class="bg-violet-50 font-black"><tr><td colspan="4" class="p-3 text-right">TOTAL</td><td class="p-3 text-right"><div id="report-rt-foot-bulanan">Rp 0</div><div id="report-rt-foot-bulanan-count" class="mt-1 text-xs font-semibold text-slate-500">0 orang</div></td><td class="p-3 text-right"><div id="report-rt-foot-keb">Rp 0</div><div id="report-rt-foot-keb-count" class="mt-1 text-xs font-semibold text-slate-500">0 orang</div></td></tr><tr><td colspan="4" class="p-3 text-right">TOTAL SETORAN</td><td id="report-rt-foot-total" class="p-3 text-right">Rp 0</td></tr></tfoot></table>
+              <table class="w-full text-sm min-w-[760px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center w-14">No</th><th class="p-3 text-left">Nama</th><th class="p-3 text-left">Rumah</th><th class="p-3 text-left">Keterangan</th><th class="p-3 text-right">Iuran Bulanan</th><th class="p-3 text-right">Kebersihan</th></tr></thead><tbody id="report-rt-tbody" class="divide-y divide-violet-50"><tr><td colspan="6" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody><tfoot class="bg-violet-50 font-black"><tr><td colspan="4" class="p-3 text-right">TOTAL</td><td class="p-3 text-right"><div id="report-rt-foot-bulanan">Rp 0</div><div id="report-rt-foot-bulanan-count" class="mt-1 text-xs font-semibold text-slate-500">0 orang</div></td><td class="p-3 text-right"><div id="report-rt-foot-keb">Rp 0</div><div id="report-rt-foot-keb-count" class="mt-1 text-xs font-semibold text-slate-500">0 orang</div></td></tr><tr><td colspan="4" class="p-3 text-right">TOTAL SETORAN</td><td id="report-rt-foot-total" class="p-3 text-right">Rp 0</td></tr></tfoot></table>
             </div>
             <div class="mt-5 text-right text-sm font-bold text-slate-600 print:text-black">Humas Flamboyan 4</div>
           </div>
@@ -1376,7 +1519,7 @@ main > section.card{overflow:visible!important}
             <div class="report-letterhead"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4 <span class="kop-unit">(HUMAS 3)</span></div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
             <div class="mb-5 text-center"><h2 class="font-black text-2xl text-violet-950">LAPORAN ARISAN WARGA</h2><p id="report-arisan-period" class="text-sm text-slate-500 mt-1"></p></div>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5"><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Peserta</div><div id="rep-arisan-peserta" class="text-xl font-black mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sudah Bayar</div><div id="rep-arisan-lunas" class="text-xl font-black text-emerald-700 mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Belum Bayar</div><div id="rep-arisan-belum" class="text-xl font-black text-red-600 mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Terkumpul</div><div id="rep-arisan-total" class="text-xl font-black text-violet-700 mt-2">Rp 0</div></div></div>
-            <div class="report-table-wrap overflow-x-auto rounded-2xl border border-violet-100"><table class="w-full text-sm min-w-[820px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center w-14">No</th><th class="p-3 text-left">Nama</th><th class="p-3 text-left">Blok/No Rumah</th><th class="p-3 text-center">Qty</th><th class="p-3 text-right">Nominal</th><th class="p-3 text-center">Status</th><th class="p-3 text-left">Metode</th></tr></thead><tbody id="report-arisan-tbody" class="divide-y divide-violet-50"><tr><td colspan="7" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody><tfoot class="bg-violet-50 font-black"><tr><td colspan="4" class="p-3 text-right">TOTAL TERKUMPUL</td><td id="report-arisan-foot-total" class="p-3 text-right">Rp 0</td><td colspan="2"></td></tr></tfoot></table></div>
+            <div class="report-table-wrap overflow-x-auto rounded-2xl border border-violet-100"><table class="w-full text-sm min-w-[820px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center w-14">No</th><th class="p-3 text-left">Nama</th><th class="p-3 text-left">Rumah</th><th class="p-3 text-center">Qty</th><th class="p-3 text-right">Nominal</th><th class="p-3 text-center">Status</th><th class="p-3 text-left">Metode</th></tr></thead><tbody id="report-arisan-tbody" class="divide-y divide-violet-50"><tr><td colspan="7" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody><tfoot class="bg-violet-50 font-black"><tr><td colspan="4" class="p-3 text-right">TOTAL TERKUMPUL</td><td id="report-arisan-foot-total" class="p-3 text-right">Rp 0</td><td colspan="2"></td></tr></tfoot></table></div>
           </div>
 
           <div id="report-denda-panel" class="hidden">
@@ -1408,7 +1551,7 @@ main > section.card{overflow:visible!important}
               <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sisa</div><div id="rep-talangan-sisa" class="text-xl font-black text-red-600 mt-2">Rp 0</div></div>
             </div>
             <div class="no-print mb-3 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 px-4 py-3 text-sm">Detail nama hanya untuk administrasi internal. Saat dicetak, laporan Talangan menampilkan rekap tanpa nama warga.</div>
-            <div class="no-print report-table-wrap overflow-x-auto rounded-2xl border border-violet-100"><table class="w-full text-sm min-w-[1050px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center">No</th><th class="p-3 text-left">Warga</th><th class="p-3 text-right">Talangan</th><th class="p-3 text-right">Diganti</th><th class="p-3 text-right">Sisa</th><th class="p-3 text-center">Status</th><th class="p-3 text-center">Pembukuan</th><th class="p-3 text-left">Batas / Pelunasan</th></tr></thead><tbody id="report-talangan-tbody" class="divide-y divide-violet-50"><tr><td colspan="8" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody></table></div>
+            <div class="no-print report-table-wrap overflow-x-auto rounded-2xl border border-violet-100"><table class="w-full text-sm min-w-[1050px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center">No</th><th class="p-3 text-left">Warga</th><th class="p-3 text-right">Talangan</th><th class="p-3 text-right">Diganti</th><th class="p-3 text-right">Sisa</th><th class="p-3 text-center">Status</th><th class="p-3 text-center">Buku Kas</th><th class="p-3 text-left">Batas / Lunas</th></tr></thead><tbody id="report-talangan-tbody" class="divide-y divide-violet-50"><tr><td colspan="8" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody></table></div>
             <div class="print-only hidden report-table-wrap rounded-2xl border border-violet-100"><table class="w-full text-sm"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-left">Status</th><th class="p-3 text-center">Jumlah</th><th class="p-3 text-right">Nominal</th><th class="p-3 text-right">Sisa</th></tr></thead><tbody id="report-talangan-print-tbody"></tbody></table></div>
           </div>
 
@@ -1472,7 +1615,7 @@ main > section.card{overflow:visible!important}
           <thead class="bg-violet-50 text-violet-950">
             <tr>
               <th class="p-3 text-left">Tanggal</th>
-              <th class="p-3 text-left">Nama & Rumah</th>
+              <th class="p-3 text-left">Warga</th>
               <th class="p-3 text-left">Periode</th>
               <th class="p-3 text-right">Total</th>
               <th class="p-3 text-left">Metode</th>
@@ -1528,7 +1671,7 @@ main > section.card{overflow:visible!important}
             <div class="loan-history-note">Pembayaran aktif maupun yang dibatalkan tetap tersimpan sebagai histori.</div>
             <div class="loan-scroll history-scroll rounded-xl border border-violet-100 mx-3">
               <table class="min-w-[850px] w-full text-sm">
-                <thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-left">Tanggal</th><th class="p-3 text-left">Warga</th><th class="p-3 text-left">ID Pinjaman</th><th class="p-3 text-right">Nominal</th><th class="p-3 text-left">Metode</th><th class="p-3 text-center">Status</th><th class="p-3 text-right">Aksi</th></tr></thead>
+                <thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-left">Tanggal</th><th class="p-3 text-left">Warga</th><th class="p-3 text-left">ID</th><th class="p-3 text-right">Nominal</th><th class="p-3 text-left">Metode</th><th class="p-3 text-center">Status</th><th class="p-3 text-right">Aksi</th></tr></thead>
                 <tbody id="tbody-riwayat-bayar-pinjaman" class="divide-y divide-violet-50"><tr><td colspan="7" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody>
               </table>
             </div>
@@ -1539,7 +1682,7 @@ main > section.card{overflow:visible!important}
       <div id="history-talangan-panel" class="hidden">
         <div id="hist-tal-status" class="hidden mb-3 rounded-xl border px-4 py-3 text-sm"></div>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4"><div class="rounded-xl border border-violet-100 p-3"><div class="text-[10px] font-bold text-slate-400">TALANGAN AKTIF</div><div id="tal-sum-count" class="text-xl font-black mt-1">0</div></div><div class="rounded-xl border border-violet-100 p-3"><div class="text-[10px] font-bold text-slate-400">TOTAL AKTIF</div><div id="tal-sum-total" class="text-xl font-black mt-1">Rp 0</div></div><div class="rounded-xl border border-violet-100 p-3"><div class="text-[10px] font-bold text-slate-400">SUDAH DIGANTI</div><div id="tal-sum-paid" class="text-xl font-black mt-1 text-emerald-700">Rp 0</div></div><div class="rounded-xl border border-violet-100 p-3"><div class="text-[10px] font-bold text-slate-400">SISA</div><div id="tal-sum-sisa" class="text-xl font-black mt-1 text-red-600">Rp 0</div></div></div>
-        <div class="history-scroll overflow-x-auto rounded-xl border border-violet-100 scrollbar-thin"><table class="min-w-[1000px] w-full text-sm"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-left">Periode</th><th class="p-3 text-left">Warga</th><th class="p-3 text-right">Talangan</th><th class="p-3 text-right">Diganti</th><th class="p-3 text-right">Sisa</th><th class="p-3 text-center">Status</th><th class="p-3 text-center">Pembukuan</th><th class="p-3 text-left">Pembayaran Pelunasan</th><th class="p-3 text-right">Aksi</th></tr></thead><tbody id="tbody-riwayat-talangan" class="divide-y divide-violet-50"><tr><td colspan="9" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody></table></div>
+        <div class="history-scroll overflow-x-auto rounded-xl border border-violet-100 scrollbar-thin"><table class="min-w-[1000px] w-full text-sm"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-left">Periode</th><th class="p-3 text-left">Warga</th><th class="p-3 text-right">Talangan</th><th class="p-3 text-right">Diganti</th><th class="p-3 text-right">Sisa</th><th class="p-3 text-center">Status</th><th class="p-3 text-center">Buku Kas</th><th class="p-3 text-left">Pelunasan</th><th class="p-3 text-right">Aksi</th></tr></thead><tbody id="tbody-riwayat-talangan" class="divide-y divide-violet-50"><tr><td colspan="9" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody></table></div>
       </div>
 
       <div id="history-denda-panel" class="hidden">
@@ -2042,7 +2185,7 @@ function renderTalangan(){
     const badge=batal?'bg-slate-100 text-slate-500':(lunas?'bg-emerald-100 text-emerald-700':'bg-violet-100 text-violet-700');
     const buku=x.statusPembukuan==='DIBUKUKAN'
       ? '<span class="px-2 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">DIBUKUKAN</span>'
-      : (lunas?'<span class="px-2 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700">TIDAK PERNAH MASUK</span>':'<span class="px-2 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-700">DITAHAN</span>');
+      : (lunas?'<span class="px-2 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700">BELUM MASUK</span>':'<span class="px-2 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-700">DITAHAN</span>');
     const aksi=(!batal&&!lunas&&(x.nominalDiganti||0)===0)?`<button onclick="batalkanTalangan('${x.idTalangan}')" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-bold">Batalkan</button>`:'-';
     return `<tr class="${batal?'opacity-55':''}"><td class="p-3"><div class="font-bold">${x.bulan} ${x.tahun}</div><div class="text-xs text-slate-400">${histDate(x.tanggalTalangan)} • ${x.idTalangan}</div><div class="text-[11px] text-violet-600 mt-1">Batas: ${x.tanggalJatuhTempo||'-'}</div></td><td class="p-3"><div class="font-bold">${x.nama||'-'}</div><div class="text-xs text-slate-400">${x.blok||''}/${x.noRumah||''}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominalTalangan||0)}</td><td class="p-3 text-right font-bold text-emerald-700">${rupiah(x.nominalDiganti||0)}</td><td class="p-3 text-right font-black text-red-600">${rupiah(x.sisaTalangan||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${badge}">${x.status}</span></td><td class="p-3 text-center">${buku}</td><td class="p-3">${x.idPembayaranPelunasan||'-'}${x.tanggalLunas?`<div class="text-xs text-slate-400">${histDate(x.tanggalLunas)}</div>`:''}</td><td class="p-3 text-right">${aksi}</td></tr>`
   }).join('')||'<tr><td colspan="9" class="p-6 text-center text-slate-400">Belum ada data talangan.</td></tr>'
