@@ -4576,4 +4576,95 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
  </div>
 </div>
 
+
+<style id="v6271-mobile-history">
+@media (max-width:767px){
+  .mhistory-source{display:none!important}
+  .mhistory-cards{display:flex!important;flex-direction:column;gap:8px;margin-top:8px;min-width:0}
+  .mhistory-entry{border:1px solid #e9e1fa;background:white;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(55,25,105,.035)}
+  .mhistory-entry[open]{border-color:#c4b5fd}
+  .mhistory-entry>summary{list-style:none;cursor:pointer;padding:12px 13px;display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+  .mhistory-entry>summary::-webkit-details-marker{display:none}
+  .mhistory-main{min-width:0;flex:1}
+  .mhistory-primary{font-size:14px;color:#2e1065;font-weight:850;line-height:1.25;overflow-wrap:anywhere}
+  .mhistory-secondary{font-size:11px;color:#8b91a3;margin-top:3px;line-height:1.3}
+  .mhistory-right{text-align:right;flex:none;max-width:42%;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+  .mhistory-amount{font-weight:850;font-size:14px;color:#16152b;white-space:nowrap}
+  .mhistory-status{font-size:10px;font-weight:800;color:#6d28d9;max-width:100%;overflow-wrap:anywhere}
+  .mhistory-chevron{color:#7c3aed;font-size:15px;transition:transform .2s}
+  .mhistory-entry[open] .mhistory-chevron{transform:rotate(180deg)}
+  .mhistory-detail{border-top:1px solid #ede9fe;background:#faf9ff;padding:8px 12px 11px}
+  .mhistory-line{display:grid;grid-template-columns:minmax(85px,32%) minmax(0,1fr);gap:9px;align-items:start;padding:7px 0;border-bottom:1px solid #eeeafb;font-size:12px}
+  .mhistory-line:last-child{border-bottom:0}
+  .mhistory-key{color:#64748b;font-weight:650}
+  .mhistory-value{color:#1e1b4b;min-width:0;overflow-wrap:anywhere}
+  .mhistory-value button{min-width:32px;min-height:32px}
+  .mhistory-empty{padding:18px;text-align:center;color:#94a3b8;border:1px solid #ede9fe;border-radius:13px}
+}
+@media (min-width:768px){.mhistory-cards{display:none!important}}
+</style>
+<script id="v6271-mobile-history-js">
+(function(){
+  'use strict';
+  const configs=[
+    ['tbody-riwayat',[1,0],[2,3,4]],
+    ['tbody-riwayat-kas',[2,0],[3,4,6]],
+    ['kas-tbody-batch',[2,0],[4,3,1]],
+    ['tbody-riwayat-talangan',[1,0],[2,5,4]],
+    ['tbody-riwayat-denda',[1,0],[3,4,2]],
+    ['tbody-riwayat-pinjaman',[1,0],[2,5,4]],
+    ['tbody-riwayat-bayar-pinjaman',[1,0],[3,5,2]]
+  ];
+  const txt=el=>(el?.textContent||'').replace(/\s+/g,' ').trim();
+  const escapeText=v=>String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function install(tbodyId,main,secondary){
+    const tb=document.getElementById(tbodyId); if(!tb||tb.dataset.mhistoryInstalled)return;
+    const table=tb.closest('table'),wrap=table?.parentElement;if(!table||!wrap)return;
+    tb.dataset.mhistoryInstalled='yes';
+    wrap.classList.add('mhistory-source');
+    const cards=document.createElement('div'); cards.className='mhistory-cards';
+    cards.setAttribute('aria-label','Daftar ringkas transaksi, ketuk untuk rincian');
+    wrap.insertAdjacentElement('afterend',cards);
+    let queued=false;
+    function render(){queued=false;const heads=[...table.querySelectorAll('thead th')].map(txt);
+      const rows=[...tb.querySelectorAll(':scope > tr')];
+      const entries=rows.filter(tr=>tr.cells.length>1&&!tr.querySelector('td[colspan]'));
+      if(!entries.length){cards.innerHTML='<div class="mhistory-empty">'+escapeText(txt(rows[0])||'Belum ada transaksi.')+'</div>';return;}
+      const oldOpen=new Set([...cards.querySelectorAll('details[open]')].map(d=>d.dataset.rkey));
+      const frag=document.createDocumentFragment();
+      entries.forEach((tr,index)=>{
+        const cells=[...tr.cells];const first=txt(cells[main[0]])||'-';
+        const side=main.slice(1).map(i=>txt(cells[i])).filter(Boolean).join(' • ');
+        const amount=secondary.map(i=>txt(cells[i])).find(t=>/Rp\s*[\d.]+/i.test(t))||txt(cells[secondary[0]])||'';
+        const status=secondary.map(i=>txt(cells[i])).find(t=>/^(lunas|aktif|batal|terkunci|belum|menunggu|sudah)/i.test(t))||'';
+        const key=tbodyId+'-'+index+'-'+first+'-'+side;
+        const details=document.createElement('details');details.className='mhistory-entry';details.dataset.rkey=key;
+        if(oldOpen.has(key))details.open=true;
+        const summary=document.createElement('summary');
+        summary.innerHTML='<div class="mhistory-main"><div class="mhistory-primary">'+escapeText(first)+'</div><div class="mhistory-secondary">'+escapeText(side)+'</div></div><div class="mhistory-right"><div class="mhistory-amount">'+escapeText(amount)+'</div>'+(status?'<div class="mhistory-status">'+escapeText(status)+'</div>':'')+'<div class="mhistory-chevron" aria-hidden="true">⌄</div></div>';
+        details.appendChild(summary);
+        const body=document.createElement('div');body.className='mhistory-detail';
+        cells.forEach((td,i)=>{
+          const label=heads[i]||('Kolom '+(i+1));
+          const line=document.createElement('div');line.className='mhistory-line';
+          const k=document.createElement('span');k.className='mhistory-key';k.textContent=label;
+          const v=document.createElement('div');v.className='mhistory-value';
+          // Keep the same controls as the original table, without modifying the source data.
+          v.innerHTML=td.innerHTML;
+          v.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+          line.append(k,v);body.appendChild(line);
+        });
+        details.appendChild(body);frag.appendChild(details);
+      });
+      cards.replaceChildren(frag);
+    }
+    function schedule(){if(queued)return;queued=true;setTimeout(render,0)}
+    new MutationObserver(schedule).observe(tb,{childList:true,subtree:true,characterData:true});
+    render();
+  }
+  function init(){configs.forEach(c=>install(...c));}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+
 </body></html>
