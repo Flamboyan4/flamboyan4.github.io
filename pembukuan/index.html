@@ -1624,6 +1624,26 @@ main > section.card{overflow:visible!important}
  .iuran-summary-tile.has-meta .iq-count-mobile svg{width:11px!important;height:11px!important;flex:none!important}
 }
 </style>
+
+<style id="v6268-desktop-fixed-sidebar">
+/* Sidebar is persistent only on PC. Phone/tablet retain the existing drawer. */
+@media screen and (min-width: 1024px) {
+  :root { --desktop-nav-width: 258px; }
+  body > #side-drawer { position:fixed!important; left:0!important;top:0!important;bottom:0!important;right:auto!important; width:var(--desktop-nav-width)!important; z-index:55!important; pointer-events:auto!important; }
+  body > #side-drawer .drawer-backdrop { display:none!important; }
+  body > #side-drawer .drawer-panel { position:relative!important; left:0!important;top:0!important;bottom:auto!important; width:100%!important;height:100vh!important;height:100dvh!important;transform:none!important;transition:none!important;box-shadow:none!important; border-right:1px solid #e9e4f6!important; }
+  body > #side-drawer .drawer-panel > div:first-child button { display:none!important; }
+  body > header { margin-left:var(--desktop-nav-width)!important; width:calc(100% - var(--desktop-nav-width))!important; }
+  body > header > div { max-width:1200px!important; }
+  body > header button[aria-label="Buka menu"] { display:none!important; }
+  body > main { margin-left:var(--desktop-nav-width)!important; margin-right:auto!important; width:calc(100% - var(--desktop-nav-width))!important; max-width:none!important; padding-left:24px!important; padding-right:24px!important; }
+  body > main > * { max-width:1200px; margin-left:auto; margin-right:auto; }
+}
+@media print {
+  body > #side-drawer { display:none!important; }
+  body > header, body > main { margin-left:0!important; width:auto!important; }
+}
+</style>
 </head>
 <body oncontextmenu="return false;">
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
@@ -2338,9 +2358,9 @@ main > section.card{overflow:visible!important}
 </div>
 
 <script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbweT9t7MhE-DiZWF1h5bhBT2myXbluVRSkBIhxnyA54BDleVi2iovZPaMwl9UJkkw6o/exec';
-const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbweT9t7MhE-DiZWF1h5bhBT2myXbluVRSkBIhxnyA54BDleVi2iovZPaMwl9UJkkw6o/exec';
-const DELETE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbweT9t7MhE-DiZWF1h5bhBT2myXbluVRSkBIhxnyA54BDleVi2iovZPaMwl9UJkkw6o/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwUHnaaS-bEqNhG0Pec4nN0qvt1v39ccnFS1HYpVNw6UoUdcKGQk5-kZ6z2-TjxZ5_R/exec';
+const BATCH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwUHnaaS-bEqNhG0Pec4nN0qvt1v39ccnFS1HYpVNw6UoUdcKGQk5-kZ6z2-TjxZ5_R/exec';
+const DELETE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwUHnaaS-bEqNhG0Pec4nN0qvt1v39ccnFS1HYpVNw6UoUdcKGQk5-kZ6z2-TjxZ5_R/exec';
 let DATA={config:{},rumah:[],warga:[],riwayat:[]};
 let RIWAYAT_SEMUA=false;
 let RIWAYAT_KAS=[];
