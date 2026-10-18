@@ -2475,8 +2475,20 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 
         const sisaSaldo = totalPemasukanAll - totalPengeluaranAll;
 
-        // Backend sudah mengirim terbaru lebih dulu; pertahankan urutan itu.
-        globalKeuanganData = rawData;
+        // Semua card, arsip dan rincian bulanan harus membaca satu daftar identik.
+        // Urutkan menurut TANGGAL TRANSAKSI (bukan posisi baris spreadsheet).
+        // Data migrasi bisa ditambahkan belakangan walau tanggalnya lebih lama;
+        // jika mengikuti urutan baris, transaksi seperti Konsumsi gorol
+        // tampak jauh di bawah pada Arsip Seluruh Transaksi.
+        // Sort stabil: transaksi bertanggal sama mempertahankan urutan dari backend.
+        globalKeuanganData = rawData.map((row, originalIndex) => ({row, originalIndex}))
+          .sort((a, b) => {
+            const da = parseRowDate(a.row.Tanggal);
+            const db = parseRowDate(b.row.Tanggal);
+            const ta = da ? new Date(da.year, da.month, da.day || 1).getTime() : 0;
+            const tb = db ? new Date(db.year, db.month, db.day || 1).getTime() : 0;
+            return tb - ta || a.originalIndex - b.originalIndex;
+          }).map(item => item.row);
         const top10Data = globalKeuanganData.slice(0, 10);
 
         let tbodyHTML = '';
