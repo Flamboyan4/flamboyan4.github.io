@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Pratinjau Portal Terpadu · Flamboyan 4</title>
+  <style>
+    :root{font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;color:#24402b;background:#f0f6ef}
+    *{box-sizing:border-box}body{margin:0}button,input{font:inherit}button{cursor:pointer}
+    .layout{min-height:100vh}.side{position:fixed;inset:0 auto 0 0;width:248px;background:#fff;border-right:1px solid #e2ece0;display:flex;flex-direction:column;z-index:20;box-shadow:5px 0 25px #30472e08}
+    .brand{padding:22px 18px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #edf1e9;text-decoration:none;color:inherit}
+    .brand img{width:44px;height:44px;border-radius:50%;object-fit:contain;background:#e7f1e4;padding:4px}.brand strong{display:block;line-height:1.2;font-size:17px}.brand small{color:#6b7d6d}
+    nav{padding:18px 12px;flex:1;overflow:auto}.group-label{font-size:11px;font-weight:800;letter-spacing:.13em;color:#91a191;margin:7px 12px 12px}
+    .nav-link{width:100%;display:flex;align-items:center;gap:12px;padding:12px 15px;text-align:left;border:0;background:transparent;border-radius:11px;color:#425749;font-weight:600;margin-bottom:4px}
+    .nav-link:hover{background:#f0f5ee}.nav-link.active{color:#235f30;background:#eaf4e8;box-shadow:inset 3px 0 #43834c}.nav-link svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+    .side-account{margin:10px;padding:12px 10px;border-top:1px solid #edf1e9;display:flex;gap:9px;align-items:center}.avatar{border:0;border-radius:50%;width:41px;height:41px;background:#d5e9d2;color:#2a682f;font-weight:900;flex-shrink:0}.account-text{min-width:0;flex:1}.account-text strong,.account-text small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.account-text small{color:#7b8c7c}.mini-btn{border:1px solid #dce9dc;background:#fff;border-radius:8px;color:#356f3d;padding:7px 9px}
+    main{margin-left:248px;padding:28px 34px 70px;min-height:100vh;max-width:1550px}.mobile-bar{display:none}.page-title{margin:8px 0 6px;font-size:29px;line-height:1.2;letter-spacing:-.025em}.subtitle{color:#69816e;margin:0 0 22px}.notice{border:1px solid #f1dfb6;background:#fffaeb;color:#805d27;padding:12px 15px;border-radius:12px;margin-bottom:18px}
+    .hero{background:#e0efdc;border-radius:20px;padding:24px 26px;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;margin-bottom:22px}.hero h2{margin:0 0 6px;font-size:24px}.hero p{margin:0;color:#527057}.hero-badge{background:#fff8dd;border-radius:14px;padding:12px 17px;color:#876224;font-weight:700}
+    .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 20px}.tab{border:1px solid #dbe7d9;background:white;color:#58715b;border-radius:9px;padding:9px 15px}.tab.active{background:#387b43;color:white;border-color:#387b43}
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.card{background:white;border:1px solid #e5ede3;border-radius:16px;padding:20px;box-shadow:0 8px 24px #264c2609;min-width:0}.card small{display:block;color:#6c836d}.metric{font-size:31px;color:#296a36;font-weight:800;margin-top:8px}.card h3{margin:0 0 8px}.card p{margin:0;color:#657c68}.status{margin:20px 0;color:#4b654f}.muted{color:#6a806b}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:510px}td,th{border-bottom:1px solid #e9efe8;text-align:left;padding:12px 9px;vertical-align:top}th{font-size:13px;color:#58725d}.action{border:0;background:#397c43;color:white;border-radius:9px;padding:11px 17px;font-weight:700}.action:disabled{opacity:.45}.empty{background:#f5f8f3;padding:22px;border-radius:12px;color:#6c806c}
+    .modal{position:fixed;inset:0;background:#152e1a90;display:none;align-items:center;justify-content:center;padding:17px;z-index:60}.modal.open{display:flex}.dialog{background:white;width:min(410px,100%);padding:27px;border-radius:20px;box-shadow:0 30px 80px #162d1b50}.dialog h2{margin:0 0 7px}.dialog label{display:block;margin:13px 0 5px;font-weight:700}.dialog input{display:block;width:100%;border:1px solid #bccfbd;border-radius:9px;padding:11px}.dialog-actions{display:flex;gap:10px;justify-content:end;margin-top:19px}.ghost{background:#eef5ed;border:0;border-radius:9px;padding:11px 14px}.error{color:#a8322b}.scrim{display:none}
+    [hidden]{display:none!important}
+    @media(max-width:980px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}main{padding:24px}}
+    @media(max-width:700px){.side{transform:translateX(-105%);transition:transform .2s;width:min(285px,86vw)}.side.open{transform:translateX(0)}.scrim.show{display:block;position:fixed;inset:0;background:#18321b88;z-index:15}.mobile-bar{display:flex;align-items:center;gap:11px;padding:12px 17px;background:white;border-bottom:1px solid #e4eee2;position:sticky;top:0;z-index:10}.hamburger{border:0;background:#e8f3e5;color:#32713d;border-radius:10px;width:40px;height:40px;font-size:23px}.mobile-bar strong{font-size:17px}main{margin-left:0;padding:20px 14px 50px}.page-title{font-size:25px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.card{padding:16px}.metric{font-size:25px}.hero{grid-template-columns:1fr;padding:19px}.hero-badge{justify-self:start}.tabs{overflow:auto;flex-wrap:nowrap}.tab{white-space:nowrap}}
+    @media(max-width:365px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="mobile-bar"><button class="hamburger" id="openMenu" aria-label="Buka menu">☰</button><strong>Flamboyan 4</strong></div>
+  <div class="scrim" id="scrim"></div>
+  <div class="layout">
+    <aside class="side" id="sidebar">
+      <a class="brand" href="/" title="Portal utama"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"><span><strong>Flamboyan 4</strong><small>Portal Terpadu Warga</small></span></a>
+      <nav aria-label="Navigasi utama"><div class="group-label">MENU UTAMA</div>
+        <button class="nav-link active" data-page="beranda"><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v9a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg>Beranda</button>
+        <button class="nav-link" data-page="sampah"><svg viewBox="0 0 24 24"><path d="M5 11c-1 7 4 11 9 9 6-3 6-11 6-16-6 0-12 0-15 7Z"/><path d="M8 17 18 7"/></svg>Bank Sampah</button>
+        <button class="nav-link" data-page="pembukuan" id="bookMenu"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Pembukuan <small id="lock" style="margin-left:auto">🔒</small></button>
+      </nav>
+      <div class="side-account"><button id="profileButton" class="avatar" title="Masuk atau profil saya">?</button><div class="account-text"><strong id="displayName">Pengunjung</strong><small id="displayRole">Belum login</small></div><button id="sessionButton" class="mini-btn">Masuk</button></div>
+    </aside>
+    <main id="main"><h1 class="page-title" id="title">Portal Warga Flamboyan 4</h1><p class="subtitle" id="subtitle">Informasi lingkungan, bank sampah, dan pembukuan dalam satu tempat.</p>
+      <div class="notice"><strong>Pratinjau staging.</strong> Halaman uji terpisah; website aktif dan transaksi keuangan belum dialihkan.</div>
+      <section class="hero" id="hero"><div><h2>Bersama merawat lingkungan</h2><p>Satu portal untuk kabar warga, perkembangan kegiatan, dan tabungan sampah.</p></div><div class="hero-badge">🌱 Flamboyan 4</div></section>
+      <div class="tabs" id="tabs" aria-label="Submenu"></div><div id="content" aria-live="polite"></div><p class="status" id="status"></p>
+    </main>
+  </div>
+  <div class="modal" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginTitle"><div class="dialog"><h2 id="loginTitle">Masuk ke Akun</h2><p class="muted">Gunakan akun Bank Sampah atau superadmin yang telah diaktifkan.</p><form id="loginForm"><label for="username">Username</label><input id="username" autocomplete="username" required><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required><p id="loginError" class="error" role="alert"></p><div class="dialog-actions"><button class="ghost" type="button" id="cancelLogin">Batal</button><button class="action" id="loginSubmit">Masuk</button></div></form></div></div>
+  <script>
+  (()=>{
+    'use strict';
+    const API='https://flamboyan4-api-staging.hjbenalu.workers.dev';
+    const $=id=>document.getElementById(id);
+    const money=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(n||0);
+    const safeText=(node,value)=>{node.textContent=String(value??'');return node};
+    // Staging tokens remain in memory only; do not expose them to site storage.
+    let token='',identity=null,page='beranda',tab='ringkasan';
+    const menu=$('sidebar'),scrim=$('scrim');
+    function closeMenu(){menu.classList.remove('open');scrim.classList.remove('show')}
+    $('openMenu').onclick=()=>{menu.classList.add('open');scrim.classList.add('show')};scrim.onclick=closeMenu;
+    function showLogin(){closeMenu();$('loginModal').classList.add('open');$('username').focus()}
+    function hideLogin(){$('loginModal').classList.remove('open');$('loginError').textContent='';$('password').value=''}
+    $('cancelLogin').onclick=hideLogin;
+    $('loginModal').onclick=e=>{if(e.target===$('loginModal'))hideLogin()};
+    window.addEventListener('keydown',e=>{if(e.key==='Escape'){hideLogin();closeMenu()}});
+    async function api(path,opts={}){
+      const headers={...(opts.headers||{})};if(token)headers.Authorization='Bearer '+token;
+      const response=await fetch(API+path,{...opts,headers,cache:'no-store'}),data=await response.json();
+      if(!response.ok)throw Error(data.error||'Permintaan tidak berhasil');return data;
+    }
+    function updateAccount(){const name=identity?.member?.nama||identity?.account?.username||'Pengunjung';safeText($('displayName'),name);safeText($('displayRole'),identity?.account?.role||'Belum login');safeText($('profileButton'),name.substring(0,1).toUpperCase());safeText($('sessionButton'),identity?'Keluar':'Masuk');$('lock').textContent=identity?.account?.role==='superadmin'?'':'🔒';}
+    async function restore(){if(!token){identity=null;updateAccount();return;}try{identity=await api('/api/member/me')}catch{token='';identity=null;}updateAccount();}
+    async function logout(){try{if(token)await api('/api/auth/logout',{method:'POST'})}catch{}token='';identity=null;updateAccount();render();}
+    $('sessionButton').onclick=()=>identity?logout():showLogin();$('profileButton').onclick=()=>identity?setPage('sampah','tabungan'):showLogin();
+    $('loginForm').onsubmit=async e=>{e.preventDefault();$('loginSubmit').disabled=true;safeText($('loginError'),'Memeriksa akun…');try{
+      const response=await fetch(API+'/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:$('username').value,password:$('password').value})}),data=await response.json();
+      if(!response.ok)throw Error(data.error||'Login gagal');token=data.token;identity=await api('/api/member/me');hideLogin();updateAccount();render();
+    }catch(err){safeText($('loginError'),err.message)}finally{$('loginSubmit').disabled=false;}};
+    document.querySelectorAll('[data-page]').forEach(btn=>btn.onclick=()=>setPage(btn.dataset.page));
+    function setPage(next,nextTab='ringkasan'){page=next;tab=nextTab;closeMenu();render()}
+    function setTabs(items){const area=$('tabs');area.replaceChildren();for(const [id,label] of items){const b=document.createElement('button');b.className='tab'+(tab===id?' active':'');b.textContent=label;b.onclick=()=>{tab=id;render()};area.append(b)}}
+    function node(tag,className,text){const n=document.createElement(tag);if(className)n.className=className;if(text!==undefined)n.textContent=String(text);return n}
+    function addCards(values){const grid=node('div','grid');for(const [label,value,hint]of values){const c=node('section','card');c.append(node('small','',label),node('div','metric',value),node('p','',hint||''));grid.append(c)}$('content').append(grid)}
+    function empty(message){$('content').append(node('div','empty',message))}
+    function table(headers,rows){const wrap=node('div','card table-wrap'),t=node('table'),head=node('thead'),hr=node('tr');for(const h of headers)hr.append(node('th','',h));head.append(hr);const body=node('tbody');for(const row of rows){const tr=node('tr');for(const c of row)tr.append(node('td','',c));body.append(tr)}t.append(head,body);wrap.append(t);$('content').append(wrap)}
+    async function render(){document.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===page));$('content').replaceChildren();$('status').textContent='';$('hero').hidden=page!=='beranda';
+      const titles={beranda:['Portal Warga Flamboyan 4','Informasi dan perkembangan lingkungan kita.'],sampah:['Bank Sampah Flamboyan 4','Tabungan warga dan pengelolaan sampah bersama.'],pembukuan:['Pembukuan Warga','Area khusus pengelola Humas.']};
+      safeText($('title'),titles[page][0]);safeText($('subtitle'),titles[page][1]);
+      if(page==='beranda')setTabs([['ringkasan','Ringkasan'],['kegiatan','Kegiatan']]);
+      else if(page==='sampah')setTabs([['ringkasan','Ringkasan'],['tabungan','Tabungan Saya'],['pengelola','Pengelola']]);
+      else setTabs([['ringkasan','Akses Pembukuan']]);
+      if(page==='pembukuan'&&identity?.account?.role!=='superadmin'){empty('Pembukuan hanya dapat dibuka oleh superadmin. Silakan masuk menggunakan akun yang berwenang.');return;}
+      try{
+        if(page==='beranda'){
+          const [overview,summary]=await Promise.all([api('/api/public/overview'),api('/api/public/summary')]);
+          if(tab==='ringkasan')addCards([['Anggota Bank Sampah',summary.anggotaAktif,'Anggota aktif'],['Dokumentasi',summary.albumPublik,'Album publik'],['Perkembangan',summary.perkembanganPublik,'Pembaruan kegiatan']]);
+          else addCards([['Agenda Warga',overview.agendaPublik,'Informasi kegiatan'],['Inventaris',overview.inventarisPublik,'Catatan publik'],['Proyek Aktif',overview.proyekAktif,'Kegiatan yang dikembangkan']]);
+        }else if(page==='sampah'&&tab==='ringkasan'){
+          const s=await api('/api/public/summary');addCards([['Anggota Aktif',s.anggotaAktif,'Bank Sampah'],['Album Kegiatan',s.albumPublik,'Dokumentasi publik'],['Progres',s.perkembanganPublik,'Lini masa publik']]);
+        }else if(page==='sampah'&&tab==='tabungan'){
+          if(!identity){empty('Masuk untuk melihat tabungan Anda.');return;}
+          if(identity.account.role!=='anggota'){empty('Tabungan Saya hanya tersedia bagi akun anggota. Admin memakai menu pengelola.');return;}
+          const s=await api('/api/member/savings');addCards([['Saldo Tersedia',money(s.saldoTersediaRp),'Sudah terkonfirmasi'],['Masih Estimasi',money(s.estimasiMenungguRp),'Menunggu penjualan dan rekonsiliasi'],['Jumlah Setoran',s.setoran.length,'Riwayat yang masih berlaku']]);
+          table(['Tanggal','Barang','Berat','Estimasi','Status'],s.setoran.map(d=>[d.tanggal,d.rincian.map(l=>l.barang).join(', '),(d.beratGram/1000).toLocaleString('id-ID')+' kg',money(d.estimasiRp),d.status]));
+        }else if(page==='sampah'&&tab==='pengelola'){
+          if(!identity||!['admin','superadmin'].includes(identity.account.role)){empty('Halaman pengelola hanya untuk admin atau superadmin.');return;}
+          const v=await api('/api/admin/status');addCards([['Akses Admin','Diizinkan',v.scope],['Status','Staging','Belum dapat mengubah transaksi']]);
+        }else if(page==='pembukuan'){
+          const v=await api('/api/bookkeeping/status');addCards([['Akses Pembukuan','Diizinkan',v.scope],['Status','Staging','Tampilan Pembukuan lama tetap dipertahankan saat migrasi']]);
+        }
+      }catch(err){empty(err.message);}
+    }
+    restore().then(render);
+  })();
+  </script>
+</body>
+</html>
