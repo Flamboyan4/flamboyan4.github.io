@@ -3,8 +3,8 @@
  * Login lintas portal dengan cookie SameSite=Lax HANYA didukung apabila website
  * dan API sama-sama memakai *.flamboyan4.web.id melalui HTTPS.
  */
-export const CONFIG = Object.freeze({
-  apiBase: 'https://flamboyan4-terpadu-staging.hjbenalu.workers.dev',
+// Gunakan domain API satu situs saat tampil di domain resmi; staging tetap memakai workers.dev.\n// Domain api.flamboyan4.web.id harus aktif SEBELUM branch ini dipublikasikan ke main.\nconst onFlamboyanDomain = typeof location !== 'undefined' &&\n  (location.hostname === 'flamboyan4.web.id' || location.hostname === 'www.flamboyan4.web.id');\nexport const CONFIG = Object.freeze({
+  apiBase: onFlamboyanDomain ? 'https://api.flamboyan4.web.id' : 'https://flamboyan4-terpadu-staging.hjbenalu.workers.dev',
   siteBase: '/', // custom domain flamboyan4.web.id. Untuk github.io/repo/: '/nama-repo/'
   name: 'Flamboyan 4',
   staging: true,
