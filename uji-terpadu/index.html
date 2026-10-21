@@ -50,6 +50,7 @@
     </main>
   </div>
   <div class="modal" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginTitle"><div class="dialog"><h2 id="loginTitle">Masuk ke Akun</h2><p class="muted">Gunakan akun Bank Sampah atau superadmin yang telah diaktifkan.</p><form id="loginForm"><label for="username">Username</label><input id="username" autocomplete="username" required><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required><p id="loginError" class="error" role="alert"></p><div class="dialog-actions"><button class="ghost" type="button" id="cancelLogin">Batal</button><button class="action" id="loginSubmit">Masuk</button></div></form></div></div>
+  <div class="modal" id="changeModal" role="dialog" aria-modal="true" aria-labelledby="changeTitle"><div class="dialog"><h2 id="changeTitle">Ganti Password Awal</h2><p class="muted">Sebelum menggunakan layanan pribadi, buat password baru minimal 12 karakter. Sesi akan berakhir setelah berhasil.</p><form id="changeForm"><label for="oldPass">Password saat ini</label><input id="oldPass" type="password" autocomplete="current-password" required><label for="newPass">Password baru (minimal 12 karakter)</label><input id="newPass" type="password" autocomplete="new-password" minlength="12" maxlength="128" required><label for="confirmPass">Ulangi password baru</label><input id="confirmPass" type="password" autocomplete="new-password" minlength="12" maxlength="128" required><p class="error" id="changeError" role="alert"></p><div class="dialog-actions"><button class="ghost" type="button" id="cancelChange">Keluar akun</button><button class="action" type="submit" id="changeSubmit">Simpan Password</button></div></form></div></div>
   <script>
   (()=>{
     'use strict';
@@ -58,10 +59,12 @@
     const money=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(n||0);
     const safeText=(node,value)=>{node.textContent=String(value??'');return node};
     // Staging tokens remain in memory only; do not expose them to site storage.
-    let token='',identity=null,page='beranda',tab='ringkasan';
+    let token='',identity=null,page='beranda',tab='ringkasan',changeRequired=false;
     const menu=$('sidebar'),scrim=$('scrim');
     function closeMenu(){menu.classList.remove('open');scrim.classList.remove('show')}
     $('openMenu').onclick=()=>{menu.classList.add('open');scrim.classList.add('show')};scrim.onclick=closeMenu;
+    function showChange(){closeMenu();$('changeModal').classList.add('open');$('oldPass').focus()}
+    function hideChange(){$('changeModal').classList.remove('open');for(const id of ['oldPass','newPass','confirmPass'])$(id).value='';$('changeError').textContent=''}
     function showLogin(){closeMenu();$('loginModal').classList.add('open');$('username').focus()}
     function hideLogin(){$('loginModal').classList.remove('open');$('loginError').textContent='';$('password').value=''}
     $('cancelLogin').onclick=hideLogin;
@@ -74,12 +77,18 @@
     }
     function updateAccount(){const name=identity?.member?.nama||identity?.account?.username||'Pengunjung';safeText($('displayName'),name);safeText($('displayRole'),identity?.account?.role||'Belum login');safeText($('profileButton'),name.substring(0,1).toUpperCase());safeText($('sessionButton'),identity?'Keluar':'Masuk');$('bookMenu').hidden=identity?.account?.role!=='superadmin';if($('bookMenu').hidden&&page==='pembukuan'){page='beranda';tab='ringkasan';}}
     async function restore(){if(!token){identity=null;updateAccount();return;}try{identity=await api('/api/member/me')}catch{token='';identity=null;}updateAccount();}
-    async function logout(){try{if(token)await api('/api/auth/logout',{method:'POST'})}catch{}token='';identity=null;updateAccount();render();}
-    $('sessionButton').onclick=()=>identity?logout():showLogin();$('profileButton').onclick=()=>identity?setPage('sampah','tabungan'):showLogin();
+    async function logout(){hideChange();changeRequired=false;try{if(token)await api('/api/auth/logout',{method:'POST'})}catch{}token='';identity=null;updateAccount();render();}
+    $('sessionButton').onclick=()=>changeRequired?logout():(identity?logout():showLogin());$('profileButton').onclick=()=>identity?setPage('sampah','tabungan'):showLogin();
     $('loginForm').onsubmit=async e=>{e.preventDefault();$('loginSubmit').disabled=true;safeText($('loginError'),'Memeriksa akun…');try{
       const response=await fetch(API+'/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:$('username').value,password:$('password').value})}),data=await response.json();
-      if(!response.ok)throw Error(data.error||'Login gagal');token=data.token;identity=await api('/api/member/me');hideLogin();updateAccount();render();
+      if(!response.ok)throw Error(data.error||'Login gagal');token=data.token;hideLogin();if(data.mustChangePassword){changeRequired=true;identity=null;updateAccount();showChange();return;}identity=await api('/api/member/me');updateAccount();render();
     }catch(err){safeText($('loginError'),err.message)}finally{$('loginSubmit').disabled=false;}};
+    $('cancelChange').onclick=logout;
+    $('changeForm').onsubmit=async e=>{e.preventDefault();$('changeSubmit').disabled=true;$('changeError').textContent='';try{
+      if($('newPass').value!==$('confirmPass').value)throw Error('Konfirmasi password belum sama.');
+      const value=await api('/api/auth/change-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({currentPassword:$('oldPass').value,newPassword:$('newPass').value})});
+      hideChange();token='';identity=null;changeRequired=false;updateAccount();render();showLogin();$('loginError').textContent=value.message||'Password berhasil diganti. Silakan login kembali.';
+    }catch(error){$('changeError').textContent=error.message}finally{$('changeSubmit').disabled=false}};
     document.querySelectorAll('[data-page]').forEach(btn=>btn.onclick=()=>setPage(btn.dataset.page));
     function setPage(next,nextTab='ringkasan'){if(next==='pembukuan'&&identity?.account?.role!=='superadmin')return;page=next;tab=nextTab;closeMenu();render()}
     function setTabs(items){const area=$('tabs');area.replaceChildren();for(const [id,label] of items){const b=document.createElement('button');b.className='tab'+(tab===id?' active':'');b.textContent=label;b.onclick=()=>{tab=id;render()};area.append(b)}}
