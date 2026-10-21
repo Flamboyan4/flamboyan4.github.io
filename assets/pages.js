@@ -62,14 +62,32 @@ async function accountPage(){
  $('worker-login').href=apiURL('/akun/');
  if(!sameSiteAuthAvailable()){$('auth-configuration').hidden=false;$('auth-login').hidden=true;boxStatus('Frontend berhasil disiapkan. Konfigurasi Custom Domain API diperlukan untuk login lintas portal.','info');return}
  async function refresh(){
+  let session;
+  try{session=await endpoints.session()}
+  catch(e){$('auth-login').hidden=false;$('auth-profile').hidden=true;return false}
+  $('auth-login').hidden=true;$('auth-profile').hidden=false;
+  put('profile-title',session.member?.nama||session.account?.username||'Akun aktif');
+  put('profile-role',`${session.account?.role||'anggota'} · ${session.member?.rumah||'Tidak tertaut rumah'}`);
+  let warning='';
   try{
-   const s=await endpoints.session();$('auth-login').hidden=true;$('auth-profile').hidden=false;
-   put('profile-title',s.member?.nama||s.account?.username||'Akun aktif');put('profile-role',`${s.account?.role||'anggota'} · ${s.member?.rumah||'Tidak tertaut rumah'}`);
-   const p=await endpoints.profile();$('profile-name').value=p.profile?.nama||'';const im=$('avatar-preview');im.style.display=p.profile?.hasPhoto?'block':'none';if(p.profile?.hasPhoto)im.src=apiURL('/api/member/avatar')+'?v='+Date.now();
-   if(s.member){const [sav,pay]=await Promise.all([endpoints.savings(),endpoints.payments()]);put('member-summary',`Saldo tabungan dikonfirmasi: ${fmtRp(sav.saldoTersediaRp)}. Estimasi menunggu: ${fmtRp(sav.estimasiMenungguRp)}.`);setRows('member-payments',['Tanggal','Berat','Estimasi','Status'],(sav.setoran||[]).map(x=>[date(x.tanggal),`${fmtNum(Number(x.beratGram)/1000)} kg`,fmtRp(x.estimasiRp),x.status]));if(!pay.linked)put('member-summary',`Saldo tabungan ${fmtRp(sav.saldoTersediaRp)}. Data pembayaran belum tertaut.`)}
-   else put('member-summary','Akun pengelola belum tertaut ke data tabungan warga.');
-   boxStatus('Login aktif untuk seluruh layanan pada domain Flamboyan 4.','success');return true
-  }catch(e){$('auth-login').hidden=false;$('auth-profile').hidden=true;return false}
+   const p=await endpoints.profile();
+   $('profile-name').value=p.profile?.nama||'';
+   const im=$('avatar-preview');im.style.display=p.profile?.hasPhoto?'block':'none';
+   if(p.profile?.hasPhoto)im.src=apiURL('/api/member/avatar')+'?v='+Date.now();
+  }catch(e){warning='Profil belum dapat dimuat: '+(e?.message||'API error')}
+  if(session.member){
+   try{
+    const [sav,pay]=await Promise.all([endpoints.savings(),endpoints.payments()]);
+    put('member-summary',`Saldo tabungan dikonfirmasi: ${fmtRp(sav.saldoTersediaRp)}. Estimasi menunggu: ${fmtRp(sav.estimasiMenungguRp)}.`);
+    setRows('member-payments',['Tanggal','Berat','Estimasi','Status'],(sav.setoran||[]).map(x=>[date(x.tanggal),`${fmtNum(Number(x.beratGram)/1000)} kg`,fmtRp(x.estimasiRp),x.status]));
+    if(!pay.linked)put('member-summary',`Saldo tabungan ${fmtRp(sav.saldoTersediaRp)}. Data pembayaran belum tertaut.`);
+   }catch(e){
+    put('member-summary','Sesi login aktif. Data tabungan belum bisa dimuat.');
+    warning=warning?warning+'; tabungan gagal dimuat':'Tabungan belum bisa dimuat: '+(e?.message||'API error');
+   }
+  }else put('member-summary','Akun pengelola belum tertaut ke data tabungan warga.');
+  boxStatus(warning?'Login aktif, tetapi '+warning:'Login aktif untuk seluruh layanan pada domain Flamboyan 4.',warning?'info':'success');
+  return true;
  }
  $('login-form').addEventListener('submit',async(ev)=>{ev.preventDefault();const button=$('login-submit');button.disabled=true;try{await endpoints.login($('login-username').value,$('login-password').value);$('login-password').value='';const active=await refresh();if(!active)throw Error('Login diterima, tetapi sesi belum terbaca. Periksa cookie dan domain API.');await updateHeader()}catch(e){failure(e)}finally{button.disabled=false}});
  $('logout-btn').onclick=async()=>{try{await endpoints.logout();$('auth-profile').hidden=true;$('auth-login').hidden=false;await updateHeader();boxStatus('Kamu sudah keluar.','success')}catch(e){failure(e)}};
