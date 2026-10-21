@@ -3,7 +3,11 @@
  * Domain API harus sudah aktif di Cloudflare sebelum publikasi frontend ini.
  * Jangan pernah menaruh kata sandi, token API, atau rahasia di GitHub Pages.
  */
-// Gunakan domain API satu situs saat tampil di domain resmi; staging tetap memakai workers.dev.\n// Domain api.flamboyan4.web.id harus aktif SEBELUM branch ini dipublikasikan ke main.\nconst onFlamboyanDomain = typeof location !== 'undefined' &&\n  (location.hostname === 'flamboyan4.web.id' || location.hostname === 'www.flamboyan4.web.id');\nexport const CONFIG = Object.freeze({
+// Gunakan domain API satu situs saat tampil di domain resmi; staging tetap memakai workers.dev.
+// Domain api.flamboyan4.web.id harus aktif SEBELUM branch ini dipublikasikan ke main.
+const onFlamboyanDomain = typeof location !== 'undefined' &&
+  (location.hostname === 'flamboyan4.web.id' || location.hostname === 'www.flamboyan4.web.id');
+export const CONFIG = Object.freeze({
   apiBase: onFlamboyanDomain ? 'https://api.flamboyan4.web.id' : 'https://flamboyan4-terpadu-staging.hjbenalu.workers.dev',
   siteBase: '/', // custom domain flamboyan4.web.id. Untuk github.io/repo/: '/nama-repo/'
   name: 'Flamboyan 4',
