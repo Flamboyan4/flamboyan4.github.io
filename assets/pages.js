@@ -38,7 +38,7 @@ async function bank(){
  if(!sameSiteAuthAvailable()){$('admin-hint').textContent=requireAuthMessage();return}
  try{
   const s=await endpoints.session();if(!['admin','superadmin'].includes(s.account?.role)){$('admin-hint').textContent='Data admin hanya tersedia untuk pengelola.';return}
-  $('bank-admin').hidden=false;$('admin-hint').textContent='Data administrasi dalam mode baca-saja. Tombol transaksi tetap dinonaktifkan di staging.';
+  $('bank-admin-section').hidden=false;$('bank-admin').hidden=false;$('admin-hint').textContent='Data administrasi dalam mode baca-saja. Tombol transaksi tetap dinonaktifkan di staging.';
   const configs={deposits:[['Tanggal','Warga','Berat','Status','Estimasi'],(x)=>[date(x.deposited_on),x.memberName,`${fmtNum(Number(x.total_grams)/1000)} kg`,x.status,fmtRp(x.estimated_total_rp)]],sales:[['Tanggal','Pembeli','Diterima','Status'],x=>[date(x.sold_on),x.buyer_name||'—',fmtRp(x.amount_received_rp),x.status]],savings:[['Warga','Blok','Saldo'],x=>[x.memberName,x.houseCode||'—',fmtRp(x.balanceRp)]]};
   async function loadAdmin(key){try{const out=await endpoints.bankAdmin(key),[heads,convert]=configs[key];setRows('admin-table',heads,(out.data||[]).map(convert));boxStatus('Data admin '+key+' berhasil dimuat.','success')}catch(e){failure(e)}}
   $('btn-deposits').onclick=()=>loadAdmin('deposits');$('btn-sales').onclick=()=>loadAdmin('sales');$('btn-savings').onclick=()=>loadAdmin('savings');
@@ -47,8 +47,24 @@ async function bank(){
 
 async function book(){
  if(!sameSiteAuthAvailable()){$('book-locked').hidden=false;put('book-locked-text',requireAuthMessage());boxStatus('Ringkasan keuangan tidak dibuka karena login lintas domain belum aktif.','info');return}
- try{const r=await endpoints.session();if(r.account?.role!=='superadmin')throw Error('Hanya superadmin yang dapat mengakses Pembukuan.');$('book-content').hidden=false;boxStatus('Akses superadmin terverifikasi oleh Worker D1.','success')}
- catch(e){$('book-locked').hidden=false;put('book-locked-text',e.message||'Login superadmin diperlukan.');boxStatus('Akses laporan keuangan dibatasi.','info');return}
+ let session;
+ try{session=await endpoints.session()}
+ catch(e){
+   $('book-locked').hidden=false;
+   put('book-locked-text','Silakan masuk menggunakan akun superadmin untuk membuka Pembukuan.');
+   boxStatus('Akses Pembukuan membutuhkan login superadmin.','info');
+   return;
+ }
+ if(session.account?.role!=='superadmin'){
+   $('book-locked').hidden=false;
+   put('book-locked-text','Akun ini tidak memiliki izin Pembukuan. Menu tersebut hanya tersedia untuk superadmin.');
+   const action=$('book-login-action');
+   if(action){action.textContent='Kembali ke Portal Utama →';action.href=url('')}
+   boxStatus('Akses dibatasi berdasarkan peran akun.','info');
+   return;
+ }
+ $('book-content').hidden=false;
+ boxStatus('Akses superadmin terverifikasi oleh Worker D1.','success');
  async function loadOverview(month=''){
   const v=await endpoints.bookkeepingOverview(month);put('book-debit',fmtRp(v.cash?.debitRp));put('book-credit',fmtRp(v.cash?.creditRp));put('book-payments',fmtRp(v.payments?.totalRp));put('book-fines',fmtRp(Math.max(0,Number(v.fines?.chargedRp||0)-Number(v.fines?.paidRp||0))));
   put('book-loans',`${fmtNum(v.loans?.count||0)} pinjaman · Total ${fmtRp(v.loans?.loanRp)}`);put('book-advances',`${fmtNum(v.advances?.count||0)} talangan · Total ${fmtRp(v.advances?.advanceRp)} · Dikembalikan ${fmtRp(v.advances?.reimbursedRp)}`);
