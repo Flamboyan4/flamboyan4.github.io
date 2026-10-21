@@ -39,9 +39,68 @@ async function bank(){
  try{
   const s=await endpoints.session();if(!['admin','superadmin'].includes(s.account?.role)){$('admin-hint').textContent='Data admin hanya tersedia untuk pengelola.';return}
   $('bank-admin-section').hidden=false;$('bank-admin').hidden=false;$('admin-hint').textContent='Data administrasi dalam mode baca-saja. Tombol transaksi tetap dinonaktifkan di staging.';
-  const configs={deposits:[['Tanggal','Warga','Berat','Status','Estimasi'],(x)=>[date(x.deposited_on),x.memberName,`${fmtNum(Number(x.total_grams)/1000)} kg`,x.status,fmtRp(x.estimated_total_rp)]],sales:[['Tanggal','Pembeli','Diterima','Status'],x=>[date(x.sold_on),x.buyer_name||'—',fmtRp(x.amount_received_rp),x.status]],savings:[['Warga','Blok','Saldo'],x=>[x.memberName,x.houseCode||'—',fmtRp(x.balanceRp)]]};
-  async function loadAdmin(key){try{const out=await endpoints.bankAdmin(key),[heads,convert]=configs[key];setRows('admin-table',heads,(out.data||[]).map(convert));boxStatus('Data admin '+key+' berhasil dimuat.','success')}catch(e){failure(e)}}
-  $('btn-deposits').onclick=()=>loadAdmin('deposits');$('btn-sales').onclick=()=>loadAdmin('sales');$('btn-savings').onclick=()=>loadAdmin('savings');
+  const views={
+   deposits:{label:'Setoran',heads:['Tanggal','Warga','Batch','Berat','Estimasi','Status'],
+    row:x=>[date(x.deposited_on),x.memberName||'—',x.batch_id||'—',fmtNum(Number(x.total_grams)/1000)+' kg',fmtRp(x.estimated_total_rp),x.status||'—'],detail:'deposit-detail'},
+   sales:{label:'Penjualan',heads:['Tanggal','Pembeli','Batch','Diterima','Status'],
+    row:x=>[date(x.sold_on),x.buyer_name||'—',x.batch_id||'—',fmtRp(x.amount_received_rp),x.status||'—'],detail:'sale-detail'},
+   batches:{label:'Batch',heads:['ID','Nama batch','Status','Setoran','Berat','Estimasi'],
+    row:x=>[x.id,x.label||'—',x.status||'—',fmtNum(x.deposits),fmtNum(Number(x.grams)/1000)+' kg',fmtRp(x.estimatedRp)]},
+   savings:{label:'Tabungan warga',heads:['Warga','Blok/Rumah','Saldo'],
+    row:x=>[x.memberName||'—',x.houseCode||'—',fmtRp(x.balanceRp)]},
+   cash:{label:'Kas',heads:['Tanggal','Jenis','Pos','Masuk','Keluar','Status'],
+    row:x=>[date(x.occurred_on),x.transaction_type||'—',x.fund_position||'—',fmtRp(x.cash_in_rp),fmtRp(x.cash_out_rp),x.status||'—']},
+   expenses:{label:'Pengeluaran',heads:['Tanggal','Jenis','Keterangan','Nominal','Status'],
+    row:x=>[date(x.incurred_on),x.kind||'—',x.description||x.budget_post||'—',fmtRp(x.amount_rp),x.status||'—']},
+   catalog:{label:'Katalog & tarif',heads:['Nama','Kategori','Satuan','Tarif / kg','Aktif'],
+    row:x=>[x.name,x.category||'—',x.unit||'—',x.priceRpPerKg==null?'Belum ditetapkan':fmtRp(x.priceRpPerKg),Number(x.active)===1?'Ya':'Tidak']},
+   members:{label:'Daftar warga',heads:['Nama','Rumah','Status'],row:x=>[x.nama||'—',x.rumah||'—',x.status||'—']},
+   albums:{label:'Album',heads:['Tanggal','Judul','Kategori','Akses','Status'],
+    row:x=>[date(x.event_on),x.title||'—',x.category||'—',x.visibility||'—',x.status||'—']},
+   progress:{label:'Perkembangan',heads:['Tanggal','Judul','Tahap','Status','Publik'],
+    row:x=>[date(x.happened_on),x.title||'—',x.stage||'—',x.status||'—',Number(x.public_visible)===1?'Ya':'Tidak']},
+   inventory:{label:'Inventaris',heads:['Barang','Jumlah','Lokasi','Kondisi','Aktif'],
+    row:x=>[x.name,fmtNum(x.quantity)+' '+(x.unit||''),x.location||'—',x.condition||'—',Number(x.active)===1?'Ya':'Tidak']}
+  };
+  const nav=$('bank-admin-nav'),details=$('bank-detail');
+  async function loadAdmin(key){
+   const view=views[key];if(!view)return;
+   nav.querySelectorAll('button').forEach(b=>{const active=b.dataset.kind===key;b.className='btn'+(active?'':' outline');b.setAttribute('aria-pressed',active?'true':'false')});
+   details.hidden=true;
+   const caption=$('bank-admin-caption');caption.textContent='Memuat '+view.label+' dari Cloudflare D1…';
+   try{
+    const result=await endpoints.bankAdmin(key);
+    const rows=result.data||[];
+    setRows('admin-table',view.heads.concat(view.detail?['Rincian']:[]),rows.map(view.row));
+    if(view.detail&&rows.length){
+     const tbody=$('admin-table').querySelector('tbody');
+     rows.forEach((x,i)=>{
+      const tr=tbody?.rows?.[i];if(!tr)return;
+      const td=elem('td'),btn=elem('button','Rincian','btn outline');btn.type='button';
+      btn.setAttribute('aria-label','Lihat rincian '+(x.memberName||x.buyer_name||x.id));
+      btn.onclick=async()=>{
+       btn.disabled=true;details.hidden=false;
+       const panel=$('bank-detail-table');panel.replaceChildren(elem('p','Memuat rincian…','muted'));
+       try{
+        const d=await api('/api/v2/admin/bank/'+view.detail+'?id='+encodeURIComponent(x.id));
+        const lines=d.lines||[];
+        const lineHeads=key==='deposits'?['Jenis sampah','Berat','Tarif / kg','Estimasi']:['Jenis sampah','Berat','Tarif / kg','Total'];
+        setRows('bank-detail-table',lineHeads,lines.map(l=>[l.name||'—',fmtNum(Number(l.grams)/1000)+' kg',fmtRp(l.priceRpPerKg),fmtRp(key==='deposits'?l.estimated_rp:l.total_rp)]));
+        details.scrollIntoView({block:'nearest',behavior:'smooth'});
+       }catch(e){panel.textContent='Rincian gagal dimuat: '+(e.message||'Error')}finally{btn.disabled=false}
+      };
+      td.append(btn);tr.append(td);
+     });
+    }
+    caption.textContent=view.label+' · '+rows.length+' data (maksimum '+String(result.limit||300)+') · baca saja';
+   }catch(e){caption.textContent='Gagal memuat '+view.label+': '+(e.message||'Error');$('admin-table').replaceChildren();}
+  }
+  Object.entries(views).forEach(([key,view])=>{
+   const button=elem('button',view.label,'btn outline');button.type='button';
+   button.dataset.kind=key;button.setAttribute('aria-pressed','false');button.onclick=()=>loadAdmin(key);
+   nav.append(button);
+  });
+  await loadAdmin('deposits');
  }catch(e){if(e.status!==401)failure(e)}
 }
 
@@ -71,6 +130,40 @@ async function book(){
  }
  const form=$('book-period-form');
  form.addEventListener('submit',async(ev)=>{ev.preventDefault();try{await loadOverview($('book-month').value);boxStatus('Ringkasan pembukuan diperbarui.','success')}catch(e){failure(e)}});
+ const ledgerViews={
+  iuran:{label:'Iuran',path:'/api/bookkeeping/iuran/history?limit=200',
+   heads:['Tanggal','Warga','Periode','Diterima','Metode','Status'],
+   row:x=>[date(x.tanggal),x.nama||'—',(x.periode||[]).join(', ')||'—',fmtRp(x.totalDiterima),x.metode||'—',x.status||'—']},
+  denda:{label:'Denda',path:'/api/bookkeeping/denda?limit=200',
+   heads:['Tanggal','Warga','Jenis','Tagihan','Dibayar','Sisa','Status'],
+   row:x=>[date(x.tanggal),x.nama||'—',x.jenis||'—',fmtRp(x.nominalRp),fmtRp(x.terbayarRp),fmtRp(x.sisaRp),x.status||'—']},
+  pinjaman:{label:'Pinjaman',path:'/api/bookkeeping/pinjaman?limit=200',
+   heads:['Tanggal','Warga','Pokok','Angsuran','Sisa','Status'],
+   row:x=>[date(x.tanggal),x.nama||'—',fmtRp(x.pokokRp),fmtRp(x.angsuranAktifRp),fmtRp(x.sisaRp),x.status||'—']},
+  talangan:{label:'Talangan',path:'/api/bookkeeping/talangan?limit=200',
+   heads:['ID','Pokok','Ringkasan kembali','Angsuran tercatat','Sisa','Status'],
+   row:x=>[x.id,fmtRp(x.pokokRp),fmtRp(x.pelunasanRingkasanRp),fmtRp(x.angsuranTercatatRp),fmtRp(x.sisaMenurutRingkasanRp),x.status||'—']},
+  kas:{label:'Kas',path:'/api/bookkeeping/cash?limit=300',
+   heads:['Tanggal','Jenis','Kategori','Debit','Kredit','Status'],
+   row:x=>[date(x.occurred_on),x.transaction_type||'—',x.category||'—',fmtRp(x.debit_rp),fmtRp(x.credit_rp),x.status||'—']}
+ };
+ const ledgerNav=$('book-ledger-nav'),ledgerCaption=$('book-ledger-caption');
+ async function loadLedger(key){
+  const view=ledgerViews[key];if(!view)return;
+  ledgerNav.querySelectorAll('button').forEach(b=>{const active=b.dataset.kind===key;b.className='btn'+(active?'':' outline');b.setAttribute('aria-pressed',active?'true':'false')});
+  ledgerCaption.textContent='Memuat '+view.label+' dari D1…';
+  try{
+   const result=await api(view.path);const rows=result.data||result.transaksi||[];
+   setRows('book-ledger-table',view.heads,rows.map(view.row));
+   ledgerCaption.textContent=view.label+' · '+rows.length+' data · hanya baca. Tidak otomatis menjadi saldo akhir.';
+  }catch(e){ledgerCaption.textContent='Gagal memuat '+view.label+': '+(e.message||'Error');$('book-ledger-table').replaceChildren()}
+ }
+ Object.entries(ledgerViews).forEach(([key,view])=>{
+  const button=elem('button',view.label,'btn outline');button.type='button';
+  button.dataset.kind=key;button.setAttribute('aria-pressed','false');button.onclick=()=>loadLedger(key);
+  ledgerNav.append(button);
+ });
+ await loadLedger('iuran');
  try{await loadOverview();const c=await endpoints.bookkeepingCash();setRows('book-cash',['Tanggal','Jenis','Kategori','Debit','Kredit','Status'],(c.transaksi||[]).map(t=>[date(t.occurred_on),t.transaction_type||'—',t.category||'—',fmtRp(t.debit_rp),fmtRp(t.credit_rp),t.status||'—']));}catch(e){failure(e)}
 }
 

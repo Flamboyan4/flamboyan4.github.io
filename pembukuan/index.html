@@ -5,5 +5,10 @@
 <div id="book-content" class="page-stack" hidden><section class="panel"><div class="panel-head"><h2>Ringkasan transaksi</h2><form id="book-period-form" class="panel-actions"><input id="book-month" type="month" aria-label="Bulan pembukuan"><button class="btn" type="submit">Tampilkan</button></form></div><p class="info-note">Ini ringkasan operasional dari API. BUKAN saldo akhir atau laporan tutup buku. Transaksi tulis tetap dikunci sampai seluruh fitur lengkap diuji.</p></section>
 <section class="stats"><div class="stat"><small>Debit kas</small><strong id="book-debit">—</strong><em>transaksi aktif</em></div><div class="stat"><small>Kredit kas</small><strong id="book-credit">—</strong><em>transaksi aktif</em></div><div class="stat"><small>Pembayaran tercatat</small><strong id="book-payments">—</strong><em>nilai aktif</em></div><div class="stat"><small>Denda belum dibayar</small><strong id="book-fines">—</strong><em>selisih tagihan & bayar</em></div></section>
 <div class="split"><section class="panel"><div class="panel-head"><h2>Pinjaman warga</h2></div><p id="book-loans">—</p></section><section class="panel"><div class="panel-head"><h2>Talangan</h2></div><p id="book-advances">—</p></section></div>
-<section class="panel"><div class="panel-head"><h2>Catatan Kas</h2></div><div id="book-cash" class="data-wrap"></div></section></div></main>
+<section class="panel"><div class="panel-head"><h2>Catatan Kas</h2></div><div id="book-cash" class="data-wrap"></div></section>
+<section class="panel"><div class="panel-head"><h2>Riwayat dan rincian keuangan</h2><span class="chip">Baca saja · Cloudflare D1</span></div>
+<p class="muted small">Daftar ini menampilkan data historis. Tidak melakukan pembayaran, rekonsiliasi, atau perubahan jurnal.</p>
+<div class="panel-actions" id="book-ledger-nav" role="group" aria-label="Pilih riwayat keuangan"></div>
+<p id="book-ledger-caption" class="muted small" role="status"></p>
+<div class="data-wrap" id="book-ledger-table"></div></section></div></main>
 <footer class="footer">Pembukuan Flamboyan 4 · Khusus superadmin · Ringkasan API staging</footer><script type="module" src="../assets/pages.js"></script></body></html>
