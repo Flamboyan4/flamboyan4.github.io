@@ -10,9 +10,8 @@
   }
   window.__f4DemoNotify=(s)=>{try{window.parent.postMessage({type:'f4:notice',message:String(s)},location.origin)}catch{}};
   document.addEventListener('DOMContentLoaded',()=>{
-    const flag=document.createElement('div');flag.setAttribute('role','note');flag.textContent='MODE PRATINJAU STRUKTUR — data contoh, tidak ada penyimpanan';
-    flag.style.cssText='position:sticky;top:0;z-index:99999;background:#ffedb3;color:#604300;padding:7px 12px;text-align:center;font:700 12px system-ui;border-bottom:1px solid #deb250';
-    document.body.prepend(flag);
+    // Tidak membuat bar kuning tambahan: identitas demo tersedia pada dialog Login.
+
     document.querySelectorAll('a[href]').forEach(a=>{
        const href=a.getAttribute('href')||'';
        if(href.startsWith('/'))a.addEventListener('click',e=>{
