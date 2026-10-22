@@ -255,6 +255,17 @@ body.bank-mode .top nav button:focus-visible,body.bank-mode .login-button:focus-
 </style><style id="f4-bank-modal-layer-fix">
 /* Modals from the original Bank Sampah iframe must not sit under shared mini bar. */
 body.bank-mode .shell.modal-covered{opacity:0!important;pointer-events:none!important}
+</style><style id="f4-original-modal-priority">
+/* Original in-page dialogs must occupy the entire viewport, not sit below shell navigation. */
+body.iframe-modal-open .shell,body.iframe-modal-open .portal-sidebar,
+body.iframe-modal-open #f4-scroll-top{visibility:hidden!important;pointer-events:none!important}
+body.iframe-modal-open .framebox{
+ position:fixed!important;inset:0!important;top:0!important;left:0!important;
+ width:100vw!important;height:100dvh!important;margin:0!important;
+ z-index:150!important;overflow:hidden!important
+}
+body.iframe-modal-open .framebox iframe{height:100dvh!important;width:100vw!important}
+body.iframe-modal-open .framebox #gate{display:none!important}
 </style></head>
 <body>
 <header class="shell">
@@ -381,6 +392,31 @@ body.bank-mode .shell.modal-covered{opacity:0!important;pointer-events:none!impo
    toolbar.classList.toggle('is-scrolled',depth>12);
    scrollButton.hidden=!(permitted()&&['bank-sampah','pembukuan','dokumentasi','inventaris'].includes(selected)&&depth>250);
  }
+ let modalWatcher=null;
+ function observeOriginalDialogs(){
+   modalWatcher?.disconnect();modalWatcher=null;
+   document.body.classList.remove('iframe-modal-open');
+   if(!['portal','rapat','bank-sampah','dokumentasi','inventaris'].includes(selected))return;
+   try{
+     const doc=frame.contentWindow.document;
+     const check=()=>{
+       // Only intercept genuinely visible legacy dialogs, never ordinary cards/panels.
+       const nodes=doc.querySelectorAll('[id^="modal-"],[id$="-modal"],.f4-lightbox,.f4-album-overlay,[role="dialog"]');
+       let open=false;
+       for(const el of nodes){
+         if(el.classList.contains('hidden')||el.hidden||el.getAttribute('aria-hidden')==='true')continue;
+         const cs=doc.defaultView.getComputedStyle(el);
+         if(cs.display==='none'||cs.visibility==='hidden'||cs.opacity==='0')continue;
+         if(el.getBoundingClientRect().width<180||el.getBoundingClientRect().height<100)continue;
+         if(cs.position==='fixed'||cs.position==='absolute'&&el.closest('[id^="modal-"]')){open=true;break}
+       }
+       document.body.classList.toggle('iframe-modal-open',open);
+     };
+     modalWatcher=new MutationObserver(check);
+     modalWatcher.observe(doc.body,{attributes:true,subtree:true,childList:true,attributeFilter:['class','style','hidden','aria-hidden']});
+     check();
+   }catch{}
+ }
  function attachScrollListener(){
    try{
      const child=frame.contentWindow;
@@ -404,6 +440,7 @@ body.bank-mode .shell.modal-covered{opacity:0!important;pointer-events:none!impo
  }
  function update(target){
   selected=target;
+  modalWatcher?.disconnect();modalWatcher=null;document.body.classList.remove('iframe-modal-open');
   document.body.classList.toggle('portal-mode',['portal','rapat','dokumentasi','inventaris'].includes(target));
   document.body.classList.toggle('bank-mode',target==='bank-sampah');
   document.body.classList.toggle('book-mode',target==='pembukuan');
@@ -464,7 +501,7 @@ body.bank-mode .shell.modal-covered{opacity:0!important;pointer-events:none!impo
   if(selected!=='portal'){update('portal');setTimeout(go,350)}else go();
  }));
  buttons.forEach(b=>b.addEventListener('click',()=>update(b.dataset.target)));
- frame.addEventListener('load',()=>{sendRole();attachScrollListener()});
+ frame.addEventListener('load',()=>{sendRole();attachScrollListener();observeOriginalDialogs()});
  window.addEventListener('message',e=>{
   if(e.origin!==location.origin||!e.data)return;
   if(e.data.type==='f4:ready')sendRole();
