@@ -3,6 +3,7 @@ import {initPortalExtras,renderMeetingArchive,legacyBanners,legacyInventory,lega
 import {renderProjectCards} from './project-cards.js';
 import {initPortalFinance} from './portal-finance.js';
 import {showTariffs,showPayers,showOutstanding,showIuranAudit,showYearPreflight,showDendaReadiness} from './bookkeeping-readonly.js';
+import {showCashPeriodReport} from './finance-period-report.js';
 import {renderPortalCalendar,renderPortalInventory,renderBankProgress,renderBankAlbumPreviews} from './portal-widgets.js';
 import {api,endpoints} from './api.js';
 import {$,fmtRp,fmtNum,elem,put,boxStatus,setRows,setCards,initShell,url,renderAlbum,requireAuthMessage,updateHeader,setModuleView} from './ui.js';
@@ -378,7 +379,7 @@ async function book(){
   ['Import Bulk','Impor massal masih nonaktif sampai mapping dan pemeriksaan duplikasi diuji.']
  ]);
  renderReadOnlyTabs('book-report-tabs','book-report-content',[
-  ['Kas Warga','Laporan kas asli menghitung saldo sebelumnya, saldo periode, saldo akhir, dan rincian transaksi. Perhitungan saldo akhir/arsip belum diintegrasikan; angka ringkasan API bukan penggantinya.'],
+  ['Kas Warga','Mutasi kas per bulan diambil dari D1. Debit, kredit dan selisih periode tidak dianggap saldo akhir.',showCashPeriodReport],
   ['Setoran RT','Laporan setoran RT dari aplikasi Pembukuan lama belum dipindahkan.'],
   ['Arisan','Laporan arisan belum dipindahkan.'],
   ['Denda','Laporan denda lengkap dan cetaknya belum dipindahkan.'],
