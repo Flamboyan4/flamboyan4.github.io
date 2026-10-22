@@ -109,6 +109,26 @@
   return {saldo:number(r.saldoTersediaRp),totalMasuk:number(r.totalMasukRp),totalCair:number(r.totalCairRp),
    mutasi:records,setoran:records};
  }
+ async function publicChart(){
+  const r=await publicData();
+  const last=Array.isArray(r.monthlyWeights)?r.monthlyWeights.slice(-6):[];
+  return {bulan:last.map(x=>({bulan:x.month,beratKg:number(x.beratKg)})),
+   catatan:'Berat setoran terkonfirmasi menurut bulan pada D1'};
+ }
+ async function publicAlbumDetail(id){
+  const r=await get('/api/v2/public/bank/album/'+encodeURIComponent(id));
+  const media=onlyArray(r.media).map(x=>{
+    const url=x.mediaUrl?(x.mediaUrl.startsWith('/')?API+x.mediaUrl:x.mediaUrl):(x.external_url||'');
+    const jenis=x.media_type==='video'?'Video':'Foto';
+    return {id:x.id,nama:x.caption||'',jenis,url,thumb:jenis==='Foto'?url:''};
+  });
+  return {id,judul:r.album?.title||'',tanggal:r.album?.event_on||'',
+    deskripsi:r.album?.description||'',media,catatan:media.length?'':'Album belum memiliki media aktif.'};
+ }
+ async function accessStatement(){
+  await get('/api/member/savings');
+  return {siap:true,pesan:'Laporan pribadi tersedia dari Cloudflare D1'};
+ }
  const adminRows=async name=>onlyArray(await get('/api/v2/admin/bank/'+name));
  const adminDeposits=async()=> (await adminRows('deposits')).map(x=>({
   id:x.id,wargaId:x.member_id,namaWarga:x.memberName||'',rumahWarga:'',tanggal:x.deposited_on,
@@ -210,6 +230,10 @@
  };
  const read={
   authAdminAccounts:adminMembers,
+  bsV12AksesLaporan:accessStatement,
+  bsV17GrafikPublik:publicChart,
+  bsV22AlbumIndexPublik:albumList,
+  bsV21IsiAlbumPublik:publicAlbumDetail,
   bsDashboardProgressPublik:adminProgress,
   bsV10PengeluaranAdmin:adminExpenses,
   bsV9SaldoAdmin:adminSavings,
