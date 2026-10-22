@@ -735,6 +735,8 @@ body.iframe-modal-open .framebox #gate{display:none!important}
 .f4-warga-tools{display:flex;gap:8px;margin:9px 0}.f4-warga-tools input{flex:1;min-width:0;padding:9px;border:1px solid #cbd8cf;border-radius:9px}
 #f4-warga-list{display:grid;gap:7px;max-height:58dvh;overflow:auto}#f4-warga-list article{padding:10px;border:1px solid #e5ece7;border-radius:9px;display:flex;justify-content:space-between;gap:10px;align-items:center;font:500 13px system-ui}
 #f4-warga-list small{display:block;color:#60776a;margin-top:4px}
+#f4-warga-panel .f4-warga-tools button,#f4-warga-panel #f4-warga-list article>button{display:inline-flex!important;visibility:visible!important;opacity:1!important;align-items:center;justify-content:center;flex-shrink:0;min-width:55px}
+@media(max-width:640px){.f4-warga-tools{flex-wrap:wrap}.f4-warga-tools input{flex-basis:100%}#f4-warga-panel section{padding:12px}}
 </style>
 <script id="f4-warga-d1-bridge">
 (()=>{
@@ -745,7 +747,7 @@ body.iframe-modal-open .framebox #gate{display:none!important}
   list.replaceChildren();
   records.filter(x=>JSON.stringify(x).toLowerCase().includes(query)).forEach(x=>{
    const article=document.createElement('article'),left=document.createElement('div'),title=document.createElement('b'),small=document.createElement('small'),edit=document.createElement('button');
-   title.textContent=x.nama||'[Rumah tanpa penghuni]';
+   title.textContent=x.nama||'Rumah Kosong';
    small.textContent=[x.rumah,x.nama_pemilik?'Pemilik: '+x.nama_pemilik:'',x.status_rumah||''].filter(Boolean).join(' • ');
    left.append(title,small);edit.textContent='Edit';edit.onclick=()=>window.f4EditWarga(x);article.append(left,edit);list.appendChild(article);
   });
@@ -759,7 +761,7 @@ body.iframe-modal-open .framebox #gate{display:none!important}
    const data=await response.json();
    if(!response.ok||data.ok===false)throw Error(data.error||'HTTP '+response.status);
    records=Array.isArray(data.rows)?data.rows:Array.isArray(data.data)?data.data:[];
-   status.textContent=records.length+' profil warga dibaca dari D1';
+   status.textContent=records.length+' rumah dibaca dari D1 • Versi pengelolaan warga 23 Okt';
    draw();
   }catch(e){status.textContent='API Data Warga belum tersedia atau akses ditolak: '+e.message+'. Modul Worker diperlukan sebelum tambah/edit dapat diaktifkan.'}
  };
