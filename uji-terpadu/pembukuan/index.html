@@ -3314,59 +3314,8 @@ function printKasSepertiLamanUtama(){
 <div class="totalbox"><span>Total Kas Masuk</span><strong class="masuk">${escapePrint(rupiah(r.debit||0))}</strong><span>Total Kas Keluar</span><strong class="keluar">${escapePrint(rupiah(r.kredit||0))}</strong></div>
 <section class="approval"><div><div class="sign-title">Mengetahui,<br>Humas Flamboyan 4</div><div class="sign-line">Heri Juwandi</div></div></section>
 <div class="note">Dicetak pada ${escapePrint(tanggalCetak)} • Flamboyan 4 • Data bersumber dari pembukuan kas pada flamboyan4.web.id</div><script>window.onload=()=>{setTimeout(()=>window.print(),350)}<\/script>
-<style id="f4-select-final-one-source">
-@media(max-width:1023px){
- body .custom-select-wrap{position:relative!important}
- body .custom-select-wrap.open{z-index:180!important}
- body .custom-select-wrap.cs-has-search>.custom-select-panel,
- body .custom-select-wrap:not(.cs-has-search)>.custom-select-panel{
-   position:absolute!important;left:0!important;right:0!important;top:calc(100% + 2px)!important;bottom:auto!important;
-   width:100%!important;min-width:0!important;max-width:100%!important;
-   max-height:260px!important;overflow:hidden!important;border-radius:0 0 12px 12px!important;
-   box-shadow:0 12px 24px #34205226!important
- }
- body .custom-select-wrap .cs-list{max-height:185px!important;min-height:47px!important;overflow-y:auto!important}
- body .custom-select-wrap .cs-search-wrap{padding:6px!important}
- body .custom-select-wrap.open:before{display:none!important}
- body .custom-select-wrap.cs-has-search.f4-keyboard>.custom-select-panel{
-  position:fixed!important;left:var(--f4-left,10px)!important;top:var(--f4-top,10px)!important;
-  width:var(--f4-width,calc(100vw - 20px))!important;right:auto!important;
-  max-height:var(--f4-height,144px)!important;border-radius:12px!important
- }
- body .custom-select-wrap.cs-has-search.f4-keyboard .cs-list{max-height:var(--f4-list,55px)!important}
-}
-</style>
-<script id="f4-select-one-positioner">
-(()=>{
- function place(){
-  const w=document.querySelector('.custom-select-wrap.open');
-  document.querySelectorAll('.custom-select-wrap.f4-keyboard').forEach(x=>{if(x!==w)x.classList.remove('f4-keyboard')});
-  if(!w||innerWidth>1023)return;
-  const p=w.querySelector('.custom-select-panel');if(!p)return;
-  const search=p.querySelector('.cs-search');
-  const vv=visualViewport;
-  const top=vv?.offsetTop||0, height=vv?.height||innerHeight;
-  const keyboard=height<innerHeight*.82;
-  if(!keyboard||!search){w.classList.remove('f4-keyboard');return}
-  const rect=w.getBoundingClientRect(),visibleBottom=top+height;
-  const head=Math.max(56,p.querySelector('.cs-search-wrap')?.offsetHeight||56);
-  const desired=Math.min(215,Math.max(head+52,visibleBottom-top-16));
-  const y=Math.max(top+7,visibleBottom-desired-8);
-  w.style.setProperty('--f4-top',Math.round(y)+'px');
-  w.style.setProperty('--f4-left',Math.round(Math.max(8,rect.left))+'px');
-  w.style.setProperty('--f4-width',Math.round(Math.min(rect.width,innerWidth-16))+'px');
-  w.style.setProperty('--f4-height',Math.round(desired)+'px');
-  w.style.setProperty('--f4-list',Math.round(Math.max(48,desired-head-6))+'px');
-  w.classList.add('f4-keyboard');
- }
- const schedule=()=>requestAnimationFrame(()=>requestAnimationFrame(place));
- document.addEventListener('click',schedule,true);
- document.addEventListener('focusin',e=>{if(e.target.matches('.cs-search')){schedule();setTimeout(place,200)}},true);
- window.visualViewport?.addEventListener('resize',schedule);
- window.visualViewport?.addEventListener('scroll',schedule);
- window.addEventListener('resize',schedule);
-})();
-</script></body></html>`); w.document.close();
+
+</body></html>`); w.document.close();
 }
 function printRtSepertiLamanUtama(){
   const d=REPORT_DATA_RT||{}; const rows=(d.rows||[]); const periode=[d.namaBulan,d.tahun].filter(Boolean).join(' ');
@@ -4683,4 +4632,55 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
 </script>
 
 
-</body></html>
+<style id="f4-dropdown-real-document">
+@media(max-width:1023px){
+  body .custom-select-wrap{position:relative!important}
+  body .custom-select-wrap.open{z-index:190!important}
+  body .custom-select-wrap>.custom-select-panel,
+  body .custom-select-wrap.cs-has-search>.custom-select-panel{
+    position:absolute!important;top:calc(100% + 2px)!important;left:0!important;right:0!important;bottom:auto!important;
+    width:100%!important;min-width:100%!important;max-width:100%!important;
+    border-radius:0 0 13px 13px!important;max-height:250px!important;
+    box-shadow:0 12px 25px #30205c2b!important;overflow:hidden!important
+  }
+  body .custom-select-wrap .cs-list{min-height:45px!important;max-height:174px!important;overflow:auto!important}
+  body .custom-select-wrap.open:before{display:none!important}
+  body .custom-select-wrap.f4-keyboard>.custom-select-panel{
+    position:fixed!important;top:var(--f4-top,12px)!important;left:var(--f4-left,10px)!important;right:auto!important;
+    width:var(--f4-width,calc(100vw - 20px))!important;min-width:0!important;max-width:calc(100vw - 16px)!important;
+    max-height:var(--f4-height,145px)!important;border-radius:12px!important
+  }
+  body .custom-select-wrap.f4-keyboard .cs-list{max-height:var(--f4-list,55px)!important;min-height:45px!important}
+}
+</style><script id="f4-dropdown-real-script">
+(()=>{
+ const tick=()=>requestAnimationFrame(()=>requestAnimationFrame(place));
+ function place(){
+  const w=document.querySelector('.custom-select-wrap.open');
+  document.querySelectorAll('.custom-select-wrap.f4-keyboard').forEach(x=>{if(x!==w)x.classList.remove('f4-keyboard')});
+  if(innerWidth>1023||!w)return;
+  const panel=w.querySelector('.custom-select-panel');if(!panel)return;
+  const search=panel.querySelector('.cs-search');
+  const viewport=visualViewport;
+  const viewportH=viewport?.height||innerHeight;
+  const viewportTop=viewport?.offsetTop||0;
+  const keyboard=viewportH<innerHeight*.88;
+  if(!search||!keyboard){w.classList.remove('f4-keyboard');return}
+  const rect=w.getBoundingClientRect();
+  const sh=Math.max(55,panel.querySelector('.cs-search-wrap')?.offsetHeight||55);
+  const height=Math.max(sh+50,Math.min(220,viewportH-18));
+  const y=Math.max(viewportTop+6,viewportTop+viewportH-height-7);
+  w.style.setProperty('--f4-top',Math.round(y)+'px');
+  w.style.setProperty('--f4-left',Math.round(Math.max(8,rect.left))+'px');
+  w.style.setProperty('--f4-width',Math.round(Math.min(rect.width,innerWidth-16))+'px');
+  w.style.setProperty('--f4-height',Math.round(height)+'px');
+  w.style.setProperty('--f4-list',Math.round(height-sh-7)+'px');
+  w.classList.add('f4-keyboard');
+ }
+ document.addEventListener('click',tick,true);
+ document.addEventListener('focusin',e=>{if(e.target.matches('.cs-search')){tick();setTimeout(place,180)}},true);
+ window.visualViewport?.addEventListener('resize',tick);
+ window.visualViewport?.addEventListener('scroll',tick);
+ window.addEventListener('resize',tick);
+})();
+</script></body></html>
