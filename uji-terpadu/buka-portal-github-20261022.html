@@ -497,8 +497,19 @@ body.iframe-modal-open .framebox #gate{display:none!important}
   const msg=document.getElementById('login-status');msg.hidden=true;msg.textContent='';
   loginShade.hidden=false;usernameField.focus();
  }
- async function refreshSession(){
-  try{const session=await apiCall('/api/v2/auth/session');activeAccount=session;role=sessionRole(session)}
+ async function updateAvatar(){
+  if(!activeAccount)return;
+  try{
+   const p=await apiCall('/api/member/profile');
+   const face=avatar.querySelector('.avatar-face');
+   if(face&&p.profile?.hasPhoto){
+    face.textContent='';
+    face.style.background='center / cover no-repeat url("'+API+'/api/member/avatar?v='+Date.now()+'")';
+   }else if(face){face.textContent='✿';face.style.background=''}
+  }catch{}
+ }
+  async function refreshSession(){
+  try{const session=await apiCall('/api/v2/auth/session');activeAccount=session;role=sessionRole(session);updateAvatar()}
   catch{activeAccount=null;role='public'}
   refreshIdentity();
   update(role!=='superadmin'&&selected==='pembukuan'?'portal':selected);
@@ -522,7 +533,7 @@ body.iframe-modal-open .framebox #gate{display:none!important}
    passwordField.value='';
    const session=await apiCall('/api/v2/auth/session');
    if(!session?.account?.role)throw Error('Sesi belum tersedia setelah login. Periksa domain API dan cookie.');
-   activeAccount=session;role=sessionRole(session);loginShade.hidden=true;refreshIdentity();update(selected);
+   activeAccount=session;role=sessionRole(session);loginShade.hidden=true;refreshIdentity();update(selected);updateAvatar();
    notify('Login aktif: '+roleLabel[role]);
   }catch(e){msg.hidden=false;msg.textContent='Login gagal: '+e.message}
   finally{button.disabled=false;button.textContent='Masuk'}
