@@ -12,26 +12,37 @@
  const n=x=>Number.isFinite(Number(x))?Number(x):0;
  const successful=data=>({status:'success',...data});
  async function bootstrap(){
-  // This is the D1 payer registry, not a fabricated list of 44 occupied homes.
-  const [p,t]=await Promise.all([
-   read('/api/bookkeeping/iuran/payers'),read('/api/bookkeeping/iuran/tariffs')
+  // Master bersama Cloudflare D1: semua rumah, termasuk rumah kosong.
+  const [p,t,directory]=await Promise.all([
+    read('/api/bookkeeping/iuran/payers'),
+    read('/api/bookkeeping/iuran/tariffs'),
+    read('/api/v2/admin/residents')
   ]);
-  const payers=rows(p);
-  const homes=new Map();
-  const warga=payers.map((x,i)=>{
-   const block=String(x.blok||'').trim(),no=String(x.noRumah||'').trim();
-   const house=String(x.houseCode||x.rumah||[block,no].filter(Boolean).join('/'));
-   const houseID=house||'D1-'+i;
-   if(!homes.has(houseID))homes.set(houseID,{idRumah:houseID,noUrut:homes.size+1,blok:block,
-     noRumah:no,statusRumah:'Dihuni',tipeUnit:'Terdaftar',namaPemilik:x.nama||'',keterangan:'Rumah pembayar D1 — bukan daftar seluruh rumah'});
-   return {idWarga:String(x.payerId||x.id||''),idRumah:houseID,
-    noUrutRumah:homes.get(houseID).noUrut,nama:x.nama||'',
-    blok:block,noRumah:no,statusTinggal:'Tetap',statusAktif:'Aktif',
-    qtyIuranBulanan:n(x.qtyIuranBulanan),qtyKebersihan:n(x.qtyKebersihan),
-    qtyKasLorong:n(x.qtyKasLorong),qtyArisan:n(x.qtyArisan),
-    keterangan:'Pembayar terdaftar D1 — kewajiban per bulan perlu dicek'}
+  const payerRows=rows(p);
+  const residents=Array.isArray(directory.rows)?directory.rows:[];
+  const obligations=new Map(payerRows.map(x=>[String(x.payerId||x.id||''),x]));
+  const orderedHouses=[...new Map(residents.filter(x=>x.household_id).map(x=>[x.household_id,x])).entries()]
+    .sort(([,x],[,y])=>String(x.rumah||'').localeCompare(String(y.rumah||''),'id',{numeric:true}));
+  const houses=orderedHouses.map(([id,r],i)=>{
+    const part=String(r.rumah||'').split('/');
+    return {idRumah:id,noUrut:i+1,blok:part[0]||'',noRumah:part.slice(1).join('/')||'',
+      statusRumah:r.status_rumah||'Kosong',tipeUnit:r.tipe_unit||'',
+      namaPemilik:r.nama_pemilik||'',kontakPemilik:r.kontak_pemilik||'',keterangan:r.keterangan_rumah||r.deskripsi_rumah||''};
   });
-  return successful({version:'D1 / Worker — baca saja',config:t.config||{},rumah:[...homes.values()],warga});
+  const lookup=new Map(houses.map(x=>[x.idRumah,x]));
+  const warga=residents.filter(x=>x.payer_id).map(r=>{
+    const house=lookup.get(r.household_id)||{};
+    const quantity=obligations.get(String(r.payer_id))||{};
+    return {idWarga:String(r.payer_id),idRumah:r.household_id,noUrutRumah:house.noUrut||0,
+      nama:r.nama||'',blok:house.blok||'',noRumah:house.noRumah||'',
+      statusTinggal:r.status_tinggal||'',statusAktif:r.active?'Ya':'Tidak',
+      qtyIuranBulanan:n(quantity.qtyIuranBulanan??r.qty_iuran_bulanan),
+      qtyKebersihan:n(quantity.qtyKebersihan??r.qty_kebersihan),
+      qtyKasLorong:n(quantity.qtyKasLorong??r.qty_kas_lorong),
+      qtyArisan:n(quantity.qtyArisan??r.qty_arisan),
+      noHP:r.nomor_hp||'',keterangan:r.keterangan_warga||''};
+  });
+  return successful({version:'Cloudflare D1 — Data Acuan Terpadu',config:t.config||{},rumah:houses,warga});
  }
  async function history(){
   const r=await read('/api/bookkeeping/iuran/history?limit=200');
