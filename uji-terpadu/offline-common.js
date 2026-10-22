@@ -23,16 +23,12 @@
     });
   });
   const originalFetch=window.fetch?.bind(window);
-  window.fetch=(input,init={})=>{const method=(init?.method||'GET').toUpperCase();
-    // Only real Cloudflare GET reads can cross this old preview shim.
-    // Write endpoints remain protected by the Worker staging feature flags.
-    const url=String(typeof input==='string'?input:input?.url||'');
-    if(method==='GET'&&url.startsWith('https://api.flamboyan4.web.id/')){
-      return originalFetch(input,{...init,credentials:'include',mode:'cors',cache:'no-store'});
-    }
-    if(method==='GET' && /^https:\/\/(docs\.google\.com\/spreadsheets|lh3\.googleusercontent\.com)\//.test(url))return originalFetch(input,init);
-    if(method!=='GET'){window.__f4DemoNotify('Aksi simpan diblokir: ini hanya pratinjau.');return Promise.resolve(new Response(JSON.stringify({ok:false,error:'Mode demo: tidak ada perubahan data.'}),{status:503,headers:{'content-type':'application/json'}}))}
-    return Promise.resolve(new Response(JSON.stringify({ok:true,status:'success',data:[],transaksi:[],ringkasan:{},config:{},rumah:[],warga:[],riwayat:[]}),{status:200,headers:{'content-type':'application/json'}}));
+  // GET requests use the real source. No fabricated success/empty datasets.
+  window.fetch=(input,init={})=>{
+    const method=String(init?.method||((typeof input==='object'&&input?.method)||'GET')).toUpperCase();
+    if(method==='GET'||method==='HEAD')return originalFetch(input,init);
+    window.__f4DemoNotify('Penyimpanan dari integrasi masih dikunci sampai izin backend tervalidasi.');
+    return Promise.reject(Error('Penulisan data belum diaktifkan pada Uji Terpadu.'));
   };
   const origOpen=window.open?.bind(window);window.open=(url,...args)=>{if(!url||url==='about:blank')return origOpen?.('about:blank',...args)||null;window.__f4DemoNotify('Tautan eksternal tidak dibuka otomatis dari pratinjau.');return null};
   window.addEventListener('message',e=>{if(e.origin!==location.origin||!e.data||e.data.type!=='f4:demo-role')return;document.body.dataset.previewRole=e.data.role});
