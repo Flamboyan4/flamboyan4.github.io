@@ -25,9 +25,21 @@
  const area=page.querySelector('main');
  const side=page.querySelector('aside');
  let requestId=0;
- function navigate(target){
+ function navigate(target,section){
    page.hidden=true;if(panel)panel.hidden=true;
+   const frame=document.getElementById('appframe');
+   const before=frame?.getAttribute('src');
    document.querySelector('nav [data-target="'+target+'"]')?.click();
+   if(!section||!frame)return;
+   const activate=()=>{
+     try{
+       const win=frame.contentWindow;
+       if(target==='pembukuan'&&typeof win.pilihMenu==='function')win.pilihMenu(section);
+       if(target==='bank-sampah'&&typeof win.goPage==='function')win.goPage(section);
+     }catch(e){console.warn('Menu asli belum siap:',e)}
+   };
+   if(before!==frame.getAttribute('src'))frame.addEventListener('load',activate,{once:true});
+   else setTimeout(activate,120);
  }
  function profile(){page.hidden=true;document.querySelector('[data-account-action="settings"]')?.click()}
  function navItem(name,handler,active=false){
@@ -69,8 +81,8 @@
  }
  function portalTasks(){
    const p=portal();
-   if(p==='pembukuan')return [['Buka Iuran, Kas & Denda',()=>navigate('pembukuan')],['Tutup Buku & Arsip',()=>navigate('pembukuan')],['Data Warga & Rumah',()=>openWarga()]];
-   if(p==='bank-sampah')return [['Buka Dashboard Admin',()=>navigate('bank-sampah')],['Pencatatan & Keuangan',()=>navigate('bank-sampah')],['Data Warga & Rumah',()=>openWarga()]];
+   if(p==='pembukuan')return [['Iuran',()=>navigate('pembukuan','input')],['Buku Kas',()=>navigate('pembukuan','kas')],['Denda',()=>navigate('pembukuan','denda')],['Laporan',()=>navigate('pembukuan','laporan')],['Data Warga & Rumah',()=>openWarga()]];
+   if(p==='bank-sampah')return [['Dashboard Admin',()=>navigate('bank-sampah','dashboard')],['Pencatatan',()=>navigate('bank-sampah','setoran')],['Keuangan',()=>navigate('bank-sampah','rekonsiliasi')],['Data & Anggota',()=>navigate('bank-sampah','master')],['Data Warga & Rumah',()=>openWarga()]];
    return [['Kelola Konten Portal',()=>navigate('portal')],['Kelola Data Warga & Rumah',()=>openWarga()],['Buka Pembukuan',()=>navigate('pembukuan')],['Buka Bank Sampah',()=>navigate('bank-sampah')]];
  }
  function openWarga(){
@@ -85,14 +97,20 @@
    side.append(el('strong',titles[p]+' — '+(r==='superadmin'?'Superadmin':r==='admin'?'Admin':'Anggota'),'f4-work-brand'));
    navItem('Ringkasan',show,true);
    if(r==='superadmin'){
-     navItem('Data Warga & Rumah',openWarga);
-     if(p==='pembukuan')navItem('Buka Pembukuan',()=>navigate('pembukuan'));
+     if(p==='pembukuan'){
+       [['Iuran','input'],['Kas','kas'],['Denda','denda'],['Pinjaman','pinjaman'],['Talangan','talangan'],['Riwayat','riwayat'],['Rekap Laporan','laporan'],['Tutup Buku & Arsip','laporan'],['Tarif & Aturan','config']].forEach(([name,tab])=>navItem(name,()=>navigate('pembukuan',tab)));
+     }
+     if(p==='bank-sampah'){
+       [['Ringkasan','dashboard'],['Pencatatan','setoran'],['Keuangan','rekonsiliasi'],['Kegiatan','kegiatan'],['Data & Anggota','master']].forEach(([name,tab])=>navItem(name,()=>navigate('bank-sampah',tab)));
+     }
      if(p==='portal')navItem('Kelola Portal Utama',()=>navigate('portal'));
-     navItem('Bank Sampah',()=>navigate('bank-sampah'));
+     navItem('Data Warga & Rumah',openWarga);
+     if(p!=='bank-sampah')navItem('Bank Sampah',()=>navigate('bank-sampah','dashboard'));
    }else if(r==='admin'){
-     navItem('Bank Sampah',()=>navigate('bank-sampah'));
+     [['Ringkasan','dashboard'],['Pencatatan','setoran'],['Keuangan','rekonsiliasi'],['Kegiatan','kegiatan'],['Data & Anggota','master']].forEach(([name,tab])=>navItem(name,()=>navigate('bank-sampah',tab)));
    }else if(r==='anggota'){
-     navItem('Tabungan Saya',()=>navigate('bank-sampah'));
+     navItem('Tabungan Saya',()=>navigate('bank-sampah','pribadi'));
+     navItem('Perkembangan',()=>navigate('bank-sampah','progress'));
    }
    navItem('Pengaturan Profil',profile);
    navItem('Kembali',()=>page.hidden=true);
