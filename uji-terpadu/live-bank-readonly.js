@@ -125,7 +125,25 @@
   id:x.id,berat:number(x.grams)/1000,jumlahSetoran:number(x.deposits),
   estimasi:number(x.estimatedRp),status:x.status||'draft'
  }));
+ const adminMembers=async()=> (await adminRows('members')).map(x=>({
+  wargaId:String(x.id||'').replace(/^member:/,''),nama:x.nama||'',rumah:x.rumah||'',
+  status:x.status==='aktif'?'Aktif':'Nonaktif'
+ }));
+ const adminOverview=async()=>{
+  const [members,items,deposits,sales]=await Promise.all([adminMembers(),adminRows('catalog'),adminDeposits(),adminSales()]);
+  const validDeposits=deposits.filter(x=>x.status!=='Dibatalkan');
+  const confirmedSales=sales.filter(x=>x.status==='Terkonfirmasi');
+  return {wargaAktif:members.filter(x=>x.status==='Aktif').length,
+   jenisBarangAktif:items.filter(x=>x.active!==0).length,
+   beratSetoranKg:validDeposits.reduce((n,x)=>n+x.berat,0),
+   jumlahSetoran:validDeposits.length,estimasiSetoranRp:validDeposits.reduce((n,x)=>n+x.estimasi,0),
+   jumlahPenjualan:confirmedSales.length,
+   beratPenjualanKg:0,diterimaLapakRp:confirmedSales.reduce((n,x)=>n+x.diterima,0),
+   netMutasiTabunganRp:0,netKasRp:0,tarifBelumDitetapkan:items.filter(x=>!x.priceRpPerKg).length};
+ };
  const read={
+  authAdminAccounts:adminMembers,
+  bsDashboardAdmin:adminOverview,
   bsV6SetoranAdmin:adminDeposits,
   bsV18RiwayatSetoranAdmin:adminDeposits,
   bsV7PenjualanAdmin:adminSales,
