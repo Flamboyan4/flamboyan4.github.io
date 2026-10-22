@@ -139,11 +139,7 @@
  ];
  // Urutan/status projek yang benar dari tab Project Card.
  const projectCSV="Urutan,Nama Projek,Jenis,Status,Tampil,Link\n1,Bank Sampah Lorong,banksampah,Aktif,YA,/banksampah/\n2,Gapura,gapura,Penggalangan Dana,YA,\n3,Pemesanan Jersey,jersey,Tahap DP,YA,";
- const progresCSV=[
-  'Tanggal,Langkah,Judul,Deskripsi,Status,Tahap Detail,Agenda Berikut,Foto',
-  '11 Oktober 2026,Langkah 1,Pembersihan & Persiapan Drop Point,Pengelolaan sampah anorganik terpilah untuk kas tambahan warga.,Selesai,Pembersihan lokasi,Pembuatan wadah,',
-  '21 Oktober 2026,Langkah 2,Pembuatan Wadah Drop Point,Membuat tempat untuk menampung sampah sebelum ditimbang.,Proses,Pembuatan wadah,Membuat mekanisme dan administrasi,'
- ].join('\n');
+ const progresCSV="Tanggal,Langkah,Judul,Deskripsi,Status,Tahap Detail,Agenda Berikut,Foto\n11/10/2026,Pembersihan area pemilahan,Pembersihan & Persiapan Drop Point,Pengelolaan sampah anorganik terpilah untuk kas tambahan warga.,Selesai,,Pembuatan tong/wadah drop point,https://drive.google.com/file/d/1AR1iArLy2iN5cPv5AyPtGwHmyWpWBMTw/view?usp=sharing\n11/10/2026,Pembuatan wadah,Pembuatan Wadah Drop Point,Membuat tempat untuk menampung sampah sebelum nantinya akan dijual,Selesai,,Pembuatan alur dan administrasi,https://drive.google.com/file/d/1jtKd09dMftq1FovXHLs9GOe97a7H4LSF/view?usp=sharing";
 
  // Snapshot judul/foto/link dari 3 banner asli (bukan ilustrasi), tanpa query database runtime.
  const bannerRows=[
