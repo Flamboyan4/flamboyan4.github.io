@@ -49,7 +49,7 @@ export function setModuleView(requested, roleOverride){
    summary:role==='anggota'?['bank-member-section']:role==='public'?publicViews:['bank-summary-stats','bank-progress-section'],
    savings:['bank-member-section'],progress:['bank-progress-section'],public:publicViews,
    record:['bank-admin-section'],finance:['bank-admin-section'],
-   activities:['bank-progress-section'],members:['bank-admin-section']
+   activities:['bank-admin-section'],members:['bank-admin-section']
   };
   const visible=role==='public'?publicViews:map[view]||map.summary;
   [...publicViews,'bank-member-section','bank-admin-section'].forEach(id=>{
@@ -63,14 +63,15 @@ export function setModuleView(requested, roleOverride){
    summary:role==='anggota'?'Ringkasan Anggota':'Ringkasan Pengelola',savings:'Tabungan Saya',progress:'Perkembangan Bank Sampah',
    record:'Pencatatan',finance:'Keuangan Bank Sampah',activities:'Kegiatan',members:'Data & Anggota',public:'Portal Publik'
   })[view]||'Bank Sampah'}
-  const action={record:'deposits',finance:'cash',members:'members'}[view];
-  if(action){const button=document.querySelector('#bank-admin-nav [data-kind="'+action+'"]');if(button&&button.getAttribute('aria-pressed')!=='true')button.click()}
+  if(['record','finance','activities','members'].includes(view)){
+   $('bank-admin-nav')?.dispatchEvent(new CustomEvent('bank-group-select',{detail:{group:view}}));
+  }
  }else if(page==='book'){
-  const panels=['book-summary-panel','book-stats','book-overview-detail','book-cash-panel','book-ledger-panel','book-input-panel','book-reference-panel'];
+  const panels=['book-summary-panel','book-stats','book-overview-detail','book-cash-panel','book-ledger-panel','book-input-panel','book-report-panel','book-reference-panel'];
   const which={
    summary:['book-summary-panel','book-stats','book-overview-detail'],
-   input:['book-input-panel'],history:['book-ledger-panel','book-cash-panel'],
-   report:['book-summary-panel','book-stats','book-cash-panel'],reference:['book-reference-panel']
+   input:['book-input-panel'],history:['book-ledger-panel'],
+   report:['book-report-panel'],reference:['book-reference-panel']
   };
   const show=which[view]||which.summary;
   panels.forEach(id=>{const node=$(id);if(node)node.hidden=!show.includes(id)});

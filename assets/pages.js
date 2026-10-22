@@ -167,13 +167,62 @@ async function bank(){
     caption.textContent=view.label+' · '+rows.length+' data (maksimum '+String(result.limit||300)+') · baca saja';
    }catch(e){caption.textContent='Gagal memuat '+view.label+': '+(e.message||'Error');$('admin-table').replaceChildren();}
   }
-  Object.entries(views).forEach(([key,view])=>{
-   const button=elem('button',view.label,'btn outline');button.type='button';
-   button.dataset.kind=key;button.setAttribute('aria-pressed','false');button.onclick=()=>loadAdmin(key);
-   nav.append(button);
-  });
-  await loadAdmin('deposits');
+
+  const adminGroups={
+   record:[
+    {id:'deposit-entry',label:'Input setoran',notice:'Form Input setoran warga dari aplikasi asli belum tersambung ke API tulis Cloudflare. Catatan setoran tidak dibuat di mode staging ini.'},
+    {id:'deposit-history',label:'Riwayat setoran',data:'deposits'},
+    {id:'sale-entry',label:'Penjualan lapak',notice:'Form penjualan lapak belum dipindahkan. Pencatatan penjualan tetap nonaktif hingga validasi batch dan nominal selesai.'},
+    {id:'sale-history',label:'Riwayat penjualan',data:'sales'}
+   ],
+   finance:[
+    {id:'difference',label:'Pratinjau selisih',notice:'Pratinjau rekonsiliasi per batch belum dipindahkan. Tidak ada pembagian hasil, perubahan saldo, atau pengesahan.'},
+    {id:'approval',label:'Pengesahan hasil',notice:'Pengesahan hasil dan jurnal tabungan belum diaktifkan. Langkah ini harus mengikuti aturan transaksi dari aplikasi asli.'},
+    {id:'withdrawal',label:'Saldo & pencairan',data:'savings',hint:'Ini hanya daftar saldo warga dari D1. Fungsi pencairan belum tersedia.'},
+    {id:'expenses',label:'Pembelian & pengeluaran',data:'expenses'},
+    {id:'cash-report',label:'Laporan admin',data:'cash',hint:'Catatan kas operasional; bukan laporan rekonsiliasi atau laporan cetak lengkap.'}
+   ],
+   activities:[
+    {id:'progress-entry',label:'Input perkembangan',notice:'Form input perkembangan dari aplikasi asli belum dihubungkan ke API tulis.'},
+    {id:'album-list',label:'Dokumentasi',data:'albums'},
+    {id:'inventory-list',label:'Inventaris',data:'inventory'},
+    {id:'public-progress',label:'Progres publik',data:'progress'}
+   ],
+   members:[
+    {id:'item-master',label:'Master barang',data:'catalog',hint:'Data tarif ini bersifat baca-saja; pengaturan Tarif Warga Aktif belum dipindahkan.'},
+    {id:'citizen-accounts',label:'Akun warga',data:'members',hint:'Daftar warga baca-saja. Perubahan akun masih nonaktif.'}
+   ]
+  };
+  function showAdminGroup(group){
+   const tabs=adminGroups[group];if(!tabs)return;
+   nav.replaceChildren();
+   let selected=null;
+   function selectTab(item,btn){
+    selected=item.id;
+    nav.querySelectorAll('button').forEach(b=>{
+     const active=b===btn;b.className='btn'+(active?'':' outline');b.setAttribute('aria-pressed',String(active));
+    });
+    details.hidden=true;
+    $('admin-table').replaceChildren();
+    if(item.data){
+     loadAdmin(item.data).then(()=>{
+      if(item.hint&&selected===item.id)$('bank-admin-caption').textContent+=' · '+item.hint;
+     });
+    }else{
+     $('bank-admin-caption').textContent=item.notice;
+     $('admin-table').append(elem('p','Fitur ini menunggu migrasi fungsi asli. Belum ada perubahan data.','info-note'));
+    }
+   }
+   tabs.forEach((item,i)=>{
+    const b=elem('button',item.label,'btn outline');
+    b.type='button';b.dataset.kind=item.data||item.id;
+    b.setAttribute('aria-pressed','false');b.addEventListener('click',()=>selectTab(item,b));nav.append(b);
+    if(i===0)selectTab(item,b);
+   });
+  }
+  nav.addEventListener('bank-group-select',e=>showAdminGroup(e.detail.group));
   setModuleView(document.body.dataset.activeView||'summary','admin');
+
  }catch(e){if(e.status!==401)failure(e)}
 }
 
@@ -205,6 +254,7 @@ async function book(){
  const form=$('book-period-form');
  form.addEventListener('submit',async(ev)=>{ev.preventDefault();try{await loadOverview($('book-month').value);boxStatus('Ringkasan pembukuan diperbarui.','success')}catch(e){failure(e)}});
  const ledgerViews={
+  batch:{label:'Riwayat Batch Kas',path:null},
   iuran:{label:'Iuran',path:'/api/bookkeeping/iuran/history?limit=200',
    heads:['Tanggal','Warga','Periode','Diterima','Metode','Status'],
    row:x=>[date(x.tanggal),x.nama||'—',(x.periode||[]).join(', ')||'—',fmtRp(x.totalDiterima),x.metode||'—',x.status||'—']},
@@ -225,6 +275,7 @@ async function book(){
  async function loadLedger(key){
   const view=ledgerViews[key];if(!view)return;
   ledgerNav.querySelectorAll('button').forEach(b=>{const active=b.dataset.kind===key;b.className='btn'+(active?'':' outline');b.setAttribute('aria-pressed',active?'true':'false')});
+  if(!view.path){$('book-ledger-table').replaceChildren();ledgerCaption.textContent='Riwayat Batch Kas belum dipindahkan dari aplikasi asli; tidak ada data yang ditampilkan.';return}
   ledgerCaption.textContent='Memuat '+view.label+' dari D1…';
   try{
    const result=await api(view.path);const rows=result.data||result.transaksi||[];
@@ -232,12 +283,58 @@ async function book(){
    ledgerCaption.textContent=view.label+' · '+rows.length+' data · hanya baca. Tidak otomatis menjadi saldo akhir.';
   }catch(e){ledgerCaption.textContent='Gagal memuat '+view.label+': '+(e.message||'Error');$('book-ledger-table').replaceChildren()}
  }
- Object.entries(ledgerViews).forEach(([key,view])=>{
-  const button=elem('button',view.label,'btn outline');button.type='button';
-  button.dataset.kind=key;button.setAttribute('aria-pressed','false');button.onclick=()=>loadLedger(key);
-  ledgerNav.append(button);
+
+ const historyLabels=[
+  ['iuran','Riwayat Iuran'],['kas','Riwayat Kas'],['batch','Riwayat Batch Kas'],
+  ['talangan','Riwayat Talangan'],['denda','Riwayat Denda'],['pinjaman','Riwayat Pinjaman']
+ ];
+ historyLabels.forEach(([key,label])=>{
+  const b=elem('button',label,'btn outline');b.type='button';b.dataset.kind=key;
+  b.setAttribute('aria-pressed','false');b.onclick=()=>loadLedger(key);ledgerNav.append(b);
  });
  await loadLedger('iuran');
+ function renderReadOnlyTabs(navId,contentId,tabs){
+  const nav=$(navId),panel=$(contentId);if(!nav||!panel)return;
+  tabs.forEach(([label,note],i)=>{
+   const button=elem('button',label,'btn outline');button.type='button';
+   button.setAttribute('aria-pressed','false');
+   const choose=()=>{
+    nav.querySelectorAll('button').forEach(b=>{
+     const active=b===button;b.className='btn'+(active?'':' outline');
+     b.setAttribute('aria-pressed',String(active));
+    });
+    panel.replaceChildren();
+    const h=elem('h3',label);panel.append(h);
+    panel.append(elem('p',note,'info-note'));
+   };
+   button.onclick=choose;nav.append(button);if(i===0)choose();
+  });
+ }
+ renderReadOnlyTabs('book-input-tabs','book-input-content',[
+  ['Input Iuran','Form asli mencakup pilihan warga, tanggal, metode pembayaran, bulan pertama, tahun, jumlah bulan, nominal, dan rincian otomatis. Form ini belum terhubung ke API transaksi.'],
+  ['Debit / Kredit','Form debit/kredit dari Pembukuan asli belum dipindahkan. Tidak ada jurnal baru dibuat.'],
+  ['Buku Kas','Fungsi pencatatan buku kas dari aplikasi lama belum dipindahkan.'],
+  ['Talangan','Form talangan dan angsurannya belum dipindahkan. Pencatatan keuangan masih dikunci.'],
+  ['Denda','Pembuatan dan pembayaran denda belum dipindahkan.'],
+  ['Pinjaman','Form pinjaman dan angsurannya belum dipindahkan.'],
+  ['Import Bulk','Impor massal masih nonaktif sampai mapping dan pemeriksaan duplikasi diuji.']
+ ]);
+ renderReadOnlyTabs('book-report-tabs','book-report-content',[
+  ['Kas Warga','Laporan kas asli menghitung saldo sebelumnya, saldo periode, saldo akhir, dan rincian transaksi. Perhitungan saldo akhir/arsip belum diintegrasikan; angka ringkasan API bukan penggantinya.'],
+  ['Setoran RT','Laporan setoran RT dari aplikasi Pembukuan lama belum dipindahkan.'],
+  ['Arisan','Laporan arisan belum dipindahkan.'],
+  ['Denda','Laporan denda lengkap dan cetaknya belum dipindahkan.'],
+  ['Talangan','Laporan talangan dan cetaknya belum dipindahkan.'],
+  ['Pinjaman','Laporan pinjaman dan cetaknya belum dipindahkan.'],
+  ['Tutup Buku & Arsip','Tutup buku dan arsip tahun tetap dinonaktifkan sampai prosedur resmi serta data histori diverifikasi.']
+ ]);
+ renderReadOnlyTabs('book-reference-tabs','book-reference-content',[
+  ['Ringkasan','Ringkasan hunian dan tarif aktif dari sistem Pembukuan lama belum dipetakan sepenuhnya ke D1.'],
+  ['Data Rumah','Master rumah dan status hunian masih dalam proses integrasi.'],
+  ['Data Warga','Master warga dan hubungan penghuni masih dalam proses integrasi.'],
+  ['Tarif & Aturan','Tarif iuran dan aturan per warga belum dapat disunting dari pratinjau.']
+ ]);
+
  try{await loadOverview();const c=await endpoints.bookkeepingCash();setRows('book-cash',['Tanggal','Jenis','Kategori','Debit','Kredit','Status'],(c.transaksi||[]).map(t=>[date(t.occurred_on),t.transaction_type||'—',t.category||'—',fmtRp(t.debit_rp),fmtRp(t.credit_rp),t.status||'—']));}catch(e){failure(e)}
 }
 
