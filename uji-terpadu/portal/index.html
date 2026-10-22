@@ -71,6 +71,16 @@ body[data-preview-role="public"] #card-pemasukan,body[data-preview-role="public"
 footer#pembayaran{scroll-margin-top:70px;padding-bottom:20px!important}
 body>div.fixed.bottom-6.right-6{right:14px!important;bottom:18px!important}
 @media(max-width:640px){body>div.fixed.bottom-6.right-6{right:9px!important;bottom:18px!important;transform:scale(.82);transform-origin:bottom right}}
+</style><style id="f4-footer-tight-20261022">
+html,body{min-height:0!important}
+body>main{flex-grow:0!important}
+footer#pembayaran{height:auto!important;min-height:0!important;max-height:none!important;padding:12px 0 8px!important;margin:0!important;flex:0 0 auto!important}
+footer#pembayaran>div{padding-bottom:0!important}
+footer#pembayaran>div>div:first-child{margin-bottom:6px!important;padding:12px!important}
+footer#pembayaran>div>div:last-child{padding-top:0!important;margin-top:0!important}
+body:not([data-preview-role]) #f4-private-transactions,
+body[data-preview-role="public"] #f4-private-transactions{display:none!important}
+body.f4-footer-visible>div.fixed.bottom-6.right-6{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
 </style></head>
 
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full" oncontextmenu="return false;" onkeydown="return disableInspect(event)">
@@ -2387,21 +2397,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 
 <section class="approval"><div><div class="sign-title">Mengetahui,<br>Humas Flamboyan 4</div><div class="sign-line">Heri Juwandi</div></div></section>
 <div class="note">Dicetak pada ${escapeCetakKas(tanggalCetak)} • Flamboyan 4 • Data bersumber dari pembukuan kas pada flamboyan4.web.id</div>
-<script>window.onload=()=>{setTimeout(()=>window.print(),350)}<\/script><style id="f4-privacy-footer-final">
-body:not([data-preview-role]) #f4-private-transactions,body[data-preview-role="public"] #f4-private-transactions{display:none!important}
-body:not([data-preview-role]) #keuangan [onclick*="openModalKeuangan"],body[data-preview-role="public"] #keuangan [onclick*="openModalKeuangan"]{pointer-events:none!important;cursor:default!important}
-body.f4-footer-visible>div.fixed.bottom-6.right-6{opacity:0!important;visibility:hidden!important;pointer-events:none!important;transition:opacity .2s ease}
-#pembayaran{padding-bottom:20px!important;min-height:0!important}
-</style>
-<script id="f4-privacy-footer-observer">
-document.addEventListener('DOMContentLoaded',()=>{
- const footer=document.getElementById('pembayaran');
- if(footer&&window.IntersectionObserver){
-  const observer=new IntersectionObserver(entries=>document.body.classList.toggle('f4-footer-visible',entries.some(e=>e.isIntersecting)),{root:null,threshold:0});
-  observer.observe(footer);
- }
-});
-</script></body></html>`);
+<script>window.onload=()=>{setTimeout(()=>window.print(),350)}<\/script></body></html>`);
       w.document.close();
       closeModalCetakKas();
     }
@@ -3767,5 +3763,13 @@ async function loadProgresBankSampahIndex() {
 document.addEventListener('DOMContentLoaded', loadProgresBankSampahIndex);
     
   </script>
-</body>
+<script id="f4-footer-overlap-observer">
+document.addEventListener('DOMContentLoaded',()=>{
+ const f=document.getElementById('pembayaran');
+ if(f&&window.IntersectionObserver){
+  const obs=new IntersectionObserver(es=>document.body.classList.toggle('f4-footer-visible',es.some(e=>e.isIntersecting)),{threshold:0});
+  obs.observe(f);
+ }
+});
+</script></body>
 </html>
