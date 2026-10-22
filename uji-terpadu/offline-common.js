@@ -4,7 +4,7 @@
    const parts=location.pathname.split('/').filter(Boolean);
    const index=parts.indexOf('uji-terpadu');
    const target=parts[index+1]||'portal';
-   if(['portal','bank-sampah','pembukuan'].includes(target)){
+   if(['portal','rapat','bank-sampah','pembukuan'].includes(target)){
     location.replace(location.origin+'/uji-terpadu/#'+target);return;
    }
   }
