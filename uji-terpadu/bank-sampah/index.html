@@ -1058,6 +1058,14 @@
       const b=document.createElement('button');b.type='button';b.className='v16-item';b.dataset.group=g.id;b.append(v16Icon(g.icon),document.createTextNode(g.label));
       b.onclick=()=>{if(g.id==='public')v11ShowPublic();else goPage(g.tabs[0][0]);};list.appendChild(b);
     });
+    // Superadmin kembali ke empat menu pengelolaan; tidak menambah baris navigasi publik.
+    const isSuperadminManager=profile?.peran==='Admin'&&window.parent!==window&&window.parent.document?.body?.classList.contains('role-superadmin');
+    if(isSuperadminManager){
+      const back=document.createElement('button');back.type='button';back.className='v16-item f4-back-management';
+      back.textContent='← Menu Pengelolaan';
+      back.onclick=()=>window.parent.postMessage({type:'f4:manage-home'},location.origin);
+      list.appendChild(back);
+    }
     if(!$('v16Tabs')){
       const tabs=document.createElement('div');tabs.id='v16Tabs';tabs.className='v16-tabs hidden';
       const section=$('dashboardView').querySelector('.section');section.querySelector(':scope > .toolbar').after(tabs);
@@ -1072,7 +1080,8 @@
     const group=available.find(g=>g.tabs.some(t=>t[0]===page));
     document.querySelectorAll('#v16NavList .v16-item').forEach(b=>b.classList.toggle('active',!!group&&b.dataset.group===group.id));
     tabs.replaceChildren();
-    if(!group||group.tabs.length<2){tabs.classList.add('hidden');return;}    group.tabs.forEach(([name,label])=>{
+    const groupTabs=group?.tabs.filter(([name])=>!(name==='admin'&&window.parent!==window&&window.parent.document?.body?.classList.contains('role-superadmin')))||[];
+    if(!group||groupTabs.length<2){tabs.classList.add('hidden');return;}    groupTabs.forEach(([name,label])=>{
       const b=document.createElement('button');b.type='button';b.textContent=label;
       b.className=name===page?'active':'';b.onclick=()=>goPage(name);tabs.appendChild(b);
     });
