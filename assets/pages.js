@@ -4,6 +4,7 @@ import {renderProjectCards} from './project-cards.js';
 import {initPortalFinance} from './portal-finance.js';
 import {showTariffs,showPayers,showOutstanding,showIuranAudit,showYearPreflight,showDendaReadiness} from './bookkeeping-readonly.js';
 import {showCashPeriodReport} from './finance-period-report.js';
+import {reportDenda,reportPinjaman,reportTalangan,reportRekonsiliasi} from './finance-audit-reports.js';
 import {renderPortalCalendar,renderPortalInventory,renderBankProgress,renderBankAlbumPreviews} from './portal-widgets.js';
 import {api,endpoints} from './api.js';
 import {$,fmtRp,fmtNum,elem,put,boxStatus,setRows,setCards,initShell,url,renderAlbum,requireAuthMessage,updateHeader,setModuleView} from './ui.js';
@@ -380,11 +381,12 @@ async function book(){
  ]);
  renderReadOnlyTabs('book-report-tabs','book-report-content',[
   ['Kas Warga','Mutasi kas per bulan diambil dari D1. Debit, kredit dan selisih periode tidak dianggap saldo akhir.',showCashPeriodReport],
+  ['Audit Rekonsiliasi','Daftar temuan historis iuran, denda, pinjaman, dan talangan. Tidak ada jurnal yang diperbarui.',reportRekonsiliasi],
   ['Setoran RT','Laporan setoran RT dari aplikasi Pembukuan lama belum dipindahkan.'],
   ['Arisan','Laporan arisan belum dipindahkan.'],
-  ['Denda','Laporan denda lengkap dan cetaknya belum dipindahkan.'],
-  ['Talangan','Laporan talangan dan cetaknya belum dipindahkan.'],
-  ['Pinjaman','Laporan pinjaman dan cetaknya belum dipindahkan.'],
+  ['Denda','Laporan rekap denda historis dari D1. Penerimaan kas belum dianggap terjurnal.',reportDenda],
+  ['Talangan','Bandingkan rekap pelunasan historis dan angsuran tercatat tanpa menghitung ganda.',reportTalangan],
+  ['Pinjaman','Rekap pinjaman dan angsuran aktif yang tercatat di D1.',reportPinjaman],
   ['Tutup Buku & Arsip','Pratinjau audit D1 sebelum tutup buku. Tidak membuat arsip atau mengubah saldo.',showYearPreflight],
   ['Audit Iuran','Deteksi selisih antara pembayaran, alokasi, dan jurnal D1.',showIuranAudit]
  ]);
