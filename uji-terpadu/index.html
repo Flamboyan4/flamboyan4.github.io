@@ -495,7 +495,7 @@ body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
 <div id="toast" class="toast" hidden role="status"></div>
 <script>
 (()=>{
- const apps={portal:'./portal/?v=superadmin-20261023-v3',rapat:'./rapat/?v=d1-meetings-20261023',dokumentasi:'./dokumentasi/',inventaris:'./dokumentasi/#inventaris','bank-sampah':'./bank-sampah/',pembukuan:'./pembukuan/'};
+ const apps={portal:'./portal/?v=superadmin-20261023-v3',rapat:'./rapat/?v=d1-meetings-20261023',dokumentasi:'./dokumentasi/',inventaris:'./dokumentasi/#inventaris','bank-sampah':'./bank-sampah/?v=bank-admin-v1',pembukuan:'./pembukuan/'};
 
  const buttons=[...document.querySelectorAll('nav [data-target]')],frame=document.getElementById('appframe'),
  gate=document.getElementById('gate'),toast=document.getElementById('toast');
@@ -915,7 +915,7 @@ body.book-mode #f4-account-page{background:#fff8f0}body.book-mode #f4-account-pa
  document.getElementById('f4-account-page-settings').onclick=()=>{page.hidden=true;document.querySelector('[data-account-action="settings"]')?.click()};
  document.getElementById('f4-account-page-home').onclick=()=>window.openAccountPage();
 })();
-</script><script src="./account-workspace.js?v=20261023-v3"></script>
+</script><script src="./account-workspace.js?v=20261023-bank-v1"></script>
 <script src="./superadmin-editor.js?v=20261023-v2"></script>
 <style id="f4-account-theme-final-20261023">
 /* Mengunci tema ke warna asli HTML Pembukuan (ungu), bukan oranye. */
