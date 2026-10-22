@@ -667,7 +667,7 @@ body.iframe-modal-open .framebox #gate{display:none!important}
   if(document.body.classList.contains('portal-mode')){setMobileMenu(!document.body.classList.contains('f4-menu-open'));return}
   try{
     const child=frame.contentWindow;
-    if(selected==='bank-sampah'){if(typeof child.v18TogglePublic==='function')child.v18TogglePublic();else child.document.getElementById('v18PublicSide')?.classList.toggle('open');return}
+    if(selected==='bank-sampah'){if(typeof child.f4ToggleBankMenu==='function')child.f4ToggleBankMenu();else if(typeof child.v18TogglePublic==='function')child.v18TogglePublic();return}
     if(selected==='pembukuan'){if(typeof child.bukaMenu==='function')child.bukaMenu();else child.document.getElementById('side-drawer')?.classList.add('open');return}
   }catch(e){notify('Menu belum tersedia, silakan muat ulang halaman')}
 });
