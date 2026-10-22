@@ -206,7 +206,25 @@ body.book-mode .shell{left:258px}
 </style><link id="f4-original-favicon" rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8"><style id="f4-logo-override">
    .portal-logo.f4-brand-image{background:transparent!important;border-radius:0!important;overflow:visible!important}
    .portal-logo.f4-brand-image img{width:43px;height:50px;object-fit:contain;display:block}
-   </style></head>
+   </style><style id="f4-theme-controls-final">
+:root{--f4-control:#594ae3;--f4-control-hover:#4935bb;--f4-control-ring:#b7a0ff}
+body.bank-mode{--f4-control:#276347;--f4-control-hover:#184d37;--f4-control-ring:#a1c8ae}
+body.book-mode{--f4-control:#7435e5;--f4-control-hover:#5a26bf;--f4-control-ring:#c9b5fb}
+#f4-scroll-top{
+ background:var(--f4-control)!important;color:white!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:48px!important;height:48px!important;padding:0!important;
+ border:0!important;border-radius:50%!important;line-height:0!important
+}
+#f4-scroll-top[hidden]{display:none!important}
+#f4-scroll-top:hover{background:var(--f4-control-hover)!important}
+#f4-scroll-top:focus-visible{outline:3px solid var(--f4-control-ring)!important}
+#f4-scroll-top svg{display:block!important;position:static!important;flex:none!important;
+ margin:0!important;width:22px!important;height:22px!important;stroke-width:2.1!important}
+.account-menu button,.login-modal button{display:flex;align-items:center;justify-content:center}
+.account-menu button{justify-content:flex-start}
+.account-ui .avatar-button{display:flex;align-items:center;justify-content:center;padding:2px}
+</style></head>
 <body>
 <header class="shell">
  <div class="top">
