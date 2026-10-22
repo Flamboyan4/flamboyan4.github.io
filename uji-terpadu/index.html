@@ -355,6 +355,20 @@ body.book-mode #profile-shade:not([hidden]){background:#fff6ed!important}
 body.book-mode #profile-title{color:#a65b22!important}
 body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
 @media(max-width:650px){#profile-shade:not([hidden]){padding:12px!important}#profile-shade>.login-modal{padding:20px 16px!important}}
+</style><link rel="stylesheet" href="./account-workspace.css?v=20261023-v1">
+<style id="f4-resident-editor-styles">
+#f4-warga-panel .f4-warga-item-actions{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
+#f4-warga-panel .f4-warga-item-actions button{background:var(--work-tint,#f0eaff)!important;color:var(--work-accent,#6f39bc)!important;border-color:var(--work-line,#e2d8fa)!important;font:600 12px system-ui;padding:8px 10px}
+#f4-warga-editor[hidden]{display:none!important}
+#f4-warga-editor{background:#fff;border:1px solid var(--work-line,#e7e6f2);border-radius:12px;padding:16px;max-width:890px;margin:8px auto}
+#f4-warga-editor h3{margin:0 0 14px;font:750 19px system-ui;color:var(--work-accent,#7c3aed)}
+#f4-warga-editor .f4-warga-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#f4-warga-editor label{display:flex;flex-direction:column;gap:5px;font:600 12px system-ui}
+#f4-warga-editor input,#f4-warga-editor textarea,#f4-warga-editor select{width:100%;padding:11px;border:1px solid var(--work-line,#d7cbea);border-radius:9px;font:500 14px system-ui;color:#263344;background:#fff}
+#f4-warga-editor input:focus,#f4-warga-editor textarea:focus{outline:2px solid var(--work-accent,#7c3aed);outline-offset:1px}
+#f4-warga-editor .f4-warga-form-actions{display:flex;gap:9px;justify-content:flex-end;margin-top:15px}
+#f4-warga-editor .f4-warga-form-actions button[type=submit]{background:var(--work-accent,#7c3aed)!important;color:#fff!important}
+@media(max-width:600px){#f4-warga-editor .f4-warga-fields{grid-template-columns:minmax(0,1fr)}#f4-warga-panel #f4-warga-list article{flex-wrap:wrap}#f4-warga-panel .f4-warga-item-actions{width:100%;justify-content:flex-start}}
 </style></head>
 <body>
 <header class="shell">
@@ -782,10 +796,15 @@ body.book-mode #f4-warga-panel .f4-warga-sidebar button.active{background:#fff0d
   const query=document.getElementById('f4-warga-search').value.trim().toLowerCase();
   list.replaceChildren();
   records.filter(x=>JSON.stringify(x).toLowerCase().includes(query)).forEach(x=>{
-   const article=document.createElement('article'),left=document.createElement('div'),title=document.createElement('b'),small=document.createElement('small'),edit=document.createElement('button');
+   const article=document.createElement('article'),left=document.createElement('div'),title=document.createElement('b'),small=document.createElement('small'),buttons=document.createElement('div');
+   buttons.className='f4-warga-item-actions';
    title.textContent=x.nama||'Rumah Kosong';
    small.textContent=[x.rumah,x.nama_pemilik?'Pemilik: '+x.nama_pemilik:'',x.status_rumah||''].filter(Boolean).join(' • ');
-   left.append(title,small);edit.textContent='Edit';edit.onclick=()=>window.f4EditWarga(x);article.append(left,edit);list.appendChild(article);
+   left.append(title,small);
+   const editHouse=document.createElement('button');editHouse.textContent='Edit Rumah';editHouse.onclick=()=>window.f4OpenResidentForm('edit_house',x);buttons.append(editHouse);
+   if(x.payer_id){const editPerson=document.createElement('button');editPerson.textContent='Edit Warga';editPerson.onclick=()=>window.f4OpenResidentForm('edit_resident',x);buttons.append(editPerson)}
+   else{const addPerson=document.createElement('button');addPerson.textContent='+ Warga';addPerson.onclick=()=>window.f4OpenResidentForm('add_resident',{household_id:x.household_id});buttons.append(addPerson)}
+   article.append(left,buttons);list.appendChild(article);
   });
  };
  window.openWarga=async()=>{
@@ -797,6 +816,7 @@ body.book-mode #f4-warga-panel .f4-warga-sidebar button.active{background:#fff0d
    const data=await response.json();
    if(!response.ok||data.ok===false)throw Error(data.error||'HTTP '+response.status);
    records=Array.isArray(data.rows)?data.rows:Array.isArray(data.data)?data.data:[];
+   window.f4ResidentData=records;
    status.textContent=records.length+' rumah dibaca dari D1 • Versi pengelolaan warga 23 Okt';
    draw();
   }catch(e){status.textContent='API Data Warga belum tersedia atau akses ditolak: '+e.message+'. Modul Worker diperlukan sebelum tambah/edit dapat diaktifkan.'}
@@ -866,4 +886,6 @@ body.book-mode #f4-account-page{background:#fff8f0}body.book-mode #f4-account-pa
  document.getElementById('f4-account-page-settings').onclick=()=>{page.hidden=true;document.querySelector('[data-account-action="settings"]')?.click()};
  document.getElementById('f4-account-page-home').onclick=()=>window.openAccountPage();
 })();
-</script></body></html>
+</script><script src="./account-workspace.js?v=20261023-v1"></script>
+<script src="./resident-editor.js?v=20261023-v1"></script>
+</body></html>
