@@ -744,10 +744,10 @@ body.iframe-modal-open .framebox #gate{display:none!important}
   const query=document.getElementById('f4-warga-search').value.trim().toLowerCase();
   list.replaceChildren();
   records.filter(x=>JSON.stringify(x).toLowerCase().includes(query)).forEach(x=>{
-   const article=document.createElement('article'),left=document.createElement('div'),title=document.createElement('b'),small=document.createElement('small');
-   title.textContent=x.nama||x.display_name||x.name||'Tanpa nama';
-   small.textContent=[x.rumah||x.house_code||x.houseCode,x.statusRumah||x.house_status,x.status||''].filter(Boolean).join(' • ');
-   left.append(title,small);article.appendChild(left);list.appendChild(article);
+   const article=document.createElement('article'),left=document.createElement('div'),title=document.createElement('b'),small=document.createElement('small'),edit=document.createElement('button');
+   title.textContent=x.nama||'[Rumah tanpa penghuni]';
+   small.textContent=[x.rumah,x.nama_pemilik?'Pemilik: '+x.nama_pemilik:'',x.status_rumah||''].filter(Boolean).join(' • ');
+   left.append(title,small);edit.textContent='Edit';edit.onclick=()=>window.f4EditWarga(x);article.append(left,edit);list.appendChild(article);
   });
  };
  window.openWarga=async()=>{
@@ -762,6 +762,22 @@ body.iframe-modal-open .framebox #gate{display:none!important}
    status.textContent=records.length+' profil warga dibaca dari D1';
    draw();
   }catch(e){status.textContent='API Data Warga belum tersedia atau akses ditolak: '+e.message+'. Modul Worker diperlukan sebelum tambah/edit dapat diaktifkan.'}
+ };
+ window.f4EditWarga=async x=>{
+  if(!document.body.classList.contains('role-superadmin'))return;
+  const houseOnly=!x.payer_id;
+  const fields=houseOnly?['rumah','status_rumah','tipe_unit','nama_pemilik','kontak_pemilik','keterangan_rumah']:['nama','status_tinggal','status_aktif','nomor_hp','keterangan_warga'];
+  const changes={action:houseOnly?'edit_house':'edit_resident',[houseOnly?'household_id':'payer_id']:x[houseOnly?'household_id':'payer_id']};
+  for(const k of fields){
+   const v=prompt('Edit '+k.replaceAll('_',' '),x[k]??'');
+   if(v===null)return;
+   changes[k]=v;
+  }
+  try{
+   const response=await fetch('https://api.flamboyan4.web.id/api/v2/admin/residents',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(changes)});
+   const data=await response.json();if(!response.ok||data.ok===false)throw Error(data.error||'HTTP '+response.status);
+   await window.openWarga();
+  }catch(e){status.textContent='Gagal menyimpan: '+e.message}
  };
  document.getElementById('f4-warga-close').onclick=()=>{panel.hidden=true};
  document.getElementById('f4-warga-reload').onclick=()=>window.openWarga();
