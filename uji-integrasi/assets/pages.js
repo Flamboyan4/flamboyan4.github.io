@@ -231,7 +231,7 @@ async function accountPage(){
  $('login-form').addEventListener('submit',async(ev)=>{ev.preventDefault();const button=$('login-submit');button.disabled=true;try{await endpoints.login($('login-username').value,$('login-password').value);$('login-password').value='';const active=await refresh();if(!active)throw Error('Login diterima, tetapi sesi belum terbaca. Periksa cookie dan domain API.');await updateHeader()}catch(e){failure(e)}finally{button.disabled=false}});
  $('logout-btn').onclick=async()=>{try{await endpoints.logout();$('auth-profile').hidden=true;$('auth-login').hidden=false;await updateHeader();boxStatus('Kamu sudah keluar.','success')}catch(e){failure(e)}};
  $('profile-form').onsubmit=async(e)=>{e.preventDefault();try{await endpoints.saveProfile($('profile-name').value);boxStatus('Profil berhasil disimpan.','success');await refresh()}catch(err){failure(err)}};
- $('avatar-form').onsubmit=async(e)=>{e.preventDefault();const file=$('avatar-file').files?.[0];if(!file)return;if(file.size>2*1024*1024){boxStatus('Foto maksimal 2 MB.','error');return}try{await endpoints.avatar(file);$('avatar-file').value='';boxStatus('Foto berhasil diunggah ke R2.','success');await refresh()}catch(err){failure(err)}};
+ $('avatar-form').onsubmit=async(e)=>{e.preventDefault();const file=$('avatar-file').files?.[0];if(!file)return;if(file.size>2*1024*1024){boxStatus('Foto maksimal 2 MB.','error');return}try{await endpoints.avatar(file);$('avatar-file').value='';boxStatus('Foto berhasil diunggah ke R2.','success');await refresh();await updateHeader()}catch(err){failure(err)}};
  await refresh();
 }
 if(page==='portal')portal();else if(page==='bank')bank();else if(page==='book')book();else if(page==='akun')accountPage();

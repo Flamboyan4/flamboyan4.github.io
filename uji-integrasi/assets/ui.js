@@ -43,9 +43,11 @@ function roleNav(s){
  const p=document.body.dataset.page,r=pageRole(s);
  const nav=$('app-sidebar-menu');if(nav){
   nav.replaceChildren();const list=p==='bank'?BANKNAV[r==='superadmin'?'admin':r]:(p==='akun'&&r==='public'?[]:SITEMAP[p]||[]);
-  list.forEach(([name,target,icon,view])=>{
-   const a=shellLink(name,'#'+target,icon,'shell-side-link');a.append(elem('span',name));
+  list.forEach(([name,target,icon,view],index)=>{
+   
+   const a=shellLink(name,'#'+target,icon,'shell-side-link'+(index===0?' current':''));a.append(elem('span',name));
    a.addEventListener('click',()=>{
+    nav.querySelectorAll('.shell-side-link').forEach(item=>item.classList.remove('current'));a.classList.add('current');
     if(view){const b=document.querySelector('#'+(p==='bank'?'bank-admin-nav':'book-ledger-nav')+' [data-kind="'+view+'"]');b?.click()}
     document.body.classList.remove('sidebar-open');
    });nav.append(a);

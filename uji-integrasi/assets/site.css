@@ -18,7 +18,7 @@ body.theme-account{--accent:#5367b2;--accent-dark:#3b5098;--accent-soft:#eef1fc}
 .shell-brand-copy{display:flex;flex-direction:column;line-height:1.4}.shell-brand-copy strong{font-size:15px;color:var(--accent-dark)}.shell-brand-copy small{font-size:11px;color:var(--soft)}
 .shell-menu{display:grid;gap:3px;padding:0 12px 25px;align-content:start}
 .shell-side-link{display:flex;align-items:center;gap:12px;padding:11px 12px;text-decoration:none;border-radius:9px;font-size:13px;font-weight:750;color:#485762}
-.shell-side-link:hover,.shell-side-link:focus-visible{background:var(--accent-soft);color:var(--accent-dark)}
+.shell-side-link.current,.shell-side-link:hover,.shell-side-link:focus-visible{background:var(--accent-soft);color:var(--accent-dark)}
 .shell-side-link svg{width:19px;height:19px;flex-shrink:0;color:var(--accent)}
 .app-workspace{margin-left:242px;background:var(--bg);min-height:100vh}
 .app-utility{height:64px;position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:9px 26px}
