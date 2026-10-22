@@ -660,6 +660,7 @@ body.iframe-modal-open .framebox #gate{display:none!important}
   const action=b.dataset.accountAction;menu.hidden=true;avatar.setAttribute('aria-expanded','false');
   if(action==='logout'){signOut();return}
   if(action==='warga'){openWarga();return}
+  if(action==='my'){openAccountPage();return}
   openProfileSettings(action==='settings');
  });
  const mobileMenu=document.getElementById('f4-mobile-menu');
@@ -719,12 +720,12 @@ body.iframe-modal-open .framebox #gate{display:none!important}
  update(selected);refreshSession();
 })();
 </script><div id="f4-warga-panel" hidden aria-modal="true" role="dialog" aria-label="Data Warga dan Rumah">
- <section><header><strong>Data Warga & Rumah</strong><button type="button" id="f4-warga-close" aria-label="Tutup">✕</button></header>
+ <section><aside class="f4-warga-sidebar"><strong id="f4-warga-brand">Superadmin</strong><button type="button" id="f4-warga-overview">Ringkasan Akun</button><button type="button" class="active">Data Warga & Rumah</button><button type="button" id="f4-warga-bank-link">Bank Sampah</button><button type="button" id="f4-warga-back">← Kembali ke Portal</button></aside><div class="f4-warga-main"><header><strong>Data Warga & Rumah</strong><button type="button" id="f4-warga-close" aria-label="Tutup">✕</button></header>
  <p>Sumber data: Cloudflare D1. Hanya Superadmin yang berhak mengelola data induk.</p>
  <div id="f4-warga-status" role="status">Belum dimuat</div>
  <div class="f4-warga-tools"><input id="f4-warga-search" placeholder="Cari nama / rumah" aria-label="Cari data warga"><button type="button" id="f4-warga-new-house">+ Rumah</button><button type="button" id="f4-warga-new-person">+ Warga</button><button type="button" id="f4-warga-reload">Muat ulang</button></div>
  <div id="f4-warga-list"></div>
- </section>
+ </div></section>
 </div>
 <style id="f4-warga-panel-style">
 #f4-warga-panel:not([hidden]){position:fixed;inset:0;z-index:9999;background:#1119;display:flex;align-items:center;justify-content:center;padding:12px}
@@ -737,6 +738,28 @@ body.iframe-modal-open .framebox #gate{display:none!important}
 #f4-warga-list small{display:block;color:#60776a;margin-top:4px}
 #f4-warga-panel .f4-warga-tools button,#f4-warga-panel #f4-warga-list article>button{display:inline-flex!important;visibility:visible!important;opacity:1!important;align-items:center;justify-content:center;flex-shrink:0;min-width:55px}
 @media(max-width:640px){.f4-warga-tools{flex-wrap:wrap}.f4-warga-tools input{flex-basis:100%}#f4-warga-panel section{padding:12px}}
+
+/* Halaman administrasi permanen, bukan modal/popup. Tema mengikuti portal. */
+#f4-warga-panel:not([hidden]){background:#f3f5fa!important;padding:0!important;align-items:stretch!important;justify-content:stretch!important}
+#f4-warga-panel>section{width:100%!important;max-height:100dvh!important;height:100dvh!important;border-radius:0!important;box-shadow:none!important;padding:0!important;overflow:hidden!important;display:grid!important;grid-template-columns:232px minmax(0,1fr)!important;background:#f5f7fa!important}
+#f4-warga-panel .f4-warga-sidebar{display:flex;flex-direction:column;gap:7px;padding:24px 12px;background:#fff;border-right:1px solid #e3e6eb;overflow-y:auto}
+#f4-warga-panel .f4-warga-sidebar strong{font:750 17px system-ui;color:#403185;padding:12px}
+#f4-warga-panel .f4-warga-sidebar button{text-align:left;width:100%;border:0!important;background:transparent!important;padding:12px!important;font:650 13px system-ui;color:#544a76}
+#f4-warga-panel .f4-warga-sidebar button.active{background:#eee8fb!important;color:#5837aa}
+#f4-warga-panel .f4-warga-main{overflow:auto;padding:25px clamp(12px,3vw,40px)}
+#f4-warga-panel .f4-warga-main>header{padding:0 0 15px;border-bottom:1px solid #e0e1e8}
+#f4-warga-panel #f4-warga-list{max-height:none!important;overflow:visible!important}
+body.bank-mode #f4-warga-panel>section{background:#f2f7f1!important}
+body.bank-mode #f4-warga-panel .f4-warga-sidebar strong{color:#235740}
+body.bank-mode #f4-warga-panel .f4-warga-sidebar button.active{background:#e0efe2!important;color:#205d3a}
+body.book-mode #f4-warga-panel>section{background:#fff7f0!important}
+body.book-mode #f4-warga-panel .f4-warga-sidebar strong{color:#a55418}
+body.book-mode #f4-warga-panel .f4-warga-sidebar button.active{background:#fff0df!important;color:#a55418}
+@media(max-width:700px){#f4-warga-panel>section{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto minmax(0,1fr)!important}
+#f4-warga-panel .f4-warga-sidebar{flex-direction:row;align-items:center;padding:8px;overflow-x:auto;gap:4px;border-right:0;border-bottom:1px solid #e1e8e2}
+#f4-warga-panel .f4-warga-sidebar strong{padding:6px;font-size:12px;white-space:nowrap}
+#f4-warga-panel .f4-warga-sidebar button{width:auto!important;white-space:nowrap;padding:9px!important;font-size:12px!important}
+#f4-warga-panel .f4-warga-main{padding:14px}}
 </style>
 <script id="f4-warga-d1-bridge">
 (()=>{
@@ -782,6 +805,9 @@ body.iframe-modal-open .framebox #gate{display:none!important}
   }catch(e){status.textContent='Gagal menyimpan: '+e.message}
  };
  document.getElementById('f4-warga-close').onclick=()=>{panel.hidden=true};
+ document.getElementById('f4-warga-back').onclick=()=>{panel.hidden=true};
+ document.getElementById('f4-warga-overview').onclick=()=>{panel.hidden=true;window.openAccountPage?.()};
+ document.getElementById('f4-warga-bank-link').onclick=()=>{panel.hidden=true;document.querySelector('[data-target="bank-sampah"]')?.click()};
  const sendNew=async(action,fields)=>{
   if(!document.body.classList.contains('role-superadmin'))return;
   const changes={action};
@@ -800,5 +826,31 @@ body.iframe-modal-open .framebox #gate{display:none!important}
  };
  document.getElementById('f4-warga-reload').onclick=()=>window.openWarga();
  document.getElementById('f4-warga-search').oninput=draw;
+})();
+</script><div id="f4-account-page" hidden><aside><strong id="f4-account-page-title">Akun Saya</strong><button type="button" id="f4-account-page-home" class="active">Ringkasan Akun</button><button type="button" id="f4-account-page-warga">Data Warga & Rumah</button><button type="button" id="f4-account-page-bank">Bank Sampah</button><button type="button" id="f4-account-page-settings">Pengaturan Profil</button><button type="button" id="f4-account-page-back">← Kembali</button></aside><main><header><h2>Akun Saya</h2></header><p id="f4-account-page-welcome"></p><p>Gunakan menu di kiri untuk membuka halaman pengelolaan sesuai hak akses akun.</p></main></div>
+<style id="f4-account-full-page-styles">
+#f4-account-page:not([hidden]){position:fixed;inset:0;z-index:9998;display:grid;grid-template-columns:232px minmax(0,1fr);background:#f4f5fb;color:#38324e}
+#f4-account-page aside{background:white;border-right:1px solid #e4e1eb;padding:22px 12px;display:flex;flex-direction:column;gap:6px;overflow-y:auto}
+#f4-account-page aside strong{padding:12px;color:#51409f}#f4-account-page aside button{cursor:pointer;background:transparent;border:0;text-align:left;padding:12px;border-radius:10px;color:#4d4962;font:650 13px system-ui}
+#f4-account-page aside button.active{background:#eee8fb;color:#5b36ab}
+#f4-account-page main{padding:30px;overflow:auto}#f4-account-page h2{font-size:24px;margin:0 0 16px}
+body.bank-mode #f4-account-page{background:#f1f6f1}body.bank-mode #f4-account-page aside strong{color:#256348}body.bank-mode #f4-account-page aside button.active{background:#e2f0e5;color:#235e40}
+body.book-mode #f4-account-page{background:#fff8f0}body.book-mode #f4-account-page aside strong{color:#aa5920}body.book-mode #f4-account-page aside button.active{background:#ffecd8;color:#a45214}
+@media(max-width:700px){#f4-account-page:not([hidden]){grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr}#f4-account-page aside{flex-direction:row;overflow-x:auto;padding:9px;gap:4px;border-bottom:1px solid #ddd}#f4-account-page aside strong,#f4-account-page aside button{white-space:nowrap;padding:10px;font-size:12px}#f4-account-page main{padding:18px}}
+</style>
+<script id="f4-account-full-page-script">
+(()=>{
+ const page=document.getElementById('f4-account-page');
+ window.openAccountPage=()=>{
+   page.hidden=false;
+   document.getElementById('f4-account-page-title').textContent=document.body.classList.contains('bank-mode')?'Bank Sampah — Akun':document.body.classList.contains('book-mode')?'Pembukuan — Akun':'Portal Utama — Akun';
+   document.getElementById('f4-account-page-welcome').textContent=document.getElementById('account-name').textContent+' • '+document.getElementById('account-role').textContent;
+   document.getElementById('f4-account-page-warga').hidden=!document.body.classList.contains('role-superadmin');
+ };
+ document.getElementById('f4-account-page-back').onclick=()=>page.hidden=true;
+ document.getElementById('f4-account-page-warga').onclick=()=>{page.hidden=true;window.openWarga()};
+ document.getElementById('f4-account-page-bank').onclick=()=>{page.hidden=true;document.querySelector('[data-target="bank-sampah"]')?.click()};
+ document.getElementById('f4-account-page-settings').onclick=()=>{page.hidden=true;document.querySelector('[data-account-action="settings"]')?.click()};
+ document.getElementById('f4-account-page-home').onclick=()=>window.openAccountPage();
 })();
 </script></body></html>
