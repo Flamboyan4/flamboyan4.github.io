@@ -80,10 +80,10 @@
    x.append(row);
  }
  function portalTasks(){
-   const p=portal();
-   if(p==='pembukuan')return [['Iuran',()=>navigate('pembukuan','input')],['Buku Kas',()=>navigate('pembukuan','kas')],['Denda',()=>navigate('pembukuan','denda')],['Laporan',()=>navigate('pembukuan','laporan')],['Data Warga & Rumah',()=>openWarga()]];
-   if(p==='bank-sampah')return [['Dashboard Admin',()=>navigate('bank-sampah','dashboard')],['Pencatatan',()=>navigate('bank-sampah','setoran')],['Keuangan',()=>navigate('bank-sampah','rekonsiliasi')],['Data & Anggota',()=>navigate('bank-sampah','master')],['Data Warga & Rumah',()=>openWarga()]];
-   return [['Kelola Konten Portal',()=>navigate('portal')],['Kelola Data Warga & Rumah',()=>openWarga()],['Buka Pembukuan',()=>navigate('pembukuan')],['Buka Bank Sampah',()=>navigate('bank-sampah')]];
+   const p=portal(),edit=type=>window.openSuperadminEditor?.(type);
+   if(p==='pembukuan')return [['Data Rumah & Warga',()=>openWarga()],['Kewajiban Iuran',()=>edit('obligations')],['Tarif Iuran',()=>edit('tariffs')],['Aturan Tanggal',()=>edit('settings')]];
+   if(p==='bank-sampah')return [['Dashboard Admin',()=>navigate('bank-sampah','dashboard')],['Pencatatan',()=>navigate('bank-sampah','setoran')],['Keuangan',()=>navigate('bank-sampah','rekonsiliasi')],['Data & Anggota',()=>navigate('bank-sampah','master')]];
+   return [['Project Card',()=>edit('projects')],['Rencana Kegiatan',()=>edit('agenda')],['Dokumentasi',()=>edit('documentation')],['Inventaris',()=>edit('inventory')],['Banner Slider',()=>edit('banners')],['Hasil Rapat',()=>edit('meetings')]];
  }
  function openWarga(){
    page.hidden=true;
@@ -192,5 +192,12 @@
      if(r==='superadmin')actions('Menu pengelolaan',portalTasks());
    }
  }
- window.openAccountPage=show;
+ window.openAccountPage=()=>{
+ const p=portal(),r=role();
+ if(r==='superadmin'&&p==='portal')return window.openSuperadminEditor?.('projects');
+ if(r==='superadmin'&&p==='pembukuan')return window.openSuperadminEditor?.('obligations');
+ if(p==='bank-sampah'&&(r==='superadmin'||r==='admin'))return navigate('bank-sampah','dashboard');
+ if(p==='bank-sampah'&&r==='anggota')return navigate('bank-sampah','pribadi');
+ return show();
+};
 })();
