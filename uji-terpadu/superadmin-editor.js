@@ -124,13 +124,20 @@ function showForm(record){
    const value=input.value.trim();
    if(input.required&&!value){notice.textContent=input.name+' wajib diisi.';input.focus();return}
    if(input.readOnly)continue;
-   values[input.name]=input.type==='number'?Number(value):input.name==='active'?Number(value):value;
+   const next=input.type==='number'?Number(value):input.name==='active'?Number(value):value;
+   // Edit parsial: jangan mengirim ulang kolom lama yang tidak disentuh.
+   // Misalnya URL relatif pada data projek lama tetap utuh tanpa melewati validasi URL baru.
+   if(record&&Object.hasOwn(record,input.name)&&String(record[input.name]??'')===String(next))continue;
+   values[input.name]=next;
   }
   if(def.section==='book'){
    if(active==='tariffs'){obj.contribution_type=record.contribution_type;obj.amount_rp=values.amount_rp;}
    else if(active==='settings'){obj.setting_key=record.setting_key;obj.setting_value=values.setting_value;}
    else{obj.payer_id=record.payer_id;Object.assign(obj,values);}
-  }else obj.values=values;
+  }else {
+   if(record&&!Object.keys(values).length){notice.textContent='Belum ada perubahan untuk disimpan.';return;}
+   obj.values=values;
+  }
   const submit=actions.lastChild;submit.disabled=true;notice.textContent='Menyimpan…';
   try{
    await send(base+active,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});
