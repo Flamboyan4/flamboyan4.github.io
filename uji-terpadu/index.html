@@ -155,6 +155,54 @@ body.role-superadmin .top nav [data-target="pembukuan"]{display:grid!important}
  body.bank-mode .shell{left:0}
  /* Di HP sidebar bank mobile mengikuti app aslinya; bar tidak menutup menu saat dibuka. */
 }
+</style><style id="f4-utility-scroll-integration">
+/* Utility bar is visually transparent at rest, becoming solid on scroll.
+   No second navbar. Sidebars start from top of viewport. */
+.shell,body.bank-mode .shell,body.book-mode .shell{
+ background:transparent!important;border:0!important;box-shadow:none!important;
+ backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+ transition:background-color .18s ease,box-shadow .18s ease,backdrop-filter .18s ease
+}
+.shell.is-scrolled,body.bank-mode .shell.is-scrolled,body.book-mode .shell.is-scrolled{
+ background:rgba(255,255,255,.96)!important;
+ box-shadow:0 5px 22px rgba(49,40,82,.07)!important;
+ backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important
+}
+body.bank-mode .top,body.book-mode .top{background:transparent!important}
+body.book-mode .shell{left:258px}
+@media(min-width:1024px){
+ body.book-mode .framebox{
+  position:absolute!important;inset:0!important;margin:0!important;
+  height:100dvh!important;min-height:0!important;z-index:1
+ }
+}
+#f4-scroll-top{
+ position:fixed;right:21px;bottom:22px;z-index:85;
+ width:49px;height:49px;display:grid;place-items:center;
+ border:0;border-radius:50%;background:#5d45e9;color:white;
+ box-shadow:0 8px 23px rgba(64,42,147,.23);
+ cursor:pointer;transition:transform .18s ease,background-color .18s ease
+}
+#f4-scroll-top:hover{background:#4935bf;transform:translateY(-2px)}
+#f4-scroll-top:focus-visible{outline:3px solid #b7a0ff;outline-offset:3px}
+#f4-scroll-top svg{width:23px;height:23px}
+#f4-scroll-top[hidden]{display:none!important}
+@media(max-width:1023px){
+ body.book-mode .shell{left:0}
+ body.book-mode .framebox{
+  position:relative!important;inset:auto!important;margin:56px 0 0!important;
+  height:calc(100dvh - 56px)!important;z-index:1
+ }
+}
+@media(max-width:760px){
+ body.bank-mode .framebox{
+  position:relative!important;inset:auto!important;margin:56px 0 0!important;
+  height:calc(100dvh - 56px)!important;z-index:1
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .shell,#f4-scroll-top{transition:none!important}
+}
 </style></head>
 <body>
 <header class="shell">
@@ -238,12 +286,14 @@ body.role-superadmin .top nav [data-target="pembukuan"]{display:grid!important}
   <p class="role-description">Profil dan foto hanya contoh pada pratinjau. Nantinya perubahan foto, nama, dan kata sandi menggunakan akun asli serta R2/Worker.</p>
  </section>
 </div>
+<button type="button" id="f4-scroll-top" aria-label="Kembali ke atas" title="Kembali ke atas" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 12 6-6 6 6M12 6v12"/></svg></button>
 <div id="toast" class="toast" hidden role="status"></div>
 <script>
 (()=>{
  const apps={portal:'./portal/',rapat:'./rapat/','bank-sampah':'./bank-sampah/',pembukuan:'./pembukuan/'};
  const buttons=[...document.querySelectorAll('nav [data-target]')],frame=document.getElementById('appframe'),
  gate=document.getElementById('gate'),toast=document.getElementById('toast');
+ const scrollButton=document.getElementById('f4-scroll-top'),toolbar=document.querySelector('.shell');
  const login=document.getElementById('login-button'),avatar=document.getElementById('avatar-button'),
  menu=document.getElementById('account-menu'),loginShade=document.getElementById('login-shade'),
  profileShade=document.getElementById('profile-shade'),roleSelect=document.getElementById('login-role');
@@ -267,6 +317,34 @@ body.role-superadmin .top nav [data-target="pembukuan"]{display:grid!important}
    document.getElementById('account-role').textContent=roles[role].label+' · demo';
   }
  }
+ function scrollDepth(){
+   try{
+    const w=frame.contentWindow,d=w.document;
+    return Math.max(0,w.scrollY||0,d.scrollingElement?.scrollTop||0,d.documentElement?.scrollTop||0,d.body?.scrollTop||0);
+   }catch{return 0}
+ }
+ function syncScroll(){
+   const depth=scrollDepth();
+   toolbar.classList.toggle('is-scrolled',depth>12);
+   scrollButton.hidden=!(permitted()&&['bank-sampah','pembukuan'].includes(selected)&&depth>250);
+ }
+ function attachScrollListener(){
+   try{
+     const child=frame.contentWindow;
+     child.addEventListener('scroll',syncScroll,{passive:true});
+     child.document.addEventListener('scroll',syncScroll,true);
+   }catch{}
+   syncScroll();
+ }
+ scrollButton.addEventListener('click',()=>{
+   if(!permitted())return;
+   try{
+     const child=frame.contentWindow;
+     child.scrollTo({top:0,behavior:'smooth'});
+     const root=child.document.scrollingElement;
+     if(root&&root.scrollTop>0)root.scrollTo({top:0,behavior:'smooth'});
+   }catch{notify('Tidak dapat menggulir halaman pada pratinjau ini.')}
+ });
  function sendRole(){
   if(!permitted())return;
   try{frame.contentWindow.postMessage({type:'f4:demo-role',role},location.origin)}catch{}
@@ -275,6 +353,8 @@ body.role-superadmin .top nav [data-target="pembukuan"]{display:grid!important}
   selected=target;
   document.body.classList.toggle('portal-mode',target==='portal'||target==='rapat');
   document.body.classList.toggle('bank-mode',target==='bank-sampah');
+  document.body.classList.toggle('book-mode',target==='pembukuan');
+  toolbar.classList.remove('is-scrolled');scrollButton.hidden=true;
   document.querySelectorAll('[data-portal-menu]').forEach(b=>b.classList.toggle('active',b.dataset.portalMenu===(target==='rapat'?'rapat':'beranda')));
   buttons.forEach(b=>{
    const selected=b.dataset.target===(target==='rapat'?'portal':target);
@@ -329,7 +409,7 @@ body.role-superadmin .top nav [data-target="pembukuan"]{display:grid!important}
   if(selected!=='portal'){update('portal');setTimeout(go,500)}else go();
  }));
  buttons.forEach(b=>b.addEventListener('click',()=>update(b.dataset.target)));
- frame.addEventListener('load',sendRole);
+ frame.addEventListener('load',()=>{sendRole();attachScrollListener()});
  window.addEventListener('message',e=>{
   if(e.origin!==location.origin||!e.data)return;
   if(e.data.type==='f4:ready')sendRole();
