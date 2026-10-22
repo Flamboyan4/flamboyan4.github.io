@@ -2,6 +2,7 @@
 import {initShell,elem,fmtNum} from './ui.js';
 import {apiURL} from './config.js';
 import {endpoints} from './api.js';
+import {openMediaGallery,openMediaViewer} from './media-viewer.js';
 const $=id=>document.getElementById(id);
 const isBank=document.body.dataset.page==='bank';
 const docCsv="https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=0&single=true&output=csv";
@@ -17,9 +18,13 @@ async function readLegacyFolder(raw){
  try{
   const response=await fetch(publicFolderAPI+'?folderId='+encodeURIComponent(id));if(!response.ok)return [];
   const d=await response.json();const files=Array.isArray(d.files)?d.files:Array.isArray(d.images)?d.images:[];
-  return files.map(f=>typeof f==='string'?{url:driveImage(f),type:'foto'}:{
-   url:driveImage(f.url||f.link||f.src||''),type:/video/i.test(f.type||f.mimeType||'')?'video':'foto',
-   caption:String(f.name||f.title||'').slice(0,90)}).filter(x=>x.url);
+  return files.map(f=>{
+   if(typeof f==='string')return {url:driveImage(f),type:'foto'};
+   const type=/video/i.test(f.type||f.mimeType||'')?'video':'foto';
+   const raw=f.url||f.link||f.src||'';
+   const id=String(raw).match(/(?:\/d\/|[?&]id=)([A-Za-z0-9_-]{12,})/)?.[1];
+   return {url:type==='video'&&id?'https://drive.google.com/file/d/'+id+'/view':driveImage(raw),type,caption:String(f.name||f.title||'').slice(0,90)};
+  }).filter(x=>x.url);
  }catch{return []}
 }
 
@@ -48,64 +53,31 @@ function makeImage(src,label){
  const img=document.createElement('img');img.src=src;img.alt=label;img.loading='lazy';img.referrerPolicy='no-referrer';
  img.onerror=()=>img.replaceWith(elem('div','▧','media-photo-placeholder'));return img;
 }
-function openDialog(title,items,footer=''){
- const dlg=$('media-dialog'),body=$('media-dialog-body');$('media-dialog-heading').textContent=title;body.replaceChildren();
- const grid=elem('div',undefined,'media-gallery-grid');
- items.forEach(it=>{
-  const url=externalMedia(it.url||it);if(!url)return;
-  const type=limit(it.type||'foto',20).toLowerCase();
-  if(type==='video'){const a=elem('a','▶ Buka video ↗','btn outline');a.href=url;a.target='_blank';a.rel='noopener noreferrer';grid.append(a)}
-  else{
-   const a=elem('a',undefined,'media-gallery-cell');a.href=url;a.target='_blank';a.rel='noopener noreferrer';
-   a.append(makeImage(url,limit(it.caption||title,90)));grid.append(a);
-  }
- });
- if(grid.children.length)body.append(grid);
- else{const p=elem('p',footer||'Album ini belum memiliki media yang bisa ditampilkan.','muted');body.append(p)}
- if(footer&&grid.children.length)body.append(elem('p',footer,'muted small'));
- dlg.showModal();
-}
-$('media-dialog-close').onclick=()=>$('media-dialog').close();
-$('media-dialog').onclick=e=>{if(e.target===$('media-dialog'))$('media-dialog').close()};
+
 function viewAlbum(item){
  if(isBank){
-  $('media-dialog-heading').textContent=item.title;
-  const dlg=$('media-dialog'),body=$('media-dialog-body');body.replaceChildren(elem('p','Memuat isi album…','muted'));dlg.showModal();
-  endpoints.bankAlbum(item.id).then(d=>{
-   const media=(d.media||[]).map(x=>({type:x.media_type||x.type,url:x.mediaUrl||x.external_url,caption:x.caption}));
-   dlg.close();openDialog(item.title,media,'Album publik berasal dari API Bank Sampah D1.');
-  }).catch(e=>{body.textContent='Album belum bisa dimuat: '+e.message});
- }else{
-  const raw=limit(item.raw,5000),all=raw.split(',').map(x=>x.trim()).filter(Boolean);
-  const folders=all.filter(x=>x.includes('/folders/'));
-  const images=all.filter(x=>!x.includes('/folders/')).map(x=>({url:driveImage(x),caption:item.title,type:'foto'}));
-  const folder=folders.map(safeHttp).find(Boolean);
-  const footer=folder?'Foto dalam folder Google Drive lama belum dimuat langsung ke D1. Buka folder dari tautan berikut.':'Dokumentasi berasal dari arsip CSV portal lama.';
-  openDialog(item.title,images,footer);
-  if(folder){
-   const loading=elem('p','Memuat foto dalam album lama…','muted small');$('media-dialog-body').append(loading);
-   readLegacyFolder(folder).then(files=>{
-    if(!$('media-dialog').open)return;
-    loading.remove();
-    if(files.length){
-     const grid=elem('div',undefined,'media-gallery-grid');
-     files.forEach(f=>{
-      const link=elem('a',undefined,'media-gallery-cell');link.href=f.url;link.target='_blank';link.rel='noopener noreferrer';
-      if(f.type==='video')link.textContent='▶ Buka Video';else link.append(makeImage(f.url,f.caption||item.title));
-      grid.append(link);
-     });
-     $('media-dialog-body').prepend(grid);
-    }
-   }).catch(()=>loading.remove());
-   const a=elem('a','Lihat folder Google Drive ↗','btn outline');a.href=folder;a.target='_blank';a.rel='noopener noreferrer';$('media-dialog-body').append(a);
-  }
+  const feedback=$('feedback');feedback.hidden=false;feedback.textContent='Memuat album '+item.title+'…';
+  endpoints.bankAlbum(item.id).then(data=>{
+   const records=(data.media||[]).map(x=>({type:x.media_type||x.type||x.mime_type,url:externalMedia(x.mediaUrl||x.external_url||x.url),caption:x.caption||''})).filter(x=>x.url);
+   feedback.hidden=true;openMediaGallery(item.title,records);
+  }).catch(e=>status('Album tidak dapat dibuka: '+e.message,true));
+  return;
  }
+ const all=String(item.raw||'').split(',').map(x=>x.trim()).filter(Boolean);
+ const direct=all.filter(x=>!x.includes('/folders/')).map(x=>({url:driveImage(x),type:'foto',caption:item.title}));
+ const folder=all.find(x=>x.includes('/folders/'));if(!folder){openMediaGallery(item.title,direct);return}
+ const feedback=$('feedback');feedback.hidden=false;feedback.textContent='Memuat media album…';
+ readLegacyFolder(folder).then(media=>{
+  feedback.hidden=true;
+  openMediaGallery(item.title,[...direct,...media],{folderURL:safeHttp(folder)});
+ }).catch(()=>{feedback.hidden=true;openMediaGallery(item.title,direct,{folderURL:safeHttp(folder)})});
 }
+
 function renderAlbums(){
  const list=$('media-albums');list.replaceChildren();
  const search=$('media-search').value.trim().toLowerCase();
  const filtered=albumItems.filter(a=>(activeCategory==='Semua'||a.category===activeCategory)&&(!search||(a.title+' '+a.description).toLowerCase().includes(search)));
- $('media-count').textContent=filtered.length+' album';
+ if($('media-count'))$('media-count').textContent=filtered.length+' album';
  if(!filtered.length){list.append(elem('p','Tidak ada album untuk filter ini.','muted'));return}
  filtered.forEach(a=>{
   const card=elem('button',undefined,'media-album-card');card.type='button';
@@ -127,7 +99,7 @@ function renderFilters(){
 }
 function renderInventories(){
  const node=$('media-inventory-list');node.replaceChildren();
- $('inventory-total').textContent=inventoryItems.length+' item';
+ if($('inventory-total'))$('inventory-total').textContent=inventoryItems.length+' item';
  if(!inventoryItems.length){node.append(elem('p','Belum ada inventaris publik yang tercatat.','muted'));return}
  inventoryItems.forEach(x=>{
   const b=elem('button',undefined,'media-inventory-item');b.type='button';
@@ -135,7 +107,7 @@ function renderInventories(){
   const copy=elem('span',undefined,'media-item-copy');copy.append(elem('strong',x.name));
   copy.append(elem('small',x.condition||x.category||'Tercatat','muted'));b.append(copy);
   b.append(elem('span',limit(x.qty,25)+' '+limit(x.unit||'Unit',14),'portal-inventory-qty'));
-  b.onclick=()=>openDialog(x.name,x.photo?[{url:x.photo,type:'foto'}]:[],x.condition||'Rincian inventaris warga.');
+  b.onclick=()=>{if(x.photo)openMediaViewer('Inventaris: '+x.name,[{url:x.photo,type:'foto'}]);};
   node.append(b);
  });
 }
