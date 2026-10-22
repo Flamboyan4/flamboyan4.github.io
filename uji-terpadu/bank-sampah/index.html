@@ -2025,18 +2025,21 @@
   v29SetupAudit();
 </script>
 <script>
+ let f4AccountRole='public';
+ let f4AccountIdentity={};
+ function f4ApplyAccountRole(role,identity){
+   f4AccountRole=role;f4AccountIdentity=identity||{};
+   if(role==='public'){profile=null;token='';v11ShowPublic();return}
+   token='cloudflare-session-readonly';
+   const id=f4AccountIdentity;
+   const p={nama:id.nama||'Akun aktif',peran:role==='warga'?'Warga':'Admin',rumah:id.rumah||'',wargaId:id.wargaId||''};
+   showDashboard(p);
+   v16BuildNav();
+ }
  window.addEventListener('message',function(event){
-   if(event.origin!==location.origin || event.data?.type!=='f4:demo-role')return;
-   const role=event.data.role;
-   try {
-     if(role==='public'){v11ShowPublic();return}
-     token='demo-only-no-backend';
-     const id=event.data.identity||{};
-     const p={nama:id.nama||'Akun aktif',peran:role==='warga'?'Warga':'Admin',rumah:id.rumah||'',wargaId:id.wargaId||''};
-     showDashboard(p);
-     // Account-specific sidebar is built by original v16BuildNav in showDashboard.
-     setTimeout(()=>{try{v16BuildNav();}catch(e){console.warn('Gagal menampilkan menu akun:',e)}},0);
-   } catch(e) {window.__f4DemoNotify('Bagian pratinjau akun: '+e.message)}
+   if(event.origin!==location.origin||event.source!==window.parent||event.data?.type!=='f4:demo-role')return;
+   try{f4ApplyAccountRole(event.data.role,event.data.identity)}
+   catch(e){window.__f4DemoNotify?.('Menu akun Bank Sampah: '+e.message)}
  });
  // Semua tombol login portal mengarah ke akses akun terpadu, tanpa menulis sesi lokal.
   try{v11ShowLogin=function(){window.parent.postMessage({type:'f4:show-login'},location.origin)}}catch(e){}
@@ -2048,6 +2051,8 @@
   if(event.origin!==location.origin||event.source!==window.parent||event.data?.type!=='f4:open-bank-admin')return;
   const roleReady=profile?.peran==='Admin';
   const show=()=>{
+    if(profile?.peran!=='Admin' && (f4AccountRole==='superadmin'||f4AccountRole==='admin'))
+      f4ApplyAccountRole(f4AccountRole,f4AccountIdentity);
     if(profile?.peran!=='Admin')return;
     const section=String(event.data.section||'dashboard');
     const allowed=new Set(['dashboard','setoran','riwayat','penjualan','riwayatJual','rekonsiliasi','pengesahan','tabungan','biaya','laporan','kegiatan','dokumentasi','inventaris','master','admin','progress']);
