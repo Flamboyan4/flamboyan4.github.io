@@ -53,7 +53,16 @@
       ...(data.banners||[]).map(x=>[x.title,x.image_ref,x.target_url])]);
    case 'projects':
     return csv([['Urutan','Nama Projek','Jenis','Status','Tampil','Link'],
-      ...(data.projects||[]).map(x=>[x.sort_order,x.title,x.title,'Aktif','YA',x.target_url])]);
+      ...(data.projects||[]).map(x=>{
+       const title=String(x.title||''),name=title.toLowerCase();
+       const kind=name.includes('sampah')?'Bank Sampah':name.includes('gapura')?'Gapura':name.includes('jersey')?'Jersey':title;
+       const raw=String(x.target_url||'');
+       const link=kind==='Bank Sampah'&&(/appsscript|script\\.google|^\\/banksampah\\/?$/i.test(raw)||!raw)
+         ?'https://flamboyan4.web.id/uji-terpadu/#bank-sampah':raw;
+       const description=String(x.description||'').trim();
+       const status=description.length<=50?description||'Aktif':'Aktif';
+       return [x.sort_order,title,kind,status,'YA',link];
+      })]);
    default:throw Error('Jenis CSV tidak terdaftar');
   }
  }
