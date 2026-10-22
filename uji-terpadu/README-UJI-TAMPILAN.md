@@ -135,3 +135,29 @@ Pengguna menetapkan bahwa pekerjaan migrasi database/Cloudflare ditunda. **Prior
 **Bank Sampah:** Uji Terpadu previously used offline-bank.js mocked backend and login, which led to missing admin/anggota pages and broken report data. As temporary *functional restoration*, the bank navigation link in `uji-terpadu/index.html` now goes to the **actual Bank Sampah Apps Script production app**: `https://script.google.com/macros/s/AKfycbzkOIyAXui0PtTccwi7m-PGMNLv-2ERD7r21edDmgUK579_-YI3p3sr5SJ0Ld2x7wZU/exec`. Direct `#bank-sampah` hash from shell routes there as well. This is not one integrated login; existing Apps Script login remains. Do not claim it is a finished unified system. The old uji-terpadu/bank-sampah standalone file may still exist but is not the canonical functioning frontend.
 
 **Next steps:** inspect the full original production HTML/UI of Portal Utama and Pembukuan and keep their original backend sources. Decide the safest direct source for each within the integrated shell; don't claim live data while using mocked adapters. Establish actual role-based centralized login only after functionality is intact. **No D1 reimport, no new mock dashboards, no Worker deployment as part of visual restoration.**
+
+## STATUS AKTUAL INTEGRASI UNTUK PENGUJIAN — 22 Oktober 2026 (Malam)
+
+Pengguna meminta menghubungkan data dan akun yang **sudah tersedia** agar dapat menguji portal asli di GitHub. Ini mengubah prioritas sebelumnya yang hanya meminta tampilan. Jangan kembali ke Apps Script atau membuat dashboard tiruan baru.
+
+### Sudah dipasang di /uji-terpadu/
+
+- **Popup asli**: index.html saat iframe membuka modal mendeteksi dialog via MutationObserver lalu mengangkat iframe full-screen di atas top utility/sidebar. Mode kembali normal saat dialog ditutup. Belum diverifikasi browser langsung.
+- **Login**: index.html dan buka-portal-github-20261022.html kini identik. Pemilih role palsu sudah **dihapus**; form username/password memakai POST `https://api.flamboyan4.web.id/api/auth/login`, sesi GET `/api/v2/auth/session`, keluar POST `/api/auth/logout`. Role dari session.account.role; superadmin-only bookkeeping icon.
+- **Profil**: GET/POST `/api/member/profile`, foto GET/POST `/api/member/avatar` ke R2; tabungan GET `/api/member/savings`. Avatar dari R2 dimuat otomatis bila `profile.hasPhoto`. Status hanya berhasil ketika Worker benar-benar menjawab.
+- **Bank Sampah**: menambah `live-bank-readonly.js` pada HTML asli dan mengizinkan CSP untuk API Cloudflare. GET D1 `/api/v2/public/bank`, `/api/v2/public/bank/album/:id`, `/api/v2/public/bank/report`, `/api/member/savings`, `/api/v2/admin/bank/catalog`. Menerjemahkan data ke komponen lama untuk publik/tabungan/katalog. Data yang tidak memiliki mapping terverifikasi **tidak boleh diisi angka palsu**.
+- **Pembukuan**: `live-book-readonly.js` membaca GET `/api/bookkeeping/iuran/payers`, `/api/bookkeeping/iuran/tariffs`, `/api/bookkeeping/iuran/history`, `/api/bookkeeping/cash`, `/api/bookkeeping/denda`, `/api/bookkeeping/pinjaman`, `/api/bookkeeping/talangan`. Hanya data pembayar terdaftar D1 (belum semua master rumah). Baris pembayaran historis dikunci dari edit; aksi tulis belum aktif.
+- **Pengaman**: `offline-common.js` meneruskan hanya GET ke API Cloudflare, mencegah write Apps Script/legacy. Semua endpoint tulis keuangan tetap tunduk flag Worker. Tidak ada D1 diimpor ulang atau Worker dideploy dalam tahap ini.
+
+### Belum selesai dan TIDAK BOLEH DIKLAIM SIAP
+
+1. Semua API endpoint **belum terverifikasi online** karena permintaan dari lingkungan kerja ini gagal mengakses domain API (tidak membuktikan domain down bagi pengguna). Browser login dan data harus diuji langsung.
+2. Formulir bank: setoran, jual, rekonsiliasi, pengesahan, kas, pencairan, administrasi akun, edit/hapus data, laporan admin lengkap masih perlu mapping schema/request Worker; tidak boleh diklaim menyimpan data.
+3. Pembukuan: banyak form pembayaran/kas/denda/pinjaman/talangan/batch, laporan lengkap dan tutup buku belum punya endpoint tulis yang disetujui. Tidak ada write financial staging saat feature flags masih false.
+4. Portal Utama masih memakai salinan data arsip Google Sheets untuk beberapa komponen (arisan, banner, dokumentasi, proyek, inventaris); kartu kas belum sepenuhnya bersumber dari D1. Data D1 dan data snapshot jangan disatukan diam-diam menjadi saldo akhir.
+5. Album media Google Drive belum migrasi semua file individual; galeri lama di uji sebagian memakai sumber folder.
+
+### Catatan akses
+
+- URL utama `https://flamboyan4.web.id/uji-terpadu/` dan alamat lama `https://flamboyan4.web.id/uji-terpadu/buka-portal-github-20261022.html` **harus terus disinkronkan**. Jika salah satu diubah lagi, sinkronkan kembali; perubahan hanya di /uji-terpadu/.
+- Login dan data mungkin gagal apabila Custom Domain `api.flamboyan4.web.id` belum aktif atau cookie/CORS tidak cocok; tampilkan kesalahan yang sebenarnya, bukan simulasi sukses.
