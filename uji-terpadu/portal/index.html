@@ -2429,14 +2429,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 
 <section class="approval"><div><div class="sign-title">Mengetahui,<br>Humas Flamboyan 4</div><div class="sign-line">Heri Juwandi</div></div></section>
 <div class="note">Dicetak pada ${escapeCetakKas(tanggalCetak)} • Flamboyan 4 • Data bersumber dari pembukuan kas pada flamboyan4.web.id</div>
-<script>window.onload=()=>{setTimeout(()=>window.print(),350)}<\/script><script id="f4-firebase-sdk-diagnostic">
-window.addEventListener('load',()=>{
- const list=document.getElementById('container-komentar-list');
- if(!window.firebase?.database){
-  if(list)list.textContent='Koneksi Firebase gagal: library Firebase tidak termuat.';
- }
-});
-</script></body></html>`);
+<script>window.onload=()=>{setTimeout(()=>window.print(),350)}<\/script></body></html>`);
       w.document.close();
       closeModalCetakKas();
     }
@@ -3809,6 +3802,11 @@ document.addEventListener('DOMContentLoaded',()=>{
   const obs=new IntersectionObserver(es=>document.body.classList.toggle('f4-footer-visible',es.some(e=>e.isIntersecting)),{threshold:0});
   obs.observe(f);
  }
+});
+</script><script id="f4-chat-diagnostics-live">
+window.addEventListener('DOMContentLoaded',()=>{
+ const el=document.getElementById('container-komentar-list');
+ if(!window.firebase?.database&&el)el.textContent='Firebase tidak termuat. Periksa jaringan atau pemblokiran browser.';
 });
 </script></body>
 </html>
