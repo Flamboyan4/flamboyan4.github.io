@@ -53,11 +53,10 @@ async function portal(){
   renderPortalSlider(r.banners||r.slides||[]);
   put('count-agenda',r.agenda?.length||0);put('count-projects',r.projects?.length||0);put('count-inventory',r.inventory?.length||0);put('count-meetings',r.meetings?.length||0);
   setCards('agenda',(r.agenda||[]).map(x=>({title:x.title,note:`${date(x.starts_on)} · ${x.location||'Lingkungan warga'}`,text:x.description||x.status||''})));
-  setCards('projects',(r.projects||[]).map(x=>({title:x.title,text:x.description,url:x.target_url})));
-  await renderMeetingArchive(r.meetings||[]);
+  setCards('projects',(r.projects||[]).slice(0,3).map(x=>({title:x.title,text:x.description,url:x.target_url})));
   setRows('inventory',['Inventaris','Jumlah','Kategori'],(r.inventory||[]).map(x=>[x.name,`${fmtNum(x.quantity)} ${x.unit||''}`,x.category||'—']));
   boxStatus('Data portal publik berhasil dimuat dari D1.','success');
- }catch(e){renderPortalSlider([]);renderMeetingArchive([]);failure(e)}
+ }catch(e){renderPortalSlider([]);failure(e)}
 }
 
 async function bankReport(month=''){
