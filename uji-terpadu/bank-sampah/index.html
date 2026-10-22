@@ -515,7 +515,19 @@
 /* Hanya di pratinjau terpadu: akun berada di utilitas kanan atas, bukan sidebar. */
 #v15Footer,#v19PublicAccountFooter,#v17PublicAccount,#navProfile,#navPassword,#v13Group_account{display:none!important}
 #v11Public .public-hero button{display:none!important}
-</style><style id="f4-no-double-navbar">body>.shell>header.top:first-child{display:none!important} #sideNav.side{top:0!important;height:100dvh!important;max-height:100dvh!important} body>.shell>.content{min-height:100dvh!important} #v19PublicFloatingMenu{display:none!important} #dashboardView>.grid{min-height:100dvh!important} #v11Public{min-height:100dvh!important}</style></head>
+</style><style id="f4-no-double-navbar">body>.shell>header.top:first-child{display:none!important} #sideNav.side{top:0!important;height:100dvh!important;max-height:100dvh!important} body>.shell>.content{min-height:100dvh!important} #v19PublicFloatingMenu{display:none!important} #dashboardView>.grid{min-height:100dvh!important} #v11Public{min-height:100dvh!important}</style><style id="f4-align-sidebar-to-utility">
+/* Sidebar Bank Sampah sejajar dengan top utility bar (tanpa baris kosong di atas).
+ * Hanya pada /uji-terpadu/, tidak menyentuh web aktif. */
+@media(min-width:761px){
+ #v11Public.v18-public-shell{min-height:100dvh!important;align-items:stretch!important}
+ #v18PublicSide{top:0!important;height:100dvh!important;max-height:100dvh!important;
+   border-right:1px solid #e9ede8!important}
+ #v18PublicContent{padding-top:56px!important;min-height:100dvh!important;box-sizing:border-box!important}
+ #dashboardView>.grid{min-height:100dvh!important}
+ #sideNav.side{top:0!important;min-height:100dvh!important;height:100dvh!important;max-height:100dvh!important}
+ #dashboardView>.grid>.section{padding-top:80px!important}
+}
+</style></head>
 <body>
 <div class="shell">
   <header class="top"><div class="brand"><div class="logo">🌿</div><div>Bank Sampah Flamboyan 4<div class="sub">Portal akun warga dan administrator</div></div></div><span class="tag">Lingkungan kita</span></header>
