@@ -167,7 +167,7 @@
  async function finesReport(p){
   const d=await read('/api/bookkeeping/denda?limit=200');
   const all=rows(d).map(x=>({id:x.id,nama:x.nama||'',payerId:x.payerId,
-   tanggalKegiatan:x.tanggal,namaKegiatan:x.jenis||'Gorol',
+   tanggalKegiatan:x.tanggal,namaKegiatan:x.jenis||'Gorol',...houseParts(x.rumah),
    nominal:n(x.nominalRp),status:String(x.status||'').toUpperCase(),
    tanggalBayar:x.tanggalBayar||'',metode:'',catatan:x.catatan||''}));
   const selected=filtered(all,p,'tanggalKegiatan');
@@ -178,7 +178,7 @@
  }
  async function loansReport(p){
   const d=await read('/api/bookkeeping/pinjaman?limit=200');
-  const all=rows(d).map(x=>({idPinjaman:x.id,nama:x.nama||'',tanggalPinjaman:x.tanggal,
+  const all=rows(d).map(x=>({idPinjaman:x.id,nama:x.nama||'',...houseParts(x.rumah),tanggalPinjaman:x.tanggal,
    nominalPinjaman:n(x.pokokRp),totalDibayar:n(x.angsuranAktifRp),sisaPinjaman:n(x.sisaRp),
    status:String(x.status||'').toUpperCase(),keterangan:x.catatan||''}));
   const status=String(p?.status||'SEMUA').toUpperCase();
@@ -190,11 +190,11 @@
  }
  async function advancesReport(p){
   const d=await read('/api/bookkeeping/talangan?limit=200');
-  const all=rows(d).map(x=>({idTalangan:x.id,nama:x.nama||x.payerName||'',
+  const all=rows(d).map(x=>({idTalangan:x.id,nama:x.nama||x.payerName||'',...houseParts(x.rumah),
    tanggal:x.tanggal||x.advanced_on||'',nominalTalangan:n(x.pokokRp||x.amount_rp),
    nominalDiganti:n(x.pelunasanRingkasanRp||x.reimbursed_rp),
    sisaTalangan:n(x.sisaMenurutRingkasanRp||x.sisaRp),
-   status:String(x.status||'').toUpperCase(),statusPembukuan:'Tercatat'}));
+   status:statusOf(x.status),statusPembukuan:'DITAHAN',tanggalJatuhTempo:x.tanggalJatuhTempo||''}));
   const selected=filtered(all,p,'tanggal');
   const sum=key=>selected.reduce((a,x)=>a+n(x[key]),0);
   return successful({data:{...periodLabel(p),statusFilter:p?.status||'SEMUA',rows:selected,
