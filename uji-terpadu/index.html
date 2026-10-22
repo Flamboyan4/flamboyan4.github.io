@@ -30,21 +30,61 @@ iframe{display:block;width:100%;height:100%;border:0;background:white}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1d3656;color:white;padding:12px 17px;border-radius:12px;max-width:min(90vw,650px);z-index:100;box-shadow:0 14px 40px #07192e40;font-size:13px}
 .toast[hidden]{display:none}
 @media(max-width:850px){.top{padding:10px 12px;gap:9px}.brand{min-width:0;flex:1}.brand b{font-size:14px}.brand small{font-size:10px}nav{order:3;width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}nav button{padding:9px 4px;font-size:12px}.select-wrap{margin-left:auto}.select-wrap label{display:none}.select-wrap select{max-width:125px;padding:8px}.status{display:none}.notice{font-size:10.5px;padding:7px 10px}.framebox{height:calc(100dvh - 145px);min-height:400px}}
+/* Navigasi terpadu: ikon utilitas dan akses akun di kanan atas. */
+.shell{background:linear-gradient(105deg,#4840ae,#6657c1);box-shadow:0 2px 12px #34329026}
+.top{max-width:1600px}.brand{min-width:180px}.brand small{color:#eee9ff}
+.status{color:#ebe6ff;margin-right:6px;min-width:0}
+nav{margin-left:auto}
+nav button{display:grid;place-items:center!important;width:39px;height:39px;padding:0!important;border-radius:11px!important;color:#fff;border-color:#9689da;background:transparent}
+nav button.active{background:#fff!important;color:#4f3da1!important;border-color:#fff}
+nav .nav-icon{font:700 23px/1 system-ui}
+.account-ui{position:relative;min-width:45px;display:flex;justify-content:flex-end}
+.login-button{border:0;color:#fff;background:#8e65ef;border-radius:11px;padding:11px 17px;font-weight:750;cursor:pointer}
+.avatar-button{width:44px;height:44px;border-radius:50%;border:2px solid white;padding:2px;background:#ecebff;display:grid;place-items:center;cursor:pointer}
+.avatar-face{width:37px;height:37px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(#b7a5ed,#6852b0);color:#f5eafa;font-size:26px;line-height:1}
+[hidden]{display:none!important}
+.account-menu{position:absolute;right:0;top:54px;min-width:225px;background:white;color:#272142;box-shadow:0 16px 35px #291d5633;border:1px solid #e5ddff;border-radius:13px;padding:7px;z-index:100}
+.account-menu button{display:block;width:100%;text-align:left;border:0;background:transparent;border-radius:8px;padding:10px 12px;font:600 13px system-ui;color:#3b316b;cursor:pointer}
+.account-menu button:hover{background:#f0eaff}
+.account-summary{padding:9px 11px;border-bottom:1px solid #ece7fb;margin-bottom:4px}
+.account-summary b{display:block}.account-summary small{display:block;color:#766895;margin-top:3px}
+.login-shade{position:fixed;inset:0;background:#15122685;display:flex;align-items:center;justify-content:center;padding:16px;z-index:1000}
+.login-modal{background:#fff;color:#272142;width:min(100%,420px);border-radius:20px;box-shadow:0 25px 75px #0c0a2147;padding:30px;position:relative}
+.login-modal h2{margin:0 0 12px;color:#4e31a1}.login-modal p{font-size:14px;line-height:1.5;color:#655d7b}
+.login-modal label{display:block;font-size:12px;font-weight:750;margin-top:16px;margin-bottom:6px}
+.login-modal select{display:block;width:100%;border:1px solid #c6b9ef;border-radius:11px;padding:12px;background:white;color:#2a2251;font:600 14px system-ui}
+.role-description{padding:12px;background:#f5f0ff;border-radius:10px}
+.login-confirm{width:100%;background:#6e35dd;color:#fff;border:0;padding:13px;border-radius:10px;font-weight:750;cursor:pointer}
+.close-login{position:absolute;top:13px;right:15px;background:transparent;color:#574c70;border:0;font-size:25px;cursor:pointer}
+@media(max-width:850px){
+ .brand{margin-right:auto;flex:1}.brand small{display:none}
+ nav{order:2;width:auto;margin-left:0;display:flex;gap:5px}
+ nav button{width:33px;height:33px}.account-ui{order:3}
+ .status{display:none}.framebox{height:calc(100dvh - 117px)}
+}
 </style></head>
 <body>
 <header class="shell">
  <div class="top">
   <div class="brand"><span class="logo">✿</span><div><b>Flamboyan 4 · Uji Terpadu</b><small>Tiga antarmuka asli, satu navigasi & identitas</small></div></div>
-  <div class="select-wrap"><label for="account">Simulasi akun</label><select id="account" aria-label="Simulasi hak akses akun terpusat">
-   <option value="public">Pengunjung</option><option value="warga">Warga</option>
-   <option value="admin">Admin Bank Sampah</option><option value="superadmin">Superadmin</option>
-  </select></div>
   <div class="status"><span class="dot"></span>Data contoh / offline</div>
   <nav aria-label="Navigasi antarportal">
-   <button type="button" data-target="portal" class="active" aria-pressed="true">Portal Utama</button>
-   <button type="button" data-target="bank-sampah" aria-pressed="false">Bank Sampah</button>
-   <button type="button" data-target="pembukuan" aria-pressed="false">Pembukuan</button>
+   <button type="button" data-target="portal" class="active" aria-pressed="true" title="Portal Utama" aria-label="Portal Utama"><span aria-hidden="true" class="nav-icon">⌂</span></button>
+   <button type="button" data-target="bank-sampah" aria-pressed="false" title="Bank Sampah" aria-label="Bank Sampah"><span aria-hidden="true" class="nav-icon">♻</span></button>
+   <button type="button" data-target="pembukuan" aria-pressed="false" title="Pembukuan" aria-label="Pembukuan"><span aria-hidden="true" class="nav-icon">▤</span></button>
   </nav>
+  <div class="account-ui" id="account-ui">
+   <button type="button" class="login-button" id="login-button">Login</button>
+   <button type="button" class="avatar-button" id="avatar-button" aria-label="Akun Saya" aria-expanded="false" aria-haspopup="menu" hidden>
+    <span class="avatar-face" aria-hidden="true">●</span>
+   </button>
+   <div class="account-menu" role="menu" id="account-menu" hidden>
+    <div class="account-summary"><b id="account-name">Akun Contoh</b><small id="account-role">Warga</small></div>
+    <button type="button" role="menuitem" data-account-action="my">Akun Saya</button>
+    <button type="button" role="menuitem" data-account-action="settings">Pengaturan Profil</button>
+    <button type="button" role="menuitem" data-account-action="logout">Keluar</button>
+   </div>
+  </div>
  </div>
 </header>
 <div class="notice"><strong>PRATINJAU STRUKTUR SAJA.</strong> Desain dan menu berasal dari aplikasi asli; login, data, pembayaran, simpan, hapus, dan pengesahan tidak terhubung ke database.</div>
@@ -52,38 +92,115 @@ iframe{display:block;width:100%;height:100%;border:0;background:white}
  <iframe id="appframe" title="Aplikasi asli Flamboyan 4 — pratinjau offline" sandbox="allow-scripts allow-same-origin allow-popups" referrerpolicy="no-referrer" src="./portal/" ></iframe>
  <div id="gate" class="gate" role="region" aria-label="Akses portal terbatas"><article>
   <div style="font-size:38px">🔒</div><h1>Pembukuan khusus Superadmin</h1>
-  <p>Ini simulasi hak akses terpusat. Pilih akun <b>Superadmin</b> pada baris atas untuk melihat antarmuka Pembukuan asli. Tidak ada autentikasi sungguhan.</p>
-  <button type="button" id="gate-login">Gunakan simulasi Superadmin</button></article></div>
+  <p>Ini simulasi hak akses terpusat. Masuk dengan <b>simulasi akun Superadmin</b> melalui tombol Login di kanan atas. Semua hak akses pada halaman ini hanya contoh, bukan autentikasi sungguhan.</p>
+  <button type="button" id="gate-login">Login sebagai Superadmin (demo)</button></article></div>
 </main>
+<div class="login-shade" id="login-shade" hidden role="presentation">
+ <section class="login-modal" role="dialog" aria-modal="true" aria-labelledby="login-title">
+  <button type="button" id="login-close" class="close-login" aria-label="Tutup">×</button>
+  <h2 id="login-title">Login · Pratinjau</h2>
+  <p>Simulasi satu akun untuk tiga portal. Tidak membutuhkan username, password, atau koneksi database.</p>
+  <label for="login-role">Lihat sebagai</label>
+  <select id="login-role">
+   <option value="warga">Warga / Anggota</option>
+   <option value="admin">Admin Bank Sampah</option>
+   <option value="superadmin">Superadmin</option>
+  </select>
+  <p id="role-description" class="role-description">Warga: data dan tabungan milik sendiri.</p>
+  <button type="button" id="login-confirm" class="login-confirm">Masuk (simulasi)</button>
+ </section>
+</div>
+<div class="login-shade" id="profile-shade" hidden role="presentation">
+ <section class="login-modal" role="dialog" aria-modal="true" aria-labelledby="profile-title">
+  <button type="button" id="profile-close" class="close-login" aria-label="Tutup">×</button>
+  <h2 id="profile-title">Akun Saya</h2>
+  <p id="profile-detail"></p>
+  <p class="role-description">Profil dan foto hanya contoh pada pratinjau. Nantinya perubahan foto, nama, dan kata sandi menggunakan akun asli serta R2/Worker.</p>
+ </section>
+</div>
 <div id="toast" class="toast" hidden role="status"></div>
 <script>
 (()=>{
- const apps={portal:'./portal/', 'bank-sampah':'./bank-sampah/',pembukuan:'./pembukuan/'};
- const account=document.getElementById('account'),buttons=[...document.querySelectorAll('nav [data-target]')],frame=document.getElementById('appframe'),gate=document.getElementById('gate');
- const toast=document.getElementById('toast');let selected='portal',time;
- const allowed=()=>selected!=='pembukuan'||account.value==='superadmin';
- const showToast=s=>{toast.textContent=s;toast.hidden=false;clearTimeout(time);time=setTimeout(()=>toast.hidden=true,4000)};
- const sendRole=()=>{if(!allowed())return;try{frame.contentWindow.postMessage({type:'f4:demo-role',role:account.value},location.origin)}catch{}};
- const update=(target)=>{
+ const apps={portal:'./portal/','bank-sampah':'./bank-sampah/',pembukuan:'./pembukuan/'};
+ const buttons=[...document.querySelectorAll('nav [data-target]')],frame=document.getElementById('appframe'),
+ gate=document.getElementById('gate'),toast=document.getElementById('toast');
+ const login=document.getElementById('login-button'),avatar=document.getElementById('avatar-button'),
+ menu=document.getElementById('account-menu'),loginShade=document.getElementById('login-shade'),
+ profileShade=document.getElementById('profile-shade'),roleSelect=document.getElementById('login-role');
+ const roles={warga:{name:'Warga Contoh',label:'Warga',description:'Warga: melihat tabungan dan data pribadi sendiri.'},
+ admin:{name:'Pengurus Bank Sampah',label:'Admin Bank Sampah',description:'Admin: mengelola Bank Sampah, tanpa akses Pembukuan.'},
+ superadmin:{name:'Superadmin Contoh',label:'Superadmin',description:'Superadmin: seluruh portal, termasuk Pembukuan.'}};
+ let selected='portal',role='public',timer;
+ const notify=s=>{toast.textContent=s;toast.hidden=false;clearTimeout(timer);timer=setTimeout(()=>toast.hidden=true,4000)};
+ const permitted=()=>selected!=='pembukuan'||role==='superadmin';
+ function refreshIdentity(){
+  const signed=role!=='public';
+  login.hidden=signed;avatar.hidden=!signed;menu.hidden=true;avatar.setAttribute('aria-expanded','false');
+  if(signed){
+   document.getElementById('account-name').textContent=roles[role].name;
+   document.getElementById('account-role').textContent=roles[role].label+' · demo';
+  }
+ }
+ function sendRole(){
+  if(!permitted())return;
+  try{frame.contentWindow.postMessage({type:'f4:demo-role',role},location.origin)}catch{}
+ }
+ function update(target){
   selected=target;
-  buttons.forEach(b=>{const yes=b.dataset.target===target;b.classList.toggle('active',yes);b.setAttribute('aria-pressed',String(yes));b.setAttribute('aria-disabled',String(b.dataset.target==='pembukuan'&&account.value!=='superadmin'))});
-  gate.classList.toggle('visible',!allowed());
-  if(allowed()){
-   const wanted=apps[target];
-   if(frame.getAttribute('src')!==wanted){frame.setAttribute('src',wanted)}else sendRole();
+  buttons.forEach(b=>{
+   const selected=b.dataset.target===target;
+   b.classList.toggle('active',selected);b.setAttribute('aria-pressed',String(selected));
+   b.setAttribute('aria-disabled',String(b.dataset.target==='pembukuan'&&role!=='superadmin'));
+  });
+  gate.classList.toggle('visible',!permitted());
+  if(permitted()){
+   const url=apps[target];
+   if(frame.getAttribute('src')!==url)frame.setAttribute('src',url);else sendRole();
   }
   try{history.replaceState(null,'','#'+target)}catch{}
+ }
+ function showLogin(preselect){
+  if(preselect)roleSelect.value=preselect;
+  document.getElementById('role-description').textContent=roles[roleSelect.value].description;
+  menu.hidden=true;loginShade.hidden=false;roleSelect.focus();
+ }
+ function signOut(){
+  role='public';refreshIdentity();notify('Keluar dari akun pratinjau; tidak ada sesi asli yang berubah.');
+  update(selected);
+ }
+ login.onclick=()=>showLogin();
+ avatar.onclick=()=>{menu.hidden=!menu.hidden;avatar.setAttribute('aria-expanded',String(!menu.hidden))};
+ roleSelect.onchange=()=>document.getElementById('role-description').textContent=roles[roleSelect.value].description;
+ document.getElementById('login-confirm').onclick=()=>{
+  role=roleSelect.value;loginShade.hidden=true;refreshIdentity();update(selected);
+  notify('Simulasi akun '+roles[role].label+' aktif; belum login sungguhan.');
  };
+ document.getElementById('login-close').onclick=()=>loginShade.hidden=true;
+ document.getElementById('profile-close').onclick=()=>profileShade.hidden=true;
+ document.getElementById('gate-login').onclick=()=>showLogin('superadmin');
+ document.querySelectorAll('[data-account-action]').forEach(b=>b.onclick=()=>{
+  const action=b.dataset.accountAction;menu.hidden=true;avatar.setAttribute('aria-expanded','false');
+  if(action==='logout'){signOut();return}
+  const isSettings=action==='settings';
+  document.getElementById('profile-title').textContent=isSettings?'Pengaturan Profil':'Akun Saya';
+  document.getElementById('profile-detail').textContent=roles[role].name+' — '+roles[role].label+'. '+(isSettings?'Pengaturan nama, foto dan password terhubung Worker/R2 pada aplikasi final; tidak aktif di pratinjau.':'Simulasi identitas yang berlaku di ketiga portal.');
+  profileShade.hidden=false;
+ });
  buttons.forEach(b=>b.addEventListener('click',()=>update(b.dataset.target)));
- account.addEventListener('change',()=>update(selected));
- document.getElementById('gate-login').addEventListener('click',()=>{account.value='superadmin';update('pembukuan')});
  frame.addEventListener('load',sendRole);
  window.addEventListener('message',e=>{
   if(e.origin!==location.origin||!e.data)return;
   if(e.data.type==='f4:ready')sendRole();
-  if(e.data.type==='f4:navigate' && Object.hasOwn(apps,e.data.target))update(e.data.target);
-  if(e.data.type==='f4:notice')showToast(e.data.message);
+  if(e.data.type==='f4:navigate'&&Object.hasOwn(apps,e.data.target))update(e.data.target);
+  if(e.data.type==='f4:notice')notify(e.data.message);
  });
+ document.addEventListener('pointerdown',e=>{
+  if(!document.getElementById('account-ui').contains(e.target)){menu.hidden=true;avatar.setAttribute('aria-expanded','false')}
+  if(e.target===loginShade)loginShade.hidden=true;
+  if(e.target===profileShade)profileShade.hidden=true;
+ });
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'){menu.hidden=true;loginShade.hidden=true;profileShade.hidden=true}});
+ refreshIdentity();
  const requested=location.hash.slice(1);update(Object.hasOwn(apps,requested)?requested:'portal');
 })();
 </script></body></html>
