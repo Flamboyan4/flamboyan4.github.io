@@ -1658,7 +1658,16 @@ main > section.card{overflow:visible!important}
 #history-talangan-panel td:nth-child(7) span{white-space:nowrap!important;display:inline-block!important;max-width:none!important}
 }
 </style>
-<meta http-equiv="Content-Security-Policy" content="connect-src 'none'; form-action 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com;"><script src="../offline-common.js"></script><script src="../calendar-unified.js"></script><script src="../offline-pembukuan.js"></script><style id="f4-no-double-navbar">body>header:first-of-type{display:none!important} @media(max-width:850px){#f4-demo-book-hamburger{display:grid!important}} #f4-demo-book-hamburger{display:none;position:fixed;left:11px;top:9px;z-index:60;place-items:center;width:38px;height:38px;background:#f1ebff;color:#5b33c4;border:1px solid #d8cafa;border-radius:9px}</style></head>
+<meta http-equiv="Content-Security-Policy" content="connect-src 'none'; form-action 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com;"><script src="../offline-common.js"></script><script src="../calendar-unified.js"></script><script src="../offline-pembukuan.js"></script><style id="f4-no-double-navbar">body>header:first-of-type{display:none!important} @media(max-width:850px){#f4-demo-book-hamburger{display:grid!important}} #f4-demo-book-hamburger{display:none;position:fixed;left:11px;top:9px;z-index:60;place-items:center;width:38px;height:38px;background:#f1ebff;color:#5b33c4;border:1px solid #d8cafa;border-radius:9px}</style><style id="f4-book-integrated-alignment">
+/* Desktop: original bookkeeping sidebar starts at y=0; content clears shared 56px overlay */
+@media(min-width:1024px){
+ body>main{padding-top:80px!important}
+ body>#side-drawer{top:0!important;height:100dvh!important}
+ body>#side-drawer .drawer-panel{height:100dvh!important}
+ body>#side-drawer .drawer-panel>div:first-child{height:80px!important;padding:16px 17px!important;border-bottom:1px solid #eee9f8!important}
+ body>#side-drawer .drawer-panel>div:first-child .font-black{font-size:15px!important;line-height:1.3!important}
+}
+</style></head>
 <body oncontextmenu="return false;"><button type="button" id="f4-demo-book-hamburger" aria-label="Buka menu Pembukuan" onclick="bukaMenu()">☰</button>
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
@@ -1675,7 +1684,7 @@ main > section.card{overflow:visible!important}
   <div class="drawer-backdrop" onclick="tutupMenu()"></div>
   <aside class="drawer-panel">
     <div class="h-16 px-4 flex items-center justify-between border-b border-violet-100">
-      <div><div class="font-black text-violet-950">Menu Pembukuan</div><div class="text-[11px] text-slate-400">Flamboyan 4</div></div>
+      <div><div class="font-black text-violet-950">Pembukuan</div><div class="text-[11px] text-slate-400">Flamboyan 4</div></div>
       <button onclick="tutupMenu()" class="w-9 h-9 rounded-xl hover:bg-violet-50 text-slate-500 flex items-center justify-center"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
     <div class="p-4 overflow-y-auto">
