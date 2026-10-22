@@ -252,6 +252,9 @@ body.bank-mode .account-summary{border-color:#d9e9de!important}
 body.bank-mode .top nav button:focus-visible,body.bank-mode .login-button:focus-visible{
  outline:3px solid #9ec8aa!important;outline-offset:2px!important;
 }
+</style><style id="f4-bank-modal-layer-fix">
+/* Modals from the original Bank Sampah iframe must not sit under shared mini bar. */
+body.bank-mode .shell.modal-covered{opacity:0!important;pointer-events:none!important}
 </style></head>
 <body>
 <header class="shell">
@@ -403,7 +406,7 @@ body.bank-mode .top nav button:focus-visible,body.bank-mode .login-button:focus-
   document.body.classList.toggle('portal-mode',['portal','rapat','dokumentasi','inventaris'].includes(target));
   document.body.classList.toggle('bank-mode',target==='bank-sampah');
   document.body.classList.toggle('book-mode',target==='pembukuan');
-  toolbar.classList.remove('is-scrolled');scrollButton.hidden=true;
+  toolbar.classList.remove('is-scrolled');scrollButton.hidden=true;toolbar.classList.remove('modal-covered');
   document.querySelectorAll('[data-portal-menu]').forEach(b=>b.classList.toggle('active',b.dataset.portalMenu===(['rapat','dokumentasi','inventaris'].includes(target)?target:'beranda')));
   buttons.forEach(b=>{
    const selected=b.dataset.target===(['rapat','dokumentasi','inventaris'].includes(target)?'portal':target);
@@ -464,6 +467,7 @@ body.bank-mode .top nav button:focus-visible,body.bank-mode .login-button:focus-
  window.addEventListener('message',e=>{
   if(e.origin!==location.origin||!e.data)return;
   if(e.data.type==='f4:ready')sendRole();
+  if(e.data.type==='f4:bank-modal'&&selected==='bank-sampah'&&e.source===frame.contentWindow){toolbar.classList.toggle('modal-covered',e.data.open===true);}
   if(e.data.type==='f4:section'&&['dokumentasi','inventaris'].includes(e.data.target)){
     selected=e.data.target;
     document.querySelectorAll('[data-portal-menu]').forEach(el=>el.classList.toggle('active',el.dataset.portalMenu===selected));
