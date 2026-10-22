@@ -511,7 +511,8 @@
     #v27PrintReport .v27-print-sign strong{display:block;margin-top:46px}
   }
 </style>
-<meta http-equiv="Content-Security-Policy" content="connect-src 'none'; form-action 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com;"><script src="../offline-common.js"></script><script src="../calendar-unified.js"></script><script src="../offline-bank.js"></script><style id="f4-preview-one-account">
+<meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://api.flamboyan4.web.id; form-action 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com;"><script src="../offline-common.js"></script><script src="../calendar-unified.js"></script><script src="../offline-bank.js"></script>
+<script src="../live-bank-readonly.js"></script><style id="f4-preview-one-account">
 /* Hanya di pratinjau terpadu: akun berada di utilitas kanan atas, bukan sidebar. */
 #v15Footer,#v19PublicAccountFooter,#v17PublicAccount,#navProfile,#navPassword,#v13Group_account{display:none!important}
 #v11Public .public-hero button{display:none!important}
@@ -1975,7 +1976,8 @@
    try {
      if(role==='public'){v11ShowPublic();return}
      token='demo-only-no-backend';
-     const p={nama:role==='warga'?'Warga Contoh':'Pengurus Contoh',peran:role==='warga'?'Warga':'Admin',rumah:'A5/24',wargaId:role==='warga'?'DEMO-W001':''};
+     const id=event.data.identity||{};
+     const p={nama:id.nama||'Akun aktif',peran:role==='warga'?'Warga':'Admin',rumah:id.rumah||'',wargaId:id.wargaId||''};
      showDashboard(p);
    } catch(e) {window.__f4DemoNotify('Bagian pratinjau akun: '+e.message)}
  });
