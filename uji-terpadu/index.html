@@ -887,5 +887,27 @@ body.book-mode #f4-account-page{background:#fff8f0}body.book-mode #f4-account-pa
  document.getElementById('f4-account-page-home').onclick=()=>window.openAccountPage();
 })();
 </script><script src="./account-workspace.js?v=20261023-v1"></script>
+<style id="f4-account-theme-final-20261023">
+/* Mengunci tema ke warna asli HTML Pembukuan (ungu), bukan oranye. */
+body.book-mode #f4-account-page:not([hidden]){background:#fbfaff!important}
+body.book-mode #f4-account-page aside strong,body.book-mode #f4-account-page .f4-work-brand{color:#6d28d9!important}
+body.book-mode #f4-account-page aside button.active,body.book-mode #f4-account-page aside button:hover{background:#f1eaff!important;color:#6d28d9!important}
+body.book-mode #f4-warga-panel>section{background:#fbfaff!important}
+body.book-mode #f4-warga-panel .f4-warga-sidebar strong{color:#6d28d9!important}
+body.book-mode #f4-warga-panel .f4-warga-sidebar button.active{background:#f1eaff!important;color:#6d28d9!important}
+body.book-mode #profile-shade:not([hidden]){background:#fbfaff!important}
+body.book-mode #profile-title{color:#6d28d9!important}
+body.book-mode #profile-shade .login-confirm{background:#7c3aed!important}
+#f4-account-page .f4-finance-controls{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 15px}
+#f4-account-page .f4-finance-controls input{padding:10px;border:1px solid var(--work-line);border-radius:9px;background:#fff;color:#27344c}
+#f4-account-page .f4-finance-controls button{background:var(--work-tint)!important;color:var(--work-accent)!important;border:1px solid var(--work-line)!important;border-radius:9px!important;padding:10px 13px!important;cursor:pointer}
+#f4-account-page .f4-finance-controls button:disabled{opacity:.45;cursor:not-allowed}
+#f4-account-page .f4-finance-table-wrap{max-width:100%;overflow-x:auto;background:#fff;border:1px solid var(--work-line);border-radius:12px}
+#f4-account-page .f4-finance-table-wrap table{border-collapse:collapse;width:100%;min-width:660px;color:#343744;font:12px system-ui}
+#f4-account-page .f4-finance-table-wrap th,#f4-account-page .f4-finance-table-wrap td{padding:10px 11px;text-align:left;border-bottom:1px solid #e8e9ef}
+#f4-account-page .f4-finance-table-wrap th{background:var(--work-tint);color:var(--work-accent)}
+#f4-account-page .f4-finance-table-wrap td:nth-last-child(-n+2){text-align:right;white-space:nowrap}
+</style>
 <script src="./resident-editor.js?v=20261023-v1"></script>
+<script src="./finance-workspace.js?v=20261023-v1"></script>
 </body></html>
