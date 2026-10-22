@@ -1,6 +1,7 @@
 import {initShell,elem,boxStatus} from './ui.js';
 import {endpoints} from './api.js';
-import {renderMeetingArchive} from './portal-extras.js';
+import {renderMeetingArchive,legacyProjects} from './portal-extras.js';
+import {renderProjectCards} from './project-cards.js';
 const section=document.body.dataset.sectionPage;
 initShell('portal');
 function safeLink(raw){
@@ -30,7 +31,8 @@ async function load(){
    const loaded=await renderMeetingArchive([]);
    boxStatus(loaded?'Arsip rapat berhasil dibaca dari data lama.':'Arsip rapat belum dapat dimuat. Silakan coba lagi.',loaded?'success':'error');
   }else if(section==='project'){
-   const res=await endpoints.portal();renderProjects(res.projects||[]);
+   const res=await endpoints.portal();renderProjectCards('project-list',res.projects||[]);
+   legacyProjects().then(m=>renderProjectCards('project-list',res.projects||[],m)).catch(()=>{});
    boxStatus('Daftar proyek dibaca dari API publik D1. Data pendanaan per proyek belum terhubung.','success');
   }
  }catch(e){boxStatus('Data belum dapat dimuat: '+(e?.message||'Kesalahan koneksi'),'error')}

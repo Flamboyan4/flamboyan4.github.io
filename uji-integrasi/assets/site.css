@@ -246,3 +246,76 @@ body.theme-home .portal-floating-actions #portal-suggestion-open{background:#554
 .bank-admin-field input,.bank-admin-field select,.bank-admin-field textarea{border:1px solid #cbd9d1;border-radius:10px;background:#fff;color:var(--ink);width:100%;padding:11px;font:inherit;min-width:0}
 .bank-admin-editor-actions{grid-column:1/-1}.bank-admin-editor-actions button{opacity:.6;cursor:not-allowed}
 @media(max-width:680px){.bank-admin-form{grid-template-columns:1fr}}
+
+/* Elemen informatif kecil yang bukan aksi tidak perlu menjadi badge. */
+.feedback[data-kind=success]{display:none}
+.portal-inventory-total{font-size:12px;color:var(--soft);font-weight:750}
+.portal-inventory-preview{max-height:278px;overflow-y:auto;scrollbar-width:thin}
+.banner-slide.banner-image-only:before{background:transparent!important}
+.banner-image-only .banner-image{object-fit:cover}
+.banner-click-surface{position:absolute;inset:0;z-index:2}
+.portal-project-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.portal-project-card{border:1px solid var(--line);background:#fff;border-radius:14px;box-shadow:0 5px 18px #1b225b08;min-width:0;padding:14px;display:flex;flex-direction:column;gap:12px}
+.portal-project-title-row{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:38px}
+.portal-project-title-row strong{font-size:15px;line-height:1.4}
+.portal-project-status{font-size:11px;color:#704e14;background:#fff1cb;border-radius:99px;padding:4px 8px;white-space:nowrap}
+.portal-project-cover{height:155px;position:relative;background:linear-gradient(135deg,#342f92,#7967d6);border-radius:11px;overflow:hidden;display:grid;place-items:center}
+.portal-project-cover.project-bank{background:linear-gradient(135deg,#15523d,#259a6c)}
+.portal-project-cover.project-gapura{background:linear-gradient(135deg,#645544,#ae8a6a)}
+.portal-project-cover.project-jersey{background:linear-gradient(135deg,#1e3151,#557aa4)}
+.portal-project-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.portal-project-symbol{color:#fff;font-size:62px;opacity:.55}
+.portal-project-desc{font-size:13px;line-height:1.45;margin:0;min-height:30px;color:var(--soft)}
+.portal-project-action{display:block;text-align:center;margin-top:auto;background:var(--accent-soft);color:var(--accent-dark);font-size:13px;font-weight:800;padding:10px;text-decoration:none;border-radius:9px}
+@media(max-width:920px){.portal-project-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.portal-project-grid{grid-template-columns:1fr}}
+
+/* Minimal status: badge dekoratif dan banner sukses tidak diperlukan. */
+.feedback[data-kind="success"],#media-count,#inventory-total,#bank-progress-section .chip,.portal-media-preview .chip{display:none}
+.portal-inventory-total{font-size:12px;font-weight:750;color:var(--soft)}
+.portal-inventory-preview{max-height:290px;overflow-y:auto;scrollbar-width:thin}
+.portal-inventory-icon{overflow:hidden}
+.portal-inventory-icon img{width:100%;height:100%;object-fit:cover}
+.portal-inventory-row.has-photo{cursor:pointer}
+.portal-inventory-row.has-photo:hover{border-color:#8375d9}
+.banner-image-only .banner-image{object-fit:cover}
+.banner-click-surface{position:absolute;inset:0;z-index:2}
+.f4-album-dialog{border:0;border-radius:17px;padding:0;width:min(95vw,1024px);max-width:1024px;max-height:88vh;overflow:hidden}
+.f4-album-dialog::backdrop,.f4-lightbox::backdrop{background:#0c1426af;backdrop-filter:blur(4px)}
+.f4-album-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:15px 18px;background:#f7f8fb;border-bottom:1px solid #e8eaf2}
+.f4-album-head h2{font-size:17px;margin:0}
+.f4-album-head small{font-size:12px;color:#69748c}
+.f4-album-close{background:transparent;border:0;font-size:30px;color:#718096}
+.f4-album-grid{padding:18px;max-height:65vh;overflow:auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;align-content:start}
+.f4-album-tile{position:relative;min-width:0;height:165px;border:0;border-radius:12px;overflow:hidden;padding:0;background:#d7ddeb}
+.f4-album-tile img,.f4-album-video{height:100%;width:100%;object-fit:cover}
+.f4-video-thumb{display:grid;place-items:center;height:100%;background:#1e2537;color:#fff;font-size:22px}
+.f4-play{position:absolute;top:45%;left:45%;color:white;border-radius:50%;padding:10px;background:#1a203eaa}
+.f4-album-footer{padding:12px 18px;border-top:1px solid #e6e9f1}
+.f4-lightbox{width:100vw;height:100vh;max-width:100vw;max-height:100vh;padding:0;border:0;background:black;color:#fff}
+.f4-lightbox-bar{height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:#080b14}
+.f4-lightbox-title{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.f4-lightbox-close{border:0;background:#222c40;color:#fff;border-radius:50%;font-size:25px;width:38px;height:38px}
+.f4-lightbox-body{height:calc(100% - 96px);display:grid;grid-template-columns:65px 1fr 65px;align-items:center}
+.f4-lightbox-view{height:100%;min-width:0;display:grid;place-items:center;overflow:hidden}
+.f4-media-photo{max-width:100%;max-height:100%;object-fit:contain}
+.f4-media-video,.f4-media-frame{width:min(100%,1080px);height:85%;border:0}
+.f4-lightbox-arrow{justify-self:center;width:48px;height:48px;background:#21283b;color:#fff;font-size:32px;border:0;border-radius:50%}
+.f4-lightbox-foot{height:38px;display:flex;justify-content:center;align-items:center;gap:18px;background:#080b14;color:#dfe4f2;font-size:12px}
+.f4-media-original{color:#e7e3ff;text-decoration:none}
+.f4-agenda-dialog{border:0;border-radius:16px;padding:0;width:min(95vw,490px);box-shadow:0 20px 80px #0004}
+.f4-agenda-dialog::backdrop{background:#0a1426a7;backdrop-filter:blur(3px)}
+.f4-agenda-head{display:flex;justify-content:space-between;align-items:center;padding:17px 19px;background:#ecebff}
+.f4-agenda-head h2{margin:0;font-size:17px}.f4-agenda-head button{font-size:27px;background:transparent;border:0}
+.f4-agenda-share{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 18px;font-size:12px;border-bottom:1px solid #f0effa}
+.f4-agenda-share button{background:#5041dd;color:#fff;border:0;border-radius:9px;padding:9px 12px;font-weight:800}
+.f4-agenda-items{display:grid;gap:12px;padding:18px}
+.f4-agenda-event{display:grid;gap:6px;background:#ecf1ff;border-radius:12px;border:1px solid #d7e2fc;padding:14px}
+.f4-agenda-event.work{background:#fff3c5;border-color:#ffe39e}
+.f4-agenda-event small{font-size:11px;font-weight:850;color:#4135a7}
+.f4-agenda-event.work small{color:#985b12}
+.f4-agenda-event strong{font-size:14px}.f4-agenda-event p{margin:0;font-size:13px}
+.f4-event-status{justify-self:start;border:1px solid #dee4f0;border-radius:8px;padding:4px;background:white;font-size:11px}
+.portal-agenda-item{cursor:pointer;width:100%;text-align:left;color:var(--ink);font:inherit}
+@media(max-width:780px){.f4-album-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.f4-album-tile{height:130px}}
+@media(max-width:530px){.f4-album-grid{padding:8px;gap:8px}.f4-lightbox-body{grid-template-columns:40px 1fr 40px}.f4-lightbox-arrow{width:34px;height:34px;font-size:20px}}

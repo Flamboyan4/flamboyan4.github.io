@@ -1,77 +1,94 @@
 
 import {elem,fmtNum} from './ui.js';
+import {openMediaViewer} from './media-viewer.js';
 const $=id=>document.getElementById(id);
 function short(s,max=140){return String(s||'').slice(0,max)}
 function standardDate(s){const v=String(s||'').slice(0,10);return /^\d{4}-\d{2}-\d{2}$/.test(v)?v:null}
 function monthText(y,m){return new Intl.DateTimeFormat('id-ID',{month:'long',year:'numeric'}).format(new Date(y,m,1))}
+
 export function renderPortalCalendar(events){
  const root=$('portal-calendar-grid');if(!root)return;
  const list=(Array.isArray(events)?events:[]).filter(x=>standardDate(x.starts_on||x.event_on||x.date)).map(x=>({
-  ...x,iso:standardDate(x.starts_on||x.event_on||x.date),title:short(x.title||'Kegiatan Warga'),description:short(x.description||'',300),
-  isWork:/gorol|kerja bakti|bersih/i.test(String(x.title||''))
+  ...x,iso:standardDate(x.starts_on||x.event_on||x.date),title:short(x.title||'Kegiatan Warga'),description:short(x.description||'',500),
+  isWork:/gorol|kerja bakti|bersih/i.test(String(x.title||'')),isArisan:/arisan/i.test(String(x.title||''))
  }));
- const now=new Date(),current={y:now.getFullYear(),m:now.getMonth()};
- const title=$('portal-calendar-title'),upcoming=$('portal-upcoming');
- const eventsSorted=list.slice().sort((a,b)=>a.iso.localeCompare(b.iso));
+ const now=new Date(),current={y:now.getFullYear(),m:now.getMonth()},title=$('portal-calendar-title'),upcoming=$('portal-upcoming');
+ const sorted=list.slice().sort((a,b)=>a.iso.localeCompare(b.iso));
+ let dlg=$('f4-agenda-dialog');
+ if(!dlg){
+  dlg=elem('dialog',undefined,'f4-agenda-dialog');dlg.id='f4-agenda-dialog';
+  dlg.innerHTML='<div class="f4-agenda-head"><h2 id="f4-agenda-title">Agenda Warga</h2><button type="button" id="f4-agenda-close" aria-label="Tutup">×</button></div><div class="f4-agenda-share"><span>Bagikan agenda ini kepada warga</span><button type="button" id="f4-agenda-copy">Salin Link Agenda</button></div><div id="f4-agenda-items" class="f4-agenda-items"></div>';
+  document.body.append(dlg);$('f4-agenda-close').onclick=()=>dlg.close();dlg.onclick=e=>{if(e.target===dlg)dlg.close()};
+ }
+ function openDay(iso){
+  const records=list.filter(x=>x.iso===iso);if(!records.length)return;
+  $('f4-agenda-title').textContent='Kegiatan: '+new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'long',year:'numeric'}).format(new Date(iso+'T12:00:00'));
+  const area=$('f4-agenda-items');area.replaceChildren();
+  records.forEach(a=>{
+   const box=elem('article',undefined,'f4-agenda-event'+(a.isWork?' work':''));
+   box.append(elem('small',a.isWork?'GOROL / KERJA BAKTI':a.isArisan?'ARISAN':'KEGIATAN WARGA','f4-event-type'),
+    elem('strong',a.title),elem('p',a.description||'Informasi kegiatan warga.'));
+   if(a.status)box.append(elem('span',String(a.status).slice(0,50),'f4-event-status'));area.append(box);
+  });
+  const copy=$('f4-agenda-copy');copy.textContent='Salin Link Agenda';
+  copy.onclick=async()=>{
+   const url=location.origin+'/uji-integrasi/#agenda-'+iso;
+   try{await navigator.clipboard.writeText(url);copy.textContent='Link tersalin'}
+   catch{const input=elem('textarea',url);document.body.append(input);input.select();const yes=document.execCommand('copy');input.remove();copy.textContent=yes?'Link tersalin':'Gagal menyalin'}
+  };
+  if(!dlg.open)dlg.showModal();
+ }
  function render(){
   const {y,m}=current;title.textContent=monthText(y,m);root.replaceChildren();
-  const offset=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate(),n=Math.ceil((offset+days)/7)*7;
-  for(let c=0;c<n;c++){
-   const day=c-offset+1;
-   const cell=elem('div',undefined,'portal-day'+(day<1||day>days?' out':''));
-   if(day>=1&&day<=days){
-    const iso=[y,String(m+1).padStart(2,'0'),String(day).padStart(2,'0')].join('-');
-    const dayEvents=list.filter(e=>e.iso===iso);
-    if(iso===[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-'))cell.classList.add('today');
-    cell.append(elem('span',day,'portal-day-num'));
-    if(dayEvents.length){
-     const show=dayEvents[0];const btn=elem('button',show.isWork?'Gorol':/arisan/i.test(show.title)?'Arisan':'Acara','portal-event-badge'+(show.isWork?' work':''));btn.type='button';
-     btn.title=dayEvents.map(x=>x.title).join(', ');
-     btn.onclick=()=>{
-      const box=$('portal-calendar-selected');if(!box)return;
-      box.replaceChildren();box.append(elem('strong',iso));dayEvents.forEach(x=>{box.append(elem('p',x.title));if(x.description)box.append(elem('small',x.description,'muted'))});
-      box.hidden=false;
-     };
-     cell.append(btn);
-     if(dayEvents.length>1)cell.append(elem('span','+'+(dayEvents.length-1),'portal-event-more'));
-    }
-   }else{const d=new Date(y,m,day);cell.append(elem('span',d.getDate(),'portal-day-num'))}
-   root.append(cell);
+  const offset=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate(),total=Math.ceil((offset+days)/7)*7;
+  for(let i=0;i<total;i++){
+   const day=i-offset+1,outside=day<1||day>days,cell=elem('div',undefined,'portal-day'+(outside?' out':''));
+   const date=new Date(y,m,day);if(outside){cell.append(elem('span',date.getDate(),'portal-day-num'));root.append(cell);continue}
+   const iso=[y,String(m+1).padStart(2,'0'),String(day).padStart(2,'0')].join('-'),records=list.filter(x=>x.iso===iso);
+   if(iso===[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-'))cell.classList.add('today');
+   cell.append(elem('span',day,'portal-day-num'));
+   if(records.length){
+    const first=records[0],b=elem('button',first.isWork?'Gorol':first.isArisan?'Arisan':'Acara','portal-event-badge'+(first.isWork?' work':''));b.type='button';b.title=records.map(x=>x.title).join(', ');b.onclick=()=>openDay(iso);cell.append(b);
+    if(records.length>1)cell.append(elem('span','+'+(records.length-1),'portal-event-more'));
+   }root.append(cell);
   }
-  const box=$('portal-calendar-selected');if(box)box.hidden=true;
   upcoming.replaceChildren();
-  const nowIso=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
-  const monthRows=eventsSorted.filter(x=>x.iso>=nowIso);
-  const shown=monthRows.length?monthRows:eventsSorted.slice(-5);
-  if(!shown.length)upcoming.append(elem('p','Belum ada kegiatan terjadwal yang tercatat.','muted'));
+  const today=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
+  const future=sorted.filter(x=>x.iso>=today),shown=future.length?future:sorted.slice(-7);
+  if(!shown.length)upcoming.append(elem('p','Belum ada kegiatan terjadwal.','muted'));
   shown.slice(0,8).forEach(x=>{
-   const card=elem('article',undefined,'portal-agenda-item');
-   card.append(elem('small',x.iso,'portal-agenda-date'));card.append(elem('strong',x.title));
-   if(x.description)card.append(elem('p',x.description,'muted'));upcoming.append(card);
+   const card=elem('button',undefined,'portal-agenda-item');card.type='button';card.append(elem('small',x.iso,'portal-agenda-date'),elem('strong',x.title));
+   if(x.description)card.append(elem('p',x.description,'muted'));card.onclick=()=>openDay(x.iso);upcoming.append(card);
   });
  }
- $('portal-prev-month').onclick=()=>{current.m--;if(current.m<0){current.m=11;current.y--}render()};
- $('portal-next-month').onclick=()=>{current.m++;if(current.m>11){current.m=0;current.y++}render()};
+ $('portal-prev-month').onclick=()=>{current.m--;if(current.m<0){current.y--;current.m=11}render()};
+ $('portal-next-month').onclick=()=>{current.m++;if(current.m>11){current.y++;current.m=0}render()};
  $('portal-current-month').onclick=()=>{current.y=now.getFullYear();current.m=now.getMonth();render()};
- if(!document.getElementById('portal-calendar-selected')){const p=elem('aside',undefined,'portal-calendar-selected');p.id='portal-calendar-selected';p.hidden=true;root.after(p)}
- render();
+ const match=location.hash.match(/^#agenda-(\d{4}-\d{2}-\d{2})$/);
+ if(match){const d=new Date(match[1]+'T12:00:00');if(!Number.isNaN(d.valueOf())){current.y=d.getFullYear();current.m=d.getMonth()}}
+ render();if(match)window.setTimeout(()=>openDay(match[1]),130);
 }
+
+
 export function renderPortalInventory(records,targetId='inventory',countId='portal-inventory-count'){
- const node=$(targetId);if(!node)return;
- node.replaceChildren();
- const items=Array.isArray(records)?records:[];
- const count=$(countId);if(count)count.textContent=items.length+' Item · Lihat Semua ↗';
- if(!items.length){node.append(elem('p','Belum ada inventaris publik yang tercatat di D1.','muted'));return}
- items.slice(0,4).forEach(x=>{
-  const row=elem('div',undefined,'portal-inventory-row');
-  row.append(elem('span','▣','portal-inventory-icon'));
-  const details=elem('div',undefined,'portal-inventory-copy');
-  details.append(elem('strong',short(x.name||'Barang Warga',80)));
-  details.append(elem('small',short(x.condition||x.category||'Tercatat',60),'muted'));
-  row.append(details,elem('span',fmtNum(x.quantity)+' '+short(x.unit||'Unit',15),'portal-inventory-qty'));
-  node.append(row);
+ const node=$(targetId);if(!node)return;node.replaceChildren();
+ const items=Array.isArray(records)?records:[],count=$(countId);if(count)count.textContent=items.length+' Item';
+ if(!items.length){node.append(elem('p','Belum ada inventaris publik yang tercatat.','muted'));return}
+ items.forEach(x=>{
+  const photo=x.imageUrl||x.photoUrl||x.photo_url||x.foto||'';
+  const row=elem('div',undefined,'portal-inventory-row'),visual=elem('span',undefined,'portal-inventory-icon');
+  if(photo){const img=document.createElement('img');img.src=photo;img.alt='Foto '+short(x.name);img.loading='lazy';img.referrerPolicy='no-referrer';img.onerror=()=>img.replaceWith(elem('span','▣'));visual.append(img)}
+  else visual.append(elem('span','▣'));
+  const detail=elem('div',undefined,'portal-inventory-copy');
+  detail.append(elem('strong',short(x.name||'Barang Warga',80)),elem('small',short(x.condition||x.category||'Tercatat',60),'muted'));
+  row.append(visual,detail,elem('span',fmtNum(x.quantity)+' '+short(x.unit||'Unit',15),'portal-inventory-qty'));
+  if(photo){row.classList.add('has-photo');row.tabIndex=0;row.setAttribute('role','button');row.title='Lihat foto '+short(x.name);
+   row.onclick=()=>openMediaViewer('Inventaris: '+short(x.name),[{url:photo,type:'foto'}]);
+   row.onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();row.click()}};
+  }node.append(row);
  });
 }
+
 export function renderBankProgress(items){
  const chart=$('bank-progress-chart'),line=$('progress');if(!line)return;
  line.replaceChildren();line.className='bank-progress-timeline';
