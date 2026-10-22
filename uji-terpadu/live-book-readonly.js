@@ -49,14 +49,18 @@
   return successful({version:'Cloudflare D1 — Data Acuan Terpadu',config,rumah:houses,warga});
  }
  async function history(){
-  const r=await read('/api/bookkeeping/iuran/history?limit=200');
+  const r=await read('/api/bookkeeping/iuran/history?limit=1000');
   return successful({data:rows(r).map((x,i)=>({
-   tanggal:x.tanggal||x.paid_on||'',nama:x.nama||'',idWarga:x.payerId||'',
+   tanggal:x.tanggal||x.paid_on||'',nama:x.nama||'',idWarga:x.idWarga||x.payerId||'',
+   blok:x.blok||'',noRumah:x.noRumah||'',idRumah:x.household_id||'',
    idPembayaran:x.idPembayaran||x.id||'D1-'+(i+1),
    totalDiterima:n(x.totalDiterima??x.amount_rp),metode:x.metode||x.payment_method||'',
-   status:x.status==='BATAL'?'BATAL':'AKTIF',periode:Array.isArray(x.periode)?x.periode:[],
-   locked:true,canEdit:false,canCancel:false,canCorrectMigrationDate:false,
-   kekuranganKasLorong:0
+   catatan:x.catatan||'',status:String(x.status||'').toUpperCase()==='BATAL'?'BATAL':'AKTIF',
+   periode:Array.isArray(x.periode)?x.periode:[],
+   alokasi:Array.isArray(x.alokasi)?x.alokasi:[],
+   locked:true,canEdit:false,canCancel:false,
+   canCorrectMigrationDate:!!x.canCorrectMigrationDate,
+   kekuranganKasLorong:n(x.kekuranganKasLorong)
   }))});
  }
  async function cash(){
