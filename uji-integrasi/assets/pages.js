@@ -1,6 +1,6 @@
 import {CONFIG,apiURL,sameSiteAuthAvailable} from './config.js';
 import {api,endpoints} from './api.js';
-import {$,fmtRp,fmtNum,elem,put,boxStatus,setRows,setCards,initShell,url,renderAlbum,requireAuthMessage,updateHeader} from './ui.js';
+import {$,fmtRp,fmtNum,elem,put,boxStatus,setRows,setCards,initShell,url,renderAlbum,requireAuthMessage,updateHeader,setModuleView} from './ui.js';
 const page=document.body.dataset.page;
 initShell(page);
 document.querySelectorAll('[data-go]').forEach(a=>a.href=url(a.dataset.go));
@@ -68,14 +68,15 @@ async function memberBankPanel(session){
  const area=$('bank-member-section');if(!area)return;
  area.hidden=false;area.replaceChildren();
  const who=session.member?.nama||'Warga',home=session.member?.rumah||'Belum tertaut';
- area.append(elem('h2','Halo, '+who,'bank-member-head'));
- area.append(elem('p','Ringkasan tabungan dan setoran atas nama akun ini.','muted'));
+ const summary=elem('div',undefined,'member-overview');summary.id='bank-member-overview';
+ summary.append(elem('h2','Halo, '+who,'bank-member-head'));
+ summary.append(elem('p','Ringkasan tabungan dan setoran atas nama akun ini.','muted'));
  const grid=elem('div',undefined,'bank-member-grid');
  const stats=[['Nama anggota',who],['Nomor rumah',home],['Saldo terkonfirmasi','Memuat…'],['Estimasi menunggu','Memuat…']];
  stats.forEach(([label,value])=>{
   const card=elem('article',undefined,'stat');card.append(elem('small',label));card.append(elem('strong',value));grid.append(card);
  });
- area.append(grid);
+ summary.append(grid);area.append(summary);
  const panel=elem('section',undefined,'panel');panel.id='bank-member-savings';
  panel.append(elem('h3','Tabungan Saya'));
  const subtitle=elem('p','Hanya setoran yang terkonfirmasi masuk saldo.','muted');panel.append(subtitle);
@@ -89,6 +90,7 @@ async function memberBankPanel(session){
   grid.children[2].querySelector('strong').textContent='—';grid.children[3].querySelector('strong').textContent='—';
   subtitle.textContent='Data tabungan belum bisa dimuat: '+(e.message||'API error');
  }
+ setModuleView(document.body.dataset.activeView||'summary','anggota');
 }
 
 async function bank(){
@@ -171,6 +173,7 @@ async function bank(){
    nav.append(button);
   });
   await loadAdmin('deposits');
+  setModuleView(document.body.dataset.activeView||'summary','admin');
  }catch(e){if(e.status!==401)failure(e)}
 }
 
@@ -193,6 +196,7 @@ async function book(){
    return;
  }
  $('book-content').hidden=false;
+ setModuleView(document.body.dataset.activeView||'summary','superadmin');
  boxStatus('Akses superadmin terverifikasi oleh Worker D1.','success');
  async function loadOverview(month=''){
   const v=await endpoints.bookkeepingOverview(month);put('book-debit',fmtRp(v.cash?.debitRp));put('book-credit',fmtRp(v.cash?.creditRp));put('book-payments',fmtRp(v.payments?.totalRp));put('book-fines',fmtRp(Math.max(0,Number(v.fines?.chargedRp||0)-Number(v.fines?.paidRp||0))));
