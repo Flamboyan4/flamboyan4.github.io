@@ -23,10 +23,40 @@ async function bankReport(month=''){
  const r=await endpoints.bankReport(month);put('bank-cash-in',fmtRp(r.cash?.masukRp));put('bank-cash-out',fmtRp(r.cash?.keluarRp));
  setCards('cash-detail',[{title:'Periode laporan',text:month||'Keseluruhan'},{title:'Penjualan terkonfirmasi',text:fmtRp(r.sales?.diterimaRp)},{title:'Pengeluaran lunas',text:fmtRp(r.expenses?.pengeluaranRp)}]);
 }
+
+async function memberBankPanel(session){
+ const area=$('bank-member-section');if(!area)return;
+ area.hidden=false;area.replaceChildren();
+ const who=session.member?.nama||'Warga',home=session.member?.rumah||'Belum tertaut';
+ area.append(elem('h2','Halo, '+who,'bank-member-head'));
+ area.append(elem('p','Ringkasan tabungan dan setoran atas nama akun ini.','muted'));
+ const grid=elem('div',undefined,'bank-member-grid');
+ const stats=[['Nama anggota',who],['Nomor rumah',home],['Saldo terkonfirmasi','Memuat…'],['Estimasi menunggu','Memuat…']];
+ stats.forEach(([label,value])=>{
+  const card=elem('article',undefined,'stat');card.append(elem('small',label));card.append(elem('strong',value));grid.append(card);
+ });
+ area.append(grid);
+ const panel=elem('section',undefined,'panel');panel.id='bank-member-savings';
+ panel.append(elem('h3','Tabungan Saya'));
+ const subtitle=elem('p','Hanya setoran yang terkonfirmasi masuk saldo.','muted');panel.append(subtitle);
+ const table=elem('div',undefined,'data-wrap');table.id='bank-my-savings';panel.append(table);area.append(panel);
+ try{
+  const res=await endpoints.savings();
+  grid.children[2].querySelector('strong').textContent=fmtRp(res.saldoTersediaRp);
+  grid.children[3].querySelector('strong').textContent=fmtRp(res.estimasiMenungguRp);
+  setRows('bank-my-savings',['Tanggal','Berat','Estimasi','Status'],(res.setoran||[]).map(v=>[date(v.tanggal),fmtNum(Number(v.beratGram)/1000)+' kg',fmtRp(v.estimasiRp),v.status||'—']));
+ }catch(e){
+  grid.children[2].querySelector('strong').textContent='—';grid.children[3].querySelector('strong').textContent='—';
+  subtitle.textContent='Data tabungan belum bisa dimuat: '+(e.message||'API error');
+ }
+}
+
 async function bank(){
  try{
   const [r]=await Promise.all([endpoints.bank(),bankReport()]);
-  put('count-catalog',r.overview?.activeItems??r.catalog?.length??0);put('count-confirmed',r.overview?.confirmedDeposits??0);
+  const pub=$('bank-public-inventory-table');
+  if(pub&&Array.isArray(r.inventory))setRows('bank-public-inventory-table',['Nama barang','Jumlah'],r.inventory.map(x=>[x.name||'—',fmtNum(x.quantity)+' '+(x.unit||'')]));
+    put('count-catalog',r.overview?.activeItems??r.catalog?.length??0);put('count-confirmed',r.overview?.confirmedDeposits??0);
   setRows('catalog',['Jenis Sampah','Kelompok','Tarif per Kg'],(r.catalog||[]).map(x=>[x.name,x.category||'—',x.priceRpPerKg==null?'Belum ada tarif':fmtRp(x.priceRpPerKg)]));
   setCards('progress',(r.progress||[]).map(x=>({title:x.title,note:date(x.happened_on)+' · '+(x.stage||''),text:x.description||x.next_step||''})));
   const albums=$('albums');albums.replaceChildren();
@@ -37,7 +67,7 @@ async function bank(){
  const form=$('bank-period-form');form.addEventListener('submit',async(ev)=>{ev.preventDefault();try{await bankReport($('bank-month').value);boxStatus('Laporan periode berhasil dimuat.','success')}catch(e){failure(e)}});
  if(!sameSiteAuthAvailable()){$('admin-hint').textContent=requireAuthMessage();return}
  try{
-  const s=await endpoints.session();if(!['admin','superadmin'].includes(s.account?.role)){$('admin-hint').textContent='Data admin hanya tersedia untuk pengelola.';return}
+  const s=await endpoints.session();if(!['admin','superadmin'].includes(s.account?.role)){await memberBankPanel(s);return}
   $('bank-admin-section').hidden=false;$('bank-admin').hidden=false;$('admin-hint').textContent='Data administrasi dalam mode baca-saja. Tombol transaksi tetap dinonaktifkan di staging.';
   const views={
    deposits:{label:'Setoran',heads:['Tanggal','Warga','Batch','Berat','Estimasi','Status'],
