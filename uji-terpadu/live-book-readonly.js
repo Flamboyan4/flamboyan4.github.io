@@ -112,6 +112,12 @@
    const r=await read('/api/bookkeeping/iuran/quick-summary?'+q);
    return successful({data:r.data});
  }
+ async function contributionReport(kind,p){
+   const b=dateBounds(p),q=new URLSearchParams({kind});
+   if(b.from)q.set('from',b.from);if(b.to)q.set('to',b.to);
+   const r=await read('/api/bookkeeping/reports/contributions?'+q);
+   return successful({data:r.data});
+ }
  async function cashReport(p){
    const b=dateBounds(p),q=new URLSearchParams();if(b.from)q.set('from',b.from);if(b.to)q.set('to',b.to);
    const r=await read('/api/bookkeeping/reports/cash?'+q);
@@ -121,6 +127,8 @@
   bootstrap,riwayatpembayaran:history,datatransaksikas:cash,
   iuranquicksummary:quickSummary,laporankas:cashReport,
   koreksitanggalmigrasi:correctMigratedDate,
+  laporanrt:p=>contributionReport('rt',p),
+  laporanarisan:p=>contributionReport('arisan',p),
   datadenda:fines,datapinjaman:loans,datatalangan:advances
  };
  window.__f4BookDemoCall=async params=>{
