@@ -191,6 +191,7 @@ nav .nav-icon{font:700 23px/1 system-ui}
  window.addEventListener('message',e=>{
   if(e.origin!==location.origin||!e.data)return;
   if(e.data.type==='f4:ready')sendRole();
+  if(e.data.type==='f4:show-login')showLogin();
   if(e.data.type==='f4:navigate'&&Object.hasOwn(apps,e.data.target))update(e.data.target);
   if(e.data.type==='f4:notice')notify(e.data.message);
  });
