@@ -57,7 +57,9 @@
        const title=String(x.title||''),name=title.toLowerCase();
        const kind=name.includes('sampah')?'Bank Sampah':name.includes('gapura')?'Gapura':name.includes('jersey')?'Jersey':title;
        const raw=String(x.target_url||'');
-       const link=kind==='Bank Sampah'&&(/appsscript|script\\.google|^\\/banksampah\\/?$/i.test(raw)||!raw)
+       const oldLink=raw.toLowerCase();
+       const invalidBankLink=!raw||oldLink.includes('script.google.com')||oldLink==='/banksampah/'||oldLink==='/banksampah';
+       const link=kind==='Bank Sampah'&&invalidBankLink
          ?'https://flamboyan4.web.id/uji-terpadu/#bank-sampah':raw;
        const description=String(x.description||'').trim();
        const status=description.length<=50?description||'Aktif':'Aktif';
