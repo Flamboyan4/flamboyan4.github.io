@@ -42,7 +42,7 @@ function shellLink(label,href,icon,cls){
 function roleNav(s){
  const p=document.body.dataset.page,r=pageRole(s);
  const nav=$('app-sidebar-menu');if(nav){
-  nav.replaceChildren();const list=p==='bank'?BANKNAV[r==='superadmin'?'admin':r]:SITEMAP[p]||[];
+  nav.replaceChildren();const list=p==='bank'?BANKNAV[r==='superadmin'?'admin':r]:(p==='akun'&&r==='public'?[]:SITEMAP[p]||[]);
   list.forEach(([name,target,icon,view])=>{
    const a=shellLink(name,'#'+target,icon,'shell-side-link');a.append(elem('span',name));
    a.addEventListener('click',()=>{
