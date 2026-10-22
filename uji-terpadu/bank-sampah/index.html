@@ -530,7 +530,22 @@
  #sideNav.side{top:0!important;min-height:100dvh!important;height:100dvh!important;max-height:100dvh!important}
  #dashboardView>.grid>.section{padding-top:80px!important}
 }
-</style></head>
+</style><link id="f4-original-favicon" rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8"><style id="f4-bank-fixed-navigation">
+   /* Fix both PUBLIC and ADMIN sidebar; only the content panel scrolls. */
+   @media(min-width:761px){
+      body #v11Public.v18-public-shell{display:block!important;max-width:none!important}
+      body #v18PublicSide{position:fixed!important;top:0!important;bottom:0!important;left:0!important;
+        width:244px!important;height:100dvh!important;z-index:42!important;overflow-y:auto!important;
+        background:white!important}
+      body #v18PublicContent{margin-left:244px!important;width:calc(100% - 244px)!important;min-width:0!important}
+      body #dashboardView>.grid{display:block!important;max-width:none!important;width:100%!important}
+      body #sideNav.side{position:fixed!important;top:0!important;bottom:0!important;left:0!important;
+        width:244px!important;height:100dvh!important;max-height:100dvh!important;z-index:42!important;
+        overflow-y:auto!important;background:#fff!important;border-radius:0!important;box-shadow:none!important}
+      body #dashboardView>.grid>.section{margin-left:244px!important;width:calc(100% - 244px)!important;
+        min-width:0!important;box-sizing:border-box!important}
+   }
+   </style></head>
 <body>
 <div class="shell">
   <header class="top"><div class="brand"><div class="logo">🌿</div><div>Bank Sampah Flamboyan 4<div class="sub">Portal akun warga dan administrator</div></div></div><span class="tag">Lingkungan kita</span></header>
