@@ -553,6 +553,23 @@
  #v11Public.v18-public-shell{display:block!important;width:100%!important;grid-template-columns:minmax(0,1fr)!important}
  #v18PublicContent{width:100%!important;max-width:100%!important;margin-left:0!important}
 }
+</style><style id="f4-bank-sidebar-fixed-final">
+@media(min-width:1024px){
+ body.v17-public #v11Public.v18-public-shell{display:block!important;padding-left:244px!important}
+ body.v17-public #v18PublicSide{position:fixed!important;left:0!important;top:0!important;bottom:0!important;width:244px!important;height:100dvh!important;max-height:100dvh!important;z-index:35!important;overflow-y:auto!important}
+ body.v17-dashboard #sideNav.side{position:fixed!important;left:0!important;top:0!important;bottom:0!important;width:244px!important;height:100dvh!important;max-height:100dvh!important;z-index:35!important;overflow-y:auto!important}
+ body.v17-dashboard #dashboardView>.grid{display:block!important;padding-left:244px!important}
+ body.v17-dashboard #dashboardView>.grid>.section{min-width:0!important}
+}
+@media(max-width:1023px){
+ body.v17-public #v11Public.v18-public-shell{display:block!important;padding-left:0!important}
+ body.v17-public #v18PublicSide{position:fixed!important;left:0!important;top:0!important;bottom:0!important;height:100dvh!important;z-index:151!important;transform:translateX(-110%)!important;visibility:hidden!important}
+ body.v17-public #v18PublicSide.open{transform:translateX(0)!important;visibility:visible!important}
+ body.v17-dashboard #dashboardView>.grid{display:block!important;padding-left:0!important}
+ body.v17-dashboard #sideNav.side{position:fixed!important;top:0!important;bottom:0!important;left:0!important;height:100dvh!important;width:min(306px,84vw)!important;z-index:151!important;transform:translateX(-110%)!important;visibility:hidden!important}
+ body.v17-dashboard #sideNav.side.open{transform:translateX(0)!important;visibility:visible!important}
+ body.v17-dashboard #v16Backdrop.open{display:block!important;position:fixed!important;inset:0!important;z-index:150!important;background:#14291c80!important}
+}
 </style></head>
 <body>
 <div class="shell">
@@ -2005,6 +2022,10 @@
  });
  // Semua tombol login portal mengarah ke akses akun terpadu, tanpa menulis sesi lokal.
   try{v11ShowLogin=function(){window.parent.postMessage({type:'f4:show-login'},location.origin)}}catch(e){}
-  window.parent.postMessage({type:'f4:ready',portal:'bank-sampah'},location.origin);
+  window.f4ToggleBankMenu=function(){
+   if(document.body.classList.contains('v17-dashboard')){toggleMenu();return}
+   v18TogglePublic();
+ };
+ window.parent.postMessage({type:'f4:ready',portal:'bank-sampah'},location.origin);
  </script></body>
 </html>
