@@ -112,6 +112,49 @@ body.portal-mode .framebox{margin-left:242px}
  .top nav button{width:34px!important;height:36px!important}
  .account-ui{margin-left:3px}.login-button{padding:8px 10px!important}
 }
+</style><style id="f4-preview-layout-corrections">
+/* Koreksi tampilan sesuai screenshot 22 Okt: konsistensi sidebar / utility bar menyatu */
+.shell{border:0!important;box-shadow:none!important}
+body.portal-mode .shell{left:244px}
+.portal-sidebar{width:244px;padding:16px 12px;border-right:1px solid #e9e5f1;box-shadow:none}
+.portal-brand{height:66px;padding:4px 8px 8px;gap:10px}
+.portal-logo{width:44px;height:44px;border-radius:12px;background:#7040ee;font-size:24px}
+.portal-brand strong{font-size:15px;font-weight:800;line-height:1.25;color:#332173}
+.portal-brand small{font-size:11px;color:#7e7993;line-height:1.4;margin-top:3px}
+.portal-divider{margin:5px 0 14px;border-color:#ebe8f2}
+.portal-menu{display:flex;flex-direction:column;gap:4px}
+.portal-menu button{
+ min-height:47px!important;padding:11px 13px!important;border:0!important;border-radius:11px!important;
+ font-family:system-ui,-apple-system,"Segoe UI",sans-serif!important;
+ font-size:14px!important;font-weight:700!important;line-height:1.25!important;
+ letter-spacing:0!important;color:#534864!important;background:transparent!important
+}
+.portal-menu button svg{width:19px!important;height:19px!important;stroke-width:1.95;flex-shrink:0}
+.portal-menu button:hover{background:#f4efff!important;color:#5f37c8!important}
+.portal-menu button.active{background:#eee7fb!important;color:#6331d5!important}
+body.portal-mode .framebox{margin-left:244px}
+/* Bank Sampah tetap memakai sidebar asli; hanya koordinat ruangnya yang diluruskan.
+   Frame mulai di atas, utility bar menempel pada sisi kanan tanpa menambah tinggi. */
+body.bank-mode .shell{left:244px;background:#fff!important}
+body.bank-mode .framebox{
+ position:absolute!important;inset:0!important;margin:0!important;
+ height:100dvh!important;min-height:0!important;z-index:1
+}
+body.bank-mode .top{background:#fff}
+/* Akun non-superadmin tidak pernah menampilkan tombol Pembukuan. */
+body:not(.role-superadmin) .top nav [data-target="pembukuan"]{display:none!important}
+body.role-superadmin .top nav [data-target="pembukuan"]{display:grid!important}
+@media(max-width:760px){
+ .portal-sidebar{width:71px;padding:12px 6px}
+ .portal-brand{height:58px;justify-content:center;padding:4px 0}
+ .portal-logo{width:43px;height:43px}
+ .portal-menu button{min-height:44px!important;padding:9px 0!important}
+ .portal-menu button svg{width:21px!important;height:21px!important}
+ body.portal-mode .shell{left:71px}
+ body.portal-mode .framebox{margin-left:71px}
+ body.bank-mode .shell{left:0}
+ /* Di HP sidebar bank mobile mengikuti app aslinya; bar tidak menutup menu saat dibuka. */
+}
 </style></head>
 <body>
 <header class="shell">
@@ -210,8 +253,14 @@ body.portal-mode .framebox{margin-left:242px}
  let selected='portal',role='public',timer;
  const notify=s=>{toast.textContent=s;toast.hidden=false;clearTimeout(timer);timer=setTimeout(()=>toast.hidden=true,4000)};
  const permitted=()=>selected!=='pembukuan'||role==='superadmin';
+ // Perubahan URL/pemilih menu tidak memberi akses Pembukuan tanpa role superadmin.
  function refreshIdentity(){
   const signed=role!=='public';
+  document.body.classList.toggle('role-superadmin',role==='superadmin');
+  document.body.classList.toggle('role-warga',role==='warga');
+  document.body.classList.toggle('role-admin',role==='admin');
+  const bookkeepingButton=buttons.find(b=>b.dataset.target==='pembukuan');
+  if(bookkeepingButton){bookkeepingButton.hidden=role!=='superadmin';bookkeepingButton.setAttribute('aria-hidden',String(role!=='superadmin'));}
   login.hidden=signed;avatar.hidden=!signed;menu.hidden=true;avatar.setAttribute('aria-expanded','false');
   if(signed){
    document.getElementById('account-name').textContent=roles[role].name;
@@ -225,6 +274,7 @@ body.portal-mode .framebox{margin-left:242px}
  function update(target){
   selected=target;
   document.body.classList.toggle('portal-mode',target==='portal'||target==='rapat');
+  document.body.classList.toggle('bank-mode',target==='bank-sampah');
   document.querySelectorAll('[data-portal-menu]').forEach(b=>b.classList.toggle('active',b.dataset.portalMenu===(target==='rapat'?'rapat':'beranda')));
   buttons.forEach(b=>{
    const selected=b.dataset.target===(target==='rapat'?'portal':target);
@@ -245,7 +295,7 @@ body.portal-mode .framebox{margin-left:242px}
  }
  function signOut(){
   role='public';refreshIdentity();notify('Keluar dari akun pratinjau; tidak ada sesi asli yang berubah.');
-  update(selected);
+  update(selected==='pembukuan'?'portal':selected);
  }
  login.onclick=()=>showLogin();
  avatar.onclick=()=>{menu.hidden=!menu.hidden;avatar.setAttribute('aria-expanded',String(!menu.hidden))};
