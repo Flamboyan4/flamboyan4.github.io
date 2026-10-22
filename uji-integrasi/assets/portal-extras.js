@@ -98,6 +98,13 @@ function initScrollTop(){
  btn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
 }
 
+let papaPromise=null;
+function ensurePapa(){
+ if(window.Papa)return Promise.resolve(window.Papa);
+ if(!papaPromise)papaPromise=loadScript('https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js').then(()=>window.Papa).catch(e=>{papaPromise=null;throw e});
+ return papaPromise;
+}
+
 const DOC_CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=0&single=true&output=csv";
 function docUrl(v){
  try{const u=new URL(String(v||'').trim());return u.protocol==='https:'?u.href:null}catch{return null}
@@ -137,7 +144,7 @@ function renderDocuments(items){
 async function initDocumentation(){
  const dest=byId('portal-documentation');if(!dest)return;
  try{
-  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js');
+  await ensurePapa();
   if(!window.Papa)throw new Error('Pembaca arsip tidak tersedia');
   const rows=await new Promise((resolve,reject)=>{
    window.Papa.parse(DOC_CSV,{
@@ -149,6 +156,109 @@ async function initDocumentation(){
   renderDocuments(rows.reverse());
  }catch(e){
   const p=document.createElement('p');p.className='muted';p.textContent='Arsip dokumentasi belum dapat dimuat: '+(e?.message||'koneksi tidak tersedia');dest.prepend(p);
+ }
+}
+
+
+/* Arsip Rapat publik: bentuk kartu, foto, dan modal baca, mengikuti rapat/index.html asli. */
+const RAPAT_CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=449852491&single=true&output=csv";
+function safePublicUrl(value){
+ try{const u=new URL(String(value||'').trim());return u.protocol==='https:'?u.href:null}catch{return null}
+}
+function rapatPicture(raw){
+ const str=String(raw||'').trim();
+ const id=str.match(/(?:\/d\/|[?&]id=)([A-Za-z0-9_-]{12,})/);
+ return id?'https://lh3.googleusercontent.com/d/'+id[1]:safePublicUrl(str);
+}
+function rapatEmbed(href){
+ if(!href)return null;
+ let m=href.match(/https:\/\/docs\.google\.com\/document\/d\/([A-Za-z0-9_-]+)/);
+ if(m)return 'https://docs.google.com/document/d/'+m[1]+'/preview';
+ m=href.match(/https:\/\/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)/);
+ if(m)return 'https://drive.google.com/file/d/'+m[1]+'/preview';
+ if(/^https:\/\/[^?#]+\.pdf(?:[?#]|$)/i.test(href))return href;
+ return null;
+}
+function makeMeetingDialog(){
+ let dlg=byId('portal-rapat-dialog');if(dlg)return dlg;
+ dlg=document.createElement('dialog');dlg.id='portal-rapat-dialog';dlg.className='portal-rapat-dialog';
+ dlg.innerHTML='<div class="portal-rapat-dialog-body"><header class="portal-rapat-dialog-head"><div><small id="portal-rapat-date">Rapat Warga</small><h2 id="portal-rapat-title">Hasil Rapat</h2></div><button id="portal-rapat-close" type="button" aria-label="Tutup notulensi">×</button></header><div class="portal-rapat-actions"><button id="portal-rapat-copy" type="button" class="btn outline">Salin link</button><a id="portal-rapat-external" class="btn" target="_blank" rel="noopener noreferrer">Buka Fullscreen ↗</a></div><div id="portal-rapat-viewer" class="portal-rapat-viewer"></div></div>';
+ document.body.append(dlg);
+ byId('portal-rapat-close').onclick=()=>dlg.close();
+ dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});
+ return dlg;
+}
+function openRapat(item){
+ const dlg=makeMeetingDialog();
+ byId('portal-rapat-title').textContent=item.judul;
+ byId('portal-rapat-date').textContent=item.tanggal;
+ const safeLink=safePublicUrl(item.docUrl);
+ const external=byId('portal-rapat-external');external.hidden=!safeLink;
+ if(safeLink)external.href=safeLink;else external.removeAttribute('href');
+ const area=byId('portal-rapat-viewer');area.replaceChildren();
+ const embed=rapatEmbed(safeLink);
+ if(embed){
+  const iframe=document.createElement('iframe');iframe.title='Dokumen hasil rapat '+item.judul;
+  iframe.src=embed;iframe.loading='lazy';iframe.referrerPolicy='strict-origin-when-cross-origin';iframe.allow='fullscreen';
+  area.append(iframe);
+  const hint=document.createElement('p');hint.className='muted small';hint.textContent='Jika pratinjau Google Docs / PDF terhalang izin akses, gunakan Buka Fullscreen.';area.append(hint);
+ }else{
+  const notice=document.createElement('p');notice.className='muted';
+  notice.textContent=safeLink?'Dokumen ini belum dapat ditampilkan dalam halaman. Buka melalui tautan dokumen.':'Tautan dokumen lengkap belum tersedia di data arsip ini.';
+  area.append(notice);
+ }
+ const copy=byId('portal-rapat-copy');copy.textContent='Bagikan / Salin Link';
+ copy.onclick=async()=>{try{await navigator.clipboard.writeText(location.origin+'/rapat/#'+item.id);copy.textContent='Link Tersalin!'}catch{copy.textContent='Gagal menyalin'}};
+ if(!dlg.open)dlg.showModal();
+}
+function drawMeetingCards(items,archive=false){
+ const area=byId('meetings');if(!area)return;
+ area.replaceChildren();area.className='grid-cards portal-meeting-grid';
+ const status=byId('portal-meeting-status');
+ if(status)status.textContent=archive?items.length+' Dokumen Rapat':'Ringkasan dari D1';
+ if(!items.length){const p=document.createElement('p');p.className='muted';p.textContent='Belum ada hasil rapat yang dipublikasikan.';area.append(p);return}
+ items.forEach(item=>{
+  const card=document.createElement('article');card.className='portal-meeting-card';
+  const cover=document.createElement('div');cover.className='portal-meeting-cover';
+  const img=rapatPicture(item.fotoPreview);
+  if(img){const el=document.createElement('img');el.src=img;el.loading='lazy';el.alt='Dokumentasi '+item.judul;el.referrerPolicy='no-referrer';el.onerror=()=>el.remove();cover.append(el)}
+  const dateBadge=document.createElement('span');dateBadge.textContent=item.tanggal;dateBadge.className='portal-meeting-date';cover.append(dateBadge);
+  const text=document.createElement('div');text.className='portal-meeting-text';
+  const title=document.createElement('h3');title.textContent=item.judul;text.append(title);
+  const info=document.createElement('p');info.textContent=item.deskripsi||'Klik untuk membaca notulensi lengkap dan lampiran dokumentasi.';text.append(info);
+  const action=document.createElement('button');action.type='button';action.className='btn outline';action.textContent=archive?'Baca Hasil Rapat':'Lihat Ringkasan Rapat';
+  action.onclick=()=>openRapat(item);
+  if(archive){cover.style.cursor='pointer';cover.onclick=()=>openRapat(item);title.style.cursor='pointer';title.onclick=()=>openRapat(item)}
+  card.append(cover,text,action);area.append(card);
+ });
+}
+export async function renderMeetingArchive(fallback=[]){
+ const backup=Array.isArray(fallback)?fallback.map((x,i)=>({
+  id:'rapat-'+(fallback.length-i),tanggal:String(x.meeting_on||'').slice(0,10),
+  judul:String(x.title||'Hasil Rapat Warga'),deskripsi:String(x.summary||''),
+  fotoPreview:x.image_url||'',docUrl:x.document_url||x.doc_url||''
+ })):[];
+ drawMeetingCards(backup,false);
+ try{
+  const Papa=await ensurePapa();
+  if(!Papa)throw new Error('Pembaca arsip tidak tersedia');
+  const rows=await new Promise((resolve,reject)=>Papa.parse(RAPAT_CSV,{
+   download:true,header:true,skipEmptyLines:true,
+   complete:r=>resolve((r.data||[]).filter(row=>{const keys=Object.keys(row||{});return keys.length>=2&&String(row[keys[0]]||'').trim()})),
+   error:reject
+  }));
+  const reversed=rows.reverse();
+  const data=reversed.map((r,i)=>{
+   const k=Object.keys(r);
+   return{id:'rapat-'+(reversed.length-i),tanggal:String(r[k[0]]||'-'),judul:String(r[k[1]]||'Hasil Rapat Warga'),
+    deskripsi:String(r[k[2]]||''),fotoPreview:String(r[k[3]]||''),docUrl:String(r[k[4]]||'')};
+  });
+  drawMeetingCards(data,true);
+  const total=byId('count-meetings');if(total)total.textContent=String(data.length);
+ }catch(err){
+  const status=byId('portal-meeting-status');
+  if(status)status.textContent=backup.length?'Data D1 · arsip foto belum terhubung':'Arsip rapat belum dapat dimuat';
+  if(!backup.length){const p=byId('meetings')?.querySelector('p');if(p)p.textContent='Arsip rapat tidak dapat dimuat saat ini. Coba lagi atau buka halaman Hasil Rapat lama.'}
  }
 }
 
