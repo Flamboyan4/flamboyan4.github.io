@@ -191,6 +191,50 @@ async function bank(){
     {id:'citizen-accounts',label:'Akun warga',data:'members',hint:'Daftar warga baca-saja. Perubahan akun masih nonaktif.'}
    ]
   };
+
+  function showSeparatedAdminForm(kind){
+   const holder=$('bank-admin-editor');
+   if(!holder)return;
+   holder.replaceChildren();holder.hidden=!['album-list','inventory-list'].includes(kind);
+   if(holder.hidden)return;
+   const documentation=kind==='album-list';
+   const title=documentation?'Buat album dokumentasi':'Tambah barang inventaris';
+   const note=elem('p','Pratinjau formulir dari aplikasi Bank Sampah lama. Penyimpanan belum diaktifkan: data dan transaksi tidak akan berubah.','info-note');
+   const form=elem('form',undefined,'bank-admin-form');form.noValidate=true;
+   form.addEventListener('submit',e=>e.preventDefault());
+   const head=elem('h3',title);holder.append(head,note);
+   function field(label,type,name,options){
+    const wrap=elem('label',undefined,'bank-admin-field');
+    wrap.append(elem('strong',label));
+    let node;
+    if(type==='select'){
+     node=document.createElement('select');
+     (options||[]).forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;node.append(o)});
+    }else if(type==='textarea'){node=document.createElement('textarea');node.rows=3}
+    else{node=document.createElement('input');node.type=type}
+    node.name=name;node.autocomplete='off';wrap.append(node);form.append(wrap);
+   }
+   if(documentation){
+    field('Tanggal kegiatan','date','event_on');
+    field('Judul album','text','title');
+    field('Kategori dokumentasi','select','category',['Kerja Bakti','Penimbangan','Acara','Lainnya','Inventaris']);
+    field('Deskripsi','textarea','description');
+    field('Tautan foto, video, atau folder','url','media_url');
+    field('Akses album','select','visibility',['Publik','Privat']);
+   }else{
+    field('Nama barang','text','name');
+    field('Jumlah barang','number','quantity');
+    field('Kondisi','select','condition',['Baik','Perlu perbaikan','Rusak']);
+    field('Tanggal pencatatan','date','recorded_on');
+    field('Tautan foto barang','url','photo_url');
+    field('Keterangan inventaris','textarea','notes');
+   }
+   const actions=elem('div',undefined,'bank-admin-editor-actions');
+   const save=elem('button',documentation?'Simpan album (belum aktif)':'Simpan barang (belum aktif)','btn');
+   save.type='submit';save.disabled=true;save.title='API tulis Bank Sampah belum diaktifkan';
+   actions.append(save);form.append(actions);holder.append(form);
+  }
+
   function showAdminGroup(group){
    const tabs=adminGroups[group];if(!tabs)return;
    nav.replaceChildren();
@@ -202,6 +246,7 @@ async function bank(){
     });
     details.hidden=true;
     $('admin-table').replaceChildren();
+    showSeparatedAdminForm(item.id);
     if(item.data){
      loadAdmin(item.data).then(()=>{
       if(item.hint&&selected===item.id)$('bank-admin-caption').textContent+=' · '+item.hint;

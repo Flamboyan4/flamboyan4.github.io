@@ -237,3 +237,12 @@ body.theme-home .portal-floating-actions #portal-suggestion-open{background:#554
 .bank-album-info strong{font-size:14px;line-height:1.4}
 @media(max-width:1050px){.media-album-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.bank-progress-duo{grid-template-columns:1fr}}
 @media(max-width:650px){.media-album-grid{grid-template-columns:1fr}.bank-preview-albums{grid-template-columns:1fr}.media-inventory-item{gap:9px}}
+
+/* Admin Bank Sampah: formulir Dokumentasi dan Inventaris dipisah secara visual. */
+.bank-admin-editor{margin:16px 0;padding:18px;border:1px solid var(--line);border-radius:13px;background:#fff}
+.bank-admin-editor h3{margin:0 0 12px}.bank-admin-editor .info-note{margin-bottom:16px}
+.bank-admin-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.bank-admin-field{display:grid;gap:5px;font-size:13px}.bank-admin-field strong{font-weight:800}
+.bank-admin-field input,.bank-admin-field select,.bank-admin-field textarea{border:1px solid #cbd9d1;border-radius:10px;background:#fff;color:var(--ink);width:100%;padding:11px;font:inherit;min-width:0}
+.bank-admin-editor-actions{grid-column:1/-1}.bank-admin-editor-actions button{opacity:.6;cursor:not-allowed}
+@media(max-width:680px){.bank-admin-form{grid-template-columns:1fr}}
