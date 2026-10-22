@@ -82,7 +82,7 @@
  function portalTasks(){
    const p=portal(),edit=type=>window.openSuperadminEditor?.(type);
    if(p==='pembukuan')return [['Data Rumah & Warga',()=>openWarga()],['Kewajiban Iuran',()=>edit('obligations')],['Tarif Iuran',()=>edit('tariffs')],['Aturan Tanggal',()=>edit('settings')]];
-   if(p==='bank-sampah')return [['Dashboard Admin',()=>navigate('bank-sampah','dashboard')],['Pencatatan',()=>navigate('bank-sampah','setoran')],['Keuangan',()=>navigate('bank-sampah','rekonsiliasi')],['Data & Anggota',()=>navigate('bank-sampah','master')]];
+   if(p==='bank-sampah')return [['Dashboard Admin',()=>window.f4OpenBankAdmin?.('dashboard')],['Pencatatan',()=>window.f4OpenBankAdmin?.('setoran')],['Keuangan',()=>window.f4OpenBankAdmin?.('rekonsiliasi')],['Kegiatan',()=>window.f4OpenBankAdmin?.('kegiatan')],['Data & Anggota',()=>window.f4OpenBankAdmin?.('master')]];
    return [['Project Card',()=>edit('projects')],['Rencana Kegiatan',()=>edit('agenda')],['Dokumentasi',()=>edit('documentation')],['Inventaris',()=>edit('inventory')],['Banner Slider',()=>edit('banners')],['Hasil Rapat',()=>edit('meetings')]];
  }
  function openWarga(){
@@ -101,7 +101,7 @@
        [['Iuran','input'],['Kas','kas'],['Denda','denda'],['Pinjaman','pinjaman'],['Talangan','talangan'],['Riwayat','riwayat'],['Rekap Laporan','laporan'],['Tutup Buku & Arsip','laporan'],['Tarif & Aturan','config']].forEach(([name,tab])=>navItem(name,()=>navigate('pembukuan',tab)));
      }
      if(p==='bank-sampah'){
-       [['Ringkasan','dashboard'],['Pencatatan','setoran'],['Keuangan','rekonsiliasi'],['Kegiatan','kegiatan'],['Data & Anggota','master']].forEach(([name,tab])=>navItem(name,()=>navigate('bank-sampah',tab)));
+       [['Ringkasan','dashboard'],['Pencatatan','setoran'],['Keuangan','rekonsiliasi'],['Kegiatan','kegiatan'],['Data & Anggota','master']].forEach(([name,tab])=>navItem(name,()=>window.f4OpenBankAdmin?.(tab)));
      }
      if(p==='portal')navItem('Kelola Portal Utama',()=>navigate('portal'));
      navItem('Data Warga & Rumah',openWarga);
@@ -196,7 +196,7 @@
  const p=portal(),r=role();
  if(r==='superadmin'&&p==='portal')return window.openSuperadminEditor?.('projects');
  if(r==='superadmin'&&p==='pembukuan')return window.openSuperadminEditor?.('obligations');
- if(p==='bank-sampah'&&(r==='superadmin'||r==='admin'))return navigate('bank-sampah','dashboard');
+ if(p==='bank-sampah'&&(r==='superadmin'||r==='admin'))return window.f4OpenBankAdmin?.('dashboard');
  if(p==='bank-sampah'&&r==='anggota')return navigate('bank-sampah','pribadi');
  return show();
 };
