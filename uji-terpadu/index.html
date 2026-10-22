@@ -320,6 +320,20 @@ body.iframe-modal-open .framebox #gate{display:none!important}
  body.portal-mode .portal-menu button svg{width:19px!important;height:19px!important}
  body:not(.portal-mode) #f4-mobile-menu{display:none!important}
 }
+</style><style id="f4-portal-mobile-menu-themes">
+@media(max-width:1023px){
+ body.bank-mode #f4-mobile-menu,body.book-mode #f4-mobile-menu{display:grid!important;position:fixed!important;left:10px!important;top:9px!important;z-index:110!important;width:39px!important;height:39px!important}
+ body.bank-mode #f4-mobile-menu{background:#e3f0e6!important;color:#246442!important}
+ body.book-mode #f4-mobile-menu{background:#eee7ff!important;color:#6930bf!important}
+ body.bank-mode .top,body.book-mode .top{padding-left:54px!important;padding-right:10px!important}
+ body.bank-mode .shell,body.book-mode .shell{left:0!important;background:rgba(255,255,255,.97)!important}
+ body.bank-mode .top nav button.active{background:#e4f1e7!important;color:#226943!important}
+ body.bank-mode .top nav button{color:#346a4a!important}
+ body.book-mode .top nav button.active{background:#eee7ff!important;color:#713cd1!important}
+ body.book-mode .top nav button{color:#5a4e7b!important}
+ body.bank-mode .avatar-button,body.book-mode .avatar-button{width:39px!important;height:39px!important}
+ body.bank-mode .avatar-face,body.book-mode .avatar-face{width:35px!important;height:35px!important}
+}
 </style></head>
 <body>
 <header class="shell">
@@ -640,7 +654,14 @@ body.iframe-modal-open .framebox #gate{display:none!important}
  const mobileMenu=document.getElementById('f4-mobile-menu');
  const mobileOverlay=document.getElementById('f4-mobile-overlay');
  function setMobileMenu(open){document.body.classList.toggle('f4-menu-open',open);mobileMenu.setAttribute('aria-expanded',String(open));mobileMenu.setAttribute('aria-label',open?'Tutup menu halaman':'Buka menu halaman')}
- mobileMenu.addEventListener('click',()=>setMobileMenu(!document.body.classList.contains('f4-menu-open')));
+ mobileMenu.addEventListener('click',()=>{
+  if(document.body.classList.contains('portal-mode')){setMobileMenu(!document.body.classList.contains('f4-menu-open'));return}
+  try{
+    const child=frame.contentWindow;
+    if(selected==='bank-sampah'){child.v18TogglePublic?.();return}
+    if(selected==='pembukuan'){child.bukaMenu?.();return}
+  }catch(e){notify('Menu belum tersedia, silakan muat ulang halaman')}
+});
  mobileOverlay.addEventListener('click',()=>setMobileMenu(false));
  document.addEventListener('keydown',e=>{if(e.key==='Escape')setMobileMenu(false)});
  window.addEventListener('resize',()=>{if(innerWidth>1023)setMobileMenu(false)});
