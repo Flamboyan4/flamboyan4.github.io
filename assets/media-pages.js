@@ -144,13 +144,12 @@ async function load(){
      cover:first?driveImage(first):null,
      category:normalizeCategory(k[4]?row[k[4]]||row[k[1]]:row[k[1]])}
    }).filter(x=>x.title).reverse();
-   for(const item of albumItems.slice(0,16)){
+   await Promise.all(albumItems.slice(0,16).map(async item=>{
     if(!item.cover&&item.raw.includes('/folders/')){
      const rows=await readLegacyFolder(item.raw);
-     const img=rows.find(x=>x.type!=='video');
-     if(img)item.cover=img.url;
+     const img=rows.find(x=>x.type!=='video');if(img)item.cover=img.url;
     }
-   }
+   }));
    inventoryItems=inventory.map(row=>{const k=Object.keys(row);return {
     name:limit(row[k[0]],140),qty:limit(row[k[1]]||'0',25),unit:'Unit',condition:limit(row[k[2]]||'',120),
     photo:driveImage(row[k[3]]||'')
