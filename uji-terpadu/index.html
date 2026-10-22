@@ -369,6 +369,32 @@ body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
 #f4-warga-editor .f4-warga-form-actions{display:flex;gap:9px;justify-content:flex-end;margin-top:15px}
 #f4-warga-editor .f4-warga-form-actions button[type=submit]{background:var(--work-accent,#7c3aed)!important;color:#fff!important}
 @media(max-width:600px){#f4-warga-editor .f4-warga-fields{grid-template-columns:minmax(0,1fr)}#f4-warga-panel #f4-warga-list article{flex-wrap:wrap}#f4-warga-panel .f4-warga-item-actions{width:100%;justify-content:flex-start}}
+</style><style id="f4-superadmin-content-editor">
+#f4-account-page .f4-admin-controls{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+#f4-account-page .f4-admin-controls input{flex:1;min-width:175px;padding:10px 12px;border:1px solid var(--work-line);border-radius:10px;font:500 13px system-ui}
+#f4-account-page .f4-admin-controls button,
+#f4-account-page button.f4-admin-btn{border:1px solid var(--work-line)!important;color:var(--work-accent)!important;background:var(--work-tint)!important;border-radius:9px!important;padding:9px 12px!important;cursor:pointer!important;font:650 12px system-ui}
+#f4-account-page .f4-admin-list{display:grid;gap:7px}
+#f4-account-page .f4-admin-item{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid var(--work-line);border-radius:11px;background:#fff;padding:13px}
+#f4-account-page .f4-admin-item strong{display:block;color:var(--work-text);font:700 13px system-ui}
+#f4-account-page .f4-admin-item small{display:block;margin-top:5px;color:#727987;font:500 11px system-ui}
+#f4-account-page .f4-admin-note{font:500 12px system-ui;color:#667185;padding:3px 0}
+#f4-account-page .f4-admin-editor{background:#fff;border:1px solid var(--work-line);border-radius:12px;padding:16px}
+#f4-account-page .f4-admin-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+#f4-account-page .f4-admin-fields label{display:flex;flex-direction:column;gap:6px;color:var(--work-text);font:650 12px system-ui;min-width:0}
+#f4-account-page .f4-admin-fields input,
+#f4-account-page .f4-admin-fields textarea,
+#f4-account-page .f4-admin-fields select{border:1px solid var(--work-line);padding:10px;border-radius:9px;width:100%;background:white;color:var(--work-text);font:500 13px system-ui}
+#f4-account-page .f4-admin-fields input:focus,
+#f4-account-page .f4-admin-fields textarea:focus{outline:2px solid var(--work-accent);outline-offset:1px}
+#f4-account-page .f4-admin-message{color:var(--work-accent);font:550 12px system-ui}
+#f4-account-page .f4-warga-form-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:17px}
+#f4-account-page .f4-admin-primary{background:var(--work-accent)!important;color:#fff!important;border:0!important;padding:11px 17px!important;border-radius:9px;cursor:pointer;font-weight:750}
+@media(max-width:650px){
+ #f4-account-page .f4-admin-fields{grid-template-columns:1fr}
+ #f4-account-page .f4-admin-editor{padding:11px}
+ #f4-account-page .f4-admin-controls input{flex-basis:100%}
+}
 </style></head>
 <body>
 <header class="shell">
@@ -886,7 +912,8 @@ body.book-mode #f4-account-page{background:#fff8f0}body.book-mode #f4-account-pa
  document.getElementById('f4-account-page-settings').onclick=()=>{page.hidden=true;document.querySelector('[data-account-action="settings"]')?.click()};
  document.getElementById('f4-account-page-home').onclick=()=>window.openAccountPage();
 })();
-</script><script src="./account-workspace.js?v=20261023-v2"></script>
+</script><script src="./account-workspace.js?v=20261023-v3"></script>
+<script src="./superadmin-editor.js?v=20261023-v1"></script>
 <style id="f4-account-theme-final-20261023">
 /* Mengunci tema ke warna asli HTML Pembukuan (ungu), bukan oranye. */
 body.book-mode #f4-account-page:not([hidden]){background:#fbfaff!important}
