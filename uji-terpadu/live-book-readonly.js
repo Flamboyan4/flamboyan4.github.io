@@ -123,12 +123,58 @@
    const r=await read('/api/bookkeeping/reports/cash?'+q);
    return successful({data:r.data});
  }
+ const periodLabel=p=>{
+   const value=String(p?.periodFrom||'');const match=value.match(/^(\\d{4})-(\\d{2})/);
+   return {tahun:match?Number(match[1]):new Date().getFullYear(),namaBulan:match?['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][Number(match[2])]||'':''};
+ };
+ const filtered= (items,p,key)=>{const b=dateBounds(p),st=String(p?.status||'SEMUA').toUpperCase();
+  return items.filter(x=>(!b.from||String(x[key]||'')>=b.from)&&(!b.to||String(x[key]||'')<=b.to)&&(st==='SEMUA'||x.status===st));
+ };
+ async function finesReport(p){
+  const d=await read('/api/bookkeeping/denda?limit=200');
+  const all=rows(d).map(x=>({id:x.id,nama:x.nama||'',payerId:x.payerId,
+   tanggalKegiatan:x.tanggal,namaKegiatan:x.jenis||'Gorol',
+   nominal:n(x.nominalRp),status:String(x.status||'').toUpperCase(),
+   tanggalBayar:x.tanggalBayar||'',metode:'',catatan:x.catatan||''}));
+  const selected=filtered(all,p,'tanggalKegiatan');
+  const lunas=selected.filter(x=>x.status==='LUNAS'),belum=selected.filter(x=>x.status==='BELUM');
+  return successful({data:{...periodLabel(p),statusFilter:p?.status||'SEMUA',
+   rows:selected,ringkasan:{jumlahLunas:lunas.length,jumlahBelum:belum.length,
+    nominalLunas:lunas.reduce((s,x)=>s+x.nominal,0),nominalBelum:belum.reduce((s,x)=>s+x.nominal,0)}}});
+ }
+ async function loansReport(p){
+  const d=await read('/api/bookkeeping/pinjaman?limit=200');
+  const all=rows(d).map(x=>({idPinjaman:x.id,nama:x.nama||'',tanggalPinjaman:x.tanggal,
+   nominalPinjaman:n(x.pokokRp),totalDibayar:n(x.angsuranAktifRp),sisaPinjaman:n(x.sisaRp),
+   status:String(x.status||'').toUpperCase(),keterangan:x.catatan||''}));
+  const status=String(p?.status||'SEMUA').toUpperCase();
+  const selected=all.filter(x=>status==='SEMUA'||x.status===status);
+  const sum=key=>selected.reduce((a,x)=>a+n(x[key]),0);
+  return successful({data:{statusFilter:status,rows:selected,
+   ringkasan:{jumlahAktif:selected.filter(x=>x.status==='AKTIF').length,
+    totalPinjaman:sum('nominalPinjaman'),totalDibayar:sum('totalDibayar'),totalSisa:sum('sisaPinjaman')}}});
+ }
+ async function advancesReport(p){
+  const d=await read('/api/bookkeeping/talangan?limit=200');
+  const all=rows(d).map(x=>({idTalangan:x.id,nama:x.nama||x.payerName||'',
+   tanggal:x.tanggal||x.advanced_on||'',nominalTalangan:n(x.pokokRp||x.amount_rp),
+   nominalDiganti:n(x.pelunasanRingkasanRp||x.reimbursed_rp),
+   sisaTalangan:n(x.sisaMenurutRingkasanRp||x.sisaRp),
+   status:String(x.status||'').toUpperCase(),statusPembukuan:'Tercatat'}));
+  const selected=filtered(all,p,'tanggal');
+  const sum=key=>selected.reduce((a,x)=>a+n(x[key]),0);
+  return successful({data:{...periodLabel(p),statusFilter:p?.status||'SEMUA',rows:selected,
+   ringkasan:{jumlah:selected.length,totalTalangan:sum('nominalTalangan'),
+    totalDiganti:sum('nominalDiganti'),totalSisa:sum('sisaTalangan')},
+   rekapStatus:[]}});
+ }
  const exact={
   bootstrap,riwayatpembayaran:history,datatransaksikas:cash,
   iuranquicksummary:quickSummary,laporankas:cashReport,
   koreksitanggalmigrasi:correctMigratedDate,
   laporanrt:p=>contributionReport('rt',p),
   laporanarisan:p=>contributionReport('arisan',p),
+  laporandenda:finesReport,laporanpinjaman:loansReport,laporantalangan:advancesReport,
   datadenda:fines,datapinjaman:loans,datatalangan:advances
  };
  window.__f4BookDemoCall=async params=>{
