@@ -30,7 +30,7 @@ async function initComments(){
   ref.limitToLast(50).on('value',snapshot=>{
    const raw=snapshot.val()||{};
    const entries=Object.entries(raw).reverse().map(([id,item])=>item||{});
-   count.textContent=entries.length+' Komentar terbaru';
+   if(count)count.textContent=entries.length+' Komentar terbaru';
    list.replaceChildren();
    if(!entries.length){const p=document.createElement('p');p.className='muted';p.textContent='Belum ada obrolan warga.';list.append(p)}
    entries.forEach(item=>{
@@ -44,7 +44,7 @@ async function initComments(){
    state.textContent='Terhubung ke obrolan portal warga lama.';
   },err=>{
    state.textContent='Komentar belum bisa dimuat: '+err.message;
-   count.textContent='Tidak tersambung';
+   if(count)count.textContent='Tidak tersambung';
   });
   const form=byId('portal-comment-form'),submit=byId('portal-comment-submit');
   form.addEventListener('submit',async e=>{
@@ -62,7 +62,7 @@ async function initComments(){
   });
  }catch(err){
   state.textContent='Obrolan belum tersedia: '+err.message;
-  count.textContent='Tidak tersambung';
+  if(count)count.textContent='Tidak tersambung';
  }
 }
 function initSuggestions(){
@@ -174,6 +174,37 @@ async function initDocumentation(){
  }
 }
 
+
+
+const LEGACY_BANNER_CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=780113187&single=true&output=csv';
+const LEGACY_PROJECT_CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=40982005&single=true&output=csv';
+const LEGACY_INVENTORY_CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=492423764&single=true&output=csv';
+async function readOldCsv(source){
+ const Papa=await ensurePapa();
+ return new Promise((resolve,reject)=>Papa.parse(source,{download:true,header:true,skipEmptyLines:true,complete:r=>resolve(r.data||[]),error:reject}))
+}
+export async function legacyBanners(){
+ const rows=await readOldCsv(LEGACY_BANNER_CSV);
+ return rows.map(row=>{const values=Object.values(row);const raw=String(values[1]||'').trim();
+ return {imageUrl:photoUrl(raw),linkUrl:docUrl(values[2]),imageOnly:true}}).filter(row=>row.imageUrl);
+}
+export async function legacyInventory(){
+ const rows=await readOldCsv(LEGACY_INVENTORY_CSV);
+ return rows.map(row=>{const a=Object.values(row);return {name:String(a[0]||'').trim(),quantity:a[1]||0,unit:'Unit',condition:String(a[2]||'').trim(),imageUrl:photoUrl(a[3])||''}})
+ .filter(row=>row.name&&!/nama barang/i.test(row.name));
+}
+export async function legacyProjects(){
+ const rows=await readOldCsv(LEGACY_PROJECT_CSV);
+ return rows.map(row=>({
+  title:String(row['Nama Projek']||row['Nama project']||row['nama projek']||'').trim(),
+  kind:String(row['Jenis']||row['jenis']||'').trim(),
+  status:String(row['Status']||row['status']||'').trim(),
+  show:String(row['Tampil']||row['tampil']||'').trim().toUpperCase(),
+  target_url:docUrl(row['Link']||row['link']),
+  sort:Number(row['Urutan']||row['urutan']||999)
+ })).filter(x=>x.title&&['YA','YES','Y','TRUE','1','TAMPIL'].includes(x.show)).sort((a,b)=>a.sort-b.sort)
+}
+export async function legacyPublicFolder(source){return listLegacyFolder(source)}
 
 /* Arsip Rapat publik: bentuk kartu, foto, dan modal baca, mengikuti rapat/index.html asli. */
 const RAPAT_CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=449852491&single=true&output=csv";

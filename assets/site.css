@@ -246,3 +246,26 @@ body.theme-home .portal-floating-actions #portal-suggestion-open{background:#554
 .bank-admin-field input,.bank-admin-field select,.bank-admin-field textarea{border:1px solid #cbd9d1;border-radius:10px;background:#fff;color:var(--ink);width:100%;padding:11px;font:inherit;min-width:0}
 .bank-admin-editor-actions{grid-column:1/-1}.bank-admin-editor-actions button{opacity:.6;cursor:not-allowed}
 @media(max-width:680px){.bank-admin-form{grid-template-columns:1fr}}
+
+/* Elemen informatif kecil yang bukan aksi tidak perlu menjadi badge. */
+.feedback[data-kind=success]{display:none}
+.portal-inventory-total{font-size:12px;color:var(--soft);font-weight:750}
+.portal-inventory-preview{max-height:278px;overflow-y:auto;scrollbar-width:thin}
+.banner-slide.banner-image-only:before{background:transparent!important}
+.banner-image-only .banner-image{object-fit:cover}
+.banner-click-surface{position:absolute;inset:0;z-index:2}
+.portal-project-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.portal-project-card{border:1px solid var(--line);background:#fff;border-radius:14px;box-shadow:0 5px 18px #1b225b08;min-width:0;padding:14px;display:flex;flex-direction:column;gap:12px}
+.portal-project-title-row{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:38px}
+.portal-project-title-row strong{font-size:15px;line-height:1.4}
+.portal-project-status{font-size:11px;color:#704e14;background:#fff1cb;border-radius:99px;padding:4px 8px;white-space:nowrap}
+.portal-project-cover{height:155px;position:relative;background:linear-gradient(135deg,#342f92,#7967d6);border-radius:11px;overflow:hidden;display:grid;place-items:center}
+.portal-project-cover.project-bank{background:linear-gradient(135deg,#15523d,#259a6c)}
+.portal-project-cover.project-gapura{background:linear-gradient(135deg,#645544,#ae8a6a)}
+.portal-project-cover.project-jersey{background:linear-gradient(135deg,#1e3151,#557aa4)}
+.portal-project-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.portal-project-symbol{color:#fff;font-size:62px;opacity:.55}
+.portal-project-desc{font-size:13px;line-height:1.45;margin:0;min-height:30px;color:var(--soft)}
+.portal-project-action{display:block;text-align:center;margin-top:auto;background:var(--accent-soft);color:var(--accent-dark);font-size:13px;font-weight:800;padding:10px;text-decoration:none;border-radius:9px}
+@media(max-width:920px){.portal-project-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.portal-project-grid{grid-template-columns:1fr}}

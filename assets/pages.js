@@ -1,5 +1,6 @@
 import {CONFIG,apiURL,sameSiteAuthAvailable} from './config.js';
-import {initPortalExtras,renderMeetingArchive} from './portal-extras.js';
+import {initPortalExtras,renderMeetingArchive,legacyBanners,legacyInventory,legacyProjects} from './portal-extras.js';
+import {renderProjectCards} from './project-cards.js';
 import {renderPortalCalendar,renderPortalInventory,renderBankProgress,renderBankAlbumPreviews} from './portal-widgets.js';
 import {api,endpoints} from './api.js';
 import {$,fmtRp,fmtNum,elem,put,boxStatus,setRows,setCards,initShell,url,renderAlbum,requireAuthMessage,updateHeader,setModuleView} from './ui.js';
@@ -14,8 +15,8 @@ function renderPortalSlider(apiBanners){
  const container=document.querySelector('.app-body .hero');if(!container)return;
  const input=Array.isArray(apiBanners)?apiBanners:[];
  const slides=input.length?input.map(b=>({
-  title:String(b.title||'Informasi Flamboyan 4'),text:String(b.description||b.subtitle||''),
-  image:b.imageUrl||b.image_url||b.photoUrl||'',link:b.linkUrl||b.url||''
+  title:b.imageOnly?'':String(b.title||'Informasi Flamboyan 4'),text:b.imageOnly?'':String(b.description||b.subtitle||''),
+  image:b.imageUrl||b.image_url||b.photoUrl||'',link:b.linkUrl||b.url||'',imageOnly:Boolean(b.imageOnly)
  })):[
   {title:'Transparansi & Kebersamaan',text:'Informasi kegiatan dan pembangunan warga Flamboyan 4.'},
   {title:'Bank Sampah Flamboyan 4',text:'Kelola lingkungan bersama dan ikuti perkembangan kegiatan.'},
@@ -31,10 +32,11 @@ function renderPortalSlider(apiBanners){
   let image='';
   try{const url=new URL(s.image);if(url.protocol==='https:')image=url.href}catch{}
   if(image){const pic=document.createElement('img');pic.src=image;pic.alt='';pic.loading=i===0?'eager':'lazy';pic.className='banner-image';slide.append(pic)}
-  const words=elem('div',undefined,'banner-copy');words.append(elem('span','PORTAL WARGA FLAMBOYAN 4','banner-eyebrow'));
-  words.append(elem('h1',s.title));if(s.text)words.append(elem('p',s.text));
+  const words=elem('div',undefined,'banner-copy');if(!s.imageOnly)words.append(elem('span','PORTAL WARGA FLAMBOYAN 4','banner-eyebrow'));
+  if(s.title)words.append(elem('h1',s.title));if(s.text)words.append(elem('p',s.text));
   if(s.link){try{const dest=new URL(s.link,location.origin);if(['https:','http:'].includes(dest.protocol)){const a=elem('a','Lihat informasi →','banner-link');a.href=dest.href;words.append(a)}}catch{}}
-  slide.append(words);track.append(slide);
+  if(s.imageOnly){slide.classList.add('banner-image-only');if(s.link){const a=document.createElement('a');a.href=s.link;a.className='banner-click-surface';a.setAttribute('aria-label','Buka informasi banner');slide.append(a)}}
+  else slide.append(words);track.append(slide);
   const b=elem('button',undefined,'banner-dot');b.type='button';b.setAttribute('aria-label','Tampilkan banner '+(i+1));b.onclick=()=>{move(i);reset()};dotButtons.push(b);dots.append(b);
  });
  function move(index){active=(index+slides.length)%slides.length;track.style.transform='translateX(-'+(100*active)+'%)';dotButtons.forEach((b,i)=>b.setAttribute('aria-current',i===active?'true':'false'))}
@@ -51,10 +53,19 @@ function renderPortalSlider(apiBanners){
 async function portal(){
  try{
   const r=await endpoints.portal();
-  renderPortalSlider(r.banners||r.slides||[]);
+  const provided=r.banners||r.slides||[];
+  if(Array.isArray(provided)&&provided.length){renderPortalSlider(provided)}
+  else{legacyBanners().then(b=>{if(b.length)renderPortalSlider(b)}).catch(()=>{})}
+  legacyProjects().then(master=>renderProjectCards('projects',r.projects||[],master,3)).catch(()=>renderProjectCards('projects',r.projects||[],[],3));
+  legacyInventory().then(items=>{
+   if(items.length){const official=r.inventory||[];const merged=items.map(it=>{const match=official.find(v=>String(v.name||'').toLowerCase()===it.name.toLowerCase());return {...it,...match,imageUrl:it.imageUrl||match?.imageUrl||''}});
+    official.filter(v=>!merged.some(m=>m.name.toLowerCase()===String(v.name||'').toLowerCase())).forEach(v=>merged.push(v));renderPortalInventory(merged);
+   }
+  }).catch(()=>{});
+  renderMeetingArchive(r.meetings||[]);
   put('count-agenda',r.agenda?.length||0);put('count-projects',r.projects?.length||0);put('count-inventory',r.inventory?.length||0);put('count-meetings',r.meetings?.length||0);
   renderPortalCalendar(r.agenda||[]);
-  setCards('projects',(r.projects||[]).slice(0,3).map(x=>({title:x.title,text:x.description,url:x.target_url})));
+  renderProjectCards('projects',r.projects||[],[],3);
   renderPortalInventory(r.inventory||[]);
   boxStatus('Data portal publik berhasil dimuat dari D1.','success');
  }catch(e){renderPortalSlider([]);failure(e)}
