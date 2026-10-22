@@ -722,7 +722,7 @@ body.iframe-modal-open .framebox #gate{display:none!important}
  <section><header><strong>Data Warga & Rumah</strong><button type="button" id="f4-warga-close" aria-label="Tutup">✕</button></header>
  <p>Sumber data: Cloudflare D1. Hanya Superadmin yang berhak mengelola data induk.</p>
  <div id="f4-warga-status" role="status">Belum dimuat</div>
- <div class="f4-warga-tools"><input id="f4-warga-search" placeholder="Cari nama / rumah" aria-label="Cari data warga"><button type="button" id="f4-warga-reload">Muat ulang</button></div>
+ <div class="f4-warga-tools"><input id="f4-warga-search" placeholder="Cari nama / rumah" aria-label="Cari data warga"><button type="button" id="f4-warga-new-house">+ Rumah</button><button type="button" id="f4-warga-new-person">+ Warga</button><button type="button" id="f4-warga-reload">Muat ulang</button></div>
  <div id="f4-warga-list"></div>
  </section>
 </div>
@@ -780,6 +780,22 @@ body.iframe-modal-open .framebox #gate{display:none!important}
   }catch(e){status.textContent='Gagal menyimpan: '+e.message}
  };
  document.getElementById('f4-warga-close').onclick=()=>{panel.hidden=true};
+ const sendNew=async(action,fields)=>{
+  if(!document.body.classList.contains('role-superadmin'))return;
+  const changes={action};
+  for(const [field,label,value] of fields){const v=prompt(label,value||'');if(v===null)return;if(!v.trim()&&(field==='rumah'||field==='nama'||field==='household_id')){status.textContent=label+' wajib diisi';return}changes[field]=v.trim()}
+  try{const response=await fetch('https://api.flamboyan4.web.id/api/v2/admin/residents',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(changes)});
+   const data=await response.json();if(!response.ok||data.ok===false)throw Error(data.error||'HTTP '+response.status);await window.openWarga()
+  }catch(e){status.textContent='Gagal menambah: '+e.message}
+ };
+ document.getElementById('f4-warga-new-house').onclick=()=>sendNew('add_house',[['rumah','Nomor rumah (mis. A6/23)'],['nama_pemilik','Nama pemilik (boleh kosong)'],['status_rumah','Status rumah (mis. Dihuni/Kosong)']]);
+ document.getElementById('f4-warga-new-person').onclick=()=>{
+  const options=[...new Map(records.map(x=>[x.household_id,x.rumah])).entries()];
+  const code=prompt('Nomor rumah untuk warga baru (mis. A6/23)');if(!code)return;
+  const id=options.find(([,v])=>v?.toLowerCase()===code.trim().toLowerCase())?.[0];
+  if(!id){status.textContent='Rumah tidak ditemukan. Tambahkan rumah terlebih dahulu.';return}
+  sendNew('add_resident',[['household_id','ID rumah',id],['nama','Nama warga'],['nomor_hp','No. HP/WhatsApp (boleh kosong)']]);
+ };
  document.getElementById('f4-warga-reload').onclick=()=>window.openWarga();
  document.getElementById('f4-warga-search').oninput=draw;
 })();
