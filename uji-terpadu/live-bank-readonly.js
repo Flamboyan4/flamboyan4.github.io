@@ -141,9 +141,40 @@
    beratPenjualanKg:0,diterimaLapakRp:confirmedSales.reduce((n,x)=>n+x.diterima,0),
    netMutasiTabunganRp:0,netKasRp:0,tarifBelumDitetapkan:items.filter(x=>!x.priceRpPerKg).length};
  };
+ const adminProgress=async()=> (await adminRows('progress')).map(x=>({
+   id:x.id,progressId:x.id,tanggal:x.happened_on,judul:x.title,langkah:x.stage,
+   deskripsi:x.description||'',status:x.status,agenda:x.next_step||'',publik:!!x.public_visible
+ }));
+ const adminExpenses=async()=> (await adminRows('expenses')).map(x=>({
+   id:x.id,tanggal:x.incurred_on,jenis:x.kind,pos:x.budget_post,
+   uraian:x.description||'',keterangan:x.description||'',jumlah:number(x.amount_rp),
+   nominal:number(x.amount_rp),status:x.status,vendor:x.vendor||''
+ }));
+ const adminSavings=async()=> (await adminRows('savings')).map(x=>({
+   wargaId:String(x.member_id||'').replace(/^member:/,''),nama:x.memberName||'',
+   rumah:x.houseCode||'',saldo:number(x.balanceRp),saldoRp:number(x.balanceRp)
+ }));
+ const adminCash=async()=> (await adminRows('cash')).map(x=>({
+   id:x.id,tanggal:x.occurred_on,jenis:x.transaction_type,pos:x.fund_position,
+   masuk:number(x.cash_in_rp),keluar:number(x.cash_out_rp),status:x.status,keterangan:x.note||''
+ }));
+ const adminAlbums=async()=> (await adminRows('albums')).map(x=>({
+   id:x.id,albumId:x.id,judul:x.title,tanggal:x.event_on,deskripsi:x.description||'',
+   kategori:x.category,publik:x.visibility==='publik',status:x.status
+ }));
  const read={
   authAdminAccounts:adminMembers,
+  bsDashboardProgressPublik:adminProgress,
+  bsV10PengeluaranAdmin:adminExpenses,
+  bsV9SaldoAdmin:adminSavings,
+  bsV22AlbumAdmin:adminAlbums,
   bsDashboardAdmin:adminOverview,
+  bsV9StatusKasAdmin:async()=>{
+   const cash=await adminCash();return {kasGabungan:cash.reduce((n,x)=>n+x.masuk-x.keluar,0),belumPosting:0};
+  },
+  bsV10KasPosAdmin:async()=>{
+   const cash=await adminCash();return {kasGabungan:cash.reduce((n,x)=>n+x.masuk-x.keluar,0),pos:[]};
+  },
   bsV6SetoranAdmin:adminDeposits,
   bsV18RiwayatSetoranAdmin:adminDeposits,
   bsV7PenjualanAdmin:adminSales,
