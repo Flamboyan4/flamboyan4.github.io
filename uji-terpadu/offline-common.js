@@ -1,4 +1,13 @@
 (()=>{'use strict';window.__F4_DEMO__=true;
+  // Membuka sub-URL secara langsung tetap masuk ke navigasi dan login terpadu.
+  if(window===window.top){
+   const parts=location.pathname.split('/').filter(Boolean);
+   const index=parts.indexOf('uji-terpadu');
+   const target=parts[index+1]||'portal';
+   if(['portal','bank-sampah','pembukuan'].includes(target)){
+    location.replace(location.origin+'/uji-terpadu/#'+target);return;
+   }
+  }
   window.__f4DemoNotify=(s)=>{try{window.parent.postMessage({type:'f4:notice',message:String(s)},location.origin)}catch{}};
   document.addEventListener('DOMContentLoaded',()=>{
     const flag=document.createElement('div');flag.setAttribute('role','note');flag.textContent='MODE PRATINJAU STRUKTUR — data contoh, tidak ada penyimpanan';
