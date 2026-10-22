@@ -42,7 +42,8 @@ function renderPortalSlider(apiBanners){
  });
  function move(index){active=(index+slides.length)%slides.length;track.style.transform='translateX(-'+(100*active)+'%)';dotButtons.forEach((b,i)=>b.setAttribute('aria-current',i===active?'true':'false'))}
  function reset(){if(timer)clearInterval(timer);if(slides.length>1&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches)timer=setInterval(()=>{if(!document.hidden)move(active+1)},6000)}
- const prev=elem('button','‹','banner-arrow prev'),next=elem('button','›','banner-arrow next');prev.type=next.type='button';
+ const prev=elem('button',undefined,'banner-arrow prev'),next=elem('button',undefined,'banner-arrow next');prev.type=next.type='button';
+ prev.innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg>';next.innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>';
  prev.setAttribute('aria-label','Banner sebelumnya');next.setAttribute('aria-label','Banner berikutnya');
  prev.onclick=()=>{move(active-1);reset()};next.onclick=()=>{move(active+1);reset()};
  if(slides.length<2){prev.hidden=true;next.hidden=true;dots.hidden=true}

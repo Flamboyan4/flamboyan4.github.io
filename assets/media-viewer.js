@@ -14,7 +14,9 @@ function viewer(){
  const dlg=node('dialog','f4-lightbox');dlg.setAttribute('aria-label','Penampil media');
  const bar=node('div','f4-lightbox-bar'),heading=node('strong','f4-lightbox-title');
  const close=node('button','f4-lightbox-close','×');close.type='button';close.setAttribute('aria-label','Tutup');bar.append(heading,close);
- const body=node('div','f4-lightbox-body'),prev=node('button','f4-lightbox-arrow','‹'),next=node('button','f4-lightbox-arrow','›');
+ close.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" aria-hidden="true"><path d="M5 5 19 19M19 5 5 19"/></svg>';
+ const body=node('div','f4-lightbox-body'),prev=node('button','f4-lightbox-arrow'),next=node('button','f4-lightbox-arrow');
+ prev.innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg>';next.innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>';
  prev.type=next.type='button';prev.setAttribute('aria-label','Foto sebelumnya');next.setAttribute('aria-label','Foto berikutnya');
  const content=node('div','f4-lightbox-view'),footer=node('div','f4-lightbox-foot');
  body.append(prev,content,next);dlg.append(bar,body,footer);document.body.append(dlg);
@@ -43,7 +45,7 @@ export function openMediaGallery(title,items,opts={}){
  if(!dlg){dlg=node('dialog','f4-album-dialog');dlg.id='f4-album-dialog';dlg.onclick=e=>{if(e.target===dlg)dlg.close()};document.body.append(dlg)}
  dlg.replaceChildren();const head=node('header','f4-album-head'),label=node('div');label.append(node('h2','',title),node('small','',list.length+' media'));
  const close=node('button','f4-album-close','×');close.type='button';close.setAttribute('aria-label','Tutup album');close.onclick=()=>dlg.close();
- head.append(label,close);dlg.append(head);const grid=node('div','f4-album-grid');
+ close.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" aria-hidden="true"><path d="M5 5 19 19M19 5 5 19"/></svg>';head.append(label,close);dlg.append(head);const grid=node('div','f4-album-grid');
  if(!list.length)grid.append(node('p','muted',opts.empty||'Belum ada foto atau video yang dapat ditampilkan.'));
  list.forEach((it,index)=>{
   const b=node('button','f4-album-tile');b.type='button';b.title=it.caption||title;

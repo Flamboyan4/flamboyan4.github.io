@@ -68,7 +68,7 @@ async function initComments(){
 function initSuggestions(){
  const dlg=byId('portal-suggestion-dialog'),form=byId('portal-suggestion-form'),status=byId('portal-suggestion-status');
  byId('portal-suggestion-open').onclick=()=>{status.textContent='';dlg.showModal()};
- byId('portal-suggestion-close').onclick=()=>dlg.close();
+ byId('portal-suggestion-close').innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" aria-hidden="true"><path d="M5 5 19 19M19 5 5 19"/></svg>';byId('portal-suggestion-close').onclick=()=>dlg.close();
  dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});
  form.addEventListener('submit',async e=>{
   e.preventDefault();const btn=byId('portal-suggestion-submit');
@@ -262,7 +262,7 @@ function makeMeetingDialog(){
  dlg=document.createElement('dialog');dlg.id='portal-rapat-dialog';dlg.className='portal-rapat-dialog';
  dlg.innerHTML='<div class="portal-rapat-dialog-body"><header class="portal-rapat-dialog-head"><div><small id="portal-rapat-date">Rapat Warga</small><h2 id="portal-rapat-title">Hasil Rapat</h2></div><button id="portal-rapat-close" type="button" aria-label="Tutup notulensi">×</button></header><div class="portal-rapat-actions"><button id="portal-rapat-copy" type="button" class="btn outline">Salin link</button><a id="portal-rapat-external" class="btn" target="_blank" rel="noopener noreferrer">Buka Fullscreen ↗</a></div><div id="portal-rapat-viewer" class="portal-rapat-viewer"></div></div>';
  document.body.append(dlg);
- byId('portal-rapat-close').onclick=()=>dlg.close();
+ byId('portal-rapat-close').innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" aria-hidden="true"><path d="M5 5 19 19M19 5 5 19"/></svg>';byId('portal-rapat-close').onclick=()=>dlg.close();
  dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});
  return dlg;
 }

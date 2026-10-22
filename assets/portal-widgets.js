@@ -31,7 +31,7 @@ export function renderPortalCalendar(events){
  if(!dlg){
   dlg=elem('dialog',undefined,'f4-agenda-dialog');dlg.id='f4-agenda-dialog';
   dlg.innerHTML='<div class="f4-agenda-head"><h2 id="f4-agenda-title">Agenda Warga</h2><button type="button" id="f4-agenda-close" aria-label="Tutup">×</button></div><div class="f4-agenda-share"><span>Bagikan agenda ini kepada warga</span><button type="button" id="f4-agenda-copy">Salin Link Agenda</button></div><div id="f4-agenda-items" class="f4-agenda-items"></div>';
-  document.body.append(dlg);$('f4-agenda-close').onclick=()=>dlg.close();dlg.onclick=e=>{if(e.target===dlg)dlg.close()};
+  document.body.append(dlg);$('f4-agenda-close').innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" aria-hidden="true"><path d="M5 5 19 19M19 5 5 19"/></svg>';$('f4-agenda-close').onclick=()=>dlg.close();dlg.onclick=e=>{if(e.target===dlg)dlg.close()};
  }
  function openDay(iso){
   const records=list.filter(x=>x.iso===iso);if(!records.length)return;
@@ -73,6 +73,7 @@ export function renderPortalCalendar(events){
    if(x.description)card.append(elem('p',x.description,'muted'));card.onclick=()=>openDay(x.iso);upcoming.append(card);
   });
  }
+ $('portal-prev-month').innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg>';$('portal-next-month').innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>';
  $('portal-prev-month').onclick=()=>{current.m--;if(current.m<0){current.y--;current.m=11}render()};
  $('portal-next-month').onclick=()=>{current.m++;if(current.m>11){current.y++;current.m=0}render()};
  $('portal-current-month').onclick=()=>{current.y=now.getFullYear();current.m=now.getMonth();render()};

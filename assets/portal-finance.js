@@ -29,7 +29,7 @@ export async function initPortalFinance(){
  const close=$('finance-dialog-close'),select=$('finance-month'),rows=$('finance-transaction-rows');
  const title=$('finance-dialog-period'),totals=$('finance-dialog-totals'),note=$('finance-source');
  let entries=[];
- close.onclick=()=>dlg.close();dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});
+ close.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" aria-hidden="true"><path d="M5 5 19 19M19 5 5 19"/></svg>';close.onclick=()=>dlg.close();dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});
  function show(){
   const month=select.value,list=entries.filter(x=>!month||x.iso.startsWith(month));
   rows.replaceChildren();
