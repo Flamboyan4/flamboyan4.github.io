@@ -105,3 +105,13 @@ Pertahankan ketiga sumber aslinya; ubah hanya pemanggilan data:
 - Untuk Bank Sampah desktop, sidebar publik/admin asli tetap digunakan. Perbaikan layout: iframe mulai di y=0, utility bar diposisikan x=244px pada area konten; konten Bank Sampah diberi padding-top 56px, sidebar mulai y=0. Jangan menurunkan sidebar 56px di bawah utility bar.
 - **Ikon Pembukuan hanya muncul jika login sebagai SUPERADMIN.** Untuk pengunjung, warga, dan admin Bank Sampah, tombol/icon Pembukuan tidak sekadar disabled: **harus tidak ditampilkan sama sekali**. Setelah logout dari Pembukuan kembali ke portal publik.
 - Pilihan role login di preview tetap simulasi; backend Worker auth yang sebenarnya nanti harus menegakkan hak akses secara server-side.
+
+## Perbaikan layout berdasar screenshot 17:48, 22 Oktober 2026
+
+- Sidebar Pembukuan semula tampak turun karena iframe mulai pada `y=56px`, padahal sidebar sendiri sudah fixed ke atas viewport iframe. Diperbaiki **hanya desktop (min-width 1024px)**: iframe mulai y=0 seperti Bank Sampah; main diberi padding atas 80px untuk utility bar. Tablet/HP tetap mengikuti drawer asli.
+- Judul sidebar Pembukuan diganti dari `Menu Pembukuan` menjadi **Pembukuan**, subjudul **Flamboyan 4**.
+- Utility bar seluruh preview **transparan di posisi awal**, dan menjadi putih semi-solid dengan blur halus jika konten scroll lebih dari 12px. Tidak ada navbar kedua, garis pemisah atau background solid permanen.
+- Tombol **Kembali ke Atas** (panah atas) menggunakan satu kontrol shell baru untuk **Bank Sampah dan Pembukuan**; muncul jika posisi scroll >250px. Portal Utama tetap memakai tombol kembali atas asli; Bank Sampah v31 native disembunyikan khusus preview agar tidak ganda.
+- Deteksi scroll berasal dari child iframe same-origin melalui listener; tidak ada akses data Cloudflare/Apps Script.
+- Hak akses preview tetap: ikon Pembukuan hanya muncul untuk superadmin. Tidak ada perubahan kode produksi/D1/Worker.
+- Belum diverifikasi visual langsung di browser, hanya pemeriksaan source terbaru dan sintaks JavaScript.
