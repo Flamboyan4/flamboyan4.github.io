@@ -3,6 +3,7 @@ import {initPortalExtras,renderMeetingArchive,legacyBanners,legacyInventory,lega
 import {renderProjectCards} from './project-cards.js';
 import {initPortalFinance} from './portal-finance.js';
 import {showTariffs,showPayers,showOutstanding,showIuranAudit,showYearPreflight,showDendaReadiness} from './bookkeeping-readonly.js';
+import {showIuranEntry} from './bookkeeping-iuran-entry.js';
 import {showCashPeriodReport} from './finance-period-report.js';
 import {reportDenda,reportPinjaman,reportTalangan,reportRekonsiliasi} from './finance-audit-reports.js';
 import {renderPortalCalendar,renderPortalInventory,renderBankProgress,renderBankAlbumPreviews} from './portal-widgets.js';
@@ -371,7 +372,7 @@ async function book(){
   });
  }
  renderReadOnlyTabs('book-input-tabs','book-input-content',[
-  ['Input Iuran','Pratinjau kewajiban berdasarkan tarif serta alokasi historis D1. Pembayaran baru tidak disimpan.',showOutstanding],
+  ['Input Iuran','Pratinjau tagihan & formulir pembayaran baru D1. Penyimpanan tetap mengikuti kunci Worker.',showIuranEntry],
   ['Debit / Kredit','Form debit/kredit dari Pembukuan asli belum dipindahkan. Tidak ada jurnal baru dibuat.'],
   ['Buku Kas','Fungsi pencatatan buku kas dari aplikasi lama belum dipindahkan.'],
   ['Talangan','Form talangan dan angsurannya belum dipindahkan. Pencatatan keuangan masih dikunci.'],
