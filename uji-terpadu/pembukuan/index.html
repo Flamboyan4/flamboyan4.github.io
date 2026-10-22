@@ -1699,8 +1699,15 @@ main > section.card{overflow:visible!important}
  body>#side-drawer .drawer-panel{width:min(300px,86vw)!important;max-width:86vw!important}
  body>main .overflow-x-auto{max-width:100%!important}
 }
+</style><style id="f4-book-single-mobile-menu">
+@media(max-width:1023px){
+ #f4-demo-book-hamburger{display:none!important}
+ body>main>header button[aria-label="Buka menu"],
+ body>main button[aria-label="Buka menu"]{display:none!important}
+ body>main{padding-top:76px!important}
+}
 </style></head>
-<body oncontextmenu="return false;"><button type="button" id="f4-demo-book-hamburger" aria-label="Buka menu Pembukuan" onclick="bukaMenu()">☰</button>
+<body oncontextmenu="return false;">
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
     <div class="flex items-center gap-3 min-w-0">
