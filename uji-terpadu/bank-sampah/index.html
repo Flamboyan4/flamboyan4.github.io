@@ -530,22 +530,7 @@
  #sideNav.side{top:0!important;min-height:100dvh!important;height:100dvh!important;max-height:100dvh!important}
  #dashboardView>.grid>.section{padding-top:80px!important}
 }
-</style><link id="f4-original-favicon" rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8"><style id="f4-bank-fixed-navigation">
-   /* Fix both PUBLIC and ADMIN sidebar; only the content panel scrolls. */
-   @media(min-width:761px){
-      body #v11Public.v18-public-shell{display:block!important;max-width:none!important}
-      body #v18PublicSide{position:fixed!important;top:0!important;bottom:0!important;left:0!important;
-        width:244px!important;height:100dvh!important;z-index:42!important;overflow-y:auto!important;
-        background:white!important}
-      body #v18PublicContent{margin-left:244px!important;width:calc(100% - 244px)!important;min-width:0!important}
-      body #dashboardView>.grid{display:block!important;max-width:none!important;width:100%!important}
-      body #sideNav.side{position:fixed!important;top:0!important;bottom:0!important;left:0!important;
-        width:244px!important;height:100dvh!important;max-height:100dvh!important;z-index:42!important;
-        overflow-y:auto!important;background:#fff!important;border-radius:0!important;box-shadow:none!important}
-      body #dashboardView>.grid>.section{margin-left:244px!important;width:calc(100% - 244px)!important;
-        min-width:0!important;box-sizing:border-box!important}
-   }
-   </style></head>
+</style></head>
 <body>
 <div class="shell">
   <header class="top"><div class="brand"><div class="logo">🌿</div><div>Bank Sampah Flamboyan 4<div class="sub">Portal akun warga dan administrator</div></div></div><span class="tag">Lingkungan kita</span></header>
@@ -666,13 +651,7 @@
   function v11ShowLogin(){$('v11Public').classList.add('hidden');if(profile&&token)showDashboard(profile);else $('authView').classList.remove('hidden');}
   function v11External(url,label){const a=document.createElement('a');a.textContent=label||'Buka media';if(/^https:\/\//i.test(url)){a.href=url;a.target='_blank';a.rel='noopener noreferrer';}else a.textContent='Tautan belum tersedia';return a;}
   function v11Tile(title,description){const b=document.createElement('div');b.className='public-tile';const h=document.createElement('h3');h.textContent=title;const p=document.createElement('p');p.textContent=description||'';b.append(h,p);return b;}
-  function v11AttachImage(tile,url){
-  if(!/^https:\/\//i.test(url||''))return;
-  const d=String(url).match(/(?:\/d\/|[?&]id=)([A-Za-z0-9_-]{12,})/);
-  const imageURL=d?'https://lh3.googleusercontent.com/d/'+d[1]:url;
-  const pic=document.createElement('img');pic.className='public-image';pic.alt='Foto kegiatan';
-  pic.loading='lazy';pic.referrerPolicy='no-referrer';pic.src=imageURL;tile.appendChild(pic);
-}
+  function v11AttachImage(tile,url){if(!/^https:\/\//i.test(url))return;if(!/\.(png|jpe?g|webp)(\?|$)/i.test(url))return;const pic=document.createElement('img');pic.className='public-image';pic.alt='Foto kegiatan';pic.loading='lazy';pic.src=url;tile.appendChild(pic);}
   async function v11LoadPublic(){const prog=$('v11ProgressCards'),albums=$('v11AlbumCards'),inv=$('v11InventoryCards');prog.textContent='Memuat perkembangan...';try{const [home,items]=await Promise.all([call('bsV11PublicHome'),call('bsV11PublicAlbums')]);$('v11Metrics').replaceChildren(metric('Anggota aktif',home.anggotaAktif),metric('Jenis barang',home.jenisBarang),metric('Berat terkonfirmasi',kg(home.beratTerkonfirmasi)),metric('Perkembangan publik',home.kegiatan));prog.replaceChildren(...home.progres.map(p=>{const c=v11Tile(p.judul||p.langkah,p.deskripsi);const small=document.createElement('small');small.textContent=[p.tanggal,p.status,p.agenda?'Agenda: '+p.agenda:''].filter(Boolean).join(' • ');c.appendChild(small);v11AttachImage(c,p.foto);if(p.foto)c.appendChild(v11External(p.foto,'Lihat foto'));return c}));if(!home.progres.length)prog.textContent='Belum ada pembaruan kegiatan.';v11Albums=items;v11RenderAlbums();inv.replaceChildren(...home.inventaris.map(x=>{const c=v11Tile(x.nama,x.jumlah+' • '+x.kondisi);v11AttachImage(c,x.foto);if(x.foto)c.appendChild(v11External(x.foto,'Lihat foto'));return c}));if(!home.inventaris.length)inv.textContent='Inventaris belum dipublikasikan.';}catch(e){prog.textContent='Informasi belum dapat dimuat: '+(e.message||e);}}
   function v11RenderAlbums(){const area=$('v11AlbumCards');area.replaceChildren(...v11Albums.map(a=>{const tile=v11Tile(a.judul,a.tanggal+' • '+a.deskripsi);v11AttachImage(tile,a.sampul);const btn=document.createElement('button');btn.className='secondary';btn.textContent='Lihat album ('+a.media.length+')';btn.onclick=()=>v11OpenAlbum(a.id);tile.appendChild(btn);return tile}));$('v11MediaDetail').replaceChildren();if(!v11Albums.length)area.textContent='Album dokumentasi belum tersedia.';}
   function v11OpenAlbum(id){const album=v11Albums.find(a=>a.id===id);if(!album)return;const area=$('v11MediaDetail');const wrap=document.createElement('div');wrap.className='public-section';const toolbar=document.createElement('div');toolbar.className='toolbar';const heading=document.createElement('h2');heading.textContent=album.judul;const back=document.createElement('button');back.className='secondary';back.textContent='← Kembali ke album';back.onclick=()=>v11RenderAlbums();toolbar.append(heading,back);wrap.appendChild(toolbar);const grid=document.createElement('div');grid.className='public-grid';album.media.forEach(m=>{const c=v11Tile(m.caption||m.jenis,m.jenis);v11AttachImage(c,m.url);c.appendChild(v11External(m.url,'Buka '+m.jenis.toLowerCase()));grid.appendChild(c)});wrap.appendChild(grid);if(!album.media.length){const p=document.createElement('p');p.textContent='Album ini belum berisi foto/video.';wrap.appendChild(p);}area.replaceChildren(wrap);area.scrollIntoView({behavior:'smooth',block:'start'});}
