@@ -342,6 +342,19 @@ body.iframe-modal-open .framebox #gate{display:none!important}
  body.book-mode #f4-mobile-menu{display:grid!important;background:#efe7ff!important;color:#6731bb!important}
  .shell .top{padding-left:56px!important}
 }
+</style><style id="f4-profile-full-page-theme">
+/* Pengaturan profil juga menjadi halaman, bukan dialog melayang. */
+#profile-shade:not([hidden]){position:fixed!important;inset:0!important;z-index:10002!important;display:block!important;background:#f4f5fb!important;overflow:auto!important;padding:24px clamp(14px,6vw,85px)!important}
+#profile-shade>.login-modal{width:min(850px,100%)!important;max-width:none!important;max-height:none!important;margin:0 auto!important;padding:26px!important;border-radius:14px!important;box-shadow:none!important;border:1px solid #e5e0f0!important;position:relative!important}
+#profile-shade .close-login{position:absolute!important;right:16px!important;top:15px!important}
+body.bank-mode #profile-shade:not([hidden]){background:#eff5f0!important}
+body.bank-mode #profile-shade>.login-modal{border-color:#d8e6dc!important}
+body.bank-mode #profile-title{color:#255a3e!important}
+body.bank-mode #profile-shade .login-confirm{background:#286648!important}
+body.book-mode #profile-shade:not([hidden]){background:#fff6ed!important}
+body.book-mode #profile-title{color:#a65b22!important}
+body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
+@media(max-width:650px){#profile-shade:not([hidden]){padding:12px!important}#profile-shade>.login-modal{padding:20px 16px!important}}
 </style></head>
 <body>
 <header class="shell">
