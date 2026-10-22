@@ -3,6 +3,20 @@
 <section class="hero"><div class="hero-inner"><span class="eyebrow">RT 001 RW 026 · Pesona Kahuripan 2</span><h1>Transparansi & Kebersamaan<br>Warga Flamboyan 4</h1><p>Informasi kegiatan, pembangunan, dokumentasi, dan laporan lingkungan dalam satu portal warga.</p><span class="mini-pill">Portal Utama · Tema Biru & Ungu</span></div></section>
 <main class="container page-stack" id="page-start">
 <p id="feedback" class="feedback" role="status">Memuat informasi Flamboyan 4 dari Cloudflare D1…</p>
+<section class="portal-finance-section" id="finance-section" aria-labelledby="finance-title">
+ <div class="panel-head"><h2 id="finance-title">Laporan Keuangan Kas Warga</h2><button id="finance-view-all" type="button" class="btn outline">Lihat Rincian</button></div>
+ <div class="portal-finance-grid">
+  <article class="portal-finance-card"><small>Pemasukan · Bulan Terbaru</small><strong id="finance-in-month">Memuat…</strong><span id="finance-in-total" class="portal-finance-sub">Total kumulatif —</span></article>
+  <article class="portal-finance-card"><small>Pengeluaran · Bulan Terbaru</small><strong id="finance-out-month">Memuat…</strong><span id="finance-out-total" class="portal-finance-sub">Total kumulatif —</span></article>
+  <article class="portal-finance-card portal-finance-balance"><small>Saldo Kas Tercatat</small><strong id="finance-balance">Memuat…</strong><span id="finance-period" class="portal-finance-sub">Berdasarkan transaksi aktif</span></article>
+ </div>
+ <p id="finance-source" class="portal-finance-note">Sumber: Buku Kas Pembukuan aktif (baca saja). Saldo hasil perhitungan transaksi, bukan hasil rekonsiliasi final D1.</p>
+</section>
+<dialog id="finance-dialog" class="portal-finance-dialog" aria-labelledby="finance-dialog-title">
+ <div class="portal-finance-dialog-head"><div><h2 id="finance-dialog-title">Rincian Keuangan Kas Warga</h2><small id="finance-dialog-period">Riwayat transaksi aktif</small></div><button id="finance-dialog-close" type="button" aria-label="Tutup rincian keuangan">×</button></div>
+ <div class="portal-finance-filter"><label for="finance-month">Periode</label><select id="finance-month"><option value="">Semua Periode</option></select><div id="finance-dialog-totals"></div></div>
+ <div class="portal-finance-table-wrap"><table class="portal-finance-table"><thead><tr><th>Tanggal</th><th>Keterangan</th><th>Pemasukan</th><th>Pengeluaran</th></tr></thead><tbody id="finance-transaction-rows"></tbody></table></div>
+</dialog>
 <section class="stats" id="portal-stats"><div class="stat"><small>Agenda warga</small><strong id="count-agenda">—</strong><em>kegiatan tercatat</em></div><div class="stat"><small>Proyek warga</small><strong id="count-projects">—</strong><em>program lingkungan</em></div><div class="stat"><small>Inventaris</small><strong id="count-inventory">—</strong><em>barang publik</em></div><div class="stat"><small>Hasil rapat</small><strong id="count-meetings">—</strong><em>dokumen tercatat</em></div></section>
 <section class="panel portal-preview-panel" id="meetings-section"><div class="panel-head"><h2>Hasil Rapat Warga</h2><a class="text-link" href="rapat/">Semua Hasil Rapat</a></div><div id="meetings" class="portal-meeting-grid"><p class="muted">Memuat hasil rapat…</p></div></section>
 <section class="panel" id="projects-section"><div class="panel-head"><h2>Project &amp; Pembangunan</h2><a class="text-link" href="project/">Semua Proyek</a></div><div id="projects" class="portal-project-grid"></div></section>

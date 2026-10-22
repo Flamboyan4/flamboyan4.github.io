@@ -1,6 +1,7 @@
 import {CONFIG,apiURL,sameSiteAuthAvailable} from './config.js';
 import {initPortalExtras,renderMeetingArchive,legacyBanners,legacyInventory,legacyProjects} from './portal-extras.js';
 import {renderProjectCards} from './project-cards.js';
+import {initPortalFinance} from './portal-finance.js';
 import {renderPortalCalendar,renderPortalInventory,renderBankProgress,renderBankAlbumPreviews} from './portal-widgets.js';
 import {api,endpoints} from './api.js';
 import {$,fmtRp,fmtNum,elem,put,boxStatus,setRows,setCards,initShell,url,renderAlbum,requireAuthMessage,updateHeader,setModuleView} from './ui.js';
@@ -429,4 +430,4 @@ async function accountPage(){
  $('avatar-form').onsubmit=async(e)=>{e.preventDefault();const file=$('avatar-file').files?.[0];if(!file)return;if(file.size>2*1024*1024){boxStatus('Foto maksimal 2 MB.','error');return}try{await endpoints.avatar(file);$('avatar-file').value='';boxStatus('Foto berhasil diunggah ke R2.','success');await refresh();await updateHeader()}catch(err){failure(err)}};
  await refresh();
 }
-if(page==='portal'){initPortalExtras();portal();}else if(page==='bank')bank();else if(page==='book')book();else if(page==='akun')accountPage();
+if(page==='portal'){initPortalExtras();initPortalFinance();portal();}else if(page==='bank')bank();else if(page==='book')book();else if(page==='akun')accountPage();

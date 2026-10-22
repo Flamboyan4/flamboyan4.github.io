@@ -13,7 +13,20 @@ export function renderPortalCalendar(events){
   isWork:/gorol|kerja bakti|bersih/i.test(String(x.title||'')),isArisan:/arisan/i.test(String(x.title||''))
  }));
  const now=new Date(),current={y:now.getFullYear(),m:now.getMonth()},title=$('portal-calendar-title'),upcoming=$('portal-upcoming');
- const sorted=list.slice().sort((a,b)=>a.iso.localeCompare(b.iso));
+ const todayISO=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
+ const statusRank=a=>{
+   const status=String(a.status||a.event_status||a.state||'').toLowerCase().trim();
+   if(/selesai|completed?|finished|done|batal|cancel/.test(status))return 3;
+   if(/berjalan|progress|proses|aktif|ongoing|in.progress/.test(status))return 0;
+   if(/rencana|planned?|upcoming|pending|akan/.test(status))return 1;
+   return a.iso>=todayISO?1:2;
+ };
+ const sorted=list.slice().sort((a,b)=>{
+   const x=statusRank(a),y=statusRank(b);
+   if(x!==y)return x-y;
+   // Berjalan/selesai = terbaru lebih atas; rencana = yang terdekat lebih atas.
+   return x===1?a.iso.localeCompare(b.iso):b.iso.localeCompare(a.iso);
+ });
  let dlg=$('f4-agenda-dialog');
  if(!dlg){
   dlg=elem('dialog',undefined,'f4-agenda-dialog');dlg.id='f4-agenda-dialog';
@@ -53,10 +66,9 @@ export function renderPortalCalendar(events){
    }root.append(cell);
   }
   upcoming.replaceChildren();
-  const today=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
-  const future=sorted.filter(x=>x.iso>=today),shown=future.length?future:sorted.slice(-7);
+  const shown=sorted;
   if(!shown.length)upcoming.append(elem('p','Belum ada kegiatan terjadwal.','muted'));
-  shown.slice(0,8).forEach(x=>{
+  shown.forEach(x=>{
    const card=elem('button',undefined,'portal-agenda-item');card.type='button';card.append(elem('small',x.iso,'portal-agenda-date'),elem('strong',x.title));
    if(x.description)card.append(elem('p',x.description,'muted'));card.onclick=()=>openDay(x.iso);upcoming.append(card);
   });
