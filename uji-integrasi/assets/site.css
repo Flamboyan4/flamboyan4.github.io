@@ -79,3 +79,8 @@ body.theme-book .shell-mark{background:#7b39ea}
 .module-view-heading{font-size:clamp(23px,2.6vw,31px);font-weight:850;line-height:1.25;letter-spacing:-.028em;color:var(--accent-dark);margin:4px 0 2px}
 .app-body .page-stack [hidden]{display:none!important}
 @media(max-width:720px){.module-view-heading{font-size:25px}}
+
+/* Kelompok menu asli: satu panel aktif dan pilihan tab internal. */
+#book-input-panel>.data-tabs,#book-report-panel>.data-tabs,#book-reference-panel>.data-tabs,#bank-admin-section .data-tabs{margin:14px 0 17px}
+#book-input-content,#book-report-content,#book-reference-content{padding:15px 2px}
+#book-input-content h3,#book-report-content h3,#book-reference-content h3{font-size:19px;margin:0 0 12px}
