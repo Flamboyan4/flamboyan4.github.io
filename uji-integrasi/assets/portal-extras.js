@@ -115,31 +115,46 @@ function photoUrl(raw){
  if(file&&!source.includes('/folders/'))return 'https://lh3.googleusercontent.com/d/'+file[1];
  return docUrl(source);
 }
+
+const LEGACY_PUBLIC_FOLDER_API="https://script.google.com/macros/s/AKfycbyes6A9_9EQ8vIYtf75cGgC9sKAZBvMewxEhYRSThjMAlBYqnkmKpa3yoPOtN0FEG92Zg/exec";
+async function listLegacyFolder(raw){
+ const id=String(raw||'').match(/\/folders\/([A-Za-z0-9_-]{12,})/)?.[1];
+ if(!id)return [];
+ try{
+  const res=await fetch(LEGACY_PUBLIC_FOLDER_API+'?folderId='+encodeURIComponent(id));
+  if(!res.ok)throw new Error('Folder unavailable');
+  const json=await res.json();
+  const rows=Array.isArray(json.files)?json.files:Array.isArray(json.images)?json.images:[];
+  return rows.map(it=>{
+   const url=typeof it==='string'?it:(it.url||it.link||it.src||'');
+   const type=typeof it==='string'?'foto':String(it.type||'foto');
+   return {url:photoUrl(url),type,caption:String(it.name||'').slice(0,120)};
+  }).filter(it=>it.url);
+ }catch{return []}
+}
+
 function renderDocuments(items){
  const dest=byId('portal-documentation');if(!dest)return;
  dest.replaceChildren();
- const grid=document.createElement('div');grid.className='grid-cards';
- items.slice(0,60).forEach(row=>{
-  const keys=Object.keys(row||{});
-  const tanggal=String(row[keys[0]]||''),judul=String(row[keys[1]]||'Album Warga');
-  const desc=String(row[keys[2]]||'Lihat dokumentasi kegiatan warga');
-  const raw=String(row[keys[3]]||'');
-  const first=raw.split(',').map(v=>v.trim()).find(Boolean)||'';
-  const folder=first.match(/\/folders\/([a-zA-Z0-9_-]+)/)||first.match(/(?<!\w)[?&]id=([a-zA-Z0-9_-]{12,})/);
-  const link=folder?'https://drive.google.com/drive/folders/'+folder[1]:docUrl(first)||photoUrl(first);
-  const card=document.createElement('article');card.className='info-card portal-album-card';
-  const imageUrl=folder?null:photoUrl(first);
-  if(imageUrl){const img=document.createElement('img');img.src=imageUrl;img.alt='Dokumentasi: '+judul;img.loading='lazy';img.referrerPolicy='no-referrer';img.className='portal-album-image';img.onerror=()=>img.remove();card.append(img)}
-  const h=document.createElement('h3');h.textContent=judul.slice(0,140);card.append(h);
-  const d=document.createElement('small');d.className='muted';d.textContent=tanggal.slice(0,70);card.append(d);
-  const p=document.createElement('p');p.textContent=desc.slice(0,350);card.append(p);
-  if(link){const a=document.createElement('a');a.className='text-link';a.href=link;a.textContent='Buka album / foto ↗';a.target='_blank';a.rel='noopener noreferrer';card.append(a)}
-  grid.append(card);
- });
- if(items.length){dest.append(grid)}
- else{const p=document.createElement('p');p.className='muted';p.textContent='Belum ada album dokumentasi.';dest.append(p)}
- const note=document.createElement('p');note.className='muted small';note.textContent='Album mengikuti arsip dokumentasi portal lama. Integrasi galeri penuh ke Cloudflare masih berlangsung.';dest.append(note);
- const a=document.createElement('a');a.href='https://flamboyan4.web.id/#dokumentasi-preview-img';a.className='text-link';a.textContent='Buka galeri lengkap di website lama ↗';dest.append(a);
+ const row=items[0];if(!row){dest.append(Object.assign(document.createElement('p'),{textContent:'Belum ada album yang dipublikasikan.'}));return}
+ const keys=Object.keys(row||{});
+ const title=String(row[keys[1]]||'Album kegiatan warga'),tgl=String(row[keys[0]]||'');
+ const desc=String(row[keys[2]]||''),raw=String(row[keys[3]]||'');
+ const first=raw.split(',').map(v=>v.trim()).find(Boolean)||'';
+ const link=document.createElement('a');link.className='portal-album-feature';link.href='dokumentasi/';
+ const bg=first.includes('/folders/')?null:photoUrl(first);
+ if(bg){const img=document.createElement('img');img.src=bg;img.alt='Foto dokumentasi kegiatan';img.loading='lazy';img.referrerPolicy='no-referrer';img.onerror=()=>img.remove();link.append(img)}
+ else if(first.includes('/folders/')){listLegacyFolder(first).then(media=>{
+  const selected=media.find(x=>!String(x.type).includes('video'));
+  if(!selected||!link.isConnected)return;
+  const img=document.createElement('img');img.src=selected.url;img.alt='Foto dokumentasi kegiatan';img.loading='lazy';img.referrerPolicy='no-referrer';img.onerror=()=>img.remove();link.prepend(img);
+ })}
+
+ const caption=document.createElement('div');caption.className='portal-album-feature-text';
+ const date=document.createElement('small');date.textContent=tgl.slice(0,80);
+ const heading=document.createElement('strong');heading.textContent=title.slice(0,140);
+ const summary=document.createElement('small');summary.textContent=desc.slice(0,130);
+ caption.append(date,heading,summary);link.append(caption);dest.append(link);
 }
 async function initDocumentation(){
  const dest=byId('portal-documentation');if(!dest)return;

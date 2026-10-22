@@ -1,5 +1,6 @@
 import {CONFIG,apiURL,sameSiteAuthAvailable} from './config.js';
 import {initPortalExtras,renderMeetingArchive} from './portal-extras.js';
+import {renderPortalCalendar,renderPortalInventory,renderBankProgress,renderBankAlbumPreviews} from './portal-widgets.js';
 import {api,endpoints} from './api.js';
 import {$,fmtRp,fmtNum,elem,put,boxStatus,setRows,setCards,initShell,url,renderAlbum,requireAuthMessage,updateHeader,setModuleView} from './ui.js';
 const page=document.body.dataset.page;
@@ -52,9 +53,9 @@ async function portal(){
   const r=await endpoints.portal();
   renderPortalSlider(r.banners||r.slides||[]);
   put('count-agenda',r.agenda?.length||0);put('count-projects',r.projects?.length||0);put('count-inventory',r.inventory?.length||0);put('count-meetings',r.meetings?.length||0);
-  setCards('agenda',(r.agenda||[]).map(x=>({title:x.title,note:`${date(x.starts_on)} · ${x.location||'Lingkungan warga'}`,text:x.description||x.status||''})));
+  renderPortalCalendar(r.agenda||[]);
   setCards('projects',(r.projects||[]).slice(0,3).map(x=>({title:x.title,text:x.description,url:x.target_url})));
-  setRows('inventory',['Inventaris','Jumlah','Kategori'],(r.inventory||[]).map(x=>[x.name,`${fmtNum(x.quantity)} ${x.unit||''}`,x.category||'—']));
+  renderPortalInventory(r.inventory||[]);
   boxStatus('Data portal publik berhasil dimuat dari D1.','success');
  }catch(e){renderPortalSlider([]);failure(e)}
 }
@@ -96,14 +97,11 @@ async function memberBankPanel(session){
 async function bank(){
  try{
   const [r]=await Promise.all([endpoints.bank(),bankReport()]);
-  const pub=$('bank-public-inventory-table');
-  if(pub&&Array.isArray(r.inventory))setRows('bank-public-inventory-table',['Nama barang','Jumlah'],r.inventory.map(x=>[x.name||'—',fmtNum(x.quantity)+' '+(x.unit||'')]));
+  renderPortalInventory(r.inventory||[],'bank-public-inventory-table','bank-inventory-count');
     put('count-catalog',r.overview?.activeItems??r.catalog?.length??0);put('count-confirmed',r.overview?.confirmedDeposits??0);
   setRows('catalog',['Jenis Sampah','Kelompok','Tarif per Kg'],(r.catalog||[]).map(x=>[x.name,x.category||'—',x.priceRpPerKg==null?'Belum ada tarif':fmtRp(x.priceRpPerKg)]));
-  setCards('progress',(r.progress||[]).map(x=>({title:x.title,note:date(x.happened_on)+' · '+(x.stage||''),text:x.description||x.next_step||''})));
-  const albums=$('albums');albums.replaceChildren();
-  if(!r.albums?.length)albums.append(elem('p','Belum ada album dokumentasi publik.','muted'));
-  for(const a of r.albums||[]){const card=elem('article',undefined,'info-card');card.append(elem('h3',a.title));card.append(elem('p',`${date(a.event_on)} · ${a.mediaCount??0} media`,'muted'));const btn=elem('button','Lihat galeri','btn outline');btn.type='button';btn.addEventListener('click',async()=>{btn.disabled=true;try{const d=await endpoints.bankAlbum(a.id);$('album-detail').hidden=false;renderAlbum($('album-detail'),d.album,d.media);$('album-detail').scrollIntoView({block:'nearest',behavior:'smooth'})}catch(e){failure(e)}finally{btn.disabled=false}});card.append(btn);albums.append(card)}
+  renderBankProgress(r.progress||[]);
+  await renderBankAlbumPreviews(r.albums||[],endpoints.bankAlbum);
   boxStatus('Data publik Bank Sampah berhasil dimuat dari D1.','success');
  }catch(e){failure(e)}
  const form=$('bank-period-form');form.addEventListener('submit',async(ev)=>{ev.preventDefault();try{await bankReport($('bank-month').value);boxStatus('Laporan periode berhasil dimuat.','success')}catch(e){failure(e)}});
@@ -193,6 +191,50 @@ async function bank(){
     {id:'citizen-accounts',label:'Akun warga',data:'members',hint:'Daftar warga baca-saja. Perubahan akun masih nonaktif.'}
    ]
   };
+
+  function showSeparatedAdminForm(kind){
+   const holder=$('bank-admin-editor');
+   if(!holder)return;
+   holder.replaceChildren();holder.hidden=!['album-list','inventory-list'].includes(kind);
+   if(holder.hidden)return;
+   const documentation=kind==='album-list';
+   const title=documentation?'Buat album dokumentasi':'Tambah barang inventaris';
+   const note=elem('p','Pratinjau formulir dari aplikasi Bank Sampah lama. Penyimpanan belum diaktifkan: data dan transaksi tidak akan berubah.','info-note');
+   const form=elem('form',undefined,'bank-admin-form');form.noValidate=true;
+   form.addEventListener('submit',e=>e.preventDefault());
+   const head=elem('h3',title);holder.append(head,note);
+   function field(label,type,name,options){
+    const wrap=elem('label',undefined,'bank-admin-field');
+    wrap.append(elem('strong',label));
+    let node;
+    if(type==='select'){
+     node=document.createElement('select');
+     (options||[]).forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;node.append(o)});
+    }else if(type==='textarea'){node=document.createElement('textarea');node.rows=3}
+    else{node=document.createElement('input');node.type=type}
+    node.name=name;node.autocomplete='off';wrap.append(node);form.append(wrap);
+   }
+   if(documentation){
+    field('Tanggal kegiatan','date','event_on');
+    field('Judul album','text','title');
+    field('Kategori dokumentasi','select','category',['Kerja Bakti','Penimbangan','Acara','Lainnya','Inventaris']);
+    field('Deskripsi','textarea','description');
+    field('Tautan foto, video, atau folder','url','media_url');
+    field('Akses album','select','visibility',['Publik','Privat']);
+   }else{
+    field('Nama barang','text','name');
+    field('Jumlah barang','number','quantity');
+    field('Kondisi','select','condition',['Baik','Perlu perbaikan','Rusak']);
+    field('Tanggal pencatatan','date','recorded_on');
+    field('Tautan foto barang','url','photo_url');
+    field('Keterangan inventaris','textarea','notes');
+   }
+   const actions=elem('div',undefined,'bank-admin-editor-actions');
+   const save=elem('button',documentation?'Simpan album (belum aktif)':'Simpan barang (belum aktif)','btn');
+   save.type='submit';save.disabled=true;save.title='API tulis Bank Sampah belum diaktifkan';
+   actions.append(save);form.append(actions);holder.append(form);
+  }
+
   function showAdminGroup(group){
    const tabs=adminGroups[group];if(!tabs)return;
    nav.replaceChildren();
@@ -204,6 +246,7 @@ async function bank(){
     });
     details.hidden=true;
     $('admin-table').replaceChildren();
+    showSeparatedAdminForm(item.id);
     if(item.data){
      loadAdmin(item.data).then(()=>{
       if(item.hint&&selected===item.id)$('bank-admin-caption').textContent+=' · '+item.hint;
