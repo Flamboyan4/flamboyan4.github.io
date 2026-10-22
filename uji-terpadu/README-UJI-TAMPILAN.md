@@ -115,3 +115,15 @@ Pertahankan ketiga sumber aslinya; ubah hanya pemanggilan data:
 - Deteksi scroll berasal dari child iframe same-origin melalui listener; tidak ada akses data Cloudflare/Apps Script.
 - Hak akses preview tetap: ikon Pembukuan hanya muncul untuk superadmin. Tidak ada perubahan kode produksi/D1/Worker.
 - Belum diverifikasi visual langsung di browser, hanya pemeriksaan source terbaru dan sintaks JavaScript.
+
+
+## Koreksi Dokumentasi / Sidebar / Logo (22 Oktober)
+
+- Sidebar **Portal Utama > Dokumentasi/Inventaris** sekarang menuju salinan halaman dokumentasi yang SUDAH PERNAH DIBUAT dari `uji-integrasi/dokumentasi/index.html`, berlokasi `/uji-terpadu/dokumentasi/`. Kedua tab bisa berpindah tanpa keluar dari shell, dan daftar album maupun inventaris memiliki scroll mandiri. Komponen modal galeri foto/video lama dari `uji-integrasi/assets/media-viewer.js` dipakai kembali.
+- Snapshot arsip **Data Untuk WEB** Google Sheets: 8 album dokumentasi, 5 barang inventaris (Terpal, Cangkul, Garpu, Pengki Bangunan, Dispenser Es). Foto Dispenser Es memakai URL foto asli. Semua album menampilkan tautan folder asli pada galeri.
+- **Batas yang belum tuntas:** daftar file foto/video di dalam folder album tidak bisa diambil melalui Google Drive connector sekarang. JANGAN menampilkan 30 media palsu! Dialog album menyediakan tautan asli, galeri penuh masih belum setara sampai daftar media berhasil dimigrasi.
+- Sidebar Bank Sampah PUBLIK dan ADMIN pada layar desktop kini `position:fixed` terhadap viewport aplikasi, top=0, lebar 244px dan scroll sendiri jika menunya panjang. Hanya konten utama yang ikut scroll; tidak membiarkan judul/menu ikut bergeser.
+- Sidebar Pembukuan memakai gaya menu sama: 14px tebal, item ~47px, highlight violet muda, dan logo di header. **Tidak mengganti menu atau fungsi aslinya**.
+- Logo bunga Flamboyan 4 asli dipakai di sidebar Portal Utama, header Pembukuan, header Bank Sampah (sudah dari HTML asli), dan favicon seluruh HTML di `/uji-terpadu/`. URL gambar mengikuti `v16LogoURL` dari kode Bank Sampah asli: `https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8`; user juga memberi file PNG logo sebagai referensi.
+- Progres publik Bank Sampah kini memakai **2 deskripsi dan foto asli** dari tab `Progress Bank Sampah` di database Sheets lama, tanpa panggilan DB saat membuka demo. Kartu project Portal Utama membaca snapshot foto yang sama.
+- Staging preview offline tidak boleh dianggap bukti migrasi data, login, gallery file-by-file, atau operasi Worker telah selesai. Main website aktif, D1, Worker tidak disentuh.
