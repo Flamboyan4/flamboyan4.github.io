@@ -19,6 +19,6 @@
     if(method!=='GET'){window.__f4DemoNotify('Aksi simpan diblokir: ini hanya pratinjau.');return Promise.resolve(new Response(JSON.stringify({ok:false,error:'Mode demo: tidak ada perubahan data.'}),{status:503,headers:{'content-type':'application/json'}}))}
     return Promise.resolve(new Response(JSON.stringify({ok:true,status:'success',data:[],transaksi:[],ringkasan:{},config:{},rumah:[],warga:[],riwayat:[]}),{status:200,headers:{'content-type':'application/json'}}));
   };
-  const origOpen=window.open?.bind(window);window.open=(url,...args)=>{window.__f4DemoNotify('Tautan eksternal dan cetak dibatasi dalam pratinjau.');return null};
+  const origOpen=window.open?.bind(window);window.open=(url,...args)=>{if(!url||url==='about:blank')return origOpen?.('about:blank',...args)||null;window.__f4DemoNotify('Tautan eksternal tidak dibuka otomatis dari pratinjau.');return null};
   window.addEventListener('message',e=>{if(e.origin!==location.origin||!e.data||e.data.type!=='f4:demo-role')return;document.body.dataset.previewRole=e.data.role});
 })();
