@@ -27,33 +27,77 @@ const ICON={
 const pict=name=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICON[name]||ICON.files)+'</svg>';
 const SITEMAP={
  portal:[['Beranda','page-start','house'],['Kalender','agenda','calendar'],['Proyek','projects','files'],['Rapat','meetings','files'],['Inventaris','inventory','data'],['Layanan','portal-services','wallet']],
- book:[['Ringkasan','page-start','house'],['Input Data','book-info','wallet'],['Iuran','book-ledger-nav','calendar','iuran'],['Denda','book-ledger-nav','files','denda'],['Pinjaman','book-ledger-nav','wallet','pinjaman'],['Talangan','book-ledger-nav','files','talangan'],['Kas','book-ledger-nav','data','kas']],
+ book:[['Ringkasan','summary','house'],['Input Data','input','wallet'],['Riwayat','history','calendar'],['Laporan & Rekap','report','files'],['Data Acuan','reference','data']],
  akun:[['Profil','auth-profile','files'],['Foto Profil','avatar-form','image'],['Tabungan Saya','member-summary','wallet']]
 };
 const BANKNAV={
  public:[['Beranda','page-start','house'],['Program','bank-program','leaf'],['Perkembangan','progress','calendar'],['Dokumentasi','albums','image'],['Inventaris','bank-inventory','data'],['Laporan Publik','cash-detail','files']],
- anggota:[['Ringkasan','bank-member-section','house'],['Tabungan Saya','bank-member-savings','wallet'],['Perkembangan','progress','calendar'],['Portal Publik','bank-program','bank']],
- admin:[['Ringkasan','page-start','house'],['Pencatatan','bank-admin-section','files','deposits'],['Keuangan','bank-admin-section','wallet','cash'],['Kegiatan','progress','calendar'],['Data & Anggota','bank-admin-section','data','members'],['Portal Publik','bank-program','bank']]
+ anggota:[['Ringkasan','summary','house'],['Tabungan Saya','savings','wallet'],['Perkembangan','progress','calendar'],['Portal Publik','public','bank']],
+ admin:[['Ringkasan','summary','house'],['Pencatatan','record','files'],['Keuangan','finance','wallet'],['Kegiatan','activities','calendar'],['Data & Anggota','members','data'],['Portal Publik','public','bank']]
 };
 const pageRole=s=>!s?'public':s.account?.role==='superadmin'?'superadmin':s.account?.role==='admin'?'admin':'anggota';
 function shellLink(label,href,icon,cls){
  const a=elem('a',undefined,cls);a.href=href;a.title=label;a.setAttribute('aria-label',label);a.innerHTML=pict(icon);return a;
 }
+
+export function setModuleView(requested, roleOverride){
+ const page=document.body.dataset.page,role=roleOverride||document.body.dataset.role||'public';
+ const view=requested||'summary';document.body.dataset.activeView=view;
+ if(page==='bank'){
+  const publicViews=['bank-summary-stats','bank-program','bank-public-pricing','bank-public-gallery','bank-progress-section','bank-inventory'];
+  const map={
+   summary:role==='anggota'?['bank-member-section']:role==='public'?publicViews:['bank-summary-stats','bank-progress-section'],
+   savings:['bank-member-section'],progress:['bank-progress-section'],public:publicViews,
+   record:['bank-admin-section'],finance:['bank-admin-section'],
+   activities:['bank-progress-section'],members:['bank-admin-section']
+  };
+  const visible=role==='public'?publicViews:map[view]||map.summary;
+  [...publicViews,'bank-member-section','bank-admin-section'].forEach(id=>{
+   const node=$(id);if(node)node.hidden=!visible.includes(id);
+  });
+  const overview=$('bank-member-overview'),saving=$('bank-member-savings');
+  if(overview)overview.hidden=role==='anggota'&&view==='savings';
+  if(saving)saving.hidden=role==='anggota'&&view!=='savings';
+  const head=$('bank-view-heading');
+  if(head){head.hidden=role==='public';head.textContent=({
+   summary:role==='anggota'?'Ringkasan Anggota':'Ringkasan Pengelola',savings:'Tabungan Saya',progress:'Perkembangan Bank Sampah',
+   record:'Pencatatan',finance:'Keuangan Bank Sampah',activities:'Kegiatan',members:'Data & Anggota',public:'Portal Publik'
+  })[view]||'Bank Sampah'}
+  const action={record:'deposits',finance:'cash',members:'members'}[view];
+  if(action){const button=document.querySelector('#bank-admin-nav [data-kind="'+action+'"]');button?.click()}
+ }else if(page==='book'){
+  const panels=['book-summary-panel','book-stats','book-overview-detail','book-cash-panel','book-ledger-panel','book-input-panel','book-reference-panel'];
+  const which={
+   summary:['book-summary-panel','book-stats','book-overview-detail'],
+   input:['book-input-panel'],history:['book-ledger-panel','book-cash-panel'],
+   report:['book-summary-panel','book-stats','book-cash-panel'],reference:['book-reference-panel']
+  };
+  const show=which[view]||which.summary;
+  panels.forEach(id=>{const node=$(id);if(node)node.hidden=!show.includes(id)});
+  const title=$('book-view-heading');if(title)title.textContent=({
+   summary:'Ringkasan Pembukuan',input:'Input Data',history:'Riwayat & Histori',
+   report:'Laporan & Rekap',reference:'Data Acuan'
+  })[view]||'Pembukuan';
+ }
+}
+
 function roleNav(s){
  const p=document.body.dataset.page,r=pageRole(s);
  const nav=$('app-sidebar-menu');if(nav){
-  nav.replaceChildren();const list=p==='bank'?BANKNAV[r==='superadmin'?'admin':r]:(p==='akun'&&r==='public'?[]:SITEMAP[p]||[]);
+  nav.replaceChildren();const list=p==='book'&&r!=='superadmin'?[]:p==='bank'?BANKNAV[r==='superadmin'?'admin':r]:(p==='akun'&&r==='public'?[]:SITEMAP[p]||[]);
   list.forEach(([name,target,icon,view],index)=>{
    
    const a=shellLink(name,'#'+target,icon,'shell-side-link'+(index===0?' current':''));a.append(elem('span',name));
-   a.addEventListener('click',()=>{
+   a.addEventListener('click',e=>{
+    const switchMode=p==='book'||(p==='bank'&&r!=='public');
+    if(switchMode){e.preventDefault();setModuleView(target,r);window.scrollTo({top:0,behavior:'instant'})}
     nav.querySelectorAll('.shell-side-link').forEach(item=>item.classList.remove('current'));a.classList.add('current');
-    if(view){const b=document.querySelector('#'+(p==='bank'?'bank-admin-nav':'book-ledger-nav')+' [data-kind="'+view+'"]');b?.click()}
     document.body.classList.remove('sidebar-open');
    });nav.append(a);
   });
  }
  const bookCard=$('portal-book-entry');if(bookCard)bookCard.hidden=r!=='superadmin';
+ if(p==='bank'||p==='book')setModuleView('summary',r);
  const switcher=$('app-switcher');if(switcher){
   switcher.replaceChildren();
   [['portal','Portal Utama','','house'],['bank','Bank Sampah','bank-sampah/','bank'],['book','Pembukuan','pembukuan/','book']].forEach(([k,label,path,ic])=>{
