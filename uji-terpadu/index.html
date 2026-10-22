@@ -62,6 +62,56 @@ nav .nav-icon{font:700 23px/1 system-ui}
  nav button{width:33px;height:33px}.account-ui{order:3}
  .status{display:none}.framebox{height:calc(100dvh - 117px)}
 }
+
+/* FINAL preview shell: one slender utility bar, left portal sidebar, no tall navbar. */
+:root{color-scheme:light}
+html,body{height:100%;margin:0;overflow:hidden;background:#f8f9fd}
+.shell{position:absolute!important;top:0;left:0;right:0;height:56px;background:#fff!important;color:#24214b!important;
+ box-shadow:none!important;border-bottom:1px solid #e6e4f2;z-index:70}
+.top{height:56px!important;padding:0 22px!important;justify-content:flex-end!important;gap:9px}
+.top>.brand,.top>.status{display:none!important}
+.top nav{margin-left:auto!important;order:unset!important;width:auto!important;display:flex!important;gap:5px!important}
+.top nav button{width:38px!important;height:38px!important;border:1px solid transparent!important;border-radius:11px!important;
+ color:#535d79!important;background:transparent!important;display:grid;place-items:center;padding:0!important}
+.top nav button:hover{background:#f3f0ff!important}
+.top nav button.active{background:#eee9ff!important;color:#6846cf!important}
+.top nav button svg{width:18px;height:18px}
+.account-ui{order:unset!important;margin-left:8px;min-width:42px;z-index:90}
+.login-button{background:#594eba!important;color:#fff!important;padding:10px 15px!important;border-radius:9px!important;font-size:12px!important}
+.avatar-button{width:43px;height:43px;border:1px solid #e8e3f3;background:#fff}
+.avatar-face{width:39px;height:39px;font-size:28px;color:#fff;background:linear-gradient(125deg,#9c67d3,#2c8958);font-family:serif}
+.account-menu{top:48px;min-width:238px;border:1px solid #e5e1f6}
+.notice{display:none!important}
+.portal-sidebar{display:none;position:absolute;top:0;bottom:0;left:0;width:242px;background:#fff;border-right:1px solid #e4e5ef;
+ z-index:82;color:#252b4f;overflow:auto;padding:14px 12px}
+.portal-brand{display:flex;align-items:center;gap:9px;padding:0 7px;height:60px}
+.portal-logo{display:grid;place-items:center;background:#6d46ea;border-radius:11px;color:#fff;font:700 24px Georgia,serif;width:42px;height:42px;flex:none}
+.portal-brand strong{display:block;font-size:13px;color:#4f3ca6}
+.portal-brand small{display:block;font-size:10px;color:#79809a}
+.portal-divider{border-top:1px solid #e6e5ed;margin:12px 2px}
+.portal-menu{display:grid;gap:3px}
+.portal-menu button{border:0;background:transparent;color:#4d5684;border-radius:10px;min-height:43px;width:100%;display:flex;
+ gap:11px;align-items:center;text-align:left;padding:0 12px;font:650 12px system-ui;cursor:pointer}
+.portal-menu button:hover{background:#f6f3ff;color:#6b40d9}
+.portal-menu button.active{background:#f0eaff;color:#5c33d8}
+.portal-menu button svg{width:16px;height:16px;flex:none}
+body.portal-mode .portal-sidebar{display:block}
+body.portal-mode .shell{left:242px}
+body.portal-mode .framebox{margin-left:242px}
+.framebox{height:calc(100dvh - 56px)!important;min-height:0!important;margin-top:56px;background:#fff}
+.framebox iframe{width:100%;height:100%;border:0}
+.gate{background:#f6f7fb}
+@media(max-width:760px){
+ .portal-sidebar{width:71px;padding:10px 5px}.portal-brand{height:54px;justify-content:center;padding:0}
+ .portal-brand>div:not(.portal-logo),.portal-divider,.portal-menu button span{display:none}
+ .portal-menu button{justify-content:center;padding:0;gap:0}
+ .portal-menu button svg{width:21px;height:21px}
+ body.portal-mode .shell{left:71px}
+ body.portal-mode .framebox{margin-left:71px}
+ .top{padding:0 10px!important;gap:3px}
+ .top nav button{width:34px!important;height:36px!important}
+ .account-ui{margin-left:3px}.login-button{padding:8px 10px!important}
+}
 </style></head>
 <body>
 <header class="shell">
@@ -69,14 +119,14 @@ nav .nav-icon{font:700 23px/1 system-ui}
   <div class="brand"><span class="logo">✿</span><div><b>Flamboyan 4 · Uji Terpadu</b><small>Tiga antarmuka asli, satu navigasi & identitas</small></div></div>
   <div class="status"><span class="dot"></span>Data contoh / offline</div>
   <nav aria-label="Navigasi antarportal">
-   <button type="button" data-target="portal" class="active" aria-pressed="true" title="Portal Utama" aria-label="Portal Utama"><span aria-hidden="true" class="nav-icon">⌂</span></button>
-   <button type="button" data-target="bank-sampah" aria-pressed="false" title="Bank Sampah" aria-label="Bank Sampah"><span aria-hidden="true" class="nav-icon">♻</span></button>
-   <button type="button" data-target="pembukuan" aria-pressed="false" title="Pembukuan" aria-label="Pembukuan"><span aria-hidden="true" class="nav-icon">▤</span></button>
+   <button type="button" data-target="portal" class="active" aria-pressed="true" title="Portal Utama" aria-label="Portal Utama"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg></button>
+   <button type="button" data-target="bank-sampah" aria-pressed="false" title="Bank Sampah" aria-label="Bank Sampah"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 7 2-3h4l2 3"/><path d="m7 7 3 1-1 3"/><path d="M15 7l3 5-2 3"/><path d="m18 12 3 1-1 3"/><path d="M16 18H9l-2-3"/><path d="m7 15-3 1 2 3"/></svg></button>
+   <button type="button" data-target="pembukuan" aria-pressed="false" title="Pembukuan" aria-label="Pembukuan"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg></button>
   </nav>
   <div class="account-ui" id="account-ui">
    <button type="button" class="login-button" id="login-button">Login</button>
    <button type="button" class="avatar-button" id="avatar-button" aria-label="Akun Saya" aria-expanded="false" aria-haspopup="menu" hidden>
-    <span class="avatar-face" aria-hidden="true">●</span>
+    <span class="avatar-face" aria-hidden="true">✿</span>
    </button>
    <div class="account-menu" role="menu" id="account-menu" hidden>
     <div class="account-summary"><b id="account-name">Akun Contoh</b><small id="account-role">Warga</small></div>
@@ -88,7 +138,20 @@ nav .nav-icon{font:700 23px/1 system-ui}
  </div>
 </header>
 <div class="notice"><strong>PRATINJAU STRUKTUR SAJA.</strong> Desain dan menu berasal dari aplikasi asli; login, data, pembayaran, simpan, hapus, dan pengesahan tidak terhubung ke database.</div>
-<main class="framebox">
+<aside class="portal-sidebar" id="portal-sidebar" aria-label="Menu Portal Utama">
+ <div class="portal-brand"><div class="portal-logo">✿</div><div><strong>Portal Utama</strong><small>Flamboyan 4</small></div></div>
+ <div class="portal-divider"></div>
+ <nav class="portal-menu" aria-label="Halaman Portal Utama">
+ <button type="button" data-portal-menu="beranda" class="active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span>Beranda</span></button>
+<button type="button" data-portal-menu="rapat" class=""><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 2h7l5 5v15H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg><span>Rapat</span></button>
+<button type="button" data-portal-menu="projek" class=""><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10H3z"/></svg><span>Projek</span></button>
+<button type="button" data-portal-menu="kalender" class=""><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 14h3M8 17h3"/></svg><span>Kalender</span></button>
+<button type="button" data-portal-menu="dokumentasi" class=""><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m4 18 6-6 4 4 3-3 4 5"/></svg><span>Dokumentasi</span></button>
+<button type="button" data-portal-menu="inventaris" class=""><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v7c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12v7c0 1.7 3.6 3 8 3s8-1.3 8-3v-7"/></svg><span>Inventaris</span></button>
+<button type="button" data-portal-menu="pembayaran" class=""><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 9h18M15 15h3"/></svg><span>Pembayaran</span></button>
+ </nav>
+ </aside>
+ <main class="framebox">
  <iframe id="appframe" title="Aplikasi asli Flamboyan 4 — pratinjau offline" sandbox="allow-scripts allow-same-origin allow-popups" referrerpolicy="no-referrer" src="./portal/" ></iframe>
  <div id="gate" class="gate" role="region" aria-label="Akses portal terbatas"><article>
   <div style="font-size:38px">🔒</div><h1>Pembukuan khusus Superadmin</h1>
@@ -121,7 +184,7 @@ nav .nav-icon{font:700 23px/1 system-ui}
 <div id="toast" class="toast" hidden role="status"></div>
 <script>
 (()=>{
- const apps={portal:'./portal/','bank-sampah':'./bank-sampah/',pembukuan:'./pembukuan/'};
+ const apps={portal:'./portal/',rapat:'./rapat/','bank-sampah':'./bank-sampah/',pembukuan:'./pembukuan/'};
  const buttons=[...document.querySelectorAll('nav [data-target]')],frame=document.getElementById('appframe'),
  gate=document.getElementById('gate'),toast=document.getElementById('toast');
  const login=document.getElementById('login-button'),avatar=document.getElementById('avatar-button'),
@@ -147,8 +210,10 @@ nav .nav-icon{font:700 23px/1 system-ui}
  }
  function update(target){
   selected=target;
+  document.body.classList.toggle('portal-mode',target==='portal'||target==='rapat');
+  document.querySelectorAll('[data-portal-menu]').forEach(b=>b.classList.toggle('active',b.dataset.portalMenu===(target==='rapat'?'rapat':'beranda')));
   buttons.forEach(b=>{
-   const selected=b.dataset.target===target;
+   const selected=b.dataset.target===(target==='rapat'?'portal':target);
    b.classList.toggle('active',selected);b.setAttribute('aria-pressed',String(selected));
    b.setAttribute('aria-disabled',String(b.dataset.target==='pembukuan'&&role!=='superadmin'));
   });
@@ -186,6 +251,19 @@ nav .nav-icon{font:700 23px/1 system-ui}
   document.getElementById('profile-detail').textContent=roles[role].name+' — '+roles[role].label+'. '+(isSettings?'Pengaturan nama, foto dan password terhubung Worker/R2 pada aplikasi final; tidak aktif di pratinjau.':'Simulasi identitas yang berlaku di ketiga portal.');
   profileShade.hidden=false;
  });
+ document.querySelectorAll('[data-portal-menu]').forEach(button=>button.addEventListener('click',()=>{
+  const item=button.dataset.portalMenu;
+  document.querySelectorAll('[data-portal-menu]').forEach(x=>x.classList.toggle('active',x===button));
+  if(item==='rapat'){update('rapat');return}
+  const target=item==='beranda'?null:item==='projek'?'projek':item==='kalender'?'rencana':item==='pembayaran'?'keuangan':'dokumentasi-inventaris';
+  const go=()=>{try{
+    if(!target){frame.contentWindow.scrollTo({top:0,behavior:'smooth'});return}
+    const doc=frame.contentWindow.document,section=doc.getElementById(target);
+    if(section)section.scrollIntoView({behavior:'smooth',block:'start'});
+    else notify('Bagian '+item+' belum ditemukan pada HTML sumber.');
+  }catch(e){notify('Navigasi memerlukan halaman Portal Utama.')}}
+  if(selected!=='portal'){update('portal');setTimeout(go,500)}else go();
+ }));
  buttons.forEach(b=>b.addEventListener('click',()=>update(b.dataset.target)));
  frame.addEventListener('load',sendRole);
  window.addEventListener('message',e=>{
