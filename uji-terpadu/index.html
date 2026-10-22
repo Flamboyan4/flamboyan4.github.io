@@ -343,6 +343,7 @@ body.bank-mode .shell.modal-covered{opacity:0!important;pointer-events:none!impo
 <script>
 (()=>{
  const apps={portal:'./portal/',rapat:'./rapat/',dokumentasi:'./dokumentasi/',inventaris:'./dokumentasi/#inventaris','bank-sampah':'./bank-sampah/',pembukuan:'./pembukuan/'};
+ const originalBankSampah="https://script.google.com/macros/s/AKfycbzkOIyAXui0PtTccwi7m-PGMNLv-2ERD7r21edDmgUK579_-YI3p3sr5SJ0Ld2x7wZU/exec";
  const buttons=[...document.querySelectorAll('nav [data-target]')],frame=document.getElementById('appframe'),
  gate=document.getElementById('gate'),toast=document.getElementById('toast');
  const scrollButton=document.getElementById('f4-scroll-top'),toolbar=document.querySelector('.shell');
@@ -462,7 +463,13 @@ body.bank-mode .shell.modal-covered{opacity:0!important;pointer-events:none!impo
   };
   if(selected!=='portal'){update('portal');setTimeout(go,350)}else go();
  }));
- buttons.forEach(b=>b.addEventListener('click',()=>update(b.dataset.target)));
+ buttons.forEach(b=>b.addEventListener('click',()=>{
+  if(b.dataset.target==='bank-sampah'){
+    window.location.assign(originalBankSampah);
+    return;
+  }
+  update(b.dataset.target);
+}));
  frame.addEventListener('load',()=>{sendRole();attachScrollListener()});
  window.addEventListener('message',e=>{
   if(e.origin!==location.origin||!e.data)return;
@@ -474,6 +481,7 @@ body.bank-mode .shell.modal-covered{opacity:0!important;pointer-events:none!impo
     history.replaceState(null,'','#'+selected);
   }
   if(e.data.type==='f4:show-login')showLogin();
+  if(e.data.type==='f4:navigate'&&e.data.target==='bank-sampah'){window.location.assign(originalBankSampah);return}
   if(e.data.type==='f4:navigate'&&Object.hasOwn(apps,e.data.target))update(e.data.target);
   if(e.data.type==='f4:notice')notify(e.data.message);
  });
@@ -484,6 +492,11 @@ body.bank-mode .shell.modal-covered{opacity:0!important;pointer-events:none!impo
  });
  document.addEventListener('keydown',e=>{if(e.key==='Escape'){menu.hidden=true;loginShade.hidden=true;profileShade.hidden=true}});
  refreshIdentity();
- const requested=location.hash.slice(1);update(Object.hasOwn(apps,requested)?requested:'portal');
+ const requested=location.hash.slice(1);
+ if(requested==='bank-sampah'){
+   window.location.replace(originalBankSampah);
+ }else{
+   update(Object.hasOwn(apps,requested)?requested:'portal');
+ }
 })();
 </script></body></html>
