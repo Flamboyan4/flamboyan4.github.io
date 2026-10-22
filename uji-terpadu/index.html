@@ -376,6 +376,7 @@ body.iframe-modal-open .framebox #gate{display:none!important}
     <div class="account-summary"><b id="account-name">Akun Contoh</b><small id="account-role">Warga</small></div>
     <button type="button" role="menuitem" data-account-action="my">Akun Saya</button>
     <button type="button" role="menuitem" data-account-action="settings">Pengaturan Profil</button>
+    <button type="button" role="menuitem" data-account-action="warga" id="f4-warga-menu" hidden>Data Warga & Rumah</button>
     <button type="button" role="menuitem" data-account-action="logout">Keluar</button>
    </div>
   </div>
@@ -473,6 +474,7 @@ body.iframe-modal-open .framebox #gate{display:none!important}
   const bookkeepingButton=buttons.find(b=>b.dataset.target==='pembukuan');
   if(bookkeepingButton){bookkeepingButton.hidden=role!=='superadmin';bookkeepingButton.setAttribute('aria-hidden',String(role!=='superadmin'));}
   login.hidden=signed;avatar.hidden=!signed;menu.hidden=true;avatar.setAttribute('aria-expanded','false');
+  document.getElementById('f4-warga-menu').hidden=role!=='superadmin';
   if(signed){
    document.getElementById('account-name').textContent=activeAccount?.member?.nama||activeAccount?.account?.username||'Akun aktif';
    document.getElementById('account-role').textContent=roleLabel[role];
@@ -657,6 +659,7 @@ body.iframe-modal-open .framebox #gate{display:none!important}
  document.querySelectorAll('[data-account-action]').forEach(b=>b.onclick=()=>{
   const action=b.dataset.accountAction;menu.hidden=true;avatar.setAttribute('aria-expanded','false');
   if(action==='logout'){signOut();return}
+  if(action==='warga'){openWarga();return}
   openProfileSettings(action==='settings');
  });
  const mobileMenu=document.getElementById('f4-mobile-menu');
@@ -714,5 +717,54 @@ body.iframe-modal-open .framebox #gate{display:none!important}
  refreshIdentity();
  const requested=location.hash.slice(1);selected=Object.hasOwn(apps,requested)?requested:'portal';
  update(selected);refreshSession();
+})();
+</script><div id="f4-warga-panel" hidden aria-modal="true" role="dialog" aria-label="Data Warga dan Rumah">
+ <section><header><strong>Data Warga & Rumah</strong><button type="button" id="f4-warga-close" aria-label="Tutup">✕</button></header>
+ <p>Sumber data: Cloudflare D1. Hanya Superadmin yang berhak mengelola data induk.</p>
+ <div id="f4-warga-status" role="status">Belum dimuat</div>
+ <div class="f4-warga-tools"><input id="f4-warga-search" placeholder="Cari nama / rumah" aria-label="Cari data warga"><button type="button" id="f4-warga-reload">Muat ulang</button></div>
+ <div id="f4-warga-list"></div>
+ </section>
+</div>
+<style id="f4-warga-panel-style">
+#f4-warga-panel:not([hidden]){position:fixed;inset:0;z-index:9999;background:#1119;display:flex;align-items:center;justify-content:center;padding:12px}
+#f4-warga-panel section{width:min(870px,100%);max-height:92dvh;overflow:auto;background:white;border-radius:15px;padding:15px;color:#234;box-shadow:0 18px 60px #1115}
+#f4-warga-panel header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px}
+#f4-warga-panel header strong{font:750 19px system-ui}#f4-warga-panel button{cursor:pointer;padding:8px 11px;border-radius:9px;border:1px solid #cad5cb;background:#edf4ed;color:#24563b}
+#f4-warga-panel p{font-size:12px;color:#63716a}#f4-warga-status{padding:9px 0;font:500 12px system-ui}
+.f4-warga-tools{display:flex;gap:8px;margin:9px 0}.f4-warga-tools input{flex:1;min-width:0;padding:9px;border:1px solid #cbd8cf;border-radius:9px}
+#f4-warga-list{display:grid;gap:7px;max-height:58dvh;overflow:auto}#f4-warga-list article{padding:10px;border:1px solid #e5ece7;border-radius:9px;display:flex;justify-content:space-between;gap:10px;align-items:center;font:500 13px system-ui}
+#f4-warga-list small{display:block;color:#60776a;margin-top:4px}
+</style>
+<script id="f4-warga-d1-bridge">
+(()=>{
+ const panel=document.getElementById('f4-warga-panel'),list=document.getElementById('f4-warga-list'),status=document.getElementById('f4-warga-status');
+ let records=[];
+ const draw=()=>{
+  const query=document.getElementById('f4-warga-search').value.trim().toLowerCase();
+  list.replaceChildren();
+  records.filter(x=>JSON.stringify(x).toLowerCase().includes(query)).forEach(x=>{
+   const article=document.createElement('article'),left=document.createElement('div'),title=document.createElement('b'),small=document.createElement('small');
+   title.textContent=x.nama||x.display_name||x.name||'Tanpa nama';
+   small.textContent=[x.rumah||x.house_code||x.houseCode,x.statusRumah||x.house_status,x.status||''].filter(Boolean).join(' • ');
+   left.append(title,small);article.appendChild(left);list.appendChild(article);
+  });
+ };
+ window.openWarga=async()=>{
+  if(document.body.classList.contains('role-superadmin')===false)return;
+  panel.hidden=false;list.replaceChildren();status.textContent='Memuat data warga dari Cloudflare…';
+  try{
+   // Route ini merupakan kontrak yang harus tersedia di Worker dan wajib dilindungi role server-side.
+   const response=await fetch('https://api.flamboyan4.web.id/api/v2/admin/residents',{credentials:'include',cache:'no-store'});
+   const data=await response.json();
+   if(!response.ok||data.ok===false)throw Error(data.error||'HTTP '+response.status);
+   records=Array.isArray(data.rows)?data.rows:Array.isArray(data.data)?data.data:[];
+   status.textContent=records.length+' profil warga dibaca dari D1';
+   draw();
+  }catch(e){status.textContent='API Data Warga belum tersedia atau akses ditolak: '+e.message+'. Modul Worker diperlukan sebelum tambah/edit dapat diaktifkan.'}
+ };
+ document.getElementById('f4-warga-close').onclick=()=>{panel.hidden=true};
+ document.getElementById('f4-warga-reload').onclick=()=>window.openWarga();
+ document.getElementById('f4-warga-search').oninput=draw;
 })();
 </script></body></html>
