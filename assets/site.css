@@ -84,3 +84,36 @@ body.theme-book .shell-mark{background:#7b39ea}
 #book-input-panel>.data-tabs,#book-report-panel>.data-tabs,#book-reference-panel>.data-tabs,#bank-admin-section .data-tabs{margin:14px 0 17px}
 #book-input-content,#book-report-content,#book-reference-content{padding:15px 2px}
 #book-input-content h3,#book-report-content h3,#book-reference-content h3{font-size:19px;margin:0 0 12px}
+
+
+/* Portal Utama: landing page panjang dengan navigasi sidebar sesuai urutan. */
+body.theme-home .app-body section[id]{scroll-margin-top:84px}
+#portal-documentation .text-link{margin-top:2px}
+.portal-pay-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.portal-pay-card{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#202943;color:#fff;padding:16px;border-radius:12px;min-width:0}
+.portal-pay-card div{min-width:0}.portal-pay-card strong{display:block}.portal-pay-card small{display:block;color:#c8d3eb;margin-top:3px}
+.portal-pay-card .btn{white-space:nowrap;font-size:12px;padding:9px 12px}
+.portal-comments-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:20px}
+.portal-comment-form{display:grid;gap:9px;padding:18px;background:#f6f7fc;border:1px solid var(--line);border-radius:12px}
+.portal-comment-form label,.portal-suggestion-dialog label{font-size:13px;font-weight:750}
+.portal-comment-form input,.portal-comment-form textarea,.portal-suggestion-dialog textarea{width:100%;min-width:0;background:#fff;border:1px solid #d3d9e9;border-radius:10px;padding:11px 12px;font:inherit}
+.portal-comment-form .btn{justify-self:start}
+.portal-emoji{display:flex;gap:5px;flex-wrap:wrap}
+.portal-emoji button{border:0;background:white;border-radius:8px;padding:5px 7px;font-size:20px}
+.portal-emoji button:hover{background:#eaeafa}
+.portal-comment-list{max-height:370px;overflow-y:auto;display:grid;align-content:start;gap:10px}
+.portal-comment{padding:13px;border:1px solid var(--line);border-radius:11px;background:#f8fafd}
+.portal-comment p{white-space:pre-wrap;overflow-wrap:anywhere;margin:6px 0 0}
+.portal-comment-meta{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.portal-comment-meta small{font-size:11px;color:var(--soft)}
+.portal-floating-actions{position:fixed;right:22px;bottom:22px;display:flex;flex-direction:column;gap:12px;z-index:60}
+.portal-floating-actions button{width:52px;height:52px;border:0;border-radius:50%;background:#524fcf;color:#fff;font-size:26px;box-shadow:0 8px 25px #1d2b5640;cursor:pointer}
+#portal-scroll-top{background:#293650}
+.portal-suggestion-dialog{width:min(92vw,480px);border:0;border-radius:17px;padding:0;background:#fff;color:var(--ink);box-shadow:0 25px 70px #080c2840;max-height:90vh;overflow-y:auto}
+.portal-suggestion-dialog::backdrop{background:#0b1225a8;backdrop-filter:blur(3px)}
+.suggestion-heading{background:#5654bf;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:center}
+.suggestion-heading h2{font-size:18px;margin:0}.suggestion-heading button{font-size:24px;background:transparent;border:0;color:white}
+.portal-suggestion-dialog form{padding:20px;display:grid;gap:13px}
+.portal-suggestion-dialog .btn{justify-self:stretch}
+@media(max-width:970px){.portal-pay-grid{grid-template-columns:1fr}.portal-pay-card{padding:14px 16px}}
+@media(max-width:720px){.portal-comments-grid{grid-template-columns:1fr}.portal-floating-actions{bottom:17px;right:13px}.portal-floating-actions button{width:48px;height:48px}}

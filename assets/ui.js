@@ -26,7 +26,7 @@ const ICON={
 };
 const pict=name=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICON[name]||ICON.files)+'</svg>';
 const SITEMAP={
- portal:[['Beranda','page-start','house'],['Kalender','agenda','calendar'],['Proyek','projects','files'],['Rapat','meetings','files'],['Inventaris','inventory','data'],['Layanan','portal-services','wallet']],
+ portal:[['Beranda','page-start','house'],['Rapat','meetings-section','files'],['Project','projects-section','files'],['Kalender','agenda-section','calendar'],['Dokumentasi','documentation-section','image'],['Inventaris','inventory-section','data'],['Pembayaran','payment-section','wallet']],
  book:[['Ringkasan','summary','house'],['Input Data','input','wallet'],['Riwayat','history','calendar'],['Laporan & Rekap','report','files'],['Data Acuan','reference','data']],
  akun:[['Profil','auth-profile','files'],['Foto Profil','avatar-form','image'],['Tabungan Saya','member-summary','wallet']]
 };
