@@ -64,7 +64,7 @@ export function setModuleView(requested, roleOverride){
    record:'Pencatatan',finance:'Keuangan Bank Sampah',activities:'Kegiatan',members:'Data & Anggota',public:'Portal Publik'
   })[view]||'Bank Sampah'}
   const action={record:'deposits',finance:'cash',members:'members'}[view];
-  if(action){const button=document.querySelector('#bank-admin-nav [data-kind="'+action+'"]');button?.click()}
+  if(action){const button=document.querySelector('#bank-admin-nav [data-kind="'+action+'"]');if(button&&button.getAttribute('aria-pressed')!=='true')button.click()}
  }else if(page==='book'){
   const panels=['book-summary-panel','book-stats','book-overview-detail','book-cash-panel','book-ledger-panel','book-input-panel','book-reference-panel'];
   const which={
