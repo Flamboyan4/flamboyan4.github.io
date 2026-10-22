@@ -511,7 +511,11 @@
     #v27PrintReport .v27-print-sign strong{display:block;margin-top:46px}
   }
 </style>
-<meta http-equiv="Content-Security-Policy" content="connect-src 'none'; form-action 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com;"><script src="../offline-common.js"></script><script src="../calendar-unified.js"></script><script src="../offline-bank.js"></script></head>
+<meta http-equiv="Content-Security-Policy" content="connect-src 'none'; form-action 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com;"><script src="../offline-common.js"></script><script src="../calendar-unified.js"></script><script src="../offline-bank.js"></script><style id="f4-preview-one-account">
+/* Hanya di pratinjau terpadu: akun berada di utilitas kanan atas, bukan sidebar. */
+#v15Footer,#v19PublicAccountFooter,#v17PublicAccount,#navProfile,#navPassword,#v13Group_account{display:none!important}
+#v11Public .public-hero button{display:none!important}
+</style></head>
 <body>
 <div class="shell">
   <header class="top"><div class="brand"><div class="logo">🌿</div><div>Bank Sampah Flamboyan 4<div class="sub">Portal akun warga dan administrator</div></div></div><span class="tag">Lingkungan kita</span></header>
@@ -1960,6 +1964,8 @@
      showDashboard(p);
    } catch(e) {window.__f4DemoNotify('Bagian pratinjau akun: '+e.message)}
  });
- window.parent.postMessage({type:'f4:ready',portal:'bank-sampah'},location.origin);
+ // Semua tombol login portal mengarah ke akses akun terpadu, tanpa menulis sesi lokal.
+  try{v11ShowLogin=function(){window.parent.postMessage({type:'f4:show-login'},location.origin)}}catch(e){}
+  window.parent.postMessage({type:'f4:ready',portal:'bank-sampah'},location.origin);
  </script></body>
 </html>
