@@ -266,6 +266,10 @@ body.iframe-modal-open .framebox{
 }
 body.iframe-modal-open .framebox iframe{height:100dvh!important;width:100vw!important}
 body.iframe-modal-open .framebox #gate{display:none!important}
+</style><style id="f4-real-auth-fields">
+#f4-real-login input{display:block;width:100%;padding:11px 12px;margin-bottom:10px;border-radius:10px;border:1px solid #c9c1dd;background:white;color:#251b43;font:500 14px system-ui}
+#f4-real-login input:focus-visible{outline:2px solid #7c53db;outline-offset:2px}
+#f4-real-login .login-confirm{width:100%;display:block}
 </style></head>
 <body>
 <header class="shell">
@@ -330,15 +334,15 @@ body.iframe-modal-open .framebox #gate{display:none!important}
  <section class="login-modal" role="dialog" aria-modal="true" aria-labelledby="login-title">
   <button type="button" id="login-close" class="close-login" aria-label="Tutup">×</button>
   <h2 id="login-title">Login · Pratinjau</h2>
-  <p>Simulasi satu akun untuk tiga portal. Tidak membutuhkan username, password, atau koneksi database.</p>
-  <label for="login-role">Lihat sebagai</label>
-  <select id="login-role">
-   <option value="warga">Warga / Anggota</option>
-   <option value="admin">Admin Bank Sampah</option>
-   <option value="superadmin">Superadmin</option>
-  </select>
-  <p id="role-description" class="role-description">Warga: data dan tabungan milik sendiri.</p>
-  <button type="button" id="login-confirm" class="login-confirm">Masuk (simulasi)</button>
+  <p>Gunakan akun terdaftar. Login memakai sesi Cloudflare yang sama untuk ketiga portal.</p>
+  <form id="f4-real-login">
+    <label for="login-username">Username</label>
+    <input id="login-username" autocomplete="username" name="username" required>
+    <label for="login-password">Password</label>
+    <input id="login-password" autocomplete="current-password" type="password" name="password" required>
+    <p id="login-status" class="role-description" role="status" hidden></p>
+    <button type="submit" id="login-confirm" class="login-confirm">Masuk</button>
+  </form>
  </section>
 </div>
 <div class="login-shade" id="profile-shade" hidden role="presentation">
@@ -360,10 +364,20 @@ body.iframe-modal-open .framebox #gate{display:none!important}
  const scrollButton=document.getElementById('f4-scroll-top'),toolbar=document.querySelector('.shell');
  const login=document.getElementById('login-button'),avatar=document.getElementById('avatar-button'),
  menu=document.getElementById('account-menu'),loginShade=document.getElementById('login-shade'),
- profileShade=document.getElementById('profile-shade'),roleSelect=document.getElementById('login-role');
- const roles={warga:{name:'Warga Contoh',label:'Warga',description:'Warga: melihat tabungan dan data pribadi sendiri.'},
- admin:{name:'Pengurus Bank Sampah',label:'Admin Bank Sampah',description:'Admin: mengelola Bank Sampah, tanpa akses Pembukuan.'},
- superadmin:{name:'Superadmin Contoh',label:'Superadmin',description:'Superadmin: seluruh portal, termasuk Pembukuan.'}};
+ profileShade=document.getElementById('profile-shade'),usernameField=document.getElementById('login-username'),passwordField=document.getElementById('login-password');
+ const API='https://api.flamboyan4.web.id';
+ const roleLabel={public:'Pengunjung',warga:'Warga / Anggota',admin:'Admin Bank Sampah',superadmin:'Superadmin'};
+ let activeAccount=null;
+ async function apiCall(path,options={}){
+  const response=await fetch(API+path,{mode:'cors',credentials:'include',cache:'no-store',...options});
+  const payload=await response.json().catch(()=>({ok:false,error:'Respons API bukan JSON.'}));
+  if(!response.ok||payload.ok===false)throw Error(payload.error||'API menolak permintaan ('+response.status+').');
+  return payload;
+ }
+ const sessionRole=s=>{
+  const r=String(s?.account?.role||'').toLowerCase();
+  return r==='superadmin'?'superadmin':r==='admin'?'admin':s?.account?'warga':'public';
+ };
  let selected='portal',role='public',timer;
  const notify=s=>{toast.textContent=s;toast.hidden=false;clearTimeout(timer);timer=setTimeout(()=>toast.hidden=true,4000)};
  const permitted=()=>selected!=='pembukuan'||role==='superadmin';
@@ -377,8 +391,8 @@ body.iframe-modal-open .framebox #gate{display:none!important}
   if(bookkeepingButton){bookkeepingButton.hidden=role!=='superadmin';bookkeepingButton.setAttribute('aria-hidden',String(role!=='superadmin'));}
   login.hidden=signed;avatar.hidden=!signed;menu.hidden=true;avatar.setAttribute('aria-expanded','false');
   if(signed){
-   document.getElementById('account-name').textContent=roles[role].name;
-   document.getElementById('account-role').textContent=roles[role].label+' · demo';
+   document.getElementById('account-name').textContent=activeAccount?.member?.nama||activeAccount?.account?.username||'Akun aktif';
+   document.getElementById('account-role').textContent=roleLabel[role];
   }
  }
  function scrollDepth(){
@@ -458,31 +472,50 @@ body.iframe-modal-open .framebox #gate{display:none!important}
   }
   try{history.replaceState(null,'','#'+target)}catch{}
  }
- function showLogin(preselect){
-  if(preselect)roleSelect.value=preselect;
-  document.getElementById('role-description').textContent=roles[roleSelect.value].description;
-  menu.hidden=true;loginShade.hidden=false;roleSelect.focus();
+ function showLogin(){
+  menu.hidden=true;
+  const msg=document.getElementById('login-status');msg.hidden=true;msg.textContent='';
+  loginShade.hidden=false;usernameField.focus();
  }
- function signOut(){
-  role='public';refreshIdentity();notify('Keluar dari akun pratinjau; tidak ada sesi asli yang berubah.');
-  update(selected==='pembukuan'?'portal':selected);
+ async function refreshSession(){
+  try{const session=await apiCall('/api/v2/auth/session');activeAccount=session;role=sessionRole(session)}
+  catch{activeAccount=null;role='public'}
+  refreshIdentity();
+  update(role!=='superadmin'&&selected==='pembukuan'?'portal':selected);
+ }
+ async function signOut(){
+  try{await apiCall('/api/auth/logout',{method:'POST'})}
+  catch(e){notify('Tidak bisa keluar: '+e.message);return}
+  activeAccount=null;role='public';refreshIdentity();
+  update(selected==='pembukuan'?'portal':selected);notify('Sesi akun telah diakhiri.');
  }
  login.onclick=()=>showLogin();
  avatar.onclick=()=>{menu.hidden=!menu.hidden;avatar.setAttribute('aria-expanded',String(!menu.hidden))};
- roleSelect.onchange=()=>document.getElementById('role-description').textContent=roles[roleSelect.value].description;
- document.getElementById('login-confirm').onclick=()=>{
-  role=roleSelect.value;loginShade.hidden=true;refreshIdentity();update(selected);
-  notify('Simulasi akun '+roles[role].label+' aktif; belum login sungguhan.');
- };
+ document.getElementById('f4-real-login').addEventListener('submit',async event=>{
+  event.preventDefault();
+  const button=document.getElementById('login-confirm');
+  const msg=document.getElementById('login-status');
+  button.disabled=true;button.textContent='Menghubungkan…';msg.hidden=true;
+  try{
+   await apiCall('/api/auth/login',{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({username:usernameField.value.trim(),password:passwordField.value})});
+   passwordField.value='';
+   const session=await apiCall('/api/v2/auth/session');
+   if(!session?.account?.role)throw Error('Sesi belum tersedia setelah login. Periksa domain API dan cookie.');
+   activeAccount=session;role=sessionRole(session);loginShade.hidden=true;refreshIdentity();update(selected);
+   notify('Login aktif: '+roleLabel[role]);
+  }catch(e){msg.hidden=false;msg.textContent='Login gagal: '+e.message}
+  finally{button.disabled=false;button.textContent='Masuk'}
+ });
  document.getElementById('login-close').onclick=()=>loginShade.hidden=true;
  document.getElementById('profile-close').onclick=()=>profileShade.hidden=true;
- document.getElementById('gate-login').onclick=()=>showLogin('superadmin');
+ document.getElementById('gate-login').onclick=()=>showLogin();
  document.querySelectorAll('[data-account-action]').forEach(b=>b.onclick=()=>{
   const action=b.dataset.accountAction;menu.hidden=true;avatar.setAttribute('aria-expanded','false');
   if(action==='logout'){signOut();return}
   const isSettings=action==='settings';
   document.getElementById('profile-title').textContent=isSettings?'Pengaturan Profil':'Akun Saya';
-  document.getElementById('profile-detail').textContent=roles[role].name+' — '+roles[role].label+'. '+(isSettings?'Pengaturan nama, foto dan password terhubung Worker/R2 pada aplikasi final; tidak aktif di pratinjau.':'Simulasi identitas yang berlaku di ketiga portal.');
+  document.getElementById('profile-detail').textContent=(activeAccount?.member?.nama||activeAccount?.account?.username||'Akun aktif')+' — '+roleLabel[role]+'. '+(isSettings?'Pengaturan profil lengkap dibuka setelah API profil dipastikan berfungsi.':'Sesi akun dibaca dari Cloudflare, bukan simulasi.');
   profileShade.hidden=false;
  });
  document.querySelectorAll('[data-portal-menu]').forEach(button=>button.addEventListener('click',()=>{
@@ -523,6 +556,7 @@ body.iframe-modal-open .framebox #gate{display:none!important}
  });
  document.addEventListener('keydown',e=>{if(e.key==='Escape'){menu.hidden=true;loginShade.hidden=true;profileShade.hidden=true}});
  refreshIdentity();
- const requested=location.hash.slice(1);update(Object.hasOwn(apps,requested)?requested:'portal');
+ const requested=location.hash.slice(1);selected=Object.hasOwn(apps,requested)?requested:'portal';
+ refreshSession();
 })();
 </script></body></html>
