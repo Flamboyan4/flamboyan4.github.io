@@ -57,3 +57,22 @@ Pertahankan ketiga sumber aslinya; ubah hanya pemanggilan data:
 - Pembukuan: JSONP/Apps Script => Workers API
 - Bank Sampah: google.script.run => Workers API
 - Backend baru memakai D1 dan R2 sesuai desain hybrid, login terpusat dan hak akses nyata.
+
+## Kesepakatan desain lintas percakapan (wajib dipertahankan)
+
+- **Login terpusat**: sebelum login tampil tombol Login yang jelas di **top utility bar kanan atas**, sesudah login satu avatar foto bulat ~40–44px (R2 saat operasional). Klik avatar membuka `Akun Saya`, `Pengaturan Profil`, `Keluar`; tidak ada akun/menu profil duplikat di sidebar.
+- **Nav antarportal** menggunakan ikon ringkas dengan judul aksesibel (Portal Utama/Bank Sampah/Pembukuan). Tidak membuat menu tambahan bertele-tele.
+- **Hak akses**: Publik melihat konten publik; Warga/Anggota melihat data dan tabungan miliknya dan mengatur profil/password; Admin Bank Sampah mengelola portal Bank Sampah; Superadmin dapat mengelola tiga portal termasuk Pembukuan. Hak akses server nyata **belum diuji** pada versi preview offline.
+- **Bank Sampah**: mode publik, anggota, dan admin mempunyai menu & konten berbeda. Akun hanya ada di kanan atas pada shell terpadu.
+- **Kalender**: kontrol tanggal/tanggal laporan konsisten menggunakan kalender custom bernuansa ungu. Pada preview ditambahkan `calendar-unified.js` untuk input asli bertipe date/month tanpa menyentuh situs aktif.
+- **Portal Utama**: Jadwal Arisan dan Proyek & Pembangunan (Bank Sampah, Gapura, Pemesanan Jersey) adalah bagian wajib. Harus memakai kartu asli yang telah dibangun, bukan direkonstruksi. Pada offline preview baris contoh disuplai oleh `offline-portal.js`; jangan mengaku terhubung live.
+- **Portal Utama**: pertahankan kesederhanaan, tidak menambah hero section. Warna arah biru-ungu lembut, tidak terlalu cerah maupun navy gelap.
+- **Migrasi sebenarnya**: ganti hanya database & backend serta integrasi lintasportal, bukan redesign. Staging API/D1/R2/Worker yang sudah ada dipertahankan, jangan migrasi ulang data.
+
+## Pembaruan pratinjau setelah feedback 22 Oktober
+
+- URL langsung `/uji-terpadu/pembukuan/`, `/uji-terpadu/portal/`, atau `/uji-terpadu/bank-sampah/` kini diarahkan ke shell bersama agar menu akun terpusat tidak hilang.
+- Akun simulasi dipilih melalui tombol Login di kanan atas; sesudah masuk tampil avatar 44px dan menu akun. Ini hanya **mock** tanpa kredensial/database; avatar masih placeholder, bukan foto R2.
+- Pembukuan dan Bank Sampah menggunakan satu adapter kalender custom untuk input date/month. Belum dibuktikan kesetaraan sempurna dengan seluruh widget tanggal legacy.
+- Portal Utama mempunyai data Arisan dan Proyek/Progres contoh. Riwayat/keuangan tetap tidak diambil dari sumber asli; jangan jadikan contoh sebagai saldo atau data definitif.
+- Tidak ada perubahan database atau website produksi. Pemeriksaan ini tetap uji struktur, belum uji fungsional Worker/DB.
