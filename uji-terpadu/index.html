@@ -1,135 +1,88 @@
 <!doctype html>
-<html lang="id">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="robots" content="noindex, nofollow">
-  <title>Pratinjau Portal Terpadu · Flamboyan 4</title>
-  <style>
-    :root{font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;color:#26354c;background:#f2f5fb;--accent:#4856a8;--accent-soft:#e9edfc;--accent-dark:#303b83;--page-bg:#f2f5fb;--hero-bg:#e7edff}
-    body[data-page="sampah"]{--accent:#397b43;--accent-soft:#eaf4e8;--accent-dark:#235f30;--page-bg:#f0f6ef;--hero-bg:#e0efdc}
-    body[data-page="pembukuan"]{--accent:#484b8e;--accent-soft:#edecfa;--accent-dark:#33366d;--page-bg:#f3f3fb;--hero-bg:#e7e7fa}
-    *{box-sizing:border-box}body{margin:0}button,input{font:inherit}button{cursor:pointer}
-    .layout{min-height:100vh}.side{position:fixed;inset:0 auto 0 0;width:248px;background:#fff;border-right:1px solid #e2ece0;display:flex;flex-direction:column;z-index:20;box-shadow:5px 0 25px #30472e08}
-    .brand{padding:22px 18px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #edf1e9;text-decoration:none;color:inherit}
-    .brand img{width:44px;height:44px;border-radius:50%;object-fit:contain;background:#e7f1e4;padding:4px}.brand strong{display:block;line-height:1.2;font-size:17px}.brand small{color:#6b7d6d}
-    nav{padding:18px 12px;flex:1;overflow:auto}.group-label{font-size:11px;font-weight:800;letter-spacing:.13em;color:#91a191;margin:7px 12px 12px}
-    .nav-link{width:100%;display:flex;align-items:center;gap:12px;padding:12px 15px;text-align:left;border:0;background:transparent;border-radius:11px;color:#425749;font-weight:600;margin-bottom:4px}
-    .nav-link:hover{background:#f1f3fa}.nav-link.active{color:var(--accent-dark);background:var(--accent-soft);box-shadow:inset 3px 0 var(--accent)}.nav-link svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-    .side-account{margin:10px;padding:12px 10px;border-top:1px solid #edf1e9;display:flex;gap:9px;align-items:center}.avatar{border:0;border-radius:50%;width:41px;height:41px;background:#d5e9d2;color:#2a682f;font-weight:900;flex-shrink:0}.account-text{min-width:0;flex:1}.account-text strong,.account-text small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.account-text small{color:#7b8c7c}.mini-btn{border:1px solid #dce9dc;background:#fff;border-radius:8px;color:#356f3d;padding:7px 9px}
-    main{margin-left:248px;padding:28px 34px 70px;min-height:100vh;max-width:1550px;background:var(--page-bg);transition:background .2s}.mobile-bar{display:none}.page-title{margin:8px 0 6px;font-size:29px;line-height:1.2;letter-spacing:-.025em}.subtitle{color:#68758a;margin:0 0 22px}.notice{border:1px solid #f1dfb6;background:#fffaeb;color:#805d27;padding:12px 15px;border-radius:12px;margin-bottom:18px}
-    .hero{background:var(--hero-bg);border-radius:20px;padding:24px 26px;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;margin-bottom:22px}.hero h2{margin:0 0 6px;font-size:24px}.hero p{margin:0;color:#566881}.hero-badge{background:#fff;border-radius:14px;padding:12px 17px;color:var(--accent-dark);font-weight:700}
-    .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 20px}.tab{border:1px solid #dce2ef;background:white;color:#57657c;border-radius:9px;padding:9px 15px}.tab.active{background:var(--accent);color:white;border-color:var(--accent)}
-    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.card{background:white;border:1px solid #e4e8f2;border-radius:16px;padding:20px;box-shadow:0 8px 24px #24324c09;min-width:0}.card small{display:block;color:#69778e}.metric{font-size:31px;color:var(--accent-dark);font-weight:800;margin-top:8px}.card h3{margin:0 0 8px}.card p{margin:0;color:#65758b}.status{margin:20px 0;color:#4d5d77}.muted{color:#6a788d}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:510px}td,th{border-bottom:1px solid #e9ecf5;text-align:left;padding:12px 9px;vertical-align:top}th{font-size:13px;color:#546681}.action{border:0;background:var(--accent);color:white;border-radius:9px;padding:11px 17px;font-weight:700}.action:disabled{opacity:.45}.empty{background:#f5f7fc;padding:22px;border-radius:12px;color:#6c7890}
-    .entry-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.entry{background:white;border:1px solid #dfe5f0;border-radius:15px;padding:20px;box-shadow:0 8px 22px #152b4a09}.entry h3{margin:5px 0 8px;font-size:18px;line-height:1.3}.entry p{margin:0 0 10px;color:#53627b}.entry small{color:#687991}.entry .category{display:inline-block;background:var(--accent-soft);color:var(--accent-dark);border-radius:100px;padding:3px 10px;font-size:12px;font-weight:800}.entry .next{border-top:1px solid #e8ecf5;padding-top:10px;margin-top:12px}.section-intro{color:#53627b;margin:0 0 15px}
-    .album-link{display:inline-flex;align-items:center;gap:6px;margin-top:10px;border-radius:9px;padding:9px 12px;color:white;background:var(--accent);font-size:13px;font-weight:700;text-decoration:none}.album-link:hover{filter:brightness(.9)}
-    .modal{position:fixed;inset:0;background:#152e1a90;display:none;align-items:center;justify-content:center;padding:17px;z-index:60}.modal.open{display:flex}.dialog{background:white;width:min(410px,100%);padding:27px;border-radius:20px;box-shadow:0 30px 80px #162d1b50}.dialog h2{margin:0 0 7px}.dialog label{display:block;margin:13px 0 5px;font-weight:700}.dialog input{display:block;width:100%;border:1px solid #bccfbd;border-radius:9px;padding:11px}.dialog-actions{display:flex;gap:10px;justify-content:end;margin-top:19px}.ghost{background:#eef5ed;border:0;border-radius:9px;padding:11px 14px}.error{color:#a8322b}.scrim{display:none}
-    [hidden]{display:none!important}
-    @media(max-width:980px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}main{padding:24px}}
-    @media(max-width:700px){.side{transform:translateX(-105%);transition:transform .2s;width:min(285px,86vw)}.side.open{transform:translateX(0)}.scrim.show{display:block;position:fixed;inset:0;background:#18321b88;z-index:15}.mobile-bar{display:flex;align-items:center;gap:11px;padding:12px 17px;background:white;border-bottom:1px solid #e4eee2;position:sticky;top:0;z-index:10}.hamburger{border:0;background:#e8f3e5;color:#32713d;border-radius:10px;width:40px;height:40px;font-size:23px}.mobile-bar strong{font-size:17px}main{margin-left:0;padding:20px 14px 50px}.page-title{font-size:25px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.entry-grid{grid-template-columns:1fr}.card{padding:16px}.metric{font-size:25px}.hero{grid-template-columns:1fr;padding:19px}.hero-badge{justify-self:start}.tabs{overflow:auto;flex-wrap:nowrap}.tab{white-space:nowrap}}
-    @media(max-width:365px){.grid{grid-template-columns:1fr}}
-  </style>
-</head>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Uji Terpadu Asli — Flamboyan 4</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#eaf0fa;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;background:#f3f5f9}
+.shell{position:relative;z-index:10;background:#14243e;color:#fff;box-shadow:0 2px 14px #172b3f30}
+.top{max-width:1500px;margin:auto;display:flex;gap:12px;align-items:center;padding:12px 18px;flex-wrap:wrap}
+.brand{display:flex;gap:10px;align-items:center;min-width:220px;margin-right:auto}
+.logo{width:39px;height:39px;display:grid;place-items:center;background:#294465;border-radius:12px;color:#a3efc9;font-size:22px;font-weight:bold}
+.brand b{font-size:16px;letter-spacing:.1px}.brand small{font-size:11px;color:#bac8db;display:block;margin-top:2px}
+nav{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+nav button,.select-wrap select{border:1px solid #49617f;background:transparent;color:#eaf0fa;padding:10px 13px;border-radius:11px;font-size:13px;font-weight:650;cursor:pointer}
+nav button.active{background:#f7faff;color:#182840;border-color:#f7faff}
+nav button:hover:not(.active){background:#293c5a}
+nav button[aria-disabled="true"]{opacity:.55}
+.select-wrap{display:flex;gap:8px;align-items:center}
+.select-wrap label{font-size:12px;color:#d4e0f0;font-weight:600;white-space:nowrap}
+.select-wrap select{background:#274461;color:white;max-width:170px}
+.notice{background:#ffedb3;color:#624800;font-size:12px;font-weight:650;padding:8px 18px;text-align:center}
+.notice strong{font-weight:900}
+.status{display:flex;gap:8px;align-items:center;font-size:12px;color:#aec7e0;min-width:120px}
+.dot{width:8px;height:8px;border-radius:100%;background:#74d1a0}
+.framebox{height:calc(100dvh - 121px);min-height:530px;position:relative;background:white;overflow:hidden}
+iframe{display:block;width:100%;height:100%;border:0;background:white}
+.gate{display:none;position:absolute;inset:0;background:#eef2f8;align-items:center;justify-content:center;padding:26px;color:#24334a;z-index:5}
+.gate.visible{display:flex}.gate article{max-width:500px;background:#fff;border:1px solid #d6dfec;border-radius:20px;padding:32px;text-align:center;box-shadow:0 15px 60px #1e2b3c10}
+.gate h1{margin-top:0}.gate p{line-height:1.55;color:#4c6075}.gate button{border:0;background:#18365c;color:white;padding:12px 18px;border-radius:10px;font-weight:700;cursor:pointer}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1d3656;color:white;padding:12px 17px;border-radius:12px;max-width:min(90vw,650px);z-index:100;box-shadow:0 14px 40px #07192e40;font-size:13px}
+.toast[hidden]{display:none}
+@media(max-width:850px){.top{padding:10px 12px;gap:9px}.brand{min-width:0;flex:1}.brand b{font-size:14px}.brand small{font-size:10px}nav{order:3;width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}nav button{padding:9px 4px;font-size:12px}.select-wrap{margin-left:auto}.select-wrap label{display:none}.select-wrap select{max-width:125px;padding:8px}.status{display:none}.notice{font-size:10.5px;padding:7px 10px}.framebox{height:calc(100dvh - 145px);min-height:400px}}
+</style></head>
 <body>
-  <div class="mobile-bar"><button class="hamburger" id="openMenu" aria-label="Buka menu">☰</button><strong>Flamboyan 4</strong></div>
-  <div class="scrim" id="scrim"></div>
-  <div class="layout">
-    <aside class="side" id="sidebar">
-      <a class="brand" href="/" title="Portal utama"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"><span><strong>Flamboyan 4</strong><small>Portal Terpadu Warga</small></span></a>
-      <nav aria-label="Navigasi utama"><div class="group-label">MENU UTAMA</div>
-        <button class="nav-link active" data-page="beranda"><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v9a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg>Beranda</button>
-        <button class="nav-link" data-page="sampah"><svg viewBox="0 0 24 24"><path d="M5 11c-1 7 4 11 9 9 6-3 6-11 6-16-6 0-12 0-15 7Z"/><path d="M8 17 18 7"/></svg>Bank Sampah</button>
-        <button class="nav-link" data-page="pembukuan" id="bookMenu" hidden><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Pembukuan</button>
-      </nav>
-      <div class="side-account"><button id="profileButton" class="avatar" title="Masuk atau profil saya">?</button><div class="account-text"><strong id="displayName">Pengunjung</strong><small id="displayRole">Belum login</small></div><button id="sessionButton" class="mini-btn">Masuk</button></div>
-    </aside>
-    <main id="main"><h1 class="page-title" id="title">Portal Warga Flamboyan 4</h1><p class="subtitle" id="subtitle">Informasi lingkungan, bank sampah, dan pembukuan dalam satu tempat.</p>
-      <div class="notice"><strong>Pratinjau staging.</strong> Halaman uji terpisah; website aktif dan transaksi keuangan belum dialihkan.</div>
-      <section class="hero" id="hero"><div><h2>Bersama membangun lingkungan</h2><p>Informasi warga, kegiatan, dan layanan komunitas dalam satu portal.</p></div><div class="hero-badge">🏘️ Flamboyan 4</div></section>
-      <div class="tabs" id="tabs" aria-label="Submenu"></div><div id="content" aria-live="polite"></div><p class="status" id="status"></p>
-    </main>
-  </div>
-  <div class="modal" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginTitle"><div class="dialog"><h2 id="loginTitle">Masuk ke Akun</h2><p class="muted">Gunakan akun Bank Sampah atau superadmin yang telah diaktifkan.</p><form id="loginForm"><label for="username">Username</label><input id="username" autocomplete="username" required><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required><p id="loginError" class="error" role="alert"></p><div class="dialog-actions"><button class="ghost" type="button" id="cancelLogin">Batal</button><button class="action" id="loginSubmit">Masuk</button></div></form></div></div>
-  <div class="modal" id="changeModal" role="dialog" aria-modal="true" aria-labelledby="changeTitle"><div class="dialog"><h2 id="changeTitle">Ganti Password Awal</h2><p class="muted">Sebelum menggunakan layanan pribadi, buat password baru minimal 12 karakter. Sesi akan berakhir setelah berhasil.</p><form id="changeForm"><label for="oldPass">Password saat ini</label><input id="oldPass" type="password" autocomplete="current-password" required><label for="newPass">Password baru (minimal 12 karakter)</label><input id="newPass" type="password" autocomplete="new-password" minlength="12" maxlength="128" required><label for="confirmPass">Ulangi password baru</label><input id="confirmPass" type="password" autocomplete="new-password" minlength="12" maxlength="128" required><p class="error" id="changeError" role="alert"></p><div class="dialog-actions"><button class="ghost" type="button" id="cancelChange">Keluar akun</button><button class="action" type="submit" id="changeSubmit">Simpan Password</button></div></form></div></div>
-  <script>
-  (()=>{
-    'use strict';
-    const API='https://flamboyan4-api-staging.hjbenalu.workers.dev';
-    const $=id=>document.getElementById(id);
-    const money=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(n||0);
-    const safeText=(node,value)=>{node.textContent=String(value??'');return node};
-    // Staging tokens remain in memory only; do not expose them to site storage.
-    let token='',identity=null,page='beranda',tab='ringkasan',changeRequired=false;
-    const menu=$('sidebar'),scrim=$('scrim');
-    function closeMenu(){menu.classList.remove('open');scrim.classList.remove('show')}
-    $('openMenu').onclick=()=>{menu.classList.add('open');scrim.classList.add('show')};scrim.onclick=closeMenu;
-    function showChange(){closeMenu();$('changeModal').classList.add('open');$('oldPass').focus()}
-    function hideChange(){$('changeModal').classList.remove('open');for(const id of ['oldPass','newPass','confirmPass'])$(id).value='';$('changeError').textContent=''}
-    function showLogin(){closeMenu();$('loginModal').classList.add('open');$('username').focus()}
-    function hideLogin(){$('loginModal').classList.remove('open');$('loginError').textContent='';$('password').value=''}
-    $('cancelLogin').onclick=hideLogin;
-    $('loginModal').onclick=e=>{if(e.target===$('loginModal'))hideLogin()};
-    window.addEventListener('keydown',e=>{if(e.key==='Escape'){hideLogin();closeMenu()}});
-    async function api(path,opts={}){
-      const headers={...(opts.headers||{})};if(token)headers.Authorization='Bearer '+token;
-      const response=await fetch(API+path,{...opts,headers,cache:'no-store'}),data=await response.json();
-      if(!response.ok)throw Error(data.error||'Permintaan tidak berhasil');return data;
-    }
-    function updateAccount(){const name=identity?.member?.nama||identity?.account?.username||'Pengunjung';safeText($('displayName'),name);safeText($('displayRole'),identity?.account?.role||'Belum login');safeText($('profileButton'),name.substring(0,1).toUpperCase());safeText($('sessionButton'),identity?'Keluar':'Masuk');$('bookMenu').hidden=identity?.account?.role!=='superadmin';if($('bookMenu').hidden&&page==='pembukuan'){page='beranda';tab='ringkasan';}}
-    async function restore(){if(!token){identity=null;updateAccount();return;}try{identity=await api('/api/member/me')}catch{token='';identity=null;}updateAccount();}
-    async function logout(){hideChange();changeRequired=false;try{if(token)await api('/api/auth/logout',{method:'POST'})}catch{}token='';identity=null;updateAccount();render();}
-    $('sessionButton').onclick=()=>changeRequired?logout():(identity?logout():showLogin());$('profileButton').onclick=()=>identity?setPage('sampah','tabungan'):showLogin();
-    $('loginForm').onsubmit=async e=>{e.preventDefault();$('loginSubmit').disabled=true;safeText($('loginError'),'Memeriksa akun…');try{
-      const response=await fetch(API+'/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:$('username').value,password:$('password').value})}),data=await response.json();
-      if(!response.ok)throw Error(data.error||'Login gagal');token=data.token;hideLogin();if(data.mustChangePassword){changeRequired=true;identity=null;updateAccount();showChange();return;}identity=await api('/api/member/me');updateAccount();render();
-    }catch(err){safeText($('loginError'),err.message)}finally{$('loginSubmit').disabled=false;}};
-    $('cancelChange').onclick=logout;
-    $('changeForm').onsubmit=async e=>{e.preventDefault();$('changeSubmit').disabled=true;$('changeError').textContent='';try{
-      if($('newPass').value!==$('confirmPass').value)throw Error('Konfirmasi password belum sama.');
-      const value=await api('/api/auth/change-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({currentPassword:$('oldPass').value,newPassword:$('newPass').value})});
-      hideChange();token='';identity=null;changeRequired=false;updateAccount();render();showLogin();$('loginError').textContent=value.message||'Password berhasil diganti. Silakan login kembali.';
-    }catch(error){$('changeError').textContent=error.message}finally{$('changeSubmit').disabled=false}};
-    document.querySelectorAll('[data-page]').forEach(btn=>btn.onclick=()=>setPage(btn.dataset.page));
-    function setPage(next,nextTab='ringkasan'){if(next==='pembukuan'&&identity?.account?.role!=='superadmin')return;page=next;tab=nextTab;closeMenu();render()}
-    function setTabs(items){const area=$('tabs');area.replaceChildren();for(const [id,label] of items){const b=document.createElement('button');b.className='tab'+(tab===id?' active':'');b.textContent=label;b.onclick=()=>{tab=id;render()};area.append(b)}}
-    function node(tag,className,text){const n=document.createElement(tag);if(className)n.className=className;if(text!==undefined)n.textContent=String(text);return n}
-    function addCards(values){const grid=node('div','grid');for(const [label,value,hint]of values){const c=node('section','card');c.append(node('small','',label),node('div','metric',value),node('p','',hint||''));grid.append(c)}$('content').append(grid)}
-    function empty(message){$('content').append(node('div','empty',message))}
-    function entries(rows,type){const grid=node('div','entry-grid');for(const row of rows){const box=node('article','entry');const badge=node('span','category',type==='album'?(row.kategori||'Dokumentasi'):(row.tahap||'Perkembangan'));box.append(badge,node('h3','',row.judul||'Tanpa judul'),node('small','',row.tanggal||'Tanggal tidak tercatat'));if(row.keterangan)box.append(node('p','',row.keterangan));if(type==='album'&&typeof row.tautanAlbum==='string'){try{const u=new URL(row.tautanAlbum);if(u.protocol==='https:'&&['drive.google.com','photos.google.com'].includes(u.hostname)){const a=node('a','album-link','Buka dokumentasi ↗');a.href=u.href;a.target='_blank';a.rel='noopener noreferrer';box.append(a)}}catch{}}if(type==='progress'){if(row.status)box.append(node('p','',`Status: ${row.status}`));if(row.berikutnya)box.append(node('p','next',`Langkah berikutnya: ${row.berikutnya}`))}grid.append(box)}$('content').append(grid)}
-    function table(headers,rows){const wrap=node('div','card table-wrap'),t=node('table'),head=node('thead'),hr=node('tr');for(const h of headers)hr.append(node('th','',h));head.append(hr);const body=node('tbody');for(const row of rows){const tr=node('tr');for(const c of row)tr.append(node('td','',c));body.append(tr)}t.append(head,body);wrap.append(t);$('content').append(wrap)}
-    async function render(){if(page==='pembukuan'&&identity?.account?.role!=='superadmin'){page='beranda';tab='ringkasan'}document.body.dataset.page=page;document.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===page));$('content').replaceChildren();$('status').textContent='';$('hero').hidden=page!=='beranda';
-      const titles={beranda:['Portal Warga Flamboyan 4','Informasi dan perkembangan lingkungan kita.'],sampah:['Bank Sampah Flamboyan 4','Tabungan warga dan pengelolaan sampah bersama.'],pembukuan:['Pembukuan Warga','Area khusus pengelola Humas.']};
-      safeText($('title'),titles[page][0]);safeText($('subtitle'),titles[page][1]);
-      if(page==='beranda')setTabs([['ringkasan','Ringkasan'],['kegiatan','Kegiatan'],['dokumentasi','Dokumentasi'],['perkembangan','Perkembangan']]);
-      else if(page==='sampah')setTabs([['ringkasan','Ringkasan'],['dokumentasi','Dokumentasi'],['perkembangan','Perkembangan'],...(identity?.account?.role==='anggota'?[['tabungan','Tabungan Saya']]:[]),...(['admin','superadmin'].includes(identity?.account?.role)?[['pengelola','Pengelola']]:[])]);
-      else setTabs([['ringkasan','Akses Pembukuan']]);
-      if(page==='pembukuan'&&identity?.account?.role!=='superadmin'){empty('Pembukuan hanya dapat dibuka oleh superadmin. Silakan masuk menggunakan akun yang berwenang.');return;}
-      try{
-        if(tab==='dokumentasi'&&page!=='pembukuan'){
-          const v=await api('/api/public/albums');const items=v.albums||[];$('content').append(node('p','section-intro',`${items.length} album publik terbaru. Album yang memiliki tautan dapat langsung dibuka.`));if(items.length)entries(items,'album');else empty('Belum ada album publik.');
-        }else if(tab==='perkembangan'&&page!=='pembukuan'){
-          const v=await api('/api/public/progress');const items=v.perkembangan||[];$('content').append(node('p','section-intro',`${items.length} catatan perkembangan publik terbaru.`));if(items.length)entries(items,'progress');else empty('Belum ada perkembangan publik.');
-        }else if(page==='beranda'){
-          const [overview,summary]=await Promise.all([api('/api/public/overview'),api('/api/public/summary')]);
-          if(tab==='ringkasan')addCards([['Anggota Bank Sampah',summary.anggotaAktif,'Anggota aktif'],['Dokumentasi',summary.albumPublik,'Album publik'],['Perkembangan',summary.perkembanganPublik,'Pembaruan kegiatan']]);
-          else addCards([['Agenda Warga',overview.agendaPublik,'Informasi kegiatan'],['Inventaris',overview.inventarisPublik,'Catatan publik'],['Proyek Aktif',overview.proyekAktif,'Kegiatan yang dikembangkan']]);
-        }else if(page==='sampah'&&tab==='ringkasan'){
-          const s=await api('/api/public/summary');addCards([['Anggota Aktif',s.anggotaAktif,'Bank Sampah'],['Album Kegiatan',s.albumPublik,'Dokumentasi publik'],['Progres',s.perkembanganPublik,'Lini masa publik']]);
-        }else if(page==='sampah'&&tab==='tabungan'){
-          if(!identity){empty('Masuk untuk melihat tabungan Anda.');return;}
-          if(identity.account.role!=='anggota'){empty('Tabungan Saya hanya tersedia bagi akun anggota. Admin memakai menu pengelola.');return;}
-          const s=await api('/api/member/savings');addCards([['Saldo Tersedia',money(s.saldoTersediaRp),'Sudah terkonfirmasi'],['Masih Estimasi',money(s.estimasiMenungguRp),'Menunggu penjualan dan rekonsiliasi'],['Jumlah Setoran',s.setoran.length,'Riwayat yang masih berlaku']]);
-          table(['Tanggal','Barang','Berat','Estimasi','Status'],s.setoran.map(d=>[d.tanggal,d.rincian.map(l=>l.barang).join(', '),(d.beratGram/1000).toLocaleString('id-ID')+' kg',money(d.estimasiRp),d.status]));
-        }else if(page==='sampah'&&tab==='pengelola'){
-          if(!identity||!['admin','superadmin'].includes(identity.account.role)){empty('Halaman pengelola hanya untuk admin atau superadmin.');return;}
-          const v=await api('/api/admin/status');addCards([['Akses Admin','Diizinkan',v.scope],['Status','Staging','Belum dapat mengubah transaksi']]);
-        }else if(page==='pembukuan'){
-          const v=await api('/api/bookkeeping/status');addCards([['Akses Pembukuan','Diizinkan',v.scope],['Status','Staging','Tampilan Pembukuan lama tetap dipertahankan saat migrasi']]);
-        }
-      }catch(err){empty(err.message);}
-    }
-    restore().then(render);
-  })();
-  </script>
-</body>
-</html>
+<header class="shell">
+ <div class="top">
+  <div class="brand"><span class="logo">✿</span><div><b>Flamboyan 4 · Uji Terpadu</b><small>Tiga antarmuka asli, satu navigasi & identitas</small></div></div>
+  <div class="select-wrap"><label for="account">Simulasi akun</label><select id="account" aria-label="Simulasi hak akses akun terpusat">
+   <option value="public">Pengunjung</option><option value="warga">Warga</option>
+   <option value="admin">Admin Bank Sampah</option><option value="superadmin">Superadmin</option>
+  </select></div>
+  <div class="status"><span class="dot"></span>Data contoh / offline</div>
+  <nav aria-label="Navigasi antarportal">
+   <button type="button" data-target="portal" class="active" aria-pressed="true">Portal Utama</button>
+   <button type="button" data-target="bank-sampah" aria-pressed="false">Bank Sampah</button>
+   <button type="button" data-target="pembukuan" aria-pressed="false">Pembukuan</button>
+  </nav>
+ </div>
+</header>
+<div class="notice"><strong>PRATINJAU STRUKTUR SAJA.</strong> Desain dan menu berasal dari aplikasi asli; login, data, pembayaran, simpan, hapus, dan pengesahan tidak terhubung ke database.</div>
+<main class="framebox">
+ <iframe id="appframe" title="Aplikasi asli Flamboyan 4 — pratinjau offline" sandbox="allow-scripts allow-same-origin allow-popups" referrerpolicy="no-referrer" src="./portal/" ></iframe>
+ <div id="gate" class="gate" role="region" aria-label="Akses portal terbatas"><article>
+  <div style="font-size:38px">🔒</div><h1>Pembukuan khusus Superadmin</h1>
+  <p>Ini simulasi hak akses terpusat. Pilih akun <b>Superadmin</b> pada baris atas untuk melihat antarmuka Pembukuan asli. Tidak ada autentikasi sungguhan.</p>
+  <button type="button" id="gate-login">Gunakan simulasi Superadmin</button></article></div>
+</main>
+<div id="toast" class="toast" hidden role="status"></div>
+<script>
+(()=>{
+ const apps={portal:'./portal/', 'bank-sampah':'./bank-sampah/',pembukuan:'./pembukuan/'};
+ const account=document.getElementById('account'),buttons=[...document.querySelectorAll('nav [data-target]')],frame=document.getElementById('appframe'),gate=document.getElementById('gate');
+ const toast=document.getElementById('toast');let selected='portal',time;
+ const allowed=()=>selected!=='pembukuan'||account.value==='superadmin';
+ const showToast=s=>{toast.textContent=s;toast.hidden=false;clearTimeout(time);time=setTimeout(()=>toast.hidden=true,4000)};
+ const sendRole=()=>{if(!allowed())return;try{frame.contentWindow.postMessage({type:'f4:demo-role',role:account.value},location.origin)}catch{}};
+ const update=(target)=>{
+  selected=target;
+  buttons.forEach(b=>{const yes=b.dataset.target===target;b.classList.toggle('active',yes);b.setAttribute('aria-pressed',String(yes));b.setAttribute('aria-disabled',String(b.dataset.target==='pembukuan'&&account.value!=='superadmin'))});
+  gate.classList.toggle('visible',!allowed());
+  if(allowed()){
+   const wanted=apps[target];
+   if(frame.getAttribute('src')!==wanted){frame.setAttribute('src',wanted)}else sendRole();
+  }
+  try{history.replaceState(null,'','#'+target)}catch{}
+ };
+ buttons.forEach(b=>b.addEventListener('click',()=>update(b.dataset.target)));
+ account.addEventListener('change',()=>update(selected));
+ document.getElementById('gate-login').addEventListener('click',()=>{account.value='superadmin';update('pembukuan')});
+ frame.addEventListener('load',sendRole);
+ window.addEventListener('message',e=>{
+  if(e.origin!==location.origin||!e.data)return;
+  if(e.data.type==='f4:ready')sendRole();
+  if(e.data.type==='f4:notice')showToast(e.data.message);
+ });
+ const requested=location.hash.slice(1);update(Object.hasOwn(apps,requested)?requested:'portal');
+})();
+</script></body></html>
