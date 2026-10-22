@@ -224,6 +224,34 @@ body.book-mode{--f4-control:#7435e5;--f4-control-hover:#5a26bf;--f4-control-ring
 .account-menu button,.login-modal button{display:flex;align-items:center;justify-content:center}
 .account-menu button{justify-content:flex-start}
 .account-ui .avatar-button{display:flex;align-items:center;justify-content:center;padding:2px}
+</style><style id="f4-bank-utility-theme">
+/* The shared mini toolbar takes the visual theme from the currently open portal. */
+body.bank-mode .top nav [data-target]{
+ color:#315e45!important;
+ border-color:transparent!important;
+ background:transparent!important;
+}
+body.bank-mode .top nav [data-target]:hover{
+ color:#20513a!important;background:#e8f1ea!important;
+}
+body.bank-mode .top nav [data-target].active{
+ color:#206342!important;
+ background:#e2f0e6!important;
+ border-color:#dcebe0!important;
+}
+body.bank-mode .login-button{
+ background:#286747!important;color:white!important;
+}
+body.bank-mode .login-button:hover{background:#1d5136!important}
+body.bank-mode .avatar-button{
+ border-color:#bad9c4!important;background:#eef7f1!important;
+}
+body.bank-mode .account-menu button:hover{background:#e8f3ea!important;color:#21613f!important}
+body.bank-mode .account-menu{border-color:#d3e9d8!important}
+body.bank-mode .account-summary{border-color:#d9e9de!important}
+body.bank-mode .top nav button:focus-visible,body.bank-mode .login-button:focus-visible{
+ outline:3px solid #9ec8aa!important;outline-offset:2px!important;
+}
 </style></head>
 <body>
 <header class="shell">
