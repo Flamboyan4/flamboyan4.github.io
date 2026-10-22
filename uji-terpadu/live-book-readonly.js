@@ -108,18 +108,18 @@
   return successful({message:result.message||'Tanggal pembayaran dikoreksi, audit tersimpan.'});
  }
  async function quickSummary(p){
-   const b=dateBounds(p),q=new URLSearchParams();if(b.from)q.set('from',b.from);if(b.to)q.set('to',b.to);
+   const b=dateBounds(p),q=new URLSearchParams({level:p?.periodLevel||'month'});if(b.from)q.set('from',b.from);if(b.to)q.set('to',b.to);
    const r=await read('/api/bookkeeping/iuran/quick-summary?'+q);
    return successful({data:r.data});
  }
  async function contributionReport(kind,p){
-   const b=dateBounds(p),q=new URLSearchParams({kind});
+   const b=dateBounds(p),q=new URLSearchParams({kind,level:p?.periodLevel||'month'});
    if(b.from)q.set('from',b.from);if(b.to)q.set('to',b.to);
    const r=await read('/api/bookkeeping/reports/contributions?'+q);
    return successful({data:r.data});
  }
  async function cashReport(p){
-   const b=dateBounds(p),q=new URLSearchParams();if(b.from)q.set('from',b.from);if(b.to)q.set('to',b.to);
+   const b=dateBounds(p),q=new URLSearchParams({level:p?.periodLevel||'month'});if(b.from)q.set('from',b.from);if(b.to)q.set('to',b.to);
    const r=await read('/api/bookkeeping/reports/cash?'+q);
    return successful({data:r.data});
  }
