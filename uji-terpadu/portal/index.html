@@ -1095,6 +1095,8 @@ body.f4-footer-visible>div.fixed.bottom-6.right-6{opacity:0!important;visibility
   </footer>
 
   <!-- Firebase App & Realtime Database CDN (Compat v8) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   
   
 
@@ -1404,6 +1406,8 @@ body.f4-footer-visible>div.fixed.bottom-6.right-6{opacity:0!important;visibility
 
     function tambahKomentarWarga(e) {
       e.preventDefault();
+      alert('Riwayat obrolan sudah menggunakan Firebase asli. Pengiriman pesan dari Uji Terpadu masih dinonaktifkan agar tidak mengubah data produksi.');
+      return;
       const namaInput = document.getElementById('komentar-nama').value.trim();
       const pesanInput = document.getElementById('komentar-pesan').value.trim();
 
