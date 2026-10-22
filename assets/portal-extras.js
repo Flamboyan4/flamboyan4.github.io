@@ -97,8 +97,63 @@ function initScrollTop(){
  window.addEventListener('scroll',update,{passive:true});update();
  btn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
 }
+
+const DOC_CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=0&single=true&output=csv";
+function docUrl(v){
+ try{const u=new URL(String(v||'').trim());return u.protocol==='https:'?u.href:null}catch{return null}
+}
+function photoUrl(raw){
+ const source=String(raw||'').trim();
+ const file=source.match(/(?:\/d\/|[?&]id=)([a-zA-Z0-9_-]{12,})/);
+ if(file&&!source.includes('/folders/'))return 'https://lh3.googleusercontent.com/d/'+file[1];
+ return docUrl(source);
+}
+function renderDocuments(items){
+ const dest=byId('portal-documentation');if(!dest)return;
+ dest.replaceChildren();
+ const grid=document.createElement('div');grid.className='grid-cards';
+ items.slice(0,60).forEach(row=>{
+  const keys=Object.keys(row||{});
+  const tanggal=String(row[keys[0]]||''),judul=String(row[keys[1]]||'Album Warga');
+  const desc=String(row[keys[2]]||'Lihat dokumentasi kegiatan warga');
+  const raw=String(row[keys[3]]||'');
+  const first=raw.split(',').map(v=>v.trim()).find(Boolean)||'';
+  const folder=first.match(/\/folders\/([a-zA-Z0-9_-]+)/)||first.match(/(?<!\w)[?&]id=([a-zA-Z0-9_-]{12,})/);
+  const link=folder?'https://drive.google.com/drive/folders/'+folder[1]:docUrl(first)||photoUrl(first);
+  const card=document.createElement('article');card.className='info-card portal-album-card';
+  const imageUrl=folder?null:photoUrl(first);
+  if(imageUrl){const img=document.createElement('img');img.src=imageUrl;img.alt='Dokumentasi: '+judul;img.loading='lazy';img.referrerPolicy='no-referrer';img.className='portal-album-image';img.onerror=()=>img.remove();card.append(img)}
+  const h=document.createElement('h3');h.textContent=judul.slice(0,140);card.append(h);
+  const d=document.createElement('small');d.className='muted';d.textContent=tanggal.slice(0,70);card.append(d);
+  const p=document.createElement('p');p.textContent=desc.slice(0,350);card.append(p);
+  if(link){const a=document.createElement('a');a.className='text-link';a.href=link;a.textContent='Buka album / foto ↗';a.target='_blank';a.rel='noopener noreferrer';card.append(a)}
+  grid.append(card);
+ });
+ if(items.length){dest.append(grid)}
+ else{const p=document.createElement('p');p.className='muted';p.textContent='Belum ada album dokumentasi.';dest.append(p)}
+ const note=document.createElement('p');note.className='muted small';note.textContent='Album mengikuti arsip dokumentasi portal lama. Integrasi galeri penuh ke Cloudflare masih berlangsung.';dest.append(note);
+ const a=document.createElement('a');a.href='https://flamboyan4.web.id/#dokumentasi-preview-img';a.className='text-link';a.textContent='Buka galeri lengkap di website lama ↗';dest.append(a);
+}
+async function initDocumentation(){
+ const dest=byId('portal-documentation');if(!dest)return;
+ try{
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js');
+  if(!window.Papa)throw new Error('Pembaca arsip tidak tersedia');
+  const rows=await new Promise((resolve,reject)=>{
+   window.Papa.parse(DOC_CSV,{
+    download:true,header:true,skipEmptyLines:true,
+    complete:res=>resolve((res.data||[]).filter(r=>{const k=Object.keys(r||{});return k.length>=2&&String(r[k[0]]||'').trim()})),
+    error:err=>reject(err)
+   });
+  });
+  renderDocuments(rows.reverse());
+ }catch(e){
+  const p=document.createElement('p');p.className='muted';p.textContent='Arsip dokumentasi belum dapat dimuat: '+(e?.message||'koneksi tidak tersedia');dest.prepend(p);
+ }
+}
+
 export function initPortalExtras(){
- initPayments();initScrollTop();initSuggestions();initComments();
+ initPayments();initScrollTop();initSuggestions();initComments();initDocumentation();
  byId('portal-comment-form')?.querySelectorAll('.portal-emoji button').forEach(btn=>btn.addEventListener('click',()=>{
   const field=byId('portal-comment-message');field.value+=btn.textContent;field.focus();
  }));

@@ -117,3 +117,6 @@ body.theme-home .app-body section[id]{scroll-margin-top:84px}
 .portal-suggestion-dialog .btn{justify-self:stretch}
 @media(max-width:970px){.portal-pay-grid{grid-template-columns:1fr}.portal-pay-card{padding:14px 16px}}
 @media(max-width:720px){.portal-comments-grid{grid-template-columns:1fr}.portal-floating-actions{bottom:17px;right:13px}.portal-floating-actions button{width:48px;height:48px}}
+
+/* Arsip dokumentasi warga dibaca dari CSV terbitan lama sampai pindah D1. */
+.portal-album-card{overflow:hidden}.portal-album-image{width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:10px}.portal-album-card small{display:block;margin-top:4px}.portal-album-card p{font-size:13px;line-height:1.45;overflow-wrap:anywhere}
