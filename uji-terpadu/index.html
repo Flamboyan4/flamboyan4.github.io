@@ -293,7 +293,7 @@ body.book-mode .shell{left:258px}
 <div id="toast" class="toast" hidden role="status"></div>
 <script>
 (()=>{
- const apps={portal:'./portal/',rapat:'./rapat/','bank-sampah':'./bank-sampah/',pembukuan:'./pembukuan/'};
+ const apps={portal:'./portal/',rapat:'./rapat/',dokumentasi:'./dokumentasi/',inventaris:'./dokumentasi/#inventaris','bank-sampah':'./bank-sampah/',pembukuan:'./pembukuan/'};
  const buttons=[...document.querySelectorAll('nav [data-target]')],frame=document.getElementById('appframe'),
  gate=document.getElementById('gate'),toast=document.getElementById('toast');
  const scrollButton=document.getElementById('f4-scroll-top'),toolbar=document.querySelector('.shell');
@@ -329,7 +329,7 @@ body.book-mode .shell{left:258px}
  function syncScroll(){
    const depth=scrollDepth();
    toolbar.classList.toggle('is-scrolled',depth>12);
-   scrollButton.hidden=!(permitted()&&['bank-sampah','pembukuan'].includes(selected)&&depth>250);
+   scrollButton.hidden=!(permitted()&&['bank-sampah','pembukuan','dokumentasi','inventaris'].includes(selected)&&depth>250);
  }
  function attachScrollListener(){
    try{
@@ -354,13 +354,13 @@ body.book-mode .shell{left:258px}
  }
  function update(target){
   selected=target;
-  document.body.classList.toggle('portal-mode',target==='portal'||target==='rapat');
+  document.body.classList.toggle('portal-mode',['portal','rapat','dokumentasi','inventaris'].includes(target));
   document.body.classList.toggle('bank-mode',target==='bank-sampah');
   document.body.classList.toggle('book-mode',target==='pembukuan');
   toolbar.classList.remove('is-scrolled');scrollButton.hidden=true;
-  document.querySelectorAll('[data-portal-menu]').forEach(b=>b.classList.toggle('active',b.dataset.portalMenu===(target==='rapat'?'rapat':'beranda')));
+  document.querySelectorAll('[data-portal-menu]').forEach(b=>b.classList.toggle('active',b.dataset.portalMenu===(['rapat','dokumentasi','inventaris'].includes(target)?target:'beranda')));
   buttons.forEach(b=>{
-   const selected=b.dataset.target===(target==='rapat'?'portal':target);
+   const selected=b.dataset.target===(['rapat','dokumentasi','inventaris'].includes(target)?'portal':target);
    b.classList.toggle('active',selected);b.setAttribute('aria-pressed',String(selected));
    b.setAttribute('aria-disabled',String(b.dataset.target==='pembukuan'&&role!=='superadmin'));
   });
@@ -400,16 +400,18 @@ body.book-mode .shell{left:258px}
  });
  document.querySelectorAll('[data-portal-menu]').forEach(button=>button.addEventListener('click',()=>{
   const item=button.dataset.portalMenu;
+  if(['rapat','dokumentasi','inventaris'].includes(item)){update(item);return}
   document.querySelectorAll('[data-portal-menu]').forEach(x=>x.classList.toggle('active',x===button));
-  if(item==='rapat'){update('rapat');return}
-  const target=item==='beranda'?null:item==='projek'?'projek':item==='kalender'?'rencana':item==='pembayaran'?'keuangan':'kegiatan';
+  const section=item==='beranda'?null:item==='projek'?'projek':item==='kalender'?'rencana':item==='pembayaran'?'keuangan':null;
   const go=()=>{try{
-    if(!target){frame.contentWindow.scrollTo({top:0,behavior:'smooth'});return}
-    const doc=frame.contentWindow.document,section=doc.getElementById(target);
-    if(section)section.scrollIntoView({behavior:'smooth',block:'start'});
-    else notify('Bagian '+item+' belum ditemukan pada HTML sumber.');
-  }catch(e){notify('Navigasi memerlukan halaman Portal Utama.')}}
-  if(selected!=='portal'){update('portal');setTimeout(go,500)}else go();
+    const child=frame.contentWindow;
+    if(!section){child.scrollTo({top:0,behavior:'smooth'});return}
+    const el=child.document.getElementById(section);
+    if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+    else notify('Bagian '+item+' belum ditemukan pada halaman sumber.');
+   }catch{notify('Halaman Portal Utama belum siap.')}
+  };
+  if(selected!=='portal'){update('portal');setTimeout(go,350)}else go();
  }));
  buttons.forEach(b=>b.addEventListener('click',()=>update(b.dataset.target)));
  frame.addEventListener('load',()=>{sendRole();attachScrollListener()});
