@@ -302,6 +302,24 @@ body.iframe-modal-open .framebox #gate{display:none!important}
  body.portal-mode .login-button{padding:9px 12px!important}
 }
 @media(prefers-reduced-motion:reduce){.portal-sidebar{transition:none!important}}
+</style><style id="f4-mobile-fullwidth-force-20261022">
+/* Mobile: sidebar must not reserve any horizontal space. */
+@media(max-width:1023px){
+ body.portal-mode .portal-sidebar{display:block!important;position:fixed!important;top:0!important;left:0!important;bottom:0!important;width:min(284px,84vw)!important;max-width:84vw!important;height:100dvh!important;z-index:501!important;transform:translate3d(-110%,0,0)!important;transition:transform .22s ease!important;padding:15px 12px!important;visibility:hidden!important;overflow-y:auto!important;box-shadow:0 12px 40px #11182738!important}
+ body.portal-mode.f4-menu-open .portal-sidebar{transform:translate3d(0,0,0)!important;visibility:visible!important}
+ body.portal-mode .shell{left:0!important;right:0!important;width:100%!important;padding-left:0!important}
+ body.portal-mode .framebox{margin-left:0!important;margin-right:0!important;left:0!important;width:100%!important;max-width:100%!important;min-width:0!important}
+ body.portal-mode .framebox iframe{display:block!important;width:100%!important;max-width:100%!important}
+ body.portal-mode .top{padding-left:54px!important;padding-right:10px!important}
+ #f4-mobile-menu{display:grid!important;position:fixed!important;top:9px!important;left:9px!important;width:39px!important;height:39px!important;z-index:300!important}
+ #f4-mobile-overlay{display:none!important;position:fixed!important;inset:0!important;z-index:490!important;background:#17203391!important}
+ body.portal-mode.f4-menu-open #f4-mobile-overlay{display:block!important}
+ body.portal-mode .portal-brand>div:not(.portal-logo),body.portal-mode .portal-divider,body.portal-mode .portal-menu button span{display:block!important}
+ body.portal-mode .portal-brand{justify-content:flex-start!important;height:66px!important}
+ body.portal-mode .portal-menu button{justify-content:flex-start!important;gap:12px!important;text-align:left!important;padding:11px 13px!important}
+ body.portal-mode .portal-menu button svg{width:19px!important;height:19px!important}
+ body:not(.portal-mode) #f4-mobile-menu{display:none!important}
+}
 </style></head>
 <body>
 <header class="shell">
@@ -625,7 +643,7 @@ body.iframe-modal-open .framebox #gate{display:none!important}
  mobileMenu.addEventListener('click',()=>setMobileMenu(!document.body.classList.contains('f4-menu-open')));
  mobileOverlay.addEventListener('click',()=>setMobileMenu(false));
  document.addEventListener('keydown',e=>{if(e.key==='Escape')setMobileMenu(false)});
- window.addEventListener('resize',()=>{if(innerWidth>760)setMobileMenu(false)});
+ window.addEventListener('resize',()=>{if(innerWidth>1023)setMobileMenu(false)});
  document.querySelectorAll('[data-portal-menu]').forEach(button=>button.addEventListener('click',()=>{setMobileMenu(false);
   const item=button.dataset.portalMenu;
   if(['rapat','dokumentasi','inventaris'].includes(item)){update(item);return}
