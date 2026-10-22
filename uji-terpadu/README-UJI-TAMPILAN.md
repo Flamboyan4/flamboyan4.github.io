@@ -97,3 +97,11 @@ Pertahankan ketiga sumber aslinya; ubah hanya pemanggilan data:
 - Card proyek mengikuti persis tab **Project Card** (gid 40982005): Bank Sampah Lorong, Gapura, Pemesanan Jersey; urutan/status disalin dari sumber.
 - Toolbar kanan sekarang memakai SVG **Lucide resmi** untuk `house`, `recycle`, dan `notebook-tabs`; tidak lagi ikon recycle buatan tangan yang tidak menyerupai referensi.
 - Jangan lagi mengganti data yang sudah tersedia dengan contoh yang direka. Untuk preview yang tidak terhubung database, gunakan snapshot data **dari sumber asli** dan tandai salinan offline.
+
+## Koreksi wajib dari screenshot 17.36 WIB, 22 Oktober 2026
+
+- Ukuran menu Portal Utama harus **sekelas sidebar Bank Sampah**: font 14px/700, tinggi tombol sekitar 47px, ikon garis 19px, padding dan kontras jelas. Warna tetap violet terang/bersih seperti Pembukuan, tanpa highlight navy gelap.
+- Semua halaman menggunakan **utility bar kecil menyatu dengan konten** tanpa garis bawah/pemisah, bukan navbar terpisah. Sidebar kiri dimulai **paling atas sejajar utility bar**.
+- Untuk Bank Sampah desktop, sidebar publik/admin asli tetap digunakan. Perbaikan layout: iframe mulai di y=0, utility bar diposisikan x=244px pada area konten; konten Bank Sampah diberi padding-top 56px, sidebar mulai y=0. Jangan menurunkan sidebar 56px di bawah utility bar.
+- **Ikon Pembukuan hanya muncul jika login sebagai SUPERADMIN.** Untuk pengunjung, warga, dan admin Bank Sampah, tombol/icon Pembukuan tidak sekadar disabled: **harus tidak ditampilkan sama sekali**. Setelah logout dari Pembukuan kembali ke portal publik.
+- Pilihan role login di preview tetap simulasi; backend Worker auth yang sebenarnya nanti harus menegakkan hak akses secara server-side.
