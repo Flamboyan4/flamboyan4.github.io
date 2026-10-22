@@ -85,8 +85,32 @@
   const r=await read('/api/bookkeeping/talangan?limit=200');
   return successful({data:rows(r)});
  }
+ const dateBounds=p=>{
+   const q=p||{},level=q.periodLevel||'';
+   let from=String(q.periodFrom||''),to=String(q.periodTo||'');
+   if(level==='month'){
+     from=/^\\d{4}-\\d{2}$/.test(from)?from+'-01':'';
+     if(/^\\d{4}-\\d{2}$/.test(to)){const [y,m]=to.split('-').map(Number);to=y+'-'+String(m).padStart(2,'0')+'-'+String(new Date(y,m,0).getDate()).padStart(2,'0')}else to='';
+   }else if(level==='year'){
+     from=/^\\d{4}$/.test(from)?from+'-01-01':'';
+     to=/^\\d{4}$/.test(to)?to+'-12-31':'';
+   }
+   if(q.bulan&&q.tahun){const y=Number(q.tahun),m=Number(q.bulan);if(y>=2000&&m>=1&&m<=12){from=y+'-'+String(m).padStart(2,'0')+'-01';to=y+'-'+String(m).padStart(2,'0')+'-'+String(new Date(y,m,0).getDate()).padStart(2,'0')}}
+   return {from:/^\\d{4}-\\d{2}-\\d{2}$/.test(from)?from:'',to:/^\\d{4}-\\d{2}-\\d{2}$/.test(to)?to:''};
+ };
+ async function quickSummary(p){
+   const b=dateBounds(p),q=new URLSearchParams();if(b.from)q.set('from',b.from);if(b.to)q.set('to',b.to);
+   const r=await read('/api/bookkeeping/iuran/quick-summary?'+q);
+   return successful({data:r.data});
+ }
+ async function cashReport(p){
+   const b=dateBounds(p),q=new URLSearchParams();if(b.from)q.set('from',b.from);if(b.to)q.set('to',b.to);
+   const r=await read('/api/bookkeeping/reports/cash?'+q);
+   return successful({data:r.data});
+ }
  const exact={
   bootstrap,riwayatpembayaran:history,datatransaksikas:cash,
+  iuranquicksummary:quickSummary,laporankas:cashReport,
   datadenda:fines,datapinjaman:loans,datatalangan:advances
  };
  window.__f4BookDemoCall=async params=>{
@@ -95,7 +119,7 @@
   // Don't fake success for writes or for a feature with no corresponding D1 endpoint yet.
   if(action&&/simpan|bayar|buat|batalkan|hapus|edit|update|koreksi|tutup|import|sinkron|pulihkan|setor/.test(action))
    throw Error('Penulisan Pembukuan belum diaktifkan di Worker staging. Tidak ada data yang berubah.');
-  if(action==='datapembukuankas'||action==='iuranquicksummary'||action.startsWith('laporan'))
+  if(action==='datapembukuankas'||action.startsWith('laporan'))
    throw Error('Modul '+action+' belum memiliki pemetaan lengkap ke D1. Data lama tidak diganti angka nol.');
   return old(params);
  };
