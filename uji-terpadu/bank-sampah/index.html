@@ -2058,5 +2058,21 @@
  // Semua tombol login portal mengarah ke akses akun terpadu, tanpa menulis sesi lokal.
   try{v11ShowLogin=function(){window.parent.postMessage({type:'f4:show-login'},location.origin)}}catch(e){}
   window.parent.postMessage({type:'f4:ready',portal:'bank-sampah'},location.origin);
- </script></body>
+ </script><script id="f4-bank-dialog-layer-listener">
+(()=>{'use strict';
+ let last=null;
+ const update=()=>{
+  const ids=['v21GalleryModal','v21Lightbox'];
+  const open=ids.some(id=>{const el=document.getElementById(id);return el&&!el.classList.contains('hidden')});
+  if(open===last)return;
+  last=open;
+  window.parent.postMessage({type:'f4:bank-modal',open},location.origin);
+ };
+ new MutationObserver(update).observe(document.body,{
+   childList:true,subtree:true,attributes:true,attributeFilter:['class']
+ });
+ update();
+})();
+</script>
+</body>
 </html>
