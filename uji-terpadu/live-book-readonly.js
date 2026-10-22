@@ -164,6 +164,12 @@
  const filtered= (items,p,key)=>{const b=dateBounds(p),st=String(p?.status||'SEMUA').toUpperCase();
   return items.filter(x=>(!b.from||String(x[key]||'')>=b.from)&&(!b.to||String(x[key]||'')<=b.to)&&(st==='SEMUA'||x.status===st));
  };
+ async function yearlyReport(p){
+  const year=Number(p?.tahun||new Date().getFullYear());
+  if(!Number.isInteger(year)||year<1900||year>2199)throw Error('Pilih tahun yang benar.');
+  const result=await read('/api/bookkeeping/reports/yearly?year='+year);
+  return successful({data:result.data});
+ }
  async function finesReport(p){
   const d=await read('/api/bookkeeping/denda?limit=200');
   const all=rows(d).map(x=>({id:x.id,nama:x.nama||'',payerId:x.payerId,
@@ -209,6 +215,7 @@
   laporanrt:p=>contributionReport('rt',p),
   laporanarisan:p=>contributionReport('arisan',p),
   laporandenda:finesReport,laporanpinjaman:loansReport,laporantalangan:advancesReport,
+  laporantahunan:yearlyReport,
   datadenda:fines,datapinjaman:loans,datatalangan:advances
  };
  window.__f4BookDemoCall=async params=>{
