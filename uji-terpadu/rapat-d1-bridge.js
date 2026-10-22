@@ -28,7 +28,7 @@ window.Papa.parse=(input,config,...args)=>{
  if(typeof input!=='string'||!input.includes(csvURLFragment)||!config?.download)return native(input,config,...args);
  Promise.all([
   fetch('https://api.flamboyan4.web.id/api/v2/public/portal',{mode:'cors',cache:'no-store'}).then(r=>{if(!r.ok)throw Error('API HTTP '+r.status);return r.json()}),
-  legacyPhotos(input)
+  Promise.race([legacyPhotos(input),new Promise(resolve=>setTimeout(()=>resolve({byTitle:new Map(),byDate:new Map()}),3500))])
  ]).then(([d,photos])=>{
   if(d.ok===false||!Array.isArray(d.meetings))throw Error(d.error||'Data rapat D1 tidak siap');
   const header=['Tanggal','Judul','Deskripsi','Foto','Link Dokumen'];
