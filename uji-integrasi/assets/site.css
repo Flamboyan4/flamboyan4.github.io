@@ -42,3 +42,19 @@ body:not(.theme-home) .app-body .hero{display:none}
 @media(max-width:900px){.app-sidebar{width:210px}.app-workspace{margin-left:210px}.app-utility{padding:8px 15px}}
 @media(max-width:720px){.app-sidebar{width:242px;transform:translateX(-110%);transition:transform .2s;box-shadow:10px 0 32px #00000016}.sidebar-open .app-sidebar{transform:translateX(0)}.app-workspace{margin-left:0}.shell-toggle{display:flex}.app-body .hero{margin:13px 12px 0;padding:24px}.app-body .container{padding:0 13px}.bank-member-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:440px){.app-utility{gap:5px;padding:8px}.shell-switcher{gap:0;padding-right:5px}.shell-switch{width:34px;height:36px}.shell-avatar{width:40px;height:40px}.bank-member-grid{grid-template-columns:1fr}}
+
+
+/* Banner slider Portal Utama: responsive, gambar siap dipasok dari API D1. */
+body.theme-home .app-body .hero.has-banner-slider{padding:0;overflow:hidden;border-radius:17px;max-width:1150px;background:linear-gradient(120deg,#4a518b,#666db1)}
+.banner-frame{width:100%;aspect-ratio:1600/500;min-height:240px;position:relative;overflow:hidden}.banner-track{display:flex;width:100%;height:100%;transition:transform .5s ease}
+.banner-slide{width:100%;flex:0 0 100%;position:relative;background:linear-gradient(120deg,#4b528e,#6569b1);display:flex;align-items:center;padding:32px clamp(30px,6vw,75px);color:#fff}
+.banner-slide:nth-child(2){background:linear-gradient(110deg,#455582,#5b70ac)}.banner-slide:nth-child(3){background:linear-gradient(110deg,#545184,#7770b3)}
+.banner-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.banner-image+.banner-copy{background:#283660a8;padding:20px 24px;border-radius:13px;backdrop-filter:blur(3px)}
+.banner-copy{position:relative;z-index:1;max-width:720px}.banner-copy h1{font-size:clamp(26px,3.8vw,47px);line-height:1.13;margin:10px 0 12px}
+.banner-copy p{font-size:clamp(13px,1.4vw,16px);line-height:1.55;max-width:610px;margin:0;color:#ffffffee}
+.banner-eyebrow{font-size:11px;font-weight:800;letter-spacing:.12em}.banner-link{display:inline-block;color:#fff;font-weight:800;margin-top:10px}
+.banner-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:36px;height:36px;border:0;border-radius:50%;background:#10193866;color:white;font-size:28px;display:grid;place-items:center;line-height:1}.banner-arrow.prev{left:10px}.banner-arrow.next{right:10px}.banner-arrow:hover{background:#101938ad}
+.banner-dots{position:absolute;z-index:2;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px}
+.banner-dot{width:9px;height:9px;border-radius:12px;padding:0;border:0;background:#ffffff8c}.banner-dot[aria-current=true]{width:25px;background:#fff}
+@media(max-width:680px){.banner-frame{aspect-ratio:4/2;min-height:215px}.banner-slide{padding:25px 46px}.banner-copy h1{font-size:26px}.banner-image+.banner-copy{padding:10px 14px}.banner-arrow{width:30px;height:30px;font-size:22px}}
+@media(prefers-reduced-motion: reduce){.banner-track{transition:none}}
