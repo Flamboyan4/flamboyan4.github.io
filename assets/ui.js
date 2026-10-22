@@ -96,7 +96,7 @@ function roleNav(s){
    const bankLanding=p==='bank'&&document.body.dataset.sectionPage==='dokumentasi';
    const base=sectionRoot+'bank-sampah/';
    const destination=separate?sectionRoot+target:bankDocs?base+target:bankLanding?base+'#'+target:p==='portal'&&section?sectionRoot+'#'+target:'#'+target;
-   const active=p==='portal'?(section?separate&&section===target.split('/')[0]:index===0):index===0;
+   const active=p==='portal'?(section?separate&&section===target.split('/')[0]&&(section!=='dokumentasi'||((location.hash==='#inventaris')===target.endsWith('#inventaris'))):index===0):index===0;
    const a=shellLink(name,destination,icon,'shell-side-link'+(active?' current':''));a.append(elem('span',name));
    a.addEventListener('click',e=>{
     const switchMode=p==='book'||(p==='bank'&&r!=='public'&&!bankLanding&&!bankDocs);

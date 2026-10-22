@@ -10,6 +10,19 @@ initShell(isBank?'bank':'portal');
 let albumItems=[],inventoryItems=[],activeCategory='Semua';
 const allowedCategories=isBank?['Semua','Kerja Bakti','Penimbangan','Acara','Lainnya']:['Semua','Kerja Bakti','Arisan','Acara','Lainnya'];
 const limit=(s,max=300)=>String(s??'').slice(0,max);
+const publicFolderAPI="https://script.google.com/macros/s/AKfycbyes6A9_9EQ8vIYtf75cGgC9sKAZBvMewxEhYRSThjMAlBYqnkmKpa3yoPOtN0FEG92Zg/exec";
+async function readLegacyFolder(raw){
+ const id=String(raw||'').match(/\/folders\/([A-Za-z0-9_-]{12,})/)?.[1];
+ if(!id)return [];
+ try{
+  const response=await fetch(publicFolderAPI+'?folderId='+encodeURIComponent(id));if(!response.ok)return [];
+  const d=await response.json();const files=Array.isArray(d.files)?d.files:Array.isArray(d.images)?d.images:[];
+  return files.map(f=>typeof f==='string'?{url:driveImage(f),type:'foto'}:{
+   url:driveImage(f.url||f.link||f.src||''),type:/video/i.test(f.type||f.mimeType||'')?'video':'foto',
+   caption:String(f.name||f.title||'').slice(0,90)}).filter(x=>x.url);
+ }catch{return []}
+}
+
 function safeHttp(raw){try{const u=new URL(String(raw||'').trim());return ['https:','http:'].includes(u.protocol)?u.href:null}catch{return null}}
 function externalMedia(url){const x=String(url||'');if(x.startsWith('/'))return apiURL(x);return safeHttp(x)}
 function driveImage(raw){const s=String(raw||'').trim();const m=s.match(/(?:\/d\/|[?&]id=)([A-Za-z0-9_-]{12,})/);return m?'https://lh3.googleusercontent.com/d/'+m[1]:safeHttp(s)}
@@ -69,7 +82,23 @@ function viewAlbum(item){
   const folder=folders.map(safeHttp).find(Boolean);
   const footer=folder?'Foto dalam folder Google Drive lama belum dimuat langsung ke D1. Buka folder dari tautan berikut.':'Dokumentasi berasal dari arsip CSV portal lama.';
   openDialog(item.title,images,footer);
-  if(folder){const a=elem('a','Lihat folder Google Drive ↗','btn outline');a.href=folder;a.target='_blank';a.rel='noopener noreferrer';$('media-dialog-body').append(a)}
+  if(folder){
+   const loading=elem('p','Memuat foto dalam album lama…','muted small');$('media-dialog-body').append(loading);
+   readLegacyFolder(folder).then(files=>{
+    if(!$('media-dialog').open)return;
+    loading.remove();
+    if(files.length){
+     const grid=elem('div',undefined,'media-gallery-grid');
+     files.forEach(f=>{
+      const link=elem('a',undefined,'media-gallery-cell');link.href=f.url;link.target='_blank';link.rel='noopener noreferrer';
+      if(f.type==='video')link.textContent='▶ Buka Video';else link.append(makeImage(f.url,f.caption||item.title));
+      grid.append(link);
+     });
+     $('media-dialog-body').prepend(grid);
+    }
+   }).catch(()=>loading.remove());
+   const a=elem('a','Lihat folder Google Drive ↗','btn outline');a.href=folder;a.target='_blank';a.rel='noopener noreferrer';$('media-dialog-body').append(a);
+  }
  }
 }
 function renderAlbums(){
@@ -143,6 +172,13 @@ async function load(){
      cover:first?driveImage(first):null,
      category:normalizeCategory(k[4]?row[k[4]]||row[k[1]]:row[k[1]])}
    }).filter(x=>x.title).reverse();
+   for(const item of albumItems.slice(0,16)){
+    if(!item.cover&&item.raw.includes('/folders/')){
+     const rows=await readLegacyFolder(item.raw);
+     const img=rows.find(x=>x.type!=='video');
+     if(img)item.cover=img.url;
+    }
+   }
    inventoryItems=inventory.map(row=>{const k=Object.keys(row);return {
     name:limit(row[k[0]],140),qty:limit(row[k[1]]||'0',25),unit:'Unit',condition:limit(row[k[2]]||'',120),
     photo:driveImage(row[k[3]]||'')
