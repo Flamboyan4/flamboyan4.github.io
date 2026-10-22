@@ -1,9 +1,31 @@
 (()=>{'use strict';
  const progress=[
-  {tanggal:'11 Oktober 2026',judul:'Pembersihan & Persiapan Drop Point',langkah:'Pembersihan',status:'Selesai',deskripsi:'Contoh perkembangan program Bank Sampah',agenda:'Pembuatan wadah',foto:''},
-  {tanggal:'11 Oktober 2026',judul:'Pembuatan Wadah Drop Point',langkah:'Pelaksanaan',status:'Selesai',deskripsi:'Contoh dokumentasi kegiatan',agenda:'Pendataan sampah',foto:''}
+   {
+     "tanggal": "11 Oktober 2026",
+     "judul": "Pembersihan & Persiapan Drop Point",
+     "langkah": "Pembersihan area pemilahan",
+     "status": "Selesai",
+     "deskripsi": "Pengelolaan sampah anorganik terpilah untuk kas tambahan warga.",
+     "agenda": "Pembuatan tong/wadah drop point",
+     "foto": "https://drive.google.com/file/d/1AR1iArLy2iN5cPv5AyPtGwHmyWpWBMTw/view?usp=sharing",
+     "urlFoto": "https://drive.google.com/file/d/1AR1iArLy2iN5cPv5AyPtGwHmyWpWBMTw/view?usp=sharing",
+     "photoUrl": "https://drive.google.com/file/d/1AR1iArLy2iN5cPv5AyPtGwHmyWpWBMTw/view?usp=sharing",
+     "progressId": "PR0001"
+   },
+   {
+     "tanggal": "11 Oktober 2026",
+     "judul": "Pembuatan Wadah Drop Point",
+     "langkah": "Pembuatan wadah",
+     "status": "Selesai",
+     "deskripsi": "Membuat tempat untuk menampung sampah sebelum nantinya akan dijual",
+     "agenda": "Pembuatan alur dan administrasi",
+     "foto": "https://drive.google.com/file/d/1jtKd09dMftq1FovXHLs9GOe97a7H4LSF/view?usp=sharing",
+     "urlFoto": "https://drive.google.com/file/d/1jtKd09dMftq1FovXHLs9GOe97a7H4LSF/view?usp=sharing",
+     "photoUrl": "https://drive.google.com/file/d/1jtKd09dMftq1FovXHLs9GOe97a7H4LSF/view?usp=sharing",
+     "progressId": "PR0002"
+   }
  ];
- const albums=[{id:'DEMO-A01',albumId:'DEMO-A01',judul:'Contoh Dokumentasi Bank Sampah',tanggal:'11 Oktober 2026',deskripsi:'Album contoh untuk pratinjau struktur',sampul:'',kategori:'Kegiatan',jumlahMedia:0,status:'Aktif',publik:true}];
+ const albums=[{id:'AL0001',albumId:'AL0001',judul:'Gorol membersihkan drop point',tanggal:'11 Oktober 2026',deskripsi:'Kegiatan warga Flamboyan 4 membersihkan rumah drop point',sampul:'https://drive.google.com/file/d/1DcqPvQpQx_nQEPsCXlbJz-YETZ0iypep/view?usp=sharing',kategori:'Kegiatan',jumlahMedia:0,status:'Aktif',publik:true}];
  const items=[{kode:'BS003',nama:'Kardus',kelompok:'Kertas',hargaAcuan:1500,tarifWarga:1000,status:'Aktif'},{kode:'BS007',nama:'Kaleng',kelompok:'Logam',hargaAcuan:3000,tarifWarga:1500,status:'Aktif'},{kode:'BS008',nama:'Gelas plastik bersih',kelompok:'Plastik',hargaAcuan:2000,tarifWarga:1000,status:'Aktif'}];
  const readOnly={
   bsV11PublicHome:()=>({anggotaAktif:33,jenisBarang:11,beratTerkonfirmasi:0,kegiatan:2,progres:progress,inventaris:[{nama:'Tempat Drop Point',jumlah:'1 unit',kondisi:'Baik',foto:''}]}),
