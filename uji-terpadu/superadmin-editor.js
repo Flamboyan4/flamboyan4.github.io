@@ -24,21 +24,18 @@ let active='',records=[],filter='',requestSerial=0,editing=false;
 const node=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=String(text??'');if(cls)n.className=cls;return n};
 function btn(text,fn,cls='f4-admin-btn'){const b=node('button',text,cls);b.type='button';b.onclick=fn;return b;}
 function inContext(){return document.body.classList.contains('role-superadmin')}
-function gotoOriginal(){
- page.hidden=true;
- const type=document.body.classList.contains('book-mode')?'pembukuan':'portal';
- document.querySelector('nav [data-target="'+type+'"]')?.click();
-}
+function gotoOriginal(){window.openManagementHub?.();}
 function nav(kind){
  if(kind==='residents'){page.hidden=true;window.openWarga?.();return}
  window.openSuperadminEditor(kind);
 }
 function sideMenu(){
- const tab=document.body.classList.contains('book-mode')?'book':'portal';
- const group=categories[tab];
- side.replaceChildren(node('strong',tab==='book'?'Pembukuan — Data Acuan':'Portal Utama — Kelola Konten','f4-work-brand'));
+ const tab=types[active]?.section||'portal',group=categories[tab];
+ document.body.classList.remove('f4-manage-book','f4-manage-portal','f4-manage-bank');
+ document.body.classList.add(tab==='book'?'f4-manage-book':'f4-manage-portal');
+ side.replaceChildren(node('strong',tab==='book'?'Kelola Pembukuan':'Kelola Portal Utama','f4-work-brand'));
  for(const [id,label] of group)side.append(btn(label,()=>nav(id),id===active?'f4-admin-nav active':'f4-admin-nav'));
- side.append(btn('← Kembali ke Portal',gotoOriginal,'f4-admin-nav'));
+ side.append(btn('← Menu Pengelolaan',gotoOriginal,'f4-admin-nav'));
 }
 async function send(url,options={}){
  const res=await fetch(url,{credentials:'include',cache:'no-store',...options});
@@ -50,7 +47,7 @@ function header(label,description){
  main.replaceChildren();
  const h=node('header',undefined,'f4-work-heading');
  h.append(node('h2','Kelola '+label),node('p',description));
- h.append(btn('← Halaman Publik',gotoOriginal,'f4-work-back'));
+
  main.append(h);
 }
 function viewList(){
