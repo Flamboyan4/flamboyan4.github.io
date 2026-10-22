@@ -13,10 +13,11 @@
  const successful=data=>({status:'success',...data});
  async function bootstrap(){
   // Master bersama Cloudflare D1: semua rumah, termasuk rumah kosong.
-  const [p,t,directory]=await Promise.all([
+  const [p,t,directory,settings]=await Promise.all([
     read('/api/bookkeeping/iuran/payers'),
     read('/api/bookkeeping/iuran/tariffs'),
-    read('/api/v2/admin/residents')
+    read('/api/v2/admin/residents'),
+    read('/api/v2/admin/content/settings').catch(()=>({data:[]}))
   ]);
   const payerRows=rows(p);
   const residents=Array.isArray(directory.rows)?directory.rows:[];
@@ -42,7 +43,10 @@
       qtyArisan:n(quantity.qtyArisan??r.qty_arisan),
       noHP:r.nomor_hp||'',keterangan:r.keterangan_warga||''};
   });
-  return successful({version:'Cloudflare D1 — Data Acuan Terpadu',config:t.config||{},rumah:houses,warga});
+  const config={...(t.config||{})};
+  for(const setting of (settings.data||[]))if(['TANGGAL_SETOR_RT','BATAS_PERIODE_KAS'].includes(setting.setting_key))
+    config[setting.setting_key]=n(setting.setting_value);
+  return successful({version:'Cloudflare D1 — Data Acuan Terpadu',config,rumah:houses,warga});
  }
  async function history(){
   const r=await read('/api/bookkeeping/iuran/history?limit=200');
