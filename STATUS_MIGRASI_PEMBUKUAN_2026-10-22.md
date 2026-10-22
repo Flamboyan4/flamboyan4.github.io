@@ -30,3 +30,14 @@ Jangan unggah ekspor D1 berisi data pribadi ke repositori publik.
 - Pengujian baru 9 dari 9 endpoint Worker terhadap rekonstruksi lokal PASS, termasuk read-only auth; UI modul baru belum dibuktikan melalui browser.
 - Masih BLOKIR pencatatan baru/tutup buku: verifikasi tautan kas gabungan, saldo awal, arsip tahunan, dan aturan transaksi; tidak menggandakan jurnal historis.
 - Perubahan frontend main HANYA di bawah `uji-integrasi/`, bukan halaman produksi.
+
+## Update akhir 22 Oktober 2026 — Input Iuran D1 end-to-end
+- Input Iuran staging kini mempunyai formulir D1 untuk satu sampai 12 bulan, termasuk nominal pembayaran Kas Lorong sebagian, tanggal, metode, catatan, dan konfirmasi operator.
+- GitHub frontend: assets/bookkeeping-iuran-entry.js dan uji-integrasi/assets/bookkeeping-iuran-entry.js; pages.js di staging dan main/uji-integrasi sudah mengarah ke formulir baru. Halaman portal aktif di main tidak diganti.
+- POST /api/bookkeeping/iuran sudah ada dalam Worker lama; simulasi dengan ekspor D1 + migrasi sebelumnya dan 34 kewajiban lulus: satu payment, alokasi lengkap, satu jurnal kas, satu kunci permintaan dan audit log dalam batch atomik. Anti duplikasi dan kegagalan parsial diuji.
+- Temuan keamanan: POST kas manual create/edit/cancel pada Worker lama tidak dijaga FINANCE_WRITE_ENABLED. Paket lokal PENGAMAN_KAS_MANUAL_2026-10-22 menambahkan MANUAL_CASH_WRITE_ENABLED terpisah, default false, juga mensyaratkan FINANCE_WRITE_ENABLED=true.
+- Paket patch checksum-locked: worker source e2713a7087b6f2cbe589e5d8d8e2730c2fc62e41852ed52098a18eac4be800e5 -> 172db4ee87849dea540e9fb05e018cc104b9c37c97dd30942372afa416adce1c; wrangler.toml e7961f1604344f586a71b2f6a0feeecac026bc682dffeebac615ef5c81e95a8c -> bf08d231f7f550ca310e69ec5d00393dbddfe01f56fc9265f624b38777e91338.
+- Pengujian offline: 29/29 integrasi Worker, 13/13 transaksi (termasuk rollback gagal di tengah batch), 8/8 logika perhitungan frontend.
+- Semua flag write tetap false. Patch baru BELUM diterapkan pada Worker lokal operator maupun dideploy Cloudflare.
+- Next action: operator menerapkan ZIP patch checksum-locked lalu wrangler dry-run dan deploy staging dengan semua flag false. Setelah pemeriksaan browser dan pencocokan saldo, rencanakan cutover pencatatan iuran; tidak boleh mengaktifkan flag tulis sebelum persetujuan.
+- Jangan mengimpor ulang data D1; migrasi 34 kewajiban telah berhasil dan terverifikasi online.
