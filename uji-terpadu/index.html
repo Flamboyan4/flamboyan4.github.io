@@ -450,7 +450,11 @@ body.iframe-modal-open .framebox #gate{display:none!important}
  });
  function sendRole(){
   if(!permitted())return;
-  try{frame.contentWindow.postMessage({type:'f4:demo-role',role},location.origin)}catch{}
+  try{frame.contentWindow.postMessage({type:'f4:demo-role',role,
+   identity:activeAccount?{
+    nama:activeAccount.member?.nama||activeAccount.account?.username||'',
+    rumah:activeAccount.member?.rumah||'',wargaId:activeAccount.member?.id||''
+   }:null},location.origin)}catch{}
  }
  function update(target){
   selected=target;
