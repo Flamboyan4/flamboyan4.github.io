@@ -275,6 +275,33 @@ body.iframe-modal-open .framebox #gate{display:none!important}
 #f4-profile-form .login-confirm,#f4-avatar-form .login-confirm{width:100%;display:block;margin-bottom:10px}
 #f4-profile-info,#f4-savings-info{margin:9px 0}
 .login-modal{max-height:calc(100dvh - 30px);overflow-y:auto}
+</style><style id="f4-mobile-drawer-v1">
+#f4-mobile-menu,#f4-mobile-overlay{display:none}
+@media(max-width:760px){
+ body.portal-mode .portal-sidebar{
+  display:block!important;position:fixed!important;left:0!important;top:0!important;bottom:0!important;
+  width:min(280px,82vw)!important;height:100dvh!important;padding:15px 12px!important;
+  z-index:210!important;transform:translateX(-105%);transition:transform .22s ease;
+  overflow-y:auto!important;box-shadow:0 14px 35px #14142a27!important
+ }
+ body.portal-mode.f4-menu-open .portal-sidebar{transform:translateX(0)!important}
+ .portal-brand{height:66px!important;justify-content:flex-start!important;padding:4px 8px!important}
+ .portal-brand>div:not(.portal-logo),.portal-divider,.portal-menu button span{display:block!important}
+ .portal-menu button{justify-content:flex-start!important;gap:12px!important;padding:11px 13px!important;min-height:46px!important;text-align:left!important}
+ .portal-menu button svg{width:19px!important;height:19px!important}
+ body.portal-mode .shell{left:0!important;right:0!important;padding-left:48px}
+ body.portal-mode .framebox{margin-left:0!important;width:100%!important;min-width:0!important}
+ #f4-mobile-menu{display:grid;position:fixed;top:9px;left:10px;z-index:100;place-items:center;
+   width:39px;height:39px;border:0;border-radius:10px;background:#eee9ff;color:#6041c5;cursor:pointer}
+ #f4-mobile-menu svg{width:21px;height:21px}
+ #f4-mobile-overlay{display:none;position:fixed;inset:0;background:#10132d9a;z-index:200}
+ body.f4-menu-open #f4-mobile-overlay{display:block}
+ body:not(.portal-mode) #f4-mobile-menu{display:none!important}
+ body.portal-mode .top{padding:0 10px!important}
+ body.portal-mode .top nav button{width:34px!important;height:36px!important}
+ body.portal-mode .login-button{padding:9px 12px!important}
+}
+@media(prefers-reduced-motion:reduce){.portal-sidebar{transition:none!important}}
 </style></head>
 <body>
 <header class="shell">
@@ -315,7 +342,7 @@ body.iframe-modal-open .framebox #gate{display:none!important}
  </div>
 </header>
 <div class="notice"><strong>PRATINJAU STRUKTUR SAJA.</strong> Desain dan menu berasal dari aplikasi asli; login, data, pembayaran, simpan, hapus, dan pengesahan tidak terhubung ke database.</div>
-<aside class="portal-sidebar" id="portal-sidebar" aria-label="Menu Portal Utama">
+<button type="button" id="f4-mobile-menu" aria-label="Buka menu halaman" aria-expanded="false" aria-controls="portal-sidebar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><div id="f4-mobile-overlay" aria-hidden="true"></div><aside class="portal-sidebar" id="portal-sidebar" aria-label="Menu Portal Utama">
  <div class="portal-brand"><div class="portal-logo f4-brand-image"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"></div><div><strong>Portal Utama</strong><small>Flamboyan 4</small></div></div>
  <div class="portal-divider"></div>
  <nav class="portal-menu" aria-label="Halaman Portal Utama">
@@ -474,6 +501,8 @@ body.iframe-modal-open .framebox #gate{display:none!important}
  }
  function update(target){
   selected=target;
+  document.body.classList.remove('f4-menu-open');
+  document.getElementById('f4-mobile-menu')?.setAttribute('aria-expanded','false');
   modalWatcher?.disconnect();modalWatcher=null;document.body.classList.remove('iframe-modal-open');
   document.body.classList.toggle('portal-mode',['portal','rapat','dokumentasi','inventaris'].includes(target));
   document.body.classList.toggle('bank-mode',target==='bank-sampah');
@@ -590,7 +619,14 @@ body.iframe-modal-open .framebox #gate{display:none!important}
   if(action==='logout'){signOut();return}
   openProfileSettings(action==='settings');
  });
- document.querySelectorAll('[data-portal-menu]').forEach(button=>button.addEventListener('click',()=>{
+ const mobileMenu=document.getElementById('f4-mobile-menu');
+ const mobileOverlay=document.getElementById('f4-mobile-overlay');
+ function setMobileMenu(open){document.body.classList.toggle('f4-menu-open',open);mobileMenu.setAttribute('aria-expanded',String(open));mobileMenu.setAttribute('aria-label',open?'Tutup menu halaman':'Buka menu halaman')}
+ mobileMenu.addEventListener('click',()=>setMobileMenu(!document.body.classList.contains('f4-menu-open')));
+ mobileOverlay.addEventListener('click',()=>setMobileMenu(false));
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')setMobileMenu(false)});
+ window.addEventListener('resize',()=>{if(innerWidth>760)setMobileMenu(false)});
+ document.querySelectorAll('[data-portal-menu]').forEach(button=>button.addEventListener('click',()=>{setMobileMenu(false);
   const item=button.dataset.portalMenu;
   if(['rapat','dokumentasi','inventaris'].includes(item)){update(item);return}
   document.querySelectorAll('[data-portal-menu]').forEach(x=>x.classList.toggle('active',x===button));
