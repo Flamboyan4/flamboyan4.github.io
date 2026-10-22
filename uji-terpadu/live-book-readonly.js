@@ -68,22 +68,56 @@
   return successful({data:rows(r).map((x,i)=>({
    idTransaksi:x.id||'D1-'+i,
    tanggal:x.occurred_on||x.tanggal||'',jenis:x.transaction_type||'',
-   kategori:x.category||'',keterangan:x.description||'',
+   kategori:x.category||'',keterangan:x.note||x.description||'',
    debit:n(x.debit_rp),kredit:n(x.credit_rp),status:x.status==='BATAL'?'BATAL':'AKTIF',
    sumber:'D1_HISTORIS',periode:x.period||'',metode:x.payment_method||''
   }))});
  }
+ const houseParts=house=>{const x=String(house||'').split('/');return {blok:x[0]||'',noRumah:x.slice(1).join('/')||''}};
+ const statusOf=x=>{const s=String(x||'aktif').toUpperCase();return s==='DIBATALKAN'?'BATAL':s};
  async function fines(){
   const r=await read('/api/bookkeeping/denda?limit=200');
-  return successful({data:rows(r)});
+  const records=rows(r).map(x=>({
+    idDenda:x.id,idWarga:x.payerId,nama:x.nama||'',...houseParts(x.rumah),
+    tanggalKegiatan:x.tanggal,namaKegiatan:x.jenis==='gorol'?'Gorol':x.jenis||'Denda',
+    nominal:n(x.nominalRp),nominalTerbayar:n(x.terbayarRp),
+    tanggalBayar:x.tanggalBayar||'',status:statusOf(x.status),
+    keterangan:x.catatan||'',metode:'',idTransaksiKas:''
+  }));
+  const belum=records.filter(x=>x.status==='BELUM'),lunas=records.filter(x=>x.status==='LUNAS');
+  const ringkasan={jumlahBelum:belum.length,nominalBelum:belum.reduce((z,x)=>z+x.nominal,0),
+    jumlahLunas:lunas.length,nominalLunas:lunas.reduce((z,x)=>z+x.nominal,0)};
+  return successful({data:{rows:records,aktif:belum,ringkasan}});
  }
  async function loans(){
   const r=await read('/api/bookkeeping/pinjaman?limit=200');
-  return successful({data:rows(r),rows:rows(r),aktif:rows(r).filter(x=>x.status==='AKTIF'),ringkasan:{}});
+  const records=rows(r).map(x=>({
+    idPinjaman:x.id,idWarga:x.payerId,nama:x.nama||'',...houseParts(x.rumah),
+    tanggalPinjaman:x.tanggal,nominalPinjaman:n(x.pokokRp),totalDibayar:n(x.angsuranAktifRp),
+    sisaPinjaman:n(x.sisaRp),status:statusOf(x.status),keterangan:x.catatan||'',
+    pembayaran:[],readOnly:true
+  }));
+  const aktif=records.filter(x=>x.status==='AKTIF'),sum=key=>aktif.reduce((z,x)=>z+n(x[key]),0);
+  return successful({data:{rows:records,aktif,
+    ringkasan:{jumlahPinjamanAktif:aktif.length,totalPinjamanAktif:sum('nominalPinjaman'),
+      totalTerbayarAktif:sum('totalDibayar'),totalSisa:sum('sisaPinjaman')}}});
  }
  async function advances(){
   const r=await read('/api/bookkeeping/talangan?limit=200');
-  return successful({data:rows(r)});
+  const records=rows(r).map(x=>{
+    const date=String(x.tanggal||'');
+    const [tahun,bulan]=date.split('-');
+    return {idTalangan:x.id,nama:x.nama||'',...houseParts(x.rumah),
+      tanggalTalangan:date,tahun:Number(tahun)||0,bulan:['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][Number(bulan)]||'',
+      tanggalJatuhTempo:x.tanggalJatuhTempo||'',nominalTalangan:n(x.pokokRp),
+      nominalDiganti:n(x.pelunasanRingkasanRp),sisaTalangan:n(x.sisaMenurutRingkasanRp),
+      status:statusOf(x.status),statusPembukuan:'DITAHAN',keterangan:x.keterangan||'',
+      readOnly:true,perluRekonsiliasi:!!x.perluRekonsiliasi};
+  });
+  const aktif=records.filter(x=>x.status==='AKTIF'),sum=k=>aktif.reduce((z,x)=>z+n(x[k]),0);
+  return successful({data:{rows:records,aktif,
+    ringkasan:{jumlahAktif:aktif.length,totalTalanganAktif:sum('nominalTalangan'),
+      totalSudahDigantiAktif:sum('nominalDiganti'),totalSisa:sum('sisaTalangan')}}});
  }
  const dateBounds=p=>{
    const q=p||{},level=q.periodLevel||'';
