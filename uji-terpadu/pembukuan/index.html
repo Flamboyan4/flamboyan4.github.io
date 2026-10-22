@@ -1690,7 +1690,16 @@ main > section.card{overflow:visible!important}
     body>#side-drawer .drawer-item:hover:not(.active){background:#f5f0fc!important;color:#6535d7!important}
     body>#side-drawer .drawer-item i,body>#side-drawer .drawer-item svg{width:19px!important;height:19px!important}
   }
-  </style></head>
+  </style><style id="f4-book-mobile-nav-repair">
+@media(max-width:1023px){
+ #f4-demo-book-hamburger{display:none!important}
+ body>header:first-of-type{display:none!important}
+ body>main{padding-top:76px!important;max-width:100%!important;min-width:0!important}
+ body>#side-drawer{z-index:160!important}
+ body>#side-drawer .drawer-panel{width:min(300px,86vw)!important;max-width:86vw!important}
+ body>main .overflow-x-auto{max-width:100%!important}
+}
+</style></head>
 <body oncontextmenu="return false;"><button type="button" id="f4-demo-book-hamburger" aria-label="Buka menu Pembukuan" onclick="bukaMenu()">☰</button>
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
