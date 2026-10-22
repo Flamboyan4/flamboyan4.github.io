@@ -109,16 +109,36 @@
   return {saldo:number(r.saldoTersediaRp),totalMasuk:number(r.totalMasukRp),totalCair:number(r.totalCairRp),
    mutasi:records,setoran:records};
  }
+ const adminRows=async name=>onlyArray(await get('/api/v2/admin/bank/'+name));
+ const adminDeposits=async()=> (await adminRows('deposits')).map(x=>({
+  id:x.id,wargaId:x.member_id,namaWarga:x.memberName||'',rumahWarga:'',tanggal:x.deposited_on,
+  berat:number(x.total_grams)/1000,estimasi:number(x.estimated_total_rp),
+  status:x.status==='dibatalkan'?'Dibatalkan':x.status==='terkonfirmasi'?'Terkonfirmasi':'Estimasi',
+  batchId:x.batch_id
+ }));
+ const adminSales=async()=> (await adminRows('sales')).map(x=>({
+  id:x.id,batchId:x.batch_id,tanggal:x.sold_on,lapak:x.buyer_name||'',
+  bruto:number(x.amount_gross_rp),diterima:number(x.amount_received_rp),
+  status:x.status==='dibatalkan'?'Dibatalkan':x.status==='terkonfirmasi'?'Terkonfirmasi':'Draft'
+ }));
+ const adminBatches=async()=> (await adminRows('batches')).map(x=>({
+  id:x.id,berat:number(x.grams)/1000,jumlahSetoran:number(x.deposits),
+  estimasi:number(x.estimatedRp),status:x.status||'draft'
+ }));
  const read={
+  bsV6SetoranAdmin:adminDeposits,
+  bsV18RiwayatSetoranAdmin:adminDeposits,
+  bsV7PenjualanAdmin:adminSales,
+  bsV6BatchAdmin:adminBatches,
   bsV11PublicHome:home,
   bsV11PublicAlbums:albumList,
   bsV25LaporanPublik:report,
   bsV12Statement:memberSavings,
   bsDashboardMasterBarang:async()=>{
    const r=await get('/api/v2/admin/bank/catalog');
-   return onlyArray(r).map(item=>({kode:item.code||item.kode||item.id,
+   return onlyArray(r).map(item=>({kode:item.code||item.kode||String(item.id||'').replace(/^waste:/,''),
     nama:item.name||item.nama,kelompok:item.category||item.kelompok||'',
-    acuan:number(item.reference_price_rp??item.acuan),
+    acuan:number(item.reference_price_rp??item.acuan??number(item.priceRpPerKg)*2),
     tarif:number(item.priceRpPerKg??item.tarif),
     status:item.active===false?'Nonaktif':'Aktif'}));
   }
