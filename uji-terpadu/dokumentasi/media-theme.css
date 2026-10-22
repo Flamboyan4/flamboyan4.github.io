@@ -1,0 +1,44 @@
+/* Scoped to /uji-terpadu/dokumentasi/. Existing production site.css untouched. */
+:root,body.theme-home{
+ --accent:#6c39df;--accent-dark:#4a269b;--accent-soft:#f1eafb;
+ --bg:#f8f7fd;--ink:#201f39;--soft:#6c6880;--line:#e7e0f3;
+}
+.media-top-tabs .btn{min-height:42px}
+.media-album-cover svg,.media-photo-placeholder svg{display:block;margin:auto;flex:none}
+.media-photo-placeholder{display:grid!important;place-items:center!important;line-height:0!important;color:var(--accent)}
+.media-category-tag{background:#f2ebff;color:#4e3092}
+.media-inventory-item{background:#fff;min-height:79px}
+.media-inventory-item:hover{background:#fcfaff}
+.media-dialog-header{background:var(--accent-dark);color:#fff}
+.f4-album-head{background:#f5f0ff;border-bottom:1px solid #e6dbfb}
+.f4-album-head h2{color:#39266f}
+.f4-album-head small{color:#6e6393}
+.f4-album-footer{background:#fff}
+:is(.f4-album-close,.f4-lightbox-close,.f4-lightbox-arrow,#media-dialog-close){
+ box-sizing:border-box!important;display:grid!important;place-items:center!important;
+ padding:0!important;line-height:0!important;text-align:center!important;
+ font-size:0!important;flex-shrink:0;appearance:none;
+}
+:is(.f4-album-close,.f4-lightbox-close,#media-dialog-close){width:38px!important;height:38px!important;border-radius:50%!important}
+.f4-album-close,#media-dialog-close{color:#5838a1!important;background:#e9e1fb!important}
+.f4-album-close:hover,#media-dialog-close:hover{background:#ded3f7!important}
+.f4-lightbox-close,.f4-lightbox-arrow{color:#fff!important;background:#2e254e!important}
+.f4-lightbox-close:hover,.f4-lightbox-arrow:hover{background:#513898!important}
+.f4-lightbox-arrow{width:48px!important;height:48px!important;border-radius:50%}
+:is(.f4-album-close,.f4-lightbox-close,.f4-lightbox-arrow,#media-dialog-close) svg{
+ display:block!important;width:20px!important;height:20px!important;
+ margin:0!important;flex-shrink:0!important;position:static!important;
+ transform:none!important;pointer-events:none
+}
+.f4-video-thumb svg,.f4-play svg{display:block;margin:auto}
+.f4-video-thumb{display:grid!important;place-items:center!important;line-height:0!important}
+.f4-play{display:grid!important;place-items:center!important;padding:0!important;
+ transform:translate(-50%,-50%)!important;top:50%!important;left:50%!important;
+ width:44px!important;height:44px!important;border-radius:50%!important;background:#5530b6cc!important}
+.f4-album-tile{display:grid;place-items:center}
+.f4-lightbox-title{color:#faf9ff}
+.f4-lightbox-foot{color:#d8d1e9}
+.f4-media-original{color:#d6c7ff}
+@media(max-width:640px){.f4-lightbox-body{grid-template-columns:47px minmax(0,1fr) 47px}
+.f4-lightbox-arrow{width:35px!important;height:42px!important}
+.f4-album-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
