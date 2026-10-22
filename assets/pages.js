@@ -2,6 +2,7 @@ import {CONFIG,apiURL,sameSiteAuthAvailable} from './config.js';
 import {initPortalExtras,renderMeetingArchive,legacyBanners,legacyInventory,legacyProjects} from './portal-extras.js';
 import {renderProjectCards} from './project-cards.js';
 import {initPortalFinance} from './portal-finance.js';
+import {showTariffs,showPayers,showOutstanding,showIuranAudit,showYearPreflight,showDendaReadiness} from './bookkeeping-readonly.js';
 import {renderPortalCalendar,renderPortalInventory,renderBankProgress,renderBankAlbumPreviews} from './portal-widgets.js';
 import {api,endpoints} from './api.js';
 import {$,fmtRp,fmtNum,elem,put,boxStatus,setRows,setCards,initShell,url,renderAlbum,requireAuthMessage,updateHeader,setModuleView} from './ui.js';
@@ -351,7 +352,7 @@ async function book(){
  await loadLedger('iuran');
  function renderReadOnlyTabs(navId,contentId,tabs){
   const nav=$(navId),panel=$(contentId);if(!nav||!panel)return;
-  tabs.forEach(([label,note],i)=>{
+  tabs.forEach(([label,note,mount],i)=>{
    const button=elem('button',label,'btn outline');button.type='button';
    button.setAttribute('aria-pressed','false');
    const choose=()=>{
@@ -362,16 +363,17 @@ async function book(){
     panel.replaceChildren();
     const h=elem('h3',label);panel.append(h);
     panel.append(elem('p',note,'info-note'));
+    if(mount){Promise.resolve().then(()=>mount(panel)).catch(e=>panel.append(elem('p','Pemeriksaan D1 belum dapat dimuat: '+(e?.message||'Error'),'info-note')))}
    };
    button.onclick=choose;nav.append(button);if(i===0)choose();
   });
  }
  renderReadOnlyTabs('book-input-tabs','book-input-content',[
-  ['Input Iuran','Form asli mencakup pilihan warga, tanggal, metode pembayaran, bulan pertama, tahun, jumlah bulan, nominal, dan rincian otomatis. Form ini belum terhubung ke API transaksi.'],
+  ['Input Iuran','Pratinjau kewajiban berdasarkan tarif serta alokasi historis D1. Pembayaran baru tidak disimpan.',showOutstanding],
   ['Debit / Kredit','Form debit/kredit dari Pembukuan asli belum dipindahkan. Tidak ada jurnal baru dibuat.'],
   ['Buku Kas','Fungsi pencatatan buku kas dari aplikasi lama belum dipindahkan.'],
   ['Talangan','Form talangan dan angsurannya belum dipindahkan. Pencatatan keuangan masih dikunci.'],
-  ['Denda','Pembuatan dan pembayaran denda belum dipindahkan.'],
+  ['Denda','Pemeriksaan kesiapan Denda dan Pinjaman D1, tanpa membuat denda baru.',showDendaReadiness],
   ['Pinjaman','Form pinjaman dan angsurannya belum dipindahkan.'],
   ['Import Bulk','Impor massal masih nonaktif sampai mapping dan pemeriksaan duplikasi diuji.']
  ]);
@@ -382,13 +384,14 @@ async function book(){
   ['Denda','Laporan denda lengkap dan cetaknya belum dipindahkan.'],
   ['Talangan','Laporan talangan dan cetaknya belum dipindahkan.'],
   ['Pinjaman','Laporan pinjaman dan cetaknya belum dipindahkan.'],
-  ['Tutup Buku & Arsip','Tutup buku dan arsip tahun tetap dinonaktifkan sampai prosedur resmi serta data histori diverifikasi.']
+  ['Tutup Buku & Arsip','Pratinjau audit D1 sebelum tutup buku. Tidak membuat arsip atau mengubah saldo.',showYearPreflight],
+  ['Audit Iuran','Deteksi selisih antara pembayaran, alokasi, dan jurnal D1.',showIuranAudit]
  ]);
  renderReadOnlyTabs('book-reference-tabs','book-reference-content',[
-  ['Ringkasan','Ringkasan hunian dan tarif aktif dari sistem Pembukuan lama belum dipetakan sepenuhnya ke D1.'],
+  ['Ringkasan','Periksa integritas iuran dari D1, tanpa mengubah transaksi.',showIuranAudit],
   ['Data Rumah','Master rumah dan status hunian masih dalam proses integrasi.'],
-  ['Data Warga','Master warga dan hubungan penghuni masih dalam proses integrasi.'],
-  ['Tarif & Aturan','Tarif iuran dan aturan per warga belum dapat disunting dari pratinjau.']
+  ['Data Warga','Daftar pembayar aktif yang sudah terhubung ke pembukuan D1.',showPayers],
+  ['Tarif & Aturan','Tarif resmi yang telah dimigrasikan ke D1. Perubahan tarif tetap dinonaktifkan.',showTariffs]
  ]);
 
  try{await loadOverview();const c=await endpoints.bookkeepingCash();setRows('book-cash',['Tanggal','Jenis','Kategori','Debit','Kredit','Status'],(c.transaksi||[]).map(t=>[date(t.occurred_on),t.transaction_type||'—',t.category||'—',fmtRp(t.debit_rp),fmtRp(t.credit_rp),t.status||'—']));}catch(e){failure(e)}
