@@ -6,7 +6,12 @@
     document.body.prepend(flag);
     document.querySelectorAll('a[href]').forEach(a=>{
        const href=a.getAttribute('href')||'';
-       if(href.startsWith('/'))a.addEventListener('click',e=>{e.preventDefault();window.__f4DemoNotify('Gunakan navigasi terpadu di bagian atas untuk berpindah portal.')});
+       if(href.startsWith('/'))a.addEventListener('click',e=>{
+         e.preventDefault();
+         const p=href.toLowerCase();
+         const target=p.includes('banksampah')||p.includes('bank-sampah')?'bank-sampah':p.includes('pembukuan')?'pembukuan':'portal';
+         window.parent.postMessage({type:'f4:navigate',target},location.origin);
+       });
     });
   });
   const originalFetch=window.fetch?.bind(window);
