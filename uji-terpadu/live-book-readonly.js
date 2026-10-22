@@ -124,7 +124,7 @@
    return successful({data:r.data});
  }
  const periodLabel=p=>{
-   const value=String(p?.periodFrom||'');const match=value.match(/^(\\d{4})-(\\d{2})/);
+   const value=String(p?.periodFrom||'');const match=value.match(/^(\d{4})-(\d{2})/);
    return {tahun:match?Number(match[1]):new Date().getFullYear(),namaBulan:match?['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][Number(match[2])]||'':''};
  };
  const filtered= (items,p,key)=>{const b=dateBounds(p),st=String(p?.status||'SEMUA').toUpperCase();
