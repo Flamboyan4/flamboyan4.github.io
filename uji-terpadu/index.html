@@ -431,7 +431,7 @@ body.iframe-modal-open .framebox #gate{display:none!important}
      const doc=frame.contentWindow.document;
      const check=()=>{
        // Only intercept genuinely visible legacy dialogs, never ordinary cards/panels.
-       const nodes=doc.querySelectorAll('[id^="modal-"],[id$="-modal"],.f4-lightbox,.f4-album-overlay,[role="dialog"]');
+       const nodes=doc.querySelectorAll('[id^="modal-"],[id$="-modal"],#lightbox-modal,.f4-lightbox,.f4-album-overlay,.v21-modal,.v21-lightbox,[role="dialog"]');
        let open=false;
        for(const el of nodes){
          if(el.classList.contains('hidden')||el.hidden||el.getAttribute('aria-hidden')==='true')continue;
