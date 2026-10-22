@@ -30,6 +30,7 @@
     if(method==='GET'&&url.startsWith('https://api.flamboyan4.web.id/')){
       return originalFetch(input,{...init,credentials:'include',mode:'cors',cache:'no-store'});
     }
+    if(method==='GET' && /^https:\/\/(docs\.google\.com\/spreadsheets|lh3\.googleusercontent\.com)\//.test(url))return originalFetch(input,init);
     if(method!=='GET'){window.__f4DemoNotify('Aksi simpan diblokir: ini hanya pratinjau.');return Promise.resolve(new Response(JSON.stringify({ok:false,error:'Mode demo: tidak ada perubahan data.'}),{status:503,headers:{'content-type':'application/json'}}))}
     return Promise.resolve(new Response(JSON.stringify({ok:true,status:'success',data:[],transaksi:[],ringkasan:{},config:{},rumah:[],warga:[],riwayat:[]}),{status:200,headers:{'content-type':'application/json'}}));
   };
