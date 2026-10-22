@@ -112,6 +112,7 @@
      navItem('Tabungan Saya',()=>navigate('bank-sampah','pribadi'));
      navItem('Perkembangan',()=>navigate('bank-sampah','progress'));
    }
+   if(p==='portal')navItem('Rincian Kas & Cetak',()=>window.f4OpenFinanceReport?.());
    navItem('Pengaturan Profil',profile);
    navItem('Kembali',()=>page.hidden=true);
    heading(titles[p]+' — '+(r==='superadmin'?'Superadmin':r==='admin'?'Admin':'Akun Anggota'),
@@ -139,7 +140,7 @@
          card('Agenda portal',(portalData.agenda||[]).length,'Konten D1'),
          card('Inventaris portal',(portalData.inventory||[]).length,'Data D1')
        ]);
-       actions('Kelola konten dan data',portalTasks());
+       actions('Kelola konten dan data',[...portalTasks(),['Rincian Kas & Cetak Laporan',()=>window.f4OpenFinanceReport?.()]]);
        info('Sinkronisasi data','Portal Utama, Pembukuan, dan Bank Sampah berbagi ID rumah dan warga. Foto/video dokumentasi tetap menggunakan tautan Google Drive.');
      }else if((r==='superadmin'||r==='admin')&&p==='bank-sampah'){
        const [members,items,dep,sale]=await Promise.all([
@@ -154,6 +155,20 @@
        ]);
        actions('Menu operasional',[['Buka Dashboard Bank Sampah',()=>navigate('bank-sampah')],...(r==='superadmin'?[['Data Warga & Rumah',openWarga]]:[])]);
        info('Status transaksi','Pencatatan dan pengesahan transaksi tetap mengikuti pembatasan keamanan Worker. Ringkasan tidak menghitung transaksi dibatalkan sebagai saldo.');
+     }else if((r==='anggota'||r==='admin')&&p==='portal'){
+       const [cash,overview]=await Promise.allSettled([
+         api('/api/member/finance-report'),api('/api/public/overview')]);if(ticket!==requestId)return;
+       loading.remove();
+       const c=cash.status==='fulfilled'?cash.value:null;
+       const o=overview.status==='fulfilled'?overview.value:{};
+       columns([
+         card('Debit kas tercatat',c?money(c.totalDebitRp):'—','Kas masuk'),
+         card('Kredit kas tercatat',c?money(c.totalKreditRp):'—','Kas keluar'),
+         card('Jumlah transaksi',c?c.transaksi?.length||0:'—','Rincian laporan'),
+         card('Agenda publik',o.agendaPublik??'—','Portal Utama')
+       ]);
+       actions('Akses warga',[['Rincian Kas & Cetak Laporan',()=>window.f4OpenFinanceReport?.()],['Bank Sampah',()=>navigate('bank-sampah')]]);
+       if(!c)info('Akses rincian kas','Endpoint kas warga belum aktif pada Worker saat ini. Fungsi akan tersedia setelah paket Worker terpadu diterapkan.');
      }else if(r==='anggota'){
        const [s,pay]=await Promise.allSettled([api('/api/member/savings'),api('/api/member/payments')]);if(ticket!==requestId)return;
        loading.remove();
