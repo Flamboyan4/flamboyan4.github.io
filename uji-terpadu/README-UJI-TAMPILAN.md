@@ -76,3 +76,15 @@ Pertahankan ketiga sumber aslinya; ubah hanya pemanggilan data:
 - Pembukuan dan Bank Sampah menggunakan satu adapter kalender custom untuk input date/month. Belum dibuktikan kesetaraan sempurna dengan seluruh widget tanggal legacy.
 - Portal Utama mempunyai data Arisan dan Proyek/Progres contoh. Riwayat/keuangan tetap tidak diambil dari sumber asli; jangan jadikan contoh sebagai saldo atau data definitif.
 - Tidak ada perubahan database atau website produksi. Pemeriksaan ini tetap uji struktur, belum uji fungsional Worker/DB.
+
+## Koreksi final UI dari screenshot pengguna (22 Oktober, sore)
+
+- Referensi visual: Magnific — hanya **satu utility bar kecil** di kanan atas konten. Bar lebar dan bar kuning ganda dihapus dari preview. Tidak ada judul portal/nav kedua di atas konten.
+- Sidebar **Portal Utama** kiri berisi judul "Portal Utama / Flamboyan 4" dan menu: Beranda, Rapat, Projek, Kalender, Dokumentasi, Inventaris, Pembayaran. Menunya tampak sama dengan gambar rujukan, dengan ikon garis konsisten. Sementara Bank Sampah dan Pembukuan menggunakan sidebar asli masing-masing.
+- Toolbar kanan mini: ikon Rumah, Bank Sampah, Pembukuan, lalu Login ketika keluar / avatar bulat ketika masuk. Dropdown avatar: Akun Saya, Pengaturan Profil, Keluar.
+- Salinan Portal Utama di preview menyembunyikan header dan **hero lama** supaya konten langsung dimulai dari **banner slider ASLI**, diikuti kas, Jadwal Arisan, Proyek & Pembangunan, dokumentasi dan agenda. Dua gambar pada slider merupakan ilustrasi OFFLINE, bukan banner asli dari Sheet; sumber aslinya tetap dipertahankan pada main/index.html produksi.
+- Contoh Jadwal Arisan dan tiga kartu Proyek tetap terlihat. Adaptor CSV contoh dijalankan sesudah pustaka PapaParse, bukan sebelumnya.
+- **Rapat** menggunakan salinan HTML sumber dari GitHub main/rapat/index.html, bukan halaman baru. Isinya contoh OFFLINE.
+- Pengaturan Bank Sampah tetap mengacu role publik/warga/admin/superadmin; satu akun terpadu adalah mock frontend, bukan keamanan autentikasi nyata.
+- Kalender custom pada form data tanggal tetap ada. Semua browser popup default ditargetkan untuk diganti di pratinjau, tidak mengubah website aktif.
+- **Jangan ulangi kesalahan** membuat navbar/hero baru atau mengganti struktur asli; migrasi nantinya hanya data & backend, dengan login tunggal lintasportal.
