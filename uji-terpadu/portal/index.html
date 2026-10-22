@@ -51,14 +51,27 @@
     }
   </style>
   <!-- PATCH: Finance table readability + date-only display v4 -->
-<meta http-equiv="Content-Security-Policy" content="connect-src 'none'; form-action 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com;"><script src="../offline-common.js"></script><style id="f4-preview-portal-preserve">
+<script src="../offline-common.js"></script><style id="f4-preview-portal-preserve">
 /* Frontend sumber dipertahankan; hanya header & HERO lama dihilangkan karena
  * sekarang sidebar/menu + utility bar berasal dari shell terpadu. */
 body>header, body>section:first-of-type { display:none!important; }
 body {background:#f8f9fc!important}
 body>main {padding-top:20px!important;max-width:1250px!important}
 #banner-slider-container {border-radius:16px}
-</style><link id="f4-original-favicon" rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8"></head>
+</style><link id="f4-original-favicon" rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8"><style id="f4-public-kas-controls">
+body:not([data-preview-role]),body[data-preview-role="public"] {--f4-public-mode:1}
+body:not([data-preview-role]) #keuangan button[onclick*="openModalCetakKas"],
+body[data-preview-role="public"] #keuangan button[onclick*="openModalCetakKas"],
+body:not([data-preview-role]) #keuangan button[onclick*="openModalKeuangan"],
+body[data-preview-role="public"] #keuangan button[onclick*="openModalKeuangan"]{display:none!important}
+body:not([data-preview-role]) #keuangan [onclick*="openModalKeuangan"],
+body[data-preview-role="public"] #keuangan [onclick*="openModalKeuangan"]{cursor:default!important;pointer-events:none!important}
+body:not([data-preview-role]) #card-pemasukan,body:not([data-preview-role]) #card-pengeluaran,
+body[data-preview-role="public"] #card-pemasukan,body[data-preview-role="public"] #card-pengeluaran{cursor:default!important}
+footer#pembayaran{scroll-margin-top:70px;padding-bottom:112px!important}
+body>div.fixed.bottom-6.right-6{right:12px!important;bottom:88px!important}
+@media(max-width:640px){body>div.fixed.bottom-6.right-6{right:9px!important;bottom:104px!important;transform:scale(.82);transform-origin:bottom right}}
+</style></head>
 
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full" oncontextmenu="return false;" onkeydown="return disableInspect(event)">
 
@@ -990,7 +1003,7 @@ body>main {padding-top:20px!important;max-width:1250px!important}
   </div>
 
   <!-- FOOTER -->
-  <footer class="bg-slate-900 text-slate-400 pt-6 pb-6 border-t border-slate-800 w-full">
+  <footer id="pembayaran" class="bg-slate-900 text-slate-400 pt-6 pb-6 border-t border-slate-800 w-full">
     <div class="max-w-6xl mx-auto px-4">
       <div class="bg-slate-800/60 p-4 md:p-5 rounded-2xl border border-slate-700/80 mb-6">
         <div class="flex items-center justify-between border-b border-slate-700/60 pb-3 mb-3">
@@ -1386,7 +1399,9 @@ body>main {padding-top:20px!important;max-width:1250px!important}
     }
 let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
 
+    function f4CanReadKas(){return document.body.dataset.previewRole && document.body.dataset.previewRole!=='public'}
     function openModalKeuangan() {
+      if (!f4CanReadKas()) return;
       currentKeuanganFilterType = 'all';
       document.getElementById('modal-keuangan-title').innerText = 'Arsip Seluruh Transaksi Kas';
       document.getElementById('search-keuangan').placeholder = 'Cari transaksi...';
@@ -1396,6 +1411,7 @@ let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
     }
 
     function openModalKeuanganFiltered(filterType) {
+      if (!f4CanReadKas()) return;
       currentKeuanganFilterType = filterType;
       
       let targetMonthObj = null;
@@ -2188,6 +2204,7 @@ function salinLinkAgenda(url) {
     }
 
     function openModalCetakKas() {
+      if (!f4CanReadKas()) return;
       isiSelectBulanCetakKas();
       const now = new Date();
       let month = now.getMonth(), year = now.getFullYear();
@@ -3661,9 +3678,9 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
           applyProjectLink(card, row.link, key);
         });
 
-        // Master Sheet menjadi sumber utama: card bawaan yang tidak ada di Sheet disembunyikan.
+        // Master Sheet menjadi sumber utama; jangan sembunyikan kartu asli jika pemetaan kategori belum lengkap.
         Object.entries(knownCards).forEach(([key, card]) => {
-          if (card && !knownSeen.has(key)) card.classList.add('hidden');
+          if (card) card.classList.remove('hidden');
         });
 
         if (window.lucide) lucide.createIcons();
