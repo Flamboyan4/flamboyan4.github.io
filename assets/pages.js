@@ -97,14 +97,11 @@ async function memberBankPanel(session){
 async function bank(){
  try{
   const [r]=await Promise.all([endpoints.bank(),bankReport()]);
-  const pub=$('bank-public-inventory-table');
-  if(pub&&Array.isArray(r.inventory))setRows('bank-public-inventory-table',['Nama barang','Jumlah'],r.inventory.map(x=>[x.name||'—',fmtNum(x.quantity)+' '+(x.unit||'')]));
+  renderPortalInventory(r.inventory||[],'bank-public-inventory-table','bank-inventory-count');
     put('count-catalog',r.overview?.activeItems??r.catalog?.length??0);put('count-confirmed',r.overview?.confirmedDeposits??0);
   setRows('catalog',['Jenis Sampah','Kelompok','Tarif per Kg'],(r.catalog||[]).map(x=>[x.name,x.category||'—',x.priceRpPerKg==null?'Belum ada tarif':fmtRp(x.priceRpPerKg)]));
-  setCards('progress',(r.progress||[]).map(x=>({title:x.title,note:date(x.happened_on)+' · '+(x.stage||''),text:x.description||x.next_step||''})));
-  const albums=$('albums');albums.replaceChildren();
-  if(!r.albums?.length)albums.append(elem('p','Belum ada album dokumentasi publik.','muted'));
-  for(const a of r.albums||[]){const card=elem('article',undefined,'info-card');card.append(elem('h3',a.title));card.append(elem('p',`${date(a.event_on)} · ${a.mediaCount??0} media`,'muted'));const btn=elem('button','Lihat galeri','btn outline');btn.type='button';btn.addEventListener('click',async()=>{btn.disabled=true;try{const d=await endpoints.bankAlbum(a.id);$('album-detail').hidden=false;renderAlbum($('album-detail'),d.album,d.media);$('album-detail').scrollIntoView({block:'nearest',behavior:'smooth'})}catch(e){failure(e)}finally{btn.disabled=false}});card.append(btn);albums.append(card)}
+  renderBankProgress(r.progress||[]);
+  await renderBankAlbumPreviews(r.albums||[],endpoints.bankAlbum);
   boxStatus('Data publik Bank Sampah berhasil dimuat dari D1.','success');
  }catch(e){failure(e)}
  const form=$('bank-period-form');form.addEventListener('submit',async(ev)=>{ev.preventDefault();try{await bankReport($('bank-month').value);boxStatus('Laporan periode berhasil dimuat.','success')}catch(e){failure(e)}});

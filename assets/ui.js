@@ -31,7 +31,7 @@ const SITEMAP={
  akun:[['Profil','auth-profile','files'],['Foto Profil','avatar-form','image'],['Tabungan Saya','member-summary','wallet']]
 };
 const BANKNAV={
- public:[['Beranda','page-start','house'],['Program','bank-program','leaf'],['Perkembangan','progress','calendar'],['Dokumentasi','albums','image'],['Inventaris','bank-inventory','data'],['Laporan Publik','cash-detail','files']],
+ public:[['Beranda','page-start','house'],['Program','bank-program','leaf'],['Perkembangan','progress','calendar'],['Dokumentasi','dokumentasi/','image'],['Inventaris','dokumentasi/#inventaris','data'],['Laporan Publik','cash-detail','files']],
  anggota:[['Ringkasan','summary','house'],['Tabungan Saya','savings','wallet'],['Perkembangan','progress','calendar'],['Portal Publik','public','bank']],
  admin:[['Ringkasan','summary','house'],['Pencatatan','record','files'],['Keuangan','finance','wallet'],['Kegiatan','activities','calendar'],['Data & Anggota','members','data'],['Portal Publik','public','bank']]
 };
@@ -85,17 +85,21 @@ export function setModuleView(requested, roleOverride){
 function roleNav(s){
  const p=document.body.dataset.page,r=pageRole(s);
  const nav=$('app-sidebar-menu');if(nav){
-  nav.replaceChildren();const list=p==='book'&&r!=='superadmin'?[]:p==='bank'?BANKNAV[r==='superadmin'?'admin':r]:(p==='akun'&&r==='public'?[]:SITEMAP[p]||[]);
+  nav.replaceChildren();const isMediaPage=document.body.dataset.sectionPage==='dokumentasi'&&p==='bank';
+  const list=p==='book'&&r!=='superadmin'?[]:p==='bank'?BANKNAV[isMediaPage?'public':r==='superadmin'?'admin':r]:(p==='akun'&&r==='public'?[]:SITEMAP[p]||[]);
   list.forEach(([name,target,icon,view],index)=>{
    
    const section=document.body.dataset.sectionPage||'';
    const sectionRoot=location.pathname.startsWith('/uji-integrasi/')?'/uji-integrasi/':'/';
    const separate=p==='portal'&&(target==='rapat/'||target==='project/'||target.startsWith('dokumentasi/'));
-   const destination=separate?sectionRoot+target:p==='portal'&&section?sectionRoot+'#'+target:'#'+target;
+   const bankDocs=p==='bank'&&target.startsWith('dokumentasi/');
+   const bankLanding=p==='bank'&&document.body.dataset.sectionPage==='dokumentasi';
+   const base=sectionRoot+'bank-sampah/';
+   const destination=separate?sectionRoot+target:bankDocs?base+target:bankLanding?base+'#'+target:p==='portal'&&section?sectionRoot+'#'+target:'#'+target;
    const active=p==='portal'?(section?separate&&section===target.split('/')[0]:index===0):index===0;
    const a=shellLink(name,destination,icon,'shell-side-link'+(active?' current':''));a.append(elem('span',name));
    a.addEventListener('click',e=>{
-    const switchMode=p==='book'||(p==='bank'&&r!=='public');
+    const switchMode=p==='book'||(p==='bank'&&r!=='public'&&!bankLanding&&!bankDocs);
     if(switchMode){e.preventDefault();setModuleView(target,r);window.scrollTo({top:0,behavior:'instant'})}
     nav.querySelectorAll('.shell-side-link').forEach(item=>item.classList.remove('current'));a.classList.add('current');
     document.body.classList.remove('sidebar-open');

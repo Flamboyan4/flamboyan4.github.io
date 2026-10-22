@@ -40,7 +40,8 @@ export function renderPortalCalendar(events){
   }
   const box=$('portal-calendar-selected');if(box)box.hidden=true;
   upcoming.replaceChildren();
-  const monthRows=eventsSorted.filter(x=>x.iso>=new Date(now.getFullYear(),now.getMonth(),now.getDate()).toLocaleDateString('en-CA')||false);
+  const nowIso=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
+  const monthRows=eventsSorted.filter(x=>x.iso>=nowIso);
   const shown=monthRows.length?monthRows:eventsSorted.slice(-5);
   if(!shown.length)upcoming.append(elem('p','Belum ada kegiatan terjadwal yang tercatat.','muted'));
   shown.slice(0,8).forEach(x=>{
@@ -55,11 +56,11 @@ export function renderPortalCalendar(events){
  if(!document.getElementById('portal-calendar-selected')){const p=elem('aside',undefined,'portal-calendar-selected');p.id='portal-calendar-selected';p.hidden=true;root.after(p)}
  render();
 }
-export function renderPortalInventory(records){
- const node=$('inventory');if(!node)return;
+export function renderPortalInventory(records,targetId='inventory',countId='portal-inventory-count'){
+ const node=$(targetId);if(!node)return;
  node.replaceChildren();
  const items=Array.isArray(records)?records:[];
- const count=$('portal-inventory-count');if(count)count.textContent=items.length+' Item · Lihat Semua ↗';
+ const count=$(countId);if(count)count.textContent=items.length+' Item · Lihat Semua ↗';
  if(!items.length){node.append(elem('p','Belum ada inventaris publik yang tercatat di D1.','muted'));return}
  items.slice(0,4).forEach(x=>{
   const row=elem('div',undefined,'portal-inventory-row');
@@ -95,7 +96,7 @@ export async function renderBankAlbumPreviews(albums,detailsLoader){
    const detail=await detailsLoader(a.id);
    const media=(detail?.media||[]).find(m=>m.media_type==='foto'||m.mediaUrl);
    const src=media?.mediaUrl||media?.external_url||'';
-   if(src){const u=new URL(src,location.origin);if(['https:','http:'].includes(u.protocol)){const img=document.createElement('img');img.src=u.href;img.alt='Foto album '+short(a.title,80);img.loading='lazy';img.onerror=()=>img.remove();visual.replaceChildren(img)}}
+   if(src){const u=new URL(src,src.startsWith('/')?'https://api.flamboyan4.web.id':location.origin);if(['https:','http:'].includes(u.protocol)){const img=document.createElement('img');img.src=u.href;img.alt='Foto album '+short(a.title,80);img.loading='lazy';img.onerror=()=>img.remove();visual.replaceChildren(img)}}
   }catch{}
   const info=elem('div',undefined,'bank-album-info');
   info.append(elem('small',short(a.category||'Dokumentasi',50),'chip'));
