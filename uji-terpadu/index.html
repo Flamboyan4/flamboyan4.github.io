@@ -333,7 +333,7 @@ body.iframe-modal-open .framebox #gate{display:none!important}
  <div id="gate" class="gate" role="region" aria-label="Akses portal terbatas"><article>
   <div style="font-size:38px">🔒</div><h1>Pembukuan khusus Superadmin</h1>
   <p>Ini simulasi hak akses terpusat. Masuk dengan <b>simulasi akun Superadmin</b> melalui tombol Login di kanan atas. Semua hak akses pada halaman ini hanya contoh, bukan autentikasi sungguhan.</p>
-  <button type="button" id="gate-login">Login sebagai Superadmin (demo)</button></article></div>
+  <button type="button" id="gate-login">Login dengan akun Superadmin</button></article></div>
 </main>
 <div class="login-shade" id="login-shade" hidden role="presentation">
  <section class="login-modal" role="dialog" aria-modal="true" aria-labelledby="login-title">
@@ -629,6 +629,6 @@ body.iframe-modal-open .framebox #gate{display:none!important}
  document.addEventListener('keydown',e=>{if(e.key==='Escape'){menu.hidden=true;loginShade.hidden=true;profileShade.hidden=true}});
  refreshIdentity();
  const requested=location.hash.slice(1);selected=Object.hasOwn(apps,requested)?requested:'portal';
- refreshSession();
+ update(selected);refreshSession();
 })();
 </script></body></html>
