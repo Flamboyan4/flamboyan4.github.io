@@ -2044,6 +2044,21 @@
    if(document.body.classList.contains('v17-dashboard')){toggleMenu();return}
    v18TogglePublic();
  };
+ window.addEventListener('message',event=>{
+  if(event.origin!==location.origin||event.source!==window.parent||event.data?.type!=='f4:open-bank-admin')return;
+  const roleReady=profile?.peran==='Admin';
+  const show=()=>{
+    if(profile?.peran!=='Admin')return;
+    const section=String(event.data.section||'dashboard');
+    const allowed=new Set(['dashboard','setoran','riwayat','penjualan','riwayatJual','rekonsiliasi','pengesahan','tabungan','biaya','laporan','kegiatan','dokumentasi','inventaris','master','admin','progress']);
+    try{
+      v16BuildNav();
+      goPage(allowed.has(section)?section:'dashboard');
+    }catch(e){window.__f4DemoNotify?.('Navigasi Bank Sampah: '+e.message)}
+  };
+  if(roleReady)show();
+  else setTimeout(show,100);
+ });
  window.parent.postMessage({type:'f4:ready',portal:'bank-sampah'},location.origin);
  </script></body>
 </html>
