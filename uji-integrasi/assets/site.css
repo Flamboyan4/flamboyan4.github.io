@@ -73,3 +73,9 @@ body.theme-book{--accent:#7b39ea;--accent-dark:#4c289e;--accent-soft:#f2ebff;--b
 body.theme-book .shell-mark{background:#7b39ea}
 @media(max-width:900px){.app-workspace{width:calc(100% - 210px);max-width:calc(100% - 210px);margin-left:210px}}
 @media(max-width:720px){.app-workspace{width:100%;max-width:100%;margin-left:0}.app-body .container{padding:0 13px}}
+
+
+/* Judul panel berubah saat memilih kelompok menu; bukan navigasi ke anchor bawah. */
+.module-view-heading{font-size:clamp(23px,2.6vw,31px);font-weight:850;line-height:1.25;letter-spacing:-.028em;color:var(--accent-dark);margin:4px 0 2px}
+.app-body .page-stack [hidden]{display:none!important}
+@media(max-width:720px){.module-view-heading{font-size:25px}}
