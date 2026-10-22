@@ -150,10 +150,11 @@
    uraian:x.description||'',keterangan:x.description||'',jumlah:number(x.amount_rp),
    nominal:number(x.amount_rp),status:x.status,vendor:x.vendor||''
  }));
- const adminSavings=async()=> (await adminRows('savings')).map(x=>({
-   wargaId:String(x.member_id||'').replace(/^member:/,''),nama:x.memberName||'',
-   rumah:x.houseCode||'',status:'Aktif',saldo:number(x.balanceRp),saldoRp:number(x.balanceRp)
- }));
+ const adminSavings=async()=>{
+   const [members,balances]=await Promise.all([adminMembers(),adminRows('savings')]);
+   const byId=new Map(balances.map(x=>[String(x.member_id||'').replace(/^member:/,''),number(x.balanceRp)]));
+   return members.map(m=>({...m,saldo:byId.get(m.wargaId)||0,saldoRp:byId.get(m.wargaId)||0}));
+ };
  const adminCash=async()=> (await adminRows('cash')).map(x=>({
    id:x.id,tanggal:x.occurred_on,jenis:x.transaction_type,pos:x.fund_position,
    masuk:number(x.cash_in_rp),keluar:number(x.cash_out_rp),status:x.status,keterangan:x.note||''
@@ -162,6 +163,51 @@
    id:x.id,albumId:x.id,judul:x.title,tanggal:x.event_on,deskripsi:x.description||'',
    kategori:x.category,publik:x.visibility==='publik',status:x.status
  }));
+ const adminCashOverview=async(_token,period='')=>{
+  const all=await adminCash();
+  const month=String(period||'').match(/^\\d{4}-\\d{2}$/)?.[0]||'';
+  const eligible=all.filter(x=>x.status==='aktif');
+  const rows=eligible.filter(x=>!month||String(x.tanggal).startsWith(month));
+  const grouped=new Map();
+  for(const x of rows){
+   const key=String(x.tanggal||'').slice(0,7);
+   const item=grouped.get(key)||{periode:key,masuk:0,keluar:0};
+   item.masuk+=x.masuk;item.keluar+=x.keluar;grouped.set(key,item);
+  }
+  return {kasTercatat:eligible.reduce((n,x)=>n+x.masuk-x.keluar,0),
+   masukPeriode:rows.reduce((n,x)=>n+x.masuk,0),keluarPeriode:rows.reduce((n,x)=>n+x.keluar,0),
+   selisihPeriode:rows.reduce((n,x)=>n+x.masuk-x.keluar,0),
+   bulanan:[...grouped.values()].sort((a,b)=>a.periode.localeCompare(b.periode)),
+   rincian:rows.map(x=>({...x,jenis:x.keterangan||x.jenis})),
+   transaksi:rows.length,periode:month||'semua',catatan:'Arus kas dari D1, bukan saldo akhir tersahkan'};
+ };
+ const adminReport=async(_token,period='',includeCanceled=false)=>{
+  const [deposits,sales,expenses,cash]=await Promise.all([
+    adminDeposits(),adminSales(),adminExpenses(),adminCash()]);
+  const month=String(period||'').match(/^\\d{4}-\\d{2}$/)?.[0]||'';
+  const scope=rows=>rows.filter(x=>!month||String(x.tanggal||'').startsWith(month));
+  // Status estimasi/draft tetap boleh terlihat pada riwayat, tetapi BUKAN transaksi sah.
+  const depositRows=scope(deposits).filter(x=>includeCanceled||x.status!=='Dibatalkan');
+  const saleRows=scope(sales).filter(x=>includeCanceled||x.status!=='Dibatalkan');
+  const confirmedDeposits=depositRows.filter(x=>x.status==='Terkonfirmasi');
+  const confirmedSales=saleRows.filter(x=>x.status==='Terkonfirmasi');
+  const expenseRows=scope(expenses).filter(x=>includeCanceled||x.status!=='dibatalkan');
+  const paidExpenses=expenseRows.filter(x=>x.status==='lunas');
+  const activeCash=cash.filter(x=>x.status==='aktif');
+  return {
+    periode:month||'semua',
+    ringkasan:{jumlahSetoran:confirmedDeposits.length,jumlahPenjualan:confirmedSales.length,
+     estimasi:confirmedDeposits.reduce((n,x)=>n+x.estimasi,0),
+     diterima:confirmedSales.reduce((n,x)=>n+x.diterima,0),
+     hakWargaDikredit:0,tabunganDicairkan:0,
+     biaya:paidExpenses.reduce((n,x)=>n+x.nominal,0),
+     saldoKasKini:activeCash.reduce((n,x)=>n+x.masuk-x.keluar,0)},
+    setoran:depositRows.map(x=>({id:x.id,tanggal:x.tanggal,warga:x.wargaId,berat:x.berat,nilai:x.estimasi,status:x.status})),
+    penjualan:saleRows.map(x=>({id:x.id,tanggal:x.tanggal,batch:x.batchId,lapak:x.lapak,bruto:x.bruto,diterima:x.diterima,disahkan:x.status==='Terkonfirmasi',status:x.status})),
+    pengeluaran:expenseRows.map(x=>({id:x.id,tanggal:x.tanggal,jenis:x.jenis,keterangan:x.keterangan,pos:x.pos,nominal:x.nominal,status:x.status})),
+    mutasi:[]
+  };
+ };
  const read={
   authAdminAccounts:adminMembers,
   bsDashboardProgressPublik:adminProgress,
@@ -169,6 +215,8 @@
   bsV9SaldoAdmin:adminSavings,
   bsV22AlbumAdmin:adminAlbums,
   bsDashboardAdmin:adminOverview,
+  bsV17RingkasanKasAdmin:adminCashOverview,
+  bsV10LaporanAdmin:adminReport,
   bsV9StatusKasAdmin:async()=>{
    const cash=await adminCash();return {saldoKasTercatat:cash.reduce((n,x)=>n+x.masuk-x.keluar,0),batchBelumDiposting:[],kasGabungan:cash.reduce((n,x)=>n+x.masuk-x.keluar,0)};
   },
