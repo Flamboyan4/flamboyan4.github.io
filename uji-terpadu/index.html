@@ -430,6 +430,7 @@ body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
     <button type="button" role="menuitem" data-account-action="my">Akun Saya</button>
     <button type="button" role="menuitem" data-account-action="settings">Pengaturan Profil</button>
     <button type="button" role="menuitem" data-account-action="warga" id="f4-warga-menu" hidden>Data Warga & Rumah</button>
+    <button type="button" role="menuitem" data-account-action="bank-admin" id="f4-bank-admin-menu" hidden>Kelola Bank Sampah</button>
     <button type="button" role="menuitem" data-account-action="logout">Keluar</button>
    </div>
   </div>
@@ -528,6 +529,7 @@ body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
   if(bookkeepingButton){bookkeepingButton.hidden=role!=='superadmin';bookkeepingButton.setAttribute('aria-hidden',String(role!=='superadmin'));}
   login.hidden=signed;avatar.hidden=!signed;menu.hidden=true;avatar.setAttribute('aria-expanded','false');
   document.getElementById('f4-warga-menu').hidden=role!=='superadmin';
+  document.getElementById('f4-bank-admin-menu').hidden=!['superadmin','admin'].includes(role);
   if(signed){
    document.getElementById('account-name').textContent=activeAccount?.member?.nama||activeAccount?.account?.username||'Akun aktif';
    document.getElementById('account-role').textContent=roleLabel[role];
@@ -713,6 +715,7 @@ body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
   const action=b.dataset.accountAction;menu.hidden=true;avatar.setAttribute('aria-expanded','false');
   if(action==='logout'){signOut();return}
   if(action==='warga'){openWarga();return}
+  if(action==='bank-admin'){window.f4OpenBankAdmin?.('dashboard');return}
   if(action==='my'){openAccountPage();return}
   openProfileSettings(action==='settings');
  });
@@ -937,4 +940,25 @@ body.book-mode #profile-shade .login-confirm{background:#7c3aed!important}
 </style>
 <script src="./resident-editor.js?v=20261023-v1"></script>
 <script src="./finance-workspace.js?v=20261023-v1"></script>
-</body></html>
+<script id="f4-bank-admin-routing">
+(()=>{
+ const frame=document.getElementById('appframe');
+ let wanted=null;
+ window.f4OpenBankAdmin=section=>{
+  if(!document.body.classList.contains('role-superadmin')&&!document.body.classList.contains('role-admin'))return;
+  wanted=section||'dashboard';
+  document.getElementById('f4-account-page').hidden=true;
+  document.getElementById('f4-warga-panel').hidden=true;
+  document.querySelector('nav [data-target="bank-sampah"]')?.click();
+  // Same-origin iframe: request the original Bank Sampah admin layout only.
+  requestAnimationFrame(()=>{
+   frame.contentWindow?.postMessage({type:'f4:open-bank-admin',section:wanted},location.origin);
+  });
+ };
+ window.addEventListener('message',e=>{
+  if(e.origin!==location.origin||e.source!==frame.contentWindow||e.data?.type!=='f4:ready'||e.data?.portal!=='bank-sampah'||!wanted)return;
+  const section=wanted;wanted=null;
+  frame.contentWindow.postMessage({type:'f4:open-bank-admin',section},location.origin);
+ });
+})();
+</script></body></html>
