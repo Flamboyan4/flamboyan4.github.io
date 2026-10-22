@@ -917,7 +917,7 @@ body.book-mode #f4-account-page{background:#fff8f0}body.book-mode #f4-account-pa
  document.getElementById('f4-account-page-home').onclick=()=>window.openAccountPage();
 })();
 </script><script src="./account-workspace.js?v=20261023-bank-v1"></script>
-<script src="./superadmin-editor.js?v=20261023-v2"></script>
+<script src="./superadmin-editor.js?v=20261023-menu-v3"></script>
 <style id="f4-account-theme-final-20261023">
 /* Mengunci tema ke warna asli HTML Pembukuan (ungu), bukan oranye. */
 body.book-mode #f4-account-page:not([hidden]){background:#fbfaff!important}
@@ -967,6 +967,10 @@ body.book-mode #profile-shade .login-confirm{background:#7c3aed!important}
 body.f4-manage-portal{--work-bg:#f5f6fc;--work-accent:#423f91;--work-tint:#e9e9fa;--work-line:#dedff1;--work-text:#282b51}
 body.f4-manage-book{--work-bg:#fbfaff;--work-accent:#7c3aed;--work-tint:#f2ebff;--work-line:#e8dcff;--work-text:#2d1c51}
 body.f4-manage-bank{--work-bg:#f2f7f1;--work-accent:#2e6247;--work-tint:#e3f0e4;--work-line:#d8e8db;--work-text:#253a2e}
+body.f4-manage-portal #f4-account-page:not([hidden]),body.f4-manage-book #f4-account-page:not([hidden]){background:var(--work-bg)!important}
+body.f4-manage-portal #f4-account-page aside strong,body.f4-manage-portal #f4-account-page .f4-work-brand,body.f4-manage-book #f4-account-page aside strong,body.f4-manage-book #f4-account-page .f4-work-brand{color:var(--work-accent)!important}
+body.f4-manage-portal #f4-account-page aside button.active,body.f4-manage-book #f4-account-page aside button.active{color:var(--work-accent)!important;background:var(--work-tint)!important}
+
 body.f4-manage-book #f4-account-page:not([hidden]),body.f4-manage-book #f4-warga-panel:not([hidden]){background:var(--work-bg)!important}
 body.f4-manage-book #f4-warga-panel>section{background:var(--work-bg)!important}
 body.f4-manage-book #f4-warga-panel .f4-warga-sidebar strong,body.f4-manage-book #f4-account-page aside strong{color:var(--work-accent)!important}
@@ -982,5 +986,5 @@ body.f4-manage-book #f4-warga-panel .f4-warga-sidebar button.active,body.f4-mana
 .f4-password-section h3{font:750 16px system-ui;margin:5px 0 12px;color:var(--work-accent)}
 .f4-password-feedback{font:500 12px system-ui;color:var(--work-accent);margin:8px 0}
 </style>
-<script src="./management-hub.js?v=20261023-v1"></script>
+<script src="./management-hub.js?v=20261023-menu-v3"></script>
 </body></html>
