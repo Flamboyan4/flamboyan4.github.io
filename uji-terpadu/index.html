@@ -427,7 +427,7 @@ body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
    </button>
    <div class="account-menu" role="menu" id="account-menu" hidden>
     <div class="account-summary"><b id="account-name">Akun Contoh</b><small id="account-role">Warga</small></div>
-    <button type="button" role="menuitem" data-account-action="my">Akun Saya</button>
+    <button type="button" role="menuitem" data-account-action="manage" id="f4-management-menu" hidden>Pengelolaan</button>
     <button type="button" role="menuitem" data-account-action="settings">Pengaturan Profil</button>
     <button type="button" role="menuitem" data-account-action="warga" id="f4-warga-menu" hidden>Data Warga & Rumah</button>
     <button type="button" role="menuitem" data-account-action="bank-admin" id="f4-bank-admin-menu" hidden>Kelola Bank Sampah</button>
@@ -528,8 +528,9 @@ body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
   const bookkeepingButton=buttons.find(b=>b.dataset.target==='pembukuan');
   if(bookkeepingButton){bookkeepingButton.hidden=role!=='superadmin';bookkeepingButton.setAttribute('aria-hidden',String(role!=='superadmin'));}
   login.hidden=signed;avatar.hidden=!signed;menu.hidden=true;avatar.setAttribute('aria-expanded','false');
-  document.getElementById('f4-warga-menu').hidden=role!=='superadmin';
-  document.getElementById('f4-bank-admin-menu').hidden=!['superadmin','admin'].includes(role);
+  document.getElementById('f4-warga-menu').hidden=true;
+  document.getElementById('f4-management-menu').hidden=role!=='superadmin';
+  document.getElementById('f4-bank-admin-menu').hidden=role!=='admin';
   if(signed){
    document.getElementById('account-name').textContent=activeAccount?.member?.nama||activeAccount?.account?.username||'Akun aktif';
    document.getElementById('account-role').textContent=roleLabel[role];
@@ -716,7 +717,7 @@ body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
   if(action==='logout'){signOut();return}
   if(action==='warga'){openWarga();return}
   if(action==='bank-admin'){window.f4OpenBankAdmin?.('dashboard');return}
-  if(action==='my'){openAccountPage();return}
+  if(action==='manage'){window.openManagementHub?.();return}
   openProfileSettings(action==='settings');
  });
  const mobileMenu=document.getElementById('f4-mobile-menu');
@@ -961,4 +962,25 @@ body.book-mode #profile-shade .login-confirm{background:#7c3aed!important}
   frame.contentWindow.postMessage({type:'f4:open-bank-admin',section},location.origin);
  });
 })();
-</script></body></html>
+</script><style id="f4-four-management-menu-theme">
+/* Tema setiap kelompok pengelolaan mengikuti portal asli. */
+body.f4-manage-portal{--work-bg:#f5f6fc;--work-accent:#423f91;--work-tint:#e9e9fa;--work-line:#dedff1;--work-text:#282b51}
+body.f4-manage-book{--work-bg:#fbfaff;--work-accent:#7c3aed;--work-tint:#f2ebff;--work-line:#e8dcff;--work-text:#2d1c51}
+body.f4-manage-bank{--work-bg:#f2f7f1;--work-accent:#2e6247;--work-tint:#e3f0e4;--work-line:#d8e8db;--work-text:#253a2e}
+body.f4-manage-book #f4-account-page:not([hidden]),body.f4-manage-book #f4-warga-panel:not([hidden]){background:var(--work-bg)!important}
+body.f4-manage-book #f4-warga-panel>section{background:var(--work-bg)!important}
+body.f4-manage-book #f4-warga-panel .f4-warga-sidebar strong,body.f4-manage-book #f4-account-page aside strong{color:var(--work-accent)!important}
+body.f4-manage-book #f4-warga-panel .f4-warga-sidebar button.active,body.f4-manage-book #f4-account-page aside button.active{background:var(--work-tint)!important;color:var(--work-accent)!important}
+#f4-account-page aside button.f4-manage-item{font:650 13px system-ui!important}
+#f4-account-page .f4-work-heading{grid-template-columns:minmax(0,1fr)!important}
+#f4-account-page .f4-work-heading h2,#f4-account-page .f4-work-heading p{grid-column:1!important}
+#f4-password-form label{display:block;margin:10px 0;font:600 13px system-ui;color:var(--work-text)}
+#f4-password-form input{display:block;width:100%;min-height:42px;margin-top:5px;padding:9px 12px;border:1px solid var(--work-line);border-radius:9px;font:inherit}
+#f4-password-form button{background:var(--work-accent)!important;color:white!important;padding:12px;border-radius:9px;margin-top:9px;width:100%;border:0;cursor:pointer}
+#f4-password-form button:disabled{opacity:.5}
+.f4-password-section{margin-top:20px;padding-top:12px;border-top:1px solid var(--work-line)}
+.f4-password-section h3{font:750 16px system-ui;margin:5px 0 12px;color:var(--work-accent)}
+.f4-password-feedback{font:500 12px system-ui;color:var(--work-accent);margin:8px 0}
+</style>
+<script src="./management-hub.js?v=20261023-v1"></script>
+</body></html>
