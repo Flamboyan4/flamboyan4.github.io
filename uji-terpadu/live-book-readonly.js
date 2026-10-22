@@ -51,7 +51,7 @@
  async function history(){
   const r=await read('/api/bookkeeping/iuran/history?limit=1000');
   return successful({data:rows(r).map((x,i)=>({
-   tanggal:x.tanggal||x.paid_on||'',nama:x.nama||'',idWarga:x.idWarga||x.payerId||'',
+   tanggal:x.tanggal||x.paid_on||'',tanggalIso:x.tanggal||x.paid_on||'',nama:x.nama||'',idWarga:x.idWarga||x.payerId||'',
    blok:x.blok||'',noRumah:x.noRumah||'',idRumah:x.household_id||'',
    idPembayaran:x.idPembayaran||x.id||'D1-'+(i+1),
    totalDiterima:n(x.totalDiterima??x.amount_rp),metode:x.metode||x.payment_method||'',
@@ -98,6 +98,15 @@
    if(q.bulan&&q.tahun){const y=Number(q.tahun),m=Number(q.bulan);if(y>=2000&&m>=1&&m<=12){from=y+'-'+String(m).padStart(2,'0')+'-01';to=y+'-'+String(m).padStart(2,'0')+'-'+String(new Date(y,m,0).getDate()).padStart(2,'0')}}
    return {from:/^\\d{4}-\\d{2}-\\d{2}$/.test(from)?from:'',to:/^\\d{4}-\\d{2}-\\d{2}$/.test(to)?to:''};
  };
+ async function correctMigratedDate(p){
+  const id=String(p.idPembayaran||''),tanggal=String(p.tanggalBaru||'');
+  if(!id||!/^\\d{4}-\\d{2}-\\d{2}$/.test(tanggal))throw Error('ID atau tanggal tidak valid.');
+  const response=await fetch(API+'/api/bookkeeping/iuran/correct-date',{method:'POST',credentials:'include',
+    headers:{'Content-Type':'application/json'},body:JSON.stringify({idPembayaran:id,tanggalBaru:tanggal,alasan:'Koreksi tanggal pembayaran migrasi oleh Superadmin'})});
+  const result=await response.json().catch(()=>({error:'Respons tidak valid'}));
+  if(!response.ok||result.ok===false)throw Error(result.error||'HTTP '+response.status);
+  return successful({message:result.message||'Tanggal pembayaran dikoreksi, audit tersimpan.'});
+ }
  async function quickSummary(p){
    const b=dateBounds(p),q=new URLSearchParams();if(b.from)q.set('from',b.from);if(b.to)q.set('to',b.to);
    const r=await read('/api/bookkeeping/iuran/quick-summary?'+q);
@@ -111,6 +120,7 @@
  const exact={
   bootstrap,riwayatpembayaran:history,datatransaksikas:cash,
   iuranquicksummary:quickSummary,laporankas:cashReport,
+  koreksitanggalmigrasi:correctMigratedDate,
   datadenda:fines,datapinjaman:loans,datatalangan:advances
  };
  window.__f4BookDemoCall=async params=>{
