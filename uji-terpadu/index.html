@@ -334,6 +334,14 @@ body.iframe-modal-open .framebox #gate{display:none!important}
  body.bank-mode .avatar-button,body.book-mode .avatar-button{width:39px!important;height:39px!important}
  body.bank-mode .avatar-face,body.book-mode .avatar-face{width:35px!important;height:35px!important}
 }
+</style><style id="f4-mobile-nav-verified-20261022">
+@media(max-width:1023px){
+ #f4-mobile-menu{display:grid!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important}
+ body.portal-mode #f4-mobile-menu{display:grid!important}
+ body.bank-mode #f4-mobile-menu{display:grid!important;background:#e1efe4!important;color:#206442!important}
+ body.book-mode #f4-mobile-menu{display:grid!important;background:#efe7ff!important;color:#6731bb!important}
+ .shell .top{padding-left:56px!important}
+}
 </style></head>
 <body>
 <header class="shell">
@@ -374,7 +382,7 @@ body.iframe-modal-open .framebox #gate{display:none!important}
  </div>
 </header>
 <div class="notice"><strong>PRATINJAU STRUKTUR SAJA.</strong> Desain dan menu berasal dari aplikasi asli; login, data, pembayaran, simpan, hapus, dan pengesahan tidak terhubung ke database.</div>
-<button type="button" id="f4-mobile-menu" aria-label="Buka menu halaman" aria-expanded="false" aria-controls="portal-sidebar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><div id="f4-mobile-overlay" aria-hidden="true"></div><aside class="portal-sidebar" id="portal-sidebar" aria-label="Menu Portal Utama">
+<button type="button" id="f4-mobile-menu" title="Menu Flamboyan 4" aria-label="Buka menu halaman" aria-expanded="false" aria-controls="portal-sidebar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><div id="f4-mobile-overlay" aria-hidden="true"></div><aside class="portal-sidebar" id="portal-sidebar" aria-label="Menu Portal Utama">
  <div class="portal-brand"><div class="portal-logo f4-brand-image"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"></div><div><strong>Portal Utama</strong><small>Flamboyan 4</small></div></div>
  <div class="portal-divider"></div>
  <nav class="portal-menu" aria-label="Halaman Portal Utama">
@@ -652,14 +660,15 @@ body.iframe-modal-open .framebox #gate{display:none!important}
   openProfileSettings(action==='settings');
  });
  const mobileMenu=document.getElementById('f4-mobile-menu');
+ mobileMenu.dataset.build='mobile-nav-20261022-v3';
  const mobileOverlay=document.getElementById('f4-mobile-overlay');
  function setMobileMenu(open){document.body.classList.toggle('f4-menu-open',open);mobileMenu.setAttribute('aria-expanded',String(open));mobileMenu.setAttribute('aria-label',open?'Tutup menu halaman':'Buka menu halaman')}
  mobileMenu.addEventListener('click',()=>{
   if(document.body.classList.contains('portal-mode')){setMobileMenu(!document.body.classList.contains('f4-menu-open'));return}
   try{
     const child=frame.contentWindow;
-    if(selected==='bank-sampah'){child.v18TogglePublic?.();return}
-    if(selected==='pembukuan'){child.bukaMenu?.();return}
+    if(selected==='bank-sampah'){if(typeof child.v18TogglePublic==='function')child.v18TogglePublic();else child.document.getElementById('v18PublicSide')?.classList.toggle('open');return}
+    if(selected==='pembukuan'){if(typeof child.bukaMenu==='function')child.bukaMenu();else child.document.getElementById('side-drawer')?.classList.add('open');return}
   }catch(e){notify('Menu belum tersedia, silakan muat ulang halaman')}
 });
  mobileOverlay.addEventListener('click',()=>setMobileMenu(false));
