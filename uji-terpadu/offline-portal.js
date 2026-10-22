@@ -137,33 +137,31 @@
      "STATUS": "Belum"
    }
  ];
- const projectCSV=[
-  'Urutan,Nama Projek,Jenis,Status,Tampil,Link',
-  '1,Bank Sampah Lorong,Bank Sampah,Aktif,YA,',
-  '2,Gapura,Gapura,Penggalangan Dana,YA,',
-  '3,Pemesanan Jersey,Jersey,Tahap DP,YA,'
- ].join('\n');
+ // Urutan/status projek yang benar dari tab Project Card.
+ const projectCSV="Urutan,Nama Projek,Jenis,Status,Tampil,Link\n1,Bank Sampah Lorong,banksampah,Aktif,YA,/banksampah/\n2,Gapura,gapura,Penggalangan Dana,YA,\n3,Pemesanan Jersey,jersey,Tahap DP,YA,";
  const progresCSV=[
   'Tanggal,Langkah,Judul,Deskripsi,Status,Tahap Detail,Agenda Berikut,Foto',
   '11 Oktober 2026,Langkah 1,Pembersihan & Persiapan Drop Point,Pengelolaan sampah anorganik terpilah untuk kas tambahan warga.,Selesai,Pembersihan lokasi,Pembuatan wadah,',
   '21 Oktober 2026,Langkah 2,Pembuatan Wadah Drop Point,Membuat tempat untuk menampung sampah sebelum ditimbang.,Proses,Pembuatan wadah,Membuat mekanisme dan administrasi,'
  ].join('\n');
 
- const bannerSvg=(title,subtitle,start,end)=>'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="500" viewBox="0 0 1600 500">'
-  +'<defs><linearGradient id="g"><stop stop-color="'+start+'"/><stop offset="1" stop-color="'+end+'"/></linearGradient></defs>'
-  +'<rect width="1600" height="500" fill="url(#g)"/><circle cx="1360" cy="125" r="285" fill="#fff" opacity=".09"/>'
-  +'<circle cx="1540" cy="435" r="230" fill="#fff" opacity=".10"/>'
-  +'<path d="M940 420 Q1200 200 1640 360" fill="none" stroke="#fff" stroke-width="22" opacity=".10"/>'
-  +'<text x="105" y="116" font-family="Arial,sans-serif" font-size="23" fill="#efe9ff" font-weight="700">FLAMBOYAN 4 · BANNER CONTOH</text>'
-  +'<text x="105" y="237" font-family="Arial,sans-serif" font-size="61" fill="#ffffff" font-weight="800">'+title+'</text>'
-  +'<text x="107" y="295" font-family="Arial,sans-serif" font-size="29" fill="#f0ecff">'+subtitle+'</text>'
-  +'<rect x="107" y="357" rx="18" width="255" height="50" fill="#ffffff" opacity=".18"/>'
-  +'<text x="134" y="391" font-family="Arial,sans-serif" font-size="21" fill="#fff" font-weight="700">PRATINJAU OFFLINE</text>'
-  +'</svg>');
+ // Snapshot judul/foto/link dari 3 banner asli (bukan ilustrasi), tanpa query database runtime.
  const bannerRows=[
-   {'Urutan':'1','Link Foto':bannerSvg('Portal Warga Flamboyan 4','Informasi, kegiatan dan transparansi warga','#4d45b3','#8871d6'),'Link Tujuan':'#projek'},
-   {'Urutan':'2','Link Foto':bannerSvg('Kegiatan dan Gotong Royong','Bersama membangun lingkungan Flamboyan 4','#225c83','#55aabb'),'Link Tujuan':'#kegiatan'}
+   {
+     "Judul Banner": "Iklan Gapura",
+     "Link Foto / Drive": "https://drive.google.com/file/d/1B6TIRYqGoNFN7tr78e-yhssvDK71cRRZ/view?usp=sharing",
+     "Link Tujuan (Target)": "#gapura"
+   },
+   {
+     "Judul Banner": "Iklan Jersey",
+     "Link Foto / Drive": "https://drive.google.com/file/d/1nOxXTLBEFCCYFD_t29ldzIDxpeJFWlZm/view?usp=sharing",
+     "Link Tujuan (Target)": "#jersey"
+   },
+   {
+     "Judul Banner": "Iklan Bank Sampah",
+     "Link Foto / Drive": "https://drive.google.com/file/d/1DoYOS0C1Evu43mwJEnpohcos-Kj0a0-L/view?usp=sharing",
+     "Link Tujuan (Target)": "https://flamboyan4.web.id/banksampah.html"
+   }
  ];
  const baseFetch=window.fetch.bind(window);
  window.fetch=(input,init)=>{
