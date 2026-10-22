@@ -30,6 +30,10 @@ window.openManagementHub=()=>{
  intro.append(make('p','Semua pengelolaan memakai akun Superadmin dan sumber data Cloudflare D1. Konten foto/video tetap tersimpan di Google Drive.'));
  main.append(intro);
 };
+window.addEventListener('message',event=>{
+ if(event.origin!==location.origin||event.source!==$('appframe')?.contentWindow||event.data?.type!=='f4:manage-home')return;
+ if(superadmin())window.openManagementHub();
+});
 window.openAccountPage=()=>{
  if(superadmin())window.openManagementHub();
  else if(document.body.classList.contains('role-admin'))window.f4OpenBankAdmin?.('dashboard');
