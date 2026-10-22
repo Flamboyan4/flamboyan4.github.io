@@ -13,12 +13,25 @@ export function renderPortalCalendar(events){
   isWork:/gorol|kerja bakti|bersih/i.test(String(x.title||'')),isArisan:/arisan/i.test(String(x.title||''))
  }));
  const now=new Date(),current={y:now.getFullYear(),m:now.getMonth()},title=$('portal-calendar-title'),upcoming=$('portal-upcoming');
- const sorted=list.slice().sort((a,b)=>a.iso.localeCompare(b.iso));
+ const todayISO=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
+ const statusRank=a=>{
+   const status=String(a.status||a.event_status||a.state||'').toLowerCase().trim();
+   if(/selesai|completed?|finished|done|batal|cancel/.test(status))return 3;
+   if(/berjalan|progress|proses|aktif|ongoing|in.progress/.test(status))return 0;
+   if(/rencana|planned?|upcoming|pending|akan/.test(status))return 1;
+   return a.iso>=todayISO?1:2;
+ };
+ const sorted=list.slice().sort((a,b)=>{
+   const x=statusRank(a),y=statusRank(b);
+   if(x!==y)return x-y;
+   // Berjalan/selesai = terbaru lebih atas; rencana = yang terdekat lebih atas.
+   return x===1?a.iso.localeCompare(b.iso):b.iso.localeCompare(a.iso);
+ });
  let dlg=$('f4-agenda-dialog');
  if(!dlg){
   dlg=elem('dialog',undefined,'f4-agenda-dialog');dlg.id='f4-agenda-dialog';
   dlg.innerHTML='<div class="f4-agenda-head"><h2 id="f4-agenda-title">Agenda Warga</h2><button type="button" id="f4-agenda-close" aria-label="Tutup">×</button></div><div class="f4-agenda-share"><span>Bagikan agenda ini kepada warga</span><button type="button" id="f4-agenda-copy">Salin Link Agenda</button></div><div id="f4-agenda-items" class="f4-agenda-items"></div>';
-  document.body.append(dlg);$('f4-agenda-close').onclick=()=>dlg.close();dlg.onclick=e=>{if(e.target===dlg)dlg.close()};
+  document.body.append(dlg);$('f4-agenda-close').innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" aria-hidden="true"><path d="M5 5 19 19M19 5 5 19"/></svg>';$('f4-agenda-close').onclick=()=>dlg.close();dlg.onclick=e=>{if(e.target===dlg)dlg.close()};
  }
  function openDay(iso){
   const records=list.filter(x=>x.iso===iso);if(!records.length)return;
@@ -53,14 +66,14 @@ export function renderPortalCalendar(events){
    }root.append(cell);
   }
   upcoming.replaceChildren();
-  const today=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
-  const future=sorted.filter(x=>x.iso>=today),shown=future.length?future:sorted.slice(-7);
+  const shown=sorted;
   if(!shown.length)upcoming.append(elem('p','Belum ada kegiatan terjadwal.','muted'));
-  shown.slice(0,8).forEach(x=>{
+  shown.forEach(x=>{
    const card=elem('button',undefined,'portal-agenda-item');card.type='button';card.append(elem('small',x.iso,'portal-agenda-date'),elem('strong',x.title));
    if(x.description)card.append(elem('p',x.description,'muted'));card.onclick=()=>openDay(x.iso);upcoming.append(card);
   });
  }
+ $('portal-prev-month').innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg>';$('portal-next-month').innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>';
  $('portal-prev-month').onclick=()=>{current.m--;if(current.m<0){current.y--;current.m=11}render()};
  $('portal-next-month').onclick=()=>{current.m++;if(current.m>11){current.y++;current.m=0}render()};
  $('portal-current-month').onclick=()=>{current.y=now.getFullYear();current.m=now.getMonth();render()};

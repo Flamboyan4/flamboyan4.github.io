@@ -319,3 +319,78 @@ body.theme-home .portal-floating-actions #portal-suggestion-open{background:#554
 .portal-agenda-item{cursor:pointer;width:100%;text-align:left;color:var(--ink);font:inherit}
 @media(max-width:780px){.f4-album-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.f4-album-tile{height:130px}}
 @media(max-width:530px){.f4-album-grid{padding:8px;gap:8px}.f4-lightbox-body{grid-template-columns:40px 1fr 40px}.f4-lightbox-arrow{width:34px;height:34px;font-size:20px}}
+
+
+/* Refinement: semua kontrol navigasi & close memiliki pusat visual/klik sama */
+.f4-lightbox-close,.f4-lightbox-arrow,.f4-album-close,.f4-agenda-head button,
+#portal-suggestion-close,#portal-rapat-close,.portal-month-controls button,
+.banner-arrow,.portal-preview-controls button,.portal-finance-dialog-head button,
+#media-dialog-close,.portal-floating-actions button{
+ display:inline-grid!important;place-items:center!important;
+ align-items:center!important;justify-items:center!important;
+ text-align:center;line-height:1!important;
+ padding:0!important;text-indent:0!important;
+ font-family:Arial,system-ui,sans-serif;
+ flex-shrink:0;
+}
+.portal-month-controls button{min-width:34px;height:34px}
+#portal-current-month{width:auto;min-width:75px;padding:0 9px!important}
+.f4-lightbox-close{position:relative}
+.f4-lightbox-view{display:grid;place-items:center;min-height:0;min-width:0}
+.f4-lightbox-view img{display:block;margin:auto;max-height:100%;max-width:100%;object-fit:contain}
+.f4-lightbox-body{min-width:0}
+.f4-media-frame{max-height:100%}
+.portal-upcoming-list{height:370px;max-height:370px;overflow-y:auto;align-content:start}
+.portal-calendar-layout{align-items:start}
+.portal-agenda-item{min-width:0}
+.portal-media-preview{display:flex;flex-direction:column;min-height:395px}
+#portal-documentation{flex:1;display:flex;min-height:0}
+.portal-album-feature{flex:1;min-height:310px;height:100%;display:block;position:relative}
+.portal-preview-visual{position:absolute;inset:0;background:linear-gradient(135deg,#315e67,#281c70)}
+.portal-preview-visual img{width:100%;height:100%;object-fit:cover;display:block}
+.portal-album-feature::before{z-index:1}
+.portal-album-feature-text{z-index:2;position:absolute;bottom:0;left:0;right:0;padding:30px 18px 24px;
+ background:linear-gradient(0deg,rgba(4,12,30,.92),rgba(5,15,34,.26) 77%,transparent)}
+.portal-preview-dots{position:absolute;left:0;right:0;bottom:7px;z-index:3;display:flex;gap:5px;justify-content:center}
+.portal-preview-dots span{width:5px;height:5px;border-radius:50%;background:#ffffff75}
+.portal-preview-dots span.selected{background:#fff;width:17px;border-radius:6px}
+.portal-media-preview #inventory{max-height:323px}
+.portal-finance-section{margin:20px 0 25px}
+.portal-finance-section .panel-head{margin-bottom:14px}
+.portal-finance-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.portal-finance-card{background:#fff;border:1px solid var(--line);border-radius:15px;min-width:0;padding:21px;display:flex;flex-direction:column;gap:9px;box-shadow:var(--shadow)}
+.portal-finance-card small{font-size:12px;font-weight:800;color:#556080}
+.portal-finance-card strong{font-size:clamp(20px,2vw,29px);line-height:1.25;letter-spacing:-.4px;color:#12875a}
+.portal-finance-card:nth-child(2) strong{color:#d64065}
+.portal-finance-sub{font-size:12px;color:#5b6683}
+.portal-finance-balance{background:linear-gradient(135deg,#35258d,#5847cb);color:#fff}
+.portal-finance-balance small,.portal-finance-balance strong,.portal-finance-balance .portal-finance-sub{color:#fff}
+.portal-finance-note{font-size:12px;margin:9px 0 0;color:var(--soft)}
+.portal-finance-dialog{width:min(94vw,1020px);max-height:90vh;border:0;border-radius:17px;padding:0;background:#fff;color:var(--ink);overflow:hidden}
+.portal-finance-dialog::backdrop{background:#0c1526aa;backdrop-filter:blur(3px)}
+.portal-finance-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px 21px;background:#f4f5ff;border-bottom:1px solid var(--line)}
+.portal-finance-dialog-head h2{font-size:18px;line-height:1.35;margin:0}
+.portal-finance-dialog-head small{font-size:12px;color:var(--soft)}
+.portal-finance-dialog-head button{border:0;background:#e5e7ff;border-radius:50%;height:36px;width:36px;font-size:24px;color:#35309e}
+.portal-finance-filter{display:flex;align-items:center;flex-wrap:wrap;gap:13px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.portal-finance-filter label{font-weight:800}
+.portal-finance-filter select{padding:9px;border:1px solid var(--line);border-radius:9px;background:white;color:var(--ink)}
+#finance-dialog-totals{margin-left:auto;font-weight:800;font-size:13px}
+.portal-finance-table-wrap{overflow:auto;max-height:62vh}
+.portal-finance-table{border-collapse:collapse;width:100%;font-size:13px;min-width:590px}
+.portal-finance-table th,.portal-finance-table td{padding:11px 13px;border-bottom:1px solid var(--line);text-align:left}
+.portal-finance-table th{position:sticky;top:0;background:#f0f2fc;z-index:1}
+.portal-finance-table td:nth-child(3),.portal-finance-table td:nth-child(4){text-align:right;white-space:nowrap;font-weight:750}
+@media(max-width:850px){.portal-finance-grid{grid-template-columns:1fr}.portal-media-preview{min-height:320px}}
+
+/* Aset preview berada di depan background, tidak hilang akibat z-index lama. */
+.portal-album-feature .portal-preview-visual{position:absolute;inset:0;z-index:0;background:#222459}
+.portal-album-feature .portal-preview-visual img{position:absolute;inset:0;width:100%;height:100%;z-index:0!important;object-fit:cover}
+.portal-album-feature::before{z-index:1;pointer-events:none}
+.portal-album-feature .portal-album-feature-text{z-index:2}
+.portal-album-feature .portal-preview-dots{z-index:3}
+.f4-lightbox-arrow svg,.f4-lightbox-close svg,.f4-album-close svg,
+.f4-agenda-head button svg,#portal-rapat-close svg,#portal-suggestion-close svg,
+.portal-month-controls button svg,.banner-arrow svg,.portal-finance-dialog-head button svg{
+ display:block;margin:auto;flex-shrink:0;pointer-events:none
+}
