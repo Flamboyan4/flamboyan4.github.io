@@ -152,7 +152,7 @@
  }));
  const adminSavings=async()=> (await adminRows('savings')).map(x=>({
    wargaId:String(x.member_id||'').replace(/^member:/,''),nama:x.memberName||'',
-   rumah:x.houseCode||'',saldo:number(x.balanceRp),saldoRp:number(x.balanceRp)
+   rumah:x.houseCode||'',status:'Aktif',saldo:number(x.balanceRp),saldoRp:number(x.balanceRp)
  }));
  const adminCash=async()=> (await adminRows('cash')).map(x=>({
    id:x.id,tanggal:x.occurred_on,jenis:x.transaction_type,pos:x.fund_position,
@@ -170,7 +170,7 @@
   bsV22AlbumAdmin:adminAlbums,
   bsDashboardAdmin:adminOverview,
   bsV9StatusKasAdmin:async()=>{
-   const cash=await adminCash();return {kasGabungan:cash.reduce((n,x)=>n+x.masuk-x.keluar,0),belumPosting:0};
+   const cash=await adminCash();return {saldoKasTercatat:cash.reduce((n,x)=>n+x.masuk-x.keluar,0),batchBelumDiposting:[],kasGabungan:cash.reduce((n,x)=>n+x.masuk-x.keluar,0)};
   },
   bsV10KasPosAdmin:async()=>{
    const cash=await adminCash();return {kasGabungan:cash.reduce((n,x)=>n+x.masuk-x.keluar,0),pos:[]};
