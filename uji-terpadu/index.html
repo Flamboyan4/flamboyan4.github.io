@@ -255,7 +255,7 @@ body.portal-mode .framebox{margin-left:242px}
   const item=button.dataset.portalMenu;
   document.querySelectorAll('[data-portal-menu]').forEach(x=>x.classList.toggle('active',x===button));
   if(item==='rapat'){update('rapat');return}
-  const target=item==='beranda'?null:item==='projek'?'projek':item==='kalender'?'rencana':item==='pembayaran'?'keuangan':'dokumentasi-inventaris';
+  const target=item==='beranda'?null:item==='projek'?'projek':item==='kalender'?'rencana':item==='pembayaran'?'keuangan':'kegiatan';
   const go=()=>{try{
     if(!target){frame.contentWindow.scrollTo({top:0,behavior:'smooth'});return}
     const doc=frame.contentWindow.document,section=doc.getElementById(target);
