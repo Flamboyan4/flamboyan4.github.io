@@ -594,7 +594,7 @@ body.iframe-modal-open .framebox #gate{display:none!important}
   const item=button.dataset.portalMenu;
   if(['rapat','dokumentasi','inventaris'].includes(item)){update(item);return}
   document.querySelectorAll('[data-portal-menu]').forEach(x=>x.classList.toggle('active',x===button));
-  const section=item==='beranda'?null:item==='projek'?'projek':item==='kalender'?'rencana':item==='pembayaran'?'keuangan':null;
+  const section=item==='beranda'?null:item==='projek'?'projek':item==='kalender'?'rencana':item==='pembayaran'?'pembayaran':null;
   const go=()=>{try{
     const child=frame.contentWindow;
     if(!section){child.scrollTo({top:0,behavior:'smooth'});return}
@@ -603,7 +603,7 @@ body.iframe-modal-open .framebox #gate{display:none!important}
     else notify('Bagian '+item+' belum ditemukan pada halaman sumber.');
    }catch{notify('Halaman Portal Utama belum siap.')}
   };
-  if(selected!=='portal'){update('portal');setTimeout(go,350)}else go();
+  if(selected!=='portal'){update('portal');frame.addEventListener('load',go,{once:true})}else go();
  }));
  buttons.forEach(b=>b.addEventListener('click',()=>update(b.dataset.target)));
  frame.addEventListener('load',()=>{sendRole();attachScrollListener();observeOriginalDialogs()});
