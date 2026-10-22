@@ -255,10 +255,12 @@ export async function renderMeetingArchive(fallback=[]){
   });
   drawMeetingCards(data,true);
   const total=byId('count-meetings');if(total)total.textContent=String(data.length);
+  return true;
  }catch(err){
   const status=byId('portal-meeting-status');
   if(status)status.textContent=backup.length?'Data D1 · arsip foto belum terhubung':'Arsip rapat belum dapat dimuat';
   if(!backup.length){const p=byId('meetings')?.querySelector('p');if(p)p.textContent='Arsip rapat tidak dapat dimuat saat ini. Coba lagi atau buka halaman Hasil Rapat lama.'}
+  return false;
  }
 }
 

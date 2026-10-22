@@ -27,8 +27,8 @@ function renderProjects(records){
 async function load(){
  try{
   if(section==='rapat'){
-   await renderMeetingArchive([]);
-   boxStatus('Arsip hasil rapat dibaca dari sumber publik lama.','success');
+   const loaded=await renderMeetingArchive([]);
+   boxStatus(loaded?'Arsip rapat berhasil dibaca dari data lama.':'Arsip rapat belum dapat dimuat. Silakan coba lagi.',loaded?'success':'error');
   }else if(section==='project'){
    const res=await endpoints.portal();renderProjects(res.projects||[]);
    boxStatus('Daftar proyek dibaca dari API publik D1. Data pendanaan per proyek belum terhubung.','success');
