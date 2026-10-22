@@ -7,16 +7,56 @@ document.querySelectorAll('[data-go]').forEach(a=>a.href=url(a.dataset.go));
 function failure(e){boxStatus(e?.message||'Gagal memuat data.','error')}
 function date(d){return String(d||'—').slice(0,10)}
 
+
+function renderPortalSlider(apiBanners){
+ const container=document.querySelector('.app-body .hero');if(!container)return;
+ const input=Array.isArray(apiBanners)?apiBanners:[];
+ const slides=input.length?input.map(b=>({
+  title:String(b.title||'Informasi Flamboyan 4'),text:String(b.description||b.subtitle||''),
+  image:b.imageUrl||b.image_url||b.photoUrl||'',link:b.linkUrl||b.url||''
+ })):[
+  {title:'Transparansi & Kebersamaan',text:'Informasi kegiatan dan pembangunan warga Flamboyan 4.'},
+  {title:'Bank Sampah Flamboyan 4',text:'Kelola lingkungan bersama dan ikuti perkembangan kegiatan.'},
+  {title:'Informasi & Dokumentasi',text:'Agenda, proyek, hasil rapat, dan inventaris warga dalam satu portal.'}
+ ];
+ let active=0,timer=null,touchStart=0;
+ container.replaceChildren();container.classList.add('has-banner-slider');
+ const frame=elem('div',undefined,'banner-frame'),track=elem('div',undefined,'banner-track');
+ const dots=elem('div',undefined,'banner-dots');
+ const dotButtons=[];
+ slides.forEach((s,i)=>{
+  const slide=elem('article',undefined,'banner-slide');slide.setAttribute('aria-label','Banner '+(i+1));
+  let image='';
+  try{const url=new URL(s.image);if(url.protocol==='https:')image=url.href}catch{}
+  if(image){const pic=document.createElement('img');pic.src=image;pic.alt='';pic.loading=i===0?'eager':'lazy';pic.className='banner-image';slide.append(pic)}
+  const words=elem('div',undefined,'banner-copy');words.append(elem('span','PORTAL WARGA FLAMBOYAN 4','banner-eyebrow'));
+  words.append(elem('h1',s.title));if(s.text)words.append(elem('p',s.text));
+  if(s.link){try{const dest=new URL(s.link,location.origin);if(['https:','http:'].includes(dest.protocol)){const a=elem('a','Lihat informasi →','banner-link');a.href=dest.href;words.append(a)}}catch{}}
+  slide.append(words);track.append(slide);
+  const b=elem('button',undefined,'banner-dot');b.type='button';b.setAttribute('aria-label','Tampilkan banner '+(i+1));b.onclick=()=>{move(i);reset()};dotButtons.push(b);dots.append(b);
+ });
+ function move(index){active=(index+slides.length)%slides.length;track.style.transform='translateX(-'+(100*active)+'%)';dotButtons.forEach((b,i)=>b.setAttribute('aria-current',i===active?'true':'false'))}
+ function reset(){if(timer)clearInterval(timer);if(slides.length>1&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches)timer=setInterval(()=>{if(!document.hidden)move(active+1)},6000)}
+ const prev=elem('button','‹','banner-arrow prev'),next=elem('button','›','banner-arrow next');prev.type=next.type='button';
+ prev.setAttribute('aria-label','Banner sebelumnya');next.setAttribute('aria-label','Banner berikutnya');
+ prev.onclick=()=>{move(active-1);reset()};next.onclick=()=>{move(active+1);reset()};
+ if(slides.length<2){prev.hidden=true;next.hidden=true;dots.hidden=true}
+ frame.append(track,prev,next,dots);container.append(frame);move(0);reset();
+ frame.addEventListener('touchstart',e=>{touchStart=e.changedTouches[0].screenX},{passive:true});
+ frame.addEventListener('touchend',e=>{const diff=e.changedTouches[0].screenX-touchStart;if(Math.abs(diff)>45){move(active+(diff<0?1:-1));reset()}},{passive:true});
+}
+
 async function portal(){
  try{
   const r=await endpoints.portal();
+  renderPortalSlider(r.banners||r.slides||[]);
   put('count-agenda',r.agenda?.length||0);put('count-projects',r.projects?.length||0);put('count-inventory',r.inventory?.length||0);put('count-meetings',r.meetings?.length||0);
   setCards('agenda',(r.agenda||[]).map(x=>({title:x.title,note:`${date(x.starts_on)} · ${x.location||'Lingkungan warga'}`,text:x.description||x.status||''})));
   setCards('projects',(r.projects||[]).map(x=>({title:x.title,text:x.description,url:x.target_url})));
   setRows('meetings',['Tanggal','Hasil rapat','Ringkasan'],(r.meetings||[]).map(x=>[date(x.meeting_on),x.title,x.summary||'—']));
   setRows('inventory',['Inventaris','Jumlah','Kategori'],(r.inventory||[]).map(x=>[x.name,`${fmtNum(x.quantity)} ${x.unit||''}`,x.category||'—']));
   boxStatus('Data portal publik berhasil dimuat dari D1.','success');
- }catch(e){failure(e)}
+ }catch(e){renderPortalSlider([]);failure(e)}
 }
 
 async function bankReport(month=''){
