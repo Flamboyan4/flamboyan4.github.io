@@ -26,7 +26,7 @@ const ICON={
 };
 const pict=name=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICON[name]||ICON.files)+'</svg>';
 const SITEMAP={
- portal:[['Beranda','page-start','house'],['Rapat','rapat/','files'],['Project','project/','files'],['Kalender','agenda-section','calendar'],['Dokumentasi','documentation-section','image'],['Inventaris','inventory-section','data'],['Pembayaran','payment-section','wallet']],
+ portal:[['Beranda','page-start','house'],['Rapat','rapat/','files'],['Project','project/','files'],['Kalender','agenda-section','calendar'],['Dokumentasi','dokumentasi/','image'],['Inventaris','dokumentasi/#inventaris','data'],['Pembayaran','payment-section','wallet']],
  book:[['Ringkasan','summary','house'],['Input Data','input','wallet'],['Riwayat','history','calendar'],['Laporan & Rekap','report','files'],['Data Acuan','reference','data']],
  akun:[['Profil','auth-profile','files'],['Foto Profil','avatar-form','image'],['Tabungan Saya','member-summary','wallet']]
 };
@@ -90,9 +90,9 @@ function roleNav(s){
    
    const section=document.body.dataset.sectionPage||'';
    const sectionRoot=location.pathname.startsWith('/uji-integrasi/')?'/uji-integrasi/':'/';
-   const separate=p==='portal'&&(target==='rapat/'||target==='project/');
+   const separate=p==='portal'&&(target==='rapat/'||target==='project/'||target.startsWith('dokumentasi/'));
    const destination=separate?sectionRoot+target:p==='portal'&&section?sectionRoot+'#'+target:'#'+target;
-   const active=p==='portal'?(section?separate&&section===target.replace('/',''):index===0):index===0;
+   const active=p==='portal'?(section?separate&&section===target.split('/')[0]:index===0):index===0;
    const a=shellLink(name,destination,icon,'shell-side-link'+(active?' current':''));a.append(elem('span',name));
    a.addEventListener('click',e=>{
     const switchMode=p==='book'||(p==='bank'&&r!=='public');

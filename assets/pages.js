@@ -1,5 +1,6 @@
 import {CONFIG,apiURL,sameSiteAuthAvailable} from './config.js';
 import {initPortalExtras,renderMeetingArchive} from './portal-extras.js';
+import {renderPortalCalendar,renderPortalInventory,renderBankProgress,renderBankAlbumPreviews} from './portal-widgets.js';
 import {api,endpoints} from './api.js';
 import {$,fmtRp,fmtNum,elem,put,boxStatus,setRows,setCards,initShell,url,renderAlbum,requireAuthMessage,updateHeader,setModuleView} from './ui.js';
 const page=document.body.dataset.page;
@@ -52,9 +53,9 @@ async function portal(){
   const r=await endpoints.portal();
   renderPortalSlider(r.banners||r.slides||[]);
   put('count-agenda',r.agenda?.length||0);put('count-projects',r.projects?.length||0);put('count-inventory',r.inventory?.length||0);put('count-meetings',r.meetings?.length||0);
-  setCards('agenda',(r.agenda||[]).map(x=>({title:x.title,note:`${date(x.starts_on)} · ${x.location||'Lingkungan warga'}`,text:x.description||x.status||''})));
+  renderPortalCalendar(r.agenda||[]);
   setCards('projects',(r.projects||[]).slice(0,3).map(x=>({title:x.title,text:x.description,url:x.target_url})));
-  setRows('inventory',['Inventaris','Jumlah','Kategori'],(r.inventory||[]).map(x=>[x.name,`${fmtNum(x.quantity)} ${x.unit||''}`,x.category||'—']));
+  renderPortalInventory(r.inventory||[]);
   boxStatus('Data portal publik berhasil dimuat dari D1.','success');
  }catch(e){renderPortalSlider([]);failure(e)}
 }
