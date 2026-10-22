@@ -24,6 +24,12 @@
   });
   const originalFetch=window.fetch?.bind(window);
   window.fetch=(input,init={})=>{const method=(init?.method||'GET').toUpperCase();
+    // Only real Cloudflare GET reads can cross this old preview shim.
+    // Write endpoints remain protected by the Worker staging feature flags.
+    const url=String(typeof input==='string'?input:input?.url||'');
+    if(method==='GET'&&url.startsWith('https://api.flamboyan4.web.id/')){
+      return originalFetch(input,{...init,credentials:'include',mode:'cors',cache:'no-store'});
+    }
     if(method!=='GET'){window.__f4DemoNotify('Aksi simpan diblokir: ini hanya pratinjau.');return Promise.resolve(new Response(JSON.stringify({ok:false,error:'Mode demo: tidak ada perubahan data.'}),{status:503,headers:{'content-type':'application/json'}}))}
     return Promise.resolve(new Response(JSON.stringify({ok:true,status:'success',data:[],transaksi:[],ringkasan:{},config:{},rumah:[],warga:[],riwayat:[]}),{status:200,headers:{'content-type':'application/json'}}));
   };
