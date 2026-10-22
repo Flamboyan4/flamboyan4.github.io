@@ -88,3 +88,12 @@ Pertahankan ketiga sumber aslinya; ubah hanya pemanggilan data:
 - Pengaturan Bank Sampah tetap mengacu role publik/warga/admin/superadmin; satu akun terpadu adalah mock frontend, bukan keamanan autentikasi nyata.
 - Kalender custom pada form data tanggal tetap ada. Semua browser popup default ditargetkan untuk diganti di pratinjau, tidak mengubah website aktif.
 - **Jangan ulangi kesalahan** membuat navbar/hero baru atau mengganti struktur asli; migrasi nantinya hanya data & backend, dengan login tunggal lintasportal.
+
+## Koreksi data asli dan ikon: 22 Oktober 2026
+
+- Pengguna mengingatkan bahwa **seluruh Jadwal Arisan asli sudah ada**. Arsip hanya tiga entri contoh yang dibuat sebelumnya adalah kesalahan; ini **dihapus** dari `offline-portal.js`.
+- Menggunakan 26 baris lengkap sumber asli **Data Untuk WEB**, tab **Arisan** (gid 53284271), dari **Desember 2025 hingga Januari 2028**, kolom persis `BULAN`, `NAMA & BLOK`, `STATUS`. Sumber `https://docs.google.com/spreadsheets/d/14Yb075WtIcvSH0OVaA7nZh7Dm-nYz-IgdS3502JCIQI/edit`. Ini salinan snapshot untuk pratinjau offline, bukan pembacaan live saat dibuka. Jika data sumber berubah, sinkronkan ulang di tahap migrasi API D1.
+- Banner saat preview memakai **3 URL gambar asli** dari tab `Banner WEB` (gid 780113187) sebagai snapshot; hapus banner sintetis. Gambar tetap mungkin bergantung pada izin Google Drive dan bukan akses D1.
+- Card proyek mengikuti persis tab **Project Card** (gid 40982005): Bank Sampah Lorong, Gapura, Pemesanan Jersey; urutan/status disalin dari sumber.
+- Toolbar kanan sekarang memakai SVG **Lucide resmi** untuk `house`, `recycle`, dan `notebook-tabs`; tidak lagi ikon recycle buatan tangan yang tidak menyerupai referensi.
+- Jangan lagi mengganti data yang sudah tersedia dengan contoh yang direka. Untuk preview yang tidak terhubung database, gunakan snapshot data **dari sumber asli** dan tandai salinan offline.
