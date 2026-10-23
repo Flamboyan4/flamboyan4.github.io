@@ -18,7 +18,14 @@ const normalize=item=>{
 };
 let album=null,photo=null,items=[],at=0,albumTitle='Dokumentasi',lastTile=null,closing=false;
 const isOpen=el=>!!el&&!el.hidden;
-const show=(el,on)=>{if(!el)return;el.hidden=!on;el.setAttribute('aria-hidden',String(!on));};
+const show=(el,on)=>{
+ if(!el)return;
+ el.hidden=!on;el.setAttribute('aria-hidden',String(!on));
+ const active=isOpen(album)||isOpen(photo);
+ document.documentElement.classList.toggle('f4p-overlay-active',active);
+ document.body.classList.toggle('f4p-overlay-active',active);
+ if(window.parent!==window)window.parent.postMessage({type:'f4:overlay-state',portal:'dokumentasi',open:active},location.origin);
+};
 function ensure(){
  if(album)return;
  album=node('div','f4p-overlay f4p-album-overlay');album.hidden=true;album.setAttribute('role','dialog');album.setAttribute('aria-label','Album dokumentasi');album.setAttribute('aria-modal','true');
