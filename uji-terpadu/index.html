@@ -704,21 +704,25 @@ body.f4-management-active #f4-account-page .f4-work-heading{scroll-margin-top:80
  document.getElementById('login-close').onclick=()=>loginShade.hidden=true;
  document.getElementById('profile-close').onclick=()=>profileShade.hidden=true;
  document.getElementById('gate-login').onclick=()=>showLogin();
+ let bankProfileIntent=false;
+ function dispatchBankProfile(){
+  if(!bankProfileIntent||selected!=='bank-sampah')return;
+  try{
+   sendRole();
+   frame.contentWindow?.postMessage({type:'f4:open-bank-profile'},location.origin);
+  }catch{}
+ }
  function openOriginalBankProfile(){
   if(role==='public'){showLogin();return;}
   document.getElementById('f4-account-page').hidden=true;
   document.getElementById('f4-warga-panel').hidden=true;
   profileShade.hidden=true;
+  bankProfileIntent=true;
   const bankUrl=apps['bank-sampah'];
   const changed=frame.getAttribute('src')!==bankUrl;
-  const request=()=>{
-    if(selected!=='bank-sampah')return;
-    sendRole();
-    frame.contentWindow?.postMessage({type:'f4:open-bank-profile'},location.origin);
-  };
-  if(changed)frame.addEventListener('load',request,{once:true});
+  if(changed)frame.addEventListener('load',dispatchBankProfile,{once:true});
   if(selected!=='bank-sampah'||changed)update('bank-sampah');
-  else request();
+  else dispatchBankProfile();
  }
  async function openProfileSettings(edit){
   document.getElementById('profile-title').textContent=edit?'Pengaturan Profil':'Akun Saya';
@@ -809,10 +813,14 @@ body.f4-management-active #f4-account-page .f4-work-heading{scroll-margin-top:80
   if(selected!=='portal'){update('portal');frame.addEventListener('load',go,{once:true})}else go();
  }));
  buttons.forEach(b=>b.addEventListener('click',()=>update(b.dataset.target)));
- frame.addEventListener('load',()=>{sendRole();attachScrollListener();observeOriginalDialogs()});
+ frame.addEventListener('load',()=>{sendRole();attachScrollListener();observeOriginalDialogs();dispatchBankProfile()});
  window.addEventListener('message',e=>{
   if(e.origin!==location.origin||!e.data)return;
-  if(e.data.type==='f4:ready')sendRole();
+  if(e.data.type==='f4:ready'){
+   sendRole();
+   if(e.source===frame.contentWindow&&e.data.portal==='bank-sampah')dispatchBankProfile();
+  }
+  if(e.source===frame.contentWindow&&e.data.type==='f4:bank-profile-opened')bankProfileIntent=false;
   if(e.data.type==='f4:bank-avatar-updated'&&e.source===frame.contentWindow)updateAvatar();
   if(e.data.type==='f4:bank-modal'&&selected==='bank-sampah'&&e.source===frame.contentWindow){toolbar.classList.toggle('modal-covered',e.data.open===true);}
   if(e.data.type==='f4:section'&&['dokumentasi','inventaris'].includes(e.data.target)){
