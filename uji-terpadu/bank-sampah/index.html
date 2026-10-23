@@ -1857,6 +1857,16 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     row.append(v21Node('span','v21-inventory-name',x.nama||'Barang inventaris'),v21Node('span','v21-inventory-qty',x.jumlah||'—'));
     row.onclick=()=>v21ShowInventory(x);return row;
   }
+  function v21NotifyOverlay(){
+    const open=!!(
+      !$('v21GalleryModal')?.classList.contains('hidden') ||
+      !$('v21Lightbox')?.classList.contains('hidden')
+    );
+    // Do not let shell utility elements float above nested legacy modals.
+    document.documentElement.classList.toggle('f4-bank-gallery-open',open);
+    document.body.classList.toggle('f4-bank-gallery-open',open);
+    if(window.parent!==window)window.parent.postMessage({type:'f4:overlay-state',portal:'bank-sampah',open},location.origin);
+  }
   function v21EnsureModals(){
     if($('v21GalleryModal'))return;
     const modal=v21Node('div','v21-modal hidden');modal.id='v21GalleryModal';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');
@@ -1896,6 +1906,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     if(modal.classList.contains('hidden')){
       history.pushState({...history.state,f4BankAlbumOverlay:true},'',location.href);
       modal.classList.remove('hidden');
+      v21NotifyOverlay();
     }
   }
   function v21CloseGallery(fromHistory=false){
@@ -1903,7 +1914,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     if(!modal||modal.classList.contains('hidden'))return;
     if(!$('v21Lightbox')?.classList.contains('hidden')){v21CloseLightbox(fromHistory);return;}
     if(!fromHistory&&history.state?.f4BankAlbumOverlay){history.back();return;}
-    modal.classList.add('hidden');v21OpenedAlbum=null;
+    modal.classList.add('hidden');v21OpenedAlbum=null;v21NotifyOverlay();
   }
   function v21ShowAlbumArchive(){
     const grid=v21Node('div','v21-album-list');
@@ -1961,7 +1972,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     v21MediaIndex=index;
     if(!$('v21Lightbox').classList.contains('hidden'))return;
     history.pushState({...history.state,f4BankPhotoOverlay:true},'',location.href);
-    $('v21Lightbox').classList.remove('hidden');v21PaintLightbox();
+    $('v21Lightbox').classList.remove('hidden');v21PaintLightbox();v21NotifyOverlay();
   }
   function v21PaintLightbox(){
     const list=v21OpenedAlbum?.media||[],m=list[v21MediaIndex];if(!m)return;
@@ -1979,7 +1990,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   function v21CloseLightbox(fromHistory=false){
     const modal=$('v21Lightbox');if(!modal||modal.classList.contains('hidden'))return;
     if(!fromHistory&&history.state?.f4BankPhotoOverlay){history.back();return;}
-    modal.classList.add('hidden');$('v21StageContent')?.replaceChildren();
+    modal.classList.add('hidden');$('v21StageContent')?.replaceChildren();v21NotifyOverlay();
   }
   function v21ShowInventory(item){
     const view=v21Node('div');
