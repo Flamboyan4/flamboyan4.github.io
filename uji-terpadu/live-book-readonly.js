@@ -8,7 +8,7 @@
   if(!response.ok||json.ok===false)throw Error(json.error||'Akses D1 ditolak (HTTP '+response.status+').');
   return json;
  }
- const rows=x=>Array.isArray(x)?x:Array.isArray(x?.data)?x.data:Array.isArray(x?.transaksi)?x.transaksi:[];
+ const rows=x=>Array.isArray(x)?x:Array.isArray(x?.rows)?x.rows:Array.isArray(x?.data)?x.data:Array.isArray(x?.data?.rows)?x.data.rows:Array.isArray(x?.data?.items)?x.data.items:Array.isArray(x?.items)?x.items:Array.isArray(x?.transaksi)?x.transaksi:[];
  const n=x=>Number.isFinite(Number(x))?Number(x):0;
  const successful=data=>({status:'success',...data});
  async function bootstrap(){
