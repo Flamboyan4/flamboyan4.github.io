@@ -511,8 +511,532 @@
     #v27PrintReport .v27-print-sign strong{display:block;margin-top:46px}
   }
 </style>
-<meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://api.flamboyan4.web.id; form-action 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com;"><script src="../offline-common.js"></script><script src="../calendar-unified.js"></script><script src="../offline-bank.js"></script>
-<script src="../live-bank-readonly.js?v=0736a5b"></script><style id="f4-preview-one-account">
+<meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://api.flamboyan4.web.id; form-action 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com;"><script data-bundled="offline-common.js">
+(()=>{'use strict';window.__F4_DEMO__=true;
+  // Membuka sub-URL secara langsung tetap masuk ke navigasi dan login terpadu.
+  if(window===window.top){
+   const parts=location.pathname.split('/').filter(Boolean);
+   const index=parts.indexOf('uji-terpadu');
+   const target=parts[index+1]||'portal';
+   if(['portal','rapat','bank-sampah','pembukuan'].includes(target)){
+    location.replace(location.origin+'/uji-terpadu/#'+target);return;
+   }
+  }
+  window.__f4DemoNotify=(s)=>{try{window.parent.postMessage({type:'f4:notice',message:String(s)},location.origin)}catch{}};
+  document.addEventListener('DOMContentLoaded',()=>{
+    // Tidak membuat bar kuning tambahan: identitas demo tersedia pada dialog Login.
+
+    document.querySelectorAll('a[href]').forEach(a=>{
+       const href=a.getAttribute('href')||'';
+       if(href.startsWith('/'))a.addEventListener('click',e=>{
+         e.preventDefault();
+         const p=href.toLowerCase();
+         const target=p.includes('banksampah')||p.includes('bank-sampah')?'bank-sampah':p.includes('pembukuan')?'pembukuan':'portal';
+         window.parent.postMessage({type:'f4:navigate',target},location.origin);
+       });
+    });
+  });
+  const originalFetch=window.fetch?.bind(window);
+  // GET requests use the real source. No fabricated success/empty datasets.
+  window.fetch=(input,init={})=>{
+    const method=String(init?.method||((typeof input==='object'&&input?.method)||'GET')).toUpperCase();
+    if(method==='GET'||method==='HEAD')return originalFetch(input,init);
+    window.__f4DemoNotify('Penyimpanan dari integrasi masih dikunci sampai izin backend tervalidasi.');
+    return Promise.reject(Error('Penulisan data belum diaktifkan pada Uji Terpadu.'));
+  };
+  const origOpen=window.open?.bind(window);window.open=(url,...args)=>{if(!url||url==='about:blank')return origOpen?.('about:blank',...args)||null;window.__f4DemoNotify('Tautan eksternal tidak dibuka otomatis dari pratinjau.');return null};
+  window.addEventListener('message',e=>{if(e.origin!==location.origin||!e.data||e.data.type!=='f4:demo-role')return;document.body.dataset.previewRole=e.data.role});
+})();
+</script><script data-bundled="calendar-unified.js">
+/* Uniform Indonesian custom date/month picker for OFFLINE preview. No backend access. */
+(()=>{'use strict';
+  const months=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const days=['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+  let input=null,viewYear=0,viewMonth=0,pop=null;
+  const two=n=>String(n).padStart(2,'0');
+  const localToday=()=>{const d=new Date();return d.getFullYear()+'-'+two(d.getMonth()+1)+'-'+two(d.getDate())};
+  const mk=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e};
+  const style=document.createElement('style');
+  style.textContent=[
+   'input.f4-date-target{cursor:pointer!important;caret-color:transparent}',
+   'input.f4-date-target::-webkit-calendar-picker-indicator{pointer-events:none;opacity:.65}',
+   '.f4-calendar{position:fixed;z-index:999999;min-width:288px;width:304px;max-width:calc(100vw - 20px);border:1px solid #dcd3fc;background:white;color:#261b45;border-radius:16px;padding:14px;box-shadow:0 18px 55px #210e493b;font:13px system-ui,-apple-system,Segoe UI,sans-serif}',
+   '.f4-calendar *{box-sizing:border-box}', '.f4-cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}',
+   '.f4-cal-head strong{font-size:14px;font-weight:750;color:#4f23a0;text-align:center}',
+   '.f4-cal-btn{border:0!important;background:#f4f0ff!important;color:#5c26b0!important;border-radius:9px!important;width:35px;height:35px;padding:0!important;display:grid!important;place-items:center;font:700 19px system-ui!important;cursor:pointer}',
+   '.f4-cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}',
+   '.f4-cal-dayhead{font-size:11px;font-weight:700;color:#77809b;text-align:center;padding:8px 0}',
+   '.f4-cal-cell{font:600 12px system-ui!important;min-height:35px!important;background:transparent!important;border:0!important;border-radius:10px!important;padding:0!important;color:#25233c!important;cursor:pointer}',
+   '.f4-cal-cell:hover{background:#eee7ff!important}', '.f4-cal-cell.f4-selected{background:#7433ef!important;color:white!important}',
+   '.f4-cal-cell.f4-out{color:#adb2c3!important}', '.f4-cal-cell.f4-today{outline:1px solid #8a5bff;outline-offset:-2px}',
+   '.f4-cal-cell:disabled{opacity:.23;cursor:not-allowed}',
+   '.f4-cal-months{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}',
+   '.f4-cal-month{font:600 12px system-ui!important;border-radius:10px!important;padding:11px 5px!important;background:#f7f4ff!important;color:#47326d!important;border:0!important;cursor:pointer}',
+   '.f4-cal-month.f4-selected{background:#7433ef!important;color:white!important}',
+   '.f4-cal-foot{margin-top:12px;border-top:1px solid #eee8fc;padding-top:10px;display:flex;justify-content:space-between;gap:8px}',
+   '.f4-cal-foot button{padding:7px 11px!important;border-radius:9px!important;background:#f2edff!important;color:#5329a6!important;border:0!important;font:650 12px system-ui!important;cursor:pointer}'
+  ].join('');
+  document.head.append(style);
+  const inRange=value=>{
+    if(!input)return false;
+    const min=input.getAttribute('min'),max=input.getAttribute('max');
+    return !(min&&value<min)&&!(max&&value>max);
+  };
+  function choose(value){
+    if(!input||!inRange(value))return;
+    const target=input;
+    target.value=value;
+    target.dispatchEvent(new Event('input',{bubbles:true}));
+    target.dispatchEvent(new Event('change',{bubbles:true}));
+    hide();target.focus({preventScroll:true});
+  }
+  function hide(){pop?.remove();pop=null;input=null}
+  function position(){
+    if(!input||!pop)return;const rect=input.getBoundingClientRect(),w=Math.min(304,innerWidth-20);
+    const bottom=Math.max(0,innerHeight-rect.bottom),top=Math.max(0,rect.top);
+    const expected=input.type==='month'?260:347;
+    pop.style.width=w+'px';pop.style.left=Math.max(10,Math.min(rect.left,innerWidth-w-10))+'px';
+    pop.style.top=bottom>=expected||bottom>=top?Math.min(innerHeight-10,rect.bottom+7)+'px':Math.max(10,rect.top-expected-7)+'px';
+  }
+  function draw(){
+    if(!pop||!input)return;pop.replaceChildren();
+    const head=mk('div','f4-cal-head'),prev=mk('button','f4-cal-btn','‹'),next=mk('button','f4-cal-btn','›');
+    prev.type=next.type='button';prev.setAttribute('aria-label','Bulan sebelumnya');next.setAttribute('aria-label','Bulan berikutnya');
+    const monthMode=input.type==='month',title=mk('strong','',monthMode?String(viewYear):months[viewMonth]+' '+viewYear);
+    prev.onclick=()=>{if(monthMode)viewYear--;else {viewMonth--;if(viewMonth<0){viewMonth=11;viewYear--}}draw()};
+    next.onclick=()=>{if(monthMode)viewYear++;else {viewMonth++;if(viewMonth>11){viewMonth=0;viewYear++}}draw()};
+    head.append(prev,title,next);pop.append(head);
+    if(monthMode){
+      const grid=mk('div','f4-cal-months');for(let m=0;m<12;m++){
+       const val=viewYear+'-'+two(m+1),btn=mk('button','f4-cal-month'+(input.value===val?' f4-selected':''),months[m].slice(0,3));
+       btn.type='button';btn.disabled=!inRange(val);btn.onclick=()=>choose(val);btn.setAttribute('aria-label',months[m]+' '+viewYear);grid.append(btn);
+      }pop.append(grid);
+    }else{
+      const grid=mk('div','f4-cal-grid');
+      for(const day of days)grid.append(mk('span','f4-cal-dayhead',day));
+      const first=new Date(viewYear,viewMonth,1),shift=(first.getDay()+6)%7;
+      for(let i=0;i<42;i++){
+        const date=new Date(viewYear,viewMonth,1-shift+i),iso=date.getFullYear()+'-'+two(date.getMonth()+1)+'-'+two(date.getDate());
+        const out=date.getMonth()!==viewMonth;
+        const btn=mk('button','f4-cal-cell'+(out?' f4-out':'')+(input.value===iso?' f4-selected':'')+(localToday()===iso?' f4-today':''),String(date.getDate()));
+        btn.type='button';btn.disabled=!inRange(iso);btn.setAttribute('aria-label',iso);btn.onclick=()=>choose(iso);grid.append(btn);
+      }pop.append(grid);
+    }
+    const foot=mk('div','f4-cal-foot'),todayBtn=mk('button','',monthMode?'Bulan ini':'Hari ini'),close=mk('button','','Tutup');
+    todayBtn.type=close.type='button';const value=localToday().slice(0,monthMode?7:10);
+    todayBtn.disabled=!inRange(value);todayBtn.onclick=()=>choose(value);close.onclick=hide;foot.append(todayBtn,close);pop.append(foot);position();
+  }
+  function open(target){
+    if(input===target&&pop)return;
+    hide();input=target;input.readOnly=true;input.classList.add('f4-date-target');
+    const value=input.value||localToday(),parts=value.split('-');
+    viewYear=Number(parts[0])||new Date().getFullYear();viewMonth=Math.max(0,Math.min(11,Number(parts[1]||1)-1));
+    pop=mk('section','f4-calendar');pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Kalender pilihan tanggal');
+    document.body.append(pop);draw();
+  }
+  document.addEventListener('pointerdown',e=>{
+    const target=e.target.closest?.('input[type="date"],input[type="month"]');
+    if(target){e.preventDefault();open(target);return}
+    if(pop&&!pop.contains(e.target))hide();
+  },true);
+  document.addEventListener('focusin',e=>{
+    const target=e.target.closest?.('input[type="date"],input[type="month"]');
+    if(target){target.readOnly=true;target.classList.add('f4-date-target')}
+  },true);
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'&&pop){hide();return}
+    if(e.target.matches?.('input[type="date"],input[type="month"]')&&['Enter',' ','ArrowDown'].includes(e.key)){e.preventDefault();open(e.target)}
+  },true);
+  addEventListener('resize',position);addEventListener('scroll',position,true);
+})();
+</script><script data-bundled="offline-bank.js">
+(()=>{'use strict';
+ const progress=[
+   {
+     "tanggal": "11 Oktober 2026",
+     "judul": "Pembersihan & Persiapan Drop Point",
+     "langkah": "Pembersihan area pemilahan",
+     "status": "Selesai",
+     "deskripsi": "Pengelolaan sampah anorganik terpilah untuk kas tambahan warga.",
+     "agenda": "Pembuatan tong/wadah drop point",
+     "foto": "https://drive.google.com/file/d/1AR1iArLy2iN5cPv5AyPtGwHmyWpWBMTw/view?usp=sharing",
+     "urlFoto": "https://drive.google.com/file/d/1AR1iArLy2iN5cPv5AyPtGwHmyWpWBMTw/view?usp=sharing",
+     "photoUrl": "https://drive.google.com/file/d/1AR1iArLy2iN5cPv5AyPtGwHmyWpWBMTw/view?usp=sharing",
+     "progressId": "PR0001"
+   },
+   {
+     "tanggal": "11 Oktober 2026",
+     "judul": "Pembuatan Wadah Drop Point",
+     "langkah": "Pembuatan wadah",
+     "status": "Selesai",
+     "deskripsi": "Membuat tempat untuk menampung sampah sebelum nantinya akan dijual",
+     "agenda": "Pembuatan alur dan administrasi",
+     "foto": "https://drive.google.com/file/d/1jtKd09dMftq1FovXHLs9GOe97a7H4LSF/view?usp=sharing",
+     "urlFoto": "https://drive.google.com/file/d/1jtKd09dMftq1FovXHLs9GOe97a7H4LSF/view?usp=sharing",
+     "photoUrl": "https://drive.google.com/file/d/1jtKd09dMftq1FovXHLs9GOe97a7H4LSF/view?usp=sharing",
+     "progressId": "PR0002"
+   }
+ ];
+ const albums=[{id:'AL0001',albumId:'AL0001',judul:'Gorol membersihkan drop point',tanggal:'11 Oktober 2026',deskripsi:'Kegiatan warga Flamboyan 4 membersihkan rumah drop point',sampul:'https://drive.google.com/file/d/1DcqPvQpQx_nQEPsCXlbJz-YETZ0iypep/view?usp=sharing',kategori:'Kegiatan',jumlahMedia:0,status:'Aktif',publik:true}];
+ const items=[{kode:'BS003',nama:'Kardus',kelompok:'Kertas',hargaAcuan:1500,tarifWarga:1000,status:'Aktif'},{kode:'BS007',nama:'Kaleng',kelompok:'Logam',hargaAcuan:3000,tarifWarga:1500,status:'Aktif'},{kode:'BS008',nama:'Gelas plastik bersih',kelompok:'Plastik',hargaAcuan:2000,tarifWarga:1000,status:'Aktif'}];
+ const readOnly={
+  bsV11PublicHome:()=>({anggotaAktif:33,jenisBarang:11,beratTerkonfirmasi:0,kegiatan:2,progres:progress,inventaris:[{nama:'Tempat Drop Point',jumlah:'1 unit',kondisi:'Baik',foto:''}]}),
+  bsV11PublicAlbums:()=>albums,bsV22AlbumIndexPublik:()=>albums,
+  bsV17GrafikPublik:()=>({bulan:[],catatan:'Grafik kosong pada mode pratinjau.'}),
+  bsV25LaporanPublik:()=>({bulan:'2026-10',periode:'Oktober 2026',ringkasan:{},setoran:[],penjualan:[],kas:[],grafik:[],catatan:'Data contoh tanpa database'}),
+  bsDashboardAdmin:()=>({wargaAktif:33,jenisBarangAktif:11,beratSetoranKg:0,jumlahSetoran:0,estimasiSetoranRp:0,jumlahPenjualan:0,beratPenjualanKg:0,diterimaLapakRp:0,netMutasiTabunganRp:0,netKasRp:0,tarifBelumDitetapkan:0}),
+  bsDashboardMasterBarang:()=>items,bsDashboardProgressPublik:()=>progress,
+  authAdminAccounts:()=>[],bsV6BatchAdmin:()=>[],bsV8BatchSiap:()=>({setoran:0,penjualan:0,beratSetoran:0,beratLapak:0,hakWarga:0}),
+  bsV6SetoranAdmin:()=>[],bsV18RiwayatSetoranAdmin:()=>[],bsV7PenjualanAdmin:()=>[],bsV27FinalAdmin:()=>[],
+  bsV9SaldoAdmin:()=>[],bsV9StatusKasAdmin:()=>({kasGabungan:0,belumPosting:0}),bsV9RiwayatPencairan:()=>[],
+  bsV10KasPosAdmin:()=>({kasGabungan:0,pos:[]}),bsV10PengeluaranAdmin:()=>[],
+  bsV22AlbumAdmin:()=>albums,bsV15FotoSaya:()=>({ada:false}),
+  bsV12AksesLaporan:()=>({siap:true}),bsV12Statement:()=>({saldo:0,totalMasuk:0,totalCair:0,mutasi:[],setoran:[]}),
+  bsV17RingkasanKasAdmin:()=>({kasTercatat:0,masukPeriode:0,keluarPeriode:0,selisihPeriode:0,bulan:[],rincian:[]}),
+  bsV10LaporanAdmin:()=>({periode:'Pratinjau',ringkasan:{jumlahSetoran:0,jumlahPenjualan:0,diterima:0,hakWargaDikredit:0,tabunganDicairkan:0,biaya:0},setoran:[],penjualan:[],pengeluaran:[]}),
+  bsV21IsiAlbumPublik:()=>({id:'DEMO-A01',judul:'Contoh Dokumentasi',media:[]}),
+  bsV6PratinjauRekonsiliasi:()=>({setoran:0,penjualan:0,beratSetoran:0,beratLapak:0,hakWarga:0,margin:0}),
+ };
+ window.__f4BankDemoCall=async(name,args)=>{
+  if(readOnly[name])return readOnly[name](...args);
+  if(name==='authLogout')return {ok:true};
+  if(name==='authMe'||name==='authLogin'||name==='authChangePassword'){
+   throw Error('Autentikasi pada laman asli digantikan oleh kontrol simulasi akun terpadu di atas.');
+  }
+  window.__f4DemoNotify('Fungsi '+name+' tidak dijalankan: struktur tanpa database.');
+  throw Error('MODE PRATINJAU — penyimpanan, pembatalan, dan pengesahan tidak aktif.');
+ };
+})();
+</script>
+<script data-bundled="live-bank-readonly.js">
+/* Live data bridge for ORIGINAL Bank Sampah UI. Reads only existing Cloudflare endpoints. */
+(()=>{'use strict';
+ const API='https://api.flamboyan4.web.id';
+ const original=window.__f4BankDemoCall;
+ const onlyArray=(data)=>Array.isArray(data)?data:Array.isArray(data?.rows)?data.rows:Array.isArray(data?.items)?data.items:Array.isArray(data?.data)?data.data:Array.isArray(data?.data?.rows)?data.data.rows:Array.isArray(data?.data?.items)?data.data.items:[];
+ const number=(value)=>Number.isFinite(Number(value))?Number(value):0;
+ async function get(path){
+  const response=await fetch(API+path,{credentials:'include',mode:'cors',cache:'no-store'});
+  const result=await response.json().catch(()=>{throw Error('API Cloudflare tidak mengirim JSON.')});
+  if(!response.ok||result?.ok===false)throw Error(result?.error||'Gagal membaca Cloudflare D1 (HTTP '+response.status+').');
+  return result;
+ }
+ let cache,loadedAt=0;
+ const publicData=async()=>{
+  if(cache&&Date.now()-loadedAt<15000)return cache;
+  const result=await get('/api/v2/public/bank');
+  cache=result;loadedAt=Date.now();return result;
+ };
+ const progress=items=>onlyArray(items).map(item=>({
+  tanggal:item.tanggal||item.happened_on||item.date||'',
+  langkah:item.langkah||item.stage||'',
+  judul:item.judul||item.title||item.name||'Perkembangan',
+  deskripsi:item.deskripsi||item.description||'',
+  status:item.status||'',
+  agenda:item.agenda||item.nextAgenda||'',
+  foto:item.foto||item.photoUrl||item.photo_url||item.imageUrl||''
+ }));
+ const inventories=items=>onlyArray(items).map(item=>({
+  nama:item.nama||item.name||'',jumlah:String(item.jumlah??item.quantity??'0')+' '+(item.unit||''),
+  kondisi:item.kondisi||item.condition||'',foto:item.foto||item.photoUrl||item.imageUrl||''
+ }));
+ const albums=items=>onlyArray(items).map(item=>({
+  id:item.id||item.albumId,
+  judul:item.judul||item.title||'Album',
+  tanggal:item.tanggal||item.event_on||'',
+  deskripsi:item.deskripsi||item.description||'',
+  sampul:item.sampul||item.coverUrl||item.imageUrl||'',
+  kategori:item.kategori||item.category||'',
+  media:[]
+ }));
+ async function home(){
+  const r=await publicData();
+  const o=r.overview||{};
+  const p=progress(r.progress);
+  return {
+   anggotaAktif:number(o.activeMembers??o.memberCount??o.members??r.membersCount??0),
+   jenisBarang:number(o.activeItems??r.catalog?.length??0),
+   beratTerkonfirmasi:number(o.confirmedWeightKg??o.confirmedKg??0),
+   kegiatan:p.length,
+   progres:p,
+   inventaris:inventories(r.inventory)
+  };
+ }
+ async function albumList(){
+  const r=await publicData();
+  const list=albums(r.albums);
+  await Promise.all(list.slice(0,12).map(async item=>{
+   if(!item.id)return;
+   try{
+    const d=await get('/api/v2/public/bank/album/'+encodeURIComponent(item.id));
+    item.media=onlyArray(d.media).map(x=>({
+     caption:x.caption||x.title||'',jenis:x.media_type||x.type||'foto',
+     url:x.mediaUrl||x.external_url||x.url||''
+    }));
+   }catch{}
+  }));
+  return list;
+ }
+ async function report(period){
+  const q=period&&period!=='semua'?'?month='+encodeURIComponent(period):'';
+  const r=await get('/api/v2/public/bank/report'+q);
+  const sum=r.summary||r.ringkasan||{};
+  const sale=r.sales||{},cash=r.cash||{},expense=r.expenses||{};
+  if(!('sales'in r||'summary'in r||'ringkasan'in r))
+   throw Error('Format laporan D1 belum memiliki ringkasan yang dibutuhkan tampilan lama. Data tidak akan direka.');
+  const monthly=onlyArray(r.bulanan||r.monthly||r.periods).map(row=>({
+   periode:row.periode||row.month||row.period||'',
+   beratKg:number(row.beratKg??row.confirmedKg),
+   hasilPenjualan:number(row.hasilPenjualan??row.salesRp),
+   hakWarga:number(row.hakWarga??row.savingsRp),
+   cadangan:number(row.cadangan??row.reserveRp),
+   kasLorong:number(row.kasLorong??row.neighborhoodRp),
+   operasional:number(row.operasional??row.operationalRp),
+   pengeluaran:number(row.pengeluaran??row.expensesRp)
+  }));
+  return {
+   ringkasan:{
+    beratKg:number(sum.beratKg??sum.confirmedKg??r.confirmedKg),
+    hasilPenjualan:number(sum.hasilPenjualan??sale.diterimaRp),
+    hakWarga:number(sum.hakWarga??sale.savingsRp),
+    cadangan:number(sum.cadangan??cash.reserveRp),
+    kasLorong:number(sum.kasLorong??cash.neighborhoodRp),
+    operasional:number(sum.operasional??cash.operationalRp),
+    pengeluaran:number(sum.pengeluaran??expense.pengeluaranRp),
+    batch:number(sum.batch??r.batches?.length??0)
+   },
+   bulanan:monthly,periodeTersedia:onlyArray(r.periodeTersedia||[]),
+   catatan:'Data dibaca dari Cloudflare D1. Bagian yang belum termigrasi dapat kosong.'
+  };
+ }
+ async function memberSavings(){
+  const r=await get('/api/member/savings');
+  const records=onlyArray(r.setoran).map(x=>({
+   tanggal:x.tanggal||x.deposited_on||'',
+   beratKg:number(x.beratKg??number(x.beratGram)/1000),
+   nominal:number(x.estimasiRp),
+   status:x.status||''
+  }));
+  return {saldo:number(r.saldoTersediaRp),totalMasuk:number(r.totalMasukRp),totalCair:number(r.totalCairRp),
+   mutasi:records,setoran:records};
+ }
+ async function publicChart(){
+  const r=await publicData();
+  const last=Array.isArray(r.monthlyWeights)?r.monthlyWeights.slice(-6):[];
+  return {bulan:last.map(x=>({bulan:x.month,beratKg:number(x.beratKg)})),
+   catatan:'Berat setoran terkonfirmasi menurut bulan pada D1'};
+ }
+ async function publicAlbumDetail(id){
+  const r=await get('/api/v2/public/bank/album/'+encodeURIComponent(id));
+  const media=onlyArray(r.media).map(x=>{
+    const url=x.mediaUrl?(x.mediaUrl.startsWith('/')?API+x.mediaUrl:x.mediaUrl):(x.external_url||'');
+    const jenis=x.media_type==='video'?'Video':'Foto';
+    return {id:x.id,nama:x.caption||'',jenis,url,thumb:jenis==='Foto'?url:''};
+  });
+  return {id,judul:r.album?.title||'',tanggal:r.album?.event_on||'',
+    deskripsi:r.album?.description||'',media,catatan:media.length?'':'Album belum memiliki media aktif.'};
+ }
+ async function accessStatement(){
+  await get('/api/member/savings');
+  return {siap:true,pesan:'Laporan pribadi tersedia dari Cloudflare D1'};
+ }
+ const adminRows=async name=>onlyArray(await get('/api/v2/admin/bank/'+name));
+ const adminDeposits=async()=> (await adminRows('deposits')).map(x=>({
+  id:x.id,wargaId:x.member_id,namaWarga:x.memberName||'',rumahWarga:'',tanggal:x.deposited_on,
+  berat:number(x.total_grams)/1000,estimasi:number(x.estimated_total_rp),
+  status:x.status==='dibatalkan'?'Dibatalkan':x.status==='terkonfirmasi'?'Terkonfirmasi':'Estimasi',
+  batchId:x.batch_id
+ }));
+ const adminSales=async()=> (await adminRows('sales')).map(x=>({
+  id:x.id,batchId:x.batch_id,tanggal:x.sold_on,lapak:x.buyer_name||'',
+  bruto:number(x.amount_gross_rp),diterima:number(x.amount_received_rp),
+  status:x.status==='dibatalkan'?'Dibatalkan':x.status==='terkonfirmasi'?'Terkonfirmasi':'Draft'
+ }));
+ const adminBatches=async()=> (await adminRows('batches')).map(x=>({
+  id:x.id,berat:number(x.grams)/1000,jumlahSetoran:number(x.deposits),
+  estimasi:number(x.estimatedRp),status:x.status||'draft'
+ }));
+ const adminMembers=async()=> (await adminRows('members')).map(x=>({
+  wargaId:String(x.id||'').replace(/^member:/,''),nama:x.nama||'',rumah:x.rumah||'',
+  status:x.status==='aktif'?'Aktif':'Nonaktif'
+ }));
+ const adminOverview=async()=>{
+  const [members,items,deposits,sales]=await Promise.all([adminMembers(),adminRows('catalog'),adminDeposits(),adminSales()]);
+  const validDeposits=deposits.filter(x=>x.status!=='Dibatalkan');
+  const confirmedSales=sales.filter(x=>x.status==='Terkonfirmasi');
+  return {wargaAktif:members.filter(x=>x.status==='Aktif').length,
+   jenisBarangAktif:items.filter(x=>x.active!==0).length,
+   beratSetoranKg:validDeposits.reduce((n,x)=>n+x.berat,0),
+   jumlahSetoran:validDeposits.length,estimasiSetoranRp:validDeposits.reduce((n,x)=>n+x.estimasi,0),
+   jumlahPenjualan:confirmedSales.length,
+   beratPenjualanKg:0,diterimaLapakRp:confirmedSales.reduce((n,x)=>n+x.diterima,0),
+   netMutasiTabunganRp:0,netKasRp:0,tarifBelumDitetapkan:items.filter(x=>!x.priceRpPerKg).length};
+ };
+ const adminProgress=async()=> (await adminRows('progress')).map(x=>({
+   id:x.id,progressId:x.id,tanggal:x.happened_on,judul:x.title,langkah:x.stage,
+   deskripsi:x.description||'',status:x.status,agenda:x.next_step||'',publik:!!x.public_visible
+ }));
+ const adminExpenses=async()=> (await adminRows('expenses')).map(x=>({
+   id:x.id,tanggal:x.incurred_on,jenis:x.kind,pos:x.budget_post,
+   uraian:x.description||'',keterangan:x.description||'',jumlah:number(x.amount_rp),
+   nominal:number(x.amount_rp),status:x.status,vendor:x.vendor||''
+ }));
+ const adminSavings=async()=>{
+   const [members,balances]=await Promise.all([adminMembers(),adminRows('savings')]);
+   const byId=new Map(balances.map(x=>[String(x.member_id||'').replace(/^member:/,''),number(x.balanceRp)]));
+   return members.map(m=>({...m,saldo:byId.get(m.wargaId)||0,saldoRp:byId.get(m.wargaId)||0}));
+ };
+ const adminCash=async()=> (await adminRows('cash')).map(x=>({
+   id:x.id,tanggal:x.occurred_on,jenis:x.transaction_type,pos:x.fund_position,
+   masuk:number(x.cash_in_rp),keluar:number(x.cash_out_rp),status:x.status,keterangan:x.note||''
+ }));
+ const adminAlbums=async()=> (await adminRows('albums')).map(x=>({
+   id:x.id,albumId:x.id,judul:x.title,tanggal:x.event_on,deskripsi:x.description||'',
+   kategori:x.category,publik:x.visibility==='publik',status:x.status
+ }));
+ const adminCashOverview=async(_token,period='')=>{
+  const all=await adminCash();
+  const month=String(period||'').match(/^\\d{4}-\\d{2}$/)?.[0]||'';
+  const eligible=all.filter(x=>x.status==='aktif');
+  const rows=eligible.filter(x=>!month||String(x.tanggal).startsWith(month));
+  const grouped=new Map();
+  for(const x of rows){
+   const key=String(x.tanggal||'').slice(0,7);
+   const item=grouped.get(key)||{periode:key,masuk:0,keluar:0};
+   item.masuk+=x.masuk;item.keluar+=x.keluar;grouped.set(key,item);
+  }
+  return {kasTercatat:eligible.reduce((n,x)=>n+x.masuk-x.keluar,0),
+   masukPeriode:rows.reduce((n,x)=>n+x.masuk,0),keluarPeriode:rows.reduce((n,x)=>n+x.keluar,0),
+   selisihPeriode:rows.reduce((n,x)=>n+x.masuk-x.keluar,0),
+   bulanan:[...grouped.values()].sort((a,b)=>a.periode.localeCompare(b.periode)),
+   rincian:rows.map(x=>({...x,jenis:x.keterangan||x.jenis})),
+   transaksi:rows.length,periode:month||'semua',catatan:'Arus kas dari D1, bukan saldo akhir tersahkan'};
+ };
+ const adminReport=async(_token,period='',includeCanceled=false)=>{
+  const [deposits,sales,expenses,cash]=await Promise.all([
+    adminDeposits(),adminSales(),adminExpenses(),adminCash()]);
+  const month=String(period||'').match(/^\\d{4}-\\d{2}$/)?.[0]||'';
+  const scope=rows=>rows.filter(x=>!month||String(x.tanggal||'').startsWith(month));
+  // Status estimasi/draft tetap boleh terlihat pada riwayat, tetapi BUKAN transaksi sah.
+  const depositRows=scope(deposits).filter(x=>includeCanceled||x.status!=='Dibatalkan');
+  const saleRows=scope(sales).filter(x=>includeCanceled||x.status!=='Dibatalkan');
+  const confirmedDeposits=depositRows.filter(x=>x.status==='Terkonfirmasi');
+  const confirmedSales=saleRows.filter(x=>x.status==='Terkonfirmasi');
+  const expenseRows=scope(expenses).filter(x=>includeCanceled||x.status!=='dibatalkan');
+  const paidExpenses=expenseRows.filter(x=>x.status==='lunas');
+  const activeCash=cash.filter(x=>x.status==='aktif');
+  return {
+    periode:month||'semua',
+    ringkasan:{jumlahSetoran:confirmedDeposits.length,jumlahPenjualan:confirmedSales.length,
+     estimasi:confirmedDeposits.reduce((n,x)=>n+x.estimasi,0),
+     diterima:confirmedSales.reduce((n,x)=>n+x.diterima,0),
+     hakWargaDikredit:0,tabunganDicairkan:0,
+     biaya:paidExpenses.reduce((n,x)=>n+x.nominal,0),
+     saldoKasKini:activeCash.reduce((n,x)=>n+x.masuk-x.keluar,0)},
+    setoran:depositRows.map(x=>({id:x.id,tanggal:x.tanggal,warga:x.wargaId,berat:x.berat,nilai:x.estimasi,status:x.status})),
+    penjualan:saleRows.map(x=>({id:x.id,tanggal:x.tanggal,batch:x.batchId,lapak:x.lapak,bruto:x.bruto,diterima:x.diterima,disahkan:x.status==='Terkonfirmasi',status:x.status})),
+    pengeluaran:expenseRows.map(x=>({id:x.id,tanggal:x.tanggal,jenis:x.jenis,keterangan:x.keterangan,pos:x.pos,nominal:x.nominal,status:x.status})),
+    mutasi:[]
+  };
+ };
+ const bankAdminAccounts=async()=>{
+   // Admin can read members for operational forms. Superadmin uses centralized accounts.
+   let list;
+   try {
+     const response=await get('/api/superadmin/accounts/preview');
+     list=Array.isArray(response.akun)?response.akun:Array.isArray(response.accounts)?response.accounts:onlyArray(response);
+   } catch(error) {
+     // Only the account manager needs central credentials; general setoran dropdown can use bank members.
+     return adminMembers().then(members=>members.map(x=>({...x,akunId:'',username:'',status:x.status})));
+   }
+   return list.filter(x=>!['superadmin','admin'].includes(String(x.role||'').toLowerCase())).map(x=>{
+     const status=String(x.status||(!x.perluAktivasi?'Aktif':'Belum Aktif'));
+     return {
+       akunId:String(x.id||x.accountId||x.akunId||''),
+       wargaId:String(x.wargaId||x.member_id||x.payerId||''),
+       nama:String(x.nama||x.name||x.username||''),
+       rumah:String(x.rumah||x.house||''),
+       username:String(x.username||''),
+       status:/^(aktif|active)$/i.test(status)?'Aktif':status,
+       aktif:/^(aktif|active)$/i.test(status)
+     };
+   });
+ };
+ const memberAvatar=async()=>{
+   const r=await fetch(API+'/api/member/avatar',{credentials:'include',cache:'no-store'});
+   if(r.status===404)return {ada:false,data:''};
+   if(!r.ok)throw Error('Foto profil tidak dapat dibaca (HTTP '+r.status+').');
+   const blob=await r.blob();
+   const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result||''));reader.onerror=()=>reject(Error('Foto gagal diproses'));reader.readAsDataURL(blob)});
+   return {ada:true,data};
+ };
+ const saveMemberAvatar=async(_token,encoded)=>{
+   if(!/^[A-Za-z0-9+/=]+$/.test(String(encoded||'')))throw Error('Format gambar tidak valid.');
+   const bytes=Uint8Array.from(atob(encoded),x=>x.charCodeAt(0));
+   if(bytes.length>2*1024*1024)throw Error('Foto melebihi 2 MB.');
+   const response=await fetch(API+'/api/member/avatar',{method:'POST',credentials:'include',headers:{'content-type':'image/jpeg'},body:bytes});
+   const result=await response.json().catch(()=>({}));
+   if(!response.ok||result.ok===false)throw Error(result.error||'Upload foto ditolak (HTTP '+response.status+').');
+   return {ok:true};
+ };
+ const changePassword=async(_token,currentPassword,newPassword)=>{
+   if(!currentPassword||String(newPassword||'').length<4)throw Error('Isi password sekarang dan password baru minimal 4 karakter.');
+   const r=await fetch(API+'/api/auth/change-password',{method:'POST',credentials:'include',
+     headers:{'Content-Type':'application/json'},body:JSON.stringify({currentPassword,newPassword})});
+   const data=await r.json().catch(()=>({}));
+   if(!r.ok||data.ok===false)throw Error(data.error||'Gagal mengganti password (HTTP '+r.status+').');
+   window.parent.postMessage({type:'f4:auth-changed'},location.origin);
+   return {berhasil:true,pesan:'Password berhasil diganti. Silakan login kembali.'};
+ };
+ const read={
+  authChangePassword:changePassword,
+  bsV15FotoSaya:memberAvatar,
+  bsV15SimpanFoto:saveMemberAvatar,
+  authAdminAccounts:bankAdminAccounts,
+  bsV12AksesLaporan:accessStatement,
+  bsV17GrafikPublik:publicChart,
+  bsV22AlbumIndexPublik:albumList,
+  bsV21IsiAlbumPublik:publicAlbumDetail,
+  bsDashboardProgressPublik:adminProgress,
+  bsV10PengeluaranAdmin:adminExpenses,
+  bsV9SaldoAdmin:adminSavings,
+  bsV22AlbumAdmin:adminAlbums,
+  bsDashboardAdmin:adminOverview,
+  bsV17RingkasanKasAdmin:adminCashOverview,
+  bsV10LaporanAdmin:adminReport,
+  bsV9StatusKasAdmin:async()=>{
+   const cash=await adminCash();return {saldoKasTercatat:cash.reduce((n,x)=>n+x.masuk-x.keluar,0),batchBelumDiposting:[],kasGabungan:cash.reduce((n,x)=>n+x.masuk-x.keluar,0)};
+  },
+  bsV10KasPosAdmin:async()=>{
+   const cash=await adminCash();return {kasGabungan:cash.reduce((n,x)=>n+x.masuk-x.keluar,0),pos:[]};
+  },
+  bsV6SetoranAdmin:adminDeposits,
+  bsV18RiwayatSetoranAdmin:adminDeposits,
+  bsV7PenjualanAdmin:adminSales,
+  bsV6BatchAdmin:adminBatches,
+  bsV11PublicHome:home,
+  bsV11PublicAlbums:albumList,
+  bsV25LaporanPublik:report,
+  bsV12Statement:memberSavings,
+  bsDashboardMasterBarang:async()=>{
+   const r=await get('/api/v2/admin/bank/catalog');
+   return onlyArray(r).map(item=>({kode:item.code||item.kode||String(item.id||'').replace(/^waste:/,''),
+    nama:item.name||item.nama,kelompok:item.category||item.kelompok||'',
+    acuan:number(item.reference_price_rp??item.acuan??number(item.priceRpPerKg)*2),
+    tarif:number(item.priceRpPerKg??item.tarif),
+    status:item.active===false?'Nonaktif':'Aktif'}));
+  }
+ };
+ window.__f4BankDemoCall=(name,args=[])=>{
+  if(Object.hasOwn(read,name))return read[name](...args);
+  // Other legacy read flows are not yet mapped. Do not silently fake balances or writes.
+  if(name.startsWith('bs')&&/Tambah|Simpan|Hapus|Batalkan|Update|Bayar|Posting|Setujui|Ubah|Tutup/i.test(name))
+   return Promise.reject(Error('Penyimpanan belum diaktifkan. Perlu endpoint Worker yang tervalidasi.'));
+  // Jangan pernah menggunakan fallback data simulasi dari versi prototipe sebagai transaksi resmi.
+  return Promise.reject(Error('Fungsi '+name+' dari Bank Sampah asli belum memiliki endpoint Cloudflare yang terhubung. Tidak ada data yang diubah.'));
+ };
+})();
+</script><style id="f4-preview-one-account">
 /* Hanya di pratinjau terpadu: akun berada di utilitas kanan atas, bukan sidebar. */
 #v15Footer,#v19PublicAccountFooter,#v17PublicAccount,#navProfile,#navPassword,#v13Group_account{display:none!important}
 #v11Public .public-hero button{display:none!important}
