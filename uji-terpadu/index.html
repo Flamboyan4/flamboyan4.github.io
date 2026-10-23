@@ -421,11 +421,27 @@ body.f4-management-active .shell{z-index:70!important}
 }
 body.f4-management-active #f4-account-page .f4-work-heading{scroll-margin-top:80px}
 </style>
-</head>
+
+<style id="f4-portal-superadmin-layout">
+/* The 4th portal is an independent iframe with its own blue navigation, not the old management overlay. */
+body.superadmin-mode{background:#eff5f8!important}
+body.superadmin-mode .portal-sidebar{display:none!important}
+body.superadmin-mode .framebox{position:absolute!important;inset:0!important;margin:0!important;height:100dvh!important;min-height:0!important;background:#eff5f8!important}
+body.superadmin-mode .shell{left:244px!important;right:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
+body.superadmin-mode .top{background:transparent!important}
+body.superadmin-mode .top nav button.active{background:#e2eef7!important;color:#225b87!important}
+body.superadmin-mode .top nav button:hover{background:#eaf3fa!important;color:#225b87!important}
+body.superadmin-mode #f4-mobile-menu{display:none!important}
+body.superadmin-mode .notice{display:none!important}
+@media(max-width:760px){
+ body.superadmin-mode .shell{left:0!important}
+ body.superadmin-mode .framebox{position:absolute!important;inset:0!important;margin:0!important;height:100dvh!important}
+}
+</style></head>
 <body>
 <header class="shell">
  <div class="top">
-  <div class="brand"><span class="logo">✿</span><div><b>Flamboyan 4 · Uji Terpadu</b><small>Tiga antarmuka asli, satu navigasi & identitas</small></div></div>
+  <div class="brand"><span class="logo">✿</span><div><b>Flamboyan 4 · Uji Terpadu</b><small>Empat portal, satu login & identitas</small></div></div>
   <div class="status"><span class="dot"></span>Data contoh / offline</div>
   <nav aria-label="Navigasi antarportal">
    <button type="button" data-target="portal" class="active" aria-pressed="true" title="Portal Utama" aria-label="Portal Utama"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>
@@ -445,7 +461,7 @@ body.f4-management-active #f4-account-page .f4-work-heading{scroll-margin-top:80
   <path d="M15 7h5"/>
   <path d="M15 12h5"/>
   <path d="M15 17h5"/></svg></button>
-  </nav>
+  <button type="button" data-target="superadmin" aria-pressed="false" hidden title="Portal Superadmin" aria-label="Portal Superadmin"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 22 7-4V6l-7-4-7 4v12z"/><path d="m9 12 2 2 4-4"/></svg></button></nav>
   <div class="account-ui" id="account-ui">
    <button type="button" class="login-button" id="login-button">Login</button>
    <button type="button" class="avatar-button" id="avatar-button" aria-label="Menu Akun" aria-expanded="false" aria-haspopup="menu" hidden>
@@ -478,7 +494,7 @@ body.f4-management-active #f4-account-page .f4-work-heading{scroll-margin-top:80
  <main class="framebox">
  <iframe id="appframe" title="Aplikasi asli Flamboyan 4 — pratinjau offline" sandbox="allow-scripts allow-same-origin allow-popups" referrerpolicy="no-referrer" src="./portal/" ></iframe>
  <div id="gate" class="gate" role="region" aria-label="Akses portal terbatas"><article>
-  <div style="font-size:38px">🔒</div><h1>Pembukuan khusus Superadmin</h1>
+  <div style="font-size:38px">🔒</div><h1>Akses khusus Superadmin</h1>
   <p>Ini simulasi hak akses terpusat. Masuk dengan <b>simulasi akun Superadmin</b> melalui tombol Login di kanan atas. Semua hak akses pada halaman ini hanya contoh, bukan autentikasi sungguhan.</p>
   <button type="button" id="gate-login">Login dengan akun Superadmin</button></article></div>
 </main>
@@ -520,7 +536,7 @@ body.f4-management-active #f4-account-page .f4-work-heading{scroll-margin-top:80
 <div id="toast" class="toast" hidden role="status"></div>
 <script>
 (()=>{
- const apps={portal:'./portal/?v=superadmin-20261023-v3',rapat:'./rapat/?v=d1-meetings-20261023',dokumentasi:'./dokumentasi/',inventaris:'./dokumentasi/#inventaris','bank-sampah':'./bank-sampah/?v=account-flow-074e422',pembukuan:'./pembukuan/?v=laporan-rt-riwayat-23okt-v2'};
+ const apps={portal:'./portal/?v=superadmin-20261023-v3',rapat:'./rapat/?v=d1-meetings-20261023',dokumentasi:'./dokumentasi/',inventaris:'./dokumentasi/#inventaris','bank-sampah':'./bank-sampah/?v=account-flow-074e422',pembukuan:'./pembukuan/?v=laporan-rt-riwayat-23okt-v2',superadmin:'./superadmin/?v=4portal-f3e54a6'};
 
  const buttons=[...document.querySelectorAll('nav [data-target]')],frame=document.getElementById('appframe'),
  gate=document.getElementById('gate'),toast=document.getElementById('toast');
@@ -543,13 +559,15 @@ body.f4-management-active #f4-account-page .f4-work-heading{scroll-margin-top:80
  };
  let selected='portal',role='public',timer;
  const notify=s=>{toast.textContent=s;toast.hidden=false;clearTimeout(timer);timer=setTimeout(()=>toast.hidden=true,4000)};
- const permitted=()=>selected!=='pembukuan'||role==='superadmin';
+ const permitted=()=>!['pembukuan','superadmin'].includes(selected)||role==='superadmin';
  // Perubahan URL/pemilih menu tidak memberi akses Pembukuan tanpa role superadmin.
  function refreshIdentity(){
   const signed=role!=='public';
   document.body.classList.toggle('role-superadmin',role==='superadmin');
   document.body.classList.toggle('role-warga',role==='warga');
   document.body.classList.toggle('role-admin',role==='admin');
+  const saButton=buttons.find(b=>b.dataset.target==='superadmin');
+  if(saButton){saButton.hidden=role!=='superadmin';saButton.setAttribute('aria-hidden',String(role!=='superadmin'));}
   const bookkeepingButton=buttons.find(b=>b.dataset.target==='pembukuan');
   if(bookkeepingButton){bookkeepingButton.hidden=role!=='superadmin';bookkeepingButton.setAttribute('aria-hidden',String(role!=='superadmin'));}
   login.hidden=signed;avatar.hidden=!signed;menu.hidden=true;avatar.setAttribute('aria-expanded','false');
@@ -640,12 +658,13 @@ body.f4-management-active #f4-account-page .f4-work-heading{scroll-margin-top:80
   document.body.classList.toggle('portal-mode',['portal','rapat','dokumentasi','inventaris'].includes(target));
   document.body.classList.toggle('bank-mode',target==='bank-sampah');
   document.body.classList.toggle('book-mode',target==='pembukuan');
+  document.body.classList.toggle('superadmin-mode',target==='superadmin');
   toolbar.classList.remove('is-scrolled');scrollButton.hidden=true;toolbar.classList.remove('modal-covered');
   document.querySelectorAll('[data-portal-menu]').forEach(b=>b.classList.toggle('active',b.dataset.portalMenu===(['rapat','dokumentasi','inventaris'].includes(target)?target:'beranda')));
   buttons.forEach(b=>{
    const selected=b.dataset.target===(['rapat','dokumentasi','inventaris'].includes(target)?'portal':target);
    b.classList.toggle('active',selected);b.setAttribute('aria-pressed',String(selected));
-   b.setAttribute('aria-disabled',String(b.dataset.target==='pembukuan'&&role!=='superadmin'));
+   b.setAttribute('aria-disabled',String(['pembukuan','superadmin'].includes(b.dataset.target)&&role!=='superadmin'));
   });
   gate.classList.toggle('visible',!permitted());
   if(permitted()){
@@ -674,7 +693,7 @@ body.f4-management-active #f4-account-page .f4-work-heading{scroll-margin-top:80
   try{const session=await apiCall('/api/v2/auth/session');activeAccount=session;role=sessionRole(session);updateAvatar()}
   catch{activeAccount=null;role='public'}
   refreshIdentity();
-  update(role!=='superadmin'&&selected==='pembukuan'?'portal':selected,{
+  update(role!=='superadmin'&&['pembukuan','superadmin'].includes(selected)?'portal':selected,{
    keepManagement:!document.getElementById('f4-account-page').hidden||!document.getElementById('f4-warga-panel').hidden
   });
  }
@@ -682,7 +701,7 @@ body.f4-management-active #f4-account-page .f4-work-heading{scroll-margin-top:80
   try{await apiCall('/api/auth/logout',{method:'POST'})}
   catch(e){notify('Tidak bisa keluar: '+e.message);return}
   activeAccount=null;role='public';refreshIdentity();
-  update(selected==='pembukuan'?'portal':selected);notify('Sesi akun telah diakhiri.');
+  update(['pembukuan','superadmin'].includes(selected)?'portal':selected);notify('Sesi akun telah diakhiri.');
  }
  login.onclick=()=>showLogin();
  avatar.onclick=()=>{menu.hidden=!menu.hidden;avatar.setAttribute('aria-expanded',String(!menu.hidden))};
@@ -773,7 +792,7 @@ body.f4-management-active #f4-account-page .f4-work-heading{scroll-margin-top:80
   const action=b.dataset.accountAction;menu.hidden=true;avatar.setAttribute('aria-expanded','false');
   if(action==='logout'){signOut();return}
   if(action==='warga'){openWarga();return}
-  if(action==='manage'){window.openManagementHub?.();return}
+  if(action==='manage'){update('superadmin');return}
   if(action==='settings'){openOriginalBankProfile();return;}
   openProfileSettings(false);
  });
@@ -821,6 +840,8 @@ body.f4-management-active #f4-account-page .f4-work-heading{scroll-margin-top:80
   }
   if(e.source===frame.contentWindow&&e.data.type==='f4:bank-profile-opened')bankProfileIntent=false;
   if(e.data.type==='f4:bank-avatar-updated'&&e.source===frame.contentWindow)updateAvatar();
+  if(e.source===frame.contentWindow&&e.data.type==='f4:go-portal'&&apps[e.data.portal])update(e.data.portal);
+  if(e.source===frame.contentWindow&&e.data.type==='f4:superadmin-section'&&selected==='superadmin')history.replaceState(null,'','#superadmin');
   if(e.data.type==='f4:bank-modal'&&selected==='bank-sampah'&&e.source===frame.contentWindow){toolbar.classList.toggle('modal-covered',e.data.open===true);}
   if(e.data.type==='f4:section'&&['dokumentasi','inventaris'].includes(e.data.target)){
     selected=e.data.target;
@@ -1029,7 +1050,7 @@ body.book-mode #profile-shade .login-confirm{background:#7c3aed!important}
   });
  };
  window.addEventListener('message',e=>{
-  if(e.origin===location.origin&&e.source===frame.contentWindow&&e.data?.type==='f4:manage-home')window.openManagementHub?.();
+  if(e.origin===location.origin&&e.source===frame.contentWindow&&e.data?.type==='f4:manage-home')document.querySelector('nav [data-target="superadmin"]')?.click();
  });
  window.addEventListener('message',e=>{
   if(e.origin!==location.origin||e.source!==frame.contentWindow)return;
@@ -1121,4 +1142,8 @@ body.bank-mode #profile-shade .f4-eye-toggle{background:transparent!important;ba
  if(residents)observer.observe(residents,{attributes:true,attributeFilter:['hidden']});
  sync();
 })();
+</script><script id="f4-fourth-portal-management-router">
+(()=>{window.openManagementHub=()=>{
+  document.querySelector('nav [data-target="superadmin"]')?.click();
+};})();
 </script></body></html>
