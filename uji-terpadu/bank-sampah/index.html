@@ -704,15 +704,47 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
   };
  }
  async function memberSavings(){
-  const r=await get('/api/member/savings');
-  const records=onlyArray(r.setoran).map(x=>({
-   tanggal:x.tanggal||x.deposited_on||'',
-   beratKg:number(x.beratKg??number(x.beratGram)/1000),
-   nominal:number(x.estimasiRp),
-   status:x.status||''
+  const response=await get('/api/member/savings');
+  const r=response.data&&typeof response.data==='object'&&!Array.isArray(response.data)?response.data:response;
+  const pick=(row,keys)=>{for(const k of keys)if(row?.[k]!=null&&row[k]!=='')return row[k];return undefined;};
+  const rawDeposits=onlyArray(r.setoran||r.deposits||r.depositHistory);
+  // Preserve the Bank Sampah original report shape while using real D1 deposits.
+  // Do not promote an estimate into a confirmed savings credit.
+  const deposits=rawDeposits.map(x=>{
+   const rawDetails=onlyArray(x.rincian||x.details||x.items||x.lines);
+   const id=pick(x,['id','deposit_id','setoranId'])||'';
+   return {
+    id:String(id),tanggal:pick(x,['tanggal','deposited_on','date'])||'',
+    beratKg:number(pick(x,['beratKg','weightKg'])??number(pick(x,['beratGram','total_grams']))/1000),
+    estimasiRp:number(pick(x,['estimasiRp','estimated_total_rp','estimatedRp'])),
+    status:pick(x,['status','state'])||'Estimasi',
+    rincian:rawDetails.map(y=>({
+     barang:pick(y,['barang','jenis','name','item_name','category'])||'—',
+     beratKg:number(pick(y,['beratKg','weightKg'])??number(pick(y,['beratGram','weight_g','grams']))/1000),
+     tarif:number(pick(y,['tarif','tarifWargaRp','unit_price_rp','price_rp'])),
+     nilai:number(pick(y,['nilai','estimasiRp','estimated_rp','amount_rp']))
+    }))
+   };
+  });
+  const rawMutations=onlyArray(r.mutasi||r.mutations||r.ledger);
+  const mutations=rawMutations.map(x=>({
+   id:pick(x,['id','mutation_id'])||'',
+   tanggal:pick(x,['tanggal','occurred_on','date'])||'',
+   jenis:pick(x,['jenis','type','description','keterangan'])||'',
+   kredit:number(pick(x,['kredit','credit_rp','masukRp'])),
+   debit:number(pick(x,['debit','debit_rp','keluarRp'])),
+   saldo:number(pick(x,['saldo','balance_rp','saldoRp']))
   }));
-  return {saldo:number(r.saldoTersediaRp),totalMasuk:number(r.totalMasukRp),totalCair:number(r.totalCairRp),
-   mutasi:records,setoran:records};
+  return {
+   nama:pick(r,['nama','memberName','name'])||'',
+   rumah:pick(r,['rumah','house'])||'',
+   wargaId:pick(r,['wargaId','memberId','member_id'])||'',
+   dibuatPada:new Date().toLocaleDateString('id-ID'),
+   saldo:number(pick(r,['saldoTersediaRp','saldo','balance_rp','available_balance_rp'])),
+   totalMasuk:number(pick(r,['totalMasukRp','totalMasuk','credit_total_rp'])),
+   totalCair:number(pick(r,['totalCairRp','totalCair','withdrawn_total_rp'])),
+   mutasi:mutations,setoran:deposits
+  };
  }
  async function publicChart(){
   const r=await publicData();
