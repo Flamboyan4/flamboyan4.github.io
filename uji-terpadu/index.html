@@ -483,12 +483,14 @@ body.superadmin-mode .notice{display:none!important}
  <div class="portal-divider"></div>
  <nav class="portal-menu" aria-label="Halaman Portal Utama">
  <button type="button" data-portal-menu="beranda" class="active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span>Beranda</span></button>
+<button type="button" data-portal-menu="keuangan" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h8M7 17h5"/></svg><span>Keuangan Warga</span></button>
 <button type="button" data-portal-menu="rapat" class=""><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 2h7l5 5v15H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg><span>Rapat</span></button>
 <button type="button" data-portal-menu="projek" class=""><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10H3z"/></svg><span>Projek</span></button>
 <button type="button" data-portal-menu="kalender" class=""><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 14h3M8 17h3"/></svg><span>Kalender</span></button>
 <button type="button" data-portal-menu="dokumentasi" class=""><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m4 18 6-6 4 4 3-3 4 5"/></svg><span>Dokumentasi</span></button>
 <button type="button" data-portal-menu="inventaris" class=""><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v7c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12v7c0 1.7 3.6 3 8 3s8-1.3 8-3v-7"/></svg><span>Inventaris</span></button>
 <button type="button" data-portal-menu="pembayaran" class=""><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 9h18M15 15h3"/></svg><span>Pembayaran</span></button>
+ <button type="button" data-portal-menu="komentar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8A8.5 8.5 0 0 1 12.5 20c-1.3 0-2.5-.3-3.6-.8L3 21l1.8-5.7A8.5 8.5 0 1 1 21 11.5z"/></svg><span>Komentar & Saran</span></button>
  </nav>
  </aside>
  <main class="framebox">
@@ -536,7 +538,7 @@ body.superadmin-mode .notice{display:none!important}
 <div id="toast" class="toast" hidden role="status"></div>
 <script>
 (()=>{
- const apps={portal:'./portal/?v=superadmin-20261023-v3',rapat:'./rapat/?v=d1-meetings-20261023',dokumentasi:'./dokumentasi/',inventaris:'./dokumentasi/#inventaris','bank-sampah':'./bank-sampah/?v=account-flow-074e422',pembukuan:'./pembukuan/?v=laporan-rt-riwayat-23okt-v2',superadmin:'./superadmin/?v=4portal-f3e54a6'};
+ const apps={portal:'./portal/?v=panel-e32a8f3',rapat:'./rapat/?v=d1-meetings-20261023',dokumentasi:'./dokumentasi/',inventaris:'./dokumentasi/#inventaris','bank-sampah':'./bank-sampah/?v=mode-2cf38ca',pembukuan:'./pembukuan/?v=laporan-rt-riwayat-23okt-v2',superadmin:'./superadmin/?v=4portal-f3e54a6'};
 
  const buttons=[...document.querySelectorAll('nav [data-target]')],frame=document.getElementById('appframe'),
  gate=document.getElementById('gate'),toast=document.getElementById('toast');
@@ -557,12 +559,13 @@ body.superadmin-mode .notice{display:none!important}
   const r=String(s?.account?.role||'').toLowerCase();
   return r==='superadmin'?'superadmin':r==='admin'?'admin':s?.account?'warga':'public';
  };
- let selected='portal',role='public',timer;
+ let selected='portal',role='public',timer,activePortalPanel='beranda';
  const notify=s=>{toast.textContent=s;toast.hidden=false;clearTimeout(timer);timer=setTimeout(()=>toast.hidden=true,4000)};
  const permitted=()=>!['pembukuan','superadmin'].includes(selected)||role==='superadmin';
  // Perubahan URL/pemilih menu tidak memberi akses Pembukuan tanpa role superadmin.
  function refreshIdentity(){
   const signed=role!=='public';
+  const financeMenu=document.querySelector('[data-portal-menu="keuangan"]');if(financeMenu)financeMenu.hidden=!signed;
   document.body.classList.toggle('role-superadmin',role==='superadmin');
   document.body.classList.toggle('role-warga',role==='warga');
   document.body.classList.toggle('role-admin',role==='admin');
@@ -661,7 +664,7 @@ body.superadmin-mode .notice{display:none!important}
   document.body.classList.toggle('book-mode',target==='pembukuan');
   document.body.classList.toggle('superadmin-mode',target==='superadmin');
   toolbar.classList.remove('is-scrolled');scrollButton.hidden=true;toolbar.classList.remove('modal-covered');
-  document.querySelectorAll('[data-portal-menu]').forEach(b=>b.classList.toggle('active',b.dataset.portalMenu===(['rapat','dokumentasi','inventaris'].includes(target)?target:'beranda')));
+  document.querySelectorAll('[data-portal-menu]').forEach(b=>b.classList.toggle('active',b.dataset.portalMenu===(['rapat','dokumentasi','inventaris'].includes(target)?target:activePortalPanel)));
   buttons.forEach(b=>{
    const selected=b.dataset.target===(['rapat','dokumentasi','inventaris'].includes(target)?'portal':target);
    b.classList.toggle('active',selected);b.setAttribute('aria-pressed',String(selected));
@@ -817,23 +820,24 @@ body.superadmin-mode .notice{display:none!important}
  mobileOverlay.addEventListener('click',()=>setMobileMenu(false));
  document.addEventListener('keydown',e=>{if(e.key==='Escape')setMobileMenu(false)});
  window.addEventListener('resize',()=>{if(innerWidth>1023)setMobileMenu(false)});
- document.querySelectorAll('[data-portal-menu]').forEach(button=>button.addEventListener('click',()=>{setMobileMenu(false);
+ document.querySelectorAll('[data-portal-menu]').forEach(button=>button.addEventListener('click',()=>{
+  setMobileMenu(false);
   const item=button.dataset.portalMenu;
   if(['rapat','dokumentasi','inventaris'].includes(item)){update(item);return}
-  document.querySelectorAll('[data-portal-menu]').forEach(x=>x.classList.toggle('active',x===button));
-  const section=item==='beranda'?null:item==='projek'?'projek':item==='kalender'?'rencana':item==='pembayaran'?'pembayaran':null;
-  const go=()=>{try{
-    const child=frame.contentWindow;
-    if(!section){child.scrollTo({top:0,behavior:'smooth'});return}
-    const el=child.document.getElementById(section);
-    if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
-    else notify('Bagian '+item+' belum ditemukan pada halaman sumber.');
-   }catch{notify('Halaman Portal Utama belum siap.')}
+  if(item==='keuangan'&&role==='public'){showLogin();return}
+  activePortalPanel=item;
+  const show=()=>{
+    if(selected!=='portal')return;
+    sendRole();
+    try{frame.contentWindow?.f4PortalSelectPanel?.(item)}
+    catch(e){notify('Panel '+item+' belum siap: '+e.message)}
+    document.querySelectorAll('[data-portal-menu]').forEach(x=>x.classList.toggle('active',x===button));
   };
-  if(selected!=='portal'){update('portal');frame.addEventListener('load',go,{once:true})}else go();
+  if(selected!=='portal'){frame.addEventListener('load',show,{once:true});update('portal')}
+  else show();
  }));
- buttons.forEach(b=>b.addEventListener('click',()=>update(b.dataset.target)));
- frame.addEventListener('load',()=>{sendRole();attachScrollListener();observeOriginalDialogs();dispatchBankProfile()});
+  buttons.forEach(b=>b.addEventListener('click',()=>update(b.dataset.target)));
+ frame.addEventListener('load',()=>{sendRole();attachScrollListener();observeOriginalDialogs();dispatchBankProfile();if(selected==='portal')try{frame.contentWindow?.f4PortalSelectPanel?.(activePortalPanel)}catch{}});
  window.addEventListener('message',e=>{
   if(e.origin!==location.origin||!e.data)return;
   if(e.data.type==='f4:ready'){
