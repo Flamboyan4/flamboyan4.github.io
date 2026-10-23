@@ -579,8 +579,8 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
   #v27PrintReport tr{break-inside:avoid!important}
 }
 </style><style id="f4-bank-gallery-svg">
-.v21-close,.v21-arrow{display:inline-flex!important;justify-content:center!important;align-items:center!important;text-align:center!important;line-height:0!important;padding:0!important}
-.v21-close svg,.v21-arrow svg{display:block!important;flex:none!important;pointer-events:none!important;margin:0!important}
+.v21-close,.v21-arrow,.v21-back{display:inline-flex!important;justify-content:center!important;align-items:center!important;text-align:center!important;line-height:0!important;padding:0!important}
+.v21-close svg,.v21-arrow svg,.v21-back svg{display:block!important;flex:none!important;pointer-events:none!important;margin:0!important}
 </style></head>
 <body>
 <div class="shell">
@@ -1798,7 +1798,7 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
     const modal=v21Node('div','v21-modal hidden');modal.id='v21GalleryModal';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');
     const card=v21Node('div','v21-modal-card');const head=v21Node('div','v21-modal-head');
     const meta=v21Node('div');meta.append(v21Node('h2','', 'Arsip Dokumentasi Kegiatan'),v21Node('p','', 'Pilih album kegiatan warga'));
-    meta.id='v21GalleryMeta';const close=v21Node('button','v21-close','×');close.type='button';close.title='Tutup galeri';close.onclick=v21CloseGallery;
+    meta.id='v21GalleryMeta';const close=v21Node('button','v21-close');close.innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6 18 18"/></svg>';close.type='button';close.title='Tutup galeri';close.setAttribute('aria-label','Tutup galeri');close.onclick=v21CloseGallery;
     head.append(meta,close);const body=v21Node('div','v21-modal-body');body.id='v21GalleryBody';card.append(head,body);modal.appendChild(card);document.body.appendChild(modal);
     modal.addEventListener('click',e=>{if(e.target===modal)v21CloseGallery();});
     const lightbox=v21Node('div','v21-modal v21-lightbox hidden');lightbox.id='v21Lightbox';lightbox.setAttribute('role','dialog');lightbox.setAttribute('aria-modal','true');
@@ -1865,7 +1865,7 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
     v21ShowModal(a.judul,a.tanggal+' • '+(a.deskripsi||''),v21Node('p','','Memuat foto dan video...'));
     try{
       const data=a.sourceFolder?await v21LegacyAlbum(a):await call('bsV21IsiAlbumPublik',id);if($('v21GalleryModal').classList.contains('hidden'))return;
-      v21OpenedAlbum=data;const wrap=v21Node('div');const back=v21Node('button','v21-back','← Semua album');back.type='button';back.onclick=v21ShowAlbumArchive;wrap.appendChild(back);
+      v21OpenedAlbum=data;const wrap=v21Node('div');const back=v21Node('button','v21-back');back.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>';back.type='button';back.title='Kembali ke semua album';back.setAttribute('aria-label','Kembali ke semua album');back.onclick=v21ShowAlbumArchive;wrap.appendChild(back);
       const grid=v21Node('div','v21-gallery-grid');(data.media||[]).forEach((m,i)=>{
         const tile=v21Node('button','v21-gallery-tile');tile.type='button';tile.title=m.nama||m.jenis;
         if(m.thumb)tile.appendChild(v21Photo(m.thumb,m.nama));else tile.appendChild(v21Node('span','','🎬'));
