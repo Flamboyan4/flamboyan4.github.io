@@ -131,7 +131,7 @@ async function openAlbum(a){
  let media=[];
  try{media=await listMedia(a)}catch(e){status('Folder media belum dapat dibaca: '+(e.message||e));}
  openMediaGallery(a.title,media,{folderURL:safe(a.folder),
-  empty:'Media folder belum dapat dibaca. Gunakan tautan Buka sumber folder untuk melihat arsip asli.'});
+  empty:'Media album ini belum dapat dibaca. Periksa izin akses dokumentasi atau sinkronisasi sumber media.'});
  if(media.length)status('');
 }
 function drawAlbums(){
