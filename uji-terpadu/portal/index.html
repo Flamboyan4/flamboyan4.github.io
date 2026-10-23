@@ -1493,7 +1493,12 @@ let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
       openModal('modal-jersey'); 
     }
 
-    function openModalDokumentasi() { openModal('modal-dokumentasi'); }
+    function openModalDokumentasi() {
+  // Gallery preview in the landing page is only a shortcut to the complete
+  // Dokumentasi page; don't show a second album popup.
+  if(window.parent!==window)window.parent.postMessage({type:'f4:navigate',target:'dokumentasi'},location.origin);
+  else window.location.href='../#dokumentasi';
+}
     function openModalSaran() { openModal('modal-saran'); }
 
    function openModalEventDetail(dateStr, eventItems, dateIso) {
@@ -2972,8 +2977,6 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     }
 
     function openDokumentasiPreviewAktif() {
-      // Card Dokumentasi selalu membuka daftar album/kelompok dokumentasi terlebih dahulu.
-      // Pengunjung kemudian memilih album mana yang ingin dibuka.
       openModalDokumentasi();
     }
 
