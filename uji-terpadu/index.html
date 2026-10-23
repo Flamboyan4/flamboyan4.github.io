@@ -399,19 +399,24 @@ body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
 /* A single 56px utility rail across Portal, Bank, Pembukuan and Management.
    The iframe owns scrolling; the management sidebar is not moved with its main. */
 :root{--f4-utility-h:56px}
-body.f4-management-active #f4-account-page:not([hidden]){z-index:65!important}
+body.f4-management-active #f4-account-page:not([hidden]),
+body.f4-management-active #f4-warga-panel:not([hidden]){z-index:65!important}
 body.f4-management-active .shell{z-index:70!important}
 @media(min-width:701px){
  body.f4-management-active .shell{
   left:230px!important;right:0!important;width:auto!important;
   background:rgba(255,255,255,.97)!important
  }
- body.f4-management-active #f4-account-page main{padding-top:80px!important}
+ body.f4-management-active #f4-account-page main,
+ body.f4-management-active #f4-warga-panel .f4-warga-main{padding-top:80px!important}
  body.f4-management-active #f4-account-page aside{overflow-y:auto!important;overscroll-behavior-y:contain!important}
 }
 @media(max-width:700px){
  body.f4-management-active .shell{left:0!important;right:0!important;z-index:70!important}
- body.f4-management-active #f4-account-page:not([hidden]){inset:56px 0 0!important;max-height:calc(100dvh - 56px)!important}
+ body.f4-management-active #f4-account-page:not([hidden]),
+ body.f4-management-active #f4-warga-panel:not([hidden]){inset:56px 0 0!important;max-height:calc(100dvh - 56px)!important}
+ body.f4-management-active #f4-warga-panel>section{height:calc(100dvh - 56px)!important;max-height:calc(100dvh - 56px)!important}
+ body.f4-management-active #f4-warga-panel .f4-warga-main{padding-top:12px!important}
  body.f4-management-active #f4-account-page aside .f4-work-brand{display:block!important}
 }
 body.f4-management-active #f4-account-page .f4-work-heading{scroll-margin-top:80px}
