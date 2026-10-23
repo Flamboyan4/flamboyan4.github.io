@@ -601,6 +601,13 @@ body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
    }:null},location.origin)}catch{}
  }
  function update(target){
+  // Navigating a portal always exposes its iframe; management/profile overlays
+  // must not remain above Bank Sampah, Pembukuan, or Portal Utama.
+  const workspace=document.getElementById('f4-account-page');
+  const residents=document.getElementById('f4-warga-panel');
+  if(workspace)workspace.hidden=true;
+  if(residents)residents.hidden=true;
+  if(profileShade)profileShade.hidden=true;
   selected=target;
   document.body.classList.remove('f4-menu-open');
   document.getElementById('f4-mobile-menu')?.setAttribute('aria-expanded','false');
