@@ -63,14 +63,19 @@ async function loadPortalArchive(){
  // Fall back to its own original published Sheets source, never Bank Sampah.
  let rows;
  try{
-  const response=await fetch(PORTAL_API,{cache:'no-store'});
-  if(!response.ok)throw Error('API HTTP '+response.status);
-  const data=await response.json();
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),6500);
+  let data;
+  try{
+   const response=await fetch(PORTAL_API,{cache:'no-store',signal:controller.signal});
+   if(!response.ok)throw Error('API HTTP '+response.status);
+   data=await response.json();
+  }finally{clearTimeout(timeout)}
   if(data.ok===false||!Array.isArray(data.documentation)||!data.documentation.length)
    throw Error('Dokumentasi D1 belum lengkap');
   rows=data.documentation.map(asPortal).filter(a=>a.title&&portalOnly(a));
  }catch(err){
-  const parsed=await new Promise((resolve,reject)=>{
+  const parsed=await Promise.race([new Promise((resolve,reject)=>{
    if(!window.Papa?.parse)return reject(Error('Pembaca CSV tidak tersedia'));
    Papa.parse(PORTAL_CSV,{download:true,header:true,complete:out=>{
     if(out.errors?.length&&!out.data?.length)return reject(Error(out.errors[0].message));
@@ -79,7 +84,7 @@ async function loadPortalArchive(){
      return asPortal({tanggal:cells[0],judul:cells[1],deskripsi:cells[2],foto:cells[3]});
     }));
    },error:reject});
-  });
+  }),new Promise((_,reject)=>setTimeout(()=>reject(Error('CSV Sheets tidak merespons')),7000))]);
   rows=parsed.filter(a=>a.title&&portalOnly(a));
  }
  docs=rows.sort((a,b)=>parseDate(b.date)-parseDate(a.date));
@@ -165,5 +170,5 @@ $('media-tab-inventory').onclick=()=>tab('inventaris',true);
 $('media-search').oninput=drawAlbums;
 addEventListener('hashchange',()=>tab(location.hash==='#inventaris'?'inventaris':'dokumentasi',false));
 drawFilters();drawAlbums();drawInventory();tab(location.hash==='#inventaris'?'inventaris':'dokumentasi',false);
-status('Menghubungkan arsip Portal Utama…');
+status('Arsip asli tersedia. Memeriksa pembaruan album D1/Sheets…');
 loadPortalArchive().catch(error=>{docs.sort((a,b)=>parseDate(b.date)-parseDate(a.date));drawAlbums();status('Arsip online belum dapat diperbarui ('+(error.message||error)+'). Menampilkan arsip kegiatan asli yang sudah tersedia.');});
