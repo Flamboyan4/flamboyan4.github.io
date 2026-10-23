@@ -395,7 +395,28 @@ body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
  #f4-account-page .f4-admin-editor{padding:11px}
  #f4-account-page .f4-admin-controls input{flex-basis:100%}
 }
-</style></head>
+</style><style id="f4-utility-cross-portal-layout">
+/* A single 56px utility rail across Portal, Bank, Pembukuan and Management.
+   The iframe owns scrolling; the management sidebar is not moved with its main. */
+:root{--f4-utility-h:56px}
+body.f4-management-active #f4-account-page:not([hidden]){z-index:65!important}
+body.f4-management-active .shell{z-index:70!important}
+@media(min-width:701px){
+ body.f4-management-active .shell{
+  left:230px!important;right:0!important;width:auto!important;
+  background:rgba(255,255,255,.97)!important
+ }
+ body.f4-management-active #f4-account-page main{padding-top:80px!important}
+ body.f4-management-active #f4-account-page aside{overflow-y:auto!important;overscroll-behavior-y:contain!important}
+}
+@media(max-width:700px){
+ body.f4-management-active .shell{left:0!important;right:0!important;z-index:70!important}
+ body.f4-management-active #f4-account-page:not([hidden]){inset:56px 0 0!important;max-height:calc(100dvh - 56px)!important}
+ body.f4-management-active #f4-account-page aside .f4-work-brand{display:block!important}
+}
+body.f4-management-active #f4-account-page .f4-work-heading{scroll-margin-top:80px}
+</style>
+</head>
 <body>
 <header class="shell">
  <div class="top">
@@ -600,14 +621,17 @@ body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
     rumah:activeAccount.member?.rumah||'',wargaId:activeAccount.member?.id||''
    }:null},location.origin)}catch{}
  }
- function update(target){
+ function update(target,{keepManagement=false}={}){
+  // A background hash/session update must not dismiss an open management form.
   // Navigating a portal always exposes its iframe; management/profile overlays
   // must not remain above Bank Sampah, Pembukuan, or Portal Utama.
   const workspace=document.getElementById('f4-account-page');
   const residents=document.getElementById('f4-warga-panel');
-  if(workspace)workspace.hidden=true;
-  if(residents)residents.hidden=true;
-  if(profileShade)profileShade.hidden=true;
+  if(!keepManagement){
+   if(workspace)workspace.hidden=true;
+   if(residents)residents.hidden=true;
+   if(profileShade)profileShade.hidden=true;
+  }
   selected=target;
   document.body.classList.remove('f4-menu-open');
   document.getElementById('f4-mobile-menu')?.setAttribute('aria-expanded','false');
@@ -649,7 +673,9 @@ body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
   try{const session=await apiCall('/api/v2/auth/session');activeAccount=session;role=sessionRole(session);updateAvatar()}
   catch{activeAccount=null;role='public'}
   refreshIdentity();
-  update(role!=='superadmin'&&selected==='pembukuan'?'portal':selected);
+  update(role!=='superadmin'&&selected==='pembukuan'?'portal':selected,{
+   keepManagement:!document.getElementById('f4-account-page').hidden||!document.getElementById('f4-warga-panel').hidden
+  });
  }
  async function signOut(){
   try{await apiCall('/api/auth/logout',{method:'POST'})}
@@ -812,7 +838,7 @@ body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
  // the iframe and dismiss any management overlay, not just update the URL.
  window.addEventListener('hashchange',()=>{
    const target=location.hash.slice(1);
-   if(Object.hasOwn(apps,target))update(target);
+   if(Object.hasOwn(apps,target)&&target!==selected)update(target);
  });
 })();
 </script><div id="f4-warga-panel" hidden aria-modal="true" role="dialog" aria-label="Data Warga dan Rumah">
