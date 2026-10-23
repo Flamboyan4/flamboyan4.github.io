@@ -453,11 +453,9 @@ body.f4-management-active #f4-account-page .f4-work-heading{scroll-margin-top:80
    </button>
    <div class="account-menu" role="menu" id="account-menu" hidden>
     <div class="account-summary"><b id="account-name">Akun Contoh</b><small id="account-role">Warga</small></div>
-    <button type="button" role="menuitem" data-account-action="member" id="f4-member-account-menu" hidden>Akun Saya</button>
     <button type="button" role="menuitem" data-account-action="settings">Pengaturan Profil</button>
     <button type="button" role="menuitem" data-account-action="manage" id="f4-management-menu" hidden>Pengelolaan</button>
     <button type="button" role="menuitem" data-account-action="warga" id="f4-warga-menu" hidden>Data Warga & Rumah</button>
-    <button type="button" role="menuitem" data-account-action="bank-admin" id="f4-bank-admin-menu" hidden>Kelola Bank Sampah</button>
     <button type="button" role="menuitem" data-account-action="logout">Keluar</button>
    </div>
   </div>
@@ -557,9 +555,7 @@ body.f4-management-active #f4-account-page .f4-work-heading{scroll-margin-top:80
   login.hidden=signed;avatar.hidden=!signed;menu.hidden=true;avatar.setAttribute('aria-expanded','false');
   document.getElementById('f4-warga-menu').hidden=true;
   document.getElementById('f4-management-menu').hidden=role!=='superadmin';
-  document.getElementById('f4-member-account-menu').hidden=role!=='warga';
   document.querySelector('[data-account-action="settings"]').textContent=role==='warga'?'Pengaturan Akun':'Pengaturan Profil';
-  document.getElementById('f4-bank-admin-menu').hidden=role!=='admin';
   if(signed){
    document.getElementById('account-name').textContent=activeAccount?.member?.nama||activeAccount?.account?.username||'Akun aktif';
    document.getElementById('account-role').textContent=roleLabel[role];
@@ -777,9 +773,7 @@ body.f4-management-active #f4-account-page .f4-work-heading{scroll-margin-top:80
   const action=b.dataset.accountAction;menu.hidden=true;avatar.setAttribute('aria-expanded','false');
   if(action==='logout'){signOut();return}
   if(action==='warga'){openWarga();return}
-  if(action==='bank-admin'){window.f4OpenBankAdmin?.('dashboard');return}
   if(action==='manage'){window.openManagementHub?.();return}
-  if(action==='member'){window.f4OpenMemberAccount?.();return}
   if(action==='settings'){openOriginalBankProfile();return;}
   openProfileSettings(false);
  });
