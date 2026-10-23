@@ -827,7 +827,23 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
    if(!r.ok)throw Error('Foto profil tidak dapat dibaca (HTTP '+r.status+').');
    const blob=await r.blob();
    const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result||''));reader.onerror=()=>reject(Error('Foto gagal diproses'));reader.readAsDataURL(blob)});
-   return {ada:true,data};
+   if(/^data:image\/jpeg;base64,/i.test(data))return {ada:true,data};
+   // Profil Apps Script asli menampilkan JPEG. Normalize existing PNG/WebP in R2
+   // for display only, without modifying the stored file or original profile UI.
+   if(/^data:image\/(png|webp);base64,/i.test(data)){
+     const image=await createImageBitmap(blob);
+     try{
+       const canvas=document.createElement('canvas');
+       const scale=Math.min(1,256/Math.max(1,image.width),256/Math.max(1,image.height));
+       canvas.width=Math.max(1,Math.round(image.width*scale));
+       canvas.height=Math.max(1,Math.round(image.height*scale));
+       const ctx=canvas.getContext('2d');
+       ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+       ctx.drawImage(image,0,0,canvas.width,canvas.height);
+       return {ada:true,data:canvas.toDataURL('image/jpeg',.84)};
+     }finally{image.close?.();}
+   }
+   return {ada:false,data:''};
  };
  const saveMemberAvatar=async(_token,encoded)=>{
    if(!/^[A-Za-z0-9+/=]+$/.test(String(encoded||'')))throw Error('Format gambar tidak valid.');
