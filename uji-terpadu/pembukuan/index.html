@@ -1706,7 +1706,57 @@ main > section.card{overflow:visible!important}
  body>main button[aria-label="Buka menu"]{display:none!important}
  body>main{padding-top:76px!important}
 }
-</style></head>
+</style>
+<style id="f4-final-print-proportions">
+@media print{
+  @page{size:A4 portrait;margin:10mm 12mm 11mm}
+  /* Use the entire printable A4 width regardless of desktop/table wrappers. */
+  html,body{width:100%!important;min-width:0!important;margin:0!important;padding:0!important}
+  #report-print-area{width:100%!important;max-width:none!important;min-width:0!important;margin:0!important;padding:0!important;left:0!important}
+  #report-arisan-panel,#report-denda-panel,#report-pinjaman-panel,#report-talangan-panel,#report-tahunan-panel{
+    box-sizing:border-box!important;width:100%!important;max-width:none!important;min-width:0!important;margin:0!important;padding:0!important;
+    font-family:Arial,Helvetica,sans-serif!important;color:#1e293b!important
+  }
+  #report-arisan-panel .report-letterhead,#report-denda-panel .report-letterhead,
+  #report-pinjaman-panel .report-letterhead,#report-talangan-panel .report-letterhead{
+    width:100%!important;max-width:none!important;min-height:0!important;
+    border-bottom:1.5px solid #312e81!important;margin:0 0 8px!important;padding:0 0 6px!important
+  }
+  #report-arisan-panel .report-letterhead img,#report-denda-panel .report-letterhead img,
+  #report-pinjaman-panel .report-letterhead img,#report-talangan-panel .report-letterhead img{width:42px!important;height:42px!important}
+  #report-arisan-panel h2,#report-denda-panel h2,#report-pinjaman-panel h2,
+  #report-talangan-panel h2{font-size:16px!important;line-height:1.15!important;margin:5px 0 4px!important;text-align:center!important}
+  #report-arisan-panel>div.grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important;margin-bottom:8px!important}
+  #report-arisan-panel .report-card{min-width:0!important;padding:6px 8px!important;border:1px solid #cbd5e1!important;border-radius:5px!important}
+  #report-arisan-panel .report-card>div[id]{font-size:12px!important}
+  #report-arisan-panel .report-table-wrap,#report-denda-panel .report-table-wrap,
+  #report-pinjaman-panel .report-table-wrap,#report-talangan-panel .report-table-wrap{
+    box-sizing:border-box!important;width:100%!important;max-width:none!important;min-width:0!important;
+    overflow:visible!important;margin:0!important;border-radius:0!important;break-inside:auto!important
+  }
+  #report-arisan-panel table,#report-denda-panel table,#report-pinjaman-panel table,#report-talangan-panel table{
+    box-sizing:border-box!important;width:100%!important;max-width:none!important;min-width:0!important;table-layout:auto!important;
+    margin:0!important;font-size:9.5px!important;line-height:1.15!important;border-collapse:collapse!important
+  }
+  #report-arisan-panel table th,#report-arisan-panel table td,
+  #report-denda-panel table th,#report-denda-panel table td,
+  #report-pinjaman-panel table th,#report-pinjaman-panel table td,
+  #report-talangan-panel table th,#report-talangan-panel table td{
+    box-sizing:border-box!important;height:auto!important;padding:3px 4px!important;
+    font-size:9.5px!important;line-height:1.15!important;white-space:normal!important;word-break:normal!important;
+    border-bottom:1px solid #dbe3ec!important;vertical-align:middle!important
+  }
+  #report-arisan-panel thead,#report-denda-panel thead,#report-pinjaman-panel thead,#report-talangan-panel thead{display:table-header-group!important}
+  #report-arisan-panel tr,#report-denda-panel tr,#report-pinjaman-panel tr,#report-talangan-panel tr{break-inside:avoid!important}
+  #report-arisan-panel table th{background:#f1f5f9!important;color:#334155!important;font-weight:800!important}
+  #report-arisan-panel td:nth-child(1),#report-arisan-panel th:nth-child(1){width:6%!important;text-align:center!important}
+  #report-arisan-panel td:nth-child(4),#report-arisan-panel th:nth-child(4){width:8%!important;text-align:center!important}
+  #report-arisan-panel td:nth-child(5),#report-arisan-panel th:nth-child(5){width:17%!important;text-align:right!important;white-space:nowrap!important}
+  #report-arisan-panel td:nth-child(6),#report-arisan-panel th:nth-child(6){width:11%!important;text-align:center!important}
+  #report-arisan-panel td:nth-child(7),#report-arisan-panel th:nth-child(7){width:15%!important}
+}
+</style>
+</head>
 <body oncontextmenu="return false;">
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
