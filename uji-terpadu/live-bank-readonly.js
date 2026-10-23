@@ -268,7 +268,17 @@
    if(!response.ok||result.ok===false)throw Error(result.error||'Upload foto ditolak (HTTP '+response.status+').');
    return {ok:true};
  };
+ const changePassword=async(_token,currentPassword,newPassword)=>{
+   if(!currentPassword||String(newPassword||'').length<4)throw Error('Isi password sekarang dan password baru minimal 4 karakter.');
+   const r=await fetch(API+'/api/auth/change-password',{method:'POST',credentials:'include',
+     headers:{'Content-Type':'application/json'},body:JSON.stringify({currentPassword,newPassword})});
+   const data=await r.json().catch(()=>({}));
+   if(!r.ok||data.ok===false)throw Error(data.error||'Gagal mengganti password (HTTP '+r.status+').');
+   window.parent.postMessage({type:'f4:auth-changed'},location.origin);
+   return {berhasil:true,pesan:'Password berhasil diganti. Silakan login kembali.'};
+ };
  const read={
+  authChangePassword:changePassword,
   bsV15FotoSaya:memberAvatar,
   bsV15SimpanFoto:saveMemberAvatar,
   authAdminAccounts:bankAdminAccounts,
