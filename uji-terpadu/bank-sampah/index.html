@@ -1876,7 +1876,9 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
       info.append(v21Node('span','v22-cat-badge',v23CategoryLabel(a.kategori)),v21Node('strong','',a.judul),v21Node('small','',a.tanggal||''));
       card.appendChild(info);card.onclick=()=>v21OpenAlbum(a.id);list.appendChild(card);
     });
-    if(!rows.length)list.textContent='Tidak ada album dalam kategori atau pencarian ini.';
+    if(!rows.length)list.textContent=!v21Albums.length
+      ?'Belum ada album dengan penanda khusus Bank Sampah di database. Arsip Portal Utama sengaja tidak ditampilkan di sini agar galeri tidak tercampur.'
+      :'Tidak ada album dalam kategori atau pencarian ini.';
   }
   // “Semua album” pada penampil kini kembali ke halaman kategori, bukan popup kedua.
   v21ShowAlbumArchive=v22OpenDocs;
