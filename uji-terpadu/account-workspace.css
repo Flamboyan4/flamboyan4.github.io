@@ -46,3 +46,20 @@ body.bank-mode{--work-bg:#f2f7f1;--work-accent:#2e6247;--work-tint:#e3f0e4;--wor
  #f4-account-page .f4-work-heading{grid-template-columns:minmax(0,1fr)!important}
  #f4-account-page .f4-work-back{grid-row:auto!important;grid-column:1!important;justify-self:start!important}
 }
+
+
+/* Management hierarchy is persistent across every editor, not replaced by form tabs. */
+#f4-account-page aside .f4-management-brand{display:flex;align-items:center;gap:10px;
+  padding:10px 10px 13px;border-bottom:1px solid var(--work-line);margin-bottom:5px;min-width:0}
+#f4-account-page aside .f4-management-brand img{display:block;width:35px;height:35px;object-fit:contain;flex:none}
+#f4-account-page aside .f4-management-identity{display:grid;gap:2px;min-width:0}
+#f4-account-page aside .f4-management-identity strong{font-size:13px;line-height:1.2;color:var(--work-accent);font-weight:800}
+#f4-account-page aside .f4-management-identity small{font-size:10px;color:#7c8984}
+#f4-account-page aside .f4-submenu-heading{margin-top:12px!important;padding-top:15px!important;border-top:1px solid var(--work-line);font-size:13px!important}
+#f4-account-page aside button.f4-manage-item.active{background:var(--work-tint)!important;color:var(--work-accent)!important}
+@media(max-width:700px){
+ #f4-account-page aside .f4-management-brand{flex:0 0 auto;border-bottom:0;margin:0;padding:5px 8px}
+ #f4-account-page aside .f4-management-brand img{width:27px;height:27px}
+ #f4-account-page aside .f4-management-identity small{display:none}
+ #f4-account-page aside .f4-submenu-heading{margin:0!important;border-top:0!important;padding:8px!important}
+}
