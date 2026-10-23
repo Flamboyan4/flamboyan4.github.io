@@ -3380,6 +3380,13 @@ function printRtSepertiLamanUtama(){
 <div class="humas">Humas Flamboyan 4<br>Heri Juwandi</div><script>window.onload=()=>{setTimeout(()=>window.print(),350)}<\/script></body></html>`); w.document.close();
 }
 function printLaporan(){
+  // Print only a report successfully fetched for the active mode; never print placeholders.
+  const dataByMode={kas:REPORT_DATA_KAS,rt:REPORT_DATA_RT,arisan:REPORT_DATA_ARISAN,
+    denda:REPORT_DATA_DENDA,pinjaman:REPORT_DATA_PINJAMAN,talangan:REPORT_DATA_TALANGAN,tahunan:REPORT_DATA_TAHUNAN};
+  if(!dataByMode[REPORT_MODE]){
+    reportMsg('Muat laporan '+REPORT_MODE+' terlebih dahulu sebelum mencetak.','error');
+    return;
+  }
   if(REPORT_MODE==='kas'){printKasSepertiLamanUtama();return;}
   if(REPORT_MODE==='rt'){printRtSepertiLamanUtama();return;}
   const judulLama=document.title;
