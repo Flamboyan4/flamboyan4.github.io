@@ -437,7 +437,9 @@ body.superadmin-mode .notice{display:none!important}
  body.superadmin-mode .shell{left:0!important}
  body.superadmin-mode .framebox{position:absolute!important;inset:0!important;margin:0!important;height:100dvh!important}
 }
-</style><link rel="stylesheet" href="./unified-account.css?v=0f11350"></head>
+</style><link rel="stylesheet" href="./unified-account.css?v=0f11350"><style id="f4-scroll-menu-order">
+#portal-sidebar .f4-portal-viewer-label{display:block;margin:16px 12px 5px;border-top:1px solid #e3e5f1;padding:14px 8px 2px;color:#8993ac;font-size:10px;font-weight:800;letter-spacing:.1em}
+</style></head>
 <body>
 <header class="shell">
  <div class="top">
@@ -823,6 +825,23 @@ body.superadmin-mode .notice{display:none!important}
  mobileOverlay.addEventListener('click',()=>setMobileMenu(false));
  document.addEventListener('keydown',e=>{if(e.key==='Escape')setMobileMenu(false)});
  window.addEventListener('resize',()=>{if(innerWidth>1023)setMobileMenu(false)});
+ // Follow the actual landing-page scroll order; standalone viewers go last.
+ const f4Nav=document.querySelector('#portal-sidebar .portal-menu');
+ const scrollMenu=['beranda','keuangan','projek','inventaris','kalender','komentar','pembayaran'];
+ const viewerMenu=['rapat','dokumentasi'];
+ if(f4Nav){
+  for(const key of scrollMenu){
+   const button=f4Nav.querySelector('[data-portal-menu="'+key+'"]');
+   if(button)f4Nav.append(button);
+  }
+  const divider=document.createElement('span');divider.className='f4-portal-viewer-label';
+  divider.textContent='ARSIP & DOKUMEN';
+  divider.setAttribute('aria-hidden','true');f4Nav.append(divider);
+  for(const key of viewerMenu){
+   const button=f4Nav.querySelector('[data-portal-menu="'+key+'"]');
+   if(button)f4Nav.append(button);
+  }
+ }
  document.querySelectorAll('[data-portal-menu]').forEach(button=>button.addEventListener('click',()=>{
   setMobileMenu(false);
   const item=button.dataset.portalMenu;
