@@ -1856,7 +1856,10 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
       if(e.target===lightbox||e.target===stage||e.target===scene)v21CloseLightbox();
     });
     window.addEventListener('popstate',()=>{
-      if(!$('v21Lightbox')?.classList.contains('hidden'))v21CloseLightbox();
+      // A browser Back closes exactly one level; do not call history.back again
+      // from inside popstate, or both photo and album can disappear together.
+      if(!$('v21Lightbox')?.classList.contains('hidden')){v21CloseLightbox(true);return;}
+      if(!$('v21GalleryModal')?.classList.contains('hidden')&&!history.state?.f4BankAlbumOverlay)v21CloseGallery(true);
     });
     document.addEventListener('keydown',e=>{
       if(e.key==='Escape'){if(!$('v21Lightbox').classList.contains('hidden'))v21CloseLightbox();else v21CloseGallery();}
@@ -1865,9 +1868,20 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
   }
   function v21ShowModal(title,subtitle,body){
     v21EnsureModals();const meta=$('v21GalleryMeta');meta.replaceChildren(v21Node('h2','',title),v21Node('p','',subtitle||''));
-    $('v21GalleryBody').replaceChildren(body);$('v21GalleryModal').classList.remove('hidden');
+    $('v21GalleryBody').replaceChildren(body);
+    const modal=$('v21GalleryModal');
+    if(modal.classList.contains('hidden')){
+      history.pushState({...history.state,f4BankAlbumOverlay:true},'',location.href);
+      modal.classList.remove('hidden');
+    }
   }
-  function v21CloseGallery(){$('v21GalleryModal')?.classList.add('hidden');v21OpenedAlbum=null;}
+  function v21CloseGallery(fromHistory=false){
+    const modal=$('v21GalleryModal');
+    if(!modal||modal.classList.contains('hidden'))return;
+    if(!$('v21Lightbox')?.classList.contains('hidden')){v21CloseLightbox(fromHistory);return;}
+    if(!fromHistory&&history.state?.f4BankAlbumOverlay){history.back();return;}
+    modal.classList.add('hidden');v21OpenedAlbum=null;
+  }
   function v21ShowAlbumArchive(){
     const grid=v21Node('div','v21-album-list');
     v21Albums.forEach(a=>{
@@ -1939,10 +1953,10 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
     const list=v21OpenedAlbum?.media||[];if(!list.length)return;
     v21MediaIndex=(v21MediaIndex+delta+list.length)%list.length;v21PaintLightbox();
   }
-  function v21CloseLightbox(){
+  function v21CloseLightbox(fromHistory=false){
     const modal=$('v21Lightbox');if(!modal||modal.classList.contains('hidden'))return;
+    if(!fromHistory&&history.state?.f4BankPhotoOverlay){history.back();return;}
     modal.classList.add('hidden');$('v21StageContent')?.replaceChildren();
-    if(history.state?.f4BankPhotoOverlay)history.back();
   }
   function v21ShowInventory(item){
     const view=v21Node('div');
