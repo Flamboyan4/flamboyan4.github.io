@@ -1059,7 +1059,7 @@
       b.onclick=()=>{if(g.id==='public')v11ShowPublic();else goPage(g.tabs[0][0]);};list.appendChild(b);
     });
     // Superadmin kembali ke empat menu pengelolaan; tidak menambah baris navigasi publik.
-    const isSuperadminManager=profile?.peran==='Admin'&&window.parent!==window&&window.parent.document?.body?.classList.contains('role-superadmin');
+    const isSuperadminManager=window.parent!==window&&window.parent.document?.body?.classList.contains('role-superadmin');
     if(isSuperadminManager){
       const back=document.createElement('button');back.type='button';back.className='v16-item f4-back-management';
       back.textContent='← Menu Pengelolaan';
