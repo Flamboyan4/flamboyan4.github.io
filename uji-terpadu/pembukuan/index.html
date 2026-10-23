@@ -3241,7 +3241,21 @@ function reportKeteranganRt(x){
  ];
  return legacy.find(([id,rumah])=>(payer&&payer===id)||(home&&home===rumah))?.[2]||'';
 }
-function renderLaporanRt(d){d=d||{};const r=d.ringkasan||{},rows=Array.isArray(d.rows)?d.rows:[],set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};const orangBulanan=rows.filter(x=>Number(x.nominalBulanan||0)>0).length;const orangKebersihan=rows.filter(x=>Number(x.nominalKebersihan||0)>0).length;set('report-rt-period',`Periode ${d.namaBulan||''} ${d.tahun||''}`);set('report-rt-foot-bulanan',rupiah(r.totalBulanan||0));set('report-rt-foot-keb',rupiah(r.totalKebersihan||0));set('report-rt-foot-bulanan-count',`${orangBulanan} orang`);set('report-rt-foot-keb-count',`${orangKebersihan} orang`);set('report-rt-foot-total',rupiah(r.totalSetoran||0));const note=document.getElementById('rep-rt-talangan-note');if(note){note.classList.toggle('hidden',!(r.talanganCount>0));note.textContent=`Catatan internal: ${r.talanganCount||0} warga pada laporan ini ditutup melalui talangan. Keterangan ini tidak ikut saat dicetak.`}const tb=document.getElementById('report-rt-tbody');if(tb)tb.innerHTML=rows.map((x,i)=>`<tr><td class="p-3 text-center">${i+1}</td><td class="p-3 font-bold">${esc(x.nama||'-')}</td><td class="p-3">${esc(x.blok||'')}/${esc(x.noRumah||'')}</td><td class="p-3 ${keteranganCellClassRt(reportKeteranganRt(x))}">${badgeKeteranganRt(reportKeteranganRt(x))}</td><td class="p-3 text-right">${rupiah(x.nominalBulanan||0)}</td><td class="p-3 text-right">${rupiah(x.nominalKebersihan||0)}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada data setoran pada periode ini.</td></tr>'}
+
+/* RT: one deterministic house-number order for on-screen tables and PDF.
+   Original records and amounts are left untouched. */
+function sortedReportRtRows(data){
+ const rows=Array.isArray(data?.rows)?data.rows:[];
+ const house=x=>String(x?.rumah||[x?.blok,x?.noRumah].filter(Boolean).join('/')||'').replace(/\s+/g,'').toUpperCase();
+ return [...rows].sort((a,b)=>{
+  const ha=house(a),hb=house(b);
+  if(!ha)return hb?1:0;
+  if(!hb)return -1;
+  return ha.localeCompare(hb,'id',{numeric:true,sensitivity:'base'})||
+   String(a.nama||'').localeCompare(String(b.nama||''),'id',{sensitivity:'base'});
+ });
+}
+function renderLaporanRt(d){d=d||{};const r=d.ringkasan||{},rows=sortedReportRtRows(d),set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};const orangBulanan=rows.filter(x=>Number(x.nominalBulanan||0)>0).length;const orangKebersihan=rows.filter(x=>Number(x.nominalKebersihan||0)>0).length;set('report-rt-period',`Periode ${d.namaBulan||''} ${d.tahun||''}`);set('report-rt-foot-bulanan',rupiah(r.totalBulanan||0));set('report-rt-foot-keb',rupiah(r.totalKebersihan||0));set('report-rt-foot-bulanan-count',`${orangBulanan} orang`);set('report-rt-foot-keb-count',`${orangKebersihan} orang`);set('report-rt-foot-total',rupiah(r.totalSetoran||0));const note=document.getElementById('rep-rt-talangan-note');if(note){note.classList.toggle('hidden',!(r.talanganCount>0));note.textContent=`Catatan internal: ${r.talanganCount||0} warga pada laporan ini ditutup melalui talangan. Keterangan ini tidak ikut saat dicetak.`}const tb=document.getElementById('report-rt-tbody');if(tb)tb.innerHTML=rows.map((x,i)=>`<tr><td class="p-3 text-center">${i+1}</td><td class="p-3 font-bold">${esc(x.nama||'-')}</td><td class="p-3">${esc(x.blok||'')}/${esc(x.noRumah||'')}</td><td class="p-3 ${keteranganCellClassRt(reportKeteranganRt(x))}">${badgeKeteranganRt(reportKeteranganRt(x))}</td><td class="p-3 text-right">${rupiah(x.nominalBulanan||0)}</td><td class="p-3 text-right">${rupiah(x.nominalKebersihan||0)}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada data setoran pada periode ini.</td></tr>'}
 function renderLaporanArisan(d){
   d=d||{};
   const serverRows=Array.isArray(d.rows)?d.rows:[];
@@ -3346,7 +3360,7 @@ function printKasSepertiLamanUtama(){
 </body></html>`); w.document.close();
 }
 function printRtSepertiLamanUtama(){
-  const d=REPORT_DATA_RT||{}; const rows=(d.rows||[]); const periode=[d.namaBulan,d.tahun].filter(Boolean).join(' ');
+  const d=REPORT_DATA_RT||{}; const rows=sortedReportRtRows(d); const periode=[d.namaBulan,d.tahun].filter(Boolean).join(' ');
   // Kolom cetak wajib sama dengan renderLaporanRt pada layar: nominalBulanan/nominalKebersihan.
   const nominalBulanan=x=>Number(x.nominalBulanan??x.iuranBulanan??x.bulanan??0);
   const nominalKebersihan=x=>Number(x.nominalKebersihan??x.kebersihan??0);
@@ -3355,7 +3369,7 @@ function printRtSepertiLamanUtama(){
    const t=String(k||'').toLowerCase();
    return t.includes('ketua rt')?'n-rt':t.includes('kebersihan 2')?'n-keb':t.includes('humas')?'n-humas':t.includes('tempat belajar')?'n-tpq':'';
   };
-  const body=rows.map((x,i)=>`<tr><td class="c">${i+1}</td><td>${escapePrint(x.nama||'-')}</td><td>${escapePrint(rumah(x))}</td><td class="${noteClass(x.keterangan)}">${escapePrint(x.keterangan||'-')}</td><td class="r nowrap">${escapePrint(rupiah(nominalBulanan(x)))}</td><td class="r nowrap">${escapePrint(rupiah(nominalKebersihan(x)))}</td></tr>`).join('')||'<tr><td colspan="6" class="empty">Belum ada data.</td></tr>';
+  const body=rows.map((x,i)=>{const ket=reportKeteranganRt(x);return `<tr><td class="c">${i+1}</td><td>${escapePrint(x.nama||'-')}</td><td>${escapePrint(rumah(x))}</td><td class="${noteClass(ket)}">${escapePrint(ket||'-')}</td><td class="r nowrap">${escapePrint(rupiah(nominalBulanan(x)))}</td><td class="r nowrap">${escapePrint(rupiah(nominalKebersihan(x)))}</td></tr>`}).join('')||'<tr><td colspan="6" class="empty">Belum ada data.</td></tr>';
   const totalBulanan=rows.reduce((a,x)=>a+nominalBulanan(x),0), totalKeb=rows.reduce((a,x)=>a+nominalKebersihan(x),0);
   const countBulanan=rows.filter(x=>nominalBulanan(x)>0).length, countKeb=rows.filter(x=>nominalKebersihan(x)>0).length;
   const w=window.open('','_blank'); if(!w)return alert('Pop-up diblokir. Izinkan pop-up lalu coba kembali.');
