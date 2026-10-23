@@ -100,7 +100,7 @@ function populate(){
   for(const [,label] of fields)head.append(node('th',label));
   head.append(node('th','Aksi'));thead.append(head);table.append(thead);
   const body=node('tbody');
-  const dateText=v=>{const raw=String(v||'');const m=raw.match(/^(\\d{4})-(\\d\\d)-(\\d\\d)/);return m?m[3]+'/'+m[2]+'/'+m[1]:raw};
+  const dateText=v=>{const raw=String(v||'');const m=raw.match(/^(\d{4})-(\d\d)-(\d\d)/);return m?m[3]+'/'+m[2]+'/'+m[1]:raw};
   const showValue=(x,key)=>{
    const raw=x[key];
    if(key==='drive_url'||key==='document_ref'){
@@ -121,21 +121,6 @@ function populate(){
   }
   if(!rows.length){const tr=node('tr'),td=node('td','Tidak ada data yang cocok.');td.colSpan=fields.length+1;tr.append(td);body.append(tr)}
   table.append(body);scroll.append(table);list.append(scroll);return;
- }
-  const scroll=node('div',undefined,'f4-obligation-scroll');
-  const table=node('table',undefined,'f4-obligation-grid'),thead=node('thead'),tr=node('tr');
-  for(const label of ['Nama warga','Rumah','Iuran bulanan','Kebersihan','Kas lorong','Arisan','Aksi'])tr.append(node('th',label));
-  thead.append(tr);table.append(thead);
-  const tbody=node('tbody');
-  for(const x of rows){
-   const row=node('tr');
-   for(const key of ['nama','rumah','qty_iuran_bulanan','qty_kebersihan','qty_kas_lorong','qty_arisan'])
-    row.append(node('td',String(x[key]??(key.startsWith('qty_')?'—':''))));
-   const action=node('td');action.append(btn('Edit',()=>showForm(x)));row.append(action);tbody.append(row);
-  }
-  if(!rows.length){const row=node('tr'),cell=node('td','Tidak ada data yang cocok.');cell.colSpan=7;row.append(cell);tbody.append(row)}
-  table.append(tbody);scroll.append(table);list.append(scroll);
-  return;
  }
  for(const x of rows){
   const item=node('article',undefined,'f4-admin-item');
