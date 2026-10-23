@@ -87,6 +87,22 @@ function populate(){
  const query=filter.trim().toLowerCase();
  const def=types[active];
  const rows=records.filter(x=>!query||JSON.stringify(x).toLowerCase().includes(query));
+ if(active==='obligations'){
+  const scroll=node('div',undefined,'f4-obligation-scroll');
+  const table=node('table',undefined,'f4-obligation-grid'),thead=node('thead'),tr=node('tr');
+  for(const label of ['Nama warga','Rumah','Iuran bulanan','Kebersihan','Kas lorong','Arisan','Aksi'])tr.append(node('th',label));
+  thead.append(tr);table.append(thead);
+  const tbody=node('tbody');
+  for(const x of rows){
+   const row=node('tr');
+   for(const key of ['nama','rumah','qty_iuran_bulanan','qty_kebersihan','qty_kas_lorong','qty_arisan'])
+    row.append(node('td',String(x[key]??(key.startsWith('qty_')?'—':''))));
+   const action=node('td');action.append(btn('Edit',()=>showForm(x)));row.append(action);tbody.append(row);
+  }
+  if(!rows.length){const row=node('tr'),cell=node('td','Tidak ada data yang cocok.');cell.colSpan=7;row.append(cell);tbody.append(row)}
+  table.append(tbody);scroll.append(table);list.append(scroll);
+  return;
+ }
  for(const x of rows){
   const item=node('article',undefined,'f4-admin-item');
   const info=node('div');
@@ -126,6 +142,8 @@ function showForm(record){
    if(type==='readonly')input.readOnly=true;
   }
   input.name=key;input.required=!!required;
+  const examples={title:'Contoh: Kerja Bakti Lingkungan',description:'Contoh: Kegiatan membersihkan lorong bersama warga',drive_url:'Contoh: https://drive.google.com/drive/folders/...',photo_ref:'Contoh: https://drive.google.com/file/d/.../view',rumah:'Contoh: A5/41',nama:'Contoh: Pak Heri',qty_iuran_bulanan:'Contoh: 1 (kali)',qty_kebersihan:'Contoh: 1 (kali)',qty_kas_lorong:'Contoh: 1 (kali)',qty_arisan:'Contoh: 0 (tidak ikut)',setting_value:'Contoh: 10 (tanggal setiap bulan)',amount_rp:'Contoh: 25000',summary:'Contoh: Hasil kesepakatan rapat warga',event_on:'Pilih tanggal kegiatan'};
+  if(input.tagName!=='SELECT'&&type!=='readonly')input.placeholder=examples[key]||'Isi '+label.toLowerCase();
   if(record&&record[key]!=null)input.value=String(record[key]);
   else if(type==='boolean')input.value='1';
   else if(type==='visibility')input.value='publik';
