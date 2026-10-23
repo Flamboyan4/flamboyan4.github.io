@@ -251,7 +251,26 @@
      };
    });
  };
+ const memberAvatar=async()=>{
+   const r=await fetch(API+'/api/member/avatar',{credentials:'include',cache:'no-store'});
+   if(r.status===404)return {ada:false,data:''};
+   if(!r.ok)throw Error('Foto profil tidak dapat dibaca (HTTP '+r.status+').');
+   const blob=await r.blob();
+   const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result||''));reader.onerror=()=>reject(Error('Foto gagal diproses'));reader.readAsDataURL(blob)});
+   return {ada:true,data};
+ };
+ const saveMemberAvatar=async(_token,encoded)=>{
+   if(!/^[A-Za-z0-9+/=]+$/.test(String(encoded||'')))throw Error('Format gambar tidak valid.');
+   const bytes=Uint8Array.from(atob(encoded),x=>x.charCodeAt(0));
+   if(bytes.length>2*1024*1024)throw Error('Foto melebihi 2 MB.');
+   const response=await fetch(API+'/api/member/avatar',{method:'POST',credentials:'include',headers:{'content-type':'image/jpeg'},body:bytes});
+   const result=await response.json().catch(()=>({}));
+   if(!response.ok||result.ok===false)throw Error(result.error||'Upload foto ditolak (HTTP '+response.status+').');
+   return {ok:true};
+ };
  const read={
+  bsV15FotoSaya:memberAvatar,
+  bsV15SimpanFoto:saveMemberAvatar,
   authAdminAccounts:bankAdminAccounts,
   bsV12AksesLaporan:accessStatement,
   bsV17GrafikPublik:publicChart,
