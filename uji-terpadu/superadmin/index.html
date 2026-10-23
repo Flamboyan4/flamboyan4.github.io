@@ -320,11 +320,14 @@ function accountHouse(a){return value(a,['rumah','house','house_code','nomor_rum
 function accountUser(a){return value(a,['username','user_name','login'])}
 function accountId(a){return value(a,['wargaId','warga_id','member_id','payer_id','resident_id'])}
 function accountStatus(a){
- if(a.aktif===false||a.active===false||a.is_active===false)return 'Nonaktif';
+ const enabled=a.aktif??a.active??a.is_active;
+ if(enabled===false||enabled===0||enabled==='0')return 'Nonaktif';
  const state=String(a.status||a.account_status||'').trim();
  if(/nonaktif|inactive|disabled|suspend/i.test(state))return 'Nonaktif';
  if(a.perluAktivasi||/pending|belum/i.test(state))return 'Belum aktif';
- return 'Aktif';
+ if(enabled===true||enabled===1||enabled==='1'||/aktif|active/i.test(state))return 'Aktif';
+ // Display status only when an explicit account status is available from API.
+ return '—';
 }
 function accountsPage(){
  title('Akun & Hak Akses','Kelola identitas dan hak akses akun Flamboyan 4.');
