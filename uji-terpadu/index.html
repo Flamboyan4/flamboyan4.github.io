@@ -724,6 +724,10 @@ body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
   if(action==='member'){window.f4OpenMemberAccount?.();return}
   openProfileSettings(action==='settings');
  });
+ window.addEventListener('message',event=>{
+  if(event.origin!==location.origin||event.source!==frame.contentWindow||event.data?.type!=='f4:auth-changed')return;
+  signOut();
+ });
  const mobileMenu=document.getElementById('f4-mobile-menu');
  mobileMenu.dataset.build='mobile-nav-20261022-v3';
  const mobileOverlay=document.getElementById('f4-mobile-overlay');
