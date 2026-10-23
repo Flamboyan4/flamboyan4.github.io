@@ -2362,8 +2362,14 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
   function openOriginalProfile(){
     if(currentRole==='public'||!profile){pendingProfile=true;return;}
     pendingProfile=false;
+    // The authenticated visitor may currently be on the public page.
+    // goPage() alone changes a HIDDEN dashboard; reveal it first.
+    if(document.getElementById('dashboardView')?.classList.contains('hidden'))
+      showDashboard(profile);
     goPage('profile');
+    if(inPortal)window.parent.postMessage({type:'f4:bank-profile-opened'},location.origin);
   }
+  window.f4OpenBankProfile=openOriginalProfile;
   const invokeLogin=()=>{
     if(inPortal)window.parent.postMessage({type:'f4:show-login'},location.origin);
     else document.getElementById('authView')?.classList.remove('hidden');
