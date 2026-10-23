@@ -427,9 +427,9 @@ body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
    </button>
    <div class="account-menu" role="menu" id="account-menu" hidden>
     <div class="account-summary"><b id="account-name">Akun Contoh</b><small id="account-role">Warga</small></div>
-    <button type="button" role="menuitem" data-account-action="manage" id="f4-management-menu" hidden>Pengelolaan</button>
     <button type="button" role="menuitem" data-account-action="member" id="f4-member-account-menu" hidden>Akun Saya</button>
     <button type="button" role="menuitem" data-account-action="settings">Pengaturan Profil</button>
+    <button type="button" role="menuitem" data-account-action="manage" id="f4-management-menu" hidden>Pengelolaan</button>
     <button type="button" role="menuitem" data-account-action="warga" id="f4-warga-menu" hidden>Data Warga & Rumah</button>
     <button type="button" role="menuitem" data-account-action="bank-admin" id="f4-bank-admin-menu" hidden>Kelola Bank Sampah</button>
     <button type="button" role="menuitem" data-account-action="logout">Keluar</button>
@@ -680,6 +680,9 @@ body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
  document.getElementById('gate-login').onclick=()=>showLogin();
  function openOriginalBankProfile(){
   if(role==='public'){showLogin();return;}
+  document.getElementById('f4-account-page').hidden=true;
+  document.getElementById('f4-warga-panel').hidden=true;
+  profileShade.hidden=true;
   const bankUrl=apps['bank-sampah'];
   const changed=frame.getAttribute('src')!==bankUrl;
   const request=()=>{
