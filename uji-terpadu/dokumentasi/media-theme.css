@@ -42,3 +42,39 @@
 @media(max-width:640px){.f4-lightbox-body{grid-template-columns:47px minmax(0,1fr) 47px}
 .f4-lightbox-arrow{width:35px!important;height:42px!important}
 .f4-album-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Media fullscreen respects the available iframe viewport. No portrait cropping. */
+.f4-lightbox[open]{
+ box-sizing:border-box!important;display:grid!important;
+ grid-template-rows:52px minmax(0,1fr) 34px!important;
+ width:100%!important;height:100dvh!important;max-width:100%!important;max-height:100dvh!important;
+ padding:0!important;margin:auto!important;overflow:hidden!important;
+}
+.f4-lightbox-bar{height:52px!important;box-sizing:border-box!important}
+.f4-lightbox-body{
+ height:auto!important;min-height:0!important;min-width:0!important;
+ display:grid!important;grid-template-columns:52px minmax(0,1fr) 52px!important;
+ align-items:stretch!important;overflow:hidden!important;
+}
+.f4-lightbox-view{
+ box-sizing:border-box!important;display:flex!important;
+ align-items:center!important;justify-content:center!important;
+ width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
+ overflow:hidden!important;padding:6px 0!important;
+}
+.f4-lightbox-view img.f4-media-photo{
+ display:block!important;width:auto!important;height:auto!important;
+ max-width:100%!important;max-height:calc(100dvh - 110px)!important;
+ min-width:0!important;min-height:0!important;object-fit:contain!important;
+ object-position:center center!important;flex-shrink:1!important;
+}
+.f4-lightbox-foot{height:34px!important;box-sizing:border-box!important}
+.f4-lightbox-view :is(.f4-media-video,.f4-media-frame){
+ display:block!important;max-width:100%!important;max-height:100%!important;
+ object-fit:contain!important;aspect-ratio:16/9;min-height:0!important;
+}
+@media(max-width:640px){
+ .f4-lightbox-body{grid-template-columns:39px minmax(0,1fr) 39px!important}
+ .f4-lightbox-view{padding:4px 0!important}
+ .f4-lightbox-view img.f4-media-photo{max-height:calc(100dvh - 100px)!important}
+}
