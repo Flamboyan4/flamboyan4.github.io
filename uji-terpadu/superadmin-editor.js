@@ -24,13 +24,19 @@ let active='',records=[],filter='',requestSerial=0,editing=false;
 const node=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=String(text??'');if(cls)n.className=cls;return n};
 function btn(text,fn,cls='f4-admin-btn'){const b=node('button',text,cls);b.type='button';b.onclick=fn;return b;}
 function inContext(){return document.body.classList.contains('role-superadmin')}
-function gotoOriginal(){window.openManagementHub?.();}
+function gotoOriginal(){if(window.f4SuperadminNavigate)window.f4SuperadminNavigate('overview');else window.openManagementHub?.();}
 function nav(kind){
  if(kind==='residents'){page.hidden=true;window.openWarga?.();return}
  window.openSuperadminEditor(kind);
 }
 function sideMenu(){
  const tab=types[active]?.section||'portal',group=categories[tab];
+ // Within the dedicated fourth portal the native five-item Superadmin sidebar
+ // owns all navigation. Never overwrite it with the legacy 4-item management UI.
+ if(window.f4SuperadminNavigate&&window.f4RenderManagementSidebar){
+   window.f4RenderManagementSidebar(tab);
+   return;
+ }
  document.body.classList.remove('f4-manage-book','f4-manage-portal','f4-manage-bank');
  document.body.classList.add(tab==='book'?'f4-manage-book':'f4-manage-portal');
  // Keep the four Superadmin root links and page title above the active sub-menu.
