@@ -790,6 +790,12 @@ body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
  refreshIdentity();
  const requested=location.hash.slice(1);selected=Object.hasOwn(apps,requested)?requested:'portal';
  update(selected);refreshSession();
+ // A same-page link such as /uji-terpadu/#bank-sampah must actually switch
+ // the iframe and dismiss any management overlay, not just update the URL.
+ window.addEventListener('hashchange',()=>{
+   const target=location.hash.slice(1);
+   if(Object.hasOwn(apps,target))update(target);
+ });
 })();
 </script><div id="f4-warga-panel" hidden aria-modal="true" role="dialog" aria-label="Data Warga dan Rumah">
  <section><aside class="f4-warga-sidebar"><strong id="f4-warga-brand">Superadmin</strong><button type="button" id="f4-warga-overview">Ringkasan Akun</button><button type="button" class="active">Data Warga & Rumah</button><button type="button" id="f4-warga-bank-link">Bank Sampah</button><button type="button" id="f4-warga-back">← Kembali ke Portal</button></aside><div class="f4-warga-main"><header><strong>Data Warga & Rumah</strong><button type="button" id="f4-warga-close" aria-label="Tutup">✕</button></header>
