@@ -2316,6 +2316,10 @@
     else document.getElementById('authView')?.classList.remove('hidden');
   };
   if(inPortal){
+    // Apps Script's <base target="_top"> redirects original anchor tabs out of
+    // an iframe. Keep original #v17... links in this Bank Sampah document.
+    const base=document.querySelector('base[target="_top"]');
+    if(base)base.target='_self';
     v11ShowLogin=invokeLogin;
     doLogout=()=>{
       const button=window.parent.document?.querySelector('[data-account-action="logout"]');
