@@ -1,6 +1,6 @@
 /* Unified account UI; original Bank Sampah fields and compact proportions. */
 #f4-unified-account[hidden]{display:none!important}
-#f4-unified-account{position:fixed;inset:0;z-index:65;display:grid;grid-template-columns:244px minmax(0,1fr);background:#f2f7f3;--ua-accent:#2d6549;--ua-edge:#d8e6db;--ua-tint:#e5f1e7;color:#193c30;font:14px/1.5 system-ui}
+#f4-unified-account{position:fixed;inset:0;z-index:90;display:grid;grid-template-columns:244px minmax(0,1fr);background:#f2f7f3;--ua-accent:#2d6549;--ua-edge:#d8e6db;--ua-tint:#e5f1e7;color:#193c30;font:14px/1.5 system-ui}
 body.portal-mode #f4-unified-account{background:#f4f5fc;--ua-accent:#48418d;--ua-edge:#dedff0;--ua-tint:#e9e9fb}
 body.book-mode #f4-unified-account{background:#fff8f1;--ua-accent:#a7652f;--ua-edge:#eddccc;--ua-tint:#fff0e0}
 body.superadmin-mode #f4-unified-account{background:#eff5f8;--ua-accent:#2d6593;--ua-edge:#d8e5ef;--ua-tint:#e7f2fb}
@@ -45,4 +45,13 @@ body.superadmin-mode #f4-unified-account{background:#eff5f8;--ua-accent:#2d6593;
  #f4-unified-account .ua-content{padding:80px 12px 25px;max-height:calc(100dvh - 55px)}
  #f4-unified-account .ua-panel{padding:15px}
  #f4-unified-account .ua-grid{grid-template-columns:1fr}
+}
+body.f4-account-open .shell{z-index:100!important}
+body.f4-account-open #portal-sidebar,
+body.f4-account-open #f4-mobile-menu,
+body.f4-account-open #f4-mobile-overlay{display:none!important}
+@media(max-width:760px){
+ #f4-unified-account{padding-top:56px!important}
+ #f4-unified-account .ua-side{top:56px!important}
+ #f4-unified-account .ua-content{padding:19px 12px 25px!important;max-height:calc(100dvh - 132px)!important}
 }
