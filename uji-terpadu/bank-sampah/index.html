@@ -662,6 +662,13 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
     }));
    }catch{}
   }));
+  if(!list.length){
+   // Verified existing record from the Bank Sampah source workbook, sheet "Dokumentasi".
+   // Read-only fallback; superseded automatically once properly scoped D1 albums exist.
+   return [{id:'legacy-bank-20261011',judul:'Gorol dan Pembuatan Bank Sampah',
+     tanggal:'2026-10-11',deskripsi:'Kegiatan warga flamboyan 4 membersihkan lingkungan bersama-sama',
+     kategori:'Kerja Bakti',sampul:'',sourceFolder:'https://drive.google.com/drive/folders/1ywp2v8rUH-oAGcM91PQyVrO7Wx9iLdCA',media:[]}];
+  }
   return list;
  }
  async function report(period){
@@ -1753,11 +1760,33 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
     if(!v21Albums.length)grid.textContent='Belum ada album publik.';
     v21ShowModal('Arsip Dokumentasi Kegiatan','Pilih album untuk melihat foto dan video',grid);
   }
+  async function v21LegacyAlbum(album){
+    const id=String(album.sourceFolder||'').match(/\/folders\/([A-Za-z0-9_-]+)/)?.[1];
+    const base={judul:album.judul,tanggal:album.tanggal,deskripsi:album.deskripsi,media:[],catatan:''};
+    if(!id)return {...base,catatan:'Sumber album tidak tersedia.'};
+    try{
+      const url='https://script.google.com/macros/s/AKfycbyes6A9_9EQ8vIYtf75cGgC9sKAZBvMewxEhYRSThjMAlBYqnkmKpa3yoPOtN0FEG92Zg/exec?folderId='+encodeURIComponent(id);
+      const response=await fetch(url,{cache:'no-store'});
+      if(!response.ok)throw Error('HTTP '+response.status);
+      const json=await response.json();
+      const files=Array.isArray(json)?json:Array.isArray(json.files)?json.files:Array.isArray(json.images)?json.images:[];
+      base.media=files.map((file,i)=>{
+       const raw=typeof file==='string'?file:file.url||file.link||file.src||file.downloadUrl||'';
+       const nama=typeof file==='string'?'Media '+(i+1):file.name||file.title||'Media '+(i+1);
+       const isVideo=/video/i.test(file?.mimeType||file?.type||'')||/\.(mp4|mov|webm)$/i.test(nama);
+       const key=String(raw).match(/(?:\/d\/|[?&]id=)([A-Za-z0-9_-]{12,})/)?.[1];
+       const src=isVideo?(key?'https://drive.google.com/file/d/'+key+'/preview':raw):(key?'https://lh3.googleusercontent.com/d/'+key:raw);
+       return {nama,jenis:isVideo?'Video':'Foto',src,thumb:isVideo?'':src};
+      }).filter(x=>/^https:\/\//.test(x.src));
+      if(!base.media.length)base.catatan='Album asli tersedia di Google Drive, namun daftar foto/video belum dapat dibaca secara otomatis.';
+    }catch(err){base.catatan='Album asli tersedia di Google Drive, tetapi foto/video belum dapat dimuat otomatis.';}
+    return base;
+  }
   async function v21OpenAlbum(id){
     const a=v21Albums.find(x=>x.id===id);if(!a)return;
     v21ShowModal(a.judul,a.tanggal+' • '+(a.deskripsi||''),v21Node('p','','Memuat foto dan video...'));
     try{
-      const data=await call('bsV21IsiAlbumPublik',id);if($('v21GalleryModal').classList.contains('hidden'))return;
+      const data=a.sourceFolder?await v21LegacyAlbum(a):await call('bsV21IsiAlbumPublik',id);if($('v21GalleryModal').classList.contains('hidden'))return;
       v21OpenedAlbum=data;const wrap=v21Node('div');const back=v21Node('button','v21-back','← Semua album');back.type='button';back.onclick=v21ShowAlbumArchive;wrap.appendChild(back);
       const grid=v21Node('div','v21-gallery-grid');(data.media||[]).forEach((m,i)=>{
         const tile=v21Node('button','v21-gallery-tile');tile.type='button';tile.title=m.nama||m.jenis;
