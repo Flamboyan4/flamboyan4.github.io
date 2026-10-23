@@ -517,13 +517,22 @@ body.f4-embedded-bank #sideNav #v15Footer,body.f4-embedded-bank #v19PublicAccoun
 body.f4-embedded-bank #dashboardView .section{padding-top:24px!important}
 body.f4-embedded-bank .v14-head{align-items:flex-start!important}
 body.f4-embedded-bank #v14QuickAction{margin-top:46px!important}
-body.f4-embedded-bank #v11Public{padding-top:68px!important}
+/* Reserve utility space only above content, never above the whole sidebar grid. */
+body.f4-embedded-bank #v11Public.v18-public-shell{padding:0!important;align-items:stretch!important}
+body.f4-embedded-bank #v18PublicSide{
+  position:sticky!important;top:0!important;align-self:start!important;
+  height:100dvh!important;max-height:100dvh!important;overflow-y:auto!important;
+}
+body.f4-embedded-bank #v18PublicContent{padding-top:68px!important;min-width:0!important}
+body.f4-embedded-bank #v11Public .v17-public-main{padding-top:22px!important}
 body.f4-embedded-bank #v17PublicAccount{display:none!important}
 @media(max-width:720px){
  body.f4-embedded-bank #dashboardView .section{padding-top:12px!important}
  body.f4-embedded-bank #v14QuickAction{margin-top:0!important}
  body.f4-embedded-bank #dashboardView .mobile-nav{margin-top:57px!important}
- body.f4-embedded-bank #v11Public{padding-top:62px!important}
+ body.f4-embedded-bank #v18PublicSide{position:fixed!important;top:0!important}
+ body.f4-embedded-bank #v18PublicContent{padding-top:0!important}
+ body.f4-embedded-bank #v11Public .v17-public-main{padding-top:66px!important}
 }
 @media print{body.f4-embedded-bank #dashboardView .section,body.f4-embedded-bank #v11Public{padding-top:0!important}}
 </style>
