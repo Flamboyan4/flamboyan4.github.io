@@ -8,8 +8,8 @@ const base='https://api.flamboyan4.web.id/api/v2/admin/content/';
 const types={
  projects:{label:'Project Card',section:'portal',columns:[['title','Nama projek','text',true],['description','Deskripsi','textarea'],['image_ref','Foto / gambar Google Drive','url'],['target_url','Link tujuan / #bagian','text'],['sort_order','Urutan','number'],['active','Aktif','boolean']]},
  agenda:{label:'Rencana Kegiatan',section:'portal',columns:[['title','Nama kegiatan','text',true],['starts_on','Tanggal mulai','date'],['ends_on','Tanggal selesai','date'],['location','Lokasi','text'],['description','Deskripsi','textarea'],['image_ref','Foto Google Drive','url'],['status','Status kegiatan','text'],['visibility','Tampilkan ke publik','visibility'],['sort_order','Urutan','number']]},
- documentation:{label:'Dokumentasi',section:'portal',columns:[['title','Judul dokumentasi','text',true],['event_on','Tanggal','date'],['description','Deskripsi','textarea'],['drive_url','URL Google Drive / album','url'],['category','Kategori','text'],['sort_order','Urutan','number'],['visibility','Akses','visibility'],['active','Aktif','boolean']]},
- inventory:{label:'Inventaris',section:'portal',columns:[['name','Nama barang','text',true],['quantity','Jumlah','number'],['unit','Satuan','text'],['description','Keterangan','textarea'],['category','Kategori','text'],['photo_ref','Foto / Google Drive','url'],['visibility','Akses','visibility']]},
+ documentation:{label:'Dokumentasi',section:'portal',columns:[['title','Judul dokumentasi','text',true],['event_on','Tanggal','date'],['description','Deskripsi','textarea'],['drive_url','Tautan album/folder Google Drive (foto dan video)','url'],['category','Kategori dokumentasi','category'],['sort_order','Urutan','number'],['visibility','Akses','visibility'],['active','Aktif','boolean']]},
+ inventory:{label:'Inventaris',section:'portal',columns:[['name','Nama barang','text',true],['quantity','Jumlah','number'],['unit','Satuan','text'],['description','Kondisi, lokasi dan keterangan barang','textarea'],['category','Kategori barang','text'],['photo_ref','Tautan foto barang (Google Drive)','url'],['visibility','Akses','visibility']]},
  banners:{label:'Banner Slider',section:'portal',columns:[['title','Judul banner','text'],['image_ref','URL gambar Google Drive','url',true],['target_url','URL tujuan atau #bagian','text'],['sort_order','Urutan tampil','number'],['active','Aktif','boolean']]},
  meetings:{label:'Hasil Rapat',section:'portal',columns:[['title','Judul rapat','text',true],['meeting_on','Tanggal rapat','date'],['summary','Ringkasan rapat','textarea'],['document_ref','URL hasil rapat Google Docs / Drive','url'],['visibility','Akses','visibility']]},
  tariffs:{label:'Tarif Iuran',section:'book',key:'contribution_type',columns:[['contribution_type','Jenis Iuran','readonly'],['amount_rp','Tarif / iuran (Rp)','number',true]]},
@@ -92,6 +92,12 @@ function showForm(record){
   const field=node('label');field.append(node('span',label));
   let input;
   if(type==='textarea'){input=node('textarea');input.rows=3;}
+  else if(type==='category'){
+   input=node('select');
+   const cats=['Kerja Bakti','Arisan','Acara','Lainnya'];
+   if(record?.[key]&&!cats.includes(record[key]))cats.unshift(record[key]);
+   for(const c of cats)input.append(new Option(c,c));
+  }
   else if(type==='boolean'||type==='visibility'){
    input=node('select');
    const values=type==='boolean'?[['1','Ya / aktif'],['0','Tidak / nonaktif']]:[['publik','Publik'],['privat','Privat']];
@@ -108,6 +114,20 @@ function showForm(record){
   else if(type==='visibility')input.value='publik';
   else if(type==='number')input.value='0';
   field.append(input);grid.append(field);
+ }
+ if(active==='documentation'||active==='inventory'){
+  const msg=node('p',active==='documentation'?'Untuk banyak foto/video, gunakan satu tautan folder atau album Google Drive.':'Gunakan tautan Google Drive untuk foto barang. Foto tidak diunggah ke R2.','f4-admin-note');
+  form.append(msg);
+  const valueInput=form.querySelector('[name="'+(active==='documentation'?'drive_url':'photo_ref')+'"]');
+  const media=btn('Buka tautan media',()=>{
+    const url=String(valueInput?.value||'').trim();
+    try{
+      const parsed=new URL(url);
+      if(!['https:','http:'].includes(parsed.protocol))throw Error();
+      window.open(parsed.href,'_blank','noopener,noreferrer');
+    }catch{msg.textContent='Masukkan URL Google Drive lengkap terlebih dahulu.'}
+  },'f4-admin-btn');
+  form.append(media);
  }
  const notice=node('p','','f4-admin-message');form.append(notice);
  const actions=node('div',undefined,'f4-warga-form-actions');
