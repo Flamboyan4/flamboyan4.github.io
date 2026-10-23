@@ -202,6 +202,20 @@ html body #f4-account-page>aside{overflow-x:hidden!important}
 .f4-obligation-grid tr:nth-child(even){background:#f9fbfe}
 .f4-obligation-grid td:nth-child(n+3):nth-child(-n+6){text-align:center;font-weight:700}
 .f4-obligation-grid td:last-child{text-align:right}
+
+/* Compact editable lists; preserve vertical root sidebar + horizontal subtabs. */
+.f4-obligation-scroll{overflow-x:auto;max-width:100%;border-radius:12px}
+.f4-obligation-grid{min-width:800px;width:100%;border-collapse:collapse;table-layout:auto}
+.f4-obligation-grid th{white-space:nowrap;text-align:left}
+.f4-obligation-grid td{min-width:85px;max-width:290px;vertical-align:middle}
+.f4-obligation-grid td:first-child{font-weight:730}
+.f4-obligation-grid td:last-child{width:85px;min-width:85px;text-align:right}
+.f4-obligation-grid[data-module="obligations"] td:nth-child(n+3):nth-child(-n+6){text-align:center}
+.f4-obligation-grid:not([data-module="obligations"]) td:nth-child(n+3):nth-child(-n+6){text-align:left;font-weight:normal}
+.f4-admin-truncate{display:block;max-width:235px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.f4-admin-source-link{color:#2967a0;text-decoration:underline;text-underline-offset:2px;font-weight:600}
+.f4-admin-muted{color:#8e9ab0}
+@media(max-width:760px){.f4-obligation-grid{min-width:760px}}
 </style>
 </head>
 <body>
@@ -584,5 +598,5 @@ window.addEventListener('message',e=>{
 boot();
 })();
 </script>
-<script src="../superadmin-editor.js?v=obligation-grid-7ea8ece"></script>
+<script src="../superadmin-editor.js?v=content-tables-b87371c"></script>
 </body></html>
