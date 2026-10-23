@@ -20,11 +20,27 @@ const items=[
  ['Kelola Bank Sampah',()=>window.f4OpenBankAdmin?.('dashboard')],
  ['Kelola Pembukuan',()=>window.openSuperadminEditor?.('obligations')]
 ];
+function managementSidebar(active=''){
+ // Identitas dan 4 menu Superadmin tetap muncul pada ringkasan dan setiap form.
+ side.replaceChildren();
+ const brand=make('div',undefined,'f4-management-brand');
+ const logo=make('img');logo.src='https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8';
+ logo.alt='Logo Flamboyan 4';
+ const identity=make('span',undefined,'f4-management-identity');
+ identity.append(make('strong','Flamboyan 4'),make('small','Pengelolaan terpusat'));
+ brand.append(logo,identity);side.append(brand);
+ side.append(make('strong','Pengelolaan Superadmin','f4-work-brand'));
+ items.forEach(([label,fn],i)=>{
+   const section=['accounts','portal','bank','book'][i];
+   const button=btn(label,fn,'f4-manage-item'+(active===section?' active':''));
+   side.append(button);
+ });
+}
+window.f4RenderManagementSidebar=managementSidebar;
 window.openManagementHub=()=>{
  if(!superadmin())return;
  resetTheme();page.hidden=false;resident.hidden=true;
- side.replaceChildren(make('strong','Pengelolaan Superadmin','f4-work-brand'));
- items.forEach(([label,fn])=>side.append(btn(label,fn,'f4-manage-item')));
+ managementSidebar();
  main.replaceChildren();header('Pengelolaan Flamboyan 4','Pilih salah satu menu pengelolaan pada bagian kiri. Setiap menu mengelola data yang tampil di portal terkait.');
  const intro=make('section',undefined,'f4-work-section');
  intro.append(make('p','Semua pengelolaan memakai akun Superadmin dan sumber data Cloudflare D1. Konten foto/video tetap tersimpan di Google Drive.'));
