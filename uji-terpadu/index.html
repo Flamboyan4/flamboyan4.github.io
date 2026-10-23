@@ -1005,6 +1005,24 @@ body.f4-manage-book #f4-warga-panel .f4-warga-sidebar button.active,body.f4-mana
 #f4-password-form label{display:block;margin:12px 0;color:#334d3d;font:600 13px system-ui}
 #f4-password-form input{display:block;padding:12px;border:1px solid #cad9d0;border-radius:10px;background:#fff;color:#263b31}
 #f4-password-form .login-confirm{margin-top:12px}
+
+/* Bank Sampah original profile proportions and eye icon: scoped overrides */
+#profile-shade .login-modal{width:min(1080px,100%)!important}
+#profile-shade #f4-profile-form,#profile-shade #f4-avatar-form{margin:0 0 16px!important}
+#profile-shade #f4-profile-form input{max-width:440px!important}
+#profile-shade #f4-profile-form .login-confirm,
+#profile-shade #f4-avatar-form .login-confirm,
+#profile-shade #f4-password-form .login-confirm{width:auto!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;padding:12px 17px!important;margin:8px 0 0!important;border-radius:11px!important;font-size:13px!important}
+#profile-shade #f4-avatar-form{padding:16px!important;border:1px solid #d9e4d9!important;border-radius:14px!important;background:#fff!important}
+#profile-shade #f4-avatar-form input{max-width:440px!important}
+#profile-shade #f4-password-form{border-top:1px solid #d9e4d9!important;padding-top:16px!important;margin-top:16px!important}
+#profile-shade #f4-password-form label{max-width:440px!important}
+#profile-shade #f4-password-form .f4-password-field{display:block!important;position:relative!important;width:100%!important;max-width:440px!important}
+#profile-shade #f4-password-form .f4-password-field input{display:block!important;width:100%!important;height:50px!important;border:1px solid #cbdccf!important;border-radius:12px!important;background:#fff!important;padding:10px 46px 10px 13px!important}
+#profile-shade #f4-password-form .f4-password-field button.f4-eye-toggle,
+#f4-real-login .f4-password-field button.f4-eye-toggle{position:absolute!important;top:50%!important;right:12px!important;transform:translateY(-50%)!important;display:flex!important;align-items:center!important;justify-content:center!important;flex:none!important;width:26px!important;min-width:26px!important;max-width:26px!important;height:26px!important;min-height:26px!important;padding:0!important;margin:0!important;background:transparent!important;background-color:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:#668672!important;outline-offset:3px!important}
+#profile-shade .f4-eye-toggle svg,#f4-real-login .f4-eye-toggle svg{width:20px!important;height:20px!important;stroke:currentColor!important;fill:none!important}
+body.bank-mode #profile-shade .f4-eye-toggle{background:transparent!important;background-color:transparent!important}
 </style>
 <script id="f4-password-visibility">
 (()=>{
