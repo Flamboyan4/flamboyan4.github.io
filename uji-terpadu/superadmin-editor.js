@@ -87,7 +87,41 @@ function populate(){
  const query=filter.trim().toLowerCase();
  const def=types[active];
  const rows=records.filter(x=>!query||JSON.stringify(x).toLowerCase().includes(query));
- if(active==='obligations'){
+ if(['agenda','documentation','inventory','meetings','obligations'].includes(active)){
+  const fields={
+   agenda:[['title','Nama kegiatan'],['starts_on','Mulai'],['ends_on','Selesai'],['status','Status']],
+   documentation:[['title','Judul dokumentasi'],['event_on','Tanggal'],['category','Kategori'],['drive_url','Album / Drive'],['visibility','Akses']],
+   inventory:[['name','Nama barang'],['quantity','Jumlah'],['unit','Satuan'],['category','Kategori'],['description','Kondisi / Keterangan']],
+   meetings:[['title','Judul rapat'],['meeting_on','Tanggal'],['summary','Ringkasan'],['document_ref','Dokumen']],
+   obligations:[['nama','Nama warga'],['rumah','Rumah'],['qty_iuran_bulanan','Iuran bulanan'],['qty_kebersihan','Kebersihan'],['qty_kas_lorong','Kas lorong'],['qty_arisan','Arisan']]
+  }[active];
+  const scroll=node('div',undefined,'f4-obligation-scroll');
+  const table=node('table',undefined,'f4-obligation-grid'),thead=node('thead'),head=node('tr');
+  for(const [,label] of fields)head.append(node('th',label));
+  head.append(node('th','Aksi'));thead.append(head);table.append(thead);
+  const body=node('tbody');
+  const dateText=v=>{const raw=String(v||'');const m=raw.match(/^(\\d{4})-(\\d\\d)-(\\d\\d)/);return m?m[3]+'/'+m[2]+'/'+m[1]:raw};
+  const showValue=(x,key)=>{
+   const raw=x[key];
+   if(key==='drive_url'||key==='document_ref'){
+    if(!raw)return node('span','Belum ada','f4-admin-muted');
+    try{const url=new URL(raw);if(!['https:','http:'].includes(url.protocol))throw Error();
+     const a=node('a','Buka tautan ↗');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';a.className='f4-admin-source-link';return a;}
+    catch{return node('span','Tautan perlu diperiksa','f4-admin-muted')}
+   }
+   const v=raw==null||raw===''?'—':String(raw);
+   const formatted=/(_on|starts_on|ends_on)$/.test(key)?dateText(v):v;
+   const cell=node('span',formatted);if(key==='description'||key==='summary')cell.className='f4-admin-truncate';
+   return cell;
+  };
+  for(const x of rows){
+   const tr=node('tr');
+   for(const [key] of fields){const td=node('td');td.append(showValue(x,key));tr.append(td)}
+   const action=node('td');action.append(btn('Edit',()=>showForm(x)));tr.append(action);body.append(tr);
+  }
+  if(!rows.length){const tr=node('tr'),td=node('td','Tidak ada data yang cocok.');td.colSpan=fields.length+1;tr.append(td);body.append(tr)}
+  table.append(body);scroll.append(table);list.append(scroll);return;
+ }
   const scroll=node('div',undefined,'f4-obligation-scroll');
   const table=node('table',undefined,'f4-obligation-grid'),thead=node('thead'),tr=node('tr');
   for(const label of ['Nama warga','Rumah','Iuran bulanan','Kebersihan','Kas lorong','Arisan','Aksi'])tr.append(node('th',label));
