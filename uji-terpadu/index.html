@@ -431,7 +431,7 @@ body.superadmin-mode .shell{left:244px!important;right:0!important;background:tr
 body.superadmin-mode .top{background:transparent!important}
 body.superadmin-mode .top nav button.active{background:#e2eef7!important;color:#225b87!important}
 body.superadmin-mode .top nav button:hover{background:#eaf3fa!important;color:#225b87!important}
-body.superadmin-mode #f4-mobile-menu{display:none!important}
+body.superadmin-mode #f4-mobile-menu{display:none}
 body.superadmin-mode .notice{display:none!important}
 @media(max-width:760px){
  body.superadmin-mode .shell{left:0!important}
@@ -439,6 +439,34 @@ body.superadmin-mode .notice{display:none!important}
 }
 </style><link rel="stylesheet" href="./unified-account.css?v=0f11350"><style id="f4-scroll-menu-order">
 #portal-sidebar .f4-portal-viewer-label{display:block;margin:16px 12px 5px;border-top:1px solid #e3e5f1;padding:14px 8px 2px;color:#8993ac;font-size:10px;font-weight:800;letter-spacing:.1em}
+</style><style id="f4-iframe-overlay-and-mobile-nav">
+/* Root cause: later portal-mode/bank-mode framebox rules overrode the modal layout.
+   The active iframe must span the TOP-LEVEL viewport; z-index on child alone cannot. */
+html body.iframe-modal-open .framebox{
+ position:fixed!important;inset:0!important;top:0!important;left:0!important;
+ width:100vw!important;height:100dvh!important;max-width:none!important;min-width:0!important;
+ margin:0!important;padding:0!important;z-index:2500!important;
+ transform:none!important;overflow:hidden!important;
+}
+html body.iframe-modal-open .framebox>iframe{width:100%!important;height:100%!important;display:block!important}
+html body.iframe-modal-open .shell,
+html body.iframe-modal-open .portal-sidebar,
+html body.iframe-modal-open #f4-mobile-menu,
+html body.iframe-modal-open #f4-mobile-overlay,
+html body.iframe-modal-open #f4-scroll-top{
+ visibility:hidden!important;pointer-events:none!important;
+}
+html body.iframe-modal-open{overflow:hidden!important}
+@media(max-width:1023px){
+ html body.superadmin-mode .shell{left:0!important;right:0!important;width:100%!important}
+ html body.superadmin-mode #f4-mobile-menu{
+   display:grid!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+   position:fixed!important;left:9px!important;top:9px!important;width:39px!important;height:39px!important;
+   z-index:300!important;background:#e4f1fb!important;color:#27658e!important
+ }
+ html body.superadmin-mode .top{padding-left:54px!important;padding-right:10px!important}
+ html body.iframe-modal-open #f4-mobile-menu{visibility:hidden!important;pointer-events:none!important}
+}
 </style></head>
 <body>
 <header class="shell">
@@ -607,7 +635,7 @@ body.superadmin-mode .notice{display:none!important}
      const doc=frame.contentWindow.document;
      const check=()=>{
        // Only intercept genuinely visible legacy dialogs, never ordinary cards/panels.
-       const nodes=doc.querySelectorAll('[id^="modal-"],[id$="-modal"],#lightbox-modal,.f4-lightbox,.f4-album-overlay,.v21-modal,.v21-lightbox,[role="dialog"]');
+       const nodes=doc.querySelectorAll('.f4p-overlay,[id^="modal-"],[id$="-modal"],#lightbox-modal,.f4-lightbox,.f4-album-overlay,.v21-modal,.v21-lightbox,[role="dialog"]');
        let open=false;
        for(const el of nodes){
          if(el.classList.contains('hidden')||el.hidden||el.getAttribute('aria-hidden')==='true')continue;
@@ -810,8 +838,18 @@ body.superadmin-mode .notice{display:none!important}
   openProfileSettings(false);
  });
  window.addEventListener('message',event=>{
-  if(event.origin!==location.origin||event.source!==frame.contentWindow||event.data?.type!=='f4:auth-changed')return;
-  signOut();
+  if(event.origin!==location.origin||event.source!==frame.contentWindow)return;
+  if(event.data?.type==='f4:auth-changed'){signOut();return}
+  if(event.data?.type==='f4:overlay-state'){
+    // Child overlay state is authoritative even before MutationObserver runs.
+    document.body.classList.toggle('iframe-modal-open',!!event.data.open);
+    if(event.data.open)setMobileMenu(false);
+    return;
+  }
+  if(event.data?.type==='f4:sidebar-state'){
+    const mobile=document.getElementById('f4-mobile-menu');
+    mobile?.setAttribute('aria-expanded',String(!!event.data.open));
+  }
  });
  const mobileMenu=document.getElementById('f4-mobile-menu');
  mobileMenu.dataset.build='mobile-nav-20261022-v3';
@@ -822,6 +860,7 @@ body.superadmin-mode .notice{display:none!important}
   try{
     const child=frame.contentWindow;
     if(selected==='bank-sampah'){if(typeof child.f4ToggleBankMenu==='function')child.f4ToggleBankMenu();else if(typeof child.v18TogglePublic==='function')child.v18TogglePublic();return}
+    if(selected==='superadmin'){if(typeof child.f4ToggleSuperadminMenu==='function')child.f4ToggleSuperadminMenu();return}
     if(selected==='pembukuan'){if(typeof child.bukaMenu==='function')child.bukaMenu();else child.document.getElementById('side-drawer')?.classList.add('open');return}
   }catch(e){notify('Menu belum tersedia, silakan muat ulang halaman')}
 });
