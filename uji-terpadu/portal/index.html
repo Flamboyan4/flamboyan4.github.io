@@ -81,7 +81,7 @@ footer#pembayaran>div>div:first-child{margin-bottom:6px!important;padding:12px!i
 footer#pembayaran>div>div:last-child{padding-top:0!important;margin-top:0!important}
 body:not([data-preview-role]) #f4-private-transactions,
 body[data-preview-role="public"] #f4-private-transactions{display:none!important}
-body.f4-footer-visible>div.fixed.bottom-6.right-6{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+/* Tombol mengambang tetap terlihat; posisi dihitung relatif terhadap footer. */
 </style><style id="f4-mobile-proportions-v1">
 @media(max-width:1023px){
  html,body{max-width:100%;overflow-x:hidden!important}
@@ -106,6 +106,18 @@ body.f4-footer-visible>div.fixed.bottom-6.right-6{opacity:0!important;visibility
  body>main{padding-left:10px!important;padding-right:10px!important}
  #keuangan h3{font-size:18px!important}
  #card-pemasukan,#card-pengeluaran{padding:13px!important}
+}
+</style><style id="f4-clean-links-floating-footer">
+/* No redundant external-link glyphs inside the portal cards. */
+i[data-lucide="external-link"],svg.lucide-external-link{display:none!important}
+/* Fixed until Payment, then slides up smoothly above the footer. */
+body>div.fixed.bottom-6.right-6{
+ bottom:calc(18px + var(--f4-footer-lift,0px))!important;
+ opacity:1!important;visibility:visible!important;
+ transition:bottom .08s linear!important
+}
+@media(max-width:640px){
+ body>div.fixed.bottom-6.right-6{bottom:calc(18px + var(--f4-footer-lift,0px))!important}
 }
 </style></head>
 
@@ -3801,11 +3813,23 @@ document.addEventListener('DOMContentLoaded', loadProgresBankSampahIndex);
   </script>
 <script id="f4-footer-overlap-observer">
 document.addEventListener('DOMContentLoaded',()=>{
- const f=document.getElementById('pembayaran');
- if(f&&window.IntersectionObserver){
-  const obs=new IntersectionObserver(es=>document.body.classList.toggle('f4-footer-visible',es.some(e=>e.isIntersecting)),{threshold:0});
-  obs.observe(f);
- }
+ const footer=document.getElementById('pembayaran');
+ const floating=document.querySelector('body>div.fixed.bottom-6.right-6');
+ if(!footer||!floating)return;
+ // Stop both existing floating actions immediately above the white Payment footer.
+ // Unlike the previous observer, this never hides them.
+ let queued=false;
+ const update=()=>{
+  queued=false;
+  const top=footer.getBoundingClientRect().top;
+  const baseBottom=window.matchMedia('(min-width:768px)').matches?18:18;
+  const lift=Math.max(0,Math.ceil(window.innerHeight-baseBottom-top+12));
+  floating.style.setProperty('--f4-footer-lift',lift+'px');
+ };
+ const schedule=()=>{if(queued)return;queued=true;requestAnimationFrame(update)};
+ window.addEventListener('scroll',schedule,{passive:true});
+ window.addEventListener('resize',schedule,{passive:true});
+ update();
 });
 </script><script id="f4-chat-diagnostics-live">
 window.addEventListener('DOMContentLoaded',()=>{
