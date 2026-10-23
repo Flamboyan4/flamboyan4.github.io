@@ -1756,7 +1756,53 @@ main > section.card{overflow:visible!important}
   #report-arisan-panel td:nth-child(7),#report-arisan-panel th:nth-child(7){width:15%!important}
 }
 </style>
-</head>
+<style id="f4-rt-unified-report-print-v2">
+@media print {
+ /* Satu standar cetak: Setoran RT, Arisan, Denda, Pinjaman dan Talangan. */
+ #report-arisan-panel,#report-denda-panel,#report-pinjaman-panel,#report-talangan-panel {
+   font-family:Arial,Helvetica,sans-serif!important;color:#14253c!important;
+   width:100%!important;max-width:none!important
+ }
+ #report-arisan-panel .report-table-wrap,#report-denda-panel .report-table-wrap,
+ #report-pinjaman-panel .report-table-wrap,#report-talangan-panel .report-table-wrap{
+   width:100%!important;max-width:none!important;overflow:visible!important;
+   border:1px solid #cbd5e1!important;border-radius:0!important
+ }
+ #report-arisan-panel table,#report-denda-panel table,#report-pinjaman-panel table,#report-talangan-panel table{
+   width:100%!important;max-width:none!important;min-width:0!important;
+   border-collapse:collapse!important;table-layout:auto!important;
+   font-size:12.5px!important;line-height:1.25!important
+ }
+ #report-arisan-panel :is(th,td),#report-denda-panel :is(th,td),
+ #report-pinjaman-panel :is(th,td),#report-talangan-panel :is(th,td){
+   font-size:12.5px!important;line-height:1.25!important;padding:6px 6px!important;
+   border:1px solid #d9e1ec!important;color:#15243b!important;
+   white-space:normal!important;vertical-align:middle!important
+ }
+ #report-arisan-panel thead th,#report-denda-panel thead th,
+ #report-pinjaman-panel thead th,#report-talangan-panel thead th{
+   background:#eef2f7!important;color:#192b44!important;font-weight:800!important;
+   -webkit-print-color-adjust:exact!important;print-color-adjust:exact!important
+ }
+ #report-arisan-panel tbody tr,#report-denda-panel tbody tr,
+ #report-pinjaman-panel tbody tr,#report-talangan-panel tbody tr{
+   background:#fff!important;break-inside:avoid!important
+ }
+ #report-arisan-panel tfoot td,#report-denda-panel tfoot td,
+ #report-pinjaman-panel tfoot td,#report-talangan-panel tfoot td{
+   background:#f5f7fb!important;font-weight:800!important;print-color-adjust:exact!important
+ }
+ #report-arisan-panel .report-letterhead,#report-denda-panel .report-letterhead,
+ #report-pinjaman-panel .report-letterhead,#report-talangan-panel .report-letterhead{
+   border-bottom:1.5px solid #34415c!important
+ }
+ /* 26 peserta Arisan tetap muat satu A4, ukuran huruf jauh lebih terbaca. */
+ #report-arisan-panel :is(th,td){font-size:12px!important;padding:5.2px 6px!important;line-height:1.2!important}
+ #report-arisan-panel>div.grid{gap:7px!important;margin-bottom:10px!important}
+ #report-arisan-panel .report-card{border-color:#d3dfed!important;border-radius:5px!important}
+ #report-arisan-panel td:nth-child(5){font-variant-numeric:tabular-nums!important}
+}
+</style></head>
 <body oncontextmenu="return false;">
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
