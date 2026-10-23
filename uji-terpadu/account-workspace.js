@@ -192,6 +192,47 @@
      if(r==='superadmin')actions('Menu pengelolaan',portalTasks());
    }
  }
+ // Halaman anggota tetap memakai workspace yang ada; seluruh data dari endpoint /api/member.
+ window.f4OpenMemberAccount=()=>{
+   if(role()!=='anggota')return;
+   ++requestId;page.hidden=false;if(panel)panel.hidden=true;
+   side.replaceChildren(el('strong','Akun Saya','f4-work-brand'));
+   navItem('Tabungan Saya',()=>{
+     heading('Tabungan Saya','Riwayat setoran dan saldo khusus akun yang masuk.');
+     const x=section('Tabungan dan riwayat');
+     x.append(link('Buka tabungan saya',()=>navigate('bank-sampah','pribadi')));
+   },true);
+   const finance=(name,endpoint)=>{
+     heading(name,'Data pribadi dari Cloudflare D1.');
+     const host=section('Riwayat dan status');
+     const status=el('p','Memuat data…','f4-work-info');host.append(status);
+     api(endpoint).then(data=>{
+       if(page.hidden)return;
+       const list=Array.isArray(data.rows)?data.rows:Array.isArray(data.data)?data.data:Array.isArray(data.data?.rows)?data.data.rows:Array.isArray(data.transaksi)?data.transaksi:[];
+       status.textContent=list.length+' catatan ditemukan.';
+       if(!list.length){host.append(el('p','Belum ada catatan yang dapat ditampilkan.'));return}
+       const table=el('div',undefined,'f4-member-history');
+       for(const row of list){
+         const a=el('article',undefined,'f4-admin-item');
+         const main=el('div');main.append(el('strong',row.namaKegiatan||row.keterangan||row.periode||row.tanggal||'Catatan'));
+         main.append(el('small',[row.tanggal||row.paid_on||'',row.status||'',row.metode||row.payment_method||''].filter(Boolean).join(' • ')));
+         a.append(main,el('strong',money(row.nominalRp??row.nominal??row.totalDiterima??row.amount_rp??0)));
+         table.append(a);
+       }host.append(table);
+     }).catch(err=>{status.textContent='Data belum tersedia: '+err.message+'. Tidak menampilkan data warga lain.'});
+   };
+   navItem('Keuangan — Iuran',()=>finance('Iuran — Riwayat dan Status','/api/member/payments'));
+   navItem('Keuangan — Arisan',()=>finance('Arisan — Riwayat dan Status','/api/member/arisan'));
+   navItem('Keuangan — Denda',()=>finance('Denda — Riwayat dan Status','/api/member/fines'));
+   navItem('Keuangan — Pinjaman',()=>finance('Pinjaman — Rincian dan Pembayaran','/api/member/loans'));
+   navItem('Pengaturan Akun',profile);
+   navItem('Kembali',()=>page.hidden=true);
+   heading('Akun Saya','Tabungan Saya dan Keuangan.');
+   const home=section('Tabungan Saya');home.append(link('Lihat tabungan dan riwayat setoran',()=>navigate('bank-sampah','pribadi')));
+   const menu=section('Keuangan');
+   for(const [name,path] of [['Iuran','/api/member/payments'],['Arisan','/api/member/arisan'],['Denda','/api/member/fines'],['Pinjaman','/api/member/loans']])
+     menu.append(link(name,()=>finance(name+' — Riwayat dan Status',path)));
+ };
  window.openAccountPage=()=>{
  const p=portal(),r=role();
  if(r==='superadmin'&&p==='portal')return window.openSuperadminEditor?.('projects');
