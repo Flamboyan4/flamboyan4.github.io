@@ -111,6 +111,10 @@ html body #f4-account-page>aside{overflow-x:hidden!important}
  background:#2d6593;color:#fff;border-color:#2d6593;box-shadow:0 2px 6px #27496419
 }
 #f4-account-page .sa-tabbar button:focus-visible{outline:2px solid #256fac;outline-offset:2px}
+#f4-account-page .sa-module-heading{margin:3px 0 14px;padding:1px 2px}
+#f4-account-page .sa-module-heading h3{font-size:18px;font-weight:800;margin:0 0 4px;color:#1b344c}
+#f4-account-page .sa-module-heading p{font-size:12px;color:#60788b;margin:0}
+
 @keyframes f4SaContentIn{from{opacity:.35;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 #f4-account-page>main>.f4-work-heading,
 #f4-account-page>main>.sa-section,
@@ -152,9 +156,17 @@ const button=(label,on,cls)=>{const b=el('button',label,cls);b.type='button';b.o
 const title=(name,desc)=>{
  rememberTabScroll();
  main.replaceChildren();
+ const category=group==='content'?'Konten & Publikasi':group==='masters'?'Data Acuan':'';
+ const categoryDesc=group==='content'?'Kelola konten untuk Portal Utama dan Bank Sampah':'Satu sumber data induk untuk semua modul';
  const h=el('header',undefined,'f4-work-heading');
- h.append(el('h2',name),el('p',desc));main.append(h);
+ h.append(el('h2',category&&active?category:name),el('p',category&&active?categoryDesc:desc));
+ main.append(h);
  renderTabs();
+ if(category&&active){
+  const module=el('section',undefined,'sa-module-heading');
+  module.append(el('h3',name),el('p',desc));
+  main.append(module);
+ }
 };
 const section=(label)=>{const s=el('section',undefined,'sa-section');s.append(el('h3',label));main.append(s);return s};
 const value=(o,keys)=>{for(const k of keys)if(o&&o[k]!==undefined&&o[k]!==null)return String(o[k]);return ''};
@@ -234,9 +246,9 @@ function openEditor(kind){
  if(role!=='superadmin')return;
  const target=Object.entries(submenu).find(([,items])=>items.some(([key])=>key===kind));
  if(!target)return;
- const switched=active!==kind;
+ const switched=active!==kind,priorGroup=group;
  active=kind;group=target[0];
- sidebar(group);
+ if(priorGroup!==group||!side.querySelector('button.active'))sidebar(group);
  if(kind==='residents'||kind==='bankcatalog')window.f4CancelSuperadminEditor?.();
  if(kind==='residents')window.openWarga();
  else if(kind==='bankcatalog')catalogPage();
@@ -345,7 +357,8 @@ function wargaForm(mode,row={}){
  });
 }
 async function openWarga(){
- active='residents';group='masters';sidebar('masters');
+ active='residents';group='masters';
+ if(!side.querySelector('button.active'))sidebar('masters');
  title('Data Warga & Rumah','Master lintas portal — identitas dan nomor rumah dikelola satu kali');
  const bar=el('div',undefined,'sa-controls'),search=el('input');search.placeholder='Cari warga atau rumah';
  bar.append(search,button('+ Tambah Rumah',()=>wargaForm('add_house'),'sa-action'),button('+ Tambah Warga',()=>wargaForm('add_resident'),'sa-action'),button('Muat ulang',openWarga,'sa-action'));
