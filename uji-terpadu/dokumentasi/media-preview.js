@@ -87,7 +87,22 @@ async function loadPortalArchive(){
   }),new Promise((_,reject)=>setTimeout(()=>reject(Error('CSV Sheets tidak merespons')),7000))]);
   rows=parsed.filter(a=>a.title&&portalOnly(a));
  }
- docs=rows.sort((a,b)=>parseDate(b.date)-parseDate(a.date));
+ // Keep original historical albums until every D1 record is migrated.
+ // Merge by real Drive folder or normalized title/date; D1 may only have a subset.
+ const archive=[...docs];
+ const key=x=>folderId(x.folder)||String(x.title||'').toLocaleLowerCase('id-ID').replace(/[^a-z0-9]/g,'')+'|'+parseDate(x.date);
+ const byKey=new Map(archive.map(x=>[key(x),x]));
+ for(const x of rows){
+  const id=key(x),previous=byKey.get(id);
+  byKey.set(id,previous?{
+   ...previous,...x,
+   folder:x.folder||previous.folder,
+   cover:x.cover||previous.cover,
+   description:x.description||previous.description,
+   date:x.date||previous.date
+  }:x);
+ }
+ docs=[...byKey.values()].sort((a,b)=>parseDate(b.date)-parseDate(a.date));
  status(docs.length+' album dokumentasi Portal Utama');
  drawAlbums();
  // Covers are read from original Drive folder listing, identical to landing.
