@@ -578,6 +578,9 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
   #v27PrintReport thead{display:table-header-group!important}
   #v27PrintReport tr{break-inside:avoid!important}
 }
+</style><style id="f4-bank-gallery-svg">
+.v21-close,.v21-arrow{display:inline-flex!important;justify-content:center!important;align-items:center!important;text-align:center!important;line-height:0!important;padding:0!important}
+.v21-close svg,.v21-arrow svg{display:block!important;flex:none!important;pointer-events:none!important;margin:0!important}
 </style></head>
 <body>
 <div class="shell">
@@ -701,7 +704,7 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
    // Read-only fallback; superseded automatically once properly scoped D1 albums exist.
    return [{id:'legacy-bank-20261011',judul:'Gorol dan Pembuatan Bank Sampah',
      tanggal:'2026-10-11',deskripsi:'Kegiatan warga flamboyan 4 membersihkan lingkungan bersama-sama',
-     kategori:'Kerja Bakti',sampul:'',sourceFolder:'https://drive.google.com/drive/folders/1ywp2v8rUH-oAGcM91PQyVrO7Wx9iLdCA',media:[]}];
+     kategori:'Kerja Bakti',sampul:'https://drive.google.com/file/d/1DcqPvQpQx_nQEPsCXlbJz-YETZ0iypep/view',sourceFolder:'https://drive.google.com/drive/folders/1ywp2v8rUH-oAGcM91PQyVrO7Wx9iLdCA',media:[]}];
   }
   return list;
  }
@@ -1800,11 +1803,20 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
     modal.addEventListener('click',e=>{if(e.target===modal)v21CloseGallery();});
     const lightbox=v21Node('div','v21-modal v21-lightbox hidden');lightbox.id='v21Lightbox';lightbox.setAttribute('role','dialog');lightbox.setAttribute('aria-modal','true');
     const lhead=v21Node('div','v21-modal-head');const lm=v21Node('div');lm.id='v21LightboxName';
-    const lc=v21Node('button','v21-close','×');lc.type='button';lc.title='Tutup foto/video';lc.onclick=v21CloseLightbox;
-    lhead.append(lm,lc);const stage=v21Node('div','v21-stage');const prev=v21Node('button','v21-arrow','‹'),next=v21Node('button','v21-arrow','›');
-    prev.type=next.type='button';prev.title='Sebelumnya';next.title='Berikutnya';prev.onclick=()=>v21ShiftMedia(-1);next.onclick=()=>v21ShiftMedia(1);
+    const lc=v21Node('button','v21-close');lc.innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6 18 18"/></svg>';lc.type='button';lc.title='Tutup foto/video';lc.setAttribute('aria-label','Tutup foto atau video');lc.onclick=v21CloseLightbox;
+    lhead.append(lm,lc);const stage=v21Node('div','v21-stage');const prev=v21Node('button','v21-arrow'),next=v21Node('button','v21-arrow');
+    prev.innerHTML='<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>';
+    next.innerHTML='<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
+    prev.type=next.type='button';prev.title='Sebelumnya';next.title='Berikutnya';prev.setAttribute('aria-label','Media sebelumnya');next.setAttribute('aria-label','Media berikutnya');prev.onclick=()=>v21ShiftMedia(-1);next.onclick=()=>v21ShiftMedia(1);
     const scene=v21Node('div','v21-stage-content');scene.id='v21StageContent';stage.append(prev,scene,next);
     const counter=v21Node('div','v21-gallery-count');counter.id='v21LightboxCount';lightbox.append(lhead,stage,counter);document.body.appendChild(lightbox);
+    // Click on the dark/empty backdrop to return to the album.
+    lightbox.addEventListener('click',e=>{
+      if(e.target===lightbox||e.target===stage||e.target===scene)v21CloseLightbox();
+    });
+    window.addEventListener('popstate',()=>{
+      if(!$('v21Lightbox')?.classList.contains('hidden'))v21CloseLightbox();
+    });
     document.addEventListener('keydown',e=>{
       if(e.key==='Escape'){if(!$('v21Lightbox').classList.contains('hidden'))v21CloseLightbox();else v21CloseGallery();}
       if(!$('v21Lightbox').classList.contains('hidden')){if(e.key==='ArrowRight')v21ShiftMedia(1);if(e.key==='ArrowLeft')v21ShiftMedia(-1);}
@@ -1868,7 +1880,10 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
   }
   function v21OpenLightbox(index){
     if(!v21OpenedAlbum?.media?.length)return;
-    v21MediaIndex=index;$('v21Lightbox').classList.remove('hidden');v21PaintLightbox();
+    v21MediaIndex=index;
+    if(!$('v21Lightbox').classList.contains('hidden'))return;
+    history.pushState({...history.state,f4BankPhotoOverlay:true},'',location.href);
+    $('v21Lightbox').classList.remove('hidden');v21PaintLightbox();
   }
   function v21PaintLightbox(){
     const list=v21OpenedAlbum?.media||[],m=list[v21MediaIndex];if(!m)return;
@@ -1883,7 +1898,11 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
     const list=v21OpenedAlbum?.media||[];if(!list.length)return;
     v21MediaIndex=(v21MediaIndex+delta+list.length)%list.length;v21PaintLightbox();
   }
-  function v21CloseLightbox(){$('v21Lightbox')?.classList.add('hidden');$('v21StageContent')?.replaceChildren();}
+  function v21CloseLightbox(){
+    const modal=$('v21Lightbox');if(!modal||modal.classList.contains('hidden'))return;
+    modal.classList.add('hidden');$('v21StageContent')?.replaceChildren();
+    if(history.state?.f4BankPhotoOverlay)history.back();
+  }
   function v21ShowInventory(item){
     const view=v21Node('div');
     if(item.foto){const img=v21Photo(item.foto,item.nama);img.style.cssText='display:block;max-width:100%;max-height:60vh;object-fit:contain;margin:0 auto 13px;border-radius:12px';view.appendChild(img);}
