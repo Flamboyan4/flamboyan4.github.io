@@ -536,6 +536,12 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
  body.f4-embedded-bank #v11Public .v17-public-main{padding-top:66px!important}
 }
 @media print{body.f4-embedded-bank #dashboardView .section,body.f4-embedded-bank #v11Public{padding-top:0!important}}
+<style id="f4-bank-account-shortcut-style">
+#f4-public-my-savings{display:inline-flex;align-items:center;justify-content:center;min-height:40px;
+  margin-top:16px;padding:10px 16px;border:1px solid #b1d6b7;border-radius:10px;
+  background:#e7f3e8;color:#20553b;font:750 13px system-ui;cursor:pointer;box-shadow:none}
+#f4-public-my-savings:hover{background:#d5e9d8}
+@media(max-width:700px){#f4-public-my-savings{width:100%;max-width:260px}}
 </style>
 </head>
 <body>
@@ -2371,6 +2377,55 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
     if(inPortal)window.parent.postMessage({type:'f4:bank-profile-opened'},location.origin);
   }
   window.f4OpenBankProfile=openOriginalProfile;
+  function openMemberSavings(){
+    if(currentRole!=='warga'||!profile||profile.peran!=='Warga')return;
+    if(document.getElementById('dashboardView')?.classList.contains('hidden'))showDashboard(profile);
+    goPage('pribadi');
+  }
+  function syncPublicSavingsButton(){
+    const banner=document.querySelector('#v11Public .v17-public-banner');
+    if(!banner)return;
+    let action=document.getElementById('f4-public-my-savings');
+    const isMember=currentRole==='warga'&&profile?.peran==='Warga';
+    if(!isMember){if(action)action.remove();return;}
+    if(!action){
+      action=document.createElement('button');
+      action.id='f4-public-my-savings';action.type='button';
+      action.className='f4-public-my-savings';
+      action.textContent='Lihat Tabungan Saya';
+      action.onclick=openMemberSavings;
+      const left=banner.firstElementChild||banner;
+      left.append(action);
+    }
+  }
+  // Reuse the original Bank Sampah page for savings, profile and every
+  // admin tab. Only a contextual shortcut is added to the public banner.
+  const originalPublic=v11ShowPublic;
+  v11ShowPublic=function(...args){
+    const value=originalPublic(...args);
+    syncPublicSavingsButton();
+    return value;
+  };
+  function syncReturnButton(){
+    const list=document.getElementById('v16NavList');
+    if(!list||currentRole==='public')return;
+    let back=list.querySelector('.f4-back-management,.f4-back-account');
+    if(!back){
+      back=document.createElement('button');back.type='button';
+      list.appendChild(back);
+    }
+    back.className='v16-item '+(currentRole==='superadmin'?'f4-back-management':'f4-back-account');
+    back.textContent=currentRole==='superadmin'?'← Menu Pengelolaan':'← Pengaturan Akun';
+    back.onclick=()=>currentRole==='superadmin'
+      ?window.parent.postMessage({type:'f4:manage-home'},location.origin)
+      :openOriginalProfile();
+  }
+  const originalNavBuilder=v16BuildNav;
+  v16BuildNav=function(...args){
+    const result=originalNavBuilder(...args);
+    syncReturnButton();
+    return result;
+  };
   const invokeLogin=()=>{
     if(inPortal)window.parent.postMessage({type:'f4:show-login'},location.origin);
     else document.getElementById('authView')?.classList.remove('hidden');
@@ -2393,8 +2448,10 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
     currentRole=role||'public';identity=account||{};
     syncAccountTabs();
     if(matching&&currentRole!=='public'){
+      syncReturnButton();
       if(pendingProfile)openOriginalProfile();
       else if(pendingSection){const page=pendingSection;pendingSection='';openAdmin(page);}
+      else syncPublicSavingsButton();
       return;
     }
     if(currentRole==='public'){
@@ -2409,17 +2466,7 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
       rumah:identity.rumah||'',wargaId:identity.wargaId||''
     };
     showDashboard(p);
-    if(currentRole==='superadmin'&&inPortal){
-      // Satu tombol kembali; navigasi dan desain asli tetap digunakan.
-      const nav=document.getElementById('v16NavList');
-      if(nav&&!nav.querySelector('.f4-back-management')){
-        const back=document.createElement('button');
-        back.type='button';back.className='v16-item f4-back-management';
-        back.textContent='← Menu Pengelolaan';
-        back.onclick=()=>window.parent.postMessage({type:'f4:manage-home'},location.origin);
-        nav.append(back);
-      }
-    }
+    syncReturnButton();
     const requested=pendingSection||lastAdminSection;
     pendingSection='';
     if(pendingProfile){openOriginalProfile();return;}
@@ -2433,6 +2480,9 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
     if(!['admin','superadmin'].includes(currentRole))return;
     lastAdminSection=target;
     if(!profile){pendingSection=target;return;}
+    // Do not switch a hidden admin tab while public content stays visible.
+    if(document.getElementById('dashboardView')?.classList.contains('hidden'))
+      showDashboard(profile);
     goPage(target);
   }
   window.addEventListener('message',event=>{
