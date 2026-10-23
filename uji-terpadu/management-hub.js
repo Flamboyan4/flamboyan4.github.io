@@ -118,10 +118,7 @@ if(profile&&!$('f4-password-form')){
  for(const [name,label,autofill] of fields){
   const wrap=make('label',label);
   const input=make('input');input.type='password';input.name=name;input.autocomplete=autofill;input.required=true;
-  const field=make('span',undefined,'f4-password-field');field.append(input);
-  const eye=btn('Tampilkan',()=>{const visible=input.type==='text';input.type=visible?'password':'text';eye.textContent=visible?'Tampilkan':'Sembunyikan';eye.setAttribute('aria-pressed',String(!visible));},'f4-eye-toggle');
-  eye.setAttribute('aria-label','Tampilkan password');field.append(eye);
-  wrap.append(field);form.append(wrap);
+  wrap.append(input);form.append(wrap);
  }
  const note=make('p','','f4-password-feedback');note.setAttribute('role','status');form.append(note);
  const save=btn('Simpan Password Baru',()=>form.requestSubmit(),'login-confirm');form.append(save);
