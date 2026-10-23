@@ -642,7 +642,7 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
  }
  html.f4-bank-embedded #v11Public.v18-public-shell{display:block!important}
  html.f4-bank-embedded #v11Public #v18PublicContent{width:100%!important;max-width:100%!important}
- html.f4-bank-embedded #v11Public #v18PublicContent .v17-public-main{padding-top:22px!important}
+ html.f4-bank-embedded #v11Public #v18PublicContent .v17-public-main{padding-top:72px!important}
 }
 html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
 </style></head>
@@ -1858,10 +1858,9 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     row.onclick=()=>v21ShowInventory(x);return row;
   }
   function v21NotifyOverlay(){
-    const open=!!(
-      !$('v21GalleryModal')?.classList.contains('hidden') ||
-      !$('v21Lightbox')?.classList.contains('hidden')
-    );
+    const open=['v21GalleryModal','v21Lightbox'].some(id=>{
+      const layer=$(id);return !!layer&&!layer.classList.contains('hidden');
+    });
     // Do not let shell utility elements float above nested legacy modals.
     document.documentElement.classList.toggle('f4-bank-gallery-open',open);
     document.body.classList.toggle('f4-bank-gallery-open',open);
