@@ -437,7 +437,7 @@ body.superadmin-mode .notice{display:none!important}
  body.superadmin-mode .shell{left:0!important}
  body.superadmin-mode .framebox{position:absolute!important;inset:0!important;margin:0!important;height:100dvh!important}
 }
-</style></head>
+</style><link rel="stylesheet" href="./unified-account.css?v=sa-unified"></head>
 <body>
 <header class="shell">
  <div class="top">
@@ -641,6 +641,7 @@ body.superadmin-mode .notice{display:none!important}
    }:null},location.origin)}catch{}
  }
  function update(target,{keepManagement=false}={}){
+  window.f4CloseUnifiedAccount?.();
   // A background hash/session update must not dismiss an open management form.
   // Navigating a portal always exposes its iframe; management/profile overlays
   // must not remain above Bank Sampah, Pembukuan, or Portal Utama.
@@ -696,6 +697,7 @@ body.superadmin-mode .notice{display:none!important}
   update(role!=='superadmin'&&['pembukuan','superadmin'].includes(selected)?'portal':selected,{
    keepManagement:!document.getElementById('f4-account-page').hidden||!document.getElementById('f4-warga-panel').hidden
   });
+  if(window.__f4IntentAccount&&role!=='public'){window.__f4IntentAccount=false;window.f4OpenUnifiedAccount?.();}
  }
  async function signOut(){
   try{await apiCall('/api/auth/logout',{method:'POST'})}
@@ -793,7 +795,7 @@ body.superadmin-mode .notice{display:none!important}
   if(action==='logout'){signOut();return}
   if(action==='warga'){openWarga();return}
   if(action==='manage'){update('superadmin');return}
-  if(action==='settings'){openOriginalBankProfile();return;}
+  if(action==='settings'){window.f4OpenUnifiedAccount?.();return;}
   openProfileSettings(false);
  });
  window.addEventListener('message',event=>{
@@ -860,7 +862,7 @@ body.superadmin-mode .notice{display:none!important}
  });
  document.addEventListener('keydown',e=>{if(e.key==='Escape'){menu.hidden=true;loginShade.hidden=true;profileShade.hidden=true}});
  refreshIdentity();
- const requested=location.hash.slice(1);selected=Object.hasOwn(apps,requested)?requested:'portal';
+ const requested=location.hash.slice(1);window.__f4IntentAccount=requested==='akun';selected=Object.hasOwn(apps,requested)?requested:'portal';
  update(selected);refreshSession();
  // A same-page link such as /uji-terpadu/#bank-sampah must actually switch
  // the iframe and dismiss any management overlay, not just update the URL.
@@ -1146,4 +1148,4 @@ body.bank-mode #profile-shade .f4-eye-toggle{background:transparent!important;ba
 (()=>{window.openManagementHub=()=>{
   document.querySelector('nav [data-target="superadmin"]')?.click();
 };})();
-</script></body></html>
+</script><script src="./unified-account.js?v=e879807"></script></body></html>
