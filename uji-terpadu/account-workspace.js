@@ -221,10 +221,12 @@
        }host.append(table);
      }).catch(err=>{status.textContent='Data belum tersedia: '+err.message+'. Tidak menampilkan data warga lain.'});
    };
-   navItem('Keuangan — Iuran',()=>finance('Iuran — Riwayat dan Status','/api/member/payments'));
-   navItem('Keuangan — Arisan',()=>finance('Arisan — Riwayat dan Status','/api/member/arisan'));
-   navItem('Keuangan — Denda',()=>finance('Denda — Riwayat dan Status','/api/member/fines'));
-   navItem('Keuangan — Pinjaman',()=>finance('Pinjaman — Rincian dan Pembayaran','/api/member/loans'));
+   navItem('Keuangan',()=>{
+     heading('Keuangan','Riwayat dan status keuangan pribadi.');
+     const menu=section('Pilih rincian');
+     for(const [name,path] of [['Iuran','/api/member/payments'],['Arisan','/api/member/arisan'],['Denda','/api/member/fines'],['Pinjaman','/api/member/loans']])
+       menu.append(link(name,()=>finance(name+' — Riwayat dan Status',path)));
+   });
    navItem('Pengaturan Akun',profile);
    navItem('Kembali',()=>page.hidden=true);
    heading('Akun Saya','Tabungan Saya dan Keuangan.');
