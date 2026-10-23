@@ -675,7 +675,10 @@ body.superadmin-mode .notice{display:none!important}
    const url=apps[target];
    if(frame.getAttribute('src')!==url)frame.setAttribute('src',url);else sendRole();
   }
-  try{history.replaceState(null,'','#'+target)}catch{}
+  try{
+   const requestedSection=location.hash.match(/^#superadmin\/(overview|accounts|content|masters|audit)$/)?.[1];
+   history.replaceState(null,'','#'+target+(target==='superadmin'&&requestedSection?'/'+requestedSection:''));
+  }catch{}
  }
  function showLogin(){
   menu.hidden=true;
