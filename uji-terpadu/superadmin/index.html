@@ -459,23 +459,43 @@ function paintAccounts(){
  }
 }
 async function catalogPage(){
- title('Jenis & Harga Sampah','Master harga dibaca dari Bank Sampah Cloudflare, tanpa membuat editor ganda.');
- const n=notice('Memuat master barang…');const list=el('div',undefined,'sa-list');main.append(list);
+ title('Jenis & Harga Sampah','Bandingkan harga tercatat di D1 dengan referensi kategori Bank Sampah.');
+ const info=notice('Membaca harga D1…');
+ const wrap=el('div',undefined,'f4-obligation-scroll');
+ const table=el('table',undefined,'f4-obligation-grid');table.dataset.module='bankcatalog';
+ const head=el('thead'),tr=el('tr');
+ for(const label of ['Jenis barang','Harga lapak / kg','Sumber data','Status'])tr.append(el('th',label));
+ head.append(tr);table.append(head);
+ const body=el('tbody');table.append(body);wrap.append(table);main.append(wrap);
+ // Referensi harga yang pernah diberikan pengelola. Ini bukan transaksi maupun record D1.
+ const reference=[['Besi',5000],['Baja Ringan',4000],['Kardus',2000],['Duplex',700],['Gabruk','1500–1700'],
+  ['Aluminium Kaleng',25000],['Kaleng',2500],['Gelas Plastik Bersih',4000],
+  ['Botol/Gelas Plastik Kotor',2000],['Botol Aqua Bodong',4500],['Galon',3000]];
+ const norm=x=>String(x||'').toLocaleLowerCase('id-ID').replace(/[^a-z0-9]/g,'');
+ const money=n=>typeof n==='number'?'Rp '+n.toLocaleString('id-ID'):'Rp '+n+' (kisaran)';
+ const priceOf=x=>{for(const key of ['harga_lapak','harga','harga_per_kg','harga_lapak_rp','price_per_kg_rp','price_rp','price_per_kg','price','unit_price_rp','buy_price_rp'])if(x[key]!=null&&x[key]!=='')return x[key];return null;};
+ const draw=(saved,problem='')=>{
+  body.replaceChildren();
+  const actual=new Map(saved.map(x=>[norm(value(x,['nama','nama_barang','jenis','name','item_name'])),x]));
+  const all=reference.map(([name,price])=>({name,price,item:actual.get(norm(name))}));
+  for(const x of saved)if(!reference.some(([name])=>norm(name)===norm(value(x,['nama','nama_barang','jenis','name','item_name']))))
+    all.push({name:value(x,['nama','nama_barang','jenis','name','item_name'])||'Jenis tanpa nama',price:null,item:x});
+  for(const x of all){
+   const row=el('tr');
+   const current=x.item&&priceOf(x.item);
+   row.append(el('td',x.name),el('td',current==null?(x.price==null?'—':money(x.price)):money(Number(current)||current)),
+    el('td',x.item?'Cloudflare D1':'Referensi harga lama'),el('td',x.item?'Tercatat':'Belum disinkronkan'));
+   body.append(row);
+  }
+  info.textContent=saved.length+' jenis ditemukan di D1; '+all.filter(x=>!x.item).length+
+   ' jenis acuan masih perlu sinkronisasi.'+(problem?' Endpoint: '+problem:'');
+ };
  try{
   const d=await get('/api/v2/admin/bank/catalog');
-  if(active!=='bankcatalog'||!main.contains(n))return;
-  const a=rows(d);n.textContent=a.length+' jenis barang ditemukan.';
-  for(const o of a){
-   const item=el('div',undefined,'sa-item');
-   item.append(el('strong',value(o,['nama','nama_barang','jenis','name'])||'Barang'),el('span',value(o,['harga','harga_lapak','price'])||'—','sa-chip'));
-   list.append(item);
-  }
- }catch(e){
-  if(active!=='bankcatalog'||!main.contains(n))return;
-  n.textContent='Master belum dapat dibaca: '+safe(e);
- }
- if(active==='bankcatalog'&&main.contains(n))
-  main.append(el('p','Perubahan harga perlu mengikuti kontrak penulisan dan riwayat perubahan master pada Worker.','sa-warn'));
+  if(active!=='bankcatalog'||!main.contains(info))return;
+  draw(rows(d));
+ }catch(e){if(active==='bankcatalog'&&main.contains(info))draw([],safe(e))}
+ main.append(el('p','Referensi harga lama hanya ditampilkan untuk audit. Menyimpan atau memperbarui harga harus melalui endpoint Worker agar riwayat harga dan transaksi tetap aman.','sa-warn'));
 }
 function wargaForm(mode,row={}){
  if(role!=='superadmin')return;
