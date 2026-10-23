@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Pusat Pengelolaan | Flamboyan 4</title>
+<link rel="stylesheet" href="../account-workspace.css?v=4portal-spec">
+<style>
+:root{--blue:#2d6593;--navy:#1b344c;--tint:#e8f2fa;--edge:#d9e6f0;--muted:#60788b}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:#193047;background:#eff5f8}button,input,select,textarea{font:inherit}
+button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #76addc;outline-offset:2px}
+[hidden]{display:none!important}#guard{padding:28px;max-width:560px;margin:88px auto;background:#fff;border:1px solid var(--edge);border-radius:16px}
+#f4-account-page:not([hidden]){display:grid;grid-template-columns:244px minmax(0,1fr);min-height:100dvh;position:relative;inset:auto;background:#eff5f8;color:inherit}
+#f4-account-page>aside{position:sticky;top:0;align-self:start;height:100dvh;overflow-y:auto;background:#fff;border-right:1px solid var(--edge);padding:16px 12px;display:flex;flex-direction:column;gap:5px}
+#f4-account-page>main{max-width:none;width:100%;padding:84px 26px 40px;overflow:visible;min-width:0}
+.f4-sa-brand{display:flex;gap:10px;align-items:center;padding:12px 8px 15px;border-bottom:1px solid var(--edge);margin-bottom:11px}
+.f4-sa-logo{height:42px;width:42px;object-fit:contain}.f4-sa-brand strong{display:block;font-size:14px;color:var(--navy)}.f4-sa-brand small{display:block;font-size:10px;color:var(--muted)}
+.f4-sa-label{font-size:10px!important;color:#8196a8!important;text-transform:uppercase;letter-spacing:.09em;padding:11px 10px 5px!important}
+#f4-account-page>aside button{width:100%;min-height:42px;text-align:left;border:0;border-radius:10px;background:transparent;padding:10px 11px;color:#28516d;font-size:12px;font-weight:700}
+#f4-account-page>aside button.active,#f4-account-page>aside button:hover{background:var(--tint);color:#125080}
+#f4-account-page>aside .f4-sa-subtitle{margin-top:13px;border-top:1px solid var(--edge)}
+#f4-account-page>main h2{font-size:25px;margin:0 0 5px;font-weight:850;color:var(--navy)}
+#f4-account-page>main p{margin:5px 0 16px;color:var(--muted)}
+.f4-work-heading{border-bottom:1px solid var(--edge);padding-bottom:14px;margin-bottom:18px}
+.f4-work-heading h2{font-size:24px!important}
+.f4-work-section,.f4-admin-controls,.sa-card{background:white;border:1px solid var(--edge);border-radius:14px;padding:17px}
+.sa-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}
+.sa-card small{display:block;color:var(--muted);font-size:11px}.sa-card strong{display:block;font-size:22px;color:var(--navy);margin-top:6px}.sa-card span{display:block;color:var(--muted);font-size:11px}
+.sa-section{border:1px solid var(--edge);border-radius:14px;background:#fff;padding:17px;margin:12px 0}
+.sa-section h3{margin:0 0 9px;font-size:16px;color:var(--navy)}
+.sa-list{display:grid;gap:9px}.sa-item{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--edge);border-radius:11px;background:#fff}
+.sa-item strong{display:block;font-size:13px}.sa-item small{display:block;color:var(--muted);font-size:11px}.sa-chip{background:#e9f2fb;border-radius:20px;color:#286d9e;padding:5px 9px;font-size:10px;font-weight:800}
+.sa-controls{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin:12px 0}
+.sa-controls input,.sa-controls select{padding:10px 12px;border:1px solid #cbdde7;border-radius:9px;min-width:190px;flex:1}
+.sa-action,.f4-admin-btn,.f4-admin-primary,.f4-work-button{border:1px solid #bdd5e7;border-radius:10px;background:#eaf3fa;color:#18567f;padding:10px 12px;font-size:12px;font-weight:800}
+.f4-admin-primary{background:#286c9e;color:#fff;border-color:#286c9e}
+.f4-admin-list{display:grid;gap:9px}.f4-admin-item{background:white;border:1px solid var(--edge);border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.f4-admin-item strong,.f4-admin-item small{display:block}.f4-admin-item small{color:var(--muted);font-size:11px}
+.f4-admin-controls{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
+.f4-admin-controls input{min-width:180px;flex:1;padding:10px;border-radius:9px;border:1px solid var(--edge)}
+.f4-admin-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.f4-admin-fields label{display:flex;flex-direction:column;gap:5px;font-weight:650;font-size:12px}
+.f4-admin-fields input,.f4-admin-fields textarea,.f4-admin-fields select{width:100%;border:1px solid var(--edge);border-radius:9px;padding:11px;background:#fff}
+.f4-admin-editor{border:1px solid var(--edge);background:#fff;padding:20px;border-radius:14px}
+.f4-warga-form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
+.f4-admin-note,.f4-admin-message{color:#5c7584;font-size:12px}
+.sa-warn{padding:12px;border-radius:10px;background:#fff7ec;color:#83562d!important;border:1px solid #f1dbb9}
+.sa-toast{position:fixed;bottom:18px;right:18px;border-radius:12px;padding:12px;background:#173d60;color:#fff;z-index:10;box-shadow:0 7px 22px #112c4422;max-width:320px}
+.sa-back{display:none}
+@media(max-width:760px){
+ #f4-account-page:not([hidden]){grid-template-columns:minmax(0,1fr);display:block}
+ #f4-account-page>aside{position:sticky;top:0;z-index:7;height:auto;max-height:190px;overflow-y:auto;display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;padding:8px;gap:6px;box-shadow:0 2px 8px #112c4415}
+ #f4-account-page>aside .f4-sa-brand{min-width:122px;flex:none;margin:0;padding:5px 8px;border:0}
+ #f4-account-page>aside .f4-sa-brand img{width:30px;height:30px}
+ #f4-account-page>aside .f4-sa-brand small,.f4-sa-label{display:none!important}
+ #f4-account-page>aside button{min-width:125px;width:auto;flex:none;padding:8px;min-height:37px;text-align:center}
+ #f4-account-page>aside .f4-sa-subtitle{border:0;margin:0}
+ #f4-account-page>main{padding:72px 12px 28px}
+ .sa-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .f4-admin-fields{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div id="guard" role="status"><h2>Memeriksa akses Superadmin…</h2><p>Portal ini hanya untuk akun dengan role Superadmin.</p></div>
+<div id="f4-account-page" hidden><aside aria-label="Navigasi Portal Superadmin"></aside><main><header class="f4-work-heading"><h2>Pusat Pengelolaan</h2><p>Memeriksa koneksi…</p></header></main></div>
+<div id="sa-toast" class="sa-toast" hidden></div>
+<script>
+(()=>{
+'use strict';
+const API='https://api.flamboyan4.web.id',root=document.getElementById('f4-account-page'),side=root.querySelector('aside'),main=root.querySelector('main'),guard=document.getElementById('guard');
+const groups=[['overview','Ringkasan Sistem'],['accounts','Akun & Hak Akses'],['content','Konten & Publikasi'],['masters','Data Acuan'],['audit','Pengaturan & Audit']];
+const submenu={
+ content:[['projects','Project Card'],['agenda','Rencana Kegiatan'],['documentation','Dokumentasi'],['inventory','Inventaris'],['banners','Banner Slider'],['meetings','Hasil Rapat']],
+ masters:[['residents','Data Warga & Rumah'],['obligations','Kewajiban Iuran'],['tariffs','Tarif Iuran'],['settings','Aturan Tanggal'],['bankcatalog','Jenis & Harga Sampah']]
+};
+let role='public',group='overview',active='',accounts=[],accountSearch='',residentRows=[];
+const el=(tag,text,cls)=>{const v=document.createElement(tag);if(text!==undefined)v.textContent=String(text);if(cls)v.className=cls;return v};
+const button=(label,on,cls)=>{const b=el('button',label,cls);b.type='button';b.onclick=on;return b};
+const title=(name,desc)=>{main.replaceChildren();const h=el('header',undefined,'f4-work-heading');h.append(el('h2',name),el('p',desc));main.append(h)};
+const section=(label)=>{const s=el('section',undefined,'sa-section');s.append(el('h3',label));main.append(s);return s};
+const value=(o,keys)=>{for(const k of keys)if(o&&o[k]!==undefined&&o[k]!==null)return String(o[k]);return ''};
+const rows=(o)=>Array.isArray(o)?o:Array.isArray(o?.rows)?o.rows:Array.isArray(o?.data)?o.data:Array.isArray(o?.accounts)?o.accounts:Array.isArray(o?.akun)?o.akun:[];
+const notice=(text)=>{const n=el('p',text,'f4-admin-note');main.append(n);return n};
+const safe=(error)=>String(error&&error.message||error);
+async function get(path){const res=await fetch(API+path,{credentials:'include',cache:'no-store'});const d=await res.json().catch(()=>({}));if(!res.ok||d.ok===false)throw Error(d.error||('HTTP '+res.status));return d}
+function sidebar(g=group){
+ group=g;side.replaceChildren();
+ const brand=el('div',undefined,'f4-sa-brand');const img=el('img');img.src='https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8';img.alt='Logo Flamboyan 4';img.className='f4-sa-logo';
+ const text=el('span');text.append(el('strong','Flamboyan 4'),el('small','Portal Superadmin'));brand.append(img,text);side.append(brand);
+ side.append(el('strong','MENU SUPERADMIN','f4-sa-label'));
+ for(const [key,label] of groups)side.append(button(label,()=>open(key),g===key?'active':''));
+ if(submenu[g]){
+  side.append(el('strong',g==='content'?'KONTEN & PUBLIKASI':'DATA ACUAN','f4-sa-label f4-sa-subtitle'));
+  for(const [key,label] of submenu[g])side.append(button(label,()=>openEditor(key),active===key?'active':''));
+ }
+}
+window.f4RenderManagementSidebar=(origin)=>{
+ const g=origin==='portal'?'content':origin==='book'?'masters':group;
+ sidebar(g);
+};
+function open(name,push=true){
+ if(role!=='superadmin')return;
+ active='';sidebar(name);
+ if(push){const fragment='sa-'+name;window.parent!==window
+  ?window.parent.postMessage({type:'f4:superadmin-section',section:name},location.origin)
+  :history.replaceState(null,'','#'+fragment);}
+ if(name==='overview')overview();
+ if(name==='accounts')accountsPage();
+ if(name==='content')groupPage('Konten & Publikasi','Kelola konten dan publikasi kedua portal',submenu.content);
+ if(name==='masters')groupPage('Data Acuan','Satu sumber data induk untuk semua modul',submenu.masters);
+ if(name==='audit')auditPage();
+}
+function groupPage(name,desc,items){
+ title(name,desc);const s=section('Pilih modul');
+ const grid=el('div',undefined,'sa-list');for(const [key,label] of items){
+ const item=el('div',undefined,'sa-item');item.append(el('strong',label),button('Buka',()=>openEditor(key),'sa-action'));grid.append(item);
+ }s.append(grid);
+}
+function openEditor(kind){
+ if(role!=='superadmin')return;
+ active=kind;group=['projects','agenda','documentation','inventory','banners','meetings'].includes(kind)?'content':'masters';
+ sidebar(group);
+ if(kind==='residents')return window.openWarga();
+ if(kind==='bankcatalog')return catalogPage();
+ if(typeof window.openSuperadminEditor==='function')window.openSuperadminEditor(kind);
+}
+function overview(){
+ title('Pusat Pengelolaan','Semua pengaturan lintas portal • Akun Superadmin');
+ const cards=el('div',undefined,'sa-grid');main.append(cards);
+ for(const [key,label] of [['accounts','Akun terdaftar'],['houses','Rumah'],['projects','Projek publik'],['health','Status koneksi']]){
+  const item=el('div',undefined,'sa-card');item.append(el('small',label),el('strong','—'),el('span','Memeriksa data'));item.dataset.card=key;cards.append(item);
+ }
+ const feed=section('Koneksi dan publikasi');feed.append(el('p','Angka hanya ditampilkan dari respons API yang berhasil; tidak ada angka simulasi.'));
+ const tasks=section('Akses cepat');const actions=el('div',undefined,'sa-controls');
+ for(const [key,label] of groups.slice(1))actions.append(button(label,()=>open(key),'sa-action'));tasks.append(actions);
+ const pulls=[['accounts','/api/superadmin/accounts/preview'],['houses','/api/v2/admin/residents'],['projects','/api/v2/admin/content/projects']];
+ Promise.all(pulls.map(async ([id,path])=>{const r=rows(await get(path));const card=cards.querySelector('[data-card="'+id+'"]');card.querySelector('strong').textContent=String(r.length);card.querySelector('span').textContent='Dibaca dari D1';return true})).then(()=>{const h=cards.querySelector('[data-card="health"]');h.querySelector('strong').textContent='Terhubung';h.querySelector('span').textContent='API merespons';}).catch(e=>{
+ const h=cards.querySelector('[data-card="health"]');h.querySelector('strong').textContent='Periksa';h.querySelector('span').textContent='Ada endpoint belum tersedia';
+ }).finally(()=>{});
+}
+async function accountsPage(){
+ title('Akun & Hak Akses','Sumber identitas terpusat; perubahan role hanya oleh Superadmin.');
+ const ctrl=el('div',undefined,'sa-controls');const inp=el('input');inp.placeholder='Cari nama, rumah, username';inp.value=accountSearch;inp.oninput=()=>{accountSearch=inp.value;paintAccounts()};const filter=el('select');for(const [v,k] of [['','Semua role'],['warga','Anggota'],['admin','Admin'],['superadmin','Superadmin']])filter.add(new Option(k,v));filter.onchange=paintAccounts;filter.id='sa-role-filter';
+ ctrl.append(inp,filter,button('Muat ulang',accountsPage,'sa-action'));main.append(ctrl);
+ const stats=el('p','Memuat akun Cloudflare…','f4-admin-note');main.append(stats);
+ const list=el('div',undefined,'sa-list');list.id='sa-accounts';main.append(list);
+ main.append(el('p','Tambah akun, ubah role, nonaktifkan, dan reset aman memerlukan endpoint Worker yang diverifikasi beserta audit. Form aksi belum diaktifkan agar tidak mengubah akun secara spekulatif.','sa-warn'));
+ try{accounts=rows(await get('/api/superadmin/accounts/preview'));stats.textContent=accounts.length+' akun dibaca dari sistem terpusat.';paintAccounts();}
+ catch(e){stats.textContent='Tidak dapat membaca daftar akun: '+safe(e);list.replaceChildren()}
+}
+function paintAccounts(){
+ const list=document.getElementById('sa-accounts');if(!list)return;
+ const roleFilter=document.getElementById('sa-role-filter')?.value||'',q=accountSearch.toLowerCase();list.replaceChildren();
+ for(const a of accounts.filter(x=>(!roleFilter||String(x.role||'').toLowerCase()===roleFilter)&&JSON.stringify(x).toLowerCase().includes(q))){
+  const item=el('article',undefined,'sa-item');const info=el('div');info.append(el('strong',value(a,['nama','name','username'])||'Tanpa nama'),el('small',[value(a,['rumah','house']),value(a,['username'])].filter(Boolean).join(' • ')));
+  item.append(info,el('span',value(a,['role','peran'])||'Anggota','sa-chip'));list.append(item);
+ }if(!list.children.length)list.append(el('p','Tidak ada akun yang cocok.'));
+}
+async function catalogPage(){
+ title('Jenis & Harga Sampah','Master harga dibaca dari Bank Sampah Cloudflare, tanpa membuat editor ganda.');
+ const n=notice('Memuat master barang…');const list=el('div',undefined,'sa-list');main.append(list);
+ try{const d=await get('/api/v2/admin/bank/catalog');const a=rows(d);n.textContent=a.length+' jenis barang ditemukan.';
+ for(const o of a){const item=el('div',undefined,'sa-item');item.append(el('strong',value(o,['nama','nama_barang','jenis','name'])||'Barang'),el('span',value(o,['harga','harga_lapak','price'])||'—','sa-chip'));list.append(item);}
+ }catch(e){n.textContent='Master belum dapat dibaca: '+safe(e)}
+ main.append(el('p','Perubahan harga perlu mengikuti kontrak penulisan dan riwayat perubahan master pada Worker.','sa-warn'));
+}
+async function openWarga(){
+ title('Data Warga & Rumah','Master lintas portal — identitas dan nomor rumah dikelola satu kali');
+ const bar=el('div',undefined,'sa-controls');const search=el('input');search.placeholder='Cari warga atau rumah';const refresh=button('Muat ulang',openWarga,'sa-action');bar.append(search,refresh);main.append(bar);
+ const info=notice('Memuat data warga…'),list=el('div',undefined,'sa-list');main.append(list);
+ const render=()=>{list.replaceChildren();const q=search.value.toLowerCase();for(const o of residentRows.filter(x=>JSON.stringify(x).toLowerCase().includes(q))){
+ const item=el('article',undefined,'sa-item'),left=el('div');left.append(el('strong',value(o,['nama','nama_warga','rumah'])||'Data rumah'),el('small',[value(o,['rumah']),value(o,['status_tinggal','status_rumah'])].filter(Boolean).join(' • ')));
+ item.append(left,el('span',value(o,['payer_id','household_id'])||'Data acuan','sa-chip'));list.append(item);
+ }if(!list.children.length)list.append(el('p','Belum ada data yang cocok.'))};search.oninput=render;
+ try{residentRows=rows(await get('/api/v2/admin/residents'));info.textContent=residentRows.length+' data rumah/warga dibaca dari D1';render()}
+ catch(e){info.textContent='Tidak dapat memuat data acuan: '+safe(e)}
+ main.append(el('p','Editor master warga lama masih ada pada sistem pengelolaan. Penyatuan operasi tambah/edit dengan audit lintas portal membutuhkan verifikasi endpoint penulisan.','sa-warn'));
+}
+function auditPage(){
+ title('Pengaturan & Audit','Pemeriksaan layanan, kontrol dan jejak perubahan');
+ const status=section('Koneksi layanan');const list=el('div',undefined,'sa-list');status.append(list);
+ for(const [name,url] of [['Sesi autentikasi','/api/v2/auth/session'],['Master warga','/api/v2/admin/residents'],['Konten projek','/api/v2/admin/content/projects']]){
+ const item=el('div',undefined,'sa-item'),label=el('strong',name),state=el('span','Memeriksa…','sa-chip');item.append(label,state);list.append(item);
+ get(url).then(()=>state.textContent='Terhubung').catch(e=>state.textContent='Perlu diperiksa');
+ }
+ const log=section('Jejak perubahan & cadangan');log.append(el('p','Audit edit/reset/pengesahan dan backup membutuhkan endpoint audit serta prosedur pemulihan terverifikasi. Tidak ada data log yang direka.'));
+ const btn=button('Periksa kembali',auditPage,'sa-action');log.append(btn);
+}
+window.openWarga=openWarga;
+window.f4SuperadminNavigate=open;
+async function boot(){
+ try{
+  const s=await get('/api/v2/auth/session');
+  role=String(s?.account?.role||s?.role||'').toLowerCase();
+  if(role!=='superadmin')throw Error('Hanya role Superadmin yang memiliki izin masuk. Silakan login dengan akun berwenang.');
+  document.body.classList.add('role-superadmin');guard.hidden=true;root.hidden=false;
+  const fragment=location.hash.replace(/^#sa-/,'');open(groups.some(x=>x[0]===fragment)?fragment:'overview',false);
+  if(window.parent!==window)window.parent.postMessage({type:'f4:ready',portal:'superadmin'},location.origin);
+ }catch(e){guard.replaceChildren(el('h2','Akses Portal Superadmin ditolak'),el('p',safe(e)));guard.append(button('Kembali ke Portal Utama',()=>{
+   if(window.parent!==window)window.parent.postMessage({type:'f4:go-portal',portal:'portal'},location.origin);
+   else location.href='../#portal';
+ },'sa-action'));}
+}
+window.addEventListener('message',e=>{
+ if(e.origin!==location.origin||e.source!==window.parent)return;
+ if(e.data?.type==='f4:superadmin-open-section')open(e.data.section);
+});
+boot();
+})();
+</script>
+<script src="../superadmin-editor.js?v=sa4portal-reuse"></script>
+</body></html>
