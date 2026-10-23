@@ -33,7 +33,12 @@ function sideMenu(){
  const tab=types[active]?.section||'portal',group=categories[tab];
  document.body.classList.remove('f4-manage-book','f4-manage-portal','f4-manage-bank');
  document.body.classList.add(tab==='book'?'f4-manage-book':'f4-manage-portal');
- side.replaceChildren(node('strong',tab==='book'?'Kelola Pembukuan':'Kelola Portal Utama','f4-work-brand'));
+ // Keep the four Superadmin root links and page title above the active sub-menu.
+ if(typeof window.f4RenderManagementSidebar==='function')
+   window.f4RenderManagementSidebar(tab==='book'?'book':'portal');
+ else side.replaceChildren(node('strong','Pengelolaan Superadmin','f4-work-brand'));
+ const subheading=node('strong',tab==='book'?'Kelola Pembukuan':'Kelola Portal Utama','f4-work-brand f4-submenu-heading');
+ side.append(subheading);
  for(const [id,label] of group)side.append(btn(label,()=>nav(id),id===active?'f4-admin-nav active':'f4-admin-nav'));
  side.append(btn('← Menu Pengelolaan',gotoOriginal,'f4-admin-nav'));
 }
