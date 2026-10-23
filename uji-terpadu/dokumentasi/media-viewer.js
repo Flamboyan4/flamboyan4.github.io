@@ -30,7 +30,7 @@ function viewer(){
     v.onerror=()=>{const a=node('a','btn','Buka video asli');a.href=it.url;a.target='_blank';a.rel='noopener noreferrer';if(v.isConnected)v.replaceWith(a)};content.append(v)}
   }else{const img=node('img','f4-media-photo');img.src=it.url;img.alt=it.caption||title;img.onerror=()=>{const a=node('a','btn','Buka foto asli');a.href=it.url;a.target='_blank';a.rel='noopener noreferrer';if(img.isConnected)img.replaceWith(a)};content.append(img)}
   footer.replaceChildren(node('span','',String(active+1)+' dari '+records.length));
-  const a=node('a','f4-media-original','Buka file asli');a.href=it.url;a.target='_blank';a.rel='noopener noreferrer';footer.append(a);
+  // Tautan Drive disimpan sebagai sumber data, tidak ditampilkan dalam viewer publik.
   prev.hidden=next.hidden=records.length<2;
  }
  function shift(d){active=(active+d+records.length)%records.length;render()}
@@ -68,8 +68,7 @@ function openMediaGallery(title,items,opts={}){
   b.onclick=()=>openMediaViewer(title,list,index);grid.append(b);
  });
  dlg.append(grid);
- const folder=safe(opts.folderURL);
- if(folder){const bar=node('footer','f4-album-footer'),a=node('a','btn outline','Buka sumber folder');a.href=folder;a.target='_blank';a.rel='noopener noreferrer';bar.append(a);dlg.append(bar)}
+ // Folder URL retained for data access only; no source link in public album overlay.
  if(!dlg.open){history.pushState({...history.state,f4AlbumOverlay:true},'',location.href);dlg.showModal()}
 }
 
