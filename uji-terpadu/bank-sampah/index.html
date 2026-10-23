@@ -622,6 +622,29 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
  #v17Perkembangan .v17-two>.v17-panel{height:auto!important;max-height:none!important}
  #v17Perkembangan #v17Timeline{max-height:320px;overflow-y:auto;scrollbar-width:thin}
 }
+</style><style id="f4-bank-embedded-single-menu">
+/* Keep original Bank Sampah drawer, but shell owns the sole mobile hamburger. */
+@media(max-width:1023px){
+ html.f4-bank-embedded #v18PublicMenuButton,
+ html.f4-bank-embedded #v18PrivateMenuButton,
+ html.f4-bank-embedded #v19PublicFloatingMenu,
+ html.f4-bank-embedded #dashboardView .mobile-nav>button,
+ html.f4-bank-embedded #dashboardView .mobile-nav button[onclick*="toggleMenu"]{display:none!important}
+ html.f4-bank-embedded #v18PublicSide{
+  position:fixed!important;top:0!important;left:0!important;bottom:0!important;
+  width:min(288px,84vw)!important;height:100dvh!important;z-index:100!important;
+  transform:translateX(-110%)!important;visibility:hidden!important;
+  transition:transform .22s ease!important;overflow-y:auto!important
+ }
+ html.f4-bank-embedded #v18PublicSide.open{transform:translateX(0)!important;visibility:visible!important}
+ html.f4-bank-embedded #v18PublicBackdrop.open{
+  display:block!important;position:fixed!important;inset:0!important;background:#102c1c88!important;z-index:99!important
+ }
+ html.f4-bank-embedded #v11Public.v18-public-shell{display:block!important}
+ html.f4-bank-embedded #v11Public #v18PublicContent{width:100%!important;max-width:100%!important}
+ html.f4-bank-embedded #v11Public #v18PublicContent .v17-public-main{padding-top:22px!important}
+}
+html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
 </style></head>
 <body>
 <div class="shell">
@@ -2542,6 +2565,7 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
 (()=>{
   'use strict';
   const inPortal=window.parent!==window;
+  if(inPortal)document.documentElement.classList.add('f4-bank-embedded');
   let currentRole='public',identity={},pendingSection='',lastAdminSection='',pendingProfile=false;
   const accountGroup=v16Groups.find(group=>group.id==='settings');
   const originalAccountTabs=accountGroup?accountGroup.tabs.slice():[];
@@ -2678,11 +2702,50 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
     if(event.data?.type==='f4:open-bank-admin')openAdmin(String(event.data.section||'dashboard'));
     if(event.data?.type==='f4:open-bank-profile')openOriginalProfile();
   });
+  const bankMenuIsPublic=()=>document.getElementById('dashboardView')?.classList.contains('hidden');
+  const bankMenuOpen=()=>bankMenuIsPublic()
+    ?!!document.getElementById('v18PublicSide')?.classList.contains('open')
+    :!!document.getElementById('sideNav')?.classList.contains('open');
+  function bankMenuClose(){
+    document.getElementById('v18PublicSide')?.classList.remove('open');
+    document.getElementById('v18PublicBackdrop')?.classList.remove('open');
+    document.getElementById('sideNav')?.classList.remove('open');
+    document.getElementById('v16Backdrop')?.classList.remove('open');
+    if(inPortal)window.parent.postMessage({type:'f4:sidebar-state',portal:'bank-sampah',open:false},location.origin);
+  }
   window.f4ToggleBankMenu=()=>{
-    if(document.getElementById('dashboardView')?.classList.contains('hidden')) {
-      if(typeof v18TogglePublic==='function')v18TogglePublic();
-    } else toggleMenu();
+    if(bankMenuOpen()){
+      if(history.state?.f4BankSidebarOverlay)history.back();
+      else bankMenuClose();
+      return;
+    }
+    if(inPortal)history.pushState({...history.state,f4BankSidebarOverlay:true},'',location.href);
+    if(bankMenuIsPublic()){
+      document.getElementById('v18PublicSide')?.classList.add('open');
+      document.getElementById('v18PublicBackdrop')?.classList.add('open');
+    }else{
+      document.getElementById('sideNav')?.classList.add('open');
+      document.getElementById('v16Backdrop')?.classList.add('open');
+    }
+    if(inPortal)window.parent.postMessage({type:'f4:sidebar-state',portal:'bank-sampah',open:true},location.origin);
   };
+  if(inPortal){
+    window.addEventListener('popstate',()=>{
+      if(!history.state?.f4BankSidebarOverlay)bankMenuClose();
+    });
+    document.addEventListener('click',e=>{
+      if(!bankMenuOpen())return;
+      if(['v18PublicBackdrop','v16Backdrop'].includes(e.target?.id)){
+        e.preventDefault();e.stopImmediatePropagation();
+        window.f4ToggleBankMenu();
+      }else if(e.target.closest('#v18PublicSide button,#sideNav button')){
+        if(history.state?.f4BankSidebarOverlay)history.back();
+      }
+    },true);
+    document.addEventListener('keydown',e=>{
+      if(e.key==='Escape'&&bankMenuOpen()){e.preventDefault();e.stopImmediatePropagation();window.f4ToggleBankMenu();}
+    },true);
+  }
   if(inPortal){
     const photoStatus=document.getElementById('v15PhotoStatus');
     if(photoStatus)new MutationObserver(()=>{
