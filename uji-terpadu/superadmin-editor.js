@@ -55,6 +55,7 @@ async function send(url,options={}){
  return d;
 }
 function header(label,description){
+ window.f4SuperadminRememberTabScroll?.();
  main.replaceChildren();
  const h=node('header',undefined,'f4-work-heading');
  h.append(node('h2','Kelola '+label),node('p',description));
