@@ -266,10 +266,21 @@ function paintAccounts(){
 async function catalogPage(){
  title('Jenis & Harga Sampah','Master harga dibaca dari Bank Sampah Cloudflare, tanpa membuat editor ganda.');
  const n=notice('Memuat master barang…');const list=el('div',undefined,'sa-list');main.append(list);
- try{const d=await get('/api/v2/admin/bank/catalog');const a=rows(d);n.textContent=a.length+' jenis barang ditemukan.';
- for(const o of a){const item=el('div',undefined,'sa-item');item.append(el('strong',value(o,['nama','nama_barang','jenis','name'])||'Barang'),el('span',value(o,['harga','harga_lapak','price'])||'—','sa-chip'));list.append(item);}
- }catch(e){n.textContent='Master belum dapat dibaca: '+safe(e)}
- main.append(el('p','Perubahan harga perlu mengikuti kontrak penulisan dan riwayat perubahan master pada Worker.','sa-warn'));
+ try{
+  const d=await get('/api/v2/admin/bank/catalog');
+  if(active!=='bankcatalog'||!main.contains(n))return;
+  const a=rows(d);n.textContent=a.length+' jenis barang ditemukan.';
+  for(const o of a){
+   const item=el('div',undefined,'sa-item');
+   item.append(el('strong',value(o,['nama','nama_barang','jenis','name'])||'Barang'),el('span',value(o,['harga','harga_lapak','price'])||'—','sa-chip'));
+   list.append(item);
+  }
+ }catch(e){
+  if(active!=='bankcatalog'||!main.contains(n))return;
+  n.textContent='Master belum dapat dibaca: '+safe(e);
+ }
+ if(active==='bankcatalog'&&main.contains(n))
+  main.append(el('p','Perubahan harga perlu mengikuti kontrak penulisan dan riwayat perubahan master pada Worker.','sa-warn'));
 }
 function wargaForm(mode,row={}){
  if(role!=='superadmin')return;
