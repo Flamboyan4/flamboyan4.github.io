@@ -26,7 +26,7 @@ function btn(text,fn,cls='f4-admin-btn'){const b=node('button',text,cls);b.type=
 function inContext(){return document.body.classList.contains('role-superadmin')}
 function gotoOriginal(){if(window.f4SuperadminNavigate)window.f4SuperadminNavigate('overview');else window.openManagementHub?.();}
 function nav(kind){
- if(kind==='residents'){page.hidden=true;window.openWarga?.();return}
+ if(kind==='residents'){if(!window.f4SuperadminNavigate)page.hidden=true;window.openWarga?.();return}
  window.openSuperadminEditor(kind);
 }
 function sideMenu(){
@@ -57,12 +57,15 @@ async function send(url,options={}){
 function header(label,description){
  window.f4SuperadminRememberTabScroll?.();
  main.replaceChildren();
+ const def=types[active];
+ const category=def?.section==='portal'?'Konten & Publikasi':'Data Acuan';
  const h=node('header',undefined,'f4-work-heading');
- h.append(node('h2','Kelola '+label),node('p',description));
+ h.append(node('h2',category),node('p',def?.section==='portal'?'Kelola konten untuk Portal Utama dan Bank Sampah':'Satu sumber data induk untuk semua modul'));
  main.append(h);
- // The dedicated Portal Superadmin owns the tab bar; the editor owns only
- // the selected content. Never reproduce secondary menus in the sidebar.
  window.f4SuperadminRenderTabs?.();
+ const sub=node('section',undefined,'sa-module-heading');
+ sub.append(node('h3','Kelola '+label),node('p',description));
+ main.append(sub);
 }
 function viewList(){
  const def=types[active];if(!def)return;
