@@ -96,7 +96,7 @@ function populate(){
    obligations:[['nama','Nama warga'],['rumah','Rumah'],['qty_iuran_bulanan','Iuran bulanan'],['qty_kebersihan','Kebersihan'],['qty_kas_lorong','Kas lorong'],['qty_arisan','Arisan']]
   }[active];
   const scroll=node('div',undefined,'f4-obligation-scroll');
-  const table=node('table',undefined,'f4-obligation-grid'),thead=node('thead'),head=node('tr');
+  const table=node('table',undefined,'f4-obligation-grid'),thead=node('thead'),head=node('tr');table.dataset.module=active;
   for(const [,label] of fields)head.append(node('th',label));
   head.append(node('th','Aksi'));thead.append(head);table.append(thead);
   const body=node('tbody');
