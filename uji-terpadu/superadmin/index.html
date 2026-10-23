@@ -98,7 +98,7 @@ html body #f4-account-page>aside{overflow-x:hidden!important}
  position:sticky;top:56px;z-index:3;display:flex;align-items:center;gap:7px;
  padding:10px 1px 12px;margin:-4px 0 16px;background:#eff5f8;
  overflow-x:auto;overflow-y:hidden;white-space:nowrap;scrollbar-width:thin;
- scroll-behavior:smooth;overscroll-behavior-x:contain;
+ scroll-behavior:auto;overscroll-behavior-x:contain;
  border-bottom:1px solid var(--edge);
 }
 #f4-account-page .sa-tabbar button{
@@ -150,6 +150,7 @@ let role='public',group='overview',active='',accounts=[],accountSearch='',reside
 const el=(tag,text,cls)=>{const v=document.createElement(tag);if(text!==undefined)v.textContent=String(text);if(cls)v.className=cls;return v};
 const button=(label,on,cls)=>{const b=el('button',label,cls);b.type='button';b.onclick=on;return b};
 const title=(name,desc)=>{
+ rememberTabScroll();
  main.replaceChildren();
  const h=el('header',undefined,'f4-work-heading');
  h.append(el('h2',name),el('p',desc));main.append(h);
@@ -168,6 +169,13 @@ function sidebar(g=group){
  side.append(el('strong','MENU SUPERADMIN','f4-sa-label'));
  for(const [key,label] of groups)side.append(button(label,()=>open(key),g===key?'active':''));
 }
+const tabScrollPositions={content:0,masters:0};
+function rememberTabScroll(){
+ const existing=main.querySelector('.sa-tabbar');
+ if(existing&&Object.hasOwn(tabScrollPositions,group))
+  tabScrollPositions[group]=existing.scrollLeft;
+}
+window.f4SuperadminRememberTabScroll=rememberTabScroll;
 function renderTabs(){
  const current=submenu[group];
  if(!current||!active||!current.some(([key])=>key===active))return;
@@ -193,6 +201,14 @@ function renderTabs(){
   tabs.append(tab);
  }
  main.querySelector('.f4-work-heading')?.after(tabs);
+ tabs.scrollLeft=tabScrollPositions[group]||0;
+ const currentTab=tabs.querySelector('[aria-selected="true"]');
+ if(currentTab){
+  const currentRect=currentTab.getBoundingClientRect(),railRect=tabs.getBoundingClientRect();
+  if(currentRect.right>railRect.right)tabs.scrollLeft+=currentRect.right-railRect.right+8;
+  if(currentRect.left<railRect.left)tabs.scrollLeft-=railRect.left-currentRect.left+8;
+ }
+ tabScrollPositions[group]=tabs.scrollLeft;
 }
 window.f4SuperadminRenderTabs=renderTabs;
 window.f4RenderManagementSidebar=(origin)=>{
