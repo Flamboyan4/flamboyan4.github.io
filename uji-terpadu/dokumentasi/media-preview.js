@@ -166,4 +166,4 @@ $('media-search').oninput=drawAlbums;
 addEventListener('hashchange',()=>tab(location.hash==='#inventaris'?'inventaris':'dokumentasi',false));
 drawFilters();drawAlbums();drawInventory();tab(location.hash==='#inventaris'?'inventaris':'dokumentasi',false);
 status('Menghubungkan arsip Portal Utama…');
-loadPortalArchive().catch(error=>{status('Gagal memuat arsip Portal Utama: '+(error.message||error)+'. Data lama hanya sebagai referensi lokal.');});
+loadPortalArchive().catch(error=>{docs.sort((a,b)=>parseDate(b.date)-parseDate(a.date));drawAlbums();status('Arsip online belum dapat diperbarui ('+(error.message||error)+'). Menampilkan arsip kegiatan asli yang sudah tersedia.');});
