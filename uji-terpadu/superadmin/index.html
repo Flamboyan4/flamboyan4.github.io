@@ -135,6 +135,37 @@ html body #f4-account-page>aside{overflow-x:hidden!important}
  #f4-account-page .sa-tabbar button{transition:none}
  #f4-account-page>main>*{animation:none!important}
 }
+
+/* Table identity and status layout adapted from original Bank Sampah. */
+.sa-accounts-shell{background:#fff;border:1px solid var(--edge);border-radius:16px;padding:20px;margin:4px 0 24px}
+.sa-account-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.sa-account-head h3{font-size:18px;color:#1b344c;margin:0 0 3px}
+#f4-account-page>main .sa-account-head p{margin:0;color:#688397;font-size:12px}
+.sa-account-actions{display:flex;gap:8px;flex-wrap:wrap}
+.sa-action-primary{background:#2e6146!important;color:white!important;border-color:#2e6146!important}
+.sa-account-note{background:#eaf2e9;color:#355f4a!important;border-radius:11px;padding:13px!important;margin:0 0 14px!important;line-height:1.55;font-size:12px!important}
+.sa-account-table{background:#f5f9f5;border:1px solid #d7e5d8;border-radius:13px;overflow:hidden}
+.sa-account-filters{padding:14px;display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.sa-account-filters input{flex:1 1 270px;max-width:500px;background:white;border:1px solid #c9d9cd;border-radius:10px;padding:12px;font-size:12px}
+.sa-account-filters select{max-width:180px;min-width:135px;padding:12px;background:white;border:1px solid #c9d9cd;border-radius:10px;font-size:12px}
+#f4-account-page>main .sa-account-count{font-size:11px!important;flex-basis:100%;margin:0!important;color:#5e806d!important}
+.sa-account-scroll{overflow-x:auto;max-height:60vh;overflow-y:auto;background:white}
+.sa-account-grid{border-collapse:collapse;width:100%;min-width:690px;font-size:12px}
+.sa-account-grid th{text-align:left;color:#678a73;text-transform:uppercase;font-size:10px;letter-spacing:.02em;background:#f9fcf9;padding:12px 14px;border-top:1px solid #dce8df;border-bottom:1px solid #dce8df;position:sticky;top:0}
+.sa-account-grid th:last-child,.sa-account-grid td:last-child{text-align:right}
+.sa-account-grid td{padding:12px 14px;border-bottom:1px solid #e4ebe4;color:#2d4638;vertical-align:middle}
+.sa-account-grid tr:nth-child(even){background:#fcfdfc}
+.sa-account-grid td strong{display:block;font-size:12px;color:#16442a}
+.sa-account-grid td small{display:block;font-size:10px;color:#849c8b;margin-top:2px}
+.sa-account-role{display:inline-block;background:#e8f1fa;color:#286498;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:750}
+.sa-account-role[data-role="admin"]{background:#e7eff9;color:#3558a7}
+.sa-account-role[data-role="superadmin"]{background:#efe9fd;color:#6d43aa}
+.sa-account-status{color:#286849!important;font-weight:750}
+.sa-account-status span[data-status="Nonaktif"]{color:#ad5454}
+.sa-account-status span[data-status="Belum aktif"]{color:#a37626}
+.sa-account-reset{border:0;background:#eaf2e9;color:#2d6143;border-radius:10px;padding:8px 11px;font-weight:700;font-size:11px}
+.sa-account-reset:disabled,.sa-action-primary:disabled{opacity:.65;cursor:not-allowed}
+@media(max-width:760px){.sa-accounts-shell{padding:12px}.sa-account-head{align-items:flex-start}.sa-account-scroll{max-height:none}.sa-account-filters{padding:10px}.sa-account-filters input{max-width:none}}
 </style>
 </head>
 <body>
@@ -275,23 +306,104 @@ function overview(){
  const h=cards.querySelector('[data-card="health"]');h.querySelector('strong').textContent='Periksa';h.querySelector('span').textContent='Ada endpoint belum tersedia';
  }).finally(()=>{});
 }
-async function accountsPage(){
- title('Akun & Hak Akses','Sumber identitas terpusat; perubahan role hanya oleh Superadmin.');
- const ctrl=el('div',undefined,'sa-controls');const inp=el('input');inp.placeholder='Cari nama, rumah, username';inp.value=accountSearch;inp.oninput=()=>{accountSearch=inp.value;paintAccounts()};const filter=el('select');for(const [v,k] of [['','Semua role'],['warga','Anggota'],['admin','Admin'],['superadmin','Superadmin']])filter.add(new Option(k,v));filter.onchange=paintAccounts;filter.id='sa-role-filter';
- ctrl.append(inp,filter,button('Muat ulang',accountsPage,'sa-action'));main.append(ctrl);
- const stats=el('p','Memuat akun Cloudflare…','f4-admin-note');main.append(stats);
- const list=el('div',undefined,'sa-list');list.id='sa-accounts';main.append(list);
- main.append(el('p','Tambah akun, ubah role, nonaktifkan, dan reset aman memerlukan endpoint Worker yang diverifikasi beserta audit. Form aksi belum diaktifkan agar tidak mengubah akun secara spekulatif.','sa-warn'));
- try{accounts=rows(await get('/api/superadmin/accounts/preview'));stats.textContent=accounts.length+' akun dibaca dari sistem terpusat.';paintAccounts();}
- catch(e){stats.textContent='Tidak dapat membaca daftar akun: '+safe(e);list.replaceChildren()}
+// Match original Bank Sampah account-management table, add centralized role.
+let accountRoleFilter='',accountRequestSerial=0;
+const normalizedRole=(value)=>{
+ const role=String(value||'').trim().toLowerCase();
+ if(['warga','anggota','member','resident'].includes(role))return 'anggota';
+ if(['superadmin','super_admin','super-admin'].includes(role))return 'superadmin';
+ if(['admin','administrator'].includes(role))return 'admin';
+ return role||'publik';
+};
+function accountName(a){return value(a,['nama','name','display_name','full_name','username'])||'Tanpa nama'}
+function accountHouse(a){return value(a,['rumah','house','house_code','nomor_rumah','unit'])}
+function accountUser(a){return value(a,['username','user_name','login'])}
+function accountId(a){return value(a,['wargaId','warga_id','member_id','payer_id','resident_id'])}
+function accountStatus(a){
+ if(a.aktif===false||a.active===false||a.is_active===false)return 'Nonaktif';
+ const state=String(a.status||a.account_status||'').trim();
+ if(/nonaktif|inactive|disabled|suspend/i.test(state))return 'Nonaktif';
+ if(a.perluAktivasi||/pending|belum/i.test(state))return 'Belum aktif';
+ return 'Aktif';
+}
+function accountsPage(){
+ title('Akun & Hak Akses','Kelola identitas dan hak akses akun Flamboyan 4.');
+ const panel=el('section',undefined,'sa-accounts-shell');
+ const heading=el('div',undefined,'sa-account-head'),head=el('div');
+ head.append(el('h3','Kelola akun warga'),el('p','Daftar akun terpusat untuk seluruh portal.'));
+ const actions=el('div',undefined,'sa-account-actions');
+ const prepare=button('Siapkan semua akun',()=>{},'sa-action sa-action-primary');
+ prepare.disabled=true;prepare.title='Menunggu endpoint pembuatan akun massal dan audit yang terverifikasi';
+ actions.append(prepare,button('Muat ulang',()=>accountsPage(),'sa-action'));
+ heading.append(head,actions);panel.append(heading);
+ const noticeBox=el('p','Akun digunakan bersama pada Portal Utama, Bank Sampah, dan Pembukuan sesuai role. Perubahan role, aktivasi massal, serta reset password menunggu endpoint Worker yang aman dan terekam audit.','sa-account-note');
+ panel.append(noticeBox);
+ const listWrap=el('div',undefined,'sa-account-table');
+ const filters=el('div',undefined,'sa-account-filters');
+ const input=el('input');input.placeholder='Cari nama, rumah atau username (contoh: A5/41)';
+ input.setAttribute('aria-label','Cari akun warga');input.value=accountSearch;
+ input.oninput=()=>{accountSearch=input.value;paintAccounts()};
+ const filter=el('select');filter.id='sa-role-filter';filter.setAttribute('aria-label','Filter role');
+ for(const [v,label] of [['','Semua role'],['anggota','Anggota'],['admin','Admin'],['superadmin','Superadmin']])
+   filter.add(new Option(label,v));
+ filter.value=accountRoleFilter;
+ filter.onchange=()=>{accountRoleFilter=filter.value;paintAccounts()};
+ filters.append(input,filter);
+ const stats=el('p','Memuat daftar akun…','sa-account-count');stats.id='sa-account-count';filters.append(stats);
+ listWrap.append(filters);
+ const scroll=el('div',undefined,'sa-account-scroll');
+ const table=el('table',undefined,'sa-account-grid');
+ const thead=el('thead'),tr=el('tr');
+ for(const name of ['Nama warga','Rumah','Username','Role','Status','Aksi'])tr.append(el('th',name));
+ thead.append(tr);table.append(thead);
+ const tbody=el('tbody');tbody.id='sa-accounts';table.append(tbody);scroll.append(table);listWrap.append(scroll);
+ panel.append(listWrap);main.append(panel);
+ const serial=++accountRequestSerial;
+ get('/api/superadmin/accounts/preview').then(data=>{
+  if(serial!==accountRequestSerial||!main.contains(panel))return;
+  accounts=rows(data);
+  paintAccounts();
+ }).catch(error=>{
+  if(serial!==accountRequestSerial||!main.contains(panel))return;
+  stats.textContent='Daftar akun belum dapat dibaca: '+safe(error);
+  tbody.replaceChildren(el('tr',undefined,'sa-account-error'));
+  const cell=el('td','Sambungan akun perlu diperiksa.');cell.colSpan=6;tbody.lastChild.append(cell);
+ });
 }
 function paintAccounts(){
- const list=document.getElementById('sa-accounts');if(!list)return;
- const roleFilter=document.getElementById('sa-role-filter')?.value||'',q=accountSearch.toLowerCase();list.replaceChildren();
- for(const a of accounts.filter(x=>(!roleFilter||String(x.role||'').toLowerCase()===roleFilter)&&JSON.stringify(x).toLowerCase().includes(q))){
-  const item=el('article',undefined,'sa-item');const info=el('div');info.append(el('strong',value(a,['nama','name','username'])||'Tanpa nama'),el('small',[value(a,['rumah','house']),value(a,['username'])].filter(Boolean).join(' • ')));
-  item.append(info,el('span',value(a,['role','peran'])||'Anggota','sa-chip'));list.append(item);
- }if(!list.children.length)list.append(el('p','Tidak ada akun yang cocok.'));
+ const tbody=document.getElementById('sa-accounts');
+ const count=document.getElementById('sa-account-count');
+ if(!tbody||!count)return;
+ const term=accountSearch.trim().toLowerCase(),roleFilter=accountRoleFilter;
+ const filtered=accounts.filter(a=>{
+  const role=normalizedRole(a.role||a.peran||a.account_role);
+  if(roleFilter&&role!==roleFilter)return false;
+  return [accountName(a),accountHouse(a),accountUser(a),accountId(a),role]
+    .join(' ').toLowerCase().includes(term);
+ });
+ count.textContent=filtered.length+' dari '+accounts.length+' akun';
+ tbody.replaceChildren();
+ for(const a of filtered){
+  const tr=el('tr');
+  const name=el('td'),namelabel=el('strong',accountName(a));
+  name.append(namelabel);
+  const id=accountId(a);if(id)name.append(el('small',id));
+  const house=el('td',accountHouse(a)||'—');
+  const user=el('td',accountUser(a)||'—');
+  const role=el('td'),tag=el('span',({anggota:'Anggota',admin:'Admin',superadmin:'Superadmin'})[normalizedRole(a.role||a.peran||a.account_role)]||'Publik','sa-account-role');
+  tag.dataset.role=normalizedRole(a.role||a.peran||a.account_role);role.append(tag);
+  const status=el('td',undefined,'sa-account-status'),statusLabel=el('span',accountStatus(a));
+  statusLabel.dataset.status=accountStatus(a);status.append(statusLabel);
+  const action=el('td');
+  const reset=button('Reset password',()=>{},'sa-account-reset');
+  reset.disabled=true;reset.title='Reset belum diaktifkan karena endpoint dan audit belum terverifikasi';
+  action.append(reset);
+  tr.append(name,house,user,role,status,action);
+  tbody.append(tr);
+ }
+ if(!filtered.length){
+  const tr=el('tr'),cell=el('td','Tidak ada akun yang cocok.');cell.colSpan=6;tr.append(cell);tbody.append(tr);
+ }
 }
 async function catalogPage(){
  title('Jenis & Harga Sampah','Master harga dibaca dari Bank Sampah Cloudflare, tanpa membuat editor ganda.');
