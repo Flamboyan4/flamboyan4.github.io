@@ -102,15 +102,33 @@
     ringkasan:{jumlahPinjamanAktif:aktif.length,totalPinjamanAktif:sum('nominalPinjaman'),
       totalTerbayarAktif:sum('totalDibayar'),totalSisa:sum('sisaPinjaman')}}});
  }
+
+ // Both Riwayat and Laporan Talangan use the SAME transaction/date mapper.
+ // Do not silently assign migrated records with missing dates to this month.
+ const advanceDate=x=>{
+  const raw=String(x.tanggalTalangan||x.tanggal||x.advanced_on||x.advance_on||
+    x.occurred_on||x.transaction_date||x.event_on||x.date||'').trim();
+  if(/^\d{4}-\d{2}-\d{2}/.test(raw))return raw.slice(0,10);
+  const m=raw.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+  return m?m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0'):'';
+ };
+ const advancePeriod=x=>{
+  const date=advanceDate(x),raw=String(x.periode||x.period||x.period_month||x.periodMonth||'');
+  const m=raw.match(/^(\d{4})[-/](\d{1,2})/);
+  const year=Number(x.tahun||x.year||m?.[1]||date.slice(0,4))||0;
+  const month=Number(x.bulan||x.month||m?.[2]||date.slice(5,7))||0;
+  return {date,year,month,key:year>=2000&&month>=1&&month<=12?year+'-'+String(month).padStart(2,'0'):''};
+ };
+ const advanceNames=['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
  async function advances(){
   const r=await read('/api/bookkeeping/talangan?limit=200');
   const records=rows(r).map(x=>{
-    const date=String(x.tanggal||'');
-    const [tahun,bulan]=date.split('-');
-    return {idTalangan:x.id,nama:x.nama||'',...houseParts(x.rumah),
-      tanggalTalangan:date,tahun:Number(tahun)||0,bulan:['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][Number(bulan)]||'',
-      tanggalJatuhTempo:x.tanggalJatuhTempo||'',nominalTalangan:n(x.pokokRp),
-      nominalDiganti:n(x.pelunasanRingkasanRp),sisaTalangan:n(x.sisaMenurutRingkasanRp),
+    const period=advancePeriod(x);
+    return {idTalangan:x.id,nama:x.nama||x.payerName||'',...houseParts(x.rumah),
+      tanggalTalangan:period.date,tahun:period.year,bulan:advanceNames[period.month]||'',
+      tanggalJatuhTempo:x.tanggalJatuhTempo||x.due_on||'',nominalTalangan:n(x.pokokRp??x.amount_rp),
+      nominalDiganti:n(x.pelunasanRingkasanRp??x.reimbursed_rp),sisaTalangan:n(x.sisaMenurutRingkasanRp??x.sisaRp),
       status:statusOf(x.status),statusPembukuan:'DITAHAN',keterangan:x.keterangan||'',
       readOnly:true,perluRekonsiliasi:!!x.perluRekonsiliasi};
   });
@@ -196,14 +214,30 @@
  }
  async function advancesReport(p){
   const d=await read('/api/bookkeeping/talangan?limit=200');
-  const all=rows(d).map(x=>({idTalangan:x.id,nama:x.nama||x.payerName||'',...houseParts(x.rumah),
-   tanggal:x.tanggal||x.advanced_on||'',nominalTalangan:n(x.pokokRp||x.amount_rp),
-   nominalDiganti:n(x.pelunasanRingkasanRp||x.reimbursed_rp),
-   sisaTalangan:n(x.sisaMenurutRingkasanRp||x.sisaRp),
-   status:statusOf(x.status),statusPembukuan:'DITAHAN',tanggalJatuhTempo:x.tanggalJatuhTempo||''}));
-  const selected=filtered(all,p,'tanggal');
+  const all=rows(d).map(x=>{
+   const period=advancePeriod(x);
+   return {idTalangan:x.id,nama:x.nama||x.payerName||'',...houseParts(x.rumah),
+    tanggal:period.date,tanggalTalangan:period.date,periodKey:period.key,
+    nominalTalangan:n(x.pokokRp??x.amount_rp),
+    nominalDiganti:n(x.pelunasanRingkasanRp??x.reimbursed_rp),
+    sisaTalangan:n(x.sisaMenurutRingkasanRp??x.sisaRp),
+    status:statusOf(x.status),statusPembukuan:'DITAHAN',
+    tanggalJatuhTempo:x.tanggalJatuhTempo||x.due_on||''};
+  });
+  const bounds=dateBounds(p),status=String(p?.status||'SEMUA').toUpperCase();
+  const inPeriod=x=>{
+   if(x.tanggal)return (!bounds.from||x.tanggal>=bounds.from)&&(!bounds.to||x.tanggal<=bounds.to);
+   // A month/year tag can be used if the transaction day was not migrated,
+   // without falsely inventing an exact date.
+   if(x.periodKey)return (!bounds.from||x.periodKey>=bounds.from.slice(0,7))&&
+     (!bounds.to||x.periodKey<=bounds.to.slice(0,7));
+   return false;
+  };
+  const selected=all.filter(x=>inPeriod(x)&&(status==='SEMUA'||x.status===status));
+  const missingPeriod=all.filter(x=>!x.tanggal&&!x.periodKey);
   const sum=key=>selected.reduce((a,x)=>a+n(x[key]),0);
-  return successful({data:{...periodLabel(p),statusFilter:p?.status||'SEMUA',rows:selected,
+  return successful({data:{...periodLabel(p),statusFilter:status,rows:selected,
+   missingPeriodCount:missingPeriod.length,
    ringkasan:{jumlah:selected.length,totalTalangan:sum('nominalTalangan'),
     totalDiganti:sum('nominalDiganti'),totalSisa:sum('sisaTalangan')},
    rekapStatus:[]}});
