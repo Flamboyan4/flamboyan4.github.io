@@ -66,7 +66,16 @@ const wargaSide=resident.querySelector('.f4-warga-sidebar');
 function wargaNavigation(){
  if(!superadmin())return;
  setTheme('book');
- wargaSide.replaceChildren(make('strong','Kelola Pembukuan','f4-work-brand'));
+ wargaSide.replaceChildren();
+ const identity=make('div',undefined,'f4-management-brand');
+ const logo=make('img');logo.src='https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8';logo.alt='Logo Flamboyan 4';
+ const label=make('span',undefined,'f4-management-identity');
+ label.append(make('strong','Flamboyan 4'),make('small','Pengelolaan terpusat'));
+ identity.append(logo,label);wargaSide.append(identity);
+ wargaSide.append(make('strong','Pengelolaan Superadmin','f4-work-brand'));
+ for(const [rootLabel,fn,i] of items.map(([name,handler],index)=>[name,handler,index]))
+   wargaSide.append(btn(rootLabel,fn,i===3?'f4-manage-item active':'f4-manage-item'));
+ wargaSide.append(make('strong','Kelola Pembukuan','f4-work-brand f4-submenu-heading'));
  for(const [label,fn] of [
   ['Data Warga & Rumah',()=>window.openWarga?.()],
   ['Kewajiban Iuran',()=>window.openSuperadminEditor?.('obligations')],
