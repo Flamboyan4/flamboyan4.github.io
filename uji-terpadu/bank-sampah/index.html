@@ -2485,6 +2485,7 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
     if(document.getElementById('dashboardView')?.classList.contains('hidden'))
       showDashboard(profile);
     goPage(target);
+    if(inPortal)window.parent.postMessage({type:'f4:bank-admin-opened',section:target},location.origin);
   }
   window.addEventListener('message',event=>{
     if(!inPortal||event.origin!==location.origin||event.source!==window.parent)return;
