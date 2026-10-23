@@ -514,9 +514,10 @@
 <style id="f4-bank-embedded-utility-layout">
 /* Only when embedded in Uji Terpadu: utility bar belongs to parent. */
 body.f4-embedded-bank #sideNav #v15Footer,body.f4-embedded-bank #v19PublicAccountFooter{display:none!important}
-body.f4-embedded-bank #dashboardView .section{padding-top:24px!important}
-body.f4-embedded-bank .v14-head{align-items:flex-start!important}
-body.f4-embedded-bank #v14QuickAction{margin-top:46px!important}
+/* Every private Bank Sampah page gets the same clearance; no per-page button hacks. */
+body.f4-embedded-bank #dashboardView .section{padding-top:72px!important}
+body.f4-embedded-bank .v14-head{align-items:center!important}
+body.f4-embedded-bank #v14QuickAction{margin-top:0!important}
 /* Reserve utility space only above content, never above the whole sidebar grid. */
 body.f4-embedded-bank #v11Public.v18-public-shell{padding:0!important;align-items:stretch!important}
 body.f4-embedded-bank #v18PublicSide{
