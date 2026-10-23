@@ -51,9 +51,9 @@ window.addEventListener('message',event=>{
  if(superadmin())window.openManagementHub();
 });
 window.openAccountPage=()=>{
- if(superadmin())window.openManagementHub();
- else if(document.body.classList.contains('role-admin'))window.f4OpenBankAdmin?.('dashboard');
- else if(document.body.classList.contains('role-warga'))window.f4OpenMemberAccount?.();
+ // A single canonical account entry: original Bank Sampah profile.
+ // Management is separate and only offered to Superadmin.
+ document.querySelector('[data-account-action="settings"]')?.click();
 };
 // Pengelolaan akun memakai tabel/form asli Bank Sampah, bukan daftar buatan ulang.
 window.f4OpenAccountManager=()=>{
