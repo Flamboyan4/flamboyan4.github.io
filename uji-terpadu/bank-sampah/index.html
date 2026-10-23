@@ -597,6 +597,31 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
  }
  #v10Print tbody td,#v27PrintReport tbody td{border-color:#dae4dc!important}
 }
+</style>
+<style id="f4-compact-bank-development-20261023">
+/* Satu ukuran proporsional seperti tampilan Bank Sampah asli.
+   Semua perkembangan tetap tersedia melalui scroll di kolom linimasa. */
+@media(min-width:901px){
+ #v17Perkembangan .v17-two{align-items:stretch!important}
+ #v17Perkembangan .v17-two>.v17-panel{
+   height:300px!important;min-height:0!important;max-height:300px!important;
+   box-sizing:border-box!important;overflow:hidden!important;
+ }
+ #v17Perkembangan #v17WeightBars{height:164px!important;padding-top:10px!important}
+ #v17Perkembangan #v17WeightNote{line-height:1.35!important;margin-top:9px!important}
+ #v17Perkembangan #v17Timeline{
+   max-height:222px!important;overflow-y:auto!important;overflow-x:hidden!important;
+   scrollbar-width:thin;scrollbar-color:#b7d6be transparent;padding-right:5px!important;
+ }
+ #v17Perkembangan #v17Timeline li{padding-bottom:12px!important}
+ #v17Perkembangan .v25-progress-thumb,
+ #v17Perkembangan .v27-progress-no-photo{width:74px!important;height:74px!important}
+ #v17Perkembangan .v25-progress-tile{grid-template-columns:74px minmax(0,1fr)!important;gap:10px!important}
+}
+@media(max-width:900px){
+ #v17Perkembangan .v17-two>.v17-panel{height:auto!important;max-height:none!important}
+ #v17Perkembangan #v17Timeline{max-height:320px;overflow-y:auto;scrollbar-width:thin}
+}
 </style></head>
 <body>
 <div class="shell">
