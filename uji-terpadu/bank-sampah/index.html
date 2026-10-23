@@ -2310,7 +2310,7 @@
 (()=>{
   'use strict';
   const inPortal=window.parent!==window;
-  let currentRole='public',identity={},pendingSection='';
+  let currentRole='public',identity={},pendingSection='',lastAdminSection='';
   const invokeLogin=()=>{
     if(inPortal)window.parent.postMessage({type:'f4:show-login'},location.origin);
     else document.getElementById('authView')?.classList.remove('hidden');
@@ -2337,12 +2337,28 @@
       rumah:identity.rumah||'',wargaId:identity.wargaId||''
     };
     showDashboard(p);
-    if(pendingSection){const page=pendingSection;pendingSection='';openAdmin(page);}
+    if(currentRole==='superadmin'&&inPortal){
+      // Satu tombol kembali; navigasi dan desain asli tetap digunakan.
+      const nav=document.getElementById('v16NavList');
+      if(nav&&!nav.querySelector('.f4-back-management')){
+        const back=document.createElement('button');
+        back.type='button';back.className='v16-item f4-back-management';
+        back.textContent='← Menu Pengelolaan';
+        back.onclick=()=>window.parent.postMessage({type:'f4:manage-home'},location.origin);
+        nav.append(back);
+      }
+    }
+    const requested=pendingSection||lastAdminSection;
+    pendingSection='';
+    if(requested&&['admin','superadmin'].includes(currentRole))openAdmin(requested);
   }
   function openAdmin(section){
-    if(!['admin','superadmin'].includes(currentRole))return;
     const allowed=['dashboard','setoran','riwayat','penjualan','riwayatJual','rekonsiliasi','pengesahan','tabungan','biaya','laporan','kegiatan','dokumentasi','inventaris','master','admin','progress'];
     const target=allowed.includes(section)?section:'dashboard';
+    // Pesan bisa tiba sebelum pesan login/role; jangan hilangkan pilihan menu.
+    if(currentRole==='public'){pendingSection=target;return;}
+    if(!['admin','superadmin'].includes(currentRole))return;
+    lastAdminSection=target;
     if(!profile){pendingSection=target;return;}
     goPage(target);
   }
