@@ -39,51 +39,10 @@ window.openAccountPage=()=>{
  else if(document.body.classList.contains('role-admin'))window.f4OpenBankAdmin?.('dashboard');
  else if(document.body.classList.contains('role-warga'))window.f4OpenMemberAccount?.();
 };
-window.f4OpenAccountManager=async()=>{
+// Pengelolaan akun memakai tabel/form asli Bank Sampah, bukan daftar buatan ulang.
+window.f4OpenAccountManager=()=>{
  if(!superadmin())return;
- setTheme('portal');page.hidden=false;resident.hidden=true;
- side.replaceChildren(make('strong','Pengaturan Akun Warga','f4-work-brand'));
- side.append(btn('Daftar Akun',()=>window.f4OpenAccountManager(),'active'));
- side.append(btn('← Menu Pengelolaan',window.openManagementHub));
- main.replaceChildren();header('Pengaturan Akun Warga','Daftar akun terpusat Cloudflare. Password tidak pernah ditampilkan.');
- const info=make('p','Memuat akun dari D1…','f4-admin-note');main.append(info);
- const tools=make('div',undefined,'f4-admin-controls');
- const search=make('input');search.type='search';search.placeholder='Cari nama, rumah, username';
- tools.append(search);main.append(tools);
- const host=make('div',undefined,'f4-admin-list');main.append(host);
- try{
-  const r=await fetch('https://api.flamboyan4.web.id/api/superadmin/accounts/preview',{credentials:'include',cache:'no-store'});
-  const data=await r.json();if(!r.ok||data.ok===false)throw Error(data.error||'HTTP '+r.status);
-  const accounts=Array.isArray(data.akun)?data.akun:[];
-  const draw=()=>{
-   host.replaceChildren();
-   const term=search.value.trim().toLowerCase();
-   const list=accounts.filter(x=>JSON.stringify([x.username,x.nama,x.rumah,x.status,x.role]).toLowerCase().includes(term));
-   info.textContent=list.length+' akun ditampilkan dari '+accounts.length+' akun terdaftar.';
-   for(const x of list){
-    const row=make('article',undefined,'f4-admin-item');
-    const left=make('div');
-    left.append(make('strong',(x.nama||x.username||'Akun')+' — '+(x.rumah||'Tanpa rumah')));
-    left.append(make('small',[x.username,x.role,x.status].filter(Boolean).join(' • ')));
-    row.append(left);
-    if(x.role==='anggota'&&x.perluAktivasi){
-     const act=btn('Aktifkan',async()=>{
-      if(!confirm('Aktifkan akun '+x.username+' dengan password awal standar? Berikan password secara pribadi kepada warga.'))return;
-      act.disabled=true;
-      try{
-       const q=await fetch('https://api.flamboyan4.web.id/api/superadmin/accounts/activate-member',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({accountId:x.id,confirmation:'AKTIFKAN AKUN WARGA'})});
-       const d=await q.json();if(!q.ok||d.ok===false)throw Error(d.error||'HTTP '+q.status);
-       window.f4OpenAccountManager();
-      }catch(e){info.textContent='Gagal mengaktifkan: '+e.message;act.disabled=false}
-     });
-     row.append(act);
-    }
-    host.append(row);
-   }
-   if(!list.length)host.append(make('p','Tidak ada akun yang cocok.','f4-admin-note'));
-  };
-  search.oninput=draw;draw();
- }catch(e){info.textContent='Tidak bisa membaca akun: '+e.message}
+ window.f4OpenBankAdmin?.('admin');
 };
 // Konsisten: saat berada pada halaman Data Warga, submenu Pembukuan tetap ada.
 // Jadi tidak muncul menu Bank Sampah atau Ringkasan Akun yang tidak relevan.
