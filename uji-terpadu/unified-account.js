@@ -89,8 +89,10 @@ function passwordPage(){
  for(const [key,label] of controls){
   const wrap=h('label',undefined,'ua-field');wrap.append(h('span',label));
   const box=h('div',undefined,'ua-password-row'),input=h('input');input.name=key;input.type='password';input.autocomplete=key==='currentPassword'?'current-password':'new-password';input.required=true;
-  const eye=btn('Lihat',()=>{const shown=input.type==='text';input.type=shown?'password':'text';eye.setAttribute('aria-label',shown?'Tampilkan password':'Sembunyikan password');eye.textContent=shown?'◉':'◉';eye.classList.toggle('visible',!shown)},'ua-eye');
-  eye.setAttribute('aria-label','Tampilkan password');box.append(input,eye);wrap.append(box);form.append(wrap);
+  const openEye='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const hiddenEye='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 3 18 18M10.6 5.1A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 3.8M6.5 6.5C3.5 8.4 2 12 2 12s3.5 7 10 7a10 10 0 0 0 4.2-1"/></svg>';
+  const eye=btn('',()=>{const shown=input.type==='text';input.type=shown?'password':'text';eye.setAttribute('aria-label',shown?'Tampilkan password':'Sembunyikan password');eye.innerHTML=shown?openEye:hiddenEye;eye.classList.toggle('visible',!shown)},'ua-eye');
+  eye.innerHTML=openEye;eye.setAttribute('aria-label','Tampilkan password');box.append(input,eye);wrap.append(box);form.append(wrap);
  }
  const msg=h('p','','ua-status'),submit=h('button','Simpan password baru','ua-primary');submit.type='submit';form.append(msg,submit);
  form.addEventListener('submit',async event=>{
