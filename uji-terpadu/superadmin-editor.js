@@ -58,8 +58,10 @@ function header(label,description){
  main.replaceChildren();
  const h=node('header',undefined,'f4-work-heading');
  h.append(node('h2','Kelola '+label),node('p',description));
-
  main.append(h);
+ // The dedicated Portal Superadmin owns the tab bar; the editor owns only
+ // the selected content. Never reproduce secondary menus in the sidebar.
+ window.f4SuperadminRenderTabs?.();
 }
 function viewList(){
  const def=types[active];if(!def)return;
@@ -177,8 +179,10 @@ function showForm(record){
  main.append(form);
 }
 async function fetchData(kind){
- const d=await send(base+kind);records=Array.isArray(d.data)?d.data:[];return records;
+ const d=await send(base+kind);
+ return Array.isArray(d.data)?d.data:[];
 }
+window.f4CancelSuperadminEditor=()=>{requestSerial++;};
 window.openSuperadminEditor=async(kind)=>{
  if(!inContext())return;
  if(kind==='residents'){nav(kind);return}
@@ -187,8 +191,16 @@ window.openSuperadminEditor=async(kind)=>{
  sideMenu();header(types[kind].label,'Mengambil data Cloudflare D1…');
  const serial=++requestSerial;
  const info=node('p','Memuat…','f4-admin-note');main.append(info);
- try{await fetchData(kind);if(serial!==requestSerial)return;viewList();}
- catch(e){if(serial!==requestSerial)return;info.textContent='Tidak dapat membaca '+types[kind].label+': '+e.message+'. Jika Dokumentasi, jalankan migrasi tabel dokumentasi dahulu.'}
+ try{
+  const nextRecords=await fetchData(kind);
+  if(serial!==requestSerial||!main.contains(info))return;
+  records=nextRecords;
+  viewList();
+ }
+ catch(e){
+  if(serial!==requestSerial||!main.contains(info))return;
+  info.textContent='Tidak dapat membaca '+types[kind].label+': '+e.message+'. Jika Dokumentasi, jalankan migrasi tabel dokumentasi dahulu.';
+ }
 };
 window.f4AdminEditorTypes=categories;
 })();
