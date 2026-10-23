@@ -395,7 +395,17 @@ async function boot(){
   role=String(s?.account?.role||s?.role||'').toLowerCase();
   if(role!=='superadmin')throw Error('Hanya role Superadmin yang memiliki izin masuk. Silakan login dengan akun berwenang.');
   document.body.classList.add('role-superadmin');guard.hidden=true;root.hidden=false;
-  const fragment=location.hash.replace(/^#sa-/,'');open(groups.some(x=>x[0]===fragment)?fragment:'overview',false);
+  const own=location.hash.replace(/^#sa-/,'');
+  let requested=own;
+  // Match the parent URL before first paint; do not paint Overview and then
+  // immediately replace it with Content/Data Acuan (visible as a flash).
+  if(window.parent!==window){
+   try{
+    const parentFragment=window.parent.location.hash.match(/^#superadmin\/(overview|accounts|content|masters|audit)$/)?.[1];
+    if(parentFragment)requested=parentFragment;
+   }catch{}
+  }
+  open(groups.some(x=>x[0]===requested)?requested:'overview',false);
   if(window.parent!==window)window.parent.postMessage({type:'f4:ready',portal:'superadmin'},location.origin);
  }catch(e){guard.replaceChildren(el('h2','Akses Portal Superadmin ditolak'),el('p',safe(e)));guard.append(button('Kembali ke Portal Utama',()=>{
    if(window.parent!==window)window.parent.postMessage({type:'f4:go-portal',portal:'portal'},location.origin);
@@ -404,7 +414,7 @@ async function boot(){
 }
 window.addEventListener('message',e=>{
  if(e.origin!==location.origin||e.source!==window.parent)return;
- if(e.data?.type==='f4:superadmin-open-section')open(e.data.section);
+ if(e.data?.type==='f4:superadmin-open-section'&&e.data.section!==group)open(e.data.section);
 });
 boot();
 })();
