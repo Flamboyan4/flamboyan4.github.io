@@ -196,17 +196,69 @@ async function catalogPage(){
  }catch(e){n.textContent='Master belum dapat dibaca: '+safe(e)}
  main.append(el('p','Perubahan harga perlu mengikuti kontrak penulisan dan riwayat perubahan master pada Worker.','sa-warn'));
 }
+function wargaForm(mode,row={}){
+ if(role!=='superadmin')return;
+ const isHouse=mode.endsWith('house'),isNew=mode.startsWith('add_');
+ title((isNew?'Tambah ':'Edit ')+(isHouse?'Rumah':'Warga'),'Master warga dan rumah — perubahan ditulis melalui Worker Cloudflare.');
+ const card=section('Informasi '+(isHouse?'rumah':'warga')),form=el('form',undefined,'f4-admin-editor'),grid=el('div',undefined,'f4-admin-fields');
+ const houseFields=[['rumah','Nomor rumah','text',true],['nama_pemilik','Nama pemilik','text'],['kontak_pemilik','Nomor HP pemilik','tel'],['status_rumah','Status rumah','text'],['tipe_unit','Tipe unit','text'],['keterangan_rumah','Keterangan','textarea']];
+ const residentFields=[['nama','Nama warga','text',true],['status_tinggal','Status tinggal','text'],['status_aktif','Status aktif','text'],['nomor_hp','Nomor HP','tel'],['keterangan_warga','Keterangan','textarea']];
+ const fields=isHouse?houseFields:residentFields;
+ if(!isHouse&&isNew){
+  const outer=el('label');outer.append(el('span','Pilih rumah'));
+  const select=el('select');select.name='household_id';select.required=true;select.append(new Option('Pilih rumah',''));
+  for(const [id,code] of new Map(residentRows.map(x=>[x.household_id,x.rumah]))){if(id&&code)select.append(new Option(code,id))}
+  outer.append(select);grid.append(outer);
+ }
+ for(const [key,label,type,required] of fields){
+  const outer=el('label');outer.append(el('span',label));
+  const control=el(type==='textarea'?'textarea':'input');
+  if(type!=='textarea')control.type=type;
+  control.name=key;control.required=!!required;control.value=String(row[key]??'');
+  if(type==='textarea')control.rows=3;
+  outer.append(control);grid.append(outer);
+ }
+ form.append(grid);const note=el('p','','f4-admin-note'),actions=el('div',undefined,'f4-warga-form-actions');
+ const save=button(isNew?'Tambah':'Simpan Perubahan',()=>form.requestSubmit(),'f4-admin-primary');
+ actions.append(button('Batal',openWarga,'sa-action'),save);form.append(note,actions);card.append(form);
+ form.addEventListener('submit',async event=>{
+  event.preventDefault();
+  const data={action:mode};
+  for(const control of form.querySelectorAll('[name]')){
+   const val=String(control.value||'').trim();
+   if(control.required&&!val){note.textContent=control.name+' wajib diisi.';control.focus();return}
+   data[control.name]=val;
+  }
+  if(mode==='edit_house')data.household_id=row.household_id;
+  if(mode==='edit_resident'){data.payer_id=row.payer_id;data.active=row.active!==0}
+  save.disabled=true;note.textContent='Menyimpan ke Cloudflare D1…';
+  try{
+   const response=await fetch(API+'/api/v2/admin/residents',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+   const result=await response.json().catch(()=>({}));
+   if(!response.ok||result.ok===false)throw Error(result.error||'HTTP '+response.status);
+   await openWarga();
+   const message=el('p','Data berhasil disimpan ke D1.','sa-chip');main.insertBefore(message,main.children[1]||null);
+  }catch(e){note.textContent='Gagal menyimpan: '+safe(e)}
+  finally{save.disabled=false}
+ });
+}
 async function openWarga(){
+ active='residents';group='masters';sidebar('masters');
  title('Data Warga & Rumah','Master lintas portal — identitas dan nomor rumah dikelola satu kali');
- const bar=el('div',undefined,'sa-controls');const search=el('input');search.placeholder='Cari warga atau rumah';const refresh=button('Muat ulang',openWarga,'sa-action');bar.append(search,refresh);main.append(bar);
- const info=notice('Memuat data warga…'),list=el('div',undefined,'sa-list');main.append(list);
- const render=()=>{list.replaceChildren();const q=search.value.toLowerCase();for(const o of residentRows.filter(x=>JSON.stringify(x).toLowerCase().includes(q))){
- const item=el('article',undefined,'sa-item'),left=el('div');left.append(el('strong',value(o,['nama','nama_warga','rumah'])||'Data rumah'),el('small',[value(o,['rumah']),value(o,['status_tinggal','status_rumah'])].filter(Boolean).join(' • ')));
- item.append(left,el('span',value(o,['payer_id','household_id'])||'Data acuan','sa-chip'));list.append(item);
- }if(!list.children.length)list.append(el('p','Belum ada data yang cocok.'))};search.oninput=render;
- try{residentRows=rows(await get('/api/v2/admin/residents'));info.textContent=residentRows.length+' data rumah/warga dibaca dari D1';render()}
+ const bar=el('div',undefined,'sa-controls'),search=el('input');search.placeholder='Cari warga atau rumah';
+ bar.append(search,button('+ Tambah Rumah',()=>wargaForm('add_house'),'sa-action'),button('+ Tambah Warga',()=>wargaForm('add_resident'),'sa-action'),button('Muat ulang',openWarga,'sa-action'));
+ main.append(bar);const info=notice('Memuat data warga…'),list=el('div',undefined,'sa-list');main.append(list);
+ const render=()=>{list.replaceChildren();const q=search.value.toLowerCase();
+  for(const o of residentRows.filter(x=>JSON.stringify(x).toLowerCase().includes(q))){
+   const item=el('article',undefined,'sa-item'),left=el('div');
+   left.append(el('strong',value(o,['nama','nama_warga','rumah'])||'Data rumah'),el('small',[value(o,['rumah']),value(o,['status_tinggal','status_rumah'])].filter(Boolean).join(' • ')));
+   const right=el('div',undefined,'sa-controls');right.append(el('span',value(o,['payer_id','household_id'])||'Acuan','sa-chip'));
+   right.append(button('Edit',()=>wargaForm(o.payer_id?'edit_resident':'edit_house',o),'sa-action'));
+   item.append(left,right);list.append(item);
+  }if(!list.children.length)list.append(el('p','Belum ada data yang cocok.'));
+ };search.oninput=render;
+ try{residentRows=rows(await get('/api/v2/admin/residents'));info.textContent=residentRows.length+' data rumah/warga dibaca dari D1';render();}
  catch(e){info.textContent='Tidak dapat memuat data acuan: '+safe(e)}
- main.append(el('p','Editor master warga lama masih ada pada sistem pengelolaan. Penyatuan operasi tambah/edit dengan audit lintas portal membutuhkan verifikasi endpoint penulisan.','sa-warn'));
 }
 function auditPage(){
  title('Pengaturan & Audit','Pemeriksaan layanan, kontrol dan jejak perubahan');
