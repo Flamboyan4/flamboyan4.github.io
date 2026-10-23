@@ -1796,6 +1796,7 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
       });
       if(!grid.childElementCount)grid.textContent=data.catatan||'Album belum memiliki foto/video yang dapat ditampilkan.';
       wrap.appendChild(grid);if(data.catatan)wrap.appendChild(v21Node('p','v17-subtle',data.catatan));
+      if(a.sourceFolder){const link=v21Node('a','v21-back','Buka folder Google Drive asli');link.href=a.sourceFolder;link.target='_blank';link.rel='noopener noreferrer';wrap.appendChild(link);}
       v21ShowModal(data.judul,data.tanggal+' • '+(data.deskripsi||''),wrap);
     }catch(e){v21ShowModal(a.judul,'',v21Node('p','', 'Galeri belum dapat dimuat: '+(e.message||e)));}
   }
