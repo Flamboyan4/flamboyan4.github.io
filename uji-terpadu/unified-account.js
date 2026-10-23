@@ -117,8 +117,9 @@ function rightsPage(){
  for(const item of items)list.append(h('div','✓ '+item));card.append(list);
  card.append(h('p','Mengubah role sendiri tidak tersedia. Penetapan role hanya dilakukan oleh Superadmin melalui pengelolaan akun.','ua-status'));
 }
-function close(){root.hidden=true;document.body.classList.remove('f4-account-open');if(photoUrl){URL.revokeObjectURL(photoUrl);photoUrl=''}}
+function close(){root.hidden=true;document.body.classList.remove('f4-account-open');if(location.hash==='#akun')history.replaceState(null,'',window.__f4AccountReturnHash||'#portal');if(photoUrl){URL.revokeObjectURL(photoUrl);photoUrl=''}}
 async function open(){
+ if(root.hidden){window.__f4AccountReturnHash=location.hash==='#akun'?(window.__f4AccountReturnHash||'#portal'):(location.hash||'#portal');if(location.hash!=='#akun')history.pushState(null,'','#akun');}
  const accountPanel=document.getElementById('f4-account-page'),residents=document.getElementById('f4-warga-panel');
  if(accountPanel)accountPanel.hidden=true;if(residents)residents.hidden=true;
  root.hidden=false;document.body.classList.add('f4-account-open');tab='identitas';
@@ -135,4 +136,5 @@ window.addEventListener('f4-account-password-updated',()=>{
  if(b){close();b.click();}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!root.hidden)close()});
+window.addEventListener('popstate',()=>{if(!root.hidden&&location.hash!=='#akun')close()});
 })();
