@@ -616,7 +616,16 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
   nama:item.nama||item.name||'',jumlah:String(item.jumlah??item.quantity??'0')+' '+(item.unit||''),
   kondisi:item.kondisi||item.condition||'',foto:item.foto||item.photoUrl||item.imageUrl||''
  }));
- const albums=items=>onlyArray(items).map(item=>({
+ // Strict source boundary: a general Portal Utama album is not automatically
+ // a Bank Sampah album. Untagged legacy rows require D1 scope migration.
+ const isBankAlbum=item=>{
+   const scope=String(item.portal_scope||item.source_portal||item.portal||item.scope||item.program||'').toLowerCase().replace(/[\s_-]+/g,'');
+   const category=String(item.kategori||item.category||'').toLowerCase().replace(/[\s_-]+/g,'');
+   return item.bank_sampah===true||item.is_bank_sampah===true||
+     ['banksampah','wastebank','bank'].includes(scope)||
+     ['banksampah','wastebank'].includes(category);
+ };
+ const albums=items=>onlyArray(items).filter(isBankAlbum).map(item=>({
   id:item.id||item.albumId,
   judul:item.judul||item.title||'Album',
   tanggal:item.tanggal||item.event_on||'',
@@ -641,6 +650,8 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
  async function albumList(){
   const r=await publicData();
   const list=albums(r.albums);
+  if(!list.length&&onlyArray(r.albums).length)
+    console.warn('Bank Sampah: album bersama tanpa penanda scope tidak ditampilkan. Tambahkan portal_scope=bank-sampah di D1.');
   await Promise.all(list.slice(0,12).map(async item=>{
    if(!item.id)return;
    try{
