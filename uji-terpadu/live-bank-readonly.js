@@ -2,7 +2,7 @@
 (()=>{'use strict';
  const API='https://api.flamboyan4.web.id';
  const original=window.__f4BankDemoCall;
- const onlyArray=(data)=>Array.isArray(data)?data:Array.isArray(data?.rows)?data.rows:Array.isArray(data?.items)?data.items:Array.isArray(data?.data)?data.data:[];
+ const onlyArray=(data)=>Array.isArray(data)?data:Array.isArray(data?.rows)?data.rows:Array.isArray(data?.items)?data.items:Array.isArray(data?.data)?data.data:Array.isArray(data?.data?.rows)?data.data.rows:Array.isArray(data?.data?.items)?data.data.items:[];
  const number=(value)=>Number.isFinite(Number(value))?Number(value):0;
  async function get(path){
   const response=await fetch(API+path,{credentials:'include',mode:'cors',cache:'no-store'});
