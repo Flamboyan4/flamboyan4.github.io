@@ -599,7 +599,11 @@ body.superadmin-mode .notice{display:none!important}
  function observeOriginalDialogs(){
    modalWatcher?.disconnect();modalWatcher=null;
    document.body.classList.remove('iframe-modal-open');
-   if(!['portal','rapat','bank-sampah','dokumentasi','inventaris'].includes(selected))return;
+   // Album/lightbox Dokumentasi memakai <dialog> top-layer dalam iframe sendiri.
+   // Jangan sembunyikan utility bar/sidebar atau bentangkan iframe ke seluruh
+   // viewport untuk portal ini: itu menghilangkan navigasi setelah foto dibuka.
+   if(['dokumentasi','inventaris'].includes(selected))return;
+   if(!['portal','rapat','bank-sampah'].includes(selected))return;
    try{
      const doc=frame.contentWindow.document;
      const check=()=>{
