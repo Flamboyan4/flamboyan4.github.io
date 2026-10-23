@@ -59,7 +59,38 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #76
  .sa-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  .f4-admin-fields{grid-template-columns:1fr}
 }
-</style>
+
+/* Override legacy account-workspace !important rules so this is a real portal,
+   not the old fixed management popup hidden beneath the global utility bar. */
+html body #f4-account-page:not([hidden]){
+ position:relative!important;inset:auto!important;z-index:auto!important;
+ display:grid!important;grid-template-columns:244px minmax(0,1fr)!important;
+ min-height:100dvh!important;background:#eff5f8!important;color:#193047!important
+}
+html body #f4-account-page>aside{
+ position:sticky!important;top:0!important;align-self:start!important;
+ height:100dvh!important;max-height:100dvh!important;overflow-y:auto!important;
+ display:flex!important;flex-direction:column!important;padding:16px 12px!important;
+ background:#fff!important;border-right:1px solid #d9e6f0!important
+}
+html body #f4-account-page>main{
+ padding:84px 26px 40px!important;overflow-y:auto!important;overflow-x:hidden!important;
+ width:100%!important;min-width:0!important
+}
+html body #f4-account-page .f4-work-heading{display:block!important}
+html body #f4-account-page .f4-work-heading h2{margin-bottom:5px!important;color:#1b344c!important}
+html body #f4-account-page aside .f4-sa-label{font-size:10px!important;padding:11px 10px 5px!important;color:#8196a8!important}
+html body #f4-account-page aside .f4-sa-brand strong{padding:0!important}
+@media(max-width:760px){
+ html body #f4-account-page:not([hidden]){display:block!important;grid-template-columns:1fr!important}
+ html body #f4-account-page>aside{
+  position:sticky!important;top:0!important;height:auto!important;max-height:84px!important;
+  overflow-x:auto!important;overflow-y:hidden!important;display:flex!important;
+  flex-direction:row!important;flex-wrap:nowrap!important;padding:8px!important;
+ }
+ html body #f4-account-page>aside button{width:auto!important;min-width:130px!important;flex:none!important;text-align:center!important}
+ html body #f4-account-page>main{padding:80px 12px 28px!important;overflow:auto!important}
+}</style>
 </head>
 <body>
 <div id="guard" role="status"><h2>Memeriksa akses Superadmin…</h2><p>Portal ini hanya untuk akun dengan role Superadmin.</p></div>
