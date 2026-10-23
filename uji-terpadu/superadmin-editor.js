@@ -240,7 +240,13 @@ window.openSuperadminEditor=async(kind)=>{
  }
  catch(e){
   if(serial!==requestSerial||!main.contains(info))return;
-  info.textContent='Tidak dapat membaca '+types[kind].label+': '+e.message+'. Jika Dokumentasi, jalankan migrasi tabel dokumentasi dahulu.';
+  // Allow opening the real original create form even when a document collection
+  // has not yet been populated. Save still uses Worker auth and must succeed.
+  if(kind==='documentation'){
+   records=[];viewList();
+   const box=main.querySelector('.f4-admin-note');
+   if(box)box.textContent='Data album D1 belum dapat dibaca ('+e.message+'). Anda tetap dapat membuka Tambah Dokumentasi; data baru hanya dianggap tersimpan setelah Worker mengonfirmasi.';
+  }else info.textContent='Tidak dapat membaca '+types[kind].label+': '+e.message;
  }
 };
 window.f4AdminEditorTypes=categories;
