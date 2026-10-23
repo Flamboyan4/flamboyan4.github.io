@@ -2363,9 +2363,9 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
   const accountGroup=v16Groups.find(group=>group.id==='settings');
   const originalAccountTabs=accountGroup?accountGroup.tabs.slice():[];
   function syncAccountTabs(){
-    if(accountGroup)accountGroup.tabs=currentRole==='superadmin'
-      ?originalAccountTabs.filter(([key])=>key!=='admin')
-      :originalAccountTabs.slice();
+    // Original account management stays visible for Superadmin when opening
+    // "Pengaturan Akun Warga"; Dashboard is a separate root destination.
+    if(accountGroup)accountGroup.tabs=originalAccountTabs.slice();
   }
   function openOriginalProfile(){
     if(currentRole==='public'||!profile){pendingProfile=true;return;}
