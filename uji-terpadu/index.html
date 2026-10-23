@@ -678,6 +678,19 @@ body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
  document.getElementById('login-close').onclick=()=>loginShade.hidden=true;
  document.getElementById('profile-close').onclick=()=>profileShade.hidden=true;
  document.getElementById('gate-login').onclick=()=>showLogin();
+ function openOriginalBankProfile(){
+  if(role==='public'){showLogin();return;}
+  const bankUrl=apps['bank-sampah'];
+  const changed=frame.getAttribute('src')!==bankUrl;
+  const request=()=>{
+    if(selected!=='bank-sampah')return;
+    sendRole();
+    frame.contentWindow?.postMessage({type:'f4:open-bank-profile'},location.origin);
+  };
+  if(changed)frame.addEventListener('load',request,{once:true});
+  if(selected!=='bank-sampah'||changed)update('bank-sampah');
+  else request();
+ }
  async function openProfileSettings(edit){
   document.getElementById('profile-title').textContent=edit?'Pengaturan Profil':'Akun Saya';
   document.getElementById('profile-detail').textContent=(activeAccount?.member?.nama||activeAccount?.account?.username||'Akun aktif')+' — '+roleLabel[role];
@@ -729,7 +742,8 @@ body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
   if(action==='bank-admin'){window.f4OpenBankAdmin?.('dashboard');return}
   if(action==='manage'){window.openManagementHub?.();return}
   if(action==='member'){window.f4OpenMemberAccount?.();return}
-  openProfileSettings(action==='settings');
+  if(action==='settings'){openOriginalBankProfile();return;}
+  openProfileSettings(false);
  });
  window.addEventListener('message',event=>{
   if(event.origin!==location.origin||event.source!==frame.contentWindow||event.data?.type!=='f4:auth-changed')return;
@@ -770,6 +784,7 @@ body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
  window.addEventListener('message',e=>{
   if(e.origin!==location.origin||!e.data)return;
   if(e.data.type==='f4:ready')sendRole();
+  if(e.data.type==='f4:bank-avatar-updated'&&e.source===frame.contentWindow)updateAvatar();
   if(e.data.type==='f4:bank-modal'&&selected==='bank-sampah'&&e.source===frame.contentWindow){toolbar.classList.toggle('modal-covered',e.data.open===true);}
   if(e.data.type==='f4:section'&&['dokumentasi','inventaris'].includes(e.data.target)){
     selected=e.data.target;
