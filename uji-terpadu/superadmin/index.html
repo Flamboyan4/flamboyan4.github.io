@@ -184,8 +184,9 @@ function sidebar(g=group){
 const tabScrollPositions={content:0,masters:0};
 function rememberTabScroll(){
  const existing=main.querySelector('.sa-tabbar');
- if(existing&&Object.hasOwn(tabScrollPositions,group))
-  tabScrollPositions[group]=existing.scrollLeft;
+ const previousGroup=existing?.dataset.group;
+ if(previousGroup&&Object.hasOwn(tabScrollPositions,previousGroup))
+  tabScrollPositions[previousGroup]=existing.scrollLeft;
 }
 window.f4SuperadminRememberTabScroll=rememberTabScroll;
 function renderTabs(){
@@ -193,6 +194,7 @@ function renderTabs(){
  if(!current||!active||!current.some(([key])=>key===active))return;
  main.querySelector('.sa-tabbar')?.remove();
  const tabs=el('nav',undefined,'sa-tabbar');
+ tabs.dataset.group=group;
  tabs.setAttribute('role','tablist');
  tabs.setAttribute('aria-label',group==='content'?'Submenu Konten & Publikasi':'Submenu Data Acuan');
  for(const [key,label] of current){
