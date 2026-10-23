@@ -2386,18 +2386,20 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
   function syncPublicSavingsButton(){
     const banner=document.querySelector('#v11Public .v17-public-banner');
     if(!banner)return;
-    let action=document.getElementById('f4-public-my-savings');
+    const left=banner.firstElementChild||banner;
     const isMember=currentRole==='warga'&&profile?.peran==='Warga';
-    if(!isMember){if(action)action.remove();return;}
-    if(!action){
-      action=document.createElement('button');
-      action.id='f4-public-my-savings';action.type='button';
-      action.className='f4-public-my-savings';
-      action.textContent='Lihat Tabungan Saya';
-      action.onclick=openMemberSavings;
-      const left=banner.firstElementChild||banner;
-      left.append(action);
-    }
+    const isManager=['admin','superadmin'].includes(currentRole)&&profile?.peran==='Admin';
+    let saving=document.getElementById('f4-public-my-savings');
+    let manage=document.getElementById('f4-public-manage-bank');
+    if(isMember){
+      if(!saving){saving=document.createElement('button');saving.id='f4-public-my-savings';saving.type='button';saving.className='f4-public-my-savings';saving.textContent='Lihat Tabungan Saya';saving.onclick=openMemberSavings;left.append(saving);}
+    }else saving?.remove();
+    if(isManager){
+      if(!manage){manage=document.createElement('button');manage.id='f4-public-manage-bank';manage.type='button';manage.className='f4-public-my-savings';manage.textContent='Kelola Bank Sampah';manage.onclick=()=>{
+        if(document.getElementById('dashboardView')?.classList.contains('hidden'))showDashboard(profile);
+        goPage('dashboard');
+      };left.append(manage);}
+    }else manage?.remove();
   }
   // Reuse the original Bank Sampah page for savings, profile and every
   // admin tab. Only a contextual shortcut is added to the public banner.
