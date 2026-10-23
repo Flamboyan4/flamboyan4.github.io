@@ -229,17 +229,27 @@
   };
  };
  const bankAdminAccounts=async()=>{
-   // Tabel pengelolaan akun ASLI, dengan identitas akun D1 (bukan daftar tabungan).
-   const response=await get('/api/superadmin/accounts/preview');
-   const list=Array.isArray(response.akun)?response.akun:Array.isArray(response.accounts)?response.accounts:onlyArray(response);
-   return list.filter(x=>x.role!=='superadmin').map(x=>({
-     wargaId:String(x.wargaId||x.member_id||x.payerId||x.id||''),
-     nama:String(x.nama||x.name||x.username||''),
-     rumah:String(x.rumah||x.house||''),
-     username:String(x.username||''),
-     status:x.status||((x.perluAktivasi)?'Belum Aktivasi':'Aktif'),
-     aktif:!x.perluAktivasi
-   }));
+   // Admin can read members for operational forms. Superadmin uses centralized accounts.
+   let list;
+   try {
+     const response=await get('/api/superadmin/accounts/preview');
+     list=Array.isArray(response.akun)?response.akun:Array.isArray(response.accounts)?response.accounts:onlyArray(response);
+   } catch(error) {
+     // Only the account manager needs central credentials; general setoran dropdown can use bank members.
+     return adminMembers().then(members=>members.map(x=>({...x,akunId:'',username:'',status:x.status})));
+   }
+   return list.filter(x=>!['superadmin','admin'].includes(String(x.role||'').toLowerCase())).map(x=>{
+     const status=String(x.status||(!x.perluAktivasi?'Aktif':'Belum Aktif'));
+     return {
+       akunId:String(x.id||x.accountId||x.akunId||''),
+       wargaId:String(x.wargaId||x.member_id||x.payerId||''),
+       nama:String(x.nama||x.name||x.username||''),
+       rumah:String(x.rumah||x.house||''),
+       username:String(x.username||''),
+       status:/^(aktif|active)$/i.test(status)?'Aktif':status,
+       aktif:/^(aktif|active)$/i.test(status)
+     };
+   });
  };
  const read={
   authAdminAccounts:bankAdminAccounts,
