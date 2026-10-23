@@ -185,6 +185,15 @@ html body #f4-account-page>aside{overflow-x:hidden!important}
 .sa-account-reset{position:static!important;transform:none!important;inset:auto!important;background:#eef0ff!important;color:#555d99!important}
 .sa-account-reset:disabled{opacity:.66}
 .sa-action-primary{background:#5364a5!important;border-color:#5364a5!important}
+
+/* Master warga: tabel horizontal ringkas; tetap bisa digeser di HP. */
+.sa-resident-scroll{width:100%;max-width:100%;overflow-x:auto;border:1px solid #d8e4f2;border-radius:13px;background:white}
+.sa-resident-grid{border-collapse:collapse;width:100%;min-width:850px;font-size:12px}
+.sa-resident-grid th{background:#edf4fd;color:#315b83;font-weight:750;text-align:left;padding:11px 12px;white-space:nowrap;border-bottom:1px solid #d8e4f2}
+.sa-resident-grid td{padding:10px 12px;border-bottom:1px solid #edf1f7;color:#243c55;vertical-align:middle}
+.sa-resident-grid tr:nth-child(even){background:#f9fbfe}
+.sa-resident-grid td:last-child{text-align:right;width:88px}
+.sa-resident-grid td .sa-action{padding:7px 12px}
 </style>
 </head>
 <body>
@@ -465,6 +474,8 @@ function wargaForm(mode,row={}){
   const control=el(type==='textarea'?'textarea':'input');
   if(type!=='textarea')control.type=type;
   control.name=key;control.required=!!required;control.value=String(row[key]??'');
+  const examples={rumah:'Contoh: A5/41',nama_pemilik:'Contoh: Pak Heri',kontak_pemilik:'Contoh: 081234567890',status_rumah:'Contoh: Dihuni / Kosong / Disewakan',tipe_unit:'Contoh: Rumah tinggal',keterangan_rumah:'Contoh: Rumah kosong, pemilik tinggal di luar kota',nama:'Contoh: Pak Heri (Ali)',status_tinggal:'Contoh: Pemilik / Penyewa / Penghuni',status_aktif:'Contoh: Aktif',nomor_hp:'Contoh: 081234567890',keterangan_warga:'Contoh: Humas / Ketua RT / Kebersihan 2x'};
+  control.placeholder=examples[key]||'Isi '+label.toLowerCase();
   if(type==='textarea')control.rows=3;
   outer.append(control);grid.append(outer);
  }
@@ -500,13 +511,25 @@ async function openWarga(){
  bar.append(search,button('+ Tambah Rumah',()=>wargaForm('add_house'),'sa-action'),button('+ Tambah Warga',()=>wargaForm('add_resident'),'sa-action'),button('Muat ulang',openWarga,'sa-action'));
  main.append(bar);const info=notice('Memuat data warga…'),list=el('div',undefined,'sa-list');main.append(list);
  const render=()=>{list.replaceChildren();const q=search.value.toLowerCase();
+  const wrap=el('div',undefined,'sa-resident-scroll'),table=el('table',undefined,'sa-resident-grid');
+  const head=el('thead'),headrow=el('tr');
+  for(const name of ['Nama warga','Nomor rumah','Status tinggal / rumah','Keterangan rumah','Kontak pemilik','Aksi'])headrow.append(el('th',name));
+  head.append(headrow);table.append(head);
+  const body=el('tbody');let count=0;
   for(const o of residentRows.filter(x=>JSON.stringify(x).toLowerCase().includes(q))){
-   const item=el('article',undefined,'sa-item'),left=el('div');
-   left.append(el('strong',value(o,['nama','nama_warga','rumah'])||'Data rumah'),el('small',[value(o,['rumah']),value(o,['status_tinggal','status_rumah'])].filter(Boolean).join(' • ')));
-   const right=el('div',undefined,'sa-controls');right.append(el('span',value(o,['payer_id','household_id'])||'Acuan','sa-chip'));
-   right.append(button('Edit',()=>wargaForm(o.payer_id?'edit_resident':'edit_house',o),'sa-action'));
-   item.append(left,right);list.append(item);
-  }if(!list.children.length)list.append(el('p','Belum ada data yang cocok.'));
+   count++;
+   const tr=el('tr');
+   const values=[value(o,['nama','nama_warga','nama_pemilik'])||'—',
+     value(o,['rumah'])||'—',
+     value(o,['status_tinggal','status_rumah'])||'—',
+     value(o,['keterangan_rumah','deskripsi_rumah'])||'—',
+     value(o,['kontak_pemilik'])||'—'];
+   for(const val of values)tr.append(el('td',val));
+   const actions=el('td');actions.append(button('Edit',()=>wargaForm(o.payer_id?'edit_resident':'edit_house',o),'sa-action'));
+   tr.append(actions);body.append(tr);
+  }
+  if(!count){const tr=el('tr'),td=el('td','Belum ada data yang cocok.');td.colSpan=6;tr.append(td);body.append(tr)}
+  table.append(body);wrap.append(table);list.append(wrap);
  };search.oninput=render;
  try{residentRows=rows(await get('/api/v2/admin/residents'));info.textContent=residentRows.length+' data rumah/warga dibaca dari D1';render();}
  catch(e){info.textContent='Tidak dapat memuat data acuan: '+safe(e)}
