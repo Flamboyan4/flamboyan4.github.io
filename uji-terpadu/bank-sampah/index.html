@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  
+  <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     :root{--forest:#2e6146;--leaf:#537d59;--sage:#e9f0e6;--cream:#f8f9f4;--ink:#22372c;--muted:#64756b;--line:#dbe5d9;--orange:#e9ad63;--white:#fff}
@@ -511,204 +511,47 @@
     #v27PrintReport .v27-print-sign strong{display:block;margin-top:46px}
   }
 </style>
-<meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://api.flamboyan4.web.id; form-action 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com;"><script data-bundled="offline-common.js">
-(()=>{'use strict';window.__F4_DEMO__=true;
-  // Membuka sub-URL secara langsung tetap masuk ke navigasi dan login terpadu.
-  if(window===window.top){
-   const parts=location.pathname.split('/').filter(Boolean);
-   const index=parts.indexOf('uji-terpadu');
-   const target=parts[index+1]||'portal';
-   if(['portal','rapat','bank-sampah','pembukuan'].includes(target)){
-    location.replace(location.origin+'/uji-terpadu/#'+target);return;
-   }
-  }
-  window.__f4DemoNotify=(s)=>{try{window.parent.postMessage({type:'f4:notice',message:String(s)},location.origin)}catch{}};
-  document.addEventListener('DOMContentLoaded',()=>{
-    // Tidak membuat bar kuning tambahan: identitas demo tersedia pada dialog Login.
+</head>
+<body>
+<div class="shell">
+  <header class="top"><div class="brand"><div class="logo">🌿</div><div>Bank Sampah Flamboyan 4<div class="sub">Portal akun warga dan administrator</div></div></div><span class="tag">Lingkungan kita</span></header>
+  <main class="content">
+    <section id="authView" class="auth card">
+      <h1>Selamat datang</h1><p class="desc">Akses informasi keanggotaan dengan aman dan mudah dari HP.</p>
+      <div class="notice">Akun dan password awal diberikan oleh pengurus. Warga tinggal masuk, tanpa proses aktivasi.</div>
+      <form id="loginForm" onsubmit="doLogin(event)">
+        <div class="field"><label for="loginUser">Username / Nomor rumah</label><input id="loginUser" autocomplete="username" required placeholder="Contoh: A5-24"></div>
+        <div class="field"><label for="loginPass">Password</label><input id="loginPass" type="password" autocomplete="current-password" required></div>
+        <button class="wide" type="submit">Masuk ke akun</button>
+        <p class="hint">Lupa password? Hubungi administrator untuk meminta reset password awal.</p>
+      </form>
+      <div id="authNotice" role="status" aria-live="polite"></div>
+    </section>
 
-    document.querySelectorAll('a[href]').forEach(a=>{
-       const href=a.getAttribute('href')||'';
-       if(href.startsWith('/'))a.addEventListener('click',e=>{
-         e.preventDefault();
-         const p=href.toLowerCase();
-         const target=p.includes('banksampah')||p.includes('bank-sampah')?'bank-sampah':p.includes('pembukuan')?'pembukuan':'portal';
-         window.parent.postMessage({type:'f4:navigate',target},location.origin);
-       });
-    });
-  });
-  const originalFetch=window.fetch?.bind(window);
-  // GET requests use the real source. No fabricated success/empty datasets.
-  window.fetch=(input,init={})=>{
-    const method=String(init?.method||((typeof input==='object'&&input?.method)||'GET')).toUpperCase();
-    if(method==='GET'||method==='HEAD')return originalFetch(input,init);
-    window.__f4DemoNotify('Penyimpanan dari integrasi masih dikunci sampai izin backend tervalidasi.');
-    return Promise.reject(Error('Penulisan data belum diaktifkan pada Uji Terpadu.'));
-  };
-  const origOpen=window.open?.bind(window);window.open=(url,...args)=>{if(!url||url==='about:blank')return origOpen?.('about:blank',...args)||null;window.__f4DemoNotify('Tautan eksternal tidak dibuka otomatis dari pratinjau.');return null};
-  window.addEventListener('message',e=>{if(e.origin!==location.origin||!e.data||e.data.type!=='f4:demo-role')return;document.body.dataset.previewRole=e.data.role});
-})();
-</script><script data-bundled="calendar-unified.js">
-/* Uniform Indonesian custom date/month picker for OFFLINE preview. No backend access. */
-(()=>{'use strict';
-  const months=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-  const days=['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
-  let input=null,viewYear=0,viewMonth=0,pop=null;
-  const two=n=>String(n).padStart(2,'0');
-  const localToday=()=>{const d=new Date();return d.getFullYear()+'-'+two(d.getMonth()+1)+'-'+two(d.getDate())};
-  const mk=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e};
-  const style=document.createElement('style');
-  style.textContent=[
-   'input.f4-date-target{cursor:pointer!important;caret-color:transparent}',
-   'input.f4-date-target::-webkit-calendar-picker-indicator{pointer-events:none;opacity:.65}',
-   '.f4-calendar{position:fixed;z-index:999999;min-width:288px;width:304px;max-width:calc(100vw - 20px);border:1px solid #dcd3fc;background:white;color:#261b45;border-radius:16px;padding:14px;box-shadow:0 18px 55px #210e493b;font:13px system-ui,-apple-system,Segoe UI,sans-serif}',
-   '.f4-calendar *{box-sizing:border-box}', '.f4-cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}',
-   '.f4-cal-head strong{font-size:14px;font-weight:750;color:#4f23a0;text-align:center}',
-   '.f4-cal-btn{border:0!important;background:#f4f0ff!important;color:#5c26b0!important;border-radius:9px!important;width:35px;height:35px;padding:0!important;display:grid!important;place-items:center;font:700 19px system-ui!important;cursor:pointer}',
-   '.f4-cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}',
-   '.f4-cal-dayhead{font-size:11px;font-weight:700;color:#77809b;text-align:center;padding:8px 0}',
-   '.f4-cal-cell{font:600 12px system-ui!important;min-height:35px!important;background:transparent!important;border:0!important;border-radius:10px!important;padding:0!important;color:#25233c!important;cursor:pointer}',
-   '.f4-cal-cell:hover{background:#eee7ff!important}', '.f4-cal-cell.f4-selected{background:#7433ef!important;color:white!important}',
-   '.f4-cal-cell.f4-out{color:#adb2c3!important}', '.f4-cal-cell.f4-today{outline:1px solid #8a5bff;outline-offset:-2px}',
-   '.f4-cal-cell:disabled{opacity:.23;cursor:not-allowed}',
-   '.f4-cal-months{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}',
-   '.f4-cal-month{font:600 12px system-ui!important;border-radius:10px!important;padding:11px 5px!important;background:#f7f4ff!important;color:#47326d!important;border:0!important;cursor:pointer}',
-   '.f4-cal-month.f4-selected{background:#7433ef!important;color:white!important}',
-   '.f4-cal-foot{margin-top:12px;border-top:1px solid #eee8fc;padding-top:10px;display:flex;justify-content:space-between;gap:8px}',
-   '.f4-cal-foot button{padding:7px 11px!important;border-radius:9px!important;background:#f2edff!important;color:#5329a6!important;border:0!important;font:650 12px system-ui!important;cursor:pointer}'
-  ].join('');
-  document.head.append(style);
-  const inRange=value=>{
-    if(!input)return false;
-    const min=input.getAttribute('min'),max=input.getAttribute('max');
-    return !(min&&value<min)&&!(max&&value>max);
-  };
-  function choose(value){
-    if(!input||!inRange(value))return;
-    const target=input;
-    target.value=value;
-    target.dispatchEvent(new Event('input',{bubbles:true}));
-    target.dispatchEvent(new Event('change',{bubbles:true}));
-    hide();target.focus({preventScroll:true});
-  }
-  function hide(){pop?.remove();pop=null;input=null}
-  function position(){
-    if(!input||!pop)return;const rect=input.getBoundingClientRect(),w=Math.min(304,innerWidth-20);
-    const bottom=Math.max(0,innerHeight-rect.bottom),top=Math.max(0,rect.top);
-    const expected=input.type==='month'?260:347;
-    pop.style.width=w+'px';pop.style.left=Math.max(10,Math.min(rect.left,innerWidth-w-10))+'px';
-    pop.style.top=bottom>=expected||bottom>=top?Math.min(innerHeight-10,rect.bottom+7)+'px':Math.max(10,rect.top-expected-7)+'px';
-  }
-  function draw(){
-    if(!pop||!input)return;pop.replaceChildren();
-    const head=mk('div','f4-cal-head'),prev=mk('button','f4-cal-btn','‹'),next=mk('button','f4-cal-btn','›');
-    prev.type=next.type='button';prev.setAttribute('aria-label','Bulan sebelumnya');next.setAttribute('aria-label','Bulan berikutnya');
-    const monthMode=input.type==='month',title=mk('strong','',monthMode?String(viewYear):months[viewMonth]+' '+viewYear);
-    prev.onclick=()=>{if(monthMode)viewYear--;else {viewMonth--;if(viewMonth<0){viewMonth=11;viewYear--}}draw()};
-    next.onclick=()=>{if(monthMode)viewYear++;else {viewMonth++;if(viewMonth>11){viewMonth=0;viewYear++}}draw()};
-    head.append(prev,title,next);pop.append(head);
-    if(monthMode){
-      const grid=mk('div','f4-cal-months');for(let m=0;m<12;m++){
-       const val=viewYear+'-'+two(m+1),btn=mk('button','f4-cal-month'+(input.value===val?' f4-selected':''),months[m].slice(0,3));
-       btn.type='button';btn.disabled=!inRange(val);btn.onclick=()=>choose(val);btn.setAttribute('aria-label',months[m]+' '+viewYear);grid.append(btn);
-      }pop.append(grid);
-    }else{
-      const grid=mk('div','f4-cal-grid');
-      for(const day of days)grid.append(mk('span','f4-cal-dayhead',day));
-      const first=new Date(viewYear,viewMonth,1),shift=(first.getDay()+6)%7;
-      for(let i=0;i<42;i++){
-        const date=new Date(viewYear,viewMonth,1-shift+i),iso=date.getFullYear()+'-'+two(date.getMonth()+1)+'-'+two(date.getDate());
-        const out=date.getMonth()!==viewMonth;
-        const btn=mk('button','f4-cal-cell'+(out?' f4-out':'')+(input.value===iso?' f4-selected':'')+(localToday()===iso?' f4-today':''),String(date.getDate()));
-        btn.type='button';btn.disabled=!inRange(iso);btn.setAttribute('aria-label',iso);btn.onclick=()=>choose(iso);grid.append(btn);
-      }pop.append(grid);
-    }
-    const foot=mk('div','f4-cal-foot'),todayBtn=mk('button','',monthMode?'Bulan ini':'Hari ini'),close=mk('button','','Tutup');
-    todayBtn.type=close.type='button';const value=localToday().slice(0,monthMode?7:10);
-    todayBtn.disabled=!inRange(value);todayBtn.onclick=()=>choose(value);close.onclick=hide;foot.append(todayBtn,close);pop.append(foot);position();
-  }
-  function open(target){
-    if(input===target&&pop)return;
-    hide();input=target;input.readOnly=true;input.classList.add('f4-date-target');
-    const value=input.value||localToday(),parts=value.split('-');
-    viewYear=Number(parts[0])||new Date().getFullYear();viewMonth=Math.max(0,Math.min(11,Number(parts[1]||1)-1));
-    pop=mk('section','f4-calendar');pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Kalender pilihan tanggal');
-    document.body.append(pop);draw();
-  }
-  document.addEventListener('pointerdown',e=>{
-    const target=e.target.closest?.('input[type="date"],input[type="month"]');
-    if(target){e.preventDefault();open(target);return}
-    if(pop&&!pop.contains(e.target))hide();
-  },true);
-  document.addEventListener('focusin',e=>{
-    const target=e.target.closest?.('input[type="date"],input[type="month"]');
-    if(target){target.readOnly=true;target.classList.add('f4-date-target')}
-  },true);
-  document.addEventListener('keydown',e=>{
-    if(e.key==='Escape'&&pop){hide();return}
-    if(e.target.matches?.('input[type="date"],input[type="month"]')&&['Enter',' ','ArrowDown'].includes(e.key)){e.preventDefault();open(e.target)}
-  },true);
-  addEventListener('resize',position);addEventListener('scroll',position,true);
-})();
-</script><script data-bundled="offline-bank.js">
-(()=>{'use strict';
- const progress=[
-   {
-     "tanggal": "11 Oktober 2026",
-     "judul": "Pembersihan & Persiapan Drop Point",
-     "langkah": "Pembersihan area pemilahan",
-     "status": "Selesai",
-     "deskripsi": "Pengelolaan sampah anorganik terpilah untuk kas tambahan warga.",
-     "agenda": "Pembuatan tong/wadah drop point",
-     "foto": "https://drive.google.com/file/d/1AR1iArLy2iN5cPv5AyPtGwHmyWpWBMTw/view?usp=sharing",
-     "urlFoto": "https://drive.google.com/file/d/1AR1iArLy2iN5cPv5AyPtGwHmyWpWBMTw/view?usp=sharing",
-     "photoUrl": "https://drive.google.com/file/d/1AR1iArLy2iN5cPv5AyPtGwHmyWpWBMTw/view?usp=sharing",
-     "progressId": "PR0001"
-   },
-   {
-     "tanggal": "11 Oktober 2026",
-     "judul": "Pembuatan Wadah Drop Point",
-     "langkah": "Pembuatan wadah",
-     "status": "Selesai",
-     "deskripsi": "Membuat tempat untuk menampung sampah sebelum nantinya akan dijual",
-     "agenda": "Pembuatan alur dan administrasi",
-     "foto": "https://drive.google.com/file/d/1jtKd09dMftq1FovXHLs9GOe97a7H4LSF/view?usp=sharing",
-     "urlFoto": "https://drive.google.com/file/d/1jtKd09dMftq1FovXHLs9GOe97a7H4LSF/view?usp=sharing",
-     "photoUrl": "https://drive.google.com/file/d/1jtKd09dMftq1FovXHLs9GOe97a7H4LSF/view?usp=sharing",
-     "progressId": "PR0002"
-   }
- ];
- const albums=[{id:'AL0001',albumId:'AL0001',judul:'Gorol membersihkan drop point',tanggal:'11 Oktober 2026',deskripsi:'Kegiatan warga Flamboyan 4 membersihkan rumah drop point',sampul:'https://drive.google.com/file/d/1DcqPvQpQx_nQEPsCXlbJz-YETZ0iypep/view?usp=sharing',kategori:'Kegiatan',jumlahMedia:0,status:'Aktif',publik:true}];
- const items=[{kode:'BS003',nama:'Kardus',kelompok:'Kertas',hargaAcuan:1500,tarifWarga:1000,status:'Aktif'},{kode:'BS007',nama:'Kaleng',kelompok:'Logam',hargaAcuan:3000,tarifWarga:1500,status:'Aktif'},{kode:'BS008',nama:'Gelas plastik bersih',kelompok:'Plastik',hargaAcuan:2000,tarifWarga:1000,status:'Aktif'}];
- const readOnly={
-  bsV11PublicHome:()=>({anggotaAktif:33,jenisBarang:11,beratTerkonfirmasi:0,kegiatan:2,progres:progress,inventaris:[{nama:'Tempat Drop Point',jumlah:'1 unit',kondisi:'Baik',foto:''}]}),
-  bsV11PublicAlbums:()=>albums,bsV22AlbumIndexPublik:()=>albums,
-  bsV17GrafikPublik:()=>({bulan:[],catatan:'Grafik kosong pada mode pratinjau.'}),
-  bsV25LaporanPublik:()=>({bulan:'2026-10',periode:'Oktober 2026',ringkasan:{},setoran:[],penjualan:[],kas:[],grafik:[],catatan:'Data contoh tanpa database'}),
-  bsDashboardAdmin:()=>({wargaAktif:33,jenisBarangAktif:11,beratSetoranKg:0,jumlahSetoran:0,estimasiSetoranRp:0,jumlahPenjualan:0,beratPenjualanKg:0,diterimaLapakRp:0,netMutasiTabunganRp:0,netKasRp:0,tarifBelumDitetapkan:0}),
-  bsDashboardMasterBarang:()=>items,bsDashboardProgressPublik:()=>progress,
-  authAdminAccounts:()=>[],bsV6BatchAdmin:()=>[],bsV8BatchSiap:()=>({setoran:0,penjualan:0,beratSetoran:0,beratLapak:0,hakWarga:0}),
-  bsV6SetoranAdmin:()=>[],bsV18RiwayatSetoranAdmin:()=>[],bsV7PenjualanAdmin:()=>[],bsV27FinalAdmin:()=>[],
-  bsV9SaldoAdmin:()=>[],bsV9StatusKasAdmin:()=>({kasGabungan:0,belumPosting:0}),bsV9RiwayatPencairan:()=>[],
-  bsV10KasPosAdmin:()=>({kasGabungan:0,pos:[]}),bsV10PengeluaranAdmin:()=>[],
-  bsV22AlbumAdmin:()=>albums,bsV15FotoSaya:()=>({ada:false}),
-  bsV12AksesLaporan:()=>({siap:true}),bsV12Statement:()=>({saldo:0,totalMasuk:0,totalCair:0,mutasi:[],setoran:[]}),
-  bsV17RingkasanKasAdmin:()=>({kasTercatat:0,masukPeriode:0,keluarPeriode:0,selisihPeriode:0,bulan:[],rincian:[]}),
-  bsV10LaporanAdmin:()=>({periode:'Pratinjau',ringkasan:{jumlahSetoran:0,jumlahPenjualan:0,diterima:0,hakWargaDikredit:0,tabunganDicairkan:0,biaya:0},setoran:[],penjualan:[],pengeluaran:[]}),
-  bsV21IsiAlbumPublik:()=>({id:'DEMO-A01',judul:'Contoh Dokumentasi',media:[]}),
-  bsV6PratinjauRekonsiliasi:()=>({setoran:0,penjualan:0,beratSetoran:0,beratLapak:0,hakWarga:0,margin:0}),
- };
- window.__f4BankDemoCall=async(name,args)=>{
-  if(readOnly[name])return readOnly[name](...args);
-  if(name==='authLogout')return {ok:true};
-  if(name==='authMe'||name==='authLogin'||name==='authChangePassword'){
-   throw Error('Autentikasi pada laman asli digantikan oleh kontrol simulasi akun terpadu di atas.');
-  }
-  window.__f4DemoNotify('Fungsi '+name+' tidak dijalankan: struktur tanpa database.');
-  throw Error('MODE PRATINJAU — penyimpanan, pembatalan, dan pengesahan tidak aktif.');
- };
-})();
-</script>
-<script data-bundled="live-bank-readonly.js">
+    <section id="dashboardView" class="hidden">
+      <div class="mobile-nav"><strong>Menu akun</strong><button class="secondary" onclick="toggleMenu()" aria-label="Buka tutup menu">☰ Menu</button></div>
+      <div class="grid"><nav id="sideNav" class="side"><div class="brand" style="margin-bottom:16px">🌱 &nbsp; Menu</div><button id="navDashboard" onclick="goPage('dashboard')" class="secondary active">Dashboard</button><button id="navProfile" onclick="goPage('profile')" class="secondary">Profil saya</button><button id="navSetoran" onclick="goPage('setoran')" class="secondary hidden">Input setoran</button><button id="navRiwayat" onclick="goPage('riwayat')" class="secondary hidden">Riwayat setoran</button><button id="navPenjualan" onclick="goPage('penjualan')" class="secondary hidden">Penjualan lapak</button><button id="navRekonsiliasi" onclick="goPage('rekonsiliasi')" class="secondary hidden">Pratinjau selisih</button><button id="navMaster" onclick="goPage('master')" class="secondary hidden">Master barang</button><button id="navAdmin" onclick="goPage('admin')" class="secondary hidden">Kelola akun warga</button><button id="navProgress" onclick="goPage('progress')" class="secondary">Progres kegiatan</button><button id="navPassword" onclick="goPage('password')" class="secondary">Ganti password</button><button class="ghost" onclick="doLogout()">Keluar</button></nav>
+      <div class="section"><div class="toolbar" style="margin-bottom:16px"><div><h1 id="greeting">Halo!</h1><div class="sub">Bank Sampah Flamboyan 4</div></div><span id="roleBadge" class="tag"></span></div>
+        <div id="pageDashboard" class="card"><div class="toolbar"><div><h2>Dashboard Bank Sampah</h2><p class="section-caption">Ringkasan data dan kegiatan Flamboyan 4</p></div><button class="secondary" onclick="loadDashboard()">Perbarui</button></div><div id="adminMetrics" class="hidden"><div id="metricGrid" class="metric-grid block-gap"></div><div id="dashboardWarnings" class="pill-note block-gap"></div></div><div id="memberWelcome" class="hidden"><div class="notice">Profil anggota sudah terhubung ke database. Ringkasan setoran dan tabungan pribadi belum ditampilkan demi menjaga privasi.</div><div class="stats"><div class="stat"><small>Nama</small><strong id="welcomeName">—</strong></div><div class="stat"><small>Rumah</small><strong id="welcomeHouse">—</strong></div><div class="stat"><small>ID anggota</small><strong id="welcomeId">—</strong></div></div></div><p class="hint" id="metricStatus">Memuat ringkasan...</p></div>
+        <div id="pageProfile" class="card hidden"><h2>Identitas anggota</h2><p class="desc">Data ini hanya ditampilkan untuk akun yang sedang masuk.</p><div class="stats"><div class="stat"><small>Nama</small><strong id="pName">—</strong></div><div class="stat"><small>Rumah</small><strong id="pHome">—</strong></div><div class="stat"><small>ID anggota</small><strong id="pId">—</strong></div></div><div class="notice">Saldo, transaksi dan unduh laporan belum dibuka sampai pemeriksaan aturan perhitungan dan hak akses selesai.</div></div>
+        <div id="pageSetoran" class="card hidden"><h2>Input setoran warga</h2><p class="desc">Semua nilai pada tahap ini adalah <strong>estimasi</strong>, belum menjadi saldo tabungan terkonfirmasi.</p><form id="setoranForm" onsubmit="submitSetoran(event)"><div class="field"><label for="setWarga">Nama anggota</label><select id="setWarga" required><option value="">Pilih warga</option></select></div><div class="field"><label for="setDate">Tanggal setoran</label><input type="date" id="setDate" required></div><h2 style="font-size:16px;margin-top:22px">Rincian berat per barang (kg)</h2><div id="setBarang" class="tablewrap"></div><div class="summary-box block-gap"><div><small>Total berat</small><strong id="previewKg" style="display:block">0 kg</strong></div><div><small>Estimasi hak warga</small><strong id="previewRp" style="display:block">Rp 0</strong></div></div><div class="field block-gap"><label for="setNotes">Catatan (opsional)</label><input id="setNotes" maxlength="300" placeholder="Contoh: kegiatan timbang rutin"></div><button id="saveSetoranBtn" type="submit" class="wide">Simpan setoran estimasi</button></form><div id="setoranNotice" role="status" aria-live="polite"></div></div>
+        <div id="pageRiwayat" class="card hidden"><div class="toolbar"><h2>Riwayat setoran</h2><button class="secondary" onclick="loadRiwayat()">Perbarui</button></div><div class="pill-note">Klik Rincian untuk melihat jenis barang, berat, dan tarif. Setoran batal tetap tersimpan.</div><div id="riwayatList" class="tablewrap">Memuat...</div><div id="riwayatNotice" role="status"></div></div>
+        <div id="pageRiwayatJual" class="card hidden"><div class="toolbar"><h2>Riwayat penjualan</h2><button class="secondary" onclick="loadRiwayatJual()">Perbarui</button></div><div class="pill-note">Batalkan dahulu transaksi penjualan uji, kemudian batalkan setoran uji pada batch terkait.</div><div id="riwayatJualList" class="tablewrap">Memuat...</div><div id="riwayatJualNotice" role="status"></div></div>
+        <div id="pagePenjualan" class="card hidden"><h2>Input penjualan ke lapak</h2><p class="desc">Catat hasil timbang dan harga sebenarnya. Ini belum mengesahkan hak tabungan warga.</p><form id="saleForm" onsubmit="submitSale(event)"><div class="field"><label for="saleBatch">Batch setoran</label><select id="saleBatch" required><option value="">Pilih batch</option></select></div><div class="field"><label for="saleDate">Tanggal penjualan</label><input type="date" id="saleDate" required></div><div class="field"><label for="saleLapak">Nama lapak</label><input id="saleLapak" maxlength="100" required placeholder="Nama pengepul / lapak"></div><h2 style="font-size:16px">Detail timbang lapak</h2><div id="saleItems" class="tablewrap">Memuat...</div><div class="summary-box block-gap"><div><small>Berat terjual</small><strong id="saleWeight" style="display:block">0 kg</strong></div><div><small>Hasil bruto</small><strong id="saleGross" style="display:block">Rp 0</strong></div></div><div class="field block-gap"><label for="saleStatus">Status pembayaran</label><select id="saleStatus" onchange="updateSaleTotals()"><option value="Lunas">Lunas</option><option value="Belum Bayar">Belum Bayar</option></select></div><div class="field"><label for="saleReceived">Uang yang sudah diterima (Rp)</label><input type="number" id="saleReceived" min="0" step="1" value="0" required><p class="hint">Jika belum bayar, penerimaan harus Rp0. Jika lunas, isi nominal sebenarnya hingga sebesar hasil bruto.</p></div><div class="field"><label for="saleProof">Nomor nota / link bukti (opsional)</label><input id="saleProof" maxlength="500"></div><button type="submit" class="wide">Catat penjualan lapak</button></form><div id="saleNotice" role="status"></div></div>
+        <div id="pageRekonsiliasi" class="card hidden"><h2>Pratinjau rekonsiliasi</h2><div class="pill-note">Hanya perbandingan sementara. Belum membuat saldo tabungan, kas, atau pembagian hasil.</div><div class="field block-gap"><label for="reconBatch">Pilih batch</label><select id="reconBatch" onchange="loadRekonsiliasi()"><option value="">Pilih batch</option></select></div><div id="reconResult" class="block-gap">Pilih batch terlebih dahulu.</div></div>
+        <div id="pageMaster" class="card hidden"><div class="toolbar"><div><h2>Master jenis barang</h2><p class="section-caption">Harga lapak dan tarif setoran warga</p></div><button class="secondary" onclick="loadMaster()">Perbarui</button></div><div class="pill-note">Harga acuan lapak bukan tarif tabungan warga. Tetapkan <strong>Tarif Warga Aktif</strong> sebelum mulai mencatat setoran. Perubahan tarif tidak mengubah transaksi lama.</div><div id="masterList" class="tablewrap">Memuat...</div></div>
+        <div id="pageProgress" class="card hidden"><h2>Perkembangan Bank Sampah</h2><p class="section-caption">Kegiatan yang ditandai untuk tampil di portal utama</p><div id="progressList" class="block-gap">Memuat...</div></div>
+        <div id="pagePassword" class="card hidden"><h2>Ganti password</h2><p class="desc">Boleh diganti kapan saja. Minimal 4 karakter.</p><form onsubmit="doChangePassword(event)"><div class="field"><label for="oldPass">Password sekarang</label><input id="oldPass" type="password" required autocomplete="current-password"></div><div class="field"><label for="newPass">Password baru</label><input id="newPass" type="password" minlength="4" required autocomplete="new-password"></div><button type="submit">Simpan password baru</button></form></div>
+        <div id="pageAdmin" class="card hidden"><div class="toolbar"><div><h2>Kelola akun warga</h2><p class="desc" style="margin:0">Akun siap login tanpa aktivasi warga.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button id="bulkBtn" onclick="provisionAll()">Siapkan semua akun</button><button class="secondary" onclick="loadAccounts()">Muat ulang</button></div></div><div class="notice">Password awal: <strong>F4-</strong> diikuti nomor rumah tanpa pemisah, contoh <strong>F4-A524</strong>. Admin dapat mereset akun per warga. Berikan kredensial secara pribadi. Password awal yang mudah ditebak sebaiknya diganti untuk keamanan tabungan.</div><div id="bulkProgress" class="hint" role="status"></div><div id="accountList" class="tablewrap"></div></div>
+        <div id="dashNotice" role="status" aria-live="polite"></div>
+      </div></div>
+    </section>
+  </main><footer class="footer">Bank Sampah Flamboyan 4 • Bersama menjaga lingkungan</footer>
+  <div id="credentialModal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="credentialTitle" style="position:fixed;inset:0;background:#15251bcc;display:grid;place-items:center;padding:18px;z-index:50">
+    <div class="card" style="width:min(100%,420px);max-height:90vh;overflow:auto;box-shadow:0 16px 48px #18271a55"><h2 id="credentialTitle">Akun warga</h2><p class="desc">Salin informasi berikut dan berikan langsung kepada warga yang bersangkutan.</p><div class="stat"><small>Username</small><strong id="credUser"></strong></div><div class="stat" style="margin-top:9px"><small>Password awal</small><strong id="credPass"></strong></div><div style="display:flex;gap:8px;margin-top:18px"><button id="copyCred" onclick="copyCredential()">Salin akun</button><button class="secondary" onclick="closeCredential()">Tutup</button></div><p class="hint">Menutup popup akan menyembunyikan password dari layar.</p></div>
+  </div>
+</div>
+<script id="f4-cloudflare-data-bridge">
 /* Live data bridge for ORIGINAL Bank Sampah UI. Reads only existing Cloudflare endpoints. */
 (()=>{'use strict';
  const API='https://api.flamboyan4.web.id';
@@ -1036,126 +879,39 @@
   return Promise.reject(Error('Fungsi '+name+' dari Bank Sampah asli belum memiliki endpoint Cloudflare yang terhubung. Tidak ada data yang diubah.'));
  };
 })();
-</script><style id="f4-preview-one-account">
-/* Hanya di pratinjau terpadu: akun berada di utilitas kanan atas, bukan sidebar. */
-#v15Footer,#v19PublicAccountFooter,#v17PublicAccount,#navProfile,#navPassword,#v13Group_account{display:none!important}
-#v11Public .public-hero button{display:none!important}
-</style><style id="f4-no-double-navbar">body>.shell>header.top:first-child{display:none!important} #sideNav.side{top:0!important;height:100dvh!important;max-height:100dvh!important} body>.shell>.content{min-height:100dvh!important} #v19PublicFloatingMenu{display:none!important} #dashboardView>.grid{min-height:100dvh!important} #v11Public{min-height:100dvh!important}</style><style id="f4-no-duplicate-scrolltop">
-/* Tombol kembali ke atas sekarang satu dari shell untuk halaman Bank Sampah. */
-#v31ScrollTop{display:none!important}
-</style><style id="f4-align-sidebar-to-utility">
-/* Sidebar Bank Sampah sejajar dengan top utility bar (tanpa baris kosong di atas).
- * Hanya pada /uji-terpadu/, tidak menyentuh web aktif. */
-@media(min-width:761px){
- #v11Public.v18-public-shell{min-height:100dvh!important;align-items:stretch!important}
- #v18PublicSide{top:0!important;height:100dvh!important;max-height:100dvh!important;
-   border-right:1px solid #e9ede8!important}
- #v18PublicContent{padding-top:56px!important;min-height:100dvh!important;box-sizing:border-box!important}
- #dashboardView>.grid{min-height:100dvh!important}
- #sideNav.side{top:0!important;min-height:100dvh!important;height:100dvh!important;max-height:100dvh!important}
- #dashboardView>.grid>.section{padding-top:80px!important}
-}
-</style><style id="f4-public-chart-compact-20261022">
-#v11Public #v17Perkembangan .v17-two{display:grid!important;grid-template-columns:minmax(0,1.55fr) minmax(250px,1fr)!important;gap:10px!important;align-items:start!important}
-#v11Public #v17Perkembangan .v17-panel{height:226px!important;min-height:0!important;max-height:226px!important;overflow:hidden!important;padding:12px 14px!important;display:flex!important;flex-direction:column!important;box-sizing:border-box!important}
-#v11Public #v17Perkembangan .v17-panel h3{font-size:13px!important;margin:0 0 6px!important;flex:none!important}
-#v11Public #v17Perkembangan #v17WeightBars{height:145px!important;min-height:145px!important;max-height:145px!important;flex:0 0 145px!important;display:flex!important;align-items:flex-end!important;justify-content:space-around!important;gap:7px!important;padding:4px 0 0!important;border-bottom:1px solid #cbded0!important}
-#v11Public #v17Perkembangan #v17WeightBars .v17-bar-group{height:100%!important;display:flex!important;flex-direction:row!important;align-items:flex-end!important;justify-content:center!important;position:relative!important;flex:1}
-#v11Public #v17Perkembangan #v17WeightBars .v17-bar{width:min(31px,76%)!important;align-self:flex-end!important;background:#429462}
-#v11Public #v17Perkembangan #v17WeightBars .v17-bar-label{position:absolute!important;bottom:-17px!important;left:0!important;right:0!important;text-align:center!important;font-size:10px!important}
-#v11Public #v17Perkembangan #v17WeightNote{margin:21px 0 0!important;font-size:10px!important;line-height:1.25!important;flex:none!important}
-#v11Public #v17Perkembangan #v17Timeline{overflow-y:auto!important;overflow-x:hidden!important;min-height:0!important;flex:1!important;padding:0 5px 0 0!important}
-#v11Public #v17Perkembangan #v17Timeline li{padding-bottom:9px!important;font-size:11px!important}
-#v11Public #v17Perkembangan #v17Timeline p{font-size:11px!important;line-height:1.3!important;margin:3px 0!important}
-#v11Public #v17Perkembangan #v17Timeline img{max-width:55px!important;max-height:55px!important;object-fit:cover!important}
-@media(max-width:900px){#v11Public #v17Perkembangan .v17-two{grid-template-columns:minmax(0,1fr)!important}#v11Public #v17Perkembangan .v17-panel{height:226px!important;max-height:226px!important}}
-</style><style id="f4-bank-mobile-nav-repair">
-@media(max-width:1023px){
- #v18PublicSide{position:fixed!important;top:0!important;left:0!important;bottom:0!important;width:min(284px,86vw)!important;height:100dvh!important;z-index:151!important;transform:translateX(-110%)!important;visibility:hidden!important;transition:transform .2s!important;background:#fff!important}
- #v18PublicSide.open{transform:translateX(0)!important;visibility:visible!important}
- #v18PublicBackdrop.open{display:block!important;position:fixed!important;inset:0!important;background:#102c1c88!important;z-index:150!important}
- #v11Public.v18-public-shell{display:block!important;width:100%!important;grid-template-columns:minmax(0,1fr)!important}
- #v18PublicContent{width:100%!important;max-width:100%!important;margin-left:0!important}
-}
-</style><style id="f4-bank-sidebar-fixed-final">
-@media(min-width:1024px){
- body.v17-public #v11Public.v18-public-shell{display:block!important;padding-left:244px!important}
- body.v17-public #v18PublicSide{position:fixed!important;left:0!important;top:0!important;bottom:0!important;width:244px!important;height:100dvh!important;max-height:100dvh!important;z-index:35!important;overflow-y:auto!important}
- body.v17-dashboard #sideNav.side{position:fixed!important;left:0!important;top:0!important;bottom:0!important;width:244px!important;height:100dvh!important;max-height:100dvh!important;z-index:35!important;overflow-y:auto!important}
- body.v17-dashboard #dashboardView>.grid{display:block!important;padding-left:244px!important}
- body.v17-dashboard #dashboardView>.grid>.section{min-width:0!important}
-}
-@media(max-width:1023px){
- body.v17-public #v11Public.v18-public-shell{display:block!important;padding-left:0!important}
- body.v17-public #v18PublicSide{position:fixed!important;left:0!important;top:0!important;bottom:0!important;height:100dvh!important;z-index:151!important;transform:translateX(-110%)!important;visibility:hidden!important}
- body.v17-public #v18PublicSide.open{transform:translateX(0)!important;visibility:visible!important}
- body.v17-dashboard #dashboardView>.grid{display:block!important;padding-left:0!important}
- body.v17-dashboard #sideNav.side{position:fixed!important;top:0!important;bottom:0!important;left:0!important;height:100dvh!important;width:min(306px,84vw)!important;z-index:151!important;transform:translateX(-110%)!important;visibility:hidden!important}
- body.v17-dashboard #sideNav.side.open{transform:translateX(0)!important;visibility:visible!important}
- body.v17-dashboard #v16Backdrop.open{display:block!important;position:fixed!important;inset:0!important;z-index:150!important;background:#14291c80!important}
-}
-</style><style id="f4-bank-sidebar-and-spacing-final">
-/* Fixed navigation: only the sidebar's menu can scroll, never with the page. */
-@media(min-width:1024px){
- #v11Public.v18-public-shell{display:block!important;padding-left:244px!important}
- #v11Public #v18PublicSide{position:fixed!important;left:0!important;top:0!important;bottom:0!important;height:100dvh!important;width:244px!important;z-index:40!important;overflow-y:auto!important;overscroll-behavior:contain!important}
- #v11Public #v18PublicContent{padding-top:0!important}
- #v11Public #v18PublicContent .v17-public-main{padding-top:64px!important}
- body.v17-dashboard #sideNav.side{position:fixed!important;left:0!important;top:0!important;height:100dvh!important;overscroll-behavior:contain!important}
-}
-@media(max-width:1023px){
- #v11Public #v18PublicContent .v17-public-main{padding-top:12px!important}
- #v11Public #v18PublicContent{padding-top:0!important}
- #v11Public #v18PublicSide{overflow-y:auto!important;overscroll-behavior:contain!important}
- body.v17-dashboard #dashboardView>.grid>.section{padding-top:12px!important}
- body.v17-dashboard #dashboardView .mobile-nav{display:none!important}
-}
-</style></head>
-<body>
-<div class="shell">
-  <header class="top"><div class="brand"><div class="logo">🌿</div><div>Bank Sampah Flamboyan 4<div class="sub">Portal akun warga dan administrator</div></div></div><span class="tag">Lingkungan kita</span></header>
-  <main class="content">
-    <section id="authView" class="auth card">
-      <h1>Selamat datang</h1><p class="desc">Akses informasi keanggotaan dengan aman dan mudah dari HP.</p>
-      <div class="notice">Akun dan password awal diberikan oleh pengurus. Warga tinggal masuk, tanpa proses aktivasi.</div>
-      <form id="loginForm" onsubmit="doLogin(event)">
-        <div class="field"><label for="loginUser">Username / Nomor rumah</label><input id="loginUser" autocomplete="username" required placeholder="Contoh: A5-24"></div>
-        <div class="field"><label for="loginPass">Password</label><input id="loginPass" type="password" autocomplete="current-password" required></div>
-        <button class="wide" type="submit">Masuk ke akun</button>
-        <p class="hint">Lupa password? Hubungi administrator untuk meminta reset password awal.</p>
-      </form>
-      <div id="authNotice" role="status" aria-live="polite"></div>
-    </section>
-
-    <section id="dashboardView" class="hidden">
-      <div class="mobile-nav"><strong>Menu akun</strong><button class="secondary" onclick="toggleMenu()" aria-label="Buka tutup menu">☰ Menu</button></div>
-      <div class="grid"><nav id="sideNav" class="side"><div class="brand" style="margin-bottom:16px">🌱 &nbsp; Menu</div><button id="navDashboard" onclick="goPage('dashboard')" class="secondary active">Dashboard</button><button id="navProfile" onclick="goPage('profile')" class="secondary">Profil saya</button><button id="navSetoran" onclick="goPage('setoran')" class="secondary hidden">Input setoran</button><button id="navRiwayat" onclick="goPage('riwayat')" class="secondary hidden">Riwayat setoran</button><button id="navPenjualan" onclick="goPage('penjualan')" class="secondary hidden">Penjualan lapak</button><button id="navRekonsiliasi" onclick="goPage('rekonsiliasi')" class="secondary hidden">Pratinjau selisih</button><button id="navMaster" onclick="goPage('master')" class="secondary hidden">Master barang</button><button id="navAdmin" onclick="goPage('admin')" class="secondary hidden">Kelola akun warga</button><button id="navProgress" onclick="goPage('progress')" class="secondary">Progres kegiatan</button><button id="navPassword" onclick="goPage('password')" class="secondary">Ganti password</button><button class="ghost" onclick="doLogout()">Keluar</button></nav>
-      <div class="section"><div class="toolbar" style="margin-bottom:16px"><div><h1 id="greeting">Halo!</h1><div class="sub">Bank Sampah Flamboyan 4</div></div><span id="roleBadge" class="tag"></span></div>
-        <div id="pageDashboard" class="card"><div class="toolbar"><div><h2>Dashboard Bank Sampah</h2><p class="section-caption">Ringkasan data dan kegiatan Flamboyan 4</p></div><button class="secondary" onclick="loadDashboard()">Perbarui</button></div><div id="adminMetrics" class="hidden"><div id="metricGrid" class="metric-grid block-gap"></div><div id="dashboardWarnings" class="pill-note block-gap"></div></div><div id="memberWelcome" class="hidden"><div class="notice">Profil anggota sudah terhubung ke database. Ringkasan setoran dan tabungan pribadi belum ditampilkan demi menjaga privasi.</div><div class="stats"><div class="stat"><small>Nama</small><strong id="welcomeName">—</strong></div><div class="stat"><small>Rumah</small><strong id="welcomeHouse">—</strong></div><div class="stat"><small>ID anggota</small><strong id="welcomeId">—</strong></div></div></div><p class="hint" id="metricStatus">Memuat ringkasan...</p></div>
-        <div id="pageProfile" class="card hidden"><h2>Identitas anggota</h2><p class="desc">Data ini hanya ditampilkan untuk akun yang sedang masuk.</p><div class="stats"><div class="stat"><small>Nama</small><strong id="pName">—</strong></div><div class="stat"><small>Rumah</small><strong id="pHome">—</strong></div><div class="stat"><small>ID anggota</small><strong id="pId">—</strong></div></div><div class="notice">Saldo, transaksi dan unduh laporan belum dibuka sampai pemeriksaan aturan perhitungan dan hak akses selesai.</div></div>
-        <div id="pageSetoran" class="card hidden"><h2>Input setoran warga</h2><p class="desc">Semua nilai pada tahap ini adalah <strong>estimasi</strong>, belum menjadi saldo tabungan terkonfirmasi.</p><form id="setoranForm" onsubmit="submitSetoran(event)"><div class="field"><label for="setWarga">Nama anggota</label><select id="setWarga" required><option value="">Pilih warga</option></select></div><div class="field"><label for="setDate">Tanggal setoran</label><input type="date" id="setDate" required></div><h2 style="font-size:16px;margin-top:22px">Rincian berat per barang (kg)</h2><div id="setBarang" class="tablewrap"></div><div class="summary-box block-gap"><div><small>Total berat</small><strong id="previewKg" style="display:block">0 kg</strong></div><div><small>Estimasi hak warga</small><strong id="previewRp" style="display:block">Rp 0</strong></div></div><div class="field block-gap"><label for="setNotes">Catatan (opsional)</label><input id="setNotes" maxlength="300" placeholder="Contoh: kegiatan timbang rutin"></div><button id="saveSetoranBtn" type="submit" class="wide">Simpan setoran estimasi</button></form><div id="setoranNotice" role="status" aria-live="polite"></div></div>
-        <div id="pageRiwayat" class="card hidden"><div class="toolbar"><h2>Riwayat setoran</h2><button class="secondary" onclick="loadRiwayat()">Perbarui</button></div><div class="pill-note">Klik Rincian untuk melihat jenis barang, berat, dan tarif. Setoran batal tetap tersimpan.</div><div id="riwayatList" class="tablewrap">Memuat...</div><div id="riwayatNotice" role="status"></div></div>
-        <div id="pageRiwayatJual" class="card hidden"><div class="toolbar"><h2>Riwayat penjualan</h2><button class="secondary" onclick="loadRiwayatJual()">Perbarui</button></div><div class="pill-note">Batalkan dahulu transaksi penjualan uji, kemudian batalkan setoran uji pada batch terkait.</div><div id="riwayatJualList" class="tablewrap">Memuat...</div><div id="riwayatJualNotice" role="status"></div></div>
-        <div id="pagePenjualan" class="card hidden"><h2>Input penjualan ke lapak</h2><p class="desc">Catat hasil timbang dan harga sebenarnya. Ini belum mengesahkan hak tabungan warga.</p><form id="saleForm" onsubmit="submitSale(event)"><div class="field"><label for="saleBatch">Batch setoran</label><select id="saleBatch" required><option value="">Pilih batch</option></select></div><div class="field"><label for="saleDate">Tanggal penjualan</label><input type="date" id="saleDate" required></div><div class="field"><label for="saleLapak">Nama lapak</label><input id="saleLapak" maxlength="100" required placeholder="Nama pengepul / lapak"></div><h2 style="font-size:16px">Detail timbang lapak</h2><div id="saleItems" class="tablewrap">Memuat...</div><div class="summary-box block-gap"><div><small>Berat terjual</small><strong id="saleWeight" style="display:block">0 kg</strong></div><div><small>Hasil bruto</small><strong id="saleGross" style="display:block">Rp 0</strong></div></div><div class="field block-gap"><label for="saleStatus">Status pembayaran</label><select id="saleStatus" onchange="updateSaleTotals()"><option value="Lunas">Lunas</option><option value="Belum Bayar">Belum Bayar</option></select></div><div class="field"><label for="saleReceived">Uang yang sudah diterima (Rp)</label><input type="number" id="saleReceived" min="0" step="1" value="0" required><p class="hint">Jika belum bayar, penerimaan harus Rp0. Jika lunas, isi nominal sebenarnya hingga sebesar hasil bruto.</p></div><div class="field"><label for="saleProof">Nomor nota / link bukti (opsional)</label><input id="saleProof" maxlength="500"></div><button type="submit" class="wide">Catat penjualan lapak</button></form><div id="saleNotice" role="status"></div></div>
-        <div id="pageRekonsiliasi" class="card hidden"><h2>Pratinjau rekonsiliasi</h2><div class="pill-note">Hanya perbandingan sementara. Belum membuat saldo tabungan, kas, atau pembagian hasil.</div><div class="field block-gap"><label for="reconBatch">Pilih batch</label><select id="reconBatch" onchange="loadRekonsiliasi()"><option value="">Pilih batch</option></select></div><div id="reconResult" class="block-gap">Pilih batch terlebih dahulu.</div></div>
-        <div id="pageMaster" class="card hidden"><div class="toolbar"><div><h2>Master jenis barang</h2><p class="section-caption">Harga lapak dan tarif setoran warga</p></div><button class="secondary" onclick="loadMaster()">Perbarui</button></div><div class="pill-note">Harga acuan lapak bukan tarif tabungan warga. Tetapkan <strong>Tarif Warga Aktif</strong> sebelum mulai mencatat setoran. Perubahan tarif tidak mengubah transaksi lama.</div><div id="masterList" class="tablewrap">Memuat...</div></div>
-        <div id="pageProgress" class="card hidden"><h2>Perkembangan Bank Sampah</h2><p class="section-caption">Kegiatan yang ditandai untuk tampil di portal utama</p><div id="progressList" class="block-gap">Memuat...</div></div>
-        <div id="pagePassword" class="card hidden"><h2>Ganti password</h2><p class="desc">Boleh diganti kapan saja. Minimal 4 karakter.</p><form onsubmit="doChangePassword(event)"><div class="field"><label for="oldPass">Password sekarang</label><input id="oldPass" type="password" required autocomplete="current-password"></div><div class="field"><label for="newPass">Password baru</label><input id="newPass" type="password" minlength="4" required autocomplete="new-password"></div><button type="submit">Simpan password baru</button></form></div>
-        <div id="pageAdmin" class="card hidden"><div class="toolbar"><div><h2>Kelola akun warga</h2><p class="desc" style="margin:0">Akun siap login tanpa aktivasi warga.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button id="bulkBtn" onclick="provisionAll()">Siapkan semua akun</button><button class="secondary" onclick="loadAccounts()">Muat ulang</button></div></div><div class="notice">Password awal: <strong>F4-</strong> diikuti nomor rumah tanpa pemisah, contoh <strong>F4-A524</strong>. Admin dapat mereset akun per warga. Berikan kredensial secara pribadi. Password awal yang mudah ditebak sebaiknya diganti untuk keamanan tabungan.</div><div id="bulkProgress" class="hint" role="status"></div><div id="accountList" class="tablewrap"></div></div>
-        <div id="dashNotice" role="status" aria-live="polite"></div>
-      </div></div>
-    </section>
-  </main><footer class="footer">Bank Sampah Flamboyan 4 • Bersama menjaga lingkungan</footer>
-  <div id="credentialModal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="credentialTitle" style="position:fixed;inset:0;background:#15251bcc;display:grid;place-items:center;padding:18px;z-index:50">
-    <div class="card" style="width:min(100%,420px);max-height:90vh;overflow:auto;box-shadow:0 16px 48px #18271a55"><h2 id="credentialTitle">Akun warga</h2><p class="desc">Salin informasi berikut dan berikan langsung kepada warga yang bersangkutan.</p><div class="stat"><small>Username</small><strong id="credUser"></strong></div><div class="stat" style="margin-top:9px"><small>Password awal</small><strong id="credPass"></strong></div><div style="display:flex;gap:8px;margin-top:18px"><button id="copyCred" onclick="copyCredential()">Salin akun</button><button class="secondary" onclick="closeCredential()">Tutup</button></div><p class="hint">Menutup popup akan menyembunyikan password dari layar.</p></div>
-  </div>
-</div>
+</script>
+<script id="f4-appsscript-compat">
+/* Adapter only. Every line of PortalAkun.html's original script remains unchanged below. */
+(()=>{
+  'use strict';
+  sessionStorage.removeItem('bs4_session');
+  const chain=(success,failure)=>new Proxy(Object.create(null),{
+    get(_target,prop){
+      if(prop==='withSuccessHandler')return fn=>chain(fn,failure);
+      if(prop==='withFailureHandler')return fn=>chain(success,fn);
+      if(typeof prop==='symbol')return undefined;
+      return(...args)=>{
+        Promise.resolve().then(()=>{
+          if(prop==='authLogout')return {ok:true};
+          if(prop==='authLogin')throw Error('Masuk melalui tombol LOGIN pada portal terpadu.');
+          if(prop==='authMe')throw Error('Gunakan sesi Cloudflare dari portal terpadu.');
+          if(typeof window.__f4BankDemoCall!=='function')throw Error('Koneksi Cloudflare belum tersedia.');
+          return window.__f4BankDemoCall(String(prop),args);
+        }).then(value=>success?.(value),error=>failure?.(error));
+      };
+    }
+  });
+  window.google=window.google||{};
+  window.google.script=window.google.script||{};
+  window.google.script.run=chain();
+})();
+</script>
 <script>
   'use strict';
   const $=id=>document.getElementById(id);
   let token=sessionStorage.getItem('bs4_session')||'',profile=null,accounts=[],currentCredential=null,setCatalog=[],setNonce='',saleCatalog=[],saleNonce='';
   function note(target,message,error=false){$(target).textContent=message||'';$(target).className=message?'notice'+(error?' error':''):'';}
-  function call(name,...args){return window.__f4BankDemoCall(name,args);}
+  function call(name,...args){return new Promise((resolve,reject)=>google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[name](...args));}
   function busy(form,active){form.querySelectorAll('button').forEach(b=>b.disabled=active);}
   function showAuth(){profile=null;token='';sessionStorage.removeItem('bs4_session');$('dashboardView').classList.add('hidden');$('authView').classList.remove('hidden');}
   function showDashboard(p){profile=p;$('authView').classList.add('hidden');$('dashboardView').classList.remove('hidden');$('greeting').textContent='Halo, '+p.nama;$('roleBadge').textContent=p.peran;$('pName').textContent=p.nama;$('pHome').textContent=p.rumah||'—';$('pId').textContent=p.wargaId||'Administrator';if(!$('navRiwayatJual')){const btn=document.createElement('button');btn.id='navRiwayatJual';btn.className='secondary';btn.textContent='Riwayat penjualan';btn.onclick=()=>goPage('riwayatJual');$('navPenjualan').after(btn);}v7EnsureSaleReason();v8Setup();v9Setup();v10Setup();v11Setup();$('v11Public').classList.add('hidden');['Admin','Master','Setoran','Riwayat','RiwayatJual','Penjualan','Rekonsiliasi','Pengesahan','Tabungan','Biaya','Laporan','Kegiatan','Dokumentasi','Inventaris'].forEach(id=>$('nav'+id).classList.toggle('hidden',p.peran!=='Admin'));goPage('dashboard');}
@@ -1582,14 +1338,6 @@
       const b=document.createElement('button');b.type='button';b.className='v16-item';b.dataset.group=g.id;b.append(v16Icon(g.icon),document.createTextNode(g.label));
       b.onclick=()=>{if(g.id==='public')v11ShowPublic();else goPage(g.tabs[0][0]);};list.appendChild(b);
     });
-    // Superadmin kembali ke empat menu pengelolaan; tidak menambah baris navigasi publik.
-    const isSuperadminManager=window.parent!==window&&window.parent.document?.body?.classList.contains('role-superadmin');
-    if(isSuperadminManager){
-      const back=document.createElement('button');back.type='button';back.className='v16-item f4-back-management';
-      back.textContent='← Menu Pengelolaan';
-      back.onclick=()=>window.parent.postMessage({type:'f4:manage-home'},location.origin);
-      list.appendChild(back);
-    }
     if(!$('v16Tabs')){
       const tabs=document.createElement('div');tabs.id='v16Tabs';tabs.className='v16-tabs hidden';
       const section=$('dashboardView').querySelector('.section');section.querySelector(':scope > .toolbar').after(tabs);
@@ -1604,8 +1352,8 @@
     const group=available.find(g=>g.tabs.some(t=>t[0]===page));
     document.querySelectorAll('#v16NavList .v16-item').forEach(b=>b.classList.toggle('active',!!group&&b.dataset.group===group.id));
     tabs.replaceChildren();
-    const groupTabs=group?.tabs.filter(([name])=>!(name==='admin'&&window.parent!==window&&window.parent.document?.body?.classList.contains('role-superadmin')))||[];
-    if(!group||groupTabs.length<2){tabs.classList.add('hidden');return;}    groupTabs.forEach(([name,label])=>{
+    if(!group||group.tabs.length<2){tabs.classList.add('hidden');return;}
+    group.tabs.forEach(([name,label])=>{
       const b=document.createElement('button');b.type='button';b.textContent=label;
       b.className=name===page?'active':'';b.onclick=()=>goPage(name);tabs.appendChild(b);
     });
@@ -2557,46 +2305,59 @@
   v25PrintReport=function(){v29OldPublicPrint();const root=$('v27PrintReport');if(root){const title=root.querySelector('h1');if(title)title.replaceWith(v29Kop());}};
   v29SetupAudit();
 </script>
-<script>
- let f4AccountRole='public';
- let f4AccountIdentity={};
- function f4ApplyAccountRole(role,identity){
-   f4AccountRole=role;f4AccountIdentity=identity||{};
-   if(role==='public'){profile=null;token='';v11ShowPublic();return}
-   token='cloudflare-session-readonly';
-   const id=f4AccountIdentity;
-   const p={nama:id.nama||'Akun aktif',peran:role==='warga'?'Warga':'Admin',rumah:id.rumah||'',wargaId:id.wargaId||''};
-   showDashboard(p);
-   v16BuildNav();
- }
- window.addEventListener('message',function(event){
-   if(event.origin!==location.origin||event.source!==window.parent||event.data?.type!=='f4:demo-role')return;
-   try{f4ApplyAccountRole(event.data.role,event.data.identity)}
-   catch(e){window.__f4DemoNotify?.('Menu akun Bank Sampah: '+e.message)}
- });
- // Semua tombol login portal mengarah ke akses akun terpadu, tanpa menulis sesi lokal.
-  try{v11ShowLogin=function(){window.parent.postMessage({type:'f4:show-login'},location.origin)}}catch(e){}
-  window.f4ToggleBankMenu=function(){
-   if(document.body.classList.contains('v17-dashboard')){toggleMenu();return}
-   v18TogglePublic();
- };
- window.addEventListener('message',event=>{
-  if(event.origin!==location.origin||event.source!==window.parent||event.data?.type!=='f4:open-bank-admin')return;
-  const roleReady=profile?.peran==='Admin';
-  const show=()=>{
-    if(profile?.peran!=='Admin' && (f4AccountRole==='superadmin'||f4AccountRole==='admin'))
-      f4ApplyAccountRole(f4AccountRole,f4AccountIdentity);
-    if(profile?.peran!=='Admin')return;
-    const section=String(event.data.section||'dashboard');
-    const allowed=new Set(['dashboard','setoran','riwayat','penjualan','riwayatJual','rekonsiliasi','pengesahan','tabungan','biaya','laporan','kegiatan','dokumentasi','inventaris','master','admin','progress']);
-    try{
-      v16BuildNav();
-      goPage(allowed.has(section)?section:'dashboard');
-    }catch(e){window.__f4DemoNotify?.('Navigasi Bank Sampah: '+e.message)}
+<script id="f4-original-bank-host">
+/* Only portal integration: no replacement UI, fields, CSS, or Bank Sampah original functions. */
+(()=>{
+  'use strict';
+  const inPortal=window.parent!==window;
+  let currentRole='public',identity={},pendingSection='';
+  const invokeLogin=()=>{
+    if(inPortal)window.parent.postMessage({type:'f4:show-login'},location.origin);
+    else document.getElementById('authView')?.classList.remove('hidden');
   };
-  if(roleReady)show();
-  else setTimeout(show,100);
- });
- window.parent.postMessage({type:'f4:ready',portal:'bank-sampah'},location.origin);
- </script></body>
+  if(inPortal){
+    v11ShowLogin=invokeLogin;
+    doLogout=()=>{
+      const button=window.parent.document?.querySelector('[data-account-action="logout"]');
+      if(button)button.click();
+      else window.parent.postMessage({type:'f4:logout-request'},location.origin);
+    };
+  }
+  function activate(role,account){
+    currentRole=role||'public';identity=account||{};
+    if(currentRole==='public'){
+      token='';profile=null;
+      v11ShowPublic();
+      return;
+    }
+    token='cloudflare-session-readonly';
+    const p={
+      nama:identity.nama||'Akun aktif',
+      peran:currentRole==='warga'||currentRole==='anggota'?'Warga':'Admin',
+      rumah:identity.rumah||'',wargaId:identity.wargaId||''
+    };
+    showDashboard(p);
+    if(pendingSection){const page=pendingSection;pendingSection='';openAdmin(page);}
+  }
+  function openAdmin(section){
+    if(!['admin','superadmin'].includes(currentRole))return;
+    const allowed=['dashboard','setoran','riwayat','penjualan','riwayatJual','rekonsiliasi','pengesahan','tabungan','biaya','laporan','kegiatan','dokumentasi','inventaris','master','admin','progress'];
+    const target=allowed.includes(section)?section:'dashboard';
+    if(!profile){pendingSection=target;return;}
+    goPage(target);
+  }
+  window.addEventListener('message',event=>{
+    if(!inPortal||event.origin!==location.origin||event.source!==window.parent)return;
+    if(event.data?.type==='f4:demo-role')activate(event.data.role,event.data.identity);
+    if(event.data?.type==='f4:open-bank-admin')openAdmin(String(event.data.section||'dashboard'));
+  });
+  window.f4ToggleBankMenu=()=>{
+    if(document.getElementById('dashboardView')?.classList.contains('hidden')) {
+      if(typeof v18TogglePublic==='function')v18TogglePublic();
+    } else toggleMenu();
+  };
+  if(inPortal)window.parent.postMessage({type:'f4:ready',portal:'bank-sampah'},location.origin);
+})();
+</script>
+</body>
 </html>
