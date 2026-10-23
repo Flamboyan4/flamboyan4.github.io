@@ -840,7 +840,7 @@
   bsV17GrafikPublik:publicChart,
   bsV22AlbumIndexPublik:albumList,
   bsV21IsiAlbumPublik:publicAlbumDetail,
-  bsDashboardProgressPublik:adminProgress,
+  bsDashboardProgressPublik:async()=>progress((await publicData()).progress),
   bsV10PengeluaranAdmin:adminExpenses,
   bsV9SaldoAdmin:adminSavings,
   bsV22AlbumAdmin:adminAlbums,
