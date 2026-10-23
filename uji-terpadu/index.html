@@ -1100,4 +1100,16 @@ body.bank-mode #profile-shade .f4-eye-toggle{background:transparent!important;ba
  new MutationObserver(enhance).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
-</body></html>
+<script id="f4-management-layout-sync">
+(()=>{
+ const workspace=document.getElementById('f4-account-page');
+ const residents=document.getElementById('f4-warga-panel');
+ if(!workspace)return;
+ const sync=()=>document.body.classList.toggle('f4-management-active',
+   !workspace.hidden||(residents&&!residents.hidden));
+ const observer=new MutationObserver(sync);
+ observer.observe(workspace,{attributes:true,attributeFilter:['hidden']});
+ if(residents)observer.observe(residents,{attributes:true,attributeFilter:['hidden']});
+ sync();
+})();
+</script></body></html>
