@@ -511,6 +511,19 @@
     #v27PrintReport .v27-print-sign strong{display:block;margin-top:46px}
   }
 </style>
+<style id="f4-bank-embedded-utility-layout">
+/* Only when embedded in Uji Terpadu: utility bar belongs to parent. */
+body.f4-embedded-bank #sideNav #v15Footer{display:none!important}
+body.f4-embedded-bank #dashboardView .section{padding-top:70px!important}
+body.f4-embedded-bank #v11Public{padding-top:68px!important}
+body.f4-embedded-bank #v17PublicAccount{display:none!important}
+@media(max-width:720px){
+ body.f4-embedded-bank #dashboardView .section{padding-top:12px!important}
+ body.f4-embedded-bank #dashboardView .mobile-nav{margin-top:57px!important}
+ body.f4-embedded-bank #v11Public{padding-top:62px!important}
+}
+@media print{body.f4-embedded-bank #dashboardView .section,body.f4-embedded-bank #v11Public{padding-top:0!important}}
+</style>
 </head>
 <body>
 <div class="shell">
@@ -2310,12 +2323,25 @@
 (()=>{
   'use strict';
   const inPortal=window.parent!==window;
-  let currentRole='public',identity={},pendingSection='',lastAdminSection='';
+  let currentRole='public',identity={},pendingSection='',lastAdminSection='',pendingProfile=false;
+  const accountGroup=v16Groups.find(group=>group.id==='settings');
+  const originalAccountTabs=accountGroup?accountGroup.tabs.slice():[];
+  function syncAccountTabs(){
+    if(accountGroup)accountGroup.tabs=currentRole==='superadmin'
+      ?originalAccountTabs.filter(([key])=>key!=='admin')
+      :originalAccountTabs.slice();
+  }
+  function openOriginalProfile(){
+    if(currentRole==='public'||!profile){pendingProfile=true;return;}
+    pendingProfile=false;
+    goPage('profile');
+  }
   const invokeLogin=()=>{
     if(inPortal)window.parent.postMessage({type:'f4:show-login'},location.origin);
     else document.getElementById('authView')?.classList.remove('hidden');
   };
   if(inPortal){
+    document.body.classList.add('f4-embedded-bank');
     // Apps Script's <base target="_top"> redirects original anchor tabs out of
     // an iframe. Keep original #v17... links in this Bank Sampah document.
     const base=document.querySelector('base[target="_top"]');
@@ -2328,7 +2354,14 @@
     };
   }
   function activate(role,account){
+    const matching=profile&&currentRole===role;
     currentRole=role||'public';identity=account||{};
+    syncAccountTabs();
+    if(matching&&currentRole!=='public'){
+      if(pendingProfile)openOriginalProfile();
+      else if(pendingSection){const page=pendingSection;pendingSection='';openAdmin(page);}
+      return;
+    }
     if(currentRole==='public'){
       token='';profile=null;
       v11ShowPublic();
@@ -2354,6 +2387,7 @@
     }
     const requested=pendingSection||lastAdminSection;
     pendingSection='';
+    if(pendingProfile){openOriginalProfile();return;}
     if(requested&&['admin','superadmin'].includes(currentRole))openAdmin(requested);
   }
   function openAdmin(section){
@@ -2370,13 +2404,21 @@
     if(!inPortal||event.origin!==location.origin||event.source!==window.parent)return;
     if(event.data?.type==='f4:demo-role')activate(event.data.role,event.data.identity);
     if(event.data?.type==='f4:open-bank-admin')openAdmin(String(event.data.section||'dashboard'));
+    if(event.data?.type==='f4:open-bank-profile')openOriginalProfile();
   });
   window.f4ToggleBankMenu=()=>{
     if(document.getElementById('dashboardView')?.classList.contains('hidden')) {
       if(typeof v18TogglePublic==='function')v18TogglePublic();
     } else toggleMenu();
   };
-  if(inPortal)window.parent.postMessage({type:'f4:ready',portal:'bank-sampah'},location.origin);
+  if(inPortal){
+    const photoStatus=document.getElementById('v15PhotoStatus');
+    if(photoStatus)new MutationObserver(()=>{
+      if(/berhasil disimpan/i.test(photoStatus.textContent||''))
+        window.parent.postMessage({type:'f4:bank-avatar-updated'},location.origin);
+    }).observe(photoStatus,{childList:true,subtree:true,characterData:true});
+    window.parent.postMessage({type:'f4:ready',portal:'bank-sampah'},location.origin);
+  }
 })();
 </script>
 </body>
