@@ -520,7 +520,7 @@ body.f4-management-active #f4-account-page .f4-work-heading{scroll-margin-top:80
 <div id="toast" class="toast" hidden role="status"></div>
 <script>
 (()=>{
- const apps={portal:'./portal/?v=superadmin-20261023-v3',rapat:'./rapat/?v=d1-meetings-20261023',dokumentasi:'./dokumentasi/',inventaris:'./dokumentasi/#inventaris','bank-sampah':'./bank-sampah/?v=all-sections-clear-79d9a73',pembukuan:'./pembukuan/?v=laporan-rt-riwayat-23okt-v2'};
+ const apps={portal:'./portal/?v=superadmin-20261023-v3',rapat:'./rapat/?v=d1-meetings-20261023',dokumentasi:'./dokumentasi/',inventaris:'./dokumentasi/#inventaris','bank-sampah':'./bank-sampah/?v=account-flow-074e422',pembukuan:'./pembukuan/?v=laporan-rt-riwayat-23okt-v2'};
 
  const buttons=[...document.querySelectorAll('nav [data-target]')],frame=document.getElementById('appframe'),
  gate=document.getElementById('gate'),toast=document.getElementById('toast');
@@ -988,7 +988,7 @@ body.book-mode #f4-account-page{background:#fff8f0}body.book-mode #f4-account-pa
  document.getElementById('f4-account-page-settings').onclick=()=>{page.hidden=true;document.querySelector('[data-account-action="settings"]')?.click()};
  document.getElementById('f4-account-page-home').onclick=()=>window.openAccountPage();
 })();
-</script><script src="./account-workspace.js?v=20261023-bank-v1"></script>
+</script><script src="./account-workspace.js?v=bank-member-original-6e83c9"></script>
 <script src="./superadmin-editor.js?v=20261023-sidebar-af4b42a"></script>
 <style id="f4-account-theme-final-20261023">
 /* Mengunci tema ke warna asli HTML Pembukuan (ungu), bukan oranye. */
@@ -1032,9 +1032,11 @@ body.book-mode #profile-shade .login-confirm{background:#7c3aed!important}
   if(e.origin===location.origin&&e.source===frame.contentWindow&&e.data?.type==='f4:manage-home')window.openManagementHub?.();
  });
  window.addEventListener('message',e=>{
-  if(e.origin!==location.origin||e.source!==frame.contentWindow||e.data?.type!=='f4:ready'||e.data?.portal!=='bank-sampah'||!wanted)return;
-  const section=wanted;wanted=null;
-  frame.contentWindow.postMessage({type:'f4:open-bank-admin',section},location.origin);
+  if(e.origin!==location.origin||e.source!==frame.contentWindow)return;
+  if(e.data?.type==='f4:bank-admin-opened'&&e.data.section===wanted){wanted=null;return;}
+  if(e.data?.type!=='f4:ready'||e.data.portal!=='bank-sampah'||!wanted)return;
+  // Keep intent until the Bank Sampah page confirms it actually opened.
+  frame.contentWindow.postMessage({type:'f4:open-bank-admin',section:wanted},location.origin);
  });
 })();
 </script><style id="f4-four-management-menu-theme">
