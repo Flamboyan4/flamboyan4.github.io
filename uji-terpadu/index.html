@@ -994,4 +994,31 @@ body.f4-manage-book #f4-warga-panel .f4-warga-sidebar button.active,body.f4-mana
 .f4-password-feedback{font:500 12px system-ui;color:var(--work-accent);margin:8px 0}
 </style>
 <script src="./management-hub.js?v=20261023-menu-v3"></script>
+<style id="f4-password-eyes-style">
+.f4-password-field{position:relative;display:block;width:100%}
+.f4-password-field input{width:100%!important;padding-right:105px!important;box-sizing:border-box}
+.f4-eye-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0!important;background:transparent!important;color:#32664b!important;padding:7px!important;font:600 12px system-ui!important;cursor:pointer!important}
+#f4-password-form label{display:block;margin:12px 0;color:#334d3d;font:600 13px system-ui}
+#f4-password-form input{display:block;padding:12px;border:1px solid #cad9d0;border-radius:10px;background:#fff;color:#263b31}
+#f4-password-form .login-confirm{margin-top:12px}
+</style>
+<script id="f4-password-visibility">
+(()=>{
+ function enhance(){
+  document.querySelectorAll('input[type="password"]').forEach(input=>{
+   if(input.dataset.f4Visibility)return;
+   input.dataset.f4Visibility='1';
+   const wrap=document.createElement('span');wrap.className='f4-password-field';
+   input.parentNode.insertBefore(wrap,input);wrap.appendChild(input);
+   const eye=document.createElement('button');eye.type='button';eye.className='f4-eye-toggle';
+   eye.textContent='Tampilkan';eye.setAttribute('aria-label','Tampilkan password');
+   eye.setAttribute('aria-pressed','false');
+   eye.onclick=()=>{const visible=input.type==='text';input.type=visible?'password':'text';eye.textContent=visible?'Tampilkan':'Sembunyikan';eye.setAttribute('aria-label',eye.textContent+' password');eye.setAttribute('aria-pressed',String(!visible))};
+   wrap.appendChild(eye);
+  });
+ }
+ enhance();
+ new MutationObserver(enhance).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
 </body></html>
