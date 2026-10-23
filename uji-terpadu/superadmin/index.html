@@ -91,7 +91,47 @@ html body #f4-account-page aside .f4-sa-brand strong{padding:0!important}
  }
  html body #f4-account-page>aside button{width:auto!important;min-width:130px!important;flex:none!important;text-align:center!important}
  html body #f4-account-page>main{padding:18px 12px 28px!important;overflow:auto!important}
-}</style>
+}
+/* Five root menus stay left; only the selected group's submenus become tabs. */
+html body #f4-account-page>aside{overflow-x:hidden!important}
+#f4-account-page .sa-tabbar{
+ position:sticky;top:56px;z-index:3;display:flex;align-items:center;gap:7px;
+ padding:10px 1px 12px;margin:-4px 0 16px;background:#eff5f8;
+ overflow-x:auto;overflow-y:hidden;white-space:nowrap;scrollbar-width:thin;
+ scroll-behavior:smooth;overscroll-behavior-x:contain;
+ border-bottom:1px solid var(--edge);
+}
+#f4-account-page .sa-tabbar button{
+ flex:none;min-height:39px;padding:9px 15px;border:1px solid #d4e3ed;
+ border-radius:10px;background:white;color:#28516d;font-size:12px;font-weight:750;
+ transition:background-color .16s ease,border-color .16s ease,color .16s ease,box-shadow .16s ease;
+}
+#f4-account-page .sa-tabbar button:hover{background:#e6f1f9;border-color:#abcce4}
+#f4-account-page .sa-tabbar button[aria-selected="true"]{
+ background:#2d6593;color:#fff;border-color:#2d6593;box-shadow:0 2px 6px #27496419
+}
+#f4-account-page .sa-tabbar button:focus-visible{outline:2px solid #256fac;outline-offset:2px}
+@keyframes f4SaContentIn{from{opacity:.35;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+#f4-account-page>main>.f4-work-heading,
+#f4-account-page>main>.sa-section,
+#f4-account-page>main>.sa-grid,
+#f4-account-page>main>.sa-controls,
+#f4-account-page>main>.f4-admin-controls,
+#f4-account-page>main>.f4-admin-list,
+#f4-account-page>main>.f4-admin-editor,
+#f4-account-page>main>.f4-work-section{
+ animation:f4SaContentIn .18s ease-out both
+}
+@media(max-width:760px){
+ #f4-account-page .sa-tabbar{position:sticky;top:0;margin:0 0 14px;padding:8px 0 10px}
+ #f4-account-page .sa-tabbar button{min-height:38px;padding:8px 12px}
+}
+@media(prefers-reduced-motion:reduce){
+ #f4-account-page .sa-tabbar{scroll-behavior:auto}
+ #f4-account-page .sa-tabbar button{transition:none}
+ #f4-account-page>main>*{animation:none!important}
+}
+</style>
 </head>
 <body>
 <div id="guard" role="status"><h2>Memeriksa akses Superadmin…</h2><p>Portal ini hanya untuk akun dengan role Superadmin.</p></div>
@@ -109,7 +149,12 @@ const submenu={
 let role='public',group='overview',active='',accounts=[],accountSearch='',residentRows=[];
 const el=(tag,text,cls)=>{const v=document.createElement(tag);if(text!==undefined)v.textContent=String(text);if(cls)v.className=cls;return v};
 const button=(label,on,cls)=>{const b=el('button',label,cls);b.type='button';b.onclick=on;return b};
-const title=(name,desc)=>{main.replaceChildren();const h=el('header',undefined,'f4-work-heading');h.append(el('h2',name),el('p',desc));main.append(h)};
+const title=(name,desc)=>{
+ main.replaceChildren();
+ const h=el('header',undefined,'f4-work-heading');
+ h.append(el('h2',name),el('p',desc));main.append(h);
+ renderTabs();
+};
 const section=(label)=>{const s=el('section',undefined,'sa-section');s.append(el('h3',label));main.append(s);return s};
 const value=(o,keys)=>{for(const k of keys)if(o&&o[k]!==undefined&&o[k]!==null)return String(o[k]);return ''};
 const rows=(o)=>Array.isArray(o)?o:Array.isArray(o?.rows)?o.rows:Array.isArray(o?.data)?o.data:Array.isArray(o?.accounts)?o.accounts:Array.isArray(o?.akun)?o.akun:[];
@@ -122,40 +167,69 @@ function sidebar(g=group){
  const text=el('span');text.append(el('strong','Flamboyan 4'),el('small','Portal Superadmin'));brand.append(img,text);side.append(brand);
  side.append(el('strong','MENU SUPERADMIN','f4-sa-label'));
  for(const [key,label] of groups)side.append(button(label,()=>open(key),g===key?'active':''));
- if(submenu[g]){
-  side.append(el('strong',g==='content'?'KONTEN & PUBLIKASI':'DATA ACUAN','f4-sa-label f4-sa-subtitle'));
-  for(const [key,label] of submenu[g])side.append(button(label,()=>openEditor(key),active===key?'active':''));
- }
 }
+function renderTabs(){
+ const current=submenu[group];
+ if(!current||!active||!current.some(([key])=>key===active))return;
+ main.querySelector('.sa-tabbar')?.remove();
+ const tabs=el('nav',undefined,'sa-tabbar');
+ tabs.setAttribute('role','tablist');
+ tabs.setAttribute('aria-label',group==='content'?'Submenu Konten & Publikasi':'Submenu Data Acuan');
+ for(const [key,label] of current){
+  const tab=button(label,()=>openEditor(key));
+  tab.setAttribute('role','tab');
+  tab.setAttribute('aria-selected',String(active===key));
+  tab.tabIndex=active===key?0:-1;
+  tab.addEventListener('keydown',event=>{
+   if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+   event.preventDefault();
+   const options=[...tabs.querySelectorAll('[role="tab"]')];
+   const index=options.indexOf(tab);
+   const next=event.key==='Home'?0:event.key==='End'?options.length-1:
+     (index+(event.key==='ArrowRight'?1:-1)+options.length)%options.length;
+   options[next]?.click();
+   main.querySelectorAll('.sa-tabbar [role="tab"]')[next]?.focus({preventScroll:true});
+  });
+  tabs.append(tab);
+ }
+ main.querySelector('.f4-work-heading')?.after(tabs);
+}
+window.f4SuperadminRenderTabs=renderTabs;
 window.f4RenderManagementSidebar=(origin)=>{
  const g=origin==='portal'?'content':origin==='book'?'masters':group;
  sidebar(g);
 };
 function open(name,push=true){
- if(role!=='superadmin')return;
+ if(role!=='superadmin'||!groups.some(([key])=>key===name))return;
+ window.f4CancelSuperadminEditor?.();
  active='';sidebar(name);
  if(push){const fragment='sa-'+name;window.parent!==window
   ?window.parent.postMessage({type:'f4:superadmin-section',section:name},location.origin)
   :history.replaceState(null,'','#'+fragment);}
  if(name==='overview')overview();
  if(name==='accounts')accountsPage();
- if(name==='content')groupPage('Konten & Publikasi','Kelola konten dan publikasi kedua portal',submenu.content);
- if(name==='masters')groupPage('Data Acuan','Satu sumber data induk untuk semua modul',submenu.masters);
+ if(name==='content'||name==='masters'){
+   openEditor(submenu[name][0][0]);
+   return;
+ }
  if(name==='audit')auditPage();
-}
-function groupPage(name,desc,items){
- title(name,desc);const s=section('Pilih modul');
- const grid=el('div',undefined,'sa-list');for(const [key,label] of items){
- const item=el('div',undefined,'sa-item');item.append(el('strong',label),button('Buka',()=>openEditor(key),'sa-action'));grid.append(item);
- }s.append(grid);
 }
 function openEditor(kind){
  if(role!=='superadmin')return;
- active=kind;group=['projects','agenda','documentation','inventory','banners','meetings'].includes(kind)?'content':'masters';
+ const target=Object.entries(submenu).find(([,items])=>items.some(([key])=>key===kind));
+ if(!target)return;
+ const switched=active!==kind;
+ active=kind;group=target[0];
  sidebar(group);
- if(kind==='residents')return window.openWarga();
- if(kind==='bankcatalog')return catalogPage();
- if(typeof window.openSuperadminEditor==='function')window.openSuperadminEditor(kind);
+ if(kind==='residents'||kind==='bankcatalog')window.f4CancelSuperadminEditor?.();
+ if(kind==='residents')window.openWarga();
+ else if(kind==='bankcatalog')catalogPage();
+ else if(typeof window.openSuperadminEditor==='function')window.openSuperadminEditor(kind);
+ else title('Memuat Modul','Editor sedang disiapkan…');
+ if(switched){
+  const smooth=matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';
+  main.scrollTo?.({top:0,behavior:smooth});
+ }
 }
 function overview(){
  title('Pusat Pengelolaan','Semua pengaturan lintas portal • Akun Superadmin');
