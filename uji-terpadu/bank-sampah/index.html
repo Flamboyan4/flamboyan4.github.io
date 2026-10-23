@@ -581,6 +581,22 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
 </style><style id="f4-bank-gallery-svg">
 .v21-close,.v21-arrow,.v21-back{display:inline-flex!important;justify-content:center!important;align-items:center!important;text-align:center!important;line-height:0!important;padding:0!important}
 .v21-close svg,.v21-arrow svg,.v21-back svg{display:block!important;flex:none!important;pointer-events:none!important;margin:0!important}
+</style><style id="f4-print-white-data-rows">
+@media print{
+ /* Isi laporan selalu putih; hijau hanya pada header dan garis seperlunya. */
+ #v10Print tbody,#v10Print tbody tr,#v10Print tbody td,
+ #v27PrintReport tbody,#v27PrintReport tbody tr,#v27PrintReport tbody td,
+ #v10Print tr:nth-child(even) td,#v27PrintReport tr:nth-child(even) td{
+   background:#fff!important;background-color:#fff!important;
+   color:#172a1d!important;
+   -webkit-print-color-adjust:exact!important;print-color-adjust:exact!important
+ }
+ #v10Print thead th,#v27PrintReport thead th{
+   background:#eaf2eb!important;color:#234431!important;
+   -webkit-print-color-adjust:exact!important;print-color-adjust:exact!important
+ }
+ #v10Print tbody td,#v27PrintReport tbody td{border-color:#dae4dc!important}
+}
 </style></head>
 <body>
 <div class="shell">
