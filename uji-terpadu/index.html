@@ -565,7 +565,7 @@ body.superadmin-mode .notice{display:none!important}
  // Perubahan URL/pemilih menu tidak memberi akses Pembukuan tanpa role superadmin.
  function refreshIdentity(){
   const signed=role!=='public';
-  const financeMenu=document.querySelector('[data-portal-menu="keuangan"]');if(financeMenu)financeMenu.hidden=!signed;
+  const financeMenu=document.querySelector('[data-portal-menu="keuangan"]');if(financeMenu)financeMenu.hidden=false;
   document.body.classList.toggle('role-superadmin',role==='superadmin');
   document.body.classList.toggle('role-warga',role==='warga');
   document.body.classList.toggle('role-admin',role==='admin');
@@ -826,8 +826,7 @@ body.superadmin-mode .notice{display:none!important}
  document.querySelectorAll('[data-portal-menu]').forEach(button=>button.addEventListener('click',()=>{
   setMobileMenu(false);
   const item=button.dataset.portalMenu;
-  if(['rapat','dokumentasi','inventaris'].includes(item)){update(item);return}
-  if(item==='keuangan'&&role==='public'){showLogin();return}
+  if(['rapat','dokumentasi'].includes(item)){update(item);return}
   activePortalPanel=item;
   const show=()=>{
     if(selected!=='portal')return;
@@ -840,7 +839,7 @@ body.superadmin-mode .notice{display:none!important}
   else show();
  }));
   buttons.forEach(b=>b.addEventListener('click',()=>update(b.dataset.target)));
- frame.addEventListener('load',()=>{sendRole();attachScrollListener();observeOriginalDialogs();dispatchBankProfile();if(selected==='portal')try{frame.contentWindow?.f4PortalSelectPanel?.(activePortalPanel)}catch{}});
+ frame.addEventListener('load',()=>{sendRole();attachScrollListener();observeOriginalDialogs();dispatchBankProfile();if(selected==='portal'&&activePortalPanel!=='beranda')try{frame.contentWindow?.f4PortalSelectPanel?.(activePortalPanel)}catch{}});
  window.addEventListener('message',e=>{
   if(e.origin!==location.origin||!e.data)return;
   if(e.data.type==='f4:ready'){
@@ -860,10 +859,15 @@ body.superadmin-mode .notice{display:none!important}
       history.replaceState(null,'','#superadmin/'+section);
   }
   if(e.data.type==='f4:bank-modal'&&selected==='bank-sampah'&&e.source===frame.contentWindow){toolbar.classList.toggle('modal-covered',e.data.open===true);}
-  if(e.data.type==='f4:section'&&['dokumentasi','inventaris'].includes(e.data.target)){
+  if(e.data.type==='f4:section'&&e.data.target==='dokumentasi'){
     selected=e.data.target;
     document.querySelectorAll('[data-portal-menu]').forEach(el=>el.classList.toggle('active',el.dataset.portalMenu===selected));
     history.replaceState(null,'','#'+selected);
+  }
+  if(e.source===frame.contentWindow&&selected==='portal'&&e.data.type==='f4:portal-visible-panel'){
+    const visible=String(e.data.panel||'beranda');
+    activePortalPanel=visible;
+    document.querySelectorAll('[data-portal-menu]').forEach(button=>button.classList.toggle('active',button.dataset.portalMenu===visible));
   }
   if(e.data.type==='f4:show-login')showLogin();
   
