@@ -843,11 +843,19 @@ body.superadmin-mode .notice{display:none!important}
   if(e.data.type==='f4:ready'){
    sendRole();
    if(e.source===frame.contentWindow&&e.data.portal==='bank-sampah')dispatchBankProfile();
+   if(e.source===frame.contentWindow&&e.data.portal==='superadmin'){
+     const section=location.hash.match(/^#superadmin\/(overview|accounts|content|masters|audit)$/)?.[1];
+     if(section)frame.contentWindow?.postMessage({type:'f4:superadmin-open-section',section},location.origin);
+   }
   }
   if(e.source===frame.contentWindow&&e.data.type==='f4:bank-profile-opened')bankProfileIntent=false;
   if(e.data.type==='f4:bank-avatar-updated'&&e.source===frame.contentWindow)updateAvatar();
   if(e.source===frame.contentWindow&&e.data.type==='f4:go-portal'&&apps[e.data.portal])update(e.data.portal);
-  if(e.source===frame.contentWindow&&e.data.type==='f4:superadmin-section'&&selected==='superadmin')history.replaceState(null,'','#superadmin');
+  if(e.source===frame.contentWindow&&e.data.type==='f4:superadmin-section'&&selected==='superadmin'){
+    const section=String(e.data.section||'');
+    if(['overview','accounts','content','masters','audit'].includes(section))
+      history.replaceState(null,'','#superadmin/'+section);
+  }
   if(e.data.type==='f4:bank-modal'&&selected==='bank-sampah'&&e.source===frame.contentWindow){toolbar.classList.toggle('modal-covered',e.data.open===true);}
   if(e.data.type==='f4:section'&&['dokumentasi','inventaris'].includes(e.data.target)){
     selected=e.data.target;
@@ -866,13 +874,22 @@ body.superadmin-mode .notice{display:none!important}
  });
  document.addEventListener('keydown',e=>{if(e.key==='Escape'){menu.hidden=true;loginShade.hidden=true;profileShade.hidden=true}});
  refreshIdentity();
- const requested=location.hash.slice(1);window.__f4IntentAccount=requested==='akun';selected=Object.hasOwn(apps,requested)?requested:'portal';
+ const requested=location.hash.slice(1);
+ window.__f4IntentAccount=requested==='akun';
+ const portalRequested=requested.split('/')[0];
+ selected=Object.hasOwn(apps,portalRequested)?portalRequested:'portal';
  update(selected);refreshSession();
  // A same-page link such as /uji-terpadu/#bank-sampah must actually switch
  // the iframe and dismiss any management overlay, not just update the URL.
  window.addEventListener('hashchange',()=>{
    const target=location.hash.slice(1);
-   if(Object.hasOwn(apps,target)&&target!==selected)update(target);
+   const portal=target.split('/')[0];
+   if(Object.hasOwn(apps,portal)&&portal!==selected)update(portal);
+   else if(portal==='superadmin'&&selected==='superadmin'){
+     const section=target.split('/')[1];
+     if(['overview','accounts','content','masters','audit'].includes(section))
+       frame.contentWindow?.postMessage({type:'f4:superadmin-open-section',section},location.origin);
+   }
  });
 })();
 </script><div id="f4-warga-panel" hidden aria-modal="true" role="dialog" aria-label="Data Warga dan Rumah">
