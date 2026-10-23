@@ -957,6 +957,9 @@ body.book-mode #profile-shade .login-confirm{background:#7c3aed!important}
   });
  };
  window.addEventListener('message',e=>{
+  if(e.origin===location.origin&&e.source===frame.contentWindow&&e.data?.type==='f4:manage-home')window.openManagementHub?.();
+ });
+ window.addEventListener('message',e=>{
   if(e.origin!==location.origin||e.source!==frame.contentWindow||e.data?.type!=='f4:ready'||e.data?.portal!=='bank-sampah'||!wanted)return;
   const section=wanted;wanted=null;
   frame.contentWindow.postMessage({type:'f4:open-bank-admin',section},location.origin);
