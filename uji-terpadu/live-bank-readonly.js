@@ -269,6 +269,7 @@
   // Other legacy read flows are not yet mapped. Do not silently fake balances or writes.
   if(name.startsWith('bs')&&/Tambah|Simpan|Hapus|Batalkan|Update|Bayar|Posting|Setujui|Ubah|Tutup/i.test(name))
    return Promise.reject(Error('Penyimpanan belum diaktifkan. Perlu endpoint Worker yang tervalidasi.'));
-  return original(name,args);
+  // Jangan pernah menggunakan fallback data simulasi dari versi prototipe sebagai transaksi resmi.
+  return Promise.reject(Error('Fungsi '+name+' dari Bank Sampah asli belum memiliki endpoint Cloudflare yang terhubung. Tidak ada data yang diubah.'));
  };
 })();
