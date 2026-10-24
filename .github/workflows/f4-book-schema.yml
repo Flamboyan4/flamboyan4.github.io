@@ -31,7 +31,9 @@ jobs:
           db=next(x for x in out["result"] if x["name"]=="flamboyan4-staging")
           names=["bookkeeping_payers","bookkeeping_payer_iuran_obligations","bookkeeping_payments",
           "bookkeeping_payment_allocations","bookkeeping_payment_request_keys","bookkeeping_cash_transactions",
-          "bookkeeping_contribution_tariffs","bookkeeping_year_archives","fiscal_closings"]
+          "bookkeeping_contribution_tariffs","bookkeeping_year_archives","fiscal_closings",
+          "bookkeeping_fines","bookkeeping_fine_payments","bookkeeping_loans","bookkeeping_loan_repayments",
+          "bookkeeping_dp_cash_links","bookkeeping_dp_request_ledger"]
           select="SELECT name,sql FROM sqlite_master WHERE type='table' AND name IN ("+','.join("'"+x+"'" for x in names)+")"
           rows=query("/d1/database/"+db["uuid"]+"/query",select)
           p=Path("ops-audit/finance-schema.json");p.parent.mkdir(exist_ok=True)
