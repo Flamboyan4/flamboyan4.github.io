@@ -71,7 +71,31 @@ try:
     ddl_tables=re.findall(r"CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?[\"`\[]?([A-Za-z0-9_]+)",sqltext,re.I)
     result["export_meta"]={"sql_bytes":len(sqltext),"table_ddls":len(ddl_tables),"has_cash_create":bool(re.search(r"CREATE\s+TABLE[^;]*bookkeeping_cash_transactions",sqltext,re.I)),"cash_refs":sqltext.lower().count("bookkeeping_cash_transactions")}
     save()
-    run([WRANGLER,"d1","execute","flamboyan4-staging","--local","--config",str(CONFIG),"--file",str(DUMP),"--persist-to",str(LOCAL),"--yes"],timeout=180)
+    # Cloudflare export may order child-table INSERT before parent CREATE TABLE.
+    # Reorder statements only in this ephemeral local copy; never modify remote.
+    statements=[];buffer=""
+    for line in sqltext.splitlines(keepends=True):
+        buffer+=line
+        if sqlite3.complete_statement(buffer):
+            statements.append(buffer)
+            buffer=""
+    if buffer.strip():raise ValueError("Unterminated SQL export statement")
+    def identify(st):
+        stripped=re.sub(r"(?m)^\\s*--[^\\n]*\\n","",st).strip()
+        return stripped.upper().lstrip()
+    schema=[];inserts=[];indices=[];other=[]
+    for stmt in statements:
+        tag=identify(stmt)
+        if not tag or tag in ("BEGIN TRANSACTION;","COMMIT;","ROLLBACK;") or tag.startswith("PRAGMA "):continue
+        if tag.startswith("CREATE TABLE ") or tag.startswith("CREATE VIRTUAL TABLE "):schema.append(stmt)
+        elif tag.startswith("INSERT INTO ") or tag.startswith("REPLACE INTO "):inserts.append(stmt)
+        elif tag.startswith("CREATE INDEX ") or tag.startswith("CREATE UNIQUE INDEX "):indices.append(stmt)
+        else:other.append(stmt)
+    result["export_meta"]["groups"]={"schema":len(schema),"inserts":len(inserts),"indices":len(indices),"other":len(other)}
+    save()
+    ordered=pathlib.Path("/tmp/f4-ordered-ephemeral.sql")
+    ordered.write_text("PRAGMA defer_foreign_keys=TRUE;\\n"+"\\n".join(schema+inserts+indices+other),encoding="utf8")
+    run([WRANGLER,"d1","execute","flamboyan4-staging","--local","--config",str(CONFIG),"--file",str(ordered),"--persist-to",str(LOCAL),"--yes"],timeout=180)
     files=list(LOCAL.rglob("*.sqlite"))
     if not files:raise ValueError("Local SQLite state missing after import")
     connection=sqlite3.connect(str(files[0]))
