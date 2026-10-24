@@ -33,3 +33,10 @@ Tanggal rekap tidak boleh mengubah bulan kewajiban secara otomatis. Untuk peluna
 Kas Lorong September dan Oktober 2026 telah direkonsiliasi menjadi Rp330.000 per bulan setelah mengatribusikan KAS0017 (Rp15.000) sebesar Rp10.000 untuk tunggakan September dan Rp5.000 untuk tunggakan Agustus pra-pembukuan. Jurnal total tetap Rp665.000. Lihat `docs/audit/kas-lorong-sep-okt-2026.md`.
 
 **Dokumen ini bukan perintah SQL atau izin untuk mengubah saldo.**
+
+## Saldo awal serah terima pengurus (dikonfirmasi 24 Okt 2026)
+- Penerimaan kas **`cash:KAS0011` Rp794.000 tanggal 31 Agustus 2026** berlabel `Saldo Awal Serah Terima` adalah **saldo pengurus lama yang diterima pengelola baru**, bukan pemasukan operasional tahun berjalan. Ini dikonfirmasi langsung oleh pengelola.
+- **Tidak boleh membuat transaksi tambahan** untuk memindahkan nominal ini. Simpan jurnal asli untuk audit; perlakukan Rp794.000 hanya sebagai saldo pembuka dalam presentasi Rekap Tahunan. Pemasukan Agustus dari jurnal ini menjadi Rp0, bukan Rp794.000, dan saldo akhir tetap sama sebelum koreksi duplikat lain.
+- Tahun berikutnya meneruskan saldo akhir jurnal aktif satu kali. Jangan menambah Rp794.000 lagi pada saldo pembuka tahun berikutnya.
+- Koreksi terpisah `cash:KAS0020` Rp80.000 adalah **rekap ganda Denda Gorol** yang sudah diverifikasi; tidak boleh menambah penerimaan baru. Rencana penonaktifan jurnal memerlukan backup D1 remote, precondition, audit log, rollback, dan cek tahun terkunci.
+- Rekap Kas/Laporan Tahunan tidak boleh diberi label final sampai rekonsiliasi silang pembayaran kolektif, setoran RT/Arisan dan bukti transaksi selesai.
