@@ -1,9 +1,8 @@
 {
-  "checked_at_utc": "2026-10-24T23:48:47.059812+00:00",
+  "checked_at_utc": "2026-10-24T23:50:00.982260+00:00",
   "scope": "QA_PAYER_ONLY_SINGLE_D1_BATCH",
   "status": "failed",
   "qa_payer_count_before": 2,
-  "cleanup_statement_count": 13,
-  "error": "RuntimeError: Cloudflare D1 HTTP 400 codes=[7500] loan-parent-immutable: SQLITE_CONSTRAINT (extended: SQLITE_CONSTRAINT_TRIGGER)",
-  "immutable_triggers_restored_on_error": true
+  "error": "RuntimeError: Cloudflare D1 HTTP 400 codes=[7500] Wrong number of parameter bindings for SQL query.",
+  "trigger_recovery_error": "RuntimeError"
 }
