@@ -11,6 +11,8 @@
    if(token!=null&&sequences.get(node)!==token)return false;
    node.dataset.f4State=state;
    node.hidden=state==='success';
+   // The older portals also use Tailwind's .hidden class; keep both states aligned.
+   node.classList?.toggle('hidden',state==='success');
    if(state==='success'){node.textContent='';node.removeAttribute('aria-busy');return true}
    node.textContent=String(text||'');
    node.setAttribute('role',state==='error'?'alert':'status');
