@@ -68,3 +68,48 @@ jobs:
           assert.equal(writes,0);
           console.log('PASS: D1 cash positions, excluded canceled transactions, unposted confirmed batch, no writes');
           JS
+      - name: Verify member activation and posting adapter (mock Worker only)
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          import vm from 'node:vm';
+          import assert from 'node:assert/strict';
+          const accounts=[
+            {id:'account:A524',username:'a524',role:'anggota',rumah:'A5/24',perluAktivasi:true},
+            {id:'account:A525',username:'a525',role:'anggota',rumah:'A5/25',perluAktivasi:true},
+            {id:'account:A526',username:'a526',role:'anggota',rumah:'A5/26',perluAktivasi:false}
+          ];
+          const posts=[];
+          const window={__f4BankDemoCall:()=>Promise.reject(new Error('unmapped'))};
+          const context={
+            window,Date,Intl,URL,URLSearchParams,Map,Set,Promise,Number,String,Math,Object,
+            crypto:globalThis.crypto,
+            fetch:async(url,options={})=>{
+              const path=String(url).replace('https://api.flamboyan4.web.id','');
+              let data;
+              if(options.method==='POST'){
+                const body=JSON.parse(options.body||'{}');posts.push({path,body});
+                assert.equal(path,'/api/superadmin/accounts/activate-member');
+                assert.equal(body.confirmation,'AKTIFKAN AKUN WARGA');
+                data={ok:true,username:accounts.find(a=>a.id===body.accountId)?.username};
+              }else if(path==='/api/superadmin/accounts/preview')data={ok:true,akun:accounts};
+              else if(path==='/api/v2/admin/bank/allocations?limit=300')data={ok:true,data:[{batch_id:'b1',receivedRp:100}]};
+              else if(path==='/api/v2/admin/bank/sales?limit=300')data={ok:true,data:[{id:'sale1',batch_id:'b1',status:'terkonfirmasi'}]};
+              else if(path==='/api/v2/admin/bank/cash?limit=300')data={ok:true,data:[{id:'cash1',source_transaction_id:'sale1',status:'aktif',cash_in_rp:100,cash_out_rp:0}]};
+              else throw Error('Unexpected GET '+path);
+              return {ok:true,status:200,json:async()=>data};
+            }
+          };
+          vm.runInNewContext(fs.readFileSync('portal-live/f4-bank-write-bridge.js','utf8'),context);
+          const created=await window.__f4BankDemoCall('authAdminProvisionBatch',[]);
+          assert.equal(created.dibuat,2);
+          assert.equal(created.tersisa,0);
+          const single=await window.__f4BankDemoCall('authAdminResetDefault',['', 'account:A524']);
+          assert.equal(single.passwordAwal,'F4-A524');
+          await assert.rejects(()=>window.__f4BankDemoCall('authAdminResetDefault',['','account:A526']),/Reset password akun aktif belum tersedia/);
+          await assert.rejects(()=>window.__f4BankDemoCall('bsV27BatalkanPengesahan',[]),/Worker belum menyediakan reversal/);
+          const posting=await window.__f4BankDemoCall('bsV9PostingKasPenjualan',[]);
+          assert.equal(posting.diposting,1);
+          assert.equal(posts.length,3);
+          console.log('PASS: initial activation, active reset refusal, finalization reversal guard, posting count');
+          JS
