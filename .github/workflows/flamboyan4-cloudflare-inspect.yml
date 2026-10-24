@@ -6,6 +6,8 @@ on:
       - ops-cloudflare-integration-20261025
     paths:
       - .github/workflows/flamboyan4-cloudflare-inspect.yml
+      - .github/workflows/f4-worker-release.yml
+      - cloudflare/worker-terpadu-operasional-teruji.js
   workflow_dispatch:
 
 permissions:
