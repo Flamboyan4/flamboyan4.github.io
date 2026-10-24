@@ -61,7 +61,7 @@
       "type": "plain_text"
     }
   ],
-  "checked_at_utc": "2026-10-24T19:25:54.993165+00:00",
+  "checked_at_utc": "2026-10-24T19:32:53.894372+00:00",
   "checks": {
     "d1_list": {
       "codes": [],
@@ -119,6 +119,8 @@
   "compatibility_date": "2026-10-21",
   "d1_database_count": 1,
   "d1_row_counts": {
+    "album_media": 9,
+    "albums": 9,
     "bookkeeping_advance_repayments": 1,
     "bookkeeping_advance_request_ledger": 0,
     "bookkeeping_advances": 1,
@@ -143,9 +145,15 @@
     "bookkeeping_payments": 68,
     "bookkeeping_posting_batches": 0,
     "bookkeeping_year_archives": 0,
+    "inventory": 2,
+    "inventory_external_media": 2,
     "member_account_profiles": 2,
     "members": 33,
     "portal_activity_ledgers": 52,
+    "portal_documentation": 8,
+    "portal_inventory": 5,
+    "progress_entries": 3,
+    "progress_media": 3,
     "resident_directory_profiles": 34,
     "waste_allocations": 0,
     "waste_cash_ledger": 0,
@@ -222,15 +230,15 @@
     "waste_savings_ledger"
   ],
   "d1_target": "flamboyan4-staging",
-  "deployed_worker_sha256": "c86355f1de5543f5614309a9d38cbde7c9e324faedd4c3b793de0ff9af6b0786",
+  "deployed_worker_sha256": "57f9563d99e22bb2dd709e83e339d0592459fe30ed14e064629bf2e222b1d412",
   "latest_deployment": [
+    {
+      "created_on": "2026-10-24T19:32:23.866833Z",
+      "id": "ae468eee-34ec-43bd-979f-e1dc84c939f6"
+    },
     {
       "created_on": "2026-10-24T19:24:49.582809Z",
       "id": "9447ef77-c39a-4d81-84a6-3c54b0eaf320"
-    },
-    {
-      "created_on": "2026-10-24T17:14:43.185335Z",
-      "id": "d0f2c69b-83a0-4fb4-8a9f-f8cb82de927e"
     }
   ],
   "mode": "READ_ONLY_NO_DEPLOY_NO_DB_WRITES",
@@ -246,9 +254,9 @@
     "AUTH_ENABLED": "true",
     "BANK_WRITE_ENABLED": "false",
     "DENDA_PINJAMAN_WRITE_ENABLED": "false",
-    "FINANCE_WRITE_ENABLED": "false",
+    "FINANCE_WRITE_ENABLED": "true",
     "IURAN_WRITE_ENABLED": "false",
-    "MANUAL_CASH_WRITE_ENABLED": "false",
+    "MANUAL_CASH_WRITE_ENABLED": "true",
     "PORTAL_WRITE_ENABLED": "false",
     "RECONCILIATION_CONFIRM_ENABLED": "false",
     "SALE_DRAFT_ENABLED": "false",
