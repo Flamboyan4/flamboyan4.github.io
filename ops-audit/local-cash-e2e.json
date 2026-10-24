@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-24T19:49:01.416411+00:00",
+  "checked_at": "2026-10-24T19:49:27.294920+00:00",
   "type": "REMOTE_EXPORT_LOCAL_D1_ONLY",
   "tests": {
     "remote_target_verified": {
@@ -7,9 +7,51 @@
     },
     "remote_export_read_only": {
       "passed": true
+    },
+    "local_clone_schema": {
+      "passed": true,
+      "detail": {
+        "table_count": 63
+      }
+    },
+    "temporary_session_only_in_clone": {
+      "passed": true
+    },
+    "local_worker_health": {
+      "passed": true
+    },
+    "public_cash_write_blocked": {
+      "passed": true,
+      "detail": {
+        "status": 401
+      }
+    },
+    "cash_create": {
+      "passed": true,
+      "detail": {
+        "status": 201
+      }
+    },
+    "cash_idempotency": {
+      "passed": true
+    },
+    "cash_read": {
+      "passed": true
+    },
+    "cash_edit": {
+      "passed": true
+    },
+    "cash_cancel": {
+      "passed": true
+    },
+    "cash_double_cancel_blocked": {
+      "passed": true
+    },
+    "cash_accounting_unchanged_after_cancel": {
+      "passed": true
     }
   },
-  "status": "failed",
+  "status": "passed",
   "export_meta": {
     "sql_bytes": 445054,
     "table_ddls": 62,
@@ -21,6 +63,5 @@
       "indices": 28,
       "other": 21
     }
-  },
-  "error": "RuntimeError: Command failed: ['/home/runner/work/flamboyan4.github.io/flamboyan4.github.io/node_modules/.bin/wrangler', 'd1', 'execute', 'flamboyan4-staging'] (1); \u001b[31m\u2718 \u001b[41;31m[\u001b[41;97mERROR\u001b[41;31m]\u001b[0m \u001b[1munrecognized token: \"\\\" at offset 0: SQLITE_ERROR\u001b[0m\n\n\n\ud83e\udeb5  Logs were written to \"/home/runner/.config/"
+  }
 }
