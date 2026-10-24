@@ -46,3 +46,11 @@ Catat SHA HEAD `main` tepat sebelum merge PR #3 dan simpan kopi `index.html`, ti
 - PR #5 frontend tetap Cash-only sampai Worker remote yang mendukung semua metode telah terverifikasi. Flag `FINANCE_WRITE_ENABLED`, `DENDA_PINJAMAN_WRITE_ENABLED`, seluruh `BANK_*_WRITE_ENABLED` tetap OFF.
 - Backup SQL `flamboyan4-staging-20261024.sql` terindeks dalam Library, tetapi akses raw untuk menguji ulang database asli tidak tersedia; perlu backup/export D1 remote saat gerbang rilis.
 - Tidak ada perubahan pada D1, Worker aktif, `main`, atau data historis melalui pemeriksaan ini. **PR #3 tetap Draft**.
+
+## Verifikasi D1 backup nyata (24 Oktober, lanjutan terakhir)
+- Pengelola memberikan `worker.js` dan `backup-d1-terbaru.sql` dari Cloudflare. **File privat tidak dikomit.** SQL berhasil dipulihkan ke SQLite lokal: 62 tabel, 21 trigger, `integrity_check = ok`, `foreign_key_check = 0`.
+- `worker.js` unggahan hanya 53.595 byte dan menyebut 20 path API; kandidat terbaru 233 KB dan memiliki 79 path. Semua path lama muncul di kandidat, tetapi **cek source deployment Cloudflare yang sesungguhnya wajib** karena kode unggahan tidak menampakkan API v2 yang sebelumnya terlihat dalam UI. Jangan deploy buta.
+- Kandidat lama gagal 1 tes Pinjaman terhadap trigger asli: `bookkeeping_loan_repayments.cash_transaction_id` menuntut jurnal kas lebih dulu. Patch memasukkan `bookkeeping_cash_transactions` **sebelum** `bookkeeping_loan_repayments` dalam D1.batch atomik.
+- Kandidat revisi SHA-256: `d1aa6dfd879b9199cbf4542eab5424f1be0a5d08250460bb348fb6faab141599`. Paket privat: `PAKET_WORKER_TERVERIFIKASI_D1_ASLI_24OKT2026.zip`. **Tidak tersimpan di repository maupun terdeploy ke Cloudflare.**
+- **48/48 pengujian lulus di salinan backup D1**, meliputi public/member/admin/Superadmin, laporan Tahunan sementara, Iuran dengan satu jurnal dan idempotensi, Denda, Pinjaman Cash/QRIS/Transfer, Bank Sampah setoran 1 kg Kardus estimasi Rp1.000, penjualan, konfirmasi 50:50 (termasuk retry), dan integritas. Seluruh transaksi uji hanya dalam database salinan. Pembayaran historis awal tetap 68 dalam backup.
+- **Pengujian Cloudflare remote (source, bindings, flags, cookies, HP/PC, PDF/CSV) belum lulus dan belum dicoba menulis D1 remote.** Semua write flags tetap OFF, jangan merge PR #3 atau #5 sampai deploy kandidat tervalidasi dengan flags OFF dan uji end-to-end produksi lulus.
