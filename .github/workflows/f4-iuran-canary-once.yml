@@ -1,0 +1,85 @@
+name: F4 Stage 2 Iuran Guarded Activation
+on:
+  push:
+    branches: [ops-cloudflare-integration-20261025]
+    paths: [.github/workflows/f4-iuran-canary-once.yml]
+permissions:
+  contents: write
+concurrency:
+  group: f4-worker-release
+  cancel-in-progress: false
+jobs:
+  activate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Activate Iuran only after remote D1 integrity and existing flag checks
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,json,hashlib,datetime,urllib.request
+          from pathlib import Path
+          report={"checked_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),"status":"started","scope":"FINANCE + MANUAL_CASH + IURAN only"}
+          out=Path("ops-audit/iuran-canary-status.json");out.parent.mkdir(exist_ok=True)
+          def save():out.write_text(json.dumps(report,indent=2)+"\n")
+          save()
+          root="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CF_ACCOUNT"]
+          token=os.environ["CF_TOKEN"];target="flamboyan4-terpadu-staging"
+          def get(path):
+            req=urllib.request.Request(root+path,headers={"Authorization":"Bearer "+token})
+            with urllib.request.urlopen(req,timeout=30) as res:d=json.load(res)
+            if not d.get("success"):raise ValueError("Cloudflare GET failed: "+path)
+            return d.get("result")
+          try:
+            p=Path("cloudflare/worker-terpadu-operasional-teruji.js")
+            script=p.read_bytes()
+            if hashlib.sha256(script).hexdigest()!="6f913d0d99457c66440d0241fc27e1e64d3f2152cbb4cfff1187ac68c9c59f11":
+              raise ValueError("Candidate mismatch")
+            deployments=get("/workers/scripts/"+target+"/deployments").get("deployments") or []
+            if not deployments or deployments[0].get("id")!="1150d61f-68b0-4ec9-b748-beab0b27a491":
+              raise ValueError("Worker deployment changed unexpectedly since verified release")
+            cfg=get("/workers/scripts/"+target+"/settings")
+            existing={b.get("name"):b for b in cfg.get("bindings",[])}
+            if existing.get("DB",{}).get("type")!="d1" or existing.get("PHOTOS",{}).get("type")!="r2_bucket":raise ValueError("Missing bindings")
+            already={k for k,v in existing.items() if k.endswith("_WRITE_ENABLED") and str(v.get("text","")).lower()=="true"}
+            expected_before={"FINANCE_WRITE_ENABLED","MANUAL_CASH_WRITE_ENABLED"}
+            if already!=expected_before:raise ValueError("Current live flags differ from cash canary baseline")
+            audit=json.loads(Path("ops-audit/d1-integrity-latest.json").read_text())
+            if audit.get("status")!="pass" or audit.get("orphan_relation_count")!=0:raise ValueError("D1 integrity preflight not passed")
+            flags={"IURAN_WRITE_ENABLED"}
+            expected_after=expected_before|flags
+            meta={"main_module":"main.js","keep_assets":True,"compatibility_date":cfg.get("compatibility_date") or "2026-10-21",
+                  "bindings":[({"type":"plain_text","name":b["name"],"text":"true"} if b["name"] in flags else {"type":"inherit","name":b["name"]}) for b in cfg.get("bindings",[])]}
+            boundary="----F4IuranCanary"
+            def part(n,d,m):return ('--'+boundary+'\r\nContent-Disposition: form-data; name="'+n+'"; filename="'+n+'"\r\nContent-Type: '+m+'\r\n\r\n').encode()+d+b'\r\n'
+            body=part("metadata",json.dumps(meta).encode(),"application/json")+part("main.js",script,"application/javascript+module")+('--'+boundary+'--\r\n').encode()
+            req=urllib.request.Request(root+"/workers/scripts/"+target+"?bindings_inherit=strict",data=body,method="PUT",headers={"Authorization":"Bearer "+token,"Content-Type":"multipart/form-data; boundary="+boundary})
+            with urllib.request.urlopen(req,timeout=70) as res:r=json.load(res)
+            if not r.get("success"):raise ValueError("Cloudflare canary upload rejected")
+            updated=get("/workers/scripts/"+target+"/settings");actual={b["name"]:b for b in updated.get("bindings",[])}
+            for k in existing:
+              if k not in actual:raise ValueError("Binding lost: "+k)
+            active={k for k,b in actual.items() if k.endswith("_WRITE_ENABLED") and str(b.get("text","")).lower()=="true"}
+            if active!=expected_after:raise ValueError("Unexpected active write flags")
+            deployments=get("/workers/scripts/"+target+"/deployments").get("deployments") or []
+            report.update(status="iuran_enabled",deployment_id=deployments[0].get("id"),active_write_flags=sorted(active))
+          except Exception as e:
+            report.update(status="failed",error=type(e).__name__+": "+str(e)[:160])
+            save()
+            raise
+          save()
+          print("Iuran staged flag enabled; authenticated browser write tests still required.")
+          PY
+      - name: Save sanitized canary status
+        if: always()
+        run: |
+          test -f ops-audit/iuran-canary-status.json || echo '{"status":"workflow_error"}' > ops-audit/iuran-canary-status.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/iuran-canary-status.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(ops): record Iuran staged flag activation"
+          git push origin HEAD:ops-cloudflare-integration-20261025
