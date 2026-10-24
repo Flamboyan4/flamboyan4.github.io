@@ -39,7 +39,7 @@ jobs:
           p=Path("ops-audit/finance-schema.json");p.parent.mkdir(exist_ok=True)
           p.write_text(json.dumps({x["name"]:x["sql"] for x in rows},indent=2)+"\n")
           deps=query("/d1/database/"+db["uuid"]+"/query",
-            "SELECT name,sql FROM sqlite_master WHERE (type='trigger' OR type='table') AND (sql LIKE '%bookkeeping_loan_repayments%' OR sql LIKE '%bookkeeping_fine_payments%')")
+            "SELECT name,sql FROM sqlite_master WHERE (type='trigger' OR type='table') AND (sql LIKE '%bookkeeping_loan_repayments%' OR sql LIKE '%bookkeeping_fine_payments%' OR sql LIKE '%bookkeeping_loans%' OR sql LIKE '%bookkeeping_fines%' OR sql LIKE '%bookkeeping_cash_transactions%')")
           Path("ops-audit/finance-dependencies.json").write_text(json.dumps(deps,indent=2)+"\\n")
           print("D1 schema definitions fetched:",len(rows))
           PY
