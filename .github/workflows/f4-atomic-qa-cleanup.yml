@@ -34,9 +34,13 @@ jobs:
               return raw.get("result")
             except urllib.error.HTTPError as err:
               body=err.read(20000)
-              try:codes=[e.get("code") for e in json.loads(body).get("errors",[])]
-              except:codes=[]
-              raise RuntimeError("Cloudflare D1 HTTP "+str(err.code)+" codes="+str(codes))
+              try:
+                errors=json.loads(body).get("errors",[])
+                codes=[e.get("code") for e in errors]
+                details="; ".join(str(e.get("message",""))[:180] for e in errors)
+              except:
+                codes=[];details=""
+              raise RuntimeError("Cloudflare D1 HTTP "+str(err.code)+" codes="+str(codes)+" "+details[:200])
           db=next(x for x in cf("/d1/database") if x.get("name")=="flamboyan4-staging")
           api="/d1/database/"+db["uuid"]+"/query"
           def query(s,params=()):
