@@ -1,0 +1,18 @@
+{
+  "checked_at_utc": "2026-10-24T23:45:32.169994+00:00",
+  "scope": "CLEANUP_QA_AUTO_DELETE_PAYER_ONLY",
+  "status": "failed",
+  "steps": [
+    {
+      "operation": "unlink_cash_by_source",
+      "ok": true
+    },
+    {
+      "operation": "delete_loan_repayments",
+      "ok": false,
+      "reason": "D1 query HTTP 400, error codes=[7500]"
+    }
+  ],
+  "synthetic_payers_found": 2,
+  "error": "RuntimeError: D1 query HTTP 400, error codes=[7500]"
+}
