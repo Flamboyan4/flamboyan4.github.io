@@ -805,46 +805,69 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   };
  }
  async function memberSavings(){
-  const response=await get('/api/member/savings');
+  const [response,identity]=await Promise.all([
+   get('/api/member/savings'),
+   get('/api/member/me').catch(()=>null)
+  ]);
   const r=response.data&&typeof response.data==='object'&&!Array.isArray(response.data)?response.data:response;
   const pick=(row,keys)=>{for(const k of keys)if(row?.[k]!=null&&row[k]!=='')return row[k];return undefined;};
   const rawDeposits=onlyArray(r.setoran||r.deposits||r.depositHistory);
-  // Preserve the Bank Sampah original report shape while using real D1 deposits.
-  // Do not promote an estimate into a confirmed savings credit.
+  const rawMutations=onlyArray(r.mutasi||r.mutations||r.ledger);
+  // The active Worker limits personal histories to 60 deposits / 100 ledger events.
+  // Reject ambiguous lifetime totals rather than silently printing incomplete statements.
+  if(rawDeposits.length>=60||rawMutations.length>=100)
+   throw Error('Riwayat pribadi mencapai batas API; laporan lengkap perlu paginasi dari Worker sebelum dapat dicetak.');
   const deposits=rawDeposits.map(x=>{
    const rawDetails=onlyArray(x.rincian||x.details||x.items||x.lines);
-   const id=pick(x,['id','deposit_id','setoranId'])||'';
    return {
-    id:String(id),tanggal:pick(x,['tanggal','deposited_on','date'])||'',
+    id:String(pick(x,['id','deposit_id','setoranId'])||''),
+    tanggal:pick(x,['tanggal','deposited_on','date'])||'',
     beratKg:number(pick(x,['beratKg','weightKg'])??number(pick(x,['beratGram','total_grams']))/1000),
     estimasiRp:number(pick(x,['estimasiRp','estimated_total_rp','estimatedRp'])),
     status:pick(x,['status','state'])||'Estimasi',
     rincian:rawDetails.map(y=>({
      barang:pick(y,['barang','jenis','name','item_name','category'])||'—',
      beratKg:number(pick(y,['beratKg','weightKg'])??number(pick(y,['beratGram','weight_g','grams']))/1000),
-     tarif:number(pick(y,['tarif','tarifWargaRp','unit_price_rp','price_rp'])),
+     // Worker returns tarifWargaRpPerKg (historical tariff stored per deposit line).
+     tarif:number(pick(y,['tarifWargaRpPerKg','tarif','tarifWargaRp','citizen_rate_rp_per_kg','unit_price_rp','price_rp'])),
      nilai:number(pick(y,['nilai','estimasiRp','estimated_rp','amount_rp']))
     }))
    };
   });
-  const rawMutations=onlyArray(r.mutasi||r.mutations||r.ledger);
-  const mutations=rawMutations.map(x=>({
-   id:pick(x,['id','mutation_id'])||'',
-   tanggal:pick(x,['tanggal','occurred_on','date'])||'',
-   jenis:pick(x,['jenis','type','description','keterangan'])||'',
-   kredit:number(pick(x,['kredit','credit_rp','masukRp'])),
-   debit:number(pick(x,['debit','debit_rp','keluarRp'])),
-   saldo:number(pick(x,['saldo','balance_rp','saldoRp']))
-  }));
+  const creditKinds=new Set(['kredit','koreksi_kredit']);
+  const debitKinds=new Set(['pencairan','koreksi_debit']);
+  const mutasi=rawMutations.map(x=>{
+   const jenis=String(pick(x,['jenis','kind','type','description','keterangan'])||'');
+   const nominal=number(pick(x,['jumlahRp','amount_rp','amountRp']));
+   const explicitCredit=pick(x,['kredit','credit_rp','masukRp']);
+   const explicitDebit=pick(x,['debit','debit_rp','keluarRp']);
+   const kredit=explicitCredit==null?(creditKinds.has(jenis)?nominal:0):number(explicitCredit);
+   const debit=explicitDebit==null?(debitKinds.has(jenis)?nominal:0):number(explicitDebit);
+   if(kredit<0||debit<0||(kredit&&debit)||(!creditKinds.has(jenis)&&!debitKinds.has(jenis)&&explicitCredit==null&&explicitDebit==null))
+    throw Error('Jenis mutasi tabungan tidak dikenal. Periksa ledger agar laporan tidak salah.');
+   return {id:pick(x,['id','mutation_id','reference_id'])||'',
+    tanggal:pick(x,['tanggal','transaction_on','occurred_on','date'])||'',
+    jenis,kredit,debit,saldo:null};
+  });
+  const saldo=number(pick(r,['saldoTersediaRp','saldo','balance_rp','available_balance_rp']));
+  // Worker returns latest-first ledger. Reconstruct balance after each event,
+  // starting from authoritative all-time balance; no estimate enters this calculation.
+  let running=saldo;
+  for(const entry of mutasi){
+   entry.saldo=running;
+   running-=entry.kredit-entry.debit;
+  }
+  const totalMasuk=number(pick(r,['totalMasukRp','totalMasuk','credit_total_rp'])??
+    mutasi.reduce((sum,x)=>sum+x.kredit,0));
+  const totalCair=number(pick(r,['totalCairRp','totalCair','withdrawn_total_rp'])??
+    mutasi.filter(x=>x.jenis==='pencairan').reduce((sum,x)=>sum+x.debit,0));
+  const member=identity?.member||{};
   return {
-   nama:pick(r,['nama','memberName','name'])||'',
-   rumah:pick(r,['rumah','house'])||'',
-   wargaId:pick(r,['wargaId','memberId','member_id'])||'',
+   nama:pick(member,['nama','display_name'])||pick(r,['nama','memberName','name'])||'—',
+   rumah:pick(member,['rumah','house_code'])||pick(r,['rumah','house'])||'—',
+   wargaId:pick(member,['id','member_id'])||pick(r,['wargaId','memberId','member_id'])||'—',
    dibuatPada:new Date().toLocaleDateString('id-ID'),
-   saldo:number(pick(r,['saldoTersediaRp','saldo','balance_rp','available_balance_rp'])),
-   totalMasuk:number(pick(r,['totalMasukRp','totalMasuk','credit_total_rp'])),
-   totalCair:number(pick(r,['totalCairRp','totalCair','withdrawn_total_rp'])),
-   mutasi:mutations,setoran:deposits
+   saldo,totalMasuk,totalCair,mutasi,setoran:deposits
   };
  }
  async function publicChart(){
