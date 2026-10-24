@@ -1,0 +1,36 @@
+{
+  "at_utc": "2026-10-24T19:26:33.120316+00:00",
+  "scope": "PUBLIC_GET_NO_COOKIE_NO_ADMIN_TOKEN",
+  "checks": [
+    {
+      "test": "public_health",
+      "http": 200,
+      "ok": true
+    },
+    {
+      "test": "portal_public",
+      "http": 200,
+      "ok": true
+    },
+    {
+      "test": "bank_public",
+      "http": 200,
+      "ok": true
+    },
+    {
+      "test": "bank_public_report",
+      "http": 200,
+      "ok": true
+    },
+    {
+      "test": "private_yearly_restricted",
+      "http": 401,
+      "ok": true
+    },
+    {
+      "test": "private_savings_restricted",
+      "http": 401,
+      "ok": true
+    }
+  ]
+}
