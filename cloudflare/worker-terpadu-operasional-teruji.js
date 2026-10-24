@@ -1949,7 +1949,7 @@ async function newAdvanceD1(request, env) {
   const { requestKey, tanggal, payerId, ditanggungOleh, keterangan, jumlahRp } = p || {};
   if (!validRequestKey(requestKey) || !validDate2(tanggal) || !validRp(jumlahRp) || typeof ditanggungOleh !== "string" || !ditanggungOleh.trim() || ditanggungOleh.length > 150 || typeof keterangan !== "string" || keterangan.length > 500 || payerId !== null && payerId !== void 0 && (typeof payerId !== "string" || payerId.length > 100))
     return safeError("Data talangan tidak valid.", 400);
-  if (tanggal > (/* @__PURE__ */ new Date()).toISOString().slice(0, 10)) return safeError("Tanggal talangan tidak boleh di masa depan.", 400);
+  if (tanggal > new Date(Date.now()+7*60*60*1000).toISOString().slice(0,10)) return safeError("Tanggal talangan tidak boleh di masa depan.", 400);
   if (payerId) {
     const exists = await env.DB.prepare("SELECT id FROM bookkeeping_payers WHERE id=? AND active=1").bind(payerId).first();
     if (!exists) return safeError("Pembayar tidak aktif atau tidak ditemukan.", 400);
@@ -1984,7 +1984,7 @@ async function repayAdvanceD1(request, env) {
   const { requestKey, advanceId, tanggal, jumlahRp, catatan } = p || {};
   if (!validRequestKey(requestKey) || typeof advanceId !== "string" || !/^[A-Za-z0-9_-]{1,150}$/.test(advanceId) || !validDate2(tanggal) || !validRp(jumlahRp) || typeof catatan !== "string" || catatan.length > 500)
     return safeError("Data pelunasan tidak valid.", 400);
-  if (tanggal > (/* @__PURE__ */ new Date()).toISOString().slice(0, 10)) return safeError("Tanggal pelunasan tidak boleh di masa depan.", 400);
+  if (tanggal > new Date(Date.now()+7*60*60*1000).toISOString().slice(0,10)) return safeError("Tanggal pelunasan tidak boleh di masa depan.", 400);
   const hash = await talanganHash("advance-repay", p);
   const replay = await talanganReplay(env.DB, requestKey, "advance-repay", hash);
   if (replay) return replay;
@@ -2046,7 +2046,7 @@ async function writeDendaPinjaman(request, env, kind, who) {
   if (kind === "fine-create" && a.metode !== undefined)
     return safeError("Denda baru belum menerima pembayaran; metode tidak boleh diisi.", 400);
   if (kind !== "fine-create") a.metode = method;
-  if (!validRequestKey(key) || !validDate2(date) || !validRp(amount) || date > (/* @__PURE__ */ new Date()).toISOString().slice(0, 10))
+  if (!validRequestKey(key) || !validDate2(date) || !validRp(amount) || date > new Date(Date.now()+7*60*60*1000).toISOString().slice(0,10))
     return safeError("Tanggal, nominal, atau kunci permintaan tidak valid.", 400);
   const closedYear = await env.DB.prepare("SELECT fiscal_year FROM bookkeeping_year_archives WHERE fiscal_year=? AND status IN ('ditutup','terkunci','final') LIMIT 1").bind(Number(date.slice(0, 4))).first();
   if (closedYear) return safeError("Tahun pembukuan sudah ditutup; transaksi ditolak.", 409);
