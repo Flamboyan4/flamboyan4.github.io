@@ -1,0 +1,129 @@
+name: F4 Iuran Positive E2E - Fully Restored
+on:
+  push:
+    branches: [ops-cloudflare-integration-20261025]
+    paths: [.github/workflows/f4-iuran-positive-e2e.yml]
+permissions:
+  contents: write
+jobs:
+  test-iuran:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Isolated synthetic payer Iuran and Kas Lorong with full cleanup
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,json,hashlib,secrets,uuid,datetime,urllib.request,urllib.error
+          from pathlib import Path
+          now=datetime.datetime.now(datetime.timezone.utc)
+          file=Path("ops-audit/iuran-positive-e2e.json");file.parent.mkdir(exist_ok=True)
+          report={"checked_at_utc":now.isoformat(),"scope":"SYNTHETIC_NEW_PAYER_IURAN_ONLY","checks":[],"restored":False}
+          root="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CF_ACCOUNT"]
+          def cf(path,payload=None):
+            body=None if payload is None else json.dumps(payload).encode()
+            req=urllib.request.Request(root+path,data=body,method="POST" if body is not None else "GET",
+              headers={"Authorization":"Bearer "+os.environ["CF_TOKEN"],"Content-Type":"application/json"})
+            with urllib.request.urlopen(req,timeout=30) as resp:j=json.load(resp)
+            if not j.get("success"):raise RuntimeError("Cloudflare API failed")
+            return j["result"]
+          db=next(x for x in cf("/d1/database") if x["name"]=="flamboyan4-staging")
+          path="/d1/database/"+db["uuid"]+"/query"
+          def sql(statement,params=()):
+            answer=cf(path,{"sql":statement,"params":list(params)})
+            if not isinstance(answer,list) or not answer or answer[0].get("success") is False:raise RuntimeError("D1 query failed")
+            return answer[0].get("results") or []
+          def http(method,path,token=None,payload=None):
+            headers={"Accept":"application/json","Origin":"https://flamboyan4.web.id","User-Agent":"Mozilla/5.0 F4-Iuran-E2E"}
+            if token:headers["Cookie"]="f4_session="+token
+            body=None if payload is None else json.dumps(payload).encode()
+            if body is not None:headers["Content-Type"]="application/json"
+            req=urllib.request.Request("https://api.flamboyan4.web.id"+path,data=body,method=method,headers=headers)
+            try:
+              with urllib.request.urlopen(req,timeout=25) as resp:return resp.status,json.load(resp)
+            except urllib.error.HTTPError as e:return e.code,json.loads(e.read(12000) or b'{}')
+          def check(name,condition):
+            report["checks"].append({"name":name,"pass":bool(condition)})
+            if not condition:raise RuntimeError("Test failed: "+name)
+          tables=["bookkeeping_payers","bookkeeping_payer_iuran_obligations","bookkeeping_payments",
+            "bookkeeping_payment_allocations","bookkeeping_payment_request_keys","bookkeeping_cash_transactions","audit_log","sessions"]
+          def balance():
+            return {t:sql('SELECT COUNT(*) AS n FROM "'+t+'"')[0]["n"] for t in tables}
+          def active_cash():
+            return sql("SELECT COALESCE(SUM(debit_rp-credit_rp),0) AS s FROM bookkeeping_cash_transactions WHERE status='aktif'")[0]["s"]
+          payer_id="payer:qa:"+secrets.token_hex(12)
+          session_id="qa-"+secrets.token_hex(16)
+          session_token=secrets.token_urlsafe(48)
+          session_hash=hashlib.sha256(session_token.encode()).hexdigest()
+          reqid=str(uuid.uuid4())
+          payment_id=None
+          before=None;oldcash=None
+          try:
+            before=balance();oldcash=active_cash()
+            account=sql("SELECT id FROM accounts WHERE role='superadmin' AND status='aktif' LIMIT 1")
+            if not account:raise RuntimeError("Superadmin not active")
+            tariff=sql("SELECT amount_rp FROM bookkeeping_contribution_tariffs WHERE contribution_type='KAS_LORONG' AND active=1")
+            if not tariff or not 0<int(tariff[0]["amount_rp"])<=100000:raise RuntimeError("Valid Kas Lorong tariff unavailable")
+            amount=int(tariff[0]["amount_rp"])
+            expires=(now+datetime.timedelta(minutes=8)).strftime("%Y-%m-%d %H:%M:%S")
+            sql("INSERT INTO sessions(id,account_id,token_hash,expires_at) VALUES(?,?,?,?)",[session_id,account[0]["id"],session_hash,expires])
+            sql("""INSERT INTO bookkeeping_payers(id,display_name,payer_type,active)
+              VALUES(?,'QA TEST - AUTO DELETE','lembaga',1)""",[payer_id])
+            sql("""INSERT INTO bookkeeping_payer_iuran_obligations
+              (payer_id,qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan)
+              VALUES(?,0,0,1,0)""",[payer_id])
+            code,old=http("GET","/api/bookkeeping/iuran/outstanding?payerId="+payer_id+"&year=2026&month=11",session_token)
+            check("outstanding_before",code==200 and old.get("totalSisaRp")==amount)
+            payload={"requestKey":reqid,"payerId":payer_id,"tanggal":"2026-10-25","metode":"Cash",
+              "catatan":"QA satu kali, dihapus otomatis","jumlahRp":amount,
+              "alokasi":[{"tahun":2026,"bulan":11,"jenis":"KAS_LORONG","nominal":amount}]}
+            code,response=http("POST","/api/bookkeeping/iuran",session_token,payload)
+            payment_id=response.get("idPembayaran")
+            check("save_iuran",code==201 and isinstance(payment_id,str) and payment_id.startswith("pay-"))
+            check("saved_allocations",len(sql("SELECT id FROM bookkeeping_payment_allocations WHERE payment_id=? AND amount_rp=?",[payment_id,amount]))==1)
+            check("cash_only_kas_lorong",len(sql("SELECT id FROM bookkeeping_cash_transactions WHERE source_payment_id=? AND debit_rp=?",[payment_id,amount]))==1 and active_cash()==oldcash+amount)
+            code,repeat=http("POST","/api/bookkeeping/iuran",session_token,payload)
+            check("idempotent_payment",code==200 and repeat.get("idPembayaran")==payment_id and repeat.get("duplikat") is True)
+            code,remaining=http("GET","/api/bookkeeping/iuran/outstanding?payerId="+payer_id+"&year=2026&month=11",session_token)
+            check("outstanding_zero_after",code==200 and remaining.get("totalSisaRp")==0)
+            code,hist=http("GET","/api/bookkeeping/iuran/history?limit=1000",session_token)
+            check("history_reads_real_D1",code==200 and any(x.get("idPembayaran")==payment_id for x in hist.get("data",[])))
+          except Exception as e:
+            report["error"]=type(e).__name__+": "+str(e)[:230]
+          finally:
+            try:
+              if not payment_id:
+                found=sql("SELECT payment_id FROM bookkeeping_payment_request_keys WHERE request_key=?",[reqid])
+                payment_id=found[0]["payment_id"] if found else None
+              if payment_id:
+                sql("DELETE FROM audit_log WHERE target_id=? AND action='create_iuran'",[payment_id])
+                sql("DELETE FROM bookkeeping_cash_transactions WHERE source_payment_id=? AND payer_id=?",[payment_id,payer_id])
+                sql("DELETE FROM bookkeeping_payment_allocations WHERE payment_id=? AND payer_id=?",[payment_id,payer_id])
+                sql("DELETE FROM bookkeeping_payment_request_keys WHERE request_key=? AND payment_id=?",[reqid,payment_id])
+                sql("DELETE FROM bookkeeping_payments WHERE id=? AND payer_id=?",[payment_id,payer_id])
+              sql("DELETE FROM bookkeeping_payer_iuran_obligations WHERE payer_id=?",[payer_id])
+              sql("DELETE FROM bookkeeping_payers WHERE id=? AND display_name='QA TEST - AUTO DELETE'",[payer_id])
+              sql("DELETE FROM sessions WHERE id=? AND token_hash=?",[session_id,session_hash])
+              report["restored"]=before is not None and balance()==before and active_cash()==oldcash
+              report["synthetic_rows_absent"]=not sql("SELECT id FROM bookkeeping_payers WHERE id=?",[payer_id]) and not sql("SELECT id FROM sessions WHERE id=?",[session_id])
+            except Exception as e:
+              report["restored"]=False
+              report["cleanup_error"]=type(e).__name__+": "+str(e)[:230]
+            report["status"]="pass" if report["restored"] and report.get("synthetic_rows_absent") and not report.get("error") and len(report["checks"])==7 and all(x["pass"] for x in report["checks"]) else "incomplete"
+            file.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n")
+            print("Iuran E2E:",report["status"],"tests:",len(report["checks"]),"D1 restored:",report["restored"])
+          if report["status"]!="pass":raise SystemExit("Iuran E2E failed or restoration incomplete")
+          PY
+      - name: Save sanitized Iuran results
+        if: always()
+        run: |
+          test -f ops-audit/iuran-positive-e2e.json || exit 1
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/iuran-positive-e2e.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(ops): record restored live Iuran E2E"
+          git push origin HEAD:ops-cloudflare-integration-20261025
