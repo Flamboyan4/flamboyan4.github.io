@@ -61,7 +61,7 @@
       "type": "plain_text"
     }
   ],
-  "checked_at_utc": "2026-10-24T19:03:44.782892+00:00",
+  "checked_at_utc": "2026-10-24T19:23:16.875224+00:00",
   "checks": {
     "d1_list": {
       "codes": [],
@@ -223,7 +223,7 @@
     "waste_savings_ledger"
   ],
   "d1_target": "flamboyan4-staging",
-  "deployed_worker_sha256": "2b0e6a5ceed54ebd73b07d7140b59e43c630f6d1f0c785d15a5f55262a253ae8",
+  "deployed_worker_sha256": "8e9863046cc5cec6ff29e23fa68b8c5deef1d56c3cf15a5cc81996107ea90a47",
   "latest_deployment": [
     {
       "created_on": "2026-10-24T17:14:43.185335Z",
