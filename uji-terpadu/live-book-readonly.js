@@ -291,11 +291,19 @@
   const selected=all.filter(x=>inPeriod(x)&&(status==='SEMUA'||x.status===status));
   const missingPeriod=all.filter(x=>!x.tanggal&&!x.periodKey);
   const sum=key=>selected.reduce((a,x)=>a+n(x[key]),0);
+  // Laporan cetak Talangan sengaja anonim; tetap hitung status dari baris terfilter.
+  const grouped=new Map();
+  for(const row of selected){
+   const st=String(row.status||'TIDAK DIKETAHUI').toUpperCase();
+   const item=grouped.get(st)||{status:st,jumlah:0,nominal:0,sisa:0};
+   item.jumlah++;item.nominal+=n(row.nominalTalangan);item.sisa+=n(row.sisaTalangan);
+   grouped.set(st,item);
+  }
   return successful({data:{...periodLabel(p),statusFilter:status,rows:selected,
    missingPeriodCount:missingPeriod.length,
    ringkasan:{jumlah:selected.length,totalTalangan:sum('nominalTalangan'),
     totalDiganti:sum('nominalDiganti'),totalSisa:sum('sisaTalangan')},
-   rekapStatus:[]}});
+   rekapStatus:[...grouped.values()]}});
  }
  const exact={
   bootstrap,riwayatpembayaran:history,datatransaksikas:cash,
