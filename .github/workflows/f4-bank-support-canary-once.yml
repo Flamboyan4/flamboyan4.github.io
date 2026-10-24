@@ -44,7 +44,7 @@ jobs:
             cfg=get("/workers/scripts/"+target+"/settings")
             existing={b.get("name"):b for b in cfg.get("bindings",[])}
             if existing.get("DB",{}).get("type")!="d1" or existing.get("PHOTOS",{}).get("type")!="r2_bucket":raise ValueError("Missing bindings")
-            already={k for k,v in existing.items() if k.endswith("_WRITE_ENABLED") and str(v.get("text","")).lower()=="true"}
+            already={k for k,v in existing.items() if k.endswith("_WRITE_ENABLED") or k=="SALE_DRAFT_ENABLED" and str(v.get("text","")).lower()=="true"}
             expected_before={"FINANCE_WRITE_ENABLED","MANUAL_CASH_WRITE_ENABLED","IURAN_WRITE_ENABLED","DENDA_PINJAMAN_WRITE_ENABLED","BANK_WRITE_ENABLED","SALE_DRAFT_ENABLED"}
             if already!=expected_before:raise ValueError("Current live flags differ from cash canary baseline")
             audit=json.loads(Path("ops-audit/d1-integrity-latest.json").read_text())
@@ -64,7 +64,7 @@ jobs:
             if not r.get("success"):raise ValueError("Cloudflare canary upload rejected")
             for attempt in range(8):
               updated=get("/workers/scripts/"+target+"/settings");actual={b["name"]:b for b in updated.get("bindings",[])}
-              active={k for k,b in actual.items() if k.endswith("_WRITE_ENABLED") and str(b.get("text","")).lower()=="true"}
+              active={k for k,b in actual.items() if k.endswith("_WRITE_ENABLED") or k=="SALE_DRAFT_ENABLED" and str(b.get("text","")).lower()=="true"}
               if active==expected_after:break
               time.sleep(2)
             for k in existing:
