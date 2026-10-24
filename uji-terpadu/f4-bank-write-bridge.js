@@ -44,6 +44,38 @@ async function saveProgress(_token,p){
    date:String(p.tanggal||''),title:String(p.judul||''),stage:String(p.langkah||''),description:String(p.deskripsi||''),
    status:String(p.status||''),nextStep:String(p.agenda||''),publicVisible:p.publik!==false});
 }
+
+let inventoryNonce='INV'+crypto.randomUUID().replace(/-/g,'');
+async function saveExpense(_token,p) {
+ const positions={'operasional':'operasional','kas lorong':'kas_lorong','cadangan':'cadangan'};
+ const kind=String(p.jenis||'').toLowerCase();
+ const pos=positions[String(p.pos||'').trim().toLowerCase()];
+ const qty=Number(p.jumlah),price=Number(p.hargaSatuan);
+ if(!pos||!['pembelian','pengeluaran'].includes(kind))throw Error('Jenis transaksi atau pos dana tidak dikenal.');
+ if(p.bukti&&!/^https:\/\//i.test(String(p.bukti)))throw Error('Bukti harus menggunakan URL HTTPS.');
+ const data={
+  requestKey:String(p.nonce||''),incurredOn:String(p.tanggal||''),kind,budgetPost:pos,
+  description:String(p.keterangan||''),quantity:qty,unit:String(p.satuan||'unit'),
+  unitPriceRp:price,vendor:String(p.toko||''),toInventory:p.inventaris===true,
+  evidenceUrl:String(p.bukti||'').trim()
+ };
+ if(data.toInventory&&kind!=='pembelian')throw Error('Inventaris baru hanya dapat berasal dari transaksi Pembelian.');
+ const r=await api('/api/v2/admin/bank/expenses',data);
+ return {id:r.id,nominal:r.nominal,inventarisId:r.inventarisId||'',duplicate:!!r.duplicate};
+}
+async function saveInventory(_token,p){
+ const text=String(p.jumlah||'').trim();
+ const match=text.match(/^(\d+(?:[.,]\d{1,3})?)\s*(.{0,40})$/);
+ if(!match)throw Error('Jumlah inventaris harus seperti "2 unit" atau "1,5 kg".');
+ const quantity=Number(match[1].replace(',','.'));
+ const payload={requestKey:inventoryNonce,name:String(p.nama||'').trim(),quantity,
+  unit:String(match[2]||'unit').trim()||'unit',subcategory:String(p.kategori||'').trim(),
+  location:String(p.lokasi||'').trim(),photoUrl:String(p.foto||'').trim()};
+ const r=await api('/api/v2/admin/bank/inventory',payload);
+ inventoryNonce='INV'+crypto.randomUUID().replace(/-/g,'');
+ return {id:r.id,duplicate:!!r.duplicate};
+}
+
 async function cancelDeposit(_token,id,reason){
  const result=await api('/api/v2/admin/bank/deposits/cancel',{id:String(id||''),reason:String(reason||'')});
  return {id:result.id,status:'Dibatalkan',duplicate:!!result.duplicate};
@@ -113,6 +145,6 @@ async function postingStatus(){
  }
  return {diposting:0,kas:cash.filter(x=>x.status==='aktif').reduce((sum,x)=>sum+n(x.cash_in_rp)-n(x.cash_out_rp),0)};
 }
-const methods={bsV6BatalkanSetoran:cancelDeposit,bsV7BatalkanPenjualan:cancelSale,bsV5BuatSetoran:depositDraft,bsV5SimpanTarif:savePrice,bsV11TambahProgress:saveProgress,bsV22TambahAlbum:saveAlbum,bsV6SimpanPenjualan:saleDraft,bsV6PratinjauRekonsiliasi:recon,bsV8BatchSiap:recon,bsV8SahkanBatch:confirm,bsV9RiwayatPencairan:payoutHistory,bsV9CairkanTabungan:payout,bsV9PostingKasPenjualan:postingStatus};
+const methods={bsV10CatatBiaya:saveExpense,bsV11TambahInventaris:saveInventory,bsV6BatalkanSetoran:cancelDeposit,bsV7BatalkanPenjualan:cancelSale,bsV5BuatSetoran:depositDraft,bsV5SimpanTarif:savePrice,bsV11TambahProgress:saveProgress,bsV22TambahAlbum:saveAlbum,bsV6SimpanPenjualan:saleDraft,bsV6PratinjauRekonsiliasi:recon,bsV8BatchSiap:recon,bsV8SahkanBatch:confirm,bsV9RiwayatPencairan:payoutHistory,bsV9CairkanTabungan:payout,bsV9PostingKasPenjualan:postingStatus};
 window.__f4BankDemoCall=(name,args=[])=>Object.hasOwn(methods,name)?methods[name](...args):previous(name,args);
 })();
