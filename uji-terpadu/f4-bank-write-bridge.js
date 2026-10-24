@@ -14,6 +14,43 @@ async function api(path,payload){
  if(!res.ok||data?.ok===false)throw Error(data?.error||'API error '+res.status);
  return data;
 }
+
+const wasteId=value=>String(value||'').startsWith('waste:')?String(value):'waste:'+String(value||'');
+const gramsFromKg=kg=>{
+ const w=Number(kg),grams=Math.round(w*1000);
+ if(!Number.isFinite(w)||!Number.isSafeInteger(grams)||grams<=0||grams>10000000||Math.abs(grams/1000-w)>0.000001)
+   throw Error('Berat barang wajib positif dan menggunakan ketelitian 0,001 kg.');
+ return grams;
+};
+async function depositDraft(_token,p){
+ const date=String(p?.tanggal||''), member=memberId(p?.wargaId);
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!p?.nonce||!p?.items?.length||!String(p.wargaId||''))throw Error('Isi tanggal, warga, dan berat setoran terlebih dahulu.');
+ const batch=await api('/api/v2/admin/bank/batches',{month:date.slice(0,7)});
+ const result=await api('/api/v2/admin/bank/deposits',{
+   requestKey:String(p.nonce),batchId:batch.id,memberId:member,depositedOn:date,
+   items:p.items.map(line=>({itemId:wasteId(line.kode),grams:gramsFromKg(line.berat)}))
+ });
+ return {id:result.id,beratKg:result.totalGrams===undefined?p.items.reduce((sum,line)=>sum+gramsFromKg(line.berat)/1000,0):result.totalGrams/1000,
+   estimasiRp:result.estimatedRp??0,duplicate:!!result.duplicate};
+}
+async function savePrice(_token,code,rate){
+ const rp=Number(rate);
+ if(!Number.isSafeInteger(rp)||rp<1)throw Error('Tarif warga harus rupiah bulat dan lebih dari nol.');
+ return api('/api/v2/admin/bank/prices',{itemId:wasteId(code),effectiveFrom:today(),priceRpPerKg:rp});
+}
+async function saveProgress(_token,p){
+ if(String(p?.foto||'').trim())throw Error('Perkembangan dengan foto belum dapat disimpan lewat Worker. Hapus foto atau gunakan pengelolaan konten setelah endpoint medianya tersedia.');
+ return api('/api/v2/admin/bank/progress',{
+   date:String(p.tanggal||''),title:String(p.judul||''),stage:String(p.langkah||''),description:String(p.deskripsi||''),
+   status:String(p.status||''),nextStep:String(p.agenda||''),publicVisible:p.publik!==false});
+}
+async function saveAlbum(_token,p){
+ if(String(p?.sampul||'').trim())throw Error('Gambar sampul eksternal belum didukung oleh endpoint album D1. Jangan simpan album dengan sampul yang akan diabaikan.');
+ return api('/api/v2/admin/bank/albums',{
+   title:String(p.judul||''),category:String(p.kategori||'Lainnya'),eventOn:String(p.tanggal||''),
+   description:String(p.deskripsi||''),visibility:p.publik===false?'privat':'publik'});
+}
+
 async function recon(_token,batchId){
  const p=await api('/api/admin/reconciliation/preview',{batchId});
  const [batch,sale]=await Promise.all([api('/api/v2/admin/bank/batches'),api('/api/v2/admin/bank/sale-detail?id='+encodeURIComponent(p.saleId))]);
@@ -68,6 +105,6 @@ async function postingStatus(){
  }
  return {diposting:0,kas:cash.filter(x=>x.status==='aktif').reduce((sum,x)=>sum+n(x.cash_in_rp)-n(x.cash_out_rp),0)};
 }
-const methods={bsV6SimpanPenjualan:saleDraft,bsV6PratinjauRekonsiliasi:recon,bsV8BatchSiap:recon,bsV8SahkanBatch:confirm,bsV9RiwayatPencairan:payoutHistory,bsV9CairkanTabungan:payout,bsV9PostingKasPenjualan:postingStatus};
+const methods={bsV5BuatSetoran:depositDraft,bsV5SimpanTarif:savePrice,bsV11TambahProgress:saveProgress,bsV22TambahAlbum:saveAlbum,bsV6SimpanPenjualan:saleDraft,bsV6PratinjauRekonsiliasi:recon,bsV8BatchSiap:recon,bsV8SahkanBatch:confirm,bsV9RiwayatPencairan:payoutHistory,bsV9CairkanTabungan:payout,bsV9PostingKasPenjualan:postingStatus};
 window.__f4BankDemoCall=(name,args=[])=>Object.hasOwn(methods,name)?methods[name](...args):previous(name,args);
 })();
