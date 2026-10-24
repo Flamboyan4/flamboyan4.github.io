@@ -3147,6 +3147,17 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 
           document.getElementById('container-dokumentasi-all').innerHTML = allHTML || '<p class="text-slate-400 text-sm col-span-1 md:col-span-3">Belum ada dokumentasi kegiatan.</p>';
           if (window.lucide) lucide.createIcons();
+        },
+        error:function(err){
+          const holder=document.getElementById('container-dokumentasi-all');
+          if(holder&&!globalDokumentasiPreview.length){
+            holder.replaceChildren();
+            const message=document.createElement('p');
+            message.className='text-xs text-rose-700';message.textContent='Dokumentasi belum dapat diperbarui: '+(err.message||err);
+            const retry=document.createElement('button');retry.type='button';retry.textContent='Coba Lagi';retry.onclick=()=>location.reload();
+            holder.append(message,retry);
+            document.getElementById('dokumentasi-preview-judul').textContent='Dokumentasi belum dapat dimuat';
+          }
         }
       });
     }
@@ -3447,9 +3458,22 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
               }, 700);
             }
           }
+        },
+        error:function(err){
+          const area=document.getElementById('container-rencana');
+          if(area){
+            area.replaceChildren();
+            const msg=document.createElement('p');msg.className='text-xs text-rose-700';
+            msg.textContent='Rencana kegiatan gagal dimuat: '+(err.message||err);
+            const retry=document.createElement('button');retry.textContent='Coba Lagi';retry.type='button';retry.onclick=()=>location.reload();
+            area.append(msg,retry);
+          }
+          renderCalendar();
         }
       });
     } else {
+      const area=document.getElementById('container-rencana');
+      if(area)area.textContent='Sumber rencana kegiatan belum tersedia.';
       renderCalendar();
     }
 
@@ -3496,7 +3520,18 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
             renderBannerSlider();
             startAutoSlide();
             setupBannerGestures();
+          }else{
+            const track=document.getElementById('banner-track');
+            if(track)track.textContent='Belum ada banner yang dipublikasikan.';
           }
+        }
+      },
+      error:function(err){
+        const track=document.getElementById('banner-track');
+        if(track){track.replaceChildren();
+          const msg=document.createElement('p');msg.textContent='Banner belum dapat dimuat: '+(err.message||err);
+          const retry=document.createElement('button');retry.type='button';retry.textContent='Coba Lagi';retry.onclick=initBanner;
+          track.append(msg,retry);
         }
       }
     });
