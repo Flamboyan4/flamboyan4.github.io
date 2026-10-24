@@ -424,9 +424,27 @@ function overview(){
  const tasks=section('Akses cepat');const actions=el('div',undefined,'sa-controls');
  for(const [key,label] of groups.slice(1))actions.append(button(label,()=>open(key),'sa-action'));tasks.append(actions);
  const pulls=[['accounts','/api/superadmin/accounts/preview'],['houses','/api/v2/admin/residents'],['projects','/api/v2/admin/content/projects']];
- Promise.all(pulls.map(async ([id,path])=>{const r=rows(await get(path));const card=cards.querySelector('[data-card="'+id+'"]');card.querySelector('strong').textContent=String(r.length);card.querySelector('span').textContent='Dibaca dari D1';return true})).then(()=>{const h=cards.querySelector('[data-card="health"]');h.querySelector('strong').textContent='Terhubung';h.querySelector('span').textContent='API merespons';}).catch(e=>{
- const h=cards.querySelector('[data-card="health"]');h.querySelector('strong').textContent='Periksa';h.querySelector('span').textContent='Ada endpoint belum tersedia';
- }).finally(()=>{});
+ Promise.allSettled(pulls.map(async ([id,path])=>{
+  const card=cards.querySelector('[data-card="'+id+'"]');
+  try{
+   const r=rows(await get(path));
+   if(!card?.isConnected)return;
+   card.querySelector('strong').textContent=String(r.length);
+   card.querySelector('span').textContent=r.length?'Dibaca dari D1':'Belum ada data';
+  }catch(error){
+   if(card?.isConnected){
+    card.querySelector('strong').textContent='—';
+    card.querySelector('span').textContent='Gagal dimuat: '+safe(error);
+   }
+   throw error;
+  }
+ })).then(results=>{
+  const health=cards.querySelector('[data-card="health"]');
+  if(!health?.isConnected)return;
+  const failed=results.filter(r=>r.status==='rejected').length;
+  health.querySelector('strong').textContent=failed?'Periksa':'Terhubung';
+  health.querySelector('span').textContent=failed?failed+' layanan perlu diperiksa':'Semua respons diterima';
+ });
 }
 // Match original Bank Sampah account-management table, add centralized role.
 let accountRoleFilter='',accountRequestSerial=0;
