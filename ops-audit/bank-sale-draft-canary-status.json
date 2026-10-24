@@ -1,0 +1,6 @@
+{
+  "checked_utc": "2026-10-24T20:04:04.433818+00:00",
+  "status": "failed",
+  "scope": "FINANCE + MANUAL_CASH + IURAN + DENDA_PINJAMAN + BANK + SALE_DRAFT only",
+  "error": "ValueError: Unexpected active write flags"
+}
