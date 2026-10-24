@@ -1,0 +1,90 @@
+{
+  "checked_at_utc": "2026-10-24T20:07:58.017398+00:00",
+  "test": "EPHEMERAL_SESSIONS_READ_ONLY_FINANCIAL",
+  "roles": {
+    "superadmin": "tested",
+    "admin": "tested",
+    "anggota": "tested"
+  },
+  "checks": [
+    {
+      "role": "superadmin",
+      "route": "/api/bookkeeping/status",
+      "http": 200,
+      "expected": 200,
+      "pass": true
+    },
+    {
+      "role": "superadmin",
+      "route": "/api/bookkeeping/reports/yearly",
+      "http": 200,
+      "expected": 200,
+      "pass": true
+    },
+    {
+      "role": "superadmin",
+      "route": "/api/v2/admin/bank/members",
+      "http": 200,
+      "expected": 200,
+      "pass": true
+    },
+    {
+      "role": "superadmin",
+      "route": "/api/superadmin/accounts/preview",
+      "http": 200,
+      "expected": 200,
+      "pass": true
+    },
+    {
+      "role": "admin",
+      "route": "/api/admin/status",
+      "http": 200,
+      "expected": 200,
+      "pass": true
+    },
+    {
+      "role": "admin",
+      "route": "/api/bookkeeping/status",
+      "http": 403,
+      "expected": 403,
+      "pass": true
+    },
+    {
+      "role": "admin",
+      "route": "/api/v2/admin/bank/sales",
+      "http": 200,
+      "expected": 200,
+      "pass": true
+    },
+    {
+      "role": "anggota",
+      "route": "/api/member/savings",
+      "http": 200,
+      "expected": 200,
+      "pass": true
+    },
+    {
+      "role": "anggota",
+      "route": "/api/bookkeeping/status",
+      "http": 403,
+      "expected": 403,
+      "pass": true
+    },
+    {
+      "role": "anggota",
+      "route": "/api/v2/admin/bank/sales",
+      "http": 403,
+      "expected": 403,
+      "pass": true
+    },
+    {
+      "role": "publik",
+      "route": "/api/member/savings",
+      "http": 401,
+      "expected": 401,
+      "pass": true
+    }
+  ],
+  "temporary_sessions_removed": true,
+  "status": "pass"
+}
