@@ -1659,7 +1659,7 @@ main > section.card{overflow:visible!important}
 }
 </style>
 <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://api.flamboyan4.web.id; form-action 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com;"><script src="../offline-common.js"></script><script src="../calendar-unified.js"></script><script src="../offline-pembukuan.js"></script>
-<script src="../live-book-readonly.js?v=kas-upr-20261024"></script>
+<script src="../live-book-readonly.js?v=report-house-advance-20261024"></script>
 <script src="../f4-book-write-bridge.js?v=20261024-finance-staging"></script><style id="f4-no-double-navbar">body>header:first-of-type{display:none!important} @media(max-width:850px){#f4-demo-book-hamburger{display:grid!important}} #f4-demo-book-hamburger{display:none;position:fixed;left:11px;top:9px;z-index:60;place-items:center;width:38px;height:38px;background:#f1ebff;color:#5b33c4;border:1px solid #d8cafa;border-radius:9px}</style><style id="f4-book-integrated-alignment">
 /* Desktop: original bookkeeping sidebar starts at y=0; content clears shared 56px overlay */
 @media(min-width:1024px){
@@ -3460,6 +3460,43 @@ function printKasSepertiLamanUtama(){
 <section class="approval"><div><div class="sign-title">Mengetahui,<br>Humas Flamboyan 4</div><div class="sign-line">Heri Juwandi</div></div></section>
 <div class="note">Dicetak pada ${escapePrint(tanggalCetak)} • Flamboyan 4 • Data bersumber dari pembukuan kas pada flamboyan4.web.id</div><script>window.onload=()=>{setTimeout(()=>window.print(),350)}<\/script>
 
+
+<style id="f4-book-report-tables-consistent-20261024">
+/* Satu gaya tabel laporan; ukuran huruf tetap nyaman, jarak kolom yang dipadatkan. */
+#tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table{
+  width:100%;border-collapse:collapse;border-spacing:0;
+  font-size:13px;line-height:1.35;font-variant-numeric:tabular-nums;
+}
+#tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table thead{
+  background:#f0f3f8!important;color:#213451!important;
+}
+#tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table :is(th,td){
+  border:1px solid #d9e1ed;padding:7px 9px!important;vertical-align:middle;
+}
+#tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table th{
+  font-weight:800;white-space:normal;line-height:1.2;
+}
+#tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table tfoot{
+  background:#f0f3f8!important;font-weight:800;
+}
+@media(max-width:767px){
+  #tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table :is(th,td){
+    padding:6px 7px!important;
+  }
+}
+@media print{
+  #tab-laporan .report-table-wrap:not(.kas-report-table-wrap){
+    overflow:visible!important;border-radius:0!important;
+  }
+  #tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table{
+    width:100%!important;min-width:0!important;
+    font-size:9px!important;line-height:1.25!important;
+  }
+  #tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table :is(th,td){
+    padding:3px 4px!important;border:1px solid #d5dbe7!important;
+  }
+}
+</style>
 </body></html>`); w.document.close();
 }
 function printRtSepertiLamanUtama(){
