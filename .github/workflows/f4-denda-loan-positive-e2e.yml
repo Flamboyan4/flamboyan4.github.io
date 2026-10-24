@@ -1,0 +1,134 @@
+name: F4 Denda Pinjaman Positive E2E - Fully Restored
+on:
+  push:
+    branches: [ops-cloudflare-integration-20261025]
+    paths: [.github/workflows/f4-denda-loan-positive-e2e.yml]
+permissions:
+  contents: write
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: New synthetic payer, fine, loan, payments, then complete cleanup
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,json,hashlib,secrets,uuid,datetime,urllib.request,urllib.error
+          from pathlib import Path
+          now=datetime.datetime.now(datetime.timezone.utc)
+          report={"checked_at_utc":now.isoformat(),"scope":"SYNTHETIC_FINE_LOAN_WITH_REPAYMENTS","checks":[],"restored":False}
+          target=Path("ops-audit/denda-loan-positive-e2e.json");target.parent.mkdir(exist_ok=True)
+          root="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CF_ACCOUNT"]
+          def cf(path,data=None):
+            b=json.dumps(data).encode() if data is not None else None
+            req=urllib.request.Request(root+path,headers={"Authorization":"Bearer "+os.environ["CF_TOKEN"],"Content-Type":"application/json"},data=b,method="POST" if b else "GET")
+            with urllib.request.urlopen(req,timeout=35) as resp:j=json.load(resp)
+            if not j.get("success"):raise RuntimeError("Cloudflare returned an error")
+            return j["result"]
+          db=next(x for x in cf("/d1/database") if x["name"]=="flamboyan4-staging")
+          qpath="/d1/database/"+db["uuid"]+"/query"
+          def sql(q,p=()):
+            ans=cf(qpath,{"sql":q,"params":list(p)})
+            if not isinstance(ans,list) or not ans:raise RuntimeError("D1 result missing")
+            return ans[0].get("results") or []
+          def http(path,token,payload):
+            req=urllib.request.Request("https://api.flamboyan4.web.id"+path,
+              headers={"Content-Type":"application/json","Accept":"application/json","Origin":"https://flamboyan4.web.id","Cookie":"f4_session="+token,"User-Agent":"Mozilla/5.0 F4-Denda-E2E"},
+              data=json.dumps(payload).encode(),method="POST")
+            try:
+              with urllib.request.urlopen(req,timeout=25) as resp:return resp.status,json.load(resp)
+            except urllib.error.HTTPError as e:return e.code,json.loads(e.read(20000) or b'{}')
+          def assertit(name,condition):
+            report["checks"].append({"name":name,"pass":bool(condition)})
+            if not condition:raise RuntimeError("Check failed: "+name)
+          tables=["bookkeeping_payers","bookkeeping_fines","bookkeeping_fine_payments","bookkeeping_loans","bookkeeping_loan_repayments",
+            "bookkeeping_cash_transactions","bookkeeping_dp_request_ledger","bookkeeping_dp_cash_links","audit_log","sessions"]
+          def counts():return {k:sql('SELECT COUNT(*) AS n FROM "'+k+'"')[0]["n"] for k in tables}
+          def cash_sum():return sql("SELECT COALESCE(SUM(debit_rp-credit_rp),0) AS s FROM bookkeeping_cash_transactions WHERE status='aktif'")[0]["s"]
+          payer="payer:qa:"+secrets.token_hex(10)
+          sid="qa-"+secrets.token_hex(16);token=secrets.token_urlsafe(48);thash=hashlib.sha256(token.encode()).hexdigest()
+          ids={};before=None;balance=None
+          try:
+            before=counts();balance=cash_sum()
+            who=sql("SELECT id FROM accounts WHERE role='superadmin' AND status='aktif' LIMIT 1")
+            if not who:raise RuntimeError("No active superadmin")
+            expires=(now+datetime.timedelta(minutes=8)).strftime("%Y-%m-%d %H:%M:%S")
+            sql("INSERT INTO sessions(id,account_id,token_hash,expires_at) VALUES(?,?,?,?)",[sid,who[0]["id"],thash,expires])
+            sql("INSERT INTO bookkeeping_payers(id,display_name,payer_type,active) VALUES(?,'QA AUTO DELETE','lembaga',1)",[payer])
+            def create(kind,endpoint,fields):
+              reqid=str(uuid.uuid4())
+              payload={"requestKey":reqid,"tanggal":"2026-10-25","jumlahRp":fields["jumlahRp"],
+                "catatan":"QA otomatis dihapus"}
+              payload.update({k:v for k,v in fields.items() if k!="jumlahRp"})
+              code,result=http(endpoint,token,payload)
+              assertit(kind+"_saved",code==201 and result.get("id"))
+              ids[kind]={"key":reqid,"id":result["id"],"cash":result.get("kasId")}
+              code,replay=http(endpoint,token,payload)
+              assertit(kind+"_replay",code==200 and replay.get("id")==result["id"] and replay.get("replayed") is True)
+              return result["id"]
+            fine=create("fine-create","/api/bookkeeping/denda",{"payerId":payer,"jumlahRp":20000})
+            assertit("fine_in_D1",len(sql("SELECT id FROM bookkeeping_fines WHERE id=? AND payer_id=?",[fine,payer]))==1)
+            fp=create("fine-pay","/api/bookkeeping/denda/bayar",{"referenceId":fine,"jumlahRp":20000,"metode":"Cash"})
+            assertit("fine_paid_cash_link",len(sql("SELECT id FROM bookkeeping_fine_payments WHERE id=? AND fine_id=?",[fp,fine]))==1)
+            loan=create("loan-create","/api/bookkeeping/pinjaman",{"payerId":payer,"jumlahRp":1000,"metode":"Cash"})
+            assertit("loan_disbursed_cash",len(sql("SELECT id FROM bookkeeping_loans WHERE id=? AND payer_id=?",[loan,payer]))==1)
+            lr=create("loan-pay","/api/bookkeeping/pinjaman/bayar",{"referenceId":loan,"jumlahRp":1000,"metode":"Cash"})
+            assertit("loan_repayment_recorded",len(sql("SELECT id FROM bookkeeping_loan_repayments WHERE id=? AND loan_id=?",[lr,loan]))==1)
+            assertit("cash_balance_matches",cash_sum()==balance+20000)
+          except Exception as e:
+            report["error"]=type(e).__name__+": "+str(e)[:230]
+          finally:
+            try:
+              keys=[x["key"] for x in ids.values()]
+              if keys:
+                # Any missing success response can still leave an idempotency row; discover by scoped request key.
+                request_keys=keys[:]
+              else:request_keys=[]
+              known=sql("SELECT operation,result_id,cash_transaction_id,request_key FROM bookkeeping_dp_request_ledger WHERE request_key IN ("+",".join("?" for _ in request_keys)+")",request_keys) if request_keys else []
+              for item in known:
+                ids.setdefault(item["operation"],{"id":item["result_id"],"cash":item["cash_transaction_id"],"key":item["request_key"]})
+              fine_id=ids.get("fine-create",{}).get("id")
+              loan_id=ids.get("loan-create",{}).get("id")
+              if fine_id:
+                sql("DELETE FROM bookkeeping_dp_cash_links WHERE source_id IN (SELECT id FROM bookkeeping_fine_payments WHERE fine_id=?)",[fine_id])
+                sql("DELETE FROM bookkeeping_fine_payments WHERE fine_id=?",[fine_id])
+              if loan_id:
+                sql("DELETE FROM bookkeeping_dp_cash_links WHERE source_id IN (SELECT id FROM bookkeeping_loan_repayments WHERE loan_id=?)",[loan_id])
+                sql("DELETE FROM bookkeeping_loan_repayments WHERE loan_id=?",[loan_id])
+                sql("DELETE FROM bookkeeping_dp_cash_links WHERE source_id=?",[loan_id])
+              for entry in ids.values():
+                if entry.get("cash"):sql("DELETE FROM bookkeeping_cash_transactions WHERE id=?",[entry["cash"]])
+              if request_keys:
+                sql("DELETE FROM bookkeeping_dp_request_ledger WHERE request_key IN ("+",".join("?" for _ in request_keys)+")",request_keys)
+              if fine_id:sql("DELETE FROM bookkeeping_fines WHERE id=? AND payer_id=?",[fine_id,payer])
+              if loan_id:sql("DELETE FROM bookkeeping_loans WHERE id=? AND payer_id=?",[loan_id,payer])
+              # Audit rows are limited to the four synthetic request targets and audit actor.
+              targets=[x.get("id") for x in ids.values() if x.get("id")]
+              if targets:
+                sql("DELETE FROM audit_log WHERE scope='pembukuan' AND action IN ('fine-create','fine-pay','loan-create','loan-pay') AND target_id IN ("+",".join("?" for _ in targets)+")",targets)
+              sql("DELETE FROM bookkeeping_payers WHERE id=? AND display_name='QA AUTO DELETE'",[payer])
+              sql("DELETE FROM sessions WHERE id=? AND token_hash=?",[sid,thash])
+              report["restored"]=before is not None and counts()==before and cash_sum()==balance
+              report["synthetic_rows_absent"]=not sql("SELECT id FROM bookkeeping_payers WHERE id=?",[payer]) and not sql("SELECT id FROM sessions WHERE id=?",[sid])
+            except Exception as e:
+              report["cleanup_error"]=type(e).__name__+": "+str(e)[:230]
+              report["restored"]=False
+            report["status"]="pass" if report["restored"] and report.get("synthetic_rows_absent") and not report.get("error") and len(report["checks"])==13 and all(x["pass"] for x in report["checks"]) else "incomplete"
+            target.write_text(json.dumps(report,indent=2)+"\n")
+            print("Denda/loan E2E:",report["status"],"checks:",len(report["checks"]),"restored:",report["restored"])
+          if report["status"]!="pass":raise SystemExit("Denda/Pinjaman E2E incomplete")
+          PY
+      - name: Save sanitized E2E report
+        if: always()
+        run: |
+          test -f ops-audit/denda-loan-positive-e2e.json || exit 1
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/denda-loan-positive-e2e.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(ops): record Denda Pinjaman transaction E2E"
+          git push origin HEAD:ops-cloudflare-integration-20261025
