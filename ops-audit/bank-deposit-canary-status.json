@@ -1,0 +1,13 @@
+{
+  "checked_utc": "2026-10-24T20:02:58.259851+00:00",
+  "status": "bank_deposit_enabled",
+  "scope": "FINANCE + MANUAL_CASH + IURAN + DENDA_PINJAMAN + BANK only",
+  "deployment_id": "75a0d52a-90e1-465a-8b0a-802700fc3dc6",
+  "active_write_flags": [
+    "BANK_WRITE_ENABLED",
+    "DENDA_PINJAMAN_WRITE_ENABLED",
+    "FINANCE_WRITE_ENABLED",
+    "IURAN_WRITE_ENABLED",
+    "MANUAL_CASH_WRITE_ENABLED"
+  ]
+}
