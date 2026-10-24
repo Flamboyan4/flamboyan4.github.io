@@ -1,0 +1,63 @@
+name: F4 Canary Role and Ledger Guard
+on:
+  push:
+    branches: [ops-cloudflare-integration-20261025]
+    paths: [.github/workflows/f4-canary-guard.yml]
+permissions:
+  contents: write
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test unauthenticated writes cannot mutate D1
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,json,urllib.request,urllib.error,datetime
+          from pathlib import Path
+          root="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CF_ACCOUNT"]
+          key=os.environ["CF_TOKEN"]
+          def cloud(path,data=None):
+            req=urllib.request.Request(root+path,headers={"Authorization":"Bearer "+key,"Content-Type":"application/json"},data=None if data is None else json.dumps(data).encode(),method="GET" if data is None else "POST")
+            with urllib.request.urlopen(req,timeout=25) as response:body=json.load(response)
+            if not body.get("success"):raise RuntimeError("Cloudflare API error")
+            return body["result"]
+          db=next(x for x in cloud("/d1/database") if x["name"]=="flamboyan4-staging")
+          sql="SELECT COUNT(*) AS total FROM bookkeeping_cash_transactions"
+          def count():return cloud("/d1/database/"+db["uuid"]+"/query",{"sql":sql})[0]["results"][0]["total"]
+          before=count()
+          def unauth_post(path,payload):
+            req=urllib.request.Request("https://api.flamboyan4.web.id"+path,method="POST",headers={"Content-Type":"application/json","Origin":"https://flamboyan4.web.id","User-Agent":"Mozilla/5.0 F4-Guard"},data=json.dumps(payload).encode())
+            try:
+              with urllib.request.urlopen(req,timeout=20) as response:return response.status
+            except urllib.error.HTTPError as error:return error.code
+          cases=[
+            ("unauthenticated_cash_write",unauth_post("/api/bookkeeping/cash",{"tanggal":"2026-10-25","jenis":"debit","jumlahRp":1,"kategori":"Test","keterangan":"Unauthorized request","metode":"Cash"})),
+            ("unauthenticated_bank_write",unauth_post("/api/v2/admin/bank/deposits",{"batchId":"none","memberId":"none","depositedOn":"2026-10-25","items":[]}))
+          ]
+          after=count()
+          cfg=cloud("/workers/scripts/flamboyan4-terpadu-staging/settings")
+          enabled=sorted([b["name"] for b in cfg.get("bindings",[]) if b.get("name","").endswith("_WRITE_ENABLED") and str(b.get("text","")).lower()=="true"])
+          out={"checked_at_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),
+               "status":"pass" if before==after and all(status in (401,403) for _,status in cases) and enabled==["FINANCE_WRITE_ENABLED","MANUAL_CASH_WRITE_ENABLED"] else "fail",
+               "cases":[{"name":name,"http":status} for name,status in cases],
+               "cash_count_unchanged":before==after,"enabled_flags":enabled}
+          path=Path("ops-audit/canary-guard.json");path.parent.mkdir(exist_ok=True)
+          path.write_text(json.dumps(out,indent=2)+"\n")
+          print(out)
+          if out["status"]!="pass":raise SystemExit("Canary role/ledger guard did not pass")
+          PY
+      - name: Save guard report
+        if: always()
+        run: |
+          test -f ops-audit/canary-guard.json || echo '{"status":"workflow_error"}' > ops-audit/canary-guard.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/canary-guard.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(ops): verify public cannot write financial records"
+          git push origin HEAD:ops-cloudflare-integration-20261025
