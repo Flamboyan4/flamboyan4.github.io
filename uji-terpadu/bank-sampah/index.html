@@ -1070,7 +1070,10 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
    const cash=await adminCash();return {saldoKasTercatat:cash.reduce((n,x)=>n+x.masuk-x.keluar,0),batchBelumDiposting:[],kasGabungan:cash.reduce((n,x)=>n+x.masuk-x.keluar,0)};
   },
   bsV10KasPosAdmin:async()=>{
-   const cash=await adminCash();return {kasGabungan:cash.reduce((n,x)=>n+x.masuk-x.keluar,0),pos:[]};
+   const cash=await adminCash(),active=cash.filter(x=>x.status==='aktif');
+   const slots=[['operasional','Operasional'],['kas_lorong','Kas Lorong'],['cadangan','Cadangan'],['tabungan_warga','Tabungan Warga']];
+   return {kasGabungan:active.reduce((n,x)=>n+x.masuk-x.keluar,0),
+    pos:slots.map(([key,nama])=>({nama,tersedia:active.filter(x=>x.pos===key).reduce((n,x)=>n+x.masuk-x.keluar,0)}))};
   },
   bsV6SetoranAdmin:adminDeposits,
   bsV18RiwayatSetoranAdmin:adminDeposits,
