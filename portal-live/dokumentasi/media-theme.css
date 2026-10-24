@@ -1,0 +1,140 @@
+/* Scoped to /uji-terpadu/dokumentasi/. Existing production site.css untouched. */
+:root,body.theme-home{
+ --accent:#6c39df;--accent-dark:#4a269b;--accent-soft:#f1eafb;
+ --bg:#f8f7fd;--ink:#201f39;--soft:#6c6880;--line:#e7e0f3;
+}
+.media-top-tabs .btn{min-height:42px}
+.media-album-cover svg,.media-photo-placeholder svg{display:block;margin:auto;flex:none}
+.media-photo-placeholder{display:grid!important;place-items:center!important;line-height:0!important;color:var(--accent)}
+.media-category-tag{background:#f2ebff;color:#4e3092}
+.media-inventory-item{background:#fff;min-height:79px}
+.media-inventory-item:hover{background:#fcfaff}
+.media-dialog-header{background:var(--accent-dark);color:#fff}
+.f4-album-head{background:#f5f0ff;border-bottom:1px solid #e6dbfb}
+.f4-album-head h2{color:#39266f}
+.f4-album-head small{color:#6e6393}
+.f4-album-footer{background:#fff}
+:is(.f4-album-close,.f4-lightbox-close,.f4-lightbox-arrow,#media-dialog-close){
+ box-sizing:border-box!important;display:grid!important;place-items:center!important;
+ padding:0!important;line-height:0!important;text-align:center!important;
+ font-size:0!important;flex-shrink:0;appearance:none;
+}
+:is(.f4-album-close,.f4-lightbox-close,#media-dialog-close){width:38px!important;height:38px!important;border-radius:50%!important}
+.f4-album-close,#media-dialog-close{color:#5838a1!important;background:#e9e1fb!important}
+.f4-album-close:hover,#media-dialog-close:hover{background:#ded3f7!important}
+.f4-lightbox-close,.f4-lightbox-arrow{color:#fff!important;background:#2e254e!important}
+.f4-lightbox-close:hover,.f4-lightbox-arrow:hover{background:#513898!important}
+.f4-lightbox-arrow{width:48px!important;height:48px!important;border-radius:50%}
+:is(.f4-album-close,.f4-lightbox-close,.f4-lightbox-arrow,#media-dialog-close) svg{
+ display:block!important;width:20px!important;height:20px!important;
+ margin:0!important;flex-shrink:0!important;position:static!important;
+ transform:none!important;pointer-events:none
+}
+.f4-video-thumb svg,.f4-play svg{display:block;margin:auto}
+.f4-video-thumb{display:grid!important;place-items:center!important;line-height:0!important}
+.f4-play{display:grid!important;place-items:center!important;padding:0!important;
+ transform:translate(-50%,-50%)!important;top:50%!important;left:50%!important;
+ width:44px!important;height:44px!important;border-radius:50%!important;background:#5530b6cc!important}
+.f4-album-tile{display:grid;place-items:center}
+.f4-lightbox-title{color:#faf9ff}
+.f4-lightbox-foot{color:#d8d1e9}
+.f4-media-original{color:#d6c7ff}
+@media(max-width:640px){.f4-lightbox-body{grid-template-columns:47px minmax(0,1fr) 47px}
+.f4-lightbox-arrow{width:35px!important;height:42px!important}
+.f4-album-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Media fullscreen respects the available iframe viewport. No portrait cropping. */
+.f4-lightbox[open]{
+ box-sizing:border-box!important;display:grid!important;
+ grid-template-rows:52px minmax(0,1fr) 34px!important;
+ width:100%!important;height:100dvh!important;max-width:100%!important;max-height:100dvh!important;
+ padding:0!important;margin:auto!important;overflow:hidden!important;
+}
+.f4-lightbox-bar{height:52px!important;box-sizing:border-box!important}
+.f4-lightbox-body{
+ height:auto!important;min-height:0!important;min-width:0!important;
+ display:grid!important;grid-template-columns:52px minmax(0,1fr) 52px!important;
+ align-items:stretch!important;overflow:hidden!important;
+}
+.f4-lightbox-view{
+ box-sizing:border-box!important;display:flex!important;
+ align-items:center!important;justify-content:center!important;
+ width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
+ overflow:hidden!important;padding:6px 0!important;
+}
+.f4-lightbox-view img.f4-media-photo{
+ display:block!important;width:auto!important;height:auto!important;
+ max-width:100%!important;max-height:calc(100dvh - 110px)!important;
+ min-width:0!important;min-height:0!important;object-fit:contain!important;
+ object-position:center center!important;flex-shrink:1!important;
+}
+.f4-lightbox-foot{height:34px!important;box-sizing:border-box!important}
+.f4-lightbox-view :is(.f4-media-video,.f4-media-frame){
+ display:block!important;max-width:100%!important;max-height:100%!important;
+ object-fit:contain!important;aspect-ratio:16/9;min-height:0!important;
+}
+@media(max-width:640px){
+ .f4-lightbox-body{grid-template-columns:39px minmax(0,1fr) 39px!important}
+ .f4-lightbox-view{padding:4px 0!important}
+ .f4-lightbox-view img.f4-media-photo{max-height:calc(100dvh - 100px)!important}
+}
+
+
+/* 2026-10-23: Two-layer gallery aligned with the working Bank Sampah viewer.
+   The old <dialog> classes are left untouched for unrelated components. */
+.f4p-overlay[hidden]{display:none!important}
+.f4p-overlay{position:fixed;inset:0;z-index:150;display:grid;place-items:center;
+ box-sizing:border-box;width:100%;height:100dvh;overflow:hidden;background:rgba(14,25,22,.76);
+ color:#163725;padding:22px}
+.f4p-album-card{width:min(100%,1000px);max-height:90dvh;min-height:220px;
+ box-sizing:border-box;display:flex;flex-direction:column;min-width:0;
+ border-radius:17px;background:#fff;overflow:hidden;box-shadow:0 18px 70px #0c201b69}
+.f4p-album-head{flex:none;display:flex;align-items:center;justify-content:space-between;
+ gap:12px;padding:17px 19px;border-bottom:1px solid #e7e8f2;background:#f6f1ff}
+.f4p-album-title{font:750 19px/1.3 system-ui;margin:0;color:#38256c}
+.f4p-album-count{display:block;margin-top:4px;font:400 12px system-ui;color:#806b9d}
+.f4p-close,.f4p-photo-arrow{appearance:none;flex:none;border:0;display:inline-flex;align-items:center;justify-content:center;
+ cursor:pointer;border-radius:50%;line-height:0!important;padding:0!important}
+.f4p-close{width:38px;height:38px;background:#e9e2f9;color:#4a3690}
+.f4p-close:hover{background:#dcd0fb}
+.f4p-close svg,.f4p-photo-arrow svg{display:block;flex:none;margin:0;pointer-events:none}
+.f4p-album-grid{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;
+ padding:18px 19px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+ grid-auto-rows:165px;align-content:start;gap:13px}
+.f4p-album-tile{display:block;cursor:pointer;position:relative;min-width:0;overflow:hidden;
+ border:0;border-radius:12px;padding:0;background:#e0e3ef}
+.f4p-tile-image,.f4p-tile-video{display:block;width:100%!important;height:100%!important;object-fit:cover!important}
+.f4p-video-thumb{height:100%;display:grid;place-items:center;background:#dbe0ee;color:#5b40ac}
+.f4p-tile-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+ display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#5a43b7;color:white}
+.f4p-media-empty{grid-column:1/-1;align-self:start;color:#667285}
+.f4p-photo-overlay{z-index:160;background:rgba(2,9,9,.95)!important;color:#fff;padding:12px 14px;
+ display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:0}
+.f4p-photo-head{flex:none;display:flex;justify-content:space-between;align-items:center;gap:14px;
+ width:100%;min-height:40px;padding:0 3px 8px;color:#fff}
+.f4p-photo-name{font:750 15px/1.2 system-ui;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.f4p-photo-stage{display:flex;align-items:center;justify-content:center;gap:8px;
+ min-height:0;width:100%;height:min(79dvh,780px);flex:none}
+.f4p-photo-arrow{width:43px;height:43px;background:#273841;color:#fff}
+.f4p-photo-arrow:hover{background:#42546a}
+.f4p-photo-arrow[hidden]{visibility:hidden;display:inline-flex!important;pointer-events:none}
+.f4p-photo-content{display:flex;flex:1;align-items:center;justify-content:center;min-width:0;
+ height:100%;min-height:0;overflow:hidden}
+.f4p-photo-content img.f4p-media-photo{
+ display:block!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
+ max-width:100%!important;max-height:100%!important;object-fit:contain!important;object-position:center!important;
+ border:0!important;margin:0!important;padding:0!important}
+.f4p-photo-content iframe,.f4p-photo-content video{display:block;max-width:100%;max-height:100%;
+ width:min(100%,960px);height:100%;object-fit:contain;border:0;background:black}
+.f4p-photo-count{flex:none;text-align:center;font:400 12px system-ui;color:#b7c4c9;padding:7px 0}
+.f4p-media-error{font:500 13px system-ui;color:#f8f2ff}
+@media(max-width:720px){
+ .f4p-overlay{padding:9px}
+ .f4p-album-card{max-height:94dvh;border-radius:13px}
+ .f4p-album-head{padding:12px}
+ .f4p-album-grid{padding:12px;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:142px;gap:9px}
+ .f4p-photo-overlay{padding:7px}
+ .f4p-photo-stage{height:75dvh;gap:4px}
+ .f4p-photo-arrow{width:34px;height:40px}
+ .f4p-photo-name{font-size:12px}
+}
