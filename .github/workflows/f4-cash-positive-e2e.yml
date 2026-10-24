@@ -1,0 +1,129 @@
+name: F4 Cash Positive E2E With Full Cleanup
+on:
+  push:
+    branches: [ops-cloudflare-integration-20261025]
+    paths: [.github/workflows/f4-cash-positive-e2e.yml]
+permissions:
+  contents: write
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test create/replay/edit/read/cancel of 1-Rp synthetic cash and restore D1
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,json,datetime,hashlib,secrets,urllib.request,urllib.error,time
+          from pathlib import Path
+          now=datetime.datetime.now(datetime.timezone.utc)
+          report={"at_utc":now.isoformat(),"scope":"SYNTHETIC_1_RP_MANUAL_CASH_ONLY","tests":[],"restored":False}
+          target=Path("ops-audit/cash-positive-e2e.json");target.parent.mkdir(exist_ok=True)
+          root="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CF_ACCOUNT"]
+          header={"Authorization":"Bearer "+os.environ["CF_TOKEN"],"Content-Type":"application/json"}
+          def cf(path,data=None):
+            encoded=None if data is None else json.dumps(data).encode()
+            req=urllib.request.Request(root+path,data=encoded,headers=header,method="POST" if encoded is not None else "GET")
+            with urllib.request.urlopen(req,timeout=35) as r:x=json.load(r)
+            if not x.get("success"):raise RuntimeError("Cloudflare D1 API rejected operation")
+            return x["result"]
+          db=next(x for x in cf("/d1/database") if x.get("name")=="flamboyan4-staging")
+          path="/d1/database/"+db["uuid"]+"/query"
+          def sql(q,args=None):
+            result=cf(path,{"sql":q,"params":args or []})
+            if not isinstance(result,list) or not result or not result[0].get("success",True):
+              raise RuntimeError("D1 SQL rejected")
+            return result[0].get("results",[])
+          def http(method,endpoint,token,payload=None):
+            h={"Accept":"application/json","Origin":"https://flamboyan4.web.id","User-Agent":"Mozilla/5.0 F4-PositiveE2E"}
+            if token:h["Cookie"]="f4_session="+token
+            b=None if payload is None else json.dumps(payload).encode()
+            if b is not None:h["Content-Type"]="application/json"
+            req=urllib.request.Request("https://api.flamboyan4.web.id"+endpoint,headers=h,data=b,method=method)
+            try:
+              with urllib.request.urlopen(req,timeout=25) as r:return r.status,json.load(r)
+            except urllib.error.HTTPError as e:
+              return e.code,json.loads(e.read(10000) or b'{}')
+          def mark(name,ok):
+            report["tests"].append({"case":name,"pass":bool(ok)})
+            if not ok:raise RuntimeError("Test failed: "+name)
+          session_id="qa-"+secrets.token_hex(16)
+          session_key=secrets.token_urlsafe(36)
+          session_hash=hashlib.sha256(session_key.encode()).hexdigest()
+          request_key="QaCash"+secrets.token_urlsafe(28).replace("-","_")[:38]
+          category="QA_ONLY_RESTORE_"+secrets.token_hex(6)
+          cash_id=None;created_session=False;initial=None
+          try:
+            user=sql("SELECT id FROM accounts WHERE role='superadmin' AND status='aktif' LIMIT 1")
+            if not user:raise RuntimeError("No active superadmin")
+            accounts=sql("SELECT COUNT(*) AS n FROM bookkeeping_cash_transactions")
+            keys=sql("SELECT COUNT(*) AS n FROM bookkeeping_manual_cash_request_keys")
+            before_sum=sql("SELECT COALESCE(SUM(debit_rp-credit_rp),0) AS total FROM bookkeeping_cash_transactions WHERE status='aktif'")
+            initial=(accounts[0]["n"],keys[0]["n"],before_sum[0]["total"])
+            expires=(now+datetime.timedelta(minutes=7)).strftime("%Y-%m-%d %H:%M:%S")
+            sql("INSERT INTO sessions(id,account_id,token_hash,expires_at) VALUES (?,?,?,?)",[session_id,user[0]["id"],session_hash,expires])
+            created_session=True
+            payload={"requestKey":request_key,"tanggal":"2026-10-25","jenis":"debit",
+              "jumlahRp":1,"kategori":category,"keterangan":"E2E sementara, otomatis dibatalkan dan dihapus","metode":"Cash","catatan":"QA_RESTORE_ONLY"}
+            code,resp=http("POST","/api/bookkeeping/cash",session_key,payload)
+            cash_id=resp.get("id")
+            mark("create_201",code==201 and isinstance(cash_id,str) and cash_id.startswith("cash-"))
+            mark("D1_record_created",len(sql("SELECT id FROM bookkeeping_cash_transactions WHERE id=? AND category=?",[cash_id,category]))==1)
+            code,again=http("POST","/api/bookkeeping/cash",session_key,payload)
+            mark("idempotent_replay",code==200 and again.get("id")==cash_id and again.get("duplikat") is True)
+            edit={k:payload[k] for k in ("tanggal","jenis","jumlahRp","kategori","keterangan","metode","catatan")}
+            edit["id"]=cash_id;edit["jumlahRp"]=2
+            code,changed=http("POST","/api/bookkeeping/cash/edit",session_key,edit)
+            mark("edit_200",code==200 and changed.get("updated") is True)
+            changedrow=sql("SELECT debit_rp,status FROM bookkeeping_cash_transactions WHERE id=?",[cash_id])
+            mark("D1_edit_persisted",len(changedrow)==1 and changedrow[0]["debit_rp"]==2 and changedrow[0]["status"]=="aktif")
+            code,rows=http("GET","/api/bookkeeping/cash?limit=500",session_key)
+            entries=rows.get("transaksi",[]) if code==200 else []
+            mark("read_reload_updated",any(x.get("id")==cash_id and x.get("debit_rp")==2 for x in entries))
+            code,canceled=http("POST","/api/bookkeeping/cash/cancel",session_key,{"id":cash_id})
+            mark("cancel_200",code==200 and canceled.get("status")=="dibatalkan")
+            canceledrow=sql("SELECT status FROM bookkeeping_cash_transactions WHERE id=?",[cash_id])
+            mark("D1_cancel_persisted",len(canceledrow)==1 and canceledrow[0]["status"]=="dibatalkan")
+          except Exception as e:
+            report["error"]=type(e).__name__+": "+str(e)[:190]
+          finally:
+            cleanup_ok=True
+            try:
+              # Recover the only synthetic ID by idempotency key if response was lost.
+              if not cash_id:
+                found=sql("SELECT cash_transaction_id FROM bookkeeping_manual_cash_request_keys WHERE request_key=?",[request_key])
+                cash_id=found[0]["cash_transaction_id"] if found else None
+              if cash_id:
+                verified=sql("SELECT category FROM bookkeeping_cash_transactions WHERE id=?",[cash_id])
+                if verified and verified[0]["category"]!=category:raise RuntimeError("SAFETY: synthetic category mismatch")
+                sql("DELETE FROM bookkeeping_manual_cash_request_keys WHERE request_key=? AND cash_transaction_id=?",[request_key,cash_id])
+                sql("DELETE FROM bookkeeping_cash_transactions WHERE id=? AND category=? AND transaction_type='manual' AND source_payment_id IS NULL",[cash_id,category])
+              if created_session:sql("DELETE FROM sessions WHERE id=? AND token_hash=?",[session_id,session_hash])
+              if initial:
+                current=(sql("SELECT COUNT(*) AS n FROM bookkeeping_cash_transactions")[0]["n"],
+                  sql("SELECT COUNT(*) AS n FROM bookkeeping_manual_cash_request_keys")[0]["n"],
+                  sql("SELECT COALESCE(SUM(debit_rp-credit_rp),0) AS total FROM bookkeeping_cash_transactions WHERE status='aktif'")[0]["total"])
+                cleanup_ok=cleanup_ok and current==initial
+              cleanup_ok=cleanup_ok and not sql("SELECT id FROM bookkeeping_cash_transactions WHERE category=?",[category]) and not sql("SELECT id FROM sessions WHERE id=?",[session_id])
+            except Exception as ex:
+              cleanup_ok=False
+              report["cleanup_error"]=type(ex).__name__+": "+str(ex)[:190]
+            report["restored"]=bool(cleanup_ok)
+            report["status"]="pass" if cleanup_ok and not report.get("error") and len(report["tests"])==8 and all(t["pass"] for t in report["tests"]) else "incomplete"
+            target.write_text(json.dumps(report,indent=2)+"\n")
+            print("Cash E2E:",report["status"],"tests",len(report["tests"]),"D1 fully restored:",report["restored"])
+          if report["status"]!="pass":raise SystemExit("Cash E2E failed or cleanup incomplete")
+          PY
+      - name: Store sanitized result
+        if: always()
+        run: |
+          test -f ops-audit/cash-positive-e2e.json || exit 1
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/cash-positive-e2e.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(ops): record live synthetic cash E2E and complete cleanup"
+          git push origin HEAD:ops-cloudflare-integration-20261025
