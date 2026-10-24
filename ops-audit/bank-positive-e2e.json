@@ -1,0 +1,41 @@
+{
+  "checked_at_utc": "2026-10-24T23:34:26.072440+00:00",
+  "scope": "SYNTHETIC_BANK_DEPOSIT_AND_SALE_DRAFT_ONLY",
+  "checks": [
+    {
+      "name": "deposit_saved",
+      "pass": true
+    },
+    {
+      "name": "deposit_in_D1",
+      "pass": true
+    },
+    {
+      "name": "deposit_idempotent",
+      "pass": true
+    },
+    {
+      "name": "sale_draft_saved",
+      "pass": true
+    },
+    {
+      "name": "sale_draft_in_D1",
+      "pass": true
+    },
+    {
+      "name": "no_allocations_or_savings",
+      "pass": true
+    },
+    {
+      "name": "sale_canceled",
+      "pass": true
+    },
+    {
+      "name": "deposit_canceled",
+      "pass": true
+    }
+  ],
+  "restored": true,
+  "synthetic_rows_absent": true,
+  "status": "pass"
+}
