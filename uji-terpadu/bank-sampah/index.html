@@ -514,6 +514,8 @@
 <style id="f4-bank-embedded-utility-layout">
 /* Only when embedded in Uji Terpadu: utility bar belongs to parent. */
 body.f4-embedded-bank #sideNav #v15Footer,body.f4-embedded-bank #v19PublicAccountFooter{display:none!important}
+/* Utility bar terpadu adalah satu-satunya header pada mode embedded. */
+body.f4-embedded-bank>.shell>.top{display:none!important}
 /* Every private Bank Sampah page gets the same clearance; no per-page button hacks. */
 body.f4-embedded-bank #dashboardView .section{padding-top:64px!important}
 body.f4-embedded-bank .v14-head{align-items:center!important}
@@ -530,10 +532,11 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
 @media(max-width:720px){
  body.f4-embedded-bank #dashboardView .section{padding-top:12px!important}
  body.f4-embedded-bank #v14QuickAction{margin-top:0!important}
- body.f4-embedded-bank #dashboardView .mobile-nav{margin-top:57px!important}
+ /* Navigasi HP lama redundan dan menyisakan strip putih 61px + margin 57px. */
+ body.f4-embedded-bank #dashboardView .mobile-nav{display:none!important;margin:0!important;padding:0!important;min-height:0!important;height:0!important;border:0!important}
  body.f4-embedded-bank #v18PublicSide{position:fixed!important;top:0!important}
  body.f4-embedded-bank #v18PublicContent{padding-top:0!important}
- body.f4-embedded-bank #v11Public .v17-public-main{padding-top:66px!important}
+ body.f4-embedded-bank #v11Public .v17-public-main{padding-top:14px!important}
 }
 @media print{body.f4-embedded-bank #dashboardView .section,body.f4-embedded-bank #v11Public{padding-top:0!important}}
 </style>
@@ -643,8 +646,10 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
  html.f4-bank-embedded #v11Public.v18-public-shell{display:block!important}
  /* Hidden must win against mobile embedded public-layout rule. */
  html.f4-bank-embedded #v11Public.v18-public-shell.hidden{display:none!important}
+ /* Hanya satu layar yang dapat terlihat, apapun ukuran HP. */
+ html.f4-bank-embedded body.v17-dashboard #v11Public{display:none!important}
  html.f4-bank-embedded #v11Public #v18PublicContent{width:100%!important;max-width:100%!important}
- html.f4-bank-embedded #v11Public #v18PublicContent .v17-public-main{padding-top:72px!important}
+ html.f4-bank-embedded #v11Public #v18PublicContent .v17-public-main{padding-top:14px!important}
 }
 html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
 </style><script src="../loading-state.js?v=786606f"></script><link rel="stylesheet" href="../loading-state.css?v=28e10d5"></head>
