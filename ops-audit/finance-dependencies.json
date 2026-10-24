@@ -1,7 +1,31 @@
 [
   {
+    "name": "bookkeeping_advance_repayments",
+    "sql": "CREATE TABLE bookkeeping_advance_repayments (   id TEXT PRIMARY KEY,   advance_id TEXT NOT NULL REFERENCES bookkeeping_advances(id),   repaid_on TEXT NOT NULL,   amount_rp INTEGER NOT NULL CHECK(amount_rp > 0),   status TEXT NOT NULL DEFAULT 'aktif',   note TEXT , request_key TEXT, cash_transaction_id TEXT REFERENCES bookkeeping_cash_transactions(id))"
+  },
+  {
+    "name": "bookkeeping_loans",
+    "sql": "CREATE TABLE bookkeeping_loans (   id TEXT PRIMARY KEY,   payer_id TEXT NOT NULL REFERENCES bookkeeping_payers(id),   loaned_on TEXT NOT NULL,   amount_rp INTEGER NOT NULL CHECK(amount_rp > 0),   status TEXT NOT NULL DEFAULT 'aktif',   note TEXT,   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP , request_key TEXT)"
+  },
+  {
     "name": "bookkeeping_loan_repayments",
     "sql": "CREATE TABLE bookkeeping_loan_repayments (   id TEXT PRIMARY KEY,   loan_id TEXT NOT NULL REFERENCES bookkeeping_loans(id),   repaid_on TEXT NOT NULL,   amount_rp INTEGER NOT NULL CHECK(amount_rp > 0),   status TEXT NOT NULL DEFAULT 'aktif',   note TEXT , request_key TEXT, cash_transaction_id TEXT REFERENCES bookkeeping_cash_transactions(id))"
+  },
+  {
+    "name": "bookkeeping_fines",
+    "sql": "CREATE TABLE bookkeeping_fines (   id TEXT PRIMARY KEY,   payer_id TEXT REFERENCES bookkeeping_payers(id),   household_id TEXT REFERENCES households(id),   event_on TEXT NOT NULL,   fine_type TEXT NOT NULL DEFAULT 'gorol',   amount_rp INTEGER NOT NULL CHECK(amount_rp >= 0),   paid_rp INTEGER NOT NULL DEFAULT 0 CHECK(paid_rp >= 0),   paid_on TEXT,   status TEXT NOT NULL DEFAULT 'belum',   note TEXT,   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP , request_key TEXT)"
+  },
+  {
+    "name": "bookkeeping_cash_transactions",
+    "sql": "CREATE TABLE bookkeeping_cash_transactions (   id TEXT PRIMARY KEY,   occurred_on TEXT NOT NULL,   payer_id TEXT REFERENCES bookkeeping_payers(id),   household_id TEXT REFERENCES households(id),   transaction_type TEXT NOT NULL,   category TEXT,   debit_rp INTEGER NOT NULL DEFAULT 0 CHECK(debit_rp >= 0),   credit_rp INTEGER NOT NULL DEFAULT 0 CHECK(credit_rp >= 0),   status TEXT NOT NULL DEFAULT 'aktif',   note TEXT,   source_payment_id TEXT REFERENCES bookkeeping_payments(id),   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, payment_method TEXT NOT NULL DEFAULT 'Cash', extra_note TEXT,   CHECK(NOT (debit_rp > 0 AND credit_rp > 0)) )"
+  },
+  {
+    "name": "bookkeeping_cash_source_links",
+    "sql": "CREATE TABLE bookkeeping_cash_source_links (   cash_id TEXT PRIMARY KEY REFERENCES bookkeeping_cash_transactions(id),   source_kind TEXT NOT NULL CHECK (source_kind IN ('iuran','denda','cicilan_pinjaman')),   source_id TEXT NOT NULL,   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,   UNIQUE (source_kind, source_id) )"
+  },
+  {
+    "name": "bookkeeping_dp_cash_links",
+    "sql": "CREATE TABLE bookkeeping_dp_cash_links(request_key TEXT PRIMARY KEY,source_type TEXT NOT NULL,source_id TEXT NOT NULL,cash_transaction_id TEXT NOT NULL UNIQUE REFERENCES bookkeeping_cash_transactions(id))"
   },
   {
     "name": "bookkeeping_fine_payments",
@@ -24,12 +48,40 @@
     "sql": "CREATE TRIGGER trg_dp_loan_pay_status AFTER INSERT ON bookkeeping_loan_repayments WHEN NEW.status='aktif' BEGIN\n UPDATE bookkeeping_loans SET status='lunas' WHERE id=NEW.loan_id AND amount_rp=(SELECT COALESCE(SUM(amount_rp),0) FROM bookkeeping_loan_repayments WHERE loan_id=NEW.loan_id AND status='aktif');\nEND"
   },
   {
+    "name": "trg_dp_fine_closed_year",
+    "sql": "CREATE TRIGGER trg_dp_fine_closed_year\nBEFORE INSERT ON bookkeeping_fines\nWHEN EXISTS (SELECT 1 FROM bookkeeping_year_archives WHERE fiscal_year=CAST(substr(NEW.event_on,1,4) AS INTEGER) AND status IN ('ditutup','terkunci','final'))\nBEGIN SELECT RAISE(ABORT,'closed-financial-year'); END"
+  },
+  {
     "name": "trg_dp_fine_pay_closed_year",
     "sql": "CREATE TRIGGER trg_dp_fine_pay_closed_year\nBEFORE INSERT ON bookkeeping_fine_payments\nWHEN EXISTS (SELECT 1 FROM bookkeeping_year_archives WHERE fiscal_year=CAST(substr(NEW.paid_on,1,4) AS INTEGER) AND status IN ('ditutup','terkunci','final'))\nBEGIN SELECT RAISE(ABORT,'closed-financial-year'); END"
   },
   {
+    "name": "trg_dp_loan_closed_year",
+    "sql": "CREATE TRIGGER trg_dp_loan_closed_year\nBEFORE INSERT ON bookkeeping_loans\nWHEN EXISTS (SELECT 1 FROM bookkeeping_year_archives WHERE fiscal_year=CAST(substr(NEW.loaned_on,1,4) AS INTEGER) AND status IN ('ditutup','terkunci','final'))\nBEGIN SELECT RAISE(ABORT,'closed-financial-year'); END"
+  },
+  {
     "name": "trg_dp_loan_repay_closed_year",
     "sql": "CREATE TRIGGER trg_dp_loan_repay_closed_year\nBEFORE INSERT ON bookkeeping_loan_repayments\nWHEN EXISTS (SELECT 1 FROM bookkeeping_year_archives WHERE fiscal_year=CAST(substr(NEW.repaid_on,1,4) AS INTEGER) AND status IN ('ditutup','terkunci','final'))\nBEGIN SELECT RAISE(ABORT,'closed-financial-year'); END"
+  },
+  {
+    "name": "trg_dp_fine_update_closed_year",
+    "sql": "CREATE TRIGGER trg_dp_fine_update_closed_year\nBEFORE UPDATE ON bookkeeping_fines\nWHEN EXISTS (SELECT 1 FROM bookkeeping_year_archives WHERE fiscal_year IN (CAST(substr(OLD.event_on,1,4) AS INTEGER),CAST(substr(NEW.event_on,1,4) AS INTEGER)) AND status IN ('ditutup','terkunci','final'))\nBEGIN SELECT RAISE(ABORT,'closed-financial-year'); END"
+  },
+  {
+    "name": "trg_dp_loan_update_closed_year",
+    "sql": "CREATE TRIGGER trg_dp_loan_update_closed_year\nBEFORE UPDATE ON bookkeeping_loans\nWHEN EXISTS (SELECT 1 FROM bookkeeping_year_archives WHERE fiscal_year IN (CAST(substr(OLD.loaned_on,1,4) AS INTEGER),CAST(substr(NEW.loaned_on,1,4) AS INTEGER)) AND status IN ('ditutup','terkunci','final'))\nBEGIN SELECT RAISE(ABORT,'closed-financial-year'); END"
+  },
+  {
+    "name": "trg_cash_insert_closed_year_0024",
+    "sql": "CREATE TRIGGER trg_cash_insert_closed_year_0024\nBEFORE INSERT ON bookkeeping_cash_transactions\nWHEN EXISTS (SELECT 1 FROM bookkeeping_year_archives\n WHERE fiscal_year = CAST(substr(NEW.occurred_on,1,4) AS INTEGER)\n AND status IN ('ditutup','terkunci','final'))\nBEGIN SELECT RAISE(ABORT,'closed-financial-year'); END"
+  },
+  {
+    "name": "trg_cash_update_closed_year_0024",
+    "sql": "CREATE TRIGGER trg_cash_update_closed_year_0024\nBEFORE UPDATE ON bookkeeping_cash_transactions\nWHEN EXISTS (SELECT 1 FROM bookkeeping_year_archives\n WHERE fiscal_year IN (CAST(substr(OLD.occurred_on,1,4) AS INTEGER),CAST(substr(NEW.occurred_on,1,4) AS INTEGER))\n AND status IN ('ditutup','terkunci','final'))\nBEGIN SELECT RAISE(ABORT,'closed-financial-year'); END"
+  },
+  {
+    "name": "trg_cash_delete_closed_year_0024",
+    "sql": "CREATE TRIGGER trg_cash_delete_closed_year_0024\nBEFORE DELETE ON bookkeeping_cash_transactions\nWHEN EXISTS (SELECT 1 FROM bookkeeping_year_archives\n WHERE fiscal_year=CAST(substr(OLD.occurred_on,1,4) AS INTEGER)\n AND status IN ('ditutup','terkunci','final'))\nBEGIN SELECT RAISE(ABORT,'closed-financial-year'); END"
   },
   {
     "name": "trg_0038_fine_payment_no_update",
@@ -46,5 +98,13 @@
   {
     "name": "trg_0038_loan_payment_no_delete",
     "sql": "CREATE TRIGGER trg_0038_loan_payment_no_delete BEFORE DELETE ON bookkeeping_loan_repayments BEGIN SELECT RAISE(ABORT,'loan-payment-immutable'); END"
+  },
+  {
+    "name": "trg_0038_fine_no_delete",
+    "sql": "CREATE TRIGGER trg_0038_fine_no_delete BEFORE DELETE ON bookkeeping_fines BEGIN SELECT RAISE(ABORT,'fine-parent-immutable'); END"
+  },
+  {
+    "name": "trg_0038_loan_no_delete",
+    "sql": "CREATE TRIGGER trg_0038_loan_no_delete BEFORE DELETE ON bookkeeping_loans BEGIN SELECT RAISE(ABORT,'loan-parent-immutable'); END"
   }
 ]\n
