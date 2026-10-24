@@ -125,11 +125,18 @@ async function open(){
  const accountPanel=document.getElementById('f4-account-page'),residents=document.getElementById('f4-warga-panel');
  if(accountPanel)accountPanel.hidden=true;if(residents)residents.hidden=true;
  root.hidden=false;document.body.classList.add('f4-account-open');tab='identitas';
- page('Pengaturan Akun','Memuat profil Cloudflare…');navigation();
+ page('Pengaturan Akun','Identitas terpusat untuk semua portal');navigation();
+ const loading=h('p','','ua-status');content.append(loading);
+ const loader=window.F4Loading?.begin(loading,'Memuat profil akun…');
  try{session=await request('/api/v2/auth/session');if(!session.account)throw Error('Sesi belum aktif.');}
- catch(e){page('Pengaturan Akun','Sesi tidak dapat dibaca: '+e.message);content.append(btn('Kembali',close,'ua-primary'));return}
- try{const data=await request('/api/member/profile');profile=data.profile||{}}catch(e){profile={};}
+ catch(e){window.F4Loading?.error(loading,'Sesi tidak dapat dibaca: '+e.message,loader);content.append(btn('Kembali',close,'ua-primary'));return}
+ let profileError=null;
+ try{const data=await request('/api/member/profile');profile=data.profile||{}}
+ catch(e){profile={};profileError=e}
+ window.F4Loading?.success(loading,loader);
  show('identitas');
+ if(profileError){const warning=h('p','Profil pribadi belum dapat dimuat: '+profileError.message,'ua-status ua-error');content.append(warning)}
+
 }
 window.f4OpenUnifiedAccount=open;
 window.f4CloseUnifiedAccount=close;
