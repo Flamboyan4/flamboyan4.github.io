@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-24T19:47:13.379122+00:00",
+  "checked_at": "2026-10-24T19:49:01.416411+00:00",
   "type": "REMOTE_EXPORT_LOCAL_D1_ONLY",
   "tests": {
     "remote_target_verified": {
@@ -14,7 +14,13 @@
     "sql_bytes": 445054,
     "table_ddls": 62,
     "has_cash_create": true,
-    "cash_refs": 46
+    "cash_refs": 46,
+    "groups": {
+      "schema": 62,
+      "inserts": 1456,
+      "indices": 28,
+      "other": 21
+    }
   },
-  "error": "RuntimeError: Command failed: ['/home/runner/work/flamboyan4.github.io/flamboyan4.github.io/node_modules/.bin/wrangler', 'd1', 'execute', 'flamboyan4-staging'] (1); \u001b[31m\u2718 \u001b[41;31m[\u001b[41;97mERROR\u001b[41;31m]\u001b[0m \u001b[1mno such table: main.bookkeeping_cash_transactions: SQLITE_ERROR\u001b[0m\n\n\n\ud83e\udeb5  Logs were written to \"/home/r"
+  "error": "RuntimeError: Command failed: ['/home/runner/work/flamboyan4.github.io/flamboyan4.github.io/node_modules/.bin/wrangler', 'd1', 'execute', 'flamboyan4-staging'] (1); \u001b[31m\u2718 \u001b[41;31m[\u001b[41;97mERROR\u001b[41;31m]\u001b[0m \u001b[1munrecognized token: \"\\\" at offset 0: SQLITE_ERROR\u001b[0m\n\n\n\ud83e\udeb5  Logs were written to \"/home/runner/.config/"
 }
