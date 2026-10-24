@@ -3408,7 +3408,16 @@ function renderArsipTahunan(){
 
 function renderLaporanTahunan(d){
   d=d||{};const r=d.ringkasan||{},set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
-  set('report-tahunan-period',`Tahun ${d.tahun||''}`);set('rep-tahunan-awal',rupiah(r.saldoAwal||0));set('rep-tahunan-masuk',rupiah(r.pemasukan||0));set('rep-tahunan-keluar',rupiah(r.pengeluaran||0));set('rep-tahunan-net',rupiah(r.saldoPeriode||0));set('rep-tahunan-akhir',rupiah(r.saldoAkhir||0));set('rep-tahunan-rt',rupiah(r.totalSetoranRT||0));set('rep-tahunan-arisan',rupiah(r.totalArisan||0));set('rep-tahunan-denda',rupiah(r.totalDendaMasuk||0));set('rep-tahunan-pinjaman',rupiah(r.sisaPinjaman||0));set('rep-tahunan-talangan',rupiah(r.sisaTalangan||0));
+  set('report-tahunan-period',`Tahun ${d.tahun||''}`);
+  const annualCaption=document.getElementById('report-tahunan-period');
+  if(annualCaption&&d.laporanSementara===true){
+    const warning=document.createElement('span');
+    warning.style.cssText='display:block;margin-top:5px;font-weight:700;color:#9a3412;font-size:11px';
+    const gap=d.pembayaranBelumDijurnal||{};
+    warning.textContent='REKAP SEMENTARA • Belum merupakan saldo final atau Tutup Buku.'
+       +(Number(gap.jumlah||0)>0?' '+gap.jumlah+' pembayaran iuran senilai '+rupiah(gap.nominalRp||0)+' perlu rekonsiliasi jurnal kas.':'');
+    annualCaption.appendChild(warning);
+  }set('rep-tahunan-awal',rupiah(r.saldoAwal||0));set('rep-tahunan-masuk',rupiah(r.pemasukan||0));set('rep-tahunan-keluar',rupiah(r.pengeluaran||0));set('rep-tahunan-net',rupiah(r.saldoPeriode||0));set('rep-tahunan-akhir',rupiah(r.saldoAkhir||0));set('rep-tahunan-rt',rupiah(r.totalSetoranRT||0));set('rep-tahunan-arisan',rupiah(r.totalArisan||0));set('rep-tahunan-denda',rupiah(r.totalDendaMasuk||0));set('rep-tahunan-pinjaman',rupiah(r.sisaPinjaman||0));set('rep-tahunan-talangan',rupiah(r.sisaTalangan||0));
   const tb=document.getElementById('report-tahunan-tbody');if(tb)tb.innerHTML=(d.bulanan||[]).map(x=>`<tr><td class="p-2">${esc(x.namaBulan||'-')}</td><td class="p-2 text-right">${rupiah(x.pemasukan||0)}</td><td class="p-2 text-right">${rupiah(x.pengeluaran||0)}</td><td class="p-2 text-right ${Number(x.saldoPeriode||0)<0?'text-red-600':'text-emerald-700'}">${rupiah(x.saldoPeriode||0)}</td><td class="p-2 text-right">${rupiah(x.setoranRT||0)}</td><td class="p-2 text-right">${rupiah(x.arisan||0)}</td><td class="p-2 text-right">${rupiah(x.dendaMasuk||0)}</td></tr>`).join('');
   const st=document.getElementById('report-tahunan-status'),btn=document.getElementById('btn-tutup-buku');if(st){if(d.sudahDitutup){st.className='no-print mb-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800';st.textContent=`Tahun ${d.tahun} sudah ditutup${d.tutupBuku?.tanggalTutup?' pada '+histDate(d.tutupBuku.tanggalTutup):''}. Saldo awal ${Number(d.tahun)+1}: ${rupiah(d.saldoAwalTahunBerikutnya||0)}.`}else if(d.bisaDitutup){st.className='no-print mb-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800';st.textContent=`Rekap ${d.tahun} siap ditutup. Saldo akhir akan menjadi saldo awal ${Number(d.tahun)+1}.`}else{st.className='no-print mb-3 rounded-xl border border-violet-100 bg-violet-50 px-4 py-3 text-sm text-violet-800';st.textContent=`Rekap ${d.tahun} dapat dipantau sekarang. Tutup buku baru aktif pada 31 Desember ${d.tahun} atau setelah tahun berakhir.`}}
   if(btn){btn.classList.toggle('hidden',!d.bisaDitutup);btn.textContent=`Tutup Buku ${d.tahun||''}`};loadArsipTahunan()
