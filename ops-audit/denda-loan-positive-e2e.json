@@ -1,0 +1,14 @@
+{
+  "checked_at_utc": "2026-10-24T23:38:14.336399+00:00",
+  "scope": "SYNTHETIC_FINE_LOAN_WITH_REPAYMENTS",
+  "checks": [
+    {
+      "name": "fine-create_saved",
+      "pass": false
+    }
+  ],
+  "restored": true,
+  "error": "RuntimeError: Check failed: fine-create_saved",
+  "synthetic_rows_absent": true,
+  "status": "incomplete"
+}
