@@ -1,0 +1,37 @@
+{
+  "checked_at_utc": "2026-10-24T23:36:35.434541+00:00",
+  "scope": "SYNTHETIC_NEW_PAYER_IURAN_ONLY",
+  "checks": [
+    {
+      "name": "outstanding_before",
+      "pass": true
+    },
+    {
+      "name": "save_iuran",
+      "pass": true
+    },
+    {
+      "name": "saved_allocations",
+      "pass": true
+    },
+    {
+      "name": "cash_only_kas_lorong",
+      "pass": true
+    },
+    {
+      "name": "idempotent_payment",
+      "pass": true
+    },
+    {
+      "name": "outstanding_zero_after",
+      "pass": true
+    },
+    {
+      "name": "history_reads_real_D1",
+      "pass": true
+    }
+  ],
+  "restored": true,
+  "synthetic_rows_absent": true,
+  "status": "pass"
+}
