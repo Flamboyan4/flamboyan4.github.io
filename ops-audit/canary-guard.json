@@ -1,0 +1,19 @@
+{
+  "checked_at_utc": "2026-10-24T19:33:39.386288+00:00",
+  "status": "pass",
+  "cases": [
+    {
+      "name": "unauthenticated_cash_write",
+      "http": 401
+    },
+    {
+      "name": "unauthenticated_bank_write",
+      "http": 401
+    }
+  ],
+  "cash_count_unchanged": true,
+  "enabled_flags": [
+    "FINANCE_WRITE_ENABLED",
+    "MANUAL_CASH_WRITE_ENABLED"
+  ]
+}
