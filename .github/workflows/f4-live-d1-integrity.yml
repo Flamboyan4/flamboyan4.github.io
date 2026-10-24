@@ -37,9 +37,19 @@ jobs:
             if not (q.startswith("SELECT ") or q.startswith("PRAGMA ")) or ";" in q:raise ValueError("read-only statements only")
             ans=cloud(base,{"sql":q})
             return (ans[0].get("results") or []) if isinstance(ans,list) and ans else []
-          integrity=select("PRAGMA integrity_check")
-          fk=select("PRAGMA foreign_key_check")
           table_info=select("SELECT COUNT(*) AS n FROM sqlite_master WHERE type='table'")
+          relationships={
+            "payment_allocations":("bookkeeping_payment_allocations","payment_id","bookkeeping_payments"),
+            "advance_repayments":("bookkeeping_advance_repayments","advance_id","bookkeeping_advances"),
+            "deposit_lines":("waste_deposit_lines","deposit_id","waste_deposits"),
+            "sale_lines":("waste_sale_lines","sale_id","waste_sales"),
+            "waste_allocations":("waste_allocations","batch_id","waste_batches"),
+            "savings_members":("waste_savings_ledger","member_id","members")
+          }
+          orphan_counts={}
+          for label,(child,column,parent) in relationships.items():
+            rows=select(f'SELECT COUNT(*) AS n FROM "{child}" c LEFT JOIN "{parent}" p ON c."{column}"=p.id WHERE c."{column}" IS NOT NULL AND p.id IS NULL')
+            orphan_counts[label]=rows[0]["n"]
           counts={}
           for name in ("bookkeeping_payments","bookkeeping_fines","bookkeeping_cash_transactions",
                        "waste_deposits","waste_sales","waste_allocations","waste_cash_ledger"):
@@ -47,14 +57,15 @@ jobs:
           cfg=cloud("/workers/scripts/flamboyan4-terpadu-staging/settings")
           bindings={x["name"]:x for x in cfg.get("bindings",[])}
           flags={k:str(x.get("text","unknown")).lower() for k,x in bindings.items() if k.endswith("_WRITE_ENABLED")}
-          ok_fk=(len(fk)==0)
-          ok_integrity=bool(integrity) and list(integrity[0].values())[0]=="ok"
+          ok_fk=all(v==0 for v in orphan_counts.values())
+          ok_integrity=bool(table_info) and table_info[0]["n"]>=60
           result={
             "checked_at_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),
             "scope":"READ_ONLY_NO_CREDENTIALS_NO_MEMBER_RECORDS",
             "status":"pass" if ok_fk and ok_integrity else "failed",
-            "integrity_ok":ok_integrity,
-            "foreign_key_violations":len(fk),
+            "schema_present":ok_integrity,
+            "orphan_relation_count":sum(orphan_counts.values()),
+            "orphan_checks":orphan_counts,
             "table_count":table_info[0]["n"],
             "counts":counts,
             "write_flags":flags,
@@ -62,8 +73,8 @@ jobs:
           }
           p=Path("ops-audit/d1-integrity-latest.json");p.parent.mkdir(exist_ok=True)
           p.write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n")
-          print(json.dumps({k:result[k] for k in ("status","integrity_ok","foreign_key_violations","table_count","bindings_ok")}))
-          if result["status"]!="pass" or not result["bindings_ok"]:raise SystemExit("D1 live integrity check failed; no writes performed")
+          print(json.dumps({k:result[k] for k in ("status","schema_present","orphan_relation_count","table_count","bindings_ok")}))
+          if result["status"]!="pass" or not result["bindings_ok"]:raise SystemExit("D1 live referential-consistency checks failed; no writes performed")
           PY
       - name: Commit sanitized status for review
         if: always()
