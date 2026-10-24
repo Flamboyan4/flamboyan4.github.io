@@ -2,14 +2,15 @@
 
 ## Struktur rilis
 - Frontend sumber tetap `/uji-terpadu/` (uji dan revisi).
-- Frontend produksi dibekukan sebagai snapshot `/portal-live/` (36 aset dari satu source revision).
+- Frontend produksi dibekukan sebagai snapshot `/portal-live/` (37 aset dari satu source revision).
 - Root `index.html` domain `flamboyan4.web.id` menggunakan shell Portal Terpadu, referensi seluruh aset ke `/portal-live/` dan iframe halaman terkait.
 - `/banksampah/` menjadi `/#bank-sampah`, `/pembukuan/` menjadi `/#pembukuan`, `/rapat/` menjadi `/#rapat`.
 - `CNAME` tidak diubah; Cloudflare Worker API tetap `api.flamboyan4.web.id`.
 - Perubahan ini hanya ada di branch `publikasi-flamboyan4-20261024`, PR #3 **Draft**, belum merger.
 
 ## Bukti pemeriksaan kode
-- Asset snapshot 36 file, referensi statis root + 7 HTML panel: 51 referensi file lokal valid.
+- Snapshot `/portal-live/` **37 berkas**; seluruh 37 Git blob SHA identik dengan pasangan `/uji-terpadu/` di `main` commit `b828d635ee027392cf7708d01e871d561a134ab6` (verifikasi GitHub 24 Oktober 2026). Termasuk `pull-refresh.js`, jembatan Simpan Iuran, dan revisi frontend terbaru.
+- Referensi statis root + 7 HTML panel pada pemeriksaan sebelumnya: 51 referensi file lokal valid. Angka ini tidak menggantikan pemeriksaan browser saat rilis.
 - Inline JavaScript root dan panel lulus parsing; dua referensi template JS dinamis (${...}) bukan file.
 - Arah redirect 3 URL lama benar dan tidak mengarah ke Apps Script.
 - Hasil tes backend lokal candidate D1: 28/28 API; 19/19 form/setoran; 32/32 rekonsiliasi/pencairan; 36/36 pembatalan dan batch; 26/26 pengeluaran/inventaris/media; 7/7 laporan Pembukuan.
@@ -28,6 +29,7 @@
 
 ## Hambatan yang belum dinyatakan selesai
 - Fungsi penulisan Pembukuan **belum dihubungkan seluruhnya** dari form lama; sebagian alur Worker masih dikunci dan perlu pengujian terisolasi.
+- PR #5 (`finalisasi-denda-pinjaman-20261024`) terpisah, Draft: adapter Denda/Pinjaman Cash-only telah lulus 13/13 skenario mock pada 24 Oktober (termasuk validasi tanggal riil dan retry idempoten), **bukan bukti pengujian Worker/D1 maupun izin untuk merge**. PR #3 belum menyertakan adapter ini; tetap pertahankan seluruh write flags OFF.
 - Pengesahan dan pencairan Bank Sampah belum diuji tulis di Cloudflare.
 - Laporan tahunan sementara; kas historis selain Kas Lorong September–Oktober belum direkonsiliasi penuh.
 - Domain produksi dan autentikasi browser lengkap belum diuji setelah cutover (karena cutover belum dilakukan).
