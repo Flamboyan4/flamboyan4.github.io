@@ -1,0 +1,40 @@
+name: F4 Cash E2E on Isolated D1 Clone
+on:
+  push:
+    branches: [ops-isolated-cash-e2e-20261025]
+    paths:
+      - .github/workflows/f4-isolated-cash-e2e.yml
+      - qa/run_isolated_cash_e2e.py
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: f4-isolated-cash-e2e
+  cancel-in-progress: false
+jobs:
+  local-d1-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install Wrangler for isolated tests
+        run: npm install --no-save --ignore-scripts wrangler@4
+      - name: Export live D1 READ-ONLY, import LOCAL, test authenticated Cash roundtrip
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: python3 qa/run_isolated_cash_e2e.py
+      - name: Publish safe test status (no source data)
+        if: always()
+        run: |
+          mkdir -p ops-audit
+          test -f ops-audit/local-cash-e2e.json || echo '{"status":"workflow_error"}' > ops-audit/local-cash-e2e.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/local-cash-e2e.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(qa): record isolated authenticated Cash end-to-end status"
+          git push origin HEAD:ops-isolated-cash-e2e-20261025
