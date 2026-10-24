@@ -1,0 +1,11 @@
+{
+  "checked_utc": "2026-10-24T20:00:40.439098+00:00",
+  "status": "iuran_enabled",
+  "scope": "FINANCE + MANUAL_CASH + IURAN only",
+  "deployment_id": "4189233c-4151-42e6-bdc9-ca1da6a0e302",
+  "active_write_flags": [
+    "FINANCE_WRITE_ENABLED",
+    "IURAN_WRITE_ENABLED",
+    "MANUAL_CASH_WRITE_ENABLED"
+  ]
+}
