@@ -66,6 +66,11 @@ try:
     assert_step("remote_target_verified",True)
     run([WRANGLER,"d1","export","flamboyan4-staging","--remote","--config",str(CONFIG),"--output",str(DUMP),"--skip-confirmation"],timeout=180)
     assert_step("remote_export_read_only",DUMP.exists() and DUMP.stat().st_size>1000)
+    import re
+    sqltext=DUMP.read_text(encoding="utf-8")
+    ddl_tables=re.findall(r"CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?[\"`\[]?([A-Za-z0-9_]+)",sqltext,re.I)
+    result["export_meta"]={"sql_bytes":len(sqltext),"table_ddls":len(ddl_tables),"has_cash_create":bool(re.search(r"CREATE\s+TABLE[^;]*bookkeeping_cash_transactions",sqltext,re.I)),"cash_refs":sqltext.lower().count("bookkeeping_cash_transactions")}
+    save()
     run([WRANGLER,"d1","execute","flamboyan4-staging","--local","--config",str(CONFIG),"--file",str(DUMP),"--persist-to",str(LOCAL),"--yes"],timeout=180)
     files=list(LOCAL.rglob("*.sqlite"))
     if not files:raise ValueError("Local SQLite state missing after import")
