@@ -76,7 +76,9 @@ jobs:
               if fine_ids:
                 run("delete_fine_payments","DELETE FROM bookkeeping_fine_payments WHERE fine_id=?",[fine_ids[0]])
               run("delete_qa_cash","DELETE FROM bookkeeping_cash_transactions WHERE payer_id=? AND transaction_type IN ('pembayaran_denda','pinjaman_keluar','angsuran_pinjaman')",[pid])
-              run("delete_dp_request_keys","DELETE FROM bookkeeping_dp_request_ledger WHERE result_id IN ("+",".join("?" for _ in fine_ids+loan_ids+[x["id"] for x in payments+repayments])+")",fine_ids+loan_ids+[x["id"] for x in payments+repayments]) if fine_ids or loan_ids else "SELECT 1")
+              if fine_ids or loan_ids:
+                affected=fine_ids+loan_ids+[x["id"] for x in payments+repayments]
+                run("delete_dp_request_keys","DELETE FROM bookkeeping_dp_request_ledger WHERE result_id IN ("+",".join("?" for _ in affected)+")",affected)
               if fine_ids or loan_ids:
                 run("delete_audit","DELETE FROM audit_log WHERE scope='pembukuan' AND action IN ('fine-create','fine-pay','loan-create','loan-pay') AND target_id IN ("+",".join("?" for _ in fine_ids+loan_ids)+")",fine_ids+loan_ids)
               run("delete_qa_fines","DELETE FROM bookkeeping_fines WHERE payer_id=?",[pid])
