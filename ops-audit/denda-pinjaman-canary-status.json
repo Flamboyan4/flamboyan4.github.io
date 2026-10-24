@@ -1,0 +1,12 @@
+{
+  "checked_utc": "2026-10-24T20:01:44.350024+00:00",
+  "status": "denda_pinjaman_enabled",
+  "scope": "FINANCE + MANUAL_CASH + IURAN + DENDA_PINJAMAN only",
+  "deployment_id": "e4565b9e-7b14-4ab6-92a8-380013bbe564",
+  "active_write_flags": [
+    "DENDA_PINJAMAN_WRITE_ENABLED",
+    "FINANCE_WRITE_ENABLED",
+    "IURAN_WRITE_ENABLED",
+    "MANUAL_CASH_WRITE_ENABLED"
+  ]
+}
