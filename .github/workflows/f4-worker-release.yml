@@ -1,0 +1,92 @@
+name: F4 Guarded Worker Release
+on:
+  push:
+    branches: [ops-cloudflare-integration-20261025]
+    paths: [.github/workflows/f4-worker-release.yml, cloudflare/worker-terpadu-operasional-teruji.js]
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Read-only preflight or deploy Worker with write flags OFF"
+        required: true
+        default: preflight
+        type: choice
+        options: [preflight, deploy]
+permissions:
+  contents: read
+concurrency:
+  group: f4-worker-release
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify candidate checksum, bindings and D1
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,json,hashlib,sys,urllib.request
+          from pathlib import Path
+          base="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CF_ACCOUNT"]
+          token=os.environ["CF_TOKEN"]
+          worker="flamboyan4-terpadu-staging"
+          def get(path):
+            req=urllib.request.Request(base+path,headers={"Authorization":"Bearer "+token})
+            with urllib.request.urlopen(req,timeout=25) as response:data=json.load(response)
+            if not data.get("success"):raise RuntimeError("Cloudflare API rejected "+path)
+            return data.get("result")
+          p=Path("cloudflare/worker-terpadu-operasional-teruji.js")
+          if not p.exists():raise SystemExit("BLOCKED: Worker JS belum ada di branch. Upload file JS dari ZIP ke folder cloudflare/ terlebih dahulu.")
+          digest=hashlib.sha256(p.read_bytes()).hexdigest()
+          expected="6f913d0d99457c66440d0241fc27e1e64d3f2152cbb4cfff1187ac68c9c59f11"
+          if digest!=expected:raise SystemExit("BLOCKED: SHA256 kandidat berbeda dari ZIP teruji.")
+          settings=get("/workers/scripts/"+worker+"/settings")
+          bindings={b.get("name"):b for b in settings.get("bindings",[])}
+          if bindings.get("DB",{}).get("type")!="d1" or bindings.get("PHOTOS",{}).get("type")!="r2_bucket":
+            raise SystemExit("BLOCKED: binding DB atau PHOTOS tidak sesuai.")
+          flags=["FINANCE_WRITE_ENABLED","IURAN_WRITE_ENABLED","MANUAL_CASH_WRITE_ENABLED","DENDA_PINJAMAN_WRITE_ENABLED","TALANGAN_WRITE_ENABLED","BANK_WRITE_ENABLED","RECONCILIATION_CONFIRM_ENABLED","SALE_DRAFT_ENABLED","PORTAL_WRITE_ENABLED"]
+          if any(str(bindings.get(f,{}).get("text","")).lower()!="false" for f in flags):
+            raise SystemExit("BLOCKED: tidak semua write flags OFF.")
+          databases=get("/d1/database")
+          match=next((d for d in databases if d.get("name")=="flamboyan4-staging"),None)
+          if not match:raise SystemExit("BLOCKED: D1 staging not found.")
+          print("VALIDATION PASSED; worker, D1, bindings and 9 disabled write flags confirmed.")
+          print("Candidate sha256:",digest)
+          PY
+      - name: Upload worker with strict inherited bindings
+        if: github.event_name == 'workflow_dispatch' && inputs.mode == 'deploy'
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,json,urllib.request,urllib.error
+          from pathlib import Path
+          root="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CF_ACCOUNT"]
+          token=os.environ["CF_TOKEN"];target="flamboyan4-terpadu-staging"
+          def get(p):
+            r=urllib.request.Request(root+p,headers={"Authorization":"Bearer "+token})
+            with urllib.request.urlopen(r,timeout=25) as x:return json.load(x)["result"]
+          cfg=get("/workers/scripts/"+target+"/settings")
+          meta={"main_module":"main.js","keep_assets":True,
+                "compatibility_date":cfg.get("compatibility_date") or "2026-10-21",
+                "bindings":[{"type":"inherit","name":v["name"]} for v in cfg.get("bindings",[])],
+                "annotations":{"workers/message":"F4 operational candidate; write flags remain OFF"}}
+          boundary="----F4OpsReleaseBoundary"
+          def part(name,data,mime):
+            return ('--'+boundary+'\r\nContent-Disposition: form-data; name="'+name+'"; filename="'+name+'"\r\nContent-Type: '+mime+'\r\n\r\n').encode()+data+b'\r\n'
+          js=Path("cloudflare/worker-terpadu-operasional-teruji.js").read_bytes()
+          body=part("metadata",json.dumps(meta).encode(),"application/json")+part("main.js",js,"application/javascript+module")+('--'+boundary+'--\r\n').encode()
+          req=urllib.request.Request(root+"/workers/scripts/"+target+"?bindings_inherit=strict",data=body,method="PUT",headers={"Authorization":"Bearer "+token,"Content-Type":"multipart/form-data; boundary="+boundary})
+          with urllib.request.urlopen(req,timeout=75) as r:result=json.load(r)
+          if not result.get("success"):raise SystemExit("Deploy failed; inspect Cloudflare errors.")
+          settings=get("/workers/scripts/"+target+"/settings")
+          b={v.get("name"):v for v in settings.get("bindings",[])}
+          if b.get("DB",{}).get("type")!="d1" or b.get("PHOTOS",{}).get("type")!="r2_bucket":raise SystemExit("CRITICAL: D1 or R2 binding missing.")
+          if any(str(v.get("text","")).lower()!="false" for k,v in b.items() if "WRITE_ENABLED" in k):
+            raise SystemExit("CRITICAL: Write flag changed unexpectedly.")
+          print("Worker candidate deployed; write flags remain OFF.")
+          PY
