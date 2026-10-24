@@ -114,7 +114,7 @@ jobs:
               names=[r.get("name") for r in table_rows if isinstance(r,dict) and re.fullmatch(r"[A-Za-z0-9_]+",str(r.get("name","")))]
               report["d1_tables"]=names
               report["d1_table_count"]=len(names)
-              relevant=[t for t in names if any(k in t.lower() for k in ("book","bank","fine","cash","iuran","contribution","loan","advance","deposit","sale","alloc","resident","member","payment","ledger"))][:35]
+              relevant=[t for t in names if any(k in t.lower() for k in ("book","bank","fine","cash","iuran","contribution","loan","advance","deposit","sale","alloc","resident","member","payment","ledger","album","documentation","progress","inventory"))][:50]
               report["d1_row_counts"]={}
               for name in relevant:
                 rr=call("/accounts/"+account+"/d1/database/"+db_id+"/query",post={"sql":'SELECT COUNT(*) AS total FROM "'+name+'"'})
