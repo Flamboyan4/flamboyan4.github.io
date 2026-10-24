@@ -1,8 +1,5 @@
-name: F4 Guarded Worker Release
+name: F4 Legacy Worker Release - Manual Only
 on:
-  push:
-    branches: [ops-cloudflare-integration-20261025]
-    paths: [.github/workflows/f4-worker-release.yml, cloudflare/worker-terpadu-operasional-teruji.js]
   workflow_dispatch:
     inputs:
       mode:
