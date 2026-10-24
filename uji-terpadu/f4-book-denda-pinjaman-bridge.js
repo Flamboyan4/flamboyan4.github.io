@@ -42,7 +42,7 @@ async function createFine(p){
  const payerId=text(p.idWarga,140),date=String(p.tanggalKegiatan||''),amount=money(p.nominal),
   title=text(p.namaKegiatan,90),description=text(p.keterangan,350);
  if(!payerId||!isDate(date)||!amount)throw Error('Isi warga, tanggal kegiatan, dan nominal denda terlebih dahulu.');
- if(!/^gorol$/i.test(title))throw Error('Worker saat ini hanya mendukung denda kegiatan Gorol; kategori kegiatan lain belum boleh disimpan.');
+ if(!/\bgorol\b/i.test(title))throw Error('Worker saat ini hanya mendukung denda kegiatan Gorol; kategori kegiatan lain belum boleh disimpan.');
  const r=await guardedPost('fine-create','/api/bookkeeping/denda',{
   payerId,tanggal:date,jumlahRp:amount,catatan:description?title+': '+description:title
  });
