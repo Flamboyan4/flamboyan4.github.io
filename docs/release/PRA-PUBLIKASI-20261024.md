@@ -38,3 +38,11 @@
 Catat SHA HEAD `main` tepat sebelum merge PR #3 dan simpan kopi `index.html`, tiga halaman legacy redirect, serta Worker sebelum deploy. Jika pascapublikasi gagal, pulihkan `index.html` + tiga redirect dari commit sebelum merge atau revert merge commit PR #3; folder uji tetap dapat diakses. Jika API gagal, rollback Worker melalui Cloudflare Deployments ke versi sebelumnya, tanpa mengembalikan D1 kecuali terbukti terjadi migrasi salah dan backup tersedia.
 
 **Jangan otomatis mengaktifkan BANK_WRITE_ENABLED/FINANCE_WRITE_ENABLED saat menerbitkan frontend.**
+
+## Kandidat Worker hasil pemeriksaan dua paket ZIP (24 Oktober, lanjutan)
+- Kandidat `worker-kandidat-laporan-tahunan-d1-20261024.js` telah dibandingkan secara sumber dengan `worker-privasi-kas-akurat-20261024.js`: versi Tahunan adalah **superset** yang mempertahankan perhitungan kas seluruh baris dan otorisasi Superadmin; menambah endpoint laporan Tahunan read-only.
+- Pengujian langsung kandidat revisi berikutnya di SQLite **sintetis**: **16/16** laporan Tahunan/Kas/privasi + batas 1.500 baris, **14/14** Denda/Pinjaman/idempotensi/metode Cash-QRIS-Transfer = **30/30 PASS**; syntax Node dan checksum ZIP tervalidasi. Ini **bukan** uji SQL asli maupun Cloudflare remote.
+- Kode kandidat gabungan lokal bertanda SHA-256 `e221c1d18b9f49b4c429ef7ea321a99414e3cbc43f7cc1b0860f295c35623a12` (Worker tahunan + pelestarian metode transaksi Denda/Pinjaman). Kode ada dalam paket rilis lokal, **belum di-GitHub atau Cloudflare**; jangan deploy sebelum diff dengan Worker yang kini aktif.
+- PR #5 frontend tetap Cash-only sampai Worker remote yang mendukung semua metode telah terverifikasi. Flag `FINANCE_WRITE_ENABLED`, `DENDA_PINJAMAN_WRITE_ENABLED`, seluruh `BANK_*_WRITE_ENABLED` tetap OFF.
+- Backup SQL `flamboyan4-staging-20261024.sql` terindeks dalam Library, tetapi akses raw untuk menguji ulang database asli tidak tersedia; perlu backup/export D1 remote saat gerbang rilis.
+- Tidak ada perubahan pada D1, Worker aktif, `main`, atau data historis melalui pemeriksaan ini. **PR #3 tetap Draft**.
