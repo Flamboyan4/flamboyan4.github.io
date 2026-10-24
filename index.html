@@ -524,7 +524,7 @@ html body.iframe-modal-open{overflow:hidden!important}
  </nav>
  </aside>
  <main class="framebox">
- <iframe id="appframe" title="Aplikasi asli Flamboyan 4 — pratinjau offline" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-modals" referrerpolicy="no-referrer" src="/portal-live/portal/" ></iframe>
+ <iframe id="appframe" title="Aplikasi asli Flamboyan 4 — pratinjau offline" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-modals" referrerpolicy="no-referrer" src="/portal-live/portal/?v=banner-fit-0a43870" ></iframe>
  <div id="gate" class="gate" role="region" aria-label="Akses portal terbatas"><article>
   <div style="font-size:38px">🔒</div><h1>Akses khusus Superadmin</h1>
   <p>Masuk menggunakan akun <b>Superadmin</b> melalui tombol Login di kanan atas untuk membuka halaman pengelolaan.</p>
@@ -568,7 +568,7 @@ html body.iframe-modal-open{overflow:hidden!important}
 <div id="toast" class="toast" hidden role="status"></div>
 <script>
 (()=>{
- const apps={portal:'/portal-live/portal/?v=csv-errors-7e60628',rapat:'/portal-live/rapat/?v=loading-fdf01e5b',dokumentasi:'/portal-live/dokumentasi/?v=spacing-b114917b',inventaris:'/portal-live/dokumentasi/?v=spacing-b114917b#inventaris','bank-sampah':'/portal-live/bank-sampah/?v=report-ed4246f',pembukuan:'/portal-live/pembukuan/?v=status-a86186e',superadmin:'/portal-live/superadmin/?v=editor-3413b39'};
+ const apps={portal:'/portal-live/portal/?v=banner-fit-0a43870',rapat:'/portal-live/rapat/?v=loading-fdf01e5b',dokumentasi:'/portal-live/dokumentasi/?v=spacing-b114917b',inventaris:'/portal-live/dokumentasi/?v=spacing-b114917b#inventaris','bank-sampah':'/portal-live/bank-sampah/?v=mobile-nav-231fe88',pembukuan:'/portal-live/pembukuan/?v=status-a86186e',superadmin:'/portal-live/superadmin/?v=editor-3413b39'};
 
  const buttons=[...document.querySelectorAll('nav [data-target]')],frame=document.getElementById('appframe'),
  gate=document.getElementById('gate'),toast=document.getElementById('toast');
@@ -947,7 +947,7 @@ html body.iframe-modal-open{overflow:hidden!important}
  const portalRequested=requested.split('/')[0];
  selected=Object.hasOwn(apps,portalRequested)?portalRequested:'portal';
  update(selected);refreshSession();
- // A same-page link such as /portal-live/#bank-sampah must actually switch
+ // A same-page link such as /uji-terpadu/#bank-sampah must actually switch
  // the iframe and dismiss any management overlay, not just update the URL.
  window.addEventListener('hashchange',()=>{
    const target=location.hash.slice(1);
@@ -1237,4 +1237,4 @@ body.bank-mode #profile-shade .f4-eye-toggle{background:transparent!important;ba
 (()=>{window.openManagementHub=()=>{
   document.querySelector('nav [data-target="superadmin"]')?.click();
 };})();
-</script><script src="/portal-live/unified-account.js?v=account-loading-5181cc5"></script></body></html>
+</script><script src="/portal-live/unified-account.js?v=account-loading-5181cc5"></script><script src="/portal-live/pull-refresh.js?v=0cb6651"></script></body></html>
