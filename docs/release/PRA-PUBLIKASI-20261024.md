@@ -2,14 +2,14 @@
 
 ## Struktur rilis
 - Frontend sumber tetap `/uji-terpadu/` (uji dan revisi).
-- Frontend produksi dibekukan sebagai snapshot `/portal-live/` (35 aset dari satu source revision).
+- Frontend produksi dibekukan sebagai snapshot `/portal-live/` (36 aset dari satu source revision).
 - Root `index.html` domain `flamboyan4.web.id` menggunakan shell Portal Terpadu, referensi seluruh aset ke `/portal-live/` dan iframe halaman terkait.
 - `/banksampah/` menjadi `/#bank-sampah`, `/pembukuan/` menjadi `/#pembukuan`, `/rapat/` menjadi `/#rapat`.
 - `CNAME` tidak diubah; Cloudflare Worker API tetap `api.flamboyan4.web.id`.
 - Perubahan ini hanya ada di branch `publikasi-flamboyan4-20261024`, PR #3 **Draft**, belum merger.
 
 ## Bukti pemeriksaan kode
-- Asset snapshot 35 file, referensi statis root + 7 HTML panel: 51 referensi file lokal valid.
+- Asset snapshot 36 file, referensi statis root + 7 HTML panel: 51 referensi file lokal valid.
 - Inline JavaScript root dan panel lulus parsing; dua referensi template JS dinamis (${...}) bukan file.
 - Arah redirect 3 URL lama benar dan tidak mengarah ke Apps Script.
 - Hasil tes backend lokal candidate D1: 28/28 API; 19/19 form/setoran; 32/32 rekonsiliasi/pencairan; 36/36 pembatalan dan batch; 26/26 pengeluaran/inventaris/media; 7/7 laporan Pembukuan.
