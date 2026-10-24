@@ -277,7 +277,29 @@
    window.parent.postMessage({type:'f4:auth-changed'},location.origin);
    return {berhasil:true,pesan:'Password berhasil diganti. Silakan login kembali.'};
  };
+ const detailsBank=async(_token,id,kind)=>{
+  if(!String(id||'').trim())throw Error('Pilih transaksi yang ingin dilihat.');
+  const url=kind==='deposit'?'/api/v2/admin/bank/deposit-detail?id=':'/api/v2/admin/bank/sale-detail?id=';
+  const result=await get(url+encodeURIComponent(id));
+  return onlyArray(result.lines).map(x=>({
+   barang:x.name||x.item_name||'',berat:number(x.grams)/1000,
+   tarif:number(x.priceRpPerKg),harga:number(x.priceRpPerKg),
+   nilai:number(x.estimated_rp??x.total_rp??0)
+  }));
+ };
+ const finalBatches=async()=>{
+  const [alloc,batches]=await Promise.all([adminRows('allocations'),adminBatches()]);
+  const byId=new Map(batches.map(x=>[x.id,x]));
+  return alloc.filter(x=>x.batchStatus==='disahkan').map(x=>({
+   batch:x.batch_id,beratWarga:number(byId.get(x.batch_id)?.berat),
+   hakWarga:number(x.citizenRightsRp),diterima:number(x.receivedRp)
+  }));
+ };
  const read={
+  bsV7RincianSetoran:(_token,id)=>detailsBank(_token,id,'deposit'),
+  bsV7RincianPenjualan:(_token,id)=>detailsBank(_token,id,'sale'),
+  bsV24DaftarProgressAdmin:adminProgress,
+  bsV27FinalAdmin:finalBatches,
   authChangePassword:changePassword,
   bsV15FotoSaya:memberAvatar,
   bsV15SimpanFoto:saveMemberAvatar,

@@ -157,6 +157,22 @@ async function postingStatus(){
  }
  return {diposting:0,kas:cash.filter(x=>x.status==='aktif').reduce((sum,x)=>sum+n(x.cash_in_rp)-n(x.cash_out_rp),0)};
 }
-const methods={bsV20TambahMedia:saveMediaLink,bsV10CatatBiaya:saveExpense,bsV11TambahInventaris:saveInventory,bsV6BatalkanSetoran:cancelDeposit,bsV7BatalkanPenjualan:cancelSale,bsV5BuatSetoran:depositDraft,bsV5SimpanTarif:savePrice,bsV11TambahProgress:saveProgress,bsV22TambahAlbum:saveAlbum,bsV6SimpanPenjualan:saleDraft,bsV6PratinjauRekonsiliasi:recon,bsV8BatchSiap:recon,bsV8SahkanBatch:confirm,bsV9RiwayatPencairan:payoutHistory,bsV9CairkanTabungan:payout,bsV9PostingKasPenjualan:postingStatus};
+async function updateAlbumCategory(_token,id,category){
+ const albumId=String(id||'').trim(),value=String(category||'').trim();
+ if(!albumId||!value)throw Error('Pilih album dan kategori.');
+ const r=await api('/api/v2/admin/bank/albums/category',{id:albumId,category:value});
+ return {berhasil:true,id:r.id,kategori:r.category};
+}
+async function updateBankProgress(_token,p){
+ if(String(p?.foto||'').trim())throw Error('Perubahan foto harus dilakukan lewat pengelolaan media. Data teks tidak akan disimpan diam-diam tanpa foto.');
+ const r=await api('/api/v2/admin/bank/progress/edit',{
+  id:String(p?.id||''),date:String(p?.tanggal||''),
+  title:String(p?.judul||''),stage:String(p?.langkah||''),
+  description:String(p?.deskripsi||''),status:String(p?.status||''),
+  nextStep:String(p?.agenda||''),publicVisible:p?.publik!==false,photoUrl:''
+ });
+ return {berhasil:true,id:r.id};
+}
+const methods={bsV22SetKategoriAlbum:updateAlbumCategory,bsV24UbahProgress:updateBankProgress,bsV20TambahMedia:saveMediaLink,bsV10CatatBiaya:saveExpense,bsV11TambahInventaris:saveInventory,bsV6BatalkanSetoran:cancelDeposit,bsV7BatalkanPenjualan:cancelSale,bsV5BuatSetoran:depositDraft,bsV5SimpanTarif:savePrice,bsV11TambahProgress:saveProgress,bsV22TambahAlbum:saveAlbum,bsV6SimpanPenjualan:saleDraft,bsV6PratinjauRekonsiliasi:recon,bsV8BatchSiap:recon,bsV8SahkanBatch:confirm,bsV9RiwayatPencairan:payoutHistory,bsV9CairkanTabungan:payout,bsV9PostingKasPenjualan:postingStatus};
 window.__f4BankDemoCall=(name,args=[])=>Object.hasOwn(methods,name)?methods[name](...args):previous(name,args);
 })();
