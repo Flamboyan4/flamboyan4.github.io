@@ -4904,4 +4904,20 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
 #tab-laporan #report-tahunan-panel .report-table-wrap>table tr{break-inside:avoid!important}
 }
 </style>
+
+<style id="f4-annual-header-print-ink-20261024">
+/* Cetak header tahunan: minta browser menjaga warna, dengan fallback garis tegas. */
+@media print {
+ #tab-laporan #report-tahunan-panel .report-table-wrap>table thead,
+ #tab-laporan #report-tahunan-panel .report-table-wrap>table thead tr,
+ #tab-laporan #report-tahunan-panel .report-table-wrap>table thead th {
+  print-color-adjust:exact!important;-webkit-print-color-adjust:exact!important;
+  background:#e4ecf6!important;color:#152943!important;
+ }
+ #tab-laporan #report-tahunan-panel .report-table-wrap>table thead th {
+  box-shadow:inset 0 0 0 100px #e4ecf6!important;
+  border:1px solid #8fa3be!important;border-bottom:2px solid #6f86aa!important;
+ }
+}
+</style>
 </body></html>
