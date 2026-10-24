@@ -65,6 +65,7 @@ jobs:
                 "catatan":"QA otomatis dihapus"}
               payload.update({k:v for k,v in fields.items() if k!="jumlahRp"})
               code,result=http(endpoint,token,payload)
+              report["last_financial_create_http"]=code
               assertit(kind+"_saved",code==201 and result.get("id"))
               ids[kind]={"key":reqid,"id":result["id"],"cash":result.get("kasId")}
               code,replay=http(endpoint,token,payload)
