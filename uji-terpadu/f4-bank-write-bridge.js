@@ -56,7 +56,7 @@ async function saveExpense(_token,p) {
  const data={
   requestKey:String(p.nonce||''),incurredOn:String(p.tanggal||''),kind,budgetPost:pos,
   description:String(p.keterangan||''),quantity:qty,unit:String(p.satuan||'unit'),
-  unitPriceRp:price,vendor:String(p.toko||''),toInventory:p.inventaris===true,
+  unitPriceRp:price,vendor:String(p.toko||''),note:String(p.catatan||''),toInventory:p.inventaris===true,
   evidenceUrl:String(p.bukti||'').trim()
  };
  if(data.toInventory&&kind!=='pembelian')throw Error('Inventaris baru hanya dapat berasal dari transaksi Pembelian.');
