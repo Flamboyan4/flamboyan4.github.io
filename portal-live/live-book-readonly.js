@@ -67,10 +67,14 @@
   const r=await read('/api/bookkeeping/cash?limit=300');
   return successful({data:rows(r).map((x,i)=>({
    idTransaksi:x.id||'D1-'+i,
-   tanggal:x.occurred_on||x.tanggal||'',jenis:x.transaction_type||'',
+   tanggal:x.occurred_on||x.tanggal||'',
+   jenis:n(x.debit_rp)>0?'Pemasukan':n(x.credit_rp)>0?'Pengeluaran':'',
    kategori:x.category||'',keterangan:x.note||x.description||'',
-   debit:n(x.debit_rp),kredit:n(x.credit_rp),status:x.status==='BATAL'?'BATAL':'AKTIF',
-   sumber:'D1_HISTORIS',periode:x.period||'',metode:x.payment_method||''
+   debit:n(x.debit_rp),kredit:n(x.credit_rp),
+   status:['batal','dibatalkan'].includes(String(x.status||'').toLowerCase())?'BATAL':'AKTIF',
+   // Only new manual entries can be edited/cancelled; never expose legacy journal actions.
+   sumber:x.transaction_type==='manual'&&/^cash-[0-9a-f-]{36}$/i.test(String(x.id||''))?'INPUT_WEB':'D1_HISTORIS',
+   periode:x.period||'',metode:x.payment_method||'',catatan:x.extra_note||''
   }))});
  }
  const houseParts=house=>{const x=String(house||'').split('/');return {blok:x[0]||'',noRumah:x.slice(1).join('/')||''}};
