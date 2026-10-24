@@ -1,6 +1,17 @@
 {
-  "checked_utc": "2026-10-24T20:10:43.844098+00:00",
-  "status": "failed",
+  "checked_utc": "2026-10-24T20:11:20.758407+00:00",
+  "status": "bank_support_enabled",
   "scope": "Stage6 BANK_CANCEL, BANK_INVENTORY, BANK_MEDIA only; finance settlement still held",
-  "error": "ValueError: Current live flags differ from cash canary baseline"
+  "deployment_id": "43edb1b4-d22a-4668-ad4a-3740129ed7ce",
+  "active_write_flags": [
+    "BANK_CANCEL_WRITE_ENABLED",
+    "BANK_INVENTORY_WRITE_ENABLED",
+    "BANK_MEDIA_WRITE_ENABLED",
+    "BANK_WRITE_ENABLED",
+    "DENDA_PINJAMAN_WRITE_ENABLED",
+    "FINANCE_WRITE_ENABLED",
+    "IURAN_WRITE_ENABLED",
+    "MANUAL_CASH_WRITE_ENABLED",
+    "SALE_DRAFT_ENABLED"
+  ]
 }
