@@ -1,0 +1,10 @@
+{
+  "checked_utc": "2026-10-24T19:32:22.973832+00:00",
+  "status": "cash_only_enabled",
+  "scope": "FINANCE + MANUAL_CASH only",
+  "deployment_id": "ae468eee-34ec-43bd-979f-e1dc84c939f6",
+  "active_write_flags": [
+    "FINANCE_WRITE_ENABLED",
+    "MANUAL_CASH_WRITE_ENABLED"
+  ]
+}
