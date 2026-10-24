@@ -75,7 +75,7 @@ html body #f4-account-page>aside{
  background:#fff!important;border-right:1px solid #d9e6f0!important
 }
 html body #f4-account-page>main{
- padding:84px 26px 40px!important;overflow-y:auto!important;overflow-x:hidden!important;
+ padding:66px 22px 30px!important;overflow-y:auto!important;overflow-x:hidden!important;
  width:100%!important;min-width:0!important
 }
 html body #f4-account-page .f4-work-heading{display:block!important}
@@ -111,7 +111,7 @@ html body #f4-account-page aside .f4-sa-brand strong{padding:0!important}
   min-height:42px!important;padding:10px 11px!important
  }
  html body #f4-account-page>main{
-  padding:85px 12px 28px!important;overflow-y:auto!important;overflow-x:hidden!important;
+  padding:66px 12px 24px!important;overflow-y:auto!important;overflow-x:hidden!important;
   width:100%!important;min-width:0!important
  }
  #f4-account-page .f4-sa-mobile-backdrop{
@@ -261,6 +261,7 @@ html.f4-sa-drawer-lock{overflow:hidden!important}
 <div id="guard" role="status"><h2>Memeriksa akses Superadmin…</h2><p>Portal ini hanya untuk akun dengan role Superadmin.</p></div>
 <div id="f4-account-page" hidden><aside aria-label="Navigasi Portal Superadmin"></aside><main><header class="f4-work-heading"><h2>Pusat Pengelolaan</h2><p>Memeriksa koneksi…</p></header></main></div>
 <div id="sa-toast" class="sa-toast" hidden></div>
+<script src="../loading-state.js?v=751604a"></script>
 <script>
 (()=>{
 'use strict';
@@ -473,7 +474,9 @@ function accountsPage(){
  filter.value=accountRoleFilter;
  filter.onchange=()=>{accountRoleFilter=filter.value;paintAccounts()};
  filters.append(input,filter);
- const stats=el('p','Memuat daftar akun…','sa-account-count');stats.id='sa-account-count';filters.append(stats);
+ const stats=el('p','', 'sa-account-count');stats.id='sa-account-count';stats.dataset.f4Count='accounts';filters.append(stats);
+ const loadState=el('p',undefined,'f4-admin-note');panel.append(loadState);
+ const loadToken=F4Loading.begin(loadState,'Memuat daftar akun…');
  listWrap.append(filters);
  const scroll=el('div',undefined,'sa-account-scroll');
  const table=el('table',undefined,'sa-account-grid');
@@ -486,10 +489,12 @@ function accountsPage(){
  get('/api/superadmin/accounts/preview').then(data=>{
   if(serial!==accountRequestSerial||!main.contains(panel))return;
   accounts=rows(data);
+  F4Loading.success(loadState,loadToken);
   paintAccounts();
  }).catch(error=>{
   if(serial!==accountRequestSerial||!main.contains(panel))return;
-  stats.textContent='Daftar akun belum dapat dibaca: '+safe(error);
+  F4Loading.error(loadState,'Daftar akun belum dapat dibaca: '+safe(error),loadToken);
+  stats.textContent='';
   tbody.replaceChildren(el('tr',undefined,'sa-account-error'));
   const cell=el('td','Sambungan akun perlu diperiksa.');cell.colSpan=6;tbody.lastChild.append(cell);
  });
@@ -531,7 +536,7 @@ function paintAccounts(){
 }
 async function catalogPage(){
  title('Jenis & Harga Sampah','Bandingkan harga tercatat di D1 dengan referensi kategori Bank Sampah.');
- const info=notice('Membaca harga D1…');
+ const info=notice('');const loadingToken=F4Loading.begin(info,'Membaca jenis dan harga D1…');
  const wrap=el('div',undefined,'f4-obligation-scroll');
  const table=el('table',undefined,'f4-obligation-grid');table.dataset.module='bankcatalog';
  const head=el('thead'),tr=el('tr');
@@ -558,8 +563,10 @@ async function catalogPage(){
     el('td',x.item?'Cloudflare D1':'Referensi harga lama'),el('td',x.item?'Tercatat':'Belum disinkronkan'));
    body.append(row);
   }
-  info.textContent=saved.length+' jenis ditemukan di D1; '+all.filter(x=>!x.item).length+
-   ' jenis acuan masih perlu sinkronisasi.'+(problem?' Endpoint: '+problem:'');
+  const missing=all.filter(x=>!x.item).length;
+  if(problem)F4Loading.error(info,'Harga D1 belum dapat dibaca: '+problem,loadingToken);
+  else if(missing)F4Loading.empty(info,missing+' jenis acuan belum disinkronkan ke D1.',loadingToken);
+  else F4Loading.success(info,loadingToken);
  };
  try{
   const d=await get('/api/v2/admin/bank/catalog');
@@ -622,7 +629,8 @@ async function openWarga(){
  title('Data Warga & Rumah','Master lintas portal — identitas dan nomor rumah dikelola satu kali');
  const bar=el('div',undefined,'sa-controls'),search=el('input');search.placeholder='Cari warga atau rumah';
  bar.append(search,button('+ Tambah Rumah',()=>wargaForm('add_house'),'sa-action'),button('+ Tambah Warga',()=>wargaForm('add_resident'),'sa-action'),button('Muat ulang',openWarga,'sa-action'));
- main.append(bar);const info=notice('Memuat data warga…'),list=el('div',undefined,'sa-list');main.append(list);
+ main.append(bar);const info=notice(''),list=el('div',undefined,'sa-list');main.append(list);
+ const loadToken=F4Loading.begin(info,'Memuat data warga…');
  const render=()=>{list.replaceChildren();const q=search.value.toLowerCase();
   const wrap=el('div',undefined,'sa-resident-scroll'),table=el('table',undefined,'sa-resident-grid');
   const head=el('thead'),headrow=el('tr');
@@ -644,8 +652,8 @@ async function openWarga(){
   if(!count){const tr=el('tr'),td=el('td','Belum ada data yang cocok.');td.colSpan=6;tr.append(td);body.append(tr)}
   table.append(body);wrap.append(table);list.append(wrap);
  };search.oninput=render;
- try{residentRows=rows(await get('/api/v2/admin/residents'));info.textContent=residentRows.length+' data rumah/warga dibaca dari D1';render();}
- catch(e){info.textContent='Tidak dapat memuat data acuan: '+safe(e)}
+ try{residentRows=rows(await get('/api/v2/admin/residents'));render();if(residentRows.length)F4Loading.success(info,loadToken);else F4Loading.empty(info,'Belum ada data warga/rumah.',loadToken);}
+ catch(e){F4Loading.error(info,'Tidak dapat memuat data acuan: '+safe(e),loadToken)}
 }
 function auditPage(){
  title('Pengaturan & Audit','Pemeriksaan layanan, kontrol dan jejak perubahan');
