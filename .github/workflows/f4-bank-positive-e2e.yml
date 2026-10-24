@@ -1,0 +1,143 @@
+name: F4 Bank Positive E2E - Fully Restored
+on:
+  push:
+    branches: [ops-cloudflare-integration-20261025]
+    paths: [.github/workflows/f4-bank-positive-e2e.yml]
+permissions:
+  contents: write
+jobs:
+  bank:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bank deposit and sale draft in D1 with verified cleanup
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,json,uuid,secrets,hashlib,datetime,urllib.request,urllib.error
+          from pathlib import Path
+          utc=datetime.datetime.now(datetime.timezone.utc)
+          report={"checked_at_utc":utc.isoformat(),"scope":"SYNTHETIC_BANK_DEPOSIT_AND_SALE_DRAFT_ONLY","checks":[],"restored":False}
+          reportfile=Path("ops-audit/bank-positive-e2e.json")
+          reportfile.parent.mkdir(exist_ok=True)
+          root="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CF_ACCOUNT"]
+          def cf(path,data=None):
+            b=None if data is None else json.dumps(data).encode()
+            headers={"Authorization":"Bearer "+os.environ["CF_TOKEN"],"Content-Type":"application/json"}
+            req=urllib.request.Request(root+path,headers=headers,data=b,method="POST" if b is not None else "GET")
+            with urllib.request.urlopen(req,timeout=35) as res:j=json.load(res)
+            if not j.get("success"):raise RuntimeError("Cloudflare API rejected query")
+            return j["result"]
+          db=next(x for x in cf("/d1/database") if x.get("name")=="flamboyan4-staging")
+          d1="/d1/database/"+db["uuid"]+"/query"
+          def sql(q,params=()):
+            ans=cf(d1,{"sql":q,"params":list(params)})
+            if not isinstance(ans,list) or not ans or ans[0].get("success") is False:raise RuntimeError("D1 query failed")
+            return ans[0].get("results") or []
+          def http(method,path,token=None,payload=None):
+            headers={"Accept":"application/json","Origin":"https://flamboyan4.web.id","User-Agent":"Mozilla/5.0 F4-Bank-PositiveE2E"}
+            if token:headers["Cookie"]="f4_session="+token
+            b=None if payload is None else json.dumps(payload).encode()
+            if b is not None:headers["Content-Type"]="application/json"
+            req=urllib.request.Request("https://api.flamboyan4.web.id"+path,headers=headers,method=method,data=b)
+            try:
+              with urllib.request.urlopen(req,timeout=25) as res:return res.status,json.load(res)
+            except urllib.error.HTTPError as e:
+              return e.code,json.loads(e.read(20000) or b'{}')
+          def check(label,cond):
+            report["checks"].append({"name":label,"pass":bool(cond)})
+            if not cond:raise RuntimeError("Check failed: "+label)
+          tables=["waste_batches","waste_deposits","waste_deposit_lines","waste_sales","waste_sale_lines","waste_savings_ledger","waste_cash_ledger","waste_allocations","migration_source_map","audit_log","sessions"]
+          def baseline():
+            return {table:sql('SELECT COUNT(*) AS n FROM "'+table+'"')[0]["n"] for table in tables}
+          batch_id="batch:qa:"+secrets.token_hex(10)
+          request_key="QADeposit"+secrets.token_hex(22)
+          sale_id=str(uuid.uuid4())
+          token=secrets.token_urlsafe(48)
+          token_hash=hashlib.sha256(token.encode()).hexdigest()
+          session_id="qa-"+secrets.token_hex(16)
+          deposit_id=None
+          initial=None
+          try:
+            initial=baseline()
+            settings=cf("/workers/scripts/flamboyan4-terpadu-staging/settings")
+            flags={x["name"]:str(x.get("text","false")).lower() for x in settings.get("bindings",[])}
+            if any(flags.get(x)!="true" for x in ("BANK_WRITE_ENABLED","SALE_DRAFT_ENABLED","BANK_CANCEL_WRITE_ENABLED")):
+              raise RuntimeError("Bank draft flags are not active")
+            who=sql("SELECT id FROM accounts WHERE role='admin' AND status='aktif' LIMIT 1")
+            if not who:raise RuntimeError("No active Bank admin account")
+            member=sql("SELECT id FROM members WHERE status='aktif' LIMIT 1")
+            if not member:raise RuntimeError("No active member")
+            item=sql("""SELECT i.id,p.citizen_rate_rp_per_kg AS rate FROM waste_items i
+              JOIN waste_prices p ON p.waste_item_id=i.id
+              WHERE i.active=1 AND p.effective_from<='2026-10-25' AND p.citizen_rate_rp_per_kg>0
+              ORDER BY p.effective_from DESC LIMIT 1""")
+            if not item:raise RuntimeError("No active priced waste item; no synthetic deposit created")
+            expires=(utc+datetime.timedelta(minutes=8)).strftime("%Y-%m-%d %H:%M:%S")
+            sql("INSERT INTO sessions(id,account_id,token_hash,expires_at) VALUES(?,?,?,?)",
+              [session_id,who[0]["id"],token_hash,expires])
+            sql("INSERT INTO waste_batches(id,label,status) VALUES(?,?,'draft')",[batch_id,"QA TEMP ONLY"])
+            payload={"requestKey":request_key,"batchId":batch_id,"memberId":member[0]["id"],
+              "depositedOn":"2026-10-25","items":[{"itemId":item[0]["id"],"grams":1000}]}
+            status,res=http("POST","/api/v2/admin/bank/deposits",token,payload)
+            deposit_id=res.get("id")
+            check("deposit_saved",status==201 and isinstance(deposit_id,str) and deposit_id.startswith("deposit:api:"))
+            check("deposit_in_D1",len(sql("SELECT id FROM waste_deposits WHERE id=? AND batch_id=? AND status='estimasi'",[deposit_id,batch_id]))==1)
+            status,replay=http("POST","/api/v2/admin/bank/deposits",token,payload)
+            check("deposit_idempotent",status==200 and replay.get("id")==deposit_id and replay.get("duplicate") is True)
+            sale_payload={"requestId":sale_id,"batchId":batch_id,"soldOn":"2026-10-25","buyerName":"QA SELF CLEAN",
+              "lines":[{"itemId":item[0]["id"],"grams":1000,"priceRpPerKg":max(1,int(item[0]["rate"]))}],
+              "receivedRp":max(1,int(item[0]["rate"])),"adjustmentNote":""}
+            status,sale=http("POST","/api/admin/sales/draft",token,sale_payload)
+            check("sale_draft_saved",status==200 and sale.get("id")==sale_id and sale.get("confirmed") is False)
+            check("sale_draft_in_D1",len(sql("SELECT id FROM waste_sales WHERE id=? AND batch_id=? AND status='draft'",[sale_id,batch_id]))==1)
+            check("no_allocations_or_savings",len(sql("SELECT id FROM waste_allocations WHERE batch_id=?",[batch_id]))==0
+              and len(sql("SELECT id FROM waste_savings_ledger WHERE batch_id=?",[batch_id]))==0)
+            status,cancel_sale=http("POST","/api/v2/admin/bank/sales/cancel",token,
+              {"id":sale_id,"reason":"Batalkan transaksi penjualan uji otomatis"})
+            check("sale_canceled",status==200 and cancel_sale.get("status")=="dibatalkan")
+            status,cancel_dep=http("POST","/api/v2/admin/bank/deposits/cancel",token,
+              {"id":deposit_id,"reason":"Batalkan transaksi setoran uji otomatis"})
+            check("deposit_canceled",status==200 and cancel_dep.get("status")=="dibatalkan")
+          except Exception as e:
+            report["error"]=type(e).__name__+": "+str(e)[:240]
+          finally:
+            try:
+              if not deposit_id:
+                found=sql("""SELECT target_id FROM migration_source_map WHERE source_system='api_v2'
+                  AND source_sheet='waste_deposit' AND source_row_key=?""",[request_key])
+                deposit_id=found[0]["target_id"] if found else None
+              # Delete only rows tied to unique synthetic IDs, in child-first order.
+              sql("DELETE FROM audit_log WHERE target_id IN (?,?) AND scope='banksampah'",[sale_id,deposit_id or "__absent__"])
+              sql("DELETE FROM waste_sale_lines WHERE sale_id=?",[sale_id])
+              sql("DELETE FROM waste_sales WHERE id=? AND batch_id=?",[sale_id,batch_id])
+              if deposit_id:
+                sql("DELETE FROM waste_deposit_lines WHERE deposit_id=?",[deposit_id])
+                sql("DELETE FROM waste_deposits WHERE id=? AND batch_id=?",[deposit_id,batch_id])
+                sql("""DELETE FROM migration_source_map WHERE source_system='api_v2'
+                  AND source_sheet='waste_deposit' AND source_row_key=? AND target_id=?""",[request_key,deposit_id])
+              sql("DELETE FROM waste_batches WHERE id=? AND label='QA TEMP ONLY'",[batch_id])
+              sql("DELETE FROM sessions WHERE id=? AND token_hash=?",[session_id,token_hash])
+              report["restored"]=initial is not None and baseline()==initial
+              report["synthetic_rows_absent"]=not sql("SELECT id FROM waste_batches WHERE id=?",[batch_id]) and not sql("SELECT id FROM sessions WHERE id=?",[session_id])
+            except Exception as e:
+              report["cleanup_error"]=type(e).__name__+": "+str(e)[:240]
+              report["restored"]=False
+            report["status"]="pass" if report["restored"] and report.get("synthetic_rows_absent") and not report.get("error") and len(report["checks"])==8 and all(x["pass"] for x in report["checks"]) else "incomplete"
+            reportfile.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n")
+            print("Bank positive E2E:",report["status"],"checks",len(report["checks"]),"restored:",report["restored"])
+          if report["status"]!="pass":raise SystemExit("Bank positive E2E failed or cleanup incomplete")
+          PY
+      - name: Store sanitized result in private branch
+        if: always()
+        run: |
+          test -f ops-audit/bank-positive-e2e.json || exit 1
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/bank-positive-e2e.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(ops): bank synthetic E2E results and cleanup"
+          git push origin HEAD:ops-cloudflare-integration-20261025
