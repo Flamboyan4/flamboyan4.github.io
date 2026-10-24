@@ -1,5 +1,5 @@
 {
-  "checked_at_utc": "2026-10-24T19:59:09.548815+00:00",
+  "checked_at_utc": "2026-10-24T23:51:39.843391+00:00",
   "scope": "READ_ONLY_NO_CREDENTIALS_NO_MEMBER_RECORDS",
   "status": "pass",
   "schema_present": true,
@@ -23,16 +23,16 @@
     "waste_cash_ledger": 0
   },
   "write_flags": {
-    "BANK_CANCEL_WRITE_ENABLED": "false",
+    "BANK_CANCEL_WRITE_ENABLED": "true",
     "BANK_EXPENSE_WRITE_ENABLED": "false",
-    "BANK_INVENTORY_WRITE_ENABLED": "false",
-    "BANK_MEDIA_WRITE_ENABLED": "false",
+    "BANK_INVENTORY_WRITE_ENABLED": "true",
+    "BANK_MEDIA_WRITE_ENABLED": "true",
     "BANK_PAYOUT_WRITE_ENABLED": "false",
     "BANK_RECONCILIATION_WRITE_ENABLED": "false",
-    "BANK_WRITE_ENABLED": "false",
-    "DENDA_PINJAMAN_WRITE_ENABLED": "false",
+    "BANK_WRITE_ENABLED": "true",
+    "DENDA_PINJAMAN_WRITE_ENABLED": "true",
     "FINANCE_WRITE_ENABLED": "true",
-    "IURAN_WRITE_ENABLED": "false",
+    "IURAN_WRITE_ENABLED": "true",
     "MANUAL_CASH_WRITE_ENABLED": "true",
     "PORTAL_WRITE_ENABLED": "false",
     "TALANGAN_WRITE_ENABLED": "false"
