@@ -44,6 +44,14 @@ async function saveProgress(_token,p){
    date:String(p.tanggal||''),title:String(p.judul||''),stage:String(p.langkah||''),description:String(p.deskripsi||''),
    status:String(p.status||''),nextStep:String(p.agenda||''),publicVisible:p.publik!==false});
 }
+async function cancelDeposit(_token,id,reason){
+ const result=await api('/api/v2/admin/bank/deposits/cancel',{id:String(id||''),reason:String(reason||'')});
+ return {id:result.id,status:'Dibatalkan',duplicate:!!result.duplicate};
+}
+async function cancelSale(_token,id,reason){
+ const result=await api('/api/v2/admin/bank/sales/cancel',{id:String(id||''),reason:String(reason||'')});
+ return {id:result.id,status:'Dibatalkan',duplicate:!!result.duplicate};
+}
 async function saveAlbum(_token,p){
  if(String(p?.sampul||'').trim())throw Error('Gambar sampul eksternal belum didukung oleh endpoint album D1. Jangan simpan album dengan sampul yang akan diabaikan.');
  return api('/api/v2/admin/bank/albums',{
@@ -105,6 +113,6 @@ async function postingStatus(){
  }
  return {diposting:0,kas:cash.filter(x=>x.status==='aktif').reduce((sum,x)=>sum+n(x.cash_in_rp)-n(x.cash_out_rp),0)};
 }
-const methods={bsV5BuatSetoran:depositDraft,bsV5SimpanTarif:savePrice,bsV11TambahProgress:saveProgress,bsV22TambahAlbum:saveAlbum,bsV6SimpanPenjualan:saleDraft,bsV6PratinjauRekonsiliasi:recon,bsV8BatchSiap:recon,bsV8SahkanBatch:confirm,bsV9RiwayatPencairan:payoutHistory,bsV9CairkanTabungan:payout,bsV9PostingKasPenjualan:postingStatus};
+const methods={bsV6BatalkanSetoran:cancelDeposit,bsV7BatalkanPenjualan:cancelSale,bsV5BuatSetoran:depositDraft,bsV5SimpanTarif:savePrice,bsV11TambahProgress:saveProgress,bsV22TambahAlbum:saveAlbum,bsV6SimpanPenjualan:saleDraft,bsV6PratinjauRekonsiliasi:recon,bsV8BatchSiap:recon,bsV8SahkanBatch:confirm,bsV9RiwayatPencairan:payoutHistory,bsV9CairkanTabungan:payout,bsV9PostingKasPenjualan:postingStatus};
 window.__f4BankDemoCall=(name,args=[])=>Object.hasOwn(methods,name)?methods[name](...args):previous(name,args);
 })();
