@@ -53,7 +53,7 @@ jobs:
             payer_ids=query("SELECT id FROM bookkeeping_payers WHERE "+payer_filter)
             result["qa_payer_count_before"]=len(payer_ids)
             if len(payer_ids)>3:raise RuntimeError("Unexpected QA payer count; abort")
-            schema=query("SELECT name,sql FROM sqlite_master WHERE type='trigger' AND name IN (?,?)",names)
+            schema=query("SELECT name,sql FROM sqlite_master WHERE type='trigger' AND name IN (?,?,?,?)",names)
             triggers={x["name"]:x["sql"] for x in schema}
             if set(triggers)!=set(names):raise RuntimeError("Immutable transaction triggers not found")
             if any("BEFORE DELETE ON bookkeeping_" not in triggers[n] for n in names):
@@ -95,7 +95,7 @@ jobs:
               result["status"]="batch_applied"
             # Verify both constraints restored and no synthetic payer/cash/child ledger residue.
             remaining=query("SELECT COUNT(*) AS n FROM bookkeeping_payers WHERE "+payer_filter)[0]["n"]
-            active_triggers=query("SELECT COUNT(*) AS n FROM sqlite_master WHERE type='trigger' AND name IN (?,?)",names)[0]["n"]
+            active_triggers=query("SELECT COUNT(*) AS n FROM sqlite_master WHERE type='trigger' AND name IN (?,?,?,?)",names)[0]["n"]
             orphans=query("""SELECT COUNT(*) AS n FROM bookkeeping_cash_transactions
               WHERE payer_id LIKE 'payer:qa:%' AND transaction_type IN ('pembayaran_denda','pinjaman_keluar','angsuran_pinjaman')""")[0]["n"]
             result.update(qa_payer_count_after=remaining,immutable_triggers_restored=(active_triggers==4),orphan_qa_cash=orphans)
@@ -105,12 +105,12 @@ jobs:
             result["error"]=type(e).__name__+": "+str(e)[:175]
             # If a partially-applied batch ever leaves the immutable triggers absent, restore before exiting.
             try:
-              check=query("SELECT name FROM sqlite_master WHERE type='trigger' AND name IN (?,?)",names)
+              check=query("SELECT name FROM sqlite_master WHERE type='trigger' AND name IN (?,?,?,?)",names)
               present={x["name"] for x in check}
               if 'triggers' in locals():
                 for name in names:
                   if name not in present and name in triggers:cf(api,{"sql":triggers[name]})
-              check2=query("SELECT name FROM sqlite_master WHERE type='trigger' AND name IN (?,?)",names)
+              check2=query("SELECT name FROM sqlite_master WHERE type='trigger' AND name IN (?,?,?,?)",names)
               result["immutable_triggers_restored_on_error"]=len(check2)==4
             except Exception as nested:
               result["trigger_recovery_error"]=type(nested).__name__
