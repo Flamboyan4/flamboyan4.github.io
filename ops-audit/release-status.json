@@ -1,0 +1,7 @@
+{
+  "checked_at": "2026-10-24T19:19:22.938843+00:00",
+  "candidate_sha256": "6f913d0d99457c66440d0241fc27e1e64d3f2152cbb4cfff1187ac68c9c59f11",
+  "preflight": "success",
+  "deployment": "skipped",
+  "trigger": "push"
+}
