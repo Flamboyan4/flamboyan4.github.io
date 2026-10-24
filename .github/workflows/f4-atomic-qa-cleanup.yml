@@ -46,7 +46,8 @@ jobs:
           def query(s,params=()):
             r=cf(api,{"sql":s,"params":list(params)})
             return (r[0].get("results") or []) if isinstance(r,list) and r else []
-          names=["trg_0038_fine_payment_no_delete","trg_0038_loan_payment_no_delete"]
+          names=["trg_0038_fine_payment_no_delete","trg_0038_loan_payment_no_delete",
+                 "trg_0038_fine_no_delete","trg_0038_loan_no_delete"]
           try:
             payer_filter="id LIKE 'payer:qa:%' AND display_name='QA AUTO DELETE'"
             payer_ids=query("SELECT id FROM bookkeeping_payers WHERE "+payer_filter)
@@ -71,6 +72,8 @@ jobs:
               statements=[
                 {"sql":"DROP TRIGGER trg_0038_fine_payment_no_delete"},
                 {"sql":"DROP TRIGGER trg_0038_loan_payment_no_delete"},
+                {"sql":"DROP TRIGGER trg_0038_fine_no_delete"},
+                {"sql":"DROP TRIGGER trg_0038_loan_no_delete"},
                 {"sql":"DELETE FROM bookkeeping_dp_cash_links WHERE source_id IN "+allids},
                 {"sql":"DELETE FROM bookkeeping_dp_request_ledger WHERE result_id IN "+allids},
                 {"sql":"DELETE FROM audit_log WHERE scope='pembukuan' AND action IN ('fine-create','fine-pay','loan-create','loan-pay') AND target_id IN ("+targets+")"},
@@ -81,7 +84,9 @@ jobs:
                 {"sql":"DELETE FROM bookkeeping_fines WHERE id IN ("+fine+")"},
                 {"sql":"DELETE FROM bookkeeping_payers WHERE "+payer_filter},
                 {"sql":triggers["trg_0038_fine_payment_no_delete"]},
-                {"sql":triggers["trg_0038_loan_payment_no_delete"]}
+                {"sql":triggers["trg_0038_loan_payment_no_delete"]},
+                {"sql":triggers["trg_0038_fine_no_delete"]},
+                {"sql":triggers["trg_0038_loan_no_delete"]}
               ]
               result["cleanup_statement_count"]=len(statements)
               values=cf(api,{"batch":statements})
@@ -93,8 +98,8 @@ jobs:
             active_triggers=query("SELECT COUNT(*) AS n FROM sqlite_master WHERE type='trigger' AND name IN (?,?)",names)[0]["n"]
             orphans=query("""SELECT COUNT(*) AS n FROM bookkeeping_cash_transactions
               WHERE payer_id LIKE 'payer:qa:%' AND transaction_type IN ('pembayaran_denda','pinjaman_keluar','angsuran_pinjaman')""")[0]["n"]
-            result.update(qa_payer_count_after=remaining,immutable_triggers_restored=(active_triggers==2),orphan_qa_cash=orphans)
-            result["status"]="pass" if remaining==0 and active_triggers==2 and orphans==0 else "failed_postcheck"
+            result.update(qa_payer_count_after=remaining,immutable_triggers_restored=(active_triggers==4),orphan_qa_cash=orphans)
+            result["status"]="pass" if remaining==0 and active_triggers==4 and orphans==0 else "failed_postcheck"
           except Exception as e:
             result["status"]="failed"
             result["error"]=type(e).__name__+": "+str(e)[:175]
@@ -106,7 +111,7 @@ jobs:
                 for name in names:
                   if name not in present and name in triggers:cf(api,{"sql":triggers[name]})
               check2=query("SELECT name FROM sqlite_master WHERE type='trigger' AND name IN (?,?)",names)
-              result["immutable_triggers_restored_on_error"]=len(check2)==2
+              result["immutable_triggers_restored_on_error"]=len(check2)==4
             except Exception as nested:
               result["trigger_recovery_error"]=type(nested).__name__
           file.write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n")
