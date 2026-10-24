@@ -59,7 +59,7 @@ jobs:
           PY
       - name: Upload worker with strict inherited bindings
         id: deployment
-        if: github.event_name == 'workflow_dispatch' && inputs.mode == 'deploy'
+        if: (github.event_name == 'workflow_dispatch' && inputs.mode == 'deploy') || (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'release(ops): deploy verified Worker candidate'))
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
