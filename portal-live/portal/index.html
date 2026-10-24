@@ -3566,6 +3566,18 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     });
 
     track.innerHTML = trackHTML;
+    // Banner Bank Sampah lama diarahkan lewat shell agar tidak memuat portal bersarang di iframe.
+    track.querySelectorAll('a[href]').forEach(anchor => {
+      let destination;
+      try { destination = new URL(anchor.getAttribute('href'), location.href); } catch { return; }
+      if (destination.origin === location.origin && /(?:^|\/)banksampah(?:\.html|\/)?$/i.test(destination.pathname)) {
+        anchor.addEventListener('click', event => {
+          event.preventDefault();
+          if (typeof window.f4GoBank === 'function') window.f4GoBank();
+          else window.location.href = '../#bank-sampah';
+        });
+      }
+    });
     if (dotsContainer) dotsContainer.innerHTML = dotsHTML;
     updateBannerPosition();
   }
@@ -3696,8 +3708,12 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       if (!card) return;
       const clean = String(link || '').trim();
       if (typeKey === 'banksampah') {
-        card.onclick = clean ? () => { window.location.href = clean; } : null;
-        card.classList.toggle('cursor-pointer', !!clean);
+        // Pindah melalui shell terpadu, bukan mengikuti URL staging dari data lama.
+        card.onclick = () => {
+          if (typeof window.f4GoBank === 'function') window.f4GoBank();
+          else window.location.href = '../#bank-sampah';
+        };
+        card.classList.add('cursor-pointer');
       }
       const a = card.querySelector('.project-generic-link');
       if (a) {
