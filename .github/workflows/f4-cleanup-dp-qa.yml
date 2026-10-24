@@ -1,0 +1,103 @@
+name: F4 Cleanup Synthetic Denda Loan - Targeted
+on:
+  push:
+    branches: [ops-cloudflare-integration-20261025]
+    paths: [.github/workflows/f4-cleanup-dp-qa.yml]
+permissions:
+  contents: write
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Delete only labeled synthetic payer financial records
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,json,urllib.request,urllib.error,datetime
+          from pathlib import Path
+          result={"checked_at_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                  "scope":"CLEANUP_QA_AUTO_DELETE_PAYER_ONLY","status":"started","steps":[]}
+          out=Path("ops-audit/dp-cleanup.json");out.parent.mkdir(exist_ok=True)
+          root="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CF_ACCOUNT"]
+          token=os.environ["CF_TOKEN"]
+          def cf(path,data=None):
+            b=json.dumps(data).encode() if data is not None else None
+            req=urllib.request.Request(root+path,method="POST" if b else "GET",data=b,
+              headers={"Authorization":"Bearer "+token,"Content-Type":"application/json"})
+            try:
+              with urllib.request.urlopen(req,timeout=30) as resp:j=json.load(resp)
+              if not j.get("success"):raise RuntimeError("D1 API rejected request")
+              return j.get("result")
+            except urllib.error.HTTPError as e:
+              body=e.read(12000)
+              try:codes=[x.get("code") for x in json.loads(body).get("errors",[])]
+              except:codes=[]
+              raise RuntimeError("D1 query HTTP "+str(e.code)+", error codes="+str(codes))
+          db=next(x for x in cf("/d1/database") if x["name"]=="flamboyan4-staging")
+          path="/d1/database/"+db["uuid"]+"/query"
+          def sql(q,args=()):
+            res=cf(path,{"sql":q,"params":list(args)})
+            return res[0].get("results") or []
+          def run(label,q,args=()):
+            try:
+              sql(q,args);result["steps"].append({"operation":label,"ok":True})
+            except Exception as e:
+              result["steps"].append({"operation":label,"ok":False,"reason":str(e)[:150]})
+              raise
+          try:
+            payers=sql("SELECT id FROM bookkeeping_payers WHERE id LIKE 'payer:qa:%' AND display_name='QA AUTO DELETE'")
+            if len(payers)>3:raise RuntimeError("Unexpected number of QA payer IDs")
+            result["synthetic_payers_found"]=len(payers)
+            for found in payers:
+              pid=found["id"]
+              fines=sql("SELECT id FROM bookkeeping_fines WHERE payer_id=?",[pid])
+              loans=sql("SELECT id FROM bookkeeping_loans WHERE payer_id=?",[pid])
+              fine_ids=[r["id"] for r in fines];loan_ids=[r["id"] for r in loans]
+              if len(fine_ids)>3 or len(loan_ids)>3:raise RuntimeError("Unexpected QA fine/loan count")
+              if fine_ids:
+                fine=fine_ids[0]
+                payments=sql("SELECT id,cash_transaction_id,request_key FROM bookkeeping_fine_payments WHERE fine_id=?",[fine])
+              else:payments=[]
+              if loan_ids:
+                loan=loan_ids[0]
+                repayments=sql("SELECT id,cash_transaction_id,request_key FROM bookkeeping_loan_repayments WHERE loan_id=?",[loan])
+              else:repayments=[]
+              keys=[x.get("request_key") for x in payments+repayments if x.get("request_key")]
+              keys+=([x["request_key"] for x in sql("SELECT request_key FROM bookkeeping_dp_request_ledger WHERE result_id IN ("+",".join("?" for _ in fine_ids+loan_ids)+")",fine_ids+loan_ids)] if fine_ids or loan_ids else [])
+              cashids=[x["cash_transaction_id"] for x in payments+repayments if x.get("cash_transaction_id")]
+              if fine_ids or loan_ids:
+                run("unlink_cash_by_source", "DELETE FROM bookkeeping_dp_cash_links WHERE source_id IN ("+",".join("?" for _ in fine_ids+loan_ids+[x["id"] for x in payments+repayments])+")",fine_ids+loan_ids+[x["id"] for x in payments+repayments])
+              if loan_ids:
+                run("delete_loan_repayments","DELETE FROM bookkeeping_loan_repayments WHERE loan_id=?",[loan_ids[0]])
+              if fine_ids:
+                run("delete_fine_payments","DELETE FROM bookkeeping_fine_payments WHERE fine_id=?",[fine_ids[0]])
+              run("delete_qa_cash","DELETE FROM bookkeeping_cash_transactions WHERE payer_id=? AND transaction_type IN ('pembayaran_denda','pinjaman_keluar','angsuran_pinjaman')",[pid])
+              run("delete_dp_request_keys","DELETE FROM bookkeeping_dp_request_ledger WHERE result_id IN ("+",".join("?" for _ in fine_ids+loan_ids+[x["id"] for x in payments+repayments])+")",fine_ids+loan_ids+[x["id"] for x in payments+repayments]) if fine_ids or loan_ids else "SELECT 1")
+              if fine_ids or loan_ids:
+                run("delete_audit","DELETE FROM audit_log WHERE scope='pembukuan' AND action IN ('fine-create','fine-pay','loan-create','loan-pay') AND target_id IN ("+",".join("?" for _ in fine_ids+loan_ids)+")",fine_ids+loan_ids)
+              run("delete_qa_fines","DELETE FROM bookkeeping_fines WHERE payer_id=?",[pid])
+              run("delete_qa_loans","DELETE FROM bookkeeping_loans WHERE payer_id=?",[pid])
+              run("delete_qa_payer","DELETE FROM bookkeeping_payers WHERE id=? AND display_name='QA AUTO DELETE'",[pid])
+            remaining=sql("SELECT COUNT(*) AS n FROM bookkeeping_payers WHERE id LIKE 'payer:qa:%' AND display_name='QA AUTO DELETE'")[0]["n"]
+            result["status"]="pass" if remaining==0 else "incomplete"
+            result["synthetic_payers_remaining"]=remaining
+          except Exception as e:
+            result["status"]="failed";result["error"]=type(e).__name__+": "+str(e)[:160]
+          out.write_text(json.dumps(result,indent=2)+"\n")
+          print("Targeted QA cleanup:",result["status"])
+          if result["status"]!="pass":raise SystemExit("Targeted cleanup incomplete")
+          PY
+      - name: Save sanitized result
+        if: always()
+        run: |
+          test -f ops-audit/dp-cleanup.json || exit 1
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/dp-cleanup.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(ops): record targeted Denda synthetic cleanup"
+          git push origin HEAD:ops-cloudflare-integration-20261025
