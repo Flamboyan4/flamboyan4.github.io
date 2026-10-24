@@ -81,7 +81,7 @@ try:
             buffer=""
     if buffer.strip():raise ValueError("Unterminated SQL export statement")
     def identify(st):
-        stripped=re.sub(r"(?m)^\\s*--[^\\n]*\\n","",st).strip()
+        stripped=re.sub(r"(?m)^\s*--[^\n]*\n","",st).strip()
         return stripped.upper().lstrip()
     schema=[];inserts=[];indices=[];other=[]
     for stmt in statements:
@@ -94,7 +94,7 @@ try:
     result["export_meta"]["groups"]={"schema":len(schema),"inserts":len(inserts),"indices":len(indices),"other":len(other)}
     save()
     ordered=pathlib.Path("/tmp/f4-ordered-ephemeral.sql")
-    ordered.write_text("PRAGMA defer_foreign_keys=TRUE;\\n"+"\\n".join(schema+inserts+indices+other),encoding="utf8")
+    ordered.write_text("PRAGMA defer_foreign_keys=TRUE;\n"+"\n".join(schema+inserts+indices+other),encoding="utf8")
     run([WRANGLER,"d1","execute","flamboyan4-staging","--local","--config",str(CONFIG),"--file",str(ordered),"--persist-to",str(LOCAL),"--yes"],timeout=180)
     files=list(LOCAL.rglob("*.sqlite"))
     if not files:raise ValueError("Local SQLite state missing after import")
