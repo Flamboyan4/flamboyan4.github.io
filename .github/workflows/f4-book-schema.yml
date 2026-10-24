@@ -38,13 +38,16 @@ jobs:
           rows=query("/d1/database/"+db["uuid"]+"/query",select)
           p=Path("ops-audit/finance-schema.json");p.parent.mkdir(exist_ok=True)
           p.write_text(json.dumps({x["name"]:x["sql"] for x in rows},indent=2)+"\n")
+          deps=query("/d1/database/"+db["uuid"]+"/query",
+            "SELECT name,sql FROM sqlite_master WHERE (type='trigger' OR type='table') AND (sql LIKE '%bookkeeping_loan_repayments%' OR sql LIKE '%bookkeeping_fine_payments%')")
+          Path("ops-audit/finance-dependencies.json").write_text(json.dumps(deps,indent=2)+"\\n")
           print("D1 schema definitions fetched:",len(rows))
           PY
       - name: Save SQL structure, no records
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add ops-audit/finance-schema.json
+          git add ops-audit/finance-schema.json ops-audit/finance-dependencies.json
           git diff --cached --quiet && exit 0
           git commit -m "chore(ops): record non-sensitive D1 finance schema preflight"
           git push origin HEAD:ops-cloudflare-integration-20261025
