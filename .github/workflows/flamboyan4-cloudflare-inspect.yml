@@ -1,5 +1,5 @@
 name: Flamboyan 4 - Cloudflare Read-only Audit
-# Refresh current Worker flag and deployment evidence after staged sale-draft attempt.
+# Refresh current Worker flag and deployment evidence after Bank support activation preflight.
 
 on:
   push:
