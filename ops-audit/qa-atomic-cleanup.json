@@ -1,8 +1,10 @@
 {
-  "checked_at_utc": "2026-10-24T23:50:00.982260+00:00",
+  "checked_at_utc": "2026-10-24T23:50:36.231761+00:00",
   "scope": "QA_PAYER_ONLY_SINGLE_D1_BATCH",
-  "status": "failed",
+  "status": "pass",
   "qa_payer_count_before": 2,
-  "error": "RuntimeError: Cloudflare D1 HTTP 400 codes=[7500] Wrong number of parameter bindings for SQL query.",
-  "trigger_recovery_error": "RuntimeError"
+  "cleanup_statement_count": 17,
+  "qa_payer_count_after": 0,
+  "immutable_triggers_restored": true,
+  "orphan_qa_cash": 0
 }
