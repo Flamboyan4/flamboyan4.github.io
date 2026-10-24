@@ -3461,42 +3461,7 @@ function printKasSepertiLamanUtama(){
 <div class="note">Dicetak pada ${escapePrint(tanggalCetak)} • Flamboyan 4 • Data bersumber dari pembukuan kas pada flamboyan4.web.id</div><script>window.onload=()=>{setTimeout(()=>window.print(),350)}<\/script>
 
 
-<style id="f4-book-report-tables-consistent-20261024">
-/* Satu gaya tabel laporan; ukuran huruf tetap nyaman, jarak kolom yang dipadatkan. */
-#tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table{
-  width:100%;border-collapse:collapse;border-spacing:0;
-  font-size:13px;line-height:1.35;font-variant-numeric:tabular-nums;
-}
-#tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table thead{
-  background:#f0f3f8!important;color:#213451!important;
-}
-#tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table :is(th,td){
-  border:1px solid #d9e1ed;padding:7px 9px!important;vertical-align:middle;
-}
-#tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table th{
-  font-weight:800;white-space:normal;line-height:1.2;
-}
-#tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table tfoot{
-  background:#f0f3f8!important;font-weight:800;
-}
-@media(max-width:767px){
-  #tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table :is(th,td){
-    padding:6px 7px!important;
-  }
-}
-@media print{
-  #tab-laporan .report-table-wrap:not(.kas-report-table-wrap){
-    overflow:visible!important;border-radius:0!important;
-  }
-  #tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table{
-    width:100%!important;min-width:0!important;
-    font-size:9px!important;line-height:1.25!important;
-  }
-  #tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table :is(th,td){
-    padding:3px 4px!important;border:1px solid #d5dbe7!important;
-  }
-}
-</style>
+
 </body></html>`); w.document.close();
 }
 function printRtSepertiLamanUtama(){
@@ -4880,4 +4845,63 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
  window.visualViewport?.addEventListener('scroll',tick);
  window.addEventListener('resize',tick);
 })();
-</script></body></html>
+</script>
+<style id="f4-book-report-tables-consistent-20261024">
+/* Satu gaya tabel laporan; ukuran huruf tetap nyaman, jarak kolom yang dipadatkan. */
+#tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table{
+  width:100%;border-collapse:collapse;border-spacing:0;
+  font-size:13px;line-height:1.35;font-variant-numeric:tabular-nums;
+}
+#tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table thead{
+  background:#f0f3f8!important;color:#213451!important;
+}
+#tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table :is(th,td){
+  border:1px solid #d9e1ed;padding:7px 9px!important;vertical-align:middle;
+}
+#tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table th{
+  font-weight:800;white-space:normal;line-height:1.2;
+}
+#tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table tfoot{
+  background:#f0f3f8!important;font-weight:800;
+}
+@media(max-width:767px){
+  #tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table :is(th,td){
+    padding:6px 7px!important;
+  }
+}
+@media print{
+  #tab-laporan .report-table-wrap:not(.kas-report-table-wrap){
+    overflow:visible!important;border-radius:0!important;
+  }
+  #tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table{
+    width:100%!important;min-width:0!important;
+    font-size:9px!important;line-height:1.25!important;
+  }
+  #tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table :is(th,td){
+    padding:3px 4px!important;border:1px solid #d5dbe7!important;
+  }
+}
+</style>
+<style id="f4-book-annual-table-unified-20261024">
+/* Rekap 12 bulan: gaya tabel sama dengan laporan lainnya; tidak mengubah data. */
+#tab-laporan #report-tahunan-panel .report-table-wrap{width:100%;max-width:100%;border:1px solid #d9e1ed!important;border-radius:12px!important;overflow-x:auto!important}
+#tab-laporan #report-tahunan-panel .report-table-wrap>table{width:100%!important;min-width:0!important;max-width:100%!important;table-layout:fixed!important;border-collapse:collapse!important;font-size:13px!important;line-height:1.35!important;font-variant-numeric:tabular-nums}
+#tab-laporan #report-tahunan-panel .report-table-wrap>table th{background:#f0f3f8!important;color:#213451!important;font-weight:800!important;line-height:1.2!important;white-space:normal!important}
+#tab-laporan #report-tahunan-panel .report-table-wrap>table :is(th,td){border:1px solid #d9e1ed!important;padding:7px 8px!important;vertical-align:middle!important}
+#tab-laporan #report-tahunan-panel .report-table-wrap>table :is(th,td):first-child{text-align:left!important}
+#tab-laporan #report-tahunan-panel .report-table-wrap>table :is(th,td):not(:first-child){text-align:right!important}
+#tab-laporan #report-tahunan-panel .report-table-wrap>table td:not(:first-child){white-space:nowrap!important}
+@media screen and (max-width:767px){
+#tab-laporan #report-tahunan-panel .report-table-wrap>table{min-width:750px!important}
+#tab-laporan #report-tahunan-panel .report-table-wrap>table :is(th,td){padding:6px 7px!important}
+}
+@media print{
+#tab-laporan #report-tahunan-panel .report-table-wrap{width:100%!important;max-width:none!important;min-width:0!important;overflow:visible!important;border:1px solid #cbd5e1!important;border-radius:0!important}
+#tab-laporan #report-tahunan-panel .report-table-wrap>table{width:100%!important;max-width:none!important;min-width:0!important;table-layout:fixed!important;border-collapse:collapse!important;font-size:9.3px!important;line-height:1.18!important}
+#tab-laporan #report-tahunan-panel .report-table-wrap>table :is(th,td){border:1px solid #cbd5e1!important;padding:4px 5px!important;font-size:9.3px!important;line-height:1.18!important;white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important}
+#tab-laporan #report-tahunan-panel .report-table-wrap>table th{font-size:9px!important;background:#eef2f7!important}
+#tab-laporan #report-tahunan-panel .report-table-wrap>table thead{display:table-header-group!important}
+#tab-laporan #report-tahunan-panel .report-table-wrap>table tr{break-inside:avoid!important}
+}
+</style>
+</body></html>
