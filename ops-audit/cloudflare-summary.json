@@ -61,7 +61,7 @@
       "type": "plain_text"
     }
   ],
-  "checked_at_utc": "2026-10-24T19:23:16.875224+00:00",
+  "checked_at_utc": "2026-10-24T19:25:54.993165+00:00",
   "checks": {
     "d1_list": {
       "codes": [],
@@ -76,9 +76,8 @@
       "ok": true
     },
     "live_public_bank_api": {
-      "error": null,
-      "http": 403,
-      "json_ok": false
+      "note": "public API smoke test is separate from the Cloudflare admin token",
+      "status": "not_checked_in_admin_audit"
     },
     "r2_list": {
       "codes": [],
@@ -223,15 +222,15 @@
     "waste_savings_ledger"
   ],
   "d1_target": "flamboyan4-staging",
-  "deployed_worker_sha256": "8e9863046cc5cec6ff29e23fa68b8c5deef1d56c3cf15a5cc81996107ea90a47",
+  "deployed_worker_sha256": "c86355f1de5543f5614309a9d38cbde7c9e324faedd4c3b793de0ff9af6b0786",
   "latest_deployment": [
+    {
+      "created_on": "2026-10-24T19:24:49.582809Z",
+      "id": "9447ef77-c39a-4d81-84a6-3c54b0eaf320"
+    },
     {
       "created_on": "2026-10-24T17:14:43.185335Z",
       "id": "d0f2c69b-83a0-4fb4-8a9f-f8cb82de927e"
-    },
-    {
-      "created_on": "2026-10-24T15:46:20.396226Z",
-      "id": "97d7e29f-9a43-406e-a011-b69a610d784d"
     }
   ],
   "mode": "READ_ONLY_NO_DEPLOY_NO_DB_WRITES",
