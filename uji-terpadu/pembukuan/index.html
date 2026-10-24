@@ -2525,18 +2525,13 @@ let RIWAYAT_KAS=[];
 let DATA_PINJAMAN={rows:[],aktif:[],ringkasan:{}};
 const BULAN=['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 function rupiah(n){return 'Rp '+Math.round(Number(n)||0).toLocaleString('id-ID')}
-function jsonp(url,params={}){if(window.__f4BookDemoCall)return window.__f4BookDemoCall(params);
-  const attempt=(n)=>new Promise((resolve,reject)=>{
-    const cb='__cb_'+Date.now()+'_'+Math.random().toString(36).slice(2);
-    const s=document.createElement('script');let settled=false;let timer=null;
-    const q=new URLSearchParams({...params,callback:cb,_r:n});
-    function cleanup(){if(timer)clearTimeout(timer);try{delete window[cb]}catch(e){};try{s.remove()}catch(e){}}
-    window[cb]=d=>{if(settled)return;settled=true;cleanup();resolve(d)};
-    s.onerror=()=>{if(settled)return;settled=true;cleanup();reject(new Error('Gagal menghubungi Apps Script.'))};
-    s.src=url+'?'+q.toString();document.body.appendChild(s);
-    timer=setTimeout(()=>{if(settled)return;settled=true;cleanup();reject(new Error('Koneksi timeout.'))},65000);
-  });
-  return attempt(1).catch(err=>new Promise(r=>setTimeout(r,900)).then(()=>attempt(2)).catch(()=>{throw err}));
+function jsonp(_url,params={}) {
+  // Sumber tunggal Pembukuan setelah migrasi: Cloudflare D1 melalui bridge.
+  // Tidak ada fallback Apps Script atau data contoh saat bridge gagal.
+  if (typeof window.__f4BookDemoCall!=='function')
+    return Promise.reject(new Error('Koneksi Cloudflare D1 belum siap. Muat ulang halaman; data lama tidak digunakan.'));
+  try { return Promise.resolve(window.__f4BookDemoCall(params)); }
+  catch(error) { return Promise.reject(error); }
 }
 function status(t,type='info'){const e=document.getElementById('status-box');if(type==='success'&&/^Data berhasil dimuat\.?$/i.test(t)){F4Loading.success(e);return}if(type==='info'&&/^Memuat /i.test(t)){F4Loading.begin(e,t);return}if(type==='error'&&e.dataset.f4State==='loading')F4Loading.error(e,t);e.dataset.f4State='notice';e.className='mb-5 rounded-xl border px-4 py-3 text-sm';if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');else if(type==='success')e.classList.add('bg-violet-50','border-violet-200','text-violet-700');else e.classList.add('bg-slate-50','border-slate-200','text-slate-600');e.textContent=t;e.hidden=false;e.classList.remove('hidden')}
 function hideStatus(){document.getElementById('status-box').classList.add('hidden')}
