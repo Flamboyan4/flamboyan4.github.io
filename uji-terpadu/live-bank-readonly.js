@@ -120,7 +120,7 @@
   const media=onlyArray(r.media).map(x=>{
     const url=x.mediaUrl?(x.mediaUrl.startsWith('/')?API+x.mediaUrl:x.mediaUrl):(x.external_url||'');
     const jenis=x.media_type==='video'?'Video':'Foto';
-    return {id:x.id,nama:x.caption||'',jenis,url,thumb:jenis==='Foto'?url:''};
+    return {id:x.id,nama:x.caption||'',jenis,url,src:url,thumb:jenis==='Foto'?url:''};
   });
   return {id,judul:r.album?.title||'',tanggal:r.album?.event_on||'',
     deskripsi:r.album?.description||'',media,catatan:media.length?'':'Album belum memiliki media aktif.'};
