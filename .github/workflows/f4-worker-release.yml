@@ -12,7 +12,7 @@ on:
         type: choice
         options: [preflight, deploy]
 permissions:
-  contents: read
+  contents: write
 concurrency:
   group: f4-worker-release
   cancel-in-progress: false
@@ -23,6 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Verify candidate checksum, bindings and D1
+        id: preflight
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -57,6 +58,7 @@ jobs:
           print("Candidate sha256:",digest)
           PY
       - name: Upload worker with strict inherited bindings
+        id: deployment
         if: github.event_name == 'workflow_dispatch' && inputs.mode == 'deploy'
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -90,3 +92,26 @@ jobs:
             raise SystemExit("CRITICAL: Write flag changed unexpectedly.")
           print("Worker candidate deployed; write flags remain OFF.")
           PY
+      - name: Publish non-sensitive CI result
+        if: always()
+        env:
+          PREFLIGHT_RESULT: ${{ steps.preflight.outcome }}
+          DEPLOY_RESULT: ${{ steps.deployment.outcome }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          mkdir -p ops-audit
+          python3 - <<'PY'
+          import os,json,datetime
+          r={"checked_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),
+             "candidate_sha256":"6f913d0d99457c66440d0241fc27e1e64d3f2152cbb4cfff1187ac68c9c59f11",
+             "preflight":os.getenv("PREFLIGHT_RESULT"),
+             "deployment":os.getenv("DEPLOY_RESULT"),
+             "trigger":os.getenv("EVENT")}
+          with open("ops-audit/release-status.json","w") as f:json.dump(r,f,indent=2)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/release-status.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(ops): update Cloudflare release check status"
+          git push origin HEAD:ops-cloudflare-integration-20261025
