@@ -815,7 +815,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   const rawMutations=onlyArray(r.mutasi||r.mutations||r.ledger);
   // The active Worker limits personal histories to 60 deposits / 100 ledger events.
   // Reject ambiguous lifetime totals rather than silently printing incomplete statements.
-  if(rawDeposits.length>=60||rawMutations.length>=100)
+  if(r.riwayatLengkap===false||rawDeposits.length>=60||rawMutations.length>=100)
    throw Error('Riwayat pribadi mencapai batas API; laporan lengkap perlu paginasi dari Worker sebelum dapat dicetak.');
   const deposits=rawDeposits.map(x=>{
    const rawDetails=onlyArray(x.rincian||x.details||x.items||x.lines);
