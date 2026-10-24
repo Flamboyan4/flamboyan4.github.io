@@ -872,13 +872,13 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   if(requireComplete&&result.length>=300)throw Error('Data '+name+' mencapai batas 300 transaksi. Laporan dihentikan agar saldo tidak terpotong.');
   return result;
  };
- const adminDeposits=async()=> (await adminRows('deposits')).map(x=>({
+ const adminDeposits=async()=> (await adminRows('deposits',{requireComplete:true})).map(x=>({
   id:x.id,wargaId:x.member_id,namaWarga:x.memberName||'',rumahWarga:'',tanggal:x.deposited_on,
   berat:number(x.total_grams)/1000,estimasi:number(x.estimated_total_rp),
   status:x.status==='dibatalkan'?'Dibatalkan':x.status==='terkonfirmasi'?'Terkonfirmasi':'Estimasi',
   batchId:x.batch_id
  }));
- const adminSales=async()=> (await adminRows('sales')).map(x=>({
+ const adminSales=async()=> (await adminRows('sales',{requireComplete:true})).map(x=>({
   id:x.id,batchId:x.batch_id,tanggal:x.sold_on,lapak:x.buyer_name||'',
   bruto:number(x.amount_gross_rp),diterima:number(x.amount_received_rp),
   status:x.status==='dibatalkan'?'Dibatalkan':x.status==='terkonfirmasi'?'Terkonfirmasi':'Draft'
@@ -913,7 +913,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
    id:x.id,progressId:x.id,tanggal:x.happened_on,judul:x.title,langkah:x.stage,
    deskripsi:x.description||'',status:x.status,agenda:x.next_step||'',publik:!!x.public_visible
  }));
- const adminExpenses=async()=> (await adminRows('expenses')).map(x=>({
+ const adminExpenses=async()=> (await adminRows('expenses',{requireComplete:true})).map(x=>({
    id:x.id,tanggal:x.incurred_on,jenis:x.kind,pos:x.budget_post,
    uraian:x.description||'',keterangan:x.description||'',jumlah:number(x.amount_rp),
    nominal:number(x.amount_rp),status:x.status,vendor:x.vendor||''
@@ -923,7 +923,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
    const byId=new Map(balances.map(x=>[String(x.member_id||'').replace(/^member:/,''),number(x.balanceRp)]));
    return members.map(m=>({...m,saldo:byId.get(m.wargaId)||0,saldoRp:byId.get(m.wargaId)||0}));
  };
- const adminCash=async()=> (await adminRows('cash')).map(x=>({
+ const adminCash=async()=> (await adminRows('cash',{requireComplete:true})).map(x=>({
    id:x.id,tanggal:x.occurred_on,jenis:x.transaction_type,pos:x.fund_position,
    masuk:number(x.cash_in_rp),keluar:number(x.cash_out_rp),status:x.status,keterangan:x.note||''
  }));
@@ -933,7 +933,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
  }));
  const adminCashOverview=async(_token,period='')=>{
   const all=await adminCash();
-  const month=String(period||'').match(/^\\d{4}-\\d{2}$/)?.[0]||'';
+  const month=String(period||'').match(/^\d{4}-\d{2}$/)?.[0]||'';
   const eligible=all.filter(x=>x.status==='aktif');
   const rows=eligible.filter(x=>!month||String(x.tanggal).startsWith(month));
   const grouped=new Map();
@@ -1089,7 +1089,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     nama:item.name||item.nama,kelompok:item.category||item.kelompok||'',
     acuan:number(item.reference_price_rp??item.acuan??number(item.priceRpPerKg)*2),
     tarif:number(item.priceRpPerKg??item.tarif),
-    status:item.active===false?'Nonaktif':'Aktif'}));
+    status:item.active===false||item.active===0||item.active==='0'?'Nonaktif':'Aktif'}));
   }
  };
  window.__f4BankDemoCall=(name,args=[])=>{
