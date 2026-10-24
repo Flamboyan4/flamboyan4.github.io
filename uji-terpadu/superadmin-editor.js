@@ -229,13 +229,15 @@ window.openSuperadminEditor=async(kind)=>{
  if(kind==='residents'){nav(kind);return}
  if(!types[kind])return;
  active=kind;filter='';page.hidden=false;if(resident)resident.hidden=true;
- sideMenu();header(types[kind].label,'Mengambil data Cloudflare D1…');
+ sideMenu();header(types[kind].label,'Kelola data acuan Cloudflare D1.');
  const serial=++requestSerial;
- const info=node('p','Memuat…','f4-admin-note');main.append(info);
+ const info=node('p','','f4-admin-note');main.append(info);
+ const loadToken=window.F4Loading?.begin(info,'Memuat '+types[kind].label+'…');
  try{
   const nextRecords=await fetchData(kind);
   if(serial!==requestSerial||!main.contains(info))return;
   records=nextRecords;
+  window.F4Loading?.success(info,loadToken);
   viewList();
  }
  catch(e){
@@ -246,7 +248,8 @@ window.openSuperadminEditor=async(kind)=>{
    records=[];viewList();
    const box=main.querySelector('.f4-admin-note');
    if(box)box.textContent='Data album D1 belum dapat dibaca ('+e.message+'). Anda tetap dapat membuka Tambah Dokumentasi; data baru hanya dianggap tersimpan setelah Worker mengonfirmasi.';
-  }else info.textContent='Tidak dapat membaca '+types[kind].label+': '+e.message;
+  }else if(window.F4Loading)F4Loading.error(info,'Tidak dapat membaca '+types[kind].label+': '+e.message,loadToken);
+  else info.textContent='Tidak dapat membaca '+types[kind].label+': '+e.message;
  }
 };
 window.f4AdminEditorTypes=categories;
