@@ -155,7 +155,7 @@ async function postingStatus(){
   const credited=cash.filter(x=>x.status==='aktif' && (x.source_transaction_id===sale.id || String(x.id||'').startsWith('bank-sale-cash:'+sale.id+':'))).reduce((sum,x)=>sum+n(x.cash_in_rp),0);
   if(credited!==n(alloc.receivedRp))throw Error('Buku kas belum sinkron; hentikan posting manual dan audit dahulu.');
  }
- return {diposting:0,kas:cash.filter(x=>x.status==='aktif').reduce((sum,x)=>sum+n(x.cash_in_rp)-n(x.cash_out_rp),0)};
+ return {diposting:rows(a).length,kas:cash.filter(x=>x.status==='aktif').reduce((sum,x)=>sum+n(x.cash_in_rp)-n(x.cash_out_rp),0)};
 }
 async function updateAlbumCategory(_token,id,category){
  const albumId=String(id||'').trim(),value=String(category||'').trim();
