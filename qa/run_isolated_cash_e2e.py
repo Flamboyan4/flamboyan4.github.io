@@ -64,7 +64,7 @@ try:
         "PORTAL_WRITE_ENABLED":"false","SALE_DRAFT_ENABLED":"false"}
       }),encoding="utf8")
     assert_step("remote_target_verified",True)
-    run([WRANGLER,"d1","export","flamboyan4-staging","--remote","--config",str(CONFIG),"--output",str(DUMP),"--yes"],timeout=180)
+    run([WRANGLER,"d1","export","flamboyan4-staging","--remote","--config",str(CONFIG),"--output",str(DUMP),"--skip-confirmation"],timeout=180)
     assert_step("remote_export_read_only",DUMP.exists() and DUMP.stat().st_size>1000)
     run([WRANGLER,"d1","execute","flamboyan4-staging","--local","--config",str(CONFIG),"--file",str(DUMP),"--persist-to",str(LOCAL),"--yes"],timeout=180)
     files=list(LOCAL.rglob("*.sqlite"))
