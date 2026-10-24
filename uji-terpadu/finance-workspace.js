@@ -1,4 +1,4 @@
-// Rincian kas untuk akun masuk (anggota/admin/superadmin). Baca-saja, bukan pembukuan pribadi.
+// Rincian kas lingkungan untuk Superadmin. Anggota hanya melihat data pribadi dan ringkasan publik.
 (()=>{
  'use strict';
  const page=document.getElementById('f4-account-page');
@@ -18,7 +18,7 @@
    activePeriod=month;
    main.replaceChildren();
    const head=el('header',undefined,'f4-work-heading');
-   head.append(el('h2','Rincian Kas Warga'),el('p','Sumber: Cloudflare D1 · Hanya akun terautentikasi'));
+   head.append(el('h2','Rincian Kas Lingkungan'),el('p','Sumber: Cloudflare D1 · Khusus Superadmin'));
    head.append(el('button','← Ringkasan Akun','f4-work-back'));
    head.querySelector('button').onclick=()=>window.openAccountPage?.();
    main.append(head);
@@ -69,7 +69,7 @@
        w.document.open();w.document.write(markup);w.document.close();w.focus();w.print();
      };
    }catch(e){
-     status.textContent='Laporan belum dapat dibaca: '+e.message+'. Endpoint ini membutuhkan Worker versi akses kas anggota.';
+     status.textContent='Laporan tidak dapat dibaca: '+e.message+'. Rincian ini hanya tersedia bagi Superadmin.';
    }
  }
  window.f4OpenFinanceReport=()=>load('');
