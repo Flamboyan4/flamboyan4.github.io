@@ -45,6 +45,18 @@ async function saveProgress(_token,p){
    status:String(p.status||''),nextStep:String(p.agenda||''),publicVisible:p.publik!==false});
 }
 
+
+let bankMediaNonce='MED'+crypto.randomUUID().replace(/-/g,'');
+async function saveMediaLink(_token,p){
+ const type=String(p.jenis||'').trim().toLowerCase();
+ if(!['foto','video'].includes(type))throw Error('Jenis media harus Foto atau Video.');
+ const req={requestKey:bankMediaNonce,albumId:String(p.albumId||''),
+  mediaType:type,url:String(p.url||'').trim(),caption:String(p.caption||'')};
+ const r=await api('/api/v2/admin/bank/media-link',req);
+ bankMediaNonce='MED'+crypto.randomUUID().replace(/-/g,'');
+ return {id:r.id,duplicate:!!r.duplicate};
+}
+
 let inventoryNonce='INV'+crypto.randomUUID().replace(/-/g,'');
 async function saveExpense(_token,p) {
  const positions={'operasional':'operasional','kas lorong':'kas_lorong','cadangan':'cadangan'};
@@ -145,6 +157,6 @@ async function postingStatus(){
  }
  return {diposting:0,kas:cash.filter(x=>x.status==='aktif').reduce((sum,x)=>sum+n(x.cash_in_rp)-n(x.cash_out_rp),0)};
 }
-const methods={bsV10CatatBiaya:saveExpense,bsV11TambahInventaris:saveInventory,bsV6BatalkanSetoran:cancelDeposit,bsV7BatalkanPenjualan:cancelSale,bsV5BuatSetoran:depositDraft,bsV5SimpanTarif:savePrice,bsV11TambahProgress:saveProgress,bsV22TambahAlbum:saveAlbum,bsV6SimpanPenjualan:saleDraft,bsV6PratinjauRekonsiliasi:recon,bsV8BatchSiap:recon,bsV8SahkanBatch:confirm,bsV9RiwayatPencairan:payoutHistory,bsV9CairkanTabungan:payout,bsV9PostingKasPenjualan:postingStatus};
+const methods={bsV20TambahMedia:saveMediaLink,bsV10CatatBiaya:saveExpense,bsV11TambahInventaris:saveInventory,bsV6BatalkanSetoran:cancelDeposit,bsV7BatalkanPenjualan:cancelSale,bsV5BuatSetoran:depositDraft,bsV5SimpanTarif:savePrice,bsV11TambahProgress:saveProgress,bsV22TambahAlbum:saveAlbum,bsV6SimpanPenjualan:saleDraft,bsV6PratinjauRekonsiliasi:recon,bsV8BatchSiap:recon,bsV8SahkanBatch:confirm,bsV9RiwayatPencairan:payoutHistory,bsV9CairkanTabungan:payout,bsV9PostingKasPenjualan:postingStatus};
 window.__f4BankDemoCall=(name,args=[])=>Object.hasOwn(methods,name)?methods[name](...args):previous(name,args);
 })();
