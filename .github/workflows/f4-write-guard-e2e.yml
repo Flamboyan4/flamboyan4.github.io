@@ -1,0 +1,130 @@
+name: F4 Authenticated Invalid-Write Guard E2E
+on:
+  push:
+    branches: [ops-cloudflare-integration-20261025]
+    paths: [.github/workflows/f4-write-guard-e2e.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  role-read:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test ephemeral sessions against live Worker and D1, then revoke
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,json,datetime,hashlib,secrets,urllib.request,urllib.error,time
+          from pathlib import Path
+          now=datetime.datetime.now(datetime.timezone.utc)
+          report={"checked_at_utc":now.isoformat(),"test":"EPHEMERAL_SESSIONS_INVALID_WRITES_NO_FINANCIAL_CHANGES","roles":{},"checks":[],"temporary_sessions_removed":False}
+          target=Path("ops-audit/authenticated-invalid-write-e2e.json");target.parent.mkdir(exist_ok=True)
+          root="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CF_ACCOUNT"]
+          header={"Authorization":"Bearer "+os.environ["CF_TOKEN"],"Content-Type":"application/json"}
+          def cf(path,data=None):
+            b=json.dumps(data).encode() if data is not None else None
+            req=urllib.request.Request(root+path,data=b,headers=header,method="POST" if b else "GET")
+            with urllib.request.urlopen(req,timeout=30) as resp:j=json.load(resp)
+            if not j.get("success"):raise RuntimeError("Cloudflare returned error")
+            return j["result"]
+          databases=cf("/d1/database")
+          db=next((x for x in databases if x.get("name")=="flamboyan4-staging"),None)
+          if not db:raise RuntimeError("Target D1 unavailable")
+          d1path="/d1/database/"+db["uuid"]+"/query"
+          def sql(statement,params=None):
+            if statement.lstrip().upper().startswith(("DROP","ALTER","TRUNCATE")):raise RuntimeError("Forbidden query")
+            v=cf(d1path,{"sql":statement,"params":params or []})
+            if not isinstance(v,list) or not v or not v[0].get("success",True):raise RuntimeError("D1 query rejected")
+            return v[0].get("results",[])
+          temporary=[]
+          def get(path,token=None):
+            headers={"Accept":"application/json","Origin":"https://flamboyan4.web.id","User-Agent":"Mozilla/5.0 F4-E2E-Read"}
+            if token:headers["Cookie"]="f4_session="+token
+            req=urllib.request.Request("https://api.flamboyan4.web.id"+path,headers=headers)
+            try:
+              with urllib.request.urlopen(req,timeout=25) as resp:return resp.status
+            except urllib.error.HTTPError as e:return e.code
+          def invalid_post(path,token,payload):
+            headers={"Accept":"application/json","Content-Type":"application/json","Origin":"https://flamboyan4.web.id","User-Agent":"Mozilla/5.0 F4-E2E-InvalidWrite"}
+            if token:headers["Cookie"]="f4_session="+token
+            req=urllib.request.Request("https://api.flamboyan4.web.id"+path,method="POST",data=json.dumps(payload).encode(),headers=headers)
+            try:
+              with urllib.request.urlopen(req,timeout=25) as resp:return resp.status
+            except urllib.error.HTTPError as e:return e.code
+          def finance_counts():
+            tables=["bookkeeping_payments","bookkeeping_cash_transactions","bookkeeping_fines","bookkeeping_loans",
+                    "waste_deposits","waste_sales","waste_cash_ledger","waste_allocations","waste_savings_ledger"]
+            return {t:sql('SELECT COUNT(*) AS n FROM "'+t+'"')[0]["n"] for t in tables}
+          try:
+            finance_before=finance_counts()
+            before=sql("SELECT COUNT(*) AS n FROM sessions")[0]["n"]
+            for role in ("superadmin","admin","anggota"):
+              accounts=sql("SELECT id FROM accounts WHERE role=? AND status='aktif' LIMIT 1",[role])
+              if not accounts:
+                report["roles"][role]="no_active_account"
+                continue
+              account_id=accounts[0]["id"]
+              token=secrets.token_urlsafe(36)
+              digest=hashlib.sha256(token.encode()).hexdigest()
+              session_id="qa-"+secrets.token_hex(16)
+              expires=(now+datetime.timedelta(minutes=7)).strftime("%Y-%m-%d %H:%M:%S")
+              sql("INSERT INTO sessions(id,account_id,token_hash,expires_at) VALUES (?,?,?,?)",[session_id,account_id,digest,expires])
+              temporary.append(digest)
+              cases={
+                "superadmin":[("/api/bookkeeping/status",200),("/api/bookkeeping/reports/yearly?year=2026",200),("/api/v2/admin/bank/members",200),("/api/superadmin/accounts/preview",200)],
+                "admin":[("/api/admin/status",200),("/api/bookkeeping/status",403),("/api/v2/admin/bank/sales",200)],
+                "anggota":[("/api/member/savings",200),("/api/bookkeeping/status",403),("/api/v2/admin/bank/sales",403)]
+              }[role]
+              tested=[]
+              for path,expected in cases:
+                actual=get(path,token)
+                if actual==401:
+                  time.sleep(2)
+                  actual=get(path,token)
+                tested.append({"route":path.split("?")[0],"http":actual,"expected":expected,"pass":actual==expected})
+              negatives={
+                "superadmin":["/api/bookkeeping/iuran","/api/bookkeeping/cash","/api/bookkeeping/denda","/api/bookkeeping/pinjaman"],
+                "admin":["/api/v2/admin/bank/deposits","/api/admin/sales/draft"],
+                "anggota":["/api/v2/admin/bank/deposits"]
+              }[role]
+              for path in negatives:
+                actual=invalid_post(path,token,{})
+                allowed=(403,) if role=="anggota" else (400,404,409,422)
+                tested.append({"route":path,"http":actual,"expected":list(allowed),"pass":actual in allowed})
+              report["roles"][role]="tested"
+              report["checks"]+= [{"role":role,**t} for t in tested]
+            public=get("/api/member/savings")
+            report["checks"].append({"role":"publik","route":"/api/member/savings","http":public,"expected":401,"pass":public==401})
+            bad_public=invalid_post("/api/bookkeeping/cash",None,{})
+            report["checks"].append({"role":"publik","route":"/api/bookkeeping/cash","http":bad_public,"expected":401,"pass":bad_public==401})
+            report["financial_record_counts_unchanged"]=finance_counts()==finance_before
+          except Exception as e:
+            report["fatal_error"]=type(e).__name__+": "+str(e)[:180]
+          finally:
+            cleanup_ok=True
+            for digest in temporary:
+              try:sql("DELETE FROM sessions WHERE token_hash=?",[digest])
+              except Exception:cleanup_ok=False
+            if temporary:
+              try: cleanup_ok=cleanup_ok and sql("SELECT COUNT(*) AS n FROM sessions")[0]["n"]==before
+              except Exception:cleanup_ok=False
+            report["temporary_sessions_removed"]=cleanup_ok
+            report["status"]="pass" if cleanup_ok and not report.get("fatal_error") and all(x["pass"] for x in report["checks"]) and report["roles"].get("superadmin")=="tested" and report.get("financial_record_counts_unchanged") is True else "incomplete"
+            target.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n")
+            print("Role read tests:",len(report["checks"]),"pass:",sum(x["pass"] for x in report["checks"]),"cleanup:",cleanup_ok)
+          if report["status"]!="pass":raise SystemExit("Authenticated invalid-write E2E not fully passed; see sanitized status")
+          PY
+      - name: Save sanitized test results
+        if: always()
+        run: |
+          test -f ops-audit/authenticated-invalid-write-e2e.json || exit 1
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/authenticated-invalid-write-e2e.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(ops): record negative-write role and ledger E2E"
+          git push origin HEAD:ops-cloudflare-integration-20261025
