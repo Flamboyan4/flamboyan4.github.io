@@ -327,6 +327,6 @@
    throw Error('Penulisan Pembukuan belum diaktifkan di Worker staging. Tidak ada data yang berubah.');
   if(action==='datapembukuankas'||action.startsWith('laporan'))
    throw Error('Modul '+action+' belum memiliki pemetaan lengkap ke D1. Data lama tidak diganti angka nol.');
-  return old(params);
+  throw Error('Aksi '+(action||'(tanpa nama)')+' belum dipetakan ke Cloudflare D1. Tidak memakai data contoh.');
  };
 })();
