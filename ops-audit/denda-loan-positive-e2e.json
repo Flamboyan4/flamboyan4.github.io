@@ -1,14 +1,62 @@
 {
-  "checked_at_utc": "2026-10-24T23:38:14.336399+00:00",
+  "checked_at_utc": "2026-10-24T23:42:43.313314+00:00",
   "scope": "SYNTHETIC_FINE_LOAN_WITH_REPAYMENTS",
   "checks": [
     {
       "name": "fine-create_saved",
-      "pass": false
+      "pass": true
+    },
+    {
+      "name": "fine-create_replay",
+      "pass": true
+    },
+    {
+      "name": "fine_in_D1",
+      "pass": true
+    },
+    {
+      "name": "fine-pay_saved",
+      "pass": true
+    },
+    {
+      "name": "fine-pay_replay",
+      "pass": true
+    },
+    {
+      "name": "fine_paid_cash_link",
+      "pass": true
+    },
+    {
+      "name": "loan-create_saved",
+      "pass": true
+    },
+    {
+      "name": "loan-create_replay",
+      "pass": true
+    },
+    {
+      "name": "loan_disbursed_cash",
+      "pass": true
+    },
+    {
+      "name": "loan-pay_saved",
+      "pass": true
+    },
+    {
+      "name": "loan-pay_replay",
+      "pass": true
+    },
+    {
+      "name": "loan_repayment_recorded",
+      "pass": true
+    },
+    {
+      "name": "cash_balance_matches",
+      "pass": true
     }
   ],
-  "restored": true,
-  "error": "RuntimeError: Check failed: fine-create_saved",
-  "synthetic_rows_absent": true,
+  "restored": false,
+  "last_financial_create_http": 201,
+  "cleanup_error": "HTTPError: HTTP Error 400: Bad Request",
   "status": "incomplete"
 }
