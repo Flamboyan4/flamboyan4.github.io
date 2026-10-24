@@ -1,0 +1,17 @@
+{
+  "at_utc": "2026-10-24T19:40:01.126114+00:00",
+  "status": "pass",
+  "flags_added": [
+    "BANK_CANCEL_WRITE_ENABLED",
+    "BANK_EXPENSE_WRITE_ENABLED",
+    "BANK_INVENTORY_WRITE_ENABLED",
+    "BANK_MEDIA_WRITE_ENABLED",
+    "BANK_PAYOUT_WRITE_ENABLED",
+    "BANK_RECONCILIATION_WRITE_ENABLED"
+  ],
+  "active_write_flags": [
+    "FINANCE_WRITE_ENABLED",
+    "MANUAL_CASH_WRITE_ENABLED"
+  ],
+  "deployment_id": "1150d61f-68b0-4ec9-b748-beab0b27a491"
+}
