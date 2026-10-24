@@ -1,4 +1,5 @@
 name: F4 Live D1 Integrity and Flags (Read Only)
+# Post-QA cleanup verification 2026-10-25
 on:
   push:
     branches: [ops-cloudflare-integration-20261025]
