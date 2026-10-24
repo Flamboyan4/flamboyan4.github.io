@@ -25,7 +25,7 @@ const gramsFromKg=kg=>{
 async function depositDraft(_token,p){
  const date=String(p?.tanggal||''), member=memberId(p?.wargaId);
  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!p?.nonce||!p?.items?.length||!String(p.wargaId||''))throw Error('Isi tanggal, warga, dan berat setoran terlebih dahulu.');
- const batch=await api('/api/v2/admin/bank/batches',{month:date.slice(0,7)});
+ const batch=await api('/api/v2/admin/bank/batches',{month:date.slice(0,7),openForDeposits:true});
  const result=await api('/api/v2/admin/bank/deposits',{
    requestKey:String(p.nonce),batchId:batch.id,memberId:member,depositedOn:date,
    items:p.items.map(line=>({itemId:wasteId(line.kode),grams:gramsFromKg(line.berat)}))
