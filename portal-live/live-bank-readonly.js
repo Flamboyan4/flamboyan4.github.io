@@ -316,10 +316,22 @@
   bsV17RingkasanKasAdmin:adminCashOverview,
   bsV10LaporanAdmin:adminReport,
   bsV9StatusKasAdmin:async()=>{
-   const cash=await adminCash();return {saldoKasTercatat:cash.reduce((n,x)=>n+x.masuk-x.keluar,0),batchBelumDiposting:[],kasGabungan:cash.reduce((n,x)=>n+x.masuk-x.keluar,0)};
+   const [cash,sales,allocations]=await Promise.all([adminRows('cash'),adminRows('sales'),adminRows('allocations')]);
+   if([cash,sales,allocations].some(r=>r.length>=300))throw Error('Riwayat mencapai batas 300 baris. Ringkasan dihentikan agar saldo tidak salah.');
+   const active=cash.filter(r=>r.status==='aktif');
+   const balance=active.reduce((v,r)=>v+number(r.cash_in_rp)-number(r.cash_out_rp),0);
+   const allocated=new Set(allocations.map(r=>String(r.batch_id)));
+   const pending=sales.filter(r=>r.status==='terkonfirmasi'&&!allocated.has(String(r.batch_id))).map(r=>({batch:String(r.batch_id),penjualan:String(r.id)}));
+   return {saldoKasTercatat:balance,batchBelumDiposting:pending,kasGabungan:balance};
   },
   bsV10KasPosAdmin:async()=>{
-   const cash=await adminCash();return {kasGabungan:cash.reduce((n,x)=>n+x.masuk-x.keluar,0),pos:[]};
+   const cash=await adminRows('cash');
+   if(cash.length>=300)throw Error('Buku kas mencapai 300 baris. Tidak aman menghitung saldo dari daftar terpotong.');
+   const active=cash.filter(r=>r.status==='aktif'),byFund=new Map();
+   for(const r of active){const key=String(r.fund_position||'').trim();if(!key)throw Error('Ada transaksi aktif tanpa pos dana; periksa buku kas.');byFund.set(key,(byFund.get(key)||0)+number(r.cash_in_rp)-number(r.cash_out_rp));}
+   const titles={operasional:'Operasional',kas_lorong:'Kas Lorong',cadangan:'Cadangan',tabungan_warga:'Tabungan Warga'};
+   const keys=[...new Set([...Object.keys(titles),...byFund.keys()])];
+   return {kasGabungan:[...byFund.values()].reduce((sum,v)=>sum+v,0),pos:keys.map(key=>({kode:key,nama:titles[key]||key,tersedia:byFund.get(key)||0}))};
   },
   bsV6SetoranAdmin:adminDeposits,
   bsV18RiwayatSetoranAdmin:adminDeposits,
