@@ -1,0 +1,48 @@
+name: F4 Bookkeeping D1 Schema Preflight
+on:
+  push:
+    branches: [ops-cloudflare-integration-20261025]
+    paths: [.github/workflows/f4-book-schema.yml]
+permissions:
+  contents: write
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect necessary finance schemas (no personal values)
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,json,urllib.request
+          from pathlib import Path
+          root="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CF_ACCOUNT"]
+          token=os.environ["CF_TOKEN"]
+          def query(path,sql):
+            data=json.dumps({"sql":sql}).encode()
+            req=urllib.request.Request(root+path,headers={"Authorization":"Bearer "+token,"Content-Type":"application/json"},method="POST",data=data)
+            with urllib.request.urlopen(req,timeout=30) as r:res=json.load(r)
+            if not res.get("success"):raise RuntimeError("D1 request rejected")
+            return res["result"][0]["results"]
+          req=urllib.request.Request(root+"/d1/database",headers={"Authorization":"Bearer "+token})
+          with urllib.request.urlopen(req,timeout=30) as r:out=json.load(r)
+          db=next(x for x in out["result"] if x["name"]=="flamboyan4-staging")
+          names=["bookkeeping_payers","bookkeeping_payer_iuran_obligations","bookkeeping_payments",
+          "bookkeeping_payment_allocations","bookkeeping_payment_request_keys","bookkeeping_cash_transactions",
+          "bookkeeping_contribution_tariffs","bookkeeping_year_archives","fiscal_closings"]
+          select="SELECT name,sql FROM sqlite_master WHERE type='table' AND name IN ("+','.join("'"+x+"'" for x in names)+")"
+          rows=query("/d1/database/"+db["uuid"]+"/query",select)
+          p=Path("ops-audit/finance-schema.json");p.parent.mkdir(exist_ok=True)
+          p.write_text(json.dumps({x["name"]:x["sql"] for x in rows},indent=2)+"\n")
+          print("D1 schema definitions fetched:",len(rows))
+          PY
+      - name: Save SQL structure, no records
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/finance-schema.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(ops): record non-sensitive D1 finance schema preflight"
+          git push origin HEAD:ops-cloudflare-integration-20261025
