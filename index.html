@@ -355,7 +355,7 @@ body.book-mode #profile-shade:not([hidden]){background:#fff6ed!important}
 body.book-mode #profile-title{color:#a65b22!important}
 body.book-mode #profile-shade .login-confirm{background:#bb672a!important}
 @media(max-width:650px){#profile-shade:not([hidden]){padding:12px!important}#profile-shade>.login-modal{padding:20px 16px!important}}
-</style><link rel="stylesheet" href="/uji-terpadu/account-workspace.css?v=20261023-global-layout-98afb7a">
+</style><link rel="stylesheet" href="/portal-live/account-workspace.css?v=20261023-global-layout-98afb7a">
 <style id="f4-resident-editor-styles">
 #f4-warga-panel .f4-warga-item-actions{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
 #f4-warga-panel .f4-warga-item-actions button{background:var(--work-tint,#f0eaff)!important;color:var(--work-accent,#6f39bc)!important;border-color:var(--work-line,#e2d8fa)!important;font:600 12px system-ui;padding:8px 10px}
@@ -437,7 +437,7 @@ body.superadmin-mode .notice{display:none!important}
  body.superadmin-mode .shell{left:0!important}
  body.superadmin-mode .framebox{position:absolute!important;inset:0!important;margin:0!important;height:100dvh!important}
 }
-</style><link rel="stylesheet" href="/uji-terpadu/unified-account.css?v=0f11350"><style id="f4-scroll-menu-order">
+</style><link rel="stylesheet" href="/portal-live/unified-account.css?v=0f11350"><style id="f4-scroll-menu-order">
 #portal-sidebar .f4-portal-viewer-label{display:block;margin:16px 12px 5px;border-top:1px solid #e3e5f1;padding:14px 8px 2px;color:#8993ac;font-size:10px;font-weight:800;letter-spacing:.1em}
 </style><style id="f4-iframe-overlay-and-mobile-nav">
 /* Root cause: later portal-mode/bank-mode framebox rules overrode the modal layout.
@@ -467,7 +467,7 @@ html body.iframe-modal-open{overflow:hidden!important}
  html body.superadmin-mode .top{padding-left:54px!important;padding-right:10px!important}
  html body.iframe-modal-open #f4-mobile-menu{visibility:hidden!important;pointer-events:none!important}
 }
-</style><script src="/uji-terpadu/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/uji-terpadu/loading-state.css?v=28e10d5"></head>
+</style><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"></head>
 <body>
 <header class="shell">
  <div class="top">
@@ -524,7 +524,7 @@ html body.iframe-modal-open{overflow:hidden!important}
  </nav>
  </aside>
  <main class="framebox">
- <iframe id="appframe" title="Aplikasi asli Flamboyan 4 — pratinjau offline" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-modals" referrerpolicy="no-referrer" src="/uji-terpadu/portal/" ></iframe>
+ <iframe id="appframe" title="Aplikasi asli Flamboyan 4 — pratinjau offline" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-modals" referrerpolicy="no-referrer" src="/portal-live/portal/" ></iframe>
  <div id="gate" class="gate" role="region" aria-label="Akses portal terbatas"><article>
   <div style="font-size:38px">🔒</div><h1>Akses khusus Superadmin</h1>
   <p>Masuk menggunakan akun <b>Superadmin</b> melalui tombol Login di kanan atas untuk membuka halaman pengelolaan.</p>
@@ -568,7 +568,7 @@ html body.iframe-modal-open{overflow:hidden!important}
 <div id="toast" class="toast" hidden role="status"></div>
 <script>
 (()=>{
- const apps={portal:'/uji-terpadu/portal/?v=csv-errors-7e60628',rapat:'/uji-terpadu/rapat/?v=loading-fdf01e5b',dokumentasi:'/uji-terpadu/dokumentasi/?v=spacing-b114917b',inventaris:'/uji-terpadu/dokumentasi/?v=spacing-b114917b#inventaris','bank-sampah':'/uji-terpadu/bank-sampah/?v=report-ed4246f',pembukuan:'/uji-terpadu/pembukuan/?v=status-a86186e',superadmin:'/uji-terpadu/superadmin/?v=editor-3413b39'};
+ const apps={portal:'/portal-live/portal/?v=csv-errors-7e60628',rapat:'/portal-live/rapat/?v=loading-fdf01e5b',dokumentasi:'/portal-live/dokumentasi/?v=spacing-b114917b',inventaris:'/portal-live/dokumentasi/?v=spacing-b114917b#inventaris','bank-sampah':'/portal-live/bank-sampah/?v=report-ed4246f',pembukuan:'/portal-live/pembukuan/?v=status-a86186e',superadmin:'/portal-live/superadmin/?v=editor-3413b39'};
 
  const buttons=[...document.querySelectorAll('nav [data-target]')],frame=document.getElementById('appframe'),
  gate=document.getElementById('gate'),toast=document.getElementById('toast');
@@ -947,7 +947,7 @@ html body.iframe-modal-open{overflow:hidden!important}
  const portalRequested=requested.split('/')[0];
  selected=Object.hasOwn(apps,portalRequested)?portalRequested:'portal';
  update(selected);refreshSession();
- // A same-page link such as /uji-terpadu/#bank-sampah must actually switch
+ // A same-page link such as /portal-live/#bank-sampah must actually switch
  // the iframe and dismiss any management overlay, not just update the URL.
  window.addEventListener('hashchange',()=>{
    const target=location.hash.slice(1);
@@ -1100,8 +1100,8 @@ body.book-mode #f4-account-page{background:#fff8f0}body.book-mode #f4-account-pa
  document.getElementById('f4-account-page-settings').onclick=()=>{page.hidden=true;document.querySelector('[data-account-action="settings"]')?.click()};
  document.getElementById('f4-account-page-home').onclick=()=>window.openAccountPage();
 })();
-</script><script src="/uji-terpadu/account-workspace.js?v=bank-member-original-6e83c9"></script>
-<script src="/uji-terpadu/superadmin-editor.js?v=20261023-sidebar-af4b42a"></script>
+</script><script src="/portal-live/account-workspace.js?v=bank-member-original-6e83c9"></script>
+<script src="/portal-live/superadmin-editor.js?v=20261023-sidebar-af4b42a"></script>
 <style id="f4-account-theme-final-20261023">
 /* Mengunci tema ke warna asli HTML Pembukuan (ungu), bukan oranye. */
 body.book-mode #f4-account-page:not([hidden]){background:#fbfaff!important}
@@ -1123,8 +1123,8 @@ body.book-mode #profile-shade .login-confirm{background:#7c3aed!important}
 #f4-account-page .f4-finance-table-wrap th{background:var(--work-tint);color:var(--work-accent)}
 #f4-account-page .f4-finance-table-wrap td:nth-last-child(-n+2){text-align:right;white-space:nowrap}
 </style>
-<script src="/uji-terpadu/resident-editor.js?v=20261023-v1"></script>
-<script src="/uji-terpadu/finance-workspace.js?v=20261023-v1"></script>
+<script src="/portal-live/resident-editor.js?v=20261023-v1"></script>
+<script src="/portal-live/finance-workspace.js?v=20261023-v1"></script>
 <script id="f4-bank-admin-routing">
 (()=>{
  const frame=document.getElementById('appframe');
@@ -1175,7 +1175,7 @@ body.f4-manage-book #f4-warga-panel .f4-warga-sidebar button.active,body.f4-mana
 .f4-password-section h3{font:750 16px system-ui;margin:5px 0 12px;color:var(--work-accent)}
 .f4-password-feedback{font:500 12px system-ui;color:var(--work-accent);margin:8px 0}
 </style>
-<script src="/uji-terpadu/management-hub.js?v=20261023-account-050968b"></script>
+<script src="/portal-live/management-hub.js?v=20261023-account-050968b"></script>
 <style id="f4-password-eyes-style">
 .f4-password-field{position:relative;display:block;width:100%}
 .f4-password-field input{width:100%!important;padding-right:105px!important;box-sizing:border-box}
@@ -1237,4 +1237,4 @@ body.bank-mode #profile-shade .f4-eye-toggle{background:transparent!important;ba
 (()=>{window.openManagementHub=()=>{
   document.querySelector('nav [data-target="superadmin"]')?.click();
 };})();
-</script><script src="/uji-terpadu/unified-account.js?v=account-loading-5181cc5"></script></body></html>
+</script><script src="/portal-live/unified-account.js?v=account-loading-5181cc5"></script></body></html>
