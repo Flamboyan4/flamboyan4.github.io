@@ -8,6 +8,7 @@ on:
       - .github/workflows/flamboyan4-cloudflare-inspect.yml
       - .github/workflows/f4-worker-release.yml
       - cloudflare/worker-terpadu-operasional-teruji.js
+      - ops-audit/deploy-status.json
   workflow_dispatch:
 
 permissions:
@@ -126,8 +127,7 @@ jobs:
               report["r2_buckets_count"]=len(buckets.get("buckets") or [])
               report["photos_bucket_found"]=any("photo" in str(b.get("name","")).lower() for b in buckets.get("buckets",[]))
 
-            api=call("https://api.flamboyan4.web.id/api/v2/public/bank")
-            report["checks"]["live_public_bank_api"]={"http":api.get("http"),"json_ok":api.get("success"),"error":api.get("error")}
+            report["checks"]["live_public_bank_api"]={"status":"not_checked_in_admin_audit","note":"public API smoke test is separate from the Cloudflare admin token"}
           path=Path("ops-audit/cloudflare-summary.json")
           path.parent.mkdir(parents=True,exist_ok=True)
           path.write_text(json.dumps(report,ensure_ascii=False,indent=2,sort_keys=True)+"\n",encoding="utf-8")
