@@ -1,0 +1,19 @@
+{
+  "at_utc": "2026-10-24T23:40:15.649667+00:00",
+  "scope": "WIB_DATE_SOURCE_ONLY",
+  "status": "deployed_verified",
+  "source_sha256": "a697db34e083c720c634eb6bad2fdfbae029d41e37a65948aaf1ba0af881e0eb",
+  "before_deployment_id": "43edb1b4-d22a-4668-ad4a-3740129ed7ce",
+  "after_deployment_id": "95b165d9-de40-46c6-9a6c-4888acd68f9d",
+  "enabled_flag_names": [
+    "BANK_CANCEL_WRITE_ENABLED",
+    "BANK_INVENTORY_WRITE_ENABLED",
+    "BANK_MEDIA_WRITE_ENABLED",
+    "BANK_WRITE_ENABLED",
+    "DENDA_PINJAMAN_WRITE_ENABLED",
+    "FINANCE_WRITE_ENABLED",
+    "IURAN_WRITE_ENABLED",
+    "MANUAL_CASH_WRITE_ENABLED",
+    "SALE_DRAFT_ENABLED"
+  ]
+}
