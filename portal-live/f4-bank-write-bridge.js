@@ -155,7 +155,7 @@ async function postingStatus(){
   const credited=cash.filter(x=>x.status==='aktif' && (x.source_transaction_id===sale.id || String(x.id||'').startsWith('bank-sale-cash:'+sale.id+':'))).reduce((sum,x)=>sum+n(x.cash_in_rp),0);
   if(credited!==n(alloc.receivedRp))throw Error('Buku kas belum sinkron; hentikan posting manual dan audit dahulu.');
  }
- return {diposting:0,kas:cash.filter(x=>x.status==='aktif').reduce((sum,x)=>sum+n(x.cash_in_rp)-n(x.cash_out_rp),0)};
+ return {diposting:rows(a).length,kas:cash.filter(x=>x.status==='aktif').reduce((sum,x)=>sum+n(x.cash_in_rp)-n(x.cash_out_rp),0)};
 }
 async function updateAlbumCategory(_token,id,category){
  const albumId=String(id||'').trim(),value=String(category||'').trim();
@@ -173,6 +173,32 @@ async function updateBankProgress(_token,p){
  });
  return {berhasil:true,id:r.id};
 }
-const methods={bsV22SetKategoriAlbum:updateAlbumCategory,bsV24UbahProgress:updateBankProgress,bsV20TambahMedia:saveMediaLink,bsV10CatatBiaya:saveExpense,bsV11TambahInventaris:saveInventory,bsV6BatalkanSetoran:cancelDeposit,bsV7BatalkanPenjualan:cancelSale,bsV5BuatSetoran:depositDraft,bsV5SimpanTarif:savePrice,bsV11TambahProgress:saveProgress,bsV22TambahAlbum:saveAlbum,bsV6SimpanPenjualan:saleDraft,bsV6PratinjauRekonsiliasi:recon,bsV8BatchSiap:recon,bsV8SahkanBatch:confirm,bsV9RiwayatPencairan:payoutHistory,bsV9CairkanTabungan:payout,bsV9PostingKasPenjualan:postingStatus};
+
+async function provisionMemberBatch(){
+ const preview=await api('/api/superadmin/accounts/preview');
+ if(!Array.isArray(preview.akun))throw Error('Daftar akun D1 tidak sesuai respons Worker.');
+ const pending=preview.akun.filter(a=>a.role==='anggota'&&a.perluAktivasi===true);
+ let made=0;
+ for(const member of pending.slice(0,3)){
+  await api('/api/superadmin/accounts/activate-member',{accountId:member.id,confirmation:'AKTIFKAN AKUN WARGA'});
+  made++;
+ }
+ return {dibuat:made,tersisa:pending.length-made};
+}
+async function provisionSingleMember(_token,id){
+ const preview=await api('/api/superadmin/accounts/preview');
+ const member=Array.isArray(preview.akun)?preview.akun.find(a=>String(a.id)===String(id)):null;
+ if(!member||member.role!=='anggota')throw Error('Akun anggota tidak ditemukan pada daftar Superadmin.');
+ if(!member.perluAktivasi)throw Error('Akun sudah aktif. Reset password akun aktif belum tersedia di Worker; tidak ada password yang diubah.');
+ const rumah=String(member.rumah||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+ if(!rumah)throw Error('Nomor rumah anggota belum lengkap.');
+ const result=await api('/api/superadmin/accounts/activate-member',{accountId:member.id,confirmation:'AKTIFKAN AKUN WARGA'});
+ return {username:result.username||member.username,passwordAwal:'F4-'+rumah};
+}
+async function refuseFinalReversal(){
+ throw Error('Pembatalan pengesahan batch ditahan: Worker belum menyediakan reversal seluruh buku kas, tabungan, dan alokasi secara atomik. Data tidak diubah.');
+}
+
+const methods={authAdminProvisionBatch:provisionMemberBatch,authAdminResetDefault:provisionSingleMember,bsV27BatalkanPengesahan:refuseFinalReversal,bsV22SetKategoriAlbum:updateAlbumCategory,bsV24UbahProgress:updateBankProgress,bsV20TambahMedia:saveMediaLink,bsV10CatatBiaya:saveExpense,bsV11TambahInventaris:saveInventory,bsV6BatalkanSetoran:cancelDeposit,bsV7BatalkanPenjualan:cancelSale,bsV5BuatSetoran:depositDraft,bsV5SimpanTarif:savePrice,bsV11TambahProgress:saveProgress,bsV22TambahAlbum:saveAlbum,bsV6SimpanPenjualan:saleDraft,bsV6PratinjauRekonsiliasi:recon,bsV8BatchSiap:recon,bsV8SahkanBatch:confirm,bsV9RiwayatPencairan:payoutHistory,bsV9CairkanTabungan:payout,bsV9PostingKasPenjualan:postingStatus};
 window.__f4BankDemoCall=(name,args=[])=>Object.hasOwn(methods,name)?methods[name](...args):previous(name,args);
 })();
