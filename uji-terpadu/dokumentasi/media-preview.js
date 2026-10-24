@@ -59,6 +59,7 @@ async function listMedia(doc){
  try{return await request}catch(err){photoFiles.delete(id);throw err}
 }
 async function loadPortalArchive(){
+ const indicator=window.F4Loading?.begin('feedback','Memeriksa pembaruan dokumentasi…');
  // Try the public D1 read model first, just like the Portal Utama bridge.
  // Fall back to its own original published Sheets source, never Bank Sampah.
  let rows;
@@ -103,7 +104,6 @@ async function loadPortalArchive(){
   }:x);
  }
  docs=[...byKey.values()].sort((a,b)=>parseDate(b.date)-parseDate(a.date));
- status(docs.length+' album dokumentasi Portal Utama');
  drawAlbums();
  // Covers are read from original Drive folder listing, identical to landing.
  await Promise.allSettled(docs.slice(0,40).map(async doc=>{
@@ -113,6 +113,7 @@ async function loadPortalArchive(){
     if(image?.url){doc.cover=image.url;drawAlbums();}
    }catch{} // Source folder remains openable even when thumbnails cannot be read.
  }));
+ window.F4Loading?.success('feedback',indicator);
 }
 const $=id=>document.getElementById(id);
 const el=(tag,cls,text)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(text!==undefined)x.textContent=String(text);return x};
@@ -125,14 +126,21 @@ const driveImage=value=>{
 const category=a=>/gorol|pembersihan|menghias/i.test(a.title)?'Kerja Bakti':/arisan/i.test(a.title)?'Arisan':/lomba|kemerdekaan|nobar/i.test(a.title)?'Acara':'Lainnya';
 let active='Semua';
 const types=['Semua','Kerja Bakti','Arisan','Acara','Lainnya'];
-const status=t=>{$('feedback').textContent=t;$('feedback').hidden=!t};
+const status=(message,type='loading',token)=>{
+ const loading=window.F4Loading;
+ if(!loading){const n=$('feedback');n.textContent=message||'';n.hidden=!message;return}
+ if(type==='error')return loading.error('feedback',message,token);
+ if(type==='empty')return loading.empty('feedback',message,token);
+ if(!message)return loading.success('feedback',token);
+ return loading.begin('feedback',message);
+};
 async function openAlbum(a){
- status('Memuat foto dan video dari folder dokumentasi…');
- let media=[];
- try{media=await listMedia(a)}catch(e){status('Folder media belum dapat dibaca: '+(e.message||e));}
+ const token=status('Memuat foto dan video dari folder dokumentasi…');
+ let media=[],failure=null;
+ try{media=await listMedia(a)}catch(e){failure=e;status('Folder media belum dapat dibaca: '+(e.message||e),'error',token);}
  openMediaGallery(a.title,media,{folderURL:safe(a.folder),
   empty:'Media album ini belum dapat dibaca. Periksa izin akses dokumentasi atau sinkronisasi sumber media.'});
- if(media.length)status('');
+ if(!failure){if(media.length)status('', 'success',token);else status('Belum ada foto/video yang dapat dibaca untuk album ini.','empty',token);}
 }
 function drawAlbums(){
  const q=$('media-search').value.toLowerCase().trim();
@@ -185,5 +193,4 @@ $('media-tab-inventory').onclick=()=>tab('inventaris',true);
 $('media-search').oninput=drawAlbums;
 addEventListener('hashchange',()=>tab(location.hash==='#inventaris'?'inventaris':'dokumentasi',false));
 drawFilters();drawAlbums();drawInventory();tab(location.hash==='#inventaris'?'inventaris':'dokumentasi',false);
-status('Arsip asli tersedia. Memeriksa pembaruan album D1/Sheets…');
-loadPortalArchive().catch(error=>{docs.sort((a,b)=>parseDate(b.date)-parseDate(a.date));drawAlbums();status('Arsip online belum dapat diperbarui ('+(error.message||error)+'). Menampilkan arsip kegiatan asli yang sudah tersedia.');});
+loadPortalArchive().catch(error=>{docs.sort((a,b)=>parseDate(b.date)-parseDate(a.date));drawAlbums();status('Arsip online belum dapat diperbarui ('+(error.message||error)+'). Menampilkan arsip kegiatan asli yang sudah tersedia.','error');});
