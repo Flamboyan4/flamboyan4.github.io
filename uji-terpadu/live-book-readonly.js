@@ -171,6 +171,32 @@
    return successful({data:r.data});
  }
  const cashReportBounds=p=>{
+  // Kalender terpadu memakai {periodLevel, periodFrom, periodTo}; format lama tetap didukung.
+  if(p?.periodLevel){
+   const level=String(p.periodLevel),a=String(p.periodFrom||''),b=String(p.periodTo||'');
+   const parseYear=y=>/^\d{4}$/.test(y)&&Number(y)>=2020&&Number(y)<=2100;
+   const monthLast=(y,m)=>String(new Date(Date.UTC(Number(y),Number(m),0)).getUTCDate()).padStart(2,'0');
+   const checkMonth=v=>/^\d{4}-(0[1-9]|1[0-2])$/.test(v)&&parseYear(v.slice(0,4));
+   const checkDay=v=>{
+    if(!/^\d{4}-(0[1-9]|1[0-2])-\d{2}$/.test(v)||!checkMonth(v.slice(0,7)))return false;
+    const [y,m,d]=v.split('-').map(Number);
+    return d>=1&&d<=Number(monthLast(y,m));
+   };
+   let from,to;
+   if(level==='date'){
+    if(!checkDay(a)||!checkDay(b))throw Error('Pilih tanggal awal dan akhir laporan kas yang valid.');
+    from=a;to=b;
+   }else if(level==='month'){
+    if(!checkMonth(a)||!checkMonth(b))throw Error('Pilih bulan awal dan akhir laporan kas yang valid.');
+    from=a+'-01';to=b+'-'+monthLast(b.slice(0,4),b.slice(5,7));
+   }else if(level==='year'){
+    if(!parseYear(a)||!parseYear(b))throw Error('Tahun laporan kas harus antara 2020 sampai 2100.');
+    from=a+'-01-01';to=b+'-12-31';
+   }else throw Error('Jenis periode laporan kas tidak dikenal.');
+   if(from>to)throw Error('Periode awal laporan kas melebihi periode akhir.');
+   return {from,to,level};
+  }
+
   const mode=String(p?.mode||'bulan');
   const year=value=>{
     const y=Number(value);
