@@ -7,7 +7,14 @@
 const previous=window.__f4BookDemoCall;
 if(typeof previous!=='function')throw Error('Bridge Pembukuan D1 belum tersedia.');
 const API='https://api.flamboyan4.web.id',storageKey='f4-pending-denda-pinjaman-v1';
-const isDate=s=>/^\d{4}-\d{2}-\d{2}$/.test(String(s||''));
+const isDate=value=>{
+ const found=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value||''));
+ if(!found)return false;
+ const year=Number(found[1]),month=Number(found[2]),day=Number(found[3]);
+ if(year<1900||year>2199||month<1||month>12||day<1||day>31)return false;
+ const date=new Date(Date.UTC(year,month-1,day));
+ return date.getUTCFullYear()===year&&date.getUTCMonth()+1===month&&date.getUTCDate()===day;
+};
 const money=v=>Number.isSafeInteger(Number(v))&&Number(v)>0?Number(v):null;
 const text=(v,max=400)=>String(v||'').trim().slice(0,max);
 async function api(path,data){
@@ -17,7 +24,7 @@ async function api(path,data){
  return j;
 }
 let memoryPending=null;
-function loadPending(){try{return JSON.parse(sessionStorage.getItem(storageKey)||'null')}catch{return memoryPending}}
+function loadPending(){try{const value=sessionStorage.getItem(storageKey);return value?JSON.parse(value):memoryPending}catch{return memoryPending}}
 function keep(v){memoryPending=v;try{sessionStorage.setItem(storageKey,JSON.stringify(v))}catch{}}
 function clear(){memoryPending=null;try{sessionStorage.removeItem(storageKey)}catch{}}
 function verifyMethod(value){
@@ -55,7 +62,7 @@ async function payFine(p){
  const r=await api('/api/bookkeeping/denda?limit=200'),data=Array.isArray(r.data)?r.data:[];
  if(data.length>=200)throw Error('Daftar denda mencapai batas API; nilai pembayaran tidak boleh ditebak.');
  const d=data.find(x=>x.id===id);
- if(!d||d.perluRekonsiliasi||d.status==='dibatalkan')throw Error('Denda tidak ditemukan atau membutuhkan rekonsiliasi.');
+ if(!d||d.perluRekonsiliasi||['dibatalkan','batal'].includes(String(d.status||'').toLowerCase()))throw Error('Denda tidak ditemukan, dibatalkan, atau membutuhkan rekonsiliasi.');
  const amount=money(d.sisaRp);
  if(!amount)throw Error('Denda sudah lunas atau tidak mempunyai saldo yang valid.');
  const ans=await guardedPost('fine-pay','/api/bookkeeping/denda/bayar',{
@@ -77,7 +84,7 @@ async function repayLoan(p){
  const id=text(p.idPinjaman,150),date=String(p.tanggal||''),amount=money(p.nominal);
  if(!id||!isDate(date)||!amount)throw Error('Isi pinjaman, tanggal, dan nominal angsuran.');
  const detail=await api('/api/bookkeeping/pinjaman/detail?id='+encodeURIComponent(id));
- if(detail.perluRekonsiliasi||detail.pinjaman?.status!=='aktif')
+ if(detail.perluRekonsiliasi||String(detail.pinjaman?.status||'').toLowerCase()!=='aktif')
   throw Error('Pinjaman perlu rekonsiliasi atau sudah tidak aktif.');
  const due=Number(detail.sisaRp);
  if(!Number.isSafeInteger(due)||amount>due)
