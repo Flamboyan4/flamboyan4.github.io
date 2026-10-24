@@ -1,0 +1,41 @@
+{
+  "checked_at_utc": "2026-10-24T19:59:09.548815+00:00",
+  "scope": "READ_ONLY_NO_CREDENTIALS_NO_MEMBER_RECORDS",
+  "status": "pass",
+  "schema_present": true,
+  "orphan_relation_count": 0,
+  "orphan_checks": {
+    "payment_allocations": 0,
+    "advance_repayments": 0,
+    "deposit_lines": 0,
+    "sale_lines": 0,
+    "waste_allocations": 0,
+    "savings_members": 0
+  },
+  "table_count": 63,
+  "counts": {
+    "bookkeeping_payments": 68,
+    "bookkeeping_fines": 8,
+    "bookkeeping_cash_transactions": 18,
+    "waste_deposits": 3,
+    "waste_sales": 2,
+    "waste_allocations": 0,
+    "waste_cash_ledger": 0
+  },
+  "write_flags": {
+    "BANK_CANCEL_WRITE_ENABLED": "false",
+    "BANK_EXPENSE_WRITE_ENABLED": "false",
+    "BANK_INVENTORY_WRITE_ENABLED": "false",
+    "BANK_MEDIA_WRITE_ENABLED": "false",
+    "BANK_PAYOUT_WRITE_ENABLED": "false",
+    "BANK_RECONCILIATION_WRITE_ENABLED": "false",
+    "BANK_WRITE_ENABLED": "false",
+    "DENDA_PINJAMAN_WRITE_ENABLED": "false",
+    "FINANCE_WRITE_ENABLED": "true",
+    "IURAN_WRITE_ENABLED": "false",
+    "MANUAL_CASH_WRITE_ENABLED": "true",
+    "PORTAL_WRITE_ENABLED": "false",
+    "TALANGAN_WRITE_ENABLED": "false"
+  },
+  "bindings_ok": true
+}
