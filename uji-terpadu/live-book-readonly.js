@@ -170,8 +170,37 @@
    const r=await read('/api/bookkeeping/reports/contributions?'+q);
    return successful({data:r.data});
  }
+ const cashReportBounds=p=>{
+  const mode=String(p?.mode||'bulan');
+  const year=value=>{
+    const y=Number(value);
+    if(!Number.isInteger(y)||y<2020||y>2100)throw Error('Tahun laporan kas harus antara 2020 sampai 2100.');
+    return y;
+  };
+  const month=value=>{
+    const m=Number(value);
+    if(!Number.isInteger(m)||m<1||m>12)throw Error('Bulan laporan kas harus antara 1 sampai 12.');
+    return m;
+  };
+  const iso=(y,m)=>String(y).padStart(4,'0')+'-'+String(m).padStart(2,'0');
+  const fromMonth=(y,m)=>iso(y,m)+'-01';
+  const untilMonth=(y,m)=>iso(y,m)+'-'+String(new Date(Date.UTC(y,m,0)).getUTCDate()).padStart(2,'0');
+  let from,to;
+  if(mode==='bulan'){
+    const y=year(p?.tahun),m=month(p?.bulan);from=fromMonth(y,m);to=untilMonth(y,m);
+  }else if(mode==='rentang_bulan'){
+    const a=year(p?.mulaiTahun),am=month(p?.mulaiBulan),b=year(p?.sampaiTahun),bm=month(p?.sampaiBulan);
+    from=fromMonth(a,am);to=untilMonth(b,bm);
+  }else if(mode==='tahun'){
+    const y=year(p?.tahun);from=fromMonth(y,1);to=untilMonth(y,12);
+  }else if(mode==='rentang_tahun'){
+    const a=year(p?.mulaiTahun),b=year(p?.sampaiTahun);from=fromMonth(a,1);to=untilMonth(b,12);
+  }else throw Error('Mode laporan kas tidak dikenal; pilih ulang periode.');
+  if(from>to)throw Error('Periode awal laporan kas melebihi periode akhir.');
+  return {from,to,level:mode.includes('tahun')?'year':'month'};
+ };
  async function cashReport(p){
-   const b=dateBounds(p),q=new URLSearchParams({level:p?.periodLevel||'month'});if(b.from)q.set('from',b.from);if(b.to)q.set('to',b.to);
+   const b=cashReportBounds(p),q=new URLSearchParams({level:b.level,from:b.from,to:b.to});
    const r=await read('/api/bookkeeping/reports/cash?'+q);
    return successful({data:r.data});
  }
