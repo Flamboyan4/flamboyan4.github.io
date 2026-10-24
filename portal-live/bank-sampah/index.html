@@ -2000,26 +2000,15 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     v21ShowModal('Arsip Dokumentasi Kegiatan','Pilih album untuk melihat foto dan video',grid);
   }
   async function v21LegacyAlbum(album){
-    const id=String(album.sourceFolder||'').match(/\/folders\/([A-Za-z0-9_-]+)/)?.[1];
     const base={judul:album.judul,tanggal:album.tanggal,deskripsi:album.deskripsi,media:[],catatan:''};
-    if(!id)return {...base,catatan:'Sumber album tidak tersedia.'};
+    // Album lama dibaca dari Cloudflare D1; tidak lagi memanggil Apps Script.
     try{
-      const url='https://script.google.com/macros/s/AKfycbyes6A9_9EQ8vIYtf75cGgC9sKAZBvMewxEhYRSThjMAlBYqnkmKpa3yoPOtN0FEG92Zg/exec?folderId='+encodeURIComponent(id);
-      const response=await fetch(url,{cache:'no-store'});
-      if(!response.ok)throw Error('HTTP '+response.status);
-      const json=await response.json();
-      const files=Array.isArray(json)?json:Array.isArray(json.files)?json.files:Array.isArray(json.images)?json.images:[];
-      base.media=files.map((file,i)=>{
-       const raw=typeof file==='string'?file:file.url||file.link||file.src||file.downloadUrl||'';
-       const nama=typeof file==='string'?'Media '+(i+1):file.name||file.title||'Media '+(i+1);
-       const isVideo=/video/i.test(file?.mimeType||file?.type||'')||/\.(mp4|mov|webm)$/i.test(nama);
-       const key=String(raw).match(/(?:\/d\/|[?&]id=)([A-Za-z0-9_-]{12,})/)?.[1];
-       const src=isVideo?(key?'https://drive.google.com/file/d/'+key+'/preview':raw):(key?'https://lh3.googleusercontent.com/d/'+key:raw);
-       return {nama,jenis:isVideo?'Video':'Foto',src,thumb:isVideo?'':src};
-      }).filter(x=>/^https:\/\//.test(x.src));
-      if(!base.media.length)base.catatan='Album asli tersedia di Google Drive, namun daftar foto/video belum dapat dibaca secara otomatis.';
-    }catch(err){base.catatan='Album asli tersedia di Google Drive, tetapi foto/video belum dapat dimuat otomatis.';}
-    return base;
+      const saved=await call('bsV21IsiAlbumPublik',album.id);
+      if(Array.isArray(saved?.media)&&saved.media.length)return {...base,...saved};
+      return {...base,catatan:'Media album belum tercatat di Cloudflare D1. Gunakan tautan Google Drive asli di bawah.'};
+    }catch(error){
+      return {...base,catatan:'Album ini belum dapat dibaca dari Cloudflare D1. Gunakan tautan Google Drive asli di bawah.'};
+    }
   }
   async function v21OpenAlbum(id){
     const a=v21Albums.find(x=>x.id===id);if(!a)return;
