@@ -805,46 +805,69 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   };
  }
  async function memberSavings(){
-  const response=await get('/api/member/savings');
+  const [response,identity]=await Promise.all([
+   get('/api/member/savings'),
+   get('/api/member/me').catch(()=>null)
+  ]);
   const r=response.data&&typeof response.data==='object'&&!Array.isArray(response.data)?response.data:response;
   const pick=(row,keys)=>{for(const k of keys)if(row?.[k]!=null&&row[k]!=='')return row[k];return undefined;};
   const rawDeposits=onlyArray(r.setoran||r.deposits||r.depositHistory);
-  // Preserve the Bank Sampah original report shape while using real D1 deposits.
-  // Do not promote an estimate into a confirmed savings credit.
+  const rawMutations=onlyArray(r.mutasi||r.mutations||r.ledger);
+  // The active Worker limits personal histories to 60 deposits / 100 ledger events.
+  // Reject ambiguous lifetime totals rather than silently printing incomplete statements.
+  if(r.riwayatLengkap===false||rawDeposits.length>=60||rawMutations.length>=100)
+   throw Error('Riwayat pribadi mencapai batas API; laporan lengkap perlu paginasi dari Worker sebelum dapat dicetak.');
   const deposits=rawDeposits.map(x=>{
    const rawDetails=onlyArray(x.rincian||x.details||x.items||x.lines);
-   const id=pick(x,['id','deposit_id','setoranId'])||'';
    return {
-    id:String(id),tanggal:pick(x,['tanggal','deposited_on','date'])||'',
+    id:String(pick(x,['id','deposit_id','setoranId'])||''),
+    tanggal:pick(x,['tanggal','deposited_on','date'])||'',
     beratKg:number(pick(x,['beratKg','weightKg'])??number(pick(x,['beratGram','total_grams']))/1000),
     estimasiRp:number(pick(x,['estimasiRp','estimated_total_rp','estimatedRp'])),
     status:pick(x,['status','state'])||'Estimasi',
     rincian:rawDetails.map(y=>({
      barang:pick(y,['barang','jenis','name','item_name','category'])||'—',
      beratKg:number(pick(y,['beratKg','weightKg'])??number(pick(y,['beratGram','weight_g','grams']))/1000),
-     tarif:number(pick(y,['tarif','tarifWargaRp','unit_price_rp','price_rp'])),
+     // Worker returns tarifWargaRpPerKg (historical tariff stored per deposit line).
+     tarif:number(pick(y,['tarifWargaRpPerKg','tarif','tarifWargaRp','citizen_rate_rp_per_kg','unit_price_rp','price_rp'])),
      nilai:number(pick(y,['nilai','estimasiRp','estimated_rp','amount_rp']))
     }))
    };
   });
-  const rawMutations=onlyArray(r.mutasi||r.mutations||r.ledger);
-  const mutations=rawMutations.map(x=>({
-   id:pick(x,['id','mutation_id'])||'',
-   tanggal:pick(x,['tanggal','occurred_on','date'])||'',
-   jenis:pick(x,['jenis','type','description','keterangan'])||'',
-   kredit:number(pick(x,['kredit','credit_rp','masukRp'])),
-   debit:number(pick(x,['debit','debit_rp','keluarRp'])),
-   saldo:number(pick(x,['saldo','balance_rp','saldoRp']))
-  }));
+  const creditKinds=new Set(['kredit','koreksi_kredit']);
+  const debitKinds=new Set(['pencairan','koreksi_debit']);
+  const mutasi=rawMutations.map(x=>{
+   const jenis=String(pick(x,['jenis','kind','type','description','keterangan'])||'');
+   const nominal=number(pick(x,['jumlahRp','amount_rp','amountRp']));
+   const explicitCredit=pick(x,['kredit','credit_rp','masukRp']);
+   const explicitDebit=pick(x,['debit','debit_rp','keluarRp']);
+   const kredit=explicitCredit==null?(creditKinds.has(jenis)?nominal:0):number(explicitCredit);
+   const debit=explicitDebit==null?(debitKinds.has(jenis)?nominal:0):number(explicitDebit);
+   if(kredit<0||debit<0||(kredit&&debit)||(!creditKinds.has(jenis)&&!debitKinds.has(jenis)&&explicitCredit==null&&explicitDebit==null))
+    throw Error('Jenis mutasi tabungan tidak dikenal. Periksa ledger agar laporan tidak salah.');
+   return {id:pick(x,['id','mutation_id','reference_id'])||'',
+    tanggal:pick(x,['tanggal','transaction_on','occurred_on','date'])||'',
+    jenis,kredit,debit,saldo:null};
+  });
+  const saldo=number(pick(r,['saldoTersediaRp','saldo','balance_rp','available_balance_rp']));
+  // Worker returns latest-first ledger. Reconstruct balance after each event,
+  // starting from authoritative all-time balance; no estimate enters this calculation.
+  let running=saldo;
+  for(const entry of mutasi){
+   entry.saldo=running;
+   running-=entry.kredit-entry.debit;
+  }
+  const totalMasuk=number(pick(r,['totalMasukRp','totalMasuk','credit_total_rp'])??
+    mutasi.reduce((sum,x)=>sum+x.kredit,0));
+  const totalCair=number(pick(r,['totalCairRp','totalCair','withdrawn_total_rp'])??
+    mutasi.filter(x=>x.jenis==='pencairan').reduce((sum,x)=>sum+x.debit,0));
+  const member=identity?.member||{};
   return {
-   nama:pick(r,['nama','memberName','name'])||'',
-   rumah:pick(r,['rumah','house'])||'',
-   wargaId:pick(r,['wargaId','memberId','member_id'])||'',
+   nama:pick(member,['nama','display_name'])||pick(r,['nama','memberName','name'])||'—',
+   rumah:pick(member,['rumah','house_code'])||pick(r,['rumah','house'])||'—',
+   wargaId:pick(member,['id','member_id'])||pick(r,['wargaId','memberId','member_id'])||'—',
    dibuatPada:new Date().toLocaleDateString('id-ID'),
-   saldo:number(pick(r,['saldoTersediaRp','saldo','balance_rp','available_balance_rp'])),
-   totalMasuk:number(pick(r,['totalMasukRp','totalMasuk','credit_total_rp'])),
-   totalCair:number(pick(r,['totalCairRp','totalCair','withdrawn_total_rp'])),
-   mutasi:mutations,setoran:deposits
+   saldo,totalMasuk,totalCair,mutasi,setoran:deposits
   };
  }
  async function publicChart(){
@@ -867,14 +890,18 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   await get('/api/member/savings');
   return {siap:true,pesan:'Laporan pribadi tersedia dari Cloudflare D1'};
  }
- const adminRows=async name=>onlyArray(await get('/api/v2/admin/bank/'+name));
- const adminDeposits=async()=> (await adminRows('deposits')).map(x=>({
+ const adminRows=async(name,{requireComplete=false}={})=>{
+  const result=onlyArray(await get('/api/v2/admin/bank/'+name+'?limit=300'));
+  if(requireComplete&&result.length>=300)throw Error('Data '+name+' mencapai batas 300 transaksi. Laporan dihentikan agar saldo tidak terpotong.');
+  return result;
+ };
+ const adminDeposits=async()=> (await adminRows('deposits',{requireComplete:true})).map(x=>({
   id:x.id,wargaId:x.member_id,namaWarga:x.memberName||'',rumahWarga:'',tanggal:x.deposited_on,
   berat:number(x.total_grams)/1000,estimasi:number(x.estimated_total_rp),
   status:x.status==='dibatalkan'?'Dibatalkan':x.status==='terkonfirmasi'?'Terkonfirmasi':'Estimasi',
   batchId:x.batch_id
  }));
- const adminSales=async()=> (await adminRows('sales')).map(x=>({
+ const adminSales=async()=> (await adminRows('sales',{requireComplete:true})).map(x=>({
   id:x.id,batchId:x.batch_id,tanggal:x.sold_on,lapak:x.buyer_name||'',
   bruto:number(x.amount_gross_rp),diterima:number(x.amount_received_rp),
   status:x.status==='dibatalkan'?'Dibatalkan':x.status==='terkonfirmasi'?'Terkonfirmasi':'Draft'
@@ -888,22 +915,28 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   status:x.status==='aktif'?'Aktif':'Nonaktif'
  }));
  const adminOverview=async()=>{
-  const [members,items,deposits,sales]=await Promise.all([adminMembers(),adminRows('catalog'),adminDeposits(),adminSales()]);
+  const [members,items,deposits,sales,ledger,cash]=await Promise.all([
+   adminMembers(),adminRows('catalog'),adminDeposits(),adminSales(),
+   adminRows('ledger',{requireComplete:true}),adminRows('cash',{requireComplete:true})]);
   const validDeposits=deposits.filter(x=>x.status!=='Dibatalkan');
   const confirmedSales=sales.filter(x=>x.status==='Terkonfirmasi');
+  const details=await Promise.all(confirmedSales.map(x=>get('/api/v2/admin/bank/sale-detail?id='+encodeURIComponent(x.id))));
+  const confirmedWeight=details.reduce((sum,detail)=>sum+onlyArray(detail.lines).reduce((n,line)=>n+number(line.grams),0),0);
+  const netSavings=ledger.reduce((sum,x)=>sum+(['kredit','koreksi_kredit'].includes(x.kind)?1:-1)*number(x.amount_rp),0);
+  const netCash=cash.filter(x=>x.status==='aktif').reduce((sum,x)=>sum+number(x.cash_in_rp)-number(x.cash_out_rp),0);
   return {wargaAktif:members.filter(x=>x.status==='Aktif').length,
    jenisBarangAktif:items.filter(x=>x.active!==0).length,
    beratSetoranKg:validDeposits.reduce((n,x)=>n+x.berat,0),
    jumlahSetoran:validDeposits.length,estimasiSetoranRp:validDeposits.reduce((n,x)=>n+x.estimasi,0),
    jumlahPenjualan:confirmedSales.length,
-   beratPenjualanKg:0,diterimaLapakRp:confirmedSales.reduce((n,x)=>n+x.diterima,0),
-   netMutasiTabunganRp:0,netKasRp:0,tarifBelumDitetapkan:items.filter(x=>!x.priceRpPerKg).length};
+   beratPenjualanKg:confirmedWeight/1000,diterimaLapakRp:confirmedSales.reduce((n,x)=>n+x.diterima,0),
+   netMutasiTabunganRp:netSavings,netKasRp:netCash,tarifBelumDitetapkan:items.filter(x=>!x.priceRpPerKg).length};
  };
  const adminProgress=async()=> (await adminRows('progress')).map(x=>({
    id:x.id,progressId:x.id,tanggal:x.happened_on,judul:x.title,langkah:x.stage,
    deskripsi:x.description||'',status:x.status,agenda:x.next_step||'',publik:!!x.public_visible
  }));
- const adminExpenses=async()=> (await adminRows('expenses')).map(x=>({
+ const adminExpenses=async()=> (await adminRows('expenses',{requireComplete:true})).map(x=>({
    id:x.id,tanggal:x.incurred_on,jenis:x.kind,pos:x.budget_post,
    uraian:x.description||'',keterangan:x.description||'',jumlah:number(x.amount_rp),
    nominal:number(x.amount_rp),status:x.status,vendor:x.vendor||''
@@ -913,17 +946,17 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
    const byId=new Map(balances.map(x=>[String(x.member_id||'').replace(/^member:/,''),number(x.balanceRp)]));
    return members.map(m=>({...m,saldo:byId.get(m.wargaId)||0,saldoRp:byId.get(m.wargaId)||0}));
  };
- const adminCash=async()=> (await adminRows('cash')).map(x=>({
+ const adminCash=async()=> (await adminRows('cash',{requireComplete:true})).map(x=>({
    id:x.id,tanggal:x.occurred_on,jenis:x.transaction_type,pos:x.fund_position,
    masuk:number(x.cash_in_rp),keluar:number(x.cash_out_rp),status:x.status,keterangan:x.note||''
  }));
  const adminAlbums=async()=> (await adminRows('albums')).map(x=>({
    id:x.id,albumId:x.id,judul:x.title,tanggal:x.event_on,deskripsi:x.description||'',
-   kategori:x.category,publik:x.visibility==='publik',status:x.status
+   kategori:x.category,publik:x.visibility==='publik',status:x.status==='aktif'?'Aktif':x.status
  }));
  const adminCashOverview=async(_token,period='')=>{
   const all=await adminCash();
-  const month=String(period||'').match(/^\\d{4}-\\d{2}$/)?.[0]||'';
+  const month=String(period||'').match(/^\d{4}-\d{2}$/)?.[0]||'';
   const eligible=all.filter(x=>x.status==='aktif');
   const rows=eligible.filter(x=>!month||String(x.tanggal).startsWith(month));
   const grouped=new Map();
@@ -940,11 +973,12 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
    transaksi:rows.length,periode:month||'semua',catatan:'Arus kas dari D1, bukan saldo akhir tersahkan'};
  };
  const adminReport=async(_token,period='',includeCanceled=false)=>{
-  const [deposits,sales,expenses,cash]=await Promise.all([
-    adminDeposits(),adminSales(),adminExpenses(),adminCash()]);
-  const month=String(period||'').match(/^\\d{4}-\\d{2}$/)?.[0]||'';
+  const [deposits,sales,expenses,cash,ledger]=await Promise.all([
+    adminDeposits(),adminSales(),adminExpenses(),adminCash(),
+    adminRows('ledger',{requireComplete:true})]);
+  const month=String(period||'').match(/^\d{4}-\d{2}$/)?.[0]||'';
   const scope=rows=>rows.filter(x=>!month||String(x.tanggal||'').startsWith(month));
-  // Status estimasi/draft tetap boleh terlihat pada riwayat, tetapi BUKAN transaksi sah.
+  // Setoran estimasi dan penjualan draft bukan hak tabungan atau kas yang disahkan.
   const depositRows=scope(deposits).filter(x=>includeCanceled||x.status!=='Dibatalkan');
   const saleRows=scope(sales).filter(x=>includeCanceled||x.status!=='Dibatalkan');
   const confirmedDeposits=depositRows.filter(x=>x.status==='Terkonfirmasi');
@@ -952,18 +986,26 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   const expenseRows=scope(expenses).filter(x=>includeCanceled||x.status!=='dibatalkan');
   const paidExpenses=expenseRows.filter(x=>x.status==='lunas');
   const activeCash=cash.filter(x=>x.status==='aktif');
+  const filteredLedger=ledger.filter(x=>!month||String(x.transaction_on||'').startsWith(month));
+  const mutasi=filteredLedger.map(x=>{
+    const kredit=['kredit','koreksi_kredit'].includes(x.kind)?number(x.amount_rp):0;
+    const debit=['pencairan','koreksi_debit'].includes(x.kind)?number(x.amount_rp):0;
+    return {id:x.id,tanggal:x.transaction_on,warga:String(x.member_id||'').replace(/^member:/,''),
+      jenis:x.kind,kredit,debit};
+  });
   return {
     periode:month||'semua',
     ringkasan:{jumlahSetoran:confirmedDeposits.length,jumlahPenjualan:confirmedSales.length,
      estimasi:confirmedDeposits.reduce((n,x)=>n+x.estimasi,0),
      diterima:confirmedSales.reduce((n,x)=>n+x.diterima,0),
-     hakWargaDikredit:0,tabunganDicairkan:0,
+     hakWargaDikredit:mutasi.filter(x=>x.jenis==='kredit').reduce((n,x)=>n+x.kredit,0),
+     tabunganDicairkan:mutasi.filter(x=>x.jenis==='pencairan').reduce((n,x)=>n+x.debit,0),
      biaya:paidExpenses.reduce((n,x)=>n+x.nominal,0),
      saldoKasKini:activeCash.reduce((n,x)=>n+x.masuk-x.keluar,0)},
     setoran:depositRows.map(x=>({id:x.id,tanggal:x.tanggal,warga:x.wargaId,berat:x.berat,nilai:x.estimasi,status:x.status})),
     penjualan:saleRows.map(x=>({id:x.id,tanggal:x.tanggal,batch:x.batchId,lapak:x.lapak,bruto:x.bruto,diterima:x.diterima,disahkan:x.status==='Terkonfirmasi',status:x.status})),
     pengeluaran:expenseRows.map(x=>({id:x.id,tanggal:x.tanggal,jenis:x.jenis,keterangan:x.keterangan,pos:x.pos,nominal:x.nominal,status:x.status})),
-    mutasi:[]
+    mutasi
   };
  };
  const bankAdminAccounts=async()=>{
@@ -1051,7 +1093,10 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
    const cash=await adminCash();return {saldoKasTercatat:cash.reduce((n,x)=>n+x.masuk-x.keluar,0),batchBelumDiposting:[],kasGabungan:cash.reduce((n,x)=>n+x.masuk-x.keluar,0)};
   },
   bsV10KasPosAdmin:async()=>{
-   const cash=await adminCash();return {kasGabungan:cash.reduce((n,x)=>n+x.masuk-x.keluar,0),pos:[]};
+   const cash=await adminCash(),active=cash.filter(x=>x.status==='aktif');
+   const slots=[['operasional','Operasional'],['kas_lorong','Kas Lorong'],['cadangan','Cadangan'],['tabungan_warga','Tabungan Warga']];
+   return {kasGabungan:active.reduce((n,x)=>n+x.masuk-x.keluar,0),
+    pos:slots.map(([key,nama])=>({nama,tersedia:active.filter(x=>x.pos===key).reduce((n,x)=>n+x.masuk-x.keluar,0)}))};
   },
   bsV6SetoranAdmin:adminDeposits,
   bsV18RiwayatSetoranAdmin:adminDeposits,
@@ -1067,7 +1112,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     nama:item.name||item.nama,kelompok:item.category||item.kelompok||'',
     acuan:number(item.reference_price_rp??item.acuan??number(item.priceRpPerKg)*2),
     tarif:number(item.priceRpPerKg??item.tarif),
-    status:item.active===false?'Nonaktif':'Aktif'}));
+    status:item.active===false||item.active===0||item.active==='0'?'Nonaktif':'Aktif'}));
   }
  };
  window.__f4BankDemoCall=(name,args=[])=>{
@@ -1080,6 +1125,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
  };
 })();
 </script>
+<script src="../f4-bank-write-bridge.js?v=20261024-finalisasi"></script>
 <script id="f4-appsscript-compat">
 /* Adapter only. Every line of PortalAkun.html's original script remains unchanged below. */
 (()=>{
@@ -1253,17 +1299,36 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     const h=document.createElement('h2');h.textContent='Mutasi tabungan';root.appendChild(h);
     root.appendChild(v12Table(['Tanggal','Keterangan','Masuk','Keluar','Saldo'],d.mutasi.map(x=>[x.tanggal,x.jenis,rupiah(x.kredit),rupiah(x.debit),rupiah(x.saldo)])));
     const h2=document.createElement('h2');h2.textContent='Setoran per barang';root.appendChild(h2);
-    root.appendChild(v12Table(['Tanggal','Setoran','Barang','Berat','Estimasi','Status'],d.setoran.flatMap(s=>s.rincian.map(x=>[s.tanggal,s.id,x.barang,v12Kg(x.beratKg),rupiah(x.nilai),s.status]))));
+    root.appendChild(v12Table(['Tanggal','Setoran','Barang','Berat','Tarif warga/kg','Estimasi','Status'],d.setoran.flatMap(s=>s.rincian.map(x=>[s.tanggal,s.id,x.barang,v12Kg(x.beratKg),rupiah(x.tarif),rupiah(x.nilai),s.status]))));
     const remark=document.createElement('p');remark.style.marginTop='14px';remark.textContent='Keterangan: setoran estimasi belum menjadi tabungan sebelum rekonsiliasi disahkan.';root.appendChild(remark);
     const signature=document.createElement('div');signature.style.cssText='text-align:right;margin-top:24px;break-inside:avoid';
     signature.textContent='Mengetahui, Humas Flamboyan 4';const signName=document.createElement('div');signName.textContent='Heri Juwandi';signName.style.cssText='font-weight:bold;margin-top:55px;text-decoration:underline';signature.appendChild(signName);root.appendChild(signature);
     window.addEventListener('afterprint',()=>root.replaceChildren(),{once:true});window.print();
   }
   function v12CSV(){
-    if(!v12Data)return;const d=v12Data,rows=[['Tanggal','Transaksi','Jenis','Masuk Rp','Keluar Rp','Saldo Rp'],...d.mutasi.map(x=>[x.tanggal,x.id,x.jenis,x.kredit,x.debit,x.saldo])];
-    const safe=v=>{const s=String(v??'');return '"'+(/^[\s]*[=+\-@]/.test(s)?"'"+s:s).replace(/"/g,'""')+'"';};
+    if(!v12Data)return;
+    const d=v12Data,rows=[
+      ['LAPORAN TABUNGAN PRIBADI - FLAMBOYAN 4'],
+      ['Nama',d.nama],['Rumah',d.rumah],['ID Anggota',d.wargaId],['Dicetak',d.dibuatPada],
+      ['Saldo tersedia (Rp)',d.saldo],['Masuk terkonfirmasi (Rp)',d.totalMasuk],['Sudah dicairkan (Rp)',d.totalCair],
+      [],
+      ['RIWAYAT TABUNGAN'],
+      ['Tanggal','Transaksi','Jenis','Masuk Rp','Keluar Rp','Saldo Rp'],
+      ...d.mutasi.map(x=>[x.tanggal,x.id,x.jenis,x.kredit,x.debit,x.saldo]),
+      [],
+      ['SETORAN PER BARANG (ESTIMASI BUKAN SALDO TERKONFIRMASI)'],
+      ['Tanggal','ID Setoran','Barang','Berat (kg)','Tarif Warga Rp/kg','Estimasi Rp','Status'],
+      ...d.setoran.flatMap(s=>s.rincian.map(x=>[s.tanggal,s.id,x.barang,x.beratKg,x.tarif,x.nilai,s.status]))
+    ];
+    const safe=v=>{
+      const text=String(v??'');
+      return '"'+(/^\s*[=+\-@]/.test(text)?"'"+text:text).replace(/"/g,'""')+'"';
+    };
     const csv='\uFEFF'+rows.map(row=>row.map(safe).join(',')).join('\r\n');
-    const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='Tabungan_'+d.wargaId+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);
+    const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');
+    a.href=url;a.download='Tabungan_'+String(d.wargaId).replace(/[^a-z0-9_-]/gi,'_')+'.csv';
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),5000);
   }
   // v13: navigasi bertingkat, seluruh tombol lama tetap ada dan bekerja.
   const v13ShowAccount=showDashboard,v13GoPage=goPage,v13ShowPublicOld=v11ShowPublic,v13ShowAuthOld=showAuth;

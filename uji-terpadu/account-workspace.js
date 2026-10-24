@@ -156,19 +156,31 @@
        actions('Menu operasional',[['Buka Dashboard Bank Sampah',()=>navigate('bank-sampah')],...(r==='superadmin'?[['Data Warga & Rumah',openWarga]]:[])]);
        info('Status transaksi','Pencatatan dan pengesahan transaksi tetap mengikuti pembatasan keamanan Worker. Ringkasan tidak menghitung transaksi dibatalkan sebagai saldo.');
      }else if((r==='anggota'||r==='admin')&&p==='portal'){
-       const [cash,overview]=await Promise.allSettled([
-         api('/api/member/finance-report'),api('/api/public/overview')]);if(ticket!==requestId)return;
+       const [overview,ownPayments,ownSavings]=await Promise.allSettled([
+         api('/api/public/overview'),
+         r==='anggota'?api('/api/member/payments'):Promise.resolve(null),
+         r==='anggota'?api('/api/member/savings'):Promise.resolve(null)
+       ]);if(ticket!==requestId)return;
        loading.remove();
-       const c=cash.status==='fulfilled'?cash.value:null;
        const o=overview.status==='fulfilled'?overview.value:{};
-       columns([
-         card('Debit kas tercatat',c?money(c.totalDebitRp):'—','Kas masuk'),
-         card('Kredit kas tercatat',c?money(c.totalKreditRp):'—','Kas keluar'),
-         card('Jumlah transaksi',c?c.transaksi?.length||0:'—','Rincian laporan'),
-         card('Agenda publik',o.agendaPublik??'—','Portal Utama')
-       ]);
-       actions('Akses warga',[['Rincian Kas & Cetak Laporan',()=>window.f4OpenFinanceReport?.()],['Bank Sampah',()=>navigate('bank-sampah')]]);
-       if(!c)info('Akses rincian kas','Endpoint kas warga belum aktif pada Worker saat ini. Fungsi akan tersedia setelah paket Worker terpadu diterapkan.');
+       const pmt=ownPayments.status==='fulfilled'?ownPayments.value:null;
+       const sav=ownSavings.status==='fulfilled'?ownSavings.value:null;
+       if(r==='anggota'){
+         columns([
+           card('Pembayaran iuran saya',pmt?money(pmt.totalDiterimaRp):'—','Riwayat pribadi'),
+           card('Tabungan terkonfirmasi',sav?money(sav.saldoTersediaRp):'—','Hak tabungan'),
+           card('Estimasi menunggu',sav?money(sav.estimasiMenungguRp):'—','Belum disahkan'),
+           card('Agenda publik',o.agendaPublik??'—','Portal Utama')
+         ]);
+         actions('Akses anggota',[['Tabungan & Riwayat',()=>navigate('bank-sampah')],['Pengaturan Profil',profile]]);
+         if(!pmt||!sav)info('Data pribadi','Sebagian riwayat belum dapat dibaca. Gunakan menu Tabungan untuk memeriksa perinciannya.');
+       }else{
+         columns([
+           card('Agenda publik',o.agendaPublik??'—','Portal Utama'),
+           card('Kas lingkungan','Lihat ringkasan publik','Tanpa rincian transaksi pribadi')
+         ]);
+         actions('Akses pengelolaan',[['Dashboard Bank Sampah',()=>navigate('bank-sampah')]]);
+       }
      }else if(r==='anggota'){
        const [s,pay]=await Promise.allSettled([api('/api/member/savings'),api('/api/member/payments')]);if(ticket!==requestId)return;
        loading.remove();

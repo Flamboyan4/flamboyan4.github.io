@@ -1,4 +1,4 @@
-// Rincian kas untuk akun masuk (anggota/admin/superadmin). Baca-saja, bukan pembukuan pribadi.
+// Rincian kas lingkungan untuk Superadmin. Anggota hanya melihat data pribadi dan ringkasan publik.
 (()=>{
  'use strict';
  const page=document.getElementById('f4-account-page');
@@ -18,7 +18,7 @@
    activePeriod=month;
    main.replaceChildren();
    const head=el('header',undefined,'f4-work-heading');
-   head.append(el('h2','Rincian Kas Warga'),el('p','Sumber: Cloudflare D1 · Hanya akun terautentikasi'));
+   head.append(el('h2','Rincian Kas Lingkungan'),el('p','Sumber: Cloudflare D1 · Khusus Superadmin'));
    head.append(el('button','← Ringkasan Akun','f4-work-back'));
    head.querySelector('button').onclick=()=>window.openAccountPage?.();
    main.append(head);
@@ -41,7 +41,7 @@
        ['Debit kas',format(result.totalDebitRp),'Kas masuk tercatat'],
        ['Kredit kas',format(result.totalKreditRp),'Kas keluar tercatat'],
        ['Selisih arus',format(result.selisihRp),'Bukan saldo total'],
-       ['Jumlah transaksi',activeRows.length,'Baris yang ditampilkan']
+       ['Jumlah transaksi',result.jumlahTransaksi??activeRows.length,'Total catatan D1']
      ]){
        const card=el('article',undefined,'f4-work-stat');
        card.append(el('small',name),el('strong',value),el('span',detail));stats.append(card);
@@ -59,7 +59,10 @@
      }
      table.append(body);wrap.append(table);main.append(wrap);
      status.textContent=(result.catatan||'')+' Periode: '+(month||'semua')+'.';
-     printButton.disabled=false;
+     if(result.riwayatLengkap===false){
+       printButton.disabled=true;
+       status.textContent+=' Rincian melebihi batas API; cetak dinonaktifkan agar laporan tidak terpotong.';
+     }else printButton.disabled=false;
      printButton.onclick=()=>{
        const w=window.open('','_blank');
        if(!w){status.textContent='Browser memblokir jendela cetak. Izinkan pop-up untuk halaman ini.';return}
@@ -69,7 +72,7 @@
        w.document.open();w.document.write(markup);w.document.close();w.focus();w.print();
      };
    }catch(e){
-     status.textContent='Laporan belum dapat dibaca: '+e.message+'. Endpoint ini membutuhkan Worker versi akses kas anggota.';
+     status.textContent='Laporan tidak dapat dibaca: '+e.message+'. Rincian ini hanya tersedia bagi Superadmin.';
    }
  }
  window.f4OpenFinanceReport=()=>load('');
