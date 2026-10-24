@@ -1,0 +1,396 @@
+:root{--bg:#f5f7fb;--ink:#18243b;--soft:#5d697b;--line:#e1e7ee;--card:#fff;--accent:#484dc5;--accent-dark:#232c71;--accent-soft:#eef0ff;--shadow:0 12px 34px #14284812}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 system-ui,-apple-system,'Segoe UI',sans-serif}body.theme-bank{--accent:#14815a;--accent-dark:#074b3d;--accent-soft:#eaf8f1;--bg:#f4f9f6}body.theme-book{--accent:#bf5b18;--accent-dark:#78340b;--accent-soft:#fff1e5;--bg:#fff9f4}body.theme-account{--accent:#3a62b4;--accent-dark:#243a69;--accent-soft:#edf3ff}
+a{color:inherit}button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}[hidden]{display:none!important}
+.topbar{background:#14223c;color:#fff;position:sticky;top:0;z-index:15;border-bottom:1px solid #ffffff18}.top-inner{max-width:1180px;margin:auto;min-height:62px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 24px;flex-wrap:wrap}.brand{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-weight:850;white-space:nowrap}.brand-mark{border-radius:10px;background:#4f78ee;padding:4px 10px}.nav{display:flex;gap:5px;flex-wrap:wrap}.nav a{padding:8px 11px;border-radius:9px;text-decoration:none;color:#dce4f5;font-weight:650;font-size:13px}.nav a:hover,.nav .current{background:#ffffff20;color:#fff}.account-state{font-size:12px;color:#d8e6f7;white-space:nowrap}
+.hero{background:linear-gradient(125deg,var(--accent-dark),var(--accent));color:#fff;padding:48px 24px 60px}.hero-inner{max-width:1132px;margin:auto}.eyebrow{font-size:12px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;opacity:.8}.hero h1{font-size:clamp(29px,4vw,48px);line-height:1.13;letter-spacing:-.035em;margin:8px 0 12px}.hero p{max-width:640px;color:#ffffffdd;margin:0}.mini-pill{font-size:11px;border-radius:100px;padding:5px 9px;background:#ffffff25;display:inline-block;margin-top:18px}
+.container{max-width:1180px;padding:0 24px;margin:-32px auto 60px;position:relative}.page-stack{display:grid;gap:18px}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.stat,.panel,.info-card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}.stat{padding:19px}.stat small{display:block;color:var(--soft);font-weight:750;font-size:11px;text-transform:uppercase;letter-spacing:.04em}.stat strong{display:block;font-size:clamp(19px,2.2vw,29px);font-weight:850;line-height:1.4;margin-top:4px}.stat em{font-style:normal;color:var(--accent);font-weight:650;font-size:12px}.panel{padding:24px}.panel-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}.panel h2{margin:0;font-size:21px;letter-spacing:-.02em}.panel h3{margin:5px 0 6px}.panel p{margin-top:8px}.muted{color:var(--soft)}.eyeline{border-left:4px solid var(--accent);padding-left:12px;margin:0 0 15px}.split{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:12px}.info-card{padding:17px;box-shadow:none}.info-card h3{font-size:16px;margin:0}.info-card p{margin:5px 0 0}.text-link{display:inline-block;margin-top:12px;color:var(--accent);font-weight:800;text-decoration:none}.text-link:hover{text-decoration:underline}.chip{background:var(--accent-soft);color:var(--accent-dark);padding:5px 9px;border-radius:20px;font-weight:750;font-size:12px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;background:var(--accent);color:#fff;border-radius:10px;padding:10px 16px;font-weight:750;text-decoration:none}.btn.outline{background:transparent;color:var(--accent);border:1px solid var(--accent)}.btn:hover{filter:brightness(.95)}.panel-actions{display:flex;gap:8px;flex-wrap:wrap}.data-tabs{flex-wrap:nowrap;overflow-x:auto;padding:3px 2px 10px;scrollbar-width:thin;max-width:100%}.data-tabs .btn{white-space:nowrap;flex:none;font-size:13px;padding:8px 12px}.data-tabs .btn[aria-pressed="true"]{box-shadow:0 0 0 2px var(--accent-soft);font-weight:800}.data-wrap{max-width:100%;overflow-x:auto}.data-table{border-collapse:collapse;width:100%;min-width:520px;font-size:13px}.data-table th{background:var(--accent-soft);color:var(--accent-dark);text-align:left;font-size:12px}.data-table th,.data-table td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}.data-table tbody tr:hover{background:#f8fafc}.feedback{border-radius:10px;background:#edf4fd;color:#26415a;border:1px solid #cbdcf1;padding:12px 15px;margin:0}.feedback[data-kind="error"]{background:#fff0ed;color:#8f301f;border-color:#f4c1b3}.feedback[data-kind="success"]{background:#e9f8ee;color:#196641;border-color:#b9e2c6}.info-note{background:var(--accent-soft);border:1px solid var(--line);padding:13px 16px;border-radius:10px;color:var(--accent-dark)}.form-grid{display:grid;gap:12px}.form-grid label{font-weight:700;display:grid;gap:5px}.form-grid input,.form-grid select{width:100%;padding:11px;border:1px solid #c7d0db;border-radius:9px;color:var(--ink);background:white}.form-grid input:focus{outline:2px solid var(--accent);outline-offset:1px}.auth-layout{max-width:800px;margin:auto}.album-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:12px}.album-grid a{display:flex;flex-direction:column;gap:5px;text-decoration:none;font-weight:650;color:var(--accent)}.album-grid img{width:100%;height:150px;object-fit:cover;background:#ddd;border-radius:10px}.footer{background:#14223c;color:#cdd9e9;padding:24px;text-align:center;font-size:12px}.footer a{color:#fff}.nowrap{white-space:nowrap}.small{font-size:12px}.hr{border:none;border-top:1px solid var(--line);margin:18px 0}
+@media(max-width:860px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.split,.three{grid-template-columns:1fr}.nav a{padding:6px 9px}.top-inner{padding:10px 14px}.container{padding:0 14px}.hero{padding:32px 14px 55px}.panel{padding:18px}}@media(max-width:460px){.stats{gap:8px}.stat{padding:13px}.stat strong{font-size:20px}.account-state{display:none}.nav{gap:0}.nav a{font-size:11px;padding:6px}.hero h1{font-size:29px}.panel h2{font-size:19px}}
+
+
+/* Tiga portal: sidebar tetap + utility icon, tanpa navbar atas klasik. */
+body.theme-home{--accent:#6068ac;--accent-dark:#464e89;--accent-soft:#eeeffb;--bg:#f6f7fb}
+body.theme-bank{--accent:#139464;--accent-dark:#0b674d;--accent-soft:#e5f6ef;--bg:#f2f8f4}
+body.theme-book{--accent:#dd702b;--accent-dark:#a74d1d;--accent-soft:#fff0e5;--bg:#fff8f4}
+body.theme-account{--accent:#5367b2;--accent-dark:#3b5098;--accent-soft:#eef1fc}
+.app-sidebar{width:242px;position:fixed;left:0;top:0;bottom:0;background:#fff;border-right:1px solid var(--line);z-index:30;display:flex;flex-direction:column;overflow-y:auto}
+.shell-brand{display:flex;align-items:center;gap:11px;margin:0 14px 16px;padding:20px 5px;border-bottom:1px solid var(--line);min-height:90px}
+.shell-mark{background:var(--accent);color:white;border-radius:12px;width:44px;height:44px;display:grid;place-items:center;font-size:23px}
+.shell-brand-copy{display:flex;flex-direction:column;line-height:1.4}.shell-brand-copy strong{font-size:15px;color:var(--accent-dark)}.shell-brand-copy small{font-size:11px;color:var(--soft)}
+.shell-menu{display:grid;gap:3px;padding:0 12px 25px;align-content:start}
+.shell-side-link{display:flex;align-items:center;gap:12px;padding:11px 12px;text-decoration:none;border-radius:9px;font-size:13px;font-weight:750;color:#485762}
+.shell-side-link.current,.shell-side-link:hover,.shell-side-link:focus-visible{background:var(--accent-soft);color:var(--accent-dark)}
+.shell-side-link svg{width:19px;height:19px;flex-shrink:0;color:var(--accent)}
+.app-workspace{margin-left:242px;background:var(--bg);min-height:100vh}
+.app-utility{height:64px;position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:9px 26px}
+.shell-space{flex:1}.shell-switcher{display:flex;align-items:center;gap:5px;padding-right:10px;border-right:1px solid var(--line)}
+.shell-switch{width:39px;height:39px;display:grid;place-items:center;border-radius:10px;color:#586476}
+.shell-switch:hover,.shell-switch.selected{background:var(--accent-soft);color:var(--accent-dark)}.shell-switch svg,.shell-toggle svg,.shell-login svg{width:20px;height:20px}
+.shell-login{display:flex;gap:8px;align-items:center;color:white;background:var(--accent);border-radius:10px;padding:9px 14px;font-weight:800;text-decoration:none}
+.shell-account{min-width:43px;display:flex;justify-content:flex-end}.shell-profile{position:relative}
+.shell-avatar{display:grid;place-items:center;background:var(--accent);color:#fff;border:2px solid var(--accent-soft);padding:0;width:44px;height:44px;border-radius:50%;position:relative;overflow:hidden}
+.shell-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.shell-initial{font-weight:850;font-size:14px}
+.shell-account-menu{position:absolute;right:0;top:calc(100% + 9px);background:white;min-width:205px;z-index:60;border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 40px #1d243d26;padding:6px}
+.shell-account-heading{display:flex;flex-direction:column;line-height:1.4;padding:11px;border-bottom:1px solid var(--line)}.shell-account-heading small{color:var(--soft)}
+.shell-account-menu a,.shell-account-menu button{display:block;width:100%;text-align:left;padding:11px 12px;border:0;background:transparent;text-decoration:none;font-size:13px;color:var(--ink);border-radius:8px}
+.shell-account-menu a:hover,.shell-account-menu button:hover{background:var(--accent-soft)}.shell-account-menu button{color:#aa3333}
+.shell-toggle{display:none;align-items:center;justify-content:center;color:var(--accent-dark);background:var(--accent-soft);border:0;border-radius:9px;width:39px;height:39px}
+.app-body .hero{max-width:1150px;margin:20px auto 0;border-radius:18px;padding:35px;background:linear-gradient(120deg,var(--accent-dark),var(--accent))}
+body:not(.theme-home) .app-body .hero{display:none}
+.app-body .container{margin:20px auto 60px;padding:0 22px;max-width:1180px}.app-body .footer{border-top:1px solid var(--line);color:var(--soft);background:transparent}
+#bank-member-section{padding:0;border:0;box-shadow:none;background:transparent}.bank-member-head{margin:0 0 14px;font-size:24px}
+.bank-member-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media(max-width:900px){.app-sidebar{width:210px}.app-workspace{margin-left:210px}.app-utility{padding:8px 15px}}
+@media(max-width:720px){.app-sidebar{width:242px;transform:translateX(-110%);transition:transform .2s;box-shadow:10px 0 32px #00000016}.sidebar-open .app-sidebar{transform:translateX(0)}.app-workspace{margin-left:0}.shell-toggle{display:flex}.app-body .hero{margin:13px 12px 0;padding:24px}.app-body .container{padding:0 13px}.bank-member-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:440px){.app-utility{gap:5px;padding:8px}.shell-switcher{gap:0;padding-right:5px}.shell-switch{width:34px;height:36px}.shell-avatar{width:40px;height:40px}.bank-member-grid{grid-template-columns:1fr}}
+
+
+/* Banner slider Portal Utama: responsive, gambar siap dipasok dari API D1. */
+body.theme-home .app-body .hero.has-banner-slider{padding:0;overflow:hidden;border-radius:17px;max-width:1150px;background:linear-gradient(120deg,#4a518b,#666db1)}
+.banner-frame{width:100%;aspect-ratio:1600/500;min-height:240px;position:relative;overflow:hidden}.banner-track{display:flex;width:100%;height:100%;transition:transform .5s ease}
+.banner-slide{width:100%;flex:0 0 100%;position:relative;background:linear-gradient(120deg,#4b528e,#6569b1);display:flex;align-items:center;padding:32px clamp(30px,6vw,75px);color:#fff}
+.banner-slide:nth-child(2){background:linear-gradient(110deg,#455582,#5b70ac)}.banner-slide:nth-child(3){background:linear-gradient(110deg,#545184,#7770b3)}
+.banner-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.banner-image+.banner-copy{background:#283660a8;padding:20px 24px;border-radius:13px;backdrop-filter:blur(3px)}
+.banner-copy{position:relative;z-index:1;max-width:720px}.banner-copy h1{font-size:clamp(26px,3.8vw,47px);line-height:1.13;margin:10px 0 12px}
+.banner-copy p{font-size:clamp(13px,1.4vw,16px);line-height:1.55;max-width:610px;margin:0;color:#ffffffee}
+.banner-eyebrow{font-size:11px;font-weight:800;letter-spacing:.12em}.banner-link{display:inline-block;color:#fff;font-weight:800;margin-top:10px}
+.banner-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:36px;height:36px;border:0;border-radius:50%;background:#10193866;color:white;font-size:28px;display:grid;place-items:center;line-height:1}.banner-arrow.prev{left:10px}.banner-arrow.next{right:10px}.banner-arrow:hover{background:#101938ad}
+.banner-dots{position:absolute;z-index:2;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px}
+.banner-dot{width:9px;height:9px;border-radius:12px;padding:0;border:0;background:#ffffff8c}.banner-dot[aria-current=true]{width:25px;background:#fff}
+@media(max-width:680px){.banner-frame{aspect-ratio:4/2;min-height:215px}.banner-slide{padding:25px 46px}.banner-copy h1{font-size:26px}.banner-image+.banner-copy{padding:10px 14px}.banner-arrow{width:30px;height:30px;font-size:22px}}
+@media(prefers-reduced-motion: reduce){.banner-track{transition:none}}
+
+
+/* Layout fix: mencegah min-content grid memperlebar konten sampai tertutup sidebar. */
+html,body{max-width:100%;overflow-x:clip}
+.app-workspace{box-sizing:border-box;width:calc(100% - 242px);max-width:calc(100% - 242px);margin-left:242px;min-width:0}
+.app-body{min-width:0;width:100%;max-width:100%;overflow-x:clip}
+.app-body .container{width:100%;max-width:1180px;min-width:0;margin:22px auto 60px;padding:0 22px;box-sizing:border-box}
+.app-body .container.page-stack,.app-body .page-stack,.app-body .stats,.app-body .split,.app-body .three{min-width:0;max-width:100%}
+.app-body .split{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr)}
+.app-body .panel,.app-body .stat,.app-body .info-card,.app-body .split>*{min-width:0}
+.app-body .data-wrap{width:100%;min-width:0;max-width:100%;overflow-x:auto}
+body.theme-book{--accent:#7b39ea;--accent-dark:#4c289e;--accent-soft:#f2ebff;--bg:#faf8ff}
+body.theme-book .shell-mark{background:#7b39ea}
+@media(max-width:900px){.app-workspace{width:calc(100% - 210px);max-width:calc(100% - 210px);margin-left:210px}}
+@media(max-width:720px){.app-workspace{width:100%;max-width:100%;margin-left:0}.app-body .container{padding:0 13px}}
+
+
+/* Judul panel berubah saat memilih kelompok menu; bukan navigasi ke anchor bawah. */
+.module-view-heading{font-size:clamp(23px,2.6vw,31px);font-weight:850;line-height:1.25;letter-spacing:-.028em;color:var(--accent-dark);margin:4px 0 2px}
+.app-body .page-stack [hidden]{display:none!important}
+@media(max-width:720px){.module-view-heading{font-size:25px}}
+
+/* Kelompok menu asli: satu panel aktif dan pilihan tab internal. */
+#book-input-panel>.data-tabs,#book-report-panel>.data-tabs,#book-reference-panel>.data-tabs,#bank-admin-section .data-tabs{margin:14px 0 17px}
+#book-input-content,#book-report-content,#book-reference-content{padding:15px 2px}
+#book-input-content h3,#book-report-content h3,#book-reference-content h3{font-size:19px;margin:0 0 12px}
+
+
+/* Portal Utama: landing page panjang dengan navigasi sidebar sesuai urutan. */
+body.theme-home .app-body section[id]{scroll-margin-top:84px}
+#portal-documentation .text-link{margin-top:2px}
+.portal-pay-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.portal-pay-card{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#202943;color:#fff;padding:16px;border-radius:12px;min-width:0}
+.portal-pay-card div{min-width:0}.portal-pay-card strong{display:block}.portal-pay-card small{display:block;color:#c8d3eb;margin-top:3px}
+.portal-pay-card .btn{white-space:nowrap;font-size:12px;padding:9px 12px}
+.portal-comments-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:20px}
+.portal-comment-form{display:grid;gap:9px;padding:18px;background:#f6f7fc;border:1px solid var(--line);border-radius:12px}
+.portal-comment-form label,.portal-suggestion-dialog label{font-size:13px;font-weight:750}
+.portal-comment-form input,.portal-comment-form textarea,.portal-suggestion-dialog textarea{width:100%;min-width:0;background:#fff;border:1px solid #d3d9e9;border-radius:10px;padding:11px 12px;font:inherit}
+.portal-comment-form .btn{justify-self:start}
+.portal-emoji{display:flex;gap:5px;flex-wrap:wrap}
+.portal-emoji button{border:0;background:white;border-radius:8px;padding:5px 7px;font-size:20px}
+.portal-emoji button:hover{background:#eaeafa}
+.portal-comment-list{max-height:370px;overflow-y:auto;display:grid;align-content:start;gap:10px}
+.portal-comment{padding:13px;border:1px solid var(--line);border-radius:11px;background:#f8fafd}
+.portal-comment p{white-space:pre-wrap;overflow-wrap:anywhere;margin:6px 0 0}
+.portal-comment-meta{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.portal-comment-meta small{font-size:11px;color:var(--soft)}
+.portal-floating-actions{position:fixed;right:22px;bottom:22px;display:flex;flex-direction:column;gap:12px;z-index:60}
+.portal-floating-actions button{width:52px;height:52px;border:0;border-radius:50%;background:#524fcf;color:#fff;font-size:26px;box-shadow:0 8px 25px #1d2b5640;cursor:pointer}
+#portal-scroll-top{background:#293650}
+.portal-suggestion-dialog{width:min(92vw,480px);border:0;border-radius:17px;padding:0;background:#fff;color:var(--ink);box-shadow:0 25px 70px #080c2840;max-height:90vh;overflow-y:auto}
+.portal-suggestion-dialog::backdrop{background:#0b1225a8;backdrop-filter:blur(3px)}
+.suggestion-heading{background:#5654bf;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:center}
+.suggestion-heading h2{font-size:18px;margin:0}.suggestion-heading button{font-size:24px;background:transparent;border:0;color:white}
+.portal-suggestion-dialog form{padding:20px;display:grid;gap:13px}
+.portal-suggestion-dialog .btn{justify-self:stretch}
+@media(max-width:970px){.portal-pay-grid{grid-template-columns:1fr}.portal-pay-card{padding:14px 16px}}
+@media(max-width:720px){.portal-comments-grid{grid-template-columns:1fr}.portal-floating-actions{bottom:17px;right:13px}.portal-floating-actions button{width:48px;height:48px}}
+
+/* Arsip dokumentasi warga dibaca dari CSV terbitan lama sampai pindah D1. */
+.portal-album-card{overflow:hidden}.portal-album-image{width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:10px}.portal-album-card small{display:block;margin-top:4px}.portal-album-card p{font-size:13px;line-height:1.45;overflow-wrap:anywhere}
+
+
+/* Kartu Hasil Rapat mengikuti struktur halaman rapat/index.html lama. */
+.portal-meeting-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.portal-meeting-card{display:flex;flex-direction:column;min-width:0;background:#fff;border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow);overflow:hidden}
+.portal-meeting-cover{position:relative;height:175px;background:linear-gradient(135deg,#e2e7ff,#c7cfec);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.portal-meeting-cover:after{content:'Hasil Rapat Warga';color:#5361ad;font-weight:850;font-size:13px;letter-spacing:.03em;position:absolute;inset:auto 12px 16px;text-align:center}
+.portal-meeting-cover:has(img):after{display:none}
+.portal-meeting-cover img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.portal-meeting-date{position:absolute;top:12px;left:12px;padding:4px 8px;border-radius:7px;background:#172648cc;color:#fff;font-weight:750;font-size:11px;z-index:1}
+.portal-meeting-text{padding:16px;flex:1}
+.portal-meeting-text h3{font-size:16px;line-height:1.4;margin:0 0 8px;color:#1c2b4d}
+.portal-meeting-text p{font-size:13px;color:var(--soft);line-height:1.55;margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.portal-meeting-card>.btn{margin:0 16px 16px;display:flex}
+.portal-rapat-dialog{width:min(96vw,1000px);height:min(92vh,920px);max-height:95vh;border:0;padding:0;border-radius:17px;background:white;box-shadow:0 20px 80px #0005;overflow:hidden}
+.portal-rapat-dialog::backdrop{background:#101b30b8;backdrop-filter:blur(2px)}
+.portal-rapat-dialog-body{height:100%;display:flex;flex-direction:column}
+.portal-rapat-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 20px;background:#f7f8fc;border-bottom:1px solid var(--line)}
+.portal-rapat-dialog-head small{display:block;color:var(--accent);font-weight:800}.portal-rapat-dialog-head h2{font-size:17px;margin:4px 0 0;line-height:1.35}
+#portal-rapat-close{border:0;background:transparent;color:#4a5267;font-size:27px}
+.portal-rapat-actions{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#1b2752;padding:9px 16px}
+.portal-rapat-actions .btn{padding:7px 12px;font-size:12px}
+.portal-rapat-viewer{flex:1;min-height:0;background:#ebedf5;overflow:auto;display:flex;flex-direction:column}
+.portal-rapat-viewer iframe{width:100%;border:0;min-height:0;flex:1;background:white}
+.portal-rapat-viewer p{padding:12px 16px;margin:0;font-size:12px}
+@media(max-width:1060px){.portal-meeting-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.portal-meeting-grid{grid-template-columns:1fr}.portal-meeting-cover{height:200px}.portal-rapat-dialog{height:92vh}}
+
+/* Beranda ringkas; arsip rapat dan daftar proyek memiliki halaman sendiri. */
+.portal-preview-panel p{margin-bottom:0}.portal-preview-panel .text-link,.panel-head>.text-link{margin-top:0}
+.portal-section-heading{margin:0 0 3px;font-size:clamp(22px,3vw,30px);color:var(--accent-dark)}
+.portal-section-intro{margin:0;color:var(--soft)}
+.project-record-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:15px}
+.project-record{border-radius:14px;padding:20px;border:1px solid var(--line);background:#fff;box-shadow:var(--shadow);display:flex;flex-direction:column;min-width:0;gap:10px}
+.project-record h3{margin:0;font-size:18px;line-height:1.4}.project-record p{margin:0;color:var(--soft);overflow-wrap:anywhere}.project-record .chip{align-self:start}.project-record .btn{margin-top:auto}
+@media(max-width:720px){.project-record-grid{grid-template-columns:1fr}}
+
+
+/* Portal utama: ungu-biru lebih berani, bukan pastel. */
+body.theme-home{--accent:#5041dd;--accent-dark:#3428a2;--accent-soft:#edeaff;--bg:#f4f5fb;--ink:#1a2240}
+body.theme-home .shell-mark{background:linear-gradient(135deg,#4848d7,#7462ff);color:#fff}
+body.theme-home .shell-side-link.current{background:#ebe9ff;color:#3930b5}
+body.theme-home .shell-side-link:hover{background:#f0efff;color:#3d34c5}
+body.theme-home .banner-frame{background:linear-gradient(130deg,#302189,#5745ce)}
+body.theme-home .banner-slide{background:linear-gradient(135deg,#32249a,#5e47d8)}
+body.theme-home .banner-dot[aria-current=true]{background:#fff}
+body.theme-home .stat em{color:#5140d6}
+body.theme-home .portal-floating-actions #portal-suggestion-open{background:#5542e8;display:grid;place-items:center}
+.portal-media-duo{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.portal-media-preview{min-width:0}.portal-media-preview .panel-head h3{font-size:17px;margin:0}
+.media-header-link{background:var(--accent-soft);color:var(--accent);padding:7px 12px;border-radius:10px;text-decoration:none;font-weight:800;font-size:12px}
+.portal-album-feature{position:relative;min-height:210px;border-radius:12px;overflow:hidden;display:block;color:#fff;text-decoration:none;background:linear-gradient(125deg,#4943c9,#161d45);isolation:isolate}
+.portal-album-feature img{position:absolute;width:100%;height:100%;object-fit:cover;inset:0;z-index:-2}
+.portal-album-feature::before{content:'';position:absolute;inset:0;background:linear-gradient(0deg,#090f2eea,#161b4d00 80%);z-index:-1}
+.portal-album-feature-text{position:absolute;bottom:0;left:0;right:0;padding:16px}
+.portal-album-feature-text small{display:block;opacity:.82}.portal-album-feature-text strong{display:block;font-size:18px;line-height:1.4}
+.portal-inventory-preview{display:grid;gap:9px}
+.portal-inventory-row{display:flex;align-items:center;gap:10px;min-width:0;background:#f8f9fd;border:1px solid #edf0f7;border-radius:11px;padding:11px}
+.portal-inventory-icon{width:42px;height:42px;display:grid;place-items:center;background:#e7e9ff;border-radius:10px;color:#4335c5;font-size:24px;flex:none}
+.portal-inventory-copy{flex:1;min-width:0}.portal-inventory-copy strong,.portal-inventory-copy small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.portal-inventory-qty{font-size:12px;white-space:nowrap;border-radius:99px;padding:4px 9px;background:#e9e7ff;color:#4637b6;font-weight:800}
+.portal-calendar-layout{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.portal-calendar-layout .panel{min-width:0}.portal-calendar-layout h3{font-size:19px;margin:0 0 10px}
+.portal-month-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.portal-month-controls{display:flex;align-items:center;gap:8px}
+.portal-month-controls button{border:0;background:#eeefff;color:#5040c5;border-radius:9px;padding:3px 12px;font-weight:800;min-height:32px}
+.portal-calendar-weekdays,.portal-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.portal-calendar-weekdays{margin-top:15px;padding:9px 0;font-weight:800;color:#7d87a2;font-size:12px;text-align:center;border-top:1px solid var(--line)}
+.portal-day{min-height:56px;border:1px solid #e9ecf5;border-radius:9px;padding:5px;min-width:0;display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:space-between}
+.portal-day.out{color:#c7ccda;background:#fafafe}.portal-day.today{background:#f0edff;border-color:#8173ed}
+.portal-day-num{font-size:13px}.portal-event-badge{border:0;background:#5540d8;color:#fff;font-size:10px;font-weight:850;border-radius:5px;line-height:1.3;padding:2px 4px;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.portal-event-badge.work{background:#ee961c}.portal-event-more{font-size:10px}
+.portal-calendar-selected{border-radius:10px;padding:12px;background:#f0edff;margin-top:12px;font-size:13px}
+.portal-upcoming-list{max-height:420px;overflow:auto;display:grid;gap:10px;align-content:start}
+.portal-agenda-item{border:1px solid #e0e5f5;background:#fafbff;border-radius:11px;padding:12px;display:grid;gap:5px}
+.portal-agenda-item small{color:#5043d1;font-weight:800}.portal-agenda-item strong{line-height:1.4}.portal-agenda-item p{margin:0;font-size:12px;line-height:1.5}
+@media(max-width:960px){.portal-calendar-layout,.portal-media-duo{grid-template-columns:1fr}}
+@media(max-width:560px){.portal-day{min-height:49px;padding:3px}.portal-event-badge{font-size:9px}.portal-calendar-layout .panel{padding:12px}.portal-month-head{flex-wrap:wrap}}
+
+
+/* Dokumentasi, kategori album dan inventaris: halaman tersendiri. */
+.media-top-tabs{padding:4px 0}.media-top-tabs .btn{min-width:132px}
+.media-filters{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 15px}.media-filters .btn{font-size:12px;padding:7px 12px}
+.media-search{width:min(100%,480px);padding:12px 14px;border:1px solid var(--line);border-radius:11px;background:#fff;margin-bottom:18px}
+.media-album-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.media-album-card{padding:0;text-align:left;background:#fff;border:1px solid var(--line);border-radius:13px;overflow:hidden;min-width:0;color:var(--ink)}
+.media-album-cover{height:178px;background:var(--accent-soft);overflow:hidden}
+.media-album-cover img{width:100%;height:100%;object-fit:cover}
+.media-photo-placeholder{height:100%;min-height:120px;display:grid;place-items:center;font-size:42px;color:var(--accent)}
+.media-album-info{padding:14px;display:grid;gap:5px}.media-album-info strong{font-size:15px;line-height:1.3}.media-album-info p{font-size:12px;line-height:1.5;margin:0}
+.media-category-tag{display:inline-flex;align-self:start;background:var(--accent-soft);border-radius:6px;padding:2px 7px;color:var(--accent-dark);font-weight:800;font-size:11px}
+.media-inventory-list{display:grid;gap:11px}
+.media-inventory-item{display:flex;align-items:center;gap:14px;text-align:left;padding:13px;border:1px solid var(--line);border-radius:12px;background:#f9fbfd;color:var(--ink)}
+.media-inventory-item img,.media-inventory-item>.media-photo-placeholder{width:56px;height:56px;min-height:0;border-radius:9px;object-fit:cover;flex:none;font-size:24px}
+.media-item-copy{flex:1;display:grid;gap:3px}.media-item-copy strong{line-height:1.4}
+.media-dialog{border:0;border-radius:18px;padding:0;width:min(94vw,850px);max-height:90vh;box-shadow:0 30px 80px #0007}
+.media-dialog::backdrop{background:#101a3099}.media-dialog-header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 19px;background:var(--accent-dark);color:white}
+.media-dialog-header h2{font-size:18px;margin:0}.media-dialog-header button{border:0;color:white;background:transparent;font-size:28px}
+#media-dialog-body{padding:18px;max-height:72vh;overflow-y:auto}.media-gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.media-gallery-cell{display:block;height:160px;border-radius:10px;overflow:hidden;background:var(--accent-soft)}
+.media-gallery-cell img{width:100%;height:100%;object-fit:cover}
+.bank-progress-duo{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}
+.bank-progress-chart-card,.bank-timeline-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+.bank-progress-chart-card h3,.bank-timeline-card h3{font-size:16px;margin:0 0 12px}
+.bank-progress-chart{display:flex;align-items:end;justify-content:center;min-height:200px;border-bottom:1px solid #cbded4;padding:20px}
+.bank-progress-timeline{display:grid;gap:13px;max-height:300px;overflow-y:auto;position:relative;padding-left:14px;border-left:2px solid #9ad1b4}
+.bank-timeline-item{position:relative;display:grid;gap:3px;padding:0 0 7px 8px}
+.bank-timeline-item:before{content:'';width:9px;height:9px;border-radius:50%;background:#159364;position:absolute;left:-20px;top:5px}
+.bank-timeline-item strong{color:#19503e}.bank-timeline-item p{font-size:12px;margin:0}
+.bank-preview-albums{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.bank-album-preview{border:1px solid var(--line);text-decoration:none;color:var(--ink);background:#fff;border-radius:13px;overflow:hidden;min-width:0}
+.bank-album-visual{height:150px;background:#d7ece0;display:grid;place-items:center;color:#16825a;font-size:35px}
+.bank-album-visual img{width:100%;height:100%;object-fit:cover}
+.bank-album-info{padding:12px;display:grid;gap:5px}.bank-album-info .chip{justify-self:start}
+.bank-album-info strong{font-size:14px;line-height:1.4}
+@media(max-width:1050px){.media-album-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.bank-progress-duo{grid-template-columns:1fr}}
+@media(max-width:650px){.media-album-grid{grid-template-columns:1fr}.bank-preview-albums{grid-template-columns:1fr}.media-inventory-item{gap:9px}}
+
+/* Admin Bank Sampah: formulir Dokumentasi dan Inventaris dipisah secara visual. */
+.bank-admin-editor{margin:16px 0;padding:18px;border:1px solid var(--line);border-radius:13px;background:#fff}
+.bank-admin-editor h3{margin:0 0 12px}.bank-admin-editor .info-note{margin-bottom:16px}
+.bank-admin-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.bank-admin-field{display:grid;gap:5px;font-size:13px}.bank-admin-field strong{font-weight:800}
+.bank-admin-field input,.bank-admin-field select,.bank-admin-field textarea{border:1px solid #cbd9d1;border-radius:10px;background:#fff;color:var(--ink);width:100%;padding:11px;font:inherit;min-width:0}
+.bank-admin-editor-actions{grid-column:1/-1}.bank-admin-editor-actions button{opacity:.6;cursor:not-allowed}
+@media(max-width:680px){.bank-admin-form{grid-template-columns:1fr}}
+
+/* Elemen informatif kecil yang bukan aksi tidak perlu menjadi badge. */
+.feedback[data-kind=success]{display:none}
+.portal-inventory-total{font-size:12px;color:var(--soft);font-weight:750}
+.portal-inventory-preview{max-height:278px;overflow-y:auto;scrollbar-width:thin}
+.banner-slide.banner-image-only:before{background:transparent!important}
+.banner-image-only .banner-image{object-fit:cover}
+.banner-click-surface{position:absolute;inset:0;z-index:2}
+.portal-project-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.portal-project-card{border:1px solid var(--line);background:#fff;border-radius:14px;box-shadow:0 5px 18px #1b225b08;min-width:0;padding:14px;display:flex;flex-direction:column;gap:12px}
+.portal-project-title-row{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:38px}
+.portal-project-title-row strong{font-size:15px;line-height:1.4}
+.portal-project-status{font-size:11px;color:#704e14;background:#fff1cb;border-radius:99px;padding:4px 8px;white-space:nowrap}
+.portal-project-cover{height:155px;position:relative;background:linear-gradient(135deg,#342f92,#7967d6);border-radius:11px;overflow:hidden;display:grid;place-items:center}
+.portal-project-cover.project-bank{background:linear-gradient(135deg,#15523d,#259a6c)}
+.portal-project-cover.project-gapura{background:linear-gradient(135deg,#645544,#ae8a6a)}
+.portal-project-cover.project-jersey{background:linear-gradient(135deg,#1e3151,#557aa4)}
+.portal-project-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.portal-project-symbol{color:#fff;font-size:62px;opacity:.55}
+.portal-project-desc{font-size:13px;line-height:1.45;margin:0;min-height:30px;color:var(--soft)}
+.portal-project-action{display:block;text-align:center;margin-top:auto;background:var(--accent-soft);color:var(--accent-dark);font-size:13px;font-weight:800;padding:10px;text-decoration:none;border-radius:9px}
+@media(max-width:920px){.portal-project-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.portal-project-grid{grid-template-columns:1fr}}
+
+/* Minimal status: badge dekoratif dan banner sukses tidak diperlukan. */
+.feedback[data-kind="success"],#media-count,#inventory-total,#bank-progress-section .chip,.portal-media-preview .chip{display:none}
+.portal-inventory-total{font-size:12px;font-weight:750;color:var(--soft)}
+.portal-inventory-preview{max-height:290px;overflow-y:auto;scrollbar-width:thin}
+.portal-inventory-icon{overflow:hidden}
+.portal-inventory-icon img{width:100%;height:100%;object-fit:cover}
+.portal-inventory-row.has-photo{cursor:pointer}
+.portal-inventory-row.has-photo:hover{border-color:#8375d9}
+.banner-image-only .banner-image{object-fit:cover}
+.banner-click-surface{position:absolute;inset:0;z-index:2}
+.f4-album-dialog{border:0;border-radius:17px;padding:0;width:min(95vw,1024px);max-width:1024px;max-height:88vh;overflow:hidden}
+.f4-album-dialog::backdrop,.f4-lightbox::backdrop{background:#0c1426af;backdrop-filter:blur(4px)}
+.f4-album-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:15px 18px;background:#f7f8fb;border-bottom:1px solid #e8eaf2}
+.f4-album-head h2{font-size:17px;margin:0}
+.f4-album-head small{font-size:12px;color:#69748c}
+.f4-album-close{background:transparent;border:0;font-size:30px;color:#718096}
+.f4-album-grid{padding:18px;max-height:65vh;overflow:auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;align-content:start}
+.f4-album-tile{position:relative;min-width:0;height:165px;border:0;border-radius:12px;overflow:hidden;padding:0;background:#d7ddeb}
+.f4-album-tile img,.f4-album-video{height:100%;width:100%;object-fit:cover}
+.f4-video-thumb{display:grid;place-items:center;height:100%;background:#1e2537;color:#fff;font-size:22px}
+.f4-play{position:absolute;top:45%;left:45%;color:white;border-radius:50%;padding:10px;background:#1a203eaa}
+.f4-album-footer{padding:12px 18px;border-top:1px solid #e6e9f1}
+.f4-lightbox{width:100vw;height:100vh;max-width:100vw;max-height:100vh;padding:0;border:0;background:black;color:#fff}
+.f4-lightbox-bar{height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:#080b14}
+.f4-lightbox-title{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.f4-lightbox-close{border:0;background:#222c40;color:#fff;border-radius:50%;font-size:25px;width:38px;height:38px}
+.f4-lightbox-body{height:calc(100% - 96px);display:grid;grid-template-columns:65px 1fr 65px;align-items:center}
+.f4-lightbox-view{height:100%;min-width:0;display:grid;place-items:center;overflow:hidden}
+.f4-media-photo{max-width:100%;max-height:100%;object-fit:contain}
+.f4-media-video,.f4-media-frame{width:min(100%,1080px);height:85%;border:0}
+.f4-lightbox-arrow{justify-self:center;width:48px;height:48px;background:#21283b;color:#fff;font-size:32px;border:0;border-radius:50%}
+.f4-lightbox-foot{height:38px;display:flex;justify-content:center;align-items:center;gap:18px;background:#080b14;color:#dfe4f2;font-size:12px}
+.f4-media-original{color:#e7e3ff;text-decoration:none}
+.f4-agenda-dialog{border:0;border-radius:16px;padding:0;width:min(95vw,490px);box-shadow:0 20px 80px #0004}
+.f4-agenda-dialog::backdrop{background:#0a1426a7;backdrop-filter:blur(3px)}
+.f4-agenda-head{display:flex;justify-content:space-between;align-items:center;padding:17px 19px;background:#ecebff}
+.f4-agenda-head h2{margin:0;font-size:17px}.f4-agenda-head button{font-size:27px;background:transparent;border:0}
+.f4-agenda-share{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 18px;font-size:12px;border-bottom:1px solid #f0effa}
+.f4-agenda-share button{background:#5041dd;color:#fff;border:0;border-radius:9px;padding:9px 12px;font-weight:800}
+.f4-agenda-items{display:grid;gap:12px;padding:18px}
+.f4-agenda-event{display:grid;gap:6px;background:#ecf1ff;border-radius:12px;border:1px solid #d7e2fc;padding:14px}
+.f4-agenda-event.work{background:#fff3c5;border-color:#ffe39e}
+.f4-agenda-event small{font-size:11px;font-weight:850;color:#4135a7}
+.f4-agenda-event.work small{color:#985b12}
+.f4-agenda-event strong{font-size:14px}.f4-agenda-event p{margin:0;font-size:13px}
+.f4-event-status{justify-self:start;border:1px solid #dee4f0;border-radius:8px;padding:4px;background:white;font-size:11px}
+.portal-agenda-item{cursor:pointer;width:100%;text-align:left;color:var(--ink);font:inherit}
+@media(max-width:780px){.f4-album-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.f4-album-tile{height:130px}}
+@media(max-width:530px){.f4-album-grid{padding:8px;gap:8px}.f4-lightbox-body{grid-template-columns:40px 1fr 40px}.f4-lightbox-arrow{width:34px;height:34px;font-size:20px}}
+
+
+/* Refinement: semua kontrol navigasi & close memiliki pusat visual/klik sama */
+.f4-lightbox-close,.f4-lightbox-arrow,.f4-album-close,.f4-agenda-head button,
+#portal-suggestion-close,#portal-rapat-close,.portal-month-controls button,
+.banner-arrow,.portal-preview-controls button,.portal-finance-dialog-head button,
+#media-dialog-close,.portal-floating-actions button{
+ display:inline-grid!important;place-items:center!important;
+ align-items:center!important;justify-items:center!important;
+ text-align:center;line-height:1!important;
+ padding:0!important;text-indent:0!important;
+ font-family:Arial,system-ui,sans-serif;
+ flex-shrink:0;
+}
+.portal-month-controls button{min-width:34px;height:34px}
+#portal-current-month{width:auto;min-width:75px;padding:0 9px!important}
+.f4-lightbox-close{position:relative}
+.f4-lightbox-view{display:grid;place-items:center;min-height:0;min-width:0}
+.f4-lightbox-view img{display:block;margin:auto;max-height:100%;max-width:100%;object-fit:contain}
+.f4-lightbox-body{min-width:0}
+.f4-media-frame{max-height:100%}
+.portal-upcoming-list{height:370px;max-height:370px;overflow-y:auto;align-content:start}
+.portal-calendar-layout{align-items:start}
+.portal-agenda-item{min-width:0}
+.portal-media-preview{display:flex;flex-direction:column;min-height:395px}
+#portal-documentation{flex:1;display:flex;min-height:0}
+.portal-album-feature{flex:1;min-height:310px;height:100%;display:block;position:relative}
+.portal-preview-visual{position:absolute;inset:0;background:linear-gradient(135deg,#315e67,#281c70)}
+.portal-preview-visual img{width:100%;height:100%;object-fit:cover;display:block}
+.portal-album-feature::before{z-index:1}
+.portal-album-feature-text{z-index:2;position:absolute;bottom:0;left:0;right:0;padding:30px 18px 24px;
+ background:linear-gradient(0deg,rgba(4,12,30,.92),rgba(5,15,34,.26) 77%,transparent)}
+.portal-preview-dots{position:absolute;left:0;right:0;bottom:7px;z-index:3;display:flex;gap:5px;justify-content:center}
+.portal-preview-dots span{width:5px;height:5px;border-radius:50%;background:#ffffff75}
+.portal-preview-dots span.selected{background:#fff;width:17px;border-radius:6px}
+.portal-media-preview #inventory{max-height:323px}
+.portal-finance-section{margin:20px 0 25px}
+.portal-finance-section .panel-head{margin-bottom:14px}
+.portal-finance-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.portal-finance-card{background:#fff;border:1px solid var(--line);border-radius:15px;min-width:0;padding:21px;display:flex;flex-direction:column;gap:9px;box-shadow:var(--shadow)}
+.portal-finance-card small{font-size:12px;font-weight:800;color:#556080}
+.portal-finance-card strong{font-size:clamp(20px,2vw,29px);line-height:1.25;letter-spacing:-.4px;color:#12875a}
+.portal-finance-card:nth-child(2) strong{color:#d64065}
+.portal-finance-sub{font-size:12px;color:#5b6683}
+.portal-finance-balance{background:linear-gradient(135deg,#35258d,#5847cb);color:#fff}
+.portal-finance-balance small,.portal-finance-balance strong,.portal-finance-balance .portal-finance-sub{color:#fff}
+.portal-finance-note{font-size:12px;margin:9px 0 0;color:var(--soft)}
+.portal-finance-dialog{width:min(94vw,1020px);max-height:90vh;border:0;border-radius:17px;padding:0;background:#fff;color:var(--ink);overflow:hidden}
+.portal-finance-dialog::backdrop{background:#0c1526aa;backdrop-filter:blur(3px)}
+.portal-finance-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px 21px;background:#f4f5ff;border-bottom:1px solid var(--line)}
+.portal-finance-dialog-head h2{font-size:18px;line-height:1.35;margin:0}
+.portal-finance-dialog-head small{font-size:12px;color:var(--soft)}
+.portal-finance-dialog-head button{border:0;background:#e5e7ff;border-radius:50%;height:36px;width:36px;font-size:24px;color:#35309e}
+.portal-finance-filter{display:flex;align-items:center;flex-wrap:wrap;gap:13px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.portal-finance-filter label{font-weight:800}
+.portal-finance-filter select{padding:9px;border:1px solid var(--line);border-radius:9px;background:white;color:var(--ink)}
+#finance-dialog-totals{margin-left:auto;font-weight:800;font-size:13px}
+.portal-finance-table-wrap{overflow:auto;max-height:62vh}
+.portal-finance-table{border-collapse:collapse;width:100%;font-size:13px;min-width:590px}
+.portal-finance-table th,.portal-finance-table td{padding:11px 13px;border-bottom:1px solid var(--line);text-align:left}
+.portal-finance-table th{position:sticky;top:0;background:#f0f2fc;z-index:1}
+.portal-finance-table td:nth-child(3),.portal-finance-table td:nth-child(4){text-align:right;white-space:nowrap;font-weight:750}
+@media(max-width:850px){.portal-finance-grid{grid-template-columns:1fr}.portal-media-preview{min-height:320px}}
+
+/* Aset preview berada di depan background, tidak hilang akibat z-index lama. */
+.portal-album-feature .portal-preview-visual{position:absolute;inset:0;z-index:0;background:#222459}
+.portal-album-feature .portal-preview-visual img{position:absolute;inset:0;width:100%;height:100%;z-index:0!important;object-fit:cover}
+.portal-album-feature::before{z-index:1;pointer-events:none}
+.portal-album-feature .portal-album-feature-text{z-index:2}
+.portal-album-feature .portal-preview-dots{z-index:3}
+.f4-lightbox-arrow svg,.f4-lightbox-close svg,.f4-album-close svg,
+.f4-agenda-head button svg,#portal-rapat-close svg,#portal-suggestion-close svg,
+.portal-month-controls button svg,.banner-arrow svg,.portal-finance-dialog-head button svg{
+ display:block;margin:auto;flex-shrink:0;pointer-events:none
+}
