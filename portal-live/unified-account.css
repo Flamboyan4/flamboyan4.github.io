@@ -1,0 +1,57 @@
+/* Unified account UI; original Bank Sampah fields and compact proportions. */
+#f4-unified-account[hidden]{display:none!important}
+#f4-unified-account{position:fixed;inset:0;z-index:90;display:grid;grid-template-columns:244px minmax(0,1fr);background:#f2f7f3;--ua-accent:#2d6549;--ua-edge:#d8e6db;--ua-tint:#e5f1e7;color:#193c30;font:14px/1.5 system-ui}
+body.portal-mode #f4-unified-account{background:#f4f5fc;--ua-accent:#48418d;--ua-edge:#dedff0;--ua-tint:#e9e9fb}
+body.book-mode #f4-unified-account{background:#fff8f1;--ua-accent:#a7652f;--ua-edge:#eddccc;--ua-tint:#fff0e0}
+body.superadmin-mode #f4-unified-account{background:#eff5f8;--ua-accent:#2d6593;--ua-edge:#d8e5ef;--ua-tint:#e7f2fb}
+#f4-unified-account .ua-side{position:sticky;top:0;height:100dvh;overflow-y:auto;background:#fff;border-right:1px solid var(--ua-edge);padding:17px 12px;display:flex;flex-direction:column;gap:6px}
+#f4-unified-account .ua-brand{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--ua-edge);padding:7px 9px 14px;margin-bottom:13px}
+#f4-unified-account .ua-brand img{height:37px;width:37px;object-fit:contain}
+#f4-unified-account .ua-brand strong{display:block;color:var(--ua-accent);font-size:13px}
+#f4-unified-account .ua-brand small{display:block;color:#87958d;font-size:10px}
+#f4-unified-account button{cursor:pointer}
+#f4-unified-account .ua-menu{background:transparent;border:0;color:#365b4a;text-align:left;border-radius:9px;padding:11px 12px;font-size:13px;font-weight:700}
+#f4-unified-account .ua-menu.active,#f4-unified-account .ua-menu:hover{background:var(--ua-tint);color:var(--ua-accent)}
+#f4-unified-account .ua-return{margin-top:12px;border-top:1px solid var(--ua-edge)}
+#f4-unified-account .ua-content{padding:94px 26px 35px;min-width:0;overflow-y:auto;max-height:100dvh}
+#f4-unified-account .ua-heading{border-bottom:1px solid var(--ua-edge);padding-bottom:14px;margin-bottom:17px}
+#f4-unified-account h1{font-size:23px;margin:0;font-weight:850}#f4-unified-account .ua-heading p{color:#71867a;font-size:12px;margin:5px 0}
+#f4-unified-account .ua-panel{max-width:1030px;background:#fff;border:1px solid var(--ua-edge);border-radius:15px;padding:22px;margin-bottom:14px}
+#f4-unified-account h2{font-size:16px;margin:0 0 18px}
+#f4-unified-account .ua-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;max-width:900px;margin-bottom:15px}
+#f4-unified-account .ua-field{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:650;margin:0 0 12px;max-width:440px}
+#f4-unified-account .ua-field input{height:49px;box-sizing:border-box;width:100%;border:1px solid #c8dccd;border-radius:11px;background:#fff;padding:10px 12px;color:#19402c;font:500 13px system-ui}
+#f4-unified-account .ua-field input[readonly]{background:#f7faf7;color:#5c7263}
+#f4-unified-account .ua-primary{padding:12px 17px;border:0;border-radius:11px;background:var(--ua-accent);color:white;font-weight:750;font-size:13px}
+#f4-unified-account .ua-status{color:#758579;font-size:12px;margin:9px 0}.ua-error{color:#aa4343!important}
+#f4-unified-account .ua-photo-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+#f4-unified-account .ua-preview,#f4-unified-account .ua-placeholder{height:78px;width:78px;object-fit:cover;border-radius:50%;background:#e9f2e8}
+#f4-unified-account .ua-placeholder{display:grid;place-items:center;font-size:12px;color:#4d6856;text-align:center}
+#f4-unified-account .ua-photo-actions{display:flex;align-items:flex-start;flex-direction:column;gap:7px}
+#f4-unified-account .ua-password-form{max-width:450px}
+#f4-unified-account .ua-password-row{position:relative}
+#f4-unified-account .ua-password-row input{padding-right:48px}
+#f4-unified-account .ua-eye{position:absolute;right:7px;top:50%;transform:translateY(-50%);height:32px;width:34px;display:grid;place-items:center;border:0;background:transparent!important;color:#557c66!important;font-size:21px;box-shadow:none!important;padding:0}
+#f4-unified-account .ua-eye.visible{opacity:.55}
+#f4-unified-account .ua-privileges{display:grid;gap:8px}#f4-unified-account .ua-privileges div{padding:12px;background:var(--ua-tint);border:1px solid var(--ua-edge);border-radius:10px}
+@media(max-width:760px){
+ #f4-unified-account{display:block}
+ #f4-unified-account .ua-side{position:sticky;top:0;z-index:3;height:auto;overflow-x:auto;display:flex;flex-direction:row;flex-wrap:nowrap;padding:8px;box-shadow:0 2px 10px #203a3020}
+ #f4-unified-account .ua-brand{min-width:120px;flex:none;margin:0;padding:5px;border:0}
+ #f4-unified-account .ua-brand img{width:29px;height:29px}
+ #f4-unified-account .ua-brand small{display:none}
+ #f4-unified-account .ua-menu{min-width:120px;flex:none;text-align:center;font-size:12px}
+ #f4-unified-account .ua-return{border:0;margin:0}
+ #f4-unified-account .ua-content{padding:80px 12px 25px;max-height:calc(100dvh - 55px)}
+ #f4-unified-account .ua-panel{padding:15px}
+ #f4-unified-account .ua-grid{grid-template-columns:1fr}
+}
+body.f4-account-open .shell{z-index:100!important}
+body.f4-account-open #portal-sidebar,
+body.f4-account-open #f4-mobile-menu,
+body.f4-account-open #f4-mobile-overlay{display:none!important}
+@media(max-width:760px){
+ #f4-unified-account{padding-top:56px!important}
+ #f4-unified-account .ua-side{top:56px!important}
+ #f4-unified-account .ua-content{padding:19px 12px 25px!important;max-height:calc(100dvh - 132px)!important}
+}
