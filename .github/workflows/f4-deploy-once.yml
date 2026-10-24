@@ -1,0 +1,82 @@
+name: F4 One-time Verified Worker Deployment
+on:
+  push:
+    branches: [ops-cloudflare-integration-20261025]
+    paths: [.github/workflows/f4-deploy-once.yml]
+permissions:
+  contents: write
+concurrency:
+  group: f4-worker-release
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy exactly tested Worker (no DB edits)
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,json,hashlib,datetime,urllib.request,urllib.error
+          from pathlib import Path
+          path=Path("ops-audit/deploy-status.json");path.parent.mkdir(exist_ok=True)
+          result={"at":datetime.datetime.now(datetime.timezone.utc).isoformat(),"status":"started","target":"flamboyan4-terpadu-staging"}
+          def save():
+            path.write_text(json.dumps(result,indent=2)+"\n")
+          save()
+          root="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CF_ACCOUNT"];token=os.environ["CF_TOKEN"]
+          def req(p,method="GET",data=None,ctype=None):
+            headers={"Authorization":"Bearer "+token}
+            if ctype:headers["Content-Type"]=ctype
+            r=urllib.request.Request(root+p,data=data,method=method,headers=headers)
+            with urllib.request.urlopen(r,timeout=75) as h:d=json.load(h)
+            if not d.get("success"):raise ValueError("Cloudflare rejected request: "+str([e.get("code") for e in d.get("errors",[])]))
+            return d.get("result")
+          try:
+            src=Path("cloudflare/worker-terpadu-operasional-teruji.js").read_bytes()
+            expected="6f913d0d99457c66440d0241fc27e1e64d3f2152cbb4cfff1187ac68c9c59f11"
+            if hashlib.sha256(src).hexdigest()!=expected:raise ValueError("Checksum does not match tested ZIP")
+            settings=req("/workers/scripts/flamboyan4-terpadu-staging/settings")
+            bindings={v["name"]:v for v in settings.get("bindings",[])}
+            if bindings.get("DB",{}).get("type")!="d1" or bindings.get("PHOTOS",{}).get("type")!="r2_bucket":raise ValueError("Binding mismatch")
+            flags=[k for k in bindings if k.endswith("_WRITE_ENABLED")]
+            if any(str(bindings[k].get("text","")).lower()!="false" for k in flags):raise ValueError("Write flags not all disabled")
+            dbs=req("/d1/database")
+            if not any(x.get("name")=="flamboyan4-staging" for x in dbs):raise ValueError("D1 database not found")
+            before=req("/workers/scripts/flamboyan4-terpadu-staging/deployments")
+            result["previous_deployment_id"]=(before.get("deployments") or [{}])[0].get("id")
+            save()
+            metadata={"main_module":"main.js","keep_assets":True,"compatibility_date":settings.get("compatibility_date") or "2026-10-21",
+                      "bindings":[{"name":b["name"],"type":"inherit"} for b in settings.get("bindings",[])]}
+            boundary="----F4OneTimeWorker"
+            def part(name,data,mime):
+              return ('--'+boundary+'\r\nContent-Disposition: form-data; name="'+name+'"; filename="'+name+'"\r\nContent-Type: '+mime+'\r\n\r\n').encode()+data+b'\r\n'
+            body=part("metadata",json.dumps(metadata).encode(),"application/json")+part("main.js",src,"application/javascript+module")+('--'+boundary+'--\r\n').encode()
+            req("/workers/scripts/flamboyan4-terpadu-staging?bindings_inherit=strict","PUT",body,"multipart/form-data; boundary="+boundary)
+            after=req("/workers/scripts/flamboyan4-terpadu-staging/settings")
+            b={v["name"]:v for v in after.get("bindings",[])}
+            if b.get("DB",{}).get("type")!="d1" or b.get("PHOTOS",{}).get("type")!="r2_bucket":raise ValueError("Post-deploy binding verification failed")
+            if any(str(v.get("text","")).lower()!="false" for k,v in b.items() if k.endswith("_WRITE_ENABLED")):raise ValueError("Post-deploy flag verification failed")
+            last=req("/workers/scripts/flamboyan4-terpadu-staging/deployments")
+            result.update(status="deployed_write_flags_off",new_deployment_id=(last.get("deployments") or [{}])[0].get("id"),binding_names=sorted(b))
+          except Exception as e:
+            result["status"]="failed"
+            result["error"]=type(e).__name__+": "+str(e)[:180]
+            save()
+            raise
+          save()
+          print("Deployment status:",result["status"])
+          PY
+      - name: Persist sanitized deployment evidence
+        if: always()
+        run: |
+          test -f ops-audit/deploy-status.json || echo '{"status":"workflow_error"}' > ops-audit/deploy-status.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/deploy-status.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(ops): capture Worker deployment evidence"
+          git push origin HEAD:ops-cloudflare-integration-20261025

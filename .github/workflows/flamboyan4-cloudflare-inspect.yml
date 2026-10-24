@@ -1,0 +1,150 @@
+name: Flamboyan 4 - Cloudflare Read-only Audit
+
+on:
+  push:
+    branches:
+      - ops-cloudflare-integration-20261025
+    paths:
+      - .github/workflows/flamboyan4-cloudflare-inspect.yml
+      - .github/workflows/f4-worker-release.yml
+      - cloudflare/worker-terpadu-operasional-teruji.js
+      - ops-audit/deploy-status.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: f4-cloudflare-readonly-audit
+  cancel-in-progress: false
+
+jobs:
+  inspect:
+    name: Inspect Worker and D1 without changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check out audit branch
+        uses: actions/checkout@v4
+
+      - name: Inspect Cloudflare remotely (read-only)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os, json, urllib.request, urllib.error, hashlib, datetime, re
+          from pathlib import Path
+
+          token=os.environ.get("CLOUDFLARE_API_TOKEN","").strip()
+          account=os.environ.get("CLOUDFLARE_ACCOUNT_ID","").strip()
+          target="flamboyan4-terpadu-staging"
+          dbname="flamboyan4-staging"
+          root="https://api.cloudflare.com/client/v4"
+          report={
+            "checked_at_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "mode":"READ_ONLY_NO_DEPLOY_NO_DB_WRITES",
+            "worker_target":target, "d1_target":dbname,
+            "secrets_present":bool(token and account),
+            "checks":{}
+          }
+          def call(path, post=None, raw=False):
+            url=(root+path) if path.startswith("/") else path
+            payload=None if post is None else json.dumps(post).encode("utf-8")
+            headers={"Authorization":"Bearer "+token,"Accept":"application/json"}
+            if post is not None: headers["Content-Type"]="application/json"
+            req=urllib.request.Request(url,data=payload,headers=headers,method="POST" if post is not None else "GET")
+            try:
+              with urllib.request.urlopen(req,timeout=25) as response:
+                data=response.read(5000000)
+                if raw:return {"http":response.status,"sha256":hashlib.sha256(data).hexdigest(),"bytes":len(data)}
+                parsed=json.loads(data)
+                return {"http":response.status,"success":parsed.get("success"),"result":parsed.get("result"),"codes":[e.get("code") for e in parsed.get("errors",[])]}
+            except urllib.error.HTTPError as e:
+              return {"http":e.code,"success":False,"codes":[]}
+            except Exception as e:
+              return {"error":type(e).__name__}
+          def checkpoint(label,response):
+            report["checks"][label]={"http":response.get("http"),"ok":response.get("success",True),"error":response.get("error"),"codes":response.get("codes",[])}
+            return response.get("result")
+          if not token or not account:
+            report["checks"]["configuration"]={"ok":False,"error":"Required GitHub Secrets are missing"}
+          else:
+            verify=call("/user/tokens/verify")
+            vr=checkpoint("token_verify",verify)
+            report["token_status"]=vr.get("status") if isinstance(vr,dict) else None
+
+            scripts=checkpoint("worker_list",call("/accounts/"+account+"/workers/scripts"))
+            if isinstance(scripts,list):
+              report["target_worker_found"]=any((x.get("id")==target or x.get("name")==target) for x in scripts)
+              report["worker_count"]=len(scripts)
+            else:
+              report["target_worker_found"]=None
+
+            settings=checkpoint("worker_settings",call("/accounts/"+account+"/workers/scripts/"+target+"/settings"))
+            if isinstance(settings,dict):
+              report["compatibility_date"]=settings.get("compatibility_date")
+              bindings=settings.get("bindings") or []
+              report["bindings"]=[{"name":x.get("name"),"type":x.get("type")} for x in bindings if isinstance(x,dict)]
+              report["write_flags"]={}
+              for x in bindings:
+                if not isinstance(x,dict):continue
+                name=str(x.get("name","")).upper()
+                if ("WRITE" in name or "ENABLED" in name) and x.get("type") in ("plain_text","var"):
+                  value=str(x.get("text",x.get("value",""))).lower()
+                  report["write_flags"][name]=value if value in ("0","1","true","false","on","off") else "UNREPORTED"
+
+            deployment=checkpoint("worker_deployments",call("/accounts/"+account+"/workers/scripts/"+target+"/deployments"))
+            if isinstance(deployment,dict):
+              d=deployment.get("deployments") or []
+              report["latest_deployment"]= [{"id":x.get("id"),"created_on":x.get("created_on")} for x in d[:2] if isinstance(x,dict)]
+            worker=call("/accounts/"+account+"/workers/scripts/"+target,raw=True)
+            checkpoint("worker_source_read",worker)
+            if worker.get("http")==200:report["deployed_worker_sha256"]=worker.get("sha256")
+
+            databases=checkpoint("d1_list",call("/accounts/"+account+"/d1/database"))
+            dbs=databases if isinstance(databases,list) else []
+            matches=[x for x in dbs if x.get("name")==dbname]
+            report["target_d1_found"]=bool(matches)
+            report["d1_database_count"]=len(dbs)
+            if matches:
+              db_id=matches[0].get("uuid")
+              result=checkpoint("d1_read_schema",call("/accounts/"+account+"/d1/database/"+db_id+"/query",post={"sql":"SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name"}))
+              table_rows=(result[0].get("results") or []) if isinstance(result,list) and result and isinstance(result[0],dict) else []
+              names=[r.get("name") for r in table_rows if isinstance(r,dict) and re.fullmatch(r"[A-Za-z0-9_]+",str(r.get("name","")))]
+              report["d1_tables"]=names
+              report["d1_table_count"]=len(names)
+              relevant=[t for t in names if any(k in t.lower() for k in ("book","bank","fine","cash","iuran","contribution","loan","advance","deposit","sale","alloc","resident","member","payment","ledger"))][:35]
+              report["d1_row_counts"]={}
+              for name in relevant:
+                rr=call("/accounts/"+account+"/d1/database/"+db_id+"/query",post={"sql":'SELECT COUNT(*) AS total FROM "'+name+'"'})
+                d=rr.get("result")
+                if rr.get("success") and isinstance(d,list) and d and d[0].get("results"):
+                  report["d1_row_counts"][name]=d[0]["results"][0].get("total")
+
+            buckets=checkpoint("r2_list",call("/accounts/"+account+"/r2/buckets"))
+            if isinstance(buckets,dict):
+              report["r2_buckets_count"]=len(buckets.get("buckets") or [])
+              report["photos_bucket_found"]=any("photo" in str(b.get("name","")).lower() for b in buckets.get("buckets",[]))
+
+            report["checks"]["live_public_bank_api"]={"status":"not_checked_in_admin_audit","note":"public API smoke test is separate from the Cloudflare admin token"}
+          path=Path("ops-audit/cloudflare-summary.json")
+          path.parent.mkdir(parents=True,exist_ok=True)
+          path.write_text(json.dumps(report,ensure_ascii=False,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+          print("Remote READ-ONLY inspection finished. Results are sanitized.")
+          print("Worker found:",report.get("target_worker_found"))
+          print("D1 found:",report.get("target_d1_found"))
+          print("No Cloudflare data or deployments were changed.")
+          PY
+
+      - name: Save sanitized result in audit branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/cloudflare-summary.json
+          if git diff --cached --quiet; then
+            echo "No audit status changes."
+            exit 0
+          fi
+          git commit -m "chore(ops): record sanitized Cloudflare remote audit"
+          git push origin HEAD:ops-cloudflare-integration-20261025

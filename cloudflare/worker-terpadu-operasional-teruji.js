@@ -1,0 +1,3388 @@
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+
+// src/unified_api.js
+var J = { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "x-content-type-options": "nosniff" };
+var ok = /* @__PURE__ */ __name((payload, status = 200) => new Response(JSON.stringify({ ok: true, ...payload }), { status, headers: J }), "ok");
+var err = /* @__PURE__ */ __name((message, status = 400) => new Response(JSON.stringify({ ok: false, error: message }), { status, headers: J }), "err");
+var admin = /* @__PURE__ */ __name((who) => !who ? err("Silakan login.", 401) : !["admin", "superadmin"].includes(who.role) ? err("Khusus pengelola.", 403) : null, "admin");
+var superadmin = /* @__PURE__ */ __name((who) => !who ? err("Silakan login.", 401) : who.role !== "superadmin" ? err("Khusus superadmin.", 403) : null, "superadmin");
+var integer = /* @__PURE__ */ __name((v) => Number.isSafeInteger(v) && v >= 0, "integer");
+var validDate = /* @__PURE__ */ __name((v) => typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(v + "T00:00:00Z")) && (/* @__PURE__ */ new Date(v + "T00:00:00Z")).toISOString().slice(0, 10) === v, "validDate");
+var validMonth = /* @__PURE__ */ __name((s) => /^20\d{2}-(?:0[1-9]|1[0-2])$/.test(s || ""), "validMonth");
+var paramLimit = /* @__PURE__ */ __name((u, max = 250) => { const raw = u.searchParams.get("limit"); const n = raw === null || raw.trim() === "" ? 100 : Number(raw); return Math.min(max, Math.max(1, Number.isSafeInteger(n) ? n : 100)); }, "paramLimit");
+var list = /* @__PURE__ */ __name(async (db, sql, params = []) => {
+  const q = db.prepare(sql).bind(...params);
+  const r = await q.all();
+  return r.results || [];
+}, "list");
+var one = /* @__PURE__ */ __name(async (db, sql, params = []) => db.prepare(sql).bind(...params).first(), "one");
+var body = /* @__PURE__ */ __name(async (req) => {
+  if (!/^application\/json\b/i.test(req.headers.get("content-type") || "")) throw Error("Harus menggunakan JSON.");
+  if (Number(req.headers.get("content-length") || 0) > 2e4) throw Error("Permintaan terlalu besar.");
+  const raw = await req.text();
+  if (raw.length > 2e4) throw Error("Permintaan terlalu besar.");
+  const p = JSON.parse(raw);
+  if (!p || typeof p !== "object" || Array.isArray(p)) throw Error("Objek JSON diperlukan.");
+  return p;
+}, "body");
+function guardedWrite(who, env) {
+  const denial = admin(who);
+  return denial || (env.BANK_WRITE_ENABLED === "true" ? null : err("Transaksi Bank Sampah belum diaktifkan pada staging.", 503));
+}
+__name(guardedWrite, "guardedWrite");
+var urlSafe = /* @__PURE__ */ __name((url) => typeof url === "string" && /^https:\/\//i.test(url) ? url : null, "urlSafe");
+var sha = /* @__PURE__ */ __name(async (str) => {
+  const h = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return [...new Uint8Array(h)].map((v) => v.toString(16).padStart(2, "0")).join("");
+}, "sha");
+var periodFilter = /* @__PURE__ */ __name((u) => {
+  const s = u.searchParams.get("month");
+  if (!s) return null;
+  if (!validMonth(s)) throw Error("Bulan wajib YYYY-MM.");
+  return s;
+}, "periodFilter");
+async function publicPortal(db) {
+  const [agenda, banners, projects, inventory, meetings, documentation] = await Promise.all([
+    list(db, `SELECT id,title,starts_on,ends_on,location,description,status FROM portal_agenda WHERE visibility='publik' ORDER BY starts_on DESC LIMIT 40`),
+    list(db, `SELECT id,title,image_ref,target_url FROM portal_banners WHERE active=1 ORDER BY sort_order,id LIMIT 20`),
+    list(db, `SELECT id,title,description,image_ref,target_url FROM portal_project_cards WHERE active=1 ORDER BY sort_order,id LIMIT 60`),
+    list(db, `SELECT id,name,description,quantity,unit,photo_ref,category FROM portal_inventory WHERE visibility='publik' ORDER BY name LIMIT 250`),
+    list(db, `SELECT id,title,meeting_on,summary,document_ref FROM portal_meeting_records WHERE visibility='publik' ORDER BY meeting_on DESC LIMIT 50`),
+    list(db, `SELECT id,event_on,title,description,drive_url,category FROM portal_documentation WHERE visibility='publik' AND active=1 ORDER BY event_on DESC,sort_order LIMIT 100`)
+  ]);
+  return ok({ agenda, banners, projects, inventory, meetings, documentation });
+}
+__name(publicPortal, "publicPortal");
+async function publicBank(db) {
+  const [catalog, albums, progress, inventory, overview, monthlyWeights] = await Promise.all([
+    list(db, `SELECT i.id,i.name,i.category,i.unit, p.citizen_rate_rp_per_kg AS priceRpPerKg,p.effective_from AS effectiveFrom FROM waste_items i LEFT JOIN waste_prices p ON p.id=(SELECT p2.id FROM waste_prices p2 WHERE p2.waste_item_id=i.id ORDER BY p2.effective_from DESC,p2.id DESC LIMIT 1) WHERE i.active=1 ORDER BY i.category,i.name`),
+    list(db, `SELECT a.id,a.title,a.category,a.event_on,a.description,COUNT(m.id) AS mediaCount FROM albums a LEFT JOIN album_media m ON m.album_id=a.id AND m.status='aktif' WHERE a.visibility='publik' AND a.status='aktif' GROUP BY a.id ORDER BY a.event_on DESC,a.id DESC LIMIT 80`),
+    list(db, `SELECT id,happened_on,title,stage,description,status,next_step FROM progress_entries WHERE public_visible=1 ORDER BY happened_on DESC,id DESC LIMIT 70`),
+    list(db, `SELECT i.id,i.name,i.quantity,i.unit,i.condition,im.external_url AS photoUrl
+    FROM inventory i LEFT JOIN inventory_external_media im ON im.inventory_id=i.id
+    WHERE i.active=1 AND i.category='bank_sampah' ORDER BY i.name LIMIT 150`),
+    one(db, `SELECT (SELECT COUNT(*) FROM waste_deposits WHERE status='terkonfirmasi') AS confirmedDeposits,(SELECT COUNT(*) FROM members WHERE status='aktif') AS activeMembers,(SELECT COUNT(*) FROM waste_items WHERE active=1) AS activeItems,(SELECT COUNT(*) FROM albums WHERE visibility='publik' AND status='aktif') AS albumCount`),
+    list(db, `SELECT substr(deposited_on,1,7) AS month,COALESCE(SUM(total_grams),0)/1000.0 AS beratKg FROM waste_deposits WHERE status='terkonfirmasi' GROUP BY substr(deposited_on,1,7) ORDER BY month DESC LIMIT 12`)
+  ]);
+  return ok({ catalog, albums, progress, monthlyWeights: monthlyWeights.slice().reverse(), inventory: inventory.map((x) => ({
+    ...x,
+    photoUrl: urlSafe(x.photoUrl)
+  })), overview });
+}
+__name(publicBank, "publicBank");
+async function publicBankReport(db, url) {
+  const month = periodFilter(url);
+  const where = month ? " AND substr(occurred_on,1,7)=?" : "";
+  const whereSale = month ? " AND substr(sold_on,1,7)=?" : "";
+  const whereExpense = month ? " AND substr(incurred_on,1,7)=?" : "";
+  const [cash, sales, expenses] = await Promise.all([
+    one(db, `SELECT COALESCE(SUM(cash_in_rp),0) AS masukRp,COALESCE(SUM(cash_out_rp),0) AS keluarRp FROM waste_cash_ledger WHERE status='aktif'${where}`, month ? [month] : []),
+    one(db, `SELECT COUNT(*) AS transaksi,COALESCE(SUM(amount_received_rp),0) AS diterimaRp FROM waste_sales WHERE status='terkonfirmasi'${whereSale}`, month ? [month] : []),
+    one(db, `SELECT COUNT(*) AS transaksi,COALESCE(SUM(amount_rp),0) AS pengeluaranRp FROM waste_expenses WHERE status='lunas'${whereExpense}`, month ? [month] : [])
+  ]);
+  return ok({ period: month || "semua", cash, sales, expenses, notice: "Ringkasan gabungan berasal dari buku Kas, penjualan, dan pengeluaran yang berbeda. Jangan menjumlahkan kategori tersebut sebagai satu saldo tanpa rekonsiliasi." });
+}
+__name(publicBankReport, "publicBankReport");
+async function publicAlbum(db, id) {
+  const album = await one(db, `SELECT id,title,category,event_on,description FROM albums WHERE id=? AND visibility='publik' AND status='aktif'`, [id]);
+  if (!album) return err("Album tidak ditemukan.", 404);
+  const media = await list(db, `SELECT id,media_type,caption,external_url,sort_order,CASE WHEN storage_key IS NULL THEN 0 ELSE 1 END AS hasStoredMedia FROM album_media WHERE album_id=? AND status='aktif' ORDER BY sort_order,id`, [id]);
+  return ok({ album, media: media.map((m) => ({ ...m, external_url: urlSafe(m.external_url), mediaUrl: m.hasStoredMedia ? "/api/v2/public/bank/media/" + encodeURIComponent(m.id) : null })) });
+}
+__name(publicAlbum, "publicAlbum");
+async function publicAlbumMedia(env, id) {
+  if (!env.PHOTOS) return err("Penyimpanan media tidak tersedia.", 503);
+  const media = await one(env.DB, `SELECT m.storage_key FROM album_media m JOIN albums a ON a.id=m.album_id WHERE m.id=? AND m.status='aktif' AND a.visibility='publik' AND a.status='aktif'`, [id]);
+  if (!media?.storage_key) return err("Media tidak tersedia.", 404);
+  const obj = await env.PHOTOS.get(media.storage_key);
+  if (!obj) return err("Media tidak ditemukan di penyimpanan.", 404);
+  const type = obj.httpMetadata?.contentType || "";
+  if (!/^image\/(jpeg|png|webp|gif)$/.test(type)) return err("Jenis media belum didukung.", 415);
+  return new Response(obj.body, { headers: { "content-type": type, "cache-control": "public, max-age=3600", "x-content-type-options": "nosniff" } });
+}
+__name(publicAlbumMedia, "publicAlbumMedia");
+async function adminBank(db, url) {
+  const kind = url.pathname.split("/").pop(), limit = paramLimit(url, 300);
+  const tables = {
+    catalog: `SELECT i.id,i.name,i.category,i.unit,i.active,p.citizen_rate_rp_per_kg AS priceRpPerKg,p.effective_from AS effectiveFrom FROM waste_items i LEFT JOIN waste_prices p ON p.id=(SELECT p2.id FROM waste_prices p2 WHERE p2.waste_item_id=i.id ORDER BY p2.effective_from DESC,p2.id DESC LIMIT 1) ORDER BY i.category,i.name LIMIT ?`,
+    members: `SELECT m.id,m.display_name AS nama,h.house_code AS rumah,m.status FROM members m LEFT JOIN households h ON h.id=m.household_id ORDER BY m.display_name LIMIT ?`,
+    batches: `SELECT b.id,b.label,b.status,b.confirmed_at,COUNT(d.id) AS deposits,COALESCE(SUM(CASE WHEN d.status!='dibatalkan' THEN d.total_grams ELSE 0 END),0) AS grams,COALESCE(SUM(CASE WHEN d.status!='dibatalkan' THEN d.estimated_total_rp ELSE 0 END),0) AS estimatedRp FROM waste_batches b LEFT JOIN waste_deposits d ON d.batch_id=b.id GROUP BY b.id ORDER BY b.id DESC LIMIT ?`,
+    deposits: `SELECT d.id,d.deposited_on,d.batch_id,d.member_id,m.display_name AS memberName,d.status,d.total_grams,d.estimated_total_rp FROM waste_deposits d JOIN members m ON m.id=d.member_id ORDER BY d.deposited_on DESC,d.id DESC LIMIT ?`,
+    sales: `SELECT id,batch_id,sold_on,buyer_name,amount_gross_rp,amount_received_rp,status FROM waste_sales ORDER BY sold_on DESC,id DESC LIMIT ?`,
+    ledger: `SELECT id,member_id,transaction_on,kind,amount_rp,batch_id,reference_id,note FROM waste_savings_ledger ORDER BY transaction_on DESC,id DESC LIMIT ?`,
+    allocations: `SELECT a.id,a.batch_id,b.label AS batchLabel,b.status AS batchStatus,a.received_rp AS receivedRp,a.citizen_rights_rp AS citizenRightsRp,a.reserve_rp AS reserveRp,a.neighborhood_rp AS neighborhoodRp,a.operation_rp AS operationRp,a.adjustment_rp AS adjustmentRp,a.created_at FROM waste_allocations a JOIN waste_batches b ON b.id=a.batch_id ORDER BY a.created_at DESC,a.id DESC LIMIT ?`,
+    savings: `SELECT s.member_id,m.display_name AS memberName,h.house_code AS houseCode,COALESCE(SUM(CASE WHEN kind IN ('kredit','koreksi_kredit') THEN s.amount_rp ELSE -s.amount_rp END),0) AS balanceRp FROM waste_savings_ledger s JOIN members m ON m.id=s.member_id LEFT JOIN households h ON h.id=m.household_id GROUP BY s.member_id ORDER BY m.display_name LIMIT ?`,
+    expenses: `SELECT id,incurred_on,kind,budget_post,description,amount_rp,status,vendor FROM waste_expenses ORDER BY incurred_on DESC,id DESC LIMIT ?`,
+    cash: `SELECT id,occurred_on,transaction_type,fund_position,cash_in_rp,cash_out_rp,status,note FROM waste_cash_ledger ORDER BY occurred_on DESC,id DESC LIMIT ?`,
+    albums: `SELECT id,title,category,event_on,description,visibility,status FROM albums ORDER BY event_on DESC,id DESC LIMIT ?`,
+    progress: `SELECT id,happened_on,title,stage,description,status,next_step,public_visible FROM progress_entries ORDER BY happened_on DESC,id DESC LIMIT ?`,
+    inventory: `SELECT id,name,quantity,unit,category,location,condition,active FROM inventory ORDER BY name LIMIT ?`
+  };
+  if (!tables[kind]) return null;
+  return ok({ data: await list(db, tables[kind], [limit]), limit });
+}
+__name(adminBank, "adminBank");
+async function detailBank(db, url) {
+  if (!["/api/v2/admin/bank/deposit-detail", "/api/v2/admin/bank/sale-detail"].includes(url.pathname)) return null;
+  const id = url.searchParams.get("id");
+  if (!id || id.length > 128) return err("ID tidak valid.", 400);
+  if (url.pathname === "/api/v2/admin/bank/deposit-detail") {
+    const deposit = await one(db, `SELECT d.*,m.display_name AS memberName FROM waste_deposits d JOIN members m ON m.id=d.member_id WHERE d.id=?`, [id]);
+    if (!deposit) return err("Setoran tidak ditemukan.", 404);
+    const lines = await list(db, `SELECT l.id,l.waste_item_id,i.name,l.grams,l.citizen_rate_rp_per_kg AS priceRpPerKg,l.estimated_rp FROM waste_deposit_lines l JOIN waste_items i ON i.id=l.waste_item_id WHERE deposit_id=?`, [id]);
+    return ok({ deposit, lines });
+  }
+  if (url.pathname === "/api/v2/admin/bank/sale-detail") {
+    const sale = await one(db, `SELECT * FROM waste_sales WHERE id=?`, [id]);
+    if (!sale) return err("Penjualan tidak ditemukan.", 404);
+    const lines = await list(db, `SELECT l.id,l.waste_item_id,i.name,l.grams,l.actual_rate_rp_per_kg AS priceRpPerKg,l.total_rp FROM waste_sale_lines l JOIN waste_items i ON i.id=l.waste_item_id WHERE sale_id=?`, [id]);
+    return ok({ sale, lines });
+  }
+  return null;
+}
+__name(detailBank, "detailBank");
+async function bankDeposit(request, env) {
+  let p;
+  try {
+    p = await body(request);
+  } catch (e) {
+    return err(e.message, 400);
+  }
+  const key = p.requestKey;
+  if (typeof key !== "string" || !/^[\w-]{16,100}$/.test(key)) return err("requestKey wajib 16\u2013100 karakter alfanumerik/_/-.", 400);
+  const batchId = String(p.batchId || ""), memberId = String(p.memberId || ""), date = String(p.depositedOn || "");
+  if (batchId.length > 120 || memberId.length > 120 || !validDate(date)) return err("Batch, warga, atau tanggal tidak valid.", 400);
+  if (!Array.isArray(p.items) || !p.items.length || p.items.length > 40) return err("Isi 1\u201340 jenis barang.", 400);
+  const merged = /* @__PURE__ */ new Map();
+  for (const line of p.items) {
+    const item = String(line?.itemId || "");
+    const grams = Number(line?.grams);
+    if (!item || item.length > 128 || !integer(grams) || grams < 1 || grams > 1e7) return err("Barang atau berat (gram) tidak valid.", 400);
+    merged.set(item, (merged.get(item) || 0) + grams);
+    if (merged.get(item) > 1e7) return err("Berat terlalu besar.", 400);
+  }
+  const normalized = [...merged].sort(([a], [b]) => a.localeCompare(b));
+  const digest = await sha(JSON.stringify({ batchId, memberId, date, items: normalized }));
+  const db = env.DB;
+  if(await one(db,"SELECT fiscal_year FROM fiscal_closings WHERE fiscal_year=?",[Number(date.slice(0,4))]))return err("Tahun setoran sudah ditutup.",409);
+  const previous = await one(db, `SELECT target_id,source_fingerprint FROM migration_source_map WHERE source_system='api_v2' AND source_sheet='waste_deposit' AND source_row_key=? AND target_table='waste_deposits'`, [key]);
+  if (previous) {
+    if (previous.source_fingerprint !== digest) return err("requestKey dipakai untuk transaksi berbeda.", 409);
+    return ok({ id: previous.target_id, status: "estimasi", duplicate: true });
+  }
+  const [batch, member] = await Promise.all([
+    one(db, "SELECT id,status FROM waste_batches WHERE id=?", [batchId]),
+    one(db, "SELECT id FROM members WHERE id=? AND status='aktif'", [memberId])
+  ]);
+  if (!batch || batch.status !== "draft" || !member) return err("Batch harus draft dan warga harus aktif.", 409);
+  const hasSale = await one(db, "SELECT id FROM waste_sales WHERE batch_id=? AND status!='dibatalkan' LIMIT 1", [batchId]);
+  if (hasSale) return err("Batch sudah memiliki penjualan aktif. Setoran baru tidak diizinkan.", 409);
+  const prices = await list(db, `SELECT i.id,i.name,p.citizen_rate_rp_per_kg AS rateRp FROM waste_items i LEFT JOIN waste_prices p ON p.id=(SELECT id FROM waste_prices WHERE waste_item_id=i.id AND effective_from<=? ORDER BY effective_from DESC,id DESC LIMIT 1) WHERE i.active=1`, [date]);
+  const catalog = new Map(prices.map((i) => [i.id, i]));
+  let totalGrams = 0, totalRp = 0;
+  const details = [];
+  for (const [id, grams] of normalized) {
+    const item = catalog.get(id);
+    if (!item || !integer(item.rateRp) || item.rateRp <= 0) return err("Tarif barang belum aktif atau tidak tersedia: " + id, 409);
+    const price = Math.round(grams * item.rateRp / 1e3);
+    totalGrams += grams;
+    totalRp += price;
+    details.push({ id, grams, rate: item.rateRp, price });
+  }
+  if (!Number.isSafeInteger(totalRp) || totalRp < 0) return err("Total tidak valid.", 400);
+  const depositId = "deposit:api:" + crypto.randomUUID();
+  const sql = [
+    db.prepare("INSERT INTO migration_source_map(source_system,source_sheet,source_row_key,target_table,target_id,source_fingerprint) VALUES('api_v2','waste_deposit',?,'waste_deposits',?,?)").bind(key, depositId, digest),
+    db.prepare("INSERT INTO waste_deposits(id,batch_id,member_id,deposited_on,estimated_total_rp,total_grams,status) SELECT ?,?,?,?,?,?,'estimasi' WHERE EXISTS(SELECT 1 FROM waste_batches WHERE id=? AND status='draft') AND NOT EXISTS(SELECT 1 FROM waste_sales WHERE batch_id=? AND status!='dibatalkan')").bind(depositId, batchId, memberId, date, totalRp, totalGrams, batchId, batchId),
+    ...details.map((d) => db.prepare("INSERT INTO waste_deposit_lines(id,deposit_id,waste_item_id,grams,citizen_rate_rp_per_kg,estimated_rp) VALUES(?,?,?,?,?,?)").bind("depositline:api:" + crypto.randomUUID(), depositId, d.id, d.grams, d.rate, d.price))
+  ];
+  try {
+    await db.batch(sql);
+  } catch (e) {
+    const latest = await one(db, "SELECT target_id,source_fingerprint FROM migration_source_map WHERE source_system='api_v2' AND source_sheet='waste_deposit' AND source_row_key=? AND target_table='waste_deposits'", [key]);
+    if (latest) {
+      if (latest.source_fingerprint !== digest) return err("requestKey sudah dipakai untuk data lain.", 409);
+      return ok({ id: latest.target_id, status: "estimasi", duplicate: true });
+    }
+    return err("Setoran gagal disimpan; tidak ada transaksi sebagian yang disahkan.", 409);
+  }
+  return ok({ id: depositId, status: "estimasi", totalGrams, estimatedRp: totalRp, duplicate: false }, 201);
+}
+__name(bankDeposit, "bankDeposit");
+async function bankPrice(request, env, who) {
+  let p;
+  try {
+    p = await body(request);
+  } catch (e) {
+    return err(e.message, 400);
+  }
+  const itemId = String(p.itemId || ""), effectiveFrom = String(p.effectiveFrom || ""), rate = Number(p.priceRpPerKg);
+  if (!itemId || itemId.length > 128 || !validDate(effectiveFrom) || !integer(rate) || rate < 1 || rate > 1e6) return err("Tarif, tanggal atau barang tidak valid.", 400);
+  if(await one(env.DB,"SELECT fiscal_year FROM fiscal_closings WHERE fiscal_year=?",[Number(effectiveFrom.slice(0,4))]))return err("Tahun tarif sudah ditutup.",409);
+  const item = await one(env.DB, "SELECT id FROM waste_items WHERE id=? AND active=1", [itemId]);
+  if (!item) return err("Barang tidak aktif.", 404);
+  const old = await one(env.DB, "SELECT id,citizen_rate_rp_per_kg FROM waste_prices WHERE waste_item_id=? AND effective_from=?", [itemId, effectiveFrom]);
+  if (old) return old.citizen_rate_rp_per_kg === rate ? ok({ id: old.id, duplicate: true }) : err("Tarif di tanggal ini sudah ada; tidak menimpa histori.", 409);
+  const id = "price:api:" + crypto.randomUUID();
+  try {
+    await env.DB.prepare("INSERT INTO waste_prices(id,waste_item_id,effective_from,citizen_rate_rp_per_kg,created_by) VALUES(?,?,?,?,?)").bind(id, itemId, effectiveFrom, rate, who.id).run();
+  } catch {
+    return err("Tarif gagal disimpan. Periksa tanggal yang mungkin sudah dipakai.", 409);
+  }
+  return ok({ id, itemId, effectiveFrom, priceRpPerKg: rate }, 201);
+}
+__name(bankPrice, "bankPrice");
+// Batal hanya untuk data draft. Tidak membalik saldo atau transaksi yang telah disahkan.
+async function cancelBankDraft(request,env,who,type){
+  if(env.BANK_WRITE_ENABLED!=="true" || env.BANK_CANCEL_WRITE_ENABLED!=="true")
+    return err('Pembatalan Bank Sampah masih terkunci.',503);
+  let p;try{p=await body(request)}catch(e){return err(e.message,400)}
+  const id=String(p.id||''),reason=String(p.reason||'').trim();
+  if(!id||id.length>128||reason.length<5||reason.length>300)return err('ID dan alasan pembatalan minimal 5 karakter diperlukan.',400);
+  const isSale=type==='sale';
+  const tab=isSale?'waste_sales':'waste_deposits';
+  const dateCol=isSale?'sold_on':'deposited_on';
+  const data=await one(env.DB,`SELECT id,batch_id,status,${dateCol} AS date FROM ${tab} WHERE id=?`,[id]);
+  if(!data)return err('Transaksi tidak ditemukan.',404);
+  if(data.status==='dibatalkan')return ok({id,status:'dibatalkan',duplicate:true});
+  if(data.status!==(isSale?'draft':'estimasi'))return err('Transaksi sudah diproses atau disahkan, tidak dapat dibatalkan dengan menu ini.',409);
+  if(await one(env.DB,'SELECT fiscal_year FROM fiscal_closings WHERE fiscal_year=?',[Number(data.date.slice(0,4))]))return err('Tahun transaksi sudah ditutup.',409);
+  if(await one(env.DB,'SELECT id FROM waste_allocations WHERE batch_id=?',[data.batch_id]))return err('Batch sudah direkonsiliasi.',409);
+  const sourceGuard=isSale?`AND NOT EXISTS(SELECT 1 FROM waste_cash_ledger c WHERE c.source_transaction_id=?)`:
+    `AND NOT EXISTS(SELECT 1 FROM waste_sales s WHERE s.batch_id=${tab}.batch_id AND s.status!='dibatalkan')`;
+  const sql=`UPDATE ${tab} SET status='dibatalkan' WHERE id=? AND status=?
+    AND EXISTS(SELECT 1 FROM waste_batches b WHERE b.id=${tab}.batch_id AND b.status='draft')
+    AND NOT EXISTS(SELECT 1 FROM waste_allocations a WHERE a.batch_id=${tab}.batch_id)
+    ${sourceGuard}`;
+  const auditId='audit:bank-cancel:'+type+':'+id;
+  const updateParams=isSale?[id,'draft',id]:[id,'estimasi'];
+  const auditSql=`INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason)
+    SELECT ?,?,'banksampah',?,?,?,? WHERE changes()=1`;
+  try{
+    const results=await env.DB.batch([
+      env.DB.prepare(sql).bind(...updateParams),
+      env.DB.prepare(auditSql).bind(auditId,who.id,isSale?'cancel_draft_sale':'cancel_estimated_deposit',tab,id,reason)
+    ]);
+    if(Number(results[0]?.meta?.changes||0)!==1)return err('Batch tidak lagi terbuka untuk pembatalan. Muat ulang riwayat.',409);
+  }catch(e){
+    const latest=await one(env.DB,`SELECT status FROM ${tab} WHERE id=?`,[id]);
+    if(latest?.status==='dibatalkan')return ok({id,status:'dibatalkan',duplicate:true});
+    return err('Pembatalan gagal dan tidak ada transaksi disahkan yang diubah.',409);
+  }
+  return ok({id,status:'dibatalkan',duplicate:false});
+}
+__name(cancelBankDraft,"cancelBankDraft");
+async function bookkeepingOverview(db, url) {
+  const month = periodFilter(url);
+  const f = month ? " AND substr(occurred_on,1,7)=?" : "";
+  const fp = month ? " AND substr(paid_on,1,7)=?" : "";
+  const fd = month ? " AND substr(event_on,1,7)=?" : "";
+  const [cash, payments, fines, loans, advances] = await Promise.all([
+    one(db, `SELECT COUNT(*) AS count,COALESCE(SUM(debit_rp),0) AS debitRp,COALESCE(SUM(credit_rp),0) AS creditRp FROM bookkeeping_cash_transactions WHERE status='aktif'${f}`, month ? [month] : []),
+    one(db, `SELECT COUNT(*) AS count,COALESCE(SUM(amount_rp),0) AS totalRp FROM bookkeeping_payments WHERE status='aktif'${fp}`, month ? [month] : []),
+    one(db, `SELECT COUNT(*) AS count,COALESCE(SUM(amount_rp),0) AS chargedRp,COALESCE(SUM(paid_rp),0) AS paidRp FROM bookkeeping_fines WHERE status!='dibatalkan'${fd}`, month ? [month] : []),
+    one(db, `SELECT COUNT(*) AS count,COALESCE(SUM(amount_rp),0) AS loanRp FROM bookkeeping_loans WHERE status!='dibatalkan'`, []),
+    one(db, `SELECT COUNT(*) AS count,COALESCE(SUM(amount_rp),0) AS advanceRp,COALESCE(SUM(reimbursed_rp),0) AS reimbursedRp FROM bookkeeping_advances WHERE status='aktif'`, [])
+  ]);
+  return ok({ period: month || "semua", cash, payments, fines, loans, advances, notice: "Ringkasan operasional, bukan laporan saldo akhir atau izin tutup buku." });
+}
+__name(bookkeepingOverview, "bookkeepingOverview");
+async function adminPortal(db, url) {
+  const kind = url.pathname.split("/").pop(), limit = paramLimit(url, 250);
+  const statements = {
+    agenda: `SELECT * FROM portal_agenda ORDER BY starts_on DESC,id DESC LIMIT ?`,
+    banners: `SELECT * FROM portal_banners ORDER BY sort_order,id LIMIT ?`,
+    projects: `SELECT * FROM portal_project_cards ORDER BY sort_order,id LIMIT ?`,
+    inventory: `SELECT * FROM portal_inventory ORDER BY name LIMIT ?`,
+    meetings: `SELECT * FROM portal_meeting_records ORDER BY meeting_on DESC,id DESC LIMIT ?`,
+    comments: `SELECT id,display_name,body,status,created_at FROM portal_comments ORDER BY created_at DESC,id DESC LIMIT ?`
+  };
+  return statements[kind] ? ok({ data: await list(db, statements[kind], [limit]), limit }) : null;
+}
+__name(adminPortal, "adminPortal");
+async function createPortalAgenda(request, env) {
+  let p;
+  try {
+    p = await body(request);
+  } catch (e) {
+    return err(e.message, 400);
+  }
+  const title = String(p.title || "").trim(), startsOn = String(p.startsOn || "").trim(), endsOn = p.endsOn ? String(p.endsOn) : null;
+  const location = p.location ? String(p.location).trim() : null, description = p.description ? String(p.description).trim() : null;
+  if (title.length < 3 || title.length > 160 || !validDate(startsOn) || endsOn && !validDate(endsOn) || endsOn && endsOn < startsOn || location && location.length > 160 || description && description.length > 3e3) return err("Judul, tanggal atau deskripsi tidak valid.", 400);
+  const id = "agenda:api:" + crypto.randomUUID();
+  await env.DB.prepare("INSERT INTO portal_agenda(id,title,starts_on,ends_on,location,description,status,visibility,sort_order) VALUES(?,?,?,?,?,?,'Akan Datang','publik',0)").bind(id, title, startsOn, endsOn, location, description).run();
+  return ok({ id }, 201);
+}
+__name(createPortalAgenda, "createPortalAgenda");
+async function createBankBatch(request, env) {
+  let p;
+  try { p=await body(request); } catch(e){ return err(e.message,400); }
+  const month=String(p.month||'');
+  if(!validMonth(month))return err('Bulan harus YYYY-MM.',400);
+  if(await one(env.DB,'SELECT fiscal_year FROM fiscal_closings WHERE fiscal_year=?',[Number(month.slice(0,4))]))
+    return err('Tahun setoran sudah ditutup.',409);
+  const base='B'+month.replace('-',''), oldId='batch:'+base;
+  // API lama tetap kompatibel: permintaan tanpa openForDeposits memakai batch dasar yang sudah ada.
+  if(p.openForDeposits!==true){
+    const old=await one(env.DB,'SELECT id,status FROM waste_batches WHERE id=?',[oldId]);
+    if(old)return ok({...old,duplicate:true});
+    try{await env.DB.prepare("INSERT INTO waste_batches(id,label,status) VALUES(?,?,'draft')").bind(oldId,base).run()}
+    catch{return err('Batch dengan bulan ini sudah tersedia.',409)}
+    return ok({id:oldId,status:'draft'},201);
+  }
+  // Satu bulan boleh berisi beberapa batch. Batch yang punya penjualan bukan tujuan setoran baru.
+  const writableSql=`SELECT b.id,b.label FROM waste_batches b
+    WHERE (b.id=? OR b.id LIKE ?) AND b.status='draft'
+      AND NOT EXISTS(SELECT 1 FROM waste_sales s WHERE s.batch_id=b.id AND s.status!='dibatalkan')
+    ORDER BY b.id DESC LIMIT 1`;
+  const writable=()=>one(env.DB,writableSql,[oldId,oldId+'-%']);
+  const ready=await writable();
+  if(ready)return ok({id:ready.id,status:'draft',duplicate:true});
+  const all=await list(env.DB,'SELECT id FROM waste_batches WHERE id=? OR id LIKE ?',[oldId,oldId+'-%']);
+  const indexes=all.map(x=>x.id===oldId?1:Number(x.id.slice(oldId.length+1))).filter(x=>Number.isSafeInteger(x)&&x>0);
+  const next=(indexes.length?Math.max(...indexes):0)+1;
+  if(next>9999)return err('Jumlah batch bulanan sudah melampaui batas.',409);
+  const label=next===1?base:base+'-'+String(next).padStart(2,'0'),id='batch:'+label;
+  try{await env.DB.prepare("INSERT INTO waste_batches(id,label,status) VALUES(?,?,'draft')").bind(id,label).run()}
+  catch{
+    const concurrent=await writable();
+    if(concurrent)return ok({id:concurrent.id,status:'draft',duplicate:true});
+    return err('Gagal membuat batch lanjutan. Silakan muat ulang.',409);
+  }
+  return ok({id,status:'draft',duplicate:false},201);
+}
+__name(createBankBatch, "createBankBatch");
+
+// Finalisasi pengeluaran dan inventaris, bersifat opt-in per operasi.
+async function createBankExpense(request, env, who) {
+  if(env.BANK_WRITE_ENABLED !== 'true' || env.BANK_EXPENSE_WRITE_ENABLED !== 'true')
+    return err('Pengeluaran Bank Sampah belum diaktifkan.',503);
+  let p;try{p=await body(request)}catch(e){return err(e.message,400)}
+  const key=String(p.requestKey||''),date=String(p.incurredOn||''),kind=String(p.kind||''),post=String(p.budgetPost||'');
+  const desc=String(p.description||'').trim(),vendor=String(p.vendor||'').trim();
+  const qty=Number(p.quantity),unitPrice=p.unitPriceRp,unit=String(p.unit||'unit').trim(),extraNote=String(p.note||'').trim();
+  const toInventory=p.toInventory===true,photoUrl=String(p.evidenceUrl||'').trim();
+  const total=qty*Number(unitPrice);
+  if(!/^[A-Za-z0-9_-]{12,100}$/.test(key)||!validDate(date)||!['pembelian','pengeluaran'].includes(kind)||
+     !['operasional','kas_lorong','cadangan'].includes(post)||desc.length<3||desc.length>200||vendor.length>120||
+     !Number.isFinite(qty)||qty<0.001||qty>1e6||Math.round(qty*1000)!==qty*1000||
+     !Number.isSafeInteger(unitPrice)||unitPrice<=0||unitPrice>1e9||
+     !Number.isSafeInteger(total)||total<1||total>1e12||unit.length>40||extraNote.length>400||
+     (toInventory&&kind!=='pembelian')||(photoUrl&&!urlSafe(photoUrl))){
+    return err('Data pengeluaran, pos kas, harga atau inventaris tidak valid.',400);
+  }
+  if(await one(env.DB,'SELECT fiscal_year FROM fiscal_closings WHERE fiscal_year=?',[Number(date.slice(0,4))]))return err('Tahun pengeluaran sudah ditutup.',409);
+  const hash=await sha(JSON.stringify({date,kind,post,desc,vendor,qty,unitPrice,unit,toInventory,photoUrl,extraNote}));
+  const previous=await one(env.DB,"SELECT target_id,source_fingerprint FROM migration_source_map WHERE source_system='api_v2' AND source_sheet='bank_expense' AND source_row_key=? AND target_table='waste_expenses'",[key]);
+  if(previous)return previous.source_fingerprint===hash?ok({id:previous.target_id,duplicate:true}):err('requestKey sudah digunakan untuk transaksi berbeda.',409);
+  const expenseId='expense:api:'+crypto.randomUUID(),cashId='cash:expense:'+expenseId,invId='inventory:expense:'+expenseId;
+  const statements=[
+    env.DB.prepare("INSERT INTO migration_source_map(source_system,source_sheet,source_row_key,target_table,target_id,source_fingerprint) VALUES('api_v2','bank_expense',?,'waste_expenses',?,?)").bind(key,expenseId,hash),
+    env.DB.prepare("INSERT INTO waste_expenses(id,incurred_on,kind,budget_post,description,amount_rp,status,vendor,evidence_ref,created_by) VALUES(?,?,?,?,?,?,'lunas',?,?,?)").bind(expenseId,date,kind,post,extraNote?desc+' — Catatan: '+extraNote:desc,total,vendor||null,photoUrl||null,who.id),
+    env.DB.prepare(`INSERT INTO waste_cash_ledger(id,occurred_on,source_transaction_id,transaction_type,fund_position,cash_in_rp,cash_out_rp,status,note) VALUES(?,?,?,'pengeluaran',?,0,
+      CASE WHEN (SELECT COALESCE(SUM(cash_in_rp-cash_out_rp),0) FROM waste_cash_ledger WHERE status='aktif' AND fund_position=?) >= ? THEN ? ELSE 0 END,'aktif',?)`)
+      .bind(cashId,date,expenseId,post,post,total,total,extraNote?desc+' — '+extraNote:desc),
+    ...(toInventory?[env.DB.prepare("INSERT INTO inventory(id,name,quantity,unit,category,location,condition,expense_id,active) VALUES(?,?,?,?,'bank_sampah',?,NULL,?,1)")
+      .bind(invId,desc,qty,unit||'unit','Bank Sampah',expenseId)]:[]),
+    env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'banksampah','record_expense','waste_expenses',?,?,?)")
+      .bind('audit:'+expenseId,who.id,expenseId,'Pembayaran sudah dilakukan',JSON.stringify({date,kind,post,amountRp:total,inventoryId:toInventory?invId:null,extraNote}))
+  ];
+  try{await env.DB.batch(statements)}catch(e){
+    const found=await one(env.DB,"SELECT target_id,source_fingerprint FROM migration_source_map WHERE source_system='api_v2' AND source_sheet='bank_expense' AND source_row_key=? AND target_table='waste_expenses'",[key]);
+    if(found)return found.source_fingerprint===hash?ok({id:found.target_id,duplicate:true}):err('requestKey sudah digunakan untuk transaksi berbeda.',409);
+    return err('Pengeluaran ditolak: saldo pos kas tidak cukup atau data tidak valid.',409);
+  }
+  return ok({id:expenseId,nominal:total,inventarisId:toInventory?invId:null,duplicate:false},201);
+}
+__name(createBankExpense,'createBankExpense');
+async function createBankInventory(request, env, who) {
+  if(env.BANK_WRITE_ENABLED !== 'true' || env.BANK_INVENTORY_WRITE_ENABLED !== 'true')
+    return err('Inventaris Bank Sampah belum diaktifkan.',503);
+  let p;try{p=await body(request)}catch(e){return err(e.message,400)}
+  const key=String(p.requestKey||''),name=String(p.name||'').trim(),category=String(p.subcategory||'').trim(),location=String(p.location||'').trim(),photo=String(p.photoUrl||'').trim();
+  const quantity=Number(p.quantity),unit=String(p.unit||'unit').trim();
+  if(!/^[A-Za-z0-9_-]{12,100}$/.test(key)||name.length<3||name.length>160||category.length>100||location.length>100||
+     !Number.isFinite(quantity)||quantity<=0||quantity>1e6||Math.round(quantity*1000)!==quantity*1000||unit.length<1||unit.length>40||
+     (photo&&!urlSafe(photo)))return err('Data inventaris, jumlah, satuan atau URL foto tidak valid.',400);
+  const hash=await sha(JSON.stringify({name,category,location,photo,quantity,unit}));
+  const previous=await one(env.DB,"SELECT target_id,source_fingerprint FROM migration_source_map WHERE source_system='api_v2' AND source_sheet='bank_inventory' AND source_row_key=? AND target_table='inventory'",[key]);
+  if(previous)return previous.source_fingerprint===hash?ok({id:previous.target_id,duplicate:true}):err('requestKey sudah dipakai data inventaris lain.',409);
+  const id='inventory:api:'+crypto.randomUUID();
+  const stmts=[
+    env.DB.prepare("INSERT INTO migration_source_map(source_system,source_sheet,source_row_key,target_table,target_id,source_fingerprint) VALUES('api_v2','bank_inventory',?,'inventory',?,?)").bind(key,id,hash),
+    env.DB.prepare("INSERT INTO inventory(id,name,quantity,unit,category,location,condition,active) VALUES(?,?,?,?,'bank_sampah',?,?,1)")
+      .bind(id,name,quantity,unit,location||null,category?('Kategori: '+category):null),
+    ...(photo?[env.DB.prepare("INSERT INTO inventory_external_media(inventory_id,external_url,source_system,source_sheet,source_row_key) VALUES(?,?,'api_v2','bank_inventory',?)").bind(id,photo,key)]:[]),
+    env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'banksampah','record_inventory','inventory',?,?,?)")
+      .bind('audit:'+id,who.id,id,'Tambah inventaris nonpembelian',JSON.stringify({quantity,unit,category,location}))
+  ];
+  try{await env.DB.batch(stmts)}catch(e){
+    const found=await one(env.DB,"SELECT target_id,source_fingerprint FROM migration_source_map WHERE source_system='api_v2' AND source_sheet='bank_inventory' AND source_row_key=? AND target_table='inventory'",[key]);
+    if(found)return found.source_fingerprint===hash?ok({id:found.target_id,duplicate:true}):err('requestKey sudah dipakai data inventaris lain.',409);
+    return err('Gagal menyimpan inventaris.',409);
+  }
+  return ok({id,duplicate:false},201);
+}
+__name(createBankInventory,'createBankInventory');
+
+async function createBankMediaLink(request,env,who){
+  if(env.BANK_WRITE_ENABLED!=='true'||env.BANK_MEDIA_WRITE_ENABLED!=='true')return err('Penulisan dokumentasi Bank Sampah masih terkunci.',503);
+  let p;try{p=await body(request)}catch(e){return err(e.message,400)}
+  const key=String(p.requestKey||''),albumId=String(p.albumId||''),type=String(p.mediaType||''),url=String(p.url||'').trim(),caption=String(p.caption||'').trim();
+  if(!/^[A-Za-z0-9_-]{12,100}$/.test(key)||!albumId||albumId.length>128||!['foto','video'].includes(type)||!urlSafe(url)||url.length>2000||caption.length>350)
+    return err('ID album, jenis media, tautan HTTPS, atau keterangan tidak valid.',400);
+  if(!await one(env.DB,"SELECT id FROM albums WHERE id=? AND status='aktif'",[albumId]))return err('Album tidak aktif atau tidak ditemukan.',404);
+  const digest=await sha(JSON.stringify({albumId,type,url,caption}));
+  const old=await one(env.DB,"SELECT target_id,source_fingerprint FROM migration_source_map WHERE source_system='api_v2' AND source_sheet='bank_media_link' AND source_row_key=? AND target_table='album_media'",[key]);
+  if(old)return old.source_fingerprint===digest?ok({id:old.target_id,duplicate:true}):err('requestKey sudah dipakai media lain.',409);
+  const id='media:api:'+crypto.randomUUID();
+  try{await env.DB.batch([
+    env.DB.prepare("INSERT INTO migration_source_map(source_system,source_sheet,source_row_key,target_table,target_id,source_fingerprint) VALUES('api_v2','bank_media_link',?,'album_media',?,?)").bind(key,id,digest),
+    env.DB.prepare("INSERT INTO album_media(id,album_id,media_type,external_url,caption,sort_order,status) VALUES(?,?,?,?,?,0,'aktif')").bind(id,albumId,type,url,caption||null),
+    env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'banksampah','record_media_link','album_media',?,?,?)").bind('audit:'+id,who.id,id,'Tambah media album',JSON.stringify({albumId,type,caption}))
+  ])}catch(e){
+    const latest=await one(env.DB,"SELECT target_id,source_fingerprint FROM migration_source_map WHERE source_system='api_v2' AND source_sheet='bank_media_link' AND source_row_key=? AND target_table='album_media'",[key]);
+    if(latest)return latest.source_fingerprint===digest?ok({id:latest.target_id,duplicate:true}):err('requestKey sudah dipakai media lain.',409);
+    return err('Gagal menyimpan tautan media.',409);
+  }
+  return ok({id,duplicate:false},201);
+}
+__name(createBankMediaLink,'createBankMediaLink');
+async function createBankAlbum(request, env) {
+  let p;
+  try {
+    p = await body(request);
+  } catch (e) {
+    return err(e.message, 400);
+  }
+  const title = String(p.title || "").trim(), category = String(p.category || "Lainnya").trim(), eventOn = p.eventOn ? String(p.eventOn) : null;
+  const description = p.description ? String(p.description).trim() : null, visibility = String(p.visibility || "publik");
+  if (title.length < 3 || title.length > 200 || category.length < 2 || category.length > 100 || eventOn && !validDate(eventOn) || description && description.length > 2500 || !["publik", "privat"].includes(visibility)) return err("Data album tidak valid.", 400);
+  const id = "album:api:" + crypto.randomUUID();
+  await env.DB.prepare("INSERT INTO albums(id,title,category,event_on,description,visibility,status) VALUES(?,?,?,?,?,?,'aktif')").bind(id, title, category, eventOn, description, visibility).run();
+  return ok({ id }, 201);
+}
+__name(createBankAlbum, "createBankAlbum");
+// Perubahan konten Bank Sampah — operasi terjaga dan diaudit (bukan keuangan).
+async function bankAlbumCategoryUpdate(request,env,who){
+  if(env.BANK_WRITE_ENABLED!=='true')return err('Pengelolaan album Bank Sampah masih terkunci.',503);
+  let p;try{p=await body(request)}catch(e){return err(e.message,400)}
+  const id=String(p.id||'').trim(),category=String(p.category||'').trim();
+  if(!id||id.length>128||category.length<2||category.length>100)return err('Album atau kategori tidak valid.',400);
+  const old=await one(env.DB,"SELECT id,category,status FROM albums WHERE id=?",[id]);
+  if(!old||old.status!=='aktif')return err('Album tidak tersedia/aktif.',404);
+  if(old.category===category)return ok({id,category,unchanged:true});
+  const auditId='audit:bank-album-category:'+crypto.randomUUID();
+  try{await env.DB.batch([
+   env.DB.prepare("UPDATE albums SET category=? WHERE id=? AND status='aktif'").bind(category,id),
+   env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,before_json,after_json) VALUES(?,?,'banksampah','update_album_category','albums',?,?,?,?)")
+   .bind(auditId,who.id,id,'Kategori album diperbarui',JSON.stringify({category:old.category}),JSON.stringify({category}))
+  ])}catch(e){return err('Gagal memperbarui kategori album.',409)}
+  return ok({id,category,updated:true});
+}
+__name(bankAlbumCategoryUpdate,'bankAlbumCategoryUpdate');
+async function bankProgressUpdate(request,env,who){
+  if(env.BANK_WRITE_ENABLED!=='true')return err('Pengelolaan perkembangan Bank Sampah masih terkunci.',503);
+  let p;try{p=await body(request)}catch(e){return err(e.message,400)}
+  const id=String(p.id||''),date=String(p.date||''),title=String(p.title||'').trim(),stage=String(p.stage||'').trim();
+  const description=String(p.description||'').trim(),status=String(p.status||'').trim();
+  const next=p.nextStep?String(p.nextStep).trim():null,publicVisible=p.publicVisible===false?0:1;
+  const photo=String(p.photoUrl||'').trim();
+  if(!id||id.length>150||!validDate(date)||title.length<3||title.length>160||stage.length>100||
+     description.length>4000||status.length<2||status.length>100||next&&next.length>1500||photo)
+    return err('Perkembangan tidak valid. Foto wajib dikelola terpisah melalui media yang didukung.',400);
+  const old=await one(env.DB,'SELECT id,happened_on,title,stage,description,status,next_step,public_visible FROM progress_entries WHERE id=?',[id]);
+  if(!old)return err('Perkembangan tidak ditemukan.',404);
+  const auditId='audit:bank-progress-edit:'+crypto.randomUUID();
+  try{await env.DB.batch([
+   env.DB.prepare('UPDATE progress_entries SET happened_on=?,title=?,stage=?,description=?,status=?,next_step=?,public_visible=? WHERE id=?')
+     .bind(date,title,stage,description,status,next,publicVisible,id),
+   env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,before_json,after_json) VALUES(?,?,'banksampah','update_progress','progress_entries',?,?,?,?)")
+     .bind(auditId,who.id,id,'Perkembangan diperbarui',JSON.stringify(old),JSON.stringify({date,title,stage,description,status,nextStep:next,publicVisible}))
+  ])}catch(e){return err('Gagal memperbarui perkembangan.',409)}
+  return ok({id,updated:true});
+}
+__name(bankProgressUpdate,'bankProgressUpdate');
+async function createBankProgress(request, env) {
+  let p;
+  try {
+    p = await body(request);
+  } catch (e) {
+    return err(e.message, 400);
+  }
+  const date = String(p.date || ""), title = String(p.title || "").trim(), stage = String(p.stage || "").trim(), description = String(p.description || "").trim(), status = String(p.status || "").trim();
+  const next = p.nextStep ? String(p.nextStep).trim() : null, publicVisible = p.publicVisible === false ? 0 : 1;
+  if (!validDate(date) || title.length < 3 || title.length > 160 || stage.length > 100 || description.length > 4e3 || status.length < 2 || status.length > 100 || next && next.length > 1500) return err("Data perkembangan tidak valid.", 400);
+  const id = "progress:api:" + crypto.randomUUID();
+  await env.DB.prepare("INSERT INTO progress_entries(id,happened_on,title,stage,description,status,next_step,public_visible) VALUES(?,?,?,?,?,?,?,?)").bind(id, date, title, stage, description, status, next, publicVisible).run();
+  return ok({ id }, 201);
+}
+__name(createBankProgress, "createBankProgress");
+async function addBankMedia(request, env, who) {
+  if (!env.PHOTOS) return err("R2 belum terhubung.", 503);
+  const albumId = new URL(request.url).searchParams.get("albumId");
+  if (!albumId || albumId.length > 128) return err("Album tidak valid.", 400);
+  const album = await one(env.DB, "SELECT id,status FROM albums WHERE id=? AND status='aktif'", [albumId]);
+  if (!album) return err("Album tidak ditemukan.", 404);
+  const length = Number(request.headers.get("content-length") || 0);
+  if (length > 5 * 1024 * 1024) return err("Foto maksimal 5 MB.", 413);
+  const bytes = await request.arrayBuffer();
+  if (bytes.byteLength < 12 || bytes.byteLength > 5 * 1024 * 1024) return err("Ukuran foto tidak valid.", 400);
+  const buf = new Uint8Array(bytes);
+  let extension, type;
+  if (buf[0] === 255 && buf[1] === 216 && buf[2] === 255) {
+    extension = "jpg";
+    type = "image/jpeg";
+  } else if (buf[0] === 137 && buf[1] === 80 && buf[2] === 78 && buf[3] === 71 && buf[4] === 13 && buf[5] === 10) {
+    extension = "png";
+    type = "image/png";
+  } else if (String.fromCharCode(...buf.slice(0, 4)) === "RIFF" && String.fromCharCode(...buf.slice(8, 12)) === "WEBP") {
+    extension = "webp";
+    type = "image/webp";
+  } else return err("Unggah JPG, PNG atau WebP.", 415);
+  const id = "media:api:" + crypto.randomUUID(), key = "albums/" + albumId.replace(/[^a-zA-Z0-9_-]/g, "_") + "/" + crypto.randomUUID() + "." + extension;
+  await env.PHOTOS.put(key, bytes, { httpMetadata: { contentType: type } });
+  try {
+    await env.DB.prepare("INSERT INTO album_media(id,album_id,media_type,storage_key,caption,status) VALUES(?,?,'foto',?,?,'aktif')").bind(id, albumId, key, null).run();
+  } catch {
+    await env.PHOTOS.delete(key).catch(() => {
+    });
+    return err("Gagal menyimpan metadata foto.", 409);
+  }
+  return ok({ id, albumId, mediaUrl: "/api/v2/public/bank/media/" + encodeURIComponent(id) }, 201);
+}
+__name(addBankMedia, "addBankMedia");
+var contentModel = {
+  agenda: { table: "portal_agenda", fields: { title: "text", starts_on: "date", ends_on: "date", location: "text", description: "long", image_ref: "url", status: "text", visibility: "visibility", sort_order: "order" }, required: ["title"] },
+  banners: { table: "portal_banners", fields: { title: "text", image_ref: "url", target_url: "urlOrAnchor", sort_order: "order", active: "bool" }, required: ["image_ref"] },
+  projects: { table: "portal_project_cards", fields: { title: "text", description: "long", image_ref: "url", target_url: "urlOrAnchor", sort_order: "order", active: "bool" }, required: ["title"] },
+  inventory: { table: "portal_inventory", fields: { name: "text", description: "long", quantity: "quantity", unit: "text", photo_ref: "url", category: "text", visibility: "visibility" }, required: ["name"] },
+  meetings: { table: "portal_meeting_records", fields: { title: "text", meeting_on: "date", summary: "long", document_ref: "url", visibility: "visibility" }, required: ["title"] },
+  documentation: { table: "portal_documentation", fields: { event_on: "date", title: "text", description: "long", drive_url: "url", category: "text", sort_order: "order", visibility: "visibility", active: "bool" }, required: ["title"] }
+};
+var contentPath = "/api/v2/admin/content/";
+function normalizeContent(type, v) {
+  if (v === void 0 || v === null || v === "") return null;
+  if (type === "bool") return v === true || v === 1 || v === "1" ? 1 : 0;
+  if (type === "order" || type === "quantity") {
+    const n = Number(v);
+    if (!Number.isFinite(n) || n < 0 || n > 1e7 || type === "order" && !Number.isInteger(n)) throw Error("Angka tidak valid.");
+    return n;
+  }
+  if (typeof v !== "string") throw Error("Kolom teks harus berupa teks.");
+  const t = v.trim(), max = type === "long" ? 5e3 : 500;
+  if (t.length > max) throw Error("Teks terlalu panjang.");
+  if (type === "date" && !validDate(t)) throw Error("Tanggal harus YYYY-MM-DD.");
+  if (type === "visibility" && !["publik", "privat"].includes(t)) throw Error("Visibilitas tidak valid.");
+  if (type === "url" && t && !/^https:\/\//i.test(t)) throw Error("Gunakan tautan HTTPS, misalnya Google Drive.");
+  if (type === "urlOrAnchor" && t && !/^https:\/\//i.test(t) && !/^#[a-zA-Z0-9_-]+$/.test(t)) throw Error("Tautan target tidak valid.");
+  return t || null;
+}
+__name(normalizeContent, "normalizeContent");
+async function handleAdminContent(request, env, who, url) {
+  const denied = superadmin(who);
+  if (denied) return denied;
+  const kind = url.pathname.slice(contentPath.length), model = contentModel[kind], db = env.DB;
+  if (!model && !["tariffs", "settings", "obligations"].includes(kind)) return err("Jenis data tidak dikenal.", 404);
+  if (request.method === "GET") {
+    if (model) {
+      const order = kind === "agenda" ? "starts_on DESC,id DESC" : kind === "documentation" ? "event_on DESC,id DESC" : kind === "inventory" ? "name,id" : kind === "meetings" ? "meeting_on DESC,id DESC" : "sort_order,id";
+      const rows = await list(db, "SELECT * FROM " + model.table + " ORDER BY " + order + " LIMIT 500");
+      return ok({ data: rows, kind });
+    }
+    if (kind === "tariffs") return ok({ data: await list(db, "SELECT contribution_type,amount_rp,active,updated_at FROM bookkeeping_contribution_tariffs ORDER BY contribution_type") });
+    if (kind === "settings") return ok({ data: await list(db, "SELECT setting_key,setting_value,description FROM app_settings WHERE setting_key IN ('TANGGAL_SETOR_RT','BATAS_PERIODE_KAS')") });
+    return ok({ data: await list(db, `SELECT p.id AS payer_id,p.display_name AS nama,h.house_code AS rumah,o.qty_iuran_bulanan,o.qty_kebersihan,o.qty_kas_lorong,o.qty_arisan FROM bookkeeping_payers p JOIN households h ON h.id=p.household_id LEFT JOIN bookkeeping_payer_iuran_obligations o ON o.payer_id=p.id WHERE p.payer_type='warga' ORDER BY h.house_code`) });
+  }
+  if (request.method !== "POST") return err("Metode tidak didukung.", 405);
+  const origin = request.headers.get("origin") || "";
+  if (origin && !["https://flamboyan4.web.id", "https://www.flamboyan4.web.id"].includes(origin)) return err("Asal permintaan tidak diizinkan.", 403);
+  let payload;
+  try {
+    payload = await body(request);
+  } catch (e) {
+    return err(e.message, 400);
+  }
+  const action = String(payload.action || "save"), id = String(payload.id || "");
+  if (!["save", "create"].includes(action)) return err("Aksi tidak diizinkan. Gunakan status aktif/privat untuk menyembunyikan data.", 400);
+  if (id.length > 150) return err("ID terlalu panjang.", 400);
+  if (kind === "tariffs") {
+    const tariff = String(payload.contribution_type || ""), amount = Number(payload.amount_rp);
+    if (!["IURAN_BULANAN", "KEBERSIHAN", "KAS_LORONG", "ARISAN"].includes(tariff) || !Number.isSafeInteger(amount) || amount < 0 || amount > 5e6) return err("Tarif tidak valid.", 400);
+    const before = await one(db, "SELECT * FROM bookkeeping_contribution_tariffs WHERE contribution_type=?", [tariff]);
+    if (!before) return err("Tarif tidak ditemukan.", 404);
+    await db.batch([
+      db.prepare("UPDATE bookkeeping_contribution_tariffs SET amount_rp=?,updated_at=CURRENT_TIMESTAMP WHERE contribution_type=?").bind(amount, tariff),
+      db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)").bind("audit:" + crypto.randomUUID(), who.id, "master_pembukuan", "ubah_tarif", "bookkeeping_contribution_tariffs", tariff, JSON.stringify(before), JSON.stringify({ amount_rp: amount }))
+    ]);
+    return ok({ id: tariff });
+  }
+  if (kind === "settings") {
+    const key = String(payload.setting_key || ""), value2 = Number(payload.setting_value);
+    if (!["TANGGAL_SETOR_RT", "BATAS_PERIODE_KAS"].includes(key) || !Number.isSafeInteger(value2) || value2 < 1 || value2 > 31) return err("Pengaturan tanggal harus 1 sampai 31.", 400);
+    const before = await one(db, "SELECT * FROM app_settings WHERE setting_key=?", [key]);
+    await db.batch([
+      db.prepare("INSERT INTO app_settings(setting_key,setting_value,description,updated_at,updated_by) VALUES(?,?,?,CURRENT_TIMESTAMP,?) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value,updated_at=CURRENT_TIMESTAMP,updated_by=excluded.updated_by").bind(key, String(value2), key === "TANGGAL_SETOR_RT" ? "Tanggal Setor RT" : "Batas Periode Kas", who.id),
+      db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)").bind("audit:" + crypto.randomUUID(), who.id, "master_pembukuan", "ubah_aturan", "app_settings", key, JSON.stringify(before), JSON.stringify({ setting_value: value2 }))
+    ]);
+    return ok({ id: key });
+  }
+  if (kind === "obligations") {
+    const payer = String(payload.payer_id || "");
+    if (!payer || payer.length > 130) return err("ID Warga wajib.", 400);
+    const keys = ["qty_iuran_bulanan", "qty_kebersihan", "qty_kas_lorong", "qty_arisan"];
+    const vals = keys.map((x) => Number(payload[x]));
+    if (vals.some((x) => !Number.isInteger(x) || x < 0 || x > 100)) return err("Kewajiban harus 0\u2013100.", 400);
+    const valid = await one(db, "SELECT id FROM bookkeeping_payers WHERE id=? AND payer_type='warga'", [payer]);
+    if (!valid) return err("Warga tidak ditemukan.", 404);
+    const before = await one(db, "SELECT * FROM bookkeeping_payer_iuran_obligations WHERE payer_id=?", [payer]);
+    await db.batch([
+      db.prepare("INSERT INTO bookkeeping_payer_iuran_obligations(payer_id,qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan) VALUES(?,?,?,?,?) ON CONFLICT(payer_id) DO UPDATE SET qty_iuran_bulanan=excluded.qty_iuran_bulanan,qty_kebersihan=excluded.qty_kebersihan,qty_kas_lorong=excluded.qty_kas_lorong,qty_arisan=excluded.qty_arisan,verified_at=CURRENT_TIMESTAMP").bind(payer, ...vals),
+      db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)").bind("audit:" + crypto.randomUUID(), who.id, "master_pembukuan", "ubah_kewajiban", "bookkeeping_payer_iuran_obligations", payer, JSON.stringify(before), JSON.stringify(Object.fromEntries(keys.map((k, i) => [k, vals[i]]))))
+    ]);
+    return ok({ id: payer });
+  }
+  const fields = Object.keys(model.fields), value = payload.values || {};
+  if (!value || typeof value !== "object" || Array.isArray(value)) return err("Isian tidak valid.", 400);
+  const extraneous = Object.keys(value).filter((k) => !fields.includes(k));
+  if (extraneous.length) return err("Kolom tidak didukung: " + extraneous.join(", "), 400);
+  let clean = {};
+  try {
+    for (const key of fields) {
+      if (Object.hasOwn(value, key)) clean[key] = normalizeContent(model.fields[key], value[key]);
+    }
+  } catch (e) {
+    return err(e.message, 400);
+  }
+  const exists = id ? await one(db, "SELECT * FROM " + model.table + " WHERE id=?", [id]) : null;
+  if (id && !exists) return err("Data yang diedit tidak ditemukan.", 404);
+  if (exists) {
+    const updates = Object.keys(clean);
+    if (!updates.length) return err("Tidak ada perubahan.", 400);
+    const changed = { ...exists, ...clean };
+    if (model.required.some((k) => !changed[k])) return err("Kolom wajib belum diisi.", 400);
+    await db.batch([
+      db.prepare("UPDATE " + model.table + " SET " + updates.map((k) => k + "=?").join(",") + " WHERE id=?").bind(...updates.map((k) => clean[k]), id),
+      db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)").bind("audit:" + crypto.randomUUID(), who.id, "portal_content", "edit", model.table, id, JSON.stringify(exists), JSON.stringify(changed))
+    ]);
+    return ok({ id, updated: true });
+  }
+  for (const k of fields) if (!(k in clean)) clean[k] = model.fields[k] === "bool" ? 1 : model.fields[k] === "order" ? 0 : null;
+  if (model.required.some((k) => !clean[k])) return err("Kolom wajib belum diisi.", 400);
+  const newId = kind + ":web:" + crypto.randomUUID(), cols = ["id", ...fields];
+  await db.batch([
+    db.prepare("INSERT INTO " + model.table + "(" + cols.join(",") + ") VALUES(" + cols.map(() => "?").join(",") + ")").bind(newId, ...fields.map((k) => clean[k])),
+    db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)").bind("audit:" + crypto.randomUUID(), who.id, "portal_content", "create", model.table, newId, null, JSON.stringify(clean))
+  ]);
+  return ok({ id: newId, created: true }, 201);
+}
+__name(handleAdminContent, "handleAdminContent");
+async function handleUnifiedApi(request, env, who) {
+  const url = new URL(request.url), path = url.pathname, method = request.method, db = env.DB;
+  if (!path.startsWith("/api/v2/")) return null;
+  if (path.startsWith(contentPath)) return handleAdminContent(request, env, who, url);
+  if (method === "GET" && path === "/api/v2/system/features") return ok({ api: "v2", frontend: "github-pages", storage: "d1+r2", bankWrites: env.BANK_WRITE_ENABLED === "true", bookkeepingWrites: env.FINANCE_WRITE_ENABLED === "true", bankReconciliationWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_RECONCILIATION_WRITE_ENABLED === "true", bankCancellationWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_CANCEL_WRITE_ENABLED === "true", bankExpenseWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_EXPENSE_WRITE_ENABLED === "true", bankInventoryWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_INVENTORY_WRITE_ENABLED === "true", bankMediaWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_MEDIA_WRITE_ENABLED === "true", bankPayoutWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_PAYOUT_WRITE_ENABLED === "true" });
+  if (method === "GET" && path === "/api/v2/auth/session") return who ? ok({ account: { id: who.id, username: who.username, role: who.role }, member: who.member_id ? { id: who.member_id, nama: who.display_name, rumah: who.house_code } : null }) : err("Sesi tidak valid.", 401);
+  if (method === "GET" && path === "/api/v2/public/portal") return publicPortal(db);
+  if (method === "GET" && path === "/api/v2/public/bank") return publicBank(db);
+  if (method === "GET" && path === "/api/v2/public/bank/report") {
+    try {
+      return await publicBankReport(db, url);
+    } catch (e) {
+      return err(e.message, 400);
+    }
+  }
+  if (method === "GET" && path.startsWith("/api/v2/public/bank/album/")) return publicAlbum(db, decodeURIComponent(path.split("/").pop()));
+  if (method === "GET" && path.startsWith("/api/v2/public/bank/media/")) return publicAlbumMedia(env, decodeURIComponent(path.split("/").pop()));
+  if (method === "GET" && path.startsWith("/api/v2/admin/portal/")) {
+    const denied = superadmin(who);
+    return denied || await adminPortal(db, url) || err("Endpoint admin portal tidak dikenal.", 404);
+  }
+  if (method === "POST" && path === "/api/v2/admin/portal/agenda") {
+    const denied = superadmin(who);
+    return denied || (env.PORTAL_WRITE_ENABLED === "true" ? createPortalAgenda(request, env) : err("Penulisan Portal belum diaktifkan.", 503));
+  }
+  if (method === "GET" && path === "/api/v2/bookkeeping/overview") {
+    const denied = superadmin(who);
+    return denied || await bookkeepingOverview(db, url).catch((e) => err(e.message, 400));
+  }
+  if (path.startsWith("/api/v2/admin/bank/")) {
+    const denied = admin(who);
+    if (denied) return denied;
+    if (method === "GET") {
+      const detail = await detailBank(db, url);
+      if (detail) return detail;
+      const result = await adminBank(db, url);
+      if (result) return result;
+    }
+    if (method === "POST" && path === "/api/v2/admin/bank/deposits/cancel") return cancelBankDraft(request,env,who,"deposit");
+    if (method === "POST" && path === "/api/v2/admin/bank/sales/cancel") return cancelBankDraft(request,env,who,"sale");
+    if (method === "POST" && path === "/api/v2/admin/bank/withdrawals") {
+      return bankWithdraw(request,env,who);
+    }
+    if (method === "POST" && path === "/api/v2/admin/bank/deposits") {
+      const stop = guardedWrite(who, env);
+      return stop || bankDeposit(request, env);
+    }
+    if (method === "POST" && path === "/api/v2/admin/bank/prices") {
+      const stop = guardedWrite(who, env);
+      return stop || bankPrice(request, env, who);
+    }
+    if (method === "POST" && path === "/api/v2/admin/bank/batches") {
+      const stop = guardedWrite(who, env);
+      return stop || createBankBatch(request, env);
+    }
+    if (method === "POST" && path === "/api/v2/admin/bank/media-link") return createBankMediaLink(request,env,who);
+    if (method === "POST" && path === "/api/v2/admin/bank/expenses") return createBankExpense(request,env,who);
+    if (method === "POST" && path === "/api/v2/admin/bank/inventory") return createBankInventory(request,env,who);
+    if (method === "POST" && path === "/api/v2/admin/bank/albums/category") {
+      const denied=requireRole(who,["admin","superadmin"]);return denied||bankAlbumCategoryUpdate(request,env,who);
+    }
+    if (method === "POST" && path === "/api/v2/admin/bank/progress/edit") {
+      const denied=requireRole(who,["admin","superadmin"]);return denied||bankProgressUpdate(request,env,who);
+    }
+    if (method === "POST" && path === "/api/v2/admin/bank/albums") {
+      const stop = guardedWrite(who, env);
+      return stop || createBankAlbum(request, env);
+    }
+    if (method === "POST" && path === "/api/v2/admin/bank/progress") {
+      const stop = guardedWrite(who, env);
+      return stop || createBankProgress(request, env);
+    }
+    if (method === "POST" && path === "/api/v2/admin/bank/upload") {
+      const stop = guardedWrite(who, env);
+      return stop || addBankMedia(request, env, who);
+    }
+  }
+  return err("Endpoint API v2 tidak ditemukan.", 404);
+}
+__name(handleUnifiedApi, "handleUnifiedApi");
+
+// src/worker.js
+var jsonHeaders = { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "x-content-type-options": "nosniff" };
+var PASSWORD_ITERATIONS = 1e5;
+function json(value, status = 200, extra = {}) {
+  return new Response(JSON.stringify(value), { status, headers: { ...jsonHeaders, ...extra } });
+}
+__name(json, "json");
+function safeError(message, status = 400) {
+  return json({ ok: false, error: message }, status);
+}
+__name(safeError, "safeError");
+function allowedOrigin(request, env) {
+  const configured = String(env.ALLOWED_ORIGINS || env.ALLOWED_ORIGIN || "https://flamboyan4.web.id").split(",").map((x) => x.trim()).filter(Boolean);
+  const origin = request.headers.get("origin");
+  return origin && (configured.includes(origin) || origin === new URL(request.url).origin) ? origin : null;
+}
+__name(allowedOrigin, "allowedOrigin");
+function cors(origin) {
+  return origin ? {
+    "access-control-allow-origin": origin,
+    "access-control-allow-credentials": "true",
+    "access-control-allow-methods": "GET, POST, OPTIONS",
+    "access-control-allow-headers": "Authorization, Content-Type",
+    "access-control-max-age": "300",
+    "vary": "Origin"
+  } : {};
+}
+__name(cors, "cors");
+async function tokenHash(raw) {
+  const bytes = new TextEncoder().encode(raw);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(digest)].map((x) => x.toString(16).padStart(2, "0")).join("");
+}
+__name(tokenHash, "tokenHash");
+function toHex(bytes) {
+  return [...bytes].map((x) => x.toString(16).padStart(2, "0")).join("");
+}
+__name(toHex, "toHex");
+function fromHex(value) {
+  if (!/^(?:[0-9a-f]{2})+$/i.test(value)) throw Error("Invalid encoded hash");
+  return Uint8Array.from(value.match(/../g), (x) => parseInt(x, 16));
+}
+__name(fromHex, "fromHex");
+function secureCompare(a, b) {
+  const x = new TextEncoder().encode(String(a || "")), y = new TextEncoder().encode(String(b || ""));
+  let diff = x.length ^ y.length;
+  for (let i = 0; i < Math.max(x.length, y.length); i++) diff |= (x[i] || 0) ^ (y[i] || 0);
+  return diff === 0;
+}
+__name(secureCompare, "secureCompare");
+async function passwordDigest(password, salt, rounds) {
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveBits"]);
+  const derived = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt, iterations: rounds }, key, 256);
+  return new Uint8Array(derived);
+}
+__name(passwordDigest, "passwordDigest");
+async function passwordHash(password) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const derived = await passwordDigest(password, salt, PASSWORD_ITERATIONS);
+  return `pbkdf2-sha256:${PASSWORD_ITERATIONS}:${toHex(salt)}:${toHex(derived)}`;
+}
+__name(passwordHash, "passwordHash");
+async function verifyPassword(password, stored) {
+  const parts = String(stored || "").split(":");
+  if (parts.length !== 4 || parts[0] !== "pbkdf2-sha256") return false;
+  const rounds = Number(parts[1]);
+  if (!Number.isInteger(rounds) || rounds !== PASSWORD_ITERATIONS) return false;
+  const salt = fromHex(parts[2]), expected = fromHex(parts[3]);
+  const actual = await passwordDigest(password, salt, rounds);
+  if (actual.length !== expected.length) return false;
+  let diff = 0;
+  for (let i = 0; i < actual.length; i++) diff |= actual[i] ^ expected[i];
+  return diff === 0;
+}
+__name(verifyPassword, "verifyPassword");
+function randomToken() {
+  return toHex(crypto.getRandomValues(new Uint8Array(32)));
+}
+__name(randomToken, "randomToken");
+async function requestJson(request) {
+  if ((Number(request.headers.get("content-length")) || 0) > 4096) throw Error("Request too large");
+  const body2 = await request.text();
+  if (body2.length > 4096) throw Error("Request too large");
+  return JSON.parse(body2);
+}
+__name(requestJson, "requestJson");
+function future(minutes) {
+  return new Date(Date.now() + minutes * 6e4).toISOString().slice(0, 19).replace("T", " ");
+}
+__name(future, "future");
+async function login(request, env) {
+  if (env.AUTH_ENABLED !== "true") return safeError("Login baru belum diaktifkan dalam fase migrasi.", 503);
+  let payload;
+  try {
+    payload = await requestJson(request);
+  } catch {
+    return safeError("Format login tidak valid.", 400);
+  }
+  const username = String(payload.username || "").trim().toLowerCase();
+  const password = String(payload.password || "");
+  if (!username || username.length > 100 || !password || password.length > 128) return safeError("Akun atau password tidak sesuai.", 401);
+  const account = await env.DB.prepare("SELECT id,password_hash,password_scheme,role,status,failed_attempts,locked_until,must_change_password FROM accounts WHERE username=? LIMIT 1").bind(username).first();
+  if (!account || account.status !== "aktif" || !account.password_hash || account.password_scheme !== "pbkdf2-sha256") return safeError("Akun atau password tidak sesuai.", 401);
+  if (account.locked_until && Date.parse(String(account.locked_until).replace(" ", "T") + "Z") > Date.now()) return safeError("Percobaan login terlalu banyak. Coba lagi nanti.", 429);
+  const good = await verifyPassword(password, account.password_hash);
+  if (!good) {
+    const fail = Number(account.failed_attempts || 0) + 1;
+    await env.DB.prepare("UPDATE accounts SET failed_attempts=?,locked_until=? WHERE id=?").bind(fail >= 8 ? 0 : fail, fail >= 8 ? future(15) : null, account.id).run();
+    return safeError("Akun atau password tidak sesuai.", 401);
+  }
+  const token = randomToken(), digest = await tokenHash(token);
+  const sessionId = crypto.randomUUID();
+  await env.DB.batch([
+    env.DB.prepare("UPDATE accounts SET failed_attempts=0,locked_until=NULL WHERE id=?").bind(account.id),
+    env.DB.prepare("INSERT INTO sessions(id,account_id,token_hash,expires_at) VALUES (?,?,?,?)").bind(sessionId, account.id, digest, future(720))
+  ]);
+  return json({ ok: true, role: account.role, expiresInMinutes: 720 }, 200, { "set-cookie": `f4_session=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=43200` });
+}
+__name(login, "login");
+async function changePassword(request, env, who) {
+  if (!who) return safeError("Sesi tidak valid.", 401);
+  let p;
+  try {
+    p = await requestJson(request);
+  } catch {
+    return safeError("Format permintaan tidak valid.", 400);
+  }
+  const old = String(p.currentPassword || ""), next = String(p.newPassword || "");
+  const min = who.role === "superadmin" ? 12 : 4;
+  if (next.length < min || next.length > 128) return safeError(`Password minimal ${min} karakter.`, 400);
+  const current = await env.DB.prepare("SELECT password_hash FROM accounts WHERE id=?").bind(who.id).first();
+  if (!current || !await verifyPassword(old, current.password_hash)) return safeError("Password lama tidak sesuai.", 401);
+  const hashed = await passwordHash(next);
+  await env.DB.batch([
+    env.DB.prepare("UPDATE accounts SET password_hash=?,password_scheme='pbkdf2-sha256',must_change_password=0,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(hashed, who.id),
+    env.DB.prepare("UPDATE sessions SET revoked_at=CURRENT_TIMESTAMP WHERE account_id=? AND revoked_at IS NULL").bind(who.id)
+  ]);
+  return json({ ok: true, message: "Password diperbarui. Silakan login ulang." }, 200, { "set-cookie": "f4_session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0" });
+}
+__name(changePassword, "changePassword");
+async function bootstrapSuperadmin(request, env) {
+  if (!env.SETUP_SECRET || env.SETUP_SECRET.length < 32) return safeError("Aktivasi belum dikonfigurasi.", 503);
+  let data;
+  try {
+    data = await requestJson(request);
+  } catch {
+    return safeError("Format tidak valid.", 400);
+  }
+  const secret = String(data.secret || ""), password = String(data.password || "");
+  if (!secureCompare(secret, env.SETUP_SECRET)) return safeError("Kode aktivasi tidak sesuai.", 403);
+  if (password.length < 12 || password.length > 128) return safeError("Password superadmin minimal 12 karakter.", 400);
+  const hashed = await passwordHash(password);
+  const result = await env.DB.prepare("UPDATE accounts SET password_hash=?,password_scheme='pbkdf2-sha256',role='superadmin',status='aktif',must_change_password=0,updated_at=CURRENT_TIMESTAMP WHERE id='account:superadmin' AND role='superadmin' AND status='nonaktif' AND password_hash IS NULL").bind(hashed).run();
+  if (result.meta?.changes !== 1) return safeError("Akun sudah diaktivasi atau belum tersedia.", 409);
+  return json({ ok: true, message: "Superadmin aktif. Hapus SETUP_SECRET setelah aktivasi." });
+}
+__name(bootstrapSuperadmin, "bootstrapSuperadmin");
+function bootstrapPage() {
+  const html = `<!doctype html><html lang="id"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aktivasi superadmin staging</title><body style="font:16px system-ui;max-width:450px;margin:40px auto;padding:15px"><h1>Aktivasi Superadmin</h1><p>Hanya untuk pengelola. Jangan bagikan kode aktivasi.</p><form id="f"><label>Kode rahasia<br><input id="s" type="password" autocomplete="off" required style="width:100%;padding:10px"></label><p><label>Password baru (minimal 12 karakter)<br><input id="p" type="password" minlength="12" autocomplete="new-password" required style="width:100%;padding:10px"></label></p><button>Aktifkan akun</button></form><p id="m" role="status"></p><script>document.getElementById('f').onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector('button');b.disabled=true;try{const r=await fetch('/api/auth/bootstrap-superadmin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({secret:document.getElementById('s').value,password:document.getElementById('p').value})});const j=await r.json();document.getElementById('m').textContent=j.message||j.error||'Gagal';}catch{document.getElementById('m').textContent='Jaringan gagal';}b.disabled=false;};<\/script></body></html>`;
+  return new Response(html, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-frame-options": "DENY", "content-security-policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; form-action 'self'; base-uri 'none'" } });
+}
+__name(bootstrapPage, "bootstrapPage");
+function stagingLoginPage() {
+  const html = `<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Uji Login \xB7 Flamboyan 4</title><style>body{margin:0;background:#eff5ed;color:#24432c;font:16px system-ui,-apple-system,sans-serif;display:grid;place-items:center;min-height:100vh}.card{background:#fff;border-radius:20px;padding:28px;box-shadow:0 12px 35px #173e1715;width:min(390px,calc(100vw - 56px))}h1{font-size:24px;margin:0 0 7px}p{line-height:1.5;color:#5b715f}label{display:block;margin:16px 0 6px;font-weight:600}input{box-sizing:border-box;width:100%;font:inherit;padding:12px;border:1px solid #b7c9ba;border-radius:10px}button{font:inherit;background:#397a43;border:0;border-radius:10px;padding:12px 18px;color:white;cursor:pointer;margin-top:18px;width:100%}button:disabled{opacity:.6}#out{display:none;background:#e9f4e8;border-radius:12px;padding:14px;margin-top:18px}#msg{font-weight:500}small{color:#627569}</style></head><body><main class="card"><h1>Flamboyan 4</h1><p>Uji login superadmin \xB7 lingkungan staging.</p><form id="f"><label for="u">Username</label><input id="u" value="superadmin" autocomplete="username" required><label for="p">Password</label><input id="p" type="password" autocomplete="current-password" required><button id="submit">Masuk</button></form><p id="msg" role="status"></p><section id="out"><strong id="who"></strong><p id="access"></p><button id="logout" type="button">Keluar</button></section><small>Halaman uji sementara. Data website aktif tidak berubah.</small></main><script>let token='';const f=document.getElementById('f'),msg=document.getElementById('msg');f.onsubmit=async e=>{e.preventDefault();document.getElementById('submit').disabled=true;msg.textContent='Memeriksa akun\u2026';try{const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:document.getElementById('u').value,password:document.getElementById('p').value})});const j=await r.json();document.getElementById('p').value='';if(!r.ok){msg.textContent=j.error||'Login gagal';return;}token='cookie-session';const check=await fetch('/api/bookkeeping/status',{headers:{}});const c=await check.json();msg.textContent='Login berhasil';document.getElementById('who').textContent='Peran: '+j.role;document.getElementById('access').textContent=check.ok&&c.scope==='pembukuan-superadmin'?'Akses Pembukuan: diizinkan':'Akses Pembukuan: tidak diizinkan';document.getElementById('out').style.display='block';f.style.display='none';}catch{msg.textContent='Gagal menghubungi server.';}finally{document.getElementById('submit').disabled=false;}};document.getElementById('logout').onclick=async()=>{if(token)await fetch('/api/auth/logout',{method:'POST',headers:{}}).catch(()=>{});token='';document.getElementById('out').style.display='none';f.style.display='block';msg.textContent='Sudah keluar.';};<\/script></body></html>`;
+  return new Response(html, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-frame-options": "DENY", "content-security-policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; form-action 'self'; base-uri 'none'" } });
+}
+__name(stagingLoginPage, "stagingLoginPage");
+function memberActivationPage() {
+  const html = `<!doctype html><html lang="id"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aktivasi Warga \xB7 Staging Flamboyan 4</title><style>body{font:15px system-ui,sans-serif;background:#eef5ec;color:#23432b;margin:0;padding:24px}main{max-width:820px;margin:auto;background:white;border-radius:18px;padding:24px;box-shadow:0 12px 40px #23432b16}h1{margin-top:0}input,button{font:inherit;padding:10px;border-radius:9px}input{border:1px solid #b0c7b4;max-width:100%}button{border:0;background:#347941;color:white;cursor:pointer}button:disabled{opacity:.45}form{display:flex;gap:10px;flex-wrap:wrap;align-items:end}label{display:grid;gap:4px}table{width:100%;border-collapse:collapse;margin:20px 0}td,th{padding:9px 7px;border-bottom:1px solid #e6eee4;text-align:left}small{color:#5c725e}.scroll{overflow:auto}#content{display:none}#message{padding:9px 0}</style><main><h1>Aktivasi Akun Warga</h1><p>Lingkungan staging. Akun Bank Sampah lama belum terpengaruh.</p><form id="login"><label>Username<input id="u" value="superadmin" autocomplete="username" required></label><label>Password<input id="p" type="password" autocomplete="current-password" required></label><button>Masuk</button></form><p id="message" role="status"></p><section id="content"><h2>Daftar akun</h2><p id="summary"></p><small>Password awal tiap warga mengikuti pola F4-nomor rumah tanpa garis miring, contoh F4-A524. Kode hanya untuk akun baru di staging.</small><div class="scroll"><table><thead><tr><th>Username</th><th>Nama</th><th>Rumah</th><th>Status</th></tr></thead><tbody id="rows"></tbody></table></div><button id="activate">Aktifkan akun anggota yang belum aktif</button> <button id="logout" type="button">Keluar</button></section></main><script>let token='',pending=[];const $=id=>document.getElementById(id),headers=()=>({});async function refresh(){const r=await fetch('/api/superadmin/accounts/preview',{headers:headers()}),v=await r.json();if(!r.ok)throw Error(v.error||'Gagal membaca akun');pending=v.akun.filter(a=>a.role==='anggota'&&a.perluAktivasi);$('summary').textContent=v.akun.length+' akun tercatat, '+pending.length+' warga menunggu aktivasi';$('rows').replaceChildren();for(const a of v.akun){const tr=document.createElement('tr');for(const value of [a.username,a.nama||'\u2014',a.rumah||'\u2014',a.status]){const td=document.createElement('td');td.textContent=value;tr.append(td);}$('rows').append(tr);}$('activate').disabled=pending.length===0;} $('login').onsubmit=async e=>{e.preventDefault();$('message').textContent='Memeriksa akun\u2026';try{const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:$('u').value,password:$('p').value})}),v=await r.json();$('p').value='';if(!r.ok)throw Error(v.error||'Login gagal');if(v.role!=='superadmin')throw Error('Hanya superadmin yang dapat mengaktifkan warga');token='cookie-session';await refresh();$('login').style.display='none';$('content').style.display='block';$('message').textContent='Login superadmin berhasil.';}catch(err){$('message').textContent=err.message;}};$('activate').onclick=async()=>{if(!pending.length)return;if(!confirm('Aktifkan '+pending.length+' akun warga di staging menggunakan password awal F4-nomor rumah?'))return;$('activate').disabled=true;let done=0;for(const a of [...pending]){try{const r=await fetch('/api/superadmin/accounts/activate-member',{method:'POST',headers:{...headers(),'Content-Type':'application/json'},body:JSON.stringify({accountId:a.id,confirmation:'AKTIFKAN AKUN WARGA'})}),v=await r.json();if(!r.ok)throw Error(a.username+': '+(v.error||'gagal'));done++;$('message').textContent='Aktivasi '+done+' dari '+pending.length+' akun\u2026';}catch(err){$('message').textContent='Berhenti: '+err.message;await refresh();return;}}await refresh();$('message').textContent=done+' akun warga berhasil diaktifkan.';};$('logout').onclick=async()=>{if(token)await fetch('/api/auth/logout',{method:'POST',headers:headers()}).catch(()=>{});token='';$('content').style.display='none';$('login').style.display='flex';$('message').textContent='Sudah keluar.';};<\/script>`;
+  return new Response(html, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-frame-options": "DENY", "content-security-policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; form-action 'self'; base-uri 'none'" } });
+}
+__name(memberActivationPage, "memberActivationPage");
+function adminActivationPage() {
+  const html = `<!doctype html><html lang="id"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aktivasi Admin \xB7 Staging Flamboyan 4</title><style>body{background:#edf5ec;color:#29462e;font:16px system-ui;display:grid;place-items:center;min-height:100vh;margin:0}.card{background:white;width:min(420px,calc(100vw - 55px));padding:25px;border-radius:18px;box-shadow:0 12px 30px #25462818}h1{font-size:24px}label{display:block;margin-top:12px}input{box-sizing:border-box;display:block;width:100%;font:inherit;padding:11px;border:1px solid #b6cab8;border-radius:9px;margin-top:5px}button{background:#347a42;color:white;border:0;border-radius:9px;font:inherit;padding:12px 16px;margin-top:18px;cursor:pointer}button:disabled{opacity:.5}p,small{line-height:1.5;color:#5c735e}#activate{display:none}</style><main class="card"><h1>Aktivasi Admin Bank Sampah</h1><p>Hanya untuk superadmin di staging.</p><form id="login"><label>Username superadmin<input id="u" value="superadmin" required autocomplete="username"></label><label>Password superadmin<input id="s" type="password" required autocomplete="current-password"></label><button>Masuk</button></form><form id="activate"><label>Password baru untuk akun admin<input id="p" type="password" minlength="12" required autocomplete="new-password"></label><label>Ulangi password admin<input id="q" type="password" minlength="12" required autocomplete="new-password"></label><small>Minimal 12 karakter. Berbeda dengan password superadmin. Tidak menggunakan PIN awal 1026.</small><button>Aktifkan admin</button></form><p id="msg" role="status"></p></main><script>let token='';const $=id=>document.getElementById(id),msg=$('msg');$('login').onsubmit=async e=>{e.preventDefault();msg.textContent='Memeriksa superadmin\u2026';try{const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:$('u').value,password:$('s').value})}),j=await r.json();$('s').value='';if(!r.ok)throw Error(j.error||'Login gagal');if(j.role!=='superadmin')throw Error('Akses khusus superadmin');token='cookie-session';$('login').style.display='none';$('activate').style.display='block';msg.textContent='Siapkan password admin yang baru.';}catch(err){msg.textContent=err.message;}};$('activate').onsubmit=async e=>{e.preventDefault();if($('p').value!==$('q').value){msg.textContent='Konfirmasi password belum sama.';return;}if(!confirm('Aktifkan akun admin Bank Sampah pada staging?'))return;msg.textContent='Memproses aktivasi\u2026';try{const r=await fetch('/api/superadmin/accounts/activate-admin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:$('p').value,confirmation:'AKTIFKAN ADMIN'})}),j=await r.json();$('p').value='';$('q').value='';if(!r.ok)throw Error(j.error||'Aktivasi gagal');msg.textContent=j.message;$('activate').style.display='none';}catch(err){msg.textContent=err.message;}};<\/script>`;
+  return new Response(html, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-frame-options": "DENY", "content-security-policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; form-action 'self'; base-uri 'none'" } });
+}
+__name(adminActivationPage, "adminActivationPage");
+function memberSavingsPage() {
+  const html = `<!doctype html><html lang="id"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tabungan Saya \xB7 Uji Staging</title><style>body{background:#eef5ed;color:#234329;font:15px system-ui;margin:0;padding:22px}main{max-width:760px;margin:30px auto;background:white;padding:26px;border-radius:19px;box-shadow:0 10px 30px #23432915}h1{margin:0}p{color:#56715c;line-height:1.5}form{display:flex;flex-wrap:wrap;align-items:end;gap:10px}label{display:grid;gap:5px}input{font:inherit;padding:10px;border:1px solid #b6c9b8;border-radius:8px}button{font:inherit;color:white;background:#347842;border:0;border-radius:8px;padding:11px 18px;cursor:pointer}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:18px 0}.tile{background:#eef5ed;padding:16px;border-radius:12px}.tile strong{display:block;font-size:22px;margin-top:8px}table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #e4ede5;padding:10px 6px;text-align:left}.scroll{overflow:auto}#account{display:none}small{color:#607763}</style><main><h1>Tabungan Saya</h1><p>Uji privasi akun warga \xB7 data hanya berasal dari sesi login sendiri.</p><form id="login"><label>Username<input id="u" autocomplete="username" required placeholder="contoh: a5-24"></label><label>Password<input id="p" type="password" autocomplete="current-password" required></label><button>Masuk</button></form><p id="msg" role="status"></p><section id="account"><h2 id="name"></h2><div class="grid"><div class="tile">Saldo terkonfirmasi<strong id="balance"></strong></div><div class="tile">Estimasi belum disahkan<strong id="estimated"></strong></div></div><h3>Riwayat setoran</h3><div class="scroll"><table><thead><tr><th>Tanggal</th><th>Berat</th><th>Estimasi</th><th>Status</th><th>Rincian</th></tr></thead><tbody id="rows"></tbody></table></div><p><small>Saldo estimasi bukan hak tabungan sebelum rekonsiliasi disahkan.</small></p><button id="logout">Keluar</button></section></main><script>let token='';const $=id=>document.getElementById(id),rupiah=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(n||0);$('login').onsubmit=async e=>{e.preventDefault();$('msg').textContent='Memeriksa akun\u2026';try{const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:$('u').value,password:$('p').value})}),v=await r.json();$('p').value='';if(!r.ok)throw Error(v.error||'Login gagal');token='cookie-session';const headers={};const [meRes,savRes]=await Promise.all([fetch('/api/member/me',{headers}),fetch('/api/member/savings',{headers})]);const me=await meRes.json(),sav=await savRes.json();if(!meRes.ok||!savRes.ok)throw Error(sav.error||me.error||'Akses tabungan ditolak');$('name').textContent=(me.member?.nama||'Warga')+' \xB7 '+(me.member?.rumah||'');$('balance').textContent=rupiah(sav.saldoTersediaRp);$('estimated').textContent=rupiah(sav.estimasiMenungguRp);$('rows').replaceChildren();for(const d of sav.setoran){const tr=document.createElement('tr');for(const value of [d.tanggal,(Number(d.beratGram)/1000).toLocaleString('id-ID')+' kg',rupiah(d.estimasiRp),d.status,d.rincian.map(l=>l.barang+' '+(l.beratGram/1000).toLocaleString('id-ID')+' kg').join(', ')]){const td=document.createElement('td');td.textContent=value;tr.append(td);}$('rows').append(tr);}if(!sav.setoran.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=5;td.textContent='Belum ada setoran yang dapat ditampilkan.';tr.append(td);$('rows').append(tr);}$('login').style.display='none';$('account').style.display='block';$('msg').textContent='Data pribadi berhasil dimuat.';}catch(err){$('msg').textContent=err.message;}};$('logout').onclick=async()=>{if(token)await fetch('/api/auth/logout',{method:'POST',headers:{}}).catch(()=>{});token='';$('account').style.display='none';$('login').style.display='flex';$('msg').textContent='Sudah keluar.';};<\/script>`;
+  return new Response(html, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-frame-options": "DENY", "content-security-policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; form-action 'self'; base-uri 'none'" } });
+}
+__name(memberSavingsPage, "memberSavingsPage");
+async function identity(request, db) {
+  const header = request.headers.get("authorization") || "";
+  const match = /^Bearer ([A-Za-z0-9_-]{32,256})$/.exec(header);
+  const cookie = /\bf4_session=([A-Za-z0-9_-]{32,256})(?:;|$)/.exec(request.headers.get("cookie") || "");
+  const token = match?.[1] || cookie?.[1];
+  if (!token) return null;
+  const digest = await tokenHash(token);
+  return db.prepare(`SELECT a.id,a.member_id,a.username,a.role,a.status,
+    m.display_name,m.household_id,h.house_code
+    FROM sessions s JOIN accounts a ON a.id=s.account_id
+    LEFT JOIN members m ON m.id=a.member_id
+    LEFT JOIN households h ON h.id=m.household_id
+    WHERE s.token_hash=? AND s.revoked_at IS NULL AND s.expires_at > CURRENT_TIMESTAMP
+    AND a.status='aktif' LIMIT 1`).bind(digest).first();
+}
+__name(identity, "identity");
+function requireRole(who, roles) {
+  if (!who) return safeError("Sesi tidak valid atau sudah berakhir.", 401);
+  if (!roles.includes(who.role)) return safeError("Akses tidak diizinkan.", 403);
+  return null;
+}
+__name(requireRole, "requireRole");
+async function myProfile(db, who) {
+  const row = await db.prepare("SELECT display_name,avatar_key FROM member_account_profiles WHERE account_id=?").bind(who.id).first();
+  return { ok: true, account: { username: who.username, role: who.role }, profile: {
+    nama: row?.display_name || who.display_name || who.username,
+    rumah: who.house_code || null,
+    hasPhoto: !!row?.avatar_key,
+    photoUrl: row?.avatar_key ? "/api/member/avatar" : null
+  } };
+}
+__name(myProfile, "myProfile");
+async function updateMyProfile(request, env, who) {
+  const denied = requireRole(who, ["anggota", "admin", "superadmin"]);
+  if (denied) return denied;
+  let data;
+  try {
+    data = await requestJson(request);
+  } catch {
+    return safeError("Format profil tidak valid.", 400);
+  }
+  const name = String(data.nama || "").trim().replace(/\s+/g, " ");
+  if (name.length < 2 || name.length > 100 || /[<>\x00-\x1f]/.test(name)) return safeError("Nama harus 2\u2013100 karakter tanpa karakter khusus.", 400);
+  await env.DB.prepare(`INSERT INTO member_account_profiles(account_id,display_name,updated_at)
+    VALUES(?,?,CURRENT_TIMESTAMP) ON CONFLICT(account_id) DO UPDATE SET
+    display_name=excluded.display_name,updated_at=CURRENT_TIMESTAMP`).bind(who.id, name).run();
+  return myProfile(env.DB, who);
+}
+__name(updateMyProfile, "updateMyProfile");
+async function uploadMyAvatar(request, env, who) {
+  const denied = requireRole(who, ["anggota", "admin", "superadmin"]);
+  if (denied) return denied;
+  if (!env.PHOTOS) return safeError("Penyimpanan foto R2 belum dikonfigurasi.", 503);
+  const len = Number(request.headers.get("content-length") || 0);
+  if (len > 2 * 1024 * 1024) return safeError("Foto maksimal 2 MB.", 413);
+  const raw = await request.arrayBuffer();
+  if (raw.byteLength < 12 || raw.byteLength > 2 * 1024 * 1024) return safeError("Foto harus berukuran 12 byte\u20132 MB.", 400);
+  const v = new Uint8Array(raw);
+  let type, ext;
+  if (v[0] === 255 && v[1] === 216 && v[2] === 255) {
+    type = "image/jpeg";
+    ext = "jpg";
+  } else if (v[0] === 137 && v[1] === 80 && v[2] === 78 && v[3] === 71 && v[4] === 13 && v[5] === 10) {
+    type = "image/png";
+    ext = "png";
+  } else if (String.fromCharCode(...v.slice(0, 4)) === "RIFF" && String.fromCharCode(...v.slice(8, 12)) === "WEBP") {
+    type = "image/webp";
+    ext = "webp";
+  } else return safeError("Gunakan foto JPG, PNG, atau WebP.", 415);
+  const key = `profiles/${who.id.replace(/[^a-zA-Z0-9_-]/g, "_")}/${crypto.randomUUID()}.${ext}`;
+  const before = await env.DB.prepare("SELECT avatar_key FROM member_account_profiles WHERE account_id=?").bind(who.id).first();
+  await env.PHOTOS.put(key, raw, { httpMetadata: { contentType: type } });
+  try {
+    await env.DB.prepare(`INSERT INTO member_account_profiles(account_id,avatar_key,updated_at)
+    VALUES(?,?,CURRENT_TIMESTAMP) ON CONFLICT(account_id) DO UPDATE SET
+    avatar_key=excluded.avatar_key,updated_at=CURRENT_TIMESTAMP`).bind(who.id, key).run();
+  } catch (e) {
+    await env.PHOTOS.delete(key);
+    throw e;
+  }
+  if (before?.avatar_key && before.avatar_key !== key) await env.PHOTOS.delete(before.avatar_key).catch(() => {
+  });
+  return json({ ok: true, photoUrl: "/api/member/avatar" });
+}
+__name(uploadMyAvatar, "uploadMyAvatar");
+async function getMyAvatar(env, who) {
+  const denied = requireRole(who, ["anggota", "admin", "superadmin"]);
+  if (denied) return denied;
+  if (!env.PHOTOS) return safeError("Penyimpanan foto belum dikonfigurasi.", 503);
+  const row = await env.DB.prepare("SELECT avatar_key FROM member_account_profiles WHERE account_id=?").bind(who.id).first();
+  if (!row?.avatar_key) return safeError("Foto belum tersedia.", 404);
+  const object = await env.PHOTOS.get(row.avatar_key);
+  if (!object) return safeError("Foto tidak ditemukan.", 404);
+  const headers = new Headers({ "cache-control": "private, no-store", "x-content-type-options": "nosniff", "content-type": object.httpMetadata?.contentType || "application/octet-stream" });
+  return new Response(object.body, { headers });
+}
+__name(getMyAvatar, "getMyAvatar");
+async function publicSummary(db) {
+  const [members, albums, progress] = await Promise.all([
+    db.prepare("SELECT COUNT(*) AS n FROM members WHERE status='aktif'").first(),
+    db.prepare("SELECT COUNT(*) AS n FROM albums WHERE visibility='publik' AND status='aktif'").first(),
+    db.prepare("SELECT COUNT(*) AS n FROM progress_entries WHERE public_visible=1").first()
+  ]);
+  return { ok: true, anggotaAktif: members?.n || 0, albumPublik: albums?.n || 0, perkembanganPublik: progress?.n || 0 };
+}
+__name(publicSummary, "publicSummary");
+async function publicOverview(db) {
+  const [agenda, inventory, projects, media] = await Promise.all([
+    db.prepare("SELECT COUNT(*) AS n FROM portal_agenda WHERE visibility='publik'").first(),
+    db.prepare("SELECT COUNT(*) AS n FROM portal_inventory WHERE visibility='publik'").first(),
+    db.prepare("SELECT COUNT(*) AS n FROM portal_project_cards WHERE active=1").first(),
+    db.prepare("SELECT COUNT(*) AS n FROM album_media am JOIN albums a ON a.id=am.album_id WHERE a.visibility='publik' AND a.status='aktif' AND am.status='aktif'").first()
+  ]);
+  return { ok: true, agendaPublik: agenda?.n || 0, inventarisPublik: inventory?.n || 0, proyekAktif: projects?.n || 0, mediaAlbumPublik: media?.n || 0 };
+}
+__name(publicOverview, "publicOverview");
+async function publicAlbums(db) {
+  const found = await db.prepare(`SELECT a.title,a.category,a.event_on,a.description,
+    (SELECT am.external_url FROM album_media am WHERE am.album_id=a.id
+     AND am.status='aktif' AND am.media_type='tautan_album'
+     ORDER BY am.sort_order,am.id LIMIT 1) AS album_url
+    FROM albums a WHERE a.visibility='publik' AND a.status='aktif'
+    ORDER BY a.event_on DESC,a.title LIMIT 30`).all();
+  const publicLink = /* @__PURE__ */ __name((raw) => {
+    if (typeof raw !== "string") return null;
+    const clean = raw.trim().replace(/^\[([^\]]+)\]$/, "$1");
+    try {
+      const url = new URL(clean);
+      return url.protocol === "https:" && ["drive.google.com", "photos.google.com"].includes(url.hostname) ? url.href : null;
+    } catch {
+      return null;
+    }
+  }, "publicLink");
+  return { ok: true, albums: (found.results || []).map((r) => ({ judul: r.title, kategori: r.category, tanggal: r.event_on, keterangan: r.description, tautanAlbum: publicLink(r.album_url) })) };
+}
+__name(publicAlbums, "publicAlbums");
+async function publicProgress(db) {
+  const found = await db.prepare("SELECT title,happened_on,stage,status,description,next_step FROM progress_entries WHERE public_visible=1 ORDER BY happened_on DESC,title LIMIT 30").all();
+  return { ok: true, perkembangan: (found.results || []).map((r) => ({ judul: r.title, tanggal: r.happened_on, tahap: r.stage, status: r.status, keterangan: r.description, berikutnya: r.next_step })) };
+}
+__name(publicProgress, "publicProgress");
+async function ownPayments(db, memberId) {
+  const payer = await db.prepare("SELECT id,display_name FROM bookkeeping_payers WHERE member_id=? AND payer_type='warga' LIMIT 1").bind(memberId).first();
+  if (!payer) return { ok: true, linked: false, pembayaran: [], totalDiterimaRp: 0 };
+  const result = await db.prepare(`SELECT p.id,p.paid_on,p.amount_rp,p.payment_method,p.description,p.status,
+    a.period_year,a.period_month,a.contribution_type,a.amount_rp AS allocation_rp,a.status AS allocation_status
+    FROM bookkeeping_payments p
+    LEFT JOIN bookkeeping_payment_allocations a ON a.payment_id=p.id
+      WHERE p.payer_id=? ORDER BY p.paid_on DESC,p.id DESC,a.period_year,a.period_month LIMIT 501`).bind(payer.id).all();
+  const byId = /* @__PURE__ */ new Map();
+  const paymentHistoryTruncated=(result.results||[]).length>500;
+  for (const r of (result.results||[]).slice(0,500)) {
+    if (!byId.has(r.id)) byId.set(r.id, { id: r.id, tanggal: r.paid_on, jumlahRp: Number(r.amount_rp || 0), metode: r.payment_method || "", keterangan: r.description || "", status: r.status, alokasi: [] });
+    if (r.period_year !== null) byId.get(r.id).alokasi.push({ tahun: r.period_year, bulan: r.period_month, jenis: r.contribution_type, jumlahRp: Number(r.allocation_rp || 0), status: r.allocation_status });
+  }
+  const payments = [...byId.values()];
+  return {
+    ok: true,
+    linked: true,
+    namaPembayar: payer.display_name,
+    pembayaran: payments,
+    totalDiterimaRp: Number((await db.prepare(`SELECT COALESCE(SUM(amount_rp),0) AS total
+      FROM bookkeeping_payments WHERE payer_id=? AND status='aktif'`).bind(payer.id).first())?.total || 0),
+    riwayatLengkap: !paymentHistoryTruncated
+  };
+}
+__name(ownPayments, "ownPayments");
+async function f4ContributionReport(db, request) {
+  const params = new URL(request.url).searchParams, kind = params.get("kind") || "", level = params.get("level") || "month";
+  if (!["rt", "arisan"].includes(kind)) return safeError("Jenis laporan tidak tersedia.", 400);
+  const from = params.get("from") || "", to = params.get("to") || "";
+  if (from && !validDateOnly(from) || to && !validDateOnly(to) || from && to && from > to) return safeError("Periode tidak valid.", 400);
+  const where = ["a.status='aktif'", "p.status='aktif'"], bind = [];
+  if (from) {
+    where.push(level === "date" ? "p.paid_on>=?" : "printf('%04d-%02d',a.period_year,a.period_month)>=?");
+    bind.push(level === "date" ? from : from.slice(0, 7));
+  }
+  if (to) {
+    where.push(level === "date" ? "p.paid_on<=?" : "printf('%04d-%02d',a.period_year,a.period_month)<=?");
+    bind.push(level === "date" ? to : to.slice(0, 7));
+  }
+  const found = await db.prepare(`SELECT a.id,p.id AS payment_id,bp.id AS payer_id,bp.display_name,
+  h.house_code,p.payment_method,a.period_year,a.period_month,ad.contribution_type,ad.amount_rp AS line_rp
+  FROM bookkeeping_payment_allocations a
+  JOIN bookkeeping_payments p ON p.id=a.payment_id
+  JOIN bookkeeping_payers bp ON bp.id=p.payer_id
+  LEFT JOIN households h ON h.id=bp.household_id
+  LEFT JOIN bookkeeping_allocation_details ad ON ad.allocation_id=a.id
+  WHERE ${where.join(" AND ")} ORDER BY bp.display_name,a.period_year,a.period_month`).bind(...bind).all();
+  const byPayer = /* @__PURE__ */ new Map();
+  for (const x of found.results || []) {
+    const payer = x.payer_id;
+    if (!byPayer.has(payer)) {
+      const split = String(x.house_code || "").split("/");
+      byPayer.set(payer, {
+        idWarga: payer,
+        nama: x.display_name || "",
+        blok: split[0] || "",
+        noRumah: split.slice(1).join("/") || "",
+        nominalBulanan: 0,
+        nominalKebersihan: 0,
+        nominalBayar: 0,
+        metode: x.payment_method || "",
+        keterangan: ""
+      });
+    }
+    const entry = byPayer.get(payer), amount = Number(x.line_rp || 0);
+    if (x.contribution_type === "bulanan") entry.nominalBulanan += amount;
+    if (x.contribution_type === "kebersihan") entry.nominalKebersihan += amount;
+    if (x.contribution_type === "arisan") entry.nominalBayar += amount;
+  }
+  const year = Number((from || to || "").slice(0, 4)) || (/* @__PURE__ */ new Date()).getUTCFullYear();
+  const month = Number((from || to || "").slice(5, 7)) || (/* @__PURE__ */ new Date()).getUTCMonth() + 1;
+  const monthNames = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+  const entries = [...byPayer.values()];
+  if (kind === "rt") {
+    const rows2 = entries.filter((x) => x.nominalBulanan > 0 || x.nominalKebersihan > 0);
+    const totalBulanan = rows2.reduce((a, x) => a + x.nominalBulanan, 0), totalKebersihan = rows2.reduce((a, x) => a + x.nominalKebersihan, 0);
+    return json({ ok: true, data: {
+      namaBulan: monthNames[month],
+      tahun: year,
+      ringkasan: { totalBulanan, totalKebersihan, totalSetoran: totalBulanan + totalKebersihan, talanganCount: 0 },
+      rows: rows2,
+      catatan: "Setoran RT berdasarkan alokasi iuran D1; talangan belum digabung otomatis."
+    } });
+  }
+  const tariff = await db.prepare("SELECT amount_rp FROM bookkeeping_contribution_tariffs WHERE contribution_type='ARISAN'").first();
+  const value = Number(tariff?.amount_rp || 0);
+  const obligations = await db.prepare("SELECT payer_id,qty_arisan FROM bookkeeping_payer_iuran_obligations").all();
+  const qty = new Map((obligations.results || []).map((x) => [x.payer_id, Number(x.qty_arisan || 0)]));
+  const rows = entries.filter((x) => x.nominalBayar > 0).map((x) => {
+    const expected = value * (qty.get(x.idWarga) || 1);
+    return { ...x, qtyArisan: qty.get(x.idWarga) || 1, nominalWajib: expected, status: expected > 0 && x.nominalBayar >= expected ? "LUNAS" : "SEBAGIAN" };
+  });
+  return json({ ok: true, data: {
+    namaBulan: monthNames[month],
+    tahun: year,
+    rows,
+    ringkasan: { totalBayar: rows.reduce((a, x) => a + x.nominalBayar, 0) },
+    catatan: "Arisan dari alokasi D1; status belum bayar dilengkapi master warga di frontend."
+  } });
+}
+__name(f4ContributionReport, "f4ContributionReport");
+async function f4CorrectPaymentDate(env, request, who) {
+  let input;
+  try {
+    input = await requestJson(request);
+  } catch {
+    return safeError("Data koreksi tidak valid.", 400);
+  }
+  const paymentId = String(input.idPembayaran || "").trim();
+  const newDate = String(input.tanggalBaru || "").trim();
+  const reason = String(input.alasan || "Koreksi tanggal transaksi hasil migrasi").trim();
+  if (!paymentId || paymentId.length > 128 || !validDateOnly(newDate) || reason.length < 10 || reason.length > 500)
+    return safeError("ID, tanggal, atau alasan koreksi tidak valid.", 400);
+  const old = await env.DB.prepare("SELECT id,paid_on,status,amount_rp,payer_id FROM bookkeeping_payments WHERE id=?").bind(paymentId).first();
+  if (!old) return safeError("Pembayaran tidak ditemukan.", 404);
+  if (String(old.status).toLowerCase() !== "aktif") return safeError("Hanya pembayaran aktif dapat dikoreksi.", 409);
+  if (old.paid_on === newDate) return json({ ok: true, unchanged: true, tanggal: newDate });
+  const years = [.../* @__PURE__ */ new Set([Number(String(old.paid_on).slice(0, 4)), Number(newDate.slice(0, 4))])];
+  for (const year of years) {
+    const closed = await env.DB.prepare("SELECT id FROM bookkeeping_year_archives WHERE fiscal_year=? AND status IN ('ditutup','terkunci','final') LIMIT 1").bind(year).first();
+    if (closed) return safeError("Koreksi ditolak: tahun pembukuan sudah ditutup.", 409);
+  }
+  const linked = await env.DB.prepare("SELECT id,occurred_on,status FROM bookkeeping_cash_transactions WHERE source_payment_id=?").bind(paymentId).all();
+  const cashRows = linked.results || [];
+  if (cashRows.some((x) => String(x.status).toLowerCase() !== "aktif")) return safeError("Jurnal Kas terkait tidak aktif; perlu pemeriksaan manual.", 409);
+  const actor = who?.id || null;
+  try {
+    const statements = [
+      env.DB.prepare("UPDATE bookkeeping_payments SET paid_on=? WHERE id=? AND paid_on=?").bind(newDate, paymentId, old.paid_on),
+      ...cashRows.map((x) => env.DB.prepare("UPDATE bookkeeping_cash_transactions SET occurred_on=? WHERE id=? AND occurred_on=?").bind(newDate, x.id, x.occurred_on)),
+      env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,before_json,after_json) VALUES(?,?,?,?,?,?,?,?,?)").bind(
+        crypto.randomUUID(),
+        actor,
+        "pembukuan",
+        "correct_migrated_payment_date",
+        "bookkeeping_payments",
+        paymentId,
+        reason,
+        JSON.stringify({ paid_on: old.paid_on, linked_cash: cashRows.map((x) => ({ id: x.id, occurred_on: x.occurred_on })) }),
+        JSON.stringify({ paid_on: newDate, linked_cash_count: cashRows.length })
+      )
+    ];
+    await env.DB.batch(statements);
+    return json({ ok: true, message: "Tanggal pembayaran dan jurnal terkait berhasil dikoreksi. Audit tersimpan.", tanggalBaru: newDate });
+  } catch {
+    return safeError("Koreksi gagal; tidak ada nominal yang boleh berubah.", 409);
+  }
+}
+__name(f4CorrectPaymentDate, "f4CorrectPaymentDate");
+async function f4QuickIuranSummary(db, request) {
+  const q = new URL(request.url).searchParams, from = q.get("from") || "", to = q.get("to") || "", level = q.get("level") || "month";
+  if (from && !validDateOnly(from) || to && !validDateOnly(to) || from && to && from > to) return safeError("Rentang tanggal tidak valid.", 400);
+  const conditions = ["p.status='aktif'", "a.status='aktif'"], bind = [];
+  if (from) {
+    conditions.push(level === "date" ? "p.paid_on>=?" : "printf('%04d-%02d',a.period_year,a.period_month)>=?");
+    bind.push(level === "date" ? from : from.slice(0, 7));
+  }
+  if (to) {
+    conditions.push(level === "date" ? "p.paid_on<=?" : "printf('%04d-%02d',a.period_year,a.period_month)<=?");
+    bind.push(level === "date" ? to : to.slice(0, 7));
+  }
+  const found = await db.prepare(`SELECT a.id,a.payment_id,p.payer_id,a.amount_rp,p.payment_method,
+    ad.contribution_type AS line_type,ad.amount_rp AS line_rp
+    FROM bookkeeping_payment_allocations a
+    JOIN bookkeeping_payments p ON p.id=a.payment_id
+    LEFT JOIN bookkeeping_allocation_details ad ON ad.allocation_id=a.id
+    WHERE ${conditions.join(" AND ")} ORDER BY a.period_year,a.period_month,a.id`).bind(...bind).all();
+  const allocations = /* @__PURE__ */ new Map();
+  for (const x of found.results || []) {
+    if (!allocations.has(x.id)) allocations.set(x.id, { payer: x.payer_id, amount: Number(x.amount_rp || 0), method: String(x.payment_method || "").toLowerCase(), detail: {} });
+    if (x.line_type) {
+      const k = String(x.line_type).toLowerCase();
+      allocations.get(x.id).detail[k] = (allocations.get(x.id).detail[k] || 0) + Number(x.line_rp || 0);
+    }
+  }
+  const t = { totalMasuk: 0, setoranRT: 0, kasLorong: 0, arisan: 0, cash: 0, qris: 0, mandiri: 0, selisih: 0 };
+  const grouped = { total: /* @__PURE__ */ new Set(), rt: /* @__PURE__ */ new Set(), kas: /* @__PURE__ */ new Set(), arisan: /* @__PURE__ */ new Set() };
+  for (const p of allocations.values()) {
+    t.totalMasuk += p.amount;
+    grouped.total.add(p.payer);
+    const rt = (p.detail.bulanan || 0) + (p.detail.kebersihan || 0), kas = p.detail.kas_lorong || 0, arisan = p.detail.arisan || 0;
+    t.setoranRT += rt;
+    t.kasLorong += kas;
+    t.arisan += arisan;
+    if (rt) grouped.rt.add(p.payer);
+    if (kas) grouped.kas.add(p.payer);
+    if (arisan) grouped.arisan.add(p.payer);
+    if (p.method.includes("cash") || p.method.includes("tunai")) t.cash += p.amount;
+    else if (p.method.includes("qris") || p.method === "qr") t.qris += p.amount;
+    else if (p.method.includes("mandiri")) t.mandiri += p.amount;
+  }
+  t.selisih = t.totalMasuk - t.setoranRT - t.kasLorong - t.arisan;
+  const obligationRows = await db.prepare(`SELECT o.payer_id,o.qty_iuran_bulanan,o.qty_kebersihan,o.qty_kas_lorong,o.qty_arisan
+    FROM bookkeeping_payer_iuran_obligations o JOIN bookkeeping_payers p ON p.id=o.payer_id WHERE p.active=1`).all();
+  const required = { total: /* @__PURE__ */ new Set(), rt: /* @__PURE__ */ new Set(), kas: /* @__PURE__ */ new Set(), arisan: /* @__PURE__ */ new Set() };
+  for (const o of obligationRows.results || []) {
+    const rt = Number(o.qty_iuran_bulanan || 0) + Number(o.qty_kebersihan || 0), kas = Number(o.qty_kas_lorong || 0), arisan = Number(o.qty_arisan || 0);
+    if (rt + kas + arisan > 0) required.total.add(o.payer_id);
+    if (rt) required.rt.add(o.payer_id);
+    if (kas) required.kas.add(o.payer_id);
+    if (arisan) required.arisan.add(o.payer_id);
+  }
+  const counts = Object.fromEntries(Object.entries(grouped).map(([k, v]) => [k, {
+    lunas: v.size,
+    sebagian: 0,
+    belum: [...required[k]].filter((x) => !v.has(x)).length
+  }]));
+  return json({ ok: true, data: { totals: t, counts, labelPeriode: from && to ? `${from.slice(0, 7)} s.d. ${to.slice(0, 7)}` : "Semua periode", source: "cloudflare-d1-periode-alokasi" } });
+}
+__name(f4QuickIuranSummary, "f4QuickIuranSummary");
+async function f4CashReport(db, request) {
+  const q = new URL(request.url).searchParams, from = q.get("from") || "", to = q.get("to") || "";
+  if (from && !validDateOnly(from) || to && !validDateOnly(to) || from && to && from > to) return safeError("Rentang tanggal tidak valid.", 400);
+  const clauses = ["status='aktif'"], args = [];
+  if (from) {
+    clauses.push("occurred_on>=?");
+    args.push(from);
+  }
+  if (to) {
+    clauses.push("occurred_on<=?");
+    args.push(to);
+  }
+  const found = await db.prepare(`SELECT id,occurred_on,transaction_type,category,debit_rp,credit_rp,note,payment_method
+  FROM bookkeeping_cash_transactions WHERE ${clauses.join(" AND ")} ORDER BY occurred_on,id`).bind(...args).all();
+  const before = from ? await db.prepare("SELECT COALESCE(SUM(debit_rp-credit_rp),0) AS amount FROM bookkeeping_cash_transactions WHERE status='aktif' AND occurred_on<?").bind(from).first() : { amount: 0 };
+  const rows = (found.results || []).map((x) => ({
+    idTransaksi: x.id,
+    tanggal: x.occurred_on,
+    jenis: x.transaction_type,
+    kategori: x.category || "",
+    keterangan: x.note || x.category || "",
+    debit: Number(x.debit_rp || 0),
+    kredit: Number(x.credit_rp || 0),
+    sumber: "D1"
+  }));
+  const debit = rows.reduce((n, x) => n + x.debit, 0), kredit = rows.reduce((n, x) => n + x.kredit, 0), saldoAwal = Number(before?.amount || 0);
+  return json({ ok: true, data: {
+    labelPeriode: from && to ? `${from} s.d. ${to}` : "Seluruh periode",
+    ringkasan: { saldoAwal, debit, kredit, saldoPeriode: debit - kredit, saldoAkhir: saldoAwal + debit - kredit },
+    rows,
+    catatan: "Kas tercatat pada Cloudflare D1; bukan pengesahan Tutup Buku."
+  } });
+}
+__name(f4CashReport, "f4CashReport");
+
+// Read-only year-end summary for the original Pembukuan report tab.
+// Aggregates the cash journal once; RT/arisan amounts are memo details, NOT extra cash inflows.
+async function f4YearlyReadOnlyReport(db, request) {
+  const raw = new URL(request.url).searchParams.get('year') || '';
+  if (!/^\d{4}$/.test(raw) || Number(raw)<2020 || Number(raw)>2100)
+    return safeError('Tahun laporan tidak valid.',400);
+  const year=Number(raw), begin=raw+'-01-01', end=raw+'-12-31';
+  const names=['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const [opening,journal,allocation,loans,advances,unpostedPayments,archived] = await Promise.all([
+    db.prepare(`SELECT COALESCE(SUM(debit_rp-credit_rp),0) AS amount FROM bookkeeping_cash_transactions WHERE status='aktif' AND occurred_on<?`).bind(begin).first(),
+    db.prepare(`SELECT substr(occurred_on,6,2) AS mon,
+       COALESCE(SUM(debit_rp),0) AS debit,
+       COALESCE(SUM(credit_rp),0) AS credit,
+       -- KAS0011: uang saldo awal serah-terima pengurus, BUKAN pemasukan operasional.
+       -- Tetap simpan jurnal aslinya; klasifikasi baca-saja dalam laporan tahunan.
+       COALESCE(SUM(CASE WHEN id='cash:KAS0011'
+         AND occurred_on='2026-08-31' AND category='Saldo Awal'
+         AND note='Saldo Awal Serah Terima'
+         AND debit_rp=794000 AND credit_rp=0
+         THEN debit_rp ELSE 0 END),0) AS handover_opening,
+       COALESCE(SUM(CASE WHEN lower(category) LIKE '%denda%' THEN debit_rp ELSE 0 END),0) AS denda
+       FROM bookkeeping_cash_transactions
+       WHERE status='aktif' AND occurred_on>=? AND occurred_on<=?
+       GROUP BY substr(occurred_on,6,2)`).bind(begin,end).all(),
+    db.prepare(`SELECT substr(p.paid_on,6,2) AS mon,
+       COALESCE(SUM(CASE WHEN ad.contribution_type IN ('bulanan','kebersihan') THEN ad.amount_rp ELSE 0 END),0) AS rt,
+       COALESCE(SUM(CASE WHEN ad.contribution_type='arisan' THEN ad.amount_rp ELSE 0 END),0) AS arisan
+       FROM bookkeeping_payment_allocations a
+       JOIN bookkeeping_payments p ON p.id=a.payment_id
+       JOIN bookkeeping_allocation_details ad ON ad.allocation_id=a.id
+       WHERE p.status='aktif' AND a.status='aktif' AND p.paid_on>=? AND p.paid_on<=?
+       GROUP BY substr(p.paid_on,6,2)`).bind(begin,end).all(),
+    db.prepare(`SELECT COALESCE(SUM(max(0,l.amount_rp-COALESCE((SELECT SUM(r.amount_rp) FROM bookkeeping_loan_repayments r
+       WHERE r.loan_id=l.id AND r.status='aktif' AND r.repaid_on<=?),0))),0) AS due
+       FROM bookkeeping_loans l WHERE l.status!='dibatalkan' AND l.loaned_on<=?`).bind(end,end).first(),
+    db.prepare(`SELECT COALESCE(SUM(max(0,a.amount_rp-COALESCE((SELECT SUM(r.amount_rp) FROM bookkeeping_advance_repayments r
+       WHERE r.advance_id=a.id AND r.status='aktif' AND r.repaid_on<=?),a.reimbursed_rp,0))),0) AS due
+       FROM bookkeeping_advances a WHERE a.status!='dibatalkan' AND a.advanced_on<=?`).bind(end,end).first(),
+    db.prepare(`SELECT COUNT(*) AS jumlah,COALESCE(SUM(p.amount_rp),0) AS nominal_rp
+       FROM bookkeeping_payments p
+       WHERE p.status='aktif' AND p.paid_on>=? AND p.paid_on<=?
+       AND NOT EXISTS (SELECT 1 FROM bookkeeping_cash_transactions c
+          WHERE c.source_payment_id=p.id AND c.status='aktif')`).bind(begin,end).first(),
+    db.prepare(`SELECT id,status,created_at FROM bookkeeping_year_archives WHERE fiscal_year=? LIMIT 1`).bind(year).first()
+  ]);
+  const cashByMonth=new Map((journal.results||[]).map(row=>[String(row.mon),row]));
+  const allocByMonth=new Map((allocation.results||[]).map(row=>[String(row.mon),row]));
+  const asNumber=v=>Number(v||0);
+  const bulanan=Array.from({length:12},(_,index)=>{
+    const m=String(index+1).padStart(2,'0'),c=cashByMonth.get(m)||{},a=allocByMonth.get(m)||{};
+    const pemasukan=asNumber(c.debit)-asNumber(c.handover_opening),pengeluaran=asNumber(c.credit);
+    return {bulan:index+1,namaBulan:names[index+1],pemasukan,pengeluaran,saldoPeriode:pemasukan-pengeluaran,
+      setoranRT:asNumber(a.rt),arisan:asNumber(a.arisan),dendaMasuk:asNumber(c.denda)};
+  });
+  const sum=key=>bulanan.reduce((total,row)=>total+row[key],0);
+  const sumOpening=(journal.results||[]).reduce((n,row)=>n+asNumber(row.handover_opening),0);
+  const saldoBawaan=sumOpening, saldoAwal=asNumber(opening?.amount)+saldoBawaan,pemasukan=sum('pemasukan'),pengeluaran=sum('pengeluaran');
+  const locked=archived&&['ditutup','terkunci','final'].includes(String(archived.status).toLowerCase());
+  return json({ok:true,data:{tahun:year,bulanan,
+    ringkasan:{saldoAwal,pemasukan,pengeluaran,saldoPeriode:pemasukan-pengeluaran,
+      saldoAkhir:saldoAwal+pemasukan-pengeluaran,saldoBawaanSerahTerima:saldoBawaan,
+      totalSetoranRT:sum('setoranRT'),totalArisan:sum('arisan'),
+      totalDendaMasuk:sum('dendaMasuk'),sisaPinjaman:asNumber(loans?.due),sisaTalangan:asNumber(advances?.due)},
+    sudahDitutup:!!locked,bisaDitutup:false,
+    laporanSementara:true,
+    belumRekonsiliasi:Number(unpostedPayments?.jumlah||0)>0,
+    pembayaranTanpaRelasiJurnal:{jumlah:Number(unpostedPayments?.jumlah||0),nominalRp:Number(unpostedPayments?.nominal_rp||0)},
+    tutupBuku:locked?{tanggalTutup:archived.created_at}:null,
+    saldoAwalTahunBerikutnya:saldoAwal+pemasukan-pengeluaran,
+    catatan:'REKAP SEMENTARA jurnal kas D1, belum menjadi saldo final atau Tutup Buku. Saldo serah-terima Rp794.000 adalah saldo pembuka, bukan pemasukan baru. Pembayaran iuran tanpa tautan otomatis ke jurnal kas memerlukan pencocokan, bukan berarti pasti belum dibukukan. Setoran RT dan Arisan hanya rincian alokasi, bukan tambahan kas.'}});
+}
+
+async function bookkeepingIuranHistory(db, request) {
+  const url = new URL(request.url);
+  const limit = Math.min(1e3, Math.max(1, Number(url.searchParams.get("limit")) || 500));
+  const out = await db.prepare(`SELECT p.id,p.payer_id,p.paid_on,p.amount_rp,p.payment_method,p.description,p.status,
+    bp.display_name,bp.member_id,m.household_id,h.house_code,
+    a.period_year,a.period_month,a.contribution_type,a.amount_rp AS allocation_rp,a.status AS allocation_status
+    FROM (SELECT * FROM bookkeeping_payments ORDER BY paid_on DESC,id DESC LIMIT ?) p
+    JOIN bookkeeping_payers bp ON bp.id=p.payer_id
+    LEFT JOIN members m ON m.id=bp.member_id
+    LEFT JOIN households h ON h.id=COALESCE(p.household_id,m.household_id)
+    LEFT JOIN bookkeeping_payment_allocations a ON a.payment_id=p.id
+    ORDER BY p.paid_on DESC,p.id DESC,a.period_year,a.period_month`).bind(limit).all();
+  const byId = /* @__PURE__ */ new Map();
+  for (const r of out.results || []) {
+    if (!byId.has(r.id)) byId.set(r.id, {
+      idPembayaran: r.id,
+      idWarga: r.member_id || r.payer_id,
+      nama: r.display_name || "",
+      tanggal: r.paid_on,
+      totalDiterima: Number(r.amount_rp || 0),
+      metode: r.payment_method || "",
+      catatan: r.description || "",
+      status: String(r.status || "").toLowerCase() === "aktif" ? "AKTIF" : "BATAL",
+      blok: (r.house_code || "").split("/")[0] || "",
+      noRumah: (r.house_code || "").split("/").slice(1).join("/") || "",
+      periode: [],
+      alokasi: [],
+      // Edits/cancel must remain disabled until full D1 accounting reconciliation exists.
+      canEdit: false,
+      canCancel: false,
+      locked: true,
+      canCorrectMigrationDate: String(r.status || "").toLowerCase() === "aktif"
+    });
+    if (r.period_year !== null) {
+      const item = byId.get(r.id);
+      item.alokasi.push({
+        tahun: Number(r.period_year),
+        bulan: Number(r.period_month),
+        jenis: r.contribution_type,
+        nominal: Number(r.allocation_rp || 0),
+        status: r.allocation_status
+      });
+      const month = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"][Number(r.period_month)];
+      if (month) {
+        const label = month + " " + r.period_year;
+        if (!item.periode.includes(label)) item.periode.push(label);
+      }
+    }
+  }
+  return json({ ok: true, data: [...byId.values()], source: "cloudflare-d1", limit });
+}
+__name(bookkeepingIuranHistory, "bookkeepingIuranHistory");
+async function auditIuranCash(db) {
+  const checks = {
+    tanpaJurnal: `SELECT p.id AS payment_id,p.amount_rp AS nilai,
+      (SELECT COUNT(*) FROM bookkeeping_cash_transactions c WHERE c.source_payment_id=p.id AND c.status='aktif') AS jumlah_jurnal
+      FROM bookkeeping_payments p WHERE p.status='aktif'
+        AND NOT EXISTS (SELECT 1 FROM bookkeeping_cash_transactions c WHERE c.source_payment_id=p.id AND c.status='aktif')
+      ORDER BY p.paid_on DESC LIMIT 100`,
+    jurnalGanda: `SELECT p.id AS payment_id,p.amount_rp AS nilai,COUNT(c.id) AS jumlah_jurnal
+      FROM bookkeeping_payments p JOIN bookkeeping_cash_transactions c ON c.source_payment_id=p.id AND c.status='aktif'
+      WHERE p.status='aktif' GROUP BY p.id HAVING COUNT(c.id)>1 LIMIT 100`,
+    selisihJurnal: `SELECT p.id AS payment_id,p.amount_rp AS nilai,
+      COALESCE(SUM(c.debit_rp-c.credit_rp),0) AS nilai_jurnal
+      FROM bookkeeping_payments p JOIN bookkeeping_cash_transactions c ON c.source_payment_id=p.id AND c.status='aktif'
+      WHERE p.status='aktif' GROUP BY p.id HAVING SUM(c.debit_rp-c.credit_rp)<>p.amount_rp LIMIT 100`,
+    selisihAlokasi: `SELECT p.id AS payment_id,p.amount_rp AS nilai,
+      COALESCE(SUM(CASE WHEN a.status='aktif' THEN a.amount_rp ELSE 0 END),0) AS nilai_alokasi
+      FROM bookkeeping_payments p LEFT JOIN bookkeeping_payment_allocations a ON a.payment_id=p.id
+      WHERE p.status='aktif' GROUP BY p.id HAVING nilai_alokasi<>p.amount_rp LIMIT 100`
+  };
+  const result = {};
+  for (const [name, sql] of Object.entries(checks)) {
+    const rows = await db.prepare(sql).all();
+    result[name] = rows.results || [];
+  }
+  return json({
+    ok: true,
+    scope: "audit-iuran-jurnal",
+    readOnly: true,
+    catatan: "Maksimum 100 temuan per jenis. Data impor lama bisa belum memiliki hubungan jurnal; verifikasi sebelum perubahan.",
+    jumlahTerlihat: Object.fromEntries(Object.entries(result).map(([k, v]) => [k, v.length])),
+    temuan: result
+  });
+}
+__name(auditIuranCash, "auditIuranCash");
+async function auditTalangan(db) {
+  const queries = {
+    angsuranTanpaTalangan: `SELECT r.id,r.advance_id,r.amount_rp FROM bookkeeping_advance_repayments r
+      LEFT JOIN bookkeeping_advances a ON a.id=r.advance_id WHERE a.id IS NULL LIMIT 100`,
+    jumlahTidakValid: `SELECT a.id,a.amount_rp,a.reimbursed_rp,a.status FROM bookkeeping_advances a
+      WHERE a.amount_rp<0 OR a.reimbursed_rp<0 OR a.reimbursed_rp>a.amount_rp LIMIT 100`,
+    angsuranMelebihiPokok: `SELECT a.id,a.amount_rp,a.reimbursed_rp,
+      COALESCE(SUM(CASE WHEN r.status='aktif' THEN r.amount_rp ELSE 0 END),0) AS total_angsuran
+      FROM bookkeeping_advances a LEFT JOIN bookkeeping_advance_repayments r ON r.advance_id=a.id
+      WHERE a.status='aktif' GROUP BY a.id
+      HAVING total_angsuran>a.amount_rp LIMIT 100`,
+    perbedaanRingkasan: `SELECT a.id,a.amount_rp,a.reimbursed_rp,
+      COALESCE(SUM(CASE WHEN r.status='aktif' THEN r.amount_rp ELSE 0 END),0) AS total_angsuran
+      FROM bookkeeping_advances a LEFT JOIN bookkeeping_advance_repayments r ON r.advance_id=a.id
+      WHERE a.status='aktif' GROUP BY a.id
+      HAVING total_angsuran<>a.reimbursed_rp LIMIT 100`
+  };
+  const temuan = {};
+  for (const [jenis, sql] of Object.entries(queries)) {
+    const rows = await db.prepare(sql).all();
+    temuan[jenis] = rows.results || [];
+  }
+  return json({
+    ok: true,
+    scope: "audit-talangan",
+    readOnly: true,
+    catatan: "Perbedaan ringkasan belum tentu kesalahan: pada impor lama reimbursed_rp bisa merepresentasikan saldo historis tanpa rincian angsuran. Tidak ada perubahan jurnal otomatis.",
+    jumlahTerlihat: Object.fromEntries(Object.entries(temuan).map(([k, v]) => [k, v.length])),
+    temuan
+  });
+}
+__name(auditTalangan, "auditTalangan");
+async function listTalanganD1(db, request) {
+  const url = new URL(request.url);
+  const limitValue = Number(url.searchParams.get("limit") || 100);
+  if (!Number.isInteger(limitValue) || limitValue < 1 || limitValue > 200) return safeError("Batas daftar 1\u2013200.", 400);
+  const advances = await db.prepare(`SELECT a.id,a.advanced_on,a.payer_id,a.due_on,a.description,
+      a.amount_rp,a.reimbursed_rp,a.status,
+      p.display_name AS payer_name,h.house_code AS rumah,
+      COALESCE(r.jumlah,0) AS jumlah_angsuran,
+      COALESCE(r.total,0) AS total_angsuran
+    FROM bookkeeping_advances a
+    LEFT JOIN bookkeeping_payers p ON p.id=a.payer_id
+    LEFT JOIN households h ON h.id=p.household_id
+    LEFT JOIN (
+      SELECT advance_id,COUNT(*) AS jumlah,SUM(amount_rp) AS total
+      FROM bookkeeping_advance_repayments
+      WHERE status='aktif' GROUP BY advance_id
+    ) r ON r.advance_id=a.id
+    ORDER BY a.id DESC LIMIT ?`).bind(limitValue).all();
+  const rows = (advances.results || []).map((advance) => {
+    const pokok = Number(advance.amount_rp), ringkasan = Number(advance.reimbursed_rp), angsuran = Number(advance.total_angsuran || 0);
+    return {
+      id: advance.id,
+      tanggal: advance.advanced_on,
+      payerId: advance.payer_id,
+      nama: advance.payer_name || "",
+      rumah: advance.rumah || "",
+      tanggalJatuhTempo: advance.due_on,
+      keterangan: advance.description || "",
+      status: advance.status,
+      pokokRp: pokok,
+      pelunasanRingkasanRp: ringkasan,
+      angsuranTercatatRp: angsuran,
+      jumlahAngsuran: Number(advance.jumlah_angsuran || 0),
+      sisaMenurutRingkasanRp: pokok - ringkasan,
+      perluRekonsiliasi: ringkasan !== angsuran
+    };
+  });
+  return json({
+    ok: true,
+    source: "cloudflare-d1",
+    readOnly: true,
+    data: rows,
+    catatan: "Selisih ringkasan dan angsuran bisa berasal dari impor historis. Jangan membuat jurnal otomatis berdasarkan selisih."
+  });
+}
+__name(listTalanganD1, "listTalanganD1");
+async function detailTalanganD1(db, request) {
+  const params = new URL(request.url).searchParams;
+  const id = params.get("id") || "";
+  if (!id || id.length > 150 || !/^[A-Za-z0-9_-]+$/.test(id))
+    return safeError("ID talangan tidak valid.", 400);
+  const a = await db.prepare(`SELECT id,advanced_on,payer_id,advanced_by,description,
+    amount_rp,reimbursed_rp,status,created_at FROM bookkeeping_advances WHERE id=?`).bind(id).first();
+  if (!a) return safeError("Talangan tidak ditemukan.", 404);
+  const result = await db.prepare(`SELECT id,repaid_on,amount_rp,status,note
+    FROM bookkeeping_advance_repayments WHERE advance_id=?
+    ORDER BY repaid_on ASC,id ASC LIMIT 501`).bind(id).all();
+  const repayments = result.results || [];
+  if (repayments.length > 500) return safeError("Riwayat terlalu panjang; perlu paginasi sebelum ditampilkan.", 409);
+  const active = repayments.filter((r) => r.status === "aktif");
+  const total = active.reduce((n, r) => n + Number(r.amount_rp), 0);
+  const pokok = Number(a.amount_rp), ringkasan = Number(a.reimbursed_rp);
+  if (![total, pokok, ringkasan].every(Number.isSafeInteger))
+    return safeError("Angka historis tidak valid; perlu pemeriksaan data.", 409);
+  return json({
+    ok: true,
+    source: "cloudflare-d1",
+    readOnly: true,
+    talangan: {
+      id: a.id,
+      tanggal: a.advanced_on,
+      payerId: a.payer_id,
+      ditanggungOleh: a.advanced_by,
+      keterangan: a.description,
+      pokokRp: pokok,
+      pelunasanRingkasanRp: ringkasan,
+      status: a.status
+    },
+    angsuran: repayments.map((r) => ({
+      id: r.id,
+      tanggal: r.repaid_on,
+      jumlahRp: Number(r.amount_rp),
+      status: r.status,
+      catatan: r.note
+    })),
+    jumlahAngsuranAktif: active.length,
+    angsuranAktifRp: total,
+    sisaMenurutRingkasanRp: pokok - ringkasan,
+    selisihRingkasanRp: ringkasan - total,
+    perluRekonsiliasi: ringkasan !== total,
+    catatan: "Angsuran nonaktif ditampilkan sebagai audit, tidak ikut total. Selisih historis tidak membuat kas atau jurnal otomatis."
+  });
+}
+__name(detailTalanganD1, "detailTalanganD1");
+function auditLimit(request) {
+  const raw = new URL(request.url).searchParams.get("limit") || "100";
+  if (!/^[0-9]{1,3}$/.test(raw)) return null;
+  const n = Number(raw);
+  return n >= 1 && n <= 200 ? n : null;
+}
+__name(auditLimit, "auditLimit");
+async function listDendaD1(db, request) {
+  const limit = auditLimit(request);
+  if (!limit) return safeError("Batas daftar harus 1\u2013200.", 400);
+  const result = await db.prepare(`SELECT f.id,f.payer_id,f.household_id,f.event_on,
+     f.fine_type,f.amount_rp,f.paid_rp,f.paid_on,f.status,f.note,
+     p.display_name AS payer_name,h.house_code AS rumah
+     FROM bookkeeping_fines f LEFT JOIN bookkeeping_payers p ON p.id=f.payer_id
+     LEFT JOIN households h ON h.id=COALESCE(f.household_id,p.household_id)
+     ORDER BY f.event_on DESC,f.id DESC LIMIT ?`).bind(limit).all();
+  const rows = [];
+  for (const r of result.results || []) {
+    const amount = Number(r.amount_rp), paid = Number(r.paid_rp);
+    if (!Number.isSafeInteger(amount) || !Number.isSafeInteger(paid)) return safeError("Nominal denda historis perlu diperiksa.", 409);
+    rows.push({
+      id: r.id,
+      payerId: r.payer_id,
+      nama: r.payer_name,
+      rumah: r.rumah || "",
+      householdId: r.household_id,
+      tanggal: r.event_on,
+      jenis: r.fine_type,
+      nominalRp: amount,
+      terbayarRp: paid,
+      sisaRp: amount - paid,
+      tanggalBayar: r.paid_on,
+      status: r.status,
+      catatan: r.note,
+      perluRekonsiliasi: paid < 0 || paid > amount || r.status === "lunas" && paid !== amount || r.status === "belum" && paid >= amount
+    });
+  }
+  return json({
+    ok: true,
+    readOnly: true,
+    source: "cloudflare-d1",
+    data: rows,
+    catatan: "Status dan total denda historis diperiksa saja; belum ada penulisan kas atau perubahan denda."
+  });
+}
+__name(listDendaD1, "listDendaD1");
+async function listPinjamanD1(db, request) {
+  const limit = auditLimit(request);
+  if (!limit) return safeError("Batas daftar harus 1\u2013200.", 400);
+  const result = await db.prepare(`SELECT l.id,l.payer_id,l.loaned_on,l.amount_rp,l.status,l.note,
+    p.display_name AS payer_name,COALESCE(r.total,0) AS paid_rp,
+    COALESCE(r.cnt,0) AS payment_count
+    FROM bookkeeping_loans l LEFT JOIN bookkeeping_payers p ON p.id=l.payer_id
+    LEFT JOIN (SELECT loan_id,SUM(amount_rp) AS total,COUNT(*) AS cnt
+      FROM bookkeeping_loan_repayments WHERE status='aktif' GROUP BY loan_id) r ON r.loan_id=l.id
+    ORDER BY l.loaned_on DESC,l.id DESC LIMIT ?`).bind(limit).all();
+  const rows = [];
+  for (const r of result.results || []) {
+    const amount = Number(r.amount_rp), paid = Number(r.paid_rp);
+    if (![amount, paid].every(Number.isSafeInteger)) return safeError("Nominal pinjaman historis perlu diperiksa.", 409);
+    rows.push({
+      id: r.id,
+      payerId: r.payer_id,
+      nama: r.payer_name,
+      tanggal: r.loaned_on,
+      pokokRp: amount,
+      angsuranAktifRp: paid,
+      jumlahAngsuran: Number(r.payment_count),
+      sisaRp: amount - paid,
+      status: r.status,
+      catatan: r.note,
+      perluRekonsiliasi: paid < 0 || paid > amount || r.status === "lunas" && paid !== amount
+    });
+  }
+  return json({
+    ok: true,
+    readOnly: true,
+    source: "cloudflare-d1",
+    data: rows,
+    catatan: "Total hanya menjumlah angsuran aktif. Tidak ada penulisan atau jurnal otomatis."
+  });
+}
+__name(listPinjamanD1, "listPinjamanD1");
+async function detailPinjamanD1(db, request) {
+  const id = new URL(request.url).searchParams.get("id") || "";
+  if (!/^[A-Za-z0-9_-]{1,150}$/.test(id)) return safeError("ID pinjaman tidak valid.", 400);
+  const loan = await db.prepare(`SELECT l.id,l.payer_id,l.loaned_on,l.amount_rp,l.status,l.note,
+    p.display_name AS payer_name FROM bookkeeping_loans l
+    LEFT JOIN bookkeeping_payers p ON p.id=l.payer_id WHERE l.id=?`).bind(id).first();
+  if (!loan) return safeError("Pinjaman tidak ditemukan.", 404);
+  const res = await db.prepare(`SELECT id,repaid_on,amount_rp,status,note FROM bookkeeping_loan_repayments
+    WHERE loan_id=? ORDER BY repaid_on ASC,id ASC LIMIT 501`).bind(id).all();
+  if ((res.results || []).length > 500) return safeError("Riwayat melebihi 500; butuh paginasi.", 409);
+  const items = (res.results || []).map((r) => ({
+    id: r.id,
+    tanggal: r.repaid_on,
+    jumlahRp: Number(r.amount_rp),
+    status: r.status,
+    catatan: r.note
+  }));
+  if (!items.every((r) => Number.isSafeInteger(r.jumlahRp) && r.jumlahRp > 0)) return safeError("Nominal angsuran historis tidak valid.", 409);
+  const paid = items.filter((r) => r.status === "aktif").reduce((n, r) => n + r.jumlahRp, 0);
+  const principal = Number(loan.amount_rp);
+  if (!Number.isSafeInteger(paid) || !Number.isSafeInteger(principal)) return safeError("Nominal pinjaman historis tidak valid.", 409);
+  return json({
+    ok: true,
+    readOnly: true,
+    source: "cloudflare-d1",
+    pinjaman: {
+      id: loan.id,
+      payerId: loan.payer_id,
+      nama: loan.payer_name,
+      tanggal: loan.loaned_on,
+      pokokRp: principal,
+      status: loan.status,
+      catatan: loan.note
+    },
+    angsuran: items,
+    angsuranAktifRp: paid,
+    sisaRp: principal - paid,
+    perluRekonsiliasi: paid > principal || loan.status === "lunas" && paid !== principal
+  });
+}
+__name(detailPinjamanD1, "detailPinjamanD1");
+async function auditDendaPinjamanExceptions(db, request) {
+  const limit = auditLimit(request);
+  if (!limit) return safeError("Batas daftar harus 1\u2013200.", 400);
+  const [fines, loans, orphans] = await Promise.all([
+    db.prepare(`SELECT f.id,f.event_on,f.amount_rp,f.paid_rp,f.status,f.payer_id,
+      p.display_name AS payer_name FROM bookkeeping_fines f
+      LEFT JOIN bookkeeping_payers p ON p.id=f.payer_id
+      WHERE f.amount_rp<0 OR f.paid_rp<0 OR f.paid_rp>f.amount_rp
+        OR (f.status='lunas' AND f.paid_rp<>f.amount_rp)
+        OR (f.status='belum' AND f.paid_rp>=f.amount_rp)
+      ORDER BY f.event_on DESC,f.id DESC LIMIT ?`).bind(limit + 1).all(),
+    db.prepare(`SELECT l.id,l.loaned_on,l.amount_rp,l.status,l.payer_id,
+      p.display_name AS payer_name,COALESCE(r.total,0) AS paid_rp,
+      COALESCE(r.invalid_count,0) AS invalid_count
+      FROM bookkeeping_loans l LEFT JOIN bookkeeping_payers p ON p.id=l.payer_id
+      LEFT JOIN (SELECT loan_id,SUM(CASE WHEN status='aktif' THEN amount_rp ELSE 0 END) AS total,
+        SUM(CASE WHEN status='aktif' AND amount_rp<=0 THEN 1 ELSE 0 END) AS invalid_count
+        FROM bookkeeping_loan_repayments GROUP BY loan_id) r ON r.loan_id=l.id
+      WHERE l.amount_rp<=0 OR COALESCE(r.total,0)>l.amount_rp
+        OR (l.status='lunas' AND COALESCE(r.total,0)<>l.amount_rp)
+        OR COALESCE(r.invalid_count,0)>0
+      ORDER BY l.loaned_on DESC,l.id DESC LIMIT ?`).bind(limit + 1).all(),
+    db.prepare(`SELECT r.id,r.loan_id,r.repaid_on,r.amount_rp FROM bookkeeping_loan_repayments r
+      LEFT JOIN bookkeeping_loans l ON l.id=r.loan_id WHERE l.id IS NULL
+      ORDER BY r.repaid_on DESC,r.id DESC LIMIT ?`).bind(limit + 1).all()
+  ]);
+  const validNum = /* @__PURE__ */ __name((x) => Number.isSafeInteger(Number(x)), "validNum");
+  const fd = fines.results || [], ld = loans.results || [], od = orphans.results || [];
+  if ([...fd, ...ld, ...od].some((r) => !validNum(r.amount_rp) || r.paid_rp !== void 0 && !validNum(r.paid_rp))) return safeError("Nominal historis di luar rentang angka aman.", 409);
+  const f = fd.slice(0, limit).map((r) => {
+    const a = Number(r.amount_rp), b = Number(r.paid_rp), alasan = [];
+    if (a < 0 || b < 0) alasan.push("nominal_negatif");
+    if (b > a) alasan.push("kelebihan_bayar");
+    if (r.status === "lunas" && b !== a) alasan.push("lunas_tidak_sesuai");
+    if (r.status === "belum" && b >= a) alasan.push("status_belum_tidak_sesuai");
+    return {
+      id: r.id,
+      tanggal: r.event_on,
+      payerId: r.payer_id,
+      nama: r.payer_name,
+      nominalRp: a,
+      terbayarRp: b,
+      status: r.status,
+      alasan
+    };
+  });
+  const l = ld.slice(0, limit).map((r) => {
+    const a = Number(r.amount_rp), b = Number(r.paid_rp), alasan = [];
+    if (a <= 0) alasan.push("pokok_tidak_positif");
+    if (b > a) alasan.push("kelebihan_angsuran");
+    if (r.status === "lunas" && b !== a) alasan.push("lunas_tidak_sesuai");
+    if (Number(r.invalid_count) > 0) alasan.push("angsuran_tidak_positif");
+    return {
+      id: r.id,
+      tanggal: r.loaned_on,
+      payerId: r.payer_id,
+      nama: r.payer_name,
+      pokokRp: a,
+      angsuranAktifRp: b,
+      status: r.status,
+      alasan
+    };
+  });
+  const o = od.slice(0, limit).map((r) => ({
+    id: r.id,
+    pinjamanId: r.loan_id,
+    tanggal: r.repaid_on,
+    jumlahRp: Number(r.amount_rp),
+    alasan: ["induk_tidak_ditemukan"]
+  }));
+  return json({
+    ok: true,
+    readOnly: true,
+    source: "cloudflare-d1",
+    siapAktivasi: false,
+    batasPerKategori: limit,
+    terpotong: {
+      denda: fd.length > limit,
+      pinjaman: ld.length > limit,
+      angsuranTanpaInduk: od.length > limit
+    },
+    denda: f,
+    pinjaman: l,
+    angsuranTanpaInduk: o,
+    catatan: "Temuan bersifat audit; belum dibandingkan dengan jurnal kas, sumber lama, dan tutup buku."
+  });
+}
+__name(auditDendaPinjamanExceptions, "auditDendaPinjamanExceptions");
+async function auditDendaPinjamanCashCandidates(db, request) {
+  const limit = auditLimit(request);
+  if (!limit) return safeError("Batas daftar harus 1\u2013200.", 400);
+  const params = new URL(request.url).searchParams;
+  const kind = params.get("jenis") || "denda";
+  if (!["denda", "angsuran_pinjaman"].includes(kind)) return safeError("Jenis audit tidak valid.", 400);
+  const source = kind === "denda" ? `SELECT f.id AS source_id,f.payer_id,f.paid_on AS event_date,f.paid_rp AS amount_rp,
+      f.status AS source_status FROM bookkeeping_fines f WHERE f.paid_rp>0 AND f.paid_on IS NOT NULL` : `SELECT r.id AS source_id,l.payer_id,r.repaid_on AS event_date,r.amount_rp,
+      r.status AS source_status FROM bookkeeping_loan_repayments r
+      JOIN bookkeeping_loans l ON l.id=r.loan_id WHERE r.status='aktif'`;
+  const query = `WITH source_rows AS (${source})
+    SELECT s.source_id,s.event_date,s.amount_rp,s.source_status,
+      s.payer_id,COUNT(c.id) AS candidate_count,
+      GROUP_CONCAT(c.id,',') AS candidate_ids
+    FROM source_rows s LEFT JOIN bookkeeping_cash_transactions c
+      ON c.payer_id=s.payer_id AND c.occurred_on=s.event_date
+      AND c.debit_rp=s.amount_rp AND c.credit_rp=0 AND c.status='aktif'
+      AND c.source_payment_id IS NULL
+    GROUP BY s.source_id,s.event_date,s.amount_rp,s.source_status,s.payer_id
+    ORDER BY s.event_date DESC,s.source_id DESC LIMIT ?`;
+  const result = await db.prepare(query).bind(limit + 1).all();
+  const rows = result.results || [];
+  const data = rows.slice(0, limit).map((r) => ({
+    id: r.source_id,
+    payerId: r.payer_id,
+    tanggal: r.event_date,
+    nominalRp: Number(r.amount_rp),
+    statusSumber: r.source_status,
+    kandidatJurnal: Number(r.candidate_count),
+    jurnalId: r.candidate_ids ? String(r.candidate_ids).split(",") : [],
+    kesimpulan: Number(r.candidate_count) === 0 ? "tidak_ada_kandidat" : Number(r.candidate_count) === 1 ? "satu_kandidat_belum_terverifikasi" : "ambigu_banyak_kandidat"
+  }));
+  if (data.some((r) => !Number.isSafeInteger(r.nominalRp) || r.nominalRp <= 0))
+    return safeError("Nilai historis tidak valid.", 409);
+  return json({
+    ok: true,
+    readOnly: true,
+    source: "cloudflare-d1",
+    jenis: kind,
+    siapAktivasi: false,
+    terpotong: rows.length > limit,
+    data,
+    catatan: "Kandidat berdasarkan ID warga, tanggal dan nominal sama. Ini BUKAN bukti posting: verifikasi jurnal asli, transaksi impor, transaksi agregat, dan tutup buku tetap wajib. Tidak ada perubahan data."
+  });
+}
+__name(auditDendaPinjamanCashCandidates, "auditDendaPinjamanCashCandidates");
+async function auditDendaPinjamanReadiness(db) {
+  const [fine, loan, repayment] = await Promise.all([
+    db.prepare(`SELECT COUNT(*) AS total,
+      COALESCE(SUM(CASE WHEN amount_rp<0 OR paid_rp<0 OR paid_rp>amount_rp
+        OR (status='lunas' AND paid_rp<>amount_rp)
+        OR (status='belum' AND paid_rp>=amount_rp) THEN 1 ELSE 0 END),0) AS conflicts,
+      COALESCE(SUM(CASE WHEN paid_rp>0 THEN 1 ELSE 0 END),0) AS paid_without_detail
+      FROM bookkeeping_fines`).first(),
+    db.prepare(`SELECT COUNT(*) AS total,COALESCE(SUM(CASE WHEN l.amount_rp<=0 OR
+      COALESCE(r.paid,0)>l.amount_rp OR (l.status='lunas' AND COALESCE(r.paid,0)<>l.amount_rp)
+      THEN 1 ELSE 0 END),0) AS conflicts FROM bookkeeping_loans l
+      LEFT JOIN (SELECT loan_id,SUM(amount_rp) AS paid FROM bookkeeping_loan_repayments
+        WHERE status='aktif' GROUP BY loan_id) r ON r.loan_id=l.id`).first(),
+    db.prepare(`SELECT COUNT(*) AS orphan_count FROM bookkeeping_loan_repayments r
+      LEFT JOIN bookkeeping_loans l ON l.id=r.loan_id WHERE l.id IS NULL`).first()
+  ]);
+  const n = /* @__PURE__ */ __name((x) => Number(x || 0), "n");
+  return json({
+    ok: true,
+    readOnly: true,
+    source: "cloudflare-d1",
+    denda: {
+      jumlah: n(fine?.total),
+      perluRekonsiliasi: n(fine?.conflicts),
+      pembayaranTanpaRincianTerpisah: n(fine?.paid_without_detail)
+    },
+    pinjaman: {
+      jumlah: n(loan?.total),
+      perluRekonsiliasi: n(loan?.conflicts),
+      angsuranTanpaInduk: n(repayment?.orphan_count)
+    },
+    siapAktivasi: false,
+    alasan: "Audit agregat tidak membuktikan kesesuaian jurnal kas, tutup buku, dan data sumber. Penulisan Denda dan Pinjaman belum diimplementasikan."
+  });
+}
+__name(auditDendaPinjamanReadiness, "auditDendaPinjamanReadiness");
+function validRp(x) {
+  return Number.isSafeInteger(x) && x > 0 && x <= 1e9;
+}
+__name(validRp, "validRp");
+function validDate2(x) {
+  if (typeof x !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(x)) return false;
+  const d = /* @__PURE__ */ new Date(x + "T00:00:00Z");
+  return !Number.isNaN(d.valueOf()) && d.toISOString().slice(0, 10) === x;
+}
+__name(validDate2, "validDate");
+function dueAfter14Days(x) {
+  const d = /* @__PURE__ */ new Date(x + "T00:00:00Z");
+  d.setUTCDate(d.getUTCDate() + 14);
+  return d.toISOString().slice(0, 10);
+}
+__name(dueAfter14Days, "dueAfter14Days");
+function validRequestKey(x) {
+  return typeof x === "string" && /^[A-Za-z0-9_-]{16,100}$/.test(x);
+}
+__name(validRequestKey, "validRequestKey");
+async function talanganReplay(db, key, kind, hash) {
+  const old = await db.prepare("SELECT operation,payload_hash,result_id,cash_transaction_id FROM bookkeeping_advance_request_ledger WHERE request_key=?").bind(key).first();
+  if (!old) return null;
+  if (old.operation !== kind || old.payload_hash !== hash) return safeError("requestKey sudah digunakan untuk data berbeda.", 409);
+  return json({ ok: true, id: old.result_id, kasId: old.cash_transaction_id || null, duplikat: true });
+}
+__name(talanganReplay, "talanganReplay");
+async function talanganHash(kind, p) {
+  return tokenHash(JSON.stringify(kind === "advance-create" ? { kind, tanggal: p.tanggal, payerId: p.payerId || null, ditanggungOleh: p.ditanggungOleh.trim(), keterangan: p.keterangan.trim(), jumlahRp: p.jumlahRp } : { kind, advanceId: p.advanceId, tanggal: p.tanggal, jumlahRp: p.jumlahRp, catatan: p.catatan.trim() }));
+}
+__name(talanganHash, "talanganHash");
+async function newAdvanceD1(request, env) {
+  if (env.FINANCE_WRITE_ENABLED !== "true" || env.TALANGAN_WRITE_ENABLED !== "true") return safeError("Penulisan Talangan D1 belum diaktifkan.", 503);
+  let p;
+  try {
+    p = await request.json();
+  } catch {
+    return safeError("JSON tidak valid.", 400);
+  }
+  const { requestKey, tanggal, payerId, ditanggungOleh, keterangan, jumlahRp } = p || {};
+  if (!validRequestKey(requestKey) || !validDate2(tanggal) || !validRp(jumlahRp) || typeof ditanggungOleh !== "string" || !ditanggungOleh.trim() || ditanggungOleh.length > 150 || typeof keterangan !== "string" || keterangan.length > 500 || payerId !== null && payerId !== void 0 && (typeof payerId !== "string" || payerId.length > 100))
+    return safeError("Data talangan tidak valid.", 400);
+  if (tanggal > (/* @__PURE__ */ new Date()).toISOString().slice(0, 10)) return safeError("Tanggal talangan tidak boleh di masa depan.", 400);
+  if (payerId) {
+    const exists = await env.DB.prepare("SELECT id FROM bookkeeping_payers WHERE id=? AND active=1").bind(payerId).first();
+    if (!exists) return safeError("Pembayar tidak aktif atau tidak ditemukan.", 400);
+  }
+  const hash = await talanganHash("advance-create", p);
+  const replay = await talanganReplay(env.DB, requestKey, "advance-create", hash);
+  if (replay) return replay;
+  const id = "adv_" + crypto.randomUUID();
+  try {
+    await env.DB.batch([
+      env.DB.prepare(`INSERT INTO bookkeeping_advance_request_ledger(request_key,operation,payload_hash,result_id) VALUES(?,?,?,?)`).bind(requestKey, "advance-create", hash, id),
+      env.DB.prepare(`INSERT INTO bookkeeping_advances
+       (id,advanced_on,payer_id,advanced_by,description,amount_rp,reimbursed_rp,status,request_key,due_on)
+       VALUES(?,?,?,?,?,?,0,'aktif',?,?)`).bind(id, tanggal, payerId || null, ditanggungOleh.trim(), keterangan.trim(), jumlahRp, requestKey, dueAfter14Days(tanggal))
+    ]);
+  } catch (_) {
+    const winner = await talanganReplay(env.DB, requestKey, "advance-create", hash);
+    if (winner) return winner;
+    return safeError("Talangan tidak tersimpan. Periksa validasi dan migrasi skema.", 409);
+  }
+  return json({ ok: true, id, jatuhTempo: dueAfter14Days(tanggal), catatan: "Pembuatan talangan belum mengurangi kas. Pengeluaran kas dicatat saat pelunasan." }, 201);
+}
+__name(newAdvanceD1, "newAdvanceD1");
+async function repayAdvanceD1(request, env) {
+  if (env.FINANCE_WRITE_ENABLED !== "true" || env.TALANGAN_WRITE_ENABLED !== "true") return safeError("Penulisan Talangan D1 belum diaktifkan.", 503);
+  let p;
+  try {
+    p = await request.json();
+  } catch {
+    return safeError("JSON tidak valid.", 400);
+  }
+  const { requestKey, advanceId, tanggal, jumlahRp, catatan } = p || {};
+  if (!validRequestKey(requestKey) || typeof advanceId !== "string" || !/^[A-Za-z0-9_-]{1,150}$/.test(advanceId) || !validDate2(tanggal) || !validRp(jumlahRp) || typeof catatan !== "string" || catatan.length > 500)
+    return safeError("Data pelunasan tidak valid.", 400);
+  if (tanggal > (/* @__PURE__ */ new Date()).toISOString().slice(0, 10)) return safeError("Tanggal pelunasan tidak boleh di masa depan.", 400);
+  const hash = await talanganHash("advance-repay", p);
+  const replay = await talanganReplay(env.DB, requestKey, "advance-repay", hash);
+  if (replay) return replay;
+  const a = await env.DB.prepare(`SELECT id,advanced_on,amount_rp,reimbursed_rp,status,payer_id,
+    (SELECT COALESCE(SUM(amount_rp),0) FROM bookkeeping_advance_repayments WHERE advance_id=? AND status='aktif') AS total
+    FROM bookkeeping_advances WHERE id=?`).bind(advanceId, advanceId).first();
+  if (!a || a.status !== "aktif") return safeError("Talangan tidak tersedia/aktif.", 404);
+  if (tanggal < a.advanced_on) return safeError("Tanggal pelunasan mendahului talangan.", 400);
+  if (a.reimbursed_rp !== a.total) return safeError("Data historis perlu rekonsiliasi sebelum pelunasan.", 409);
+  if (jumlahRp > a.amount_rp - a.reimbursed_rp) return safeError("Pelunasan melebihi sisa talangan.", 409);
+  const repayId = "ar_" + crypto.randomUUID(), cashId = "ac_" + crypto.randomUUID();
+  try {
+    // The real D1 schema has an immediate FK from advance_repayments.cash_transaction_id
+    // to cash.id. Insert the cash journal BEFORE the repayment in the same atomic batch.
+    await env.DB.batch([
+      env.DB.prepare("INSERT INTO bookkeeping_advance_request_ledger(request_key,operation,payload_hash,result_id,cash_transaction_id) VALUES(?,?,?,?,?)").bind(requestKey, "advance-repay", hash, repayId, cashId),
+      env.DB.prepare(`INSERT INTO bookkeeping_cash_transactions
+        (id,occurred_on,payer_id,transaction_type,category,debit_rp,credit_rp,status,note,payment_method)
+        VALUES(?,?,?,'pelunasan_talangan','Pelunasan Talangan',0,?,'aktif',?,'Cash')`).bind(cashId, tanggal, a.payer_id || null, jumlahRp, "Pelunasan talangan " + advanceId + " " + catatan.trim()),
+      env.DB.prepare(`INSERT INTO bookkeeping_advance_repayments
+        (id,advance_id,repaid_on,amount_rp,status,note,request_key,cash_transaction_id)
+        VALUES(?,?,?,?,'aktif',?,?,?)`).bind(repayId, advanceId, tanggal, jumlahRp, catatan.trim(), requestKey, cashId)
+    ]);
+  } catch (_) {
+    const winner = await talanganReplay(env.DB, requestKey, "advance-repay", hash);
+    if (winner) return winner;
+    return safeError("Pelunasan ditolak; periksa sisa dan migrasi skema.", 409);
+  }
+  return json({ ok: true, id: repayId, kasId: cashId, catatan: "Pelunasan dan pengeluaran kas dicatat secara atomik." }, 201);
+}
+__name(repayAdvanceD1, "repayAdvanceD1");
+async function dpPayloadHash(kind, a) {
+  const canonical = JSON.stringify({
+    kind,
+    tanggal: a.tanggal,
+    jumlahRp: a.jumlahRp,
+    payerId: kind === "fine-create" || kind === "loan-create" ? a.payerId : null,
+    referenceId: kind === "fine-pay" || kind === "loan-pay" ? a.referenceId : null,
+    catatan: a.catatan.trim(),
+    // Maintain hashes for existing Cash keys: only non-Cash adds a discriminator.
+    ...(kind !== "fine-create" && a.metode !== "Cash" ? { metode: a.metode } : {})
+  });
+  return tokenHash(canonical);
+}
+__name(dpPayloadHash, "dpPayloadHash");
+async function writeDendaPinjaman(request, env, kind, who) {
+  if (env.FINANCE_WRITE_ENABLED !== "true" || env.DENDA_PINJAMAN_WRITE_ENABLED !== "true")
+    return safeError("Transaksi Denda/Pinjaman D1 belum diaktifkan.", 503);
+  let a;
+  try {
+    a = await requestJson(request);
+  } catch {
+    return safeError("JSON tidak valid.", 400);
+  }
+  const key = a?.requestKey, date = a?.tanggal, amount = a?.jumlahRp, reference = a?.referenceId;
+  const method = a?.metode === undefined ? "Cash" : a.metode;
+  if (kind !== "fine-create" && !["Cash", "QRIS", "Transfer Mandiri"].includes(method))
+    return safeError("Metode pembayaran tidak valid.", 400);
+  if (kind === "fine-create" && a.metode !== undefined)
+    return safeError("Denda baru belum menerima pembayaran; metode tidak boleh diisi.", 400);
+  if (kind !== "fine-create") a.metode = method;
+  if (!validRequestKey(key) || !validDate2(date) || !validRp(amount) || date > (/* @__PURE__ */ new Date()).toISOString().slice(0, 10))
+    return safeError("Tanggal, nominal, atau kunci permintaan tidak valid.", 400);
+  const closedYear = await env.DB.prepare("SELECT fiscal_year FROM bookkeeping_year_archives WHERE fiscal_year=? AND status IN ('ditutup','terkunci','final') LIMIT 1").bind(Number(date.slice(0, 4))).first();
+  if (closedYear) return safeError("Tahun pembukuan sudah ditutup; transaksi ditolak.", 409);
+  if (typeof a.catatan !== "string" || a.catatan.length > 500) return safeError("Catatan tidak valid.", 400);
+  const payerId = a.payerId;
+  const payloadHash = await dpPayloadHash(kind, a);
+  const prior = await env.DB.prepare("SELECT operation,payload_hash,result_id,cash_transaction_id FROM bookkeeping_dp_request_ledger WHERE request_key=?").bind(key).first();
+  if (prior) {
+    if (prior.operation !== kind || prior.payload_hash !== payloadHash) return safeError("requestKey sudah digunakan untuk transaksi berbeda.", 409);
+    return json({ ok: true, id: prior.result_id, kasId: prior.cash_transaction_id || null, mode: "staging", replayed: true }, 200);
+  }
+  if (kind === "fine-create" || kind === "loan-create") {
+    if (typeof payerId !== "string" || payerId.length > 100 || !payerId) return safeError("Pembayar wajib dipilih.", 400);
+    const active = await env.DB.prepare("SELECT id FROM bookkeeping_payers WHERE id=? AND active=1").bind(payerId).first();
+    if (!active) return safeError("Pembayar tidak ditemukan/aktif.", 400);
+  }
+  const id = crypto.randomUUID(), cashId = "dp_cash_" + crypto.randomUUID();
+  const note = a.catatan.trim();
+  let q = [];
+  if (kind === "fine-create") {
+    q = [env.DB.prepare(`INSERT INTO bookkeeping_fines(id,payer_id,event_on,fine_type,amount_rp,paid_rp,status,note,request_key)
+      VALUES(?,?,?,'gorol',?,0,'belum',?,?)`).bind("fine_" + id, payerId, date, amount, note, key)];
+  } else if (kind === "loan-create") {
+    q = [
+      env.DB.prepare(`INSERT INTO bookkeeping_loans(id,payer_id,loaned_on,amount_rp,status,note,request_key)
+      VALUES(?,?,?,?,'aktif',?,?)`).bind("loan_" + id, payerId, date, amount, note, key),
+      env.DB.prepare(`INSERT INTO bookkeeping_cash_transactions(id,occurred_on,payer_id,transaction_type,category,debit_rp,credit_rp,status,note,payment_method)
+      VALUES(?,?,?,'pinjaman_keluar','Pinjaman',0,?,'aktif',?,?)`).bind(cashId, date, payerId, amount, "Pencairan pinjaman loan_" + id + " " + note, method),
+      env.DB.prepare("INSERT INTO bookkeeping_dp_cash_links(request_key,source_type,source_id,cash_transaction_id) VALUES(?,?,?,?)").bind(key, "loan-create", "loan_" + id, cashId)
+    ];
+  } else if (kind === "fine-pay" || kind === "loan-pay") {
+    if (typeof reference !== "string" || !/^[A-Za-z0-9_-]{1,150}$/.test(reference)) return safeError("Referensi transaksi tidak valid.", 400);
+    const target = kind === "fine-pay" ? await env.DB.prepare("SELECT id,payer_id,event_on,amount_rp,paid_rp,status FROM bookkeeping_fines WHERE id=?").bind(reference).first() : await env.DB.prepare("SELECT id,payer_id,loaned_on,amount_rp,status FROM bookkeeping_loans WHERE id=?").bind(reference).first();
+    if (!target) return safeError("Transaksi induk tidak ditemukan.", 404);
+    if (date < (kind === "fine-pay" ? target.event_on : target.loaned_on)) return safeError("Tanggal mendahului transaksi induk.", 400);
+    if (kind === "fine-pay") {
+      if (target.status === "dibatalkan" || target.paid_rp > target.amount_rp) return safeError("Data denda perlu rekonsiliasi.", 409);
+      q = [env.DB.prepare(`INSERT INTO bookkeeping_fine_payments(id,fine_id,paid_on,amount_rp,status,note,request_key,cash_transaction_id)
+        VALUES(?,?,?,?,'aktif',?,?,?)`).bind("fp_" + id, reference, date, amount, note, key, cashId)];
+    } else {
+      if (target.status !== "aktif") return safeError("Pinjaman tidak aktif.", 409);
+      q = [env.DB.prepare(`INSERT INTO bookkeeping_loan_repayments(id,loan_id,repaid_on,amount_rp,status,note,request_key,cash_transaction_id)
+        VALUES(?,?,?,?,'aktif',?,?,?)`).bind("lr_" + id, reference, date, amount, note, key, cashId)];
+    }
+    q.push(env.DB.prepare(`INSERT INTO bookkeeping_cash_transactions(id,occurred_on,payer_id,transaction_type,category,debit_rp,credit_rp,status,note,payment_method)
+       VALUES(?,?,?,? ,?, ?,0,'aktif',?,?)`).bind(cashId, date, target.payer_id, kind === "fine-pay" ? "pembayaran_denda" : "angsuran_pinjaman", kind === "fine-pay" ? "Denda Gorol" : "Angsuran Pinjaman", amount, note, method));
+    // The real D1 schema has an immediate FK from loan_repayments.cash_transaction_id to cash.id.
+    // Insert cash first inside the same atomic batch, otherwise valid loan instalments fail HTTP 409.
+    if (kind === "loan-pay") q = [q[1], q[0]];
+    q.push(env.DB.prepare("INSERT INTO bookkeeping_dp_cash_links(request_key,source_type,source_id,cash_transaction_id) VALUES(?,?,?,?)").bind(key, kind, kind === "fine-pay" ? "fp_" + id : "lr_" + id, cashId));
+  } else return safeError("Operasi tidak tersedia.", 404);
+  const resultId = kind === "fine-create" ? "fine_" + id : kind === "loan-create" ? "loan_" + id : kind === "fine-pay" ? "fp_" + id : "lr_" + id;
+  q.unshift(env.DB.prepare(`INSERT INTO bookkeeping_dp_request_ledger(request_key,operation,payload_hash,result_id,cash_transaction_id)
+    VALUES(?,?,?,?,?)`).bind(key, kind, payloadHash, resultId, kind === "fine-create" ? null : cashId));
+  q.push(env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason) VALUES(?,?,?,?,?,?,?)").bind(crypto.randomUUID(), who.id, "pembukuan", kind, kind.startsWith("fine") ? "denda" : "pinjaman", reference || (kind === "fine-create" ? "fine_" : "loan_") + id, note || "Transaksi staging"));
+  try {
+    await env.DB.batch(q);
+  } catch {
+    const winner = await env.DB.prepare("SELECT operation,payload_hash,result_id,cash_transaction_id FROM bookkeeping_dp_request_ledger WHERE request_key=?").bind(key).first();
+    if (winner) {
+      if (winner.operation !== kind || winner.payload_hash !== payloadHash) return safeError("requestKey sudah digunakan untuk transaksi berbeda.", 409);
+      return json({ ok: true, id: winner.result_id, kasId: winner.cash_transaction_id || null, mode: "staging", replayed: true }, 200);
+    }
+    return safeError("Transaksi ditolak: batas saldo, tahun tertutup, atau skema staging belum siap.", 409);
+  }
+  return json({ ok: true, id: resultId, kasId: kind === "fine-create" ? null : cashId, mode: "staging", replayed: false }, 201);
+}
+__name(writeDendaPinjaman, "writeDendaPinjaman");
+var F4_RATE_MAP = { IURAN_BULANAN: "TARIF_BULANAN", KEBERSIHAN: "TARIF_KEBERSIHAN", KAS_LORONG: "TARIF_KAS_LORONG", ARISAN: "TARIF_ARISAN" };
+async function getIuranTariffs(db) {
+  const out = await db.prepare("SELECT contribution_type,amount_rp FROM bookkeeping_contribution_tariffs WHERE active=1").all();
+  const rows = out.results || [], result = {};
+  for (const r of rows) {
+    if (!Object.hasOwn(F4_RATE_MAP, r.contribution_type) || !Number.isSafeInteger(r.amount_rp) || r.amount_rp < 0) continue;
+    result[F4_RATE_MAP[r.contribution_type]] = r.amount_rp;
+  }
+  if (Object.keys(result).length !== 4) throw Error("Tarif D1 belum lengkap: perlu empat tarif resmi sebelum pembayaran diaktifkan.");
+  return result;
+}
+__name(getIuranTariffs, "getIuranTariffs");
+async function getIuranOutstanding(db, request) {
+  const q = new URL(request.url).searchParams;
+  const payerId = q.get("payerId") || "";
+  const year = Number(q.get("year")), month = Number(q.get("month"));
+  if (!payerId || payerId.length > 150 || !Number.isInteger(year) || year < 2e3 || year > 2200 || !Number.isInteger(month) || month < 1 || month > 12)
+    return safeError("Pembayar, tahun, atau bulan tidak valid.", 400);
+  const payer = await db.prepare("SELECT id,display_name,active FROM bookkeeping_payers WHERE id=?").bind(payerId).first();
+  if (!payer || Number(payer.active) !== 1) return safeError("Pembayar tidak ditemukan atau tidak aktif.", 404);
+  const obligation = await db.prepare(`SELECT qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan
+    FROM bookkeeping_payer_iuran_obligations WHERE payer_id=?`).bind(payerId).first();
+  if (!obligation) return safeError("Kewajiban pembayar belum diverifikasi.", 503);
+  let tariff;
+  try {
+    tariff = await getIuranTariffs(db);
+  } catch {
+    return safeError("Tarif D1 belum dikonfigurasi.", 503);
+  }
+  const nominal = {
+    IURAN_BULANAN: obligation.qty_iuran_bulanan * tariff.TARIF_BULANAN,
+    KEBERSIHAN: obligation.qty_kebersihan * tariff.TARIF_KEBERSIHAN,
+    KAS_LORONG: obligation.qty_kas_lorong * tariff.TARIF_KAS_LORONG,
+    ARISAN: obligation.qty_arisan * tariff.TARIF_ARISAN
+  };
+  const paid = await db.prepare(`SELECT a.contribution_type AS jenis,COALESCE(SUM(a.amount_rp),0) AS jumlah
+    FROM bookkeeping_payment_allocations a JOIN bookkeeping_payments p ON p.id=a.payment_id
+    WHERE a.payer_id=? AND a.period_year=? AND a.period_month=?
+      AND a.status='aktif' AND p.status='aktif'
+    GROUP BY a.contribution_type`).bind(payerId, year, month).all();
+  const totals = Object.fromEntries((paid.results || []).map((r) => [r.jenis, Number(r.jumlah)]));
+  const components = Object.entries(nominal).map(([jenis, wajibRp]) => {
+    const terbayarRp = totals[jenis] || 0;
+    return { jenis, wajibRp, terbayarRp, sisaRp: Math.max(0, wajibRp - terbayarRp), kelebihanRp: Math.max(0, terbayarRp - wajibRp) };
+  });
+  return json({
+    ok: true,
+    payerId,
+    nama: payer.display_name,
+    tahun: year,
+    bulan: month,
+    komponen: components,
+    totalSisaRp: components.reduce((s, c) => s + c.sisaRp, 0),
+    catatan: "Sisa kewajiban dihitung dari alokasi aktif. Belum otomatis menjadi talangan."
+  });
+}
+__name(getIuranOutstanding, "getIuranOutstanding");
+async function createIuranPayment(request, env, who) {
+  if (env.FINANCE_WRITE_ENABLED !== "true" || env.IURAN_WRITE_ENABLED !== "true") return safeError("Pencatatan iuran D1 belum diaktifkan.", 503);
+  let d;
+  try {
+    d = await requestJson(request);
+  } catch {
+    return safeError("Format pembayaran tidak valid.", 400);
+  }
+  const key = String(d.requestKey || ""), payerId = String(d.payerId || ""), date = String(d.tanggal || ""), method = String(d.metode || ""), note = String(d.catatan || "").trim();
+  const sum = Number(d.jumlahRp), items = d.alokasi;
+  if (!/^[a-f0-9-]{36}$/i.test(key) || payerId.length < 1 || payerId.length > 150 || !validDateOnly(date) || !validRupiah(sum) || !["Cash", "QRIS", "Transfer Mandiri"].includes(method) || note.length > 500 || !Array.isArray(items) || items.length < 1 || items.length > 60) return safeError("Data pembayaran tidak valid.", 400);
+  const allowed = ["IURAN_BULANAN", "KEBERSIHAN", "KAS_LORONG", "ARISAN"];
+  const types = /* @__PURE__ */ new Set(), periods = /* @__PURE__ */ new Set();
+  let total = 0;
+  for (const a of items) {
+    if (!a || !Number.isInteger(a.tahun) || a.tahun < 2e3 || a.tahun > 2200 || !Number.isInteger(a.bulan) || a.bulan < 1 || a.bulan > 12 || !allowed.includes(a.jenis) || !Number.isSafeInteger(a.nominal) || a.nominal < 0) return safeError("Rincian alokasi iuran tidak valid.", 400);
+    const k = a.tahun + ":" + a.bulan + ":" + a.jenis;
+    if (types.has(k)) return safeError("Rincian bulan dan komponen ganda.", 400);
+    types.add(k);
+    periods.add(a.tahun + ":" + a.bulan);
+    total += a.nominal;
+    if (!Number.isSafeInteger(total)) return safeError("Jumlah terlalu besar.", 400);
+  }
+  if (total !== sum) return safeError("Total alokasi tidak sama dengan uang diterima.", 400);
+  const iuranHash = await tokenHash(JSON.stringify({ payerId, date, method, note, sum, alokasi: items.map((a) => ({ tahun: a.tahun, bulan: a.bulan, jenis: a.jenis, nominal: a.nominal })).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))) }));
+  const old = await env.DB.prepare("SELECT payment_id,payload_hash FROM bookkeeping_payment_request_keys WHERE request_key=?").bind(key).first();
+  if (old) {
+    if (!old.payload_hash || old.payload_hash !== iuranHash) return safeError("requestKey iuran sudah digunakan atau berasal dari data lama tanpa fingerprint.", 409);
+    return json({ ok: true, idPembayaran: old.payment_id, duplikat: true });
+  }
+  try {
+    await getIuranTariffs(env.DB);
+  } catch {
+    return safeError("Tarif iuran D1 belum dikonfigurasi dengan lengkap.", 503);
+  }
+  const obligation = await env.DB.prepare(`SELECT qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan
+    FROM bookkeeping_payer_iuran_obligations WHERE payer_id=?`).bind(payerId).first();
+  if (!obligation) return safeError("Jumlah kewajiban pembayar belum diverifikasi pada D1.", 503);
+  const tariff = await getIuranTariffs(env.DB);
+  const required = {
+    IURAN_BULANAN: obligation.qty_iuran_bulanan * tariff.TARIF_BULANAN,
+    KEBERSIHAN: obligation.qty_kebersihan * tariff.TARIF_KEBERSIHAN,
+    KAS_LORONG: obligation.qty_kas_lorong * tariff.TARIF_KAS_LORONG,
+    ARISAN: obligation.qty_arisan * tariff.TARIF_ARISAN
+  };
+  if (Object.values(required).some((v) => !Number.isSafeInteger(v) || v < 0)) return safeError("Konfigurasi kewajiban pembayar tidak valid.", 503);
+  const submitted = new Map(items.map((a) => [a.tahun + ":" + a.bulan + ":" + a.jenis, a.nominal]));
+  const years = [...new Set(items.map((a) => a.tahun))];
+  const paidRows = await env.DB.prepare(`SELECT a.period_year,a.period_month,a.contribution_type,
+       COALESCE(SUM(a.amount_rp),0) AS paid_rp
+    FROM bookkeeping_payment_allocations a
+    JOIN bookkeeping_payments p ON p.id=a.payment_id
+    WHERE a.payer_id=? AND a.status='aktif' AND p.status='aktif'
+      AND a.period_year IN (${years.map(() => "?").join(",")})
+    GROUP BY a.period_year,a.period_month,a.contribution_type`).bind(payerId, ...years).all();
+  const paidByKey = new Map((paidRows.results || []).map((r) => [
+    r.period_year + ":" + r.period_month + ":" + r.contribution_type,
+    Number(r.paid_rp)
+  ]));
+  for (const period of periods) {
+    const [year, month] = period.split(":").map(Number);
+    for (const kind of allowed) {
+      const key2 = year + ":" + month + ":" + kind;
+      const amount = submitted.get(key2) ?? 0;
+      const prior = paidByKey.get(key2) ?? 0;
+      const due = required[kind] - prior;
+      if (!Number.isSafeInteger(prior) || prior < 0 || due < 0)
+        return safeError("Riwayat kewajiban tidak konsisten. Periksa catatan sebelum melanjutkan.", 409);
+      if (kind === "KAS_LORONG") {
+        if (amount > due) return safeError("Pembayaran Kas Lorong melebihi sisa kewajiban.", 409);
+      } else if (amount !== due) {
+        return safeError("Komponen selain Kas Lorong harus melunasi tepat sisa kewajiban periode.", 409);
+      }
+    }
+  }
+  const payer = await env.DB.prepare("SELECT id,household_id,active FROM bookkeeping_payers WHERE id=?").bind(payerId).first();
+  if (!payer || payer.active !== 1) return safeError("Pembayar tidak aktif atau tidak ditemukan.", 404);
+  const periodYears = [.../* @__PURE__ */ new Set([Number(date.slice(0, 4)), ...items.map((x) => x.tahun)])];
+  const locks = await env.DB.prepare(`SELECT fiscal_year FROM bookkeeping_year_archives WHERE fiscal_year IN (${periodYears.map(() => "?").join(",")}) AND status IN ('ditutup','terkunci','final') LIMIT 1`).bind(...periodYears).first();
+  if (locks) return safeError("Tahun transaksi atau periode iuran sudah ditutup.", 409);
+  const id = "pay-" + crypto.randomUUID(), cashId = "cash-" + crypto.randomUUID();
+  const q = [
+    env.DB.prepare("INSERT INTO bookkeeping_payments(id,payer_id,household_id,paid_on,received_on,amount_rp,payment_method,description,status) VALUES(?,?,?,?,?,?,?,?,'aktif')").bind(id, payer.id, payer.household_id, date, date, sum, method, note),
+    env.DB.prepare("INSERT INTO bookkeeping_payment_request_keys(request_key,payment_id,payload_hash) VALUES(?,?,?)").bind(key, id, iuranHash)
+  ];
+  for (const a of items) q.push(env.DB.prepare("INSERT INTO bookkeeping_payment_allocations(id,payment_id,payer_id,period_year,period_month,contribution_type,amount_rp,status) VALUES(?,?,?,?,?,?,?,'aktif')").bind("alloc-" + crypto.randomUUID(), id, payer.id, a.tahun, a.bulan, a.jenis, a.nominal));
+  // Saldo Kas Warga hanya mencatat porsi KAS_LORONG. Komponen Iuran Bulanan,
+  // Kebersihan, dan Arisan dicatat dalam alokasi administrasi, bukan debit Kas Warga.
+  // Jangan mencatat Rp keseluruhan sebagai Kas karena akan menggandakan dana RT/Arisan.
+  const kasLorongRp = items.filter((a) => a.jenis === "KAS_LORONG").reduce((total, a) => total + a.nominal, 0);
+  if (kasLorongRp > 0) {
+    q.push(env.DB.prepare("INSERT INTO bookkeeping_cash_transactions(id,occurred_on,payer_id,household_id,transaction_type,category,debit_rp,credit_rp,status,note,source_payment_id,payment_method) VALUES(?,?,?,?,?,'Kas Lorong',?,0,'aktif',?,?,?)").bind(cashId, date, payer.id, payer.household_id, "iuran", kasLorongRp, note, id, method));
+  }
+  q.push(env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,after_json) VALUES(?,?,?,?,?,?,?)").bind(crypto.randomUUID(), who.id, "pembukuan", "create_iuran", "bookkeeping_payments", id, JSON.stringify({ tanggal: date, jumlahRp: sum, alokasi: items.length })));
+  try {
+    await env.DB.batch(q);
+  } catch (e) {
+    const existing = await env.DB.prepare("SELECT payment_id,payload_hash FROM bookkeeping_payment_request_keys WHERE request_key=?").bind(key).first();
+    if (existing) {
+      if (!existing.payload_hash || existing.payload_hash !== iuranHash) return safeError("requestKey iuran sudah digunakan untuk data berbeda.", 409);
+      return json({ ok: true, idPembayaran: existing.payment_id, duplikat: true });
+    }
+    return safeError("Gagal mencatat iuran secara utuh. Tidak ada transaksi parsial yang disimpan.", 409);
+  }
+  return json({ ok: true, idPembayaran: id, totalDiterima: sum, periode: [...periods].sort(), alokasi: items.length }, 201);
+}
+__name(createIuranPayment, "createIuranPayment");
+async function ownSavings(db, memberId) {
+  const [balance, deposits, details, ledger] = await Promise.all([
+    db.prepare(`SELECT COALESCE(SUM(CASE WHEN kind IN ('kredit','koreksi_kredit')
+      THEN amount_rp ELSE -amount_rp END),0) AS available_rp,
+      COALESCE(SUM(CASE WHEN kind='kredit' THEN amount_rp ELSE 0 END),0) AS credit_total_rp,
+      COALESCE(SUM(CASE WHEN kind='pencairan' THEN amount_rp ELSE 0 END),0) AS payout_total_rp
+      FROM waste_savings_ledger WHERE member_id=?`).bind(memberId).first(),
+    db.prepare(`SELECT d.id,d.deposited_on,d.status,d.total_grams,d.estimated_total_rp
+      FROM waste_deposits d JOIN waste_batches b ON b.id=d.batch_id
+      WHERE d.member_id=? AND d.status!='dibatalkan' AND b.status!='dibatalkan'
+      ORDER BY d.deposited_on DESC,d.id DESC LIMIT 61`).bind(memberId).all(),
+    db.prepare(`SELECT l.deposit_id,i.name AS item_name,l.grams,l.citizen_rate_rp_per_kg,l.estimated_rp
+      FROM waste_deposit_lines l JOIN waste_deposits d ON d.id=l.deposit_id
+      JOIN waste_batches b ON b.id=d.batch_id JOIN waste_items i ON i.id=l.waste_item_id
+      WHERE d.member_id=? AND d.status!='dibatalkan' AND b.status!='dibatalkan'
+      ORDER BY d.deposited_on DESC,l.deposit_id LIMIT 301`).bind(memberId).all(),
+    db.prepare(`SELECT id,transaction_on,kind,amount_rp,note
+      FROM waste_savings_ledger WHERE member_id=?
+      ORDER BY transaction_on DESC,id DESC LIMIT 101`).bind(memberId).all()
+  ]);
+  const hasMoreDeposits=(deposits.results||[]).length>60;
+  const hasMoreDetails=(details.results||[]).length>300;
+  const hasMoreLedger=(ledger.results||[]).length>100;
+  const limitedDetails=(details.results||[]).slice(0,300);
+  const ownDeposits = (deposits.results || []).slice(0,60).map((d) => ({
+    id: d.id,
+    tanggal: d.deposited_on,
+    status: d.status,
+    beratGram: d.total_grams,
+    estimasiRp: d.estimated_total_rp,
+    rincian: limitedDetails.filter((l) => l.deposit_id === d.id).map((l) => ({
+      barang: l.item_name,
+      beratGram: l.grams,
+      tarifWargaRpPerKg: l.citizen_rate_rp_per_kg,
+      estimasiRp: l.estimated_rp
+    }))
+  }));
+  return {
+    ok: true,
+    saldoTersediaRp: Number(balance?.available_rp || 0),
+    totalMasukRp: Number(balance?.credit_total_rp || 0),
+    totalCairRp: Number(balance?.payout_total_rp || 0),
+    // Setoran menunggu dihitung atas SEMUA baris sah, bukan hanya 60 terbaru.
+    estimasiMenungguRp: Number((await db.prepare(`SELECT COALESCE(SUM(d.estimated_total_rp),0) AS total
+      FROM waste_deposits d JOIN waste_batches b ON b.id=d.batch_id
+      WHERE d.member_id=? AND d.status='estimasi' AND b.status!='dibatalkan'`).bind(memberId).first())?.total || 0),
+    riwayatLengkap: !(hasMoreDeposits||hasMoreDetails||hasMoreLedger),
+    riwayatTerpotong: { setoran: hasMoreDeposits, rincian: hasMoreDetails, mutasi: hasMoreLedger },
+    setoran: ownDeposits,
+    mutasi: (ledger.results || []).slice(0,100).map((l) => ({ id: l.id, tanggal: l.transaction_on, jenis: l.kind, jumlahRp: l.amount_rp, keterangan: l.note }))
+  };
+}
+__name(ownSavings, "ownSavings");
+async function accountActivationPreview(db) {
+  const result = await db.prepare(`SELECT a.id,a.username,a.role,a.status,a.password_scheme,
+    h.house_code,m.display_name
+    FROM accounts a LEFT JOIN members m ON m.id=a.member_id
+    LEFT JOIN households h ON h.id=m.household_id
+    WHERE a.role IN ('anggota','admin')
+    ORDER BY a.role,a.username LIMIT 100`).all();
+  const accounts = (result.results || []).map((a) => ({
+    id: a.id,
+    username: a.username,
+    role: a.role,
+    status: a.status,
+    nama: a.display_name || null,
+    rumah: a.house_code || null,
+    perluAktivasi: a.status === "nonaktif" && a.password_scheme === "pending"
+  }));
+  return { ok: true, jumlah: accounts.length, akun: accounts };
+}
+__name(accountActivationPreview, "accountActivationPreview");
+async function activateMemberAccount(request, env, who) {
+  let payload;
+  try {
+    payload = await requestJson(request);
+  } catch {
+    return safeError("Format permintaan tidak valid.", 400);
+  }
+  if (payload?.confirmation !== "AKTIFKAN AKUN WARGA") return safeError("Konfirmasi aktivasi diperlukan.", 400);
+  const id = String(payload.accountId || "");
+  if (!/^account:[A-Za-z0-9_-]{1,100}$/.test(id)) return safeError("ID akun tidak valid.", 400);
+  const account = await env.DB.prepare(`SELECT a.id,a.username,a.status,a.password_hash,a.password_scheme,
+    a.role,m.status AS member_status,h.house_code
+    FROM accounts a JOIN members m ON m.id=a.member_id
+    JOIN households h ON h.id=m.household_id
+    WHERE a.id=? LIMIT 1`).bind(id).first();
+  if (!account || account.role !== "anggota" || account.member_status !== "aktif") return safeError("Akun warga tidak ditemukan atau tidak aktif.", 404);
+  if (account.status !== "nonaktif" || account.password_hash || account.password_scheme !== "pending") return safeError("Akun sudah diaktifkan atau membutuhkan pemeriksaan.", 409);
+  const normalHouse = String(account.house_code || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  const normalUsername = String(account.username || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  if (!normalHouse || normalHouse !== normalUsername) return safeError("Nomor rumah dan username perlu diperiksa dahulu.", 409);
+  const hashed = await passwordHash("F4-" + normalHouse);
+  const updated = await env.DB.prepare(`UPDATE accounts SET password_hash=?,password_scheme='pbkdf2-sha256',
+    status='aktif',must_change_password=0,failed_attempts=0,locked_until=NULL,
+    updated_at=CURRENT_TIMESTAMP
+    WHERE id=? AND role='anggota' AND status='nonaktif' AND password_hash IS NULL
+    AND password_scheme='pending'`).bind(hashed, id).run();
+  if (updated.meta?.changes !== 1) return safeError("Aktivasi sudah diproses. Muat ulang daftar akun.", 409);
+  await env.DB.prepare(`INSERT INTO audit_log
+    (id,actor_account_id,scope,action,target_type,target_id,reason)
+    VALUES (?,?,?,?,?,?,?)`).bind(
+    crypto.randomUUID(),
+    who.id,
+    "accounts",
+    "activate_member",
+    "accounts",
+    id,
+    "Aktivasi awal akun warga melalui superadmin staging"
+  ).run();
+  return json({ ok: true, message: "Akun warga berhasil diaktifkan.", username: account.username });
+}
+__name(activateMemberAccount, "activateMemberAccount");
+async function activateBankAdmin(request, env, who) {
+  let payload;
+  try {
+    payload = await requestJson(request);
+  } catch {
+    return safeError("Format permintaan tidak valid.", 400);
+  }
+  const password = String(payload.password || "");
+  if (payload.confirmation !== "AKTIFKAN ADMIN" || password.length < 12 || password.length > 128)
+    return safeError("Konfirmasi dan password admin minimal 12 karakter diperlukan.", 400);
+  const account = await env.DB.prepare("SELECT id,role,status,password_hash,password_scheme FROM accounts WHERE username=? LIMIT 1").bind("admin").first();
+  if (!account || account.role !== "admin" || account.status !== "nonaktif" || account.password_hash || account.password_scheme !== "pending")
+    return safeError("Akun admin tidak tersedia untuk aktivasi.", 409);
+  const hashed = await passwordHash(password);
+  const result = await env.DB.prepare(`UPDATE accounts SET password_hash=?,password_scheme='pbkdf2-sha256',
+    status='aktif',must_change_password=0,failed_attempts=0,locked_until=NULL,
+    updated_at=CURRENT_TIMESTAMP WHERE id=? AND role='admin' AND status='nonaktif'
+    AND password_hash IS NULL AND password_scheme='pending'`).bind(hashed, account.id).run();
+  if (result.meta?.changes !== 1) return safeError("Akun admin sudah diproses.", 409);
+  await env.DB.prepare(`INSERT INTO audit_log
+    (id,actor_account_id,scope,action,target_type,target_id,reason)
+    VALUES (?,?,?,?,?,?,?)`).bind(
+    crypto.randomUUID(),
+    who.id,
+    "accounts",
+    "activate_admin",
+    "accounts",
+    account.id,
+    "Aktivasi awal admin Bank Sampah melalui superadmin staging"
+  ).run();
+  return json({ ok: true, message: "Akun admin Bank Sampah berhasil diaktifkan." });
+}
+__name(activateBankAdmin, "activateBankAdmin");
+function rupiahSaleLine(grams, rate) {
+  if (!Number.isSafeInteger(grams) || grams <= 0 || grams > 1e9 || !Number.isSafeInteger(rate) || rate < 0 || rate > 1e7) throw new Error("Berat atau harga tidak valid");
+  const raw = grams * rate;
+  if (!Number.isSafeInteger(raw)) throw new Error("Nominal terlalu besar");
+  return Math.round(raw / 1e3);
+}
+__name(rupiahSaleLine, "rupiahSaleLine");
+function validatedSalePayload(input) {
+  if (!input || typeof input !== "object") throw Error("Input tidak valid");
+  if (typeof input.requestId !== "string" || !/^[a-f0-9-]{36}$/i.test(input.requestId)) throw Error("ID permintaan wajib berupa UUID");
+  if (typeof input.batchId !== "string" || input.batchId.length > 100 || !input.batchId.trim()) throw Error("Batch tidak valid");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(input.soldOn || "")) throw Error("Tanggal tidak valid");
+  if (!Array.isArray(input.lines) || !input.lines.length || input.lines.length > 30) throw Error("Masukkan 1\u201330 jenis barang");
+  const seen = /* @__PURE__ */ new Set(), lines = [];
+  for (const line of input.lines) {
+    const item = String(line.itemId || "").trim();
+    if (!item || item.length > 100 || seen.has(item)) throw Error("Jenis barang kosong atau ganda");
+    seen.add(item);
+    const grams = Number(line.grams), rate = Number(line.priceRpPerKg);
+    lines.push({ item, grams, rate, total: rupiahSaleLine(grams, rate) });
+  }
+  const gross = lines.reduce((sum, l) => sum + l.total, 0);
+  const received = Number(input.receivedRp);
+  if (!Number.isSafeInteger(received) || received < 0 || received > gross) throw Error("Uang diterima di luar batas");
+  const adjustment = String(input.adjustmentNote || "").trim();
+  if (received !== gross && (!adjustment || adjustment.length > 300)) throw Error("Selisih uang wajib ada keterangan");
+  const buyer = String(input.buyerName || "").trim();
+  if (buyer.length > 100 || adjustment.length > 300) throw Error("Keterangan terlalu panjang");
+  return { requestId: input.requestId, batchId: input.batchId, soldOn: input.soldOn, buyer, lines, gross, received, adjustment };
+}
+__name(validatedSalePayload, "validatedSalePayload");
+async function salePreview(request, env, who) {
+  const denied = requireRole(who, ["admin", "superadmin"]);
+  if (denied) return denied;
+  let input;
+  try {
+    input = validatedSalePayload(await requestJson(request));
+  } catch (e) {
+    return safeError(e.message, 400);
+  }
+  const batch = await env.DB.prepare("SELECT status FROM waste_batches WHERE id=?").bind(input.batchId).first();
+  if (!batch || !["draft", "siap"].includes(batch.status)) return safeError("Batch tidak bisa digunakan untuk penjualan.", 409);
+  const validItems = await env.DB.prepare("SELECT id FROM waste_items WHERE active=1").all();
+  const itemIds = new Set((validItems.results || []).map((r) => r.id));
+  if (input.lines.some((l) => !itemIds.has(l.item))) return safeError("Ada jenis barang tidak aktif.", 400);
+  const prior = await env.DB.prepare("SELECT id FROM waste_sales WHERE batch_id=? AND status != 'dibatalkan' LIMIT 1").bind(input.batchId).first();
+  if (prior) return safeError("Batch memiliki penjualan yang belum dibatalkan.", 409);
+  return json({ ok: true, mode: "preview", batchId: input.batchId, lines: input.lines, grossRp: input.gross, receivedRp: input.received, differenceRp: input.gross - input.received, adjustmentNote: input.adjustment, status: "draft", note: "Pratinjau, tidak mengubah saldo." });
+}
+__name(salePreview, "salePreview");
+async function saleCreateDraft(request, env, who) {
+  const denied = requireRole(who, ["admin", "superadmin"]);
+  if (denied) return denied;
+  if (env.BANK_WRITE_ENABLED !== "true" || env.SALE_DRAFT_ENABLED !== "true") return safeError("Pencatatan draft penjualan Bank Sampah masih terkunci.", 503);
+  let input;
+  try {
+    input = validatedSalePayload(await requestJson(request));
+  } catch (e) {
+    return safeError(e.message, 400);
+  }
+  const priorId = await env.DB.prepare("SELECT id FROM waste_sales WHERE id=?").bind(input.requestId).first();
+  if (priorId) return safeError("Permintaan ini sudah dicatat.", 409);
+  const batch = await env.DB.prepare("SELECT status FROM waste_batches WHERE id=?").bind(input.batchId).first();
+  if (!batch || !["draft", "siap"].includes(batch.status)) return safeError("Batch tidak bisa dijual.", 409);
+  const existing = await env.DB.prepare("SELECT id FROM waste_sales WHERE batch_id=? AND status != 'dibatalkan' LIMIT 1").bind(input.batchId).first();
+  if (existing) return safeError("Penjualan aktif untuk batch ini sudah ada.", 409);
+  const catalog = await env.DB.prepare("SELECT id FROM waste_items WHERE active=1").all();
+  const permitted = new Set((catalog.results || []).map((r) => r.id));
+  if (input.lines.some((l) => !permitted.has(l.item))) return safeError("Jenis barang tidak aktif.", 400);
+  const sql = [env.DB.prepare("INSERT INTO waste_sales(id,batch_id,sold_on,buyer_name,amount_gross_rp,amount_received_rp,status,created_by) VALUES(?,?,?,?,?,?,'draft',?)").bind(input.requestId, input.batchId, input.soldOn, input.buyer || null, input.gross, input.received, who.id)];
+  for (const l of input.lines) {
+    sql.push(env.DB.prepare("INSERT INTO waste_sale_lines(id,sale_id,waste_item_id,grams,actual_rate_rp_per_kg,total_rp) VALUES(?,?,?,?,?,?)").bind(crypto.randomUUID(), input.requestId, l.item, l.grams, l.rate, l.total));
+  }
+  sql.push(env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(), who.id, "banksampah", "create_sale_draft", "waste_sales", input.requestId, input.adjustment || "Penjualan tanpa penyesuaian", JSON.stringify({ grossRp: input.gross, receivedRp: input.received, lineCount: input.lines.length })));
+  await env.DB.batch(sql);
+  return json({ ok: true, id: input.requestId, status: "draft", grossRp: input.gross, receivedRp: input.received, confirmed: false });
+}
+__name(saleCreateDraft, "saleCreateDraft");
+var rupiah = /* @__PURE__ */ __name((v) => Number.isSafeInteger(v) && v >= 0 && v <= 1e12, "rupiah");
+// Hak tabungan dikonfirmasi dari uang hasil penjualan nyata, BUKAN nilai estimasi.
+// Pembulatan deterministik: warga memperoleh floor(hasil/2), selisih Rp1 ke lingkungan.
+// Pembagian per warga memakai bobot estimasi historis; largest remainder menjaga total tepat.
+function bankSplitRights(received, weights) {
+  if (!Number.isSafeInteger(received) || received <= 0 || received > 1e12) throw Error("Uang penjualan tidak valid");
+  const citizenRightsRp = Math.floor(received / 2);
+  const environmentRp = received - citizenRightsRp;
+  const sorted = weights.slice().sort((a,b)=>a.memberId.localeCompare(b.memberId));
+  const total = sorted.reduce((sum,w)=>sum+BigInt(w.weightRp),0n);
+  if (total <= 0n) throw Error("Bobot estimasi setoran tidak tersedia");
+  const unit = BigInt(citizenRightsRp);
+  const rights = sorted.map(w=>{
+    const numerator=unit*BigInt(w.weightRp);
+    return {memberId:w.memberId, amountRp:Number(numerator/total), remainder:numerator%total};
+  });
+  const allocated = rights.reduce((n,r)=>n+r.amountRp,0);
+  const remainderCount = citizenRightsRp - allocated;
+  const ranked = rights.slice().sort((a,b)=>{
+    if (a.remainder===b.remainder) return a.memberId.localeCompare(b.memberId);
+    return a.remainder>b.remainder?-1:1;
+  });
+  for(let i=0;i<remainderCount;i++) ranked[i].amountRp++;
+  return {citizenRightsRp,environmentRp,rights:rights.map(({memberId,amountRp})=>({memberId,amountRp}))};
+}
+__name(bankSplitRights,"bankSplitRights");
+async function reconcilePreview(db, batchId) {
+  if (!batchId || typeof batchId!=="string" || batchId.length>120) throw Error("ID batch tidak valid");
+  const batch = await one(db,"SELECT id,status FROM waste_batches WHERE id=?",[batchId]);
+  if (!batch || !["draft","siap"].includes(batch.status)) throw Error("Batch tidak dapat direkonsiliasi");
+  if (await one(db,"SELECT id FROM waste_allocations WHERE batch_id=?",[batchId])) throw Error("Batch sudah direkonsiliasi");
+  const sales = await list(db,"SELECT id,status,sold_on,amount_received_rp,amount_gross_rp FROM waste_sales WHERE batch_id=? AND status!='dibatalkan'",[batchId]);
+  if (sales.length!==1 || sales[0].status!=="draft") throw Error("Diperlukan tepat satu draft penjualan");
+  const sale=sales[0];
+  const lock = await one(db,"SELECT fiscal_year FROM fiscal_closings WHERE fiscal_year=?",[Number(sale.sold_on?.slice(0,4))]);
+  if (lock) throw Error("Tahun penjualan sudah ditutup");
+  const lineStats=await one(db,"SELECT COUNT(*) n,COALESCE(SUM(total_rp),0) amount,COALESCE(SUM(grams),0) grams FROM waste_sale_lines WHERE sale_id=?",[sale.id]);
+  if (!lineStats?.n || Number(lineStats.amount)!==Number(sale.amount_gross_rp) || !Number.isSafeInteger(sale.amount_received_rp) || sale.amount_received_rp>sale.amount_gross_rp) throw Error("Total rincian penjualan tidak konsisten");
+  const deposits=await list(db,"SELECT id,member_id,estimated_total_rp,total_grams,deposited_on FROM waste_deposits WHERE batch_id=? AND status='estimasi' ORDER BY id",[batchId]);
+  if (!deposits.length) throw Error("Setoran estimasi tidak ditemukan");
+  const confirmed=await one(db,"SELECT COUNT(*) n FROM waste_deposits WHERE batch_id=? AND status='terkonfirmasi'",[batchId]);
+  if (Number(confirmed?.n)) throw Error("Batch sudah memuat setoran terkonfirmasi");
+  const details=await list(db,"SELECT d.id,COALESCE(SUM(l.grams),0) grams,COALESCE(SUM(l.estimated_rp),0) amount FROM waste_deposits d LEFT JOIN waste_deposit_lines l ON l.deposit_id=d.id WHERE d.batch_id=? AND d.status='estimasi' GROUP BY d.id",[batchId]);
+  const byDeposit=new Map(details.map(x=>[x.id,x]));
+  const weights=new Map();
+  for(const d of deposits){
+    if(await one(db,"SELECT fiscal_year FROM fiscal_closings WHERE fiscal_year=?",[Number(d.deposited_on.slice(0,4))])) throw Error("Tahun setoran sudah ditutup");
+    const row=byDeposit.get(d.id);
+    if(!row || row.grams!==d.total_grams || row.amount!==d.estimated_total_rp || !Number.isSafeInteger(d.total_grams) || d.total_grams<=0 || !rupiah(d.estimated_total_rp)) throw Error("Rincian setoran dan total tidak sesuai");
+    weights.set(d.member_id,(weights.get(d.member_id)||0)+d.estimated_total_rp);
+  }
+  // Berat yang dijual setiap kategori tidak boleh melampaui kategori dari setoran batch.
+  const excess=await list(db,`SELECT sl.waste_item_id, SUM(sl.grams) sale_grams,COALESCE((
+    SELECT SUM(dl.grams) FROM waste_deposit_lines dl JOIN waste_deposits d ON d.id=dl.deposit_id
+    WHERE d.batch_id=? AND d.status='estimasi' AND dl.waste_item_id=sl.waste_item_id),0) deposit_grams
+    FROM waste_sale_lines sl WHERE sl.sale_id=? GROUP BY sl.waste_item_id`,[batchId,sale.id]);
+  if(excess.some(x=>x.sale_grams>x.deposit_grams || x.sale_grams<=0)) throw Error("Berat penjualan melebihi atau tidak sesuai setoran per kategori");
+  const split=bankSplitRights(sale.amount_received_rp,[...weights].map(([memberId,weightRp])=>({memberId,weightRp})));
+  return {batchId,saleId:sale.id,receivedRp:sale.amount_received_rp,grossRp:sale.amount_gross_rp,
+    estimatedRp:[...weights.values()].reduce((a,b)=>a+b,0),
+    citizenRightsRp:split.citizenRightsRp,environmentRp:split.environmentRp,
+    remainingRp:split.environmentRp,rights:split.rights,depositIds:deposits.map(x=>x.id),
+    warning:"Konfirmasi akan mengunci batch serta menetapkan hak warga 50:50 dari uang diterima; estimasi awal bukan saldo siap cair."};
+}
+__name(reconcilePreview,"reconcilePreview");
+
+// Pencairan tabungan hanya dari hak warga yang telah terkonfirmasi.
+async function bankWithdraw(request,env,who){
+  const denied=requireRole(who,["admin","superadmin"]);if(denied)return denied;
+  if(env.BANK_WRITE_ENABLED!=="true" || env.BANK_PAYOUT_WRITE_ENABLED!=="true") return safeError("Pencairan tabungan masih terkunci.",503);
+  let p;try{p=await requestJson(request)}catch(e){return safeError("JSON tidak valid.",400)}
+  const key=String(p.requestKey||""),memberId=String(p.memberId||""),on=String(p.withdrawnOn||""),amount=p.amountRp;
+  if(!/^[A-Za-z0-9_-]{16,100}$/.test(key)||!memberId||memberId.length>128||!validDateOnly(on)||!validRupiah(amount)) return safeError("requestKey, anggota, tanggal atau nominal pencairan tidak valid.",400);
+  const hash=await sha(JSON.stringify({memberId,on,amount}));
+  const previous=await one(env.DB,"SELECT target_id,source_fingerprint FROM migration_source_map WHERE source_system='api_v2' AND source_sheet='bank_withdrawal' AND source_row_key=? AND target_table='waste_savings_ledger'",[key]);
+  if(previous){if(previous.source_fingerprint!==hash)return safeError("requestKey digunakan untuk transaksi berbeda.",409);return json({ok:true,id:previous.target_id,duplicate:true})}
+  if(await one(env.DB,"SELECT fiscal_year FROM fiscal_closings WHERE fiscal_year=?",[Number(on.slice(0,4))])) return safeError("Tahun sudah ditutup.",409);
+  if(!await one(env.DB,"SELECT id FROM members WHERE id=? AND status='aktif'",[memberId])) return safeError("Anggota tidak aktif atau tidak ditemukan.",404);
+  const id="withdraw:bank:"+crypto.randomUUID(),note=String(p.note||"").trim().slice(0,250);
+  const stmts=[
+    env.DB.prepare("INSERT INTO migration_source_map(source_system,source_sheet,source_row_key,target_table,target_id,source_fingerprint) VALUES('api_v2','bank_withdrawal',?,'waste_savings_ledger',?,?)").bind(key,id,hash),
+    // CASE returns zero if insufficient; CHECK(amount_rp>0) aborts entire D1.batch transaction.
+    env.DB.prepare(`INSERT INTO waste_savings_ledger(id,member_id,transaction_on,kind,amount_rp,reference_id,note,created_by)
+      VALUES(?,?,?,'pencairan',CASE WHEN (SELECT COALESCE(SUM(CASE WHEN kind IN ('kredit','koreksi_kredit') THEN amount_rp ELSE -amount_rp END),0) FROM waste_savings_ledger WHERE member_id=?)>=? THEN ? ELSE 0 END,?,?,?)`).bind(id,memberId,on,memberId,amount,amount,key,note||"Pencairan tabungan warga",who.id),
+    env.DB.prepare(`INSERT INTO waste_cash_ledger(id,occurred_on,source_transaction_id,transaction_type,fund_position,cash_in_rp,cash_out_rp,status,note)
+      VALUES(?,?,?,'pencairan_tabungan','tabungan_warga',0,
+      CASE WHEN (SELECT COALESCE(SUM(cash_in_rp-cash_out_rp),0) FROM waste_cash_ledger WHERE status='aktif' AND fund_position='tabungan_warga')>=? THEN ? ELSE 0 END,
+      'aktif',?)`).bind("cash:"+id,on,id,amount,amount,note||"Pencairan tabungan warga"),
+    env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'banksampah','withdraw_savings','waste_savings_ledger',?,?,?)").bind("audit:"+id,who.id,id,note||"Pencairan tabungan",JSON.stringify({memberId,amountRp:amount,withdrawnOn:on}))
+  ];
+  try{await env.DB.batch(stmts)}catch(e){
+    const latest=await one(env.DB,"SELECT target_id,source_fingerprint FROM migration_source_map WHERE source_system='api_v2' AND source_sheet='bank_withdrawal' AND source_row_key=? AND target_table='waste_savings_ledger'",[key]);
+    if(latest){if(latest.source_fingerprint===hash)return json({ok:true,id:latest.target_id,duplicate:true});return safeError("requestKey digunakan untuk transaksi berbeda.",409)}
+    return safeError("Pencairan ditolak: saldo terkonfirmasi tidak cukup atau transaksi tidak valid.",409);
+  }
+  return json({ok:true,id,memberId,amountRp:amount,withdrawnOn:on,duplicate:false},201);
+}
+__name(bankWithdraw,"bankWithdraw");
+async function bankReconcileConfirm(request,env,who){
+  const denied=requireRole(who,["admin","superadmin"]);
+  if(denied)return denied;
+  if(env.BANK_WRITE_ENABLED!=="true" || env.BANK_RECONCILIATION_WRITE_ENABLED!=="true") return safeError("Pengesahan Bank Sampah masih terkunci.",503);
+  let p;try{p=await requestJson(request)}catch(e){return safeError("JSON tidak valid.",400)}
+  const batchId=String(p.batchId||""),expectedSaleId=String(p.saleId||"");
+  const operationRp=p.operationRp, neighborhoodRp=p.neighborhoodRp, reserveRp=p.reserveRp ?? 0;
+  if(!batchId || batchId.length>120 || !expectedSaleId || expectedSaleId.length>120 || !Number.isSafeInteger(operationRp) || operationRp<0 || !Number.isSafeInteger(neighborhoodRp) || neighborhoodRp<0 || !Number.isSafeInteger(reserveRp) || reserveRp<0) return safeError("Wajib mengirim batchId, saleId, operationRp dan neighborhoodRp yang valid.",400);
+  const existing=await one(env.DB,"SELECT a.*,s.id sale_id FROM waste_allocations a JOIN waste_sales s ON s.batch_id=a.batch_id AND s.status='terkonfirmasi' WHERE a.batch_id=?",[batchId]);
+  if(existing){
+    if(existing.sale_id===expectedSaleId && existing.operation_rp===operationRp && existing.neighborhood_rp===neighborhoodRp && existing.reserve_rp===reserveRp) return json({ok:true,batchId,status:"disahkan",duplicate:true,receivedRp:existing.received_rp,citizenRightsRp:existing.citizen_rights_rp});
+    return safeError("Batch sudah pernah disahkan dengan alokasi lain.",409);
+  }
+  let preview;try{preview=await reconcilePreview(env.DB,batchId)}catch(e){return safeError(String(e.message||"Rekonsiliasi gagal"),409)}
+  if(preview.saleId!==expectedSaleId || operationRp+neighborhoodRp+reserveRp!==preview.environmentRp) return safeError("ID penjualan atau pembagian lingkungan berbeda dari pratinjau.",409);
+  const auditId="audit:bank-confirm:"+expectedSaleId;
+  const allocId="alloc:bank:"+batchId;
+  const date=String((await one(env.DB,"SELECT sold_on FROM waste_sales WHERE id=?",[expectedSaleId])).sold_on);
+  const stmts=[
+    // Check statuses inside the same transaction; otherwise the CHECK constraint aborts the batch.
+    env.DB.prepare("INSERT INTO waste_allocations(id,batch_id,received_rp,citizen_rights_rp,reserve_rp,neighborhood_rp,operation_rp,adjustment_rp) VALUES(?,?,?,CASE WHEN EXISTS(SELECT 1 FROM waste_batches WHERE id=? AND status IN ('draft','siap')) AND EXISTS(SELECT 1 FROM waste_sales WHERE id=? AND batch_id=? AND status='draft') THEN ? ELSE -1 END,?,?,?,0)").bind(allocId,batchId,preview.receivedRp,batchId,expectedSaleId,batchId,preview.citizenRightsRp,reserveRp,neighborhoodRp,operationRp),
+    env.DB.prepare("UPDATE waste_sales SET status='terkonfirmasi' WHERE id=? AND batch_id=? AND status='draft'").bind(expectedSaleId,batchId),
+    env.DB.prepare("UPDATE waste_batches SET status='disahkan',confirmed_at=CURRENT_TIMESTAMP,confirmed_by=? WHERE id=? AND status IN ('draft','siap')").bind(who.id,batchId),
+    ...preview.depositIds.map(id=>env.DB.prepare("UPDATE waste_deposits SET status='terkonfirmasi' WHERE id=? AND batch_id=? AND status='estimasi'").bind(id,batchId)),
+    ...preview.rights.filter(r=>r.amountRp>0).map(r=>env.DB.prepare("INSERT INTO waste_savings_ledger(id,member_id,transaction_on,kind,amount_rp,batch_id,reference_id,note,created_by) VALUES(?,?,?,'kredit',?,?,?,?,?)").bind("bank-right:"+expectedSaleId+":"+r.memberId,r.memberId,date,r.amountRp,batchId,expectedSaleId+":"+r.memberId,"Hak tabungan terkonfirmasi 50:50 dari penjualan",who.id)),
+    ...[["tabungan_warga",preview.citizenRightsRp],["operasional",operationRp],["kas_lorong",neighborhoodRp],["cadangan",reserveRp]].filter(([_,amount])=>amount>0).map(([fund,amount])=>env.DB.prepare("INSERT INTO waste_cash_ledger(id,occurred_on,source_transaction_id,transaction_type,fund_position,cash_in_rp,cash_out_rp,status,note) VALUES(?,?,?,'penjualan_terkonfirmasi',?,?,0,'aktif',?)").bind("bank-sale-cash:"+expectedSaleId+":"+fund,date,expectedSaleId,fund,amount,"Pembagian hasil penjualan batch "+batchId)),
+    env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?, 'banksampah','confirm_reconciliation','waste_batches',?,?,?)").bind(auditId,who.id,batchId,"Konfirmasi pembagian 50:50",JSON.stringify({saleId:expectedSaleId,receivedRp:preview.receivedRp,citizenRightsRp:preview.citizenRightsRp,operationRp,neighborhoodRp,reserveRp,rights:preview.rights}))
+  ];
+  try{
+    const r=await env.DB.batch(stmts); // Cloudflare D1.batch: satu transaksi, gagal => seluruh perubahan rollback
+    const checks=r.slice(1,3+preview.depositIds.length);
+    if(checks.some(x=>Number(x?.meta?.changes||0)!==1)){
+      // This indicates a concurrent/manual mutation; do not falsely claim success.
+      return safeError("Hasil pembaruan perlu diverifikasi ulang sebelum digunakan.",409);
+    }
+  }catch(e){
+    const latest=await one(env.DB,"SELECT id,received_rp,citizen_rights_rp,operation_rp,neighborhood_rp FROM waste_allocations WHERE batch_id=?",[batchId]);
+    if(latest && latest.received_rp===preview.receivedRp && latest.operation_rp===operationRp && latest.neighborhood_rp===neighborhoodRp && latest.reserve_rp===reserveRp) return json({ok:true,batchId,status:"disahkan",duplicate:true});
+    return safeError("Rekonsiliasi gagal; seluruh perubahan transaksi ditolak.",409);
+  }
+  return json({ok:true,batchId,saleId:expectedSaleId,status:"disahkan",receivedRp:preview.receivedRp,citizenRightsRp:preview.citizenRightsRp,operationRp,neighborhoodRp,reserveRp,rights:preview.rights},201);
+}
+__name(bankReconcileConfirm,"bankReconcileConfirm");
+
+function validDateOnly(value) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const d = /* @__PURE__ */ new Date(value + "T00:00:00Z");
+  return Number.isFinite(d.getTime()) && d.toISOString().slice(0, 10) === value;
+}
+__name(validDateOnly, "validDateOnly");
+function validRupiah(value) {
+  return Number.isSafeInteger(value) && value > 0 && value <= 1e12;
+}
+__name(validRupiah, "validRupiah");
+async function listCashTransactions(db, request) {
+  const params = new URL(request.url).searchParams;
+  const from = params.get("from"), to = params.get("to");
+  if (from && !validDateOnly(from) || to && !validDateOnly(to) || from && to && from > to) return safeError("Rentang tanggal tidak valid.", 400);
+  const limit = Math.min(Math.max(Number(params.get("limit") || 100) || 100, 1), 500);
+  const clauses = ["1=1"], values = [];
+  if (from) {
+    clauses.push("occurred_on >= ?");
+    values.push(from);
+  }
+  if (to) {
+    clauses.push("occurred_on <= ?");
+    values.push(to);
+  }
+  const data = await db.prepare(`SELECT id,occurred_on,transaction_type,category,debit_rp,credit_rp,status,note,payment_method,extra_note,source_payment_id,created_at
+    FROM bookkeeping_cash_transactions WHERE ${clauses.join(" AND ")} ORDER BY occurred_on DESC,created_at DESC,id DESC LIMIT ?`).bind(...values, limit).all();
+  return json({ ok: true, transaksi: data.results || [] });
+}
+__name(listCashTransactions, "listCashTransactions");
+async function addCashTransaction(request, env) {
+  if (env.FINANCE_WRITE_ENABLED !== "true" || env.MANUAL_CASH_WRITE_ENABLED !== "true") return safeError("Pencatatan kas manual masih dikunci.", 503);
+  let data;
+  try {
+    data = await requestJson(request);
+  } catch {
+    return safeError("Format transaksi tidak valid.", 400);
+  }
+  const date = data.tanggal, kind = data.jenis, amount = data.jumlahRp, category = String(data.kategori || "").trim(), note = String(data.keterangan || "").trim();
+  const method = String(data.metode || "Cash").trim(), extra = String(data.catatan || "").trim(), key = String(data.requestKey || "");
+  if (!validRequestKey(key) || !validDateOnly(date) || !["debit", "kredit"].includes(kind) || !validRupiah(amount) || category.length > 120 || note.length > 500 || !["Cash", "QRIS", "Transfer Mandiri"].includes(method) || extra.length > 500 || kind === "kredit" && method !== "Cash")
+    return safeError("Kunci permintaan, tanggal, jenis, atau nominal transaksi tidak valid.", 400);
+  const fingerprint = await tokenHash(JSON.stringify({ date, kind, amount, category, note, method, extra }));
+  async function previous() {
+    const row = await env.DB.prepare("SELECT payload_hash,cash_transaction_id FROM bookkeeping_manual_cash_request_keys WHERE request_key=?").bind(key).first();
+    if (!row) return null;
+    if (row.payload_hash !== fingerprint) return safeError("requestKey sudah digunakan untuk transaksi Kas berbeda.", 409);
+    return json({ ok: true, id: row.cash_transaction_id, tanggal: date, jenis: kind, jumlahRp: amount, duplikat: true });
+  }
+  __name(previous, "previous");
+  const replay = await previous();
+  if (replay) return replay;
+  const year = Number(date.slice(0, 4));
+  const closed = await env.DB.prepare("SELECT status FROM bookkeeping_year_archives WHERE fiscal_year=? AND status IN ('ditutup','terkunci','final') LIMIT 1").bind(year).first();
+  if (closed) return safeError("Tahun pembukuan sudah ditutup.", 409);
+  const id = "cash-" + crypto.randomUUID();
+  const debit = kind === "debit" ? amount : 0, credit = kind === "kredit" ? amount : 0;
+  try {
+    await env.DB.batch([
+      env.DB.prepare("INSERT INTO bookkeeping_manual_cash_request_keys(request_key,payload_hash,cash_transaction_id) VALUES(?,?,?)").bind(key, fingerprint, id),
+      env.DB.prepare(`INSERT INTO bookkeeping_cash_transactions
+        (id,occurred_on,transaction_type,category,debit_rp,credit_rp,status,note,payment_method,extra_note)
+        VALUES (?,?,?,?,?,?,'aktif',?,?,?)`).bind(id, date, "manual", category, debit, credit, note, method, extra)
+    ]);
+  } catch (_) {
+    const winner = await previous();
+    if (winner) return winner;
+    return safeError("Transaksi Kas tidak tersimpan. Periksa migrasi SQL dan ulangi dengan requestKey yang sama.", 409);
+  }
+  return json({ ok: true, id, tanggal: date, jenis: kind, jumlahRp: amount }, 201);
+}
+__name(addCashTransaction, "addCashTransaction");
+async function editCashTransaction(request, env) {
+  if (env.FINANCE_WRITE_ENABLED !== "true" || env.MANUAL_CASH_WRITE_ENABLED !== "true") return safeError("Perubahan kas manual masih dikunci.", 503);
+  let data;
+  try {
+    data = await requestJson(request);
+  } catch {
+    return safeError("Format perubahan tidak valid.", 400);
+  }
+  const id = String(data.id || "").trim(), date = data.tanggal, kind = data.jenis, amount = data.jumlahRp;
+  const category = String(data.kategori || "").trim(), note = String(data.keterangan || "").trim();
+  const method = String(data.metode || "Cash").trim(), extra = String(data.catatan || "").trim();
+  if (!/^cash-[0-9a-f-]{36}$/.test(id) || !validDateOnly(date) || !["debit", "kredit"].includes(kind) || !validRupiah(amount) || category.length > 120 || note.length > 500 || !["Cash", "QRIS", "Transfer Mandiri"].includes(method) || extra.length > 500 || kind === "kredit" && method !== "Cash")
+    return safeError("ID, tanggal, jenis, kategori atau nominal tidak valid.", 400);
+  const row = await env.DB.prepare("SELECT occurred_on,status,transaction_type,source_payment_id FROM bookkeeping_cash_transactions WHERE id=?").bind(id).first();
+  if (!row || row.status !== "aktif" || row.transaction_type !== "manual" || row.source_payment_id) return safeError("Hanya kas manual aktif yang dapat diedit.", 409);
+  const years = [Number(row.occurred_on.slice(0, 4)), Number(date.slice(0, 4))];
+  const closed = await env.DB.prepare("SELECT fiscal_year FROM bookkeeping_year_archives WHERE fiscal_year IN (?,?) AND status IN ('ditutup','terkunci','final') LIMIT 1").bind(...years).first();
+  if (closed) return safeError("Tahun pembukuan asal atau tujuan sudah ditutup.", 409);
+  const debit = kind === "debit" ? amount : 0, credit = kind === "kredit" ? amount : 0;
+  const result = await env.DB.prepare("UPDATE bookkeeping_cash_transactions SET occurred_on=?,category=?,debit_rp=?,credit_rp=?,note=?,payment_method=?,extra_note=? WHERE id=? AND status='aktif' AND transaction_type='manual' AND source_payment_id IS NULL").bind(date, category, debit, credit, note, method, extra, id).run();
+  if (result.meta?.changes !== 1) return safeError("Transaksi tidak dapat diperbarui.", 409);
+  return json({ ok: true, id, updated: true });
+}
+__name(editCashTransaction, "editCashTransaction");
+async function cancelCashTransaction(request, env) {
+  if (env.FINANCE_WRITE_ENABLED !== "true" || env.MANUAL_CASH_WRITE_ENABLED !== "true") return safeError("Pembatalan kas manual masih dikunci.", 503);
+  let data;
+  try {
+    data = await requestJson(request);
+  } catch {
+    return safeError("Format pembatalan tidak valid.", 400);
+  }
+  const id = String(data.id || "").trim();
+  if (!/^cash-[0-9a-f-]{36}$/.test(id)) return safeError("Hanya transaksi kas manual baru yang dapat dibatalkan melalui endpoint ini.", 400);
+  const row = await env.DB.prepare("SELECT occurred_on,status,transaction_type,source_payment_id FROM bookkeeping_cash_transactions WHERE id=?").bind(id).first();
+  if (!row || row.status !== "aktif" || row.transaction_type !== "manual" || row.source_payment_id) return safeError("Hanya transaksi kas manual aktif yang bisa dibatalkan.", 409);
+  const year = Number(row.occurred_on.slice(0, 4));
+  const closed = await env.DB.prepare("SELECT status FROM bookkeeping_year_archives WHERE fiscal_year=? AND status IN ('ditutup','terkunci','final') LIMIT 1").bind(year).first();
+  if (closed) return safeError("Tahun pembukuan sudah ditutup.", 409);
+  const result = await env.DB.prepare("UPDATE bookkeeping_cash_transactions SET status='dibatalkan' WHERE id=? AND status='aktif' AND transaction_type='manual' AND source_payment_id IS NULL").bind(id).run();
+  if (result.meta?.changes !== 1) return safeError("Transaksi sudah berubah.", 409);
+  return json({ ok: true, id, status: "dibatalkan" });
+}
+__name(cancelCashTransaction, "cancelCashTransaction");
+async function yearEndPreflight(db, request) {
+  const raw = new URL(request.url).searchParams.get("year") || "";
+  if (!/^(20|19)\d{2}$/.test(raw)) return safeError("Parameter year harus berupa tahun empat digit.", 400);
+  const year = Number(raw), from = `${raw}-01-01`, to = `${year + 1}-01-01`;
+  const lock = await db.prepare("SELECT status FROM bookkeeping_year_archives WHERE fiscal_year=? LIMIT 1").bind(year).first();
+  const totals = await db.prepare(`SELECT COUNT(*) AS jumlah,
+    COALESCE(SUM(debit_rp),0) AS debit,COALESCE(SUM(credit_rp),0) AS kredit
+    FROM bookkeeping_cash_transactions WHERE status='aktif' AND occurred_on>=? AND occurred_on<?`).bind(from, to).first();
+  const sources = await db.prepare(`SELECT transaction_type,COUNT(*) AS jumlah,
+    COALESCE(SUM(debit_rp),0) AS debit,COALESCE(SUM(credit_rp),0) AS kredit
+    FROM bookkeeping_cash_transactions WHERE status='aktif' AND occurred_on>=? AND occurred_on<?
+    GROUP BY transaction_type ORDER BY transaction_type`).bind(from, to).all();
+  const invalid = await db.prepare(`SELECT COUNT(*) AS jumlah FROM bookkeeping_cash_transactions
+    WHERE status='aktif' AND occurred_on>=? AND occurred_on<?
+    AND (debit_rp IS NULL OR credit_rp IS NULL OR debit_rp<0 OR credit_rp<0 OR
+      (debit_rp>0 AND credit_rp>0) OR (debit_rp=0 AND credit_rp=0))`).bind(from, to).first();
+  const orphan = await db.prepare(`SELECT COUNT(*) AS jumlah FROM bookkeeping_cash_transactions c
+    LEFT JOIN bookkeeping_payments p ON p.id=c.source_payment_id
+    WHERE c.status='aktif' AND c.transaction_type='iuran' AND c.occurred_on>=? AND c.occurred_on<?
+    AND (c.source_payment_id IS NULL OR p.id IS NULL OR p.status<>'aktif' OR
+      c.debit_rp<>p.amount_rp OR c.credit_rp<>0)`).bind(from, to).first();
+  const financeTables = ["bookkeeping_dp_cash_links", "bookkeeping_fine_payments"];
+  const presentTables = await db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('bookkeeping_dp_cash_links','bookkeeping_fine_payments')").all();
+  const presentNames = new Set((presentTables.results || []).map((r) => r.name));
+  const missingTables = financeTables.filter((name) => !presentNames.has(name));
+  if (missingTables.length) {
+    return json({
+      ok: true,
+      readOnly: true,
+      year,
+      locked: !!lock,
+      lockStatus: lock?.status || null,
+      status: "BLOKIR_SKEMA",
+      journal: {
+        jumlah: Number(totals?.jumlah || 0),
+        debitRp: Number(totals?.debit || 0),
+        kreditRp: Number(totals?.kredit || 0),
+        saldoPeriodeRp: Number(totals?.debit || 0) - Number(totals?.kredit || 0)
+      },
+      sources: sources.results || [],
+      checks: {
+        invalidCashRows: Number(invalid?.jumlah || 0),
+        invalidLinkedIuranRows: Number(orphan?.jumlah || 0),
+        missingFinanceTables: missingTables.length
+      },
+      missingTables,
+      balanceArchive: { status: "BELUM_TERVERIFIKASI", openingBalanceVerified: false, archiveSnapshotVerified: false },
+      warning: "Tutup buku DIBLOKIR. Skema Denda/Pinjaman masih belum lengkap (" + missingTables.join(", ") + "). Angka yang ditampilkan hanya jurnal transaksi; belum membuktikan saldo awal, arsip, atau rekonsiliasi kas."
+    });
+  }
+  const dpInvalidLinks = await db.prepare(`SELECT COUNT(*) AS jumlah
+    FROM bookkeeping_dp_cash_links l
+    LEFT JOIN bookkeeping_cash_transactions c ON c.id=l.cash_transaction_id
+    WHERE (c.occurred_on>=? AND c.occurred_on<?)
+      AND (c.status<>'aktif' OR
+        (l.source_type='fine-pay' AND (c.transaction_type<>'pembayaran_denda' OR c.credit_rp<>0)) OR
+        (l.source_type='loan-pay' AND (c.transaction_type<>'angsuran_pinjaman' OR c.credit_rp<>0)) OR
+        (l.source_type='loan-create' AND (c.transaction_type<>'pinjaman_keluar' OR c.debit_rp<>0)))`).bind(from, to).first();
+  const dpUnlinkedCash = await db.prepare(`SELECT COUNT(*) AS jumlah
+    FROM bookkeeping_cash_transactions c
+    LEFT JOIN bookkeeping_dp_cash_links l ON l.cash_transaction_id=c.id
+    WHERE c.occurred_on>=? AND c.occurred_on<? AND c.status='aktif'
+      AND c.transaction_type IN ('pembayaran_denda','angsuran_pinjaman','pinjaman_keluar')
+      AND l.cash_transaction_id IS NULL`).bind(from, to).first();
+  const dpPaymentProblems = await db.prepare(`SELECT COUNT(*) AS jumlah FROM (
+    SELECT fp.id FROM bookkeeping_fine_payments fp
+      LEFT JOIN bookkeeping_dp_cash_links l ON l.source_id=fp.id AND l.source_type='fine-pay'
+      LEFT JOIN bookkeeping_cash_transactions c ON c.id=l.cash_transaction_id
+      WHERE fp.status='aktif' AND fp.paid_on>=? AND fp.paid_on<?
+        AND (l.cash_transaction_id IS NULL OR c.status<>'aktif' OR c.debit_rp<>fp.amount_rp OR c.credit_rp<>0)
+    UNION ALL
+    SELECT lr.id FROM bookkeeping_loan_repayments lr
+      LEFT JOIN bookkeeping_dp_cash_links l ON l.source_id=lr.id AND l.source_type='loan-pay'
+      LEFT JOIN bookkeeping_cash_transactions c ON c.id=l.cash_transaction_id
+      WHERE lr.status='aktif' AND lr.repaid_on>=? AND lr.repaid_on<?
+        AND (l.cash_transaction_id IS NULL OR c.status<>'aktif' OR c.debit_rp<>lr.amount_rp OR c.credit_rp<>0)
+  )`).bind(from, to, from, to).first();
+  const advanceAudit = await db.prepare(`SELECT
+    COALESCE(SUM(CASE WHEN r.cash_transaction_id IS NULL OR TRIM(r.cash_transaction_id)='' THEN 1 ELSE 0 END),0) AS unlinked,
+    COALESCE(SUM(CASE WHEN r.cash_transaction_id IS NOT NULL AND TRIM(r.cash_transaction_id)<>''
+      AND (c.id IS NULL OR c.status<>'aktif' OR c.transaction_type<>'pelunasan_talangan'
+      OR c.debit_rp<>0 OR c.credit_rp<>r.amount_rp OR c.occurred_on<>r.repaid_on)
+      THEN 1 ELSE 0 END),0) AS mismatched,
+    COALESCE(SUM(CASE WHEN r.cash_transaction_id IS NOT NULL AND TRIM(r.cash_transaction_id)<>''
+      AND c.id IS NOT NULL AND c.status='aktif' AND c.transaction_type='pelunasan_talangan'
+      AND c.debit_rp=0 AND c.credit_rp=r.amount_rp AND c.occurred_on=r.repaid_on
+      THEN 1 ELSE 0 END),0) AS matched
+    FROM bookkeeping_advance_repayments r
+    LEFT JOIN bookkeeping_cash_transactions c ON c.id=r.cash_transaction_id
+    WHERE r.status='aktif' AND r.repaid_on>=? AND r.repaid_on<?`).bind(from, to).first();
+  const advanceOrphanCash = await db.prepare(`SELECT COUNT(*) AS jumlah
+    FROM bookkeeping_cash_transactions c
+    LEFT JOIN bookkeeping_advance_repayments r ON r.cash_transaction_id=c.id AND r.status='aktif'
+    WHERE c.status='aktif' AND c.transaction_type='pelunasan_talangan'
+      AND c.occurred_on>=? AND c.occurred_on<? AND r.id IS NULL`).bind(from, to).first();
+  const archiveRows = await db.prepare(`SELECT fiscal_year,status,snapshot_json,source_closing_id
+    FROM bookkeeping_year_archives WHERE fiscal_year IN (?,?) ORDER BY fiscal_year`).bind(year - 1, year).all();
+  const archiveByYear = new Map((archiveRows.results || []).map((r) => [Number(r.fiscal_year), r]));
+  function inspectArchive(fiscalYear) {
+    const row = archiveByYear.get(fiscalYear);
+    if (!row) return { year: fiscalYear, exists: false, validJson: false, status: null, snapshotKeys: [], hasSourceClosingId: false };
+    let validJson = false, keys = [];
+    try {
+      const parsed = JSON.parse(row.snapshot_json);
+      validJson = parsed !== null && typeof parsed === "object" && !Array.isArray(parsed);
+      if (validJson) keys = Object.keys(parsed).slice(0, 30);
+    } catch (_ignored) {
+    }
+    return {
+      year: fiscalYear,
+      exists: true,
+      validJson,
+      status: row.status,
+      snapshotKeys: keys,
+      hasSourceClosingId: !!row.source_closing_id
+    };
+  }
+  __name(inspectArchive, "inspectArchive");
+  const priorArchive = inspectArchive(year - 1), currentArchive = inspectArchive(year);
+  const archiveStructuralIssues = [priorArchive, currentArchive].filter((a) => a.exists && !a.validJson).length;
+  const archiveChecks = {
+    previousYearMissing: !priorArchive.exists,
+    currentYearMissing: !currentArchive.exists,
+    previousYearInvalidJson: priorArchive.exists && !priorArchive.validJson,
+    currentYearInvalidJson: currentArchive.exists && !currentArchive.validJson,
+    previousYearMissingClosingRef: priorArchive.exists && priorArchive.status === "closed" && !priorArchive.hasSourceClosingId,
+    currentYearMissingClosingRef: currentArchive.exists && currentArchive.status === "closed" && !currentArchive.hasSourceClosingId
+  };
+  const archiveIssueCount = Object.values(archiveChecks).filter(Boolean).length;
+  const unlinkedAdvances = Number(advanceAudit?.unlinked || 0);
+  const mismatchedAdvances = Number(advanceAudit?.mismatched || 0);
+  const orphanAdvanceCash = Number(advanceOrphanCash?.jumlah || 0);
+  const anomalies = Number(invalid?.jumlah || 0) + Number(orphan?.jumlah || 0) + Number(dpInvalidLinks?.jumlah || 0) + Number(dpUnlinkedCash?.jumlah || 0) + Number(dpPaymentProblems?.jumlah || 0) + mismatchedAdvances + orphanAdvanceCash;
+  const requiresReview = anomalies > 0 || unlinkedAdvances > 0 || archiveIssueCount > 0;
+  return json({
+    ok: true,
+    readOnly: true,
+    year,
+    locked: !!lock,
+    lockStatus: lock?.status || null,
+    journal: {
+      jumlah: Number(totals?.jumlah || 0),
+      debitRp: Number(totals?.debit || 0),
+      kreditRp: Number(totals?.kredit || 0),
+      saldoPeriodeRp: Number(totals?.debit || 0) - Number(totals?.kredit || 0)
+    },
+    sources: sources.results || [],
+    checks: {
+      invalidCashRows: Number(invalid?.jumlah || 0),
+      invalidLinkedIuranRows: Number(orphan?.jumlah || 0),
+      invalidDpCashLinks: Number(dpInvalidLinks?.jumlah || 0),
+      unlinkedDpCashRows: Number(dpUnlinkedCash?.jumlah || 0),
+      unmatchedDpPayments: Number(dpPaymentProblems?.jumlah || 0),
+      unverifiedAdvanceRepayments: unlinkedAdvances,
+      matchedAdvanceRepayments: Number(advanceAudit?.matched || 0),
+      mismatchedAdvanceRepayments: mismatchedAdvances,
+      orphanAdvanceCashRows: orphanAdvanceCash
+    },
+    balanceArchive: {
+      status: "BELUM_TERVERIFIKASI",
+      openingBalanceVerified: false,
+      archiveSnapshotVerified: false,
+      previousYear: priorArchive,
+      currentYear: currentArchive,
+      invalidSnapshotCount: archiveStructuralIssues,
+      archiveChecks,
+      archiveIssueCount
+    },
+    status: requiresReview ? "PERLU_REKONSILIASI" : "PEMERIKSAAN_TERBATAS_LOLOS",
+    warning: "Belum menjadi izin tutup buku. Talangan tanpa tautan jurnal harus direkonsiliasi; audit lain masih terbatas pada catatan yang tersedia. Metadata arsip diperiksa, tetapi saldo awal dan angka snapshot tahunan BELUM diverifikasi."
+  });
+}
+__name(yearEndPreflight, "yearEndPreflight");
+async function residentsApi(request, env, who) {
+  const denied = requireRole(who, ["superadmin"]);
+  if (denied) return denied;
+  const db = env.DB, method = request.method;
+  if (method === "GET") {
+    const result = await db.prepare(`SELECT h.id AS household_id,h.house_code AS rumah,h.description AS deskripsi_rumah,
+      d.status_rumah,d.tipe_unit,d.nama_pemilik,d.kontak_pemilik,d.keterangan AS keterangan_rumah,
+      p.id AS payer_id,p.display_name AS nama,p.payer_type,p.active,
+      rp.source_warga_id,rp.status_tinggal,rp.status_aktif,rp.nomor_hp,rp.keterangan AS keterangan_warga,
+      rp.qty_iuran_bulanan,rp.qty_kebersihan,rp.qty_kas_lorong,rp.qty_arisan,
+      m.id AS member_id,m.status AS status_anggota
+      FROM households h LEFT JOIN household_details d ON d.household_id=h.id
+      LEFT JOIN bookkeeping_payers p ON p.household_id=h.id AND p.payer_type='warga'
+      LEFT JOIN resident_directory_profiles rp ON rp.payer_id=p.id
+      LEFT JOIN members m ON m.id=p.member_id
+      ORDER BY h.house_code COLLATE NOCASE,p.display_name COLLATE NOCASE`).all();
+    return json({ ok: true, rows: result.results || [] });
+  }
+  if (method !== "POST") return safeError("Metode tidak didukung.", 405);
+  let data;
+  try {
+    data = await requestJson(request);
+  } catch {
+    return safeError("JSON tidak valid atau terlalu besar.", 400);
+  }
+  const action = String(data.action || "");
+  const str = /* @__PURE__ */ __name((name, max = 150) => {
+    if (data[name] === null || data[name] === "") return null;
+    if (typeof data[name] !== "string" || data[name].length > max) throw Error("Kolom " + name + " tidak valid.");
+    return data[name].trim() || null;
+  }, "str");
+  try {
+    if (action === "edit_house") {
+      const id = str("household_id", 120);
+      if (!id) return safeError("ID rumah wajib.", 400);
+      const code = str("rumah", 25);
+      if (!code) return safeError("Nomor rumah wajib.", 400);
+      const exists = await db.prepare("SELECT id FROM households WHERE id=?").bind(id).first();
+      if (!exists) return safeError("Rumah tidak ditemukan.", 404);
+      await db.batch([
+        db.prepare("UPDATE households SET house_code=?,description=? WHERE id=?").bind(code, str("deskripsi_rumah", 500), id),
+        db.prepare(`INSERT INTO household_details(household_id,status_rumah,tipe_unit,nama_pemilik,kontak_pemilik,keterangan)
+          VALUES(?,?,?,?,?,?) ON CONFLICT(household_id) DO UPDATE SET status_rumah=excluded.status_rumah,tipe_unit=excluded.tipe_unit,nama_pemilik=excluded.nama_pemilik,kontak_pemilik=excluded.kontak_pemilik,keterangan=excluded.keterangan`).bind(id, str("status_rumah", 40), str("tipe_unit", 80), str("nama_pemilik"), str("kontak_pemilik", 80), str("keterangan_rumah", 500))
+      ]);
+      return json({ ok: true, id });
+    }
+    if (action === "edit_resident") {
+      const id = str("payer_id", 120);
+      if (!id) return safeError("ID warga wajib.", 400);
+      const name = str("nama", 160);
+      if (!name) return safeError("Nama wajib.", 400);
+      const old = await db.prepare("SELECT id FROM bookkeeping_payers WHERE id=? AND payer_type='warga'").bind(id).first();
+      if (!old) return safeError("Warga tidak ditemukan.", 404);
+      const cols = ["status_tinggal", "status_aktif", "nomor_hp", "keterangan_warga"];
+      const vals = cols.map((x) => str(x, x === "keterangan_warga" ? 500 : 80));
+      const active = data.active === false ? 0 : 1;
+      const payer = await db.prepare("SELECT member_id FROM bookkeeping_payers WHERE id=?").bind(id).first();
+      const updates = [
+        db.prepare("UPDATE bookkeeping_payers SET display_name=?,active=? WHERE id=?").bind(name, active, id),
+        db.prepare(`INSERT INTO resident_directory_profiles(payer_id,status_tinggal,status_aktif,nomor_hp,keterangan)
+          VALUES(?,?,?,?,?) ON CONFLICT(payer_id) DO UPDATE SET status_tinggal=excluded.status_tinggal,status_aktif=excluded.status_aktif,nomor_hp=excluded.nomor_hp,keterangan=excluded.keterangan`).bind(id, ...vals)
+      ];
+      if (payer?.member_id) {
+        updates.push(db.prepare("UPDATE members SET display_name=?,status=?,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(name, active ? "aktif" : "nonaktif", payer.member_id));
+      }
+      await db.batch(updates);
+      return json({ ok: true, id, linkedMemberId: payer?.member_id || null });
+    }
+    if (action === "add_house") {
+      const house = str("rumah", 25);
+      if (!house || !/^[A-Za-z0-9][A-Za-z0-9/ -]{1,24}$/.test(house)) return safeError("Nomor rumah tidak valid.", 400);
+      const id = "house:" + crypto.randomUUID();
+      await db.batch([
+        db.prepare("INSERT INTO households(id,house_code,description) VALUES(?,?,?)").bind(id, house, str("deskripsi_rumah", 500)),
+        db.prepare("INSERT INTO household_details(household_id,status_rumah,tipe_unit,nama_pemilik,kontak_pemilik,keterangan) VALUES(?,?,?,?,?,?)").bind(id, str("status_rumah", 40), str("tipe_unit", 80), str("nama_pemilik"), str("kontak_pemilik", 80), str("keterangan_rumah", 500))
+      ]);
+      return json({ ok: true, id }, 201);
+    }
+    if (action === "add_resident") {
+      const house = str("household_id", 120), name = str("nama", 160);
+      if (!house || !name) return safeError("Rumah dan nama wajib.", 400);
+      if (!await db.prepare("SELECT id FROM households WHERE id=?").bind(house).first()) return safeError("Rumah tidak ditemukan.", 404);
+      const id = "payer:" + crypto.randomUUID(), memberId = "member:api:" + crypto.randomUUID();
+      const occupancyId = "occupancy:api:" + crypto.randomUUID();
+      await db.batch([
+        // Tambah identitas anggota lebih dulu, kemudian pembayar iuran terkait.
+        // Tidak membuat akun/password otomatis: akun baru disiapkan oleh Admin/Superadmin.
+        db.prepare("INSERT INTO members(id,household_id,display_name,status,joined_at) VALUES(?,?,?,'aktif',date('now'))").bind(memberId, house, name),
+        db.prepare("INSERT INTO bookkeeping_payers(id,household_id,member_id,display_name,payer_type,active) VALUES(?,?,?,?,'warga',1)").bind(id, house, memberId, name),
+        db.prepare("INSERT INTO resident_directory_profiles(payer_id,status_tinggal,status_aktif,nomor_hp,keterangan) VALUES(?,?,?,?,?)").bind(id, str("status_tinggal", 80), str("status_aktif", 80), str("nomor_hp", 80), str("keterangan_warga", 500)),
+        db.prepare("INSERT INTO household_occupancy_history(id,household_id,member_id,started_on,status) VALUES(?,?,?,date('now'),'aktif')").bind(occupancyId, house, memberId)
+      ]);
+      return json({ ok: true, id, memberId, accountCreated: false }, 201);
+    }
+    return safeError("Aksi tidak dikenal.", 400);
+  } catch (e) {
+    if (/UNIQUE constraint failed/i.test(String(e.message))) return safeError("Nomor rumah atau data tersebut sudah digunakan.", 409);
+    throw e;
+  }
+}
+__name(residentsApi, "residentsApi");
+async function handle(request, env) {
+  if (!env.DB) return safeError("Database belum dikonfigurasi.", 503);
+  const url = new URL(request.url), path = url.pathname.replace(/\/+$/, "") || "/";
+  if (path === "/api/health" && request.method === "GET") return json({ ok: true, service: "flamboyan4-api", mode: "migration-preview" });
+  if (path === "/api/public/summary" && request.method === "GET") return json(await publicSummary(env.DB));
+  if (path === "/api/public/overview" && request.method === "GET") return json(await publicOverview(env.DB));
+  if (path === "/api/public/albums" && request.method === "GET") return json(await publicAlbums(env.DB));
+  if (path === "/api/public/progress" && request.method === "GET") return json(await publicProgress(env.DB));
+  if (path === "/login-staging" && request.method === "GET") return stagingLoginPage();
+  if (path === "/activate-members-staging" && request.method === "GET") return memberActivationPage();
+  if (path === "/activate-admin-staging" && request.method === "GET") return adminActivationPage();
+  if (path === "/member-savings-staging" && request.method === "GET") return memberSavingsPage();
+  if (path === "/setup-superadmin" && request.method === "GET") return bootstrapPage();
+  if (path === "/api/auth/bootstrap-superadmin" && request.method === "POST") return bootstrapSuperadmin(request, env);
+  if (path === "/api/auth/login" && request.method === "POST") return login(request, env);
+  const who = await identity(request, env.DB);
+  if (path === "/api/v2/admin/residents") return residentsApi(request, env, who);
+  if (path.startsWith("/api/v2/")) return handleUnifiedApi(request, env, who);
+  if (path === "/api/auth/change-password" && request.method === "POST") return changePassword(request, env, who);
+  if (path === "/api/auth/logout" && request.method === "POST") {
+    if (!who) return safeError("Sesi tidak valid.", 401);
+    const bearer = /^Bearer ([A-Za-z0-9_-]{32,256})$/.exec(request.headers.get("authorization") || "");
+    const cookie = /\bf4_session=([A-Za-z0-9_-]{32,256})(?:;|$)/.exec(request.headers.get("cookie") || "");
+    const token = bearer?.[1] || cookie?.[1];
+    await env.DB.prepare("UPDATE sessions SET revoked_at=CURRENT_TIMESTAMP WHERE token_hash=?").bind(await tokenHash(token)).run();
+    return json({ ok: true }, 200, { "set-cookie": "f4_session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0" });
+  }
+  if (path === "/api/member/profile" && request.method === "GET") {
+    const denied = requireRole(who, ["anggota", "admin", "superadmin"]);
+    if (denied) return denied;
+    return json(await myProfile(env.DB, who));
+  }
+  if (path === "/api/member/profile" && request.method === "POST") return updateMyProfile(request, env, who);
+  if (path === "/api/member/avatar" && request.method === "POST") return uploadMyAvatar(request, env, who);
+  if (path === "/api/member/avatar" && request.method === "GET") return getMyAvatar(env, who);
+  if (path === "/api/member/me" && request.method === "GET") {
+    const denied = requireRole(who, ["anggota", "admin", "superadmin"]);
+    if (denied) return denied;
+    return json({
+      ok: true,
+      account: { id: who.id, username: who.username, role: who.role },
+      member: who.member_id ? { id: who.member_id, nama: who.display_name, rumah: who.house_code } : null
+    });
+  }
+  if (path === "/api/member/finance-report" && request.method === "GET") {
+    // Detailed bookkeeping cash notes belong to superadmin. Other roles use
+    // the public aggregate overview, or their own payment/savings reports.
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    const month = url.searchParams.get("month") || "";
+    if (month && !/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) return safeError("Periode tidak valid (YYYY-MM).", 400);
+    // Aggregate from all matching D1 transactions, not only the bounded history list.
+    const [aggregate,rows] = await Promise.all([
+      env.DB.prepare(`SELECT COUNT(*) AS total_rows,
+        COALESCE(SUM(debit_rp),0) AS total_debit_rp,
+        COALESCE(SUM(credit_rp),0) AS total_credit_rp
+        FROM bookkeeping_cash_transactions
+        WHERE status='aktif' AND (?='' OR substr(occurred_on,1,7)=?)`).bind(month,month).first(),
+      env.DB.prepare(`SELECT occurred_on,transaction_type,category,
+        debit_rp,credit_rp,status,note
+        FROM bookkeeping_cash_transactions
+        WHERE status='aktif' AND (?='' OR substr(occurred_on,1,7)=?)
+        ORDER BY occurred_on DESC,id DESC LIMIT 1501`).bind(month,month).all()
+    ]);
+    const fullRows = rows.results || [];
+    const isTruncated = fullRows.length > 1500;
+    const items = fullRows.slice(0,1500).map((row) => ({
+      tanggal: row.occurred_on,
+      jenis: row.transaction_type,
+      kategori: row.category,
+      debitRp: Number(row.debit_rp || 0),
+      kreditRp: Number(row.credit_rp || 0),
+      keterangan: row.note || ""
+    }));
+    const totalDebitRp = Number(aggregate?.total_debit_rp || 0);
+    const totalKreditRp = Number(aggregate?.total_credit_rp || 0);
+    return json({
+      ok: true,
+      periode: month || "semua",
+      transaksi: items,
+      jumlahTransaksi: Number(aggregate?.total_rows || 0),
+      riwayatLengkap: !isTruncated,
+      totalDebitRp,
+      totalKreditRp,
+      selisihRp: totalDebitRp - totalKreditRp,
+      catatan: isTruncated
+        ? "Total dari seluruh D1, tetapi rincian dibatasi 1500 baris. Cetak rincian harus menggunakan paginasi."
+        : "Laporan arus transaksi kas yang tercatat, bukan saldo keseluruhan atau laporan tutup buku."
+    });
+  }
+  if (path === "/api/member/payments" && request.method === "GET") {
+    const denied = requireRole(who, ["anggota", "admin", "superadmin"]);
+    if (denied) return denied;
+    if (!who.member_id) return safeError("Akun belum ditautkan ke data warga.", 403);
+    return json(await ownPayments(env.DB, who.member_id));
+  }
+  if (path === "/api/member/savings" && request.method === "GET") {
+    const denied = requireRole(who, ["anggota", "admin", "superadmin"]);
+    if (denied) return denied;
+    if (!who.member_id) return safeError("Akun belum ditautkan ke data anggota.", 403);
+    return json(await ownSavings(env.DB, who.member_id));
+  }
+  if (path === "/api/bookkeeping/iuran/outstanding" && request.method === "GET") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return getIuranOutstanding(env.DB, request);
+  }
+  if (path === "/api/bookkeeping/iuran/tariffs" && request.method === "GET") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    try {
+      return json({ ok: true, config: await getIuranTariffs(env.DB), source: "cloudflare-d1" });
+    } catch {
+      return safeError("Tarif iuran D1 belum tersedia/lengkap.", 503);
+    }
+  }
+  if (path === "/api/bookkeeping/iuran/payers" && request.method === "GET") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    const out = await env.DB.prepare(`SELECT bp.id AS payerId,bp.display_name AS nama,bp.member_id AS memberId,
+      CASE WHEN instr(h.house_code,'/')>0 THEN substr(h.house_code,1,instr(h.house_code,'/')-1) ELSE h.house_code END AS blok,
+      CASE WHEN instr(h.house_code,'/')>0 THEN substr(h.house_code,instr(h.house_code,'/')+1) ELSE '' END AS noRumah
+      FROM bookkeeping_payers bp
+      LEFT JOIN members m ON m.id=bp.member_id
+      LEFT JOIN households h ON h.id=COALESCE(bp.household_id,m.household_id)
+      WHERE bp.active=1 AND bp.payer_type IN ('warga','lembaga') ORDER BY bp.display_name`).all();
+    return json({ ok: true, data: out.results || [] });
+  }
+  if (path === "/api/bookkeeping/iuran" && request.method === "POST") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return createIuranPayment(request, env, who);
+  }
+  const dpWrites = {
+    "/api/bookkeeping/denda": "fine-create",
+    "/api/bookkeeping/denda/bayar": "fine-pay",
+    "/api/bookkeeping/pinjaman": "loan-create",
+    "/api/bookkeeping/pinjaman/bayar": "loan-pay"
+  };
+  if (request.method === "POST" && Object.hasOwn(dpWrites, path)) {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return writeDendaPinjaman(request, env, dpWrites[path], who);
+  }
+  if (path === "/api/bookkeeping/denda-pinjaman/exceptions" && request.method === "GET") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return auditDendaPinjamanExceptions(env.DB, request);
+  }
+  if (path === "/api/bookkeeping/denda-pinjaman/cash-candidates" && request.method === "GET") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return auditDendaPinjamanCashCandidates(env.DB, request);
+  }
+  if (path === "/api/bookkeeping/denda-pinjaman/readiness" && request.method === "GET") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return auditDendaPinjamanReadiness(env.DB);
+  }
+  if (path === "/api/bookkeeping/denda" && request.method === "GET") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return listDendaD1(env.DB, request);
+  }
+  if (path === "/api/bookkeeping/pinjaman" && request.method === "GET") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return listPinjamanD1(env.DB, request);
+  }
+  if (path === "/api/bookkeeping/pinjaman/detail" && request.method === "GET") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return detailPinjamanD1(env.DB, request);
+  }
+  if (path === "/api/bookkeeping/talangan" && request.method === "POST") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return newAdvanceD1(request, env);
+  }
+  if (path === "/api/bookkeeping/talangan/repay" && request.method === "POST") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return repayAdvanceD1(request, env);
+  }
+  if (path === "/api/bookkeeping/talangan" && request.method === "GET") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return listTalanganD1(env.DB, request);
+  }
+  if (path === "/api/bookkeeping/talangan/detail" && request.method === "GET") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return detailTalanganD1(env.DB, request);
+  }
+  if (path === "/api/bookkeeping/talangan/audit" && request.method === "GET") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return auditTalangan(env.DB);
+  }
+  if (path === "/api/bookkeeping/year-end/preflight" && request.method === "GET") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return yearEndPreflight(env.DB, request);
+  }
+  if (path === "/api/bookkeeping/iuran/audit" && request.method === "GET") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return auditIuranCash(env.DB);
+  }
+  if (path === "/api/bookkeeping/iuran/correct-date" && request.method === "POST") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return f4CorrectPaymentDate(env, request, who);
+  }
+  if (path === "/api/bookkeeping/iuran/quick-summary" && request.method === "GET") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return f4QuickIuranSummary(env.DB, request);
+  }
+  if (path === "/api/bookkeeping/reports/contributions" && request.method === "GET") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return f4ContributionReport(env.DB, request);
+  }
+  if (path === "/api/bookkeeping/reports/yearly" && request.method === "GET") {
+    const denied=requireRole(who,["superadmin"]);
+    if (denied) return denied;
+    return f4YearlyReadOnlyReport(env.DB,request);
+  }
+  if (path === "/api/bookkeeping/reports/cash" && request.method === "GET") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return f4CashReport(env.DB, request);
+  }
+  if (path === "/api/bookkeeping/iuran/history" && request.method === "GET") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return bookkeepingIuranHistory(env.DB, request);
+  }
+  if (path === "/api/bookkeeping/cash" && request.method === "GET") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return listCashTransactions(env.DB, request);
+  }
+  if (path === "/api/bookkeeping/cash" && request.method === "POST") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return addCashTransaction(request, env);
+  }
+  if (path === "/api/bookkeeping/cash/edit" && request.method === "POST") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return editCashTransaction(request, env);
+  }
+  if (path === "/api/bookkeeping/cash/cancel" && request.method === "POST") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return cancelCashTransaction(request, env);
+  }
+  if (path === "/api/admin/sales/preview" && request.method === "POST") return salePreview(request, env, who);
+  if (path === "/api/admin/sales/draft" && request.method === "POST") return saleCreateDraft(request, env, who);
+  if (path === "/api/admin/reconciliation/preview" && request.method === "POST") {
+    const denied = requireRole(who, ["admin", "superadmin"]);
+    if (denied) return denied;
+    try {
+      const payload = await requestJson(request);
+      return json({ ok: true, ...await reconcilePreview(env.DB, String(payload.batchId || "")) });
+    } catch (_error) {
+      return safeError("Pratinjau gagal. Periksa data batch dan transaksi.", 409);
+    }
+  }
+  if (path === "/api/admin/reconciliation/confirm" && request.method === "POST") {
+    return bankReconcileConfirm(request,env,who);
+  }
+  if (path === "/api/admin/status" && request.method === "GET") {
+    const denied = requireRole(who, ["admin", "superadmin"]);
+    if (denied) return denied;
+    return json({ ok: true, scope: "banksampah-admin" });
+  }
+  if (path === "/api/bookkeeping/status" && request.method === "GET") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return json({ ok: true, scope: "pembukuan-superadmin" });
+  }
+  if (path === "/api/superadmin/accounts/preview" && request.method === "GET") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return json(await accountActivationPreview(env.DB));
+  }
+  if (path === "/api/superadmin/accounts/activate-member" && request.method === "POST") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return activateMemberAccount(request, env, who);
+  }
+  if (path === "/api/superadmin/accounts/activate-admin" && request.method === "POST") {
+    const denied = requireRole(who, ["superadmin"]);
+    if (denied) return denied;
+    return activateBankAdmin(request, env, who);
+  }
+  return safeError("Endpoint belum tersedia.", 404);
+}
+__name(handle, "handle");
+var worker_default = {
+  async fetch(request, env) {
+    const pathname = new URL(request.url).pathname;
+    if (!pathname.startsWith("/api/") && !["/login-staging", "/member-savings-staging", "/activate-members-staging", "/activate-admin-staging"].includes(pathname)) {
+      if (pathname.includes("/legacy.html")) return new Response("Tidak tersedia", { status: 404 });
+      if (pathname === "/pembukuan/" || pathname === "/pembukuan" || pathname === "/pembukuan/index.html") {
+        const current = await identity(request, env.DB);
+        if (!current) return Response.redirect(new URL("/akun/?next=%2Fpembukuan%2F", request.url), 302);
+        if (current.role !== "superadmin") return new Response("Akses khusus superadmin.", { status: 403, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
+      }
+      // Non-API routes require static assets, which may not be bound in the
+      // Cloudflare editor Preview. Keep all API routes unchanged.
+      if (!env.ASSETS || typeof env.ASSETS.fetch !== "function") {
+        return new Response("Halaman ini tersedia melalui GitHub Pages; Worker ini melayani API.", {
+          status: 404,
+          headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" }
+        });
+      }
+      const asset = await env.ASSETS.fetch(request);
+      if (pathname.startsWith("/pembukuan")) {
+        const h = new Headers(asset.headers);
+        h.set("cache-control", "no-store");
+        h.set("x-robots-tag", "noindex");
+        return new Response(asset.body, { status: asset.status, headers: h });
+      }
+      return asset;
+    }
+    const origin = allowedOrigin(request, env), requestedOrigin = request.headers.get("origin");
+    if (requestedOrigin && !origin) return safeError("Origin tidak diizinkan.", 403);
+    if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors(origin) });
+    try {
+      const result = await handle(request, env);
+      const headers = new Headers(result.headers);
+      Object.entries(cors(origin)).forEach(([k, v]) => headers.set(k, v));
+      headers.set("referrer-policy", "no-referrer");
+      return new Response(result.body, { status: result.status, headers });
+    } catch (_error) {
+      console.error("flamboyan4-api failure", {
+        path: new URL(request.url).pathname,
+        type: String(_error?.name || "Error"),
+        detail: String(_error?.message || "No message").slice(0, 300)
+      });
+      return json({ ok: false, error: "Terjadi kesalahan server." }, 500, cors(origin));
+    }
+  }
+};
+export {
+  worker_default as default
+};
+//# sourceMappingURL=worker.js.map

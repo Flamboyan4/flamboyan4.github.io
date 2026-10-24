@@ -1,0 +1,257 @@
+{
+  "bindings": [
+    {
+      "name": "ACCOUNTING_RULES_APPROVED",
+      "type": "plain_text"
+    },
+    {
+      "name": "ALLOWED_ORIGINS",
+      "type": "plain_text"
+    },
+    {
+      "name": "ASSETS",
+      "type": "assets"
+    },
+    {
+      "name": "AUTH_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "BANK_WRITE_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "DB",
+      "type": "d1"
+    },
+    {
+      "name": "DENDA_PINJAMAN_WRITE_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "FINANCE_WRITE_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "IURAN_WRITE_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "MANUAL_CASH_WRITE_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "PHOTOS",
+      "type": "r2_bucket"
+    },
+    {
+      "name": "PORTAL_WRITE_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "RECONCILIATION_CONFIRM_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "SALE_DRAFT_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "TALANGAN_WRITE_ENABLED",
+      "type": "plain_text"
+    }
+  ],
+  "checked_at_utc": "2026-10-24T19:25:54.993165+00:00",
+  "checks": {
+    "d1_list": {
+      "codes": [],
+      "error": null,
+      "http": 200,
+      "ok": true
+    },
+    "d1_read_schema": {
+      "codes": [],
+      "error": null,
+      "http": 200,
+      "ok": true
+    },
+    "live_public_bank_api": {
+      "note": "public API smoke test is separate from the Cloudflare admin token",
+      "status": "not_checked_in_admin_audit"
+    },
+    "r2_list": {
+      "codes": [],
+      "error": null,
+      "http": 200,
+      "ok": true
+    },
+    "token_verify": {
+      "codes": [],
+      "error": null,
+      "http": 200,
+      "ok": true
+    },
+    "worker_deployments": {
+      "codes": [],
+      "error": null,
+      "http": 200,
+      "ok": true
+    },
+    "worker_list": {
+      "codes": [],
+      "error": null,
+      "http": 200,
+      "ok": true
+    },
+    "worker_settings": {
+      "codes": [],
+      "error": null,
+      "http": 200,
+      "ok": true
+    },
+    "worker_source_read": {
+      "codes": [],
+      "error": null,
+      "http": 200,
+      "ok": true
+    }
+  },
+  "compatibility_date": "2026-10-21",
+  "d1_database_count": 1,
+  "d1_row_counts": {
+    "bookkeeping_advance_repayments": 1,
+    "bookkeeping_advance_request_ledger": 0,
+    "bookkeeping_advances": 1,
+    "bookkeeping_allocation_details": 272,
+    "bookkeeping_cash_source_links": 0,
+    "bookkeeping_cash_transactions": 18,
+    "bookkeeping_contribution_tariffs": 4,
+    "bookkeeping_dp_cash_links": 0,
+    "bookkeeping_dp_request_ledger": 0,
+    "bookkeeping_entries": 0,
+    "bookkeeping_expenses": 0,
+    "bookkeeping_fine_payments": 0,
+    "bookkeeping_fines": 8,
+    "bookkeeping_loan_repayments": 0,
+    "bookkeeping_loans": 0,
+    "bookkeeping_manual_cash_request_keys": 0,
+    "bookkeeping_migration_corrections": 1,
+    "bookkeeping_payer_iuran_obligations": 34,
+    "bookkeeping_payers": 34,
+    "bookkeeping_payment_allocations": 68,
+    "bookkeeping_payment_request_keys": 0,
+    "bookkeeping_payments": 68,
+    "bookkeeping_posting_batches": 0,
+    "bookkeeping_year_archives": 0,
+    "member_account_profiles": 2,
+    "members": 33,
+    "portal_activity_ledgers": 52,
+    "resident_directory_profiles": 34,
+    "waste_allocations": 0,
+    "waste_cash_ledger": 0,
+    "waste_deposit_lines": 4,
+    "waste_deposits": 3,
+    "waste_sale_lines": 2,
+    "waste_sales": 2,
+    "waste_savings_ledger": 0
+  },
+  "d1_table_count": 63,
+  "d1_tables": [
+    "_cf_KV",
+    "accounts",
+    "album_media",
+    "albums",
+    "app_settings",
+    "audit_log",
+    "bookkeeping_advance_repayments",
+    "bookkeeping_advance_request_ledger",
+    "bookkeeping_advances",
+    "bookkeeping_allocation_details",
+    "bookkeeping_cash_source_links",
+    "bookkeeping_cash_transactions",
+    "bookkeeping_contribution_tariffs",
+    "bookkeeping_dp_cash_links",
+    "bookkeeping_dp_request_ledger",
+    "bookkeeping_entries",
+    "bookkeeping_expenses",
+    "bookkeeping_fine_payments",
+    "bookkeeping_fines",
+    "bookkeeping_loan_repayments",
+    "bookkeeping_loans",
+    "bookkeeping_manual_cash_request_keys",
+    "bookkeeping_migration_corrections",
+    "bookkeeping_payer_iuran_obligations",
+    "bookkeeping_payers",
+    "bookkeeping_payment_allocations",
+    "bookkeeping_payment_request_keys",
+    "bookkeeping_payments",
+    "bookkeeping_posting_batches",
+    "bookkeeping_year_archives",
+    "fiscal_closings",
+    "household_details",
+    "household_occupancy_history",
+    "households",
+    "inventory",
+    "inventory_external_media",
+    "member_account_profiles",
+    "members",
+    "migration_source_map",
+    "password_resets",
+    "portal_activity_ledgers",
+    "portal_agenda",
+    "portal_banners",
+    "portal_comments",
+    "portal_documentation",
+    "portal_inventory",
+    "portal_meeting_records",
+    "portal_project_cards",
+    "progress_entries",
+    "progress_media",
+    "resident_directory_profiles",
+    "sessions",
+    "waste_allocations",
+    "waste_batches",
+    "waste_cash_ledger",
+    "waste_deposit_lines",
+    "waste_deposits",
+    "waste_expenses",
+    "waste_items",
+    "waste_prices",
+    "waste_sale_lines",
+    "waste_sales",
+    "waste_savings_ledger"
+  ],
+  "d1_target": "flamboyan4-staging",
+  "deployed_worker_sha256": "c86355f1de5543f5614309a9d38cbde7c9e324faedd4c3b793de0ff9af6b0786",
+  "latest_deployment": [
+    {
+      "created_on": "2026-10-24T19:24:49.582809Z",
+      "id": "9447ef77-c39a-4d81-84a6-3c54b0eaf320"
+    },
+    {
+      "created_on": "2026-10-24T17:14:43.185335Z",
+      "id": "d0f2c69b-83a0-4fb4-8a9f-f8cb82de927e"
+    }
+  ],
+  "mode": "READ_ONLY_NO_DEPLOY_NO_DB_WRITES",
+  "photos_bucket_found": false,
+  "r2_buckets_count": 1,
+  "secrets_present": true,
+  "target_d1_found": true,
+  "target_worker_found": true,
+  "token_status": "active",
+  "worker_count": 2,
+  "worker_target": "flamboyan4-terpadu-staging",
+  "write_flags": {
+    "AUTH_ENABLED": "true",
+    "BANK_WRITE_ENABLED": "false",
+    "DENDA_PINJAMAN_WRITE_ENABLED": "false",
+    "FINANCE_WRITE_ENABLED": "false",
+    "IURAN_WRITE_ENABLED": "false",
+    "MANUAL_CASH_WRITE_ENABLED": "false",
+    "PORTAL_WRITE_ENABLED": "false",
+    "RECONCILIATION_CONFIRM_ENABLED": "false",
+    "SALE_DRAFT_ENABLED": "false",
+    "TALANGAN_WRITE_ENABLED": "false"
+  }
+}
