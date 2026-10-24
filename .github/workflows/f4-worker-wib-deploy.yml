@@ -1,0 +1,96 @@
+name: F4 WIB Date Fix - Guarded Worker Deployment
+on:
+  push:
+    branches: [fix-worker-wib-20261025]
+    paths: [.github/workflows/f4-worker-wib-deploy.yml]
+permissions:
+  contents: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Worker syntax and Jakarta date checks
+        run: |
+          node --check cloudflare/worker-terpadu-operasional-teruji.js
+          node - <<'JS'
+          const fs=require('fs'),assert=require('assert');
+          const s=fs.readFileSync('cloudflare/worker-terpadu-operasional-teruji.js','utf8');
+          const converted=s.match(/new Date\(Date\.now\(\)\+7\*60\*60\*1000\)\.toISOString\(\)\.slice\(0,10\)/g)||[];
+          assert.equal(converted.length,3,'Three financial UTC-date checks must use WIB');
+          const utc=new Date('2026-10-24T23:50:00Z');
+          assert.equal(new Date(utc.getTime()+7*60*60*1000).toISOString().slice(0,10),'2026-10-25');
+          console.log('WIB date regression PASS; only three comparisons modified');
+          JS
+      - name: Deploy just source with inherited DB R2 and flags
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,json,datetime,urllib.request,urllib.error,hashlib,time
+          from pathlib import Path
+          now=datetime.datetime.now(datetime.timezone.utc).isoformat()
+          result={"at_utc":now,"scope":"WIB_DATE_SOURCE_ONLY","status":"started"}
+          outfile=Path("ops-audit/wib-worker-deploy.json");outfile.parent.mkdir(exist_ok=True)
+          def save():outfile.write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n")
+          root="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CF_ACCOUNT"]
+          token=os.environ["CF_TOKEN"];target="flamboyan4-terpadu-staging"
+          def cloud(path,method="GET",body=None,content_type=None):
+            h={"Authorization":"Bearer "+token}
+            if content_type:h["Content-Type"]=content_type
+            req=urllib.request.Request(root+path,headers=h,method=method,data=body)
+            with urllib.request.urlopen(req,timeout=80) as resp:j=json.load(resp)
+            if not j.get("success"):raise RuntimeError("Cloudflare rejected a Worker request")
+            return j.get("result")
+          try:
+            source=Path("cloudflare/worker-terpadu-operasional-teruji.js").read_bytes()
+            result["source_sha256"]=hashlib.sha256(source).hexdigest()
+            config=cloud("/workers/scripts/"+target+"/settings")
+            before={v["name"]:v for v in config.get("bindings",[])}
+            flags={k:str(v.get("text","")).lower() for k,v in before.items() if k.endswith("_WRITE_ENABLED") or k=="SALE_DRAFT_ENABLED"}
+            expected_active={"BANK_CANCEL_WRITE_ENABLED","BANK_INVENTORY_WRITE_ENABLED","BANK_MEDIA_WRITE_ENABLED",
+              "BANK_WRITE_ENABLED","DENDA_PINJAMAN_WRITE_ENABLED","FINANCE_WRITE_ENABLED",
+              "IURAN_WRITE_ENABLED","MANUAL_CASH_WRITE_ENABLED","SALE_DRAFT_ENABLED"}
+            if {k for k,v in flags.items() if v=="true"}!=expected_active:
+              raise RuntimeError("Active feature flags have changed; aborting unexpected deployment")
+            if before.get("DB",{}).get("type")!="d1" or before.get("PHOTOS",{}).get("type")!="r2_bucket":
+              raise RuntimeError("DB/R2 required bindings missing")
+            result["before_deployment_id"]=(cloud("/workers/scripts/"+target+"/deployments").get("deployments") or [{}])[0].get("id")
+            metadata={"main_module":"main.js","keep_assets":True,"compatibility_date":config.get("compatibility_date") or "2026-10-21",
+              "bindings":[{"type":"inherit","name":b["name"]} for b in config.get("bindings",[])]}
+            boundary="----F4JakartaDateFix"
+            def part(name,data,mime):
+              return ('--'+boundary+'\r\nContent-Disposition: form-data; name="'+name+'"; filename="'+name+'"\r\nContent-Type: '+mime+'\r\n\r\n').encode()+data+b'\r\n'
+            body=part("metadata",json.dumps(metadata).encode(),"application/json")+part("main.js",source,"application/javascript+module")+('--'+boundary+'--\r\n').encode()
+            cloud("/workers/scripts/"+target+"?bindings_inherit=strict","PUT",body,"multipart/form-data; boundary="+boundary)
+            for attempt in range(8):
+              updated=cloud("/workers/scripts/"+target+"/settings")
+              after={v["name"]:v for v in updated.get("bindings",[])}
+              if before.keys()==after.keys() and all(k not in after or after[k].get("type")==v.get("type") for k,v in before.items()):
+                if {k:str(v.get("text","")).lower() for k,v in after.items() if k in flags}==flags:break
+              time.sleep(2)
+            if before.keys()!=after.keys() or any(after[k].get("type")!=v.get("type") for k,v in before.items()) or any(str(after[k].get("text","")).lower()!=value for k,value in flags.items()):
+              raise RuntimeError("Post-deploy bindings or flags differ from pre-deploy")
+            result["after_deployment_id"]=(cloud("/workers/scripts/"+target+"/deployments").get("deployments") or [{}])[0].get("id")
+            result["status"]="deployed_verified"
+            result["enabled_flag_names"]=sorted(k for k,v in flags.items() if v=="true")
+          except Exception as e:
+            result["status"]="failed"
+            result["error"]=type(e).__name__+": "+str(e)[:150]
+            save()
+            raise
+          save()
+          print("Jakarta-date Worker patch deployment:",result["status"])
+          PY
+      - name: Record non-sensitive evidence
+        if: always()
+        run: |
+          test -f ops-audit/wib-worker-deploy.json || exit 1
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/wib-worker-deploy.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(ops): record WIB Worker deployment"
+          git push origin HEAD:fix-worker-wib-20261025
