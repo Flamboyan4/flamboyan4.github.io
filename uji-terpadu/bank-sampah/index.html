@@ -1299,17 +1299,36 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     const h=document.createElement('h2');h.textContent='Mutasi tabungan';root.appendChild(h);
     root.appendChild(v12Table(['Tanggal','Keterangan','Masuk','Keluar','Saldo'],d.mutasi.map(x=>[x.tanggal,x.jenis,rupiah(x.kredit),rupiah(x.debit),rupiah(x.saldo)])));
     const h2=document.createElement('h2');h2.textContent='Setoran per barang';root.appendChild(h2);
-    root.appendChild(v12Table(['Tanggal','Setoran','Barang','Berat','Estimasi','Status'],d.setoran.flatMap(s=>s.rincian.map(x=>[s.tanggal,s.id,x.barang,v12Kg(x.beratKg),rupiah(x.nilai),s.status]))));
+    root.appendChild(v12Table(['Tanggal','Setoran','Barang','Berat','Tarif warga/kg','Estimasi','Status'],d.setoran.flatMap(s=>s.rincian.map(x=>[s.tanggal,s.id,x.barang,v12Kg(x.beratKg),rupiah(x.tarif),rupiah(x.nilai),s.status]))));
     const remark=document.createElement('p');remark.style.marginTop='14px';remark.textContent='Keterangan: setoran estimasi belum menjadi tabungan sebelum rekonsiliasi disahkan.';root.appendChild(remark);
     const signature=document.createElement('div');signature.style.cssText='text-align:right;margin-top:24px;break-inside:avoid';
     signature.textContent='Mengetahui, Humas Flamboyan 4';const signName=document.createElement('div');signName.textContent='Heri Juwandi';signName.style.cssText='font-weight:bold;margin-top:55px;text-decoration:underline';signature.appendChild(signName);root.appendChild(signature);
     window.addEventListener('afterprint',()=>root.replaceChildren(),{once:true});window.print();
   }
   function v12CSV(){
-    if(!v12Data)return;const d=v12Data,rows=[['Tanggal','Transaksi','Jenis','Masuk Rp','Keluar Rp','Saldo Rp'],...d.mutasi.map(x=>[x.tanggal,x.id,x.jenis,x.kredit,x.debit,x.saldo])];
-    const safe=v=>{const s=String(v??'');return '"'+(/^[\s]*[=+\-@]/.test(s)?"'"+s:s).replace(/"/g,'""')+'"';};
+    if(!v12Data)return;
+    const d=v12Data,rows=[
+      ['LAPORAN TABUNGAN PRIBADI - FLAMBOYAN 4'],
+      ['Nama',d.nama],['Rumah',d.rumah],['ID Anggota',d.wargaId],['Dicetak',d.dibuatPada],
+      ['Saldo tersedia (Rp)',d.saldo],['Masuk terkonfirmasi (Rp)',d.totalMasuk],['Sudah dicairkan (Rp)',d.totalCair],
+      [],
+      ['RIWAYAT TABUNGAN'],
+      ['Tanggal','Transaksi','Jenis','Masuk Rp','Keluar Rp','Saldo Rp'],
+      ...d.mutasi.map(x=>[x.tanggal,x.id,x.jenis,x.kredit,x.debit,x.saldo]),
+      [],
+      ['SETORAN PER BARANG (ESTIMASI BUKAN SALDO TERKONFIRMASI)'],
+      ['Tanggal','ID Setoran','Barang','Berat (kg)','Tarif Warga Rp/kg','Estimasi Rp','Status'],
+      ...d.setoran.flatMap(s=>s.rincian.map(x=>[s.tanggal,s.id,x.barang,x.beratKg,x.tarif,x.nilai,s.status]))
+    ];
+    const safe=v=>{
+      const text=String(v??'');
+      return '"'+(/^\s*[=+\-@]/.test(text)?"'"+text:text).replace(/"/g,'""')+'"';
+    };
     const csv='\uFEFF'+rows.map(row=>row.map(safe).join(',')).join('\r\n');
-    const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='Tabungan_'+d.wargaId+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);
+    const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');
+    a.href=url;a.download='Tabungan_'+String(d.wargaId).replace(/[^a-z0-9_-]/gi,'_')+'.csv';
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),5000);
   }
   // v13: navigasi bertingkat, seluruh tombol lama tetap ada dan bekerja.
   const v13ShowAccount=showDashboard,v13GoPage=goPage,v13ShowPublicOld=v11ShowPublic,v13ShowAuthOld=showAuth;
