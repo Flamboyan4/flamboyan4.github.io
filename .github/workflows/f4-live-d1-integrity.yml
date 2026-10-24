@@ -1,0 +1,77 @@
+name: F4 Live D1 Integrity and Flags (Read Only)
+on:
+  push:
+    branches: [ops-cloudflare-integration-20261025]
+    paths: [.github/workflows/f4-live-d1-integrity.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect D1 live without mutations or private record export
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,json,datetime,urllib.request,urllib.error
+          from pathlib import Path
+          root="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CF_ACCOUNT"]
+          token=os.environ["CF_TOKEN"]
+          def cloud(path,payload=None):
+            b=None if payload is None else json.dumps(payload).encode()
+            h={"Authorization":"Bearer "+token,"Accept":"application/json"}
+            if b:h["Content-Type"]="application/json"
+            req=urllib.request.Request(root+path,data=b,headers=h,method="POST" if b else "GET")
+            with urllib.request.urlopen(req,timeout=30) as x:r=json.load(x)
+            if not r.get("success"):raise RuntimeError("Cloudflare returned an error")
+            return r.get("result")
+          db=next((x for x in cloud("/d1/database") if x.get("name")=="flamboyan4-staging"),None)
+          if not db:raise SystemExit("D1 not found")
+          base="/d1/database/"+db["uuid"]+"/query"
+          def select(q):
+            if not (q.startswith("SELECT ") or q.startswith("PRAGMA ")) or ";" in q:raise ValueError("read-only statements only")
+            ans=cloud(base,{"sql":q})
+            return (ans[0].get("results") or []) if isinstance(ans,list) and ans else []
+          integrity=select("PRAGMA integrity_check")
+          fk=select("PRAGMA foreign_key_check")
+          table_info=select("SELECT COUNT(*) AS n FROM sqlite_master WHERE type='table'")
+          counts={}
+          for name in ("bookkeeping_payments","bookkeeping_fines","bookkeeping_cash_transactions",
+                       "waste_deposits","waste_sales","waste_allocations","waste_cash_ledger"):
+            counts[name]=select('SELECT COUNT(*) AS n FROM "'+name+'"')[0]["n"]
+          cfg=cloud("/workers/scripts/flamboyan4-terpadu-staging/settings")
+          bindings={x["name"]:x for x in cfg.get("bindings",[])}
+          flags={k:str(x.get("text","unknown")).lower() for k,x in bindings.items() if k.endswith("_WRITE_ENABLED")}
+          ok_fk=(len(fk)==0)
+          ok_integrity=bool(integrity) and list(integrity[0].values())[0]=="ok"
+          result={
+            "checked_at_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "scope":"READ_ONLY_NO_CREDENTIALS_NO_MEMBER_RECORDS",
+            "status":"pass" if ok_fk and ok_integrity else "failed",
+            "integrity_ok":ok_integrity,
+            "foreign_key_violations":len(fk),
+            "table_count":table_info[0]["n"],
+            "counts":counts,
+            "write_flags":flags,
+            "bindings_ok":bindings.get("DB",{}).get("type")=="d1" and bindings.get("PHOTOS",{}).get("type")=="r2_bucket"
+          }
+          p=Path("ops-audit/d1-integrity-latest.json");p.parent.mkdir(exist_ok=True)
+          p.write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n")
+          print(json.dumps({k:result[k] for k in ("status","integrity_ok","foreign_key_violations","table_count","bindings_ok")}))
+          if result["status"]!="pass" or not result["bindings_ok"]:raise SystemExit("D1 live integrity check failed; no writes performed")
+          PY
+      - name: Commit sanitized status for review
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          test -f ops-audit/d1-integrity-latest.json || exit 1
+          git add ops-audit/d1-integrity-latest.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(ops): record D1 read-only integrity status"
+          git push origin HEAD:ops-cloudflare-integration-20261025
