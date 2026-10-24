@@ -79,11 +79,14 @@ function createFinanceTabs(){
   finBlock.querySelectorAll('[data-kind]').forEach(b=>b.onclick=()=>loadPersonal(b.dataset.kind));
  }
 }
+let personalRequestSerial=0;
 async function loadPersonal(kind){
+ const requestId=++personalRequestSerial;
  if(current.role==='public')return;
  current.privateKind=kind;
  const area=document.getElementById('f4-personal-data');if(!area)return;
- area.replaceChildren(el('p','Memuat riwayat pribadi dari Cloudflare…','f4-user-status'));
+ const loading=el('p','','f4-user-status');area.replaceChildren(loading);
+ const loadToken=window.F4Loading?.begin(loading,'Memuat riwayat pribadi dari Cloudflare…');
  finBlock.querySelectorAll('[data-kind]').forEach(b=>b.classList.toggle('active',b.dataset.kind===kind));
  // No payerId is accepted from the browser; Worker must resolve from session.
  const paths={payments:'/api/member/payments',arisan:'/api/member/arisan',fines:'/api/member/fines',loans:'/api/member/loans'};
@@ -91,8 +94,9 @@ async function loadPersonal(kind){
   const res=await fetch('https://api.flamboyan4.web.id'+paths[kind],{credentials:'include',cache:'no-store'});
   const data=await res.json().catch(()=>({}));
   if(!res.ok||data.ok===false)throw Error(data.error||'HTTP '+res.status);
+  if(requestId!==personalRequestSerial)return;
   const list=Array.isArray(data.rows)?data.rows:Array.isArray(data.data)?data.data:Array.isArray(data.transaksi)?data.transaksi:[];
-  area.replaceChildren(el('p',list.length+' catatan ditemukan.','f4-user-status'));
+  window.F4Loading?.success(loading,loadToken);area.replaceChildren();
   for(const row of list.slice(0,200)){
    const a=el('article',undefined,'f4-user-row'),info=el('div');
    info.append(el('strong',row.keterangan||row.periode||row.namaKegiatan||row.tanggal||'Catatan pribadi'));
@@ -101,7 +105,8 @@ async function loadPersonal(kind){
    a.append(info,el('strong','Rp '+amount.toLocaleString('id-ID')));area.append(a);
   }
   if(!list.length)area.append(el('p','Belum ada catatan untuk akun ini.','f4-user-status'));
- }catch(e){area.replaceChildren(el('p','Data belum tersedia: '+e.message+'. Akses tetap dibatasi pada akun yang login.','f4-user-status'))}
+ }catch(e){if(requestId!==personalRequestSerial)return;
+  window.F4Loading?.error(loading,'Data belum tersedia: '+e.message+'. Akses tetap dibatasi pada akun yang login.',loadToken)}
 }
 const css=document.createElement('style');css.id='f4-portal-panels-style';
 css.textContent='.f4-user-finance{background:#fff;border:1px solid #d9e0ee;border-radius:15px;padding:15px;margin:0 0 18px}.f4-user-finance-controls,.f4-user-finance-sub{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.f4-user-finance button{border:1px solid #d1d9ed;padding:9px 13px;background:#f1f2fc;color:#414087;border-radius:9px;font-size:12px;font-weight:700}.f4-user-finance button.active{background:#6153ed;color:white}.f4-user-status{font-size:12px;color:#68718a}.f4-user-row{display:flex;align-items:center;justify-content:space-between;gap:9px;border-bottom:1px solid #e4e9f2;padding:10px 0}.f4-user-row strong{font-size:12px}.f4-user-row small{font-size:10px;color:#718096;display:block}';
