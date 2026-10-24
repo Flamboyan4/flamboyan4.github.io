@@ -929,7 +929,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
  }));
  const adminAlbums=async()=> (await adminRows('albums')).map(x=>({
    id:x.id,albumId:x.id,judul:x.title,tanggal:x.event_on,deskripsi:x.description||'',
-   kategori:x.category,publik:x.visibility==='publik',status:x.status
+   kategori:x.category,publik:x.visibility==='publik',status:x.status==='aktif'?'Aktif':x.status
  }));
  const adminCashOverview=async(_token,period='')=>{
   const all=await adminCash();
