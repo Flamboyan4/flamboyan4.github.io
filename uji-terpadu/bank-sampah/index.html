@@ -1110,7 +1110,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   'use strict';
   const $=id=>document.getElementById(id);
   let token=sessionStorage.getItem('bs4_session')||'',profile=null,accounts=[],currentCredential=null,setCatalog=[],setNonce='',saleCatalog=[],saleNonce='';
-  function note(target,message,error=false){$(target).textContent=message||'';$(target).className=message?'notice'+(error?' error':''):'';}
+  function note(target,message,error=false){const e=$(target);if(!e)return;e.textContent=message||'';e.className=message?'notice'+(error?' error':''):'';e.hidden=!message;e.dataset.f4State=message?'notice':'success';}
   function call(name,...args){return new Promise((resolve,reject)=>google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[name](...args));}
   function busy(form,active){form.querySelectorAll('button').forEach(b=>b.disabled=active);}
   function showAuth(){profile=null;token='';sessionStorage.removeItem('bs4_session');$('dashboardView').classList.add('hidden');$('authView').classList.remove('hidden');}
@@ -2543,10 +2543,13 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   const v29OldLoad=v10LoadReport;
   v10LoadReport=async function(){
     v29SetupAudit();const include=$('v29AuditMode')?.value==='audit'&&$('v29ShowCanceled')?.checked===true;
-    note('v10ReportNotice','Memuat laporan...');try{
+    const statusToken=F4Loading.begin('v10ReportNotice','Memuat laporan Bank Sampah…');
+    try{
       v10ReportData=await call('bsV10LaporanAdmin',token,$('v10Month').value,include);
-      v10RenderReport();note('v10ReportNotice',include?'Audit termasuk transaksi dibatalkan. Saldo tetap hanya dari transaksi sah.':'Laporan siap ditinjau.');
-    }catch(e){note('v10ReportNotice','Gagal: '+(e.message||e),true);}
+      v10RenderReport();
+      if(include)F4Loading.empty('v10ReportNotice','Mode audit: transaksi batal ditampilkan, namun tidak dihitung sebagai saldo sah.',statusToken);
+      else F4Loading.success('v10ReportNotice',statusToken);
+    }catch(e){F4Loading.error('v10ReportNotice','Gagal memuat laporan: '+(e.message||e),statusToken);}
   };
   v10PrintReport=function(){
     if(!v10ReportData){note('v10ReportNotice','Muat laporan dahulu.',true);return;}
