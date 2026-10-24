@@ -1,5 +1,5 @@
 {
-  "checked_utc": "2026-10-24T20:09:43.429568+00:00",
+  "checked_utc": "2026-10-24T20:10:43.844098+00:00",
   "status": "failed",
   "scope": "Stage6 BANK_CANCEL, BANK_INVENTORY, BANK_MEDIA only; finance settlement still held",
   "error": "ValueError: Current live flags differ from cash canary baseline"
