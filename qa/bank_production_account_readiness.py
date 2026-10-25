@@ -41,6 +41,12 @@ members=get_rows("SELECT id,status FROM members")
 accounts=get_rows("SELECT id,username,password_hash,password_scheme,role,status,member_id,locked_until FROM accounts")
 photos=get_rows("SELECT progress_id,photo_url FROM bank_progress_photos")
 deposits=get_rows("SELECT status,COUNT(*) AS n FROM waste_deposits GROUP BY status")
+# Only grouped accounting metadata is logged; no identities or individual transactions.
+payment_inventory=get_rows("SELECT status,COUNT(*) AS n FROM bookkeeping_payments GROUP BY status")
+allocation_inventory=get_rows("SELECT contribution_type,COUNT(*) AS n,COALESCE(SUM(amount_rp),0) AS total FROM bookkeeping_payment_allocations GROUP BY contribution_type")
+allocation_gap=get_rows("SELECT COUNT(*) AS total, SUM(CASE WHEN EXISTS (SELECT 1 FROM bookkeeping_payment_allocations a WHERE a.payment_id=p.id) THEN 0 ELSE 1 END) AS without_allocations FROM bookkeeping_payments p")
+historical_months=get_rows("SELECT substr(p.paid_on,1,7) AS month,COUNT(DISTINCT p.id) AS payments,COUNT(a.id) AS allocations FROM bookkeeping_payments p LEFT JOIN bookkeeping_payment_allocations a ON a.payment_id=p.id WHERE substr(p.paid_on,1,7) IN ('2026-09','2026-10') GROUP BY substr(p.paid_on,1,7)")
+payer_link_audit=get_rows("SELECT COUNT(*) AS linked_payers FROM bookkeeping_payers p JOIN members m ON m.id=p.member_id WHERE p.payer_type='warga' AND p.active=1")
 now=datetime.datetime.now(datetime.timezone.utc)
 valid_hash=lambda a: bool(re.fullmatch(r"pbkdf2-sha256:100000:[0-9a-f]{32}:[0-9a-f]{64}",str(a.get("password_hash") or ""))) and a.get("password_scheme")=="pbkdf2-sha256"
 def is_locked(a):
@@ -74,6 +80,12 @@ report={
   "bank_reconciliation_binding_enabled":bindings.get("BANK_RECONCILIATION_WRITE_ENABLED",{}).get("text")=="true",
   "bank_payout_binding_enabled":bindings.get("BANK_PAYOUT_WRITE_ENABLED",{}).get("text")=="true",
   "bank_expense_binding_enabled":bindings.get("BANK_EXPENSE_WRITE_ENABLED",{}).get("text")=="true",
+  "payments_status_counts":{str(x.get("status")):x.get("n") for x in payment_inventory},
+  "allocations_by_kind":{str(x.get("contribution_type")):{"rows":x.get("n"),"total":x.get("total")} for x in allocation_inventory},
+  "payments_without_allocations":allocation_gap[0].get("without_allocations") if allocation_gap else None,
+  "payments_all":allocation_gap[0].get("total") if allocation_gap else None,
+  "sep_oct_2026_allocation_counts":historical_months,
+  "payer_member_link_count":payer_link_audit[0].get("linked_payers") if payer_link_audit else None,
   "database_mutated":False
 }
 report["ready_for_genuine_user_acceptance"]=all([
