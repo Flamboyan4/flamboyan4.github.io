@@ -206,7 +206,21 @@ function showForm(record){
   if(def.section==='book'){
    if(active==='tariffs'){obj.contribution_type=record.contribution_type;obj.amount_rp=values.amount_rp;}
    else if(active==='settings'){obj.setting_key=record.setting_key;obj.setting_value=values.setting_value;}
-   else{obj.payer_id=record.payer_id;Object.assign(obj,values);}
+   else{
+     obj.payer_id=record.payer_id;
+     // Worker requires the complete four-component obligation record.
+     // Partial edit payloads previously sent Number(undefined) -> NaN -> HTTP 400.
+     const keys=['qty_iuran_bulanan','qty_kebersihan','qty_kas_lorong','qty_arisan'];
+     for(const key of keys){
+       const control=form.elements.namedItem(key);
+       const raw=String(control?.value??'').trim(),amount=Number(raw);
+       if(!raw||!Number.isInteger(amount)||amount<0||amount>100){
+         notice.textContent='Periksa kewajiban '+key+' (angka 0–100).';
+         control?.focus();return;
+       }
+       obj[key]=amount;
+     }
+   }
   }else {
    if(record&&!Object.keys(values).length){notice.textContent='Belum ada perubahan untuk disimpan.';return;}
    obj.values=values;
