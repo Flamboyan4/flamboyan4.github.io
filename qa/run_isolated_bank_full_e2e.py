@@ -120,6 +120,11 @@ try:
     # Counts are an audit baseline, not proof of per-person identity migration.
     source_baseline={"roster_rows":33,"inventory_rows":2,"documentation_rows":1,
                      "progress_rows":3,"deposit_rows":0,"expense_rows":0}
+    payer_link_counts=connection.execute("""SELECT
+      COUNT(DISTINCT p.member_id),COUNT(*) FROM bookkeeping_payers p
+      JOIN members m ON m.id=p.member_id WHERE p.payer_type='warga' AND p.active=1
+    """).fetchone()
+    print("PORTAL_PAYER_MEMBER_LINKS="+json.dumps({"unique_linked_members":payer_link_counts[0],"active_linked_payers":payer_link_counts[1]}))
     actual_counts={
       "active_members":connection.execute("SELECT COUNT(*) FROM members WHERE status='aktif'").fetchone()[0],
       "bank_inventory":connection.execute("SELECT COUNT(*) FROM inventory WHERE category='bank_sampah'").fetchone()[0],
@@ -285,7 +290,10 @@ try:
           allocation_total==payment_req["jumlahRp"])
         for scope in ("payments","arisan","fines","loans"):
             anonymous=call(base+"/api/member/"+scope)
-            assert_step("member_private_"+scope+"_requires_login",anonymous[0] in (401,403))
+            assert_step("member_private_"+scope+"_requires_login",anonymous[0] in (401,403),{"http":anonymous[0]})
+            personal=call(base+"/api/member/"+scope,token=temporary)
+            assert_step("member_private_"+scope+"_returns_data",personal[0]==200 and
+              isinstance(personal[1].get("rows"),list),{"http":personal[0]})
 
         pf_during=call(base+"/api/bookkeeping/year-end/preflight?year=2026",token=temporary)
         assert_step("year_end_kas_lorong_only_no_false_orphan",
