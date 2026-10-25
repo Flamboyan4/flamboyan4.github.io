@@ -1,0 +1,94 @@
+name: F4 Finance Guarded Deployment
+on:
+  push:
+    branches: [main]
+    paths:
+      - cloudflare/worker-terpadu-operasional-teruji.js
+      - .github/workflows/f4-finance-guarded-deploy.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: f4-worker-release
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check Worker syntax
+        run: node --check cloudflare/worker-terpadu-operasional-teruji.js
+      - name: Publish tested source, strictly inherit all production bindings
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import json,os,urllib.request,urllib.error,hashlib,pathlib
+          token=os.environ["CF_TOKEN"]
+          account=os.environ["CF_ACCOUNT"]
+          worker="flamboyan4-terpadu-staging"
+          base="https://api.cloudflare.com/client/v4/accounts/"+account
+          script=pathlib.Path("cloudflare/worker-terpadu-operasional-teruji.js").read_bytes()
+          assert len(script)>200000, "Refuse truncated Worker source"
+          def call(path,method="GET",data=None,ctype=None):
+              headers={"Authorization":"Bearer "+token,"Accept":"application/json"}
+              if ctype:headers["Content-Type"]=ctype
+              req=urllib.request.Request(base+path,headers=headers,method=method,data=data)
+              with urllib.request.urlopen(req,timeout=75) as r:response=json.load(r)
+              if response.get("success") is not True:
+                  raise RuntimeError("Cloudflare API call rejected: "+str([e.get("code") for e in response.get("errors",[])]))
+              return response.get("result")
+          settings=call("/workers/scripts/"+worker+"/settings")
+          bindings=settings.get("bindings") or []
+          by_name={x.get("name"):x for x in bindings}
+          if by_name.get("DB",{}).get("type")!="d1" or by_name.get("PHOTOS",{}).get("type")!="r2_bucket":
+              raise RuntimeError("Missing D1 / R2 bindings: deployment aborted")
+          if by_name.get("ASSETS",{}).get("type")!="assets":
+              raise RuntimeError("Missing ASSETS binding: deployment aborted")
+          databases=call("/d1/database")
+          target=next((d for d in databases if d.get("name")=="flamboyan4-staging"),None)
+          if not target or by_name["DB"].get("id")!=target.get("uuid"):
+              raise RuntimeError("Target D1 mismatch: deployment aborted")
+          write_flags={k:by_name[k].get("text") for k in by_name if k.endswith("_WRITE_ENABLED")}
+          if not write_flags or any(v not in ("true","false") for v in write_flags.values()):
+              raise RuntimeError("Missing or unrecognized Worker write flags")
+          metadata={"main_module":"main.js","keep_assets":True,
+                    "compatibility_date":settings.get("compatibility_date") or "2026-10-21",
+                    "bindings":[{"name":item["name"],"type":"inherit"} for item in bindings],
+                    "annotations":{"workers/message":"F4: 41-check isolated Iuran guard release; preserve production configuration"}}
+          boundary="----F4SafeFinance20261025"
+          def part(name,data,mime):
+              h=("--"+boundary+"\r\nContent-Disposition: form-data; name=\""+name+"\"; filename=\""+name+"\"\r\nContent-Type: "+mime+"\r\n\r\n").encode()
+              return h+data+b"\r\n"
+          body=part("metadata",json.dumps(metadata).encode(),"application/json")+part("main.js",script,"application/javascript+module")+("--"+boundary+"--\r\n").encode()
+          result=call("/workers/scripts/"+worker+"?bindings_inherit=strict","PUT",body,"multipart/form-data; boundary="+boundary)
+          after=call("/workers/scripts/"+worker+"/settings")
+          new={x.get("name"):x for x in after.get("bindings") or []}
+          if set(new)!=set(by_name) or new.get("DB",{}).get("id")!=by_name["DB"].get("id") or new.get("PHOTOS",{}).get("type")!="r2_bucket":
+              raise RuntimeError("CRITICAL: binding mismatch after deployment")
+          for key,value in write_flags.items():
+              if new.get(key,{}).get("text")!=value:
+                  raise RuntimeError("CRITICAL: write flag modified: "+key)
+          deploy=call("/workers/scripts/"+worker+"/deployments")
+          latest=(deploy.get("deployments") or [{}])[0].get("id")
+          print("DEPLOY_OK target="+worker+" deployment="+str(latest))
+          print("SOURCE_SHA256="+hashlib.sha256(script).hexdigest())
+          print("BINDINGS_PRESERVED="+str(len(new)))
+          print("WRITE_FLAGS_UNCHANGED="+str(len(write_flags)))
+          PY
+      - name: Live read-only health and public data smoke
+        run: |
+          python3 - <<'PY'
+          import urllib.request,json
+          origin="https://api.flamboyan4.web.id"
+          for path in ["/api/health","/api/v2/system/features","/api/v2/public/portal","/api/v2/public/bank"]:
+              with urllib.request.urlopen(urllib.request.Request(origin+path,headers={"Cache-Control":"no-cache"}),timeout=20) as response:
+                  obj=json.load(response)
+                  if response.status!=200 or obj.get("ok") is False:raise RuntimeError("Smoke failed: "+path)
+                  print("LIVE GET OK "+path)
+          PY
