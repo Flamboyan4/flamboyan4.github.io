@@ -57,7 +57,7 @@ jobs:
           executable='\n'.join(line for line in source.splitlines()
               if line.strip() and not line.lstrip().startswith('--')).upper()
           if not source.lstrip().startswith('-- Bank Sampah:') or any(
-              re.search(r'\\b'+word+r'\\b',executable)
+              re.search(r'\b'+word+r'\b',executable)
               for word in ('UPDATE','DELETE','DROP','ALTER','TRUNCATE')):
               raise RuntimeError('Photo migration is not insert-only: abort')
           cols,_=query('PRAGMA table_info(bank_progress_photos)')
