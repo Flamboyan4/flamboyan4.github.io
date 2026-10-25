@@ -218,6 +218,13 @@ function showForm(record){
  const def=types[active],isNew=!record;
  header((isNew?'Tambah ':'Edit ')+def.label,'Formulir ini mengubah data master yang ditampilkan di portal. Tautan foto/video tetap berada di Google Drive.');
  const form=node('form',undefined,'f4-admin-editor');form.noValidate=true;
+ if(active==='documentation'||active==='inventory'){
+  const scopeField=node('label'),caption=node('span','Tujuan publikasi'),scope=node('select');
+  scope.name='destination_portal';scope.add(new Option('Portal Utama','portal'),new Option('Bank Sampah','bank-sampah'));
+  scope.value='portal';scope.disabled=!isNew;
+  scope.onchange=()=>{if(scope.value==='bank-sampah')window.f4SuperadminSwitchModule?.(active==='documentation'?'bank_albums':'bank_inventory')};
+  scopeField.append(caption,scope);form.append(scopeField);
+ }
  const grid=node('div',undefined,'f4-admin-fields');form.append(grid);
  for(const [key,label,type,required] of def.columns){
   const field=node('label');field.append(node('span',label));
@@ -381,6 +388,13 @@ function showBankForm(kind,record){
  const def=bankModules[kind];if(!def)return;
  const isEdit=!!record;header((isEdit?'Edit ':'Tambah ')+def.label,'Semua perubahan menggunakan endpoint D1 Bank Sampah dengan hak akses Superadmin.');
  const form=node('form',undefined,'f4-admin-editor'),grid=node('div',undefined,'f4-admin-fields');
+ if(kind==='bank_albums'||kind==='bank_inventory'){
+  const dest=node('label'),label=node('span','Tujuan publikasi'),select=node('select');
+  select.add(new Option('Bank Sampah','bank-sampah'),new Option('Portal Utama','portal'));
+  select.value='bank-sampah';select.disabled=!!record;
+  select.onchange=()=>{if(select.value==='portal')window.f4SuperadminSwitchModule?.(kind==='bank_albums'?'documentation':'inventory')};
+  dest.append(label,select);form.append(dest);
+ }
  form.append(grid);const controls={};
  const add=(key,label,type='text',value='',required=false)=>controls[key]=bankField(grid,key,label,type,value,required);
  if(kind==='bank_progress'){
