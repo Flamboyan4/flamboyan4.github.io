@@ -809,8 +809,22 @@ async function handleAdminContent(request, env, who, url) {
     return err(e.message, 400);
   }
   const action = String(payload.action || "save"), id = String(payload.id || "");
-  if (!["save", "create"].includes(action)) return err("Aksi tidak diizinkan. Gunakan status aktif/privat untuk menyembunyikan data.", 400);
   if (id.length > 150) return err("ID terlalu panjang.", 400);
+  if(action==="delete"){
+    if(!model)return err("Data acuan tidak boleh dihapus melalui editor konten.",403);
+    if(!id)return err("ID konten wajib diisi.",400);
+    const before=await one(db,"SELECT * FROM "+model.table+" WHERE id=?",[id]);
+    if(!before)return err("Konten tidak ditemukan; muat ulang daftar.",404);
+    try{
+      await db.batch([
+        db.prepare("DELETE FROM "+model.table+" WHERE id=?").bind(id),
+        db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)")
+          .bind("audit:"+crypto.randomUUID(),who.id,"portal_content","delete",model.table,id,JSON.stringify(before),null)
+      ]);
+    }catch(e){return err("Konten memiliki referensi terkait atau tidak dapat dihapus. Data tetap utuh.",409)}
+    return ok({id,deleted:true});
+  }
+  if (!["save", "create"].includes(action)) return err("Aksi tidak diizinkan.", 400);
   if (kind === "tariffs") {
     const tariff = String(payload.contribution_type || ""), amount = Number(payload.amount_rp);
     if (!["IURAN_BULANAN", "KEBERSIHAN", "KAS_LORONG", "ARISAN"].includes(tariff) || !Number.isSafeInteger(amount) || amount < 0 || amount > 5e6) return err("Tarif tidak valid.", 400);
@@ -884,6 +898,35 @@ async function handleAdminContent(request, env, who, url) {
   return ok({ id: newId, created: true }, 201);
 }
 __name(handleAdminContent, "handleAdminContent");
+// Scoped deletion for publications, never transactions or account/master records.
+async function deleteBankManagedContent(request,env,who,kind){
+  const denied=superadmin(who);if(denied)return denied;
+  const guard=guardedWrite(who,env);if(guard)return guard;
+  const origin=request.headers.get("origin")||"";
+  if(origin&&!["https://flamboyan4.web.id","https://www.flamboyan4.web.id"].includes(origin))return err("Asal permintaan tidak diizinkan.",403);
+  let p;try{p=await body(request)}catch(e){return err(e.message,400)}
+  const id=String(p.id||"");
+  if(!id||id.length>150)return err("ID konten tidak valid.",400);
+  const db=env.DB,table=kind==="albums"?"albums":kind==="progress"?"progress_entries":"inventory";
+  const old=await one(db,"SELECT * FROM "+table+" WHERE id=?",[id]);
+  if(!old)return err("Konten tidak ditemukan; muat ulang daftar.",404);
+  if(kind==="inventory"&&(old.category!=="bank_sampah"||Number(old.active)!==1))
+    return err("Hanya inventaris Bank Sampah aktif yang dapat diarsipkan.",403);
+  const audit=db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)")
+    .bind("audit:"+crypto.randomUUID(),who.id,"bank_content",kind==="inventory"?"archive":"delete",table,id,JSON.stringify(old),null);
+  let queries;
+  if(kind==="albums"){
+    queries=[db.prepare("DELETE FROM album_media WHERE album_id=?").bind(id),db.prepare("DELETE FROM albums WHERE id=?").bind(id),audit];
+  }else if(kind==="progress"){
+    queries=[db.prepare("DELETE FROM bank_progress_photos WHERE progress_id=?").bind(id),db.prepare("DELETE FROM progress_entries WHERE id=?").bind(id),audit];
+  }else{
+    // Inventory may be referenced by cash purchases; retire it, preserve financial history.
+    queries=[db.prepare("UPDATE inventory SET active=0 WHERE id=? AND category='bank_sampah' AND active=1").bind(id),audit];
+  }
+  try{await db.batch(queries)}catch(e){return err("Konten memiliki referensi atau gagal dihapus; tidak ada perubahan.",409)}
+  return ok({id,deleted:true,archived:kind==="inventory"});
+}
+__name(deleteBankManagedContent,"deleteBankManagedContent");
 async function handleUnifiedApi(request, env, who) {
   const url = new URL(request.url), path = url.pathname, method = request.method, db = env.DB;
   if (!path.startsWith("/api/v2/")) return null;
@@ -916,6 +959,8 @@ async function handleUnifiedApi(request, env, who) {
     return denied || await bookkeepingOverview(db, url).catch((e) => err(e.message, 400));
   }
   if (path.startsWith("/api/v2/admin/bank/")) {
+    if(method==="POST"&&["albums","progress","inventory"].some(k=>path==="/api/v2/admin/bank/"+k+"/delete"))
+      return deleteBankManagedContent(request,env,who,path.split("/")[5]);
     const denied = admin(who);
     if (denied) return denied;
     if (method === "GET") {

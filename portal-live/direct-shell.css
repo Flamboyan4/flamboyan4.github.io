@@ -135,3 +135,31 @@ body.f4-account-open #f4-direct-bar{z-index:500!important}
  body.f4-direct-portal #f4-direct-bar,body.f4-direct-simple #f4-direct-bar,body.f4-direct-bank #f4-direct-bar,body.f4-direct-book #f4-direct-bar,body.f4-direct-superadmin #f4-direct-bar{left:0!important}
 }
 @media print{#f4-direct-bar,#f4-direct-sidebar{display:none!important}}
+
+/* Proper local SVG icon masks, theme-colored and consistent at 21px. */
+.f4-svg-icon{display:inline-block;vertical-align:middle;width:21px;height:21px;flex:none;background-color:currentColor;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain}
+.f4-svg-menu{-webkit-mask-image:url('/assets/icons/menu.svg');mask-image:url('/assets/icons/menu.svg')}
+.f4-svg-cash{-webkit-mask-image:url('/assets/icons/cash.svg');mask-image:url('/assets/icons/cash.svg')}
+.f4-svg-meeting{-webkit-mask-image:url('/assets/icons/meeting.svg');mask-image:url('/assets/icons/meeting.svg')}
+.f4-svg-project{-webkit-mask-image:url('/assets/icons/project.svg');mask-image:url('/assets/icons/project.svg')}
+.f4-svg-calendar{-webkit-mask-image:url('/assets/icons/calendar.svg');mask-image:url('/assets/icons/calendar.svg')}
+.f4-svg-image{-webkit-mask-image:url('/assets/icons/image.svg');mask-image:url('/assets/icons/image.svg')}
+.f4-svg-inventory{-webkit-mask-image:url('/assets/icons/inventory.svg');mask-image:url('/assets/icons/inventory.svg')}
+.f4-svg-pay{-webkit-mask-image:url('/assets/icons/pay.svg');mask-image:url('/assets/icons/pay.svg')}
+.f4-svg-message{-webkit-mask-image:url('/assets/icons/message.svg');mask-image:url('/assets/icons/message.svg')}
+.f4-svg-home{-webkit-mask-image:url('/assets/icons/home.svg');mask-image:url('/assets/icons/home.svg')}
+.f4-svg-bank{-webkit-mask-image:url('/assets/icons/bank.svg');mask-image:url('/assets/icons/bank.svg')}
+.f4-svg-book{-webkit-mask-image:url('/assets/icons/book.svg');mask-image:url('/assets/icons/book.svg')}
+.f4-svg-superadmin{-webkit-mask-image:url('/assets/icons/superadmin.svg');mask-image:url('/assets/icons/superadmin.svg')}
+.f4-svg-user{-webkit-mask-image:url('/assets/icons/user.svg');mask-image:url('/assets/icons/user.svg')}
+#f4-direct-sidebar button .f4-svg-icon{width:18px;height:18px}
+#f4-direct-bar #f4-direct-avatar .f4-svg-icon{width:23px;height:23px}
+/* Eliminate double top padding inherited from the old iframe wrapper. */
+body.f4-direct-bank #v18PublicContent{padding-top:0!important}
+body.f4-direct-bank #v11Public .v17-public-main{padding-top:16px!important}
+body.f4-direct-book>main{padding-top:18px!important}
+@media(max-width:1023px){
+ body.f4-direct-bank #v18PublicContent{padding-top:0!important}
+ body.f4-direct-bank #v11Public .v17-public-main{padding-top:12px!important}
+ body.f4-direct-book>main{padding-top:12px!important}
+}

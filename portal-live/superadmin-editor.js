@@ -59,6 +59,33 @@ async function send(url,options={}){
  if(!res.ok||d.ok===false)throw Error(d.error||'HTTP '+res.status);
  return d;
 }
+function deletionActions(record,kind=active){
+ const wrap=node('span',undefined,'f4-admin-action-set');
+ wrap.append(btn('Edit',()=>showForm(record)));
+ const del=btn('Hapus',()=>removeContentRecord(record,kind,del),'f4-admin-btn f4-admin-danger');
+ wrap.append(del);return wrap;
+}
+async function removeContentRecord(record,kind,button){
+ if(!inContext())return;
+ const scope=kind.startsWith('bank_')?kind:record._f4_bank_kind;
+ const bankType=scope==='bank_albums'?'albums':scope==='bank_inventory'?'inventory':scope==='bank_progress'?'progress':null;
+ const label=String(record.title||record.name||record.resident||record.host_name||record.id||'konten');
+ const archived=bankType==='inventory';
+ if(!window.confirm((archived?'Arsipkan inventaris':'Hapus konten')+' "'+label+'"?\n\n'+
+  (archived?'Item tidak lagi tampil, riwayat transaksi terkait tetap disimpan.':
+   'Penghapusan tidak dapat dibatalkan; salinan informasi lama dicatat dalam audit.')))return;
+ button.disabled=true;button.textContent='Menghapus…';
+ try{
+  const url=bankType?bankApi+bankType+'/delete':base+kind;
+  const payload=bankType?{id:record.id}:{action:'delete',id:record.id};
+  await send(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  if(kind.startsWith('bank_'))await openBankAdminEditor(kind);
+  else await window.openSuperadminEditor(kind);
+ }catch(error){
+  button.disabled=false;button.textContent='Hapus';
+  window.alert('Gagal menghapus konten: '+error.message);
+ }
+}
 function header(label,description){
  window.f4SuperadminRememberTabScroll?.();
  main.replaceChildren();
@@ -134,7 +161,7 @@ function populate(){
   for(const x of rows){
    const tr=node('tr');
    for(const [key] of fields){const td=node('td');td.append(showValue(x,key));tr.append(td)}
-   const action=node('td');action.append(btn('Edit',()=>showForm(x)));tr.append(action);body.append(tr);
+   const action=node('td');action.append(def.section==='portal'?deletionActions(x):btn('Edit',()=>showForm(x)));tr.append(action);body.append(tr);
   }
   if(!rows.length){const tr=node('tr'),td=node('td','Tidak ada data yang cocok.');td.colSpan=fields.length+1;tr.append(td);body.append(tr)}
   table.append(body);scroll.append(table);list.append(scroll);return;
@@ -146,7 +173,7 @@ function populate(){
   info.append(node('strong',title||'Tanpa judul'));
   const detail=[x.starts_on||x.event_on||x.meeting_on||x.rumah||'',x.status||x.visibility||''].filter(Boolean).join(' • ');
   info.append(node('small',detail));
-  item.append(info,btn('Edit',()=>showForm(x)));list.append(item);
+  item.append(info,def.section==='portal'?deletionActions(x):btn('Edit',()=>showForm(x)));list.append(item);
  }
  if(!rows.length)list.append(node('p','Tidak ada data yang cocok.','f4-admin-note'));
 }
@@ -562,7 +589,7 @@ async function openBankAdminEditor(kind){
   const payload=await send(bankApi+(kind==='bank_albums'?'albums':def.listKey)+'?limit=500');
   if(active!==kind)return;
   let rows=Array.isArray(payload.data)?payload.data:[];
-  if(kind==='bank_inventory')rows=rows.filter(item=>String(item.category||'')==='bank_sampah');
+  if(kind==='bank_inventory')rows=rows.filter(item=>String(item.category||'')==='bank_sampah'&&Number(item.active)===1);
   // Album tanpa penanda dipertahankan agar Superadmin dapat mengklasifikasikan
   // arsip lama secara eksplisit; tidak otomatis dijadikan album Bank Sampah.
   if(kind==='bank_albums')rows=rows.filter(bankScoped);
@@ -576,8 +603,10 @@ async function openBankAdminEditor(kind){
       kind==='bank_inventory'?[record.quantity,record.unit].filter(v=>v!==undefined).concat(record.condition||''):
       [record.event_on,bankCategoryLabel(record.category),bankScoped(record)?'Bank Sampah':'Belum ditandai khusus Bank Sampah'].filter(Boolean);
     text.append(node('small',detail.join(' • ')));article.append(text);
-    if(kind!=='bank_inventory')article.append(btn(kind==='bank_albums'?'Atur kategori':'Edit',()=>showBankForm(kind,record)));
-    box.append(article);
+    const actions=node('span',undefined,'f4-admin-action-set');
+    if(kind!=='bank_inventory')actions.append(btn(kind==='bank_albums'?'Atur kategori':'Edit',()=>showBankForm(kind,record)));
+    const del=btn('Hapus',()=>removeContentRecord(record,kind,del),'f4-admin-btn f4-admin-danger');
+    actions.append(del);article.append(actions);box.append(article);
    }
    if(!found.length)box.append(node('p','Tidak ada data yang cocok.','f4-admin-note'));
   };

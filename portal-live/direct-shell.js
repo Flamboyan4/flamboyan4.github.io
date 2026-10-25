@@ -7,23 +7,8 @@ const pathname=location.pathname;
 const portal=pathname==='/bank-sampah/'?'bank':pathname==='/pembukuan/'?'book':pathname==='/superadmin/'?'superadmin':pathname==='/rapat/'||pathname==='/dokumentasi/'?'simple':'portal';
 document.body.classList.add('f4-direct-'+portal);
 document.body.classList.add(portal==='book'?'book-mode':portal==='bank'?'bank-mode':portal==='superadmin'?'superadmin-mode':'portal-mode');
-const icon={
- menu:'<path d="M4 6h16M4 12h16M4 18h16"/>',
- cash:'<rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 10h18M7 15h5"/>',
- meeting:'<path d="M7 2h7l5 5v15H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z"/><path d="M14 2v6h5M9 13h6M9 17h6"/>',
- project:'<path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10H3Z"/>',
- calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/>',
- image:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m4 18 6-6 4 4 3-3 4 5"/>',
- inventory:'<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
- pay:'<rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 9h18M15 15h3"/>',
- message:'<path d="M21 11.5a8.5 8.5 0 0 1-12.1 7.7L3 21l1.8-5.7A8.5 8.5 0 1 1 21 11.5Z"/>',
- home:'<path d="m3 10 9-7 9 7v10H3z"/><path d="M9 21v-8h6v8"/>',
- bank:'<path d="m8 5 2-3 2 3M10 2h2c3.8 0 6.7 2.3 7.7 5.7M19 10l3 2-3 2M22 12c0 4-2.4 7.3-6 8.5M12 19l-2 3-2-3M10 22H9c-3.7 0-6.8-2.5-7.7-6"/>',
- book:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/>',
- superadmin:'<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8M12 8v8"/>',
- user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>'
-};
-const svg=name=>'<svg aria-hidden="true" viewBox="0 0 24 24">'+icon[name]+'</svg>';
+// All navigation pictograms are locally hosted SVG files, never Unicode symbols.
+const svg=name=>'<span class="f4-svg-icon f4-svg-'+name+'" aria-hidden="true"></span>';
 const el=(tag,cl)=>{const n=document.createElement(tag);if(cl)n.className=cl;return n};
 const bar=el('div');bar.id='f4-direct-bar';
 const hamburger=el('button');hamburger.id='f4-mobile-menu';hamburger.type='button';hamburger.innerHTML=svg('menu');hamburger.setAttribute('aria-label','Buka menu halaman');
@@ -139,11 +124,11 @@ function makePortalSide(){
  const items=[
   ['beranda','Beranda','home'],['keuangan','Keuangan Warga','cash'],['projek','Projek','project'],
   ['kalender','Kalender','calendar'],['inventaris','Inventaris','inventory'],
-  ['pembayaran','Pembayaran','pay'],['komentar','Komentar & Saran','message'],
-  ['rapat','Rapat','meeting'],['dokumentasi','Dokumentasi','image']
+  ['komentar','Komentar & Saran','message'],['pembayaran','Pembayaran','pay'],
+  ['dokumentasi','Dokumentasi','image'],['rapat','Rapat','meeting']
  ];
  for(const [key,label,iconName] of items){
-  if(key==='rapat'){const group=el('div','f4-direct-group-label f4-direct-other-pages');group.textContent='HALAMAN LAINNYA';side.append(group);}
+  if(key==='dokumentasi'){const group=el('div','f4-direct-group-label f4-direct-other-pages');group.textContent='HALAMAN LAINNYA';side.append(group);}
   const b=el('button');b.type='button';b.dataset.f4Panel=key;
   b.innerHTML=svg(iconName);
   const labelEl=el('span');labelEl.textContent=label;b.append(labelEl);
