@@ -2531,7 +2531,7 @@ function jsonp(_url,params={}) {
   // Sumber tunggal Pembukuan setelah migrasi: Cloudflare D1 melalui bridge.
   // Tidak ada fallback Apps Script atau data contoh saat bridge gagal.
   if (typeof window.__f4BookDemoCall!=='function')
-    return Promise.reject(new Error('Koneksi Cloudflare D1 belum siap. Muat ulang halaman; data lama tidak digunakan.'));
+    return Promise.reject(new Error('Koneksi data belum siap. Muat ulang halaman; data sebelumnya tidak berubah.'));
   try { return Promise.resolve(window.__f4BookDemoCall(params)); }
   catch(error) { return Promise.reject(error); }
 }

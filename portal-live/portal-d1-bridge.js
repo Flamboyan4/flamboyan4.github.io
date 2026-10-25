@@ -32,9 +32,9 @@
   if(stored&&Date.now()<until)return stored;
   if(!pending)pending=(async()=>{
    const r=await fetchNative(ORIGIN+'/api/v2/public/portal',{mode:'cors',cache:'no-store'});
-   if(!r.ok)throw Error('Portal D1 HTTP '+r.status);
+   if(!r.ok)throw Error('Layanan portal HTTP '+r.status);
    const d=await r.json();
-   if(d.ok===false)throw Error(d.error||'Data D1 belum siap');
+   if(d.ok===false)throw Error(d.error||'Data belum siap');
    stored=d;until=Date.now()+10000;return d;
   })().finally(()=>pending=null);
   return pending;
@@ -49,7 +49,7 @@
     return csv([['No','Nama & Blok','Lengan','Ukuran','Nama & No. Punggung','Status Pembayaran','Pembayaran','Keterangan'],
       ...(data[kind]||[]).map(x=>[x.sort_order,x.resident,x.sleeves,x.size,x.printed_name,x.payment_status,x.nominal_rp,x.method])]);
    case 'documentation':
-    if(!Array.isArray(data.documentation))throw Error('Tabel dokumentasi D1 belum tersedia');
+    if(!Array.isArray(data.documentation))throw Error('Daftar dokumentasi belum tersedia');
     return csv([['Tanggal','Judul','Deskripsi','Foto'],
       ...data.documentation.filter(x=>!/^bank\s*sampah\s*[:/]/i.test(String(x.category||''))).map(x=>[dmy(x.event_on),x.title,x.description,x.drive_url])]);
    case 'inventory':
@@ -102,6 +102,6 @@
   if(kind!=='projects')return fetchNative(input,opts);
   return portalData().then(d=>new Response(asCsv('projects',d),{
     status:200,headers:{'Content-Type':'text/csv; charset=utf-8','Cache-Control':'no-store'}
-  })).catch(e=>{throw Error('Data Proyek Cloudflare D1 tidak dapat dimuat: '+e.message)});
+  })).catch(e=>{throw Error('Proyek belum dapat dimuat: '+e.message)});
  };
 })();

@@ -18,7 +18,7 @@
    activePeriod=month;
    main.replaceChildren();
    const head=el('header',undefined,'f4-work-heading');
-   head.append(el('h2','Rincian Kas Lingkungan'),el('p','Sumber: Cloudflare D1 · Khusus Superadmin'));
+   head.append(el('h2','Rincian Kas Lingkungan'),el('p','Khusus Superadmin'));
    head.append(el('button','← Ringkasan Akun','f4-work-back'));
    head.querySelector('button').onclick=()=>window.openAccountPage?.();
    main.append(head);
@@ -30,7 +30,7 @@
    loadButton.onclick=()=>load(monthInput.value);
    controls.append(monthInput,loadButton,printButton);
    main.append(controls);
-   const status=el('p','Mengambil rincian kas dari Cloudflare…','f4-work-info');main.append(status);
+   const status=el('p','Memuat rincian kas…','f4-work-info');main.append(status);
    try{
      const r=await fetch('https://api.flamboyan4.web.id/api/member/finance-report'+(month?'?month='+encodeURIComponent(month):''),{credentials:'include',cache:'no-store'});
      const result=await r.json().catch(()=>({error:'Respons API tidak valid'}));
@@ -41,7 +41,7 @@
        ['Debit kas',format(result.totalDebitRp),'Kas masuk tercatat'],
        ['Kredit kas',format(result.totalKreditRp),'Kas keluar tercatat'],
        ['Selisih arus',format(result.selisihRp),'Bukan saldo total'],
-       ['Jumlah transaksi',result.jumlahTransaksi??activeRows.length,'Total catatan D1']
+       ['Jumlah transaksi',result.jumlahTransaksi??activeRows.length,'Total catatan']
      ]){
        const card=el('article',undefined,'f4-work-stat');
        card.append(el('small',name),el('strong',value),el('span',detail));stats.append(card);

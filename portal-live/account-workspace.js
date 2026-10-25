@@ -116,7 +116,7 @@
    navItem('Pengaturan Profil',profile);
    navItem('Kembali',()=>page.hidden=true);
    heading(titles[p]+' — '+(r==='superadmin'?'Superadmin':r==='admin'?'Admin':'Akun Anggota'),
-    'Ringkasan langsung dari Cloudflare D1 · '+$('account-name').textContent);
+    'Ringkasan akun · '+$('account-name').textContent);
    const loading=el('p','Mengambil data terbaru…','f4-work-info');area.append(loading);
    try{
      if(r==='superadmin'&&p==='pembukuan'){
@@ -137,8 +137,8 @@
        columns([
          card('Rumah terdata',houses.size,'Satu data induk'),
          card('Warga tercatat',(w.rows||[]).filter(x=>x.payer_id).length,'Pembukuan terhubung'),
-         card('Agenda portal',(portalData.agenda||[]).length,'Konten D1'),
-         card('Inventaris portal',(portalData.inventory||[]).length,'Data D1')
+         card('Agenda portal',(portalData.agenda||[]).length,'Konten tersedia'),
+         card('Inventaris portal',(portalData.inventory||[]).length,'Data tersedia')
        ]);
        actions('Kelola konten dan data',[...portalTasks(),['Rincian Kas & Cetak Laporan',()=>window.f4OpenFinanceReport?.()]]);
        info('Sinkronisasi data','Portal Utama, Pembukuan, dan Bank Sampah berbagi ID rumah dan warga. Foto/video dokumentasi tetap menggunakan tautan Google Drive.');
@@ -148,7 +148,7 @@
          api('/api/v2/admin/bank/deposits'),api('/api/v2/admin/bank/sales')]);if(ticket!==requestId)return;
        loading.remove();
        columns([
-         card('Anggota aktif',(members.data||[]).filter(x=>x.status==='aktif').length,'Data warga D1'),
+         card('Anggota aktif',(members.data||[]).filter(x=>x.status==='aktif').length,'Data anggota'),
          card('Jenis barang aktif',(items.data||[]).filter(x=>x.active).length,'Master harga'),
          card('Setoran terkonfirmasi',(dep.data||[]).filter(x=>x.status==='terkonfirmasi').length,'Tidak termasuk data uji'),
          card('Penjualan terkonfirmasi',(sale.data||[]).filter(x=>x.status==='terkonfirmasi').length,'Tidak termasuk draft')
@@ -200,7 +200,7 @@
      }
    }catch(e){
      if(ticket!==requestId)return;
-     loading.textContent='Gagal mengambil ringkasan D1: '+e.message+'. Data tidak diganti contoh.';
+     loading.textContent='Gagal memuat ringkasan: '+e.message+'. Data tidak diganti contoh.';
      if(r==='superadmin')actions('Menu pengelolaan',portalTasks());
    }
  }

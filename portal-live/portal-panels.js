@@ -68,7 +68,7 @@ function createFinanceTabs(){
  if(!finance)return;
  if(!finBlock){
   finBlock=el('div',undefined,'f4-user-finance');
-  finBlock.innerHTML='<div class="f4-user-finance-controls"><button type="button" data-finance-mode="lingkungan" class="active">Laporan Lingkungan</button><button type="button" data-finance-mode="saya">Keuangan Saya</button></div><div id="f4-personal-finance" hidden><p class="f4-user-status">Riwayat per jenis dana dari alokasi asli D1.</p><div class="f4-user-finance-sub"><button type="button" data-kind="iuran_rt">Iuran RT</button><button type="button" data-kind="kebersihan">Kebersihan</button><button type="button" data-kind="kas_lorong">Kas Lorong</button><button type="button" data-kind="arisan">Arisan</button><button type="button" data-kind="fines">Denda</button><button type="button" data-kind="loans">Pinjaman</button></div><div id="f4-personal-data"></div></div>';
+  finBlock.innerHTML='<div class="f4-user-finance-controls"><button type="button" data-finance-mode="lingkungan" class="active">Laporan Lingkungan</button><button type="button" data-finance-mode="saya">Keuangan Saya</button></div><div id="f4-personal-finance" hidden><p class="f4-user-status">Riwayat pembayaran dan kewajiban sesuai akun Anda.</p><div class="f4-user-finance-sub"><button type="button" data-kind="iuran_rt">Iuran RT</button><button type="button" data-kind="kebersihan">Kebersihan</button><button type="button" data-kind="kas_lorong">Kas Lorong</button><button type="button" data-kind="arisan">Arisan</button><button type="button" data-kind="fines">Denda</button><button type="button" data-kind="loans">Pinjaman</button></div><div id="f4-personal-data"></div></div>';
   finance.insertBefore(finBlock,finance.firstChild);
   const action=finBlock.querySelectorAll('[data-finance-mode]'),personal=finBlock.querySelector('#f4-personal-finance');
   action.forEach(b=>b.onclick=()=>setFinanceMode(b.dataset.financeMode==='saya'));
@@ -113,7 +113,7 @@ async function loadPersonal(kind){
  current.privateKind=kind;
  const area=document.getElementById('f4-personal-data');if(!area)return;
  const loading=el('p','','f4-user-status');area.replaceChildren(loading);
- const loadToken=window.F4Loading?.begin(loading,'Memuat riwayat pribadi dari Cloudflare…');
+ const loadToken=window.F4Loading?.begin(loading,'Memuat riwayat keuangan pribadi…');
  finBlock.querySelectorAll('[data-kind]').forEach(b=>b.classList.toggle('active',b.dataset.kind===kind));
  // No payerId is accepted from the browser; Worker must resolve from session.
  const paths={iuran_rt:'/api/member/payments',kebersihan:'/api/member/payments',

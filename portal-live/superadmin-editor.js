@@ -225,7 +225,7 @@ function showForm(record){
  const form=node('form',undefined,'f4-admin-editor');form.noValidate=true;main.append(form);
  if(active==='documentation'||active==='inventory'){
   const scopeField=node('label'),caption=node('span','Tujuan publikasi'),scope=node('select');
-  scope.add(new Option('Portal Utama','portal'),new Option('Bank Sampah','bank-sampah'));
+  scope.append(new Option('Portal Utama','portal'),new Option('Bank Sampah','bank-sampah'));
   scope.value='portal';scope.disabled=!!record&&!record._f4_bank_record;
   scope.onchange=()=>{
    if(scope.value!=='bank-sampah')return;
@@ -418,7 +418,7 @@ function showBankForm(kind,record){
  const form=node('form',undefined,'f4-admin-editor'),grid=node('div',undefined,'f4-admin-fields');main.append(form);
  if(kind==='bank_albums'||kind==='bank_inventory'){
   const dest=node('label'),label=node('span','Tujuan publikasi'),select=node('select');
-  select.add(new Option('Bank Sampah','bank-sampah'),new Option('Portal Utama','portal'));
+  select.append(new Option('Bank Sampah','bank-sampah'),new Option('Portal Utama','portal'));
   select.value='bank-sampah';select.disabled=!!record;
   select.onchange=()=>{if(select.value==='portal')showForm(null)};
   dest.append(label,select);form.append(dest);

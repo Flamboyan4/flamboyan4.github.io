@@ -14,7 +14,7 @@ const today=()=>{
 };
 async function api(path,payload){
  const res=await fetch(API+path,{credentials:'include',mode:'cors',cache:'no-store',method:payload?'POST':'GET',...(payload?{headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}:{})});
- const data=await res.json().catch(()=>{throw Error('Respons Cloudflare bukan JSON.')});
+ const data=await res.json().catch(()=>{throw Error('Respons layanan tidak dapat dibaca.')});
  if(!res.ok||data?.ok===false)throw Error(data?.error||'API error '+res.status);
  return data;
 }
@@ -179,7 +179,7 @@ async function updateBankProgress(_token,p){
 
 async function provisionMemberBatch(){
  const preview=await api('/api/superadmin/accounts/preview');
- if(!Array.isArray(preview.akun))throw Error('Daftar akun D1 tidak sesuai respons Worker.');
+ if(!Array.isArray(preview.akun))throw Error('Daftar akun tidak dapat dibaca.');
  const pending=preview.akun.filter(a=>a.role==='anggota'&&a.perluAktivasi===true);
  let made=0;
  for(const member of pending.slice(0,3)){

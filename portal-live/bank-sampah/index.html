@@ -701,7 +701,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
  const number=(value)=>Number.isFinite(Number(value))?Number(value):0;
  async function get(path){
   const response=await fetch(API+path,{credentials:'include',mode:'cors',cache:'no-store'});
-  const result=await response.json().catch(()=>{throw Error('API Cloudflare tidak mengirim JSON.')});
+  const result=await response.json().catch(()=>{throw Error('Respons layanan tidak dapat dibaca.')});
   if(!response.ok||result?.ok===false)throw Error(result?.error||'Gagal membaca data (HTTP '+response.status+').');
   return result;
  }
@@ -1148,8 +1148,8 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
         Promise.resolve().then(()=>{
           if(prop==='authLogout')return {ok:true};
           if(prop==='authLogin')throw Error('Masuk melalui tombol LOGIN pada portal terpadu.');
-          if(prop==='authMe')throw Error('Gunakan sesi Cloudflare dari portal terpadu.');
-          if(typeof window.__f4BankDemoCall!=='function')throw Error('Koneksi Cloudflare belum tersedia.');
+          if(prop==='authMe')throw Error('Gunakan akun dari portal terpadu.');
+          if(typeof window.__f4BankDemoCall!=='function')throw Error('Koneksi layanan belum tersedia.');
           return window.__f4BankDemoCall(String(prop),args);
         }).then(value=>success?.(value),error=>failure?.(error));
       };
@@ -2149,7 +2149,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
       card.appendChild(info);card.onclick=()=>v21OpenAlbum(a.id);list.appendChild(card);
     });
     if(!rows.length)list.textContent=!v21Albums.length
-      ?'Belum ada album dengan penanda khusus Bank Sampah di database. Arsip Portal Utama sengaja tidak ditampilkan di sini agar galeri tidak tercampur.'
+      ?'Belum ada album khusus Bank Sampah. Album Portal Utama tidak ditampilkan di sini.'
       :'Tidak ada album dalam kategori atau pencarian ini.';
   }
   // “Semua album” pada penampil kini kembali ke halaman kategori, bukan popup kedua.

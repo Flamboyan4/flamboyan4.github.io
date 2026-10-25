@@ -4,13 +4,13 @@
 (()=>{
 'use strict';
 const previous=window.__f4BookDemoCall;
-if(typeof previous!=='function')throw Error('Bridge D1 Pembukuan baca belum tersedia.');
+if(typeof previous!=='function')throw Error('Layanan pembukuan belum siap.');
 const API='https://api.flamboyan4.web.id',pendingKey='f4_pending_iuran_d1_v1';
 const kinds=['IURAN_BULANAN','KEBERSIHAN','KAS_LORONG','ARISAN'];
 const i=x=>Number.isSafeInteger(Number(x))?Number(x):NaN;
 async function fetchApi(path,post){
  const response=await fetch(API+path,{method:post?'POST':'GET',credentials:'include',cache:'no-store',mode:'cors',...(post?{headers:{'Content-Type':'application/json'},body:JSON.stringify(post)}:{})});
- const body=await response.json().catch(()=>{throw Error('Respons API D1 bukan JSON.')});
+ const body=await response.json().catch(()=>{throw Error('Respons layanan tidak dapat dibaca.')});
  if(!response.ok||body?.ok===false)throw Error(body?.error||'HTTP '+response.status);
  return body;
 }
@@ -66,14 +66,14 @@ async function buildPayment(p){
   const r=await fetchApi('/api/bookkeeping/iuran/outstanding?'+new URLSearchParams({payerId:p.payerId,year:String(year),month:String(month)}));
   const items=new Map((r.komponen||[]).map(x=>[x.jenis,i(x.sisaRp)]));
   if(kinds.some(kind=>!Number.isSafeInteger(items.get(kind))||items.get(kind)<0))
-   throw Error('Sisa kewajiban D1 tidak lengkap atau tidak valid untuk '+month+'/'+year);
+   throw Error('Sisa kewajiban tidak lengkap atau tidak valid untuk '+month+'/'+year);
   periods.push({year,month,items});
  }
  const settleAdvanceId=await checkAdvances(p.payerId,periods);
  const fixed=periods.reduce((sum,row)=>sum+kinds.filter(x=>x!=='KAS_LORONG').reduce((s,k)=>s+row.items.get(k),0),0);
  const total=periods.reduce((sum,row)=>sum+kinds.reduce((s,k)=>s+row.items.get(k),0),0);
  if(!Number.isSafeInteger(total)||p.jumlahRp<fixed||p.jumlahRp>total)
-  throw Error('Nominal Rp '+p.jumlahRp.toLocaleString('id-ID')+' tidak sesuai sisa kewajiban D1. Komponen selain Kas Lorong harus lunas, sedangkan Kas Lorong boleh parsial.');
+  throw Error('Nominal Rp '+p.jumlahRp.toLocaleString('id-ID')+' tidak sesuai sisa kewajiban. Komponen selain Kas Lorong harus lunas, sedangkan Kas Lorong boleh parsial.');
  let remainingKas=p.jumlahRp-fixed;
  const alokasi=[];
  for(const row of periods){

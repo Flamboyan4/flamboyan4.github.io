@@ -472,7 +472,7 @@ html body.iframe-modal-open{overflow:hidden!important}
 <header class="shell">
  <div class="top">
   <div class="brand"><span class="logo">✿</span><div><b>Flamboyan 4</b><small>Empat portal, satu login & identitas</small></div></div>
-  <div class="status"><span class="dot"></span>Data terhubung Cloudflare D1</div>
+  <div class="status"><span class="dot"></span>Data terkini</div>
   <nav aria-label="Navigasi antarportal">
    <button type="button" data-target="portal" class="active" aria-pressed="true" title="Portal Utama" aria-label="Portal Utama"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>
   <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></button>
@@ -507,7 +507,7 @@ html body.iframe-modal-open{overflow:hidden!important}
   </div>
  </div>
 </header>
-<div class="notice"><strong>Portal Flamboyan 4.</strong> Data ditampilkan melalui Cloudflare D1. Penyimpanan transaksi dapat dibatasi sementara untuk keamanan.</div>
+<div class="notice"><strong>Portal Flamboyan 4.</strong> Informasi dan layanan warga Flamboyan 4.</div>
 <button type="button" id="f4-mobile-menu" title="Menu Flamboyan 4" aria-label="Buka menu halaman" aria-expanded="false" aria-controls="portal-sidebar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><div id="f4-mobile-overlay" aria-hidden="true"></div><aside class="portal-sidebar" id="portal-sidebar" aria-label="Menu Portal Utama">
  <div class="portal-brand"><div class="portal-logo f4-brand-image"><img src="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8" alt="Logo Flamboyan 4"></div><div><strong>Portal Utama</strong><small>Flamboyan 4</small></div></div>
  <div class="portal-divider"></div>
@@ -534,7 +534,7 @@ html body.iframe-modal-open{overflow:hidden!important}
  <section class="login-modal" role="dialog" aria-modal="true" aria-labelledby="login-title">
   <button type="button" id="login-close" class="close-login" aria-label="Tutup">×</button>
   <h2 id="login-title">Login · Pratinjau</h2>
-  <p>Gunakan akun terdaftar. Login memakai sesi Cloudflare yang sama untuk ketiga portal.</p>
+  <p>Gunakan akun terdaftar. Satu akun untuk mengakses layanan sesuai hak akses.</p>
   <form id="f4-real-login">
     <label for="login-username">Username</label>
     <input id="login-username" autocomplete="username" name="username" required>
@@ -574,7 +574,7 @@ html body.iframe-modal-open{overflow:hidden!important}
    const u=new URL(location.href);u.searchParams.set('halaman',value);u.hash='';
    history.replaceState(history.state,'',u.pathname+u.search);
  };
- const apps={portal:'/portal-live/portal/?v=labels-20261025',rapat:'/portal-live/rapat/?v=desktop-cards-20261025',dokumentasi:'/portal-live/dokumentasi/?v=portal-category-20261025',inventaris:'/portal-live/dokumentasi/?v=spacing-b114917b#inventaris','bank-sampah':'/portal-live/bank-sampah/?v=public-labels-20261025',pembukuan:'/portal-live/pembukuan/?v=labels-20261025',superadmin:'/portal-live/superadmin/?v=labels-20261025'};
+ const apps={portal:'/portal-live/portal/?v=labels-20261025',rapat:'/portal-live/rapat/?v=desktop-cards-20261025',dokumentasi:'/portal-live/dokumentasi/?v=portal-category-20261025',inventaris:'/portal-live/dokumentasi/?v=spacing-b114917b#inventaris','bank-sampah':'/portal-live/bank-sampah/?v=public-labels-20261025',pembukuan:'/portal-live/pembukuan/?v=labels-20261025',superadmin:'/portal-live/superadmin/?v=selectfix-20261025'};
 
  const buttons=[...document.querySelectorAll('nav [data-target]')],frame=document.getElementById('appframe'),
  gate=document.getElementById('gate'),toast=document.getElementById('toast');
@@ -803,7 +803,7 @@ html body.iframe-modal-open{overflow:hidden!important}
    const p=await apiCall('/api/member/profile');
    const profile=p.profile||{};
    document.getElementById('f4-profile-name').value=profile.nama||activeAccount?.member?.nama||'';
-   info.textContent='Profil Cloudflare terhubung. '+(profile.hasPhoto?'Foto R2 tersedia.':'Foto profil belum diunggah.');
+   info.textContent='Profil tersedia. '+(profile.hasPhoto?'Foto profil tersedia.':'Foto profil belum diunggah.');
    if(profile.hasPhoto){
     const face=avatar.querySelector('.avatar-face');
     if(face){face.textContent='';face.style.background='center / cover no-repeat url("'+API+'/api/member/avatar?v='+Date.now()+'")'}
@@ -822,7 +822,7 @@ html body.iframe-modal-open{overflow:hidden!important}
   e.preventDefault();const value=document.getElementById('f4-profile-name').value.trim();if(!value)return;
   try{
    await apiCall('/api/member/profile',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nama:value})});
-   await refreshSession();notify('Nama profil tersimpan di Cloudflare.');
+   await refreshSession();notify('Nama profil berhasil disimpan.');
   }catch(err){notify('Gagal menyimpan profil: '+err.message)}
  });
  document.getElementById('f4-avatar-form').addEventListener('submit',async e=>{
@@ -979,7 +979,7 @@ html body.iframe-modal-open{overflow:hidden!important}
 })();
 </script><div id="f4-warga-panel" hidden aria-modal="true" role="dialog" aria-label="Data Warga dan Rumah">
  <section><aside class="f4-warga-sidebar"><strong id="f4-warga-brand">Superadmin</strong><button type="button" id="f4-warga-overview">Ringkasan Akun</button><button type="button" class="active">Data Warga & Rumah</button><button type="button" id="f4-warga-bank-link">Bank Sampah</button><button type="button" id="f4-warga-back">← Kembali ke Portal</button></aside><div class="f4-warga-main"><header><strong>Data Warga & Rumah</strong><button type="button" id="f4-warga-close" aria-label="Tutup">✕</button></header>
- <p>Sumber data: Cloudflare D1. Hanya Superadmin yang berhak mengelola data induk.</p>
+ <p>Hanya Superadmin yang berhak mengelola data induk.</p>
  <div id="f4-warga-status" role="status">Belum dimuat</div>
  <div class="f4-warga-tools"><input id="f4-warga-search" placeholder="Cari nama / rumah" aria-label="Cari data warga"><button type="button" id="f4-warga-new-house">+ Rumah</button><button type="button" id="f4-warga-new-person">+ Warga</button><button type="button" id="f4-warga-reload">Muat ulang</button></div>
  <div id="f4-warga-list"></div>
@@ -1040,7 +1040,7 @@ body.book-mode #f4-warga-panel .f4-warga-sidebar button.active{background:#fff0d
  };
  window.openWarga=async()=>{
   if(document.body.classList.contains('role-superadmin')===false)return;
-  panel.hidden=false;list.replaceChildren();const wargaLoadToken=F4Loading.begin(status,'Memuat data warga dari Cloudflare…');
+  panel.hidden=false;list.replaceChildren();const wargaLoadToken=F4Loading.begin(status,'Memuat daftar warga…');
   try{
    // Route ini merupakan kontrak yang harus tersedia di Worker dan wajib dilindungi role server-side.
    const response=await fetch('https://api.flamboyan4.web.id/api/v2/admin/residents',{credentials:'include',cache:'no-store'});
