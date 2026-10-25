@@ -928,7 +928,7 @@ function stagingLoginPage() {
 }
 __name(stagingLoginPage, "stagingLoginPage");
 function memberActivationPage() {
-  const html = `<!doctype html><html lang="id"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aktivasi Warga \xB7 Staging Flamboyan 4</title><style>body{font:15px system-ui,sans-serif;background:#eef5ec;color:#23432b;margin:0;padding:24px}main{max-width:820px;margin:auto;background:white;border-radius:18px;padding:24px;box-shadow:0 12px 40px #23432b16}h1{margin-top:0}input,button{font:inherit;padding:10px;border-radius:9px}input{border:1px solid #b0c7b4;max-width:100%}button{border:0;background:#347941;color:white;cursor:pointer}button:disabled{opacity:.45}form{display:flex;gap:10px;flex-wrap:wrap;align-items:end}label{display:grid;gap:4px}table{width:100%;border-collapse:collapse;margin:20px 0}td,th{padding:9px 7px;border-bottom:1px solid #e6eee4;text-align:left}small{color:#5c725e}.scroll{overflow:auto}#content{display:none}#message{padding:9px 0}</style><main><h1>Aktivasi Akun Warga</h1><p>Lingkungan staging. Akun Bank Sampah lama belum terpengaruh.</p><form id="login"><label>Username<input id="u" value="superadmin" autocomplete="username" required></label><label>Password<input id="p" type="password" autocomplete="current-password" required></label><button>Masuk</button></form><p id="message" role="status"></p><section id="content"><h2>Daftar akun</h2><p id="summary"></p><small>Password awal tiap warga mengikuti pola F4-nomor rumah tanpa garis miring, contoh F4-A524. Kode hanya untuk akun baru di staging.</small><div class="scroll"><table><thead><tr><th>Username</th><th>Nama</th><th>Rumah</th><th>Status</th></tr></thead><tbody id="rows"></tbody></table></div><button id="activate">Aktifkan akun anggota yang belum aktif</button> <button id="logout" type="button">Keluar</button></section></main><script>let token='',pending=[];const $=id=>document.getElementById(id),headers=()=>({});async function refresh(){const r=await fetch('/api/superadmin/accounts/preview',{headers:headers()}),v=await r.json();if(!r.ok)throw Error(v.error||'Gagal membaca akun');pending=v.akun.filter(a=>a.role==='anggota'&&a.perluAktivasi);$('summary').textContent=v.akun.length+' akun tercatat, '+pending.length+' warga menunggu aktivasi';$('rows').replaceChildren();for(const a of v.akun){const tr=document.createElement('tr');for(const value of [a.username,a.nama||'\u2014',a.rumah||'\u2014',a.status]){const td=document.createElement('td');td.textContent=value;tr.append(td);}$('rows').append(tr);}$('activate').disabled=pending.length===0;} $('login').onsubmit=async e=>{e.preventDefault();$('message').textContent='Memeriksa akun\u2026';try{const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:$('u').value,password:$('p').value})}),v=await r.json();$('p').value='';if(!r.ok)throw Error(v.error||'Login gagal');if(v.role!=='superadmin')throw Error('Hanya superadmin yang dapat mengaktifkan warga');token='cookie-session';await refresh();$('login').style.display='none';$('content').style.display='block';$('message').textContent='Login superadmin berhasil.';}catch(err){$('message').textContent=err.message;}};$('activate').onclick=async()=>{if(!pending.length)return;if(!confirm('Aktifkan '+pending.length+' akun warga di staging menggunakan password awal F4-nomor rumah?'))return;$('activate').disabled=true;let done=0;for(const a of [...pending]){try{const r=await fetch('/api/superadmin/accounts/activate-member',{method:'POST',headers:{...headers(),'Content-Type':'application/json'},body:JSON.stringify({accountId:a.id,confirmation:'AKTIFKAN AKUN WARGA'})}),v=await r.json();if(!r.ok)throw Error(a.username+': '+(v.error||'gagal'));done++;$('message').textContent='Aktivasi '+done+' dari '+pending.length+' akun\u2026';}catch(err){$('message').textContent='Berhenti: '+err.message;await refresh();return;}}await refresh();$('message').textContent=done+' akun warga berhasil diaktifkan.';};$('logout').onclick=async()=>{if(token)await fetch('/api/auth/logout',{method:'POST',headers:headers()}).catch(()=>{});token='';$('content').style.display='none';$('login').style.display='flex';$('message').textContent='Sudah keluar.';};<\/script>`;
+  const html = `<!doctype html><html lang="id"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aktivasi Warga \xB7 Staging Flamboyan 4</title><style>body{font:15px system-ui,sans-serif;background:#eef5ec;color:#23432b;margin:0;padding:24px}main{max-width:820px;margin:auto;background:white;border-radius:18px;padding:24px;box-shadow:0 12px 40px #23432b16}h1{margin-top:0}input,button{font:inherit;padding:10px;border-radius:9px}input{border:1px solid #b0c7b4;max-width:100%}button{border:0;background:#347941;color:white;cursor:pointer}button:disabled{opacity:.45}form{display:flex;gap:10px;flex-wrap:wrap;align-items:end}label{display:grid;gap:4px}table{width:100%;border-collapse:collapse;margin:20px 0}td,th{padding:9px 7px;border-bottom:1px solid #e6eee4;text-align:left}small{color:#5c725e}.scroll{overflow:auto}#content{display:none}#message{padding:9px 0}</style><main><h1>Aktivasi Akun Warga</h1><p>Lingkungan staging. Akun Bank Sampah lama belum terpengaruh.</p><form id="login"><label>Username<input id="u" value="superadmin" autocomplete="username" required></label><label>Password<input id="p" type="password" autocomplete="current-password" required></label><button>Masuk</button></form><p id="message" role="status"></p><section id="content"><h2>Daftar akun</h2><p id="summary"></p><small>Password awal tiap warga adalah 1234 dan dapat diganti sendiri setelah login. Kode hanya untuk akun baru di staging.</small><div class="scroll"><table><thead><tr><th>Username</th><th>Nama</th><th>Rumah</th><th>Status</th></tr></thead><tbody id="rows"></tbody></table></div><button id="activate">Aktifkan akun anggota yang belum aktif</button> <button id="logout" type="button">Keluar</button></section></main><script>let token='',pending=[];const $=id=>document.getElementById(id),headers=()=>({});async function refresh(){const r=await fetch('/api/superadmin/accounts/preview',{headers:headers()}),v=await r.json();if(!r.ok)throw Error(v.error||'Gagal membaca akun');pending=v.akun.filter(a=>a.role==='anggota'&&a.perluAktivasi);$('summary').textContent=v.akun.length+' akun tercatat, '+pending.length+' warga menunggu aktivasi';$('rows').replaceChildren();for(const a of v.akun){const tr=document.createElement('tr');for(const value of [a.username,a.nama||'\u2014',a.rumah||'\u2014',a.status]){const td=document.createElement('td');td.textContent=value;tr.append(td);}$('rows').append(tr);}$('activate').disabled=pending.length===0;} $('login').onsubmit=async e=>{e.preventDefault();$('message').textContent='Memeriksa akun\u2026';try{const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:$('u').value,password:$('p').value})}),v=await r.json();$('p').value='';if(!r.ok)throw Error(v.error||'Login gagal');if(v.role!=='superadmin')throw Error('Hanya superadmin yang dapat mengaktifkan warga');token='cookie-session';await refresh();$('login').style.display='none';$('content').style.display='block';$('message').textContent='Login superadmin berhasil.';}catch(err){$('message').textContent=err.message;}};$('activate').onclick=async()=>{if(!pending.length)return;if(!confirm('Aktifkan '+pending.length+' akun warga di staging menggunakan password awal 1234?'))return;$('activate').disabled=true;let done=0;for(const a of [...pending]){try{const r=await fetch('/api/superadmin/accounts/activate-member',{method:'POST',headers:{...headers(),'Content-Type':'application/json'},body:JSON.stringify({accountId:a.id,confirmation:'AKTIFKAN AKUN WARGA'})}),v=await r.json();if(!r.ok)throw Error(a.username+': '+(v.error||'gagal'));done++;$('message').textContent='Aktivasi '+done+' dari '+pending.length+' akun\u2026';}catch(err){$('message').textContent='Berhenti: '+err.message;await refresh();return;}}await refresh();$('message').textContent=done+' akun warga berhasil diaktifkan.';};$('logout').onclick=async()=>{if(token)await fetch('/api/auth/logout',{method:'POST',headers:headers()}).catch(()=>{});token='';$('content').style.display='none';$('login').style.display='flex';$('message').textContent='Sudah keluar.';};<\/script>`;
   return new Response(html, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-frame-options": "DENY", "content-security-policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; form-action 'self'; base-uri 'none'" } });
 }
 __name(memberActivationPage, "memberActivationPage");
@@ -2371,7 +2371,7 @@ async function activateMemberAccount(request, env, who) {
   const normalHouse = String(account.house_code || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
   const normalUsername = String(account.username || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
   if (!normalHouse || normalHouse !== normalUsername) return safeError("Nomor rumah dan username perlu diperiksa dahulu.", 409);
-  const hashed = await passwordHash("F4-" + normalHouse);
+  const hashed = await passwordHash("1234");
   const updated = await env.DB.prepare(`UPDATE accounts SET password_hash=?,password_scheme='pbkdf2-sha256',
     status='aktif',must_change_password=0,failed_attempts=0,locked_until=NULL,
     updated_at=CURRENT_TIMESTAMP
@@ -2389,9 +2389,33 @@ async function activateMemberAccount(request, env, who) {
     id,
     "Aktivasi awal akun warga melalui superadmin staging"
   ).run();
-  return json({ ok: true, message: "Akun warga berhasil diaktifkan.", username: account.username });
+  return json({ ok: true, message: "Akun warga berhasil diaktifkan.", username: account.username, passwordAwal: "1234" });
 }
 __name(activateMemberAccount, "activateMemberAccount");
+async function resetMemberPassword(request,env,who) {
+  let payload;
+  try { payload=await requestJson(request) } catch { return safeError("Format permintaan tidak valid.",400) }
+  if(payload?.confirmation!=="RESET PASSWORD WARGA") return safeError("Konfirmasi reset diperlukan.",400);
+  const id=String(payload.accountId||"");
+  if(!/^account:[A-Za-z0-9_-]{1,100}$/.test(id))return safeError("ID akun tidak valid.",400);
+  const account=await env.DB.prepare(`SELECT a.id,a.username,a.role,a.status,a.password_scheme,
+    m.status AS member_status FROM accounts a JOIN members m ON m.id=a.member_id
+    WHERE a.id=? LIMIT 1`).bind(id).first();
+  if(!account||account.role!=="anggota"||account.status!=="aktif"||account.member_status!=="aktif")
+    return safeError("Akun anggota aktif tidak ditemukan.",404);
+  if(account.password_scheme!=="pbkdf2-sha256")return safeError("Akun memerlukan pemeriksaan sebelum reset.",409);
+  const hashed=await passwordHash("1234");
+  await env.DB.batch([
+    env.DB.prepare(`UPDATE accounts SET password_hash=?,password_scheme='pbkdf2-sha256',must_change_password=0,
+      failed_attempts=0,locked_until=NULL,updated_at=CURRENT_TIMESTAMP
+      WHERE id=? AND role='anggota' AND status='aktif'`).bind(hashed,id),
+    env.DB.prepare("UPDATE sessions SET revoked_at=CURRENT_TIMESTAMP WHERE account_id=? AND revoked_at IS NULL").bind(id),
+    env.DB.prepare(`INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason)
+      VALUES(?,?,'accounts','reset_member_password','accounts',?,'Reset password awal oleh pengelola')`).bind(crypto.randomUUID(),who.id,id)
+  ]);
+  return json({ok:true,username:account.username,passwordAwal:"1234",message:"Password anggota direset dan semua sesi lamanya berakhir."});
+}
+__name(resetMemberPassword,"resetMemberPassword");
 async function activateBankAdmin(request, env, who) {
   let payload;
   try {
@@ -3319,14 +3343,22 @@ async function handle(request, env) {
     return json({ ok: true, scope: "pembukuan-superadmin" });
   }
   if (path === "/api/superadmin/accounts/preview" && request.method === "GET") {
-    const denied = requireRole(who, ["superadmin"]);
+    const denied = requireRole(who, ["admin","superadmin"]);
     if (denied) return denied;
-    return json(await accountActivationPreview(env.DB));
+    const preview=await accountActivationPreview(env.DB);
+    if(who.role==="admin")preview.akun=preview.akun.filter(a=>a.role==="anggota");
+    preview.jumlah=preview.akun.length;
+    return json(preview);
   }
   if (path === "/api/superadmin/accounts/activate-member" && request.method === "POST") {
-    const denied = requireRole(who, ["superadmin"]);
+    const denied = requireRole(who, ["admin","superadmin"]);
     if (denied) return denied;
     return activateMemberAccount(request, env, who);
+  }
+  if (path === "/api/superadmin/accounts/reset-member" && request.method === "POST") {
+    const denied = requireRole(who, ["admin","superadmin"]);
+    if (denied) return denied;
+    return resetMemberPassword(request,env,who);
   }
   if (path === "/api/superadmin/accounts/activate-admin" && request.method === "POST") {
     const denied = requireRole(who, ["superadmin"]);
