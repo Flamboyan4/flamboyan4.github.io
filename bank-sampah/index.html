@@ -759,15 +759,18 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
      ['banksampah','wastebank','bank'].includes(scope)||
      ['banksampah','wastebank'].includes(category)||/^banksampah[:/]/.test(category);
  };
- const albums=items=>onlyArray(items).filter(isBankAlbum).map(item=>({
-  id:item.id||item.albumId,
-  judul:item.judul||item.title||'Album',
-  tanggal:item.tanggal||item.event_on||'',
-  deskripsi:item.deskripsi||item.description||'',
-  sampul:item.sampul||item.coverUrl||item.imageUrl||'',
-  kategori:String(item.kategori||item.category||'').replace(/^Bank Sampah\s*[:/]\s*/i,''),
-  media:[]
- }));
+ const originalGorol='https://drive.google.com/drive/folders/1ywp2v8rUH-oAGcM91PQyVrO7Wx9iLdCA';
+ const albums=items=>onlyArray(items).filter(isBankAlbum).map(item=>{
+  const title=item.judul||item.title||'Album',date=item.tanggal||item.event_on||'';
+  const description=item.deskripsi||item.description||'';
+  const folder=String(item.folderUrl||item.driveUrl||item.drive_url||description.match(/Tautan folder:\s*(https:\/\/drive\.google\.com\/drive\/folders\/[^\s]+)/i)?.[1]||'');
+  const knownFolder=!folder&&/gorol|drop point/i.test(title)&&String(date).slice(0,10)==='2026-10-11'?originalGorol:'';
+  return {id:item.id||item.albumId,judul:title,tanggal:date,
+   deskripsi:description.replace(/\n?Tautan folder:\s*https:\/\/\S+/ig,'').trim(),
+   sampul:item.sampul||item.coverUrl||item.imageUrl||(knownFolder?'https://drive.google.com/file/d/1DcqPvQpQx_nQEPsCXlbJz-YETZ0iypep/view':''),
+   kategori:String(item.kategori||item.category||'').replace(/^Bank Sampah\s*[:/]\s*/i,''),
+   sourceFolder:folder||knownFolder,media:[]};
+ });
  async function home(){
   const r=await publicData();
   const o=r.overview||{};
@@ -2031,7 +2034,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     try{
       const saved=await call('bsV21IsiAlbumPublik',album.id);
       if(Array.isArray(saved?.media)&&saved.media.length)return {...base,...saved};
-      return {...base,catatan:'Media belum tersedia pada album ini.'};
+      return {...base,catatan:album.sourceFolder?'Foto/video berada di Google Drive. Buka folder melalui tautan di bawah.':'Media belum tersedia pada album ini.'};
     }catch(error){
       return {...base,catatan:'Album belum dapat dimuat.'};
     }

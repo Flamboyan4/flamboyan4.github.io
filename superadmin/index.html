@@ -274,6 +274,18 @@ html body #f4-account-page>aside{overflow-x:hidden!important}
 #f4-superadmin-confirm .f4-sa-confirm-delete{background:#bd3434;color:white;border:1px solid #bd3434}
 #f4-superadmin-confirm .f4-sa-confirm-accept{background:#2d6792;color:white;border:1px solid #2d6792}
 #f4-superadmin-confirm button:focus-visible{outline:3px solid #8fbde8;outline-offset:2px}
+
+.sa-account-grid td:last-child{min-width:340px}
+.sa-account-grid td:last-child button{margin:2px 3px;white-space:nowrap}
+.sa-account-manage{background:#e6f1fa;color:#215b83;border:1px solid #c5ddec;border-radius:9px;padding:8px 10px;font-size:11px;font-weight:700}
+.sa-account-warning{background:#fff0ed;color:#a43e32;border-color:#efd1cb}
+.sa-account-shade{position:fixed;inset:0;z-index:10000;background:#152536a9;display:grid;place-items:center;padding:16px}
+.sa-account-modal{width:min(100%,480px);max-height:90dvh;overflow:auto;background:white;color:#233f56;border:1px solid #d4e0eb;padding:24px;border-radius:16px;box-shadow:0 18px 55px #14233349}
+.sa-account-modal h3{margin:0 0 8px;font-size:20px}.sa-account-subtitle{font-weight:700;color:#46677f}
+.sa-account-info{padding:12px;background:#eef4fa;border-radius:9px;font-size:13px}
+.sa-account-modal label{display:block;margin:14px 0;font-size:13px;font-weight:700}
+.sa-account-modal input{display:block;margin-top:5px;width:100%;padding:11px;border:1px solid #c9d9e7;border-radius:9px;box-sizing:border-box;font:14px system-ui}
+.sa-account-feedback{font-size:12px;color:#225e7b}.sa-account-modal-actions{display:flex;justify-content:flex-end;gap:9px;flex-wrap:wrap;margin-top:15px}
 </style>
 <style id="f4-sa-standalone-nav-bridge">
 .f4-sa-mobile-backdrop{display:none}
@@ -497,6 +509,48 @@ function accountStatus(a){
  // Display status only when an explicit account status is available from API.
  return '—';
 }
+
+async function manageAccount(a,action){
+ const old=accountName(a),house=accountHouse(a),username=accountUser(a);
+ const shade=el('div',undefined,'sa-account-shade'),panel=el('section',undefined,'sa-account-modal');
+ panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');
+ const heading=el('h3',action==='edit'?'Edit nama warga':action==='deactivate'?'Nonaktifkan akun':'Pergantian penghuni');
+ const subtitle=el('p',old+' · '+house+' · '+username,'sa-account-subtitle');
+ const msg=el('p',action==='handover'?'Penghuni lama tetap tercatat dalam riwayat keuangan dan tabungan. Penghuni baru mendapat ID serta akun terpisah.':action==='deactivate'?'Akun dinonaktifkan tanpa menghapus transaksi dan riwayatnya.':'Hanya untuk koreksi nama pemilik yang sama. Jika orangnya berubah, pilih Ganti penghuni.','sa-account-info');
+ const form=el('form');
+ let name,user;
+ if(action!=='deactivate'){
+  const label=el('label','Nama lengkap');name=el('input');name.required=true;name.minLength=2;name.maxLength=160;name.value=action==='edit'?old:'';
+  label.append(name);form.append(label);
+ }
+ if(action==='handover'){
+  const label=el('label','Username baru (berbeda dari pemilik lama)');
+  user=el('input');user.required=true;user.pattern='[a-z0-9][a-z0-9-]{3,39}';user.placeholder=(username||'warga')+'-2';
+  label.append(user);form.append(label);
+ }
+ const feedback=el('p','','sa-account-feedback');feedback.setAttribute('role','status');
+ const buttons=el('div',undefined,'sa-account-modal-actions');
+ const cancel=button('Batal',()=>shade.remove(),'sa-account-reset');
+ const save=button(action==='handover'?'Ganti penghuni':action==='deactivate'?'Ya, Nonaktifkan':'Simpan',()=>{},'sa-action sa-action-primary');
+ save.type='submit';buttons.append(cancel,save);form.append(feedback,buttons);panel.append(heading,subtitle,msg,form);shade.append(panel);document.body.append(shade);
+ shade.onclick=e=>{if(e.target===shade)shade.remove()};
+ form.onsubmit=async e=>{
+  e.preventDefault();save.disabled=true;feedback.textContent='Memproses perubahan…';
+  const payload={action,accountId:a.id};
+  if(name)payload.name=name.value.trim();
+  if(user){payload.username=user.value.trim().toLowerCase();payload.confirmation='GANTI PENGHUNI'}
+  if(action==='deactivate')payload.confirmation='NONAKTIFKAN AKUN';
+  try{
+   const r=await fetch(API+'/api/superadmin/accounts/manage-member',{method:'POST',credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+   const data=await r.json().catch(()=>({}));if(!r.ok||data.ok===false)throw Error(data.error||'HTTP '+r.status);
+   feedback.textContent=action==='handover'?'Selesai. Username baru: '+data.username+' · Password awal: '+data.passwordAwal+'. Berikan secara pribadi.':
+    action==='deactivate'?'Akun lama nonaktif; riwayatnya tetap disimpan.':'Nama berhasil diperbarui.';
+   save.disabled=false;save.textContent='Tutup';
+   form.onsubmit=e=>{e.preventDefault();shade.remove();accountsPage()};
+  }catch(error){feedback.textContent='Gagal: '+error.message;save.disabled=false}
+ };
+ if(name)name.focus();else save.focus();
+}
 async function accountRequest(a,operation){
  const id=String(a?.id||'');
  if(!/^account:[A-Za-z0-9_-]{1,100}$/.test(id)||String(a?.role)!=='anggota')
@@ -615,7 +669,13 @@ function paintAccounts(){
    const control=button(canActivate?'Aktifkan':'Reset password',()=>accountSingleAction(a,operation,control),'sa-account-reset');
    control.title=canActivate?'Aktifkan akun anggota':'Reset password anggota ke 1234 dan putuskan sesi lama';
    action.append(control);
-  }else action.append(el('span','—'));
+  }
+  if(member&&accountStatus(a)==='Aktif'){
+   action.append(button('Edit',()=>manageAccount(a,'edit'),'sa-account-manage'));
+   action.append(button('Nonaktifkan',()=>manageAccount(a,'deactivate'),'sa-account-manage sa-account-warning'));
+   action.append(button('Ganti penghuni',()=>manageAccount(a,'handover'),'sa-account-manage'));
+  }
+  if(!action.children.length)action.append(el('span','—'));
   tr.append(name,house,user,role,status,action);
   tbody.append(tr);
  }

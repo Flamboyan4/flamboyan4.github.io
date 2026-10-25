@@ -2821,6 +2821,70 @@ async function accountActivationPreview(db) {
   return { ok: true, jumlah: accounts.length, akun: accounts };
 }
 __name(accountActivationPreview, "accountActivationPreview");
+
+async function manageMemberIdentity(request,env,who){
+ if(who?.role!=='superadmin')return safeError('Hanya Superadmin yang dapat mengubah identitas.',403);
+ const origin=request.headers.get('origin')||'';
+ if(origin&&!['https://flamboyan4.web.id','https://www.flamboyan4.web.id'].includes(origin))return safeError('Asal permintaan ditolak.',403);
+ let p;try{p=await requestJson(request)}catch{return safeError('JSON tidak valid.',400)}
+ const action=String(p.action||''),accountId=String(p.accountId||'');
+ if(!['edit','deactivate','handover'].includes(action)||!/^account:[A-Za-z0-9_-]{1,100}$/.test(accountId))return safeError('Aksi/ID akun tidak valid.',400);
+ const db=env.DB;
+ const current=await db.prepare('SELECT a.id,a.username,a.member_id,a.role,a.status,m.household_id,m.display_name AS name,m.status AS member_status,h.house_code FROM accounts a JOIN members m ON m.id=a.member_id JOIN households h ON h.id=m.household_id WHERE a.id=? LIMIT 1').bind(accountId).first();
+ if(!current||current.role!=='anggota')return safeError('Hanya akun anggota yang dapat diubah.',404);
+ const name=String(p.name||'').trim();
+ if(action!=='deactivate'&&(name.length<2||name.length>160))return safeError('Nama harus 2–160 karakter.',400);
+ const audit=(type,target,before,after)=>db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,'accounts',?,'accounts',?,?,?)").bind('audit:'+crypto.randomUUID(),who.id,type,target,JSON.stringify(before),JSON.stringify(after));
+ if(action==='edit'){
+  if(current.status!=='aktif'||current.member_status!=='aktif')return safeError('Identitas lama sudah nonaktif.',409);
+  if(name===current.name)return json({ok:true,unchanged:true});
+  try{await db.batch([
+   db.prepare('UPDATE members SET display_name=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').bind(name,current.member_id),
+   db.prepare('UPDATE member_account_profiles SET display_name=?,updated_at=CURRENT_TIMESTAMP WHERE account_id=?').bind(name,accountId),
+   db.prepare('UPDATE bookkeeping_payers SET display_name=? WHERE member_id=?').bind(name,current.member_id),
+   audit('edit_member_name',accountId,{name:current.name},{name})
+  ])}catch{return safeError('Nama tidak tersimpan; database tetap utuh.',409)}
+  return json({ok:true,updated:true});
+ }
+ if(current.status!=='aktif'||current.member_status!=='aktif')return safeError('Akun sudah nonaktif. Muat ulang.',409);
+ if(action==='deactivate'){
+  if(p.confirmation!=='NONAKTIFKAN AKUN')return safeError('Konfirmasi salah.',400);
+  try{await db.batch([
+   db.prepare("UPDATE accounts SET status='nonaktif',updated_at=CURRENT_TIMESTAMP WHERE id=? AND role='anggota' AND status='aktif'").bind(accountId),
+   db.prepare("UPDATE members SET status='nonaktif',updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(current.member_id),
+   db.prepare('UPDATE bookkeeping_payers SET active=0 WHERE member_id=?').bind(current.member_id),
+   db.prepare('UPDATE sessions SET revoked_at=CURRENT_TIMESTAMP WHERE account_id=? AND revoked_at IS NULL').bind(accountId),
+   audit('deactivate_member',accountId,current,{status:'nonaktif'})
+  ])}catch{return safeError('Penonaktifan gagal, semua perubahan dibatalkan.',409)}
+  return json({ok:true,deactivated:true,historyPreserved:true});
+ }
+ if(p.confirmation!=='GANTI PENGHUNI')return safeError('Konfirmasi ganti penghuni salah.',400);
+ const username=String(p.username||'').trim().toLowerCase();
+ if(!/^[a-z0-9][a-z0-9-]{3,39}$/.test(username)||username===current.username)return safeError('Username baru wajib berbeda, 4–40 karakter huruf kecil/angka/tanda hubung.',400);
+ if(await db.prepare('SELECT id FROM accounts WHERE username=? LIMIT 1').bind(username).first())return safeError('Username sudah dipakai.',409);
+ const memberId='member:api:'+crypto.randomUUID(),payerId='payer:'+crypto.randomUUID(),newAccountId='account:'+crypto.randomUUID(),occupancyId='occupancy:api:'+crypto.randomUUID(),hash=await passwordHash('1234');
+ const before={accountId,memberId:current.member_id,name:current.name,house:current.house_code};
+ // Older staging databases may lack the optional occupancy end-date column.
+ const occupancyColumns=await db.prepare('PRAGMA table_info(household_occupancy_history)').all();
+ const hasEndDate=(occupancyColumns.results||[]).some(c=>c.name==='ended_on');
+ const endOccupancy=hasEndDate?
+   db.prepare("UPDATE household_occupancy_history SET status='selesai',ended_on=date('now') WHERE member_id=? AND status='aktif'").bind(current.member_id):
+   db.prepare("UPDATE household_occupancy_history SET status='selesai' WHERE member_id=? AND status='aktif'").bind(current.member_id);
+ try{await db.batch([
+  db.prepare("UPDATE accounts SET status='nonaktif',updated_at=CURRENT_TIMESTAMP WHERE id=? AND role='anggota' AND status='aktif'").bind(accountId),
+  db.prepare("UPDATE members SET status='nonaktif',updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(current.member_id),
+  db.prepare('UPDATE bookkeeping_payers SET active=0 WHERE member_id=?').bind(current.member_id),
+  db.prepare('UPDATE sessions SET revoked_at=CURRENT_TIMESTAMP WHERE account_id=? AND revoked_at IS NULL').bind(accountId),
+  endOccupancy,
+  db.prepare("INSERT INTO members(id,household_id,display_name,status,joined_at) VALUES(?,?,?,'aktif',date('now'))").bind(memberId,current.household_id,name),
+  db.prepare("INSERT INTO bookkeeping_payers(id,household_id,member_id,display_name,payer_type,active) VALUES(?,?,?,?,'warga',1)").bind(payerId,current.household_id,memberId,name),
+  db.prepare("INSERT INTO household_occupancy_history(id,household_id,member_id,started_on,status) VALUES(?,?,?,date('now'),'aktif')").bind(occupancyId,current.household_id,memberId),
+  db.prepare("INSERT INTO accounts(id,member_id,username,role,status,password_hash,password_scheme,must_change_password) VALUES(?,?,?,'anggota','aktif',?,'pbkdf2-sha256',0)").bind(newAccountId,memberId,username,hash),
+  audit('handover_member',accountId,before,{newAccountId,newMemberId:memberId,name,username,house:current.house_code})
+ ])}catch{return safeError('Ganti penghuni belum tersimpan. Seluruh perubahan database dibatalkan.',409)}
+ return json({ok:true,transferred:true,historyPreserved:true,memberId,newAccountId,username,passwordAwal:'1234'});
+}
+__name(manageMemberIdentity,'manageMemberIdentity');
 async function activateMemberAccount(request, env, who) {
   let payload;
   try {
@@ -4015,6 +4079,10 @@ async function handle(request, env) {
     const denied = requireRole(who, ["admin","superadmin"]);
     if (denied) return denied;
     return activateMemberAccount(request, env, who);
+  }
+  if (path === "/api/superadmin/accounts/manage-member" && request.method === "POST") {
+    const denied=requireRole(who,["superadmin"]);
+    return denied||manageMemberIdentity(request,env,who);
   }
   if (path === "/api/superadmin/accounts/reset-member" && request.method === "POST") {
     const denied = requireRole(who, ["admin","superadmin"]);
