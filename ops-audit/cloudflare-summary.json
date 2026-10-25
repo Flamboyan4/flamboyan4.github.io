@@ -85,7 +85,7 @@
       "type": "plain_text"
     }
   ],
-  "checked_at_utc": "2026-10-24T23:53:02.632191+00:00",
+  "checked_at_utc": "2026-10-25T00:30:51.827616+00:00",
   "checks": {
     "d1_list": {
       "codes": [],
@@ -254,15 +254,15 @@
     "waste_savings_ledger"
   ],
   "d1_target": "flamboyan4-staging",
-  "deployed_worker_sha256": "39aac7c67868aba6d05aff9a0bbad7192631a5935eb2970a0b66aa4910c0a6e7",
+  "deployed_worker_sha256": "a87fef52bb5b9b2623fba31f0c2e61b97f84b055eb2c0106521da1c2c558aaee",
   "latest_deployment": [
     {
-      "created_on": "2026-10-24T23:40:16.551517Z",
-      "id": "95b165d9-de40-46c6-9a6c-4888acd68f9d"
+      "created_on": "2026-10-25T00:27:04.074909Z",
+      "id": "0811e5ba-7106-4438-91f3-bb016271f1a6"
     },
     {
-      "created_on": "2026-10-24T20:11:22.737463Z",
-      "id": "43edb1b4-d22a-4668-ad4a-3740129ed7ce"
+      "created_on": "2026-10-25T00:24:54.8623Z",
+      "id": "02749df6-154b-42c8-93e9-bbb77ca7e45b"
     }
   ],
   "mode": "READ_ONLY_NO_DEPLOY_NO_DB_WRITES",
@@ -277,19 +277,19 @@
   "write_flags": {
     "AUTH_ENABLED": "true",
     "BANK_CANCEL_WRITE_ENABLED": "true",
-    "BANK_EXPENSE_WRITE_ENABLED": "false",
+    "BANK_EXPENSE_WRITE_ENABLED": "true",
     "BANK_INVENTORY_WRITE_ENABLED": "true",
     "BANK_MEDIA_WRITE_ENABLED": "true",
     "BANK_PAYOUT_WRITE_ENABLED": "false",
-    "BANK_RECONCILIATION_WRITE_ENABLED": "false",
+    "BANK_RECONCILIATION_WRITE_ENABLED": "true",
     "BANK_WRITE_ENABLED": "true",
     "DENDA_PINJAMAN_WRITE_ENABLED": "true",
     "FINANCE_WRITE_ENABLED": "true",
     "IURAN_WRITE_ENABLED": "true",
     "MANUAL_CASH_WRITE_ENABLED": "true",
-    "PORTAL_WRITE_ENABLED": "false",
+    "PORTAL_WRITE_ENABLED": "true",
     "RECONCILIATION_CONFIRM_ENABLED": "false",
     "SALE_DRAFT_ENABLED": "true",
-    "TALANGAN_WRITE_ENABLED": "false"
+    "TALANGAN_WRITE_ENABLED": "true"
   }
 }
