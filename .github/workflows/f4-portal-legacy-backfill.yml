@@ -1,0 +1,69 @@
+name: F4 Portal Arisan Jersey D1 Backfill
+on:
+  push:
+    branches: [main]
+    paths:
+      - cloudflare/migrations/20261025_portal_legacy_arisan_jersey.sql
+      - .github/workflows/f4-portal-legacy-backfill.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: f4-portal-legacy-safe-backfill
+  cancel-in-progress: false
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Backfill Arisan and Jersey only; never touch bookkeeping transactions
+        env:
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import json,os,pathlib,re,urllib.request
+          account=os.environ['CF_ACCOUNT'];token=os.environ['CF_TOKEN']
+          base='https://api.cloudflare.com/client/v4/accounts/'+account
+          def cf(path,method='GET',data=None):
+              h={'Authorization':'Bearer '+token,'Accept':'application/json'}
+              if data is not None:h['Content-Type']='application/json'
+              req=urllib.request.Request(base+path,headers=h,method=method,
+                  data=json.dumps(data).encode() if data is not None else None)
+              with urllib.request.urlopen(req,timeout=50) as res:d=json.load(res)
+              if d.get('success') is not True:raise RuntimeError('Cloudflare operation rejected')
+              return d.get('result')
+          target=next((x for x in cf('/d1/database') if x.get('name')=='flamboyan4-staging'),None)
+          if not target:raise RuntimeError('D1 staging database not found')
+          settings=cf('/workers/scripts/flamboyan4-terpadu-staging/settings')
+          bind=next((x for x in settings.get('bindings',[]) if x.get('name')=='DB'),None)
+          if bind is None or bind.get('type')!='d1' or bind.get('id')!=target['uuid']:
+              raise RuntimeError('Worker database binding mismatch: stop')
+          path='/d1/database/'+target['uuid']+'/query'
+          def sql(query):
+              res=cf(path,'POST',{'sql':query})
+              if not isinstance(res,list) or len(res)!=1 or res[0].get('success') is not True:
+                  raise RuntimeError('Cloudflare D1 SQL refused')
+              return res[0].get('results') or []
+          source=pathlib.Path('cloudflare/migrations/20261025_portal_legacy_arisan_jersey.sql').read_text()
+          content='\n'.join(l for l in source.splitlines() if l.strip() and not l.lstrip().startswith('--'))
+          statements=[x.strip() for x in content.split(';') if x.strip()]
+          if len(statements)!=4:raise RuntimeError('Unexpected number of migration statements')
+          expected=('CREATE TABLE IF NOT EXISTS PORTAL_ARISAN_SCHEDULE',
+                    'CREATE TABLE IF NOT EXISTS PORTAL_JERSEY_ORDERS',
+                    'INSERT OR IGNORE INTO PORTAL_ARISAN_SCHEDULE',
+                    'INSERT OR IGNORE INTO PORTAL_JERSEY_ORDERS')
+          for statement,prefix in zip(statements,expected):
+              if not statement.upper().startswith(prefix):raise RuntimeError('Non-approved SQL operation: stop')
+              # These public-data inserts never update/delete financial ledgers.
+              if re.search(r'\b(UPDATE|DELETE|DROP|ALTER)\b',re.sub(r"'(?:''|[^'])*'","''",statement),re.I):
+                  raise RuntimeError('Destructive SQL rejected')
+          for statement in statements:sql(statement)
+          arisan=sql('SELECT COUNT(*) AS n FROM portal_arisan_schedule')[0]['n']
+          jersey=sql('SELECT COUNT(*) AS n FROM portal_jersey_orders')[0]['n']
+          if arisan<26 or jersey<26:raise RuntimeError('Data row count insufficient')
+          print('PORTAL_ARISAN_D1_ROWS='+str(arisan))
+          print('PORTAL_JERSEY_D1_ROWS='+str(jersey))
+          print('TRANSAKSI_KEUANGAN_DIUBAH=0')
+          PY
