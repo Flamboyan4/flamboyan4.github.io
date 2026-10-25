@@ -1,0 +1,100 @@
+name: F4 Year Archive Read-Only Worker Guarded Deployment
+on:
+  push:
+    branches: [fix-book-year-read-20261025]
+    paths: [.github/workflows/f4-year-read-release.yml]
+permissions:
+  contents: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate year-read D1 contract preflight
+        run: |
+          node --check cloudflare/worker-terpadu-operasional-teruji.js
+          node --check portal-live/f4-bank-write-bridge.js
+          cmp portal-live/f4-bank-write-bridge.js uji-terpadu/f4-bank-write-bridge.js
+          node - <<'JS'
+          const s=require('fs').readFileSync('cloudflare/worker-terpadu-operasional-teruji.js','utf8');
+          for(const needle of ['async function readYearStatus(', 'async function readYearArchiveList(', 'async function readYearArchiveDetail(', '/api/bookkeeping/year-archives']){
+            if(!s.includes(needle))throw Error('Required account fix missing: '+needle);
+          }
+          console.log('Year archive read-only contract preflight passed');
+          JS
+      - name: Deploy read-only archive handlers preserving D1 R2 flags
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,json,urllib.request,urllib.error,time,datetime,hashlib
+          from pathlib import Path
+          result={"checked_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                  "target":"flamboyan4-terpadu-staging","scope":"YEAR_ARCHIVES_READ_ONLY_ROUTES","status":"started"}
+          p=Path("ops-audit/year-read-release.json");p.parent.mkdir(exist_ok=True)
+          root="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CF_ACCOUNT"]
+          token=os.environ["CF_TOKEN"];worker="flamboyan4-terpadu-staging"
+          def call(path,method="GET",body=None,mime=None):
+            headers={"Authorization":"Bearer "+token}
+            if mime:headers["Content-Type"]=mime
+            request=urllib.request.Request(root+path,method=method,data=body,headers=headers)
+            with urllib.request.urlopen(request,timeout=80) as r:j=json.load(r)
+            if not j.get("success"):raise RuntimeError("Cloudflare API rejected "+path)
+            return j.get("result")
+          try:
+            source=Path("cloudflare/worker-terpadu-operasional-teruji.js").read_bytes()
+            result["source_sha256"]=hashlib.sha256(source).hexdigest()
+            settings=call("/workers/scripts/"+worker+"/settings")
+            before={b["name"]:b for b in settings["bindings"]}
+            if before.get("DB",{}).get("type")!="d1" or before.get("PHOTOS",{}).get("type")!="r2_bucket":
+              raise RuntimeError("Missing required D1/R2 bindings")
+            flags={k:str(v.get("text","")).lower() for k,v in before.items() if k.endswith("_WRITE_ENABLED") or k in ("SALE_DRAFT_ENABLED","RECONCILIATION_CONFIRM_ENABLED")}
+            expected_active={"FINANCE_WRITE_ENABLED","MANUAL_CASH_WRITE_ENABLED","IURAN_WRITE_ENABLED",
+              "DENDA_PINJAMAN_WRITE_ENABLED","BANK_WRITE_ENABLED","SALE_DRAFT_ENABLED",
+              "BANK_CANCEL_WRITE_ENABLED","BANK_INVENTORY_WRITE_ENABLED","BANK_MEDIA_WRITE_ENABLED"}
+            if {k for k,v in flags.items() if v=="true"}!=expected_active:
+              raise RuntimeError("Live Worker feature flags differ from previously verified state; deploy aborted")
+            deployments=call("/workers/scripts/"+worker+"/deployments").get("deployments") or []
+            result["previous_deployment_id"]=deployments[0].get("id") if deployments else None
+            meta={"main_module":"main.js","keep_assets":True,
+              "compatibility_date":settings.get("compatibility_date") or "2026-10-21",
+              "bindings":[{"type":"inherit","name":v["name"]} for v in settings["bindings"]]}
+            boundary="----F4MemberAccountsFix"
+            def part(name,data,mime):
+              return ('--'+boundary+'\r\nContent-Disposition: form-data; name="'+name+'"; filename="'+name+'"\r\nContent-Type: '+mime+'\r\n\r\n').encode()+data+b'\r\n'
+            body=part("metadata",json.dumps(meta).encode(),"application/json")+part("main.js",source,"application/javascript+module")+('--'+boundary+'--\r\n').encode()
+            call("/workers/scripts/"+worker+"?bindings_inherit=strict","PUT",body,"multipart/form-data; boundary="+boundary)
+            for attempt in range(12):
+              after_settings=call("/workers/scripts/"+worker+"/settings")
+              after={b["name"]:b for b in after_settings["bindings"]}
+              if set(after)==set(before) and all(after[k].get("type")==b.get("type") for k,b in before.items()):
+                if all(str(after[k].get("text","")).lower()==v for k,v in flags.items()):break
+              time.sleep(2)
+            if set(after)!=set(before) or any(after[k].get("type")!=b.get("type") for k,b in before.items()):
+              raise RuntimeError("Unexpected binding change")
+            if any(str(after[k].get("text","")).lower()!=v for k,v in flags.items()):
+              raise RuntimeError("Unexpected feature flag change")
+            deployments=call("/workers/scripts/"+worker+"/deployments").get("deployments") or []
+            result["deployment_id"]=deployments[0].get("id") if deployments else None
+            result["status"]="deployed_verified"
+            result["write_flags_unchanged"]=True
+            result["d1_r2_preserved"]=True
+          except Exception as e:
+            result["status"]="failed";result["error"]=type(e).__name__+": "+str(e)[:180]
+            p.write_text(json.dumps(result,indent=2)+"\n")
+            raise
+          p.write_text(json.dumps(result,indent=2)+"\n")
+          print('Worker year-read release:',result["status"])
+          PY
+      - name: Record sanitized deployment receipt
+        if: always()
+        run: |
+          test -f ops-audit/year-read-release.json || exit 1
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/year-read-release.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(ops): record verified year read-only endpoint deployment"
+          git push origin HEAD:fix-book-year-read-20261025
