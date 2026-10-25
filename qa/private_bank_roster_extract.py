@@ -30,8 +30,15 @@ def snapshot(connection):
   return [{"id":r[0],"name":r[1],"house":r[2],"status":r[3],
            "active_accounts":r[4]} for r in rows]
 
+def private_deposits(connection):
+  rows=connection.execute("""SELECT id,batch_id,member_id,deposited_on,estimated_total_rp,total_grams,status
+    FROM waste_deposits ORDER BY deposited_on,id""").fetchall()
+  return [{"id":r[0],"batch":r[1],"member_id":r[2],"date":r[3],
+           "estimated_rp":r[4],"grams":r[5],"status":r[6]} for r in rows]
+
 def emit(connection):
-  blob=zlib.compress(json.dumps({"member_rows":snapshot(connection)},ensure_ascii=False,sort_keys=True).encode(),9)
+  blob=zlib.compress(json.dumps({"member_rows":snapshot(connection),
+    "deposits":private_deposits(connection)},ensure_ascii=False,sort_keys=True).encode(),9)
   key=secrets.token_bytes(32)
   nonce=secrets.token_bytes(12)
   ciphertext=AESGCM(key).encrypt(nonce,blob,b"f4-bank-private-audit-20261025")
