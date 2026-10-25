@@ -1,0 +1,51 @@
+name: F4 Current Live Public and Privacy Smoke
+on:
+  push:
+    branches: [bank-expense-guard-20261025]
+    paths: [.github/workflows/f4-latest-live-smoke.yml]
+permissions:
+  contents: write
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test current Worker public and protected reads without mutations
+        run: |
+          python3 - <<'PY'
+          import urllib.request,urllib.error,json,datetime
+          from pathlib import Path
+          base="https://api.flamboyan4.web.id"
+          cases=[
+            ("/api/health",[200],"health"),
+            ("/api/v2/public/portal",[200],"portal"),
+            ("/api/v2/public/bank",[200],"bank"),
+            ("/api/v2/public/bank/report",[200],"bank_report"),
+            ("/api/member/savings",[401,403],"savings_private"),
+            ("/api/bookkeeping/reports/yearly?year=2026",[401,403],"finance_private"),
+            ("/api/v2/admin/bank/sales",[401,403],"bank_admin_private")
+          ]
+          results=[]
+          for path,expected,name in cases:
+            req=urllib.request.Request(base+path,headers={"Accept":"application/json","Origin":"https://flamboyan4.web.id","User-Agent":"Mozilla/5.0 F4-LiveSmoke"})
+            try:
+              with urllib.request.urlopen(req,timeout=20) as r:code=r.status
+            except urllib.error.HTTPError as e:code=e.code
+            except Exception:code=None
+            results.append({"test":name,"http":code,"ok":code in expected})
+          data={"checked_at_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),"status":"pass" if all(x["ok"] for x in results) else "fail","checks":results}
+          p=Path("ops-audit/latest-live-smoke.json");p.parent.mkdir(exist_ok=True)
+          p.write_text(json.dumps(data,indent=2)+"\n")
+          print(json.dumps(data))
+          if data["status"]!="pass":raise SystemExit("Live smoke failed")
+          PY
+      - name: Save status
+        if: always()
+        run: |
+          test -f ops-audit/latest-live-smoke.json || exit 1
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/latest-live-smoke.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(ops): record live public and privacy smoke"
+          git push origin HEAD:bank-expense-guard-20261025
