@@ -1428,11 +1428,11 @@ async function bookkeepingIuranHistory(db, request) {
       noRumah: (r.house_code || "").split("/").slice(1).join("/") || "",
       periode: [],
       alokasi: [],
-      // Edits/cancel must remain disabled until full D1 accounting reconciliation exists.
+      // Migrated history stays immutable. New pay-UUID can cancel but not edit/delete.
       canEdit: false,
-      canCancel: false,
-      locked: true,
-      canCorrectMigrationDate: String(r.status || "").toLowerCase() === "aktif"
+      canCancel: /^pay-[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(r.id) && r.status === "aktif",
+      locked: !(/^pay-[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(r.id) && r.status === "aktif"),
+      canCorrectMigrationDate: !/^pay-[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(r.id) && r.status === "aktif"
     });
     if (r.period_year !== null) {
       const item = byId.get(r.id);
@@ -2200,8 +2200,13 @@ async function createIuranPayment(request, env, who) {
   const old = await env.DB.prepare("SELECT payment_id,payload_hash FROM bookkeeping_payment_request_keys WHERE request_key=?").bind(key).first();
   if (old) {
     if (!old.payload_hash || old.payload_hash !== iuranHash) return safeError("requestKey iuran sudah digunakan atau berasal dari data lama tanpa fingerprint.", 409);
+    const existing = await env.DB.prepare("SELECT status FROM bookkeeping_payments WHERE id=?").bind(old.payment_id).first();
+    if (existing?.status !== "aktif") return safeError("RequestKey sudah dibatalkan. Buat pembayaran baru sesudah pemeriksaan.", 409);
     return json({ ok: true, idPembayaran: old.payment_id, duplikat: true });
   }
+  // Guard server: penulisan Iuran tak boleh melewati Talangan aktif.
+  const advance = await env.DB.prepare("SELECT id FROM bookkeeping_advances WHERE payer_id=? AND status='aktif' AND amount_rp>COALESCE(reimbursed_rp,0) LIMIT 1").bind(payerId).first();
+  if (advance) return safeError("Warga memiliki Talangan aktif. Rekonsiliasi Talangan diperlukan sebelum Iuran dicatat.", 409);
   try {
     await getIuranTariffs(env.DB);
   } catch {
@@ -2272,6 +2277,8 @@ async function createIuranPayment(request, env, who) {
     const existing = await env.DB.prepare("SELECT payment_id,payload_hash FROM bookkeeping_payment_request_keys WHERE request_key=?").bind(key).first();
     if (existing) {
       if (!existing.payload_hash || existing.payload_hash !== iuranHash) return safeError("requestKey iuran sudah digunakan untuk data berbeda.", 409);
+      const paid = await env.DB.prepare("SELECT status FROM bookkeeping_payments WHERE id=?").bind(existing.payment_id).first();
+      if (paid?.status !== "aktif") return safeError("Pembayaran sudah dibatalkan.", 409);
       return json({ ok: true, idPembayaran: existing.payment_id, duplikat: true });
     }
     return safeError("Gagal mencatat iuran secara utuh. Tidak ada transaksi parsial yang disimpan.", 409);
@@ -2856,9 +2863,12 @@ async function yearEndPreflight(db, request) {
       (debit_rp>0 AND credit_rp>0) OR (debit_rp=0 AND credit_rp=0))`).bind(from, to).first();
   const orphan = await db.prepare(`SELECT COUNT(*) AS jumlah FROM bookkeeping_cash_transactions c
     LEFT JOIN bookkeeping_payments p ON p.id=c.source_payment_id
+    LEFT JOIN (SELECT payment_id,COALESCE(SUM(amount_rp),0) AS kas_lorong_rp
+      FROM bookkeeping_payment_allocations WHERE status='aktif' AND contribution_type='KAS_LORONG'
+      GROUP BY payment_id) al ON al.payment_id=p.id
     WHERE c.status='aktif' AND c.transaction_type='iuran' AND c.occurred_on>=? AND c.occurred_on<?
     AND (c.source_payment_id IS NULL OR p.id IS NULL OR p.status<>'aktif' OR
-      c.debit_rp<>p.amount_rp OR c.credit_rp<>0)`).bind(from, to).first();
+      c.debit_rp<>COALESCE(al.kas_lorong_rp,0) OR c.credit_rp<>0)`).bind(from, to).first();
   const financeTables = ["bookkeeping_dp_cash_links", "bookkeeping_fine_payments"];
   const presentTables = await db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('bookkeeping_dp_cash_links','bookkeeping_fine_payments')").all();
   const presentNames = new Set((presentTables.results || []).map((r) => r.name));
