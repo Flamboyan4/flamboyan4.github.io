@@ -182,6 +182,52 @@ def verify_portal_login(credentials):
                             ?.querySelector('form.f4-admin-editor .f4-admin-note')?.textContent||'(no notice)'""")
                         raise AssertionError("Actual Superadmin house form save failed: "+str({
                             "notice":message,"writes":writes[-6:],"js_errors":errors[-3:]})[:750])
+                # Portal finance role separation: member gets private swipe tabs;
+                # Superadmin sees only the existing environment financial report.
+                page.locator('[data-target="portal"]').first.evaluate("(el)=>el.click()")
+                page.wait_for_function("""() => {
+                  const d=document.querySelector('#appframe')?.contentDocument;
+                  return !!d?.querySelector('#card-pemasukan') &&
+                    typeof d?.defaultView?.f4PortalSelectPanel==='function';
+                }""",timeout=20000)
+                if scope=="member":
+                    page.wait_for_function("""() => {
+                      const d=document.querySelector('#appframe')?.contentDocument;
+                      return !!d?.querySelector('.f4-user-finance:not([hidden]) [data-finance-mode="saya"]');
+                    }""",timeout=12000)
+                    frame.locator('[data-finance-mode="saya"]').click()
+                    page.wait_for_function("""() => document.querySelector('#appframe')
+                      ?.contentDocument?.querySelector('#keuangan')?.classList
+                      .contains('f4-finance-personal-active')""",timeout=12000)
+                    ui=page.evaluate("""() => {
+                      const d=document.querySelector('#appframe').contentDocument;
+                      const rail=d.querySelector('.f4-user-finance-sub');
+                      return {
+                        publicCardHidden:d.defaultView.getComputedStyle(
+                          d.querySelector('#card-pemasukan')).display==='none',
+                        oneRow:d.defaultView.getComputedStyle(rail).flexWrap==='nowrap',
+                        scrolls:rail.scrollWidth>rail.clientWidth,
+                        categories:rail.querySelectorAll('[data-kind]').length,
+                        personalVisible:!d.querySelector('#f4-personal-finance').hidden
+                      };
+                    }""")
+                    if not (ui["publicCardHidden"] and ui["oneRow"] and
+                            ui["categories"]==6 and ui["personalVisible"]):
+                        raise AssertionError("HP/member private finance panel regression: "+str(ui))
+                    if label=="HP" and not ui["scrolls"]:
+                        raise AssertionError("HP member category strip does not overflow horizontally")
+                else:
+                    ui=page.evaluate("""() => {
+                      const d=document.querySelector('#appframe').contentDocument;
+                      const controls=d.querySelector('.f4-user-finance');
+                      return {
+                        extraControlsHidden:!controls||controls.hidden,
+                        publicCardVisible:d.defaultView.getComputedStyle(
+                          d.querySelector('#card-pemasukan')).display!=='none'
+                      };
+                    }""")
+                    if not(ui["extraControlsHidden"] and ui["publicCardVisible"]):
+                        raise AssertionError("Superadmin must see environment report without tabs: "+str(ui))
                 page.locator("#avatar-button").click()
                 page.locator('[data-account-action="logout"]').click()
                 page.wait_for_function("""() => {
