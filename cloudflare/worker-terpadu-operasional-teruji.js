@@ -3454,7 +3454,7 @@ async function residentsApi(request, env, who) {
   }
   const action = String(data.action || "");
   const str = /* @__PURE__ */ __name((name, max = 150) => {
-    if (data[name] === null || data[name] === "") return null;
+    if (data[name] === undefined || data[name] === null || data[name] === "") return null;
     if (typeof data[name] !== "string" || data[name].length > max) throw Error("Kolom " + name + " tidak valid.");
     return data[name].trim() || null;
   }, "str");
@@ -3464,10 +3464,11 @@ async function residentsApi(request, env, who) {
       if (!id) return safeError("ID rumah wajib.", 400);
       const code = str("rumah", 25);
       if (!code) return safeError("Nomor rumah wajib.", 400);
-      const exists = await db.prepare("SELECT id FROM households WHERE id=?").bind(id).first();
+      const exists = await db.prepare("SELECT id,description FROM households WHERE id=?").bind(id).first();
       if (!exists) return safeError("Rumah tidak ditemukan.", 404);
+      const description=data.deskripsi_rumah===undefined?exists.description:str("deskripsi_rumah",500);
       await db.batch([
-        db.prepare("UPDATE households SET house_code=?,description=? WHERE id=?").bind(code, str("deskripsi_rumah", 500), id),
+        db.prepare("UPDATE households SET house_code=?,description=? WHERE id=?").bind(code, description, id),
         db.prepare(`INSERT INTO household_details(household_id,status_rumah,tipe_unit,nama_pemilik,kontak_pemilik,keterangan)
           VALUES(?,?,?,?,?,?) ON CONFLICT(household_id) DO UPDATE SET status_rumah=excluded.status_rumah,tipe_unit=excluded.tipe_unit,nama_pemilik=excluded.nama_pemilik,kontak_pemilik=excluded.kontak_pemilik,keterangan=excluded.keterangan`).bind(id, str("status_rumah", 40), str("tipe_unit", 80), str("nama_pemilik"), str("kontak_pemilik", 80), str("keterangan_rumah", 500))
       ]);
