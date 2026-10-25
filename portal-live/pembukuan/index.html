@@ -4616,7 +4616,7 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
   async function updateYearBadge(){
     const y=Number(document.getElementById('report-tahunan-tahun')?.value)||new Date().getFullYear(),st=await getYearStatus(y);
     const b=document.getElementById('year-lock-badge'),a=document.getElementById('btn-year-archive');if(!b)return st;
-    const closed=!!st?.ditutup;b.className='year-lock-badge '+(closed?'closed':'open');b.innerHTML=`<i data-lucide="${closed?'lock':'unlock'}" class="w-4 h-4"></i><span>${closed?'DITUTUP':'TERBUKA'}</span>`;
+    if(!st){b.className='year-lock-badge unknown';b.textContent='STATUS TIDAK TERSEDIA';a?.classList.add('hidden');return null;}const closed=!!st.ditutup;b.className='year-lock-badge '+(closed?'closed':'open');b.innerHTML=`<i data-lucide="${closed?'lock':'unlock'}" class="w-4 h-4"></i><span>${closed?'DITUTUP':'TERBUKA'}</span>`;
     a?.classList.toggle('hidden',!closed);try{lucide.createIcons()}catch(e){}return st;
   }
   window.openYearArchive=async function(){
