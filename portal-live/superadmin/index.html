@@ -43,6 +43,10 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #76
 .f4-admin-fields label{display:flex;flex-direction:column;gap:5px;font-weight:650;font-size:12px}
 .f4-admin-fields input,.f4-admin-fields textarea,.f4-admin-fields select{width:100%;border:1px solid var(--edge);border-radius:9px;padding:11px;background:#fff}
 .f4-admin-editor{border:1px solid var(--edge);background:#fff;padding:20px;border-radius:14px}
+.f4-admin-editor .f4-content-destination{display:flex;flex-direction:column;gap:6px;max-width:320px;margin:0 0 14px;font-size:12px;font-weight:700;color:var(--navy)}
+.f4-admin-editor .f4-content-destination select{width:100%;min-height:41px;padding:9px 11px;border:1px solid var(--edge);border-radius:9px;background:#fff;color:var(--navy);font:500 13px system-ui}
+.f4-admin-editor .f4-content-destination select:focus-visible{outline:2px solid #327cae;outline-offset:1px}
+@media(max-width:700px){.f4-admin-editor .f4-content-destination{max-width:100%}}
 .f4-warga-form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
 .f4-admin-note,.f4-admin-message{color:#5c7584;font-size:12px}
 .sa-warn{padding:12px;border-radius:10px;background:#fff7ec;color:#83562d!important;border:1px solid #f1dbb9}
@@ -759,5 +763,5 @@ window.addEventListener('message',e=>{
 boot();
 })();
 </script>
-<script src="../superadmin-editor.js?v=selectfix-20261025"></script>
+<script src="../superadmin-editor.js?v=unified-content-20261025"></script>
 </body></html>

@@ -236,7 +236,9 @@ function showUnifiedForm(kind,record=null,defaultDestination='portal'){
  const fields={},formField=(key,label,type='text',val='',required=false)=>{
   const input=bankField(grid,key,label,type,val,required);fields[key]=input;return input;
  };
- const rawCategory=String(record?.category||'').replace(/^(?:Bank Sampah|Portal Utama)\s*[:/]\s*/i,'');
+ const legacyInventoryCategory=record?._f4_bank_kind==='bank_inventory'
+  ?String(record.condition||'').match(/^Kategori:\s*([^\n]+)/i)?.[1]||'' : '';
+ const rawCategory=legacyInventoryCategory||String(record?.category||'').replace(/^(?:Bank Sampah|Portal Utama)\s*[:/]\s*/i,'');
  let fromUrl=String(record?.drive_url||record?.photo_ref||'');
  const descRaw=String(record?.description||record?.condition||'');
  const folderLine=descRaw.match(/(?:^|\n)Tautan folder:\s*(https:\/\/\S+)/i);
@@ -281,9 +283,11 @@ function showUnifiedForm(kind,record=null,defaultDestination='portal'){
   const bank=isDoc?['Kerja Bakti','Penimbangan','Acara','Lainnya']:['Alat Timbang','Peralatan','Perlengkapan','Drop Point','Lainnya'];
   const values=scope.value==='bank-sampah'?bank:portal;
   fields.category.replaceChildren();
-  for(const option of [...new Set([...values,...(rawCategory&&!values.includes(rawCategory)?[rawCategory]:[])])])
+  const keepLegacy=scope.value===source&&!isDoc&&rawCategory&&!values.includes(rawCategory);
+  for(const option of [...new Set([...values,...(keepLegacy?[rawCategory]:[])])])
    fields.category.add(new Option(option,option));
-  fields.category.value=values.includes(selected)?selected:values.includes(rawCategory)?rawCategory:values[0];
+  fields.category.value=values.includes(selected)?selected:keepLegacy?rawCategory:
+   values.includes(rawCategory)?rawCategory:values[0];
  };
  const updateOptions=()=>{
   categories();
@@ -317,13 +321,13 @@ function showUnifiedForm(kind,record=null,defaultDestination='portal'){
   if(isDoc){Object.assign(data,{title:value('title'),event_on:value('event_on'),
     sort_order:Number(value('sort_order')||0),active:fields.active.value==='1'});}
   else{Object.assign(data,{name:value('name'),quantity:Number(value('quantity')),
-    unit:value('unit')||'unit',location:value('description').slice(0,100)});}
+    unit:value('unit')||'unit',location:''});}
   save.disabled=true;note.textContent='Menyimpan perubahan…';
   try{
    const post=(endpoint,obj)=>send(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});
    if(record&&source!==dest){
     if(!window.confirm('Pindahkan '+label+' dari '+(source==='portal'?'Portal Utama':'Bank Sampah')+
-     ' ke '+(dest==='portal'?'Portal Utama':'Bank Sampah')+'? Data asal akan tetap tersimpan sebagai arsip.'))return;
+     ' ke '+(dest==='portal'?'Portal Utama':'Bank Sampah')+'? Data asal akan tetap tersimpan sebagai arsip.')){note.textContent='Pemindahan dibatalkan.';return;}
     await post(base+'transfer',{kind,source,destination:dest,id:record.id,values:data});
    }else if(dest==='portal'){
     const values=isDoc?{
@@ -345,9 +349,15 @@ function showUnifiedForm(kind,record=null,defaultDestination='portal'){
     const category=bankCategory(data.category);
     const folder=/drive\.google\.com\/drive\/folders\//i.test(data.url);
     const desc=data.description+(folder&&data.url?'\nTautan folder: '+data.url:'');
-    if(record)await post(bankApi+'albums/edit',{id:record.id,title:data.title,eventOn:data.event_on,
-     description:desc,category,visibility:data.visibility});
-    else{
+    if(record){
+     await post(bankApi+'albums/edit',{id:record.id,title:data.title,eventOn:data.event_on,
+      description:desc,category,visibility:data.visibility});
+     if(data.url&&!folder){
+      await post(bankApi+'media-link',{requestKey:'media_'+crypto.randomUUID().replace(/-/g,''),
+       albumId:record.id,mediaType:/\.(mp4|webm)(\?|$)|youtu|youtube/i.test(data.url)?'video':'foto',
+       url:data.url,caption:data.title});
+     }
+    }else{
      const made=await post(bankApi+'albums',{title:data.title,eventOn:data.event_on,
       description:desc,category,visibility:data.visibility});
      if(data.url&&!folder){
@@ -357,11 +367,7 @@ function showUnifiedForm(kind,record=null,defaultDestination='portal'){
       catch(error){note.textContent='Album sudah tersimpan tetapi media gagal ditambahkan: '+error.message+'. Periksa daftar sebelum membuat ulang.';return;}
      }
     }
-    if(record&&data.url&&!folder) {
-     // Existing albums keep all original media. New links are optional.
-     const linkNote=note;
-     linkNote.textContent='Detail album tersimpan. Untuk menambah media baru gunakan pengelolaan album Bank Sampah.';
-    }
+    // Existing media are retained; supplied new links are added, not replaced.
    }else if(record){
     await post(base+'transfer',{kind,source,destination:dest,id:record.id,values:data});
    }else{
