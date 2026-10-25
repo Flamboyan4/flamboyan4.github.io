@@ -522,4 +522,5 @@ finally:
     except FileNotFoundError:pass
     try:CONFIG.unlink()
     except FileNotFoundError:pass
+    print("Bank Excel D1 COUNT AUDIT:",json.dumps(result.get("data_source_audit",{}),sort_keys=True))
     print("Isolated QA status:",result["status"],"checks:",len(result["tests"]))
