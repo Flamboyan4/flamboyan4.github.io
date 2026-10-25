@@ -2514,6 +2514,7 @@ __name(cancelNewIuranPayment,"cancelNewIuranPayment");
    period and allocations remain immutable: changing those requires a formally
    cancelled/new transaction to avoid ever drifting RT/Arisan/Cash journals. */
 async function f4EditNewIuran(request,env,who){
+ try{
  if(env.FINANCE_WRITE_ENABLED!=="true"||env.IURAN_WRITE_ENABLED!=="true")return safeError("Penulisan Iuran D1 belum aktif.",503);
  let p;try{p=await requestJson(request)}catch{return safeError("Permintaan edit tidak valid.",400)}
  const id=String(p.idPembayaran||""),date=String(p.tanggal||""),method=String(p.metode||""),desc=String(p.catatan||"").trim();
@@ -2554,6 +2555,7 @@ async function f4EditNewIuran(request,env,who){
   if(Number(out[0]?.meta?.changes)!==1)return safeError("Pembayaran berubah saat diedit; muat ulang.",409);
  }catch{return safeError("Perubahan Iuran gagal; tidak ada perubahan parsial.",409)}
  return json({ok:true,idPembayaran:id,status:"success",message:"Tanggal, metode dan catatan berhasil diperbarui; nominal dan alokasi tetap."});
+ }catch(e){console.error("F4_EDIT_LOCAL_RUNTIME",String(e?.message||e).slice(0,180));return safeError("Pemeriksaan edit Iuran gagal.",500)}
 }
 __name(f4EditNewIuran,"f4EditNewIuran");
 
