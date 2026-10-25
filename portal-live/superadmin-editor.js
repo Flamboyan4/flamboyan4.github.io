@@ -220,7 +220,7 @@ function showForm(record){
  const form=node('form',undefined,'f4-admin-editor');form.noValidate=true;
  if(active==='documentation'||active==='inventory'){
   const scopeField=node('label'),caption=node('span','Tujuan publikasi'),scope=node('select');
-  scope.name='destination_portal';scope.add(new Option('Portal Utama','portal'),new Option('Bank Sampah','bank-sampah'));
+  scope.add(new Option('Portal Utama','portal'),new Option('Bank Sampah','bank-sampah'));
   scope.value='portal';scope.disabled=!isNew;
   scope.onchange=()=>{if(scope.value==='bank-sampah')window.f4SuperadminSwitchModule?.(active==='documentation'?'bank_albums':'bank_inventory')};
   scopeField.append(caption,scope);form.append(scopeField);
