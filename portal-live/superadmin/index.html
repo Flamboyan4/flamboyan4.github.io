@@ -469,17 +469,51 @@ function accountStatus(a){
  // Display status only when an explicit account status is available from API.
  return '—';
 }
+async function accountRequest(a,operation){
+ const id=String(a?.id||'');
+ if(!/^account:[A-Za-z0-9_-]{1,100}$/.test(id)||String(a?.role)!=='anggota')
+   throw Error('Akun anggota D1 tidak valid.');
+ const activation=operation==='activate';
+ const path=activation?'/api/superadmin/accounts/activate-member':'/api/superadmin/accounts/reset-member';
+ const payload={accountId:id,confirmation:activation?'AKTIFKAN AKUN WARGA':'RESET PASSWORD WARGA'};
+ const res=await fetch(API+path,{method:'POST',credentials:'include',cache:'no-store',
+  headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+ const result=await res.json().catch(()=>({}));
+ if(!res.ok||result.ok===false)throw Error(result.error||'HTTP '+res.status);
+ return result;
+}
+async function accountSingleAction(a,operation,control){
+ const activation=operation==='activate',username=accountUser(a);
+ if(!window.confirm((activation?'Aktifkan akun ':'Reset password akun ')+username+'? Password awal akan menjadi 1234'+(activation?'.':', dan semua sesi lama akan dikeluarkan.') ))return;
+ control.disabled=true;
+ try{
+  const result=await accountRequest(a,operation);
+  window.alert((activation?'Akun aktif.':'Password direset.')+'\\nUsername: '+(result.username||username)+'\\nPassword awal: '+(result.passwordAwal||'1234')+'\\nSampaikan secara pribadi kepada warga.');
+  accountsPage();
+ }catch(e){window.alert('Perubahan akun gagal: '+safe(e));control.disabled=false}
+}
 function accountsPage(){
  title('Akun & Hak Akses','Kelola identitas dan hak akses akun Flamboyan 4.');
  const panel=el('section',undefined,'sa-accounts-shell');
  const heading=el('div',undefined,'sa-account-head'),head=el('div');
  head.append(el('h3','Kelola akun warga'),el('p','Daftar akun terpusat untuk seluruh portal.'));
  const actions=el('div',undefined,'sa-account-actions');
- const prepare=button('Siapkan semua akun',()=>{},'sa-action sa-action-primary');
- prepare.disabled=true;prepare.title='Menunggu endpoint pembuatan akun massal dan audit yang terverifikasi';
+ const prepare=button('Siapkan semua akun',async()=>{
+  const pending=accounts.filter(a=>a.role==='anggota'&&a.perluAktivasi===true);
+  if(!pending.length)return;
+  if(!window.confirm('Aktifkan '+pending.length+' akun anggota yang belum aktif? Password awal setiap akun: 1234. Akun yang sudah aktif tidak berubah.'))return;
+  prepare.disabled=true;
+  let made=0;
+  try{
+   for(const a of pending){await accountRequest(a,'activate');made++}
+   window.alert(made+' akun berhasil diaktifkan. Berikan username dan password awal 1234 langsung kepada warga.');
+  }catch(error){window.alert(made+' akun berhasil diaktifkan sebelum proses berhenti: '+safe(error))}
+  accountsPage();
+ },'sa-action sa-action-primary');
+ prepare.disabled=true;prepare.title='Memeriksa akun belum aktif di Cloudflare D1';
  actions.append(prepare,button('Muat ulang',()=>accountsPage(),'sa-action'));
  heading.append(head,actions);panel.append(heading);
- const noticeBox=el('p','Akun digunakan bersama pada Portal Utama, Bank Sampah, dan Pembukuan sesuai role. Perubahan role, aktivasi massal, serta reset password menunggu endpoint Worker yang aman dan terekam audit.','sa-account-note');
+ const noticeBox=el('p','Akun digunakan bersama pada semua portal sesuai role. Aktivasi akun anggota yang belum aktif dan reset password anggota terhubung langsung ke Worker D1 serta audit. Perubahan role dan akun Admin/Superadmin tidak dilakukan melalui tombol ini.','sa-account-note');
  panel.append(noticeBox);
  const listWrap=el('div',undefined,'sa-account-table');
  const filters=el('div',undefined,'sa-account-filters');
@@ -507,6 +541,9 @@ function accountsPage(){
  get('/api/superadmin/accounts/preview').then(data=>{
   if(serial!==accountRequestSerial||!main.contains(panel))return;
   accounts=rows(data);
+  const pending=accounts.filter(a=>a.role==='anggota'&&a.perluAktivasi===true);
+  prepare.disabled=!pending.length;
+  prepare.title=pending.length?'Aktifkan '+pending.length+' akun anggota D1 yang masih pending':'Tidak ada akun anggota yang perlu diaktifkan';
   F4Loading.success(loadState,loadToken);
   paintAccounts();
  }).catch(error=>{
@@ -542,9 +579,15 @@ function paintAccounts(){
   const status=el('td',undefined,'sa-account-status'),statusLabel=el('span',accountStatus(a));
   statusLabel.dataset.status=accountStatus(a);status.append(statusLabel);
   const action=el('td');
-  const reset=button('Reset password',()=>{},'sa-account-reset');
-  reset.disabled=true;reset.title='Reset belum diaktifkan karena endpoint dan audit belum terverifikasi';
-  action.append(reset);
+  const member=normalizedRole(a.role||a.peran||a.account_role)==='anggota';
+  const canActivate=member&&a.perluAktivasi===true;
+  const canReset=member&&accountStatus(a)==='Aktif';
+  if(canActivate||canReset){
+   const operation=canActivate?'activate':'reset';
+   const control=button(canActivate?'Aktifkan':'Reset password',()=>accountSingleAction(a,operation,control),'sa-account-reset');
+   control.title=canActivate?'Aktifkan akun anggota di D1':'Reset password anggota ke 1234 dan putuskan sesi lama';
+   action.append(control);
+  }else action.append(el('span','—'));
   tr.append(name,house,user,role,status,action);
   tbody.append(tr);
  }
