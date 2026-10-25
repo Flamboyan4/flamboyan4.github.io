@@ -1,0 +1,92 @@
+name: F4 Member Accounts Contract Tests
+on:
+  push:
+    branches: [fix-account-activation-20261025]
+    paths:
+      - cloudflare/worker-terpadu-operasional-teruji.js
+      - portal-live/f4-bank-write-bridge.js
+      - uji-terpadu/f4-bank-write-bridge.js
+      - .github/workflows/f4-member-account-tests.yml
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: JS syntax and matching live/staging account bridge
+        run: |
+          node --check cloudflare/worker-terpadu-operasional-teruji.js
+          node --check portal-live/f4-bank-write-bridge.js
+          cmp portal-live/f4-bank-write-bridge.js uji-terpadu/f4-bank-write-bridge.js
+      - name: Validate account reset authorization, hashes and bridge request contracts
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          import vm from 'node:vm';
+          import assert from 'node:assert/strict';
+          const w=fs.readFileSync('cloudflare/worker-terpadu-operasional-teruji.js','utf8');
+          const bridge=fs.readFileSync('portal-live/f4-bank-write-bridge.js','utf8');
+          assert.ok(w.includes('const hashed = await passwordHash("1234");'));
+          assert.ok(w.includes('passwordAwal: "1234"'));
+          assert.ok(w.includes('const denied = requireRole(who, ["admin","superadmin"]);'));
+          assert.ok(w.includes('UPDATE sessions SET revoked_at=CURRENT_TIMESTAMP WHERE account_id=?'));
+          assert.ok(w.includes('async function resetMemberPassword('));
+          assert.ok(!w.includes('Password awal tiap warga mengikuti pola F4-nomor rumah'));
+          const start=w.indexOf('async function resetMemberPassword(');
+          const end=w.indexOf('__name(resetMemberPassword,"resetMemberPassword");',start);
+          assert.ok(start>=0&&end>start);
+          let kind='anggota',active=true,mutations=[],seen=[];
+          const env={DB:{
+            prepare(sql){return {
+              bind(...values){seen.push({sql,values});return {
+                async first(){return {id:'account:A524',username:'a524',role:kind,status:active?'aktif':'nonaktif',member_status:'aktif',password_scheme:'pbkdf2-sha256'};}}
+              }
+            }},
+            async batch(stmts){mutations.push(...stmts)}
+          }};
+          const context={
+            env,window:{},Error,JSON,String,RegExp,Array,Object,Promise,
+            crypto:{randomUUID(){return 'test-audit-id'}},
+            requestJson:async request=>request.data,
+            safeError:(message,status)=>({status,error:message}),
+            json:(data)=>data,
+            passwordHash:async pw=>{assert.equal(pw,'1234');return 'mock:pbkdf2hash';}
+          };
+          vm.runInNewContext(w.slice(start,end),context);
+          const testfn=context.resetMemberPassword;
+          let r=await testfn({data:{accountId:'account:A524',confirmation:'RESET PASSWORD WARGA'}},env,{id:'admin-id',role:'admin'});
+          assert.equal(r.passwordAwal,'1234');
+          assert.equal(r.username,'a524');
+          assert.equal(mutations.length,3);
+          assert.ok(seen.some(x=>x.sql.includes("UPDATE accounts SET password_hash=")));
+          assert.ok(seen.some(x=>x.sql.includes("UPDATE sessions SET revoked_at=")));
+          assert.ok(seen.some(x=>x.sql.includes("INSERT INTO audit_log")));
+          mutations=[];seen=[];kind='superadmin';
+          r=await testfn({data:{accountId:'account:A524',confirmation:'RESET PASSWORD WARGA'}},env,{id:'admin-id',role:'admin'});
+          assert.equal(r.status,404);
+          assert.equal(mutations.length,0);
+          kind='anggota';active=false;
+          r=await testfn({data:{accountId:'account:A524',confirmation:'RESET PASSWORD WARGA'}},env,{id:'admin-id',role:'admin'});
+          assert.equal(r.status,404);
+          r=await testfn({data:{accountId:'account:A524',confirmation:'NOT_CONFIRMED'}},env,{id:'admin-id',role:'admin'});
+          assert.equal(r.status,400);
+          const window={__f4BankDemoCall:()=>Promise.reject(Error('unmapped'))};
+          let sent=[];
+          const frontendContext={window,crypto:globalThis.crypto,Date,Intl,URL,URLSearchParams,Map,Set,Promise,Number,String,Math,Object,
+            fetch:async(url,opts={})=>{
+              const path=url.replace('https://api.flamboyan4.web.id','');
+              if(opts.method==='POST'){sent.push({path,payload:JSON.parse(opts.body)});return {ok:true,json:async()=>({ok:true,username:'a524',passwordAwal:'1234'})}}
+              if(path==='/api/superadmin/accounts/preview')
+                return {ok:true,json:async()=>({ok:true,akun:[{id:'account:A524',username:'a524',role:'anggota',perluAktivasi:false}]})};
+              throw Error('unexpected read '+url);
+            }
+          };
+          vm.runInNewContext(bridge,frontendContext);
+          const result=await window.__f4BankDemoCall('authAdminResetDefault',['','account:A524']);
+          assert.equal(result.passwordAwal,'1234');
+          assert.equal(sent[0].path,'/api/superadmin/accounts/reset-member');
+          assert.equal(sent[0].payload.confirmation,'RESET PASSWORD WARGA');
+          console.log('PASS: password default 1234, authorization, active reset, audit log, revoke and frontend');
+          JS
