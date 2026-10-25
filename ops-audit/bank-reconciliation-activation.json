@@ -1,0 +1,8 @@
+{
+  "at_utc": "2026-10-25T00:24:53.601905+00:00",
+  "status": "pass",
+  "scope": "BANK_RECONCILIATION_ONLY",
+  "deployment_id": "02749df6-154b-42c8-93e9-bbb77ca7e45b",
+  "other_flags_unchanged": true,
+  "d1_r2_preserved": true
+}
