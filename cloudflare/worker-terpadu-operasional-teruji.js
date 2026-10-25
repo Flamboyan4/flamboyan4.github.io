@@ -643,7 +643,9 @@ var contentModel = {
   projects: { table: "portal_project_cards", fields: { title: "text", description: "long", image_ref: "url", target_url: "urlOrAnchor", sort_order: "order", active: "bool" }, required: ["title"] },
   inventory: { table: "portal_inventory", fields: { name: "text", description: "long", quantity: "quantity", unit: "text", photo_ref: "url", category: "text", visibility: "visibility" }, required: ["name"] },
   meetings: { table: "portal_meeting_records", fields: { title: "text", meeting_on: "date", summary: "long", document_ref: "url", visibility: "visibility" }, required: ["title"] },
-  documentation: { table: "portal_documentation", fields: { event_on: "date", title: "text", description: "long", drive_url: "url", category: "text", sort_order: "order", visibility: "visibility", active: "bool" }, required: ["title"] }
+  documentation: { table: "portal_documentation", fields: { event_on: "date", title: "text", description: "long", drive_url: "url", category: "text", sort_order: "order", visibility: "visibility", active: "bool" },, required: ["title"] }
+  arisan: { table: "portal_arisan_schedule", fields: {period_on:"date",host_name:"text",status:"text"}, required:["period_on","host_name"] },
+  jersey: { table: "portal_jersey_orders", fields: {group_key:"text",sort_order:"order",resident:"text",sleeves:"text",size:"text",printed_name:"text",payment_status:"text",nominal_rp:"order",method:"text"}, required:["group_key","resident"] }
 };
 var contentPath = "/api/v2/admin/content/";
 function normalizeContent(type, v) {
@@ -671,7 +673,7 @@ async function handleAdminContent(request, env, who, url) {
   if (!model && !["tariffs", "settings", "obligations"].includes(kind)) return err("Jenis data tidak dikenal.", 404);
   if (request.method === "GET") {
     if (model) {
-      const order = kind === "agenda" ? "starts_on DESC,id DESC" : kind === "documentation" ? "event_on DESC,id DESC" : kind === "inventory" ? "name,id" : kind === "meetings" ? "meeting_on DESC,id DESC" : "sort_order,id";
+      const order = kind === "arisan" ? "period_on ASC,id" : kind === "jersey" ? "group_key,sort_order,id" : kind === "agenda" ? "starts_on DESC,id DESC" : kind === "documentation" ? "event_on DESC,id DESC" : kind === "inventory" ? "name,id" : kind === "meetings" ? "meeting_on DESC,id DESC" : "sort_order,id";
       const rows = await list(db, "SELECT * FROM " + model.table + " ORDER BY " + order + " LIMIT 500");
       return ok({ data: rows, kind });
     }
@@ -727,6 +729,8 @@ async function handleAdminContent(request, env, who, url) {
     ]);
     return ok({ id: payer });
   }
+  if(kind==="jersey" && payload?.values?.group_key!==undefined && !["bapak","ibu"].includes(String(payload.values.group_key)))
+    return err("Jenis pemesan Jersey harus bapak atau ibu.",400);
   const fields = Object.keys(model.fields), value = payload.values || {};
   if (!value || typeof value !== "object" || Array.isArray(value)) return err("Isian tidak valid.", 400);
   const extraneous = Object.keys(value).filter((k) => !fields.includes(k));
