@@ -1,0 +1,97 @@
+name: F4 Talangan Guarded Activation
+on:
+  push:
+    branches: [verify-talangan-20261025]
+    paths: [.github/workflows/f4-activate-talangan.yml]
+permissions:
+  contents: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preflight current Worker source
+        run: |
+          node --check cloudflare/worker-terpadu-operasional-teruji.js
+      - name: Enable only PORTAL_WRITE_ENABLED without altering D1 or other flags
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,json,hashlib,urllib.request,datetime,time
+          from pathlib import Path
+          result={"at_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),"status":"started","scope":"TALANGAN_CREATE_REPAY_ONLY"}
+          out=Path("ops-audit/talangan-activation.json");out.parent.mkdir(exist_ok=True)
+          token=os.environ["CF_TOKEN"]
+          root="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CF_ACCOUNT"]
+          target="flamboyan4-terpadu-staging"
+          def get(path):
+            req=urllib.request.Request(root+path,headers={"Authorization":"Bearer "+token})
+            with urllib.request.urlopen(req,timeout=30) as r:response=json.load(r)
+            if not response.get("success"):raise RuntimeError("Cloudflare GET rejected")
+            return response.get("result")
+          try:
+            source=Path("cloudflare/worker-terpadu-operasional-teruji.js").read_bytes()
+            digest=hashlib.sha256(source).hexdigest()
+            if digest!="d83c4d0a6dc4776b3fe5d7f46b54ac5756cef7f90caade6556b9d04d2603cd8b":
+              raise RuntimeError("Worker source is different from last verified deployment")
+            prior=json.loads(Path("ops-audit/talangan-preflight.json").read_text())
+            checks=prior.get("counts",{})
+            if any(checks.get(key,1)!=0 for key in ("orphan_repayments","invalid_cash_links","repayment_total_mismatches")):
+              raise RuntimeError("Talangan legacy D1 integrity preflight failed; no activation")
+            result["legacy_unlinked_repayments"]=checks.get("unlinked_repayments",0)
+            cfg=get("/workers/scripts/"+target+"/settings")
+            bs={b["name"]:b for b in cfg.get("bindings",[])}
+            if bs.get("DB",{}).get("type")!="d1" or bs.get("PHOTOS",{}).get("type")!="r2_bucket":
+              raise RuntimeError("D1/R2 bindings missing")
+            if bs.get("TALANGAN_WRITE_ENABLED",{}).get("text")!="false":
+              raise RuntimeError("Portal flag not in expected disabled state")
+            flags={k:str(v.get("text","")).lower() for k,v in bs.items() if k.endswith("_WRITE_ENABLED") or k=="SALE_DRAFT_ENABLED"}
+            expected={"FINANCE_WRITE_ENABLED","MANUAL_CASH_WRITE_ENABLED","IURAN_WRITE_ENABLED","DENDA_PINJAMAN_WRITE_ENABLED",
+              "BANK_WRITE_ENABLED","SALE_DRAFT_ENABLED","BANK_CANCEL_WRITE_ENABLED","BANK_INVENTORY_WRITE_ENABLED","BANK_MEDIA_WRITE_ENABLED","PORTAL_WRITE_ENABLED"}
+            if {k for k,v in flags.items() if v=="true"}!=expected:raise RuntimeError("Unexpected existing financial feature flags")
+            meta={"main_module":"main.js","keep_assets":True,"compatibility_date":cfg.get("compatibility_date") or "2026-10-21",
+              "bindings":[({"type":"plain_text","name":b["name"],"text":"true"} if b["name"]=="TALANGAN_WRITE_ENABLED"
+                else {"type":"inherit","name":b["name"]}) for b in cfg.get("bindings",[])]}
+            boundary="----F4PortalAgenda"
+            def part(name,data,mime):
+              return ('--'+boundary+'\r\nContent-Disposition: form-data; name="'+name+'"; filename="'+name+'"\r\nContent-Type: '+mime+'\r\n\r\n').encode()+data+b'\r\n'
+            body=part("metadata",json.dumps(meta).encode(),"application/json")+part("main.js",source,"application/javascript+module")+('--'+boundary+'--\r\n').encode()
+            request=urllib.request.Request(root+"/workers/scripts/"+target+"?bindings_inherit=strict",
+              method="PUT",data=body,headers={"Authorization":"Bearer "+token,"Content-Type":"multipart/form-data; boundary="+boundary})
+            with urllib.request.urlopen(request,timeout=80) as response:r=json.load(response)
+            if not r.get("success"):raise RuntimeError("Cloudflare upload rejected")
+            for attempt in range(10):
+              after=get("/workers/scripts/"+target+"/settings")
+              new={b["name"]:b for b in after["bindings"]}
+              remaining={k:str(new[k].get("text","")).lower() for k in flags}
+              if new.get("TALANGAN_WRITE_ENABLED",{}).get("text")=="true" and remaining=={**flags,"TALANGAN_WRITE_ENABLED":"true"}:break
+              time.sleep(2)
+            if set(new)!=set(bs) or new.get("DB",{}).get("type")!="d1" or new.get("PHOTOS",{}).get("type")!="r2_bucket":
+              raise RuntimeError("Cloudflare bindings changed")
+            if new.get("TALANGAN_WRITE_ENABLED",{}).get("text")!="true":
+              raise RuntimeError("Portal flag not enabled")
+            for key,value in flags.items():
+              if key!="TALANGAN_WRITE_ENABLED" and str(new[key].get("text","")).lower()!=value:
+                raise RuntimeError("Unexpected change to "+key)
+            deployed=get("/workers/scripts/"+target+"/deployments")
+            result.update(status="pass",deployment_id=(deployed.get("deployments") or [{}])[0].get("id"),other_flags_unchanged=True,d1_r2_preserved=True)
+          except Exception as e:
+            result.update(status="failed",error=type(e).__name__+": "+str(e)[:170])
+            out.write_text(json.dumps(result,indent=2)+"\n")
+            raise
+          out.write_text(json.dumps(result,indent=2)+"\n")
+          print("Talangan activation:",result["status"])
+          PY
+      - name: Save audit
+        if: always()
+        run: |
+          test -f ops-audit/talangan-activation.json || exit 1
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/talangan-activation.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(ops): record Talangan feature activation"
+          git push origin HEAD:verify-talangan-20261025
