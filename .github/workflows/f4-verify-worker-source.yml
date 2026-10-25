@@ -1,0 +1,65 @@
+name: F4 Verify Deployed Worker Source Against Tested Code
+on:
+  push:
+    branches: [qa-full-bank-local-20261025]
+    paths: [.github/workflows/f4-verify-worker-source.yml]
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read and compare deployed Worker source without changing it
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,json,hashlib,urllib.request,datetime,email
+          from pathlib import Path
+          target="flamboyan4-terpadu-staging"
+          root="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CLOUDFLARE_ACCOUNT_ID"]
+          def request(path):
+            q=urllib.request.Request(root+path,headers={"Authorization":"Bearer "+os.environ["CLOUDFLARE_API_TOKEN"]})
+            with urllib.request.urlopen(q,timeout=35) as r:return r.status,r.headers, r.read(2000000)
+          code,header,data=request("/workers/scripts/"+target)
+          source=Path("cloudflare/worker-terpadu-operasional-teruji.js").read_bytes()
+          values={"checked_at_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                  "source_http":code,"content_type":header.get("Content-Type","").split(";")[0],
+                  "raw_bytes":len(data),"local_bytes":len(source),
+                  "raw_equal":data==source,
+                  "source_sha256":hashlib.sha256(source).hexdigest()}
+          if "multipart/" in header.get("Content-Type",""):
+            msg=email.message_from_bytes(("Content-Type: "+header.get("Content-Type")+"\r\nMIME-Version: 1.0\r\n\r\n").encode()+data)
+            parts=[p.get_payload(decode=True) for p in msg.walk() if not p.is_multipart()]
+            js_parts=[p for p in parts if p and (p.startswith(b"var __") or b"worker_default" in p or p.startswith(b"export"))]
+            values["multipart_part_count"]=len(parts)
+            values["js_part_match"]=any(p==source for p in js_parts)
+            values["js_part_sizes"]=[len(p) for p in js_parts[:5]]
+          else:
+            values["js_part_match"]=data==source
+          _,_,raw=request("/workers/scripts/"+target+"/settings")
+          config=json.loads(raw).get("result",{})
+          bindings={x["name"]:x for x in config.get("bindings",[])}
+          values["bindings_ok"]=bindings.get("DB",{}).get("type")=="d1" and bindings.get("PHOTOS",{}).get("type")=="r2_bucket"
+          values["bank_payout_active"]=str(bindings.get("BANK_PAYOUT_WRITE_ENABLED",{}).get("text","")).lower()=="true"
+          values["bank_reconciliation_active"]=str(bindings.get("BANK_RECONCILIATION_WRITE_ENABLED",{}).get("text","")).lower()=="true"
+          _,_,raw=request("/workers/scripts/"+target+"/deployments")
+          deployments=json.loads(raw).get("result",{}).get("deployments") or []
+          values["deployment_id"]=deployments[0].get("id") if deployments else None
+          values["verified_source_match"]=bool(values["js_part_match"])
+          Path("ops-audit/current-worker-source-verification.json").write_text(json.dumps(values,indent=2)+"\n")
+          print("Compared Worker source, match:",values["verified_source_match"],"bindings:",values["bindings_ok"])
+          PY
+      - name: Record only hashes and verification outcome
+        if: always()
+        run: |
+          test -f ops-audit/current-worker-source-verification.json || exit 1
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/current-worker-source-verification.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(ops): record remote Worker source identity"
+          git push origin HEAD:qa-full-bank-local-20261025
