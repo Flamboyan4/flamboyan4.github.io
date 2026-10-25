@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - cloudflare/migrations/20261025_bank_progress_photo_backfill.sql
+      - .github/workflows/f4-bank-progress-photo-backfill.yml
   workflow_dispatch:
 permissions:
   contents: read
@@ -53,7 +54,11 @@ jobs:
           pairs=re.findall(pattern,source)
           if len(pairs)!=3 or len(set(title for _,title in pairs))!=3:
               raise RuntimeError('Unexpected progress migration source: abort')
-          if not source.lstrip().startswith('-- Bank Sampah:') or 'UPDATE ' in source or 'DELETE ' in source or 'DROP ' in source:
+          executable='\n'.join(line for line in source.splitlines()
+              if line.strip() and not line.lstrip().startswith('--')).upper()
+          if not source.lstrip().startswith('-- Bank Sampah:') or any(
+              re.search(r'\b'+word+r'\b',executable)
+              for word in ('UPDATE','DELETE','DROP','ALTER','TRUNCATE')):
               raise RuntimeError('Photo migration is not insert-only: abort')
           cols,_=query('PRAGMA table_info(bank_progress_photos)')
           if not {'progress_id','photo_url'}.issubset({r['name'] for r in cols}):
