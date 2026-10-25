@@ -1,0 +1,11 @@
+{
+  "checked_utc": "2026-10-25T00:08:10.922366+00:00",
+  "target": "flamboyan4-terpadu-staging",
+  "scope": "MEMBER_ACCOUNTS_RESET_ONLY",
+  "status": "deployed_verified",
+  "source_sha256": "3726391390715ef9a0080df69be1cafba1f67aca58463ecf7d18f9200954d259",
+  "previous_deployment_id": "95b165d9-de40-46c6-9a6c-4888acd68f9d",
+  "deployment_id": "e0cb8757-601e-4eca-8e9a-aa45836f949a",
+  "write_flags_unchanged": true,
+  "d1_r2_preserved": true
+}
