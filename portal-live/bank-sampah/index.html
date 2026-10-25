@@ -2834,5 +2834,35 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   }
 })();
 </script>
+<script id="f4-bank-explicit-save-clicks">
+/* Keep original Bank Sampah UI, call its existing D1-connected form handlers
+   from real button clicks. Browsers did not dispatch native submit in
+   the integrated portal. This does not bypass any server authorisation. */
+(function(){
+ 'use strict';
+ const allowed=new Set([
+  'submitSetoran','submitSale','doChangePassword',
+  'v8Confirm','v9Cairkan','v10SaveExpense',
+  'v11SaveProgress','v11SaveAlbum','v11SaveMedia','v11SaveInventory',
+  'v24SaveProgress','v27CancelBatch'
+ ]);
+ document.addEventListener('click',function(event){
+  const button=event.target?.closest?.('button[type="submit"]');
+  const form=button?.form;if(!form||button.disabled)return;
+  let name=String(form.getAttribute('onsubmit')||'').match(/^([A-Za-z][A-Za-z0-9]*)\(event\)$/)?.[1]||'';
+  if(form.id==='v24EditForm')name='v24SaveProgress';
+  if(form.id==='v27CancelForm')name='v27CancelBatch';
+  if(!allowed.has(name))return;
+  event.preventDefault();
+  if(!form.reportValidity())return;
+  const fn=window[name];
+  if(typeof fn!=='function'){console.error('Bank form handler unavailable:',name);return;}
+  event.stopPropagation();
+  // Legacy handlers use e.target/e.currentTarget as the FORM, not the button.
+  const submitEvent={preventDefault:()=>event.preventDefault(),target:form,currentTarget:form};
+  Promise.resolve(fn(submitEvent)).catch(err=>console.error('Bank save handler error:',name,err));
+ },true);
+})();
+</script>
 </body>
 </html>
