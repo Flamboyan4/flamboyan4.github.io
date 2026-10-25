@@ -4,6 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Flamboyan 4 | Portal Informasi Warga Lorong</title>
+<script id="f4-native-legacy-links">(()=>{
+ const hash=decodeURIComponent(location.hash.slice(1)).toLowerCase();
+ const route={
+  'bank-sampah':'/bank-sampah/','banksampah':'/bank-sampah/',
+  'pembukuan':'/pembukuan/','superadmin':'/superadmin/',
+  'rapat':'/rapat/','dokumentasi':'/dokumentasi/','inventaris':'/dokumentasi/#inventaris'
+ };
+ if(route[hash]){location.replace(route[hash]);return}
+ if(/^superadmin\/(overview|accounts|content|masters|audit)$/.test(hash)){location.replace('/superadmin/#sa-'+hash.split('/')[1]);return}
+ if(hash==='akun'){try{sessionStorage.setItem('f4-native-account-refresh','1')}catch{}}
+ if(['keuangan','projek','kalender','pembayaran','komentar'].includes(hash))
+  location.replace('/?halaman='+encodeURIComponent(hash));
+})();</script>
   <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8">
   <link rel="shortcut icon" href="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8">
   <link rel="apple-touch-icon" href="https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8">
