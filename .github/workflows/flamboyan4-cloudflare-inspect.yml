@@ -1,4 +1,5 @@
 name: Flamboyan 4 - Cloudflare Read-only Audit
+# Final post-release read-only verification of Worker, D1 and operational flags (2026-10-25).
 # Refresh current Worker flag and deployment evidence after Bank support activation preflight.
 
 on:
