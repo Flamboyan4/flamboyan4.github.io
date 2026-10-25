@@ -113,8 +113,10 @@ function populate(){
    const raw=x[key];
    if(active==='arisan'&&(key==='host_name'||key==='house_arisan')){
     const full=String(x.host_name||'').trim(),match=full.match(/\b([A-Z]\d{1,2}\s*\/\s*\d{1,3})\s*$/i);
-    const house=match?match[1].replace(/\s/g,'').toUpperCase():'—';
-    return node('span',key==='house_arisan'?house:(match?full.slice(0,match.index).replace(/[—,\s]+$/,'').trim()||full:full));
+    const storedHouse=String(x.house_arisan||x.rumah||'').trim();
+    const house=storedHouse|| (match?match[1].replace(/\s/g,'').toUpperCase():'—');
+    const name=match?full.slice(0,match.index).replace(/[—,\s]+$/,'').trim()||full:full;
+    return node('span',key==='house_arisan'?house:name);
    }
    if(key==='drive_url'||key==='document_ref'){
     if(!raw)return node('span','Belum ada','f4-admin-muted');
