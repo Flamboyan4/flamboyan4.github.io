@@ -142,7 +142,7 @@
     </div>
 
     <!-- Grid Tempat Card Rapat -->
-    <div id="container-grid-rapat" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 w-full">
+    <div id="container-grid-rapat" class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 w-full">
       <div class="col-span-full text-center py-12 text-slate-400 text-xs">
         Memuat daftar rapat warga...
       </div>
@@ -267,7 +267,9 @@
       document.body.style.overflow = 'hidden';
 
       if (!isFromHash) {
-        history.pushState({ rapatId: rapatId }, '', '#' + rapatId);
+        const address=new URL(location.href);
+        address.searchParams.set('doc',rapatId);address.hash='';
+        history.pushState({ rapatId },'',address.pathname+address.search);
       }
       isModalOpenStack = true;
 
@@ -318,7 +320,7 @@
                 color-scheme: light;
               }
               html {
-                background: #e2e8f0 !important;
+                background: #ffffff !important;
                 min-height: 100%;
                 touch-action: pan-x pan-y pinch-zoom;
               }
@@ -509,7 +511,7 @@
               <div class="m-4 max-w-xl p-4 bg-amber-50 rounded-xl border border-amber-200 text-amber-900 text-xs space-y-2">
                 <p class="font-bold">Google Doc tidak dapat dimuat sebagai HTML.</p>
                 <p>Pastikan dokumen dapat dilihat oleh siapa pun yang memiliki link. Dokumen PDF tetap akan menggunakan penampil PDF seperti biasa.</p>
-                <a href="${rapatItem.docUrl}" target="_blank" rel="noopener" class="inline-flex bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-lg font-bold">Buka Langsung di Google Docs</a>
+                <p>Periksa izin berbagi dokumen melalui pengelola rapat.</p>
               </div>
             `;
           });
@@ -525,7 +527,7 @@
         document.getElementById('modal-rapat-body').innerHTML = `
           <div class="p-6 text-center space-y-3">
             <p class="text-rose-500 text-xs font-semibold">Link dokumen tidak valid atau tidak bisa diakses.</p>
-            <a href="${rawUrl}" target="_blank" class="inline-block bg-indigo-600 text-white text-xs px-4 py-2 rounded-xl font-bold">Buka Link Langsung</a>
+            <p class="text-xs text-slate-500">Hubungi pengelola rapat agar tautan dokumen diperiksa.</p>
           </div>
         `;
       }
@@ -542,21 +544,23 @@
       document.getElementById('modal-rapat-body').innerHTML = '';
 
       if (!isPopState) {
-        history.pushState(null, '', window.location.pathname + window.location.search);
+        const address=new URL(location.href);
+        address.searchParams.delete('doc');address.hash='';
+        history.pushState(null,'',address.pathname+address.search);
       }
     }
 
     window.addEventListener('popstate', function () {
       if (isModalOpenStack) {
         closeModalDocRapat(true);
-      } else if (window.location.hash) {
-        const hashId = window.location.hash.substring(1);
-        openModalDocRapat(hashId, true);
+      } else {
+        const doc=new URLSearchParams(location.search).get('doc')||window.location.hash.slice(1);
+        if(doc)openModalDocRapat(doc,true);
       }
     });
 
     function copyCurrentRapatLink() {
-      const shareUrl = window.location.origin + window.location.pathname + '#' + currentActiveRapatId;
+      const shareUrl=window.location.origin+'/?halaman=rapat&doc='+encodeURIComponent(currentActiveRapatId);
       const share=async()=>{
         if(navigator.share){try{await navigator.share({title:'Hasil Rapat Flamboyan 4',url:shareUrl});return}catch(e){if(e.name==='AbortError')return}}
         await navigator.clipboard.writeText(shareUrl);
@@ -592,10 +596,8 @@
       });
       lucide.createIcons();
 
-      if (window.location.hash) {
-        const targetId = window.location.hash.substring(1);
-        openModalDocRapat(targetId, true);
-      }
+      const targetId=new URLSearchParams(location.search).get('doc')||window.location.hash.slice(1);
+      if(targetId)openModalDocRapat(targetId,true);
     }
 
     const rapatToken=F4Loading.begin('rapat-status-badge','Memuat daftar rapat…');

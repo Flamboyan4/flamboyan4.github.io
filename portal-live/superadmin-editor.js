@@ -351,9 +351,10 @@ async function openBankAdminEditor(kind){
  const info=node('p','Memuat data Bank Sampah…','f4-admin-note');main.append(info);
  const box=node('div',undefined,'f4-admin-list');main.append(box);
  try{
-  const payload=await send(kind==='bank_albums'?bankApi+'albums':'https://api.flamboyan4.web.id/api/v2/public/bank');
+  const payload=await send(bankApi+(kind==='bank_albums'?'albums':def.listKey)+'?limit=500');
   if(active!==kind)return;
-  let rows=Array.isArray(kind==='bank_albums'?payload.data:payload[def.listKey])?(kind==='bank_albums'?payload.data:payload[def.listKey]):[];
+  let rows=Array.isArray(payload.data)?payload.data:[];
+  if(kind==='bank_inventory')rows=rows.filter(item=>String(item.category||'')==='bank_sampah');
   // Album tanpa penanda dipertahankan agar Superadmin dapat mengklasifikasikan
   // arsip lama secara eksplisit; tidak otomatis dijadikan album Bank Sampah.
   if(kind==='bank_albums')rows=[...rows].sort((a,b)=>Number(bankScoped(b))-Number(bankScoped(a)));

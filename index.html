@@ -574,7 +574,7 @@ html body.iframe-modal-open{overflow:hidden!important}
    const u=new URL(location.href);u.searchParams.set('halaman',value);u.hash='';
    history.replaceState(history.state,'',u.pathname+u.search);
  };
- const apps={portal:'/portal-live/portal/?v=finance-bank-scope-20261025',rapat:'/portal-live/rapat/?v=compact-rapat-20261025',dokumentasi:'/portal-live/dokumentasi/?v=spacing-b114917b',inventaris:'/portal-live/dokumentasi/?v=spacing-b114917b#inventaris','bank-sampah':'/portal-live/bank-sampah/?v=bank-scope-search-20261025',pembukuan:'/portal-live/pembukuan/?v=d1-writes-unblocked-15185aee',superadmin:'/portal-live/superadmin/?v=bank-album-edit-20261025'};
+ const apps={portal:'/portal-live/portal/?v=finance-bank-scope-20261025',rapat:'/portal-live/rapat/?v=meeting-light-share-20261025',dokumentasi:'/portal-live/dokumentasi/?v=spacing-b114917b',inventaris:'/portal-live/dokumentasi/?v=spacing-b114917b#inventaris','bank-sampah':'/portal-live/bank-sampah/?v=bank-scope-search-20261025',pembukuan:'/portal-live/pembukuan/?v=d1-writes-unblocked-15185aee',superadmin:'/portal-live/superadmin/?v=bank-album-admin-list-20261025'};
 
  const buttons=[...document.querySelectorAll('nav [data-target]')],frame=document.getElementById('appframe'),
  gate=document.getElementById('gate'),toast=document.getElementById('toast');
@@ -711,7 +711,8 @@ html body.iframe-modal-open{overflow:hidden!important}
   });
   gate.classList.toggle('visible',!permitted());
   if(permitted()){
-   const url=apps[target];
+   const docId=target==='rapat'?new URLSearchParams(location.search).get('doc'):'';
+   const url=apps[target]+(docId&&/^rapat-[a-z0-9_-]{1,90}$/i.test(docId)?'&doc='+encodeURIComponent(docId):'');
    if(frame.getAttribute('src')!==url)frame.setAttribute('src',url);else sendRole();
   }
   try{

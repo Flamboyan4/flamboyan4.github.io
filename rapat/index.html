@@ -2,8 +2,11 @@
 <html lang="id"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,follow">
-<meta http-equiv="refresh" content="0;url=/#rapat">
-<link rel="canonical" href="/#rapat">
+<meta http-equiv="refresh" content="0;url=/?halaman=rapat">
+<link rel="canonical" href="/?halaman=rapat">
 <title>Rapat — Flamboyan 4</title>
-<script>location.replace("/#rapat");</script>
-</head><body><p>Mengalihkan ke portal Rapat Flamboyan 4. <a href="/#rapat">Buka portal</a>.</p></body></html>
+<script>
+const doc=new URLSearchParams(location.search).get('doc')||location.hash.slice(1);
+location.replace('/?halaman=rapat'+(doc?'&doc='+encodeURIComponent(doc):''));
+</script>
+</head><body><p>Mengalihkan ke portal Rapat Flamboyan 4. <a href="/?halaman=rapat">Buka portal</a>.</p></body></html>
