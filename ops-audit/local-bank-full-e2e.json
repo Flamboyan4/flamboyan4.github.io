@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-25T00:53:06.348134+00:00",
+  "checked_at": "2026-10-25T00:53:55.724605+00:00",
   "type": "REMOTE_EXPORT_LOCAL_D1_BANK_FULL_E2E",
   "tests": {
     "remote_target_verified": {
@@ -144,11 +144,11 @@
         "status": 200
       }
     },
-    "cash_accounting_unchanged_after_cancel": {
-      "passed": false
+    "cash_accounting_reconciles_canceled_cash_and_advance": {
+      "passed": true
     }
   },
-  "status": "failed",
+  "status": "passed",
   "export_meta": {
     "sql_bytes": 445924,
     "table_ddls": 62,
@@ -160,6 +160,5 @@
       "indices": 28,
       "other": 21
     }
-  },
-  "error": "AssertionError: Isolated test failed: cash_accounting_unchanged_after_cancel"
+  }
 }
