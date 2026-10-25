@@ -97,10 +97,10 @@ async function cancelSale(_token,id,reason){
  return {id:result.id,status:'Dibatalkan',duplicate:!!result.duplicate};
 }
 async function saveAlbum(_token,p){
- if(String(p?.sampul||'').trim())throw Error('Gambar sampul eksternal belum didukung oleh endpoint album D1. Jangan simpan album dengan sampul yang akan diabaikan.');
  return api('/api/v2/admin/bank/albums',{
    title:String(p.judul||''),category:String(p.kategori||'Lainnya'),eventOn:String(p.tanggal||''),
-   description:String(p.deskripsi||''),visibility:p.publik===false?'privat':'publik'});
+   description:String(p.deskripsi||''),visibility:p.publik===false?'privat':'publik',
+   coverUrl:String(p.sampul||'').trim()});
 }
 
 async function recon(_token,batchId){
