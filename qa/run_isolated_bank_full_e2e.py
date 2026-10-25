@@ -107,6 +107,10 @@ try:
     connection.executescript(migration)
     assert_step("bank_progress_photo_migration_local_only",
       "bank_progress_photos" in {x[0] for x in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")})
+    if os.environ.get("F4_BANK_PRIVATE_AUDIT","").strip().lower() in ("true","1","yes"):
+        from private_bank_roster_extract import emit
+        emit(connection)
+        assert_step("roster_encrypted_for_private_parity_check",True)
     # Original spreadsheet upload: 33 roster rows, 2 inventory, 1 documentation,
     # 3 progress entries, and zero manually entered deposit/expense rows.
     # Counts are an audit baseline, not proof of per-person identity migration.
@@ -509,8 +513,13 @@ try:
                 for z in browser_results))
             result["browser_acceptance"]=browser_results
             save()
-
-
+        if os.environ.get("F4_BANK_PRIVATE_AUDIT","").strip().lower() in ("true","1","yes"):
+            from bank_local_login_integration import verify
+            result["real_password_login_checks"]=verify(files[0],base,assert_step)
+            save()
+            from bank_production_readonly_gate import verify as verify_production
+            result["production_readonly_gate"]=verify_production(assert_step)
+            save()
 
     finally:
         process.terminate()

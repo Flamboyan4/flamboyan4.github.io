@@ -2,10 +2,13 @@ name: Flamboyan 4 - Full Isolated Finance Regression
 on:
   workflow_dispatch:
   push:
-    branches: [finalize-iuran-year-guards-20261025, migrate-portal-public-cash-20261025, bank-safe-reversal-20261025, bank-real-report-member-fix-20261025, bank-album-cover-20261025, bank-progress-photo-final-20261025, bank-authenticated-ui-isolated-20261025]
+    branches: [finalize-iuran-year-guards-20261025, migrate-portal-public-cash-20261025, bank-safe-reversal-20261025, bank-real-report-member-fix-20261025, bank-album-cover-20261025, bank-progress-photo-final-20261025, bank-authenticated-ui-isolated-20261025, bank-final-private-parity-login-20261025]
     paths:
       - cloudflare/worker-terpadu-operasional-teruji.js
       - qa/run_isolated_bank_full_e2e.py
+      - qa/private_bank_roster_extract.py
+      - qa/bank_local_login_integration.py
+      - qa/bank_production_readonly_gate.py
       - portal-live/portal/index.html
       - uji-terpadu/portal/index.html
       - .github/workflows/f4-full-finance-regression.yml
@@ -33,10 +36,14 @@ jobs:
         run: |
           python3 -m pip install --quiet playwright
           python3 -m playwright install --with-deps chromium
+      - name: Install cryptography for encrypted private roster audit
+        if: github.ref_name == 'bank-final-private-parity-login-20261025'
+        run: python3 -m pip install --quiet cryptography
       - name: Export D1 READ ONLY and test in disposable local clone
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          F4_BANK_PRIVATE_AUDIT: ${{ github.ref_name == 'bank-final-private-parity-login-20261025' }}
           F4_BANK_BROWSER_QA: ${{ github.ref_name == 'bank-authenticated-ui-isolated-20261025' }}
         run: python3 qa/run_isolated_bank_full_e2e.py
       - name: Upload sanitized test result
