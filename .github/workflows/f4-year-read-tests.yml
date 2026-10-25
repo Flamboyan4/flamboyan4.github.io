@@ -1,0 +1,65 @@
+name: F4 D1 Bookkeeping Year and Archive Read Regression
+on:
+  push:
+    branches: [fix-book-year-read-20261025]
+    paths:
+      - cloudflare/worker-terpadu-operasional-teruji.js
+      - portal-live/live-book-readonly.js
+      - uji-terpadu/live-book-readonly.js
+      - .github/workflows/f4-year-read-tests.yml
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax and parity checks
+        run: |
+          node --check cloudflare/worker-terpadu-operasional-teruji.js
+          node --check portal-live/live-book-readonly.js
+          cmp portal-live/live-book-readonly.js uji-terpadu/live-book-readonly.js
+      - name: D1 adapter mappings and year/archives contract using mocked READ API
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          import vm from 'node:vm';
+          import assert from 'node:assert/strict';
+          const backend=fs.readFileSync('cloudflare/worker-terpadu-operasional-teruji.js','utf8');
+          for(const p of ['/api/bookkeeping/year-status','/api/bookkeeping/year-archives','/api/bookkeeping/year-archive']){
+            assert.ok(backend.includes('path==="'+p+'"'),p+' backend missing');
+          }
+          const entries={
+            '/api/bookkeeping/year-status?year=2026':{ok:true,data:{tahun:2026,ditutup:false,status:'open',arsipTersedia:false}},
+            '/api/bookkeeping/year-status?year=2025':{ok:true,data:{tahun:2025,ditutup:true,status:'closed',arsipTersedia:true}},
+            '/api/bookkeeping/year-archives':{ok:true,data:[{tahun:2025,saldoAkhir:999000}]},
+            '/api/bookkeeping/year-archive?year=2025':{ok:true,data:{record:{tahun:2025,idArsip:'archive:test',saldoAwal:900000,saldoAkhir:999000},modul:{kas:true}}}
+          };
+          let methods=[];
+          const window={__f4BookDemoCall:()=>{throw Error('Demo must not run')}};
+          const context={window,console,Date,Intl,URL,URLSearchParams,Math,Object,Array,Number,String,Map,Set,Promise,
+            fetch:async(url,opts)=>{
+              const path=url.replace('https://api.flamboyan4.web.id','');
+              assert.equal(opts.credentials,'include');
+              assert.ok(Object.hasOwn(entries,path),'Unexpected GET '+path);
+              methods.push(path);
+              return {ok:true,status:200,json:async()=>entries[path]};
+            }
+          };
+          vm.runInNewContext(fs.readFileSync('portal-live/live-book-readonly.js','utf8'),context);
+          const fn=window.__f4BookDemoCall;
+          const current=await fn({action:'statustahun',tahun:2026});
+          assert.equal(current.status,'success');
+          assert.equal(current.data.ditutup,false);
+          const prior=await fn({action:'statustahun',tahun:2025});
+          assert.equal(prior.data.ditutup,true);
+          const years=await fn({action:'arsiptahunan'});
+          assert.equal(years.data.length,1);
+          assert.equal(years.data[0].saldoAkhir,999000);
+          const detail=await fn({action:'detailarsip',tahun:2025});
+          assert.equal(detail.data.record.saldoAwal,900000);
+          await assert.rejects(()=>fn({action:'statustahun',tahun:0}),/Tahun buku tidak valid/);
+          assert.equal(methods.length,4);
+          console.log('PASS: year status, closed status, archive list, archive detail and validation');
+          JS
