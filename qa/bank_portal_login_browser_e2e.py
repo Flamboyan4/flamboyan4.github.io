@@ -81,6 +81,30 @@ def verify_portal_login(credentials):
                 else:
                     frame.locator('#v16NavList [data-group="money"]').wait_for(state="attached",timeout=16000)
                 if scope=="admin" and label=="PC":
+                    # Original Bank Sampah form (not a direct endpoint test).
+                    page.evaluate("() => document.querySelector('#appframe').contentWindow.goPage('setoran')")
+                    page.wait_for_function("""() => {
+                      const d=document.querySelector('#appframe')?.contentDocument;
+                      return (d?.querySelectorAll('#setWarga option').length||0)>1 &&
+                        !!d?.querySelector('#setBarang input[data-kode]:not([disabled])');
+                    }""",timeout=17000)
+                    frame.locator("#setWarga").select_option(index=1)
+                    frame.locator("#setDate").fill("2026-10-25")
+                    frame.locator("#setBarang input[data-kode]:not([disabled])").first.fill("0.100")
+                    frame.locator("#setNotes").fill("QA_UI_BANK_LOCAL_ONLY")
+                    page.once("dialog",lambda dialog:dialog.accept())
+                    frame.locator("#saveSetoranBtn").click()
+                    try:
+                        page.wait_for_function("""() => {
+                          const d=document.querySelector('#appframe')?.contentDocument;
+                          return (d?.querySelector('#setoranNotice')?.textContent||'').includes('berhasil disimpan');
+                        }""",timeout=18000)
+                    except:
+                        message=page.evaluate("""() => document.querySelector('#appframe')?.contentDocument
+                            ?.querySelector('#setoranNotice')?.textContent||'(no notice)'""")
+                        raise AssertionError("Actual Bank Sampah setoran save failed: "+str({
+                            "notice":message,"writes":writes[-6:],"js_errors":errors[-3:]})[:600])
+                if scope=="admin" and label=="PC":
                     # The real Pembukuan form, authenticated through the real
                     # GitHub Pages shell. Every API request routes to LOCAL D1.
                     page.locator('[data-target="pembukuan"]').first.evaluate("(el)=>el.click()")
@@ -92,6 +116,7 @@ def verify_portal_login(credentials):
                     }""",timeout=18000)
                     book.locator("#inp-warga").select_option(index=1)
                     book.locator("#inp-tanggal").fill("2026-10-25")
+                    book.locator("#inp-catatan").fill("QA_UI_IURAN_LOCAL_ONLY")
                     book.locator("#inp-bulan").select_option("11")
                     book.locator("#inp-tahun").fill("2026")
                     book.locator("#inp-jumlah").select_option("1")
@@ -141,7 +166,9 @@ def verify_portal_login(credentials):
                 if errors:raise AssertionError("Uncaught JS error in "+label+"/"+scope+": "+repr(errors[:2]))
                 out.append({"viewport":label,"role":scope,"login_form":True,
                     "session_cookie":True,"member_area_or_admin_nav":True,
-                    "logout":True,"production_api_requests":0})
+                    "logout":True,"production_api_requests":0,
+                    "iuran_saved_through_ui":scope=="admin" and label=="PC",
+                    "bank_setoran_saved_through_ui":scope=="admin" and label=="PC"})
                 page.close();ctx.close()
         browser.close()
     return out
