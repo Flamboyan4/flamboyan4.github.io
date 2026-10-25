@@ -154,6 +154,9 @@ window.addEventListener('message',event=>{
  if(event.data?.type==='f4:portal-panel')showPanel(String(event.data.panel||'beranda'));
  if(event.data?.type==='f4:demo-role'){
   current.role=String(event.data.role||'public').toLowerCase();
+  // This attribute is the UI's existing signed-in visibility guard for cash
+  // print buttons and the recent ledger, not an authorization token.
+  document.body.dataset.previewRole=current.role;
   // Only members can select a personal ledger; Admin/Superadmin see
   // Laporan Lingkungan without duplicate controls.
   personalRequestSerial++;
