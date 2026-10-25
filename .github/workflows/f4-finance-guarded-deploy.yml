@@ -53,6 +53,22 @@ jobs:
           target=next((d for d in databases if d.get("name")=="flamboyan4-staging"),None)
           if not target or by_name["DB"].get("id")!=target.get("uuid"):
               raise RuntimeError("Target D1 mismatch: deployment aborted")
+          # Only additive schema migration: create one photo reference table.
+          # No financial tables are modified; verification precedes Worker publish.
+          migration=pathlib.Path("cloudflare/migrations/20261025_bank_progress_photos.sql").read_text()
+          if not migration.lstrip().startswith("-- Bank Sampah photo URLs") or migration.upper().count("CREATE TABLE IF NOT EXISTS")!=1:
+              raise RuntimeError("Refuse unexpected Bank Sampah migration SQL")
+          d1path="/d1/database/"+target["uuid"]+"/query"
+          def d1query(sql):
+              res=call(d1path,"POST",json.dumps({"sql":sql}).encode("utf-8"),"application/json")
+              if not isinstance(res,list) or len(res)!=1 or res[0].get("success") is not True:
+                  raise RuntimeError("D1 schema query failed")
+              return res[0].get("results") or []
+          d1query(migration)
+          columns=d1query("PRAGMA table_info(bank_progress_photos)")
+          if not {"progress_id","photo_url","updated_at"}.issubset({v.get("name") for v in columns}):
+              raise RuntimeError("New Bank Sampah media table missing required columns")
+          print("D1_ADDITIVE_BANK_PHOTO_SCHEMA_OK=1")
           write_flags={k:by_name[k].get("text") for k in by_name if k.endswith("_WRITE_ENABLED")}
           if not write_flags or any(v not in ("true","false") for v in write_flags.values()):
               raise RuntimeError("Missing or unrecognized Worker write flags")
