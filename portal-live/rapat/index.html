@@ -142,7 +142,7 @@
     </div>
 
     <!-- Grid Tempat Card Rapat -->
-    <div id="container-grid-rapat" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 w-full">
+    <div id="container-grid-rapat" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 w-full">
       <div class="col-span-full text-center py-12 text-slate-400 text-xs">
         Memuat daftar rapat warga...
       </div>
@@ -150,7 +150,7 @@
   </main>
 
   <!-- MODAL POPUP NOTULENSI LENGKAP -->
-  <div id="modal-doc-rapat" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex flex-col items-center justify-center p-2 sm:p-4" onclick="closeModalDocRapat()">
+  <div id="modal-doc-rapat" class="fixed inset-0 bg-slate-600/35 backdrop-blur-[2px] z-50 hidden flex flex-col items-center justify-center p-2 sm:p-4" onclick="closeModalDocRapat()">
     <div class="bg-white w-full max-w-4xl h-[92vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden mx-auto" onclick="event.stopPropagation()">
       
       <!-- Modal Header -->
@@ -160,34 +160,29 @@
           <h3 id="modal-rapat-judul" class="text-xs sm:text-sm md:text-base font-bold text-slate-900 leading-snug truncate">Detail Notulensi Rapat</h3>
         </div>
         
-        <div class="flex items-center space-x-2 shrink-0">
-          <a id="btn-open-doc-external" href="#" target="_blank" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold px-2.5 py-1.5 rounded-lg text-xs transition flex items-center space-x-1 border border-indigo-200">
-            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-            <span class="hidden sm:inline">Buka Fullscreen</span>
-          </a>
-          <button onclick="closeModalDocRapat()" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition shrink-0">
-            <i data-lucide="x" class="w-5 h-5"></i>
-          </button>
+        <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <button type="button" onclick="zoomRapat(-0.2)" aria-label="Perkecil dokumen" title="Zoom out" class="f4-rapat-tool"><i data-lucide="minus" class="w-4 h-4"></i></button>
+          <span id="f4-rapat-zoom-level" class="text-xs text-slate-600 min-w-[34px] text-center">100%</span>
+          <button type="button" onclick="zoomRapat(0.2)" aria-label="Perbesar dokumen" title="Zoom in" class="f4-rapat-tool"><i data-lucide="plus" class="w-4 h-4"></i></button>
+          <button type="button" onclick="copyCurrentRapatLink()" aria-label="Bagikan rapat" title="Bagikan" class="f4-rapat-tool"><i data-lucide="share-2" class="w-4 h-4"></i></button>
+          <button type="button" onclick="closeModalDocRapat()" aria-label="Tutup dokumen" class="f4-rapat-tool"><i data-lucide="x" class="w-4 h-4"></i></button>
         </div>
       </div>
-
-      <!-- Action Bar Modal -->
-      <div class="px-4 py-2 bg-indigo-950 text-white flex items-center justify-between text-xs shrink-0">
-        <button onclick="copyCurrentRapatLink()" id="btn-copy-modal-link" class="bg-white/10 hover:bg-white/20 text-indigo-200 px-3 py-1 rounded-lg transition flex items-center space-x-1.5 active:scale-95">
-          <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
-          <span id="text-copy-modal-link">Bagikan / Salin Link</span>
-        </button>
-        <span class="text-[11px] text-indigo-300 hidden sm:inline">Flamboyan 4 Document Viewer</span>
-      </div>
-
-      <!-- Modal Body (Viewer PDF Presisi di Tengah) -->
-      <div id="modal-rapat-body" class="flex-grow w-full h-full bg-slate-900 relative overflow-hidden flex items-center justify-center">
-        <p class="text-slate-400 text-xs text-center py-10">Memuat dokumen notulensi...</p>
+      <div id="modal-rapat-body" class="flex-grow w-full min-h-0 bg-white relative overflow-auto">
+        <p class="text-slate-500 text-xs text-center py-10">Memuat dokumen notulensi...</p>
       </div>
 
     </div>
   </div>
 
+  <style id="f4-rapat-compact-viewer">
+    .f4-rapat-tool{width:34px;height:34px;display:inline-grid;place-items:center;border:1px solid #d9e0ea;background:white;border-radius:9px;color:#334155}
+    .f4-rapat-tool:hover{background:#f1f5f9}
+    #modal-rapat-body{overscroll-behavior:contain;background:white!important}
+    #modal-rapat-body iframe{zoom:var(--f4-doc-zoom,1);max-width:none!important;background:white!important;min-height:100%}
+    #modal-doc-rapat>div{background:white!important}
+    @media(max-width:640px){#modal-doc-rapat>div{height:94dvh}#modal-rapat-body{touch-action:pan-x pan-y pinch-zoom}}
+  </style>
   <!-- SCRIPT KONTROL LOGIKA -->
   <script>
     lucide.createIcons();
@@ -198,6 +193,35 @@
     let globalRapatData = [];
     let currentActiveRapatId = '';
     let isModalOpenStack = false;
+    let rapatZoom = 1;
+    function zoomRapat(delta) {
+      rapatZoom=Math.max(0.6,Math.min(3,Math.round((rapatZoom+delta)*10)/10));
+      const viewer=document.getElementById('modal-rapat-body');
+      viewer.style.setProperty('--f4-doc-zoom',String(rapatZoom));
+      document.getElementById('f4-rapat-zoom-level').textContent=Math.round(rapatZoom*100)+'%';
+    }
+    function enableRapatPinch() {
+      const viewer=document.getElementById('modal-rapat-body');
+      let distance=0;
+      function begin(e){if(e.touches?.length===2)distance=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY)}
+      function move(e){if(e.touches?.length!==2||!distance)return;
+       const next=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+       if(Math.abs(next-distance)>14){zoomRapat(next>distance?0.1:-0.1);distance=next}
+       if(e.cancelable)e.preventDefault();
+      }
+      viewer.addEventListener('touchstart',begin,{passive:true});
+      viewer.addEventListener('touchmove',move,{passive:false});
+      const observer=new MutationObserver(()=>{
+        const f=viewer.querySelector('iframe');
+        if(!f||f.dataset.f4PinchReady)return;
+        f.dataset.f4PinchReady='1';
+        f.addEventListener('load',()=>{
+          try{const doc=f.contentDocument;doc?.addEventListener('touchstart',begin,{passive:true});doc?.addEventListener('touchmove',move,{passive:false})}catch{}
+        },{once:true});
+      });
+      observer.observe(viewer,{childList:true});
+    }
+    document.addEventListener('DOMContentLoaded',enableRapatPinch);
 
     function extractDriveFileId(url) {
       if (!url) return null;
@@ -230,7 +254,7 @@
       currentActiveRapatId = rapatId;
       document.getElementById('modal-rapat-tgl').innerText = rapatItem.tanggal;
       document.getElementById('modal-rapat-judul').innerText = rapatItem.judul;
-      document.getElementById('btn-open-doc-external').href = rapatItem.docUrl;
+      rapatZoom=1; zoomRapat(0);
 
       document.getElementById('modal-rapat-body').innerHTML = `
         <div class="flex flex-col items-center justify-center py-12 space-y-3">
@@ -533,13 +557,13 @@
 
     function copyCurrentRapatLink() {
       const shareUrl = window.location.origin + window.location.pathname + '#' + currentActiveRapatId;
-      navigator.clipboard.writeText(shareUrl).then(() => {
-        const textSpan = document.getElementById('text-copy-modal-link');
-        textSpan.innerText = "Link Tersalin!";
-        setTimeout(() => {
-          textSpan.innerText = "Bagikan / Salin Link";
-        }, 2000);
-      });
+      const share=async()=>{
+        if(navigator.share){try{await navigator.share({title:'Hasil Rapat Flamboyan 4',url:shareUrl});return}catch(e){if(e.name==='AbortError')return}}
+        await navigator.clipboard.writeText(shareUrl);
+        const button=document.querySelector('[onclick="copyCurrentRapatLink()"]');
+        if(button){button.title='Tautan tersalin';setTimeout(()=>button.title='Bagikan',2000)}
+      };
+      share().catch(()=>alert('Gagal membagikan tautan.'));
     }
 
     function renderRapatCards() {
@@ -549,45 +573,23 @@
         return;
       }
 
-      let html = '';
-      globalRapatData.forEach((item, idx) => {
-        const previewFoto = fixDriveUrl(item.fotoPreview);
-
-        html += `
-          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition flex flex-col justify-between group">
-            <div>
-              <div class="relative cursor-pointer overflow-hidden bg-slate-100 h-48 w-full flex items-center justify-center shrink-0" onclick="openModalDocRapat('${item.id}')">
-                <img src="${previewFoto}" alt="${item.judul}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${PLACEHOLDER_IMG}'">
-                <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1.5">
-                  <i data-lucide="book-open" class="w-4 h-4"></i>
-                  <span>Baca Notulensi Lengkap</span>
-                </div>
-                <span class="absolute top-3 left-3 bg-black/70 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-md">
-                  ${item.tanggal}
-                </span>
-              </div>
-
-              <div class="p-4 space-y-2">
-                <h4 class="font-bold text-slate-900 text-sm md:text-base leading-snug group-hover:text-indigo-600 transition cursor-pointer" onclick="openModalDocRapat('${item.id}')">
-                  ${item.judul}
-                </h4>
-                <p class="text-slate-500 text-xs line-clamp-2 leading-relaxed">
-                  ${item.deskripsi || 'Klik untuk membaca rincian lengkap hasil musyawarah dan lampiran dokumentasi.'}
-                </p>
-              </div>
-            </div>
-
-            <div class="p-4 pt-0">
-              <button onclick="openModalDocRapat('${item.id}')" class="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-2.5 rounded-xl text-xs transition flex items-center justify-center space-x-1.5 shadow-sm">
-                <i data-lucide="file-text" class="w-4 h-4"></i>
-                <span>Baca Hasil Rapat</span>
-              </button>
-            </div>
-          </div>
-        `;
+      container.replaceChildren();
+      globalRapatData.forEach(item=>{
+        const card=document.createElement('button');card.type='button';
+        card.className='text-left bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-md hover:border-indigo-300 transition min-w-0 flex flex-col group';
+        card.setAttribute('aria-label','Baca hasil rapat: '+item.judul);
+        card.onclick=()=>openModalDocRapat(item.id);
+        const cover=document.createElement('div');
+        cover.className='bg-slate-100 w-full aspect-[3/4] overflow-hidden flex items-center justify-center';
+        const img=document.createElement('img');
+        img.src=fixDriveUrl(item.fotoPreview);img.alt='Pratinjau '+item.judul;
+        img.loading='lazy';img.className='w-full h-full object-cover group-hover:scale-[1.02] transition';
+        img.onerror=()=>{img.onerror=null;img.src=PLACEHOLDER_IMG};
+        cover.append(img);card.append(cover);
+        const title=document.createElement('strong');title.textContent=item.judul||'Hasil rapat';
+        title.className='block text-xs sm:text-sm font-semibold text-slate-800 p-2.5 sm:p-3 leading-snug line-clamp-2';
+        card.append(title);container.append(card);
       });
-
-      container.innerHTML = html;
       lucide.createIcons();
 
       if (window.location.hash) {

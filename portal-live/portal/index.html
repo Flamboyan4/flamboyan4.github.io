@@ -79,8 +79,9 @@ footer#pembayaran{height:auto!important;min-height:0!important;max-height:none!i
 footer#pembayaran>div{padding-bottom:0!important}
 footer#pembayaran>div>div:first-child{margin-bottom:6px!important;padding:12px!important}
 footer#pembayaran>div>div:last-child{padding-top:0!important;margin-top:0!important}
-body:not([data-preview-role]) #f4-private-transactions,
-body[data-preview-role="public"] #f4-private-transactions{display:none!important}
+/* Riwayat D1 tampil kembali pada panel Laporan Lingkungan.
+   Mode Keuangan Saya tetap menyembunyikan semua konten lingkungan via portal-panels.js. */
+#keuangan:not(.f4-finance-personal-active) #f4-private-transactions{display:block}
 /* Tombol mengambang tetap terlihat; posisi dihitung relatif terhadap footer. */
 </style><style id="f4-mobile-proportions-v1">
 @media(max-width:1023px){

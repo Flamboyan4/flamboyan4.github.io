@@ -90,8 +90,9 @@ function populate(){
  const query=filter.trim().toLowerCase();
  const def=types[active];
  const rows=records.filter(x=>!query||JSON.stringify(x).toLowerCase().includes(query));
- if(['agenda','documentation','inventory','meetings','obligations','jersey'].includes(active)){
+ if(['arisan','agenda','documentation','inventory','meetings','obligations','jersey'].includes(active)){
   const fields={
+   arisan:[['host_name','Nama tuan rumah'],['house_arisan','No. rumah'],['period_on','Jadwal'],['status','Status']],
    agenda:[['title','Nama kegiatan'],['starts_on','Mulai'],['ends_on','Selesai'],['status','Status']],
    documentation:[['title','Judul dokumentasi'],['event_on','Tanggal'],['category','Kategori'],['drive_url','Album / Drive'],['visibility','Akses']],
    inventory:[['name','Nama barang'],['quantity','Jumlah'],['unit','Satuan'],['category','Kategori'],['description','Kondisi / Keterangan']],
@@ -107,6 +108,11 @@ function populate(){
   const dateText=v=>{const raw=String(v||'');const m=raw.match(/^(\d{4})-(\d\d)-(\d\d)/);return m?m[3]+'/'+m[2]+'/'+m[1]:raw};
   const showValue=(x,key)=>{
    const raw=x[key];
+   if(active==='arisan'&&(key==='host_name'||key==='house_arisan')){
+    const full=String(x.host_name||'').trim(),match=full.match(/\b([A-Z]\d{1,2}\s*\/\s*\d{1,3})\s*$/i);
+    const house=match?match[1].replace(/\s/g,'').toUpperCase():'—';
+    return node('span',key==='house_arisan'?house:(match?full.slice(0,match.index).replace(/[—,\s]+$/,'').trim()||full:full));
+   }
    if(key==='drive_url'||key==='document_ref'){
     if(!raw)return node('span','Belum ada','f4-admin-muted');
     try{const url=new URL(raw);if(!['https:','http:'].includes(url.protocol))throw Error();
