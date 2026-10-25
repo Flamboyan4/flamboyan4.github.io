@@ -4,7 +4,7 @@
 'use strict';
 const main=document.querySelector('body>main');if(!main)return;
 const footer=document.getElementById('pembayaran');
-const current={panel:'beranda',role:'public',privateKind:'payments'};
+const current={panel:'beranda',role:'public',privateKind:'iuran_rt'};
 const finance=document.getElementById('keuangan');
 let finBlock=null,scrollScheduled=false,lastVisible='';
 const sectionTargets={
@@ -66,7 +66,7 @@ function createFinanceTabs(){
  if(!finance)return;
  if(!finBlock){
   finBlock=el('div',undefined,'f4-user-finance');
-  finBlock.innerHTML='<div class="f4-user-finance-controls"><button type="button" data-finance-mode="lingkungan" class="active">Laporan Lingkungan</button><button type="button" data-finance-mode="saya">Keuangan Saya</button></div><div id="f4-personal-finance" hidden><p class="f4-user-status">Pilih jenis riwayat pribadi.</p><div class="f4-user-finance-sub"><button type="button" data-kind="payments">Iuran</button><button type="button" data-kind="arisan">Arisan</button><button type="button" data-kind="fines">Denda</button><button type="button" data-kind="loans">Pinjaman</button></div><div id="f4-personal-data"></div></div>';
+  finBlock.innerHTML='<div class="f4-user-finance-controls"><button type="button" data-finance-mode="lingkungan" class="active">Laporan Lingkungan</button><button type="button" data-finance-mode="saya">Keuangan Saya</button></div><div id="f4-personal-finance" hidden><p class="f4-user-status">Riwayat per jenis dana dari alokasi asli D1.</p><div class="f4-user-finance-sub"><button type="button" data-kind="iuran_rt">Iuran RT</button><button type="button" data-kind="kebersihan">Kebersihan</button><button type="button" data-kind="kas_lorong">Kas Lorong</button><button type="button" data-kind="arisan">Arisan</button><button type="button" data-kind="fines">Denda</button><button type="button" data-kind="loans">Pinjaman</button></div><div id="f4-personal-data"></div></div>';
   finance.insertBefore(finBlock,finance.firstChild);
   const action=finBlock.querySelectorAll('[data-finance-mode]'),personal=finBlock.querySelector('#f4-personal-finance');
   action.forEach(b=>b.onclick=()=>{
@@ -89,13 +89,16 @@ async function loadPersonal(kind){
  const loadToken=window.F4Loading?.begin(loading,'Memuat riwayat pribadi dari Cloudflare…');
  finBlock.querySelectorAll('[data-kind]').forEach(b=>b.classList.toggle('active',b.dataset.kind===kind));
  // No payerId is accepted from the browser; Worker must resolve from session.
- const paths={payments:'/api/member/payments',arisan:'/api/member/arisan',fines:'/api/member/fines',loans:'/api/member/loans'};
+ const paths={iuran_rt:'/api/member/payments',kebersihan:'/api/member/payments',
+  kas_lorong:'/api/member/payments',arisan:'/api/member/arisan',fines:'/api/member/fines',loans:'/api/member/loans'};
  try{
   const res=await fetch('https://api.flamboyan4.web.id'+paths[kind],{credentials:'include',cache:'no-store'});
   const data=await res.json().catch(()=>({}));
   if(!res.ok||data.ok===false)throw Error(data.error||'HTTP '+res.status);
   if(requestId!==personalRequestSerial)return;
-  const list=Array.isArray(data.rows)?data.rows:Array.isArray(data.data)?data.data:Array.isArray(data.transaksi)?data.transaksi:[];
+  const received=Array.isArray(data.rows)?data.rows:Array.isArray(data.data)?data.data:Array.isArray(data.transaksi)?data.transaksi:[];
+  const types={iuran_rt:'IURAN_BULANAN',kebersihan:'KEBERSIHAN',kas_lorong:'KAS_LORONG'};
+  const list=types[kind]?received.filter(row=>row.jenis===types[kind]):received;
   window.F4Loading?.success(loading,loadToken);area.replaceChildren();
   for(const row of list.slice(0,200)){
    const a=el('article',undefined,'f4-user-row'),info=el('div');
@@ -104,7 +107,7 @@ async function loadPersonal(kind){
    const amount=Number(row.nominalRp??row.nominal??row.amount_rp??0);
    a.append(info,el('strong','Rp '+amount.toLocaleString('id-ID')));area.append(a);
   }
-  if(!list.length)area.append(el('p','Belum ada catatan untuk akun ini.','f4-user-status'));
+  if(!list.length)area.append(el('p','Belum ada transaksi kategori ini untuk akun yang sedang masuk.','f4-user-status'));
  }catch(e){if(requestId!==personalRequestSerial)return;
   window.F4Loading?.error(loading,'Data belum tersedia: '+e.message+'. Akses tetap dibatasi pada akun yang login.',loadToken)}
 }

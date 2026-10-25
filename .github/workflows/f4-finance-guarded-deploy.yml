@@ -95,6 +95,8 @@ jobs:
           print("SOURCE_SHA256="+hashlib.sha256(script).hexdigest())
           print("BINDINGS_PRESERVED="+str(len(new)))
           print("WRITE_FLAGS_UNCHANGED="+str(len(write_flags)))
+          print("WRITE_FLAGS_ACTIVE="+",".join(sorted(k for k,v in write_flags.items() if v=="true")))
+          print("WRITE_FLAGS_INACTIVE="+",".join(sorted(k for k,v in write_flags.items() if v=="false")))
           PY
       - name: Live read-only health and public data smoke
         run: |

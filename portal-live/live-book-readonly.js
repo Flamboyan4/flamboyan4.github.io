@@ -79,6 +79,7 @@
  }
  const houseParts=house=>{const x=String(house||'').split('/');return {blok:x[0]||'',noRumah:x.slice(1).join('/')||''}};
  const statusOf=x=>{const s=String(x||'aktif').toUpperCase();return s==='DIBATALKAN'?'BATAL':s};
+ const cleanFineNote=value=>{const s=String(value||'').trim();return /^20[0-9]{2}-[0-9]{2}-[0-9]{2}(?:[ T][0-9]{2}:[0-9]{2}:[0-9]{2}(?:[.][0-9]+)?)?$/.test(s)?'':s};
  async function fines(){
   const r=await read('/api/bookkeeping/denda?limit=200');
   const records=rows(r).map(x=>({
@@ -86,7 +87,7 @@
     tanggalKegiatan:x.tanggal,namaKegiatan:x.jenis==='gorol'?'Gorol':x.jenis||'Denda',
     nominal:n(x.nominalRp),nominalTerbayar:n(x.terbayarRp),
     tanggalBayar:x.tanggalBayar||'',status:statusOf(x.status),
-    keterangan:x.catatan||'',metode:'',idTransaksiKas:''
+    keterangan:cleanFineNote(x.catatan),metode:'',idTransaksiKas:''
   }));
   const belum=records.filter(x=>x.status==='BELUM'),lunas=records.filter(x=>x.status==='LUNAS');
   const ringkasan={jumlahBelum:belum.length,nominalBelum:belum.reduce((z,x)=>z+x.nominal,0),
