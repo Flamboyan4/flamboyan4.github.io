@@ -688,6 +688,91 @@ function normalizeContent(type, v) {
   return t || null;
 }
 __name(normalizeContent, "normalizeContent");
+// Atomic, audited destination change for documentation and inventory.
+async function transferF4Content(request,env,who){
+ const denied=superadmin(who);if(denied)return denied;
+ if(env.BANK_WRITE_ENABLED!=='true')return err('Pengelolaan Bank Sampah belum aktif.',503);
+ let p;try{p=await body(request)}catch(e){return err(e.message,400)}
+ const kind=String(p.kind||''),source=String(p.source||''),dest=String(p.destination||''),id=String(p.id||''),
+       v=p.values||{},db=env.DB;
+ if(!['documentation','inventory'].includes(kind)||!['portal','bank-sampah'].includes(source)||
+ !['portal','bank-sampah'].includes(dest)||!id||id.length>128||!v||typeof v!=='object'||Array.isArray(v))return err('Pemindahan tidak valid.',400);
+ if(kind==='inventory'&&env.BANK_INVENTORY_WRITE_ENABLED!=='true')return err('Pengelolaan inventaris Bank Sampah belum aktif.',503);
+ const title=String(v.title||'').trim(),name=String(v.name||'').trim(),
+ desc=String(v.description||'').trim(),cat=String(v.category||'Lainnya').trim(),
+ date=String(v.event_on||''),url=String(v.url||'').trim(),vis=String(v.visibility||'publik'),
+ qty=Number(v.quantity),unit=String(v.unit||'unit').trim(),sort=Number(v.sort_order||0),
+ location=String(v.location||'').trim();
+ if(!['publik','privat'].includes(vis)||cat.length>100||desc.length>2000||
+ (url&&(!urlSafe(url)||url.length>2000)))return err('Isian tidak valid.',400);
+ if(kind==='documentation'&&(!title||title.length>200||date&&!validDate(date)||!Number.isInteger(sort)||sort<0||sort>1e7))
+ return err('Data dokumentasi tidak valid.',400);
+ if(kind==='inventory'&&(!name||name.length>160||!Number.isFinite(qty)||qty<=0||qty>1e6||
+ Math.round(qty*1000)!==qty*1000||!unit||unit.length>40||location.length>100))return err('Data inventaris tidak valid.',400);
+ const table=kind==='documentation'?(source==='portal'?'portal_documentation':'albums'):
+ (source==='portal'?'portal_inventory':'inventory');
+ const old=await one(db,'SELECT * FROM '+table+' WHERE id=?',[id]);
+ if(!old)return err('Data asal tidak ditemukan. Muat ulang daftar.',404);
+ const q=[];
+ const audit=(action,newId)=>db.prepare('INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)')
+ .bind('audit:'+crypto.randomUUID(),who.id,'portal_content',action,table,id,JSON.stringify(old),JSON.stringify({destination:dest,targetId:newId,values:v}));
+ if(source===dest){
+  if(kind!=='inventory'||source!=='bank-sampah')return err('Gunakan penyimpanan editor biasa.',400);
+  q.push(db.prepare("UPDATE inventory SET name=?,quantity=?,unit=?,location=?,condition=? WHERE id=? AND category='bank_sampah' AND active=1")
+   .bind(name,qty,unit,location||null,desc||('Kategori: '+cat),id));
+  if(url){
+   const media=await one(db,'SELECT inventory_id FROM inventory_external_media WHERE inventory_id=? LIMIT 1',[id]);
+   q.push(media?db.prepare('UPDATE inventory_external_media SET external_url=? WHERE inventory_id=?').bind(url,id):
+    db.prepare("INSERT INTO inventory_external_media(inventory_id,external_url,source_system,source_sheet,source_row_key) VALUES(?,?,'api_v2','bank_inventory_edit',?)")
+    .bind(id,url,'edit_'+crypto.randomUUID()));
+  }
+  q.push(audit('edit_inventory',id));
+  try{await db.batch(q)}catch{return err('Gagal memperbarui inventaris.',409)}
+  return ok({id,updated:true});
+ }
+ let next=kind+':move:'+crypto.randomUUID();
+ if(kind==='documentation'&&source==='portal'){
+  const exists=await one(db,"SELECT id FROM albums WHERE id=? AND status='aktif'",[id]);
+  if(exists)next=id;
+  const bankCat='Bank Sampah: '+cat.replace(/^Bank Sampah\s*[:/]\s*/i,'');
+  const folder=/drive\.google\.com\/drive\/folders\//i.test(url);
+  const description=(desc+(folder&&url?'\nTautan folder: '+url:'')).trim();
+  if(description.length>2500)return err('Deskripsi terlalu panjang.',400);
+  q.push(exists?db.prepare('UPDATE albums SET title=?,category=?,event_on=?,description=?,visibility=? WHERE id=?')
+    .bind(title,bankCat,date||null,description||null,vis,id):
+   db.prepare("INSERT INTO albums(id,title,category,event_on,description,visibility,status) VALUES(?,?,?,?,?,?,'aktif')")
+    .bind(next,title,bankCat,date||null,description||null,vis));
+  if(url&&!folder)q.push(db.prepare("INSERT INTO album_media(id,album_id,media_type,external_url,caption,sort_order,status) VALUES(?,?,?,?,?,0,'aktif')")
+   .bind('media:move:'+crypto.randomUUID(),next,/\.(mp4|webm)(\?|$)|youtu|youtube/i.test(url)?'video':'foto',url,title));
+  q.push(db.prepare("UPDATE portal_documentation SET category=?,visibility='privat',active=0 WHERE id=?")
+   .bind('Pindah Bank Sampah: '+cat,id));
+ }else if(kind==='documentation'){
+  const exists=await one(db,'SELECT id FROM portal_documentation WHERE id=?',[id]);
+  if(exists)next=id;
+  const media=await one(db,"SELECT external_url FROM album_media WHERE album_id=? AND status='aktif' ORDER BY sort_order,id LIMIT 1",[id]);
+  const link=url||String(media?.external_url||'');
+  q.push(exists?db.prepare('UPDATE portal_documentation SET title=?,event_on=?,description=?,drive_url=?,category=?,sort_order=?,visibility=?,active=1 WHERE id=?')
+   .bind(title,date||null,desc||null,link||null,cat,sort,vis,id):
+   db.prepare('INSERT INTO portal_documentation(id,event_on,title,description,drive_url,category,sort_order,visibility,active) VALUES(?,?,?,?,?,?,?,?,1)')
+   .bind(next,date||null,title,desc||null,link||null,cat,sort,vis));
+  q.push(db.prepare("UPDATE albums SET category=?,visibility='privat' WHERE id=?").bind('Portal Utama: '+cat,id));
+ }else if(source==='portal'){
+  q.push(db.prepare("INSERT INTO inventory(id,name,quantity,unit,category,location,condition,active) VALUES(?,?,?,?,'bank_sampah',?,?,1)")
+   .bind(next,name,qty,unit,location||null,desc||('Kategori: '+cat)));
+  if(url)q.push(db.prepare("INSERT INTO inventory_external_media(inventory_id,external_url,source_system,source_sheet,source_row_key) VALUES(?,?,'api_v2','portal_inventory_move',?)")
+   .bind(next,url,'move_'+crypto.randomUUID()));
+  q.push(db.prepare("UPDATE portal_inventory SET category=?,visibility='privat' WHERE id=?").bind('Pindah Bank Sampah: '+cat,id));
+ }else{
+  const media=await one(db,'SELECT external_url FROM inventory_external_media WHERE inventory_id=? LIMIT 1',[id]);
+  q.push(db.prepare('INSERT INTO portal_inventory(id,name,description,quantity,unit,photo_ref,category,visibility) VALUES(?,?,?,?,?,?,?,?)')
+    .bind(next,name,desc||String(old.condition||''),qty,unit,url||media?.external_url||null,cat,vis));
+  q.push(db.prepare('UPDATE inventory SET active=0 WHERE id=?').bind(id));
+ }
+ q.push(audit('transfer_'+kind,next));
+ try{await db.batch(q)}catch{return err('Pemindahan gagal. Data asal tetap utuh.',409)}
+ return ok({id:next,sourceId:id,moved:true});
+}
+__name(transferF4Content,'transferF4Content');
 async function handleAdminContent(request, env, who, url) {
   const denied = superadmin(who);
   if (denied) return denied;
@@ -791,6 +876,7 @@ __name(handleAdminContent, "handleAdminContent");
 async function handleUnifiedApi(request, env, who) {
   const url = new URL(request.url), path = url.pathname, method = request.method, db = env.DB;
   if (!path.startsWith("/api/v2/")) return null;
+  if(path==='/api/v2/admin/content/transfer'&&method==='POST')return transferF4Content(request,env,who);
   if (path.startsWith(contentPath)) return handleAdminContent(request, env, who, url);
   if (method === "GET" && path === "/api/v2/system/features") return ok({ api: "v2", frontend: "github-pages", storage: "d1+r2", bankWrites: env.BANK_WRITE_ENABLED === "true", bookkeepingWrites: env.FINANCE_WRITE_ENABLED === "true", bankReconciliationWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_RECONCILIATION_WRITE_ENABLED === "true", bankCancellationWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_CANCEL_WRITE_ENABLED === "true", bankExpenseWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_EXPENSE_WRITE_ENABLED === "true", bankInventoryWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_INVENTORY_WRITE_ENABLED === "true", bankMediaWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_MEDIA_WRITE_ENABLED === "true", bankPayoutWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_PAYOUT_WRITE_ENABLED === "true" });
   if (method === "GET" && path === "/api/v2/auth/session") return who ? ok({ account: { id: who.id, username: who.username, role: who.role }, member: who.member_id ? { id: who.member_id, nama: who.display_name, rumah: who.house_code } : null }) : err("Sesi tidak valid.", 401);
