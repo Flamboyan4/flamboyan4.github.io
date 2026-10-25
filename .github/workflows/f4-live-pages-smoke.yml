@@ -18,8 +18,8 @@ jobs:
           import json,urllib.request,urllib.error,urllib.parse,html.parser,datetime
           from pathlib import Path
           root="https://flamboyan4.web.id"
-          required=["/","/uji-terpadu/","/uji-terpadu/bank-sampah/","/uji-terpadu/pembukuan/"]
-          optional=["/portal-live/","/portal-live/bank-sampah/","/portal-live/pembukuan/","/bank-sampah/","/pembukuan/"]
+          required=["/","/bank-sampah/","/uji-terpadu/","/uji-terpadu/bank-sampah/","/uji-terpadu/pembukuan/"]
+          optional=["/portal-live/","/portal-live/bank-sampah/","/portal-live/pembukuan/","/pembukuan/"]
           result={"checked_at_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),"checks":[],"status":"started"}
           class Parser(html.parser.HTMLParser):
             def __init__(self):super().__init__();self.scripts=[]
