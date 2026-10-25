@@ -2800,7 +2800,7 @@ function archiveMoney(snapshot,field){
 __name(archiveMoney,"archiveMoney");
 async function readYearStatus(db,request){
   const raw=new URL(request.url).searchParams.get("year")||"";
-  if(!/^(19|20)\\d{2}$/.test(raw))return safeError("Tahun harus berupa empat angka.",400);
+  if(!/^(19|20)[0-9]{2}$/.test(raw))return safeError("Tahun harus berupa empat angka.",400);
   const year=Number(raw);
   const [archive,closing]=await Promise.all([
     db.prepare("SELECT id,status,created_at FROM bookkeeping_year_archives WHERE fiscal_year=?").bind(year).first(),
@@ -2826,7 +2826,7 @@ async function readYearArchiveList(db){
 __name(readYearArchiveList,"readYearArchiveList");
 async function readYearArchiveDetail(db,request){
   const raw=new URL(request.url).searchParams.get("year")||"";
-  if(!/^(19|20)\\d{2}$/.test(raw))return safeError("Tahun harus berupa empat angka.",400);
+  if(!/^(19|20)[0-9]{2}$/.test(raw))return safeError("Tahun harus berupa empat angka.",400);
   const row=await db.prepare("SELECT * FROM bookkeeping_year_archives WHERE fiscal_year=?").bind(Number(raw)).first();
   if(!row)return safeError("Arsip tahun tersebut belum tersedia.",404);
   const snapshot=parseArchiveSnapshot(row);
