@@ -1,0 +1,58 @@
+name: F4 Talangan D1 Ledger Read-Only Audit
+on:
+  push:
+    branches: [verify-talangan-20261025]
+    paths: [.github/workflows/f4-talangan-read-audit.yml]
+permissions:
+  contents: write
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Audit existing Talangan repayment links before activation
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,json,urllib.request,datetime
+          from pathlib import Path
+          root="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CF_ACCOUNT"]
+          token=os.environ["CF_TOKEN"]
+          def cf(path,params=None):
+            body=None if params is None else json.dumps(params).encode()
+            req=urllib.request.Request(root+path,headers={"Authorization":"Bearer "+token,"Content-Type":"application/json"},method="POST" if body else "GET",data=body)
+            with urllib.request.urlopen(req,timeout=30) as r:j=json.load(r)
+            if not j.get("success"):raise RuntimeError("Cloudflare API rejected")
+            return j["result"]
+          db=next(x for x in cf("/d1/database") if x.get("name")=="flamboyan4-staging")
+          path="/d1/database/"+db["uuid"]+"/query"
+          def q(sql):
+            r=cf(path,{"sql":sql})
+            return r[0]["results"][0]
+          counts=q("""SELECT
+            (SELECT COUNT(*) FROM bookkeeping_advances) AS advances,
+            (SELECT COUNT(*) FROM bookkeeping_advance_repayments) AS repayments,
+            (SELECT COUNT(*) FROM bookkeeping_advance_repayments r LEFT JOIN bookkeeping_advances a ON a.id=r.advance_id WHERE a.id IS NULL) AS orphan_repayments,
+            (SELECT COUNT(*) FROM bookkeeping_advance_repayments r LEFT JOIN bookkeeping_cash_transactions c ON c.id=r.cash_transaction_id WHERE r.status='aktif' AND r.cash_transaction_id IS NOT NULL AND (c.id IS NULL OR c.status!='aktif' OR c.credit_rp!=r.amount_rp)) AS invalid_cash_links,
+            (SELECT COUNT(*) FROM bookkeeping_advance_repayments r WHERE r.status='aktif' AND (r.cash_transaction_id IS NULL OR r.cash_transaction_id='')) AS unlinked_repayments,
+            (SELECT COUNT(*) FROM bookkeeping_advances a WHERE a.reimbursed_rp!=(SELECT COALESCE(SUM(r.amount_rp),0) FROM bookkeeping_advance_repayments r WHERE r.advance_id=a.id AND r.status='aktif')) AS repayment_total_mismatches""")
+          flags=cf("/workers/scripts/flamboyan4-terpadu-staging/settings")
+          env={x["name"]:str(x.get("text","")).lower() for x in flags.get("bindings",[])}
+          report={"checked_at_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "scope":"D1_TALANGAN_READ_ONLY","counts":counts,
+            "talangan_flag":env.get("TALANGAN_WRITE_ENABLED"),"portal_flag":env.get("PORTAL_WRITE_ENABLED"),
+            "status":"pass" if counts["orphan_repayments"]==0 and counts["invalid_cash_links"]==0 and counts["repayment_total_mismatches"]==0 else "needs_reconciliation"}
+          file=Path("ops-audit/talangan-preflight.json");file.parent.mkdir(exist_ok=True);file.write_text(json.dumps(report,indent=2)+"\n")
+          print("Talangan D1 preflight:",report["status"],"counts:",counts)
+          PY
+      - name: Record sanitized preflight
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/talangan-preflight.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(ops): Talangan D1 read-only ledger preflight"
+          git push origin HEAD:verify-talangan-20261025
