@@ -179,6 +179,40 @@ try:
         assert_step("portal_arisan_jersey_d1_public_local",
           ppublic[0]==200 and len(ppublic[1].get("arisan",[]))>=26 and
           len(ppublic[1].get("jerseyBapak",[]))>=24 and len(ppublic[1].get("jerseyIbu",[]))>=2)
+
+        # Directly exercise the real operational POST routes in the *local clone*;
+        # never create artificial residents, portal content or prices in production.
+        accounts_preview=call(base+"/api/superadmin/accounts/preview",token=temporary)
+        member_accounts=accounts_preview[1].get("akun",[]) if accounts_preview[0]==200 else []
+        assert_step("bank_deposit_member_selection_has_real_member_id",
+          accounts_preview[0]==200 and any(a.get("role")=="anggota" and
+              str(a.get("member_id") or "").startswith("member:") for a in member_accounts))
+        new_master=call(base+"/api/v2/admin/portal/agenda","GET",token=temporary)
+        assert_step("superadmin_existing_read_route",new_master[0] in (200,404))
+        content_created=call(base+"/api/v2/admin/content/agenda","POST",{
+          "action":"create","values":{
+            "title":"QA AGENDA LOKAL SAJA","starts_on":"2026-11-08","status":"Direncanakan",
+            "visibility":"publik","sort_order":999}},temporary)
+        assert_step("superadmin_add_portal_content_local_only",
+          content_created[0]==201 and bool(content_created[1].get("id")),
+          {"http":content_created[0],"error":content_created[1].get("error","")[:100]})
+        read_master=call(base+"/api/v2/admin/content/agenda",token=temporary)
+        assert_step("superadmin_written_content_readback",
+          read_master[0]==200 and any(z.get("id")==content_created[1].get("id")
+              for z in read_master[1].get("data",[])))
+        added_house=call(base+"/api/v2/admin/residents","POST",{
+          "action":"add_house","rumah":"QA/999","deskripsi_rumah":"Hanya pada D1 lokal"
+        },temporary)
+        assert_step("superadmin_new_house_save_local_only",
+          added_house[0]==201 and str(added_house[1].get("id","")).startswith("house:"),
+          {"http":added_house[0],"error":added_house[1].get("error","")[:100]})
+        new_price=call(base+"/api/v2/admin/bank/prices","POST",{
+          "itemId":bank_item,"effectiveFrom":"2026-10-28",
+          "priceRpPerKg":max(1,bank_rate)
+        },temporary)
+        assert_step("bank_master_price_save_local_only",
+          new_price[0] in (200,201),
+          {"http":new_price[0],"error":new_price[1].get("error","")[:100]})
         # Photos are stored as separate rows in a D1 table, without overwriting notes.
         progress_photo="https://example.org/local-bank-progress-original.jpg"
         new_progress=call(base+"/api/v2/admin/bank/progress","POST",{
