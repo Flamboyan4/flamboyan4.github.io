@@ -639,6 +639,9 @@ try:
                 portal_results=verify_portal_login(ephemeral_credentials)
                 assert_step("real_portal_form_login_pc_hp_admin_member",
                     len(portal_results)==4 and all(x["login_form"] and x["session_cookie"] and x["logout"] for x in portal_results))
+                assert_step("actual_live_iuran_and_bank_save_buttons_local",
+                    any(x.get("iuran_saved_through_ui") and x.get("bank_setoran_saved_through_ui")
+                        for x in portal_results))
                 result["portal_login_browser"]=portal_results
                 save()
             if qa_enabled("F4_BANK_PRIVATE_AUDIT"):
@@ -654,9 +657,14 @@ try:
     connection=sqlite3.connect(str(files[0]))
     final=connection.execute(q).fetchone()
     actual=connection.execute("SELECT status,debit_rp FROM bookkeeping_cash_transactions WHERE id=?",(txid,)).fetchone()
+    # UI smoke creates a genuine Iuran through the displayed form in the local
+    # clone. Include its legitimate Kas Lorong journal in final reconciliation.
+    ui_extra=connection.execute("""SELECT COUNT(*),COALESCE(SUM(c.debit_rp-c.credit_rp),0)
+        FROM bookkeeping_cash_transactions c JOIN bookkeeping_payments p ON p.id=c.source_payment_id
+        WHERE p.description='QA_UI_IURAN_LOCAL_ONLY' AND c.status='aktif'""").fetchone()
     connection.close()
     # One canceled manual cash + one active Talangan repayment of Rp1.500.
-    assert_step("cash_accounting_reconciles_canceled_cash_and_advance",final[0]==baseline[0]+5 and final[1]==baseline[1]-1500+kas_part-rt_due and actual[0]=="dibatalkan")
+    assert_step("cash_accounting_reconciles_canceled_cash_and_advance",final[0]==baseline[0]+5+ui_extra[0] and final[1]==baseline[1]-1500+kas_part-rt_due+ui_extra[1] and actual[0]=="dibatalkan")
     result["status"]="passed"
 except Exception as error:
     result["status"]="failed"
