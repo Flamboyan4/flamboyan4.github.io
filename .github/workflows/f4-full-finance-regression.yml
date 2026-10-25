@@ -11,6 +11,9 @@ on:
       - qa/bank_production_readonly_gate.py
       - qa/bank_portal_login_browser_e2e.py
       - portal-live/portal/index.html
+      - portal-live/pembukuan/index.html
+      - portal-live/bank-sampah/index.html
+      - portal-live/superadmin-editor.js
       - uji-terpadu/portal/index.html
       - .github/workflows/f4-full-finance-regression.yml
 
