@@ -15,7 +15,7 @@ Result:
 - Additional people: **0**.
 - Inactive or ambiguous member-account links: **0**; each member has one active account.
 
-The uploaded workbook had **0** manually entered deposit rows; the D1 clone already has **3** deposit rows. These are preserved and **not** declared to originate from the Excel. No accounting deletion or alteration was performed during this verification.
+The uploaded workbook had **0** manually entered deposit rows; the D1 clone already has **3** deposit rows. These are preserved and **not** declared to originate from the Excel. A separate encrypted, read-only per-entry audit confirmed that two of the three entries were **canceled**, and exactly one remains in **estimasi** status (2026-10-18); none is confirmed. No accounting deletion or alteration was performed during this verification.
 
 ## Login and financial roundtrip
 
@@ -29,3 +29,7 @@ GitHub Actions evidence: https://github.com/Flamboyan4/flamboyan4.github.io/acti
 Caveat: no genuine live credential from an actual person was supplied or used, and deliberately no fictitious financial transaction was written into production merely to test it. The **first genuine Bank Sampah deposit still requires a human admin to enter/confirm real amounts**, then to review the associated member and public report. This is an operational step, not a missing frontend/backend implementation.
 
 All original D1 balances, historical records, 21 Cloudflare Worker bindings, and 13 write flags are preserved.
+
+## Original progress photographs
+
+The old Bank Sampah workbook has three valid HTTPS Google Drive photo URLs for the three progress entries. A guarded, idempotent D1 content migration inserts those links only when the corresponding D1 progress row exists exactly once **and** no newer photo has already been saved. It does not touch any financial table or overwrite any photo. See `cloudflare/migrations/20261025_bank_progress_photo_backfill.sql` and `.github/workflows/f4-bank-progress-photo-backfill.yml`.
