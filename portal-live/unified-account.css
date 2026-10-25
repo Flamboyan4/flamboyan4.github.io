@@ -2,7 +2,7 @@
 #f4-unified-account[hidden]{display:none!important}
 #f4-unified-account{position:fixed;inset:0;z-index:90;display:grid;grid-template-columns:244px minmax(0,1fr);background:#f2f7f3;--ua-accent:#2d6549;--ua-edge:#d8e6db;--ua-tint:#e5f1e7;--ua-ink:#193c30;--ua-muted:#5c7263;--ua-field:#c8dccd;--ua-disabled:#f7faf7;--ua-placeholder:#e9f2e8;--ua-overlay:#102c1c77;color:var(--ua-ink);font:14px/1.5 system-ui}
 body.portal-mode #f4-unified-account{background:#f4f5fc;--ua-accent:#48418d;--ua-edge:#dedff0;--ua-tint:#e9e9fb;--ua-ink:#29264e;--ua-muted:#6c6d88;--ua-field:#c9c9e1;--ua-disabled:#f7f7fc;--ua-placeholder:#e9e9fb;--ua-overlay:#241c5277}
-body.book-mode #f4-unified-account{background:#fff8f1;--ua-accent:#a7652f;--ua-edge:#eddccc;--ua-tint:#fff0e0;--ua-ink:#4a3021;--ua-muted:#806b5c;--ua-field:#e1c9b7;--ua-disabled:#fffaf6;--ua-placeholder:#fff0e0;--ua-overlay:#43250e77}
+body.book-mode #f4-unified-account{background:#fbf9ff;--ua-accent:#7035c9;--ua-edge:#e5dafa;--ua-tint:#eee7ff;--ua-ink:#2c204b;--ua-muted:#746589;--ua-field:#d9ccef;--ua-disabled:#faf8ff;--ua-placeholder:#eee7ff;--ua-overlay:#2d195577}
 body.superadmin-mode #f4-unified-account{background:#eff5f8;--ua-accent:#2d6593;--ua-edge:#d8e5ef;--ua-tint:#e7f2fb;--ua-ink:#253e52;--ua-muted:#657d90;--ua-field:#cbdce7;--ua-disabled:#f6f9fc;--ua-placeholder:#e7f2fb;--ua-overlay:#132f4777}
 #f4-unified-account .ua-side{position:sticky;top:0;height:100dvh;overflow-y:auto;background:#fff;border-right:1px solid var(--ua-edge);padding:17px 12px;display:flex;flex-direction:column;gap:6px}
 #f4-unified-account .ua-brand{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--ua-edge);padding:7px 9px 14px;margin-bottom:13px}

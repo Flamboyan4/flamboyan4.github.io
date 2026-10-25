@@ -1,7 +1,7 @@
 /* Flamboyan 4 — shared navigation for native (non-iframe) portal pages. */
 :root{--f4-nav:#4b4496;--f4-nav-tint:#eeebff;--f4-nav-line:#dedbf2}
 body.f4-direct-bank{--f4-nav:#2c6547;--f4-nav-tint:#e5f2e6;--f4-nav-line:#d6e6d9}
-body.f4-direct-book{--f4-nav:#a7652f;--f4-nav-tint:#fff0e0;--f4-nav-line:#eedccb}
+body.f4-direct-book{--f4-nav:#7035c9;--f4-nav-tint:#eee7ff;--f4-nav-line:#e5dafa}
 body.f4-direct-superadmin{--f4-nav:#2d6593;--f4-nav-tint:#e7f2fb;--f4-nav-line:#d8e5ef}
 #f4-direct-bar,#f4-direct-bar *,#f4-direct-sidebar,#f4-direct-sidebar *,#f4-direct-dialog,#f4-direct-dialog *,#f4-direct-gate,#f4-direct-gate *{box-sizing:border-box}
 #f4-direct-bar{position:fixed;top:0;left:0;right:0;height:56px;z-index:200;background:#fffffff0;backdrop-filter:blur(14px);border-bottom:1px solid var(--f4-nav-line);display:flex;align-items:center;justify-content:space-between;padding:0 12px;gap:8px;font:600 14px/1.35 system-ui,-apple-system,sans-serif;color:#292b45}
@@ -110,3 +110,28 @@ body.f4-account-open #f4-direct-bar{z-index:500!important}
  body.f4-direct-bank #f4-direct-bar{left:244px}
  body.f4-direct-superadmin #f4-direct-bar{left:244px}
 }
+/* 26 Oct — Unified top rail: same geometry as the approved Superadmin header. */
+@media(min-width:1024px){
+ body.f4-direct-portal #f4-direct-bar,body.f4-direct-simple #f4-direct-bar{left:226px!important}
+ body.f4-direct-bank #f4-direct-bar,body.f4-direct-superadmin #f4-direct-bar{left:244px!important}
+ body.f4-direct-book #f4-direct-bar{left:258px!important}
+ body.f4-direct-portal #f4-direct-sidebar,body.f4-direct-simple #f4-direct-sidebar{top:0!important;bottom:0!important;height:100dvh!important;padding-top:17px}
+ body.f4-direct-bank #v18PublicSide{position:fixed!important;top:0!important;left:0!important;bottom:0!important;width:244px!important;height:100dvh!important;max-height:100dvh!important}
+ body.f4-direct-bank #v11Public.v18-public-shell{grid-template-columns:244px minmax(0,1fr)!important}
+ body.f4-direct-bank #v18PublicContent{grid-column:2!important;min-width:0!important}
+ body.f4-direct-book #side-drawer{top:0!important}
+}
+#f4-direct-bar{background:rgba(255,255,255,.76);border-bottom-color:var(--f4-nav-line);transition:background .18s ease,box-shadow .18s ease}
+#f4-direct-bar.f4-scrolled{background:rgba(255,255,255,.98);box-shadow:0 2px 11px rgba(15,24,45,.045)}
+#f4-direct-sidebar .f4-direct-brand{display:flex;align-items:center;gap:9px;margin:1px 2px 13px;padding:8px 7px 16px;border-bottom:1px solid var(--f4-nav-line)}
+#f4-direct-sidebar .f4-direct-brand img{width:42px;height:43px;object-fit:contain;flex:none}
+#f4-direct-sidebar .f4-direct-brand h2{font-size:14px;line-height:1.2;margin:0 0 4px;font-weight:800}
+#f4-direct-sidebar .f4-direct-brand small{display:block;color:#8793a7;font-size:10px;line-height:1.2}
+#f4-direct-sidebar .f4-direct-group-label{padding:10px 12px 5px;color:#8290a7;font:800 10px/1.2 system-ui;letter-spacing:.055em}
+#f4-direct-sidebar .f4-direct-other-pages{border-top:1px solid var(--f4-nav-line);margin-top:15px;padding-top:16px}
+#f4-direct-sidebar button{min-height:43px}
+@media(max-width:1023px){
+ body.f4-direct-portal #f4-direct-sidebar,body.f4-direct-simple #f4-direct-sidebar{top:56px!important;bottom:0!important;height:calc(100dvh - 56px)!important}
+ body.f4-direct-portal #f4-direct-bar,body.f4-direct-simple #f4-direct-bar,body.f4-direct-bank #f4-direct-bar,body.f4-direct-book #f4-direct-bar,body.f4-direct-superadmin #f4-direct-bar{left:0!important}
+}
+@media print{#f4-direct-bar,#f4-direct-sidebar{display:none!important}}

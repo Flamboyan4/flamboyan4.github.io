@@ -18,7 +18,7 @@ const icon={
  pay:'<rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 9h18M15 15h3"/>',
  message:'<path d="M21 11.5a8.5 8.5 0 0 1-12.1 7.7L3 21l1.8-5.7A8.5 8.5 0 1 1 21 11.5Z"/>',
  home:'<path d="m3 10 9-7 9 7v10H3z"/><path d="M9 21v-8h6v8"/>',
- bank:'<path d="M4 4v6h6M20 20v-6h-6"/><path d="M6 16a7 7 0 0 0 12-1M18 8A7 7 0 0 0 6 9"/>',
+ bank:'<path d="m8 5 2-3 2 3M10 2h2c3.8 0 6.7 2.3 7.7 5.7M19 10l3 2-3 2M22 12c0 4-2.4 7.3-6 8.5M12 19l-2 3-2-3M10 22H9c-3.7 0-6.8-2.5-7.7-6"/>',
  book:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/>',
  superadmin:'<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8M12 8v8"/>',
  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>'
@@ -129,13 +129,21 @@ window.addEventListener('message',e=>{
 function makePortalSide(){
  if(portal!=='portal'&&portal!=='simple')return;
  const side=el('aside');side.id='f4-direct-sidebar';
- const h=el('h2');h.textContent='Portal Utama';side.append(h);
+ const brand=el('div','f4-direct-brand');
+ const logo=el('img');logo.src='https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8';logo.alt='Logo Flamboyan 4';
+ const brandName=el('div');const h=el('h2');h.textContent='Portal Utama';
+ const sub=el('small');sub.textContent='Flamboyan 4';brandName.append(h,sub);brand.append(logo,brandName);side.append(brand);
+ const groupHead=el('div','f4-direct-group-label');groupHead.textContent='NAVIGASI';side.append(groupHead);
+ // The scrolling sections must appear in the same sequence as the sidebar.
+ // Rapat and Dokumentasi are separate pages, kept in their own group.
  const items=[
-  ['beranda','Beranda','home'],['keuangan','Keuangan Warga','cash'],['rapat','Rapat','meeting'],['projek','Projek','project'],
-  ['kalender','Kalender','calendar'],['dokumentasi','Dokumentasi','image'],['inventaris','Inventaris','inventory'],
-  ['pembayaran','Pembayaran','pay'],['komentar','Komentar & Saran','message']
+  ['beranda','Beranda','home'],['keuangan','Keuangan Warga','cash'],['projek','Projek','project'],
+  ['kalender','Kalender','calendar'],['inventaris','Inventaris','inventory'],
+  ['pembayaran','Pembayaran','pay'],['komentar','Komentar & Saran','message'],
+  ['rapat','Rapat','meeting'],['dokumentasi','Dokumentasi','image']
  ];
  for(const [key,label,iconName] of items){
+  if(key==='rapat'){const group=el('div','f4-direct-group-label f4-direct-other-pages');group.textContent='HALAMAN LAINNYA';side.append(group);}
   const b=el('button');b.type='button';b.dataset.f4Panel=key;
   b.innerHTML=svg(iconName);
   const labelEl=el('span');labelEl.textContent=label;b.append(labelEl);
@@ -143,7 +151,12 @@ function makePortalSide(){
    closeSide();
    if(key==='rapat'||key==='dokumentasi'){location.assign(paths[key]);return}
    if(portal==='simple'){location.assign('/?halaman='+encodeURIComponent(key));return}
-   if(key==='inventaris'){location.assign('/dokumentasi/#inventaris');return}
+   if(key==='inventaris'){
+    const target=document.getElementById('kegiatan');
+    if(target)window.scrollTo({top:Math.max(0,window.scrollY+target.getBoundingClientRect().top-74),behavior:'smooth'});
+    else location.assign('/dokumentasi/#inventaris');
+    highlight(key);return;
+   }
    try{window.f4PortalSelectPanel?.(key)}catch(err){console.warn('Panel:',err)}
    highlight(key);
   });
@@ -165,6 +178,18 @@ hamburger.addEventListener('click',()=>{
  else if(portal==='superadmin')window.f4ToggleSuperadminMenu?.();
 });
 makePortalSide();
+if(portal==='portal'){
+ // Align the real scroll order of Kalender before Inventaris, without
+ // rebuilding the existing forms, cards or their event listeners.
+ const calendarSection=document.getElementById('rencana');
+ const inventorySection=document.getElementById('kegiatan');
+ if(calendarSection&&inventorySection&&calendarSection.parentElement===inventorySection.parentElement)
+   inventorySection.before(calendarSection);
+}
+// Utility bar is transparent at the top and becomes solid when scrolling.
+const syncBarScroll=()=>bar.classList.toggle('f4-scrolled',window.scrollY>12);
+window.addEventListener('scroll',syncBarScroll,{passive:true});
+syncBarScroll();
 // Existing original page integration uses direct window messages instead of parent iframe.
 if(portal==='portal'){
  window.f4GoBank=()=>location.assign(paths.bank);
