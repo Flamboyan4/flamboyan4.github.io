@@ -488,7 +488,7 @@ async function accountSingleAction(a,operation,control){
  control.disabled=true;
  try{
   const result=await accountRequest(a,operation);
-  window.alert((activation?'Akun aktif.':'Password direset.')+'\\nUsername: '+(result.username||username)+'\\nPassword awal: '+(result.passwordAwal||'1234')+'\\nSampaikan secara pribadi kepada warga.');
+  window.alert((activation?'Akun aktif.':'Password direset.')+'\nUsername: '+(result.username||username)+'\nPassword awal: '+(result.passwordAwal||'1234')+'\nSampaikan secara pribadi kepada warga.');
   accountsPage();
  }catch(e){window.alert('Perubahan akun gagal: '+safe(e));control.disabled=false}
 }
