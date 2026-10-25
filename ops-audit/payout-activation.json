@@ -1,0 +1,26 @@
+{
+  "checked_at_utc": "2026-10-25T00:51:29.512364+00:00",
+  "scope": "BANK_PAYOUT_FLAG_ONLY",
+  "status": "pass",
+  "verified_local_test_count": 24,
+  "source_sha256": "d83c4d0a6dc4776b3fe5d7f46b54ac5756cef7f90caade6556b9d04d2603cd8b",
+  "previous_deployment": "0811e5ba-7106-4438-91f3-bb016271f1a6",
+  "new_deployment": "aab1690f-5f0b-4cb9-8f80-25f7f05ab429",
+  "active_flags": [
+    "BANK_CANCEL_WRITE_ENABLED",
+    "BANK_EXPENSE_WRITE_ENABLED",
+    "BANK_INVENTORY_WRITE_ENABLED",
+    "BANK_MEDIA_WRITE_ENABLED",
+    "BANK_PAYOUT_WRITE_ENABLED",
+    "BANK_RECONCILIATION_WRITE_ENABLED",
+    "BANK_WRITE_ENABLED",
+    "DENDA_PINJAMAN_WRITE_ENABLED",
+    "FINANCE_WRITE_ENABLED",
+    "IURAN_WRITE_ENABLED",
+    "MANUAL_CASH_WRITE_ENABLED",
+    "PORTAL_WRITE_ENABLED",
+    "SALE_DRAFT_ENABLED",
+    "TALANGAN_WRITE_ENABLED"
+  ],
+  "d1_modified": false
+}
