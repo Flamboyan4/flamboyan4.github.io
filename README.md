@@ -6,7 +6,8 @@
 
 ## Struktur utama
 
-- `index.html`: shell navigasi dan login bersama pada domain utama.
+- `index.html`: **satu-satunya** shell navigasi dan login bersama di domain utama.
+- `portal-live/index.html`: pengalihan kompatibilitas ke root, bukan salinan shell kedua.
 - `portal-live/`: frontend operasional Portal Utama, Pembukuan, Bank Sampah, Rapat, Dokumentasi, Inventaris, dan Superadmin beserta aset yang digunakan langsung.
 - `cloudflare/worker-terpadu-operasional-teruji.js`: API autentikasi dan operasional di Cloudflare Workers.
 - `cloudflare/migrations/`: catatan skema/migrasi D1, **bukan** sumber data transaksi hidup.
