@@ -95,7 +95,7 @@
     batch:number(sum.batch??r.batches?.length??0)
    },
    bulanan:monthly,periodeTersedia:onlyArray(r.periodeTersedia||[]),
-   catatan:'Data dibaca dari Cloudflare D1. Bagian yang belum termigrasi dapat kosong.'
+   catatan:String(r.notice||'Laporan dihitung dari transaksi sah Cloudflare D1.')
   };
  }
  async function memberSavings(){
