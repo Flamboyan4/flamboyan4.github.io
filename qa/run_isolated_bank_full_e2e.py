@@ -501,7 +501,7 @@ try:
 
         # Browser tests against actual deployed HTML but intercepted LOCAL Worker.
         # Credentials, production D1, and production API are never used for writes.
-        if os.environ.get("F4_BANK_BROWSER_QA")=="1":
+        if os.environ.get("F4_BANK_BROWSER_QA","").strip().lower() in ("1","true","yes"):
             from bank_isolated_browser_ui import test_ui
             browser_results=test_ui(temporary,reverse_member)
             assert_step("bank_admin_member_browser_pc_hp",len(browser_results)==2 and
