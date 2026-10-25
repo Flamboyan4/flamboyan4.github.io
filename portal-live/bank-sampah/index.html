@@ -731,7 +731,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
    const category=String(item.kategori||item.category||'').toLowerCase().replace(/[\s_-]+/g,'');
    return item.bank_sampah===true||item.is_bank_sampah===true||
      ['banksampah','wastebank','bank'].includes(scope)||
-     ['banksampah','wastebank'].includes(category);
+     ['banksampah','wastebank'].includes(category)||/^banksampah[:/]/.test(category);
  };
  const albums=items=>onlyArray(items).filter(isBankAlbum).map(item=>({
   id:item.id||item.albumId,
@@ -739,7 +739,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   tanggal:item.tanggal||item.event_on||'',
   deskripsi:item.deskripsi||item.description||'',
   sampul:item.sampul||item.coverUrl||item.imageUrl||'',
-  kategori:item.kategori||item.category||'',
+  kategori:String(item.kategori||item.category||'').replace(/^Bank Sampah\s*[:/]\s*/i,''),
   media:[]
  }));
  async function home(){

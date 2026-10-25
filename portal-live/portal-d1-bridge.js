@@ -51,7 +51,7 @@
    case 'documentation':
     if(!Array.isArray(data.documentation))throw Error('Tabel dokumentasi D1 belum tersedia');
     return csv([['Tanggal','Judul','Deskripsi','Foto'],
-      ...data.documentation.map(x=>[dmy(x.event_on),x.title,x.description,x.drive_url])]);
+      ...data.documentation.filter(x=>!/^bank\s*sampah\s*[:/]/i.test(String(x.category||''))).map(x=>[dmy(x.event_on),x.title,x.description,x.drive_url])]);
    case 'inventory':
     return csv([['Nama Barang','Jumlah / Satuan','Kondisi','URL Gambar'],
       ...(data.inventory||[]).map(x=>[x.name,[x.quantity,x.unit].filter(v=>v!==null&&v!==undefined&&v!=='').join(' '),x.condition||x.description,x.photo_ref])]);

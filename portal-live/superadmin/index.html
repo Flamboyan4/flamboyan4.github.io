@@ -299,7 +299,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&saMenuOpened()){e.p
 window.addEventListener('resize',()=>{if(innerWidth>=1024)saCloseDrawer(true)});
 const groups=[['overview','Ringkasan Sistem'],['accounts','Akun & Hak Akses'],['content','Konten & Publikasi'],['masters','Data Acuan'],['audit','Pengaturan & Audit']];
 const submenu={
- content:[['projects','Project Card'],['agenda','Rencana Kegiatan'],['documentation','Dokumentasi'],['inventory','Inventaris'],['banners','Banner Slider'],['meetings','Hasil Rapat'],['arisan','Jadwal Arisan'],['jersey','Pesanan Jersey']],
+ content:[['projects','Project Card'],['agenda','Rencana Kegiatan'],['documentation','Dokumentasi Portal Utama'],['bank_albums','Dokumentasi Bank Sampah'],['inventory','Inventaris Portal Utama'],['bank_inventory','Inventaris Bank Sampah'],['bank_progress','Kegiatan Bank Sampah'],['banners','Banner Slider'],['meetings','Hasil Rapat'],['arisan','Jadwal Arisan'],['jersey','Pesanan Jersey']],
  masters:[['residents','Data Warga & Rumah'],['obligations','Kewajiban Iuran'],['tariffs','Tarif Iuran'],['settings','Aturan Tanggal'],['bankcatalog','Jenis & Harga Sampah']]
 };
 let role='public',group='overview',active='',accounts=[],accountSearch='',residentRows=[];
@@ -758,5 +758,5 @@ window.addEventListener('message',e=>{
 boot();
 })();
 </script>
-<script src="../superadmin-editor.js?v=jersey-print-6b2d055c"></script>
+<script src="../superadmin-editor.js?v=bank-content-20261025"></script>
 </body></html>
