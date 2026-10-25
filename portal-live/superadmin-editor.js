@@ -449,7 +449,7 @@ function showBankForm(kind,record){
  }
  const note=node('p','','f4-admin-message');form.append(note);
  const actions=node('div',undefined,'f4-warga-form-actions');
- actions.append(btn('Batal',()=>openBankAdminEditor(kind)));
+ actions.append(btn('Batal',()=>['documentation','inventory'].includes(active)?viewList():openBankAdminEditor(kind)));
  const save=btn('Simpan Perubahan',()=>{if(form.reportValidity())form.requestSubmit()},'f4-admin-primary');
  actions.append(save);form.append(actions);
  form.onsubmit=async e=>{
@@ -493,7 +493,8 @@ function showBankForm(kind,record){
      requestKey:'stock_'+crypto.randomUUID().replace(/-/g,''),name:get('name'),quantity:Number(get('quantity')),
      unit:get('unit'),subcategory:get('subcategory'),location:get('location'),photoUrl:get('photoUrl')})});
    }
-   openBankAdminEditor(kind);
+   if(['documentation','inventory'].includes(active))window.openSuperadminEditor(active);
+   else openBankAdminEditor(kind);
   }catch(error){note.textContent='Gagal menyimpan: '+error.message;
     if(kind==='bank_albums'&&!record)note.textContent+=' Jika album berhasil dibuat tetapi media gagal, periksa daftar sebelum membuat ulang.'}
   finally{save.disabled=false}
