@@ -288,10 +288,19 @@ try:
           len(linked_cash)==(1 if kas_part else 0) and
           all(x[0]=="2026-10-24" and x[1]=="QRIS" and x[2]==kas_part for x in linked_cash) and
           allocation_total==payment_req["jumlahRp"])
+        # Give the anonymous check a genuine linked MEMBER session from cloned D1,
+        # not the superadmin fixture (who may intentionally have no member_id).
+        member_test_token=secrets.token_hex(32)
+        with sqlite3.connect(str(files[0])) as member_db:
+            member_actor=member_db.execute("""SELECT id FROM accounts
+              WHERE role='anggota' AND member_id IS NOT NULL AND status='aktif' LIMIT 1""").fetchone()
+            if not member_actor:raise AssertionError("Missing valid cloned member account")
+            member_db.execute("INSERT INTO sessions(id,account_id,token_hash,expires_at) VALUES(?,?,?,datetime('now','+2 hours'))",
+              (str(uuid.uuid4()),member_actor[0],hashlib.sha256(member_test_token.encode()).hexdigest()))
         for scope in ("payments","arisan","fines","loans"):
             anonymous=call(base+"/api/member/"+scope)
             assert_step("member_private_"+scope+"_requires_login",anonymous[0] in (401,403),{"http":anonymous[0]})
-            personal=call(base+"/api/member/"+scope,token=temporary)
+            personal=call(base+"/api/member/"+scope,token=member_test_token)
             assert_step("member_private_"+scope+"_returns_data",personal[0]==200 and
               isinstance(personal[1].get("rows"),list),{"http":personal[0]})
 
