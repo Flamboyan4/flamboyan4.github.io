@@ -1,5 +1,5 @@
 {
-  "checked_at_utc": "2026-10-25T00:23:27.940280+00:00",
+  "checked_at_utc": "2026-10-25T00:26:36.683059+00:00",
   "scope": "LIVE_PUBLIC_BROWSER_PC_HP_PRINT_NO_CREDENTIALS",
   "results": [
     {
@@ -7,7 +7,8 @@
       "viewport": "pc",
       "http": 200,
       "title_present": true,
-      "visible_text_characters": 142,
+      "visible_text_characters": 3122,
+      "iframe_count": 1,
       "document_state": "complete",
       "overflow_px": 0,
       "print_media_works": true,
@@ -19,7 +20,8 @@
       "viewport": "pc",
       "http": 200,
       "title_present": true,
-      "visible_text_characters": 3116,
+      "visible_text_characters": 3108,
+      "iframe_count": 0,
       "document_state": "complete",
       "overflow_px": 0,
       "print_media_works": true,
@@ -32,6 +34,7 @@
       "http": 200,
       "title_present": false,
       "visible_text_characters": 1729,
+      "iframe_count": 0,
       "document_state": "complete",
       "overflow_px": 0,
       "print_media_works": true,
@@ -44,6 +47,7 @@
       "http": 200,
       "title_present": true,
       "visible_text_characters": 875,
+      "iframe_count": 0,
       "document_state": "complete",
       "overflow_px": 0,
       "print_media_works": true,
@@ -56,6 +60,7 @@
       "http": 200,
       "title_present": true,
       "visible_text_characters": 75,
+      "iframe_count": 0,
       "document_state": "complete",
       "overflow_px": 0,
       "print_media_works": true,
@@ -67,19 +72,21 @@
       "viewport": "hp",
       "http": 200,
       "title_present": true,
-      "visible_text_characters": 5,
+      "visible_text_characters": 3086,
+      "iframe_count": 1,
       "document_state": "complete",
       "overflow_px": 0,
       "print_media_works": true,
       "js_errors": [],
-      "ok": false
+      "ok": true
     },
     {
       "page": "portal",
       "viewport": "hp",
       "http": 200,
       "title_present": true,
-      "visible_text_characters": 3080,
+      "visible_text_characters": 3072,
+      "iframe_count": 0,
       "document_state": "complete",
       "overflow_px": 0,
       "print_media_works": true,
@@ -92,6 +99,7 @@
       "http": 200,
       "title_present": false,
       "visible_text_characters": 1605,
+      "iframe_count": 0,
       "document_state": "complete",
       "overflow_px": 0,
       "print_media_works": true,
@@ -104,6 +112,7 @@
       "http": 200,
       "title_present": true,
       "visible_text_characters": 903,
+      "iframe_count": 0,
       "document_state": "complete",
       "overflow_px": 0,
       "print_media_works": true,
@@ -116,6 +125,7 @@
       "http": 200,
       "title_present": true,
       "visible_text_characters": 77,
+      "iframe_count": 0,
       "document_state": "complete",
       "overflow_px": 0,
       "print_media_works": true,
@@ -124,6 +134,6 @@
     }
   ],
   "checks_total": 10,
-  "checks_passed": 9,
-  "status": "incomplete"
+  "checks_passed": 10,
+  "status": "pass"
 }
