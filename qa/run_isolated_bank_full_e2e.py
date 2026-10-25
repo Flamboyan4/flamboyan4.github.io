@@ -267,7 +267,8 @@ try:
     final=connection.execute(q).fetchone()
     actual=connection.execute("SELECT status,debit_rp FROM bookkeeping_cash_transactions WHERE id=?",(txid,)).fetchone()
     connection.close()
-    assert_step("cash_accounting_unchanged_after_cancel",final[0]==baseline[0]+1 and final[1]==baseline[1] and actual[0]=="dibatalkan")
+    # One canceled manual cash + one active Talangan repayment of Rp1.500.
+    assert_step("cash_accounting_reconciles_canceled_cash_and_advance",final[0]==baseline[0]+2 and final[1]==baseline[1]-1500 and actual[0]=="dibatalkan")
     result["status"]="passed"
 except Exception as error:
     result["status"]="failed"
