@@ -124,7 +124,9 @@ function populate(){
      const a=node('a','Buka tautan ↗');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';a.className='f4-admin-source-link';return a;}
     catch{return node('span','Tautan perlu diperiksa','f4-admin-muted')}
    }
-   const v=key==='category'&&x._f4_bank_kind?'Bank Sampah • '+bankCategoryLabel(raw):raw==null||raw===''?'—':String(raw);
+   const v=key==='category'&&x._f4_bank_kind
+    ?(bankScoped(x)?'Bank Sampah':'Belum ditentukan')+' • '+bankCategoryLabel(raw)
+    :raw==null||raw===''?'—':String(raw);
    const formatted=key==='nominal_rp'?'Rp '+Number(raw||0).toLocaleString('id-ID'):/(_on|starts_on|ends_on)$/.test(key)?dateText(v):v;
    const cell=node('span',formatted);if(key==='description'||key==='summary')cell.className='f4-admin-truncate';
    return cell;
@@ -224,8 +226,12 @@ function showForm(record){
  if(active==='documentation'||active==='inventory'){
   const scopeField=node('label'),caption=node('span','Tujuan publikasi'),scope=node('select');
   scope.add(new Option('Portal Utama','portal'),new Option('Bank Sampah','bank-sampah'));
-  scope.value='portal';scope.disabled=!!record;
-  scope.onchange=()=>{if(scope.value==='bank-sampah')showBankForm(active==='documentation'?'bank_albums':'bank_inventory',null)};
+  scope.value='portal';scope.disabled=!!record&&!record._f4_bank_record;
+  scope.onchange=()=>{
+   if(scope.value!=='bank-sampah')return;
+   if(active==='documentation'&&record?._f4_bank_record)showBankForm('bank_albums',record._f4_bank_record);
+   else showBankForm(active==='documentation'?'bank_albums':'bank_inventory',null);
+  };
   scopeField.append(caption,scope);form.append(scopeField);
  }
  const grid=node('div',undefined,'f4-admin-fields');form.append(grid);
@@ -333,10 +339,17 @@ async function fetchData(kind){
  // Only explicitly Bank Sampah-scoped albums are included in that section.
  try{
   const bank=await send(bankApi+'albums?limit=500');
-  const bankRows=(Array.isArray(bank.data)?bank.data:[]).filter(bankScoped)
+  const bankRows=(Array.isArray(bank.data)?bank.data:[])
    .map(x=>({...x,drive_url:'',_f4_bank_kind:'bank_albums'}));
-  const bankIds=new Set(bankRows.map(x=>String(x.id)));
-  return [...portalRows.filter(x=>!bankIds.has(String(x.id))),...bankRows];
+  const bankById=new Map(bankRows.map(x=>[String(x.id),x]));
+  const portalIds=new Set(portalRows.map(x=>String(x.id)));
+  // Legacy unassigned albums are visible for classification, not published to Bank Sampah.
+  const linkedPortal=portalRows
+   .filter(x=>!bankScoped(bankById.get(String(x.id))||{}))
+   .map(x=>({...x,_f4_bank_record:bankById.get(String(x.id))||null}));
+  const scoped=bankRows.filter(x=>bankScoped(x));
+  const orphaned=bankRows.filter(x=>!bankScoped(x)&&!portalIds.has(String(x.id)));
+  return [...linkedPortal,...scoped,...orphaned];
  }catch(error){
   console.warn('Dokumentasi Bank Sampah belum dapat ditampilkan:',error);
   return portalRows;
