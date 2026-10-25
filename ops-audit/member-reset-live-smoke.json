@@ -1,0 +1,33 @@
+{
+  "checked_at_utc": "2026-10-25T00:12:12.780255+00:00",
+  "scope": "RESET_API_AUTH_ONLY_NO_REAL_ACCOUNT_CHANGES",
+  "checks": [
+    {
+      "role": "superadmin",
+      "http": 404,
+      "expected": 404,
+      "pass": true
+    },
+    {
+      "role": "admin",
+      "http": 404,
+      "expected": 404,
+      "pass": true
+    },
+    {
+      "role": "anggota",
+      "http": 403,
+      "expected": 403,
+      "pass": true
+    },
+    {
+      "role": "publik",
+      "http": 401,
+      "expected": 401,
+      "pass": true
+    }
+  ],
+  "passwords_untouched": true,
+  "sessions_removed": true,
+  "status": "pass"
+}
