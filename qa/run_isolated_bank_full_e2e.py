@@ -142,6 +142,18 @@ try:
             time.sleep(1)
         assert_step("local_worker_health",health is not None and health[0]==200)
         base="http://127.0.0.1:8787"
+        # Public cash transparency must read the SAME D1 journal as private bookkeeping.
+        # No token, no Google Apps Script, no financial data copied into the report log.
+        public_cash=call(base+"/api/v2/public/portal/cash")
+        assert_step("portal_public_cash_d1_http",public_cash[0]==200 and public_cash[1].get("readOnly") is True,
+            {"http":public_cash[0]})
+        public_rows=public_cash[1]["data"]["rows"]
+        with sqlite3.connect(str(files[0])) as readback:
+            live_summary=readback.execute("""SELECT COUNT(*),COALESCE(SUM(debit_rp),0),COALESCE(SUM(credit_rp),0)
+                FROM bookkeeping_cash_transactions WHERE status='aktif'""").fetchone()
+        published=(len(public_rows),sum(int(x["debit"]) for x in public_rows),sum(int(x["kredit"]) for x in public_rows))
+        assert_step("portal_public_cash_reconciles_local_d1",published==live_summary,
+            {"matches":published==live_summary,"count":published[0]})
         # ONLY LOCAL: new Iuran, safe reversal, immutable source and year-end Kas Lorong split.
         payers=sqlite3.connect(str(files[0])).execute("""SELECT o.payer_id FROM bookkeeping_payer_iuran_obligations o
           JOIN bookkeeping_payers p ON p.id=o.payer_id

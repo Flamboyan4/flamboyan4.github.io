@@ -54,6 +54,28 @@ async function publicPortal(db) {
   return ok({ agenda, banners, projects, inventory, meetings, documentation });
 }
 __name(publicPortal, "publicPortal");
+// Public transparency report: read only, from the authoritative active D1 cash journal.
+// No superadmin reports are exposed; only date, cash category and amounts as in the
+// existing publicly displayed Kas Lingkungan report.
+async function publicPortalCash(db){
+  const found=await db.prepare(`SELECT id,occurred_on,transaction_type,category,debit_rp,credit_rp,note,payment_method
+    FROM bookkeeping_cash_transactions WHERE status='aktif'
+    ORDER BY occurred_on DESC,id DESC LIMIT 1001`).all();
+  const source=found.results||[];
+  if(source.length>1000)return err("Laporan Kas D1 melebihi batas; jangan tampilkan saldo parsial.",503);
+  if(!source.length)return err("Riwayat Kas belum tersedia di database D1.",503);
+  const rows=source.map(x=>({
+    idTransaksi:x.id,tanggal:x.occurred_on,jenis:Number(x.debit_rp)>0?"Debit":"Kredit",
+    kategori:x.category||"",keterangan:x.note||x.category||"",
+    debit:Number(x.debit_rp||0),kredit:Number(x.credit_rp||0),
+    catatan:"",metode:x.payment_method||"",sumber:"Cloudflare D1"
+  }));
+  if(rows.some(x=>!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(x.tanggal)||!Number.isSafeInteger(x.debit)||!Number.isSafeInteger(x.kredit)||x.debit<0||x.kredit<0||
+    (x.debit>0&&x.kredit>0)||(x.debit===0&&x.kredit===0)))
+    return err("Jurnal Kas memerlukan pemeriksaan sebelum laporan publik diterbitkan.",409);
+  return ok({data:{rows,jumlahTransaksi:rows.length,source:"cloudflare-d1"},readOnly:true});
+}
+__name(publicPortalCash,"publicPortalCash");
 async function publicBank(db) {
   const [catalog, albums, progress, inventory, overview, monthlyWeights] = await Promise.all([
     list(db, `SELECT i.id,i.name,i.category,i.unit, p.citizen_rate_rp_per_kg AS priceRpPerKg,p.effective_from AS effectiveFrom FROM waste_items i LEFT JOIN waste_prices p ON p.id=(SELECT p2.id FROM waste_prices p2 WHERE p2.waste_item_id=i.id ORDER BY p2.effective_from DESC,p2.id DESC LIMIT 1) WHERE i.active=1 ORDER BY i.category,i.name`),
@@ -686,6 +708,7 @@ async function handleUnifiedApi(request, env, who) {
   if (method === "GET" && path === "/api/v2/system/features") return ok({ api: "v2", frontend: "github-pages", storage: "d1+r2", bankWrites: env.BANK_WRITE_ENABLED === "true", bookkeepingWrites: env.FINANCE_WRITE_ENABLED === "true", bankReconciliationWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_RECONCILIATION_WRITE_ENABLED === "true", bankCancellationWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_CANCEL_WRITE_ENABLED === "true", bankExpenseWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_EXPENSE_WRITE_ENABLED === "true", bankInventoryWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_INVENTORY_WRITE_ENABLED === "true", bankMediaWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_MEDIA_WRITE_ENABLED === "true", bankPayoutWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_PAYOUT_WRITE_ENABLED === "true" });
   if (method === "GET" && path === "/api/v2/auth/session") return who ? ok({ account: { id: who.id, username: who.username, role: who.role }, member: who.member_id ? { id: who.member_id, nama: who.display_name, rumah: who.house_code } : null }) : err("Sesi tidak valid.", 401);
   if (method === "GET" && path === "/api/v2/public/portal") return publicPortal(db);
+  if (method === "GET" && path === "/api/v2/public/portal/cash") return publicPortalCash(db);
   if (method === "GET" && path === "/api/v2/public/bank") return publicBank(db);
   if (method === "GET" && path === "/api/v2/public/bank/report") {
     try {
