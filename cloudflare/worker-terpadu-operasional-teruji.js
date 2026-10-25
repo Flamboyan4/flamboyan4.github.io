@@ -80,14 +80,14 @@ async function publicBank(db) {
   const [catalog, albums, progress, inventory, overview, monthlyWeights] = await Promise.all([
     list(db, `SELECT i.id,i.name,i.category,i.unit, p.citizen_rate_rp_per_kg AS priceRpPerKg,p.effective_from AS effectiveFrom FROM waste_items i LEFT JOIN waste_prices p ON p.id=(SELECT p2.id FROM waste_prices p2 WHERE p2.waste_item_id=i.id ORDER BY p2.effective_from DESC,p2.id DESC LIMIT 1) WHERE i.active=1 ORDER BY i.category,i.name`),
     list(db, `SELECT a.id,a.title,a.category,a.event_on,a.description,COUNT(m.id) AS mediaCount,(SELECT cm.external_url FROM album_media cm WHERE cm.album_id=a.id AND cm.media_type='foto' AND cm.status='aktif' AND cm.external_url IS NOT NULL ORDER BY cm.sort_order,cm.id LIMIT 1) AS coverUrl FROM albums a LEFT JOIN album_media m ON m.album_id=a.id AND m.status='aktif' WHERE a.visibility='publik' AND a.status='aktif' GROUP BY a.id ORDER BY a.event_on DESC,a.id DESC LIMIT 80`),
-    list(db, `SELECT id,happened_on,title,stage,description,status,next_step FROM progress_entries WHERE public_visible=1 ORDER BY happened_on DESC,id DESC LIMIT 70`),
+    list(db, `SELECT p.id,p.happened_on,p.title,p.stage,p.description,p.status,p.next_step,pm.photo_url AS photoUrl FROM progress_entries p LEFT JOIN bank_progress_photos pm ON pm.progress_id=p.id WHERE p.public_visible=1 ORDER BY p.happened_on DESC,p.id DESC LIMIT 70`),
     list(db, `SELECT i.id,i.name,i.quantity,i.unit,i.condition,im.external_url AS photoUrl
     FROM inventory i LEFT JOIN inventory_external_media im ON im.inventory_id=i.id
     WHERE i.active=1 AND i.category='bank_sampah' ORDER BY i.name LIMIT 150`),
     one(db, `SELECT (SELECT COUNT(*) FROM waste_deposits WHERE status='terkonfirmasi') AS confirmedDeposits,(SELECT COUNT(*) FROM members WHERE status='aktif') AS activeMembers,(SELECT COALESCE(SUM(total_grams),0)/1000.0 FROM waste_deposits WHERE status='terkonfirmasi') AS confirmedWeightKg,(SELECT COALESCE(SUM(sl.grams),0)/1000.0 FROM waste_sale_lines sl JOIN waste_sales sa ON sa.id=sl.sale_id WHERE sa.status='terkonfirmasi') AS confirmedSalesWeightKg,(SELECT COUNT(*) FROM waste_items WHERE active=1) AS activeItems,(SELECT COUNT(*) FROM albums WHERE visibility='publik' AND status='aktif') AS albumCount`),
     list(db, `SELECT substr(deposited_on,1,7) AS month,COALESCE(SUM(total_grams),0)/1000.0 AS beratKg FROM waste_deposits WHERE status='terkonfirmasi' GROUP BY substr(deposited_on,1,7) ORDER BY month DESC LIMIT 12`)
   ]);
-  return ok({ catalog, albums:albums.map(a=>({...a,coverUrl:urlSafe(a.coverUrl)})), progress, monthlyWeights: monthlyWeights.slice().reverse(), inventory: inventory.map((x) => ({
+  return ok({ catalog, albums:albums.map(a=>({...a,coverUrl:urlSafe(a.coverUrl)})), progress:progress.map(p=>({...p,photoUrl:urlSafe(p.photoUrl)})), monthlyWeights: monthlyWeights.slice().reverse(), inventory: inventory.map((x) => ({
     ...x,
     photoUrl: urlSafe(x.photoUrl)
   })), overview });
@@ -170,7 +170,7 @@ async function adminBank(db, url) {
     expenses: `SELECT id,incurred_on,kind,budget_post,description,amount_rp,status,vendor FROM waste_expenses ORDER BY incurred_on DESC,id DESC LIMIT ?`,
     cash: `SELECT id,occurred_on,transaction_type,fund_position,cash_in_rp,cash_out_rp,status,note FROM waste_cash_ledger ORDER BY occurred_on DESC,id DESC LIMIT ?`,
     albums: `SELECT id,title,category,event_on,description,visibility,status FROM albums ORDER BY event_on DESC,id DESC LIMIT ?`,
-    progress: `SELECT id,happened_on,title,stage,description,status,next_step,public_visible FROM progress_entries ORDER BY happened_on DESC,id DESC LIMIT ?`,
+    progress: `SELECT p.id,p.happened_on,p.title,p.stage,p.description,p.status,p.next_step,p.public_visible,pm.photo_url AS photoUrl FROM progress_entries p LEFT JOIN bank_progress_photos pm ON pm.progress_id=p.id ORDER BY p.happened_on DESC,p.id DESC LIMIT ?`,
     inventory: `SELECT id,name,quantity,unit,category,location,condition,active FROM inventory ORDER BY name LIMIT ?`
   };
   if (!tables[kind]) return null;
@@ -550,33 +550,50 @@ async function bankProgressUpdate(request,env,who){
   const next=p.nextStep?String(p.nextStep).trim():null,publicVisible=p.publicVisible===false?0:1;
   const photo=String(p.photoUrl||'').trim();
   if(!id||id.length>150||!validDate(date)||title.length<3||title.length>160||stage.length>100||
-     description.length>4000||status.length<2||status.length>100||next&&next.length>1500||photo)
-    return err('Perkembangan tidak valid. Foto wajib dikelola terpisah melalui media yang didukung.',400);
-  const old=await one(env.DB,'SELECT id,happened_on,title,stage,description,status,next_step,public_visible FROM progress_entries WHERE id=?',[id]);
+     description.length>4000||status.length<2||status.length>100||next&&next.length>1500||
+     (photo&&(!urlSafe(photo)||photo.length>2000)))
+    return err('Perkembangan atau URL foto HTTPS tidak valid.',400);
+  const old=await one(env.DB,`SELECT p.id,p.happened_on,p.title,p.stage,p.description,p.status,p.next_step,p.public_visible,
+    pm.photo_url AS photoUrl FROM progress_entries p
+    LEFT JOIN bank_progress_photos pm ON pm.progress_id=p.id WHERE p.id=?`,[id]);
   if(!old)return err('Perkembangan tidak ditemukan.',404);
   const auditId='audit:bank-progress-edit:'+crypto.randomUUID();
-  try{await env.DB.batch([
-   env.DB.prepare('UPDATE progress_entries SET happened_on=?,title=?,stage=?,description=?,status=?,next_step=?,public_visible=? WHERE id=?')
-     .bind(date,title,stage,description,status,next,publicVisible,id),
-   env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,before_json,after_json) VALUES(?,?,'banksampah','update_progress','progress_entries',?,?,?,?)")
-     .bind(auditId,who.id,id,'Perkembangan diperbarui',JSON.stringify(old),JSON.stringify({date,title,stage,description,status,nextStep:next,publicVisible}))
-  ])}catch(e){return err('Gagal memperbarui perkembangan.',409)}
-  return ok({id,updated:true});
+  const statements=[
+    env.DB.prepare('UPDATE progress_entries SET happened_on=?,title=?,stage=?,description=?,status=?,next_step=?,public_visible=? WHERE id=?')
+      .bind(date,title,stage,description,status,next,publicVisible,id)
+  ];
+  if(photo){
+    statements.push(env.DB.prepare(`INSERT INTO bank_progress_photos(progress_id,photo_url,updated_at)
+      VALUES(?,?,CURRENT_TIMESTAMP) ON CONFLICT(progress_id)
+      DO UPDATE SET photo_url=excluded.photo_url,updated_at=CURRENT_TIMESTAMP`).bind(id,photo));
+  }else{
+    statements.push(env.DB.prepare("DELETE FROM bank_progress_photos WHERE progress_id=?").bind(id));
+  }
+  statements.push(env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,before_json,after_json) VALUES(?,?,'banksampah','update_progress','progress_entries',?,?,?,?)")
+    .bind(auditId,who.id,id,'Perkembangan diperbarui',JSON.stringify(old),
+      JSON.stringify({date,title,stage,description,status,nextStep:next,publicVisible,photoUrl:photo})));
+  try{await env.DB.batch(statements)}catch{return err('Gagal memperbarui perkembangan atau tautan foto.',409)}
+  return ok({id,updated:true,photoUrl:photo||null});
 }
 __name(bankProgressUpdate,'bankProgressUpdate');
 async function createBankProgress(request, env) {
-  let p;
-  try {
-    p = await body(request);
-  } catch (e) {
-    return err(e.message, 400);
-  }
-  const date = String(p.date || ""), title = String(p.title || "").trim(), stage = String(p.stage || "").trim(), description = String(p.description || "").trim(), status = String(p.status || "").trim();
-  const next = p.nextStep ? String(p.nextStep).trim() : null, publicVisible = p.publicVisible === false ? 0 : 1;
-  if (!validDate(date) || title.length < 3 || title.length > 160 || stage.length > 100 || description.length > 4e3 || status.length < 2 || status.length > 100 || next && next.length > 1500) return err("Data perkembangan tidak valid.", 400);
-  const id = "progress:api:" + crypto.randomUUID();
-  await env.DB.prepare("INSERT INTO progress_entries(id,happened_on,title,stage,description,status,next_step,public_visible) VALUES(?,?,?,?,?,?,?,?)").bind(id, date, title, stage, description, status, next, publicVisible).run();
-  return ok({ id }, 201);
+  let p;try{p=await body(request)}catch(e){return err(e.message,400)}
+  const date=String(p.date||''),title=String(p.title||'').trim(),stage=String(p.stage||'').trim();
+  const description=String(p.description||'').trim(),status=String(p.status||'').trim();
+  const next=p.nextStep?String(p.nextStep).trim():null,publicVisible=p.publicVisible===false?0:1;
+  const photo=String(p.photoUrl||'').trim();
+  if(!validDate(date)||title.length<3||title.length>160||stage.length>100||
+     description.length>4000||status.length<2||status.length>100||next&&next.length>1500||
+     (photo&&(!urlSafe(photo)||photo.length>2000)))
+    return err('Perkembangan atau URL foto HTTPS tidak valid.',400);
+  const id='progress:api:'+crypto.randomUUID();
+  const statements=[
+    env.DB.prepare("INSERT INTO progress_entries(id,happened_on,title,stage,description,status,next_step,public_visible) VALUES(?,?,?,?,?,?,?,?)")
+      .bind(id,date,title,stage,description,status,next,publicVisible)
+  ];
+  if(photo)statements.push(env.DB.prepare("INSERT INTO bank_progress_photos(progress_id,photo_url) VALUES(?,?)").bind(id,photo));
+  try{await env.DB.batch(statements)}catch{return err('Gagal menyimpan perkembangan dan fotonya; tidak ada catatan sebagian.',409)}
+  return ok({id,photoSaved:!!photo},201);
 }
 __name(createBankProgress, "createBankProgress");
 async function addBankMedia(request, env, who) {
