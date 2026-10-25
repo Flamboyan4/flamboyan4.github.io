@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Isolated Cloudflare D1 roundtrip: remote export is READ-ONLY; all writes LOCAL."""
 import os, json, pathlib, urllib.request, urllib.error, subprocess
-import sqlite3, hashlib, secrets, uuid, time, datetime, glob, sys
+import sqlite3, hashlib, secrets, uuid, time, datetime, glob, sys, urllib.parse
 
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 WRANGLER=str(ROOT/"node_modules/.bin/wrangler")
@@ -59,7 +59,7 @@ try:
       "d1_databases":[{"binding":"DB","database_name":"flamboyan4-staging","database_id":id}],
       "r2_buckets":[{"binding":"PHOTOS","bucket_name":"f4-local-only"}],
       "vars":{"AUTH_ENABLED":"true","FINANCE_WRITE_ENABLED":"true","MANUAL_CASH_WRITE_ENABLED":"true",
-        "IURAN_WRITE_ENABLED":"false","DENDA_PINJAMAN_WRITE_ENABLED":"false",
+        "IURAN_WRITE_ENABLED":"true","DENDA_PINJAMAN_WRITE_ENABLED":"false",
         "TALANGAN_WRITE_ENABLED":"true","BANK_WRITE_ENABLED":"true",
         "BANK_RECONCILIATION_WRITE_ENABLED":"true","BANK_PAYOUT_WRITE_ENABLED":"true",
         "BANK_EXPENSE_WRITE_ENABLED":"true","BANK_CANCEL_WRITE_ENABLED":"true",
@@ -142,6 +142,43 @@ try:
             time.sleep(1)
         assert_step("local_worker_health",health is not None and health[0]==200)
         base="http://127.0.0.1:8787"
+        # ONLY LOCAL: new Iuran, safe reversal, immutable source and year-end Kas Lorong split.
+        payers=sqlite3.connect(str(files[0])).execute("""SELECT o.payer_id FROM bookkeeping_payer_iuran_obligations o
+          JOIN bookkeeping_payers p ON p.id=o.payer_id
+          WHERE p.active=1 AND o.qty_kas_lorong>0 AND p.household_id IS NOT NULL
+          AND NOT EXISTS (SELECT 1 FROM bookkeeping_advances a WHERE a.payer_id=p.id AND a.status='aktif' AND a.amount_rp>COALESCE(a.reimbursed_rp,0))
+          LIMIT 20""").fetchall()
+        candidate=None
+        for row in payers:
+            d=call(base+"/api/bookkeeping/iuran/outstanding?payerId="+urllib.parse.quote(row[0])+"&year=2027&month=1",token=temporary)
+            if d[0]==200 and sum(int(z["sisaRp"]) for z in d[1].get("komponen",[]))>0 and any(z["jenis"]=="KAS_LORONG" and z["sisaRp"]>0 for z in d[1].get("komponen",[])):
+                candidate=(row[0],d[1]["komponen"]);break
+        assert_step("cancel_test_payer_local_only",candidate is not None)
+        payer,dues=candidate
+        alokasi=[{"tahun":2027,"bulan":1,"jenis":z["jenis"],"nominal":int(z["sisaRp"])} for z in dues if int(z["sisaRp"])>0]
+        kas_part=sum(z["nominal"] for z in alokasi if z["jenis"]=="KAS_LORONG")
+        payment_req={"requestKey":str(uuid.uuid4()),"payerId":payer,"tanggal":"2026-10-25",
+                     "metode":"Cash","catatan":"LOCAL CANCEL QA","jumlahRp":sum(z["nominal"] for z in alokasi),"alokasi":alokasi}
+        pf_before=call(base+"/api/bookkeeping/year-end/preflight?year=2026",token=temporary)
+        created=call(base+"/api/bookkeeping/iuran","POST",payment_req,temporary)
+        payment_id=created[1].get("idPembayaran","")
+        assert_step("new_iuran_create_local",created[0]==201 and payment_id.startswith("pay-"),{"http":created[0]})
+        pf_during=call(base+"/api/bookkeeping/year-end/preflight?year=2026",token=temporary)
+        assert_step("year_end_kas_lorong_only_no_false_orphan",
+          pf_during[0]==200 and pf_during[1]["checks"]["invalidLinkedIuranRows"]==pf_before[1]["checks"]["invalidLinkedIuranRows"])
+        forbidden=call(base+"/api/bookkeeping/iuran/cancel","POST",{"idPembayaran":payment_id,"alasan":"Local test"},None)
+        assert_step("iuran_cancel_requires_auth",forbidden[0] in (401,403))
+        canceled=call(base+"/api/bookkeeping/iuran/cancel","POST",{"idPembayaran":payment_id,"alasan":"Pembatalan simulasi LOCAL"},temporary)
+        assert_step("new_iuran_cancel_atomic",canceled[0]==200 and canceled[1].get("status")=="dibatalkan",{"http":canceled[0]})
+        repeated=call(base+"/api/bookkeeping/iuran/cancel","POST",{"idPembayaran":payment_id,"alasan":"Pembatalan simulasi LOCAL"},temporary)
+        assert_step("new_iuran_cancel_idempotent",repeated[0]==200 and repeated[1].get("duplikat") is True)
+        replay=call(base+"/api/bookkeeping/iuran","POST",payment_req,temporary)
+        assert_step("canceled_iuran_replay_rejected",replay[0]==409)
+        with sqlite3.connect(str(files[0])) as view:
+            st=view.execute("SELECT status FROM bookkeeping_payments WHERE id=?",(payment_id,)).fetchone()[0]
+            alloc_st=view.execute("SELECT DISTINCT status FROM bookkeeping_payment_allocations WHERE payment_id=?",(payment_id,)).fetchall()
+            cash_st=view.execute("SELECT status,debit_rp FROM bookkeeping_cash_transactions WHERE source_payment_id=?",(payment_id,)).fetchall()
+        assert_step("new_iuran_cancel_db_consistent",st=="dibatalkan" and alloc_st==[("dibatalkan",)] and cash_st==[("dibatalkan",kas_part)])
         key="CashQA"+secrets.token_hex(16)
         original={"tanggal":"2026-10-25","jenis":"debit","jumlahRp":123,"kategori":"QA Isolated","keterangan":"Uji otomatis (salinan D1)","metode":"Cash","catatan":"Not production","requestKey":key}
         unauthorized=call(base+"/api/bookkeeping/cash","POST",original)
@@ -233,6 +270,12 @@ try:
         aid=advance[1].get("id","")
         assert_step("advance_create",advance[0]==201 and aid.startswith("adv_"),{"status":advance[0]})
         assert_step("advance_due_14_days",advance[1].get("jatuhTempo")=="2026-11-08")
+        blocked_iuran=call(bank_base+"/api/bookkeeping/iuran","POST",{
+            "requestKey":str(uuid.uuid4()),"payerId":advance_payer,"tanggal":"2026-10-25",
+            "metode":"Cash","catatan":"Blocked active Talangan LOCAL","jumlahRp":1000,
+            "alokasi":[{"tahun":2026,"bulan":10,"jenis":"KAS_LORONG","nominal":1000}]},temporary)
+        assert_step("active_advance_blocks_direct_iuran_api",blocked_iuran[0]==409 and "Talangan aktif" in blocked_iuran[1].get("error",""))
+
         advance_repeat=call(bank_base+"/api/bookkeeping/talangan","POST",advance_request,temporary)
         assert_step("advance_create_idempotent",advance_repeat[0]==200 and advance_repeat[1].get("duplikat") is True)
         repay_payload={"requestKey":"QARepay"+secrets.token_hex(18),
@@ -268,7 +311,7 @@ try:
     actual=connection.execute("SELECT status,debit_rp FROM bookkeeping_cash_transactions WHERE id=?",(txid,)).fetchone()
     connection.close()
     # One canceled manual cash + one active Talangan repayment of Rp1.500.
-    assert_step("cash_accounting_reconciles_canceled_cash_and_advance",final[0]==baseline[0]+2 and final[1]==baseline[1]-1500 and actual[0]=="dibatalkan")
+    assert_step("cash_accounting_reconciles_canceled_cash_and_advance",final[0]==baseline[0]+3 and final[1]==baseline[1]-1500 and actual[0]=="dibatalkan")
     result["status"]="passed"
 except Exception as error:
     result["status"]="failed"
