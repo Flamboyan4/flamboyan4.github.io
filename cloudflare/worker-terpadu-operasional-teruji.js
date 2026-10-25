@@ -2286,6 +2286,50 @@ async function createIuranPayment(request, env, who) {
   return json({ ok: true, idPembayaran: id, totalDiterima: sum, periode: [...periods].sort(), alokasi: items.length }, 201);
 }
 __name(createIuranPayment, "createIuranPayment");
+// Non-destructive cancellation: only newly created D1 pay-UUID, never historical records.
+async function cancelNewIuranPayment(request,env,who){
+  if(env.FINANCE_WRITE_ENABLED!=="true"||env.IURAN_WRITE_ENABLED!=="true")return safeError("Penulisan Iuran belum diaktifkan.",503);
+  let input;try{input=await requestJson(request)}catch{return safeError("JSON tidak valid.",400)}
+  const id=String(input?.idPembayaran||""),reason=String(input?.alasan||"").trim(),db=env.DB;
+  if(!/^pay-[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(id)||reason.length<5||reason.length>300)
+    return safeError("Hanya Iuran D1 baru dengan alasan pembatalan 5–300 karakter.",400);
+  const payment=await db.prepare("SELECT id,payer_id,paid_on,status FROM bookkeeping_payments WHERE id=?").bind(id).first();
+  if(!payment)return safeError("Pembayaran tidak ditemukan.",404);
+  if(payment.status==="dibatalkan")return json({ok:true,idPembayaran:id,status:"dibatalkan",duplikat:true});
+  if(payment.status!=="aktif")return safeError("Status pembayaran tidak dapat dibatalkan.",409);
+  const found=await db.prepare("SELECT id,period_year,contribution_type,amount_rp,status FROM bookkeeping_payment_allocations WHERE payment_id=?").bind(id).all();
+  const items=found.results||[];
+  if(!items.length||items.some(x=>x.status!=="aktif"))return safeError("Alokasi tidak utuh; periksa sebelum pembatalan.",409);
+  const years=[...new Set([Number(payment.paid_on.slice(0,4)),...items.map(x=>Number(x.period_year))])];
+  const qs=years.map(()=>"?").join(",");
+  const archive=await db.prepare(`SELECT fiscal_year FROM bookkeeping_year_archives WHERE fiscal_year IN (${qs}) AND status IN ('closed','ditutup','terkunci','final') LIMIT 1`).bind(...years).first();
+  const closing=await db.prepare(`SELECT fiscal_year FROM fiscal_closings WHERE fiscal_year IN (${qs}) LIMIT 1`).bind(...years).first();
+  if(archive||closing)return safeError("Tahun pembukuan atau alokasi sudah dikunci.",409);
+  const posted=await db.prepare("SELECT COUNT(*) AS n FROM bookkeeping_allocation_details WHERE allocation_id IN (SELECT id FROM bookkeeping_payment_allocations WHERE payment_id=?)").bind(id).first();
+  if(Number(posted?.n||0))return safeError("Alokasi sudah masuk batch: pembatalan memerlukan rekonsiliasi manual.",409);
+  const talangan=await db.prepare("SELECT id FROM bookkeeping_advances WHERE payer_id=? AND status='aktif' AND amount_rp>COALESCE(reimbursed_rp,0) LIMIT 1").bind(payment.payer_id).first();
+  if(talangan)return safeError("Talangan masih aktif; pembatalan otomatis tidak aman.",409);
+  const ledger=await db.prepare("SELECT id,status,transaction_type,debit_rp,credit_rp FROM bookkeeping_cash_transactions WHERE source_payment_id=?").bind(id).all();
+  const cash=ledger.results||[],kas=items.filter(x=>x.contribution_type==="KAS_LORONG").reduce((s,x)=>s+Number(x.amount_rp),0);
+  if(!Number.isSafeInteger(kas)||kas<0||cash.length!==(kas?1:0)||cash.some(c=>c.status!=="aktif"||c.transaction_type!=="iuran"||Number(c.debit_rp)!==kas||Number(c.credit_rp)!==0))
+    return safeError("Jurnal kas tidak sama dengan alokasi Kas Lorong; pembatalan diblokir.",409);
+  try{
+    const out=await db.batch([
+      db.prepare("UPDATE bookkeeping_payments SET status='dibatalkan' WHERE id=? AND status='aktif'").bind(id),
+      db.prepare("UPDATE bookkeeping_payment_allocations SET status='dibatalkan' WHERE payment_id=? AND status='aktif'").bind(id),
+      db.prepare("UPDATE bookkeeping_cash_transactions SET status='dibatalkan' WHERE source_payment_id=? AND transaction_type='iuran' AND status='aktif'").bind(id),
+      db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason) VALUES(?,?,'pembukuan','cancel_new_iuran','bookkeeping_payments',?,?)").bind("audit:iuran-cancel:"+id,who.id,id,reason)
+    ]);
+    if(Number(out[0]?.meta?.changes)!==1)return safeError("Status pembayaran berubah; muat ulang.",409);
+  }catch{
+    const latest=await db.prepare("SELECT status FROM bookkeeping_payments WHERE id=?").bind(id).first();
+    if(latest?.status==="dibatalkan")return json({ok:true,idPembayaran:id,status:"dibatalkan",duplikat:true});
+    return safeError("Pembatalan gagal tanpa mengubah jurnal.",409);
+  }
+  return json({ok:true,idPembayaran:id,status:"dibatalkan",duplikat:false});
+}
+__name(cancelNewIuranPayment,"cancelNewIuranPayment");
+
 async function ownSavings(db, memberId) {
   const [balance, deposits, details, ledger] = await Promise.all([
     db.prepare(`SELECT COALESCE(SUM(CASE WHEN kind IN ('kredit','koreksi_kredit')
@@ -3254,6 +3298,10 @@ async function handle(request, env) {
     const denied = requireRole(who, ["superadmin"]);
     if (denied) return denied;
     return createIuranPayment(request, env, who);
+  }
+  if(path==="/api/bookkeeping/iuran/cancel"&&request.method==="POST"){
+    const denied=requireRole(who,["superadmin"]);if(denied)return denied;
+    return cancelNewIuranPayment(request,env,who);
   }
   const dpWrites = {
     "/api/bookkeeping/denda": "fine-create",
