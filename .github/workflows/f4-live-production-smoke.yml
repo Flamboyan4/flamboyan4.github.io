@@ -20,6 +20,7 @@ jobs:
             ("/api/health",200),
             ("/api/v2/system/features",200),
             ("/api/v2/public/portal",200),
+            ("/api/v2/public/portal/cash",200),
             ("/api/v2/public/bank",200),
             ("/api/v2/public/bank/report",200),
             ("/api/member/savings",401),
@@ -37,6 +38,9 @@ jobs:
                       code=response.status
                       data=json.load(response)
                       valid=isinstance(data,dict) and data.get("ok") is not False
+                      if path=="/api/v2/public/portal/cash":
+                          valid=valid and data.get("readOnly") is True and isinstance(data.get("data",{}).get("rows"),list) and len(data["data"]["rows"])>0
+                          print("PUBLIC_CASH_D1_NONEMPTY="+str(bool(valid)))
               except urllib.error.HTTPError as error:
                   code=error.code
                   valid=expected==401 and code in (401,403)
