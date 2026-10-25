@@ -407,7 +407,9 @@ function showBankForm(kind,record){
    add('visibility','Akses','select');controls.visibility.add(new Option('Publik','publik'),new Option('Privat','privat'));
   }else{
    for(const key of ['title','eventOn','description'])controls[key].disabled=true;
-   form.append(node('p','Untuk album lama, API yang tersedia mendukung perubahan kategori/tujuan publikasi. Judul, tanggal dan isi album tidak diubah agar data lama aman.','f4-admin-note'));
+   add('mediaUrl','Tambah tautan foto/video baru (opsional)','url','');
+   add('mediaType','Jenis media baru','select');controls.mediaType.add(new Option('Foto','foto'),new Option('Video','video'));
+   form.append(node('p','Judul dan tanggal album lama dilindungi. Kategori dapat diubah; tautan baru ditambahkan ke media album, bukan mengganti tautan lama.','f4-admin-note'));
   }
  }else{
   add('name','Nama barang','text','',true);
@@ -434,6 +436,11 @@ function showBankForm(kind,record){
     await send(bankApi+'albums/category',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:record.id,category})});
     // Matching legacy Portal Utama record is reclassified too, when available.
     // Never create a duplicate or delete a historical album.
+    const mediaUrl=get('mediaUrl');
+    if(mediaUrl){
+     await send(bankApi+'media-link',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      requestKey:'media_'+crypto.randomUUID().replace(/-/g,''),albumId:record.id,mediaType:get('mediaType'),url:mediaUrl,caption:record.title||'Dokumentasi'})});
+    }
     if(String(record.id).startsWith('portal:album:')){
      try{
       const d=await send(base+'documentation');

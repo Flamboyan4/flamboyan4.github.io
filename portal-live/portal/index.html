@@ -13,7 +13,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- PapaParse untuk membaca Google Sheets CSV -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-<script src="../portal-d1-bridge.js?v=20261025-portal-d1-complete"></script>
+<script src="../portal-d1-bridge.js?v=bank-scope-20261025"></script>
 
   
   <style>
@@ -81,7 +81,9 @@ footer#pembayaran>div>div:first-child{margin-bottom:6px!important;padding:12px!i
 footer#pembayaran>div>div:last-child{padding-top:0!important;margin-top:0!important}
 /* Riwayat D1 tampil kembali pada panel Laporan Lingkungan.
    Mode Keuangan Saya tetap menyembunyikan semua konten lingkungan via portal-panels.js. */
-#keuangan:not(.f4-finance-personal-active) #f4-private-transactions{display:block}
+body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-finance-personal-active) #f4-private-transactions{display:block}
+body:not([data-preview-role]) #f4-private-transactions,
+body[data-preview-role="public"] #f4-private-transactions{display:none!important}
 /* Tombol mengambang tetap terlihat; posisi dihitung relatif terhadap footer. */
 </style><style id="f4-mobile-proportions-v1">
 @media(max-width:1023px){
