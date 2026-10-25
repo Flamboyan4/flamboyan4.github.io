@@ -203,8 +203,7 @@ def verify_portal_login(credentials):
                       const d=document.querySelector('#appframe').contentDocument;
                       const rail=d.querySelector('.f4-user-finance-sub');
                       return {
-                        publicCardHidden:d.defaultView.getComputedStyle(
-                          d.querySelector('#card-pemasukan')).display==='none',
+                        publicCardHidden:d.querySelector('#card-pemasukan').getClientRects().length===0,
                         oneRow:d.defaultView.getComputedStyle(rail).flexWrap==='nowrap',
                         scrolls:rail.scrollWidth>rail.clientWidth,
                         categories:rail.querySelectorAll('[data-kind]').length,
@@ -222,8 +221,7 @@ def verify_portal_login(credentials):
                       const controls=d.querySelector('.f4-user-finance');
                       return {
                         extraControlsHidden:!controls||controls.hidden,
-                        publicCardVisible:d.defaultView.getComputedStyle(
-                          d.querySelector('#card-pemasukan')).display!=='none'
+                        publicCardVisible:d.querySelector('#card-pemasukan').getClientRects().length>0
                       };
                     }""")
                     if not(ui["extraControlsHidden"] and ui["publicCardVisible"]):
