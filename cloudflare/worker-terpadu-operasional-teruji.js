@@ -1204,26 +1204,26 @@ async function f4MemberPortalFinance(db, memberId, kind) {
       keterangan:[p.keterangan,(p.alokasi||[]).map(a=>a.tahun+"-"+String(a.bulan).padStart(2,"0")+" "+a.jenis+" Rp "+a.jumlahRp).join("; ")].filter(Boolean).join(" • ")
     }));
   }else if(kind==="arisan"){
-    const rows=await db.prepare(\`SELECT p.id,p.paid_on AS tanggal,p.status,p.description,a.period_year AS tahun,
+    const rows=await db.prepare(`SELECT p.id,p.paid_on AS tanggal,p.status,p.description,a.period_year AS tahun,
        a.period_month AS bulan,a.amount_rp AS nominalRp,a.status AS alokasiStatus
        FROM bookkeeping_payment_allocations a
        JOIN bookkeeping_payments p ON p.id=a.payment_id
        WHERE a.payer_id=? AND a.contribution_type='ARISAN'
-       ORDER BY p.paid_on DESC,p.id DESC LIMIT 501\`).bind(payerId).all();
+       ORDER BY p.paid_on DESC,p.id DESC LIMIT 501`).bind(payerId).all();
     if(rows.results.length>500)return safeError("Riwayat arisan melebihi batas laporan.",409);
     records=rows.results.map(x=>({id:x.id,tanggal:x.tanggal,status:x.status==="aktif"&&x.alokasiStatus==="aktif"?"aktif":"dibatalkan",
       nominalRp:Number(x.nominalRp||0),keterangan:"Arisan "+x.tahun+"-"+String(x.bulan).padStart(2,"0")+(x.description?" • "+x.description:"")}));
   }else if(kind==="fines"){
-    const rows=await db.prepare(\`SELECT id,event_on,amount_rp,paid_rp,status,note,fine_type
-      FROM bookkeeping_fines WHERE payer_id=? ORDER BY event_on DESC,id DESC LIMIT 501\`).bind(payerId).all();
+    const rows=await db.prepare(`SELECT id,event_on,amount_rp,paid_rp,status,note,fine_type
+      FROM bookkeeping_fines WHERE payer_id=? ORDER BY event_on DESC,id DESC LIMIT 501`).bind(payerId).all();
     if(rows.results.length>500)return safeError("Riwayat denda melebihi batas laporan.",409);
     records=rows.results.map(x=>({id:x.id,tanggal:x.event_on,status:x.status,nominalRp:Number(x.amount_rp||0),
       dibayarRp:Number(x.paid_rp||0),keterangan:(x.fine_type||"Denda")+(x.note?" • "+x.note:"")}));
   }else{
-    const rows=await db.prepare(\`SELECT l.id,l.loaned_on,l.amount_rp,l.status,l.note,
+    const rows=await db.prepare(`SELECT l.id,l.loaned_on,l.amount_rp,l.status,l.note,
       COALESCE((SELECT SUM(r.amount_rp) FROM bookkeeping_loan_repayments r
         WHERE r.loan_id=l.id AND r.status='aktif'),0) AS repaidRp
-      FROM bookkeeping_loans l WHERE l.payer_id=? ORDER BY l.loaned_on DESC,l.id DESC LIMIT 501\`).bind(payerId).all();
+      FROM bookkeeping_loans l WHERE l.payer_id=? ORDER BY l.loaned_on DESC,l.id DESC LIMIT 501`).bind(payerId).all();
     if(rows.results.length>500)return safeError("Riwayat pinjaman melebihi batas laporan.",409);
     records=rows.results.map(x=>({id:x.id,tanggal:x.loaned_on,status:x.status,nominalRp:Number(x.amount_rp||0),
       dibayarRp:Number(x.repaidRp||0),keterangan:x.note||"Pinjaman"}));
