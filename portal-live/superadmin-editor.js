@@ -77,6 +77,7 @@ function viewList(){
  const search=node('input');search.placeholder='Cari data';search.value=filter;search.oninput=()=>{filter=search.value;populate();};
  tools.append(search);
  if(def.section==='portal')tools.append(btn('+ Tambah '+def.label,()=>showForm(null)));
+ if(active==='jersey')tools.append(btn('Cetak Laporan Jersey',printJerseyReport,'f4-admin-primary'));
  tools.append(btn('Muat Ulang',()=>window.openSuperadminEditor(active)));
  main.append(tools);
  const info=node('p',records.length+' data tersedia','f4-admin-note');main.append(info);
@@ -89,13 +90,14 @@ function populate(){
  const query=filter.trim().toLowerCase();
  const def=types[active];
  const rows=records.filter(x=>!query||JSON.stringify(x).toLowerCase().includes(query));
- if(['agenda','documentation','inventory','meetings','obligations'].includes(active)){
+ if(['agenda','documentation','inventory','meetings','obligations','jersey'].includes(active)){
   const fields={
    agenda:[['title','Nama kegiatan'],['starts_on','Mulai'],['ends_on','Selesai'],['status','Status']],
    documentation:[['title','Judul dokumentasi'],['event_on','Tanggal'],['category','Kategori'],['drive_url','Album / Drive'],['visibility','Akses']],
    inventory:[['name','Nama barang'],['quantity','Jumlah'],['unit','Satuan'],['category','Kategori'],['description','Kondisi / Keterangan']],
    meetings:[['title','Judul rapat'],['meeting_on','Tanggal'],['summary','Ringkasan'],['document_ref','Dokumen']],
-   obligations:[['nama','Nama warga'],['rumah','Rumah'],['qty_iuran_bulanan','Iuran bulanan'],['qty_kebersihan','Kebersihan'],['qty_kas_lorong','Kas lorong'],['qty_arisan','Arisan']]
+   obligations:[['nama','Nama warga'],['rumah','Rumah'],['qty_iuran_bulanan','Iuran bulanan'],['qty_kebersihan','Kebersihan'],['qty_kas_lorong','Kas lorong'],['qty_arisan','Arisan']],
+   jersey:[['group_key','Kelompok'],['sort_order','No'],['resident','Nama & Rumah'],['sleeves','Lengan'],['size','Ukuran'],['printed_name','Nama/No Punggung'],['nominal_rp','Nilai Pesanan'],['payment_status','Status Pembayaran'],['method','Keterangan']]
   }[active];
   const scroll=node('div',undefined,'f4-obligation-scroll');
   const table=node('table',undefined,'f4-obligation-grid'),thead=node('thead'),head=node('tr');table.dataset.module=active;
@@ -112,7 +114,7 @@ function populate(){
     catch{return node('span','Tautan perlu diperiksa','f4-admin-muted')}
    }
    const v=raw==null||raw===''?'—':String(raw);
-   const formatted=/(_on|starts_on|ends_on)$/.test(key)?dateText(v):v;
+   const formatted=key==='nominal_rp'?'Rp '+Number(raw||0).toLocaleString('id-ID'):/(_on|starts_on|ends_on)$/.test(key)?dateText(v):v;
    const cell=node('span',formatted);if(key==='description'||key==='summary')cell.className='f4-admin-truncate';
    return cell;
   };
@@ -134,6 +136,72 @@ function populate(){
   item.append(info,btn('Edit',()=>showForm(x)));list.append(item);
  }
  if(!rows.length)list.append(node('p','Tidak ada data yang cocok.','f4-admin-note'));
+}
+function printJerseyReport(){
+ if(active!=='jersey'||!Array.isArray(records)||!records.length){
+  alert('Belum ada data Jersey D1 untuk dicetak.');return;
+ }
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const money=v=>'Rp '+Number(v||0).toLocaleString('id-ID');
+ const incoming=row=>{
+  const value=Number(row.nominal_rp||0);
+  const text=String(row.payment_status||'').trim().toLowerCase();
+  if(text.includes('lunas'))return value;
+  const digits=text.match(/[0-9]+/g);
+  if(digits){
+   let amount=Number(digits.join(''));
+   if(amount>0&&amount<1000)amount*=1000;
+   return amount;
+  }
+  return text.includes('dp')||text.includes('cicil')?value*0.5:0;
+ };
+ const sections=[];
+ let allOrders=0,allTotal=0,allReceived=0;
+ for(const [kind,label] of [['bapak','Bapak-Bapak'],['ibu','Ibu-Ibu']]){
+  const people=records.filter(x=>String(x.group_key||'').toLowerCase()===kind)
+   .sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0));
+  let total=0,received=0;
+  const rows=people.map(x=>{
+   const invoice=Number(x.nominal_rp||0),paid=incoming(x);
+   total+=invoice;received+=paid;
+   return '<tr><td class="center">'+esc(x.sort_order??'-')+'</td><td>'+esc(x.resident)+'</td>'+
+    '<td>'+esc(x.sleeves||'-')+'</td><td>'+esc(x.size||'-')+'</td>'+
+    '<td>'+esc(x.printed_name||'-')+'</td><td class="number">'+money(invoice)+'</td>'+
+    '<td class="number">'+money(paid)+'</td><td>'+esc(x.payment_status||'-')+'</td></tr>';
+  }).join('');
+  allOrders+=people.length;allTotal+=total;allReceived+=received;
+  sections.push('<section><h2>Pesanan '+label+' ('+people.length+' orang)</h2>'+
+   '<table><thead><tr><th>No</th><th>Nama & Rumah</th><th>Lengan</th><th>Ukuran</th>'+
+   '<th>Nama / No. Punggung</th><th>Nilai Pesanan</th><th>Dana Masuk</th><th>Status</th></tr></thead>'+
+   '<tbody>'+(rows||'<tr><td colspan="8">Belum ada pesanan.</td></tr>')+'</tbody></table>'+
+   '<p class="sub">Nilai pesanan: '+money(total)+' &nbsp;|&nbsp; Dana masuk: '+money(received)+
+   ' &nbsp;|&nbsp; Kekurangan: '+money(Math.max(0,total-received))+'</p></section>');
+ }
+ const date=new Date().toLocaleDateString('id-ID',{dateStyle:'long'});
+ const html='<!doctype html><html lang="id"><head><meta charset="utf-8"><title>Laporan Jersey Flamboyan 4</title>'+
+ '<style>@page{size:A4 landscape;margin:11mm}*{box-sizing:border-box}body{font:11px Arial,sans-serif;color:#17223b;margin:0}'+
+ 'h1{font-size:19px;margin:0 0 5px}h2{font-size:13px;margin:14px 0 6px}header{border-bottom:2px solid #334155;padding-bottom:9px;margin-bottom:10px}'+
+ 'p{margin:4px 0}.meta{color:#475569}.summary{display:flex;gap:8px;margin:10px 0;break-inside:avoid}.box{border:1px solid #cbd5e1;flex:1;padding:8px;border-radius:5px}'+
+ '.box strong{display:block;font-size:14px;margin-top:4px}table{width:100%;border-collapse:collapse;table-layout:fixed}thead{display:table-header-group}'+
+ 'th{background:#edf2f9}th,td{border:1px solid #cbd5e1;padding:5px 4px;vertical-align:middle;overflow-wrap:anywhere}'+
+ 'tr{break-inside:avoid}th{text-align:left}.number{text-align:right;white-space:nowrap}.center{text-align:center}.sub{font-weight:bold;margin-top:6px}'+
+ '.approval{text-align:right;margin-top:28px;break-inside:avoid}.approval strong{display:block;margin-top:45px}'+
+ '.foot{font-size:10px;color:#64748b;border-top:1px solid #dbe3ef;margin-top:16px;padding-top:6px}'+
+ '@media screen{body{max-width:1100px;margin:16px auto;padding:0 12px}}</style></head><body>'+
+ '<header><h1>LAPORAN PESANAN JERSEY WARGA FLAMBOYAN 4</h1>'+
+ '<p class="meta">RT 001 RW 026 Pesona Kahuripan 2 • Dicetak '+esc(date)+'</p></header>'+
+ '<div class="summary"><div class="box">Jumlah Pemesan<strong>'+allOrders+' orang</strong></div>'+
+ '<div class="box">Nilai Seluruh Pesanan<strong>'+money(allTotal)+'</strong></div>'+
+ '<div class="box">Dana Terkumpul<strong>'+money(allReceived)+'</strong></div>'+
+ '<div class="box">Sisa Kekurangan<strong>'+money(Math.max(0,allTotal-allReceived))+'</strong></div></div>'+
+ sections.join('')+
+ '<p class="meta">Catatan: dana masuk dihitung dari status Lunas/nominal DP. Status DP tanpa nominal menggunakan estimasi 50%, sesuai ringkasan portal.</p>'+
+ '<div class="approval">Mengetahui, Humas Flamboyan 4<strong>Heri Juwandi</strong></div>'+
+ '<p class="foot">Sumber: data pesanan Jersey di Cloudflare D1 melalui flamboyan4.web.id</p>'+
+ '<script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>';
+ const w=window.open('','_blank');
+ if(!w){alert('Izinkan pop-up laporan untuk mencetak atau menyimpan PDF.');return}
+ w.document.write(html);w.document.close();
 }
 function showForm(record){
  if(!inContext())return;
