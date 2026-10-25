@@ -170,6 +170,10 @@ try:
             time.sleep(1)
         assert_step("local_worker_health",health is not None and health[0]==200)
         base="http://127.0.0.1:8787"
+        ppublic=call(base+"/api/v2/public/portal")
+        assert_step("portal_arisan_jersey_d1_public_local",
+          ppublic[0]==200 and len(ppublic[1].get("arisan",[]))>=26 and
+          len(ppublic[1].get("jerseyBapak",[]))>=24 and len(ppublic[1].get("jerseyIbu",[]))>=2)
         # Photos are stored as separate rows in a D1 table, without overwriting notes.
         progress_photo="https://example.org/local-bank-progress-original.jpg"
         new_progress=call(base+"/api/v2/admin/bank/progress","POST",{
