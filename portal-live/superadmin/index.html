@@ -514,7 +514,7 @@ function accountsPage(){
  prepare.disabled=true;prepare.title='Memeriksa akun yang belum aktif';
  actions.append(prepare,button('Muat ulang',()=>accountsPage(),'sa-action'));
  heading.append(head,actions);panel.append(heading);
- const noticeBox=el('p','Akun digunakan bersama pada semua portal sesuai role. Aktivasi akun anggota yang belum aktif dan reset password anggota terhubung langsung ke Worker D1 serta audit. Perubahan role dan akun Admin/Superadmin tidak dilakukan melalui tombol ini.','sa-account-note');
+ const noticeBox=el('p','Akun digunakan bersama pada semua portal sesuai role. Aktivasi akun anggota yang belum aktif dan reset password anggota dikelola terpusat dan dicatat pada audit. Perubahan role dan akun Admin/Superadmin tidak dilakukan melalui tombol ini.','sa-account-note');
  panel.append(noticeBox);
  const listWrap=el('div',undefined,'sa-account-table');
  const filters=el('div',undefined,'sa-account-filters');
@@ -598,7 +598,7 @@ function paintAccounts(){
 }
 async function catalogPage(){
  title('Jenis & Harga Sampah','Bandingkan daftar harga yang tercatat dengan referensi Bank Sampah.');
- const info=notice('');const loadingToken=F4Loading.begin(info,'Membaca jenis dan harga D1…');
+ const info=notice('');const loadingToken=F4Loading.begin(info,'Memuat daftar jenis dan harga…');
  const wrap=el('div',undefined,'f4-obligation-scroll');
  const table=el('table',undefined,'f4-obligation-grid');table.dataset.module='bankcatalog';
  const head=el('thead'),tr=el('tr');
@@ -626,7 +626,7 @@ async function catalogPage(){
    body.append(row);
   }
   const missing=all.filter(x=>!x.item).length;
-  if(problem)F4Loading.error(info,'Harga D1 belum dapat dibaca: '+problem,loadingToken);
+  if(problem)F4Loading.error(info,'Daftar harga belum dapat dibaca: '+problem,loadingToken);
   else if(missing)F4Loading.empty(info,missing+' jenis acuan belum tersedia.',loadingToken);
   else F4Loading.success(info,loadingToken);
  };
@@ -680,7 +680,7 @@ function wargaForm(mode,row={}){
    const result=await response.json().catch(()=>({}));
    if(!response.ok||result.ok===false)throw Error(result.error||'HTTP '+response.status);
    await openWarga();
-   const message=el('p','Data berhasil disimpan ke D1.','sa-chip');main.insertBefore(message,main.children[1]||null);
+   const message=el('p','Data berhasil disimpan.','sa-chip');main.insertBefore(message,main.children[1]||null);
   }catch(e){note.textContent='Gagal menyimpan: '+safe(e)}
   finally{save.disabled=false}
  });
@@ -759,5 +759,5 @@ window.addEventListener('message',e=>{
 boot();
 })();
 </script>
-<script src="../superadmin-editor.js?v=combined-editor-20261025-b"></script>
+<script src="../superadmin-editor.js?v=combined-legacy-20261025"></script>
 </body></html>

@@ -2039,9 +2039,15 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     if(m.jenis==='Video'){
       const raw=String(m.src||m.url||''),driveId=raw.match(/(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?[^#]*?id=)|[?&]id=)([A-Za-z0-9_-]{12,})/i)?.[1];
       const youtube=raw.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([\w-]{11})/i)?.[1];
-      const video=document.createElement('iframe');
-      video.src=driveId?'https://drive.google.com/file/d/'+driveId+'/preview':youtube?'https://www.youtube-nocookie.com/embed/'+youtube:raw;
-      video.title=m.nama||'Video kegiatan';video.allow='autoplay; fullscreen; picture-in-picture';video.allowFullscreen=true;scene.appendChild(video);
+      if(!driveId&&!youtube&&/\.(?:mp4|webm|ogg)(?:[?#]|$)/i.test(raw)){
+       const video=document.createElement('video');video.src=raw;video.controls=true;video.playsInline=true;video.preload='metadata';video.style.cssText='width:min(100%,900px);max-height:100%;object-fit:contain';
+       video.onerror=()=>{if(!video.isConnected)return;const link=v21Node('a','v21-back','Video tidak dapat diputar. Buka sumber');link.href=raw;link.target='_blank';link.rel='noopener noreferrer';video.replaceWith(link);};
+       scene.appendChild(video);
+      }else{
+       const video=document.createElement('iframe');
+       video.src=driveId?'https://drive.google.com/file/d/'+driveId+'/preview':youtube?'https://www.youtube-nocookie.com/embed/'+youtube:raw;
+       video.title=m.nama||'Video kegiatan';video.allow='autoplay; fullscreen; picture-in-picture';video.allowFullscreen=true;scene.appendChild(video);
+      }
     }else scene.appendChild(v21Photo(m.src,m.nama||'Foto kegiatan'));
     $('v21LightboxName').replaceChildren(v21Node('h2','',m.nama||m.jenis));
     $('v21LightboxCount').textContent=(v21MediaIndex+1)+' dari '+list.length;

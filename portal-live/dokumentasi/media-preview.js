@@ -29,9 +29,11 @@ const asPortal=(source)=>({
  description:String(source.description||source.deskripsi||''),
  folder:String(source.drive_url||source.folder||source.foto||source.photo_ref||source.url||''),
  cover:String(source.cover||source.image_ref||''),
+ category:String(source.category||source.kategori||''),
  portal:String(source.portal||source.portal_scope||source.source_portal||source.scope||'').toLowerCase()
 });
 const portalOnly=record=>(!record.portal||['portal','utama','portal-utama','flamboyan4','warga','community'].includes(record.portal))&&
+ !/^Bank Sampah\s*[:/]/i.test(record.category||'')&&
  !/\/folders\/1ywp2v8rUH-oAGcM91PQyVrO7Wx9iLdCA/.test(String(record.folder||''));
 const folderId=link=>String(link||'').match(/(?:\/folders\/|[?&]folderId=)([A-Za-z0-9_-]{12,})/)?.[1]||'';
 const photoFiles=new Map();
