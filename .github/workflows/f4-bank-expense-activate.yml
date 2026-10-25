@@ -1,0 +1,93 @@
+name: F4 Bank Expense Guarded Activation
+on:
+  push:
+    branches: [bank-expense-guard-20261025]
+    paths: [.github/workflows/f4-bank-expense-activate.yml]
+permissions:
+  contents: write
+jobs:
+  activate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Worker source
+        run: |
+          node --check cloudflare/worker-terpadu-operasional-teruji.js
+      - name: Enable only Bank Expense with inherited bindings
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,json,urllib.request,urllib.error,time,datetime,hashlib
+          from pathlib import Path
+          result={"at_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),"scope":"BANK_EXPENSE_FLAG_ONLY","status":"started"}
+          out=Path("ops-audit/bank-expense-activation.json");out.parent.mkdir(exist_ok=True)
+          def save():out.write_text(json.dumps(result,indent=2)+"\n")
+          root="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CF_ACCOUNT"]
+          token=os.environ["CF_TOKEN"];target="flamboyan4-terpadu-staging"
+          def call(path,method="GET",body=None,ctype=None):
+            h={"Authorization":"Bearer "+token}
+            if ctype:h["Content-Type"]=ctype
+            q=urllib.request.Request(root+path,data=body,headers=h,method=method)
+            with urllib.request.urlopen(q,timeout=75) as response:r=json.load(response)
+            if not r.get("success"):raise RuntimeError("Cloudflare API returned error")
+            return r.get("result")
+          try:
+            current=call("/workers/scripts/"+target+"/deployments").get("deployments") or []
+            last=current[0].get("id") if current else None
+            if last!="95b165d9-de40-46c6-9a6c-4888acd68f9d":
+              raise RuntimeError("Worker deployment changed since last verified WIB patch; abort")
+            cfg=call("/workers/scripts/"+target+"/settings")
+            bindings={x["name"]:x for x in cfg.get("bindings",[])}
+            if bindings.get("DB",{}).get("type")!="d1" or bindings.get("PHOTOS",{}).get("type")!="r2_bucket":
+              raise RuntimeError("Missing DB/PHOTOS")
+            enabled={k for k,v in bindings.items() if (k.endswith("_WRITE_ENABLED") or k=="SALE_DRAFT_ENABLED") and str(v.get("text","")).lower()=="true"}
+            expected={"BANK_CANCEL_WRITE_ENABLED","BANK_INVENTORY_WRITE_ENABLED","BANK_MEDIA_WRITE_ENABLED","BANK_WRITE_ENABLED","DENDA_PINJAMAN_WRITE_ENABLED","FINANCE_WRITE_ENABLED","IURAN_WRITE_ENABLED","MANUAL_CASH_WRITE_ENABLED","SALE_DRAFT_ENABLED"}
+            if enabled!=expected:raise RuntimeError("Unexpected enabled flags; abort")
+            if bindings.get("BANK_EXPENSE_WRITE_ENABLED",{}).get("text")!="false":
+              raise RuntimeError("Expense flag is not disabled; abort")
+            source=Path("cloudflare/worker-terpadu-operasional-teruji.js").read_bytes()
+            digest=hashlib.sha256(source).hexdigest()
+            if digest!="a697db34e083c720c634eb6bad2fdfbae029d41e37a65948aaf881e0eb":
+              raise RuntimeError("Worker source not identical to verified WIB patch")
+            meta={"main_module":"main.js","keep_assets":True,
+              "compatibility_date":cfg.get("compatibility_date") or "2026-10-21",
+              "bindings":[{"type":"plain_text","name":x["name"],"text":"true"} if x["name"]=="BANK_EXPENSE_WRITE_ENABLED" else {"type":"inherit","name":x["name"]} for x in cfg.get("bindings",[])]}
+            boundary="----F4BankExpenseGuard"
+            def part(name,data,mime):
+              return ('--'+boundary+'\r\nContent-Disposition: form-data; name="'+name+'"; filename="'+name+'"\r\nContent-Type: '+mime+'\r\n\r\n').encode()+data+b'\r\n'
+            blob=part("metadata",json.dumps(meta).encode(),"application/json")+part("main.js",source,"application/javascript+module")+('--'+boundary+'--\r\n').encode()
+            call("/workers/scripts/"+target+"?bindings_inherit=strict","PUT",blob,"multipart/form-data; boundary="+boundary)
+            desired=expected|{"BANK_EXPENSE_WRITE_ENABLED"}
+            actual={}
+            for i in range(8):
+              newcfg=call("/workers/scripts/"+target+"/settings")
+              actual={x["name"]:x for x in newcfg.get("bindings",[])}
+              current_enabled={k for k,v in actual.items() if (k.endswith("_WRITE_ENABLED") or k=="SALE_DRAFT_ENABLED") and str(v.get("text","")).lower()=="true"}
+              if current_enabled==desired:break
+              time.sleep(2)
+            if current_enabled!=desired or actual.keys()!=bindings.keys():
+              raise RuntimeError("Post-deploy flags or bindings unexpectedly changed")
+            if any(actual[k]["type"]!=bindings[k]["type"] for k in bindings):
+              raise RuntimeError("Post-deploy binding types changed")
+            deployment=(call("/workers/scripts/"+target+"/deployments").get("deployments") or [{}])[0].get("id")
+            result.update(status="pass",previous_deployment=last,deployment_id=deployment,active_flags=sorted(desired))
+          except Exception as ex:
+            result.update(status="failed",error=type(ex).__name__+": "+str(ex)[:150])
+            save()
+            raise
+          save()
+          print("Expense flag activated; no D1 records changed.")
+          PY
+      - name: Save sanitized result
+        if: always()
+        run: |
+          test -f ops-audit/bank-expense-activation.json || exit 1
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/bank-expense-activation.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(ops): record Bank expense flag status"
+          git push origin HEAD:bank-expense-guard-20261025
