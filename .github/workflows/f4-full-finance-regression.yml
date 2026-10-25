@@ -2,7 +2,7 @@ name: Flamboyan 4 - Full Isolated Finance Regression
 on:
   workflow_dispatch:
   push:
-    branches: [main, finalize-iuran-year-guards-20261025, migrate-portal-public-cash-20261025, bank-safe-reversal-20261025, bank-real-report-member-fix-20261025, bank-album-cover-20261025, bank-progress-photo-final-20261025, bank-authenticated-ui-isolated-20261025, bank-final-private-parity-login-20261025, bank-final-three-deposit-audit-20261025, bank-portal-real-login-browser-20261025, fix-iuran-talangan-portal-pribadi-20261025]
+    branches: [main]
     paths:
       - cloudflare/worker-terpadu-operasional-teruji.js
       - qa/run_isolated_bank_full_e2e.py
@@ -15,7 +15,6 @@ on:
       - portal-live/pembukuan/index.html
       - portal-live/bank-sampah/index.html
       - portal-live/superadmin-editor.js
-      - uji-terpadu/portal/index.html
       - .github/workflows/f4-full-finance-regression.yml
 
 permissions:

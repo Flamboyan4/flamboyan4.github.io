@@ -70,7 +70,7 @@
        const oldLink=raw.toLowerCase();
        const invalidBankLink=!raw||oldLink.includes('script.google.com')||oldLink==='/banksampah/'||oldLink==='/banksampah';
        const link=kind==='Bank Sampah'&&invalidBankLink
-         ?'https://flamboyan4.web.id/uji-terpadu/#bank-sampah':raw;
+         ?'https://flamboyan4.web.id/#bank-sampah':raw;
        const description=String(x.description||'').trim();
        const status=description.length<=50?description||'Aktif':'Aktif';
        return [x.sort_order,title,kind,status,'YA',link];

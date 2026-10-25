@@ -947,7 +947,7 @@ html body.iframe-modal-open{overflow:hidden!important}
  const portalRequested=requested.split('/')[0];
  selected=Object.hasOwn(apps,portalRequested)?portalRequested:'portal';
  update(selected);refreshSession();
- // A same-page link such as /uji-terpadu/#bank-sampah must actually switch
+ // A same-page link such as /#bank-sampah must actually switch
  // the iframe and dismiss any management overlay, not just update the URL.
  window.addEventListener('hashchange',()=>{
    const target=location.hash.slice(1);
