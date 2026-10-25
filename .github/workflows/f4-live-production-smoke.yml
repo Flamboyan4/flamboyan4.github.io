@@ -1,0 +1,51 @@
+name: F4 Production Read-only Health Verification
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/f4-live-production-smoke.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Check live public routes and private boundaries without credentials
+        run: |
+          python3 - <<'PY'
+          import json,urllib.request,urllib.error,sys
+          base="https://api.flamboyan4.web.id"
+          routes=[
+            ("/api/health",200),
+            ("/api/v2/system/features",200),
+            ("/api/v2/public/portal",200),
+            ("/api/v2/public/bank",200),
+            ("/api/v2/public/bank/report",200),
+            ("/api/member/savings",401),
+            ("/api/bookkeeping/reports/yearly?year=2026",401)
+          ]
+          failed=[]
+          for path,expected in routes:
+              req=urllib.request.Request(base+path,headers={
+                  "Accept":"application/json","Cache-Control":"no-cache",
+                  "Origin":"https://flamboyan4.web.id",
+                  "User-Agent":"Mozilla/5.0 Flamboyan4-Smoke/1.0"
+              })
+              try:
+                  with urllib.request.urlopen(req,timeout=20) as response:
+                      code=response.status
+                      data=json.load(response)
+                      valid=isinstance(data,dict) and data.get("ok") is not False
+              except urllib.error.HTTPError as error:
+                  code=error.code
+                  valid=expected==401 and code in (401,403)
+              except Exception as error:
+                  code=type(error).__name__
+                  valid=False
+              good=(code==expected or (expected==401 and code==403)) and valid
+              print(("PASS" if good else "FAIL")+" "+path+" HTTP="+str(code))
+              if not good:failed.append((path,code))
+          if failed:raise SystemExit("Live smoke incomplete: "+str(failed))
+          print("ALL_PUBLIC_AND_ROLE_BOUNDARY_SMOKES_PASS")
+          PY
