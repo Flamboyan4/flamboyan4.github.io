@@ -200,6 +200,25 @@ try:
         assert_step("superadmin_written_content_readback",
           read_master[0]==200 and any(z.get("id")==content_created[1].get("id")
               for z in read_master[1].get("data",[])))
+        jersey_created=call(base+"/api/v2/admin/content/jersey","POST",{
+          "action":"save","values":{
+            "group_key":"bapak","sort_order":999,"resident":"QA LOKAL/999",
+            "sleeves":"Pendek","size":"M","printed_name":"QA 999",
+            "payment_status":"DP 50000","nominal_rp":90000,"method":"Cash"}},temporary)
+        assert_step("jersey_d1_create_from_superadmin_editor_local",
+          jersey_created[0]==201 and str(jersey_created[1].get("id","")).startswith("jersey:web:"),
+          {"status":jersey_created[0],"error":jersey_created[1].get("error","")[:90]})
+        jersey_id=jersey_created[1].get("id")
+        jersey_updated=call(base+"/api/v2/admin/content/jersey","POST",{
+          "action":"save","id":jersey_id,
+          "values":{"size":"XL","payment_status":"Lunas"}},temporary)
+        assert_step("jersey_d1_edit_from_superadmin_editor_local",
+          jersey_updated[0]==200 and jersey_updated[1].get("updated") is True)
+        jersey_read=call(base+"/api/v2/admin/content/jersey",token=temporary)
+        assert_step("jersey_d1_updated_values_persisted_local",
+          jersey_read[0]==200 and any(z.get("id")==jersey_id and
+            z.get("size")=="XL" and z.get("payment_status")=="Lunas"
+            for z in jersey_read[1].get("data",[])))
         added_house=call(base+"/api/v2/admin/residents","POST",{
           "action":"add_house","rumah":"QA/999","deskripsi_rumah":"Hanya pada D1 lokal"
         },temporary)
