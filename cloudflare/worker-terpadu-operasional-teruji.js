@@ -61,31 +61,6 @@ async function publicPortal(db) {
   return ok({agenda,banners,projects,inventory,meetings,documentation,arisan,jerseyBapak,jerseyIbu});
 }
 __name(publicPortal, "publicPortal");
-
-async function readPortalComments(db){
-  const data=await list(db,"SELECT id,display_name,body,created_at FROM portal_comments WHERE lower(status) IN ('aktif','terbit','published','disetujui','tampil') ORDER BY created_at DESC,id DESC LIMIT 50");
-  return ok({data,source:"cloudflare-d1"});
-}
-__name(readPortalComments,"readPortalComments");
-async function submitPortalFeedback(request,env,kind){
-  let payload;
-  try{payload=await body(request)}catch(e){return err("Format pesan tidak valid: "+e.message,400)}
-  const suggestion=kind==="suggestion";
-  const name=suggestion?"Kotak Saran":String(payload.nama||"").replace(/\s+/g," ").trim();
-  const message=String(payload.pesan||"").trim();
-  if(name.length<2||name.length>80||/[\x00-\x1f<>]/.test(name))
-    return err("Nama harus 2 sampai 80 karakter, tanpa HTML.",400);
-  if(message.length<(suggestion?5:2)||message.length>2000||/[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(message))
-    return err("Pesan harus 2–2000 karakter dan tidak mengandung karakter kontrol.",400);
-  const db=env.DB,status=suggestion?"saran":"aktif";
-  const prior=await one(db,"SELECT id FROM portal_comments WHERE display_name=? AND body=? AND status=? AND created_at>=datetime('now','-10 minutes') LIMIT 1",[name,message,status]);
-  if(prior)return ok({id:prior.id,duplicate:true,kind});
-  const id=(suggestion?"saran:":"komentar:")+crypto.randomUUID();
-  await db.prepare("INSERT INTO portal_comments(id,display_name,body,status,created_at) VALUES(?,?,?,?,CURRENT_TIMESTAMP)").bind(id,name,message,status).run();
-  return ok({id,kind,source:"cloudflare-d1"},201);
-}
-__name(submitPortalFeedback,"submitPortalFeedback");
-
 // Public transparency report: read only, from the authoritative active D1 cash journal.
 // No superadmin reports are exposed; only date, cash category and amounts as in the
 // existing publicly displayed Kas Lingkungan report.
@@ -798,9 +773,6 @@ async function handleUnifiedApi(request, env, who) {
   if (method === "GET" && path === "/api/v2/system/features") return ok({ api: "v2", frontend: "github-pages", storage: "d1+r2", bankWrites: env.BANK_WRITE_ENABLED === "true", bookkeepingWrites: env.FINANCE_WRITE_ENABLED === "true", bankReconciliationWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_RECONCILIATION_WRITE_ENABLED === "true", bankCancellationWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_CANCEL_WRITE_ENABLED === "true", bankExpenseWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_EXPENSE_WRITE_ENABLED === "true", bankInventoryWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_INVENTORY_WRITE_ENABLED === "true", bankMediaWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_MEDIA_WRITE_ENABLED === "true", bankPayoutWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_PAYOUT_WRITE_ENABLED === "true" });
   if (method === "GET" && path === "/api/v2/auth/session") return who ? ok({ account: { id: who.id, username: who.username, role: who.role }, member: who.member_id ? { id: who.member_id, nama: who.display_name, rumah: who.house_code } : null }) : err("Sesi tidak valid.", 401);
   if (method === "GET" && path === "/api/v2/public/portal") return publicPortal(db);
-  if (method === "GET" && path === "/api/v2/public/portal/comments") return readPortalComments(db);
-  if (method === "POST" && path === "/api/v2/public/portal/comments") return submitPortalFeedback(request,env,"comment");
-  if (method === "POST" && path === "/api/v2/public/portal/suggestions") return submitPortalFeedback(request,env,"suggestion");
   if (method === "GET" && path === "/api/v2/public/portal/cash") return publicPortalCash(db);
   if (method === "GET" && path === "/api/v2/public/bank") return publicBank(db);
   if (method === "GET" && path === "/api/v2/public/bank/report") {
