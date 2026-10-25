@@ -1,6 +1,6 @@
 /* Bridge Portal Utama: render HTML lama dari D1 tanpa mengubah desain.
- * Hanya URL CSV publik tertentu yang dialihkan. Arisan/Jersey tetap pada sumber lama
- * hingga migrasi historis dan aturan aksesnya selesai.
+ * Seluruh delapan sheet publik dimuat dari Cloudflare D1; foto/video boleh tetap
+ * memakai tautan Google Drive sebagai penyimpanan media, bukan database utama.
  */
 (()=>{
  'use strict';
@@ -12,7 +12,10 @@
   'gid=492423764':'inventory',
   'gid=781301604':'agenda',
   'gid=780113187':'banners',
-  'gid=40982005':'projects'
+  'gid=40982005':'projects',
+  'gid=53284271':'arisan',
+  'gid=878370178':'jerseyBapak',
+  'gid=1755921986':'jerseyIbu'
  };
  let stored=null,until=0,pending=null;
  const esc=v=>{
@@ -38,6 +41,13 @@
  }
  function asCsv(kind,data){
   switch(kind){
+   case 'arisan':
+    return csv([['BULAN','NAMA & BLOK','STATUS'],
+      ...(data.arisan||[]).map(x=>[new Intl.DateTimeFormat('id-ID',{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(x.period_on+'T00:00:00Z')),x.host_name,x.status])]);
+   case 'jerseyBapak':
+   case 'jerseyIbu':
+    return csv([['No','Nama & Blok','Lengan','Ukuran','Nama & No. Punggung','Status Pembayaran','Pembayaran','Keterangan'],
+      ...(data[kind]||[]).map(x=>[x.sort_order,x.resident,x.sleeves,x.size,x.printed_name,x.payment_status,x.nominal_rp,x.method])]);
    case 'documentation':
     if(!Array.isArray(data.documentation))throw Error('Tabel dokumentasi D1 belum tersedia');
     return csv([['Tanggal','Judul','Deskripsi','Foto'],
@@ -81,8 +91,8 @@
     const contents=asCsv(kind,data);
     return papaNative(contents,{...config,download:false},...more);
    }).catch(err=>{
-    console.warn('D1 '+kind+' belum siap, kembali ke CSV lama:',err.message);
-    papaNative(input,config,...more);
+    console.error('Data Portal D1 '+kind+' tidak dapat dimuat:',err.message);
+    if(typeof config?.error==='function')config.error(err);
    });
    return undefined;
   };
@@ -92,6 +102,6 @@
   if(kind!=='projects')return fetchNative(input,opts);
   return portalData().then(d=>new Response(asCsv('projects',d),{
     status:200,headers:{'Content-Type':'text/csv; charset=utf-8','Cache-Control':'no-store'}
-  })).catch(e=>{console.warn('Project D1 belum tersedia:',e.message);return fetchNative(input,opts)});
+  })).catch(e=>{throw Error('Data Proyek Cloudflare D1 tidak dapat dimuat: '+e.message)});
  };
 })();
