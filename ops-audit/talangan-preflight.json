@@ -1,0 +1,15 @@
+{
+  "checked_at_utc": "2026-10-25T00:20:17.090391+00:00",
+  "scope": "D1_TALANGAN_READ_ONLY",
+  "counts": {
+    "advances": 1,
+    "repayments": 1,
+    "orphan_repayments": 0,
+    "invalid_cash_links": 0,
+    "unlinked_repayments": 1,
+    "repayment_total_mismatches": 0
+  },
+  "talangan_flag": "false",
+  "portal_flag": "true",
+  "status": "pass"
+}
