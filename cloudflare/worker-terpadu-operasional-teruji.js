@@ -133,7 +133,7 @@ async function adminBank(db, url) {
     deposits: `SELECT d.id,d.deposited_on,d.batch_id,d.member_id,m.display_name AS memberName,d.status,d.total_grams,d.estimated_total_rp FROM waste_deposits d JOIN members m ON m.id=d.member_id ORDER BY d.deposited_on DESC,d.id DESC LIMIT ?`,
     sales: `SELECT id,batch_id,sold_on,buyer_name,amount_gross_rp,amount_received_rp,status FROM waste_sales ORDER BY sold_on DESC,id DESC LIMIT ?`,
     ledger: `SELECT id,member_id,transaction_on,kind,amount_rp,batch_id,reference_id,note FROM waste_savings_ledger ORDER BY transaction_on DESC,id DESC LIMIT ?`,
-    allocations: `SELECT a.id,a.batch_id,b.label AS batchLabel,b.status AS batchStatus,a.received_rp AS receivedRp,a.citizen_rights_rp AS citizenRightsRp,a.reserve_rp AS reserveRp,a.neighborhood_rp AS neighborhoodRp,a.operation_rp AS operationRp,a.adjustment_rp AS adjustmentRp,a.created_at FROM waste_allocations a JOIN waste_batches b ON b.id=a.batch_id ORDER BY a.created_at DESC,a.id DESC LIMIT ?`,
+    allocations: `SELECT a.id,a.batch_id,b.label AS batchLabel,b.status AS batchStatus,a.received_rp AS receivedRp,a.citizen_rights_rp AS citizenRightsRp,a.reserve_rp AS reserveRp,a.neighborhood_rp AS neighborhoodRp,a.operation_rp AS operationRp,a.adjustment_rp AS adjustmentRp,a.created_at FROM waste_allocations a JOIN waste_batches b ON b.id=a.batch_id WHERE b.status='disahkan' ORDER BY a.created_at DESC,a.id DESC LIMIT ?`,
     savings: `SELECT s.member_id,m.display_name AS memberName,h.house_code AS houseCode,COALESCE(SUM(CASE WHEN kind IN ('kredit','koreksi_kredit') THEN s.amount_rp ELSE -s.amount_rp END),0) AS balanceRp FROM waste_savings_ledger s JOIN members m ON m.id=s.member_id LEFT JOIN households h ON h.id=m.household_id GROUP BY s.member_id ORDER BY m.display_name LIMIT ?`,
     expenses: `SELECT id,incurred_on,kind,budget_post,description,amount_rp,status,vendor FROM waste_expenses ORDER BY incurred_on DESC,id DESC LIMIT ?`,
     cash: `SELECT id,occurred_on,transaction_type,fund_position,cash_in_rp,cash_out_rp,status,note FROM waste_cash_ledger ORDER BY occurred_on DESC,id DESC LIMIT ?`,
@@ -2743,6 +2743,117 @@ async function bankReconcileConfirm(request,env,who){
 }
 __name(bankReconcileConfirm,"bankReconcileConfirm");
 
+// Koreksi pengesahan hanya untuk batch API D1 baru, sebelum ada pencairan atau
+// arus kas keluar. Hak warga dibalik melalui jurnal koreksi; histori asli tetap utuh.
+// Satu DB.batch atomik: kegagalan pada jurnal koreksi membatalkan SEMUA perintah.
+async function bankReverseConfirmed(request,env,who){
+  const denied=requireRole(who,["admin","superadmin"]);if(denied)return denied;
+  if(env.BANK_WRITE_ENABLED!=="true"||env.BANK_CANCEL_WRITE_ENABLED!=="true"||env.BANK_RECONCILIATION_WRITE_ENABLED!=="true")
+    return safeError("Pembatalan pengesahan belum diaktifkan.",503);
+  let input;try{input=await requestJson(request)}catch{return safeError("JSON pembatalan tidak valid.",400)}
+  const batchId=String(input?.batch||""),confirmation=String(input?.konfirmasi||""),reason=String(input?.alasan||"").trim(),db=env.DB;
+  if(!batchId||batchId.length>120||confirmation!==batchId||reason.length<10||reason.length>300)
+    return safeError("Ketik ID batch dan alasan pembatalan 10–300 karakter.",400);
+  const batch=await one(db,"SELECT id,status FROM waste_batches WHERE id=?",[batchId]);
+  if(!batch)return safeError("Batch tidak ditemukan.",404);
+  const auditKey="audit:bank-reverse:"+batchId;
+  if(batch.status==="dibatalkan"){
+    const done=await one(db,"SELECT id FROM audit_log WHERE id=?",[auditKey]);
+    return done?json({ok:true,batch:batchId,status:"dibatalkan",duplicate:true}):
+      safeError("Batch sudah dibatalkan di luar alur koreksi terverifikasi.",409);
+  }
+  if(batch.status!=="disahkan")return safeError("Hanya batch yang telah disahkan dapat dibalik.",409);
+  const [sale,allocation,deposits]=await Promise.all([
+    one(db,"SELECT id,sold_on,status,amount_received_rp FROM waste_sales WHERE batch_id=? AND status='terkonfirmasi' LIMIT 1",[batchId]),
+    one(db,"SELECT * FROM waste_allocations WHERE id=? AND batch_id=?",["alloc:bank:"+batchId,batchId]),
+    list(db,"SELECT id,deposited_on,status FROM waste_deposits WHERE batch_id=? ORDER BY id",[batchId])
+  ]);
+  if(!sale||!allocation||!deposits.length||deposits.some(x=>x.status!=="terkonfirmasi"||!x.id.startsWith("deposit:api:")))
+    return safeError("Hanya pengesahan D1 baru yang utuh dapat dibatalkan otomatis; transaksi historis memerlukan audit.",409);
+  const allSales=await one(db,"SELECT COUNT(*) AS n FROM waste_sales WHERE batch_id=?",[batchId]);
+  if(Number(allSales?.n)!==1)return safeError("Batch memiliki lebih dari satu riwayat penjualan; audit manual diperlukan.",409);
+  if(Number(allocation.received_rp)!==Number(sale.amount_received_rp) || !Number.isSafeInteger(allocation.citizen_rights_rp) || allocation.citizen_rights_rp<=0)
+    return safeError("Nominal alokasi tidak sesuai dengan penjualan; pembatalan ditolak.",409);
+  const amounts={
+    tabungan_warga:Number(allocation.citizen_rights_rp),
+    operasional:Number(allocation.operation_rp),
+    kas_lorong:Number(allocation.neighborhood_rp),
+    cadangan:Number(allocation.reserve_rp)
+  };
+  if(Object.values(amounts).some(n=>!Number.isSafeInteger(n)||n<0)||
+     Object.values(amounts).reduce((a,b)=>a+b,0)!==Number(allocation.received_rp))
+    return safeError("Pos kas pengesahan tidak seimbang.",409);
+  const years=[...new Set([sale.sold_on,...deposits.map(x=>x.deposited_on)].map(d=>Number(String(d).slice(0,4))))];
+  const locks=await db.prepare(`SELECT fiscal_year FROM fiscal_closings WHERE fiscal_year IN (${years.map(()=>"?").join(",")}) LIMIT 1`).bind(...years).first();
+  if(locks)return safeError("Tahun transaksi sudah ditutup.",409);
+  const credits=await list(db,"SELECT id,member_id,amount_rp FROM waste_savings_ledger WHERE batch_id=? AND kind='kredit' ORDER BY id",[batchId]);
+  if(!credits.length||credits.some(x=>x.id!=="bank-right:"+sale.id+":"+x.member_id||!Number.isSafeInteger(x.amount_rp)||x.amount_rp<=0)||
+     credits.reduce((n,x)=>n+x.amount_rp,0)!==amounts.tabungan_warga)
+    return safeError("Hak tabungan pengesahan tidak cocok dengan alokasi.",409);
+  const cash=await list(db,"SELECT id,transaction_type,fund_position,cash_in_rp,cash_out_rp,status FROM waste_cash_ledger WHERE source_transaction_id=? ORDER BY id",[sale.id]);
+  const expectedCash=Object.entries(amounts).filter(([,value])=>value>0);
+  if(cash.length!==expectedCash.length||cash.some(x=>x.id!=="bank-sale-cash:"+sale.id+":"+x.fund_position||
+     x.transaction_type!=="penjualan_terkonfirmasi"||x.status!=="aktif"||Number(x.cash_out_rp)!==0||
+     Number(x.cash_in_rp)!==amounts[x.fund_position]))
+    return safeError("Jurnal kas pengesahan tidak utuh atau telah berubah.",409);
+  const memberIds=credits.map(x=>x.member_id);
+  const payoutQuery=`SELECT id FROM waste_savings_ledger WHERE member_id IN (${memberIds.map(()=>"?").join(",")}) AND kind='pencairan' LIMIT 1`;
+  if(await db.prepare(payoutQuery).bind(...memberIds).first())
+    return safeError("Pembatalan ditolak: salah satu warga sudah melakukan pencairan tabungan; perlukan audit manual.",409);
+  const outgoing=await one(db,"SELECT id FROM waste_cash_ledger WHERE status='aktif' AND cash_out_rp>0 AND occurred_on>=? LIMIT 1",[sale.sold_on]);
+  if(outgoing)return safeError("Pembatalan ditolak: terdapat arus kas keluar setelah tanggal penjualan.",409);
+  for(const [fund,originalAmount] of expectedCash){
+    const cashBalance=await one(db,"SELECT COALESCE(SUM(cash_in_rp-cash_out_rp),0) AS balance FROM waste_cash_ledger WHERE status='aktif' AND fund_position=?",[fund]);
+    if(Number(cashBalance?.balance)<originalAmount)return safeError("Dana pos "+fund+" tidak mencukupi untuk pembalikan pengesahan.",409);
+  }
+  for(const credit of credits){
+    const current=await one(db,`SELECT COALESCE(SUM(CASE WHEN kind IN ('kredit','koreksi_kredit') THEN amount_rp ELSE -amount_rp END),0) AS balance
+      FROM waste_savings_ledger WHERE member_id=?`,[credit.member_id]);
+    if(Number(current?.balance)<credit.amount_rp)return safeError("Saldo tabungan warga tidak cukup untuk koreksi.",409);
+  }
+  // Semua invariant kritis diulang di dalam INSERT transaksional melalui CHECK(amount_rp>0).
+  // Seluruh koreksi dibatalkan bila status/arus kas berubah sejak pratinjau.
+  const fundGuards=expectedCash.map(([fund,value])=>
+    "(SELECT COALESCE(SUM(cash_in_rp-cash_out_rp),0) FROM waste_cash_ledger WHERE status='aktif' AND fund_position='"+fund+"')>="+value).join(" AND ");
+  const guard=`(SELECT status FROM waste_batches WHERE id=?)='disahkan'
+       AND (SELECT status FROM waste_sales WHERE id=?)='terkonfirmasi'
+       AND NOT EXISTS(SELECT 1 FROM waste_cash_ledger WHERE status='aktif' AND cash_out_rp>0 AND occurred_on>=?)
+       AND NOT EXISTS(SELECT 1 FROM waste_savings_ledger WHERE kind='pencairan' AND member_id IN (${memberIds.map(()=>"?").join(",")}))
+       AND ${fundGuards}`;
+  const reversalDate=new Date(Date.now()+7*3600000).toISOString().slice(0,10);
+  const stmts=credits.map(credit=>
+    db.prepare(`INSERT INTO waste_savings_ledger(id,member_id,transaction_on,kind,amount_rp,batch_id,reference_id,note,created_by)
+      VALUES(?,?,?,'koreksi_debit',
+       CASE WHEN ${guard} AND (SELECT COALESCE(SUM(CASE WHEN kind IN ('kredit','koreksi_kredit') THEN amount_rp ELSE -amount_rp END),0)
+         FROM waste_savings_ledger WHERE member_id=?)>=? THEN ? ELSE 0 END,?,?,?,?)`)
+      .bind("bank-reverse:"+sale.id+":"+credit.member_id,credit.member_id,reversalDate,
+        batchId,sale.id,sale.sold_on,...memberIds,credit.member_id,credit.amount_rp,credit.amount_rp,
+        batchId,sale.id+":"+credit.member_id,"Koreksi hak tabungan pengesahan dibatalkan: "+reason,who.id));
+  stmts.push(
+    db.prepare("UPDATE waste_cash_ledger SET status='dibatalkan' WHERE source_transaction_id=? AND transaction_type='penjualan_terkonfirmasi' AND status='aktif'").bind(sale.id),
+    db.prepare("UPDATE waste_deposits SET status='dibatalkan' WHERE batch_id=? AND status='terkonfirmasi'").bind(batchId),
+    db.prepare("UPDATE waste_sales SET status='dibatalkan' WHERE id=? AND batch_id=? AND status='terkonfirmasi'").bind(sale.id,batchId),
+    db.prepare("UPDATE waste_batches SET status='dibatalkan' WHERE id=? AND status='disahkan'").bind(batchId),
+    db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'banksampah','reverse_confirmed_batch','waste_batches',?,?,?)")
+      .bind(auditKey,who.id,batchId,reason,JSON.stringify({saleId:sale.id,creditRp:amounts.tabungan_warga,cashReversed:amounts,memberCount:credits.length}))
+  );
+  try{
+    const results=await db.batch(stmts);
+    const cashUpdate=results[credits.length],depositUpdate=results[credits.length+1],saleUpdate=results[credits.length+2],batchUpdate=results[credits.length+3];
+    if(Number(cashUpdate?.meta?.changes)!==cash.length||Number(depositUpdate?.meta?.changes)!==deposits.length||
+       Number(saleUpdate?.meta?.changes)!==1||Number(batchUpdate?.meta?.changes)!==1)
+      return safeError("Pembatalan tercatat, tetapi status akhir perlu diverifikasi sebelum transaksi lanjutan.",409);
+  }catch{
+    const latest=await one(db,"SELECT status FROM waste_batches WHERE id=?",[batchId]);
+    if(latest?.status==="dibatalkan"&&await one(db,"SELECT id FROM audit_log WHERE id=?",[auditKey]))
+      return json({ok:true,batch:batchId,status:"dibatalkan",duplicate:true});
+    return safeError("Pembatalan ditolak, tidak ada koreksi parsial yang disimpan.",409);
+  }
+  return json({ok:true,batch:batchId,status:"dibatalkan",rightsReversedRp:amounts.tabungan_warga,
+    cashReversedRp:Number(allocation.received_rp),duplicate:false},200);
+}
+__name(bankReverseConfirmed,"bankReverseConfirmed");
+
 function validDateOnly(value) {
   if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const d = /* @__PURE__ */ new Date(value + "T00:00:00Z");
@@ -3478,6 +3589,9 @@ async function handle(request, env) {
   }
   if (path === "/api/admin/reconciliation/confirm" && request.method === "POST") {
     return bankReconcileConfirm(request,env,who);
+  }
+  if (path === "/api/admin/reconciliation/cancel" && request.method === "POST") {
+    return bankReverseConfirmed(request,env,who);
   }
   if (path === "/api/admin/status" && request.method === "GET") {
     const denied = requireRole(who, ["admin", "superadmin"]);

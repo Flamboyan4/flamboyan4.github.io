@@ -2,7 +2,7 @@ name: Flamboyan 4 - Full Isolated Finance Regression
 on:
   workflow_dispatch:
   push:
-    branches: [finalize-iuran-year-guards-20261025, migrate-portal-public-cash-20261025]
+    branches: [finalize-iuran-year-guards-20261025, migrate-portal-public-cash-20261025, bank-safe-reversal-20261025]
     paths:
       - cloudflare/worker-terpadu-operasional-teruji.js
       - qa/run_isolated_bank_full_e2e.py
