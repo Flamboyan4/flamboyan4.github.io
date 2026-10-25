@@ -264,6 +264,7 @@ try:
         edited=call(base+"/api/bookkeeping/iuran/edit","POST",{
           "idPembayaran":payment_id,"tanggal":"2026-10-24",
           "metode":"QRIS","catatan":"Koreksi metadata QA LOCAL"},temporary)
+        if edited[0]!=200:print("ISOLATED_IURAN_EDIT_DIAG="+json.dumps({"status":edited[0],"error":edited[1].get("error","")}))
         assert_step("new_iuran_metadata_edit_atomic_local",edited[0]==200 and edited[1].get("ok") is True)
         with sqlite3.connect(str(files[0])) as check:
             pay=check.execute("SELECT paid_on,payment_method,amount_rp FROM bookkeeping_payments WHERE id=?",(payment_id,)).fetchone()
