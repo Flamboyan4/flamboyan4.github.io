@@ -957,7 +957,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
    id:x.id,tanggal:x.occurred_on,jenis:x.transaction_type,pos:x.fund_position,
    masuk:number(x.cash_in_rp),keluar:number(x.cash_out_rp),status:x.status,keterangan:x.note||''
  }));
- const adminAlbums=async()=> (await adminRows('albums')).map(x=>({
+ const adminAlbums=async()=> (await adminRows('albums')).filter(isBankAlbum).map(x=>({
    id:x.id,albumId:x.id,judul:x.title,tanggal:x.event_on,deskripsi:x.description||'',
    kategori:x.category,publik:x.visibility==='publik',status:x.status==='aktif'?'Aktif':x.status
  }));
@@ -1976,7 +1976,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     $('v21GalleryBody').replaceChildren(body);
     const modal=$('v21GalleryModal');
     if(modal.classList.contains('hidden')){
-      history.pushState({...history.state,f4BankAlbumOverlay:true},'',location.href);
+      // Overlay stays inside this iframe; no browser history entry or hash mutation.
       modal.classList.remove('hidden');
       v21NotifyOverlay();
     }
@@ -1985,7 +1985,6 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     const modal=$('v21GalleryModal');
     if(!modal||modal.classList.contains('hidden'))return;
     if(!$('v21Lightbox')?.classList.contains('hidden')){v21CloseLightbox(fromHistory);return;}
-    if(!fromHistory&&history.state?.f4BankAlbumOverlay){history.back();return;}
     modal.classList.add('hidden');v21OpenedAlbum=null;v21NotifyOverlay();
   }
   function v21ShowAlbumArchive(){
@@ -2032,14 +2031,17 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     if(!v21OpenedAlbum?.media?.length)return;
     v21MediaIndex=index;
     if(!$('v21Lightbox').classList.contains('hidden'))return;
-    history.pushState({...history.state,f4BankPhotoOverlay:true},'',location.href);
     $('v21Lightbox').classList.remove('hidden');v21PaintLightbox();v21NotifyOverlay();
   }
   function v21PaintLightbox(){
     const list=v21OpenedAlbum?.media||[],m=list[v21MediaIndex];if(!m)return;
     const scene=$('v21StageContent');scene.replaceChildren();
     if(m.jenis==='Video'){
-      const video=document.createElement('iframe');video.src=m.src;video.title=m.nama||'Video kegiatan';video.allow='autoplay; fullscreen; picture-in-picture';video.allowFullscreen=true;scene.appendChild(video);
+      const raw=String(m.src||m.url||''),driveId=raw.match(/(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?[^#]*?id=)|[?&]id=)([A-Za-z0-9_-]{12,})/i)?.[1];
+      const youtube=raw.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([\w-]{11})/i)?.[1];
+      const video=document.createElement('iframe');
+      video.src=driveId?'https://drive.google.com/file/d/'+driveId+'/preview':youtube?'https://www.youtube-nocookie.com/embed/'+youtube:raw;
+      video.title=m.nama||'Video kegiatan';video.allow='autoplay; fullscreen; picture-in-picture';video.allowFullscreen=true;scene.appendChild(video);
     }else scene.appendChild(v21Photo(m.src,m.nama||'Foto kegiatan'));
     $('v21LightboxName').replaceChildren(v21Node('h2','',m.nama||m.jenis));
     $('v21LightboxCount').textContent=(v21MediaIndex+1)+' dari '+list.length;
@@ -2050,7 +2052,6 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   }
   function v21CloseLightbox(fromHistory=false){
     const modal=$('v21Lightbox');if(!modal||modal.classList.contains('hidden'))return;
-    if(!fromHistory&&history.state?.f4BankPhotoOverlay){history.back();return;}
     modal.classList.add('hidden');$('v21StageContent')?.replaceChildren();v21NotifyOverlay();
   }
   function v21ShowInventory(item){
@@ -2181,29 +2182,8 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
       v23RenderAccounts();
     }catch(e){target.textContent='Gagal memuat daftar warga: '+(e.message||e);}
   };
-  // Riwayat browser HP: kembali dari foto ke album, lalu dari album ke halaman sebelumnya.
-  let v23ModalState='',v23IgnorePop=0;
-  const v23OriginalShowModal=v21ShowModal,v23OriginalOpenLightbox=v21OpenLightbox;
-  v21ShowModal=function(title,subtitle,body){
-    if(!v23ModalState){history.pushState({bsV23:'album'},'','#galeri');v23ModalState='album';}
-    v23OriginalShowModal(title,subtitle,body);
-  };
-  v21OpenLightbox=function(index){
-    if(!v21OpenedAlbum?.media?.length)return;
-    if(v23ModalState!=='foto'){history.pushState({bsV23:'foto'},'','#media');v23ModalState='foto';}
-    v23OriginalOpenLightbox(index);
-  };
-  const v23HideLightbox=v21CloseLightbox,v23HideGallery=v21CloseGallery;
-  v21CloseLightbox=function(){v23HideLightbox();if(v23ModalState==='foto'){v23ModalState='album';if(history.state?.bsV23==='foto'){v23IgnorePop++;history.back();}}};
-  v21CloseGallery=function(){
-    if(!$('v21Lightbox')?.classList.contains('hidden')){v21CloseLightbox();return;}
-    v23HideGallery();if(v23ModalState==='album'){v23ModalState='';if(history.state?.bsV23==='album'){v23IgnorePop++;history.back();}}
-  };
-  window.addEventListener('popstate',()=>{
-    if(v23IgnorePop){v23IgnorePop--;return;}
-    if(v23ModalState==='foto'){v23ModalState='album';v23HideLightbox();}
-    else if(v23ModalState==='album'){v23ModalState='';v23HideGallery();}
-  });
+  // In an embedded portal, modal close must never navigate the shared shell.
+  // Escape, blank backdrop, and X use the same local close functions.
   // Sentuh dan geser untuk pindah foto/video; tidak mengganggu pemutaran video.
   (function(){
     const stage=$('v21StageContent'),lightbox=$('v21Lightbox'),gallery=$('v21GalleryModal');

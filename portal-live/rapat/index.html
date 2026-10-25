@@ -584,7 +584,7 @@
         card.setAttribute('aria-label','Baca hasil rapat: '+item.judul);
         card.onclick=()=>openModalDocRapat(item.id);
         const cover=document.createElement('div');
-        cover.className='bg-slate-100 w-full aspect-[3/4] overflow-hidden flex items-center justify-center';
+        cover.className='bg-slate-100 w-full aspect-[3/4] md:aspect-[16/10] overflow-hidden flex items-center justify-center';
         const img=document.createElement('img');
         img.src=fixDriveUrl(item.fotoPreview);img.alt='Pratinjau '+item.judul;
         img.loading='lazy';img.className='w-full h-full object-cover group-hover:scale-[1.02] transition';
@@ -592,7 +592,12 @@
         cover.append(img);card.append(cover);
         const title=document.createElement('strong');title.textContent=item.judul||'Hasil rapat';
         title.className='block text-xs sm:text-sm font-semibold text-slate-800 p-2.5 sm:p-3 leading-snug line-clamp-2';
-        card.append(title);container.append(card);
+        card.append(title);
+        const summary=document.createElement('p');summary.className='hidden md:block text-xs text-slate-500 px-3 pb-2 line-clamp-2';
+        summary.textContent=item.deskripsi||item.summary||item.ringkasan||'Baca hasil rapat warga';
+        const action=document.createElement('span');action.className='hidden md:block text-center text-xs font-bold text-indigo-700 bg-indigo-50 rounded-lg mx-3 mb-3 mt-auto py-2';
+        action.textContent='Baca Hasil Rapat';
+        card.append(summary,action);container.append(card);
       });
       lucide.createIcons();
 

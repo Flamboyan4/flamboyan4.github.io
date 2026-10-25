@@ -12,9 +12,11 @@ const normalize=item=>{
  if(!item||typeof item!=='object')return null;
  const raw=String(item.url||item.src||'');
  const type=/video|mp4|webm/i.test(String(item.type||item.mimeType||'')+' '+raw)?'video':'foto';
- const id=raw.match(/(?:\/d\/|[?&]id=)([A-Za-z0-9_-]{12,})/)?.[1];
+ const id=raw.match(/(?:\/d\/|[?&]id=|\/d\/)([A-Za-z0-9_-]{12,})/)?.[1];
+ const yt=raw.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([\w-]{11})/i)?.[1];
  return {url:safe(raw),type,caption:String(item.caption||item.nama||'').slice(0,140),
-  embed:type==='video'&&id&&/drive\.google\.com/.test(raw)?'https://drive.google.com/file/d/'+id+'/preview':null};
+  embed:type==='video'&&id&&/drive\.google\.com/.test(raw)?'https://drive.google.com/file/d/'+id+'/preview':
+   type==='video'&&yt?'https://www.youtube-nocookie.com/embed/'+yt:null};
 };
 let album=null,photo=null,items=[],at=0,albumTitle='Dokumentasi',lastTile=null,closing=false;
 const isOpen=el=>!!el&&!el.hidden;
@@ -77,7 +79,14 @@ function renderPhoto(){
  const view=photo.querySelector('.f4p-photo-content');view.replaceChildren();
  if(item.type==='video'){
   if(item.embed){const frame=node('iframe','f4p-media-frame');frame.src=item.embed;frame.title=item.caption||albumTitle;frame.allowFullscreen=true;frame.allow='autoplay; fullscreen';view.append(frame)}
-  else{const video=node('video','f4p-media-video');video.controls=true;video.playsInline=true;video.preload='metadata';video.src=item.url;view.append(video)}
+  else{
+   const video=node('video','f4p-media-video');video.controls=true;video.playsInline=true;video.preload='metadata';video.src=item.url;
+   video.addEventListener('error',()=>{if(!video.isConnected)return;
+    const error=node('p','f4p-media-error','Video tidak dapat diputar langsung. Periksa izin berbagi atau format video.');
+    const link=node('a','f4p-media-open','Buka video di sumber');link.href=item.url;link.target='_blank';link.rel='noopener noreferrer';
+    video.replaceWith(error);view.append(link);
+   },{once:true});view.append(video);
+  }
  }else{
   const img=node('img','f4p-media-photo');img.src=item.url;img.alt=item.caption||albumTitle;img.loading='eager';img.decoding='async';
   img.onerror=()=>{if(img.isConnected)img.replaceWith(node('p','f4p-media-error','Foto tidak dapat dimuat.'))};

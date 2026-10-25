@@ -75,7 +75,7 @@ function header(label,description){
 function viewList(){
  const def=types[active];if(!def)return;
  editing=false;
- header(def.label,'Sumber Cloudflare D1 • Klik Edit untuk memperbarui data. Akun dan transaksi tidak berubah.');
+ header(def.label,'Pilih Edit untuk memperbarui data tanpa mengubah transaksi warga.');
  const tools=node('div',undefined,'f4-admin-controls');
  const search=node('input');search.placeholder='Cari data';search.value=filter;search.oninput=()=>{filter=search.value;populate();};
  tools.append(search);
@@ -124,7 +124,7 @@ function populate(){
      const a=node('a','Buka tautan ↗');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';a.className='f4-admin-source-link';return a;}
     catch{return node('span','Tautan perlu diperiksa','f4-admin-muted')}
    }
-   const v=raw==null||raw===''?'—':String(raw);
+   const v=key==='category'&&x._f4_bank_kind?'Bank Sampah • '+bankCategoryLabel(raw):raw==null||raw===''?'—':String(raw);
    const formatted=key==='nominal_rp'?'Rp '+Number(raw||0).toLocaleString('id-ID'):/(_on|starts_on|ends_on)$/.test(key)?dateText(v):v;
    const cell=node('span',formatted);if(key==='description'||key==='summary')cell.className='f4-admin-truncate';
    return cell;
@@ -132,7 +132,7 @@ function populate(){
   for(const x of rows){
    const tr=node('tr');
    for(const [key] of fields){const td=node('td');td.append(showValue(x,key));tr.append(td)}
-   const action=node('td');action.append(btn('Edit',()=>showForm(x)));tr.append(action);body.append(tr);
+   const action=node('td');action.append(btn('Edit',()=>x._f4_bank_kind?showBankForm(x._f4_bank_kind,x):showForm(x)));tr.append(action);body.append(tr);
   }
   if(!rows.length){const tr=node('tr'),td=node('td','Tidak ada data yang cocok.');td.colSpan=fields.length+1;tr.append(td);body.append(tr)}
   table.append(body);scroll.append(table);list.append(scroll);return;
@@ -144,7 +144,7 @@ function populate(){
   info.append(node('strong',title||'Tanpa judul'));
   const detail=[x.starts_on||x.event_on||x.meeting_on||x.rumah||'',x.status||x.visibility||''].filter(Boolean).join(' • ');
   info.append(node('small',detail));
-  item.append(info,btn('Edit',()=>showForm(x)));list.append(item);
+  item.append(info,btn('Edit',()=>x._f4_bank_kind?showBankForm(x._f4_bank_kind,x):showForm(x)));list.append(item);
  }
  if(!rows.length)list.append(node('p','Tidak ada data yang cocok.','f4-admin-note'));
 }
@@ -217,14 +217,15 @@ function printJerseyReport(){
 function showForm(record){
  if(!inContext())return;
  editing=true;
+ if(record?._f4_bank_kind)return showBankForm(record._f4_bank_kind,record);
  const def=types[active],isNew=!record;
  header((isNew?'Tambah ':'Edit ')+def.label,'Formulir ini mengubah data master yang ditampilkan di portal. Tautan foto/video tetap berada di Google Drive.');
- const form=node('form',undefined,'f4-admin-editor');form.noValidate=true;
+ const form=node('form',undefined,'f4-admin-editor');form.noValidate=true;main.append(form);
  if(active==='documentation'||active==='inventory'){
   const scopeField=node('label'),caption=node('span','Tujuan publikasi'),scope=node('select');
   scope.add(new Option('Portal Utama','portal'),new Option('Bank Sampah','bank-sampah'));
   scope.value='portal';scope.disabled=!isNew;
-  scope.onchange=()=>{if(scope.value==='bank-sampah')window.f4SuperadminSwitchModule?.(active==='documentation'?'bank_albums':'bank_inventory')};
+  scope.onchange=()=>{if(scope.value==='bank-sampah')showBankForm(active==='documentation'?'bank_albums':'bank_inventory',null)};
   scopeField.append(caption,scope);form.append(scopeField);
  }
  const grid=node('div',undefined,'f4-admin-fields');form.append(grid);
@@ -277,7 +278,7 @@ function showForm(record){
  }
  const notice=node('p','','f4-admin-message');form.append(notice);
  const actions=node('div',undefined,'f4-warga-form-actions');
- actions.append(btn('Batal',viewList),btn('Simpan ke Cloudflare',()=>{if(form.reportValidity())form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}))},'f4-admin-primary'));
+ actions.append(btn('Batal',viewList),btn('Simpan Perubahan',()=>{if(form.reportValidity())form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}))},'f4-admin-primary'));
  form.append(actions);
  form.addEventListener('submit',async(e)=>{
   e.preventDefault();
@@ -319,11 +320,10 @@ function showForm(record){
   try{
    await send(base+active,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});
    await fetchData(active);
-   viewList(); const info=main.querySelector('.f4-admin-note');if(info)info.textContent='Data berhasil disimpan ke D1. '+records.length+' baris tersedia.';
+   viewList(); const info=main.querySelector('.f4-admin-note');if(info)info.textContent='Data berhasil disimpan. '+records.length+' baris tersedia.';
   }catch(err){notice.textContent='Gagal menyimpan: '+err.message}
   finally{submit.disabled=false}
  });
- main.append(form);
 }
 async function fetchData(kind){
  const d=await send(base+kind);
@@ -353,7 +353,7 @@ async function openBankAdminEditor(kind){
  if(!inContext()||!bankModules[kind])return;
  active=kind;filter='';page.hidden=false;if(resident)resident.hidden=true;
  const def=bankModules[kind];
- header(def.label,'Konten khusus Bank Sampah di Cloudflare D1. Tidak akan ditayangkan sebagai dokumentasi atau inventaris Portal Utama.');
+ header(def.label,'Konten khusus Bank Sampah; terpisah dari dokumentasi dan inventaris Portal Utama.');
  const tools=node('div',undefined,'f4-admin-controls'),q=node('input');
  q.placeholder='Cari data Bank Sampah';tools.append(q,btn('+ Tambah '+def.label,()=>showBankForm(kind,null)),btn('Muat Ulang',()=>openBankAdminEditor(kind)));
  main.append(tools);
@@ -367,7 +367,7 @@ async function openBankAdminEditor(kind){
   // Album tanpa penanda dipertahankan agar Superadmin dapat mengklasifikasikan
   // arsip lama secara eksplisit; tidak otomatis dijadikan album Bank Sampah.
   if(kind==='bank_albums')rows=[...rows].sort((a,b)=>Number(bankScoped(b))-Number(bankScoped(a)));
-  info.textContent=rows.length+' data tersedia • '+(kind==='bank_albums'?'Album tanpa penanda belum otomatis tampil di Bank Sampah.':'Sumber D1 Bank Sampah.');
+  info.textContent=rows.length+' data tersedia • '+(kind==='bank_albums'?'Album tanpa penanda belum otomatis tampil di Bank Sampah.':'Konten Bank Sampah.');
   const draw=()=>{
    box.replaceChildren();const query=q.value.toLowerCase().trim(),found=rows.filter(x=>!query||JSON.stringify(x).toLowerCase().includes(query));
    for(const record of found){
@@ -388,13 +388,13 @@ async function openBankAdminEditor(kind){
 function showBankForm(kind,record){
  if(!inContext())return;
  const def=bankModules[kind];if(!def)return;
- const isEdit=!!record;header((isEdit?'Edit ':'Tambah ')+def.label,'Semua perubahan menggunakan endpoint D1 Bank Sampah dengan hak akses Superadmin.');
- const form=node('form',undefined,'f4-admin-editor'),grid=node('div',undefined,'f4-admin-fields');
+ const isEdit=!!record;header((isEdit?'Edit ':'Tambah ')+def.label,'Kelola konten Bank Sampah menggunakan akses Superadmin.');
+ const form=node('form',undefined,'f4-admin-editor'),grid=node('div',undefined,'f4-admin-fields');main.append(form);
  if(kind==='bank_albums'||kind==='bank_inventory'){
   const dest=node('label'),label=node('span','Tujuan publikasi'),select=node('select');
   select.add(new Option('Bank Sampah','bank-sampah'),new Option('Portal Utama','portal'));
   select.value='bank-sampah';select.disabled=!!record;
-  select.onchange=()=>{if(select.value==='portal')window.f4SuperadminSwitchModule?.(kind==='bank_albums'?'documentation':'inventory')};
+  select.onchange=()=>{if(select.value==='portal')showForm(null)};
   dest.append(label,select);form.append(dest);
  }
  form.append(grid);const controls={};
@@ -437,10 +437,10 @@ function showBankForm(kind,record){
  const note=node('p','','f4-admin-message');form.append(note);
  const actions=node('div',undefined,'f4-warga-form-actions');
  actions.append(btn('Batal',()=>openBankAdminEditor(kind)));
- const save=btn('Simpan ke Cloudflare',()=>{if(form.reportValidity())form.requestSubmit()},'f4-admin-primary');
+ const save=btn('Simpan Perubahan',()=>{if(form.reportValidity())form.requestSubmit()},'f4-admin-primary');
  actions.append(save);form.append(actions);
  form.onsubmit=async e=>{
-  e.preventDefault();save.disabled=true;note.textContent='Menyimpan ke D1…';
+  e.preventDefault();save.disabled=true;note.textContent='Menyimpan…';
   const get=key=>String(controls[key]?.value||'').trim();
   try{
    if(kind==='bank_progress'){
@@ -485,7 +485,6 @@ function showBankForm(kind,record){
     if(kind==='bank_albums'&&!record)note.textContent+=' Jika album berhasil dibuat tetapi media gagal, periksa daftar sebelum membuat ulang.'}
   finally{save.disabled=false}
  };
- main.append(form);
 }
 
 window.f4CancelSuperadminEditor=()=>{requestSerial++;};
@@ -495,7 +494,7 @@ window.openSuperadminEditor=async(kind)=>{
  if(bankModules[kind])return openBankAdminEditor(kind);
  if(!types[kind])return;
  active=kind;filter='';page.hidden=false;if(resident)resident.hidden=true;
- sideMenu();header(types[kind].label,'Kelola data acuan Cloudflare D1.');
+ sideMenu();header(types[kind].label,'Kelola data acuan.');
  const serial=++requestSerial;
  const info=node('p','','f4-admin-note');main.append(info);
  const loadToken=window.F4Loading?.begin(info,'Memuat '+types[kind].label+'…');
