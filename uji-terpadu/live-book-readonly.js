@@ -309,6 +309,25 @@
     totalDiganti:sum('nominalDiganti'),totalSisa:sum('sisaTalangan')},
    rekapStatus:[...grouped.values()]}});
  }
+ async function yearStatus(p){
+  const year=Number(p?.tahun||p?.year);
+  if(!Number.isInteger(year)||year<1900||year>2099)throw Error('Tahun buku tidak valid.');
+  const r=await read('/api/bookkeeping/year-status?year='+year);
+  if(!r?.data||r.data.tahun!==year)throw Error('Status tahun belum dapat diverifikasi ke D1.');
+  return successful({data:r.data});
+ }
+ async function archiveList(){
+  const r=await read('/api/bookkeeping/year-archives');
+  if(!Array.isArray(r?.data))throw Error('Daftar arsip D1 tidak sesuai.');
+  return successful({data:r.data});
+ }
+ async function archiveDetail(p){
+  const year=Number(p?.tahun||p?.year);
+  if(!Number.isInteger(year)||year<1900||year>2099)throw Error('Tahun arsip tidak valid.');
+  const r=await read('/api/bookkeeping/year-archive?year='+year);
+  if(!r?.data?.record||r.data.record.tahun!==year)throw Error('Detail arsip D1 tidak sesuai.');
+  return successful({data:r.data});
+ }
  const exact={
   bootstrap,riwayatpembayaran:history,datatransaksikas:cash,
   iuranquicksummary:quickSummary,laporankas:cashReport,
@@ -317,6 +336,7 @@
   laporanarisan:p=>contributionReport('arisan',p),
   laporandenda:finesReport,laporanpinjaman:loansReport,laporantalangan:advancesReport,
   laporantahunan:yearlyReport,
+  statustahun:yearStatus,arsiptahunan:archiveList,detailarsip:archiveDetail,
   datadenda:fines,datapinjaman:loans,datatalangan:advances
  };
  window.__f4BookDemoCall=async params=>{
