@@ -103,6 +103,26 @@ try:
     if not files:raise ValueError("Local SQLite state missing after import")
     connection=sqlite3.connect(str(files[0]))
     connection.execute("PRAGMA foreign_keys=ON")
+    migration=(ROOT/"cloudflare/migrations/20261025_bank_progress_photos.sql").read_text(encoding="utf8")
+    connection.executescript(migration)
+    assert_step("bank_progress_photo_migration_local_only",
+      "bank_progress_photos" in {x[0] for x in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")})
+    # Original spreadsheet upload: 33 roster rows, 2 inventory, 1 documentation,
+    # 3 progress entries, and zero manually entered deposit/expense rows.
+    # Counts are an audit baseline, not proof of per-person identity migration.
+    source_baseline={"roster_rows":33,"inventory_rows":2,"documentation_rows":1,
+                     "progress_rows":3,"deposit_rows":0,"expense_rows":0}
+    actual_counts={
+      "active_members":connection.execute("SELECT COUNT(*) FROM members WHERE status='aktif'").fetchone()[0],
+      "bank_inventory":connection.execute("SELECT COUNT(*) FROM inventory WHERE category='bank_sampah'").fetchone()[0],
+      "bank_progress":connection.execute("SELECT COUNT(*) FROM progress_entries").fetchone()[0],
+      "bank_deposits":connection.execute("SELECT COUNT(*) FROM waste_deposits").fetchone()[0],
+      "bank_expenses":connection.execute("SELECT COUNT(*) FROM waste_expenses").fetchone()[0]
+    }
+    result["data_source_audit"]={"baseline":"user_uploaded_database_bank_sampah_xlsx",
+      "sheet_input_counts":source_baseline,"d1_clone_counts_before_tests":actual_counts,
+      "interpretation":"Counts-only comparison. No private roster names exported; row-level proof not claimed."}
+    save()
     table_names=[x[0] for x in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")]
     assert_step("local_clone_schema",len(table_names)>=50,{"table_count":len(table_names)})
     actor=connection.execute("SELECT id FROM accounts WHERE role='superadmin' AND status='aktif' LIMIT 1").fetchone()
@@ -142,6 +162,45 @@ try:
             time.sleep(1)
         assert_step("local_worker_health",health is not None and health[0]==200)
         base="http://127.0.0.1:8787"
+        # Photos are stored as separate rows in a D1 table, without overwriting notes.
+        progress_photo="https://example.org/local-bank-progress-original.jpg"
+        new_progress=call(base+"/api/v2/admin/bank/progress","POST",{
+          "date":"2026-10-25","title":"Progress test Bank Sampah lokal",
+          "stage":"Pengujian","description":"Hanya QA, bukan data produksi",
+          "status":"Berjalan","nextStep":"Selesai QA","publicVisible":True,
+          "photoUrl":progress_photo},temporary)
+        assert_step("bank_progress_create_with_photo_atomic",
+          new_progress[0]==201 and new_progress[1].get("photoSaved") is True,
+          {"http":new_progress[0]})
+        progress_id=new_progress[1]["id"]
+        public_progress=call(base+"/api/v2/public/bank")
+        photo_row=next((p for p in public_progress[1].get("progress",[]) if p.get("id")==progress_id),None)
+        assert_step("bank_progress_photo_public_visible",
+          public_progress[0]==200 and photo_row and photo_row.get("photoUrl")==progress_photo)
+        edited_photo="https://example.org/local-bank-progress-updated.jpg"
+        changed=call(base+"/api/v2/admin/bank/progress/edit","POST",{
+          "id":progress_id,"date":"2026-10-25","title":"Progress test Bank Sampah lokal",
+          "stage":"Pengujian","description":"Hanya QA, bukan data produksi",
+          "status":"Berjalan","nextStep":"Selesai QA","publicVisible":True,
+          "photoUrl":edited_photo},temporary)
+        assert_step("bank_progress_edit_photo",changed[0]==200 and changed[1].get("photoUrl")==edited_photo)
+        list_progress=call(base+"/api/v2/admin/bank/progress",token=temporary)
+        assert_step("bank_progress_admin_shows_photo",
+          list_progress[0]==200 and any(x.get("id")==progress_id and x.get("photoUrl")==edited_photo for x in list_progress[1].get("data",[])))
+        rejected_photo=call(base+"/api/v2/admin/bank/progress/edit","POST",{
+          "id":progress_id,"date":"2026-10-25","title":"Progress test Bank Sampah lokal",
+          "stage":"Pengujian","description":"Hanya QA","status":"Berjalan",
+          "publicVisible":True,"photoUrl":"javascript:alert(1)"},temporary)
+        assert_step("bank_progress_rejects_unsafe_photo_url",rejected_photo[0]==400)
+        removed_photo=call(base+"/api/v2/admin/bank/progress/edit","POST",{
+          "id":progress_id,"date":"2026-10-25","title":"Progress test Bank Sampah lokal",
+          "stage":"Pengujian","description":"Hanya QA","status":"Berjalan",
+          "publicVisible":True,"photoUrl":""},temporary)
+        assert_step("bank_progress_remove_photo_explicit",removed_photo[0]==200 and
+          removed_photo[1].get("photoUrl") is None)
+        with sqlite3.connect(str(files[0])) as check_photo:
+            remaining=check_photo.execute("SELECT COUNT(*) FROM bank_progress_photos WHERE progress_id=?",(progress_id,)).fetchone()[0]
+        assert_step("bank_progress_photo_remove_from_d1",remaining==0)
         # Photo cover saved as album media atomically (clone only), not discarded.
         cover_url="https://example.org/f4-local-cover.png"
         new_album=call(base+"/api/v2/admin/bank/albums","POST",{
