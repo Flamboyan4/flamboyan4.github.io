@@ -1,0 +1,9 @@
+{
+  "at_utc": "2026-10-25T00:21:17.003031+00:00",
+  "status": "pass",
+  "scope": "TALANGAN_CREATE_REPAY_ONLY",
+  "legacy_unlinked_repayments": 1,
+  "deployment_id": "c5696600-5b1f-40f6-bcb0-fbee423dcf18",
+  "other_flags_unchanged": true,
+  "d1_r2_preserved": true
+}
