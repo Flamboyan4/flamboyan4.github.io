@@ -2784,6 +2784,60 @@ async function cancelCashTransaction(request, env) {
   return json({ ok: true, id, status: "dibatalkan" });
 }
 __name(cancelCashTransaction, "cancelCashTransaction");
+function parseArchiveSnapshot(row){
+  try{
+    const value=JSON.parse(String(row.snapshot_json||""));
+    if(!value||Array.isArray(value)||typeof value!=="object")return null;
+    return value;
+  }catch{return null}
+}
+__name(parseArchiveSnapshot,"parseArchiveSnapshot");
+function archiveMoney(snapshot,field){
+  const r=snapshot?.ringkasan||snapshot||{};
+  const n=Number(r[field]??r[field+"Rp"]);
+  return Number.isSafeInteger(n)?n:null;
+}
+__name(archiveMoney,"archiveMoney");
+async function readYearStatus(db,request){
+  const raw=new URL(request.url).searchParams.get("year")||"";
+  if(!/^(19|20)\\d{2}$/.test(raw))return safeError("Tahun harus berupa empat angka.",400);
+  const year=Number(raw);
+  const [archive,closing]=await Promise.all([
+    db.prepare("SELECT id,status,created_at FROM bookkeeping_year_archives WHERE fiscal_year=?").bind(year).first(),
+    db.prepare("SELECT id,closed_at FROM fiscal_closings WHERE fiscal_year=?").bind(year).first()
+  ]);
+  const archived=archive&&["closed","ditutup","terkunci","final"].includes(String(archive.status||"").toLowerCase());
+  return json({ok:true,data:{tahun:year,ditutup:!!closing||!!archived,
+    status:archive?.status||(closing?"closed":"open"),arsipTersedia:!!archive,
+    tahunDitutup:closing?.closed_at||null}});
+}
+__name(readYearStatus,"readYearStatus");
+async function readYearArchiveList(db){
+  const data=await db.prepare("SELECT id,fiscal_year,status,snapshot_json,created_at FROM bookkeeping_year_archives ORDER BY fiscal_year DESC LIMIT 80").all();
+  const result=[];
+  for(const row of data.results||[]){
+    const snapshot=parseArchiveSnapshot(row);
+    if(!snapshot)return safeError("Ada snapshot arsip tahun "+row.fiscal_year+" yang tidak valid; periksa D1.",409);
+    result.push({tahun:Number(row.fiscal_year),idArsip:row.id,status:row.status,
+      saldoAkhir:archiveMoney(snapshot,"saldoAkhir"),tanggalTutup:row.created_at});
+  }
+  return json({ok:true,data:result});
+}
+__name(readYearArchiveList,"readYearArchiveList");
+async function readYearArchiveDetail(db,request){
+  const raw=new URL(request.url).searchParams.get("year")||"";
+  if(!/^(19|20)\\d{2}$/.test(raw))return safeError("Tahun harus berupa empat angka.",400);
+  const row=await db.prepare("SELECT * FROM bookkeeping_year_archives WHERE fiscal_year=?").bind(Number(raw)).first();
+  if(!row)return safeError("Arsip tahun tersebut belum tersedia.",404);
+  const snapshot=parseArchiveSnapshot(row);
+  if(!snapshot)return safeError("Snapshot arsip tersimpan tidak valid.",409);
+  const s=snapshot.ringkasan||snapshot;
+  const record={idArsip:row.id,tahun:Number(row.fiscal_year),tanggalTutup:row.created_at,
+    saldoAwal:archiveMoney(snapshot,"saldoAwal"),pemasukan:archiveMoney(snapshot,"pemasukan"),
+    pengeluaran:archiveMoney(snapshot,"pengeluaran"),saldoAkhir:archiveMoney(snapshot,"saldoAkhir")};
+  return json({ok:true,data:{record,modul:snapshot.modul||snapshot.modules||{},status:row.status},readOnly:true});
+}
+__name(readYearArchiveDetail,"readYearArchiveDetail");
 async function yearEndPreflight(db, request) {
   const raw = new URL(request.url).searchParams.get("year") || "";
   if (!/^(20|19)\d{2}$/.test(raw)) return safeError("Parameter year harus berupa tahun empat digit.", 400);
@@ -3256,6 +3310,18 @@ async function handle(request, env) {
     const denied = requireRole(who, ["superadmin"]);
     if (denied) return denied;
     return auditTalangan(env.DB);
+  }
+  if (request.method==="GET" && path==="/api/bookkeeping/year-status"){
+    const denied=requireRole(who,["superadmin"]);if(denied)return denied;
+    return readYearStatus(env.DB,request);
+  }
+  if (request.method==="GET" && path==="/api/bookkeeping/year-archives"){
+    const denied=requireRole(who,["superadmin"]);if(denied)return denied;
+    return readYearArchiveList(env.DB);
+  }
+  if (request.method==="GET" && path==="/api/bookkeeping/year-archive"){
+    const denied=requireRole(who,["superadmin"]);if(denied)return denied;
+    return readYearArchiveDetail(env.DB,request);
   }
   if (path === "/api/bookkeeping/year-end/preflight" && request.method === "GET") {
     const denied = requireRole(who, ["superadmin"]);
