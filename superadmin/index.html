@@ -259,6 +259,21 @@ html body #f4-account-page>aside{overflow-x:hidden!important}
 .f4-admin-danger:disabled{opacity:.55;cursor:wait}
 .f4-obligation-grid:not([data-module="obligations"]) td:last-child{min-width:150px;width:150px}
 @media(max-width:720px){.f4-admin-action-set{gap:5px}.f4-admin-action-set button{padding:8px 10px}}
+
+/* Website-owned confirmation modal; works even when browser JS dialogs are blocked. */
+#f4-superadmin-confirm{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;
+ background:rgba(18,29,45,.68);padding:18px;font-family:system-ui,-apple-system,sans-serif}
+#f4-superadmin-confirm .f4-sa-confirm-panel{width:min(100%,440px);background:#fff;color:#263d51;
+ border:1px solid #d9e4f0;border-radius:16px;padding:24px;box-shadow:0 24px 65px rgba(0,0,0,.27)}
+#f4-superadmin-confirm h2{font:800 20px/1.3 system-ui;margin:0 0 11px;color:#233d56}
+#f4-superadmin-confirm p{margin:0 0 22px;white-space:pre-line;overflow-wrap:anywhere;
+ font:400 14px/1.65 system-ui;color:#60728a}
+#f4-superadmin-confirm .f4-sa-confirm-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+#f4-superadmin-confirm button{border-radius:10px;padding:11px 17px;font:700 13px system-ui;cursor:pointer}
+#f4-superadmin-confirm .f4-sa-confirm-cancel{background:#f1f5fa;color:#344b62;border:1px solid #d5e0ed}
+#f4-superadmin-confirm .f4-sa-confirm-delete{background:#bd3434;color:white;border:1px solid #bd3434}
+#f4-superadmin-confirm .f4-sa-confirm-accept{background:#2d6792;color:white;border:1px solid #2d6792}
+#f4-superadmin-confirm button:focus-visible{outline:3px solid #8fbde8;outline-offset:2px}
 </style>
 <style id="f4-sa-standalone-nav-bridge">
 .f4-sa-mobile-backdrop{display:none}
@@ -267,7 +282,8 @@ html.f4-sa-drawer-lock{overflow:hidden!important}
  width:39px;height:39px;padding:0;border:0;border-radius:10px;background:#e4f1fb;
  color:#27658e;font:700 22px/1 system-ui;cursor:pointer}
 @media(max-width:1023px){.f4-sa-standalone-menu{display:grid;place-items:center}}
-</style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=content-svg-spacing-20261026"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script></head>
+</style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=confirm-spacing-favicon-20261026"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/png" href="/favicon.png?v=logo-f4-20261026">
+</head>
 <body>
 <div id="guard" role="status"><h2>Memeriksa akses Superadmin…</h2><p>Portal ini hanya untuk akun dengan role Superadmin.</p></div>
 <div id="f4-account-page" hidden><aside aria-label="Navigasi Portal Superadmin"></aside><main><header class="f4-work-heading"><h2>Pusat Pengelolaan</h2><p>Memeriksa koneksi…</p></header></main></div>
@@ -770,5 +786,5 @@ window.addEventListener('message',e=>{
 boot();
 })();
 </script>
-<script src="/portal-live/superadmin-editor.js?v=delete-content-svg-20261026"></script>
+<script src="/portal-live/superadmin-editor.js?v=inpage-confirm-20261026"></script>
 <script src="/portal-live/direct-shell.js?v=content-svg-spacing-20261026"></script><script src="/portal-live/unified-account.js?v=account-native-20261025b"></script></body></html>

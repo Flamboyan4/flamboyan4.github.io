@@ -59,6 +59,38 @@ async function send(url,options={}){
  if(!res.ok||d.ok===false)throw Error(d.error||'HTTP '+res.status);
  return d;
 }
+
+// Dialog HTML milik website, tidak menggunakan window.confirm() yang dapat diblokir browser.
+let f4ConfirmOpen=false;
+function f4ContentDialog(title,description,acceptLabel='Ya, Hapus',danger=true,hasCancel=true){
+ return new Promise(resolve=>{
+  if(f4ConfirmOpen){resolve(false);return}
+  f4ConfirmOpen=true;
+  const shade=document.createElement('div');shade.id='f4-superadmin-confirm';
+  const panel=document.createElement('section');panel.className='f4-sa-confirm-panel';
+  panel.setAttribute('role','alertdialog');panel.setAttribute('aria-modal','true');
+  panel.setAttribute('aria-labelledby','f4-sa-confirm-title');panel.setAttribute('aria-describedby','f4-sa-confirm-description');
+  const h=document.createElement('h2');h.id='f4-sa-confirm-title';h.textContent=title;
+  const p=document.createElement('p');p.id='f4-sa-confirm-description';p.textContent=description;
+  const actions=document.createElement('div');actions.className='f4-sa-confirm-actions';
+  const cancel=document.createElement('button');cancel.type='button';cancel.className='f4-sa-confirm-cancel';cancel.textContent='Batal';
+  const accept=document.createElement('button');accept.type='button';accept.className=danger?'f4-sa-confirm-delete':'f4-sa-confirm-accept';accept.textContent=acceptLabel;
+  const previous=document.activeElement;
+  function finish(result){
+   document.removeEventListener('keydown',keyHandler,true);
+   shade.remove();f4ConfirmOpen=false;
+   if(previous?.isConnected&&typeof previous.focus==='function')previous.focus();
+   resolve(result);
+  }
+  function keyHandler(e){if(e.key==='Escape'){e.preventDefault();e.stopPropagation();finish(false)}}
+  cancel.onclick=()=>finish(false);accept.onclick=()=>finish(true);
+  shade.onclick=e=>{if(e.target===shade)finish(false)};
+  if(hasCancel)actions.append(cancel);actions.append(accept);
+  panel.append(h,p,actions);shade.append(panel);document.body.append(shade);
+  document.addEventListener('keydown',keyHandler,true);
+  (hasCancel?cancel:accept).focus();
+ });
+}
 function deletionActions(record,kind=active){
  const wrap=node('span',undefined,'f4-admin-action-set');
  wrap.append(btn('Edit',()=>showForm(record)));
@@ -71,10 +103,15 @@ async function removeContentRecord(record,kind,button){
  const bankType=scope==='bank_albums'?'albums':scope==='bank_inventory'?'inventory':scope==='bank_progress'?'progress':null;
  const label=String(record.title||record.name||record.resident||record.host_name||record.id||'konten');
  const archived=bankType==='inventory';
- if(!window.confirm((archived?'Arsipkan inventaris':'Hapus konten')+' "'+label+'"?\n\n'+
-  (archived?'Item tidak lagi tampil, riwayat transaksi terkait tetap disimpan.':
-   'Penghapusan tidak dapat dibatalkan; salinan informasi lama dicatat dalam audit.')))return;
- button.disabled=true;button.textContent='Menghapus…';
+ if(button.disabled)return;
+ button.disabled=true;
+ const approved=await f4ContentDialog(
+  archived?'Arsipkan inventaris?':'Hapus konten ini?',
+  '"'+label+'"\n\n'+(archived?'Item tidak lagi tampil, riwayat transaksi tetap disimpan.':
+  'Konten akan dihapus permanen, salinan data sebelum penghapusan tercatat di audit.'),
+  archived?'Arsipkan':'Ya, Hapus');
+ if(!approved){button.disabled=false;return}
+ button.textContent=archived?'Mengarsipkan…':'Menghapus…';
  try{
   const url=bankType?bankApi+bankType+'/delete':base+kind;
   const payload=bankType?{id:record.id}:{action:'delete',id:record.id};
@@ -83,7 +120,7 @@ async function removeContentRecord(record,kind,button){
   else await window.openSuperadminEditor(kind);
  }catch(error){
   button.disabled=false;button.textContent='Hapus';
-  window.alert('Gagal menghapus konten: '+error.message);
+  await f4ContentDialog('Penghapusan gagal','Konten belum dihapus. '+error.message,'Tutup',false,false);
  }
 }
 function header(label,description){
@@ -353,8 +390,8 @@ function showUnifiedForm(kind,record=null,defaultDestination='portal'){
   try{
    const post=(endpoint,obj)=>send(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});
    if(record&&source!==dest){
-    if(!window.confirm('Pindahkan '+label+' dari '+(source==='portal'?'Portal Utama':'Bank Sampah')+
-     ' ke '+(dest==='portal'?'Portal Utama':'Bank Sampah')+'? Data asal akan tetap tersimpan sebagai arsip.')){note.textContent='Pemindahan dibatalkan.';return;}
+    if(!await f4ContentDialog('Konfirmasi pemindahan', 'Pindahkan '+label+' dari '+(source==='portal'?'Portal Utama':'Bank Sampah')+
+     ' ke '+(dest==='portal'?'Portal Utama':'Bank Sampah')+'? Data asal tetap disimpan sebagai arsip.','Ya, Pindahkan',false)){note.textContent='Pemindahan dibatalkan.';return;}
     await post(base+'transfer',{kind,source,destination:dest,id:record.id,values:data});
    }else if(dest==='portal'){
     const values=isDoc?{

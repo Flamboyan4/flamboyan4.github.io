@@ -163,3 +163,16 @@ body.f4-direct-book>main{padding-top:18px!important}
  body.f4-direct-bank #v11Public .v17-public-main{padding-top:12px!important}
  body.f4-direct-book>main{padding-top:12px!important}
 }
+
+/* Native Bank Sampah: remove the 64px/68px clearance left from iframe navigation. */
+body.f4-direct-bank #dashboardView .section{padding-top:12px!important}
+body.f4-direct-bank #v18PublicContent{padding-top:0!important}
+body.f4-direct-bank #v11Public #v18PublicContent .v17-public-main{padding-top:14px!important}
+@media(max-width:720px){
+ body.f4-direct-bank #dashboardView .section{padding-top:10px!important}
+ body.f4-direct-bank #v11Public #v18PublicContent .v17-public-main{padding-top:10px!important}
+}
+@media print{
+ body.f4-direct-bank #dashboardView .section,
+ body.f4-direct-bank #v11Public #v18PublicContent .v17-public-main{padding-top:0!important}
+}
