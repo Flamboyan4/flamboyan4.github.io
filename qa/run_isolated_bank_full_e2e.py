@@ -284,6 +284,7 @@ try:
         forbidden=call(base+"/api/bookkeeping/iuran/cancel","POST",{"idPembayaran":payment_id,"alasan":"Local test"},None)
         assert_step("iuran_cancel_requires_auth",forbidden[0] in (401,403))
         canceled=call(base+"/api/bookkeeping/iuran/cancel","POST",{"idPembayaran":payment_id,"alasan":"Pembatalan simulasi LOCAL"},temporary)
+        if canceled[0]!=200:print("ISOLATED_IURAN_CANCEL_DIAG="+json.dumps({"status":canceled[0],"error":canceled[1].get("error","")}))
         assert_step("new_iuran_cancel_atomic",canceled[0]==200 and canceled[1].get("status")=="dibatalkan",{"http":canceled[0],"reason":canceled[1].get("error","")})
         repeated=call(base+"/api/bookkeeping/iuran/cancel","POST",{"idPembayaran":payment_id,"alasan":"Pembatalan simulasi LOCAL"},temporary)
         assert_step("new_iuran_cancel_idempotent",repeated[0]==200 and repeated[1].get("duplikat") is True)
