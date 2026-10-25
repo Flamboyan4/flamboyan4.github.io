@@ -273,6 +273,73 @@ try:
             {"rights":rights,"environment":environmental})
         assert_step("bank_payout_and_expense_ledger",withdraws==withdraw_amount and withdrawn[0]==201 and expense[0]==201)
 
+        # The original batch has payouts/expenses: confirmed reversal MUST refuse.
+        forbidden_reversal=call(bank_base+"/api/admin/reconciliation/cancel","POST",
+          {"batch":batch_id,"konfirmasi":batch_id,"alasan":"LOCAL QA post-withdrawal reversal"},temporary)
+        assert_step("confirmed_bank_reversal_rejects_spent_batch",forbidden_reversal[0]==409,
+            {"http":forbidden_reversal[0]})
+        with sqlite3.connect(str(files[0])) as view:
+            status_after_guard=view.execute("SELECT status FROM waste_batches WHERE id=?",(batch_id,)).fetchone()[0]
+        assert_step("spent_batch_still_confirmed",status_after_guard=="disahkan")
+
+        # Independent fresh batch and fresh member: no historic payouts can taint this test.
+        # No SQL changes are sent to remote D1; this executes on Wrangler's disposable clone.
+        reverse_batch="batch:qa:reverse:"+secrets.token_hex(9)
+        reverse_member="member:qa:reverse:"+secrets.token_hex(9)
+        with sqlite3.connect(str(files[0])) as fixture:
+            house=fixture.execute("SELECT id FROM households LIMIT 1").fetchone()
+            if not house:raise AssertionError("Local clone has no household")
+            fixture.execute("INSERT INTO members(id,household_id,display_name,status,joined_at) VALUES(?,?,?,'aktif','2026-10-25')",
+                (reverse_member,house[0],"LOCAL QA REVERSAL MEMBER"))
+            fixture.execute("INSERT INTO waste_batches(id,label,status) VALUES(?,?,'draft')",
+                (reverse_batch,"LOCAL QA REVERSAL"))
+        reverse_deposit=call(bank_base+"/api/v2/admin/bank/deposits","POST",
+          {"requestKey":"QAReverseD"+secrets.token_hex(14),"batchId":reverse_batch,"memberId":reverse_member,
+            "depositedOn":"2026-10-26","items":[{"itemId":bank_item,"grams":1000}]},temporary)
+        assert_step("reverse_fixture_deposit_created",reverse_deposit[0]==201,{"http":reverse_deposit[0]})
+        reverse_sale=str(uuid.uuid4())
+        reverse_sold=call(bank_base+"/api/admin/sales/draft","POST",
+          {"requestId":reverse_sale,"batchId":reverse_batch,"soldOn":"2026-10-26",
+           "buyerName":"LOCAL QA REVERSAL",
+           "receivedRp":bank_rate,"adjustmentNote":"QA TEST",
+           "lines":[{"itemId":bank_item,"grams":1000,"priceRpPerKg":bank_rate}]},temporary)
+        assert_step("reverse_fixture_sale_created",reverse_sold[0]==200,{"http":reverse_sold[0]})
+        reverse_environment=bank_rate-(bank_rate//2)
+        reverse_confirm=call(bank_base+"/api/admin/reconciliation/confirm","POST",
+          {"batchId":reverse_batch,"saleId":reverse_sale,"operationRp":reverse_environment,"neighborhoodRp":0,"reserveRp":0},temporary)
+        assert_step("reverse_fixture_confirmed",reverse_confirm[0]==201,{"http":reverse_confirm[0]})
+        bad_identity=call(bank_base+"/api/admin/reconciliation/cancel","POST",
+          {"batch":reverse_batch,"konfirmasi":reverse_batch,"alasan":"Authorized? Not yet."})
+        assert_step("bank_reversal_requires_login",bad_identity[0] in (401,403))
+        refused_mismatch=call(bank_base+"/api/admin/reconciliation/cancel","POST",
+          {"batch":reverse_batch,"konfirmasi":"wrong","alasan":"LOCAL QA wrong confirmation"},temporary)
+        assert_step("bank_reversal_checks_confirmation",refused_mismatch[0]==400)
+        before_correction=call(bank_base+"/api/v2/admin/bank/savings",token=temporary)
+        reverted=call(bank_base+"/api/admin/reconciliation/cancel","POST",
+          {"batch":reverse_batch,"konfirmasi":reverse_batch,"alasan":"LOCAL QA eligible confirmed batch reversal"},temporary)
+        assert_step("bank_confirmed_reversal_atomic",reverted[0]==200 and reverted[1].get("status")=="dibatalkan",
+          {"http":reverted[0]})
+        idempotent_reverse=call(bank_base+"/api/admin/reconciliation/cancel","POST",
+          {"batch":reverse_batch,"konfirmasi":reverse_batch,"alasan":"LOCAL QA eligible confirmed batch reversal"},temporary)
+        assert_step("bank_confirmed_reversal_idempotent",idempotent_reverse[0]==200 and idempotent_reverse[1].get("duplicate") is True)
+        with sqlite3.connect(str(files[0])) as check:
+            triple=(check.execute("SELECT status FROM waste_batches WHERE id=?",(reverse_batch,)).fetchone()[0],
+              check.execute("SELECT status FROM waste_sales WHERE id=?",(reverse_sale,)).fetchone()[0],
+              check.execute("SELECT DISTINCT status FROM waste_deposits WHERE batch_id=?",(reverse_batch,)).fetchone()[0])
+            rights_after=check.execute("""SELECT COALESCE(SUM(CASE WHEN kind IN ('kredit','koreksi_kredit') THEN amount_rp ELSE -amount_rp END),0)
+               FROM waste_savings_ledger WHERE member_id=?""",(reverse_member,)).fetchone()[0]
+            original_cash=check.execute("SELECT DISTINCT status FROM waste_cash_ledger WHERE source_transaction_id=?",(reverse_sale,)).fetchall()
+            remaining_alloc=check.execute("SELECT COUNT(*) FROM waste_allocations WHERE batch_id=?",(reverse_batch,)).fetchone()[0]
+            correction=check.execute("SELECT COUNT(*) FROM waste_savings_ledger WHERE batch_id=? AND kind='koreksi_debit'",(reverse_batch,)).fetchone()[0]
+        assert_step("bank_reversal_retains_audit_and_reverses_ledger",
+          triple==("dibatalkan","dibatalkan","dibatalkan") and rights_after==0 and original_cash==[("dibatalkan",)] and remaining_alloc==1 and correction>=1,
+          {"status":triple,"balance_zero":rights_after==0})
+        active_alloc=call(bank_base+"/api/v2/admin/bank/allocations?limit=300",token=temporary)
+        assert_step("bank_cancelled_allocation_excluded_from_active_reports",
+            active_alloc[0]==200 and not any(x["batch_id"]==reverse_batch for x in active_alloc[1]["data"]))
+        bank_public=call(bank_base+"/api/v2/public/bank")
+        assert_step("bank_reversal_public_report_still_reads",bank_public[0]==200)
+
         # Talangan: 14-day maturity, repayment journal, idempotency and yearly preflight, all LOCAL.
         advance_amount=4000
         advance_request={"requestKey":"QAAdvance"+secrets.token_hex(18),
