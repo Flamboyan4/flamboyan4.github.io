@@ -70,7 +70,7 @@ async function publicPortalCash(db){
     debit:Number(x.debit_rp||0),kredit:Number(x.credit_rp||0),
     catatan:"",metode:x.payment_method||"",sumber:"Cloudflare D1"
   }));
-  if(rows.some(x=>!/^\\d{4}-\\d{2}-\\d{2}$/.test(x.tanggal)||!Number.isSafeInteger(x.debit)||!Number.isSafeInteger(x.kredit)||x.debit<0||x.kredit<0||
+  if(rows.some(x=>!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(x.tanggal)||!Number.isSafeInteger(x.debit)||!Number.isSafeInteger(x.kredit)||x.debit<0||x.kredit<0||
     (x.debit>0&&x.kredit>0)||(x.debit===0&&x.kredit===0)))
     return err("Jurnal Kas memerlukan pemeriksaan sebelum laporan publik diterbitkan.",409);
   return ok({data:{rows,jumlahTransaksi:rows.length,source:"cloudflare-d1"},readOnly:true});
