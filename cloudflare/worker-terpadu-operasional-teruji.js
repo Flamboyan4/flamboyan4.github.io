@@ -1186,6 +1186,52 @@ async function ownPayments(db, memberId) {
   };
 }
 __name(ownPayments, "ownPayments");
+
+/* Personal finance: the payer identity is always derived from the authenticated
+   session member_id. Never accept payerId from the browser. */
+async function f4MemberPortalFinance(db, memberId, kind) {
+  if(!["payments","arisan","fines","loans"].includes(kind))return safeError("Jenis data pribadi tidak tersedia.",404);
+  const payers=await db.prepare("SELECT id FROM bookkeeping_payers WHERE member_id=? AND payer_type='warga' AND active=1 LIMIT 2").bind(memberId).all();
+  if((payers.results||[]).length>1)return safeError("Akun terhubung ke lebih dari satu pembayar. Hubungi pengurus.",409);
+  const payerId=payers.results?.[0]?.id;
+  if(!payerId)return json({ok:true,rows:[],linked:false,readOnly:true,source:"cloudflare-d1"});
+  let records=[];
+  if(kind==="payments"){
+    const data=await ownPayments(db,memberId);
+    if(data.riwayatLengkap===false)return safeError("Riwayat pribadi melebihi batas; jangan menampilkan laporan terpotong.",409);
+    records=(data.pembayaran||[]).map(p=>({
+      id:p.id,tanggal:p.tanggal,nominalRp:p.jumlahRp,status:p.status,
+      keterangan:[p.keterangan,(p.alokasi||[]).map(a=>a.tahun+"-"+String(a.bulan).padStart(2,"0")+" "+a.jenis+" Rp "+a.jumlahRp).join("; ")].filter(Boolean).join(" • ")
+    }));
+  }else if(kind==="arisan"){
+    const rows=await db.prepare(\`SELECT p.id,p.paid_on AS tanggal,p.status,p.description,a.period_year AS tahun,
+       a.period_month AS bulan,a.amount_rp AS nominalRp,a.status AS alokasiStatus
+       FROM bookkeeping_payment_allocations a
+       JOIN bookkeeping_payments p ON p.id=a.payment_id
+       WHERE a.payer_id=? AND a.contribution_type='ARISAN'
+       ORDER BY p.paid_on DESC,p.id DESC LIMIT 501\`).bind(payerId).all();
+    if(rows.results.length>500)return safeError("Riwayat arisan melebihi batas laporan.",409);
+    records=rows.results.map(x=>({id:x.id,tanggal:x.tanggal,status:x.status==="aktif"&&x.alokasiStatus==="aktif"?"aktif":"dibatalkan",
+      nominalRp:Number(x.nominalRp||0),keterangan:"Arisan "+x.tahun+"-"+String(x.bulan).padStart(2,"0")+(x.description?" • "+x.description:"")}));
+  }else if(kind==="fines"){
+    const rows=await db.prepare(\`SELECT id,event_on,amount_rp,paid_rp,status,note,fine_type
+      FROM bookkeeping_fines WHERE payer_id=? ORDER BY event_on DESC,id DESC LIMIT 501\`).bind(payerId).all();
+    if(rows.results.length>500)return safeError("Riwayat denda melebihi batas laporan.",409);
+    records=rows.results.map(x=>({id:x.id,tanggal:x.event_on,status:x.status,nominalRp:Number(x.amount_rp||0),
+      dibayarRp:Number(x.paid_rp||0),keterangan:(x.fine_type||"Denda")+(x.note?" • "+x.note:"")}));
+  }else{
+    const rows=await db.prepare(\`SELECT l.id,l.loaned_on,l.amount_rp,l.status,l.note,
+      COALESCE((SELECT SUM(r.amount_rp) FROM bookkeeping_loan_repayments r
+        WHERE r.loan_id=l.id AND r.status='aktif'),0) AS repaidRp
+      FROM bookkeeping_loans l WHERE l.payer_id=? ORDER BY l.loaned_on DESC,l.id DESC LIMIT 501\`).bind(payerId).all();
+    if(rows.results.length>500)return safeError("Riwayat pinjaman melebihi batas laporan.",409);
+    records=rows.results.map(x=>({id:x.id,tanggal:x.loaned_on,status:x.status,nominalRp:Number(x.amount_rp||0),
+      dibayarRp:Number(x.repaidRp||0),keterangan:x.note||"Pinjaman"}));
+  }
+  return json({ok:true,rows:records,linked:true,readOnly:true,source:"cloudflare-d1"});
+}
+__name(f4MemberPortalFinance,"f4MemberPortalFinance");
+
 async function f4ContributionReport(db, request) {
   const params = new URL(request.url).searchParams, kind = params.get("kind") || "", level = params.get("level") || "month";
   if (!["rt", "arisan"].includes(kind)) return safeError("Jenis laporan tidak tersedia.", 400);
@@ -3446,12 +3492,6 @@ async function handle(request, env) {
         ? "Total dari seluruh D1, tetapi rincian dibatasi 1500 baris. Cetak rincian harus menggunakan paginasi."
         : "Laporan arus transaksi kas yang tercatat, bukan saldo keseluruhan atau laporan tutup buku."
     });
-  }
-  if (path === "/api/member/payments" && request.method === "GET") {
-    const denied = requireRole(who, ["anggota", "admin", "superadmin"]);
-    if (denied) return denied;
-    if (!who.member_id) return safeError("Akun belum ditautkan ke data warga.", 403);
-    return json(await ownPayments(env.DB, who.member_id));
   }
   if (path === "/api/member/savings" && request.method === "GET") {
     const denied = requireRole(who, ["anggota", "admin", "superadmin"]);
