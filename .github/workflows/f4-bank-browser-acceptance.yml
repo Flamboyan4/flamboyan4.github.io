@@ -68,7 +68,7 @@ jobs:
                     'api_http':responseReport['status'],'api_d1_readonly':data.get('readOnly') is True,
                     'report_monthly':isinstance(data.get('bulanan'),list),
                     'report_has_amount_split':validAmount,'public_page_visible':state['visiblePublic'],
-                    'public_report_rendered':state['report'],'public_report_ready':reportReady,
+                    'public_report_rendered':state['report'],'public_report_ready':reportReady,'report_note':state['reportNote'][:180],
                     'page_text_chars':state['bodyText'],
                     'overflow_px':max(0,state['scrollWidth']-state['viewport']),
                     'print_media':print_ok,'script_legacy_requests':len(legacy),
