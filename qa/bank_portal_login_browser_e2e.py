@@ -76,7 +76,7 @@ def verify_portal_login(credentials):
                     frame.locator("#v12Private:not(.hidden)").wait_for(timeout=18000)
                     frame.locator("#v12Balance").wait_for(timeout=13000)
                 else:
-                    frame.locator("#v16NavList").wait_for(timeout=16000)
+                    frame.locator('#v16NavList [data-group="money"]').wait_for(state="attached",timeout=16000)
                 page.locator("#avatar-button").click()
                 page.locator('[data-account-action="logout"]').click()
                 page.wait_for_function("""() => {
