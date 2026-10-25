@@ -23,7 +23,7 @@ const prefersReduced=()=>window.matchMedia('(prefers-reduced-motion: reduce)').m
 function reportVisible(panel){
  if(panel===lastVisible)return;
  lastVisible=panel;
- if(window.parent!==window)window.parent.postMessage({type:'f4:portal-visible-panel',panel},location.origin);
+ (window.parent!==window?window.parent:window).postMessage({type:'f4:portal-visible-panel',panel},location.origin);
 }
 function visiblePanel(){
  if(scrollScheduled)return;
@@ -146,7 +146,7 @@ css.textContent+="\n#keuangan.f4-finance-personal-active> :not(.f4-user-finance)
 document.head.append(css);
 window.f4GoBank=()=>{
   if(window.parent!==window)window.parent.postMessage({type:'f4:go-portal',portal:'bank-sampah'},location.origin);
-  else window.location.href='../#bank-sampah';
+  else window.location.href='/bank-sampah/';
 };
 window.f4PortalSelectPanel=showPanel;
 window.addEventListener('message',event=>{
