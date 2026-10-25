@@ -1,0 +1,6 @@
+{
+  "at_utc": "2026-10-25T00:42:58.153077+00:00",
+  "scope": "BANK_EXPENSE_FLAG_ONLY",
+  "status": "failed",
+  "error": "RuntimeError: Worker deployment changed since last verified WIB patch; abort"
+}
