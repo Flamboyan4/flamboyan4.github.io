@@ -60,5 +60,8 @@ def verify(db_path,origin,assert_step):
     denied=fetch(origin,"/api/member/savings",cookie=mcookie)
     assert_step("bank_logout_revokes_member_cookie_local",
         ended[0]==200 and denied[0] in (401,403))
-    return {"admin":"password_verified","member":"password_verified",
-            "permissions":"enforced","logout":"revoked","storage":"isolated D1"}
+    # Credentials are temporary for the LOCAL cloned account records only.
+    return ({"admin":"password_verified","member":"password_verified",
+            "permissions":"enforced","logout":"revoked","storage":"isolated D1"},
+            {"admin":{"username":username_admin,"password":pw_admin},
+             "member":{"username":username_member,"password":pw_member}})
