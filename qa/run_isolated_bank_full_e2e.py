@@ -259,6 +259,25 @@ try:
         created=call(base+"/api/bookkeeping/iuran","POST",payment_req,temporary)
         payment_id=created[1].get("idPembayaran","")
         assert_step("new_iuran_create_local",created[0]==201 and payment_id.startswith("pay-"),{"http":created[0]})
+        # Verify actual D1 edit endpoint; immutable sum/allocations and linked cash
+        # keep the same balances, only date/method/note change atomically.
+        edited=call(base+"/api/bookkeeping/iuran/edit","POST",{
+          "idPembayaran":payment_id,"tanggal":"2026-10-24",
+          "metode":"QRIS","catatan":"Koreksi metadata QA LOCAL"},temporary)
+        assert_step("new_iuran_metadata_edit_atomic_local",edited[0]==200 and edited[1].get("ok") is True)
+        with sqlite3.connect(str(files[0])) as check:
+            pay=check.execute("SELECT paid_on,payment_method,amount_rp FROM bookkeeping_payments WHERE id=?",(payment_id,)).fetchone()
+            linked_cash=check.execute("SELECT occurred_on,payment_method,debit_rp FROM bookkeeping_cash_transactions WHERE source_payment_id=?",(payment_id,)).fetchall()
+            allocation_total=check.execute("SELECT SUM(amount_rp) FROM bookkeeping_payment_allocations WHERE payment_id=?",(payment_id,)).fetchone()[0]
+        assert_step("new_iuran_edit_retains_amount_cash_consistency",
+          pay==("2026-10-24","QRIS",payment_req["jumlahRp"]) and
+          len(linked_cash)==(1 if kas_part else 0) and
+          all(x[0]=="2026-10-24" and x[1]=="QRIS" and x[2]==kas_part for x in linked_cash) and
+          allocation_total==payment_req["jumlahRp"])
+        for scope in ("payments","arisan","fines","loans"):
+            anonymous=call(base+"/api/member/"+scope)
+            assert_step("member_private_"+scope+"_requires_login",anonymous[0] in (401,403))
+
         pf_during=call(base+"/api/bookkeeping/year-end/preflight?year=2026",token=temporary)
         assert_step("year_end_kas_lorong_only_no_false_orphan",
           pf_during[0]==200 and pf_during[1]["checks"]["invalidLinkedIuranRows"]==pf_before[1]["checks"]["invalidLinkedIuranRows"])
