@@ -340,6 +340,46 @@ try:
         bank_public=call(bank_base+"/api/v2/public/bank")
         assert_step("bank_reversal_public_report_still_reads",bank_public[0]==200)
 
+        # Public reports and member statements must show REAL D1 values, not UI defaults.
+        public_month=call(bank_base+"/api/v2/public/bank/report?month=2026-10")
+        assert_step("bank_public_monthly_report_has_real_rows",public_month[0]==200 and
+          public_month[1].get("readOnly") is True and len(public_month[1].get("bulanan",[]))>=1,
+          {"http":public_month[0]})
+        with sqlite3.connect(str(files[0])) as verify:
+            settled=verify.execute("""SELECT COUNT(*),COALESCE(SUM(a.received_rp),0),
+                COALESCE(SUM(a.citizen_rights_rp),0),COALESCE(SUM(a.operation_rp),0)
+                FROM waste_allocations a JOIN waste_batches b ON b.id=a.batch_id AND b.status='disahkan'
+                JOIN waste_sales s ON s.batch_id=a.batch_id AND s.status='terkonfirmasi'
+                WHERE substr(s.sold_on,1,7)='2026-10'""").fetchone()
+            verified_deposit_weight=verify.execute("""SELECT COALESCE(SUM(d.total_grams),0)/1000.0 FROM waste_deposits d
+                JOIN waste_batches b ON b.id=d.batch_id
+                JOIN waste_sales s ON s.batch_id=b.id AND s.status='terkonfirmasi'
+                WHERE d.status='terkonfirmasi' AND b.status='disahkan' AND substr(s.sold_on,1,7)='2026-10'""").fetchone()[0]
+        summarized=public_month[1].get("ringkasan",{})
+        assert_step("bank_public_monthly_report_reconciles_allocations",
+          (summarized.get("batch"),summarized.get("hasilPenjualan"),summarized.get("hakWarga"),
+           summarized.get("operasional"))==settled and summarized.get("beratKg")==verified_deposit_weight,
+          {"totals_match":(summarized.get("hasilPenjualan"),summarized.get("hakWarga"))==settled[1:3]})
+        summary_all=call(bank_base+"/api/v2/public/bank/report")
+        assert_step("bank_public_report_includes_monthly_and_available_periods",
+          summary_all[0]==200 and "2026-10" in summary_all[1].get("periodeTersedia",[]) and
+          summary_all[1].get("ringkasan",{}).get("hasilPenjualan",0)>=bank_rate)
+        public_overview=call(bank_base+"/api/v2/public/bank")
+        assert_step("bank_public_overview_has_confirmed_weights",
+          public_overview[0]==200 and "confirmedWeightKg" in public_overview[1].get("overview",{})
+          and "confirmedSalesWeightKg" in public_overview[1].get("overview",{}))
+        unauth_member=call(bank_base+"/api/member/savings")
+        assert_step("bank_member_statement_not_public",unauth_member[0] in (401,403))
+        with sqlite3.connect(str(files[0])) as member_fixture:
+            member_fixture.execute("UPDATE accounts SET member_id=? WHERE id=?",(reverse_member,actor[0]))
+        own=call(bank_base+"/api/member/savings",token=temporary)
+        assert_step("bank_member_report_full_shape_private",
+          own[0]==200 and own[1].get("anggota",{}).get("id")==reverse_member and
+          own[1].get("saldoTersediaRp")==0 and own[1].get("riwayatLengkap") is True and
+          len(own[1].get("mutasi",[]))>=2,{"http":own[0]})
+        assert_step("bank_member_cancelled_deposit_hidden",
+          own[0]==200 and not any(x.get("id")==reverse_deposit[1].get("id") for x in own[1].get("setoran",[])))
+
         # Talangan: 14-day maturity, repayment journal, idempotency and yearly preflight, all LOCAL.
         advance_amount=4000
         advance_request={"requestKey":"QAAdvance"+secrets.token_hex(18),

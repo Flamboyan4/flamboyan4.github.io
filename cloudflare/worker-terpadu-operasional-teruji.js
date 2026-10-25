@@ -84,7 +84,7 @@ async function publicBank(db) {
     list(db, `SELECT i.id,i.name,i.quantity,i.unit,i.condition,im.external_url AS photoUrl
     FROM inventory i LEFT JOIN inventory_external_media im ON im.inventory_id=i.id
     WHERE i.active=1 AND i.category='bank_sampah' ORDER BY i.name LIMIT 150`),
-    one(db, `SELECT (SELECT COUNT(*) FROM waste_deposits WHERE status='terkonfirmasi') AS confirmedDeposits,(SELECT COUNT(*) FROM members WHERE status='aktif') AS activeMembers,(SELECT COUNT(*) FROM waste_items WHERE active=1) AS activeItems,(SELECT COUNT(*) FROM albums WHERE visibility='publik' AND status='aktif') AS albumCount`),
+    one(db, `SELECT (SELECT COUNT(*) FROM waste_deposits WHERE status='terkonfirmasi') AS confirmedDeposits,(SELECT COUNT(*) FROM members WHERE status='aktif') AS activeMembers,(SELECT COALESCE(SUM(total_grams),0)/1000.0 FROM waste_deposits WHERE status='terkonfirmasi') AS confirmedWeightKg,(SELECT COALESCE(SUM(sl.grams),0)/1000.0 FROM waste_sale_lines sl JOIN waste_sales sa ON sa.id=sl.sale_id WHERE sa.status='terkonfirmasi') AS confirmedSalesWeightKg,(SELECT COUNT(*) FROM waste_items WHERE active=1) AS activeItems,(SELECT COUNT(*) FROM albums WHERE visibility='publik' AND status='aktif') AS albumCount`),
     list(db, `SELECT substr(deposited_on,1,7) AS month,COALESCE(SUM(total_grams),0)/1000.0 AS beratKg FROM waste_deposits WHERE status='terkonfirmasi' GROUP BY substr(deposited_on,1,7) ORDER BY month DESC LIMIT 12`)
   ]);
   return ok({ catalog, albums, progress, monthlyWeights: monthlyWeights.slice().reverse(), inventory: inventory.map((x) => ({
@@ -94,16 +94,48 @@ async function publicBank(db) {
 }
 __name(publicBank, "publicBank");
 async function publicBankReport(db, url) {
-  const month = periodFilter(url);
-  const where = month ? " AND substr(occurred_on,1,7)=?" : "";
-  const whereSale = month ? " AND substr(sold_on,1,7)=?" : "";
-  const whereExpense = month ? " AND substr(incurred_on,1,7)=?" : "";
-  const [cash, sales, expenses] = await Promise.all([
-    one(db, `SELECT COALESCE(SUM(cash_in_rp),0) AS masukRp,COALESCE(SUM(cash_out_rp),0) AS keluarRp FROM waste_cash_ledger WHERE status='aktif'${where}`, month ? [month] : []),
-    one(db, `SELECT COUNT(*) AS transaksi,COALESCE(SUM(amount_received_rp),0) AS diterimaRp FROM waste_sales WHERE status='terkonfirmasi'${whereSale}`, month ? [month] : []),
-    one(db, `SELECT COUNT(*) AS transaksi,COALESCE(SUM(amount_rp),0) AS pengeluaranRp FROM waste_expenses WHERE status='lunas'${whereExpense}`, month ? [month] : [])
+  const month=periodFilter(url);
+  // One row per confirmed batch. Avoid multiplying totals by joining deposit lines
+  // to sale lines. This endpoint is PUBLIC and contains no member identities.
+  const [sales,expenses]=await Promise.all([
+    list(db,`SELECT substr(s.sold_on,1,7) AS periode,COUNT(*) AS batch,
+      COALESCE(SUM(a.received_rp),0) AS hasilPenjualan,
+      COALESCE(SUM(a.citizen_rights_rp),0) AS hakWarga,
+      COALESCE(SUM(a.reserve_rp),0) AS cadangan,
+      COALESCE(SUM(a.neighborhood_rp),0) AS kasLorong,
+      COALESCE(SUM(a.operation_rp),0) AS operasional,
+      COALESCE(SUM((SELECT COALESCE(SUM(d.total_grams),0)/1000.0 FROM waste_deposits d
+        WHERE d.batch_id=a.batch_id AND d.status='terkonfirmasi')),0) AS beratKg
+      FROM waste_allocations a
+      JOIN waste_batches b ON b.id=a.batch_id AND b.status='disahkan'
+      JOIN waste_sales s ON s.batch_id=a.batch_id AND s.status='terkonfirmasi'
+      GROUP BY substr(s.sold_on,1,7) ORDER BY periode`),
+    list(db,`SELECT substr(incurred_on,1,7) AS periode,COALESCE(SUM(amount_rp),0) AS pengeluaran
+      FROM waste_expenses WHERE status='lunas'
+      GROUP BY substr(incurred_on,1,7) ORDER BY periode`)
   ]);
-  return ok({ period: month || "semua", cash, sales, expenses, notice: "Ringkasan gabungan berasal dari buku Kas, penjualan, dan pengeluaran yang berbeda. Jangan menjumlahkan kategori tersebut sebagai satu saldo tanpa rekonsiliasi." });
+  const byMonth=new Map();
+  const ensure=m=>{
+    if(!byMonth.has(m))byMonth.set(m,{periode:m,batch:0,beratKg:0,hasilPenjualan:0,hakWarga:0,
+      cadangan:0,kasLorong:0,operasional:0,pengeluaran:0});
+    return byMonth.get(m);
+  };
+  for(const r of sales){
+    const row=ensure(r.periode);
+    for(const k of ['batch','beratKg','hasilPenjualan','hakWarga','cadangan','kasLorong','operasional'])
+      row[k]=Number(r[k]||0);
+    if(!Number.isSafeInteger(row.hasilPenjualan)||row.hasilPenjualan<0||
+      row.hakWarga+row.cadangan+row.kasLorong+row.operasional!==row.hasilPenjualan)
+      return err('Alokasi hasil penjualan memerlukan rekonsiliasi sebelum ditampilkan.',409);
+  }
+  for(const r of expenses)ensure(r.periode).pengeluaran=Number(r.pengeluaran||0);
+  const periodeTersedia=[...byMonth.keys()].sort().reverse();
+  const bulanan=periodeTersedia.filter(m=>!month||m===month).map(m=>byMonth.get(m));
+  const summary={batch:0,beratKg:0,hasilPenjualan:0,hakWarga:0,cadangan:0,kasLorong:0,operasional:0,pengeluaran:0};
+  for(const row of bulanan)for(const key of Object.keys(summary))summary[key]+=row[key];
+  return ok({period:month||'semua',ringkasan:summary,bulanan,periodeTersedia,
+    readOnly:true,source:'cloudflare-d1',
+    notice:'Hanya batch yang disahkan dan pengeluaran lunas; setoran estimasi dan batch batal tidak dihitung.'});
 }
 __name(publicBankReport, "publicBankReport");
 async function publicAlbum(db, id) {
@@ -2390,8 +2422,11 @@ async function ownSavings(db, memberId) {
       estimasiRp: l.estimated_rp
     }))
   }));
+  const member=await one(db,`SELECT m.id,m.display_name AS nama,h.house_code AS rumah FROM members m
+    LEFT JOIN households h ON h.id=m.household_id WHERE m.id=?`,[memberId]);
   return {
     ok: true,
+    anggota:{id:member?.id||memberId,nama:member?.nama||'',rumah:member?.rumah||''},
     saldoTersediaRp: Number(balance?.available_rp || 0),
     totalMasukRp: Number(balance?.credit_total_rp || 0),
     totalCairRp: Number(balance?.payout_total_rp || 0),
