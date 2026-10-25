@@ -643,7 +643,7 @@ var contentModel = {
   projects: { table: "portal_project_cards", fields: { title: "text", description: "long", image_ref: "url", target_url: "urlOrAnchor", sort_order: "order", active: "bool" }, required: ["title"] },
   inventory: { table: "portal_inventory", fields: { name: "text", description: "long", quantity: "quantity", unit: "text", photo_ref: "url", category: "text", visibility: "visibility" }, required: ["name"] },
   meetings: { table: "portal_meeting_records", fields: { title: "text", meeting_on: "date", summary: "long", document_ref: "url", visibility: "visibility" }, required: ["title"] },
-  documentation: { table: "portal_documentation", fields: { event_on: "date", title: "text", description: "long", drive_url: "url", category: "text", sort_order: "order", visibility: "visibility", active: "bool" },, required: ["title"] }
+  documentation: { table: "portal_documentation", fields: { event_on: "date", title: "text", description: "long", drive_url: "url", category: "text", sort_order: "order", visibility: "visibility", active: "bool" }, required: ["title"] },
   arisan: { table: "portal_arisan_schedule", fields: {period_on:"date",host_name:"text",status:"text"}, required:["period_on","host_name"] },
   jersey: { table: "portal_jersey_orders", fields: {group_key:"text",sort_order:"order",resident:"text",sleeves:"text",size:"text",printed_name:"text",payment_status:"text",nominal_rp:"order",method:"text"}, required:["group_key","resident"] }
 };
