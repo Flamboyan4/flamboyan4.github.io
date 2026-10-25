@@ -124,6 +124,8 @@ try:
     bank_rate=int(selected_item[1])
     batch_id="batch:qa:"+secrets.token_hex(10)
     connection.execute("INSERT INTO waste_batches(id,label,status) VALUES(?,?,'draft')",(batch_id,"QA LOCAL ONLY"))
+    advance_payer="payer:qa:"+secrets.token_hex(10)
+    connection.execute("INSERT INTO bookkeeping_payers(id,display_name,payer_type,active) VALUES(?,'LOCAL ADVANCE QA','lembaga',1)",(advance_payer,))
     connection.commit()
     connection.close()
     assert_step("temporary_session_only_in_clone",True)
@@ -221,6 +223,40 @@ try:
         assert_step("bank_allocated_ledger_50_50",allocated==(sale_gross//2,environmental) and rights==sale_gross//2,
             {"rights":rights,"environment":environmental})
         assert_step("bank_payout_and_expense_ledger",withdraws==withdraw_amount and withdrawn[0]==201 and expense[0]==201)
+
+        # Talangan: 14-day maturity, repayment journal, idempotency and yearly preflight, all LOCAL.
+        advance_amount=4000
+        advance_request={"requestKey":"QAAdvance"+secrets.token_hex(18),
+                         "tanggal":"2026-10-25","payerId":advance_payer,
+                         "ditanggungOleh":"Kas Warga Flamboyan 4","keterangan":"LOCAL QA ONLY","jumlahRp":advance_amount}
+        advance=call(bank_base+"/api/bookkeeping/talangan","POST",advance_request,temporary)
+        aid=advance[1].get("id","")
+        assert_step("advance_create",advance[0]==201 and aid.startswith("adv_"),{"status":advance[0]})
+        assert_step("advance_due_14_days",advance[1].get("jatuhTempo")=="2026-11-08")
+        advance_repeat=call(bank_base+"/api/bookkeeping/talangan","POST",advance_request,temporary)
+        assert_step("advance_create_idempotent",advance_repeat[0]==200 and advance_repeat[1].get("duplikat") is True)
+        repay_payload={"requestKey":"QARepay"+secrets.token_hex(18),
+                       "advanceId":aid,"tanggal":"2026-10-25","jumlahRp":1500,"catatan":"LOCAL QA"}
+        repaid=call(bank_base+"/api/bookkeeping/talangan/repay","POST",repay_payload,temporary)
+        rid=repaid[1].get("id","")
+        assert_step("advance_repayment",repaid[0]==201 and rid.startswith("ar_"),{"status":repaid[0]})
+        repay_repeat=call(bank_base+"/api/bookkeeping/talangan/repay","POST",repay_payload,temporary)
+        assert_step("advance_repayment_idempotent",repay_repeat[0]==200 and repay_repeat[1].get("duplikat") is True)
+        overpay=call(bank_base+"/api/bookkeeping/talangan/repay","POST",
+           {"requestKey":"QAOverpay"+secrets.token_hex(18),"advanceId":aid,
+            "tanggal":"2026-10-25","jumlahRp":100000,"catatan":"reject"},temporary)
+        assert_step("advance_overpayment_rejected",overpay[0]==409,{"status":overpay[0]})
+        local=sqlite3.connect(str(files[0]))
+        actual_adv=local.execute("SELECT amount_rp,reimbursed_rp,due_on FROM bookkeeping_advances WHERE id=?",(aid,)).fetchone()
+        actual_repay=local.execute("SELECT COUNT(*) FROM bookkeeping_advance_repayments WHERE advance_id=? AND status='aktif'",(aid,)).fetchone()[0]
+        repay_journal=local.execute("""SELECT COUNT(*) FROM bookkeeping_cash_transactions
+          WHERE transaction_type='pelunasan_talangan' AND credit_rp=1500 AND id=?""",(repaid[1].get("kasId"),)).fetchone()[0]
+        local.close()
+        assert_step("advance_d1_due_and_balances",actual_adv==(4000,1500,"2026-11-08") and actual_repay==1 and repay_journal==1)
+        fiscal=call(bank_base+"/api/bookkeeping/year-end/preflight?year=2026",token=temporary)
+        assert_step("year_end_readonly_preflight",fiscal[0]==200 and fiscal[1].get("readOnly") is True,
+            {"status":fiscal[0]})
+
 
     finally:
         process.terminate()
