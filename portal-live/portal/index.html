@@ -1110,8 +1110,8 @@ body>div.fixed.bottom-6.right-6{
   </footer>
 
   <!-- Firebase App & Realtime Database CDN (Compat v8) -->
-  
-  
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   
   
 
@@ -1285,7 +1285,24 @@ body>div.fixed.bottom-6.right-6{
     const FOLDER_GAPURA_URL = 'https://drive.google.com/drive/folders/1Zs2RlbHTvNc9RDhbc1TlgcptXeNhnrQ5';
     const FOLDER_API_URL = 'https://script.google.com/macros/s/AKfycbyes6A9_9EQ8vIYtf75cGgC9sKAZBvMewxEhYRSThjMAlBYqnkmKpa3yoPOtN0FEG92Zg/exec';
 
-    // Obrolan dan Kotak Saran kini menggunakan Cloudflare Workers dan D1.
+    // INISIALISASI FIREBASE REALTIME DATABASE UNTUK CHAT
+    const firebaseConfig = {
+      apiKey: "AIzaSyAZ8gg6e0oTJ7xGoFudQxyCdzObRipWk_4",
+      authDomain: "flamboyan4-chat.firebaseapp.com",
+      databaseURL: "https://flamboyan4-chat-default-rtdb.firebaseio.com",
+      projectId: "flamboyan4-chat",
+      storageBucket: "flamboyan4-chat.firebasestorage.app",
+      messagingSenderId: "28700002867",
+      appId: "1:28700002867:web:047bb6930d4436ed837146",
+      measurementId: "G-DB8E547HKY"
+    };
+
+    if (window.firebase?.database && !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const dbRef = window.firebase?.database ? firebase.database().ref('komentar_warga') : null;
+
+    // Kotak Saran tetap menggunakan Cloudflare D1. Obrolan Warga tetap Firebase.
 
     const TARGET_DANA_GAPURA = 6500000;
     const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='100%25' height='100%25' fill='%231e1b4b'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='18' fill='%23818cf8' text-anchor='middle' dy='.3em'%3EDokumentasi Kegiatan Warga%3C/text%3E%3C/svg%3E";
@@ -1374,42 +1391,43 @@ body>div.fixed.bottom-6.right-6{
         head.append(name,time);body.append(head,text);card.append(body);container.append(card);
       }
     }
-    async function loadKomentarD1(){
+    function listenKomentarFirebase(){
       const container=document.getElementById('container-komentar-list');
-      if(container)container.textContent='Memuat obrolan dari Cloudflare D1…';
-      try{
-        const response=await fetch(F4_FEEDBACK_API+'/comments',{cache:'no-store',mode:'cors'});
-        const data=await response.json();
-        if(!response.ok||data.ok===false)throw Error(data.error||'HTTP '+response.status);
-        if(!Array.isArray(data.data))throw Error('Respons komentar D1 tidak valid.');
-        globalKomentarList=data.data.map(row=>{
-          const raw=String(row.created_at||'');
-          const date=new Date(raw.includes('T')?raw:raw.replace(' ','T')+'Z');
-          return {id:row.id,nama:row.display_name,pesan:row.body,
-            waktu:Number.isNaN(date.getTime())?raw:date.toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'})};
-        });
-        renderKomentarWarga();
-      }catch(error){
-        if(container)container.textContent='Komentar D1 belum dapat dimuat: '+error.message;
+      if(!dbRef){
+        if(container)container.textContent='Firebase tidak termuat. Periksa koneksi jaringan.';
+        return;
       }
+      if(container)container.textContent='Menghubungkan riwayat Firebase…';
+      dbRef.limitToLast(50).on('value',snapshot=>{
+        const raw=snapshot.val()||{};
+        globalKomentarList=Object.keys(raw).map(key=>({id:key,...raw[key]}))
+          .sort((a,b)=>(Number(b.timestamp)||0)-(Number(a.timestamp)||0));
+        renderKomentarWarga();
+      },error=>{
+        console.error('Gagal membaca riwayat Firebase:',error);
+        if(container)container.textContent='Riwayat Firebase tidak dapat dibaca: '+(error?.message||'Periksa izin baca Firebase dan jaringan');
+      });
     }
     async function tambahKomentarWarga(e){
       e.preventDefault();
-      const nama=document.getElementById('komentar-nama').value.trim();
-      const pesan=document.getElementById('komentar-pesan').value.trim();
-      const button=document.getElementById('btn-submit-chat');
+      const nama=document.getElementById('komentar-nama')?.value.trim()||'';
+      const pesan=document.getElementById('komentar-pesan')?.value.trim()||'';
+      const btn=document.getElementById('btn-submit-chat');
       if(!nama||!pesan)return;
-      const old=button?.innerHTML;
-      if(button){button.disabled=true;button.textContent='Mengirim ke D1…'}
+      if(!dbRef){alert('Firebase belum tersambung. Periksa jaringan, kemudian coba lagi.');return}
+      const oldHtml=btn?.innerHTML;
+      if(btn){btn.disabled=true;btn.textContent='Mengirim…'}
       try{
-        const response=await fetch(F4_FEEDBACK_API+'/comments',{method:'POST',mode:'cors',
-          headers:{'Content-Type':'application/json'},body:JSON.stringify({nama,pesan})});
-        const result=await response.json();
-        if(!response.ok||result.ok===false)throw Error(result.error||'HTTP '+response.status);
+        const now=new Date();
+        const waktu=now.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})
+          +', '+now.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+        await dbRef.push({nama,pesan,waktu,timestamp:firebase.database.ServerValue.TIMESTAMP});
         document.getElementById('komentar-pesan').value='';
-        await loadKomentarD1();
-      }catch(error){alert('Komentar gagal disimpan: '+error.message)}
-      finally{if(button){button.disabled=false;button.innerHTML=old;window.lucide?.createIcons?.()}}
+        // Realtime listener updates the visible chat; no D1 write or page reset.
+      }catch(error){alert('Gagal mengirim pesan ke Firebase: '+error.message)}
+      finally{
+        if(btn){btn.disabled=false;btn.innerHTML=oldHtml;window.lucide?.createIcons?.()}
+      }
     }
 let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
 
@@ -1931,7 +1949,7 @@ function salinLinkAgenda(url) {
     document.addEventListener('DOMContentLoaded', () => {
       initLightboxSwipe();
       initCardGesturesAndKeyboard();
-      loadKomentarD1();
+      listenKomentarFirebase();
     });
 
     function scrollProjek(direction) {
