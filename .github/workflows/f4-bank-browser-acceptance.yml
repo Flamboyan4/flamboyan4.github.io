@@ -1,0 +1,104 @@
+name: F4 Bank Sampah Live PC HP Print Acceptance
+on:
+  push:
+    branches: [bank-live-browser-accept-20261025]
+    paths: [.github/workflows/f4-bank-browser-acceptance.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  bank-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 13
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Playwright Chromium
+        run: |
+          python3 -m pip install --quiet playwright
+          python3 -m playwright install --with-deps chromium
+      - name: Verify live Bank Sampah website on PC and HP
+        run: |
+          python3 - <<'PY'
+          import asyncio,json,datetime,pathlib
+          from playwright.async_api import async_playwright
+          base='https://flamboyan4.web.id/portal-live/bank-sampah/'
+          api='https://api.flamboyan4.web.id/api/v2/public/bank/report'
+          result={'utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                  'scope':'LIVE BANK PUBLIC PC HP PRINT; anonymous only; zero data writes',
+                  'results':[]}
+          pathlib.Path('ops-audit/bank-browser-screenshots').mkdir(parents=True,exist_ok=True)
+          async def test():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch(args=['--no-sandbox'])
+              for size,vp in [('pc',{'width':1440,'height':900}),('hp',{'width':390,'height':844})]:
+                context=await browser.new_context(viewport=vp,is_mobile=size=='hp',has_touch=size=='hp')
+                page=await context.new_page()
+                errors=[];legacy=[]
+                page.on('pageerror',lambda e:errors.append(str(e)[:160]))
+                page.on('request',lambda r:legacy.append(r.url[:160]) if 'script.google.com/macros/' in r.url and r.resource_type in ('xhr','fetch') else None)
+                try:
+                  response=await page.goto(base,wait_until='domcontentloaded',timeout=30000)
+                  await page.wait_for_selector('#v25ReportRoot',state='attached',timeout=25000)
+                  await page.wait_for_timeout(3200)
+                  state=await page.evaluate('''() => ({
+                    visiblePublic:!!document.querySelector('#v11Public:not(.hidden)'),
+                    report:!!document.querySelector('#v25ReportTable'),
+                    reportNote:document.querySelector('#v25ReportNote')?.textContent||'',
+                    bodyText:(document.body?.innerText||'').length,
+                    viewport:window.innerWidth,
+                    scrollWidth:document.documentElement.scrollWidth
+                  })''')
+                  responseReport=await page.evaluate('''async url => {
+                    const res=await fetch(url,{credentials:'omit',cache:'no-store'});
+                    return {status:res.status,body:await res.json()};
+                  }''',api)
+                  data=responseReport['body'];summary=data.get('ringkasan',{})
+                  validAmount=(summary.get('hasilPenjualan',-1)==sum(summary.get(k,0) for k in
+                    ('hakWarga','cadangan','kasLorong','operasional')))
+                  reportReady=('Gagal memuat' not in state['reportNote'] and
+                    'gagal' not in state['reportNote'].lower() and
+                    'memuat' not in state['reportNote'].lower())
+                  await page.screenshot(path=f'ops-audit/bank-browser-screenshots/{size}-bank-public.png',
+                    full_page=False,timeout=15000)
+                  await page.emulate_media(media='print')
+                  print_ok=await page.evaluate('window.matchMedia("print").matches')
+                  await page.screenshot(path=f'ops-audit/bank-browser-screenshots/{size}-bank-print.png',
+                    full_page=False,timeout=15000)
+                  result['results'].append({'viewport':size,'http':response.status if response else 0,
+                    'api_http':responseReport['status'],'api_d1_readonly':data.get('readOnly') is True,
+                    'report_monthly':isinstance(data.get('bulanan'),list),
+                    'report_has_amount_split':validAmount,'public_page_visible':state['visiblePublic'],
+                    'public_report_rendered':state['report'],'public_report_ready':reportReady,
+                    'page_text_chars':state['bodyText'],
+                    'overflow_px':max(0,state['scrollWidth']-state['viewport']),
+                    'print_media':print_ok,'script_legacy_requests':len(legacy),
+                    'js_errors':errors[:6]})
+                except Exception as e:
+                  result['results'].append({'viewport':size,'exception':str(e)[:240]})
+                finally:
+                  await page.close();await context.close()
+              await browser.close()
+          asyncio.run(test())
+          def passed(r):
+            return r.get('http')==200 and r.get('api_http')==200 and r.get('api_d1_readonly') and \
+              r.get('report_monthly') and r.get('report_has_amount_split') and r.get('public_page_visible') and \
+              r.get('public_report_rendered') and r.get('public_report_ready') and \
+              r.get('print_media') and r.get('page_text_chars',0)>200 and r.get('overflow_px',99)<=4 and \
+              r.get('script_legacy_requests')==0 and not r.get('js_errors') and not r.get('exception')
+          result['total']=len(result['results'])
+          result['passed']=sum(passed(r) for r in result['results'])
+          pathlib.Path('ops-audit/bank-live-browser.json').write_text(json.dumps(result,indent=2))
+          print('Bank browser acceptance',result['passed'],'/',result['total'])
+          for r in result['results']:print(json.dumps(r))
+          if result['total']!=2 or result['passed']!=2:raise SystemExit('Bank live browser acceptance failed')
+          PY
+      - name: Upload bank browser screenshots and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f4-bank-live-browser-pc-hp-print
+          path: |
+            ops-audit/bank-browser-screenshots/
+            ops-audit/bank-live-browser.json
+          retention-days: 7
+          if-no-files-found: ignore
