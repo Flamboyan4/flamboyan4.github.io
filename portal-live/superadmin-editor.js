@@ -351,9 +351,9 @@ async function openBankAdminEditor(kind){
  const info=node('p','Memuat data Bank Sampah…','f4-admin-note');main.append(info);
  const box=node('div',undefined,'f4-admin-list');main.append(box);
  try{
-  const payload=await send('https://api.flamboyan4.web.id/api/v2/public/bank');
+  const payload=await send(kind==='bank_albums'?bankApi+'albums':'https://api.flamboyan4.web.id/api/v2/public/bank');
   if(active!==kind)return;
-  let rows=Array.isArray(payload[def.listKey])?payload[def.listKey]:[];
+  let rows=Array.isArray(kind==='bank_albums'?payload.data:payload[def.listKey])?(kind==='bank_albums'?payload.data:payload[def.listKey]):[];
   // Album tanpa penanda dipertahankan agar Superadmin dapat mengklasifikasikan
   // arsip lama secara eksplisit; tidak otomatis dijadikan album Bank Sampah.
   if(kind==='bank_albums')rows=[...rows].sort((a,b)=>Number(bankScoped(b))-Number(bankScoped(a)));
@@ -406,10 +406,10 @@ function showBankForm(kind,record){
    add('mediaType','Jenis media','select');controls.mediaType.add(new Option('Foto','foto'),new Option('Video','video'));
    add('visibility','Akses','select');controls.visibility.add(new Option('Publik','publik'),new Option('Privat','privat'));
   }else{
-   for(const key of ['title','eventOn','description'])controls[key].disabled=true;
+   add('visibility','Akses','select');controls.visibility.add(new Option('Publik','publik'),new Option('Privat','privat'));controls.visibility.value=record.visibility||'publik';
    add('mediaUrl','Tambah tautan foto/video baru (opsional)','url','');
    add('mediaType','Jenis media baru','select');controls.mediaType.add(new Option('Foto','foto'),new Option('Video','video'));
-   form.append(node('p','Judul dan tanggal album lama dilindungi. Kategori dapat diubah; tautan baru ditambahkan ke media album, bukan mengganti tautan lama.','f4-admin-note'));
+   form.append(node('p','Judul, tanggal, deskripsi, kategori, dan akses dapat diedit; media baru akan ditambahkan tanpa menghapus media lama.','f4-admin-note'));
   }
  }else{
   add('name','Nama barang','text','',true);
@@ -433,7 +433,8 @@ function showBankForm(kind,record){
     await send(bankApi+(record?'progress/edit':'progress'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});
    }else if(kind==='bank_albums'&&record){
     const category=bankCategory(get('category'));
-    await send(bankApi+'albums/category',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:record.id,category})});
+    await send(bankApi+'albums/edit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      id:record.id,title:get('title'),eventOn:get('eventOn'),description:get('description'),visibility:get('visibility'),category})});
     // Matching legacy Portal Utama record is reclassified too, when available.
     // Never create a duplicate or delete a historical album.
     const mediaUrl=get('mediaUrl');

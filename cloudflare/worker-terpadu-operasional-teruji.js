@@ -549,6 +549,28 @@ async function bankAlbumCategoryUpdate(request,env,who){
   return ok({id,category,updated:true});
 }
 __name(bankAlbumCategoryUpdate,'bankAlbumCategoryUpdate');
+async function bankAlbumDetailsUpdate(request,env,who){
+  if(env.BANK_WRITE_ENABLED!=='true')return err('Pengelolaan album Bank Sampah masih terkunci.',503);
+  let p;try{p=await body(request)}catch(e){return err(e.message,400)}
+  const id=String(p.id||'').trim(),title=String(p.title||'').trim(),category=String(p.category||'').trim(),
+    eventOn=p.eventOn?String(p.eventOn):null,description=p.description?String(p.description).trim():null,
+    visibility=String(p.visibility||'publik');
+  if(!id||id.length>128||title.length<3||title.length>200||category.length<2||category.length>100||
+    eventOn&&!validDate(eventOn)||description&&description.length>2500||
+    !['publik','privat'].includes(visibility))return err('Data album tidak valid.',400);
+  const old=await one(env.DB,"SELECT id,title,category,event_on,description,visibility,status FROM albums WHERE id=?",[id]);
+  if(!old||old.status!=='aktif')return err('Album tidak ditemukan atau tidak aktif.',404);
+  const after={title,category,event_on:eventOn,description,visibility};
+  if(Object.entries(after).every(([k,v])=>String(v??'')===String(old[k]??'')))return ok({id,unchanged:true});
+  try{await env.DB.batch([
+    env.DB.prepare("UPDATE albums SET title=?,category=?,event_on=?,description=?,visibility=? WHERE id=? AND status='aktif'")
+      .bind(title,category,eventOn,description,visibility,id),
+    env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,before_json,after_json) VALUES(?,?,'banksampah','update_album_details','albums',?,?,?,?)")
+      .bind('audit:bank-album:'+crypto.randomUUID(),who.id,id,'Perbaikan detail album',JSON.stringify(old),JSON.stringify(after))
+  ])}catch(e){return err('Perubahan album tidak berhasil disimpan.',409)}
+  return ok({id,updated:true});
+}
+__name(bankAlbumDetailsUpdate,'bankAlbumDetailsUpdate');
 async function bankProgressUpdate(request,env,who){
   if(env.BANK_WRITE_ENABLED!=='true')return err('Pengelolaan perkembangan Bank Sampah masih terkunci.',503);
   let p;try{p=await body(request)}catch(e){return err(e.message,400)}
@@ -800,6 +822,7 @@ async function handleUnifiedApi(request, env, who) {
     const denied = admin(who);
     if (denied) return denied;
     if (method === "GET") {
+      if (path === "/api/v2/admin/bank/albums") return ok({data:await list(db,"SELECT id,title,category,event_on,description,visibility,status FROM albums WHERE status='aktif' ORDER BY event_on DESC,id DESC LIMIT 500")});
       const detail = await detailBank(db, url);
       if (detail) return detail;
       const result = await adminBank(db, url);
@@ -825,6 +848,9 @@ async function handleUnifiedApi(request, env, who) {
     if (method === "POST" && path === "/api/v2/admin/bank/media-link") return createBankMediaLink(request,env,who);
     if (method === "POST" && path === "/api/v2/admin/bank/expenses") return createBankExpense(request,env,who);
     if (method === "POST" && path === "/api/v2/admin/bank/inventory") return createBankInventory(request,env,who);
+    if (method === "POST" && path === "/api/v2/admin/bank/albums/edit") {
+      const denied=requireRole(who,["admin","superadmin"]);return denied||bankAlbumDetailsUpdate(request,env,who);
+    }
     if (method === "POST" && path === "/api/v2/admin/bank/albums/category") {
       const denied=requireRole(who,["admin","superadmin"]);return denied||bankAlbumCategoryUpdate(request,env,who);
     }
