@@ -101,7 +101,7 @@ jobs:
           python3 - <<'PY'
           import urllib.request,json
           origin="https://api.flamboyan4.web.id"
-          for path in ["/api/health","/api/v2/system/features","/api/v2/public/portal","/api/v2/public/bank"]:
+          for path in ["/api/health","/api/v2/system/features","/api/v2/public/portal","/api/v2/public/portal/comments","/api/v2/public/bank"]:
               req=urllib.request.Request(origin+path,headers={"Cache-Control":"no-cache","Accept":"application/json","Origin":"https://flamboyan4.web.id","User-Agent":"Mozilla/5.0 Flamboyan4-Smoke/1.0"})
               with urllib.request.urlopen(req,timeout=20) as response:
                   obj=json.load(response)

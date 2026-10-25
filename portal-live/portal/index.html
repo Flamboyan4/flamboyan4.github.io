@@ -1022,7 +1022,7 @@ body>div.fixed.bottom-6.right-6{
       <div class="p-5 space-y-4">
         <p class="text-xs text-slate-500">Pesan ini akan dikirim secara rahasia dan aman ke email pengurus. Identitas Anda tidak akan direkam.</p>
         
-        <form action="https://formspree.io/f/mgavlbyn" method="POST" id="form-saran">
+        <form action="https://api.flamboyan4.web.id/api/v2/public/portal/suggestions" method="POST" id="form-saran">
             <textarea name="pesan" rows="5" placeholder="Ketik saran, laporan, atau keluhan Anda di sini..." class="w-full p-3 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none bg-slate-50" required></textarea>
             
             <button type="submit" class="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition flex items-center justify-center space-x-2 shadow-sm">
@@ -1110,8 +1110,8 @@ body>div.fixed.bottom-6.right-6{
   </footer>
 
   <!-- Firebase App & Realtime Database CDN (Compat v8) -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  
+  
   
   
 
@@ -1285,22 +1285,7 @@ body>div.fixed.bottom-6.right-6{
     const FOLDER_GAPURA_URL = 'https://drive.google.com/drive/folders/1Zs2RlbHTvNc9RDhbc1TlgcptXeNhnrQ5';
     const FOLDER_API_URL = 'https://script.google.com/macros/s/AKfycbyes6A9_9EQ8vIYtf75cGgC9sKAZBvMewxEhYRSThjMAlBYqnkmKpa3yoPOtN0FEG92Zg/exec';
 
-    // INISIALISASI FIREBASE REALTIME DATABASE UNTUK CHAT
-    const firebaseConfig = {
-      apiKey: "AIzaSyAZ8gg6e0oTJ7xGoFudQxyCdzObRipWk_4",
-      authDomain: "flamboyan4-chat.firebaseapp.com",
-      databaseURL: "https://flamboyan4-chat-default-rtdb.firebaseio.com",
-      projectId: "flamboyan4-chat",
-      storageBucket: "flamboyan4-chat.firebasestorage.app",
-      messagingSenderId: "28700002867",
-      appId: "1:28700002867:web:047bb6930d4436ed837146",
-      measurementId: "G-DB8E547HKY"
-    };
-
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-    const dbRef = firebase.database().ref('komentar_warga');
+    // Obrolan dan Kotak Saran kini menggunakan Cloudflare Workers dan D1.
 
     const TARGET_DANA_GAPURA = 6500000;
     const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='100%25' height='100%25' fill='%231e1b4b'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='18' fill='%23818cf8' text-anchor='middle' dy='.3em'%3EDokumentasi Kegiatan Warga%3C/text%3E%3C/svg%3E";
@@ -1359,100 +1344,72 @@ body>div.fixed.bottom-6.right-6{
       return cleanUrl;
     }
 
-    // LOGIKA OBROLAN WARGA MENGGUNAKAN FIREBASE REALTIME DATABASE
+    // Riwayat komentar berasal dari D1; Firebase tidak lagi menjadi sumber aktif.
     let globalKomentarList = [];
-
+    const F4_FEEDBACK_API='https://api.flamboyan4.web.id/api/v2/public/portal';
     function insertEmoticon(emot) {
-      const txt = document.getElementById('komentar-pesan');
-      txt.value += emot;
-      txt.focus();
+      const txt=document.getElementById('komentar-pesan');
+      if(!txt)return;
+      txt.value+=emot;txt.focus();
     }
-
-    function listenKomentarFirebase() {
+    function renderKomentarWarga(){
       const container=document.getElementById('container-komentar-list');
-      if(container)container.innerHTML='<p class="text-slate-500 text-xs text-center py-5">Menghubungkan riwayat Firebase…</p>';
-      dbRef.limitToLast(50).on('value', (snapshot) => {
-        const data = snapshot.val();
-        globalKomentarList = [];
-        if (data) {
-          Object.keys(data).forEach(key => {
-            globalKomentarList.push({ id: key, ...data[key] });
-          });
-          globalKomentarList.reverse();
-        }
-        renderKomentarWarga();
-      }, (error) => {
-        console.error("Gagal mendengarkan data Firebase:", error);
-        if(container)container.textContent='Riwayat Firebase tidak dapat dibaca: '+(error?.message||'Periksa izin baca Firebase dan jaringan');
-      });
-    }
-
-    function renderKomentarWarga() {
-      const container = document.getElementById('container-komentar-list');
-      const badge = document.getElementById('total-komentar-badge');
-      if (!container) return;
-
-      badge.innerText = `${globalKomentarList.length} Komentar`;
-
-      if (globalKomentarList.length === 0) {
-        container.innerHTML = `<p class="text-slate-400 text-xs italic text-center py-8">Belum ada obrolan. Yuk jadi yang pertama menyapa!</p>`;
-        return;
+      const badge=document.getElementById('total-komentar-badge');
+      if(!container)return;
+      if(badge)badge.textContent=globalKomentarList.length+' Komentar';
+      container.replaceChildren();
+      if(!globalKomentarList.length){
+        const p=document.createElement('p');
+        p.className='text-slate-400 text-xs italic text-center py-8';
+        p.textContent='Belum ada obrolan. Yuk jadi yang pertama menyapa!';
+        container.append(p);return;
       }
-
-      let html = '';
-      globalKomentarList.forEach((item) => {
-        let cleanPesan = (item.pesan || '')
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;");
-
-        html += `
-          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80 flex items-start justify-between gap-2 hover:bg-slate-100/50 transition">
-            <div class="space-y-1 w-full">
-              <div class="flex items-center justify-between">
-                <span class="font-bold text-xs md:text-sm text-indigo-950">${item.nama}</span>
-                <span class="text-[10px] text-slate-400 font-mono">${item.waktu || ''}</span>
-              </div>
-              <p class="text-xs md:text-sm text-slate-700 leading-relaxed break-words whitespace-pre-line">${cleanPesan}</p>
-            </div>
-          </div>
-        `;
-      });
-
-      container.innerHTML = html;
+      for(const item of globalKomentarList){
+        const card=document.createElement('div');card.className='bg-slate-50 p-3 rounded-xl border border-slate-200/80 flex items-start justify-between gap-2 hover:bg-slate-100/50 transition';
+        const body=document.createElement('div');body.className='space-y-1 w-full';
+        const head=document.createElement('div');head.className='flex items-center justify-between';
+        const name=document.createElement('span');name.className='font-bold text-xs md:text-sm text-indigo-950';name.textContent=item.nama||'Warga';
+        const time=document.createElement('span');time.className='text-[10px] text-slate-400 font-mono';time.textContent=item.waktu||'';
+        const text=document.createElement('p');text.className='text-xs md:text-sm text-slate-700 leading-relaxed break-words whitespace-pre-line';text.textContent=item.pesan||'';
+        head.append(name,time);body.append(head,text);card.append(body);container.append(card);
+      }
     }
-
-    function tambahKomentarWarga(e) {
+    async function loadKomentarD1(){
+      const container=document.getElementById('container-komentar-list');
+      if(container)container.textContent='Memuat obrolan dari Cloudflare D1…';
+      try{
+        const response=await fetch(F4_FEEDBACK_API+'/comments',{cache:'no-store',mode:'cors'});
+        const data=await response.json();
+        if(!response.ok||data.ok===false)throw Error(data.error||'HTTP '+response.status);
+        if(!Array.isArray(data.data))throw Error('Respons komentar D1 tidak valid.');
+        globalKomentarList=data.data.map(row=>{
+          const raw=String(row.created_at||'');
+          const date=new Date(raw.includes('T')?raw:raw.replace(' ','T')+'Z');
+          return {id:row.id,nama:row.display_name,pesan:row.body,
+            waktu:Number.isNaN(date.getTime())?raw:date.toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'})};
+        });
+        renderKomentarWarga();
+      }catch(error){
+        if(container)container.textContent='Komentar D1 belum dapat dimuat: '+error.message;
+      }
+    }
+    async function tambahKomentarWarga(e){
       e.preventDefault();
-      alert('Riwayat obrolan sudah menggunakan Firebase asli. Pengiriman pesan dari Uji Terpadu masih dinonaktifkan agar tidak mengubah data produksi.');
-      return;
-      const namaInput = document.getElementById('komentar-nama').value.trim();
-      const pesanInput = document.getElementById('komentar-pesan').value.trim();
-
-      if (!namaInput || !pesanInput) return;
-
-      const btnSubmit = document.getElementById('btn-submit-chat');
-      btnSubmit.disabled = true;
-      btnSubmit.innerHTML = `<span>Mengirim...</span>`;
-
-      const now = new Date();
-      const waktuFormatted = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ', ' + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-
-      dbRef.push({
-        nama: namaInput,
-        pesan: pesanInput,
-        waktu: waktuFormatted,
-        timestamp: firebase.database.ServerValue.TIMESTAMP
-      }).then(() => {
-        document.getElementById('komentar-pesan').value = '';
-        btnSubmit.disabled = false;
-        btnSubmit.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>Kirim Komentar</span>`;
-        lucide.createIcons();
-      }).catch((err) => {
-        alert("Gagal mengirim pesan: " + err.message);
-        btnSubmit.disabled = false;
-        btnSubmit.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>Kirim Komentar</span>`;
-      });
+      const nama=document.getElementById('komentar-nama').value.trim();
+      const pesan=document.getElementById('komentar-pesan').value.trim();
+      const button=document.getElementById('btn-submit-chat');
+      if(!nama||!pesan)return;
+      const old=button?.innerHTML;
+      if(button){button.disabled=true;button.textContent='Mengirim ke D1…'}
+      try{
+        const response=await fetch(F4_FEEDBACK_API+'/comments',{method:'POST',mode:'cors',
+          headers:{'Content-Type':'application/json'},body:JSON.stringify({nama,pesan})});
+        const result=await response.json();
+        if(!response.ok||result.ok===false)throw Error(result.error||'HTTP '+response.status);
+        document.getElementById('komentar-pesan').value='';
+        await loadKomentarD1();
+      }catch(error){alert('Komentar gagal disimpan: '+error.message)}
+      finally{if(button){button.disabled=false;button.innerHTML=old;window.lucide?.createIcons?.()}}
     }
 let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
 
@@ -1974,7 +1931,7 @@ function salinLinkAgenda(url) {
     document.addEventListener('DOMContentLoaded', () => {
       initLightboxSwipe();
       initCardGesturesAndKeyboard();
-      listenKomentarFirebase();
+      loadKomentarD1();
     });
 
     function scrollProjek(direction) {
@@ -1984,26 +1941,22 @@ function salinLinkAgenda(url) {
       slider.scrollBy({ left: direction * (cardWidth + 16), behavior: 'smooth' });
     }
 
-    const formSaran = document.getElementById("form-saran");
-    formSaran.addEventListener("submit", async function(event) {
-        event.preventDefault();
-        const data = new FormData(event.target);
-        try {
-            const response = await fetch(event.target.action, {
-                method: formSaran.method,
-                body: data,
-                headers: { 'Accept': 'application/json' }
-            });
-            if (response.ok) {
-                document.getElementById('saran-status').classList.remove('hidden');
-                formSaran.reset();
-                setTimeout(() => closeModalDirect('modal-saran'), 2500);
-            } else {
-                alert("Ups! Gagal mengirim pesan. Silakan coba lagi.");
-            }
-        } catch (error) {
-            alert("Ups! Gagal mengirim pesan. Periksa koneksi internet Anda.");
-        }
+    const formSaran=document.getElementById('form-saran');
+    formSaran.addEventListener('submit',async function(event){
+      event.preventDefault();
+      const button=formSaran.querySelector('button[type="submit"]');
+      if(button)button.disabled=true;
+      try{
+        const pesan=String(new FormData(formSaran).get('pesan')||'').trim();
+        const response=await fetch(F4_FEEDBACK_API+'/suggestions',{method:'POST',
+          headers:{'Content-Type':'application/json'},body:JSON.stringify({pesan})});
+        const result=await response.json();
+        if(!response.ok||result.ok===false)throw Error(result.error||'HTTP '+response.status);
+        document.getElementById('saran-status').classList.remove('hidden');
+        formSaran.reset();
+        setTimeout(()=>closeModalDirect('modal-saran'),2500);
+      }catch(error){alert('Saran gagal disimpan ke D1: '+error.message)}
+      finally{if(button)button.disabled=false}
     });
 
     function formatTanggalKeuanganDisplay(value) {
@@ -3864,11 +3817,6 @@ document.addEventListener('DOMContentLoaded',()=>{
  window.addEventListener('scroll',schedule,{passive:true});
  window.addEventListener('resize',schedule,{passive:true});
  update();
-});
-</script><script id="f4-chat-diagnostics-live">
-window.addEventListener('DOMContentLoaded',()=>{
- const el=document.getElementById('container-komentar-list');
- if(!window.firebase?.database&&el)el.textContent='Firebase tidak termuat. Periksa jaringan atau pemblokiran browser.';
 });
 </script><script src="../portal-panels.js?v=private-loading-7308c60"></script></body>
 </html>
