@@ -713,6 +713,17 @@ async function transferF4Content(request,env,who){
  (source==='portal'?'portal_inventory':'inventory');
  const old=await one(db,'SELECT * FROM '+table+' WHERE id=?',[id]);
  if(!old)return err('Data asal tidak ditemukan. Muat ulang daftar.',404);
+ if(source==='portal'&&kind==='documentation'&&
+  Number(old.active)===0&&/^Pindah Bank Sampah\s*[:/]/i.test(String(old.category||'')))
+  return err('Dokumentasi ini sudah dipindahkan. Muat ulang daftar.',409);
+ if(source==='portal'&&kind==='inventory'&&
+  /^Pindah Bank Sampah\s*[:/]/i.test(String(old.category||'')))
+  return err('Inventaris ini sudah dipindahkan. Muat ulang daftar.',409);
+ if(source==='bank-sampah'&&kind==='documentation'&&
+  (old.status!=='aktif'||/^Portal Utama\s*[:/]/i.test(String(old.category||''))))
+  return err('Album ini sudah dipindahkan atau diarsipkan.',409);
+ if(source==='bank-sampah'&&kind==='inventory'&&Number(old.active)!==1)
+  return err('Inventaris ini sudah dipindahkan atau dinonaktifkan.',409);
  const q=[];
  const audit=(action,newId)=>db.prepare('INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)')
  .bind('audit:'+crypto.randomUUID(),who.id,'portal_content',action,table,id,JSON.stringify(old),JSON.stringify({destination:dest,targetId:newId,values:v}));
