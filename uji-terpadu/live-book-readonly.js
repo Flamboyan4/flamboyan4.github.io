@@ -58,7 +58,7 @@
    catatan:x.catatan||'',status:String(x.status||'').toUpperCase()==='BATAL'?'BATAL':'AKTIF',
    periode:Array.isArray(x.periode)?x.periode:[],
    alokasi:Array.isArray(x.alokasi)?x.alokasi:[],
-   locked:true,canEdit:false,canCancel:false,
+   locked:!x.canCancel,canEdit:false,canCancel:!!x.canCancel,
    canCorrectMigrationDate:!!x.canCorrectMigrationDate,
    kekuranganKasLorong:n(x.kekuranganKasLorong)
   }))});
