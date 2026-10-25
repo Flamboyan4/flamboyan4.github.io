@@ -137,7 +137,7 @@ body>div.fixed.bottom-6.right-6{
 @media(max-width:640px){
  body>div.fixed.bottom-6.right-6{bottom:calc(18px + var(--f4-footer-lift,0px))!important}
 }
-</style><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=ui-repair-20261026"><link rel="stylesheet" href="/portal-live/unified-account.css?v=theme-unified-20261025"></head>
+</style><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=ui-repair-20261026b"><link rel="stylesheet" href="/portal-live/unified-account.css?v=theme-unified-20261025"></head>
 
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full" oncontextmenu="return false;" onkeydown="return disableInspect(event)">
 
@@ -1502,7 +1502,7 @@ let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
   // Gallery preview in the landing page is only a shortcut to the complete
   // Dokumentasi page; don't show a second album popup.
   if(window.parent!==window)window.parent.postMessage({type:'f4:navigate',target:'dokumentasi'},location.origin);
-  else window.location.href='/portal-live/#dokumentasi';
+  else window.location.href='/dokumentasi/';
 }
     function openModalSaran() { openModal('modal-saran'); }
 
