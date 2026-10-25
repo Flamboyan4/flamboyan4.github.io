@@ -1,0 +1,49 @@
+name: F4 Current Worker Read-only Snapshot
+on:
+  push:
+    branches: [bank-expense-guard-20261025]
+    paths: [.github/workflows/f4-current-worker-audit.yml]
+permissions:
+  contents: write
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read Worker deployment and flags
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,json,urllib.request,datetime
+          from pathlib import Path
+          root="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CF_ACCOUNT"]
+          token=os.environ["CF_TOKEN"]
+          def get(s):
+            req=urllib.request.Request(root+s,headers={"Authorization":"Bearer "+token})
+            with urllib.request.urlopen(req,timeout=30) as f:j=json.load(f)
+            if not j.get("success"):raise RuntimeError("Cloudflare API failed")
+            return j["result"]
+          worker="flamboyan4-terpadu-staging"
+          deployments=get("/workers/scripts/"+worker+"/deployments").get("deployments",[])
+          conf=get("/workers/scripts/"+worker+"/settings")
+          binds=conf.get("bindings",[])
+          result={"time_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "deployment_id":deployments[0].get("id") if deployments else None,
+            "deployment_time":deployments[0].get("created_on") if deployments else None,
+            "compatibility_date":conf.get("compatibility_date"),
+            "binding_names_and_types":[{"name":x["name"],"type":x["type"]} for x in binds],
+            "write_flags":{x["name"]:x.get("text","") for x in binds if x["name"].endswith("_WRITE_ENABLED") or x["name"]=="SALE_DRAFT_ENABLED"}}
+          p=Path("ops-audit/worker-current-snapshot.json");p.parent.mkdir(exist_ok=True)
+          p.write_text(json.dumps(result,indent=2)+"\n")
+          print("Current Worker read-only audit complete.")
+          PY
+      - name: Commit nonsecret snapshot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/worker-current-snapshot.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(ops): record current Worker snapshot"
+          git push origin HEAD:bank-expense-guard-20261025
