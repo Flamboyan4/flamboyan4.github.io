@@ -39,10 +39,10 @@ async function savePrice(_token,code,rate){
  return api('/api/v2/admin/bank/prices',{itemId:wasteId(code),effectiveFrom:today(),priceRpPerKg:rp});
 }
 async function saveProgress(_token,p){
- if(String(p?.foto||'').trim())throw Error('Perkembangan dengan foto belum dapat disimpan lewat Worker. Hapus foto atau gunakan pengelolaan konten setelah endpoint medianya tersedia.');
  return api('/api/v2/admin/bank/progress',{
    date:String(p.tanggal||''),title:String(p.judul||''),stage:String(p.langkah||''),description:String(p.deskripsi||''),
-   status:String(p.status||''),nextStep:String(p.agenda||''),publicVisible:p.publik!==false});
+   status:String(p.status||''),nextStep:String(p.agenda||''),publicVisible:p.publik!==false,
+   photoUrl:String(p.foto||'').trim()});
 }
 
 
@@ -164,12 +164,11 @@ async function updateAlbumCategory(_token,id,category){
  return {berhasil:true,id:r.id,kategori:r.category};
 }
 async function updateBankProgress(_token,p){
- if(String(p?.foto||'').trim())throw Error('Perubahan foto harus dilakukan lewat pengelolaan media. Data teks tidak akan disimpan diam-diam tanpa foto.');
  const r=await api('/api/v2/admin/bank/progress/edit',{
   id:String(p?.id||''),date:String(p?.tanggal||''),
   title:String(p?.judul||''),stage:String(p?.langkah||''),
   description:String(p?.deskripsi||''),status:String(p?.status||''),
-  nextStep:String(p?.agenda||''),publicVisible:p?.publik!==false,photoUrl:''
+  nextStep:String(p?.agenda||''),publicVisible:p?.publik!==false,photoUrl:String(p?.foto||'').trim()
  });
  return {berhasil:true,id:r.id};
 }

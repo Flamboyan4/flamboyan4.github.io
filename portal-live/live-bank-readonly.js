@@ -191,7 +191,7 @@
  };
  const adminProgress=async()=> (await adminRows('progress')).map(x=>({
    id:x.id,progressId:x.id,tanggal:x.happened_on,judul:x.title,langkah:x.stage,
-   deskripsi:x.description||'',status:x.status,agenda:x.next_step||'',publik:!!x.public_visible
+   deskripsi:x.description||'',status:x.status,agenda:x.next_step||'',foto:x.photoUrl||'',publik:!!x.public_visible
  }));
  const adminExpenses=async()=> (await adminRows('expenses')).map(x=>({
    id:x.id,tanggal:x.incurred_on,jenis:x.kind,kategori:x.kind,pos:x.budget_post,
