@@ -1,8 +1,13 @@
 name: F4 Bank Sampah Live PC HP Print Acceptance
 on:
   push:
-    branches: [bank-live-browser-accept-20261025]
-    paths: [.github/workflows/f4-bank-browser-acceptance.yml]
+    branches: [main, bank-live-browser-accept-20261025]
+    paths:
+      - .github/workflows/f4-bank-browser-acceptance.yml
+      - portal-live/bank-sampah/index.html
+      - portal-live/live-bank-readonly.js
+      - portal-live/f4-bank-write-bridge.js
+      - cloudflare/worker-terpadu-operasional-teruji.js
   workflow_dispatch:
 permissions:
   contents: read
