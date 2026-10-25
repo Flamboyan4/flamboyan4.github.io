@@ -188,12 +188,12 @@ async function provisionMemberBatch(){
 async function provisionSingleMember(_token,id){
  const preview=await api('/api/superadmin/accounts/preview');
  const member=Array.isArray(preview.akun)?preview.akun.find(a=>String(a.id)===String(id)):null;
- if(!member||member.role!=='anggota')throw Error('Akun anggota tidak ditemukan pada daftar Superadmin.');
- if(!member.perluAktivasi)throw Error('Akun sudah aktif. Reset password akun aktif belum tersedia di Worker; tidak ada password yang diubah.');
- const rumah=String(member.rumah||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
- if(!rumah)throw Error('Nomor rumah anggota belum lengkap.');
- const result=await api('/api/superadmin/accounts/activate-member',{accountId:member.id,confirmation:'AKTIFKAN AKUN WARGA'});
- return {username:result.username||member.username,passwordAwal:'F4-'+rumah};
+ if(!member||member.role!=='anggota')throw Error('Akun anggota tidak ditemukan pada daftar akun.');
+ const activating=member.perluAktivasi===true;
+ const result=activating?
+   await api('/api/superadmin/accounts/activate-member',{accountId:member.id,confirmation:'AKTIFKAN AKUN WARGA'}):
+   await api('/api/superadmin/accounts/reset-member',{accountId:member.id,confirmation:'RESET PASSWORD WARGA'});
+ return {username:result.username||member.username,passwordAwal:result.passwordAwal||'1234'};
 }
 async function refuseFinalReversal(){
  throw Error('Pembatalan pengesahan batch ditahan: Worker belum menyediakan reversal seluruh buku kas, tabungan, dan alokasi secara atomik. Data tidak diubah.');
