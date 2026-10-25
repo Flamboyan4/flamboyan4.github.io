@@ -50,7 +50,7 @@ def verify_portal_login(credentials):
                             set_cookie=response.headers.get("Set-Cookie","")
                     except urllib.error.HTTPError as e:
                         status=e.code;body=e.read(2000000);set_cookie=e.headers.get("Set-Cookie","")
-                    if req.method=="POST" and ("/api/bookkeeping/" in url.path or "/api/v2/admin/content/" in url.path):
+                    if req.method=="POST" and ("/api/bookkeeping/" in url.path or "/api/v2/admin/content/" in url.path or "/api/v2/admin/residents" in url.path):
                         writes.append({"path":url.path,"status":status,
                            "error":(body[:150].decode("utf8","ignore") if status>=400 else "")})
                     cors={**headers_base,"content-type":"application/json","cache-control":"no-store"}
@@ -182,6 +182,31 @@ def verify_portal_login(credentials):
                             ?.querySelector('form.f4-admin-editor .f4-admin-note')?.textContent||'(no notice)'""")
                         raise AssertionError("Actual Superadmin house form save failed: "+str({
                             "notice":message,"writes":writes[-6:],"js_errors":errors[-3:]})[:750])
+                if scope=="admin" and label=="PC":
+                    # Superadmin: click the original Tambah Rumah form, save,
+                    # and verify it through the production UI against LOCAL D1.
+                    page.locator('[data-target="superadmin"]').evaluate("(el)=>el.click()")
+                    page.wait_for_function("""() => {
+                       const f=document.querySelector('#appframe')?.contentDocument;
+                       return typeof f?.defaultView?.openWarga==='function' &&
+                         !!f?.querySelector('#f4-account-page');
+                    }""",timeout=20000)
+                    page.evaluate("() => document.querySelector('#appframe').contentWindow.openWarga()")
+                    admin=page.frame_locator("#appframe")
+                    admin.get_by_role("button",name="+ Tambah Rumah").click(timeout=12000)
+                    admin.locator(".f4-admin-editor [name='rumah']").fill("QA/998")
+                    admin.locator(".f4-admin-editor button.f4-admin-primary").click()
+                    try:
+                        page.wait_for_function("""() => {
+                          const f=document.querySelector('#appframe')?.contentDocument;
+                          return (f?.querySelector('.sa-chip')?.textContent||'')
+                            .includes('Data berhasil disimpan ke D1.');
+                        }""",timeout=20000)
+                    except:
+                        message=page.evaluate("""() => document.querySelector('#appframe')?.contentDocument
+                          ?.querySelector('.f4-admin-note')?.textContent||'(no form notice)'""")
+                        raise AssertionError("Actual Superadmin Tambah Rumah save failed: "+str({
+                            "notice":message,"writes":writes[-6:],"errors":errors[-3:]})[:950])
                 page.locator("#avatar-button").click()
                 page.locator('[data-account-action="logout"]').click()
                 page.wait_for_function("""() => {
@@ -193,7 +218,8 @@ def verify_portal_login(credentials):
                     "session_cookie":True,"member_area_or_admin_nav":True,
                     "logout":True,"production_api_requests":0,
                     "iuran_saved_through_ui":scope=="admin" and label=="PC",
-                    "bank_setoran_saved_through_ui":scope=="admin" and label=="PC"})
+                    "bank_setoran_saved_through_ui":scope=="admin" and label=="PC",
+                    "superadmin_house_saved_through_ui":scope=="admin" and label=="PC"})
                 page.close();ctx.close()
         browser.close()
     return out
