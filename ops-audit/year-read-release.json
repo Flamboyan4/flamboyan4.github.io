@@ -1,0 +1,11 @@
+{
+  "checked_utc": "2026-10-25T00:15:43.586221+00:00",
+  "target": "flamboyan4-terpadu-staging",
+  "scope": "YEAR_ARCHIVES_READ_ONLY_ROUTES",
+  "status": "deployed_verified",
+  "source_sha256": "d83c4d0a6dc4776b3fe5d7f46b54ac5756cef7f90caade6556b9d04d2603cd8b",
+  "previous_deployment_id": "e0cb8757-601e-4eca-8e9a-aa45836f949a",
+  "deployment_id": "051009bb-0c0e-438e-b552-a73c192c6198",
+  "write_flags_unchanged": true,
+  "d1_r2_preserved": true
+}
