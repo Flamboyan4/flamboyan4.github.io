@@ -1,0 +1,78 @@
+{
+  "checked_at_utc": "2026-10-25T00:55:28.847022+00:00",
+  "checks": [
+    {
+      "path": "/",
+      "required": true,
+      "http": 200,
+      "local_scripts_checked": 8,
+      "broken_scripts": [],
+      "pass": true
+    },
+    {
+      "path": "/uji-terpadu/",
+      "required": true,
+      "http": 200,
+      "local_scripts_checked": 8,
+      "broken_scripts": [],
+      "pass": true
+    },
+    {
+      "path": "/uji-terpadu/bank-sampah/",
+      "required": true,
+      "http": 200,
+      "local_scripts_checked": 3,
+      "broken_scripts": [],
+      "pass": true
+    },
+    {
+      "path": "/uji-terpadu/pembukuan/",
+      "required": true,
+      "http": 200,
+      "local_scripts_checked": 6,
+      "broken_scripts": [],
+      "pass": true
+    },
+    {
+      "path": "/portal-live/",
+      "required": false,
+      "http": 200,
+      "local_scripts_checked": 8,
+      "broken_scripts": [],
+      "pass": true
+    },
+    {
+      "path": "/portal-live/bank-sampah/",
+      "required": false,
+      "http": 200,
+      "local_scripts_checked": 3,
+      "broken_scripts": [],
+      "pass": true
+    },
+    {
+      "path": "/portal-live/pembukuan/",
+      "required": false,
+      "http": 200,
+      "local_scripts_checked": 6,
+      "broken_scripts": [],
+      "pass": true
+    },
+    {
+      "path": "/bank-sampah/",
+      "required": false,
+      "http": 404,
+      "local_scripts_checked": 0,
+      "broken_scripts": [],
+      "pass": false
+    },
+    {
+      "path": "/pembukuan/",
+      "required": false,
+      "http": 200,
+      "local_scripts_checked": 0,
+      "broken_scripts": [],
+      "pass": true
+    }
+  ],
+  "status": "pass"
+}
