@@ -105,6 +105,10 @@ try:
     connection.execute("PRAGMA foreign_keys=ON")
     migration=(ROOT/"cloudflare/migrations/20261025_bank_progress_photos.sql").read_text(encoding="utf8")
     connection.executescript(migration)
+    connection.executescript((ROOT/"cloudflare/migrations/20261025_portal_legacy_arisan_jersey.sql").read_text(encoding="utf8"))
+    portal_counts=(connection.execute("SELECT COUNT(*) FROM portal_arisan_schedule").fetchone()[0],
+                   connection.execute("SELECT COUNT(*) FROM portal_jersey_orders").fetchone()[0])
+    assert_step("portal_legacy_source_to_d1_local",portal_counts==(26,26))
     assert_step("bank_progress_photo_migration_local_only",
       "bank_progress_photos" in {x[0] for x in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")})
     if os.environ.get("F4_BANK_PRIVATE_AUDIT","").strip().lower() in ("true","1","yes"):
