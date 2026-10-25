@@ -1,0 +1,112 @@
+name: F4 Enable Payout After Isolated 24-Test E2E
+on:
+  push:
+    branches: [qa-full-bank-local-20261025]
+    paths: [.github/workflows/f4-enable-bank-payout.yml]
+permissions:
+  contents: write
+concurrency:
+  group: f4-bank-payout-release
+  cancel-in-progress: false
+jobs:
+  activate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Activate only PAYOUT flag preserving exact tested Worker and bindings
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,json,urllib.request,urllib.error,datetime,hashlib,email,time
+          from pathlib import Path
+          output=Path("ops-audit/payout-activation.json")
+          result={"checked_at_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),"scope":"BANK_PAYOUT_FLAG_ONLY","status":"started"}
+          root="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CLOUDFLARE_ACCOUNT_ID"]
+          token=os.environ["CLOUDFLARE_API_TOKEN"]
+          worker="flamboyan4-terpadu-staging"
+          def call(path,method="GET",data=None,ctype=None):
+            head={"Authorization":"Bearer "+token}
+            if ctype:head["Content-Type"]=ctype
+            req=urllib.request.Request(root+path,headers=head,data=data,method=method)
+            with urllib.request.urlopen(req,timeout=80) as r:return r.status,r.headers,r.read(2000000)
+          def cloud(path):
+            _,_,raw=call(path)
+            obj=json.loads(raw)
+            if not obj.get("success"):raise RuntimeError("Cloudflare API refused read")
+            return obj.get("result")
+          def active(bindings):
+            return {k for k,x in bindings.items() if (k.endswith("_WRITE_ENABLED") or k=="SALE_DRAFT_ENABLED") and str(x.get("text","")).lower()=="true"}
+          try:
+            test=json.loads(Path("ops-audit/local-bank-full-e2e.json").read_text())
+            tests=test.get("tests",{})
+            if test.get("status")!="passed" or len(tests)<24 or not all(v.get("passed") for v in tests.values()):
+              raise RuntimeError("Isolated full Bank financial E2E has not passed")
+            snapshot=json.loads(Path("ops-audit/current-worker-source-verification.json").read_text())
+            if not snapshot.get("verified_source_match") or not snapshot.get("bindings_ok") or snapshot.get("bank_payout_active"):
+              raise RuntimeError("Source verification or previous payout state unsuitable")
+            expected_deployment=snapshot["deployment_id"]
+            deploys=cloud("/workers/scripts/"+worker+"/deployments").get("deployments") or []
+            before_id=deploys[0]["id"]
+            if before_id!=expected_deployment:raise RuntimeError("Worker deployment changed since source verification")
+            source=Path("cloudflare/worker-terpadu-operasional-teruji.js").read_bytes()
+            sourcehash=hashlib.sha256(source).hexdigest()
+            if sourcehash!=snapshot.get("source_sha256"):raise RuntimeError("Source changed since verified")
+            _,headers,raw=call("/workers/scripts/"+worker)
+            response_type=headers.get("Content-Type","")
+            if "multipart/" in response_type:
+              msg=email.message_from_bytes(("Content-Type: "+response_type+"\r\nMIME-Version: 1.0\r\n\r\n").encode()+raw)
+              parts=[p.get_payload(decode=True) for p in msg.walk() if not p.is_multipart()]
+              if not any(p==source for p in parts):raise RuntimeError("Remote Worker source changed")
+            elif raw!=source:raise RuntimeError("Remote Worker source changed")
+            cfg=cloud("/workers/scripts/"+worker+"/settings")
+            original={v["name"]:v for v in cfg.get("bindings",[])}
+            if original.get("DB",{}).get("type")!="d1" or original.get("PHOTOS",{}).get("type")!="r2_bucket":
+              raise RuntimeError("Critical DB/PHOTOS bindings missing")
+            if str(original.get("BANK_PAYOUT_WRITE_ENABLED",{}).get("text","")).lower()!="false":
+              raise RuntimeError("Payout flag is not explicitly OFF")
+            if str(original.get("BANK_WRITE_ENABLED",{}).get("text","")).lower()!="true" or str(original.get("BANK_RECONCILIATION_WRITE_ENABLED",{}).get("text","")).lower()!="true":
+              raise RuntimeError("Required Bank and reconciliation flags are not ON")
+            prior_flags={name:str(v.get("text","")).lower() for name,v in original.items() if name.endswith("_WRITE_ENABLED") or name=="SALE_DRAFT_ENABLED"}
+            metadata={"main_module":"main.js","keep_assets":True,
+              "compatibility_date":cfg.get("compatibility_date") or "2026-10-21",
+              "bindings":[({"type":"plain_text","name":v["name"],"text":"true"} if v["name"]=="BANK_PAYOUT_WRITE_ENABLED" else {"type":"inherit","name":v["name"]}) for v in cfg.get("bindings",[])]}
+            boundary="----F4VerifiedPayout"
+            def part(key,data,mime):
+              return ('--'+boundary+'\r\nContent-Disposition: form-data; name="'+key+'"; filename="'+key+'"\r\nContent-Type: '+mime+'\r\n\r\n').encode()+data+b'\r\n'
+            body=part("metadata",json.dumps(metadata).encode(),"application/json")+part("main.js",source,"application/javascript+module")+('--'+boundary+'--\r\n').encode()
+            _,_,raw=call("/workers/scripts/"+worker+"?bindings_inherit=strict","PUT",body,"multipart/form-data; boundary="+boundary)
+            if not json.loads(raw).get("success"):raise RuntimeError("Cloudflare rejected activation")
+            expected_flags=prior_flags.copy()
+            expected_flags["BANK_PAYOUT_WRITE_ENABLED"]="true"
+            for _ in range(10):
+              postcfg=cloud("/workers/scripts/"+worker+"/settings")
+              current={v["name"]:v for v in postcfg.get("bindings",[])}
+              after_flags={name:str(v.get("text","")).lower() for name,v in current.items() if name.endswith("_WRITE_ENABLED") or name=="SALE_DRAFT_ENABLED"}
+              if after_flags==expected_flags:break
+              time.sleep(2)
+            if after_flags!=expected_flags or current.keys()!=original.keys() or any(current[k].get("type")!=v.get("type") for k,v in original.items()):
+              raise RuntimeError("Post-deploy bindings or flags mismatch")
+            after_deploy=cloud("/workers/scripts/"+worker+"/deployments").get("deployments") or []
+            result.update(status="pass",verified_local_test_count=len(tests),source_sha256=sourcehash,
+              previous_deployment=before_id,new_deployment=after_deploy[0].get("id"),active_flags=sorted(active(current)),
+              d1_modified=False)
+          except Exception as e:
+            result["status"]="failed";result["error"]=type(e).__name__+": "+str(e)[:200]
+            output.write_text(json.dumps(result,indent=2)+"\n")
+            raise
+          output.write_text(json.dumps(result,indent=2)+"\n")
+          print("Verified payout enabled with exact Worker source; no D1 writes.")
+          PY
+      - name: Publish sanitized result
+        if: always()
+        run: |
+          test -f ops-audit/payout-activation.json || exit 1
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/payout-activation.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(bank): record verified payout enablement"
+          git push origin HEAD:qa-full-bank-local-20261025
