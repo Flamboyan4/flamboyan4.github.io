@@ -2474,6 +2474,8 @@ async function cancelNewIuranPayment(request,env,who){
   if(archive||closing)return safeError("Tahun pembukuan atau alokasi sudah dikunci.",409);
   const posted=await db.prepare("SELECT COUNT(*) AS n FROM bookkeeping_allocation_details WHERE allocation_id IN (SELECT id FROM bookkeeping_payment_allocations WHERE payment_id=?)").bind(id).first();
   if(Number(posted?.n||0))return safeError("Alokasi sudah masuk batch: pembatalan memerlukan rekonsiliasi manual.",409);
+  if(await db.prepare("SELECT id FROM bookkeeping_advance_repayments WHERE note LIKE ? AND status='aktif' LIMIT 1").bind("% melalui Iuran "+id).first())
+    return safeError("Pembayaran telah melunasi Talangan; pembatalan memerlukan jurnal pembalik terpisah.",409);
   const talangan=await db.prepare("SELECT id FROM bookkeeping_advances WHERE payer_id=? AND status='aktif' AND amount_rp>COALESCE(reimbursed_rp,0) LIMIT 1").bind(payment.payer_id).first();
   if(talangan)return safeError("Talangan masih aktif; pembatalan otomatis tidak aman.",409);
   const ledger=await db.prepare("SELECT id,status,transaction_type,debit_rp,credit_rp FROM bookkeeping_cash_transactions WHERE source_payment_id=?").bind(id).all();
@@ -2524,6 +2526,8 @@ async function f4EditNewIuran(request,env,who){
  const kas=rows.filter(x=>x.contribution_type==="KAS_LORONG").reduce((n,x)=>n+Number(x.amount_rp),0);
  if(cash.length!==(kas?1:0)||cash.some(x=>x.status!=="aktif"||x.transaction_type!=="iuran"||Number(x.debit_rp)!==kas||Number(x.credit_rp)!==0))
    return safeError("Jurnal Kas terkait belum cocok; pembaruan ditolak.",409);
+ if(await db.prepare("SELECT id FROM bookkeeping_advance_repayments WHERE note LIKE ? AND status='aktif' LIMIT 1").bind("% melalui Iuran "+id).first())
+   return safeError("Iuran terkait pelunasan Talangan tidak dapat diedit tanpa jurnal pembalik.",409);
  const linked=await db.prepare("SELECT id FROM bookkeeping_advances WHERE payer_id=? AND status='aktif' AND amount_rp>COALESCE(reimbursed_rp,0) LIMIT 1").bind(prev.payer_id).first();
  if(linked)return safeError("Talangan aktif; selesaikan rekonsiliasi sebelum mengedit Iuran.",409);
  if(prev.paid_on===date&&prev.payment_method===method&&String(prev.description||"")===desc)return json({ok:true,unchanged:true});
