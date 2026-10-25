@@ -5,6 +5,7 @@ body.f4-direct-book{--f4-nav:#a7652f;--f4-nav-tint:#fff0e0;--f4-nav-line:#eedccb
 body.f4-direct-superadmin{--f4-nav:#2d6593;--f4-nav-tint:#e7f2fb;--f4-nav-line:#d8e5ef}
 #f4-direct-bar,#f4-direct-bar *,#f4-direct-sidebar,#f4-direct-sidebar *,#f4-direct-dialog,#f4-direct-dialog *,#f4-direct-gate,#f4-direct-gate *{box-sizing:border-box}
 #f4-direct-bar{position:fixed;top:0;left:0;right:0;height:56px;z-index:200;background:#fffffff0;backdrop-filter:blur(14px);border-bottom:1px solid var(--f4-nav-line);display:flex;align-items:center;justify-content:space-between;padding:0 12px;gap:8px;font:600 14px/1.35 system-ui,-apple-system,sans-serif;color:#292b45}
+#f4-direct-bar [hidden]{display:none!important}
 #f4-direct-bar button,#f4-direct-bar a{display:grid;place-items:center;width:39px;height:39px;flex:none;border:0;border-radius:11px;background:transparent;color:var(--f4-nav);cursor:pointer;padding:0;text-decoration:none}
 #f4-direct-bar button:hover,#f4-direct-bar a:hover,#f4-direct-bar .f4-selected{background:var(--f4-nav-tint)}
 #f4-direct-bar svg{width:21px;height:21px;display:block;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
@@ -37,7 +38,7 @@ body.f4-direct-bank{padding-top:56px!important}
 body.f4-direct-book{padding-top:56px!important}
 body.f4-direct-book>header{display:none!important}
 body.f4-direct-superadmin{padding-top:0!important}
-body.f4-direct-simple{padding-top:56px!important}
+body.f4-direct-simple{padding-top:56px!important;padding-left:226px!important}
 body.f4-denied>*:not(#f4-direct-bar):not(#f4-direct-dialog):not(#f4-direct-gate):not(#f4-direct-sideback):not(#f4-direct-sidebar){display:none!important}
 body.f4-direct-superadmin .f4-sa-standalone-menu{display:none!important}
 body.f4-direct-superadmin #f4-account-page>main{padding-top:84px!important}
@@ -49,7 +50,7 @@ body.f4-direct-bank:has(.v21-modal:not(.hidden)) #f4-direct-bar{visibility:hidde
 @media(max-width:1023px){
  #f4-direct-sidebar{transform:translateX(-103%);transition:transform .2s;box-shadow:10px 0 25px #1c304016}
  #f4-direct-sidebar.f4-open{transform:translateX(0)}
- body.f4-direct-portal{padding-left:0!important}
+ body.f4-direct-portal,body.f4-direct-simple{padding-left:0!important}
  #f4-direct-bar{padding:0 10px}
  #f4-direct-bar .f4-nav-links{gap:3px}
 }
