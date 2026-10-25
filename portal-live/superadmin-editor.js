@@ -187,7 +187,7 @@ function showForm(record){
  }
  const notice=node('p','','f4-admin-message');form.append(notice);
  const actions=node('div',undefined,'f4-warga-form-actions');
- actions.append(btn('Batal',viewList),btn('Simpan ke Cloudflare',()=>form.requestSubmit(),'f4-admin-primary'));
+ actions.append(btn('Batal',viewList),btn('Simpan ke Cloudflare',()=>{if(form.reportValidity())form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}))},'f4-admin-primary'));
  form.append(actions);
  form.addEventListener('submit',async(e)=>{
   e.preventDefault();

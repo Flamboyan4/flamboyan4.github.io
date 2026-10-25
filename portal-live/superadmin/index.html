@@ -661,7 +661,7 @@ function wargaForm(mode,row={}){
   outer.append(control);grid.append(outer);
  }
  form.append(grid);const note=el('p','','f4-admin-note'),actions=el('div',undefined,'f4-warga-form-actions');
- const save=button(isNew?'Tambah':'Simpan Perubahan',()=>form.requestSubmit(),'f4-admin-primary');
+ const save=button(isNew?'Tambah':'Simpan Perubahan',()=>{if(form.reportValidity())form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}))},'f4-admin-primary');
  actions.append(button('Batal',openWarga,'sa-action'),save);form.append(note,actions);card.append(form);
  form.addEventListener('submit',async event=>{
   event.preventDefault();
