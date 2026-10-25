@@ -513,13 +513,24 @@ try:
                 for z in browser_results))
             result["browser_acceptance"]=browser_results
             save()
-        if os.environ.get("F4_BANK_PRIVATE_AUDIT","").strip().lower() in ("true","1","yes"):
+        def qa_enabled(key):
+            return os.environ.get(key,"").strip().lower() in ("true","1","yes")
+        if qa_enabled("F4_BANK_PRIVATE_AUDIT") or qa_enabled("F4_BANK_PORTAL_UI"):
             from bank_local_login_integration import verify
-            result["real_password_login_checks"]=verify(files[0],base,assert_step)
+            summary,ephemeral_credentials=verify(files[0],base,assert_step)
+            result["real_password_login_checks"]=summary
             save()
-            from bank_production_readonly_gate import verify as verify_production
-            result["production_readonly_gate"]=verify_production(assert_step)
-            save()
+            if qa_enabled("F4_BANK_PORTAL_UI"):
+                from bank_portal_login_browser_e2e import verify_portal_login
+                portal_results=verify_portal_login(ephemeral_credentials)
+                assert_step("real_portal_form_login_pc_hp_admin_member",
+                    len(portal_results)==4 and all(x["login_form"] and x["session_cookie"] and x["logout"] for x in portal_results))
+                result["portal_login_browser"]=portal_results
+                save()
+            if qa_enabled("F4_BANK_PRIVATE_AUDIT"):
+                from bank_production_readonly_gate import verify as verify_production
+                result["production_readonly_gate"]=verify_production(assert_step)
+                save()
 
     finally:
         process.terminate()
