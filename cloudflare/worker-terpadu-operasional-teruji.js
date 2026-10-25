@@ -2634,7 +2634,7 @@ async function ownSavings(db, memberId) {
 }
 __name(ownSavings, "ownSavings");
 async function accountActivationPreview(db) {
-  const result = await db.prepare(`SELECT a.id,a.username,a.role,a.status,a.password_scheme,
+  const result = await db.prepare(`SELECT a.id,a.member_id,a.username,a.role,a.status,a.password_scheme,
     h.house_code,m.display_name
     FROM accounts a LEFT JOIN members m ON m.id=a.member_id
     LEFT JOIN households h ON h.id=m.household_id
@@ -2642,6 +2642,7 @@ async function accountActivationPreview(db) {
     ORDER BY a.role,a.username LIMIT 100`).all();
   const accounts = (result.results || []).map((a) => ({
     id: a.id,
+    member_id: a.member_id || null,
     username: a.username,
     role: a.role,
     status: a.status,

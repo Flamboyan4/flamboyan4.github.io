@@ -7,7 +7,11 @@ const API='https://api.flamboyan4.web.id';
 const rows=x=>Array.isArray(x?.data)?x.data:Array.isArray(x?.rows)?x.rows:[];
 const n=x=>Number.isFinite(Number(x))?Number(x):0;
 const memberId=x=>String(x||'').startsWith('member:')?String(x):'member:'+String(x||'');
-const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+const today=()=>{
+ const parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+ const byType=Object.fromEntries(parts.filter(p=>['year','month','day'].includes(p.type)).map(p=>[p.type,p.value]));
+ return byType.year+'-'+byType.month+'-'+byType.day;
+};
 async function api(path,payload){
  const res=await fetch(API+path,{credentials:'include',mode:'cors',cache:'no-store',method:payload?'POST':'GET',...(payload?{headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}:{})});
  const data=await res.json().catch(()=>{throw Error('Respons Cloudflare bukan JSON.')});
