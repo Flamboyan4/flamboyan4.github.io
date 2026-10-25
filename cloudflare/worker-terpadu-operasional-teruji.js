@@ -2305,6 +2305,8 @@ async function createIuranPayment(request, env, who) {
   }
   const key = String(d.requestKey || ""), payerId = String(d.payerId || ""), date = String(d.tanggal || ""), method = String(d.metode || ""), note = String(d.catatan || "").trim();
   const sum = Number(d.jumlahRp), items = d.alokasi;
+  const settleAdvanceId = String(d.settleAdvanceId||"");
+  if(settleAdvanceId&&!/^adv_[a-f0-9-]{36}$/i.test(settleAdvanceId))return safeError("Referensi Talangan tidak valid.",400);
   if (!/^[a-f0-9-]{36}$/i.test(key) || payerId.length < 1 || payerId.length > 150 || !validDateOnly(date) || !validRupiah(sum) || !["Cash", "QRIS", "Transfer Mandiri"].includes(method) || note.length > 500 || !Array.isArray(items) || items.length < 1 || items.length > 60) return safeError("Data pembayaran tidak valid.", 400);
   const allowed = ["IURAN_BULANAN", "KEBERSIHAN", "KAS_LORONG", "ARISAN"];
   const types = /* @__PURE__ */ new Set(), periods = /* @__PURE__ */ new Set();
@@ -2319,7 +2321,7 @@ async function createIuranPayment(request, env, who) {
     if (!Number.isSafeInteger(total)) return safeError("Jumlah terlalu besar.", 400);
   }
   if (total !== sum) return safeError("Total alokasi tidak sama dengan uang diterima.", 400);
-  const iuranHash = await tokenHash(JSON.stringify({ payerId, date, method, note, sum, alokasi: items.map((a) => ({ tahun: a.tahun, bulan: a.bulan, jenis: a.jenis, nominal: a.nominal })).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))) }));
+  const iuranHash = await tokenHash(JSON.stringify({ payerId, date, method, note, sum, ...(settleAdvanceId?{settleAdvanceId}:{}), alokasi: items.map((a) => ({ tahun: a.tahun, bulan: a.bulan, jenis: a.jenis, nominal: a.nominal })).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))) }));
   const old = await env.DB.prepare("SELECT payment_id,payload_hash FROM bookkeeping_payment_request_keys WHERE request_key=?").bind(key).first();
   if (old) {
     if (!old.payload_hash || old.payload_hash !== iuranHash) return safeError("requestKey iuran sudah digunakan atau berasal dari data lama tanpa fingerprint.", 409);
@@ -2327,9 +2329,24 @@ async function createIuranPayment(request, env, who) {
     if (existing?.status !== "aktif") return safeError("RequestKey sudah dibatalkan. Buat pembayaran baru sesudah pemeriksaan.", 409);
     return json({ ok: true, idPembayaran: old.payment_id, duplikat: true });
   }
-  // Guard server: penulisan Iuran tak boleh melewati Talangan aktif.
-  const advance = await env.DB.prepare("SELECT id FROM bookkeeping_advances WHERE payer_id=? AND status='aktif' AND amount_rp>COALESCE(reimbursed_rp,0) LIMIT 1").bind(payerId).first();
-  if (advance) return safeError("Warga memiliki Talangan aktif. Rekonsiliasi Talangan diperlukan sebelum Iuran dicatat.", 409);
+  // Explicit Talangan reference is verified server-side; never silently settle
+  // an unrelated advance, never allow >1 active advance in one payment.
+  const activeAdvances=await env.DB.prepare(`SELECT a.id,a.advanced_on,a.description,a.amount_rp,a.reimbursed_rp,
+   (SELECT COALESCE(SUM(r.amount_rp),0) FROM bookkeeping_advance_repayments r
+     WHERE r.advance_id=a.id AND r.status='aktif') AS repaid
+   FROM bookkeeping_advances a WHERE a.payer_id=? AND a.status='aktif'
+     AND a.amount_rp>COALESCE(a.reimbursed_rp,0) LIMIT 3`).bind(payerId).all();
+  const advancing=activeAdvances.results||[];
+  if(advancing.length>1)return safeError("Terdapat lebih dari satu Talangan aktif. Periksa rekonsiliasi dahulu.",409);
+  if(advancing.length&&!settleAdvanceId)return safeError("Talangan aktif: pembayaran Iuran harus menyertakan referensi Talangan yang cocok.",409);
+  if(!advancing.length&&settleAdvanceId)return safeError("Referensi Talangan sudah dilunasi atau tidak aktif.",409);
+  const activeAdvance=advancing[0]||null;
+  if(activeAdvance&&(activeAdvance.id!==settleAdvanceId||
+      Number(activeAdvance.reimbursed_rp)!==Number(activeAdvance.repaid)||
+      !/^\[Periode (20\d\d)-(0[1-9]|1[0-2])\]/.test(String(activeAdvance.description||""))||
+      date<activeAdvance.advanced_on))
+    return safeError("Talangan belum dapat dipasangkan otomatis: identitas, periode, tanggal atau jurnal tidak cocok.",409);
+
   try {
     await getIuranTariffs(env.DB);
   } catch {
@@ -2375,6 +2392,22 @@ async function createIuranPayment(request, env, who) {
       }
     }
   }
+  let talanganRepayRp=0;
+  if(activeAdvance){
+    const match=String(activeAdvance.description||"").match(/^\[Periode (20\d\d)-(0[1-9]|1[0-2])\]/);
+    const periodYear=Number(match[1]),periodMonth=Number(match[2]);
+    const forPeriod=items.filter(x=>x.tahun===periodYear&&x.bulan===periodMonth);
+    const iuranCovered=forPeriod.filter(x=>["IURAN_BULANAN","KEBERSIHAN"].includes(x.jenis))
+      .reduce((v,x)=>v+x.nominal,0);
+    talanganRepayRp=Number(activeAdvance.amount_rp)-Number(activeAdvance.reimbursed_rp);
+    // Only the full outstanding RT/Kebersihan portion for this exact month
+    // can settle the matching advance; never use Arisan or Kas Lorong funds.
+    if(!Number.isSafeInteger(talanganRepayRp)||talanganRepayRp<=0||
+       iuranCovered!==talanganRepayRp||
+       (required.IURAN_BULANAN+required.KEBERSIHAN)!==Number(activeAdvance.amount_rp))
+      return safeError("Periode atau nilai pelunasan Talangan tidak cocok dengan Iuran/Kebersihan. Transaksi ditolak.",409);
+    if(env.TALANGAN_WRITE_ENABLED!=="true")return safeError("Pelunasan Talangan belum aktif.",503);
+  }
   const payer = await env.DB.prepare("SELECT id,household_id,active FROM bookkeeping_payers WHERE id=?").bind(payerId).first();
   if (!payer || payer.active !== 1) return safeError("Pembayar tidak aktif atau tidak ditemukan.", 404);
   const periodYears = [.../* @__PURE__ */ new Set([Number(date.slice(0, 4)), ...items.map((x) => x.tahun)])];
@@ -2392,6 +2425,17 @@ async function createIuranPayment(request, env, who) {
   const kasLorongRp = items.filter((a) => a.jenis === "KAS_LORONG").reduce((total, a) => total + a.nominal, 0);
   if (kasLorongRp > 0) {
     q.push(env.DB.prepare("INSERT INTO bookkeeping_cash_transactions(id,occurred_on,payer_id,household_id,transaction_type,category,debit_rp,credit_rp,status,note,source_payment_id,payment_method) VALUES(?,?,?,?,?,'Kas Lorong',?,0,'aktif',?,?,?)").bind(cashId, date, payer.id, payer.household_id, "iuran", kasLorongRp, note, id, method));
+  }
+  if(activeAdvance){
+    const repayId="ar_"+crypto.randomUUID(),cashRepay="ac_"+crypto.randomUUID(),repayKey="iuran_"+id;
+    const noteRepay="Penggantian Talangan "+activeAdvance.id+" melalui Iuran "+id;
+    const repayHash=await tokenHash(JSON.stringify({advanceId:activeAdvance.id,paymentId:id,amount:talanganRepayRp}));
+    q.push(env.DB.prepare("INSERT INTO bookkeeping_advance_request_ledger(request_key,operation,payload_hash,result_id,cash_transaction_id) VALUES(?,'advance-repay',?,?,?)")
+      .bind(repayKey,repayHash,repayId,cashRepay));
+    q.push(env.DB.prepare("INSERT INTO bookkeeping_cash_transactions(id,occurred_on,payer_id,transaction_type,category,debit_rp,credit_rp,status,note,payment_method) VALUES(?,?,?,'pelunasan_talangan','Pelunasan Talangan',0,?,'aktif',?,?)")
+      .bind(cashRepay,date,payerId,talanganRepayRp,noteRepay,method));
+    q.push(env.DB.prepare("INSERT INTO bookkeeping_advance_repayments(id,advance_id,repaid_on,amount_rp,status,note,request_key,cash_transaction_id) VALUES(?,?,?,?,'aktif',?,?,?)")
+      .bind(repayId,activeAdvance.id,date,talanganRepayRp,noteRepay,repayKey,cashRepay));
   }
   q.push(env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,after_json) VALUES(?,?,?,?,?,?,?)").bind(crypto.randomUUID(), who.id, "pembukuan", "create_iuran", "bookkeeping_payments", id, JSON.stringify({ tanggal: date, jumlahRp: sum, alokasi: items.length })));
   try {
