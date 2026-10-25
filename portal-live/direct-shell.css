@@ -39,6 +39,8 @@ body.f4-direct-book{padding-top:56px!important}
 body.f4-direct-book>header{display:none!important}
 body.f4-direct-superadmin{padding-top:0!important}
 body.f4-direct-simple{padding-top:56px!important;padding-left:226px!important}
+/* Rapat used its own tall legacy navbar. The unified 56px bar now replaces it. */
+body.f4-direct-simple>header{display:none!important}
 body.f4-denied>*:not(#f4-direct-bar):not(#f4-direct-dialog):not(#f4-direct-gate):not(#f4-direct-sideback):not(#f4-direct-sidebar){display:none!important}
 body.f4-direct-superadmin .f4-sa-standalone-menu{display:none!important}
 body.f4-direct-superadmin #f4-account-page>main{padding-top:84px!important}
