@@ -2371,7 +2371,7 @@ async function activateMemberAccount(request, env, who) {
   const normalHouse = String(account.house_code || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
   const normalUsername = String(account.username || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
   if (!normalHouse || normalHouse !== normalUsername) return safeError("Nomor rumah dan username perlu diperiksa dahulu.", 409);
-  const hashed = await passwordHash("F4-" + normalHouse);
+  const hashed = await passwordHash("1234");
   const updated = await env.DB.prepare(`UPDATE accounts SET password_hash=?,password_scheme='pbkdf2-sha256',
     status='aktif',must_change_password=0,failed_attempts=0,locked_until=NULL,
     updated_at=CURRENT_TIMESTAMP
@@ -2389,9 +2389,33 @@ async function activateMemberAccount(request, env, who) {
     id,
     "Aktivasi awal akun warga melalui superadmin staging"
   ).run();
-  return json({ ok: true, message: "Akun warga berhasil diaktifkan.", username: account.username });
+  return json({ ok: true, message: "Akun warga berhasil diaktifkan.", username: account.username, passwordAwal: "1234" });
 }
 __name(activateMemberAccount, "activateMemberAccount");
+async function resetMemberPassword(request,env,who) {
+  let payload;
+  try { payload=await requestJson(request) } catch { return safeError("Format permintaan tidak valid.",400) }
+  if(payload?.confirmation!=="RESET PASSWORD WARGA") return safeError("Konfirmasi reset diperlukan.",400);
+  const id=String(payload.accountId||"");
+  if(!/^account:[A-Za-z0-9_-]{1,100}$/.test(id))return safeError("ID akun tidak valid.",400);
+  const account=await env.DB.prepare(`SELECT a.id,a.username,a.role,a.status,a.password_scheme,
+    m.status AS member_status FROM accounts a JOIN members m ON m.id=a.member_id
+    WHERE a.id=? LIMIT 1`).bind(id).first();
+  if(!account||account.role!=="anggota"||account.status!=="aktif"||account.member_status!=="aktif")
+    return safeError("Akun anggota aktif tidak ditemukan.",404);
+  if(account.password_scheme!=="pbkdf2-sha256")return safeError("Akun memerlukan pemeriksaan sebelum reset.",409);
+  const hashed=await passwordHash("1234");
+  await env.DB.batch([
+    env.DB.prepare(`UPDATE accounts SET password_hash=?,password_scheme='pbkdf2-sha256',must_change_password=0,
+      failed_attempts=0,locked_until=NULL,updated_at=CURRENT_TIMESTAMP
+      WHERE id=? AND role='anggota' AND status='aktif'`).bind(hashed,id),
+    env.DB.prepare("UPDATE sessions SET revoked_at=CURRENT_TIMESTAMP WHERE account_id=? AND revoked_at IS NULL").bind(id),
+    env.DB.prepare(`INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason)
+      VALUES(?,?,'accounts','reset_member_password','accounts',?,'Reset password awal oleh pengelola')`).bind(crypto.randomUUID(),who.id,id)
+  ]);
+  return json({ok:true,username:account.username,passwordAwal:"1234",message:"Password anggota direset dan semua sesi lamanya berakhir."});
+}
+__name(resetMemberPassword,"resetMemberPassword");
 async function activateBankAdmin(request, env, who) {
   let payload;
   try {
@@ -3319,14 +3343,22 @@ async function handle(request, env) {
     return json({ ok: true, scope: "pembukuan-superadmin" });
   }
   if (path === "/api/superadmin/accounts/preview" && request.method === "GET") {
-    const denied = requireRole(who, ["superadmin"]);
+    const denied = requireRole(who, ["admin","superadmin"]);
     if (denied) return denied;
-    return json(await accountActivationPreview(env.DB));
+    const preview=await accountActivationPreview(env.DB);
+    if(who.role==="admin")preview.akun=preview.akun.filter(a=>a.role==="anggota");
+    preview.jumlah=preview.akun.length;
+    return json(preview);
   }
   if (path === "/api/superadmin/accounts/activate-member" && request.method === "POST") {
-    const denied = requireRole(who, ["superadmin"]);
+    const denied = requireRole(who, ["admin","superadmin"]);
     if (denied) return denied;
     return activateMemberAccount(request, env, who);
+  }
+  if (path === "/api/superadmin/accounts/reset-member" && request.method === "POST") {
+    const denied = requireRole(who, ["admin","superadmin"]);
+    if (denied) return denied;
+    return resetMemberPassword(request,env,who);
   }
   if (path === "/api/superadmin/accounts/activate-admin" && request.method === "POST") {
     const denied = requireRole(who, ["superadmin"]);
