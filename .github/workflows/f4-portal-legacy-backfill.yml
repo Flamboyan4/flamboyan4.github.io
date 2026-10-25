@@ -65,5 +65,51 @@ jobs:
           if arisan<26 or jersey<26:raise RuntimeError('Data row count insufficient')
           print('PORTAL_ARISAN_D1_ROWS='+str(arisan))
           print('PORTAL_JERSEY_D1_ROWS='+str(jersey))
+          # Historical Firebase chat is imported once by stable source keys.
+          # Firebase remains read-only, while Portal frontend reads D1 only.
+          import hashlib,datetime,urllib.error
+          from zoneinfo import ZoneInfo
+          firebase_url='https://flamboyan4-chat-default-rtdb.firebaseio.com/komentar_warga.json'
+          try:
+              request=urllib.request.Request(firebase_url,headers={'Accept':'application/json','User-Agent':'Flamboyan4-Historical-Migration/1.0'})
+              with urllib.request.urlopen(request,timeout=25) as response:
+                  records=json.load(response)
+          except (urllib.error.HTTPError,urllib.error.URLError,TimeoutError) as e:
+              print('FIREBASE_HISTORY_READ_UNAVAILABLE='+type(e).__name__)
+              records=None
+          if records is not None:
+              if not isinstance(records,dict):
+                  raise RuntimeError('Firebase comments source returned unexpected structure')
+              rows=[];invalid=0
+              months={'jan':1,'feb':2,'mar':3,'apr':4,'mei':5,'jun':6,'jul':7,'agu':8,'sep':9,'okt':10,'nov':11,'des':12}
+              for key,row in records.items():
+                  if not isinstance(row,dict):
+                      invalid+=1;continue
+                  name=row.get('nama');message=row.get('pesan')
+                  if not isinstance(name,str) or not isinstance(message,str) or not name.strip() or not message.strip():
+                      invalid+=1;continue
+                  date=row.get('timestamp')
+                  if isinstance(date,(int,float)) and 1e11<date<5e12:
+                      created_at=datetime.datetime.fromtimestamp(date/1000,datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+                  else:
+                      raw=str(row.get('waktu') or '')
+                      m=re.match(r'^\s*(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4}),?\s+(\d{1,2})[:.](\d{2})',raw)
+                      if m and m[2].lower() in months:
+                          local=datetime.datetime(int(m[3]),months[m[2].lower()],int(m[1]),int(m[4]),int(m[5]),tzinfo=ZoneInfo('Asia/Jakarta'))
+                          created_at=local.astimezone(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+                      else:created_at=raw
+                  stable='komentar:firebase:'+hashlib.sha256(str(key).encode('utf-8')).hexdigest()[:32]
+                  rows.append((stable,name.strip(),message.strip(),'aktif',created_at))
+              for start in range(0,len(rows),25):
+                  batch=rows[start:start+25]
+                  statement='INSERT OR IGNORE INTO portal_comments(id,display_name,body,status,created_at) VALUES '+','.join(['(?,?,?,?,?)']*len(batch))
+                  values=[v for row in batch for v in row]
+                  res=cf(path,'POST',{'sql':statement,'params':values})
+                  if not isinstance(res,list) or len(res)!=1 or res[0].get('success') is not True:
+                      raise RuntimeError('Firebase D1 historical comment migration failed')
+              print('FIREBASE_SOURCE_COMMENTS='+str(len(records)))
+              print('D1_HISTORICAL_COMMENTS_PARSED='+str(len(rows)))
+              print('FIREBASE_MALFORMED_ENTRIES='+str(invalid))
+              print('FIREBASE_SOURCE_NOT_MODIFIED=1')
           print('TRANSAKSI_KEUANGAN_DIUBAH=0')
           PY
