@@ -2,7 +2,7 @@ name: Flamboyan 4 - Full Isolated Finance Regression
 on:
   workflow_dispatch:
   push:
-    branches: [finalize-iuran-year-guards-20261025, migrate-portal-public-cash-20261025, bank-safe-reversal-20261025, bank-real-report-member-fix-20261025, bank-album-cover-20261025, bank-progress-photo-final-20261025]
+    branches: [finalize-iuran-year-guards-20261025, migrate-portal-public-cash-20261025, bank-safe-reversal-20261025, bank-real-report-member-fix-20261025, bank-album-cover-20261025, bank-progress-photo-final-20261025, bank-authenticated-ui-isolated-20261025]
     paths:
       - cloudflare/worker-terpadu-operasional-teruji.js
       - qa/run_isolated_bank_full_e2e.py
@@ -28,10 +28,16 @@ jobs:
           node-version: "22"
       - name: Install Wrangler for local D1
         run: npm install --no-save --ignore-scripts wrangler@4
+      - name: Install browser for isolated Admin and Member UI acceptance
+        if: github.ref_name == 'bank-authenticated-ui-isolated-20261025'
+        run: |
+          python3 -m pip install --quiet playwright
+          python3 -m playwright install --with-deps chromium
       - name: Export D1 READ ONLY and test in disposable local clone
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          F4_BANK_BROWSER_QA: ${{ github.ref_name == 'bank-authenticated-ui-isolated-20261025' }}
         run: python3 qa/run_isolated_bank_full_e2e.py
       - name: Upload sanitized test result
         if: always()
