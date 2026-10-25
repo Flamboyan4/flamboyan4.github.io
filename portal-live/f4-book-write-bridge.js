@@ -103,10 +103,18 @@ async function cancelIuran(params){
  const result=await fetchApi('/api/bookkeeping/iuran/cancel',{idPembayaran:id,alasan:String(params.alasan||'Dibatalkan dari portal').slice(0,300)});
  return {status:'success',idPembayaran:id,message:result.duplikat?'Pembayaran sebelumnya sudah dibatalkan.':'Pembayaran dan jurnal Kas terkait berhasil dibatalkan.',duplikat:!!result.duplikat};
 }
+async function editIuran(p){
+ const id=String(p.idPembayaran||'');
+ if(!/^pay-[a-f0-9-]{36}$/i.test(id))throw Error('Hanya Iuran baru yang belum diposting dapat diedit.');
+ const r=await fetchApi('/api/bookkeeping/iuran/edit',{idPembayaran:id,
+  tanggal:String(p.tanggal||''),metode:String(p.metode||''),catatan:String(p.catatan||'')});
+ return {status:'success',message:r.message||'Perubahan berhasil disimpan.'};
+}
 window.__f4BookDemoCall=(params={})=>{
  const action=String(params.action||'').toLowerCase();
  if(action==='simpaniuran')return saveIuran(params);
  if(action==='batalkanpembayaran')return cancelIuran(params);
+ if(action==='updatepembayaran')return editIuran(params);
  return previous(params);
 };
 })();
