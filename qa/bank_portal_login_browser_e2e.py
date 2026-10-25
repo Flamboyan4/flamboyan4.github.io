@@ -21,7 +21,7 @@ def verify_portal_login(credentials):
                 ctx=browser.new_context(viewport=viewport,is_mobile=label=="HP",
                     has_touch=label=="HP",accept_downloads=True)
                 page=ctx.new_page()
-                errors=[]
+                errors=[];writes=[]
                 page.on("pageerror",lambda e:errors.append(str(e)[:120]))
                 def proxy(route):
                     req=route.request
@@ -50,6 +50,9 @@ def verify_portal_login(credentials):
                             set_cookie=response.headers.get("Set-Cookie","")
                     except urllib.error.HTTPError as e:
                         status=e.code;body=e.read(2000000);set_cookie=e.headers.get("Set-Cookie","")
+                    if req.method=="POST" and ("/api/bookkeeping/" in url.path or "/api/v2/admin/content/" in url.path):
+                        writes.append({"path":url.path,"status":status,
+                           "error":(body[:150].decode("utf8","ignore") if status>=400 else "")})
                     cors={**headers_base,"content-type":"application/json","cache-control":"no-store"}
                     if set_cookie:cors["set-cookie"]=set_cookie
                     route.fulfill(status=status,headers=cors,body=body)
@@ -95,6 +98,13 @@ def verify_portal_login(credentials):
                     book.locator("#inp-metode").select_option("Cash")
                     amount=book.locator("#inp-nominal-dibayar").input_value()
                     if not amount or int(amount)<=0:raise AssertionError("Pembukuan Iuran preview failed: "+repr(amount))
+                    before=page.evaluate("""() => {let f=document.querySelector('#appframe')?.contentDocument;
+                      let form=f?.querySelector('#form-iuran');
+                      return {src:document.querySelector('#appframe')?.getAttribute('src'),
+                       url:f?.URL,ready:!!form,valid:form?.checkValidity(),
+                       invalid:[...(form?.elements||[])].filter(x=>!x.validity?.valid).map(x=>x.id),
+                       due:f?.querySelector('#inp-nominal-dibayar')?.value}}
+                    """)
                     book.locator("#btn-simpan").click()
                     try:
                         page.wait_for_function("""() => {
@@ -104,7 +114,15 @@ def verify_portal_login(credentials):
                     except:
                         message=page.evaluate("""() => document.querySelector('#appframe')?.contentDocument
                           ?.querySelector('#save-status')?.textContent||'(no status)'""")
-                        raise AssertionError("Actual Pembukuan Iuran submit failed: "+message[:240])
+                        after=page.evaluate("""() => {const doc=document.querySelector('#appframe')?.contentDocument;
+                          return {src:document.querySelector('#appframe')?.getAttribute('src'),
+                            url:doc?.URL,form:!!doc?.querySelector('#form-iuran'),
+                            status:doc?.querySelector('#save-status')?.textContent,
+                            selected:doc?.querySelector('#inp-warga')?.value,
+                            error:doc?.querySelector('#status-box')?.textContent}}
+                        """)
+                        raise AssertionError("Actual Pembukuan Iuran submit failed: "+str({
+                            "before":before,"after":after,"writes":writes[-6:],"errors":errors[-3:]})[:950])
                 page.locator("#avatar-button").click()
                 page.locator('[data-account-action="logout"]').click()
                 page.wait_for_function("""() => {
