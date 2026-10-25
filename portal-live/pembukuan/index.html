@@ -4927,4 +4927,37 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
  }
 }
 </style>
+<script id="f4-d1-explicit-save-clicks">
+/* Explicitly connect the existing D1 save routines on the deployed form buttons.
+   Browser acceptance found the form valid but native submit was not dispatched.
+   Prevent native navigation; respect required fields and fiscal-year locks. */
+(function(){
+  'use strict';
+  const handlers={
+    'btn-simpan':'simpanIuran',
+    'kurang-kas-btn':'bayarKekuranganKas',
+    'btn-trx-simpan':'simpanTransaksiKas',
+    'loan-btn-simpan':'simpanPinjaman',
+    'payloan-btn-simpan':'simpanPembayaranPinjaman',
+    'tal-btn-simpan':'simpanTalangan',
+    'denda-btn-simpan':'simpanDenda',
+    'bayar-denda-btn':'bayarDenda'
+  };
+  document.addEventListener('click',function(event){
+    const button=event.target?.closest?.('button[id]');
+    const action=button&&handlers[button.id];
+    if(!action||button.disabled)return;
+    event.preventDefault();
+    if(button.classList.contains('year-locked-control'))return;
+    if(button.form&&!button.form.reportValidity())return;
+    const handler=window[action];
+    if(typeof handler!=='function'){
+      console.error('Tombol Simpan tidak mempunyai handler:',action);
+      return;
+    }
+    event.stopPropagation();
+    Promise.resolve(handler(event)).catch(error=>console.error('D1 save handler failed:',action,error));
+  },true);
+})();
+</script>
 </body></html>
