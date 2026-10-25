@@ -22,7 +22,7 @@ const types={
  obligations:{label:'Kewajiban Iuran Warga',section:'book',key:'payer_id',columns:[['nama','Nama warga','readonly'],['rumah','Rumah','readonly'],['qty_iuran_bulanan','Iuran bulanan (x)','number',true],['qty_kebersihan','Kebersihan (x)','number',true],['qty_kas_lorong','Kas lorong (x)','number',true],['qty_arisan','Arisan (x)','number',true]]}
 };
 const categories={
- portal:[['projects','Project Card'],['agenda','Rencana Kegiatan'],['documentation','Dokumentasi Portal Utama'],['bank_albums','Dokumentasi Bank Sampah'],['inventory','Inventaris Portal Utama'],['bank_inventory','Inventaris Bank Sampah'],['bank_progress','Kegiatan Bank Sampah'],['banners','Banner Slider'],['meetings','Hasil Rapat'],['arisan','Jadwal Arisan'],['jersey','Pesanan Jersey']],
+ portal:[['projects','Project Card'],['agenda','Rencana Kegiatan'],['documentation','Dokumentasi'],['inventory','Inventaris'],['bank_progress','Kegiatan Bank Sampah'],['banners','Banner Slider'],['meetings','Hasil Rapat'],['arisan','Jadwal Arisan'],['jersey','Pesanan Jersey']],
  book:[['residents','Data Warga & Rumah'],['obligations','Kewajiban Iuran'],['tariffs','Tarif Iuran'],['settings','Aturan Tanggal']]
 };
 let active='',records=[],filter='',requestSerial=0,editing=false;
@@ -150,7 +150,7 @@ function populate(){
 }
 function printJerseyReport(){
  if(active!=='jersey'||!Array.isArray(records)||!records.length){
-  alert('Belum ada data Jersey D1 untuk dicetak.');return;
+  alert('Belum ada pesanan Jersey untuk dicetak.');return;
  }
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const money=v=>'Rp '+Number(v||0).toLocaleString('id-ID');
@@ -208,7 +208,7 @@ function printJerseyReport(){
  sections.join('')+
  '<p class="meta">Catatan: dana masuk dihitung dari status Lunas/nominal DP. Status DP tanpa nominal menggunakan estimasi 50%, sesuai ringkasan portal.</p>'+
  '<div class="approval">Mengetahui, Humas Flamboyan 4<strong>Heri Juwandi</strong></div>'+
- '<p class="foot">Sumber: data pesanan Jersey di Cloudflare D1 melalui flamboyan4.web.id</p>'+
+ '<p class="foot">Sumber: data pesanan Jersey pada flamboyan4.web.id</p>'+
  '<script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>';
  const w=window.open('','_blank');
  if(!w){alert('Izinkan pop-up laporan untuk mencetak atau menyimpan PDF.');return}
@@ -224,7 +224,7 @@ function showForm(record){
  if(active==='documentation'||active==='inventory'){
   const scopeField=node('label'),caption=node('span','Tujuan publikasi'),scope=node('select');
   scope.add(new Option('Portal Utama','portal'),new Option('Bank Sampah','bank-sampah'));
-  scope.value='portal';scope.disabled=!isNew;
+  scope.value='portal';scope.disabled=!!record;
   scope.onchange=()=>{if(scope.value==='bank-sampah')showBankForm(active==='documentation'?'bank_albums':'bank_inventory',null)};
   scopeField.append(caption,scope);form.append(scopeField);
  }
@@ -327,7 +327,20 @@ function showForm(record){
 }
 async function fetchData(kind){
  const d=await send(base+kind);
- return Array.isArray(d.data)?d.data:[];
+ const portalRows=Array.isArray(d.data)?d.data:[];
+ if(kind!=='documentation')return portalRows;
+ // One Documentation tab, two independent D1 collections.
+ // Only explicitly Bank Sampah-scoped albums are included in that section.
+ try{
+  const bank=await send(bankApi+'albums?limit=500');
+  const bankRows=(Array.isArray(bank.data)?bank.data:[]).filter(bankScoped)
+   .map(x=>({...x,drive_url:'',_f4_bank_kind:'bank_albums'}));
+  const bankIds=new Set(bankRows.map(x=>String(x.id)));
+  return [...portalRows.filter(x=>!bankIds.has(String(x.id))),...bankRows];
+ }catch(error){
+  console.warn('Dokumentasi Bank Sampah belum dapat ditampilkan:',error);
+  return portalRows;
+ }
 }
 
 /* Bank Sampah mempunyai tabel D1 khusus: albums, inventory, progress_entries.
@@ -366,8 +379,8 @@ async function openBankAdminEditor(kind){
   if(kind==='bank_inventory')rows=rows.filter(item=>String(item.category||'')==='bank_sampah');
   // Album tanpa penanda dipertahankan agar Superadmin dapat mengklasifikasikan
   // arsip lama secara eksplisit; tidak otomatis dijadikan album Bank Sampah.
-  if(kind==='bank_albums')rows=[...rows].sort((a,b)=>Number(bankScoped(b))-Number(bankScoped(a)));
-  info.textContent=rows.length+' data tersedia • '+(kind==='bank_albums'?'Album tanpa penanda belum otomatis tampil di Bank Sampah.':'Konten Bank Sampah.');
+  if(kind==='bank_albums')rows=rows.filter(bankScoped);
+  info.textContent=rows.length+' data tersedia';
   const draw=()=>{
    box.replaceChildren();const query=q.value.toLowerCase().trim(),found=rows.filter(x=>!query||JSON.stringify(x).toLowerCase().includes(query));
    for(const record of found){
@@ -512,7 +525,7 @@ window.openSuperadminEditor=async(kind)=>{
   if(kind==='documentation'){
    records=[];viewList();
    const box=main.querySelector('.f4-admin-note');
-   if(box)box.textContent='Data album D1 belum dapat dibaca ('+e.message+'). Anda tetap dapat membuka Tambah Dokumentasi; data baru hanya dianggap tersimpan setelah Worker mengonfirmasi.';
+   if(box)box.textContent='Daftar dokumentasi belum dapat dimuat ('+e.message+'). Periksa koneksi; data sebelumnya tetap tersimpan.';
   }else if(window.F4Loading)F4Loading.error(info,'Tidak dapat membaca '+types[kind].label+': '+e.message,loadToken);
   else info.textContent='Tidak dapat membaca '+types[kind].label+': '+e.message;
  }

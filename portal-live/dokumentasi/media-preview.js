@@ -31,7 +31,8 @@ const asPortal=(source)=>({
  cover:String(source.cover||source.image_ref||''),
  portal:String(source.portal||source.portal_scope||source.source_portal||source.scope||'').toLowerCase()
 });
-const portalOnly=record=>!record.portal||['portal','utama','portal-utama','flamboyan4','warga','community'].includes(record.portal);
+const portalOnly=record=>(!record.portal||['portal','utama','portal-utama','flamboyan4','warga','community'].includes(record.portal))&&
+ !/\/folders\/1ywp2v8rUH-oAGcM91PQyVrO7Wx9iLdCA/.test(String(record.folder||''));
 const folderId=link=>String(link||'').match(/(?:\/folders\/|[?&]folderId=)([A-Za-z0-9_-]{12,})/)?.[1]||'';
 const photoFiles=new Map();
 async function listMedia(doc){
@@ -93,7 +94,7 @@ async function loadPortalArchive(){
  }
  // Keep original historical albums until every D1 record is migrated.
  // Merge by real Drive folder or normalized title/date; D1 may only have a subset.
- const archive=[...docs];
+ const archive=[...docs].filter(portalOnly);
  const key=x=>folderId(x.folder)||String(x.title||'').toLocaleLowerCase('id-ID').replace(/[^a-z0-9]/g,'')+'|'+parseDate(x.date);
  const byKey=new Map(archive.map(x=>[key(x),x]));
  for(const x of rows){

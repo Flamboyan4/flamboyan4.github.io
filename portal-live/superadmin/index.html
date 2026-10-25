@@ -431,7 +431,7 @@ function overview(){
    const r=rows(await get(path));
    if(!card?.isConnected)return;
    card.querySelector('strong').textContent=String(r.length);
-   card.querySelector('span').textContent=r.length?'Dibaca dari D1':'Belum ada data';
+   card.querySelector('span').textContent=r.length?'Data tersedia':'Belum ada data';
   }catch(error){
    if(card?.isConnected){
     card.querySelector('strong').textContent='—';
@@ -511,7 +511,7 @@ function accountsPage(){
   }catch(error){window.alert(made+' akun berhasil diaktifkan sebelum proses berhenti: '+safe(error))}
   accountsPage();
  },'sa-action sa-action-primary');
- prepare.disabled=true;prepare.title='Memeriksa akun belum aktif di Cloudflare D1';
+ prepare.disabled=true;prepare.title='Memeriksa akun yang belum aktif';
  actions.append(prepare,button('Muat ulang',()=>accountsPage(),'sa-action'));
  heading.append(head,actions);panel.append(heading);
  const noticeBox=el('p','Akun digunakan bersama pada semua portal sesuai role. Aktivasi akun anggota yang belum aktif dan reset password anggota terhubung langsung ke Worker D1 serta audit. Perubahan role dan akun Admin/Superadmin tidak dilakukan melalui tombol ini.','sa-account-note');
@@ -544,7 +544,7 @@ function accountsPage(){
   accounts=rows(data);
   const pending=accounts.filter(a=>a.role==='anggota'&&a.perluAktivasi===true);
   prepare.disabled=!pending.length;
-  prepare.title=pending.length?'Aktifkan '+pending.length+' akun anggota D1 yang masih pending':'Tidak ada akun anggota yang perlu diaktifkan';
+  prepare.title=pending.length?'Aktifkan '+pending.length+' akun anggota yang belum aktif':'Tidak ada akun anggota yang perlu diaktifkan';
   F4Loading.success(loadState,loadToken);
   paintAccounts();
  }).catch(error=>{
@@ -586,7 +586,7 @@ function paintAccounts(){
   if(canActivate||canReset){
    const operation=canActivate?'activate':'reset';
    const control=button(canActivate?'Aktifkan':'Reset password',()=>accountSingleAction(a,operation,control),'sa-account-reset');
-   control.title=canActivate?'Aktifkan akun anggota di D1':'Reset password anggota ke 1234 dan putuskan sesi lama';
+   control.title=canActivate?'Aktifkan akun anggota':'Reset password anggota ke 1234 dan putuskan sesi lama';
    action.append(control);
   }else action.append(el('span','—'));
   tr.append(name,house,user,role,status,action);
@@ -597,7 +597,7 @@ function paintAccounts(){
  }
 }
 async function catalogPage(){
- title('Jenis & Harga Sampah','Bandingkan harga tercatat di D1 dengan referensi kategori Bank Sampah.');
+ title('Jenis & Harga Sampah','Bandingkan daftar harga yang tercatat dengan referensi Bank Sampah.');
  const info=notice('');const loadingToken=F4Loading.begin(info,'Membaca jenis dan harga D1…');
  const wrap=el('div',undefined,'f4-obligation-scroll');
  const table=el('table',undefined,'f4-obligation-grid');table.dataset.module='bankcatalog';
@@ -622,12 +622,12 @@ async function catalogPage(){
    const row=el('tr');
    const current=x.item&&priceOf(x.item);
    row.append(el('td',x.name),el('td',current==null?(x.price==null?'—':money(x.price)):money(Number(current)||current)),
-    el('td',x.item?'Cloudflare D1':'Referensi harga lama'),el('td',x.item?'Tercatat':'Belum disinkronkan'));
+    el('td',x.item?'Data aktif':'Referensi harga'),el('td',x.item?'Tercatat':'Belum disinkronkan'));
    body.append(row);
   }
   const missing=all.filter(x=>!x.item).length;
   if(problem)F4Loading.error(info,'Harga D1 belum dapat dibaca: '+problem,loadingToken);
-  else if(missing)F4Loading.empty(info,missing+' jenis acuan belum disinkronkan ke D1.',loadingToken);
+  else if(missing)F4Loading.empty(info,missing+' jenis acuan belum tersedia.',loadingToken);
   else F4Loading.success(info,loadingToken);
  };
  try{
@@ -640,7 +640,7 @@ async function catalogPage(){
 function wargaForm(mode,row={}){
  if(role!=='superadmin')return;
  const isHouse=mode.endsWith('house'),isNew=mode.startsWith('add_');
- title((isNew?'Tambah ':'Edit ')+(isHouse?'Rumah':'Warga'),'Master warga dan rumah — perubahan ditulis melalui Worker Cloudflare.');
+ title((isNew?'Tambah ':'Edit ')+(isHouse?'Rumah':'Warga'),'Kelola data warga dan rumah.');
  const card=section('Informasi '+(isHouse?'rumah':'warga')),form=el('form',undefined,'f4-admin-editor'),grid=el('div',undefined,'f4-admin-fields');
  const houseFields=[['rumah','Nomor rumah','text',true],['nama_pemilik','Nama pemilik','text'],['kontak_pemilik','Nomor HP pemilik','tel'],['status_rumah','Status rumah','text'],['tipe_unit','Tipe unit','text'],['keterangan_rumah','Keterangan','textarea']];
  const residentFields=[['nama','Nama warga','text',true],['status_tinggal','Status tinggal','text'],['status_aktif','Status aktif','text'],['nomor_hp','Nomor HP','tel'],['keterangan_warga','Keterangan','textarea']];
@@ -674,7 +674,7 @@ function wargaForm(mode,row={}){
   }
   if(mode==='edit_house')data.household_id=row.household_id;
   if(mode==='edit_resident'){data.payer_id=row.payer_id;data.active=row.active!==0}
-  save.disabled=true;note.textContent='Menyimpan ke Cloudflare D1…';
+  save.disabled=true;note.textContent='Menyimpan perubahan…';
   try{
    const response=await fetch(API+'/api/v2/admin/residents',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
    const result=await response.json().catch(()=>({}));
@@ -759,5 +759,5 @@ window.addEventListener('message',e=>{
 boot();
 })();
 </script>
-<script src="../superadmin-editor.js?v=dest-scope-fix-20261025"></script>
+<script src="../superadmin-editor.js?v=combined-editor-20261025-b"></script>
 </body></html>

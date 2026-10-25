@@ -808,7 +808,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     batch:number(sum.batch??r.batches?.length??0)
    },
    bulanan:monthly,periodeTersedia:onlyArray(r.periodeTersedia||[]),
-   catatan:'Data dibaca dari Cloudflare D1. Bagian yang belum termigrasi dapat kosong.'
+   catatan:'Laporan berdasarkan data yang tersedia.'
   };
  }
  async function memberSavings(){
@@ -881,7 +881,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   const r=await publicData();
   const last=Array.isArray(r.monthlyWeights)?r.monthlyWeights.slice(-6):[];
   return {bulan:last.map(x=>({bulan:x.month,beratKg:number(x.beratKg)})),
-   catatan:'Berat setoran terkonfirmasi menurut bulan pada D1'};
+   catatan:'Berat setoran terkonfirmasi menurut bulan'};
  }
  async function publicAlbumDetail(id){
   const r=await get('/api/v2/public/bank/album/'+encodeURIComponent(id));
@@ -977,7 +977,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
    selisihPeriode:rows.reduce((n,x)=>n+x.masuk-x.keluar,0),
    bulanan:[...grouped.values()].sort((a,b)=>a.periode.localeCompare(b.periode)),
    rincian:rows.map(x=>({...x,jenis:x.keterangan||x.jenis})),
-   transaksi:rows.length,periode:month||'semua',catatan:'Arus kas dari D1, bukan saldo akhir tersahkan'};
+   transaksi:rows.length,periode:month||'semua',catatan:'Riwayat arus kas, bukan saldo akhir'};
  };
  const adminReport=async(_token,period='',includeCanceled=false)=>{
   const [deposits,sales,expenses,cash,ledger]=await Promise.all([
@@ -2004,9 +2004,9 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     try{
       const saved=await call('bsV21IsiAlbumPublik',album.id);
       if(Array.isArray(saved?.media)&&saved.media.length)return {...base,...saved};
-      return {...base,catatan:'Media album belum tercatat di Cloudflare D1. Gunakan tautan Google Drive asli di bawah.'};
+      return {...base,catatan:'Media belum tersedia pada album ini.'};
     }catch(error){
-      return {...base,catatan:'Album ini belum dapat dibaca dari Cloudflare D1. Gunakan tautan Google Drive asli di bawah.'};
+      return {...base,catatan:'Album belum dapat dimuat.'};
     }
   }
   async function v21OpenAlbum(id){

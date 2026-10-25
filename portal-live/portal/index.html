@@ -1976,7 +1976,7 @@ function salinLinkAgenda(url) {
         document.getElementById('saran-status').classList.remove('hidden');
         formSaran.reset();
         setTimeout(()=>closeModalDirect('modal-saran'),2500);
-      }catch(error){alert('Saran gagal disimpan ke D1: '+error.message)}
+      }catch(error){alert('Saran belum berhasil disimpan: '+error.message)}
       finally{if(button)button.disabled=false}
     });
 
