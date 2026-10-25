@@ -1,0 +1,108 @@
+{
+  "time_utc": "2026-10-25T00:43:33.779131+00:00",
+  "deployment_id": "0811e5ba-7106-4438-91f3-bb016271f1a6",
+  "deployment_time": "2026-10-25T00:27:04.074909Z",
+  "compatibility_date": "2026-10-21",
+  "binding_names_and_types": [
+    {
+      "name": "ACCOUNTING_RULES_APPROVED",
+      "type": "plain_text"
+    },
+    {
+      "name": "ALLOWED_ORIGINS",
+      "type": "plain_text"
+    },
+    {
+      "name": "ASSETS",
+      "type": "assets"
+    },
+    {
+      "name": "AUTH_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "BANK_CANCEL_WRITE_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "BANK_EXPENSE_WRITE_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "BANK_INVENTORY_WRITE_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "BANK_MEDIA_WRITE_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "BANK_PAYOUT_WRITE_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "BANK_RECONCILIATION_WRITE_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "BANK_WRITE_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "DB",
+      "type": "d1"
+    },
+    {
+      "name": "DENDA_PINJAMAN_WRITE_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "FINANCE_WRITE_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "IURAN_WRITE_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "MANUAL_CASH_WRITE_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "PHOTOS",
+      "type": "r2_bucket"
+    },
+    {
+      "name": "PORTAL_WRITE_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "RECONCILIATION_CONFIRM_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "SALE_DRAFT_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "TALANGAN_WRITE_ENABLED",
+      "type": "plain_text"
+    }
+  ],
+  "write_flags": {
+    "BANK_CANCEL_WRITE_ENABLED": "true",
+    "BANK_EXPENSE_WRITE_ENABLED": "true",
+    "BANK_INVENTORY_WRITE_ENABLED": "true",
+    "BANK_MEDIA_WRITE_ENABLED": "true",
+    "BANK_PAYOUT_WRITE_ENABLED": "false",
+    "BANK_RECONCILIATION_WRITE_ENABLED": "true",
+    "BANK_WRITE_ENABLED": "true",
+    "DENDA_PINJAMAN_WRITE_ENABLED": "true",
+    "FINANCE_WRITE_ENABLED": "true",
+    "IURAN_WRITE_ENABLED": "true",
+    "MANUAL_CASH_WRITE_ENABLED": "true",
+    "PORTAL_WRITE_ENABLED": "true",
+    "SALE_DRAFT_ENABLED": "true",
+    "TALANGAN_WRITE_ENABLED": "true"
+  }
+}
