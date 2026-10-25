@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-25T00:48:52.417515+00:00",
+  "checked_at": "2026-10-25T00:53:06.348134+00:00",
   "type": "REMOTE_EXPORT_LOCAL_D1_BANK_FULL_E2E",
   "tests": {
     "remote_target_verified": {
@@ -108,11 +108,47 @@
     "bank_payout_and_expense_ledger": {
       "passed": true
     },
-    "cash_accounting_unchanged_after_cancel": {
+    "advance_create": {
+      "passed": true,
+      "detail": {
+        "status": 201
+      }
+    },
+    "advance_due_14_days": {
       "passed": true
+    },
+    "advance_create_idempotent": {
+      "passed": true
+    },
+    "advance_repayment": {
+      "passed": true,
+      "detail": {
+        "status": 201
+      }
+    },
+    "advance_repayment_idempotent": {
+      "passed": true
+    },
+    "advance_overpayment_rejected": {
+      "passed": true,
+      "detail": {
+        "status": 409
+      }
+    },
+    "advance_d1_due_and_balances": {
+      "passed": true
+    },
+    "year_end_readonly_preflight": {
+      "passed": true,
+      "detail": {
+        "status": 200
+      }
+    },
+    "cash_accounting_unchanged_after_cancel": {
+      "passed": false
     }
   },
-  "status": "passed",
+  "status": "failed",
   "export_meta": {
     "sql_bytes": 445924,
     "table_ddls": 62,
@@ -124,5 +160,6 @@
       "indices": 28,
       "other": 21
     }
-  }
+  },
+  "error": "AssertionError: Isolated test failed: cash_accounting_unchanged_after_cancel"
 }
