@@ -499,6 +499,18 @@ try:
         assert_step("year_end_readonly_preflight",fiscal[0]==200 and fiscal[1].get("readOnly") is True,
             {"status":fiscal[0]})
 
+        # Browser tests against actual deployed HTML but intercepted LOCAL Worker.
+        # Credentials, production D1, and production API are never used for writes.
+        if os.environ.get("F4_BANK_BROWSER_QA","").strip().lower() in ("1","true","yes"):
+            from bank_isolated_browser_ui import test_ui
+            browser_results=test_ui(temporary,reverse_member)
+            assert_step("bank_admin_member_browser_pc_hp",len(browser_results)==2 and
+              all(z["admin_tables"]>=1 and z["member_history_rows"]>=1 and z["member_csv"] and z["member_print"]
+                for z in browser_results))
+            result["browser_acceptance"]=browser_results
+            save()
+
+
 
     finally:
         process.terminate()
