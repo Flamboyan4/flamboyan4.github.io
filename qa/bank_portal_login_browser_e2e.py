@@ -70,6 +70,9 @@ def verify_portal_login(credentials):
                 frame=page.frame_locator("#appframe")
                 frame.locator("#dashboardView:not(.hidden)").wait_for(timeout=20000)
                 if scope=="member":
+                    # Signed-in member starts on Dashboard; open the actual
+                    # "Tabungan saya" sidebar item to request private data.
+                    frame.locator('#v16NavList [data-group="saving"]').evaluate("(el)=>el.click()")
                     frame.locator("#v12Private:not(.hidden)").wait_for(timeout=18000)
                     frame.locator("#v12Balance").wait_for(timeout=13000)
                 else:
