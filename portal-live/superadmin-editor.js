@@ -6,6 +6,8 @@ if(!page)return;
 const main=page.querySelector('main'),side=page.querySelector('aside');
 const base='https://api.flamboyan4.web.id/api/v2/admin/content/';
 const types={
+ arisan:{label:'Jadwal Arisan',section:'portal',columns:[['period_on','Bulan pelaksanaan','date',true],['host_name','Tuan rumah dan nomor rumah','text',true],['status','Status','text']]},
+ jersey:{label:'Pesanan Jersey',section:'portal',columns:[['group_key','Kelompok (bapak/ibu)','text',true],['sort_order','Nomor urut','number'],['resident','Nama dan rumah','text',true],['sleeves','Lengan','text'],['size','Ukuran','text'],['printed_name','Nama dan nomor punggung','text'],['payment_status','Status pembayaran','text'],['nominal_rp','Harga (Rp)','number'],['method','Metode','text']]},
  projects:{label:'Project Card',section:'portal',columns:[['title','Nama projek','text',true],['description','Deskripsi','textarea'],['image_ref','Foto / gambar Google Drive','url'],['target_url','Link tujuan / #bagian','text'],['sort_order','Urutan','number'],['active','Aktif','boolean']]},
  agenda:{label:'Rencana Kegiatan',section:'portal',columns:[['title','Nama kegiatan','text',true],['starts_on','Tanggal mulai','date'],['ends_on','Tanggal selesai','date'],['location','Lokasi','text'],['description','Deskripsi','textarea'],['image_ref','Foto Google Drive','url'],['status','Status kegiatan','text'],['visibility','Tampilkan ke publik','visibility'],['sort_order','Urutan','number']]},
  documentation:{label:'Dokumentasi',section:'portal',columns:[['title','Judul dokumentasi','text',true],['event_on','Tanggal','date'],['description','Deskripsi','textarea'],['drive_url','Tautan album/folder Google Drive (foto dan video)','url'],['category','Kategori dokumentasi','category'],['sort_order','Urutan','number'],['visibility','Akses','visibility'],['active','Aktif','boolean']]},
@@ -17,7 +19,7 @@ const types={
  obligations:{label:'Kewajiban Iuran Warga',section:'book',key:'payer_id',columns:[['nama','Nama warga','readonly'],['rumah','Rumah','readonly'],['qty_iuran_bulanan','Iuran bulanan (x)','number',true],['qty_kebersihan','Kebersihan (x)','number',true],['qty_kas_lorong','Kas lorong (x)','number',true],['qty_arisan','Arisan (x)','number',true]]}
 };
 const categories={
- portal:[['projects','Project Card'],['agenda','Rencana Kegiatan'],['documentation','Dokumentasi'],['inventory','Inventaris'],['banners','Banner Slider'],['meetings','Hasil Rapat']],
+ portal:[['projects','Project Card'],['agenda','Rencana Kegiatan'],['documentation','Dokumentasi'],['inventory','Inventaris'],['banners','Banner Slider'],['meetings','Hasil Rapat'],['arisan','Jadwal Arisan'],['jersey','Pesanan Jersey']],
  book:[['residents','Data Warga & Rumah'],['obligations','Kewajiban Iuran'],['tariffs','Tarif Iuran'],['settings','Aturan Tanggal']]
 };
 let active='',records=[],filter='',requestSerial=0,editing=false;

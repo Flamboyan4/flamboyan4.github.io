@@ -38,21 +38,27 @@ function clearPending(){
  try{sessionStorage.removeItem(pendingKey)}catch{}
 }
 let memoryPending=null;
-async function checkAdvances(payerId){
+async function checkAdvances(payerId,periods){
  const r=await fetchApi('/api/bookkeeping/talangan?limit=200');
  const all=Array.isArray(r.data)?r.data:Array.isArray(r.rows)?r.rows:[];
  if(all.length>=200)throw Error('Daftar Talangan mencapai batas API; verifikasi Talangan sebelum mencatat iuran baru.');
- for(const x of all){
-  const remain=i(x.sisaMenurutRingkasanRp??(i(x.pokokRp)-i(x.pelunasanRingkasanRp)));
-  if(!(remain>0)||String(x.status||'').toLowerCase()==='dibatalkan')continue;
-  const d=await fetchApi('/api/bookkeeping/talangan/detail?id='+encodeURIComponent(x.id));
-  const advance=d.talangan||d.data?.talangan||{};
-  if(String(advance.payerId||'')===payerId)
-   throw Error('Warga memiliki Talangan aktif. Sinkronisasi Talangan belum aman melalui form Iuran ini; selesaikan lewat pengelolaan Talangan terlebih dahulu.');
- }
+ const relevant=all.filter(x=>String(x.payerId||'')===payerId&&String(x.status||'').toLowerCase()==='aktif'&&Number(x.sisaMenurutRingkasanRp)>0);
+ if(!relevant.length)return null;
+ if(relevant.length!==1)throw Error('Ada lebih dari satu Talangan aktif; selesaikan rekonsiliasi manual sebelum Iuran.');
+ const a=relevant[0];
+ if(a.perluRekonsiliasi)throw Error('Jurnal Talangan tidak konsisten; penggantian otomatis diblokir.');
+ const matched=String(a.keterangan||'').match(/^\[Periode (20\d\d)-(0[1-9]|1[0-2])\]/);
+ if(!matched)throw Error('Talangan tidak memiliki penanda bulan yang valid; periksa melalui pengelolaan Talangan.');
+ const key=matched[1]+'-'+matched[2];
+ if(!periods.some(p=>p.year+'-'+String(p.month).padStart(2,'0')===key))
+  throw Error('Talangan aktif untuk '+key+'. Sertakan bulan tersebut dalam pembayaran iuran.');
+ const selected=periods.find(p=>p.year+'-'+String(p.month).padStart(2,'0')===key);
+ const rt=Number(selected.items.get('IURAN_BULANAN')||0)+Number(selected.items.get('KEBERSIHAN')||0);
+ if(rt!==Number(a.sisaMenurutRingkasanRp)||Number(a.pokokRp)!==rt)
+  throw Error('Nominal Talangan tidak cocok dengan kewajiban Iuran bulan '+key+'. Perlu pemeriksaan sebelum pembayaran.');
+ return String(a.id);
 }
 async function buildPayment(p){
- await checkAdvances(p.payerId);
  const periods=[];
  for(let offset=0;offset<p.jumlahBulan;offset++){
   const date=new Date(Date.UTC(p.tahun,p.bulan-1+offset,1));
@@ -63,6 +69,7 @@ async function buildPayment(p){
    throw Error('Sisa kewajiban D1 tidak lengkap atau tidak valid untuk '+month+'/'+year);
   periods.push({year,month,items});
  }
+ const settleAdvanceId=await checkAdvances(p.payerId,periods);
  const fixed=periods.reduce((sum,row)=>sum+kinds.filter(x=>x!=='KAS_LORONG').reduce((s,k)=>s+row.items.get(k),0),0);
  const total=periods.reduce((sum,row)=>sum+kinds.reduce((s,k)=>s+row.items.get(k),0),0);
  if(!Number.isSafeInteger(total)||p.jumlahRp<fixed||p.jumlahRp>total)
@@ -79,7 +86,7 @@ async function buildPayment(p){
  }
  if(remainingKas!==0||alokasi.reduce((sum,a)=>sum+a.nominal,0)!==p.jumlahRp)
   throw Error('Alokasi otomatis tidak seimbang; transaksi dibatalkan sebelum tersimpan.');
- return {payerId:p.payerId,tanggal:p.tanggal,metode:p.metode,catatan:p.catatan,jumlahRp:p.jumlahRp,alokasi};
+ return {payerId:p.payerId,tanggal:p.tanggal,metode:p.metode,catatan:p.catatan,jumlahRp:p.jumlahRp,alokasi,...(settleAdvanceId?{settleAdvanceId}:{})};
 }
 async function saveIuran(params){
  const p=requireInput(params);
@@ -103,10 +110,18 @@ async function cancelIuran(params){
  const result=await fetchApi('/api/bookkeeping/iuran/cancel',{idPembayaran:id,alasan:String(params.alasan||'Dibatalkan dari portal').slice(0,300)});
  return {status:'success',idPembayaran:id,message:result.duplikat?'Pembayaran sebelumnya sudah dibatalkan.':'Pembayaran dan jurnal Kas terkait berhasil dibatalkan.',duplikat:!!result.duplikat};
 }
+async function editIuran(p){
+ const id=String(p.idPembayaran||'');
+ if(!/^pay-[a-f0-9-]{36}$/i.test(id))throw Error('Hanya Iuran baru yang belum diposting dapat diedit.');
+ const r=await fetchApi('/api/bookkeeping/iuran/edit',{idPembayaran:id,
+  tanggal:String(p.tanggal||''),metode:String(p.metode||''),catatan:String(p.catatan||'')});
+ return {status:'success',message:r.message||'Perubahan berhasil disimpan.'};
+}
 window.__f4BookDemoCall=(params={})=>{
  const action=String(params.action||'').toLowerCase();
  if(action==='simpaniuran')return saveIuran(params);
  if(action==='batalkanpembayaran')return cancelIuran(params);
+ if(action==='updatepembayaran')return editIuran(params);
  return previous(params);
 };
 })();

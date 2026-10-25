@@ -105,6 +105,10 @@ try:
     connection.execute("PRAGMA foreign_keys=ON")
     migration=(ROOT/"cloudflare/migrations/20261025_bank_progress_photos.sql").read_text(encoding="utf8")
     connection.executescript(migration)
+    connection.executescript((ROOT/"cloudflare/migrations/20261025_portal_legacy_arisan_jersey.sql").read_text(encoding="utf8"))
+    portal_counts=(connection.execute("SELECT COUNT(*) FROM portal_arisan_schedule").fetchone()[0],
+                   connection.execute("SELECT COUNT(*) FROM portal_jersey_orders").fetchone()[0])
+    assert_step("portal_legacy_source_to_d1_local",portal_counts==(26,26))
     assert_step("bank_progress_photo_migration_local_only",
       "bank_progress_photos" in {x[0] for x in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")})
     if os.environ.get("F4_BANK_PRIVATE_AUDIT","").strip().lower() in ("true","1","yes"):
@@ -116,6 +120,11 @@ try:
     # Counts are an audit baseline, not proof of per-person identity migration.
     source_baseline={"roster_rows":33,"inventory_rows":2,"documentation_rows":1,
                      "progress_rows":3,"deposit_rows":0,"expense_rows":0}
+    payer_link_counts=connection.execute("""SELECT
+      COUNT(DISTINCT p.member_id),COUNT(*) FROM bookkeeping_payers p
+      JOIN members m ON m.id=p.member_id WHERE p.payer_type='warga' AND p.active=1
+    """).fetchone()
+    print("PORTAL_PAYER_MEMBER_LINKS="+json.dumps({"unique_linked_members":payer_link_counts[0],"active_linked_payers":payer_link_counts[1]}))
     actual_counts={
       "active_members":connection.execute("SELECT COUNT(*) FROM members WHERE status='aktif'").fetchone()[0],
       "bank_inventory":connection.execute("SELECT COUNT(*) FROM inventory WHERE category='bank_sampah'").fetchone()[0],
@@ -166,6 +175,10 @@ try:
             time.sleep(1)
         assert_step("local_worker_health",health is not None and health[0]==200)
         base="http://127.0.0.1:8787"
+        ppublic=call(base+"/api/v2/public/portal")
+        assert_step("portal_arisan_jersey_d1_public_local",
+          ppublic[0]==200 and len(ppublic[1].get("arisan",[]))>=26 and
+          len(ppublic[1].get("jerseyBapak",[]))>=24 and len(ppublic[1].get("jerseyIbu",[]))>=2)
         # Photos are stored as separate rows in a D1 table, without overwriting notes.
         progress_photo="https://example.org/local-bank-progress-original.jpg"
         new_progress=call(base+"/api/v2/admin/bank/progress","POST",{
@@ -259,13 +272,46 @@ try:
         created=call(base+"/api/bookkeeping/iuran","POST",payment_req,temporary)
         payment_id=created[1].get("idPembayaran","")
         assert_step("new_iuran_create_local",created[0]==201 and payment_id.startswith("pay-"),{"http":created[0]})
+        # Verify actual D1 edit endpoint; immutable sum/allocations and linked cash
+        # keep the same balances, only date/method/note change atomically.
+        edited=call(base+"/api/bookkeeping/iuran/edit","POST",{
+          "idPembayaran":payment_id,"tanggal":"2026-10-24",
+          "metode":"QRIS","catatan":"Koreksi metadata QA LOCAL"},temporary)
+        if edited[0]!=200:print("ISOLATED_IURAN_EDIT_DIAG="+json.dumps({"status":edited[0],"error":edited[1].get("error","")}))
+        assert_step("new_iuran_metadata_edit_atomic_local",edited[0]==200 and edited[1].get("ok") is True)
+        with sqlite3.connect(str(files[0])) as check:
+            pay=check.execute("SELECT paid_on,payment_method,amount_rp FROM bookkeeping_payments WHERE id=?",(payment_id,)).fetchone()
+            linked_cash=check.execute("SELECT occurred_on,payment_method,debit_rp FROM bookkeeping_cash_transactions WHERE source_payment_id=?",(payment_id,)).fetchall()
+            allocation_total=check.execute("SELECT SUM(amount_rp) FROM bookkeeping_payment_allocations WHERE payment_id=?",(payment_id,)).fetchone()[0]
+        assert_step("new_iuran_edit_retains_amount_cash_consistency",
+          pay==("2026-10-24","QRIS",payment_req["jumlahRp"]) and
+          len(linked_cash)==(1 if kas_part else 0) and
+          all(x[0]=="2026-10-24" and x[1]=="QRIS" and x[2]==kas_part for x in linked_cash) and
+          allocation_total==payment_req["jumlahRp"])
+        # Give the anonymous check a genuine linked MEMBER session from cloned D1,
+        # not the superadmin fixture (who may intentionally have no member_id).
+        member_test_token=secrets.token_hex(32)
+        with sqlite3.connect(str(files[0])) as member_db:
+            member_actor=member_db.execute("""SELECT id FROM accounts
+              WHERE role='anggota' AND member_id IS NOT NULL AND status='aktif' LIMIT 1""").fetchone()
+            if not member_actor:raise AssertionError("Missing valid cloned member account")
+            member_db.execute("INSERT INTO sessions(id,account_id,token_hash,expires_at) VALUES(?,?,?,datetime('now','+2 hours'))",
+              (str(uuid.uuid4()),member_actor[0],hashlib.sha256(member_test_token.encode()).hexdigest()))
+        for scope in ("payments","arisan","fines","loans"):
+            anonymous=call(base+"/api/member/"+scope)
+            assert_step("member_private_"+scope+"_requires_login",anonymous[0] in (401,403),{"http":anonymous[0]})
+            personal=call(base+"/api/member/"+scope,token=member_test_token)
+            assert_step("member_private_"+scope+"_returns_data",personal[0]==200 and
+              isinstance(personal[1].get("rows"),list),{"http":personal[0]})
+
         pf_during=call(base+"/api/bookkeeping/year-end/preflight?year=2026",token=temporary)
         assert_step("year_end_kas_lorong_only_no_false_orphan",
           pf_during[0]==200 and pf_during[1]["checks"]["invalidLinkedIuranRows"]==pf_before[1]["checks"]["invalidLinkedIuranRows"])
         forbidden=call(base+"/api/bookkeeping/iuran/cancel","POST",{"idPembayaran":payment_id,"alasan":"Local test"},None)
         assert_step("iuran_cancel_requires_auth",forbidden[0] in (401,403))
         canceled=call(base+"/api/bookkeeping/iuran/cancel","POST",{"idPembayaran":payment_id,"alasan":"Pembatalan simulasi LOCAL"},temporary)
-        assert_step("new_iuran_cancel_atomic",canceled[0]==200 and canceled[1].get("status")=="dibatalkan",{"http":canceled[0]})
+        if canceled[0]!=200:print("ISOLATED_IURAN_CANCEL_DIAG="+json.dumps({"status":canceled[0],"error":canceled[1].get("error","")}))
+        assert_step("new_iuran_cancel_atomic",canceled[0]==200 and canceled[1].get("status")=="dibatalkan",{"http":canceled[0],"reason":canceled[1].get("error","")})
         repeated=call(base+"/api/bookkeeping/iuran/cancel","POST",{"idPembayaran":payment_id,"alasan":"Pembatalan simulasi LOCAL"},temporary)
         assert_step("new_iuran_cancel_idempotent",repeated[0]==200 and repeated[1].get("duplikat") is True)
         replay=call(base+"/api/bookkeeping/iuran","POST",payment_req,temporary)
@@ -503,6 +549,38 @@ try:
         assert_step("year_end_readonly_preflight",fiscal[0]==200 and fiscal[1].get("readOnly") is True,
             {"status":fiscal[0]})
 
+        # Iuran+Talangan must settle together in ONE local D1 batch, never
+        # duplicate Kas Lorong or create a financial row in production.
+        rt_due=sum(int(z["sisaRp"]) for z in dues if z["jenis"] in ("IURAN_BULANAN","KEBERSIHAN"))
+        assert_step("talangan_iuran_matching_nonzero",rt_due>0)
+        advance_tagged=call(base+"/api/bookkeeping/talangan","POST",{
+          "requestKey":"QATagged"+secrets.token_hex(18),"tanggal":"2026-10-25",
+          "payerId":payer,"ditanggungOleh":"Kas Warga Flamboyan 4",
+          "keterangan":"[Periode 2027-01] Tagihan RT QA LOCAL","jumlahRp":rt_due},temporary)
+        tagged_id=advance_tagged[1].get("id","")
+        assert_step("talangan_tagged_create_local",advance_tagged[0]==201 and tagged_id.startswith("adv_"),{"http":advance_tagged[0]})
+        payment_tagged={**payment_req,"requestKey":str(uuid.uuid4()),
+                        "settleAdvanceId":tagged_id,"catatan":"QA Iuran Talangan LOCAL"}
+        tagged_payment=call(base+"/api/bookkeeping/iuran","POST",payment_tagged,temporary)
+        tagged_payment_id=tagged_payment[1].get("idPembayaran","")
+        if tagged_payment[0]!=201:print("ISOLATED_TALANGAN_SETTLEMENT_DIAG="+json.dumps({"status":tagged_payment[0],"error":tagged_payment[1].get("error","")}))
+        assert_step("talangan_iuran_atomic_post_local",tagged_payment[0]==201 and tagged_payment_id.startswith("pay-"),{"http":tagged_payment[0]})
+        retry_tagged=call(base+"/api/bookkeeping/iuran","POST",payment_tagged,temporary)
+        assert_step("talangan_iuran_replay_no_duplicate",retry_tagged[0]==200 and retry_tagged[1].get("duplikat") is True)
+        with sqlite3.connect(str(files[0])) as joined:
+            summary=joined.execute("SELECT reimbursed_rp FROM bookkeeping_advances WHERE id=?",(tagged_id,)).fetchone()
+            matched_repay=joined.execute("SELECT COUNT(*),SUM(amount_rp) FROM bookkeeping_advance_repayments WHERE advance_id=? AND status='aktif'",(tagged_id,)).fetchone()
+            cash_link=joined.execute("""SELECT COUNT(*),COALESCE(SUM(debit_rp),0) FROM bookkeeping_cash_transactions
+                WHERE source_payment_id=? AND status='aktif'""",(tagged_payment_id,)).fetchone()
+            repay_cash=joined.execute("""SELECT COUNT(*),COALESCE(SUM(credit_rp),0) FROM bookkeeping_cash_transactions
+                WHERE transaction_type='pelunasan_talangan' AND note LIKE ? AND status='aktif'""",('% melalui Iuran '+tagged_payment_id,)).fetchone()
+        assert_step("talangan_iuran_single_repayment_and_cash",
+          summary==(rt_due,) and matched_repay==(1,rt_due) and
+          cash_link==(1,kas_part) and repay_cash==(1,rt_due))
+        cannot_cancel=call(base+"/api/bookkeeping/iuran/cancel","POST",{
+          "idPembayaran":tagged_payment_id,"alasan":"QA reversal must be blocked"},temporary)
+        assert_step("talangan_iuran_edit_cancel_require_reversal",cannot_cancel[0]==409)
+
         # Browser tests against actual deployed HTML but intercepted LOCAL Worker.
         # Credentials, production D1, and production API are never used for writes.
         if os.environ.get("F4_BANK_BROWSER_QA","").strip().lower() in ("1","true","yes"):
@@ -542,7 +620,7 @@ try:
     actual=connection.execute("SELECT status,debit_rp FROM bookkeeping_cash_transactions WHERE id=?",(txid,)).fetchone()
     connection.close()
     # One canceled manual cash + one active Talangan repayment of Rp1.500.
-    assert_step("cash_accounting_reconciles_canceled_cash_and_advance",final[0]==baseline[0]+3 and final[1]==baseline[1]-1500 and actual[0]=="dibatalkan")
+    assert_step("cash_accounting_reconciles_canceled_cash_and_advance",final[0]==baseline[0]+5 and final[1]==baseline[1]-1500+kas_part-rt_due and actual[0]=="dibatalkan")
     result["status"]="passed"
 except Exception as error:
     result["status"]="failed"

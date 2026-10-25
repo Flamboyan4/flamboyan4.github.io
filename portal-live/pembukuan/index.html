@@ -1659,8 +1659,8 @@ main > section.card{overflow:visible!important}
 }
 </style>
 <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://api.flamboyan4.web.id; form-action 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com;"><script src="../offline-common.js"></script><script src="../calendar-unified.js"></script><!-- D1 only: contoh offline tidak pernah dimuat pada laman operasional -->
-<script src="../live-book-readonly.js?v=20261025-iuran-cancel-r1"></script>
-<script src="../f4-book-write-bridge.js?v=20261025-iuran-cancel-r1"></script>
+<script src="../live-book-readonly.js?v=20261025-iuran-talangan-d1-final"></script>
+<script src="../f4-book-write-bridge.js?v=20261025-iuran-talangan-d1-final"></script>
 <script src="../f4-book-operations-bridge.js?v=20261025-ops-staging"></script><style id="f4-no-double-navbar">body>header:first-of-type{display:none!important} @media(max-width:850px){#f4-demo-book-hamburger{display:grid!important}} #f4-demo-book-hamburger{display:none;position:fixed;left:11px;top:9px;z-index:60;place-items:center;width:38px;height:38px;background:#f1ebff;color:#5b33c4;border:1px solid #d8cafa;border-radius:9px}</style><style id="f4-book-integrated-alignment">
 /* Desktop: original bookkeeping sidebar starts at y=0; content clears shared 56px overlay */
 @media(min-width:1024px){
@@ -2856,7 +2856,13 @@ function isiEditOptions(){
 }
 function bukaEdit(id){
   const x=DATA.riwayat.find(r=>r.idPembayaran===id);if(!x||!x.canEdit){riwayatMsg('Transaksi ini tidak dapat diedit.','error');return}
-  isiEditOptions();document.getElementById('edit-id').value=id;document.getElementById('edit-id-label').textContent=id;document.getElementById('edit-warga').value=x.idWarga;document.getElementById('edit-tanggal').value=x.tanggalIso||'';document.getElementById('edit-metode').value=x.metode||'Cash';document.getElementById('edit-bulan').value=x.bulanAwal||1;document.getElementById('edit-tahun').value=x.tahunAwal||new Date().getFullYear();document.getElementById('edit-jumlah').value=String(x.jumlahBulan||1);document.getElementById('edit-catatan').value=x.catatan||'';document.getElementById('edit-status').classList.add('hidden');updateEditPreview();document.getElementById('modal-edit').classList.remove('hidden');document.body.style.overflow='hidden';lucide.createIcons();
+  isiEditOptions();document.getElementById('edit-id').value=id;document.getElementById('edit-id-label').textContent=id;document.getElementById('edit-warga').value=x.idWarga;document.getElementById('edit-tanggal').value=x.tanggalIso||'';document.getElementById('edit-metode').value=x.metode||'Cash';document.getElementById('edit-bulan').value=x.bulanAwal||1;document.getElementById('edit-tahun').value=x.tahunAwal||new Date().getFullYear();document.getElementById('edit-jumlah').value=String(x.jumlahBulan||1);document.getElementById('edit-catatan').value=x.catatan||'';// Alokasi/periode/pembayar tetap agar jurnal dan kas tidak berubah diam-diam.
+  for(const key of ['edit-warga','edit-bulan','edit-tahun','edit-jumlah']){
+   const field=document.getElementById(key);if(field){field.disabled=true;field.title='Nominal dan alokasi tidak dapat diganti melalui edit. Batalkan transaksi yang belum dibukukan lalu buat yang baru.';}
+  }
+  document.getElementById('edit-status').classList.remove('hidden');
+  editMsg('Edit aman D1: hanya tanggal, metode, dan catatan. Perubahan warga/periode/nominal perlu batal lalu input ulang.');
+  updateEditPreview();document.getElementById('modal-edit').classList.remove('hidden');document.body.style.overflow='hidden';lucide.createIcons();
 }
 function tutupEdit(){document.getElementById('modal-edit').classList.add('hidden');document.body.style.overflow=''}
 function updateEditPreview(){
