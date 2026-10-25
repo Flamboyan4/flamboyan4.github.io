@@ -3526,7 +3526,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         anchor.addEventListener('click', event => {
           event.preventDefault();
           if (typeof window.f4GoBank === 'function') window.f4GoBank();
-          else window.location.href = '../#bank-sampah';
+          else window.location.href = '/bank-sampah/';
         });
       }
     });
@@ -3663,7 +3663,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         // Pindah melalui shell terpadu, bukan mengikuti URL staging dari data lama.
         card.onclick = () => {
           if (typeof window.f4GoBank === 'function') window.f4GoBank();
-          else window.location.href = '../#bank-sampah';
+          else window.location.href = '/bank-sampah/';
         };
         card.classList.add('cursor-pointer');
       }
