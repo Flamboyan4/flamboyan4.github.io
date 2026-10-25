@@ -2555,7 +2555,7 @@ async function f4EditNewIuran(request,env,who){
   if(Number(out[0]?.meta?.changes)!==1)return safeError("Pembayaran berubah saat diedit; muat ulang.",409);
  }catch{return safeError("Perubahan Iuran gagal; tidak ada perubahan parsial.",409)}
  return json({ok:true,idPembayaran:id,status:"success",message:"Tanggal, metode dan catatan berhasil diperbarui; nominal dan alokasi tetap."});
- }catch(e){console.error("F4_EDIT_LOCAL_RUNTIME",String(e?.message||e).slice(0,180));return safeError("Pemeriksaan edit Iuran gagal.",500)}
+ }catch(e){console.error("F4_EDIT_LOCAL_RUNTIME",String(e?.message||e).slice(0,180));return safeError("QA EDIT "+String(e?.message||"runtime").slice(0,160),500)}
 }
 __name(f4EditNewIuran,"f4EditNewIuran");
 
