@@ -4,7 +4,7 @@ on:
     branches: [main]
     paths:
       - cloudflare/worker-terpadu-operasional-teruji.js
-   workflow_dispatch:
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:
