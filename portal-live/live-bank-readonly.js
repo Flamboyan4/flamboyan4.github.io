@@ -7,7 +7,7 @@
  async function get(path){
   const response=await fetch(API+path,{credentials:'include',mode:'cors',cache:'no-store'});
   const result=await response.json().catch(()=>{throw Error('API Cloudflare tidak mengirim JSON.')});
-  if(!response.ok||result?.ok===false)throw Error(result?.error||'Gagal membaca Cloudflare D1 (HTTP '+response.status+').');
+  if(!response.ok||result?.ok===false)throw Error(result?.error||'Gagal membaca data (HTTP '+response.status+').');
   return result;
  }
  let cache,loadedAt=0;
@@ -72,7 +72,7 @@
   const sum=r.summary||r.ringkasan||{};
   const sale=r.sales||{},cash=r.cash||{},expense=r.expenses||{};
   if(!('sales'in r||'summary'in r||'ringkasan'in r))
-   throw Error('Format laporan D1 belum memiliki ringkasan yang dibutuhkan tampilan lama. Data tidak akan direka.');
+   throw Error('Ringkasan laporan belum lengkap. Tidak menampilkan angka perkiraan.');
   const monthly=onlyArray(r.bulanan||r.monthly||r.periods).map(row=>({
    periode:row.periode||row.month||row.period||'',
    beratKg:number(row.beratKg??row.confirmedKg),
@@ -95,7 +95,7 @@
     batch:number(sum.batch??r.batches?.length??0)
    },
    bulanan:monthly,periodeTersedia:onlyArray(r.periodeTersedia||[]),
-   catatan:String(r.notice||'Laporan dihitung dari transaksi sah Cloudflare D1.')
+   catatan:String(r.notice||'Laporan dihitung dari transaksi yang telah disahkan.')
   };
  }
  async function memberSavings(){
@@ -132,7 +132,7 @@
   const r=await publicData();
   const last=Array.isArray(r.monthlyWeights)?r.monthlyWeights.slice(-6):[];
   return {bulan:last.map(x=>({bulan:x.month,beratKg:number(x.beratKg)})),
-   catatan:'Berat setoran terkonfirmasi menurut bulan pada D1'};
+   catatan:'Berat setoran terkonfirmasi menurut bulan'};
  }
  async function publicAlbumDetail(id){
   const r=await get('/api/v2/public/bank/album/'+encodeURIComponent(id));
@@ -146,7 +146,7 @@
  }
  async function accessStatement(){
   await get('/api/member/savings');
-  return {siap:true,pesan:'Laporan pribadi tersedia dari Cloudflare D1'};
+  return {siap:true,pesan:'Laporan pribadi tersedia'};
  }
  const adminRows=async name=>onlyArray(await get('/api/v2/admin/bank/'+name));
  const adminDeposits=async()=> (await adminRows('deposits')).map(x=>({
@@ -228,7 +228,7 @@
    selisihPeriode:rows.reduce((n,x)=>n+x.masuk-x.keluar,0),
    bulanan:[...grouped.values()].sort((a,b)=>a.periode.localeCompare(b.periode)),
    rincian:rows.map(x=>({...x,jenis:x.keterangan||x.jenis})),
-   transaksi:rows.length,periode:month||'semua',catatan:'Arus kas dari D1, bukan saldo akhir tersahkan'};
+   transaksi:rows.length,periode:month||'semua',catatan:'Riwayat arus kas, bukan saldo akhir'};
  };
  const adminReport=async(_token,period='',includeCanceled=false)=>{
   const [deposits,sales,expenses,cash,ledger]=await Promise.all([

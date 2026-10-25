@@ -702,7 +702,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
  async function get(path){
   const response=await fetch(API+path,{credentials:'include',mode:'cors',cache:'no-store'});
   const result=await response.json().catch(()=>{throw Error('API Cloudflare tidak mengirim JSON.')});
-  if(!response.ok||result?.ok===false)throw Error(result?.error||'Gagal membaca Cloudflare D1 (HTTP '+response.status+').');
+  if(!response.ok||result?.ok===false)throw Error(result?.error||'Gagal membaca data (HTTP '+response.status+').');
   return result;
  }
  let cache,loadedAt=0;
@@ -785,7 +785,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   const sum=r.summary||r.ringkasan||{};
   const sale=r.sales||{},cash=r.cash||{},expense=r.expenses||{};
   if(!('sales'in r||'summary'in r||'ringkasan'in r))
-   throw Error('Format laporan D1 belum memiliki ringkasan yang dibutuhkan tampilan lama. Data tidak akan direka.');
+   throw Error('Ringkasan laporan belum lengkap. Tidak menampilkan angka perkiraan.');
   const monthly=onlyArray(r.bulanan||r.monthly||r.periods).map(row=>({
    periode:row.periode||row.month||row.period||'',
    beratKg:number(row.beratKg??row.confirmedKg),
@@ -895,7 +895,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
  }
  async function accessStatement(){
   await get('/api/member/savings');
-  return {siap:true,pesan:'Laporan pribadi tersedia dari Cloudflare D1'};
+  return {siap:true,pesan:'Laporan pribadi tersedia'};
  }
  const adminRows=async(name,{requireComplete=false}={})=>{
   const result=onlyArray(await get('/api/v2/admin/bank/'+name+'?limit=300'));
@@ -1132,7 +1132,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
  };
 })();
 </script>
-<script src="../live-bank-readonly.js?v=20261025-bank-photo-r1"></script>
+<script src="../live-bank-readonly.js?v=public-labels-20261025"></script>
 <script src="../f4-bank-write-bridge.js?v=bank-member-iso-d0192f73"></script>
 <script id="f4-appsscript-compat">
 /* Adapter only. Every line of PortalAkun.html's original script remains unchanged below. */

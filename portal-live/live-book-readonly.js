@@ -5,7 +5,7 @@
  async function read(path){
   const response=await fetch(API+path,{credentials:'include',cache:'no-store',mode:'cors'});
   const json=await response.json().catch(()=>{throw Error('API tidak mengembalikan JSON.')});
-  if(!response.ok||json.ok===false)throw Error(json.error||'Akses D1 ditolak (HTTP '+response.status+').');
+  if(!response.ok||json.ok===false)throw Error(json.error||'Akses data ditolak (HTTP '+response.status+').');
   return json;
  }
  const rows=x=>Array.isArray(x)?x:Array.isArray(x?.rows)?x.rows:Array.isArray(x?.data)?x.data:Array.isArray(x?.data?.rows)?x.data.rows:Array.isArray(x?.data?.items)?x.data.items:Array.isArray(x?.items)?x.items:Array.isArray(x?.transaksi)?x.transaksi:[];
@@ -46,7 +46,7 @@
   const config={...(t.config||{})};
   for(const setting of (settings.data||[]))if(['TANGGAL_SETOR_RT','BATAS_PERIODE_KAS'].includes(setting.setting_key))
     config[setting.setting_key]=n(setting.setting_value);
-  return successful({version:'Cloudflare D1 — Data Acuan Terpadu',config,rumah:houses,warga});
+  return successful({version:'Data Acuan Terpadu',config,rumah:houses,warga});
  }
  async function history(){
   const r=await read('/api/bookkeeping/iuran/history?limit=1000');
@@ -314,19 +314,19 @@
   const year=Number(p?.tahun||p?.year);
   if(!Number.isInteger(year)||year<1900||year>2099)throw Error('Tahun buku tidak valid.');
   const r=await read('/api/bookkeeping/year-status?year='+year);
-  if(!r?.data||r.data.tahun!==year)throw Error('Status tahun belum dapat diverifikasi ke D1.');
+  if(!r?.data||r.data.tahun!==year)throw Error('Status tahun belum dapat diverifikasi.');
   return successful({data:r.data});
  }
  async function archiveList(){
   const r=await read('/api/bookkeeping/year-archives');
-  if(!Array.isArray(r?.data))throw Error('Daftar arsip D1 tidak sesuai.');
+  if(!Array.isArray(r?.data))throw Error('Daftar arsip tidak sesuai.');
   return successful({data:r.data});
  }
  async function archiveDetail(p){
   const year=Number(p?.tahun||p?.year);
   if(!Number.isInteger(year)||year<1900||year>2099)throw Error('Tahun arsip tidak valid.');
   const r=await read('/api/bookkeeping/year-archive?year='+year);
-  if(!r?.data?.record||r.data.record.tahun!==year)throw Error('Detail arsip D1 tidak sesuai.');
+  if(!r?.data?.record||r.data.record.tahun!==year)throw Error('Detail arsip tidak sesuai.');
   return successful({data:r.data});
  }
  const exact={
@@ -347,7 +347,7 @@
   if(action&&/simpan|bayar|buat|batalkan|hapus|edit|update|koreksi|tutup|import|sinkron|pulihkan|setor/.test(action))
    throw Error('Penulisan Pembukuan belum diaktifkan di Worker staging. Tidak ada data yang berubah.');
   if(action==='datapembukuankas'||action.startsWith('laporan'))
-   throw Error('Modul '+action+' belum memiliki pemetaan lengkap ke D1. Data lama tidak diganti angka nol.');
-  throw Error('Aksi '+(action||'(tanpa nama)')+' belum dipetakan ke Cloudflare D1. Tidak memakai data contoh.');
+   throw Error('Modul '+action+' belum dapat memuat data. Data asli tidak diubah.');
+  throw Error('Aksi '+(action||'(tanpa nama)')+' belum tersedia. Data contoh tidak digunakan.');
  };
 })();

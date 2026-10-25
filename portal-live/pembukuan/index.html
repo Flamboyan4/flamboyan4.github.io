@@ -1659,7 +1659,7 @@ main > section.card{overflow:visible!important}
 }
 </style>
 <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://api.flamboyan4.web.id; form-action 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com;"><!-- Production: offline-common.js removed because it denies all POST writes. --><script src="../calendar-unified.js"></script><!-- D1 only: contoh offline tidak pernah dimuat pada laman operasional -->
-<script src="../live-book-readonly.js?v=fine-date-941679b9"></script>
+<script src="../live-book-readonly.js?v=read-errors-20261025"></script>
 <script src="../f4-book-write-bridge.js?v=20261025-iuran-talangan-d1-final"></script>
 <script src="../f4-book-operations-bridge.js?v=20261025-ops-staging"></script><style id="f4-no-double-navbar">body>header:first-of-type{display:none!important} @media(max-width:850px){#f4-demo-book-hamburger{display:grid!important}} #f4-demo-book-hamburger{display:none;position:fixed;left:11px;top:9px;z-index:60;place-items:center;width:38px;height:38px;background:#f1ebff;color:#5b33c4;border:1px solid #d8cafa;border-radius:9px}</style><style id="f4-book-integrated-alignment">
 /* Desktop: original bookkeeping sidebar starts at y=0; content clears shared 56px overlay */
@@ -2861,7 +2861,7 @@ function bukaEdit(id){
    const field=document.getElementById(key);if(field){field.disabled=true;field.title='Nominal dan alokasi tidak dapat diganti melalui edit. Batalkan transaksi yang belum dibukukan lalu buat yang baru.';}
   }
   document.getElementById('edit-status').classList.remove('hidden');
-  editMsg('Edit aman D1: hanya tanggal, metode, dan catatan. Perubahan warga/periode/nominal perlu batal lalu input ulang.');
+  editMsg('Perubahan tanggal, metode, dan catatan dapat diedit. Untuk mengubah warga, periode, atau nominal, batalkan transaksi lalu input ulang.');
   updateEditPreview();document.getElementById('modal-edit').classList.remove('hidden');document.body.style.overflow='hidden';lucide.createIcons();
 }
 function tutupEdit(){document.getElementById('modal-edit').classList.add('hidden');document.body.style.overflow=''}
@@ -3400,7 +3400,7 @@ function renderLaporanTalangan(d){d=d||{};const r=d.ringkasan||{},rows=d.rows||[
  if(periodElement&&missingCount){
   const note=document.createElement('span');
   note.style.cssText='display:block;margin-top:6px;color:#b45309;font-weight:700;font-size:12px';
-  note.textContent=missingCount+' transaksi D1 belum memiliki tanggal/periode valid sehingga belum termasuk dalam laporan terfilter. Periksa migrasi Talangan.';
+  note.textContent=missingCount+' transaksi belum memiliki tanggal/periode valid sehingga belum termasuk dalam laporan terfilter. Periksa migrasi Talangan.';
   periodElement.append(note);
  }
  const tb=document.getElementById('report-talangan-tbody');if(tb)tb.innerHTML=rows.map((x,i)=>{const st=String(x.status||'MENUNGGU').toUpperCase(),badge=st==='LUNAS'?'bg-emerald-100 text-emerald-700':st==='BATAL'?'bg-slate-100 text-slate-500':'bg-amber-100 text-amber-700';return `<tr class="${st==='BATAL'?'opacity-55':''}"><td class="p-3 text-center">${i+1}</td><td class="p-3"><div class="font-bold">${esc(x.nama||'-')}</div><div class="text-xs text-slate-400">${esc(x.blok||'')}/${esc(x.noRumah||'')} • ${esc(x.idTalangan||'')}</div></td><td class="p-3 text-right font-black">${rupiah(x.nominalTalangan||0)}</td><td class="p-3 text-right font-bold text-emerald-700">${rupiah(x.nominalDiganti||0)}</td><td class="p-3 text-right font-black text-red-600">${rupiah(x.sisaTalangan||0)}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${badge}">${esc(st)}</span></td><td class="p-3 text-center">${esc(x.statusPembukuan||'-')}</td><td class="p-3"><div>${esc(histDate(x.tanggalJatuhTempo))}</div>${x.tanggalLunas?`<div class="text-xs text-emerald-700 mt-1">Lunas ${esc(histDate(x.tanggalLunas))}</div>`:''}</td></tr>`}).join('')||'<tr><td colspan="8" class="p-6 text-center text-slate-400">Tidak ada data talangan pada filter ini.</td></tr>';const pt=document.getElementById('report-talangan-print-tbody');if(pt)pt.innerHTML=(d.rekapStatus||[]).map(x=>`<tr><td class="p-3 font-bold">${esc(x.status)}</td><td class="p-3 text-center">${x.jumlah||0}</td><td class="p-3 text-right font-bold">${rupiah(x.nominal||0)}</td><td class="p-3 text-right font-black">${rupiah(x.sisa||0)}</td></tr>`).join('')}
@@ -3423,7 +3423,7 @@ function renderLaporanTahunan(d){
     warning.style.cssText='display:block;margin-top:5px;font-weight:700;color:#9a3412;font-size:11px';
     const gap=d.pembayaranTanpaRelasiJurnal||{};
     warning.textContent='REKAP SEMENTARA • Belum merupakan saldo final atau Tutup Buku.'
-       +(Number(gap.jumlah||0)>0?' '+gap.jumlah+' pembayaran iuran senilai '+rupiah(gap.nominalRp||0)+' belum memiliki relasi otomatis ke jurnal kas D1; belum tentu belum dibukukan.':'');
+       +(Number(gap.jumlah||0)>0?' '+gap.jumlah+' pembayaran iuran senilai '+rupiah(gap.nominalRp||0)+' belum memiliki relasi otomatis ke jurnal kas; belum tentu belum dibukukan.':'');
     annualCaption.appendChild(warning);
   }set('rep-tahunan-awal',rupiah(r.saldoAwal||0));set('rep-tahunan-masuk',rupiah(r.pemasukan||0));set('rep-tahunan-keluar',rupiah(r.pengeluaran||0));set('rep-tahunan-net',rupiah(r.saldoPeriode||0));set('rep-tahunan-akhir',rupiah(r.saldoAkhir||0));set('rep-tahunan-rt',rupiah(r.totalSetoranRT||0));set('rep-tahunan-arisan',rupiah(r.totalArisan||0));set('rep-tahunan-denda',rupiah(r.totalDendaMasuk||0));set('rep-tahunan-pinjaman',rupiah(r.sisaPinjaman||0));set('rep-tahunan-talangan',rupiah(r.sisaTalangan||0));
   const tb=document.getElementById('report-tahunan-tbody');if(tb)tb.innerHTML=(d.bulanan||[]).map(x=>`<tr><td class="p-2">${esc(x.namaBulan||'-')}</td><td class="p-2 text-right">${rupiah(x.pemasukan||0)}</td><td class="p-2 text-right">${rupiah(x.pengeluaran||0)}</td><td class="p-2 text-right ${Number(x.saldoPeriode||0)<0?'text-red-600':'text-emerald-700'}">${rupiah(x.saldoPeriode||0)}</td><td class="p-2 text-right">${rupiah(x.setoranRT||0)}</td><td class="p-2 text-right">${rupiah(x.arisan||0)}</td><td class="p-2 text-right">${rupiah(x.dendaMasuk||0)}</td></tr>`).join('');

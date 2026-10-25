@@ -473,7 +473,7 @@ function accountStatus(a){
 async function accountRequest(a,operation){
  const id=String(a?.id||'');
  if(!/^account:[A-Za-z0-9_-]{1,100}$/.test(id)||String(a?.role)!=='anggota')
-   throw Error('Akun anggota D1 tidak valid.');
+   throw Error('Akun anggota tidak valid.');
  const activation=operation==='activate';
  const path=activation?'/api/superadmin/accounts/activate-member':'/api/superadmin/accounts/reset-member';
  const payload={accountId:id,confirmation:activation?'AKTIFKAN AKUN WARGA':'RESET PASSWORD WARGA'};
