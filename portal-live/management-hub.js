@@ -43,7 +43,7 @@ window.openManagementHub=()=>{
  managementSidebar();
  main.replaceChildren();header('Pengelolaan Flamboyan 4','Pilih salah satu menu pengelolaan pada bagian kiri. Setiap menu mengelola data yang tampil di portal terkait.');
  const intro=make('section',undefined,'f4-work-section');
- intro.append(make('p','Semua pengelolaan memakai akun Superadmin dan sumber data Cloudflare D1. Konten foto/video tetap tersimpan di Google Drive.'));
+ intro.append(make('p','Pengelolaan hanya tersedia untuk Superadmin. Foto dan video dokumentasi tetap tersimpan di Google Drive.'));
  main.append(intro);
 };
 window.addEventListener('message',event=>{

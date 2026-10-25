@@ -64,7 +64,7 @@
    if(mode==='edit_house')changes.household_id=data.household_id;
    if(mode==='edit_resident'){changes.payer_id=data.payer_id;changes.active=data.active!==0}
    const save=form.querySelector('[type=submit]');
-   save.disabled=true;busy=true;status.textContent='Menyimpan ke Cloudflare D1…';
+   save.disabled=true;busy=true;status.textContent='Menyimpan perubahan…';
    try{
      const res=await fetch('https://api.flamboyan4.web.id/api/v2/admin/residents',{
        method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(changes)
@@ -72,7 +72,7 @@
      const result=await res.json().catch(()=>({error:'Respons tidak valid'}));
      if(!res.ok||result.ok===false)throw Error(result.error||'HTTP '+res.status);
      close();await window.openWarga();
-     status.textContent='Data berhasil disimpan ke Cloudflare D1.';
+     status.textContent='Data berhasil disimpan.';
    }catch(e){status.textContent='Gagal menyimpan: '+e.message}
    finally{busy=false;save.disabled=false}
  });
