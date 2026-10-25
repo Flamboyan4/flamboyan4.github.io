@@ -3600,6 +3600,11 @@ async function handle(request, env) {
         : "Laporan arus transaksi kas yang tercatat, bukan saldo keseluruhan atau laporan tutup buku."
     });
   }
+  if (request.method === "GET" && ["/api/member/payments","/api/member/arisan","/api/member/fines","/api/member/loans"].includes(path)) {
+    const denied=requireRole(who,["anggota","admin","superadmin"]);if(denied)return denied;
+    if(!who.member_id)return safeError("Akun belum terhubung ke data warga.",403);
+    return f4MemberPortalFinance(env.DB,who.member_id,path.split("/").pop());
+  }
   if (path === "/api/member/savings" && request.method === "GET") {
     const denied = requireRole(who, ["anggota", "admin", "superadmin"]);
     if (denied) return denied;
