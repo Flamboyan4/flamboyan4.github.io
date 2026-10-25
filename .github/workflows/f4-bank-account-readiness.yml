@@ -1,0 +1,21 @@
+name: Bank Sampah Production Account Readiness
+on:
+  push:
+    branches: [bank-production-account-readiness-20261025, main]
+    paths:
+      - qa/bank_production_account_readiness.py
+      - .github/workflows/f4-bank-account-readiness.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  readonly-accounts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Audit only hashed-account readiness and Bank write flags in production
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: python3 qa/bank_production_account_readiness.py
