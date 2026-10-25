@@ -79,7 +79,7 @@ __name(publicPortalCash,"publicPortalCash");
 async function publicBank(db) {
   const [catalog, albums, progress, inventory, overview, monthlyWeights] = await Promise.all([
     list(db, `SELECT i.id,i.name,i.category,i.unit, p.citizen_rate_rp_per_kg AS priceRpPerKg,p.effective_from AS effectiveFrom FROM waste_items i LEFT JOIN waste_prices p ON p.id=(SELECT p2.id FROM waste_prices p2 WHERE p2.waste_item_id=i.id ORDER BY p2.effective_from DESC,p2.id DESC LIMIT 1) WHERE i.active=1 ORDER BY i.category,i.name`),
-    list(db, `SELECT a.id,a.title,a.category,a.event_on,a.description,COUNT(m.id) AS mediaCount FROM albums a LEFT JOIN album_media m ON m.album_id=a.id AND m.status='aktif' WHERE a.visibility='publik' AND a.status='aktif' GROUP BY a.id ORDER BY a.event_on DESC,a.id DESC LIMIT 80`),
+    list(db, `SELECT a.id,a.title,a.category,a.event_on,a.description,COUNT(m.id) AS mediaCount,(SELECT cm.external_url FROM album_media cm WHERE cm.album_id=a.id AND cm.media_type='foto' AND cm.status='aktif' AND cm.external_url IS NOT NULL ORDER BY cm.sort_order,cm.id LIMIT 1) AS coverUrl FROM albums a LEFT JOIN album_media m ON m.album_id=a.id AND m.status='aktif' WHERE a.visibility='publik' AND a.status='aktif' GROUP BY a.id ORDER BY a.event_on DESC,a.id DESC LIMIT 80`),
     list(db, `SELECT id,happened_on,title,stage,description,status,next_step FROM progress_entries WHERE public_visible=1 ORDER BY happened_on DESC,id DESC LIMIT 70`),
     list(db, `SELECT i.id,i.name,i.quantity,i.unit,i.condition,im.external_url AS photoUrl
     FROM inventory i LEFT JOIN inventory_external_media im ON im.inventory_id=i.id
@@ -87,7 +87,7 @@ async function publicBank(db) {
     one(db, `SELECT (SELECT COUNT(*) FROM waste_deposits WHERE status='terkonfirmasi') AS confirmedDeposits,(SELECT COUNT(*) FROM members WHERE status='aktif') AS activeMembers,(SELECT COALESCE(SUM(total_grams),0)/1000.0 FROM waste_deposits WHERE status='terkonfirmasi') AS confirmedWeightKg,(SELECT COALESCE(SUM(sl.grams),0)/1000.0 FROM waste_sale_lines sl JOIN waste_sales sa ON sa.id=sl.sale_id WHERE sa.status='terkonfirmasi') AS confirmedSalesWeightKg,(SELECT COUNT(*) FROM waste_items WHERE active=1) AS activeItems,(SELECT COUNT(*) FROM albums WHERE visibility='publik' AND status='aktif') AS albumCount`),
     list(db, `SELECT substr(deposited_on,1,7) AS month,COALESCE(SUM(total_grams),0)/1000.0 AS beratKg FROM waste_deposits WHERE status='terkonfirmasi' GROUP BY substr(deposited_on,1,7) ORDER BY month DESC LIMIT 12`)
   ]);
-  return ok({ catalog, albums, progress, monthlyWeights: monthlyWeights.slice().reverse(), inventory: inventory.map((x) => ({
+  return ok({ catalog, albums:albums.map(a=>({...a,coverUrl:urlSafe(a.coverUrl)})), progress, monthlyWeights: monthlyWeights.slice().reverse(), inventory: inventory.map((x) => ({
     ...x,
     photoUrl: urlSafe(x.photoUrl)
   })), overview });
@@ -506,17 +506,22 @@ async function createBankMediaLink(request,env,who){
 __name(createBankMediaLink,'createBankMediaLink');
 async function createBankAlbum(request, env) {
   let p;
-  try {
-    p = await body(request);
-  } catch (e) {
-    return err(e.message, 400);
-  }
-  const title = String(p.title || "").trim(), category = String(p.category || "Lainnya").trim(), eventOn = p.eventOn ? String(p.eventOn) : null;
-  const description = p.description ? String(p.description).trim() : null, visibility = String(p.visibility || "publik");
-  if (title.length < 3 || title.length > 200 || category.length < 2 || category.length > 100 || eventOn && !validDate(eventOn) || description && description.length > 2500 || !["publik", "privat"].includes(visibility)) return err("Data album tidak valid.", 400);
-  const id = "album:api:" + crypto.randomUUID();
-  await env.DB.prepare("INSERT INTO albums(id,title,category,event_on,description,visibility,status) VALUES(?,?,?,?,?,?,'aktif')").bind(id, title, category, eventOn, description, visibility).run();
-  return ok({ id }, 201);
+  try {p=await body(request)} catch(e){return err(e.message,400)}
+  const title=String(p.title||'').trim(),category=String(p.category||'Lainnya').trim();
+  const eventOn=p.eventOn?String(p.eventOn):null,description=p.description?String(p.description).trim():null;
+  const visibility=String(p.visibility||'publik'),coverUrl=String(p.coverUrl||'').trim();
+  if(title.length<3||title.length>200||category.length<2||category.length>100||
+    eventOn&&!validDate(eventOn)||description&&description.length>2500||
+    !['publik','privat'].includes(visibility)||
+    (coverUrl&&(!urlSafe(coverUrl)||coverUrl.length>2000)))
+    return err('Data album atau tautan sampul HTTPS tidak valid.',400);
+  const id='album:api:'+crypto.randomUUID();
+  const statements=[env.DB.prepare("INSERT INTO albums(id,title,category,event_on,description,visibility,status) VALUES(?,?,?,?,?,?,'aktif')")
+    .bind(id,title,category,eventOn,description,visibility)];
+  if(coverUrl)statements.push(env.DB.prepare("INSERT INTO album_media(id,album_id,media_type,external_url,caption,sort_order,status) VALUES(?,?,'foto',?,?,0,'aktif')")
+    .bind('media:cover:'+crypto.randomUUID(),id,coverUrl,'Sampul album'));
+  try{await env.DB.batch(statements)}catch{return err('Album tidak berhasil disimpan; ulangi hanya setelah memeriksa daftar album.',409)}
+  return ok({id,coverSaved:!!coverUrl},201);
 }
 __name(createBankAlbum, "createBankAlbum");
 // Perubahan konten Bank Sampah — operasi terjaga dan diaudit (bukan keuangan).

@@ -142,6 +142,27 @@ try:
             time.sleep(1)
         assert_step("local_worker_health",health is not None and health[0]==200)
         base="http://127.0.0.1:8787"
+        # Photo cover saved as album media atomically (clone only), not discarded.
+        cover_url="https://example.org/f4-local-cover.png"
+        new_album=call(base+"/api/v2/admin/bank/albums","POST",{
+          "title":"Album lokal pengujian sampul","category":"Kegiatan",
+          "eventOn":"2026-10-25","description":"Hanya di database sementara",
+          "visibility":"publik","coverUrl":cover_url},temporary)
+        assert_step("bank_album_cover_saved_with_create",
+          new_album[0]==201 and new_album[1].get("coverSaved") is True,
+          {"http":new_album[0]})
+        new_album_id=new_album[1].get("id")
+        album_overview=call(base+"/api/v2/public/bank")
+        cover_match=next((x for x in album_overview[1].get("albums",[]) if x.get("id")==new_album_id),None)
+        assert_step("bank_public_album_cover_url_real",
+          album_overview[0]==200 and cover_match and cover_match.get("coverUrl")==cover_url)
+        album_detail=call(base+"/api/v2/public/bank/album/"+urllib.parse.quote(new_album_id,safe=""))
+        assert_step("bank_cover_is_real_album_media",
+          album_detail[0]==200 and any(x.get("external_url")==cover_url for x in album_detail[1].get("media",[])))
+        bad_cover=call(base+"/api/v2/admin/bank/albums","POST",{
+          "title":"Tidak lolos URL","category":"Kegiatan","eventOn":"2026-10-25",
+          "visibility":"publik","coverUrl":"javascript:alert(1)"},temporary)
+        assert_step("bank_cover_requires_https",bad_cover[0]==400)
         # Public cash transparency must read the SAME D1 journal as private bookkeeping.
         # No token, no Google Apps Script, no financial data copied into the report log.
         public_cash=call(base+"/api/v2/public/portal/cash")
