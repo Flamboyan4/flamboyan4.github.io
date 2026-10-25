@@ -89,6 +89,7 @@ function photoPage(){
   try{
    await request('/api/member/avatar',{method:'POST',headers:{'content-type':chosen.type},body:chosen});
    report(note,'Foto profil berhasil disimpan.');file.value='';
+   window.f4RefreshDirectAvatar?.();
    const face=document.querySelector('#avatar-button .avatar-face');
    if(face){face.textContent='';face.style.background='center / cover no-repeat url("'+API+'/api/member/avatar?v='+Date.now()+'")'}
   }catch(e){report(note,'Upload gagal: '+e.message,true)}
