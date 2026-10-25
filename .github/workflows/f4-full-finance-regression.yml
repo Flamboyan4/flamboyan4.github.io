@@ -6,6 +6,8 @@ on:
     paths:
       - cloudflare/worker-terpadu-operasional-teruji.js
       - qa/run_isolated_bank_full_e2e.py
+      - qa/private_bank_roster_extract.py
+      - qa/bank_local_login_integration.py
       - portal-live/portal/index.html
       - uji-terpadu/portal/index.html
       - .github/workflows/f4-full-finance-regression.yml
