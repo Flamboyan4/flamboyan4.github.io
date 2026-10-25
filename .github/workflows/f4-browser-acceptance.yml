@@ -1,0 +1,98 @@
+name: F4 Browser Acceptance Smoke (PC HP Print)
+on:
+  push:
+    branches: [qa-browser-20261025]
+    paths: [.github/workflows/f4-browser-acceptance.yml]
+permissions:
+  contents: write
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install headless Chromium
+        run: |
+          python3 -m pip install --quiet playwright
+          python3 -m playwright install --with-deps chromium
+      - name: Visit live portals at desktop and mobile sizes and print mode
+        run: |
+          python3 - <<'PY'
+          import json,asyncio,datetime
+          from pathlib import Path
+          from playwright.async_api import async_playwright
+          base="https://flamboyan4.web.id"
+          urls=[
+            ("/portal-live/","pusat"),("/portal-live/portal/","portal"),
+            ("/portal-live/bank-sampah/","bank-sampah"),
+            ("/portal-live/pembukuan/","pembukuan"),
+            ("/portal-live/superadmin/","superadmin")
+          ]
+          layouts={"pc":{"width":1440,"height":900},"hp":{"width":390,"height":844}}
+          output={"checked_at_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "scope":"LIVE_PUBLIC_BROWSER_PC_HP_PRINT_NO_CREDENTIALS","results":[]}
+          Path("ops-audit").mkdir(exist_ok=True)
+          Path("ops-audit/browser-screenshots").mkdir(exist_ok=True)
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch(headless=True,args=["--no-sandbox"])
+              for viewport_name,viewport in layouts.items():
+                ctx=await browser.new_context(viewport=viewport,is_mobile=viewport_name=="hp",has_touch=viewport_name=="hp",ignore_https_errors=False)
+                for path,name in urls:
+                  page=await ctx.new_page()
+                  errors=[]
+                  page.on("pageerror",lambda e:errors.append(str(e)[:160]))
+                  try:
+                    response=await page.goto(base+path,wait_until="domcontentloaded",timeout=30000)
+                    await page.wait_for_timeout(1700)
+                    status=response.status if response else None
+                    title=await page.title()
+                    metrics=await page.evaluate("""() => ({
+                      scrollWidth:document.documentElement.scrollWidth,
+                      viewport:window.innerWidth,
+                      bodyText:(document.body?.innerText||'').length,
+                      loaded:document.readyState
+                    })""")
+                    await page.screenshot(path=f"ops-audit/browser-screenshots/{viewport_name}-{name}.png",full_page=False,timeout=20000)
+                    await page.emulate_media(media="print")
+                    print_css=await page.evaluate("window.matchMedia('print').matches")
+                    ok=status==200 and metrics["bodyText"]>20 and print_css and len(errors)==0
+                    output["results"].append({
+                      "page":name,"viewport":viewport_name,"http":status,"title_present":bool(title.strip()),
+                      "visible_text_characters":metrics["bodyText"],
+                      "document_state":metrics["loaded"],
+                      "overflow_px":max(0,metrics["scrollWidth"]-metrics["viewport"]),
+                      "print_media_works":print_css,"js_errors":errors[:5],"ok":ok
+                    })
+                    print(viewport_name,name,"HTTP",status,"JS-errors",len(errors),"print",print_css,"ok",ok)
+                  except Exception as ex:
+                    output["results"].append({"page":name,"viewport":viewport_name,"ok":False,"error":type(ex).__name__+": "+str(ex)[:150]})
+                  finally:await page.close()
+                await ctx.close()
+              await browser.close()
+          asyncio.run(main())
+          output["checks_total"]=len(output["results"])
+          output["checks_passed"]=sum(x["ok"] for x in output["results"])
+          output["status"]="pass" if output["checks_total"]==10 and output["checks_passed"]==10 else "incomplete"
+          Path("ops-audit/browser-acceptance.json").write_text(json.dumps(output,indent=2,ensure_ascii=False)+"\n")
+          print("Browser check:",output["checks_passed"],"/",output["checks_total"])
+          if output["status"]!="pass":raise SystemExit("Browser acceptance found failures; see report")
+          PY
+      - name: Keep browser screenshots for diagnostics
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: flamboyan4-browser-screenshots
+          path: ops-audit/browser-screenshots/
+          retention-days: 5
+          if-no-files-found: ignore
+      - name: Save sanitized browser report
+        if: always()
+        run: |
+          test -f ops-audit/browser-acceptance.json || exit 1
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/browser-acceptance.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(qa): record PC HP print live browser smoke"
+          git push origin HEAD:qa-browser-20261025
