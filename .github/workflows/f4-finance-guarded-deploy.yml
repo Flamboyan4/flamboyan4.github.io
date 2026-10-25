@@ -4,8 +4,7 @@ on:
     branches: [main]
     paths:
       - cloudflare/worker-terpadu-operasional-teruji.js
-      - .github/workflows/f4-finance-guarded-deploy.yml
-  workflow_dispatch:
+   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
@@ -87,7 +86,8 @@ jobs:
           import urllib.request,json
           origin="https://api.flamboyan4.web.id"
           for path in ["/api/health","/api/v2/system/features","/api/v2/public/portal","/api/v2/public/bank"]:
-              with urllib.request.urlopen(urllib.request.Request(origin+path,headers={"Cache-Control":"no-cache"}),timeout=20) as response:
+              req=urllib.request.Request(origin+path,headers={"Cache-Control":"no-cache","Accept":"application/json","Origin":"https://flamboyan4.web.id","User-Agent":"Mozilla/5.0 Flamboyan4-Smoke/1.0"})
+              with urllib.request.urlopen(req,timeout=20) as response:
                   obj=json.load(response)
                   if response.status!=200 or obj.get("ok") is False:raise RuntimeError("Smoke failed: "+path)
                   print("LIVE GET OK "+path)
