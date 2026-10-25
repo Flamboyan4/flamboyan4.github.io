@@ -103,7 +103,11 @@ def verify_portal_login(credentials):
                       return {src:document.querySelector('#appframe')?.getAttribute('src'),
                        url:f?.URL,ready:!!form,valid:form?.checkValidity(),
                        invalid:[...(form?.elements||[])].filter(x=>!x.validity?.valid).map(x=>x.id),
-                       due:f?.querySelector('#inp-nominal-dibayar')?.value}}
+                       due:f?.querySelector('#inp-nominal-dibayar')?.value,
+                       buttonType:f?.querySelector('#btn-simpan')?.type,
+                       buttonForm:f?.querySelector('#btn-simpan')?.form?.id,
+                       formAction:form?.getAttribute('onsubmit'),
+                       handler:typeof f?.defaultView?.simpanIuran}}
                     """)
                     book.locator("#btn-simpan").click()
                     try:
@@ -112,6 +116,10 @@ def verify_portal_login(credentials):
                           return (doc?.querySelector('#save-status')?.textContent||'').includes('Pembayaran berhasil disimpan');
                         }""",timeout=18000)
                     except:
+                        if not writes:
+                            page.evaluate("""() => document.querySelector('#appframe')
+                              ?.contentDocument?.querySelector('#form-iuran')?.requestSubmit()""")
+                            page.wait_for_timeout(1800)
                         message=page.evaluate("""() => document.querySelector('#appframe')?.contentDocument
                           ?.querySelector('#save-status')?.textContent||'(no status)'""")
                         after=page.evaluate("""() => {const doc=document.querySelector('#appframe')?.contentDocument;
