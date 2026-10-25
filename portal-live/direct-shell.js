@@ -59,6 +59,7 @@ function notifyRole(){
   window.postMessage({type:'f4:demo-role',role,identity:{nama:member.nama||session?.account?.username||'',rumah:member.rumah||'',wargaId:member.id||''}},location.origin);
  }
 }
+window.f4RefreshDirectAvatar=()=>avatarLoad();
 function avatarLoad(){
  const img=el('img');img.alt='Foto profil';img.src=API+'/api/member/avatar?v='+Date.now();
  img.onerror=()=>{avatar.innerHTML=svg('user')};avatar.replaceChildren(img);
@@ -102,7 +103,6 @@ logout.onclick=async()=>{
  if(portal==='book'||portal==='superadmin'){location.assign('/');return}
  window.f4CloseUnifiedAccount?.();await refreshSession();
 };
-window.addEventListener('f4-account-password-updated',()=>{logout.click()});
 document.addEventListener('pointerdown',e=>{if(!bar.contains(e.target))menu.hidden=true});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){menu.hidden=true;closeLogin()}});
 window.addEventListener('message',e=>{
@@ -119,7 +119,7 @@ window.addEventListener('message',e=>{
  if(data.type==='f4:portal-visible-panel'&&portal==='portal')highlight(data.panel);
 });
 function makePortalSide(){
- if(portal!=='portal')return;
+ if(portal!=='portal'&&portal!=='simple')return;
  const side=el('aside');side.id='f4-direct-sidebar';
  const h=el('h2');h.textContent='Portal Utama';side.append(h);
  const items=[
@@ -132,6 +132,7 @@ function makePortalSide(){
   b.addEventListener('click',()=>{
    closeSide();
    if(key==='rapat'||key==='dokumentasi'){location.assign(paths[key]);return}
+   if(portal==='simple'){location.assign('/?halaman='+encodeURIComponent(key));return}
    if(key==='inventaris'){location.assign('/dokumentasi/#inventaris');return}
    try{window.f4PortalSelectPanel?.(key)}catch(err){console.warn('Panel:',err)}
    highlight(key);
@@ -141,7 +142,7 @@ function makePortalSide(){
  document.body.append(side);
  const backdrop=el('button');backdrop.id='f4-direct-sideback';backdrop.type='button';backdrop.hidden=true;
  backdrop.setAttribute('aria-label','Tutup menu');backdrop.onclick=closeSide;document.body.append(backdrop);
- highlight('beranda');
+ highlight(portal==='simple'?(pathname==='/rapat/'?'rapat':'dokumentasi'):'beranda');
 }
 function highlight(key){document.querySelectorAll('#f4-direct-sidebar [data-f4-panel]').forEach(x=>x.setAttribute('aria-current',x.dataset.f4Panel===key?'page':'false'))}
 function closeSide(){document.querySelector('#f4-direct-sidebar')?.classList.remove('f4-open');const b=document.getElementById('f4-direct-sideback');if(b)b.hidden=true;hamburger.setAttribute('aria-expanded','false')}
