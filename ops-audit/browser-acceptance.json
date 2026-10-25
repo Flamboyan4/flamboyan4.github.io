@@ -1,0 +1,129 @@
+{
+  "checked_at_utc": "2026-10-25T00:23:27.940280+00:00",
+  "scope": "LIVE_PUBLIC_BROWSER_PC_HP_PRINT_NO_CREDENTIALS",
+  "results": [
+    {
+      "page": "pusat",
+      "viewport": "pc",
+      "http": 200,
+      "title_present": true,
+      "visible_text_characters": 142,
+      "document_state": "complete",
+      "overflow_px": 0,
+      "print_media_works": true,
+      "js_errors": [],
+      "ok": true
+    },
+    {
+      "page": "portal",
+      "viewport": "pc",
+      "http": 200,
+      "title_present": true,
+      "visible_text_characters": 3116,
+      "document_state": "complete",
+      "overflow_px": 0,
+      "print_media_works": true,
+      "js_errors": [],
+      "ok": true
+    },
+    {
+      "page": "bank-sampah",
+      "viewport": "pc",
+      "http": 200,
+      "title_present": false,
+      "visible_text_characters": 1729,
+      "document_state": "complete",
+      "overflow_px": 0,
+      "print_media_works": true,
+      "js_errors": [],
+      "ok": true
+    },
+    {
+      "page": "pembukuan",
+      "viewport": "pc",
+      "http": 200,
+      "title_present": true,
+      "visible_text_characters": 875,
+      "document_state": "complete",
+      "overflow_px": 0,
+      "print_media_works": true,
+      "js_errors": [],
+      "ok": true
+    },
+    {
+      "page": "superadmin",
+      "viewport": "pc",
+      "http": 200,
+      "title_present": true,
+      "visible_text_characters": 75,
+      "document_state": "complete",
+      "overflow_px": 0,
+      "print_media_works": true,
+      "js_errors": [],
+      "ok": true
+    },
+    {
+      "page": "pusat",
+      "viewport": "hp",
+      "http": 200,
+      "title_present": true,
+      "visible_text_characters": 5,
+      "document_state": "complete",
+      "overflow_px": 0,
+      "print_media_works": true,
+      "js_errors": [],
+      "ok": false
+    },
+    {
+      "page": "portal",
+      "viewport": "hp",
+      "http": 200,
+      "title_present": true,
+      "visible_text_characters": 3080,
+      "document_state": "complete",
+      "overflow_px": 0,
+      "print_media_works": true,
+      "js_errors": [],
+      "ok": true
+    },
+    {
+      "page": "bank-sampah",
+      "viewport": "hp",
+      "http": 200,
+      "title_present": false,
+      "visible_text_characters": 1605,
+      "document_state": "complete",
+      "overflow_px": 0,
+      "print_media_works": true,
+      "js_errors": [],
+      "ok": true
+    },
+    {
+      "page": "pembukuan",
+      "viewport": "hp",
+      "http": 200,
+      "title_present": true,
+      "visible_text_characters": 903,
+      "document_state": "complete",
+      "overflow_px": 0,
+      "print_media_works": true,
+      "js_errors": [],
+      "ok": true
+    },
+    {
+      "page": "superadmin",
+      "viewport": "hp",
+      "http": 200,
+      "title_present": true,
+      "visible_text_characters": 77,
+      "document_state": "complete",
+      "overflow_px": 0,
+      "print_media_works": true,
+      "js_errors": [],
+      "ok": true
+    }
+  ],
+  "checks_total": 10,
+  "checks_passed": 9,
+  "status": "incomplete"
+}
