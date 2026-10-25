@@ -77,6 +77,34 @@ def verify_portal_login(credentials):
                     frame.locator("#v12Balance").wait_for(timeout=13000)
                 else:
                     frame.locator('#v16NavList [data-group="money"]').wait_for(state="attached",timeout=16000)
+                if scope=="admin" and label=="PC":
+                    # The real Pembukuan form, authenticated through the real
+                    # GitHub Pages shell. Every API request routes to LOCAL D1.
+                    page.locator('[data-target="pembukuan"]').first.evaluate("(el)=>el.click()")
+                    book=page.frame_locator("#appframe")
+                    book.locator("#inp-warga option").first.wait_for(timeout=20000)
+                    page.wait_for_function("""() => {
+                        const doc=document.querySelector('#appframe')?.contentDocument;
+                        return doc && doc.querySelectorAll('#inp-warga option').length>1;
+                    }""",timeout=18000)
+                    book.locator("#inp-warga").select_option(index=1)
+                    book.locator("#inp-tanggal").fill("2026-10-25")
+                    book.locator("#inp-bulan").select_option("11")
+                    book.locator("#inp-tahun").fill("2026")
+                    book.locator("#inp-jumlah").select_option("1")
+                    book.locator("#inp-metode").select_option("Cash")
+                    amount=book.locator("#inp-nominal-dibayar").input_value()
+                    if not amount or int(amount)<=0:raise AssertionError("Pembukuan Iuran preview failed: "+repr(amount))
+                    book.locator("#btn-simpan").click()
+                    try:
+                        page.wait_for_function("""() => {
+                          const doc=document.querySelector('#appframe')?.contentDocument;
+                          return (doc?.querySelector('#save-status')?.textContent||'').includes('Pembayaran berhasil disimpan');
+                        }""",timeout=18000)
+                    except:
+                        message=page.evaluate("""() => document.querySelector('#appframe')?.contentDocument
+                          ?.querySelector('#save-status')?.textContent||'(no status)'""")
+                        raise AssertionError("Actual Pembukuan Iuran submit failed: "+message[:240])
                 page.locator("#avatar-button").click()
                 page.locator('[data-account-action="logout"]').click()
                 page.wait_for_function("""() => {
