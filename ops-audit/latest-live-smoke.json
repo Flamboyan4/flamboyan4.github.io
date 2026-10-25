@@ -1,0 +1,41 @@
+{
+  "checked_at_utc": "2026-10-25T00:44:28.892028+00:00",
+  "status": "pass",
+  "checks": [
+    {
+      "test": "health",
+      "http": 200,
+      "ok": true
+    },
+    {
+      "test": "portal",
+      "http": 200,
+      "ok": true
+    },
+    {
+      "test": "bank",
+      "http": 200,
+      "ok": true
+    },
+    {
+      "test": "bank_report",
+      "http": 200,
+      "ok": true
+    },
+    {
+      "test": "savings_private",
+      "http": 401,
+      "ok": true
+    },
+    {
+      "test": "finance_private",
+      "http": 401,
+      "ok": true
+    },
+    {
+      "test": "bank_admin_private",
+      "http": 401,
+      "ok": true
+    }
+  ]
+}
