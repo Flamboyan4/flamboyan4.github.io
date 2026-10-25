@@ -82,7 +82,7 @@ def verify_portal_login(credentials):
                     # GitHub Pages shell. Every API request routes to LOCAL D1.
                     page.locator('[data-target="pembukuan"]').first.evaluate("(el)=>el.click()")
                     book=page.frame_locator("#appframe")
-                    book.locator("#inp-warga option").first.wait_for(timeout=20000)
+                    book.locator("#inp-warga option").first.wait_for(state="attached",timeout=20000)
                     page.wait_for_function("""() => {
                         const doc=document.querySelector('#appframe')?.contentDocument;
                         return doc && doc.querySelectorAll('#inp-warga option').length>1;
