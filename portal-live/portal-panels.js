@@ -8,6 +8,7 @@ const current={panel:'beranda',role:'public',privateKind:'iuran_rt'};
 const finance=document.getElementById('keuangan');
 const isMember=role=>['anggota','warga','member'].includes(String(role||'').toLowerCase());
 let finBlock=null,scrollScheduled=false,lastVisible='';
+const financeDisplayCache=new WeakMap();
 const sectionTargets={
  beranda:document.querySelector('body>main>section:first-of-type'),
  keuangan:document.getElementById('keuangan'),
@@ -79,6 +80,24 @@ function setFinanceMode(own){
  const personal=finBlock.querySelector('#f4-personal-finance');
  const allowed=own&&isMember(current.role);
  finance.classList.toggle('f4-finance-personal-active',allowed);
+ // CSS lama menggunakan display:grid!important pada kartu publik.
+ // Override dengan inline !important, dan pulihkan tampilan aslinya nanti.
+ for(const node of finance.children){
+  if(node===finBlock)continue;
+  if(allowed){
+   if(!financeDisplayCache.has(node))
+    financeDisplayCache.set(node,{
+     value:node.style.getPropertyValue('display'),
+     priority:node.style.getPropertyPriority('display')
+    });
+   node.style.setProperty('display','none','important');
+  }else if(financeDisplayCache.has(node)){
+   const previous=financeDisplayCache.get(node);
+   if(previous.value)node.style.setProperty('display',previous.value,previous.priority);
+   else node.style.removeProperty('display');
+   financeDisplayCache.delete(node);
+  }
+ }
  if(personal)personal.hidden=!allowed;
  finBlock.querySelectorAll('[data-finance-mode]').forEach(b=>{
   const active=(b.dataset.financeMode==='saya')===allowed;
@@ -141,6 +160,7 @@ window.addEventListener('message',event=>{
   if(isMember(current.role)){
    createFinanceTabs();finBlock.hidden=false;setFinanceMode(false);
   }else{
+   setFinanceMode(false);
    finance?.classList.remove('f4-finance-personal-active');
    if(finBlock){
     finBlock.hidden=true;
