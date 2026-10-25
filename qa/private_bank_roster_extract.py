@@ -4,7 +4,7 @@ Only the caller holding the RSA private key can read the D1 member rows.
 GitHub public logs contain ONLY RSA-wrapped AES-GCM ciphertext.
 Called on the local clone of a read-only Cloudflare D1 export, pre-fixture.
 """
-import base64,json,os,pathlib,secrets
+import base64,json,os,pathlib,secrets,zlib
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives import hashes,serialization
 from cryptography.hazmat.primitives.asymmetric import padding
@@ -31,14 +31,14 @@ def snapshot(connection):
            "active_accounts":r[4]} for r in rows]
 
 def emit(connection):
-  blob=json.dumps({"member_rows":snapshot(connection)},ensure_ascii=False,sort_keys=True).encode()
+  blob=zlib.compress(json.dumps({"member_rows":snapshot(connection)},ensure_ascii=False,sort_keys=True).encode(),9)
   key=secrets.token_bytes(32)
   nonce=secrets.token_bytes(12)
   ciphertext=AESGCM(key).encrypt(nonce,blob,b"f4-bank-private-audit-20261025")
   rsa=serialization.load_pem_public_key(PUBKEY)
   wrapped=rsa.encrypt(key,padding.OAEP(mgf=padding.MGF1(hashes.SHA256()),
                                         algorithm=hashes.SHA256(),label=None))
-  entry={"version":1,"key":base64.b64encode(wrapped).decode(),
+  entry={"version":2,"compressed":"zlib","key":base64.b64encode(wrapped).decode(),
          "nonce":base64.b64encode(nonce).decode(),
          "ciphertext":base64.b64encode(ciphertext).decode()}
   # DO NOT print unencrypted names, house codes, login data, or token.
