@@ -203,6 +203,8 @@ try:
         added_house=call(base+"/api/v2/admin/residents","POST",{
           "action":"add_house","rumah":"QA/999","deskripsi_rumah":"Hanya pada D1 lokal"
         },temporary)
+        print("QA_HOUSE_SAVE_STATUS="+str(added_house[0])+
+              " ERROR="+str(added_house[1].get("error",""))[:180])
         assert_step("superadmin_new_house_save_local_only",
           added_house[0]==201 and str(added_house[1].get("id","")).startswith("house:"),
           {"http":added_house[0],"error":added_house[1].get("error","")[:100]})
