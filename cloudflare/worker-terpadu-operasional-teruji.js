@@ -51,7 +51,14 @@ async function publicPortal(db) {
     list(db, `SELECT id,title,meeting_on,summary,document_ref FROM portal_meeting_records WHERE visibility='publik' ORDER BY meeting_on DESC LIMIT 50`),
     list(db, `SELECT id,event_on,title,description,drive_url,category FROM portal_documentation WHERE visibility='publik' AND active=1 ORDER BY event_on DESC,sort_order LIMIT 100`)
   ]);
-  return ok({ agenda, banners, projects, inventory, meetings, documentation });
+  // Arisan & Jersey were the last public Sheets CSV datasets. Absent migration
+  // tables yield empty arrays instead of making the rest of Portal unavailable.
+  const [arisan,jerseyBapak,jerseyIbu]=await Promise.all([
+    list(db,"SELECT period_on,host_name,status FROM portal_arisan_schedule ORDER BY period_on LIMIT 200").catch(()=>[]),
+    list(db,"SELECT sort_order,resident,sleeves,size,printed_name,payment_status,nominal_rp,method FROM portal_jersey_orders WHERE group_key='bapak' ORDER BY sort_order LIMIT 200").catch(()=>[]),
+    list(db,"SELECT sort_order,resident,sleeves,size,printed_name,payment_status,nominal_rp,method FROM portal_jersey_orders WHERE group_key='ibu' ORDER BY sort_order LIMIT 200").catch(()=>[])
+  ]);
+  return ok({agenda,banners,projects,inventory,meetings,documentation,arisan,jerseyBapak,jerseyIbu});
 }
 __name(publicPortal, "publicPortal");
 // Public transparency report: read only, from the authoritative active D1 cash journal.
