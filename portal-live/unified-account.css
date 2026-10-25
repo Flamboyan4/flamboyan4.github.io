@@ -55,3 +55,12 @@ body.f4-account-open #f4-mobile-overlay{display:none!important}
  #f4-unified-account .ua-side{top:56px!important}
  #f4-unified-account .ua-content{padding:19px 12px 25px!important;max-height:calc(100dvh - 132px)!important}
 }
+@media(max-width:760px){
+ #f4-unified-account{padding-top:62px!important;height:100dvh;overflow:hidden}
+ #f4-unified-account .ua-side{position:relative!important;top:0!important;width:100%!important;height:56px!important;min-height:56px!important;box-sizing:border-box;overflow-x:auto!important;overflow-y:hidden!important;flex-wrap:nowrap!important;align-items:center!important;gap:5px!important;padding:5px 10px!important;scrollbar-width:none;overscroll-behavior-x:contain}
+ #f4-unified-account .ua-side::-webkit-scrollbar{display:none}
+ #f4-unified-account .ua-brand{display:none!important}
+ #f4-unified-account .ua-menu{min-width:auto!important;flex:0 0 auto!important;white-space:nowrap!important;padding:10px 12px!important;border-radius:9px!important;font-size:12px!important}
+ #f4-unified-account .ua-content{padding:17px 12px 25px!important;height:calc(100dvh - 118px)!important;max-height:none!important;overflow-y:auto!important;box-sizing:border-box}
+ #f4-unified-account h1{font-size:22px!important}
+}
