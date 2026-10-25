@@ -1,0 +1,19 @@
+{
+  "checked_at_utc": "2026-10-25T00:50:22.732271+00:00",
+  "source_http": 200,
+  "content_type": "multipart/form-data",
+  "raw_bytes": 245533,
+  "local_bytes": 245351,
+  "raw_equal": false,
+  "source_sha256": "d83c4d0a6dc4776b3fe5d7f46b54ac5756cef7f90caade6556b9d04d2603cd8b",
+  "multipart_part_count": 1,
+  "js_part_match": true,
+  "js_part_sizes": [
+    245351
+  ],
+  "bindings_ok": true,
+  "bank_payout_active": false,
+  "bank_reconciliation_active": true,
+  "deployment_id": "0811e5ba-7106-4438-91f3-bb016271f1a6",
+  "verified_source_match": true
+}
