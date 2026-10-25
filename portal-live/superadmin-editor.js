@@ -214,6 +214,10 @@ function showForm(record){
   const field=node('label');field.append(node('span',label));
   let input;
   if(type==='textarea'){input=node('textarea');input.rows=3;}
+  else if(active==='jersey'&&key==='group_key'){
+   input=node('select');
+   input.append(new Option('Bapak-Bapak','bapak'),new Option('Ibu-Ibu','ibu'));
+  }
   else if(type==='category'){
    input=node('select');
    const cats=['Kerja Bakti','Arisan','Acara','Lainnya'];
