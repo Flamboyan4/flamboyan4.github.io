@@ -157,6 +157,31 @@ def verify_portal_login(credentials):
                         """)
                         raise AssertionError("Actual Pembukuan Iuran submit failed: "+str({
                             "before":before,"after":after,"writes":writes[-6:],"errors":errors[-3:]})[:950])
+                if scope=="admin" and label=="PC":
+                    # Existing Superadmin fourth portal: real Tambah Rumah button
+                    # to local cloned D1, never live resident database.
+                    page.locator('[data-target="superadmin"]').first.evaluate("(el)=>el.click()")
+                    page.wait_for_function("""() => {
+                      const f=document.querySelector('#appframe')?.contentWindow;
+                      return typeof f?.openWarga==='function'
+                         && !f.document.querySelector('#f4-superadmin-root')?.hidden;
+                    }""",timeout=20000)
+                    page.evaluate("() => document.querySelector('#appframe').contentWindow.openWarga()")
+                    superframe=page.frame_locator("#appframe")
+                    superframe.get_by_role("button",name="+ Tambah Rumah").click()
+                    superframe.locator('form.f4-admin-editor [name="rumah"]').fill("QA/998")
+                    superframe.locator('form.f4-admin-editor [name="nama_pemilik"]').fill("QA_LOCAL_ONLY")
+                    superframe.locator('form.f4-admin-editor .f4-admin-primary').click()
+                    try:
+                        page.wait_for_function("""() => {
+                          const doc=document.querySelector('#appframe')?.contentDocument;
+                          return (doc?.querySelector('.sa-chip')?.textContent||'').includes('Data berhasil disimpan ke D1.');
+                        }""",timeout=17000)
+                    except:
+                        message=page.evaluate("""() => document.querySelector('#appframe')?.contentDocument
+                            ?.querySelector('form.f4-admin-editor .f4-admin-note')?.textContent||'(no notice)'""")
+                        raise AssertionError("Actual Superadmin house form save failed: "+str({
+                            "notice":message,"writes":writes[-6:],"js_errors":errors[-3:]})[:750])
                 page.locator("#avatar-button").click()
                 page.locator('[data-account-action="logout"]').click()
                 page.wait_for_function("""() => {
