@@ -27,15 +27,16 @@ def verify(db_path,origin,assert_step):
     pw_member="QA!"+secrets.token_urlsafe(18)
     with sqlite3.connect(str(db_path)) as db:
         admin=db.execute("SELECT id FROM accounts WHERE role='superadmin' LIMIT 1").fetchone()
-        member=db.execute("SELECT id FROM members WHERE status='aktif' LIMIT 1").fetchone()
-        member_acc=db.execute("SELECT id FROM accounts WHERE role='anggota' LIMIT 1").fetchone()
+        member_acc=db.execute("""SELECT a.id,a.member_id FROM accounts a
+            JOIN members m ON m.id=a.member_id WHERE a.role='anggota' AND m.status='aktif' LIMIT 1""").fetchone()
+        member=(member_acc[1],) if member_acc else None
         if not(admin and member and member_acc):raise AssertionError("Missing superadmin/member account in cloned D1")
         db.execute("""UPDATE accounts SET username=?,password_hash=?,password_scheme='pbkdf2-sha256',
             failed_attempts=0,locked_until=NULL,status='aktif' WHERE id=?""",
             (username_admin,crypt(pw_admin),admin[0]))
         db.execute("""UPDATE accounts SET username=?,password_hash=?,password_scheme='pbkdf2-sha256',
             failed_attempts=0,locked_until=NULL,status='aktif',member_id=? WHERE id=?""",
-            (username_member,crypt(pw_member),member[0],member_acc[0]))
+            (username_member,crypt(pw_member),member_acc[1],member_acc[0]))
         db.commit()
     # One deliberately unknown username, not an existing account, must be denied.
     bad=fetch(origin,"/api/auth/login","POST",{"username":"f4qa-unknown-never-exists","password":"1234"})
