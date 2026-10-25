@@ -164,7 +164,7 @@ def verify_portal_login(credentials):
                     page.wait_for_function("""() => {
                       const f=document.querySelector('#appframe')?.contentWindow;
                       return typeof f?.openWarga==='function'
-                         && !f.document.querySelector('#f4-superadmin-root')?.hidden;
+                         && !f.document.querySelector('#f4-account-page')?.hidden;
                     }""",timeout=20000)
                     page.evaluate("() => document.querySelector('#appframe').contentWindow.openWarga()")
                     superframe=page.frame_locator("#appframe")
