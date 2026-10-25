@@ -2,7 +2,7 @@ name: Flamboyan 4 - Full Isolated Finance Regression
 on:
   workflow_dispatch:
   push:
-    branches: [finalize-iuran-year-guards-20261025, migrate-portal-public-cash-20261025, bank-safe-reversal-20261025, bank-real-report-member-fix-20261025, bank-album-cover-20261025, bank-progress-photo-final-20261025, bank-authenticated-ui-isolated-20261025, bank-final-private-parity-login-20261025, bank-final-three-deposit-audit-20261025, bank-portal-real-login-browser-20261025]
+    branches: [main, finalize-iuran-year-guards-20261025, migrate-portal-public-cash-20261025, bank-safe-reversal-20261025, bank-real-report-member-fix-20261025, bank-album-cover-20261025, bank-progress-photo-final-20261025, bank-authenticated-ui-isolated-20261025, bank-final-private-parity-login-20261025, bank-final-three-deposit-audit-20261025, bank-portal-real-login-browser-20261025]
     paths:
       - cloudflare/worker-terpadu-operasional-teruji.js
       - qa/run_isolated_bank_full_e2e.py
@@ -33,7 +33,7 @@ jobs:
       - name: Install Wrangler for local D1
         run: npm install --no-save --ignore-scripts wrangler@4
       - name: Install browser for isolated Admin and Member UI acceptance
-        if: github.ref_name == 'bank-authenticated-ui-isolated-20261025' || github.ref_name == 'bank-portal-real-login-browser-20261025'
+        if: github.ref_name == 'main' || github.ref_name == 'bank-authenticated-ui-isolated-20261025' || github.ref_name == 'bank-portal-real-login-browser-20261025'
         run: |
           python3 -m pip install --quiet playwright
           python3 -m playwright install --with-deps chromium
@@ -46,7 +46,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           F4_BANK_PRIVATE_AUDIT: ${{ (github.ref_name == 'bank-final-private-parity-login-20261025' || github.ref_name == 'bank-final-three-deposit-audit-20261025') }}
           F4_BANK_BROWSER_QA: ${{ github.ref_name == 'bank-authenticated-ui-isolated-20261025' }}
-          F4_BANK_PORTAL_UI: ${{ github.ref_name == 'bank-portal-real-login-browser-20261025' }}
+          F4_BANK_PORTAL_UI: ${{ github.ref_name == 'main' || github.ref_name == 'bank-portal-real-login-browser-20261025' }}
         run: python3 qa/run_isolated_bank_full_e2e.py
       - name: Upload sanitized test result
         if: always()
