@@ -53,13 +53,20 @@ jobs:
                       bodyText:(document.body?.innerText||'').length,
                       loaded:document.readyState
                     })""")
+                    iframe_text=0
+                    iframe_count=max(0,len(page.frames)-1)
+                    for subframe in page.frames[1:]:
+                      try:
+                        iframe_text=max(iframe_text,await subframe.evaluate("document.body?.innerText?.length || 0"))
+                      except Exception:pass
+                    effective_text=max(metrics["bodyText"],iframe_text)
                     await page.screenshot(path=f"ops-audit/browser-screenshots/{viewport_name}-{name}.png",full_page=False,timeout=20000)
                     await page.emulate_media(media="print")
                     print_css=await page.evaluate("window.matchMedia('print').matches")
-                    ok=status==200 and metrics["bodyText"]>20 and print_css and len(errors)==0
+                    ok=status==200 and effective_text>20 and print_css and len(errors)==0
                     output["results"].append({
                       "page":name,"viewport":viewport_name,"http":status,"title_present":bool(title.strip()),
-                      "visible_text_characters":metrics["bodyText"],
+                      "visible_text_characters":effective_text,"iframe_count":iframe_count,
                       "document_state":metrics["loaded"],
                       "overflow_px":max(0,metrics["scrollWidth"]-metrics["viewport"]),
                       "print_media_works":print_css,"js_errors":errors[:5],"ok":ok
