@@ -64,3 +64,16 @@ body.f4-account-open #f4-mobile-overlay{display:none!important}
  #f4-unified-account .ua-content{padding:17px 12px 25px!important;height:calc(100dvh - 118px)!important;max-height:none!important;overflow-y:auto!important;box-sizing:border-box}
  #f4-unified-account h1{font-size:22px!important}
 }
+/* Account mobile: original left navigation as drawer. The site's ONE hamburger owns it. */
+@media(max-width:760px){
+ body.f4-account-open #f4-mobile-menu{display:grid!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;z-index:310!important}
+ #f4-unified-account{display:block!important;padding-top:62px!important;height:100dvh!important;overflow:hidden!important}
+ #f4-unified-account .ua-side{position:fixed!important;top:62px!important;left:0!important;bottom:0!important;width:min(288px,84vw)!important;height:calc(100dvh - 62px)!important;min-height:0!important;max-height:none!important;box-sizing:border-box!important;z-index:6!important;display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;align-items:stretch!important;gap:5px!important;padding:15px 12px!important;overflow-y:auto!important;overflow-x:hidden!important;box-shadow:12px 0 28px #16331e23!important;transform:translateX(-110%)!important;visibility:hidden!important;transition:transform .2s ease,visibility .2s ease!important}
+ #f4-unified-account .ua-side.open{transform:translateX(0)!important;visibility:visible!important}
+ #f4-unified-account .ua-brand{display:flex!important;flex:none!important;min-width:0!important;padding:7px 9px 14px!important;margin:0 0 8px!important;border-bottom:1px solid var(--ua-edge)!important}
+ #f4-unified-account .ua-menu{display:block!important;flex:none!important;min-width:0!important;white-space:normal!important;text-align:left!important;padding:11px 12px!important}
+ #f4-unified-account .ua-return{margin-top:12px!important;border-top:1px solid var(--ua-edge)!important}
+ #f4-unified-account .ua-backdrop:not([hidden]){display:block!important;position:fixed!important;inset:62px 0 0!important;z-index:5!important;width:100%!important;background:#102c1c77!important;border:0!important;padding:0!important;border-radius:0!important}
+ #f4-unified-account .ua-backdrop[hidden]{display:none!important}
+ #f4-unified-account .ua-content{padding:17px 12px 25px!important;height:calc(100dvh - 62px)!important;max-height:none!important;overflow-y:auto!important}
+}

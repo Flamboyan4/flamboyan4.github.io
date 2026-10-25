@@ -4,9 +4,23 @@
 'use strict';
 const API='https://api.flamboyan4.web.id';
 const root=document.createElement('div');root.id='f4-unified-account';root.hidden=true;
-root.innerHTML='<aside class="ua-side" aria-label="Menu Pengaturan Akun"></aside><main class="ua-content"></main>';
+root.innerHTML='<aside class="ua-side" id="f4-ua-side" aria-label="Menu Pengaturan Akun"></aside><button type="button" class="ua-backdrop" aria-label="Tutup menu Pengaturan Akun" hidden></button><main class="ua-content"></main>';
 document.body.append(root);
-const aside=root.querySelector('aside'),content=root.querySelector('main');
+const aside=root.querySelector('aside'),content=root.querySelector('main'),backdrop=root.querySelector('.ua-backdrop');
+const mobileMenu=document.getElementById('f4-mobile-menu');
+function mobileView(){return window.matchMedia('(max-width:760px)').matches}
+function setAccountMenu(open){
+ const active=!!open&&mobileView()&&!root.hidden;
+ aside.classList.toggle('open',active);backdrop.hidden=!active;
+ if(mobileMenu&&!root.hidden){mobileMenu.setAttribute('aria-controls','f4-ua-side');mobileMenu.setAttribute('aria-expanded',String(active));mobileMenu.setAttribute('aria-label',active?'Tutup menu Pengaturan Akun':'Buka menu Pengaturan Akun')}
+}
+backdrop.addEventListener('click',()=>setAccountMenu(false));
+// Capture before the portal's hamburger handler so account navigation cannot open its sidebar.
+mobileMenu?.addEventListener('click',event=>{
+ if(root.hidden||!mobileView())return;
+ event.preventDefault();event.stopImmediatePropagation();setAccountMenu(!aside.classList.contains('open'));
+},true);
+window.addEventListener('resize',()=>{if(!mobileView())setAccountMenu(false)});
 const h=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=String(text);if(cls)e.className=cls;return e};
 const btn=(label,fn,cls)=>{const e=h('button',label,cls);e.type='button';e.onclick=fn;return e};
 let tab='identitas',session={},profile={},photoUrl='';
@@ -38,7 +52,7 @@ function navigation(){
  aside.append(btn('← Kembali ke Portal',close,'ua-menu ua-return'));
 }
 function show(next){
- tab=next;navigation();
+ tab=next;navigation();setAccountMenu(false);
  if(next==='identitas')identityPage();
  if(next==='foto')photoPage();
  if(next==='password')passwordPage();
@@ -119,12 +133,13 @@ function rightsPage(){
  for(const item of items)list.append(h('div','✓ '+item));card.append(list);
  card.append(h('p','Mengubah role sendiri tidak tersedia. Penetapan role hanya dilakukan oleh Superadmin melalui pengelolaan akun.','ua-status'));
 }
-function close(){root.hidden=true;document.body.classList.remove('f4-account-open');if(location.hash==='#akun')history.replaceState(null,'',window.__f4AccountReturnHash||'#portal');if(photoUrl){URL.revokeObjectURL(photoUrl);photoUrl=''}}
+function close(){setAccountMenu(false);root.hidden=true;document.body.classList.remove('f4-account-open');
+ if(mobileMenu){mobileMenu.setAttribute('aria-controls','portal-sidebar');mobileMenu.setAttribute('aria-label','Buka menu halaman');mobileMenu.setAttribute('aria-expanded','false')}if(location.hash==='#akun')history.replaceState(null,'',window.__f4AccountReturnHash||'#portal');if(photoUrl){URL.revokeObjectURL(photoUrl);photoUrl=''}}
 async function open(){
  if(root.hidden){window.__f4AccountReturnHash=location.hash==='#akun'?(window.__f4AccountReturnHash||'#portal'):(location.hash||'#portal');if(location.hash!=='#akun')history.pushState(null,'','#akun');}
  const accountPanel=document.getElementById('f4-account-page'),residents=document.getElementById('f4-warga-panel');
  if(accountPanel)accountPanel.hidden=true;if(residents)residents.hidden=true;
- root.hidden=false;document.body.classList.add('f4-account-open');tab='identitas';
+ root.hidden=false;document.body.classList.add('f4-account-open');setAccountMenu(false);tab='identitas';
  page('Pengaturan Akun','Identitas terpusat untuk semua portal');navigation();
  const loading=h('p','','ua-status');content.append(loading);
  const loader=window.F4Loading?.begin(loading,'Memuat profil akun…');
@@ -144,6 +159,6 @@ window.addEventListener('f4-account-password-updated',()=>{
  const b=document.querySelector('[data-account-action="logout"]');
  if(b){close();b.click();}
 });
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!root.hidden)close()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!root.hidden){if(aside.classList.contains('open'))setAccountMenu(false);else close()}});
 window.addEventListener('popstate',()=>{if(!root.hidden&&location.hash!=='#akun')close()});
 })();
