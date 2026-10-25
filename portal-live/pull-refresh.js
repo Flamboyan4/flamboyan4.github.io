@@ -10,6 +10,9 @@
   style.textContent=[
     '#f4-pull-refresh{position:fixed;left:50%;top:65px;z-index:130;display:flex;align-items:center;gap:9px;visibility:hidden;opacity:0;pointer-events:none;padding:9px 15px;border:1px solid #dbe6df;border-radius:999px;background:#fff;color:#28533d;font:700 12px/1.3 system-ui,-apple-system,sans-serif;box-shadow:0 8px 28px #15352924;transform:translate(-50%,-18px);transition:opacity .15s,transform .15s}',
     '#f4-pull-refresh.show{visibility:visible;opacity:1;transform:translate(-50%,0)}',
+    'body.portal-mode #f4-pull-refresh{border-color:#dedff0;color:#48418d}',
+    'body.book-mode #f4-pull-refresh{border-color:#eddccc;color:#a7652f}',
+    'body.superadmin-mode #f4-pull-refresh{border-color:#d8e5ef;color:#2d6593}',
     '#f4-pull-refresh .mark{font-size:21px;line-height:1;transform:rotate(-30deg)}',
     '#f4-pull-refresh.ready .mark{transform:rotate(50deg)}',
     '#f4-pull-refresh.loading .mark{animation:f4-pull-spin .75s linear infinite}',
@@ -96,6 +99,70 @@
     },{passive:true});
     doc.addEventListener('touchcancel',clear,{passive:true});
   }
+
+
+  // Full-screen account and management panels scroll inside their own containers.
+  // Chrome does not trigger native pull-to-refresh for these fixed-height panels.
+  function installOverlay(selector,isActive,restoreAccount=false){
+    const scroller=document.querySelector(selector);
+    if(!scroller)return;
+    let tracking=false,pulled=0,originX=0,originY=0,reloading=false;
+    const atTop=()=>scroller.scrollTop<=3;
+    function clear(){
+      tracking=false;pulled=0;
+      if(!reloading){indicator.className='';label.textContent='Tarik untuk memperbarui';}
+    }
+    function blocked(target){
+      if(target?.closest?.('input,textarea,select,button,[contenteditable="true"],[role="dialog"]'))return true;
+      for(let el=target;el&&el!==scroller;el=el.parentElement){
+        if(el.nodeType!==1)continue;
+        const css=getComputedStyle(el);
+        if(el.scrollHeight>el.clientHeight+3&&/auto|scroll/.test(css.overflowY)&&el.scrollTop>2)return true;
+      }
+      return false;
+    }
+    scroller.addEventListener('touchstart',e=>{
+      clear();
+      if(innerWidth>1023||!isActive()||e.touches.length!==1||!atTop()||blocked(e.target))return;
+      tracking=true;originX=e.touches[0].clientX;originY=e.touches[0].clientY;
+    },{passive:true});
+    scroller.addEventListener('touchmove',e=>{
+      if(!tracking||e.touches.length!==1)return;
+      const dx=e.touches[0].clientX-originX;
+      const dy=e.touches[0].clientY-originY;
+      if(!isActive()||dy<0||Math.abs(dx)>Math.max(18,dy*.8)||!atTop()||blocked(e.target)){clear();return;}
+      if(dy<12)return;
+      if(e.cancelable)e.preventDefault();
+      pulled=dy;indicator.classList.add('show');
+      indicator.classList.toggle('ready',pulled>=95);
+      label.textContent=pulled>=95?'Lepas untuk memperbarui':'Tarik untuk memperbarui';
+    },{passive:false});
+    scroller.addEventListener('touchend',()=>{
+      if(!tracking)return;
+      if(pulled>=95&&!reloading&&isActive()&&atTop()){
+        reloading=true;indicator.className='show loading';
+        label.textContent='Memperbarui halaman…';
+        if(restoreAccount){
+          try{sessionStorage.setItem('f4-pull-return-account','1')}catch{}
+        }
+        window.location.reload();
+      }else clear();
+    },{passive:true});
+    scroller.addEventListener('touchcancel',clear,{passive:true});
+  }
+
+  installOverlay('#f4-unified-account .ua-content',()=>{
+    const panel=document.getElementById('f4-unified-account');
+    return !!panel&&!panel.hidden&&!panel.querySelector('.ua-side.open');
+  },true);
+  installOverlay('#f4-account-page main',()=>{
+    const panel=document.getElementById('f4-account-page');
+    return !!panel&&!panel.hidden;
+  });
+  installOverlay('#f4-warga-panel .f4-warga-main',()=>{
+    const panel=document.getElementById('f4-warga-panel');
+    return !!panel&&!panel.hidden;
+  });
 
   frame.addEventListener('load',install);
   try{if(frame.contentDocument?.readyState==='complete')install();}catch{}
