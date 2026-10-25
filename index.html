@@ -437,7 +437,7 @@ body.superadmin-mode .notice{display:none!important}
  body.superadmin-mode .shell{left:0!important}
  body.superadmin-mode .framebox{position:absolute!important;inset:0!important;margin:0!important;height:100dvh!important}
 }
-</style><link rel="stylesheet" href="/portal-live/unified-account.css?v=mobile-drawer-20261025"><style id="f4-scroll-menu-order">
+</style><link rel="stylesheet" href="/portal-live/unified-account.css?v=theme-unified-20261025"><style id="f4-scroll-menu-order">
 #portal-sidebar .f4-portal-viewer-label{display:block;margin:16px 12px 5px;border-top:1px solid #e3e5f1;padding:14px 8px 2px;color:#8993ac;font-size:10px;font-weight:800;letter-spacing:.1em}
 </style><style id="f4-iframe-overlay-and-mobile-nav">
 /* Root cause: later portal-mode/bank-mode framebox rules overrode the modal layout.
@@ -950,7 +950,9 @@ html body.iframe-modal-open{overflow:hidden!important}
  document.addEventListener('keydown',e=>{if(e.key==='Escape'){menu.hidden=true;loginShade.hidden=true;profileShade.hidden=true}});
  refreshIdentity();
  const requested=route();
- window.__f4IntentAccount=requested==='akun';
+ let resumeAccount=false;
+  try{resumeAccount=sessionStorage.getItem('f4-pull-return-account')==='1';sessionStorage.removeItem('f4-pull-return-account')}catch{}
+  window.__f4IntentAccount=requested==='akun'||resumeAccount;
  const portalRequested=requested.split('/')[0];
  selected=Object.hasOwn(apps,portalRequested)?portalRequested:'portal';
  update(selected);refreshSession();
@@ -1254,4 +1256,4 @@ body.bank-mode #profile-shade .f4-eye-toggle{background:transparent!important;ba
 (()=>{window.openManagementHub=()=>{
   document.querySelector('nav [data-target="superadmin"]')?.click();
 };})();
-</script><script src="/portal-live/unified-account.js?v=mobile-drawer-20261025"></script><script src="/portal-live/pull-refresh.js?v=0cb6651"></script></body></html>
+</script><script src="/portal-live/unified-account.js?v=mobile-drawer-20261025"></script><script src="/portal-live/pull-refresh.js?v=account-panel-20261025"></script></body></html>
