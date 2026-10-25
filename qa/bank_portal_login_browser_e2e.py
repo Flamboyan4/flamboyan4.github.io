@@ -7,7 +7,7 @@ No production app API receives transactions, and no real user password is used.
 import urllib.parse,urllib.request,urllib.error
 from playwright.sync_api import sync_playwright
 
-WEB="https://flamboyan4.web.id/portal-live/#bank-sampah"
+WEB="https://flamboyan4.web.id/portal-live/?v=csp-submit-01489ea9#bank-sampah"
 HOST="https://api.flamboyan4.web.id"
 LOCAL="http://127.0.0.1:8787"
 ORIGIN="https://flamboyan4.web.id"
@@ -107,7 +107,8 @@ def verify_portal_login(credentials):
                        buttonType:f?.querySelector('#btn-simpan')?.type,
                        buttonForm:f?.querySelector('#btn-simpan')?.form?.id,
                        formAction:form?.getAttribute('onsubmit'),
-                       handler:typeof f?.defaultView?.simpanIuran}}
+                       handler:typeof f?.defaultView?.simpanIuran,
+                       csp:f?.querySelector('meta[http-equiv="Content-Security-Policy"]')?.content}}
                     """)
                     book.locator("#btn-simpan").click()
                     try:
