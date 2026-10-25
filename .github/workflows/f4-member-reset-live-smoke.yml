@@ -1,0 +1,79 @@
+name: F4 Member Reset Live Auth Smoke
+on:
+  push:
+    branches: [fix-account-activation-20261025]
+    paths: [.github/workflows/f4-member-reset-live-smoke.yml]
+permissions:
+  contents: write
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test reset API authorizations without changing real passwords
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,hashlib,secrets,json,urllib.request,urllib.error,datetime
+          from pathlib import Path
+          now=datetime.datetime.now(datetime.timezone.utc)
+          report={"checked_at_utc":now.isoformat(),"scope":"RESET_API_AUTH_ONLY_NO_REAL_ACCOUNT_CHANGES","checks":[]}
+          root="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CF_ACCOUNT"]
+          def cf(path,body=None):
+            payload=None if body is None else json.dumps(body).encode()
+            req=urllib.request.Request(root+path,method="POST" if payload else "GET",data=payload,headers={"Authorization":"Bearer "+os.environ["CF_TOKEN"],"Content-Type":"application/json"})
+            with urllib.request.urlopen(req,timeout=35) as resp:j=json.load(resp)
+            if not j.get("success"):raise RuntimeError("Cloudflare API rejected request")
+            return j["result"]
+          db=next(x for x in cf("/d1/database") if x["name"]=="flamboyan4-staging")
+          qpath="/d1/database/"+db["uuid"]+"/query"
+          def sql(q,params=None):
+            res=cf(qpath,{"sql":q,"params":params or []})
+            return res[0].get("results") or []
+          sessions=[]
+          def post(token=None):
+            h={"Content-Type":"application/json","Origin":"https://flamboyan4.web.id","User-Agent":"Mozilla/5.0 F4-ResetSmoke"}
+            if token:h["Cookie"]="f4_session="+token
+            req=urllib.request.Request("https://api.flamboyan4.web.id/api/superadmin/accounts/reset-member",
+              method="POST",headers=h,data=json.dumps({"accountId":"account:QA_ACCOUNT_DOES_NOT_EXIST","confirmation":"RESET PASSWORD WARGA"}).encode())
+            try:
+              with urllib.request.urlopen(req,timeout=25) as r:return r.status
+            except urllib.error.HTTPError as e:return e.code
+          before=sql("SELECT COUNT(*) AS n,COALESCE(SUM(LENGTH(password_hash)),0) AS hash_length FROM accounts")[0]
+          try:
+            for role,expected in (("superadmin",404),("admin",404),("anggota",403)):
+              record=sql("SELECT id FROM accounts WHERE status='aktif' AND role=? LIMIT 1",[role])
+              if not record:raise RuntimeError("Missing active role "+role)
+              token=secrets.token_urlsafe(48);digest=hashlib.sha256(token.encode()).hexdigest();sid="qa-"+secrets.token_hex(16)
+              sql("INSERT INTO sessions(id,account_id,token_hash,expires_at) VALUES(?,?,?,?)",[sid,record[0]["id"],digest,(now+datetime.timedelta(minutes=5)).strftime("%Y-%m-%d %H:%M:%S")])
+              sessions.append([sid,digest])
+              actual=post(token);report["checks"].append({"role":role,"http":actual,"expected":expected,"pass":actual==expected})
+            public=post()
+            report["checks"].append({"role":"publik","http":public,"expected":401,"pass":public==401})
+          except Exception as e:report["error"]=type(e).__name__+": "+str(e)[:150]
+          finally:
+            cleaned=True
+            for sid,digest in sessions:
+              try:sql("DELETE FROM sessions WHERE id=? AND token_hash=?",[sid,digest])
+              except:cleaned=False
+            after=sql("SELECT COUNT(*) AS n,COALESCE(SUM(LENGTH(password_hash)),0) AS hash_length FROM accounts")[0]
+            report["passwords_untouched"]=before==after
+            report["sessions_removed"]=cleaned
+            report["status"]="pass" if cleaned and before==after and not report.get("error") and len(report["checks"])==4 and all(x["pass"] for x in report["checks"]) else "fail"
+            p=Path("ops-audit/member-reset-live-smoke.json");p.parent.mkdir(exist_ok=True);p.write_text(json.dumps(report,indent=2)+"\n")
+          print("Reset endpoint role smoke:",report["status"])
+          if report["status"]!="pass":raise SystemExit("Reset endpoint role smoke failed")
+          PY
+      - name: Save sanitized report
+        if: always()
+        run: |
+          test -f ops-audit/member-reset-live-smoke.json || exit 1
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-audit/member-reset-live-smoke.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(ops): verify reset role access without affecting passwords"
+          git push origin HEAD:fix-account-activation-20261025
