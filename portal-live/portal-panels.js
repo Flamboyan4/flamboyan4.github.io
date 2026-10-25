@@ -36,8 +36,8 @@ function visiblePanel(){
    ['keuangan',sectionTargets.keuangan],
    ['keuangan',document.getElementById('arisan')],
    ['projek',sectionTargets.projek],
-   ['inventaris',document.getElementById('kegiatan')],
    ['kalender',sectionTargets.kalender],
+   ['inventaris',document.getElementById('kegiatan')],
    ['komentar',sectionTargets.komentar],
    ['pembayaran',footer]
   ];
