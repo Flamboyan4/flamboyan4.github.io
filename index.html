@@ -568,6 +568,12 @@ html body.iframe-modal-open{overflow:hidden!important}
 <div id="toast" class="toast" hidden role="status"></div>
 <script>
 (()=>{
+ // Clean query-based navigation also accepts legacy /#portal links.
+ const route=()=>new URLSearchParams(location.search).get('halaman')||location.hash.slice(1);
+ const setRoute=value=>{
+   const u=new URL(location.href);u.searchParams.set('halaman',value);u.hash='';
+   history.replaceState(history.state,'',u.pathname+u.search);
+ };
  const apps={portal:'/portal-live/portal/?v=restore-cash-20261025',rapat:'/portal-live/rapat/?v=compact-rapat-20261025',dokumentasi:'/portal-live/dokumentasi/?v=spacing-b114917b',inventaris:'/portal-live/dokumentasi/?v=spacing-b114917b#inventaris','bank-sampah':'/portal-live/bank-sampah/?v=all-save-buttons-dad63a31',pembukuan:'/portal-live/pembukuan/?v=d1-writes-unblocked-15185aee',superadmin:'/portal-live/superadmin/?v=arisan-table-20261025'};
 
  const buttons=[...document.querySelectorAll('nav [data-target]')],frame=document.getElementById('appframe'),
@@ -709,8 +715,8 @@ html body.iframe-modal-open{overflow:hidden!important}
    if(frame.getAttribute('src')!==url)frame.setAttribute('src',url);else sendRole();
   }
   try{
-   const requestedSection=location.hash.match(/^#superadmin\/(overview|accounts|content|masters|audit)$/)?.[1];
-   history.replaceState(null,'','#'+target+(target==='superadmin'&&requestedSection?'/'+requestedSection:''));
+   const requestedSection=route().match(/^superadmin\/(overview|accounts|content|masters|audit)$/)?.[1];
+   setRoute(target+(target==='superadmin'&&requestedSection?'/'+requestedSection:''));
   }catch{}
  }
  function showLogin(){
@@ -907,7 +913,7 @@ html body.iframe-modal-open{overflow:hidden!important}
    sendRole();
    if(e.source===frame.contentWindow&&e.data.portal==='bank-sampah')dispatchBankProfile();
    if(e.source===frame.contentWindow&&e.data.portal==='superadmin'){
-     const section=location.hash.match(/^#superadmin\/(overview|accounts|content|masters|audit)$/)?.[1];
+     const section=route().match(/^superadmin\/(overview|accounts|content|masters|audit)$/)?.[1];
      if(section)frame.contentWindow?.postMessage({type:'f4:superadmin-open-section',section},location.origin);
    }
   }
@@ -917,13 +923,13 @@ html body.iframe-modal-open{overflow:hidden!important}
   if(e.source===frame.contentWindow&&e.data.type==='f4:superadmin-section'&&selected==='superadmin'){
     const section=String(e.data.section||'');
     if(['overview','accounts','content','masters','audit'].includes(section))
-      history.replaceState(null,'','#superadmin/'+section);
+      setRoute('superadmin/'+section);
   }
   if(e.data.type==='f4:bank-modal'&&selected==='bank-sampah'&&e.source===frame.contentWindow){toolbar.classList.toggle('modal-covered',e.data.open===true);}
   if(e.data.type==='f4:section'&&e.data.target==='dokumentasi'){
     selected=e.data.target;
     document.querySelectorAll('[data-portal-menu]').forEach(el=>el.classList.toggle('active',el.dataset.portalMenu===selected));
-    history.replaceState(null,'','#'+selected);
+    setRoute(selected);
   }
   if(e.source===frame.contentWindow&&selected==='portal'&&e.data.type==='f4:portal-visible-panel'){
     const visible=String(e.data.panel||'beranda');
@@ -942,7 +948,7 @@ html body.iframe-modal-open{overflow:hidden!important}
  });
  document.addEventListener('keydown',e=>{if(e.key==='Escape'){menu.hidden=true;loginShade.hidden=true;profileShade.hidden=true}});
  refreshIdentity();
- const requested=location.hash.slice(1);
+ const requested=route();
  window.__f4IntentAccount=requested==='akun';
  const portalRequested=requested.split('/')[0];
  selected=Object.hasOwn(apps,portalRequested)?portalRequested:'portal';
@@ -955,6 +961,16 @@ html body.iframe-modal-open{overflow:hidden!important}
    if(Object.hasOwn(apps,portal)&&portal!==selected)update(portal);
    else if(portal==='superadmin'&&selected==='superadmin'){
      const section=target.split('/')[1];
+     if(['overview','accounts','content','masters','audit'].includes(section))
+       frame.contentWindow?.postMessage({type:'f4:superadmin-open-section',section},location.origin);
+     setRoute(target);
+   }else if(Object.hasOwn(apps,portal))setRoute(target);
+ });
+ window.addEventListener('popstate',()=>{
+   const requested=route(),target=requested.split('/')[0];
+   if(Object.hasOwn(apps,target)&&target!==selected)update(target);
+   else if(target==='superadmin'&&selected==='superadmin'){
+     const section=requested.split('/')[1];
      if(['overview','accounts','content','masters','audit'].includes(section))
        frame.contentWindow?.postMessage({type:'f4:superadmin-open-section',section},location.origin);
    }

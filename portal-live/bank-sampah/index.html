@@ -2864,5 +2864,74 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
  },true);
 })();
 </script>
+<style id="f4-bank-member-search-style">
+.f4-warga-picker{position:relative;width:100%;min-width:0}
+.f4-warga-picker>select{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;left:4px;bottom:0}
+.f4-warga-picker-open{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:47px;padding:10px 13px!important;background:#fff!important;border:1px solid #cbdccc!important;border-radius:10px!important;color:#294b36!important;font:inherit;text-align:left;cursor:pointer}
+.f4-warga-picker-open span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.f4-warga-picker-open:after{content:'⌄';font-size:18px}
+.f4-warga-picker-pop{position:absolute;z-index:350;top:calc(100% + 5px);left:0;width:100%;background:white;border:1px solid #cbdccc;border-radius:12px;box-shadow:0 13px 35px #192f252b;padding:9px;max-height:min(390px,65dvh);display:flex;flex-direction:column}
+.f4-warga-picker-pop[hidden]{display:none!important}
+.f4-warga-picker-pop input{width:100%;min-height:43px;flex:none;margin:0 0 7px!important;border:1px solid #bbd4c3;border-radius:8px;padding:9px!important;font:inherit}
+.f4-warga-picker-table{overflow-y:auto;overscroll-behavior:contain;min-height:0}
+.f4-warga-picker-head,.f4-warga-picker-row{display:grid;grid-template-columns:minmax(0,1fr) 88px;gap:10px;align-items:center}
+.f4-warga-picker-head{padding:8px 11px;color:#678575;text-transform:uppercase;font-size:10px;font-weight:750;border-bottom:1px solid #ebf0ec}
+.f4-warga-picker-row{padding:10px 11px;width:100%;border:0!important;border-bottom:1px solid #edf2ee!important;background:white!important;text-align:left!important;border-radius:0!important;font-size:13px;color:#294b36!important}
+.f4-warga-picker-row:hover,.f4-warga-picker-row:focus-visible{background:#eef7f0!important}
+.f4-warga-picker-row .f4-warga-home{text-align:right;font-weight:700;white-space:nowrap}
+@media(max-width:720px){.f4-warga-picker-pop{position:fixed;left:10px;right:10px;top:20dvh;width:auto;max-height:62dvh;z-index:25000;box-shadow:0 0 0 100vmax #10291c80,0 14px 38px #152d2740}}
+</style>
+<script id="f4-bank-member-search">
+(()=>{
+ 'use strict';
+ const watched=['setWarga','v9Member'];
+ let active=null;
+ const parsed=label=>{
+  const t=String(label||'').replace(/\s*\(member:[^)]+\)/ig,'').trim();
+  const m=t.match(/(?:[—•-]\s*|\s+)([A-Z]\d{1,2}\s*\/\s*\d{1,3})\b/i);
+  return {nama:m?t.slice(0,m.index).trim():t,rumah:m?m[1].replace(/\s/g,'').toUpperCase():'—'};
+ };
+ function enhance(select){
+  if(!select||select.dataset.f4Picker)return;
+  select.dataset.f4Picker='1';
+  const wrap=document.createElement('div');wrap.className='f4-warga-picker';
+  select.parentNode.insertBefore(wrap,select);wrap.append(select);
+  const trigger=document.createElement('button');trigger.type='button';trigger.className='f4-warga-picker-open';trigger.setAttribute('aria-haspopup','listbox');
+  const label=document.createElement('span');trigger.append(label);
+  const panel=document.createElement('div');panel.className='f4-warga-picker-pop';panel.hidden=true;
+  const search=document.createElement('input');search.type='search';search.placeholder='Cari nama atau nomor rumah...';search.setAttribute('aria-label','Cari warga');
+  const head=document.createElement('div');head.className='f4-warga-picker-head';head.innerHTML='<span>Nama warga</span><span>Rumah</span>';
+  const list=document.createElement('div');list.className='f4-warga-picker-table';list.setAttribute('role','listbox');
+  panel.append(search,head,list);wrap.append(trigger,panel);
+  const sync=()=>{label.textContent=select.selectedOptions[0]?.textContent||'Pilih warga'};
+  function close(){panel.hidden=true;trigger.setAttribute('aria-expanded','false');if(active===panel)active=null}
+  function render(){
+   list.replaceChildren();
+   const q=search.value.trim().toLocaleLowerCase('id-ID');
+   const opts=[...select.options].filter(x=>x.value&&x.textContent.trim()!=='');
+   for(const opt of opts){
+    const info=parsed(opt.textContent);if(q&&!String(info.nama+' '+info.rumah).toLocaleLowerCase('id-ID').includes(q))continue;
+    const row=document.createElement('button');row.type='button';row.className='f4-warga-picker-row';row.setAttribute('role','option');row.setAttribute('aria-selected',String(select.value===opt.value));
+    const name=document.createElement('span');name.textContent=info.nama;
+    const home=document.createElement('span');home.textContent=info.rumah;home.className='f4-warga-home';
+    row.append(name,home);row.onclick=()=>{select.value=opt.value;select.dispatchEvent(new Event('change',{bubbles:true}));sync();close();trigger.focus()};
+    list.append(row);
+   }
+   if(!list.childElementCount){const empty=document.createElement('p');empty.textContent='Warga tidak ditemukan';empty.style.padding='10px';list.append(empty)}
+  }
+  trigger.onclick=()=>{if(!panel.hidden){close();return}if(active)active.hidden=true;active=panel;panel.hidden=false;trigger.setAttribute('aria-expanded','true');search.value='';render();search.focus()};
+  search.oninput=render;
+  search.onkeydown=e=>{if(e.key==='Escape'){close();trigger.focus()}if(e.key==='Enter'){e.preventDefault();list.querySelector('button')?.click()}};
+  select.addEventListener('change',sync);
+  new MutationObserver(sync).observe(select,{childList:true,subtree:true,attributes:true,attributeFilter:['selected']});
+  sync();
+  document.addEventListener('pointerdown',e=>{if(!wrap.contains(e.target))close()});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+ }
+ function scan(){watched.forEach(id=>enhance(document.getElementById(id)))}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
+ const observer=new MutationObserver(mutations=>{if(mutations.some(m=>[...m.addedNodes].some(n=>n.nodeType===1&&(n.matches?.('select')||n.querySelector?.('select')))))scan()});
+ observer.observe(document.body,{childList:true,subtree:true});
+})();
+</script>
 </body>
 </html>
