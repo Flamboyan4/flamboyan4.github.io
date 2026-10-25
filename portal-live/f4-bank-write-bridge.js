@@ -195,10 +195,15 @@ async function provisionSingleMember(_token,id){
    await api('/api/superadmin/accounts/reset-member',{accountId:member.id,confirmation:'RESET PASSWORD WARGA'});
  return {username:result.username||member.username,passwordAwal:result.passwordAwal||'1234'};
 }
-async function refuseFinalReversal(){
- throw Error('Pembatalan pengesahan batch ditahan: Worker belum menyediakan reversal seluruh buku kas, tabungan, dan alokasi secara atomik. Data tidak diubah.');
+async function cancelConfirmedBatch(_token,p){
+ const batch=String(p?.batch||''),confirmed=String(p?.konfirmasi||''),reason=String(p?.alasan||'').trim();
+ if(!batch||batch!==confirmed||reason.length<10||reason.length>300)
+  throw Error('Pilih batch yang disahkan, ketik ulang ID, dan tulis alasan minimal 10 karakter.');
+ const result=await api('/api/admin/reconciliation/cancel',{batch,konfirmasi:confirmed,alasan:reason});
+ return {batch:result.batch,status:result.status,duplicate:!!result.duplicate,
+  rightsReversedRp:result.rightsReversedRp??0,cashReversedRp:result.cashReversedRp??0};
 }
 
-const methods={authAdminProvisionBatch:provisionMemberBatch,authAdminResetDefault:provisionSingleMember,bsV27BatalkanPengesahan:refuseFinalReversal,bsV22SetKategoriAlbum:updateAlbumCategory,bsV24UbahProgress:updateBankProgress,bsV20TambahMedia:saveMediaLink,bsV10CatatBiaya:saveExpense,bsV11TambahInventaris:saveInventory,bsV6BatalkanSetoran:cancelDeposit,bsV7BatalkanPenjualan:cancelSale,bsV5BuatSetoran:depositDraft,bsV5SimpanTarif:savePrice,bsV11TambahProgress:saveProgress,bsV22TambahAlbum:saveAlbum,bsV6SimpanPenjualan:saleDraft,bsV6PratinjauRekonsiliasi:recon,bsV8BatchSiap:recon,bsV8SahkanBatch:confirm,bsV9RiwayatPencairan:payoutHistory,bsV9CairkanTabungan:payout,bsV9PostingKasPenjualan:postingStatus};
+const methods={authAdminProvisionBatch:provisionMemberBatch,authAdminResetDefault:provisionSingleMember,bsV27BatalkanPengesahan:cancelConfirmedBatch,bsV22SetKategoriAlbum:updateAlbumCategory,bsV24UbahProgress:updateBankProgress,bsV20TambahMedia:saveMediaLink,bsV10CatatBiaya:saveExpense,bsV11TambahInventaris:saveInventory,bsV6BatalkanSetoran:cancelDeposit,bsV7BatalkanPenjualan:cancelSale,bsV5BuatSetoran:depositDraft,bsV5SimpanTarif:savePrice,bsV11TambahProgress:saveProgress,bsV22TambahAlbum:saveAlbum,bsV6SimpanPenjualan:saleDraft,bsV6PratinjauRekonsiliasi:recon,bsV8BatchSiap:recon,bsV8SahkanBatch:confirm,bsV9RiwayatPencairan:payoutHistory,bsV9CairkanTabungan:payout,bsV9PostingKasPenjualan:postingStatus};
 window.__f4BankDemoCall=(name,args=[])=>Object.hasOwn(methods,name)?methods[name](...args):previous(name,args);
 })();
