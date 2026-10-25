@@ -462,19 +462,19 @@ async function createBankInventory(request, env, who) {
   if(env.BANK_WRITE_ENABLED !== 'true' || env.BANK_INVENTORY_WRITE_ENABLED !== 'true')
     return err('Inventaris Bank Sampah belum diaktifkan.',503);
   let p;try{p=await body(request)}catch(e){return err(e.message,400)}
-  const key=String(p.requestKey||''),name=String(p.name||'').trim(),category=String(p.subcategory||'').trim(),location=String(p.location||'').trim(),photo=String(p.photoUrl||'').trim();
+  const key=String(p.requestKey||''),name=String(p.name||'').trim(),category=String(p.subcategory||'').trim(),location=String(p.location||'').trim(),photo=String(p.photoUrl||'').trim(),description=String(p.description||'').trim();
   const quantity=Number(p.quantity),unit=String(p.unit||'unit').trim();
   if(!/^[A-Za-z0-9_-]{12,100}$/.test(key)||name.length<3||name.length>160||category.length>100||location.length>100||
      !Number.isFinite(quantity)||quantity<=0||quantity>1e6||Math.round(quantity*1000)!==quantity*1000||unit.length<1||unit.length>40||
-     (photo&&!urlSafe(photo)))return err('Data inventaris, jumlah, satuan atau URL foto tidak valid.',400);
-  const hash=await sha(JSON.stringify({name,category,location,photo,quantity,unit}));
+     (photo&&!urlSafe(photo))||description.length>1500)return err('Data inventaris, jumlah, satuan atau URL foto tidak valid.',400);
+  const hash=await sha(JSON.stringify({name,category,location,photo,quantity,unit,description}));
   const previous=await one(env.DB,"SELECT target_id,source_fingerprint FROM migration_source_map WHERE source_system='api_v2' AND source_sheet='bank_inventory' AND source_row_key=? AND target_table='inventory'",[key]);
   if(previous)return previous.source_fingerprint===hash?ok({id:previous.target_id,duplicate:true}):err('requestKey sudah dipakai data inventaris lain.',409);
   const id='inventory:api:'+crypto.randomUUID();
   const stmts=[
     env.DB.prepare("INSERT INTO migration_source_map(source_system,source_sheet,source_row_key,target_table,target_id,source_fingerprint) VALUES('api_v2','bank_inventory',?,'inventory',?,?)").bind(key,id,hash),
     env.DB.prepare("INSERT INTO inventory(id,name,quantity,unit,category,location,condition,active) VALUES(?,?,?,?,'bank_sampah',?,?,1)")
-      .bind(id,name,quantity,unit,location||null,category?('Kategori: '+category):null),
+      .bind(id,name,quantity,unit,location||null,(category?'Kategori: '+category+'\n':'')+description||null),
     ...(photo?[env.DB.prepare("INSERT INTO inventory_external_media(inventory_id,external_url,source_system,source_sheet,source_row_key) VALUES(?,?,'api_v2','bank_inventory',?)").bind(id,photo,key)]:[]),
     env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'banksampah','record_inventory','inventory',?,?,?)")
       .bind('audit:'+id,who.id,id,'Tambah inventaris nonpembelian',JSON.stringify({quantity,unit,category,location}))
@@ -719,7 +719,7 @@ async function transferF4Content(request,env,who){
  if(source===dest){
   if(kind!=='inventory'||source!=='bank-sampah')return err('Gunakan penyimpanan editor biasa.',400);
   q.push(db.prepare("UPDATE inventory SET name=?,quantity=?,unit=?,location=?,condition=? WHERE id=? AND category='bank_sampah' AND active=1")
-   .bind(name,qty,unit,location||null,desc||('Kategori: '+cat),id));
+   .bind(name,qty,unit,location||null,(cat?'Kategori: '+cat+'\n':'')+desc,id));
   if(url){
    const media=await one(db,'SELECT inventory_id FROM inventory_external_media WHERE inventory_id=? LIMIT 1',[id]);
    q.push(media?db.prepare('UPDATE inventory_external_media SET external_url=? WHERE inventory_id=?').bind(url,id):
@@ -758,7 +758,7 @@ async function transferF4Content(request,env,who){
   q.push(db.prepare("UPDATE albums SET category=?,visibility='privat' WHERE id=?").bind('Portal Utama: '+cat,id));
  }else if(source==='portal'){
   q.push(db.prepare("INSERT INTO inventory(id,name,quantity,unit,category,location,condition,active) VALUES(?,?,?,?,'bank_sampah',?,?,1)")
-   .bind(next,name,qty,unit,location||null,desc||('Kategori: '+cat)));
+   .bind(next,name,qty,unit,location||null,(cat?'Kategori: '+cat+'\n':'')+desc));
   if(url)q.push(db.prepare("INSERT INTO inventory_external_media(inventory_id,external_url,source_system,source_sheet,source_row_key) VALUES(?,?,'api_v2','portal_inventory_move',?)")
    .bind(next,url,'move_'+crypto.randomUUID()));
   q.push(db.prepare("UPDATE portal_inventory SET category=?,visibility='privat' WHERE id=?").bind('Pindah Bank Sampah: '+cat,id));
