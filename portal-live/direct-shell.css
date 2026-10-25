@@ -86,7 +86,23 @@ html.f4p-overlay-active #f4-direct-bar{visibility:hidden;pointer-events:none}
 #f4-direct-bar:has(+ #f4-direct-account-menu){z-index:200}
 @media(max-width:1023px){
  body.f4-account-open #f4-direct-bar #f4-mobile-menu{display:grid!important;visibility:visible!important;pointer-events:auto!important}
- body.f4-account-open #f4-direct-bar{z-index:500!important}
+ /* Hide shared navigation behind open photo/video/finance lightboxes.
+   These old modals have their own close buttons and may have z-index < 110. */
+body.f4-direct-portal:has(
+  #modal-event-detail:not(.hidden),
+  #modal-arisan:not(.hidden),
+  #modal-cetak-kas:not(.hidden),
+  #modal-keuangan:not(.hidden),
+  #modal-jersey:not(.hidden),
+  #modal-dokumentasi:not(.hidden),
+  #modal-gallery-grid:not(.hidden),
+  #lightbox-modal:not(.hidden),
+  #modal-saran:not(.hidden)
+) #f4-direct-sidebar,
+html.f4p-overlay-active #f4-direct-sidebar{
+ visibility:hidden!important;pointer-events:none!important
+}
+body.f4-account-open #f4-direct-bar{z-index:500!important}
 }
 @media(min-width:1024px){
  body.f4-direct-bank #f4-direct-bar{left:244px}
