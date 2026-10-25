@@ -46,7 +46,8 @@ body.f4-direct-portal #f4-unified-account,body.f4-direct-bank #f4-unified-accoun
 body.f4-account-open #f4-direct-bar{z-index:500}
 body.f4-account-open #f4-direct-sidebar{display:none!important}
 body.f4-direct-portal:has([role=dialog]:not([hidden]):not(.hidden)) #f4-direct-bar,
-body.f4-direct-bank:has(.v21-modal:not(.hidden)) #f4-direct-bar{visibility:hidden;pointer-events:none}
+body.f4-direct-bank:has(.v21-modal:not(.hidden)) #f4-direct-bar,
+html.f4p-overlay-active #f4-direct-bar{visibility:hidden;pointer-events:none}
 @media(max-width:1023px){
  #f4-direct-sidebar{transform:translateX(-103%);transition:transform .2s;box-shadow:10px 0 25px #1c304016}
  #f4-direct-sidebar.f4-open{transform:translateX(0)}
