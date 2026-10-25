@@ -517,6 +517,9 @@ try:
             from bank_local_login_integration import verify
             result["real_password_login_checks"]=verify(files[0],base,assert_step)
             save()
+            from bank_production_readonly_gate import verify as verify_production
+            result["production_readonly_gate"]=verify_production(assert_step)
+            save()
 
     finally:
         process.terminate()
