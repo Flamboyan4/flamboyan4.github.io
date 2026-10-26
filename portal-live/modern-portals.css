@@ -497,3 +497,37 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
  #f4-account-page .f4-compact-super-card .f4-icon-action .f4-action-symbol{display:grid!important;place-items:center!important}
  #f4-account-page .f4-compact-super-card .f4-card-detail-toggle svg{width:19px;height:19px}
 }
+
+@media screen and (max-width:760px){
+ #f4-account-page .sa-controls button.f4-icon-action,
+ #f4-account-page .sa-account-actions button.f4-icon-action,
+ #f4-account-page .f4-admin-controls button.f4-icon-action{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  width:40px!important;min-width:40px!important;max-width:40px!important;
+  height:40px!important;min-height:40px!important;max-height:40px!important;
+  flex:0 0 40px!important;padding:0!important;border-radius:11px!important
+ }
+ #f4-account-page .sa-controls .f4-icon-action .f4-action-label,
+ #f4-account-page .sa-account-actions .f4-icon-action .f4-action-label,
+ #f4-account-page .f4-admin-controls .f4-icon-action .f4-action-label{display:none!important}
+ #f4-account-page .sa-controls .f4-icon-action .f4-action-symbol,
+ #f4-account-page .sa-account-actions .f4-icon-action .f4-action-symbol,
+ #f4-account-page .f4-admin-controls .f4-icon-action .f4-action-symbol{display:grid!important;place-items:center!important}
+ #f4-account-page .sa-resident-controls{
+  display:flex!important;flex-wrap:wrap!important;gap:9px!important;align-items:center!important
+ }
+ #f4-account-page .sa-resident-controls input{
+  flex:1 1 100%!important;max-width:100%!important;min-width:0!important
+ }
+ #f4-account-page .sa-resident-controls button.f4-icon-action{
+  flex:0 0 40px!important;width:40px!important;min-width:40px!important;max-width:40px!important
+ }
+}
+@media screen and (min-width:761px),print{
+ #f4-account-page .sa-controls button.f4-icon-action .f4-action-symbol,
+ #f4-account-page .sa-account-actions button.f4-icon-action .f4-action-symbol,
+ #f4-account-page .f4-admin-controls button.f4-icon-action .f4-action-symbol{display:none!important}
+ #f4-account-page .sa-controls button.f4-icon-action .f4-action-label,
+ #f4-account-page .sa-account-actions button.f4-icon-action .f4-action-label,
+ #f4-account-page .f4-admin-controls button.f4-icon-action .f4-action-label{display:inline!important}
+}
