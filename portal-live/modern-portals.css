@@ -717,3 +717,36 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
  }
 }
 @media screen and (min-width:761px){#v24ProgressOverlay .f4-control-trigger{display:none!important}}
+
+/* Picker coverage for every native input in the two admin portals, including body-level modals. */
+@media screen and (max-width:760px){
+ body.f4-direct-bank select.f4-modern-native-hidden,
+ body.f4-direct-bank input.f4-modern-native-hidden,
+ body.f4-direct-superadmin select.f4-modern-native-hidden,
+ body.f4-direct-superadmin input.f4-modern-native-hidden,
+ body:has(#dashboardView) select.f4-modern-native-hidden,
+ body:has(#f4-account-page) select.f4-modern-native-hidden,
+ body:has(#dashboardView) input.f4-modern-native-hidden,
+ body:has(#f4-account-page) input.f4-modern-native-hidden{
+  position:absolute!important;clip-path:inset(50%)!important;clip:rect(0 0 0 0)!important;
+  width:1px!important;height:1px!important;min-width:1px!important;min-height:1px!important;
+  margin:0!important;padding:0!important;opacity:0!important;border:0!important;
+  pointer-events:none!important
+ }
+ body.f4-direct-bank .f4-control-trigger,
+ body.f4-direct-superadmin .f4-control-trigger,
+ body:has(#dashboardView) .f4-control-trigger,
+ body:has(#f4-account-page) .f4-control-trigger{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  min-height:44px!important;text-align:left!important;padding:10px 13px!important;
+  border:1px solid #dfe7e4!important;background:white!important;border-radius:11px!important;
+  color:inherit!important;font:550 14px/1.4 system-ui,sans-serif!important
+ }
+}
+@media screen and (min-width:761px){
+ body.f4-direct-bank .f4-control-trigger,body.f4-direct-superadmin .f4-control-trigger,
+ body:has(#dashboardView) .f4-control-trigger,body:has(#f4-account-page) .f4-control-trigger{
+  display:none!important
+ }
+}
