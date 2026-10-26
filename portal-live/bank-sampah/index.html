@@ -1701,7 +1701,9 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
       const list=document.createElement('div');list.id='v16NavList';list.className='v16-nav-list';nav.append(label,list);brand.after(nav);
     }
     const list=$('v16NavList');list.replaceChildren();
-    v16Groups.filter(g=>profile?.peran==='Admin'?g.admin:g.member).forEach(g=>{
+    v16Groups.filter(g=>profile?.peran==='Admin'?g.admin:g.member).map(g=>
+      g.id==='program'&&document.body.dataset.f4BankRole==='superadmin'
+       ?{...g,label:'Dokumentasi & Inventaris',tabs:g.tabs.filter(t=>t[0]!=='kegiatan')} : g).forEach(g=>{
       const b=document.createElement('button');b.type='button';b.className='v16-item';b.dataset.group=g.id;b.append(v16Icon(g.icon),document.createTextNode(g.label));
       b.onclick=()=>{if(g.id==='public')v11ShowPublic();else goPage(g.tabs[0][0]);};list.appendChild(b);
     });
@@ -1715,7 +1717,9 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   }
   function v16Sync(page){
     const tabs=$('v16Tabs');if(!tabs||!profile)return;
-    const available=v16Groups.filter(g=>profile.peran==='Admin'?g.admin:g.member);
+    const available=v16Groups.filter(g=>profile.peran==='Admin'?g.admin:g.member).map(g=>
+      g.id==='program'&&document.body.dataset.f4BankRole==='superadmin'
+      ?{...g,label:'Dokumentasi & Inventaris',tabs:g.tabs.filter(t=>t[0]!=='kegiatan')}:g);
     const group=available.find(g=>g.tabs.some(t=>t[0]===page));
     document.querySelectorAll('#v16NavList .v16-item').forEach(b=>b.classList.toggle('active',!!group&&b.dataset.group===group.id));
     tabs.replaceChildren();
@@ -2856,6 +2860,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   function activate(role,account){
     const matching=profile&&currentRole===role;
     currentRole=role||'public';identity=account||{};
+    document.body.dataset.f4BankRole=currentRole;
     syncAccountTabs();
     if(matching&&currentRole!=='public'){
       syncReturnButton();
@@ -2884,7 +2889,8 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   }
   function openAdmin(section){
     const allowed=['dashboard','setoran','riwayat','penjualan','riwayatJual','rekonsiliasi','pengesahan','tabungan','biaya','laporan','kegiatan','dokumentasi','inventaris','master','admin','progress'];
-    const target=allowed.includes(section)?section:'dashboard';
+    const target=currentRole==='superadmin'&&section==='kegiatan'?'dokumentasi':
+      allowed.includes(section)?section:'dashboard';
     // Pesan bisa tiba sebelum pesan login/role; jangan hilangkan pilihan menu.
     if(currentRole==='public'){pendingSection=target;return;}
     if(!['admin','superadmin'].includes(currentRole))return;
