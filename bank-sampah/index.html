@@ -1022,9 +1022,11 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
    transaksi:rows.length,periode:month||'semua',catatan:'Riwayat arus kas, bukan saldo akhir'};
  };
  const adminReport=async(_token,period='',includeCanceled=false)=>{
-  const [deposits,sales,expenses,cash,ledger]=await Promise.all([
+  const [deposits,sales,expenses,cash,ledger,members]=await Promise.all([
     adminDeposits(),adminSales(),adminExpenses(),adminCash(),
-    adminRows('ledger',{requireComplete:true})]);
+    adminRows('ledger',{requireComplete:true}),adminMembers()]);
+   const names=new Map(members.map(x=>[String(x.wargaId||''),x.nama]));
+   const wargaName=id=>names.get(String(id||'').replace(/^member:/,''))||'Nama warga belum tersedia';
   const month=String(period||'').match(/^\d{4}-\d{2}$/)?.[0]||'';
   const scope=rows=>rows.filter(x=>!month||String(x.tanggal||'').startsWith(month));
   // Setoran estimasi dan penjualan draft bukan hak tabungan atau kas yang disahkan.
@@ -1039,7 +1041,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   const mutasi=filteredLedger.map(x=>{
     const kredit=['kredit','koreksi_kredit'].includes(x.kind)?number(x.amount_rp):0;
     const debit=['pencairan','koreksi_debit'].includes(x.kind)?number(x.amount_rp):0;
-    return {id:x.id,tanggal:x.transaction_on,warga:String(x.member_id||'').replace(/^member:/,''),
+    return {id:x.id,tanggal:x.transaction_on,warga:wargaName(x.member_id),
       jenis:x.kind,kredit,debit};
   });
   return {
@@ -1051,7 +1053,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
      tabunganDicairkan:mutasi.filter(x=>x.jenis==='pencairan').reduce((n,x)=>n+x.debit,0),
      biaya:paidExpenses.reduce((n,x)=>n+x.nominal,0),
      saldoKasKini:activeCash.reduce((n,x)=>n+x.masuk-x.keluar,0)},
-    setoran:depositRows.map(x=>({id:x.id,tanggal:x.tanggal,warga:x.wargaId,berat:x.berat,nilai:x.estimasi,status:x.status})),
+    setoran:depositRows.map(x=>({id:x.id,tanggal:x.tanggal,warga:x.namaWarga||wargaName(x.wargaId),berat:x.berat,nilai:x.estimasi,status:x.status})),
     penjualan:saleRows.map(x=>({id:x.id,tanggal:x.tanggal,batch:x.batchId,lapak:x.lapak,bruto:x.bruto,diterima:x.diterima,disahkan:x.status==='Terkonfirmasi',status:x.status})),
     pengeluaran:expenseRows.map(x=>({id:x.id,tanggal:x.tanggal,jenis:x.jenis,keterangan:x.keterangan,pos:x.pos,nominal:x.nominal,status:x.status})),
     mutasi
@@ -1271,7 +1273,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   async function v10LoadBiaya(){if(!v10Nonce)v10Nonce='N'+Date.now().toString(36)+Math.random().toString(36).slice(2,12);$('v10Date').value=$('v10Date').value||new Date().toISOString().slice(0,10);v10TypeChange();try{const [budget,history]=await Promise.all([call('bsV10KasPosAdmin',token),call('bsV10PengeluaranAdmin',token)]);const target=$('v10Budget');target.replaceChildren(metric('Kas gabungan',rupiah(budget.kasGabungan)),...budget.pos.map(x=>metric('Sisa '+x.nama,rupiah(x.tersedia))));const h=$('v10History');h.replaceChildren(...history.map(x=>{const b=document.createElement('div');b.className='stat';b.style.marginBottom='9px';const title=document.createElement('strong');title.textContent=x.id+' • '+x.kategori+' • '+rupiah(x.nominal);const info=document.createElement('small');info.textContent=[x.tanggal,x.keterangan,x.pos,x.status,x.inventarisId?'Inventaris '+x.inventarisId:''].filter(Boolean).join(' • ');b.append(title,info);return b}));if(!history.length)h.textContent='Belum ada pembelian atau pengeluaran.';}catch(e){$('v10History').textContent='Gagal memuat: '+(e.message||e);}}
   async function v10SaveExpense(e){e.preventDefault();const nominal=Math.round(Number($('v10Qty').value)*Number($('v10Price').value));if(!(nominal>0)){note('v10ExpenseNotice','Isi jumlah dan harga terlebih dahulu.',true);return;}if(!confirm('Apakah biaya '+$('v10Type').value+' '+rupiah(nominal)+' SUDAH DIBAYAR? Transaksi akan mengurangi kas dan anggaran pos.'))return;busy(e.target,true);note('v10ExpenseNotice','Menyimpan biaya...');try{const r=await call('bsV10CatatBiaya',token,{nonce:v10Nonce,tanggal:$('v10Date').value,jenis:$('v10Type').value,pos:$('v10Position').value,keterangan:$('v10Description').value,jumlah:Number($('v10Qty').value),hargaSatuan:Number($('v10Price').value),satuan:$('v10Unit').value,toko:$('v10Vendor').value,inventaris:$('v10Inventory').checked,bukti:$('v10Proof').value,catatan:$('v10Notes').value});v10Nonce='';e.target.reset();v10Calc();await v10LoadBiaya();note('v10ExpenseNotice',r.id+' tercatat: '+rupiah(r.nominal)+(r.inventarisId?' • inventaris '+r.inventarisId:''));}catch(err){note('v10ExpenseNotice','Gagal: '+(err.message||err)+'. Jika ada Diproses, jangan ulangi sebelum audit.',true);}finally{busy(e.target,false);}}
   async function v10LoadReport(){const tokenLoading=F4Loading.begin('v10ReportNotice','Memuat laporan Bank Sampah…');try{v10ReportData=await call('bsV10LaporanAdmin',token,$('v10Month').value);v10RenderReport();F4Loading.success('v10ReportNotice',tokenLoading);}catch(e){F4Loading.error('v10ReportNotice','Gagal: '+(e.message||e),tokenLoading);}}
-  const v10Specs={setoran:{title:'Setoran warga',fields:[['id','ID'],['tanggal','Tanggal'],['warga','Warga ID'],['berat','Berat kg'],['nilai','Estimasi Rp'],['status','Status']]},penjualan:{title:'Penjualan lapak',fields:[['id','ID'],['tanggal','Tanggal'],['batch','Batch'],['lapak','Lapak'],['bruto','Bruto Rp'],['diterima','Diterima Rp'],['disahkan','Disahkan']]},pengeluaran:{title:'Pembelian & pengeluaran',fields:[['id','ID'],['tanggal','Tanggal'],['jenis','Jenis'],['keterangan','Keterangan'],['pos','Pos'],['nominal','Nominal Rp'],['status','Status']]},mutasi:{title:'Mutasi tabungan',fields:[['id','ID'],['tanggal','Tanggal'],['warga','Warga ID'],['jenis','Jenis'],['kredit','Kredit Rp'],['debit','Debit Rp']]}};
+  const v10Specs={setoran:{title:'Setoran warga',fields:[['warga','Nama warga'],['tanggal','Tanggal'],['berat','Berat kg'],['nilai','Estimasi Rp'],['status','Status']]},penjualan:{title:'Penjualan lapak',fields:[['lapak','Lapak'],['tanggal','Tanggal'],['bruto','Bruto Rp'],['diterima','Diterima Rp'],['disahkan','Disahkan']]},pengeluaran:{title:'Pembelian & pengeluaran',fields:[['jenis','Jenis'],['tanggal','Tanggal'],['keterangan','Keterangan'],['pos','Pos'],['nominal','Nominal Rp'],['status','Status']]},mutasi:{title:'Mutasi tabungan',fields:[['warga','Nama warga'],['tanggal','Tanggal'],['jenis','Jenis'],['kredit','Kredit Rp'],['debit','Debit Rp']]}};
   function v10SelectedSections(){if(!v10ReportData)return[];const type=$('v10ReportType').value;return Object.entries(v10Specs).filter(([key])=>type==='semua'||key===type).map(([key,spec])=>({key,spec,rows:v10ReportData[key]||[]}));}
   function v10MakeTable(spec,rows){const table=document.createElement('table'),head=document.createElement('tr'),thead=document.createElement('thead'),body=document.createElement('tbody');spec.fields.forEach(([,label])=>{const th=document.createElement('th');th.textContent=label;head.appendChild(th)});thead.appendChild(head);table.appendChild(thead);rows.forEach(record=>{const tr=document.createElement('tr');spec.fields.forEach(([key,label])=>{const td=document.createElement('td');td.dataset.label=label;td.textContent=typeof record[key]==='boolean'?(record[key]?'Ya':'Tidak'):String(record[key]??'');tr.appendChild(td)});body.appendChild(tr)});table.appendChild(body);return table;}
   function v10RenderReport(){if(!v10ReportData)return;const r=v10ReportData.ringkasan;$('v10ReportSummary').replaceChildren(metric('Setoran',r.jumlahSetoran),metric('Penjualan',r.jumlahPenjualan),metric('Estimasi warga',rupiah(r.estimasi)),metric('Diterima lapak',rupiah(r.diterima)),metric('Hak warga dikredit',rupiah(r.hakWargaDikredit)),metric('Tabungan dicairkan',rupiah(r.tabunganDicairkan)),metric('Biaya dibayar',rupiah(r.biaya)),metric('Kas saat laporan',rupiah(r.saldoKasKini)));const area=$('v10ReportTable');area.replaceChildren();v10SelectedSections().forEach(({spec,rows})=>{const title=document.createElement('h2');title.textContent=spec.title+' ('+rows.length+')';title.style.fontSize='16px';area.append(title,v10MakeTable(spec,rows));});}
@@ -1877,10 +1879,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     const card=v18OldHistoryCard(r,type);
     if(type==='setoran'){
       const label=card.querySelector('.toolbar strong');
-      if(label){label.classList.add('v18-history-title');label.textContent=r.namaWarga?(r.namaWarga+' • '+(r.rumahWarga||'Rumah belum diisi')):('Anggota '+r.wargaId);}
-      const id=document.createElement('div');id.className='v18-history-id';
-      id.textContent='Referensi: '+r.id+' / '+r.wargaId;
-      card.querySelector('.toolbar')?.after(id);
+      if(label){label.classList.add('v18-history-title');label.textContent=r.namaWarga?(r.namaWarga+(r.rumahWarga?' • '+r.rumahWarga:'')):'Nama warga belum tersedia';}
     }
     return card;
   };
