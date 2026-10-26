@@ -703,9 +703,8 @@ function showBankForm(kind,record){
   controls.status.value=previous;
   add('nextStep','Agenda berikutnya','text',record?.next_step||'');
   add('photoUrl','Tautan foto HTTPS (opsional)','url',record?.photoUrl||'');
-  add('publicVisible','Tampilkan di portal publik','select');
-  controls.publicVisible.add(new Option('Ya / publik','1'),new Option('Tidak / privat','0'));
-  controls.publicVisible.value=record?.public_visible===0?'0':'1';
+  add('publicVisible','Tampilkan di portal publik','checkbox');
+  controls.publicVisible.checked=record?.public_visible!==0;
  }else if(kind==='bank_albums'){
   add('title','Judul album','text',record?.title||'',true);
   add('eventOn','Tanggal kegiatan','date',record?.event_on||'');
@@ -741,7 +740,7 @@ function showBankForm(kind,record){
   try{
    if(kind==='bank_progress'){
     const p={date:get('date'),title:get('title'),stage:get('stage'),description:get('description'),
-      status:get('status'),nextStep:get('nextStep'),photoUrl:get('photoUrl'),publicVisible:get('publicVisible')==='1'};
+      status:get('status'),nextStep:get('nextStep'),photoUrl:get('photoUrl'),publicVisible:controls.publicVisible.checked};
     if(record)p.id=record.id;
     await send(bankApi+(record?'progress/edit':'progress'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});
    }else if(kind==='bank_albums'&&record){
