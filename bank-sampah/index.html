@@ -767,7 +767,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   const knownFolder=!folder&&/gorol|drop point/i.test(title)&&String(date).slice(0,10)==='2026-10-11'?originalGorol:'';
   return {id:item.id||item.albumId,judul:title,tanggal:date,
    deskripsi:description.replace(/\n?Tautan folder:\s*https:\/\/\S+/ig,'').trim(),
-   sampul:item.sampul||item.coverUrl||item.imageUrl||(knownFolder?'https://drive.google.com/file/d/1kLKiFhwf6meUluLhdu4hlkjpXo_w7W6T/view':''),
+   sampul:(knownFolder?'https://drive.google.com/file/d/1kLKiFhwf6meUluLhdu4hlkjpXo_w7W6T/view':'')||item.sampul||item.coverUrl||item.imageUrl||'',
    kategori:String(item.kategori||item.category||'').replace(/^Bank Sampah\s*[:/]\s*/i,''),
    sourceFolder:folder||knownFolder,media:[]};
  });
