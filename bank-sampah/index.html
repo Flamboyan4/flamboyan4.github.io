@@ -677,7 +677,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
  body.v17-dashboard #dashboardView>.grid>.section{grid-column:2!important;min-width:0!important}
 }
 </style>
-<link rel="stylesheet" href="/portal-live/direct-shell.css?v=confirm-spacing-favicon-20261026"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><link rel="icon" type="image/png" href="/favicon.png?v=logo-f4-20261026">
+<link rel="stylesheet" href="/portal-live/direct-shell.css?v=modal-gallery-drive-20261026"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><link rel="icon" type="image/png" href="/favicon.png?v=logo-f4-20261026">
 </head>
 <body>
 <div class="shell">
@@ -767,7 +767,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   const knownFolder=!folder&&/gorol|drop point/i.test(title)&&String(date).slice(0,10)==='2026-10-11'?originalGorol:'';
   return {id:item.id||item.albumId,judul:title,tanggal:date,
    deskripsi:description.replace(/\n?Tautan folder:\s*https:\/\/\S+/ig,'').trim(),
-   sampul:item.sampul||item.coverUrl||item.imageUrl||(knownFolder?'https://drive.google.com/file/d/1DcqPvQpQx_nQEPsCXlbJz-YETZ0iypep/view':''),
+   sampul:item.sampul||item.coverUrl||item.imageUrl||(knownFolder?'https://drive.google.com/file/d/1kLKiFhwf6meUluLhdu4hlkjpXo_w7W6T/view':''),
    kategori:String(item.kategori||item.category||'').replace(/^Bank Sampah\s*[:/]\s*/i,''),
    sourceFolder:folder||knownFolder,media:[]};
  });
@@ -917,7 +917,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   const media=onlyArray(r.media).map(x=>{
     const url=x.mediaUrl?(x.mediaUrl.startsWith('/')?API+x.mediaUrl:x.mediaUrl):(x.external_url||'');
     const jenis=x.media_type==='video'?'Video':'Foto';
-    return {id:x.id,nama:x.caption||'',jenis,url,thumb:jenis==='Foto'?url:''};
+    return {id:x.id,nama:x.caption||'',jenis,url,src:url,thumb:jenis==='Foto'?url:''};
   });
   return {id,judul:r.album?.title||'',tanggal:r.album?.event_on||'',
     deskripsi:r.album?.description||'',media,catatan:media.length?'':'Album belum memiliki media aktif.'};
@@ -2028,15 +2028,92 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     if(!v21Albums.length)grid.textContent='Belum ada album publik.';
     v21ShowModal('Arsip Dokumentasi Kegiatan','Pilih album untuk melihat foto dan video',grid);
   }
+  // Folder Google Drive adalah penyimpanan foto/video. D1 hanya menyimpan
+  // metadata albumnya. Gunakan pembaca folder publik yang juga dipakai Portal
+  // Utama; untuk Gorol 11 Oktober sediakan daftar cadangan 30 media terverifikasi.
+  const v21DriveFolderFeed='https://script.google.com/macros/s/AKfycbyes6A9_9EQ8vIYtf75cGgC9sKAZBvMewxEhYRSThjMAlBYqnkmKpa3yoPOtN0FEG92Zg/exec';
+  const v21DriveFolderCache=new Map();
+  function v21FolderId(url){
+    return String(url||'').match(/(?:\/folders\/|[?&]folderId=)([A-Za-z0-9_-]{12,})/)?.[1]||'';
+  }
+  function v21CleanAlbumDescription(text){
+    return String(text||'').replace(/(?:^|\n)\s*Tautan folder:\s*https?:\/\/[^\s]+/ig,'').trim();
+  }
+  function v21DriveMedia(rows){
+    return (Array.isArray(rows)?rows:[]).map((item,index)=>{
+      const row=typeof item==='object'&&item!==null?item:{url:String(item||'')};
+      const raw=String(row.url||row.link||row.src||row.downloadUrl||'');
+      const id=String(row.id||row.fileId||'')||raw.match(/(?:\/d\/|[?&]id=)([A-Za-z0-9_-]{12,})/)?.[1]||'';
+      const name=String(row.name||row.title||('Media '+(index+1)));
+      const mime=String(row.mime_type||row.mimeType||row.type||'').toLowerCase();
+      const video=/video/.test(mime)||/\.(mp4|mov|mkv|avi|webm)(?:$|\?)/i.test(name);
+      const url=/^https:\/\//i.test(raw)?raw:id?'https://drive.google.com/file/d/'+id+'/view':'';
+      if(!url)return null;
+      const thumb=id?'https://drive.google.com/thumbnail?id='+encodeURIComponent(id)+'&sz=w1200':(!video?url:'');
+      return {id:id||url,nama:name,jenis:video?'Video':'Foto',src:url,thumb};
+    }).filter(Boolean);
+  }
+  async function v21ReadDriveFolder(album){
+    const id=v21FolderId(album.sourceFolder);
+    if(!id)throw Error('Folder album belum ditentukan.');
+    if(v21DriveFolderCache.has(id))return v21DriveFolderCache.get(id);
+    const load=(async()=>{
+      let verified=[];
+      if(id==='1ywp2v8rUH-oAGcM91PQyVrO7Wx9iLdCA'){
+        try{
+          const response=await fetch('/assets/data/bank-gorol-20261011.json?v=20261026',{cache:'no-store'});
+          if(response.ok){
+            const manifest=await response.json();
+            if(manifest.folderId===id)verified=v21DriveMedia(manifest.media.map(x=>({
+              id:x.id,name:x.nama,type:x.jenis==='Video'?'video':'image',url:x.src
+            })));
+          }
+        }catch(error){console.warn('Cadangan metadata album tidak terbaca:',error)}
+      }
+      const sorted=items=>[...items].sort((a,b)=>String(a.nama).localeCompare(String(b.nama),'id',{numeric:true}));
+      const readLive=async()=>{
+        const controller=new AbortController();
+        const timer=setTimeout(()=>controller.abort(),5000);
+        try{
+          const response=await fetch(v21DriveFolderFeed+'?folderId='+encodeURIComponent(id),
+            {cache:'no-store',signal:controller.signal});
+          if(!response.ok)throw Error('HTTP '+response.status);
+          const data=await response.json();
+          const files=Array.isArray(data)?data:Array.isArray(data.files)?data.files:Array.isArray(data.images)?data.images:[];
+          return v21DriveMedia(files);
+        }catch(error){
+          if(!verified.length)console.warn('Daftar foto/video Google Drive belum dapat dibaca:',error);
+          return [];
+        }finally{clearTimeout(timer)}
+      };
+      if(verified.length){
+        // Display verified Drive media immediately. Refresh in the background
+        // so newly added Drive items appear next time the album is opened.
+        readLive().then(latest=>{
+          if(!latest.length)return;
+          const merged=new Map(verified.map(x=>[x.id,x]));
+          for(const x of latest)merged.set(x.id,x);
+          v21DriveFolderCache.set(id,Promise.resolve(sorted([...merged.values()])));
+        }).catch(()=>{});
+        return sorted(verified);
+      }
+      return sorted(await readLive());
+    })();
+    v21DriveFolderCache.set(id,load);
+    try{return await load}catch(error){v21DriveFolderCache.delete(id);throw error}
+  }
   async function v21LegacyAlbum(album){
-    const base={judul:album.judul,tanggal:album.tanggal,deskripsi:album.deskripsi,media:[],catatan:''};
-    // Album lama dibaca dari Cloudflare D1; tidak lagi memanggil Apps Script.
+    const base={judul:album.judul,tanggal:album.tanggal,
+      deskripsi:v21CleanAlbumDescription(album.deskripsi),media:[],catatan:''};
+    const fromDrive=await v21ReadDriveFolder(album);
+    if(fromDrive.length)return {...base,media:fromDrive,catatan:''};
+    // Public D1 linked media is a fallback when a folder listing isn't usable.
     try{
       const saved=await call('bsV21IsiAlbumPublik',album.id);
-      if(Array.isArray(saved?.media)&&saved.media.length)return {...base,...saved};
-      return {...base,catatan:album.sourceFolder?'Foto/video berada di Google Drive. Buka folder melalui tautan di bawah.':'Media belum tersedia pada album ini.'};
-    }catch(error){
-      return {...base,catatan:'Album belum dapat dimuat.'};
+      const media=Array.isArray(saved?.media)?saved.media:[];
+      return {...base,media,catatan:media.length?'':'Foto dan video folder belum dapat dimuat. Periksa akses publik folder Drive.'};
+    }catch{
+      return {...base,catatan:'Foto dan video belum dapat dimuat. Periksa akses publik folder Drive.'};
     }
   }
   async function v21OpenAlbum(id){
@@ -2047,13 +2124,13 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
       v21OpenedAlbum=data;const wrap=v21Node('div');const back=v21Node('button','v21-back');back.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>';back.type='button';back.title='Kembali ke semua album';back.setAttribute('aria-label','Kembali ke semua album');back.onclick=v21ShowAlbumArchive;wrap.appendChild(back);
       const grid=v21Node('div','v21-gallery-grid');(data.media||[]).forEach((m,i)=>{
         const tile=v21Node('button','v21-gallery-tile');tile.type='button';tile.title=m.nama||m.jenis;
-        if(m.thumb)tile.appendChild(v21Photo(m.thumb,m.nama));else tile.appendChild(v21Node('span','','🎬'));
+        if(m.thumb)tile.appendChild(v21Photo(m.thumb,m.nama));else tile.appendChild(v21Node('span','v21-play','▶'));
         if(m.jenis==='Video')tile.appendChild(v21Node('span','v21-play','▶'));
         tile.onclick=()=>v21OpenLightbox(i);grid.appendChild(tile);
       });
       if(!grid.childElementCount)grid.textContent=data.catatan||'Album belum memiliki foto/video yang dapat ditampilkan.';
       wrap.appendChild(grid);if(data.catatan)wrap.appendChild(v21Node('p','v17-subtle',data.catatan));
-      if(a.sourceFolder){const link=v21Node('a','v21-back','Buka folder Google Drive asli');link.href=a.sourceFolder;link.target='_blank';link.rel='noopener noreferrer';wrap.appendChild(link);}
+      // Album is presented as native gallery; do not expose raw Drive URL.
       v21ShowModal(data.judul,data.tanggal+' • '+(data.deskripsi||''),wrap);
     }catch(e){v21ShowModal(a.judul,'',v21Node('p','', 'Galeri belum dapat dimuat: '+(e.message||e)));}
   }

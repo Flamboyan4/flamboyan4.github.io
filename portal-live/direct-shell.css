@@ -176,3 +176,33 @@ body.f4-direct-bank #v11Public #v18PublicContent .v17-public-main{padding-top:14
  body.f4-direct-bank #dashboardView .section,
  body.f4-direct-bank #v11Public #v18PublicContent .v17-public-main{padding-top:0!important}
 }
+
+
+/* Modal layer repair: desktop sidebar must NOT float over Jersey, photos,
+   payment details, suggestions, or lightboxes. Popup occupies the viewport. */
+body.f4-direct-portal:has(
+ #modal-event-detail:not(.hidden),
+ #modal-arisan:not(.hidden),
+ #modal-cetak-kas:not(.hidden),
+ #modal-keuangan:not(.hidden),
+ #modal-jersey:not(.hidden),
+ #modal-dokumentasi:not(.hidden),
+ #modal-gallery-grid:not(.hidden),
+ #lightbox-modal:not(.hidden),
+ #modal-saran:not(.hidden)
+) #f4-direct-sidebar,
+body.f4-direct-simple:has(.fixed[role="dialog"]:not(.hidden)) #f4-direct-sidebar,
+html.f4p-overlay-active #f4-direct-sidebar {
+ visibility:hidden!important;
+ pointer-events:none!important;
+}
+body.f4-direct-portal:has(
+ #modal-jersey:not(.hidden),
+ #modal-gallery-grid:not(.hidden),
+ #lightbox-modal:not(.hidden),
+ #modal-dokumentasi:not(.hidden)
+) #f4-direct-sideback{display:none!important}
+/* Keep sidebar internally scrollable on short displays, without the
+   intrusive independent scrollbar next to the page. */
+#f4-direct-sidebar{scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
+#f4-direct-sidebar::-webkit-scrollbar{display:none;width:0;height:0}
