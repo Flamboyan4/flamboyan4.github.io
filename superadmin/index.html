@@ -432,14 +432,35 @@ window.f4RenderManagementSidebar=(origin)=>{
  const g=origin==='portal'?'content':origin==='bank'?'bank':origin==='book'?'masters':group;
  sidebar(g);
 };
+const f4SaNav={ready:false,restoring:false};
+function f4SaRememberRoute(replace=false){
+ if(!f4SaNav.ready||f4SaNav.restoring)return;
+ const route={group,kind:active};
+ const previous=history.state?.f4SaRoute;
+ if(previous?.group===route.group&&previous?.kind===route.kind)return;
+ const state={...history.state,f4SaDrawer:false,f4SaRoute:route};
+ history[replace?'replaceState':'pushState'](state,'','#sa-'+group+(active?'/'+active:''));
+}
+window.addEventListener('popstate',()=>{
+ const route=history.state?.f4SaRoute;
+ if(!f4SaNav.ready||!route||!groups.some(([id])=>id===route.group))return;
+ if(group===route.group&&(!route.kind||active===route.kind))return;
+ f4SaNav.restoring=true;
+ try{
+  saCloseDrawer(true);
+  open(route.group,false);
+  if(route.kind&&submenu[route.group]?.some(([id])=>id===route.kind)&&active!==route.kind)
+   openEditor(route.kind);
+ }finally{f4SaNav.restoring=false}
+});
 function open(name,push=true){
  if(role!=='superadmin'||!groups.some(([key])=>key===name))return;
- saCloseDrawer();
+ saCloseDrawer(true);
+ if(history.state?.f4SaDrawer)history.replaceState({...history.state,f4SaDrawer:false},'',location.href);
  window.f4CancelSuperadminEditor?.();
  active='';sidebar(name);
- if(push){const fragment='sa-'+name;window.parent!==window
-  ?window.parent.postMessage({type:'f4:superadmin-section',section:name},location.origin)
-  :history.replaceState(null,'','#'+fragment);}
+ if(push&&window.parent!==window)
+  window.parent.postMessage({type:'f4:superadmin-section',section:name},location.origin);
  if(name==='overview')overview();
  if(name==='accounts')accountsPage();
  if(name==='content'||name==='bank'||name==='masters'){
@@ -447,6 +468,7 @@ function open(name,push=true){
    return;
  }
  if(name==='audit')auditPage();
+ if(!submenu[name])f4SaRememberRoute();
 }
 function openEditor(kind){
  if(role!=='superadmin')return;
@@ -464,6 +486,7 @@ function openEditor(kind){
   const smooth=matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';
   main.scrollTo?.({top:0,behavior:smooth});
  }
+ f4SaRememberRoute();
 }
 window.f4SuperadminSwitchModule=openEditor;
 function overview(){
@@ -835,7 +858,7 @@ async function boot(){
   if(role!=='superadmin')throw Error('Hanya role Superadmin yang memiliki izin masuk. Silakan login dengan akun berwenang.');
   document.body.classList.add('role-superadmin');guard.hidden=true;root.hidden=false;
   const own=location.hash.replace(/^#sa-/,'');
-  let requested=own;
+  let requested=own.split('/')[0],initialModule=own.split('/')[1]||'';
   // Match the parent URL before first paint; do not paint Overview and then
   // immediately replace it with Content/Data Acuan (visible as a flash).
   if(window.parent!==window){
@@ -845,6 +868,9 @@ async function boot(){
    }catch{}
   }
   open(groups.some(x=>x[0]===requested)?requested:'overview',false);
+  if(initialModule&&submenu[group]?.some(([key])=>key===initialModule))openEditor(initialModule);
+  f4SaNav.ready=true;
+  history.replaceState({...history.state,f4SaDrawer:false,f4SaRoute:{group,kind:active}},'',location.href);
   if(window.parent!==window)window.parent.postMessage({type:'f4:ready',portal:'superadmin'},location.origin);
  }catch(e){guard.replaceChildren(el('h2','Akses Portal Superadmin ditolak'),el('p',safe(e)));guard.append(button('Kembali ke Portal Utama',()=>{
    if(window.parent!==window)window.parent.postMessage({type:'f4:go-portal',portal:'portal'},location.origin);
