@@ -531,3 +531,76 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
  #f4-account-page .sa-account-actions button.f4-icon-action .f4-action-label,
  #f4-account-page .f4-admin-controls button.f4-icon-action .f4-action-label{display:inline!important}
 }
+
+/* 2026-10-27: no-detail cards and documentation text/action collision fix. */
+@media screen and (max-width:760px){
+ #f4-account-page .f4-compact-super-card{
+  display:grid!important;grid-template-columns:minmax(0,1fr) 36px!important;
+  align-items:center!important;gap:8px!important;
+  min-width:0!important;overflow:hidden!important;padding:14px!important
+ }
+ #f4-account-page .f4-compact-super-card>div:first-child{
+  grid-column:1!important;grid-row:1!important;order:unset!important;
+  width:auto!important;min-width:0!important;max-width:100%!important;
+  flex:none!important;align-self:center!important
+ }
+ #f4-account-page .f4-compact-super-card>div:first-child strong{
+  display:block!important;min-width:0!important;width:100%!important;
+  max-width:100%!important;white-space:normal!important;
+  overflow-wrap:break-word!important;word-break:normal!important;
+  line-height:1.38!important;font-size:15px!important
+ }
+ #f4-account-page .f4-compact-super-card>.f4-card-detail-toggle{
+  grid-column:2!important;grid-row:1!important;order:unset!important;
+  justify-self:end!important;align-self:center!important;
+  width:36px!important;min-width:36px!important;height:36px!important;margin:0!important
+ }
+ #f4-account-page .f4-compact-super-card.f4-card-expanded>.f4-admin-action-set,
+ #f4-account-page .f4-compact-super-card.f4-card-no-detail>.f4-admin-action-set{
+  display:flex!important;visibility:visible!important;grid-column:1/-1!important;
+  grid-row:2!important;order:unset!important;width:100%!important;
+  min-width:0!important;max-width:100%!important;align-items:center!important;
+  flex-wrap:wrap!important;justify-content:flex-start!important;
+  gap:8px!important;margin:9px 0 0!important;padding:10px 0 0!important;
+  border-top:1px solid #e8edee!important
+ }
+ #f4-account-page .f4-compact-super-card:not(.f4-card-expanded):not(.f4-card-no-detail)>.f4-admin-action-set{
+  display:none!important
+ }
+ #f4-account-page .f4-compact-super-card .f4-admin-source-link{
+  display:inline-flex!important;align-items:center!important;max-width:100%!important;
+  min-width:0!important;overflow-wrap:anywhere!important;white-space:normal!important;
+  padding:7px 10px!important;line-height:1.4!important;font-size:12px!important;
+ }
+ #f4-account-page .f4-compact-super-card:not(.f4-card-expanded) small{
+  display:none!important
+ }
+ #f4-account-page .f4-compact-super-card.f4-card-expanded>div:first-child small{
+  display:block!important;width:100%!important;max-width:100%!important;
+  white-space:normal!important;overflow-wrap:anywhere!important;margin-top:8px!important;
+  line-height:1.5!important;font-size:12px!important
+ }
+ #f4-account-page .f4-compact-super-card.f4-card-no-detail>.f4-card-detail-toggle{display:none!important}
+ #f4-account-page .f4-compact-super-card.f4-card-no-detail>.f4-admin-action-set{grid-row:2!important}
+ #f4-account-page table.f4-mobile-card-table>tbody>tr.f4-compact-record.f4-card-no-detail>td.f4-card-action,
+ #dashboardView table.f4-mobile-card-table>tbody>tr.f4-compact-record.f4-card-no-detail>td.f4-card-action{
+  display:flex!important;visibility:visible!important;grid-column:1/-1!important;
+  align-items:center!important;flex-wrap:wrap!important;
+  padding-top:10px!important;margin-top:8px!important;border-top:1px solid #edf1f1!important
+ }
+ #f4-account-page table.f4-mobile-card-table>tbody>tr.f4-compact-record.f4-card-no-detail>td.f4-card-secondary,
+ #dashboardView table.f4-mobile-card-table>tbody>tr.f4-compact-record.f4-card-no-detail>td.f4-card-secondary{display:none!important}
+ /* Never iconify focal navigation/actions: labels are essential. */
+ #dashboardView #v14QuickAction,#dashboardView .v14-action,
+ #dashboardView #v9Sync,#dashboardView button.wide{
+  width:auto!important;max-width:100%!important;min-width:0!important;
+  padding:10px 16px!important;height:auto!important;min-height:42px!important;
+  white-space:normal!important;line-height:1.4!important
+ }
+ #dashboardView #v14QuickAction .f4-action-label,
+ #dashboardView #v9Sync .f4-action-label,
+ #dashboardView button.wide .f4-action-label{display:inline!important}
+ #dashboardView #v14QuickAction .f4-action-symbol,
+ #dashboardView #v9Sync .f4-action-symbol,
+ #dashboardView button.wide .f4-action-symbol{display:none!important}
+}
