@@ -700,3 +700,20 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
  border:1px solid #dce7e2!important;background:#f4f8f5!important;color:#247257!important;font-weight:700!important}
 .f4-control-footer button:last-child{background:#0b805c!important;color:white!important}
 .f4-direct-superadmin .f4-control-footer button:last-child{background:#6752b8!important}
+
+/* Date picker in the standalone Kegiatan edit dialog follows the same mobile control. */
+@media screen and (max-width:760px){
+ #v24ProgressOverlay .f4-modern-native-hidden{
+  position:absolute!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;
+  width:1px!important;height:1px!important;opacity:0!important;padding:0!important;margin:0!important;
+  pointer-events:none!important
+ }
+ #v24ProgressOverlay .f4-control-trigger{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+  width:100%!important;min-width:0!important;max-width:100%!important;min-height:44px!important;
+  padding:10px 14px!important;text-align:left!important;
+  background:#fff!important;border:1px solid #d7e8df!important;border-radius:11px!important;
+  font:550 14px/1.4 system-ui,sans-serif!important;color:#235642!important;
+ }
+}
+@media screen and (min-width:761px){#v24ProgressOverlay .f4-control-trigger{display:none!important}}
