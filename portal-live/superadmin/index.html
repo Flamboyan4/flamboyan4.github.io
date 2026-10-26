@@ -260,12 +260,13 @@ html.f4-sa-drawer-lock{overflow:hidden!important}
  width:39px;height:39px;padding:0;border:0;border-radius:10px;background:#e4f1fb;
  color:#27658e;font:700 22px/1 system-ui;cursor:pointer}
 @media(max-width:1023px){.f4-sa-standalone-menu{display:grid;place-items:center}}
-</style><link rel="stylesheet" href="../loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261027-cards-toggle">
+</style><link rel="stylesheet" href="../loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261027-compact3">
 </head>
 <body>
 <div id="guard" role="status"><h2>Memeriksa akses Superadmin…</h2><p>Portal ini hanya untuk akun dengan role Superadmin.</p></div>
 <div id="f4-account-page" hidden><aside aria-label="Navigasi Portal Superadmin"></aside><main><header class="f4-work-heading"><h2>Pusat Pengelolaan</h2><p>Memeriksa koneksi…</p></header></main></div>
 <div id="sa-toast" class="sa-toast" hidden></div>
+<script src="/portal-live/ui-dialog.js?v=20261027-dialog"></script>
 <script src="../loading-state.js?v=786606f"></script>
 <script>
 (()=>{
@@ -500,13 +501,13 @@ async function accountRequest(a,operation){
 }
 async function accountSingleAction(a,operation,control){
  const activation=operation==='activate',username=accountUser(a);
- if(!window.confirm((activation?'Aktifkan akun ':'Reset password akun ')+username+'? Password awal akan menjadi 1234'+(activation?'.':', dan semua sesi lama akan dikeluarkan.') ))return;
+ if(!await window.f4UiDialog.confirm((activation?'Aktifkan akun ':'Reset password akun ')+username+'? Password awal akan menjadi 1234'+(activation?'.':', dan semua sesi lama akan dikeluarkan.') ))return;
  control.disabled=true;
  try{
   const result=await accountRequest(a,operation);
-  window.alert((activation?'Akun aktif.':'Password direset.')+'\nUsername: '+(result.username||username)+'\nPassword awal: '+(result.passwordAwal||'1234')+'\nSampaikan secara pribadi kepada warga.');
+  await window.f4UiDialog.alert((activation?'Akun aktif.':'Password direset.')+'\nUsername: '+(result.username||username)+'\nPassword awal: '+(result.passwordAwal||'1234')+'\nSampaikan secara pribadi kepada warga.');
   accountsPage();
- }catch(e){window.alert('Perubahan akun gagal: '+safe(e));control.disabled=false}
+ }catch(e){await window.f4UiDialog.alert('Perubahan akun gagal: '+safe(e));control.disabled=false}
 }
 function accountsPage(){
  title('Akun & Hak Akses','Kelola identitas dan hak akses akun Flamboyan 4.');
@@ -517,13 +518,13 @@ function accountsPage(){
  const prepare=button('Siapkan semua akun',async()=>{
   const pending=accounts.filter(a=>a.role==='anggota'&&a.perluAktivasi===true);
   if(!pending.length)return;
-  if(!window.confirm('Aktifkan '+pending.length+' akun anggota yang belum aktif? Password awal setiap akun: 1234. Akun yang sudah aktif tidak berubah.'))return;
+  if(!await window.f4UiDialog.confirm('Aktifkan '+pending.length+' akun anggota yang belum aktif? Password awal setiap akun: 1234. Akun yang sudah aktif tidak berubah.'))return;
   prepare.disabled=true;
   let made=0;
   try{
    for(const a of pending){await accountRequest(a,'activate');made++}
-   window.alert(made+' akun berhasil diaktifkan. Berikan username dan password awal 1234 langsung kepada warga.');
-  }catch(error){window.alert(made+' akun berhasil diaktifkan sebelum proses berhenti: '+safe(error))}
+   await window.f4UiDialog.alert(made+' akun berhasil diaktifkan. Berikan username dan password awal 1234 langsung kepada warga.');
+  }catch(error){await window.f4UiDialog.alert(made+' akun berhasil diaktifkan sebelum proses berhenti: '+safe(error))}
   accountsPage();
  },'sa-action sa-action-primary');
  prepare.disabled=true;prepare.title='Memeriksa akun yang belum aktif';
@@ -775,4 +776,4 @@ boot();
 })();
 </script>
 <script src="../superadmin-editor.js?v=separate-areas-20261026"></script>
-<script defer src="/portal-live/mobile-cards.js?v=20261027-cards-toggle"></script></body></html>
+<script defer src="/portal-live/mobile-cards.js?v=20261027-compact3"></script></body></html>
