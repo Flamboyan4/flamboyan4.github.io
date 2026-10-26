@@ -217,7 +217,7 @@ function populate(){
 }
 function printJerseyReport(){
  if(active!=='jersey'||!Array.isArray(records)||!records.length){
-  alert('Belum ada pesanan Jersey untuk dicetak.');return;
+  window.f4UiDialog.alert('Belum ada pesanan Jersey untuk dicetak.');return;
  }
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const money=v=>'Rp '+Number(v||0).toLocaleString('id-ID');
@@ -278,7 +278,7 @@ function printJerseyReport(){
  '<p class="foot">Sumber: data pesanan Jersey pada flamboyan4.web.id</p>'+
  '<script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>';
  const w=window.open('','_blank');
- if(!w){alert('Izinkan pop-up laporan untuk mencetak atau menyimpan PDF.');return}
+ if(!w){window.f4UiDialog.alert('Izinkan pop-up laporan untuk mencetak atau menyimpan PDF.');return}
  w.document.write(html);w.document.close();
 }
 // One layout and destination selector for both content collections.
