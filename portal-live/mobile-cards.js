@@ -136,9 +136,10 @@ function enrichBankCard(card){
  const detailed=btns.find(b=>/lihat rincian|tutup rincian/i.test(b.dataset.f4ActionOriginal||b.textContent));
  const chevron=toggle(card,open=>{
   if(detailed&&!detailed.disabled){
-   const loaded=!!card.querySelector(':scope > div:last-child table, :scope > div:last-child .details-panel');
-   const wantsOpen=/lihat rincian/i.test(detailed.dataset.f4ActionOriginal||detailed.textContent);
-   if(open&&!loaded&&wantsOpen)detailed.click();
+   if(open&&!card.dataset.f4BankDetailsOpened){
+    card.dataset.f4BankDetailsOpened='1';
+    detailed.click();
+   }
   }
  });
  header.append(chevron);
