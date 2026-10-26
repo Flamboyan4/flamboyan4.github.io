@@ -2252,7 +2252,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   }
   v21PrepareSections();
   // v22 — halaman dokumentasi kategori, tanpa tombol galeri pada kartu preview.
-  const v22Categories=['Semua','Kerja Bakti','Penimbangan','Acara','Lainnya','Inventaris'];
+  const v22Categories=['Semua','Kerja Bakti','Penimbangan','Arisan','Acara','Lainnya','Inventaris'];
   let v22ActiveCategory='Semua',v22Query='';
   // Label baru tanpa migrasi data lama: spreadsheet tetap menyimpan "Umum".
   function v23CategoryLabel(raw){return !raw||raw==='Umum'?'Lainnya':raw;}
@@ -2394,13 +2394,13 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     const overlay=document.createElement('div');overlay.id='v24ProgressOverlay';overlay.className='v24-edit-overlay hidden';
     overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-labelledby','v24EditorTitle');
     overlay.innerHTML=`<div class="v24-edit-card"><div class="v24-edit-title"><h2 id="v24EditorTitle">Edit perkembangan</h2><button type="button" class="secondary" id="v24Close">✕</button></div>
-      <form id="v24EditForm"><div class="v24-edit-grid"><div class="field"><label for="v24Date">Tanggal</label><input type="date" id="v24Date" required></div>
-      <div class="field"><label for="v24Status">Status</label><select id="v24Status"><option>Perencanaan</option><option>Berjalan</option><option>Selesai</option></select></div></div>
+      <form id="v24EditForm"><div class="v24-edit-grid"><div class="field"><label for="v24Date">Tanggal kegiatan</label><input type="date" id="v24Date" required></div>
+      <div class="field"><label for="v24Status">Status kegiatan</label><select id="v24Status"><option>Perencanaan</option><option>Berjalan</option><option>Selesai</option></select></div></div>
       <div class="field"><label for="v24Title">Judul kegiatan</label><input id="v24Title" required minlength="3" maxlength="160"></div>
       <div class="field"><label for="v24Step">Tahap / langkah</label><input id="v24Step" maxlength="100"></div>
       <div class="field"><label for="v24Desc">Deskripsi</label><textarea id="v24Desc" rows="4" maxlength="1500"></textarea></div>
       <div class="field"><label for="v24Agenda">Agenda berikutnya</label><input id="v24Agenda" maxlength="400"></div>
-      <div class="field"><label for="v24Photo">Link foto HTTPS (opsional)</label><input type="url" id="v24Photo" maxlength="1000"></div>
+      <div class="field"><label for="v24Photo">Tautan foto HTTPS (opsional)</label><input type="url" id="v24Photo" maxlength="1000"></div>
       <div class="field"><label><input type="checkbox" id="v24Public" style="width:auto"> Tampilkan di portal publik</label></div>
       <p id="v24EditNotice" role="status" class="hint"></p>
       <div class="v24-edit-actions"><button type="button" class="secondary" id="v24Cancel">Batal</button><button type="submit" id="v24Save">Simpan perubahan</button></div></form></div>`;
