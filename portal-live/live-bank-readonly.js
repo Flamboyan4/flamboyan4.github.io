@@ -29,15 +29,32 @@
   nama:item.nama||item.name||'',jumlah:String(item.jumlah??item.quantity??'0')+' '+(item.unit||''),
   kondisi:item.kondisi||item.condition||'',foto:item.foto||item.photoUrl||item.imageUrl||''
  }));
- const albums=items=>onlyArray(items).map(item=>({
-  id:item.id||item.albumId,
-  judul:item.judul||item.title||'Album',
-  tanggal:item.tanggal||item.event_on||'',
-  deskripsi:item.deskripsi||item.description||'',
-  sampul:item.sampul||item.coverUrl||item.imageUrl||'',
-  kategori:item.kategori||item.category||'',
-  media:[]
- }));
+ // Portal Utama and Bank Sampah have separate publication scopes in D1.
+ const isBankAlbum=item=>{
+   const scope=String(item.portal_scope||item.source_portal||item.portal||item.scope||'')
+     .toLowerCase().replace(/[\s_-]+/g,'');
+   const category=String(item.kategori||item.category||'').toLowerCase().replace(/[\s_-]+/g,'');
+   return item.bank_sampah===true||item.is_bank_sampah===true||
+     ['banksampah','wastebank','bank'].includes(scope)||
+     ['banksampah','wastebank'].includes(category)||/^banksampah[:/]/.test(category);
+ };
+ const gorolFolder='https://drive.google.com/drive/folders/1ywp2v8rUH-oAGcM91PQyVrO7Wx9iLdCA';
+ const gorolCover='https://drive.google.com/file/d/1kLKiFhwf6meUluLhdu4hlkjpXo_w7W6T/view';
+ const albums=items=>onlyArray(items).filter(isBankAlbum).map(item=>{
+  const judul=item.judul||item.title||'Album',tanggal=item.tanggal||item.event_on||'';
+  const description=String(item.deskripsi||item.description||'');
+  const folder=String(item.sourceFolder||item.folderUrl||item.driveUrl||item.drive_url||
+    description.match(/Tautan folder:\s*(https:\/\/drive\.google\.com\/drive\/folders\/[^\s]+)/i)?.[1]||'');
+  const isGorol=/gorol|drop point/i.test(judul)&&String(tanggal).slice(0,10)==='2026-10-11';
+  const cover=String(item.sampul||item.coverUrl||item.imageUrl||'');
+  return {
+   id:item.id||item.albumId,judul,tanggal,
+   deskripsi:description.replace(/\n?Tautan folder:\s*https:\/\/[^\s]+/ig,'').trim(),
+   sampul:/drive\.google\.com\/drive\/folders\//i.test(cover)?'':(cover||(isGorol?gorolCover:'')),
+   kategori:String(item.kategori||item.category||'').replace(/^Bank Sampah\s*[:/]\s*/i,''),
+   sourceFolder:folder||(isGorol?gorolFolder:''),media:[]
+  };
+ });
  async function home(){
   const r=await publicData();
   const o=r.overview||{};
@@ -54,17 +71,25 @@
  async function albumList(){
   const r=await publicData();
   const list=albums(r.albums);
-  await Promise.all(list.slice(0,12).map(async item=>{
+  await Promise.all(list.slice(0,30).map(async item=>{
    if(!item.id)return;
    try{
     const d=await get('/api/v2/public/bank/album/'+encodeURIComponent(item.id));
     item.media=onlyArray(d.media).map(x=>({
      caption:x.caption||x.title||'',jenis:x.media_type||x.type||'foto',
-     url:x.mediaUrl||x.external_url||x.url||''
+     url:x.mediaUrl?(x.mediaUrl.startsWith('/')?API+x.mediaUrl:x.mediaUrl):(x.external_url||x.url||'')
     }));
-   }catch{}
+    if(!item.sampul)item.sampul=item.media.find(x=>x.jenis==='foto'||x.jenis==='Foto')?.url||'';
+   }catch(error){console.warn('Album media tidak dapat dimuat:',item.id,error)}
   }));
-  return list;
+  // Manifest arsip Gorol asli dari Google Drive tetap dapat dibaca sebelum
+  // seluruh metadata album diberi scope Bank Sampah pada D1.
+  if(!list.some(x=>/gorol|drop point/i.test(x.judul)&&String(x.tanggal).startsWith('2026-10-11'))){
+   list.push({id:'legacy-bank-20261011',judul:'Gorol dan Pembuatan Bank Sampah',
+    tanggal:'2026-10-11',deskripsi:'Kegiatan warga Flamboyan 4 menyiapkan Bank Sampah',
+    sampul:gorolCover,kategori:'Kerja Bakti',sourceFolder:gorolFolder,media:[]});
+  }
+  return list.sort((a,b)=>String(b.tanggal||'').localeCompare(String(a.tanggal||'')));
  }
  async function report(period){
   const q=period&&period!=='semua'?'?month='+encodeURIComponent(period):'';
