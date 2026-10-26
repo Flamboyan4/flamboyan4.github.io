@@ -180,7 +180,7 @@ function enhance(field){
 }
 function scan(){
  if(!small())return;
- document.querySelectorAll('#dashboardView select,#dashboardView input[type=date],#dashboardView input[type=month],#v11Public select,#f4-account-page select,#f4-account-page input[type=date],#f4-account-page input[type=month],#v24ProgressOverlay select,#v24ProgressOverlay input[type=date],#v24ProgressOverlay input[type=month]').forEach(enhance);
+ document.querySelectorAll('select,input[type=date],input[type=month]').forEach(enhance);
 }
 let pending=false;function schedule(){
  if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;scan()});
