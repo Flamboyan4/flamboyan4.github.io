@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+  <meta charset="utf-8">
   <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
@@ -678,6 +679,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
 }
 </style>
 <link rel="stylesheet" href="/portal-live/direct-shell.css?v=modal-gallery-drive-20261026"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><link rel="icon" type="image/png" href="/favicon.png?v=logo-f4-20261026">
+<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261026-1">
 </head>
 <body>
 <div class="shell">
@@ -1598,7 +1600,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     database:'<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 2 4 3 9 3s9-1 9-3V5M3 12c0 2 4 3 9 3s9-1 9-3"/>',
     globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18"/>'
   };
-  const v16LogoURL='https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8';
+  const v16LogoURL='/favicon.png';
   const v16PrevShow=showDashboard,v16PrevGo=goPage,v16PrevAuth=showAuth,v16PrevPublic=v11ShowPublic,v16PrevToggle=toggleMenu;
   showDashboard=function(p){v16PrevShow(p);v16BuildNav();v16Sync('dashboard');};
   goPage=function(page){v16PrevGo(page);v16Sync(page);v16CloseMenu();};
@@ -1708,14 +1710,14 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   }
   v17SetupFinance();
   // v17 — beranda publik berisi grafik, program, dokumentasi, inventaris, transparansi.
-  const v17Logo='https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8';
+  const v17Logo='/favicon.png';
   function v17SetupPublic(){
     const pub=$('v11Public');if(!pub)return;
     if(pub.classList.contains('v17-public'))return;pub.classList.add('v17-public');
     pub.innerHTML=`<div class="v17-public-head"><div class="v17-public-logo"><img id="v17Logo" alt="Logo Flamboyan 4"><span>Bank Sampah<br>Flamboyan 4</span></div><nav class="v17-public-links" aria-label="Navigasi portal publik"><a href="#v17Program">Program</a><a href="#v17Perkembangan">Perkembangan</a><a href="#v17Dokumentasi">Dokumentasi</a><a href="#v17Inventaris">Inventaris</a><a href="#v17Transparansi">Transparansi</a></nav><button id="v17PublicAccount" class="v17-public-account" type="button" title="Akun atau masuk" aria-label="Akun atau masuk">↪</button></div>
       <div class="v17-public-main"><div class="v17-public-banner"><div><span class="v14-eyebrow">Dari rumah, untuk bumi</span><h1>Sampah terpilah. Manfaat bertambah.</h1><p>Informasi program, perkembangan, dan dokumentasi Bank Sampah Flamboyan 4. Setiap setoran adalah langkah kecil untuk lingkungan yang lebih baik.</p></div><button id="v30HeroPhoto" type="button" class="v30-hero-photo" aria-label="Lihat dokumentasi dan inventaris" title="Lihat dokumentasi dan inventaris"></button></div>
       <div id="v17PublicMetrics" class="v17-public-metrics">Memuat ringkasan...</div>
-      <section id="v17Program" class="v17-section"><h2>Program Bank Sampah</h2><p class="v17-subtle">Kegiatan utama yang dijalankan bersama warga</p><div class="v17-program-grid"><div class="v17-feature"><strong>♻ Pemilahan & setoran</strong><p>Warga memilah barang berdasarkan jenis dan mengumpulkannya untuk ditimbang.</p></div><div class="v17-feature"><strong>⚖ Penjualan & rekonsiliasi</strong><p>Hasil penimbangan lapak dicocokkan sebelum hak tabungan warga disahkan.</p></div><div class="v17-feature"><strong>🌱 Manfaat lingkungan</strong><p>Hasil kegiatan mendukung cadangan, kas lorong, dan operasional sesuai catatan pengurus.</p></div></div></section>
+      <section id="v17Program" class="v17-section"><h2>Program Bank Sampah</h2><p class="v17-subtle">Kegiatan utama yang dijalankan bersama warga</p><div class="v17-program-grid"><div class="v17-feature"><strong><img class="f4-program-icon" src="/assets/icons/bank.svg" alt="">Pemilahan & setoran</strong><p>Warga memilah barang berdasarkan jenis dan mengumpulkannya untuk ditimbang.</p></div><div class="v17-feature"><strong><img class="f4-program-icon" src="/assets/icons/cash.svg" alt="">Penjualan & rekonsiliasi</strong><p>Hasil penimbangan lapak dicocokkan sebelum hak tabungan warga disahkan.</p></div><div class="v17-feature"><strong><img class="f4-program-icon" src="/assets/icons/home.svg" alt="">Manfaat lingkungan</strong><p>Hasil kegiatan mendukung cadangan, kas lorong, dan operasional sesuai catatan pengurus.</p></div></div></section>
       <section id="v17Perkembangan" class="v17-section"><h2>Perkembangan Bank Sampah</h2><p class="v17-subtle">Grafik berat setoran yang telah disahkan, dilengkapi catatan tahapan kegiatan.</p><div class="v17-two"><div class="v17-panel"><h3>Berat sampah terkonfirmasi per bulan</h3><div id="v17WeightBars" class="v17-bars"></div><p id="v17WeightNote" class="v17-subtle">Memuat grafik...</p></div><div class="v17-panel"><h3>Linimasa kegiatan</h3><ol id="v17Timeline" class="v17-timeline"><li>Memuat perkembangan...</li></ol></div></div></section>
       <section id="v17Dokumentasi" class="v17-section"><h2>Dokumentasi kegiatan</h2><p class="v17-subtle">Buka album untuk melihat foto dan video kegiatan yang telah dipublikasikan.</p><div id="v17Albums" class="v17-albums">Memuat album...</div></section>
       <section id="v17Inventaris" class="v17-section"><h2>Inventaris kegiatan</h2><p class="v17-subtle">Peralatan yang dicatat untuk mendukung operasional Bank Sampah.</p><div id="v17Inventory" class="v17-inventory">Memuat inventaris...</div></section>
@@ -1738,7 +1740,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     else{v17State('auth');v11ShowLogin();}
   }
   function v17PublicStat(label,value){
-    const c=document.createElement('div');c.className='v17-public-metric';const small=document.createElement('small');small.textContent=label;
+    const c=document.createElement('div');c.className='v17-public-metric';c.dataset.metric=/anggota/i.test(label)?'user':/jenis/i.test(label)?'inventory':/berat/i.test(label)?'bank':/kegiatan/i.test(label)?'calendar':'cash';const small=document.createElement('small');small.textContent=label;
     const strong=document.createElement('strong');strong.textContent=value;c.append(small,strong);return c;
   }
   function v17AlbumCard(a){

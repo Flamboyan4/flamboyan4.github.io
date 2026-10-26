@@ -1,0 +1,124 @@
+/* Shared visual language for Bank Sampah and Superadmin; no changes to data or access. */
+@media screen {
+html:has(#v11Public),html:has(#f4-account-page){background:#fff!important}
+:root{--modern-ink:#20333d;--modern-muted:#63757d;--modern-line:#e3ebee;--modern-green:#087f5b;--modern-purple:#6650cc}
+body:has(#v11Public),body:has(#f4-account-page){background:#fff!important;color:var(--modern-ink);-webkit-font-smoothing:antialiased}
+body:has(#v11Public){--forest:#087f5b;--leaf:#12a578;--sage:#eaf9f2;--cream:#fff;--ink:#20333d;--muted:#63757d;--line:#e1ebe6;--f4-nav:#087f5b;--f4-nav-tint:#eaf9f2}
+body:has(#f4-account-page){--blue:#6650cc;--navy:#28334b;--tint:#f1edff;--edge:#e4e7ef;--muted:#69748b;--work-bg:#fff;--work-accent:#6650cc;--work-tint:#f1edff;--work-line:#e4e7ef;--work-text:#28334b}
+body:has(#f4-account-page)[data-sa-area=bank]{--blue:#087f5b;--tint:#eaf9f2;--work-accent:#087f5b;--work-tint:#eaf9f2}
+/* White content surfaces, colour reserved for icons, navigation and useful status. */
+#f4-account-page:not([hidden]),#f4-account-page>main,#v11Public,#v18PublicContent,#dashboardView,.shell,.content{background:#fff!important}
+#f4-account-page>aside,#v18PublicSide,#sideNav{background:#fbfcfd!important;border-right:1px solid var(--modern-line)!important;box-shadow:none!important}
+#f4-account-page>aside button{display:flex!important;align-items:center;gap:10px;font-size:13px!important;min-height:46px!important;line-height:1.35!important}
+#f4-account-page>aside button.active{background:var(--tint)!important;color:var(--blue)!important}
+#f4-account-page>aside button:hover{background:#f1f4f8}
+.sa-nav-icon{width:34px;height:34px;padding:8px;border-radius:11px;background:#ede9ff;flex:none;object-fit:contain}
+#f4-account-page>aside button:nth-of-type(2) .sa-nav-icon{background:#fff0db}
+#f4-account-page>aside button:nth-of-type(3) .sa-nav-icon{background:#e5f1ff}
+#f4-account-page>aside button:nth-of-type(4) .sa-nav-icon{background:#dff8ec}
+#f4-account-page>aside button:nth-of-type(5) .sa-nav-icon{background:#ffeaf0}
+#f4-account-page>aside button:nth-of-type(6) .sa-nav-icon{background:#e5f5fc}
+#f4-account-page>main .f4-work-heading{border:0;margin-bottom:16px;padding-bottom:0}
+#f4-account-page>main .f4-work-heading h2{font-size:27px!important;letter-spacing:-.7px;font-weight:750;color:var(--modern-ink)}
+#f4-account-page>main .f4-work-heading p{font-size:13px;margin:7px 0 0;color:var(--modern-muted)}
+#f4-account-page .sa-module-heading{background:transparent;border:0;padding:0;margin:18px 0 12px}
+#f4-account-page .sa-module-heading h3{font-size:18px;letter-spacing:-.25px;color:var(--modern-ink)}
+#f4-account-page .sa-tabbar{border:1px solid var(--edge);background:#fff;border-radius:14px;padding:5px;gap:4px;box-shadow:none}
+#f4-account-page .sa-tabbar button{background:transparent;border:0!important;border-radius:9px;min-height:40px;padding:9px 14px;font-size:13px;color:var(--muted);white-space:nowrap}
+#f4-account-page .sa-tabbar button[aria-selected=true]{background:var(--tint)!important;color:var(--blue)!important;box-shadow:none!important}
+#f4-account-page .sa-card,#f4-account-page .sa-section,#f4-account-page .f4-admin-editor,#f4-account-page .f4-admin-item,#f4-account-page .sa-accounts-shell{border:1px solid var(--edge)!important;border-radius:16px;box-shadow:0 3px 14px #24364704;background:white}
+#f4-account-page .sa-card{position:relative;padding:18px;border-top:3px solid #b9a9fa!important}
+#f4-account-page .sa-card:nth-child(2){border-top-color:#7fdbc0!important}
+#f4-account-page .sa-card:nth-child(3){border-top-color:#ffce83!important}
+#f4-account-page .sa-card:nth-child(4){border-top-color:#8ecafb!important}
+#f4-account-page .sa-card strong{font-size:26px;letter-spacing:-.7px}
+#f4-account-page .sa-card small,#f4-account-page .sa-card span{font-size:12px}
+#f4-account-page .f4-admin-controls{padding:12px;border:1px solid var(--edge);border-radius:14px;background:#fff}
+#f4-account-page .f4-admin-controls input{background:#fafbfc;border-color:var(--edge);font-size:14px}
+#f4-account-page .f4-admin-btn,#f4-account-page .sa-action{background:#fff;border:1px solid var(--edge);color:var(--blue);font-size:13px;min-height:40px}
+#f4-account-page .f4-admin-primary{background:var(--blue);border-color:var(--blue);color:white;min-height:42px}
+#f4-account-page .f4-admin-controls>.f4-admin-btn:nth-child(2){background:var(--blue);color:#fff;border-color:var(--blue)}
+#f4-account-page .f4-admin-fields label{font-size:13px;color:var(--modern-ink)}
+#f4-account-page .f4-admin-fields input,#f4-account-page .f4-admin-fields select,#f4-account-page .f4-admin-fields textarea{border-color:#dce3e9;border-radius:10px;min-height:44px;font-size:14px}
+#f4-account-page .f4-admin-fields :is(input,select,textarea):focus{outline:2px solid var(--blue);outline-offset:2px}
+#f4-account-page .f4-content-destination select:disabled{opacity:1;color:var(--blue);background:var(--tint);border:0;font-weight:700}
+.f4-transfer-options{border:1px dashed var(--edge);border-radius:10px;padding:10px 12px;margin-bottom:16px;font-size:13px;color:var(--muted)}
+.f4-transfer-options summary{cursor:pointer}.f4-transfer-options[open] summary{margin-bottom:12px}
+#f4-account-page .f4-obligation-grid th{background:#f8fafc!important;color:#647382!important;font-size:12px!important;text-transform:none;padding:11px 10px!important}
+#f4-account-page .f4-obligation-grid td{padding:12px 10px!important;font-size:13px!important;border-color:#edf0f3!important}
+#f4-account-page .f4-obligation-grid tbody tr:hover{background:#fafbfe}
+#f4-account-page .f4-admin-action-set{gap:6px;flex-wrap:wrap}
+#f4-account-page .f4-admin-item strong{font-size:14px}#f4-account-page .f4-admin-item small{font-size:12px;margin-top:5px}
+html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!important}
+/* Bank Sampah public and signed-in workspaces. */
+#v11Public .v17-public-banner{background:#fff!important;border:1px solid #e2ebe6!important;border-radius:20px!important;box-shadow:none!important}
+#v11Public .v17-public-banner h1{color:#173f33!important;font-weight:750!important;letter-spacing:-.8px;font-size:clamp(24px,2.5vw,34px)!important;line-height:1.18!important}
+#v11Public .v17-public-banner p{color:#63766d!important;font-size:14px!important;line-height:1.65!important}
+#v11Public .v14-eyebrow{color:#087f5b!important;background:#e9f9f1;padding:5px 10px;border-radius:7px;display:inline-block;font-size:11px;letter-spacing:.04em}
+#v11Public .v17-public-metric,#dashboardView .stat,#dashboardView .metric{background:white!important;border:1px solid #e2ebe6!important;border-radius:16px!important;padding:16px!important;box-shadow:0 3px 12px #17462e04!important;position:relative}
+#v11Public .v17-public-metric:before{content:'';display:block;width:34px;height:34px;border-radius:11px;margin-bottom:10px;background:#e3f8ef url('/assets/icons/bank.svg') center/20px no-repeat}
+#v11Public .v17-public-metric:nth-child(2):before{background-color:#e8f2ff;background-image:url('/assets/icons/user.svg')}
+#v11Public .v17-public-metric:nth-child(3):before{background-color:#fff1dc;background-image:url('/assets/icons/cash.svg')}
+#v11Public .v17-public-metric:nth-child(4):before{background-color:#f0eaff;background-image:url('/assets/icons/calendar.svg')}
+#v11Public .v17-public-metric strong,#dashboardView .stat strong,#dashboardView .metric strong{color:#224539!important;font-size:24px!important;letter-spacing:-.5px}
+#v11Public .v17-public-metric small,#dashboardView .stat small,#dashboardView .metric small{font-size:12px!important;color:#63766d!important}
+#v11Public .v17-panel,#v11Public .v17-feature,#v11Public .v17-album,#v11Public .v17-inventory-card,#dashboardView .card{background:#fff!important;border:1px solid #e2ebe6!important;border-radius:16px!important;box-shadow:none!important}
+#v11Public .v17-section h2{font-size:20px!important;letter-spacing:-.35px;color:#203d32!important}
+#v11Public .v17-panel h3{font-size:15px!important;color:#284b3e!important}
+#v11Public .v17-subtle{color:#64776e!important;font-size:13px!important}
+#v11Public .v17-feature strong{display:flex!important;align-items:center;gap:8px;color:#335447!important}
+.f4-program-icon{width:30px;height:30px;padding:6px;background:#e5f8ee;border-radius:9px;flex:none;object-fit:contain}
+#v11Public .v17-feature:nth-child(2) .f4-program-icon{background:#fff0d7}
+#v11Public .v17-feature:nth-child(3) .f4-program-icon{background:#e7f1ff}
+#v18PublicSide button,#sideNav button{border-radius:11px!important;min-height:44px;transition:background .15s}
+#v18PublicSide button.active,#sideNav button.active{background:#e0f7ec!important;color:#08704f!important;box-shadow:none!important}
+#v18PublicSide button svg,#sideNav button svg{box-sizing:content-box;background:#e6f7ee;border-radius:9px;padding:6px;width:19px;height:19px;color:#087f5b}
+#v18PublicSide button:nth-of-type(3n+2) svg{background:#fff1dc;color:#b46a18}
+#v18PublicSide button:nth-of-type(3n) svg{background:#eaf0ff;color:#576ac3}
+#dashboardView .summary-box,#dashboardView .details-panel{background:#fff!important;border:1px solid #e2ebe6}
+#dashboardView input,#dashboardView select,#dashboardView textarea{border-color:#d6e3dc;border-radius:10px;font-size:14px;min-height:43px}
+#dashboardView button{min-height:40px}#dashboardView table th{background:#f8fbf9;color:#5d7367}
+@media(max-width:760px){
+ #f4-account-page>main .f4-work-heading h2{font-size:23px!important}
+ #f4-account-page .sa-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ #f4-account-page .sa-card{padding:13px}#f4-account-page .sa-card strong{font-size:22px}
+ #f4-account-page .f4-admin-fields{grid-template-columns:1fr;gap:14px}
+ #f4-account-page .f4-admin-editor{padding:15px}
+ #f4-account-page .f4-admin-controls input{min-width:0;flex-basis:100%}
+ #f4-account-page .f4-admin-controls button{flex:1;white-space:normal}
+ #f4-account-page .f4-admin-item{align-items:flex-start;flex-wrap:wrap;padding:13px}
+ #f4-account-page .f4-admin-action-set{justify-content:flex-start}
+ #v11Public .v17-public-metric{padding:13px!important}
+ #v11Public .v17-public-metric strong{font-size:21px!important}
+ #v11Public .v17-section h2{font-size:18px!important}
+ #v11Public .v17-public-banner{border-radius:16px!important}
+}
+@media(prefers-reduced-motion:reduce){#v18PublicSide button,#sideNav button{transition:none}}
+#v11Public .v27-banner-program #v17Program .v17-feature{background:#fff!important;border:1px solid #e2ebe6!important;padding:9px 12px!important}
+#v11Public .v27-banner-program #v17Program .v17-feature strong{color:#335447!important;font-size:12px!important;line-height:1.4}
+#v11Public .v17-public-metric[data-metric=user]:before{background-image:url('/assets/icons/user.svg')}
+#v11Public .v17-public-metric[data-metric=inventory]:before{background-image:url('/assets/icons/inventory.svg')}
+#v11Public .v17-public-metric[data-metric=bank]:before{background-image:url('/assets/icons/bank.svg')}
+#v11Public .v17-public-metric[data-metric=cash]:before{background-image:url('/assets/icons/cash.svg')}
+#v11Public .v17-public-metric[data-metric=calendar]:before{background-image:url('/assets/icons/calendar.svg')}
+
+@media(max-width:760px){
+ #v11Public .v27-banner-program #v17Program .v17-program-grid{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto;gap:8px;padding-bottom:4px;max-width:100%}
+ #v11Public .v27-banner-program #v17Program .v17-feature{flex:0 0 auto!important;white-space:nowrap}
+ #v11Public .v17-public-banner p{font-size:13px!important;line-height:1.55!important}
+}
+
+#dashboardView #pageDashboard.v14-home{border:0!important;padding:0!important;box-shadow:none!important}
+#dashboardView .v14-hero{display:none}
+#dashboardView .v14-kpi,#dashboardView .v14-panel,#dashboardView .v14-extra{background:#fff!important;border:1px solid #e2ebe6;border-radius:16px;box-shadow:0 3px 12px #17462e04}
+#dashboardView .v14-kpi:before{content:'';display:block;width:34px;height:34px;border-radius:10px;margin-bottom:10px;background:#e3f8ef url('/assets/icons/bank.svg') center/20px no-repeat}
+#dashboardView .v14-kpi:nth-child(2):before{background-color:#e8f2ff;background-image:url('/assets/icons/user.svg')}
+#dashboardView .v14-kpi:nth-child(3):before{background-color:#fff1dc;background-image:url('/assets/icons/cash.svg')}
+#dashboardView .v14-kpi:nth-child(4):before{background-color:#f0eaff;background-image:url('/assets/icons/calendar.svg')}
+#dashboardView .v14-kpi strong{font-size:24px;letter-spacing:-.5px;color:#224539}
+#dashboardView .v14-extra small,#dashboardView .v14-kpi small{font-size:12px}
+#sideNav button:nth-of-type(3n+2) svg{background:#fff1dc;color:#b46a18}
+#sideNav button:nth-of-type(3n) svg{background:#eaf0ff;color:#576ac3}
+@media(max-width:760px){#dashboardView .v14-head{flex-wrap:wrap;gap:10px}#dashboardView .v14-head h2{font-size:23px}#dashboardView .v14-kpi strong{font-size:21px}}
+
+}

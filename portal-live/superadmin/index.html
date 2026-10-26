@@ -260,7 +260,8 @@ html.f4-sa-drawer-lock{overflow:hidden!important}
  width:39px;height:39px;padding:0;border:0;border-radius:10px;background:#e4f1fb;
  color:#27658e;font:700 22px/1 system-ui;cursor:pointer}
 @media(max-width:1023px){.f4-sa-standalone-menu{display:grid;place-items:center}}
-</style><link rel="stylesheet" href="../loading-state.css?v=28e10d5"></head>
+</style><link rel="stylesheet" href="../loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261026-1">
+</head>
 <body>
 <div id="guard" role="status"><h2>Memeriksa akses Superadmin…</h2><p>Portal ini hanya untuk akun dengan role Superadmin.</p></div>
 <div id="f4-account-page" hidden><aside aria-label="Navigasi Portal Superadmin"></aside><main><header class="f4-work-heading"><h2>Pusat Pengelolaan</h2><p>Memeriksa koneksi…</p></header></main></div>
@@ -301,10 +302,11 @@ saBackdrop.addEventListener('click',()=>saCloseDrawer());
 window.addEventListener('popstate',()=>{if(!history.state?.f4SaDrawer)saCloseDrawer(true)});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&saMenuOpened()){e.preventDefault();saCloseDrawer()}});
 window.addEventListener('resize',()=>{if(innerWidth>=1024)saCloseDrawer(true)});
-const groups=[['overview','Ringkasan Sistem'],['accounts','Akun & Hak Akses'],['content','Konten & Publikasi'],['masters','Data Acuan'],['audit','Pengaturan & Audit']];
+const groups=[['overview','Ringkasan Sistem'],['accounts','Akun & Hak Akses'],['content','Portal Utama'],['bank','Bank Sampah'],['masters','Data Acuan'],['audit','Pengaturan & Audit']];
 const submenu={
- content:[['projects','Project Card'],['agenda','Rencana Kegiatan'],['documentation','Dokumentasi'],['inventory','Inventaris'],['bank_progress','Kegiatan Bank Sampah'],['banners','Banner Slider'],['meetings','Hasil Rapat'],['arisan','Jadwal Arisan'],['jersey','Pesanan Jersey']],
- masters:[['residents','Data Warga & Rumah'],['obligations','Kewajiban Iuran'],['tariffs','Tarif Iuran'],['settings','Aturan Tanggal'],['bankcatalog','Jenis & Harga Sampah']]
+ content:[['projects','Project Card'],['agenda','Rencana Kegiatan'],['documentation','Dokumentasi'],['inventory','Inventaris'],['banners','Banner Slider'],['meetings','Hasil Rapat'],['arisan','Jadwal Arisan'],['jersey','Pesanan Jersey']],
+ bank:[['bank_progress','Kegiatan'],['bank_albums','Dokumentasi'],['bank_inventory','Inventaris'],['bankcatalog','Jenis & Harga']],
+ masters:[['residents','Data Warga & Rumah'],['obligations','Kewajiban Iuran'],['tariffs','Tarif Iuran'],['settings','Aturan Tanggal']]
 };
 let role='public',group='overview',active='',accounts=[],accountSearch='',residentRows=[];
 const el=(tag,text,cls)=>{const v=document.createElement(tag);if(text!==undefined)v.textContent=String(text);if(cls)v.className=cls;return v};
@@ -312,8 +314,8 @@ const button=(label,on,cls)=>{const b=el('button',label,cls);b.type='button';b.o
 const title=(name,desc)=>{
  rememberTabScroll();
  main.replaceChildren();
- const category=group==='content'?'Konten & Publikasi':group==='masters'?'Data Acuan':'';
- const categoryDesc=group==='content'?'Kelola konten untuk Portal Utama dan Bank Sampah':'Satu sumber data induk untuk semua modul';
+ const category=group==='content'?'Portal Utama':group==='bank'?'Bank Sampah':group==='masters'?'Data Acuan':'';
+ const categoryDesc=group==='content'?'Konten dan publikasi lingkungan Flamboyan 4.':group==='bank'?'Kegiatan, dokumentasi, inventaris, dan harga sampah.':'Data warga dan aturan iuran bersama.';
  const h=el('header',undefined,'f4-work-heading');
  h.append(el('h2',category&&active?category:name),el('p',category&&active?categoryDesc:desc));
  main.append(h);
@@ -332,12 +334,21 @@ const safe=(error)=>String(error&&error.message||error);
 async function get(path){const res=await fetch(API+path,{credentials:'include',cache:'no-store'});const d=await res.json().catch(()=>({}));if(!res.ok||d.ok===false)throw Error(d.error||('HTTP '+res.status));return d}
 function sidebar(g=group){
  group=g;side.replaceChildren();
- const brand=el('div',undefined,'f4-sa-brand');const img=el('img');img.src='https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8';img.alt='Logo Flamboyan 4';img.className='f4-sa-logo';
+ const brand=el('div',undefined,'f4-sa-brand');const img=el('img');img.src='/favicon.png';img.alt='Logo Flamboyan 4';img.className='f4-sa-logo';
  const text=el('span');text.append(el('strong','Flamboyan 4'),el('small','Portal Superadmin'));brand.append(img,text);side.append(brand);
  side.append(el('strong','MENU SUPERADMIN','f4-sa-label'));
- for(const [key,label] of groups)side.append(button(label,()=>open(key),g===key?'active':''));
+ for(const [key,label] of groups){
+  const b=button('',()=>open(key),g===key?'active':'');
+  const icon=el('img',undefined,'sa-nav-icon');
+  icon.src='/assets/icons/'+({overview:'superadmin',accounts:'user',content:'home',bank:'bank',masters:'inventory',audit:'book'}[key])+'.svg';
+  icon.alt='';icon.setAttribute('aria-hidden','true');b.append(icon,el('span',label));
+  b.setAttribute('aria-current',g===key?'page':'false');side.append(b);
+ }
+ document.body.dataset.saArea=g;
+ window.f4SuperadminArea=g;
+
 }
-const tabScrollPositions={content:0,masters:0};
+const tabScrollPositions={content:0,bank:0,masters:0};
 function rememberTabScroll(){
  const existing=main.querySelector('.sa-tabbar');
  const previousGroup=existing?.dataset.group;
@@ -352,7 +363,7 @@ function renderTabs(){
  const tabs=el('nav',undefined,'sa-tabbar');
  tabs.dataset.group=group;
  tabs.setAttribute('role','tablist');
- tabs.setAttribute('aria-label',group==='content'?'Submenu Konten & Publikasi':'Submenu Data Acuan');
+ tabs.setAttribute('aria-label',group==='content'?'Menu Portal Utama':group==='bank'?'Menu Bank Sampah':'Menu Data Acuan');
  for(const [key,label] of current){
   const tab=button(label,()=>openEditor(key));
   tab.setAttribute('role','tab');
@@ -382,7 +393,7 @@ function renderTabs(){
 }
 window.f4SuperadminRenderTabs=renderTabs;
 window.f4RenderManagementSidebar=(origin)=>{
- const g=origin==='portal'?'content':origin==='book'?'masters':group;
+ const g=origin==='portal'?'content':origin==='bank'?'bank':origin==='book'?'masters':group;
  sidebar(g);
 };
 function open(name,push=true){
@@ -395,7 +406,7 @@ function open(name,push=true){
   :history.replaceState(null,'','#'+fragment);}
  if(name==='overview')overview();
  if(name==='accounts')accountsPage();
- if(name==='content'||name==='masters'){
+ if(name==='content'||name==='bank'||name==='masters'){
    openEditor(submenu[name][0][0]);
    return;
  }
@@ -745,7 +756,7 @@ async function boot(){
   // immediately replace it with Content/Data Acuan (visible as a flash).
   if(window.parent!==window){
    try{
-    const parentFragment=window.parent.location.hash.match(/^#superadmin\/(overview|accounts|content|masters|audit)$/)?.[1];
+    const parentFragment=window.parent.location.hash.match(/^#superadmin\/(overview|accounts|content|bank|masters|audit)$/)?.[1];
     if(parentFragment)requested=parentFragment;
    }catch{}
   }
@@ -763,5 +774,5 @@ window.addEventListener('message',e=>{
 boot();
 })();
 </script>
-<script src="../superadmin-editor.js?v=gallery-links-20261026"></script>
+<script src="../superadmin-editor.js?v=separate-areas-20261026"></script>
 </body></html>

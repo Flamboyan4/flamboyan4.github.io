@@ -16,13 +16,14 @@ const types={
  meetings:{label:'Hasil Rapat',section:'portal',columns:[['title','Judul rapat','text',true],['meeting_on','Tanggal rapat','date'],['summary','Ringkasan rapat','textarea'],['document_ref','URL hasil rapat Google Docs / Drive','url'],['visibility','Akses','visibility']]},
  tariffs:{label:'Tarif Iuran',section:'book',key:'contribution_type',columns:[['contribution_type','Jenis Iuran','readonly'],['amount_rp','Tarif / iuran (Rp)','number',true]]},
  settings:{label:'Aturan Tanggal',section:'book',key:'setting_key',columns:[['setting_key','Aturan','readonly'],['setting_value','Tanggal (1–31)','number',true],['description','Keterangan','readonly']]},
- bank_progress:{label:'Kegiatan Bank Sampah',section:'portal',columns:[]},
- bank_albums:{label:'Dokumentasi Bank Sampah',section:'portal',columns:[]},
- bank_inventory:{label:'Inventaris Bank Sampah',section:'portal',columns:[]},
+ bank_progress:{label:'Kegiatan Bank Sampah',section:'bank',columns:[]},
+ bank_albums:{label:'Dokumentasi Bank Sampah',section:'bank',columns:[]},
+ bank_inventory:{label:'Inventaris Bank Sampah',section:'bank',columns:[]},
  obligations:{label:'Kewajiban Iuran Warga',section:'book',key:'payer_id',columns:[['nama','Nama warga','readonly'],['rumah','Rumah','readonly'],['qty_iuran_bulanan','Iuran bulanan (x)','number',true],['qty_kebersihan','Kebersihan (x)','number',true],['qty_kas_lorong','Kas lorong (x)','number',true],['qty_arisan','Arisan (x)','number',true]]}
 };
 const categories={
- portal:[['projects','Project Card'],['agenda','Rencana Kegiatan'],['documentation','Dokumentasi'],['inventory','Inventaris'],['bank_progress','Kegiatan Bank Sampah'],['banners','Banner Slider'],['meetings','Hasil Rapat'],['arisan','Jadwal Arisan'],['jersey','Pesanan Jersey']],
+ portal:[['projects','Project Card'],['agenda','Rencana Kegiatan'],['documentation','Dokumentasi'],['inventory','Inventaris'],['banners','Banner Slider'],['meetings','Hasil Rapat'],['arisan','Jadwal Arisan'],['jersey','Pesanan Jersey']],
+ bank:[['bank_progress','Kegiatan'],['bank_albums','Dokumentasi'],['bank_inventory','Inventaris']],
  book:[['residents','Data Warga & Rumah'],['obligations','Kewajiban Iuran'],['tariffs','Tarif Iuran'],['settings','Aturan Tanggal']]
 };
 let active='',records=[],filter='',requestSerial=0,editing=false;
@@ -127,9 +128,9 @@ function header(label,description){
  window.f4SuperadminRememberTabScroll?.();
  main.replaceChildren();
  const def=types[active];
- const category=def?.section==='portal'?'Konten & Publikasi':'Data Acuan';
+ const category=def?.section==='bank'?'Bank Sampah':def?.section==='portal'?'Portal Utama':'Data Acuan';
  const h=node('header',undefined,'f4-work-heading');
- h.append(node('h2',category),node('p',def?.section==='portal'?'Kelola konten untuk Portal Utama dan Bank Sampah':'Satu sumber data induk untuk semua modul'));
+ h.append(node('h2',category),node('p',def?.section==='bank'?'Anda sedang mengelola konten Bank Sampah.':def?.section==='portal'?'Anda sedang mengelola konten Portal Utama.':'Data warga dan aturan iuran bersama.'));
  main.append(h);
  window.f4SuperadminRenderTabs?.();
  const sub=node('section',undefined,'sa-module-heading');
@@ -284,18 +285,25 @@ function printJerseyReport(){
 // A destination change uses the audited atomic transfer API; no local copying.
 function showUnifiedForm(kind,record=null,defaultDestination='portal'){
  if(!inContext())return;
- active=kind;editing=true;
+ editing=true;
  const isDoc=kind==='documentation';
  const source=record?record._f4_bank_kind?'bank-sampah':'portal':defaultDestination;
+ const listKind=source==='bank-sampah'?(isDoc?'bank_albums':'bank_inventory'):kind;
+ active=listKind;
+ const returnToList=()=>window.f4SuperadminSwitchModule?window.f4SuperadminSwitchModule(listKind):window.openSuperadminEditor(listKind);
  const label=isDoc?'Dokumentasi':'Inventaris';
- header((record?'Edit ':'Tambah ')+label,'Pilih tujuan publikasi, lalu lengkapi formulir. Data lama tetap tersimpan saat dipindahkan.');
+ header((record?'Edit ':'Tambah ')+label,'Lengkapi data untuk '+(source==='bank-sampah'?'Bank Sampah.':'Portal Utama.'));
  const form=node('form',undefined,'f4-admin-editor');main.append(form);
  const scopeWrap=node('label',undefined,'f4-content-destination'),scopeLabel=node('span','Tujuan publikasi'),
   scope=node('select');
  scope.name='destination';
  scope.append(new Option('Portal Utama','portal'),new Option('Bank Sampah','bank-sampah'));
  scope.value=source;
- scopeWrap.append(scopeLabel,scope);form.append(scopeWrap);
+ scopeWrap.append(scopeLabel,scope);
+ if(record){
+  const transfer=node('details',undefined,'f4-transfer-options');
+  transfer.append(node('summary','Pindahkan ke portal lain'),scopeWrap);form.append(transfer);
+ }else{scope.disabled=true;form.append(scopeWrap)}
  const grid=node('div',undefined,'f4-admin-fields');form.append(grid);
  const fields={},formField=(key,label,type='text',val='',required=false)=>{
   const input=bankField(grid,key,label,type,val,required);fields[key]=input;return input;
@@ -340,7 +348,7 @@ function showUnifiedForm(kind,record=null,defaultDestination='portal'){
  const note=node('p','','f4-admin-message');note.setAttribute('role','status');form.append(note);
  const actions=node('div',undefined,'f4-warga-form-actions');
  const save=btn('Simpan Perubahan',()=>form.requestSubmit(),'f4-admin-primary');
- actions.append(btn('Batal',()=>window.openSuperadminEditor(kind)),save);form.append(actions);
+ actions.append(btn('Batal',returnToList),save);form.append(actions);
  const categories=()=>{
   const selected=String(fields.category.value||'').trim()||rawCategory||String(fields.category.dataset.originalCategory||'');
   const portal=isDoc?['Kerja Bakti','Arisan','Acara','Lainnya']:['Peralatan','Perlengkapan','Fasilitas','Lainnya'];
@@ -439,7 +447,7 @@ function showUnifiedForm(kind,record=null,defaultDestination='portal'){
      name:data.name,quantity:data.quantity,unit:data.unit,subcategory:data.category,
      location:data.location,description:data.description,photoUrl:data.url});
    }
-   await window.openSuperadminEditor(kind);
+   await returnToList();
   }catch(error){note.textContent='Gagal menyimpan: '+error.message;}
   finally{save.disabled=false;}
  };
@@ -565,8 +573,8 @@ async function fetchData(kind){
  const d=await send(base+kind);
  const portalRows=Array.isArray(d.data)?d.data:[];
  if(kind!=='documentation'&&kind!=='inventory')return portalRows;
- // One Documentation tab, two independent D1 collections.
- // Only explicitly Bank Sampah-scoped albums are included in that section.
+ // Portal Utama lists only its own publication scope.
+ // Read legacy bank links to avoid showing an album twice across the two areas.
  try{
   const bank=await send(bankApi+(kind==='documentation'?'albums':'inventory')+'?limit=500');
   const bankRows=(Array.isArray(bank.data)?bank.data:[])
@@ -577,21 +585,14 @@ async function fetchData(kind){
     photo_ref:kind==='inventory'?String(x.photoUrl||''):''
    }));
   const bankById=new Map(bankRows.map(x=>[String(x.id),x]));
-  const portalIds=new Set(portalRows.map(x=>String(x.id)));
-  // Legacy unassigned albums are visible for classification, not published to Bank Sampah.
-  if(kind==='inventory')return [
-   ...portalRows.filter(x=>!/^Pindah Bank Sampah\s*[:/]/i.test(x.category||'')),
-   ...bankRows
-  ];
+  if(kind==='inventory')return portalRows.filter(x=>!/^Pindah Bank Sampah\s*[:/]/i.test(x.category||'')&&!bankScoped(x));
   const linkedPortal=portalRows
-   .filter(x=>!/^Pindah Bank Sampah\s*[:/]/i.test(x.category||'')&&!bankScoped(bankById.get(String(x.id))||{}))
+   .filter(x=>!/^Pindah Bank Sampah\s*[:/]/i.test(x.category||'')&&!bankScoped(x)&&!bankScoped(bankById.get(String(x.id))||{}))
    .map(x=>({...x,_f4_bank_record:bankById.get(String(x.id))||null}));
-  const scoped=bankRows.filter(x=>bankScoped(x));
-  const orphaned=bankRows.filter(x=>!bankScoped(x)&&!portalIds.has(String(x.id)));
-  return [...linkedPortal,...scoped,...orphaned];
+  return linkedPortal;
  }catch(error){
   console.warn('Dokumentasi Bank Sampah belum dapat ditampilkan:',error);
-  return portalRows;
+  return portalRows.filter(x=>!/^Pindah Bank Sampah\s*[:/]/i.test(x.category||'')&&!bankScoped(x));
  }
 }
 
@@ -628,16 +629,17 @@ function bankField(form,key,label,type='text',value='',required=false){
 async function openBankAdminEditor(kind){
  if(!inContext()||!bankModules[kind])return;
  active=kind;filter='';page.hidden=false;if(resident)resident.hidden=true;
+ const serial=++requestSerial;sideMenu();
  const def=bankModules[kind];
- header(def.label,'Konten khusus Bank Sampah; terpisah dari dokumentasi dan inventaris Portal Utama.');
+ header(def.label.replace(' Bank Sampah',''),'Data dan publikasi khusus Bank Sampah.');
  const tools=node('div',undefined,'f4-admin-controls'),q=node('input');
- q.placeholder='Cari data Bank Sampah';tools.append(q,btn('+ Tambah '+def.label,()=>showBankForm(kind,null)),btn('Muat Ulang',()=>openBankAdminEditor(kind)));
+ q.placeholder='Cari data Bank Sampah';tools.append(q,btn('+ Tambah '+({bank_albums:'album',bank_inventory:'barang',bank_progress:'kegiatan'}[kind]),()=>showBankForm(kind,null)),btn('Muat Ulang',()=>openBankAdminEditor(kind)));
  main.append(tools);
  const info=node('p','Memuat data Bank Sampah…','f4-admin-note');main.append(info);
  const box=node('div',undefined,'f4-admin-list');main.append(box);
  try{
   const payload=await send(bankApi+(kind==='bank_albums'?'albums':def.listKey)+'?limit=500');
-  if(active!==kind)return;
+  if(active!==kind||serial!==requestSerial||!main.contains(box))return;
   let rows=Array.isArray(payload.data)?payload.data:[];
   if(kind==='bank_inventory')rows=rows.filter(item=>String(item.category||'')==='bank_sampah'&&Number(item.active)===1);
   // Album tanpa penanda dipertahankan agar Superadmin dapat mengklasifikasikan
@@ -662,14 +664,14 @@ async function openBankAdminEditor(kind){
       actions.append(link);
      }
     }
-    if(kind!=='bank_inventory')actions.append(btn(kind==='bank_albums'?'Atur kategori':'Edit',()=>showBankForm(kind,record)));
+    actions.append(btn('Edit',()=>showBankForm(kind,record)));
     const del=btn('Hapus',()=>removeContentRecord(record,kind,del),'f4-admin-btn f4-admin-danger');
     actions.append(del);article.append(actions);box.append(article);
    }
    if(!found.length)box.append(node('p','Tidak ada data yang cocok.','f4-admin-note'));
   };
   q.oninput=draw;draw();
- }catch(e){info.textContent='Gagal memuat konten Bank Sampah: '+e.message}
+ }catch(e){if(serial===requestSerial&&main.contains(info))info.textContent='Gagal memuat konten Bank Sampah: '+e.message}
 }
 function showBankForm(kind,record){
  if(!inContext())return;
