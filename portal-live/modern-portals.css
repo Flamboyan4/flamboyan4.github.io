@@ -56,7 +56,7 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
 #v11Public .v17-public-banner p{color:#63766d!important;font-size:14px!important;line-height:1.65!important}
 #v11Public .v14-eyebrow{color:#087f5b!important;background:#e9f9f1;padding:5px 10px;border-radius:7px;display:inline-block;font-size:11px;letter-spacing:.04em}
 #v11Public .v17-public-metric,#dashboardView .stat,#dashboardView .metric{background:white!important;border:1px solid #e2ebe6!important;border-radius:16px!important;padding:16px!important;box-shadow:0 3px 12px #17462e04!important;position:relative}
-#v11Public .v17-public-metric:before{content:'';display:block;width:34px;height:34px;border-radius:11px;margin-bottom:10px;background:#e3f8ef url('/assets/icons/bank.svg') center/20px no-repeat}
+#v11Public .v17-public-metric:before{content:'';display:block;width:34px;height:34px;border-radius:11px;margin-bottom:10px;background:#e3f8ef url('/assets/icons/bank.svg?v=mobile-icons-20261026') center/20px no-repeat}
 #v11Public .v17-public-metric:nth-child(2):before{background-color:#e8f2ff;background-image:url('/assets/icons/user.svg')}
 #v11Public .v17-public-metric:nth-child(3):before{background-color:#fff1dc;background-image:url('/assets/icons/cash.svg')}
 #v11Public .v17-public-metric:nth-child(4):before{background-color:#f0eaff;background-image:url('/assets/icons/calendar.svg')}
@@ -98,7 +98,7 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
 #v11Public .v27-banner-program #v17Program .v17-feature strong{color:#335447!important;font-size:12px!important;line-height:1.4}
 #v11Public .v17-public-metric[data-metric=user]:before{background-image:url('/assets/icons/user.svg')}
 #v11Public .v17-public-metric[data-metric=inventory]:before{background-image:url('/assets/icons/inventory.svg')}
-#v11Public .v17-public-metric[data-metric=bank]:before{background-image:url('/assets/icons/bank.svg')}
+#v11Public .v17-public-metric[data-metric=bank]:before{background-image:url('/assets/icons/bank.svg?v=mobile-icons-20261026')}
 #v11Public .v17-public-metric[data-metric=cash]:before{background-image:url('/assets/icons/cash.svg')}
 #v11Public .v17-public-metric[data-metric=calendar]:before{background-image:url('/assets/icons/calendar.svg')}
 
@@ -111,7 +111,7 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
 #dashboardView #pageDashboard.v14-home{border:0!important;padding:0!important;box-shadow:none!important}
 #dashboardView .v14-hero{display:none}
 #dashboardView .v14-kpi,#dashboardView .v14-panel,#dashboardView .v14-extra{background:#fff!important;border:1px solid #e2ebe6;border-radius:16px;box-shadow:0 3px 12px #17462e04}
-#dashboardView .v14-kpi:before{content:'';display:block;width:34px;height:34px;border-radius:10px;margin-bottom:10px;background:#e3f8ef url('/assets/icons/bank.svg') center/20px no-repeat}
+#dashboardView .v14-kpi:before{content:'';display:block;width:34px;height:34px;border-radius:10px;margin-bottom:10px;background:#e3f8ef url('/assets/icons/bank.svg?v=mobile-icons-20261026') center/20px no-repeat}
 #dashboardView .v14-kpi:nth-child(2):before{background-color:#e8f2ff;background-image:url('/assets/icons/user.svg')}
 #dashboardView .v14-kpi:nth-child(3):before{background-color:#fff1dc;background-image:url('/assets/icons/cash.svg')}
 #dashboardView .v14-kpi:nth-child(4):before{background-color:#f0eaff;background-image:url('/assets/icons/calendar.svg')}
@@ -183,7 +183,7 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
  }
  #dashboardView table.f4-mobile-card-table>tbody>tr>td:first-child,
  #v11Public table.f4-mobile-card-table>tbody>tr>td:first-child{color:#1e5541!important}
- table.f4-mobile-card-table>tbody>tr:not(.f4-card-expanded)>td:nth-child(n+4):not(.f4-card-expand):not(:has(button)):not(:has(a)):not(:has(input)){display:none!important}
+ table.f4-mobile-card-table>tbody>tr:has(.f4-card-expand):not(.f4-card-expanded)>td:nth-child(n+4):not(.f4-card-expand):not(:has(button)):not(:has(a)):not(:has(input)){display:none!important}
  table.f4-mobile-card-table>tbody>tr.f4-card-expanded>td{display:block!important}
  table.f4-mobile-card-table>tbody>tr>td:has(button):not(.f4-card-expand),
  table.f4-mobile-card-table>tbody>tr>td.f4-card-expand{
@@ -249,3 +249,6 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
  #dashboardView .f4-trend-month b{font-size:9px}
  #dashboardView .f4-bank-quick{margin-top:10px}
 }
+
+@media screen and (min-width:761px){table.f4-mobile-card-table td.f4-card-expand{display:none!important}}
+@media print{table.f4-mobile-card-table td.f4-card-expand{display:none!important}}
