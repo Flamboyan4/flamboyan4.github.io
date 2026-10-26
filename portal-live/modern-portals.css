@@ -461,3 +461,39 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
  #f4-account-page .f4-icon-action .f4-action-label,
  #dashboardView .f4-icon-action .f4-action-label{display:inline!important}
 }
+
+/* Final alignment for title-only cards and mobile-only pictogram actions. */
+@media screen and (max-width:760px){
+ #f4-account-page .f4-compact-super-card{
+  display:flex!important;align-items:center!important;flex-wrap:wrap!important;
+  gap:8px!important;justify-content:space-between!important
+ }
+ #f4-account-page .f4-compact-super-card>div:first-child{order:1!important;flex:1 1 65%!important}
+ #f4-account-page .f4-compact-super-card>.f4-card-detail-toggle{order:2!important;margin-left:auto!important}
+ #f4-account-page .f4-compact-super-card>.f4-admin-action-set,
+ #f4-account-page .f4-compact-super-card>button:not(.f4-card-detail-toggle){
+  order:3!important;flex:1 1 100%!important
+ }
+ #dashboardView .f4-compact-bank-card:not(.f4-card-expanded) .f4-bank-expanded-summary{display:none!important}
+ #dashboardView .f4-compact-bank-card.f4-card-expanded .f4-bank-expanded-summary{
+  display:block!important;color:#778780!important;font-size:12px!important
+ }
+ #dashboardView .f4-compact-bank-card .f4-icon-action{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  flex:0 0 40px!important;width:40px!important;min-width:40px!important;max-width:40px!important;
+  height:40px!important;min-height:40px!important;max-height:40px!important;
+  padding:0!important;border-radius:11px!important
+ }
+ #dashboardView .card .f4-icon-action:not(form button),
+ #f4-account-page .f4-compact-super-card .f4-icon-action{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  width:40px!important;min-width:40px!important;max-width:40px!important;
+  height:40px!important;min-height:40px!important;max-height:40px!important;
+  padding:0!important;border-radius:11px!important;white-space:nowrap!important
+ }
+ #dashboardView .card .f4-icon-action .f4-action-label,
+ #f4-account-page .f4-compact-super-card .f4-icon-action .f4-action-label{display:none!important}
+ #dashboardView .card .f4-icon-action .f4-action-symbol,
+ #f4-account-page .f4-compact-super-card .f4-icon-action .f4-action-symbol{display:grid!important;place-items:center!important}
+ #f4-account-page .f4-compact-super-card .f4-card-detail-toggle svg{width:19px;height:19px}
+}
