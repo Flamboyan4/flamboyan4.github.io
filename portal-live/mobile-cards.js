@@ -101,7 +101,8 @@
      toggle.setAttribute('aria-label',expanded?'Tutup rincian':'Lihat rincian');
      toggle.title=expanded?'Tutup rincian':'Lihat rincian';
     });
-    extra.append(toggle);row.append(extra);
+    if(hasAction){cells[cells.length-1].append(toggle);}
+    else {extra.append(toggle);row.append(extra);}
    }
   });
  }
