@@ -165,6 +165,13 @@ function enhance(field){
   field.matches('select')?selectPicker(field,button):calendar(field,button);
  };
  button.addEventListener('focus',sync);
+ // A click on an associated <label> normally opens Android's native picker.
+ // Cancel the synthetic click and send it to our accessible website dialog.
+ field.addEventListener('click',e=>{
+  if(!small())return;
+  e.preventDefault();e.stopImmediatePropagation();
+  button.click();
+ },true);
  field.addEventListener('change',sync);
  field.addEventListener('input',sync);
  const m=new MutationObserver(sync);m.observe(field,{subtree:true,childList:true,attributes:true,attributeFilter:['disabled','selected']});
@@ -173,7 +180,7 @@ function enhance(field){
 }
 function scan(){
  if(!small())return;
- document.querySelectorAll('#dashboardView select,#dashboardView input[type=date],#dashboardView input[type=month],#v11Public select,#f4-account-page select,#f4-account-page input[type=date],#f4-account-page input[type=month]').forEach(enhance);
+ document.querySelectorAll('#dashboardView select,#dashboardView input[type=date],#dashboardView input[type=month],#v11Public select,#f4-account-page select,#f4-account-page input[type=date],#f4-account-page input[type=month],#v24ProgressOverlay select,#v24ProgressOverlay input[type=date],#v24ProgressOverlay input[type=month]').forEach(enhance);
 }
 let pending=false;function schedule(){
  if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;scan()});
