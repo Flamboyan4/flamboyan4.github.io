@@ -91,7 +91,7 @@ settings.onclick=()=>{menu.hidden=true;window.f4OpenUnifiedAccount?.()};
 logout.onclick=async()=>{
  menu.hidden=true;
  try{await api('/api/auth/logout',{method:'POST'})}
- catch(e){alert('Gagal keluar: '+e.message);return}
+ catch(e){if(window.f4UiDialog)await window.f4UiDialog.alert('Gagal keluar: '+e.message);else alert('Gagal keluar: '+e.message);return}
  session=null;role='public';
  if(portal==='book'||portal==='superadmin'){location.assign('/');return}
  window.f4CloseUnifiedAccount?.();await refreshSession();
