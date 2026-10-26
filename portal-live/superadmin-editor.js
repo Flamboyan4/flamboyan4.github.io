@@ -696,10 +696,14 @@ function showBankForm(kind,record){
   add('title','Judul kegiatan','text',record?.title||'',true);
   add('stage','Tahap / langkah','text',record?.stage||'');
   add('description','Uraian perkembangan','textarea',record?.description||'');
-  add('status','Status','text',record?.status||'Berjalan',true);
+  add('status','Status kegiatan','select','',true);
+  for(const value of ['Perencanaan','Berjalan','Selesai'])controls.status.add(new Option(value,value));
+  const previous=record?.status||'Berjalan';
+  if(![...controls.status.options].some(o=>o.value===previous))controls.status.add(new Option(previous,previous));
+  controls.status.value=previous;
   add('nextStep','Agenda berikutnya','text',record?.next_step||'');
-  add('photoUrl','Tautan foto HTTPS','url',record?.photoUrl||'');
-  add('publicVisible','Tampil di publik','select');
+  add('photoUrl','Tautan foto HTTPS (opsional)','url',record?.photoUrl||'');
+  add('publicVisible','Tampilkan di portal publik','select');
   controls.publicVisible.add(new Option('Ya / publik','1'),new Option('Tidak / privat','0'));
   controls.publicVisible.value=record?.public_visible===0?'0':'1';
  }else if(kind==='bank_albums'){
