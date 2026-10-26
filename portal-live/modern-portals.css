@@ -56,7 +56,7 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
 #v11Public .v17-public-banner p{color:#63766d!important;font-size:14px!important;line-height:1.65!important}
 #v11Public .v14-eyebrow{color:#087f5b!important;background:#e9f9f1;padding:5px 10px;border-radius:7px;display:inline-block;font-size:11px;letter-spacing:.04em}
 #v11Public .v17-public-metric,#dashboardView .stat,#dashboardView .metric{background:white!important;border:1px solid #e2ebe6!important;border-radius:16px!important;padding:16px!important;box-shadow:0 3px 12px #17462e04!important;position:relative}
-#v11Public .v17-public-metric:before{content:'';display:block;width:34px;height:34px;border-radius:11px;margin-bottom:10px;background:#e3f8ef url('/assets/icons/bank.svg?v=mobile-icons-20261026') center/20px no-repeat}
+#v11Public .v17-public-metric:before{content:'';display:block;width:34px;height:34px;border-radius:11px;margin-bottom:10px;background:#e3f8ef url('/assets/icons/bank.svg?v=lucide-recycle-20261027') center/20px no-repeat}
 #v11Public .v17-public-metric:nth-child(2):before{background-color:#e8f2ff;background-image:url('/assets/icons/user.svg')}
 #v11Public .v17-public-metric:nth-child(3):before{background-color:#fff1dc;background-image:url('/assets/icons/cash.svg')}
 #v11Public .v17-public-metric:nth-child(4):before{background-color:#f0eaff;background-image:url('/assets/icons/calendar.svg')}
@@ -98,7 +98,7 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
 #v11Public .v27-banner-program #v17Program .v17-feature strong{color:#335447!important;font-size:12px!important;line-height:1.4}
 #v11Public .v17-public-metric[data-metric=user]:before{background-image:url('/assets/icons/user.svg')}
 #v11Public .v17-public-metric[data-metric=inventory]:before{background-image:url('/assets/icons/inventory.svg')}
-#v11Public .v17-public-metric[data-metric=bank]:before{background-image:url('/assets/icons/bank.svg?v=mobile-icons-20261026')}
+#v11Public .v17-public-metric[data-metric=bank]:before{background-image:url('/assets/icons/bank.svg?v=lucide-recycle-20261027')}
 #v11Public .v17-public-metric[data-metric=cash]:before{background-image:url('/assets/icons/cash.svg')}
 #v11Public .v17-public-metric[data-metric=calendar]:before{background-image:url('/assets/icons/calendar.svg')}
 
@@ -111,7 +111,7 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
 #dashboardView #pageDashboard.v14-home{border:0!important;padding:0!important;box-shadow:none!important}
 #dashboardView .v14-hero{display:none}
 #dashboardView .v14-kpi,#dashboardView .v14-panel,#dashboardView .v14-extra{background:#fff!important;border:1px solid #e2ebe6;border-radius:16px;box-shadow:0 3px 12px #17462e04}
-#dashboardView .v14-kpi:before{content:'';display:block;width:34px;height:34px;border-radius:10px;margin-bottom:10px;background:#e3f8ef url('/assets/icons/bank.svg?v=mobile-icons-20261026') center/20px no-repeat}
+#dashboardView .v14-kpi:before{content:'';display:block;width:34px;height:34px;border-radius:10px;margin-bottom:10px;background:#e3f8ef url('/assets/icons/bank.svg?v=lucide-recycle-20261027') center/20px no-repeat}
 #dashboardView .v14-kpi:nth-child(2):before{background-color:#e8f2ff;background-image:url('/assets/icons/user.svg')}
 #dashboardView .v14-kpi:nth-child(3):before{background-color:#fff1dc;background-image:url('/assets/icons/cash.svg')}
 #dashboardView .v14-kpi:nth-child(4):before{background-color:#f0eaff;background-image:url('/assets/icons/calendar.svg')}
@@ -183,7 +183,7 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
  }
  #dashboardView table.f4-mobile-card-table>tbody>tr>td:first-child,
  #v11Public table.f4-mobile-card-table>tbody>tr>td:first-child{color:#1e5541!important}
- table.f4-mobile-card-table>tbody>tr:has(.f4-card-expand):not(.f4-card-expanded)>td:nth-child(n+4):not(.f4-card-expand):not(:has(button)):not(:has(a)):not(:has(input)){display:none!important}
+ /* Optional fields are explicitly classified by the renderer below. */
  table.f4-mobile-card-table>tbody>tr.f4-card-expanded>td{display:block!important}
  table.f4-mobile-card-table>tbody>tr>td:has(button):not(.f4-card-expand),
  table.f4-mobile-card-table>tbody>tr>td.f4-card-expand{
@@ -252,3 +252,73 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
 
 @media screen and (min-width:761px){table.f4-mobile-card-table td.f4-card-expand{display:none!important}}
 @media print{table.f4-mobile-card-table td.f4-card-expand{display:none!important}}
+
+/* Oct 27: collapsed state must override generic table/card cell rules. */
+@media screen and (max-width:760px){
+ #f4-account-page table.f4-mobile-card-table>tbody>tr:not(.f4-card-expanded)>td.f4-card-secondary,
+ #dashboardView table.f4-mobile-card-table>tbody>tr:not(.f4-card-expanded)>td.f4-card-secondary,
+ #v11Public table.f4-mobile-card-table>tbody>tr:not(.f4-card-expanded)>td.f4-card-secondary,
+ #f4-account-page table.f4-mobile-card-table>tbody>tr>td.f4-card-empty,
+ #dashboardView table.f4-mobile-card-table>tbody>tr>td.f4-card-empty,
+ #v11Public table.f4-mobile-card-table>tbody>tr>td.f4-card-empty{
+   display:none!important;visibility:hidden!important
+ }
+ #f4-account-page table.f4-mobile-card-table>tbody>tr.f4-card-expanded>td.f4-card-secondary,
+ #dashboardView table.f4-mobile-card-table>tbody>tr.f4-card-expanded>td.f4-card-secondary,
+ #v11Public table.f4-mobile-card-table>tbody>tr.f4-card-expanded>td.f4-card-secondary{
+   display:block!important;visibility:visible!important
+ }
+ #f4-account-page table.f4-mobile-card-table>tbody>tr>td.f4-card-action,
+ #dashboardView table.f4-mobile-card-table>tbody>tr>td.f4-card-action,
+ #v11Public table.f4-mobile-card-table>tbody>tr>td.f4-card-action{
+   grid-column:1/-1!important;display:flex!important;align-items:center!important;
+   flex-wrap:wrap!important;justify-content:flex-start!important;gap:7px!important;
+   min-height:0!important;margin:0!important;padding:7px 0 0!important
+ }
+ table.f4-mobile-card-table td.f4-card-action::before{display:none!important}
+ #f4-account-page table.f4-mobile-card-table .f4-icon-action,
+ #dashboardView table.f4-mobile-card-table .f4-icon-action,
+ #v11Public table.f4-mobile-card-table .f4-icon-action,
+ #f4-account-page table.f4-mobile-card-table .f4-card-detail-toggle,
+ #dashboardView table.f4-mobile-card-table .f4-card-detail-toggle,
+ #v11Public table.f4-mobile-card-table .f4-card-detail-toggle{
+   display:inline-flex!important;align-items:center!important;justify-content:center!important;
+   flex:0 0 39px!important;box-sizing:border-box!important;
+   width:39px!important;min-width:39px!important;max-width:39px!important;
+   height:39px!important;min-height:39px!important;max-height:39px!important;
+   padding:0!important;margin:0!important;border-radius:11px!important;
+   vertical-align:middle!important;white-space:nowrap!important;line-height:1!important
+ }
+ table.f4-mobile-card-table .f4-icon-action .f4-action-label{display:none!important}
+ table.f4-mobile-card-table .f4-icon-action svg,
+ table.f4-mobile-card-table .f4-card-detail-toggle svg{
+   width:19px!important;height:19px!important;flex:none!important;
+   stroke:currentColor!important;display:block!important
+ }
+ #f4-account-page table.f4-mobile-card-table .f4-card-detail-toggle,
+ #dashboardView table.f4-mobile-card-table .f4-card-detail-toggle{
+   background:#f5f1ff!important;border:1px solid #ded7f6!important;color:#6751b3!important
+ }
+ #v11Public table.f4-mobile-card-table .f4-card-detail-toggle{
+   background:#ecfaf3!important;border:1px solid #cde8d8!important;color:#087f5b!important
+ }
+ table.f4-mobile-card-table .f4-card-detail-toggle[aria-expanded=true] svg{transform:rotate(180deg)}
+ table.f4-mobile-card-table td.f4-card-expand{
+   grid-column:1/-1!important;padding:0!important;border:0!important;
+   display:flex!important;justify-content:flex-end!important
+ }
+ table.f4-mobile-card-table td.f4-card-expand::before{display:none!important}
+ #f4-account-page table.f4-mobile-card-table td.f4-card-action .sa-account-manage,
+ #f4-account-page table.f4-mobile-card-table td.f4-card-action .sa-account-reset{
+   position:static!important;inset:auto!important;transform:none!important;
+   padding:0!important;margin:0!important
+ }
+}
+/* Restore text labels and suppress mobile-only detail controls on larger screens. */
+@media screen and (min-width:761px), print{
+ table.f4-mobile-card-table .f4-card-detail-toggle{display:none!important}
+ table.f4-mobile-card-table .f4-icon-action svg{display:none!important}
+ table.f4-mobile-card-table .f4-action-label{display:inline!important}
+ table.f4-mobile-card-table td.f4-card-secondary,
+ table.f4-mobile-card-table td.f4-card-empty{visibility:visible!important}
+}
