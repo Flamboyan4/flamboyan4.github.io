@@ -260,7 +260,7 @@ html.f4-sa-drawer-lock{overflow:hidden!important}
  width:39px;height:39px;padding:0;border:0;border-radius:10px;background:#e4f1fb;
  color:#27658e;font:700 22px/1 system-ui;cursor:pointer}
 @media(max-width:1023px){.f4-sa-standalone-menu{display:grid;place-items:center}}
-</style><link rel="stylesheet" href="../loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261026-mobile-cards">
+</style><link rel="stylesheet" href="../loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261027-cards-toggle">
 </head>
 <body>
 <div id="guard" role="status"><h2>Memeriksa akses Superadmin…</h2><p>Portal ini hanya untuk akun dengan role Superadmin.</p></div>
@@ -587,7 +587,7 @@ function paintAccounts(){
   const tr=el('tr');
   const name=el('td'),namelabel=el('strong',accountName(a));
   name.append(namelabel);
-  const id=accountId(a);if(id)name.append(el('small',id));
+  // Account/member IDs remain internal for editing and audits; no IDs on list cards.
   const house=el('td',accountHouse(a)||'—');
   const user=el('td',accountUser(a)||'—');
   const role=el('td'),tag=el('span',({anggota:'Anggota',admin:'Admin',superadmin:'Superadmin'})[normalizedRole(a.role||a.peran||a.account_role)]||'Publik','sa-account-role');
@@ -775,4 +775,4 @@ boot();
 })();
 </script>
 <script src="../superadmin-editor.js?v=separate-areas-20261026"></script>
-<script defer src="/portal-live/mobile-cards.js?v=20261026-mobile-cards"></script></body></html>
+<script defer src="/portal-live/mobile-cards.js?v=20261027-cards-toggle"></script></body></html>
