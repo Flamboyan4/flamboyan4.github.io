@@ -573,7 +573,9 @@ async function fetchData(kind){
    .filter(x=>kind==='documentation'?x.status==='aktif'&&!/^Portal Utama\s*[:/]/i.test(x.category||''):
     String(x.category||'')==='bank_sampah'&&Number(x.active)===1)
    .map(x=>({...x,_f4_bank_kind:kind==='documentation'?'bank_albums':'bank_inventory',
-    drive_url:'',photo_ref:''}));
+    drive_url:kind==='documentation'?bankFolderLink(x):'',
+    photo_ref:kind==='inventory'?String(x.photoUrl||''):''
+   }));
   const bankById=new Map(bankRows.map(x=>[String(x.id),x]));
   const portalIds=new Set(portalRows.map(x=>String(x.id)));
   // Legacy unassigned albums are visible for classification, not published to Bank Sampah.
@@ -604,6 +606,17 @@ const bankApi='https://api.flamboyan4.web.id/api/v2/admin/bank/';
 const bankCategory=c=>/^Bank Sampah\s*[:/]/i.test(String(c||''))?String(c):'Bank Sampah: '+String(c||'Lainnya');
 const bankCategoryLabel=c=>String(c||'').replace(/^Bank Sampah\s*[:/]\s*/i,'')||'Lainnya';
 const bankScoped=a=>/^Bank Sampah\s*[:/]/i.test(String(a.category||''))||/^(bank[_ -]?sampah|wastebank)$/i.test(String(a.category||''));
+const bankFolderLink=record=>{
+ const description=String(record?.description||'');
+ const fromDescription=description.match(/(?:^|\n)\s*Tautan folder:\s*(https:\/\/drive\.google\.com\/drive\/folders\/[^\s]+)/i)?.[1]||'';
+ const candidate=String(record?.drive_url||record?.folderUrl||record?.sourceFolder||fromDescription||'').trim();
+ if(candidate&&/^https:\/\/drive\.google\.com\/drive\/folders\/[\w-]+/i.test(candidate))return candidate;
+ // Link arsip kegiatan Gorol yang telah diverifikasi dari metadata sumber.
+ if(/gorol|drop point/i.test(String(record?.title||''))&&
+    String(record?.event_on||'').startsWith('2026-10-11'))
+  return 'https://drive.google.com/drive/folders/1ywp2v8rUH-oAGcM91PQyVrO7Wx9iLdCA';
+ return '';
+};
 function bankField(form,key,label,type='text',value='',required=false){
  const wrapper=node('label'),title=node('span',label);let input;
  if(type==='textarea'){input=node('textarea');input.rows=3}
@@ -641,6 +654,14 @@ async function openBankAdminEditor(kind){
       [record.event_on,bankCategoryLabel(record.category),bankScoped(record)?'Bank Sampah':'Belum ditandai khusus Bank Sampah'].filter(Boolean);
     text.append(node('small',detail.join(' • ')));article.append(text);
     const actions=node('span',undefined,'f4-admin-action-set');
+    if(kind==='bank_albums'){
+     const sourceUrl=bankFolderLink(record);
+     if(sourceUrl){
+      const link=node('a','Buka folder foto/video','f4-admin-source-link');
+      link.href=sourceUrl;link.target='_blank';link.rel='noopener noreferrer';
+      actions.append(link);
+     }
+    }
     if(kind!=='bank_inventory')actions.append(btn(kind==='bank_albums'?'Atur kategori':'Edit',()=>showBankForm(kind,record)));
     const del=btn('Hapus',()=>removeContentRecord(record,kind,del),'f4-admin-btn f4-admin-danger');
     actions.append(del);article.append(actions);box.append(article);
