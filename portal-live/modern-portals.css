@@ -750,3 +750,13 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
   display:none!important
  }
 }
+
+/* Specificity fix: action buttons remain visible when a card has nothing to expand. */
+@media screen and (max-width:760px){
+ #f4-account-page .f4-compact-super-card.f4-card-no-detail:not(.f4-card-expanded)>.f4-admin-action-set:not(.f4-card-detail-toggle),
+ #f4-account-page .f4-compact-super-card.f4-card-no-detail:not(.f4-card-expanded)>button:not(.f4-card-detail-toggle){
+  display:flex!important;visibility:visible!important;grid-column:1/-1!important;
+  grid-row:2!important;flex-wrap:wrap!important;align-items:center!important;
+  gap:8px!important;min-width:0!important;width:100%!important;margin-top:9px!important
+ }
+}
