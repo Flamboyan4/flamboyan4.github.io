@@ -112,10 +112,17 @@ function enrichTable(table){
 }
 function enrichBankCard(card){
  if(card.dataset.f4CompactCard)return;
- const header=card.querySelector(':scope > .toolbar'),title=header?.querySelector('strong');
- if(!header||!title)return;
+ let header=card.querySelector(':scope > .toolbar');
+ let title=header?.querySelector('strong');
+ // Cash/expense activity has no toolbar; build a title bar without changing the record.
+ if(!header){
+  title=card.querySelector(':scope > strong');
+  if(!title)return;
+  header=document.createElement('div');header.className='toolbar f4-bank-activity-head';
+  card.insertBefore(header,title);header.append(title);
+ }
+ if(!title)return;
  card.dataset.f4CompactCard='1';card.classList.add('f4-compact-bank-card');
- const detail=card.querySelector('button:not(.f4-card-detail-toggle)');
  const btns=[...card.querySelectorAll('button')];
  btns.forEach(iconify);
  // The existing detailed API record is opened with the same tap when available.
