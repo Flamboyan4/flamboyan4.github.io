@@ -295,7 +295,7 @@ html.f4-sa-drawer-lock{overflow:hidden!important}
  color:#27658e;font:700 22px/1 system-ui;cursor:pointer}
 @media(max-width:1023px){.f4-sa-standalone-menu{display:grid;place-items:center}}
 </style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=modal-gallery-drive-20261026"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/png" href="/favicon.png?v=logo-f4-20261026">
-<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261026-1">
+<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261026-mobile-cards">
 </head>
 <body>
 <div id="guard" role="status"><h2>Memeriksa akses Superadmin…</h2><p>Portal ini hanya untuk akun dengan role Superadmin.</p></div>
@@ -787,7 +787,7 @@ async function openWarga(){
  active='residents';group='masters';
  if(!side.querySelector('button.active'))sidebar('masters');
  title('Data Warga & Rumah','Master lintas portal — identitas dan nomor rumah dikelola satu kali');
- const bar=el('div',undefined,'sa-controls'),search=el('input');search.placeholder='Cari warga atau rumah';
+ const bar=el('div',undefined,'sa-controls sa-resident-controls'),search=el('input');search.placeholder='Cari warga atau rumah';
  bar.append(search,button('+ Tambah Rumah',()=>wargaForm('add_house'),'sa-action'),button('+ Tambah Warga',()=>wargaForm('add_resident'),'sa-action'),button('Muat ulang',openWarga,'sa-action'));
  main.append(bar);const info=notice(''),list=el('div',undefined,'sa-list');main.append(list);
  const loadToken=F4Loading.begin(info,'Memuat data warga…');
@@ -858,4 +858,4 @@ boot();
 })();
 </script>
 <script src="/portal-live/superadmin-editor.js?v=separate-areas-20261026"></script>
-<script src="/portal-live/direct-shell.js?v=content-svg-spacing-20261026"></script><script src="/portal-live/unified-account.js?v=account-native-20261025b"></script></body></html>
+<script src="/portal-live/direct-shell.js?v=content-svg-spacing-20261026"></script><script src="/portal-live/unified-account.js?v=account-native-20261025b"></script><script defer src="/portal-live/mobile-cards.js?v=20261026-mobile-cards"></script></body></html>
