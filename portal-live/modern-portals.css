@@ -322,3 +322,142 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
  table.f4-mobile-card-table td.f4-card-secondary,
  table.f4-mobile-card-table td.f4-card-empty{visibility:visible!important}
 }
+
+/* Oct 27.2 — Only title in the closed card. Records and actions expand together. */
+@media screen and (max-width:760px){
+ #f4-account-page table.f4-mobile-card-table>tbody>tr.f4-compact-record,
+ #dashboardView table.f4-mobile-card-table>tbody>tr.f4-compact-record,
+ #v11Public table.f4-mobile-card-table>tbody>tr.f4-compact-record{
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+  gap:0!important;padding:12px 14px!important;min-height:60px!important;
+  align-content:center!important;
+ }
+ #f4-account-page table.f4-mobile-card-table>tbody>tr.f4-compact-record:not(.f4-card-expanded)>td:not(.f4-card-title),
+ #dashboardView table.f4-mobile-card-table>tbody>tr.f4-compact-record:not(.f4-card-expanded)>td:not(.f4-card-title),
+ #v11Public table.f4-mobile-card-table>tbody>tr.f4-compact-record:not(.f4-card-expanded)>td:not(.f4-card-title){
+  display:none!important;visibility:hidden!important
+ }
+ #f4-account-page table.f4-mobile-card-table>tbody>tr.f4-compact-record>td.f4-card-title,
+ #dashboardView table.f4-mobile-card-table>tbody>tr.f4-compact-record>td.f4-card-title,
+ #v11Public table.f4-mobile-card-table>tbody>tr.f4-compact-record>td.f4-card-title{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+  gap:12px!important;grid-column:1/-1!important;min-width:0!important;
+  padding:5px 0!important;border:0!important;font-size:15px!important;font-weight:750!important;
+  color:var(--modern-ink,#253847)!important;cursor:pointer
+ }
+ table.f4-mobile-card-table tr.f4-compact-record>td.f4-card-title::before{display:none!important}
+ table.f4-mobile-card-table tr.f4-compact-record>td.f4-card-title>strong,
+ table.f4-mobile-card-table tr.f4-compact-record>td.f4-card-title>span,
+ table.f4-mobile-card-table tr.f4-compact-record>td.f4-card-title>div{
+  min-width:0;overflow-wrap:anywhere
+ }
+ #f4-account-page table.f4-mobile-card-table>tbody>tr.f4-compact-record.f4-card-expanded>td.f4-card-secondary,
+ #f4-account-page table.f4-mobile-card-table>tbody>tr.f4-compact-record.f4-card-expanded>td.f4-card-action,
+ #dashboardView table.f4-mobile-card-table>tbody>tr.f4-compact-record.f4-card-expanded>td.f4-card-secondary,
+ #dashboardView table.f4-mobile-card-table>tbody>tr.f4-compact-record.f4-card-expanded>td.f4-card-action,
+ #v11Public table.f4-mobile-card-table>tbody>tr.f4-compact-record.f4-card-expanded>td.f4-card-secondary,
+ #v11Public table.f4-mobile-card-table>tbody>tr.f4-compact-record.f4-card-expanded>td.f4-card-action{
+  display:block!important;visibility:visible!important;grid-column:1/-1!important;
+  margin-top:10px!important;padding-top:9px!important;border-top:1px solid #edf1f1!important
+ }
+ #f4-account-page table.f4-mobile-card-table>tbody>tr.f4-compact-record.f4-card-expanded>td.f4-card-action,
+ #dashboardView table.f4-mobile-card-table>tbody>tr.f4-compact-record.f4-card-expanded>td.f4-card-action{
+  display:flex!important;flex-wrap:wrap!important;gap:8px!important
+ }
+ table.f4-mobile-card-table tr.f4-compact-record .f4-card-detail-toggle{
+  display:inline-grid!important;place-items:center!important;
+  width:34px!important;min-width:34px!important;max-width:34px!important;
+  height:34px!important;min-height:34px!important;max-height:34px!important;
+  padding:0!important;flex:none!important;margin:0!important;
+  color:#526f7d!important;background:#f2f6f8!important;border:1px solid #e1e9ec!important;
+  border-radius:10px!important
+ }
+ #dashboardView table.f4-mobile-card-table .f4-card-detail-toggle{
+  background:#ebf9f2!important;color:#087f5b!important;border-color:#d7efe2!important
+ }
+ #f4-account-page table.f4-mobile-card-table>tbody>tr.f4-compact-record.f4-card-expanded>td.f4-card-title,
+ #dashboardView table.f4-mobile-card-table>tbody>tr.f4-compact-record.f4-card-expanded>td.f4-card-title{
+  padding-bottom:8px!important;border-bottom:1px solid #edf1f1!important
+ }
+ /* Non-table cards in Superadmin and Bank Sampah are now accordion records. */
+ #f4-account-page .f4-compact-super-card,
+ #dashboardView .f4-compact-bank-card{
+  position:relative!important;background:#fff!important;
+  border:1px solid #e0e9e6!important;border-radius:15px!important;
+  padding:12px 14px!important;min-height:60px!important;
+  margin-bottom:10px!important;box-shadow:none!important
+ }
+ #f4-account-page .f4-compact-super-card:not(.f4-card-expanded)>:not(:first-child):not(.f4-card-detail-toggle),
+ #dashboardView .f4-compact-bank-card:not(.f4-card-expanded)>:not(:first-child){
+  display:none!important
+ }
+ #f4-account-page .f4-compact-super-card:not(.f4-card-expanded)>div:first-child small,
+ #f4-account-page .f4-compact-super-card:not(.f4-card-expanded)>div:first-child p,
+ #dashboardView .f4-compact-bank-card:not(.f4-card-expanded)>div:first-child .tag,
+ #dashboardView .f4-compact-bank-card:not(.f4-card-expanded)>div:first-child .v18-history-id{
+  display:none!important
+ }
+ #dashboardView .f4-compact-bank-card>div:first-child{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+  gap:12px!important;cursor:pointer!important;margin:0!important;
+ }
+ #dashboardView .f4-compact-bank-card>div:first-child strong{font-size:16px!important;line-height:1.35!important}
+ #dashboardView .f4-compact-bank-card>div:first-child .f4-card-detail-toggle{margin-left:auto!important}
+ #dashboardView .f4-compact-bank-card>div:first-child .tag{font-size:11px!important}
+ #f4-account-page .f4-compact-super-card>div:first-child{min-width:0;flex:1}
+ #f4-account-page .f4-compact-super-card>div:first-child strong{font-size:15px!important}
+ #f4-account-page .f4-compact-super-card>.f4-card-detail-toggle{
+  display:grid!important;place-items:center!important;flex:none!important;
+  background:#f4f0ff!important;color:#6652b6!important;
+  border:1px solid #e6e0fa!important;border-radius:10px!important;
+  width:34px!important;height:34px!important;min-width:34px!important;padding:0!important
+ }
+ #f4-account-page .f4-compact-super-card:not(.f4-card-expanded)>div:first-child{align-self:center}
+ #f4-account-page .f4-compact-super-card.f4-card-expanded>div:first-child small{display:block;margin-top:9px}
+ #f4-account-page .f4-compact-super-card.f4-card-expanded>span.f4-admin-action-set,
+ #f4-account-page .f4-compact-super-card.f4-card-expanded>button:not(.f4-card-detail-toggle){
+  display:flex!important;flex-wrap:wrap!important;gap:7px!important;margin-top:10px
+ }
+ #dashboardView .f4-compact-bank-card.f4-card-expanded>:not(:first-child){
+  display:block!important;margin-top:11px!important
+ }
+ #dashboardView .f4-compact-bank-card.f4-card-expanded>.toolbar:not(:first-child){
+  display:flex!important;justify-content:flex-start!important;flex-wrap:wrap!important;gap:8px!important
+ }
+ #dashboardView .f4-compact-bank-card .f4-nested-detail-action{display:none!important}
+ /* One unified compact icon shape for contextual actions. */
+ #f4-account-page .f4-compact-super-card .f4-icon-action,
+ #f4-account-page .f4-admin-action-set .f4-icon-action,
+ #dashboardView .f4-compact-bank-card .f4-icon-action,
+ #dashboardView .toolbar .f4-icon-action,
+ #dashboardView #v9Sync.f4-icon-action,
+ #dashboardView .v14-head .f4-icon-action{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  flex:0 0 40px!important;width:40px!important;min-width:40px!important;
+  max-width:40px!important;height:40px!important;min-height:40px!important;max-height:40px!important;
+  padding:0!important;margin:0!important;line-height:1!important;
+  white-space:nowrap!important;border-radius:11px!important
+ }
+ #f4-account-page .f4-icon-action .f4-action-label,
+ #dashboardView .f4-icon-action .f4-action-label{display:none!important}
+ #f4-account-page .f4-icon-action .f4-action-symbol,
+ #dashboardView .f4-icon-action .f4-action-symbol{display:grid!important;place-items:center!important}
+ #f4-account-page .f4-icon-action .f4-action-symbol svg,
+ #dashboardView .f4-icon-action .f4-action-symbol svg{width:19px!important;height:19px!important;display:block!important}
+ #dashboardView .v14-head button.f4-icon-action{min-width:40px!important}
+ #dashboardView #v9Sync.f4-icon-action{width:40px!important;max-width:40px!important;display:inline-flex!important}
+ #dashboardView .f4-compact-bank-card .f4-card-detail-toggle,
+ #f4-account-page .f4-compact-super-card .f4-card-detail-toggle{transition:transform .15s}
+ #dashboardView .f4-compact-bank-card.f4-card-expanded .f4-card-detail-toggle svg,
+ #f4-account-page .f4-compact-super-card.f4-card-expanded .f4-card-detail-toggle svg,
+ table.f4-mobile-card-table tr.f4-card-expanded>td.f4-card-title .f4-card-detail-toggle svg{transform:rotate(90deg)}
+}
+@media screen and (min-width:761px),print{
+ #f4-account-page .f4-compact-super-card>.f4-card-detail-toggle,
+ #dashboardView .f4-compact-bank-card .f4-card-detail-toggle,
+ table.f4-mobile-card-table tr.f4-compact-record .f4-card-detail-toggle{display:none!important}
+ #f4-account-page .f4-icon-action .f4-action-symbol,
+ #dashboardView .f4-icon-action .f4-action-symbol{display:none!important}
+ #f4-account-page .f4-icon-action .f4-action-label,
+ #dashboardView .f4-icon-action .f4-action-label{display:inline!important}
+}
