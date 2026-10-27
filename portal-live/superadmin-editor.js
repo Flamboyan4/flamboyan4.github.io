@@ -72,7 +72,8 @@ const jerseyRp=value=>'Rp '+(Number(value)||0).toLocaleString('id-ID');
    Historical status-derived amounts remain unclassified by payment method. */
 function jerseyPaymentSummary(rows){
  const total={lunas:0,belumLunas:0,dp:0,belumBayar:0,hargaBelumAda:0,
-  qris:0,cash:0,belumDirinci:0,nominalLama:0,danaMasuk:0};
+  qris:0,cash:0,belumDirinci:0,nominalLama:0,perluRinci:0,danaMasuk:0,
+  rincianBelumJelas:[]};
  for(const row of rows||[]){
   const price=Math.max(0,Number(row.nominal_rp)||0);
   const paid=Math.max(0,paidJerseyAmount(row));
@@ -88,19 +89,31 @@ function jerseyPaymentSummary(rows){
    // Includes legacy "Lunas" amounts derived from nominal_rp and old DP statuses.
    total.nominalLama+=paid;
    total.belumDirinci+=paid;
+   if(paid>0)total.rincianBelumJelas.push({row,amount:paid,
+    reason:'Nilai dihitung dari status lama; uang diterima dan metode belum dikonfirmasi.'});
    continue;
   }
   const split=jerseySplitExact(row);
   if(split){
    if(Number.isSafeInteger(split.qris)&&Number.isSafeInteger(split.cash)&&split.qris>=0&&split.cash>=0&&split.qris+split.cash===exact){
     total.qris+=split.qris;total.cash+=split.cash;
-   }else total.belumDirinci+=paid; // Invalid legacy split must never be guessed.
+   }else{
+    total.belumDirinci+=paid;total.perluRinci+=paid;
+    if(paid>0)total.rincianBelumJelas.push({row,amount:paid,
+     reason:'Rincian QRIS dan Cash tidak sesuai total uang diterima.'});
+   }
    continue;
   }
   const kind=jerseyMethodKind(row.method);
   if(kind==='QRIS')total.qris+=paid;
   else if(kind==='Cash')total.cash+=paid;
-  else total.belumDirinci+=paid; // Unsplit mixed or unknown payments stay unclassified.
+  else{
+   total.belumDirinci+=paid;total.perluRinci+=paid;
+   if(paid>0)total.rincianBelumJelas.push({row,amount:paid,
+    reason:kind==='Campuran'?'Pembayaran campuran belum memiliki pembagian nominal QRIS/Cash.':
+     kind==='Lainnya'?'Metode lain belum dimasukkan ke kelompok QRIS atau Cash.':
+     'Nominal sudah dicatat, tetapi metode pembayarannya belum diisi.'});
+  }
  }
  return total;
 }
@@ -242,10 +255,33 @@ function viewList(){
   statuses.append(node('strong','Status: '),
    node('span','Lunas '+t.lunas+' • Belum lunas '+t.belumLunas+' (DP '+t.dp+' • Belum bayar '+t.belumBayar+')'));
   const methods=node('p');
-  methods.append(node('strong','Dana diterima: '),
-   node('span','QRIS '+jerseyRp(t.qris)+' • Cash '+jerseyRp(t.cash)+' • Lainnya/belum dirinci '+jerseyRp(t.belumDirinci)));
+  methods.append(node('strong','Rekap pembayaran: '),
+   node('span','QRIS '+jerseyRp(t.qris)+' • Cash '+jerseyRp(t.cash)+
+    ' • Metode belum jelas '+jerseyRp(t.perluRinci)+
+    ' • Berdasarkan status lama '+jerseyRp(t.nominalLama)));
   panel.append(statuses,methods);
-  if(t.nominalLama>0)panel.append(node('small','Termasuk '+jerseyRp(t.nominalLama)+' nilai pembayaran lama yang belum mempunyai nominal diterima terkonfirmasi; tidak dialokasikan ke QRIS/Cash.'));
+  if(t.nominalLama>0)panel.append(node('small',
+   'Status lama '+jerseyRp(t.nominalLama)+' adalah nilai perkiraan dari status Lunas/DP, bukan penerimaan yang sudah diverifikasi. Jangan gabungkan ke QRIS atau Cash sebelum dikonfirmasi.'));
+  if(t.rincianBelumJelas.length){
+   const detail=node('details',undefined,'f4-jersey-payment-reconciliation');
+   const head=node('summary');
+   head.append(node('strong','Lihat rincian '+jerseyRp(t.belumDirinci)),
+    node('span',t.rincianBelumJelas.length+' pemesan membutuhkan pemeriksaan'));
+   detail.append(head);
+   const list=node('div',undefined,'f4-jersey-unclassified-list');
+   for(const entry of t.rincianBelumJelas){
+    const line=node('div',undefined,'f4-jersey-unclassified-row');
+    const info=node('div');
+    info.append(node('strong',String(entry.row.resident||'Pemesan tidak bernama')),
+     node('span',entry.reason),
+     node('small','Catatan metode: '+(plainJerseyMethod(entry.row.method)||'—')+
+      ' • Status: '+String(entry.row.payment_status||'—')));
+    line.append(info,node('b',jerseyRp(entry.amount)),
+     btn('Edit',()=>showForm(entry.row),'f4-admin-btn'));
+    list.append(line);
+   }
+   detail.append(list);panel.append(detail);
+  }
   main.append(panel);
  }
  const container=node('div',undefined,'f4-admin-list');container.id='f4-admin-list';main.append(container);
@@ -477,10 +513,11 @@ function printJerseyReport(includeFunds=null){
        '</b> (DP '+paymentReport.dp+' • Belum bayar '+paymentReport.belumBayar+')</div>'+
     '<div><strong>Dana menurut metode:</strong> QRIS <b>'+money(paymentReport.qris)+
        '</b> • Cash <b>'+money(paymentReport.cash)+
-       '</b> • Lainnya/belum dirinci <b>'+money(paymentReport.belumDirinci)+'</b></div>'+
+       '</b> • Metode belum jelas <b>'+money(paymentReport.perluRinci)+
+       '</b> • Berdasarkan status lama <b>'+money(paymentReport.nominalLama)+'</b></div>'+
   '</div>':'')+
  paintedSections+
- (includeFunds?'<p class="meta">Catatan: dana metode hanya diakui bila nominal diterima tercatat. Pembayaran campuran tanpa rincian dan data lama ('+money(paymentReport.nominalLama)+') masuk Lainnya/belum dirinci. DP lama tanpa nominal tidak diestimasi. Titipan tidak mengurangi kekurangan pemesan lain.</p>':'')+
+ (includeFunds?'<p class="meta">Catatan: nilai dari status pembayaran lama ('+money(paymentReport.nominalLama)+') masih perkiraan, belum termasuk nominal penerimaan terkonfirmasi. Metode belum jelas ('+money(paymentReport.perluRinci)+') harus ditelusuri sebelum diklasifikasikan sebagai QRIS/Cash. Titipan tidak mengurangi kekurangan pemesan lain.</p>':'')+
  '<div class="approval">Mengetahui, Humas Flamboyan 4<strong>Heri Juwandi</strong></div>'+
  '<p class="foot">Sumber: data pesanan Jersey pada flamboyan4.web.id</p>'+
  '<script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>';

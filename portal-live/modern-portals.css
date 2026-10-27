@@ -1514,3 +1514,21 @@ body.f4-direct-bank #dashboardView #v9List tr[hidden]{display:none!important}
  min-height:44px;padding:10px 12px;appearance:auto;background-color:#fff;cursor:pointer
 }
 @media(max-width:560px){#f4-account-page .f4-jersey-split-fields{grid-template-columns:1fr}}
+
+/* Expandable payment-source audit, only available to Superadmin. */
+#f4-account-page .f4-jersey-payment-reconciliation{border-top:1px solid #dee6f0;margin-top:5px;padding-top:7px}
+#f4-account-page .f4-jersey-payment-reconciliation>summary{display:flex;align-items:center;flex-wrap:wrap;gap:7px;cursor:pointer;color:#275a9a;font-size:12px;line-height:1.4}
+#f4-account-page .f4-jersey-payment-reconciliation>summary span{color:#69798d;font-size:11px}
+#f4-account-page .f4-jersey-unclassified-list{display:grid;gap:5px;margin-top:9px}
+#f4-account-page .f4-jersey-unclassified-row{display:flex;align-items:center;gap:10px;justify-content:space-between;background:#fff;border:1px solid #e1e7f1;border-radius:9px;padding:9px 11px}
+#f4-account-page .f4-jersey-unclassified-row>div{display:grid;gap:2px;flex:1;min-width:0}
+#f4-account-page .f4-jersey-unclassified-row>div strong{font-size:12px}
+#f4-account-page .f4-jersey-unclassified-row>div span{font-size:11px;color:#566579}
+#f4-account-page .f4-jersey-unclassified-row>div small{font-size:10px;color:#788399;overflow-wrap:anywhere}
+#f4-account-page .f4-jersey-unclassified-row>b{font-size:12px;white-space:nowrap}
+#f4-account-page .f4-jersey-unclassified-row button{flex-shrink:0;font-size:11px;min-width:0;padding:7px 9px}
+@media(max-width:530px){
+ #f4-account-page .f4-jersey-unclassified-row{flex-wrap:wrap}
+ #f4-account-page .f4-jersey-unclassified-row>div{flex-basis:100%}
+ #f4-account-page .f4-jersey-unclassified-row button{margin-left:auto}
+}
