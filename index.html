@@ -530,24 +530,18 @@ body>div.fixed.bottom-6.right-6{
               <span id="bs-status-badge" class="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full">Aktif</span>
             </div>
 
-           <div class="relative rounded-lg h-32 overflow-hidden mb-3 shadow-sm bg-slate-800">
-  <!-- Foto Latar Belakang Progres -->
-  <img id="bs-step-img" src="" alt="Progres Bank Sampah" class="absolute inset-0 w-full h-full object-cover opacity-40">
-  <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/50 to-transparent"></div>
+           <!-- Foto progres terbaru tampil bersih tanpa overlay. -->
+            <div class="relative rounded-lg h-32 overflow-hidden mb-3 shadow-sm bg-slate-100 border border-emerald-100">
+              <img id="bs-step-img" src="" alt="Progres Bank Sampah" class="block w-full h-full object-cover object-center">
+            </div>
 
-  <div class="relative z-10 p-3.5 flex flex-col justify-between h-full text-white">
-    <div class="flex items-center justify-between">
-      <span id="bs-step-tag" class="text-[10px] font-mono bg-emerald-600/80 text-white px-2 py-0.5 rounded border border-emerald-400/30">Langkah 2</span>
-      <i data-lucide="external-link" class="w-4 h-4 text-emerald-300 opacity-80 group-hover:opacity-100 transition"></i>
-    </div>
+            <!-- Informasi satu progres terbaru ditempatkan di bawah foto. -->
+            <div class="mb-3 space-y-1.5">
+              <span id="bs-step-tag" class="inline-flex text-[10px] font-semibold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full">Progres terbaru</span>
+              <p id="bs-step-title" class="text-[13px] font-bold text-slate-800 leading-snug">Pembuatan Wadah Drop Point</p>
+              <p id="bs-step-desc" class="text-[11px] text-slate-600 leading-relaxed line-clamp-3">Membuat tempat untuk menampung sampah sebelum nantinya akan dijual</p>
+            </div>
 
-    <div>
-      <p id="bs-step-title" class="text-xs font-bold text-white leading-snug">Pembuatan Wadah Drop Point</p>
-      <p id="bs-step-desc" class="text-[10px] text-slate-200 line-clamp-1 mt-0.5">Membuat tempat untuk menampung sampah sebelum nantinya akan dijual</p>
-    </div>
-  </div>
-</div>
-              
             <div class="space-y-1.5 text-xs text-slate-600">
               <div class="flex items-center space-x-2 text-[11px]">
                 <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
@@ -3805,7 +3799,7 @@ async function loadProgresBankSampahIndex(){
   }
   const active=items[0]; // satu progres terbaru menurut tanggal
   const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=String(value||'—')};
-  set('bs-step-tag',active.stage);
+  set('bs-step-tag','Progres terbaru');
   set('bs-step-title',active.title);
   set('bs-step-desc',active.description||'Pantau perkembangan kegiatan Bank Sampah.');
   set('bs-info-1','Tahap: '+active.stage.replace(/^Tahap:\s*/i,''));
