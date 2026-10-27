@@ -47,8 +47,10 @@
       #v12History tbody td{display:block;padding:4px 2px}#v12History tbody tr{padding:12px 14px}
       #v12Deposits table tbody td{display:block;padding:4px 2px}#v12Deposits table tbody tr{padding:10px}
       #v12Deposits summary{cursor:pointer;line-height:1.6;font-weight:650;list-style-position:inside}
-      #v12Private>.toolbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-      #v12Private>.toolbar button:first-child{grid-column:1/-1}
+      /* Tabungan Saya: tiga aksi sejajar di HP, tombol refresh tetap ikon ringkas. */
+      #v12Private>.toolbar{display:grid!important;grid-template-columns:46px minmax(0,1fr) minmax(0,1fr)!important;gap:8px;align-items:stretch}
+      #v12Private>.toolbar>button{min-width:0;white-space:nowrap}
+      #v12Private>.toolbar>button:first-child{grid-column:auto!important;width:100%!important;min-width:0!important;padding-left:0!important;padding-right:0!important}
       .public-hero{padding:20px 15px}.public-hero .toolbar{align-items:stretch}.public-hero .toolbar button{width:100%}
       .v13-kop strong{font-size:15px}.v13-kop-mark{width:44px;height:44px;font-size:23px}
     }
