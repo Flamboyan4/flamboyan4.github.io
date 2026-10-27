@@ -171,6 +171,51 @@ body>div.fixed.bottom-6.right-6{
  #card-pengeluaran>div:last-child>span:first-child{white-space:nowrap!important}
 }
 </style>
+<style id="f4-jersey-compact-modal-20261027">
+/* Public Jersey popup: maximize actual table space, never change D1 financial logic. */
+#modal-jersey .f4-jersey-dialog{height:min(88vh,850px);height:min(88dvh,850px);max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);min-height:0}
+#modal-jersey .f4-jersey-topbar{display:grid;grid-template-columns:auto minmax(0,1fr) 36px;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid #e8edf4;background:#fff;flex-shrink:0}
+#modal-jersey .f4-jersey-modal-heading{font-size:14px;line-height:1.3;font-weight:800;color:#26334b;margin:0;white-space:nowrap}
+#modal-jersey .f4-jersey-tabs{display:flex;align-items:center;justify-content:center;gap:8px;min-width:0;max-width:590px;width:100%;margin-inline:auto}
+#modal-jersey .f4-jersey-tabs>button{min-width:0;min-height:36px;padding:7px 11px;border-radius:10px;font-size:12px;line-height:1.35;white-space:nowrap}
+#modal-jersey .f4-jersey-close{display:grid;place-items:center;width:36px;height:36px;min-width:36px}
+#modal-jersey .f4-jersey-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:8px 16px;background:#fafbfe;border-bottom:1px solid #edf0f6;flex-shrink:0}
+#modal-jersey .f4-jersey-stat{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;border:1px solid #e6eaf2;border-radius:10px;background:#fff}
+#modal-jersey .f4-jersey-stat p{color:#66758d;font-size:11px;font-weight:650;line-height:1.25;margin:0}
+#modal-jersey .f4-jersey-stat strong{font-size:13px;line-height:1.25;white-space:nowrap;font-weight:800;font-variant-numeric:tabular-nums}
+#modal-jersey .f4-jersey-stat-bill strong{color:#4f46e5}
+#modal-jersey .f4-jersey-stat-paid strong{color:#079669}
+#modal-jersey .f4-jersey-stat-due strong{color:#dc2450}
+#modal-jersey .f4-jersey-filterbar{display:flex;align-items:center;gap:9px;padding:9px 16px;background:#fff;border-bottom:1px solid #e8edf4;flex-shrink:0}
+#modal-jersey .f4-jersey-filterbar input{flex:1;min-width:0;width:100%;height:36px;padding:7px 12px;background:#fff}
+#modal-jersey .f4-jersey-titipan{display:inline-flex;align-items:center;white-space:nowrap;flex-shrink:0;border:1px solid #f3dfae;background:#fffbef;color:#92600d;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:750;line-height:1.3}
+#modal-jersey .f4-jersey-titipan[hidden]{display:none!important}
+#modal-jersey .f4-jersey-table-wrap{padding:2px 14px 12px;overscroll-behavior:contain;scrollbar-gutter:stable}
+#modal-jersey .f4-jersey-table-wrap thead th{position:sticky;top:0;z-index:2;background:#f4f6fa;box-shadow:inset 0 -1px 0 #e3e8f1;font-weight:750}
+#modal-jersey .f4-jersey-table-wrap th,#modal-jersey .f4-jersey-table-wrap td{padding:10px 11px}
+@media(max-width:760px){
+ #modal-jersey .f4-jersey-topbar{grid-template-columns:minmax(0,1fr) 36px;gap:7px 8px;padding:10px 12px}
+ #modal-jersey .f4-jersey-modal-heading{grid-column:1;grid-row:1;font-size:14px}
+ #modal-jersey .f4-jersey-close{grid-column:2;grid-row:1}
+ #modal-jersey .f4-jersey-tabs{grid-column:1 / -1;grid-row:2;max-width:none}
+ #modal-jersey .f4-jersey-tabs>button{font-size:12px;padding:7px 8px}
+ #modal-jersey .f4-jersey-summary{padding:8px 12px;gap:5px}
+ #modal-jersey .f4-jersey-stat{flex-direction:column;align-items:flex-start;gap:3px;padding:7px 8px}
+ #modal-jersey .f4-jersey-stat p{font-size:10px}
+ #modal-jersey .f4-jersey-stat strong{font-size:12px}
+ #modal-jersey .f4-jersey-filterbar{padding:8px 12px;gap:6px}
+ #modal-jersey .f4-jersey-table-wrap{padding:2px 8px 10px;scrollbar-gutter:auto}
+ #modal-jersey .f4-jersey-table-wrap th,#modal-jersey .f4-jersey-table-wrap td{padding:9px 10px}
+}
+@media(max-width:540px){
+ #modal-jersey .f4-jersey-filterbar{flex-wrap:wrap}
+ #modal-jersey .f4-jersey-filterbar input{flex-basis:100%}
+ #modal-jersey .f4-jersey-titipan{margin-left:auto;padding:4px 9px}
+}
+@media(max-height:560px){
+ #modal-jersey .f4-jersey-dialog{height:calc(100dvh - 16px);max-height:calc(100dvh - 16px)}
+}
+</style>
 </head>
 
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full" oncontextmenu="return false;" onkeydown="return disableInspect(event)">
@@ -912,62 +957,58 @@ body>div.fixed.bottom-6.right-6{
     </div>
   </div>
 
-  <!-- MODAL JERSEY -->
+  <!-- MODAL JERSEY: compact overview, table-first layout -->
   <div id="modal-jersey" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-4" onclick="closeModalDirect('modal-jersey')">
-    <div class="bg-white w-full max-w-5xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
-      <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-        <div>
-          <h3 class="text-lg md:text-xl font-bold text-slate-900">Daftar Pemesan Jersey Warga</h3>
-          <p class="text-xs text-slate-500">Data ukuran, pilihan lengan, tagihan, dan status pembayaran warga</p>
+    <div class="f4-jersey-dialog bg-white w-full max-w-5xl rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="f4-jersey-modal-heading">
+      <div class="f4-jersey-topbar">
+        <h3 id="f4-jersey-modal-heading" class="f4-jersey-modal-heading">Pesanan Jersey</h3>
+        <div class="f4-jersey-tabs" role="group" aria-label="Kelompok pemesan Jersey">
+          <button id="tab-jersey-bapak" onclick="switchJerseyTab('bapak')" class="flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-indigo-600 text-white border-indigo-600 shadow-sm">
+            <span>👨 Bapak-bapak</span>
+            <span id="badge-count-bapak" class="bg-white/20 text-white px-2 py-0.5 rounded-full text-[10px]">0</span>
+          </button>
+          <button id="tab-jersey-ibu" onclick="switchJerseyTab('ibu')" class="flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-white text-slate-600 border-slate-200 hover:bg-slate-100">
+            <span>👩 Ibu-ibu</span>
+            <span id="badge-count-ibu" class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full text-[10px]">0</span>
+          </button>
         </div>
-        <button onclick="closeModalDirect('modal-jersey')" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
-          <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
+        <button type="button" onclick="closeModalDirect('modal-jersey')" class="f4-jersey-close text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition" aria-label="Tutup daftar Jersey">
+          <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <!-- NAVIGATION TAB BAPAK / IBU -->
-      <div class="px-4 pt-3 pb-2 border-b border-slate-200 bg-slate-50/80 flex items-center space-x-2">
-        <button id="tab-jersey-bapak" onclick="switchJerseyTab('bapak')" class="flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-indigo-600 text-white border-indigo-600 shadow-sm">
-          <span>👨 Pemesan Bapak-Bapak</span>
-          <span id="badge-count-bapak" class="bg-white/20 text-white px-2 py-0.5 rounded-full text-[10px]">0</span>
-        </button>
-        <button id="tab-jersey-ibu" onclick="switchJerseyTab('ibu')" class="flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-white text-slate-600 border-slate-200 hover:bg-slate-100">
-          <span>👩 Pemesan Ibu-Ibu</span>
-          <span id="badge-count-ibu" class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full text-[10px]">0</span>
-        </button>
-      </div>
-
-      <!-- HEADER RINCIAN DANA DI DALAM MODAL POP-UP (NATIVE LIGHT STYLE) -->
-      <div class="px-4 py-3 bg-slate-50/80 border-b border-slate-200 grid grid-cols-3 gap-2.5 text-center text-xs">
-        <div class="bg-white p-2.5 rounded-xl border border-indigo-200 shadow-sm">
-          <p class="text-[10px] font-semibold text-slate-500">Total Tagihan <span id="label-tab-kategori" class="font-bold text-indigo-600">(Bapak)</span></p>
-          <p id="modal-jersey-total-tagihan" class="font-bold text-indigo-700 text-xs md:text-sm mt-0.5">Rp 0</p>
+      <div class="f4-jersey-summary" aria-label="Ringkasan pembayaran pemesan terpilih">
+        <div class="f4-jersey-stat f4-jersey-stat-bill">
+          <p>Total Tagihan <span id="label-tab-kategori" class="sr-only">(Bapak-bapak)</span></p>
+          <strong id="modal-jersey-total-tagihan">Rp 0</strong>
         </div>
-        <div class="bg-white p-2.5 rounded-xl border border-emerald-200 shadow-sm">
-          <p class="text-[10px] font-semibold text-slate-500">Dana Terkumpul (DP/Lunas)</p>
-          <p id="modal-jersey-terkumpul" class="font-bold text-emerald-600 text-xs md:text-sm mt-0.5">Rp 0</p>
+        <div class="f4-jersey-stat f4-jersey-stat-paid">
+          <p>Dana Masuk</p>
+          <strong id="modal-jersey-terkumpul">Rp 0</strong>
         </div>
-        <div class="bg-white p-2.5 rounded-xl border border-rose-200 shadow-sm">
-          <p class="text-[10px] font-semibold text-slate-500">Sisa Kekurangan Dana</p>
-          <p id="modal-jersey-sisa" class="font-bold text-rose-600 text-xs md:text-sm mt-0.5">Rp 0</p>
+        <div class="f4-jersey-stat f4-jersey-stat-due">
+          <p>Kekurangan</p>
+          <strong id="modal-jersey-sisa">Rp 0</strong>
         </div>
       </div>
 
-      <div class="p-4 border-b border-slate-100">
-        <input type="text" id="search-jersey" onkeyup="filterJerseyModal()" placeholder="Cari nama, blok, atau no. punggung..." class="w-full text-xs md:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      <div class="f4-jersey-filterbar">
+        <label class="sr-only" for="search-jersey">Cari pemesan Jersey</label>
+        <input type="text" id="search-jersey" onkeyup="filterJerseyModal()" placeholder="Cari nama, blok, atau no. punggung..." class="text-xs md:text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <span id="modal-jersey-titipan" class="f4-jersey-titipan" hidden title="Kelebihan uang yang sementara disimpan, bukan tambahan pesanan celana."></span>
       </div>
 
-      <div class="overflow-x-auto overflow-y-auto flex-grow p-4">
+      <div class="f4-jersey-table-wrap overflow-auto flex-1 min-h-0">
         <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[650px]">
           <thead>
-            <tr class="border-b border-slate-200 bg-slate-100/60 text-slate-600">
-              <th class="p-3 w-12 text-center">No</th>
-              <th class="p-3 w-1/4">Nama & Blok</th>
-              <th class="p-3">Lengan</th>
-              <th class="p-3">Ukuran</th>
-              <th class="p-3">Nama & No. Punggung</th>
-              <th class="p-3 text-right">Pembayaran</th>
-              <th class="p-3 text-center">Status</th>
+            <tr class="bg-slate-50 text-slate-600">
+              <th class="w-12 text-center">No</th>
+              <th class="w-1/4">Nama & Blok</th>
+              <th>Lengan</th>
+              <th>Ukuran</th>
+              <th>Nama & No. Punggung</th>
+              <th class="text-right">Pembayaran</th>
+              <th class="text-center">Status</th>
             </tr>
           </thead>
           <tbody id="tabel-jersey-all" class="divide-y divide-slate-100"></tbody>
@@ -2870,14 +2911,11 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       document.getElementById('modal-jersey-total-tagihan').innerText = formatRupiah(activeTotalTagihan);
       document.getElementById('modal-jersey-terkumpul').innerText = formatRupiah(activeTerkumpul);
       document.getElementById('modal-jersey-sisa').innerText = formatRupiah(activeSisa);
-      let labelTitipan=document.getElementById('modal-jersey-titipan');
-      if(!labelTitipan){
-        labelTitipan=document.createElement('p');labelTitipan.id='modal-jersey-titipan';
-        labelTitipan.className='text-xs text-amber-700 font-semibold mt-2';
-        const holder=document.getElementById('modal-jersey-sisa')?.closest('.grid')||document.getElementById('modal-jersey-sisa')?.parentElement;
-        holder?.after(labelTitipan);
+      const labelTitipan=document.getElementById('modal-jersey-titipan');
+      if(labelTitipan){
+        labelTitipan.hidden=activeTitipan<=0;
+        labelTitipan.textContent=activeTitipan>0?'Titipan: '+formatRupiah(activeTitipan):'';
       }
-      labelTitipan.textContent=activeTitipan>0?'Titipan sementara (belum menjadi pesanan celana): '+formatRupiah(activeTitipan):'';
 
       document.getElementById('tabel-jersey-all').innerHTML = html || `<tr><td colspan="7" class="p-4 text-center text-slate-400">Tidak ada pemesan ${currentJerseyTab === 'bapak' ? 'Bapak-bapak' : 'Ibu-ibu'} yang cocok</td></tr>`;
     }
