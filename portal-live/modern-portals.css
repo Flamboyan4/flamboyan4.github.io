@@ -869,3 +869,124 @@ body #dashboardView #pageDashboard.f4-member-dashboard .v14-primary{
  #f4-account-page .f4-compact-super-card .f4-admin-action-set a.f4-icon-action .f4-action-symbol{display:none!important}
  #f4-account-page .f4-compact-super-card .f4-admin-action-set a.f4-icon-action .f4-action-label{display:inline!important}
 }
+
+/* Oct 27 — true one-line name / actions + two-stage Jersey accordion. */
+#f4-account-page .f4-jersey-groups{
+ width:100%;max-width:100%;min-width:0;display:grid;gap:12px
+}
+#f4-account-page .f4-jersey-group{
+ width:100%;min-width:0;background:#fff;border:1px solid #e1e5eb;
+ border-radius:17px;overflow:hidden;box-shadow:0 3px 15px rgba(31,44,67,.035)
+}
+#f4-account-page .f4-jersey-group-head{
+ cursor:pointer;list-style:none;display:grid;grid-template-columns:minmax(0,1fr) auto 22px;
+ align-items:center;gap:12px;min-height:80px;padding:18px 20px;
+ background:#fff;color:#293847
+}
+#f4-account-page .f4-jersey-group-head::-webkit-details-marker,
+#f4-account-page .f4-jersey-person-head::-webkit-details-marker{display:none}
+#f4-account-page .f4-jersey-group-title{min-width:0}
+#f4-account-page .f4-jersey-group-title strong{
+ display:block;font-size:17px;line-height:1.35;font-weight:800;color:#253547
+}
+#f4-account-page .f4-jersey-group-title small{
+ display:block;font-size:12px;font-weight:550;color:#748396;margin-top:4px
+}
+#f4-account-page .f4-jersey-group-total{
+ font-weight:800;font-size:13px;color:#6454ad;white-space:nowrap
+}
+#f4-account-page .f4-jersey-group-head::after{
+ content:'';width:9px;height:9px;justify-self:center;
+ border-right:2px solid #735fc2;border-bottom:2px solid #735fc2;transform:rotate(45deg);transition:transform .16s
+}
+#f4-account-page .f4-jersey-group[open]>.f4-jersey-group-head::after{transform:rotate(225deg)}
+#f4-account-page .f4-jersey-group[open]>.f4-jersey-group-head{
+ background:#faf9ff;border-bottom:1px solid #ece8f8
+}
+#f4-account-page .f4-jersey-group-body{
+ display:grid;gap:9px;padding:13px;background:#fcfcff
+}
+#f4-account-page .f4-jersey-person{
+ min-width:0;border:1px solid #e3e7ef;border-radius:13px;background:#fff;overflow:hidden
+}
+#f4-account-page .f4-jersey-person-head{
+ cursor:pointer;display:grid;grid-template-columns:minmax(0,1fr) 18px;
+ gap:10px;align-items:center;min-height:64px;padding:14px 16px;list-style:none
+}
+#f4-account-page .f4-jersey-person-identity{min-width:0;display:block}
+#f4-account-page .f4-jersey-person-identity strong{
+ display:block;max-width:100%;font-size:14px;font-weight:760;line-height:1.42;
+ white-space:normal;overflow-wrap:break-word;color:#2b3647
+}
+#f4-account-page .f4-jersey-person-identity small{
+ display:block;color:#8590a0;font-size:11px;margin-top:4px;line-height:1.5
+}
+#f4-account-page .f4-jersey-person-head::after{
+ content:'';width:9px;height:9px;justify-self:center;border-right:2px solid #7160b6;
+ border-bottom:2px solid #7160b6;transform:rotate(45deg);transition:transform .16s
+}
+#f4-account-page .f4-jersey-person[open]>.f4-jersey-person-head::after{transform:rotate(225deg)}
+#f4-account-page .f4-jersey-person-detail{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;
+ border-top:1px solid #ecedf2;padding:14px 16px
+}
+#f4-account-page .f4-jersey-person-field{min-width:0}
+#f4-account-page .f4-jersey-person-field small{
+ display:block;font-size:11px;color:#8590a0;font-weight:650;margin-bottom:3px
+}
+#f4-account-page .f4-jersey-person-field span{
+ display:block;font-size:13px;line-height:1.5;color:#2d3c4e;overflow-wrap:anywhere
+}
+#f4-account-page .f4-jersey-person-detail>.f4-admin-action-set{
+ grid-column:1/-1;display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;
+ border-top:1px solid #edf0f4;padding-top:12px
+}
+#f4-account-page .f4-jersey-ungrouped{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:12px 15px}
+#f4-account-page .f4-jersey-ungrouped>strong{min-width:0;overflow-wrap:break-word}
+@media(max-width:760px){
+ /* These cards have no details: reserve one actual column for the title,
+    one for the action icons. Earlier flex and grid rules are overridden. */
+ #f4-account-page .f4-admin-list>.f4-admin-item.f4-inline-record,
+ #f4-account-page .f4-admin-list>.f4-admin-item.f4-inline-record.f4-compact-super-card.f4-card-no-detail{
+  display:grid!important;grid-template-columns:minmax(0,1fr) max-content!important;
+  align-items:center!important;justify-content:stretch!important;gap:9px!important;
+  padding:13px 14px!important;min-height:68px!important;
+  flex-wrap:nowrap!important;overflow:hidden!important
+ }
+ #f4-account-page .f4-admin-list>.f4-admin-item.f4-inline-record>div:first-child,
+ #f4-account-page .f4-admin-list>.f4-admin-item.f4-inline-record.f4-compact-super-card.f4-card-no-detail>div:first-child{
+  display:block!important;grid-column:1!important;grid-row:1!important;
+  min-width:0!important;width:100%!important;max-width:100%!important;
+  flex:initial!important;order:0!important;align-self:center!important
+ }
+ #f4-account-page .f4-admin-list>.f4-admin-item.f4-inline-record strong{
+  font-size:14px!important;line-height:1.42!important;font-weight:800!important;
+  display:-webkit-box!important;-webkit-line-clamp:2!important;
+  -webkit-box-orient:vertical!important;overflow:hidden!important;
+  white-space:normal!important;overflow-wrap:break-word!important
+ }
+ #f4-account-page .f4-admin-list>.f4-admin-item.f4-inline-record>.f4-admin-action-set,
+ #f4-account-page .f4-admin-list>.f4-admin-item.f4-inline-record.f4-compact-super-card.f4-card-no-detail:not(.f4-card-expanded)>.f4-admin-action-set{
+  display:flex!important;grid-column:2!important;grid-row:1!important;order:0!important;
+  flex:initial!important;align-self:center!important;justify-self:end!important;
+  width:auto!important;min-width:0!important;max-width:none!important;
+  margin:0!important;padding:0!important;border:0!important;
+  gap:6px!important;flex-wrap:nowrap!important;white-space:nowrap!important
+ }
+ #f4-account-page .f4-admin-list>.f4-admin-item.f4-inline-record>.f4-admin-action-set .f4-icon-action{
+  flex:0 0 39px!important;width:39px!important;max-width:39px!important;
+  min-width:39px!important;height:39px!important;min-height:39px!important;max-height:39px!important
+ }
+ #f4-account-page .f4-jersey-group-head{padding:16px;min-height:72px;gap:9px;grid-template-columns:minmax(0,1fr) auto 16px}
+ #f4-account-page .f4-jersey-group-title strong{font-size:15px}
+ #f4-account-page .f4-jersey-group-total{font-size:12px}
+ #f4-account-page .f4-jersey-group-body{padding:10px}
+ #f4-account-page .f4-jersey-person-head{padding:13px 12px}
+ #f4-account-page .f4-jersey-person-detail{padding:13px 12px;gap:12px 9px}
+ #f4-account-page .f4-jersey-person-detail>.f4-admin-action-set .f4-icon-action{
+  display:inline-grid!important;place-items:center!important;width:40px!important;min-width:40px!important;
+  max-width:40px!important;height:40px!important;min-height:40px!important;padding:0!important
+ }
+ #f4-account-page .f4-jersey-person-detail>.f4-admin-action-set .f4-icon-action .f4-action-label{display:none!important}
+ #f4-account-page .f4-jersey-person-detail>.f4-admin-action-set .f4-icon-action .f4-action-symbol{display:grid!important;place-items:center!important}
+}
