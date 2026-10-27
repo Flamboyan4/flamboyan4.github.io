@@ -1869,7 +1869,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   }
   function v18AddEyes(){
     document.querySelectorAll('input[type="password"]').forEach(input=>{
-      if(input.closest('.v18-secret-wrap'))return;
+      if(input.closest('.v18-secret-wrap,#f4-direct-dialog')||input.id==='f4-direct-password')return;
       const wrap=document.createElement('div');wrap.className='v18-secret-wrap';
       input.parentNode.insertBefore(wrap,input);wrap.appendChild(input);
       const eye=document.createElement('button');eye.type='button';eye.className='v18-eye';
