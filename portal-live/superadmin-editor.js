@@ -152,13 +152,72 @@ function viewList(){
  const container=node('div',undefined,'f4-admin-list');container.id='f4-admin-list';main.append(container);
  populate();
 }
+function populateJersey(rows,list,query){
+ const groups=[['bapak','Bapak-bapak'],['ibu','Ibu-ibu']];
+ const normalized=value=>String(value||'').trim().toLowerCase().replace(/[^a-z]/g,'');
+ const formatCurrency=n=>'Rp '+Number(n||0).toLocaleString('id-ID');
+ const wrap=node('div',undefined,'f4-jersey-groups');
+ for(const [key,label] of groups){
+  const members=rows.filter(row=>{
+   const code=normalized(row.group_key);
+   return key==='bapak'?(/^(bapak|bapakbapak|pria|laki|laki2|putra)$/.test(code)):
+    /^(ibu|ibuibu|wanita|perempuan|putri)$/.test(code);
+  }).sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0)||
+    String(a.resident||'').localeCompare(String(b.resident||''),'id'));
+  const group=node('details',undefined,'f4-jersey-group');
+  group.open=!!query;
+  const summary=node('summary',undefined,'f4-jersey-group-head');
+  const left=node('span',undefined,'f4-jersey-group-title');
+  left.append(node('strong',label),node('small',members.length+' pesanan'));
+  const total=members.reduce((n,x)=>n+Number(x.nominal_rp||0),0);
+  summary.append(left,node('span',formatCurrency(total),'f4-jersey-group-total'));
+  group.append(summary);
+  const content=node('div',undefined,'f4-jersey-group-body');
+  if(!members.length)content.append(node('p',query?'Tidak ada hasil pencarian di kelompok ini.':'Belum ada pesanan.','f4-admin-note'));
+  for(const x of members){
+   const item=node('details',undefined,'f4-jersey-person');
+   const head=node('summary',undefined,'f4-jersey-person-head');
+   const text=node('span',undefined,'f4-jersey-person-identity');
+   text.append(node('strong',String(x.resident||'').trim()||'Nama warga belum tercatat'));
+   const sub=[x.size?'Ukuran '+x.size:'',x.payment_status||''].filter(Boolean).join(' • ');
+   if(sub)text.append(node('small',sub));
+   head.append(text);item.append(head);
+   const body=node('div',undefined,'f4-jersey-person-detail');
+   const fields=[['Nomor urut',x.sort_order],['Lengan',x.sleeves],['Ukuran',x.size],['Nama dan nomor punggung',x.printed_name],['Harga',formatCurrency(x.nominal_rp)],['Status pembayaran',x.payment_status],['Metode / keterangan',x.method]];
+   for(const [caption,raw] of fields){
+    const line=node('div',undefined,'f4-jersey-person-field');
+    line.append(node('small',caption),node('span',raw===undefined||raw===null||String(raw).trim()===''?'—':String(raw)));
+    body.append(line);
+   }
+   body.append(deletionActions(x,'jersey'));
+   item.append(body);content.append(item);
+  }
+  group.append(content);wrap.append(group);
+ }
+ const recognized=rows.filter(row=>groups.some(([key])=>key==='bapak'
+  ?/^(bapak|bapakbapak|pria|laki|laki2|putra)$/.test(normalized(row.group_key))
+  :/^(ibu|ibuibu|wanita|perempuan|putri)$/.test(normalized(row.group_key))));
+ if(recognized.length!==rows.length){
+  const other=node('details',undefined,'f4-jersey-group');
+  const missing=rows.filter(row=>!recognized.includes(row));
+  const title=node('summary',undefined,'f4-jersey-group-head');title.append(node('strong','Belum dikelompokkan'),node('small',missing.length+' pesanan'));other.append(title);
+  const body=node('div',undefined,'f4-jersey-group-body');
+  for(const x of missing){
+   const line=node('article',undefined,'f4-jersey-person f4-jersey-ungrouped');
+   line.append(node('strong',x.resident||'Nama warga belum tercatat'),deletionActions(x,'jersey'));body.append(line);
+  }
+  other.append(body);wrap.append(other);
+ }
+ list.append(wrap);
+}
 function populate(){
  const list=document.getElementById('f4-admin-list');if(!list)return;
  list.replaceChildren();
  const query=filter.trim().toLowerCase();
  const def=types[active];
  const rows=records.filter(x=>!query||JSON.stringify(x).toLowerCase().includes(query));
- if(['arisan','agenda','documentation','inventory','meetings','obligations','jersey'].includes(active)){
+ if(active==='jersey'){populateJersey(rows,list,query);return;}
+ if(['arisan','agenda','documentation','inventory','meetings','obligations'].includes(active)){
   const fields={
    arisan:[['host_name','Nama tuan rumah'],['house_arisan','No. rumah'],['period_on','Jadwal'],['status','Status']],
    agenda:[['title','Nama kegiatan'],['starts_on','Mulai'],['ends_on','Selesai'],['status','Status']],
@@ -210,7 +269,8 @@ function populate(){
   const title=x.title||x.name||x.nama||x.contribution_type||x.setting_key||x.id;
   info.append(node('strong',title||'Tanpa judul'));
   const detail=[x.starts_on||x.event_on||x.meeting_on||x.rumah||'',x.status||x.visibility||''].filter(Boolean).join(' • ');
-  info.append(node('small',detail));
+  if(detail)info.append(node('small',detail));
+  else item.classList.add('f4-inline-record');
   item.append(info,def.section==='portal'?deletionActions(x):btn('Edit',()=>showForm(x)));list.append(item);
  }
  if(!rows.length)list.append(node('p','Tidak ada data yang cocok.','f4-admin-note'));
