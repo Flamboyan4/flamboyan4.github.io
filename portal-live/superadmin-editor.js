@@ -655,8 +655,16 @@ function showForm(record){
   const submit=actions.lastChild;submit.disabled=true;notice.textContent='Menyimpan…';
   try{
    await send(base+active,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});
-   await fetchData(active);
-   viewList(); const info=main.querySelector('.f4-admin-note');if(info)info.textContent='Data berhasil disimpan. '+records.length+' baris tersedia.';
+   records=await fetchData(active);
+   if(active==='jersey'&&record){
+     const latest=records.find(x=>String(x.id)===String(record.id));
+     const mismatched=Object.entries(obj.values||{}).filter(([key,value])=>String(latest?.[key]??'')!==String(value));
+     if(!latest||mismatched.length){
+       notice.textContent='API menerima permintaan, tetapi data terbaru belum cocok pada kolom: '+(mismatched.map(x=>x[0]).join(', ')||'ID')+'. Periksa sebelum mengedit lagi.';
+       return;
+     }
+   }
+   viewList(); const info=main.querySelector('.f4-admin-note');if(info)info.textContent='Data berhasil disimpan dan dimuat ulang dari server. '+records.length+' baris tersedia.';
   }catch(err){notice.textContent='Gagal menyimpan: '+err.message}
   finally{submit.disabled=false}
  });
