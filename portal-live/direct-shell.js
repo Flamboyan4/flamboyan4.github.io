@@ -240,6 +240,12 @@ refreshSession().then(()=>{
   '.f4-inline-search-refresh>.f4-search-refresh-button .f4-action-label{display:none!important}',
   '@media(max-width:760px){#f4-account-page .f4-admin-controls:has(.f4-inline-search-refresh),#f4-account-page .sa-controls:has(.f4-inline-search-refresh){display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:8px!important}#f4-account-page .f4-inline-search-refresh{flex:1 1 100%!important;width:100%!important}#f4-account-page .sa-account-filters .f4-inline-search-refresh{flex:1 1 100%!important}#f4-account-page .sa-account-filters select{flex:1 1 100%!important;max-width:none!important}}'
  ].join('\n');
+ css.textContent+=[
+  'button.f4-global-refresh{display:inline-grid!important;place-items:center!important;flex:0 0 42px!important;width:42px!important;min-width:42px!important;max-width:42px!important;height:42px!important;min-height:42px!important;max-height:42px!important;padding:0!important;margin:0!important;border-radius:10px!important;line-height:1!important;vertical-align:middle!important}',
+  'button.f4-global-refresh>svg{display:block!important;width:20px!important;height:20px!important;max-width:20px!important;max-height:20px!important;margin:0!important;padding:0!important;fill:none!important;stroke:currentColor!important}',
+  'button.f4-global-refresh>.f4-refresh-label{display:none!important}',
+  '@media(max-width:760px){button.f4-global-refresh{flex-basis:40px!important;width:40px!important;min-width:40px!important;max-width:40px!important;height:40px!important;min-height:40px!important;max-height:40px!important}}'
+ ].join('\n');
  document.head.append(css);
  const containers='.f4-admin-controls,.sa-controls,.sa-resident-controls,.sa-account-filters,.search-toolbar,.search-bar,.filter-bar,.f4-search-controls,.toolbar';
  function enhance(){
@@ -270,13 +276,30 @@ refreshSession().then(()=>{
     reload.replaceChildren(symbol,label);reload.classList.add('f4-icon-action');
    }
   });
+  // Icon-only Muat ulang/Perbarui in all three portals, without altering callbacks.
+  document.querySelectorAll('button').forEach(button=>{
+   if(button.dataset.f4RefreshIconified==='1')return;
+   const label=String(button.dataset.f4ActionOriginal||button.textContent||'').trim();
+   if(!/^(muat\s*ulang|perbarui|refresh)$/i.test(label))return;
+   button.dataset.f4RefreshIconified='1';
+   button.setAttribute('aria-label',label);button.title=label;
+   button.classList.remove('f4-icon-action');button.classList.add('f4-global-refresh');
+   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+   svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('fill','none');
+   svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','2');
+   svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');
+   svg.setAttribute('aria-hidden','true');
+   svg.innerHTML='<path d="M20 11a8 8 0 1 0-2.1 5.5"/><path d="M20 4v7h-7"/>';
+   const caption=document.createElement('span');caption.className='f4-refresh-label';caption.textContent=label;
+   button.replaceChildren(svg,caption);
+  });
  }
  let scheduled=false;
  function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;enhance()})}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true});else schedule();
  new MutationObserver(mutations=>{
   if(mutations.some(m=>[...m.addedNodes].some(n=>n.nodeType===1&&
-   (n.matches?.(containers)||n.querySelector?.(containers)))))schedule();
+   (n.matches?.(containers)||n.querySelector?.(containers)||n.matches?.('button')||n.querySelector?.('button')))))schedule();
  }).observe(document.body,{childList:true,subtree:true});
 })();
 
