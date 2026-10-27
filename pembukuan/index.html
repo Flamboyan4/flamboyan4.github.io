@@ -2004,12 +2004,12 @@ main > section.card{overflow:visible!important}
           <div><label class="text-sm font-bold">Nama Warga</label><select id="inp-warga" class="field mt-1" onchange="updatePreview()"><option value="">Pilih warga...</option></select></div>
           <div class="grid sm:grid-cols-2 gap-4">
             <div><label class="text-sm font-bold">Tanggal Bayar</label><input id="inp-tanggal" type="date" class="field mt-1" required></div>
-            <div><label class="text-sm font-bold">Metode Pembayaran</label><select id="inp-metode" class="field mt-1" required><option value="Cash">Cash</option><option value="QRIS">QRIS</option><option value="Transfer Mandiri">Transfer Mandiri</option></select></div>
+            <div><label class="text-sm font-bold">Metode</label><select id="inp-metode" class="field mt-1" required><option value="Cash">Cash</option><option value="QRIS">QRIS</option><option value="Transfer Mandiri">Transfer Mandiri</option></select></div>
           </div>
           <div class="grid sm:grid-cols-3 gap-4">
-            <div><label class="text-sm font-bold">Bulan Pertama</label><select id="inp-bulan" class="field mt-1" onchange="updatePreview()"></select></div>
+            <div><label class="text-sm font-bold">Bulan Awal</label><select id="inp-bulan" class="field mt-1" onchange="updatePreview()"></select></div>
             <div><label class="text-sm font-bold">Tahun</label><input id="inp-tahun" type="number" min="2020" max="2100" class="field mt-1" onchange="updatePreview()"></div>
-            <div><label class="text-sm font-bold">Jumlah Bulan</label><select id="inp-jumlah" class="field mt-1" onchange="updatePreview()"><option value="1">1 bulan</option><option value="2">2 bulan</option><option value="3">3 bulan</option></select></div>
+            <div><label class="text-sm font-bold">Jml Bulan</label><select id="inp-jumlah" class="field mt-1" onchange="updatePreview()"><option value="1">1 bulan</option><option value="2">2 bulan</option><option value="3">3 bulan</option></select></div>
           </div>
 
           <div class="rounded-2xl border border-violet-200 bg-violet-50/60 p-4">
@@ -2027,7 +2027,7 @@ main > section.card{overflow:visible!important}
           </div>
           <div class="grid sm:grid-cols-2 gap-4">
             <div>
-              <label class="text-sm font-bold">Nominal Dibayar</label>
+              <label class="text-sm font-bold">Nominal Bayar</label>
               <input id="inp-nominal-dibayar" type="number" min="0" step="1000" class="field mt-1" placeholder="0" oninput="this.dataset.edited='1';updateNominalParsialInfo()">
               <div id="inp-parsial-info" class="text-[11px] mt-1 text-slate-400">Default mengikuti total tagihan.</div>
             </div>
@@ -2047,7 +2047,7 @@ main > section.card{overflow:visible!important}
             <div id="kurang-kas-preview" class="sm:col-span-2 lg:col-span-4 rounded-xl border border-amber-100 bg-white p-3 text-sm text-slate-500">Pilih data kekurangan untuk melihat rincian.</div>
             <div><label class="text-sm font-bold">Tanggal Bayar</label><input id="kurang-kas-tanggal" type="date" class="field mt-1" required></div>
             <div><label class="text-sm font-bold">Metode</label><select id="kurang-kas-metode" class="field mt-1"><option>Cash</option><option>QRIS</option><option>Transfer Mandiri</option></select></div>
-            <div><label class="text-sm font-bold">Nominal Pelunasan</label><input id="kurang-kas-nominal" type="number" min="1" step="1000" class="field mt-1" required></div>
+            <div><label class="text-sm font-bold">Jumlah Pelunasan</label><input id="kurang-kas-nominal" type="number" min="1" step="1000" class="field mt-1" required></div>
             <button id="kurang-kas-btn" class="rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-black py-3.5">Simpan Pelunasan</button>
             <div id="kurang-kas-status" class="hidden sm:col-span-2 lg:col-span-4 rounded-xl border px-4 py-3 text-sm"></div>
           </form>
@@ -2159,8 +2159,8 @@ main > section.card{overflow:visible!important}
           <form onsubmit="simpanPinjaman(event)" class="space-y-4">
             <div><label class="text-sm font-bold">Nama Warga</label><select id="loan-warga" class="field mt-1" required><option value="">Pilih warga...</option></select></div>
             <div class="grid sm:grid-cols-2 gap-4">
-              <div><label class="text-sm font-bold">Tanggal Pinjaman</label><input id="loan-tanggal" type="date" class="field mt-1" required></div>
-              <div><label class="text-sm font-bold">Metode Pencairan</label><div class="field mt-1 flex items-center bg-slate-50 text-slate-700 font-semibold">Cash <span class="ml-2 text-xs font-normal text-slate-400">(Kas Warga)</span></div><input type="hidden" id="loan-metode" value="Cash"></div>
+              <div><label class="text-sm font-bold">Tgl Pinjam</label><input id="loan-tanggal" type="date" class="field mt-1" required></div>
+              <div><label class="text-sm font-bold">Pencairan</label><div class="field mt-1 flex items-center bg-slate-50 text-slate-700 font-semibold">Cash <span class="ml-2 text-xs font-normal text-slate-400">(Kas Warga)</span></div><input type="hidden" id="loan-metode" value="Cash"></div>
             </div>
             <div><label class="text-sm font-bold">Nominal Pinjaman</label><input id="loan-nominal" type="text" inputmode="numeric" class="field mt-1" placeholder="0" oninput="formatNominalInput(this)" required></div>
             <div><label class="text-sm font-bold">Keterangan</label><input id="loan-keterangan" class="field mt-1" placeholder="Contoh: Pinjaman kas warga" required></div>
@@ -2174,7 +2174,7 @@ main > section.card{overflow:visible!important}
             <div><label class="text-sm font-bold">Pinjaman Aktif</label><select id="payloan-id" class="field mt-1" onchange="previewPinjaman()" required><option value="">Pilih pinjaman...</option></select></div>
             <div id="payloan-preview" class="rounded-xl bg-violet-50 border border-violet-100 p-4 text-sm text-slate-600">Pilih pinjaman untuk melihat sisa.</div>
             <div class="grid sm:grid-cols-2 gap-4">
-              <div><label class="text-sm font-bold">Tanggal Pembayaran</label><input id="payloan-tanggal" type="date" class="field mt-1" required></div>
+              <div><label class="text-sm font-bold">Tgl Bayar</label><input id="payloan-tanggal" type="date" class="field mt-1" required></div>
               <div><label class="text-sm font-bold">Metode</label><select id="payloan-metode" class="field mt-1"><option>Cash</option><option>QRIS</option><option>Transfer Mandiri</option></select></div>
             </div>
             <div><label class="text-sm font-bold">Nominal Pembayaran</label><input id="payloan-nominal" type="text" inputmode="numeric" class="field mt-1" placeholder="0" oninput="formatNominalInput(this)" required></div>
@@ -2198,7 +2198,7 @@ main > section.card{overflow:visible!important}
             <button id="tal-btn-simpan" class="tal-save w-full rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-black py-3.5">Simpan Talangan</button>
           </div>
           <div class="talangan-right">
-            <div class="tal-date-source grid sm:grid-cols-2 gap-4"><div><label class="text-sm font-bold">Tanggal Talangan</label><input id="tal-tanggal" type="date" class="field mt-1" required></div><div><label class="text-sm font-bold">Sumber Dana</label><input value="Cash (Kas Warga)" class="field mt-1 bg-slate-50" readonly></div></div>
+            <div class="tal-date-source grid sm:grid-cols-2 gap-4"><div><label class="text-sm font-bold">Tgl Talangan</label><input id="tal-tanggal" type="date" class="field mt-1" required></div><div><label class="text-sm font-bold">Sumber Dana</label><input value="Cash (Kas Warga)" class="field mt-1 bg-slate-50" readonly></div></div>
             <div class="tal-preview-box rounded-2xl border border-violet-200 bg-violet-50/60 p-4"><div class="font-black text-violet-950 mb-3">Rincian Talangan</div><div id="tal-preview" class="text-sm text-slate-500">Pilih warga untuk melihat nominal.</div></div>
           </div>
         </form>
@@ -2216,7 +2216,7 @@ main > section.card{overflow:visible!important}
         <div id="denda-panel-catat" class="rounded-2xl border border-violet-100 p-4 sm:p-5">
           <form id="form-denda-catat" onsubmit="simpanDenda(event)" class="space-y-4">
             <div><label class="text-sm font-bold">Nama Warga</label><select id="denda-warga" class="field mt-1" required><option value="">Pilih warga...</option></select></div>
-            <div class="grid sm:grid-cols-2 gap-4"><div><label class="text-sm font-bold">Tanggal Kegiatan</label><input id="denda-tanggal" type="date" class="field mt-1" required></div><div><label class="text-sm font-bold">Nama Kegiatan</label><input id="denda-kegiatan" class="field mt-1" value="Gorol / Kerja Bakti" required></div></div>
+            <div class="grid sm:grid-cols-2 gap-4"><div><label class="text-sm font-bold">Tgl Kegiatan</label><input id="denda-tanggal" type="date" class="field mt-1" required></div><div><label class="text-sm font-bold">Kegiatan</label><input id="denda-kegiatan" class="field mt-1" value="Gorol / Kerja Bakti" required></div></div>
             <div><label class="text-sm font-bold">Nominal Denda</label><input id="denda-nominal" type="text" inputmode="numeric" class="field mt-1" value="20.000" oninput="formatNominalInput(this)" required></div>
             <div><label class="text-sm font-bold">Keterangan <span class="font-normal text-slate-400">(opsional)</span></label><input id="denda-keterangan" class="field mt-1" placeholder="Contoh: Tidak hadir gorol rutin"></div>
             <div id="denda-status" class="hidden rounded-xl border px-4 py-3 text-sm"></div>
@@ -2228,7 +2228,7 @@ main > section.card{overflow:visible!important}
           <form id="form-denda-bayar" onsubmit="bayarDenda(event)" class="space-y-4">
             <div><label class="text-sm font-bold">Denda Belum Dibayar</label><select id="bayar-denda-id" class="field mt-1" onchange="previewBayarDenda()"><option value="">Pilih denda...</option></select></div>
             <div id="bayar-denda-preview" class="rounded-xl border border-violet-100 bg-violet-50/50 p-4 text-sm text-slate-500">Pilih denda untuk melihat detail.</div>
-            <div class="grid sm:grid-cols-2 gap-4"><div><label class="text-sm font-bold">Tanggal Pembayaran</label><input id="bayar-denda-tanggal" type="date" class="field mt-1" required></div><div><label class="text-sm font-bold">Metode</label><select id="bayar-denda-metode" class="field mt-1"><option>Cash</option><option>QRIS</option><option>Transfer Mandiri</option></select></div></div>
+            <div class="grid sm:grid-cols-2 gap-4"><div><label class="text-sm font-bold">Tgl Bayar</label><input id="bayar-denda-tanggal" type="date" class="field mt-1" required></div><div><label class="text-sm font-bold">Metode</label><select id="bayar-denda-metode" class="field mt-1"><option>Cash</option><option>QRIS</option><option>Transfer Mandiri</option></select></div></div>
             <div id="bayar-denda-status" class="hidden rounded-xl border px-4 py-3 text-sm"></div>
             <button id="bayar-denda-btn" class="w-full rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-black py-3.5">Simpan Pembayaran Denda</button>
           </form>
@@ -2618,12 +2618,12 @@ main > section.card{overflow:visible!important}
         <div><label class="text-sm font-bold">Nama Warga</label><select id="edit-warga" class="field mt-1" onchange="updateEditPreview()"></select></div>
         <div class="grid sm:grid-cols-2 gap-4">
           <div><label class="text-sm font-bold">Tanggal Bayar</label><input id="edit-tanggal" type="date" class="field mt-1" required></div>
-          <div><label class="text-sm font-bold">Metode Pembayaran</label><select id="edit-metode" class="field mt-1"><option>Cash</option><option>QRIS</option><option>Transfer Mandiri</option></select></div>
+          <div><label class="text-sm font-bold">Metode</label><select id="edit-metode" class="field mt-1"><option>Cash</option><option>QRIS</option><option>Transfer Mandiri</option></select></div>
         </div>
         <div class="grid sm:grid-cols-3 gap-4">
-          <div><label class="text-sm font-bold">Bulan Pertama</label><select id="edit-bulan" class="field mt-1" onchange="updateEditPreview()"></select></div>
+          <div><label class="text-sm font-bold">Bulan Awal</label><select id="edit-bulan" class="field mt-1" onchange="updateEditPreview()"></select></div>
           <div><label class="text-sm font-bold">Tahun</label><input id="edit-tahun" type="number" min="2020" max="2100" class="field mt-1" onchange="updateEditPreview()"></div>
-          <div><label class="text-sm font-bold">Jumlah Bulan</label><select id="edit-jumlah" class="field mt-1" onchange="updateEditPreview()"><option value="1">1 bulan</option><option value="2">2 bulan</option><option value="3">3 bulan</option></select></div>
+          <div><label class="text-sm font-bold">Jml Bulan</label><select id="edit-jumlah" class="field mt-1" onchange="updateEditPreview()"><option value="1">1 bulan</option><option value="2">2 bulan</option><option value="3">3 bulan</option></select></div>
         </div>
         <div id="edit-preview" class="rounded-xl bg-violet-50 border border-violet-100 p-4 text-sm"></div>
         <div><label class="text-sm font-bold">Catatan</label><input id="edit-catatan" class="field mt-1"></div>
@@ -4554,7 +4554,7 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
   const isMobile=()=>window.matchMedia('(max-width:767px)').matches;
   const p2=n=>String(n).padStart(2,'0');
   function parseDate(v){const m=String(v||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);const d=new Date();return m?{y:+m[1],m:+m[2],d:+m[3]}:{y:d.getFullYear(),m:d.getMonth()+1,d:d.getDate()}}
-  function label(v){if(!v)return 'Pilih tanggal';const p=parseDate(v);return `${p.d} ${MONTH[p.m-1]} ${p.y}`}
+  function label(v){if(!v)return 'Pilih tanggal';const p=parseDate(v);return `${p.d} ${MSHORT[p.m-1]} ${p.y}`}
   function anyCalendarOpen(){return !!document.querySelector('.upr-control.open,.mdc-wrap.open')}
   function pushCalendarState(){
     if(!isMobile()||calendarHistoryActive)return;
@@ -5080,4 +5080,83 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
   },true);
 })();
 </script>
-<script src="/portal-live/direct-shell.js?v=20261027-refresh-svg-all"></script><script src="/portal-live/unified-account.js?v=account-native-20261025b"></script></body></html>
+<script src="/portal-live/direct-shell.js?v=20261027-refresh-svg-all"></script><script src="/portal-live/unified-account.js?v=account-native-20261025b"></script><style id="f4-book-date-label-alignment-20261027">
+/* Fix all mobile Pembukuan calendar widgets, not only the Iuran form. */
+@media screen and (max-width:767px){
+  body .mdc-wrap{
+    display:block!important;box-sizing:border-box!important;width:100%!important;
+    max-width:100%!important;min-width:0!important;margin-top:4px!important;
+  }
+  body .mdc-btn{
+    position:relative!important;display:flex!important;align-items:center!important;
+    justify-content:flex-start!important;box-sizing:border-box!important;
+    width:100%!important;min-width:0!important;max-width:100%!important;
+    height:44px!important;min-height:44px!important;max-height:44px!important;
+    overflow:hidden!important;
+    padding:8px 39px 8px 10px!important;
+    border-radius:10px!important;font-size:14px!important;line-height:1.2!important;
+    text-align:left!important;white-space:nowrap!important;
+  }
+  body .mdc-btn .mdc-text{
+    display:block!important;flex:1 1 auto!important;min-width:0!important;
+    overflow:hidden!important;text-overflow:ellipsis!important;
+    white-space:nowrap!important;line-height:1.25!important;
+  }
+  body .mdc-btn svg{
+    position:absolute!important;right:10px!important;top:50%!important;
+    transform:translateY(-50%)!important;width:19px!important;height:19px!important;
+    max-width:19px!important;max-height:19px!important;
+    margin:0!important;flex:none!important;pointer-events:none!important;
+  }
+  /* Date/Method, Start/Year/Count: same top/bottom for every form control. */
+  #form-iuran>div:nth-child(2)>div,
+  #form-iuran>div:nth-child(3)>div,
+  #modal-edit form>div:nth-child(3)>div,
+  #modal-edit form>div:nth-child(4)>div{
+    display:flex!important;flex-direction:column!important;justify-content:flex-start!important;
+    align-items:stretch!important;min-width:0!important;min-height:0!important;
+  }
+  #form-iuran>div:nth-child(2)>div>label,
+  #form-iuran>div:nth-child(3)>div>label,
+  #modal-edit form>div:nth-child(3)>div>label,
+  #modal-edit form>div:nth-child(4)>div>label{
+    display:block!important;flex:0 0 20px!important;min-height:20px!important;
+    max-height:20px!important;line-height:20px!important;white-space:nowrap!important;
+    overflow:hidden!important;text-overflow:ellipsis!important;margin:0!important;
+    font-size:13px!important;
+  }
+  #form-iuran>div:nth-child(2)>div>:is(.mdc-wrap,.custom-select-wrap,.field),
+  #form-iuran>div:nth-child(3)>div>:is(.mdc-wrap,.custom-select-wrap,.field),
+  #modal-edit form>div:nth-child(3)>div>:is(.mdc-wrap,.custom-select-wrap,.field),
+  #modal-edit form>div:nth-child(4)>div>:is(.mdc-wrap,.custom-select-wrap,.field){
+    box-sizing:border-box!important;min-width:0!important;width:100%!important;
+    max-width:100%!important;margin-top:4px!important;
+  }
+  #form-iuran>div:nth-child(2) :is(.custom-select-btn,.field),
+  #form-iuran>div:nth-child(3) :is(.custom-select-btn,.field),
+  #modal-edit form>div:nth-child(3) :is(.custom-select-btn,.field),
+  #modal-edit form>div:nth-child(4) :is(.custom-select-btn,.field){
+    box-sizing:border-box!important;height:44px!important;min-height:44px!important;
+    max-height:44px!important;line-height:1.2!important;
+    border-radius:10px!important;
+  }
+  #form-iuran #inp-tahun,#modal-edit #edit-tahun{
+    -webkit-appearance:none!important;appearance:textfield!important;
+    padding:8px 7px!important;text-align:left!important;font-size:15px!important;
+  }
+  #form-iuran #inp-tahun::-webkit-inner-spin-button,
+  #modal-edit #edit-tahun::-webkit-inner-spin-button{
+    display:none!important;-webkit-appearance:none!important;
+  }
+  /* Dropdown trigger matches dates vertically and never overflows its grid cell. */
+  #form-iuran>div:nth-child(3) .custom-select-btn,
+  #modal-edit form>div:nth-child(4) .custom-select-btn{
+    padding:8px 7px!important;font-size:14px!important;overflow:hidden!important;
+  }
+  #form-iuran>div:nth-child(3) .cs-value,
+  #modal-edit form>div:nth-child(4) .cs-value{
+    overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+  }
+}
+</style>
+</body></html>
