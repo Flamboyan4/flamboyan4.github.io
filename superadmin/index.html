@@ -294,7 +294,7 @@ html.f4-sa-drawer-lock{overflow:hidden!important}
  width:39px;height:39px;padding:0;border:0;border-radius:10px;background:#e4f1fb;
  color:#27658e;font:700 22px/1 system-ui;cursor:pointer}
 @media(max-width:1023px){.f4-sa-standalone-menu{display:grid;place-items:center}}
-</style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261027-audit6"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027">
+</style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261027-audit6"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/modern-portals.css?v=jersey-save-verified-20261027">
 </head>
 <body>
@@ -370,7 +370,7 @@ const safe=(error)=>String(error&&error.message||error);
 async function get(path){const res=await fetch(API+path,{credentials:'include',cache:'no-store'});const d=await res.json().catch(()=>({}));if(!res.ok||d.ok===false)throw Error(d.error||('HTTP '+res.status));return d}
 function sidebar(g=group){
  group=g;side.replaceChildren();
- const brand=el('div',undefined,'f4-sa-brand');const img=el('img');img.src='/assets/logo-flamboyan.svg?v=official-20261027';img.alt='Logo Flamboyan 4';img.className='f4-sa-logo';
+ const brand=el('div',undefined,'f4-sa-brand');const img=el('img');img.src='/assets/logo-flamboyan.svg?v=official-20261027-v2';img.alt='Logo Flamboyan 4';img.className='f4-sa-logo';
  const text=el('span');text.append(el('strong','Flamboyan 4'),el('small','Portal Superadmin'));brand.append(img,text);side.append(brand);
  side.append(el('strong','MENU SUPERADMIN','f4-sa-label'));
  for(const [key,label] of groups){

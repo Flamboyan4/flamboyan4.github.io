@@ -128,7 +128,7 @@ function makePortalSide(){
  if(portal!=='portal'&&portal!=='simple')return;
  const side=el('aside');side.id='f4-direct-sidebar';
  const brand=el('div','f4-direct-brand');
- const logo=el('img');logo.src='https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027';logo.alt='Logo Flamboyan 4';
+ const logo=el('img');logo.src='https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027-v2';logo.alt='Logo Flamboyan 4';
  const brandName=el('div');const h=el('h2');h.textContent='Portal Utama';
  const sub=el('small');sub.textContent='Flamboyan 4';brandName.append(h,sub);brand.append(logo,brandName);side.append(brand);
  const groupHead=el('div','f4-direct-group-label');groupHead.textContent='NAVIGASI';side.append(groupHead);
