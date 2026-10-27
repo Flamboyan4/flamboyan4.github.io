@@ -3183,19 +3183,10 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   // Isolated print sheet, matching the Pembukuan A4 top/side margins.
   // The old in-page print combines several legacy @page rules and can print too low in Firefox.
   function v36BankPrint(root,kind){
-    const tab=window.open('','_blank','width=960,height=1000');
-    if(!tab){
-      const style=document.createElement('style');
-      style.textContent='@page{size:A4 portrait;margin:10mm 12mm 11mm}';
-      document.head.append(style);
-      if(kind==='public')document.body.classList.add('v27-print-report');
-      window.addEventListener('afterprint',()=>{
-        style.remove();
-        if(kind==='public')document.body.classList.remove('v27-print-report');
-      },{once:true});
-      window.print();
-      return;
-    }
+    // Prepare a dedicated print-only container in this tab so the user's
+    // print click reaches the browser directly (Firefox and mobile).
+    document.getElementById('f4-bank-print-sheet')?.remove();
+    document.getElementById('f4-bank-print-style')?.remove();
     const styles=[
       '@page{size:A4 portrait;margin:10mm 12mm 11mm}',
       '*{box-sizing:border-box}',
@@ -3227,24 +3218,42 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
       '.v27-print-kpi strong{font-size:13px;color:#254c33}',
       '.v27-print-note{font-size:9px;line-height:1.4;margin-top:12px}',
       '.v27-print-sign{text-align:right;margin:22px 4px 0;break-inside:avoid;line-height:1.6}',
-      '.v27-print-sign strong{display:block;margin-top:34px;text-decoration:underline}',
-      '@media screen{body{padding:14px!important;max-width:210mm;margin:0 auto!important}}'
+      '.v27-print-sign strong{display:block;margin-top:34px;text-decoration:underline}'
     ].join('\n');
-    const title=kind==='member'?'Laporan Tabungan Warga':kind==='public'?'Laporan Bank Sampah Publik':'Laporan Administrasi Bank Sampah';
-    const sheet=root.innerHTML;
-    tab.addEventListener('load',()=>{
-      const imgs=Array.from(tab.document.images);
-      Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(resolve=>{
-        img.addEventListener('load',resolve,{once:true});
-        img.addEventListener('error',resolve,{once:true});
-      }))).then(()=>setTimeout(()=>{if(!tab.closed){tab.focus();tab.print();}},180));
-    },{once:true});
-    tab.document.open();
-    tab.document.write('<!doctype html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="'+location.origin+'/"><title>'+title+' — Flamboyan 4</title><style>'+styles+'</style></head><body class="'+kind+'"><main>'+sheet+'</main></body></html>');
-    tab.document.close();
-    // Personal financial records are not left in a hidden element on the original page.
+    const sheet=document.createElement('section');
+    sheet.id='f4-bank-print-sheet';sheet.className=kind;
+    sheet.setAttribute('aria-label','Laporan Bank Sampah untuk dicetak');
+    sheet.innerHTML='<main>'+root.innerHTML+'</main>';
+    document.body.appendChild(sheet);
+    const css=document.createElement('style');
+    css.id='f4-bank-print-style';
+    css.textContent='@page{size:A4 portrait;margin:10mm 12mm 11mm}'+
+      '@media screen{#f4-bank-print-sheet{display:none!important}}'+
+      '@media print{'+
+      'body.f4-bank-direct-print>*:not(#f4-bank-print-sheet){display:none!important}'+
+      'body.f4-bank-direct-print #v10Print,body.f4-bank-direct-print #v27PrintReport{display:none!important}'+
+      'body.f4-bank-direct-print #f4-bank-print-sheet{display:block!important;position:static!important;width:100%!important;max-width:none!important;height:auto!important;overflow:visible!important;margin:0!important;padding:0!important}'+
+      styles.replace(/^@page\\{[^}]*\\}/,'').replace(/body\\.member/g,'#f4-bank-print-sheet.member').replace(/body\\.public/g,'#f4-bank-print-sheet.public')+
+      '}';
+    document.head.appendChild(css);
+    document.body.classList.add('f4-bank-direct-print');
+    let cleared=false;
+    const clean=()=>{
+      if(cleared)return;
+      cleared=true;
+      css.remove();sheet.replaceChildren();sheet.remove();
+      document.body.classList.remove('f4-bank-direct-print');
+    };
+    window.addEventListener('afterprint',clean,{once:true});
+    // Invoke window.print() directly from the user's click. Do not wait for
+    // a pop-up load event, which Firefox may never deliver to this handler.
+    try{window.print();}
+    catch(err){clean();window.f4UiDialog?.alert?.('Dialog cetak tidak dapat dibuka: '+(err.message||err));}
+    setTimeout(clean,120000);
+    // Never keep another hidden copy of an account holder's statement.
     if(kind==='member')root.replaceChildren();
   }
+
   // Keep transactions marked canceled out of members' printable deposit rows.
   const v29OldMemberPrint=v12Print;
   v12Print=function(){
