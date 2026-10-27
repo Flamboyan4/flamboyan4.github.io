@@ -628,7 +628,7 @@ function accountsPage(){
   accountsPage();
  },'sa-action sa-action-primary');
  prepare.disabled=true;prepare.title='Memeriksa akun yang belum aktif';
- actions.append(prepare,button('Muat ulang',()=>accountsPage(),'sa-action'));
+ actions.append(prepare);
  heading.append(head,actions);panel.append(heading);
  const noticeBox=el('p','Akun digunakan bersama pada semua portal sesuai role. Aktivasi akun anggota yang belum aktif dan reset password anggota dikelola terpusat dan dicatat pada audit. Perubahan role dan akun Admin/Superadmin tidak dilakukan melalui tombol ini.','sa-account-note');
  panel.append(noticeBox);
@@ -642,7 +642,8 @@ function accountsPage(){
    filter.add(new Option(label,v));
  filter.value=accountRoleFilter;
  filter.onchange=()=>{accountRoleFilter=filter.value;paintAccounts()};
- filters.append(input,filter);
+ const accountReload=button('Muat ulang',()=>accountsPage(),'sa-action');accountReload.title='Muat ulang daftar akun';accountReload.setAttribute('aria-label','Muat ulang');
+ filters.append(input,accountReload,filter);
  const stats=el('p','', 'sa-account-count');stats.id='sa-account-count';stats.dataset.f4Count='accounts';filters.append(stats);
  const loadState=el('p',undefined,'f4-admin-note');panel.append(loadState);
  const loadToken=F4Loading.begin(loadState,'Memuat daftar akun…');
