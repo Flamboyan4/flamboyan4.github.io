@@ -3183,75 +3183,50 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   // Isolated print sheet, matching the Pembukuan A4 top/side margins.
   // The old in-page print combines several legacy @page rules and can print too low in Firefox.
   function v36BankPrint(root,kind){
-    // Prepare a dedicated print-only container in this tab so the user's
-    // print click reaches the browser directly (Firefox and mobile).
+    // Print the already prepared report once. The added clone caused duplicates.
+    if(!root)return;
     document.getElementById('f4-bank-print-sheet')?.remove();
     document.getElementById('f4-bank-print-style')?.remove();
-    const styles=[
-      '@page{size:A4 portrait;margin:10mm 12mm 11mm}',
-      '*{box-sizing:border-box}',
-      'html,body{margin:0!important;padding:0!important;background:#fff!important;color:#1b3024;font:10.5px/1.36 Arial,Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}',
-      'main{display:block;width:100%;margin:0;padding:0}',
-      '.v13-kop,.v29-kop{display:flex;align-items:center;gap:10px;border-bottom:1.5px solid #315e40;padding:0 0 8px;margin:0 0 9px;break-inside:avoid}',
-      '.v29-kop-logo{width:44px;height:44px;object-fit:contain;flex:none}',
-      '.v29-kop strong{display:block;font-size:13px;line-height:1.25;color:#254631}',
-      '.v29-kop small{display:block;font-size:9px;line-height:1.3;color:#526858}',
-      'h1{font-size:16px;line-height:1.2;margin:7px 0 5px;font-weight:800}',
-      'h2{font-size:12px!important;line-height:1.3;margin:12px 0 6px!important;break-after:avoid}',
-      'p{font-size:10px;line-height:1.35;margin:4px 0 9px}',
-      'table{border-collapse:collapse;width:100%;max-width:100%;table-layout:auto;margin:0 0 10px;font-size:10px}',
-      'th,td{padding:5px 6px;border:1px solid #d8e3dc;text-align:left;vertical-align:top;white-space:normal;overflow-wrap:anywhere;font-size:10px;line-height:1.25}',
-      'thead{display:table-header-group}tbody{display:table-row-group}tr{break-inside:avoid}',
-      'th{background:#eaf2eb!important;color:#21432e;font-weight:750}',
-      'td,tbody tr{background:#fff!important;color:#172a1d}',
-      'td::before,td::after{content:none!important}',
-      '.f4-bank-report-signature{text-align:right!important;margin:20px 0 0!important;padding:0 4px!important;font-size:10px;break-inside:avoid}',
-      '.f4-bank-report-signature strong{display:block;font-size:10.5px;text-decoration:underline;font-weight:750;margin-top:34px}',
-      'body.member table{font-size:10.5px}body.member th,body.member td{font-size:10.5px;line-height:1.3;padding:6px}',
-      'body.public table{font-size:9px}body.public th,body.public td{font-size:9px;line-height:1.2;padding:5px 3px;text-align:right}',
-      'body.public th:first-child,body.public td:first-child{text-align:left}',
-      '.v27-print-sub{font-size:12px;font-weight:750;margin:5px 0 9px}',
-      '.v27-print-divider{border-top:1px solid #315e40;margin:7px 0 12px}',
-      '.v27-print-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0 13px}',
-      '.v27-print-kpi{border:1px solid #cddfd2;padding:9px;break-inside:avoid}',
-      '.v27-print-kpi small{display:block;font-size:9px;color:#567261}',
-      '.v27-print-kpi strong{font-size:13px;color:#254c33}',
-      '.v27-print-note{font-size:9px;line-height:1.4;margin-top:12px}',
-      '.v27-print-sign{text-align:right;margin:22px 4px 0;break-inside:avoid;line-height:1.6}',
-      '.v27-print-sign strong{display:block;margin-top:34px;text-decoration:underline}'
-    ].join('\n');
-    const sheet=document.createElement('section');
-    sheet.id='f4-bank-print-sheet';sheet.className=kind;
-    sheet.setAttribute('aria-label','Laporan Bank Sampah untuk dicetak');
-    sheet.innerHTML='<main>'+root.innerHTML+'</main>';
-    document.body.appendChild(sheet);
+    document.getElementById('f4-bank-one-print-style')?.remove();
+    const isPublic=kind==='public';
+    document.body.classList.toggle('v27-print-report',isPublic);
+    document.body.classList.add('f4-bank-single-print');
     const css=document.createElement('style');
-    css.id='f4-bank-print-style';
-    css.textContent='@page{size:A4 portrait;margin:10mm 12mm 11mm}'+
-      '@media screen{#f4-bank-print-sheet{display:none!important}}'+
+    css.id='f4-bank-one-print-style';
+    css.textContent=
+      '@page{size:A4 portrait;margin:10mm 12mm 11mm}'+
       '@media print{'+
-      'body.f4-bank-direct-print>*:not(#f4-bank-print-sheet){display:none!important}'+
-      'body.f4-bank-direct-print #v10Print,body.f4-bank-direct-print #v27PrintReport{display:none!important}'+
-      'body.f4-bank-direct-print #f4-bank-print-sheet{display:block!important;position:static!important;width:100%!important;max-width:none!important;height:auto!important;overflow:visible!important;margin:0!important;padding:0!important}'+
-      styles.slice(styles.indexOf('\n')+1).replaceAll('body.member','#f4-bank-print-sheet.member').replaceAll('body.public','#f4-bank-print-sheet.public')+
+        'html,body{margin:0!important;padding:0!important;background:white!important}'+
+        'body.f4-bank-single-print>*:not(#v10Print):not(#v27PrintReport){display:none!important}'+
+        'body.f4-bank-single-print #v10Print,body.f4-bank-single-print #v27PrintReport{margin:0!important;padding:0!important;width:100%!important;max-width:none!important;overflow:visible!important}'+
+        'body.f4-bank-single-print:not(.v27-print-report) #v10Print{display:block!important}'+
+        'body.f4-bank-single-print:not(.v27-print-report) #v27PrintReport{display:none!important}'+
+        'body.f4-bank-single-print.v27-print-report #v10Print{display:none!important}'+
+        'body.f4-bank-single-print.v27-print-report #v27PrintReport{display:block!important;position:static!important}'+
+        '#v10Print table,#v27PrintReport table{display:table!important;width:100%!important;border-collapse:collapse!important}'+
+        '#v10Print thead,#v27PrintReport thead{display:table-header-group!important}'+
+        '#v10Print tbody,#v27PrintReport tbody{display:table-row-group!important}'+
+        '#v10Print tr,#v27PrintReport tr{display:table-row!important;break-inside:avoid!important}'+
+        '#v10Print th,#v10Print td,#v27PrintReport th,#v27PrintReport td{display:table-cell!important}'+
+        '#v10Print td[data-label]::before,#v27PrintReport td[data-label]::before{content:none!important;display:none!important}'+
+        '#v10Print th,#v27PrintReport th{print-color-adjust:exact!important;-webkit-print-color-adjust:exact!important}'+
       '}';
-    document.head.appendChild(css);
-    document.body.classList.add('f4-bank-direct-print');
-    let cleared=false;
-    const clean=()=>{
-      if(cleared)return;
-      cleared=true;
-      css.remove();sheet.replaceChildren();sheet.remove();
-      document.body.classList.remove('f4-bank-direct-print');
+    document.head.append(css);
+    let cleaned=false;
+    const cleanup=()=>{
+      if(cleaned)return;
+      cleaned=true;
+      css.remove();
+      document.body.classList.remove('f4-bank-single-print','v27-print-report');
+      if(kind==='member')root.replaceChildren();
     };
-    window.addEventListener('afterprint',clean,{once:true});
-    // Invoke window.print() directly from the user's click. Do not wait for
-    // a pop-up load event, which Firefox may never deliver to this handler.
+    window.addEventListener('afterprint',cleanup,{once:true});
     try{window.print();}
-    catch(err){clean();window.f4UiDialog?.alert?.('Dialog cetak tidak dapat dibuka: '+(err.message||err));}
-    setTimeout(clean,120000);
-    // Never keep another hidden copy of an account holder's statement.
-    if(kind==='member')root.replaceChildren();
+    catch(error){
+      cleanup();
+      window.f4UiDialog?.alert?.('Tidak dapat membuka dialog cetak: '+(error?.message||error));
+    }
+    setTimeout(cleanup,120000);
   }
 
   // Keep transactions marked canceled out of members' printable deposit rows.
