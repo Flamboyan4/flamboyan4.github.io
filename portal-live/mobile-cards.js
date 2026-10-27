@@ -11,6 +11,7 @@ const ico={
  delete:'<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="m19 6-1 14H6L5 6"/><path d="M10 11v5m4-5v5"/>',
  cancel:'<circle cx="12" cy="12" r="9"/><path d="m9 9 6 6m0-6-6 6"/>',
  view:'<path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/>',
+ external:'<path d="M14 3h7v7"/><path d="m10 14 11-11"/><path d="M21 13v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h7"/>',
  add:'<path d="M12 5v14m-7-7h14"/>',
  refresh:'<path d="M20 11a8 8 0 1 0-1.5 5"/><path d="M20 4v7h-7"/>',
  save:'<path d="M4 3h14l3 3v15H3V3h1"/><path d="M7 3v6h10V3"/><path d="M7 21v-8h10v8"/>',
@@ -168,6 +169,14 @@ function enrichSuperItem(item){
  const small=text.querySelector('small');
  const hasDetail=!!small?.textContent.trim();
  item.querySelectorAll('button').forEach(iconify);
+ const link=item.querySelector('a.f4-admin-source-link');
+ if(link&&!link.querySelector('.f4-action-symbol')){
+  const label=link.textContent.trim()||'Buka folder foto/video';
+  const symbol=document.createElement('span');symbol.className='f4-action-symbol';symbol.append(svg('external'));
+  const caption=document.createElement('span');caption.className='f4-action-label';caption.textContent=label;
+  link.replaceChildren(symbol,caption);
+  link.classList.add('f4-icon-action');link.title=label;link.setAttribute('aria-label',label);
+ }
  if(!hasDetail){
    item.classList.add('f4-card-no-detail');
    return; // Title + action only: no pointless expansion arrow.
