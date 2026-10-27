@@ -1762,8 +1762,23 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
        ?{...g,label:'Dokumentasi & Inventaris',tabs:g.tabs.filter(t=>t[0]!=='kegiatan')} : g).forEach(g=>{
       const b=document.createElement('button');b.type='button';b.className='v16-item';b.dataset.group=g.id;b.append(v16Icon(g.icon),document.createTextNode(g.label));
       b.onclick=()=>{
-       if(g.id==='public'){v11ShowPublic();v16Sync('public');}
-       else {const target=g.tabs[0]?.[0]||'dashboard';goPage(target);v16Sync(target);}
+       const target=g.id==='public'?'public':g.tabs[0]?.[0]||'dashboard';
+       // Close the drawer BEFORE loading API-driven pages: load errors must never
+       // strand the mobile sidebar over the app or freeze its active state.
+       v16CloseMenu();
+       try{
+        if(target==='public')v11ShowPublic();
+        else{
+         if($('dashboardView')?.classList.contains('hidden')&&profile)showDashboard(profile);
+         goPage(target);
+        }
+       }catch(error){
+        console.error('Navigasi Bank Sampah:',target,error);
+        note('dashNotice','Halaman '+g.label+' dibuka, tetapi sebagian data belum dapat dimuat. '+String(error?.message||''),true);
+       }finally{
+        v16Sync(target);
+        v16CloseMenu();
+       }
      };list.appendChild(b);
     });
     if(!$('v16Tabs')){
@@ -1791,7 +1806,11 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     if(!group||group.tabs.length<2){tabs.classList.add('hidden');return;}
     group.tabs.forEach(([name,label])=>{
       const b=document.createElement('button');b.type='button';b.textContent=label;
-      b.className=name===page?'active':'';b.onclick=()=>goPage(name);tabs.appendChild(b);
+      b.className=name===page?'active':'';b.onclick=()=>{
+       try{goPage(name);}
+       catch(error){console.error('Tab Bank Sampah:',name,error);note('dashNotice',String(error?.message||error),true);}
+       finally{v16Sync(name);v16CloseMenu();}
+      };tabs.appendChild(b);
     });
     tabs.classList.remove('hidden');
   }
