@@ -3796,20 +3796,14 @@ async function loadProgresBankSampahIndex(){
    next:String(row.next_step||row.nextStep||row.agenda||row.nextAgenda||''),
    photo:String(row.photo_url||row.photoUrl||row.foto||row.imageUrl||'')
   })).sort((a,b)=>b.date.localeCompare(a.date));
-  let timeline=document.getElementById('bs-project-timeline');
-  if(!timeline){
-   timeline=document.createElement('div');timeline.id='bs-project-timeline';timeline.className='f4-bs-project-timeline';
-   const anchor=document.getElementById('bs-info-1')?.closest('.space-y-1\\.5')||
-    document.getElementById('bs-info-1')?.parentElement?.parentElement;
-   if(anchor)anchor.after(timeline);else target.closest('.group')?.append(timeline);
-  }
+  // Card Bank Sampah menampilkan progres terbaru sekali saja pada banner, bukan daftar berulang.
+  document.getElementById('bs-project-timeline')?.remove();
   if(!items.length){
    target.textContent='Belum ada perkembangan tercatat';
    const desc=document.getElementById('bs-step-desc');if(desc)desc.textContent='Kegiatan terbaru akan muncul setelah pengelola memperbaruinya.';
-   timeline.textContent='Belum ada pembaruan kegiatan Bank Sampah.';
    return;
   }
-  const active=items.find(x=>/berjalan|proses|progress|aktif/i.test(x.status))||items[0];
+  const active=items[0]; // satu progres terbaru menurut tanggal
   const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=String(value||'—')};
   set('bs-step-tag',active.stage);
   set('bs-step-title',active.title);
@@ -3820,16 +3814,6 @@ async function loadProgresBankSampahIndex(){
   if(photo){const img=formatDriveImgUrl(active.photo);if(img)photo.src=img;photo.alt='Dokumentasi '+active.title;}
   const status=document.getElementById('bs-status-badge');
   if(status)status.textContent=active.status||'Aktif';
-  timeline.replaceChildren();
-  const heading=document.createElement('strong');heading.className='f4-bs-timeline-heading';heading.textContent='Linimasa terbaru';timeline.append(heading);
-  for(const entry of items.slice(0,4)){
-   const row=document.createElement('div');row.className='f4-bs-timeline-row';
-   const dot=document.createElement('span');dot.className='f4-bs-timeline-dot';dot.setAttribute('aria-hidden','true');
-   const content=document.createElement('div');
-   const name=document.createElement('b');name.textContent=entry.title;
-   const note=document.createElement('small');note.textContent=[entry.date,entry.status,entry.stage].filter(Boolean).join(' • ');
-   content.append(name,note);row.append(dot,content);timeline.append(row);
-  }
  }catch(error){
   console.error('Progres Bank Sampah tidak dapat dimuat:',error);
   const host=document.getElementById('bs-step-title');
