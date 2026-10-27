@@ -4601,7 +4601,14 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
       pop.innerHTML=`<div class="mdc-head"><button type="button" class="mdc-nav" data-mshift="-1">‹</button><button type="button" class="mdc-title" data-mode="month">${MONTH[v.m-1]} ${v.y}</button><button type="button" class="mdc-nav" data-mshift="1">›</button></div><div class="mdc-week">${WEEK.map(x=>`<div>${x}</div>`).join('')}</div><div class="mdc-days">${cells}</div>`;
     }
   }
-  function sync(input){const w=input.closest('.mdc-wrap');if(w){const s=w.querySelector('.mdc-text');if(s)s.textContent=label(input.value)}}
+  function sync(input){const w=input.closest('.mdc-wrap');if(!w)return;
+    const s=w.querySelector('.mdc-text'),b=w.querySelector('.mdc-btn');
+    const v=input.value,p=parseDate(v),width=w.getBoundingClientRect().width;
+    const short=width>0&&width<170;
+    if(s)s.textContent=!v?'Pilih tanggal':(short?`${p2(p.d)}/${p2(p.m)}/${p.y}`:label(v));
+    if(b){const full=!v?'Pilih tanggal':`${p.d} ${MONTH[p.m-1]} ${p.y}`;
+      b.setAttribute('aria-label','Tanggal: '+full);b.title=full}
+  }
   function openCalendar(w){
     closeAllCalendars(false);
     const input=w.querySelector('.mdc-source'),p=parseDate(input.value);views.set(w,{mode:'day',y:p.y,m:p.m});render(w);w.classList.add('open');pushCalendarState();
@@ -5157,6 +5164,24 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
   #modal-edit form>div:nth-child(4) .cs-value{
     overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
   }
+  /* Universal date-range calendars also reserve room for their calendar icon. */
+  body .upr-field{
+    display:flex!important;align-items:center!important;min-width:0!important;
+    overflow:hidden!important;box-sizing:border-box!important;
+    padding-right:35px!important;
+  }
+  body .upr-field .upr-field-text{
+    display:block!important;flex:1 1 0!important;min-width:0!important;
+    white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+    font-size:13px!important;line-height:1.2!important;
+  }
+  body .upr-field svg{
+    position:absolute!important;right:9px!important;top:50%!important;
+    transform:translateY(-50%)!important;width:17px!important;height:17px!important;
+    max-width:17px!important;max-height:17px!important;flex:none!important;
+    pointer-events:none!important;
+  }
+
 }
 </style>
 </body></html>
