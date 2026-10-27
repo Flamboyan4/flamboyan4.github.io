@@ -102,7 +102,7 @@ body[data-section-page=dokumentasi] .media-search{border-radius:12px!important;b
 
 /* Protect document heading and section tabs from the floating utility bar. */
 body[data-section-page=dokumentasi] main.page-stack{
- padding-top:76px!important;scroll-margin-top:80px!important
+ padding-top:38px!important;scroll-margin-top:80px!important
 }
 body[data-section-page=dokumentasi] .portal-section-heading{
  position:relative!important;margin:0 0 6px!important;line-height:1.2!important
@@ -112,7 +112,7 @@ body[data-section-page=dokumentasi] .media-top-tabs{
 }
 #container-grid-rapat>div,#container-grid-rapat>button{min-width:0!important}
 @media(max-width:760px){
- body[data-section-page=dokumentasi] main.page-stack{padding-top:72px!important}
+ body[data-section-page=dokumentasi] main.page-stack{padding-top:38px!important}
  body[data-section-page=dokumentasi] #media-albums-section,
  body[data-section-page=dokumentasi] #media-inventory-section{scroll-margin-top:80px!important}
 }
