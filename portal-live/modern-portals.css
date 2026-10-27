@@ -1474,3 +1474,20 @@ body.f4-direct-bank #dashboardView #v9List tr[hidden]{display:none!important}
   background:#fff!important;border:1px solid #e3ebe5!important
  }
 }
+
+/* Jersey: explicit cash amount, visual separation between order price and titipan. */
+#f4-account-page .f4-admin-fields .f4-jersey-received-field{
+ display:flex;flex-direction:column;gap:6px;min-width:0;
+}
+#f4-account-page .f4-jersey-received-field input{
+ width:100%;min-height:44px;border:1px solid #d5ddea;border-radius:10px;
+ padding:9px 12px;font:inherit;font-weight:650;color:#23314a;background:#fff;
+}
+#f4-account-page .f4-jersey-received-field .f4-admin-note{
+ font-size:12px;color:#667990;line-height:1.45;margin:0;
+}
+#f4-account-page .f4-admin-fields .f4-jersey-payment-preview{
+ grid-column:1/-1;min-width:0;padding:12px 14px;
+ border:1px solid #dcece6;border-radius:12px;background:#f5fbf8;
+ color:#265744;font-size:12px;line-height:1.55;font-weight:650;
+}
