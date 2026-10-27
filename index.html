@@ -405,7 +405,7 @@ body>div.fixed.bottom-6.right-6{
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-        <div onclick="openModalArisan()" class="bg-gradient-to-r from-indigo-600 to-indigo-800 hover:from-indigo-700 hover:to-indigo-900 text-white p-5 rounded-xl shadow-md flex items-center justify-between cursor-pointer transition transform hover:-translate-y-0.5 active:scale-98 group">
+        <div onclick="openModalArisan('current')" class="bg-gradient-to-r from-indigo-600 to-indigo-800 hover:from-indigo-700 hover:to-indigo-900 text-white p-5 rounded-xl shadow-md flex items-center justify-between cursor-pointer transition transform hover:-translate-y-0.5 active:scale-98 group">
           <div>
             <span class="text-xs font-semibold text-indigo-200 uppercase tracking-wider flex items-center space-x-1">
               <span>Arisan Bulan Ini</span>
@@ -419,7 +419,7 @@ body>div.fixed.bottom-6.right-6{
           </div>
         </div>
 
-        <div onclick="openModalArisan()" class="bg-white hover:bg-slate-50 p-5 rounded-xl shadow-sm border border-slate-200 hover:border-indigo-300 flex items-center justify-between cursor-pointer transition transform hover:-translate-y-0.5 active:scale-98 group">
+        <div onclick="openModalArisan('next')" class="bg-white hover:bg-slate-50 p-5 rounded-xl shadow-sm border border-slate-200 hover:border-indigo-300 flex items-center justify-between cursor-pointer transition transform hover:-translate-y-0.5 active:scale-98 group">
           <div>
             <span class="text-xs font-semibold text-indigo-600 uppercase tracking-wider flex items-center space-x-1">
               <span>Tuan Rumah Selanjutnya (Bulan Depan)</span>
@@ -1344,6 +1344,8 @@ body>div.fixed.bottom-6.right-6{
 
     let globalRencanaData = [];
     let currentArisanIdxGlobal = -1;
+    let nextArisanIdxGlobal = -1;
+    let arisanLastMonthKey = '';
     const folderCache = {};
 
     let monthlyKeuanganList = []; 
@@ -1492,10 +1494,21 @@ let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
       openModal('modal-keuangan');
     }
 
-    function openModalArisan() { 
+    function openModalArisan(which = 'current') {
+      refreshArisanCards();
       document.getElementById('search-arisan').value = '';
       filterArisanModal();
-      openModal('modal-arisan'); 
+      openModal('modal-arisan');
+      // After modal layout, show the selected month in the scrollable schedule.
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const index = which === 'next' ? nextArisanIdxGlobal : currentArisanIdxGlobal;
+        const table = document.getElementById('tabel-arisan-all');
+        const row = index >= 0 ? table?.rows[index] : null;
+        if (!row) return;
+        row.scrollIntoView({behavior:'instant',block:'center',inline:'nearest'});
+        row.setAttribute('tabindex','-1');
+        row.focus({preventScroll:true});
+      }));
     }
     
     function openModalJersey() {
@@ -2086,7 +2099,7 @@ function salinLinkAgenda(url) {
         const text = Object.values(row).join(' ').toLowerCase();
         if (text.includes(keyword)) {
           const isCurrent = (idx === currentArisanIdxGlobal);
-          const isNext = (currentArisanIdxGlobal !== -1 && idx === currentArisanIdxGlobal + 1);
+          const isNext = (idx === nextArisanIdxGlobal);
           html += renderArisanRow(row, isCurrent, isNext);
         }
       });
@@ -2598,6 +2611,72 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       window.addEventListener('load', loadKeuanganDariPembukuan, { once: true });
     }
 
+    // Calendar-aware Arisan cards. The source schedule is read as-is; only
+    // month selection and the scroll target change, never the source data.
+    const f4ArisanMonthNames=['januari','februari','maret','april','mei','juni',
+      'juli','agustus','september','oktober','november','desember'];
+    function f4ArisanCurrentPeriod(){
+      const parts=new Intl.DateTimeFormat('en-GB',{
+        timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit'
+      }).formatToParts(new Date());
+      const year=Number(parts.find(x=>x.type==='year')?.value);
+      const month=Number(parts.find(x=>x.type==='month')?.value);
+      return {year,month,key:year*12+month};
+    }
+    function f4ArisanRowPeriod(row){
+      const raw=String(Object.values(row||{})[0]||'').toLowerCase().trim();
+      const numeric=raw.match(/(?:^|\D)(20\d{2})[-/](0?[1-9]|1[012])(?:\D|$)/);
+      if(numeric)return Number(numeric[1])*12+Number(numeric[2]);
+      const year=(raw.match(/\b20\d{2}\b/)||[])[0];
+      const month=f4ArisanMonthNames.findIndex(name=>
+        new RegExp('(?:^|[^a-z])'+name+'(?:[^a-z]|$)').test(raw));
+      return year&&month>=0?Number(year)*12+month+1:null;
+    }
+    function refreshArisanCards(){
+      if(!globalArisanData.length)return;
+      const now=f4ArisanCurrentPeriod();
+      arisanLastMonthKey=String(now.key);
+      currentArisanIdxGlobal=globalArisanData.findIndex(row=>f4ArisanRowPeriod(row)===now.key);
+      nextArisanIdxGlobal=globalArisanData.findIndex(row=>f4ArisanRowPeriod(row)===now.key+1);
+      // A missing month should never silently display the first historical row.
+      // The next host may be the first known future schedule if one month is skipped.
+      if(nextArisanIdxGlobal<0){
+        const future=globalArisanData.map((row,index)=>({index,key:f4ArisanRowPeriod(row)}))
+          .filter(x=>x.key!==null&&x.key>now.key).sort((a,b)=>a.key-b.key);
+        if(future.length)nextArisanIdxGlobal=future[0].index;
+      }
+      const current=currentArisanIdxGlobal>=0?globalArisanData[currentArisanIdxGlobal]:null;
+      const following=nextArisanIdxGlobal>=0?globalArisanData[nextArisanIdxGlobal]:null;
+      const get=(id)=>document.getElementById(id);
+      const values=row=>Object.values(row||{});
+      get('arisan-bulan-ini-nama').textContent=current?String(values(current)[1]||'-'):'Belum dijadwalkan';
+      get('arisan-bulan-ini-tgl').textContent=current?String(values(current)[0]||'-'):
+        f4ArisanMonthNames[now.month-1]+' '+now.year;
+      get('arisan-selanjutnya-nama').textContent=following?String(values(following)[1]||'-'):'Belum dijadwalkan';
+      get('arisan-selanjutnya-tgl').textContent=following?
+        'Pelaksanaan: '+String(values(following)[0]||'-'):'Menunggu jadwal berikutnya';
+      const icon=get('arisan-bulan-ini-icon-bg');
+      if(icon){
+        const status=String(values(current)[2]||'').toLowerCase();
+        const done=/sudah|selesai|lunas/.test(status);
+        icon.className=done?'p-3 rounded-full bg-emerald-500/30 text-emerald-300':
+          'p-3 rounded-full bg-white/20 backdrop-blur-sm text-white';
+        icon.innerHTML=done?
+          '<i data-lucide="check-circle-2" class="w-6 h-6"></i>':
+          '<i data-lucide="home" class="w-6 h-6"></i>';
+        window.lucide?.createIcons();
+      }
+      filterArisanModal();
+    }
+    function checkArisanMonthChange(){
+      if(!globalArisanData.length)return;
+      if(String(f4ArisanCurrentPeriod().key)!==arisanLastMonthKey)refreshArisanCards();
+    }
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkArisanMonthChange()});
+    window.addEventListener('pageshow',checkArisanMonthChange);
+    // Also rolls the card forward while the page stays open across midnight.
+    window.setInterval(()=>{if(!document.hidden)checkArisanMonthChange()},60000);
+
     if (CSV_ARISAN_URL && CSV_ARISAN_URL.startsWith('http')) {
       Papa.parse(CSV_ARISAN_URL, {
         download: true,
@@ -2610,60 +2689,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 
           globalArisanData = rawData;
 
-          const now = new Date();
-          const monthNamesIndo = ["januari", "februari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember"];
-          const currentMonthStr = monthNamesIndo[now.getMonth()];
-          const currentYearStr = now.getFullYear().toString();
-
-          let arisanIni = null;
-          let arisanLanjut = null;
-          currentArisanIdxGlobal = -1;
-
-          globalArisanData.forEach((row, idx) => {
-            const keys = Object.keys(row);
-            const bulanText = (row[keys[0]] || '').toString().toLowerCase();
-            if (bulanText.includes(currentMonthStr) && bulanText.includes(currentYearStr)) {
-              arisanIni = row;
-              currentArisanIdxGlobal = idx;
-            }
-          });
-
-          if (currentArisanIdxGlobal !== -1 && currentArisanIdxGlobal + 1 < globalArisanData.length) {
-            arisanLanjut = globalArisanData[currentArisanIdxGlobal + 1];
-          }
-
-          if (!arisanIni && globalArisanData.length > 0) arisanIni = globalArisanData[0];
-          if (!arisanLanjut && globalArisanData.length > 1) arisanLanjut = globalArisanData[1];
-
-          if (arisanIni) {
-            const k = Object.keys(arisanIni);
-            const statusIni = (arisanIni[k[2]] || '').toString().toLowerCase();
-            document.getElementById('arisan-bulan-ini-nama').innerText = arisanIni[k[1]] || '-';
-            document.getElementById('arisan-bulan-ini-tgl').innerText = arisanIni[k[0]] || '-';
-            const iconContainer = document.getElementById('arisan-bulan-ini-icon-bg');
-            if (statusIni.includes('sudah')) {
-              iconContainer.className = "p-3 rounded-full bg-emerald-500/30 text-emerald-300";
-              iconContainer.innerHTML = `<i data-lucide="check-circle-2" class="w-6 h-6"></i>`;
-            } else {
-              iconContainer.className = "p-3 rounded-full bg-white/20 backdrop-blur-sm text-white";
-              iconContainer.innerHTML = `<i data-lucide="home" class="w-6 h-6"></i>`;
-            }
-          }
-
-          if (arisanLanjut) {
-            const k = Object.keys(arisanLanjut);
-            document.getElementById('arisan-selanjutnya-nama').innerText = arisanLanjut[k[1]] || '-';
-            document.getElementById('arisan-selanjutnya-tgl').innerText = `Pelaksanaan: ${arisanLanjut[k[0]] || '-'}`;
-          }
-
-          let tbodyAllHTML = '';
-          globalArisanData.forEach((row, idx) => { 
-            const isCurrent = (idx === currentArisanIdxGlobal);
-            const isNext = (currentArisanIdxGlobal !== -1 && idx === currentArisanIdxGlobal + 1);
-            tbodyAllHTML += renderArisanRow(row, isCurrent, isNext); 
-          });
-
-          document.getElementById('tabel-arisan-all').innerHTML = tbodyAllHTML;
+          refreshArisanCards();
           F4Loading.success('loading-status-arisan');
           lucide.createIcons();
         },
