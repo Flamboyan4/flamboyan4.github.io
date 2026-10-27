@@ -1,0 +1,101 @@
+/* Flamboyan 4 — white-first polish for Portal Utama, reports, meetings and media. */
+:root{--f4-polish-border:#e2e8f0;--f4-polish-ink:#1e293b}
+#keuangan{margin-top:18px}
+#keuangan>div:first-child{margin-bottom:14px!important;gap:10px}
+#keuangan>div:first-child h3,#projek>div:first-child h3{letter-spacing:-.5px!important}
+#keuangan>div.grid{gap:12px!important;margin-bottom:17px!important;align-items:stretch!important}
+#card-pemasukan,#card-pengeluaran,#keuangan>div.grid>div:nth-child(3){
+ border-radius:18px!important;padding:19px!important;min-width:0!important;min-height:152px!important;
+ transform:none!important;box-shadow:0 3px 15px rgba(30,47,77,.04)!important
+}
+#card-pemasukan,#card-pengeluaran{border-color:var(--f4-polish-border)!important;background:#fff!important}
+#keuangan #pemasukan-bulan-ini,#keuangan #pengeluaran-bulan-ini{font-size:clamp(22px,2.4vw,30px)!important;letter-spacing:-.6px!important}
+#keuangan>div.grid>div:nth-child(3){
+ background:#f5f2ff!important;border:1px solid #e2dcfd!important;color:#39347d!important
+}
+#keuangan>div.grid>div:nth-child(3) p,#keuangan>div.grid>div:nth-child(3) span{
+ color:#4f4a92!important
+}
+#keuangan>div.grid>div:nth-child(3) #sisa-saldo{color:#36317a!important;font-size:clamp(25px,3vw,33px)!important}
+#keuangan>div.grid>div:nth-child(3) button{background:#ebe5fd!important;color:#6351ae!important}
+#keuangan>div.grid>div:nth-child(3) .absolute.blur-2xl{display:none!important}
+#f4-private-transactions{border-color:var(--f4-polish-border)!important;border-radius:18px!important;box-shadow:0 3px 15px rgba(30,47,77,.035)!important}
+#f4-private-transactions>div:first-child{background:#fff!important;border-color:#eef0f4!important}
+#f4-private-transactions table{border-collapse:separate!important;border-spacing:0!important}
+#f4-private-transactions thead{background:#f5f6fa!important}
+#f4-private-transactions td,#f4-private-transactions th{vertical-align:middle!important;line-height:1.45!important}
+#projek #bs-status-badge{border:0!important;border-radius:999px!important}
+#projek [id^=bs-step]{overflow-wrap:break-word!important}
+#projek #bs-step-img{opacity:.65!important}
+#projek #bs-step-desc{line-height:1.5!important;display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;overflow:hidden!important}
+.f4-bs-project-timeline{
+ margin:12px 0 0;border-top:1px solid #e6ebe8;padding:12px 0 0;
+ display:grid;gap:10px;font-size:12px;color:#425467
+}
+.f4-bs-timeline-heading{font-weight:800;color:#254c41;font-size:12px}
+.f4-bs-timeline-row{display:grid;grid-template-columns:10px minmax(0,1fr);gap:9px;align-items:start}
+.f4-bs-timeline-dot{width:8px;height:8px;border-radius:50%;background:#1aa478;margin-top:5px;box-shadow:0 0 0 3px #e7f8f0}
+.f4-bs-timeline-row b{display:block;font-size:12px;line-height:1.35;color:#304a40}
+.f4-bs-timeline-row small{display:block;font-size:10px;color:#768b81;line-height:1.5;margin-top:2px}
+#container-grid-rapat{gap:13px!important;align-items:stretch!important}
+#container-grid-rapat>div,#container-grid-rapat>button{
+ overflow:hidden!important;border-radius:17px!important;border:1px solid #e1e5ef!important;
+ background:#fff!important;box-shadow:0 2px 12px rgba(43,47,76,.035)!important;
+ transition:border-color .15s ease,box-shadow .15s ease!important
+}
+#container-grid-rapat>div:hover,#container-grid-rapat>button:hover{border-color:#b8aae9!important;box-shadow:0 6px 19px rgba(72,61,130,.07)!important}
+#container-grid-rapat>div>div:first-child,#container-grid-rapat>button>div:first-child{
+ background:#f5f6fa!important;aspect-ratio:4/3!important;min-height:145px!important
+}
+#container-grid-rapat img{object-fit:contain!important;transform:none!important;max-width:100%!important;max-height:100%!important}
+#container-grid-rapat strong{font-size:13px!important;line-height:1.42!important;font-weight:750!important;padding:12px!important}
+body[data-section-page=dokumentasi]{background:#fff!important}
+body[data-section-page=dokumentasi] .page-stack{max-width:1100px!important}
+body[data-section-page=dokumentasi] .portal-section-heading{
+ color:#29294b!important;font-weight:800!important;letter-spacing:-.7px!important
+}
+body[data-section-page=dokumentasi] .panel{background:white!important;border:1px solid #e4e5ef!important;border-radius:18px!important;box-shadow:none!important}
+body[data-section-page=dokumentasi] .media-album-grid{gap:12px!important;max-height:none!important;overflow:visible!important;padding-right:0!important}
+body[data-section-page=dokumentasi] .media-inventory-list{max-height:none!important;overflow:visible!important;padding-right:0!important}
+body[data-section-page=dokumentasi] .media-album-card{
+ border-radius:16px!important;border:1px solid #e3e4ee!important;box-shadow:0 2px 9px rgba(35,35,75,.025)!important;
+}
+body[data-section-page=dokumentasi] .media-album-cover{height:195px!important;background:#f4f3f9!important}
+body[data-section-page=dokumentasi] .media-album-cover img{object-fit:cover!important}
+body[data-section-page=dokumentasi] .media-album-card:hover{border-color:#a898e5!important}
+body[data-section-page=dokumentasi] .media-search{border-radius:12px!important;background:#fff!important}
+@media(max-width:760px){
+ #keuangan>div.grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+ #card-pemasukan,#card-pengeluaran,#keuangan>div.grid>div:nth-child(3){
+  padding:15px!important;min-height:135px!important;border-radius:15px!important
+ }
+ #keuangan>div.grid>div:nth-child(3){grid-column:1/-1!important;min-height:120px!important}
+ #keuangan #pemasukan-bulan-ini,#keuangan #pengeluaran-bulan-ini{font-size:20px!important}
+ #keuangan #sisa-saldo{font-size:27px!important}
+ #keuangan>div:first-child{align-items:flex-start!important}
+ #f4-private-transactions .overflow-x-auto{overflow:visible!important}
+ #f4-private-transactions table{display:block!important;min-width:0!important;width:100%!important}
+ #f4-private-transactions thead{display:none!important}
+ #f4-private-transactions tbody{display:grid!important;gap:0!important}
+ #f4-private-transactions tbody tr{
+  display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:5px 8px!important;
+  padding:12px 14px!important;border-bottom:1px solid #edf0f4!important;background:white!important
+ }
+ #f4-private-transactions tbody td{
+  display:block!important;min-width:0!important;width:auto!important;padding:0!important;
+  font-size:12px!important;line-height:1.45!important;white-space:normal!important;overflow-wrap:anywhere!important
+ }
+ #f4-private-transactions tbody td:nth-child(1){grid-column:1!important;grid-row:2!important;font-size:11px!important;color:#8590a1!important}
+ #f4-private-transactions tbody td:nth-child(2){grid-column:1!important;grid-row:1!important;font-weight:750!important;color:#2c3449!important}
+ #f4-private-transactions tbody td:nth-child(3){display:none!important}
+ #f4-private-transactions tbody td:nth-child(4){grid-column:2!important;grid-row:1/3!important;text-align:right!important;font-weight:800!important;align-self:center!important}
+ #container-grid-rapat{gap:10px!important}
+ #container-grid-rapat>div>div:first-child,#container-grid-rapat>button>div:first-child{aspect-ratio:4/3!important;min-height:115px!important}
+ #container-grid-rapat strong{font-size:12px!important;padding:10px!important}
+ body[data-section-page=dokumentasi] .page-stack{padding:15px 15px 25px!important}
+ body[data-section-page=dokumentasi] .media-album-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:11px!important}
+ body[data-section-page=dokumentasi] .media-album-cover{height:145px!important}
+ body[data-section-page=dokumentasi] .media-album-card{border-radius:14px!important}
+ body[data-section-page=dokumentasi] .media-album-card .media-album-info{padding:10px!important}
+}
+@media print{#keuangan>div.grid>div:nth-child(3){background:#f2effa!important}}
