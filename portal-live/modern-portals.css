@@ -755,9 +755,10 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
 @media screen and (max-width:760px){
  #f4-account-page .f4-compact-super-card.f4-card-no-detail:not(.f4-card-expanded)>.f4-admin-action-set:not(.f4-card-detail-toggle),
  #f4-account-page .f4-compact-super-card.f4-card-no-detail:not(.f4-card-expanded)>button:not(.f4-card-detail-toggle){
-  display:flex!important;visibility:visible!important;grid-column:1/-1!important;
-  grid-row:2!important;flex-wrap:wrap!important;align-items:center!important;
-  gap:8px!important;min-width:0!important;width:100%!important;margin-top:9px!important
+  display:flex!important;visibility:visible!important;grid-column:2!important;
+  grid-row:1!important;flex-wrap:nowrap!important;align-items:center!important;
+  justify-content:flex-end!important;justify-self:end!important;
+  gap:6px!important;min-width:0!important;width:auto!important;margin:0!important;padding:0!important
  }
 }
 
@@ -989,4 +990,30 @@ body #dashboardView #pageDashboard.f4-member-dashboard .v14-primary{
  }
  #f4-account-page .f4-jersey-person-detail>.f4-admin-action-set .f4-icon-action .f4-action-label{display:none!important}
  #f4-account-page .f4-jersey-person-detail>.f4-admin-action-set .f4-icon-action .f4-action-symbol{display:grid!important;place-items:center!important}
+}
+
+/* 2026-10-27: No-detail Superadmin records: one real row, two columns.
+   Previous responsive rule pushed a direct Edit button below the title. */
+@media screen and (max-width:760px){
+ #f4-account-page .f4-admin-list>.f4-admin-item.f4-card-no-detail{
+   display:grid!important;grid-template-columns:minmax(0,1fr) max-content!important;
+   align-items:center!important;column-gap:10px!important;row-gap:0!important;
+   min-width:0!important;min-height:64px!important
+ }
+ #f4-account-page .f4-admin-list>.f4-admin-item.f4-card-no-detail>div:first-child{
+   min-width:0!important;grid-column:1!important;grid-row:1!important
+ }
+ #f4-account-page .f4-admin-list>.f4-admin-item.f4-card-no-detail>button:not(.f4-card-detail-toggle),
+ #f4-account-page .f4-admin-list>.f4-admin-item.f4-card-no-detail>.f4-admin-action-set{
+   grid-column:2!important;grid-row:1!important;align-self:center!important;
+   justify-self:end!important;margin:0!important;width:auto!important;
+   max-width:100%!important;flex:0 0 auto!important;white-space:nowrap!important
+ }
+ #f4-account-page .f4-admin-list>.f4-admin-item.f4-card-no-detail>button.f4-icon-action{
+   display:inline-grid!important;place-items:center!important;
+   width:40px!important;min-width:40px!important;max-width:40px!important;
+   height:40px!important;min-height:40px!important;padding:0!important
+ }
+ #f4-account-page .f4-admin-list>.f4-admin-item.f4-card-no-detail>button.f4-icon-action .f4-action-label{display:none!important}
+ #f4-account-page .f4-admin-list>.f4-admin-item.f4-card-no-detail>button.f4-icon-action .f4-action-symbol{display:grid!important;place-items:center!important}
 }
