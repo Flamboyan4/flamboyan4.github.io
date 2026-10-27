@@ -3,7 +3,7 @@
 'use strict';
 const ico={
  detail:'<path d="m9 18 6-6-6-6"/>',
- edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2 2 0 0 1 3 3L8 18l-4 1 1-4Z"/>',
+ edit:'<path d="m15.8 4.6 3.6 3.6"/><path d="M4 20l4.9-1.2L19.7 8a2.55 2.55 0 0 0-3.6-3.6L5.3 15.2 4 20Z"/>',
  reset:'<circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7"/>',
  deactivate:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M17 8h5"/>',
  activate:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m17 10 2 2 4-4"/>',
