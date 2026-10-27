@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Flamboyan 4 | Portal Informasi Warga Lorong</title>
-  <link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027">
-  <link rel="shortcut icon" href="/assets/logo-flamboyan.svg?v=official-20261027">
-  <link rel="apple-touch-icon" href="https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027">
+  <link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+  <link rel="shortcut icon" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+  <link rel="apple-touch-icon" href="https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027-v2">
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons CDN -->
@@ -59,7 +59,7 @@ body>header, body>section:first-of-type { display:none!important; }
 body {background:#f8f9fc!important}
 body>main {padding-top:20px!important;max-width:1250px!important}
 #banner-slider-container {border-radius:16px}
-</style><link id="f4-original-favicon" rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027"><style id="f4-public-kas-controls">
+</style><link id="f4-original-favicon" rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2"><style id="f4-public-kas-controls">
 body:not([data-preview-role]),body[data-preview-role="public"] {--f4-public-mode:1}
 body:not([data-preview-role]) #keuangan button[onclick*="openModalCetakKas"],
 body[data-preview-role="public"] #keuangan button[onclick*="openModalCetakKas"],
@@ -2416,7 +2416,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 .totalbox{margin-top:8px;border:1px solid #cbd5e1;background:#f8fafc;padding:7px 9px;display:grid;grid-template-columns:1fr auto;gap:3px 12px;break-inside:avoid;page-break-inside:avoid}.totalbox strong{font-size:11.5px}.approval{margin-top:15mm;text-align:center;break-inside:avoid;page-break-inside:avoid}.approval>div{width:75mm;max-width:100%;margin:0 auto}.sign-title{font-size:10px;margin-bottom:23mm}.sign-line{border-top:1px solid #475569;padding-top:4px;font-size:10px;font-weight:700}.note{margin-top:8px;font-size:8.5px;color:#64748b;border-top:1px solid #e2e8f0;padding-top:5px}
 @media screen{body{max-width:186mm;margin:14px auto;padding:0 4px;background:white}}
 </style></head><body>
-<header class="header"><img class="logo" src="https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027" alt="Logo"><div class="headtext"><h1>LAPORAN KEUANGAN KAS WARGA FLAMBOYAN 4</h1><p>RT 001 RW 026 Pesona Kahuripan 2</p><p class="periode">${escapeCetakKas(periode)}</p></div><span class="badge">LAPORAN KAS</span></header>
+<header class="header"><img class="logo" src="https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027-v2" alt="Logo"><div class="headtext"><h1>LAPORAN KEUANGAN KAS WARGA FLAMBOYAN 4</h1><p>RT 001 RW 026 Pesona Kahuripan 2</p><p class="periode">${escapeCetakKas(periode)}</p></div><span class="badge">LAPORAN KAS</span></header>
 <div class="summary"><div class="metric"><div class="mlabel">Saldo Sebelumnya</div><div class="mvalue saldo">${escapeCetakKas(formatRupiah(saldoSebelumnya))}</div></div><div class="metric"><div class="mlabel">${escapeCetakKas(labelSaldoKasPeriode)}</div><div class="mvalue masuk">${escapeCetakKas(formatRupiah(saldo))}</div></div><div class="metric"><div class="mlabel">${escapeCetakKas(labelSaldoAkhir)}</div><div class="mvalue tersedia">${escapeCetakKas(formatRupiah(saldoTersedia))}</div></div></div>
 <h2>Rincian Transaksi</h2><table><colgroup><col style="width:6%"><col style="width:17%"><col style="width:43%"><col style="width:17%"><col style="width:17%"></colgroup><thead><tr><th class="c">No</th><th>Tanggal</th><th>Keterangan</th><th class="r">Debit</th><th class="r">Kredit</th></tr></thead><tbody>${rows}</tbody></table>
 <div class="totalbox"><span>Total Kas Masuk</span><strong class="masuk">${escapeCetakKas(formatRupiah(totalMasuk))}</strong><span>Total Kas Keluar</span><strong class="keluar">${escapeCetakKas(formatRupiah(totalKeluar))}</strong></div>
