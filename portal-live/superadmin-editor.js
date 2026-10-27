@@ -34,7 +34,7 @@ function paidJerseyAmount(row){
  const exact=paidJerseyExact(row);if(exact!==null)return exact;
  const price=Math.max(0,Number(row?.nominal_rp)||0);
  const st=String(row?.payment_status||'').toLowerCase();
- if(st.includes('lunas'))return price;
+ if(st.includes('lunas')&&!/\b(belum|blm|tidak|non)\s*lunas\b/.test(st))return price;
  if(!/dp|cicil/.test(st))return 0;
  const m=st.match(/(?:rp\s*)?(\d[\d.,]*)/i);
  if(!m)return 0;
