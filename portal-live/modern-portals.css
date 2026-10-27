@@ -1104,3 +1104,59 @@ body #dashboardView #pageDashboard.f4-member-dashboard .v14-primary{
  }
  #dashboardView #v14Extra>.v14-extra strong{font-size:17px!important;margin-top:3px!important}
 }
+
+
+/* 2026-10-27: Data Warga & Rumah, search plus THREE actions in a single row. */
+@media screen and (max-width:760px){
+ #f4-account-page .sa-controls.sa-resident-controls:has(.f4-inline-search-refresh){
+  display:flex!important;flex-wrap:nowrap!important;align-items:center!important;
+  gap:6px!important;min-width:0!important;width:100%!important;
+  margin:12px 0!important;padding:0!important
+ }
+ #f4-account-page .sa-controls.sa-resident-controls>.f4-inline-search-refresh{
+  display:flex!important;flex:1 1 0!important;align-items:center!important;
+  gap:6px!important;min-width:0!important;max-width:none!important;
+  width:auto!important;margin:0!important;padding:0!important
+ }
+ #f4-account-page .sa-controls.sa-resident-controls>.f4-inline-search-refresh>input{
+  flex:1 1 0!important;width:100%!important;max-width:none!important;
+  min-width:0!important;box-sizing:border-box!important;
+  height:42px!important;min-height:42px!important;padding:9px 10px!important;font-size:13px!important
+ }
+ #f4-account-page .sa-controls.sa-resident-controls>.f4-inline-search-refresh>.f4-search-refresh-button{
+  flex:0 0 40px!important;width:40px!important;min-width:40px!important;max-width:40px!important;
+  height:42px!important;min-height:42px!important;max-height:42px!important;
+  margin:0!important;padding:0!important;display:grid!important;place-items:center!important
+ }
+ #f4-account-page .sa-controls.sa-resident-controls>.sa-resident-icon-action{
+  flex:0 0 40px!important;width:40px!important;min-width:40px!important;max-width:40px!important;
+  height:42px!important;min-height:42px!important;max-height:42px!important;
+  margin:0!important;padding:0!important;display:grid!important;place-items:center!important
+ }
+ #f4-account-page .sa-controls.sa-resident-controls>.sa-resident-icon-action svg,
+ #f4-account-page .sa-controls.sa-resident-controls>.f4-inline-search-refresh>.f4-search-refresh-button svg{
+  display:block!important;width:20px!important;height:20px!important;margin:auto!important;
+ }
+}
+
+/* Consistent visual center of Edit icons: independent of inherited line-height
+   and the legacy flex icon wrappers. */
+@media screen and (max-width:760px){
+ #f4-account-page .f4-admin-list>.f4-admin-item.f4-card-no-detail>button.f4-icon-action{
+  position:relative!important;display:block!important;overflow:hidden!important;
+  width:42px!important;min-width:42px!important;max-width:42px!important;
+  height:42px!important;min-height:42px!important;max-height:42px!important;
+  flex:0 0 42px!important;box-sizing:border-box!important;padding:0!important;
+  margin:0!important;line-height:0!important;text-align:center!important
+ }
+ #f4-account-page .f4-admin-list>.f4-admin-item.f4-card-no-detail>button.f4-icon-action>.f4-action-symbol{
+  position:absolute!important;top:50%!important;left:50%!important;
+  width:20px!important;height:20px!important;margin:0!important;padding:0!important;
+  transform:translate(-50%,-50%)!important;display:grid!important;place-items:center!important
+ }
+ #f4-account-page .f4-admin-list>.f4-admin-item.f4-card-no-detail>button.f4-icon-action>.f4-action-symbol svg{
+  display:block!important;position:static!important;transform:none!important;
+  width:20px!important;height:20px!important;max-width:20px!important;max-height:20px!important;
+  margin:0!important;padding:0!important
+ }
+}
