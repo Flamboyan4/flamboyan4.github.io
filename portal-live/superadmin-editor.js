@@ -354,28 +354,28 @@ function printJerseyReport(includeFunds=null){
   return text.includes('dp')||text.includes('cicil')?value*0.5:0;
  };
  const sections=[];
- let allOrders=0,allTotal=0,allReceived=0;
+ let allOrders=0,allTotal=0,allReceived=0,allTitipan=0,allOutstanding=0;
  for(const [kind,label] of [['bapak','Bapak-Bapak'],['ibu','Ibu-Ibu']]){
   const people=records.filter(x=>String(x.group_key||'').toLowerCase()===kind)
    .sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0));
-  let total=0,received=0;
+  let total=0,received=0,titipan=0,outstanding=0;
   const rows=people.map(x=>{
-   const invoice=Number(x.nominal_rp||0),paid=incoming(x);
-   total+=invoice;received+=paid;
+   const invoice=Number(x.nominal_rp||0),paid=paidJerseyAmount(x);
+   total+=invoice;received+=paid;outstanding+=Math.max(0,invoice-paid);titipan+=Math.max(0,paid-invoice);
    return '<tr><td class="center">'+esc(x.sort_order??'-')+'</td><td>'+esc(x.resident)+'</td>'+
     '<td>'+esc(x.sleeves||'-')+'</td><td>'+esc(x.size||'-')+'</td>'+
     '<td>'+esc(x.printed_name||'-')+'</td>'+
     (includeFunds?'<td class="number">'+money(invoice)+'</td>'+
       '<td class="number">'+money(paid)+'</td><td>'+esc(x.payment_status||'-')+'</td>':'')+'</tr>';
   }).join('');
-  allOrders+=people.length;allTotal+=total;allReceived+=received;
+  allOrders+=people.length;allTotal+=total;allReceived+=received;allOutstanding+=outstanding;allTitipan+=titipan;
   sections.push('<section><h2>Pesanan '+label+' ('+people.length+' orang)</h2>'+
    '<table><thead><tr><th>No</th><th>Nama & Rumah</th><th>Lengan</th><th>Ukuran</th>'+
    '<th>Nama / No. Punggung</th>'+
    (includeFunds?'<th>Nilai</th><th>Masuk</th><th>Status</th>':'')+'</tr></thead>'+
    '<tbody>'+(rows||'<tr><td colspan="'+(includeFunds?8:5)+'">Belum ada pesanan.</td></tr>')+'</tbody></table>'+
    (includeFunds?'<p class="sub">Nilai pesanan: '+money(total)+' &nbsp;|&nbsp; Dana masuk: '+money(received)+
-   ' &nbsp;|&nbsp; Kekurangan: '+money(Math.max(0,total-received))+'</p>':'')+'</section>');
+   ' &nbsp;|&nbsp; Kekurangan: '+money(outstanding)+' &nbsp;|&nbsp; Titipan: '+money(titipan)+'</p>':'')+'</section>');
  }
  const date=new Date().toLocaleDateString('id-ID',{dateStyle:'long'});
  const html='<!doctype html><html lang="id"><head><meta charset="utf-8"><title>Laporan Jersey Flamboyan 4</title>'+
@@ -393,10 +393,10 @@ function printJerseyReport(includeFunds=null){
  (includeFunds?'<div class="summary"><div class="box">Jumlah Pemesan<strong>'+allOrders+' orang</strong></div>'+
  '<div class="box">Nilai Seluruh Pesanan<strong>'+money(allTotal)+'</strong></div>'+
  '<div class="box">Dana Terkumpul<strong>'+money(allReceived)+'</strong></div>'+
- '<div class="box">Sisa Kekurangan<strong>'+money(Math.max(0,allTotal-allReceived))+'</strong></div></div>':
+ '<div class="box">Sisa Kekurangan<strong>'+money(allOutstanding)+'</strong></div></div><p class="meta"><strong>Titipan sementara: '+money(allTitipan)+'</strong> — sudah termasuk uang diterima, belum dihitung sebagai pesanan bawahan</p>':
  '<p class="meta">Total pemesan: <strong>'+allOrders+' orang</strong></p>')+
  sections.join('')+
- (includeFunds?'<p class="meta">Catatan: dana masuk dihitung dari status Lunas/nominal DP. Status DP tanpa nominal menggunakan estimasi 50%, sesuai ringkasan portal.</p>':'')+
+ (includeFunds?'<p class="meta">Catatan: data lama tanpa nominal diterima menggunakan status pembayaran sebagai acuan. DP lama tanpa nominal tidak diestimasi. Uang titipan tidak mengurangi kekurangan pemesan lainnya.</p>':'')+
  '<div class="approval">Mengetahui, Humas Flamboyan 4<strong>Heri Juwandi</strong></div>'+
  '<p class="foot">Sumber: data pesanan Jersey pada flamboyan4.web.id</p>'+
  '<script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>';
