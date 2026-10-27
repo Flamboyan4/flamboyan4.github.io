@@ -162,6 +162,15 @@ body>div.fixed.bottom-6.right-6{
  }
 }
 </style>
+<style id="f4-finance-short-period-20261027">
+#card-pemasukan .f4-period-nowrap,
+#card-pengeluaran .f4-period-nowrap{display:inline-block!important;white-space:nowrap!important}
+@media(max-width:760px){
+ #label-pemasukan-bulan,#label-pengeluaran-bulan{min-width:0!important;line-height:1.3!important}
+ #card-pemasukan>div:last-child>span:first-child,
+ #card-pengeluaran>div:last-child>span:first-child{white-space:nowrap!important}
+}
+</style>
 </head>
 
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full" oncontextmenu="return false;" onkeydown="return disableInspect(event)">
@@ -302,7 +311,7 @@ body>div.fixed.bottom-6.right-6{
           </div>
 
           <div class="mt-4 pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
-            <span class="text-slate-400">Total Kumulatif:</span>
+            <span class="text-slate-400">Akumulasi:</span>
             <span id="total-pemasukan-all" class="font-bold text-slate-700">Rp 0</span>
           </div>
         </div>
@@ -331,7 +340,7 @@ body>div.fixed.bottom-6.right-6{
           </div>
 
           <div class="mt-4 pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
-            <span class="text-slate-400">Total Kumulatif:</span>
+            <span class="text-slate-400">Akumulasi:</span>
             <span id="total-pengeluaran-all" class="font-bold text-slate-700">Rp 0</span>
           </div>
         </div>
@@ -2226,7 +2235,11 @@ function salinLinkAgenda(url) {
       if (monthlyKeuanganList.length === 0) return;
       const m = monthlyKeuanganList[currentPemasukanMonthIndex];
       const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-      document.getElementById('label-pemasukan-bulan').innerText = `Pemasukan (${monthNames[m.month]} ${m.year})`;
+      const labelPemasukan = document.getElementById('label-pemasukan-bulan');
+      const periodePemasukan = document.createElement('span');
+      periodePemasukan.className = 'f4-period-nowrap';
+      periodePemasukan.textContent = `(${['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][m.month]} ${m.year})`;
+      labelPemasukan.replaceChildren(document.createTextNode('Pemasukan '), periodePemasukan);
       document.getElementById('pemasukan-bulan-ini').innerText = formatRupiah(m.pemasukan);
     }
 
@@ -2234,7 +2247,11 @@ function salinLinkAgenda(url) {
       if (monthlyKeuanganList.length === 0) return;
       const m = monthlyKeuanganList[currentPengeluaranMonthIndex];
       const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-      document.getElementById('label-pengeluaran-bulan').innerText = `Pengeluaran (${monthNames[m.month]} ${m.year})`;
+      const labelPengeluaran = document.getElementById('label-pengeluaran-bulan');
+      const periodePengeluaran = document.createElement('span');
+      periodePengeluaran.className = 'f4-period-nowrap';
+      periodePengeluaran.textContent = `(${['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][m.month]} ${m.year})`;
+      labelPengeluaran.replaceChildren(document.createTextNode('Pengeluaran '), periodePengeluaran);
       document.getElementById('pengeluaran-bulan-ini').innerText = formatRupiah(m.pengeluaran);
     }
 
