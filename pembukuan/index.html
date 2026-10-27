@@ -4928,58 +4928,8 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
 </script>
 
 
-<style id="f4-dropdown-real-document">
-@media(max-width:1023px){
-  body .custom-select-wrap{position:relative!important}
-  body .custom-select-wrap.open{z-index:190!important}
-  body .custom-select-wrap>.custom-select-panel,
-  body .custom-select-wrap.cs-has-search>.custom-select-panel{
-    position:absolute!important;top:calc(100% + 2px)!important;left:0!important;right:0!important;bottom:auto!important;
-    width:100%!important;min-width:100%!important;max-width:100%!important;
-    border-radius:0 0 13px 13px!important;max-height:250px!important;
-    box-shadow:0 12px 25px #30205c2b!important;overflow:hidden!important
-  }
-  body .custom-select-wrap .cs-list{min-height:45px!important;max-height:174px!important;overflow:auto!important}
-  body .custom-select-wrap.open:before{display:none!important}
-  body .custom-select-wrap.f4-keyboard>.custom-select-panel{
-    position:fixed!important;top:var(--f4-top,12px)!important;left:var(--f4-left,10px)!important;right:auto!important;
-    width:var(--f4-width,calc(100vw - 20px))!important;min-width:0!important;max-width:calc(100vw - 16px)!important;
-    max-height:var(--f4-height,145px)!important;border-radius:12px!important
-  }
-  body .custom-select-wrap.f4-keyboard .cs-list{max-height:var(--f4-list,55px)!important;min-height:45px!important}
-}
-</style><script id="f4-dropdown-real-script">
-(()=>{
- const tick=()=>requestAnimationFrame(()=>requestAnimationFrame(place));
- function place(){
-  const w=document.querySelector('.custom-select-wrap.open');
-  document.querySelectorAll('.custom-select-wrap.f4-keyboard').forEach(x=>{if(x!==w)x.classList.remove('f4-keyboard')});
-  if(innerWidth>1023||!w)return;
-  const panel=w.querySelector('.custom-select-panel');if(!panel)return;
-  const search=panel.querySelector('.cs-search');
-  const viewport=visualViewport;
-  const viewportH=viewport?.height||innerHeight;
-  const viewportTop=viewport?.offsetTop||0;
-  const keyboard=viewportH<innerHeight*.88;
-  if(!search||!keyboard){w.classList.remove('f4-keyboard');return}
-  const rect=w.getBoundingClientRect();
-  const sh=Math.max(55,panel.querySelector('.cs-search-wrap')?.offsetHeight||55);
-  const height=Math.max(sh+50,Math.min(220,viewportH-18));
-  const y=Math.max(viewportTop+6,viewportTop+viewportH-height-7);
-  w.style.setProperty('--f4-top',Math.round(y)+'px');
-  w.style.setProperty('--f4-left',Math.round(Math.max(8,rect.left))+'px');
-  w.style.setProperty('--f4-width',Math.round(Math.min(rect.width,innerWidth-16))+'px');
-  w.style.setProperty('--f4-height',Math.round(height)+'px');
-  w.style.setProperty('--f4-list',Math.round(height-sh-7)+'px');
-  w.classList.add('f4-keyboard');
- }
- document.addEventListener('click',tick,true);
- document.addEventListener('focusin',e=>{if(e.target.matches('.cs-search')){tick();setTimeout(place,180)}},true);
- window.visualViewport?.addEventListener('resize',tick);
- window.visualViewport?.addEventListener('scroll',tick);
- window.addEventListener('resize',tick);
-})();
-</script>
+<!-- Penempatan dropdown dan kalender ditangani bersama oleh f4-popup-position-20261027. -->
+
 <style id="f4-book-report-tables-consistent-20261024">
 /* Satu gaya tabel laporan; ukuran huruf tetap nyaman, jarak kolom yang dipadatkan. */
 #tab-laporan .report-table-wrap:not(.kas-report-table-wrap)>table{
@@ -5184,4 +5134,163 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
 
 }
 </style>
+<style id="f4-popup-position-20261027">
+/* Floating controls use the visible viewport, not the bottom edge of the keyboard
+   or the boundaries of a clipped transaction card. */
+@media (max-width:1023px){
+  body .custom-select-wrap.open>.custom-select-panel.f4-anchor-panel,
+  body .custom-select-wrap.cs-has-search.open>.custom-select-panel.f4-anchor-panel,
+  body .custom-select-wrap.f4-keyboard.open>.custom-select-panel.f4-anchor-panel{
+    display:flex!important;flex-direction:column!important;
+    position:fixed!important;left:var(--f4-popup-left)!important;
+    top:var(--f4-popup-top)!important;right:auto!important;bottom:auto!important;
+    width:var(--f4-popup-width)!important;min-width:0!important;
+    max-width:calc(100vw - 20px)!important;
+    max-height:var(--f4-popup-height)!important;
+    height:auto!important;z-index:9500!important;
+    border-radius:13px!important;overflow:hidden!important;
+    transform:none!important;
+    box-shadow:0 12px 34px rgba(37,24,75,.2)!important
+  }
+  body .custom-select-wrap.open>.custom-select-panel.f4-anchor-panel .cs-search-wrap{
+    flex:0 0 auto!important;position:relative!important;top:auto!important;
+    width:100%!important;min-width:0!important
+  }
+  body .custom-select-wrap.open>.custom-select-panel.f4-anchor-panel .cs-list{
+    flex:1 1 auto!important;min-height:0!important;height:auto!important;
+    max-height:calc(var(--f4-popup-height) - var(--f4-popup-search,0px))!important;
+    overflow-y:auto!important;overscroll-behavior:contain!important;
+    -webkit-overflow-scrolling:touch!important
+  }
+  body .mdc-wrap.open>.mdc-pop.f4-anchor-panel,
+  body .upr-control.open>.upr-pop.f4-anchor-panel{
+    display:block!important;position:fixed!important;
+    left:var(--f4-popup-left)!important;top:var(--f4-popup-top)!important;
+    right:auto!important;bottom:auto!important;
+    width:var(--f4-popup-width)!important;min-width:0!important;
+    max-width:calc(100vw - 20px)!important;
+    height:auto!important;max-height:var(--f4-popup-height)!important;
+    z-index:9500!important;border-radius:14px!important;
+    overflow-x:hidden!important;overflow-y:auto!important;
+    overscroll-behavior:contain!important;
+    -webkit-overflow-scrolling:touch!important;
+    transform:none!important;
+    box-shadow:0 14px 38px rgba(37,24,75,.22)!important
+  }
+  body .custom-select-wrap.open:before{display:none!important}
+  body .mdc-wrap.open,body .upr-control.open,body .custom-select-wrap.open{
+    z-index:950!important
+  }
+  body .mdc-pop.f4-anchor-panel :is(.mdc-week,.mdc-days),
+  body .upr-pop.f4-anchor-panel :is(.upr-week,.upr-days){
+    width:100%!important;min-width:0!important;
+    grid-template-columns:repeat(7,minmax(0,1fr))!important
+  }
+  body .mdc-pop.f4-anchor-panel :is(.mdc-head,.mdc-week,.mdc-days),
+  body .upr-pop.f4-anchor-panel :is(.upr-head,.upr-week,.upr-days){
+    box-sizing:border-box!important
+  }
+}
+</style>
+<script id="f4-popup-position-script-20261027">
+(function(){
+  const WRAPS='.custom-select-wrap,.mdc-wrap,.upr-control';
+  const OPEN='.custom-select-wrap.open,.mdc-wrap.open,.upr-control.open';
+  const MOBILE='(max-width:1023px)';
+  let raf=0,observer;
+  const viewport=()=>{
+    const v=window.visualViewport;
+    return {top:v?.offsetTop||0,left:v?.offsetLeft||0,
+      height:v?.height||window.innerHeight,
+      width:v?.width||window.innerWidth};
+  };
+  function setVar(el,k,val){
+    if(el.style.getPropertyValue(k)!==val)el.style.setProperty(k,val);
+  }
+  function bounds(element,view){
+    const r=element.getBoundingClientRect();
+    return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,width:r.width,
+      visible:r.bottom>view.top&&r.top<view.top+view.height};
+  }
+  function position(w){
+    if(!w.classList.contains('open'))return;
+    const panel=w.querySelector('.custom-select-panel,.mdc-pop,.upr-pop');
+    const trigger=w.querySelector('.custom-select-btn,.mdc-btn,.upr-field');
+    if(!panel||!trigger)return;
+    const view=viewport();
+    const r=bounds(trigger,view);
+    // When the on-screen keyboard resizes the viewport, retain the popup
+    // beside its field instead of pinning it to the keyboard.
+    if(!r.visible)return;
+    const isSelect=w.classList.contains('custom-select-wrap');
+    const gap=6,pad=10;
+    const preferred=isSelect?280:405;
+    const vw=Math.max(0,view.width-2*pad);
+    const targetWidth=isSelect?Math.max(r.width,Math.min(310,vw)):Math.min(326,vw);
+    const width=Math.max(140,Math.min(vw,targetWidth));
+    const left=Math.max(view.left+pad,Math.min(r.left,view.left+view.width-width-pad));
+    const below=Math.max(0,view.top+view.height-r.bottom-gap-pad);
+    const above=Math.max(0,r.top-view.top-gap-pad);
+    const useAbove=(above>below&&below<preferred) || (below<135&&above>below);
+    const free=useAbove?above:below;
+    const height=Math.max(55,Math.min(preferred,free));
+    const y=useAbove?r.top-gap-height:r.bottom+gap;
+    const top=Math.max(view.top+pad,Math.min(y,view.top+view.height-height-pad));
+    panel.classList.add('f4-anchor-panel');
+    w.classList.remove('f4-keyboard');
+    setVar(panel,'--f4-popup-left',Math.round(left)+'px');
+    setVar(panel,'--f4-popup-top',Math.round(top)+'px');
+    setVar(panel,'--f4-popup-width',Math.round(width)+'px');
+    setVar(panel,'--f4-popup-height',Math.round(height)+'px');
+    if(isSelect){
+      const search=panel.querySelector('.cs-search-wrap');
+      setVar(panel,'--f4-popup-search',Math.ceil(search?.getBoundingClientRect().height||0)+'px');
+    }
+  }
+  function run(){
+    raf=0;
+    if(!window.matchMedia(MOBILE).matches)return;
+    document.querySelectorAll(OPEN).forEach(position);
+  }
+  function schedule(){if(!raf)raf=requestAnimationFrame(run)}
+  const watch=new MutationObserver(mutations=>{
+    for(const mutation of mutations){
+      if(mutation.type==='attributes'&&mutation.attributeName==='class'){
+        const el=mutation.target;
+        if(el.matches?.(WRAPS)){schedule();return}
+      }
+      if(mutation.type==='childList'){
+        if(mutation.target.closest?.(OPEN)){schedule();return}
+      }
+    }
+  });
+  function init(){
+    watch.observe(document.body,{subtree:true,attributes:true,attributeFilter:['class'],childList:true});
+    document.addEventListener('click',schedule,true);
+    document.addEventListener('focusin',schedule,true);
+    document.addEventListener('input',event=>{
+      if(event.target.matches('.cs-search'))schedule();
+    },true);
+    window.addEventListener('scroll',schedule,true);
+    window.addEventListener('resize',schedule,{passive:true});
+    window.addEventListener('orientationchange',schedule,{passive:true});
+    window.visualViewport?.addEventListener('resize',schedule,{passive:true});
+    window.visualViewport?.addEventListener('scroll',schedule,{passive:true});
+    if('ResizeObserver' in window){
+      const ro=new ResizeObserver(schedule);
+      const seen=new WeakSet();
+      const track=()=>{
+        document.querySelectorAll('.custom-select-panel,.mdc-pop,.upr-pop').forEach(el=>{
+          if(!seen.has(el)){seen.add(el);ro.observe(el)}
+        });
+      };
+      track();
+      new MutationObserver(track).observe(document.body,{childList:true,subtree:true});
+    }
+    schedule();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
+})();
+</script>
 </body></html>
