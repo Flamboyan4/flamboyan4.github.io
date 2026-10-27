@@ -1364,3 +1364,44 @@ body #dashboardView #pageDashboard.f4-member-dashboard .v14-primary{
 @media print{
  body.f4-direct-bank #dashboardView #v9List{max-height:none!important;overflow:visible!important}
 }
+
+
+/* Bank Sampah saldo lookup and safe input control width overrides. */
+body.f4-direct-bank #dashboardView .f4-bs-saldo-finder{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:12px;margin:12px 0 8px;min-width:0
+}
+body.f4-direct-bank #dashboardView .f4-bs-saldo-finder>input{
+ width:min(100%,330px);max-width:330px;min-width:0;
+ flex:1 1 230px;min-height:40px;padding:8px 12px;
+ background:#fff;border:1px solid #dbe8df;border-radius:10px;
+ color:#264637;font-size:13px
+}
+body.f4-direct-bank #dashboardView .f4-bs-saldo-count{
+ font-size:11px;color:#698276;font-weight:600;white-space:nowrap
+}
+body.f4-direct-bank #dashboardView .f4-bs-saldo-footer{
+ display:flex;align-items:center;justify-content:flex-end;gap:10px;margin:9px 0 14px
+}
+body.f4-direct-bank #dashboardView .f4-bs-saldo-footer button{
+ width:auto;min-height:37px;padding:8px 12px;font-size:12px;border-radius:9px
+}
+body.f4-direct-bank #dashboardView .f4-bs-saldo-footer[hidden],
+body.f4-direct-bank #dashboardView #v9List tr[hidden]{display:none!important}
+@media screen and (min-width:761px){
+ body.f4-direct-bank #dashboardView #setoranForm #setBarang td input[type=number],
+ body.f4-direct-bank #dashboardView #saleForm #saleItems td input[type=number]{
+  box-sizing:border-box!important;width:100%!important;max-width:140px!important;
+  min-height:36px!important;height:36px!important;
+  margin:0!important;padding:6px 10px!important;border-radius:9px!important
+ }
+ body.f4-direct-bank #dashboardView #saleForm>.field:has(#saleStatus){grid-column:1!important}
+ body.f4-direct-bank #dashboardView #saleForm>.field:has(#saleReceived){grid-column:2!important}
+ body.f4-direct-bank #dashboardView #v9List{max-height:390px!important}
+}
+@media screen and (max-width:760px){
+ body.f4-direct-bank #dashboardView .f4-bs-saldo-finder{gap:8px;flex-wrap:wrap}
+ body.f4-direct-bank #dashboardView .f4-bs-saldo-finder>input{max-width:100%;flex-basis:100%}
+ body.f4-direct-bank #dashboardView .f4-bs-saldo-count{white-space:normal}
+ body.f4-direct-bank #dashboardView .f4-bs-saldo-footer button{width:auto!important}
+}
