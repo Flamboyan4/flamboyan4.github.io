@@ -635,6 +635,29 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
   body.f4-bank-print-member #v10Print table thead{display:table-header-group!important}
   body.f4-bank-print-member #v10Print tr,
   body.f4-bank-print-member #v10Print>div:last-child{break-inside:avoid!important}
+  /* Administration and audit tables have up to six fields: keep them readable. */
+  body:not(.f4-bank-print-member):not(.v27-print-report):not(.v25-print-public) #v10Print h1{
+    font-size:17px!important;
+  }
+  body:not(.f4-bank-print-member):not(.v27-print-report):not(.v25-print-public) #v10Print h2{
+    font-size:12px!important;
+  }
+  body:not(.f4-bank-print-member):not(.v27-print-report):not(.v25-print-public) #v10Print p{
+    font-size:10px!important;line-height:1.35!important;
+  }
+  body:not(.f4-bank-print-member):not(.v27-print-report):not(.v25-print-public) #v10Print th,
+  body:not(.f4-bank-print-member):not(.v27-print-report):not(.v25-print-public) #v10Print td{
+    font-size:10px!important;line-height:1.25!important;padding:5px!important;
+  }
+  #v10Print .f4-bank-report-signature{
+    display:block!important;text-align:right!important;margin:22px 0 0!important;
+    padding:0 6px!important;font-size:10px!important;line-height:1.5!important;
+    break-inside:avoid!important;page-break-inside:avoid!important;
+  }
+  #v10Print .f4-bank-report-signature strong{
+    display:block!important;text-decoration:underline!important;font-size:10.5px!important;
+    margin-top:32px!important;font-weight:750!important;
+  }
   /* A compact public letterhead; table stays wider for its eight financial columns. */
   body.v27-print-report #v27PrintReport .v29-kop{
     margin:0 0 10px!important;padding:0 0 8px!important;
@@ -654,6 +677,12 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
   }
   body.v27-print-report #v27PrintReport .v27-print-divider{
     margin:7px 0 12px!important;
+  }
+  body.v27-print-report #v27PrintReport .v27-print-sign{
+    margin:22px 0 0!important;break-inside:avoid!important;
+  }
+  body.v27-print-report #v27PrintReport .v27-print-sign strong{
+    margin-top:32px!important;text-decoration:underline!important;
   }
 }
 </style><style id="f4-bank-gallery-svg">
@@ -1591,8 +1620,10 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     const h2=document.createElement('h2');h2.textContent='Setoran per barang';root.appendChild(h2);
     root.appendChild(v12Table(['Tanggal','Barang','Berat','Tarif warga/kg','Estimasi','Status'],d.setoran.flatMap(s=>s.rincian.map(x=>[s.tanggal,x.barang,v12Kg(x.beratKg),rupiah(x.tarif),rupiah(x.nilai),s.status]))));
     const remark=document.createElement('p');remark.style.marginTop='14px';remark.textContent='Keterangan: setoran estimasi belum menjadi tabungan sebelum rekonsiliasi disahkan.';root.appendChild(remark);
-    const signature=document.createElement('div');signature.style.cssText='text-align:right;margin-top:24px;break-inside:avoid';
-    signature.textContent='Mengetahui, Humas Flamboyan 4';const signName=document.createElement('div');signName.textContent='Heri Juwandi';signName.style.cssText='font-weight:bold;margin-top:55px;text-decoration:underline';signature.appendChild(signName);root.appendChild(signature);
+    const signature=document.createElement('div');signature.className='f4-bank-report-signature';
+    signature.textContent='Mengetahui, Humas Flamboyan 4';
+    const signName=document.createElement('strong');signName.textContent='Heri Juwandi';
+    signature.appendChild(signName);root.appendChild(signature);
     window.addEventListener('afterprint',()=>root.replaceChildren(),{once:true});window.print();
   }
   function v12CSV(){
@@ -3142,7 +3173,10 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     const r=v10ReportData.ringkasan,summary=document.createElement('p');summary.textContent='Setoran sah '+r.jumlahSetoran+' | Penjualan sah '+r.jumlahPenjualan+' | Uang diterima '+rupiah(r.diterima)+' | Hak warga '+rupiah(r.hakWargaDikredit)+' | Dicairkan '+rupiah(r.tabunganDicairkan)+' | Biaya '+rupiah(r.biaya);root.appendChild(summary);
     v10SelectedSections().forEach(({spec,rows})=>{const heading=document.createElement('h2');heading.textContent=spec.title;root.append(heading,v10MakeTable(spec,rows));});
     if(incl){const note=document.createElement('p');note.textContent='AUDIT: baris berstatus Dibatalkan disajikan sebagai riwayat dan tidak menambah saldo maupun total transaksi sah.';root.appendChild(note);}
-    const footer=document.createElement('p');footer.style.marginTop='28px';footer.textContent='Mengetahui, Humas Flamboyan 4 — Heri Juwandi';root.appendChild(footer);
+    const footer=document.createElement('div');footer.className='f4-bank-report-signature';
+    footer.textContent='Mengetahui, Humas Flamboyan 4';
+    const signName=document.createElement('strong');signName.textContent='Heri Juwandi';
+    footer.appendChild(signName);root.appendChild(footer);
     // Only the admin print preview gets a reduced top paper margin.
     // The stylesheet is removed after the browser's print dialog closes.
     document.getElementById('f4-bank-admin-print-top')?.remove();
