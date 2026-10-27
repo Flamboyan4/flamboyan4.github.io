@@ -1842,12 +1842,12 @@ main > section.card{overflow:visible!important}
  /* Input Iuran: name full row; date+method 2 columns; month/year/quantity 3 columns. */
  #tab-input #form-iuran{display:flex!important;flex-direction:column!important;gap:12px!important}
  #tab-input #form-iuran>div:nth-child(2),
- #modal-edit form>div:nth-child(2){
+ #modal-edit form>div:nth-child(3){
   display:grid!important;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr)!important;
   gap:8px!important;align-items:start!important
  }
  #tab-input #form-iuran>div:nth-child(3),
- #modal-edit form>div:nth-child(3){
+ #modal-edit form>div:nth-child(4){
   display:grid!important;grid-template-columns:minmax(0,1.3fr) minmax(0,.82fr) minmax(0,1.05fr)!important;
   gap:7px!important;align-items:start!important
  }
@@ -1858,10 +1858,10 @@ main > section.card{overflow:visible!important}
  #tab-input #form-iuran>div:nth-child(2)>div,
  #tab-input #form-iuran>div:nth-child(3)>div,
  #tab-input #form-iuran>div:nth-child(5)>div,
- #modal-edit form>div:nth-child(2)>div,
- #modal-edit form>div:nth-child(3)>div{min-width:0!important;max-width:100%!important}
+ #modal-edit form>div:nth-child(3)>div,
+ #modal-edit form>div:nth-child(4)>div{min-width:0!important;max-width:100%!important}
  #tab-input #form-iuran>div:nth-child(3) .custom-select-btn,
- #modal-edit form>div:nth-child(3) .custom-select-btn{padding:8px 6px!important}
+ #modal-edit form>div:nth-child(4) .custom-select-btn{padding:8px 6px!important}
  #tab-input #form-iuran>div:nth-child(4){padding:12px!important;border-radius:13px!important}
  #tab-input #form-iuran>div:nth-child(4)>div:first-child{margin-bottom:8px!important}
  #tab-input #preview-detail>.grid{gap:7px!important}
@@ -1881,7 +1881,7 @@ main > section.card{overflow:visible!important}
  #tab-input #form-kekurangan-kas>div:has(#kurang-kas-nominal){grid-column:1/-1!important}
  /* Edit Iuran follows the same two-column and three-column input pattern. */
  #modal-edit form{padding:13px!important;display:flex!important;flex-direction:column!important;gap:12px!important}
- #modal-edit form>div:nth-child(4){padding:11px!important}
+ #modal-edit form>div:nth-child(5){padding:11px!important}
  /* Kas Umum: semantic date/amount, method/category, month/year pairs. */
  #tab-transaksi #form-transaksi-kas.trx-layout{
   display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
@@ -1919,9 +1919,9 @@ main > section.card{overflow:visible!important}
 }
 @media screen and (max-width:345px){
  #tab-input #form-iuran>div:nth-child(3),
- #modal-edit form>div:nth-child(3){gap:4px!important;grid-template-columns:minmax(0,1.2fr) minmax(0,.78fr) minmax(0,1fr)!important}
+ #modal-edit form>div:nth-child(4){gap:4px!important;grid-template-columns:minmax(0,1.2fr) minmax(0,.78fr) minmax(0,1fr)!important}
  #tab-input #form-iuran>div:nth-child(3) label,
- #modal-edit form>div:nth-child(3) label{font-size:11px!important}
+ #modal-edit form>div:nth-child(4) label{font-size:11px!important}
 }
 </style>
 </head>
