@@ -276,6 +276,10 @@ function populate(){
  if(!rows.length)list.append(node('p','Tidak ada data yang cocok.','f4-admin-note'));
 }
 function printJerseyReport(includeFunds=null){
+ if(active!=='jersey'||!Array.isArray(records)||!records.length){
+  window.f4UiDialog.alert('Belum ada pesanan Jersey untuk dicetak.');return;
+ }
+
  if(includeFunds===null){
   document.getElementById('f4-jersey-print-options')?.remove();
   const veil=node('div',undefined,'f4-jersey-print-veil');veil.id='f4-jersey-print-options';
@@ -300,12 +304,10 @@ function printJerseyReport(includeFunds=null){
   },'f4-jersey-print-submit'));
   dialog.append(choices,actions);veil.append(dialog);
   veil.onclick=e=>{if(e.target===veil)veil.remove()};
+  dialog.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();veil.remove()}});
   document.body.append(veil);choices.querySelector('input:checked')?.focus();return;
  }
 
- if(active!=='jersey'||!Array.isArray(records)||!records.length){
-  window.f4UiDialog.alert('Belum ada pesanan Jersey untuk dicetak.');return;
- }
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const money=v=>'Rp '+Number(v||0).toLocaleString('id-ID');
  const incoming=row=>{
