@@ -643,6 +643,38 @@ function showForm(record){
   },'f4-admin-btn');
   form.append(media);
  }
+
+ // Jersey received cash is a separate visual field, encoded on save into the
+ // supported method column with the F4BAYAR marker.
+ let receivedField=null;
+ if(active==='jersey'){
+  const label=node('label',undefined,'f4-jersey-received-field');
+  label.append(node('span','Uang diterima (Rp)'));
+  receivedField=node('input');receivedField.type='number';
+  receivedField.min='0';receivedField.step='1';receivedField.inputMode='numeric';
+  receivedField.placeholder='Contoh: 120000';
+  const exact=paidJerseyExact(record);
+  if(exact!==null)receivedField.value=String(exact);
+  label.append(receivedField,node('small',
+   'Jumlah uang yang benar-benar masuk. Jika lebih dari harga, selisih menjadi titipan, bukan otomatis celana.',
+   'f4-admin-note'));
+  grid.append(label);
+  const preview=node('div',undefined,'f4-jersey-payment-preview');
+  const update=()=>{
+   const price=Math.max(0,Number(form.elements.namedItem('nominal_rp')?.value||0));
+   const paid=receivedField.value.trim()===''?null:Number(receivedField.value);
+   preview.textContent=paid===null?
+    'Belum ada nominal pembayaran khusus; status lama tetap berlaku.':
+    'Harga '+jerseyRp(price)+' • Diterima '+jerseyRp(paid)+
+    ' • Sisa '+jerseyRp(Math.max(0,price-paid))+
+    ' • Titipan '+jerseyRp(Math.max(0,paid-price));
+  };
+  receivedField.addEventListener('input',update);
+  form.elements.namedItem('nominal_rp')?.addEventListener('input',update);
+  const method=form.elements.namedItem('method');
+  if(method)method.value=plainJerseyMethod(record?.method);
+  grid.append(preview);update();
+ }
  const notice=node('p','','f4-admin-message');form.append(notice);
  const actions=node('div',undefined,'f4-warga-form-actions');
  actions.append(btn('Batal',viewList),btn('Simpan Perubahan',()=>{if(form.reportValidity())form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}))},'f4-admin-primary'));
@@ -660,6 +692,25 @@ function showForm(record){
    // Misalnya URL relatif pada data projek lama tetap utuh tanpa melewati validasi URL baru.
    if(record&&Object.hasOwn(record,input.name)&&String(record[input.name]??'')===String(next))continue;
    values[input.name]=next;
+  }
+  if(active==='jersey'){
+    const price=Math.max(0,Number(form.elements.namedItem('nominal_rp')?.value||0));
+    const method=plainJerseyMethod(form.elements.namedItem('method')?.value);
+    const raw=receivedField?.value.trim()||'';
+    if(raw!==''){
+      const paid=Number(raw);
+      if(!Number.isSafeInteger(paid)||paid<0||paid>999999999999){
+        notice.textContent='Uang diterima harus berupa bilangan rupiah bulat, minimal nol.';
+        receivedField.focus();return;
+      }
+      const stored=(method?method+' ':'')+'[F4BAYAR:'+paid+']';
+      if(!record||stored!==String(record.method||''))values.method=stored;
+      const status=price>0&&paid>=price?'Lunas':paid>0?'DP Rp'+paid:'Belum bayar';
+      if(!record||status!==String(record.payment_status||''))values.payment_status=status;
+    }else if(record&&paidJerseyExact(record)!==null){
+      // Removing the amount intentionally clears its marker, without deleting method.
+      values.method=method;
+    }
   }
   if(def.section==='book'){
    if(active==='tariffs'){obj.contribution_type=record.contribution_type;obj.amount_rp=values.amount_rp;}
