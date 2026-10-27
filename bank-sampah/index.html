@@ -3233,7 +3233,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
       'body.f4-bank-direct-print>*:not(#f4-bank-print-sheet){display:none!important}'+
       'body.f4-bank-direct-print #v10Print,body.f4-bank-direct-print #v27PrintReport{display:none!important}'+
       'body.f4-bank-direct-print #f4-bank-print-sheet{display:block!important;position:static!important;width:100%!important;max-width:none!important;height:auto!important;overflow:visible!important;margin:0!important;padding:0!important}'+
-      styles.replace(/^@page\\{[^}]*\\}/,'').replace(/body\\.member/g,'#f4-bank-print-sheet.member').replace(/body\\.public/g,'#f4-bank-print-sheet.public')+
+      styles.slice(styles.indexOf('\n')+1).replaceAll('body.member','#f4-bank-print-sheet.member').replaceAll('body.public','#f4-bank-print-sheet.public')+
       '}';
     document.head.appendChild(css);
     document.body.classList.add('f4-bank-direct-print');
