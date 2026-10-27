@@ -30,8 +30,21 @@ const logout=el('button');logout.type='button';logout.textContent='Keluar';logou
 menu.append(menuName,settings,logout);
 bar.append(hamburger,links,login,avatar,menu);document.body.prepend(bar);
 const dialog=el('div');dialog.id='f4-direct-dialog';dialog.hidden=true;
-dialog.innerHTML='<section role="dialog" aria-modal="true" aria-label="Login Flamboyan 4"><h2>Login Flamboyan 4</h2><form id="f4-direct-login-form"><label for="f4-direct-username">Username</label><input id="f4-direct-username" required autocomplete="username"><label for="f4-direct-password">Password</label><input id="f4-direct-password" type="password" required autocomplete="current-password"><p class="f4-login-error" id="f4-direct-login-error" role="status"></p><div class="f4-login-actions"><button type="button" id="f4-direct-close-login">Batal</button><button type="submit">Masuk</button></div></form></section>';
+dialog.innerHTML='<section role="dialog" aria-modal="true" aria-label="Login Flamboyan 4"><h2>Login Flamboyan 4</h2><form id="f4-direct-login-form"><label for="f4-direct-username">Username</label><input id="f4-direct-username" required autocomplete="username"><label for="f4-direct-password">Password</label><div class="f4-direct-password-field"><input id="f4-direct-password" type="password" required autocomplete="current-password"><button type="button" id="f4-direct-show-password" aria-label="Tampilkan password" title="Tampilkan password" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg></button></div><p class="f4-login-error" id="f4-direct-login-error" role="status"></p><div class="f4-login-actions"><button type="button" id="f4-direct-close-login">Batal</button><button type="submit">Masuk</button></div></form></section>';
 document.body.append(dialog);
+const password=dialog.querySelector('#f4-direct-password');
+const showPassword=dialog.querySelector('#f4-direct-show-password');
+showPassword.addEventListener('click',()=>{
+ const visible=password.type==='text';
+ password.type=visible?'password':'text';
+ showPassword.setAttribute('aria-pressed',String(!visible));
+ const label=visible?'Tampilkan password':'Sembunyikan password';
+ showPassword.setAttribute('aria-label',label);showPassword.title=label;
+ showPassword.innerHTML=visible?
+ '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg>':
+ '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 3 18 18M10.6 6.1A11 11 0 0 1 12 6c6.5 0 10 6 10 6a13.9 13.9 0 0 1-3.2 3.7M6.1 8C3.5 9.7 2 12 2 12a15 15 0 0 0 7 5.4"/><path d="M10 10a3 3 0 0 0 4 4"/></svg>';
+ password.focus({preventScroll:true});
+});
 const gate=el('div');gate.id='f4-direct-gate';gate.hidden=true;document.body.append(gate);
 function openLogin(){dialog.hidden=false;menu.hidden=true;dialog.querySelector('#f4-direct-username').focus();}
 function closeLogin(){dialog.hidden=true;}
