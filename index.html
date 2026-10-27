@@ -2764,34 +2764,26 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       return (row[targetKey] || '').toString().trim();
     }
 
-    function getNominalJerseyMasuk(row) {
-      if (!row) return 0;
-      const statusRaw = getStatusJerseyRow(row).toString().trim();
-      const totalHarga = getNominalHargaJerseyRow(row);
-
-      // Jika LUNAS, dihitung penuh
-      if (statusRaw.toLowerCase().includes('lunas')) {
-        return totalHarga;
-      }
-
-      // Ekstrak angka nominal dari teks status (contoh: "Dp Rp50000" -> 50000)
-      const digitsMatch = statusRaw.match(/\d+/g);
-      if (digitsMatch) {
-        let extractedNum = parseFloat(digitsMatch.join(''));
-        if (extractedNum < 1000 && extractedNum > 0) {
-          extractedNum = extractedNum * 1000; // Mengantisipasi penulisan "50" / "20"
-        }
-        return extractedNum;
-      }
-
-      // Default jika hanya ditulis "DP" tanpa angka, dihitung 50%
-      if (statusRaw.toLowerCase().includes('dp') || statusRaw.toLowerCase().includes('cicil')) {
-        return totalHarga * 0.5;
-      }
-
-      return 0;
+    function getJerseyTerimaEksplisit(row){
+      const methodKey=Object.keys(row||{}).find(k=>/keterangan|metode|method/i.test(k));
+      const method=String(row?.[methodKey]||'');
+      const tags=[...method.matchAll(/\[F4BAYAR:(\d{1,12})\]/g)];
+      return tags.length?Number(tags[tags.length-1][1]):null;
     }
-
+    function getNominalJerseyMasuk(row) {
+      if(!row)return 0;
+      const exact=getJerseyTerimaEksplisit(row);
+      if(exact!==null)return exact;
+      const statusRaw=getStatusJerseyRow(row).toLowerCase();
+      const price=getNominalHargaJerseyRow(row);
+      if(statusRaw.includes('lunas'))return price;
+      if(!/dp|cicil/.test(statusRaw))return 0;
+      const matches=statusRaw.match(/(?:rp\s*)?(\d[\d.,]*)/i);
+      if(!matches)return 0; // DP tanpa nominal tidak ditebak 50%.
+      let amount=Number(matches[1].replace(/[.,]/g,''));
+      if(amount>0&&amount<1000)amount*=1000;
+      return Number.isFinite(amount)?amount:0;
+    }
     function switchJerseyTab(tab) {
       currentJerseyTab = tab;
       const btnBapak = document.getElementById('tab-jersey-bapak');
@@ -2852,6 +2844,8 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       let html = '';
       let activeTotalTagihan = 0;
       let activeTerkumpul = 0;
+      let activeSisa=0;
+      let activeTitipan=0;
 
       activeData.forEach(row => {
         const text = Object.values(row).join(' ').toLowerCase();
@@ -2864,13 +2858,23 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 
         activeTotalTagihan += totalHarga;
         activeTerkumpul += nominalMasuk;
+        activeSisa+=Math.max(0,totalHarga-nominalMasuk);
+        activeTitipan+=Math.max(0,nominalMasuk-totalHarga);
       });
 
-      const activeSisa = Math.max(0, activeTotalTagihan - activeTerkumpul);
+      // Jangan gunakan titipan kelebihan satu warga untuk melunasi warga lain.
 
       document.getElementById('modal-jersey-total-tagihan').innerText = formatRupiah(activeTotalTagihan);
       document.getElementById('modal-jersey-terkumpul').innerText = formatRupiah(activeTerkumpul);
       document.getElementById('modal-jersey-sisa').innerText = formatRupiah(activeSisa);
+      let labelTitipan=document.getElementById('modal-jersey-titipan');
+      if(!labelTitipan){
+        labelTitipan=document.createElement('p');labelTitipan.id='modal-jersey-titipan';
+        labelTitipan.className='text-xs text-amber-700 font-semibold mt-2';
+        const holder=document.getElementById('modal-jersey-sisa')?.closest('.grid')||document.getElementById('modal-jersey-sisa')?.parentElement;
+        holder?.after(labelTitipan);
+      }
+      labelTitipan.textContent=activeTitipan>0?'Titipan sementara (belum menjadi pesanan celana): '+formatRupiah(activeTitipan):'';
 
       document.getElementById('tabel-jersey-all').innerHTML = html || `<tr><td colspan="7" class="p-4 text-center text-slate-400">Tidak ada pemesan ${currentJerseyTab === 'bapak' ? 'Bapak-bapak' : 'Ibu-ibu'} yang cocok</td></tr>`;
     }
