@@ -370,7 +370,7 @@ const safe=(error)=>String(error&&error.message||error);
 async function get(path){const res=await fetch(API+path,{credentials:'include',cache:'no-store'});const d=await res.json().catch(()=>({}));if(!res.ok||d.ok===false)throw Error(d.error||('HTTP '+res.status));return d}
 function sidebar(g=group){
  group=g;side.replaceChildren();
- const brand=el('div',undefined,'f4-sa-brand');const img=el('img');img.src='/favicon.png';img.alt='Logo Flamboyan 4';img.className='f4-sa-logo';
+ const brand=el('div',undefined,'f4-sa-brand');const img=el('img');img.src='/assets/logo-flamboyan.svg?v=20261027-sharp1';img.alt='Logo Flamboyan 4';img.className='f4-sa-logo';
  const text=el('span');text.append(el('strong','Flamboyan 4'),el('small','Portal Superadmin'));brand.append(img,text);side.append(brand);
  side.append(el('strong','MENU SUPERADMIN','f4-sa-label'));
  for(const [key,label] of groups){
