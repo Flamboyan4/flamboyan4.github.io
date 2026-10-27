@@ -1504,3 +1504,13 @@ body.f4-direct-bank #dashboardView #v9List tr[hidden]{display:none!important}
 #f4-account-page .f4-jersey-payment-snapshot p{margin:0}
 #f4-account-page .f4-jersey-payment-snapshot strong{color:#20385a}
 #f4-account-page .f4-jersey-payment-snapshot small{color:#6d7787;font-size:11px}
+
+/* Jersey: genuine native dropdown, reveal breakdown only for mixed payments. */
+#f4-account-page .f4-jersey-method-details[hidden],
+#f4-account-page .f4-jersey-split-fields[hidden]{display:none!important}
+#f4-account-page .f4-jersey-split-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;grid-column:1/-1}
+#f4-account-page .f4-jersey-split-fields label{display:flex;flex-direction:column;gap:5px;min-width:0}
+#f4-account-page .f4-admin-fields select[name="method"]{
+ min-height:44px;padding:10px 12px;appearance:auto;background-color:#fff;cursor:pointer
+}
+@media(max-width:560px){#f4-account-page .f4-jersey-split-fields{grid-template-columns:1fr}}

@@ -25,7 +25,31 @@ const types={
 /* Jersey transitional storage in the existing D1 method field. This is a
    structured amount, not a new backend column or a new transaction record. */
 const JERSEY_PAY_TAG=/\s*\[F4BAYAR:(\d{1,12})\]/g;
-function plainJerseyMethod(value){return String(value||'').replace(JERSEY_PAY_TAG,'').trim()}
+const JERSEY_SPLIT_TAG=/\s*\[F4SPLIT:(\d{1,12}):(\d{1,12})\]/g;
+function plainJerseyMethod(value){return String(value||'').replace(JERSEY_PAY_TAG,'').replace(JERSEY_SPLIT_TAG,'').trim()}
+function jerseySplitExact(row){
+ const tagged=[...String(row?.method||'').matchAll(/\[F4SPLIT:(\d{1,12}):(\d{1,12})\]/g)];
+ if(!tagged.length)return null;
+ return {qris:Number(tagged[tagged.length-1][1]),cash:Number(tagged[tagged.length-1][2])};
+}
+function jerseyMethodKind(value){
+ const method=plainJerseyMethod(value).toLowerCase();
+ if(!method)return '';
+ const qr=/(^|[^a-z])(qris|qr[ -]?code|qr)(?=$|[^a-z])/.test(method);
+ const cash=/(^|[^a-z])(cash|tunai|kontan)(?=$|[^a-z])/.test(method);
+ if(qr&&cash)return 'Campuran';
+ if(qr)return 'QRIS';
+ if(cash)return 'Cash';
+ return 'Lainnya';
+}
+function jerseyMethodNote(value,kind){
+ const method=plainJerseyMethod(value);
+ if(!method)return '';
+ if(kind==='Lainnya')return method;
+ const leading=kind==='Campuran'?/^(?:qris\s*(?:\+|dan|&)\s*(?:cash|tunai)|(?:cash|tunai)\s*(?:\+|dan|&)\s*qris)/i:
+  kind==='QRIS'?/^(?:qris|qr[ -]?code|qr)/i:/^(?:cash|tunai|kontan)/i;
+ return method.replace(leading,'').replace(/^[\s:;|,./+–—-]+/,'').trim();
+}
 function paidJerseyExact(row){
  const tags=[...String(row?.method||'').matchAll(/\[F4BAYAR:(\d{1,12})\]/g)];
  return tags.length?Number(tags[tags.length-1][1]):null;
@@ -66,12 +90,17 @@ function jerseyPaymentSummary(rows){
    total.belumDirinci+=paid;
    continue;
   }
-  const method=plainJerseyMethod(row.method).toLowerCase();
-  const hasQr=/(^|[^a-z])(qris|qr[ -]?code|qr)(?=$|[^a-z])/.test(method);
-  const hasCash=/(^|[^a-z])(cash|tunai|kontan)(?=$|[^a-z])/.test(method);
-  if(hasQr&&!hasCash)total.qris+=paid;
-  else if(hasCash&&!hasQr)total.cash+=paid;
-  else total.belumDirinci+=paid; // Includes mixed payments with no recorded split.
+  const split=jerseySplitExact(row);
+  if(split){
+   if(Number.isSafeInteger(split.qris)&&Number.isSafeInteger(split.cash)&&split.qris>=0&&split.cash>=0&&split.qris+split.cash===exact){
+    total.qris+=split.qris;total.cash+=split.cash;
+   }else total.belumDirinci+=paid; // Invalid legacy split must never be guessed.
+   continue;
+  }
+  const kind=jerseyMethodKind(row.method);
+  if(kind==='QRIS')total.qris+=paid;
+  else if(kind==='Cash')total.cash+=paid;
+  else total.belumDirinci+=paid; // Unsplit mixed or unknown payments stay unclassified.
  }
  return total;
 }
@@ -659,6 +688,13 @@ function showForm(record){
    input=node('select');
    input.append(new Option('Bapak-Bapak','bapak'),new Option('Ibu-Ibu','ibu'));
   }
+  else if(active==='jersey'&&key==='method'){
+   input=node('select');
+   for(const [value,caption] of [['','Belum diketahui / pilih metode'],['QRIS','QRIS'],['Cash','Cash (tunai)'],
+    ['Campuran','Campuran (QRIS + Cash)'],['Lainnya','Metode lain / keterangan']]){
+    input.append(new Option(caption,value));
+   }
+  }
   else if(type==='category'){
    input=node('select');
    const cats=['Kerja Bakti','Arisan','Acara','Lainnya'];
@@ -702,6 +738,7 @@ function showForm(record){
  // Jersey received cash is a separate visual field, encoded on save into the
  // supported method column with the F4BAYAR marker.
  let receivedField=null;
+ let methodChoice=null,methodDetails=null,qrisSplitField=null,cashSplitField=null;
  if(active==='jersey'){
   const label=node('label',undefined,'f4-jersey-received-field');
   label.append(node('span','Uang diterima (Rp)'));
@@ -715,31 +752,53 @@ function showForm(record){
    'f4-admin-note'));
   grid.append(label);
   const preview=node('div',undefined,'f4-jersey-payment-preview');
+  methodChoice=form.elements.namedItem('method');
+  const initialKind=jerseyMethodKind(record?.method);
+  const initialNote=jerseyMethodNote(record?.method,initialKind);
+  methodChoice.value=initialKind;
+  const extraLabel=node('label',undefined,'f4-jersey-method-details');
+  extraLabel.append(node('span','Keterangan metode (opsional)'));
+  methodDetails=node('input');methodDetails.type='text';
+  methodDetails.placeholder='Contoh: transfer bank / catatan penerimaan';
+  methodDetails.value=initialNote;extraLabel.append(methodDetails);
+  grid.append(extraLabel);
+  const splitLabel=node('div',undefined,'f4-jersey-split-fields');
+  const priorSplit=jerseySplitExact(record);
+  const qrLabel=node('label');qrLabel.append(node('span','QRIS (Rp)'));
+  qrisSplitField=node('input');qrisSplitField.type='number';qrisSplitField.min='0';qrisSplitField.step='1';
+  qrisSplitField.inputMode='numeric';qrisSplitField.placeholder='0';
+  if(priorSplit)qrisSplitField.value=String(priorSplit.qris);
+  qrLabel.append(qrisSplitField);
+  const cashLabel=node('label');cashLabel.append(node('span','Cash (Rp)'));
+  cashSplitField=node('input');cashSplitField.type='number';cashSplitField.min='0';cashSplitField.step='1';
+  cashSplitField.inputMode='numeric';cashSplitField.placeholder='0';
+  if(priorSplit)cashSplitField.value=String(priorSplit.cash);
+  cashLabel.append(cashSplitField);splitLabel.append(qrLabel,cashLabel);
+  grid.append(splitLabel);
   const update=()=>{
    const price=Math.max(0,Number(form.elements.namedItem('nominal_rp')?.value||0));
    const paid=receivedField.value.trim()===''?null:Number(receivedField.value);
-   preview.textContent=paid===null?
-    'Belum ada nominal pembayaran khusus; status lama tetap berlaku.':
-    'Harga '+jerseyRp(price)+' • Diterima '+jerseyRp(paid)+
+   const kind=methodChoice.value;
+   const label=kind==='QRIS'?'QRIS':kind==='Cash'?'Cash':kind==='Campuran'?'Campuran QRIS + Cash':
+    kind==='Lainnya'?'Metode lain':'Belum diketahui';
+   splitLabel.hidden=kind!=='Campuran';
+   extraLabel.hidden=kind!=='Lainnya'&&!methodDetails.value.trim();
+   if(paid===null){
+    preview.textContent='Metode: '+label+' • Nominal belum tercatat; pembayaran lama tetap mengikuti data tersimpan.';
+    return;
+   }
+   const splitInfo=kind==='Campuran'&&qrisSplitField.value!==''&&cashSplitField.value!==''?
+    ' • QRIS '+jerseyRp(qrisSplitField.value)+' + Cash '+jerseyRp(cashSplitField.value):'';
+   preview.textContent='Metode: '+label+' • Harga '+jerseyRp(price)+' • Diterima '+jerseyRp(paid)+
     ' • Sisa '+jerseyRp(Math.max(0,price-paid))+
-    ' • Titipan '+jerseyRp(Math.max(0,paid-price));
+    ' • Titipan '+jerseyRp(Math.max(0,paid-price))+splitInfo;
   };
   receivedField.addEventListener('input',update);
   form.elements.namedItem('nominal_rp')?.addEventListener('input',update);
-  const method=form.elements.namedItem('method');
-  if(method){
-   method.value=plainJerseyMethod(record?.method);
-   // The existing backend field stays unchanged; suggestions help new entries
-   // use consistently identifiable methods without rewriting older notes.
-   const options=node('datalist');options.id='f4-jersey-payment-methods';
-   for(const val of ['QRIS','Cash','Tunai','Transfer bank','QRIS + Cash']){
-    const option=document.createElement('option');option.value=val;options.append(option);
-   }
-   method.setAttribute('list',options.id);
-   grid.append(options);
-   const hint=node('small','Isi QRIS atau Cash bila seluruh uang diterima melalui satu metode. Jika campuran, tulis keterangannya; nominalnya akan tercatat sebagai belum dirinci sampai ada pembagian pasti.','f4-admin-note');
-   grid.append(hint);
-  }
+  methodChoice.addEventListener('change',update);
+  methodDetails.addEventListener('input',update);
+  qrisSplitField.addEventListener('input',update);
+  cashSplitField.addEventListener('input',update);
   grid.append(preview);update();
  }
  const notice=node('p','','f4-admin-message');form.append(notice);
@@ -754,6 +813,7 @@ function showForm(record){
    const value=input.value.trim();
    if(input.required&&!value){notice.textContent=input.name+' wajib diisi.';input.focus();return}
    if(input.readOnly)continue;
+   if(active==='jersey'&&input.name==='method')continue; // Serialized below with amount and audit markers.
    const next=input.type==='number'?Number(value):input.name==='active'?Number(value):value;
    // Edit parsial: jangan mengirim ulang kolom lama yang tidak disentuh.
    // Misalnya URL relatif pada data projek lama tetap utuh tanpa melewati validasi URL baru.
@@ -762,21 +822,54 @@ function showForm(record){
   }
   if(active==='jersey'){
     const price=Math.max(0,Number(form.elements.namedItem('nominal_rp')?.value||0));
-    const method=plainJerseyMethod(form.elements.namedItem('method')?.value);
+    const kind=methodChoice.value,remark=methodDetails.value.trim();
+    const oldKind=jerseyMethodKind(record?.method),oldRemark=jerseyMethodNote(record?.method,oldKind);
+    const sameBase=!!record&&kind===oldKind&&remark===oldRemark;
+    const rootMethod=sameBase?plainJerseyMethod(record?.method):
+      (kind==='Lainnya'?remark:(kind==='Campuran'?'QRIS + Cash':kind)+(remark?' — '+remark:''));
     const raw=receivedField?.value.trim()||'';
+    let splitTag='';
+    if(kind==='Campuran'){
+      const oldSplit=jerseySplitExact(record);
+      const splitProvided=qrisSplitField.value.trim()!==''||cashSplitField.value.trim()!=='';
+      if(splitProvided){
+       const q=Number(qrisSplitField.value||0),c=Number(cashSplitField.value||0);
+       if(!Number.isSafeInteger(q)||!Number.isSafeInteger(c)||q<0||c<0||q+c!==Number(raw)){
+        notice.textContent='Jumlah QRIS + Cash harus sama persis dengan uang diterima.';
+        qrisSplitField.focus();return;
+       }
+       splitTag='[F4SPLIT:'+q+':'+c+']';
+      }else if(raw!==''&&(!sameBase||!record)){
+       notice.textContent='Untuk pembayaran campuran, isi nominal QRIS dan Cash agar laporan tepat.';
+       qrisSplitField.focus();return;
+      }else if(oldSplit&&sameBase&&raw!==''){
+       splitTag='[F4SPLIT:'+oldSplit.qris+':'+oldSplit.cash+']';
+      }
+    }
+    if(kind==='Lainnya'&&!remark){
+      notice.textContent='Masukkan keterangan metode lain atau pilih QRIS/Cash.';
+      methodDetails.focus();return;
+    }
     if(raw!==''){
       const paid=Number(raw);
       if(!Number.isSafeInteger(paid)||paid<0||paid>999999999999){
         notice.textContent='Uang diterima harus berupa bilangan rupiah bulat, minimal nol.';
         receivedField.focus();return;
       }
-      const stored=(method?method+' ':'')+'[F4BAYAR:'+paid+']';
+      const stored=(rootMethod?rootMethod+' ':'')+
+        (splitTag?splitTag+' ':'')+'[F4BAYAR:'+paid+']';
       if(!record||stored!==String(record.method||''))values.method=stored;
       const status=price>0&&paid>=price?'Lunas':paid>0?'DP Rp'+paid:'Belum bayar';
       if(!record||status!==String(record.payment_status||''))values.payment_status=status;
     }else if(record&&paidJerseyExact(record)!==null){
       notice.textContent='Uang yang sudah tercatat tidak boleh dikosongkan. Isi 0 hanya jika uang benar-benar dikembalikan, lalu konfirmasi koreksi.';
       receivedField.focus();return;
+    }else{
+      if(kind==='Campuran'&&splitTag){
+       notice.textContent='Isi uang diterima sebelum merinci pembayaran campuran.';
+       receivedField.focus();return;
+      }
+      if(!record||rootMethod!==String(record.method||''))values.method=rootMethod;
     }
   }
   if(def.section==='book'){
