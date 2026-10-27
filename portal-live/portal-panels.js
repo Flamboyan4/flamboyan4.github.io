@@ -169,23 +169,45 @@ async function loadPersonal(kind){
   area.replaceChildren();
   const heading=el('div',undefined,'f4-user-category-heading');
   const head=el('h4',labels[kind]||'Riwayat');
-  const filter=el('label',undefined,'f4-user-year-filter');
+  const filter=el('div',undefined,'f4-user-year-filter');
   filter.append(el('span','Tahun transaksi'));
-  const select=el('select');
-  select.setAttribute('aria-label','Tahun transaksi '+(labels[kind]||''));
   const currentYear=String(new Date().getFullYear());
   const years=[...new Set(all.map(yearOf).filter(y=>/^\d{4}$/.test(y)))].sort((a,b)=>b.localeCompare(a));
   const chosen=personalYearByKind[kind]??(years.includes(currentYear)?currentYear:(years[0]||currentYear));
-  select.add(new Option('Semua Tahun','all'));
-  for(const year of [...new Set([currentYear,...years])].sort((a,b)=>b.localeCompare(a)))select.add(new Option(year,year));
-  if(all.some(r=>yearOf(r)==='unknown'))select.add(new Option('Tanpa tahun','unknown'));
-  select.value=['all','unknown',currentYear,...years].includes(chosen)?chosen:currentYear;
-  filter.append(select);
+  const options=[{value:'all',label:'Semua Tahun'},
+   ...[...new Set([currentYear,...years])].sort((a,b)=>b.localeCompare(a)).map(year=>({value:year,label:year}))];
+  if(all.some(row=>yearOf(row)==='unknown'))options.push({value:'unknown',label:'Tanpa tahun'});
+  let selectedYear=options.some(option=>option.value===chosen)?chosen:currentYear;
+  const picker=el('details',undefined,'f4-user-year-picker');
+  const trigger=el('summary',undefined,'f4-user-year-trigger');
+  trigger.setAttribute('aria-label','Pilih tahun transaksi');
+  trigger.append(el('span',options.find(option=>option.value===selectedYear)?.label||selectedYear));
+  const popup=el('div',undefined,'f4-user-year-popover');
+  popup.setAttribute('aria-label','Daftar tahun transaksi');
+  for(const option of options){
+   const control=el('button',undefined,'f4-user-year-option');
+   control.type='button';
+   control.append(el('span',option.label));
+   control.dataset.year=option.value;
+   control.setAttribute('aria-pressed',String(option.value===selectedYear));
+   control.onclick=()=>{
+    selectedYear=option.value;
+    trigger.firstElementChild.textContent=option.label;
+    popup.querySelectorAll('[data-year]').forEach(button=>
+     button.setAttribute('aria-pressed',String(button.dataset.year===selectedYear)));
+    picker.open=false;
+    renderYear();
+    trigger.focus({preventScroll:true});
+   };
+   popup.append(control);
+  }
+  picker.append(trigger,popup);
+  filter.append(picker);
   heading.append(head,filter);area.append(heading);
   const content=el('div',undefined,'f4-user-year-content');area.append(content);
   function renderYear(){
    if(requestId!==personalRequestSerial)return;
-   const selected=select.value;
+   const selected=selectedYear;
    personalYearByKind[kind]=selected;
    const list=selected==='all'?all:all.filter(row=>yearOf(row)===selected);
    content.replaceChildren();
@@ -246,7 +268,6 @@ async function loadPersonal(kind){
    }
    paintEntries();
   }
-  select.onchange=renderYear;
   renderYear();
  }catch(error){
   if(requestId!==personalRequestSerial)return;
@@ -300,13 +321,32 @@ css.textContent+="\n/* Keuangan Saya — putih, ringkas, mobile-first, tanpa ang
 css.textContent+=[
  '#keuangan .f4-user-category-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:7px 0 6px}',
  '#keuangan .f4-user-year-filter{display:flex;align-items:center;gap:8px;margin-left:auto;color:#6f7b8f;font-size:11px;font-weight:700}',
- '#keuangan .f4-user-year-filter select{appearance:auto;min-width:112px;width:auto;max-width:160px;min-height:39px;padding:8px 10px;border:1px solid #dcdff1;border-radius:10px;background:#fff;color:#5143b1;font:750 12px system-ui}',
+ '#keuangan .f4-user-year-picker{position:relative;min-width:110px;z-index:12;color:#5545b7}',
+ '#keuangan .f4-user-year-trigger{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:112px;min-height:40px;padding:9px 12px;border:1px solid #ddd9f4;border-radius:10px;background:#fff;color:#5544b5;font:750 12px system-ui;cursor:pointer;list-style:none;user-select:none}',
+ '#keuangan .f4-user-year-trigger::-webkit-details-marker{display:none}',
+ '#keuangan .f4-user-year-trigger:after{content:"";width:7px;height:7px;flex:none;border-right:1.8px solid currentColor;border-bottom:1.8px solid currentColor;transform:rotate(45deg) translateY(-2px)}',
+ '#keuangan .f4-user-year-picker[open]>.f4-user-year-trigger{background:#f7f5ff;border-color:#afa5ed}',
+ '#keuangan .f4-user-year-picker[open]>.f4-user-year-trigger:after{transform:rotate(225deg) translateY(-1px)}',
+ '#keuangan .f4-user-year-popover{position:absolute;z-index:100;right:0;top:calc(100% + 7px);width:max-content;min-width:100%;max-width:min(82vw,240px);max-height:240px;overflow-y:auto;padding:5px;background:#fff;border:1px solid #e4def8;border-radius:12px;box-shadow:0 14px 34px rgba(39,38,93,.15)}',
+ '#keuangan .f4-user-year-popover button.f4-user-year-option{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;min-height:39px;padding:9px 12px;border:0;border-radius:8px;background:#fff;color:#495670;font:650 12px system-ui;text-align:left;white-space:nowrap}',
+ '#keuangan .f4-user-year-popover button.f4-user-year-option[aria-pressed=true]{background:#f1eeff;color:#5944c5;font-weight:800}',
+ '#keuangan .f4-user-year-popover button.f4-user-year-option[aria-pressed=true]:after{content:"✓";font-weight:900}',
+ '#keuangan .f4-user-year-popover button.f4-user-year-option:hover{background:#f7f6ff}',
  '#keuangan .f4-user-year-context{font-size:11px;color:#80899a;margin:0 0 12px}',
  '#keuangan .f4-user-more-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px}',
  '#keuangan .f4-user-more-controls>span{font-size:11px;color:#8b94a3}',
  '#keuangan .f4-user-more-controls button.f4-user-more-button{background:#f4f1ff;border:1px solid #ddd7f5;color:#5544bb;border-radius:10px;padding:9px 13px;min-height:39px;font-size:12px;font-weight:800}',
  '@media(max-width:760px){#keuangan .f4-user-category-heading{align-items:center}#keuangan .f4-user-category-heading h4{font-size:15px}#keuangan .f4-user-year-filter span{font-size:11px}#keuangan .f4-user-more-controls button{margin-left:auto}}'
 ].join('\n');
+document.addEventListener('pointerdown',event=>{
+ const open=document.querySelector('#keuangan .f4-user-year-picker[open]');
+ if(open&&!open.contains(event.target))open.open=false;
+},true);
+document.addEventListener('keydown',event=>{
+ if(event.key!=='Escape')return;
+ const open=document.querySelector('#keuangan .f4-user-year-picker[open]');
+ if(open){open.open=false;open.querySelector('summary')?.focus({preventScroll:true});}
+},true);
 document.head.append(css);
 window.f4GoBank=()=>{
   if(window.parent!==window)window.parent.postMessage({type:'f4:go-portal',portal:'bank-sampah'},location.origin);
