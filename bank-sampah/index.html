@@ -652,6 +652,21 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
  html.f4-bank-embedded #v11Public #v18PublicContent{width:100%!important;max-width:100%!important}
  html.f4-bank-embedded #v11Public #v18PublicContent .v17-public-main{padding-top:14px!important}
 }
+/* Drawer menu HP harus berada di atas bar bersama dan menerima tap.
+   Navigasi tetap menutup setelah handler tombolnya selesai berjalan. */
+@media(max-width:1023px){
+ html.f4-bank-embedded body.v17-dashboard #sideNav.side{
+   position:fixed!important;top:0!important;left:0!important;
+   height:100dvh!important;max-height:100dvh!important;overflow-y:auto!important;
+   z-index:241!important;pointer-events:auto!important
+ }
+ html.f4-bank-embedded body.v17-dashboard #v16Backdrop.open{
+   display:block!important;position:fixed!important;inset:0!important;
+   z-index:240!important;pointer-events:auto!important
+ }
+ html.f4-bank-embedded #v18PublicSide.open{z-index:241!important;pointer-events:auto!important}
+ html.f4-bank-embedded #v18PublicBackdrop.open{z-index:240!important;pointer-events:auto!important}
+}
 html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
 </style><script src="/portal-live/ui-dialog.js?v=20261027-dialog4"></script>
 <script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><style id="f4-member-progress-ui">
@@ -3106,7 +3121,13 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
         e.preventDefault();e.stopImmediatePropagation();
         window.f4ToggleBankMenu();
       }else if(e.target.closest('#v18PublicSide button,#sideNav button')){
-        if(history.state?.f4BankSidebarOverlay)history.back();
+        // Biarkan onclick navigasi berjalan dahulu. history.back() secara sinkron
+        // di capture phase pernah memulihkan halaman sebelum menu dapat dibuka di HP.
+        queueMicrotask(()=>{
+          if(history.state?.f4BankSidebarOverlay)
+            history.replaceState({...history.state,f4BankSidebarOverlay:false},'',location.href);
+          bankMenuClose();
+        });
       }
     },true);
     document.addEventListener('keydown',e=>{
