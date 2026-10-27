@@ -138,7 +138,31 @@ body>div.fixed.bottom-6.right-6{
  body>div.fixed.bottom-6.right-6{bottom:calc(18px + var(--f4-footer-lift,0px))!important}
 }
 </style><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261027-audit6"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><link rel="icon" type="image/png" href="/favicon.png?v=logo-f4-20261026">
-<link rel="stylesheet" href="/portal-live/portal-polish.css?v=20261027-six-transactions-compact"></head>
+<link rel="stylesheet" href="/portal-live/portal-polish.css?v=20261027-six-transactions-compact">
+<style id="f4-home-latest-preview-20261027">
+/* Latest layout next to HTML so stylesheet version caching cannot mask it. */
+#projek #bs-step-img{opacity:1!important;filter:none!important}
+#f4-private-transactions tbody tr[hidden]{display:none!important}
+#f4-private-transactions>div:first-child{padding:10px 14px!important}
+#f4-private-transactions tbody td{line-height:1.28!important}
+@media(max-width:760px){
+ #f4-private-transactions tbody tr{
+  display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+  gap:2px 9px!important;padding:8px 12px!important;min-height:0!important;
+  margin:0!important;align-items:center!important;
+ }
+ #f4-private-transactions tbody tr[hidden]{display:none!important}
+ #f4-private-transactions tbody tr td{padding:0!important;margin:0!important;line-height:1.27!important}
+ #f4-private-transactions tbody tr td:nth-child(1){grid-column:1!important;grid-row:2!important}
+ #f4-private-transactions tbody tr td:nth-child(2){grid-column:1!important;grid-row:1!important}
+ #f4-private-transactions tbody tr td:nth-child(3){display:none!important}
+ #f4-private-transactions tbody tr td:nth-child(4){
+  grid-column:2!important;grid-row:1/3!important;
+  align-self:center!important;white-space:nowrap!important
+ }
+}
+</style>
+</head>
 
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full" oncontextmenu="return false;" onkeydown="return disableInspect(event)">
 
@@ -3837,5 +3861,40 @@ document.addEventListener('DOMContentLoaded',()=>{
  window.addEventListener('resize',schedule,{passive:true});
  update();
 });
-</script><script src="/portal-live/portal-panels.js?v=custom-year-picker-20261027"></script><script src="/portal-live/direct-shell.js?v=20261027-refresh-svg-all"></script><script src="/portal-live/unified-account.js?v=account-native-20261025b"></script></body>
+</script><script src="/portal-live/portal-panels.js?v=custom-year-picker-20261027"></script><script src="/portal-live/direct-shell.js?v=20261027-refresh-svg-all"></script><script src="/portal-live/unified-account.js?v=account-native-20261025b"></script><script id="f4-home-preview-guard-20261027">
+(function(){
+ function alignProject(){
+  const image=document.getElementById('bs-step-img');
+  const tag=document.getElementById('bs-step-tag');
+  if(!image||!tag)return;
+  const picture=image.parentElement;
+  if(!picture||picture.nextElementSibling?.contains(tag))return;
+  let badge=tag.parentElement;
+  if(badge?.children.length!==1){
+   badge=document.createElement('div');
+   badge.className='flex justify-start mb-1.5';
+   badge.appendChild(tag);
+  }
+  picture.after(badge);
+  picture.classList.add('mb-2');
+ }
+ function limitPreview(){
+  const title=document.querySelector('#f4-private-transactions h4');
+  if(title&&title.textContent.trim()!=='Rincian 6 Transaksi Terakhir')title.textContent='Rincian 6 Transaksi Terakhir';
+  const body=document.getElementById('tabel-transaksi');
+  if(!body)return;
+  [...body.querySelectorAll(':scope > tr')].forEach((row,index)=>{
+   if(index<6){row.removeAttribute('hidden')}else{row.setAttribute('hidden','')}
+  });
+ }
+ function boot(){
+  alignProject();limitPreview();
+  const body=document.getElementById('tabel-transaksi');
+  if(body)new MutationObserver(limitPreview).observe(body,{childList:true});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
+ else boot();
+})();
+</script>
+</body>
 </html>
