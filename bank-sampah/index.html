@@ -1679,7 +1679,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   showDashboard=function(p){v16PrevShow(p);v16BuildNav();v16Sync('dashboard');};
   goPage=function(page){v16PrevGo(page);v16Sync(page);v16CloseMenu();};
   showAuth=function(){v16PrevAuth();v16CloseMenu();};
-  v11ShowPublic=function(){v16PrevPublic();v16CloseMenu();};
+  v11ShowPublic=function(){v16PrevPublic();v16Sync('public');v16CloseMenu();};
   toggleMenu=function(){
     $('sideNav').classList.toggle('open');const opened=$('sideNav').classList.contains('open');
     $('v16Backdrop').classList.toggle('open',opened);
@@ -1717,7 +1717,10 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
       g.id==='program'&&document.body.dataset.f4BankRole==='superadmin'
        ?{...g,label:'Dokumentasi & Inventaris',tabs:g.tabs.filter(t=>t[0]!=='kegiatan')} : g).forEach(g=>{
       const b=document.createElement('button');b.type='button';b.className='v16-item';b.dataset.group=g.id;b.append(v16Icon(g.icon),document.createTextNode(g.label));
-      b.onclick=()=>{if(g.id==='public')v11ShowPublic();else goPage(g.tabs[0][0]);};list.appendChild(b);
+      b.onclick=()=>{
+       if(g.id==='public'){v11ShowPublic();v16Sync('public');}
+       else {const target=g.tabs[0]?.[0]||'dashboard';goPage(target);v16Sync(target);}
+     };list.appendChild(b);
     });
     if(!$('v16Tabs')){
       const tabs=document.createElement('div');tabs.id='v16Tabs';tabs.className='v16-tabs hidden';
@@ -1732,8 +1735,14 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     const available=v16Groups.filter(g=>profile.peran==='Admin'?g.admin:g.member).map(g=>
       g.id==='program'&&document.body.dataset.f4BankRole==='superadmin'
       ?{...g,label:'Dokumentasi & Inventaris',tabs:g.tabs.filter(t=>t[0]!=='kegiatan')}:g);
-    const group=available.find(g=>g.tabs.some(t=>t[0]===page));
-    document.querySelectorAll('#v16NavList .v16-item').forEach(b=>b.classList.toggle('active',!!group&&b.dataset.group===group.id));
+    const group=available.find(g=>g.tabs.some(t=>t[0]===page)||g.id==='public'&&page==='public')||
+      (page==='profile'||page==='password'?null:available.find(g=>g.id==='home'));
+    document.querySelectorAll('#v16NavList .v16-item').forEach(button=>{
+      const selected=!!group&&button.dataset.group===group.id;
+      button.classList.toggle('active',selected);
+      button.setAttribute('aria-current',selected?'page':'false');
+    });
+    document.body.dataset.f4BankSection=group?.id||'account';
     tabs.replaceChildren();
     if(!group||group.tabs.length<2){tabs.classList.add('hidden');return;}
     group.tabs.forEach(([name,label])=>{
@@ -2697,7 +2706,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     finally{button.disabled=false;}
   }
   const v27OldGoPage=goPage;
-  goPage=function(page){v27OldGoPage(page);if(page==='pengesahan'&&profile?.peran==='Admin'){v27SetupCancel();v27LoadFinal();}};
+  goPage=function(page){if(document.body.dataset.f4BankRole==='superadmin'&&page==='kegiatan')page='dokumentasi';v27OldGoPage(page);if(page==='pengesahan'&&profile?.peran==='Admin'){v27SetupCancel();v27LoadFinal();}};
   v27SetupCancel();
   // Admin bisa memakai sampul album yang sudah ada sebagai foto perkembangan.
   function v27AlbumPhotoPicker(inputId){
