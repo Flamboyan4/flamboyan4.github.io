@@ -375,17 +375,17 @@ function printJerseyReport(includeFunds=null){
   '<rect x="0" y="0" width="10" height="10" fill="#E8F0FA"/></svg>'+
   '<span class="f4-print-th-label">'+label+'</span></th>');
  const html='<!doctype html><html lang="id"><head><meta charset="utf-8"><title>Laporan Jersey Flamboyan 4</title>'+
- '<style>@page{size:A4 portrait;margin:12mm}*{box-sizing:border-box}body{font:9px/1.35 Arial,sans-serif;color:#17223b;margin:0}'+
- 'h1{font-size:17px;margin:0 0 5px}h2{font-size:12px;margin:14px 0 6px}header{border-bottom:2px solid #334155;padding-bottom:9px;margin-bottom:10px}'+
- 'p{margin:4px 0}.meta{color:#475569}.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:10px 0;break-inside:avoid}.box{border:1px solid #cbd5e1;min-width:0;padding:6px 5px;border-radius:5px}'+
- '.box strong{display:block;font-size:12px;margin-top:4px}table{width:100%;border-collapse:collapse;table-layout:fixed}thead{display:table-header-group}'+
+ '<style>@page{size:A4 portrait;margin:8mm 10mm 9mm}*{box-sizing:border-box}body{font:8.7px/1.22 Arial,sans-serif;color:#17223b;margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
+ 'h1{font-size:15px;margin:0 0 3px}h2{font-size:10.5px;margin:8px 0 4px;break-after:avoid}header{border-bottom:1.5px solid #334155;padding-bottom:6px;margin-bottom:7px}section{break-inside:auto}'+
+ 'p{margin:3px 0}.meta{color:#475569;font-size:8px}.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin:6px 0;break-inside:avoid}.box{border:1px solid #cbd5e1;min-width:0;padding:4px 4px;border-radius:4px}'+
+ '.box strong{display:block;font-size:10px;margin-top:2px}table{width:100%;border-collapse:collapse;table-layout:fixed;margin:0 0 4px}thead{display:table-header-group}'+
  'th{background:#e8f0fa!important;position:relative;isolation:isolate;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}'+
  '.f4-print-th-fill{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}'+
  '.f4-print-th-label{position:relative;z-index:1}'+
- 'th,td{border:1px solid #cbd5e1;padding:5px 3px;vertical-align:middle;overflow-wrap:anywhere}'+
- 'tr{break-inside:avoid}th{text-align:left}.number{text-align:right;white-space:normal}.center{text-align:center}.sub{font-weight:bold;margin-top:6px}'+
- '.approval{text-align:right;margin-top:28px;break-inside:avoid}.approval strong{display:block;margin-top:45px}'+
- '.foot{font-size:10px;color:#64748b;border-top:1px solid #dbe3ef;margin-top:16px;padding-top:6px}'+
+ 'th,td{border:1px solid #cbd5e1;padding:2px 2px;vertical-align:middle;overflow-wrap:anywhere;font-size:8.4px;line-height:1.14}'+
+ 'tr{break-inside:avoid}th{text-align:left}.number{text-align:right;white-space:normal}.center{text-align:center}.sub{font-weight:bold;margin:3px 0 5px;font-size:8px}'+
+ '.approval{text-align:right;margin-top:12px;break-inside:avoid;font-size:8px}.approval strong{display:block;margin-top:22px}'+
+ '.foot{font-size:8px;color:#64748b;border-top:1px solid #dbe3ef;margin-top:8px;padding-top:4px}'+
  '@media screen{body{max-width:850px;margin:16px auto;padding:0 12px}}</style></head><body>'+
  '<header><h1>LAPORAN PESANAN JERSEY WARGA FLAMBOYAN 4</h1>'+
  '<p class="meta">RT 001 RW 026 Pesona Kahuripan 2 • Dicetak '+esc(date)+' • A4 Portrait • '+(includeFunds?'Lengkap':'Tanpa dana')+'</p></header>'+
