@@ -548,15 +548,6 @@ body>div.fixed.bottom-6.right-6{
   </div>
 </div>
               
-              <div class="flex items-center justify-between relative z-10">
-                <span id="bs-step-tag" class="text-[10px] font-mono bg-emerald-500/30 text-emerald-200 px-2 py-0.5 rounded border border-emerald-400/30">Langkah 1</span>
-                <i data-lucide="external-link" class="w-4 h-4 text-emerald-300 opacity-80 group-hover:opacity-100 transition"></i>
-              </div>
-
-              <div class="relative z-10 space-y-0.5">
-                <p id="bs-step-title" class="text-xs font-bold text-emerald-100">Pembersihan & Persiapan Drop Point</p>
-                <p id="bs-step-desc" class="text-[10px] text-emerald-200/80 leading-tight">Pengelolaan sampah anorganik terpilah untuk kas tambahan warga.</p>
-              </div>
             </div>
 
             <div class="space-y-1.5 text-xs text-slate-600">
@@ -3780,25 +3771,63 @@ function formatDriveImgUrl(url) {
   return match && match[1] ? 'https://lh3.googleusercontent.com/d/' + match[1] : String(url);
 }
 async function loadProgresBankSampahIndex(){
-  try{
-    const response=await fetch('https://api.flamboyan4.web.id/api/v2/public/bank',{mode:'cors',cache:'no-store'});
-    const payload=await response.json();
-    if(!response.ok||payload.ok===false)throw Error(payload.error||'HTTP '+response.status);
-    if(!Array.isArray(payload.progress))throw Error('Data perkembangan Bank Sampah belum tersedia.');
-    const items=payload.progress;
-    const active=items.find(item=>['selesai','proses'].includes(String(item.status||'').toLowerCase()))||items[0];
-    if(!active)return;
-    const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=String(value||'')};
-    set('bs-step-tag',active.stage);
-    set('bs-step-title',active.title);
-    set('bs-step-desc',active.description);
-    set('bs-info-1','Tahap: '+String(active.stage||'').replace(/^Tahap:\s*/i,''));
-    set('bs-info-2','Agenda: '+String(active.next_step||'').replace(/^Agenda:\s*/i,''));
-    const photo=document.getElementById('bs-step-img');
-    if(photo&&active.photoUrl)photo.src=formatDriveImgUrl(active.photoUrl);
-  }catch(error){
-    console.error('Progres Bank Sampah Cloudflare D1 belum dapat dimuat:',error);
+ const target=document.getElementById('bs-step-title');if(!target)return;
+ const card=target.closest('.group')||target.closest('[id*=project]')||target.parentElement;
+ try{
+  const response=await fetch('https://api.flamboyan4.web.id/api/v2/public/bank',{mode:'cors',cache:'no-store'});
+  const payload=await response.json();
+  if(!response.ok||payload.ok===false)throw Error(payload.error||'HTTP '+response.status);
+  const progress=Array.isArray(payload.progress)?payload.progress:[];
+  const items=progress.map(row=>({
+   title:String(row.title||row.judul||row.name||'Perkembangan Bank Sampah'),
+   stage:String(row.stage||row.langkah||'Tahap perkembangan'),
+   description:String(row.description||row.deskripsi||''),
+   status:String(row.status||''),
+   date:String(row.happened_on||row.tanggal||row.date||''),
+   next:String(row.next_step||row.nextStep||row.agenda||row.nextAgenda||''),
+   photo:String(row.photo_url||row.photoUrl||row.foto||row.imageUrl||'')
+  })).sort((a,b)=>b.date.localeCompare(a.date));
+  let timeline=document.getElementById('bs-project-timeline');
+  if(!timeline){
+   timeline=document.createElement('div');timeline.id='bs-project-timeline';timeline.className='f4-bs-project-timeline';
+   const anchor=document.getElementById('bs-info-1')?.closest('.space-y-1\\.5')||
+    document.getElementById('bs-info-1')?.parentElement?.parentElement;
+   if(anchor)anchor.after(timeline);else target.closest('.group')?.append(timeline);
   }
+  if(!items.length){
+   target.textContent='Belum ada perkembangan tercatat';
+   const desc=document.getElementById('bs-step-desc');if(desc)desc.textContent='Kegiatan terbaru akan muncul setelah pengelola memperbaruinya.';
+   timeline.textContent='Belum ada pembaruan kegiatan Bank Sampah.';
+   return;
+  }
+  const active=items.find(x=>/berjalan|proses|progress|aktif/i.test(x.status))||items[0];
+  const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=String(value||'—')};
+  set('bs-step-tag',active.stage);
+  set('bs-step-title',active.title);
+  set('bs-step-desc',active.description||'Pantau perkembangan kegiatan Bank Sampah.');
+  set('bs-info-1','Tahap: '+active.stage.replace(/^Tahap:\s*/i,''));
+  set('bs-info-2',active.next?'Agenda: '+active.next.replace(/^Agenda:\s*/i,''):'Status: '+(active.status||'Dicatat'));
+  const photo=document.getElementById('bs-step-img');
+  if(photo){const img=formatDriveImgUrl(active.photo);if(img)photo.src=img;photo.alt='Dokumentasi '+active.title;}
+  const status=document.getElementById('bs-status-badge');
+  if(status)status.textContent=active.status||'Aktif';
+  timeline.replaceChildren();
+  const heading=document.createElement('strong');heading.className='f4-bs-timeline-heading';heading.textContent='Linimasa terbaru';timeline.append(heading);
+  for(const entry of items.slice(0,4)){
+   const row=document.createElement('div');row.className='f4-bs-timeline-row';
+   const dot=document.createElement('span');dot.className='f4-bs-timeline-dot';dot.setAttribute('aria-hidden','true');
+   const content=document.createElement('div');
+   const name=document.createElement('b');name.textContent=entry.title;
+   const note=document.createElement('small');note.textContent=[entry.date,entry.status,entry.stage].filter(Boolean).join(' • ');
+   content.append(name,note);row.append(dot,content);timeline.append(row);
+  }
+ }catch(error){
+  console.error('Progres Bank Sampah tidak dapat dimuat:',error);
+  const host=document.getElementById('bs-step-title');
+  if(host)host.textContent='Perkembangan sedang tidak tersedia';
+  const txt=document.getElementById('bs-step-desc');
+  if(txt)txt.textContent='Informasi berasal dari Bank Sampah dan akan tampil saat sambungan data pulih.';
+ }
 }
 
 // Jalankan otomatis saat halaman dimuat
