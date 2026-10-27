@@ -1494,3 +1494,13 @@ body.f4-direct-bank #dashboardView #v9List tr[hidden]{display:none!important}
 
 /* Newly saved Jersey order stays open and clearly marked in its group. */
 #f4-account-page .f4-jersey-person.f4-jersey-saved{border-color:#8176dc;box-shadow:0 0 0 2px rgba(129,118,220,.15)}
+
+/* Jersey operational reconciliation: small text-only summary, not oversized KPI cards. */
+#f4-account-page .f4-jersey-payment-snapshot{
+ display:grid;gap:4px;background:#f8fafc;border:1px solid #e0e8f1;
+ padding:10px 13px;border-radius:11px;margin:6px 0 12px;
+ color:#34445d;font-size:12.5px;line-height:1.5
+}
+#f4-account-page .f4-jersey-payment-snapshot p{margin:0}
+#f4-account-page .f4-jersey-payment-snapshot strong{color:#20385a}
+#f4-account-page .f4-jersey-payment-snapshot small{color:#6d7787;font-size:11px}

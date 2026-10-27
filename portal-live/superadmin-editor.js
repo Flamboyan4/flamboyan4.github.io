@@ -43,6 +43,39 @@ function paidJerseyAmount(row){
  return Number.isFinite(sum)?sum:0;
 }
 const jerseyRp=value=>'Rp '+(Number(value)||0).toLocaleString('id-ID');
+/* Summary for the existing Jersey data, shared by Superadmin and print.
+   Only explicit [F4BAYAR] amounts can be assigned to a payment channel.
+   Historical status-derived amounts remain unclassified by payment method. */
+function jerseyPaymentSummary(rows){
+ const total={lunas:0,belumLunas:0,dp:0,belumBayar:0,hargaBelumAda:0,
+  qris:0,cash:0,belumDirinci:0,nominalLama:0,danaMasuk:0};
+ for(const row of rows||[]){
+  const price=Math.max(0,Number(row.nominal_rp)||0);
+  const paid=Math.max(0,paidJerseyAmount(row));
+  const exact=paidJerseyExact(row);
+  if(price>0&&paid>=price)total.lunas++;
+  else{
+   total.belumLunas++;
+   if(price===0)total.hargaBelumAda++;
+   if(paid>0)total.dp++;else total.belumBayar++;
+  }
+  total.danaMasuk+=paid;
+  if(exact===null){
+   // Includes legacy "Lunas" amounts derived from nominal_rp and old DP statuses.
+   total.nominalLama+=paid;
+   total.belumDirinci+=paid;
+   continue;
+  }
+  const method=plainJerseyMethod(row.method).toLowerCase();
+  const hasQr=/(^|[^a-z])(qris|qr[ -]?code|qr)(?=$|[^a-z])/.test(method);
+  const hasCash=/(^|[^a-z])(cash|tunai|kontan)(?=$|[^a-z])/.test(method);
+  if(hasQr&&!hasCash)total.qris+=paid;
+  else if(hasCash&&!hasQr)total.cash+=paid;
+  else total.belumDirinci+=paid; // Includes mixed payments with no recorded split.
+ }
+ return total;
+}
+
 
 const categories={
  portal:[['projects','Project Card'],['agenda','Rencana Kegiatan'],['documentation','Dokumentasi'],['inventory','Inventaris'],['banners','Banner Slider'],['meetings','Hasil Rapat'],['arisan','Jadwal Arisan'],['jersey','Pesanan Jersey']],
@@ -172,6 +205,20 @@ function viewList(){
  tools.append(btn('Muat Ulang',()=>window.openSuperadminEditor(active)));
  main.append(tools);
  const info=node('p',records.length+' data tersedia','f4-admin-note');main.append(info);
+ if(active==='jersey'){
+  const t=jerseyPaymentSummary(records);
+  const panel=node('section',undefined,'f4-jersey-payment-snapshot');
+  panel.setAttribute('aria-label','Ringkasan status dan cara bayar jersey');
+  const statuses=node('p');
+  statuses.append(node('strong','Status: '),
+   node('span','Lunas '+t.lunas+' • Belum lunas '+t.belumLunas+' (DP '+t.dp+' • Belum bayar '+t.belumBayar+')'));
+  const methods=node('p');
+  methods.append(node('strong','Dana diterima: '),
+   node('span','QRIS '+jerseyRp(t.qris)+' • Cash '+jerseyRp(t.cash)+' • Lainnya/belum dirinci '+jerseyRp(t.belumDirinci)));
+  panel.append(statuses,methods);
+  if(t.nominalLama>0)panel.append(node('small','Termasuk '+jerseyRp(t.nominalLama)+' nilai pembayaran lama yang belum mempunyai nominal diterima terkonfirmasi; tidak dialokasikan ke QRIS/Cash.'));
+  main.append(panel);
+ }
  const container=node('div',undefined,'f4-admin-list');container.id='f4-admin-list';main.append(container);
  populate();
 }
@@ -344,6 +391,7 @@ function printJerseyReport(includeFunds=null){
  const money=v=>'Rp '+Number(v||0).toLocaleString('id-ID');
  const sections=[];
  let allOrders=0,allTotal=0,allReceived=0,allTitipan=0,allOutstanding=0;
+ const paymentReport=jerseyPaymentSummary(records);
  for(const [kind,label] of [['bapak','Bapak-Bapak'],['ibu','Ibu-Ibu']]){
   const people=records.filter(x=>String(x.group_key||'').toLowerCase()===kind)
    .sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0));
@@ -386,7 +434,7 @@ function printJerseyReport(includeFunds=null){
  'tr{break-inside:avoid}th{text-align:left}.number{text-align:right;white-space:normal}.center{text-align:center}.sub{font-weight:bold;margin:3px 0 5px;font-size:8px}'+
  '.approval{text-align:right;margin-top:12px;break-inside:avoid;font-size:8px}.approval strong{display:block;margin-top:22px}'+
  '.foot{font-size:8px;color:#64748b;border-top:1px solid #dbe3ef;margin-top:8px;padding-top:4px}'+
- "@media screen{body{max-width:850px;margin:16px auto;padding:0 12px}}\n@media print{\nbody.no-funds{font-size:11.5px!important;line-height:1.3!important}\nbody.with-funds{font-size:10.1px!important;line-height:1.22!important}\nbody h1{font-size:16px!important;line-height:1.25!important;margin:0 0 4px!important}\nbody h2{font-size:12px!important;line-height:1.25!important;margin:10px 0 5px!important}\nbody .meta{font-size:9.5px!important;line-height:1.3!important}\nbody .summary{margin:7px 0!important;gap:5px!important}\nbody .box{padding:5px!important;font-size:10px!important}\nbody .box strong{font-size:11px!important}\nbody table{width:100%!important;border-collapse:collapse!important;table-layout:fixed!important;margin:0 0 7px!important}\nbody.no-funds th,body.no-funds td{\nfont-size:11.5px!important;line-height:1.25!important;padding:4px 4px!important}\nbody.with-funds th,body.with-funds td{\nfont-size:10.1px!important;line-height:1.19!important;padding:3px 3px!important}\nbody tr{break-inside:avoid!important}\nbody .sub{font-size:9.5px!important;line-height:1.3!important;margin:4px 0 5px!important}\nbody .approval{margin-top:15px!important;font-size:10px!important;line-height:1.3!important;break-inside:avoid!important}\nbody .approval strong{margin-top:25px!important;font-size:10px!important}\nbody .foot{font-size:9px!important;margin-top:9px!important;padding-top:5px!important}\nbody th{background:#e8f0fa!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}\n}\n\n@media print{\n  body.no-funds th,body.no-funds td{\n    font-size:11.5px!important;line-height:1.22!important;padding:3.5px 4px!important\n  }\n  body.with-funds th,body.with-funds td{\n    font-size:10.8px!important;line-height:1.2!important;padding:3.2px!important\n  }\n  body.no-funds table :is(th,td):nth-child(1){width:6%!important}\n  body.no-funds table :is(th,td):nth-child(2){width:27%!important}\n  body.no-funds table :is(th,td):nth-child(3){width:13%!important}\n  body.no-funds table :is(th,td):nth-child(4){width:10%!important}\n  body.no-funds table :is(th,td):nth-child(5){width:44%!important}\n  body.with-funds table :is(th,td):nth-child(1){width:5%!important}\n  body.with-funds table :is(th,td):nth-child(2){width:24%!important}\n  body.with-funds table :is(th,td):nth-child(3){width:10%!important}\n  body.with-funds table :is(th,td):nth-child(4){width:8%!important}\n  body.with-funds table :is(th,td):nth-child(5){width:20%!important}\n  body.with-funds table :is(th,td):nth-child(6){width:11%!important}\n  body.with-funds table :is(th,td):nth-child(7){width:11%!important}\n  body.with-funds table :is(th,td):nth-child(8){width:11%!important}\n}\n</style></head><body class=\""+(includeFunds?'with-funds':'no-funds')+'">'+
+ "@media screen{body{max-width:850px;margin:16px auto;padding:0 12px}}\n@media print{\nbody.no-funds{font-size:11.5px!important;line-height:1.3!important}\nbody.with-funds{font-size:10.1px!important;line-height:1.22!important}\nbody h1{font-size:16px!important;line-height:1.25!important;margin:0 0 4px!important}\nbody h2{font-size:12px!important;line-height:1.25!important;margin:10px 0 5px!important}\nbody .meta{font-size:9.5px!important;line-height:1.3!important}\nbody .summary{margin:7px 0!important;gap:5px!important}\nbody .box{padding:5px!important;font-size:10px!important}\nbody .box strong{font-size:11px!important}\nbody table{width:100%!important;border-collapse:collapse!important;table-layout:fixed!important;margin:0 0 7px!important}\nbody.no-funds th,body.no-funds td{\nfont-size:11.5px!important;line-height:1.25!important;padding:4px 4px!important}\nbody.with-funds th,body.with-funds td{\nfont-size:10.1px!important;line-height:1.19!important;padding:3px 3px!important}\nbody tr{break-inside:avoid!important}\nbody .sub{font-size:9.5px!important;line-height:1.3!important;margin:4px 0 5px!important}\nbody .approval{margin-top:15px!important;font-size:10px!important;line-height:1.3!important;break-inside:avoid!important}\nbody .approval strong{margin-top:25px!important;font-size:10px!important}\nbody .foot{font-size:9px!important;margin-top:9px!important;padding-top:5px!important}\nbody th{background:#e8f0fa!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}\n}\n\n@media print{\n  body.no-funds th,body.no-funds td{\n    font-size:11.5px!important;line-height:1.22!important;padding:3.5px 4px!important\n  }\n  body.with-funds th,body.with-funds td{\n    font-size:10.8px!important;line-height:1.2!important;padding:3.2px!important\n  }\n  body.no-funds table :is(th,td):nth-child(1){width:6%!important}\n  body.no-funds table :is(th,td):nth-child(2){width:27%!important}\n  body.no-funds table :is(th,td):nth-child(3){width:13%!important}\n  body.no-funds table :is(th,td):nth-child(4){width:10%!important}\n  body.no-funds table :is(th,td):nth-child(5){width:44%!important}\n  body.with-funds table :is(th,td):nth-child(1){width:5%!important}\n  body.with-funds table :is(th,td):nth-child(2){width:24%!important}\n  body.with-funds table :is(th,td):nth-child(3){width:10%!important}\n  body.with-funds table :is(th,td):nth-child(4){width:8%!important}\n  body.with-funds table :is(th,td):nth-child(5){width:20%!important}\n  body.with-funds table :is(th,td):nth-child(6){width:11%!important}\n  body.with-funds table :is(th,td):nth-child(7){width:11%!important}\n  body.with-funds table :is(th,td):nth-child(8){width:11%!important}\n}\n\n@media print{\n .f4-jersey-finance-compact{font-size:9px;line-height:1.25;margin:5px 0 7px;padding:4px 6px;border:1px solid #dbe3ef;break-inside:avoid}\n .f4-jersey-finance-compact>div+div{margin-top:2px}\n .f4-jersey-finance-compact strong{color:#263650}\n}\n</style></head><body class=\""+(includeFunds?'with-funds':'no-funds')+'">'+
  '<header><h1>LAPORAN PESANAN JERSEY WARGA FLAMBOYAN 4</h1>'+
  '<p class="meta">RT 001 RW 026 Pesona Kahuripan 2 • Dicetak '+esc(date)+' • A4 Portrait • '+(includeFunds?'Lengkap':'Tanpa dana')+'</p></header>'+
  (includeFunds?'<div class="summary"><div class="box">Jumlah Pemesan<strong>'+allOrders+' orang</strong></div>'+
@@ -394,8 +442,16 @@ function printJerseyReport(includeFunds=null){
  '<div class="box">Dana Terkumpul<strong>'+money(allReceived)+'</strong></div>'+
  '<div class="box">Sisa Kekurangan<strong>'+money(allOutstanding)+'</strong></div></div><p class="meta"><strong>Titipan sementara: '+money(allTitipan)+'</strong> — sudah termasuk uang diterima, belum dihitung sebagai pesanan bawahan</p>':
  '<p class="meta">Total pemesan: <strong>'+allOrders+' orang</strong></p>')+
+ (includeFunds?
+  '<div class="f4-jersey-finance-compact">'+
+    '<div><strong>Status pembayaran:</strong> Lunas <b>'+paymentReport.lunas+'</b> • Belum lunas <b>'+paymentReport.belumLunas+
+       '</b> (DP '+paymentReport.dp+' • Belum bayar '+paymentReport.belumBayar+')</div>'+
+    '<div><strong>Dana menurut metode:</strong> QRIS <b>'+money(paymentReport.qris)+
+       '</b> • Cash <b>'+money(paymentReport.cash)+
+       '</b> • Lainnya/belum dirinci <b>'+money(paymentReport.belumDirinci)+'</b></div>'+
+  '</div>':'')+
  paintedSections+
- (includeFunds?'<p class="meta">Catatan: data lama tanpa nominal diterima menggunakan status pembayaran sebagai acuan. DP lama tanpa nominal tidak diestimasi. Uang titipan tidak mengurangi kekurangan pemesan lainnya.</p>':'')+
+ (includeFunds?'<p class="meta">Catatan: dana metode hanya diakui bila nominal diterima tercatat. Pembayaran campuran tanpa rincian dan data lama ('+money(paymentReport.nominalLama)+') masuk Lainnya/belum dirinci. DP lama tanpa nominal tidak diestimasi. Titipan tidak mengurangi kekurangan pemesan lain.</p>':'')+
  '<div class="approval">Mengetahui, Humas Flamboyan 4<strong>Heri Juwandi</strong></div>'+
  '<p class="foot">Sumber: data pesanan Jersey pada flamboyan4.web.id</p>'+
  '<script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>';
@@ -671,7 +727,19 @@ function showForm(record){
   receivedField.addEventListener('input',update);
   form.elements.namedItem('nominal_rp')?.addEventListener('input',update);
   const method=form.elements.namedItem('method');
-  if(method)method.value=plainJerseyMethod(record?.method);
+  if(method){
+   method.value=plainJerseyMethod(record?.method);
+   // The existing backend field stays unchanged; suggestions help new entries
+   // use consistently identifiable methods without rewriting older notes.
+   const options=node('datalist');options.id='f4-jersey-payment-methods';
+   for(const val of ['QRIS','Cash','Tunai','Transfer bank','QRIS + Cash']){
+    const option=document.createElement('option');option.value=val;options.append(option);
+   }
+   method.setAttribute('list',options.id);
+   grid.append(options);
+   const hint=node('small','Isi QRIS atau Cash bila seluruh uang diterima melalui satu metode. Jika campuran, tulis keterangannya; nominalnya akan tercatat sebagai belum dirinci sampai ada pembagian pasti.','f4-admin-note');
+   grid.append(hint);
+  }
   grid.append(preview);update();
  }
  const notice=node('p','','f4-admin-message');form.append(notice);
