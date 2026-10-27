@@ -582,6 +582,80 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
   #v27PrintReport thead{display:table-header-group!important}
   #v27PrintReport tr{break-inside:avoid!important}
 }
+</style>
+<style id="f4-bank-report-print-alignment-20261027">
+@media print{
+  /* The member report previously inherited the tiny 9px admin table rules.
+     Keep a legible size and normal line-height on A4 without widening tables. */
+  body.f4-bank-print-member #v10Print{
+    font-size:11px!important;
+    line-height:1.4!important;
+    padding:0!important;
+    margin:0!important;
+  }
+  body.f4-bank-print-member #v10Print .v29-kop{
+    margin:0 0 9px!important;
+    padding:0 0 8px!important;
+    min-height:47px!important;
+  }
+  body.f4-bank-print-member #v10Print .v29-kop-logo{
+    width:46px!important;height:46px!important;object-fit:contain!important;
+  }
+  body.f4-bank-print-member #v10Print .v29-kop strong{
+    font-size:13px!important;line-height:1.25!important;
+  }
+  body.f4-bank-print-member #v10Print .v29-kop small{
+    font-size:9px!important;line-height:1.3!important;
+  }
+  body.f4-bank-print-member #v10Print h1{
+    font-size:17px!important;margin:7px 0 5px!important;line-height:1.25!important;
+  }
+  body.f4-bank-print-member #v10Print h2{
+    font-size:12.5px!important;margin:13px 0 6px!important;line-height:1.3!important;
+  }
+  body.f4-bank-print-member #v10Print p{
+    font-size:10.5px!important;line-height:1.35!important;margin:5px 0 9px!important;
+  }
+  body.f4-bank-print-member #v10Print table{
+    margin:0 0 10px!important;font-size:10.5px!important;
+    table-layout:auto!important;max-width:100%!important;
+  }
+  body.f4-bank-print-member #v10Print th,
+  body.f4-bank-print-member #v10Print td{
+    font-size:10.5px!important;line-height:1.3!important;
+    padding:6px!important;vertical-align:top!important;
+  }
+  body.f4-bank-print-member #v10Print td{
+    background:#fff!important;color:#1d3627!important;
+  }
+  body.f4-bank-print-member #v10Print th{
+    background:#eaf2eb!important;color:#21432e!important;
+    -webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;
+  }
+  body.f4-bank-print-member #v10Print table thead{display:table-header-group!important}
+  body.f4-bank-print-member #v10Print tr,
+  body.f4-bank-print-member #v10Print>div:last-child{break-inside:avoid!important}
+  /* A compact public letterhead; table stays wider for its eight financial columns. */
+  body.v27-print-report #v27PrintReport .v29-kop{
+    margin:0 0 10px!important;padding:0 0 8px!important;
+  }
+  body.v27-print-report #v27PrintReport .v29-kop-logo{
+    width:46px!important;height:46px!important;object-fit:contain!important;
+  }
+  body.v27-print-report #v27PrintReport .v29-kop strong{
+    font-size:13px!important;line-height:1.25!important;
+  }
+  body.v27-print-report #v27PrintReport .v29-kop small{
+    font-size:9px!important;line-height:1.3!important;
+  }
+  body.v27-print-report #v27PrintReport .v27-print-sub{
+    font-size:12px!important;font-weight:750!important;
+    text-align:left!important;margin:5px 0 9px!important;
+  }
+  body.v27-print-report #v27PrintReport .v27-print-divider{
+    margin:7px 0 12px!important;
+  }
+}
 </style><style id="f4-bank-gallery-svg">
 .v21-close,.v21-arrow,.v21-back{display:inline-flex!important;justify-content:center!important;align-items:center!important;text-align:center!important;line-height:0!important;padding:0!important}
 .v21-close svg,.v21-arrow svg,.v21-back svg{display:block!important;flex:none!important;pointer-events:none!important;margin:0!important}
@@ -3079,15 +3153,39 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     window.addEventListener('afterprint',()=>printMargin.remove(),{once:true});
     window.print();
   };
+  // Use the same official kop and a true print-only 6mm top margin for member,
+  // admin and public reports. Do not manipulate the DOM after print() starts.
+  function v34PaperMargin(id){
+    document.getElementById(id)?.remove();
+    const style=document.createElement('style');
+    style.id=id;
+    style.textContent='@page{size:A4 portrait;margin:6mm 12mm 11mm 12mm}';
+    document.head.append(style);
+    return style;
+  }
   const v29OldMemberPrint=v12Print;
   v12Print=function(){
     if(!v12Data)return;
-    const original=v12Data;v12Data={...original,setoran:(original.setoran||[]).filter(s=>String(s.status).toLowerCase()!=='dibatalkan')};
-    try{v29OldMemberPrint();const root=$('v10Print');if(root){const old=root.querySelector('.v13-kop');if(old)old.replaceWith(v29Kop());}}
+    const original=v12Data;
+    v12Data={...original,setoran:(original.setoran||[]).filter(s=>String(s.status).toLowerCase()!=='dibatalkan')};
+    const style=v34PaperMargin('f4-bank-member-print-top');
+    document.body.classList.add('f4-bank-print-member');
+    window.addEventListener('afterprint',()=>{
+      style.remove();
+      document.body.classList.remove('f4-bank-print-member');
+    },{once:true});
+    // Original v12Print already adds v29Kop before calling print.
+    try{v29OldMemberPrint();}
     finally{v12Data=original;}
   };
   const v29OldPublicPrint=v25PrintReport;
-  v25PrintReport=function(){v29OldPublicPrint();const root=$('v27PrintReport');if(root){const title=root.querySelector('h1');if(title)title.replaceWith(v29Kop());}};
+  v25PrintReport=function(){
+    if(!v25ReportData)return v29OldPublicPrint();
+    const style=v34PaperMargin('f4-bank-public-print-top');
+    window.addEventListener('afterprint',()=>style.remove(),{once:true});
+    // Public report already builds its official kop; avoid re-inserting it after print().
+    return v29OldPublicPrint();
+  };
 
   /* Bank Sampah — compact, accessible multi-section admin report controls.
    * Existing v10Month is retained as the API/finance period source of truth. */
