@@ -104,7 +104,7 @@ async function loadPortalArchive(){
    ...previous,...x,
    folder:x.folder||previous.folder,
    cover:x.cover||previous.cover,
-   description:x.description||previous.description,
+   description:x.description, // Empty D1 descriptions must stay empty; never restore old archive text.
    date:x.date||previous.date
   }:x);
  }
@@ -157,7 +157,8 @@ function drawAlbums(){
   const btn=el('button','media-album-card');btn.type='button';
   const cover=el('div','media-album-cover');if(a.cover){const img=document.createElement('img');img.src=driveImage(a.cover);img.alt='Sampul '+a.title;img.loading='lazy';img.onerror=()=>{if(img.isConnected)img.replaceWith(photoPlaceholder())};cover.append(img)}else cover.append(photoPlaceholder());
   const content=el('div','media-album-info');
-  content.append(el('small','media-category-tag',category(a)),el('strong','',a.title),el('small','muted',a.date),el('p','muted',a.description));
+  // The album index is a compact cover/title/date list. Descriptions are intentionally not displayed.
+  content.append(el('small','media-category-tag',category(a)),el('strong','',a.title),el('small','muted',a.date));
   btn.append(cover,content);btn.onclick=()=>openAlbum(a);list.append(btn);
  }
 }
