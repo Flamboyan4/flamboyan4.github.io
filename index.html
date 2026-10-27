@@ -2802,14 +2802,17 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       filterJerseyModal();
     }
 
+    function escapeJerseyText(value) {
+      return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
     function renderJerseyRow(row) {
       const keys = Object.keys(row);
       
-      const no = row[keys[0]] || '-';
-      const namaBlok = row[keys[1]] || '-';
-      const lengan = row[keys[2]] || '-';
-      const ukuran = row[keys[3]] || '-';
-      const namaNoPunggung = row[keys[4]] || '-';
+      const no = escapeJerseyText(row[keys[0]] || '-');
+      const namaBlok = escapeJerseyText(row[keys[1]] || '-');
+      const lengan = escapeJerseyText(row[keys[2]] || '-');
+      const ukuran = escapeJerseyText(row[keys[3]] || '-');
+      const namaNoPunggung = escapeJerseyText(row[keys[4]] || '-');
       
       const totalHarga = getNominalHargaJerseyRow(row);
       const nominalMasuk = getNominalJerseyMasuk(row);
@@ -2817,10 +2820,10 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 
       let statusBadge = `<span class="px-2 py-0.5 text-xs bg-slate-100 text-slate-400 rounded">-</span>`;
 
-      if (statusRaw.includes('lunas')) {
+      if (totalHarga > 0 && nominalMasuk >= totalHarga) {
         statusBadge = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 font-semibold rounded">Lunas</span>`;
       } else if (nominalMasuk > 0 && totalHarga > 0) {
-        const persen = Math.round((nominalMasuk / totalHarga) * 100);
+        const persen = Math.min(99, Math.round((nominalMasuk / totalHarga) * 100));
         statusBadge = `<span class="px-2 py-0.5 text-xs bg-amber-100 text-amber-800 font-semibold rounded">DP ${persen}%</span>`;
       }
 
@@ -2886,12 +2889,12 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       let grandTotalTerkumpul = 0;
 
       allCombined.forEach(row => {
-        const statusRaw = getStatusJerseyRow(row).toLowerCase();
+        const harga = getNominalHargaJerseyRow(row);
         const nominalMasuk = getNominalJerseyMasuk(row);
 
         grandTotalTerkumpul += nominalMasuk;
 
-        if (statusRaw.includes('lunas')) {
+        if (harga > 0 && nominalMasuk >= harga) {
           countLunas++;
         } else if (nominalMasuk > 0) {
           countDP++;

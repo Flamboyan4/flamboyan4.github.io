@@ -49,7 +49,7 @@ const categories={
  bank:[['bank_progress','Kegiatan'],['bank_albums','Dokumentasi'],['bank_inventory','Inventaris']],
  book:[['residents','Data Warga & Rumah'],['obligations','Kewajiban Iuran'],['tariffs','Tarif Iuran'],['settings','Aturan Tanggal']]
 };
-let active='',records=[],filter='',requestSerial=0,editing=false;
+let active='',records=[],filter='',requestSerial=0,editing=false,lastSavedJerseyId=null;
 const node=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=String(text??'');if(cls)n.className=cls;return n};
 function btn(text,fn,cls='f4-admin-btn'){const b=node('button',text,cls);b.type='button';b.onclick=fn;return b;}
 function inContext(){return document.body.classList.contains('role-superadmin')}
@@ -188,7 +188,7 @@ function populateJersey(rows,list,query){
   }).sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0)||
     String(a.resident||'').localeCompare(String(b.resident||''),'id'));
   const group=node('details',undefined,'f4-jersey-group');
-  group.open=!!query;
+  group.open=!!query||members.some(x=>String(x.id)===String(lastSavedJerseyId));
   const summary=node('summary',undefined,'f4-jersey-group-head');
   const left=node('span',undefined,'f4-jersey-group-title');
   left.append(node('strong',label),node('small',members.length+' pesanan'));
@@ -199,6 +199,7 @@ function populateJersey(rows,list,query){
   if(!members.length)content.append(node('p',query?'Tidak ada hasil pencarian di kelompok ini.':'Belum ada pesanan.','f4-admin-note'));
   for(const x of members){
    const item=node('details',undefined,'f4-jersey-person');
+   if(String(x.id)===String(lastSavedJerseyId)){item.open=true;item.classList.add('f4-jersey-saved')}
    const head=node('summary',undefined,'f4-jersey-person-head');
    const text=node('span',undefined,'f4-jersey-person-identity');
    text.append(node('strong',String(x.resident||'').trim()||'Nama warga belum tercatat'));
@@ -341,18 +342,6 @@ function printJerseyReport(includeFunds=null){
 
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const money=v=>'Rp '+Number(v||0).toLocaleString('id-ID');
- const incoming=row=>{
-  const value=Number(row.nominal_rp||0);
-  const text=String(row.payment_status||'').trim().toLowerCase();
-  if(text.includes('lunas'))return value;
-  const digits=text.match(/[0-9]+/g);
-  if(digits){
-   let amount=Number(digits.join(''));
-   if(amount>0&&amount<1000)amount*=1000;
-   return amount;
-  }
-  return text.includes('dp')||text.includes('cicil')?value*0.5:0;
- };
  const sections=[];
  let allOrders=0,allTotal=0,allReceived=0,allTitipan=0,allOutstanding=0;
  for(const [kind,label] of [['bapak','Bapak-Bapak'],['ibu','Ibu-Ibu']]){
@@ -677,7 +666,7 @@ function showForm(record){
  }
  const notice=node('p','','f4-admin-message');form.append(notice);
  const actions=node('div',undefined,'f4-warga-form-actions');
- actions.append(btn('Batal',viewList),btn('Simpan Perubahan',()=>{if(form.reportValidity())form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}))},'f4-admin-primary'));
+ actions.append(btn('Batal',viewList),btn(record?'Simpan Perubahan':'Tambah Pesanan',()=>{if(form.reportValidity())form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}))},'f4-admin-primary'));
  form.append(actions);
  form.addEventListener('submit',async(e)=>{
   e.preventDefault();
@@ -708,8 +697,8 @@ function showForm(record){
       const status=price>0&&paid>=price?'Lunas':paid>0?'DP Rp'+paid:'Belum bayar';
       if(!record||status!==String(record.payment_status||''))values.payment_status=status;
     }else if(record&&paidJerseyExact(record)!==null){
-      // Removing the amount intentionally clears its marker, without deleting method.
-      values.method=method;
+      notice.textContent='Uang yang sudah tercatat tidak boleh dikosongkan. Isi 0 hanya jika uang benar-benar dikembalikan, lalu konfirmasi koreksi.';
+      receivedField.focus();return;
     }
   }
   if(def.section==='book'){
@@ -734,19 +723,39 @@ function showForm(record){
    if(record&&!Object.keys(values).length){notice.textContent='Belum ada perubahan untuk disimpan.';return;}
    obj.values=values;
   }
-  const submit=actions.lastChild;submit.disabled=true;notice.textContent='Menyimpan…';
-  try{
-   await send(base+active,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});
-   records=await fetchData(active);
-   if(active==='jersey'&&record){
-     const latest=records.find(x=>String(x.id)===String(record.id));
-     const mismatched=Object.entries(obj.values||{}).filter(([key,value])=>String(latest?.[key]??'')!==String(value));
-     if(!latest||mismatched.length){
-       notice.textContent='API menerima permintaan, tetapi data terbaru belum cocok pada kolom: '+(mismatched.map(x=>x[0]).join(', ')||'ID')+'. Periksa sebelum mengedit lagi.';
-       return;
-     }
+  const submit=actions.lastChild;if(submit.disabled)return;
+  if(active==='jersey'&&record){
+   const previous=paidJerseyExact(record),nextRaw=receivedField?.value.trim()||'';
+   if(previous!==null&&nextRaw!==''&&Number(nextRaw)<previous){
+    submit.disabled=true;
+    const approved=await f4ContentDialog('Konfirmasi pengurangan uang diterima',
+     'Nominal berubah dari '+jerseyRp(previous)+' menjadi '+jerseyRp(Number(nextRaw))+'. Pastikan pengembalian atau koreksi uang benar-benar terjadi. Riwayat perubahan tercatat di audit.',
+     'Simpan Koreksi',false,true);
+    submit.disabled=false;
+    if(!approved){notice.textContent='Koreksi nominal dibatalkan.';return}
    }
-   viewList(); const info=main.querySelector('.f4-admin-note');if(info)info.textContent='Data berhasil disimpan dan dimuat ulang dari server. '+records.length+' baris tersedia.';
+  }
+  submit.disabled=true;notice.textContent='Menyimpan…';
+  try{
+   const saved=await send(base+active,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});
+   records=await fetchData(active);
+   if(active==='jersey'){
+    const savedId=String(record?.id||saved.id||'');
+    const latest=records.find(x=>String(x.id)===savedId);
+    const mismatched=Object.entries(obj.values||{}).filter(([key,value])=>String(latest?.[key]??'')!==String(value));
+    if(!savedId||!latest||mismatched.length){
+     notice.textContent='API menerima permintaan, tetapi baca ulang belum sesuai pada '+(mismatched.map(x=>x[0]).join(', ')||'ID pesanan')+'. Jangan input pesanan kedua; muat ulang dan periksa datanya.';
+     return;
+    }
+    filter='';lastSavedJerseyId=savedId;
+   }
+   viewList();
+   const info=main.querySelector('.f4-admin-note');
+   if(info)info.textContent='Data berhasil disimpan dan diverifikasi dari server. '+records.length+' baris tersedia.';
+   if(active==='jersey'){
+    main.querySelector('.f4-jersey-saved')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+    lastSavedJerseyId=null;
+   }
   }catch(err){notice.textContent='Gagal menyimpan: '+err.message}
   finally{submit.disabled=false}
  });

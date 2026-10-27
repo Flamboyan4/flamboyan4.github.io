@@ -1491,3 +1491,6 @@ body.f4-direct-bank #dashboardView #v9List tr[hidden]{display:none!important}
  border:1px solid #dcece6;border-radius:12px;background:#f5fbf8;
  color:#265744;font-size:12px;line-height:1.55;font-weight:650;
 }
+
+/* Newly saved Jersey order stays open and clearly marked in its group. */
+#f4-account-page .f4-jersey-person.f4-jersey-saved{border-color:#8176dc;box-shadow:0 0 0 2px rgba(129,118,220,.15)}
