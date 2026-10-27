@@ -3068,7 +3068,16 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     const r=v10ReportData.ringkasan,summary=document.createElement('p');summary.textContent='Setoran sah '+r.jumlahSetoran+' | Penjualan sah '+r.jumlahPenjualan+' | Uang diterima '+rupiah(r.diterima)+' | Hak warga '+rupiah(r.hakWargaDikredit)+' | Dicairkan '+rupiah(r.tabunganDicairkan)+' | Biaya '+rupiah(r.biaya);root.appendChild(summary);
     v10SelectedSections().forEach(({spec,rows})=>{const heading=document.createElement('h2');heading.textContent=spec.title;root.append(heading,v10MakeTable(spec,rows));});
     if(incl){const note=document.createElement('p');note.textContent='AUDIT: baris berstatus Dibatalkan disajikan sebagai riwayat dan tidak menambah saldo maupun total transaksi sah.';root.appendChild(note);}
-    const footer=document.createElement('p');footer.style.marginTop='28px';footer.textContent='Mengetahui, Humas Flamboyan 4 — Heri Juwandi';root.appendChild(footer);window.print();
+    const footer=document.createElement('p');footer.style.marginTop='28px';footer.textContent='Mengetahui, Humas Flamboyan 4 — Heri Juwandi';root.appendChild(footer);
+    // Only the admin print preview gets a reduced top paper margin.
+    // The stylesheet is removed after the browser's print dialog closes.
+    document.getElementById('f4-bank-admin-print-top')?.remove();
+    const printMargin=document.createElement('style');
+    printMargin.id='f4-bank-admin-print-top';
+    printMargin.textContent='@page{size:A4 portrait;margin:6mm 12mm 11mm 12mm}';
+    document.head.appendChild(printMargin);
+    window.addEventListener('afterprint',()=>printMargin.remove(),{once:true});
+    window.print();
   };
   const v29OldMemberPrint=v12Print;
   v12Print=function(){
