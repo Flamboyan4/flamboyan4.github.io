@@ -248,28 +248,29 @@
       #modal-rapat-judul{font-size:11px!important}
     }
   </style>
-  <style id="f4-rapat-drive-popout-mask-20261027">
-    /* Hide the third-party "open in new window" glyph for both PC and HP.
-       This is a display-only mask; it does not make a public Drive URL private. */
+  <style id="f4-rapat-drive-edge-crop-20261027">
+    /* The Google Drive pop-out icon lives in the far-right viewer chrome.
+       Center-crop that edge instead of painting an opaque rectangle over PDF pages.
+       The PDF remains centered; no overlay intercepts taps or obscures the document. */
     #modal-rapat-body .f4-rapat-drive-container{
-      position:relative!important;isolation:isolate!important;
+      position:relative!important;
+      isolation:isolate!important;
       width:100%!important;height:100%!important;min-height:0!important;
       overflow:hidden!important;background:#202020!important;
     }
     #modal-rapat-body .f4-rapat-drive-container iframe{
-      display:block!important;width:100%!important;height:100%!important;
-      min-height:100%!important;margin:0!important;border:0!important;
-    }
-    #modal-rapat-body .f4-rapat-drive-popout-mask{
-      position:absolute!important;z-index:4!important;
-      top:10px!important;right:0!important;
-      width:64px!important;height:74px!important;
-      background:#202020!important;pointer-events:auto!important;
-      border:0!important;
+      display:block!important;position:relative!important;
+      width:calc(100% + 128px)!important;
+      max-width:none!important;
+      left:50%!important;
+      transform:translateX(-50%)!important;
+      height:100%!important;min-height:100%!important;
+      margin:0!important;padding:0!important;border:0!important;
+      background:#202020!important;
     }
     @media(max-width:760px){
-      #modal-rapat-body .f4-rapat-drive-popout-mask{
-        width:59px!important;height:70px!important;top:9px!important;
+      #modal-rapat-body .f4-rapat-drive-container iframe{
+        width:calc(100% + 108px)!important;
       }
     }
   </style>
@@ -612,9 +613,6 @@
        document.getElementById('modal-rapat-body').innerHTML = `
   <div class="f4-rapat-drive-container">
     <iframe src="${embedPdfUrl}" title="Pratinjau PDF hasil rapat" class="w-full h-full border-0 block mx-auto my-0" allow="autoplay"></iframe>
-    <!-- Native Google Drive places an external-link icon at its top-right.
-         Cover only that corner: it cannot be styled inside a cross-origin iframe. -->
-    <div class="f4-rapat-drive-popout-mask" aria-hidden="true"></div>
   </div>
 `;
       } 
