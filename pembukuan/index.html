@@ -1805,6 +1805,125 @@ main > section.card{overflow:visible!important}
  #report-arisan-panel td:nth-child(5){font-variant-numeric:tabular-nums!important}
 }
 </style><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=modal-gallery-drive-20261026"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/png" href="/favicon.png?v=logo-f4-20261026">
+
+<style id="f4-bookkeeping-mobile-density-20261027">
+/* Compact forms only on mobile; no changes to input IDs, calculations or reports. */
+@media screen and (max-width:767px){
+ #tab-input,#tab-transaksi,#tab-talangan,#tab-denda,#tab-pinjaman{
+  padding:12px!important;min-width:0!important
+ }
+ #tab-input>div,#tab-transaksi>div,#tab-talangan>div,
+ #tab-denda>div,#tab-pinjaman>div{min-width:0!important}
+ #tab-input h2,#tab-transaksi h2,#tab-talangan h2,
+ #tab-denda h2,#tab-pinjaman h2{line-height:1.3!important}
+ #tab-input .mb-5,#tab-talangan .mb-5,#tab-denda .mb-5,
+ #tab-pinjaman .mb-5{margin-bottom:12px!important}
+ #form-iuran,#form-transaksi-kas,
+ #form-talangan,#form-denda-catat,#form-denda-bayar,
+ #loan-form-buat form,#loan-form-bayar form,#form-kekurangan-kas,
+ #modal-edit form{min-width:0!important}
+ :is(#form-iuran,#form-transaksi-kas,#form-denda-catat,#form-denda-bayar,
+ #loan-form-buat form,#loan-form-bayar form,#modal-edit form)>*{
+  margin-top:0!important;min-width:0!important
+ }
+ :is(#tab-input,#tab-transaksi,#tab-talangan,#tab-denda,#tab-pinjaman,#modal-edit)
+ .field{box-sizing:border-box!important;width:100%!important;min-width:0!important;max-width:100%!important;
+  min-height:43px!important;padding:9px 10px!important;border-radius:10px!important}
+ :is(#tab-input,#tab-transaksi,#tab-talangan,#tab-denda,#tab-pinjaman,#modal-edit)
+ .custom-select-wrap{box-sizing:border-box!important;min-width:0!important;width:100%!important;max-width:100%!important}
+ :is(#tab-input,#tab-transaksi,#tab-talangan,#tab-denda,#tab-pinjaman,#modal-edit)
+ .custom-select-btn{box-sizing:border-box!important;min-width:0!important;width:100%!important;
+  min-height:43px!important;padding:8px 9px!important;border-radius:10px!important;gap:5px!important}
+ :is(#tab-input,#tab-transaksi,#tab-talangan,#tab-denda,#tab-pinjaman,#modal-edit)
+ .custom-select-btn .cs-value{min-width:0!important;text-overflow:ellipsis!important;overflow:hidden!important}
+ :is(#tab-input,#tab-transaksi,#tab-talangan,#tab-denda,#tab-pinjaman,#modal-edit)
+ label.text-sm{display:block;min-width:0!important;font-size:12px!important;line-height:1.4!important;
+  margin-bottom:2px!important;overflow-wrap:normal}
+ /* Input Iuran: name full row; date+method 2 columns; month/year/quantity 3 columns. */
+ #tab-input #form-iuran{display:flex!important;flex-direction:column!important;gap:12px!important}
+ #tab-input #form-iuran>div:nth-child(2),
+ #modal-edit form>div:nth-child(2){
+  display:grid!important;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr)!important;
+  gap:8px!important;align-items:start!important
+ }
+ #tab-input #form-iuran>div:nth-child(3),
+ #modal-edit form>div:nth-child(3){
+  display:grid!important;grid-template-columns:minmax(0,1.3fr) minmax(0,.82fr) minmax(0,1.05fr)!important;
+  gap:7px!important;align-items:start!important
+ }
+ #tab-input #form-iuran>div:nth-child(5){
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:9px!important;align-items:start!important
+ }
+ #tab-input #form-iuran>div:nth-child(2)>div,
+ #tab-input #form-iuran>div:nth-child(3)>div,
+ #tab-input #form-iuran>div:nth-child(5)>div,
+ #modal-edit form>div:nth-child(2)>div,
+ #modal-edit form>div:nth-child(3)>div{min-width:0!important;max-width:100%!important}
+ #tab-input #form-iuran>div:nth-child(3) .custom-select-btn,
+ #modal-edit form>div:nth-child(3) .custom-select-btn{padding:8px 6px!important}
+ #tab-input #form-iuran>div:nth-child(4){padding:12px!important;border-radius:13px!important}
+ #tab-input #form-iuran>div:nth-child(4)>div:first-child{margin-bottom:8px!important}
+ #tab-input #preview-detail>.grid{gap:7px!important}
+ #tab-input #preview-detail>.grid>div{padding:9px!important;border-radius:9px!important;min-width:0!important}
+ #tab-input #preview-detail>.mt-3{margin-top:9px!important;padding-top:9px!important}
+ #tab-input #form-iuran #btn-simpan{min-height:44px!important;padding:10px 14px!important}
+ #tab-input #kekurangan-kas-card{margin-top:13px!important;padding:12px!important}
+ #tab-input #form-kekurangan-kas{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:9px!important;align-items:end!important
+ }
+ #tab-input #form-kekurangan-kas>div:first-child,
+ #tab-input #form-kekurangan-kas>#kurang-kas-preview,
+ #tab-input #form-kekurangan-kas>#kurang-kas-nominal,
+ #tab-input #form-kekurangan-kas>#kurang-kas-status,
+ #tab-input #form-kekurangan-kas>#kurang-kas-btn{grid-column:1/-1!important}
+ #tab-input #form-kekurangan-kas>div:has(#kurang-kas-nominal){grid-column:1/-1!important}
+ /* Edit Iuran follows the same two-column and three-column input pattern. */
+ #modal-edit form{padding:13px!important;display:flex!important;flex-direction:column!important;gap:12px!important}
+ #modal-edit form>div:nth-child(4){padding:11px!important}
+ /* Kas Umum: semantic date/amount, method/category, month/year pairs. */
+ #tab-transaksi #form-transaksi-kas.trx-layout{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-auto-flow:row!important;gap:10px!important;align-items:start!important
+ }
+ #tab-transaksi #form-transaksi-kas.trx-layout>*{
+  grid-row:auto!important;grid-column:auto!important;min-width:0!important;
+  margin:0!important
+ }
+ #tab-transaksi #form-transaksi-kas :is(.trx-type,.trx-desc,.trx-note,.trx-status,.trx-save){
+  grid-column:1/-1!important
+ }
+ #tab-transaksi #form-transaksi-kas .trx-type button{min-height:40px!important;padding:9px!important}
+ /* Talangan: period and payout source share rows on phone. */
+ #tab-talangan #form-talangan.talangan-columns{gap:11px!important}
+ #tab-talangan #form-talangan :is(.tal-period,.tal-date-source){
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;align-items:start!important
+ }
+ #tab-talangan #form-talangan .tal-preview-box{padding:12px!important;border-radius:13px!important}
+ /* Denda, Pinjaman: paired date and payment-method fields on mobile. */
+ #tab-denda :is(#form-denda-catat,#form-denda-bayar),
+ #tab-pinjaman :is(#loan-form-buat form,#loan-form-bayar form){
+  display:flex!important;flex-direction:column!important;gap:11px!important
+ }
+ #tab-denda :is(#form-denda-catat,#form-denda-bayar)>.grid,
+ #tab-pinjaman :is(#loan-form-buat form,#loan-form-bayar form)>.grid{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;align-items:start!important
+ }
+ #tab-denda :is(#denda-panel-catat,#denda-panel-bayar),
+ #tab-pinjaman :is(#loan-form-buat,#loan-form-bayar){padding:12px!important}
+ #tab-denda :is(#form-denda-catat,#form-denda-bayar)>.grid>div,
+ #tab-pinjaman :is(#loan-form-buat form,#loan-form-bayar form)>.grid>div{min-width:0!important}
+}
+@media screen and (max-width:345px){
+ #tab-input #form-iuran>div:nth-child(3),
+ #modal-edit form>div:nth-child(3){gap:4px!important;grid-template-columns:minmax(0,1.2fr) minmax(0,.78fr) minmax(0,1fr)!important}
+ #tab-input #form-iuran>div:nth-child(3) label,
+ #modal-edit form>div:nth-child(3) label{font-size:11px!important}
+}
+</style>
 </head>
 <body oncontextmenu="return false;">
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
