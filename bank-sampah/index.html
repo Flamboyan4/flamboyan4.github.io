@@ -1624,7 +1624,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     signature.textContent='Mengetahui, Humas Flamboyan 4';
     const signName=document.createElement('strong');signName.textContent='Heri Juwandi';
     signature.appendChild(signName);root.appendChild(signature);
-    window.addEventListener('afterprint',()=>root.replaceChildren(),{once:true});window.print();
+    v36BankPrint(root,'member');
   }
   function v12CSV(){
     if(!v12Data)return;
@@ -3075,7 +3075,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     table.appendChild(tbody);root.appendChild(table);
     root.appendChild(v27PrintNode('p','v27-print-note',data.catatan+' Laporan tidak memuat rincian identitas atau saldo pribadi warga.'));
     const sign=v27PrintNode('div','v27-print-sign');sign.append(v27PrintNode('div','','Mengetahui,'),v27PrintNode('div','','Humas Flamboyan 4'),v27PrintNode('strong','','Heri Juwandi'));root.appendChild(sign);
-    document.body.classList.add('v27-print-report');window.print();
+    v36BankPrint(root,'public');
   };
   window.addEventListener('afterprint',()=>document.body.classList.remove('v27-print-report'));
   // v29: kop resmi konsisten dan laporan audit opsional khusus administrator.
@@ -3177,49 +3177,85 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     footer.textContent='Mengetahui, Humas Flamboyan 4';
     const signName=document.createElement('strong');signName.textContent='Heri Juwandi';
     footer.appendChild(signName);root.appendChild(footer);
-    // Only the admin print preview gets a reduced top paper margin.
-    // The stylesheet is removed after the browser's print dialog closes.
-    document.getElementById('f4-bank-admin-print-top')?.remove();
-    const printMargin=document.createElement('style');
-    printMargin.id='f4-bank-admin-print-top';
-    printMargin.textContent='@page{size:A4 portrait;margin:6mm 12mm 11mm 12mm}';
-    document.head.appendChild(printMargin);
-    window.addEventListener('afterprint',()=>printMargin.remove(),{once:true});
-    window.print();
+    v36BankPrint(root,'admin');
   };
-  // Use the same official kop and a true print-only 6mm top margin for member,
-  // admin and public reports. Do not manipulate the DOM after print() starts.
-  function v34PaperMargin(id){
-    document.getElementById(id)?.remove();
-    const style=document.createElement('style');
-    style.id=id;
-    style.textContent='@page{size:A4 portrait;margin:6mm 12mm 11mm 12mm}';
-    document.head.append(style);
-    return style;
+
+  // Isolated print sheet, matching the Pembukuan A4 top/side margins.
+  // The old in-page print combines several legacy @page rules and can print too low in Firefox.
+  function v36BankPrint(root,kind){
+    const tab=window.open('','_blank','width=960,height=1000');
+    if(!tab){
+      const style=document.createElement('style');
+      style.textContent='@page{size:A4 portrait;margin:10mm 12mm 11mm}';
+      document.head.append(style);
+      if(kind==='public')document.body.classList.add('v27-print-report');
+      window.addEventListener('afterprint',()=>{
+        style.remove();
+        if(kind==='public')document.body.classList.remove('v27-print-report');
+      },{once:true});
+      window.print();
+      return;
+    }
+    const styles=[
+      '@page{size:A4 portrait;margin:10mm 12mm 11mm}',
+      '*{box-sizing:border-box}',
+      'html,body{margin:0!important;padding:0!important;background:#fff!important;color:#1b3024;font:10.5px/1.36 Arial,Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}',
+      'main{display:block;width:100%;margin:0;padding:0}',
+      '.v13-kop,.v29-kop{display:flex;align-items:center;gap:10px;border-bottom:1.5px solid #315e40;padding:0 0 8px;margin:0 0 9px;break-inside:avoid}',
+      '.v29-kop-logo{width:44px;height:44px;object-fit:contain;flex:none}',
+      '.v29-kop strong{display:block;font-size:13px;line-height:1.25;color:#254631}',
+      '.v29-kop small{display:block;font-size:9px;line-height:1.3;color:#526858}',
+      'h1{font-size:16px;line-height:1.2;margin:7px 0 5px;font-weight:800}',
+      'h2{font-size:12px!important;line-height:1.3;margin:12px 0 6px!important;break-after:avoid}',
+      'p{font-size:10px;line-height:1.35;margin:4px 0 9px}',
+      'table{border-collapse:collapse;width:100%;max-width:100%;table-layout:auto;margin:0 0 10px;font-size:10px}',
+      'th,td{padding:5px 6px;border:1px solid #d8e3dc;text-align:left;vertical-align:top;white-space:normal;overflow-wrap:anywhere;font-size:10px;line-height:1.25}',
+      'thead{display:table-header-group}tbody{display:table-row-group}tr{break-inside:avoid}',
+      'th{background:#eaf2eb!important;color:#21432e;font-weight:750}',
+      'td,tbody tr{background:#fff!important;color:#172a1d}',
+      'td::before,td::after{content:none!important}',
+      '.f4-bank-report-signature{text-align:right!important;margin:20px 0 0!important;padding:0 4px!important;font-size:10px;break-inside:avoid}',
+      '.f4-bank-report-signature strong{display:block;font-size:10.5px;text-decoration:underline;font-weight:750;margin-top:34px}',
+      'body.member table{font-size:10.5px}body.member th,body.member td{font-size:10.5px;line-height:1.3;padding:6px}',
+      'body.public table{font-size:9px}body.public th,body.public td{font-size:9px;line-height:1.2;padding:5px 3px;text-align:right}',
+      'body.public th:first-child,body.public td:first-child{text-align:left}',
+      '.v27-print-sub{font-size:12px;font-weight:750;margin:5px 0 9px}',
+      '.v27-print-divider{border-top:1px solid #315e40;margin:7px 0 12px}',
+      '.v27-print-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0 13px}',
+      '.v27-print-kpi{border:1px solid #cddfd2;padding:9px;break-inside:avoid}',
+      '.v27-print-kpi small{display:block;font-size:9px;color:#567261}',
+      '.v27-print-kpi strong{font-size:13px;color:#254c33}',
+      '.v27-print-note{font-size:9px;line-height:1.4;margin-top:12px}',
+      '.v27-print-sign{text-align:right;margin:22px 4px 0;break-inside:avoid;line-height:1.6}',
+      '.v27-print-sign strong{display:block;margin-top:34px;text-decoration:underline}',
+      '@media screen{body{padding:14px!important;max-width:210mm;margin:0 auto!important}}'
+    ].join('\n');
+    const title=kind==='member'?'Laporan Tabungan Warga':kind==='public'?'Laporan Bank Sampah Publik':'Laporan Administrasi Bank Sampah';
+    const sheet=root.innerHTML;
+    tab.addEventListener('load',()=>{
+      const imgs=Array.from(tab.document.images);
+      Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(resolve=>{
+        img.addEventListener('load',resolve,{once:true});
+        img.addEventListener('error',resolve,{once:true});
+      }))).then(()=>setTimeout(()=>{if(!tab.closed){tab.focus();tab.print();}},180));
+    },{once:true});
+    tab.document.open();
+    tab.document.write('<!doctype html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="'+location.origin+'/"><title>'+title+' — Flamboyan 4</title><style>'+styles+'</style></head><body class="'+kind+'"><main>'+sheet+'</main></body></html>');
+    tab.document.close();
+    // Personal financial records are not left in a hidden element on the original page.
+    if(kind==='member')root.replaceChildren();
   }
+  // Keep transactions marked canceled out of members' printable deposit rows.
   const v29OldMemberPrint=v12Print;
   v12Print=function(){
     if(!v12Data)return;
     const original=v12Data;
     v12Data={...original,setoran:(original.setoran||[]).filter(s=>String(s.status).toLowerCase()!=='dibatalkan')};
-    const style=v34PaperMargin('f4-bank-member-print-top');
-    document.body.classList.add('f4-bank-print-member');
-    window.addEventListener('afterprint',()=>{
-      style.remove();
-      document.body.classList.remove('f4-bank-print-member');
-    },{once:true});
-    // Original v12Print already adds v29Kop before calling print.
     try{v29OldMemberPrint();}
     finally{v12Data=original;}
   };
   const v29OldPublicPrint=v25PrintReport;
-  v25PrintReport=function(){
-    if(!v25ReportData)return v29OldPublicPrint();
-    const style=v34PaperMargin('f4-bank-public-print-top');
-    window.addEventListener('afterprint',()=>style.remove(),{once:true});
-    // Public report already builds its official kop; avoid re-inserting it after print().
-    return v29OldPublicPrint();
-  };
+  v25PrintReport=function(){return v29OldPublicPrint();};
 
   /* Bank Sampah — compact, accessible multi-section admin report controls.
    * Existing v10Month is retained as the API/finance period source of truth. */
