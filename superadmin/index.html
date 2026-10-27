@@ -822,7 +822,11 @@ async function openWarga(){
  const reloadButton=button('Muat ulang',openWarga,'sa-action sa-resident-icon-action');
  reloadButton.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.1 5.4M20 4v7h-7"/></svg>';
  reloadButton.title='Muat ulang';reloadButton.setAttribute('aria-label','Muat ulang');
- bar.append(search,houseButton,residentButton,reloadButton);
+ // Pencarian dan tiga aksi berada pada SATU baris di HP.
+ const searchAndReload=el('div',undefined,'f4-inline-search-refresh');
+ reloadButton.classList.add('f4-search-refresh-button');
+ searchAndReload.append(search,reloadButton);
+ bar.append(searchAndReload,houseButton,residentButton);
  main.append(bar);const info=notice(''),list=el('div',undefined,'sa-list');main.append(list);
  const loadToken=F4Loading.begin(info,'Memuat data warga…');
  const render=()=>{list.replaceChildren();const q=search.value.toLowerCase();
