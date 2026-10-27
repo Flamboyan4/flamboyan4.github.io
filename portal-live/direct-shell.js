@@ -227,4 +227,57 @@ try{restore=sessionStorage.getItem('f4-native-account-refresh')==='1';sessionSto
 refreshSession().then(()=>{
  if((location.hash==='#akun'||restore)&&role!=='public')window.f4OpenUnifiedAccount?.();
 });
+/* Pair search and reload in native search toolbars on every portal.
+   Preserve original input and button listeners; only move their DOM nodes. */
+(()=>{
+ const css=document.createElement('style');css.id='f4-search-reload-layout';
+ css.textContent=[
+  '.f4-inline-search-refresh{display:flex!important;align-items:center!important;gap:8px!important;flex:1 1 230px!important;min-width:0!important;max-width:100%!important;width:auto!important}',
+  '.f4-inline-search-refresh>input{flex:1 1 auto!important;width:100%!important;min-width:0!important;max-width:none!important;margin:0!important}',
+  '.f4-inline-search-refresh>.f4-search-refresh-button{display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 42px!important;width:42px!important;min-width:42px!important;max-width:42px!important;height:42px!important;min-height:42px!important;max-height:42px!important;padding:0!important;margin:0!important;border-radius:11px!important;line-height:1!important}',
+  '.f4-inline-search-refresh>.f4-search-refresh-button .f4-action-symbol{display:grid!important;place-items:center!important;width:100%!important;height:100%!important;margin:0!important;padding:0!important}',
+  '.f4-inline-search-refresh>.f4-search-refresh-button svg{display:block!important;width:20px!important;height:20px!important;margin:auto!important}',
+  '.f4-inline-search-refresh>.f4-search-refresh-button .f4-action-label{display:none!important}',
+  '@media(max-width:760px){#f4-account-page .f4-admin-controls:has(.f4-inline-search-refresh),#f4-account-page .sa-controls:has(.f4-inline-search-refresh){display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:8px!important}#f4-account-page .f4-inline-search-refresh{flex:1 1 100%!important;width:100%!important}#f4-account-page .sa-account-filters .f4-inline-search-refresh{flex:1 1 100%!important}#f4-account-page .sa-account-filters select{flex:1 1 100%!important;max-width:none!important}}'
+ ].join('\n');
+ document.head.append(css);
+ const containers='.f4-admin-controls,.sa-controls,.sa-resident-controls,.sa-account-filters,.search-toolbar,.search-bar,.filter-bar,.f4-search-controls,.toolbar';
+ function enhance(){
+  document.querySelectorAll(containers).forEach(bar=>{
+   if(bar.closest('.f4-inline-search-refresh'))return;
+   const children=[...bar.children],search=children.find(node=>
+    node.matches?.('input:not([type="hidden"])')&&
+    /cari|search|filter/i.test([node.placeholder,node.getAttribute('aria-label'),node.type].join(' ')));
+   if(!search)return;
+   const reload=children.find(node=>node.matches?.('button')&&
+    /muat\s*ulang|perbarui|refresh/i.test([node.textContent,node.title,node.getAttribute('aria-label'),node.dataset.f4ActionOriginal].join(' ')));
+   if(!reload)return;
+   const pair=document.createElement('div');pair.className='f4-inline-search-refresh';
+   bar.insertBefore(pair,search);
+   pair.append(search,reload);
+   reload.classList.add('f4-search-refresh-button');
+   reload.setAttribute('aria-label',reload.getAttribute('aria-label')||reload.title||'Muat ulang');
+   reload.title=reload.title||'Muat ulang';
+   if(!reload.querySelector('svg')){
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('fill','none');
+    svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','2');
+    svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');
+    svg.setAttribute('aria-hidden','true');
+    svg.innerHTML='<path d="M20 11a8 8 0 1 0-2.1 5.5"/><path d="M20 4v7h-7"/>';
+    const symbol=document.createElement('span');symbol.className='f4-action-symbol';symbol.append(svg);
+    const label=document.createElement('span');label.className='f4-action-label';label.textContent=reload.textContent.trim()||'Muat ulang';
+    reload.replaceChildren(symbol,label);reload.classList.add('f4-icon-action');
+   }
+  });
+ }
+ let scheduled=false;
+ function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;enhance()})}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true});else schedule();
+ new MutationObserver(mutations=>{
+  if(mutations.some(m=>[...m.addedNodes].some(n=>n.nodeType===1&&
+   (n.matches?.(containers)||n.querySelector?.(containers)))))schedule();
+ }).observe(document.body,{childList:true,subtree:true});
+})();
+
 })();
