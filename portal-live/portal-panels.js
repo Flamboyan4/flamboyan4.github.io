@@ -170,12 +170,12 @@ async function loadPersonal(kind){
   const heading=el('div',undefined,'f4-user-category-heading');
   const head=el('h4',labels[kind]||'Riwayat');
   const filter=el('label',undefined,'f4-user-year-filter');
-  filter.append(el('span','Tahun pembayaran'));
+  filter.append(el('span','Tahun transaksi'));
   const select=el('select');
-  select.setAttribute('aria-label','Tahun pembayaran '+(labels[kind]||''));
+  select.setAttribute('aria-label','Tahun transaksi '+(labels[kind]||''));
   const currentYear=String(new Date().getFullYear());
   const years=[...new Set(all.map(yearOf).filter(y=>/^\d{4}$/.test(y)))].sort((a,b)=>b.localeCompare(a));
-  const chosen=personalYearByKind[kind]??currentYear;
+  const chosen=personalYearByKind[kind]??(years.includes(currentYear)?currentYear:(years[0]||currentYear));
   select.add(new Option('Semua Tahun','all'));
   for(const year of [...new Set([currentYear,...years])].sort((a,b)=>b.localeCompare(a)))select.add(new Option(year,year));
   if(all.some(r=>yearOf(r)==='unknown'))select.add(new Option('Tanpa tahun','unknown'));
