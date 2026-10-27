@@ -812,7 +812,16 @@ async function openWarga(){
  if(!side.querySelector('button.active'))sidebar('masters');
  title('Data Warga & Rumah','Master lintas portal — identitas dan nomor rumah dikelola satu kali');
  const bar=el('div',undefined,'sa-controls sa-resident-controls'),search=el('input');search.placeholder='Cari warga atau rumah';
- bar.append(search,button('+ Tambah Rumah',()=>wargaForm('add_house'),'sa-action'),button('+ Tambah Warga',()=>wargaForm('add_resident'),'sa-action'),button('Muat ulang',openWarga,'sa-action'));
+ const houseButton=button('Tambah Rumah',()=>wargaForm('add_house'),'sa-action sa-resident-icon-action');
+ houseButton.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10H3z"/><path d="M9 20v-7h6"/><path d="M18 12v7m-3-3h6"/></svg>';
+ houseButton.title='Tambah Rumah';houseButton.setAttribute('aria-label','Tambah Rumah');
+ const residentButton=button('Tambah Warga',()=>wargaForm('add_resident'),'sa-action sa-resident-icon-action');
+ residentButton.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21v-2a7 7 0 0 1 12-5M19 14v7m-3.5-3.5h7"/></svg>';
+ residentButton.title='Tambah Warga';residentButton.setAttribute('aria-label','Tambah Warga');
+ const reloadButton=button('Muat ulang',openWarga,'sa-action sa-resident-icon-action');
+ reloadButton.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.1 5.4M20 4v7h-7"/></svg>';
+ reloadButton.title='Muat ulang';reloadButton.setAttribute('aria-label','Muat ulang');
+ bar.append(search,houseButton,residentButton,reloadButton);
  main.append(bar);const info=notice(''),list=el('div',undefined,'sa-list');main.append(list);
  const loadToken=F4Loading.begin(info,'Memuat data warga…');
  const render=()=>{list.replaceChildren();const q=search.value.toLowerCase();
