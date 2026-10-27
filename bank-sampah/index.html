@@ -1520,7 +1520,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     if(!profile)return;v14Setup();const isAdmin=profile.peran==='Admin',currentToken=token;
     $('pageDashboard').classList.toggle('f4-member-dashboard',!isAdmin);
     $('v14Title').textContent=isAdmin?'Ringkasan pengelola':'Halo, '+profile.nama;
-    $('v14Subtitle').textContent=isAdmin?'Pantau pencatatan dan perkembangan Bank Sampah':'Informasi lingkungan dan keanggotaan Anda';
+    $('v14Subtitle').textContent=isAdmin?'Pantau pencatatan dan perkembangan Bank Sampah':(profile.rumah?'Rumah '+profile.rumah+' • ':'')+'Pantau tabungan dan kontribusi sampah Anda';
     $('v14QuickAction').textContent=isAdmin?'+ Catat setoran':'Lihat tabungan saya';
     $('v14QuickAction').onclick=()=>goPage(isAdmin?'setoran':'pribadi');
     $('v14AllDeposits').textContent=isAdmin?'Lihat riwayat':'Tabungan saya';
@@ -1539,6 +1539,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
       $('v14RecentTitle').textContent='Setoran pribadi terbaru';
       $('v14Recent').textContent='Memuat riwayat setoran…';
       $('v14Activities').textContent='Memuat perkembangan program…';
+      primary.parentElement.querySelectorAll('.f4-member-finance-note').forEach(n=>n.remove());
       const brief=document.createElement('p');brief.className='f4-member-finance-note';
       brief.textContent='Estimasi berasal dari penimbangan awal. Saldo terkonfirmasi diperoleh setelah penjualan dan rekonsiliasi.';
       primary.after(brief);
