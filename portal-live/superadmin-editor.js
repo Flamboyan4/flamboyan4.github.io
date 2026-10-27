@@ -21,6 +21,29 @@ const types={
  bank_inventory:{label:'Inventaris Bank Sampah',section:'bank',columns:[]},
  obligations:{label:'Kewajiban Iuran Warga',section:'book',key:'payer_id',columns:[['nama','Nama warga','readonly'],['rumah','Rumah','readonly'],['qty_iuran_bulanan','Iuran bulanan (x)','number',true],['qty_kebersihan','Kebersihan (x)','number',true],['qty_kas_lorong','Kas lorong (x)','number',true],['qty_arisan','Arisan (x)','number',true]]}
 };
+
+/* Jersey transitional storage in the existing D1 method field. This is a
+   structured amount, not a new backend column or a new transaction record. */
+const JERSEY_PAY_TAG=/\s*\[F4BAYAR:(\d{1,12})\]/g;
+function plainJerseyMethod(value){return String(value||'').replace(JERSEY_PAY_TAG,'').trim()}
+function paidJerseyExact(row){
+ const tags=[...String(row?.method||'').matchAll(/\[F4BAYAR:(\d{1,12})\]/g)];
+ return tags.length?Number(tags[tags.length-1][1]):null;
+}
+function paidJerseyAmount(row){
+ const exact=paidJerseyExact(row);if(exact!==null)return exact;
+ const price=Math.max(0,Number(row?.nominal_rp)||0);
+ const st=String(row?.payment_status||'').toLowerCase();
+ if(st.includes('lunas'))return price;
+ if(!/dp|cicil/.test(st))return 0;
+ const m=st.match(/(?:rp\s*)?(\d[\d.,]*)/i);
+ if(!m)return 0;
+ let sum=Number(m[1].replace(/[.,]/g,''));
+ if(sum>0&&sum<1000)sum*=1000;
+ return Number.isFinite(sum)?sum:0;
+}
+const jerseyRp=value=>'Rp '+(Number(value)||0).toLocaleString('id-ID');
+
 const categories={
  portal:[['projects','Project Card'],['agenda','Rencana Kegiatan'],['documentation','Dokumentasi'],['inventory','Inventaris'],['banners','Banner Slider'],['meetings','Hasil Rapat'],['arisan','Jadwal Arisan'],['jersey','Pesanan Jersey']],
  bank:[['bank_progress','Kegiatan'],['bank_albums','Dokumentasi'],['bank_inventory','Inventaris']],
@@ -179,11 +202,19 @@ function populateJersey(rows,list,query){
    const head=node('summary',undefined,'f4-jersey-person-head');
    const text=node('span',undefined,'f4-jersey-person-identity');
    text.append(node('strong',String(x.resident||'').trim()||'Nama warga belum tercatat'));
-   const sub=[x.size?'Ukuran '+x.size:'',x.payment_status||''].filter(Boolean).join(' • ');
+   const paid=paidJerseyAmount(x),price=Math.max(0,Number(x.nominal_rp)||0);
+   const sub=[x.size?'Ukuran '+x.size:'',x.payment_status||'Belum bayar',
+    paidJerseyExact(x)!==null?'Diterima '+jerseyRp(paid):''].filter(Boolean).join(' • ');
    if(sub)text.append(node('small',sub));
    head.append(text);item.append(head);
    const body=node('div',undefined,'f4-jersey-person-detail');
-   const fields=[['Nomor urut',x.sort_order],['Lengan',x.sleeves],['Ukuran',x.size],['Nama dan nomor punggung',x.printed_name],['Harga',formatCurrency(x.nominal_rp)],['Status pembayaran',x.payment_status],['Metode / keterangan',x.method]];
+   const fields=[['Nomor urut',x.sort_order],['Lengan',x.sleeves],
+    ['Ukuran',x.size],['Nama dan nomor punggung',x.printed_name],
+    ['Harga pesanan',jerseyRp(price)],
+    ['Status pembayaran',x.payment_status||'Belum bayar'],
+    ['Uang diterima',paidJerseyExact(x)===null?'Belum dicatat nominalnya':jerseyRp(paid)],
+    ['Titipan kelebihan',paidJerseyExact(x)===null?'—':jerseyRp(Math.max(0,paid-price))],
+    ['Metode / keterangan',plainJerseyMethod(x.method)]];
    for(const [caption,raw] of fields){
     const line=node('div',undefined,'f4-jersey-person-field');
     line.append(node('small',caption),node('span',raw===undefined||raw===null||String(raw).trim()===''?'—':String(raw)));
