@@ -145,7 +145,7 @@ function viewList(){
  const search=node('input');search.placeholder='Cari data';search.value=filter;search.oninput=()=>{filter=search.value;populate();};
  tools.append(search);
  if(def.section==='portal')tools.append(btn('+ Tambah '+def.label,()=>showForm(null)));
- if(active==='jersey')tools.append(btn('Cetak Laporan Jersey',printJerseyReport,'f4-admin-primary'));
+ if(active==='jersey')tools.append(btn('Cetak Laporan Jersey',()=>printJerseyReport(),'f4-admin-primary'));
  tools.append(btn('Muat Ulang',()=>window.openSuperadminEditor(active)));
  main.append(tools);
  const info=node('p',records.length+' data tersedia','f4-admin-note');main.append(info);
@@ -350,8 +350,8 @@ function printJerseyReport(includeFunds=null){
  const html='<!doctype html><html lang="id"><head><meta charset="utf-8"><title>Laporan Jersey Flamboyan 4</title>'+
  '<style>@page{size:A4 portrait;margin:12mm}*{box-sizing:border-box}body{font:9px/1.35 Arial,sans-serif;color:#17223b;margin:0}'+
  'h1{font-size:17px;margin:0 0 5px}h2{font-size:12px;margin:14px 0 6px}header{border-bottom:2px solid #334155;padding-bottom:9px;margin-bottom:10px}'+
- 'p{margin:4px 0}.meta{color:#475569}.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0;break-inside:avoid}.box{border:1px solid #cbd5e1;flex:1;padding:8px;border-radius:5px}'+
- '.box strong{display:block;font-size:14px;margin-top:4px}table{width:100%;border-collapse:collapse;table-layout:fixed}thead{display:table-header-group}'+
+ 'p{margin:4px 0}.meta{color:#475569}.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:10px 0;break-inside:avoid}.box{border:1px solid #cbd5e1;min-width:0;padding:6px 5px;border-radius:5px}'+
+ '.box strong{display:block;font-size:12px;margin-top:4px}table{width:100%;border-collapse:collapse;table-layout:fixed}thead{display:table-header-group}'+
  'th{background:#edf2f9}th,td{border:1px solid #cbd5e1;padding:5px 3px;vertical-align:middle;overflow-wrap:anywhere}'+
  'tr{break-inside:avoid}th{text-align:left}.number{text-align:right;white-space:normal}.center{text-align:center}.sub{font-weight:bold;margin-top:6px}'+
  '.approval{text-align:right;margin-top:28px;break-inside:avoid}.approval strong{display:block;margin-top:45px}'+
