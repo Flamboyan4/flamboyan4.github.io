@@ -343,7 +343,7 @@ body>div.fixed.bottom-6.right-6{
 
       <div id="f4-private-transactions" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
         <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-          <h4 class="font-semibold text-slate-700 text-sm md:text-base">Rincian 10 Transaksi Terakhir</h4>
+          <h4 class="font-semibold text-slate-700 text-sm md:text-base">Rincian 6 Transaksi Terakhir</h4>
           <span id="loading-status" class="text-xs text-slate-500">Memuat data...</span>
         </div>
         
@@ -530,12 +530,12 @@ body>div.fixed.bottom-6.right-6{
               <span id="bs-status-badge" class="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full">Aktif</span>
             </div>
 
-           <!-- Badge berada tepat di atas foto dan tidak menutup gambar. -->
-            <div class="flex justify-start mb-1.5">
-              <span id="bs-step-tag" class="inline-flex text-[10px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">Progres terbaru</span>
-            </div>
+           <!-- Foto dimulai tepat setelah header, sejajar dengan kartu projek lain. -->
             <div class="relative rounded-lg h-32 overflow-hidden mb-2 shadow-sm bg-slate-100 border border-emerald-100">
               <img id="bs-step-img" src="" alt="Progres Bank Sampah" class="block w-full h-full object-cover object-center">
+            </div>
+            <div class="flex justify-start mb-1.5">
+              <span id="bs-step-tag" class="inline-flex text-[10px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">Progres terbaru</span>
             </div>
             <!-- Hanya judul perkembangan terbaru, maksimal dua baris. -->
             <p id="bs-step-title" class="text-[12px] font-bold text-slate-800 leading-snug line-clamp-2 mb-2">Pembuatan Wadah Drop Point</p>
@@ -2523,10 +2523,10 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
             const tb = db ? new Date(db.year, db.month, db.day || 1).getTime() : 0;
             return tb - ta || a.originalIndex - b.originalIndex;
           }).map(item => item.row);
-        const top10Data = globalKeuanganData.slice(0, 10);
+        const top6Data = globalKeuanganData.slice(0, 6);
 
         let tbodyHTML = '';
-        top10Data.forEach(row => { tbodyHTML += renderTableRow(row); });
+        top6Data.forEach(row => { tbodyHTML += renderTableRow(row); });
 
         let tbodyAllHTML = '';
         globalKeuanganData.forEach(row => { tbodyAllHTML += renderTableRow(row); });
@@ -2540,7 +2540,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 
         F4Loading.success(statusEl,kasToken);
 
-        if (globalKeuanganData.length > 10) {
+        if (globalKeuanganData.length > 6) {
           document.getElementById('btn-container-keuangan-all').classList.remove('hidden');
         } else {
           document.getElementById('btn-container-keuangan-all').classList.add('hidden');
