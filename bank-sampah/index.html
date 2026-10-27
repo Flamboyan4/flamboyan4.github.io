@@ -1529,10 +1529,53 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     $('v14Primary').textContent='Memuat ringkasan...';$('v14Recent').textContent='Memuat...';$('v14Activities').textContent='Memuat...';$('v14Extra').replaceChildren();
     $('v14Status').textContent='Mengambil data terbaru...';
     if(!isAdmin){
-      $('v14Primary').replaceChildren(v14Stat('Nama anggota',profile.nama,'Akun pribadi'),v14Stat('Nomor rumah',profile.rumah||'—','Terdaftar'),v14Stat('Status akun','Terdaftar','Anggota Bank Sampah'));
-      // Ringkasan anggota cukup identitas dan tombol Tabungan saya di bagian atas.
-      // Panel aksi duplikat dan linimasa kosong tidak perlu dimuat atau ditampilkan.
-      $('v14Status').textContent='';
+      const primary=$('v14Primary'),extra=$('v14Extra');
+      primary.replaceChildren(
+       v14Stat('Saldo tabungan terkonfirmasi','—','Hak warga dari penjualan disahkan'),
+       v14Stat('Estimasi setoran berjalan','—','Belum menjadi saldo yang dapat ditarik'),
+       v14Stat('Berat sampah disetor','—','Seluruh setoran tercatat'),
+       v14Stat('Jumlah setoran','—','Riwayat atas nama Anda'));
+      extra.replaceChildren();
+      $('v14RecentTitle').textContent='Setoran pribadi terbaru';
+      $('v14Recent').textContent='Memuat riwayat setoran…';
+      $('v14Activities').textContent='Memuat perkembangan program…';
+      const brief=document.createElement('p');brief.className='f4-member-finance-note';
+      brief.textContent='Estimasi berasal dari penimbangan awal. Saldo terkonfirmasi diperoleh setelah penjualan dan rekonsiliasi.';
+      primary.after(brief);
+      const report=Promise.resolve(call('bsV12Statement',token));
+      const progress=Promise.resolve(call('bsDashboardProgressPublik',token));
+      const settled=await Promise.allSettled([report,progress]);
+      if(token!==currentToken||!profile||profile.peran==='Admin'){brief.remove();return}
+      const [statement,activities]=settled;
+      if(statement.status==='fulfilled'){
+       const d=statement.value||{},deposits=Array.isArray(d.setoran)?d.setoran:[];
+       const active=deposits.filter(x=>!/batal|cancel/i.test(String(x.status||'')));
+       const unconfirmed=active.filter(x=>!/terkonfirmasi|confirmed/i.test(String(x.status||'')));
+       const weight=active.reduce((sum,x)=>sum+Number(x.beratKg||0),0);
+       primary.replaceChildren(
+        v14Stat('Saldo tabungan terkonfirmasi',rupiah(d.saldo||0),'Hak warga yang sudah disahkan'),
+        v14Stat('Estimasi setoran berjalan',rupiah(unconfirmed.reduce((sum,x)=>sum+Number(x.estimasiRp||0),0)),'Belum masuk saldo terkonfirmasi'),
+        v14Stat('Berat sampah disetor',kg(weight),'Total berat setoran aktif'),
+        v14Stat('Jumlah setoran',String(active.length),'Setoran aktif tercatat'));
+       const recent=active.slice().sort((a,b)=>String(b.tanggal||'').localeCompare(String(a.tanggal||''))).slice(0,3);
+       const recentBox=$('v14Recent');recentBox.replaceChildren();
+       if(!recent.length)recentBox.textContent='Belum ada setoran. Mulai setor sampah untuk melihat riwayat di sini.';
+       for(const s of recent){
+        const article=document.createElement('div');article.className='f4-member-recent';
+        const summary=document.createElement('div');
+        const dt=document.createElement('strong');dt.textContent=s.tanggal||'Tanggal belum dicatat';
+        const sub=document.createElement('small');sub.textContent=kg(s.beratKg||0)+' • '+(s.status||'Estimasi');
+        summary.append(dt,sub);
+        const amount=document.createElement('b');amount.textContent=rupiah(s.estimasiRp||0);
+        article.append(summary,amount);recentBox.append(article);
+       }
+       $('v14Status').textContent='Ringkasan dihitung dari riwayat tabungan akun yang sedang login.';
+      }else{
+       $('v14Recent').textContent='Ringkasan pribadi belum tersedia. Gunakan tombol Lihat tabungan saya untuk memeriksa data lengkap.';
+       $('v14Status').textContent='Data saldo belum dapat dimuat: '+String(statement.reason?.message||statement.reason||'Koneksi data terputus');
+      }
+      if(activities.status==='fulfilled')v14Activities(activities.value);
+      else $('v14Activities').textContent='Perkembangan program belum tersedia.';
       return;
     }
     $('v14RecentTitle').textContent='Setoran terbaru';
