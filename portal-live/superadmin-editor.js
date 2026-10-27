@@ -606,8 +606,16 @@ const bankModules={
 const bankApi='https://api.flamboyan4.web.id/api/v2/admin/bank/';
 const bankCategory=c=>/^Bank Sampah\s*[:/]/i.test(String(c||''))?String(c):'Bank Sampah: '+String(c||'Lainnya');
 const bankCategoryLabel=c=>String(c||'').replace(/^Bank Sampah\s*[:/]\s*/i,'')||'Lainnya';
-const bankScoped=a=>/^Bank Sampah\s*[:/]/i.test(String(a.category||''))||/^(bank[_ -]?sampah|wastebank)$/i.test(String(a.category||''))||
- (/(gorol|drop point)/i.test(String(a.title||a.judul||''))&&String(a.event_on||a.tanggal||'').startsWith('2026-10-11'));
+const bankScoped=a=>{
+ const category=String(a.category||a.kategori||'');
+ const scope=String(a.portal_scope||a.source_portal||a.scope||a.portal||a.program||'')
+  .replace(/[\s_-]+/g,'').toLowerCase();
+ return a.bank_sampah===true||a.is_bank_sampah===true||
+  ['banksampah','wastebank'].includes(scope)||
+  /^Bank Sampah\s*[:/]/i.test(category)||/^(bank[_ -]?sampah|wastebank)$/i.test(category)||
+  (/(gorol|drop point)/i.test(String(a.title||a.judul||a.name||''))&&
+    String(a.event_on||a.eventOn||a.tanggal||a.date||a.happened_on||'').startsWith('2026-10-11'));
+};
 const bankFolderLink=record=>{
  const description=String(record?.description||'');
  const fromDescription=description.match(/(?:^|\n)\s*Tautan folder:\s*(https:\/\/drive\.google\.com\/drive\/folders\/[^\s]+)/i)?.[1]||'';
