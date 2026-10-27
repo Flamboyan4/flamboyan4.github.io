@@ -206,3 +206,25 @@ body.f4-direct-portal:has(
    intrusive independent scrollbar next to the page. */
 #f4-direct-sidebar{scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
 #f4-direct-sidebar::-webkit-scrollbar{display:none;width:0;height:0}
+
+/* Single aligned password visibility control in the global sign-in dialog. */
+#f4-direct-dialog .f4-direct-password-field{position:relative!important;width:100%!important;display:block!important}
+#f4-direct-dialog .f4-direct-password-field input{
+ display:block!important;width:100%!important;max-width:100%!important;
+ min-width:0!important;padding-right:55px!important;box-sizing:border-box!important;
+ margin:0!important;min-height:48px!important
+}
+#f4-direct-dialog .f4-direct-password-field button#f4-direct-show-password{
+ display:grid!important;place-items:center!important;position:absolute!important;
+ right:5px!important;top:50%!important;transform:translateY(-50%)!important;
+ width:40px!important;height:38px!important;min-width:40px!important;
+ min-height:38px!important;max-width:40px!important;max-height:38px!important;
+ padding:0!important;margin:0!important;border:0!important;border-radius:9px!important;
+ background:transparent!important;color:var(--f4-nav)!important;box-shadow:none!important;
+ cursor:pointer!important
+}
+#f4-direct-dialog .f4-direct-password-field button#f4-direct-show-password:hover,
+#f4-direct-dialog .f4-direct-password-field button#f4-direct-show-password:focus-visible{
+ background:var(--f4-nav-tint)!important
+}
+#f4-direct-show-password svg{display:block!important;width:20px!important;height:20px!important;flex:none!important}
