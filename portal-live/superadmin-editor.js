@@ -367,12 +367,22 @@ function printJerseyReport(includeFunds=null){
    ' &nbsp;|&nbsp; Kekurangan: '+money(outstanding)+' &nbsp;|&nbsp; Titipan: '+money(titipan)+'</p>':'')+'</section>');
  }
  const date=new Date().toLocaleDateString('id-ID',{dateStyle:'long'});
+ // Inline SVG is printable *content*, not a browser-suppressed CSS background.
+ // It preserves the blue table headers even when Firefox's "Print backgrounds"
+ // option is disabled when the Superadmin saves the report as PDF.
+ const paintedSections=sections.join('').replace(/<th>([^<]*)<\/th>/g,(_tag,label)=>
+  '<th><svg class="f4-print-th-fill" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" viewBox="0 0 10 10" preserveAspectRatio="none">'+
+  '<rect x="0" y="0" width="10" height="10" fill="#E8F0FA"/></svg>'+
+  '<span class="f4-print-th-label">'+label+'</span></th>');
  const html='<!doctype html><html lang="id"><head><meta charset="utf-8"><title>Laporan Jersey Flamboyan 4</title>'+
  '<style>@page{size:A4 portrait;margin:12mm}*{box-sizing:border-box}body{font:9px/1.35 Arial,sans-serif;color:#17223b;margin:0}'+
  'h1{font-size:17px;margin:0 0 5px}h2{font-size:12px;margin:14px 0 6px}header{border-bottom:2px solid #334155;padding-bottom:9px;margin-bottom:10px}'+
  'p{margin:4px 0}.meta{color:#475569}.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:10px 0;break-inside:avoid}.box{border:1px solid #cbd5e1;min-width:0;padding:6px 5px;border-radius:5px}'+
  '.box strong{display:block;font-size:12px;margin-top:4px}table{width:100%;border-collapse:collapse;table-layout:fixed}thead{display:table-header-group}'+
- 'th{background:#edf2f9}th,td{border:1px solid #cbd5e1;padding:5px 3px;vertical-align:middle;overflow-wrap:anywhere}'+
+ 'th{background:#e8f0fa!important;position:relative;isolation:isolate;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}'+
+ '.f4-print-th-fill{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}'+
+ '.f4-print-th-label{position:relative;z-index:1}'+
+ 'th,td{border:1px solid #cbd5e1;padding:5px 3px;vertical-align:middle;overflow-wrap:anywhere}'+
  'tr{break-inside:avoid}th{text-align:left}.number{text-align:right;white-space:normal}.center{text-align:center}.sub{font-weight:bold;margin-top:6px}'+
  '.approval{text-align:right;margin-top:28px;break-inside:avoid}.approval strong{display:block;margin-top:45px}'+
  '.foot{font-size:10px;color:#64748b;border-top:1px solid #dbe3ef;margin-top:16px;padding-top:6px}'+
@@ -384,7 +394,7 @@ function printJerseyReport(includeFunds=null){
  '<div class="box">Dana Terkumpul<strong>'+money(allReceived)+'</strong></div>'+
  '<div class="box">Sisa Kekurangan<strong>'+money(allOutstanding)+'</strong></div></div><p class="meta"><strong>Titipan sementara: '+money(allTitipan)+'</strong> — sudah termasuk uang diterima, belum dihitung sebagai pesanan bawahan</p>':
  '<p class="meta">Total pemesan: <strong>'+allOrders+' orang</strong></p>')+
- sections.join('')+
+ paintedSections+
  (includeFunds?'<p class="meta">Catatan: data lama tanpa nominal diterima menggunakan status pembayaran sebagai acuan. DP lama tanpa nominal tidak diestimasi. Uang titipan tidak mengurangi kekurangan pemesan lainnya.</p>':'')+
  '<div class="approval">Mengetahui, Humas Flamboyan 4<strong>Heri Juwandi</strong></div>'+
  '<p class="foot">Sumber: data pesanan Jersey pada flamboyan4.web.id</p>'+
