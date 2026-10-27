@@ -165,6 +165,7 @@
           <button type="button" onclick="zoomRapat(-0.2)" aria-label="Perkecil dokumen" title="Zoom out" class="f4-rapat-tool"><i data-lucide="minus" class="w-4 h-4"></i></button>
           <span id="f4-rapat-zoom-level" class="text-xs text-slate-600 min-w-[34px] text-center">100%</span>
           <button type="button" onclick="zoomRapat(0.2)" aria-label="Perbesar dokumen" title="Zoom in" class="f4-rapat-tool"><i data-lucide="plus" class="w-4 h-4"></i></button>
+          <a id="f4-rapat-open-original" class="f4-rapat-tool" href="#" target="_blank" rel="noopener noreferrer" aria-label="Buka dokumen layar penuh" title="Buka dokumen layar penuh" hidden><i data-lucide="external-link" class="w-4 h-4"></i></a>
           <button type="button" onclick="copyCurrentRapatLink()" aria-label="Bagikan rapat" title="Bagikan" class="f4-rapat-tool"><i data-lucide="share-2" class="w-4 h-4"></i></button>
           <button type="button" onclick="closeModalDocRapat()" aria-label="Tutup dokumen" class="f4-rapat-tool"><i data-lucide="x" class="w-4 h-4"></i></button>
         </div>
@@ -183,6 +184,71 @@
     #modal-rapat-body iframe{zoom:var(--f4-doc-zoom,1);max-width:none!important;background:white!important;min-height:100%}
     #modal-doc-rapat>div{background:white!important}
     @media(max-width:640px){#modal-doc-rapat>div{height:94dvh}#modal-rapat-body{touch-action:pan-x pan-y pinch-zoom}}
+  </style>
+
+  <style id="f4-rapat-mobile-viewer-fix-20261027">
+    #modal-doc-rapat:not(.hidden){
+      z-index:2400!important;isolation:isolate
+    }
+    #modal-doc-rapat .f4-rapat-tool[hidden]{display:none!important}
+    #f4-rapat-open-original{font-size:0;text-decoration:none}
+    #f4-rapat-open-original svg{display:block}
+    /* The native portal bar formerly overlaid and clipped the modal's title. */
+    body.f4-direct-simple:has(#modal-doc-rapat:not(.hidden)) #f4-direct-bar,
+    body.f4-direct-simple:has(#modal-doc-rapat:not(.hidden)) #f4-direct-sidebar,
+    body.f4-direct-simple:has(#modal-doc-rapat:not(.hidden)) #f4-direct-sideback{
+      visibility:hidden!important;pointer-events:none!important
+    }
+    @media(max-width:760px){
+      #modal-doc-rapat:not(.hidden){
+        position:fixed!important;inset:0!important;
+        width:100vw!important;height:100dvh!important;
+        padding:0!important;margin:0!important;align-items:stretch!important;
+        justify-content:stretch!important;background:#fff!important;
+        backdrop-filter:none!important
+      }
+      #modal-doc-rapat>div{
+        width:100%!important;max-width:none!important;height:100dvh!important;
+        min-height:0!important;max-height:100dvh!important;
+        border:0!important;border-radius:0!important;box-shadow:none!important;
+        display:flex!important;flex-direction:column!important;overflow:hidden!important
+      }
+      #modal-doc-rapat>div>div:first-child{
+        display:flex!important;align-items:center!important;
+        gap:6px!important;min-width:0!important;flex:0 0 auto!important;
+        padding:8px 10px!important;background:#fff!important;
+        border-bottom:1px solid #e2e8f0!important
+      }
+      #modal-doc-rapat>div>div:first-child>div:first-child{
+        flex:1 1 0!important;min-width:0!important;max-width:100%!important
+      }
+      #modal-rapat-judul{overflow:hidden!important;white-space:nowrap!important;text-overflow:ellipsis!important}
+      #modal-doc-rapat>div>div:first-child>div:last-child{
+        display:flex!important;flex:0 0 auto!important;gap:4px!important
+      }
+      #modal-doc-rapat .f4-rapat-tool{
+        width:32px!important;height:34px!important;min-width:32px!important;
+        padding:0!important;border-radius:8px!important;display:grid!important;place-items:center!important
+      }
+      #f4-rapat-zoom-level{font-size:10px!important;min-width:30px!important}
+      #modal-rapat-body{
+        flex:1 1 0!important;min-width:0!important;min-height:0!important;
+        width:100%!important;height:auto!important;
+        max-height:none!important;overflow:auto!important;
+        overscroll-behavior:contain!important
+      }
+      #modal-rapat-body iframe{
+        width:100%!important;height:100%!important;
+        min-height:100%!important;display:block!important;border:0!important
+      }
+    }
+    @media(max-width:380px){
+      #modal-doc-rapat .f4-rapat-tool{width:30px!important;min-width:30px!important}
+      #modal-doc-rapat>div>div:first-child{padding:7px 6px!important}
+      #modal-doc-rapat>div>div:first-child>div:last-child{gap:3px!important}
+      #modal-rapat-tgl{font-size:9px!important}
+      #modal-rapat-judul{font-size:11px!important}
+    }
   </style>
   <!-- SCRIPT KONTROL LOGIKA -->
   <script>
@@ -277,6 +343,16 @@
       const rawUrl = rapatItem.docUrl || '';
       const docId = extractGoogleDocId(rawUrl);
       const driveFileId = extractDriveFileId(rawUrl);
+      // Keep an explicit escape hatch for mobile: Google Drive owns its embedded
+      // PDF pagination controls, which cannot be restyled from this parent page.
+      const fullLink=document.getElementById('f4-rapat-open-original');
+      if(fullLink){
+        const original=docId
+          ?'https://docs.google.com/document/d/'+encodeURIComponent(docId)+'/view'
+          :driveFileId?'https://drive.google.com/file/d/'+encodeURIComponent(driveFileId)+'/view':'';
+        if(original){fullLink.href=original;fullLink.hidden=false}
+        else {fullLink.hidden=true;fullLink.removeAttribute('href')}
+      }
 
       // GOOGLE DOCS -> HTML RESPONSIVE, TETAP MEMPERTAHANKAN STYLE ASLI GOOGLE DOCS
       if (docId) {
