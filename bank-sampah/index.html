@@ -3123,11 +3123,12 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
       }else if(e.target.closest('#v18PublicSide button,#sideNav button')){
         // Biarkan onclick navigasi berjalan dahulu. history.back() secara sinkron
         // di capture phase pernah memulihkan halaman sebelum menu dapat dibuka di HP.
-        queueMicrotask(()=>{
+        // Timer menunggu event click selesai di semua fase, termasuk onclick tombol.
+        setTimeout(()=>{
           if(history.state?.f4BankSidebarOverlay)
             history.replaceState({...history.state,f4BankSidebarOverlay:false},'',location.href);
           bankMenuClose();
-        });
+        },0);
       }
     },true);
     document.addEventListener('keydown',e=>{
