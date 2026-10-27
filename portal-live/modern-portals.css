@@ -1445,3 +1445,32 @@ body.f4-direct-bank #dashboardView #v9List tr[hidden]{display:none!important}
  .f4-jersey-print-actions{display:grid;grid-template-columns:1fr 1.4fr}
  .f4-jersey-print-actions button{width:100%}
 }
+
+
+/* Final Bank Sampah desktop data-entry and ledger refinements. */
+@media screen and (min-width:761px){
+ body.f4-direct-bank #dashboardView .section .tablewrap:not(#riwayatList):not(#riwayatJualList){
+  min-width:0!important;max-width:100%!important
+ }
+ body.f4-direct-bank #dashboardView .section .tablewrap>table{
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  border-collapse:separate!important;border-spacing:0!important
+ }
+ body.f4-direct-bank #dashboardView .section .tablewrap>table :is(th,td){
+  padding:9px 10px!important;font-size:12px!important;
+  vertical-align:middle!important;line-height:1.45!important
+ }
+ body.f4-direct-bank #dashboardView :is(#setBarang,#saleItems){
+  width:100%!important;max-width:850px!important
+ }
+ body.f4-direct-bank #dashboardView #v9List table :is(th,td):nth-child(1){width:52%!important}
+ body.f4-direct-bank #dashboardView #v9List table :is(th,td):nth-child(2){width:18%!important}
+ body.f4-direct-bank #dashboardView #v9List table :is(th,td):nth-child(3){
+  width:30%!important;text-align:right!important;font-variant-numeric:tabular-nums!important
+ }
+ body.f4-direct-bank #dashboardView #v9History .stat,
+ body.f4-direct-bank #dashboardView #v10History .stat{
+  padding:11px 13px!important;margin:0 0 8px!important;border-radius:11px!important;
+  background:#fff!important;border:1px solid #e3ebe5!important
+ }
+}
