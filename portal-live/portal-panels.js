@@ -68,10 +68,24 @@ function createFinanceTabs(){
  if(!finance)return;
  if(!finBlock){
   finBlock=el('div',undefined,'f4-user-finance');
-  finBlock.innerHTML='<div class="f4-user-finance-controls"><button type="button" data-finance-mode="lingkungan" class="active">Laporan Lingkungan</button><button type="button" data-finance-mode="saya">Keuangan Saya</button></div><div id="f4-personal-finance" hidden><p class="f4-user-status">Riwayat pembayaran dan kewajiban sesuai akun Anda.</p><div class="f4-user-finance-sub"><button type="button" data-kind="iuran_rt">Iuran RT</button><button type="button" data-kind="kebersihan">Kebersihan</button><button type="button" data-kind="kas_lorong">Kas Lorong</button><button type="button" data-kind="arisan">Arisan</button><button type="button" data-kind="fines">Denda</button><button type="button" data-kind="loans">Pinjaman</button></div><div id="f4-personal-data"></div></div>';
+  finBlock.innerHTML='<div class="f4-user-finance-heading"><span class="f4-user-eyebrow">Laporan & pembayaran</span><p>Pantau laporan bersama atau catatan pembayaran sesuai akun.</p></div>'+
+   '<div class="f4-user-finance-controls" role="group" aria-label="Pilihan laporan">'+
+    '<button type="button" data-finance-mode="lingkungan" class="active">Laporan Lingkungan</button>'+
+    '<button type="button" data-finance-mode="saya">Keuangan Saya</button></div>'+
+   '<div id="f4-personal-finance" hidden>'+
+    '<div class="f4-user-finance-intro"><span class="f4-user-finance-icon" aria-hidden="true">'+
+     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="3"/><path d="M3 10h18M16 15h2"/></svg></span>'+
+     '<div><h3>Riwayat Keuangan Pribadi</h3><p>Hanya menampilkan data milik akun yang sedang masuk.</p></div></div>'+
+    '<div class="f4-user-finance-sub" role="group" aria-label="Kategori keuangan pribadi">'+
+     '<button type="button" data-kind="iuran_rt">Iuran RT</button>'+
+     '<button type="button" data-kind="kebersihan">Kebersihan</button>'+
+     '<button type="button" data-kind="kas_lorong">Kas Lorong</button>'+
+     '<button type="button" data-kind="arisan">Arisan</button>'+
+     '<button type="button" data-kind="fines">Denda</button>'+
+     '<button type="button" data-kind="loans">Pinjaman</button></div>'+
+    '<div id="f4-personal-data" aria-live="polite"></div></div>';
   finance.insertBefore(finBlock,finance.firstChild);
-  const action=finBlock.querySelectorAll('[data-finance-mode]'),personal=finBlock.querySelector('#f4-personal-finance');
-  action.forEach(b=>b.onclick=()=>setFinanceMode(b.dataset.financeMode==='saya'));
+  finBlock.querySelectorAll('[data-finance-mode]').forEach(b=>b.onclick=()=>setFinanceMode(b.dataset.financeMode==='saya'));
   finBlock.querySelectorAll('[data-kind]').forEach(b=>b.onclick=()=>loadPersonal(b.dataset.kind));
  }
 }
@@ -114,10 +128,28 @@ async function loadPersonal(kind){
  const area=document.getElementById('f4-personal-data');if(!area)return;
  const loading=el('p','','f4-user-status');area.replaceChildren(loading);
  const loadToken=window.F4Loading?.begin(loading,'Memuat riwayat keuangan pribadi…');
- finBlock.querySelectorAll('[data-kind]').forEach(b=>b.classList.toggle('active',b.dataset.kind===kind));
- // No payerId is accepted from the browser; Worker must resolve from session.
+ finBlock.querySelectorAll('[data-kind]').forEach(b=>{
+  const selected=b.dataset.kind===kind;
+  b.classList.toggle('active',selected);
+  b.setAttribute('aria-pressed',String(selected));
+ });
+ // The Worker resolves the resident from the session; no account ID is supplied.
  const paths={iuran_rt:'/api/member/payments',kebersihan:'/api/member/payments',
   kas_lorong:'/api/member/payments',arisan:'/api/member/arisan',fines:'/api/member/fines',loans:'/api/member/loans'};
+ const labels={iuran_rt:'Iuran RT',kebersihan:'Kebersihan',kas_lorong:'Kas Lorong',
+  arisan:'Arisan',fines:'Denda',loans:'Pinjaman'};
+ const money=n=>'Rp '+Number(n).toLocaleString('id-ID',{maximumFractionDigits:0});
+ const amountOf=row=>{
+  const value=row.nominalRp??row.nominal??row.amount_rp??row.nilai_rp??row.jumlah_rp;
+  if(value===undefined||value===null||value==='')return null;
+  const number=Number(value);return Number.isFinite(number)?number:null;
+ };
+ const dateOf=row=>String(row.tanggal||row.paid_on||row.tanggal_bayar||row.created_at||'');
+ const niceDate=value=>{
+  const match=String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(!match)return String(value||'—');
+  return new Date(+match[1],+match[2]-1,+match[3]).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
+ };
  try{
   const res=await fetch('https://api.flamboyan4.web.id'+paths[kind],{credentials:'include',cache:'no-store'});
   const data=await res.json().catch(()=>({}));
@@ -125,16 +157,46 @@ async function loadPersonal(kind){
   if(requestId!==personalRequestSerial)return;
   const received=Array.isArray(data.rows)?data.rows:Array.isArray(data.data)?data.data:Array.isArray(data.transaksi)?data.transaksi:[];
   const types={iuran_rt:'IURAN_BULANAN',kebersihan:'KEBERSIHAN',kas_lorong:'KAS_LORONG'};
-  const list=types[kind]?received.filter(row=>row.jenis===types[kind]):received;
+  const list=(types[kind]?received.filter(row=>row.jenis===types[kind]):received)
+   .slice().sort((a,b)=>dateOf(b).localeCompare(dateOf(a)));
   window.F4Loading?.success(loading,loadToken);area.replaceChildren();
-  for(const row of list.slice(0,200)){
-   const a=el('article',undefined,'f4-user-row'),info=el('div');
-   info.append(el('strong',row.keterangan||row.periode||row.namaKegiatan||row.tanggal||'Catatan pribadi'));
-   info.append(el('small',[row.tanggal||row.paid_on||'',row.status||''].filter(Boolean).join(' • ')));
-   const amount=Number(row.nominalRp??row.nominal??row.amount_rp??0);
-   a.append(info,el('strong','Rp '+amount.toLocaleString('id-ID')));area.append(a);
+  const title=el('div',undefined,'f4-user-category-heading');
+  const heading=el('h4',labels[kind]||'Riwayat');
+  title.append(heading,el('span',list.length+' catatan','f4-user-count'));area.append(title);
+  if(!list.length){
+   const empty=el('div',undefined,'f4-user-empty');
+   empty.append(el('strong','Belum ada catatan '+(labels[kind]||'keuangan').toLowerCase()),
+    el('p','Riwayat akan tampil otomatis ketika transaksi untuk akun ini tercatat di sistem.'));
+   area.append(empty);return;
   }
-  if(!list.length)area.append(el('p','Belum ada transaksi kategori ini untuk akun yang sedang masuk.','f4-user-status'));
+  const amounts=list.map(amountOf).filter(n=>n!==null);
+  const total=amounts.reduce((sum,value)=>sum+value,0);
+  const latest=dateOf(list[0]);
+  const stats=el('div',undefined,'f4-user-metrics');
+  const metric=(label,value,cls='')=>{
+   const card=el('div',undefined,'f4-user-metric '+cls);
+   card.append(el('span',label),el('strong',value));return card;
+  };
+  stats.append(metric('Total nominal tercatat',amounts.length?money(total):'—','f4-user-metric-primary'),
+   metric('Jumlah catatan',list.length+' transaksi'),
+   metric('Catatan terbaru',latest?niceDate(latest):'—'));
+  area.append(stats);
+  const listHeading=el('div',undefined,'f4-user-list-heading');
+  listHeading.append(el('strong','Rincian catatan'),el('span','Terbaru dahulu'));area.append(listHeading);
+  const entries=el('div',undefined,'f4-user-entries');
+  for(const row of list.slice(0,200)){
+   const item=el('article',undefined,'f4-user-row'),left=el('div',undefined,'f4-user-row-content');
+   left.append(el('strong',row.keterangan||row.periode||row.namaKegiatan||row.nama_kegiatan||row.jenis||'Catatan pribadi'));
+   const details=el('div',undefined,'f4-user-row-details');
+   const date=dateOf(row);if(date)details.append(el('time',niceDate(date)));
+   if(row.status)details.append(el('span',String(row.status),'f4-user-status-pill'));
+   left.append(details);
+   const amount=amountOf(row);
+   item.append(left,el('strong',amount===null?'—':money(amount),'f4-user-amount'));
+   entries.append(item);
+  }
+  area.append(entries);
+  if(list.length>200)area.append(el('p','Menampilkan 200 catatan terbaru dari '+list.length+' catatan.','f4-user-status'));
  }catch(e){if(requestId!==personalRequestSerial)return;
   window.F4Loading?.error(loading,'Data belum tersedia: '+e.message+'. Akses tetap dibatasi pada akun yang login.',loadToken)}
 }
@@ -143,6 +205,45 @@ css.textContent='.f4-user-finance{background:#fff;border:1px solid #d9e0ee;borde
 
 css.textContent+="\nfooter#pembayaran{background:#fff!important;color:#53607a!important;border-top:1px solid #e1e6f0!important;padding:30px 0 18px!important;margin-top:18px!important;scroll-margin-top:72px}\nfooter#pembayaran>div>div:first-child{background:#f8f9fc!important;border:1px solid #dce3ee!important;box-shadow:0 3px 15px #1b34550a!important}\nfooter#pembayaran>div>div:first-child>div:first-child{border-color:#e0e5ef!important}\nfooter#pembayaran>div>div:first-child>div:first-child h4{color:#2b3155!important}\nfooter#pembayaran>div>div:first-child>div:first-child>span{color:#728096!important}\nfooter#pembayaran .grid>div{background:white!important;border:1px solid #dde5ef!important}\nfooter#pembayaran .grid>div p.font-bold{color:#273655!important}\nfooter#pembayaran .grid>div p.text-slate-400{color:#68778d!important}\nfooter#pembayaran .grid button,footer#pembayaran .grid a{border-radius:9px}\nfooter#pembayaran>div>div:last-child{color:#738095!important}\nhtml{scroll-behavior:smooth}\n@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}\n";
 css.textContent+="\n#keuangan.f4-finance-personal-active> :not(.f4-user-finance){display:none!important}\n#keuangan .f4-user-finance [hidden]{display:none!important}\n#keuangan .f4-user-finance-sub{\n flex-wrap:nowrap!important;overflow-x:auto;overflow-y:hidden;\n width:100%;min-width:0;max-width:100%;touch-action:pan-x;\n overscroll-behavior-x:contain;scroll-snap-type:x proximity;\n scrollbar-width:none;padding:2px 2px 6px;margin:0 0 9px;\n}\n#keuangan .f4-user-finance-sub::-webkit-scrollbar{display:none}\n#keuangan .f4-user-finance-sub>button{flex:0 0 auto;white-space:nowrap;scroll-snap-align:start}\n#keuangan .f4-user-finance-controls>button{white-space:nowrap}\n@media(max-width:760px){\n #keuangan .f4-user-finance{padding:12px}\n #keuangan .f4-user-finance-controls{gap:7px}\n #keuangan .f4-user-finance-controls>button{font-size:12px;padding:9px 11px}\n #keuangan .f4-user-finance-sub{gap:7px}\n #keuangan .f4-user-finance-sub>button{padding:9px 13px;font-size:12px}\n}\n";
+css.textContent+="\n/* Keuangan Saya — putih, ringkas, mobile-first, tanpa angka contoh. */\n"+
+"#keuangan .f4-user-finance{border:1px solid #e2e5f0;border-radius:18px;padding:18px 20px 20px;background:#fff;box-shadow:0 6px 25px rgba(27,35,67,.035);min-width:0}\n"+
+"#keuangan .f4-user-finance-heading{margin:0 0 15px;display:flex;flex-direction:column;gap:3px}\n"+
+"#keuangan .f4-user-eyebrow{color:#6a5ad4;font-weight:800;font-size:11px;letter-spacing:.09em;text-transform:uppercase}\n"+
+"#keuangan .f4-user-finance-heading p{margin:0;font-size:13px;color:#758096}\n"+
+"#keuangan .f4-user-finance-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:1px solid #e4e6f1;border-radius:13px;padding:4px;gap:4px;margin:0 0 18px;background:#f8f9fd}\n"+
+"#keuangan .f4-user-finance-controls>button{width:100%;min-width:0;min-height:44px;padding:9px 8px;border:0;border-radius:10px;background:transparent;color:#59627a;font-size:13px;font-weight:750;white-space:normal}\n"+
+"#keuangan .f4-user-finance-controls>button.active{background:#6555e7;color:#fff;box-shadow:0 2px 8px #5140c02a}\n"+
+"#keuangan .f4-user-finance-intro{display:flex;gap:12px;align-items:center;padding:0 0 15px;margin-bottom:12px;border-bottom:1px solid #edf0f5}\n"+
+"#keuangan .f4-user-finance-icon{display:grid;place-items:center;background:#f0eeff;color:#6555d7;border-radius:12px;flex:0 0 44px;width:44px;height:44px}\n"+
+"#keuangan .f4-user-finance-icon svg{width:23px;height:23px}\n"+
+"#keuangan .f4-user-finance-intro h3{font-size:17px!important;line-height:1.3!important;font-weight:800;margin:0;color:#26344f}\n"+
+"#keuangan .f4-user-finance-intro p{margin:4px 0 0;color:#79839a;font-size:12px;line-height:1.4}\n"+
+"#keuangan .f4-user-finance-sub{display:flex;gap:7px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:2px 1px 9px;margin-bottom:12px}\n"+
+"#keuangan .f4-user-finance-sub>button{flex:0 0 auto;padding:9px 13px;min-height:39px;white-space:nowrap;border:1px solid #e0e4ed;background:#fff;color:#59657d;border-radius:10px;font-size:12px;font-weight:750}\n"+
+"#keuangan .f4-user-finance-sub>button.active{background:#efedff;border-color:#aea5fa;color:#5745c5;box-shadow:none}\n"+
+"#keuangan .f4-user-category-heading,#keuangan .f4-user-list-heading{display:flex;align-items:center;justify-content:space-between;gap:9px;margin:9px 0 11px}\n"+
+"#keuangan .f4-user-category-heading h4{margin:0;color:#293550;font-size:16px;font-weight:800}\n"+
+"#keuangan .f4-user-count{background:#f4f5f9;color:#6e778a;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}\n"+
+"#keuangan .f4-user-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:18px}\n"+
+"#keuangan .f4-user-metric{min-width:0;border:1px solid #e8eaf2;background:#fbfcfe;border-radius:13px;padding:13px 12px}\n"+
+"#keuangan .f4-user-metric span{display:block;color:#7d8595;font-size:11px;font-weight:650;line-height:1.45}\n"+
+"#keuangan .f4-user-metric strong{display:block;color:#283752;font-size:17px;line-height:1.3;font-weight:800;margin-top:6px;overflow-wrap:anywhere}\n"+
+"#keuangan .f4-user-metric-primary{border-color:#dedafa;background:#f8f7ff}\n"+
+"#keuangan .f4-user-metric-primary strong{color:#5949d2}\n"+
+"#keuangan .f4-user-list-heading{margin:0 0 5px;padding-top:2px}\n"+
+"#keuangan .f4-user-list-heading strong{font-size:14px;color:#35435a}\n"+
+"#keuangan .f4-user-list-heading span{font-size:11px;color:#909aaa}\n"+
+"#keuangan .f4-user-entries{border:1px solid #edf0f4;border-radius:13px;overflow:hidden;background:#fff}\n"+
+"#keuangan .f4-user-row{padding:13px 14px;border-bottom:1px solid #eef0f4;gap:14px;background:#fff}\n"+
+"#keuangan .f4-user-row:last-child{border-bottom:0}\n"+
+"#keuangan .f4-user-row-content{min-width:0;flex:1}\n"+
+"#keuangan .f4-user-row-content>strong{color:#27364e;font-size:13px;line-height:1.45;font-weight:800;overflow-wrap:anywhere}\n"+
+"#keuangan .f4-user-row-details{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:5px;color:#8892a1;font-size:11px}\n"+
+"#keuangan .f4-user-status-pill{padding:2px 7px;background:#eef7f1;color:#3d805c;border-radius:99px;font-size:10px;font-weight:750}\n"+
+"#keuangan .f4-user-amount{color:#354367;font-size:14px!important;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}\n"+
+"#keuangan .f4-user-empty{background:#fbfcff;border:1px dashed #d9dfec;padding:22px 16px;border-radius:12px;text-align:center;color:#34445c}\n"+
+"#keuangan .f4-user-empty strong{font-size:14px}#keuangan .f4-user-empty p{color:#8290a3;font-size:12px;margin:7px auto 0;max-width:350px}\n"+
+"@media(max-width:760px){#keuangan .f4-user-finance{padding:13px!important;border-radius:16px}#keuangan .f4-user-finance-heading{margin-bottom:12px}#keuangan .f4-user-finance-heading p{font-size:12px}#keuangan .f4-user-finance-controls>button{font-size:12px;padding:9px 5px}#keuangan .f4-user-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#keuangan .f4-user-metric{padding:12px}#keuangan .f4-user-metric-primary{grid-column:1/-1}#keuangan .f4-user-metric strong{font-size:16px}#keuangan .f4-user-finance-intro h3{font-size:16px!important}#keuangan .f4-user-row{padding:12px 11px}#keuangan .f4-user-amount{font-size:12px!important}}\n";
 document.head.append(css);
 window.f4GoBank=()=>{
   if(window.parent!==window)window.parent.postMessage({type:'f4:go-portal',portal:'bank-sampah'},location.origin);
