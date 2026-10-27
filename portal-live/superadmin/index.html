@@ -750,7 +750,7 @@ async function openWarga(){
   for(const o of residentRows.filter(x=>JSON.stringify(x).toLowerCase().includes(q))){
    count++;
    const tr=el('tr');
-   const values=[value(o,['nama','nama_warga','nama_pemilik'])||'—',
+   const values=[value(o,['nama','nama_warga','nama_pemilik'])||('Rumah '+(value(o,['rumah'])||'belum bernomor')+' • Kosong'),
      value(o,['rumah'])||'—',
      value(o,['status_tinggal','status_rumah'])||'—',
      value(o,['keterangan_rumah','deskripsi_rumah'])||'—',
