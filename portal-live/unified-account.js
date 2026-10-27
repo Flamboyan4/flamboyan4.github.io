@@ -44,7 +44,7 @@ function field(label,value,readOnly=false){
 function roleLabel(){return {warga:'Anggota',admin:'Admin Bank Sampah',superadmin:'Superadmin'}[session.account?.role]||'Anggota'}
 function navigation(){
  aside.replaceChildren();const brand=h('div',undefined,'ua-brand');
- const img=h('img');img.src='https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8';img.alt='Logo Flamboyan 4';
+ const img=h('img');img.src='https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027';img.alt='Logo Flamboyan 4';
  const name=h('div');name.append(h('strong','Flamboyan 4'),h('small','Pengaturan Akun'));brand.append(img,name);aside.append(brand);
  for(const [key,label] of [['identitas','Identitas Saya'],['foto','Foto Profil'],['password','Ganti Password'],['rights','Hak Akses Saya']]){
   const b=btn(label,()=>show(key),'ua-menu'+(tab===key?' active':''));aside.append(b);

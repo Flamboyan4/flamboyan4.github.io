@@ -24,7 +24,7 @@ function managementSidebar(active=''){
  // Identitas dan 4 menu Superadmin tetap muncul pada ringkasan dan setiap form.
  side.replaceChildren();
  const brand=make('div',undefined,'f4-management-brand');
- const logo=make('img');logo.src='https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8';
+ const logo=make('img');logo.src='https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027';
  logo.alt='Logo Flamboyan 4';
  const identity=make('span',undefined,'f4-management-identity');
  identity.append(make('strong','Flamboyan 4'),make('small','Pengelolaan terpusat'));
@@ -68,7 +68,7 @@ function wargaNavigation(){
  setTheme('book');
  wargaSide.replaceChildren();
  const identity=make('div',undefined,'f4-management-brand');
- const logo=make('img');logo.src='https://lh3.googleusercontent.com/d/1UdHmAbx4mjey0SvhFJ5ipBwfOB0aErZ8';logo.alt='Logo Flamboyan 4';
+ const logo=make('img');logo.src='https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027';logo.alt='Logo Flamboyan 4';
  const label=make('span',undefined,'f4-management-identity');
  label.append(make('strong','Flamboyan 4'),make('small','Pengelolaan terpusat'));
  identity.append(logo,label);wargaSide.append(identity);
