@@ -149,6 +149,11 @@ function enrichBankCard(card){
  btns.forEach(iconify);
  // The existing detailed API record is opened with the same tap when available.
  const detailed=btns.find(b=>/lihat rincian|tutup rincian/i.test(b.dataset.f4ActionOriginal||b.textContent));
+ const hasMore=!!detailed||[...card.children].some(el=>el!==header&&
+  String(el.textContent||'').trim().length>0);
+ if(!hasMore){
+  card.classList.add('f4-card-no-detail');return;
+ }
  const chevron=toggle(card,open=>{
   if(detailed&&!detailed.disabled){
    if(open&&!card.dataset.f4BankDetailsOpened){
