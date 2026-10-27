@@ -1160,3 +1160,207 @@ body #dashboardView #pageDashboard.f4-member-dashboard .v14-primary{
   margin:0!important;padding:0!important
  }
 }
+
+
+/* 2026-10-27 — Bank Sampah desktop density, without changing API / transaction actions. */
+@media screen and (min-width:900px){
+ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard .v14-primary{
+  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:10px!important;margin:0 0 13px!important
+ }
+ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard .v14-kpi{
+  min-width:0!important;min-height:138px!important;padding:14px 15px!important;
+  border:1px solid #dfe9e3!important;border-radius:14px!important;
+  display:flex!important;flex-direction:column!important;justify-content:center!important;gap:6px!important
+ }
+ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard .v14-kpi-label{
+  margin:2px 0 0!important;font-size:12px!important;line-height:1.35!important
+ }
+ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard .v14-kpi strong{
+  font-size:clamp(19px,1.9vw,25px)!important;line-height:1.2!important;margin:0!important
+ }
+ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard .v14-kpi small{
+  font-size:11px!important;line-height:1.35!important;margin:0!important
+ }
+}
+@media screen and (min-width:761px){
+ body.f4-direct-bank #dashboardView .section{padding:18px 25px 35px!important}
+ body.f4-direct-bank #dashboardView .section>.card{
+  border:1px solid #e1e9e4!important;border-radius:17px!important;
+  padding:19px 22px!important;box-shadow:0 3px 15px rgba(30,70,49,.025)!important
+ }
+ body.f4-direct-bank #dashboardView .section .card h2{margin-bottom:9px!important;font-size:20px!important}
+ body.f4-direct-bank #dashboardView .section .card>.desc{
+  margin-bottom:15px!important;font-size:13px!important;line-height:1.45!important
+ }
+ body.f4-direct-bank #dashboardView .section .card>.pill-note{
+  padding:9px 12px!important;margin:10px 0 12px!important;font-size:12px!important;line-height:1.5!important
+ }
+ body.f4-direct-bank #dashboardView #setoranForm,
+ body.f4-direct-bank #dashboardView #saleForm,
+ body.f4-direct-bank #dashboardView #v9Form,
+ body.f4-direct-bank #dashboardView #v10ExpenseForm{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  column-gap:14px!important;row-gap:0!important;min-width:0!important;align-items:start!important
+ }
+ body.f4-direct-bank #dashboardView #setoranForm>:not(.field),
+ body.f4-direct-bank #dashboardView #saleForm>:not(.field),
+ body.f4-direct-bank #dashboardView #v9Form>:not(.field),
+ body.f4-direct-bank #dashboardView #v10ExpenseForm>:not(.field){
+  grid-column:1/-1!important;min-width:0!important
+ }
+ body.f4-direct-bank #dashboardView #setoranForm>.field:nth-child(n+3),
+ body.f4-direct-bank #dashboardView #saleForm>.field:nth-child(n+4){
+  grid-column:1/-1!important
+ }
+ body.f4-direct-bank #dashboardView :is(#setoranForm,#saleForm,#v9Form,#v10ExpenseForm)>.field{
+  margin-bottom:12px!important;min-width:0!important
+ }
+ body.f4-direct-bank #dashboardView :is(#setoranForm,#saleForm,#v9Form,#v10ExpenseForm) .field label{
+  margin-bottom:5px!important;color:#39574a!important;font-size:12px!important;font-weight:650!important
+ }
+ body.f4-direct-bank #dashboardView :is(#setoranForm,#saleForm,#v9Form,#v10ExpenseForm) input,
+ body.f4-direct-bank #dashboardView :is(#setoranForm,#saleForm,#v9Form,#v10ExpenseForm) select{
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  min-height:42px!important;padding:9px 11px!important;border-radius:10px!important;
+  font-size:13px!important
+ }
+ body.f4-direct-bank #dashboardView :is(#setoranForm,#saleForm,#v9Form,#v10ExpenseForm)>h2{
+  margin:9px 0 12px!important;font-size:15px!important
+ }
+ body.f4-direct-bank #dashboardView :is(#setoranForm,#saleForm,#v9Form,#v10ExpenseForm)>.summary-box{
+  padding:10px 13px!important;margin:10px 0!important;
+  display:flex!important;justify-content:flex-start!important;gap:35px!important;
+  border-radius:12px!important;background:#f6faf7!important;border:1px solid #e1ebe5!important
+ }
+ body.f4-direct-bank #dashboardView :is(#setoranForm,#saleForm,#v9Form,#v10ExpenseForm)>.wide{
+  min-height:43px!important;width:auto!important;justify-self:start!important;
+  padding:10px 18px!important
+ }
+ /* Input barang: 3 aligned columns, compact numerical inputs, zero horizontal scrolling. */
+ body.f4-direct-bank #dashboardView :is(#setBarang,#saleItems){
+  overflow-x:visible!important;width:100%!important;max-width:100%!important;
+  min-width:0!important;margin-top:2px!important
+ }
+ body.f4-direct-bank #dashboardView :is(#setBarang,#saleItems)>table{
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  table-layout:fixed!important;border-collapse:separate!important;border-spacing:0!important
+ }
+ body.f4-direct-bank #dashboardView #setBarang>table th:nth-child(1),
+ body.f4-direct-bank #dashboardView #setBarang>table td:nth-child(1){width:43%!important}
+ body.f4-direct-bank #dashboardView #setBarang>table th:nth-child(2),
+ body.f4-direct-bank #dashboardView #setBarang>table td:nth-child(2){width:26%!important}
+ body.f4-direct-bank #dashboardView #setBarang>table th:nth-child(3),
+ body.f4-direct-bank #dashboardView #setBarang>table td:nth-child(3){width:31%!important}
+ body.f4-direct-bank #dashboardView :is(#setBarang,#saleItems) th{
+  font-size:11px!important;font-weight:700!important;padding:9px 12px!important;
+  background:#f5f8f6!important;color:#557265!important
+ }
+ body.f4-direct-bank #dashboardView :is(#setBarang,#saleItems) td{
+  padding:8px 12px!important;font-size:12px!important;line-height:1.4!important;
+  border-bottom:1px solid #eaf0ed!important;white-space:normal!important
+ }
+ body.f4-direct-bank #dashboardView :is(#setBarang,#saleItems) tbody tr:nth-child(even){background:#fbfdfb!important}
+ body.f4-direct-bank #dashboardView :is(#setBarang,#saleItems) td input[type=number]{
+  width:100%!important;max-width:142px!important;min-width:0!important;
+  min-height:36px!important;height:36px!important;padding:6px 10px!important;
+  border-radius:9px!important;font-size:13px!important
+ }
+ /* Financial summary uses equal cells instead of far-spaced free-floating metric boxes. */
+ body.f4-direct-bank #dashboardView #v9KasInfo.summary-box{
+  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:10px!important;padding:10px!important;background:#f8fbf9!important;
+  border:1px solid #e4ede7!important;border-radius:14px!important
+ }
+ body.f4-direct-bank #dashboardView #v9KasInfo>.metric{
+  display:flex!important;flex-direction:column!important;justify-content:center!important;
+  gap:5px!important;width:100%!important;min-width:0!important;
+  min-height:85px!important;padding:12px 15px!important;margin:0!important;
+  border-radius:11px!important
+ }
+ body.f4-direct-bank #dashboardView #v9KasInfo>.metric strong{font-size:22px!important;line-height:1.2!important}
+ /* Readable ledger: capped height and sticky header, without breaking native HTML table. */
+ body.f4-direct-bank #dashboardView #v9List{
+  width:100%!important;max-height:390px!important;overflow-y:auto!important;
+  overflow-x:auto!important;overscroll-behavior:contain!important;
+  border:1px solid #e4ebe6!important;border-radius:12px!important;background:#fff!important
+ }
+ body.f4-direct-bank #dashboardView #v9List table{
+  width:100%!important;min-width:0!important;table-layout:fixed!important;border-collapse:separate!important;border-spacing:0!important
+ }
+ body.f4-direct-bank #dashboardView #v9List table th{
+  position:sticky!important;top:0!important;z-index:2!important;background:#f6f9f7!important
+ }
+ body.f4-direct-bank #dashboardView #v9List table :is(th,td){
+  padding:10px 12px!important;font-size:12px!important;white-space:normal!important;
+  overflow-wrap:anywhere!important;border-bottom:1px solid #edf1ef!important
+ }
+ body.f4-direct-bank #dashboardView #v9List table tbody tr:nth-child(even){background:#fcfdfc!important}
+ /* General read-only bank tables with sensible row heights; don't alter editable grid. */
+ body.f4-direct-bank #dashboardView :is(#masterList,#v10ReportTable,#accountList) table{
+  width:100%!important;min-width:0!important;font-size:12px!important
+ }
+ body.f4-direct-bank #dashboardView :is(#masterList,#v10ReportTable,#accountList) table :is(th,td){
+  padding:9px 10px!important;font-size:12px!important;line-height:1.4!important;
+  white-space:normal!important;overflow-wrap:anywhere!important
+ }
+ body.f4-direct-bank #dashboardView .f4-bs-history-list{
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:8px!important;
+  width:100%!important;min-width:0!important
+ }
+ body.f4-direct-bank #dashboardView .stat.f4-bs-history-row{
+  display:grid!important;grid-template-columns:minmax(170px,1fr) minmax(170px,1fr) auto!important;
+  align-items:center!important;gap:8px 12px!important;
+  padding:11px 14px!important;margin:0!important;border:1px solid #e1eae5!important;
+  background:#fff!important;border-radius:12px!important;min-width:0!important;
+  box-shadow:none!important
+ }
+ body.f4-direct-bank #dashboardView .f4-bs-history-row>.toolbar:first-child{
+  min-width:0!important;display:flex!important;justify-content:flex-start!important;
+  align-items:center!important;gap:8px!important;flex-wrap:wrap!important
+ }
+ body.f4-direct-bank #dashboardView .f4-bs-history-row>.toolbar:first-child strong{
+  font-size:14px!important;line-height:1.35!important;max-width:100%!important
+ }
+ body.f4-direct-bank #dashboardView .f4-bs-history-row>.tiny{
+  min-width:0!important;max-width:100%!important;margin:0!important;
+  font-size:11px!important;line-height:1.45!important;color:#6d8075!important
+ }
+ body.f4-direct-bank #dashboardView .f4-bs-history-row>.toolbar:nth-child(3){
+  display:flex!important;justify-content:flex-end!important;align-items:center!important;
+  flex-wrap:nowrap!important;gap:7px!important;margin:0!important
+ }
+ body.f4-direct-bank #dashboardView .f4-bs-history-row>.toolbar:nth-child(3) button{
+  width:auto!important;min-width:0!important;min-height:35px!important;
+  padding:7px 11px!important;font-size:11px!important;border-radius:9px!important;
+  white-space:nowrap!important
+ }
+ body.f4-direct-bank #dashboardView .f4-bs-history-row>div:nth-child(n+4){
+  grid-column:1/-1!important;min-width:0!important
+ }
+ body.f4-direct-bank #dashboardView .f4-bs-history-row .details-panel{
+  margin:7px 0 0!important;padding:9px!important;overflow-x:auto!important
+ }
+}
+@media screen and (min-width:761px) and (max-width:1020px){
+ body.f4-direct-bank #dashboardView .stat.f4-bs-history-row{
+  grid-template-columns:minmax(160px,1fr) minmax(160px,1fr)!important
+ }
+ body.f4-direct-bank #dashboardView .f4-bs-history-row>.toolbar:nth-child(3){
+  grid-column:1/-1!important;justify-content:flex-start!important
+ }
+}
+@media screen and (max-width:760px){
+ body.f4-direct-bank #dashboardView :is(#riwayatList,#riwayatJualList)>.f4-bs-history-list{
+  display:grid!important;gap:8px!important
+ }
+ body.f4-direct-bank #dashboardView .stat.f4-bs-history-row{
+  padding:12px 13px!important;min-height:0!important;margin:0!important;
+  border-radius:12px!important
+ }
+ body.f4-direct-bank #dashboardView .f4-bs-history-row>.toolbar:first-child strong{font-size:14px!important}
+ body.f4-direct-bank #dashboardView .f4-bs-history-row>.tiny{margin:6px 0!important}
+}
+@media print{
+ body.f4-direct-bank #dashboardView #v9List{max-height:none!important;overflow:visible!important}
+}
