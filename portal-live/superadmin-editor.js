@@ -824,7 +824,7 @@ function showForm(record){
     if(!item||seen.has(lower))continue;
     seen.add(lower);labels.push(item);
    }
-   const popular=/^(kas lorong|perbaikan\\s*\\/\\s*fasilitas|donasi)$/i;
+   const popular=/^(kas lorong|perbaikan\s*\/\s*fasilitas|donasi)$/i;
    const important=labels.filter(x=>popular.test(x)||x===chosen);
    const remaining=labels.filter(x=>!important.includes(x));
    function refill(expanded){
