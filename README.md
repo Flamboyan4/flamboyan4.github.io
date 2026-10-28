@@ -38,3 +38,5 @@ Jika menyunting berkas frontend yang memakai parameter `?v=`, perbarui versi ref
 - PapaParse **belum dihapus**: masih ada jalur referensi CSV di frontend lama; jangan menghapus dependensi tanpa mengganti semua pemanggilnya dan memastikan fallback D1.
 - Tailwind CDN **belum diganti** hingga hasil build statis dan pengujian keseluruhan kelas dinyatakan cocok; jangan mengubah desain atau pembukuan hanya demi refaktor.
 - Pemeriksaan frontend: `node qa/verify-frontend-maintenance.cjs`. Pemeriksaan Project Card pada workflow keuangan membaca sumber JS yang sudah dipindahkan.
+
+- Gambar berbagi tautan WhatsApp (1200×630): `assets/og-flamboyan4.png`, dihasilkan dari logo resmi lewat `qa/render-social-preview.cjs`. Link `og:image` tersedia di `index.html`.
