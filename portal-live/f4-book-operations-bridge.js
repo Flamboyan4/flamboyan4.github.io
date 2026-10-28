@@ -136,7 +136,30 @@ async function createAdvance(p){
  });
  return {status:'success',idTalangan:r.id,nominal:amount,tanggalJatuhTempo:r.jatuhTempo,duplikat:!!r.duplikat};
 }
+
+async function createKasGroup(p){
+ const category=String(p.category||'kas_lorong'),stage=String(p.stage||'susulan');
+ const month=Number(p.bulanSumber||p.bulanPembukuan),year=Number(p.tahunSumber||p.tahunPembukuan);
+ const ids=String(p.idAlokasi||'').split(',').map(x=>x.trim()).filter(Boolean);
+ const date=String(p.tanggalPembukuan||''),desc=String(p.keterangan||'').trim();
+ if(!['kas_lorong','denda_gorol'].includes(category)||!['setoran_rt','arisan','susulan'].includes(stage)||
+    !Number.isInteger(month)||month<1||month>12||!Number.isInteger(year)||year<2020||year>2100||
+    !ids.length||!dateOK(date)||desc.length<4)throw Error('Pilih transaksi, tahapan, tanggal, dan keterangan pembukuan.');
+ const r=await postOnce('kas-group-'+category,'/api/bookkeeping/kas-batches',{
+  tanggal:date,category,stage,year,month,bookedOn:date,description:desc,sourceIds:ids
+ });
+ return {status:'success',idBatch:r.idBatch,nominal:Number(r.nominal||0),
+  message:'Batch gabungan berhasil disimpan tanpa menggandakan uang kas.',duplikat:!!r.duplikat};
+}
+async function cancelKasGroup(p){
+ const id=String(p.idBatch||'').trim();
+ if(!/^kasbatch:[0-9a-f-]{36}$/i.test(id))throw Error('Nomor batch tidak valid.');
+ const r=await api('/api/bookkeeping/kas-batches/cancel',{idBatch:id,alasan:String(p.alasan||'').trim()});
+ return {status:'success',idBatch:r.idBatch,message:'Batch dibatalkan, perincian sumber tetap tersimpan.'};
+}
+
 const actions={
+ buatbatchkas:createKasGroup,batalkanbatchkas:cancelKasGroup,
  inputtransaksikas:createCash,edittransaksikas:editCash,batalkantransaksikas:cancelCash,
  buatdenda:createFine,bayardenda:payFine,buatpinjaman:createLoan,bayarpinjaman:repayLoan,
  buattalangan:createAdvance
