@@ -114,7 +114,7 @@ async function recon(_token,batchId){
  const beratSetoran=n(b?.grams)/1000,beratLapak=(sale.lines||[]).reduce((s,x)=>s+n(x.grams),0)/1000;
  return {batch:batchId,saleId:p.saleId,siap:true,siapDiperiksa:true,peringatan:[],
  setoran:p.depositIds?.length||0,penjualan:1,beratSetoran,beratLapak,selisihKg:beratSetoran-beratLapak,
- estimasiWarga:p.citizenRightsRp,diterima:p.receivedRp,bruto:p.grossRp,marginBank:p.environmentRp,marginSementara:p.environmentRp,belumLunas:0};
+ estimasiWarga:p.citizenRightsRp,diterima:p.receivedRp,bruto:p.grossRp,marginBank:p.environmentRp,marginSementara:p.environmentRp,wargaPercent:p.wargaPercent,lingkunganPercent:p.lingkunganPercent,belumLunas:0};
 }
 async function confirm(_token,p){
  const batchId=String(p?.batch||'');
@@ -122,7 +122,7 @@ async function confirm(_token,p){
  const v=await recon(_token,batchId);
  const reserveRp=Number(p.cadangan),neighborhoodRp=Number(p.kasLorong),operationRp=Number(p.operasional);
  if(![reserveRp,neighborhoodRp,operationRp].every(x=>Number.isSafeInteger(x)&&x>=0)||reserveRp+neighborhoodRp+operationRp!==v.marginBank)throw Error('Alokasi hasil lingkungan belum sesuai.');
- const r=await api('/api/admin/reconciliation/confirm',{batchId,saleId:v.saleId,reserveRp,neighborhoodRp,operationRp,note:String(p.alasanSelisihBerat||'').slice(0,300)});
+ const r=await api('/api/admin/reconciliation/confirm',{batchId,saleId:v.saleId,reserveRp,neighborhoodRp,operationRp,expectedWargaPercent:v.wargaPercent,note:String(p.alasanSelisihBerat||'').slice(0,300)});
  return {batch:batchId,hakWarga:r.citizenRightsRp,marginBank:v.marginBank,status:r.status,duplicate:!!r.duplicate};
 }
 async function stableUuid(nonce){
