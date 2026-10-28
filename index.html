@@ -100,7 +100,8 @@ body[data-preview-role="public"] #f4-private-transactions{display:none!important
 /* Tombol mengambang tetap terlihat; posisi dihitung relatif terhadap footer. */
 </style><style id="f4-mobile-proportions-v1">
 @media(max-width:1023px){
- html,body{max-width:100%;overflow-x:hidden!important}
+ /* Clip hanya arah horizontal tanpa membuat body jadi kontainer scroll tersendiri; lebih cocok untuk screenshot panjang Android. */
+ html,body{max-width:100%;overflow-x:clip!important;overflow-y:visible!important}
  body>main{padding:14px 13px 24px!important;max-width:100%!important;min-width:0!important;gap:18px!important}
  body>main>section{min-width:0!important;margin-bottom:0!important}
  /* Pakai rasio banner sumber 1600:500 agar visual tidak terpotong kiri/kanan. */
