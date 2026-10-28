@@ -1668,6 +1668,10 @@ async function f4CorrectPaymentDate(env, request, who) {
   const reason = String(input.alasan || "Koreksi tanggal transaksi hasil migrasi").trim();
   if (!paymentId || paymentId.length > 128 || !validDateOnly(newDate) || reason.length < 10 || reason.length > 500)
     return safeError("ID, tanggal, atau alasan koreksi tidak valid.", 400);
+  // Endpoint ini khusus koreksi tanggal riwayat migrasi terkunci.
+  // Pembayaran D1 baru mengikuti aturan edit/cancel dan proteksi batch sendiri.
+  if (/^pay-[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(paymentId))
+    return safeError("Hanya tanggal pembayaran hasil migrasi terkunci yang bisa dikoreksi di sini.", 409);
   const old = await env.DB.prepare("SELECT id,paid_on,status,amount_rp,payer_id FROM bookkeeping_payments WHERE id=?").bind(paymentId).first();
   if (!old) return safeError("Pembayaran tidak ditemukan.", 404);
   if (String(old.status).toLowerCase() !== "aktif") return safeError("Hanya pembayaran aktif dapat dikoreksi.", 409);
@@ -2828,6 +2832,7 @@ async function f4BatchSources(db,type,year,month,ids){
   " FROM bookkeeping_payment_allocations a JOIN bookkeeping_payments p ON p.id=a.payment_id"+
   " LEFT JOIN bookkeeping_payers bp ON bp.id=p.payer_id LEFT JOIN households h ON h.id=COALESCE(p.household_id,bp.household_id)"+
   " WHERE a.status='aktif' AND p.status='aktif' AND a.contribution_type='KAS_LORONG' AND a.period_year=? AND a.period_month=? AND a.amount_rp>0"+
+  " AND p.id LIKE 'pay-%' AND NOT EXISTS (SELECT 1 FROM bookkeeping_allocation_details old WHERE old.allocation_id=a.id)"+
   (ids&&ids.length?' AND a.id IN ('+ids.map(()=>'?').join(',')+')':'')+" ORDER BY p.paid_on,a.id LIMIT 500";
   params.push(year,month,...(ids||[]));
  }else{
@@ -2836,7 +2841,7 @@ async function f4BatchSources(db,type,year,month,ids){
   " (SELECT COUNT(*) FROM bookkeeping_kas_batch_items bi WHERE bi.category='denda_gorol' AND bi.source_id=c.id AND bi.status='aktif') AS posted"+
   " FROM bookkeeping_cash_transactions c LEFT JOIN bookkeeping_payers bp ON bp.id=c.payer_id LEFT JOIN households h ON h.id=bp.household_id"+
   " WHERE c.status='aktif' AND c.debit_rp>0 AND c.credit_rp=0 AND"+
-  " (c.transaction_type IN ('pembayaran_denda','denda_menunggu_buku') OR (lower(c.category)='denda gorol' AND c.transaction_type NOT IN ('batch_denda_gorol','batch_kas_lorong')))"+
+  " c.transaction_type='denda_menunggu_buku'"+
   " AND substr(c.occurred_on,1,7)=?"+(ids&&ids.length?' AND c.id IN ('+ids.map(()=>'?').join(',')+')':'')+" ORDER BY c.occurred_on,c.id LIMIT 500";
   params.push(String(year)+'-'+String(month).padStart(2,'0'),...(ids||[]));
  }
@@ -2849,10 +2854,14 @@ async function f4BatchRead(db,request){
  const [data,groups]=await Promise.all([f4BatchSources(db,type,year,month),
   db.prepare("SELECT id,stage,booked_on,description,amount_rp,item_count,status FROM bookkeeping_kas_batches WHERE category=? AND period_year=? AND period_month=? ORDER BY booked_on DESC,created_at DESC LIMIT 120").bind(type,year,month).all()]);
  if(data.length>=500)return safeError('Batas 500 pembayaran tercapai, pisahkan bulan atau audit data.',409);
- const map=x=>{const house=String(x.house||'').split('/');return {idAlokasi:x.id,nama:x.name||'Nama belum terhubung',blok:house[0]||'',noRumah:house.slice(1).join('/'),tanggalBayar:x.date,qtyKasLorong:1,nominalKasLorong:Number(x.amount),metode:x.method||'—',perluAudit:type==='kas_lorong'&&(
-    !/^pay-[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(String(x.payment_id||''))||
-    Number(x.previousPosting||0)>0)}};
- const pending=data.filter(x=>!x.posted),posted=data.filter(x=>x.posted);
+ // Riwayat bulk CSV sudah dibukukan dan dikunci sejak migrasi. Jangan ikutkan
+ // sebagai antrean batch atau hitung di ringkasan batch, tetapi tetap simpan
+ // seluruh transaksi aslinya agar riwayat serta koreksi tanggal tetap tersedia.
+ const visible=data.filter(x=>type!=='kas_lorong'||(
+   /^pay-[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(String(x.payment_id||''))&&
+   Number(x.previousPosting||0)===0));
+ const map=x=>{const house=String(x.house||'').split('/');return {idAlokasi:x.id,nama:x.name||'Nama belum terhubung',blok:house[0]||'',noRumah:house.slice(1).join('/'),tanggalBayar:x.date,qtyKasLorong:1,nominalKasLorong:Number(x.amount),metode:x.method||'—'}};
+ const pending=visible.filter(x=>!x.posted),posted=visible.filter(x=>x.posted);
  const sum=a=>a.reduce((v,x)=>v+Number(x.amount||0),0);
  return json({ok:true,data:{belum:pending.map(map),sudah:posted.map(map),
   batches:(groups.results||[]).map(x=>({idBatch:x.id,tanggalPembukuan:x.booked_on,keterangan:x.description,jumlahPembayaran:x.item_count,nominal:x.amount_rp,tahap:x.stage,status:x.status})),
@@ -2883,7 +2892,7 @@ async function f4BatchCreate(request,env,who){
  if(type==='kas_lorong'&&sources.some(x=>
     !/^pay-[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(String(x.payment_id||''))||
     Number(x.previousPosting||0)>0))
-  return safeError('Alokasi lama atau sudah diposting memerlukan audit jurnal. Batch tidak dibuat dan saldo tidak berubah.',409);
+  return safeError('Pembayaran CSV lama sudah terkunci dalam riwayat dan tidak dapat dimasukkan ke batch baru.',409);
  const amount=sources.reduce((sum,x)=>sum+Number(x.amount),0);
  if(!Number.isSafeInteger(amount)||amount<=0)return safeError('Jumlah batch tidak valid.',409);
  const id='kasbatch:'+crypto.randomUUID(),cashId='cashbatch:'+crypto.randomUUID();
