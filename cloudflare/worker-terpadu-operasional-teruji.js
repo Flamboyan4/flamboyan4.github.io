@@ -919,6 +919,15 @@ async function handleAdminContent(request, env, who, url) {
   if (exists) {
     const updates = Object.keys(clean);
     if (!updates.length) return err("Tidak ada perubahan.", 400);
+    // Jangan ganti jenis proyek yang sudah memiliki pesanan/kontribusi; catatan lama harus tetap bisa diaudit.
+    if(kind==="projects"&&clean.project_kind&&clean.project_kind!==exists.project_kind){
+      const [orders,contributions]=await Promise.all([
+        one(db,"SELECT COUNT(*) AS n FROM portal_project_orders WHERE project_id=?",[id]),
+        one(db,"SELECT COUNT(*) AS n FROM portal_project_contributions WHERE project_id=?",[id])
+      ]);
+      if(Number(orders?.n||0)+Number(contributions?.n||0)>0)
+        return err("Jenis proyek sudah memiliki catatan. Arsipkan proyek dan buat proyek baru agar riwayat tetap aman.",409);
+    }
     const changed = { ...exists, ...clean };
     if (model.required.some((k) => !changed[k])) return err("Kolom wajib belum diisi.", 400);
     await db.batch([
