@@ -3178,7 +3178,7 @@ function validatedSalePayload(input) {
   const receiptNo = String(input.receiptNo || "").trim();
   const evidenceUrl = String(input.evidenceUrl || "").trim();
   if (buyer.length > 100 || adjustment.length > 300) throw Error("Keterangan terlalu panjang");
-  if (receiptNo.length > 80 || /[\\x00-\\x1F\\x7F]/.test(receiptNo)) throw Error("Nomor nota maksimal 80 karakter tanpa baris baru");
+  if (receiptNo.length > 80 || /[\x00-\x1F\x7F]/.test(receiptNo)) throw Error("Nomor nota maksimal 80 karakter tanpa baris baru");
   if (evidenceUrl && (evidenceUrl.length > 500 || !/^https:\/\//i.test(evidenceUrl))) throw Error("Link bukti harus HTTPS (maks. 500 karakter)");
   return { requestId: input.requestId, batchId: input.batchId, soldOn: input.soldOn, buyer, lines, gross, received, adjustment, receiptNo, evidenceUrl };
 }
@@ -3245,8 +3245,8 @@ async function bankUpdateSaleReceipt(request,env,who) {
   const saleId=String(data?.saleId||"").trim();
   const receiptNo=String(data?.receiptNo||"").trim();
   const evidenceUrl=String(data?.evidenceUrl||"").trim();
-  if(!saleId||saleId.length>128||/[\\x00-\\x1F\\x7F]/.test(saleId))return safeError("Referensi penjualan tidak valid.",400);
-  if(receiptNo.length>80||/[\\x00-\\x1F\\x7F]/.test(receiptNo))return safeError("Nomor nota terlalu panjang atau tidak valid.",400);
+  if(!saleId||saleId.length>128||/[\x00-\x1F\x7F]/.test(saleId))return safeError("Referensi penjualan tidak valid.",400);
+  if(receiptNo.length>80||/[\x00-\x1F\x7F]/.test(receiptNo))return safeError("Nomor nota terlalu panjang atau tidak valid.",400);
   if(evidenceUrl&&(evidenceUrl.length>500||!/^https:\/\//i.test(evidenceUrl)))return safeError("Link bukti harus HTTPS, maksimal 500 karakter.",400);
   const prev=await env.DB.prepare(`SELECT s.status,COALESCE(r.receipt_no,'') AS receipt_no,COALESCE(r.evidence_url,'') AS evidence_url
     FROM waste_sales s LEFT JOIN waste_sale_receipts r ON r.sale_id=s.id WHERE s.id=?`).bind(saleId).first();
