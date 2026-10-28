@@ -175,6 +175,36 @@ try:
             time.sleep(1)
         assert_step("local_worker_health",health is not None and health[0]==200)
         base="http://127.0.0.1:8787"
+        # The migrated CSV cash/fine rows are historical bookkeeping, not
+        # candidates for NEW grouped postings. Test actual local Worker reads
+        # against only eligible new source IDs in the local D1 clone.
+        with sqlite3.connect(str(files[0])) as check_bulk:
+            new_kas_sources={
+                x[0] for x in check_bulk.execute("""SELECT a.id
+                FROM bookkeeping_payment_allocations a
+                JOIN bookkeeping_payments p ON p.id=a.payment_id
+                WHERE p.id LIKE 'pay-%'
+                AND a.contribution_type='KAS_LORONG'
+                AND a.status='aktif' AND p.status='aktif'
+                AND NOT EXISTS (SELECT 1 FROM bookkeeping_allocation_details old
+                                WHERE old.allocation_id=a.id)""").fetchall()
+            }
+            new_fine_sources={
+                x[0] for x in check_bulk.execute("""SELECT id FROM bookkeeping_cash_transactions
+                WHERE transaction_type='denda_menunggu_buku' AND status='aktif'""").fetchall()
+            }
+        for category, allowed in (("kas_lorong",new_kas_sources),("denda_gorol",new_fine_sources)):
+            for m in range(1,13):
+                snapshot=call(base+"/api/bookkeeping/kas-batches?"+
+                    urllib.parse.urlencode({"category":category,"year":2026,"month":m}),token=temporary)
+                assert_step("bulk_locked_batch_read_"+category+"_"+str(m),
+                    snapshot[0]==200 and all(
+                        row.get("idAlokasi") in allowed
+                        for area in ("belum","sudah") for row in snapshot[1].get("data",{}).get(area,[])),
+                    {"http":snapshot[0]})
+        # Historical correction access is preserved by the unchanged
+        # correct-date API; no historical date is changed in this test.
+
         ppublic=call(base+"/api/v2/public/portal")
         assert_step("portal_arisan_jersey_d1_public_local",
           ppublic[0]==200 and len(ppublic[1].get("arisan",[]))>=26 and
