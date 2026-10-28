@@ -3120,10 +3120,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       ...d.mutasi.map(x=>[x.tanggal,x.jenis,x.kredit,x.debit,x.saldo]),
       [],
       ['RINGKASAN SETORAN (HASIL JUAL = HAK WARGA SAH)'],
-      ['Tanggal','Berat (kg)','Status','Perkiraan Rp','Hasil jual Rp'],
+      ['Tanggal','Berat akhir (kg)','Timbang awal (kg)','Status','Perkiraan Rp','Hasil jual Rp'],
       ...d.setoran.map(s=>{
         const info=f4MemberDepositDisplay(s);
-        return [s.tanggal,s.beratKg,info.status,s.estimasiRp,info.final===null?'':info.final];
+        return [s.tanggal,s.beratKg==null?'':s.beratKg,s.beratTimbangKg,info.status,s.estimasiRp,info.final===null?'':info.final];
       }),
       [],
       ['RINCIAN BARANG (PERKIRAAN SAAT TIMBANG)'],
@@ -3322,7 +3322,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const byMonth=new Map(periods.map(p=>[p.key,p]));
     for(const item of rows||[]){
       if(item.status==='Dibatalkan')continue;
-      const period=byMonth.get(String(item.tanggal||'').slice(0,7));if(!period)continue;
+      const period=byMonth.get(String(item.status==='Terkonfirmasi'?(item.tanggalJual||item.tanggal):item.tanggal).slice(0,7));if(!period)continue;
       if(item.status==='Terkonfirmasi'&&item.berat==null)period.missingWeight=(period.missingWeight||0)+1;
       else period.weight+=Number(item.berat)||0;
       if(item.status==='Terkonfirmasi'){
@@ -3376,7 +3376,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           'Nilai sah berasal dari jurnal penjualan; perkiraan belum masuk saldo.';
       }else note.textContent=periods.some(p=>p.missingWeight)?
          'Ada berat jual sah yang belum tersedia; angka tidak ditebak dari timbang awal.':
-         'Sebelum sah memakai timbang awal; sesudah sah mengikuti berat jual sebenarnya.';
+         'Sebelum sah: bulan timbang. Setelah sah: bulan penjualan dan berat jual sebenarnya.';
     }
     render();
   }
@@ -3406,7 +3406,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const points=monthly?(()=>{
       const grouped=new Map();
       for(const item of active){
-        const key=String(item.tanggal).slice(0,7);
+        const key=String(f4MemberDepositDisplay(item).status==='Sudah sah'?(item.tanggalJual||item.tanggal):item.tanggal).slice(0,7);
         if(!grouped.has(key))grouped.set(key,{key,berat:0,sah:0,estimasi:0,belumAda:0,count:0,sahCount:0,pendingCount:0});
         const target=grouped.get(key),info=f4MemberDepositDisplay(item);
         if(item.beratKg==null)target.missingWeight=(target.missingWeight||0)+1;
