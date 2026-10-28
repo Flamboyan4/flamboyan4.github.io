@@ -3748,6 +3748,8 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     }
     function f4ProjectLink(raw){
       const t=String(raw||'').trim();
+      // Samakan tautan lama dengan path asli Portal Bank Sampah.
+      if(/^\/banksampah\/?$/i.test(t))return '/bank-sampah/';
       if(/^\/(?!\/)[a-zA-Z0-9_/#?=&%.-]*$/.test(t)||/^#[a-zA-Z0-9_-]+$/.test(t))return t;
       try{const u=new URL(t);return u.protocol==='https:'?u.href:'';}catch{return ''}
     }
