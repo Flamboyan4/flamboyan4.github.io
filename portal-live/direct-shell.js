@@ -83,9 +83,25 @@ async function refreshSession(){
   if(role!=='superadmin'){
    document.body.classList.add('f4-denied');
    gate.hidden=false;
-   gate.innerHTML='<h2>Akses Superadmin</h2><p>Halaman ini hanya dapat dibuka oleh Superadmin yang sudah login.</p><button type="button">Login</button>';
-   gate.querySelector('button').onclick=openLogin;
-  }else{document.body.classList.remove('f4-denied');gate.hidden=true}
+   gate.replaceChildren();
+   gate.setAttribute('role','main');
+   gate.setAttribute('aria-label','Akses ditolak');
+   const panel=el('section','f4-access-denied-panel');
+   const symbol=el('div','f4-access-denied-symbol');
+   symbol.innerHTML=svg('shield');
+   const heading=el('h1');
+   heading.textContent='Akses Ditolak';
+   const message=el('p');
+   message.textContent='Portal '+(portal==='book'?'Pembukuan':'Superadmin')+' hanya dapat diakses oleh akun Superadmin yang memiliki izin.';
+   const info=el('p','f4-access-denied-hint');
+   info.textContent=authed?'Akun yang sedang digunakan tidak memiliki akses ke halaman ini.':'Silakan masuk melalui Portal Utama menggunakan akun yang memiliki izin.';
+   const back=el('a','f4-access-denied-back');
+   back.href='/';back.textContent='Kembali ke Portal Utama';
+   panel.append(symbol,heading,message,info,back);
+   gate.appendChild(panel);
+  }else{
+   document.body.classList.remove('f4-denied');gate.hidden=true;gate.replaceChildren();
+  }
  }
  document.documentElement.classList.remove('f4-auth-pending');
 }
