@@ -57,98 +57,153 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primar
 }
 @media print{#pagePribadi .f4-member-tools,#pagePribadi .f4-member-payout-help{display:none!important}}
 
-/* Alur penimbangan anggota: ringkas saat tertutup, detail atas permintaan. */
+/* Panduan setor anggota — kartu empat warna, tetap ringkas saat dilipat. */
 #dashboardView #pageDashboard #f4MemberFlow{display:none!important}
 #dashboardView #pageDashboard.f4-member-dashboard #f4MemberFlow.f4-member-flow{
- display:block!important;min-width:0;margin:9px 0 14px!important;
- background:#fff!important;border:1px solid #dfebe2!important;
- border-radius:13px!important;box-shadow:0 2px 10px #194b3010!important;overflow:hidden;
- color:#224d35!important
+ display:block!important;min-width:0;margin:10px 0 14px!important;
+ background:#fff!important;border:1px solid #d7e9dc!important;
+ border-radius:17px!important;overflow:hidden!important;
+ box-shadow:0 5px 18px rgba(22,78,44,.08)!important;color:#224d35!important;
 }
 #dashboardView #f4MemberFlow>.f4-member-flow-head{
- display:flex!important;align-items:center!important;gap:10px!important;cursor:pointer;
- list-style:none!important;padding:12px 14px!important;min-width:0;
- user-select:none;background:#fff!important;
+ display:flex!important;align-items:center!important;gap:12px!important;cursor:pointer;
+ list-style:none!important;margin:0!important;padding:13px 15px!important;
+ min-width:0;user-select:none;
+ background:linear-gradient(108deg,#dff3e6 0%,#f3faf5 64%,#fff8e9 100%)!important;
 }
 #dashboardView #f4MemberFlow>.f4-member-flow-head::-webkit-details-marker{display:none}
 #dashboardView #f4MemberFlow>.f4-member-flow-head::marker{content:''}
-#dashboardView #f4MemberFlow>.f4-member-flow-head:focus-visible{outline:3px solid #f4bc33;outline-offset:-4px}
+#dashboardView #f4MemberFlow>.f4-member-flow-head:focus-visible{outline:3px solid #f5bd36;outline-offset:-4px}
 #dashboardView #f4MemberFlow .f4-member-flow-icon{
- display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;
- background:#ecf6ee;border:1px solid #dbece0;border-radius:11px
+ display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;
+ background:#25734c;color:#fff;border:3px solid #fff;border-radius:15px;
+ box-shadow:0 3px 10px rgba(20,91,53,.14);transform:rotate(-7deg)
 }
-#dashboardView #f4MemberFlow .f4-member-flow-icon img{width:20px;height:20px;object-fit:contain}
-#dashboardView #f4MemberFlow .f4-member-flow-copy{display:grid;gap:3px;flex:1;min-width:0}
+#dashboardView #f4MemberFlow .f4-member-flow-icon svg{transform:rotate(7deg)}
+#dashboardView #f4MemberFlow .f4-member-flow-copy{display:grid;gap:4px;flex:1;min-width:0}
 #dashboardView #f4MemberFlow .f4-member-flow-copy strong{
- font-size:14px!important;line-height:1.2!important;font-weight:800!important;
- color:#174631!important;
+ font-size:14px!important;line-height:1.25!important;font-weight:850!important;color:#184b33!important;
 }
 #dashboardView #f4MemberFlow .f4-member-flow-copy small{
- font-size:11.5px!important;line-height:1.3!important;
- color:#5e7867!important;white-space:normal!important
+ font-size:11.5px!important;line-height:1.4!important;color:#4d745b!important;
+ white-space:normal!important;font-weight:650!important
 }
+#dashboardView #f4MemberFlow .f4-member-flow-copy small span{color:#d39a1c;padding:0 2px;font-weight:900}
 #dashboardView #f4MemberFlow .f4-member-flow-toggle{
- display:inline-flex;align-items:center;gap:4px;flex:none;
- color:#286747;font-size:11.5px;font-weight:750
+ display:inline-flex;align-items:center;justify-content:center;gap:6px;flex:none;
+ padding:7px 10px;border-radius:999px;border:1px solid #f6dea1;
+ background:#fff5d8;color:#765414;font-size:11px;font-weight:800
 }
-#dashboardView #f4MemberFlow .f4-member-flow-toggle svg{transition:transform .16s ease}
+#dashboardView #f4MemberFlow .f4-member-flow-toggle svg{transition:transform .16s}
 #dashboardView #f4MemberFlow[open] .f4-member-flow-toggle svg{transform:rotate(180deg)}
 #dashboardView #f4MemberFlow .f4-member-flow-body{
- border-top:1px solid #e4eee6;padding:14px!important;background:#fff!important
+ border-top:1px solid #e0eee4!important;padding:14px!important;background:#fff!important
 }
 #dashboardView #f4MemberFlow .f4-member-flow-steps{
  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
- gap:12px!important;list-style:none!important;margin:0!important;padding:0!important;
+ align-items:stretch!important;gap:10px!important;list-style:none!important;
+ margin:0!important;padding:0!important
+}
+#dashboardView #f4MemberFlow .f4-member-flow-steps>li.f4-flow-pilah{
+ --f4-flow-bg:#edf9f0;--f4-flow-border:#cfebd6;--f4-flow-ink:#206a44;--f4-flow-solid:#298b54;--f4-flow-icon:#d9f1e0;
+}
+#dashboardView #f4MemberFlow .f4-member-flow-steps>li.f4-flow-antar{
+ --f4-flow-bg:#eff8fd;--f4-flow-border:#d3eaf5;--f4-flow-ink:#246a88;--f4-flow-solid:#258bb3;--f4-flow-icon:#dceff9;
+}
+#dashboardView #f4MemberFlow .f4-member-flow-steps>li.f4-flow-timbang{
+ --f4-flow-bg:#fff8e7;--f4-flow-border:#f1dfae;--f4-flow-ink:#825c13;--f4-flow-solid:#c68d1e;--f4-flow-icon:#ffedbf;
+}
+#dashboardView #f4MemberFlow .f4-member-flow-steps>li.f4-flow-saldo{
+ --f4-flow-bg:#f5f1fd;--f4-flow-border:#e5dcf4;--f4-flow-ink:#69539c;--f4-flow-solid:#8567c3;--f4-flow-icon:#eae1fc;
 }
 #dashboardView #f4MemberFlow .f4-member-flow-steps>li{
- display:flex!important;align-items:flex-start!important;gap:9px!important;
- min-width:0!important;margin:0!important;padding:0!important;background:none!important;
- border:0!important;border-radius:0!important;box-shadow:none!important
+ display:flex!important;flex-direction:column!important;align-items:flex-start!important;
+ gap:10px!important;position:relative!important;min-width:0!important;min-height:145px!important;
+ margin:0!important;padding:13px 12px!important;
+ border:1px solid var(--f4-flow-border)!important;
+ border-top:3px solid var(--f4-flow-solid)!important;
+ background:var(--f4-flow-bg)!important;
+ border-radius:14px 14px 14px 5px!important;
+ box-shadow:0 2px 6px rgba(22,54,39,.025)!important
 }
 #dashboardView #f4MemberFlow .f4-member-flow-number{
- display:grid;place-items:center;flex:0 0 29px;height:29px;width:29px;
- border:1px solid #cde5d5;border-radius:50%;
- background:#e9f5ed;color:#246b49;font-weight:800;font-size:12px
+ position:relative!important;display:grid!important;place-items:center!important;
+ flex:0 0 42px!important;width:42px!important;height:42px!important;
+ background:var(--f4-flow-icon)!important;color:var(--f4-flow-ink)!important;
+ border:0!important;border-radius:13px!important
 }
-#dashboardView #f4MemberFlow .f4-member-flow-steps>li>div{min-width:0;padding-top:1px}
+#dashboardView #f4MemberFlow .f4-member-flow-number svg{width:23px;height:23px}
+#dashboardView #f4MemberFlow .f4-member-flow-number b{
+ position:absolute;top:-5px;right:-5px;display:grid;place-items:center;
+ width:18px;height:18px;border-radius:50%;border:2px solid var(--f4-flow-bg);
+ background:var(--f4-flow-solid);color:#fff;font-size:10px;line-height:1;font-weight:850
+}
+#dashboardView #f4MemberFlow .f4-member-flow-steps>li>div{min-width:0!important;padding:0!important}
 #dashboardView #f4MemberFlow .f4-member-flow-steps strong{
- display:block!important;margin:0 0 3px!important;
- color:#234d37!important;font-size:12.5px!important;font-weight:800!important;
- line-height:1.3!important
+ display:block!important;margin:0 0 4px!important;
+ color:var(--f4-flow-ink)!important;font-size:13px!important;line-height:1.3!important;font-weight:850!important
 }
 #dashboardView #f4MemberFlow .f4-member-flow-steps p{
- margin:0!important;font-size:11.5px!important;line-height:1.45!important;color:#5a7563!important
+ margin:0!important;font-size:11.5px!important;line-height:1.47!important;color:#4e6558!important
 }
-#dashboardView #f4MemberFlow .f4-member-flow-note,
+#dashboardView #f4MemberFlow .f4-member-flow-foot{
+ display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+ align-items:center!important;gap:10px!important;margin-top:12px!important
+}
+#dashboardView #f4MemberFlow .f4-member-flow-note{
+ display:flex!important;gap:8px!important;align-items:center!important;min-width:0!important;
+ margin:0!important;padding:10px 11px!important;border-radius:11px!important;
+ border:1px solid #e2ede3!important;background:#f5faf6!important;
+ font-size:11.5px!important;line-height:1.45!important;color:#496653!important
+}
+#dashboardView #f4MemberFlow .f4-member-flow-note svg{flex:none;color:#37865a}
 #dashboardView #f4MemberFlow .f4-member-flow-share{
- margin:12px 0 0!important;padding:9px 11px!important;
- font-size:11.5px!important;line-height:1.5!important;color:#4b6b57!important;
- background:#f5faf6!important;border:1px solid #e3efe7!important;border-radius:8px!important
+ display:flex!important;align-items:center!important;gap:5px!important;flex-wrap:wrap!important;
+ margin:0!important;padding:0!important;border:0!important;background:transparent!important
 }
-#dashboardView #f4MemberFlow .f4-member-flow-share{
- margin-top:6px!important;border:0!important;background:transparent!important;
- padding:0 2px!important;font-weight:550!important
+#dashboardView #f4MemberFlow .f4-member-flow-share>span{
+ display:inline-flex;align-items:center;gap:5px;padding:8px 10px;border-radius:10px;
+ font-size:11px!important;line-height:1.3!important;font-weight:700!important;white-space:nowrap!important
 }
-#dashboardView #f4MemberFlow .f4-member-flow-share strong{font-weight:800;color:#276545}
-@media(max-width:760px){
+#dashboardView #f4MemberFlow .f4-flow-share-warga{color:#246a43;background:#eaf6ed;border:1px solid #d3ebd9}
+#dashboardView #f4MemberFlow .f4-flow-share-lingkungan{color:#805e17;background:#fff5dc;border:1px solid #f1dea9}
+#dashboardView #f4MemberFlow .f4-member-flow-share b{font-size:13px;font-weight:850}
+@media(max-width:1040px){
+ #dashboardView #f4MemberFlow .f4-member-flow-steps{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #dashboardView #f4MemberFlow .f4-member-flow-steps>li{min-height:116px!important}
+ #dashboardView #f4MemberFlow .f4-member-flow-foot{grid-template-columns:minmax(0,1fr)!important}
+}
+@media(max-width:570px){
  #dashboardView #pageDashboard.f4-member-dashboard #f4MemberFlow.f4-member-flow{
-  margin:9px 0 12px!important;border-radius:12px!important
+  margin:9px 0 12px!important;border-radius:14px!important
  }
- #dashboardView #f4MemberFlow>.f4-member-flow-head{padding:11px 12px!important;gap:9px!important}
- #dashboardView #f4MemberFlow .f4-member-flow-icon{flex-basis:34px;width:34px;height:34px;border-radius:9px}
- #dashboardView #f4MemberFlow .f4-member-flow-icon img{width:18px;height:18px}
+ #dashboardView #f4MemberFlow>.f4-member-flow-head{padding:11px 12px!important;gap:10px!important}
+ #dashboardView #f4MemberFlow .f4-member-flow-icon{
+  flex:0 0 40px!important;width:40px!important;height:40px!important;border-radius:13px!important
+ }
+ #dashboardView #f4MemberFlow .f4-member-flow-toggle{padding:7px!important}
  #dashboardView #f4MemberFlow .f4-member-flow-toggle>span{display:none}
+ #dashboardView #f4MemberFlow .f4-member-flow-body{padding:10px!important}
  #dashboardView #f4MemberFlow .f4-member-flow-steps{
-  grid-template-columns:minmax(0,1fr)!important;gap:0!important
+  grid-template-columns:minmax(0,1fr)!important;gap:7px!important
  }
  #dashboardView #f4MemberFlow .f4-member-flow-steps>li{
-  padding:7px 0!important;gap:10px!important
+  min-height:0!important;flex-direction:row!important;align-items:center!important;
+  padding:10px 11px!important;gap:11px!important;border-radius:12px!important
  }
- #dashboardView #f4MemberFlow .f4-member-flow-steps>li+li{
-  border-top:1px solid #eff3f0!important
+ #dashboardView #f4MemberFlow .f4-member-flow-number{
+  flex:0 0 40px!important;width:40px!important;height:40px!important;border-radius:12px!important
  }
- #dashboardView #f4MemberFlow .f4-member-flow-steps p{font-size:12px!important}
- #dashboardView #f4MemberFlow .f4-member-flow-body{padding:9px 12px 12px!important}
- #dashboardView #f4MemberFlow .f4-member-flow-note{margin-top:8px!important}
+ #dashboardView #f4MemberFlow .f4-member-flow-steps strong{font-size:12.5px!important}
+ #dashboardView #f4MemberFlow .f4-member-flow-steps p{font-size:11.5px!important}
+ #dashboardView #f4MemberFlow .f4-member-flow-foot{gap:8px!important;margin-top:9px!important}
+ #dashboardView #f4MemberFlow .f4-member-flow-note{padding:9px!important}
+ #dashboardView #f4MemberFlow .f4-member-flow-share{gap:6px!important}
+ #dashboardView #f4MemberFlow .f4-member-flow-share>span{
+  flex:1 1 auto!important;justify-content:center!important;padding:7px 8px!important
+ }
+}
+@media screen and (prefers-reduced-motion:reduce){
+ #dashboardView #f4MemberFlow .f4-member-flow-toggle svg{transition:none!important}
 }
 @media print{#dashboardView #f4MemberFlow{display:none!important}}
