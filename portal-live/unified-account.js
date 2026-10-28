@@ -69,8 +69,12 @@ function identityPage(){
  const note=h('p','','ua-status');card.append(note);
  card.append(btn('Simpan Nama',async()=>{
   const value=name.input.value.trim();if(!value){report(note,'Nama tidak boleh kosong.',true);return}
-  try{await request('/api/member/profile',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nama:value})});
-   profile.nama=value;report(note,'Nama profil berhasil disimpan.');}
+  try{
+   const saved=await request('/api/member/profile',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nama:value})});
+   profile.nama=String(saved.profile?.nama||value);
+   if(session.account)session.account.displayName=profile.nama;
+   window.dispatchEvent(new CustomEvent('f4-account-profile-updated',{detail:{nama:profile.nama}}));
+   report(note,'Nama tampilan diperbarui pada menu akun.');}
   catch(e){report(note,'Gagal menyimpan: '+e.message,true)}
  },'ua-primary'));
 }

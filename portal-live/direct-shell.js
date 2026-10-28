@@ -62,9 +62,20 @@ async function api(path,options){
 function notifyRole(){
  if(portal==='bank'||portal==='portal'){
   const member=session?.member||{};
-  window.postMessage({type:'f4:demo-role',role,identity:{nama:member.nama||session?.account?.username||'',rumah:member.rumah||'',wargaId:member.id||''}},location.origin);
+  window.postMessage({type:'f4:demo-role',role,identity:{nama:session?.account?.displayName||member.nama||session?.account?.username||'',rumah:member.rumah||'',wargaId:member.id||''}},location.origin);
  }
 }
+function displayAccountName(){return String(session?.account?.displayName||session?.member?.nama||session?.account?.username||'Pengguna')}
+function updateAccountIdentity(){
+ const name=displayAccountName();
+ menuName.textContent=name+' · '+(role==='warga'?'Anggota':role==='superadmin'?'Superadmin':role==='admin'?'Admin':'Publik');
+ avatar.title=name;avatar.setAttribute('aria-label','Buka menu akun: '+name);
+}
+window.addEventListener('f4-account-profile-updated',event=>{
+ const nama=String(event.detail?.nama||'').trim();
+ if(!session?.account||!nama)return;
+ session.account.displayName=nama;updateAccountIdentity();notifyRole();
+});
 window.f4RefreshDirectAvatar=()=>avatarLoad();
 function avatarLoad(){
  const img=el('img');img.alt='Foto profil';img.src=API+'/api/member/avatar?v='+Date.now();
@@ -76,7 +87,7 @@ async function refreshSession(){
  if(role==='anggota')role='warga';
  const authed=!!session?.account;
  login.hidden=authed;avatar.hidden=!authed;bookLink.hidden=role!=='superadmin';adminLink.hidden=role!=='superadmin';
- menuName.textContent=(session?.member?.nama||session?.account?.username||'Pengguna')+' · '+(role==='warga'?'Anggota':role==='superadmin'?'Superadmin':role==='admin'?'Admin':'Publik');
+ updateAccountIdentity();
  if(authed)avatarLoad();
  notifyRole();
  if(portal==='book'||portal==='superadmin'){

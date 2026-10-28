@@ -31,6 +31,8 @@ assert(h.includes('background:#F5B52E!important;border:1px solid #E6A125!importa
 assert(css.includes('#v11Public .v17-public-banner :is(h1,h2,h3,strong)'),'White title missing');
 assert(css.includes('color:#fff!important'),'Foreground contrast missing');
 assert(!h.includes('.stats .stat:last-child{grid-column:1/-1}'),'Wide last savings card regression');
+const reportRule=h.match(/#v11Public #v25ReportMetrics\.v26-compact>\.v17-public-metric\{([^}]+)\}/);
+assert(reportRule&&!reportRule[1].includes('background:#fff'),'Mobile report must use original pastel colors');
 assert(css.includes('#dashboardView #pagePribadi #v12Private>.stats>.stat:last-child'),'Last card sizing not fixed');
 assert(h.includes('aria-label="Muat ulang data tabungan"'),'Icon-only reload changed');
 assert(h.includes('function bankMenuClose()'),'Drawer logic changed');

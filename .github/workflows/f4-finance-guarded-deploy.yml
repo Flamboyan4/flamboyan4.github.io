@@ -19,8 +19,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Check Worker syntax
-        run: node --check cloudflare/worker-terpadu-operasional-teruji.js
+      - name: Check Worker syntax and account policy
+        run: |
+          node --check cloudflare/worker-terpadu-operasional-teruji.js
+          node qa/account-profile-password.cjs
       - name: Publish tested source, strictly inherit all production bindings
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

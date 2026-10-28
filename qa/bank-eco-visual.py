@@ -1,5 +1,5 @@
 """Visual regression of real Bank Sampah CSS in Chromium; fixture data, zero writes."""
-import asyncio, json, pathlib
+import asyncio, json, pathlib, re
 from playwright.async_api import async_playwright
 
 ROOT = "http://127.0.0.1:8765/bank-sampah/"
@@ -19,6 +19,13 @@ FIXTURE = """
         <div id="v17Program"><div class="v17-feature"><strong>Pemilahan & setoran</strong></div></div>
       </div>
     </section>
+    <section id="v17Transparansi"><div id="v25ReportRoot">
+      <div id="v25ReportMetrics" class="v25-public-metrics v26-compact">
+        <div class="v17-public-metric"><small>Berat</small><strong>2 kg</strong></div>
+        <div class="v17-public-metric"><small>Penjualan</small><strong>Rp 6.000</strong></div>
+        <div class="v17-public-metric"><small>Hak warga</small><strong>Rp 3.000</strong></div>
+        <div class="v17-public-metric"><small>Lingkungan</small><strong>Rp 3.000</strong></div>
+      </div></div></section>
   </main></div>
 </div>
 <div id="dashboardView">
@@ -56,6 +63,12 @@ async def main():
             # otherwise continues mutating the DOM after replacing body.innerHTML.
             # Load actual theme sheets (not duplicated CSS) for PC/HP assertions.
             await page.set_content(FIXTURE, wait_until="load")
+            source = pathlib.Path("bank-sampah/index.html").read_text()
+            # Reproduce the actual mobile report rule before the canonical theme.
+            pattern = r'(#v11Public #v25ReportMetrics\.v26-compact>\.v17-public-metric\{[^}]+\})'
+            rule = re.search(pattern, source)
+            assert rule, "Mobile report rule not found"
+            await page.add_style_tag(content="@media(max-width:760px){" + rule.group(1) + "}")
             await page.add_style_tag(url="http://127.0.0.1:8765/portal-live/bank-eco-pages.css")
             await page.add_style_tag(url="http://127.0.0.1:8765/portal-live/bank-eco-dashboard.css")
             await page.wait_for_timeout(300)
@@ -82,6 +95,7 @@ async def main():
                 drawerWidth:r('#v18PublicSide').width,
                 statRects:cs,
                 progressBg:color('#pageProgress .f4-member-progress-stat:first-child','backgroundColor'),
+                reportColors:[...document.querySelectorAll('#v25ReportMetrics>.v17-public-metric')].map(n=>getComputedStyle(n).backgroundColor),
                 horizontalOverflow:document.documentElement.scrollWidth>window.innerWidth+3,
               }
             }""")
@@ -99,6 +113,8 @@ async def main():
             assert state["submenu"] == "rgb(17, 136, 102)", f"{mode}: submenu inactive color"
             assert state["firstCard"] == "rgb(17, 136, 102)", f"{mode}: member balance not leaf green"
             assert state["firstText"] == "rgb(255, 255, 255)", f"{mode}: member balance text not white"
+            assert state["reportColors"] == ["rgb(217, 238, 224)","rgb(233, 242, 252)",
+                "rgb(255, 240, 220)","rgb(241, 235, 255)"], f"{mode}: public report cards differ: {state['reportColors']}"
             assert not state["horizontalOverflow"], f"{mode}: horizontal overflow"
             if mode == "hp":
                 rect = state["statRects"]
