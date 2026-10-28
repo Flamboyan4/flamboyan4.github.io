@@ -67,7 +67,7 @@
       <div class="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
         <a href="/rapat/" class="p-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 transition group flex items-center space-x-1.5 text-xs font-semibold text-amber-200">
           <i data-lucide="file-text" class="w-4 h-4 text-amber-300"></i>
-          <span class="hidden sm:inline">Hasil Rapat</span>
+          <span class="hidden sm:inline">Rapat</span>
         </a>
       </div>
     </div>
@@ -440,7 +440,7 @@
               <img id="bs-step-img" src="" alt="Progres Bank Sampah" class="block w-full h-full object-cover object-center">
             </div>
             <div class="flex justify-start mb-1.5">
-              <span id="bs-step-tag" class="inline-flex text-[10px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">Progres terbaru</span>
+              <span id="bs-step-tag" class="inline-flex text-[10px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">Terbaru</span>
             </div>
             <!-- Hanya judul perkembangan terbaru, maksimal dua baris. -->
             <p id="bs-step-title" class="text-[12px] font-bold text-slate-800 leading-snug line-clamp-2 mb-2">Pembuatan Wadah Drop Point</p>
@@ -479,7 +479,7 @@
             <div class="flex items-center justify-between mb-1">
               <h4 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
                 <i data-lucide="camera" class="w-4 h-4 text-indigo-600"></i>
-                Dokumentasi Kegiatan
+                Galeri
               </h4>
               <button onclick="openModalDokumentasi()" class="text-xs font-bold text-indigo-700 hover:text-indigo-800 flex items-center gap-1.5 bg-indigo-50 px-3 py-1.5 rounded-xl border border-indigo-200">
                 Galeri <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
@@ -493,8 +493,8 @@
                     <span id="dokumentasi-preview-tanggal" class="bg-indigo-600 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Memuat...</span>
                     <span id="dokumentasi-preview-counter" class="text-[10px] bg-black/40 px-2 py-0.5 rounded-md">-</span>
                   </div>
-                  <p id="dokumentasi-preview-judul" class="text-xs sm:text-sm font-bold line-clamp-1">Memuat dokumentasi...</p>
-                  <p id="dokumentasi-preview-desc" class="text-[10px] sm:text-xs text-slate-200 mt-0.5 line-clamp-1">Silakan tunggu</p>
+                  <p id="dokumentasi-preview-judul" class="text-xs sm:text-sm font-bold line-clamp-1">Memuat album...</p>
+                  <p id="dokumentasi-preview-desc" class="text-[10px] sm:text-xs text-slate-200 mt-0.5 line-clamp-1"></p>
                 </div>
               </div>
             </div>
@@ -507,7 +507,7 @@
             <div class="flex items-center justify-between mb-1">
               <h4 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
                 <i data-lucide="box" class="w-4 h-4 text-indigo-600"></i>
-                Inventaris Warga
+                Inventaris
               </h4>
               <span id="inventaris-warga-count" class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">0 Item</span>
             </div>
@@ -967,7 +967,7 @@
               <p class="text-white font-bold">Mandiri</p>
               <p class="text-[11px] text-slate-400">A/N ROSALINDA</p>
             </div>
-            <button onclick="salinNorekEx('1330022606479', 'btn-salin-1', 'btn-text-1')" id="btn-salin-1" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center space-x-1 shrink-0 active:scale-95">
+            <button onclick="salinNorekEx('1330022606479', 'btn-salin-1', 'btn-text-1')" id="btn-salin-1" aria-label="Salin nomor rekening Mandiri" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center space-x-1 shrink-0 active:scale-95">
               <i data-lucide="copy" class="w-3.5 h-3.5"></i>
               <span id="btn-text-1">Salin</span>
             </button>
@@ -979,7 +979,7 @@
               <p class="text-white font-bold">SeaBank</p>
               <p class="text-[11px] text-slate-400">A/N HERI JUWANDI</p>
             </div>
-            <button onclick="salinNorekEx('901493321399', 'btn-salin-2', 'btn-text-2')" id="btn-salin-2" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center space-x-1 shrink-0 active:scale-95">
+            <button onclick="salinNorekEx('901493321399', 'btn-salin-2', 'btn-text-2')" id="btn-salin-2" aria-label="Salin nomor rekening SeaBank" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center space-x-1 shrink-0 active:scale-95">
               <i data-lucide="copy" class="w-3.5 h-3.5"></i>
               <span id="btn-text-2">Salin</span>
             </button>
@@ -1012,7 +1012,7 @@
   
 
   <!-- SCRIPT KONTROL LOGIKA PORTAL -->
-  <script src="/portal-live/home-legacy.js?v=20261028-maintenance"></script>
+  <script src="/portal-live/home-legacy.js?v=ringkas-portal-20261028"></script>
 <script id="f4-footer-overlap-observer">
 document.addEventListener('DOMContentLoaded',()=>{
  const footer=document.getElementById('pembayaran');
@@ -1033,7 +1033,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  window.addEventListener('resize',schedule,{passive:true});
  update();
 });
-</script><script src="/portal-live/portal-panels.js?v=custom-year-picker-20261027"></script><script src="/portal-live/direct-shell.js?v=profile-display-20261028"></script><script src="/portal-live/unified-account.js?v=profile-display-20261028"></script><script id="f4-home-preview-guard-20261027">
+</script><script src="/portal-live/portal-panels.js?v=ringkas-portal-20261028"></script><script src="/portal-live/direct-shell.js?v=ringkas-portal-20261028"></script><script src="/portal-live/unified-account.js?v=profile-display-20261028"></script><script id="f4-home-preview-guard-20261027">
 (function(){
  function alignProject(){
   const image=document.getElementById('bs-step-img');
