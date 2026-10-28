@@ -183,7 +183,8 @@
   await get('/api/member/savings');
   return {siap:true,pesan:'Laporan pribadi tersedia'};
  }
- const adminRows=async name=>onlyArray(await get('/api/v2/admin/bank/'+name));
+ const adminRows=async name=>onlyArray(await get('/api/v2/admin/bank/'+name+'?limit=300'));
+ // Query 300 rows and explicitly reject incomplete admin reports before presenting them as final.
  const adminDeposits=async()=> (await adminRows('deposits')).map(x=>({
   id:x.id,wargaId:x.member_id,namaWarga:x.memberName||'',rumahWarga:'',tanggal:x.deposited_on,
   berat:number(x.total_grams)/1000,estimasi:number(x.estimated_total_rp),
