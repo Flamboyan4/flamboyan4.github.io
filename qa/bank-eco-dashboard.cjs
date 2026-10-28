@@ -15,4 +15,11 @@ for(const item of ['.v14-head{','.f4-eco-head-copy{','#v14QuickAction{','flex-wr
  if(!css.includes(item))throw Error('Responsive style missing: '+item);
 }
 if(css.includes('Rp 6.000')||css.includes('33 warga')||css.includes('2 kg'))throw Error('Fake KPI values found in CSS');
+assertChevron();
 console.log('F4_ECO_CLEAN_HEADER_STATIC_OK');
+function assertChevron(){
+ if(!html.includes('f4-eco-activity-arrow'))throw Error('Standard gallery chevron missing in activity list');
+ if(!css.includes('.f4-eco-activity-arrow svg'))throw Error('Standard chevron styling missing');
+ if(css.includes('content:"›"'))throw Error('Unaligned font chevron is forbidden');
+ if(!html.includes('next.innerHTML=\'<svg'))throw Error('Gallery source icon removed');
+}

@@ -365,11 +365,21 @@ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-deposit-bad
  border-radius:999px;padding:3px 10px;margin-top:5px;font-size:11px!important;font-weight:650!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-activity-link{cursor:pointer!important;padding-right:46px!important}
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-activity-link:after{
- content:"›"!important;position:absolute!important;display:grid!important;place-items:center!important;
- right:9px!important;top:50%!important;bottom:auto!important;transform:translateY(-50%)!important;
+/* Chevron SVG reused from the existing gallery navigation, not a font glyph. */
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-activity-link::after{
+ content:none!important;display:none!important
+}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-activity-arrow{
+ position:absolute!important;display:grid!important;place-items:center!important;
+ right:9px!important;top:50%!important;transform:translateY(-50%)!important;
  width:30px!important;height:30px!important;border-radius:50%!important;
- background:#fff!important;color:#1c7857!important;font-size:23px!important;border:0!important
+ background:#fff!important;color:#1c7857!important;pointer-events:none!important;
+ box-shadow:0 2px 8px #1648310e!important
+}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-activity-arrow svg{
+ display:block!important;width:18px!important;height:18px!important;
+ fill:none!important;stroke:currentColor!important;stroke-width:2.3!important;
+ stroke-linecap:round!important;stroke-linejoin:round!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-activity-link:focus-visible{outline:3px solid #3dba83!important;outline-offset:2px!important}
 @media(min-width:761px) and (max-width:1120px){

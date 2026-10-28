@@ -3320,6 +3320,11 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
       const title=document.createElement('strong');title.textContent=r.judul||r.langkah||'Perkembangan kegiatan';
       const note=document.createElement('small');note.textContent=[r.tanggal?f4MemberDateID(r.tanggal):'',r.status].filter(Boolean).join(' • ');
       item.append(title,note);item.classList.add('f4-eco-activity-link');
+      // The exact right-chevron artwork already used by the Bank Sampah gallery.
+      const chevron=document.createElement('span');chevron.className='f4-eco-activity-arrow';
+      chevron.setAttribute('aria-hidden','true');
+      chevron.innerHTML='<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
+      item.appendChild(chevron);
       item.tabIndex=0;item.setAttribute('role','button');item.setAttribute('aria-label','Lihat perkembangan: '+title.textContent);
       item.onclick=()=>goPage('progress');
       item.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();goPage('progress')}});
@@ -5329,8 +5334,8 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
 @media(max-width:680px){.f4-sale-note-fields{grid-template-columns:1fr;gap:8px}}
 </style>
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261028-member-tidy-1">
-<link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261028-clean-header-v2">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261028-fresh-portal-2">
+<link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261028-chevron-gallery-3">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261028-green-public-3">
 <script src="/portal-live/bank-sale-handover.js?v=a5-landscape-receipt-20261028c"></script>
 <script src="/portal-live/direct-shell.js?v=20261027-refresh-svg-all"></script><script src="/portal-live/unified-account.js?v=account-native-20261025b"></script><script defer src="/portal-live/mobile-cards.js?v=20261028-saldo-grid"></script><script defer src="/portal-live/native-controls.js?v=20261027-audit6"></script><script defer src="/portal-live/bank-page-history.js?v=20261027-final4"></script></body>
 </html>

@@ -5,7 +5,8 @@ const h=fs.readFileSync('bank-sampah/index.html','utf8');
 const c=fs.readFileSync('portal-live/bank-eco-pages.css','utf8');
 const js=[...h.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].find(x=>x[1].includes('function v14Setup()'))?.[1];
 assert(js,'Dashboard JS not found');new vm.Script(js,{filename:'bank-sampah:index-inline.js'});
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261028-fresh-portal-2'),'Bank theme import missing');
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261028-green-public-3'),'Bank theme import missing');
+assert(c.includes('background:linear-gradient(115deg,#e2f5e7 0%,#d6efdf 100%)'),'Public hero must use soft green background');
 assert(c.includes('@media screen')&&!c.includes('@media print{'),'Only screen theme permitted');
 for(const name of ['pageSetoran','pagePenjualan','pageRiwayat','pageRiwayatJual',
  'pageMaster','pageRekonsiliasi','pagePengesahan','pageTabungan','pageLaporan',
