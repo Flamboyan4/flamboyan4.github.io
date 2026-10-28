@@ -20,10 +20,11 @@ CREATE TABLE IF NOT EXISTS bookkeeping_kas_batch_items (
  batch_id TEXT NOT NULL REFERENCES bookkeeping_kas_batches(id),
  allocation_id TEXT NOT NULL,
  amount_rp INTEGER NOT NULL CHECK(amount_rp>0),
+ status TEXT NOT NULL DEFAULT 'aktif' CHECK(status IN ('aktif','dibatalkan')),
  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_f4_kas_unique_active_allocation
- ON bookkeeping_kas_batch_items(allocation_id);
+ ON bookkeeping_kas_batch_items(allocation_id) WHERE status='aktif';
 CREATE INDEX IF NOT EXISTS idx_f4_kas_by_period
  ON bookkeeping_kas_batches(period_year,period_month,status,booked_on);
 CREATE VIEW IF NOT EXISTS bookkeeping_cash_transactions_posted AS
