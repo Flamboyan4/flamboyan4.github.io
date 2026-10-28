@@ -114,6 +114,18 @@ jobs:
           if not {"sale_id","receipt_no","evidence_url","updated_by","updated_at"}.issubset(receipt_columns):
               raise RuntimeError("Receipt document columns missing; Worker deploy aborted")
           print("D1_ADDITIVE_SALE_RECEIPT_SCHEMA_OK=1")
+          # Add-only grouping for iuran Kas Lorong & Gorol fine receipts.
+          # Do not alter, delete, or rewrite any historical cash transaction.
+          kas_sql=pathlib.Path("cloudflare/migrations/20261028_kas_lorong_batches.sql").read_text()
+          if kas_sql.upper().count("CREATE TABLE IF NOT EXISTS")!=2 or kas_sql.upper().count("CREATE UNIQUE INDEX IF NOT EXISTS")!=1 or kas_sql.upper().count("CREATE VIEW IF NOT EXISTS")!=1:
+              raise RuntimeError("Unexpected Kas batch migration")
+          d1query(kas_sql)
+          for table,columns_required in [
+              ("bookkeeping_kas_batches",{"id","request_key","category","cash_transaction_id","amount_rp","status"}),
+              ("bookkeeping_kas_batch_items",{"id","batch_id","category","source_id","status"})]:
+              actual={x.get("name") for x in d1query("PRAGMA table_info("+table+")")}
+              if not columns_required.issubset(actual):raise RuntimeError("Kas batch schema incomplete: "+table)
+          print("D1_ADDITIVE_KAS_BATCH_SCHEMA_OK=1")
           write_flags={k:by_name[k].get("text") for k in by_name if k.endswith("_WRITE_ENABLED")}
           if not write_flags or any(v not in ("true","false") for v in write_flags.values()):
               raise RuntimeError("Missing or unrecognized Worker write flags")
