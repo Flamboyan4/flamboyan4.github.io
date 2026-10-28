@@ -255,11 +255,22 @@
    rincian:rows.map(x=>({...x,jenis:x.keterangan||x.jenis})),
    transaksi:rows.length,periode:month||'semua',catatan:'Riwayat arus kas, bukan saldo akhir'};
  };
+ // Nama dan rumah berasal dari data anggota, bukan kode internal ledger.
+ const memberIdKey=id=>String(id??'').trim().replace(/^member:/i,'');
+ const cleanMemberName=value=>String(value??'').replace(/\\s*\\(\\s*member:[^)]+\\)\\s*/gi,' ').trim();
  const adminReport=async(_token,period='',includeCanceled=false)=>{
-  const [deposits,sales,expenses,cash,ledger]=await Promise.all([
-    adminDeposits(),adminSales(),adminExpenses(),adminCash(),adminRows('ledger')]);
-  if([deposits,sales,expenses,cash,ledger].some(x=>x.length>=300))
+  const [deposits,sales,expenses,cash,ledger,members]=await Promise.all([
+    adminDeposits(),adminSales(),adminExpenses(),adminCash(),adminRows('ledger'),adminMembers()]);
+  if([deposits,sales,expenses,cash,ledger,members].some(x=>x.length>=300))
    throw Error('Laporan melebihi batas 300 baris per buku. Unduh dihentikan agar tidak ada nilai terpotong.');
+  const byMember=new Map(members.map(m=>[memberIdKey(m.wargaId),m]));
+  const wargaLabel=(rawId,fallbackName='',fallbackHouse='')=>{
+   const found=byMember.get(memberIdKey(rawId));
+   const candidate=cleanMemberName(found?.nama||fallbackName);
+   const name=candidate&&!/^(?:member:)?[a-z]*\\d+$/i.test(candidate)?candidate:'Nama warga belum tersedia';
+   const house=String(found?.rumah||fallbackHouse||'').trim();
+   return name+(house?' • '+house:'');
+  };
   const month=String(period||'').match(/^\d{4}-\d{2}$/)?.[0]||'';
   const scope=records=>records.filter(x=>!month||String(x.tanggal||'').startsWith(month));
   const depositRows=scope(deposits).filter(x=>includeCanceled||x.status!=='Dibatalkan');
@@ -270,7 +281,7 @@
   const paidExpenses=expenseRows.filter(x=>x.status==='lunas');
   const activeCash=cash.filter(x=>x.status==='aktif');
   const transactions=scope(ledger.map(x=>({
-   id:x.id,tanggal:x.transaction_on,warga:x.member_id||'',jenis:x.kind||'',
+   id:x.id,tanggal:x.transaction_on,warga:wargaLabel(x.member_id),jenis:x.kind||'',
    nominal:number(x.amount_rp),status:'Aktif'})));
   const credits=transactions.filter(x=>['kredit','koreksi_kredit'].includes(x.jenis));
   const reversals=transactions.filter(x=>x.jenis==='koreksi_debit');
@@ -286,7 +297,7 @@
     biaya:paidExpenses.reduce((n,x)=>n+x.nominal,0),
     saldoKasKini:activeCash.reduce((n,x)=>n+x.masuk-x.keluar,0)},
    setoran:depositRows.map(x=>({id:x.id,tanggal:x.tanggal,
-    warga:(x.namaWarga||x.wargaId||'')+' ('+x.wargaId+')',berat:x.berat,nilai:x.estimasi,status:x.status})),
+    warga:wargaLabel(x.wargaId,x.namaWarga,x.rumahWarga),berat:x.berat,nilai:x.estimasi,status:x.status})),
    penjualan:saleRows.map(x=>({id:x.id,tanggal:x.tanggal,batch:x.batchId,lapak:x.lapak,bruto:x.bruto,
     diterima:x.diterima,disahkan:x.status==='Terkonfirmasi',status:x.status})),
    pengeluaran:expenseRows.map(x=>({id:x.id,tanggal:x.tanggal,jenis:x.jenis,keterangan:x.keterangan,
