@@ -2,7 +2,19 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Portal Warga Flamboyan 4: informasi lingkungan, agenda, kegiatan, dokumentasi, kas lorong, dan Bank Sampah.">
+  <link rel="canonical" href="https://flamboyan4.web.id/">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="id_ID">
+  <meta property="og:site_name" content="Flamboyan 4">
+  <meta property="og:title" content="Portal Warga Flamboyan 4">
+  <meta property="og:description" content="Informasi dan kegiatan warga, transparansi kas lingkungan, dokumentasi, serta Bank Sampah Flamboyan 4.">
+  <meta property="og:url" content="https://flamboyan4.web.id/">
+  <meta property="og:image" content="https://flamboyan4.web.id/favicon.png">
+  <meta property="og:image:alt" content="Logo resmi Flamboyan 4">
+  <meta name="twitter:card" content="summary">
+  <meta name="theme-color" content="#4f46e5">
   <title>Flamboyan 4 | Portal Informasi Warga Lorong</title>
 <script id="f4-native-legacy-links">(()=>{
  const hash=decodeURIComponent(location.hash.slice(1)).toLowerCase();
@@ -239,7 +251,7 @@ body>div.fixed.bottom-6.right-6{
   <!-- Header / Navigation -->
   <header class="bg-gradient-to-r from-indigo-950 via-indigo-900 to-indigo-950 text-white border-b border-indigo-800/40 sticky top-0 z-40 w-full transition-all shadow-md">
     <div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between relative">
-      <a href="#" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 transition group shrink-0">
+      <a href="/" aria-label="Kembali ke beranda Flamboyan 4" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 transition group shrink-0">
         <i data-lucide="home" class="w-5 h-5 text-indigo-200 group-hover:scale-110 transition"></i>
       </a>
       <div class="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none w-full max-w-xs sm:max-w-xl px-2 sm:px-12">
@@ -365,7 +377,7 @@ body>div.fixed.bottom-6.right-6{
             
             <div onclick="openModalKeuanganFiltered('pemasukan')" class="cursor-pointer group">
               <div class="flex items-center justify-between">
-                <p id="pemasukan-bulan-ini" class="text-xl md:text-2xl font-bold text-emerald-600">Rp 0</p>
+                <p id="pemasukan-bulan-ini" class="text-xl md:text-2xl font-bold text-emerald-600">—</p>
                 <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-600 transition"></i>
               </div>
             </div>
@@ -373,7 +385,7 @@ body>div.fixed.bottom-6.right-6{
 
           <div class="mt-4 pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
             <span class="text-slate-400">Akumulasi:</span>
-            <span id="total-pemasukan-all" class="font-bold text-slate-700">Rp 0</span>
+            <span id="total-pemasukan-all" class="font-bold text-slate-700">—</span>
           </div>
         </div>
 
@@ -394,7 +406,7 @@ body>div.fixed.bottom-6.right-6{
             
             <div onclick="openModalKeuanganFiltered('pengeluaran')" class="cursor-pointer group">
               <div class="flex items-center justify-between">
-                <p id="pengeluaran-bulan-ini" class="text-xl md:text-2xl font-bold text-rose-600">Rp 0</p>
+                <p id="pengeluaran-bulan-ini" class="text-xl md:text-2xl font-bold text-rose-600">—</p>
                 <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-400 group-hover:text-rose-600 transition"></i>
               </div>
             </div>
@@ -402,7 +414,7 @@ body>div.fixed.bottom-6.right-6{
 
           <div class="mt-4 pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
             <span class="text-slate-400">Akumulasi:</span>
-            <span id="total-pengeluaran-all" class="font-bold text-slate-700">Rp 0</span>
+            <span id="total-pengeluaran-all" class="font-bold text-slate-700">—</span>
           </div>
         </div>
 
@@ -413,7 +425,7 @@ body>div.fixed.bottom-6.right-6{
             <p class="text-xs md:text-sm font-semibold text-indigo-200 uppercase tracking-wider">Sisa Saldo Kas Utama</p>
             <span class="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-400/30">Aktif</span>
           </div>
-          <p id="sisa-saldo" class="text-2xl md:text-3xl font-black tracking-tight text-white mt-1">Rp 0</p>
+          <p id="sisa-saldo" class="text-2xl md:text-3xl font-black tracking-tight text-white mt-1">—</p>
           <p class="text-xs text-indigo-200/80 mt-1.5 font-normal flex items-center space-x-1">
             <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-400 shrink-0"></i>
             <span>Saldo riil bersih siap pakai saat ini</span>
@@ -426,7 +438,7 @@ body>div.fixed.bottom-6.right-6{
             <div class="min-w-0 flex-1 flex items-center justify-center gap-2 text-center">
               <span id="label-saldo-bulan" class="text-[10px] md:text-[11px] text-indigo-200/80 font-medium truncate">Saldo bulan</span>
               <span class="text-indigo-300/60">•</span>
-              <span id="saldo-bulan" class="text-xs md:text-sm font-bold text-white whitespace-nowrap">Rp 0</span>
+              <span id="saldo-bulan" class="text-xs md:text-sm font-bold text-white whitespace-nowrap">—</span>
             </div>
             <button onclick="changeMonthSaldo(1)" class="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-indigo-100 transition shrink-0" title="Bulan Berikutnya">
               <i data-lucide="chevron-right" class="w-3 h-3"></i>
@@ -701,7 +713,7 @@ body>div.fixed.bottom-6.right-6{
               <span id="inventaris-warga-count" class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">0 Item</span>
             </div>
             <div id="container-inventaris-warga" class="space-y-2 max-h-52 overflow-y-auto pr-1 custom-scroll">
-              <p class="text-xs sm:text-sm text-slate-400 italic">Data inventaris belum dihubungkan.</p>
+              <p class="text-xs sm:text-sm text-slate-400 italic" role="status">Memuat inventaris…</p>
             </div>
           </div>
         </div>
@@ -1108,10 +1120,11 @@ body>div.fixed.bottom-6.right-6{
         </button>
       </div>
       <div class="p-5 space-y-4">
-        <p class="text-xs text-slate-500">Pesan ini akan dikirim secara rahasia dan aman ke email pengurus. Identitas Anda tidak akan direkam.</p>
+        <p class="text-xs text-slate-500">Tidak perlu menuliskan nama atau nomor rumah. Saran dikirim ke pengurus melalui layanan web; hindari mencantumkan data pribadi yang tidak diperlukan.</p>
         
         <form action="https://api.flamboyan4.web.id/api/v2/public/portal/suggestions" method="POST" id="form-saran">
-            <textarea name="pesan" rows="5" placeholder="Ketik saran, laporan, atau keluhan Anda di sini..." class="w-full p-3 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none bg-slate-50" required></textarea>
+            <textarea name="pesan" rows="5" minlength="5" maxlength="2000" placeholder="Ketik saran, laporan, atau keluhan Anda di sini..." class="w-full p-3 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none bg-slate-50" required></textarea>
+            <div aria-hidden="true" style="position:absolute;left:-9999px;height:1px;width:1px;overflow:hidden"><label for="f4-saran-website">Website (kosongkan)</label><input type="text" id="f4-saran-website" name="website" tabindex="-1" autocomplete="off"></div>
             
             <button type="submit" class="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition flex items-center justify-center space-x-2 shadow-sm">
                 <i data-lucide="send" class="w-4 h-4"></i>
@@ -1192,7 +1205,7 @@ body>div.fixed.bottom-6.right-6{
       </div>
 
       <div class="text-center text-xs md:text-sm pt-2">
-        <p>&copy; 2026 Humas 3 Warga Flamboyan 4. Dikelola secara swadaya & transparan.</p>
+        <p>&copy; 2026 Humas Flamboyan 4. Dikelola secara swadaya & transparan.</p>
       </div>
     </div>
   </footer>
@@ -1230,14 +1243,30 @@ body>div.fixed.bottom-6.right-6{
 
     // SYSTEM CONTROL MODAL & HANDLER TOMBOL BACK HP (HISTORY API)
     let activeModalsStack = [];
+    const f4ModalPreviousFocus = new Map();
+    const f4ModalTabbables = root => [...root.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')]
+      .filter(el => el.getClientRects().length && getComputedStyle(el).visibility!=='hidden');
     let suppressNextModalPopstate = false; // cegah history.back() menutup modal induk juga
 
     function openModal(id) {
       const el = document.getElementById(id);
       if (!el) return;
 
+      if (!activeModalsStack.includes(id)) f4ModalPreviousFocus.set(id,document.activeElement);
       el.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
+      const dialog=el.querySelector('[role="dialog"]')||el.querySelector(':scope > div')||el;
+      dialog.setAttribute('role','dialog');
+      dialog.setAttribute('aria-modal','true');
+      if(!dialog.hasAttribute('aria-label')&&!dialog.hasAttribute('aria-labelledby')) {
+        const heading=dialog.querySelector('h1,h2,h3,h4');
+        dialog.setAttribute('aria-label',heading?.textContent?.trim()||'Jendela dialog Flamboyan 4');
+      }
+      if(!dialog.hasAttribute('tabindex'))dialog.setAttribute('tabindex','-1');
+      setTimeout(()=>{
+        if(el.classList.contains('hidden')||activeModalsStack[activeModalsStack.length-1]!==id)return;
+        (f4ModalTabbables(el)[0]||dialog).focus({preventScroll:true});
+      },0);
 
       if (!activeModalsStack.includes(id)) {
         activeModalsStack.push(id);
@@ -1291,6 +1320,9 @@ body>div.fixed.bottom-6.right-6{
       if (activeModalsStack.length === 0) {
         document.body.style.overflow = 'auto';
       }
+      const previous=f4ModalPreviousFocus.get(id);
+      f4ModalPreviousFocus.delete(id);
+      if(previous?.isConnected) setTimeout(()=>previous.focus({preventScroll:true}),0);
     }
 
     function closeLightboxModal() {
@@ -1316,6 +1348,19 @@ body>div.fixed.bottom-6.right-6{
 
       if (activeModalsStack.length > 0) {
         const topModalId = activeModalsStack[activeModalsStack.length - 1];
+        if(e.key==='Tab'){
+          const root=document.getElementById(topModalId);
+          const tabbables=root?f4ModalTabbables(root):[];
+          if(tabbables.length){
+            const first=tabbables[0],last=tabbables[tabbables.length-1];
+            if(e.shiftKey && (document.activeElement===first||!root.contains(document.activeElement))){
+              e.preventDefault();last.focus();
+            }else if(!e.shiftKey && (document.activeElement===last||!root.contains(document.activeElement))){
+              e.preventDefault();first.focus();
+            }
+          }else{e.preventDefault();(root?.querySelector('[role="dialog"]')||root)?.focus();}
+          return;
+        }
 
         if (topModalId === 'lightbox-modal') {
           if (e.key === 'ArrowRight') nextLightboxMedia(e);
@@ -2061,16 +2106,24 @@ function salinLinkAgenda(url) {
     }
 
     const formSaran=document.getElementById('form-saran');
+    let f4LastSuggestionAt=0;
     formSaran.addEventListener('submit',async function(event){
       event.preventDefault();
+      if(formSaran.elements.website?.value)return;
+      if(Date.now()-f4LastSuggestionAt<60000){
+        alert('Saran baru dapat dikirim lagi setelah satu menit.');
+        return;
+      }
       const button=formSaran.querySelector('button[type="submit"]');
       if(button)button.disabled=true;
       try{
         const pesan=String(new FormData(formSaran).get('pesan')||'').trim();
+        if(pesan.length<5||pesan.length>2000)throw Error('Saran harus berisi 5–2000 karakter.');
         const response=await fetch(F4_FEEDBACK_API+'/suggestions',{method:'POST',
           headers:{'Content-Type':'application/json'},body:JSON.stringify({pesan})});
         const result=await response.json();
         if(!response.ok||result.ok===false)throw Error(result.error||'HTTP '+response.status);
+        f4LastSuggestionAt=Date.now();
         document.getElementById('saran-status').classList.remove('hidden');
         formSaran.reset();
         setTimeout(()=>closeModalDirect('modal-saran'),2500);
@@ -2116,8 +2169,8 @@ function salinLinkAgenda(url) {
 
       return `
         <tr>
-          <td class="px-3 py-2 text-slate-600 whitespace-nowrap">${tanggal}</td>
-          <td class="px-3 py-2 font-medium break-words text-slate-800">${keterangan}</td>
+          <td class="px-3 py-2 text-slate-600 whitespace-nowrap">${escapeJerseyText(tanggal)}</td>
+          <td class="px-3 py-2 font-medium break-words text-slate-800">${escapeJerseyText(keterangan)}</td>
           <td class="px-3 py-2">${badgeKategori}</td>
           <td class="px-3 py-2 text-right whitespace-nowrap">${textJumlah}</td>
         </tr>
@@ -2635,6 +2688,12 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         }
 
         const sisaSaldo = totalPemasukanAll - totalPengeluaranAll;
+        if (!monthlyKeuanganList.length) {
+          for (const id of ['pemasukan-bulan-ini','pengeluaran-bulan-ini','saldo-bulan']) {
+            const el=document.getElementById(id);
+            if(el)el.textContent='Rp 0';
+          }
+        }
 
         // Semua card, arsip dan rincian bulanan harus membaca satu daftar identik.
         // Urutkan menurut TANGGAL TRANSAKSI (bukan posisi baris spreadsheet).
@@ -2686,6 +2745,10 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         console.error('Gagal memuat keuangan dari Pembukuan:', err);
         const statusEl = document.getElementById('loading-status');
         F4Loading.error(statusEl,'Gagal menghubungkan keuangan: '+(err.message||err));
+        for (const id of ['pemasukan-bulan-ini','pengeluaran-bulan-ini','saldo-bulan','total-pemasukan-all','total-pengeluaran-all','sisa-saldo']) {
+          const el=document.getElementById(id);
+          if(el)el.textContent='—';
+        }
       }
     }
 
@@ -2876,10 +2939,11 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       const keys = Object.keys(row);
       
       const no = escapeJerseyText(row[keys[0]] || '-');
-      const namaBlok = escapeJerseyText(row[keys[1]] || '-');
+      // A guest only sees a pseudonymous row. The API must separately enforce its own privacy policy.
+      const namaBlok = f4CanReadKas() ? escapeJerseyText(row[keys[1]] || '-') : ('Pemesan ' + no);
       const lengan = escapeJerseyText(row[keys[2]] || '-');
       const ukuran = escapeJerseyText(row[keys[3]] || '-');
-      const namaNoPunggung = escapeJerseyText(row[keys[4]] || '-');
+      const namaNoPunggung = f4CanReadKas() ? escapeJerseyText(row[keys[4]] || '-') : '—';
       
       const totalHarga = getNominalHargaJerseyRow(row);
       const nominalMasuk = getNominalJerseyMasuk(row);
@@ -2894,6 +2958,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         statusBadge = `<span class="px-2 py-0.5 text-xs bg-amber-100 text-amber-800 font-semibold rounded">DP ${persen}%</span>`;
       }
 
+      if (!f4CanReadKas()) statusBadge = '<span class="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded">Terdaftar</span>';
       return `
         <tr class="hover:bg-slate-50 transition">
           <td class="p-3 text-center text-slate-500 font-mono">${no}</td>
@@ -2901,7 +2966,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
           <td class="p-3 text-slate-600 whitespace-nowrap">${lengan}</td>
           <td class="p-3 font-semibold text-indigo-700 whitespace-nowrap">${ukuran}</td>
           <td class="p-3 text-slate-700 break-words">${namaNoPunggung}</td>
-          <td class="p-3 text-right font-bold text-slate-800 whitespace-nowrap">${nominalMasuk > 0 ? formatRupiah(nominalMasuk) : '-'}</td>
+          <td class="p-3 text-right font-bold text-slate-800 whitespace-nowrap">${f4CanReadKas() && nominalMasuk > 0 ? formatRupiah(nominalMasuk) : '—'}</td>
           <td class="p-3 text-center whitespace-nowrap">${statusBadge}</td>
         </tr>
       `;
