@@ -3377,7 +3377,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       $('v14Activities').textContent='Memuat perkembangan program…';
       primary.parentElement.querySelectorAll('.f4-member-finance-note').forEach(n=>n.remove());
       const brief=document.createElement('p');brief.className='f4-member-finance-note';
-      brief.textContent='Perkiraan belum masuk saldo.';
+      brief.textContent='Memeriksa status setoran…';
       primary.after(brief);
       const report=Promise.resolve(call('bsV12Statement',token));
       const progress=Promise.resolve(call('bsV14ProgressPublik',token));
@@ -3388,6 +3388,16 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
        const d=statement.value||{},deposits=Array.isArray(d.setoran)?d.setoran:[];
        const active=deposits.filter(x=>!/batal|cancel/i.test(String(x.status||'')));
        const unconfirmed=active.filter(x=>!/terkonfirmasi|confirmed/i.test(String(x.status||'')));
+       // Keterangan harus sesuai status nyata, bukan tulisan tetap saat saldo sudah disahkan.
+       if(!active.length){
+         brief.textContent='Belum ada setoran tercatat.';
+       }else if(!unconfirmed.length){
+         brief.textContent='✓ Semua setoran sudah sah. Saldo sesuai hasil penjualan.';
+       }else if(unconfirmed.length===active.length){
+         brief.textContent='Setoran belum disahkan. Nilainya masih perkiraan dan belum masuk saldo.';
+       }else{
+         brief.textContent=unconfirmed.length+' setoran belum sah. Saldo hanya dari hasil penjualan sah.';
+       }
        const weight=active.reduce((sum,x)=>sum+Number(x.beratKg||0),0);
        v37MemberWeightChart(active);
        primary.replaceChildren(
@@ -3414,6 +3424,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
        }
        $('v14Status').textContent='';
       }else{
+       brief.textContent='Status setoran belum dapat dimuat.';
        $('v14Recent').textContent='Ringkasan belum ada. Buka Tabungan saya.';
        $('v14Status').textContent='Data saldo belum dapat dimuat: '+String(statement.reason?.message||statement.reason||'Koneksi data terputus');
       }
