@@ -14,7 +14,8 @@ if(!art.includes('<svg')||!art.includes('</svg>'))throw Error('Eco header SVG ma
 if(!h.includes('class="f4-eco-header-art" aria-hidden="true"'))throw Error('Header image must have own safe lane');
 if(!c.includes('.f4-eco-header-art img')||!c.includes('object-fit:contain!important'))throw Error('Header image may be cropped');
 if(!c.includes('.v14-head::before{content:none!important;display:none!important}'))throw Error('Legacy background still overlaps action button');
-if(!c.includes('.f4-eco-header-art{\n  display:none!important'))throw Error('Mobile graphic fallback missing');
+if(!c.includes('grid-template-rows:auto auto auto!important'))throw Error('Mobile header artwork lane missing');
+if(!c.includes('grid-row:2!important')||!c.includes('.f4-eco-header-art{display:flex!important'))throw Error('Illustration must appear on mobile');
 for(const t of ['v14-kpi f4-eco-kpi','f4-eco-panel-heading','class="f4-eco-head-copy"',
   '/portal-live/bank-eco-dashboard.css?v=','f4MemberDateID(r.tanggal)',
   "const isAdmin=profile.peran==='Admin'","v14Stat('Saldo tabungan terkonfirmasi'",
@@ -27,4 +28,5 @@ for(const t of ['#v14Primary>.f4-eco-kpi','nth-child(4)','f4-member-dashboard',
 }
 if(c.includes('Rp 6.000')||c.includes('33 warga')||c.includes('2 kg'))throw Error('Do not hardcode member or admin figures');
 if(!h.includes('/assets/bank-eco-header.svg?v='))throw Error('Illustration URL must resolve from HTML');
+if(!h.includes('f4-eco-icon')||!h.includes('f4-eco-deposit-badge'))throw Error('Reference details missing');
 console.log('F4_ECO_DASHBOARD_STATIC_OK');

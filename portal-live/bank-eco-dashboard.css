@@ -380,3 +380,93 @@ body.f4-direct-bank #dashboardView #pageDashboard.v14-home.f4-eco-dashboard.f4-m
   flex:0 1 165px!important;width:20%!important;min-width:80px!important
  }
 }
+
+/* 2026-10-28 reference design: eco illustration is visible and complete on PC & HP. */
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head{
+ display:grid!important;grid-template-columns:minmax(230px,1fr) minmax(210px,440px) auto!important;
+ grid-template-rows:auto!important;gap:9px!important;align-items:center!important;
+ min-height:150px!important;padding:5px 3px!important;margin:0 0 10px!important;
+ border:0!important;border-radius:0!important;background:#fff!important;
+ box-shadow:none!important;overflow:visible!important
+}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-head-copy{
+ grid-column:1!important;grid-row:1!important;min-width:0!important;max-width:none!important;flex:1 1 auto!important
+}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-header-art{
+ display:flex!important;grid-column:2!important;grid-row:1!important;min-width:0!important;
+ width:100%!important;height:145px!important;max-height:none!important;
+ overflow:visible!important;flex:none!important;align-items:center!important;justify-content:center!important
+}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-header-art img{
+ width:100%!important;height:145px!important;max-height:145px!important;
+ object-fit:contain!important;object-position:center bottom!important
+}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14QuickAction{
+ grid-column:3!important;grid-row:1!important;justify-self:end!important;
+ min-height:43px!important;white-space:nowrap!important;flex:none!important
+}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head h2{font-size:clamp(22px,2.3vw,30px)!important}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:before{display:none!important;content:none!important}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi>.f4-eco-icon{
+ display:grid!important;place-items:center!important;width:43px!important;height:43px!important;
+ border-radius:50%!important;color:#fff!important;margin:0 0 10px!important;
+ background:linear-gradient(145deg,#51b970,#1a8e56)!important;flex:none!important;z-index:2!important
+}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(2)>.f4-eco-icon{background:linear-gradient(145deg,#45d4c6,#11a5a2)!important}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(3)>.f4-eco-icon{background:linear-gradient(145deg,#ffc457,#f69a23)!important}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(4)>.f4-eco-icon{background:linear-gradient(145deg,#ac92f6,#7857db)!important}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi>.f4-eco-icon svg{display:block!important}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:after{
+ width:105px!important;height:110px!important;right:-4px!important;bottom:8px!important;
+ border:0!important;border-radius:0!important;background:var(--tone)!important;opacity:.10!important;
+ -webkit-mask:url('/assets/icons/project.svg') center/contain no-repeat;mask:url('/assets/icons/project.svg') center/contain no-repeat
+}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(2):after{-webkit-mask-image:url('/assets/icons/user.svg');mask-image:url('/assets/icons/user.svg')}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(3):after{-webkit-mask-image:url('/assets/icons/cash.svg');mask-image:url('/assets/icons/cash.svg')}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(4):after{-webkit-mask-image:url('/assets/icons/calendar.svg');mask-image:url('/assets/icons/calendar.svg')}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-deposit-badge{
+ display:inline-flex;align-items:center;background:#e5f6ec;color:#2f7953!important;
+ border-radius:999px;padding:3px 10px;margin-top:5px;font-size:11px!important;font-weight:650!important
+}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-activity-link{cursor:pointer!important;padding-right:46px!important}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-activity-link:after{
+ content:"›"!important;position:absolute!important;display:grid!important;place-items:center!important;
+ right:9px!important;top:50%!important;bottom:auto!important;transform:translateY(-50%)!important;
+ width:30px!important;height:30px!important;border-radius:50%!important;
+ background:#fff!important;color:#1c7857!important;font-size:23px!important;border:0!important
+}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-activity-link:focus-visible{outline:3px solid #3dba83!important;outline-offset:2px!important}
+@media(min-width:761px) and (max-width:1120px){
+ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head{grid-template-columns:minmax(190px,1fr) minmax(155px,31%) auto!important}
+ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-header-art,
+ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-header-art img{height:115px!important}
+}
+@media(max-width:760px){
+ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head{
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto auto!important;
+  gap:8px!important;min-height:0!important;padding:4px 0 8px!important;margin-bottom:9px!important
+ }
+ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-head-copy{grid-column:1!important;grid-row:1!important;max-width:100%!important}
+ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-header-art{
+  display:flex!important;grid-column:1!important;grid-row:2!important;
+  width:100%!important;height:108px!important;max-height:none!important;
+  overflow:visible!important;align-items:center!important;justify-content:center!important
+ }
+ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-header-art img{display:block!important;height:108px!important;max-height:108px!important}
+ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14QuickAction{
+  grid-column:1!important;grid-row:3!important;justify-self:stretch!important;
+  width:100%!important;min-height:40px!important;margin:0!important
+ }
+ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi>.f4-eco-icon{
+  width:33px!important;height:33px!important;margin-bottom:7px!important
+ }
+ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi>.f4-eco-icon svg{
+  width:18px!important;height:18px!important
+ }
+ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:after{width:62px!important;height:69px!important}
+ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-deposit-badge{display:none!important}
+}
+@media(max-width:390px){
+ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head{display:grid!important;grid-template-columns:1fr!important}
+ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-header-art{display:flex!important}
+}
