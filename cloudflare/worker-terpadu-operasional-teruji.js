@@ -1230,6 +1230,24 @@ async function passwordHash(password) {
   return `pbkdf2-sha256:${PASSWORD_ITERATIONS}:${toHex(salt)}:${toHex(derived)}`;
 }
 __name(passwordHash, "passwordHash");
+// One-time member credentials: per-account, not based on address or a shared default.
+// Exclude visually ambiguous characters for older residents; the administrator
+// receives this secret only in the response to a role-authorized operation.
+function newMemberInitialPassword() {
+  const alphabet="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const output=[];
+  const values=new Uint8Array(16);
+  let i=0;
+  while(output.length<8) {
+    if(i===values.length){crypto.getRandomValues(values);i=0;}
+    if(i===0)crypto.getRandomValues(values);
+    const byte=values[i++];
+    if(byte>=224)continue; // rejection sampling: 224 is divisible by 32
+    output.push(alphabet[byte%alphabet.length]);
+  }
+  return output.join("");
+}
+__name(newMemberInitialPassword, "newMemberInitialPassword");
 async function verifyPassword(password, stored) {
   const parts = String(stored || "").split(":");
   if (parts.length !== 4 || parts[0] !== "pbkdf2-sha256") return false;
@@ -3149,7 +3167,7 @@ async function manageMemberIdentity(request,env,who){
  const username=String(p.username||'').trim().toLowerCase();
  if(!/^[a-z0-9][a-z0-9-]{3,39}$/.test(username)||username===current.username)return safeError('Username baru wajib berbeda, 4–40 karakter huruf kecil/angka/tanda hubung.',400);
  if(await db.prepare('SELECT id FROM accounts WHERE username=? LIMIT 1').bind(username).first())return safeError('Username sudah dipakai.',409);
- const memberId='member:api:'+crypto.randomUUID(),payerId='payer:'+crypto.randomUUID(),newAccountId='account:'+crypto.randomUUID(),occupancyId='occupancy:api:'+crypto.randomUUID(),hash=await passwordHash('1234');
+ const memberId='member:api:'+crypto.randomUUID(),payerId='payer:'+crypto.randomUUID(),newAccountId='account:'+crypto.randomUUID(),occupancyId='occupancy:api:'+crypto.randomUUID(),initialPassword=newMemberInitialPassword(),hash=await passwordHash(initialPassword);
  const before={accountId,memberId:current.member_id,name:current.name,house:current.house_code};
  // Older staging databases may lack the optional occupancy end-date column.
  const occupancyColumns=await db.prepare('PRAGMA table_info(household_occupancy_history)').all();
@@ -3169,7 +3187,7 @@ async function manageMemberIdentity(request,env,who){
   db.prepare("INSERT INTO accounts(id,member_id,username,role,status,password_hash,password_scheme,must_change_password) VALUES(?,?,?,'anggota','aktif',?,'pbkdf2-sha256',0)").bind(newAccountId,memberId,username,hash),
   audit('handover_member',accountId,before,{newAccountId,newMemberId:memberId,name,username,house:current.house_code})
  ])}catch{return safeError('Ganti penghuni belum tersimpan. Seluruh perubahan database dibatalkan.',409)}
- return json({ok:true,transferred:true,historyPreserved:true,memberId,newAccountId,username,passwordAwal:'1234'});
+ return json({ok:true,transferred:true,historyPreserved:true,memberId,newAccountId,username,passwordAwal:initialPassword});
 }
 __name(manageMemberIdentity,'manageMemberIdentity');
 async function activateMemberAccount(request, env, who) {
@@ -3192,7 +3210,8 @@ async function activateMemberAccount(request, env, who) {
   const normalHouse = String(account.house_code || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
   const normalUsername = String(account.username || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
   if (!normalHouse || normalHouse !== normalUsername) return safeError("Nomor rumah dan username perlu diperiksa dahulu.", 409);
-  const hashed = await passwordHash("1234");
+  const initialPassword=newMemberInitialPassword();
+  const hashed = await passwordHash(initialPassword);
   const updated = await env.DB.prepare(`UPDATE accounts SET password_hash=?,password_scheme='pbkdf2-sha256',
     status='aktif',must_change_password=0,failed_attempts=0,locked_until=NULL,
     updated_at=CURRENT_TIMESTAMP
@@ -3210,7 +3229,7 @@ async function activateMemberAccount(request, env, who) {
     id,
     "Aktivasi awal akun warga melalui superadmin staging"
   ).run();
-  return json({ ok: true, message: "Akun warga berhasil diaktifkan.", username: account.username, passwordAwal: "1234" });
+  return json({ ok: true, message: "Akun warga berhasil diaktifkan.", username: account.username, passwordAwal: initialPassword });
 }
 __name(activateMemberAccount, "activateMemberAccount");
 async function resetMemberPassword(request,env,who) {
@@ -3225,7 +3244,8 @@ async function resetMemberPassword(request,env,who) {
   if(!account||account.role!=="anggota"||account.status!=="aktif"||account.member_status!=="aktif")
     return safeError("Akun anggota aktif tidak ditemukan.",404);
   if(account.password_scheme!=="pbkdf2-sha256")return safeError("Akun memerlukan pemeriksaan sebelum reset.",409);
-  const hashed=await passwordHash("1234");
+  const initialPassword=newMemberInitialPassword();
+  const hashed=await passwordHash(initialPassword);
   await env.DB.batch([
     env.DB.prepare(`UPDATE accounts SET password_hash=?,password_scheme='pbkdf2-sha256',must_change_password=0,
       failed_attempts=0,locked_until=NULL,updated_at=CURRENT_TIMESTAMP
@@ -3234,7 +3254,7 @@ async function resetMemberPassword(request,env,who) {
     env.DB.prepare(`INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason)
       VALUES(?,?,'accounts','reset_member_password','accounts',?,'Reset password awal oleh pengelola')`).bind(crypto.randomUUID(),who.id,id)
   ]);
-  return json({ok:true,username:account.username,passwordAwal:"1234",message:"Password anggota direset dan semua sesi lamanya berakhir."});
+  return json({ok:true,username:account.username,passwordAwal:initialPassword,message:"Password anggota direset dan semua sesi lamanya berakhir."});
 }
 __name(resetMemberPassword,"resetMemberPassword");
 async function activateBankAdmin(request, env, who) {
