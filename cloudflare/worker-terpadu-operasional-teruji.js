@@ -1782,8 +1782,10 @@ async function f4CashReport(db, request) {
     clauses.push("occurred_on<=?");
     args.push(to);
   }
-  const found = await db.prepare(`SELECT id,occurred_on,transaction_type,category,debit_rp,credit_rp,note,payment_method
-  FROM bookkeeping_cash_transactions WHERE ${clauses.join(" AND ")} ORDER BY occurred_on,id`).bind(...args).all();
+  const found = await db.prepare(`SELECT c.id,c.occurred_on,c.transaction_type,c.category,c.debit_rp,c.credit_rp,c.note,c.payment_method,
+    COALESCE(p.display_name,'') AS payer_name
+  FROM bookkeeping_cash_transactions c LEFT JOIN bookkeeping_payers p ON p.id=c.payer_id
+  WHERE ${clauses.join(" AND ")} ORDER BY c.occurred_on,c.id`).bind(...args).all();
   const before = from ? await db.prepare("SELECT COALESCE(SUM(debit_rp-credit_rp),0) AS amount FROM bookkeeping_cash_transactions WHERE status='aktif' AND occurred_on<?").bind(from).first() : { amount: 0 };
   const rows = (found.results || []).map((x) => ({
     idTransaksi: x.id,
@@ -1791,6 +1793,7 @@ async function f4CashReport(db, request) {
     jenis: x.transaction_type,
     kategori: x.category || "",
     keterangan: x.note || x.category || "",
+    namaWarga: x.payer_name || "",
     debit: Number(x.debit_rp || 0),
     kredit: Number(x.credit_rp || 0),
     sumber: "D1"
@@ -3495,8 +3498,11 @@ async function listCashTransactions(db, request) {
     clauses.push("occurred_on <= ?");
     values.push(to);
   }
-  const data = await db.prepare(`SELECT id,occurred_on,transaction_type,category,debit_rp,credit_rp,status,note,payment_method,extra_note,source_payment_id,created_at
-    FROM bookkeeping_cash_transactions WHERE ${clauses.join(" AND ")} ORDER BY occurred_on DESC,created_at DESC,id DESC LIMIT ?`).bind(...values, limit).all();
+  const data = await db.prepare(`SELECT c.id,c.occurred_on,c.transaction_type,c.category,c.debit_rp,c.credit_rp,c.status,
+    c.note,c.payment_method,c.extra_note,c.source_payment_id,c.created_at,
+    COALESCE(p.display_name,'') AS payer_name
+    FROM bookkeeping_cash_transactions c LEFT JOIN bookkeeping_payers p ON p.id=c.payer_id
+    WHERE ${clauses.join(" AND ")} ORDER BY c.occurred_on DESC,c.created_at DESC,c.id DESC LIMIT ?`).bind(...values, limit).all();
   return json({ ok: true, transaksi: data.results || [] });
 }
 __name(listCashTransactions, "listCashTransactions");
