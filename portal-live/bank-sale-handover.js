@@ -65,8 +65,8 @@ function build(sale,lines){
  '<thead><tr><th>No.</th><th>Jenis sampah</th><th>Berat</th><th>Harga/kg</th><th>Jumlah</th></tr></thead><tbody>'+rows+'</tbody>'+
  '<tfoot><tr><td colspan="2">TOTAL</td><td class="right">'+kg(grams)+'</td><td></td><td class="right">'+rp(bruto)+'</td></tr></tfoot></table>'+
  '<section class="totals"><div><span>Berat terjual</span><b>'+kg(grams)+'</b></div>'+
- '<div><span>Hasil bruto</span><b>'+rp(bruto)+'</b></div><div><span>Diterima</span><b>'+rp(diterima)+'</b></div></section>'+
- (bruto!==diterima?'<p class="status">Selisih penerimaan: <strong>'+rp(bruto-diterima)+'</strong> · Periksa kesesuaian pembayaran.</p>':'')+
+ '<div><span>Total jual</span><b>'+rp(bruto)+'</b></div><div><span>Diterima</span><b>'+rp(diterima)+'</b></div></section>'+
+ (bruto!==diterima?'<p class="status">Selisih bayar: <strong>'+rp(bruto-diterima)+'</strong> · Periksa pembayaran.</p>':'')+
  '<p class="desc">Kedua pihak menyatakan telah memeriksa dan menyepakati jenis barang, berat, harga, serta jumlah penjualan seperti tercantum di atas.</p>'+
  '<div class="sign">'+signature('Diserahkan oleh,','Humas Flamboyan 4')+signature('Diterima oleh,','Pemilik / wakil lapak')+'</div>'+
  '<footer class="footer">Status pencatatan: '+esc(sale.status==='terkonfirmasi'?'Terkonfirmasi':'Draft')+'. Dokumen ditandatangani secara manual; pencetakan tidak mengubah transaksi atau saldo warga.</footer>'+
