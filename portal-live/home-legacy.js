@@ -1960,7 +1960,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         container.innerHTML = `<div class="bg-slate-50 border border-dashed border-slate-200 rounded-xl p-4 text-center">
           <i data-lucide="clipboard-list" class="w-5 h-5 text-slate-400 mx-auto mb-2"></i>
           <p class="text-xs font-semibold text-slate-600">Data inventaris</p>
-          <p class="text-[10px] text-slate-400 mt-1">Hubungkan URL CSV Google Spreadsheet inventaris warga.</p>
+          <p class="text-[10px] text-slate-400 mt-1">Inventaris belum tersedia.</p>
         </div>`;
         if (badge) badge.innerText = 'Belum Terhubung';
         if (window.lucide) lucide.createIcons();
@@ -2089,7 +2089,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
             mulaiRotasiDokumentasiPreview();
           }
 
-          document.getElementById('container-dokumentasi-all').innerHTML = allHTML || '<p class="text-slate-400 text-sm col-span-1 md:col-span-3">Belum ada dokumentasi kegiatan.</p>';
+          document.getElementById('container-dokumentasi-all').innerHTML = allHTML || '<p class="text-slate-400 text-sm col-span-1 md:col-span-3">Belum ada album.</p>';
           if (window.lucide) lucide.createIcons();
         },
         error:function(err){
@@ -2389,7 +2389,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
             `;
           });
 
-          document.getElementById('container-rencana').innerHTML = rencanaHTML || '<p class="text-slate-400 text-xs">Belum ada rencana kegiatan.</p>';
+          document.getElementById('container-rencana').innerHTML = rencanaHTML || '<p class="text-slate-400 text-xs">Belum ada agenda.</p>';
           renderCalendar();
           // Deteksi Otomatis parameter ?event=YYYY-MM-DD saat link dibuka dari WhatsApp
           const urlParams = new URLSearchParams(window.location.search);
@@ -2818,7 +2818,7 @@ async function loadProgresBankSampahIndex(){
   }
   const active=items[0]; // satu progres terbaru menurut tanggal
   const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=String(value||'—')};
-  set('bs-step-tag','Progres terbaru');
+  set('bs-step-tag','Terbaru');
   set('bs-step-title',active.title);
   set('bs-info-1','Tahap: '+active.stage.replace(/^Tahap:\s*/i,''));
   set('bs-info-2',active.next?'Agenda: '+active.next.replace(/^Agenda:\s*/i,''):'Status: '+(active.status||'Dicatat'));
@@ -2829,7 +2829,7 @@ async function loadProgresBankSampahIndex(){
  }catch(error){
   console.error('Progres Bank Sampah tidak dapat dimuat:',error);
   const host=document.getElementById('bs-step-title');
-  if(host)host.textContent='Perkembangan sedang tidak tersedia';
+  if(host)host.textContent='Perkembangan belum tersedia';
   const txt=document.getElementById('bs-step-desc');
   if(txt)txt.textContent='Info Bank Sampah belum tersedia.';
  }
