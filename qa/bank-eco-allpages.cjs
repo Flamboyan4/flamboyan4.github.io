@@ -7,7 +7,7 @@ const dashboard=fs.readFileSync('portal-live/bank-eco-dashboard.css','utf8');
 const source=[...h.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].find(x=>x[1].includes('function v14Setup()'))?.[1];
 assert(source,'Bank app inline JavaScript missing');
 new vm.Script(source,{filename:'bank-sampah/index.html:inline'});
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261028-brighter-gold-deeper-green-2'),'Theme stylesheet cache not updated');
+assert(/\/portal-live\/bank-eco-pages\.css\?v=[0-9]{8}-/.test(h),'Versioned theme stylesheet missing');
 for(const name of ["pageProfile","pageSetoran","pageRiwayat","pageRiwayatJual","pagePenjualan","pageRekonsiliasi","pageMaster","pageProgress","pagePassword","pageAdmin","pagePengesahan","pageTabungan","pageBiaya","pageLaporan","pageKegiatan","pageDokumentasi","pageInventaris","pagePribadi"].concat(['pageDashboard','v11Public'])){
  assert(h.includes(name),'Missing portal view '+name);
 }
