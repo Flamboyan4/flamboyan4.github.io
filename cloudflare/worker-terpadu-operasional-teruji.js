@@ -2821,7 +2821,7 @@ async function f4BatchSources(db,type,year,month,ids){
  const params=[], placeholders=ids&&ids.length?' AND S.id IN ('+ids.map(()=>'?').join(',')+')':'';
  let sql;
  if(type==='kas_lorong'){
-  sql="SELECT a.id AS id,a.amount_rp AS amount,p.paid_on AS date,p.payment_method AS method,"+
+  sql="SELECT a.id AS id,a.amount_rp AS amount,p.id AS payment_id,p.paid_on AS date,p.payment_method AS method,"+
   " COALESCE(bp.display_name,'') AS name,COALESCE(h.house_code,'') AS house,"+
   " (SELECT COUNT(*) FROM bookkeeping_kas_batch_items bi WHERE bi.category='kas_lorong' AND bi.source_id=a.id AND bi.status='aktif') AS posted"+
   " FROM bookkeeping_payment_allocations a JOIN bookkeeping_payments p ON p.id=a.payment_id"+
@@ -2848,7 +2848,7 @@ async function f4BatchRead(db,request){
  const [data,groups]=await Promise.all([f4BatchSources(db,type,year,month),
   db.prepare("SELECT id,stage,booked_on,description,amount_rp,item_count,status FROM bookkeeping_kas_batches WHERE category=? AND period_year=? AND period_month=? ORDER BY booked_on DESC,created_at DESC LIMIT 120").bind(type,year,month).all()]);
  if(data.length>=500)return safeError('Batas 500 pembayaran tercapai, pisahkan bulan atau audit data.',409);
- const map=x=>{const house=String(x.house||'').split('/');return {idAlokasi:x.id,nama:x.name||'Nama belum terhubung',blok:house[0]||'',noRumah:house.slice(1).join('/'),tanggalBayar:x.date,qtyKasLorong:1,nominalKasLorong:Number(x.amount),metode:x.method||'—'}};
+ const map=x=>{const house=String(x.house||'').split('/');return {idAlokasi:x.id,nama:x.name||'Nama belum terhubung',blok:house[0]||'',noRumah:house.slice(1).join('/'),tanggalBayar:x.date,qtyKasLorong:1,nominalKasLorong:Number(x.amount),metode:x.method||'—',perluAudit:type==='kas_lorong'&&!/^pay-[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(String(x.payment_id||''))}};
  const pending=data.filter(x=>!x.posted),posted=data.filter(x=>x.posted);
  const sum=a=>a.reduce((v,x)=>v+Number(x.amount||0),0);
  return json({ok:true,data:{belum:pending.map(map),sudah:posted.map(map),
@@ -2877,6 +2877,8 @@ async function f4BatchCreate(request,env,who){
  const sources=await f4BatchSources(db,type,year,month,ids);
  if(sources.length!==ids.length||sources.some(x=>x.posted||Number(x.amount)<=0||!Number.isSafeInteger(Number(x.amount))||x.date>date))
   return safeError('Pembayaran sudah dibukukan atau tanggal pembukuan lebih awal dari penerimaan.',409);
+ if(type==='kas_lorong'&&sources.some(x=>!/^pay-[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(String(x.payment_id||''))))
+  return safeError('Alokasi hasil migrasi lama memerlukan audit jurnal sebelum bisa digabung. Tidak ada saldo yang berubah.',409);
  const amount=sources.reduce((sum,x)=>sum+Number(x.amount),0);
  if(!Number.isSafeInteger(amount)||amount<=0)return safeError('Jumlah batch tidak valid.',409);
  const id='kasbatch:'+crypto.randomUUID(),cashId='cashbatch:'+crypto.randomUUID();
