@@ -675,27 +675,27 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
 #pageProgress .f4-member-progress-track{height:12px;background:#edf3ee;border-radius:99px;overflow:hidden}
 #pageProgress .f4-member-progress-track>div{height:100%;background:#36875e;border-radius:99px}
 #pageProgress .f4-member-progress-empty{font-size:13px;line-height:1.5;color:#697c70;margin:0}
-#pageProgress .f4-member-progress-timeline{list-style:none;position:relative;display:grid;gap:9px;margin:0;padding:0 0 0 19px}
-#pageProgress .f4-member-progress-timeline:before{content:'';position:absolute;top:14px;bottom:16px;left:5px;border-left:2px solid #dcebdd}
-#pageProgress .f4-member-progress-timeline>li{min-width:0;position:relative}
-#pageProgress .f4-member-progress-timeline>li:before{content:'';position:absolute;left:-19px;top:20px;width:12px;height:12px;border-radius:50%;background:#4c9b70;border:3px solid #fff;box-shadow:0 0 0 1px #c3e1ca}
-#pageProgress .f4-member-progress-step{border:1px solid #e2eae4;border-radius:12px;background:#fff;overflow:hidden}
-#pageProgress .f4-member-progress-step[open]{border-color:#c6dece}
-#pageProgress .f4-member-progress-step-trigger{list-style:none;display:flex;align-items:center;gap:7px;cursor:pointer;padding:13px 12px}
-#pageProgress .f4-member-progress-step-trigger::-webkit-details-marker{display:none}
-#pageProgress .f4-member-progress-step-trigger:focus-visible{outline:2px solid #3c8b5d;outline-offset:-3px}
-#pageProgress .f4-member-progress-step-heading{flex:1;min-width:0}
-#pageProgress .f4-member-progress-step-heading strong{display:block;color:#233f31;font-size:14px;font-weight:780;line-height:1.36;overflow-wrap:anywhere}
-#pageProgress .f4-member-progress-step-meta{display:block;font-size:11.5px;line-height:1.45;color:#728274;margin-top:4px}
-#pageProgress .f4-member-progress-step-status{font-size:10px;font-weight:800;border-radius:99px;background:#edf6ee;color:#34724e;padding:5px 8px;white-space:nowrap;flex:none}
-#pageProgress .f4-member-progress-step-status.is-active{background:#fff4e5;color:#96662b}
-#pageProgress .f4-member-progress-step-status.is-planned{background:#edf2f8;color:#687993}
-#pageProgress .f4-member-progress-chevron{font-size:19px;line-height:1;color:#718879;transition:transform .15s}
-#pageProgress .f4-member-progress-step[open] .f4-member-progress-chevron{transform:rotate(180deg)}
-#pageProgress .f4-member-progress-step-detail{padding:0 13px 13px;border-top:1px solid #edf1ed}
-#pageProgress .f4-member-progress-step-detail p{font-size:13px;line-height:1.5;margin:11px 0 0;color:#415a4c}
-#pageProgress .f4-member-progress-next{background:#f4f9f6;border-radius:8px;padding:10px}
-#pageProgress .f4-member-progress-next strong{color:#2e714c}
+:is(#pageProgress,.f4-member-progress-modal) .f4-member-progress-timeline{list-style:none;position:relative;display:grid;gap:9px;margin:0;padding:0 0 0 19px}
+:is(#pageProgress,.f4-member-progress-modal) .f4-member-progress-timeline:before{content:'';position:absolute;top:14px;bottom:16px;left:5px;border-left:2px solid #dcebdd}
+:is(#pageProgress,.f4-member-progress-modal) .f4-member-progress-timeline>li{min-width:0;position:relative}
+:is(#pageProgress,.f4-member-progress-modal) .f4-member-progress-timeline>li:before{content:'';position:absolute;left:-19px;top:20px;width:12px;height:12px;border-radius:50%;background:#4c9b70;border:3px solid #fff;box-shadow:0 0 0 1px #c3e1ca}
+:is(#pageProgress,.f4-member-progress-modal) .f4-member-progress-step{border:1px solid #e2eae4;border-radius:12px;background:#fff;overflow:hidden}
+:is(#pageProgress,.f4-member-progress-modal) .f4-member-progress-step[open]{border-color:#c6dece}
+:is(#pageProgress,.f4-member-progress-modal) .f4-member-progress-step-trigger{list-style:none;display:flex;align-items:center;gap:7px;cursor:pointer;padding:13px 12px}
+:is(#pageProgress,.f4-member-progress-modal) .f4-member-progress-step-trigger::-webkit-details-marker{display:none}
+:is(#pageProgress,.f4-member-progress-modal) .f4-member-progress-step-trigger:focus-visible{outline:2px solid #3c8b5d;outline-offset:-3px}
+:is(#pageProgress,.f4-member-progress-modal) .f4-member-progress-step-heading{flex:1;min-width:0}
+:is(#pageProgress,.f4-member-progress-modal) .f4-member-progress-step-heading strong{display:block;color:#233f31;font-size:14px;font-weight:780;line-height:1.36;overflow-wrap:anywhere}
+:is(#pageProgress,.f4-member-progress-modal) .f4-member-progress-step-meta{display:block;font-size:11.5px;line-height:1.45;color:#728274;margin-top:4px}
+:is(#pageProgress,.f4-member-progress-modal) .f4-member-progress-step-status{font-size:10px;font-weight:800;border-radius:99px;background:#edf6ee;color:#34724e;padding:5px 8px;white-space:nowrap;flex:none}
+:is(#pageProgress,.f4-member-progress-modal) .f4-member-progress-step-status.is-active{background:#fff4e5;color:#96662b}
+:is(#pageProgress,.f4-member-progress-modal) .f4-member-progress-step-status.is-planned{background:#edf2f8;color:#687993}
+:is(#pageProgress,.f4-member-progress-modal) .f4-member-progress-chevron{font-size:19px;line-height:1;color:#718879;transition:transform .15s}
+:is(#pageProgress,.f4-member-progress-modal) .f4-member-progress-step[open] .f4-member-progress-chevron{transform:rotate(180deg)}
+:is(#pageProgress,.f4-member-progress-modal) .f4-member-progress-step-detail{padding:0 13px 13px;border-top:1px solid #edf1ed}
+:is(#pageProgress,.f4-member-progress-modal) .f4-member-progress-step-detail p{font-size:13px;line-height:1.5;margin:11px 0 0;color:#415a4c}
+:is(#pageProgress,.f4-member-progress-modal) .f4-member-progress-next{background:#f4f9f6;border-radius:8px;padding:10px}
+:is(#pageProgress,.f4-member-progress-modal) .f4-member-progress-next strong{color:#2e714c}
 #pageProgress .f4-member-progress-note{margin:0;font-size:11.5px;line-height:1.5;color:#79877d}
 @media(max-width:720px){
  #pageProgress{padding:16px!important}
@@ -715,6 +715,64 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
  #pageProgress .f4-member-progress-stat{padding:9px 6px}
  #pageProgress .f4-member-progress-stat strong{font-size:21px}
  #pageProgress .f4-member-progress-stat small{font-size:10.5px}
+}
+
+/* Perkembangan: 3 kegiatan terakhir terlihat, arsip lengkap dalam modal bebas scrollbar. */
+#pageProgress .f4-member-progress-preview>li:nth-child(n+4){display:none!important}
+#pageProgress .f4-member-progress-all{
+ display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;
+ width:100%!important;min-height:43px!important;margin:13px 0 0!important;
+ padding:10px 14px!important;border:1px solid #cce2d3!important;border-radius:10px!important;
+ background:#f0f8f2!important;color:#216342!important;font-size:13px!important;font-weight:800!important;
+ box-shadow:none!important
+}
+#pageProgress .f4-member-progress-all:hover{background:#e5f3e9!important}
+.f4-member-progress-modal{
+ position:fixed!important;inset:0!important;z-index:2147483501!important;display:flex!important;
+ align-items:center!important;justify-content:center!important;padding:16px!important;
+ background:#0e281e99!important;box-sizing:border-box!important
+}
+.f4-member-progress-modal-panel{
+ width:min(100%,540px)!important;max-height:min(88dvh,760px)!important;min-height:0!important;
+ border-radius:18px!important;background:#fff!important;box-shadow:0 24px 65px #14251d35!important;
+ display:flex!important;flex-direction:column!important;overflow:hidden!important;
+ box-sizing:border-box!important
+}
+.f4-member-progress-modal-head{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ gap:12px!important;padding:18px 19px 14px!important;border-bottom:1px solid #e4ebe5!important;
+ flex-shrink:0!important
+}
+.f4-member-progress-modal-head h2{margin:0!important;font-size:18px!important;font-weight:850!important;color:#244332!important}
+.f4-member-progress-modal-close{
+ display:grid!important;place-items:center!important;flex:none!important;
+ min-width:38px!important;width:38px!important;min-height:38px!important;padding:0!important;
+ background:#f0f5f1!important;color:#325d44!important;border:0!important;border-radius:10px!important;
+ font-size:24px!important;font-weight:500!important
+}
+.f4-member-progress-modal-scroll{
+ padding:16px 20px 22px!important;min-height:0!important;
+ overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;
+ scrollbar-width:none!important;-ms-overflow-style:none!important;
+}
+.f4-member-progress-modal-scroll::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
+:is(#pageProgress,.f4-member-progress-modal) .f4-member-progress-timeline{margin-top:0}
+@media(max-width:720px){
+ .f4-member-progress-modal{padding:12px!important}
+ .f4-member-progress-modal-head{padding:14px 15px 12px!important}
+ .f4-member-progress-modal-scroll{padding:14px 14px 18px!important}
+ #v11Public .v17-public-banner.v27-banner-program>div:first-child{min-width:0!important;width:100%!important}
+ #v11Public .v17-public-banner.v27-banner-program #f4-public-my-savings{
+  display:flex!important;width:100%!important;max-width:none!important;
+  min-height:49px!important;padding:11px 15px!important;margin-top:16px!important;
+  background:#186744!important;border:1px solid #186744!important;color:#fff!important;
+  font-size:14px!important;font-weight:850!important;border-radius:11px!important;
+  box-shadow:0 3px 10px #104e3222!important
+ }
+ #v11Public .v17-public-banner.v27-banner-program #f4-public-my-savings:hover,
+ #v11Public .v17-public-banner.v27-banner-program #f4-public-my-savings:focus-visible{
+  background:#0f5636!important;color:#fff!important
+ }
 }
 </style><style id="f4-bank-private-navigation-fix">
 /* A member dashboard is informational, not a duplicate menu with empty linked panels. */
@@ -2546,7 +2604,64 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
           if(!body.childElementCount)body.append(mk('p','','Belum ada keterangan tambahan untuk tahap ini.'));
           details.append(body);li.append(details);list.append(li);
         });
-        stages.append(list);area.append(stages);
+
+        // Halaman selalu menampilkan 3 terbaru; kegiatan lama tetap tersedia di modal.
+        list.classList.add('f4-member-progress-preview');
+        stages.append(list);
+        if(timeline.length>3){
+          const all=mk('button','f4-member-progress-all','Lihat semua '+timeline.length+' kegiatan');
+          all.type='button';
+          all.setAttribute('aria-haspopup','dialog');
+          all.onclick=()=>{
+            const old=document.querySelector('.f4-member-progress-modal');
+            if(old)old.remove();
+            const focusBefore=document.activeElement;
+            const previousOverflow=document.body.style.overflow;
+            const overlay=mk('div','f4-member-progress-modal');
+            overlay.setAttribute('role','dialog');
+            overlay.setAttribute('aria-modal','true');
+            overlay.setAttribute('aria-labelledby','f4-progress-modal-title');
+            const panel=mk('section','f4-member-progress-modal-panel');
+            const head=mk('div','f4-member-progress-modal-head');
+            const title=mk('h2','','Semua kegiatan Bank Sampah');
+            title.id='f4-progress-modal-title';
+            const close=mk('button','f4-member-progress-modal-close','×');
+            close.type='button';close.setAttribute('aria-label','Tutup daftar kegiatan');
+            const scrolling=mk('div','f4-member-progress-modal-scroll');
+            scrolling.tabIndex=0;
+            scrolling.setAttribute('aria-label','Daftar kegiatan lengkap, geser untuk melihat kegiatan lainnya');
+            const full=list.cloneNode(true);
+            full.classList.remove('f4-member-progress-preview');
+            full.classList.add('f4-member-progress-full');
+            scrolling.append(full);
+            head.append(title,close);panel.append(head,scrolling);overlay.append(panel);
+            function end(){
+              if(!overlay.isConnected)return;
+              overlay.remove();
+              document.body.style.overflow=previousOverflow;
+              document.removeEventListener('keydown',keyHandler);
+              if(focusBefore?.isConnected)focusBefore.focus();
+            }
+            const keyHandler=e=>{
+              if(e.key==='Escape'){e.preventDefault();end();}
+              if(e.key==='Tab'){
+                const focusable=panel.querySelectorAll('button,summary,[tabindex="0"]');
+                const first=focusable[0],last=focusable[focusable.length-1];
+                if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}
+                else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}
+              }
+            };
+            close.onclick=end;
+            overlay.addEventListener('click',e=>{if(e.target===overlay)end()});
+            document.body.append(overlay);
+            document.body.style.overflow='hidden';
+            document.addEventListener('keydown',keyHandler);
+            close.focus();
+          };
+          stages.append(all);
+        }
+        area.append(stages);
+
         area.append(mk('p','f4-member-progress-note','Jumlah anggota adalah kondisi saat ini. Riwayat pertumbuhan anggota per bulan belum tersedia.'));
       }catch(err){area.textContent='Perkembangan belum dapat dimuat: '+(err.message||err)}
       return;

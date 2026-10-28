@@ -262,3 +262,28 @@ body.f4-direct-portal:has(
  background:var(--f4-nav-tint)!important
 }
 #f4-direct-show-password svg{display:block!important;width:20px!important;height:20px!important;flex:none!important}
+
+
+/* 2026-10-28: sembunyikan batang scrollbar pada konten modal/panel geser.
+   Overflow dan interaksi roda, sentuhan, trackpad, keyboard tetap aktif.
+   Jangan menyembunyikan scrollbar halaman utama. */
+:is(
+ .f4-ui-dialog-panel,.f4-control-panel,.f4-jersey-print-dialog,.f4-jersey-print-veil,
+ .f4-direct-dialog-panel,.v21-modal-body,.v22-doc-filter,.v17-public-links,.v16-tabs,
+ .f4-member-progress-modal-scroll,.f4-member-progress-timeline-scroll,
+ .upr-pop,.mdc-pop,.custom-select-panel,.f4-control-select-list,
+ .v25-report-table,#v9List,#v17Timeline,#sideNav,#v18PublicSide,
+ [role="dialog"] .overflow-auto,[role="dialog"] .overflow-x-auto,[role="dialog"] .overflow-y-auto,
+ [aria-modal="true"] .overflow-auto,[aria-modal="true"] .overflow-y-auto,
+ [aria-modal="true"] .overflow-x-auto
+){scrollbar-width:none!important;-ms-overflow-style:none!important}
+:is(
+ .f4-ui-dialog-panel,.f4-control-panel,.f4-jersey-print-dialog,.f4-jersey-print-veil,
+ .f4-direct-dialog-panel,.v21-modal-body,.v22-doc-filter,.v17-public-links,.v16-tabs,
+ .f4-member-progress-modal-scroll,.f4-member-progress-timeline-scroll,
+ .upr-pop,.mdc-pop,.custom-select-panel,.f4-control-select-list,
+ .v25-report-table,#v9List,#v17Timeline,#sideNav,#v18PublicSide,
+ [role="dialog"] .overflow-auto,[role="dialog"] .overflow-x-auto,[role="dialog"] .overflow-y-auto,
+ [aria-modal="true"] .overflow-auto,[aria-modal="true"] .overflow-y-auto,
+ [aria-modal="true"] .overflow-x-auto
+)::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
