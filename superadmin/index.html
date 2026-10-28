@@ -733,12 +733,12 @@ function paintAccounts(){
  }
 }
 async function catalogPage(){
- title('Jenis & Harga Sampah','Bandingkan daftar harga yang tercatat dengan referensi Bank Sampah.');
+ title('Harga Sampah');
  const info=notice('');const loadingToken=F4Loading.begin(info,'Memuat daftar jenis dan harga…');
  const wrap=el('div',undefined,'f4-obligation-scroll');
  const table=el('table',undefined,'f4-obligation-grid');table.dataset.module='bankcatalog';
  const head=el('thead'),tr=el('tr');
- for(const label of ['Jenis barang','Harga lapak / kg','Sumber data','Status'])tr.append(el('th',label));
+ for(const label of ['Jenis barang','Harga/kg','Sumber data','Status'])tr.append(el('th',label));
  head.append(tr);table.append(head);
  const body=el('tbody');table.append(body);wrap.append(table);main.append(wrap);
  // Referensi harga yang pernah diberikan pengelola. Ini bukan transaksi maupun record D1.
@@ -758,7 +758,7 @@ async function catalogPage(){
    const row=el('tr');
    const current=x.item&&priceOf(x.item);
    row.append(el('td',x.name),el('td',current==null?(x.price==null?'—':money(x.price)):money(Number(current)||current)),
-    el('td',x.item?'Data aktif':'Referensi harga'),el('td',x.item?'Tercatat':'Belum disinkronkan'));
+    el('td',x.item?'Data aktif':'Harga lama'),el('td',x.item?'Tercatat':'Belum tercatat'));
    body.append(row);
   }
   const missing=all.filter(x=>!x.item).length;
@@ -771,7 +771,7 @@ async function catalogPage(){
   if(active!=='bankcatalog'||!main.contains(info))return;
   draw(rows(d));
  }catch(e){if(active==='bankcatalog'&&main.contains(info))draw([],safe(e))}
- main.append(el('p','Referensi harga lama hanya ditampilkan untuk audit. Menyimpan atau memperbarui harga harus melalui endpoint Worker agar riwayat harga dan transaksi tetap aman.','sa-warn'));
+ main.append(el('p','Harga lama hanya untuk perbandingan. Ubah harga melalui pengelolaan Bank Sampah.','sa-warn'));
 }
 function wargaForm(mode,row={}){
  if(role!=='superadmin')return;
