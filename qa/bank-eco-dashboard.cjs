@@ -11,6 +11,10 @@ new vm.Script(body,{filename:'bank-sampah/index-inline.js'});
 if(!h.includes("page.classList.add('v14-home','f4-eco-dashboard')"))throw Error('Eco stylesheet precedence class missing');
 if(!c.includes('#pageDashboard.v14-home.f4-eco-dashboard.f4-member-dashboard'))throw Error('Member high-specificity safeguard missing');
 if(!art.includes('<svg')||!art.includes('</svg>'))throw Error('Eco header SVG malformed');
+if(!h.includes('class="f4-eco-header-art" aria-hidden="true"'))throw Error('Header image must have own safe lane');
+if(!c.includes('.f4-eco-header-art img')||!c.includes('object-fit:contain!important'))throw Error('Header image may be cropped');
+if(!c.includes('.v14-head::before{content:none!important;display:none!important}'))throw Error('Legacy background still overlaps action button');
+if(!c.includes('.f4-eco-header-art{\n  display:none!important'))throw Error('Mobile graphic fallback missing');
 for(const t of ['v14-kpi f4-eco-kpi','f4-eco-panel-heading','class="f4-eco-head-copy"',
   '/portal-live/bank-eco-dashboard.css?v=','f4MemberDateID(r.tanggal)',
   "const isAdmin=profile.peran==='Admin'","v14Stat('Saldo tabungan terkonfirmasi'",
