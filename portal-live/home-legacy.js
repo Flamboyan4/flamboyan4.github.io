@@ -290,12 +290,12 @@
       const container=document.getElementById('container-komentar-list');
       const badge=document.getElementById('total-komentar-badge');
       if(!container)return;
-      if(badge)badge.textContent=globalKomentarList.length+' Komentar';
+      if(badge)badge.textContent=globalKomentarList.length+' Pesan';
       container.replaceChildren();
       if(!globalKomentarList.length){
         const p=document.createElement('p');
         p.className='text-slate-400 text-xs italic text-center py-8';
-        p.textContent='Belum ada obrolan. Yuk jadi yang pertama menyapa!';
+        p.textContent='Belum ada pesan. Ayo menyapa!';
         container.append(p);return;
       }
       for(const item of globalKomentarList){
@@ -437,7 +437,7 @@ let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
 
   let html = `
     <div class="mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
-      <span class="text-[11px] text-slate-500">Bagikan agenda ini ke warga:</span>
+      <span class="text-[11px] text-slate-500">Bagikan agenda:</span>
       <button onclick="salinLinkAgenda('${shareUrl}')" id="btn-copy-agenda" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-3 py-1.5 rounded-lg text-xs transition flex items-center space-x-1.5 shadow-sm active:scale-95">
         <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
         <span id="text-copy-agenda">Salin Link Agenda</span>
@@ -540,7 +540,7 @@ function salinLinkAgenda(url) {
 
     async function openGalleryGridModal(rawString, title) {
       document.getElementById('gallery-grid-title').innerText = title || "Galeri Album";
-      document.getElementById('gallery-grid-container').innerHTML = '<p class="text-slate-400 text-xs col-span-full text-center py-8">Memuat seluruh media album...</p>';
+      document.getElementById('gallery-grid-container').innerHTML = '<p class="text-slate-400 text-xs col-span-full text-center py-8">Memuat album...</p>';
       
       openModal('modal-gallery-grid');
 
@@ -1014,7 +1014,7 @@ function salinLinkAgenda(url) {
           html += renderArisanRow(row, isCurrent, isNext);
         }
       });
-      document.getElementById('tabel-arisan-all').innerHTML = html || '<tr><td colspan="3" class="p-4 text-center text-slate-400">Tidak ada jadwal arisan yang cocok</td></tr>';
+      document.getElementById('tabel-arisan-all').innerHTML = html || '<tr><td colspan="3" class="p-4 text-center text-slate-400">Jadwal tidak ditemukan</td></tr>';
     }
 
     function filterKeuanganModal() {
@@ -1060,7 +1060,7 @@ function salinLinkAgenda(url) {
         filteredCount++;
       });
 
-      document.getElementById('tabel-transaksi-all').innerHTML = html || `<tr><td colspan="4" class="p-6 text-center text-slate-400 text-xs">Tidak ada transaksi ${currentKeuanganFilterType !== 'all' ? currentKeuanganFilterType : ''} yang ditemukan untuk periode ini.</td></tr>`;
+      document.getElementById('tabel-transaksi-all').innerHTML = html || `<tr><td colspan="4" class="p-6 text-center text-slate-400 text-xs">Belum ada transaksi untuk periode ini.</td></tr>`;
     }
 
     function parseRowDate(dateStr) {
@@ -1141,7 +1141,7 @@ function salinLinkAgenda(url) {
       const periodePemasukan = document.createElement('span');
       periodePemasukan.className = 'f4-period-nowrap';
       periodePemasukan.textContent = `(${['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][m.month]} ${m.year})`;
-      labelPemasukan.replaceChildren(document.createTextNode('Pemasukan '), periodePemasukan);
+      labelPemasukan.replaceChildren(document.createTextNode('Masuk '), periodePemasukan);
       document.getElementById('pemasukan-bulan-ini').innerText = formatRupiah(m.pemasukan);
     }
 
@@ -1153,7 +1153,7 @@ function salinLinkAgenda(url) {
       const periodePengeluaran = document.createElement('span');
       periodePengeluaran.className = 'f4-period-nowrap';
       periodePengeluaran.textContent = `(${['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][m.month]} ${m.year})`;
-      labelPengeluaran.replaceChildren(document.createTextNode('Pengeluaran '), periodePengeluaran);
+      labelPengeluaran.replaceChildren(document.createTextNode('Keluar '), periodePengeluaran);
       document.getElementById('pengeluaran-bulan-ini').innerText = formatRupiah(m.pengeluaran);
     }
 
@@ -1959,7 +1959,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       if (!CSV_INVENTARIS_WARGA_URL || !CSV_INVENTARIS_WARGA_URL.startsWith('http')) {
         container.innerHTML = `<div class="bg-slate-50 border border-dashed border-slate-200 rounded-xl p-4 text-center">
           <i data-lucide="clipboard-list" class="w-5 h-5 text-slate-400 mx-auto mb-2"></i>
-          <p class="text-xs font-semibold text-slate-600">Inventaris siap digunakan</p>
+          <p class="text-xs font-semibold text-slate-600">Data inventaris</p>
           <p class="text-[10px] text-slate-400 mt-1">Hubungkan URL CSV Google Spreadsheet inventaris warga.</p>
         </div>`;
         if (badge) badge.innerText = 'Belum Terhubung';
@@ -2071,7 +2071,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
                 <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1 z-20"><i data-lucide="layout-grid" class="w-4 h-4"></i><span>Buka Galeri Media</span></div>
               </div>
               <div class="p-4 flex-grow flex items-center justify-between gap-3">
-                <p class="text-slate-600 text-xs md:text-sm break-words line-clamp-2">${deskripsi || 'Buka album dokumentasi'}</p>
+                <p class="text-slate-600 text-xs md:text-sm break-words line-clamp-2">${deskripsi || 'Lihat album'}</p>
                 <i data-lucide="chevron-right" class="w-4 h-4 text-indigo-500 shrink-0 sm:hidden"></i>
               </div>
             </div>`;
@@ -2100,7 +2100,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
             message.className='text-xs text-rose-700';message.textContent='Dokumentasi belum dapat diperbarui: '+(err.message||err);
             const retry=document.createElement('button');retry.type='button';retry.textContent='Coba Lagi';retry.onclick=()=>location.reload();
             holder.append(message,retry);
-            document.getElementById('dokumentasi-preview-judul').textContent='Dokumentasi belum dapat dimuat';
+            document.getElementById('dokumentasi-preview-judul').textContent='Galeri gagal dimuat';
           }
         }
       });
@@ -2419,7 +2419,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
           if(area){
             area.replaceChildren();
             const msg=document.createElement('p');msg.className='text-xs text-rose-700';
-            msg.textContent='Rencana kegiatan gagal dimuat: '+(err.message||err);
+            msg.textContent='Agenda gagal dimuat: '+(err.message||err);
             const retry=document.createElement('button');retry.textContent='Coba Lagi';retry.type='button';retry.onclick=()=>location.reload();
             area.append(msg,retry);
           }
@@ -2428,7 +2428,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       });
     } else {
       const area=document.getElementById('container-rencana');
-      if(area)area.textContent='Sumber rencana kegiatan belum tersedia.';
+      if(area)area.textContent='Agenda belum tersedia.';
       renderCalendar();
     }
 
@@ -2489,7 +2489,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
             setupBannerGestures();
           }else{
             const track=document.getElementById('banner-track');
-            if(track)track.textContent='Belum ada banner yang dipublikasikan.';
+            if(track)track.textContent='Belum ada banner.';
           }
         }
       },
@@ -2750,7 +2750,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
               if(target)target.textContent=Number(row.fund_target_rp)>0?f4ProjectRp(row.fund_target_rp):'Belum diatur';
               const fromKas=row.project_kind==='kas';
               const progressLabel=document.getElementById('gapura-percent')?.previousElementSibling;
-              if(progressLabel)progressLabel.textContent=fromKas?'Perbandingan Saldo Kas':'Progres Pengumpulan Dana';
+              if(progressLabel)progressLabel.textContent=fromKas?'Saldo Kas':'Progres Dana';
               const availableLabel=document.getElementById('gapura-terkumpul')?.previousElementSibling;
               if(availableLabel)availableLabel.textContent=fromKas?'Saldo kategori':'Terkumpul';
             }
@@ -2774,12 +2774,12 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
           }
           slider.append(f4ProjectGeneric(row));
         }
-        empty.textContent=rows.length?'':'Belum ada proyek aktif yang dipublikasikan.';
+        empty.textContent=rows.length?'':'Belum ada projek.';
         empty.hidden=rows.length>0;
         if(window.lucide)window.lucide.createIcons();
       }catch(error){
         // No stale project and no ghost card after a failed public D1 request.
-        empty.hidden=false;empty.textContent='Proyek belum dapat dimuat. Silakan perbarui halaman.';
+        empty.hidden=false;empty.textContent='Projek gagal dimuat. Coba muat ulang.';
         console.warn('Project Card D1:',error);
       }
     }
@@ -2813,7 +2813,7 @@ async function loadProgresBankSampahIndex(){
   // Card Bank Sampah menampilkan progres terbaru sekali saja pada banner, bukan daftar berulang.
   document.getElementById('bs-project-timeline')?.remove();
   if(!items.length){
-   target.textContent='Belum ada perkembangan tercatat';
+   target.textContent='Belum ada perkembangan';
    return;
   }
   const active=items[0]; // satu progres terbaru menurut tanggal
@@ -2831,7 +2831,7 @@ async function loadProgresBankSampahIndex(){
   const host=document.getElementById('bs-step-title');
   if(host)host.textContent='Perkembangan sedang tidak tersedia';
   const txt=document.getElementById('bs-step-desc');
-  if(txt)txt.textContent='Informasi berasal dari Bank Sampah dan akan tampil saat sambungan data pulih.';
+  if(txt)txt.textContent='Info Bank Sampah belum tersedia.';
  }
 }
 
