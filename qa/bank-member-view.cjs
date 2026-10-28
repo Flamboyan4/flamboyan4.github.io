@@ -57,11 +57,12 @@ for(const phrase of [
  if(!bridge.includes(phrase))throw Error('Member/admin weight binding missing: '+phrase);
 }
 for(const phrase of [
+  "v17Chart($('v17WeightBars'),monthly,['beratKg','pendingWeightKg']",
   "p.missingWeight?'—':kg(p.berat)",
   "weight===null?'—':kg(weight)",
   "v14Stat('Berat tercatat'",
   "['beratTimbang','Timbang awal kg']",
-  "['Tanggal','Berat akhir (kg)','Timbang awal (kg)'"
+  "['Tanggal','Berat sesuai status (kg)','Timbang awal (kg)'"
 ]){
  if(!bank.includes(phrase))throw Error('Weight presentation must preserve final versus raw grams: '+phrase);
 }
