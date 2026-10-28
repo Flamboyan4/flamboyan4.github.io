@@ -26,7 +26,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- PapaParse untuk membaca Google Sheets CSV -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-<script src="/portal-live/portal-d1-bridge.js?v=labels-20261025"></script>
+<script src="/portal-live/portal-d1-bridge.js?v=projects-direct-d1-20261028"></script>
 
   
   <style>
@@ -218,6 +218,8 @@ body>div.fixed.bottom-6.right-6{
 }
 </style>
 <style id="f4-projects-d1-source-20261028">
+#slider-projek>#jersey,#slider-projek>#gapura,#slider-projek>#bank-sampah{display:none!important}
+#slider-projek>[data-f4-project-inactive="false"]{display:flex!important}
 #slider-projek>[data-f4-project-inactive="true"]{display:none!important}
 #slider-projek>#f4-project-empty[hidden]{display:none!important}
 </style></head>
@@ -586,7 +588,7 @@ body>div.fixed.bottom-6.right-6{
               <div class="grid grid-cols-3 gap-1 text-center pt-0.5 text-[10px]">
                 <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
                   <p class="text-[9px] text-slate-400">Target</p>
-                  <p class="font-bold text-slate-700 mt-0.5 text-[11px]">Rp 6,5Jt</p>
+                  <p id="gapura-target" class="font-bold text-slate-700 mt-0.5 text-[11px]">—</p>
                 </div>
                 <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
                   <p class="text-[9px] text-slate-400">Terkumpul</p>
@@ -3851,6 +3853,10 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
             const status=special==='bank-sampah'?'bs-status-badge':special==='gapura'?'project-status-gapura':'project-status-jersey';
             const badge=document.getElementById(status);
             if(badge){badge.textContent=f4ProjectStatus(row);badge.className='text-[10px] font-semibold rounded-full px-2 py-0.5 '+f4ProjectBadge(f4ProjectStatus(row));}
+            if(special==='gapura'){
+              const target=document.getElementById('gapura-target');
+              if(target)target.textContent=Number(row.fund_target_rp)>0?f4ProjectRp(row.fund_target_rp):'Belum diatur';
+            }
             if(special==='gapura'&&row.project_kind==='kas'&&row.fund_source){
               const money=Math.max(0,f4ProjectNumber(row.ringkasan?.danaMasukRp)-f4ProjectNumber(row.ringkasan?.danaKeluarRp));
               const goal=f4ProjectNumber(row.fund_target_rp);
