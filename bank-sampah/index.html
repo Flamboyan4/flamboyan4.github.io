@@ -1357,6 +1357,50 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.f4-payout-submit{
  #v11Public #v17PublicMetrics .v17-public-metric strong{font-size:20px!important}
 }
 </style>
+
+<style id="f4-bank-expense-budget-compact-20261028">
+/* Pembelian & Pengeluaran: satu baris kartu ringkas di PC; tidak mengubah nilai anggaran. */
+body.f4-direct-bank #dashboardView #pageBiaya #v10Budget{
+ display:grid!important;
+ grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ gap:9px!important;
+ align-items:stretch!important;
+ width:100%!important;
+ margin:10px 0 15px!important;
+ padding:0!important;
+}
+body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric{
+ display:flex!important;flex-direction:column!important;
+ justify-content:center!important;align-items:flex-start!important;
+ min-width:0!important;min-height:76px!important;
+ margin:0!important;padding:10px 13px!important;
+ border-radius:11px!important;
+ background:#fff!important;border:1px solid #dfebe4!important;
+ box-shadow:none!important
+}
+body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric small{
+ font-size:11px!important;line-height:1.3!important;
+ color:#657b70!important;white-space:normal!important;
+}
+body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
+ display:block!important;
+ margin:5px 0 0!important;
+ font-size:19px!important;line-height:1.25!important;
+ font-weight:800!important;color:#20543b!important;
+ overflow-wrap:anywhere!important;
+}
+@media(max-width:900px){
+ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important
+ }
+}
+@media(max-width:390px){
+ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric{
+  padding:9px 10px!important;min-height:70px!important
+ }
+ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{font-size:17px!important}
+}
+</style>
 </head>
 <body>
 <div class="shell">
@@ -1853,7 +1897,7 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.f4-payout-submit{
  };
 })();
 </script>
-<script src="/portal-live/live-bank-readonly.js?v=gallery-links-20261026"></script>
+<script src="/portal-live/live-bank-readonly.js?v=bank-report-names-20261028"></script>
 <script src="/portal-live/f4-bank-write-bridge.js?v=labels-20261025"></script>
 <script id="f4-appsscript-compat">
 /* Adapter only. Every line of PortalAkun.html's original script remains unchanged below. */
@@ -1912,7 +1956,26 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.f4-payout-submit{
   function saleItems(){return [...$('saleItems').querySelectorAll('input[data-sale-weight]')].filter(el=>Number(el.value)>0).map(el=>({kode:el.dataset.saleWeight,berat:Number(el.value),harga:Number($('saleItems').querySelector('input[data-sale-price="'+el.dataset.saleWeight+'"]').value)}));}
   function updateSaleTotals(){const items=saleItems();$('saleItems').querySelectorAll('input[data-sale-weight]').forEach(el=>el.closest('tr')?.classList.toggle('f4-entry-filled',Number(el.value)>0));const count=$('f4SaleFilledCount');if(count)count.textContent=items.length+' jenis diisi';const weight=items.reduce((s,r)=>s+r.berat,0),gross=items.reduce((s,r)=>s+Math.round(r.berat*r.harga),0);$('saleWeight').textContent=kg(weight);$('saleGross').textContent=rupiah(gross);$('saleReceived').disabled=$('saleStatus').value==='Belum Bayar';if($('saleStatus').value==='Belum Bayar')$('saleReceived').value='0';else if(!$('saleReceived').value||Number($('saleReceived').value)===0)$('saleReceived').value=String(gross);}
   async function submitSale(e){e.preventDefault();const items=saleItems(),batch=$('saleBatch').value;if(!batch||!items.length){note('saleNotice','Pilih batch dan isi sedikitnya satu jenis barang.',true);return;}if(items.some(i=>!Number.isSafeInteger(i.harga)||i.harga<=0)){note('saleNotice','Harga lapak harus rupiah bulat positif.',true);return;}const statusBayar=$('saleStatus').value,diterima=statusBayar==='Belum Bayar'?0:Number($('saleReceived').value);if(!await window.f4UiDialog.confirm('Catat penjualan '+batch+' senilai '+$('saleGross').textContent+'? Belum mengesahkan tabungan.'))return;busy(e.target,true);note('saleNotice','Menyimpan penjualan...');try{const r=await call('bsV6SimpanPenjualan',token,{nonce:saleNonce,batch,tanggal:$('saleDate').value,lapak:$('saleLapak').value,statusBayar,diterima,bukti:$('saleProof').value,items});note('saleNotice','Penjualan '+r.id+' tersimpan. Hasil '+rupiah(r.brutoRp)+'; belum direkonsiliasi.');saleNonce='';e.target.reset();await loadPenjualan();}catch(err){note('saleNotice','Gagal menyimpan: '+(err.message||err),true);}finally{busy(e.target,false);}}
-  async function loadBatchRekon(){const select=$('reconBatch'),old=select.value;select.replaceChildren(new Option('Pilih batch',''));try{const batches=await call('bsV6BatchAdmin',token);batches.forEach(b=>select.appendChild(new Option(b.id+' • '+kg(b.berat),b.id)));select.value=old;if(select.value)loadRekonsiliasi();else $('reconResult').textContent='Pilih batch terlebih dahulu.';}catch(e){$('reconResult').textContent=e.message||'Gagal memuat batch.';}}
+  async function loadBatchRekon(){
+    const select=$('reconBatch'),old=select.value;
+    select.replaceChildren(new Option('Pilih batch',''));
+    $('reconResult').textContent='Memuat batch yang belum disahkan...';
+    try{
+      const rows=await call('bsV6BatchAdmin',token);
+      const eligible=(Array.isArray(rows)?rows:[]).filter(b=>
+        ['draft','siap'].includes(String(b.status||'').trim().toLowerCase()));
+      eligible.forEach(b=>select.add(new Option(b.id+' • '+kg(b.berat),b.id)));
+      if(eligible.some(b=>b.id===old)){
+        select.value=old;
+        await loadRekonsiliasi();
+      }else{
+        select.value='';
+        $('reconResult').textContent=eligible.length
+          ?'Pilih batch untuk melihat pratinjau selisih.'
+          :'Tidak ada batch menunggu rekonsiliasi. Batch yang telah disahkan tidak ditampilkan.';
+      }
+    }catch(error){$('reconResult').textContent=error.message||'Gagal memuat batch.';}
+  }
   async function loadRekonsiliasi(){const batch=$('reconBatch').value,area=$('reconResult');if(!batch){area.textContent='Pilih batch terlebih dahulu.';return;}area.textContent='Menghitung pratinjau...';try{const r=await call('bsV6PratinjauRekonsiliasi',token,batch);const fields=[['Jumlah setoran',r.setoran],['Jumlah transaksi jual',r.penjualan],['Berat timbang warga',kg(r.beratSetoran)],['Berat timbang lapak',kg(r.beratLapak)],['Selisih berat',kg(r.selisihKg)],['Estimasi hak warga',rupiah(r.estimasiWarga)],['Hasil penjualan bruto',rupiah(r.bruto)],['Diterima dari lapak',rupiah(r.diterima)],['Sisa diterima setelah estimasi warga',rupiah(r.marginSementara)],['Penjualan belum lunas',r.belumLunas]];area.replaceChildren(...fields.map(([l,v])=>metric(l,v)));area.style.display='grid';area.style.gridTemplateColumns='repeat(auto-fit,minmax(170px,1fr))';const msg=document.createElement('p');msg.className='pill-note';msg.textContent=r.siapDiperiksa?'Dana tampak cukup untuk ditinjau, tetapi BELUM DISAHKAN.':'Perlu pemeriksaan: penjualan belum lengkap/lunas atau dana belum mencukupi estimasi hak warga.';area.appendChild(msg);}catch(e){area.textContent='Gagal menampilkan selisih: '+(e.message||e);}}
   function v7DetailTable(items,type){const wrap=document.createElement('div');wrap.className='details-panel';const table=document.createElement('table'),body=document.createElement('tbody');items.forEach(x=>{const tr=document.createElement('tr');cell(tr,x.barang,'Barang');cell(tr,kg(x.berat),'Berat');cell(tr,rupiah(type==='setoran'?x.tarif:x.harga)+'/kg','Tarif / harga');cell(tr,rupiah(x.nilai),'Nilai');body.appendChild(tr)});table.appendChild(body);wrap.appendChild(table);if(!items.length)wrap.textContent='Belum ada rincian.';return wrap;}
   async function v7ToggleDetails(container,id,type,button){if(container.childElementCount){container.replaceChildren();button.textContent='Lihat rincian';return;}button.disabled=true;try{const items=await call(type==='setoran'?'bsV7RincianSetoran':'bsV7RincianPenjualan',token,id);container.appendChild(v7DetailTable(items,type));button.textContent='Tutup rincian';}catch(e){container.textContent='Gagal: '+(e.message||e);}finally{button.disabled=false;}}
@@ -2211,7 +2274,7 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.f4-payout-submit{
     if(!v12Data)return;const d=v12Data,root=$('v10Print');root.replaceChildren();
     root.appendChild(v29Kop());
     const title=document.createElement('h1');title.textContent='LAPORAN TABUNGAN WARGA — FLAMBOYAN 4';root.appendChild(title);
-    const identity=document.createElement('p');identity.textContent=d.nama+' • '+d.rumah+' • '+d.wargaId+' • '+d.dibuatPada;root.appendChild(identity);
+    const identity=document.createElement('p');identity.textContent=d.nama+' • '+d.rumah+' • '+d.dibuatPada;root.appendChild(identity);
     const amount=document.createElement('p');amount.textContent='Saldo '+rupiah(d.saldo)+' | Masuk '+rupiah(d.totalMasuk)+' | Dicairkan '+rupiah(d.totalCair);root.appendChild(amount);
     const h=document.createElement('h2');h.textContent='Mutasi tabungan';root.appendChild(h);
     root.appendChild(v12Table(['Tanggal','Keterangan','Masuk','Keluar','Saldo'],d.mutasi.map(x=>[x.tanggal,x.jenis,rupiah(x.kredit),rupiah(x.debit),rupiah(x.saldo)])));
@@ -2228,7 +2291,7 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.f4-payout-submit{
     if(!v12Data)return;
     const d=v12Data,rows=[
       ['LAPORAN TABUNGAN PRIBADI - FLAMBOYAN 4'],
-      ['Nama',d.nama],['Rumah',d.rumah],['ID Anggota',d.wargaId],['Dicetak',d.dibuatPada],
+      ['Nama',d.nama],['Rumah',d.rumah],['Dicetak',d.dibuatPada],
       ['Saldo tersedia (Rp)',d.saldo],['Masuk terkonfirmasi (Rp)',d.totalMasuk],['Sudah dicairkan (Rp)',d.totalCair],
       [],
       ['RIWAYAT TABUNGAN'],
@@ -2245,7 +2308,7 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.f4-payout-submit{
     };
     const csv='\uFEFF'+rows.map(row=>row.map(safe).join(',')).join('\r\n');
     const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');
-    a.href=url;a.download='Tabungan_'+String(d.wargaId).replace(/[^a-z0-9_-]/gi,'_')+'.csv';
+    a.href=url;a.download='Tabungan_'+String(d.nama||'Warga').replace(/[^a-z0-9_-]/gi,'_').slice(0,60)+'_'+String(d.rumah||'').replace(/[^a-z0-9_-]/gi,'_')+'.csv';
     a.click();
     setTimeout(()=>URL.revokeObjectURL(url),5000);
   }
