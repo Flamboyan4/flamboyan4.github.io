@@ -1,0 +1,36 @@
+name: F4 Social Preview Image Build
+on:
+  push:
+    branches: [main]
+    paths:
+      - qa/render-social-preview.cjs
+      - .github/workflows/f4-social-preview.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build-og:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build 1200 x 630 image with actual portal logo
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts sharp@0.34.4
+          node qa/render-social-preview.cjs
+      - name: Save generated image to repository
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/og-flamboyan4.png
+          if git diff --cached --quiet; then
+            echo 'OG asset is unchanged'
+          else
+            git commit -m 'assets: render official Flamboyan social preview'
+            git push origin HEAD:main
+          fi
