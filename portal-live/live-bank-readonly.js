@@ -144,7 +144,7 @@
     kredit:isCredit?amount:0,debit:isCredit?0:amount,saldo:balance,keterangan:x.keterangan||''};
   });
   const deposits=onlyArray(r.setoran).map(x=>({
-   id:x.id||'',tanggal:x.tanggal||'',
+   id:x.id||'',tanggal:x.tanggal||'',tanggalJual:x.tanggalJual||null,
    beratTimbangKg:number(x.beratGram)/1000,
    beratSahKg:x.beratSahGram==null?null:number(x.beratSahGram)/1000,
    beratKg:x.status==='terkonfirmasi'?(x.beratSahGram==null?null:number(x.beratSahGram)/1000):number(x.beratGram)/1000,
@@ -190,6 +190,7 @@
  // Query 300 rows and explicitly reject incomplete admin reports before presenting them as final.
  const adminDeposits=async()=> (await adminRows('deposits')).map(x=>({
   id:x.id,wargaId:x.member_id,namaWarga:x.memberName||'',rumahWarga:'',tanggal:x.deposited_on,
+  tanggalJual:x.sold_on||null,
   beratTimbang:number(x.total_grams)/1000,
   beratSah:x.beratSahGram==null?null:number(x.beratSahGram)/1000,
   berat:x.status==='terkonfirmasi'?(x.beratSahGram==null?null:number(x.beratSahGram)/1000):number(x.total_grams)/1000,
