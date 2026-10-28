@@ -134,7 +134,7 @@ async function stableUuid(nonce){
 }
 async function saleDraft(_token,p){
  const rawProof=String(p.bukti||'').trim();
- const payload={requestId:await stableUuid(p?.nonce),batchId:String(p.batch),soldOn:String(p.tanggal||''),buyerName:String(p.lapak||''),receivedRp:n(p.diterima),adjustmentNote:String(p.alasanSelisih||'').trim(),receiptNo:String(p.bukti||'').trim(),evidenceUrl:String(p.buktiLink||'').trim(),
+ const payload={requestId:await stableUuid(p?.nonce),batchId:String(p.batch),soldOn:String(p.tanggal||''),buyerName:String(p.lapak||''),receivedRp:n(p.diterima),adjustmentNote:String(p.alasanSelisih||'').trim(),
  receiptNo:/^https:\/\//i.test(rawProof)?'':rawProof,
  evidenceUrl:String(p.buktiUrl||(/^https:\/\//i.test(rawProof)?rawProof:'' )).trim(),
  lines:(p.items||[]).map(x=>({itemId:String(x.kode||'').startsWith('waste:')?String(x.kode):'waste:'+String(x.kode||''),grams:Math.round(n(x.berat)*1000),priceRpPerKg:n(x.harga)}))};
