@@ -343,6 +343,60 @@ try:
           len(linked_cash)==(1 if kas_part else 0) and
           all(x[0]=="2026-10-24" and x[1]=="QRIS" and x[2]==kas_part for x in linked_cash) and
           allocation_total==payment_req["jumlahRp"])
+        # Every cash batch test uses ONLY the disposable local D1 clone.
+        # Posting must replace the pending pay-UUID source with exactly one
+        # aggregated cash row; retries and concurrent duplicate keys must not
+        # create additional revenue. Reversal must restore pending allocation.
+        batch_source=sqlite3.connect(str(files[0])).execute(
+            "SELECT id FROM bookkeeping_payment_allocations WHERE payment_id=? AND contribution_type='KAS_LORONG' AND status='aktif'",
+            (payment_id,)).fetchone()
+        assert_step("kas_batch_new_source_present_local",batch_source is not None and kas_part>0)
+        batch_allocation=batch_source[0]
+        before_batch=sqlite3.connect(str(files[0])).execute(
+            "SELECT COALESCE(SUM(debit_rp-credit_rp),0) FROM bookkeeping_cash_transactions_posted WHERE status='aktif'").fetchone()[0]
+        batch_payload={"requestKey":"QABatch"+secrets.token_hex(18),"category":"kas_lorong",
+                       "stage":"susulan","year":2027,"month":1,"bookedOn":"2026-10-25",
+                       "description":"Kas Lorong QA lokal satu batch","sourceIds":[batch_allocation]}
+        first_batch=call(base+"/api/bookkeeping/kas-batches","POST",batch_payload,temporary)
+        batch_code=str(first_batch[1].get("idBatch",""))
+        assert_step("kas_batch_post_once_local",
+                    first_batch[0]==200 and batch_code.startswith("kasbatch:"),
+                    {"http":first_batch[0],"error":first_batch[1].get("error","")[:100]})
+        replay_batch=call(base+"/api/bookkeeping/kas-batches","POST",batch_payload,temporary)
+        assert_step("kas_batch_idempotent_retry",
+                    replay_batch[0]==200 and replay_batch[1].get("idBatch")==batch_code and replay_batch[1].get("duplikat") is True)
+        second_payload={**batch_payload,"requestKey":"QABatch"+secrets.token_hex(18)}
+        blocked_batch=call(base+"/api/bookkeeping/kas-batches","POST",second_payload,temporary)
+        assert_step("kas_batch_duplicate_source_blocked",blocked_batch[0]==409)
+        with sqlite3.connect(str(files[0])) as batch_db:
+            after_batch=batch_db.execute(
+                "SELECT COALESCE(SUM(debit_rp-credit_rp),0) FROM bookkeeping_cash_transactions_posted WHERE status='aktif'").fetchone()[0]
+            grouped=batch_db.execute(
+                "SELECT COUNT(*),COALESCE(SUM(debit_rp),0) FROM bookkeeping_cash_transactions WHERE id=(SELECT cash_transaction_id FROM bookkeeping_kas_batches WHERE id=?) AND status='aktif'",
+                (batch_code,)).fetchone()
+            active_items=batch_db.execute(
+                "SELECT COUNT(*) FROM bookkeeping_kas_batch_items WHERE category='kas_lorong' AND source_id=? AND status='aktif'",
+                (batch_allocation,)).fetchone()[0]
+        assert_step("kas_batch_one_aggregated_cash_entry",
+                    after_batch==before_batch+kas_part and grouped==(1,kas_part) and active_items==1)
+        cant_cancel_while_posted=call(base+"/api/bookkeeping/iuran/cancel","POST",
+            {"idPembayaran":payment_id,"alasan":"QA harus batalkan batch dulu"},temporary)
+        assert_step("kas_batch_guard_source_edit_cancel",cant_cancel_while_posted[0]==409)
+        batch_cancel=call(base+"/api/bookkeeping/kas-batches/cancel","POST",
+            {"idBatch":batch_code,"alasan":"QA local batch reversal"},temporary)
+        assert_step("kas_batch_reversal_local",batch_cancel[0]==200 and batch_cancel[1].get("status")=="dibatalkan",
+                    {"http":batch_cancel[0],"error":batch_cancel[1].get("error","")[:100]})
+        with sqlite3.connect(str(files[0])) as batch_db:
+            restored=batch_db.execute(
+                "SELECT COALESCE(SUM(debit_rp-credit_rp),0) FROM bookkeeping_cash_transactions_posted WHERE status='aktif'").fetchone()[0]
+            remaining=batch_db.execute(
+                "SELECT COUNT(*) FROM bookkeeping_kas_batch_items WHERE category='kas_lorong' AND source_id=? AND status='aktif'",
+                (batch_allocation,)).fetchone()[0]
+        assert_step("kas_batch_reversal_restores_ledger",restored==before_batch and remaining==0)
+        repeat_cancel=call(base+"/api/bookkeeping/kas-batches/cancel","POST",
+            {"idBatch":batch_code,"alasan":"QA local repeated reversal"},temporary)
+        assert_step("kas_batch_reversal_idempotent",repeat_cancel[0]==200 and repeat_cancel[1].get("duplikat") is True)
+
         # Give the anonymous check a genuine linked MEMBER session from cloned D1,
         # not the superadmin fixture (who may intentionally have no member_id).
         member_test_token=secrets.token_hex(32)
