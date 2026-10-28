@@ -158,17 +158,17 @@ function makePortalSide(){
  const logo=el('img');logo.src='https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027-v2';logo.alt='Logo Flamboyan 4';
  const brandName=el('div');const h=el('h2');h.textContent='Portal Utama';
  const sub=el('small');sub.textContent='Flamboyan 4';brandName.append(h,sub);brand.append(logo,brandName);side.append(brand);
- const groupHead=el('div','f4-direct-group-label');groupHead.textContent='NAVIGASI';side.append(groupHead);
+ const groupHead=el('div','f4-direct-group-label');groupHead.textContent='MENU';side.append(groupHead);
  // The scrolling sections must appear in the same sequence as the sidebar.
  // Rapat and Dokumentasi are separate pages, kept in their own group.
  const items=[
-  ['beranda','Beranda','home'],['keuangan','Keuangan Warga','cash'],['projek','Projek','project'],
+  ['beranda','Beranda','home'],['keuangan','Kas Warga','cash'],['projek','Projek','project'],
   ['kalender','Kalender','calendar'],['inventaris','Inventaris','inventory'],
-  ['komentar','Komentar & Saran','message'],['pembayaran','Pembayaran','pay'],
+  ['komentar','Obrolan','message'],['pembayaran','Pembayaran','pay'],
   ['dokumentasi','Dokumentasi','image'],['rapat','Rapat','meeting']
  ];
  for(const [key,label,iconName] of items){
-  if(key==='dokumentasi'){const group=el('div','f4-direct-group-label f4-direct-other-pages');group.textContent='HALAMAN LAINNYA';side.append(group);}
+  if(key==='dokumentasi'){const group=el('div','f4-direct-group-label f4-direct-other-pages');group.textContent='LAINNYA';side.append(group);}
   const b=el('button');b.type='button';b.dataset.f4Panel=key;
   b.innerHTML=svg(iconName);
   const labelEl=el('span');labelEl.textContent=label;b.append(labelEl);
