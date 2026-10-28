@@ -1712,6 +1712,7 @@ async function f4QuickIuranSummary(db, request) {
     bind.push(level === "date" ? to : to.slice(0, 7));
   }
   // Pembagian iuran berasal dari alokasi pembayaran yang sah di D1.
+  // Pemeriksaan audit: kategori RT, Kas Lorong, dan Arisan tidak boleh berasal dari posting batch saja.
   // bookkeeping_allocation_details adalah tahap pembukuan batch SETOR RT; transaksi
   // baru belum tentu memiliki detail tersebut. Jangan menghitung pembagian dari
   // tabel posting karena seluruh iuran baru akan tampak sebagai "Selisih".
