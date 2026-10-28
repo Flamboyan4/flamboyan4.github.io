@@ -22,8 +22,9 @@ for(const t of ['v14-kpi f4-eco-kpi','f4-eco-panel-heading','class="f4-eco-head-
  if(!h.includes(t))throw Error('Dashboard source missing: '+t);
 }
 for(const t of ['#v14Primary>.f4-eco-kpi','nth-child(4)','f4-member-dashboard',
-  'grid-template-columns:repeat(2,minmax(0,1fr))','/assets/bank-eco-header.svg','background:#fff!important']){
+  'grid-template-columns:repeat(2,minmax(0,1fr))','.f4-eco-header-art img','background:#fff!important']){
  if(!c.includes(t))throw Error('Eco CSS missing: '+t);
 }
 if(c.includes('Rp 6.000')||c.includes('33 warga')||c.includes('2 kg'))throw Error('Do not hardcode member or admin figures');
+if(!h.includes('/assets/bank-eco-header.svg?v='))throw Error('Illustration URL must resolve from HTML');
 console.log('F4_ECO_DASHBOARD_STATIC_OK');
