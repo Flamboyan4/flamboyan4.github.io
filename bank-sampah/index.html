@@ -3087,19 +3087,38 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
       <div id="v14Primary" class="v14-primary"></div>
       <details id="f4MemberFlow" class="f4-member-flow" aria-label="Cara setor sampah">
         <summary class="f4-member-flow-head">
-          <span class="f4-member-flow-icon" aria-hidden="true"><img src="/assets/icons/project.svg" alt="" width="20" height="20"></span>
-          <span class="f4-member-flow-copy"><strong>Cara setor sampah</strong><small>Pilah → Antar → Timbang → Saldo</small></span>
-          <span class="f4-member-flow-toggle"><span>Detail</span><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+          <span class="f4-member-flow-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4c-8 0-15 4-15 11a5 5 0 0 0 5 5c7 0 11-7 10-16Z"/><path d="M4 21c2-5 6-9 12-12"/></svg>
+          </span>
+          <span class="f4-member-flow-copy"><strong>Cara setor sampah</strong><small>Pilah <span>→</span> Antar <span>→</span> Timbang <span>→</span> Saldo</small></span>
+          <span class="f4-member-flow-toggle" aria-hidden="true"><span>Lihat alur</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
         </summary>
         <div class="f4-member-flow-body">
           <ol class="f4-member-flow-steps">
-            <li><span class="f4-member-flow-number" aria-hidden="true">1</span><div><strong>Pilah di rumah</strong><p>Pisahkan per jenis, bersihkan, lalu keringkan.</p></div></li>
-            <li><span class="f4-member-flow-number" aria-hidden="true">2</span><div><strong>Antar ke gudang</strong><p>Datang saat ada petugas. Sedikit pun boleh.</p></div></li>
-            <li><span class="f4-member-flow-number" aria-hidden="true">3</span><div><strong>Timbang &amp; catat</strong><p>Petugas mencatat atas nama Anda. Perkiraan muncul di Tabungan saya.</p></div></li>
-            <li><span class="f4-member-flow-number" aria-hidden="true">4</span><div><strong>Saldo sah</strong><p>Setelah dijual dan disahkan, saldo mengikuti harga jual sebenarnya.</p></div></li>
+            <li class="f4-flow-pilah">
+              <span class="f4-member-flow-number" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4c-8 0-15 4-15 11a5 5 0 0 0 5 5c7 0 11-7 10-16Z"/><path d="M4 21c2-5 6-9 12-12"/></svg><b>1</b></span>
+              <div><strong>Pilah di rumah</strong><p>Pisahkan per jenis, bersihkan, lalu keringkan.</p></div>
+            </li>
+            <li class="f4-flow-antar">
+              <span class="f4-member-flow-number" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 12 4l9 6v10H3V10Z"/><path d="M8 20v-8h8v8M8 15h8"/></svg><b>2</b></span>
+              <div><strong>Antar ke gudang</strong><p>Datang saat ada petugas. Sedikit pun boleh.</p></div>
+            </li>
+            <li class="f4-flow-timbang">
+              <span class="f4-member-flow-number" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 7h14M3 13l3-6 3 6H3Zm12 0 3-6 3 6h-6ZM8 21h8"/></svg><b>3</b></span>
+              <div><strong>Timbang &amp; catat</strong><p>Petugas mencatat atas nama Anda. Perkiraan muncul di Tabungan saya.</p></div>
+            </li>
+            <li class="f4-flow-saldo">
+              <span class="f4-member-flow-number" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v13H3V7Z"/><path d="M3 7V4h15M15 13h6v4h-6a2 2 0 0 1 0-4Z"/></svg><b>4</b></span>
+              <div><strong>Saldo sah</strong><p>Setelah dijual dan disahkan, saldo mengikuti harga jual sebenarnya.</p></div>
+            </li>
           </ol>
-          <p class="f4-member-flow-note">Setelah ditimbang, sampah digabung per jenis. Tidak perlu karung per rumah.</p>
-          <p class="f4-member-flow-share">Hasil jual: <strong>50% tabungan warga</strong> · 50% lingkungan.</p>
+          <div class="f4-member-flow-foot">
+            <p class="f4-member-flow-note"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7h.01"/></svg><span>Setelah ditimbang, sampah digabung per jenis. Tidak perlu karung per rumah.</span></p>
+            <div class="f4-member-flow-share" aria-label="Hasil jual dibagi sama rata">
+              <span class="f4-flow-share-warga"><b>50%</b> Tabungan warga</span>
+              <span class="f4-flow-share-lingkungan"><b>50%</b> Lingkungan</span>
+            </div>
+          </div>
         </div>
       </details>
       <div class="v14-panels"><section class="v14-panel"><div class="v14-panel-head"><div class="f4-eco-panel-heading"><h3 id="v14RecentTitle">Setoran terbaru</h3></div><button id="v14AllDeposits" class="v14-link" type="button">Lihat riwayat</button></div><div class="tablewrap" id="v14Recent">Memuat setoran...</div></section><section class="v14-panel"><div class="v14-panel-head"><div class="f4-eco-panel-heading"><h3>Perkembangan kegiatan</h3></div><button class="v14-link" type="button" onclick="goPage('progress')">Lihat semua</button></div><div class="v14-activity" id="v14Activities">Memuat kegiatan...</div></section></div>
@@ -5414,7 +5433,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
 }
 @media(max-width:680px){.f4-sale-note-fields{grid-template-columns:1fr;gap:8px}}
 </style>
-<link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261029-member-weighing-flow-1">
+<link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261029-member-weighing-color-cards-2">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261028-chevron-gallery-3">
 <link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261029-compact-member-profile-1">
 <script src="/portal-live/bank-sale-handover.js?v=a5-landscape-receipt-20261028c"></script>
