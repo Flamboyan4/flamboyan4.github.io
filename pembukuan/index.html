@@ -3112,7 +3112,7 @@ function renderPembukuanKas(){
   const r=KAS_DATA.ringkasan||{};
   document.getElementById('kas-count-belum').textContent=r.qtyBelum||0;document.getElementById('kas-nominal-belum').textContent=rupiah(r.nominalBelum||0);document.getElementById('kas-count-sudah').textContent=r.qtySudah||0;document.getElementById('kas-nominal-sudah').textContent=rupiah(r.nominalSudah||0);
   document.getElementById('kas-tbody-belum').innerHTML=(KAS_DATA.belum||[]).map(x=>`<tr class="hover:bg-violet-50/30"><td class="p-3 text-center"><input type="checkbox" class="kas-check w-4 h-4 accent-violet-600" value="${x.idAlokasi}" data-nominal="${Number(x.nominalKasLorong)||0}" ${x.perluAudit?'disabled title="Perlu audit jurnal migrasi"':''} onchange="updateKasTerpilih()"></td><td class="p-3"><div class="font-bold">${esc(x.nama||'-')}${x.perluAudit?'<span class="ml-2 text-amber-700 font-bold text-xs">Perlu audit</span>':''}</div><div class="text-xs text-slate-400">${esc(x.blok||'')}/${esc(x.noRumah||'')}</div></td><td class="p-3">${histDate(x.tanggalBayar)}</td><td class="p-3 text-center font-bold">${x.qtyKasLorong||0}x</td><td class="p-3 text-right font-black">${rupiah(x.nominalKasLorong||0)}</td><td class="p-3">${x.metode||'-'}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Tidak ada Kas Lorong yang belum dibukukan pada periode ini.</td></tr>';
-  document.getElementById('kas-tbody-batch').innerHTML=newestFirst(KAS_DATA.batches,'tanggalPembukuan').map(x=>`<tr class="hover:bg-violet-50/30"><td class="p-3">${histDate(x.tanggalPembukuan)}</td><td class="p-3"><div class="font-bold">${f4KasCategory()==='denda_gorol'?'Denda Gorol':'Kas Lorong'}</div>${f4SystemIdDetails(x.idBatch)}</td><td class="p-3">${esc(x.keterangan||'-')} ${x.status==='dibatalkan'?'• Dibatalkan':''}</td><td class="p-3 text-center">${x.jumlahPembayaran||0}</td><td class="p-3 text-right font-black">${rupiah(x.nominal||0)}</td><td class="p-3 text-right">${x.status==='dibatalkan'?'-':`<div class="action-icons">${actionIcon('circle-x','Batal',`batalkanBatchKas('${x.idBatch}')`,'red')}</div>`}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada batch pada periode ini.</td></tr>';
+  document.getElementById('kas-tbody-batch').innerHTML=newestFirst(KAS_DATA.batches,'tanggalPembukuan').map(x=>`<tr class="hover:bg-violet-50/30"><td class="p-3">${histDate(x.tanggalPembukuan)}</td><td class="p-3"><div class="font-bold">${f4KasCategory()==='denda_gorol'?'Denda Gorol':'Kas Lorong'}</div>${f4SystemIdDetails(x.idBatch)}</td><td class="p-3">${esc(f4BatchReadableNote(x.keterangan||'-',f4KasCategory(),x.jumlahPembayaran,x.tanggalPembukuan))} ${x.status==='dibatalkan'?'• Dibatalkan':''}</td><td class="p-3 text-center">${x.jumlahPembayaran||0}</td><td class="p-3 text-right font-black">${rupiah(x.nominal||0)}</td><td class="p-3 text-right">${x.status==='dibatalkan'?'-':`<div class="action-icons">${actionIcon('circle-x','Batal',`batalkanBatchKas('${x.idBatch}')`,'red')}</div>`}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada batch pada periode ini.</td></tr>';
   refreshHistoryIcons();
   updateKasTerpilih();
 }
@@ -3124,10 +3124,14 @@ function updateKasTerpilih(){
  const input=document.getElementById('kas-keterangan');
  if(input&&!input.dataset.edited){
   const month=document.getElementById('kas-bulan-iuran'),name=month.options[month.selectedIndex]?.text||'';
-  const category=f4KasCategory()==='denda_gorol'?'Denda Gorol':'Kas Lorong';
+  const fine=f4KasCategory()==='denda_gorol';
   const stage=document.getElementById('kas-tahap-buku')?.value||'susulan';
   const label={setoran_rt:'Setoran RT',arisan:'Arisan',susulan:'Susulan'}[stage]||'Susulan';
-  input.value=selected.length?`${category} ${name} • ${label} • ${selected.length} pembayaran`:'';
+  const year=document.getElementById('kas-tahun-iuran')?.value||'';
+  const unit=selected.length===1?'warga':'warga';
+  input.value=selected.length?(fine
+    ?`Denda Gorol ${name} ${year} • ${selected.length} ${unit}`
+    :`Kas ${name} ${year} • ${label} • ${selected.length} ${unit}`):'';
  }
 }
 async function buatBatchKas(){
@@ -3235,8 +3239,18 @@ async function loadRiwayatKas(silent=false){
   }catch(e){histKasMsg(e.message||String(e),'error')}
 }
 
+function f4BatchReadableNote(raw,kind='',count=0,date=''){
+  const note=String(raw||'').trim();
+  const isFine=kind==='denda_gorol'||/^Denda Gorol\b/i.test(note);
+  const month=String(note.match(/^Denda Gorol\s+([A-Za-z]+)(?:\s+(20\d{2}))?/i)?.[1]||'');
+  const num=Number(count)||Number([...note.matchAll(/\b(\d+)\s*(?:pembayaran|warga|orang)\b/gi)].at(-1)?.[1]||0);
+  const year=String(note.match(/^Denda Gorol\s+[A-Za-z]+\s+(20\d{2})/i)?.[1]||String(date||'').slice(0,4));
+  if(isFine&&month&&num>0&&/\b\d+\s*(?:pembayaran|warga|orang)\b/i.test(note))
+    return 'Denda Gorol '+month+(year?' '+year:'')+' • '+num+' warga';
+  return note.replace(/(\s*•\s*\d+\s+pembayaran)\1\s*$/i,'$1');
+}
 function f4CashHumanTitle(x){
-  const original=String(x?.keterangan||'').trim();
+  const original=f4BatchReadableNote(x?.keterangan||'','',0,x?.tanggal||'').trim();
   const scrub=original
     .replace(/\b(?:payment|pembayaran|transaksi|transaction|source|reference|referensi|ref|id)\s*:\s*[a-z0-9_:-]{4,}\b/gi,'')
     .replace(/\b(?:PAY\d{3,}|pay-[a-f0-9-]{20,}|cash:[a-z0-9_-]{5,})\b/gi,'')
@@ -3926,19 +3940,23 @@ document.addEventListener('DOMContentLoaded',()=>{lucide.createIcons();initKasUi
   #tab-laporan label{font-size:12px!important;display:block!important;margin-bottom:4px!important}
 }
 
-/* v6.17.3 - batasi tinggi daftar transaksi pembukuan agar seimbang dengan panel batch */
-@media (min-width: 641px){
+/* Daftar Kas mengikuti tinggi formulir batch pada desktop. Bila transaksi banyak,
+   daftar menggulir sendiri; jangan membuat semua halaman memanjang. */
+@media (min-width: 1280px){
+  #tab-kas .kas-layout{align-items:stretch!important}
+  #tab-kas .kas-layout>div:first-child{
+    display:flex!important;flex-direction:column!important;min-height:0!important;min-width:0!important
+  }
   #tab-kas .kas-scroll{
-    max-height:380px;
-    overflow-y:auto!important;
-    overflow-x:auto!important;
-    scrollbar-gutter:stable;
+    flex:1 1 0!important;min-height:320px!important;max-height:none!important;
+    overflow-y:auto!important;overflow-x:auto!important;scrollbar-gutter:stable
   }
-  #tab-kas .kas-scroll thead{
-    position:sticky;
-    top:0;
-    z-index:2;
-  }
+}
+@media (min-width:641px) and (max-width:1279px){
+  #tab-kas .kas-scroll{max-height:580px;overflow-y:auto!important;overflow-x:auto!important;scrollbar-gutter:stable}
+}
+@media(min-width:641px){
+  #tab-kas .kas-scroll thead{position:sticky;top:0;z-index:2}
 }
 </style>
 
