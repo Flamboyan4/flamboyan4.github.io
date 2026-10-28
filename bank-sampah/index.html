@@ -2621,7 +2621,7 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.f4-payout-submit{
     // Grafik publik memakai `bulan`, sedangkan arus kas admin memakai `periode`.
     // Jangan memanggil split pada tanggal yang belum tersedia.
     const value=String(month||'').trim();
-    if(!/^\\d{4}-(0[1-9]|1[0-2])$/.test(value))return '—';
+    if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(value))return '—';
     const [year,number]=value.split('-').map(Number);
     return new Date(year,number-1,1).toLocaleDateString('id-ID',{month:'short'});
   }
