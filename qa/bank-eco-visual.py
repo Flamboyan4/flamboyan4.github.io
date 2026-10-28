@@ -82,6 +82,7 @@ async def main():
             }""")
             await page.screenshot(path=str(DEST / (mode+"-fixture.png")), full_page=True)
             result[mode] = state
+            print("VISUAL_STATE",mode,json.dumps(state,ensure_ascii=False),flush=True)
             assert state["banner"] == "rgb(17, 136, 102)", f"{mode}: hero not leaf green: {state['banner']}"
             assert state["title"] == "rgb(255, 255, 255)", f"{mode}: title not white"
             assert state["button"] == "rgb(255, 202, 102)", f"{mode}: CTA not gold"
