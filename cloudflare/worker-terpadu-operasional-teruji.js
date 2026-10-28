@@ -1711,19 +1711,28 @@ async function f4QuickIuranSummary(db, request) {
     conditions.push(level === "date" ? "p.paid_on<=?" : "printf('%04d-%02d',a.period_year,a.period_month)<=?");
     bind.push(level === "date" ? to : to.slice(0, 7));
   }
+  // Pembagian iuran berasal dari alokasi pembayaran yang sah di D1.
+  // bookkeeping_allocation_details adalah tahap pembukuan batch SETOR RT; transaksi
+  // baru belum tentu memiliki detail tersebut. Jangan menghitung pembagian dari
+  // tabel posting karena seluruh iuran baru akan tampak sebagai "Selisih".
   const found = await db.prepare(`SELECT a.id,a.payment_id,p.payer_id,a.amount_rp,p.payment_method,
-    ad.contribution_type AS line_type,ad.amount_rp AS line_rp
+    a.contribution_type
     FROM bookkeeping_payment_allocations a
     JOIN bookkeeping_payments p ON p.id=a.payment_id
-    LEFT JOIN bookkeeping_allocation_details ad ON ad.allocation_id=a.id
     WHERE ${conditions.join(" AND ")} ORDER BY a.period_year,a.period_month,a.id`).bind(...bind).all();
   const allocations = /* @__PURE__ */ new Map();
   for (const x of found.results || []) {
-    if (!allocations.has(x.id)) allocations.set(x.id, { payer: x.payer_id, amount: Number(x.amount_rp || 0), method: String(x.payment_method || "").toLowerCase(), detail: {} });
-    if (x.line_type) {
-      const k = String(x.line_type).toLowerCase();
-      allocations.get(x.id).detail[k] = (allocations.get(x.id).detail[k] || 0) + Number(x.line_rp || 0);
-    }
+    const kind = String(x.contribution_type || "").trim().toUpperCase();
+    allocations.set(x.id, {
+      payer: x.payer_id, amount: Number(x.amount_rp || 0),
+      method: String(x.payment_method || "").toLowerCase(),
+      detail: {
+        bulanan: kind === "IURAN_BULANAN" ? Number(x.amount_rp || 0) : 0,
+        kebersihan: kind === "KEBERSIHAN" ? Number(x.amount_rp || 0) : 0,
+        kas_lorong: kind === "KAS_LORONG" ? Number(x.amount_rp || 0) : 0,
+        arisan: kind === "ARISAN" ? Number(x.amount_rp || 0) : 0
+      }
+    });
   }
   const t = { totalMasuk: 0, setoranRT: 0, kasLorong: 0, arisan: 0, cash: 0, qris: 0, mandiri: 0, selisih: 0 };
   const grouped = { total: /* @__PURE__ */ new Set(), rt: /* @__PURE__ */ new Set(), kas: /* @__PURE__ */ new Set(), arisan: /* @__PURE__ */ new Set() };
