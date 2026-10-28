@@ -4,7 +4,7 @@
  * No print styles; all computations, endpoints and events remain unchanged. */
 @media screen {
 #dashboardView,#v11Public,.f4-member-progress-modal{
- --eco-leaf:#118866;--eco-dark:#075d3f;--eco-gold:#a36600;--eco-gold-focus:#ffca66;
+ --eco-leaf:#118866;--eco-dark:#075d3f;--eco-gold:#F5B52E;--eco-gold-focus:#FFDA83;
  --eco-green:#d9eee0;--eco-blue:#e9f2fc;--eco-peach:#fff0dc;
  --eco-purple:#f1ebff;--eco-line:#d7e7dc;--eco-muted:#526e5e;
  color:#163d2f
@@ -122,7 +122,7 @@ body.f4-bank-embedded #dashboardView .section,
 /* Public: LEAF GREEN hero, white text, golden primary button. */
 #v11Public .v17-public-banner,
 #v11Public .v17-public-banner.v27-banner-program{
- background:#118866!important;border:1px solid #096b49!important;
+ background:#086345!important;border:1px solid #054d35!important;
  border-radius:15px!important;box-shadow:none!important
 }
 #v11Public .v17-public-banner :is(h1,h2,h3,strong){color:#fff!important}
@@ -145,13 +145,14 @@ body.f4-bank-embedded #dashboardView .section,
 #v11Public .v17-public-banner #f4-public-my-savings,
 #v11Public .v17-public-banner #f4-public-manage-bank{
  background:var(--eco-gold)!important;color:#fff!important;
- border:1px solid #985e00!important;border-radius:10px!important;
- font-weight:800!important;box-shadow:0 3px 9px #05432a27!important
+ border:1px solid #E6A125!important;border-radius:10px!important;
+ font-weight:800!important;text-shadow:0 1px 2px #624500a6!important;
+ box-shadow:0 3px 9px #05432a27!important
 }
 #v11Public .v17-public-banner button:not(.v30-hero-photo):hover,
 #v11Public .v17-public-banner #f4-public-my-savings:hover,
 #v11Public .v17-public-banner #f4-public-manage-bank:hover{
- background:#8f5700!important;color:#fff!important
+ background:#EAA218!important;color:#fff!important
 }
 #v11Public .v17-public-banner .v30-hero-photo{
  border:1px solid #ffffff55!important;border-radius:12px!important;

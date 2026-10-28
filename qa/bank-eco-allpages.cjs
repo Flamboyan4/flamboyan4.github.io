@@ -7,7 +7,7 @@ const dashboard=fs.readFileSync('portal-live/bank-eco-dashboard.css','utf8');
 const source=[...h.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].find(x=>x[1].includes('function v14Setup()'))?.[1];
 assert(source,'Bank app inline JavaScript missing');
 new vm.Script(source,{filename:'bank-sampah/index.html:inline'});
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261028-gold-white-solid-1'),'Theme stylesheet cache not updated');
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261028-brighter-gold-deeper-green-2'),'Theme stylesheet cache not updated');
 for(const name of ["pageProfile","pageSetoran","pageRiwayat","pageRiwayatJual","pagePenjualan","pageRekonsiliasi","pageMaster","pageProgress","pagePassword","pageAdmin","pagePengesahan","pageTabungan","pageBiaya","pageLaporan","pageKegiatan","pageDokumentasi","pageInventaris","pagePribadi"].concat(['pageDashboard','v11Public'])){
  assert(h.includes(name),'Missing portal view '+name);
 }
@@ -22,11 +22,12 @@ for(const phrase of ['#v11Public .v17-public-banner.v27-banner-program','#v18Pub
  assert(css.includes(phrase),'Missing themed component '+phrase);
 }
 assert(!css.includes('#a0dcb3'),'Old mint gradient present');
-assert(css.includes('--eco-gold:#a36600'),'Accessible gold token missing');
+assert(css.includes('--eco-gold:#F5B52E'),'Bright golden yellow token missing');
+assert(css.includes('background:#086345!important;border:1px solid #054d35!important'),'Deep green public hero missing');
 assert(css.includes('#v17Program .v17-feature{'),'Program card selector missing');
 assert(css.includes('background:#fff!important;border:1px solid #e0eae3!important'),'Solid white program missing');
-assert(css.includes('color:#fff!important;\n border:1px solid #985e00!important'),'White text on gold missing');
-assert(h.includes('background:#a36600!important;border:1px solid #985e00!important;color:#fff!important'),'Mobile button must match desktop');
+assert(css.includes('color:#fff!important;\n border:1px solid #E6A125!important'),'White text on bright gold missing');
+assert(h.includes('background:#F5B52E!important;border:1px solid #E6A125!important;color:#fff!important'),'Mobile button must match desktop');
 assert(css.includes('#v11Public .v17-public-banner :is(h1,h2,h3,strong)'),'White title missing');
 assert(css.includes('color:#fff!important'),'Foreground contrast missing');
 assert(!h.includes('.stats .stat:last-child{grid-column:1/-1}'),'Wide last savings card regression');
