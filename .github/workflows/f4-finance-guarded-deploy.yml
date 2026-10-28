@@ -104,6 +104,16 @@ jobs:
           if not set(project_columns).issubset(project_actual):
               raise RuntimeError("Project metadata columns not migrated")
           print("D1_ADDITIVE_PROJECT_SCHEMA_OK=1")
+          # Dedicated non-financial receipt metadata for Bank Sampah sales.
+          # Safe to run repeatedly; NEVER ALTER financial values/statuses.
+          sale_receipts=pathlib.Path("cloudflare/migrations/20261028_bank_sale_receipts.sql").read_text()
+          if sale_receipts.upper().count("CREATE TABLE IF NOT EXISTS WASTE_SALE_RECEIPTS")==0 or sale_receipts.upper().count("CREATE TABLE IF NOT EXISTS")!=1:
+              raise RuntimeError("Unexpected receipt migration")
+          d1query(sale_receipts)
+          receipt_columns={x.get("name") for x in d1query("PRAGMA table_info(waste_sale_receipts)")}
+          if not {"sale_id","receipt_no","evidence_url","updated_by","updated_at"}.issubset(receipt_columns):
+              raise RuntimeError("Receipt document columns missing; Worker deploy aborted")
+          print("D1_ADDITIVE_SALE_RECEIPT_SCHEMA_OK=1")
           write_flags={k:by_name[k].get("text") for k in by_name if k.endswith("_WRITE_ENABLED")}
           if not write_flags or any(v not in ("true","false") for v in write_flags.values()):
               raise RuntimeError("Missing or unrecognized Worker write flags")
