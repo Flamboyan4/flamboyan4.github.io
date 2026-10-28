@@ -1,0 +1,34 @@
+name: F4 Bank Eco Visual PC HP
+on:
+  push:
+    branches: [main]
+    paths:
+      - bank-sampah/index.html
+      - portal-live/bank-eco-pages.css
+      - qa/bank-eco-visual.py
+      - .github/workflows/f4-bank-eco-visual.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 11
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Chromium browser
+        run: |
+          python3 -m pip install -q playwright
+          python3 -m playwright install --with-deps chromium
+      - name: Start local portal
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/f4-bank-eco-http.log 2>&1 &
+          sleep 2
+      - name: Inspect computed colors and desktop/mobile card layouts
+        run: python3 qa/bank-eco-visual.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: f4-bank-eco-pc-hp-screenshots
+          path: ops-audit/bank-eco-theme/
+          retention-days: 14
