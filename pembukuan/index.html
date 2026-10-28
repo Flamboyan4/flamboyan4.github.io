@@ -2977,7 +2977,10 @@ function renderRiwayat(){
     const hayRaw=fields.join(' ').toLowerCase();
     const hayNorm=normRiwayatSearch(fields.join(' '));
     return hayRaw.includes(qRaw) || (qNorm && hayNorm.includes(qNorm));
-  }).sort((a,b)=>historyDateTs(b.tanggal)-historyDateTs(a.tanggal));
+  }).sort((a,b)=>
+    historyDateTs(b.tanggal)-historyDateTs(a.tanggal) ||
+    (Number(b.urutanInput)||0)-(Number(a.urutanInput)||0)
+  );
   const total=rows.length;if(!RIWAYAT_SEMUA)rows=rows.slice(0,10);
   tbody.innerHTML=rows.map(x=>{
     const info=riwayatResidentInfo(x);
