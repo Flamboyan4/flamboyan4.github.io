@@ -297,6 +297,18 @@ html.f4-sa-drawer-lock{overflow:hidden!important}
 @media(max-width:1023px){.f4-sa-standalone-menu{display:grid;place-items:center}}
 </style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261028-hidden-scroll-panel"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261028-calendar-font-hp">
+<style id="f4-superadmin-form-value-typography-20261028">
+/* Label is emphasized, but entered values must remain normal-weight.
+   The native controls inherit 650 from their wrapping <label> otherwise. */
+#f4-account-page .f4-admin-editor .f4-admin-fields :is(input:not([type="checkbox"]),select,textarea){
+  font-weight:400!important;
+  letter-spacing:normal!important;
+}
+#f4-account-page .f4-admin-editor .f4-admin-fields :is(input,textarea)::placeholder{
+  font-weight:400!important;
+  color:#85929c;
+}
+</style>
 </head>
 <body>
 <div id="guard" role="status"><h2>Memeriksa akses Superadmin…</h2><p>Portal ini hanya untuk akun dengan role Superadmin.</p></div>
