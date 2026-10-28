@@ -43,13 +43,16 @@ var periodFilter = /* @__PURE__ */ __name((u) => {
   return s;
 }, "periodFilter");
 async function publicPortal(db) {
-  const [agenda, banners, projects, inventory, meetings, documentation] = await Promise.all([
+  const [agenda, banners, projects, inventory, meetings, documentation, orderSummary, contributionSummary, cashSummary] = await Promise.all([
     list(db, `SELECT id,title,starts_on,ends_on,location,description,status FROM portal_agenda WHERE visibility='publik' ORDER BY starts_on DESC LIMIT 40`),
     list(db, `SELECT id,title,image_ref,target_url FROM portal_banners WHERE active=1 ORDER BY sort_order,id LIMIT 20`),
     list(db, `SELECT id,title,description,image_ref,target_url,project_kind,fund_source,fund_target_rp,linked_key,sort_order FROM portal_project_cards WHERE active=1 ORDER BY sort_order,id LIMIT 60`),
     list(db, `SELECT id,name,description,quantity,unit,photo_ref,category FROM portal_inventory WHERE visibility='publik' ORDER BY name LIMIT 250`),
     list(db, `SELECT id,title,meeting_on,summary,document_ref FROM portal_meeting_records WHERE visibility='publik' ORDER BY meeting_on DESC LIMIT 50`),
-    list(db, `SELECT id,event_on,title,description,drive_url,category FROM portal_documentation WHERE visibility='publik' AND active=1 ORDER BY event_on DESC,sort_order LIMIT 100`)
+    list(db, `SELECT id,event_on,title,description,drive_url,category FROM portal_documentation WHERE visibility='publik' AND active=1 ORDER BY event_on DESC,sort_order LIMIT 100`),
+    list(db, `SELECT project_id,COUNT(*) AS jumlah,COALESCE(SUM(amount_due_rp),0) AS tagihanRp,COALESCE(SUM(paid_rp),0) AS diterimaRp,COALESCE(SUM(CASE WHEN paid_rp>=amount_due_rp THEN 1 ELSE 0 END),0) AS lunas FROM portal_project_orders WHERE status='aktif' GROUP BY project_id`),
+    list(db, `SELECT project_id,COUNT(*) AS jumlah,COALESCE(SUM(amount_rp),0) AS diterimaRp FROM portal_project_contributions WHERE status='aktif' GROUP BY project_id`),
+    list(db, `SELECT category,COALESCE(SUM(debit_rp),0) AS masukRp,COALESCE(SUM(credit_rp),0) AS keluarRp FROM bookkeeping_cash_transactions WHERE status='aktif' AND category IS NOT NULL GROUP BY category`)
   ]);
   // Arisan & Jersey were the last public Sheets CSV datasets. Absent migration
   // tables yield empty arrays instead of making the rest of Portal unavailable.
@@ -58,7 +61,24 @@ async function publicPortal(db) {
     list(db,"SELECT sort_order,resident,sleeves,size,printed_name,payment_status,nominal_rp,method FROM portal_jersey_orders WHERE group_key='bapak' ORDER BY sort_order LIMIT 200").catch(()=>[]),
     list(db,"SELECT sort_order,resident,sleeves,size,printed_name,payment_status,nominal_rp,method FROM portal_jersey_orders WHERE group_key='ibu' ORDER BY sort_order LIMIT 200").catch(()=>[])
   ]);
-  return ok({agenda,banners,projects,inventory,meetings,documentation,arisan,jerseyBapak,jerseyIbu});
+  const ordersByProject=new Map(orderSummary.map(r=>[r.project_id,r]));
+  const fundsByProject=new Map(contributionSummary.map(r=>[r.project_id,r]));
+  const kasByCategory=new Map(cashSummary.map(r=>[String(r.category||"").trim().toLowerCase(),r]));
+  const publicProjects=projects.map(p=>{
+    const kind=String(p.project_kind||"informasi"),order=ordersByProject.get(p.id),funds=fundsByProject.get(p.id);
+    const cash=kasByCategory.get(String(p.fund_source||"").trim().toLowerCase());
+    return {...p,ringkasan:{
+      jumlahPesanan:kind==="pesanan"?Number(order?.jumlah||0):0,
+      lunas:kind==="pesanan"?Number(order?.lunas||0):0,
+      totalTagihanRp:kind==="pesanan"?Number(order?.tagihanRp||0):0,
+      danaMasukRp:kind==="pesanan"?Number(order?.diterimaRp||0):
+        kind==="penggalangan"?Number(funds?.diterimaRp||0):
+        kind==="kas"&&p.fund_source?Number(cash?.masukRp||0):0,
+      danaKeluarRp:kind==="kas"&&p.fund_source?Number(cash?.keluarRp||0):0,
+      jumlahKontributor:kind==="penggalangan"?Number(funds?.jumlah||0):0
+    }};
+  });
+  return ok({agenda,banners,projects:publicProjects,inventory,meetings,documentation,arisan,jerseyBapak,jerseyIbu});
 }
 __name(publicPortal, "publicPortal");
 // Public transparency report: read only, from the authoritative active D1 cash journal.
