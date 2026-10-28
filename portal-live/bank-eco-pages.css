@@ -368,3 +368,131 @@ body.f4-bank-embedded #dashboardView .section,
 @media screen and (prefers-reduced-motion:reduce){
  html body :is(#v18PublicSide,#sideNav.side){transition:none!important}
 }
+
+/* Compact member identity profile — 2026-10-29 */
+#dashboardView #pageProfile.f4-profile-card{
+  width:100%!important;max-width:780px!important;margin:0!important;
+  padding:20px 22px!important;background:#fff!important;
+}
+#dashboardView #pageProfile .f4-profile-header{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:0 0 15px;border-bottom:1px solid #e7eee8;
+}
+#dashboardView #pageProfile .f4-profile-header h2{
+  margin:0!important;font-size:20px!important;line-height:1.2!important;
+  letter-spacing:-.3px;color:#173f2e!important;
+}
+#dashboardView #pageProfile .f4-profile-privacy{
+  flex:none;border:1px solid #d9e9df;border-radius:999px;
+  padding:4px 9px;font-size:11px;line-height:1.4;font-weight:650;
+  background:#f4faf6;color:#51715d;
+}
+#dashboardView #pageProfile .f4-profile-overview{
+  display:flex;align-items:center;gap:15px;min-width:0;padding:19px 0;
+}
+#dashboardView #pageProfile .f4-profile-avatar{
+  width:76px;height:76px;flex:0 0 76px;overflow:hidden;
+  display:grid;place-items:center;border-radius:50%;
+  border:2px solid #d7e9dc;background:#e6f2e9;color:#196043;
+  font-size:23px;font-weight:800;letter-spacing:.03em;
+}
+#dashboardView #pageProfile #v15PhotoPreview{
+  display:block;width:100%;height:100%;object-fit:cover;border-radius:50%;background:transparent;
+}
+#dashboardView #pageProfile #v15PhotoPreview[hidden],
+#dashboardView #pageProfile #f4ProfileInitials[hidden]{display:none!important}
+#dashboardView #pageProfile .f4-profile-identity{flex:1;min-width:0}
+#dashboardView #pageProfile .f4-profile-identity>small{
+  display:block;color:#687e71;font-size:12px;line-height:1.3;margin:0 0 3px;
+}
+#dashboardView #pageProfile #pName{
+  display:block;font-size:clamp(18px,2vw,22px)!important;line-height:1.24!important;
+  font-weight:800!important;letter-spacing:-.35px;color:#174b35!important;
+  overflow-wrap:anywhere;
+}
+#dashboardView #pageProfile .f4-profile-meta{
+  display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:9px;
+  color:#4d6e59;font-size:12px;line-height:1.35;
+}
+#dashboardView #pageProfile .f4-profile-house{
+  border:1px solid #dceadf;background:#f0f7f2;color:#295d41;
+  padding:5px 9px;border-radius:8px;
+}
+#dashboardView #pageProfile .f4-profile-id{color:#668074;overflow-wrap:anywhere}
+#dashboardView #pageProfile .f4-profile-meta b{font-size:12px;font-weight:750}
+#dashboardView #pageProfile #v15PhotoPanel.f4-profile-edit{
+  display:block!important;background:#fff!important;border:1px solid #e0eae2!important;
+  border-radius:11px!important;padding:0!important;margin:0 0 12px!important;
+  box-shadow:none!important;
+}
+#dashboardView #pageProfile #v15PhotoPanel>summary{
+  position:relative;display:list-item;list-style:none;cursor:pointer;
+  padding:12px 34px 12px 13px;color:#275c40;font-size:13px;font-weight:750;
+  line-height:1.4;
+}
+#dashboardView #pageProfile #v15PhotoPanel>summary::-webkit-details-marker{display:none}
+#dashboardView #pageProfile #v15PhotoPanel>summary::after{
+  content:'';position:absolute;right:16px;top:50%;width:7px;height:7px;
+  border-right:2px solid #547462;border-bottom:2px solid #547462;
+  transform:translateY(-65%) rotate(45deg);transition:transform .16s;
+}
+#dashboardView #pageProfile #v15PhotoPanel[open]>summary::after{transform:translateY(-20%) rotate(225deg)}
+#dashboardView #pageProfile .f4-profile-photo-form{border-top:1px solid #e6eee7;padding:12px 13px}
+#dashboardView #pageProfile .f4-profile-upload-row{
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-width:0;
+}
+#dashboardView #pageProfile .f4-profile-file-input{
+  position:absolute!important;width:1px!important;height:1px!important;
+  opacity:0!important;overflow:hidden!important;padding:0!important;border:0!important;
+}
+#dashboardView #pageProfile .f4-profile-file-button{
+  display:inline-flex;align-items:center;justify-content:center;
+  flex:0 0 auto;margin:0!important;min-height:37px;padding:8px 12px;
+  border:1px solid #cbded2;border-radius:9px;background:#f2f8f4;
+  color:#275b3c;font-size:12px;font-weight:750;cursor:pointer;
+}
+#dashboardView #pageProfile #v15PhotoInput:focus-visible+.f4-profile-file-button{
+  outline:3px solid #efb23e;outline-offset:2px;
+}
+#dashboardView #pageProfile .f4-profile-file-name{
+  flex:1;min-width:90px;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;color:#617b6a;font-size:12px;
+}
+#dashboardView #pageProfile #v15PhotoSave.secondary{
+  flex:0 0 auto;min-height:37px;min-width:78px;padding:8px 13px!important;
+  border:1px solid #f0b522!important;background:#ffbf29!important;
+  color:#fff!important;font-size:12px!important;font-weight:800!important;
+  box-shadow:none!important;border-radius:9px!important;
+}
+#dashboardView #pageProfile #v15PhotoSave:disabled{opacity:.5!important;cursor:not-allowed!important}
+#dashboardView #pageProfile #v15PhotoStatus{margin:7px 0 0;font-size:12px;line-height:1.35;overflow-wrap:anywhere}
+#dashboardView #pageProfile #v15PhotoStatus:empty{display:none}
+#dashboardView #pageProfile .f4-profile-tip.notice{
+  padding:10px 12px!important;margin:0 0 12px!important;
+  background:#f3f9f5!important;border:1px solid #dcebe0!important;
+  border-radius:10px!important;color:#466651!important;
+  font-size:12px!important;line-height:1.5!important;
+}
+#dashboardView #pageProfile #v15PasswordBox{
+  padding:0!important;margin:0!important;border:1px solid #e0eae2!important;
+  border-radius:11px!important;background:#fff!important;
+}
+#dashboardView #pageProfile #v15PasswordBox>summary{
+  padding:12px 13px!important;color:#275c40!important;
+  font-size:13px!important;font-weight:750!important;
+}
+#dashboardView #pageProfile #v15PasswordBox form{
+  border-top:1px solid #e6eee7;padding:13px!important;margin:0!important;
+  max-width:100%!important;
+}
+@media screen and (max-width:760px){
+  #dashboardView #pageProfile.f4-profile-card{padding:15px 14px!important;border-radius:12px!important}
+  #dashboardView #pageProfile .f4-profile-header{padding-bottom:12px}
+  #dashboardView #pageProfile .f4-profile-header h2{font-size:18px!important}
+  #dashboardView #pageProfile .f4-profile-overview{gap:12px;padding:15px 0}
+  #dashboardView #pageProfile .f4-profile-avatar{width:64px;height:64px;flex-basis:64px;font-size:20px}
+  #dashboardView #pageProfile #pName{font-size:18px!important;line-height:1.25!important}
+  #dashboardView #pageProfile .f4-profile-meta{margin-top:7px;gap:6px}
+  #dashboardView #pageProfile .f4-profile-house{padding:4px 7px}
+  #dashboardView #pageProfile .f4-profile-file-name{flex-basis:calc(100% - 105px)}
+}
