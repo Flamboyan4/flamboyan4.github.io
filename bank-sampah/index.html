@@ -2048,7 +2048,29 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
       <div class="grid"><nav id="sideNav" class="side"><div class="brand" style="margin-bottom:16px">🌱 &nbsp; Menu</div><button id="navDashboard" onclick="goPage('dashboard')" class="secondary active">Dashboard</button><button id="navProfile" onclick="goPage('profile')" class="secondary">Profil saya</button><button id="navSetoran" onclick="goPage('setoran')" class="secondary hidden">Input setoran</button><button id="navRiwayat" onclick="goPage('riwayat')" class="secondary hidden">Riwayat setoran</button><button id="navPenjualan" onclick="goPage('penjualan')" class="secondary hidden">Penjualan lapak</button><button id="navRekonsiliasi" onclick="goPage('rekonsiliasi')" class="secondary hidden">Cek selisih</button><button id="navMaster" onclick="goPage('master')" class="secondary hidden">Harga barang</button><button id="navAdmin" onclick="goPage('admin')" class="secondary hidden">Kelola akun warga</button><button id="navProgress" onclick="goPage('progress')" class="secondary">Progres kegiatan</button><button id="navPassword" onclick="goPage('password')" class="secondary">Ganti password</button><button class="ghost" onclick="doLogout()">Keluar</button></nav>
       <div class="section"><div class="toolbar" style="margin-bottom:16px"><div><h1 id="greeting">Halo!</h1><div class="sub">Bank Sampah Flamboyan 4</div></div><span id="roleBadge" class="tag"></span></div>
         <div id="pageDashboard" class="card"><div class="toolbar"><div><h2>Dashboard Bank Sampah</h2></div><button class="secondary" onclick="loadDashboard()">Perbarui</button></div><div id="adminMetrics" class="hidden"><div id="metricGrid" class="metric-grid block-gap"></div><div id="dashboardWarnings" class="pill-note block-gap"></div></div><div id="memberWelcome" class="hidden"><div class="notice">🔒 Data pribadi hanya untuk pemilik akun.</div><div class="stats"><div class="stat"><small>Nama</small><strong id="welcomeName">—</strong></div><div class="stat"><small>Rumah</small><strong id="welcomeHouse">—</strong></div><div class="stat"><small>ID anggota</small><strong id="welcomeId">—</strong></div></div></div><p class="hint" id="metricStatus">Memuat ringkasan...</p></div>
-        <div id="pageProfile" class="card hidden"><h2>Identitas anggota</h2><div class="stats"><div class="stat"><small>Nama</small><strong id="pName">—</strong></div><div class="stat"><small>Rumah</small><strong id="pHome">—</strong></div><div class="stat"><small>ID anggota</small><strong id="pId">—</strong></div></div><div class="notice">Buka Tabungan saya untuk rincian pribadi.</div></div>
+        <div id="pageProfile" class="card hidden f4-profile-card">
+          <div class="f4-profile-header"><h2>Profil saya</h2><span class="f4-profile-privacy">Akun pribadi</span></div>
+          <div class="f4-profile-overview">
+            <div class="f4-profile-avatar"><img id="v15PhotoPreview" alt="Foto profil" hidden><span id="f4ProfileInitials" aria-hidden="true">?</span></div>
+            <div class="f4-profile-identity">
+              <small>Nama anggota</small><strong id="pName">—</strong>
+              <div class="f4-profile-meta"><span class="f4-profile-house">Rumah <b id="pHome">—</b></span><span class="f4-profile-id">ID <b id="pId">—</b></span></div>
+            </div>
+          </div>
+          <details id="v15PhotoPanel" class="f4-profile-edit">
+            <summary>Ubah foto profil</summary>
+            <div class="f4-profile-photo-form">
+              <div class="f4-profile-upload-row">
+                <input id="v15PhotoInput" type="file" accept="image/jpeg,image/png,image/webp" class="f4-profile-file-input">
+                <label for="v15PhotoInput" class="f4-profile-file-button">Pilih foto</label>
+                <span id="f4ProfileFilename" class="f4-profile-file-name">JPG, PNG, WebP · maks. 6 MB</span>
+                <button id="v15PhotoSave" type="button" class="secondary" disabled>Simpan</button>
+              </div>
+              <div id="v15PhotoStatus" class="hint" role="status" aria-live="polite"></div>
+            </div>
+          </details>
+          <div class="notice f4-profile-tip">Saldo &amp; laporan ada di menu Tabungan saya. Ganti password awal untuk keamanan.</div>
+        </div>
         <div id="pageSetoran" class="card hidden"><h2>Setoran</h2><p class="desc">Nilai perkiraan, belum jadi saldo.</p><form id="setoranForm" onsubmit="submitSetoran(event)"><div class="f4-entry-top-fields"><div class="field"><label for="setWarga">Nama anggota</label><select id="setWarga" required><option value="">Pilih warga</option></select></div><div class="field"><label for="setDate">Tanggal setoran</label><input type="date" id="setDate" required></div></div><div class="f4-entry-goods-heading"><div><h3>Rincian sampah</h3></div><span id="f4SetFilledCount" class="f4-entry-item-count">0 jenis diisi</span></div><div id="setBarang" class="tablewrap"></div><div class="summary-box block-gap"><div><small>Total berat</small><strong id="previewKg" style="display:block">0 kg</strong></div><div><small>Estimasi hak warga</small><strong id="previewRp" style="display:block">Rp 0</strong></div></div><div class="field block-gap"><label for="setNotes">Catatan (opsional)</label><input id="setNotes" maxlength="300" placeholder="Contoh: kegiatan timbang rutin"></div><button id="saveSetoranBtn" type="submit" class="wide">Simpan setoran estimasi</button></form><div id="setoranNotice" role="status" aria-live="polite"></div></div>
         <div id="pageRiwayat" class="card hidden"><div class="toolbar"><h2>Riwayat setoran</h2><button class="secondary" onclick="loadRiwayatV7()">Perbarui</button></div><div class="pill-note">ⓘ Setoran batal tetap tersimpan.</div><div id="riwayatList" class="tablewrap">Memuat...</div><div id="riwayatNotice" role="status"></div></div>
         <div id="pageRiwayatJual" class="card hidden"><div class="toolbar"><h2>Riwayat penjualan</h2><button class="secondary" onclick="loadRiwayatJual()">Perbarui</button></div><div class="pill-note">⚠️ Penjualan sah harus diperiksa sebelum dibatalkan.</div><div id="riwayatJualList" class="tablewrap">Memuat...</div><div id="riwayatJualNotice" role="status"></div></div>
@@ -2560,7 +2582,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
   function call(name,...args){return new Promise((resolve,reject)=>google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[name](...args));}
   function busy(form,active){form.querySelectorAll('button').forEach(b=>b.disabled=active);}
   function showAuth(){profile=null;token='';sessionStorage.removeItem('bs4_session');$('dashboardView').classList.add('hidden');$('authView').classList.remove('hidden');}
-  function showDashboard(p){profile=p;$('authView').classList.add('hidden');$('dashboardView').classList.remove('hidden');$('greeting').textContent='Halo, '+p.nama;$('roleBadge').textContent=p.peran;$('pName').textContent=p.nama;$('pHome').textContent=p.rumah||'—';$('pId').textContent=p.wargaId||'Administrator';if(!$('navRiwayatJual')){const btn=document.createElement('button');btn.id='navRiwayatJual';btn.className='secondary';btn.textContent='Riwayat penjualan';btn.onclick=()=>goPage('riwayatJual');$('navPenjualan').after(btn);}v7EnsureSaleReason();v8Setup();v9Setup();v10Setup();v11Setup();$('v11Public').classList.add('hidden');['Admin','Master','Setoran','Riwayat','RiwayatJual','Penjualan','Rekonsiliasi','Pengesahan','Tabungan','Biaya','Laporan','Kegiatan','Dokumentasi','Inventaris'].forEach(id=>$('nav'+id).classList.toggle('hidden',p.peran!=='Admin'));goPage('dashboard');}
+  function showDashboard(p){profile=p;$('authView').classList.add('hidden');$('dashboardView').classList.remove('hidden');$('greeting').textContent='Halo, '+p.nama;$('roleBadge').textContent=p.peran;$('pName').textContent=p.nama;$('pHome').textContent=p.rumah||'—';$('pId').textContent=String(p.wargaId||'Administrator').replace(/^member:/i,'');if(!$('navRiwayatJual')){const btn=document.createElement('button');btn.id='navRiwayatJual';btn.className='secondary';btn.textContent='Riwayat penjualan';btn.onclick=()=>goPage('riwayatJual');$('navPenjualan').after(btn);}v7EnsureSaleReason();v8Setup();v9Setup();v10Setup();v11Setup();$('v11Public').classList.add('hidden');['Admin','Master','Setoran','Riwayat','RiwayatJual','Penjualan','Rekonsiliasi','Pengesahan','Tabungan','Biaya','Laporan','Kegiatan','Dokumentasi','Inventaris'].forEach(id=>$('nav'+id).classList.toggle('hidden',p.peran!=='Admin'));goPage('dashboard');}
   function goPage(page){if(['admin','master','setoran','riwayat','riwayatJual','penjualan','rekonsiliasi','pengesahan','tabungan','biaya','laporan','kegiatan','dokumentasi','inventaris'].includes(page)&&(!profile||profile.peran!=='Admin'))return;['dashboard','profile','setoran','riwayat','riwayatJual','penjualan','rekonsiliasi','pengesahan','tabungan','biaya','laporan','kegiatan','dokumentasi','inventaris','master','admin','progress','password'].forEach(name=>{$('page'+name[0].toUpperCase()+name.slice(1)).classList.toggle('hidden',name!==page);$('nav'+name[0].toUpperCase()+name.slice(1)).classList.toggle('active',name===page)});$('sideNav').classList.remove('open');note('dashNotice','');if(page==='dashboard')loadDashboard();if(page==='admin')loadAccounts();if(page==='master')loadMaster();if(page==='progress')loadProgress();if(page==='setoran')loadSetoran();if(page==='riwayat')loadRiwayatV7();if(page==='riwayatJual')loadRiwayatJual();if(page==='penjualan')loadPenjualan();if(page==='rekonsiliasi')loadBatchRekon();if(page==='pengesahan')v8LoadBatches();if(page==='tabungan')v9Load();if(page==='biaya')v10LoadBiaya();if(page==='laporan')v10LoadReport();if(page==='dokumentasi')v11LoadAlbums();if(page==='inventaris')v11LoadInventory();}
   function toggleMenu(){$('sideNav').classList.toggle('open');}
   async function doLogin(e){e.preventDefault();busy(e.target,true);note('authNotice','Memeriksa akun...');try{const r=await call('authLogin',$('loginUser').value,$('loginPass').value);token=r.token;sessionStorage.setItem('bs4_session',token);$('loginPass').value='';showDashboard(r.profil);}catch(e){note('authNotice',e.message||'Login gagal.',true);}finally{busy(e.target,false);}}
@@ -2899,7 +2921,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
   };
   function v12Setup(){
     if($('memberWelcome'))$('memberWelcome').querySelector('.notice').textContent='Lihat saldo tabungan dan rincian setoran lewat menu Tabungan saya. Demi privasi, ganti password awal satu kali sebelum membukanya.';
-    $('pageProfile').querySelector('.notice').textContent='Untuk melihat saldo, rincian barang, dan mengunduh laporan, buka menu Tabungan saya. Password awal perlu diganti lebih dulu demi privasi.';
+    $('pageProfile').querySelector('.notice').textContent='Saldo & laporan ada di Tabungan saya. Ganti password awal untuk keamanan.';
     if(!$('pagePribadi')){
       const nav=document.createElement('button');nav.id='navPribadi';nav.className='secondary';nav.textContent='💚 Tabungan saya';nav.onclick=()=>goPage('pribadi');$('navProfile').after(nav);
       const page=document.createElement('section');page.id='pagePribadi';page.className='card hidden';
@@ -3391,17 +3413,16 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
       const logout=document.createElement('button');logout.type='button';logout.className='account-exit';logout.textContent='↪';logout.title='Keluar dari akun';logout.setAttribute('aria-label','Keluar dari akun');logout.onclick=()=>doLogout();
       footer.append(account,logout);side.appendChild(footer);
     }
-    if(!$('v15PhotoPanel')){
-      const box=document.createElement('div');box.id='v15PhotoPanel';
-      const preview=document.createElement('img');preview.id='v15PhotoPreview';preview.alt='Foto profil';
-      const info=document.createElement('div');info.style.flex='1';info.style.minWidth='190px';
-      const title=document.createElement('div');title.className='v15-profile-name';title.textContent='Foto profil saya';
-      const caption=document.createElement('p');caption.className='hint';caption.textContent='JPG, PNG, atau WebP.';
-      const file=document.createElement('input');file.id='v15PhotoInput';file.type='file';file.accept='image/jpeg,image/png,image/webp';file.onchange=e=>{v15PendingFile=e.target.files?.[0]||null;};
-      const btn=document.createElement('button');btn.type='button';btn.className='secondary';btn.textContent='Simpan foto';btn.onclick=v15SaveAvatar;
-      const status=document.createElement('div');status.id='v15PhotoStatus';status.className='hint';status.setAttribute('role','status');
-      info.append(title,caption,file,btn,status);box.append(preview,info);
-      $('pageProfile').querySelector('.stats').after(box);
+    const photoInput=$('v15PhotoInput'),photoSave=$('v15PhotoSave'),fileName=$('f4ProfileFilename');
+    if(photoInput&&photoSave&&!photoInput.dataset.f4Bound){
+      photoInput.dataset.f4Bound='1';
+      photoInput.addEventListener('change',event=>{
+        v15PendingFile=event.target.files?.[0]||null;
+        fileName.textContent=v15PendingFile?v15PendingFile.name:'JPG, PNG, WebP · maks. 6 MB';
+        photoSave.disabled=!v15PendingFile;
+        note('v15PhotoStatus','');
+      });
+      photoSave.addEventListener('click',v15SaveAvatar);
     }
     if(!$('v15PasswordBox')){
       const target=document.createElement('details');target.id='v15PasswordBox';
@@ -3417,10 +3438,16 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
   function v15PaintAvatar(){
     const node=$('v15Avatar'),preview=$('v15PhotoPreview');if(!node)return;
     node.replaceChildren();
-    if(v15AvatarData){const img=document.createElement('img');img.src=v15AvatarData;img.alt='';node.appendChild(img);if(preview)preview.src=v15AvatarData;}
-    else{
-      const initials=(profile?.nama||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase();
-      node.textContent=initials;if(preview)preview.removeAttribute('src');
+    const initials=(profile?.nama||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase();
+    const fallback=$('f4ProfileInitials');
+    if(v15AvatarData){
+      const img=document.createElement('img');img.src=v15AvatarData;img.alt='';node.appendChild(img);
+      if(preview){preview.src=v15AvatarData;preview.hidden=false;}
+      if(fallback)fallback.hidden=true;
+    }else{
+      node.textContent=initials;
+      if(preview){preview.hidden=true;preview.removeAttribute('src');}
+      if(fallback){fallback.textContent=initials;fallback.hidden=false;}
     }
   }
   async function v15LoadAvatar(){
@@ -3435,7 +3462,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
   async function v15SaveAvatar(){
     const file=v15PendingFile;if(!file){note('v15PhotoStatus','Pilih foto terlebih dahulu.',true);return;}
     if(file.size>6*1024*1024){note('v15PhotoStatus','Foto awal maksimal 6 MB.',true);return;}
-    const button=$('v15PhotoInput').nextElementSibling;button.disabled=true;note('v15PhotoStatus','Menyiapkan foto...');
+    const button=$('v15PhotoSave');button.disabled=true;note('v15PhotoStatus','Menyiapkan foto...');
     let url='';
     try{
       url=URL.createObjectURL(file);const img=new Image();img.src=url;await img.decode();
@@ -3446,9 +3473,9 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
       const encoded=canvas.toDataURL('image/jpeg',.76).split(',')[1];
       if(encoded.length>340000)throw new Error('Foto terlalu besar setelah diproses.');
       await call('bsV15SimpanFoto',token,encoded);v15AvatarData='data:image/jpeg;base64,'+encoded;
-      v15PaintAvatar();v15PendingFile=null;$('v15PhotoInput').value='';note('v15PhotoStatus','Foto profil berhasil disimpan.');
+      v15PaintAvatar();v15PendingFile=null;$('v15PhotoInput').value='';$('f4ProfileFilename').textContent='JPG, PNG, WebP · maks. 6 MB';note('v15PhotoStatus','Foto profil berhasil disimpan.');
     }catch(e){note('v15PhotoStatus','Gagal menyimpan foto: '+(e.message||e),true);}
-    finally{if(url)URL.revokeObjectURL(url);button.disabled=false;}
+    finally{if(url)URL.revokeObjectURL(url);button.disabled=!v15PendingFile;}
   }
   function v15UpdatePublicButton(){
     const b=document.querySelector('#v11Public .public-hero button');if(!b)return;
@@ -5371,7 +5398,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
 </style>
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261028-member-tidy-1">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261028-chevron-gallery-3">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261028-brighter-gold-deeper-green-2">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261029-compact-member-profile-1">
 <script src="/portal-live/bank-sale-handover.js?v=a5-landscape-receipt-20261028c"></script>
 <script src="/portal-live/direct-shell.js?v=profile-display-20261028"></script><script src="/portal-live/unified-account.js?v=profile-display-20261028"></script><script defer src="/portal-live/mobile-cards.js?v=20261028-saldo-grid"></script><script defer src="/portal-live/native-controls.js?v=20261027-audit6"></script><script defer src="/portal-live/bank-page-history.js?v=20261027-final4"></script></body>
 </html>
