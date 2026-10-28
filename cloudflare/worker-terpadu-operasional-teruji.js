@@ -124,7 +124,7 @@ async function publicBankReport(db, url) {
   const month=periodFilter(url);
   // One row per confirmed batch. Avoid multiplying totals by joining deposit lines
   // to sale lines. This endpoint is PUBLIC and contains no member identities.
-  const [sales,expenses]=await Promise.all([
+  const [sales,expenses,pending]=await Promise.all([
     list(db,`SELECT substr(s.sold_on,1,7) AS periode,COUNT(*) AS batch,
       COALESCE(SUM(a.received_rp),0) AS hasilPenjualan,
       COALESCE(SUM(a.citizen_rights_rp),0) AS hakWarga,
@@ -139,12 +139,18 @@ async function publicBankReport(db, url) {
       GROUP BY substr(s.sold_on,1,7) ORDER BY periode`),
     list(db,`SELECT substr(incurred_on,1,7) AS periode,COALESCE(SUM(amount_rp),0) AS pengeluaran
       FROM waste_expenses WHERE status='lunas'
-      GROUP BY substr(incurred_on,1,7) ORDER BY periode`)
+      GROUP BY substr(incurred_on,1,7) ORDER BY periode`),
+    list(db,`SELECT substr(d.deposited_on,1,7) AS periode,COUNT(*) AS pendingCount,
+      COALESCE(SUM(d.estimated_total_rp),0) AS pendingEstimateRp,
+      COALESCE(SUM(d.total_grams),0)/1000.0 AS pendingWeightKg
+      FROM waste_deposits d JOIN waste_batches b ON b.id=d.batch_id
+      WHERE d.status='estimasi' AND b.status IN ('draft','siap')
+      GROUP BY substr(d.deposited_on,1,7) ORDER BY periode`)
   ]);
   const byMonth=new Map();
   const ensure=m=>{
     if(!byMonth.has(m))byMonth.set(m,{periode:m,batch:0,beratKg:0,hasilPenjualan:0,hakWarga:0,
-      cadangan:0,kasLorong:0,operasional:0,pengeluaran:0});
+      cadangan:0,kasLorong:0,operasional:0,pengeluaran:0,pendingCount:0,pendingEstimateRp:0,pendingWeightKg:0});
     return byMonth.get(m);
   };
   for(const r of sales){
@@ -156,13 +162,21 @@ async function publicBankReport(db, url) {
       return err('Alokasi hasil penjualan memerlukan rekonsiliasi sebelum ditampilkan.',409);
   }
   for(const r of expenses)ensure(r.periode).pengeluaran=Number(r.pengeluaran||0);
+  for(const r of pending){
+    const row=ensure(r.periode);
+    row.pendingCount=Number(r.pendingCount||0);
+    row.pendingEstimateRp=Number(r.pendingEstimateRp||0);
+    row.pendingWeightKg=Number(r.pendingWeightKg||0);
+    if(!Number.isSafeInteger(row.pendingEstimateRp)||row.pendingEstimateRp<0)
+      return err('Estimasi setoran belum dapat diperiksa.',409);
+  }
   const periodeTersedia=[...byMonth.keys()].sort().reverse();
   const bulanan=periodeTersedia.filter(m=>!month||m===month).map(m=>byMonth.get(m));
-  const summary={batch:0,beratKg:0,hasilPenjualan:0,hakWarga:0,cadangan:0,kasLorong:0,operasional:0,pengeluaran:0};
+  const summary={batch:0,beratKg:0,hasilPenjualan:0,hakWarga:0,cadangan:0,kasLorong:0,operasional:0,pengeluaran:0,pendingCount:0,pendingEstimateRp:0,pendingWeightKg:0};
   for(const row of bulanan)for(const key of Object.keys(summary))summary[key]+=row[key];
   return ok({period:month||'semua',ringkasan:summary,bulanan,periodeTersedia,
     readOnly:true,source:'cloudflare-d1',
-    notice:'Hanya batch yang disahkan dan pengeluaran lunas; setoran estimasi dan batch batal tidak dihitung.'});
+    notice:'Hasil jual hanya dari transaksi sah. Perkiraan menunggu disajikan terpisah dan tidak masuk saldo.'});
 }
 __name(publicBankReport, "publicBankReport");
 async function publicAlbum(db, id) {
@@ -204,7 +218,38 @@ async function adminBank(db, url) {
     inventory: `SELECT id,name,quantity,unit,category,location,condition,active FROM inventory ORDER BY name LIMIT ?`
   };
   if (!tables[kind]) return null;
-  return ok({ data: await list(db, tables[kind], [limit]), limit });
+  const data=await list(db,tables[kind],[limit]);
+  if(kind!=='deposits')return ok({data,limit});
+  // Angka sah per setoran berasal dari kredit jurnal warga pada batch disahkan.
+  // Untuk satu warga beberapa setoran: persis pembagian yang dipakai pada laporan pribadinya.
+  const batchIds=[...new Set(data.filter(x=>x.status==='terkonfirmasi').map(x=>x.batch_id).filter(Boolean))];
+  const actual=new Map();
+  if(batchIds.length){
+    const placeholders=batchIds.map(()=>'?').join(',');
+    const confirmed=await list(db,`SELECT d.id,d.member_id,d.batch_id,d.estimated_total_rp,
+      COALESCE(credits.credit_count,0) AS credit_count,COALESCE(credits.credit_rp,0) AS credit_rp
+      FROM waste_deposits d JOIN waste_batches b ON b.id=d.batch_id
+      JOIN waste_allocations a ON a.batch_id=d.batch_id
+      JOIN waste_sales s ON s.batch_id=d.batch_id AND s.status='terkonfirmasi'
+      LEFT JOIN (SELECT member_id,batch_id,COUNT(*) AS credit_count,SUM(amount_rp) AS credit_rp
+        FROM waste_savings_ledger WHERE kind='kredit' GROUP BY member_id,batch_id) credits
+        ON credits.member_id=d.member_id AND credits.batch_id=d.batch_id
+      WHERE d.status='terkonfirmasi' AND b.status='disahkan'
+        AND d.batch_id IN (${placeholders})
+      ORDER BY d.batch_id,d.member_id,d.id`,batchIds);
+    const groups=new Map();
+    for(const x of confirmed){
+      const key=x.batch_id+'|'+x.member_id;
+      if(!groups.has(key))groups.set(key,[]);
+      groups.get(key).push(x);
+    }
+    for(const rows of groups.values()){
+      if(Number(rows[0].credit_count)!==1)continue;
+      const portions=f4ShareConfirmedSavings(rows,Number(rows[0].credit_rp));
+      if(portions)for(const x of portions)actual.set(x.id,x.nilaiSahRp);
+    }
+  }
+  return ok({data:data.map(d=>({...d,nilaiSahRp:actual.has(d.id)?actual.get(d.id):null})),limit});
 }
 __name(adminBank, "adminBank");
 async function detailBank(db, url) {
