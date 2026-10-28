@@ -223,7 +223,16 @@ body>div.fixed.bottom-6.right-6{
 #slider-projek > :is(#jersey,#gapura,#bank-sampah)[data-f4-project-inactive="false"]{display:flex!important}
 #slider-projek > [data-f4-project-inactive="true"]{display:none!important}
 #slider-projek>#f4-project-empty[hidden]{display:none!important}
-</style></head>
+</style>
+<style id="f4-public-mobile-calendar-legible-20261028">
+@media screen and (max-width:767px){
+ #calendar-wrapper .grid.grid-cols-7.text-center{font-size:14px!important;line-height:1.25!important}
+ #calendar-days-grid>div>span:first-child{font-size:16px!important;line-height:1.2!important;font-weight:650!important}
+ #calendar-days-grid>div>span.w-full{font-size:10px!important;line-height:1.2!important}
+ #calendar-days-grid>div{min-width:0!important;padding-left:2px!important;padding-right:2px!important}
+}
+</style>
+</head>
 
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full" oncontextmenu="return false;" onkeydown="return disableInspect(event)">
 

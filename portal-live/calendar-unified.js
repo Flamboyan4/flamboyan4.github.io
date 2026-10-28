@@ -24,7 +24,8 @@
    '.f4-cal-month{font:600 12px system-ui!important;border-radius:10px!important;padding:11px 5px!important;background:#f7f4ff!important;color:#47326d!important;border:0!important;cursor:pointer}',
    '.f4-cal-month.f4-selected{background:#7433ef!important;color:white!important}',
    '.f4-cal-foot{margin-top:12px;border-top:1px solid #eee8fc;padding-top:10px;display:flex;justify-content:space-between;gap:8px}',
-   '.f4-cal-foot button{padding:7px 11px!important;border-radius:9px!important;background:#f2edff!important;color:#5329a6!important;border:0!important;font:650 12px system-ui!important;cursor:pointer}'
+   '.f4-cal-foot button{padding:7px 11px!important;border-radius:9px!important;background:#f2edff!important;color:#5329a6!important;border:0!important;font:650 12px system-ui!important;cursor:pointer}',
+   '@media screen and (max-width:767px){.f4-calendar{width:min(340px,calc(100vw - 20px))!important;min-width:0!important;max-height:calc(100dvh - 20px);overflow-y:auto}.f4-cal-head strong{font-size:19px!important}.f4-cal-dayhead{font-size:14px!important;font-weight:800!important}.f4-cal-cell{font:650 18px system-ui!important;min-height:40px!important}.f4-cal-month{font:700 17px system-ui!important;min-height:48px!important}.f4-cal-foot button{font:700 14px system-ui!important;min-height:40px!important}}'
   ].join('');
   document.head.append(style);
   const inRange=value=>{

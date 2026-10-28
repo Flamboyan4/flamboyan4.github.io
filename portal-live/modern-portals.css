@@ -1532,3 +1532,13 @@ body.f4-direct-bank #dashboardView #v9List tr[hidden]{display:none!important}
  #f4-account-page .f4-jersey-unclassified-row>div{flex-basis:100%}
  #f4-account-page .f4-jersey-unclassified-row button{margin-left:auto}
 }
+
+/* 2026-10-28 — calendar type parity on mobile Bank Sampah / Superadmin. */
+@media screen and (max-width:760px){
+  .f4-control-calendar-nav strong{font-size:19px!important;line-height:1.25!important}
+  .f4-control-weekday{font-size:14px!important;font-weight:800!important}
+  .f4-control-day{font-size:18px!important;font-weight:650!important;line-height:1.15!important;min-height:40px!important}
+  .f4-control-calendar.f4-month-choice .f4-control-day{font-size:17px!important}
+  .f4-control-date-input{font-size:16px!important}
+  .f4-control-panel{max-width:calc(100vw - 24px)!important}
+}

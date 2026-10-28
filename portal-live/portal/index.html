@@ -124,7 +124,16 @@ body>div.fixed.bottom-6.right-6{
 @media(max-width:640px){
  body>div.fixed.bottom-6.right-6{bottom:calc(18px + var(--f4-footer-lift,0px))!important}
 }
-</style><script src="../loading-state.js?v=786606f"></script><link rel="stylesheet" href="../loading-state.css?v=28e10d5"></head>
+</style><script src="../loading-state.js?v=786606f"></script><link rel="stylesheet" href="../loading-state.css?v=28e10d5">
+<style id="f4-public-mobile-calendar-legible-20261028">
+@media screen and (max-width:767px){
+ #calendar-wrapper .grid.grid-cols-7.text-center{font-size:14px!important;line-height:1.25!important}
+ #calendar-days-grid>div>span:first-child{font-size:16px!important;line-height:1.2!important;font-weight:650!important}
+ #calendar-days-grid>div>span.w-full{font-size:10px!important;line-height:1.2!important}
+ #calendar-days-grid>div{min-width:0!important;padding-left:2px!important;padding-right:2px!important}
+}
+</style>
+</head>
 
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full" oncontextmenu="return false;" onkeydown="return disableInspect(event)">
 

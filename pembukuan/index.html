@@ -799,7 +799,7 @@ main > section.card{overflow:visible!important}
     white-space:nowrap!important;
   }
 
-  #tab-riwayat button,#tab-kas table button,#tab-pinjaman table button,#tab-talangan table button,#tab-denda table button{
+  #tab-riwayat table button,#tab-kas table button,#tab-pinjaman table button,#tab-talangan table button,#tab-denda table button{
     font-size:10px!important;
     padding:3px 4px!important;
     line-height:1.1!important;
@@ -878,7 +878,7 @@ main > section.card{overflow:visible!important}
   /* Angka, status, tanggal dan tombol jangan pecah baris. */
   #tab-riwayat .text-right,#tab-kas .text-right,#tab-pinjaman .text-right,#tab-talangan .text-right,#tab-denda .text-right,#tab-laporan .text-right,
   #tab-riwayat td:last-child,#tab-kas td:last-child,#tab-pinjaman td:last-child,#tab-talangan td:last-child,#tab-denda td:last-child,
-  #tab-riwayat button,#tab-kas button,#tab-pinjaman button,#tab-talangan button,#tab-denda button{
+  #tab-riwayat table button,#tab-kas table button,#tab-pinjaman table button,#tab-talangan table button,#tab-denda table button{
     white-space:nowrap!important;
   }
 
@@ -967,7 +967,7 @@ main > section.card{overflow:visible!important}
   /* Data pendek tetap satu baris. */
   #tab-riwayat td.text-right,#tab-kas td.text-right,#tab-pinjaman td.text-right,#tab-talangan td.text-right,#tab-denda td.text-right,#tab-laporan td.text-right,
   #tab-riwayat td:last-child,#tab-kas td:last-child,#tab-pinjaman td:last-child,#tab-talangan td:last-child,#tab-denda td:last-child,
-  #tab-riwayat button,#tab-kas table button,#tab-pinjaman table button,#tab-talangan table button,#tab-denda table button{
+  #tab-riwayat table button,#tab-kas table button,#tab-pinjaman table button,#tab-talangan table button,#tab-denda table button{
     white-space:nowrap!important;
   }
 
@@ -5410,6 +5410,40 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
   body .upr-pop.f4-anchor-panel :is(.upr-head,.upr-week,.upr-days){
     box-sizing:border-box!important
   }
+}
+</style>
+
+<style id="f4-mobile-calendar-type-global-20261028">
+/* Standarisasi font HP. Styling tombol di tabel tidak boleh menyentuh popup kalender. */
+@media screen and (max-width:767px){
+  #tab-riwayat .upr-pop :is(.upr-title,.upr-month,.upr-year),
+  #tab-riwayat .mdc-pop :is(.mdc-title,.mdc-month,.mdc-year),
+  #tab-kas .mdc-pop :is(.mdc-title,.mdc-month,.mdc-year),
+  #tab-pinjaman .mdc-pop :is(.mdc-title,.mdc-month,.mdc-year),
+  #tab-talangan .mdc-pop :is(.mdc-title,.mdc-month,.mdc-year),
+  #tab-denda .mdc-pop :is(.mdc-title,.mdc-month,.mdc-year){
+    font-size:19px!important;line-height:1.25!important;font-weight:800!important
+  }
+  #tab-riwayat .upr-pop .upr-day,
+  #tab-riwayat .mdc-pop .mdc-day,
+  #tab-kas .mdc-pop .mdc-day,
+  #tab-pinjaman .mdc-pop .mdc-day,
+  #tab-talangan .mdc-pop .mdc-day,
+  #tab-denda .mdc-pop .mdc-day{
+    font-size:19px!important;font-weight:650!important;line-height:1.1!important;
+    min-height:40px!important;padding:0!important
+  }
+  #tab-riwayat .upr-pop .upr-nav,
+  #tab-riwayat .mdc-pop .mdc-nav,
+  #tab-kas .mdc-pop .mdc-nav,
+  #tab-pinjaman .mdc-pop .mdc-nav,
+  #tab-talangan .mdc-pop .mdc-nav,
+  #tab-denda .mdc-pop .mdc-nav{
+    font-size:23px!important;min-width:36px!important;min-height:36px!important;padding:0!important
+  }
+  #tab-riwayat .upr-pop .upr-week div,
+  #tab-riwayat .mdc-pop .mdc-week div{font-size:13px!important;font-weight:800!important}
+  .upr-pop,.mdc-pop{max-width:calc(100vw - 20px)!important}
 }
 </style>
 <script id="f4-popup-position-script-20261027">
