@@ -68,14 +68,14 @@ function createFinanceTabs(){
  if(!finance)return;
  if(!finBlock){
   finBlock=el('div',undefined,'f4-user-finance');
-  finBlock.innerHTML='<div class="f4-user-finance-heading"><span class="f4-user-eyebrow">Laporan & pembayaran</span><p>Pantau laporan bersama atau catatan pembayaran sesuai akun.</p></div>'+
+  finBlock.innerHTML='<div class="f4-user-finance-heading"><span class="f4-user-eyebrow">Keuangan</span></div>'+
    '<div class="f4-user-finance-controls" role="group" aria-label="Pilihan laporan">'+
-    '<button type="button" data-finance-mode="lingkungan" class="active">Laporan Lingkungan</button>'+
-    '<button type="button" data-finance-mode="saya">Keuangan Saya</button></div>'+
+    '<button type="button" data-finance-mode="lingkungan" class="active">Kas Warga</button>'+
+    '<button type="button" data-finance-mode="saya">Kas Saya</button></div>'+
    '<div id="f4-personal-finance" hidden>'+
     '<div class="f4-user-finance-intro"><span class="f4-user-finance-icon" aria-hidden="true">'+
      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="3"/><path d="M3 10h18M16 15h2"/></svg></span>'+
-     '<div><h3>Riwayat Keuangan Pribadi</h3><p>Hanya menampilkan data milik akun yang sedang masuk.</p></div></div>'+
+     '<div><h3>Riwayat Saya</h3><p>Khusus akun Anda.</p></div></div>'+
     '<div class="f4-user-finance-sub" role="group" aria-label="Kategori keuangan pribadi">'+
      '<button type="button" data-kind="iuran_rt">Iuran RT</button>'+
      '<button type="button" data-kind="kebersihan">Kebersihan</button>'+
@@ -128,7 +128,7 @@ async function loadPersonal(kind){
  current.privateKind=kind;
  const area=document.getElementById('f4-personal-data');if(!area)return;
  const loading=el('p','','f4-user-status');area.replaceChildren(loading);
- const loadToken=window.F4Loading?.begin(loading,'Memuat riwayat keuangan pribadi…');
+ const loadToken=window.F4Loading?.begin(loading,'Memuat riwayat…');
  finBlock.querySelectorAll('[data-kind]').forEach(button=>{
   const selected=button.dataset.kind===kind;
   button.classList.toggle('active',selected);
