@@ -69,6 +69,33 @@ jobs:
           if not {"progress_id","photo_url","updated_at"}.issubset({v.get("name") for v in columns}):
               raise RuntimeError("New Bank Sampah media table missing required columns")
           print("D1_ADDITIVE_BANK_PHOTO_SCHEMA_OK=1")
+          # Idempotent, additive project modules. No deletion or mutation of existing orders/cash.
+          project_columns={
+              "project_kind":"TEXT NOT NULL DEFAULT 'informasi'",
+              "fund_source":"TEXT NOT NULL DEFAULT ''",
+              "fund_target_rp":"INTEGER NOT NULL DEFAULT 0",
+              "linked_key":"TEXT NOT NULL DEFAULT ''"
+          }
+          project_existing={x.get("name") for x in d1query("PRAGMA table_info(portal_project_cards)")}
+          if not {"id","title","active"}.issubset(project_existing):
+              raise RuntimeError("Existing project master structure not recognized")
+          for name,definition in project_columns.items():
+              if name not in project_existing:
+                  d1query("ALTER TABLE portal_project_cards ADD COLUMN "+name+" "+definition)
+          project_migration=pathlib.Path("cloudflare/migrations/20261028_project_modules.sql").read_text()
+          if project_migration.upper().count("CREATE TABLE IF NOT EXISTS")!=2 or project_migration.upper().count("CREATE INDEX IF NOT EXISTS")!=2:
+              raise RuntimeError("Unexpected project migration: only two additive tables and two indexes permitted")
+          for statement in project_migration.split(";"):
+              if statement.strip():d1query(statement.strip())
+          for table,required in [
+              ("portal_project_orders",{"id","project_id","resident","amount_due_rp","paid_rp","status"}),
+              ("portal_project_contributions",{"id","project_id","contributor","amount_rp","status"})]:
+              names={x.get("name") for x in d1query("PRAGMA table_info("+table+")")}
+              if not required.issubset(names):raise RuntimeError("Incomplete project module table: "+table)
+          project_actual={x.get("name") for x in d1query("PRAGMA table_info(portal_project_cards)")}
+          if not set(project_columns).issubset(project_actual):
+              raise RuntimeError("Project metadata columns not migrated")
+          print("D1_ADDITIVE_PROJECT_SCHEMA_OK=1")
           write_flags={k:by_name[k].get("text") for k in by_name if k.endswith("_WRITE_ENABLED")}
           if not write_flags or any(v not in ("true","false") for v in write_flags.values()):
               raise RuntimeError("Missing or unrecognized Worker write flags")
