@@ -1,0 +1,31 @@
+name: F4 Tailwind Static CSS Preview
+on:
+  push:
+    branches: [main]
+    paths:
+      - tailwind.config.cjs
+      - portal-live/tailwind.input.css
+      - .github/workflows/f4-tailwind-preview.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  generate-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build pinned Tailwind 3 CSS (not deployed)
+        run: |
+          npx --yes tailwindcss@3.4.17 --config tailwind.config.cjs --input portal-live/tailwind.input.css --output tailwind-preview.css --minify
+          test -s tailwind-preview.css
+          node -e "const s=require('fs').readFileSync('tailwind-preview.css','utf8'); if(!s.includes('grid')||!s.includes('rounded'))process.exit(1); console.log('STATIC_TAILWIND_PREVIEW_OK',s.length)"
+      - name: Save generated CSS for visual parity testing
+        uses: actions/upload-artifact@v4
+        with:
+          name: f4-tailwind-static-preview
+          path: tailwind-preview.css
+          retention-days: 14
