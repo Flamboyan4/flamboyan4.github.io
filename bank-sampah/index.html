@@ -1657,6 +1657,18 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
  #dashboardView #pageDashboard #f4-member-weight-chart .f4-member-chart-column{min-width:55px!important}
  #dashboardView #pageDashboard .f4-chart-admin-head{align-items:flex-start}
 }
+
+/* Nominal publik bersumber dari D1, tidak bercampur dengan estimasi. */
+#v17Perkembangan .f4-public-value-panel{margin-top:12px!important;min-width:0}
+#v17Perkembangan .f4-public-chart-legend{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:5px 0 12px;color:#557462;font-size:11.5px}
+#v17Perkembangan .f4-public-chart-legend span{display:flex;align-items:center;gap:5px}
+#v17Perkembangan .f4-public-chart-legend i{display:inline-block;width:9px;height:9px;border-radius:3px;background:#26875e}
+#v17Perkembangan .f4-public-chart-legend span:nth-child(2) i{background:#e6a62a}
+#v17Perkembangan .f4-public-value-panel .v17-bar{background:#26875e!important}
+#v17Perkembangan .f4-public-value-panel .v17-bar.out{background:#e6a62a!important}
+#v17Perkembangan .f4-public-value-panel .v17-bars{min-height:115px}
+#v17Perkembangan .f4-public-value-panel .v17-subtle{margin:9px 0 0;font-size:12px}
+#v25ReportTable td:nth-child(5){color:#987019!important;font-weight:700}
 </style>
 <style id="f4-bank-mobile-3view-fix-20261028">
 /* 2026-10-28: Saldo anggota + publik + pengelola. Padatkan ruang, JANGAN perkecil font.
@@ -3891,7 +3903,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <div class="v17-public-main"><div class="v17-public-banner"><div><span class="v14-eyebrow">🌱 Bank Sampah</span><h1>Sampah terpilah. Manfaat bertambah.</h1></div><button id="v30HeroPhoto" type="button" class="v30-hero-photo" aria-label="Lihat dokumentasi dan inventaris" title="Lihat dokumentasi dan inventaris"></button></div>
       <div id="v17PublicMetrics" class="v17-public-metrics">Memuat ringkasan...</div>
       <section id="v17Program" class="v17-section"><h2>Program Bank Sampah</h2><div class="v17-program-grid"><div class="v17-feature"><strong><img class="f4-program-icon" src="/assets/icons/bank.svg" alt="">Pemilahan & setoran</strong><p>Pilah, timbang, setor.</p></div><div class="v17-feature"><strong><img class="f4-program-icon" src="/assets/icons/cash.svg" alt="">Penjualan & cek</strong><p>Cek hasil lapak, lalu sahkan saldo.</p></div><div class="v17-feature"><strong><img class="f4-program-icon" src="/assets/icons/home.svg" alt="">Manfaat lingkungan</strong><p>Untuk cadangan, kas lorong, dan operasional.</p></div></div></section>
-      <section id="v17Perkembangan" class="v17-section"><h2>Perkembangan</h2><div class="v17-two"><div class="v17-panel"><h3>Berat sah per bulan</h3><div id="v17WeightBars" class="v17-bars"></div><p id="v17WeightNote" class="v17-subtle">Memuat grafik...</p></div><div class="v17-panel"><h3>Linimasa kegiatan</h3><ol id="v17Timeline" class="v17-timeline"><li>Memuat perkembangan...</li></ol></div></div></section>
+      <section id="v17Perkembangan" class="v17-section"><h2>Perkembangan</h2><div class="v17-two"><div class="v17-panel"><h3>Berat sah per bulan</h3><div id="v17WeightBars" class="v17-bars"></div><p id="v17WeightNote" class="v17-subtle">Memuat grafik...</p></div><div class="v17-panel"><h3>Linimasa kegiatan</h3><ol id="v17Timeline" class="v17-timeline"><li>Memuat perkembangan...</li></ol></div></div><div class="v17-panel f4-public-value-panel"><h3>Nilai setoran per bulan</h3><div class="f4-public-chart-legend"><span><i></i>Hak warga sah</span><span><i></i>Perkiraan belum sah</span></div><div id="v17ValueBars" class="v17-bars">Memuat nilai setoran…</div><p id="v17ValueNote" class="v17-subtle">Hasil jual dan perkiraan dipisah.</p></div></section>
       <section id="v17Dokumentasi" class="v17-section"><h2>Dokumentasi kegiatan</h2><div id="v17Albums" class="v17-albums">Memuat album...</div></section>
       <section id="v17Inventaris" class="v17-section"><h2>Inventaris kegiatan</h2><div id="v17Inventory" class="v17-inventory">Memuat inventaris...</div></section>
       <section id="v17Transparansi" class="v17-section"><h2>Transparansi kegiatan</h2><div class="v17-panel"><p>🔒 Saldo dan riwayat pribadi tersedia setelah login.</p></div></section></div>`;
@@ -3935,6 +3947,23 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       v17Chart($('v17WeightBars'),chart.bulan,['beratKg'],['Berat sampah']);
       const total=chart.bulan.reduce((sum,r)=>sum+r.beratKg,0);
       $('v17WeightNote').textContent=total>0?chart.catatan:'Belum ada berat sah pada periode ini.';
+      // Grafik nilai publik hanya agregat. Perkiraan tidak dihitung sebagai hak tabungan sah.
+      const publicValueRoot=$('v17ValueBars'),publicValueNote=$('v17ValueNote');
+      if(publicValueRoot){
+        publicValueRoot.textContent='Memuat nilai setoran…';
+        call('bsV25LaporanPublik','semua').then(report=>{
+          if(!publicValueRoot.isConnected)return;
+          const monthly=(Array.isArray(report.bulanan)?report.bulanan:[]).slice(-6);
+          v17Chart(publicValueRoot,monthly,['hakWarga','pendingEstimateRp'],['Hasil jual sah','Perkiraan belum sah']);
+          if(!monthly.length)publicValueRoot.textContent='Belum ada setoran pada periode ini.';
+          publicValueNote.textContent='Hijau: hak warga dari penjualan sah. Kuning: perkiraan yang belum disahkan.';
+        }).catch(err=>{
+          if(publicValueRoot.isConnected){
+            publicValueRoot.textContent='Grafik nilai belum tersedia.';
+            publicValueNote.textContent='Gagal memuat data sah: '+(err.message||err);
+          }
+        });
+      }
       // v27: renderer langsung, termasuk untuk pengunjung yang belum login.
       v25RenderTimeline(home.progres||[]);
       v30SetHeroPhoto(albums,home.progres||[]);
@@ -4795,16 +4824,17 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     $('v25ReportMetrics').replaceChildren(
       v17PublicStat('Berat terkonfirmasi',kg(sum.beratKg)),
       v17PublicStat('Penjualan diterima',rupiah(sum.hasilPenjualan)),
-      v17PublicStat('Hak tabungan warga',rupiah(sum.hakWarga)),
-      v17PublicStat('Lingkungan & operasional',rupiah(sum.cadangan+sum.kasLorong+sum.operasional)));
+      v17PublicStat('Hak tabungan warga sah',rupiah(sum.hakWarga)),
+      v17PublicStat('Dana lingkungan sah',rupiah(sum.cadangan+sum.kasLorong+sum.operasional)),
+      v17PublicStat('Perkiraan belum sah',rupiah(sum.pendingEstimateRp||0)));
     $('v25ReportMetrics').classList.add('v26-compact');
     const caution=$('v26ReportExplanation');
     if(caution)caution.textContent=sum.batch===0?
-      'Belum ada batch penjualan yang disahkan pada periode ini. Data setoran estimasi dan penjualan yang masih menunggu rekonsiliasi tidak dihitung sebagai hasil terkonfirmasi.':
-      'Angka di bawah bersumber dari transaksi dan alokasi yang sudah disahkan. Estimasi yang belum direkonsiliasi tidak masuk laporan ini.';
+      'Belum ada penjualan yang disahkan. Nilai kuning masih perkiraan, bukan saldo tabungan.':
+      'Nilai sah berasal dari penjualan yang disahkan. Perkiraan menunggu disajikan terpisah dan tidak menambah saldo.';
     const root=$('v25ReportTable'),table=document.createElement('table'),thead=document.createElement('thead'),h=document.createElement('tr');
-    const columns=[['periode','Periode'],['beratKg','Berat (kg)'],['hasilPenjualan','Penjualan'],['hakWarga','Hak warga'],
-      ['cadangan','Cadangan'],['kasLorong','Kas lorong'],['operasional','Operasional'],['pengeluaran','Pengeluaran']];
+    const columns=[['periode','Periode'],['beratKg','Berat sah (kg)'],['hasilPenjualan','Penjualan sah'],['hakWarga','Hak warga sah'],
+      ['pendingEstimateRp','Perkiraan belum sah'],['cadangan','Cadangan'],['kasLorong','Kas lorong'],['operasional','Operasional'],['pengeluaran','Pengeluaran']];
     columns.forEach(([,name])=>h.appendChild(v21Node('th','',name)));thead.appendChild(h);table.appendChild(thead);
     const body=document.createElement('tbody');
     (data.bulanan||[]).forEach(r=>{const tr=document.createElement('tr');columns.forEach(([key])=>{
@@ -4831,8 +4861,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   }
   function v25DownloadReport(){
     if(!v25ReportData)return window.f4UiDialog.alert('Muat laporan terlebih dahulu.');
-    const fields=['periode','beratKg','hasilPenjualan','hakWarga','cadangan','kasLorong','operasional','pengeluaran'];
-    const labels=['Periode','Berat (kg)','Penjualan (Rp)','Hak warga (Rp)','Cadangan (Rp)','Kas lorong (Rp)','Operasional (Rp)','Pengeluaran (Rp)'];
+    const fields=['periode','beratKg','hasilPenjualan','hakWarga','pendingEstimateRp','cadangan','kasLorong','operasional','pengeluaran'];
+    const labels=['Periode','Berat sah (kg)','Penjualan sah (Rp)','Hak warga sah (Rp)','Perkiraan belum sah (Rp)','Cadangan (Rp)','Kas lorong (Rp)','Operasional (Rp)','Pengeluaran (Rp)'];
     const csv='\uFEFF'+[labels.join(';'),...(v25ReportData.bulanan||[]).map(row=>fields.map(k=>String(row[k]??0)).join(';'))].join('\r\n');
     const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');
     a.href=url;a.download='Laporan_Publik_BankSampah_'+v25ReportPeriod+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);
