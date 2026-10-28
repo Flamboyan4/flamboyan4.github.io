@@ -1301,6 +1301,7 @@ async function changePassword(request, env, who) {
     return safeError("Format permintaan tidak valid.", 400);
   }
   const old = String(p.currentPassword || ""), next = String(p.newPassword || "");
+  // One minimum for member, admin and superadmin; rate limiting remains enforced at login.
   const min = 4;
   if (next.length < min || next.length > 128) return safeError(`Password minimal ${min} karakter.`, 400);
   const current = await env.DB.prepare("SELECT password_hash FROM accounts WHERE id=?").bind(who.id).first();
