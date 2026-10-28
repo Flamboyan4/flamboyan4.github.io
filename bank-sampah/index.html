@@ -3593,7 +3593,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         const summary=document.createElement('div');
         const dt=document.createElement('strong');dt.textContent=f4MemberDateID(s.tanggal);
         const confirmed=/terkonfirmasi|confirmed/i.test(String(s.status||''));
-        const sub=document.createElement('small');sub.textContent=kg(s.beratKg||0)+' • '+(confirmed?'Sudah sah':'Belum sah');
+        const sub=document.createElement('small');sub.textContent=(s.beratKg==null?'Berat jual belum tersedia':kg(s.beratKg))+' • '+(confirmed?'Sudah sah':'Belum sah');
         summary.append(dt,sub);
         const value=document.createElement('div');value.className='f4-member-recent-value';
         const info=f4MemberDepositDisplay(s);
