@@ -2617,14 +2617,29 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.f4-payout-submit{
     const small=document.createElement('small');small.textContent=title;const strong=document.createElement('strong');strong.textContent=value;
     card.append(small,strong);return card;
   }
-  function v17Label(month){const a=month.split('-');return new Date(Number(a[0]),Number(a[1])-1,1).toLocaleDateString('id-ID',{month:'short'});}
+  function v17Label(month){
+    // Grafik publik memakai `bulan`, sedangkan arus kas admin memakai `periode`.
+    // Jangan memanggil split pada tanggal yang belum tersedia.
+    const value=String(month||'').trim();
+    if(!/^\\d{4}-(0[1-9]|1[0-2])$/.test(value))return '—';
+    const [year,number]=value.split('-').map(Number);
+    return new Date(year,number-1,1).toLocaleDateString('id-ID',{month:'short'});
+  }
   function v17Chart(root,rows,keys,colorNames){
-    root.replaceChildren();const max=Math.max(1,...rows.flatMap(r=>keys.map(k=>Number(r[k])||0)));
-    rows.forEach(r=>{
+    root.replaceChildren();
+    const data=Array.isArray(rows)?rows:[];
+    const max=Math.max(1,...data.flatMap(r=>keys.map(k=>Number(r?.[k])||0)));
+    data.forEach(r=>{
+      const month=r?.periode??r?.bulan??r?.month??'';
       const group=document.createElement('div');group.className='v17-bar-group';
-      keys.forEach((key,i)=>{const bar=document.createElement('div');bar.className='v17-bar'+(i?' out':'');
-        bar.style.height=(Number(r[key])||0)/max*100+'%';bar.title=colorNames[i]+': '+(key==='beratKg'?kg(r[key]):rupiah(r[key]))+' • '+r.periode;group.appendChild(bar);});
-      const label=document.createElement('span');label.className='v17-bar-label';label.textContent=v17Label(r.periode);group.appendChild(label);root.appendChild(group);
+      keys.forEach((key,i)=>{
+        const bar=document.createElement('div');bar.className='v17-bar'+(i?' out':'');
+        bar.style.height=(Number(r?.[key])||0)/max*100+'%';
+        bar.title=colorNames[i]+': '+(key==='beratKg'?kg(r?.[key]):rupiah(r?.[key]))+' • '+(month||'Periode tidak tersedia');
+        group.appendChild(bar);
+      });
+      const label=document.createElement('span');label.className='v17-bar-label';
+      label.textContent=v17Label(month);group.appendChild(label);root.appendChild(group);
     });
   }
   async function v17LoadFinance(){
