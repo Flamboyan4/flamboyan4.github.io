@@ -1,4 +1,4 @@
-name: F4 Bank Fresh Eco All Pages
+name: F4 Bank Canonical Theme Regression
 on:
   push:
     branches: [main]
@@ -7,7 +7,11 @@ on:
       - portal-live/bank-eco-pages.css
       - qa/bank-eco-allpages.cjs
       - .github/workflows/f4-bank-eco-allpages.yml
-  workflow_dispatch:
+  pull_request:
+    paths:
+      - bank-sampah/index.html
+      - portal-live/bank-eco-pages.css
+      - qa/bank-eco-allpages.cjs
 permissions:
   contents: read
 jobs:
@@ -19,5 +23,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Check UI style and sidebar regression
+      - name: Validate full theme and inline JavaScript
         run: node qa/bank-eco-allpages.cjs

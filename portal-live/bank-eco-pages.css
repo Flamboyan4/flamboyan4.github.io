@@ -1,181 +1,275 @@
-/* F4 Bank Sampah — Fresh Eco portal-wide, 28 Oct 2026.
-   Screen only. Keeps original inputs, print templates, data and permissions.
-   White page content; pastel accents in cards; responsive drawer. */
+/* Fresh Eco v2 — SINGLE canonical theme for Bank Sampah.
+ * Replaces previous themes, does not add overrides to them.
+ * Scope: public, member, admin, all submenus, desktop, mobile.
+ * No print styles; all computations, endpoints and events remain unchanged. */
 @media screen {
- #dashboardView,#v11Public{
-   --eco-ink:#1c4636;--eco-muted:#597466;--eco-line:#deebe3;
-   --eco-leaf:#118866;--eco-dark:#085d3e;
-   --eco-green:#d1ecdb;--eco-aqua:#e7f6f5;--eco-peach:#fff2df;--eco-purple:#f1ebff;
-   color:var(--eco-ink)
- }
- body.f4-direct-bank #dashboardView .section,
- body.f4-embedded-bank #dashboardView .section,
- #v11Public #v18PublicContent,#v11Public .v17-public-main{
-   background:#fff!important
- }
- /* Private manager and citizen screens: unified cards. */
- #dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,
- #pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,
- #pageAdmin,#pageTabungan,#pagePengesahan,#pageLaporan,#pageDokumentasi,
- #pageInventaris,#pageAktivitas,#pagePembelian,#pagePengeluaran,
- #pageKeuangan,#pageKas,#pagePenarikan,#pagePencairan).card{
-   background:#fff!important;border:1px solid var(--eco-line)!important;
-   border-radius:15px!important;box-shadow:0 3px 13px #16483108!important
- }
- #dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,
- #pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,
- #pageAdmin,#pageTabungan,#pagePengesahan,#pageLaporan,#pageDokumentasi,
- #pageInventaris,#pageAktivitas,#pagePembelian,#pagePengeluaran,
- #pageKeuangan,#pageKas,#pagePenarikan,#pagePencairan)>:is(h1,h2),
- #dashboardView :is(.f4-approval-heading,.f4-savings-head)>h2{
-   color:var(--eco-ink)!important;font-weight:800!important;line-height:1.28!important
- }
- #dashboardView :is(.section-caption,.hint,.desc),
- #v11Public :is(.v17-subtle,.v25-report-note){
-   color:var(--eco-muted)!important;line-height:1.45
- }
- #dashboardView :is(input:not([type=checkbox]),select,textarea),
- #v11Public :is(input:not([type=checkbox]),select,textarea){
-   border-radius:10px!important;border-color:#d5e5d9!important;
-   background:#fff!important;color:#1f4535!important
- }
- #dashboardView :is(input,select,textarea):focus-visible,
- #v11Public :is(input,select,textarea):focus-visible{
-   outline:2px solid #3ca77e!important;outline-offset:1px!important;
-   border-color:#3ca77e!important
- }
- #dashboardView .field>label{color:#315745!important}
- #dashboardView .section button:focus-visible,#v11Public button:focus-visible{
-   outline:3px solid #3ca77e!important;outline-offset:2px!important
- }
- #dashboardView .section button.secondary:not(.f4-member-refresh),
- #dashboardView .section button.ghost{
-   background:#eaf8ef!important;border:1px solid #cde7d8!important;
-   border-radius:10px!important;color:#11734f!important
- }
- #dashboardView :is(.summary-box,.stat,.metric){border-radius:13px!important}
- #dashboardView .summary-box{
-   background:var(--eco-green)!important;border:1px solid #b0dcc0!important;
-   border-left:4px solid #118866!important;
-   color:#315b43!important
- }
- /* Reuse same 4 summary colors for all finance/member KPI groups. */
- #dashboardView :is(#pageProfile,#pageSetoran,#pagePenjualan,#pageRekonsiliasi,
- #pageTabungan,#pageLaporan,#pagePengesahan) :is(.stats,.metric-grid)
- >:is(.stat,.metric):nth-child(4n+1){
-   background:var(--eco-green)!important;border:1px solid #d5e9db!important
- }
- #dashboardView :is(#pageProfile,#pageSetoran,#pagePenjualan,#pageRekonsiliasi,
- #pageTabungan,#pageLaporan,#pagePengesahan) :is(.stats,.metric-grid)
- >:is(.stat,.metric):nth-child(4n+2){
-   background:var(--eco-aqua)!important;border:1px solid #d1ebe8!important
- }
- #dashboardView :is(#pageProfile,#pageSetoran,#pagePenjualan,#pageRekonsiliasi,
- #pageTabungan,#pageLaporan,#pagePengesahan) :is(.stats,.metric-grid)
- >:is(.stat,.metric):nth-child(4n+3){
-   background:var(--eco-peach)!important;border:1px solid #f2e4cc!important
- }
- #dashboardView :is(#pageProfile,#pageSetoran,#pagePenjualan,#pageRekonsiliasi,
- #pageTabungan,#pageLaporan,#pagePengesahan) :is(.stats,.metric-grid)
- >:is(.stat,.metric):nth-child(4n){
-   background:var(--eco-purple)!important;border:1px solid #e5ddf9!important
- }
- #dashboardView .notice:not(.error),#dashboardView .details-panel{
-   border:1px solid #dcece2!important;background:#f3faf6!important;
-   border-radius:12px!important;color:#37634b!important
- }
- #dashboardView :is(#riwayatList,#riwayatJualList,#masterList,#accountList,
- #reconResult,#setBarang,#saleItems,#v9List,#v12History,#v12Deposits,
- #v33ReportTable,#v10ReportTable) table th{
-   background:#eef8f2!important;color:#305741!important;
-   border-color:#dfece3!important;font-weight:750!important
- }
- #dashboardView :is(#riwayatList,#riwayatJualList,#masterList,#accountList,
- #reconResult,#setBarang,#saleItems,#v9List,#v12History,#v12Deposits,
- #v33ReportTable,#v10ReportTable) table tbody tr{border-color:#e2ede5}
- #pageSetoran .f4-entry-goods-heading,#pagePenjualan .f4-entry-goods-heading{
-   border-bottom:1px solid #e4eee6!important;padding-bottom:10px!important
- }
- #pageLaporan .v33-report-controls{
-   background:#fbfefd!important;border:1px solid #e0ece4!important;
-   border-radius:14px!important
- }
- #pageTabungan .f4-savings-panel{
-   border-color:#dfebe3!important;background:#fff!important;border-radius:13px!important
- }
- #pageDokumentasi :is(.v21-album-tile,.public-tile),
- #pageInventaris :is(.v21-inventory-row,.public-tile),
- #v17Dokumentasi .v21-album-tile,#v17Inventaris .v21-inventory-row{
-   background:#fff!important;border-color:#dfece4!important;
-   border-radius:13px!important;box-shadow:0 2px 10px #14493008!important
- }
- #pageProgress #progressList :is(.v14-activity-item,.v17-timeline li){
-   background:#f4faf6!important;border-color:#dcece2!important;
-   border-radius:12px!important
- }
- /* Public landing and public report. */
- #v11Public .v17-public-banner{
-   background:linear-gradient(115deg,#a0dcb3 0%,#b6e4c6 62%,#c7ead5 100%)!important;
-   border:1px solid #81c99c!important;border-left:5px solid #118866!important;
-   border-radius:15px!important;box-shadow:0 3px 13px #16483108!important
- }
- #v11Public .v17-public-banner.v27-banner-program{
-   background:linear-gradient(115deg,#a0dcb3 0%,#b6e4c6 62%,#c7ead5 100%)!important;
-   border-left:5px solid #118866!important
- }
- #v11Public .v17-public-banner .v14-eyebrow{
-   background:#f3fcf6!important;color:#117451!important
- }
- #v11Public .v17-public-banner :is(h1,h2){color:#07543a!important}
- #v11Public .v17-public-banner :is(p,.v17-subtle){color:#587369!important}
- #v11Public :is(#v17PublicMetrics,#v25ReportMetrics)>.v17-public-metric{
-   background:var(--eco-green)!important;border-color:#d5e9da!important;
-   border-radius:13px!important
- }
- #v11Public :is(#v17PublicMetrics,#v25ReportMetrics)>.v17-public-metric:nth-child(4n+2){
-   background:var(--eco-aqua)!important;border-color:#d5ebe8!important
- }
- #v11Public :is(#v17PublicMetrics,#v25ReportMetrics)>.v17-public-metric:nth-child(4n+3){
-   background:var(--eco-peach)!important;border-color:#f3e4ce!important
- }
- #v11Public :is(#v17PublicMetrics,#v25ReportMetrics)>.v17-public-metric:nth-child(4n){
-   background:var(--eco-purple)!important;border-color:#e6def8!important
- }
- #v11Public :is(#v17PublicMetrics,#v25ReportMetrics)>.v17-public-metric strong{
-   color:#20503b!important;overflow-wrap:anywhere
- }
- #v11Public :is(.v17-panel,.v25-report-card,.public-tile,.v21-album-tile){
-   background:#fff!important;border-color:#dfece4!important;
-   border-radius:13px!important;box-shadow:0 2px 12px #16483108!important
- }
- #v11Public .v17-timeline li{border-left-color:#8bc8a0!important}
- #v11Public .v17-timeline li:before{background:#1a9e69!important}
- #v11Public #v25ReportRoot{background:#fff!important;border-color:#dfece4!important}
- #v11Public .v25-report-table th{
-   background:#eef8f2!important;color:#305841!important
- }
- #dashboardView #sideNav button.active,
- #v11Public #v18PublicSide button.active{
-   background:#e4f7ec!important;color:#087953!important
- }
- /* Short, one-line finance explanation, avoids tall callout. */
- #dashboardView #pageDashboard.f4-member-dashboard .f4-member-finance-note{
-   background:transparent!important;border:0!important;
-   padding:0!important;margin:6px 0 10px!important;
-   color:#4a6b5a!important;font-size:12px!important;line-height:1.4!important
- }
- #pagePribadi .f4-member-payout-help{
-   padding:8px 11px!important;margin:8px 0 10px!important;
-   background:#f3faf6!important;border-color:#dcebe2!important;
-   color:#456656!important;font-size:12px!important
- }
- /* Redundant explanatory subtitles can be removed; keep critical KPI notes. */
- #dashboardView #pageDashboard.f4-member-dashboard .f4-eco-panel-heading>p{
-   display:none!important
- }
+#dashboardView,#v11Public,.f4-member-progress-modal{
+ --eco-leaf:#118866;--eco-dark:#075d3f;--eco-gold:#ffca66;
+ --eco-green:#d9eee0;--eco-blue:#e9f2fc;--eco-peach:#fff0dc;
+ --eco-purple:#f1ebff;--eco-line:#d7e7dc;--eco-muted:#526e5e;
+ color:#163d2f
 }
-/* Mobile drawer identical in spirit to the other 226px portals, never 84vw.
-   Both public and private drawers use existing .open + backdrop handlers. */
+/* All pages use a WHITE canvas. Only meaningful surfaces carry color. */
+body.f4-direct-bank #dashboardView .section,
+body.f4-bank-embedded #dashboardView .section,
+#v11Public #v18PublicContent,#v11Public .v17-public-main{background:#fff!important}
+#dashboardView .card:not(#pageDashboard),
+#dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi) :is(.f4-savings-panel,.v17-panel,.f4-member-progress-section),
+#v11Public :is(.v17-panel,.public-tile,.v25-report-card,.v21-album-tile){
+ background:#fff!important;border:1px solid var(--eco-line)!important;
+ border-radius:14px!important;box-shadow:0 2px 10px #0b4d3009!important
+}
+#dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi)>h2,#dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi)>.toolbar h2,
+#dashboardView :is(.f4-savings-head,.f4-savings-panel-title,.f4-approval-heading,.f4-member-progress-section-heading) :is(h2,h3),
+#v11Public :is(.v17-section,.v17-panel) h2{
+ color:var(--eco-dark)!important;font-weight:800!important;line-height:1.3!important
+}
+#dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi) :is(.desc,.hint,.section-caption,.v17-subtle),
+#v11Public :is(.v17-subtle,.v25-report-note){color:var(--eco-muted)!important;line-height:1.45!important}
+/* Navigation: sidebar, public menu, member menu and ALL submenu tabs. */
+#dashboardView #sideNav :is(button,.v16-item).active,
+#v11Public #v18PublicSide button.active{
+ background:#dcefe3!important;color:var(--eco-dark)!important;
+ box-shadow:inset 3px 0 0 var(--eco-leaf)!important;border-radius:10px!important
+}
+#dashboardView #sideNav button:not(.active):hover,
+#v11Public #v18PublicSide button:not(.active):hover{
+ background:#f1f9f3!important;color:var(--eco-dark)!important
+}
+#dashboardView #v16Tabs.v16-tabs{
+ background:#fff!important;border-bottom:1px solid #dceadf!important;
+ padding:9px 0!important;gap:7px!important;margin-bottom:12px!important
+}
+#dashboardView #v16Tabs.v16-tabs.hidden{display:none!important}
+#dashboardView #v16Tabs.v16-tabs button{
+ color:#206444!important;background:#f0f8f2!important;
+ border:1px solid #cfdfd4!important;border-radius:9px!important;
+ min-height:39px!important;padding:8px 12px!important;font-weight:700!important
+}
+#dashboardView #v16Tabs.v16-tabs button.active{
+ background:var(--eco-leaf)!important;color:#fff!important;
+ border-color:var(--eco-leaf)!important
+}
+/* Forms, filtering, input, public report controls and account settings. */
+#dashboardView :is(input:not([type=checkbox]):not([type=radio]),select,textarea),
+#v11Public :is(input:not([type=checkbox]):not([type=radio]),select,textarea){
+ background:#fff!important;color:#163d2f!important;
+ border:1px solid #cbded3!important;border-radius:10px!important
+}
+#dashboardView .field>label{color:#1c5b3e!important;font-weight:650!important}
+#dashboardView :is(input,select,textarea,button):focus-visible,
+#v11Public :is(input,select,textarea,button):focus-visible{
+ outline:3px solid var(--eco-gold)!important;outline-offset:2px!important
+}
+#dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi) button.secondary,#dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi) button.ghost{
+ background:#e8f5ed!important;border:1px solid #c8e2d1!important;
+ color:#146747!important;border-radius:10px!important
+}
+#dashboardView .notice:not(.error),#dashboardView .pill-note:not(.error),
+#dashboardView .details-panel{
+ background:#f3faf5!important;color:#315c45!important;
+ border:1px solid #cde4d5!important;border-radius:11px!important
+}
+#dashboardView :is(.tablewrap,#v9List,#v12History,#v10History,#v17FinanceDetails) table th,
+#v11Public :is(.v25-report-table,.v27-report-table) th{
+ background:#e0f1e6!important;color:#17573c!important;
+ border-color:#cae1d2!important;font-weight:750!important
+}
+#dashboardView .tablewrap tbody tr:nth-child(even) td{background:#f9fcfa}
+/* All operational summary cards use the exact same 4 accent colors. */
+#dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi) :is(.stats>.stat,.metric-grid>.metric,.summary-box){
+ background:var(--eco-green)!important;border:1px solid #b7d9c1!important;
+ border-radius:12px!important
+}
+#dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi) :is(.stats>.stat,.metric-grid>.metric):nth-child(4n+2){
+ background:var(--eco-blue)!important;border-color:#d6e5f3!important
+}
+#dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi) :is(.stats>.stat,.metric-grid>.metric):nth-child(4n+3){
+ background:var(--eco-peach)!important;border-color:#f0dec3!important
+}
+#dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi) :is(.stats>.stat,.metric-grid>.metric):nth-child(4n){
+ background:var(--eco-purple)!important;border-color:#e4dcf8!important
+}
+#dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi) :is(.stats>.stat,.metric-grid>.metric) strong{color:var(--eco-dark)!important}
+#dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi) :is(.f4-entry-goods-heading,.f4-savings-panel-title,.v33-report-controls,
+ .f4-savings-history,.f4-payout-available){
+ border-color:#d1e5d8!important;border-radius:12px!important
+}
+/* Manager: Setoran, Penjualan, Rekonsiliasi, Pengesahan, Anggota, Kas, Biaya. */
+#dashboardView #v17Finance .v17-finance-kpis>.v17-finance-kpi{
+ background:var(--eco-green)!important;border:1px solid #b5dcc3!important;
+ border-radius:12px!important
+}
+#dashboardView #v17Finance .v17-finance-kpis>.v17-finance-kpi.first{
+ background:var(--eco-leaf)!important;border-color:var(--eco-leaf)!important
+}
+#dashboardView #v17Finance .v17-finance-kpis>.v17-finance-kpi.first :is(small,strong){color:#fff!important}
+#dashboardView #v17Finance .v17-finance-kpis>.v17-finance-kpi:nth-child(2){
+ background:var(--eco-blue)!important;border-color:#d4e5f4!important
+}
+#dashboardView #v17Finance .v17-finance-kpis>.v17-finance-kpi:nth-child(3){
+ background:var(--eco-peach)!important;border-color:#f0dfc6!important
+}
+#dashboardView #v17Finance .v17-finance-kpis>.v17-finance-kpi:nth-child(4){
+ background:var(--eco-purple)!important;border-color:#e3dcf7!important
+}
+#dashboardView #v17Finance .v17-bar:not(.out){background:var(--eco-leaf)!important}
+#dashboardView :is(#pageTabungan,#pageBiaya,#pageDokumentasi,#pageInventaris,
+ #pageKegiatan,#pageMaster,#pageAdmin,#pagePengesahan,#pageRekonsiliasi,#pageLaporan)
+ :is(.f4-savings-panel,.tablewrap,.v21-album-tile,.v21-inventory-row,.v17-panel){
+ border-color:#d0e4d8!important;border-radius:12px!important;background:#fff!important
+}
+/* Public: LEAF GREEN hero, white text, golden primary button. */
+#v11Public .v17-public-banner,
+#v11Public .v17-public-banner.v27-banner-program{
+ background:#118866!important;border:1px solid #096b49!important;
+ border-radius:15px!important;box-shadow:none!important
+}
+#v11Public .v17-public-banner :is(h1,h2,h3,strong){color:#fff!important}
+#v11Public .v17-public-banner :is(p,.v17-subtle){color:#e6f6ed!important;opacity:1!important}
+#v11Public .v17-public-banner :is(.v14-eyebrow,.v17-eyebrow,.v27-eyebrow){
+ color:#fff!important;background:#ffffff25!important;
+ border:1px solid #ffffff50!important;border-radius:8px!important
+}
+#v11Public .v17-public-banner.v27-banner-program #v17Program .v17-feature{
+ background:#ffffff23!important;border:1px solid #ffffff65!important;
+ border-radius:10px!important;color:#fff!important;box-shadow:none!important
+}
+#v11Public .v17-public-banner.v27-banner-program #v17Program .v17-feature strong{
+ color:#fff!important
+}
+#v11Public .v17-public-banner button:not(.v30-hero-photo),
+#v11Public .v17-public-banner #f4-public-my-savings,
+#v11Public .v17-public-banner #f4-public-manage-bank{
+ background:var(--eco-gold)!important;color:#17452e!important;
+ border:1px solid #f0b758!important;border-radius:10px!important;
+ font-weight:800!important;box-shadow:0 3px 9px #05432a27!important
+}
+#v11Public .v17-public-banner button:not(.v30-hero-photo):hover,
+#v11Public .v17-public-banner #f4-public-my-savings:hover,
+#v11Public .v17-public-banner #f4-public-manage-bank:hover{
+ background:#ffdf97!important;color:#17452e!important
+}
+#v11Public .v17-public-banner .v30-hero-photo{
+ border:1px solid #ffffff55!important;border-radius:12px!important;
+ box-shadow:0 3px 12px #05432a20!important
+}
+#v11Public :is(#v17PublicMetrics,#v25ReportMetrics)>.v17-public-metric{
+ background:var(--eco-green)!important;border:1px solid #b3dabe!important;
+ border-radius:12px!important;box-shadow:none!important
+}
+#v11Public :is(#v17PublicMetrics,#v25ReportMetrics)>.v17-public-metric:nth-child(4n+2){
+ background:var(--eco-blue)!important;border-color:#d6e5f3!important
+}
+#v11Public :is(#v17PublicMetrics,#v25ReportMetrics)>.v17-public-metric:nth-child(4n+3){
+ background:var(--eco-peach)!important;border-color:#efdcc2!important
+}
+#v11Public :is(#v17PublicMetrics,#v25ReportMetrics)>.v17-public-metric:nth-child(4n){
+ background:var(--eco-purple)!important;border-color:#e3dafa!important
+}
+#v11Public :is(#v17PublicMetrics,#v25ReportMetrics)>.v17-public-metric strong{
+ color:var(--eco-dark)!important
+}
+#v11Public :is(.v17-section,.v17-panel,.v25-report-card) :is(h2,h3){
+ color:var(--eco-dark)!important
+}
+#v11Public #v17Perkembangan .v17-bar,
+#v11Public #v17Perkembangan .v17-chart-bar{background:var(--eco-leaf)!important}
+#v11Public :is(.v17-timeline li,.public-tile,.v21-album-tile,.v21-inventory-row){
+ border-color:#d1e5d9!important;border-radius:12px!important
+}
+/* Member: Tabungan Saya with 3 compact equal system cards. */
+#dashboardView #pagePribadi #v12Private>.stats{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ align-items:stretch!important;gap:9px!important;margin:12px 0!important
+}
+#dashboardView #pagePribadi #v12Private>.stats>.stat{
+ display:flex!important;flex-direction:column!important;justify-content:center!important;
+ min-width:0!important;width:100%!important;min-height:78px!important;
+ padding:11px 13px!important;margin:0!important;grid-column:auto!important;
+ border:1px solid #b6d9c1!important;border-radius:12px!important;
+ background:#dcefe3!important;box-shadow:none!important
+}
+#dashboardView #pagePribadi #v12Private>.stats>.stat:first-child{
+ background:var(--eco-leaf)!important;border-color:var(--eco-leaf)!important
+}
+#dashboardView #pagePribadi #v12Private>.stats>.stat:first-child :is(small,strong){
+ color:#fff!important
+}
+#dashboardView #pagePribadi #v12Private>.stats>.stat:nth-child(2){
+ background:var(--eco-blue)!important;border-color:#d2e3f3!important
+}
+#dashboardView #pagePribadi #v12Private>.stats>.stat:nth-child(3){
+ background:var(--eco-peach)!important;border-color:#f0d9b9!important
+}
+#dashboardView #pagePribadi #v12Private>.stats>.stat strong{
+ font-size:clamp(18px,2vw,25px)!important;line-height:1.2!important;
+ margin:5px 0 0!important;overflow-wrap:anywhere!important
+}
+#dashboardView #pagePribadi #v12Private>.stats>.stat small{font-size:13px!important;line-height:1.35!important}
+#dashboardView #pagePribadi #v12Private>h2{
+ color:var(--eco-dark)!important;margin:14px 0 9px!important;
+ padding-bottom:8px!important;border-bottom:2px solid #b5dfc4!important
+}
+#dashboardView #pagePribadi #v12History th{
+ background:#dff0e4!important;color:#1a6142!important
+}
+#dashboardView #pagePribadi #v12Deposits>.details-panel{
+ background:#f4faf6!important;border:1px solid #d3e7dc!important;
+ border-left:3px solid var(--eco-leaf)!important;border-radius:11px!important
+}
+#dashboardView #pagePribadi .f4-member-payout-help{
+ background:#f3faf5!important;border-color:#d0e7d9!important;
+ padding:8px 10px!important;border-radius:10px!important
+}
+/* Member and manager progress + timeline (same visual system). */
+#dashboardView #pageProgress .f4-member-progress-summary{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:9px!important
+}
+#dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat{
+ background:var(--eco-green)!important;border:1px solid #b4ddc3!important;
+ border-radius:12px!important;min-height:83px!important;padding:11px!important
+}
+#dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat:nth-child(2){
+ background:var(--eco-blue)!important;border-color:#d8e6f3!important
+}
+#dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat:nth-child(3){
+ background:var(--eco-peach)!important;border-color:#f2dfc3!important
+}
+#dashboardView #pageProgress :is(h2,h3,.f4-member-progress-stat strong){
+ color:var(--eco-dark)!important
+}
+#dashboardView #pageProgress .f4-member-progress-section,
+.f4-member-progress-modal-panel{
+ background:#fff!important;border:1px solid #d5e7dc!important;
+ border-radius:13px!important;box-shadow:0 2px 10px #0f4c2e0a!important
+}
+#dashboardView #pageProgress .f4-member-progress-track{background:#e4f2e8!important}
+#dashboardView #pageProgress .f4-member-progress-track>div{
+ background:var(--eco-leaf)!important
+}
+#dashboardView #pageProgress .f4-member-progress-timeline:before{
+ border-left-color:#acd9bc!important
+}
+#dashboardView #pageProgress .f4-member-progress-timeline>li:before{
+ background:var(--eco-leaf)!important
+}
+#dashboardView #pageProgress .f4-member-progress-step{
+ background:#f4faf6!important;border:1px solid #d7e7dd!important;border-radius:12px!important
+}
+#dashboardView #pageProgress .f4-member-progress-timeline>li:nth-child(2) .f4-member-progress-step{
+ background:#f4f8ff!important;border-color:#d8e5f3!important
+}
+#dashboardView #pageProgress .f4-member-progress-timeline>li:nth-child(3) .f4-member-progress-step{
+ background:#fff8ec!important;border-color:#f0e1c7!important
+}
+#dashboardView #pageProgress .f4-member-progress-count{
+ background:#e1f2e5!important;color:var(--eco-dark)!important
+}
+.f4-member-progress-modal-head h2{color:var(--eco-dark)!important}
+.f4-member-progress-modal-close{background:#e1f2e7!important;color:var(--eco-dark)!important}
+}
 @media screen and (max-width:1023px){
  html body #v18PublicSide,
  html.f4-bank-embedded body #v18PublicSide,
@@ -233,170 +327,40 @@
  }
 }
 @media screen and (max-width:760px){
- #dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,
- #pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,
- #pageAdmin,#pageTabungan,#pagePengesahan,#pageLaporan,#pageDokumentasi,
- #pageInventaris,#pageAktivitas,#pagePembelian,#pagePengeluaran).card{
-   border-radius:13px!important;box-shadow:none!important
+ #dashboardView #v16Tabs.v16-tabs{
+  flex-wrap:nowrap!important;overflow-x:auto!important;gap:6px!important
  }
- #dashboardView :is(.stats,.metric-grid){gap:8px!important}
- #v11Public .v17-public-banner{padding:13px!important}
- #v11Public :is(#v17PublicMetrics,#v25ReportMetrics)>.v17-public-metric{
-   border-radius:12px!important
- }
-}
-@media screen and (prefers-reduced-motion:reduce){
- html body :is(#v18PublicSide,#sideNav.side){transition:none!important}
-}
-/* No @media print rules: report/PDF visuals and pagination untouched. */
-
-
-/* Member pages previously missed by the Admin-style selectors:
-   pagePribadi (Tabungan Saya) + pageProgress (Perkembangan).
-   No custom SVG, data changes, or changes to print templates. */
-@media screen {
- #dashboardView #pagePribadi.card,#dashboardView #pageProgress.card{
-  background:#fff!important;border:1px solid #d0e6d8!important;
-  border-radius:15px!important;box-shadow:0 3px 13px #125e340a!important
- }
- #dashboardView #pagePribadi>h2,#dashboardView #pageProgress>h2{
-  color:#096143!important;font-weight:800!important;line-height:1.28!important;
-  margin-bottom:6px!important
- }
- #dashboardView #pagePribadi>.desc,#dashboardView #pageProgress>.section-caption{
-  color:#4d6c5b!important;line-height:1.45!important
- }
- /* Leaf green leads the three savings cards; two accent colors follow. */
- #dashboardView #pagePribadi #v12Private>.stats{
-  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
-  gap:9px!important;margin:13px 0 10px!important
- }
- #dashboardView #pagePribadi #v12Private>.stats>.stat{
-  min-width:0!important;min-height:96px!important;padding:13px!important;
-  background:#d3eddb!important;border:1px solid #addbc0!important;
-  border-top:4px solid #118866!important;border-radius:13px!important;
-  box-shadow:none!important
- }
- #dashboardView #pagePribadi #v12Private>.stats>.stat:nth-child(2){
-  background:#e4f6f3!important;border-color:#c4e5dc!important;border-top-color:#16a09b!important
- }
- #dashboardView #pagePribadi #v12Private>.stats>.stat:nth-child(3){
-  background:#fff0dc!important;border-color:#efddc5!important;border-top-color:#e7a345!important
- }
- #dashboardView #pagePribadi #v12Private>.stats>.stat strong{
-  display:block!important;color:#0a6342!important;line-height:1.2!important;
-  overflow-wrap:anywhere!important;font-variant-numeric:tabular-nums!important
- }
- #dashboardView #pagePribadi #v12Private>.stats>.stat small{
-  color:#37624d!important;line-height:1.4!important
- }
- #dashboardView #pagePribadi #v12Private>h2{
-  color:#0b6546!important;font-weight:800!important;
-  padding-bottom:8px!important;border-bottom:2px solid #b4dec3!important;
-  margin:17px 0 10px!important
- }
- #dashboardView #pagePribadi #v12History th{
-  color:#19583c!important;background:#dcefe2!important;border-color:#c5e2ce!important
- }
- #dashboardView #pagePribadi #v12History tbody tr:nth-child(even) td{
-  background:#f7fbf8!important
- }
- #dashboardView #pagePribadi #v12Deposits>.details-panel{
-  background:#f1faf4!important;border:1px solid #c8e3d2!important;
-  border-left:4px solid #118866!important;border-radius:12px!important;
-  margin:8px 0!important;padding:10px 12px!important
- }
- #dashboardView #pagePribadi #v12Deposits>.details-panel:nth-child(even){
-  background:#f8fcfa!important;border-left-color:#1d9d9a!important
- }
- #dashboardView #pagePribadi #v12Deposits>.details-panel summary{
-  color:#215c41!important;font-weight:700!important;line-height:1.45!important
- }
- #dashboardView #pagePribadi #v12Gate:not(.error){
-  background:#f1f9f3!important;color:#2e6148!important;border-color:#cbe6d4!important
- }
- /* Member progress: existing stats, monthly bars and timeline get same theme. */
- #dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat{
-  background:#d6efde!important;border:1px solid #aedcc0!important;
-  border-top:4px solid #118866!important;border-radius:13px!important;
-  min-height:94px!important;padding:12px!important
- }
- #dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat:nth-child(2){
-  background:#e2f6f2!important;border-color:#c5e6dd!important;border-top-color:#15a19b!important
- }
- #dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat:nth-child(3){
-  background:#fff1dd!important;border-color:#f0dec7!important;border-top-color:#e4a04c!important
- }
- #dashboardView #pageProgress .f4-member-progress-stat strong{color:#0a6241!important}
- #dashboardView #pageProgress .f4-member-progress-stat small{color:#476c56!important}
- #dashboardView #pageProgress .f4-member-progress-section{
-  background:#fff!important;border:1px solid #d0e6d9!important;
-  border-left:4px solid #118866!important;border-radius:14px!important;
-  box-shadow:0 2px 10px #125e3409!important
- }
- #dashboardView #pageProgress .f4-member-progress-section-heading h3{
-  color:#0b6243!important
- }
- #dashboardView #pageProgress .f4-member-progress-count{
-  background:#d9eee0!important;color:#0b6543!important;border:1px solid #b2dbc0!important
- }
- #dashboardView #pageProgress .f4-member-progress-track{background:#e2f1e7!important}
- #dashboardView #pageProgress .f4-member-progress-track>div{
-  background:linear-gradient(90deg,#118866,#30a46e)!important
- }
- #dashboardView #pageProgress .f4-member-progress-timeline::before{
-  border-left-color:#98d0ad!important
- }
- #dashboardView #pageProgress .f4-member-progress-timeline>li::before{
-  background:#118866!important;box-shadow:0 0 0 2px #b2dfc3!important
- }
- #dashboardView #pageProgress .f4-member-progress-step{
-  background:#f3faf5!important;border-color:#d0e6d9!important;
-  border-radius:12px!important
- }
- #dashboardView #pageProgress .f4-member-progress-timeline>li:nth-child(2) .f4-member-progress-step{
-  background:#f0f9f7!important;border-color:#cce6e0!important
- }
- #dashboardView #pageProgress .f4-member-progress-timeline>li:nth-child(3) .f4-member-progress-step{
-  background:#fff7ec!important;border-color:#efdfc7!important
- }
- #dashboardView #pageProgress .f4-member-progress-step-heading strong{
-  color:#175b3f!important
- }
- #dashboardView #pageProgress .f4-member-progress-step-trigger:focus-visible{
-  outline:3px solid #118866!important;outline-offset:2px!important
- }
- /* Admin progress list, public progress charts and timeline. */
- #dashboardView #pageProgress #progressList>.stat{
-  background:#f0faf3!important;border:1px solid #c6e1d1!important;
-  border-left:4px solid #118866!important;border-radius:12px!important
- }
- #v11Public #v17Perkembangan .v17-panel{
-  background:#fff!important;border:1px solid #cce3d5!important;
-  border-top:3px solid #118866!important;border-radius:13px!important
- }
- #v11Public #v17Perkembangan .v17-timeline li{border-left-color:#9acfb0!important}
-}
-@media screen and (max-width:760px) {
+ #dashboardView #v16Tabs.v16-tabs button{white-space:nowrap!important}
  #dashboardView #pagePribadi #v12Private>.stats{
   grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important
  }
  #dashboardView #pagePribadi #v12Private>.stats>.stat{
-  min-height:89px!important;padding:11px!important
+  grid-column:auto!important;min-height:73px!important;padding:10px 11px!important
  }
  #dashboardView #pagePribadi #v12Private>.stats>.stat:first-child{
-  grid-column:1/-1!important;min-height:80px!important
+  grid-column:1/-1!important
+ }
+ #dashboardView #pagePribadi #v12Private>.stats>.stat:last-child{
+  grid-column:auto!important
+ }
+ #dashboardView #pagePribadi #v12Private>.stats>.stat strong{
+  font-size:clamp(18px,4vw,23px)!important
  }
  #dashboardView #pageProgress .f4-member-progress-summary{
   grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important
  }
  #dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat{
-  min-height:88px!important;padding:11px!important
+  grid-column:auto!important;min-height:75px!important;padding:10px!important
  }
  #dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat:first-child{
-  grid-column:1/-1!important;min-height:79px!important
+  grid-column:1/-1!important
  }
- #dashboardView #pageProgress .f4-member-progress-section{
-  padding:13px!important;border-radius:12px!important
+ #dashboardView #pagePribadi .f4-member-tools{
+  display:grid!important;grid-template-columns:42px minmax(0,1fr) minmax(0,1fr)!important;gap:7px!important
  }
+ #dashboardView #pagePribadi .f4-member-tools button{min-width:0!important}
+ #v11Public .v17-public-banner{border-radius:12px!important}
+}
+@media screen and (prefers-reduced-motion:reduce){
+ html body :is(#v18PublicSide,#sideNav.side){transition:none!important}
 }
