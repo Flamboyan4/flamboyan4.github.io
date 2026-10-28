@@ -40,15 +40,17 @@ jobs:
           node --check portal-live/portal-panels.js
           node --check portal-live/superadmin-editor.js
           node --check portal-live/project-modules.js
+          node --check portal-live/home-legacy.js
+          node --check portal-live/home-accessibility.js
           node - <<'NODE'
           const fs=require('node:fs'),vm=require('node:vm');
-          const html=fs.readFileSync('index.html','utf8');
+          const html=fs.readFileSync('portal-live/home-legacy.js','utf8');
           const marker=html.indexOf('// Projek Portal Utama langsung dari D1.');
           if(marker<0)throw Error('Blok Project Card D1 tidak ditemukan');
           const tail="document.addEventListener('DOMContentLoaded',loadProjectCards);";
           const end=html.indexOf(tail,marker);
           if(end<marker)throw Error('Batas blok Project Card tidak valid');
-          new vm.Script(html.slice(marker,end+tail.length),{filename:'index.html:ProjectCard'});
+          new vm.Script(html.slice(marker,end+tail.length),{filename:'portal-live/home-legacy.js:ProjectCard'});
           console.log('PROJECT_CARD_INLINE_JS_SYNTAX_OK=1');
           NODE
       - name: Install Wrangler for local D1

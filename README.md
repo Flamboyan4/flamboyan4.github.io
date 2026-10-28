@@ -29,3 +29,12 @@
 Edit file sebenarnya di `index.html` atau `portal-live/` dan commit ke **`main`**. Jangan membuat folder `uji-integrasi`, `uji-terpadu`, atau salinan portal paralel. Gunakan `qa/` dan workflow pemeriksaan otomatis untuk regresi, tanpa membuat transaksi fiktif pada data produksi.
 
 Jika menyunting berkas frontend yang memakai parameter `?v=`, perbarui versi referensi pada shell yang aktif agar cache browser memuat perbaikan. Jaga saldo, riwayat transaksi, D1, R2, dan Firebase tetap utuh.
+
+## Pemeliharaan frontend (28 Oktober 2026)
+
+- `index.html` tetap shell utama. Skrip HTML lama yang panjang dipindahkan **tanpa perubahan logika** ke `portal-live/home-legacy.js` dan dimuat sinkron pada posisi semula (tetap memakai handler global lama).
+- CSS khusus beranda dipisahkan menjadi `portal-live/home-base.css` (sebelum CSS shell) dan `portal-live/home-overrides.css` (setelah CSS shell), agar urutan cascade dan tampilan HP tetap sama. Perubahan hanya mengizinkan seleksi teks pada body.
+- Peningkatan aksesibilitas ringan berada di `portal-live/home-accessibility.js`.
+- PapaParse **belum dihapus**: masih ada jalur referensi CSV di frontend lama; jangan menghapus dependensi tanpa mengganti semua pemanggilnya dan memastikan fallback D1.
+- Tailwind CDN **belum diganti** hingga hasil build statis dan pengujian keseluruhan kelas dinyatakan cocok; jangan mengubah desain atau pembukuan hanya demi refaktor.
+- Pemeriksaan frontend: `node qa/verify-frontend-maintenance.cjs`. Pemeriksaan Project Card pada workflow keuangan membaca sumber JS yang sudah dipindahkan.

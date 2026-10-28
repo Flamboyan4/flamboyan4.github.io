@@ -1,0 +1,36 @@
+name: F4 Frontend Maintenance (static, no DB)
+on:
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - cctv.html
+      - portal-live/home-legacy.js
+      - portal-live/home-accessibility.js
+      - portal-live/home-base.css
+      - portal-live/home-overrides.css
+      - qa/verify-frontend-maintenance.cjs
+      - .github/workflows/f4-frontend-maintenance.yml
+  pull_request:
+    paths:
+      - index.html
+      - cctv.html
+      - portal-live/home-legacy.js
+      - portal-live/home-accessibility.js
+      - portal-live/home-base.css
+      - portal-live/home-overrides.css
+      - qa/verify-frontend-maintenance.cjs
+      - .github/workflows/f4-frontend-maintenance.yml
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify extracted assets and classic scripts
+        run: node qa/verify-frontend-maintenance.cjs

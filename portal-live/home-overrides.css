@@ -1,0 +1,101 @@
+/* Former <style id="f4-home-latest-preview-20261027">; order preserved. */
+
+/* Latest layout next to HTML so stylesheet version caching cannot mask it. */
+#projek #bs-step-img{opacity:1!important;filter:none!important}
+#f4-private-transactions tbody tr[hidden]{display:none!important}
+#f4-private-transactions>div:first-child{padding:10px 14px!important}
+#f4-private-transactions tbody td{line-height:1.28!important}
+@media(max-width:760px){
+ #f4-private-transactions tbody tr{
+  display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+  gap:2px 9px!important;padding:8px 12px!important;min-height:0!important;
+  margin:0!important;align-items:center!important;
+ }
+ #f4-private-transactions tbody tr[hidden]{display:none!important}
+ #f4-private-transactions tbody tr td{padding:0!important;margin:0!important;line-height:1.27!important}
+ #f4-private-transactions tbody tr td:nth-child(1){grid-column:1!important;grid-row:2!important}
+ #f4-private-transactions tbody tr td:nth-child(2){grid-column:1!important;grid-row:1!important}
+ #f4-private-transactions tbody tr td:nth-child(3){display:none!important}
+ #f4-private-transactions tbody tr td:nth-child(4){
+  grid-column:2!important;grid-row:1/3!important;
+  align-self:center!important;white-space:nowrap!important
+ }
+}
+
+
+/* Former <style id="f4-finance-short-period-20261027">; order preserved. */
+
+#card-pemasukan .f4-period-nowrap,
+#card-pengeluaran .f4-period-nowrap{display:inline-block!important;white-space:nowrap!important}
+@media(max-width:760px){
+ #label-pemasukan-bulan,#label-pengeluaran-bulan{min-width:0!important;line-height:1.3!important}
+ #card-pemasukan>div:last-child>span:first-child,
+ #card-pengeluaran>div:last-child>span:first-child{white-space:nowrap!important}
+}
+
+
+/* Former <style id="f4-jersey-compact-modal-20261027">; order preserved. */
+
+/* Public Jersey popup: maximize actual table space, never change D1 financial logic. */
+#modal-jersey .f4-jersey-dialog{height:min(88vh,850px);height:min(88dvh,850px);max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);min-height:0}
+#modal-jersey .f4-jersey-topbar{display:grid;grid-template-columns:auto minmax(0,1fr) 36px;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid #e8edf4;background:#fff;flex-shrink:0}
+#modal-jersey .f4-jersey-modal-heading{font-size:14px;line-height:1.3;font-weight:800;color:#26334b;margin:0;white-space:nowrap}
+#modal-jersey .f4-jersey-tabs{display:flex;align-items:center;justify-content:center;gap:8px;min-width:0;max-width:590px;width:100%;margin-inline:auto}
+#modal-jersey .f4-jersey-tabs>button{min-width:0;min-height:36px;padding:7px 11px;border-radius:10px;font-size:12px;line-height:1.35;white-space:nowrap}
+#modal-jersey .f4-jersey-close{display:grid;place-items:center;width:36px;height:36px;min-width:36px}
+#modal-jersey .f4-jersey-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:8px 16px;background:#fafbfe;border-bottom:1px solid #edf0f6;flex-shrink:0}
+#modal-jersey .f4-jersey-stat{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;border:1px solid #e6eaf2;border-radius:10px;background:#fff}
+#modal-jersey .f4-jersey-stat p{color:#66758d;font-size:11px;font-weight:650;line-height:1.25;margin:0}
+#modal-jersey .f4-jersey-stat strong{font-size:13px;line-height:1.25;white-space:nowrap;font-weight:800;font-variant-numeric:tabular-nums}
+#modal-jersey .f4-jersey-stat-bill strong{color:#4f46e5}
+#modal-jersey .f4-jersey-stat-paid strong{color:#079669}
+#modal-jersey .f4-jersey-stat-due strong{color:#dc2450}
+#modal-jersey .f4-jersey-filterbar{display:flex;align-items:center;gap:9px;padding:9px 16px;background:#fff;border-bottom:1px solid #e8edf4;flex-shrink:0}
+#modal-jersey .f4-jersey-filterbar input{flex:1;min-width:0;width:100%;height:36px;padding:7px 12px;background:#fff}
+#modal-jersey .f4-jersey-titipan{display:inline-flex;align-items:center;white-space:nowrap;flex-shrink:0;border:1px solid #f3dfae;background:#fffbef;color:#92600d;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:750;line-height:1.3}
+#modal-jersey .f4-jersey-titipan[hidden]{display:none!important}
+#modal-jersey .f4-jersey-table-wrap{padding:2px 14px 12px;overscroll-behavior:contain;scrollbar-gutter:stable}
+#modal-jersey .f4-jersey-table-wrap thead th{position:sticky;top:0;z-index:2;background:#f4f6fa;box-shadow:inset 0 -1px 0 #e3e8f1;font-weight:750}
+#modal-jersey .f4-jersey-table-wrap th,#modal-jersey .f4-jersey-table-wrap td{padding:10px 11px}
+@media(max-width:760px){
+ #modal-jersey .f4-jersey-topbar{grid-template-columns:minmax(0,1fr) 36px;gap:7px 8px;padding:10px 12px}
+ #modal-jersey .f4-jersey-modal-heading{grid-column:1;grid-row:1;font-size:14px}
+ #modal-jersey .f4-jersey-close{grid-column:2;grid-row:1}
+ #modal-jersey .f4-jersey-tabs{grid-column:1 / -1;grid-row:2;max-width:none}
+ #modal-jersey .f4-jersey-tabs>button{font-size:12px;padding:7px 8px}
+ #modal-jersey .f4-jersey-summary{padding:8px 12px;gap:5px}
+ #modal-jersey .f4-jersey-stat{flex-direction:column;align-items:flex-start;gap:3px;padding:7px 8px}
+ #modal-jersey .f4-jersey-stat p{font-size:10px}
+ #modal-jersey .f4-jersey-stat strong{font-size:12px}
+ #modal-jersey .f4-jersey-filterbar{padding:8px 12px;gap:6px}
+ #modal-jersey .f4-jersey-table-wrap{padding:2px 8px 10px;scrollbar-gutter:auto}
+ #modal-jersey .f4-jersey-table-wrap th,#modal-jersey .f4-jersey-table-wrap td{padding:9px 10px}
+}
+@media(max-width:540px){
+ #modal-jersey .f4-jersey-filterbar{flex-wrap:wrap}
+ #modal-jersey .f4-jersey-filterbar input{flex-basis:100%}
+ #modal-jersey .f4-jersey-titipan{margin-left:auto;padding:4px 9px}
+}
+@media(max-height:560px){
+ #modal-jersey .f4-jersey-dialog{height:calc(100dvh - 16px);max-height:calc(100dvh - 16px)}
+}
+
+
+/* Former <style id="f4-projects-d1-source-20261028">; order preserved. */
+
+/* Selektor aktif harus sekuat aturan tersembunyi: sebelumnya #id menang dari [data-*] */
+#slider-projek > :is(#jersey,#gapura,#bank-sampah):not([data-f4-project-inactive="false"]){display:none!important}
+#slider-projek > :is(#jersey,#gapura,#bank-sampah)[data-f4-project-inactive="false"]{display:flex!important}
+#slider-projek > [data-f4-project-inactive="true"]{display:none!important}
+#slider-projek>#f4-project-empty[hidden]{display:none!important}
+
+
+/* Former <style id="f4-public-mobile-calendar-legible-20261028">; order preserved. */
+
+@media screen and (max-width:767px){
+ #calendar-wrapper .grid.grid-cols-7.text-center{font-size:14px!important;line-height:1.25!important}
+ #calendar-days-grid>div>span:first-child{font-size:16px!important;line-height:1.2!important;font-weight:650!important}
+ #calendar-days-grid>div>span.w-full{font-size:10px!important;line-height:1.2!important}
+ #calendar-days-grid>div{min-width:0!important;padding-left:2px!important;padding-right:2px!important}
+}
+
