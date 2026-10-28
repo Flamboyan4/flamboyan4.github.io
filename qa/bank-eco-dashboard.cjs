@@ -8,6 +8,8 @@ const scripts=[...h.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)];
 const body=scripts.find(x=>x[1].includes('function v14Setup()'))?.[1];
 if(!body)throw Error('Existing dashboard source missing');
 new vm.Script(body,{filename:'bank-sampah/index-inline.js'});
+if(!h.includes("page.classList.add('v14-home','f4-eco-dashboard')"))throw Error('Eco stylesheet precedence class missing');
+if(!c.includes('#pageDashboard.v14-home.f4-eco-dashboard.f4-member-dashboard'))throw Error('Member high-specificity safeguard missing');
 if(!art.includes('<svg')||!art.includes('</svg>'))throw Error('Eco header SVG malformed');
 for(const t of ['v14-kpi f4-eco-kpi','f4-eco-panel-heading','class="f4-eco-head-copy"',
   '/portal-live/bank-eco-dashboard.css?v=','f4MemberDateID(r.tanggal)',
