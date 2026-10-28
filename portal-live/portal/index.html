@@ -2437,6 +2437,22 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       closeModalCetakKas();
     }
 
+    // Konsisten dengan judul transaksi di Pembukuan; hanya mengubah teks tampilan.
+    // Jurnal D1, kategori, nominal dan tanggal sama sekali tidak dimodifikasi.
+    function f4PublicCashReadableNote(item) {
+      const note=String(item?.keterangan||item?.kategori||'-').trim();
+      const isFine=/^Denda Gorol\b/i.test(note);
+      if(isFine){
+        const parts=note.match(/^Denda Gorol\s+([A-Za-z]+)(?:\s+(20\d{2}))?/i);
+        const countMatches=[...note.matchAll(/\b(\d+)\s*(?:pembayaran|warga|orang)\b/gi)];
+        const count=Number(countMatches.at(-1)?.[1]||0);
+        const year=parts?.[2]||String(item?.tanggal||'').slice(0,4);
+        if(parts?.[1]&&count>0)
+          return 'Denda Gorol '+parts[1]+( /^20\d{2}$/.test(year)?' '+year:'' )+' • '+count+' warga';
+      }
+      return note.replace(/(\s*•\s*\d+\s+pembayaran)\1\s*$/i,'$1');
+    }
+
     // PROSES PERHITUNGAN KEUANGAN - LANGSUNG DARI BACKEND PEMBUKUAN
     async function loadKeuanganDariPembukuan() {
       try {
@@ -2474,7 +2490,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 
           return {
             'Tanggal': item.tanggal || '',
-            'Keterangan': item.keterangan || item.kategori || '-',
+            'Keterangan': f4PublicCashReadableNote(item),
             'Jenis': jenis,
             'Nominal': nominal,
             'Catatan': item.catatan || '',
