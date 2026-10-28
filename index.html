@@ -218,9 +218,10 @@ body>div.fixed.bottom-6.right-6{
 }
 </style>
 <style id="f4-projects-d1-source-20261028">
-#slider-projek>#jersey,#slider-projek>#gapura,#slider-projek>#bank-sampah{display:none!important}
-#slider-projek>[data-f4-project-inactive="false"]{display:flex!important}
-#slider-projek>[data-f4-project-inactive="true"]{display:none!important}
+/* Selektor aktif harus sekuat aturan tersembunyi: sebelumnya #id menang dari [data-*] */
+#slider-projek > :is(#jersey,#gapura,#bank-sampah):not([data-f4-project-inactive="false"]){display:none!important}
+#slider-projek > :is(#jersey,#gapura,#bank-sampah)[data-f4-project-inactive="false"]{display:flex!important}
+#slider-projek > [data-f4-project-inactive="true"]{display:none!important}
 #slider-projek>#f4-project-empty[hidden]{display:none!important}
 </style></head>
 
