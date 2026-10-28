@@ -2653,14 +2653,8 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
           if (updateEl) updateEl.innerText = 'Update: ' + formatTanggalKeuanganDisplay(globalKeuanganData[0].Tanggal);
         }
 
-        // Progress Gapura tetap memakai saldo kas yang sama seperti sebelumnya.
-        const terkumpul = Math.max(0, sisaSaldo);
-        const persen = Math.min(100, Math.round((terkumpul / TARGET_DANA_GAPURA) * 100));
-        const kurang = Math.max(0, TARGET_DANA_GAPURA - terkumpul);
-        document.getElementById('gapura-percent').innerText = `${persen}%`;
-        document.getElementById('gapura-progress-bar').style.width = `${persen}%`;
-        document.getElementById('gapura-terkumpul').innerText = formatRupiah(terkumpul);
-        document.getElementById('gapura-kurang').innerText = formatRupiah(kurang);
+        // Saldo kas total tidak boleh dianggap dana Gapura.
+        // Widget proyek hanya membaca kategori kas terpilih dari D1 melalui loadProjectCards().
 
       } catch (err) {
         console.error('Gagal memuat keuangan dari Pembukuan:', err);
@@ -3856,6 +3850,11 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
             if(special==='gapura'){
               const target=document.getElementById('gapura-target');
               if(target)target.textContent=Number(row.fund_target_rp)>0?f4ProjectRp(row.fund_target_rp):'Belum diatur';
+            }
+            if(special==='gapura'&&row.project_kind==='kas'&&!row.fund_source){
+              const labels=[['gapura-terkumpul','Belum terhubung'],['gapura-kurang','—'],['gapura-percent','—']];
+              labels.forEach(([id,value])=>{const node=document.getElementById(id);if(node)node.textContent=value});
+              const bar=document.getElementById('gapura-progress-bar');if(bar)bar.style.width='0%';
             }
             if(special==='gapura'&&row.project_kind==='kas'&&row.fund_source){
               const money=Math.max(0,f4ProjectNumber(row.ringkasan?.danaMasukRp)-f4ProjectNumber(row.ringkasan?.danaKeluarRp));
