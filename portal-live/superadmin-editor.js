@@ -739,6 +739,11 @@ function showForm(record){
     ['penggalangan','Penggalangan Dana'],['pesanan','Pemesanan Barang'],
     ['portal','Terhubung portal lain']])input.add(new Option(caption,value));
   }
+  else if(active==='projects'&&key==='fund_source'){
+   input=node('select');
+   input.add(new Option('Pilih kategori kas Pembukuan',''));
+   if(record?.fund_source)input.add(new Option(record.fund_source,record.fund_source));
+  }
   else if(active==='projects'&&key==='linked_key'){
    input=node('select');
    for(const [value,caption] of [
@@ -800,6 +805,18 @@ function showForm(record){
     :'Proyek informasi menampilkan judul, gambar, deskripsi, dan tautan.';
   };
   typeField?.addEventListener('change',refreshKind);refreshKind();
+  send('https://api.flamboyan4.web.id/api/v2/admin/projects/categories').then(data=>{
+   if(!form.isConnected||!category)return;
+   const chosen=category.value,seen=new Set();
+   category.replaceChildren(new Option('Pilih kategori kas Pembukuan',''));
+   for(const label of (Array.isArray(data.data)?data.data:[])){
+    const item=String(label||'').trim();
+    if(!item||seen.has(item))continue;
+    seen.add(item);category.add(new Option(item,item));
+   }
+   if(chosen&&!seen.has(chosen))category.add(new Option(chosen+' (kategori lama)',chosen));
+   category.value=chosen;
+  }).catch(error=>{if(form.isConnected)note.textContent+=' Kategori kas tidak dapat dimuat: '+error.message});
   if(record&&['pesanan','penggalangan'].includes(record.project_kind))
    form.append(btn(record.project_kind==='pesanan'?'Buka Tabel Pesanan':'Buka Tabel Kontribusi',
     ()=>window.F4ProjectModule?.open(record),'f4-admin-btn f4-admin-primary'));
@@ -1007,6 +1024,12 @@ function showForm(record){
    viewList();
    const info=main.querySelector('.f4-admin-note');
    if(info)info.textContent='Data berhasil disimpan dan diverifikasi dari server. '+records.length+' baris tersedia.';
+   if(active==='projects'&&!record&&saved?.id){
+    const newest=records.find(x=>String(x.id)===String(saved.id));
+    if(newest&&['pesanan','penggalangan'].includes(newest.project_kind)){
+     await window.F4ProjectModule?.open(newest);
+    }
+   }
    if(active==='jersey'){
     main.querySelector('.f4-jersey-saved')?.scrollIntoView({behavior:'smooth',block:'nearest'});
     lastSavedJerseyId=null;
