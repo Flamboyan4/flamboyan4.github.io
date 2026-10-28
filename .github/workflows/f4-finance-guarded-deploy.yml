@@ -136,7 +136,9 @@ jobs:
           kas_sql=pathlib.Path("cloudflare/migrations/20261028_kas_lorong_batches.sql").read_text()
           if kas_sql.upper().count("CREATE TABLE IF NOT EXISTS")!=2 or kas_sql.upper().count("CREATE UNIQUE INDEX IF NOT EXISTS")!=1 or kas_sql.upper().count("CREATE VIEW IF NOT EXISTS")!=1:
               raise RuntimeError("Unexpected Kas batch migration")
-          d1query(kas_sql)
+          for statement in kas_sql.split(";"):
+              q="\n".join(line for line in statement.splitlines() if not line.lstrip().startswith("--")).strip()
+              if q:d1query(q)
           for table,columns_required in [
               ("bookkeeping_kas_batches",{"id","request_key","category","cash_transaction_id","amount_rp","status"}),
               ("bookkeeping_kas_batch_items",{"id","batch_id","category","source_id","status"})]:
