@@ -51,11 +51,13 @@ async def main():
             await page.goto(ROOT, wait_until="domcontentloaded", timeout=45000)
             await page.wait_for_timeout(1100)
             await page.screenshot(path=str(DEST / (mode+"-public.png")), full_page=False)
-            await page.evaluate("""(html) => {
-              document.querySelectorAll('body link[rel="stylesheet"]').forEach(n => document.head.appendChild(n));
-              document.body.innerHTML = html;
-            }""", FIXTURE)
-            await page.wait_for_load_state("networkidle", timeout=12000)
+            # Render a deterministic fixture in a new document: the live app
+            # otherwise continues mutating the DOM after replacing body.innerHTML.
+            # Load actual theme sheets (not duplicated CSS) for PC/HP assertions.
+            await page.set_content(FIXTURE, wait_until="load")
+            await page.add_style_tag(url="http://127.0.0.1:8765/portal-live/bank-eco-pages.css")
+            await page.add_style_tag(url="http://127.0.0.1:8765/portal-live/bank-eco-dashboard.css")
+            await page.wait_for_timeout(300)
             state = await page.evaluate("""() => {
               const e = (s) => document.querySelector(s);
               const color = (s,property) => getComputedStyle(e(s))[property];
