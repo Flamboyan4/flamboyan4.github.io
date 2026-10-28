@@ -470,3 +470,19 @@ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-activity-li
  body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head{display:grid!important;grid-template-columns:1fr!important}
  body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-header-art{display:flex!important}
 }
+
+/* Stabilized icon and approved-reference art, 2026-10-28.
+   Small icons are the existing production SVG files, not generated paths. */
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi>.f4-eco-icon img{
+  display:block!important;width:22px!important;height:22px!important;
+  object-fit:contain!important;filter:brightness(0) invert(1)!important;
+}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-header-art img{
+  display:block!important;width:100%!important;height:100%!important;
+  object-fit:contain!important;object-position:center center!important;
+}
+@media(max-width:760px){
+ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi>.f4-eco-icon img{
+  width:18px!important;height:18px!important
+ }
+}

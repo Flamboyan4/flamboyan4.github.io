@@ -27,6 +27,9 @@ for(const t of ['#v14Primary>.f4-eco-kpi','nth-child(4)','f4-member-dashboard',
  if(!c.includes(t))throw Error('Eco CSS missing: '+t);
 }
 if(c.includes('Rp 6.000')||c.includes('33 warga')||c.includes('2 kg'))throw Error('Do not hardcode member or admin figures');
-if(!h.includes('/assets/bank-eco-header.svg?v='))throw Error('Illustration URL must resolve from HTML');
+if(!h.includes('/assets/bank-eco-reference.webp?v=20261028-approved-illustration-v1'))throw Error('Approved screenshot crop missing');
+if(!h.includes("iconNames=['bank','user','cash','calendar']"))throw Error('Validated icon assets not used');
+if(h.includes('const drawings=[')||h.includes('symbol.innerHTML='))throw Error('Malformed custom SVG still loaded');
 if(!h.includes('f4-eco-icon')||!h.includes('f4-eco-deposit-badge'))throw Error('Reference details missing');
+if(!c.includes('.f4-eco-icon img')||!c.includes('brightness(0) invert(1)'))throw Error('Small icon CSS absent');
 console.log('F4_ECO_DASHBOARD_STATIC_OK');
