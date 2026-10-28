@@ -50,7 +50,7 @@ async function publicPortal(db) {
     list(db, `SELECT id,name,description,quantity,unit,photo_ref,category FROM portal_inventory WHERE visibility='publik' ORDER BY name LIMIT 250`),
     list(db, `SELECT id,title,meeting_on,summary,document_ref FROM portal_meeting_records WHERE visibility='publik' ORDER BY meeting_on DESC LIMIT 50`),
     list(db, `SELECT id,event_on,title,description,drive_url,category FROM portal_documentation WHERE visibility='publik' AND active=1 ORDER BY event_on DESC,sort_order LIMIT 100`),
-    list(db, `SELECT project_id,COUNT(*) AS jumlah,COALESCE(SUM(amount_due_rp),0) AS tagihanRp,COALESCE(SUM(paid_rp),0) AS diterimaRp,COALESCE(SUM(CASE WHEN paid_rp>=amount_due_rp THEN 1 ELSE 0 END),0) AS lunas FROM portal_project_orders WHERE status='aktif' GROUP BY project_id`),
+    list(db, `SELECT project_id,COUNT(*) AS jumlah,COALESCE(SUM(amount_due_rp),0) AS tagihanRp,COALESCE(SUM(paid_rp),0) AS diterimaRp,COALESCE(SUM(CASE WHEN amount_due_rp>0 AND paid_rp>=amount_due_rp THEN 1 ELSE 0 END),0) AS lunas FROM portal_project_orders WHERE status='aktif' GROUP BY project_id`),
     list(db, `SELECT project_id,COUNT(*) AS jumlah,COALESCE(SUM(amount_rp),0) AS diterimaRp FROM portal_project_contributions WHERE status='aktif' GROUP BY project_id`),
     list(db, `SELECT category,COALESCE(SUM(debit_rp),0) AS masukRp,COALESCE(SUM(credit_rp),0) AS keluarRp FROM bookkeeping_cash_transactions WHERE status='aktif' AND category IS NOT NULL GROUP BY category`)
   ]);
