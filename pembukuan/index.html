@@ -3216,7 +3216,9 @@ function f4CashHumanTitle(x){
     .replace(/^[\s•,:;\-]+|[\s•,:;\-]+$/g,'').trim();
   if(scrub)return scrub;
   const category=String(x?.kategori||'').trim();
-  if(category&&!/^(?:pay(?:ment)?|cash|trx|transaction)[:_-][a-z0-9_-]+$/i.test(category))return category;
+  const resident=String(x?.namaWarga||'').trim();
+  if(category&&!/^(?:pay(?:ment)?|cash|trx|transaction)[:_-][a-z0-9_-]+$/i.test(category))
+    return resident?category+' • '+resident:category;
   const type=String(x?.jenis||'').toLowerCase();
   if(type.includes('iuran'))return 'Penerimaan Iuran Kas Lorong';
   if(type.includes('pinjaman'))return 'Transaksi Pinjaman Warga';
