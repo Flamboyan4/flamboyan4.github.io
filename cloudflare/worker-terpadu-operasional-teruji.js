@@ -46,7 +46,7 @@ async function publicPortal(db) {
   const [agenda, banners, projects, inventory, meetings, documentation] = await Promise.all([
     list(db, `SELECT id,title,starts_on,ends_on,location,description,status FROM portal_agenda WHERE visibility='publik' ORDER BY starts_on DESC LIMIT 40`),
     list(db, `SELECT id,title,image_ref,target_url FROM portal_banners WHERE active=1 ORDER BY sort_order,id LIMIT 20`),
-    list(db, `SELECT id,title,description,image_ref,target_url FROM portal_project_cards WHERE active=1 ORDER BY sort_order,id LIMIT 60`),
+    list(db, `SELECT id,title,description,image_ref,target_url,project_kind,fund_source,fund_target_rp,linked_key,sort_order FROM portal_project_cards WHERE active=1 ORDER BY sort_order,id LIMIT 60`),
     list(db, `SELECT id,name,description,quantity,unit,photo_ref,category FROM portal_inventory WHERE visibility='publik' ORDER BY name LIMIT 250`),
     list(db, `SELECT id,title,meeting_on,summary,document_ref FROM portal_meeting_records WHERE visibility='publik' ORDER BY meeting_on DESC LIMIT 50`),
     list(db, `SELECT id,event_on,title,description,drive_url,category FROM portal_documentation WHERE visibility='publik' AND active=1 ORDER BY event_on DESC,sort_order LIMIT 100`)
@@ -662,7 +662,7 @@ __name(addBankMedia, "addBankMedia");
 var contentModel = {
   agenda: { table: "portal_agenda", fields: { title: "text", starts_on: "date", ends_on: "date", location: "text", description: "long", image_ref: "url", status: "text", visibility: "visibility", sort_order: "order" }, required: ["title"] },
   banners: { table: "portal_banners", fields: { title: "text", image_ref: "url", target_url: "urlOrAnchor", sort_order: "order", active: "bool" }, required: ["image_ref"] },
-  projects: { table: "portal_project_cards", fields: { title: "text", description: "long", image_ref: "url", target_url: "urlOrAnchor", sort_order: "order", active: "bool" }, required: ["title"] },
+  projects: { table: "portal_project_cards", fields: { title: "text", description: "long", image_ref: "url", target_url: "urlOrAnchor", sort_order: "order", active: "bool", project_kind: "projectKind", fund_source: "text", fund_target_rp: "fundTarget", linked_key: "text" }, required: ["title"] },
   inventory: { table: "portal_inventory", fields: { name: "text", description: "long", quantity: "quantity", unit: "text", photo_ref: "url", category: "text", visibility: "visibility" }, required: ["name"] },
   meetings: { table: "portal_meeting_records", fields: { title: "text", meeting_on: "date", summary: "long", document_ref: "url", visibility: "visibility" }, required: ["title"] },
   documentation: { table: "portal_documentation", fields: { event_on: "date", title: "text", description: "long", drive_url: "url", category: "text", sort_order: "order", visibility: "visibility", active: "bool" }, required: ["title"] },
@@ -673,6 +673,16 @@ var contentPath = "/api/v2/admin/content/";
 function normalizeContent(type, v) {
   if (v === void 0 || v === null || v === "") return null;
   if (type === "bool") return v === true || v === 1 || v === "1" ? 1 : 0;
+  if (type === "projectKind") {
+    const choice=String(v||"informasi").trim().toLowerCase();
+    if(!["informasi","kas","penggalangan","pesanan","portal"].includes(choice))throw Error("Jenis proyek tidak dikenal.");
+    return choice;
+  }
+  if (type === "fundTarget") {
+    const n=Number(v||0);
+    if(!Number.isSafeInteger(n)||n<0||n>100000000000)throw Error("Target dana harus rupiah bulat yang valid.");
+    return n;
+  }
   if (type === "order" || type === "quantity") {
     const n = Number(v);
     if (!Number.isFinite(n) || n < 0 || n > 1e7 || type === "order" && !Number.isInteger(n)) throw Error("Angka tidak valid.");
@@ -684,7 +694,7 @@ function normalizeContent(type, v) {
   if (type === "date" && !validDate(t)) throw Error("Tanggal harus YYYY-MM-DD.");
   if (type === "visibility" && !["publik", "privat"].includes(t)) throw Error("Visibilitas tidak valid.");
   if (type === "url" && t && !/^https:\/\//i.test(t)) throw Error("Gunakan tautan HTTPS, misalnya Google Drive.");
-  if (type === "urlOrAnchor" && t && !/^https:\/\//i.test(t) && !/^#[a-zA-Z0-9_-]+$/.test(t)) throw Error("Tautan target tidak valid.");
+  if (type === "urlOrAnchor" && t && !/^https:\/\//i.test(t) && !/^#[a-zA-Z0-9_-]+$/.test(t) && !/^\/(?!\/)[a-zA-Z0-9_/#?=&%.-]*$/.test(t)) throw Error("Tautan target tidak valid.");
   return t || null;
 }
 __name(normalizeContent, "normalizeContent");
@@ -815,6 +825,15 @@ async function handleAdminContent(request, env, who, url) {
     if(!id)return err("ID konten wajib diisi.",400);
     const before=await one(db,"SELECT * FROM "+model.table+" WHERE id=?",[id]);
     if(!before)return err("Konten tidak ditemukan; muat ulang daftar.",404);
+    // Project is presentation/configuration only. Archive instead of deleting money/order records.
+    if(kind==="projects"){
+      await db.batch([
+        db.prepare("UPDATE portal_project_cards SET active=0 WHERE id=?").bind(id),
+        db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)")
+          .bind("audit:"+crypto.randomUUID(),who.id,"portal_content","archive","portal_project_cards",id,JSON.stringify(before),JSON.stringify({...before,active:0}))
+      ]);
+      return ok({id,archived:true});
+    }
     try{
       await db.batch([
         db.prepare("DELETE FROM "+model.table+" WHERE id=?").bind(id),
@@ -888,7 +907,10 @@ async function handleAdminContent(request, env, who, url) {
     ]);
     return ok({ id, updated: true });
   }
-  for (const k of fields) if (!(k in clean)) clean[k] = model.fields[k] === "bool" ? 1 : model.fields[k] === "order" ? 0 : null;
+  for (const k of fields) if (!(k in clean)) clean[k] =
+    kind==="projects"&&k==="project_kind"?"informasi":
+    kind==="projects"&&["fund_source","linked_key"].includes(k)?"": 
+    model.fields[k]==="bool"?1:["order","fundTarget"].includes(model.fields[k])?0:null;
   if (model.required.some((k) => !clean[k])) return err("Kolom wajib belum diisi.", 400);
   const newId = kind + ":web:" + crypto.randomUUID(), cols = ["id", ...fields];
   await db.batch([
