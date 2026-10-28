@@ -1103,6 +1103,36 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
  #pageSetoran #saveSetoranBtn,#pagePenjualan #saleForm>button[type=submit]{width:100%!important}
 }
 @media print{#pageSetoran,#pagePenjualan{display:none!important}}
+
+/* Pastikan kartu input menang dari aturan tabel desktop lawas di modern-portals.css. */
+body.f4-direct-bank #dashboardView #pageSetoran #setBarang,
+body.f4-direct-bank #dashboardView #pagePenjualan #saleItems{
+ max-width:100%!important;width:100%!important
+}
+body.f4-direct-bank #dashboardView #pageSetoran #setBarang table,
+body.f4-direct-bank #dashboardView #pagePenjualan #saleItems table{
+ display:block!important;table-layout:auto!important
+}
+body.f4-direct-bank #dashboardView #pageSetoran #setBarang tbody td,
+body.f4-direct-bank #dashboardView #pagePenjualan #saleItems tbody td,
+body.f4-direct-bank #dashboardView #pageSetoran #setBarang>table td:nth-child(n),
+body.f4-direct-bank #dashboardView #pagePenjualan #saleItems>table td:nth-child(n){
+ padding:0!important;margin:0!important;border:0!important;width:auto!important;
+ max-width:100%!important;vertical-align:middle!important;line-height:1.35!important
+}
+body.f4-direct-bank #dashboardView #pageSetoran #setBarang tbody tr:nth-child(even),
+body.f4-direct-bank #dashboardView #pagePenjualan #saleItems tbody tr:nth-child(even){
+ background:#fff!important
+}
+body.f4-direct-bank #dashboardView #pageSetoran #setBarang tbody tr.f4-entry-filled,
+body.f4-direct-bank #dashboardView #pagePenjualan #saleItems tbody tr.f4-entry-filled{
+ background:#f6fbf7!important
+}
+body.f4-direct-bank #dashboardView #pageSetoran #setBarang input[type=number],
+body.f4-direct-bank #dashboardView #pagePenjualan #saleItems input[type=number]{
+ width:100%!important;max-width:100%!important;height:36px!important;
+ padding:5px 7px!important
+}
 </style>
 </head>
 <body>
