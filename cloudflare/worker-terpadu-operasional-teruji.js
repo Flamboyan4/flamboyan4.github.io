@@ -4074,6 +4074,135 @@ async function residentsApi(request, env, who) {
   }
 }
 __name(residentsApi, "residentsApi");
+
+/* Gabungan kas asli: baris kas satuan pensiun secara atomik ketika batch disahkan. */
+async function f4GroupSources(db,kind,year,month){
+ const ym=year+"-"+String(month).padStart(2,"0");
+ let sql="";
+ if(kind==="kas_lorong")sql=
+  "SELECT a.id sourceId,a.payment_id paymentId,a.amount_rp amountRp,p.paid_on paidOn,"+
+  "p.payment_method method,p.payer_id payerId,bp.display_name nama,COALESCE(h.house_code,'') rumah "+
+  "FROM bookkeeping_payment_allocations a JOIN bookkeeping_payments p ON p.id=a.payment_id "+
+  "JOIN bookkeeping_payers bp ON bp.id=p.payer_id LEFT JOIN households h ON h.id=p.household_id "+
+  "LEFT JOIN bookkeeping_group_items g ON g.kind='kas_lorong' AND g.source_id=a.id "+
+  "WHERE a.contribution_type='KAS_LORONG' AND a.status='aktif' AND p.status='aktif' AND a.amount_rp>0 "+
+  "AND a.period_year=? AND a.period_month=? AND g.source_id IS NULL "+
+  "AND NOT EXISTS(SELECT 1 FROM bookkeeping_allocation_details d WHERE d.allocation_id=a.id AND LOWER(d.contribution_type) IN ('kas_lorong','kas lorong')) "+
+  "ORDER BY p.paid_on,a.id LIMIT 501";
+ else sql=
+  "SELECT fp.id sourceId,fp.id paymentId,fp.amount_rp amountRp,fp.paid_on paidOn,fp.cash_transaction_id sourceCashId,"+
+  "COALESCE(c.payment_method,'Cash') method,f.payer_id payerId,bp.display_name nama,COALESCE(h.house_code,'') rumah "+
+  "FROM bookkeeping_fine_payments fp JOIN bookkeeping_fines f ON f.id=fp.fine_id "+
+  "JOIN bookkeeping_payers bp ON bp.id=f.payer_id LEFT JOIN households h ON h.id=bp.household_id "+
+  "LEFT JOIN bookkeeping_cash_transactions c ON c.id=fp.cash_transaction_id "+
+  "LEFT JOIN bookkeeping_group_items g ON g.kind='denda_gorol' AND g.source_id=fp.id "+
+  "WHERE fp.status='aktif' AND f.status<>'dibatalkan' AND fp.amount_rp>0 "+
+  "AND substr(fp.paid_on,1,7)=? AND g.source_id IS NULL ORDER BY fp.paid_on,fp.id LIMIT 501";
+ const out=kind==="kas_lorong"?await db.prepare(sql).bind(year,month).all():await db.prepare(sql).bind(ym).all();
+ return out.results||[];
+}
+function f4GroupParams(data){
+ const kind=String(data.kind||""),year=Number(data.year),month=Number(data.month);
+ if(!["kas_lorong","denda_gorol"].includes(kind)||!Number.isInteger(year)||year<2020||year>2100||!Number.isInteger(month)||month<1||month>12)
+  throw Error("Periode/jenis pembukuan tidak valid");
+ return {kind,year,month};
+}
+async function f4GroupRead(db,request){
+ let v;try{v=f4GroupParams(Object.fromEntries(new URL(request.url).searchParams))}catch(e){return safeError(e.message,400)}
+ const src=await f4GroupSources(db,v.kind,v.year,v.month);
+ const out=await db.prepare("SELECT id,posted_on,period_phase,note,amount_rp,item_count FROM bookkeeping_group_batches "+
+  "WHERE kind=? AND period_year=? AND period_month=? AND status='aktif' ORDER BY posted_on DESC,id DESC LIMIT 101")
+  .bind(v.kind,v.year,v.month).all();
+ if(src.length>500||(out.results||[]).length>100)return safeError("Daftar terlalu panjang; audit diperlukan.",409);
+ let legacy=new Set();
+ if(v.kind==="kas_lorong"&&src.length){
+  const payments=[...new Set(src.map(x=>String(x.paymentId)))];
+  const found=await db.prepare("SELECT source_payment_id,status FROM bookkeeping_cash_transactions WHERE transaction_type='iuran' AND source_payment_id IN ("+
+   payments.map(()=>"?").join(",")+")").bind(...payments).all();
+  legacy=new Set((found.results||[]).filter(x=>x.status==='aktif').map(x=>x.source_payment_id));
+ }
+ const belum=src.map(x=>({idAlokasi:x.sourceId,nama:x.nama,rumah:x.rumah,tanggalBayar:x.paidOn,
+  metode:x.method,qtyKasLorong:1,nominalKasLorong:Number(x.amountRp),sourceCashId:x.sourceCashId||"",
+  sudahMasukKasSatuan:legacy.has(x.paymentId)}));
+ const batches=(out.results||[]).map(x=>({idBatch:x.id,tanggalPembukuan:x.posted_on,
+   keterangan:x.note,periode:x.period_phase,jumlahPembayaran:Number(x.item_count),nominal:Number(x.amount_rp)}));
+ return json({ok:true,status:"success",data:{belum,batches,sudah:[],ringkasan:{
+   qtyBelum:belum.length,nominalBelum:belum.reduce((s,x)=>s+x.nominalKasLorong,0),
+   qtySudah:batches.reduce((s,x)=>s+x.jumlahPembayaran,0),
+   nominalSudah:batches.reduce((s,x)=>s+x.nominal,0)
+ },warning:legacy.size?"Sebagian pembayaran lama sudah pernah masuk jurnal satuan. Batch akan menggantinya secara atomik, bukan menambah saldo.":""}});
+}
+async function f4GroupPost(request,env,who){
+ if(env.FINANCE_WRITE_ENABLED!=="true")return safeError("Penulisan kas belum aktif.",503);
+ let data;try{data=await requestJson(request)}catch{return safeError("Permintaan tidak valid.",400)}
+ let v;try{v=f4GroupParams(data)}catch(e){return safeError(e.message,400)}
+ if(v.kind==="kas_lorong"&&env.IURAN_WRITE_ENABLED!=="true")return safeError("Penulisan iuran belum aktif.",503);
+ const ids=data.sourceIds,phase=String(data.phase||"susulan"),day=String(data.postedOn||""),note=String(data.note||"").trim();
+ if(!Array.isArray(ids)||ids.length<1||ids.length>150||new Set(ids).size!==ids.length||
+    ids.some(id=>typeof id!=="string"||!/^[A-Za-z0-9:_-]{1,150}$/.test(id))||
+    !["setoran_rt","arisan","susulan"].includes(phase)||!validDateOnly(day)||
+    Number(day.slice(0,4))!==v.year||Number(day.slice(5,7))!==v.month||
+    note.length<3||note.length>250||day>new Date(Date.now()+25200000).toISOString().slice(0,10))
+  return safeError("Pilihan, tanggal, dan keterangan batch tidak valid.",400);
+ const db=env.DB;
+ if(await db.prepare("SELECT 1 FROM bookkeeping_year_archives WHERE fiscal_year=? AND status IN ('ditutup','terkunci','final','closed') LIMIT 1").bind(v.year).first()||
+    await db.prepare("SELECT 1 FROM fiscal_closings WHERE fiscal_year=? LIMIT 1").bind(v.year).first())
+  return safeError("Tahun kas sudah ditutup.",409);
+ const rows=await f4GroupSources(db,v.kind,v.year,v.month);
+ if(rows.length>500)return safeError("Daftar terlalu panjang. Pembukuan ditolak.",409);
+ const available=new Map(rows.map(x=>[x.sourceId,x])),selected=ids.map(id=>available.get(id));
+ if(selected.some(x=>!x))return safeError("Pilihan sudah berubah atau pernah dibukukan. Muat ulang.",409);
+ if(selected.some(x=>x.paidOn>day))return safeError("Tanggal batch lebih awal dari tanggal pembayaran.",409);
+ const sum=selected.reduce((s,x)=>s+Number(x.amountRp),0);
+ if(!Number.isSafeInteger(sum)||sum<=0||sum>1e12)return safeError("Total tidak valid.",409);
+ const methods=[...new Set(selected.map(x=>x.method))];
+ if(methods.length!==1||!["Cash","QRIS","Transfer Mandiri"].includes(methods[0]))
+   return safeError("Pilih pembayaran bermetode sama per batch agar Cash/QRIS/Mandiri tetap sesuai.",409);
+ const retire=new Set();
+ if(v.kind==="kas_lorong"){
+  const payIds=[...new Set(selected.map(x=>x.paymentId))];
+  const sql="SELECT source_payment_id paymentId,id,status,transaction_type,debit_rp,credit_rp "+
+   "FROM bookkeeping_cash_transactions WHERE source_payment_id IN ("+payIds.map(()=>"?").join(",")+")";
+  const cash=(await db.prepare(sql).bind(...payIds).all()).results||[];
+  const full=(await db.prepare("SELECT payment_id,SUM(amount_rp) amount FROM bookkeeping_payment_allocations "+
+   "WHERE contribution_type='KAS_LORONG' AND status='aktif' AND payment_id IN ("+
+   payIds.map(()=>"?").join(",")+") GROUP BY payment_id").bind(...payIds).all()).results||[];
+  const expected=new Map(full.map(x=>[x.payment_id,Number(x.amount)]));
+  for(const paymentId of payIds){
+   const items=cash.filter(x=>x.paymentId===paymentId);
+   if(items.length>1||items.some(x=>x.transaction_type!=="iuran"||x.credit_rp!==0||
+      Number(x.debit_rp)!==expected.get(paymentId)||!["aktif","digabung_batch"].includes(x.status)))
+    return safeError("Jurnal sumber tidak cocok dengan alokasi Kas Lorong. Tidak ada data diubah.",409);
+   if(items[0]?.status==="aktif")retire.add(items[0].id);
+  }
+ }else{
+  for(const item of selected){
+   if(!item.sourceCashId)return safeError("Pembayaran denda belum memiliki jurnal kas terverifikasi.",409);
+   const row=await db.prepare("SELECT status,transaction_type,debit_rp,credit_rp FROM bookkeeping_cash_transactions WHERE id=?").bind(item.sourceCashId).first();
+   if(!row||!["aktif","digabung_batch"].includes(row.status)||row.transaction_type!=="pembayaran_denda"||
+      Number(row.debit_rp)!==Number(item.amountRp)||Number(row.credit_rp)!==0)
+    return safeError("Jurnal denda tidak cocok: pembukuan ditolak.",409);
+   if(row.status==="aktif")retire.add(item.sourceCashId);
+  }
+ }
+ const id="group-"+crypto.randomUUID(),cashId="cash-group-"+crypto.randomUUID();
+ const stmts=[
+  ...[...retire].map(old=>db.prepare("UPDATE bookkeeping_cash_transactions SET status='digabung_batch' WHERE id=? AND status='aktif'").bind(old)),
+  db.prepare("INSERT INTO bookkeeping_group_batches(id,kind,period_year,period_month,period_phase,posted_on,note,amount_rp,item_count,cash_transaction_id,status,created_by) VALUES(?,?,?,?,?,?,?,?,?,?,'aktif',?)")
+    .bind(id,v.kind,v.year,v.month,phase,day,note,sum,selected.length,cashId,who.id),
+  ...selected.map(x=>db.prepare("INSERT INTO bookkeeping_group_items(kind,source_id,batch_id,payment_id,amount_rp) VALUES(?,?,?,?,?)")
+    .bind(v.kind,x.sourceId,id,x.paymentId,Number(x.amountRp))),
+  db.prepare("INSERT INTO bookkeeping_cash_transactions(id,occurred_on,transaction_type,category,debit_rp,credit_rp,status,note,payment_method) VALUES(?,?,?,?,?,0,'aktif',?,?)")
+    .bind(cashId,day,v.kind==="kas_lorong"?"iuran_batch":"denda_batch",v.kind==="kas_lorong"?"Kas Lorong":"Denda Gorol",sum,note,methods[0]),
+  db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'pembukuan','group_posting','bookkeeping_group_batches',?,?,?)")
+    .bind(crypto.randomUUID(),who.id,id,note,JSON.stringify({kind:v.kind,count:selected.length,retired:retire.size,totalRp:sum,phase}))
+ ];
+ try{await db.batch(stmts)}catch{
+  return safeError("Batch ditolak secara atomik. Periksa batas status jurnal lama dan muat ulang. Tidak ada transaksi tambahan yang disimpan.",409);
+ }
+ return json({ok:true,status:"success",idBatch:id,nominal:sum,jumlah:selected.length,retiredCash:retire.size});
+}
+
 async function handle(request, env) {
   if (!env.DB) return safeError("Database belum dikonfigurasi.", 503);
   const url = new URL(request.url), path = url.pathname.replace(/\/+$/, "") || "/";
@@ -4340,6 +4469,14 @@ async function handle(request, env) {
     const denied = requireRole(who, ["superadmin"]);
     if (denied) return denied;
     return bookkeepingIuranHistory(env.DB, request);
+  }
+  if (path === "/api/bookkeeping/group-batches" && request.method === "GET") {
+    const denied=requireRole(who,["superadmin"]);if(denied)return denied;
+    return f4GroupRead(env.DB,request);
+  }
+  if (path === "/api/bookkeeping/group-batches" && request.method === "POST") {
+    const denied=requireRole(who,["superadmin"]);if(denied)return denied;
+    return f4GroupPost(request,env,who);
   }
   if (path === "/api/bookkeeping/cash" && request.method === "GET") {
     const denied = requireRole(who, ["superadmin"]);
