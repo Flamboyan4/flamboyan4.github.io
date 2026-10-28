@@ -47,7 +47,7 @@ async function publicPortal(db) {
     list(db, `SELECT id,title,starts_on,ends_on,location,description,status FROM portal_agenda WHERE visibility='publik' ORDER BY starts_on DESC LIMIT 40`),
     list(db, `SELECT id,title,image_ref,target_url FROM portal_banners WHERE active=1 ORDER BY sort_order,id LIMIT 20`),
     list(db, `SELECT id,title,description,image_ref,target_url,project_kind,fund_source,fund_target_rp,linked_key,sort_order FROM portal_project_cards WHERE active=1 ORDER BY sort_order,id LIMIT 60`),
-    list(db, `SELECT id,name,description,quantity,unit,photo_ref,category FROM portal_inventory WHERE visibility='publik' ORDER BY name LIMIT 250`),
+    list(db, `SELECT id,name,description,quantity,unit,photo_ref,category FROM portal_inventory WHERE visibility='publik' ORDER BY rowid DESC LIMIT 250`),
     list(db, `SELECT id,title,meeting_on,summary,document_ref FROM portal_meeting_records WHERE visibility='publik' ORDER BY meeting_on DESC LIMIT 50`),
     list(db, `SELECT id,event_on,title,description,drive_url,category FROM portal_documentation WHERE visibility='publik' AND active=1 ORDER BY event_on DESC,sort_order LIMIT 100`),
     list(db, `SELECT project_id,COUNT(*) AS jumlah,COALESCE(SUM(amount_due_rp),0) AS tagihanRp,COALESCE(SUM(paid_rp),0) AS diterimaRp,COALESCE(SUM(CASE WHEN amount_due_rp>0 AND paid_rp>=amount_due_rp THEN 1 ELSE 0 END),0) AS lunas FROM portal_project_orders WHERE status='aktif' GROUP BY project_id`),
@@ -380,7 +380,7 @@ async function adminPortal(db, url) {
     agenda: `SELECT * FROM portal_agenda ORDER BY starts_on DESC,id DESC LIMIT ?`,
     banners: `SELECT * FROM portal_banners ORDER BY sort_order,id LIMIT ?`,
     projects: `SELECT * FROM portal_project_cards ORDER BY sort_order,id LIMIT ?`,
-    inventory: `SELECT * FROM portal_inventory ORDER BY name LIMIT ?`,
+    inventory: `SELECT * FROM portal_inventory ORDER BY rowid DESC LIMIT ?`,
     meetings: `SELECT * FROM portal_meeting_records ORDER BY meeting_on DESC,id DESC LIMIT ?`,
     comments: `SELECT id,display_name,body,status,created_at FROM portal_comments ORDER BY created_at DESC,id DESC LIMIT ?`
   };
@@ -826,7 +826,7 @@ async function handleAdminContent(request, env, who, url) {
   if (!model && !["tariffs", "settings", "obligations"].includes(kind)) return err("Jenis data tidak dikenal.", 404);
   if (request.method === "GET") {
     if (model) {
-      const order = kind === "arisan" ? "period_on ASC,id" : kind === "jersey" ? "group_key,sort_order,id" : kind === "agenda" ? "starts_on DESC,id DESC" : kind === "documentation" ? "event_on DESC,id DESC" : kind === "inventory" ? "name,id" : kind === "meetings" ? "meeting_on DESC,id DESC" : "sort_order,id";
+      const order = kind === "arisan" ? "period_on ASC,id" : kind === "jersey" ? "group_key,sort_order,id" : kind === "agenda" ? "starts_on DESC,id DESC" : kind === "documentation" ? "event_on DESC,id DESC" : kind === "inventory" ? "rowid DESC" : kind === "meetings" ? "meeting_on DESC,id DESC" : "sort_order,id";
       const rows = await list(db, "SELECT * FROM " + model.table + " ORDER BY " + order + " LIMIT 500");
       return ok({ data: rows, kind });
     }
