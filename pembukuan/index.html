@@ -2114,10 +2114,9 @@ main > section.card{overflow:visible!important}
       <div class="kas-layout grid xl:grid-cols-[1.55fr_.85fr] gap-5 min-w-0">
         <div class="min-w-0">
           <div class="flex items-center justify-between gap-3 mb-3">
-            <div><div class="font-black text-violet-950">Transaksi Belum Dibukukan</div><div id="kas-source-hint" class="text-xs text-slate-500 mt-0.5">Centang Kas Lorong yang ingin dibukukan. Bulan berdasarkan kewajiban iuran, bukan tanggal bayar.</div></div>
+            <div><div class="font-black text-violet-950">Transaksi Belum Dibukukan</div><div id="kas-source-hint" class="text-xs text-slate-500 mt-0.5">Hanya pembayaran baru yang belum masuk Buku Kas. Riwayat bulk CSV tetap terkunci dan tanggalnya bisa dikoreksi di Riwayat Iuran.</div></div>
             <button type="button" onclick="pilihSemuaKas()" class="text-sm font-bold text-violet-700">Pilih semua</button>
           </div>
-          <div id="kas-audit-warning" class="hidden rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 mb-3" role="status"></div>
           <div class="kas-scroll overflow-x-auto rounded-xl border border-violet-100 scrollbar-thin">
             <table class="min-w-[760px] w-full text-sm">
               <thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 w-12"></th><th class="p-3 text-left">Warga</th><th class="p-3 text-left">Tanggal Bayar</th><th class="p-3 text-center">Qty</th><th class="p-3 text-right">Nominal</th><th class="p-3 text-left">Metode</th></tr></thead>
@@ -3077,8 +3076,8 @@ function f4ChangeKasSource(){
  const type=document.getElementById('kas-jenis-sumber')?.value||'kas_lorong';
  const text=document.getElementById('kas-source-hint');
  if(text)text.textContent=type==='denda_gorol'
-  ?'Centang pembayaran Denda Gorol berdasarkan tanggal bayar. Hasilnya dibukukan satu total.'
-  :'Centang Kas Lorong sesuai bulan kewajiban. Pembayaran November yang diterima Oktober tetap ditampilkan.';
+  ?'Hanya pembayaran Denda Gorol baru yang belum masuk Buku Kas. Data lama tetap ada di riwayat.'
+  :'Centang Kas Lorong baru menurut bulan kewajiban. Data bulk CSV lama tetap terkunci di Riwayat Iuran.';
  const title=document.querySelector('#tab-kas .kas-batch-card .font-black');
  if(title)title.textContent=type==='denda_gorol'?'Buat Batch Denda Gorol':'Buat Batch Kas Lorong';
  const ket=document.getElementById('kas-keterangan');if(ket){ket.dataset.edited='';ket.value=''}
@@ -3111,15 +3110,8 @@ async function loadPembukuanKas(){
 }
 function renderPembukuanKas(){
   const r=KAS_DATA.ringkasan||{};
-  const legacy=(KAS_DATA.belum||[]).filter(x=>x.perluAudit);
-  const warning=document.getElementById('kas-audit-warning');
-  if(warning){
-    warning.classList.toggle('hidden',legacy.length===0);
-    warning.textContent=legacy.length?
-      legacy.length+' pembayaran lama memerlukan audit. Sebagian mungkin sudah masuk transaksi gabungan yang ada di buku kas; baris Perlu audit tidak dapat dipilih ulang. Data asal tidak diubah.':'';
-  }
   document.getElementById('kas-count-belum').textContent=r.qtyBelum||0;document.getElementById('kas-nominal-belum').textContent=rupiah(r.nominalBelum||0);document.getElementById('kas-count-sudah').textContent=r.qtySudah||0;document.getElementById('kas-nominal-sudah').textContent=rupiah(r.nominalSudah||0);
-  document.getElementById('kas-tbody-belum').innerHTML=(KAS_DATA.belum||[]).map(x=>`<tr class="hover:bg-violet-50/30"><td class="p-3 text-center"><input type="checkbox" class="kas-check w-4 h-4 accent-violet-600" value="${x.idAlokasi}" data-nominal="${Number(x.nominalKasLorong)||0}" ${x.perluAudit?'disabled title="Perlu audit jurnal migrasi"':''} onchange="updateKasTerpilih()"></td><td class="p-3"><div class="font-bold">${esc(x.nama||'-')}${x.perluAudit?'<span class="ml-2 text-amber-700 font-bold text-xs">Perlu audit</span>':''}</div><div class="text-xs text-slate-400">${esc(x.blok||'')}/${esc(x.noRumah||'')}</div></td><td class="p-3">${histDate(x.tanggalBayar)}</td><td class="p-3 text-center font-bold">${x.qtyKasLorong||0}x</td><td class="p-3 text-right font-black">${rupiah(x.nominalKasLorong||0)}</td><td class="p-3">${x.metode||'-'}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Tidak ada Kas Lorong yang belum dibukukan pada periode ini.</td></tr>';
+  document.getElementById('kas-tbody-belum').innerHTML=(KAS_DATA.belum||[]).map(x=>`<tr class="hover:bg-violet-50/30"><td class="p-3 text-center"><input type="checkbox" class="kas-check w-4 h-4 accent-violet-600" value="${x.idAlokasi}" data-nominal="${Number(x.nominalKasLorong)||0}"  onchange="updateKasTerpilih()"></td><td class="p-3"><div class="font-bold">${esc(x.nama||'-')}</div><div class="text-xs text-slate-400">${esc(x.blok||'')}/${esc(x.noRumah||'')}</div></td><td class="p-3">${histDate(x.tanggalBayar)}</td><td class="p-3 text-center font-bold">${x.qtyKasLorong||0}x</td><td class="p-3 text-right font-black">${rupiah(x.nominalKasLorong||0)}</td><td class="p-3">${x.metode||'-'}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Tidak ada Kas Lorong yang belum dibukukan pada periode ini.</td></tr>';
   document.getElementById('kas-tbody-batch').innerHTML=newestFirst(KAS_DATA.batches,'tanggalPembukuan').map(x=>`<tr class="hover:bg-violet-50/30"><td class="p-3">${histDate(x.tanggalPembukuan)}</td><td class="p-3"><div class="font-bold">${f4KasCategory()==='denda_gorol'?'Denda Gorol':'Kas Lorong'}</div>${f4SystemIdDetails(x.idBatch)}</td><td class="p-3">${esc(f4BatchReadableNote(x.keterangan||'-',f4KasCategory(),x.jumlahPembayaran,x.tanggalPembukuan))} ${x.status==='dibatalkan'?'• Dibatalkan':''}</td><td class="p-3 text-center">${x.jumlahPembayaran||0}</td><td class="p-3 text-right font-black">${rupiah(x.nominal||0)}</td><td class="p-3 text-right">${x.status==='dibatalkan'?'-':`<div class="action-icons">${actionIcon('circle-x','Batal',`batalkanBatchKas('${x.idBatch}')`,'red')}</div>`}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada batch pada periode ini.</td></tr>';
   refreshHistoryIcons();
   updateKasTerpilih();
