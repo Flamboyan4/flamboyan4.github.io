@@ -36,7 +36,7 @@ function field(form,key,label,type='text',value='',required=false){
   ])control.add(new Option(title,v));
  }else{
   control=el('input');control.type=type;
-  if(type==='number'){control.min='0';control.step='1';control.inputMode='numeric'}
+  if(type==='number'){control.min=key==='quantity'?'1':'0';control.step='1';control.inputMode='numeric'}
  }
  control.name=key;control.required=required;
  control.value=value==null?'':String(value);
@@ -112,7 +112,7 @@ async function open(record){
     const title=el('div','f4-pm-record-head');
     title.append(el('strong','',orders?r.resident:r.contributor),
       el('span','',r.status!=='aktif'?'Dibatalkan':orders?
-        Number(r.paid_rp)>=Number(r.amount_due_rp)?'Lunas':Number(r.paid_rp)>0?'DP / Cicil':'Belum bayar':'Aktif'));
+        Number(r.amount_due_rp)<=0?'Harga belum diisi':Number(r.paid_rp)>=Number(r.amount_due_rp)?'Lunas':Number(r.paid_rp)>0?'DP / Cicil':'Belum bayar':'Aktif'));
     const details=el('p','',orders?
       r.item_name+' • '+r.quantity+' × '+rupiah(r.unit_price_rp)+' • Tagihan '+rupiah(r.amount_due_rp)+
       ' • Diterima '+rupiah(r.paid_rp)+(r.payment_method?' ('+r.payment_method+')':''):
