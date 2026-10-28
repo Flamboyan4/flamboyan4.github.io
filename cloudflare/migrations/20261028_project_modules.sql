@@ -1,5 +1,13 @@
 -- Additive project-module schema; preserves all existing cash, Jersey and project records.
 -- Each project owns a virtual order/contribution list by project_id (no table per project).
+-- Existing portal_project_cards originally stores only title/description/media/link/order/active.
+-- These are additive metadata columns; existing project records remain intact.
+-- Apply only once on the staging/production D1 database with the corresponding Worker update.
+ALTER TABLE portal_project_cards ADD COLUMN project_kind TEXT NOT NULL DEFAULT 'informasi';
+ALTER TABLE portal_project_cards ADD COLUMN fund_source TEXT;
+ALTER TABLE portal_project_cards ADD COLUMN fund_target_rp INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE portal_project_cards ADD COLUMN linked_key TEXT;
+
 CREATE TABLE IF NOT EXISTS portal_project_orders (
  id TEXT PRIMARY KEY,
  project_id TEXT NOT NULL,
