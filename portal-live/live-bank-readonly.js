@@ -106,7 +106,9 @@
    cadangan:number(row.cadangan??row.reserveRp),
    kasLorong:number(row.kasLorong??row.neighborhoodRp),
    operasional:number(row.operasional??row.operationalRp),
-   pengeluaran:number(row.pengeluaran??row.expensesRp)
+   pengeluaran:number(row.pengeluaran??row.expensesRp),
+   pendingCount:number(row.pendingCount),pendingEstimateRp:number(row.pendingEstimateRp),
+   pendingWeightKg:number(row.pendingWeightKg)
   }));
   return {
    ringkasan:{
@@ -117,6 +119,8 @@
     kasLorong:number(sum.kasLorong??cash.neighborhoodRp),
     operasional:number(sum.operasional??cash.operationalRp),
     pengeluaran:number(sum.pengeluaran??expense.pengeluaranRp),
+    pendingCount:number(sum.pendingCount),pendingEstimateRp:number(sum.pendingEstimateRp),
+    pendingWeightKg:number(sum.pendingWeightKg),
     batch:number(sum.batch??r.batches?.length??0)
    },
    bulanan:monthly,periodeTersedia:onlyArray(r.periodeTersedia||[]),
@@ -183,6 +187,7 @@
  const adminDeposits=async()=> (await adminRows('deposits')).map(x=>({
   id:x.id,wargaId:x.member_id,namaWarga:x.memberName||'',rumahWarga:'',tanggal:x.deposited_on,
   berat:number(x.total_grams)/1000,estimasi:number(x.estimated_total_rp),
+  nilaiSahRp:x.nilaiSahRp==null?null:number(x.nilaiSahRp),
   status:x.status==='dibatalkan'?'Dibatalkan':x.status==='terkonfirmasi'?'Terkonfirmasi':'Estimasi',
   batchId:x.batch_id
  }));
@@ -213,7 +218,9 @@
   return {wargaAktif:members.filter(x=>x.status==='Aktif').length,
    jenisBarangAktif:items.filter(x=>x.active!==0).length,
    beratSetoranKg:validDeposits.reduce((n,x)=>n+x.berat,0),
-   jumlahSetoran:validDeposits.length,estimasiSetoranRp:validDeposits.reduce((n,x)=>n+x.estimasi,0),
+   jumlahSetoran:validDeposits.length,
+   estimasiSetoranRp:validDeposits.filter(x=>x.status==='Estimasi').reduce((n,x)=>n+x.estimasi,0),
+   hakWargaSahRp:validDeposits.filter(x=>x.status==='Terkonfirmasi'&&x.nilaiSahRp!==null).reduce((n,x)=>n+x.nilaiSahRp,0),
    jumlahPenjualan:confirmedSales.length,
    beratPenjualanKg:number(publicInfo.overview?.confirmedSalesWeightKg),
    diterimaLapakRp:confirmedSales.reduce((n,x)=>n+x.diterima,0),
@@ -283,6 +290,7 @@
   const depositRows=scope(deposits).filter(x=>includeCanceled||x.status!=='Dibatalkan');
   const saleRows=scope(sales).filter(x=>includeCanceled||x.status!=='Dibatalkan');
   const confirmedDeposits=depositRows.filter(x=>x.status==='Terkonfirmasi');
+  const waitingDeposits=depositRows.filter(x=>x.status==='Estimasi');
   const confirmedSales=saleRows.filter(x=>x.status==='Terkonfirmasi');
   const expenseRows=scope(expenses).filter(x=>includeCanceled||x.status!=='dibatalkan');
   const paidExpenses=expenseRows.filter(x=>x.status==='lunas');
@@ -297,14 +305,20 @@
   return {
    periode:month||'semua',
    ringkasan:{jumlahSetoran:confirmedDeposits.length,jumlahPenjualan:confirmedSales.length,
-    estimasi:confirmedDeposits.reduce((n,x)=>n+x.estimasi,0),
+    estimasi:waitingDeposits.reduce((n,x)=>n+x.estimasi,0),
+    belumSah:waitingDeposits.length,
+    hasilSahSetoran:confirmedDeposits.filter(x=>x.nilaiSahRp!==null).reduce((n,x)=>n+x.nilaiSahRp,0),
+    nilaiSahBelumTersedia:confirmedDeposits.some(x=>x.nilaiSahRp===null),
     diterima:confirmedSales.reduce((n,x)=>n+x.diterima,0),
     hakWargaDikredit,
     tabunganDicairkan:withdrawals.reduce((n,x)=>n+x.nominal,0),
     biaya:paidExpenses.reduce((n,x)=>n+x.nominal,0),
     saldoKasKini:activeCash.reduce((n,x)=>n+x.masuk-x.keluar,0)},
    setoran:depositRows.map(x=>({id:x.id,tanggal:x.tanggal,
-    warga:wargaLabel(x.wargaId,x.namaWarga,x.rumahWarga),berat:x.berat,nilai:x.estimasi,status:x.status})),
+    warga:wargaLabel(x.wargaId,x.namaWarga,x.rumahWarga),berat:x.berat,
+    nilai:x.status==='Terkonfirmasi'?(x.nilaiSahRp===null?'—':x.nilaiSahRp):x.status==='Estimasi'?x.estimasi:'—',
+    status:x.status==='Terkonfirmasi'?'Hasil jual sah'+(x.nilaiSahRp===null?' (belum tersedia)':''):
+      x.status==='Estimasi'?'Perkiraan · belum sah':'Dibatalkan'})),
    penjualan:saleRows.map(x=>({id:x.id,tanggal:x.tanggal,batch:x.batchId,lapak:x.lapak,bruto:x.bruto,
     diterima:x.diterima,disahkan:x.status==='Terkonfirmasi',status:x.status})),
    pengeluaran:expenseRows.map(x=>({id:x.id,tanggal:x.tanggal,jenis:x.jenis,keterangan:x.keterangan,
