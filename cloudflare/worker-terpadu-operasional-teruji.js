@@ -909,7 +909,14 @@ async function handleAdminContent(request, env, who, url) {
   let clean = {};
   try {
     for (const key of fields) {
-      if (Object.hasOwn(value, key)) clean[key] = normalizeContent(model.fields[key], value[key]);
+      if(!Object.hasOwn(value,key))continue;
+      // Kolom relasi proyek memakai NOT NULL DEFAULT ''; kosong adalah nilai sah,
+      // bukan NULL. Proyek pesanan tidak wajib punya relasi kas atau portal.
+      if(kind==="projects"&&["fund_source","linked_key"].includes(key)){
+        const raw=String(value[key]??"").trim();
+        if(raw.length>500)throw Error("Kategori kas atau portal terlalu panjang.");
+        clean[key]=raw;
+      }else clean[key]=normalizeContent(model.fields[key],value[key]);
     }
   } catch (e) {
     return err(e.message, 400);
