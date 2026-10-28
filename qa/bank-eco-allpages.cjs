@@ -18,7 +18,7 @@ for(const phrase of ['#v11Public .v17-public-banner.v27-banner-program','#v18Pub
  '#pageBiaya','#pageDokumentasi','#pageInventaris','#pageMaster','#pageAdmin',
  '.f4-member-progress-modal-panel','width:min(226px,75vw)',
  'max-width:1023px','max-width:760px','--eco-leaf:#118866',
- 'background:#118866!important','background:var(--eco-gold)!important']){
+ 'background:#086345!important','background:var(--eco-gold)!important']){
  assert(css.includes(phrase),'Missing themed component '+phrase);
 }
 assert(!css.includes('#a0dcb3'),'Old mint gradient present');
