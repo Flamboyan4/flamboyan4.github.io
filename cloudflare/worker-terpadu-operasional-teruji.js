@@ -208,7 +208,9 @@ async function adminBank(db, url) {
     catalog: `SELECT i.id,i.name,i.category,i.unit,i.active,p.citizen_rate_rp_per_kg AS priceRpPerKg,p.effective_from AS effectiveFrom FROM waste_items i LEFT JOIN waste_prices p ON p.id=(SELECT p2.id FROM waste_prices p2 WHERE p2.waste_item_id=i.id ORDER BY p2.effective_from DESC,p2.id DESC LIMIT 1) ORDER BY i.category,i.name LIMIT ?`,
     members: `SELECT m.id,m.display_name AS nama,h.house_code AS rumah,m.status FROM members m LEFT JOIN households h ON h.id=m.household_id ORDER BY m.display_name LIMIT ?`,
     batches: `SELECT b.id,b.label,b.status,b.confirmed_at,COUNT(d.id) AS deposits,COALESCE(SUM(CASE WHEN d.status!='dibatalkan' THEN d.total_grams ELSE 0 END),0) AS grams,COALESCE(SUM(CASE WHEN d.status!='dibatalkan' THEN d.estimated_total_rp ELSE 0 END),0) AS estimatedRp FROM waste_batches b LEFT JOIN waste_deposits d ON d.batch_id=b.id GROUP BY b.id ORDER BY b.id DESC LIMIT ?`,
-    deposits: `SELECT d.id,d.deposited_on,d.batch_id,d.member_id,m.display_name AS memberName,d.status,d.total_grams,d.estimated_total_rp FROM waste_deposits d JOIN members m ON m.id=d.member_id ORDER BY d.deposited_on DESC,d.id DESC LIMIT ?`,
+    deposits: `SELECT d.id,d.deposited_on,d.batch_id,d.member_id,m.display_name AS memberName,d.status,d.total_grams,d.estimated_total_rp,
+      (SELECT sold_on FROM waste_sales s WHERE s.batch_id=d.batch_id AND s.status='terkonfirmasi' ORDER BY s.sold_on DESC LIMIT 1) AS sold_on
+      FROM waste_deposits d JOIN members m ON m.id=d.member_id ORDER BY d.deposited_on DESC,d.id DESC LIMIT ?`,
     sales: `SELECT s.id,s.batch_id,s.sold_on,s.buyer_name,s.amount_gross_rp,s.amount_received_rp,s.status,
       COALESCE(r.receipt_no,'') AS receipt_no,COALESCE(r.evidence_url,'') AS evidence_url
       FROM waste_sales s LEFT JOIN waste_sale_receipts r ON r.sale_id=s.id
@@ -3200,7 +3202,9 @@ async function ownSavings(db, memberId) {
       COALESCE(SUM(CASE WHEN kind='kredit' THEN amount_rp ELSE 0 END),0) AS credit_total_rp,
       COALESCE(SUM(CASE WHEN kind='pencairan' THEN amount_rp ELSE 0 END),0) AS payout_total_rp
       FROM waste_savings_ledger WHERE member_id=?`).bind(memberId).first(),
-    db.prepare(`SELECT d.id,d.batch_id,d.deposited_on,d.status,d.total_grams,d.estimated_total_rp
+    db.prepare(`SELECT d.id,d.batch_id,d.deposited_on,d.status,d.total_grams,d.estimated_total_rp,
+        (SELECT sold_on FROM waste_sales s WHERE s.batch_id=d.batch_id AND s.status='terkonfirmasi'
+          ORDER BY s.sold_on DESC LIMIT 1) AS sold_on
       FROM waste_deposits d JOIN waste_batches b ON b.id=d.batch_id
       WHERE d.member_id=? AND d.status!='dibatalkan' AND b.status!='dibatalkan'
       ORDER BY d.deposited_on DESC,d.id DESC LIMIT 61`).bind(memberId).all(),
@@ -3255,6 +3259,7 @@ async function ownSavings(db, memberId) {
   const ownDeposits = (deposits.results || []).slice(0,60).map((d) => ({
     id: d.id,
     tanggal: d.deposited_on,
+    tanggalJual:d.sold_on||null,
     status: d.status,
     beratGram: d.total_grams,
     beratSahGram:finalGrams.has(d.id)?finalGrams.get(d.id):null,
