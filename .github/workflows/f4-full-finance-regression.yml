@@ -39,6 +39,7 @@ jobs:
         run: |
           node --check portal-live/portal-panels.js
           node --check portal-live/superadmin-editor.js
+          node --check portal-live/project-modules.js
       - name: Install Wrangler for local D1
         run: npm install --no-save --ignore-scripts wrangler@4
       - name: Install browser for isolated Admin and Member UI acceptance
