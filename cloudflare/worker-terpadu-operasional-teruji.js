@@ -2823,7 +2823,8 @@ async function f4BatchSources(db,type,year,month,ids){
  if(type==='kas_lorong'){
   sql="SELECT a.id AS id,a.amount_rp AS amount,p.id AS payment_id,p.paid_on AS date,p.payment_method AS method,"+
   " COALESCE(bp.display_name,'') AS name,COALESCE(h.house_code,'') AS house,"+
-  " (SELECT COUNT(*) FROM bookkeeping_kas_batch_items bi WHERE bi.category='kas_lorong' AND bi.source_id=a.id AND bi.status='aktif') AS posted"+
+  " (SELECT COUNT(*) FROM bookkeeping_kas_batch_items bi WHERE bi.category='kas_lorong' AND bi.source_id=a.id AND bi.status='aktif') AS posted,"+
+  " (SELECT COUNT(*) FROM bookkeeping_allocation_details old WHERE old.allocation_id=a.id) AS previousPosting"+
   " FROM bookkeeping_payment_allocations a JOIN bookkeeping_payments p ON p.id=a.payment_id"+
   " LEFT JOIN bookkeeping_payers bp ON bp.id=p.payer_id LEFT JOIN households h ON h.id=COALESCE(p.household_id,bp.household_id)"+
   " WHERE a.status='aktif' AND p.status='aktif' AND a.contribution_type='KAS_LORONG' AND a.period_year=? AND a.period_month=? AND a.amount_rp>0"+
@@ -2848,7 +2849,9 @@ async function f4BatchRead(db,request){
  const [data,groups]=await Promise.all([f4BatchSources(db,type,year,month),
   db.prepare("SELECT id,stage,booked_on,description,amount_rp,item_count,status FROM bookkeeping_kas_batches WHERE category=? AND period_year=? AND period_month=? ORDER BY booked_on DESC,created_at DESC LIMIT 120").bind(type,year,month).all()]);
  if(data.length>=500)return safeError('Batas 500 pembayaran tercapai, pisahkan bulan atau audit data.',409);
- const map=x=>{const house=String(x.house||'').split('/');return {idAlokasi:x.id,nama:x.name||'Nama belum terhubung',blok:house[0]||'',noRumah:house.slice(1).join('/'),tanggalBayar:x.date,qtyKasLorong:1,nominalKasLorong:Number(x.amount),metode:x.method||'—',perluAudit:type==='kas_lorong'&&!/^pay-[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(String(x.payment_id||''))}};
+ const map=x=>{const house=String(x.house||'').split('/');return {idAlokasi:x.id,nama:x.name||'Nama belum terhubung',blok:house[0]||'',noRumah:house.slice(1).join('/'),tanggalBayar:x.date,qtyKasLorong:1,nominalKasLorong:Number(x.amount),metode:x.method||'—',perluAudit:type==='kas_lorong'&&(
+    !/^pay-[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(String(x.payment_id||''))||
+    Number(x.previousPosting||0)>0)}};
  const pending=data.filter(x=>!x.posted),posted=data.filter(x=>x.posted);
  const sum=a=>a.reduce((v,x)=>v+Number(x.amount||0),0);
  return json({ok:true,data:{belum:pending.map(map),sudah:posted.map(map),
@@ -2877,15 +2880,17 @@ async function f4BatchCreate(request,env,who){
  const sources=await f4BatchSources(db,type,year,month,ids);
  if(sources.length!==ids.length||sources.some(x=>x.posted||Number(x.amount)<=0||!Number.isSafeInteger(Number(x.amount))||x.date>date))
   return safeError('Pembayaran sudah dibukukan atau tanggal pembukuan lebih awal dari penerimaan.',409);
- if(type==='kas_lorong'&&sources.some(x=>!/^pay-[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(String(x.payment_id||''))))
-  return safeError('Alokasi hasil migrasi lama memerlukan audit jurnal sebelum bisa digabung. Tidak ada saldo yang berubah.',409);
+ if(type==='kas_lorong'&&sources.some(x=>
+    !/^pay-[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(String(x.payment_id||''))||
+    Number(x.previousPosting||0)>0))
+  return safeError('Alokasi lama atau sudah diposting memerlukan audit jurnal. Batch tidak dibuat dan saldo tidak berubah.',409);
  const amount=sources.reduce((sum,x)=>sum+Number(x.amount),0);
  if(!Number.isSafeInteger(amount)||amount<=0)return safeError('Jumlah batch tidak valid.',409);
  const id='kasbatch:'+crypto.randomUUID(),cashId='cashbatch:'+crypto.randomUUID();
  const statements=[
   db.prepare("INSERT INTO bookkeeping_kas_batches(id,request_key,payload_hash,category,period_year,period_month,stage,booked_on,description,amount_rp,item_count,status,cash_transaction_id,created_by) VALUES(?,?,?,?,?,?,?,?,?,?,?,'aktif',?,?)").bind(id,key,hash,type,year,month,stage,date,description,amount,sources.length,cashId,who.id),
   ...sources.map(x=>db.prepare("INSERT INTO bookkeeping_kas_batch_items(id,batch_id,category,source_id,amount_rp,status) VALUES(?,?,?,?,?,'aktif')").bind('kbi:'+crypto.randomUUID(),id,type,x.id,Number(x.amount))),
-  db.prepare("INSERT INTO bookkeeping_cash_transactions(id,occurred_on,transaction_type,category,debit_rp,credit_rp,status,note,payment_method) VALUES(?,?,?,?,?,0,'aktif',?,'Gabungan')").bind(cashId,date,type==='kas_lorong'?'batch_kas_lorong':'batch_denda_gorol',type==='kas_lorong'?'Kas Lorong':'Denda Gorol',amount,description+' • '+sources.length+' pembayaran'),
+  db.prepare("INSERT INTO bookkeeping_cash_transactions(id,occurred_on,transaction_type,category,debit_rp,credit_rp,status,note,payment_method) VALUES(?,?,?,?,?,0,'aktif',?,'Gabungan')").bind(cashId,date,type==='kas_lorong'?'batch_kas_lorong':'batch_denda_gorol',type==='kas_lorong'?'Kas Lorong':'Denda Gorol',amount,description),
   db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'pembukuan','post_cash_batch','bookkeeping_kas_batches',?,?,?)").bind(crypto.randomUUID(),who.id,id,description,JSON.stringify({type,stage,year,month,amount,sourceIds:ids}))
  ];
  try{await db.batch(statements)}catch{
