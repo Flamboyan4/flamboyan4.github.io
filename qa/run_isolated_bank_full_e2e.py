@@ -736,8 +736,8 @@ try:
         FROM bookkeeping_cash_transactions c JOIN bookkeeping_payments p ON p.id=c.source_payment_id
         WHERE p.description='QA_UI_IURAN_LOCAL_ONLY' AND c.status='aktif'""").fetchone()
     connection.close()
-    # One canceled manual cash + one active Talangan repayment of Rp1.500.
-    assert_step("cash_accounting_reconciles_canceled_cash_and_advance",final[0]==baseline[0]+5+ui_extra[0] and final[1]==baseline[1]-1500+kas_part-rt_due+ui_extra[1] and actual[0]=="dibatalkan")
+    # One canceled manual cash, one canceled grouped cash batch, and one active Talangan repayment.
+    assert_step("cash_accounting_reconciles_canceled_cash_and_advance",final[0]==baseline[0]+6+ui_extra[0] and final[1]==baseline[1]-1500+kas_part-rt_due+ui_extra[1] and actual[0]=="dibatalkan")
     result["status"]="passed"
 except Exception as error:
     result["status"]="failed"
