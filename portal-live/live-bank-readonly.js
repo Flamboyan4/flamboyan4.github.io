@@ -187,6 +187,7 @@
  }));
  const adminSales=async()=> (await adminRows('sales')).map(x=>({
   id:x.id,batchId:x.batch_id,tanggal:x.sold_on,lapak:x.buyer_name||'',
+  nomorNota:x.receipt_no||'',linkBukti:x.evidence_url||'',
   bruto:number(x.amount_gross_rp),diterima:number(x.amount_received_rp),
   status:x.status==='dibatalkan'?'Dibatalkan':x.status==='terkonfirmasi'?'Terkonfirmasi':'Draft'
  }));
