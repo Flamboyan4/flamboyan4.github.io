@@ -4,45 +4,16 @@
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard{
   --eco-ink:#173d32;--eco-muted:#516c60;--eco-line:#dceae1;
   background:#fff!important;max-width:100%;isolation:isolate
-}
-/* Header illustration is decorative and never receives clicks. */
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head{
-  position:relative!important;display:flex!important;justify-content:space-between!important;
-  align-items:center!important;gap:12px!important;min-height:104px!important;
-  padding:16px 17px!important;margin:0 0 13px!important;border:1px solid #e4efe9!important;
-  border-radius:17px!important;background:#fff!important;overflow:hidden!important;
-  box-shadow:0 3px 14px rgba(23,65,43,.035)!important;
-}
+}/* Header illustration is decorative and never receives clicks. */
 /* The illustration occupies its own flex lane, never behind the action button. */
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head::before{content:none!important;display:none!important}
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-header-art{
-  display:flex!important;align-items:center!important;justify-content:center!important;
-  flex:0 1 340px!important;width:min(35%,340px)!important;min-width:130px!important;
-  align-self:stretch!important;max-height:104px!important;overflow:hidden!important;
-  position:relative!important;z-index:0!important;pointer-events:none!important
-}
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-header-art img{
-  display:block!important;width:100%!important;height:100%!important;
-  object-fit:contain!important;object-position:center center!important;
-  min-width:0!important;max-width:100%!important;max-height:100%!important;
-  pointer-events:none!important
-}
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-head-copy{
-  z-index:1;position:relative;min-width:0;flex:1 1 355px;max-width:none
-}
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head h2{
-  margin:0 0 5px!important;color:#123b2c!important;
-  font-weight:800!important;letter-spacing:-.35px!important;line-height:1.2!important
-}
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head p{color:#557468!important;line-height:1.4!important}
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14QuickAction{
-  z-index:1;position:relative;flex:0 0 auto!important;min-width:0!important;
-  min-height:41px!important;margin:0!important;
-  border-radius:11px!important;box-shadow:0 4px 10px rgba(13,115,83,.13)!important;
-  background:#078762!important;color:#fff!important;border:1px solid #078762!important;
-  font-weight:750!important
-}
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14QuickAction:hover{background:#047454!important}
+
+
+
+
+
+
+
+
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-hero{display:none!important}
 
 /* Preserve original 4 summary cards and make color backgrounds distinguishable. */
@@ -247,21 +218,12 @@ body #dashboardView #pageDashboard.f4-member-dashboard .v14-panels{
  }
 }
 @media(max-width:760px){
- body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head{
-  min-height:77px!important;padding:12px!important;gap:9px!important;
-  border-radius:13px!important;margin-bottom:11px!important
- }
- body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-header-art{
-  display:none!important
- }
- body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-head-copy{
-  flex:1 1 165px!important;max-width:none!important
- }
- body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head h2{font-size:20px!important}
- body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head p{font-size:12px!important}
- body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14QuickAction{
-  min-height:38px!important;padding:8px 10px!important;font-size:12px!important
- }
+
+
+
+
+
+
  body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary.v14-primary{
   grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;margin-bottom:10px!important
  }
@@ -294,9 +256,9 @@ body #dashboardView #pageDashboard.f4-member-dashboard .v14-panels{
  body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-activity-item:before{left:8px}
 }
 @media(max-width:390px){
- body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head{flex-wrap:wrap!important}
- body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-head-copy{max-width:100%!important;flex-basis:100%!important}
- body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14QuickAction{width:auto!important}
+
+
+
  body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi{padding:10px!important}
  body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi>strong{font-size:20px!important}
 }
@@ -307,7 +269,7 @@ body #dashboardView #pageDashboard.f4-member-dashboard .v14-panels{
  }
 }
 @media print{
- body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head:before{display:none!important}
+
 }
 
 /* Specificity guard for old member/mobile !important rules in inline stylesheet.
@@ -368,44 +330,18 @@ body.f4-direct-bank #dashboardView #pageDashboard.v14-home.f4-eco-dashboard.f4-m
 
 /* Reserve independent space for the CTA at intermediate desktop widths. */
 @media(min-width:761px) and (max-width:1090px){
- body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-header-art{
-  flex:0 1 245px!important;width:25%!important;min-width:120px!important
- }
- body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-head-copy{
-  flex:1 1 285px!important
- }
+
+
 }
 @media(min-width:761px) and (max-width:870px){
- body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-header-art{
-  flex:0 1 165px!important;width:20%!important;min-width:80px!important
- }
-}
 
-/* 2026-10-28 reference design: eco illustration is visible and complete on PC & HP. */
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head{
- display:grid!important;grid-template-columns:minmax(230px,1fr) minmax(210px,440px) auto!important;
- grid-template-rows:auto!important;gap:9px!important;align-items:center!important;
- min-height:150px!important;padding:5px 3px!important;margin:0 0 10px!important;
- border:0!important;border-radius:0!important;background:#fff!important;
- box-shadow:none!important;overflow:visible!important
-}
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-head-copy{
- grid-column:1!important;grid-row:1!important;min-width:0!important;max-width:none!important;flex:1 1 auto!important
-}
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-header-art{
- display:flex!important;grid-column:2!important;grid-row:1!important;min-width:0!important;
- width:100%!important;height:145px!important;max-height:none!important;
- overflow:visible!important;flex:none!important;align-items:center!important;justify-content:center!important
-}
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-header-art img{
- width:100%!important;height:145px!important;max-height:145px!important;
- object-fit:contain!important;object-position:center bottom!important
-}
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14QuickAction{
- grid-column:3!important;grid-row:1!important;justify-self:end!important;
- min-height:43px!important;white-space:nowrap!important;flex:none!important
-}
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head h2{font-size:clamp(22px,2.3vw,30px)!important}
+}/* 2026-10-28 reference design: eco illustration is visible and complete on PC & HP. */
+
+
+
+
+
+
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:before{display:none!important;content:none!important}
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi>.f4-eco-icon{
  display:grid!important;place-items:center!important;width:43px!important;height:43px!important;
@@ -437,26 +373,15 @@ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-activity-li
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-activity-link:focus-visible{outline:3px solid #3dba83!important;outline-offset:2px!important}
 @media(min-width:761px) and (max-width:1120px){
- body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head{grid-template-columns:minmax(190px,1fr) minmax(155px,31%) auto!important}
- body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-header-art,
- body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-header-art img{height:115px!important}
+
+
 }
 @media(max-width:760px){
- body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head{
-  display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto auto!important;
-  gap:8px!important;min-height:0!important;padding:4px 0 8px!important;margin-bottom:9px!important
- }
- body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-head-copy{grid-column:1!important;grid-row:1!important;max-width:100%!important}
- body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-header-art{
-  display:flex!important;grid-column:1!important;grid-row:2!important;
-  width:100%!important;height:108px!important;max-height:none!important;
-  overflow:visible!important;align-items:center!important;justify-content:center!important
- }
- body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-header-art img{display:block!important;height:108px!important;max-height:108px!important}
- body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14QuickAction{
-  grid-column:1!important;grid-row:3!important;justify-self:stretch!important;
-  width:100%!important;min-height:40px!important;margin:0!important
- }
+
+
+
+
+
  body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi>.f4-eco-icon{
   width:33px!important;height:33px!important;margin-bottom:7px!important
  }
@@ -467,8 +392,8 @@ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-activity-li
  body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-deposit-badge{display:none!important}
 }
 @media(max-width:390px){
- body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head{display:grid!important;grid-template-columns:1fr!important}
- body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-header-art{display:flex!important}
+
+
 }
 
 /* Stabilized icon and approved-reference art, 2026-10-28.
@@ -477,12 +402,52 @@ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco
   display:block!important;width:22px!important;height:22px!important;
   object-fit:contain!important;filter:brightness(0) invert(1)!important;
 }
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-header-art img{
-  display:block!important;width:100%!important;height:100%!important;
-  object-fit:contain!important;object-position:center center!important;
-}
+
 @media(max-width:760px){
  body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi>.f4-eco-icon img{
   width:18px!important;height:18px!important
  }
+}
+
+
+/* Fresh Eco — header bersih dan responsif; gambar tempelan tidak dipakai lagi. */
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head{
+  display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;
+  align-items:center!important;justify-content:space-between!important;
+  gap:14px!important;min-height:84px!important;margin:0 0 11px!important;
+  padding:8px 2px 12px!important;border:0!important;border-radius:0!important;
+  background:#fff!important;box-shadow:none!important;overflow:visible!important
+}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-head-copy{
+  flex:1 1 auto!important;min-width:0!important;max-width:none!important
+}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head h2{
+  margin:0 0 5px!important;color:#143f30!important;font-weight:800!important;
+  letter-spacing:-.4px!important;font-size:clamp(21px,2.2vw,28px)!important;
+  line-height:1.2!important
+}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head p{
+  margin:0!important;color:#537061!important;font-size:13px!important;line-height:1.4!important
+}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14QuickAction{
+  display:inline-flex!important;position:relative!important;z-index:1!important;
+  flex:0 0 auto!important;align-items:center!important;justify-content:center!important;
+  min-width:0!important;width:auto!important;min-height:42px!important;
+  padding:10px 15px!important;margin:0!important;border-radius:11px!important;
+  border:1px solid #078762!important;background:#078762!important;color:#fff!important;
+  box-shadow:0 3px 10px #135f4014!important;font-size:13px!important;
+  font-weight:750!important;white-space:nowrap!important
+}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14QuickAction:hover{background:#067755!important}
+@media(max-width:760px){
+  body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head{
+    flex-wrap:wrap!important;min-height:0!important;gap:9px!important;
+    padding:5px 0 9px!important;margin-bottom:10px!important
+  }
+  body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-head-copy{flex:1 1 100%!important}
+  body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head h2{font-size:21px!important}
+  body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head p{font-size:12px!important}
+  body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14QuickAction{
+    flex:1 1 100%!important;width:100%!important;min-height:41px!important
+  }
 }

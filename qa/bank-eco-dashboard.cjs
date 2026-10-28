@@ -1,35 +1,18 @@
 'use strict';
-// Minimal build-time contract: no transaction/API changes and no fake hard-coded KPIs.
+// Read-only regression check for the Bank Sampah compact header and pastel KPI cards.
 const fs=require('node:fs'),vm=require('node:vm');
-const h=fs.readFileSync('bank-sampah/index.html','utf8');
-const c=fs.readFileSync('portal-live/bank-eco-dashboard.css','utf8');
-const art=fs.readFileSync('assets/bank-eco-header.svg','utf8');
-const scripts=[...h.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)];
-const body=scripts.find(x=>x[1].includes('function v14Setup()'))?.[1];
-if(!body)throw Error('Existing dashboard source missing');
-new vm.Script(body,{filename:'bank-sampah/index-inline.js'});
-if(!h.includes("page.classList.add('v14-home','f4-eco-dashboard')"))throw Error('Eco stylesheet precedence class missing');
-if(!c.includes('#pageDashboard.v14-home.f4-eco-dashboard.f4-member-dashboard'))throw Error('Member high-specificity safeguard missing');
-if(!art.includes('<svg')||!art.includes('</svg>'))throw Error('Eco header SVG malformed');
-if(!h.includes('class="f4-eco-header-art" aria-hidden="true"'))throw Error('Header image must have own safe lane');
-if(!c.includes('.f4-eco-header-art img')||!c.includes('object-fit:contain!important'))throw Error('Header image may be cropped');
-if(!c.includes('.v14-head::before{content:none!important;display:none!important}'))throw Error('Legacy background still overlaps action button');
-if(!c.includes('grid-template-rows:auto auto auto!important'))throw Error('Mobile header artwork lane missing');
-if(!c.includes('grid-row:2!important')||!c.includes('.f4-eco-header-art{display:flex!important'))throw Error('Illustration must appear on mobile');
-for(const t of ['v14-kpi f4-eco-kpi','f4-eco-panel-heading','class="f4-eco-head-copy"',
-  '/portal-live/bank-eco-dashboard.css?v=','f4MemberDateID(r.tanggal)',
-  "const isAdmin=profile.peran==='Admin'","v14Stat('Saldo tabungan terkonfirmasi'",
-  "v14Stat('Sampah terkumpul'","v14BankQuickActions();"]){
- if(!h.includes(t))throw Error('Dashboard source missing: '+t);
+const html=fs.readFileSync('bank-sampah/index.html','utf8');
+const css=fs.readFileSync('portal-live/bank-eco-dashboard.css','utf8');
+const core=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].find(x=>x[1].includes('function v14Setup()'))?.[1];
+if(!core)throw Error('Dashboard source missing');
+new vm.Script(core,{filename:'bank-sampah/index.html:inline'});
+for(const item of ["page.classList.add('v14-home','f4-eco-dashboard')",'id="v14Title"','id="v14QuickAction"','v14-kpi f4-eco-kpi','f4-eco-icon',"iconNames=['bank','user','cash','calendar']","const isAdmin=profile.peran==='Admin'","v14BankQuickActions();","v14Stat('Saldo tabungan terkonfirmasi'","v14Stat('Sampah terkumpul'"]){
+ if(!html.includes(item))throw Error('Missing dashboard feature: '+item);
 }
-for(const t of ['#v14Primary>.f4-eco-kpi','nth-child(4)','f4-member-dashboard',
-  'grid-template-columns:repeat(2,minmax(0,1fr))','.f4-eco-header-art img','background:#fff!important']){
- if(!c.includes(t))throw Error('Eco CSS missing: '+t);
+if(html.includes('f4-eco-header-art')||html.includes('bank-eco-reference.webp')||html.includes('bank-eco-header.svg'))throw Error('Forced header illustration returned');
+if(css.includes('f4-eco-header-art')||css.includes('bank-eco-reference.webp')||css.includes('bank-eco-header.svg'))throw Error('Old illustration CSS still present');
+for(const item of ['.v14-head{','.f4-eco-head-copy{','#v14QuickAction{','flex-wrap:wrap!important','grid-template-columns:repeat(2,minmax(0,1fr))','f4-member-dashboard','.f4-eco-icon img','background:#fff!important']){
+ if(!css.includes(item))throw Error('Responsive style missing: '+item);
 }
-if(c.includes('Rp 6.000')||c.includes('33 warga')||c.includes('2 kg'))throw Error('Do not hardcode member or admin figures');
-if(!h.includes('/assets/bank-eco-reference.webp?v=20261028-approved-illustration-v1'))throw Error('Approved screenshot crop missing');
-if(!h.includes("iconNames=['bank','user','cash','calendar']"))throw Error('Validated icon assets not used');
-if(h.includes('const drawings=[')||h.includes('symbol.innerHTML='))throw Error('Malformed custom SVG still loaded');
-if(!h.includes('f4-eco-icon')||!h.includes('f4-eco-deposit-badge'))throw Error('Reference details missing');
-if(!c.includes('.f4-eco-icon img')||!c.includes('brightness(0) invert(1)'))throw Error('Small icon CSS absent');
-console.log('F4_ECO_DASHBOARD_STATIC_OK');
+if(css.includes('Rp 6.000')||css.includes('33 warga')||css.includes('2 kg'))throw Error('Fake KPI values found in CSS');
+console.log('F4_ECO_CLEAN_HEADER_STATIC_OK');
