@@ -655,18 +655,67 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
 html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
 </style><script src="/portal-live/ui-dialog.js?v=20261027-dialog4"></script>
 <script src="../loading-state.js?v=786606f"></script><link rel="stylesheet" href="../loading-state.css?v=28e10d5"><style id="f4-member-progress-ui">
-.f4-member-progress-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0}
-.f4-member-progress-stat{border:1px solid #dce9df;background:#f5faf5;border-radius:12px;padding:13px;display:grid;gap:5px}
-.f4-member-progress-stat strong{color:#205e45;font-size:19px}.f4-member-progress-stat small{color:#61786c;font-size:12px}
-.f4-member-progress-chart{display:grid;gap:11px;margin:12px 0 20px}
-.f4-member-progress-bar{display:grid;grid-template-columns:85px minmax(0,1fr) 72px;gap:8px;align-items:center;font-size:12px}
-.f4-member-progress-bar strong{text-align:right;font-size:12px}
-.f4-member-progress-track{background:#e7eee8;border-radius:9px;height:18px;overflow:hidden}
-.f4-member-progress-track div{height:100%;background:#2f7957;border-radius:9px}
-.f4-member-progress-entry{border-left:3px solid #47966e;padding:9px 12px;background:#f8fbf8;margin:9px 0;border-radius:0 9px 9px 0}
-.f4-member-progress-entry strong,.f4-member-progress-entry small{display:block}
-.f4-member-progress-entry small{color:#697b70;margin-top:3px}.f4-member-progress-entry p{margin:7px 0 0}
-@media(max-width:650px){.f4-member-progress-summary{grid-template-columns:1fr 1fr}.f4-member-progress-bar{grid-template-columns:65px minmax(0,1fr) 60px;gap:5px}}
+#pageProgress{background:#fff!important}
+#pageProgress>h2{margin:0 0 5px!important;line-height:1.25}
+#pageProgress>.section-caption{margin:0!important;line-height:1.45}
+#pageProgress #progressList{display:grid;gap:16px;margin-top:17px!important;min-width:0}
+#pageProgress .f4-member-progress-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:0}
+#pageProgress .f4-member-progress-stat{min-width:0;min-height:100px;padding:14px 12px;background:#fff;border:1px solid #dce8df;border-radius:12px;display:flex;flex-direction:column;gap:7px;justify-content:center}
+#pageProgress .f4-member-progress-stat strong{font-size:25px;line-height:1.1;font-weight:850;letter-spacing:-.4px;color:#246849;font-variant-numeric:tabular-nums}
+#pageProgress .f4-member-progress-stat small{font-size:12px;line-height:1.35;font-weight:550;color:#64786b;overflow-wrap:normal}
+#pageProgress .f4-member-progress-section{min-width:0;background:#fff;border:1px solid #e2eae4;border-radius:14px;padding:17px}
+#pageProgress .f4-member-progress-section-heading{display:flex;align-items:start;justify-content:space-between;gap:10px;margin-bottom:15px}
+#pageProgress .f4-member-progress-section-heading h3{font-size:17px;line-height:1.3;margin:0;color:#253e32;font-weight:800}
+#pageProgress .f4-member-progress-section-heading p{font-size:12px;line-height:1.45;color:#728377;margin:5px 0 0}
+#pageProgress .f4-member-progress-count{white-space:nowrap;flex:none;font-size:11px;font-weight:750;color:#2b714e;background:#edf7ef;border-radius:99px;padding:5px 9px}
+#pageProgress .f4-member-progress-chart{display:grid;gap:13px;margin:0}
+#pageProgress .f4-member-progress-bar{display:grid;grid-template-columns:85px minmax(0,1fr) 70px;align-items:center;gap:11px;min-width:0}
+#pageProgress .f4-member-progress-month{font-size:13px;font-weight:650;color:#566e60;white-space:nowrap}
+#pageProgress .f4-member-progress-bar strong{font-size:13px;font-weight:800;color:#265d42;text-align:right;white-space:nowrap}
+#pageProgress .f4-member-progress-track{height:12px;background:#edf3ee;border-radius:99px;overflow:hidden}
+#pageProgress .f4-member-progress-track>div{height:100%;background:#36875e;border-radius:99px}
+#pageProgress .f4-member-progress-empty{font-size:13px;line-height:1.5;color:#697c70;margin:0}
+#pageProgress .f4-member-progress-timeline{list-style:none;position:relative;display:grid;gap:9px;margin:0;padding:0 0 0 19px}
+#pageProgress .f4-member-progress-timeline:before{content:'';position:absolute;top:14px;bottom:16px;left:5px;border-left:2px solid #dcebdd}
+#pageProgress .f4-member-progress-timeline>li{min-width:0;position:relative}
+#pageProgress .f4-member-progress-timeline>li:before{content:'';position:absolute;left:-19px;top:20px;width:12px;height:12px;border-radius:50%;background:#4c9b70;border:3px solid #fff;box-shadow:0 0 0 1px #c3e1ca}
+#pageProgress .f4-member-progress-step{border:1px solid #e2eae4;border-radius:12px;background:#fff;overflow:hidden}
+#pageProgress .f4-member-progress-step[open]{border-color:#c6dece}
+#pageProgress .f4-member-progress-step-trigger{list-style:none;display:flex;align-items:center;gap:7px;cursor:pointer;padding:13px 12px}
+#pageProgress .f4-member-progress-step-trigger::-webkit-details-marker{display:none}
+#pageProgress .f4-member-progress-step-trigger:focus-visible{outline:2px solid #3c8b5d;outline-offset:-3px}
+#pageProgress .f4-member-progress-step-heading{flex:1;min-width:0}
+#pageProgress .f4-member-progress-step-heading strong{display:block;color:#233f31;font-size:14px;font-weight:780;line-height:1.36;overflow-wrap:anywhere}
+#pageProgress .f4-member-progress-step-meta{display:block;font-size:11.5px;line-height:1.45;color:#728274;margin-top:4px}
+#pageProgress .f4-member-progress-step-status{font-size:10px;font-weight:800;border-radius:99px;background:#edf6ee;color:#34724e;padding:5px 8px;white-space:nowrap;flex:none}
+#pageProgress .f4-member-progress-step-status.is-active{background:#fff4e5;color:#96662b}
+#pageProgress .f4-member-progress-step-status.is-planned{background:#edf2f8;color:#687993}
+#pageProgress .f4-member-progress-chevron{font-size:19px;line-height:1;color:#718879;transition:transform .15s}
+#pageProgress .f4-member-progress-step[open] .f4-member-progress-chevron{transform:rotate(180deg)}
+#pageProgress .f4-member-progress-step-detail{padding:0 13px 13px;border-top:1px solid #edf1ed}
+#pageProgress .f4-member-progress-step-detail p{font-size:13px;line-height:1.5;margin:11px 0 0;color:#415a4c}
+#pageProgress .f4-member-progress-next{background:#f4f9f6;border-radius:8px;padding:10px}
+#pageProgress .f4-member-progress-next strong{color:#2e714c}
+#pageProgress .f4-member-progress-note{margin:0;font-size:11.5px;line-height:1.5;color:#79877d}
+@media(max-width:720px){
+ #pageProgress{padding:16px!important}
+ #pageProgress .f4-member-progress-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ #pageProgress .f4-member-progress-stat{min-height:88px;padding:11px 9px;gap:5px}
+ #pageProgress .f4-member-progress-stat strong{font-size:23px}
+ #pageProgress .f4-member-progress-stat small{font-size:11.5px}
+ #pageProgress .f4-member-progress-section{padding:13px 12px}
+ #pageProgress .f4-member-progress-section-heading h3{font-size:16px}
+ #pageProgress .f4-member-progress-bar{grid-template-columns:66px minmax(0,1fr) 53px;gap:7px}
+ #pageProgress .f4-member-progress-month,#pageProgress .f4-member-progress-bar strong{font-size:12px}
+ #pageProgress .f4-member-progress-step-trigger{padding:11px 10px;gap:6px}
+ #pageProgress .f4-member-progress-step-heading strong{font-size:13.5px}
+ #pageProgress .f4-member-progress-step-status{padding:4px 7px}
+}
+@media(max-width:345px){
+ #pageProgress .f4-member-progress-stat{padding:9px 6px}
+ #pageProgress .f4-member-progress-stat strong{font-size:21px}
+ #pageProgress .f4-member-progress-stat small{font-size:10.5px}
+}
 </style><style id="f4-bank-private-navigation-fix">
 /* A member dashboard is informational, not a duplicate menu with empty linked panels. */
 #pageDashboard.f4-member-dashboard .v14-panels,
@@ -710,7 +759,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
         <div id="pagePenjualan" class="card hidden"><h2>Input penjualan ke lapak</h2><p class="desc">Catat hasil timbang dan harga sebenarnya. Ini belum mengesahkan hak tabungan warga.</p><form id="saleForm" onsubmit="submitSale(event)"><div class="field"><label for="saleBatch">Batch setoran</label><select id="saleBatch" required><option value="">Pilih batch</option></select></div><div class="field"><label for="saleDate">Tanggal penjualan</label><input type="date" id="saleDate" required></div><div class="field"><label for="saleLapak">Nama lapak</label><input id="saleLapak" maxlength="100" required placeholder="Nama pengepul / lapak"></div><h2 style="font-size:16px">Detail timbang lapak</h2><div id="saleItems" class="tablewrap">Memuat...</div><div class="summary-box block-gap"><div><small>Berat terjual</small><strong id="saleWeight" style="display:block">0 kg</strong></div><div><small>Hasil bruto</small><strong id="saleGross" style="display:block">Rp 0</strong></div></div><div class="field block-gap"><label for="saleStatus">Status pembayaran</label><select id="saleStatus" onchange="updateSaleTotals()"><option value="Lunas">Lunas</option><option value="Belum Bayar">Belum Bayar</option></select></div><div class="field"><label for="saleReceived">Uang yang sudah diterima (Rp)</label><input type="number" id="saleReceived" min="0" step="1" value="0" required><p class="hint">Jika belum bayar, penerimaan harus Rp0. Jika lunas, isi nominal sebenarnya hingga sebesar hasil bruto.</p></div><div class="field"><label for="saleProof">Nomor nota / link bukti (opsional)</label><input id="saleProof" maxlength="500"></div><button type="submit" class="wide">Catat penjualan lapak</button></form><div id="saleNotice" role="status"></div></div>
         <div id="pageRekonsiliasi" class="card hidden"><h2>Pratinjau rekonsiliasi</h2><div class="pill-note">Hanya perbandingan sementara. Belum membuat saldo tabungan, kas, atau pembagian hasil.</div><div class="field block-gap"><label for="reconBatch">Pilih batch</label><select id="reconBatch" onchange="loadRekonsiliasi()"><option value="">Pilih batch</option></select></div><div id="reconResult" class="block-gap">Pilih batch terlebih dahulu.</div></div>
         <div id="pageMaster" class="card hidden"><div class="toolbar"><div><h2>Master jenis barang</h2><p class="section-caption">Harga lapak dan tarif setoran warga</p></div><button class="secondary" onclick="loadMaster()">Perbarui</button></div><div class="pill-note">Harga acuan lapak bukan tarif tabungan warga. Tetapkan <strong>Tarif Warga Aktif</strong> sebelum mulai mencatat setoran. Perubahan tarif tidak mengubah transaksi lama.</div><div id="masterList" class="tablewrap">Memuat...</div></div>
-        <div id="pageProgress" class="card hidden"><h2>Perkembangan Bank Sampah</h2><p class="section-caption">Kegiatan yang ditandai untuk tampil di portal utama</p><div id="progressList" class="block-gap">Memuat...</div></div>
+        <div id="pageProgress" class="card hidden"><h2>Perkembangan Bank Sampah</h2><p class="section-caption">Ringkasan penimbangan dan tahapan kegiatan Bank Sampah.</p><div id="progressList" class="block-gap">Memuat...</div></div>
         <div id="pagePassword" class="card hidden"><h2>Ganti password</h2><p class="desc">Boleh diganti kapan saja. Minimal 4 karakter.</p><form onsubmit="doChangePassword(event)"><div class="field"><label for="oldPass">Password sekarang</label><input id="oldPass" type="password" required autocomplete="current-password"></div><div class="field"><label for="newPass">Password baru</label><input id="newPass" type="password" minlength="4" required autocomplete="new-password"></div><button type="submit">Simpan password baru</button></form></div>
         <div id="pageAdmin" class="card hidden"><div class="toolbar"><div><h2>Kelola akun warga</h2><p class="desc" style="margin:0">Akun siap login tanpa aktivasi warga.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button id="bulkBtn" onclick="provisionAll()">Siapkan semua akun</button><button class="secondary" onclick="loadAccounts()">Muat ulang</button></div></div><div class="notice">Password awal: <strong>F4-</strong> diikuti nomor rumah tanpa pemisah, contoh <strong>F4-A524</strong>. Admin dapat mereset akun per warga. Berikan kredensial secara pribadi. Password awal yang mudah ditebak sebaiknya diganti untuk keamanan tabungan.</div><div id="bulkProgress" class="hint" role="status"></div><div id="accountList" class="tablewrap"></div></div>
         <div id="dashNotice" role="status" aria-live="polite"></div>
@@ -2434,43 +2483,71 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
         const response=await fetch('https://api.flamboyan4.web.id/api/v2/public/bank',{credentials:'omit',cache:'no-store'});
         if(!response.ok)throw Error('HTTP '+response.status);
         const data=await response.json();if(data.ok===false)throw Error(data.error||'Layanan tidak tersedia');
+
         area.replaceChildren();
         const num=x=>Number(x||0).toLocaleString('id-ID',{maximumFractionDigits:2});
-        const summary=document.createElement('div');summary.className='f4-member-progress-summary';
-        for(const [amount,label] of [[num(data.overview?.activeMembers),'Anggota aktif saat ini'],[num(data.overview?.confirmedWeightKg)+' kg','Total berat terkonfirmasi'],[num(data.overview?.confirmedDeposits),'Setoran terkonfirmasi']]){
-          const box=document.createElement('div');box.className='f4-member-progress-stat';
-          const strong=document.createElement('strong');strong.textContent=amount;
-          const caption=document.createElement('small');caption.textContent=label;box.append(strong,caption);summary.append(box);
+        const mk=(tag,cls,value)=>{const node=document.createElement(tag);if(cls)node.className=cls;if(value!==undefined)node.textContent=value;return node};
+        const section=(title,subtitle,count)=>{
+          const block=mk('section','f4-member-progress-section'),header=mk('div','f4-member-progress-section-heading'),copy=mk('div');
+          copy.append(mk('h3','',title),mk('p','',subtitle));header.append(copy);
+          if(count!==undefined)header.append(mk('span','f4-member-progress-count',count));
+          block.append(header);return block;
+        };
+        const stats=mk('div','f4-member-progress-summary');
+        for(const [amount,label] of [
+          [num(data.overview?.activeMembers),'Anggota aktif'],
+          [num(data.overview?.confirmedWeightKg)+' kg','Berat terkonfirmasi'],
+          [num(data.overview?.confirmedDeposits),'Setoran terkonfirmasi']
+        ]){
+          const tile=mk('div','f4-member-progress-stat');
+          tile.append(mk('strong','',amount),mk('small','',label));stats.append(tile);
         }
-        area.append(summary);
-        const heading=document.createElement('h3');heading.textContent='Penimbangan per bulan (kg)';area.append(heading);
-        const chart=document.createElement('div');chart.className='f4-member-progress-chart';
+        area.append(stats);
         const months=Array.isArray(data.monthlyWeights)?data.monthlyWeights.slice(-12):[];
-        const maximum=Math.max(1,...months.map(x=>Number(x.beratKg||0)));
-        if(!months.length)chart.textContent='Belum ada penimbangan terkonfirmasi.';
-        for(const m of months){
-          const bar=document.createElement('div');bar.className='f4-member-progress-bar';
-          const label=document.createElement('span');label.textContent=m.month||'';
-          const track=document.createElement('div');track.className='f4-member-progress-track';
-          const fill=document.createElement('div');fill.style.width=Math.max(0,Number(m.beratKg||0)/maximum*100)+'%';track.append(fill);
-          const value=document.createElement('strong');value.textContent=num(m.beratKg)+' kg';
-          bar.append(label,track,value);chart.append(bar);
+        const weights=section('Penimbangan per bulan','Berat sampah dari setoran yang sudah terkonfirmasi.',months.length?months.length+' bulan':undefined);
+        const chart=mk('div','f4-member-progress-chart');
+        const max=Math.max(1,...months.map(x=>Number(x.beratKg||0)));
+        if(!months.length)chart.append(mk('p','f4-member-progress-empty','Belum ada penimbangan terkonfirmasi.'));
+        for(const item of months){
+          const weight=Math.max(0,Number(item.beratKg||0));
+          const ymonth=String(item.month||'').match(/^(\d{4})-(0[1-9]|1[0-2])$/);
+          const month=ymonth?new Date(Number(ymonth[1]),Number(ymonth[2])-1,1).toLocaleDateString('id-ID',{month:'short',year:'2-digit'}):String(item.month||'—');
+          const bar=mk('div','f4-member-progress-bar');
+          bar.setAttribute('aria-label',month+': '+num(weight)+' kilogram');
+          const track=mk('div','f4-member-progress-track');track.setAttribute('aria-hidden','true');
+          const fill=mk('div');fill.style.width=(weight>0?Math.max(3,Math.min(100,weight/max*100)):0)+'%';track.append(fill);
+          bar.append(mk('span','f4-member-progress-month',month),track,mk('strong','',num(weight)+' kg'));
+          chart.append(bar);
         }
-        area.append(chart);
-        const title=document.createElement('h3');title.textContent='Linimasa pengembangan';area.append(title);
+        weights.append(chart);area.append(weights);
         const timeline=Array.isArray(data.progress)?data.progress:[];
-        if(!timeline.length){const p=document.createElement('p');p.textContent='Belum ada perkembangan yang dipublikasikan.';area.append(p);}
-        for(const item of timeline){
-          const card=document.createElement('article');card.className='f4-member-progress-entry';
-          const h=document.createElement('strong');h.textContent=item.title||'Kegiatan';
-          const date=document.createElement('small');date.textContent=[item.happened_on,item.stage,item.status].filter(Boolean).join(' • ');
-          const p=document.createElement('p');p.textContent=item.description||'';
-          card.append(h,date,p);if(item.next_step){const next=document.createElement('small');next.textContent='Berikutnya: '+item.next_step;card.append(next)}
-          area.append(card);
-        }
-        const foot=document.createElement('p');foot.className='section-caption';
-        foot.textContent='Jumlah anggota menunjukkan kondisi terkini. Grafik historis pertumbuhan anggota belum tersedia.';
-        area.append(foot);
+        const stages=section('Linimasa kegiatan','Ketuk tahapan untuk melihat rincian dan langkah berikutnya.',timeline.length+' tahap');
+        if(!timeline.length)stages.append(mk('p','f4-member-progress-empty','Belum ada perkembangan yang dipublikasikan.'));
+        const list=mk('ol','f4-member-progress-timeline');
+        timeline.forEach((item,index)=>{
+          const li=mk('li'),details=mk('details','f4-member-progress-step');
+          if(index===0)details.open=true;
+          const toggle=mk('summary','f4-member-progress-step-trigger'),head=mk('div','f4-member-progress-step-heading');
+          head.append(mk('strong','',item.title||'Kegiatan'));
+          const date=String(item.happened_on||''),ymd=date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+          const shown=ymd?new Date(Number(ymd[1]),Number(ymd[2])-1,Number(ymd[3])).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}):date;
+          head.append(mk('span','f4-member-progress-step-meta',[shown,item.stage].filter(Boolean).join(' • ')));
+          toggle.append(head);
+          const status=String(item.status||'').trim()||'Tercatat';
+          const state=/selesai|tuntas|rampung/i.test(status)?'':/berjalan|proses/i.test(status)?' is-active':' is-planned';
+          toggle.append(mk('span','f4-member-progress-step-status'+state,status));
+          const arrow=mk('span','f4-member-progress-chevron','⌄');arrow.setAttribute('aria-hidden','true');toggle.append(arrow);
+          details.append(toggle);
+          const body=mk('div','f4-member-progress-step-detail');
+          if(item.description)body.append(mk('p','',item.description));
+          if(item.next_step){
+            const next=mk('p','f4-member-progress-next');next.append(mk('strong','','Berikutnya: '),document.createTextNode(item.next_step));body.append(next);
+          }
+          if(!body.childElementCount)body.append(mk('p','','Belum ada keterangan tambahan untuk tahap ini.'));
+          details.append(body);li.append(details);list.append(li);
+        });
+        stages.append(list);area.append(stages);
+        area.append(mk('p','f4-member-progress-note','Jumlah anggota adalah kondisi saat ini. Riwayat pertumbuhan anggota per bulan belum tersedia.'));
       }catch(err){area.textContent='Perkembangan belum dapat dimuat: '+(err.message||err)}
       return;
     }
