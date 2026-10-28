@@ -302,7 +302,7 @@ try:
         public_rows=public_cash[1]["data"]["rows"]
         with sqlite3.connect(str(files[0])) as readback:
             live_summary=readback.execute("""SELECT COUNT(*),COALESCE(SUM(debit_rp),0),COALESCE(SUM(credit_rp),0)
-                FROM bookkeeping_cash_transactions WHERE status='aktif'""").fetchone()
+                FROM bookkeeping_cash_transactions_posted WHERE status='aktif'""").fetchone()
         published=(len(public_rows),sum(int(x["debit"]) for x in public_rows),sum(int(x["kredit"]) for x in public_rows))
         assert_step("portal_public_cash_reconciles_local_d1",published==live_summary,
             {"matches":published==live_summary,"count":published[0]})
