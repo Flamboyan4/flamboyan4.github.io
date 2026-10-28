@@ -190,10 +190,15 @@ function f4ContentDialog(title,description,acceptLabel='Ya, Hapus',danger=true,h
   (hasCancel?cancel:accept).focus();
  });
 }
+function isLegacyJerseyProject(record){
+ return String(record?.linked_key||'')==='jersey'||/^(pemesanan\s*)?jersey$/i.test(String(record?.title||'').trim());
+}
 function deletionActions(record,kind=active){
  const wrap=node('span',undefined,'f4-admin-action-set');
  wrap.append(btn('Edit',()=>showForm(record)));
- if(kind==='projects'&&['pesanan','penggalangan'].includes(record.project_kind)){
+ if(kind==='projects'&&isLegacyJerseyProject(record)){
+  wrap.append(btn('Kelola Jersey',()=>window.openSuperadminEditor?.('jersey'),'f4-admin-btn f4-admin-primary'));
+ }else if(kind==='projects'&&['pesanan','penggalangan'].includes(record.project_kind)){
   wrap.append(btn(record.project_kind==='pesanan'?'Kelola Pesanan':'Kelola Kontribusi',
    ()=>window.F4ProjectModule?.open(record),'f4-admin-btn f4-admin-primary'));
  }
@@ -793,9 +798,11 @@ function showForm(record){
    const kind=typeField?.value||'informasi';
    if(category?.parentElement)category.parentElement.hidden=kind!=='kas';
    if(goal?.parentElement)goal.parentElement.hidden=!['kas','penggalangan'].includes(kind);
-   if(linked?.parentElement)linked.parentElement.hidden=kind!=='portal';
-   note.textContent=kind==='pesanan'
-    ?'Setelah proyek disimpan, tombol Kelola Pesanan otomatis tersedia. Setiap proyek memiliki daftar pesanan tersendiri.'
+   if(linked?.parentElement)linked.parentElement.hidden=!['informasi','portal','pesanan'].includes(kind);
+   note.textContent=isLegacyJerseyProject({title:form.elements.namedItem('title')?.value,linked_key:linked?.value})
+    ?'Jersey lama: daftar Bapak-bapak dan Ibu-ibu, status bayar, QRIS/Cash, laporan, dan tombol lama tetap memakai modul Jersey D1 yang sudah ada. Tidak membuat tabel pesanan kosong.'
+    :kind==='pesanan'
+    ?'Setelah proyek disimpan, tombol Kelola Pesanan otomatis tersedia. Setiap proyek memiliki daftar pesanan tersendiri (berdasarkan ID proyek). Bukan tabel Jersey lama.'
     :kind==='penggalangan'
     ?'Setelah proyek disimpan, tombol Kelola Kontribusi tersedia. Dana yang dicatat di sini terpisah dari jurnal kas lorong.'
     :kind==='kas'
@@ -804,20 +811,42 @@ function showForm(record){
     ?'Pilih portal atau modul yang sudah ada. Kartu menjadi penghubung, bukan menyalin transaksi.'
     :'Proyek informasi menampilkan judul, gambar, deskripsi, dan tautan.';
   };
-  typeField?.addEventListener('change',refreshKind);refreshKind();
+  typeField?.addEventListener('change',refreshKind);
+  linked?.addEventListener('change',refreshKind);
+  form.elements.namedItem('title')?.addEventListener('input',refreshKind);
+  refreshKind();
   send('https://api.flamboyan4.web.id/api/v2/admin/projects/categories').then(data=>{
    if(!form.isConnected||!category)return;
    const chosen=category.value,seen=new Set();
-   category.replaceChildren(new Option('Pilih kategori kas Pembukuan',''));
+   const labels=[];
    for(const label of (Array.isArray(data.data)?data.data:[])){
-    const item=String(label||'').trim();
-    if(!item||seen.has(item))continue;
-    seen.add(item);category.add(new Option(item,item));
+    const item=String(label||'').trim(),lower=item.toLowerCase();
+    if(!item||seen.has(lower))continue;
+    seen.add(lower);labels.push(item);
    }
-   if(chosen&&!seen.has(chosen))category.add(new Option(chosen+' (kategori lama)',chosen));
-   category.value=chosen;
+   const popular=/^(kas lorong|perbaikan\\s*\\/\\s*fasilitas|donasi)$/i;
+   const important=labels.filter(x=>popular.test(x)||x===chosen);
+   const remaining=labels.filter(x=>!important.includes(x));
+   function refill(expanded){
+    category.replaceChildren(new Option('Pilih kategori kas terkait',''));
+    for(const item of [...important,...(expanded?remaining:[])])category.add(new Option(item,item));
+    if(chosen&&!labels.includes(chosen))category.add(new Option(chosen+' (kategori lama)',chosen));
+    category.value=chosen;
+   }
+   refill(false);
+   if(remaining.length){
+    const more=btn('Lihat '+remaining.length+' kategori lainnya',()=>{
+     const selected=category.value;
+     refill(true);category.value=selected;
+     more.remove();
+    },'f4-admin-btn');
+    more.setAttribute('aria-label','Tampilkan semua kategori kas Pembukuan');
+    category.parentElement.append(more);
+   }
   }).catch(error=>{if(form.isConnected)note.textContent+=' Kategori kas tidak dapat dimuat: '+error.message});
-  if(record&&['pesanan','penggalangan'].includes(record.project_kind))
+  if(record&&isLegacyJerseyProject(record))
+   form.append(btn('Buka Tabel Jersey Lama',()=>window.openSuperadminEditor?.('jersey'),'f4-admin-btn f4-admin-primary'));
+  else if(record&&['pesanan','penggalangan'].includes(record.project_kind))
    form.append(btn(record.project_kind==='pesanan'?'Buka Tabel Pesanan':'Buka Tabel Kontribusi',
     ()=>window.F4ProjectModule?.open(record),'f4-admin-btn f4-admin-primary'));
  }
