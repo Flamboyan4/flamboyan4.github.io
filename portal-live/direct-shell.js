@@ -4,7 +4,7 @@
 const API='https://api.flamboyan4.web.id';
 const paths={portal:'/',bank:'/bank-sampah/',book:'/pembukuan/',superadmin:'/superadmin/',rapat:'/rapat/',dokumentasi:'/dokumentasi/'};
 const pathname=location.pathname;
-const portal=pathname==='/bank-sampah/'?'bank':pathname==='/pembukuan/'?'book':pathname==='/superadmin/'?'superadmin':pathname==='/rapat/'||pathname==='/dokumentasi/'?'simple':'portal';
+const portal=/^\/bank-sampah(?:\/(?:index\.html)?)?$/i.test(pathname)?'bank':/^\/pembukuan(?:\/(?:index\.html)?)?$/i.test(pathname)?'book':/^\/superadmin(?:\/(?:index\.html)?)?$/i.test(pathname)?'superadmin':pathname==='/rapat/'||pathname==='/dokumentasi/'?'simple':'portal';
 document.body.classList.add('f4-direct-'+portal);
 document.body.classList.add(portal==='book'?'book-mode':portal==='bank'?'bank-mode':portal==='superadmin'?'superadmin-mode':'portal-mode');
 // All navigation pictograms are locally hosted SVG files, never Unicode symbols.
@@ -88,7 +88,7 @@ async function refreshSession(){
    gate.setAttribute('aria-label','Akses ditolak');
    const panel=el('section','f4-access-denied-panel');
    const symbol=el('div','f4-access-denied-symbol');
-   symbol.innerHTML=svg('shield');
+   symbol.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="M12 8v5M12 17h.01"/></svg>';
    const heading=el('h1');
    heading.textContent='Akses Ditolak';
    const message=el('p');
