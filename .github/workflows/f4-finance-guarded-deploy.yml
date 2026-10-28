@@ -85,7 +85,10 @@ jobs:
           project_migration=pathlib.Path("cloudflare/migrations/20261028_project_modules.sql").read_text()
           if project_migration.upper().count("CREATE TABLE IF NOT EXISTS")!=2 or project_migration.upper().count("CREATE INDEX IF NOT EXISTS")!=2:
               raise RuntimeError("Unexpected project migration: only two additive tables and two indexes permitted")
-          for statement in project_migration.split(";"):
+          # Strip SQL comments BEFORE splitting. Comments may contain a semicolon.
+          project_sql="\n".join(line for line in project_migration.splitlines()
+                                if not line.lstrip().startswith("--"))
+          for statement in project_sql.split(";"):
               if statement.strip():d1query(statement.strip())
           for table,required in [
               ("portal_project_orders",{"id","project_id","resident","amount_due_rp","paid_rp","status"}),
