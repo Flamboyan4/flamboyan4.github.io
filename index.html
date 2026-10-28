@@ -3830,15 +3830,16 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         const data=await response.json();
         if(data.ok===false||!Array.isArray(data.projects))throw Error(data.error||'Data proyek tidak tersedia');
         const used=new Set();
-        const rows=data.projects.slice().sort((a,b)=>f4ProjectNumber(a.sort_order)-f4ProjectNumber(b.sort_order));
+        const rows=data.projects.filter(row=>row&&row.active!==false&&String(row.active??1)!=='0')
+          .sort((a,b)=>f4ProjectNumber(a.sort_order)-f4ProjectNumber(b.sort_order));
         for(const row of rows){
           const key=String(row.linked_key||'').trim();
           const title=f4ProjectType(row.title);
           let special=key==='bank-sampah'?'bank-sampah':key==='jersey'?'jersey':
             title==='banksampahlorong'?'bank-sampah':title==='gapura'?'gapura':
-            title==='pemesananjersey'?'jersey':'';
-          // A new "Pemesanan Barang" project must remain independent of old Jersey.
-          if(row.project_kind==='pesanan'&&key!=='jersey'&&title!=='pemesananjersey')special='';
+            ['pemesananjersey','jersey'].includes(title)?'jersey':'';
+          // Tipe Pemesanan Barang lainnya tidak boleh menumpang tabel Jersey lama.
+          if(row.project_kind==='pesanan'&&key!=='jersey'&&!['pemesananjersey','jersey'].includes(title))special='';
           let card=known[special];
           if(card&&!used.has(special)){
             used.add(special);card.dataset.f4ProjectInactive='false';
@@ -3851,14 +3852,22 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
             if(special==='gapura'){
               const target=document.getElementById('gapura-target');
               if(target)target.textContent=Number(row.fund_target_rp)>0?f4ProjectRp(row.fund_target_rp):'Belum diatur';
+              const fromKas=row.project_kind==='kas';
+              const progressLabel=document.getElementById('gapura-percent')?.previousElementSibling;
+              if(progressLabel)progressLabel.textContent=fromKas?'Perbandingan Saldo Kas':'Progres Pengumpulan Dana';
+              const availableLabel=document.getElementById('gapura-terkumpul')?.previousElementSibling;
+              if(availableLabel)availableLabel.textContent=fromKas?'Saldo kategori':'Terkumpul';
             }
             if(special==='gapura'&&row.project_kind==='kas'&&!row.fund_source){
               const labels=[['gapura-terkumpul','Belum terhubung'],['gapura-kurang','—'],['gapura-percent','—']];
               labels.forEach(([id,value])=>{const node=document.getElementById(id);if(node)node.textContent=value});
               const bar=document.getElementById('gapura-progress-bar');if(bar)bar.style.width='0%';
             }
-            if(special==='gapura'&&row.project_kind==='kas'&&row.fund_source){
-              const money=Math.max(0,f4ProjectNumber(row.ringkasan?.danaMasukRp)-f4ProjectNumber(row.ringkasan?.danaKeluarRp));
+            if(special==='gapura'&&['kas','penggalangan'].includes(row.project_kind)&&
+                (row.project_kind!=='kas'||row.fund_source)){
+              const income=f4ProjectNumber(row.ringkasan?.danaMasukRp);
+              const expense=row.project_kind==='kas'?f4ProjectNumber(row.ringkasan?.danaKeluarRp):0;
+              const money=Math.max(0,income-expense);
               const goal=f4ProjectNumber(row.fund_target_rp);
               const labels=[['gapura-terkumpul',f4ProjectRp(money)],['gapura-kurang',goal?f4ProjectRp(Math.max(0,goal-money)):'—'],
                 ['gapura-percent',goal?Math.round(Math.min(100,money/goal*100))+'%':'—']];
