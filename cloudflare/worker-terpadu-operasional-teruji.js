@@ -52,7 +52,7 @@ async function publicPortal(db) {
     list(db, `SELECT id,event_on,title,description,drive_url,category FROM portal_documentation WHERE visibility='publik' AND active=1 ORDER BY event_on DESC,sort_order LIMIT 100`),
     list(db, `SELECT project_id,COUNT(*) AS jumlah,COALESCE(SUM(amount_due_rp),0) AS tagihanRp,COALESCE(SUM(paid_rp),0) AS diterimaRp,COALESCE(SUM(CASE WHEN amount_due_rp>0 AND paid_rp>=amount_due_rp THEN 1 ELSE 0 END),0) AS lunas FROM portal_project_orders WHERE status='aktif' GROUP BY project_id`),
     list(db, `SELECT project_id,COUNT(*) AS jumlah,COALESCE(SUM(amount_rp),0) AS diterimaRp FROM portal_project_contributions WHERE status='aktif' GROUP BY project_id`),
-    list(db, `SELECT category,COALESCE(SUM(debit_rp),0) AS masukRp,COALESCE(SUM(credit_rp),0) AS keluarRp FROM bookkeeping_cash_transactions WHERE status='aktif' AND category IS NOT NULL GROUP BY category`)
+    list(db, `SELECT category,COALESCE(SUM(debit_rp),0) AS masukRp,COALESCE(SUM(credit_rp),0) AS keluarRp FROM bookkeeping_cash_transactions_posted WHERE status='aktif' AND category IS NOT NULL GROUP BY category`)
   ]);
   // Arisan & Jersey were the last public Sheets CSV datasets. Absent migration
   // tables yield empty arrays instead of making the rest of Portal unavailable.
@@ -86,7 +86,7 @@ __name(publicPortal, "publicPortal");
 // existing publicly displayed Kas Lingkungan report.
 async function publicPortalCash(db){
   const found=await db.prepare(`SELECT id,occurred_on,transaction_type,category,debit_rp,credit_rp,note,payment_method
-    FROM bookkeeping_cash_transactions WHERE status='aktif'
+    FROM bookkeeping_cash_transactions_posted WHERE status='aktif'
     ORDER BY occurred_on DESC,id DESC LIMIT 1001`).all();
   const source=found.results||[];
   if(source.length>1000)return err("Laporan Kas D1 melebihi batas; jangan tampilkan saldo parsial.",503);
@@ -365,7 +365,7 @@ async function bookkeepingOverview(db, url) {
   const fp = month ? " AND substr(paid_on,1,7)=?" : "";
   const fd = month ? " AND substr(event_on,1,7)=?" : "";
   const [cash, payments, fines, loans, advances] = await Promise.all([
-    one(db, `SELECT COUNT(*) AS count,COALESCE(SUM(debit_rp),0) AS debitRp,COALESCE(SUM(credit_rp),0) AS creditRp FROM bookkeeping_cash_transactions WHERE status='aktif'${f}`, month ? [month] : []),
+    one(db, `SELECT COUNT(*) AS count,COALESCE(SUM(debit_rp),0) AS debitRp,COALESCE(SUM(credit_rp),0) AS creditRp FROM bookkeeping_cash_transactions_posted WHERE status='aktif'${f}`, month ? [month] : []),
     one(db, `SELECT COUNT(*) AS count,COALESCE(SUM(amount_rp),0) AS totalRp FROM bookkeeping_payments WHERE status='aktif'${fp}`, month ? [month] : []),
     one(db, `SELECT COUNT(*) AS count,COALESCE(SUM(amount_rp),0) AS chargedRp,COALESCE(SUM(paid_rp),0) AS paidRp FROM bookkeeping_fines WHERE status!='dibatalkan'${fd}`, month ? [month] : []),
     one(db, `SELECT COUNT(*) AS count,COALESCE(SUM(amount_rp),0) AS loanRp FROM bookkeeping_loans WHERE status!='dibatalkan'`, []),
@@ -1078,7 +1078,7 @@ async function handleUnifiedApi(request, env, who) {
   if(path==='/api/v2/admin/content/transfer'&&method==='POST')return transferF4Content(request,env,who);
   if(path==="/api/v2/admin/projects/categories"&&method==="GET"){
     const denied=superadmin(who);if(denied)return denied;
-    const rows=await list(db,"SELECT DISTINCT category FROM bookkeeping_cash_transactions WHERE status='aktif' AND category IS NOT NULL AND TRIM(category)<>'' ORDER BY category LIMIT 150");
+    const rows=await list(db,"SELECT DISTINCT category FROM bookkeeping_cash_transactions_posted WHERE status='aktif' AND category IS NOT NULL AND TRIM(category)<>'' ORDER BY category LIMIT 150");
     return ok({data:rows.map(x=>String(x.category||"")).filter(Boolean)});
   }
   if(path==="/api/v2/admin/projects/orders"||path==="/api/v2/admin/projects/contributions")
@@ -1789,9 +1789,9 @@ async function f4CashReport(db, request) {
   }
   const found = await db.prepare(`SELECT c.id,c.occurred_on,c.transaction_type,c.category,c.debit_rp,c.credit_rp,c.note,c.payment_method,
     COALESCE(p.display_name,'') AS payer_name
-  FROM bookkeeping_cash_transactions c LEFT JOIN bookkeeping_payers p ON p.id=c.payer_id
+  FROM bookkeeping_cash_transactions_posted c LEFT JOIN bookkeeping_payers p ON p.id=c.payer_id
   WHERE ${clauses.join(" AND ")} ORDER BY c.occurred_on,c.id`).bind(...args).all();
-  const before = from ? await db.prepare("SELECT COALESCE(SUM(debit_rp-credit_rp),0) AS amount FROM bookkeeping_cash_transactions WHERE status='aktif' AND occurred_on<?").bind(from).first() : { amount: 0 };
+  const before = from ? await db.prepare("SELECT COALESCE(SUM(debit_rp-credit_rp),0) AS amount FROM bookkeeping_cash_transactions_posted WHERE status='aktif' AND occurred_on<?").bind(from).first() : { amount: 0 };
   const rows = (found.results || []).map((x) => ({
     idTransaksi: x.id,
     tanggal: x.occurred_on,
@@ -1822,7 +1822,7 @@ async function f4YearlyReadOnlyReport(db, request) {
   const year=Number(raw), begin=raw+'-01-01', end=raw+'-12-31';
   const names=['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
   const [opening,journal,allocation,loans,advances,unpostedPayments,archived] = await Promise.all([
-    db.prepare(`SELECT COALESCE(SUM(debit_rp-credit_rp),0) AS amount FROM bookkeeping_cash_transactions WHERE status='aktif' AND occurred_on<?`).bind(begin).first(),
+    db.prepare(`SELECT COALESCE(SUM(debit_rp-credit_rp),0) AS amount FROM bookkeeping_cash_transactions_posted WHERE status='aktif' AND occurred_on<?`).bind(begin).first(),
     db.prepare(`SELECT substr(occurred_on,6,2) AS mon,
        COALESCE(SUM(debit_rp),0) AS debit,
        COALESCE(SUM(credit_rp),0) AS credit,
@@ -1834,7 +1834,7 @@ async function f4YearlyReadOnlyReport(db, request) {
          AND debit_rp=794000 AND credit_rp=0
          THEN debit_rp ELSE 0 END),0) AS handover_opening,
        COALESCE(SUM(CASE WHEN lower(category) LIKE '%denda%' THEN debit_rp ELSE 0 END),0) AS denda
-       FROM bookkeeping_cash_transactions
+       FROM bookkeeping_cash_transactions_posted
        WHERE status='aktif' AND occurred_on>=? AND occurred_on<=?
        GROUP BY substr(occurred_on,6,2)`).bind(begin,end).all(),
     db.prepare(`SELECT substr(p.paid_on,6,2) AS mon,
@@ -2576,7 +2576,7 @@ async function writeDendaPinjaman(request, env, kind, who) {
         VALUES(?,?,?,?,'aktif',?,?,?)`).bind("lr_" + id, reference, date, amount, note, key, cashId)];
     }
     q.push(env.DB.prepare(`INSERT INTO bookkeeping_cash_transactions(id,occurred_on,payer_id,transaction_type,category,debit_rp,credit_rp,status,note,payment_method)
-       VALUES(?,?,?,? ,?, ?,0,'aktif',?,?)`).bind(cashId, date, target.payer_id, kind === "fine-pay" ? "pembayaran_denda" : "angsuran_pinjaman", kind === "fine-pay" ? "Denda Gorol" : "Angsuran Pinjaman", amount, note, method));
+       VALUES(?,?,?,? ,?, ?,0,'aktif',?,?)`).bind(cashId, date, target.payer_id, kind === "fine-pay" ? "denda_menunggu_buku" : "angsuran_pinjaman", kind === "fine-pay" ? "Denda Gorol" : "Angsuran Pinjaman", amount, note, method));
     // The real D1 schema has an immediate FK from loan_repayments.cash_transaction_id to cash.id.
     // Insert cash first inside the same atomic batch, otherwise valid loan instalments fail HTTP 409.
     if (kind === "loan-pay") q = [q[1], q[0]];
@@ -3651,7 +3651,7 @@ async function listCashTransactions(db, request) {
   const data = await db.prepare(`SELECT c.id,c.occurred_on,c.transaction_type,c.category,c.debit_rp,c.credit_rp,c.status,
     c.note,c.payment_method,c.extra_note,c.source_payment_id,c.created_at,
     COALESCE(p.display_name,'') AS payer_name
-    FROM bookkeeping_cash_transactions c LEFT JOIN bookkeeping_payers p ON p.id=c.payer_id
+    FROM bookkeeping_cash_transactions_posted c LEFT JOIN bookkeeping_payers p ON p.id=c.payer_id
     WHERE ${clauses.join(" AND ")} ORDER BY c.occurred_on DESC,c.created_at DESC,c.id DESC LIMIT ?`).bind(...values, limit).all();
   return json({ ok: true, transaksi: data.results || [] });
 }
@@ -3803,10 +3803,10 @@ async function yearEndPreflight(db, request) {
   const lock = await db.prepare("SELECT status FROM bookkeeping_year_archives WHERE fiscal_year=? LIMIT 1").bind(year).first();
   const totals = await db.prepare(`SELECT COUNT(*) AS jumlah,
     COALESCE(SUM(debit_rp),0) AS debit,COALESCE(SUM(credit_rp),0) AS kredit
-    FROM bookkeeping_cash_transactions WHERE status='aktif' AND occurred_on>=? AND occurred_on<?`).bind(from, to).first();
+    FROM bookkeeping_cash_transactions_posted WHERE status='aktif' AND occurred_on>=? AND occurred_on<?`).bind(from, to).first();
   const sources = await db.prepare(`SELECT transaction_type,COUNT(*) AS jumlah,
     COALESCE(SUM(debit_rp),0) AS debit,COALESCE(SUM(credit_rp),0) AS kredit
-    FROM bookkeeping_cash_transactions WHERE status='aktif' AND occurred_on>=? AND occurred_on<?
+    FROM bookkeeping_cash_transactions_posted WHERE status='aktif' AND occurred_on>=? AND occurred_on<?
     GROUP BY transaction_type ORDER BY transaction_type`).bind(from, to).all();
   const invalid = await db.prepare(`SELECT COUNT(*) AS jumlah FROM bookkeeping_cash_transactions
     WHERE status='aktif' AND occurred_on>=? AND occurred_on<?
@@ -4259,11 +4259,11 @@ async function handle(request, env) {
       env.DB.prepare(`SELECT COUNT(*) AS total_rows,
         COALESCE(SUM(debit_rp),0) AS total_debit_rp,
         COALESCE(SUM(credit_rp),0) AS total_credit_rp
-        FROM bookkeeping_cash_transactions
+        FROM bookkeeping_cash_transactions_posted
         WHERE status='aktif' AND (?='' OR substr(occurred_on,1,7)=?)`).bind(month,month).first(),
       env.DB.prepare(`SELECT occurred_on,transaction_type,category,
         debit_rp,credit_rp,status,note
-        FROM bookkeeping_cash_transactions
+        FROM bookkeeping_cash_transactions_posted
         WHERE status='aktif' AND (?='' OR substr(occurred_on,1,7)=?)
         ORDER BY occurred_on DESC,id DESC LIMIT 1501`).bind(month,month).all()
     ]);
