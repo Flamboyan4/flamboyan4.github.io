@@ -51,7 +51,11 @@ async def main():
             await page.goto(ROOT, wait_until="domcontentloaded", timeout=45000)
             await page.wait_for_timeout(1100)
             await page.screenshot(path=str(DEST / (mode+"-public.png")), full_page=False)
-            await page.evaluate("(html) => { document.body.innerHTML = html; }", FIXTURE)
+            await page.evaluate("""(html) => {
+              document.querySelectorAll('body link[rel="stylesheet"]').forEach(n => document.head.appendChild(n));
+              document.body.innerHTML = html;
+            }""", FIXTURE)
+            await page.wait_for_load_state("networkidle", timeout=12000)
             state = await page.evaluate("""() => {
               const e = (s) => document.querySelector(s);
               const color = (s,property) => getComputedStyle(e(s))[property];
