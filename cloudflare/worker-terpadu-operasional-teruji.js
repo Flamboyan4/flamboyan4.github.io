@@ -920,6 +920,88 @@ async function handleAdminContent(request, env, who, url) {
   return ok({ id: newId, created: true }, 201);
 }
 __name(handleAdminContent, "handleAdminContent");
+// Reusable project data modules. Financial history is never deleted or cross-posted to the cash journal.
+async function handleProjectModule(request,env,who,url){
+  const denied=superadmin(who);if(denied)return denied;
+  const mode=url.pathname.endsWith("/orders")?"orders":"contributions";
+  const table=mode==="orders"?"portal_project_orders":"portal_project_contributions";
+  const projectId=String(url.searchParams.get("projectId")||"").trim();
+  if(!projectId||projectId.length>150)return err("Proyek wajib dipilih.",400);
+  const db=env.DB;
+  const project=await one(db,"SELECT id,title,project_kind FROM portal_project_cards WHERE id=?",[projectId]);
+  if(!project)return err("Proyek tidak ditemukan.",404);
+  if(project.project_kind!==(mode==="orders"?"pesanan":"penggalangan"))
+    return err("Jenis proyek tidak mendukung tabel ini.",409);
+  if(request.method==="GET"){
+    const data=await list(db,"SELECT * FROM "+table+" WHERE project_id=? ORDER BY created_at DESC,id DESC LIMIT 501",[projectId]);
+    if(data.length>500)return err("Daftar melebihi 500 baris. Tidak menampilkan laporan terpotong.",503);
+    return ok({projectId,projectTitle:project.title,data});
+  }
+  if(request.method!=="POST")return err("Metode tidak didukung.",405);
+  const origin=request.headers.get("origin")||"";
+  if(origin&&!["https://flamboyan4.web.id","https://www.flamboyan4.web.id"].includes(origin))
+    return err("Asal permintaan tidak diizinkan.",403);
+  let payload;try{payload=await body(request)}catch(e){return err(e.message,400)}
+  const action=String(payload.action||"save"),id=String(payload.id||"");
+  if(!["save","cancel"].includes(action)||id.length>150)return err("Aksi atau ID tidak valid.",400);
+  const old=id?await one(db,"SELECT * FROM "+table+" WHERE id=? AND project_id=?",[id,projectId]):null;
+  if(id&&!old)return err("Catatan tidak ditemukan dalam proyek ini.",404);
+  if(action==="cancel"){
+    if(!old||old.status!=="aktif")return err("Hanya catatan aktif yang dapat dibatalkan.",409);
+    await db.batch([
+      db.prepare("UPDATE "+table+" SET status='dibatalkan',updated_at=CURRENT_TIMESTAMP WHERE id=? AND project_id=?").bind(id,projectId),
+      db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)")
+       .bind("audit:"+crypto.randomUUID(),who.id,"project_module","cancel",table,id,JSON.stringify(old),JSON.stringify({...old,status:"dibatalkan"}))
+    ]);
+    return ok({id,canceled:true});
+  }
+  if(old&&old.status!=="aktif")return err("Catatan dibatalkan bersifat arsip dan tidak dapat diedit.",409);
+  const val=payload.values;
+  if(!val||typeof val!=="object"||Array.isArray(val))return err("Isian proyek tidak valid.",400);
+  const limitText=(v,limit)=>String(v??"").trim().slice(0,limit);
+  const rupiahField=(v)=>{const n=Number(v);if(!Number.isSafeInteger(n)||n<0||n>100000000000)throw Error("Nominal rupiah harus bilangan bulat 0 sampai 100 miliar.");return n};
+  const method=limitText(val.payment_method,70);
+  if(method.length>70)return err("Metode pembayaran terlalu panjang.",400);
+  const notes=limitText(val.notes,500);
+  let clean,cols;
+  try{
+    if(mode==="orders"){
+      const resident=limitText(val.resident,160),item=limitText(val.item_name,180);
+      const quantity=Number(val.quantity),price=rupiahField(val.unit_price_rp),paid=rupiahField(val.paid_rp);
+      if(!resident||!item||!Number.isSafeInteger(quantity)||quantity<1||quantity>10000)
+        return err("Nama pemesan, barang, dan jumlah harus valid.",400);
+      const due=quantity*price;if(!Number.isSafeInteger(due)||due>100000000000)return err("Total harga melebihi batas.",400);
+      clean={resident,item_name:item,quantity,unit_price_rp:price,amount_due_rp:due,paid_rp:paid,payment_method:method,notes};
+      cols=["resident","item_name","quantity","unit_price_rp","amount_due_rp","paid_rp","payment_method","notes"];
+    }else{
+      const contributor=limitText(val.contributor,160),amount=rupiahField(val.amount_rp);
+      const date=String(val.contributed_on||"").trim();
+      if(!contributor||!/^\d{4}-\d{2}-\d{2}$/.test(date)||!Number.isFinite(Date.parse(date+"T12:00:00Z")))
+        return err("Nama penyumbang dan tanggal harus valid.",400);
+      clean={contributor,amount_rp:amount,payment_method:method,contributed_on:date,notes};
+      cols=["contributor","amount_rp","payment_method","contributed_on","notes"];
+    }
+  }catch(e){return err(e.message||"Isian tidak valid.",400)}
+  if(old){
+    const next={...old,...clean};
+    await db.batch([
+      db.prepare("UPDATE "+table+" SET "+cols.map(k=>k+"=?").join(",")+",updated_at=CURRENT_TIMESTAMP WHERE id=? AND project_id=?")
+        .bind(...cols.map(k=>clean[k]),id,projectId),
+      db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)")
+        .bind("audit:"+crypto.randomUUID(),who.id,"project_module","edit",table,id,JSON.stringify(old),JSON.stringify(next))
+    ]);
+    return ok({id,updated:true});
+  }
+  const newId=(mode==="orders"?"project-order:":"project-contribution:")+crypto.randomUUID();
+  await db.batch([
+    db.prepare("INSERT INTO "+table+"(id,project_id,"+cols.join(",")+") VALUES("+Array(cols.length+2).fill("?").join(",")+")")
+      .bind(newId,projectId,...cols.map(k=>clean[k])),
+    db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)")
+      .bind("audit:"+crypto.randomUUID(),who.id,"project_module","create",table,newId,null,JSON.stringify({project_id:projectId,...clean}))
+  ]);
+  return ok({id:newId,created:true},201);
+}
+__name(handleProjectModule,"handleProjectModule");
 // Scoped deletion for publications, never transactions or account/master records.
 async function deleteBankManagedContent(request,env,who,kind){
   const denied=superadmin(who);if(denied)return denied;
@@ -953,6 +1035,8 @@ async function handleUnifiedApi(request, env, who) {
   const url = new URL(request.url), path = url.pathname, method = request.method, db = env.DB;
   if (!path.startsWith("/api/v2/")) return null;
   if(path==='/api/v2/admin/content/transfer'&&method==='POST')return transferF4Content(request,env,who);
+  if(path==="/api/v2/admin/projects/orders"||path==="/api/v2/admin/projects/contributions")
+    return handleProjectModule(request,env,who,url);
   if (path.startsWith(contentPath)) return handleAdminContent(request, env, who, url);
   if (method === "GET" && path === "/api/v2/system/features") return ok({ api: "v2", frontend: "github-pages", storage: "d1+r2", bankWrites: env.BANK_WRITE_ENABLED === "true", bookkeepingWrites: env.FINANCE_WRITE_ENABLED === "true", bankReconciliationWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_RECONCILIATION_WRITE_ENABLED === "true", bankCancellationWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_CANCEL_WRITE_ENABLED === "true", bankExpenseWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_EXPENSE_WRITE_ENABLED === "true", bankInventoryWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_INVENTORY_WRITE_ENABLED === "true", bankMediaWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_MEDIA_WRITE_ENABLED === "true", bankPayoutWrites: env.BANK_WRITE_ENABLED === "true" && env.BANK_PAYOUT_WRITE_ENABLED === "true" });
   if (method === "GET" && path === "/api/v2/auth/session") return who ? ok({ account: { id: who.id, username: who.username, role: who.role }, member: who.member_id ? { id: who.member_id, nama: who.display_name, rumah: who.house_code } : null }) : err("Sesi tidak valid.", 401);
