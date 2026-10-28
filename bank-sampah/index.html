@@ -1667,6 +1667,10 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
 #v17Perkembangan .f4-public-value-panel .v17-bar{background:#26875e!important}
 #v17Perkembangan .f4-public-value-panel .v17-bar.out{background:#e6a62a!important}
 #v17Perkembangan .f4-public-value-panel .v17-bars{min-height:115px}
+#v17Perkembangan .f4-public-value-amount{
+ display:block;margin-top:5px;max-width:100%;color:#466e57;font-weight:800;
+ font-size:10.5px;line-height:1.2;white-space:nowrap
+}
 #v17Perkembangan .f4-public-value-panel .v17-subtle{margin:9px 0 0;font-size:12px}
 #v25ReportTable td:nth-child(5){color:#987019!important;font-weight:700}
 </style>
@@ -3392,13 +3396,17 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       const grouped=new Map();
       for(const item of active){
         const key=String(item.tanggal).slice(0,7);
-        if(!grouped.has(key))grouped.set(key,{key,berat:0,sah:0,estimasi:0,belumAda:0,count:0});
+        if(!grouped.has(key))grouped.set(key,{key,berat:0,sah:0,estimasi:0,belumAda:0,count:0,sahCount:0,pendingCount:0});
         const target=grouped.get(key),info=f4MemberDepositDisplay(item);
         target.berat+=Number(item.beratKg);target.count++;
         if(info.status==='Sudah sah'){
+          target.sahCount++;
           if(info.final===null)target.belumAda++;
           else target.sah+=info.final;
-        }else target.estimasi+=Number(item.estimasiRp)||0;
+        }else{
+          target.pendingCount++;
+          target.estimasi+=Number(item.estimasiRp)||0;
+        }
       }
       return [...grouped.values()].slice(-8).map(x=>({...x,
         name:new Date(x.key+'-15T12:00:00').toLocaleDateString('id-ID',{month:'short',year:'2-digit'}),
@@ -3408,7 +3416,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       return {name:new Date(x.tanggal+'T12:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short'}),
        detail:x.tanggal,berat:Number(x.beratKg),sah:info.final===null?0:info.final,
        estimasi:info.status==='Sudah sah'?0:Number(x.estimasiRp)||0,
-       belumAda:info.status==='Sudah sah'&&info.final===null?1:0,count:1};
+       belumAda:info.status==='Sudah sah'&&info.final===null?1:0,count:1,
+       sahCount:info.status==='Sudah sah'?1:0,pendingCount:info.status==='Sudah sah'?0:1};
     });
     const hasPending=points.some(p=>p.estimasi>0)||
       active.some(x=>f4MemberDepositDisplay(x).status!=='Sudah sah');
@@ -3464,11 +3473,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         column.append(amount,track,label);
         if(mode==='nilai'){
           const sub=document.createElement('em');sub.className='f4-chart-bar-status';
-          sub.textContent=p.belumAda?'Perlu cek':p.sah>0&&p.estimasi>0?'Campuran':p.sah>0?'Hasil jual':'Perkiraan';
-          sub.classList.add(p.belumAda?'is-missing':p.estimasi>0?'is-estimate':'is-confirmed');
+          sub.textContent=p.belumAda?'Perlu cek':p.sahCount>0&&p.pendingCount>0?'Campuran':p.sahCount>0?'Hasil jual':'Perkiraan';
+          sub.classList.add(p.belumAda?'is-missing':p.pendingCount>0?'is-estimate':'is-confirmed');
           column.appendChild(sub);
-          descriptions.push(p.detail+': '+(p.sah>0?'hasil jual '+rupiah(p.sah)+' ':'')+
-            (p.estimasi>0?'perkiraan '+rupiah(p.estimasi):'')+
+          descriptions.push(p.detail+': '+(p.sahCount>0?'hasil jual '+rupiah(p.sah)+' ':'')+
+            (p.pendingCount>0?'perkiraan '+rupiah(p.estimasi):'')+
             (p.belumAda?' nominal sah belum tersedia':''));
         }else descriptions.push(p.detail+': '+kg(p.berat));
         chart.appendChild(column);
@@ -3870,12 +3879,22 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     data.forEach(r=>{
       const month=r?.periode??r?.bulan??r?.month??'';
       const group=document.createElement('div');group.className='v17-bar-group';
+      if(root.id==='v17ValueBars'){
+        group.setAttribute('aria-label',v17Label(month)+': hasil jual '+rupiah(r?.hakWarga||0)+
+          ', perkiraan '+rupiah(r?.pendingEstimateRp||0));
+      }
       keys.forEach((key,i)=>{
         const bar=document.createElement('div');bar.className='v17-bar'+(i?' out':'');
         bar.style.height=(Number(r?.[key])||0)/max*100+'%';
         bar.title=colorNames[i]+': '+(key==='beratKg'?kg(r?.[key]):rupiah(r?.[key]))+' • '+(month||'Periode tidak tersedia');
         group.appendChild(bar);
       });
+      if(root.id==='v17ValueBars'){
+        const amount=document.createElement('small');amount.className='f4-public-value-amount';
+        amount.textContent=rupiah((Number(r?.hakWarga)||0)+(Number(r?.pendingEstimateRp)||0));
+        amount.title='Jumlah visual kedua status, bukan saldo resmi';
+        group.appendChild(amount);
+      }
       const label=document.createElement('span');label.className='v17-bar-label';
       label.textContent=v17Label(month);group.appendChild(label);root.appendChild(group);
     });
