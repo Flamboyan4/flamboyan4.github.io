@@ -2737,7 +2737,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   async function loadRekonsiliasi(){const batch=$('reconBatch').value,area=$('reconResult');if(!batch){area.textContent='Pilih kelompok terlebih dahulu.';return;}area.textContent='Menghitung pratinjau...';try{const r=await call('bsV6PratinjauRekonsiliasi',token,batch);const fields=[['Setoran',r.setoran],['Penjualan',r.penjualan],['Berat warga',kg(r.beratSetoran)],['Berat lapak',kg(r.beratLapak)],['Selisih berat',kg(r.selisihKg)],['Estimasi hak warga',rupiah(r.estimasiWarga)],['Total jual',rupiah(r.bruto)],['Diterima dari lapak',rupiah(r.diterima)],['Sisa hasil',rupiah(r.marginSementara)],['Belum lunas',r.belumLunas]];area.replaceChildren(...fields.map(([l,v])=>metric(l,v)));area.style.display='grid';area.style.gridTemplateColumns='repeat(auto-fit,minmax(170px,1fr))';const msg=document.createElement('p');msg.className='pill-note';msg.textContent=r.siapDiperiksa?'Dana tampak cukup untuk ditinjau, tetapi BELUM DISAHKAN.':'Perlu pemeriksaan: penjualan belum lengkap/lunas atau dana belum mencukupi estimasi hak warga.';area.appendChild(msg);}catch(e){area.textContent='Gagal menampilkan selisih: '+(e.message||e);}}
   function v7DetailTable(items,type){const wrap=document.createElement('div');wrap.className='details-panel';const table=document.createElement('table'),body=document.createElement('tbody');items.forEach(x=>{const tr=document.createElement('tr');cell(tr,x.barang,'Barang');cell(tr,kg(x.berat),'Berat');cell(tr,rupiah(type==='setoran'?x.tarif:x.harga)+'/kg','Tarif / harga');cell(tr,rupiah(x.nilai),'Nilai');body.appendChild(tr)});table.appendChild(body);wrap.appendChild(table);if(!items.length)wrap.textContent='Belum ada rincian.';return wrap;}
   async function v7ToggleDetails(container,id,type,button){if(container.childElementCount){container.replaceChildren();button.textContent='Lihat rincian';return;}button.disabled=true;try{const items=await call(type==='setoran'?'bsV7RincianSetoran':'bsV7RincianPenjualan',token,id);container.appendChild(v7DetailTable(items,type));button.textContent='Tutup rincian';}catch(e){container.textContent='Gagal: '+(e.message||e);}finally{button.disabled=false;}}
-  function v7HistoryCard(r,type){const box=document.createElement('div');box.className='stat';box.style.marginBottom='10px';const header=document.createElement('div');header.className='toolbar';const title=document.createElement('strong');title.textContent=type==='setoran'?(r.namaWarga||'Nama warga belum tersedia')+(r.rumahWarga?' • '+r.rumahWarga:''):'Penjualan • '+(r.lapak||'Lapak');const badge=document.createElement('span');badge.className='tag';badge.textContent=r.status;header.append(title,badge);const info=document.createElement('p');info.className='tiny';info.textContent=[r.tanggal,...(type==='setoran'?[kg(r.berat)]:Number.isFinite(Number(r.berat))&&Number(r.berat)>0?[kg(r.berat)]:[]),type==='setoran'?(r.status==='Terkonfirmasi'?
+  function v7HistoryCard(r,type){const box=document.createElement('div');box.className='stat';box.style.marginBottom='10px';const header=document.createElement('div');header.className='toolbar';const title=document.createElement('strong');title.textContent=type==='setoran'?(r.namaWarga||'Nama warga belum tersedia')+(r.rumahWarga?' • '+r.rumahWarga:''):'Penjualan • '+(r.lapak||'Lapak');const badge=document.createElement('span');badge.className='tag';badge.textContent=r.status;header.append(title,badge);const info=document.createElement('p');info.className='tiny';info.textContent=[r.tanggal,...(type==='setoran'?[r.berat==null?'Berat jual belum tersedia':kg(r.berat)]:Number.isFinite(Number(r.berat))&&Number(r.berat)>0?[kg(r.berat)]:[]),type==='setoran'?(r.status==='Terkonfirmasi'?
   (r.nilaiSahRp==null?'Hasil jual belum tersedia':'Hasil jual '+rupiah(r.nilaiSahRp)):
   'Perkiraan '+rupiah(r.estimasi)):'Total '+rupiah(r.bruto)+' • Diterima '+rupiah(r.diterima)].join(' • ');const actions=document.createElement('div');actions.className='toolbar';const details=document.createElement('button');details.className='secondary';details.textContent='Lihat rincian';const detailArea=document.createElement('div');details.onclick=()=>v7ToggleDetails(detailArea,r.id,type,details);const cancel=document.createElement('button');cancel.className='warning';cancel.textContent='Batalkan';cancel.disabled=type==='setoran'?r.status!=='Estimasi':r.status==='Dibatalkan';cancel.onclick=()=>type==='setoran'?cancelSetoran(r):v7CancelSale(r);actions.append(details,cancel);if(type==='penjualan'&&r.status!=='Dibatalkan'){const receipt=document.createElement('button');receipt.type='button';receipt.className='secondary';receipt.textContent=r.nota?'Ubah Nota':'Isi No. Nota';receipt.setAttribute('aria-label','Isi atau koreksi nomor nota lapak');receipt.onclick=()=>v7EditSaleReceipt(r);actions.appendChild(receipt);const handover=document.createElement('button');handover.type='button';handover.className='secondary';handover.textContent='Cetak Serah Terima';handover.setAttribute('aria-label','Cetak form serah terima penjualan '+r.id);handover.onclick=()=>window.F4SaleHandover?.(r);actions.appendChild(handover);}box.append(header,info,actions,detailArea);if(type==='penjualan'){const notaInfo=document.createElement('span');notaInfo.className='f4-sale-note-caption';notaInfo.textContent='Nota: '+(r.nota||'belum diisi');info.append(' • ');info.appendChild(notaInfo);}if(type==='penjualan'&&r.bruto!==r.diterima){const p=document.createElement('p');p.className='tiny';p.textContent='Selisih penerimaan '+rupiah(r.bruto-r.diterima)+' • '+(r.alasanSelisih||'Belum ada alasan pada transaksi lama');box.appendChild(p);}return box;}
   async function v7EditSaleReceipt(record){
@@ -2941,7 +2941,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   async function v10LoadBiaya(){if(!v10Nonce)v10Nonce='N'+Date.now().toString(36)+Math.random().toString(36).slice(2,12);$('v10Date').value=$('v10Date').value||new Date().toISOString().slice(0,10);v10TypeChange();try{const [budget,history]=await Promise.all([call('bsV10KasPosAdmin',token),call('bsV10PengeluaranAdmin',token)]);const target=$('v10Budget');target.replaceChildren(metric('Kas gabungan',rupiah(budget.kasGabungan)),...budget.pos.map(x=>metric('Sisa '+x.nama,rupiah(x.tersedia))));const h=$('v10History');h.replaceChildren(...history.map(x=>{const b=document.createElement('div');b.className='stat';b.style.marginBottom='9px';const title=document.createElement('strong');title.textContent=(x.kategori||x.jenis||'Pengeluaran')+' • '+rupiah(x.nominal);const info=document.createElement('small');info.textContent=[x.tanggal,x.keterangan,x.pos,x.status,x.inventarisId?'Inventaris '+x.inventarisId:''].filter(Boolean).join(' • ');b.append(title,info);return b}));if(!history.length)h.textContent='Belum ada pembelian atau pengeluaran.';}catch(e){$('v10History').textContent='Gagal memuat: '+(e.message||e);}}
   async function v10SaveExpense(e){e.preventDefault();const nominal=Math.round(Number($('v10Qty').value)*Number($('v10Price').value));if(!(nominal>0)){note('v10ExpenseNotice','Isi jumlah dan harga terlebih dahulu.',true);return;}if(!await window.f4UiDialog.confirm('Apakah biaya '+$('v10Type').value+' '+rupiah(nominal)+' SUDAH DIBAYAR? Transaksi akan mengurangi kas dan anggaran pos.'))return;busy(e.target,true);note('v10ExpenseNotice','Menyimpan biaya...');try{const r=await call('bsV10CatatBiaya',token,{nonce:v10Nonce,tanggal:$('v10Date').value,jenis:$('v10Type').value,pos:$('v10Position').value,keterangan:$('v10Description').value,jumlah:Number($('v10Qty').value),hargaSatuan:Number($('v10Price').value),satuan:$('v10Unit').value,toko:$('v10Vendor').value,inventaris:$('v10Inventory').checked,bukti:$('v10Proof').value,catatan:$('v10Notes').value});v10Nonce='';e.target.reset();v10Calc();await v10LoadBiaya();note('v10ExpenseNotice',r.id+' tercatat: '+rupiah(r.nominal)+(r.inventarisId?' • inventaris '+r.inventarisId:''));}catch(err){note('v10ExpenseNotice','Gagal: '+(err.message||err)+'. Jika ada Diproses, jangan ulangi sebelum audit.',true);}finally{busy(e.target,false);}}
   async function v10LoadReport(){const tokenLoading=F4Loading.begin('v10ReportNotice','Memuat laporan Bank Sampah…');try{v10ReportData=await call('bsV10LaporanAdmin',token,$('v10Month').value);v10RenderReport();F4Loading.success('v10ReportNotice',tokenLoading);}catch(e){F4Loading.error('v10ReportNotice','Gagal: '+(e.message||e),tokenLoading);}}
-  const v10Specs={setoran:{title:'Setoran warga',fields:[['warga','Nama warga'],['tanggal','Tanggal'],['berat','Berat kg'],['nilai','Nilai (Rp)'],['status','Status']]},penjualan:{title:'Penjualan lapak',fields:[['lapak','Lapak'],['tanggal','Tanggal'],['bruto','Bruto Rp'],['diterima','Diterima Rp'],['disahkan','Disahkan']]},pengeluaran:{title:'Pembelian & pengeluaran',fields:[['jenis','Jenis'],['tanggal','Tanggal'],['keterangan','Keterangan'],['pos','Pos'],['nominal','Nominal Rp'],['status','Status']]},mutasi:{title:'Riwayat tabungan',fields:[['warga','Nama warga'],['tanggal','Tanggal'],['jenis','Jenis'],['kredit','Kredit Rp'],['debit','Debit Rp']]}};
+  const v10Specs={setoran:{title:'Setoran warga',fields:[['warga','Nama warga'],['tanggal','Tanggal'],['berat','Berat akhir kg'],['beratTimbang','Timbang awal kg'],['nilai','Nilai (Rp)'],['status','Status']]},penjualan:{title:'Penjualan lapak',fields:[['lapak','Lapak'],['tanggal','Tanggal'],['bruto','Bruto Rp'],['diterima','Diterima Rp'],['disahkan','Disahkan']]},pengeluaran:{title:'Pembelian & pengeluaran',fields:[['jenis','Jenis'],['tanggal','Tanggal'],['keterangan','Keterangan'],['pos','Pos'],['nominal','Nominal Rp'],['status','Status']]},mutasi:{title:'Riwayat tabungan',fields:[['warga','Nama warga'],['tanggal','Tanggal'],['jenis','Jenis'],['kredit','Kredit Rp'],['debit','Debit Rp']]}};
   function v10SelectedSections(){
     if(!v10ReportData)return[];
     const choices=[...document.querySelectorAll('#v33ReportControls input[data-report-section]:checked')].map(el=>el.value);
@@ -3072,9 +3072,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         const info=f4MemberDepositDisplay(s);
         const details=document.createElement('details');details.className='details-panel';
         const summary=document.createElement('summary');
-        summary.textContent=f4MemberDateID(s.tanggal)+' • '+v12Kg(s.beratKg)+' • '+info.status+' • '+info.label+' '+info.nominal;
+        summary.textContent=f4MemberDateID(s.tanggal)+' • '+(s.beratKg==null?'Berat final belum tersedia':v12Kg(s.beratKg))+' • '+info.status+' • '+info.label+' '+info.nominal;
         details.appendChild(summary);
-        details.appendChild(v12Table(['Barang','Berat','Tarif awal','Perkiraan'],s.rincian.map(x=>[x.barang,v12Kg(x.beratKg),rupiah(x.tarif),rupiah(x.nilai)])));
+        details.appendChild(v12Table(['Barang','Berat timbang','Tarif awal','Perkiraan'],s.rincian.map(x=>[x.barang,v12Kg(x.beratKg),rupiah(x.tarif),rupiah(x.nilai)])));
+        if(s.status==='Terkonfirmasi'&&s.beratTimbangKg!==undefined){
+          const note=document.createElement('p');note.className='tiny';
+          note.textContent='Timbang awal '+v12Kg(s.beratTimbangKg)+' → berat jual '+(s.beratSahKg==null?'belum tersedia':v12Kg(s.beratSahKg));
+          details.appendChild(note);
+        }
         deposits.appendChild(details);
       });
       if(!d.setoran.length)deposits.textContent='Belum ada setoran tercatat.';
@@ -3089,13 +3094,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const h=document.createElement('h2');h.textContent='Riwayat tabungan';root.appendChild(h);
     root.appendChild(v12Table(['Tanggal','Keterangan','Masuk','Keluar','Saldo'],d.mutasi.map(x=>[f4MemberDateID(x.tanggal),x.jenis,rupiah(x.kredit),rupiah(x.debit),rupiah(x.saldo)])));
     const h2=document.createElement('h2');h2.textContent='Ringkasan setoran';root.appendChild(h2);
-    root.appendChild(v12Table(['Tanggal','Berat','Status','Perkiraan','Hasil jual'],d.setoran.map(s=>{
+    root.appendChild(v12Table(['Tanggal','Berat akhir','Timbang awal','Status','Perkiraan','Hasil jual'],d.setoran.map(s=>{
       const info=f4MemberDepositDisplay(s);
-      return [f4MemberDateID(s.tanggal),v12Kg(s.beratKg),info.status,rupiah(s.estimasiRp),info.final===null?'—':rupiah(info.final)];
+      return [f4MemberDateID(s.tanggal),s.beratKg==null?'—':v12Kg(s.beratKg),
+        v12Kg(s.beratTimbangKg??s.beratKg),info.status,rupiah(s.estimasiRp),info.final===null?'—':rupiah(info.final)];
     })));
     const h3=document.createElement('h2');h3.textContent='Rincian timbang (perkiraan)';root.appendChild(h3);
     root.appendChild(v12Table(['Tanggal','Barang','Berat','Tarif awal/kg','Perkiraan'],d.setoran.flatMap(s=>s.rincian.map(x=>[f4MemberDateID(s.tanggal),x.barang,v12Kg(x.beratKg),rupiah(x.tarif),rupiah(x.nilai)]))));
-    const remark=document.createElement('p');remark.style.marginTop='14px';remark.textContent='Hasil jual = hak warga dari penjualan sah. Rincian barang tetap menunjukkan perkiraan saat timbang.';root.appendChild(remark);
+    const remark=document.createElement('p');remark.style.marginTop='14px';remark.textContent='Berat akhir mengikuti nota penjualan sah, dibagi per jenis dan setoran; timbang awal dan perkiraan tetap tersimpan untuk pemeriksaan.';root.appendChild(remark);
     const signature=document.createElement('div');signature.className='f4-bank-report-signature';
     signature.textContent='Mengetahui, Humas Flamboyan 4';
     const signName=document.createElement('strong');signName.textContent='Heri Juwandi';
@@ -3289,7 +3295,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       const name=document.createElement('strong');
       name.textContent=r.namaWarga||r.nama||'Nama warga belum tersedia';
       const desc=document.createElement('small');
-      desc.textContent=[r.rumahWarga||'',r.tanggal?f4MemberDateID(r.tanggal):'',kg(r.berat)].filter(Boolean).join(' • ');
+      desc.textContent=[r.rumahWarga||'',r.tanggal?f4MemberDateID(r.tanggal):'',
+        r.berat==null?'Berat jual belum tersedia':kg(r.berat)].filter(Boolean).join(' • ');
       
       who.append(name,desc);
       const value=document.createElement('div');value.className='f4-recent-value';
@@ -3316,7 +3323,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     for(const item of rows||[]){
       if(item.status==='Dibatalkan')continue;
       const period=byMonth.get(String(item.tanggal||'').slice(0,7));if(!period)continue;
-      period.weight+=Number(item.berat)||0;
+      if(item.status==='Terkonfirmasi'&&item.berat==null)period.missingWeight=(period.missingWeight||0)+1;
+      else period.weight+=Number(item.berat)||0;
       if(item.status==='Terkonfirmasi'){
         if(item.nilaiSahRp===null||item.nilaiSahRp===undefined)period.missing++;
         else period.sah+=Number(item.nilaiSahRp)||0;
@@ -3358,14 +3366,17 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         }
         const month=document.createElement('span');month.textContent=p.name;
         const amount=document.createElement('b');
-        amount.textContent=mode==='nilai'?(p.missing&&p.sah+p.estimasi===0?'—':rupiah(p.sah+p.estimasi)):kg(p.weight);
+        amount.textContent=mode==='nilai'?(p.missing&&p.sah+p.estimasi===0?'—':rupiah(p.sah+p.estimasi)):
+          p.missingWeight?'—':kg(p.weight);
         block.append(track,month,amount);bars.append(block);
       }
       if(mode==='nilai'){
         legend.innerHTML='<span><i class="f4-legend-confirmed"></i>Hasil jual</span><span><i class="f4-legend-estimate"></i>Perkiraan</span>';
         note.textContent=periods.some(p=>p.missing)?'Ada setoran sah tanpa nilai jurnal. Tidak dihitung sebagai perkiraan.':
           'Nilai sah berasal dari jurnal penjualan; perkiraan belum masuk saldo.';
-      }else note.textContent='Berat mengikuti timbangan, bukan pembagian uang penjualan.';
+      }else note.textContent=periods.some(p=>p.missingWeight)?
+         'Ada berat jual sah yang belum tersedia; angka tidak ditebak dari timbang awal.':
+         'Sebelum sah memakai timbang awal; sesudah sah mengikuti berat jual sebenarnya.';
     }
     render();
   }
@@ -3398,7 +3409,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         const key=String(item.tanggal).slice(0,7);
         if(!grouped.has(key))grouped.set(key,{key,berat:0,sah:0,estimasi:0,belumAda:0,count:0,sahCount:0,pendingCount:0});
         const target=grouped.get(key),info=f4MemberDepositDisplay(item);
-        target.berat+=Number(item.beratKg);target.count++;
+        if(item.beratKg==null)target.missingWeight=(target.missingWeight||0)+1;
+        else target.berat+=Number(item.beratKg);
+        target.count++;
         if(info.status==='Sudah sah'){
           target.sahCount++;
           if(info.final===null)target.belumAda++;
@@ -3414,7 +3427,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     })():active.slice(-6).map(x=>{
       const info=f4MemberDepositDisplay(x);
       return {name:new Date(x.tanggal+'T12:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short'}),
-       detail:x.tanggal,berat:Number(x.beratKg),sah:info.final===null?0:info.final,
+       detail:x.tanggal,berat:x.beratKg==null?0:Number(x.beratKg),
+       missingWeight:x.beratKg==null?1:0,sah:info.final===null?0:info.final,
        estimasi:info.status==='Sudah sah'?0:Number(x.estimasiRp)||0,
        belumAda:info.status==='Sudah sah'&&info.final===null?1:0,count:1,
        sahCount:info.status==='Sudah sah'?1:0,pendingCount:info.status==='Sudah sah'?0:1};
@@ -3439,7 +3453,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       window.f4MemberChartMode=mode;
       section.setAttribute('aria-label',mode==='nilai'?'Grafik nilai setoran pribadi':'Grafik berat setoran pribadi');
       title.textContent=mode==='nilai'?'Nilai setoran saya':'Berat sampah saya';
-      caption.textContent=points.length+(monthly?' bulan':' setoran')+(mode==='nilai'?' · sesuai status transaksi':' · hasil timbangan');
+      caption.textContent=points.length+(monthly?' bulan':' setoran')+(mode==='nilai'?' · sesuai status transaksi':' · timbang awal / berat jual sah');
       switches.querySelectorAll('button').forEach(b=>{
         const selected=b.dataset.mode===mode;
         b.classList.toggle('active',selected);b.setAttribute('aria-pressed',String(selected));
@@ -3456,7 +3470,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         const column=document.createElement('div');column.className='f4-member-chart-column';
         const amount=document.createElement('strong');
         const sum=p.sah+p.estimasi;
-        amount.textContent=mode==='berat'?kg(p.berat):sum===0&&p.belumAda?'—':rupiah(sum);
+        amount.textContent=mode==='berat'?(p.missingWeight?'—':kg(p.berat)):sum===0&&p.belumAda?'—':rupiah(sum);
         const track=document.createElement('div');track.className='f4-member-chart-track';
         track.setAttribute('role','presentation');
         const segments=mode==='berat'?[{value:p.berat,type:'weight'}]:
@@ -3490,7 +3504,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           hasPending?'Perkiraan belum masuk saldo; hasil jual hanya dari setoran sah.':
           'Seluruh nilai mengikuti hasil jual sah, bukan perkiraan awal.';
       }else{
-        note.textContent='Berat mengikuti hasil timbang. Setoran batal tidak dihitung.';
+        note.textContent=points.some(p=>p.missingWeight)?
+          'Ada berat jual sah yang belum tersedia; tidak ditampilkan sebagai 0 kg.':
+          'Sebelum sah: timbang awal. Setelah sah: berat akhir hasil penjualan. Setoran batal tidak dihitung.';
       }
     }
     function f4ChartLegend(text,color){
@@ -3560,12 +3576,13 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
        }else{
          brief.textContent=unconfirmed.length+' setoran belum sah. Saldo hanya dari hasil penjualan sah.';
        }
-       const weight=active.reduce((sum,x)=>sum+Number(x.beratKg||0),0);
+       const weightMissing=active.some(x=>x.beratKg==null);
+       const weight=weightMissing?null:active.reduce((sum,x)=>sum+Number(x.beratKg||0),0);
        v37MemberWeightChart(active);
        primary.replaceChildren(
         v14Stat('Saldo sah',rupiah(d.saldo||0),'Sudah sah'),
         v14Stat('Perkiraan setoran',rupiah(unconfirmed.reduce((sum,x)=>sum+Number(x.estimasiRp||0),0)),'Belum sah'),
-        v14Stat('Berat',kg(weight),''),
+        v14Stat('Berat',weight===null?'—':kg(weight),'Sesuai status'),
         v14Stat('Setoran',String(active.length),''));
        const recent=active.slice().sort((a,b)=>String(b.tanggal||'').localeCompare(String(a.tanggal||''))).slice(0,3);
        const recentBox=$('v14Recent');recentBox.replaceChildren();
@@ -3601,7 +3618,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     if(stats.status==='fulfilled'){
       const d=stats.value;
       $('v14Primary').replaceChildren(
-        v14Stat('Sampah terkumpul',kg(d.beratSetoranKg),''),
+        v14Stat('Berat tercatat',d.beratSetoranKg==null?'—':kg(d.beratSetoranKg),'Timbang / hasil jual'),
         v14Stat('Anggota aktif',d.wargaAktif,''),
         v14Stat('Hasil diterima lapak',rupiah(d.diterimaLapakRp),''),
         v14Stat('Setoran',d.jumlahSetoran,'')
@@ -3965,8 +3982,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       const [home,albums,chart]=await Promise.all([call('bsV11PublicHome'),call('bsV22AlbumIndexPublik'),call('bsV17GrafikPublik')]);
       $('v17PublicMetrics').replaceChildren(v17PublicStat('Anggota aktif',home.anggotaAktif),v17PublicStat('Jenis barang',home.jenisBarang),v17PublicStat('Berat terkonfirmasi',kg(home.beratTerkonfirmasi)),v17PublicStat('Kegiatan terpublikasi',home.kegiatan));
       v17Chart($('v17WeightBars'),chart.bulan,['beratKg'],['Berat sampah']);
-      const total=chart.bulan.reduce((sum,r)=>sum+r.beratKg,0);
-      $('v17WeightNote').textContent=total>0?chart.catatan:'Belum ada berat sah pada periode ini.';
+      const total=chart.bulan.reduce((sum,r)=>sum+Number(r.beratKg||0),0);
+      $('v17WeightNote').textContent=total>0?chart.catatan:'Belum ada berat jual sah pada periode ini.';
       // Grafik nilai publik hanya agregat. Perkiraan tidak dihitung sebagai hak tabungan sah.
       const publicValueRoot=$('v17ValueBars'),publicValueNote=$('v17ValueNote');
       if(publicValueRoot){
