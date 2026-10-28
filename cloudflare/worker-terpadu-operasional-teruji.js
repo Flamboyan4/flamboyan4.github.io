@@ -3038,6 +3038,31 @@ async function f4EditNewIuran(request,env,who){
 __name(f4EditNewIuran,"f4EditNewIuran");
 
 
+// Bagikan hak warga dari jurnal penjualan sah ke setoran-setoran miliknya pada
+// batch yang sama. Pembulatan largest-remainder menjamin jumlah persis sama
+// dengan kredit tabungan member (bukan tarif estimasi per barang).
+function f4ShareConfirmedSavings(rows, creditedRp) {
+  if(!Number.isSafeInteger(creditedRp)||creditedRp<0||!rows.length)return null;
+  const sorted=rows.slice().sort((a,b)=>String(a.id).localeCompare(String(b.id)));
+  const weights=sorted.map(x=>Number(x.estimated_total_rp));
+  if(weights.some(n=>!Number.isSafeInteger(n)||n<0))return null;
+  const total=weights.reduce((acc,n)=>acc+BigInt(n),0n);
+  if(total<=0n)return null;
+  const cash=BigInt(creditedRp);
+  const portions=sorted.map((row,i)=>{
+    const numerator=cash*BigInt(weights[i]);
+    return {id:row.id,base:Number(numerator/total),remainder:numerator%total};
+  });
+  const missing=creditedRp-portions.reduce((acc,row)=>acc+row.base,0);
+  const ranked=portions.slice().sort((a,b)=>
+    a.remainder===b.remainder?String(a.id).localeCompare(String(b.id)):
+    a.remainder>b.remainder?-1:1);
+  if(missing<0||missing>ranked.length)return null;
+  for(let i=0;i<missing;i++)ranked[i].base+=1;
+  return portions.map(({id,base})=>({id,nilaiSahRp:base}));
+}
+__name(f4ShareConfirmedSavings,"f4ShareConfirmedSavings");
+
 async function ownSavings(db, memberId) {
   const [balance, deposits, details, ledger] = await Promise.all([
     db.prepare(`SELECT COALESCE(SUM(CASE WHEN kind IN ('kredit','koreksi_kredit')
@@ -3045,7 +3070,7 @@ async function ownSavings(db, memberId) {
       COALESCE(SUM(CASE WHEN kind='kredit' THEN amount_rp ELSE 0 END),0) AS credit_total_rp,
       COALESCE(SUM(CASE WHEN kind='pencairan' THEN amount_rp ELSE 0 END),0) AS payout_total_rp
       FROM waste_savings_ledger WHERE member_id=?`).bind(memberId).first(),
-    db.prepare(`SELECT d.id,d.deposited_on,d.status,d.total_grams,d.estimated_total_rp
+    db.prepare(`SELECT d.id,d.batch_id,d.deposited_on,d.status,d.total_grams,d.estimated_total_rp
       FROM waste_deposits d JOIN waste_batches b ON b.id=d.batch_id
       WHERE d.member_id=? AND d.status!='dibatalkan' AND b.status!='dibatalkan'
       ORDER BY d.deposited_on DESC,d.id DESC LIMIT 61`).bind(memberId).all(),
@@ -3058,6 +3083,40 @@ async function ownSavings(db, memberId) {
       FROM waste_savings_ledger WHERE member_id=?
       ORDER BY transaction_on DESC,id DESC LIMIT 101`).bind(memberId).all()
   ]);
+  // Kredit sah berasal dari waste_savings_ledger, bukan estimated_total_rp.
+  // Hitung SEMUA setoran dalam batch terkait (meski sebagian lebih lama dari
+  // batas 60 riwayat) agar alokasi per setoran tidak berubah saat data bertambah.
+  const shownDeposits=(deposits.results||[]).slice(0,60);
+  const confirmedBatchIds=[...new Set(shownDeposits.filter(d=>d.status==='terkonfirmasi')
+    .map(d=>String(d.batch_id||'')).filter(Boolean))];
+  const actualByDeposit=new Map();
+  if(confirmedBatchIds.length){
+    const markers=confirmedBatchIds.map(()=>'?').join(',');
+    const confirmedRows=await list(db,`SELECT d.id,d.batch_id,d.estimated_total_rp,
+      (SELECT COUNT(*) FROM waste_savings_ledger l
+         WHERE l.member_id=d.member_id AND l.batch_id=d.batch_id AND l.kind='kredit') AS credit_count,
+      (SELECT COALESCE(SUM(l.amount_rp),0) FROM waste_savings_ledger l
+         WHERE l.member_id=d.member_id AND l.batch_id=d.batch_id AND l.kind='kredit') AS credit_rp
+      FROM waste_deposits d
+      JOIN waste_batches b ON b.id=d.batch_id
+      WHERE d.member_id=? AND d.status='terkonfirmasi' AND b.status='disahkan'
+        AND d.batch_id IN (${markers})
+        AND EXISTS(SELECT 1 FROM waste_allocations a WHERE a.batch_id=d.batch_id)
+        AND EXISTS(SELECT 1 FROM waste_sales s
+          WHERE s.batch_id=d.batch_id AND s.status='terkonfirmasi')
+      ORDER BY d.batch_id,d.id`,[memberId,...confirmedBatchIds]);
+    const perBatch=new Map();
+    for(const row of confirmedRows){
+      const group=perBatch.get(row.batch_id)||[];
+      group.push(row);perBatch.set(row.batch_id,group);
+    }
+    for(const rows of perBatch.values()){
+      // Tanpa jurnal kredit, nominal sah tidak boleh ditebak dari estimasi.
+      if(!rows.length||Number(rows[0].credit_count)<1)continue;
+      const shared=f4ShareConfirmedSavings(rows,Number(rows[0].credit_rp));
+      if(shared)for(const amount of shared)actualByDeposit.set(amount.id,amount.nilaiSahRp);
+    }
+  }
   const hasMoreDeposits=(deposits.results||[]).length>60;
   const hasMoreDetails=(details.results||[]).length>300;
   const hasMoreLedger=(ledger.results||[]).length>100;
@@ -3068,6 +3127,8 @@ async function ownSavings(db, memberId) {
     status: d.status,
     beratGram: d.total_grams,
     estimasiRp: d.estimated_total_rp,
+    // Null berarti belum ada nominal jual sah yang bisa dibuktikan dari jurnal.
+    nilaiSahRp: actualByDeposit.has(d.id)?actualByDeposit.get(d.id):null,
     rincian: limitedDetails.filter((l) => l.deposit_id === d.id).map((l) => ({
       barang: l.item_name,
       beratGram: l.grams,
