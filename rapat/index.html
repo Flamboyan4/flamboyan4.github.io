@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Notulensi Rapat | Flamboyan 4</title>
+  <title>Hasil Rapat | Flamboyan 4</title>
   
   
   
@@ -120,15 +120,12 @@
   </header>
 
   <!-- Hero Banner Section -->
-  <section class="relative bg-gradient-to-br from-indigo-950 via-indigo-900 to-violet-900 text-white py-10 md:py-14 px-4 overflow-hidden w-full border-b border-indigo-800/40">
+  <section class="relative bg-gradient-to-br from-indigo-950 via-indigo-900 to-violet-900 text-white py-6 md:py-8 px-4 overflow-hidden w-full border-b border-indigo-800/40">
     <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px]"></div>
     <div class="max-w-4xl mx-auto text-center space-y-2.5 relative z-10">
       <h2 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight">
         Notulensi Rapat
       </h2>
-      <p class="text-xs sm:text-sm text-indigo-200/90 max-w-xl mx-auto leading-relaxed">
-        Kumpulan catatan, kesepakatan, dan hasil musyawarah warga Lorong Flamboyan 4.
-      </p>
     </div>
   </section>
 
@@ -137,7 +134,7 @@
     <div class="flex items-center justify-between">
       <div class="flex items-center space-x-2">
         <i data-lucide="folder-open" class="w-5 h-5 text-indigo-600 shrink-0"></i>
-        <h3 class="text-lg md:text-xl font-bold text-slate-900">Daftar Hasil Rapat</h3>
+        <h3 class="text-lg md:text-xl font-bold text-slate-900">Daftar Rapat</h3>
       </div>
       <span id="rapat-status-badge" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full">Memuat Data...</span>
     </div>
@@ -158,7 +155,7 @@
       <div class="p-3.5 border-b border-slate-200 bg-slate-50 flex items-center justify-between shrink-0">
         <div class="space-y-0.5 pr-2 overflow-hidden">
           <span id="modal-rapat-tgl" class="text-[11px] font-bold text-indigo-600 uppercase tracking-wider block">Detail Rapat</span>
-          <h3 id="modal-rapat-judul" class="text-xs sm:text-sm md:text-base font-bold text-slate-900 leading-snug truncate">Detail Notulensi Rapat</h3>
+          <h3 id="modal-rapat-judul" class="text-xs sm:text-sm md:text-base font-bold text-slate-900 leading-snug truncate">Isi Rapat</h3>
         </div>
         
         <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
@@ -171,7 +168,7 @@
         </div>
       </div>
       <div id="modal-rapat-body" class="flex-grow w-full min-h-0 bg-white relative overflow-auto">
-        <p class="text-slate-500 text-xs text-center py-10">Memuat dokumen notulensi...</p>
+        <p class="text-slate-500 text-xs text-center py-10">Memuat dokumen...</p>
       </div>
 
     </div>
@@ -350,7 +347,7 @@
       document.getElementById('modal-rapat-body').innerHTML = `
         <div class="flex flex-col items-center justify-center py-12 space-y-3">
           <div class="w-7 h-7 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-          <p class="text-xs text-slate-500 font-medium">Sedang memuat dokumen notulensi...</p>
+          <p class="text-xs text-slate-500 font-medium">Memuat dokumen...</p>
         </div>
       `;
 
@@ -600,9 +597,9 @@
             console.error('Gagal memuat Google Doc sebagai HTML:', err);
             document.getElementById('modal-rapat-body').innerHTML = `
               <div class="m-4 max-w-xl p-4 bg-amber-50 rounded-xl border border-amber-200 text-amber-900 text-xs space-y-2">
-                <p class="font-bold">Google Doc tidak dapat dimuat sebagai HTML.</p>
-                <p>Pastikan dokumen dapat dilihat oleh siapa pun yang memiliki link. Dokumen PDF tetap akan menggunakan penampil PDF seperti biasa.</p>
-                <p>Periksa izin berbagi dokumen melalui pengelola rapat.</p>
+                <p class="font-bold">Dokumen gagal dibuka.</p>
+                <p>Periksa izin akses dokumen.</p>
+                
               </div>
             `;
           });
@@ -619,8 +616,8 @@
       else {
         document.getElementById('modal-rapat-body').innerHTML = `
           <div class="p-6 text-center space-y-3">
-            <p class="text-rose-500 text-xs font-semibold">Link dokumen tidak valid atau tidak bisa diakses.</p>
-            <p class="text-xs text-slate-500">Hubungi pengelola rapat agar tautan dokumen diperiksa.</p>
+            <p class="text-rose-500 text-xs font-semibold">Dokumen tidak bisa dibuka.</p>
+            <p class="text-xs text-slate-500">Hubungi pengelola rapat.</p>
           </div>
         `;
       }
@@ -666,7 +663,7 @@
     function renderRapatCards() {
       const container = document.getElementById('container-grid-rapat');
       if (globalRapatData.length === 0) {
-        container.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-xs">Belum ada dokumen hasil rapat yang dipublikasikan.</div>`;
+        container.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-xs">Belum ada hasil rapat.</div>`;
         return;
       }
 
@@ -687,9 +684,9 @@
         title.className='block text-xs sm:text-sm font-semibold text-slate-800 p-2.5 sm:p-3 leading-snug line-clamp-2';
         card.append(title);
         const summary=document.createElement('p');summary.className='hidden md:block text-xs text-slate-500 px-3 pb-2 line-clamp-2';
-        summary.textContent=item.deskripsi||item.summary||item.ringkasan||'Baca hasil rapat warga';
+        summary.textContent=item.deskripsi||item.summary||item.ringkasan||'Buka rapat';
         const action=document.createElement('span');action.className='hidden md:block text-center text-xs font-bold text-indigo-700 bg-indigo-50 rounded-lg mx-3 mb-3 mt-auto py-2';
-        action.textContent='Baca Hasil Rapat';
+        action.textContent='Baca';
         card.append(summary,action);container.append(card);
       });
       lucide.createIcons();
