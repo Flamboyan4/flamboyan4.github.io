@@ -1,0 +1,24 @@
+name: F4 Eco Dashboard Design Regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - bank-sampah/index.html
+      - portal-live/bank-eco-dashboard.css
+      - assets/bank-eco-header.svg
+      - qa/bank-eco-dashboard.cjs
+      - .github/workflows/f4-bank-eco-dashboard.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify unchanged inline dashboard and Eco CSS contract
+        run: node qa/bank-eco-dashboard.cjs

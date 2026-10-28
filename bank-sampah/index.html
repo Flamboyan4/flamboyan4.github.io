@@ -3025,9 +3025,9 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
   function v14Setup(){
     const page=$('pageDashboard');if(page.classList.contains('v14-home'))return;
     page.classList.add('v14-home');
-    page.innerHTML=`<div class="v14-head"><div><h2 id="v14Title">Ringkasan</h2><p id="v14Subtitle">Perkembangan Bank Sampah Flamboyan 4</p></div><button class="v14-action" id="v14QuickAction" type="button">+ Catat setoran</button></div>
+    page.innerHTML=`<div class="v14-head"><div class="f4-eco-head-copy"><h2 id="v14Title">Ringkasan</h2><p id="v14Subtitle">Perkembangan Bank Sampah Flamboyan 4</p></div><button class="v14-action" id="v14QuickAction" type="button">+ Catat setoran</button></div>
       <div class="v14-hero"><div class="v14-hero-content"><span class="v14-eyebrow">Dari rumah, untuk bumi</span><h3>Sampah terpilah. Manfaat bertambah.</h3><p id="v14HeroCopy">Bersama-sama menjaga lingkungan Flamboyan 4.</p></div><div class="v14-hero-art" aria-hidden="true">🌿</div></div>
-      <div id="v14Primary" class="v14-primary"></div><div class="v14-panels"><section class="v14-panel"><div class="v14-panel-head"><h3 id="v14RecentTitle">Setoran terbaru</h3><button id="v14AllDeposits" class="v14-link" type="button">Lihat riwayat</button></div><div class="tablewrap" id="v14Recent">Memuat setoran...</div></section><section class="v14-panel"><div class="v14-panel-head"><h3>Perkembangan kegiatan</h3><button class="v14-link" type="button" onclick="goPage('progress')">Lihat semua</button></div><div class="v14-activity" id="v14Activities">Memuat kegiatan...</div></section></div>
+      <div id="v14Primary" class="v14-primary"></div><div class="v14-panels"><section class="v14-panel"><div class="v14-panel-head"><div class="f4-eco-panel-heading"><h3 id="v14RecentTitle">Setoran terbaru</h3><p>Setoran sampah yang baru tercatat</p></div><button id="v14AllDeposits" class="v14-link" type="button">Lihat riwayat</button></div><div class="tablewrap" id="v14Recent">Memuat setoran...</div></section><section class="v14-panel"><div class="v14-panel-head"><div class="f4-eco-panel-heading"><h3>Perkembangan kegiatan</h3><p>Kegiatan terbaru dan rencana Bank Sampah</p></div><button class="v14-link" type="button" onclick="goPage('progress')">Lihat semua</button></div><div class="v14-activity" id="v14Activities">Memuat kegiatan...</div></section></div>
       <div id="v14Extra" class="v14-stats-extra"></div><div id="v14Status" role="status" aria-live="polite"></div>`;
   }
 
@@ -3067,7 +3067,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
   }
 
   function v14Stat(label,value,note){
-    const card=document.createElement('div');card.className='v14-kpi';
+    const card=document.createElement('div');card.className='v14-kpi f4-eco-kpi';
     const caption=document.createElement('div');caption.className='v14-kpi-label';caption.textContent=label;
     const strong=document.createElement('strong');strong.textContent=String(value);f4CompactSummaryAmount(strong,value);
     const small=document.createElement('small');small.textContent=note;
@@ -3087,7 +3087,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
       const name=document.createElement('strong');
       name.textContent=r.namaWarga||r.nama||'Nama warga belum tersedia';
       const desc=document.createElement('small');
-      desc.textContent=[r.rumahWarga||'',r.tanggal||'',kg(r.berat)].filter(Boolean).join(' • ');
+      desc.textContent=[r.rumahWarga||'',r.tanggal?f4MemberDateID(r.tanggal):'',kg(r.berat)].filter(Boolean).join(' • ');
       who.append(name,desc);
       const value=document.createElement('div');value.className='f4-recent-value';
       const amount=document.createElement('b');amount.textContent=rupiah(r.estimasi);
@@ -3235,6 +3235,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
        v14Stat('Jumlah setoran','—','Riwayat atas nama Anda'));
       extra.replaceChildren();
       $('v14RecentTitle').textContent='Setoran pribadi terbaru';
+      $('v14RecentTitle').closest('.f4-eco-panel-heading')?.querySelector('p')?.replaceChildren(document.createTextNode('Riwayat penimbangan pada akun Anda'));
       $('v14Recent').textContent='Memuat riwayat setoran…';
       $('v14Activities').textContent='Memuat perkembangan program…';
       primary.parentElement.querySelectorAll('.f4-member-finance-note').forEach(n=>n.remove());
@@ -5315,6 +5316,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
 @media(max-width:680px){.f4-sale-note-fields{grid-template-columns:1fr;gap:8px}}
 </style>
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261028-member-tidy-1">
+<link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261028-eco-cards-v1">
 <script src="/portal-live/bank-sale-handover.js?v=a5-landscape-receipt-20261028c"></script>
 <script src="/portal-live/direct-shell.js?v=20261027-refresh-svg-all"></script><script src="/portal-live/unified-account.js?v=account-native-20261025b"></script><script defer src="/portal-live/mobile-cards.js?v=20261028-saldo-grid"></script><script defer src="/portal-live/native-controls.js?v=20261027-audit6"></script><script defer src="/portal-live/bank-page-history.js?v=20261027-final4"></script></body>
 </html>
