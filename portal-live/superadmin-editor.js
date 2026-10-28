@@ -8,7 +8,7 @@ const base='https://api.flamboyan4.web.id/api/v2/admin/content/';
 const types={
  arisan:{label:'Jadwal Arisan',section:'portal',columns:[['period_on','Bulan pelaksanaan','date',true],['host_name','Tuan rumah dan nomor rumah','text',true],['status','Status','text']]},
  jersey:{label:'Pesanan Jersey',section:'portal',columns:[['group_key','Kelompok (bapak/ibu)','text',true],['sort_order','Nomor urut','number'],['resident','Nama dan rumah','text',true],['sleeves','Lengan','text'],['size','Ukuran','text'],['printed_name','Nama dan nomor punggung','text'],['payment_status','Status pembayaran','text'],['nominal_rp','Harga (Rp)','number'],['method','Metode','text']]},
- projects:{label:'Project Card',section:'portal',columns:[['title','Nama projek','text',true],['description','Deskripsi','textarea'],['image_ref','Foto / gambar Google Drive','url'],['target_url','Link tujuan / #bagian','text'],['sort_order','Urutan','number'],['active','Aktif','boolean']]},
+ projects:{label:'Project Card',section:'portal',columns:[['title','Nama projek','text',true],['description','Deskripsi','textarea'],['image_ref','Foto / gambar Google Drive','url'],['target_url','Link tujuan / #bagian','text'],['project_kind','Jenis proyek','projectKind',true],['fund_source','Kategori kas terkait','text'],['fund_target_rp','Target dana (Rp)','number'],['linked_key','Portal / modul terhubung','projectModule'],['sort_order','Urutan','number'],['active','Aktif','boolean']]},
  agenda:{label:'Rencana Kegiatan',section:'portal',columns:[['title','Nama kegiatan','text',true],['starts_on','Tanggal mulai','date'],['ends_on','Tanggal selesai','date'],['location','Lokasi','text'],['description','Deskripsi','textarea'],['image_ref','Foto Google Drive','url'],['status','Status kegiatan','text'],['visibility','Tampilkan ke publik','visibility'],['sort_order','Urutan','number']]},
  documentation:{label:'Dokumentasi',section:'portal',columns:[['title','Judul dokumentasi','text',true],['event_on','Tanggal','date'],['description','Deskripsi','textarea'],['drive_url','Tautan album/folder Google Drive (foto dan video)','url'],['category','Kategori dokumentasi','category'],['sort_order','Urutan','number'],['visibility','Akses','visibility'],['active','Aktif','boolean']]},
  inventory:{label:'Inventaris',section:'portal',columns:[['name','Nama barang','text',true],['quantity','Jumlah','number'],['unit','Satuan','text'],['description','Kondisi, lokasi dan keterangan barang','textarea'],['category','Kategori barang','text'],['photo_ref','Tautan foto barang (Google Drive)','url'],['visibility','Akses','visibility']]},
@@ -193,20 +193,27 @@ function f4ContentDialog(title,description,acceptLabel='Ya, Hapus',danger=true,h
 function deletionActions(record,kind=active){
  const wrap=node('span',undefined,'f4-admin-action-set');
  wrap.append(btn('Edit',()=>showForm(record)));
- const del=btn('Hapus',()=>removeContentRecord(record,kind,del),'f4-admin-btn f4-admin-danger');
- wrap.append(del);return wrap;
+ if(kind==='projects'&&['pesanan','penggalangan'].includes(record.project_kind)){
+  wrap.append(btn(record.project_kind==='pesanan'?'Kelola Pesanan':'Kelola Kontribusi',
+   ()=>window.F4ProjectModule?.open(record),'f4-admin-btn f4-admin-primary'));
+ }
+ if(!(kind==='projects'&&Number(record.active)===0)){
+  const del=btn(kind==='projects'?'Arsipkan':'Hapus',()=>removeContentRecord(record,kind,del),'f4-admin-btn f4-admin-danger');
+  wrap.append(del);
+ }
+ return wrap;
 }
 async function removeContentRecord(record,kind,button){
  if(!inContext())return;
  const scope=kind.startsWith('bank_')?kind:record._f4_bank_kind;
  const bankType=scope==='bank_albums'?'albums':scope==='bank_inventory'?'inventory':scope==='bank_progress'?'progress':null;
  const label=String(record.title||record.name||record.resident||record.host_name||record.id||'konten');
- const archived=bankType==='inventory';
+ const archived=bankType==='inventory'||kind==='projects';
  if(button.disabled)return;
  button.disabled=true;
  const approved=await f4ContentDialog(
-  archived?'Arsipkan inventaris?':'Hapus konten ini?',
-  '"'+label+'"\n\n'+(archived?'Item tidak lagi tampil, riwayat transaksi tetap disimpan.':
+  archived?(kind==='projects'?'Arsipkan proyek?':'Arsipkan inventaris?'):'Hapus konten ini?',
+  '"'+label+'"\n\n'+(archived?'Kartu proyek tidak lagi tampil, tetapi daftar pesanan, dana, dan riwayat tetap tersimpan.':
   'Konten akan dihapus permanen, salinan data sebelum penghapusan tercatat di audit.'),
   archived?'Arsipkan':'Ya, Hapus');
  if(!approved){button.disabled=false;return}
@@ -725,6 +732,19 @@ function showForm(record){
    input=node('select');
    input.append(new Option('Bapak-Bapak','bapak'),new Option('Ibu-Ibu','ibu'));
   }
+  else if(active==='projects'&&key==='project_kind'){
+   input=node('select');
+   for(const [value,caption] of [
+    ['informasi','Informasi / kegiatan'],['kas','Dana dari Pembukuan / Kas'],
+    ['penggalangan','Penggalangan Dana'],['pesanan','Pemesanan Barang'],
+    ['portal','Terhubung portal lain']])input.add(new Option(caption,value));
+  }
+  else if(active==='projects'&&key==='linked_key'){
+   input=node('select');
+   for(const [value,caption] of [
+    ['','Tidak terhubung'],['bank-sampah','Portal Bank Sampah'],['jersey','Modul Jersey lama']])
+    input.add(new Option(caption,value));
+  }
   else if(active==='jersey'&&key==='method'){
    input=node('select');
    for(const [value,caption] of [['','Belum diketahui / pilih metode'],['QRIS','QRIS'],['Cash','Cash (tunai)'],
@@ -754,8 +774,35 @@ function showForm(record){
   if(record&&record[key]!=null)input.value=String(record[key]);
   else if(type==='boolean')input.value='1';
   else if(type==='visibility')input.value='publik';
+  else if(type==='projectKind')input.value='informasi';
   else if(type==='number')input.value='0';
   field.append(input);grid.append(field);
+ }
+ if(active==='projects'){
+  const typeField=form.elements.namedItem('project_kind');
+  const category=form.elements.namedItem('fund_source');
+  const goal=form.elements.namedItem('fund_target_rp');
+  const linked=form.elements.namedItem('linked_key');
+  const note=node('p','', 'f4-admin-note');form.append(note);
+  const refreshKind=()=>{
+   const kind=typeField?.value||'informasi';
+   if(category?.parentElement)category.parentElement.hidden=kind!=='kas';
+   if(goal?.parentElement)goal.parentElement.hidden=!['kas','penggalangan'].includes(kind);
+   if(linked?.parentElement)linked.parentElement.hidden=kind!=='portal';
+   note.textContent=kind==='pesanan'
+    ?'Setelah proyek disimpan, tombol Kelola Pesanan otomatis tersedia. Setiap proyek memiliki daftar pesanan tersendiri.'
+    :kind==='penggalangan'
+    ?'Setelah proyek disimpan, tombol Kelola Kontribusi tersedia. Dana yang dicatat di sini terpisah dari jurnal kas lorong.'
+    :kind==='kas'
+    ?'Isi kategori transaksi kas PERSIS seperti di Pembukuan. Kartu menampilkan data kas yang sudah ada; tidak mencatat kas baru.'
+    :kind==='portal'
+    ?'Pilih portal atau modul yang sudah ada. Kartu menjadi penghubung, bukan menyalin transaksi.'
+    :'Proyek informasi menampilkan judul, gambar, deskripsi, dan tautan.';
+  };
+  typeField?.addEventListener('change',refreshKind);refreshKind();
+  if(record&&['pesanan','penggalangan'].includes(record.project_kind))
+   form.append(btn(record.project_kind==='pesanan'?'Buka Tabel Pesanan':'Buka Tabel Kontribusi',
+    ()=>window.F4ProjectModule?.open(record),'f4-admin-btn f4-admin-primary'));
  }
  if(active==='documentation'||active==='inventory'){
   const msg=node('p',active==='documentation'?'Untuk banyak foto/video, gunakan satu tautan folder atau album Google Drive.':'Gunakan tautan Google Drive untuk foto barang. Foto tidak diunggah ke R2.','f4-admin-note');
