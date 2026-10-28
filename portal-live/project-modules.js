@@ -91,7 +91,7 @@ async function open(record){
     const totalPaid=active.reduce((n,r)=>n+Number(r.paid_rp||0),0);
     const owing=active.reduce((n,r)=>n+Math.max(0,Number(r.amount_due_rp||0)-Number(r.paid_rp||0)),0);
     const excess=active.reduce((n,r)=>n+Math.max(0,Number(r.paid_rp||0)-Number(r.amount_due_rp||0)),0);
-    const lunas=active.filter(r=>Number(r.paid_rp||0)>=Number(r.amount_due_rp||0)).length;
+    const lunas=active.filter(r=>Number(r.amount_due_rp||0)>0&&Number(r.paid_rp||0)>=Number(r.amount_due_rp||0)).length;
     stats.append(text('Pesanan aktif',active.length),text('Lunas',lunas),text('Dana diterima',rupiah(totalPaid)),text('Sisa pembayaran',rupiah(owing)),text('Titipan / kelebihan',rupiah(excess)));
     description.textContent='Setiap pesanan tersimpan hanya untuk proyek ini. Pembayaran di sini tidak otomatis masuk kas lorong.';
    }else{
