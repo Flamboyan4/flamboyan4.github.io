@@ -11,7 +11,7 @@ new vm.Script(bridge,{filename:'portal-live/live-bank-readonly.js'});
 for(const str of ['Estimasi saat timbang','Menunggu rekonsiliasi','function f4MemberDateID(raw)',
   "if(!isAdmin)$('f4-bank-quick')?.remove();","$('f4-monthly-trend')?.remove();",
   'f4-member-refresh','aria-label="Muat ulang data tabungan"',
-  'Ingin mencairkan tabungan? Hubungi pengurus','/portal-live/bank-member-polish.css?v=']){
+  'Pencairan tabungan melalui pengurus Bank Sampah.','/portal-live/bank-member-polish.css?v=']){
   if(!bank.includes(str))throw Error('Member display missing: '+str);
 }
 if(/<button[^>]*f4-member-refresh[^>]*>\s*Perbarui/i.test(bank))throw Error('Visible refresh label forbidden');
