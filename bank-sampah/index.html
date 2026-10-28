@@ -2548,6 +2548,40 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
 </script>
 <script src="/portal-live/live-bank-readonly.js?v=member-actual-sale-20261029"></script>
 <script src="/portal-live/f4-bank-write-bridge.js?v=split-policy-20261029-1"></script>
+<script id="f4-bank-split-readonly">
+(()=>{
+'use strict';
+// Nama/rasio pada panduan selalu berasal dari aturan yang sama dengan pengesahan D1.
+const api='https://api.flamboyan4.web.id/api/public/bank-split';
+let inFlight=null;
+async function refresh(){
+ const member=document.getElementById('f4BankSplitMember');
+ const env=document.getElementById('f4BankSplitEnvironment');
+ if(!member||!env||inFlight)return inFlight;
+ inFlight=(async()=>{
+  try{
+   const response=await fetch(api,{credentials:'omit',cache:'no-store'});
+   const result=await response.json();
+   if(!response.ok||result.ok===false||
+      !Number.isSafeInteger(result.wargaPercent)||result.wargaPercent<1||result.wargaPercent>99||
+      result.lingkunganPercent!==100-result.wargaPercent)throw Error('Aturan belum tersedia.');
+   member.textContent=result.wargaPercent+'%';
+   env.textContent=result.lingkunganPercent+'%';
+   document.getElementById('f4MemberFlow')?.setAttribute('data-warga-percent',String(result.wargaPercent));
+  }catch(error){
+   member.textContent='—';env.textContent='—';
+   member.title='Persentase belum dapat dimuat';env.title='Persentase belum dapat dimuat';
+  }
+ })();
+ try{await inFlight}finally{inFlight=null}
+}
+document.addEventListener('toggle',event=>{if(event.target?.id==='f4MemberFlow'&&event.target.open)refresh()},true);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
+window.addEventListener('pageshow',refresh);
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh);else refresh();
+})();
+</script>
+
 <script id="f4-appsscript-compat">
 /* Adapter only. Every line of PortalAkun.html's original script remains unchanged below. */
 (()=>{
@@ -3114,9 +3148,9 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
           </ol>
           <div class="f4-member-flow-foot">
             <p class="f4-member-flow-note"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7h.01"/></svg><span>Setelah ditimbang, sampah digabung per jenis. Tidak perlu karung per rumah.</span></p>
-            <div class="f4-member-flow-share" aria-label="Hasil jual dibagi sama rata">
-              <span class="f4-flow-share-warga"><b>50%</b> Tabungan warga</span>
-              <span class="f4-flow-share-lingkungan"><b>50%</b> Lingkungan</span>
+            <div class="f4-member-flow-share" aria-label="Pembagian hasil penjualan yang berlaku">
+              <span class="f4-flow-share-warga"><b id="f4BankSplitMember">—</b> Tabungan warga</span>
+              <span class="f4-flow-share-lingkungan"><b id="f4BankSplitEnvironment">—</b> Lingkungan</span>
             </div>
           </div>
         </div>
