@@ -4661,7 +4661,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
   `;document.head.appendChild(v29Styles);
   function v29Kop(){
     const kop=document.createElement('div');kop.className='v13-kop v29-kop';
-    const logo=document.createElement('img');logo.src=v17Logo;logo.alt='Logo Bank Sampah Flamboyan 4';logo.className='v29-kop-logo';
+    const logo=document.createElement('img');logo.src=v36PrintLogoPng||v17Logo;logo.alt='Logo Bank Sampah Flamboyan 4';logo.className='v29-kop-logo';logo.decoding='sync';logo.loading='eager';
     const words=document.createElement('div');const name=document.createElement('strong');name.textContent='BANK SAMPAH FLAMBOYAN 4';
     const address=document.createElement('small');address.textContent='RT 001 RW 026 • Pesona Kahuripan 2 • Desa Cikahuripan, Klapanunggal, Kabupaten Bogor';
     words.append(name,address);kop.append(logo,words);return kop;
@@ -4754,6 +4754,44 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
 
   // Isolated print sheet, matching the Pembukuan A4 top/side margins.
   // The old in-page print combines several legacy @page rules and can print too low in Firefox.
+  // Android Chrome may snapshot print preview before a linked SVG has painted.
+  // Rasterize the official same-origin logo once and embed a decoded PNG in every report.
+  let v36PrintLogoPng='';
+  let v36PrintLogoTask=null;
+  function v36PreparePrintLogo(){
+    if(v36PrintLogoPng)return Promise.resolve(v36PrintLogoPng);
+    if(v36PrintLogoTask)return v36PrintLogoTask;
+    v36PrintLogoTask=new Promise((resolve,reject)=>{
+      const source=new Image();
+      source.decoding='sync';
+      source.onload=()=>{
+        try{
+          const canvas=document.createElement('canvas');
+          canvas.width=256;canvas.height=256;
+          const ctx=canvas.getContext('2d');
+          if(!ctx)throw new Error('Kanvas logo tidak didukung.');
+          ctx.clearRect(0,0,256,256);
+          ctx.drawImage(source,0,0,256,256);
+          const png=canvas.toDataURL('image/png');
+          if(!png.startsWith('data:image/png;base64,'))throw new Error('PNG logo tidak terbentuk.');
+          const decoded=new Image();
+          decoded.onload=()=>{v36PrintLogoPng=png;resolve(png);};
+          decoded.onerror=()=>reject(new Error('Logo PNG tidak dapat dibaca.'));
+          decoded.src=png;
+        }catch(error){reject(error);}
+      };
+      source.onerror=()=>reject(new Error('Logo resmi belum dapat dimuat.'));
+      source.src=v17Logo;
+    }).catch(error=>{
+      v36PrintLogoTask=null;
+      console.warn('Logo PDF Bank Sampah belum siap:',error);
+      return '';
+    });
+    return v36PrintLogoTask;
+  }
+  // Preload while the member/admin reads the page so printing stays a direct click.
+  v36PreparePrintLogo();
+
   function v36BankPrint(root,kind){
     // Print the already prepared report once. The added clone caused duplicates.
     if(!root)return;
@@ -4791,15 +4829,30 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
       if(cleaned)return;
       cleaned=true;
       css.remove();
+      window.removeEventListener('afterprint',cleanup);
       document.body.classList.remove('f4-bank-single-print','v27-print-report');
       if(kind==='member')root.replaceChildren();
     };
+    const printWithLogo=png=>{
+      if(!png){
+        cleanup();
+        window.f4UiDialog?.alert?.('Logo kop PDF belum berhasil dimuat. Periksa koneksi lalu coba cetak lagi.');
+        return;
+      }
+      // Data URI holds all PNG pixels inside the print sheet, no HTTP/SVG race on HP.
+      root.querySelectorAll('.v29-kop-logo').forEach(img=>{img.src=png;img.loading='eager';});
+      try{window.print();}
+      catch(error){
+        cleanup();
+        window.f4UiDialog?.alert?.('Tidak dapat membuka dialog cetak: '+(error?.message||error));
+      }
+    };
     window.addEventListener('afterprint',cleanup,{once:true});
-    try{window.print();}
-    catch(error){
+    if(v36PrintLogoPng)printWithLogo(v36PrintLogoPng);
+    else v36PreparePrintLogo().then(printWithLogo).catch(error=>{
       cleanup();
-      window.f4UiDialog?.alert?.('Tidak dapat membuka dialog cetak: '+(error?.message||error));
-    }
+      window.f4UiDialog?.alert?.('Gagal menyiapkan logo PDF: '+(error?.message||error));
+    });
     setTimeout(cleanup,120000);
   }
 
