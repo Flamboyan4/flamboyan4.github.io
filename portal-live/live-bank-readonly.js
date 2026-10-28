@@ -141,7 +141,8 @@
   });
   const deposits=onlyArray(r.setoran).map(x=>({
    id:x.id||'',tanggal:x.tanggal||'',beratKg:number(x.beratGram)/1000,
-   estimasiRp:number(x.estimasiRp),status:x.status==='dibatalkan'?'Dibatalkan':x.status==='terkonfirmasi'?'Terkonfirmasi':'Estimasi',
+   estimasiRp:number(x.estimasiRp),nilaiSahRp:x.nilaiSahRp==null?null:number(x.nilaiSahRp),
+   status:x.status==='dibatalkan'?'Dibatalkan':x.status==='terkonfirmasi'?'Terkonfirmasi':'Estimasi',
    rincian:onlyArray(x.rincian).map(d=>({barang:d.barang||'',
      beratKg:number(d.beratGram)/1000,tarif:number(d.tarifWargaRpPerKg),nilai:number(d.estimasiRp)}))
   }));
