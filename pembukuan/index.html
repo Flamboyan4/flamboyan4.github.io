@@ -2509,6 +2509,13 @@ main > section.card{overflow:visible!important}
 
 
       <div id="history-kasumum-panel" class="hidden">
+        <div class="f4-kas-period-filter mb-3">
+          <div class="f4-kas-period-header">
+            <div><strong>Periode transaksi kas</strong><span id="history-kas-period-info">Berdasarkan tanggal transaksi</span></div>
+            <button id="history-kas-all" type="button" onclick="f4ToggleKasAllPeriod()" aria-pressed="false">Semua tanggal</button>
+          </div>
+          <div id="history-kas-period" class="f4-kas-range"></div>
+        </div>
         <div class="flex justify-end mb-3">
           <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
             <input id="cari-trx-kas" oninput="renderRiwayatKas()" placeholder="Cari kategori / keterangan..." class="field sm:w-64">
@@ -3182,7 +3189,8 @@ function histKasMsg(t,type='info'){
 async function loadRiwayatKas(silent=false){
   try{
     if(!silent)histKasMsg('Memuat riwayat kas...');
-    const r=await jsonp(BATCH_SCRIPT_URL,{action:'datatransaksikas',status:'SEMUA',t:Date.now()});
+    const period=window.UPR?.params?.('history-kas')||{};
+    const r=await jsonp(BATCH_SCRIPT_URL,{action:'datatransaksikas',status:'SEMUA',...period,allPeriods:!!window.f4KasAllPeriods,t:Date.now()});
     if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memuat riwayat kas.');
     const rawKas = r.data;
     RIWAYAT_KAS = Array.isArray(rawKas)
@@ -3195,14 +3203,56 @@ async function loadRiwayatKas(silent=false){
                   ? r.rows
                   : (Array.isArray(r.transaksi) ? r.transaksi : []))));
     renderRiwayatKas();
-    if(!silent)F4Loading.success('hist-kas-status')
+    if(RIWAYAT_KAS.length>=500)histKasMsg('Batas 500 transaksi pada periode ini tercapai. Pilih rentang tanggal yang lebih pendek agar seluruh data terbaca.','error');
+    else if(!silent)F4Loading.success('hist-kas-status')
   }catch(e){histKasMsg(e.message||String(e),'error')}
 }
 
+function f4CashHumanTitle(x){
+  const original=String(x?.keterangan||'').trim();
+  const scrub=original
+    .replace(/\b(?:payment|pembayaran|transaksi|transaction|source|reference|referensi|ref|id)\s*:\s*[a-z0-9_:-]{4,}\b/gi,'')
+    .replace(/\b(?:PAY\d{3,}|pay-[a-f0-9-]{20,}|cash:[a-z0-9_-]{5,})\b/gi,'')
+    .replace(/^[\s•,:;\-]+|[\s•,:;\-]+$/g,'').trim();
+  if(scrub)return scrub;
+  const category=String(x?.kategori||'').trim();
+  if(category&&!/^(?:pay(?:ment)?|cash|trx|transaction)[:_-][a-z0-9_-]+$/i.test(category))return category;
+  const type=String(x?.jenis||'').toLowerCase();
+  if(type.includes('iuran'))return 'Penerimaan Iuran Kas Lorong';
+  if(type.includes('pinjaman'))return 'Transaksi Pinjaman Warga';
+  if(type.includes('denda'))return 'Pembayaran Denda';
+  if(type.includes('talangan'))return 'Pelunasan Talangan';
+  return Number(x?.debit)>0?'Penerimaan Kas':'Pengeluaran Kas';
+}
+function f4SystemIdDetails(id,source=''){
+  if(!id&&!source)return '';
+  return `<details class="f4-trans-ref no-print"><summary>Detail pencatatan</summary>${id?`<div>ID: ${esc(id)}</div>`:''}${source?`<div>Sumber: ${esc(source)}</div>`:''}</details>`;
+}
+window.f4KasAllPeriods=false;
+window.f4SyncKasPeriod=function(){
+  const all=!!window.f4KasAllPeriods;
+  const b=document.getElementById('history-kas-all');
+  if(b){b.textContent=all?'Pilih periode':'Semua tanggal';b.setAttribute('aria-pressed',String(all));b.classList.toggle('is-all',all)}
+  const label=document.getElementById('history-kas-period-info');
+  if(label)label.textContent=all?'Menampilkan semua tanggal yang tersedia':'Dari – sampai, berdasarkan tanggal transaksi';
+  document.querySelector('#history-kas-period')?.classList.toggle('is-all',all);
+};
+window.f4ToggleKasAllPeriod=function(){
+  window.f4KasAllPeriods=!window.f4KasAllPeriods;
+  window.f4SyncKasPeriod();
+  loadRiwayatKas(true);
+};
 function renderRiwayatKas(){
   const q=(document.getElementById('cari-trx-kas')?.value||'').toLowerCase();const f=document.getElementById('filter-trx-kas')?.value||'AKTIF';
   const sumberKas = Array.isArray(RIWAYAT_KAS) ? RIWAYAT_KAS : [];
-  const rows=sumberKas.filter(x=>{if(f!=='SEMUA'&&(x.status||'AKTIF')!==f)return false;return [x.jenis,x.kategori,x.keterangan,x.metode,x.periode,x.idTransaksi].join(' ').toLowerCase().includes(q)}).sort((a,b)=>historyDateTs(b.tanggal)-historyDateTs(a.tanggal));
+  const period=!window.f4KasAllPeriods&&window.UPR?.range?.('history-kas');
+  const rows=sumberKas.filter(x=>{
+    if(f!=='SEMUA'&&(x.status||'AKTIF')!==f)return false;
+    if(period){const date=historyDateTs(x.tanggal);if(!date||date<period.start||date>period.end)return false}
+    return [x.jenis,x.kategori,x.keterangan,x.metode,x.periode,x.idTransaksi].join(' ').toLowerCase().includes(q)
+  }).sort((a,b)=>historyDateTs(b.tanggal)-historyDateTs(a.tanggal));
+  const label=document.getElementById('history-kas-period-info');
+  if(label)label.textContent=(window.f4KasAllPeriods?'Semua tanggal':'Periode terpilih')+' • '+rows.length+' transaksi';
   document.getElementById('tbody-riwayat-kas').innerHTML=rows.map(x=>{
     const batal=x.status==='BATAL',debit=x.debit?rupiah(x.debit):'-',kredit=x.kredit?rupiah(x.kredit):'-';
     let aksi='-';
@@ -3210,7 +3260,7 @@ function renderRiwayatKas(){
       aksi=`<div class="action-icons">${actionIcon('pencil','Edit',`bukaEditKas('${x.idTransaksi}')`,'violet')}${actionIcon('circle-x','Batal',`batalkanTransaksiKas('${x.idTransaksi}')`,'red')}</div>`;
     }else if(!batal&&x.sumber==='BATCH_KAS') aksi='<span class="text-xs text-slate-400">Kelola via Batch</span>';
     else if(!batal) aksi='<span class="text-xs text-slate-400">Edit via modul asal</span>';
-    return `<tr class="${batal?'opacity-55':''} hover:bg-violet-50/30"><td class="p-3 whitespace-nowrap">${histDate(x.tanggal)}</td><td class="p-3">${x.kategori||'-'}</td><td class="p-3"><div class="font-bold">${x.keterangan||'-'}</div><div class="no-print text-xs text-slate-400">${x.idTransaksi||''} • ${x.sumber||''}</div></td><td class="p-3 text-right font-black text-emerald-700">${debit}</td><td class="p-3 text-right font-black text-red-600">${kredit}</td><td class="p-3">${x.metode||'-'}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${batal?'bg-slate-100 text-slate-500':'bg-violet-100 text-violet-700'}">${x.status||'AKTIF'}</span></td><td class="p-3 text-center">${aksi}</td></tr>`
+    return `<tr class="${batal?'opacity-55':''} hover:bg-violet-50/30"><td class="p-3 whitespace-nowrap">${histDate(x.tanggal)}</td><td class="p-3">${x.kategori||'-'}</td><td class="p-3"><div class="font-bold f4-visible-title">${esc(f4CashHumanTitle(x))}</div>${f4SystemIdDetails(x.idTransaksi,x.sumber)}</td><td class="p-3 text-right font-black text-emerald-700">${debit}</td><td class="p-3 text-right font-black text-red-600">${kredit}</td><td class="p-3">${x.metode||'-'}</td><td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${batal?'bg-slate-100 text-slate-500':'bg-violet-100 text-violet-700'}">${x.status||'AKTIF'}</span></td><td class="p-3 text-center">${aksi}</td></tr>`
   }).join('')||'<tr><td colspan="8" class="p-6 text-center text-slate-400">Belum ada transaksi kas.</td></tr>';
   refreshHistoryIcons();
 }
@@ -3470,7 +3520,7 @@ function renderLaporanKas(d){
   const pos=d.posisiKas||null,hasReserve=!!(pos&&Number(pos.danaTeralokasi||0)>0);set('rep-kas-akhir-label',hasReserve?'SALDO TERSEDIA':(periode?`SALDO AKHIR ${periode.toUpperCase()}`:'SALDO AKHIR'));set('rep-kas-akhir',rupiah(hasReserve?pos.saldoTersedia:(r.saldoAkhir||0)));
   const pe=document.getElementById('rep-kas-posisi');if(pe){pe.classList.toggle('hidden',!hasReserve);if(hasReserve){pe.innerHTML=`<div class="kas-position-meta"><div>Riil ${rupiah(pos.saldoRiil||0)}</div><div>Teralokasi ${rupiah(pos.danaTeralokasi||0)}</div></div><div class="kas-position-mobile"><span class="mitem" title="Saldo riil"><i data-lucide="wallet-cards"></i>${rupiah(pos.saldoRiil||0)}</span><span class="mitem" title="Dana teralokasi bulan depan"><i data-lucide="lock-keyhole"></i>${rupiah(pos.danaTeralokasi||0)}</span></div>`;try{lucide.createIcons()}catch(_e){}}else pe.innerHTML=''}
   const net=document.getElementById('rep-kas-net');if(net){net.classList.remove('text-red-600','text-emerald-700','text-violet-700');net.classList.add(Number(r.saldoPeriode||0)<0?'text-red-600':Number(r.saldoPeriode||0)>0?'text-emerald-700':'text-violet-700')}
-  const tb=document.getElementById('report-kas-tbody');if(tb){let saldoJalan=Number(r.saldoAwal||0);tb.innerHTML=(d.rows||[]).map((x,i)=>{saldoJalan+=Number(x.debit||0)-Number(x.kredit||0);return `<tr><td class="text-center">${i+1}</td><td class="text-center whitespace-nowrap">${histDate(x.tanggal)}</td><td><div>${esc(x.keterangan||'-')}</div><div class="no-print text-xs text-slate-400">${esc(x.idTransaksi||'')} • ${esc(x.sumber||'')}</div></td><td class="text-right font-bold text-emerald-700">${x.debit?rupiah(x.debit):''}</td><td class="text-right font-bold text-red-600">${x.kredit?rupiah(x.kredit):''}</td><td class="text-right font-bold text-slate-800">${rupiah(saldoJalan)}</td></tr>`}).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada transaksi pada periode ini.</td></tr>'; }
+  const tb=document.getElementById('report-kas-tbody');if(tb){let saldoJalan=Number(r.saldoAwal||0);tb.innerHTML=(d.rows||[]).map((x,i)=>{saldoJalan+=Number(x.debit||0)-Number(x.kredit||0);return `<tr><td class="text-center">${i+1}</td><td class="text-center whitespace-nowrap">${histDate(x.tanggal)}</td><td><div>${esc(f4CashHumanTitle(x))}</div>${f4SystemIdDetails(x.idTransaksi,x.sumber)}</td><td class="text-right font-bold text-emerald-700">${x.debit?rupiah(x.debit):''}</td><td class="text-right font-bold text-red-600">${x.kredit?rupiah(x.kredit):''}</td><td class="text-right font-bold text-slate-800">${rupiah(saldoJalan)}</td></tr>`}).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada transaksi pada periode ini.</td></tr>'; }
   const y=document.getElementById('report-kas-tahunan'),rekap=d.periodeBulanan||d.tahunan||[];if(y)y.innerHTML=rekap.map(x=>`<div class="rounded-xl border border-violet-100 p-3"><div class="font-bold">${x.namaBulan} ${x.tahun||''}</div><div class="mt-1 text-xs text-slate-500">Masuk ${rupiah(x.debit)} • Keluar ${rupiah(x.kredit)}</div><div class="mt-1 font-black ${x.net<0?'text-red-600':x.net>0?'text-emerald-700':'text-violet-700'}">Saldo periode ${rupiah(x.net)}</div></div>`).join('')
 }
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -4321,8 +4371,8 @@ function day(k,side,v){const s=st(k),sel=pv(s.level,s[side]),y=v.y,m=v.m,f=new D
 function mon(k,side,v){const s=st(k),sel=pv(s.level,s[side]),y=v.y;return `<div class="upr-head"><button class="upr-nav" onclick="UPR.shift('${k}','${side}','month',-1)"><i data-lucide="chevron-left"></i></button><button class="upr-title" onclick="UPR.view('${k}','${side}','year')">${y}</button><button class="upr-nav" onclick="UPR.shift('${k}','${side}','month',1)"><i data-lucide="chevron-right"></i></button></div><div class="upr-level-note">Pilih bulan • klik tahun untuk memilih per tahun</div><div class="upr-months">${MS.map((n,i)=>`<button class="upr-month ${s.level==='month'&&sel.y===y&&sel.m===i+1?'selected':''}" onclick="UPR.pick('${k}','${side}','month',${y},${i+1},1)">${n}</button>`).join('')}</div>`}
 function yr(k,side,v){const s=st(k),sel=pv(s.level,s[side]),a=Math.floor(v.y/10)*10;let z='';for(let y=a-1;y<=a+10;y++)z+=`<button class="upr-year ${s.level==='year'&&sel.y===y?'selected':''}" onclick="UPR.pick('${k}','${side}','year',${y},1,1)">${y}</button>`;return `<div class="upr-head"><button class="upr-nav" onclick="UPR.shift('${k}','${side}','year',-1)"><i data-lucide="chevron-left"></i></button><div class="upr-title flex items-center justify-center">${a} – ${a+9}</div><button class="upr-nav" onclick="UPR.shift('${k}','${side}','year',1)"><i data-lucide="chevron-right"></i></button></div><div class="upr-level-note">Pilih tahun</div><div class="upr-years">${z}</div>`}
 function rp(k,side){const c=document.querySelector(`.upr-control[data-key="${k}"][data-side="${side}"]`);if(!c)return;const s=st(k),b=pv(s.level,s[side]),v=VW[k+'|'+side]||(VW[k+'|'+side]={mode:'day',y:b.y,m:b.m});c.querySelector('.upr-pop').innerHTML=v.mode==='month'?mon(k,side,v):v.mode==='year'?yr(k,side,v):day(k,side,v);try{lucide.createIcons()}catch(e){}}
-window.UPR={open(k,side,b){const c=b.closest('.upr-control'),w=c.classList.contains('open');ca();if(w)return;const s=st(k),p=pv(s.level,s[side]);VW[k+'|'+side]={mode:'day',y:p.y,m:p.m};c.classList.add('open');rp(k,side)},view(k,side,m){VW[k+'|'+side].mode=m;rp(k,side)},shift(k,side,m,d){const v=VW[k+'|'+side];if(m==='day'){v.m+=d;if(v.m<1){v.m=12;v.y--}if(v.m>12){v.m=1;v.y++}}else if(m==='month')v.y+=d;else v.y+=d*10;rp(k,side)},pick(k,side,l,y,m,d){const s=st(k),v=mv(l,{y,m,d});if(s.level!==l){s.level=l;s.from=v;s.to=v}else s[side]=v;if(rank(l,s.from)>rank(l,s.to)){if(side==='from')s.to=s.from;else s.from=s.to}rf(k);ca();if(k==='history-iuran'){window.RIWAYAT_SEMUA=false;window.IURAN_QUICK_DATA=null;window.renderRiwayat?.();window.loadIuranQuickSummary?.()}},state:k=>({...st(k)}),params:k=>{const s=st(k);return{periodLevel:s.level,periodFrom:s.from,periodTo:s.to}},range:k=>bounds(st(k))};document.addEventListener('pointerdown',e=>{if(!e.target.closest('.upr-control'))ca()});
-function mount(){const b=document.querySelector('#history-iuran-panel .history-period-box');if(b)b.innerHTML=html('history-iuran');rf('history-iuran');const defs=[['report-kas-filter','report-kas',''],['report-rt-filter','report-rt',''],['report-arisan-filter','report-arisan',''],['report-denda-filter','report-denda','<select id="report-denda-status-filter" class="field upr-filter-status"><option value="SEMUA">Semua</option><option value="BELUM">Belum Bayar</option><option value="LUNAS">Lunas</option><option value="BATAL">Batal</option></select>'],['report-pinjaman-filter','report-pinjaman','<select id="report-pinjaman-status-filter" class="field upr-filter-status"><option value="SEMUA">Semua</option><option value="AKTIF">Aktif</option><option value="LUNAS">Lunas</option><option value="BATAL">Batal</option></select>'],['report-talangan-filter','report-talangan','<select id="report-talangan-status-filter" class="field upr-filter-status"><option value="SEMUA">Semua</option><option value="MENUNGGU">Menunggu</option><option value="LUNAS">Lunas</option><option value="BATAL">Batal</option></select>']];defs.forEach(([id,k,x])=>{const e=document.getElementById(id);if(e){e.className=(e.className||'').replace(/\bgrid\b|\bspace-y-3\b|\bmax-w-\S+/g,'').trim();e.innerHTML=`<div class="report-universal-filter">${html(k)}${x}</div>`;rf(k)}});setTimeout(()=>window.refreshAllCustomSelects?.(),30)}
+window.UPR={open(k,side,b){const c=b.closest('.upr-control'),w=c.classList.contains('open');ca();if(w)return;const s=st(k),p=pv(s.level,s[side]);VW[k+'|'+side]={mode:'day',y:p.y,m:p.m};c.classList.add('open');rp(k,side)},view(k,side,m){VW[k+'|'+side].mode=m;rp(k,side)},shift(k,side,m,d){const v=VW[k+'|'+side];if(m==='day'){v.m+=d;if(v.m<1){v.m=12;v.y--}if(v.m>12){v.m=1;v.y++}}else if(m==='month')v.y+=d;else v.y+=d*10;rp(k,side)},pick(k,side,l,y,m,d){const s=st(k),v=mv(l,{y,m,d});if(s.level!==l){s.level=l;s.from=v;s.to=v}else s[side]=v;if(rank(l,s.from)>rank(l,s.to)){if(side==='from')s.to=s.from;else s.from=s.to}rf(k);ca();if(k==='history-iuran'){window.RIWAYAT_SEMUA=false;window.IURAN_QUICK_DATA=null;window.renderRiwayat?.();window.loadIuranQuickSummary?.()}if(k==='history-kas'){window.f4KasAllPeriods=false;window.f4SyncKasPeriod?.();window.loadRiwayatKas?.(true)}},state:k=>({...st(k)}),params:k=>{const s=st(k);return{periodLevel:s.level,periodFrom:s.from,periodTo:s.to}},range:k=>bounds(st(k))};document.addEventListener('pointerdown',e=>{if(!e.target.closest('.upr-control'))ca()});
+function mount(){const b=document.querySelector('#history-iuran-panel .history-period-box');if(b)b.innerHTML=html('history-iuran');rf('history-iuran');const cb=document.getElementById('history-kas-period');if(cb){cb.innerHTML=html('history-kas');rf('history-kas');window.f4SyncKasPeriod?.()}const defs=[['report-kas-filter','report-kas',''],['report-rt-filter','report-rt',''],['report-arisan-filter','report-arisan',''],['report-denda-filter','report-denda','<select id="report-denda-status-filter" class="field upr-filter-status"><option value="SEMUA">Semua</option><option value="BELUM">Belum Bayar</option><option value="LUNAS">Lunas</option><option value="BATAL">Batal</option></select>'],['report-pinjaman-filter','report-pinjaman','<select id="report-pinjaman-status-filter" class="field upr-filter-status"><option value="SEMUA">Semua</option><option value="AKTIF">Aktif</option><option value="LUNAS">Lunas</option><option value="BATAL">Batal</option></select>'],['report-talangan-filter','report-talangan','<select id="report-talangan-status-filter" class="field upr-filter-status"><option value="SEMUA">Semua</option><option value="MENUNGGU">Menunggu</option><option value="LUNAS">Lunas</option><option value="BATAL">Batal</option></select>']];defs.forEach(([id,k,x])=>{const e=document.getElementById(id);if(e){e.className=(e.className||'').replace(/\bgrid\b|\bspace-y-3\b|\bmax-w-\S+/g,'').trim();e.innerHTML=`<div class="report-universal-filter">${html(k)}${x}</div>`;rf(k)}});setTimeout(()=>window.refreshAllCustomSelects?.(),30)}
 window.matchRiwayatPeriod=function(x){
   const st=UPR.state('history-iuran');
   const keys=(typeof paymentMonthKeys==='function'?paymentMonthKeys(x):[]).filter(Boolean);
@@ -4937,7 +4987,7 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
       const oldOpen=new Set([...cards.querySelectorAll('details[open]')].map(d=>d.dataset.rkey));
       const frag=document.createDocumentFragment();
       entries.forEach((tr,index)=>{
-        const cells=[...tr.cells];const first=txt(cells[main[0]])||'-';
+        const cells=[...tr.cells];const first=txt(cells[main[0]]?.querySelector('.f4-visible-title')||cells[main[0]])||'-';
         const side=main.slice(1).map(i=>txt(cells[i])).filter(Boolean).join(' • ');
         const amount=secondary.map(i=>txt(cells[i])).find(t=>/Rp\s*[\d.]+/i.test(t))||txt(cells[secondary[0]])||'';
         const status=secondary.map(i=>txt(cells[i])).find(t=>/^(lunas|aktif|batal|terkunci|belum|menunggu|sudah)/i.test(t))||'';
@@ -5195,6 +5245,66 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
   .upr-range{gap:5px!important}
   .upr-sep{font-size:13px!important}
   .mdc-btn .mdc-text{font-size:15px!important}
+}
+</style>
+
+<style id="f4-cash-names-period-calendar-20261028">
+.f4-trans-ref{margin-top:4px;font-size:11px;line-height:1.4;color:#64748b;max-width:100%;overflow-wrap:anywhere}
+.f4-trans-ref summary{font-weight:600;color:#6d28d9;cursor:pointer;width:fit-content;list-style:disclosure-closed}
+.f4-trans-ref[open] summary{list-style:disclosure-open}
+.f4-trans-ref div{padding:4px 0 1px;overflow-wrap:anywhere}
+.f4-kas-period-filter{border:1px solid #ede9fe;border-radius:14px;background:#fbfaff;padding:11px 13px}
+.f4-kas-period-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px}
+.f4-kas-period-header>div{display:flex;flex-direction:column;gap:3px;min-width:0}
+.f4-kas-period-header strong{font-size:14px;color:#3b1874;font-weight:800}
+.f4-kas-period-header span{font-size:12px;color:#64748b}
+#history-kas-all{border:1px solid #ddd6fe;border-radius:9px;background:#fff;color:#6d28d9;font-size:12px;font-weight:750;padding:8px 12px;white-space:nowrap;cursor:pointer}
+#history-kas-all.is-all{background:#ede9fe}
+.f4-kas-range>.upr-range{width:100%;display:flex;align-items:center;gap:9px}
+.f4-kas-range .upr-control{flex:1 1 0;min-width:0}
+.f4-kas-range .upr-field{width:100%;min-width:0}
+.f4-kas-range.is-all{opacity:.5}
+@media print{.f4-trans-ref,.f4-kas-period-filter{display:none!important}}
+@media screen and (max-width:767px){
+ /* Satu ukuran teks untuk setiap pilihan, tidak sekadar nama hari. */
+ .upr-pop.f4-anchor-panel,.mdc-pop.f4-anchor-panel,.upr-pop,.mdc-pop{padding:12px!important}
+ .upr-pop :is(.upr-day),.mdc-pop :is(.mdc-day){
+   font-size:19px!important;line-height:1.1!important;font-weight:650!important;
+   min-height:40px!important;min-width:0!important
+ }
+ .upr-pop :is(.upr-month,.upr-year),.mdc-pop :is(.mdc-month,.mdc-year){
+   font-size:18px!important;line-height:1.2!important;font-weight:700!important;min-height:48px!important
+ }
+ .upr-pop .upr-title,.mdc-pop .mdc-title{font-size:19px!important}
+ .upr-pop .upr-week div,.mdc-pop .mdc-week div{font-size:13px!important}
+ .upr-pop .upr-level-note{font-size:13px!important}
+ /* Bulan singkat tetap ditata seimbang: dua bidang sama lebar, ikon terpisah. */
+ body .upr-field,#tab-laporan .upr-field{
+   display:grid!important;grid-template-columns:minmax(0,1fr) 19px!important;
+   align-items:center!important;justify-content:stretch!important;column-gap:4px!important;
+   padding:8px 9px!important;box-sizing:border-box!important;min-width:0!important;
+   min-height:49px!important;height:49px!important;border-radius:12px!important
+ }
+ body .upr-field .upr-field-text{
+   display:block!important;flex:none!important;width:100%!important;min-width:0!important;
+   font-size:15px!important;text-align:center!important;font-weight:600!important;
+   white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important
+ }
+ body .upr-field svg,#tab-laporan .upr-field svg{
+   position:static!important;top:auto!important;right:auto!important;left:auto!important;
+   transform:none!important;width:19px!important;height:19px!important;
+   max-width:19px!important;max-height:19px!important;justify-self:end!important;
+   pointer-events:none!important
+ }
+ .upr-range,#tab-laporan .report-universal-filter .upr-range{
+   grid-template-columns:minmax(0,1fr) 31px minmax(0,1fr)!important;
+   gap:5px!important;width:100%!important;align-items:center!important
+ }
+ .upr-sep{text-align:center!important;font-size:13px!important}
+ .f4-kas-period-filter{padding:11px!important}
+ .f4-kas-period-header strong{font-size:15px}
+ .f4-kas-range .upr-range{display:grid!important}
+ .f4-kas-range .upr-control{width:100%!important}
 }
 </style>
 <style id="f4-popup-position-20261027">
