@@ -117,8 +117,26 @@ async function editIuran(p){
   tanggal:String(p.tanggal||''),metode:String(p.metode||''),catatan:String(p.catatan||'')});
  return {status:'success',message:r.message||'Perubahan berhasil disimpan.'};
 }
+async function bookCashBatch(p){
+ const ids=String(p.idAlokasi||'').split(',').map(x=>x.trim()).filter(Boolean);
+ if(!ids.length)throw Error('Pilih pembayaran yang akan dibukukan.');
+ const requestKey=crypto.randomUUID().replace(/-/g,'');
+ const saved=await fetchApi('/api/bookkeeping/kas-batches',{
+  requestKey,category:String(p.category||'kas_lorong'),stage:String(p.stage||'susulan'),
+  year:Number(p.tahunSumber||p.tahunPembukuan),month:Number(p.bulanSumber||p.bulanPembukuan),
+  bookedOn:String(p.tanggalPembukuan||''),description:String(p.keterangan||''),sourceIds:ids});
+ return {status:'success',idBatch:saved.idBatch,nominal:saved.nominal,duplikat:!!saved.duplikat};
+}
+async function cancelCashBatch(p){
+ const reason=String(p.alasan||'Pembatalan batch dari portal').trim();
+ const saved=await fetchApi('/api/bookkeeping/kas-batches/cancel',{
+  idBatch:String(p.idBatch||''),alasan:reason.length>=5?reason:'Pembatalan batch dari portal'});
+ return {status:'success',message:saved.duplikat?'Batch sebelumnya telah dibatalkan.':'Pembukuan batch berhasil dibatalkan.',duplikat:!!saved.duplikat};
+}
 window.__f4BookDemoCall=(params={})=>{
  const action=String(params.action||'').toLowerCase();
+ if(action==='buatbatchkas')return bookCashBatch(params);
+ if(action==='batalkanbatchkas')return cancelCashBatch(params);
  if(action==='simpaniuran')return saveIuran(params);
  if(action==='batalkanpembayaran')return cancelIuran(params);
  if(action==='updatepembayaran')return editIuran(params);
