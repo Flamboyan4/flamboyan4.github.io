@@ -4,7 +4,8 @@
 @media screen {
  #dashboardView,#v11Public{
    --eco-ink:#1c4636;--eco-muted:#597466;--eco-line:#deebe3;
-   --eco-green:#edf9f0;--eco-aqua:#eaf9f8;--eco-peach:#fff5e7;--eco-purple:#f3efff;
+   --eco-leaf:#118866;--eco-dark:#085d3e;
+   --eco-green:#d1ecdb;--eco-aqua:#e7f6f5;--eco-peach:#fff2df;--eco-purple:#f1ebff;
    color:var(--eco-ink)
  }
  body.f4-direct-bank #dashboardView .section,
@@ -54,7 +55,8 @@
  }
  #dashboardView :is(.summary-box,.stat,.metric){border-radius:13px!important}
  #dashboardView .summary-box{
-   background:var(--eco-green)!important;border:1px solid #d8eade!important;
+   background:var(--eco-green)!important;border:1px solid #b0dcc0!important;
+   border-left:4px solid #118866!important;
    color:#315b43!important
  }
  /* Reuse same 4 summary colors for all finance/member KPI groups. */
@@ -113,17 +115,18 @@
  }
  /* Public landing and public report. */
  #v11Public .v17-public-banner{
-   background:linear-gradient(115deg,#e2f5e7 0%,#d6efdf 100%)!important;
-   border:1px solid #badfc8!important;
+   background:linear-gradient(115deg,#a0dcb3 0%,#b6e4c6 62%,#c7ead5 100%)!important;
+   border:1px solid #81c99c!important;border-left:5px solid #118866!important;
    border-radius:15px!important;box-shadow:0 3px 13px #16483108!important
  }
  #v11Public .v17-public-banner.v27-banner-program{
-   background:linear-gradient(115deg,#e2f5e7 0%,#d6efdf 100%)!important
+   background:linear-gradient(115deg,#a0dcb3 0%,#b6e4c6 62%,#c7ead5 100%)!important;
+   border-left:5px solid #118866!important
  }
  #v11Public .v17-public-banner .v14-eyebrow{
    background:#f3fcf6!important;color:#117451!important
  }
- #v11Public .v17-public-banner :is(h1,h2){color:#1c563c!important}
+ #v11Public .v17-public-banner :is(h1,h2){color:#07543a!important}
  #v11Public .v17-public-banner :is(p,.v17-subtle){color:#587369!important}
  #v11Public :is(#v17PublicMetrics,#v25ReportMetrics)>.v17-public-metric{
    background:var(--eco-green)!important;border-color:#d5e9da!important;
@@ -246,3 +249,154 @@
  html body :is(#v18PublicSide,#sideNav.side){transition:none!important}
 }
 /* No @media print rules: report/PDF visuals and pagination untouched. */
+
+
+/* Member pages previously missed by the Admin-style selectors:
+   pagePribadi (Tabungan Saya) + pageProgress (Perkembangan).
+   No custom SVG, data changes, or changes to print templates. */
+@media screen {
+ #dashboardView #pagePribadi.card,#dashboardView #pageProgress.card{
+  background:#fff!important;border:1px solid #d0e6d8!important;
+  border-radius:15px!important;box-shadow:0 3px 13px #125e340a!important
+ }
+ #dashboardView #pagePribadi>h2,#dashboardView #pageProgress>h2{
+  color:#096143!important;font-weight:800!important;line-height:1.28!important;
+  margin-bottom:6px!important
+ }
+ #dashboardView #pagePribadi>.desc,#dashboardView #pageProgress>.section-caption{
+  color:#4d6c5b!important;line-height:1.45!important
+ }
+ /* Leaf green leads the three savings cards; two accent colors follow. */
+ #dashboardView #pagePribadi #v12Private>.stats{
+  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:9px!important;margin:13px 0 10px!important
+ }
+ #dashboardView #pagePribadi #v12Private>.stats>.stat{
+  min-width:0!important;min-height:96px!important;padding:13px!important;
+  background:#d3eddb!important;border:1px solid #addbc0!important;
+  border-top:4px solid #118866!important;border-radius:13px!important;
+  box-shadow:none!important
+ }
+ #dashboardView #pagePribadi #v12Private>.stats>.stat:nth-child(2){
+  background:#e4f6f3!important;border-color:#c4e5dc!important;border-top-color:#16a09b!important
+ }
+ #dashboardView #pagePribadi #v12Private>.stats>.stat:nth-child(3){
+  background:#fff0dc!important;border-color:#efddc5!important;border-top-color:#e7a345!important
+ }
+ #dashboardView #pagePribadi #v12Private>.stats>.stat strong{
+  display:block!important;color:#0a6342!important;line-height:1.2!important;
+  overflow-wrap:anywhere!important;font-variant-numeric:tabular-nums!important
+ }
+ #dashboardView #pagePribadi #v12Private>.stats>.stat small{
+  color:#37624d!important;line-height:1.4!important
+ }
+ #dashboardView #pagePribadi #v12Private>h2{
+  color:#0b6546!important;font-weight:800!important;
+  padding-bottom:8px!important;border-bottom:2px solid #b4dec3!important;
+  margin:17px 0 10px!important
+ }
+ #dashboardView #pagePribadi #v12History th{
+  color:#19583c!important;background:#dcefe2!important;border-color:#c5e2ce!important
+ }
+ #dashboardView #pagePribadi #v12History tbody tr:nth-child(even) td{
+  background:#f7fbf8!important
+ }
+ #dashboardView #pagePribadi #v12Deposits>.details-panel{
+  background:#f1faf4!important;border:1px solid #c8e3d2!important;
+  border-left:4px solid #118866!important;border-radius:12px!important;
+  margin:8px 0!important;padding:10px 12px!important
+ }
+ #dashboardView #pagePribadi #v12Deposits>.details-panel:nth-child(even){
+  background:#f8fcfa!important;border-left-color:#1d9d9a!important
+ }
+ #dashboardView #pagePribadi #v12Deposits>.details-panel summary{
+  color:#215c41!important;font-weight:700!important;line-height:1.45!important
+ }
+ #dashboardView #pagePribadi #v12Gate:not(.error){
+  background:#f1f9f3!important;color:#2e6148!important;border-color:#cbe6d4!important
+ }
+ /* Member progress: existing stats, monthly bars and timeline get same theme. */
+ #dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat{
+  background:#d6efde!important;border:1px solid #aedcc0!important;
+  border-top:4px solid #118866!important;border-radius:13px!important;
+  min-height:94px!important;padding:12px!important
+ }
+ #dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat:nth-child(2){
+  background:#e2f6f2!important;border-color:#c5e6dd!important;border-top-color:#15a19b!important
+ }
+ #dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat:nth-child(3){
+  background:#fff1dd!important;border-color:#f0dec7!important;border-top-color:#e4a04c!important
+ }
+ #dashboardView #pageProgress .f4-member-progress-stat strong{color:#0a6241!important}
+ #dashboardView #pageProgress .f4-member-progress-stat small{color:#476c56!important}
+ #dashboardView #pageProgress .f4-member-progress-section{
+  background:#fff!important;border:1px solid #d0e6d9!important;
+  border-left:4px solid #118866!important;border-radius:14px!important;
+  box-shadow:0 2px 10px #125e3409!important
+ }
+ #dashboardView #pageProgress .f4-member-progress-section-heading h3{
+  color:#0b6243!important
+ }
+ #dashboardView #pageProgress .f4-member-progress-count{
+  background:#d9eee0!important;color:#0b6543!important;border:1px solid #b2dbc0!important
+ }
+ #dashboardView #pageProgress .f4-member-progress-track{background:#e2f1e7!important}
+ #dashboardView #pageProgress .f4-member-progress-track>div{
+  background:linear-gradient(90deg,#118866,#30a46e)!important
+ }
+ #dashboardView #pageProgress .f4-member-progress-timeline::before{
+  border-left-color:#98d0ad!important
+ }
+ #dashboardView #pageProgress .f4-member-progress-timeline>li::before{
+  background:#118866!important;box-shadow:0 0 0 2px #b2dfc3!important
+ }
+ #dashboardView #pageProgress .f4-member-progress-step{
+  background:#f3faf5!important;border-color:#d0e6d9!important;
+  border-radius:12px!important
+ }
+ #dashboardView #pageProgress .f4-member-progress-timeline>li:nth-child(2) .f4-member-progress-step{
+  background:#f0f9f7!important;border-color:#cce6e0!important
+ }
+ #dashboardView #pageProgress .f4-member-progress-timeline>li:nth-child(3) .f4-member-progress-step{
+  background:#fff7ec!important;border-color:#efdfc7!important
+ }
+ #dashboardView #pageProgress .f4-member-progress-step-heading strong{
+  color:#175b3f!important
+ }
+ #dashboardView #pageProgress .f4-member-progress-step-trigger:focus-visible{
+  outline:3px solid #118866!important;outline-offset:2px!important
+ }
+ /* Admin progress list, public progress charts and timeline. */
+ #dashboardView #pageProgress #progressList>.stat{
+  background:#f0faf3!important;border:1px solid #c6e1d1!important;
+  border-left:4px solid #118866!important;border-radius:12px!important
+ }
+ #v11Public #v17Perkembangan .v17-panel{
+  background:#fff!important;border:1px solid #cce3d5!important;
+  border-top:3px solid #118866!important;border-radius:13px!important
+ }
+ #v11Public #v17Perkembangan .v17-timeline li{border-left-color:#9acfb0!important}
+}
+@media screen and (max-width:760px) {
+ #dashboardView #pagePribadi #v12Private>.stats{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important
+ }
+ #dashboardView #pagePribadi #v12Private>.stats>.stat{
+  min-height:89px!important;padding:11px!important
+ }
+ #dashboardView #pagePribadi #v12Private>.stats>.stat:first-child{
+  grid-column:1/-1!important;min-height:80px!important
+ }
+ #dashboardView #pageProgress .f4-member-progress-summary{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important
+ }
+ #dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat{
+  min-height:88px!important;padding:11px!important
+ }
+ #dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat:first-child{
+  grid-column:1/-1!important;min-height:79px!important
+ }
+ #dashboardView #pageProgress .f4-member-progress-section{
+  padding:13px!important;border-radius:12px!important
+ }
+}
