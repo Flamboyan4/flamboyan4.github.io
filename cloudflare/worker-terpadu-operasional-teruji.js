@@ -111,8 +111,13 @@ async function publicBank(db) {
     list(db, `SELECT i.id,i.name,i.quantity,i.unit,i.condition,im.external_url AS photoUrl
     FROM inventory i LEFT JOIN inventory_external_media im ON im.inventory_id=i.id
     WHERE i.active=1 AND i.category='bank_sampah' ORDER BY i.name LIMIT 150`),
-    one(db, `SELECT (SELECT COUNT(*) FROM waste_deposits WHERE status='terkonfirmasi') AS confirmedDeposits,(SELECT COUNT(*) FROM members WHERE status='aktif') AS activeMembers,(SELECT COALESCE(SUM(total_grams),0)/1000.0 FROM waste_deposits WHERE status='terkonfirmasi') AS confirmedWeightKg,(SELECT COALESCE(SUM(sl.grams),0)/1000.0 FROM waste_sale_lines sl JOIN waste_sales sa ON sa.id=sl.sale_id WHERE sa.status='terkonfirmasi') AS confirmedSalesWeightKg,(SELECT COUNT(*) FROM waste_items WHERE active=1) AS activeItems,(SELECT COUNT(*) FROM albums WHERE visibility='publik' AND status='aktif') AS albumCount`),
-    list(db, `SELECT substr(deposited_on,1,7) AS month,COALESCE(SUM(total_grams),0)/1000.0 AS beratKg FROM waste_deposits WHERE status='terkonfirmasi' GROUP BY substr(deposited_on,1,7) ORDER BY month DESC LIMIT 12`)
+    one(db, `SELECT (SELECT COUNT(*) FROM waste_deposits WHERE status='terkonfirmasi') AS confirmedDeposits,(SELECT COUNT(*) FROM members WHERE status='aktif') AS activeMembers,(SELECT COALESCE(SUM(sl.grams),0)/1000.0 FROM waste_sale_lines sl JOIN waste_sales sa ON sa.id=sl.sale_id JOIN waste_batches b ON b.id=sa.batch_id WHERE sa.status='terkonfirmasi' AND b.status='disahkan') AS confirmedWeightKg,
+    (SELECT COALESCE(SUM(total_grams),0)/1000.0 FROM waste_deposits WHERE status='terkonfirmasi') AS weighedConfirmedKg,(SELECT COALESCE(SUM(sl.grams),0)/1000.0 FROM waste_sale_lines sl JOIN waste_sales sa ON sa.id=sl.sale_id WHERE sa.status='terkonfirmasi') AS confirmedSalesWeightKg,(SELECT COUNT(*) FROM waste_items WHERE active=1) AS activeItems,(SELECT COUNT(*) FROM albums WHERE visibility='publik' AND status='aktif') AS albumCount`),
+    list(db, `SELECT substr(s.sold_on,1,7) AS month,COALESCE(SUM(l.grams),0)/1000.0 AS beratKg
+      FROM waste_sale_lines l JOIN waste_sales s ON s.id=l.sale_id
+      JOIN waste_batches b ON b.id=s.batch_id AND b.status='disahkan'
+      WHERE s.status='terkonfirmasi'
+      GROUP BY substr(s.sold_on,1,7) ORDER BY month DESC LIMIT 12`)
   ]);
   return ok({ catalog, albums:albums.map(a=>({...a,coverUrl:urlSafe(a.coverUrl)})), progress:progress.map(p=>({...p,photoUrl:urlSafe(p.photoUrl)})), monthlyWeights: monthlyWeights.slice().reverse(), inventory: inventory.map((x) => ({
     ...x,
@@ -131,8 +136,8 @@ async function publicBankReport(db, url) {
       COALESCE(SUM(a.reserve_rp),0) AS cadangan,
       COALESCE(SUM(a.neighborhood_rp),0) AS kasLorong,
       COALESCE(SUM(a.operation_rp),0) AS operasional,
-      COALESCE(SUM((SELECT COALESCE(SUM(d.total_grams),0)/1000.0 FROM waste_deposits d
-        WHERE d.batch_id=a.batch_id AND d.status='terkonfirmasi')),0) AS beratKg
+      COALESCE(SUM((SELECT COALESCE(SUM(l.grams),0)/1000.0
+        FROM waste_sale_lines l WHERE l.sale_id=s.id)),0) AS beratKg
       FROM waste_allocations a
       JOIN waste_batches b ON b.id=a.batch_id AND b.status='disahkan'
       JOIN waste_sales s ON s.batch_id=a.batch_id AND s.status='terkonfirmasi'
@@ -224,6 +229,7 @@ async function adminBank(db, url) {
   // Untuk satu warga beberapa setoran: persis pembagian yang dipakai pada laporan pribadinya.
   const batchIds=[...new Set(data.filter(x=>x.status==='terkonfirmasi').map(x=>x.batch_id).filter(Boolean))];
   const actual=new Map();
+  const finalGrams=await f4ConfirmedDepositGrams(db,batchIds);
   if(batchIds.length){
     const placeholders=batchIds.map(()=>'?').join(',');
     const confirmed=await list(db,`SELECT d.id,d.member_id,d.batch_id,d.estimated_total_rp,
@@ -249,7 +255,10 @@ async function adminBank(db, url) {
       if(portions)for(const x of portions)actual.set(x.id,x.nilaiSahRp);
     }
   }
-  return ok({data:data.map(d=>({...d,nilaiSahRp:actual.has(d.id)?actual.get(d.id):null})),limit});
+  return ok({data:data.map(d=>({...d,
+    nilaiSahRp:actual.has(d.id)?actual.get(d.id):null,
+    beratSahGram:finalGrams.has(d.id)?finalGrams.get(d.id):null
+  })),limit});
 }
 __name(adminBank, "adminBank");
 async function detailBank(db, url) {
@@ -3108,6 +3117,82 @@ function f4ShareConfirmedSavings(rows, creditedRp) {
 }
 __name(f4ShareConfirmedSavings,"f4ShareConfirmedSavings");
 
+// Berat final berbeda dari berat timbang. Bagi berat JUAL yang terkonfirmasi
+// menurut jenis barang, lalu menurut gram timbang setoran. Gram tidak dikarang.
+function f4DivideGrams(entries,totalGrams){
+  if(!Number.isSafeInteger(totalGrams)||totalGrams<0||!entries.length)return null;
+  const sorted=entries.slice().sort((a,b)=>String(a.id).localeCompare(String(b.id)));
+  if(sorted.some(x=>!Number.isSafeInteger(x.grams)||x.grams<0))return null;
+  const total=sorted.reduce((n,x)=>n+BigInt(x.grams),0n);
+  if(total<=0n)return totalGrams===0?sorted.map(x=>({id:x.id,grams:0})):null;
+  const rows=sorted.map(x=>({
+    id:x.id,
+    grams:Number(BigInt(totalGrams)*BigInt(x.grams)/total),
+    mod:BigInt(totalGrams)*BigInt(x.grams)%total
+  }));
+  const leftover=totalGrams-rows.reduce((n,x)=>n+x.grams,0);
+  if(leftover<0||leftover>rows.length)return null;
+  const ranked=rows.slice().sort((a,b)=>a.mod===b.mod?String(a.id).localeCompare(String(b.id)):a.mod>b.mod?-1:1);
+  for(let i=0;i<leftover;i++)ranked[i].grams++;
+  return rows.map(x=>({id:x.id,grams:x.grams}));
+}
+__name(f4DivideGrams,"f4DivideGrams");
+async function f4ConfirmedDepositGrams(db,batchIds){
+  const ids=[...new Set(batchIds.filter(Boolean).map(String))];
+  const values=new Map();
+  if(!ids.length)return values;
+  const qs=ids.map(()=>'?').join(',');
+  const [taken,sold]=await Promise.all([
+    list(db,`SELECT d.id AS depositId,d.batch_id AS batchId,l.waste_item_id AS itemId,
+      COALESCE(SUM(l.grams),0) AS grams
+      FROM waste_deposits d JOIN waste_batches b ON b.id=d.batch_id
+      JOIN waste_deposit_lines l ON l.deposit_id=d.id
+      WHERE d.status='terkonfirmasi' AND b.status='disahkan' AND d.batch_id IN (${qs})
+      GROUP BY d.id,d.batch_id,l.waste_item_id ORDER BY d.batch_id,l.waste_item_id,d.id`,ids),
+    list(db,`SELECT s.batch_id AS batchId,l.waste_item_id AS itemId,
+      COALESCE(SUM(l.grams),0) AS grams
+      FROM waste_sales s JOIN waste_batches b ON b.id=s.batch_id
+      JOIN waste_allocations a ON a.batch_id=s.batch_id
+      JOIN waste_sale_lines l ON l.sale_id=s.id
+      WHERE s.status='terkonfirmasi' AND b.status='disahkan' AND s.batch_id IN (${qs})
+      GROUP BY s.batch_id,l.waste_item_id`,ids)
+  ]);
+  const grouped=new Map(),soldByKey=new Map(),invalid=new Set();
+  const batchDeposits=new Map(),batchTotals=new Map(),batchSales=new Map();
+  for(const row of taken){
+    const id=String(row.depositId),batch=String(row.batchId),key=batch+'|'+row.itemId,grams=Number(row.grams);
+    if(!Number.isSafeInteger(grams)||grams<0){invalid.add(batch);continue}
+    if(!grouped.has(key))grouped.set(key,[]);
+    grouped.get(key).push({id,grams});
+    if(!batchDeposits.has(batch))batchDeposits.set(batch,new Set());
+    batchDeposits.get(batch).add(id);
+  }
+  for(const row of sold){
+    const batch=String(row.batchId),key=batch+'|'+row.itemId,grams=Number(row.grams);
+    if(!Number.isSafeInteger(grams)||grams<0||soldByKey.has(key)){invalid.add(batch);continue}
+    soldByKey.set(key,grams);
+    batchSales.set(batch,(batchSales.get(batch)||0)+grams);
+    if(!grouped.has(key)&&grams>0)invalid.add(batch);
+  }
+  for(const [key,entries] of grouped){
+    const batch=key.slice(0,key.indexOf('|'));
+    if(invalid.has(batch))continue;
+    const portion=f4DivideGrams(entries,soldByKey.get(key)||0);
+    if(!portion){invalid.add(batch);continue}
+    if(!batchTotals.has(batch))batchTotals.set(batch,new Map());
+    const map=batchTotals.get(batch);
+    for(const x of portion)map.set(x.id,(map.get(x.id)||0)+x.grams);
+  }
+  for(const [batch,deposits] of batchDeposits){
+    if(invalid.has(batch)||!batchSales.has(batch))continue;
+    const map=batchTotals.get(batch)||new Map();
+    const sum=[...map.values()].reduce((n,v)=>n+v,0);
+    if(sum!==batchSales.get(batch))continue;
+    for(const id of deposits)values.set(id,map.get(id)||0);
+  }
+  return values;
+}
+__name(f4ConfirmedDepositGrams,"f4ConfirmedDepositGrams");
 async function ownSavings(db, memberId) {
   const [balance, deposits, details, ledger] = await Promise.all([
     db.prepare(`SELECT COALESCE(SUM(CASE WHEN kind IN ('kredit','koreksi_kredit')
@@ -3135,6 +3220,7 @@ async function ownSavings(db, memberId) {
   const confirmedBatchIds=[...new Set(shownDeposits.filter(d=>d.status==='terkonfirmasi')
     .map(d=>String(d.batch_id||'')).filter(Boolean))];
   const actualByDeposit=new Map();
+  const finalGrams=await f4ConfirmedDepositGrams(db,confirmedBatchIds);
   if(confirmedBatchIds.length){
     const markers=confirmedBatchIds.map(()=>'?').join(',');
     const confirmedRows=await list(db,`SELECT d.id,d.batch_id,d.estimated_total_rp,
@@ -3171,6 +3257,7 @@ async function ownSavings(db, memberId) {
     tanggal: d.deposited_on,
     status: d.status,
     beratGram: d.total_grams,
+    beratSahGram:finalGrams.has(d.id)?finalGrams.get(d.id):null,
     estimasiRp: d.estimated_total_rp,
     // Null berarti belum ada nominal jual sah yang bisa dibuktikan dari jurnal.
     nilaiSahRp: actualByDeposit.has(d.id)?actualByDeposit.get(d.id):null,
