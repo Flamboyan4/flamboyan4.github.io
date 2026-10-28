@@ -89,7 +89,12 @@ jobs:
           project_sql="\n".join(line for line in project_migration.splitlines()
                                 if not line.lstrip().startswith("--"))
           for statement in project_sql.split(";"):
-              if statement.strip():d1query(statement.strip())
+              sql=statement.strip()
+              if not sql:continue
+              # Kolom proyek sudah dipastikan / ditambahkan secara idempoten
+              # oleh project_columns di atas; jangan ALTER COLUMN dua kali.
+              if sql.upper().startswith("ALTER TABLE PORTAL_PROJECT_CARDS ADD COLUMN "):continue
+              d1query(sql)
           for table,required in [
               ("portal_project_orders",{"id","project_id","resident","amount_due_rp","paid_rp","status"}),
               ("portal_project_contributions",{"id","project_id","contributor","amount_rp","status"})]:
