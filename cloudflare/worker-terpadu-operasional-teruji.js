@@ -2814,6 +2814,109 @@ async function createIuranPayment(request, env, who) {
   return json({ ok: true, idPembayaran: id, totalDiterima: sum, periode: [...periods].sort(), alokasi: items.length }, 201);
 }
 __name(createIuranPayment, "createIuranPayment");
+
+function f4BatchType(x){return ['kas_lorong','denda_gorol'].includes(x)?x:null}
+function f4BatchStage(x){return ['setoran_rt','arisan','susulan'].includes(x)?x:null}
+async function f4BatchSources(db,type,year,month,ids){
+ const params=[], placeholders=ids&&ids.length?' AND S.id IN ('+ids.map(()=>'?').join(',')+')':'';
+ let sql;
+ if(type==='kas_lorong'){
+  sql="SELECT a.id AS id,a.amount_rp AS amount,p.paid_on AS date,p.payment_method AS method,"+
+  " COALESCE(bp.display_name,'') AS name,COALESCE(h.house_code,'') AS house,"+
+  " (SELECT COUNT(*) FROM bookkeeping_kas_batch_items bi WHERE bi.category='kas_lorong' AND bi.source_id=a.id AND bi.status='aktif') AS posted"+
+  " FROM bookkeeping_payment_allocations a JOIN bookkeeping_payments p ON p.id=a.payment_id"+
+  " LEFT JOIN bookkeeping_payers bp ON bp.id=p.payer_id LEFT JOIN households h ON h.id=COALESCE(p.household_id,bp.household_id)"+
+  " WHERE a.status='aktif' AND p.status='aktif' AND a.contribution_type='KAS_LORONG' AND a.period_year=? AND a.period_month=? AND a.amount_rp>0"+
+  (ids&&ids.length?' AND a.id IN ('+ids.map(()=>'?').join(',')+')':'')+" ORDER BY p.paid_on,a.id LIMIT 500";
+  params.push(year,month,...(ids||[]));
+ }else{
+  sql="SELECT c.id AS id,c.debit_rp AS amount,c.occurred_on AS date,c.payment_method AS method,"+
+  " COALESCE(bp.display_name,'') AS name,COALESCE(h.house_code,'') AS house,"+
+  " (SELECT COUNT(*) FROM bookkeeping_kas_batch_items bi WHERE bi.category='denda_gorol' AND bi.source_id=c.id AND bi.status='aktif') AS posted"+
+  " FROM bookkeeping_cash_transactions c LEFT JOIN bookkeeping_payers bp ON bp.id=c.payer_id LEFT JOIN households h ON h.id=bp.household_id"+
+  " WHERE c.status='aktif' AND c.debit_rp>0 AND c.credit_rp=0 AND"+
+  " (c.transaction_type IN ('pembayaran_denda','denda_menunggu_buku') OR (c.transaction_type='manual' AND lower(c.category)='denda gorol'))"+
+  " AND substr(c.occurred_on,1,7)=?"+(ids&&ids.length?' AND c.id IN ('+ids.map(()=>'?').join(',')+')':'')+" ORDER BY c.occurred_on,c.id LIMIT 500";
+  params.push(String(year)+'-'+String(month).padStart(2,'0'),...(ids||[]));
+ }
+ return (await db.prepare(sql).bind(...params).all()).results||[];
+}
+async function f4BatchRead(db,request){
+ const q=new URL(request.url).searchParams,type=f4BatchType(q.get('category')||'kas_lorong');
+ const year=Number(q.get('year')),month=Number(q.get('month'));
+ if(!type||!Number.isInteger(year)||year<2020||year>2100||!Number.isInteger(month)||month<1||month>12)return safeError('Pilih jenis dan bulan yang valid.',400);
+ const [data,groups]=await Promise.all([f4BatchSources(db,type,year,month),
+  db.prepare("SELECT id,stage,booked_on,description,amount_rp,item_count,status FROM bookkeeping_kas_batches WHERE category=? AND period_year=? AND period_month=? ORDER BY booked_on DESC,created_at DESC LIMIT 120").bind(type,year,month).all()]);
+ if(data.length>=500)return safeError('Batas 500 pembayaran tercapai, pisahkan bulan atau audit data.',409);
+ const map=x=>{const house=String(x.house||'').split('/');return {idAlokasi:x.id,nama:x.name||'Nama belum terhubung',blok:house[0]||'',noRumah:house.slice(1).join('/'),tanggalBayar:x.date,qtyKasLorong:1,nominalKasLorong:Number(x.amount),metode:x.method||'—'}};
+ const pending=data.filter(x=>!x.posted),posted=data.filter(x=>x.posted);
+ const sum=a=>a.reduce((v,x)=>v+Number(x.amount||0),0);
+ return json({ok:true,data:{belum:pending.map(map),sudah:posted.map(map),
+  batches:(groups.results||[]).map(x=>({idBatch:x.id,tanggalPembukuan:x.booked_on,keterangan:x.description,jumlahPembayaran:x.item_count,nominal:x.amount_rp,tahap:x.stage,status:x.status})),
+  ringkasan:{qtyBelum:pending.length,nominalBelum:sum(pending),qtySudah:posted.length,nominalSudah:sum(posted)}}});
+}
+async function f4BatchCreate(request,env,who){
+ if(env.FINANCE_WRITE_ENABLED!=='true')return safeError('Pembukuan belum aktif.',503);
+ let p;try{p=await requestJson(request)}catch{return safeError('Permintaan tidak valid.',400)}
+ const type=f4BatchType(p?.category),stage=f4BatchStage(p?.stage),year=Number(p?.year),month=Number(p?.month);
+ const date=String(p?.bookedOn||''),description=String(p?.description||'').trim(),ids=p?.sourceIds,key=String(p?.requestKey||'');
+ if(!type||!stage||!Number.isInteger(year)||year<2020||year>2100||!Number.isInteger(month)||month<1||month>12||
+  !validDateOnly(date)||description.length<4||description.length>250||!Array.isArray(ids)||!ids.length||ids.length>200||
+  !validRequestKey(key)||ids.some(x=>typeof x!=='string'||!x||x.length>200)||new Set(ids).size!==ids.length)
+  return safeError('Periksa periode, tanggal, tahapan, keterangan dan transaksi terpilih.',400);
+ if((type==='kas_lorong'&&env.IURAN_WRITE_ENABLED!=='true')||(type==='denda_gorol'&&env.DENDA_PINJAMAN_WRITE_ENABLED!=='true'))
+  return safeError('Modul keuangan belum diaktifkan.',503);
+ const hash=await tokenHash(JSON.stringify({type,stage,year,month,date,description,ids:[...ids].sort()})),db=env.DB;
+ const previous=await db.prepare('SELECT id,payload_hash,amount_rp,status FROM bookkeeping_kas_batches WHERE request_key=?').bind(key).first();
+ if(previous)return previous.payload_hash===hash?json({ok:true,idBatch:previous.id,nominal:previous.amount_rp,status:previous.status,duplikat:true}):safeError('Kunci transaksi telah digunakan untuk data berbeda.',409);
+ const years=[...new Set([year,Number(date.slice(0,4))])],slots=years.map(()=>'?').join(',');
+ const [archived,closed]=await Promise.all([
+  db.prepare('SELECT id FROM bookkeeping_year_archives WHERE fiscal_year IN ('+slots+") AND status IN ('closed','ditutup','terkunci','final') LIMIT 1").bind(...years).first(),
+  db.prepare('SELECT fiscal_year FROM fiscal_closings WHERE fiscal_year IN ('+slots+') LIMIT 1').bind(...years).first()]);
+ if(archived||closed)return safeError('Periode atau tahun buku sudah ditutup.',409);
+ const sources=await f4BatchSources(db,type,year,month,ids);
+ if(sources.length!==ids.length||sources.some(x=>x.posted||Number(x.amount)<=0||!Number.isSafeInteger(Number(x.amount))||x.date>date))
+  return safeError('Pembayaran sudah dibukukan atau tanggal pembukuan lebih awal dari penerimaan.',409);
+ const amount=sources.reduce((sum,x)=>sum+Number(x.amount),0);
+ if(!Number.isSafeInteger(amount)||amount<=0)return safeError('Jumlah batch tidak valid.',409);
+ const id='kasbatch:'+crypto.randomUUID(),cashId='cashbatch:'+crypto.randomUUID();
+ const statements=[
+  db.prepare("INSERT INTO bookkeeping_kas_batches(id,request_key,payload_hash,category,period_year,period_month,stage,booked_on,description,amount_rp,item_count,status,cash_transaction_id,created_by) VALUES(?,?,?,?,?,?,?,?,?,?,?,'aktif',?,?)").bind(id,key,hash,type,year,month,stage,date,description,amount,sources.length,cashId,who.id),
+  ...sources.map(x=>db.prepare("INSERT INTO bookkeeping_kas_batch_items(id,batch_id,category,source_id,amount_rp,status) VALUES(?,?,?,?,?,'aktif')").bind('kbi:'+crypto.randomUUID(),id,type,x.id,Number(x.amount))),
+  db.prepare("INSERT INTO bookkeeping_cash_transactions(id,occurred_on,transaction_type,category,debit_rp,credit_rp,status,note,payment_method) VALUES(?,?,?,?,?,0,'aktif',?,'Gabungan')").bind(cashId,date,type==='kas_lorong'?'batch_kas_lorong':'batch_denda_gorol',type==='kas_lorong'?'Kas Lorong':'Denda Gorol',amount,description+' • '+sources.length+' pembayaran'),
+  db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'pembukuan','post_cash_batch','bookkeeping_kas_batches',?,?,?)").bind(crypto.randomUUID(),who.id,id,description,JSON.stringify({type,stage,year,month,amount,sourceIds:ids}))
+ ];
+ try{await db.batch(statements)}catch{
+  const saved=await db.prepare('SELECT id,payload_hash,amount_rp FROM bookkeeping_kas_batches WHERE request_key=?').bind(key).first();
+  return saved&&saved.payload_hash===hash?json({ok:true,idBatch:saved.id,nominal:saved.amount_rp,duplikat:true}):safeError('Batch tidak dibuat; sumber sudah diproses atau terjadi konflik. Tidak ada transaksi parsial.',409);
+ }
+ return json({ok:true,idBatch:id,nominal:amount,jumlahPembayaran:sources.length});
+}
+async function f4BatchCancel(request,env,who){
+ if(env.FINANCE_WRITE_ENABLED!=='true')return safeError('Pembukuan belum aktif.',503);
+ let p;try{p=await requestJson(request)}catch{return safeError('Permintaan tidak valid.',400)}
+ const id=String(p?.idBatch||''),reason=String(p?.alasan||'').trim();
+ if(!/^kasbatch:[a-f0-9-]{36}$/.test(id)||reason.length<5||reason.length>250)return safeError('Kode batch atau alasan tidak valid.',400);
+ const db=env.DB,b=await db.prepare('SELECT status,cash_transaction_id,period_year,booked_on FROM bookkeeping_kas_batches WHERE id=?').bind(id).first();
+ if(!b)return safeError('Batch tidak ditemukan.',404);
+ if(b.status==='dibatalkan')return json({ok:true,idBatch:id,duplikat:true});
+ const years=[...new Set([Number(b.period_year),Number(b.booked_on.slice(0,4))])],slots=years.map(()=>'?').join(',');
+ const [archived,closed]=await Promise.all([
+  db.prepare('SELECT id FROM bookkeeping_year_archives WHERE fiscal_year IN ('+slots+") AND status IN ('closed','ditutup','terkunci','final') LIMIT 1").bind(...years).first(),
+  db.prepare('SELECT fiscal_year FROM fiscal_closings WHERE fiscal_year IN ('+slots+') LIMIT 1').bind(...years).first()]);
+ if(archived||closed)return safeError('Tahun telah ditutup, batch tidak dapat dibatalkan.',409);
+ try{
+  const out=await db.batch([
+   db.prepare("UPDATE bookkeeping_kas_batches SET status='dibatalkan' WHERE id=? AND status='aktif'").bind(id),
+   db.prepare("UPDATE bookkeeping_kas_batch_items SET status='dibatalkan' WHERE batch_id=? AND status='aktif'").bind(id),
+   db.prepare("UPDATE bookkeeping_cash_transactions SET status='dibatalkan' WHERE id=? AND status='aktif' AND transaction_type IN ('batch_kas_lorong','batch_denda_gorol')").bind(b.cash_transaction_id),
+   db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason) VALUES(?,?,'pembukuan','cancel_cash_batch','bookkeeping_kas_batches',?,?)").bind(crypto.randomUUID(),who.id,id,reason)
+  ]);
+  if(Number(out[0]?.meta?.changes)!==1||Number(out[2]?.meta?.changes)!==1)return safeError('Data batch perlu diperiksa.',409);
+ }catch{return safeError('Pembatalan tidak disimpan; periksa data dahulu.',409)}
+ return json({ok:true,idBatch:id,status:'dibatalkan'});
+}
+
 // Non-destructive cancellation: only newly created D1 pay-UUID, never historical records.
 async function cancelNewIuranPayment(request,env,who){
   if(env.FINANCE_WRITE_ENABLED!=="true"||env.IURAN_WRITE_ENABLED!=="true")return safeError("Penulisan Iuran belum diaktifkan.",503);
@@ -4223,6 +4326,15 @@ async function handle(request, env) {
     const denied = requireRole(who, ["superadmin"]);
     if (denied) return denied;
     return f4CashReport(env.DB, request);
+  }
+  if(path==='/api/bookkeeping/kas-batches'&&request.method==='GET'){
+    const denied=requireRole(who,['superadmin']);if(denied)return denied;return f4BatchRead(env.DB,request);
+  }
+  if(path==='/api/bookkeeping/kas-batches'&&request.method==='POST'){
+    const denied=requireRole(who,['superadmin']);if(denied)return denied;return f4BatchCreate(request,env,who);
+  }
+  if(path==='/api/bookkeeping/kas-batches/cancel'&&request.method==='POST'){
+    const denied=requireRole(who,['superadmin']);if(denied)return denied;return f4BatchCancel(request,env,who);
   }
   if (path === "/api/bookkeeping/iuran/history" && request.method === "GET") {
     const denied = requireRole(who, ["superadmin"]);
