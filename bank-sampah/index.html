@@ -1786,6 +1786,86 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
     grid-column:1!important;grid-row:3!important
   }
 }
+
+/* 2026-10-28: koreksi susunan saldo dan kartu pengelola, tanpa mengurangi font. */
+@media screen and (max-width:760px){
+  /* Jadikan nama, nomor rumah, dan saldo sejajar; saat sempit nama boleh membungkus. */
+  #dashboardView #pageTabungan #v9List table.f4-v9-saldo-table tbody tr{
+    display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;
+    align-items:center!important;justify-content:flex-start!important;
+    gap:4px 9px!important;padding:10px 12px!important;min-height:55px!important;
+  }
+  #dashboardView #pageTabungan #v9List table.f4-v9-saldo-table tbody td{
+    grid-column:auto!important;grid-row:auto!important;
+    min-width:0!important;width:auto!important;margin:0!important;
+    line-height:1.35!important;align-self:center!important;
+  }
+  #dashboardView #pageTabungan #v9List table.f4-v9-saldo-table tbody td:nth-child(1){
+    flex:0 1 auto!important;max-width:calc(100% - 112px)!important;
+    white-space:normal!important;text-align:left!important;
+    font-size:14px!important;font-weight:750!important
+  }
+  #dashboardView #pageTabungan #v9List table.f4-v9-saldo-table tbody td:nth-child(2){
+    flex:0 0 auto!important;white-space:nowrap!important;overflow-wrap:normal!important;
+    font-size:13px!important;color:#6a8073!important
+  }
+  #dashboardView #pageTabungan #v9List table.f4-v9-saldo-table tbody td:nth-child(3){
+    flex:0 0 auto!important;margin-left:auto!important;white-space:nowrap!important;
+    text-align:right!important;font-size:17px!important;font-weight:800!important;
+    color:#1c6246!important
+  }
+  /* Ikon hanya baris pertama. Nilai di baris kedua memakai lebar penuh. */
+  #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary>.v14-kpi{
+    display:grid!important;grid-template-columns:34px minmax(0,1fr)!important;
+    grid-template-rows:auto auto auto!important;
+    align-items:center!important;justify-content:stretch!important;
+    align-content:start!important;row-gap:5px!important;column-gap:9px!important;
+    min-height:0!important;padding:12px!important;
+  }
+  #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary>.v14-kpi::before{
+    grid-column:1!important;grid-row:1!important;align-self:center!important;
+    width:34px!important;height:34px!important;margin:0!important;
+  }
+  #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary .v14-kpi-label{
+    grid-column:2!important;grid-row:1!important;min-width:0!important;
+    font-size:13px!important;font-weight:600!important;
+    line-height:1.35!important;margin:0!important;
+  }
+  #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary>.v14-kpi strong{
+    grid-column:1/-1!important;grid-row:2!important;
+    position:static!important;align-self:start!important;
+    display:block!important;margin:0!important;padding:0!important;
+    font-size:24px!important;line-height:1.2!important;
+  }
+  #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary>.v14-kpi small{
+    grid-column:1/-1!important;grid-row:3!important;
+    position:static!important;align-self:start!important;
+    display:block!important;margin:0!important;padding:0!important;
+    font-size:12px!important;line-height:1.35!important;
+  }
+  /* Kartu tambahan: label dan nilai berjarak konsisten, rata atas. */
+  #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Extra.v14-stats-extra{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;align-items:stretch!important;grid-auto-rows:auto!important;
+    margin-top:0!important
+  }
+  #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Extra>.v14-extra{
+    display:flex!important;flex-direction:column!important;align-items:flex-start!important;
+    justify-content:flex-start!important;gap:6px!important;
+    height:auto!important;min-height:0!important;min-width:0!important;
+    margin:0!important;padding:12px!important;
+    background:#fff!important;border-radius:12px!important;
+  }
+  #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Extra>.v14-extra small{
+    display:block!important;margin:0!important;line-height:1.35!important;
+    font-size:13px!important;font-weight:500!important;color:#667e71!important;
+  }
+  #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Extra>.v14-extra strong{
+    display:block!important;margin:0!important;padding:0!important;
+    font-size:19px!important;line-height:1.25!important;font-weight:800!important;
+    color:#24533d!important;overflow-wrap:anywhere!important
+  }
+}
 </style>
 </head>
 <body>
