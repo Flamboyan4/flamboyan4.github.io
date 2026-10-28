@@ -1188,6 +1188,19 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo .metric strong{
 }
 #pageTabungan .f4-savings-utility{display:flex;align-items:center;justify-content:space-between;gap:9px;margin:9px 0 13px;flex-wrap:wrap}
 #pageTabungan .f4-savings-cash-hint{color:#688074;font-size:11.5px;line-height:1.35}
+#pageTabungan #v9CashCheckStatus:not([hidden]){
+ display:block!important;width:100%!important;min-width:0!important;margin:0 0 13px!important;
+ padding:10px 13px!important;border-radius:10px!important;
+ border:1px solid #cee6d6!important;background:#f1f9f3!important;color:#215c40!important;
+ font-size:12px!important;line-height:1.5!important;overflow-wrap:anywhere!important
+}
+#pageTabungan #v9CashCheckStatus[data-check-state="loading"]{
+ border-color:#dae8de!important;background:#f5faf6!important;color:#526c5e!important
+}
+#pageTabungan #v9CashCheckStatus[data-check-state="error"]{
+ border-color:#f0d0c7!important;background:#fff5f2!important;color:#913d2d!important
+}
+#pageTabungan #v9Sync:disabled{opacity:.7!important;cursor:wait!important}
 #pageTabungan #v9Sync{
  width:auto!important;min-height:35px!important;padding:7px 11px!important;
  font-size:11.5px!important;font-weight:700!important;border-radius:8px!important;
@@ -1996,6 +2009,7 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.f4-payout-submit{
       <div class="f4-savings-utility">
         <span class="f4-savings-cash-hint">Kas otomatis tercatat saat pengesahan batch.</span><button id="v9Sync" type="button" class="secondary" onclick="v9PostCash()">Periksa kesesuaian kas</button>
       </div>
+      <div id="v9CashCheckStatus" class="f4-savings-check-status" role="status" aria-live="polite" hidden></div>
       <div class="f4-savings-main">
         <section class="f4-savings-panel f4-savings-members" aria-label="Daftar saldo anggota">
           <div class="f4-savings-panel-title"><h3>Saldo anggota</h3><p>Daftar berdasarkan nomor rumah. Gulir untuk melihat semua anggota.</p></div>
@@ -2052,16 +2066,29 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.f4-payout-submit{
   async function v9Load(){if(!v9Nonce)v9Nonce='N'+Date.now().toString(36)+Math.random().toString(36).slice(2,12);$('v9List').textContent='Memuat saldo...';try{const [members,cash,history]=await Promise.all([call('bsV9SaldoAdmin',token),call('bsV9StatusKasAdmin',token),call('bsV9RiwayatPencairan',token)]);v9Members=members;const sum=members.reduce((s,x)=>s+x.saldo,0);$('v9KasInfo').replaceChildren(metric('Total saldo warga',rupiah(sum)),metric('Kas gabungan tercatat',rupiah(cash.saldoKasTercatat)),metric('Batch belum diposting',cash.batchBelumDiposting.length));const select=$('v9Member'),old=select.value;select.replaceChildren(new Option('Pilih warga',''));members.filter(m=>m.status.toLowerCase()==='aktif').forEach(m=>select.appendChild(new Option(m.nama+' • '+m.rumah,m.wargaId)));select.value=old;v9ShowBalance();const list=$('v9List');const table=document.createElement('table'),head=document.createElement('tr'),thead=document.createElement('thead'),body=document.createElement('tbody');['Anggota','Rumah','Saldo terkonfirmasi'].forEach(x=>{const th=document.createElement('th');th.textContent=x;head.appendChild(th)});thead.appendChild(head);table.appendChild(thead);members.slice().sort((a,b)=>new Intl.Collator('id',{numeric:true,sensitivity:'base'}).compare(String(a.rumah||''),String(b.rumah||''))||String(a.nama||'').localeCompare(String(b.nama||''),'id')).forEach(m=>{const tr=document.createElement('tr');cell(tr,m.nama||'Nama belum tersedia','Anggota');cell(tr,m.rumah,'Rumah');cell(tr,rupiah(m.saldo),'Saldo terkonfirmasi');body.appendChild(tr)});table.appendChild(body);list.replaceChildren(table);const historyArea=$('v9History');historyArea.replaceChildren(...history.map(h=>{const div=document.createElement('div');div.className='stat';div.style.marginBottom='8px';const a=document.createElement('strong');a.textContent=(members.find(m=>String(m.wargaId)===String(h.wargaId||'').replace(/^member:/,''))?.nama||'Nama warga belum tersedia')+' • '+rupiah(h.nominal);const p=document.createElement('small');p.textContent=h.status+' • '+h.tanggal+' • '+h.catatan;div.append(a,p);return div}));if(!history.length)historyArea.textContent='Belum ada pencairan.';}catch(e){$('v9List').textContent='Gagal memuat: '+(e.message||e);}}
   function v9ShowBalance(){const member=v9Members.find(m=>m.wargaId===$('v9Member').value);$('v9MemberBalance').textContent=member?'Saldo tersedia '+member.nama+': '+rupiah(member.saldo):'Pilih warga terlebih dahulu.';}
   async function v9PostCash(){
-    const button=$('v9Sync');
-    if(button.disabled)return;
-    button.disabled=true;note('v9Notice','Memeriksa kesesuaian catatan kas (tanpa menyimpan transaksi)...');
+    const button=$('v9Sync'),status=$('v9CashCheckStatus');
+    if(!button||button.disabled)return;
+    const label=button.textContent;
+    button.disabled=true;
+    button.textContent='Memeriksa kas...';
+    note('v9CashCheckStatus','Memeriksa penjualan, alokasi hasil, dan buku kas. Tidak ada transaksi yang diubah.');
+    if(status)status.dataset.checkState='loading';
     try{
-      // Adapter D1 hanya membaca alokasi, penjualan, dan buku kas; tidak membuat transaksi baru.
+      // Fungsi adapter hanya memeriksa data D1; tidak menambah/memposting kas.
       const result=await call('bsV9PostingKasPenjualan',token);
-      note('v9Notice','Catatan kas sesuai: '+result.diposting+' batch disahkan telah diperiksa. Saldo kas tercatat '+rupiah(result.kas)+'.');
+      const total=Number(result?.diposting||0);
+      const message=total>0
+        ?'✓ Kas sesuai. '+total+' batch disahkan cocok dengan catatan penjualan dan buku kas. Saldo kas tercatat '+rupiah(result.kas)+'. Tidak ada transaksi baru.'
+        :'✓ Pemeriksaan selesai. Belum ada batch disahkan untuk dicocokkan. Saldo kas tercatat '+rupiah(result.kas)+'.';
+      note('v9CashCheckStatus',message);
+      if(status)status.dataset.checkState='success';
     }catch(error){
-      note('v9Notice','Pemeriksaan kas belum berhasil: '+(error.message||error)+'. Periksa riwayat sebelum tindakan koreksi.',true);
-    }finally{button.disabled=false;}
+      note('v9CashCheckStatus','Pemeriksaan belum berhasil: '+(error.message||error)+'. Tidak ada transaksi yang diubah. Periksa riwayat sebelum melakukan koreksi.',true);
+      if(status)status.dataset.checkState='error';
+    }finally{
+      button.disabled=false;
+      button.textContent=label;
+    }
   }
   async function v9Cairkan(e){e.preventDefault();const member=v9Members.find(m=>m.wargaId===$('v9Member').value),nominal=Number($('v9Amount').value),receiver=$('v9Receiver').value.trim();if(!member||!Number.isSafeInteger(nominal)||nominal<=0||nominal>member.saldo){note('v9Notice','Nominal harus positif dan tidak melebihi saldo terkonfirmasi.',true);return;}if(!await window.f4UiDialog.confirm('Apakah uang '+rupiah(nominal)+' BENAR-BENAR sudah dibayarkan kepada '+receiver+' untuk tabungan '+member.nama+'?'))return;busy(e.target,true);note('v9Notice','Mencatat pencairan...');try{const r=await call('bsV9CairkanTabungan',token,{nonce:v9Nonce,wargaId:member.wargaId,nominal,penerima:receiver,catatan:$('v9Notes').value});v9Nonce='';e.target.reset();await v9Load();note('v9Notice','Pencairan '+r.id+' tercatat • saldo akhir '+rupiah(r.saldoAkhir)+'.');}catch(err){note('v9Notice','Gagal mencatat: '+(err.message||err)+'. Jika status Diproses, jangan ulangi sebelum pemeriksaan.',true);}finally{busy(e.target,false);}}
   let v10Nonce='',v10ReportData=null;
