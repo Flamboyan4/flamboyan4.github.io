@@ -1892,15 +1892,15 @@ async function f4YearlyReadOnlyReport(db, request) {
 async function bookkeepingIuranHistory(db, request) {
   const url = new URL(request.url);
   const limit = Math.min(1e3, Math.max(1, Number(url.searchParams.get("limit")) || 500));
-  const out = await db.prepare(`SELECT p.id,p.payer_id,p.paid_on,p.amount_rp,p.payment_method,p.description,p.status,
+  const out = await db.prepare(`SELECT p.id,p.payer_id,p.paid_on,p.amount_rp,p.payment_method,p.description,p.status,p.payment_seq,
     bp.display_name,bp.member_id,m.household_id,h.house_code,
     a.period_year,a.period_month,a.contribution_type,a.amount_rp AS allocation_rp,a.status AS allocation_status
-    FROM (SELECT * FROM bookkeeping_payments ORDER BY paid_on DESC,id DESC LIMIT ?) p
+    FROM (SELECT rowid AS payment_seq,* FROM bookkeeping_payments ORDER BY paid_on DESC,rowid DESC LIMIT ?) p
     JOIN bookkeeping_payers bp ON bp.id=p.payer_id
     LEFT JOIN members m ON m.id=bp.member_id
     LEFT JOIN households h ON h.id=COALESCE(p.household_id,m.household_id)
     LEFT JOIN bookkeeping_payment_allocations a ON a.payment_id=p.id
-    ORDER BY p.paid_on DESC,p.id DESC,a.period_year,a.period_month`).bind(limit).all();
+    ORDER BY p.paid_on DESC,p.payment_seq DESC,a.period_year,a.period_month`).bind(limit).all();
   const byId = /* @__PURE__ */ new Map();
   for (const r of out.results || []) {
     if (!byId.has(r.id)) byId.set(r.id, {
@@ -1908,6 +1908,7 @@ async function bookkeepingIuranHistory(db, request) {
       idWarga: r.member_id || r.payer_id,
       nama: r.display_name || "",
       tanggal: r.paid_on,
+      urutanInput: Number(r.payment_seq || 0),
       totalDiterima: Number(r.amount_rp || 0),
       metode: r.payment_method || "",
       catatan: r.description || "",
