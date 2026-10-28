@@ -8,13 +8,16 @@ const inline=[...bank.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].find(
 if(!inline)throw Error('Bank member code not found');
 new vm.Script(inline[2],{filename:'bank-sampah:index-inline.js'});
 new vm.Script(bridge,{filename:'portal-live/live-bank-readonly.js'});
-for(const str of ['Estimasi saat timbang','Menunggu rekonsiliasi','function f4MemberDateID(raw)',
+for(const str of ['Perkiraan setoran','Hasil jual','function f4MemberDateID(raw)',
   "if(!isAdmin)$('f4-bank-quick')?.remove();","$('f4-monthly-trend')?.remove();",
   'f4-member-refresh','aria-label="Muat ulang data tabungan"',
-  'Pencairan tabungan melalui pengurus Bank Sampah.','/portal-live/bank-member-polish.css?v=']){
+  'function v37MemberWeightChart(rows)','/portal-live/bank-member-polish.css?v=']){
   if(!bank.includes(str))throw Error('Member display missing: '+str);
 }
 if(/<button[^>]*f4-member-refresh[^>]*>\s*Perbarui/i.test(bank))throw Error('Visible refresh label forbidden');
 if(!bridge.includes('Tabungan masuk dari hasil penjualan'))throw Error('Member ledger label missing');
 if(!css.includes('.f4-member-recent-value')||!css.includes('.f4-member-tools'))throw Error('Member CSS missing');
+if(!bank.includes("title.textContent=mode==='nilai'?'Nilai setoran saya':'Berat sampah saya'"))
+  throw Error('Dynamic member value/weight chart missing');
+if(!bank.includes("sub.textContent=p.belumAda?"))throw Error('Chart status label missing');
 console.log('BANK_MEMBER_VIEW_GUARD_OK');
