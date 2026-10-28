@@ -2551,7 +2551,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
     section.appendChild(titleRow);
     const active=(Array.isArray(rows)?rows:[]).filter(x=>
       !/batal|cancel/i.test(String(x.status||'')) &&
-      /^\\d{4}-\\d{2}-\\d{2}$/.test(String(x.tanggal||'')) &&
+      /^\d{4}-\d{2}-\d{2}$/.test(String(x.tanggal||'')) &&
       Number.isFinite(Number(x.beratKg)) && Number(x.beratKg)>=0
     ).sort((a,b)=>String(a.tanggal).localeCompare(String(b.tanggal)));
     if(!active.length){
