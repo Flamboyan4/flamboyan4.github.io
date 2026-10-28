@@ -1064,6 +1064,11 @@ async function handleUnifiedApi(request, env, who) {
   const url = new URL(request.url), path = url.pathname, method = request.method, db = env.DB;
   if (!path.startsWith("/api/v2/")) return null;
   if(path==='/api/v2/admin/content/transfer'&&method==='POST')return transferF4Content(request,env,who);
+  if(path==="/api/v2/admin/projects/categories"&&method==="GET"){
+    const denied=superadmin(who);if(denied)return denied;
+    const rows=await list(db,"SELECT DISTINCT category FROM bookkeeping_cash_transactions WHERE status='aktif' AND category IS NOT NULL AND TRIM(category)<>'' ORDER BY category LIMIT 150");
+    return ok({data:rows.map(x=>String(x.category||"")).filter(Boolean)});
+  }
   if(path==="/api/v2/admin/projects/orders"||path==="/api/v2/admin/projects/contributions")
     return handleProjectModule(request,env,who,url);
   if (path.startsWith(contentPath)) return handleAdminContent(request, env, who, url);
