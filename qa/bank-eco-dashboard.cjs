@@ -6,7 +6,7 @@ const css=fs.readFileSync('portal-live/bank-eco-dashboard.css','utf8');
 const core=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].find(x=>x[1].includes('function v14Setup()'))?.[1];
 if(!core)throw Error('Dashboard source missing');
 new vm.Script(core,{filename:'bank-sampah/index.html:inline'});
-for(const item of ["page.classList.add('v14-home','f4-eco-dashboard')",'id="v14Title"','id="v14QuickAction"','v14-kpi f4-eco-kpi','f4-eco-icon',"iconNames=['bank','user','cash','calendar']","const isAdmin=profile.peran==='Admin'","v14BankQuickActions();","v14Stat('Saldo sah'","v14Stat('Sampah terkumpul'"]){
+for(const item of ["page.classList.add('v14-home','f4-eco-dashboard')",'id="v14Title"','id="v14QuickAction"','v14-kpi f4-eco-kpi','f4-eco-icon',"iconNames=['bank','user','cash','calendar']","const isAdmin=profile.peran==='Admin'","v14BankQuickActions();","v14Stat('Saldo sah'","v14Stat('Berat tercatat'"]){
  if(!html.includes(item))throw Error('Missing dashboard feature: '+item);
 }
 if(html.includes('f4-eco-header-art')||html.includes('bank-eco-reference.webp')||html.includes('bank-eco-header.svg'))throw Error('Forced header illustration returned');
@@ -18,6 +18,11 @@ if(css.includes('Rp 6.000')||css.includes('33 warga')||css.includes('2 kg'))thro
 assertChevron();
 if(!html.includes('function v14WeightTrend(rows)')||!html.includes("title.textContent=mode==='nilai'?'Perkembangan nilai setoran':'Berat setoran per bulan'"))
   throw Error('Admin dashboard financial chart must track sale-confirmed values');
+
+if(!html.includes("r.berat==null?'Berat jual belum tersedia':kg(r.berat)"))
+ throw Error('Confirmed gram weight must not silently fall back to initial grams');
+if(!html.includes("period.missingWeight"))
+ throw Error('Admin chart must preserve missing final grams as unavailable');
 console.log('F4_ECO_CLEAN_HEADER_STATIC_OK');
 function assertChevron(){
  if(!html.includes('f4-eco-activity-arrow'))throw Error('Standard gallery chevron missing in activity list');
