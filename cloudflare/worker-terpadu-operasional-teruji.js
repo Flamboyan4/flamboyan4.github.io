@@ -3458,12 +3458,44 @@ async function bankUpdateSaleReceipt(request,env,who) {
 }
 __name(bankUpdateSaleReceipt, "bankUpdateSaleReceipt");
 var rupiah = /* @__PURE__ */ __name((v) => Number.isSafeInteger(v) && v >= 0 && v <= 1e12, "rupiah");
+// Satu aturan D1 untuk semua pengesahan baru. Transaksi yang sudah sah tetap utuh.
+const F4_BANK_SPLIT_KEY="BANK_WARGA_PERCENT";
+async function getBankSplitPolicy(db){
+ const row=await one(db,"SELECT setting_value,updated_at FROM app_settings WHERE setting_key=?",[F4_BANK_SPLIT_KEY]);
+ const raw=row?.setting_value, percent=raw===undefined||raw===null?50:Number(raw);
+ if(!Number.isSafeInteger(percent)||percent<1||percent>99)throw Error("Aturan pembagian hasil tidak valid. Hubungi Superadmin.");
+ return {wargaPercent:percent,lingkunganPercent:100-percent,updatedAt:row?.updated_at||null};
+}
+__name(getBankSplitPolicy,"getBankSplitPolicy");
+async function saveBankSplitPolicy(request,env,who){
+ const denied=requireRole(who,["superadmin"]);if(denied)return denied;
+ let payload;try{payload=await requestJson(request)}catch{return safeError("Data persentase tidak dapat dibaca.",400)}
+ const percent=payload?.wargaPercent;
+ if(!Number.isSafeInteger(percent)||percent<1||percent>99)return safeError("Porsi warga harus bilangan bulat 1 sampai 99 persen.",400);
+ const previous=await getBankSplitPolicy(env.DB);
+ if(previous.wargaPercent===percent)return json({ok:true,...previous,unchanged:true});
+ try{
+  await env.DB.batch([
+   env.DB.prepare(`INSERT INTO app_settings(setting_key,setting_value,description,updated_at,updated_by) VALUES(?,?,?,CURRENT_TIMESTAMP,?)
+      ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value,description=excluded.description,
+      updated_at=CURRENT_TIMESTAMP,updated_by=excluded.updated_by`)
+     .bind(F4_BANK_SPLIT_KEY,String(percent),"Porsi warga dari penjualan Bank Sampah; sisanya untuk lingkungan",who.id),
+   env.DB.prepare(`INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json)
+      VALUES(?,?,'banksampah','ubah_bagi_hasil','app_settings',?,?,?)`)
+     .bind("audit:bank-split:"+crypto.randomUUID(),who.id,F4_BANK_SPLIT_KEY,JSON.stringify(previous),
+      JSON.stringify({wargaPercent:percent,lingkunganPercent:100-percent,berlaku:"pengesahan baru"}))
+  ]);
+  return json({ok:true,...await getBankSplitPolicy(env.DB)});
+ }catch{return safeError("Aturan bagi hasil gagal disimpan. Pengaturan lama tetap berlaku.",409)}
+}
+__name(saveBankSplitPolicy,"saveBankSplitPolicy");
 // Hak tabungan dikonfirmasi dari uang hasil penjualan nyata, BUKAN nilai estimasi.
-// Pembulatan deterministik: warga memperoleh floor(hasil/2), selisih Rp1 ke lingkungan.
+// Pembulatan deterministik: warga floor(hasil × persentase / 100), sisa ke lingkungan.
 // Pembagian per warga memakai bobot estimasi historis; largest remainder menjaga total tepat.
-function bankSplitRights(received, weights) {
+function bankSplitRights(received, weights, wargaPercent) {
+  if(!Number.isSafeInteger(wargaPercent)||wargaPercent<1||wargaPercent>99)throw Error('Porsi warga tidak valid');
   if (!Number.isSafeInteger(received) || received <= 0 || received > 1e12) throw Error("Uang penjualan tidak valid");
-  const citizenRightsRp = Math.floor(received / 2);
+  const citizenRightsRp = Number(BigInt(received)*BigInt(wargaPercent)/100n);
   const environmentRp = received - citizenRightsRp;
   const sorted = weights.slice().sort((a,b)=>a.memberId.localeCompare(b.memberId));
   const total = sorted.reduce((sum,w)=>sum+BigInt(w.weightRp),0n);
@@ -3514,12 +3546,14 @@ async function reconcilePreview(db, batchId) {
     WHERE d.batch_id=? AND d.status='estimasi' AND dl.waste_item_id=sl.waste_item_id),0) deposit_grams
     FROM waste_sale_lines sl WHERE sl.sale_id=? GROUP BY sl.waste_item_id`,[batchId,sale.id]);
   if(excess.some(x=>x.sale_grams>x.deposit_grams || x.sale_grams<=0)) throw Error("Berat penjualan melebihi atau tidak sesuai setoran per kategori");
-  const split=bankSplitRights(sale.amount_received_rp,[...weights].map(([memberId,weightRp])=>({memberId,weightRp})));
+  const policy=await getBankSplitPolicy(db);
+  const split=bankSplitRights(sale.amount_received_rp,[...weights].map(([memberId,weightRp])=>({memberId,weightRp})),policy.wargaPercent);
   return {batchId,saleId:sale.id,receivedRp:sale.amount_received_rp,grossRp:sale.amount_gross_rp,
     estimatedRp:[...weights.values()].reduce((a,b)=>a+b,0),
     citizenRightsRp:split.citizenRightsRp,environmentRp:split.environmentRp,
+    wargaPercent:policy.wargaPercent,lingkunganPercent:policy.lingkunganPercent,
     remainingRp:split.environmentRp,rights:split.rights,depositIds:deposits.map(x=>x.id),
-    warning:"Konfirmasi akan mengunci batch serta menetapkan hak warga 50:50 dari uang diterima; estimasi awal bukan saldo siap cair."};
+    warning:"Konfirmasi akan mengunci batch dan membagi hasil "+policy.wargaPercent+":"+policy.lingkunganPercent+" dari uang diterima; estimasi awal bukan saldo siap cair."};
 }
 __name(reconcilePreview,"reconcilePreview");
 
@@ -3570,18 +3604,20 @@ async function bankReconcileConfirm(request,env,who){
   }
   let preview;try{preview=await reconcilePreview(env.DB,batchId)}catch(e){return safeError(String(e.message||"Rekonsiliasi gagal"),409)}
   if(preview.saleId!==expectedSaleId || operationRp+neighborhoodRp+reserveRp!==preview.environmentRp) return safeError("ID penjualan atau pembagian lingkungan berbeda dari pratinjau.",409);
+  if(p.expectedWargaPercent!==undefined && p.expectedWargaPercent!==preview.wargaPercent)
+    return safeError("Persentase telah berubah. Muat ulang pratinjau sebelum mengesahkan.",409);
   const auditId="audit:bank-confirm:"+expectedSaleId;
   const allocId="alloc:bank:"+batchId;
   const date=String((await one(env.DB,"SELECT sold_on FROM waste_sales WHERE id=?",[expectedSaleId])).sold_on);
   const stmts=[
     // Check statuses inside the same transaction; otherwise the CHECK constraint aborts the batch.
-    env.DB.prepare("INSERT INTO waste_allocations(id,batch_id,received_rp,citizen_rights_rp,reserve_rp,neighborhood_rp,operation_rp,adjustment_rp) VALUES(?,?,?,CASE WHEN EXISTS(SELECT 1 FROM waste_batches WHERE id=? AND status IN ('draft','siap')) AND EXISTS(SELECT 1 FROM waste_sales WHERE id=? AND batch_id=? AND status='draft') THEN ? ELSE -1 END,?,?,?,0)").bind(allocId,batchId,preview.receivedRp,batchId,expectedSaleId,batchId,preview.citizenRightsRp,reserveRp,neighborhoodRp,operationRp),
+    env.DB.prepare("INSERT INTO waste_allocations(id,batch_id,received_rp,citizen_rights_rp,reserve_rp,neighborhood_rp,operation_rp,adjustment_rp) VALUES(?,?,?,CASE WHEN EXISTS(SELECT 1 FROM waste_batches WHERE id=? AND status IN ('draft','siap')) AND EXISTS(SELECT 1 FROM waste_sales WHERE id=? AND batch_id=? AND status='draft') AND COALESCE((SELECT CAST(setting_value AS INTEGER) FROM app_settings WHERE setting_key='BANK_WARGA_PERCENT'),50)=? THEN ? ELSE -1 END,?,?,?,0)").bind(allocId,batchId,preview.receivedRp,batchId,expectedSaleId,batchId,preview.wargaPercent,preview.citizenRightsRp,reserveRp,neighborhoodRp,operationRp),
     env.DB.prepare("UPDATE waste_sales SET status='terkonfirmasi' WHERE id=? AND batch_id=? AND status='draft'").bind(expectedSaleId,batchId),
     env.DB.prepare("UPDATE waste_batches SET status='disahkan',confirmed_at=CURRENT_TIMESTAMP,confirmed_by=? WHERE id=? AND status IN ('draft','siap')").bind(who.id,batchId),
     ...preview.depositIds.map(id=>env.DB.prepare("UPDATE waste_deposits SET status='terkonfirmasi' WHERE id=? AND batch_id=? AND status='estimasi'").bind(id,batchId)),
-    ...preview.rights.filter(r=>r.amountRp>0).map(r=>env.DB.prepare("INSERT INTO waste_savings_ledger(id,member_id,transaction_on,kind,amount_rp,batch_id,reference_id,note,created_by) VALUES(?,?,?,'kredit',?,?,?,?,?)").bind("bank-right:"+expectedSaleId+":"+r.memberId,r.memberId,date,r.amountRp,batchId,expectedSaleId+":"+r.memberId,"Hak tabungan terkonfirmasi 50:50 dari penjualan",who.id)),
+    ...preview.rights.filter(r=>r.amountRp>0).map(r=>env.DB.prepare("INSERT INTO waste_savings_ledger(id,member_id,transaction_on,kind,amount_rp,batch_id,reference_id,note,created_by) VALUES(?,?,?,'kredit',?,?,?,?,?)").bind("bank-right:"+expectedSaleId+":"+r.memberId,r.memberId,date,r.amountRp,batchId,expectedSaleId+":"+r.memberId,"Hak tabungan "+preview.wargaPercent+"% dari penjualan",who.id)),
     ...[["tabungan_warga",preview.citizenRightsRp],["operasional",operationRp],["kas_lorong",neighborhoodRp],["cadangan",reserveRp]].filter(([_,amount])=>amount>0).map(([fund,amount])=>env.DB.prepare("INSERT INTO waste_cash_ledger(id,occurred_on,source_transaction_id,transaction_type,fund_position,cash_in_rp,cash_out_rp,status,note) VALUES(?,?,?,'penjualan_terkonfirmasi',?,?,0,'aktif',?)").bind("bank-sale-cash:"+expectedSaleId+":"+fund,date,expectedSaleId,fund,amount,"Pembagian hasil penjualan batch "+batchId)),
-    env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?, 'banksampah','confirm_reconciliation','waste_batches',?,?,?)").bind(auditId,who.id,batchId,"Konfirmasi pembagian 50:50",JSON.stringify({saleId:expectedSaleId,receivedRp:preview.receivedRp,citizenRightsRp:preview.citizenRightsRp,operationRp,neighborhoodRp,reserveRp,rights:preview.rights}))
+    env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?, 'banksampah','confirm_reconciliation','waste_batches',?,?,?)").bind(auditId,who.id,batchId,"Konfirmasi pembagian "+preview.wargaPercent+":"+preview.lingkunganPercent,JSON.stringify({wargaPercent:preview.wargaPercent,lingkunganPercent:preview.lingkunganPercent,saleId:expectedSaleId,receivedRp:preview.receivedRp,citizenRightsRp:preview.citizenRightsRp,operationRp,neighborhoodRp,reserveRp,rights:preview.rights}))
   ];
   try{
     const r=await env.DB.batch(stmts); // Cloudflare D1.batch: satu transaksi, gagal => seluruh perubahan rollback
@@ -3595,7 +3631,7 @@ async function bankReconcileConfirm(request,env,who){
     if(latest && latest.received_rp===preview.receivedRp && latest.operation_rp===operationRp && latest.neighborhood_rp===neighborhoodRp && latest.reserve_rp===reserveRp) return json({ok:true,batchId,status:"disahkan",duplicate:true});
     return safeError("Rekonsiliasi gagal; seluruh perubahan transaksi ditolak.",409);
   }
-  return json({ok:true,batchId,saleId:expectedSaleId,status:"disahkan",receivedRp:preview.receivedRp,citizenRightsRp:preview.citizenRightsRp,operationRp,neighborhoodRp,reserveRp,rights:preview.rights},201);
+  return json({ok:true,batchId,saleId:expectedSaleId,status:"disahkan",receivedRp:preview.receivedRp,citizenRightsRp:preview.citizenRightsRp,wargaPercent:preview.wargaPercent,lingkunganPercent:preview.lingkunganPercent,operationRp,neighborhoodRp,reserveRp,rights:preview.rights},201);
 }
 __name(bankReconcileConfirm,"bankReconcileConfirm");
 
@@ -4165,6 +4201,10 @@ async function handle(request, env) {
   if (!env.DB) return safeError("Database belum dikonfigurasi.", 503);
   const url = new URL(request.url), path = url.pathname.replace(/\/+$/, "") || "/";
   if (path === "/api/health" && request.method === "GET") return json({ ok: true, service: "flamboyan4-api", mode: "migration-preview" });
+  if (path === "/api/public/bank-split" && request.method === "GET") {
+    try{return json({ok:true,...await getBankSplitPolicy(env.DB)})}
+    catch{return safeError("Aturan bagi hasil belum tersedia.",503)}
+  }
   if (path === "/api/public/summary" && request.method === "GET") return json(await publicSummary(env.DB));
   if (path === "/api/public/overview" && request.method === "GET") return json(await publicOverview(env.DB));
   if (path === "/api/public/albums" && request.method === "GET") return json(await publicAlbums(env.DB));
@@ -4177,6 +4217,7 @@ async function handle(request, env) {
   if (path === "/api/auth/bootstrap-superadmin" && request.method === "POST") return bootstrapSuperadmin(request, env);
   if (path === "/api/auth/login" && request.method === "POST") return login(request, env);
   const who = await identity(request, env.DB);
+  if (path === "/api/superadmin/bank-split" && request.method === "POST") return saveBankSplitPolicy(request,env,who);
   if (path === "/api/v2/admin/residents") return residentsApi(request, env, who);
   if (path.startsWith("/api/v2/")) return handleUnifiedApi(request, env, who);
   if (path === "/api/auth/change-password" && request.method === "POST") return changePassword(request, env, who);
