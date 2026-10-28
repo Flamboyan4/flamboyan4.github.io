@@ -6,20 +6,37 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const rp=n=>'Rp '+Number(n||0).toLocaleString('id-ID');
 const kg=n=>(Number(n||0)/1000).toLocaleString('id-ID',{maximumFractionDigits:3})+' kg';
 const tanggal=v=>{const m=String(v||'').match(/^(\d{4})-(\d{2})-(\d{2})/);if(!m)return '—';return new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'long',year:'numeric'}).format(new Date(+m[1],+m[2]-1,+m[3]))};
-const css='@page{size:A4 portrait;margin:12mm 12mm 11mm}*{box-sizing:border-box}body{font:12px/1.4 Arial,sans-serif;color:#1e392a;background:#fff;margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
-'.sheet{max-width:186mm;margin:14px auto}.head{display:flex;align-items:center;gap:12px;border-bottom:2px solid #2f6848;padding-bottom:10px;margin-bottom:12px}'+
-'.head img{width:48px;height:48px;object-fit:contain}.head strong{display:block;font-size:17px;color:#19452b}.head small{display:block;color:#627968;font-size:10px}'+
-'h1{text-align:center;font-size:17px;margin:12px 0 4px}.sub{text-align:center;margin:0 0 14px;color:#57705d;font-size:11px}'+
-'.meta{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;padding:11px 12px;background:#f7fbf8;border:1px solid #d9e8dd;border-radius:9px}'+
-'.meta div{min-width:0;overflow-wrap:anywhere}.meta small{display:block;color:#647e6b;font-weight:700;font-size:10px}.meta b{font-size:11px}'+
-'table{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:12px}th,td{border:1px solid #cad9cf;padding:6px 5px;font-size:11px;vertical-align:top;overflow-wrap:anywhere}'+
-'th{background:#e5f1e8!important;color:#254b33;text-align:center}td.right{text-align:right;white-space:nowrap}tfoot td{font-weight:750;background:#f8fbf8}'+
-'.figures{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:11px 0}.figure{border:1px solid #d3e4d8;padding:9px;border-radius:8px}'+
-'.figure span{display:block;color:#58725e;font-size:10px}.figure strong{display:block;font-size:14px}.note{font-size:11px;margin:11px 0;line-height:1.55}'+
-'.sign{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:18px 0 0;break-inside:avoid}.sign div{text-align:center}.sign strong{display:block}.sign small{display:block;color:#627968}'+
-'.signature-line{border-bottom:1px solid #496651;margin:72px auto 5px;max-width:210px}.foot{border-top:1px solid #d7e3d9;margin-top:15px;padding-top:7px;font-size:9px;color:#607a67}'+
-'.toolbar{max-width:186mm;margin:14px auto 0;display:flex;justify-content:flex-end;gap:8px}.toolbar button{border:0;border-radius:8px;background:#17714b;color:white;padding:10px 15px;font:700 13px Arial;cursor:pointer}.toolbar button:first-child{background:#e8f1eb;color:#285b3f}'+
-'@media print{.toolbar{display:none!important}.sheet{margin:0 auto;max-width:none}thead{display:table-header-group}tr,.meta,.figures,.sign{break-inside:avoid}}';
+const css=[
+'@page{size:A5 landscape;margin:7mm 9mm}',
+'*{box-sizing:border-box}',
+'html,body{margin:0;padding:0;background:#fff;color:#1b3427;font:9pt/1.23 Arial,Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}',
+'.sheet{max-width:192mm;margin:8mm auto 5mm}',
+'.head{display:flex;align-items:center;gap:2.5mm;padding-bottom:2.5mm;border-bottom:1.5px solid #2c6546;margin-bottom:2.5mm}',
+'.head img{width:12mm;height:12mm;object-fit:contain;flex:none}',
+'.brand{min-width:0;flex:1 1 auto}.brand strong{display:block;color:#155337;font-size:11pt;line-height:1.12}.brand small{display:block;color:#476c56;font-size:8pt;margin-top:1px}',
+'.doc-title{text-align:right;max-width:82mm;flex:none;font-size:10pt;font-weight:800;line-height:1.18;color:#173e2b}',
+'.doc-title small{display:block;font-size:8pt;font-weight:500;margin-top:1mm;color:#567363}',
+'.meta{display:grid;grid-template-columns:1.2fr .95fr 1.3fr 1.1fr;gap:1.5mm;margin:0 0 2.5mm;padding:2mm 2.4mm;border:1px solid #d4e3d9;border-radius:1.5mm;background:#f8fbf8}',
+'.meta>div{min-width:0;overflow-wrap:anywhere}.meta small{display:block;font-size:8pt;color:#597565;line-height:1.05;margin-bottom:.6mm}.meta b{font-size:9pt;line-height:1.15;display:block}',
+'table{width:100%;border-collapse:collapse;table-layout:fixed;margin:0 0 2mm}',
+'th,td{border:1px solid #ceded3;padding:1.3mm 1.6mm;font-size:8.5pt;line-height:1.15;overflow-wrap:anywhere;vertical-align:top}',
+'th{background:#e5f1e8!important;color:#234d35;text-align:center;font-weight:700}',
+'td.right{text-align:right;white-space:nowrap}',
+'tfoot td{font-size:9pt;font-weight:750;background:#f8fbf9}',
+'.totals{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2mm;border:1px solid #c9e0cf;border-radius:1.5mm;margin:2mm 0;padding:1.7mm 2.5mm;background:#f6faf7}',
+'.totals div{display:flex;align-items:center;justify-content:space-between;gap:2mm;min-width:0}',
+'.totals span{font-size:8pt;color:#526d59;white-space:nowrap}.totals b{font-size:9.5pt;white-space:nowrap}',
+'.desc{font-size:8.2pt;line-height:1.22;margin:2.2mm 0 0;max-width:100%}',
+'.status{font-size:8pt;color:#557160;margin:1.5mm 0 0}',
+'.sign{display:grid;grid-template-columns:1fr 1fr;gap:13mm;margin:4mm 8mm 0;break-inside:avoid}',
+'.sig{text-align:center;font-size:8.5pt}.sig strong{display:block;font-size:9pt}.sig small{display:block;font-size:8pt;color:#486753}',
+'.sig .line{border-bottom:1px solid #456b52;margin:14mm 0 1mm}',
+'.footer{border-top:1px solid #d5e3da;margin-top:2.5mm;padding-top:1mm;font-size:8pt;color:#64806e}',
+'.toolbar{max-width:192mm;margin:12px auto;display:flex;justify-content:flex-end;gap:8px}',
+'.toolbar button{background:#18764d;color:#fff;border:0;border-radius:7px;padding:10px 15px;font:700 10pt Arial;cursor:pointer}',
+'.toolbar button:first-child{background:#e4f2e8;color:#21543a}',
+'@media print{.sheet{max-width:none;margin:0 auto}.toolbar{display:none!important}thead{display:table-header-group}tr,.head,.meta,.totals,.sign{break-inside:avoid}}'
+].join('');
 function page(body,tools){
  return '<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
  '<title>Form Serah Terima Penjualan - Flamboyan 4</title><style>'+css+'</style></head><body>'+
@@ -28,23 +45,32 @@ function page(body,tools){
 function build(sale,lines){
  const bruto=Number(sale.amount_gross_rp||0),diterima=Number(sale.amount_received_rp||0);
  const check=lines.reduce((n,x)=>n+Number(x.total_rp||0),0);
- if(!lines.length||!Number.isSafeInteger(check)||bruto!==check)throw Error('Total detail penjualan berbeda dari D1. Periksa transaksi sebelum mencetak.');
- if(sale.status==='dibatalkan')throw Error('Penjualan dibatalkan. Form tidak diterbitkan.');
- const totalBerat=lines.reduce((n,x)=>n+Number(x.grams||0),0);
- const tr=lines.map((x,i)=>'<tr><td class="right">'+(i+1)+'</td><td>'+esc(x.name||'Barang')+'</td><td class="right">'+kg(x.grams)+'</td><td class="right">'+rp(x.priceRpPerKg)+'</td><td class="right">'+rp(x.total_rp)+'</td></tr>').join('');
- const signature=(label,role)=>'<div><strong>'+label+'</strong><small>'+role+'</small><div class="signature-line"></div><small>(Nama terang dan tanda tangan)</small></div>';
+ if(!lines.length||!Number.isSafeInteger(check)||bruto!==check)throw Error('Jumlah rincian barang tidak sama dengan transaksi D1. Periksa data sebelum mencetak.');
+ if(sale.status==='dibatalkan')throw Error('Transaksi sudah dibatalkan. Form tidak dapat diterbitkan.');
+ const grams=lines.reduce((n,x)=>n+Number(x.grams||0),0);
+ const reference=String(sale.id||'').replace(/[^a-z0-9]/gi,'').slice(-8).toUpperCase();
+ const docCode='BS-'+String(sale.sold_on||'').replace(/[^0-9]/g,'').slice(0,8)+'-'+reference;
+ const receiptNo=String(sale.receipt_no||'').trim();
+ const rows=lines.map((x,i)=>'<tr><td class="right">'+(i+1)+'</td><td>'+esc(x.name||'Barang')+'</td>'+
+  '<td class="right">'+kg(x.grams)+'</td><td class="right">'+rp(x.priceRpPerKg)+'</td><td class="right">'+rp(x.total_rp)+'</td></tr>').join('');
+ const signature=(heading,role)=>'<div class="sig"><strong>'+heading+'</strong><small>'+role+'</small><div class="line"></div><small>Nama terang & tanda tangan</small></div>';
  return page('<main class="sheet">'+
- '<div class="head"><img src="/assets/logo-flamboyan.svg" alt="Flamboyan 4"><div><strong>BANK SAMPAH FLAMBOYAN 4</strong><small>Administrasi penjualan sampah warga</small><small>flamboyan4.web.id</small></div></div>'+
- '<h1>BERITA ACARA SERAH TERIMA PENJUALAN SAMPAH</h1><p class="sub">Dokumen untuk tanda tangan dan arsip fisik</p>'+
- '<div class="meta"><div><small>Kode transaksi D1</small><b>'+esc(sale.id)+'</b></div><div><small>Kode batch setoran</small><b>'+esc(sale.batch_id||'—')+'</b></div>'+
- '<div><small>Tanggal penjualan</small><b>'+esc(tanggal(sale.sold_on))+'</b></div><div><small>Nama lapak / pengepul</small><b>'+esc(sale.buyer_name||'—')+'</b></div></div>'+
- '<table><colgroup><col style="width:7%"><col style="width:33%"><col style="width:16%"><col style="width:22%"><col style="width:22%"></colgroup><thead><tr><th>No</th><th>Jenis barang</th><th>Berat</th><th>Harga/kg</th><th>Jumlah</th></tr></thead><tbody>'+tr+
- '</tbody><tfoot><tr><td colspan="2">TOTAL</td><td class="right">'+kg(totalBerat)+'</td><td></td><td class="right">'+rp(bruto)+'</td></tr></tfoot></table>'+
- '<div class="figures"><div class="figure"><span>Nilai penjualan bruto</span><strong>'+rp(bruto)+'</strong></div><div class="figure"><span>Dana diterima dari lapak</span><strong>'+rp(diterima)+'</strong></div></div>'+
- '<p class="note">Status sistem: <b>'+esc(sale.status==='terkonfirmasi'?'Terkonfirmasi':'Draft / belum direkonsiliasi')+'</b>. Selisih bruto dan penerimaan: <b>'+rp(bruto-diterima)+'</b>.</p>'+
- '<p class="note">Dengan menandatangani dokumen ini, kedua pihak menyatakan telah memeriksa dan menyepakati jenis barang, berat, harga, dan nominal penjualan sebagaimana tercantum di atas.</p>'+
+ '<header class="head"><img src="/assets/logo-flamboyan.svg" alt="Logo Flamboyan 4"><div class="brand"><strong>BANK SAMPAH FLAMBOYAN 4</strong><small>Bersama menjaga lingkungan · flamboyan4.web.id</small></div>'+
+ '<div class="doc-title">BERITA ACARA SERAH TERIMA<br>PENJUALAN SAMPAH<small>Untuk arsip fisik kedua pihak</small></div></header>'+
+ '<div class="meta"><div><small>No. nota lapak</small><b>'+esc(receiptNo||'Belum diisi')+'</b></div>'+
+ '<div><small>Tanggal penjualan</small><b>'+esc(tanggal(sale.sold_on))+'</b></div>'+
+ '<div><small>Lapak / pengepul</small><b>'+esc(sale.buyer_name||'—')+'</b></div>'+
+ '<div><small>No. arsip otomatis</small><b>'+esc(docCode)+'</b></div></div>'+
+ '<table><colgroup><col style="width:7%"><col style="width:37%"><col style="width:16%"><col style="width:20%"><col style="width:20%"></colgroup>'+
+ '<thead><tr><th>No.</th><th>Jenis sampah</th><th>Berat</th><th>Harga/kg</th><th>Jumlah</th></tr></thead><tbody>'+rows+'</tbody>'+
+ '<tfoot><tr><td colspan="2">TOTAL</td><td class="right">'+kg(grams)+'</td><td></td><td class="right">'+rp(bruto)+'</td></tr></tfoot></table>'+
+ '<section class="totals"><div><span>Berat terjual</span><b>'+kg(grams)+'</b></div>'+
+ '<div><span>Hasil bruto</span><b>'+rp(bruto)+'</b></div><div><span>Diterima</span><b>'+rp(diterima)+'</b></div></section>'+
+ (bruto!==diterima?'<p class="status">Selisih penerimaan: <strong>'+rp(bruto-diterima)+'</strong> · Periksa kesesuaian pembayaran.</p>':'')+
+ '<p class="desc">Kedua pihak menyatakan telah memeriksa dan menyepakati jenis barang, berat, harga, serta jumlah penjualan seperti tercantum di atas.</p>'+
  '<div class="sign">'+signature('Diserahkan oleh,','Humas Flamboyan 4')+signature('Diterima oleh,','Pemilik / wakil lapak')+'</div>'+
- '<p class="foot">Dibuat otomatis dari transaksi Cloudflare D1. Tanda tangan dilakukan manual. Dokumen ini bukan pengesahan otomatis pembagian tabungan ataupun rekonsiliasi.</p></main>',true);
+ '<footer class="footer">Status pencatatan: '+esc(sale.status==='terkonfirmasi'?'Terkonfirmasi':'Draft')+'. Dokumen ditandatangani secara manual; pencetakan tidak mengubah transaksi atau saldo warga.</footer>'+
+ '</main>',true);
 }
 window.F4SaleHandover=function(record){
  const id=String(record?.id||'').trim();if(!id)return;
