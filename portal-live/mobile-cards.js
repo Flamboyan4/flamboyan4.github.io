@@ -88,6 +88,9 @@ function toggle(container,after){
  update();return button;
 }
 function enrichTable(table){
+ // Saldo Anggota punya tiga kolom ringkas, bukan kartu transaksi yang dapat diperluas.
+ // Hindari enhancer global agar 33 saldo tidak menjadi kartu tinggi yang bertabrakan.
+ if(table.closest('#v9List'))return;
  if(table.closest('#v10Print,#v27PrintReport,#v25PrintReport,#f4-superadmin-confirm,[data-print-only]'))return;
  // Do not collapse tabular data-entry forms or editable controls.
  if(table.querySelector('input:not([type=hidden]),select,textarea'))return;
