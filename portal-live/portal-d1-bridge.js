@@ -12,7 +12,6 @@
   'gid=492423764':'inventory',
   'gid=781301604':'agenda',
   'gid=780113187':'banners',
-  'gid=40982005':'projects',
   'gid=53284271':'arisan',
   'gid=878370178':'jerseyBapak',
   'gid=1755921986':'jerseyIbu'
@@ -61,20 +60,6 @@
    case 'banners':
     return csv([['Judul Banner','Link Foto / Drive','Link Tujuan (Target)'],
       ...(data.banners||[]).map(x=>[x.title,x.image_ref,x.target_url])]);
-   case 'projects':
-    return csv([['Urutan','Nama Projek','Jenis','Status','Tampil','Link'],
-      ...(data.projects||[]).map(x=>{
-       const title=String(x.title||''),name=title.toLowerCase();
-       const kind=name.includes('sampah')?'Bank Sampah':name.includes('gapura')?'Gapura':name.includes('jersey')?'Jersey':title;
-       const raw=String(x.target_url||'');
-       const oldLink=raw.toLowerCase();
-       const invalidBankLink=!raw||oldLink.includes('script.google.com')||oldLink==='/banksampah/'||oldLink==='/banksampah';
-       const link=kind==='Bank Sampah'&&invalidBankLink
-         ?'https://flamboyan4.web.id/#bank-sampah':raw;
-       const description=String(x.description||'').trim();
-       const status=description.length<=50?description||'Aktif':'Aktif';
-       return [x.sort_order,title,kind,status,'YA',link];
-      })]);
    default:throw Error('Jenis CSV tidak terdaftar');
   }
  }
@@ -97,11 +82,5 @@
    return undefined;
   };
  }
- window.fetch=function(input,opts){
-  const kind=kindFromUrl(typeof input==='string'?input:input?.url);
-  if(kind!=='projects')return fetchNative(input,opts);
-  return portalData().then(d=>new Response(asCsv('projects',d),{
-    status:200,headers:{'Content-Type':'text/csv; charset=utf-8','Cache-Control':'no-store'}
-  })).catch(e=>{throw Error('Proyek belum dapat dimuat: '+e.message)});
- };
+ // Project Card now fetches D1 directly; do not override global fetch.
 })();
