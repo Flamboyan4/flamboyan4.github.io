@@ -75,7 +75,7 @@
    idTransaksi:x.id||'D1-'+i,
    tanggal:x.occurred_on||x.tanggal||'',
    jenis:n(x.debit_rp)>0?'Pemasukan':n(x.credit_rp)>0?'Pengeluaran':'',
-   kategori:x.category||'',keterangan:x.note||x.description||'',
+   kategori:x.category||'',keterangan:x.note||x.description||'',namaWarga:x.payer_name||'',
    debit:n(x.debit_rp),kredit:n(x.credit_rp),
    status:['batal','dibatalkan'].includes(String(x.status||'').toLowerCase())?'BATAL':'AKTIF',
    // Only new manual entries can be edited/cancelled; never expose legacy journal actions.
