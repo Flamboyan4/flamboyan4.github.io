@@ -41,7 +41,41 @@ body.f4-direct-superadmin{padding-top:0!important}
 body.f4-direct-simple{padding-top:56px!important;padding-left:226px!important}
 /* Rapat used its own tall legacy navbar. The unified 56px bar now replaces it. */
 body.f4-direct-simple>header{display:none!important}
-body.f4-denied>*:not(#f4-direct-bar):not(#f4-direct-dialog):not(#f4-direct-gate):not(#f4-direct-sideback):not(#f4-direct-sidebar){display:none!important}
+/* Akses langsung kedua portal privat: satu halaman penolakan, tanpa bar/sidebar. */
+body.f4-denied{margin:0!important;min-height:100dvh!important;background:#f6f9f7!important;overflow-x:hidden!important}
+body.f4-denied>*:not(#f4-direct-gate){display:none!important}
+body.f4-denied #f4-direct-gate[hidden]{display:none!important}
+body.f4-denied #f4-direct-gate:not([hidden]){
+ display:flex!important;position:fixed!important;inset:0!important;z-index:2147483646!important;
+ align-items:center!important;justify-content:center!important;box-sizing:border-box!important;
+ overflow:auto!important;padding:20px!important;background:#f6f9f7!important;
+ color:#1f3c30!important;font:14px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif!important
+}
+body.f4-denied .f4-access-denied-panel{
+ width:min(100%,440px)!important;box-sizing:border-box!important;text-align:center!important;
+ padding:34px 30px 30px!important;border-radius:20px!important;border:1px solid #e0e9e2!important;
+ background:#fff!important;box-shadow:0 18px 50px rgba(29,69,46,.07)!important
+}
+body.f4-denied .f4-access-denied-symbol{
+ display:grid!important;place-items:center!important;width:56px!important;height:56px!important;
+ margin:0 auto 18px!important;border-radius:17px!important;background:#eef7f1!important;color:#177852!important
+}
+body.f4-denied .f4-access-denied-symbol svg{width:28px!important;height:28px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.8!important}
+body.f4-denied .f4-access-denied-panel h1{font:800 25px/1.2 system-ui,sans-serif!important;color:#243c32!important;margin:0 0 12px!important}
+body.f4-denied .f4-access-denied-panel p{font:400 14px/1.6 system-ui,sans-serif!important;color:#61766a!important;margin:0 0 10px!important}
+body.f4-denied .f4-access-denied-hint{font-size:12px!important;color:#849389!important;margin-bottom:24px!important}
+body.f4-denied .f4-access-denied-back{
+ display:flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;
+ width:100%!important;min-height:45px!important;margin-top:21px!important;padding:10px 14px!important;
+ background:#087f5b!important;border:1px solid #087f5b!important;border-radius:10px!important;
+ color:#fff!important;text-decoration:none!important;font:700 14px/1.3 system-ui,sans-serif!important
+}
+body.f4-denied .f4-access-denied-back:hover{background:#066b4c!important}
+body.f4-denied .f4-access-denied-back:focus-visible{outline:3px solid #a5ddc2!important;outline-offset:3px!important}
+@media(max-width:540px){
+ body.f4-denied .f4-access-denied-panel{padding:28px 20px 24px!important}
+ body.f4-denied .f4-access-denied-panel h1{font-size:22px!important}
+}
 body.f4-direct-superadmin .f4-sa-standalone-menu{display:none!important}
 body.f4-direct-superadmin #f4-account-page>main{padding-top:84px!important}
 body.f4-direct-portal #f4-unified-account,body.f4-direct-bank #f4-unified-account,body.f4-direct-book #f4-unified-account,body.f4-direct-superadmin #f4-unified-account{z-index:400!important}
