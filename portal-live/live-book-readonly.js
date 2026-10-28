@@ -335,8 +335,14 @@
   if(!r?.data?.record||r.data.record.tahun!==year)throw Error('Detail arsip tidak sesuai.');
   return successful({data:r.data});
  }
+ async function kasBatchData(p){
+  const query=new URLSearchParams({category:String(p.category||'kas_lorong'),
+    month:String(p.bulan||''),year:String(p.tahun||'')});
+  const result=await read('/api/bookkeeping/kas-batches?'+query);
+  return successful({data:result.data});
+ }
  const exact={
-  bootstrap,riwayatpembayaran:history,datatransaksikas:cash,
+  bootstrap,riwayatpembayaran:history,datatransaksikas:cash,datapembukuankas:kasBatchData,
   iuranquicksummary:quickSummary,laporankas:cashReport,
   koreksitanggalmigrasi:correctMigratedDate,
   laporanrt:p=>contributionReport('rt',p),
