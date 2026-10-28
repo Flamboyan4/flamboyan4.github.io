@@ -2870,9 +2870,52 @@ function iqCountHtml(c){
   const partial=s>0?`<span class="mitem" title="Sebagian"><i data-lucide="circle-dot"></i>${s}</span>`:'';
   return `<span class="iq-count-desktop"><span>${paid}</span><span>${b} belum</span></span><span class="iq-count-mobile"><span class="iq-count-mobile-line"><span class="mitem" title="Sudah bayar"><i data-lucide="circle-check"></i>${l}</span>${partial}</span><span class="iq-count-mobile-line"><span class="mitem" title="Belum bayar"><i data-lucide="circle"></i>${b}</span></span></span>`;
 }
+function f4RebuildQuickSummaryFromPaymentAllocations(server){
+  // Baca alokasi pembayaran historis dari D1 yang sudah ada di browser.
+  // Jangan memperkirakan pembagian berdasarkan total; lakukan hanya jika
+  // seluruh nominal per alokasi cocok dengan total server.
+  const rows=(DATA.riwayat||[]).filter(x=>x.status==='AKTIF');
+  const period=window.UPR?.state?.('history-iuran');
+  if(!period||!rows.length||!server?.totals)return null;
+  const parts={rt:0,kas:0,arisan:0,total:0};
+  const paid={rt:new Set(),kas:new Set(),arisan:new Set()};
+  const validTypes=new Set(['IURAN_BULANAN','KEBERSIHAN','KAS_LORONG','ARISAN']);
+  let found=0;
+  for(const row of rows){
+    const allocations=Array.isArray(row.alokasi)?row.alokasi:[];
+    for(const a of allocations){
+      if(String(a.status||'aktif').toLowerCase()!=='aktif')continue;
+      const type=String(a.jenis||'').toUpperCase();
+      if(!validTypes.has(type))continue;
+      const amount=Number(a.nominal??a.jumlahRp??0);
+      if(!Number.isSafeInteger(amount)||amount<0)return null;
+      const periodKey=String(a.tahun)+'-'+String(a.bulan).padStart(2,'0');
+      const qualifies=period.level==='date'?matchRiwayatPeriod(row):
+        period.level==='year'?Number(a.tahun)>=Number(period.from)&&Number(a.tahun)<=Number(period.to):
+        periodKey>=String(period.from)&&periodKey<=String(period.to);
+      if(!qualifies)continue;
+      found++;parts.total+=amount;
+      const kind=type==='KAS_LORONG'?'kas':type==='ARISAN'?'arisan':'rt';
+      parts[kind]+=amount;
+      if(amount>0)paid[kind].add(String(row.idWarga||row.nama||''));
+    }
+  }
+  if(!found||parts.total!==Number(server.totals.totalMasuk||0))return null;
+  const totals={...server.totals,setoranRT:parts.rt,kasLorong:parts.kas,arisan:parts.arisan,
+    selisih:Number(server.totals.totalMasuk)-parts.rt-parts.kas-parts.arisan};
+  const counts={...server.counts};
+  for(const kind of ['rt','kas','arisan']){
+    const old=server.counts?.[kind]||{},required=Number(old.lunas||0)+Number(old.belum||0);
+    counts[kind]={...old,lunas:paid[kind].size,belum:Math.max(0,required-paid[kind].size)};
+  }
+  return {...server,totals,counts,source:'d1-payment-allocations-local-check'};
+}
 function renderIuranQuickSummary(data){
   const box=document.getElementById('iuran-quick-summary');if(!box)return;
-  if(data)IURAN_QUICK_DATA=data;
+  if(data){
+    IURAN_QUICK_DATA=Math.abs(Number(data.totals?.selisih||0))>0?
+      (f4RebuildQuickSummaryFromPaymentAllocations(data)||data):data;
+  }
   const d=IURAN_QUICK_DATA;
   if(d&&d.totals){
     const t=d.totals,c=d.counts||{};const put=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=rupiah(v||0)};
@@ -2939,7 +2982,7 @@ function renderRiwayat(){
       if(bolehHapus)actions.push(actionIcon('trash-2','Hapus',`hapusPembayaran('${x.idPembayaran}')`,'red'));
     }
     const aksi=`<div class="action-icons">${actions.join('')}</div>`;
-    return `<tr class="${batal?'opacity-55':''} hover:bg-violet-50/30"><td class="p-3 whitespace-nowrap">${histDate(x.tanggal)}</td><td class="p-3"><div class="font-bold whitespace-nowrap">${x.nama||'-'}</div><div class="text-xs text-slate-400 whitespace-nowrap">${info.rumah||'-'} • ${x.idPembayaran}</div></td><td class="p-3 text-right whitespace-nowrap"><div class="font-black">${rupiah(x.totalDiterima)}</div>${Number(x.kekuranganKasLorong||0)>0?`<div class="text-xs font-bold text-amber-700">Kurang Kas ${rupiah(x.kekuranganKasLorong)}</div>`:''}${x.jenisPembayaran==='PELUNASAN_KAS'?'<div class="text-xs text-emerald-700 font-bold">Pelunasan Kas</div>':''}</td><td class="p-3 whitespace-nowrap">${x.metode||'-'}</td><td class="p-3 text-center">${badge}</td><td class="p-3 text-right">${aksi}</td></tr>`;
+    return `<tr class="${batal?'opacity-55':''} hover:bg-violet-50/30"><td class="p-3 whitespace-nowrap">${histDate(x.tanggal)}</td><td class="p-3"><div class="font-bold whitespace-nowrap">${x.nama||'-'}</div><div class="text-xs text-slate-400 whitespace-nowrap">${info.rumah||'-'}</div></td><td class="p-3 text-right whitespace-nowrap"><div class="font-black">${rupiah(x.totalDiterima)}</div>${Number(x.kekuranganKasLorong||0)>0?`<div class="text-xs font-bold text-amber-700">Kurang Kas ${rupiah(x.kekuranganKasLorong)}</div>`:''}${x.jenisPembayaran==='PELUNASAN_KAS'?'<div class="text-xs text-emerald-700 font-bold">Pelunasan Kas</div>':''}</td><td class="p-3 whitespace-nowrap">${x.metode||'-'}</td><td class="p-3 text-center">${badge}</td><td class="p-3 text-right">${aksi}</td></tr>`;
   }).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada riwayat pembayaran pada periode ini.</td></tr>';
   const b=document.getElementById('btn-riwayat-more');if(total>10){b.classList.remove('hidden');b.textContent=RIWAYAT_SEMUA?'Tampilkan 10 terbaru':'Lihat semua ('+total+')'}else b.classList.add('hidden');
   refreshHistoryIcons();
@@ -4269,7 +4312,7 @@ async function hapusPinjamanPermanen(id){const x=(DATA_PINJAMAN.rows||[]).find(v
 const MF=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'],MS=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],WK=['Min','Sen','Sel','Rab','Kam','Jum','Sab'],PS={};
 const p2=n=>String(n).padStart(2,'0'),now=()=>{const d=new Date();return{y:d.getFullYear(),m:d.getMonth()+1,d:d.getDate()}},def=()=>{const n=now(),v=`${n.y}-${p2(n.m)}`;return{level:'month',from:v,to:v}},st=k=>PS[k]||(PS[k]=def());
 function pv(l,v){const n=now();if(l==='date'){const m=String(v||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?{y:+m[1],m:+m[2],d:+m[3]}:n}if(l==='month'){const m=String(v||'').match(/^(\d{4})-(\d{2})$/);return m?{y:+m[1],m:+m[2],d:1}:{y:n.y,m:n.m,d:1}}return{y:Number(v)||n.y,m:1,d:1}}
-function mv(l,p){return l==='date'?`${p.y}-${p2(p.m)}-${p2(p.d)}`:l==='month'?`${p.y}-${p2(p.m)}`:String(p.y)}function show(l,v){const p=pv(l,v);return l==='date'?`${p.d} ${MS[p.m-1]} ${p.y}`:l==='month'?`${MF[p.m-1]} ${p.y}`:String(p.y)}function rank(l,v){const p=pv(l,v);return l==='date'?new Date(p.y,p.m-1,p.d).getTime():l==='month'?p.y*12+p.m:p.y}
+function mv(l,p){return l==='date'?`${p.y}-${p2(p.m)}-${p2(p.d)}`:l==='month'?`${p.y}-${p2(p.m)}`:String(p.y)}function show(l,v){const p=pv(l,v),hp=window.matchMedia('(max-width:767px)').matches;return l==='date'?`${p.d} ${MS[p.m-1]} ${hp?String(p.y).slice(-2):p.y}`:l==='month'?`${hp?MS[p.m-1]:MF[p.m-1]} ${p.y}`:String(p.y)}function rank(l,v){const p=pv(l,v);return l==='date'?new Date(p.y,p.m-1,p.d).getTime():l==='month'?p.y*12+p.m:p.y}
 function bounds(s){const a=pv(s.level,s.from),b=pv(s.level,s.to);let A,B;if(s.level==='date'){A=new Date(a.y,a.m-1,a.d,0,0,0,0);B=new Date(b.y,b.m-1,b.d,23,59,59,999)}else if(s.level==='month'){A=new Date(a.y,a.m-1,1);B=new Date(b.y,b.m,0,23,59,59,999)}else{A=new Date(a.y,0,1);B=new Date(b.y,11,31,23,59,59,999)}return{start:A.getTime(),end:B.getTime()}}
 function html(k){return `<div class="upr-range"><div class="upr-control" data-key="${k}" data-side="from"><button type="button" class="upr-field" onclick="UPR.open('${k}','from',this)"><span class="upr-field-text"></span><i data-lucide="calendar-days"></i></button><div class="upr-pop"></div></div><span class="upr-sep">s.d.</span><div class="upr-control" data-key="${k}" data-side="to"><button type="button" class="upr-field" onclick="UPR.open('${k}','to',this)"><span class="upr-field-text"></span><i data-lucide="calendar-days"></i></button><div class="upr-pop"></div></div></div>`}
 function rf(k){const s=st(k);document.querySelectorAll(`.upr-control[data-key="${k}"]`).forEach(c=>{c.querySelector('.upr-field-text').textContent=show(s.level,s[c.dataset.side])});try{lucide.createIcons()}catch(e){}}
@@ -5133,6 +5176,25 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
     pointer-events:none!important;
   }
 
+}
+</style>
+
+<style id="f4-20261028-calendar-legible">
+/* Teks diperbesar; ruang kalender ditata dari padding, bukan memperkecil font. */
+@media screen and (max-width:767px){
+  .upr-pop,.mdc-pop{padding:12px!important}
+  .upr-title,.mdc-title{font-size:17px!important;line-height:1.25!important}
+  .upr-level-note{font-size:13px!important;line-height:1.35!important;margin:5px 0 9px!important}
+  .upr-week div,.mdc-week div{font-size:14px!important;padding:7px 0!important}
+  .upr-day,.mdc-day{font-size:16px!important;font-weight:600!important;min-width:0!important;min-height:38px!important}
+  .upr-month,.upr-year,.mdc-month,.mdc-year{font-size:16px!important}
+  .upr-nav,.mdc-nav{font-size:23px!important}
+  .upr-field{padding-left:9px!important;padding-right:31px!important}
+  .upr-field .upr-field-text{font-size:15px!important;letter-spacing:-.1px}
+  .upr-field svg{width:18px!important;height:18px!important;right:7px!important}
+  .upr-range{gap:5px!important}
+  .upr-sep{font-size:13px!important}
+  .mdc-btn .mdc-text{font-size:15px!important}
 }
 </style>
 <style id="f4-popup-position-20261027">
