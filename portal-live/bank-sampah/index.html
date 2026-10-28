@@ -1112,6 +1112,97 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
    font-size:19px!important;line-height:1.2!important;margin:0!important
  }
 }
+
+/* 2026-10-28 — mobile financial summary readability and report form density.
+   Keep normal financial figures in prints/tables; shorten long KPI-only values. */
+@media screen and (max-width:760px){
+  body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primary>.v14-kpi strong,
+  body.f4-direct-bank #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary>.v14-kpi strong{
+    font-size:20px!important;line-height:1.25!important;letter-spacing:-.2px!important;
+    overflow-wrap:normal!important;word-break:normal!important;min-width:0!important;
+    max-width:100%!important
+  }
+  body.f4-direct-bank #dashboardView #pageDashboard #v14Primary>.v14-kpi strong[data-f4-full-value]{
+    font-size:19px!important;font-variant-numeric:tabular-nums!important;
+    white-space:normal!important
+  }
+  body.f4-direct-bank #dashboardView #pageDashboard.v14-home #v14Extra>.v14-extra strong{
+    font-size:19px!important;line-height:1.24!important;max-width:100%!important;
+    overflow-wrap:normal!important
+  }
+  body.f4-direct-bank #dashboardView #pageDashboard #v14Extra>.v14-extra strong[data-f4-full-value]{
+    font-size:18px!important
+  }
+  /* Checklist: 2 even columns instead of oversized free-flow chips. */
+  body.f4-direct-bank #dashboardView #pageLaporan .v33-report-controls{
+    gap:9px!important;padding:11px!important;margin:0 0 10px!important
+  }
+  body.f4-direct-bank #dashboardView #pageLaporan .v33-report-choices{
+    min-width:0!important;margin:0!important;padding:0!important
+  }
+  body.f4-direct-bank #dashboardView #pageLaporan .v33-report-chips{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:7px!important;align-items:stretch!important
+  }
+  body.f4-direct-bank #dashboardView #pageLaporan .v33-report-chips>.v33-report-chip{
+    display:flex!important;align-items:center!important;justify-content:flex-start!important;
+    box-sizing:border-box!important;width:100%!important;min-width:0!important;max-width:100%!important;
+    min-height:43px!important;height:auto!important;max-height:none!important;
+    margin:0!important;padding:8px 9px!important;gap:7px!important;
+    border-radius:10px!important;font-size:13px!important;line-height:1.3!important
+  }
+  body.f4-direct-bank #dashboardView #pageLaporan .v33-report-chip>input[type=checkbox]{
+    flex:0 0 17px!important;width:17px!important;min-width:17px!important;
+    max-width:17px!important;height:17px!important;min-height:17px!important;
+    margin:0!important;padding:0!important
+  }
+  body.f4-direct-bank #dashboardView #pageLaporan .v33-report-chip>span{
+    display:block!important;flex:1 1 auto!important;min-width:0!important;
+    white-space:normal!important;overflow-wrap:normal!important;font-size:13px!important;
+    font-weight:650!important;line-height:1.3!important
+  }
+  /* Four summary numbers: compact rows instead of tall tiles. */
+  body.f4-direct-bank #dashboardView #pageLaporan #v10ReportSummary.metric-grid,
+  body.f4-direct-bank #dashboardView #pageLaporan #v33ReportMoreMetrics.metric-grid{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;margin:9px 0!important;align-items:stretch!important
+  }
+  body.f4-direct-bank #dashboardView #pageLaporan :is(#v10ReportSummary,#v33ReportMoreMetrics)>.metric{
+    display:flex!important;flex-direction:column!important;justify-content:center!important;
+    align-items:flex-start!important;gap:3px!important;
+    min-width:0!important;min-height:0!important;height:auto!important;
+    margin:0!important;padding:10px 11px!important;border-radius:11px!important
+  }
+  body.f4-direct-bank #dashboardView #pageLaporan :is(#v10ReportSummary,#v33ReportMoreMetrics)>.metric small{
+    font-size:13px!important;line-height:1.3!important;margin:0!important;
+    color:#5e776a!important;font-weight:500!important
+  }
+  body.f4-direct-bank #dashboardView #pageLaporan :is(#v10ReportSummary,#v33ReportMoreMetrics)>.metric strong{
+    font-size:19px!important;line-height:1.2!important;margin:0!important;
+    font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;
+    max-width:100%!important
+  }
+  body.f4-direct-bank #dashboardView #pageLaporan .v33-report-more{
+    margin:0 0 7px!important
+  }
+  /* Keep rows tappable while removing excessive blank height. */
+  body.f4-direct-bank #dashboardView #pageLaporan #v10ReportTable table.f4-mobile-card-table>tbody{
+    gap:8px!important
+  }
+  body.f4-direct-bank #dashboardView #pageLaporan #v10ReportTable table.f4-mobile-card-table>tbody>tr.f4-compact-record{
+    min-height:49px!important;padding:8px 11px!important;
+    gap:0!important;border-radius:12px!important;margin:0!important
+  }
+  body.f4-direct-bank #dashboardView #pageLaporan #v10ReportTable table.f4-mobile-card-table>tbody>tr.f4-compact-record>td.f4-card-title{
+    padding:2px 0!important;margin:0!important;font-size:15px!important;
+    line-height:1.35!important;gap:10px!important;align-items:center!important
+  }
+  body.f4-direct-bank #dashboardView #pageLaporan #v10ReportTable .f4-card-detail-toggle{
+    width:34px!important;min-width:34px!important;max-width:34px!important;
+    height:34px!important;min-height:34px!important;max-height:34px!important;
+    margin:0!important;padding:0!important;border-radius:9px!important
+  }
+}
 </style>
 </head>
 <body>
@@ -1706,7 +1797,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
   const v10Specs={setoran:{title:'Setoran warga',fields:[['warga','Nama warga'],['tanggal','Tanggal'],['berat','Berat kg'],['nilai','Estimasi Rp'],['status','Status']]},penjualan:{title:'Penjualan lapak',fields:[['lapak','Lapak'],['tanggal','Tanggal'],['bruto','Bruto Rp'],['diterima','Diterima Rp'],['disahkan','Disahkan']]},pengeluaran:{title:'Pembelian & pengeluaran',fields:[['jenis','Jenis'],['tanggal','Tanggal'],['keterangan','Keterangan'],['pos','Pos'],['nominal','Nominal Rp'],['status','Status']]},mutasi:{title:'Mutasi tabungan',fields:[['warga','Nama warga'],['tanggal','Tanggal'],['jenis','Jenis'],['kredit','Kredit Rp'],['debit','Debit Rp']]}};
   function v10SelectedSections(){if(!v10ReportData)return[];const type=$('v10ReportType').value;return Object.entries(v10Specs).filter(([key])=>type==='semua'||key===type).map(([key,spec])=>({key,spec,rows:v10ReportData[key]||[]}));}
   function v10MakeTable(spec,rows){const table=document.createElement('table'),head=document.createElement('tr'),thead=document.createElement('thead'),body=document.createElement('tbody');spec.fields.forEach(([,label])=>{const th=document.createElement('th');th.textContent=label;head.appendChild(th)});thead.appendChild(head);table.appendChild(thead);rows.forEach(record=>{const tr=document.createElement('tr');spec.fields.forEach(([key,label])=>{const td=document.createElement('td');td.dataset.label=label;td.textContent=typeof record[key]==='boolean'?(record[key]?'Ya':'Tidak'):String(record[key]??'');tr.appendChild(td)});body.appendChild(tr)});table.appendChild(body);return table;}
-  function v10RenderReport(){if(!v10ReportData)return;const r=v10ReportData.ringkasan;$('v10ReportSummary').replaceChildren(metric('Setoran',r.jumlahSetoran),metric('Penjualan',r.jumlahPenjualan),metric('Estimasi warga',rupiah(r.estimasi)),metric('Diterima lapak',rupiah(r.diterima)),metric('Hak warga dikredit',rupiah(r.hakWargaDikredit)),metric('Tabungan dicairkan',rupiah(r.tabunganDicairkan)),metric('Biaya dibayar',rupiah(r.biaya)),metric('Kas saat laporan',rupiah(r.saldoKasKini)));const area=$('v10ReportTable');area.replaceChildren();v10SelectedSections().forEach(({spec,rows})=>{const title=document.createElement('h2');title.textContent=spec.title+' ('+rows.length+')';title.style.fontSize='16px';area.append(title,v10MakeTable(spec,rows));});}
+  function v10RenderReport(){if(!v10ReportData)return;const r=v10ReportData.ringkasan;$('v10ReportSummary').replaceChildren(v10CompactSummaryMetric('Setoran',r.jumlahSetoran),v10CompactSummaryMetric('Penjualan',r.jumlahPenjualan),v10CompactSummaryMetric('Estimasi warga',rupiah(r.estimasi)),v10CompactSummaryMetric('Diterima lapak',rupiah(r.diterima)),v10CompactSummaryMetric('Hak warga dikredit',rupiah(r.hakWargaDikredit)),v10CompactSummaryMetric('Tabungan dicairkan',rupiah(r.tabunganDicairkan)),v10CompactSummaryMetric('Biaya dibayar',rupiah(r.biaya)),v10CompactSummaryMetric('Kas saat laporan',rupiah(r.saldoKasKini)));const area=$('v10ReportTable');area.replaceChildren();v10SelectedSections().forEach(({spec,rows})=>{const title=document.createElement('h2');title.textContent=spec.title+' ('+rows.length+')';title.style.fontSize='16px';area.append(title,v10MakeTable(spec,rows));});}
   function v10PrintReport(){if(!v10ReportData){note('v10ReportNotice','Muat laporan dahulu.',true);return;}const root=$('v10Print');root.replaceChildren();const title=document.createElement('h1');title.textContent='BANK SAMPAH FLAMBOYAN 4';const sub=document.createElement('p');sub.textContent='Laporan administrasi • '+v10ReportData.periode+' • Dicetak '+new Date().toLocaleDateString('id-ID');root.append(title,sub);const summary=document.createElement('p');const r=v10ReportData.ringkasan;summary.textContent='Setoran '+r.jumlahSetoran+' | Penjualan '+r.jumlahPenjualan+' | Uang diterima '+rupiah(r.diterima)+' | Hak warga dikredit '+rupiah(r.hakWargaDikredit)+' | Dicairkan '+rupiah(r.tabunganDicairkan)+' | Biaya '+rupiah(r.biaya);root.appendChild(summary);v10SelectedSections().forEach(({spec,rows})=>{const heading=document.createElement('h2');heading.textContent=spec.title;root.append(heading,v10MakeTable(spec,rows));});const footer=document.createElement('p');footer.style.marginTop='28px';footer.textContent='Mengetahui, Humas Flamboyan 4 — Heri Juwandi';root.appendChild(footer);window.print();}
   function v10DownloadCSV(){if(!v10ReportData){note('v10ReportNotice','Muat laporan dahulu.',true);return;}const sections=v10SelectedSections(),lines=[];const safe=value=>{let s=String(value??'');if(/^[=+@\-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};sections.forEach(({spec,rows})=>{lines.push([safe(spec.title)]);lines.push(spec.fields.map(([,label])=>safe(label)));rows.forEach(r=>lines.push(spec.fields.map(([key])=>safe(r[key]))));lines.push([]);});const csv='\ufeff'+lines.map(r=>r.join(',')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='BankSampah_Flamboyan4_'+(v10ReportData.periode||'semua')+'_'+$('v10ReportType').value+'.csv';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);}
   let v11Albums=[];
@@ -1873,17 +1964,53 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
       <div id="v14Primary" class="v14-primary"></div><div class="v14-panels"><section class="v14-panel"><div class="v14-panel-head"><h3 id="v14RecentTitle">Setoran terbaru</h3><button id="v14AllDeposits" class="v14-link" type="button">Lihat riwayat</button></div><div class="tablewrap" id="v14Recent">Memuat setoran...</div></section><section class="v14-panel"><div class="v14-panel-head"><h3>Perkembangan kegiatan</h3><button class="v14-link" type="button" onclick="goPage('progress')">Lihat semua</button></div><div class="v14-activity" id="v14Activities">Memuat kegiatan...</div></section></div>
       <div id="v14Extra" class="v14-stats-extra"></div><div id="v14Status" role="status" aria-live="polite"></div>`;
   }
+
+  // Format ringkas hanya pada kartu layar. Angka sumber, transaksi, CSV dan PDF tetap utuh.
+  function f4CompactSummaryAmount(element,value){
+    const full=String(value??'').trim();
+    const found=/^Rp\s*(-?[\d.,]+)$/i.exec(full);
+    if(!found)return;
+    const amount=Number(found[1].replace(/\./g,'').replace(',','.'));
+    if(!Number.isFinite(amount)||Math.abs(amount)<100000)return;
+    const abs=Math.abs(amount),sign=amount<0?'-':'';
+    let divisor=abs>=1e9?1e9:abs>=1e6?1e6:1e3;
+    let unit=divisor===1e9?'M':divisor===1e6?'jt':'rb';
+    let rounded=Math.round(abs/divisor*10)/10;
+    if(divisor===1e3&&rounded>=1000){divisor=1e6;unit='jt';rounded=Math.round(abs/divisor*10)/10;}
+    if(divisor===1e6&&rounded>=1000){divisor=1e9;unit='M';rounded=Math.round(abs/divisor*10)/10;}
+    const short='Rp '+sign+rounded.toLocaleString('id-ID',{maximumFractionDigits:1})+' '+unit;
+    if(short===full)return;
+    element.dataset.f4FullValue=full;
+    element.dataset.f4CompactValue=short;
+    element.textContent=short;
+    element.title='Nilai lengkap: '+full+'. Ketuk untuk menampilkan.';
+    element.setAttribute('role','button');
+    element.setAttribute('tabindex','0');
+    element.setAttribute('aria-label',full+'. Ketuk untuk menampilkan nilai lengkap.');
+    const toggle=()=>{element.textContent=element.textContent===short?full:short};
+    element.addEventListener('click',toggle);
+    element.addEventListener('keydown',event=>{
+      if(event.key==='Enter'||event.key===' '){event.preventDefault();toggle();}
+    });
+  }
+  function v10CompactSummaryMetric(label,value){
+    const card=metric(label,value);
+    const amount=card.querySelector('strong');
+    if(amount)f4CompactSummaryAmount(amount,value);
+    return card;
+  }
+
   function v14Stat(label,value,note){
     const card=document.createElement('div');card.className='v14-kpi';
     const caption=document.createElement('div');caption.className='v14-kpi-label';caption.textContent=label;
-    const strong=document.createElement('strong');strong.textContent=String(value);
+    const strong=document.createElement('strong');strong.textContent=String(value);f4CompactSummaryAmount(strong,value);
     const small=document.createElement('small');small.textContent=note;
     card.append(caption,strong,small);return card;
   }
   function v14ExtraStat(label,value){
     const card=document.createElement('div');card.className='v14-extra';
     const small=document.createElement('small');small.textContent=label;
-    const strong=document.createElement('strong');strong.textContent=String(value);
+    const strong=document.createElement('strong');strong.textContent=String(value);f4CompactSummaryAmount(strong,value);
     card.append(small,strong);return card;
   }
   function v14RecentTable(rows){
