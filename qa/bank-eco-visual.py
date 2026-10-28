@@ -15,6 +15,7 @@ FIXTURE = """
         <h2>Sampah terpilah. Manfaat bertambah.</h2>
         <p>Informasi lingkungan dan sampah warga.</p>
         <button id="f4-public-manage-bank">Kelola Bank Sampah</button>
+        <button id="f4-public-my-savings">Lihat Tabungan Saya</button>
         <div id="v17Program"><div class="v17-feature"><strong>Pemilahan & setoran</strong></div></div>
       </div>
     </section>
@@ -70,6 +71,10 @@ async def main():
                 title:color('#v11Public .v17-public-banner h2','color'),
                 button:color('#f4-public-manage-bank','backgroundColor'),
                 buttonText:color('#f4-public-manage-bank','color'),
+                savingsButton:color('#f4-public-my-savings','backgroundColor'),
+                savingsButtonText:color('#f4-public-my-savings','color'),
+                feature:color('#v17Program .v17-feature','backgroundColor'),
+                featureText:color('#v17Program .v17-feature strong','color'),
                 submenu:color('#v16Tabs button.active','backgroundColor'),
                 firstCard:color('#pagePribadi .stat:first-child','backgroundColor'),
                 firstText:color('#pagePribadi .stat:first-child strong','color'),
@@ -85,7 +90,12 @@ async def main():
             print("VISUAL_STATE",mode,json.dumps(state,ensure_ascii=False),flush=True)
             assert state["banner"] == "rgb(17, 136, 102)", f"{mode}: hero not leaf green: {state['banner']}"
             assert state["title"] == "rgb(255, 255, 255)", f"{mode}: title not white"
-            assert state["button"] == "rgb(255, 202, 102)", f"{mode}: CTA not gold"
+            assert state["button"] == "rgb(163, 102, 0)", f"{mode}: CTA not gold"
+            assert state["buttonText"] == "rgb(255, 255, 255)", f"{mode}: CTA text not white"
+            assert state["savingsButton"] == state["button"], f"{mode}: savings CTA not same gold"
+            assert state["savingsButtonText"] == "rgb(255, 255, 255)", f"{mode}: savings CTA text not white"
+            assert state["feature"] == "rgb(255, 255, 255)", f"{mode}: program card not solid white"
+            assert state["featureText"] == "rgb(18, 79, 56)", f"{mode}: program label not dark green"
             assert state["submenu"] == "rgb(17, 136, 102)", f"{mode}: submenu inactive color"
             assert state["firstCard"] == "rgb(17, 136, 102)", f"{mode}: member balance not leaf green"
             assert state["firstText"] == "rgb(255, 255, 255)", f"{mode}: member balance text not white"

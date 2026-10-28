@@ -4,7 +4,7 @@
  * No print styles; all computations, endpoints and events remain unchanged. */
 @media screen {
 #dashboardView,#v11Public,.f4-member-progress-modal{
- --eco-leaf:#118866;--eco-dark:#075d3f;--eco-gold:#ffca66;
+ --eco-leaf:#118866;--eco-dark:#075d3f;--eco-gold:#a36600;--eco-gold-focus:#ffca66;
  --eco-green:#d9eee0;--eco-blue:#e9f2fc;--eco-peach:#fff0dc;
  --eco-purple:#f1ebff;--eco-line:#d7e7dc;--eco-muted:#526e5e;
  color:#163d2f
@@ -59,7 +59,7 @@ body.f4-bank-embedded #dashboardView .section,
 #dashboardView .field>label{color:#1c5b3e!important;font-weight:650!important}
 #dashboardView :is(input,select,textarea,button):focus-visible,
 #v11Public :is(input,select,textarea,button):focus-visible{
- outline:3px solid var(--eco-gold)!important;outline-offset:2px!important
+ outline:3px solid var(--eco-gold-focus)!important;outline-offset:2px!important
 }
 #dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi) button.secondary,#dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi) button.ghost{
  background:#e8f5ed!important;border:1px solid #c8e2d1!important;
@@ -132,23 +132,26 @@ body.f4-bank-embedded #dashboardView .section,
  border:1px solid #ffffff50!important;border-radius:8px!important
 }
 #v11Public .v17-public-banner.v27-banner-program #v17Program .v17-feature{
- background:#ffffff23!important;border:1px solid #ffffff65!important;
- border-radius:10px!important;color:#fff!important;box-shadow:none!important
+ background:#fff!important;border:1px solid #e0eae3!important;
+ border-radius:10px!important;color:#124f38!important;box-shadow:none!important
 }
 #v11Public .v17-public-banner.v27-banner-program #v17Program .v17-feature strong{
- color:#fff!important
+ color:#124f38!important
+}
+#v11Public .v17-public-banner.v27-banner-program #v17Program .v17-feature p{
+ color:#496756!important
 }
 #v11Public .v17-public-banner button:not(.v30-hero-photo),
 #v11Public .v17-public-banner #f4-public-my-savings,
 #v11Public .v17-public-banner #f4-public-manage-bank{
- background:var(--eco-gold)!important;color:#17452e!important;
- border:1px solid #f0b758!important;border-radius:10px!important;
+ background:var(--eco-gold)!important;color:#fff!important;
+ border:1px solid #985e00!important;border-radius:10px!important;
  font-weight:800!important;box-shadow:0 3px 9px #05432a27!important
 }
 #v11Public .v17-public-banner button:not(.v30-hero-photo):hover,
 #v11Public .v17-public-banner #f4-public-my-savings:hover,
 #v11Public .v17-public-banner #f4-public-manage-bank:hover{
- background:#ffdf97!important;color:#17452e!important
+ background:#8f5700!important;color:#fff!important
 }
 #v11Public .v17-public-banner .v30-hero-photo{
  border:1px solid #ffffff55!important;border-radius:12px!important;
