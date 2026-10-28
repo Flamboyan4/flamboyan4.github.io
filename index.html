@@ -217,7 +217,10 @@ body>div.fixed.bottom-6.right-6{
  #modal-jersey .f4-jersey-dialog{height:calc(100dvh - 16px);max-height:calc(100dvh - 16px)}
 }
 </style>
-</head>
+<style id="f4-projects-d1-source-20261028">
+#slider-projek>[data-f4-project-inactive="true"]{display:none!important}
+#slider-projek>#f4-project-empty[hidden]{display:none!important}
+</style></head>
 
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full" oncontextmenu="return false;" onkeydown="return disableInspect(event)">
 
@@ -3722,160 +3725,155 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
   }
 })();
 
-    // MASTER PROJECT CARD - dikontrol dari Google Spreadsheet
-    const CSV_PROJECT_CARD_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=40982005&single=true&output=csv";
-
-    function normalizeProjectType(value) {
-      return String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '');
+    // Projek Portal Utama langsung dari D1. Tidak ada sumber CSV atau fallback kartu statis.
+    const PROJECT_API='https://api.flamboyan4.web.id/api/v2/public/portal';
+    const f4ProjectNumber=value=>Number.isFinite(Number(value))?Number(value):0;
+    const f4ProjectRp=value=>'Rp '+f4ProjectNumber(value).toLocaleString('id-ID');
+    const f4ProjectType=(value)=>String(value||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'');
+    const f4ProjectBadge=(value)=>{
+      const st=String(value||'').toLowerCase();
+      if(st.includes('selesai'))return 'bg-emerald-100 text-emerald-800';
+      if(st.includes('dana')||st.includes('dp')||st.includes('cicil'))return 'bg-amber-100 text-amber-800';
+      return 'bg-indigo-100 text-indigo-800';
+    };
+    function f4ProjectCardEl(tag,cls,text){
+      const element=document.createElement(tag);
+      if(cls)element.className=cls;
+      if(text!==undefined)element.textContent=String(text);
+      return element;
     }
-
-    function projectBadgeClasses(status) {
-      const st = String(status || '').toLowerCase();
-      if (st.includes('selesai')) return 'bg-emerald-100 text-emerald-800';
-      if (st.includes('aktif') || st.includes('proses') || st.includes('berjalan')) return 'bg-emerald-100 text-emerald-800';
-      if (st.includes('dana') || st.includes('dp') || st.includes('cicil')) return 'bg-amber-100 text-amber-800';
-      if (st.includes('rencana') || st.includes('persiapan')) return 'bg-indigo-100 text-indigo-800';
-      return 'bg-slate-100 text-slate-700';
+    function f4ProjectImage(source){
+      const raw=String(source||'').trim();
+      const file=raw.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/)||
+        raw.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if(file)return 'https://drive.google.com/thumbnail?id='+encodeURIComponent(file[1])+'&sz=w640';
+      return /^https:\/\//i.test(raw)&&!/drive\.google\.com\/drive\/folders\//i.test(raw)?raw:'';
     }
-
-    function setProjectBadge(el, status) {
-      if (!el) return;
-      el.textContent = status || 'Aktif';
-      el.className = `text-[10px] font-semibold px-2 py-0.5 rounded-full ${projectBadgeClasses(status)}`;
+    function f4ProjectLink(raw){
+      const t=String(raw||'').trim();
+      if(/^\/(?!\/)[a-zA-Z0-9_/#?=&%.-]*$/.test(t)||/^#[a-zA-Z0-9_-]+$/.test(t))return t;
+      try{const u=new URL(t);return u.protocol==='https:'?u.href:'';}catch{return ''}
     }
-
-    function createGenericProjectCard(row) {
-      const slider = document.getElementById('slider-projek');
-      if (!slider) return null;
-      const typeKey = normalizeProjectType(row.jenis || row.nama);
-      const id = `project-generic-${typeKey || Math.random().toString(36).slice(2)}`;
-      const card = document.createElement('div');
-      card.id = id;
-      card.dataset.dynamicProject = 'true';
-      card.className = 'snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col justify-between';
-      card.innerHTML = `
-        <div>
-          <div class="flex items-center justify-between mb-3 gap-3">
-            <div class="flex items-center space-x-1.5 min-w-0">
-              <i data-lucide="folder-kanban" class="w-4 h-4 text-indigo-600 shrink-0"></i>
-              <h4 class="project-generic-title text-base font-bold text-slate-900 truncate"></h4>
-            </div>
-            <span class="project-generic-status text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0"></span>
-          </div>
-          <div class="rounded-lg bg-gradient-to-br from-indigo-50 to-slate-50 border border-indigo-100 p-5 min-h-[128px] flex flex-col items-center justify-center text-center">
-            <i data-lucide="construction" class="w-8 h-8 text-indigo-500 mb-2"></i>
-            <p class="text-xs text-slate-500">Informasi projek warga</p>
-            <p class="project-generic-name text-sm font-bold text-slate-800 mt-1"></p>
-          </div>
-        </div>
-        <a class="project-generic-link mt-3 w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-2 rounded-lg border border-indigo-100 transition text-xs flex items-center justify-center space-x-1 hidden">
-          <span>Buka Projek</span><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-        </a>`;
-      slider.appendChild(card);
-      return card;
+    function f4ProjectStatus(row){
+      const description=String(row.description||'').trim();
+      if(description.length&&description.length<=34)return description;
+      const names={informasi:'Kegiatan',kas:'Dana Kas',penggalangan:'Penggalangan Dana',pesanan:'Pemesanan Barang',portal:'Portal Terhubung'};
+      return names[row.project_kind]||'Aktif';
     }
-
-    function applyProjectLink(card, link, typeKey) {
-      if (!card) return;
-      const clean = String(link || '').trim();
-      if (typeKey === 'banksampah') {
-        // Pindah melalui shell terpadu, bukan mengikuti URL staging dari data lama.
-        card.onclick = () => {
-          if (typeof window.f4GoBank === 'function') window.f4GoBank();
-          else window.location.href = '/bank-sampah/';
-        };
-        card.classList.add('cursor-pointer');
+    function f4ProjectGeneric(row){
+      const container=f4ProjectCardEl('article',
+        'snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col');
+      container.dataset.dynamicProject='true';
+      container.dataset.projectId=String(row.id||'');
+      container.style.order=String(Number(row.sort_order)||0);
+      const header=f4ProjectCardEl('div','flex items-center justify-between gap-2 mb-3');
+      header.append(
+        f4ProjectCardEl('h4','font-bold text-slate-900 text-base min-w-0',row.title||'Proyek warga'),
+        f4ProjectCardEl('span','text-[10px] font-semibold rounded-full px-2 py-1 shrink-0 '+f4ProjectBadge(f4ProjectStatus(row)),f4ProjectStatus(row))
+      );
+      container.append(header);
+      const photo=f4ProjectImage(row.image_ref);
+      if(photo){
+        const img=f4ProjectCardEl('img','w-full h-28 object-contain rounded-lg bg-slate-50 mb-3');
+        img.src=photo;img.loading='lazy';img.alt='Foto proyek '+String(row.title||'');container.append(img);
       }
-      const a = card.querySelector('.project-generic-link');
-      if (a) {
-        if (clean) {
-          a.href = clean;
-          a.classList.remove('hidden');
-        } else {
-          a.removeAttribute('href');
-          a.classList.add('hidden');
+      const desc=String(row.description||'').trim();
+      if(desc&&desc!==f4ProjectStatus(row))container.append(f4ProjectCardEl('p','text-xs text-slate-600 leading-relaxed mb-3',desc));
+      const kind=String(row.project_kind||'informasi');
+      const stat=row.ringkasan||{},goal=f4ProjectNumber(row.fund_target_rp);
+      const money=kind==='kas'?f4ProjectNumber(stat.danaMasukRp)-f4ProjectNumber(stat.danaKeluarRp):
+        f4ProjectNumber(stat.danaMasukRp);
+      const panel=f4ProjectCardEl('div','rounded-xl bg-emerald-50/70 border border-emerald-100 px-3 py-3 mt-auto');
+      const add=(name,value)=>{const line=f4ProjectCardEl('div','flex justify-between items-start gap-3 text-xs py-1');
+        line.append(f4ProjectCardEl('span','text-slate-600',name),f4ProjectCardEl('strong','text-right font-bold text-emerald-800',value));panel.append(line)};
+      if(kind==='pesanan'){
+        add('Pesanan',f4ProjectNumber(stat.jumlahPesanan)+' orang');
+        add('Lunas',f4ProjectNumber(stat.lunas)+' pesanan');
+        add('Dana diterima',f4ProjectRp(money));
+        add('Sisa tagihan',f4ProjectRp(Math.max(0,f4ProjectNumber(stat.totalTagihanRp)-money)));
+      }else if(kind==='kas'||kind==='penggalangan'){
+        if(kind==='kas'&&!String(row.fund_source||'').trim())add('Sumber kas','Belum diatur');
+        else add(kind==='kas'?'Saldo dana terkait':'Dana terkumpul',f4ProjectRp(money));
+        if(goal>0){
+          add('Target',f4ProjectRp(goal));add('Kekurangan',f4ProjectRp(Math.max(0,goal-money)));
+          const line=f4ProjectCardEl('div','w-full h-2 rounded-full bg-emerald-100 mt-2 overflow-hidden');
+          const fill=f4ProjectCardEl('div','h-full rounded-full bg-emerald-600');
+          fill.style.width=Math.max(0,Math.min(100,money/goal*100))+'%';line.append(fill);panel.append(line);
         }
+        if(kind==='penggalangan')add('Kontributor',f4ProjectNumber(stat.jumlahKontributor)+' orang');
+      }else if(kind==='portal'){
+        add('Jenis','Terhubung portal');
+      }else{
+        add('Informasi','Proyek lingkungan');
       }
+      container.append(panel);
+      const link=f4ProjectLink(row.target_url)||
+        (String(row.linked_key||'')==='bank-sampah'?'/bank-sampah/':'');
+      if(link){
+        const action=f4ProjectCardEl('a','mt-3 w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-2 rounded-lg border border-indigo-100 text-xs text-center','Buka Projek');
+        action.href=link;container.append(action);
+      }
+      return container;
     }
-
-    async function loadProjectCards() {
-      const slider = document.getElementById('slider-projek');
-      if (!slider) return;
-      try {
-        const response = await fetch(CSV_PROJECT_CARD_URL + '&t=' + Date.now());
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        const csvText = await response.text();
-        const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
-        const rows = (parsed.data || []).map(r => ({
-          urutan: parseInt(r['Urutan'] || r['urutan'] || 999, 10) || 999,
-          nama: String(r['Nama Projek'] || r['Nama project'] || r['nama projek'] || '').trim(),
-          jenis: String(r['Jenis'] || r['jenis'] || '').trim(),
-          status: String(r['Status'] || r['status'] || '').trim(),
-          tampil: String(r['Tampil'] || r['tampil'] || '').trim().toUpperCase(),
-          link: String(r['Link'] || r['link'] || '').trim()
-        })).filter(r => r.nama || r.jenis);
-
-        // Bersihkan card generik hasil load sebelumnya.
-        slider.querySelectorAll('[data-dynamic-project="true"]').forEach(el => el.remove());
-
-        const knownCards = {
-          banksampah: document.getElementById('bank-sampah'),
-          gapura: document.getElementById('gapura'),
-          jersey: document.getElementById('jersey')
-        };
-        const knownSeen = new Set();
-
-        rows.sort((a,b) => a.urutan - b.urutan).forEach(row => {
-          const typeKey = normalizeProjectType(row.jenis);
-          let key = typeKey;
-          if (['banksampah','banksampahlorong'].includes(typeKey)) key = 'banksampah';
-          if (['pemesananjersey','jerseywarga'].includes(typeKey)) key = 'jersey';
-
-          let card = knownCards[key] || null;
-          if (card) knownSeen.add(key);
-          else card = createGenericProjectCard(row);
-          if (!card) return;
-
-          card.style.order = String(row.urutan);
-          const show = ['YA','YES','Y','TRUE','1','TAMPIL'].includes(row.tampil);
-          card.classList.toggle('hidden', !show);
-
-          if (key === 'banksampah') {
-            const title = document.getElementById('project-title-banksampah');
-            if (title && row.nama) title.textContent = row.nama;
-            setProjectBadge(document.getElementById('bs-status-badge'), row.status);
-          } else if (key === 'gapura') {
-            const title = document.getElementById('project-title-gapura');
-            if (title && row.nama) title.textContent = row.nama;
-            setProjectBadge(document.getElementById('project-status-gapura'), row.status);
-          } else if (key === 'jersey') {
-            const title = document.getElementById('project-title-jersey');
-            if (title && row.nama) title.textContent = row.nama;
-            setProjectBadge(document.getElementById('project-status-jersey'), row.status);
-          } else {
-            const title = card.querySelector('.project-generic-title');
-            const name = card.querySelector('.project-generic-name');
-            const badge = card.querySelector('.project-generic-status');
-            if (title) title.textContent = row.nama || row.jenis || 'Projek Warga';
-            if (name) name.textContent = row.nama || row.jenis || 'Projek Warga';
-            setProjectBadge(badge, row.status);
+    async function loadProjectCards(){
+      const slider=document.getElementById('slider-projek');
+      if(!slider)return;
+      const known={
+        'bank-sampah':document.getElementById('bank-sampah'),
+        gapura:document.getElementById('gapura'),
+        jersey:document.getElementById('jersey')
+      };
+      Object.values(known).forEach(card=>{if(card)card.dataset.f4ProjectInactive='true'});
+      slider.querySelectorAll('[data-dynamic-project="true"]').forEach(card=>card.remove());
+      let empty=document.getElementById('f4-project-empty');
+      if(!empty){empty=f4ProjectCardEl('p','text-xs text-slate-500 w-full py-4','Memuat proyek…');empty.id='f4-project-empty';slider.append(empty);}
+      try{
+        const response=await fetch(PROJECT_API,{cache:'no-store',headers:{Accept:'application/json'}});
+        if(!response.ok)throw Error('HTTP '+response.status);
+        const data=await response.json();
+        if(data.ok===false||!Array.isArray(data.projects))throw Error(data.error||'Data proyek tidak tersedia');
+        const used=new Set();
+        const rows=data.projects.slice().sort((a,b)=>f4ProjectNumber(a.sort_order)-f4ProjectNumber(b.sort_order));
+        for(const row of rows){
+          const key=String(row.linked_key||'').trim();
+          const title=f4ProjectType(row.title);
+          let special=key==='bank-sampah'?'bank-sampah':key==='jersey'?'jersey':
+            title==='banksampahlorong'?'bank-sampah':title==='gapura'?'gapura':
+            title==='pemesananjersey'?'jersey':'';
+          // A new "Pemesanan Barang" project must remain independent of old Jersey.
+          if(row.project_kind==='pesanan'&&key!=='jersey'&&title!=='pemesananjersey')special='';
+          let card=known[special];
+          if(card&&!used.has(special)){
+            used.add(special);card.dataset.f4ProjectInactive='false';
+            card.style.order=String(f4ProjectNumber(row.sort_order));
+            const titles={'bank-sampah':'project-title-banksampah',gapura:'project-title-gapura',jersey:'project-title-jersey'};
+            const t=document.getElementById(titles[special]);if(t)t.textContent=String(row.title||t.textContent);
+            const status=special==='bank-sampah'?'bs-status-badge':special==='gapura'?'project-status-gapura':'project-status-jersey';
+            const badge=document.getElementById(status);
+            if(badge){badge.textContent=f4ProjectStatus(row);badge.className='text-[10px] font-semibold rounded-full px-2 py-0.5 '+f4ProjectBadge(f4ProjectStatus(row));}
+            if(special==='gapura'&&row.project_kind==='kas'&&row.fund_source){
+              const money=Math.max(0,f4ProjectNumber(row.ringkasan?.danaMasukRp)-f4ProjectNumber(row.ringkasan?.danaKeluarRp));
+              const goal=f4ProjectNumber(row.fund_target_rp);
+              const labels=[['gapura-terkumpul',f4ProjectRp(money)],['gapura-kurang',goal?f4ProjectRp(Math.max(0,goal-money)):'—'],
+                ['gapura-percent',goal?Math.round(Math.min(100,money/goal*100))+'%':'—']];
+              labels.forEach(([id,v])=>{const n=document.getElementById(id);if(n)n.textContent=v});
+              const bar=document.getElementById('gapura-progress-bar');if(bar)bar.style.width=goal?Math.min(100,money/goal*100)+'%':'0%';
+            }
+            continue;
           }
-          applyProjectLink(card, row.link, key);
-        });
-
-        // Master Sheet menjadi sumber utama; jangan sembunyikan kartu asli jika pemetaan kategori belum lengkap.
-        Object.entries(knownCards).forEach(([key, card]) => {
-          if (card) card.classList.remove('hidden');
-        });
-
-        if (window.lucide) lucide.createIcons();
-      } catch (err) {
-        console.error('Gagal memuat Master Project Card:', err);
-        // Jika Sheet gagal dibaca, card bawaan tetap tampil sebagai fallback.
+          slider.append(f4ProjectGeneric(row));
+        }
+        empty.textContent=rows.length?'':'Belum ada proyek aktif yang dipublikasikan.';
+        empty.hidden=rows.length>0;
+        if(window.lucide)window.lucide.createIcons();
+      }catch(error){
+        // No stale project and no ghost card after a failed public D1 request.
+        empty.hidden=false;empty.textContent='Proyek belum dapat dimuat. Silakan perbarui halaman.';
+        console.warn('Project Card D1:',error);
       }
     }
+    document.addEventListener('DOMContentLoaded',loadProjectCards);
 
-    document.addEventListener('DOMContentLoaded', loadProjectCards);
 
     // URL CSV Progres Bank Sampah
 // Bank Sampah progress card reads D1 through the existing public Worker API.
