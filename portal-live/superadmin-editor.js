@@ -796,7 +796,8 @@ function showForm(record){
   const note=node('p','', 'f4-admin-note');form.append(note);
   const refreshKind=()=>{
    const kind=typeField?.value||'informasi';
-   if(category?.parentElement)category.parentElement.hidden=kind!=='kas';
+   const isGapuraKas=kind==='kas'&&String(form.elements.namedItem('title')?.value||'').trim().toLowerCase()==='gapura';
+   if(category?.parentElement)category.parentElement.hidden=kind!=='kas'||isGapuraKas;
    if(goal?.parentElement)goal.parentElement.hidden=!['kas','penggalangan'].includes(kind);
    if(linked?.parentElement)linked.parentElement.hidden=!['informasi','portal','pesanan'].includes(kind);
    note.textContent=isLegacyJerseyProject({title:form.elements.namedItem('title')?.value,linked_key:linked?.value})
@@ -806,7 +807,7 @@ function showForm(record){
     :kind==='penggalangan'
     ?'Setelah proyek disimpan, tombol Kelola Kontribusi tersedia. Dana yang dicatat di sini terpisah dari jurnal kas lorong.'
     :kind==='kas'
-    ?'Isi kategori transaksi kas PERSIS seperti di Pembukuan. Kartu menampilkan data kas yang sudah ada; tidak mencatat kas baru.'
+    ?(isGapuraKas?'Gapura memakai saldo kas total Pembukuan, termasuk saldo awal.':'Pilih kategori kas yang sesuai di Pembukuan. Tidak membuat transaksi baru.')
     :kind==='portal'
     ?'Pilih portal atau modul yang sudah ada. Kartu menjadi penghubung, bukan menyalin transaksi.'
     :'Proyek informasi menampilkan judul, gambar, deskripsi, dan tautan.';
