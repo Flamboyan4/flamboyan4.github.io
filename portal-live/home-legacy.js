@@ -2708,7 +2708,28 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       }
       return container;
     }
+    // Untuk Gapura: saldo kas SELURUH Pembukuan, termasuk saldo awal serah-terima.
+    // Kategori transaksi tetap tersedia bagi Project Card kas lainnya.
+    async function f4ProjectFullCashBalance(){
+      const response=await fetch('https://api.flamboyan4.web.id/api/v2/public/portal/cash',{
+        cache:'no-store',headers:{Accept:'application/json'}
+      });
+      const data=await response.json().catch(()=>null);
+      const rows=data?.data?.rows;
+      if(!response.ok||data?.ok!==true||!Array.isArray(rows))
+        throw Error(data?.error||'Saldo kas belum tersedia.');
+      const balance=rows.reduce((sum,item)=>{
+        const debit=Number(item.debit),kredit=Number(item.kredit);
+        if(!Number.isSafeInteger(debit)||!Number.isSafeInteger(kredit)||
+           debit<0||kredit<0||(debit>0&&kredit>0)||(debit===0&&kredit===0))
+          throw Error('Jurnal kas memerlukan pemeriksaan.');
+        return sum+debit-kredit;
+      },0);
+      if(!Number.isSafeInteger(balance))throw Error('Saldo kas tidak valid.');
+      return balance;
+    }
     async function loadProjectCards(){
+      let fullCashPromise;
       const slider=document.getElementById('slider-projek');
       if(!slider)return;
       const known={
@@ -2750,25 +2771,38 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
               if(target)target.textContent=Number(row.fund_target_rp)>0?f4ProjectRp(row.fund_target_rp):'Belum diatur';
               const fromKas=row.project_kind==='kas';
               const progressLabel=document.getElementById('gapura-percent')?.previousElementSibling;
-              if(progressLabel)progressLabel.textContent=fromKas?'Saldo Kas':'Progres Dana';
+              if(progressLabel)progressLabel.textContent=fromKas?'Kas / Target':'Progres Dana';
               const availableLabel=document.getElementById('gapura-terkumpul')?.previousElementSibling;
-              if(availableLabel)availableLabel.textContent=fromKas?'Saldo kategori':'Terkumpul';
+              if(availableLabel){
+                availableLabel.textContent=fromKas?'Saldo Kas':'Terkumpul';
+                availableLabel.title=fromKas?'Saldo seluruh kas Pembukuan, bukan dana khusus Gapura.':'';
+              }
             }
-            if(special==='gapura'&&row.project_kind==='kas'&&!row.fund_source){
-              const labels=[['gapura-terkumpul','Belum terhubung'],['gapura-kurang','—'],['gapura-percent','—']];
-              labels.forEach(([id,value])=>{const node=document.getElementById(id);if(node)node.textContent=value});
-              const bar=document.getElementById('gapura-progress-bar');if(bar)bar.style.width='0%';
-            }
-            if(special==='gapura'&&['kas','penggalangan'].includes(row.project_kind)&&
-                (row.project_kind!=='kas'||row.fund_source)){
-              const income=f4ProjectNumber(row.ringkasan?.danaMasukRp);
-              const expense=row.project_kind==='kas'?f4ProjectNumber(row.ringkasan?.danaKeluarRp):0;
-              const money=Math.max(0,income-expense);
+            if(special==='gapura'&&['kas','penggalangan'].includes(row.project_kind)){
+              const fromKas=row.project_kind==='kas';
               const goal=f4ProjectNumber(row.fund_target_rp);
-              const labels=[['gapura-terkumpul',f4ProjectRp(money)],['gapura-kurang',goal?f4ProjectRp(Math.max(0,goal-money)):'—'],
-                ['gapura-percent',goal?Math.round(Math.min(100,money/goal*100))+'%':'—']];
-              labels.forEach(([id,v])=>{const n=document.getElementById(id);if(n)n.textContent=v});
-              const bar=document.getElementById('gapura-progress-bar');if(bar)bar.style.width=goal?Math.min(100,money/goal*100)+'%':'0%';
+              try{
+                // Saldo kas Gapura harus persis seperti "Saldo Kas" di Portal Utama:
+                // seluruh debit-kredit jurnal aktif, bukan satu kategori kas saja.
+                if(fromKas&&!fullCashPromise)fullCashPromise=f4ProjectFullCashBalance();
+                const money=fromKas?await fullCashPromise:
+                  f4ProjectNumber(row.ringkasan?.danaMasukRp);
+                const percent=goal>0?Math.max(0,Math.min(100,money/goal*100)):0;
+                const labels=[
+                  ['gapura-terkumpul',f4ProjectRp(money)],
+                  ['gapura-kurang',goal?f4ProjectRp(Math.max(0,goal-money)):'—'],
+                  ['gapura-percent',goal?Math.round(percent)+'%':'—']
+                ];
+                labels.forEach(([id,value])=>{const node=document.getElementById(id);if(node)node.textContent=value});
+                const bar=document.getElementById('gapura-progress-bar');
+                if(bar)bar.style.width=percent+'%';
+              }catch(error){
+                console.warn('Saldo kas Gapura belum tersedia:',error);
+                const labels=[['gapura-terkumpul','Tidak tersedia'],['gapura-kurang','—'],['gapura-percent','—']];
+                labels.forEach(([id,value])=>{const node=document.getElementById(id);if(node)node.textContent=value});
+                const bar=document.getElementById('gapura-progress-bar');
+                if(bar)bar.style.width='0%';
+              }
             }
             continue;
           }
