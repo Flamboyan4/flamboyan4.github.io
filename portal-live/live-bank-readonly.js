@@ -257,7 +257,7 @@
  };
  // Nama dan rumah berasal dari data anggota, bukan kode internal ledger.
  const memberIdKey=id=>String(id??'').trim().replace(/^member:/i,'');
- const cleanMemberName=value=>String(value??'').replace(/\\s*\\(\\s*member:[^)]+\\)\\s*/gi,' ').trim();
+ const cleanMemberName=value=>String(value??'').replace(/\s*\(\s*member:[^)]+\)\s*/gi,' ').trim();
  const adminReport=async(_token,period='',includeCanceled=false)=>{
   const [deposits,sales,expenses,cash,ledger,members]=await Promise.all([
     adminDeposits(),adminSales(),adminExpenses(),adminCash(),adminRows('ledger'),adminMembers()]);
@@ -267,7 +267,7 @@
   const wargaLabel=(rawId,fallbackName='',fallbackHouse='')=>{
    const found=byMember.get(memberIdKey(rawId));
    const candidate=cleanMemberName(found?.nama||fallbackName);
-   const name=candidate&&!/^(?:member:)?[a-z]*\\d+$/i.test(candidate)?candidate:'Nama warga belum tersedia';
+   const name=candidate&&!/^(?:member:)?[a-z]*\d+$/i.test(candidate)?candidate:'Nama warga belum tersedia';
    const house=String(found?.rumah||fallbackHouse||'').trim();
    return name+(house?' • '+house:'');
   };
