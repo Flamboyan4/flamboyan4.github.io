@@ -2,7 +2,30 @@
 <html lang="id">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<noscript><meta http-equiv="refresh" content="0;url=/"><style id="f4-private-noscript">body{display:none!important}</style></noscript>
+<noscript><meta http-equiv="refresh" content="0;url=/"><style id="f4-private-noscript">body{display:none!important}
+/* Bagi hasil Bank Sampah terpusat: dua angka, satu input. */
+.sa-bank-split{max-width:680px;background:#fff;border:1px solid #dbe9df;border-radius:16px;padding:20px;box-shadow:0 4px 18px #123c2910}
+.sa-bank-split-heading h3{margin:0;color:#214932;font-size:18px}
+.sa-bank-split-heading p{margin:5px 0 16px;color:#607666;font-size:13px}
+.sa-bank-split-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.sa-bank-split-field{display:block;min-width:0;color:#385846;font-weight:750;font-size:13px}
+.sa-bank-split-field>span:first-child{display:block;margin-bottom:7px}
+.sa-bank-split-percent{display:flex;align-items:center;gap:6px;border:1px solid #d5e6db;background:#f3faf5;border-radius:12px;padding:0 12px;color:#2f764e}
+.sa-bank-split-field:first-child .sa-bank-split-percent{border-color:#b5dbc3;background:#eaf7ee}
+.sa-bank-split-percent input{display:block;width:100%;min-width:0;height:55px;background:transparent!important;border:0!important;box-shadow:none!important;padding:7px 0!important;color:#194b34!important;font-size:27px!important;font-weight:850!important;text-align:center}
+.sa-bank-split-percent input:focus{outline:0}
+.sa-bank-split-percent:focus-within{outline:2px solid #d69a16;outline-offset:2px}
+.sa-bank-split-percent input[readonly]{color:#657f6b!important;cursor:default}
+.sa-bank-split-percent b{font-size:17px}
+.sa-bank-split-example{margin-top:13px;padding:12px;border-radius:11px;background:#fff8e7;border:1px solid #f2dfaa;color:#705213}
+.sa-bank-split-example strong{font-size:12px}
+.sa-bank-split-example p{margin:5px 0 0;font-size:14px;font-weight:750}
+.sa-bank-split-note{font-size:12px;line-height:1.5;color:#536e5b;margin:13px 0}
+.sa-bank-split-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.sa-bank-split-actions>button{min-height:42px}
+.sa-bank-split-status{margin:10px 0 0;font-size:12px;line-height:1.5;color:#3d6b4c}
+@media(max-width:520px){.sa-bank-split{padding:15px}.sa-bank-split-fields{gap:8px}.sa-bank-split-percent input{height:47px;font-size:23px!important}.sa-bank-split-actions>button{flex:1}}
+</style></noscript>
 <meta name="robots" content="noindex,nofollow">
 <title>Pusat Pengelolaan | Flamboyan 4</title>
 <link rel="stylesheet" href="/portal-live/account-workspace.css?v=4portal-spec">
@@ -354,7 +377,7 @@ window.addEventListener('resize',()=>{if(innerWidth>=1024)saCloseDrawer(true)});
 const groups=[['overview','Ringkasan Sistem'],['accounts','Akun & Hak Akses'],['content','Portal Utama'],['bank','Bank Sampah'],['masters','Data Acuan'],['audit','Pengaturan & Audit']];
 const submenu={
  content:[['projects','Project Card'],['agenda','Rencana Kegiatan'],['documentation','Dokumentasi'],['inventory','Inventaris'],['banners','Banner Slider'],['meetings','Hasil Rapat'],['arisan','Jadwal Arisan'],['jersey','Pesanan Jersey']],
- bank:[['bank_progress','Kegiatan'],['bank_albums','Dokumentasi'],['bank_inventory','Inventaris'],['bankcatalog','Jenis & Harga']],
+ bank:[['bank_progress','Kegiatan'],['bank_albums','Dokumentasi'],['bank_inventory','Inventaris'],['bankcatalog','Jenis & Harga'],['bank_split','Bagi Hasil']],
  masters:[['residents','Data Warga & Rumah'],['obligations','Kewajiban Iuran'],['tariffs','Tarif Iuran'],['settings','Aturan Tanggal']]
 };
 let role='public',group='overview',active='',accounts=[],accountSearch='',residentRows=[];
@@ -483,6 +506,82 @@ function open(name,push=true){
  if(name==='audit')auditPage();
  if(!submenu[name])f4SaRememberRoute();
 }
+function bankSplitPage(){
+ title('Bagi Hasil','Satu aturan untuk semua penjualan baru Bank Sampah.');
+ const panel=el('section',undefined,'sa-bank-split');
+ const heading=el('div',undefined,'sa-bank-split-heading');
+ heading.append(el('h3','Pembagian hasil penjualan'),el('p','Isi bagian warga saja; bagian lingkungan terisi otomatis.'));
+ panel.append(heading);
+ const form=el('form',undefined,'sa-bank-split-form');
+ form.noValidate=true;
+ const field=el('div',undefined,'sa-bank-split-fields');
+ const warga=el('label',undefined,'sa-bank-split-field');
+ warga.append(el('span','Tabungan warga'));
+ const wargaControl=el('span',undefined,'sa-bank-split-percent');
+ const input=el('input');input.type='number';input.min='1';input.max='99';input.step='1';input.inputMode='numeric';
+ input.id='saBankWargaPercent';input.setAttribute('aria-label','Porsi warga dalam persen');input.required=true;input.disabled=true;
+ wargaControl.append(input,el('b','%'));warga.append(wargaControl);
+ const lingkungan=el('label',undefined,'sa-bank-split-field');
+ lingkungan.append(el('span','Dana lingkungan'));
+ const envControl=el('span',undefined,'sa-bank-split-percent');
+ const envInput=el('input');envInput.type='number';envInput.readOnly=true;envInput.tabIndex=-1;envInput.id='saBankLingkunganPercent';
+ envInput.setAttribute('aria-label','Porsi lingkungan otomatis');envControl.append(envInput,el('b','%'));
+ lingkungan.append(envControl);field.append(warga,lingkungan);form.append(field);
+ const example=el('div',undefined,'sa-bank-split-example');
+ const exampleTitle=el('strong','Contoh hasil jual Rp100.000');
+ const output=el('p','Memuat aturan yang berlaku...');
+ example.append(exampleTitle,output);form.append(example);
+ const note=el('p','Aturan baru berlaku saat pengesahan berikutnya. Saldo dan catatan penjualan yang sudah sah tidak diubah.','sa-bank-split-note');
+ form.append(note);
+ const actions=el('div',undefined,'sa-bank-split-actions');
+ const save=button('Simpan pembagian',()=>{},'sa-action sa-action-primary');save.type='submit';save.disabled=true;
+ const refresh=button('Muat ulang',()=>load(),'sa-action');actions.append(save,refresh);form.append(actions);
+ const status=el('p','Membaca aturan dari database…','sa-bank-split-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
+ form.append(status);panel.append(form);main.append(panel);
+ const show=()=>{
+  const p=Number(input.value);
+  const valid=input.value.trim()!==''&&Number.isSafeInteger(p)&&p>=1&&p<=99;
+  envInput.value=valid?String(100-p):'';
+  save.disabled=!valid||input.disabled;
+  output.textContent=valid?'Warga: Rp '+(p*1000).toLocaleString('id-ID')+
+   '  ·  Lingkungan: Rp '+((100-p)*1000).toLocaleString('id-ID'):'Isi angka 1 sampai 99.';
+  return valid;
+ };
+ let previous=null;
+ input.addEventListener('input',show);
+ async function load(){
+  save.disabled=true;input.disabled=true;status.textContent='Memuat aturan…';
+  try{
+   const data=await get('/api/public/bank-split');
+   if(!Number.isSafeInteger(data.wargaPercent)||data.wargaPercent<1||data.wargaPercent>99)throw Error('Aturan tidak valid');
+   previous=data.wargaPercent;input.value=String(previous);input.disabled=false;
+   status.textContent='Aturan aktif: '+previous+'% warga · '+data.lingkunganPercent+'% lingkungan.';
+   show();
+  }catch(error){
+   previous=null;input.value='';envInput.value='';
+   status.textContent='Tidak dapat memuat aturan: '+safe(error)+'. Penyimpanan dinonaktifkan.';
+   output.textContent='Pastikan Worker D1 versi baru telah diterapkan.';
+  }
+ }
+ form.addEventListener('submit',async e=>{
+  e.preventDefault();if(!show()||previous===null)return;
+  const percent=Number(input.value);
+  if(percent===previous){status.textContent='Tidak ada perubahan.';return;}
+  if(!await window.f4UiDialog.confirm('Ubah pembagian menjadi '+percent+'% warga dan '+(100-percent)+'% lingkungan? Berlaku untuk pengesahan baru; transaksi sah tidak berubah.'))return;
+  input.disabled=true;save.disabled=true;refresh.disabled=true;status.textContent='Menyimpan ke D1…';
+  try{
+   const res=await fetch(API+'/api/superadmin/bank-split',{method:'POST',credentials:'include',cache:'no-store',
+     headers:{'Content-Type':'application/json'},body:JSON.stringify({wargaPercent:percent})});
+   const data=await res.json().catch(()=>({}));
+   if(!res.ok||data.ok===false)throw Error(data.error||'HTTP '+res.status);
+   previous=data.wargaPercent;
+   input.value=String(previous);envInput.value=String(data.lingkunganPercent);
+   status.textContent='Tersimpan: '+previous+'% warga · '+data.lingkunganPercent+'% lingkungan. Berlaku untuk pengesahan baru.';
+  }catch(error){status.textContent='Gagal menyimpan: '+safe(error)+'. Periksa kembali sebelum mencoba lagi.';}
+  finally{refresh.disabled=false;input.disabled=false;show();}
+ });
+ load();
+}
 function openEditor(kind){
  if(role!=='superadmin')return;
  const target=Object.entries(submenu).find(([,items])=>items.some(([key])=>key===kind));
@@ -493,6 +592,7 @@ function openEditor(kind){
  if(kind==='residents'||kind==='bankcatalog')window.f4CancelSuperadminEditor?.();
  if(kind==='residents')window.openWarga();
  else if(kind==='bankcatalog')catalogPage();
+ else if(kind==='bank_split')bankSplitPage();
  else if(typeof window.openSuperadminEditor==='function')window.openSuperadminEditor(kind);
  else title('Memuat Modul','Editor sedang disiapkan…');
  if(switched){
