@@ -144,7 +144,10 @@
     kredit:isCredit?amount:0,debit:isCredit?0:amount,saldo:balance,keterangan:x.keterangan||''};
   });
   const deposits=onlyArray(r.setoran).map(x=>({
-   id:x.id||'',tanggal:x.tanggal||'',beratKg:number(x.beratGram)/1000,
+   id:x.id||'',tanggal:x.tanggal||'',
+   beratTimbangKg:number(x.beratGram)/1000,
+   beratSahKg:x.beratSahGram==null?null:number(x.beratSahGram)/1000,
+   beratKg:x.status==='terkonfirmasi'?(x.beratSahGram==null?null:number(x.beratSahGram)/1000):number(x.beratGram)/1000,
    estimasiRp:number(x.estimasiRp),nilaiSahRp:x.nilaiSahRp==null?null:number(x.nilaiSahRp),
    status:x.status==='dibatalkan'?'Dibatalkan':x.status==='terkonfirmasi'?'Terkonfirmasi':'Estimasi',
    rincian:onlyArray(x.rincian).map(d=>({barang:d.barang||'',
@@ -167,7 +170,7 @@
   const r=await publicData();
   const last=Array.isArray(r.monthlyWeights)?r.monthlyWeights.slice(-6):[];
   return {bulan:last.map(x=>({bulan:x.month,beratKg:number(x.beratKg)})),
-   catatan:'Berat setoran terkonfirmasi menurut bulan'};
+   catatan:'Berat akhir penjualan sah menurut bulan penjualan'};
  }
  async function publicAlbumDetail(id){
   const r=await get('/api/v2/public/bank/album/'+encodeURIComponent(id));
@@ -187,7 +190,10 @@
  // Query 300 rows and explicitly reject incomplete admin reports before presenting them as final.
  const adminDeposits=async()=> (await adminRows('deposits')).map(x=>({
   id:x.id,wargaId:x.member_id,namaWarga:x.memberName||'',rumahWarga:'',tanggal:x.deposited_on,
-  berat:number(x.total_grams)/1000,estimasi:number(x.estimated_total_rp),
+  beratTimbang:number(x.total_grams)/1000,
+  beratSah:x.beratSahGram==null?null:number(x.beratSahGram)/1000,
+  berat:x.status==='terkonfirmasi'?(x.beratSahGram==null?null:number(x.beratSahGram)/1000):number(x.total_grams)/1000,
+  estimasi:number(x.estimated_total_rp),
   nilaiSahRp:x.nilaiSahRp==null?null:number(x.nilaiSahRp),
   status:x.status==='dibatalkan'?'Dibatalkan':x.status==='terkonfirmasi'?'Terkonfirmasi':'Estimasi',
   batchId:x.batch_id
@@ -215,10 +221,13 @@
   const validDeposits=deposits.filter(x=>x.status!=='Dibatalkan');
   const confirmedSales=sales.filter(x=>x.status==='Terkonfirmasi');
   const netSavings=ledger.reduce((sum,x)=>sum+(['kredit','koreksi_kredit'].includes(x.kind)?1:-1)*number(x.amount_rp),0);
+  const weightPending=validDeposits.some(x=>x.status==='Terkonfirmasi'&&x.beratSah===null);
   const activeCash=cash.filter(x=>x.status==='aktif');
   return {wargaAktif:members.filter(x=>x.status==='Aktif').length,
    jenisBarangAktif:items.filter(x=>x.active!==0).length,
-   beratSetoranKg:validDeposits.reduce((n,x)=>n+x.berat,0),
+   beratSetoranKg:weightPending?null:validDeposits.reduce((n,x)=>n+x.berat,0),
+   beratAwalKg:validDeposits.reduce((n,x)=>n+x.beratTimbang,0),
+   beratBelumLengkap:weightPending,
    jumlahSetoran:validDeposits.length,
    estimasiSetoranRp:validDeposits.filter(x=>x.status==='Estimasi').reduce((n,x)=>n+x.estimasi,0),
    hakWargaSahRp:validDeposits.filter(x=>x.status==='Terkonfirmasi'&&x.nilaiSahRp!==null).reduce((n,x)=>n+x.nilaiSahRp,0),
@@ -316,7 +325,8 @@
     biaya:paidExpenses.reduce((n,x)=>n+x.nominal,0),
     saldoKasKini:activeCash.reduce((n,x)=>n+x.masuk-x.keluar,0)},
    setoran:depositRows.map(x=>({id:x.id,tanggal:x.tanggal,
-    warga:wargaLabel(x.wargaId,x.namaWarga,x.rumahWarga),berat:x.berat,
+    warga:wargaLabel(x.wargaId,x.namaWarga,x.rumahWarga),berat:x.berat==null?'—':x.berat,
+    beratTimbang:x.beratTimbang,
     nilai:x.status==='Terkonfirmasi'?(x.nilaiSahRp===null?'—':x.nilaiSahRp):x.status==='Estimasi'?x.estimasi:'—',
     status:x.status==='Terkonfirmasi'?'Hasil jual sah'+(x.nilaiSahRp===null?' (belum tersedia)':''):
       x.status==='Estimasi'?'Perkiraan · belum sah':'Dibatalkan'})),
