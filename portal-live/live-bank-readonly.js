@@ -141,7 +141,7 @@
   });
   const deposits=onlyArray(r.setoran).map(x=>({
    id:x.id||'',tanggal:x.tanggal||'',beratKg:number(x.beratGram)/1000,
-   estimasiRp:number(x.estimasiRp),status:x.status==='terkonfirmasi'?'Terkonfirmasi':'Estimasi',
+   estimasiRp:number(x.estimasiRp),status:x.status==='dibatalkan'?'Dibatalkan':x.status==='terkonfirmasi'?'Terkonfirmasi':'Estimasi',
    rincian:onlyArray(x.rincian).map(d=>({barang:d.barang||'',
      beratKg:number(d.beratGram)/1000,tarif:number(d.tarifWargaRpPerKg),nilai:number(d.estimasiRp)}))
   }));
@@ -152,6 +152,11 @@
    dibuatPada:new Date().toLocaleDateString('id-ID'),
    saldo:number(r.saldoTersediaRp),totalMasuk:number(r.totalMasukRp),totalCair:number(r.totalCairRp),
    mutasi:history,setoran:deposits};
+ }
+ // Kegiatan yang telah dipublikasikan aman diakses anggota; endpoint admin tidak boleh dipanggil dari akun warga.
+ async function memberPublicProgress(){
+  const r=await publicData();
+  return progress(r.progress).slice(0,30);
  }
  async function publicChart(){
   const r=await publicData();
@@ -390,6 +395,7 @@
   bsV22AlbumIndexPublik:albumList,
   bsV21IsiAlbumPublik:publicAlbumDetail,
   bsDashboardProgressPublik:adminProgress,
+  bsV14ProgressPublik:memberPublicProgress,
   bsV10PengeluaranAdmin:adminExpenses,
   bsV9SaldoAdmin:adminSavings,
   bsV22AlbumAdmin:adminAlbums,
