@@ -1,0 +1,241 @@
+/* F4 Bank Sampah — Fresh Eco portal-wide, 28 Oct 2026.
+   Screen only. Keeps original inputs, print templates, data and permissions.
+   White page content; pastel accents in cards; responsive drawer. */
+@media screen {
+ #dashboardView,#v11Public{
+   --eco-ink:#1c4636;--eco-muted:#597466;--eco-line:#deebe3;
+   --eco-green:#edf9f0;--eco-aqua:#eaf9f8;--eco-peach:#fff5e7;--eco-purple:#f3efff;
+   color:var(--eco-ink)
+ }
+ body.f4-direct-bank #dashboardView .section,
+ body.f4-embedded-bank #dashboardView .section,
+ #v11Public #v18PublicContent,#v11Public .v17-public-main{
+   background:#fff!important
+ }
+ /* Private manager and citizen screens: unified cards. */
+ #dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,
+ #pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,
+ #pageAdmin,#pageTabungan,#pagePengesahan,#pageLaporan,#pageDokumentasi,
+ #pageInventaris,#pageAktivitas,#pagePembelian,#pagePengeluaran,
+ #pageKeuangan,#pageKas,#pagePenarikan,#pagePencairan).card{
+   background:#fff!important;border:1px solid var(--eco-line)!important;
+   border-radius:15px!important;box-shadow:0 3px 13px #16483108!important
+ }
+ #dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,
+ #pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,
+ #pageAdmin,#pageTabungan,#pagePengesahan,#pageLaporan,#pageDokumentasi,
+ #pageInventaris,#pageAktivitas,#pagePembelian,#pagePengeluaran,
+ #pageKeuangan,#pageKas,#pagePenarikan,#pagePencairan)>:is(h1,h2),
+ #dashboardView :is(.f4-approval-heading,.f4-savings-head)>h2{
+   color:var(--eco-ink)!important;font-weight:800!important;line-height:1.28!important
+ }
+ #dashboardView :is(.section-caption,.hint,.desc),
+ #v11Public :is(.v17-subtle,.v25-report-note){
+   color:var(--eco-muted)!important;line-height:1.45
+ }
+ #dashboardView :is(input:not([type=checkbox]),select,textarea),
+ #v11Public :is(input:not([type=checkbox]),select,textarea){
+   border-radius:10px!important;border-color:#d5e5d9!important;
+   background:#fff!important;color:#1f4535!important
+ }
+ #dashboardView :is(input,select,textarea):focus-visible,
+ #v11Public :is(input,select,textarea):focus-visible{
+   outline:2px solid #3ca77e!important;outline-offset:1px!important;
+   border-color:#3ca77e!important
+ }
+ #dashboardView .field>label{color:#315745!important}
+ #dashboardView .section button:focus-visible,#v11Public button:focus-visible{
+   outline:3px solid #3ca77e!important;outline-offset:2px!important
+ }
+ #dashboardView .section button.secondary:not(.f4-member-refresh),
+ #dashboardView .section button.ghost{
+   background:#eaf8ef!important;border:1px solid #cde7d8!important;
+   border-radius:10px!important;color:#11734f!important
+ }
+ #dashboardView :is(.summary-box,.stat,.metric){border-radius:13px!important}
+ #dashboardView .summary-box{
+   background:var(--eco-green)!important;border:1px solid #d8eade!important;
+   color:#315b43!important
+ }
+ /* Reuse same 4 summary colors for all finance/member KPI groups. */
+ #dashboardView :is(#pageProfile,#pageSetoran,#pagePenjualan,#pageRekonsiliasi,
+ #pageTabungan,#pageLaporan,#pagePengesahan) :is(.stats,.metric-grid)
+ >:is(.stat,.metric):nth-child(4n+1){
+   background:var(--eco-green)!important;border:1px solid #d5e9db!important
+ }
+ #dashboardView :is(#pageProfile,#pageSetoran,#pagePenjualan,#pageRekonsiliasi,
+ #pageTabungan,#pageLaporan,#pagePengesahan) :is(.stats,.metric-grid)
+ >:is(.stat,.metric):nth-child(4n+2){
+   background:var(--eco-aqua)!important;border:1px solid #d1ebe8!important
+ }
+ #dashboardView :is(#pageProfile,#pageSetoran,#pagePenjualan,#pageRekonsiliasi,
+ #pageTabungan,#pageLaporan,#pagePengesahan) :is(.stats,.metric-grid)
+ >:is(.stat,.metric):nth-child(4n+3){
+   background:var(--eco-peach)!important;border:1px solid #f2e4cc!important
+ }
+ #dashboardView :is(#pageProfile,#pageSetoran,#pagePenjualan,#pageRekonsiliasi,
+ #pageTabungan,#pageLaporan,#pagePengesahan) :is(.stats,.metric-grid)
+ >:is(.stat,.metric):nth-child(4n){
+   background:var(--eco-purple)!important;border:1px solid #e5ddf9!important
+ }
+ #dashboardView .notice:not(.error),#dashboardView .details-panel{
+   border:1px solid #dcece2!important;background:#f3faf6!important;
+   border-radius:12px!important;color:#37634b!important
+ }
+ #dashboardView :is(#riwayatList,#riwayatJualList,#masterList,#accountList,
+ #reconResult,#setBarang,#saleItems,#v9List,#v12History,#v12Deposits,
+ #v33ReportTable,#v10ReportTable) table th{
+   background:#eef8f2!important;color:#305741!important;
+   border-color:#dfece3!important;font-weight:750!important
+ }
+ #dashboardView :is(#riwayatList,#riwayatJualList,#masterList,#accountList,
+ #reconResult,#setBarang,#saleItems,#v9List,#v12History,#v12Deposits,
+ #v33ReportTable,#v10ReportTable) table tbody tr{border-color:#e2ede5}
+ #pageSetoran .f4-entry-goods-heading,#pagePenjualan .f4-entry-goods-heading{
+   border-bottom:1px solid #e4eee6!important;padding-bottom:10px!important
+ }
+ #pageLaporan .v33-report-controls{
+   background:#fbfefd!important;border:1px solid #e0ece4!important;
+   border-radius:14px!important
+ }
+ #pageTabungan .f4-savings-panel{
+   border-color:#dfebe3!important;background:#fff!important;border-radius:13px!important
+ }
+ #pageDokumentasi :is(.v21-album-tile,.public-tile),
+ #pageInventaris :is(.v21-inventory-row,.public-tile),
+ #v17Dokumentasi .v21-album-tile,#v17Inventaris .v21-inventory-row{
+   background:#fff!important;border-color:#dfece4!important;
+   border-radius:13px!important;box-shadow:0 2px 10px #14493008!important
+ }
+ #pageProgress #progressList :is(.v14-activity-item,.v17-timeline li){
+   background:#f4faf6!important;border-color:#dcece2!important;
+   border-radius:12px!important
+ }
+ /* Public landing and public report. */
+ #v11Public .v17-public-banner{
+   background:#fff!important;border:1px solid #deece3!important;
+   border-radius:15px!important;box-shadow:0 3px 13px #16483108!important
+ }
+ #v11Public .v17-public-banner :is(h1,h2){color:#1c563c!important}
+ #v11Public .v17-public-banner :is(p,.v17-subtle){color:#587369!important}
+ #v11Public :is(#v17PublicMetrics,#v25ReportMetrics)>.v17-public-metric{
+   background:var(--eco-green)!important;border-color:#d5e9da!important;
+   border-radius:13px!important
+ }
+ #v11Public :is(#v17PublicMetrics,#v25ReportMetrics)>.v17-public-metric:nth-child(4n+2){
+   background:var(--eco-aqua)!important;border-color:#d5ebe8!important
+ }
+ #v11Public :is(#v17PublicMetrics,#v25ReportMetrics)>.v17-public-metric:nth-child(4n+3){
+   background:var(--eco-peach)!important;border-color:#f3e4ce!important
+ }
+ #v11Public :is(#v17PublicMetrics,#v25ReportMetrics)>.v17-public-metric:nth-child(4n){
+   background:var(--eco-purple)!important;border-color:#e6def8!important
+ }
+ #v11Public :is(#v17PublicMetrics,#v25ReportMetrics)>.v17-public-metric strong{
+   color:#20503b!important;overflow-wrap:anywhere
+ }
+ #v11Public :is(.v17-panel,.v25-report-card,.public-tile,.v21-album-tile){
+   background:#fff!important;border-color:#dfece4!important;
+   border-radius:13px!important;box-shadow:0 2px 12px #16483108!important
+ }
+ #v11Public .v17-timeline li{border-left-color:#8bc8a0!important}
+ #v11Public .v17-timeline li:before{background:#1a9e69!important}
+ #v11Public #v25ReportRoot{background:#fff!important;border-color:#dfece4!important}
+ #v11Public .v25-report-table th{
+   background:#eef8f2!important;color:#305841!important
+ }
+ #dashboardView #sideNav button.active,
+ #v11Public #v18PublicSide button.active{
+   background:#e4f7ec!important;color:#087953!important
+ }
+ /* Short, one-line finance explanation, avoids tall callout. */
+ #dashboardView #pageDashboard.f4-member-dashboard .f4-member-finance-note{
+   background:transparent!important;border:0!important;
+   padding:0!important;margin:6px 0 10px!important;
+   color:#4a6b5a!important;font-size:12px!important;line-height:1.4!important
+ }
+ #pagePribadi .f4-member-payout-help{
+   padding:8px 11px!important;margin:8px 0 10px!important;
+   background:#f3faf6!important;border-color:#dcebe2!important;
+   color:#456656!important;font-size:12px!important
+ }
+ /* Redundant explanatory subtitles can be removed; keep critical KPI notes. */
+ #dashboardView #pageDashboard.f4-member-dashboard .f4-eco-panel-heading>p{
+   display:none!important
+ }
+}
+/* Mobile drawer identical in spirit to the other 226px portals, never 84vw.
+   Both public and private drawers use existing .open + backdrop handlers. */
+@media screen and (max-width:1023px){
+ html body #v18PublicSide,
+ html.f4-bank-embedded body #v18PublicSide,
+ html body.v17-dashboard #sideNav.side,
+ html.f4-bank-embedded body.v17-dashboard #sideNav.side{
+   box-sizing:border-box!important;position:fixed!important;
+   left:0!important;top:0!important;bottom:0!important;
+   width:min(226px,75vw)!important;max-width:min(226px,75vw)!important;
+   min-width:0!important;height:100dvh!important;max-height:100dvh!important;
+   padding:13px 9px 20px!important;overflow-x:hidden!important;
+   overflow-y:auto!important;overscroll-behavior:contain!important;
+   background:#fbfcfd!important;border-right:1px solid #dce9e1!important;
+   border-radius:0!important;z-index:241!important;
+   box-shadow:9px 0 22px #183f3217!important;
+   transform:translateX(-105%)!important;visibility:hidden!important;
+   transition:transform .2s ease,visibility .2s ease!important
+ }
+ html body #v18PublicSide.open,
+ html.f4-bank-embedded body #v18PublicSide.open,
+ html body.v17-dashboard #sideNav.side.open,
+ html.f4-bank-embedded body.v17-dashboard #sideNav.side.open{
+   transform:translateX(0)!important;visibility:visible!important;
+   pointer-events:auto!important
+ }
+ html body #v18PublicBackdrop.open,html body #v16Backdrop.open{
+   position:fixed!important;inset:0!important;display:block!important;
+   z-index:240!important;background:#103c2b70!important;
+   pointer-events:auto!important
+ }
+ html body #v11Public.v18-public-shell{
+   display:block!important;grid-template-columns:minmax(0,1fr)!important;
+   width:100%!important;min-width:0!important
+ }
+ html body #v11Public #v18PublicContent{
+   grid-column:auto!important;width:100%!important;max-width:100%!important;
+   min-width:0!important;margin-left:0!important
+ }
+ html body.v17-dashboard #dashboardView>.grid{
+   display:block!important;grid-template-columns:minmax(0,1fr)!important
+ }
+ html body.v17-dashboard #dashboardView>.grid>.section{
+   grid-column:auto!important;min-width:0!important;width:100%!important;
+   margin-left:0!important
+ }
+ html body :is(#v18PublicSide,#sideNav) button{
+   padding:9px 10px!important;margin:2px 0!important;
+   min-height:41px!important;border-radius:10px!important;
+   font-size:13px!important;line-height:1.35!important
+ }
+ html body #v18PublicSide .v17-public-logo{
+   padding:6px 7px 12px!important;margin-bottom:10px!important
+ }
+ html body :is(#v18PublicSide,#sideNav) button svg{
+   width:19px!important;height:19px!important;flex:none!important
+ }
+}
+@media screen and (max-width:760px){
+ #dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,
+ #pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,
+ #pageAdmin,#pageTabungan,#pagePengesahan,#pageLaporan,#pageDokumentasi,
+ #pageInventaris,#pageAktivitas,#pagePembelian,#pagePengeluaran).card{
+   border-radius:13px!important;box-shadow:none!important
+ }
+ #dashboardView :is(.stats,.metric-grid){gap:8px!important}
+ #v11Public .v17-public-banner{padding:13px!important}
+ #v11Public :is(#v17PublicMetrics,#v25ReportMetrics)>.v17-public-metric{
+   border-radius:12px!important
+ }
+}
+@media screen and (prefers-reduced-motion:reduce){
+ html body :is(#v18PublicSide,#sideNav.side){transition:none!important}
+}
+/* No @media print rules: report/PDF visuals and pagination untouched. */

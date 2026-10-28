@@ -1,0 +1,23 @@
+name: F4 Bank Fresh Eco All Pages
+on:
+  push:
+    branches: [main]
+    paths:
+      - bank-sampah/index.html
+      - portal-live/bank-eco-pages.css
+      - qa/bank-eco-allpages.cjs
+      - .github/workflows/f4-bank-eco-allpages.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check UI style and sidebar regression
+        run: node qa/bank-eco-allpages.cjs

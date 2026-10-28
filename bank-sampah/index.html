@@ -2901,7 +2901,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
     if(!$('pagePribadi')){
       const nav=document.createElement('button');nav.id='navPribadi';nav.className='secondary';nav.textContent='💚 Tabungan saya';nav.onclick=()=>goPage('pribadi');$('navProfile').after(nav);
       const page=document.createElement('section');page.id='pagePribadi';page.className='card hidden';
-      page.innerHTML=`<h2>Tabungan saya</h2><p class="desc">Saldo terkonfirmasi setelah penjualan dan rekonsiliasi. Khusus akun yang sedang masuk.</p><div id="v12Gate" class="notice" role="status">Memeriksa akses...</div><div id="v12Private" class="hidden"><div class="stats"><div class="stat"><small>Saldo tersedia</small><strong id="v12Balance">—</strong></div><div class="stat"><small>Tabungan masuk</small><strong id="v12Credit">—</strong></div><div class="stat"><small>Sudah dicairkan</small><strong id="v12Debit">—</strong></div></div><p class="f4-member-payout-help">Ingin mencairkan tabungan? Hubungi pengurus Bank Sampah untuk menanyakan jadwal atau mengajukan pencairan. Transaksi yang sudah diproses pengelola akan tercatat dalam riwayat di bawah.</p><div class="toolbar block-gap f4-member-tools"><button class="secondary f4-member-refresh" type="button" onclick="v12Load()" title="Muat ulang data tabungan" aria-label="Muat ulang data tabungan"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.35 5.65"/><path d="M20 4v7h-7"/></svg></button><button type="button" onclick="v12Print()">Cetak / PDF</button><button type="button" class="ghost" onclick="v12CSV()">Unduh CSV</button></div><h2 class="block-gap">Riwayat tabungan</h2><div id="v12History" class="tablewrap"></div><h2 class="block-gap">Rincian setoran per barang</h2><p class="hint">Setoran estimasi belum termasuk saldo tersedia hingga disahkan.</p><div id="v12Deposits"></div></div>`;
+      page.innerHTML=`<h2>Tabungan saya</h2><p class="desc">Saldo terkonfirmasi setelah penjualan dan rekonsiliasi. Khusus akun yang sedang masuk.</p><div id="v12Gate" class="notice" role="status">Memeriksa akses...</div><div id="v12Private" class="hidden"><div class="stats"><div class="stat"><small>Saldo tersedia</small><strong id="v12Balance">—</strong></div><div class="stat"><small>Tabungan masuk</small><strong id="v12Credit">—</strong></div><div class="stat"><small>Sudah dicairkan</small><strong id="v12Debit">—</strong></div></div><p class="f4-member-payout-help">Pencairan tabungan melalui pengurus Bank Sampah.</p><div class="toolbar block-gap f4-member-tools"><button class="secondary f4-member-refresh" type="button" onclick="v12Load()" title="Muat ulang data tabungan" aria-label="Muat ulang data tabungan"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.35 5.65"/><path d="M20 4v7h-7"/></svg></button><button type="button" onclick="v12Print()">Cetak / PDF</button><button type="button" class="ghost" onclick="v12CSV()">Unduh CSV</button></div><h2 class="block-gap">Riwayat tabungan</h2><div id="v12History" class="tablewrap"></div><h2 class="block-gap">Rincian setoran per barang</h2><p class="hint">Setoran estimasi belum termasuk saldo tersedia hingga disahkan.</p><div id="v12Deposits"></div></div>`;
       $('pageProfile').after(page);
     }
     $('navPribadi').classList.toggle('hidden',!profile||profile.peran!=='Warga');
@@ -3122,7 +3122,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
       if(p)p.weight+=Number(r.berat)||0;
     }
     const title=document.createElement('h3');title.textContent='Berat setoran per bulan';
-    const caption=document.createElement('p');caption.textContent='Enam bulan terakhir • dihitung dari setoran tercatat';
+    const caption=document.createElement('p');caption.textContent='6 bulan terakhir';
     const bars=document.createElement('div');bars.className='f4-trend-bars';
     const top=Math.max(0.1,...periods.map(p=>p.weight));
     for(const p of periods){
@@ -3232,24 +3232,24 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
     $('v14QuickAction').onclick=()=>goPage(isAdmin?'setoran':'pribadi');
     $('v14AllDeposits').textContent=isAdmin?'Lihat riwayat':'Tabungan saya';
     $('v14AllDeposits').onclick=()=>goPage(isAdmin?'riwayat':'pribadi');
-    $('v14HeroCopy').textContent=isAdmin?'Data aktual diambil dari catatan Bank Sampah. Pantau setoran, penjualan, dan kegiatan warga.':'Setiap setoran membantu lingkungan yang lebih bersih. Terima kasih sudah berpartisipasi.';
+    $('v14HeroCopy').textContent=isAdmin?'Setoran, penjualan, dan kegiatan warga.':'Setiap setoran membantu lingkungan yang lebih bersih. Terima kasih sudah berpartisipasi.';
     $('v14Primary').textContent='Memuat ringkasan...';$('v14Recent').textContent='Memuat...';$('v14Activities').textContent='Memuat...';$('v14Extra').replaceChildren();
     $('v14Status').textContent='Mengambil data terbaru...';
     if(!isAdmin){
       const primary=$('v14Primary'),extra=$('v14Extra');
       primary.replaceChildren(
-       v14Stat('Saldo tabungan terkonfirmasi','—','Hak warga dari penjualan disahkan'),
-       v14Stat('Estimasi setoran berjalan','—','Belum menjadi saldo yang dapat ditarik'),
-       v14Stat('Berat sampah disetor','—','Seluruh setoran tercatat'),
-       v14Stat('Jumlah setoran','—','Riwayat atas nama Anda'));
+       v14Stat('Saldo tabungan terkonfirmasi','—','Hasil penjualan sah'),
+       v14Stat('Estimasi setoran berjalan','—','Belum masuk tabungan'),
+       v14Stat('Berat sampah disetor','—','Total setoran'),
+       v14Stat('Jumlah setoran','—','Setoran tercatat'));
       extra.replaceChildren();
       $('v14RecentTitle').textContent='Setoran pribadi terbaru';
-      $('v14RecentTitle').closest('.f4-eco-panel-heading')?.querySelector('p')?.replaceChildren(document.createTextNode('Riwayat penimbangan pada akun Anda'));
+      $('v14RecentTitle').closest('.f4-eco-panel-heading')?.querySelector('p')?.replaceChildren(document.createTextNode('Penimbangan terbaru'));
       $('v14Recent').textContent='Memuat riwayat setoran…';
       $('v14Activities').textContent='Memuat perkembangan program…';
       primary.parentElement.querySelectorAll('.f4-member-finance-note').forEach(n=>n.remove());
       const brief=document.createElement('p');brief.className='f4-member-finance-note';
-      brief.textContent='Nilai setoran adalah estimasi saat ditimbang, bukan uang yang langsung masuk tabungan. Saldo tabungan dihitung dari hak warga yang disahkan setelah penjualan dan rekonsiliasi batch.';
+      brief.textContent='Estimasi timbang ≠ saldo tabungan. Saldo masuk setelah penjualan disahkan.';
       primary.after(brief);
       const report=Promise.resolve(call('bsV12Statement',token));
       const progress=Promise.resolve(call('bsV14ProgressPublik',token));
@@ -3283,7 +3283,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
         value.append(amount,amountLabel);
         article.append(summary,value);recentBox.append(article);
        }
-       $('v14Status').textContent='Ringkasan pribadi dari akun yang sedang masuk. Status direkonsiliasi menandakan batch selesai, bukan berarti nilai estimasi sama dengan hak tabungan. Lihat Tabungan saya untuk nilai yang benar-benar masuk.';
+       $('v14Status').textContent='Saldo sah ada di Tabungan Saya.';
       }else{
        $('v14Recent').textContent='Ringkasan pribadi belum tersedia. Gunakan tombol Lihat tabungan saya untuk memeriksa data lengkap.';
        $('v14Status').textContent='Data saldo belum dapat dimuat: '+String(statement.reason?.message||statement.reason||'Koneksi data terputus');
@@ -5330,6 +5330,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
 </style>
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261028-member-tidy-1">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261028-clean-header-v2">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261028-fresh-portal-2">
 <script src="/portal-live/bank-sale-handover.js?v=a5-landscape-receipt-20261028c"></script>
 <script src="/portal-live/direct-shell.js?v=20261027-refresh-svg-all"></script><script src="/portal-live/unified-account.js?v=account-native-20261025b"></script><script defer src="/portal-live/mobile-cards.js?v=20261028-saldo-grid"></script><script defer src="/portal-live/native-controls.js?v=20261027-audit6"></script><script defer src="/portal-live/bank-page-history.js?v=20261027-final4"></script></body>
 </html>
