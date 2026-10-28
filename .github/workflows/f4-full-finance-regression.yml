@@ -40,6 +40,18 @@ jobs:
           node --check portal-live/portal-panels.js
           node --check portal-live/superadmin-editor.js
           node --check portal-live/project-modules.js
+          node - <<'NODE'
+          const fs=require('node:fs'),vm=require('node:vm');
+          const html=fs.readFileSync('index.html','utf8');
+          const marker=html.indexOf('// Projek Portal Utama langsung dari D1.');
+          if(marker<0)throw Error('Blok Project Card D1 tidak ditemukan');
+          const open=html.lastIndexOf('<script',marker);
+          const start=html.indexOf('>',open)+1;
+          const end=html.indexOf('</script>',marker);
+          if(open<0||start<1||end<start)throw Error('Blok script Project Card tidak valid');
+          new vm.Script(html.slice(start,end),{filename:'index.html:ProjectCard'});
+          console.log('PROJECT_CARD_INLINE_JS_SYNTAX_OK=1');
+          NODE
       - name: Install Wrangler for local D1
         run: npm install --no-save --ignore-scripts wrangler@4
       - name: Install browser for isolated Admin and Member UI acceptance
