@@ -63,8 +63,14 @@
    kekuranganKasLorong:n(x.kekuranganKasLorong)
   }))});
  }
- async function cash(){
-  const r=await read('/api/bookkeeping/cash?limit=300');
+ async function cash(p={}){
+  // Riwayat Kas uses TRANSACTION DATE, not the iuran obligation period.
+  // Fetch the selected range from D1 so older records are not hidden by the 500-row cap.
+  const b=p?.allPeriods?{from:'',to:''}:dateBounds(p);
+  const q=new URLSearchParams({limit:'500'});
+  if(b.from)q.set('from',b.from);
+  if(b.to)q.set('to',b.to);
+  const r=await read('/api/bookkeeping/cash?'+q);
   return successful({data:rows(r).map((x,i)=>({
    idTransaksi:x.id||'D1-'+i,
    tanggal:x.occurred_on||x.tanggal||'',
