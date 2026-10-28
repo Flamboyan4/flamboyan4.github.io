@@ -18,7 +18,7 @@
   <meta property="og:image:alt" content="Flamboyan 4, portal warga: informasi lingkungan, pembukuan, dan Bank Sampah">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#4f46e5">
-  <title>Flamboyan 4 | Portal Informasi Warga Lorong</title>
+  <title>Flamboyan 4 | Portal Warga</title>
 <script id="f4-native-legacy-links">(()=>{
  const hash=decodeURIComponent(location.hash.slice(1)).toLowerCase();
  const route={
@@ -83,7 +83,7 @@
     
     <!-- Judul Hero dengan Gradasi Kuning ke Putih -->
     <h1 class="text-xl sm:text-3xl md:text-5xl font-black tracking-tight leading-snug sm:leading-tight">
-      Transparansi & Kebersamaan <br class="hidden sm:inline" />
+      Info & Kegiatan <br class="hidden sm:inline" />
       <span class="bg-gradient-to-r from-amber-200 via-amber-300 to-white bg-clip-text text-transparent">Warga Flamboyan 4</span>
     </h1>
 
@@ -99,7 +99,7 @@
       <!-- Jadwal Arisan -->
       <a href="#arisan" title="Jadwal Arisan" class="flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl sm:rounded-2xl backdrop-blur-md transition group text-xs sm:text-sm font-semibold">
         <i data-lucide="calendar" class="w-4 h-4 text-amber-300 group-hover:scale-110 transition-transform"></i>
-        <span class="hidden sm:inline ml-2">Jadwal Arisan</span>
+        <span class="hidden sm:inline ml-2">Arisan</span>
       </a>
 
       <!-- Projek Warga -->
@@ -111,7 +111,7 @@
       <!-- Kalender Kegiatan -->
       <a href="#rencana" title="Kalender Kegiatan" class="flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl sm:rounded-2xl backdrop-blur-md transition group text-xs sm:text-sm font-semibold">
         <i data-lucide="calendar-check" class="w-4 h-4 text-purple-300 group-hover:scale-110 transition-transform"></i>
-        <span class="hidden sm:inline ml-2">Kalender Kegiatan</span>
+        <span class="hidden sm:inline ml-2">Kalender</span>
       </a>
 
     </div>
@@ -151,13 +151,13 @@
       <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
         <div class="flex items-center space-x-2">
           <i data-lucide="wallet" class="w-6 h-6 text-indigo-600 shrink-0"></i>
-          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Laporan Keuangan Kas</h3>
+          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Kas Warga</h3>
         </div>
         <div class="flex items-center gap-2 flex-wrap justify-end">
-          <span id="label-update-kas" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full whitespace-nowrap">Update Rincian Kas</span>
+          <span id="label-update-kas" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full whitespace-nowrap">Data Kas</span>
           <button onclick="openModalCetakKas()" class="inline-flex items-center gap-1.5 text-xs bg-slate-900 hover:bg-slate-800 text-white font-semibold px-3 py-1.5 rounded-full transition shadow-sm" title="Cetak laporan keuangan">
             <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-            <span>Cetak Laporan</span>
+            <span>Cetak</span>
           </button>
         </div>
       </div>
@@ -167,7 +167,7 @@
         <div id="card-pemasukan" tabindex="0" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-300 hover:shadow-md transition relative flex flex-col justify-between touch-pan-y focus:outline-none focus:ring-2 focus:ring-emerald-400/50 select-none">
           <div>
             <div class="flex items-center justify-between mb-2">
-              <span id="label-pemasukan-bulan" class="text-xs md:text-sm font-semibold text-slate-500">Pemasukan Bulan Ini</span>
+              <span id="label-pemasukan-bulan" class="text-xs md:text-sm font-semibold text-slate-500">Kas Masuk</span>
               <div class="flex items-center space-x-1">
                 <button onclick="changeMonthPemasukan(-1)" class="p-1 hover:bg-slate-100 rounded text-slate-500 transition" title="Bulan Sebelumnya">
                   <i data-lucide="chevron-left" class="w-4 h-4"></i>
@@ -187,7 +187,7 @@
           </div>
 
           <div class="mt-4 pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
-            <span class="text-slate-400">Akumulasi:</span>
+            <span class="text-slate-400">Total:</span>
             <span id="total-pemasukan-all" class="font-bold text-slate-700">—</span>
           </div>
         </div>
@@ -196,7 +196,7 @@
         <div id="card-pengeluaran" tabindex="0" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-rose-300 hover:shadow-md transition relative flex flex-col justify-between touch-pan-y focus:outline-none focus:ring-2 focus:ring-rose-400/50 select-none">
           <div>
             <div class="flex items-center justify-between mb-2">
-              <span id="label-pengeluaran-bulan" class="text-xs md:text-sm font-semibold text-slate-500">Pengeluaran Bulan Ini</span>
+              <span id="label-pengeluaran-bulan" class="text-xs md:text-sm font-semibold text-slate-500">Kas Keluar</span>
               <div class="flex items-center space-x-1">
                 <button onclick="changeMonthPengeluaran(-1)" class="p-1 hover:bg-slate-100 rounded text-slate-500 transition" title="Bulan Sebelumnya">
                   <i data-lucide="chevron-left" class="w-4 h-4"></i>
@@ -216,7 +216,7 @@
           </div>
 
           <div class="mt-4 pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
-            <span class="text-slate-400">Akumulasi:</span>
+            <span class="text-slate-400">Total:</span>
             <span id="total-pengeluaran-all" class="font-bold text-slate-700">—</span>
           </div>
         </div>
@@ -225,14 +225,10 @@
         <div class="bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-950 p-5 rounded-2xl shadow-lg border-2 border-indigo-500/40 text-white relative overflow-hidden transform md:-translate-y-1">
           <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
           <div class="flex items-center justify-between mb-1">
-            <p class="text-xs md:text-sm font-semibold text-indigo-200 uppercase tracking-wider">Sisa Saldo Kas Utama</p>
+            <p class="text-xs md:text-sm font-semibold text-indigo-200 uppercase tracking-wider">Saldo Kas</p>
             <span class="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-400/30">Aktif</span>
           </div>
           <p id="sisa-saldo" class="text-2xl md:text-3xl font-black tracking-tight text-white mt-1">—</p>
-          <p class="text-xs text-indigo-200/80 mt-1.5 font-normal flex items-center space-x-1">
-            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-400 shrink-0"></i>
-            <span>Saldo riil bersih siap pakai saat ini</span>
-          </p>
 
           <div class="mt-2 pt-2 border-t border-white/15 flex items-center gap-2">
             <button onclick="changeMonthSaldo(-1)" class="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-indigo-100 transition shrink-0" title="Bulan Sebelumnya">
@@ -252,7 +248,7 @@
 
       <div id="f4-private-transactions" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
         <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-          <h4 class="font-semibold text-slate-700 text-sm md:text-base">Rincian 6 Transaksi Terakhir</h4>
+          <h4 class="font-semibold text-slate-700 text-sm md:text-base">6 Transaksi Terakhir</h4>
           <span id="loading-status" class="text-xs text-slate-500">Memuat data...</span>
         </div>
         
@@ -272,7 +268,7 @@
 
         <div id="btn-container-keuangan-all" class="p-3 border-t border-slate-100 bg-slate-50 text-center hidden">
           <button onclick="openModalKeuangan()" class="text-xs md:text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition inline-flex items-center space-x-1">
-            <span>Lihat Seluruh Riwayat Transaksi</span>
+            <span>Lihat Semua</span>
             <i data-lucide="chevron-right" class="w-4 h-4"></i>
           </button>
         </div>
@@ -284,7 +280,7 @@
       <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
         <div class="flex items-center space-x-2">
           <i data-lucide="users" class="w-6 h-6 text-indigo-600 shrink-0"></i>
-          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Jadwal Arisan Warga</h3>
+          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Jadwal Arisan</h3>
         </div>
         <span id="loading-status-arisan" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full whitespace-nowrap">Memuat Jadwal...</span>
       </div>
@@ -307,7 +303,7 @@
         <div onclick="openModalArisan('next')" class="bg-white hover:bg-slate-50 p-5 rounded-xl shadow-sm border border-slate-200 hover:border-indigo-300 flex items-center justify-between cursor-pointer transition transform hover:-translate-y-0.5 active:scale-98 group">
           <div>
             <span class="text-xs font-semibold text-indigo-600 uppercase tracking-wider flex items-center space-x-1">
-              <span>Tuan Rumah Selanjutnya (Bulan Depan)</span>
+              <span>Tuan Rumah Berikutnya</span>
               <i data-lucide="external-link" class="w-3 h-3 text-indigo-400 opacity-70 group-hover:opacity-100"></i>
             </span>
             <h4 id="arisan-selanjutnya-nama" class="text-lg md:text-xl font-bold text-slate-800 mt-1">-</h4>
@@ -325,7 +321,7 @@
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
           <i data-lucide="folder-kanban" class="w-6 h-6 text-indigo-600 shrink-0"></i>
-          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Projek & Pembangunan Lorong</h3>
+          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Projek Warga</h3>
         </div>
 
         <div class="flex items-center space-x-1">
@@ -357,7 +353,7 @@
 
             <div class="grid grid-cols-3 gap-1.5 text-center mb-2">
               <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
-                <p class="text-[9px] text-slate-500 font-medium">Total Pemesan</p>
+                <p class="text-[9px] text-slate-500 font-medium">Pemesan</p>
                 <p id="total-pemesan-jersey" class="text-xs font-bold text-indigo-600 mt-0.5">0 Orang</p>
               </div>
               <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
@@ -373,14 +369,14 @@
             <div class="bg-emerald-950/90 text-white rounded-lg p-2.5 mb-2 border border-emerald-800/80 flex items-center justify-between">
               <div class="flex items-center space-x-1.5">
                 <i data-lucide="coins" class="w-4 h-4 text-emerald-400"></i>
-                <span class="text-xs font-medium text-emerald-200">Dana Terkumpul:</span>
+                <span class="text-xs font-medium text-emerald-200">Dana Masuk:</span>
               </div>
               <span id="card-jersey-terkumpul" class="font-bold text-emerald-300 text-sm">Rp 0</span>
             </div>
           </div>
 
           <button onclick="openModalJersey()" class="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-2 rounded-lg border border-indigo-100 transition text-xs flex items-center justify-center space-x-1">
-            <span>Lihat Rincian Pemesanan & Dana</span>
+            <span>Lihat Pesanan</span>
             <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
           </button>
         </div>
@@ -402,7 +398,7 @@
 
             <div class="space-y-2 mb-3">
               <div class="flex justify-between items-center text-xs">
-                <span class="font-semibold text-slate-700 text-[11px]">Progres Pengumpulan Dana</span>
+                <span class="font-semibold text-slate-700 text-[11px]">Progres Dana</span>
                 <span id="gapura-percent" class="font-bold text-indigo-600 text-[11px]">0%</span>
               </div>
               
@@ -472,7 +468,7 @@
       <div class="flex items-center justify-between px-1">
         <div class="flex items-center space-x-2">
           <i data-lucide="images" class="w-6 h-6 text-indigo-600 shrink-0"></i>
-          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Dokumentasi & Inventaris</h3>
+          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Galeri & Inventaris</h3>
         </div>
       </div>
 
@@ -527,7 +523,7 @@
     <section id="rencana" class="scroll-mt-20 w-full space-y-6">
       <div class="flex items-center space-x-2">
         <i data-lucide="calendar-check" class="w-6 h-6 text-indigo-600 shrink-0"></i>
-        <h3 class="text-xl md:text-2xl font-bold text-slate-900">Kalender Kegiatan</h3>
+        <h3 class="text-xl md:text-2xl font-bold text-slate-900">Kalender</h3>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
@@ -549,15 +545,14 @@
             <div class="flex items-center space-x-3">
               <div class="flex items-center space-x-1">
                 <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
-                <span class="font-medium text-amber-800">Gorol / Kerja Bakti</span>
+                <span class="font-medium text-amber-800">Kerja Bakti</span>
               </div>
               <div class="flex items-center space-x-1">
                 <span class="w-2.5 h-2.5 rounded-full bg-indigo-600 inline-block"></span>
-                <span>Kegiatan Warga / Arisan</span>
+                <span>Kegiatan / Arisan</span>
               </div>
             </div>
-            <span class="text-[10px] text-slate-400 italic hidden sm:inline">*Usap/Swipe di HP untuk ganti bulan</span>
-          </div>
+            </div>
 
           <div class="grid grid-cols-7 gap-1 text-center font-bold text-xs text-slate-400 mb-2">
             <div>Ming</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div>
@@ -569,7 +564,7 @@
         <div class="lg:col-span-6 bg-white p-5 rounded-xl shadow-sm border border-slate-200 h-full flex flex-col">
           <h4 class="font-bold text-slate-800 text-base mb-3 flex items-center space-x-1.5">
             <i data-lucide="list-todo" class="w-4 h-4 text-indigo-600"></i>
-            <span>Daftar Rencana mendatang</span>
+            <span>Agenda Berikutnya</span>
           </h4>
 
           <div id="container-rencana" class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
@@ -584,7 +579,7 @@
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
           <i data-lucide="messages-square" class="w-6 h-6 text-indigo-600 shrink-0"></i>
-          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Obrolan & Sapa Warga</h3>
+          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Obrolan Warga</h3>
         </div>
         <!-- BADGE STATUS LIVE -->
         <div class="flex items-center space-x-2">
@@ -598,7 +593,7 @@
         <div class="lg:col-span-5 bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
           <h4 class="font-bold text-slate-800 text-sm flex items-center space-x-1.5">
             <i data-lucide="message-square-plus" class="w-4 h-4 text-indigo-600"></i>
-            <span>Tulis Pesan / Sapaan</span>
+            <span>Tulis Pesan</span>
           </h4>
           
           <form id="form-komentar" onsubmit="tambahKomentarWarga(event)" class="space-y-3">
@@ -608,13 +603,13 @@
             </div>
 
             <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Pesan / Komentar</label>
-              <textarea id="komentar-pesan" required rows="3" minlength="2" maxlength="1000" placeholder="Ketik obrolan, info, atau sapaan warga di sini..." class="w-full text-xs md:text-sm px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white resize-none"></textarea>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Pesan</label>
+              <textarea id="komentar-pesan" required rows="3" minlength="2" maxlength="1000" placeholder="Tulis pesan untuk warga..." class="w-full text-xs md:text-sm px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white resize-none"></textarea>
             </div>
 
             <!-- TOMBOL EMOJI -->
             <div>
-              <label class="block text-[11px] font-semibold text-slate-500 mb-1">Klik Emoticon:</label>
+              <label class="block text-[11px] font-semibold text-slate-500 mb-1">Emoji</label>
               <div class="flex flex-wrap gap-1.5 bg-white p-2 rounded-lg border border-slate-200 items-center">
                 <button type="button" onclick="insertEmoticon('😂')" class="text-xl p-1.5 hover:bg-slate-100 active:scale-125 transition rounded">😂</button>
                 <button type="button" onclick="insertEmoticon('🤣')" class="text-xl p-1.5 hover:bg-slate-100 active:scale-125 transition rounded">🤣</button>
@@ -631,7 +626,7 @@
 
             <button type="submit" id="btn-submit-chat" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-lg text-xs md:text-sm transition flex items-center justify-center space-x-1.5 shadow-sm active:scale-95">
               <i data-lucide="send" class="w-4 h-4"></i>
-              <span>Kirim Komentar</span>
+              <span>Kirim</span>
             </button>
           </form>
         </div>
@@ -641,10 +636,10 @@
           <div class="flex items-center justify-between mb-2 border-b border-slate-100 pb-2">
             <h4 class="font-bold text-slate-800 text-sm flex items-center space-x-1.5">
               <i data-lucide="message-circle" class="w-4 h-4 text-indigo-600"></i>
-              <span>Obrolan Terkini</span>
+              <span>Pesan Terbaru</span>
             </h4>
             <div class="flex items-center space-x-2">
-              <span id="total-komentar-badge" class="text-[11px] text-slate-500 font-mono">0 Komentar</span>
+              <span id="total-komentar-badge" class="text-[11px] text-slate-500 font-mono">0 Pesan</span>
             </div>
           </div>
 
@@ -677,8 +672,7 @@
     <div class="bg-white w-full max-w-3xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Jadwal dan putaran arisan warga">
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
         <div>
-          <h3 class="text-lg md:text-xl font-bold text-slate-900">Jadwal & Putaran Arisan Warga</h3>
-          <p class="text-xs text-slate-500">Daftar giliran arisan lorong Flamboyan 4</p>
+          <h3 class="text-lg md:text-xl font-bold text-slate-900">Daftar Arisan</h3>
         </div>
         <button onclick="closeModalDirect('modal-arisan')" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
           <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
@@ -707,13 +701,13 @@
     <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Cetak laporan keuangan">
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
         <div>
-          <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2"><i data-lucide="printer" class="w-5 h-5 text-indigo-600"></i>Cetak Laporan Keuangan</h3>
+          <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2"><i data-lucide="printer" class="w-5 h-5 text-indigo-600"></i>Cetak Kas</h3>
         </div>
         <button onclick="closeModalCetakKas()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <div class="p-5 space-y-4 text-sm">
         <div>
-          <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5">Jenis Periode</label>
+          <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5">Periode</label>
           <select id="cetak-kas-tipe" onchange="updateCetakKasFields()" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
             <option value="bulanan">Bulanan</option>
             <option value="rentang">Rentang Bulan</option>
@@ -750,7 +744,7 @@
           <input id="cetak-kas-tahun-full" type="number" min="2000" max="2100" class="w-full border border-slate-200 rounded-xl px-3 py-2.5" />
         </div>
         <button onclick="cetakLaporanKas()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl py-3 transition flex items-center justify-center gap-2">
-          <i data-lucide="printer" class="w-4 h-4"></i><span>Buka Tampilan Cetak</span>
+          <i data-lucide="printer" class="w-4 h-4"></i><span>Cetak</span>
         </button>
       </div>
     </div>
@@ -762,8 +756,7 @@
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
         <div>
          <!-- ID modal-keuangan-title ditambahkan di sini -->
-         <h3 id="modal-keuangan-title" class="text-lg md:text-xl font-bold text-slate-900">Arsip Seluruh Transaksi Kas</h3>
-          <p class="text-xs text-slate-500">Riwayat pemasukan & pengeluaran kas Flamboyan 4</p>
+         <h3 id="modal-keuangan-title" class="text-lg md:text-xl font-bold text-slate-900">Riwayat Kas</h3>
         </div>
         <button onclick="closeModalDirect('modal-keuangan')" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
           <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
@@ -852,8 +845,7 @@
     <div class="bg-white w-full max-w-5xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Dokumentasi kegiatan">
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
         <div>
-          <h3 class="text-lg md:text-xl font-bold text-slate-900">Arsip Dokumentasi Kegiatan</h3>
-          <p class="text-xs text-slate-500">Seluruh album foto & kegiatan warga Flamboyan 4</p>
+          <h3 class="text-lg md:text-xl font-bold text-slate-900">Semua Album</h3>
         </div>
         <button onclick="closeModalDirect('modal-dokumentasi')" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
           <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
@@ -868,8 +860,8 @@
     <div class="bg-white w-full max-w-5xl max-h-[85vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
         <div>
-          <h3 id="gallery-grid-title" class="text-base md:text-lg font-bold text-slate-900">Galeri Album</h3>
-          <p id="gallery-grid-subtitle" class="text-xs text-slate-500">Klik salah satu media untuk melihat/memutar</p>
+          <h3 id="gallery-grid-title" class="text-base md:text-lg font-bold text-slate-900">Isi Album</h3>
+          <p id="gallery-grid-subtitle" class="text-xs text-slate-500">Pilih foto atau video</p>
         </div>
         <button onclick="closeModalDirect('modal-gallery-grid')" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition">
           <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
@@ -916,17 +908,17 @@
       <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-indigo-600 text-white">
         <div class="flex items-center space-x-2">
           <i data-lucide="message-square" class="w-5 h-5"></i>
-          <h3 class="font-bold text-sm md:text-base">Kotak Saran Flamboyan 4</h3>
+          <h3 class="font-bold text-sm md:text-base">Kotak Saran</h3>
         </div>
         <button onclick="closeModalDirect('modal-saran')" class="p-1 text-indigo-200 hover:text-white rounded-full transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
       <div class="p-5 space-y-4">
-        <p class="text-xs text-slate-500">Tidak perlu menuliskan nama atau nomor rumah. Saran dikirim ke pengurus melalui layanan web; hindari mencantumkan data pribadi yang tidak diperlukan.</p>
+        <p class="text-xs text-slate-500">Saran dikirim ke pengurus. Tak perlu nama atau data pribadi.</p>
         
         <form action="https://api.flamboyan4.web.id/api/v2/public/portal/suggestions" method="POST" id="form-saran">
-            <textarea name="pesan" rows="5" minlength="5" maxlength="2000" placeholder="Ketik saran, laporan, atau keluhan Anda di sini..." class="w-full p-3 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none bg-slate-50" required></textarea>
+            <textarea name="pesan" rows="5" minlength="5" maxlength="2000" placeholder="Tulis saran atau keluhan..." class="w-full p-3 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none bg-slate-50" required></textarea>
             <div aria-hidden="true" style="position:absolute;left:-9999px;height:1px;width:1px;overflow:hidden"><label for="f4-saran-website">Website (kosongkan)</label><input type="text" id="f4-saran-website" name="website" tabindex="-1" autocomplete="off"></div>
             
             <button type="submit" class="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition flex items-center justify-center space-x-2 shadow-sm">
@@ -963,9 +955,9 @@
         <div class="flex items-center justify-between border-b border-slate-700/60 pb-3 mb-3">
           <div class="flex items-center space-x-2 text-white">
             <i data-lucide="credit-card" class="w-5 h-5 text-indigo-400"></i>
-            <h4 class="font-bold text-sm md:text-base">Pembayaran & Kas Warga</h4>
+            <h4 class="font-bold text-sm md:text-base">Pembayaran</h4>
           </div>
-          <span class="text-[11px] text-slate-400">Pilih Rekening / QRIS</span>
+          <span class="text-[11px] text-slate-400">Transfer / QRIS</span>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
@@ -977,7 +969,7 @@
             </div>
             <button onclick="salinNorekEx('1330022606479', 'btn-salin-1', 'btn-text-1')" id="btn-salin-1" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center space-x-1 shrink-0 active:scale-95">
               <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-              <span id="btn-text-1">Salin Norek</span>
+              <span id="btn-text-1">Salin</span>
             </button>
           </div>
 
@@ -989,7 +981,7 @@
             </div>
             <button onclick="salinNorekEx('901493321399', 'btn-salin-2', 'btn-text-2')" id="btn-salin-2" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center space-x-1 shrink-0 active:scale-95">
               <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-              <span id="btn-text-2">Salin Norek</span>
+              <span id="btn-text-2">Salin</span>
             </button>
           </div>
 
@@ -997,7 +989,7 @@
           <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 flex items-center justify-between">
             <div>
               <p class="text-white font-bold">QRIS Pembayaran</p>
-              <p class="text-[11px] text-slate-400">All E-Wallet/Bank</p>
+              <p class="text-[11px] text-slate-400">Bank & Dompet Digital</p>
             </div>
             <a href="/assets/qris-flamboyan4.jpg" download="QRIS_Flamboyan4.jpg" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center space-x-1 shrink-0 active:scale-95">
               <i data-lucide="download" class="w-3.5 h-3.5"></i>
