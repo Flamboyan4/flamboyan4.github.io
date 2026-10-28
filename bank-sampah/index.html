@@ -2522,7 +2522,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
  };
 })();
 </script>
-<script src="/portal-live/live-bank-readonly.js?v=member-progress-and-weight-20261028"></script>
+<script src="/portal-live/live-bank-readonly.js?v=member-clear-estimate-20261028"></script>
 <script src="/portal-live/f4-bank-write-bridge.js?v=sale-receipt-20261028c"></script>
 <script id="f4-appsscript-compat">
 /* Adapter only. Every line of PortalAkun.html's original script remains unchanged below. */
@@ -2879,7 +2879,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
   async function v11SaveMedia(e){e.preventDefault();busy(e.target,true);try{const r=await call('bsV20TambahMedia',token,{albumId:$('v11MediaAlbum').value,jenis:$('v11MediaType').value,url:$('v11MediaURL').value,caption:$('v11MediaCaption').value});note('v11MediaNotice','Dokumentasi '+r.id+' ditambahkan.');e.target.reset();v20MediaTypeChange();await v11LoadAlbums();}catch(err){note('v11MediaNotice','Gagal: '+(err.message||err),true);}finally{busy(e.target,false);}}
   async function v11LoadInventory(){/* Form tidak membutuhkan data personal; inventaris publik dimuat di beranda. */}
   async function v11SaveInventory(e){e.preventDefault();busy(e.target,true);try{const r=await call('bsV11TambahInventaris',token,{nama:$('v11InvName').value,jumlah:$('v11InvAmount').value+' '+$('v11InvUnit').value.trim(),kategori:$('v11InvCategory').value,lokasi:$('v11InvLocation').value,foto:$('v11InvPhoto').value});note('v11InvNotice',r.id+' tersimpan.');e.target.reset();}catch(err){note('v11InvNotice','Gagal: '+(err.message||err),true);}finally{busy(e.target,false);}}
-  (async()=>{v8Setup();v9Setup();v10Setup();v11Setup();const entry=document.createElement('button');entry.className='secondary wide';entry.textContent='Lihat portal publik';entry.onclick=v11ShowPublic;$('authNotice').before(entry);const nav=document.createElement('button');nav.id='navPublic';nav.className='secondary';nav.textContent='Portal publik';nav.onclick=v11ShowPublic;$('navProgress').after(nav);if(token){try{showDashboard(await call('authMe',token));}catch(e){showAuth();v11ShowPublic();}}else v11ShowPublic();})();
+  (async()=>{v8Setup();v9Setup();v10Setup();v11Setup();const entry=document.createElement('button');entry.className='secondary wide';entry.textContent='Lihat portal publik';entry.onclick=v11ShowPublic;$('authNotice').before(entry);const nav=document.createElement('button');nav.id='navPublic';nav.className='secondary';nav.textContent='Info Bank Sampah';nav.onclick=v11ShowPublic;$('navProgress').after(nav);if(token){try{showDashboard(await call('authMe',token));}catch(e){showAuth();v11ShowPublic();}}else v11ShowPublic();})();
   // v12 — hanya menampilkan rincian pribadi dari sesi warga yang sedang aktif.
   let v12Data=null;
   const v12Show=showDashboard,v12Go=goPage,v12Auth=showAuth;
@@ -2901,10 +2901,19 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
     if(!$('pagePribadi')){
       const nav=document.createElement('button');nav.id='navPribadi';nav.className='secondary';nav.textContent='💚 Tabungan saya';nav.onclick=()=>goPage('pribadi');$('navProfile').after(nav);
       const page=document.createElement('section');page.id='pagePribadi';page.className='card hidden';
-      page.innerHTML=`<h2>Tabungan saya</h2><p class="desc">Saldo terkonfirmasi setelah penjualan dan rekonsiliasi. Khusus akun yang sedang masuk.</p><div id="v12Gate" class="notice" role="status">Memeriksa akses...</div><div id="v12Private" class="hidden"><div class="stats"><div class="stat"><small>Saldo tersedia</small><strong id="v12Balance">—</strong></div><div class="stat"><small>Masuk terkonfirmasi</small><strong id="v12Credit">—</strong></div><div class="stat"><small>Sudah dicairkan</small><strong id="v12Debit">—</strong></div></div><div class="toolbar block-gap"><button class="secondary" onclick="v12Load()">Perbarui</button><button onclick="v12Print()">Cetak / PDF</button><button class="ghost" onclick="v12CSV()">Unduh CSV</button></div><h2 class="block-gap">Riwayat tabungan</h2><div id="v12History" class="tablewrap"></div><h2 class="block-gap">Rincian setoran per barang</h2><p class="hint">Setoran estimasi belum termasuk saldo tersedia hingga disahkan.</p><div id="v12Deposits"></div></div>`;
+      page.innerHTML=`<h2>Tabungan saya</h2><p class="desc">Saldo terkonfirmasi setelah penjualan dan rekonsiliasi. Khusus akun yang sedang masuk.</p><div id="v12Gate" class="notice" role="status">Memeriksa akses...</div><div id="v12Private" class="hidden"><div class="stats"><div class="stat"><small>Saldo tersedia</small><strong id="v12Balance">—</strong></div><div class="stat"><small>Tabungan masuk</small><strong id="v12Credit">—</strong></div><div class="stat"><small>Sudah dicairkan</small><strong id="v12Debit">—</strong></div></div><p class="f4-member-payout-help">Ingin mencairkan tabungan? Hubungi pengurus Bank Sampah untuk menanyakan jadwal atau mengajukan pencairan. Transaksi yang sudah diproses pengelola akan tercatat dalam riwayat di bawah.</p><div class="toolbar block-gap f4-member-tools"><button class="secondary f4-member-refresh" type="button" onclick="v12Load()" title="Muat ulang data tabungan" aria-label="Muat ulang data tabungan"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.35 5.65"/><path d="M20 4v7h-7"/></svg></button><button type="button" onclick="v12Print()">Cetak / PDF</button><button type="button" class="ghost" onclick="v12CSV()">Unduh CSV</button></div><h2 class="block-gap">Riwayat tabungan</h2><div id="v12History" class="tablewrap"></div><h2 class="block-gap">Rincian setoran per barang</h2><p class="hint">Setoran estimasi belum termasuk saldo tersedia hingga disahkan.</p><div id="v12Deposits"></div></div>`;
       $('pageProfile').after(page);
     }
     $('navPribadi').classList.toggle('hidden',!profile||profile.peran!=='Warga');
+  }
+  // Hanya tampilan dan PDF; CSV/API tetap menyimpan tanggal ISO.
+  function f4MemberDateID(raw){
+    const text=String(raw||'').trim(),m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
+    if(!m)return text||'Tanggal belum tercatat';
+    const y=Number(m[1]),mo=Number(m[2]),day=Number(m[3]);
+    const d=new Date(Date.UTC(y,mo-1,day,12));
+    if(d.getUTCFullYear()!==y||d.getUTCMonth()!==mo-1||d.getUTCDate()!==day)return text;
+    return new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}).format(d);
   }
   function v12Table(headings,rows){
     const table=document.createElement('table'),head=document.createElement('thead'),hrow=document.createElement('tr');
@@ -2920,9 +2929,9 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
       const d=await call('bsV12Statement',token);v12Data=d;
       $('v12Gate').classList.add('hidden');$('v12Private').classList.remove('hidden');
       $('v12Balance').textContent=rupiah(d.saldo);$('v12Credit').textContent=rupiah(d.totalMasuk);$('v12Debit').textContent=rupiah(d.totalCair);
-      const history=$('v12History');history.replaceChildren();history.appendChild(v12Table(['Tanggal','Mutasi','Masuk','Keluar','Saldo'],d.mutasi.map(x=>[x.tanggal,x.jenis,rupiah(x.kredit),rupiah(x.debit),rupiah(x.saldo)])));
+      const history=$('v12History');history.replaceChildren();history.appendChild(v12Table(['Tanggal','Mutasi','Masuk','Keluar','Saldo'],d.mutasi.map(x=>[f4MemberDateID(x.tanggal),x.jenis,rupiah(x.kredit),rupiah(x.debit),rupiah(x.saldo)])));
       const deposits=$('v12Deposits');deposits.replaceChildren();
-      d.setoran.forEach(s=>{const details=document.createElement('details');details.className='details-panel';const summary=document.createElement('summary');summary.textContent=(s.tanggal||'Tanggal belum tercatat')+' • '+v12Kg(s.beratKg)+' • '+s.status+' • '+rupiah(s.estimasiRp);details.appendChild(summary);details.appendChild(v12Table(['Barang','Berat','Tarif warga','Estimasi'],s.rincian.map(x=>[x.barang,v12Kg(x.beratKg),rupiah(x.tarif),rupiah(x.nilai)])));deposits.appendChild(details);});
+      d.setoran.forEach(s=>{const details=document.createElement('details');details.className='details-panel';const summary=document.createElement('summary');summary.textContent=f4MemberDateID(s.tanggal)+' • '+v12Kg(s.beratKg)+' • '+(s.status==='Terkonfirmasi'?'Sudah direkonsiliasi':s.status)+' • Estimasi timbang '+rupiah(s.estimasiRp);details.appendChild(summary);details.appendChild(v12Table(['Barang','Berat','Tarif warga','Estimasi'],s.rincian.map(x=>[x.barang,v12Kg(x.beratKg),rupiah(x.tarif),rupiah(x.nilai)])));deposits.appendChild(details);});
       if(!d.setoran.length)deposits.textContent='Belum ada setoran tercatat.';
     }catch(e){note('v12Gate','Laporan belum tersedia: '+(e.message||e),true);}
   }
@@ -2933,9 +2942,9 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
     const identity=document.createElement('p');identity.textContent=d.nama+' • '+d.rumah+' • '+d.dibuatPada;root.appendChild(identity);
     const amount=document.createElement('p');amount.textContent='Saldo '+rupiah(d.saldo)+' | Masuk '+rupiah(d.totalMasuk)+' | Dicairkan '+rupiah(d.totalCair);root.appendChild(amount);
     const h=document.createElement('h2');h.textContent='Mutasi tabungan';root.appendChild(h);
-    root.appendChild(v12Table(['Tanggal','Keterangan','Masuk','Keluar','Saldo'],d.mutasi.map(x=>[x.tanggal,x.jenis,rupiah(x.kredit),rupiah(x.debit),rupiah(x.saldo)])));
+    root.appendChild(v12Table(['Tanggal','Keterangan','Masuk','Keluar','Saldo'],d.mutasi.map(x=>[f4MemberDateID(x.tanggal),x.jenis,rupiah(x.kredit),rupiah(x.debit),rupiah(x.saldo)])));
     const h2=document.createElement('h2');h2.textContent='Setoran per barang';root.appendChild(h2);
-    root.appendChild(v12Table(['Tanggal','Barang','Berat','Tarif warga/kg','Estimasi','Status'],d.setoran.flatMap(s=>s.rincian.map(x=>[s.tanggal,x.barang,v12Kg(x.beratKg),rupiah(x.tarif),rupiah(x.nilai),s.status]))));
+    root.appendChild(v12Table(['Tanggal','Barang','Berat','Tarif warga/kg','Estimasi','Status'],d.setoran.flatMap(s=>s.rincian.map(x=>[f4MemberDateID(s.tanggal),x.barang,v12Kg(x.beratKg),rupiah(x.tarif),rupiah(x.nilai),s.status]))));
     const remark=document.createElement('p');remark.style.marginTop='14px';remark.textContent='Keterangan: setoran estimasi belum menjadi tabungan sebelum rekonsiliasi disahkan.';root.appendChild(remark);
     const signature=document.createElement('div');signature.className='f4-bank-report-signature';
     signature.textContent='Mengetahui, Humas Flamboyan 4';
@@ -3203,7 +3212,11 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
   async function v14LoadDashboard(){
     if(!profile)return;v14Setup();const isAdmin=profile.peran==='Admin',currentToken=token;
     $('pageDashboard').classList.toggle('f4-member-dashboard',!isAdmin);
+    // Bersihkan komponen peran sebelumnya ketika sesi berpindah.
     $('f4-member-weight-chart')?.remove();
+    $('f4-monthly-trend')?.remove();
+    $('v14Primary')?.parentElement?.querySelectorAll('.f4-member-finance-note').forEach(n=>n.remove());
+    if(!isAdmin)$('f4-bank-quick')?.remove();
     $('v14Title').textContent=isAdmin?'Ringkasan pengelola':'Halo, '+profile.nama;
     $('v14Subtitle').textContent=isAdmin?'Pantau pencatatan dan perkembangan Bank Sampah':(profile.rumah?'Rumah '+profile.rumah+' • ':'')+'Pantau tabungan dan kontribusi sampah Anda';
     $('v14QuickAction').textContent=isAdmin?'+ Catat setoran':'Lihat tabungan saya';
@@ -3226,7 +3239,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
       $('v14Activities').textContent='Memuat perkembangan program…';
       primary.parentElement.querySelectorAll('.f4-member-finance-note').forEach(n=>n.remove());
       const brief=document.createElement('p');brief.className='f4-member-finance-note';
-      brief.textContent='Estimasi berasal dari penimbangan awal. Saldo terkonfirmasi diperoleh setelah penjualan dan rekonsiliasi.';
+      brief.textContent='Nilai setoran adalah estimasi saat ditimbang, bukan uang yang langsung masuk tabungan. Saldo tabungan dihitung dari hak warga yang disahkan setelah penjualan dan rekonsiliasi batch.';
       primary.after(brief);
       const report=Promise.resolve(call('bsV12Statement',token));
       const progress=Promise.resolve(call('bsV14ProgressPublik',token));
@@ -3250,13 +3263,17 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
        for(const s of recent){
         const article=document.createElement('div');article.className='f4-member-recent';
         const summary=document.createElement('div');
-        const dt=document.createElement('strong');dt.textContent=s.tanggal||'Tanggal belum dicatat';
-        const sub=document.createElement('small');sub.textContent=kg(s.beratKg||0)+' • '+(s.status||'Estimasi');
+        const dt=document.createElement('strong');dt.textContent=f4MemberDateID(s.tanggal);
+        const confirmed=/terkonfirmasi|confirmed/i.test(String(s.status||''));
+        const sub=document.createElement('small');sub.textContent=kg(s.beratKg||0)+' • '+(confirmed?'Sudah direkonsiliasi':'Menunggu rekonsiliasi');
         summary.append(dt,sub);
+        const value=document.createElement('div');value.className='f4-member-recent-value';
         const amount=document.createElement('b');amount.textContent=rupiah(s.estimasiRp||0);
-        article.append(summary,amount);recentBox.append(article);
+        const amountLabel=document.createElement('small');amountLabel.textContent='Estimasi saat timbang';
+        value.append(amount,amountLabel);
+        article.append(summary,value);recentBox.append(article);
        }
-       $('v14Status').textContent='Ringkasan dihitung dari riwayat tabungan akun yang sedang login.';
+       $('v14Status').textContent='Ringkasan pribadi dari akun yang sedang masuk. Status direkonsiliasi menandakan batch selesai, bukan berarti nilai estimasi sama dengan hak tabungan. Lihat Tabungan saya untuk nilai yang benar-benar masuk.';
       }else{
        $('v14Recent').textContent='Ringkasan pribadi belum tersedia. Gunakan tombol Lihat tabungan saya untuk memeriksa data lengkap.';
        $('v14Status').textContent='Data saldo belum dapat dimuat: '+String(statement.reason?.message||statement.reason||'Koneksi data terputus');
@@ -3291,7 +3308,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
     (Array.isArray(rows)?rows:[]).slice(0,3).forEach(r=>{
       const item=document.createElement('div');item.className='v14-activity-item';
       const title=document.createElement('strong');title.textContent=r.judul||r.langkah||'Perkembangan kegiatan';
-      const note=document.createElement('small');note.textContent=[r.tanggal,r.status].filter(Boolean).join(' • ');
+      const note=document.createElement('small');note.textContent=[r.tanggal?f4MemberDateID(r.tanggal):'',r.status].filter(Boolean).join(' • ');
       item.append(title,note);box.appendChild(item);
     });
     if(!box.childElementCount)box.textContent='Belum ada pembaruan kegiatan yang dipublikasikan.';
@@ -5036,7 +5053,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
       list.appendChild(back);
     }
     back.className='v16-item '+(currentRole==='superadmin'?'f4-back-management':'f4-back-account');
-    back.textContent=currentRole==='superadmin'?'← Menu Pengelolaan':'← Pengaturan Akun';
+    back.textContent=currentRole==='superadmin'?'← Menu Pengelolaan':'Profil & Pengaturan';
     back.onclick=()=>currentRole==='superadmin'
       ?window.parent.postMessage({type:'f4:manage-home'},location.origin)
       :openOriginalProfile();
@@ -5297,6 +5314,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
 }
 @media(max-width:680px){.f4-sale-note-fields{grid-template-columns:1fr;gap:8px}}
 </style>
+<link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261028-member-tidy-1">
 <script src="/portal-live/bank-sale-handover.js?v=a5-landscape-receipt-20261028c"></script>
 <script src="/portal-live/direct-shell.js?v=20261027-refresh-svg-all"></script><script src="/portal-live/unified-account.js?v=account-native-20261025b"></script><script defer src="/portal-live/mobile-cards.js?v=20261028-saldo-grid"></script><script defer src="/portal-live/native-controls.js?v=20261027-audit6"></script><script defer src="/portal-live/bank-page-history.js?v=20261027-final4"></script></body>
 </html>

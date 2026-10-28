@@ -134,7 +134,7 @@
    const balance=running;
    if(!Number.isSafeInteger(amount)||amount<0)throw Error('Nominal mutasi tabungan tidak valid.');
    running+=isCredit?-amount:amount;
-   return {id:x.id||'',tanggal:x.tanggal||'',jenis:x.jenis==='kredit'?'Hak tabungan disahkan':
+   return {id:x.id||'',tanggal:x.tanggal||'',jenis:x.jenis==='kredit'?'Tabungan masuk dari hasil penjualan':
       x.jenis==='pencairan'?'Pencairan tabungan':
       x.jenis==='koreksi_debit'?'Koreksi pembatalan pengesahan':x.jenis||'Mutasi',
     kredit:isCredit?amount:0,debit:isCredit?0:amount,saldo:balance,keterangan:x.keterangan||''};

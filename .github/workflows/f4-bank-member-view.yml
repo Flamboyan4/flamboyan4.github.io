@@ -1,0 +1,26 @@
+name: F4 Bank Member View Regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - bank-sampah/index.html
+      - portal-live/live-bank-readonly.js
+      - portal-live/bank-member-polish.css
+      - qa/bank-member-view.cjs
+      - .github/workflows/f4-bank-member-view.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify member frontend and bridge syntax
+        run: |
+          node --check portal-live/live-bank-readonly.js
+          node qa/bank-member-view.cjs
