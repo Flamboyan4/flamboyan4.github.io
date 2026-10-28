@@ -133,7 +133,10 @@ async function stableUuid(nonce){
  return hex.slice(0,8)+'-'+hex.slice(8,12)+'-'+hex.slice(12,16)+'-'+hex.slice(16,20)+'-'+hex.slice(20);
 }
 async function saleDraft(_token,p){
+ const rawProof=String(p.bukti||'').trim();
  const payload={requestId:await stableUuid(p?.nonce),batchId:String(p.batch),soldOn:String(p.tanggal||''),buyerName:String(p.lapak||''),receivedRp:n(p.diterima),adjustmentNote:String(p.alasanSelisih||'').trim(),
+ receiptNo:/^https:\/\//i.test(rawProof)?'':rawProof,
+ evidenceUrl:String(p.buktiUrl||(/^https:\/\//i.test(rawProof)?rawProof:'' )).trim(),
  lines:(p.items||[]).map(x=>({itemId:String(x.kode||'').startsWith('waste:')?String(x.kode):'waste:'+String(x.kode||''),grams:Math.round(n(x.berat)*1000),priceRpPerKg:n(x.harga)}))};
  const r=await api('/api/admin/sales/draft',payload);
  return {id:r.id,brutoRp:r.grossRp,diterimaRp:r.receivedRp,status:'Draft'};
