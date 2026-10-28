@@ -2835,7 +2835,7 @@ async function f4BatchSources(db,type,year,month,ids){
   " (SELECT COUNT(*) FROM bookkeeping_kas_batch_items bi WHERE bi.category='denda_gorol' AND bi.source_id=c.id AND bi.status='aktif') AS posted"+
   " FROM bookkeeping_cash_transactions c LEFT JOIN bookkeeping_payers bp ON bp.id=c.payer_id LEFT JOIN households h ON h.id=bp.household_id"+
   " WHERE c.status='aktif' AND c.debit_rp>0 AND c.credit_rp=0 AND"+
-  " (c.transaction_type IN ('pembayaran_denda','denda_menunggu_buku') OR (c.transaction_type='manual' AND lower(c.category)='denda gorol'))"+
+  " (c.transaction_type IN ('pembayaran_denda','denda_menunggu_buku') OR (lower(c.category)='denda gorol' AND c.transaction_type NOT IN ('batch_denda_gorol','batch_kas_lorong')))"+
   " AND substr(c.occurred_on,1,7)=?"+(ids&&ids.length?' AND c.id IN ('+ids.map(()=>'?').join(',')+')':'')+" ORDER BY c.occurred_on,c.id LIMIT 500";
   params.push(String(year)+'-'+String(month).padStart(2,'0'),...(ids||[]));
  }
@@ -2937,7 +2937,8 @@ async function cancelNewIuranPayment(request,env,who){
   const closing=await db.prepare(`SELECT fiscal_year FROM fiscal_closings WHERE fiscal_year IN (${qs}) LIMIT 1`).bind(...years).first();
   if(archive||closing)return safeError("Tahun pembukuan atau alokasi sudah dikunci.",409);
   const posted=await db.prepare("SELECT COUNT(*) AS n FROM bookkeeping_allocation_details WHERE allocation_id IN (SELECT id FROM bookkeeping_payment_allocations WHERE payment_id=?)").bind(id).first();
-  if(Number(posted?.n||0))return safeError("Alokasi sudah masuk batch: pembatalan memerlukan rekonsiliasi manual.",409);
+  const kasPosted=await db.prepare("SELECT COUNT(*) AS n FROM bookkeeping_kas_batch_items WHERE category='kas_lorong' AND status='aktif' AND source_id IN (SELECT id FROM bookkeeping_payment_allocations WHERE payment_id=?)").bind(id).first();
+  if(Number(posted?.n||0)||Number(kasPosted?.n||0))return safeError("Iuran sudah dibukukan. Batalkan batch dahulu sebelum membatalkan pembayaran.",409);
   if(await db.prepare("SELECT id FROM bookkeeping_advance_repayments WHERE instr(note,?)>0 AND status='aktif' LIMIT 1").bind(" melalui Iuran "+id).first())
     return safeError("Pembayaran telah melunasi Talangan; pembatalan memerlukan jurnal pembalik terpisah.",409);
   const talangan=await db.prepare("SELECT id FROM bookkeeping_advances WHERE payer_id=? AND status='aktif' AND amount_rp>COALESCE(reimbursed_rp,0) LIMIT 1").bind(payment.payer_id).first();
@@ -2985,8 +2986,9 @@ async function f4EditNewIuran(request,env,who){
  if(await db.prepare(`SELECT fiscal_year FROM bookkeeping_year_archives WHERE fiscal_year IN (${flags}) AND status IN ('ditutup','terkunci','final','closed') LIMIT 1`).bind(...years).first()||
     await db.prepare(`SELECT fiscal_year FROM fiscal_closings WHERE fiscal_year IN (${flags}) LIMIT 1`).bind(...years).first())
    return safeError("Tahun buku sudah dikunci.",409);
- if(await db.prepare("SELECT id FROM bookkeeping_allocation_details WHERE allocation_id IN (SELECT id FROM bookkeeping_payment_allocations WHERE payment_id=?) LIMIT 1").bind(id).first())
-   return safeError("Iuran sudah diposting pada batch. Koreksi dilakukan melalui prosedur pembukuan.",409);
+ if(await db.prepare("SELECT id FROM bookkeeping_allocation_details WHERE allocation_id IN (SELECT id FROM bookkeeping_payment_allocations WHERE payment_id=?) LIMIT 1").bind(id).first()||
+    await db.prepare("SELECT id FROM bookkeeping_kas_batch_items WHERE category='kas_lorong' AND status='aktif' AND source_id IN (SELECT id FROM bookkeeping_payment_allocations WHERE payment_id=?) LIMIT 1").bind(id).first())
+   return safeError("Iuran sudah dibukukan. Batalkan batch sebelum mengedit tanggal atau metode.",409);
  const cash=(await db.prepare("SELECT id,occurred_on,status,transaction_type,debit_rp,credit_rp FROM bookkeeping_cash_transactions WHERE source_payment_id=?").bind(id).all()).results||[];
  const kas=rows.filter(x=>x.contribution_type==="KAS_LORONG").reduce((n,x)=>n+Number(x.amount_rp),0);
  if(cash.length!==(kas?1:0)||cash.some(x=>x.status!=="aktif"||x.transaction_type!=="iuran"||Number(x.debit_rp)!==kas||Number(x.credit_rp)!==0))
