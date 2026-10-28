@@ -114,23 +114,6 @@ jobs:
           if not {"sale_id","receipt_no","evidence_url","updated_by","updated_at"}.issubset(receipt_columns):
               raise RuntimeError("Receipt document columns missing; Worker deploy aborted")
           print("D1_ADDITIVE_SALE_RECEIPT_SCHEMA_OK=1")
-          # Group posting metadata, additive only; keep all old cash/fine rows intact.
-          group_path=pathlib.Path("cloudflare/migrations/20261028_bookkeeping_group_batches.sql")
-          group_sql=group_path.read_text()
-          if (group_sql.upper().count("CREATE TABLE IF NOT EXISTS")!=2 or
-              group_sql.upper().count("CREATE INDEX IF NOT EXISTS")!=2 or
-              "DROP TABLE" in group_sql.upper() or "DELETE FROM" in group_sql.upper()):
-              raise RuntimeError("Unexpected group migration DDL")
-          group_sql="\n".join(line for line in group_sql.splitlines()
-                              if not line.lstrip().startswith("--"))
-          for statement in group_sql.split(";"):
-              if statement.strip():d1query(statement.strip())
-          for table,fields in [
-              ("bookkeeping_group_batches",{"id","kind","period_year","period_month","posted_on","cash_transaction_id"}),
-              ("bookkeeping_group_items",{"kind","source_id","batch_id","payment_id","amount_rp"})]:
-              found={v["name"] for v in d1query("PRAGMA table_info("+table+")")}
-              if not fields.issubset(found):raise RuntimeError("Incomplete group posting table "+table)
-          print("D1_ADDITIVE_BOOKKEEPING_GROUP_SCHEMA_OK=1")
           # Add-only grouping for iuran Kas Lorong & Gorol fine receipts.
           # Do not alter, delete, or rewrite any historical cash transaction.
           kas_sql=pathlib.Path("cloudflare/migrations/20261028_kas_lorong_batches.sql").read_text()
