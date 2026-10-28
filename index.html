@@ -3666,6 +3666,18 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
   function formatImageUrl(rawUrl) {
     if (!rawUrl) return '';
     let url = rawUrl.trim();
+    // Three published, frequently viewed banners are mirrored as static GitHub
+    // assets. Keep the D1 banner configuration and Drive URLs unchanged so
+    // Superadmin can still reorder, disable or replace banners normally.
+    const hostedBannerImages = {
+      '1nOxXTLBEFCCYFD_t29ldzIDxpeJFWlZm': '/assets/banner-jersey.jpg',
+      '1B6TIRYqGoNFN7tr78e-yhssvDK71cRRZ': '/assets/banner-gapura.jpg',
+      '1DoYOS0C1Evu43mwJEnpohcos-Kj0a0-L': '/assets/banner-bank-sampah.jpg'
+    };
+    if (/^https:\/\/(?:drive\.google\.com|lh3\.googleusercontent\.com)\//i.test(url)) {
+      const driveFile = url.match(/(?:\/d\/|[?&]id=)([A-Za-z0-9_-]+)/);
+      if (driveFile && hostedBannerImages[driveFile[1]]) return hostedBannerImages[driveFile[1]];
+    }
     if (url.includes('drive.google.com')) {
       const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
       if (match && match[1]) {
