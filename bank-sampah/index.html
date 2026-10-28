@@ -1401,6 +1401,107 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
  body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{font-size:17px!important}
 }
 </style>
+
+<style id="f4-member-dashboard-compact-weight-20261028">
+/* Ringkasan anggota saja: ikon di samping judul, angka dan keterangan lebar penuh.
+   Ukuran tulisan dipertahankan; hanya ruang vertikal yang dipadatkan. */
+body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primary.v14-primary{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:9px!important;align-items:stretch!important;margin-bottom:12px!important
+}
+body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primary.v14-primary>.v14-kpi{
+ display:grid!important;grid-template-columns:33px minmax(0,1fr)!important;
+ grid-template-rows:auto auto auto!important;column-gap:9px!important;row-gap:5px!important;
+ align-items:center!important;align-content:center!important;
+ width:100%!important;min-width:0!important;min-height:0!important;height:auto!important;
+ margin:0!important;padding:12px 13px!important;
+ border:1px solid #e0eae4!important;border-radius:14px!important;background:#fff!important;
+ box-shadow:0 2px 9px rgba(24,69,47,.025)!important
+}
+body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primary>.v14-kpi:before{
+ content:''!important;grid-column:1!important;grid-row:1!important;
+ display:block!important;width:33px!important;height:33px!important;
+ margin:0!important;border-radius:10px!important;background-size:19px!important
+}
+body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primary .v14-kpi-label{
+ grid-column:2!important;grid-row:1!important;align-self:center!important;
+ font-size:12px!important;line-height:1.32!important;font-weight:650!important;
+ color:#526c5f!important;margin:0!important
+}
+body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primary>.v14-kpi strong{
+ grid-column:1/-1!important;grid-row:2!important;margin:0!important;padding:0!important;
+ font-size:22px!important;line-height:1.25!important;letter-spacing:-.3px!important;
+ color:#20513b!important
+}
+body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primary>.v14-kpi small{
+ grid-column:1/-1!important;grid-row:3!important;margin:0!important;padding:0!important;
+ font-size:11.5px!important;line-height:1.35!important;color:#6c8375!important
+}
+/* Grafik ringkas, dibuat hanya untuk akun anggota dan mengikuti lebar layar. */
+body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member-weight-chart{
+ display:block!important;min-width:0!important;background:#fff!important;
+ border:1px solid #e1eae4!important;border-radius:16px!important;
+ padding:15px 16px 13px!important;margin:0 0 12px!important
+}
+#f4-member-weight-chart .f4-member-chart-head{display:flex;align-items:flex-start;gap:10px}
+#f4-member-weight-chart .f4-member-chart-head h3{
+ font-size:15px!important;line-height:1.4!important;margin:0 0 2px!important;
+ font-weight:800!important;color:#234735!important
+}
+#f4-member-weight-chart .f4-member-chart-head p{
+ font-size:12px!important;line-height:1.4!important;margin:0!important;color:#6c8074!important
+}
+#f4-member-weight-chart .f4-member-chart-bars{
+ display:flex!important;align-items:stretch!important;gap:8px!important;
+ margin-top:18px!important;width:100%!important;min-width:0!important;
+ overflow-x:auto!important;scrollbar-width:thin
+}
+#f4-member-weight-chart .f4-member-chart-column{
+ flex:1 0 0!important;min-width:42px!important;max-width:160px!important;
+ display:flex!important;flex-direction:column!important;align-items:center!important;
+ text-align:center!important;gap:5px!important
+}
+#f4-member-weight-chart .f4-member-chart-column>strong{
+ display:block!important;font-size:12px!important;line-height:1.3!important;
+ font-weight:750!important;color:#226148!important;white-space:nowrap!important
+}
+#f4-member-weight-chart .f4-member-chart-track{
+ height:96px!important;width:min(100%,40px)!important;max-width:40px!important;
+ margin-top:auto!important;border-radius:9px 9px 5px 5px!important;
+ display:flex!important;align-items:flex-end!important;overflow:hidden!important;
+ background:#edf5ef!important
+}
+#f4-member-weight-chart .f4-member-chart-fill{
+ display:block!important;width:100%!important;border-radius:8px 8px 4px 4px!important;
+ background:#27a175!important;transition:height .2s ease!important
+}
+#f4-member-weight-chart .f4-member-chart-column>small{
+ display:block!important;font-size:11px!important;line-height:1.3!important;
+ color:#637c6c!important;min-height:27px!important;white-space:normal!important
+}
+#f4-member-weight-chart .f4-member-chart-note{
+ font-size:11.5px!important;line-height:1.45!important;color:#73897b!important;
+ margin:9px 0 0!important
+}
+#f4-member-weight-chart .f4-member-chart-empty{
+ font-size:12px!important;color:#6e8275!important;padding:15px 0 3px!important
+}
+@media(max-width:760px){
+ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primary.v14-primary{gap:8px!important}
+ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primary.v14-primary>.v14-kpi{
+  padding:11px 12px!important;column-gap:8px!important;row-gap:4px!important
+ }
+ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member-weight-chart{
+  padding:13px 12px 11px!important
+ }
+ #f4-member-weight-chart .f4-member-chart-bars{gap:5px!important}
+ #f4-member-weight-chart .f4-member-chart-column{min-width:38px!important}
+ #f4-member-weight-chart .f4-member-chart-track{height:85px!important;width:min(100%,36px)!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #f4-member-weight-chart .f4-member-chart-fill{transition:none!important}
+}
+</style>
 </head>
 <body>
 <div class="shell">
@@ -1986,7 +2087,7 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
   function v7EnsureSaleReason(){if($('saleReason'))return;const wrap=document.createElement('div');wrap.className='field';const label=document.createElement('label');label.htmlFor='saleReason';label.textContent='Alasan selisih bruto dan diterima (jika ada)';const input=document.createElement('input');input.id='saleReason';input.maxLength=200;input.placeholder='Misal: penyesuaian harga atau potongan lapak';wrap.append(label,input);$('saleProof').closest('.field').after(wrap);}
   async function submitSale(e){e.preventDefault();const items=saleItems(),batch=$('saleBatch').value;if(!batch||!items.length){note('saleNotice','Pilih batch dan isi rincian barang.',true);return;}if(items.some(i=>!Number.isSafeInteger(i.harga)||i.harga<=0)){note('saleNotice','Harga tidak valid.',true);return;}const statusBayar=$('saleStatus').value,diterima=statusBayar==='Belum Bayar'?0:Number($('saleReceived').value),gross=items.reduce((s,i)=>s+Math.round(i.berat*i.harga),0),alasanSelisih=$('saleReason').value.trim();if(statusBayar==='Lunas'&&gross!==diterima&&alasanSelisih.length<5){note('saleNotice','Isi alasan selisih uang diterima minimal 5 karakter.',true);return;}if(!await window.f4UiDialog.confirm('Catat penjualan '+batch+' senilai '+rupiah(gross)+'?'))return;busy(e.target,true);note('saleNotice','Menyimpan...');try{const r=await call('bsV6SimpanPenjualan',token,{nonce:saleNonce,batch,tanggal:$('saleDate').value,lapak:$('saleLapak').value,statusBayar,diterima,bukti:$('saleProof').value,alasanSelisih,items});note('saleNotice',r.id+' tercatat, belum direkonsiliasi.');saleNonce='';e.target.reset();await loadPenjualan();}catch(err){note('saleNotice','Gagal: '+(err.message||err),true);}finally{busy(e.target,false);}}
   async function loadRekonsiliasi(){const batch=$('reconBatch').value,area=$('reconResult');if(!batch){area.textContent='Pilih batch terlebih dahulu.';return;}area.textContent='Menghitung...';try{const r=await call('bsV6PratinjauRekonsiliasi',token,batch);const fields=[['Setoran',r.setoran],['Penjualan',r.penjualan],['Berat warga',kg(r.beratSetoran)],['Berat lapak',kg(r.beratLapak)],['Selisih berat',kg(r.selisihKg)],['Estimasi warga',rupiah(r.estimasiWarga)],['Bruto lapak',rupiah(r.bruto)],['Diterima',rupiah(r.diterima)],['Selisih bruto/diterima',rupiah(r.selisihPenerimaan)],['Sisa sementara',rupiah(r.marginSementara)]];area.replaceChildren(...fields.map(([l,v])=>metric(l,v)));area.style.display='grid';area.style.gridTemplateColumns='repeat(auto-fit,minmax(170px,1fr))';const section=document.createElement('div');section.style.gridColumn='1/-1';const title=document.createElement('h2');title.textContent='Perbandingan per jenis barang';section.appendChild(title);(r.rincian||[]).forEach(item=>{const box=document.createElement('div');box.className='details-panel';const heading=document.createElement('strong');heading.textContent=item.barang;const p=document.createElement('div');p.textContent='Warga '+kg(item.beratWarga)+' → Lapak '+kg(item.beratLapak)+' • Selisih '+kg(Math.round((item.beratWarga-item.beratLapak)*1000)/1000);const values=document.createElement('div');values.className='tiny';values.textContent='Estimasi warga '+rupiah(item.estimasiWarga)+' • Bruto lapak '+rupiah(item.hasilJual);box.append(heading,p,values);section.appendChild(box)});(r.alasanSelisih||[]).forEach(x=>{const p=document.createElement('p');p.className='pill-note';p.textContent='Penyesuaian '+x.id+': '+x.alasan;section.appendChild(p)});const caution=document.createElement('p');caution.className='pill-note';caution.textContent=r.siapDiperiksa?'Cukup untuk ditinjau, belum disahkan.':'Perlu pemeriksaan pembayaran/selisih sebelum pengesahan.';section.appendChild(caution);area.appendChild(section);}catch(e){area.textContent='Gagal: '+(e.message||e);}}
-  async function loadProgress(){const area=$('progressList');area.textContent='Memuat perkembangan...';try{const rows=await call('bsDashboardProgressPublik');if(!rows.length){area.textContent='Belum ada perkembangan yang dipilih untuk ditampilkan di portal utama.';return;}area.replaceChildren(...rows.map(p=>{const b=document.createElement('div');b.className='stat';b.style.marginBottom='10px';const title=document.createElement('strong');title.textContent=p.judul||p.langkah||'Kegiatan';const desc=document.createElement('div');desc.textContent=p.deskripsi||'';const caption=document.createElement('small');caption.textContent=[p.tanggal,p.status].filter(Boolean).join(' • ');b.append(title,desc,caption);return b}));}catch(e){area.textContent='Gagal memuat progres: '+(e.message||e);}}
+  async function loadProgress(){const area=$('progressList');area.textContent='Memuat perkembangan...';try{const rows=await call(profile?.peran==='Admin'?'bsDashboardProgressPublik':'bsV14ProgressPublik',token);if(!rows.length){area.textContent='Belum ada perkembangan kegiatan yang dipublikasikan.';return;}area.replaceChildren(...rows.map(p=>{const b=document.createElement('div');b.className='stat';b.style.marginBottom='10px';const title=document.createElement('strong');title.textContent=p.judul||p.langkah||'Kegiatan';const desc=document.createElement('div');desc.textContent=p.deskripsi||'';const caption=document.createElement('small');caption.textContent=[p.tanggal,p.status].filter(Boolean).join(' • ');b.append(title,desc,caption);return b}));}catch(e){area.textContent='Gagal memuat progres: '+(e.message||e);}}
   async function loadAccounts(){const target=$('accountList');target.textContent='Memuat akun...';try{accounts=await call('authAdminAccounts',token);const table=document.createElement('table'),thead=document.createElement('thead'),head=document.createElement('tr');['Warga','Rumah','Username','Status','Aksi'].forEach(h=>{const th=document.createElement('th');th.textContent=h;head.appendChild(th)});thead.appendChild(head);table.appendChild(thead);const body=document.createElement('tbody');accounts.forEach(a=>{const tr=document.createElement('tr');cell(tr,a.nama||'Nama belum tersedia','Warga');cell(tr,a.rumah,'Rumah');cell(tr,a.username.toUpperCase(),'Username');cell(tr,a.status,'Status');const td=document.createElement('td');const btn=document.createElement('button');btn.className='warning';btn.textContent=a.status==='Aktif'?'Reset password':'Siapkan akun';btn.onclick=()=>resetDefault(a.akunId,a.nama,a.status==='Aktif');const detail=document.createElement('button');detail.className='ghost mobile-detail';detail.textContent='Lihat detail';detail.style.marginRight='6px';detail.onclick=()=>{tr.classList.toggle('expanded');detail.textContent=tr.classList.contains('expanded')?'Tutup detail':'Lihat detail';};td.appendChild(detail);td.appendChild(btn);tr.appendChild(td);body.appendChild(tr)});table.appendChild(body);target.replaceChildren(table);}catch(e){target.textContent=e.message||'Gagal memuat akun.';}}
   async function resetDefault(id,nama,aktif){const message=aktif?'Reset password '+nama+' ke format awal? Semua sesi warga ini akan berakhir.':'Siapkan akun '+nama+' dengan password awal 1234?';if(!await window.f4UiDialog.confirm(message))return;note('dashNotice','Memproses akun...');try{const result=await call('authAdminResetDefault',token,id);await loadAccounts();showCredential(result.username,result.passwordAwal,nama);note('dashNotice','Akun sudah siap. Password awal tampil pada popup.');}catch(e){note('dashNotice',e.message||'Gagal menyiapkan akun.',true);}}
   async function provisionAll(){if(!await window.f4UiDialog.confirm('Siapkan semua akun warga yang Belum Aktivasi? Akun yang sudah Aktif tidak akan diubah.'))return;const btn=$('bulkBtn');btn.disabled=true;let total=0;try{for(let i=0;i<30;i++){const result=await call('authAdminProvisionBatch',token);total+=result.dibuat;$('bulkProgress').textContent='Akun baru disiapkan: '+total+' • Sisa: '+result.tersisa;if(result.tersisa===0)break;if(result.dibuat===0)throw new Error('Proses tidak maju; periksa status anggota.');}await loadAccounts();note('dashNotice',total+' akun baru disiapkan. Akun lama tetap dipertahankan.');}catch(e){note('dashNotice','Proses terhenti setelah '+total+' akun. Aman untuk dilanjutkan kembali. '+(e.message||''),true);await loadAccounts();}finally{btn.disabled=false;}}
@@ -2428,6 +2529,77 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
     }
     section.append(title,caption,bars);
   }
+  // Grafik PRIVAT: hanya dari setoran akun yang sedang login, tanpa permintaan admin atau data warga lain.
+  function v37MemberWeightChart(rows){
+    const dashboard=$('pageDashboard'),anchor=dashboard?.querySelector('.f4-member-finance-note');
+    if(!dashboard||!anchor)return;
+    let section=$('f4-member-weight-chart');
+    if(!section){
+      section=document.createElement('section');
+      section.id='f4-member-weight-chart';
+      section.className='f4-member-weight-chart';
+      section.setAttribute('aria-label','Grafik berat sampah pribadi');
+      anchor.after(section);
+    }
+    section.replaceChildren();
+    const titleRow=document.createElement('div');titleRow.className='f4-member-chart-head';
+    const headings=document.createElement('div');
+    const title=document.createElement('h3');title.textContent='Perkembangan berat sampah saya';
+    const caption=document.createElement('p');
+    headings.append(title,caption);
+    titleRow.appendChild(headings);
+    section.appendChild(titleRow);
+    const active=(Array.isArray(rows)?rows:[]).filter(x=>
+      !/batal|cancel/i.test(String(x.status||'')) &&
+      /^\\d{4}-\\d{2}-\\d{2}$/.test(String(x.tanggal||'')) &&
+      Number.isFinite(Number(x.beratKg)) && Number(x.beratKg)>=0
+    ).sort((a,b)=>String(a.tanggal).localeCompare(String(b.tanggal)));
+    if(!active.length){
+      caption.textContent='Berdasarkan setoran Anda yang tercatat';
+      const empty=document.createElement('p');empty.className='f4-member-chart-empty';
+      empty.textContent='Belum ada penimbangan yang dapat ditampilkan.';
+      section.appendChild(empty);return;
+    }
+    const monthly=active.length>=7;
+    let points=[];
+    if(monthly){
+      const grouped=new Map();
+      for(const s of active){
+        const key=String(s.tanggal).slice(0,7);
+        grouped.set(key,(grouped.get(key)||0)+Number(s.beratKg));
+      }
+      points=[...grouped].slice(-8).map(([key,weight])=>({
+        name:new Date(key+'-15T12:00:00').toLocaleDateString('id-ID',{month:'short',year:'2-digit'}),
+        detail:key,weight
+      }));
+      caption.textContent='Per bulan • '+points.length+' bulan dengan setoran';
+    }else{
+      points=active.slice(-6).map(s=>({
+        name:new Date(s.tanggal+'T12:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short'}),
+        detail:s.tanggal,weight:Number(s.beratKg)
+      }));
+      caption.textContent='Per penimbangan • '+points.length+' setoran tercatat';
+    }
+    const chart=document.createElement('div');chart.className='f4-member-chart-bars';
+    const max=Math.max(0,...points.map(p=>p.weight));
+    chart.setAttribute('role','img');
+    chart.setAttribute('aria-label',points.map(p=>p.detail+': '+kg(p.weight)).join('; '));
+    points.forEach(p=>{
+      const column=document.createElement('div');column.className='f4-member-chart-column';
+      const amount=document.createElement('strong');amount.textContent=kg(p.weight);
+      const track=document.createElement('div');track.className='f4-member-chart-track';
+      const fill=document.createElement('span');fill.className='f4-member-chart-fill';
+      fill.style.height=(max>0&&p.weight>0?Math.max(6,Math.round(p.weight/max*100)):0)+'%';
+      track.title=p.detail+' • '+kg(p.weight);
+      track.appendChild(fill);
+      const label=document.createElement('small');label.textContent=p.name;
+      column.append(amount,track,label);chart.appendChild(column);
+    });
+    section.appendChild(chart);
+    const note=document.createElement('p');note.className='f4-member-chart-note';
+    note.textContent='Berat sesuai hasil timbang, termasuk setoran yang masih estimasi. Setoran dibatalkan tidak dihitung.';
+    section.appendChild(note);
+  }
   function v14BankQuickActions(){
     let quick=$('f4-bank-quick');
     if(!quick){quick=document.createElement('div');quick.id='f4-bank-quick';quick.className='f4-bank-quick';$('v14Primary').after(quick);}
@@ -2440,6 +2612,7 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
   async function v14LoadDashboard(){
     if(!profile)return;v14Setup();const isAdmin=profile.peran==='Admin',currentToken=token;
     $('pageDashboard').classList.toggle('f4-member-dashboard',!isAdmin);
+    $('f4-member-weight-chart')?.remove();
     $('v14Title').textContent=isAdmin?'Ringkasan pengelola':'Halo, '+profile.nama;
     $('v14Subtitle').textContent=isAdmin?'Pantau pencatatan dan perkembangan Bank Sampah':(profile.rumah?'Rumah '+profile.rumah+' • ':'')+'Pantau tabungan dan kontribusi sampah Anda';
     $('v14QuickAction').textContent=isAdmin?'+ Catat setoran':'Lihat tabungan saya';
@@ -2465,7 +2638,7 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
       brief.textContent='Estimasi berasal dari penimbangan awal. Saldo terkonfirmasi diperoleh setelah penjualan dan rekonsiliasi.';
       primary.after(brief);
       const report=Promise.resolve(call('bsV12Statement',token));
-      const progress=Promise.resolve(call('bsDashboardProgressPublik',token));
+      const progress=Promise.resolve(call('bsV14ProgressPublik',token));
       const settled=await Promise.allSettled([report,progress]);
       if(token!==currentToken||!profile||profile.peran==='Admin'){brief.remove();return}
       const [statement,activities]=settled;
@@ -2474,6 +2647,7 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
        const active=deposits.filter(x=>!/batal|cancel/i.test(String(x.status||'')));
        const unconfirmed=active.filter(x=>!/terkonfirmasi|confirmed/i.test(String(x.status||'')));
        const weight=active.reduce((sum,x)=>sum+Number(x.beratKg||0),0);
+       v37MemberWeightChart(active);
        primary.replaceChildren(
         v14Stat('Saldo tabungan terkonfirmasi',rupiah(d.saldo||0),'Hak warga yang sudah disahkan'),
         v14Stat('Estimasi setoran berjalan',rupiah(unconfirmed.reduce((sum,x)=>sum+Number(x.estimasiRp||0),0)),'Belum masuk saldo terkonfirmasi'),
@@ -2497,7 +2671,7 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
        $('v14Status').textContent='Data saldo belum dapat dimuat: '+String(statement.reason?.message||statement.reason||'Koneksi data terputus');
       }
       if(activities.status==='fulfilled')v14Activities(activities.value);
-      else $('v14Activities').textContent='Perkembangan program belum tersedia.';
+      else $('v14Activities').textContent='Perkembangan belum dapat dimuat. Silakan perbarui halaman.';
       return;
     }
     $('v14RecentTitle').textContent='Setoran terbaru';
