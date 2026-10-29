@@ -54,7 +54,7 @@
       .public-hero{padding:20px 15px}.public-hero .toolbar{align-items:stretch}.public-hero .toolbar button{width:100%}
       .v13-kop strong{font-size:15px}.v13-kop-mark{width:44px;height:44px;font-size:23px}
     }
-    @media print{.v13-kop{display:flex!important}.v13-kop-mark{background:#fff;border:1px solid #45654f}#v10Print td,#v10Print th{white-space:normal}#v10Print thead{display:table-header-group!important}#v10Print tbody{display:table-row-group!important}#v10Print tr{display:table-row!important}#v10Print td{display:table-cell!important}}
+    @media print{.v13-kop{display:flex!important}.v13-kop-mark{background:#fff;border:1px solid #000}#v10Print td,#v10Print th{white-space:normal}#v10Print thead{display:table-header-group!important}#v10Print tbody{display:table-row-group!important}#v10Print tr{display:table-row!important}#v10Print td{display:table-cell!important}}
     /* v14: dashboard pengelola mengikuti hierarki referensi, tanpa angka tiruan. */
     .shell{max-width:1500px}.grid{grid-template-columns:212px minmax(0,1fr);gap:16px}
     .top{padding:13px 21px}.side{padding:10px}.side .brand{font-size:14px}.side button{font-size:12.5px}
@@ -498,9 +498,9 @@
     body.v27-print-report #v27PrintReport{display:block!important;position:static!important;background:#fff!important;color:#172a1d!important;font-family:Arial,sans-serif;font-size:10pt;width:100%;height:auto;overflow:visible}
     #v27PrintReport h1{font-size:17pt;margin:0;text-align:center;color:#234d34}
     #v27PrintReport .v27-print-sub{text-align:center;margin:4px 0 17px;font-size:9pt}
-    #v27PrintReport .v27-print-divider{border-top:2px solid #315e40;margin:13px 0 16px}
+    #v27PrintReport .v27-print-divider{border-top:2px solid #000;margin:13px 0 16px}
     #v27PrintReport .v27-print-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0 19px}
-    #v27PrintReport .v27-print-kpi{border:1px solid #ceded1;padding:9px;break-inside:avoid}
+    #v27PrintReport .v27-print-kpi{border:1px solid #000;padding:9px;break-inside:avoid}
     #v27PrintReport .v27-print-kpi small{display:block;color:#5a6c61;font-size:8pt;margin-bottom:5px}
     #v27PrintReport .v27-print-kpi strong{font-size:13pt}
     #v27PrintReport table{width:100%;border-collapse:collapse;table-layout:auto;margin-top:10px;font-size:7.5pt}
@@ -560,7 +560,7 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
     margin:0!important;padding:0!important;font-family:Arial,Helvetica,sans-serif!important;color:#172a1d!important
   }
   #v10Print .v29-kop{display:flex!important;align-items:center!important;gap:10px!important;
-    border-bottom:1.5px solid #315e40!important;padding:0 0 7px!important;margin:0 0 9px!important}
+    border-bottom:1.5px solid #000;padding:0 0 7px!important;margin:0 0 9px!important}
   #v10Print .v29-kop-logo{width:43px!important;height:43px!important}
   #v10Print h1{font-size:16px!important;line-height:1.2!important;margin:8px 0 4px!important}
   #v10Print h2{font-size:11px!important;margin:12px 0 5px!important;break-after:avoid!important}
@@ -570,7 +570,7 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
   #v10Print th,#v10Print td{display:table-cell!important;padding:4px 5px!important;height:auto!important;
     font-size:9px!important;line-height:1.18!important;text-align:left!important;
     white-space:normal!important;overflow-wrap:anywhere!important;vertical-align:middle!important;
-    border:1px solid #000!important}
+    border:1px solid #000}
   #v10Print th{background:#eaf2eb!important;color:#21432e!important;font-weight:750!important}
   #v10Print td::before,#v10Print td::after,
   #v10Print td[data-label]::before,#v10Print td[data-label]::after{
@@ -704,7 +704,7 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
    background:#eaf2eb!important;color:#234431!important;
    -webkit-print-color-adjust:exact!important;print-color-adjust:exact!important
  }
- #v10Print tbody td,#v27PrintReport tbody td{border-color:#000!important}
+ #v10Print tbody td,#v27PrintReport tbody td{border-color:#000}
 }
 </style>
 <style id="f4-compact-bank-development-20261023">
@@ -2091,21 +2091,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
   }
 }
 </style>
-<style id="f4-bank-black-grid-print-local">
-/* PDF Flamboyan 4: hitam pada seluruh grid tabel Bank Sampah, termasuk cetak dinamis. */
-@media print{
- body #v10Print :is(table,thead,tbody,tfoot,tr,th,td),
- body #v27PrintReport :is(table,thead,tbody,tfoot,tr,th,td),
- body.v25-print-public :is(#v25ReportRoot,#v25ReportTable) :is(table,thead,tbody,tfoot,tr,th,td){
-  border-color:#000!important;
- }
- body #v10Print :is(.v29-kop,.v13-kop,.f4-bank-report-signature,.report-card),
- body #v27PrintReport :is(.v29-kop,.v27-print-kpi,.v27-print-divider,.v27-print-sign){
-  border-color:#000!important;
- }
-}
-</style>
-<link rel="stylesheet" href="/portal-live/print-black-lines.css?v=20261029-1">
+
 </head>
 <body>
 <div class="shell">
@@ -5236,7 +5222,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         '#v10Print th,#v27PrintReport th{print-color-adjust:exact!important;-webkit-print-color-adjust:exact!important}'+
       '}';
     // Final scoped print rules override legacy global 9px print formatting.
-    css.textContent += "\n@page{size:A4 portrait;margin:5mm 12mm 11mm}\n@media print{\nbody.f4-bank-single-print{margin:0!important;padding:0!important;background:#fff!important}\nbody.f4-bank-single-print #v10Print,body.f4-bank-single-print #v27PrintReport{\nposition:static!important;inset:auto!important;transform:none!important;margin:0!important;padding:0!important;\nfont:12px/1.4 Arial,Helvetica,sans-serif!important;box-shadow:none!important}\nbody.f4-bank-single-print #v10Print .v29-kop,body.f4-bank-single-print #v27PrintReport .v29-kop{\ndisplay:flex!important;align-items:center!important;gap:10px!important;margin:0 0 9px!important;\npadding:0 0 7px!important;border-bottom:1.5px solid #356748!important}\nbody.f4-bank-single-print .v29-kop-logo{width:47px!important;height:47px!important;object-fit:contain!important}\nbody.f4-bank-single-print #v10Print .v29-kop strong,body.f4-bank-single-print #v27PrintReport .v29-kop strong{\nfont-size:14px!important;line-height:1.28!important}\nbody.f4-bank-single-print #v10Print .v29-kop small,body.f4-bank-single-print #v27PrintReport .v29-kop small{\nfont-size:10px!important;line-height:1.3!important}\nbody.f4-bank-single-print #v10Print h1,body.f4-bank-single-print #v27PrintReport h1{\nfont-size:18px!important;line-height:1.25!important;margin:6px 0 5px!important}\nbody.f4-bank-single-print #v10Print h2,body.f4-bank-single-print #v27PrintReport h2{\nfont-size:13px!important;line-height:1.28!important;margin:12px 0 6px!important;break-after:avoid!important}\nbody.f4-bank-single-print #v10Print p,body.f4-bank-single-print #v27PrintReport p{\nfont-size:11px!important;line-height:1.38!important;margin:5px 0 8px!important}\nbody.f4-bank-single-print #v10Print table,body.f4-bank-single-print #v27PrintReport table{\ndisplay:table!important;width:100%!important;min-width:0!important;table-layout:auto!important;\nborder-collapse:collapse!important;margin:0 0 10px!important}\nbody.f4-bank-single-print #v10Print thead,body.f4-bank-single-print #v27PrintReport thead{display:table-header-group!important}\nbody.f4-bank-single-print #v10Print tbody,body.f4-bank-single-print #v27PrintReport tbody{display:table-row-group!important}\nbody.f4-bank-single-print #v10Print tr,body.f4-bank-single-print #v27PrintReport tr{\ndisplay:table-row!important;break-inside:avoid!important;border-radius:0!important;background:#fff!important}\nbody.f4-bank-single-print #v10Print th,body.f4-bank-single-print #v10Print td,\nbody.f4-bank-single-print #v27PrintReport th,body.f4-bank-single-print #v27PrintReport td{\ndisplay:table-cell!important;font-size:12px!important;line-height:1.3!important;padding:6px 7px!important;\nvertical-align:top!important;white-space:normal!important;overflow-wrap:anywhere!important;\nborder:1px solid #000!important;background:#fff!important;color:#1b3526!important}\nbody.f4-bank-single-print #v10Print th,body.f4-bank-single-print #v27PrintReport th{\nbackground:#e8f1e9!important;color:#234532!important;font-weight:750!important;\n-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}\nbody.f4-bank-single-print #v10Print td::before,body.f4-bank-single-print #v10Print td::after,\nbody.f4-bank-single-print #v27PrintReport td::before,body.f4-bank-single-print #v27PrintReport td::after{\ndisplay:none!important;content:none!important}\nbody.f4-bank-single-print #v10Print .f4-bank-report-signature{\nmargin:18px 0 0!important;padding:0 3px!important;font-size:11px!important;break-inside:avoid!important}\nbody.f4-bank-single-print #v10Print .f4-bank-report-signature strong{font-size:11px!important;margin-top:28px!important}\nbody.f4-bank-single-print.v27-print-report #v27PrintReport th,\nbody.f4-bank-single-print.v27-print-report #v27PrintReport td{\nfont-size:10.5px!important;line-height:1.26!important;padding:5px 4px!important}\n}";
+    css.textContent += "\n@page{size:A4 portrait;margin:5mm 12mm 11mm}\n@media print{\nbody.f4-bank-single-print{margin:0!important;padding:0!important;background:#fff!important}\nbody.f4-bank-single-print #v10Print,body.f4-bank-single-print #v27PrintReport{\nposition:static!important;inset:auto!important;transform:none!important;margin:0!important;padding:0!important;\nfont:12px/1.4 Arial,Helvetica,sans-serif!important;box-shadow:none!important}\nbody.f4-bank-single-print #v10Print .v29-kop,body.f4-bank-single-print #v27PrintReport .v29-kop{\ndisplay:flex!important;align-items:center!important;gap:10px!important;margin:0 0 9px!important;\npadding:0 0 7px!important;border-bottom:1.5px solid #000}\nbody.f4-bank-single-print .v29-kop-logo{width:47px!important;height:47px!important;object-fit:contain!important}\nbody.f4-bank-single-print #v10Print .v29-kop strong,body.f4-bank-single-print #v27PrintReport .v29-kop strong{\nfont-size:14px!important;line-height:1.28!important}\nbody.f4-bank-single-print #v10Print .v29-kop small,body.f4-bank-single-print #v27PrintReport .v29-kop small{\nfont-size:10px!important;line-height:1.3!important}\nbody.f4-bank-single-print #v10Print h1,body.f4-bank-single-print #v27PrintReport h1{\nfont-size:18px!important;line-height:1.25!important;margin:6px 0 5px!important}\nbody.f4-bank-single-print #v10Print h2,body.f4-bank-single-print #v27PrintReport h2{\nfont-size:13px!important;line-height:1.28!important;margin:12px 0 6px!important;break-after:avoid!important}\nbody.f4-bank-single-print #v10Print p,body.f4-bank-single-print #v27PrintReport p{\nfont-size:11px!important;line-height:1.38!important;margin:5px 0 8px!important}\nbody.f4-bank-single-print #v10Print table,body.f4-bank-single-print #v27PrintReport table{\ndisplay:table!important;width:100%!important;min-width:0!important;table-layout:auto!important;\nborder-collapse:collapse!important;margin:0 0 10px!important}\nbody.f4-bank-single-print #v10Print thead,body.f4-bank-single-print #v27PrintReport thead{display:table-header-group!important}\nbody.f4-bank-single-print #v10Print tbody,body.f4-bank-single-print #v27PrintReport tbody{display:table-row-group!important}\nbody.f4-bank-single-print #v10Print tr,body.f4-bank-single-print #v27PrintReport tr{\ndisplay:table-row!important;break-inside:avoid!important;border-radius:0!important;background:#fff!important}\nbody.f4-bank-single-print #v10Print th,body.f4-bank-single-print #v10Print td,\nbody.f4-bank-single-print #v27PrintReport th,body.f4-bank-single-print #v27PrintReport td{\ndisplay:table-cell!important;font-size:12px!important;line-height:1.3!important;padding:6px 7px!important;\nvertical-align:top!important;white-space:normal!important;overflow-wrap:anywhere!important;\nborder:1px solid #000;background:#fff!important;color:#1b3526!important}\nbody.f4-bank-single-print #v10Print th,body.f4-bank-single-print #v27PrintReport th{\nbackground:#e8f1e9!important;color:#234532!important;font-weight:750!important;\n-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}\nbody.f4-bank-single-print #v10Print td::before,body.f4-bank-single-print #v10Print td::after,\nbody.f4-bank-single-print #v27PrintReport td::before,body.f4-bank-single-print #v27PrintReport td::after{\ndisplay:none!important;content:none!important}\nbody.f4-bank-single-print #v10Print .f4-bank-report-signature{\nmargin:18px 0 0!important;padding:0 3px!important;font-size:11px!important;break-inside:avoid!important}\nbody.f4-bank-single-print #v10Print .f4-bank-report-signature strong{font-size:11px!important;margin-top:28px!important}\nbody.f4-bank-single-print.v27-print-report #v27PrintReport th,\nbody.f4-bank-single-print.v27-print-report #v27PrintReport td{\nfont-size:10.5px!important;line-height:1.26!important;padding:5px 4px!important}\n}";
     document.head.append(css);
     let cleaned=false;
     const cleanup=()=>{
