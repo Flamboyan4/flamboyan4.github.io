@@ -4356,6 +4356,8 @@ async function handle(request, env) {
   const who = await identity(request, env.DB);
   if (path === "/api/superadmin/bank-split" && request.method === "POST") return saveBankSplitPolicy(request,env,who);
   if (path === "/api/v2/admin/residents") return residentsApi(request, env, who);
+  // Rute nota spesifik harus ditangani sebelum fallback umum /api/v2/.
+  if (path === "/api/v2/admin/bank/sale-receipt" && request.method === "POST") return bankUpdateSaleReceipt(request,env,who);
   if (path.startsWith("/api/v2/")) return handleUnifiedApi(request, env, who);
   if (path === "/api/auth/change-password" && request.method === "POST") return changePassword(request, env, who);
   if (path === "/api/auth/logout" && request.method === "POST") {
@@ -4629,7 +4631,6 @@ async function handle(request, env) {
   }
   if (path === "/api/admin/sales/preview" && request.method === "POST") return salePreview(request, env, who);
   if (path === "/api/admin/sales/draft" && request.method === "POST") return saleCreateDraft(request, env, who);
-  if (path === "/api/v2/admin/bank/sale-receipt" && request.method === "POST") return bankUpdateSaleReceipt(request,env,who);
   if (path === "/api/admin/reconciliation/preview" && request.method === "POST") {
     const denied = requireRole(who, ["admin", "superadmin"]);
     if (denied) return denied;
