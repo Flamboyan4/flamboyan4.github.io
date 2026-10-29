@@ -39,7 +39,7 @@ const css=[
 ].join('');
 function page(body,tools){
  return '<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
- '<title>Form Serah Terima Penjualan - Flamboyan 4</title><style>'+css+'</style></head><body>'+
+ '<title>Form Serah Terima Penjualan - Flamboyan 4</title><style>'+css+'</style><link rel="stylesheet" href="/portal-live/print-black-lines.css?v=20261029-1"></head><body>'+
  (tools?'<div class="toolbar"><button onclick="window.close()">Tutup</button><button onclick="window.print()">Cetak / Simpan PDF</button></div>':'')+body+'</body></html>';
 }
 function build(sale,lines){
