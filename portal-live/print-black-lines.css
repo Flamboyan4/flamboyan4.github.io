@@ -1,0 +1,42 @@
+/* Flamboyan 4 — garis cetak hitam tegas.
+   Hanya aktif di cetak / Save as PDF; tampilan layar tidak berubah.
+   Tidak memberi border baru pada elemen yang semula tanpa border. */
+@media print {
+  /* Tabel pada portal biasa dan dokumen cetak terpisah */
+  html body :is(table, thead, tbody, tfoot, tr, th, td) {
+    border-color: #000 !important;
+  }
+
+  /* Prioritas melebihi print-style lama dengan selector ber-ID. */
+  html body :is(#report-print-area, #v10Print, #v27PrintReport, #v25ReportRoot, #v11Public)
+    :is(table, thead, tbody, tfoot, tr, th, td) {
+    border-color: #000 !important;
+  }
+  html body #report-print-area :is(table th, table td, table tr, table thead, table tfoot, table tbody),
+  html body #v10Print :is(table th, table td, table tr, table thead, table tfoot, table tbody),
+  html body #v27PrintReport :is(table th, table td, table tr, table thead, table tfoot, table tbody),
+  html body #v25ReportRoot :is(table th, table td, table tr, table thead, table tfoot, table tbody) {
+    border-color: #000 !important;
+  }
+
+  /* Bingkai ringkasan, kop, pembatas, dan tempat tanda tangan. */
+  html body :is(
+    .report-table-wrap, .report-card, .report-letterhead,
+    .v13-kop, .v29-kop, .v27-kop,
+    .header, header, .head, .footer, .note,
+    .meta, .metric, .totals, .totalbox, .box, .badge,
+    .f4-jersey-finance-compact, .f4-bank-report-signature,
+    .sign-line, .signature-line, .sig .line,
+    .signature-space, .approval-line, .v27-print-sign,
+    .f4-print-summary, .report-summary
+  ) {
+    border-color: #000 !important;
+  }
+
+  /* Area laporan dengan cetakan sangat spesifik. */
+  html body #report-print-area :is(.report-card, .report-table-wrap, .report-letterhead, .signature-area, .signature-space),
+  html body #v10Print :is(.v13-kop, .v29-kop, .f4-bank-report-signature),
+  html body #v27PrintReport :is(.v27-kop, .v27-print-sign) {
+    border-color: #000 !important;
+  }
+}
