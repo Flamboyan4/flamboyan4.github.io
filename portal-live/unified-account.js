@@ -120,7 +120,7 @@ function passwordPage(){
   if(fields.newPassword!==fields.confirmPassword){report(msg,'Ulangan password tidak cocok.',true);return}
   submit.disabled=true;
   try{await request('/api/auth/change-password',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({currentPassword:fields.currentPassword,newPassword:fields.newPassword})});
-   form.reset();report(msg,'Password berhasil diganti. Sesi akan diperbarui.');
+   form.reset();report(msg,'Password berhasil diganti. Silakan masuk kembali.');
    window.dispatchEvent(new CustomEvent('f4-account-password-updated'));
   }catch(e){report(msg,'Gagal mengganti password: '+e.message,true)}
   finally{submit.disabled=false}
@@ -160,9 +160,11 @@ async function open(){
 }
 window.f4OpenUnifiedAccount=open;
 window.f4CloseUnifiedAccount=close;
+// Worker sudah mencabut seluruh sesi dan menghapus cookie setelah ganti password.
+// Jangan memanggil endpoint logout lagi dengan sesi yang sudah tidak berlaku.
 window.addEventListener('f4-account-password-updated',()=>{
- const b=document.querySelector('[data-account-action="logout"]');
- if(b){close();b.click();}
+ close();
+ location.replace('/');
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!root.hidden){if(aside.classList.contains('open'))setAccountMenu(false);else close()}});
 window.addEventListener('popstate',()=>{if(!root.hidden&&location.hash!=='#akun')close()});
