@@ -35,7 +35,8 @@ const css=[
 '.toolbar{max-width:192mm;margin:12px auto;display:flex;justify-content:flex-end;gap:8px}',
 '.toolbar button{background:#18764d;color:#fff;border:0;border-radius:7px;padding:10px 15px;font:700 10pt Arial;cursor:pointer}',
 '.toolbar button:first-child{background:#e4f2e8;color:#21543a}',
-'@media print{.sheet{max-width:none;margin:0 auto}.toolbar{display:none!important}thead{display:table-header-group}tr,.head,.meta,.totals,.sign{break-inside:avoid}}'
+'@media print{.sheet{max-width:none;margin:0 auto}.toolbar{display:none!important}thead{display:table-header-group}tr,.head,.meta,.totals,.sign{break-inside:avoid}}',
+'@media print{table,thead,tbody,tfoot,tr,th,td{border-color:#000!important}.head,.meta,.totals,.footer,.sig .line{border-color:#000!important}}'
 ].join('');
 function page(body,tools){
  return '<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
