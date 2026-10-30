@@ -173,6 +173,20 @@ jobs:
               actual={c.get("name") for c in d1query("PRAGMA table_info("+table+")")}
               if not cols.issubset(actual):raise RuntimeError("Incomplete treasury schema: "+table)
           print("D1_ADDITIVE_TREASURY_SCHEMA_OK=1")
+          dynamic_sql=pathlib.Path("cloudflare/migrations/20261030_treasury_dynamic_funds.sql").read_text()
+          if dynamic_sql.upper().count("CREATE TABLE IF NOT EXISTS")!=2 or dynamic_sql.upper().count("CREATE INDEX IF NOT EXISTS")!=2:
+              raise RuntimeError("Unexpected dynamic treasury migration")
+          dynamic_clean="\n".join(line for line in dynamic_sql.splitlines()
+                                      if not line.lstrip().startswith("--"))
+          for statement in dynamic_clean.split(";"):
+              q=statement.strip()
+              if q:d1query(q)
+          for table,cols in [
+              ("treasury_funds",{"id","name","cash_location","purpose","created_by"}),
+              ("treasury_receipt_observations",{"id","source_kind","source_id","fund_id","amount_rp","observed_on"})]:
+              actual={c.get("name") for c in d1query("PRAGMA table_info("+table+")")}
+              if not cols.issubset(actual):raise RuntimeError("Incomplete treasury dynamic schema: "+table)
+          print("D1_ADDITIVE_TREASURY_DYNAMIC_OK=1")
           write_flags={k:by_name[k].get("text") for k in by_name if k.endswith("_WRITE_ENABLED")}
           if not write_flags or any(v not in ("true","false") for v in write_flags.values()):
               raise RuntimeError("Missing or unrecognized Worker write flags")
