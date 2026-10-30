@@ -888,7 +888,7 @@ async function handleAdminContent(request, env, who, url) {
     }
     if (kind === "tariffs") return ok({ data: await list(db, "SELECT contribution_type,amount_rp,active,updated_at FROM bookkeeping_contribution_tariffs ORDER BY contribution_type") });
     if (kind === "settings") return ok({ data: await list(db, "SELECT setting_key,setting_value,description FROM app_settings WHERE setting_key IN ('TANGGAL_SETOR_RT','BATAS_PERIODE_KAS')") });
-    const payers=await list(db,"SELECT p.id AS payer_id,p.display_name AS nama,h.house_code AS rumah,p.active FROM bookkeeping_payers p JOIN households h ON h.id=p.household_id WHERE p.payer_type='warga' ORDER BY h.house_code");
+    const payers=await list(db,"SELECT p.id AS payer_id,p.display_name AS nama,h.house_code AS rumah,p.active,COALESCE(pro.keterangan,'') AS keterangan FROM bookkeeping_payers p JOIN households h ON h.id=p.household_id LEFT JOIN resident_directory_profiles pro ON pro.payer_id=p.id WHERE p.payer_type='warga' ORDER BY h.house_code");
     const versions=await list(db,"SELECT payer_id,effective_from,qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan FROM bookkeeping_payer_obligation_periods ORDER BY payer_id,effective_from LIMIT 10000");
     const grouped=new Map();
     for(const v of versions){const id=String(v.payer_id);if(!grouped.has(id))grouped.set(id,[]);grouped.get(id).push(v)}
@@ -940,7 +940,7 @@ async function handleAdminContent(request, env, who, url) {
     }catch(e){return err("Konten memiliki referensi terkait atau tidak dapat dihapus. Data tetap utuh.",409)}
     return ok({id,deleted:true});
   }
-  if (!["save", "create"].includes(action) && !(kind === "obligations" && action === "add_payer")) return err("Aksi tidak diizinkan.", 400);
+  if (!["save", "create"].includes(action) && !(kind === "obligations" && ["add_payer","update_note"].includes(action))) return err("Aksi tidak diizinkan.", 400);
   if (kind === "tariffs") {
     const tariff = String(payload.contribution_type || ""), amount = Number(payload.amount_rp);
     if (!["IURAN_BULANAN", "KEBERSIHAN", "KAS_LORONG", "ARISAN"].includes(tariff) || !Number.isSafeInteger(amount) || amount < 0 || amount > 5e6) return err("Tarif tidak valid.", 400);
@@ -963,6 +963,20 @@ async function handleAdminContent(request, env, who, url) {
     return ok({ id: key });
   }
   if (kind === "obligations") {
+    if(action==="update_note"){
+      const payerId=String(payload.payer_id||"").trim();
+      const remark=String(payload.keterangan??"").trim();
+      if(!payerId||payerId.length>150||remark.length>500)
+        return err("ID pembayar atau keterangan tidak valid (maksimal 500 karakter).",400);
+      const found=await one(db,"SELECT id FROM bookkeeping_payers WHERE id=? AND payer_type='warga'",[payerId]);
+      if(!found)return err("Pembayar tidak ditemukan.",404);
+      const previous=await one(db,"SELECT keterangan FROM resident_directory_profiles WHERE payer_id=?",[payerId]);
+      await db.batch([
+        db.prepare("INSERT INTO resident_directory_profiles(payer_id,keterangan) VALUES(?,?) ON CONFLICT(payer_id) DO UPDATE SET keterangan=excluded.keterangan").bind(payerId,remark||null),
+        db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)").bind("audit:"+crypto.randomUUID(),who.id,"master_pembukuan","ubah_keterangan_pembayar","resident_directory_profiles",payerId,JSON.stringify(previous),JSON.stringify({keterangan:remark}))
+      ]);
+      return ok({id:payerId,keterangan:remark});
+    }
     const effective=String(payload.effective_from||"").trim();
     const effectiveFrom=/^20\d{2}-(0[1-9]|1[0-2])$/.test(effective)?effective+"-01":"";
     const nextMonth=f4NextIuranMonth();
@@ -980,11 +994,13 @@ async function handleAdminContent(request, env, who, url) {
       // member or receiving a login. Never alter an existing resident's identity.
       const householdId = String(payload.household_id || "").trim();
       const name = String(payload.nama || "").trim();
+      const remark=String(payload.keterangan??"").trim();
       const keys = ["qty_iuran_bulanan", "qty_kebersihan", "qty_kas_lorong", "qty_arisan"];
       const vals = keys.map(k => Number(payload[k]));
       if (!householdId || householdId.length > 120 || !name || name.length > 160 ||
           /[\x00-\x1F\x7F]/.test(name))
         return err("Pilih rumah dan isi nama pembayar yang valid.", 400);
+      if(remark.length>500)return err("Keterangan maksimal 500 karakter.",400);
       if (vals.some(n => !Number.isInteger(n) || n < 0 || n > 100) ||
           !vals.some(n => n > 0))
         return err("Isi minimal satu kewajiban bernilai 1 sampai 100.", 400);
@@ -999,16 +1015,16 @@ async function handleAdminContent(request, env, who, url) {
         db.prepare("INSERT INTO bookkeeping_payers(id,household_id,member_id,display_name,payer_type,active) VALUES(?,?,NULL,?,'warga',1)")
           .bind(payerId,householdId,name),
         db.prepare("INSERT INTO resident_directory_profiles(payer_id,status_tinggal,status_aktif,nomor_hp,keterangan) VALUES(?,?,?,?,?)")
-          .bind(payerId,null,"Ya",null,"Pembayar iuran tanpa akun anggota"),
+          .bind(payerId,null,"Ya",null,remark||null),
         db.prepare("INSERT INTO bookkeeping_payer_iuran_obligations(payer_id,qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan) VALUES(?,?,?,?,?)")
           .bind(payerId,...vals),
         db.prepare("INSERT INTO bookkeeping_payer_obligation_periods(payer_id,effective_from,qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan,created_by) VALUES(?,?,?,?,?,?,?)")
           .bind(payerId,effectiveFrom,...vals,who.id),
         db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)")
           .bind("audit:"+crypto.randomUUID(),who.id,"master_pembukuan","tambah_pembayar_iuran","bookkeeping_payers",payerId,null,
-            JSON.stringify({householdId,nama:name,effectiveFrom,obligations:Object.fromEntries(keys.map((k,i)=>[k,vals[i]])),memberCreated:false}))
+            JSON.stringify({householdId,nama:name,keterangan:remark,effectiveFrom,obligations:Object.fromEntries(keys.map((k,i)=>[k,vals[i]])),memberCreated:false}))
       ]);
-      return ok({id:payerId,effective_from:effectiveFrom,memberCreated:false});
+      return ok({id:payerId,effective_from:effectiveFrom,keterangan:remark,memberCreated:false});
     }
     const payer = String(payload.payer_id || "");
     if (!payer || payer.length > 130) return err("ID Warga wajib.", 400);
