@@ -27,8 +27,8 @@ assert.match(worker,/name:"Kas Lorong",cash:"cash:kas_rt"/,'Kas Lorong label mus
 assert.doesNotMatch(worker.slice(worker.indexOf('async function treasuryCatalog'),worker.indexOf('__name(treasuryCatalog')),/Kas RT/,'No RT label in treasury catalog');
 assert.match(ui,/function treasuryDateControl\(\)/);
 assert.doesNotMatch(ui,/type="date"/);
-assert.match(html,/treasury-center\.js\?v=20261030-compact-report4/);
-assert.match(html,/treasury-center\.css\?v=20261030-compact-report4/);
+assert.match(html,/treasury-center\.js\?v=20261030-print-popup5/);
+assert.match(html,/treasury-center\.css\?v=20261030-print-popup5/);
 // Opening balance grid must use one date, immutable adjustment entries and atomic D1 batch.
 assert.match(worker,/if\(p\.action==="opening-grid"\)/);
 assert.match(worker,/source:book:/);
