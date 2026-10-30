@@ -1119,6 +1119,90 @@ async function treasuryCatalog(db){
   return {funds,locations};
 }
 __name(treasuryCatalog,"treasuryCatalog");
+// Source references are classified independently; reading them NEVER changes balances.
+async function treasurySources(db,confirmedOn){
+ if(!confirmedOn)return {pending:[],partial:false,warnings:[]};
+ const [cash,bank,wCash,wBank]=await Promise.all([
+  list(db,`SELECT c.id,c.occurred_on,c.category,c.note,c.debit_rp,c.credit_rp
+    FROM bookkeeping_cash_transactions_posted c WHERE c.status='aktif' AND c.occurred_on>?
+      AND (c.debit_rp>0 OR c.credit_rp>0)
+      AND NOT EXISTS(SELECT 1 FROM treasury_events t WHERE t.request_key='source:book:'||c.id)
+    ORDER BY c.occurred_on,c.id LIMIT 101`,[confirmedOn]),
+  list(db,`SELECT c.id,c.occurred_on,c.fund_position,c.transaction_type,c.note,c.cash_in_rp,c.cash_out_rp
+    FROM waste_cash_ledger c WHERE c.status='aktif' AND c.occurred_on>?
+      AND (c.cash_in_rp>0 OR c.cash_out_rp>0)
+      AND NOT EXISTS(SELECT 1 FROM treasury_events t WHERE t.request_key='source:bank:'||c.id)
+    ORDER BY c.occurred_on,c.id LIMIT 101`,[confirmedOn]),
+  list(db,`SELECT e.request_key AS source_key FROM treasury_events e
+    LEFT JOIN bookkeeping_cash_transactions_posted c ON e.request_key='source:book:'||c.id AND c.status='aktif'
+    WHERE e.request_key LIKE 'source:book:%' AND (
+      c.id IS NULL OR COALESCE(c.debit_rp,0)-COALESCE(c.credit_rp,0) <>
+        (SELECT COALESCE(SUM(x.amount_rp),0) FROM treasury_entries x WHERE x.event_id=e.id)
+    ) LIMIT 25`),
+  list(db,`SELECT e.request_key AS source_key FROM treasury_events e
+    LEFT JOIN waste_cash_ledger c ON e.request_key='source:bank:'||c.id AND c.status='aktif'
+    WHERE e.request_key LIKE 'source:bank:%' AND (
+      c.id IS NULL OR COALESCE(c.cash_in_rp,0)-COALESCE(c.cash_out_rp,0) <>
+        (SELECT COALESCE(SUM(x.amount_rp),0) FROM treasury_entries x WHERE x.event_id=e.id)
+    ) LIMIT 25`)
+ ]);
+ const pending=[
+  ...cash.slice(0,100).map(x=>({type:"book",id:x.id,date:x.occurred_on,
+    fund:"kas_rt",note:x.category||x.note||"Buku Kas",
+    amountRp:Number(x.debit_rp||0)-Number(x.credit_rp||0),suggestedLocation:"cash:kas_rt"})),
+  ...bank.slice(0,100).map(x=>({type:"bank",id:x.id,date:x.occurred_on,
+    fund:x.fund_position==="tabungan_warga"?"bank_warga":"bank_lingkungan",
+    note:x.note||x.transaction_type||"Bank Sampah",
+    amountRp:Number(x.cash_in_rp||0)-Number(x.cash_out_rp||0),suggestedLocation:"cash:bank_sampah"}))
+ ];
+ return {pending,partial:cash.length>100||bank.length>100,
+   warnings:[...wCash,...wBank].map(x=>x.source_key)};
+}
+__name(treasurySources,"treasurySources");
+async function treasurySourceRow(db,type,id){
+ if(type==="book"){
+  const row=await one(db,`SELECT id,occurred_on,category,note,debit_rp,credit_rp FROM bookkeeping_cash_transactions_posted
+    WHERE id=? AND status='aktif' LIMIT 1`,[id]);
+  return row&&{type,id,date:row.occurred_on,fund:"kas_rt",
+    note:row.category||row.note||"Buku Kas",amount:Number(row.debit_rp||0)-Number(row.credit_rp||0)};
+ }
+ if(type==="bank"){
+  const row=await one(db,`SELECT id,occurred_on,fund_position,transaction_type,note,cash_in_rp,cash_out_rp
+    FROM waste_cash_ledger WHERE id=? AND status='aktif' LIMIT 1`,[id]);
+  return row&&{type,id,date:row.occurred_on,
+    fund:row.fund_position==="tabungan_warga"?"bank_warga":"bank_lingkungan",
+    note:row.note||row.transaction_type||"Bank Sampah",
+    amount:Number(row.cash_in_rp||0)-Number(row.cash_out_rp||0)};
+ }
+ return null;
+}
+__name(treasurySourceRow,"treasurySourceRow");
+async function treasurySourceBatch(env,who,rows,locationFor){
+ const db=env.DB,statements=[];
+ for(const src of rows){
+  const location=locationFor(src);
+  const amount=src.amount,kind=amount>0?"incoming":"outgoing";
+  const requestKey="source:"+src.type+":"+src.id;
+  const eventId="treasury:source:"+crypto.randomUUID();
+  const fingerprint=await sha(JSON.stringify({requestKey,amount,location,fund:src.fund,date:src.date}));
+  const note=(src.note||"Transaksi sumber").slice(0,240)||"Transaksi sumber";
+  statements.push(db.prepare("INSERT INTO treasury_events(id,request_key,payload_hash,kind,occurred_on,note,created_by) VALUES(?,?,?,?,?,?,?)")
+   .bind(eventId,requestKey,fingerprint,kind,src.date,note,who.id));
+  const entryId=eventId+":0";
+  if(amount<0)
+   statements.push(db.prepare(`INSERT INTO treasury_entries(id,event_id,fund_id,location_id,amount_rp)
+     VALUES(?,?,?,?,CASE WHEN (SELECT COALESCE(SUM(amount_rp),0) FROM treasury_entries WHERE fund_id=? AND location_id=?)>=? THEN ? ELSE 0 END)`)
+    .bind(entryId,eventId,src.fund,location,src.fund,location,-amount,amount));
+  else statements.push(db.prepare("INSERT INTO treasury_entries(id,event_id,fund_id,location_id,amount_rp) VALUES(?,?,?,?,?)")
+    .bind(entryId,eventId,src.fund,location,amount));
+  statements.push(db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'pusat_keuangan','link_source','treasury_events',?,?,?)")
+    .bind("audit:"+crypto.randomUUID(),who.id,eventId,note,JSON.stringify({requestKey,amount,location,fund:src.fund})));
+ }
+ if(statements.length)await db.batch(statements);
+ return rows.length;
+}
+__name(treasurySourceBatch,"treasurySourceBatch");
+
 async function treasuryApi(request,env,who,url){
   const denied=superadmin(who);if(denied)return denied;
   const db=env.DB,method=request.method;
@@ -1136,9 +1220,12 @@ async function treasuryApi(request,env,who,url){
     ]);
     const total=balances.reduce((n,row)=>n+Number(row.amount_rp||0),0);
     const complete=history.length<=800;
+    const sources=await treasurySources(db,config.confirmed_on);
     return ok({catalog,confirmed:!!config.confirmed_at,confirmedOn:config.confirmed_on||null,
       openingCount:Number(openings?.n||0),totalRp:total,balances,
-      history:history.slice(0,800),riwayatLengkap:complete,sourceIntegration:"manual-reconciliation"});
+      history:history.slice(0,800),riwayatLengkap:complete,
+      sources:sources.pending,sourcePartial:sources.partial,sourceWarnings:sources.warnings,
+      sourceIntegration:"reconciliation-required"});
   }
   if(method!=="POST")return err("Metode tidak tersedia.",405);
   if(env.FINANCE_WRITE_ENABLED!=="true")return err("Pencatatan keuangan belum diaktifkan.",503);
@@ -1146,6 +1233,40 @@ async function treasuryApi(request,env,who,url){
   if(origin&&!["https://flamboyan4.web.id","https://www.flamboyan4.web.id"].includes(origin))
     return err("Asal permintaan tidak diizinkan.",403);
   let p;try{p=await body(request)}catch(e){return err("Isian tidak valid.",400)}
+  if(p.action==="sync-book"||p.action==="link"){
+    if(!config.confirmed_at)return err("Sahkan saldo awal sebelum menyambungkan transaksi.",409);
+    if(p.action==="sync-book"){
+      const found=await treasurySources(db,config.confirmed_on);
+      const candidates=found.pending.filter(x=>x.type==="book").slice(0,25);
+      const rows=[];
+      for(const c of candidates){
+        const src=await treasurySourceRow(db,"book",c.id);
+        if(!src||src.date<=config.confirmed_on||!Number.isSafeInteger(src.amount)||src.amount===0)
+          return err("Sumber Buku Kas berubah. Muat ulang dahulu.",409);
+        rows.push(src);
+      }
+      if(!rows.length)return ok({imported:0});
+      try{await treasurySourceBatch(env,who,rows,()=>"cash:kas_rt")}
+      catch{return err("Sinkronisasi ditolak: saldo Cash Kas RT tidak cukup, sumber berubah, atau transaksi sudah masuk.",409)}
+      return ok({imported:rows.length});
+    }
+    const type=String(p.sourceType||""),id=String(p.sourceId||"");
+    const location=String(p.location||"");
+    if(!["bank","book"].includes(type)||id.length<1||id.length>180)
+      return err("Referensi transaksi tidak valid.",400);
+    const row=await treasurySourceRow(db,type,id);
+    if(!row||row.date<=config.confirmed_on||!Number.isSafeInteger(row.amount)||row.amount===0)
+      return err("Transaksi tidak aktif atau di luar periode Pusat Keuangan.",409);
+    const fund=catalog.funds.find(f=>f.id===row.fund);
+    if(!fund||!["qris","mandiri",fund.cash].includes(location))
+      return err("Pilih lokasi uang yang sesuai.",400);
+    const key="source:"+type+":"+id;
+    if(await one(db,"SELECT id FROM treasury_events WHERE request_key=?",[key]))
+      return err("Transaksi ini sudah masuk Pusat Keuangan.",409);
+    try{await treasurySourceBatch(env,who,[row],()=>location)}
+    catch{return err("Pencatatan sumber ditolak: saldo kurang atau sudah diproses.",409)}
+    return ok({imported:1});
+  }
   if(p.action==="confirm"){
     const date=String(p.date||"");
     if(config.confirmed_at)return err("Saldo awal sudah dikunci.",409);
