@@ -83,21 +83,24 @@ window.F4SaleHandover=function(record){
   if(String(data.sale?.id||'')!==id||!Array.isArray(data.lines))throw Error('Rincian transaksi tidak sesuai.');
   const html=build(data.sale,data.lines);
   if(win.closed)return;
-  // Pasang listener sebelum mengganti dokumen agar event load tidak terlewat.
-  // Tunggu logo dan font supaya kop ikut tercetak, termasuk di perangkat HP.
-  let printed=false;
-  const printReady=async()=>{
-    if(printed||win.closed)return;
-    printed=true;
-    try{
-      if(win.document.fonts?.ready)await win.document.fonts.ready;
-      await Promise.all(Array.from(win.document.images,im=>im.decode().catch(()=>{})));
-    }catch{}
-    if(!win.closed){win.focus();try{win.print()}catch{}}
+  // Firefox dapat menolak/mengabaikan print() setelah await fonts/images.
+  // Panggil print pada load dokumen secara langsung, tanpa async await.
+  let printScheduled=false;
+  const autoPrint=()=>{
+    if(printScheduled||win.closed)return;
+    printScheduled=true;
+    win.setTimeout(()=>{
+      if(win.closed)return;
+      try{win.focus();win.print()}catch{}
+    },250);
   };
-  win.addEventListener('load',printReady,{once:true});
+  win.addEventListener('load',autoPrint,{once:true});
   win.document.open();win.document.write(html);win.document.close();
-  if(win.document.readyState==='complete')void printReady();
+  win.focus();
+  // Browser tertentu menyelesaikan document.write sebelum load handler dipanggil.
+  // Fallback sekali saja, tanpa membuka dialog cetak dua kali.
+  if(win.document.readyState==='complete')autoPrint();
+  win.setTimeout(()=>{if(!printScheduled&&!win.closed)autoPrint()},1000);
  })().catch(error=>{
   if(win.closed)return;
   win.document.open();win.document.write(page('<main class="sheet"><h2>Gagal memuat form</h2><p>'+esc(error.message)+'</p><p>Tidak ada data yang berubah.</p></main>',true));win.document.close();
