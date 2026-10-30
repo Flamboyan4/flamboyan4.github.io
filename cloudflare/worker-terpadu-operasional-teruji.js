@@ -1243,13 +1243,14 @@ async function treasuryApi(request,env,who,url){
             e.fund_id,e.location_id,e.amount_rp
             FROM treasury_events v JOIN treasury_entries e ON e.event_id=v.id
             ORDER BY v.occurred_on DESC,v.created_at DESC,v.id DESC,e.id LIMIT 801`),
-      one(db,"SELECT COUNT(*) AS n FROM treasury_events WHERE kind='opening'")
+      one(db,"SELECT COUNT(*) AS n,MIN(occurred_on) AS date_first,MAX(occurred_on) AS date_last FROM treasury_events WHERE kind='opening'")
     ]);
     const total=balances.reduce((n,row)=>n+Number(row.amount_rp||0),0);
     const complete=history.length<=800;
     const sources=await treasurySources(db,config.confirmed_on);
     return ok({catalog,confirmed:!!config.confirmed_at,confirmedOn:config.confirmed_on||null,
-      openingCount:Number(openings?.n||0),totalRp:total,balances,
+      openingCount:Number(openings?.n||0),openingDate:openings?.date_first||null,
+      openingDateConsistent:!openings?.date_first||openings.date_first===openings.date_last,totalRp:total,balances,
       history:history.slice(0,800),riwayatLengkap:complete,
       sources:sources.pending,sourcePartial:sources.partial,sourceWarnings:sources.warnings,
       sourceIntegration:"reconciliation-required"});
@@ -1294,14 +1295,76 @@ async function treasuryApi(request,env,who,url){
     catch{return err("Pencatatan sumber ditolak: saldo kurang atau sudah diproses.",409)}
     return ok({imported:1});
   }
+  // Saldo awal satu formulir: seluruh kombinasi pos/tempat disimpan atomik.
+  // Koreksi sebelum disahkan berupa jurnal selisih, bukan UPDATE/DELETE sejarah.
+  if(p.action==="opening-grid"){
+    if(config.confirmed_at)return err("Saldo awal sudah disahkan dan tidak dapat diubah.",409);
+    const date=String(p.date||""),key=String(p.requestKey||"");
+    if(!validDate(date)||!/^[a-f0-9-]{36}$/i.test(key)||!Array.isArray(p.positions))
+      return err("Tanggal atau format saldo awal tidak valid.",400);
+    const allowedPositions=catalog.funds.flatMap(f=>[f.cash,"qris","mandiri"].map(l=>({fundId:f.id,locationId:l})));
+    if(p.positions.length!==allowedPositions.length||allowedPositions.length>306)
+      return err("Isian saldo awal belum lengkap. Muat ulang.",400);
+    const allowedSet=new Set(allowedPositions.map(x=>x.fundId+"|"+x.locationId));
+    const unique=new Set(),positions=[];
+    for(const x of p.positions){
+      const fund=String(x?.fundId||""),location=String(x?.locationId||""),value=x?.amountRp;
+      const positionKey=fund+"|"+location;
+      if(!allowedSet.has(positionKey)||unique.has(positionKey)||
+         !Number.isSafeInteger(value)||value<0||value>10000000000)
+        return err("Pos, tempat, atau nominal saldo awal tidak valid.",400);
+      unique.add(positionKey);positions.push({fund,location,amount:value});
+    }
+    positions.sort((a,b)=>(a.fund+"|"+a.location).localeCompare(b.fund+"|"+b.location));
+    const fingerprint=await sha(JSON.stringify({date,positions}));
+    const previous=await one(db,"SELECT id,payload_hash FROM treasury_events WHERE request_key=?",[key]);
+    if(previous)return previous.payload_hash===fingerprint?ok({id:previous.id,duplicate:true}):
+      err("Kunci penyimpanan telah digunakan untuk data berbeda.",409);
+    const existingDates=await one(db,"SELECT MIN(occurred_on) AS first_date,MAX(occurred_on) AS last_date FROM treasury_events WHERE kind='opening'");
+    if(existingDates?.first_date&&(existingDates.first_date!==existingDates.last_date||existingDates.first_date!==date))
+      return err("Tanggal saldo awal harus sama dengan tanggal yang sudah tersimpan.",409);
+    const currentRows=await list(db,"SELECT fund_id,location_id,COALESCE(SUM(amount_rp),0) AS amount_rp FROM treasury_entries GROUP BY fund_id,location_id");
+    const currentMap=new Map(currentRows.map(x=>[x.fund_id+"|"+x.location_id,Number(x.amount_rp)]));
+    // Jangan anggap jurnal mutasi sebagai saldo pembuka jika ada transaksi yang tidak sah masuk sebelumnya.
+    if(await one(db,"SELECT id FROM treasury_events WHERE kind!='opening' LIMIT 1"))
+      return err("Ada transaksi bukan saldo awal. Periksa riwayat sebelum mengubah saldo pembuka.",409);
+    const deltas=positions.map(x=>({...x,prior:currentMap.get(x.fund+"|"+x.location)||0}))
+      .map(x=>({...x,delta:x.amount-x.prior})).filter(x=>x.delta!==0);
+    if(!deltas.length)return ok({unchanged:true});
+    const finalTotal=positions.reduce((n,x)=>n+x.amount,0);
+    if(!Number.isSafeInteger(finalTotal)||finalTotal<=0)return err("Masukkan minimal satu saldo uang yang benar.",400);
+    const eventId="treasury:opening-grid:"+crypto.randomUUID(),note="Saldo awal "+date;
+    const statements=[db.prepare("INSERT INTO treasury_events(id,request_key,payload_hash,kind,occurred_on,note,created_by) VALUES(?,?,?,?,?,?,?)")
+      .bind(eventId,key,fingerprint,"opening",date,note,who.id)];
+    for(const [i,x] of deltas.entries()){
+      // Di dalam D1.batch, semua saldo dicek ulang; konflik akan rollback seluruh formulir.
+      statements.push(db.prepare(`INSERT INTO treasury_entries(id,event_id,fund_id,location_id,amount_rp)
+        VALUES(?,?,?,?,CASE WHEN (SELECT COALESCE(SUM(amount_rp),0) FROM treasury_entries
+        WHERE fund_id=? AND location_id=?)=? THEN ? ELSE 0 END)`)
+        .bind(eventId+":"+i,eventId,x.fund,x.location,x.fund,x.location,x.prior,x.delta));
+    }
+    statements.push(db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'pusat_keuangan','opening_grid','treasury_events',?,?,?)")
+      .bind("audit:"+crypto.randomUUID(),who.id,eventId,"Saldo awal per tempat",
+        JSON.stringify({date,changes:deltas.map(x=>({fund:x.fund,location:x.location,from:x.prior,to:x.amount}))})));
+    try{await db.batch(statements)}catch{
+      const winner=await one(db,"SELECT id,payload_hash FROM treasury_events WHERE request_key=?",[key]);
+      if(winner)return winner.payload_hash===fingerprint?ok({id:winner.id,duplicate:true}):
+        err("Kunci penyimpanan telah digunakan untuk data berbeda.",409);
+      return err("Saldo awal tidak tersimpan. Data mungkin berubah; muat ulang dan periksa kembali.",409);
+    }
+    return ok({saved:true,updatedPositions:deltas.length,totalRp:finalTotal},201);
+  }
   if(p.action==="confirm"){
     const date=String(p.date||"");
     if(config.confirmed_at)return err("Saldo awal sudah dikunci.",409);
     if(p.confirmation!=="SALDO COCOK"||!validDate(date))return err("Tanggal atau konfirmasi saldo tidak benar.",400);
     const last=await one(db,"SELECT MAX(occurred_on) AS tanggal FROM treasury_events WHERE kind='opening'");
     if(!last?.tanggal||date<last.tanggal)return err("Isi saldo awal terlebih dahulu dan gunakan tanggal yang sesuai.",409);
-    const checked=await one(db,"SELECT COUNT(*) AS n FROM treasury_entries WHERE amount_rp<0");
-    if(Number(checked?.n||0))return err("Saldo awal mengandung nilai negatif.",409);
+    const checked=await one(db,"SELECT COUNT(*) AS n FROM (SELECT SUM(amount_rp) AS balance FROM treasury_entries GROUP BY fund_id,location_id HAVING balance<0)");
+    if(Number(checked?.n||0))return err("Saldo awal memiliki posisi negatif.",409);
+    const inconsistent=await one(db,"SELECT MIN(occurred_on) AS first_date,MAX(occurred_on) AS last_date FROM treasury_events WHERE kind='opening'");
+    if(inconsistent?.first_date!==date||inconsistent?.last_date!==date)
+      return err("Tanggal pengesahan harus sama dengan tanggal saldo awal.",409);
     const result=await db.prepare("UPDATE treasury_config SET confirmed_on=?,confirmed_at=CURRENT_TIMESTAMP,confirmed_by=? WHERE id=1 AND confirmed_at IS NULL").bind(date,who.id).run();
     return Number(result.meta?.changes||0)===1?ok({confirmed:true,confirmedOn:date}):err("Saldo awal sudah dikunci dari sesi lain.",409);
   }
