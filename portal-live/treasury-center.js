@@ -543,21 +543,76 @@ function buildSources(target,data,refresh){
 function buildDynamicFund(target,data,refresh){
  if(!data.confirmed)return;
  const shell=el("details",undefined,"tc-panel tc-custom-fund tc-no-print");
- shell.append(el("summary","Tambah Pos Dana (Projek / Donasi Khusus)"));
+ shell.append(el("summary","Pos Dana"));
  const form=el("form",undefined,"tc-custom-fund-form");
- const name=el("input");name.maxLength=70;name.minLength=3;name.required=true;name.placeholder="Mis. Donasi Gapura";
- const purpose=el("input");purpose.maxLength=200;purpose.placeholder="Peruntukan (opsional)";
- const save=el("button","Buat Pos Dana","tc-secondary");save.type="submit";
+ const name=el("input");name.maxLength=70;name.minLength=3;name.required=true;name.placeholder="Contoh: Donasi Gapura";
+ const purpose=el("input");purpose.maxLength=200;purpose.placeholder="Catatan (opsional)";
+ const save=el("button","Tambah","tc-secondary");save.type="submit";
  const msg=el("span","","tc-status");msg.setAttribute("role","status");
- form.append(field("Nama pos",name),field("Keterangan",purpose),save,msg);
+ form.append(field("Nama",name),field("Catatan",purpose),save,msg);
  shell.append(form);
- shell.append(el("p","Donasi umum yang sudah dibukukan tetap muncul dari Kas Lorong dengan kategori Donasi. Buat pos baru hanya jika dananya memang khusus.","tc-helper"));
  form.onsubmit=async e=>{
   e.preventDefault();if(!form.reportValidity())return;
   save.disabled=true;msg.textContent="Menyimpan…";
   try{await post({action:"create-fund",name:name.value.trim(),purpose:purpose.value.trim()});await refresh()}
   catch(err){msg.textContent=err.message;save.disabled=false}
  };
+ const custom=data.catalog.customFunds||[];
+ if(custom.length){
+  const list=el("div",undefined,"tc-custom-list");
+  for(const fund of custom){
+   const row=el("div",undefined,"tc-custom-row");
+   const info=el("div",undefined,"tc-custom-info");
+   info.append(el("strong",fund.name));
+   if(fund.purpose)info.append(el("span",fund.purpose));
+   if(!fund.active)info.append(el("small","Arsip"));
+   const balance=(data.balances||[]).filter(x=>x.fund_id===fund.id);
+   const outstanding=balance.some(x=>Number(x.amount_rp)!==0);
+   const actions=el("div",undefined,"tc-custom-actions");
+   if(fund.active){
+    const edit=el("button","Ubah","tc-secondary");edit.type="button";
+    edit.onclick=()=>{
+     if(row.querySelector(".tc-custom-edit"))return;
+     const editor=el("form",undefined,"tc-custom-edit");
+     const newName=el("input");newName.value=fund.name;newName.required=true;newName.minLength=3;newName.maxLength=70;
+     const newPurpose=el("input");newPurpose.value=fund.purpose||"";newPurpose.maxLength=200;newPurpose.placeholder="Catatan";
+     const apply=el("button","Simpan","tc-primary");apply.type="submit";
+     const cancel=el("button","Batal","tc-secondary");cancel.type="button";cancel.onclick=()=>editor.remove();
+     const feedback=el("small","","tc-status");
+     editor.append(newName,newPurpose,apply,cancel,feedback);
+     editor.onsubmit=async e=>{
+      e.preventDefault();if(!editor.reportValidity())return;
+      apply.disabled=true;feedback.textContent="Menyimpan…";
+      try{await post({action:"update-fund",fundId:fund.id,expectedName:fund.name,
+        name:newName.value.trim(),purpose:newPurpose.value.trim()});await refresh()}
+      catch(err){feedback.textContent=err.message;apply.disabled=false}
+     };
+     row.append(editor);newName.focus();
+    };
+    const remove=el("button",fund.hasHistory?"Arsip":"Hapus","tc-secondary tc-fund-remove");
+    remove.type="button";remove.disabled=outstanding;
+    remove.title=outstanding?"Pindahkan uang dari pos ini dahulu":
+      fund.hasHistory?"Arsipkan tanpa menghapus riwayat":"Hapus pos yang belum dipakai";
+    remove.onclick=async()=>{
+     if(!confirm((fund.hasHistory?"Arsipkan ":"Hapus ")+fund.name+"?"))return;
+     remove.disabled=true;msg.textContent="Menyimpan…";
+     try{await post({action:"remove-fund",fundId:fund.id});await refresh()}
+     catch(err){msg.textContent=err.message;remove.disabled=false}
+    };
+    actions.append(edit,remove);
+   }else{
+    const restore=el("button","Aktifkan","tc-secondary");restore.type="button";
+    restore.onclick=async()=>{
+     restore.disabled=true;msg.textContent="Mengaktifkan…";
+     try{await post({action:"restore-fund",fundId:fund.id});await refresh()}
+     catch(err){msg.textContent=err.message;restore.disabled=false}
+    };
+    actions.append(restore);
+   }
+   row.append(info,actions);list.append(row);
+  }
+  shell.append(list);
+ }
  target.append(shell);
 }
 function render(data){
@@ -592,7 +647,7 @@ function render(data){
  const rows=data.catalog.funds.map(f=>{
   const ownCash=amount(data.balances,f.id,f.cash),ownQris=amount(data.balances,f.id,"qris"),ownBank=amount(data.balances,f.id,"mandiri");
   const total=ownCash+ownQris+ownBank;
-  if(!total&&f.kind!=="custom"&&!(data.sources||[]).some(x=>x.fund===f.id))return null;
+  if(!total&&(f.active===false||f.kind!=="custom"&&!(data.sources||[]).some(x=>x.fund===f.id)))return null;
   return [f.name,rp(ownCash),rp(ownQris),rp(ownBank),rp(total)];
  }).filter(Boolean);
  rows.push(["TOTAL",rp(cash),rp(qris),rp(mandiri),rp(data.totalRp)]);
