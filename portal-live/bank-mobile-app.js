@@ -23,14 +23,6 @@ async function api(path,payload){
   if(!response.ok||body.ok===false)throw Error(body.error||"Layanan belum tersedia ("+response.status+").");
   return body;
 }
-const adminActions=[
-  ["Setoran","setoran","bank.svg"],["Penjualan","penjualan","cash.svg"],
-  ["Saldo warga","tabungan","pay.svg"],["Laporan","laporan","book.svg"]
-];
-const memberActions=[
-  ["Cara Setor","bank-deposit","bank.svg"],["Riwayat","bank-history","book.svg"],
-  ["Pencairan","bank-payout","cash.svg"],["Laporan","bank-report","pay.svg"]
-];
 const adminDock=[
   ["Beranda","dashboard","home.svg"],["Setoran","setoran","bank.svg"],
   ["Penjualan","penjualan","cash.svg"],["Saldo","tabungan","pay.svg"],["Menu","menu","menu.svg"]
@@ -106,16 +98,11 @@ function ensureHome(){
     amount=el("strong","f4-bank-app-balance","—"),secondary=el("span","f4-bank-app-secondary","Memuat...");
   amount.id="f4BankAppBalance";secondary.id="f4BankAppSecondary";
   hero.append(heading,label,amount,secondary);
-  const shortcuts=el("section","f4-bank-app-shortcuts-wrap");
-  shortcuts.append(el("h3","f4-bank-app-shortcuts-title","Akses Cepat"));
-  const shortcutsGrid=el("div","f4-bank-app-shortcuts");shortcutsGrid.id="f4BankAppShortcuts";shortcuts.append(shortcutsGrid);
   const minis=el("div","f4-bank-app-minis");minis.id="f4BankAppMinis";
-  hub.append(welcome,card,savings,hero,shortcuts,minis);
+  hub.append(welcome,card,savings,hero,minis);
   page.prepend(hub);
  }
  hub.dataset.bankRole=role;
- $("f4BankAppShortcuts").replaceChildren(...(role==="admin"?adminActions:[]).map(x=>action(x)));
- $("f4BankAppShortcuts").parentElement.hidden=role==="member";
  const name=$("pName")?.textContent?.trim()||"Anggota";
  const house=$("pHome")?.textContent?.trim()||"—";
  updateCardNumber();
