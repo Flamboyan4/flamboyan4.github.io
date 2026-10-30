@@ -105,7 +105,6 @@ function ensureHome(){
  hub.dataset.bankRole=role;
  const name=$("pName")?.textContent?.trim()||"Anggota";
  const house=$("pHome")?.textContent?.trim()||"—";
- updateCardNumber();
  const welcome=$("f4BankAppWelcome");if(welcome){
    welcome.replaceChildren(el("small","","Selamat datang"),el("strong","","Halo, "+name+"!"));
    welcome.append(el("small","","Rumah "+house));
@@ -119,11 +118,11 @@ function ensureHome(){
  for(const id of ["v14Primary","v14Extra"]){const node=$(id);if(node&&node.parentElement!==reservoir)reservoir.append(node);}
  if(role==="member"){
   const chart=$("f4-member-weight-chart");if(chart&&chart.parentElement!==reservoir)reservoir.append(chart);
-  const flow=$("f4MemberFlow");if(flow&&flow.parentElement!==hub)hub.append(flow);
+  const flow=$("f4MemberFlow");if(flow){flow.hidden=false;if(flow.parentElement!==hub)hub.append(flow);}
   const panels=page.querySelector(".v14-panels");
   const recent=$("v14Recent")?.closest(".v14-panel");
   if(recent&&recent.parentElement!==hub){
-   const link=$("v14AllDeposits");if(link)link.onclick=()=>navigate("bank-history");
+   const link=$("v14AllDeposits");if(link){link.textContent="Lihat semua";link.onclick=()=>navigate("bank-history");}
    hub.append(recent);
   }
   const remaining=panels?.querySelector(".v14-panel");
@@ -132,6 +131,9 @@ function ensureHome(){
  }else{
   const recent=$("v14Recent")?.closest(".v14-panel");
   if(recent&&recent.parentElement!==page.querySelector(".v14-panels"))page.querySelector(".v14-panels")?.prepend(recent);
+  const activity=$("v14Activities")?.closest(".v14-panel");
+  if(activity&&activity.parentElement!==page.querySelector(".v14-panels"))page.querySelector(".v14-panels")?.append(activity);
+  const flow=$("f4MemberFlow");if(flow)flow.hidden=true;
  }
  updateDashboard();
 }
@@ -316,7 +318,7 @@ function showReport(){
  const visible=rows.filter(x=>reportMonth==="all"||x.month===reportMonth);
  const credits=visible.reduce((n,x)=>n+x.credit,0),debits=visible.reduce((n,x)=>n+x.debit,0);
  const box=$("f4BankReportSummary");box.replaceChildren();
- for(const [key,val] of [["Saldo saat ini",$("v12Balance")?.textContent||"—"],
+ for(const [key,val] of [["Saldo saat ini",memberStatement?rupiah(memberStatement.saldo):"—"],
     ["Masuk periode",rupiah(credits)],["Keluar periode",rupiah(debits)],["Transaksi",String(visible.length)]]){
   const tile=el("div","f4-bank-report-tile");tile.append(el("small","",key),el("strong","",val));box.append(tile);
  }
@@ -560,11 +562,12 @@ function sync(){
  document.body.classList.toggle("f4-bank-app-member",isPrivate&&next==="member");
  document.body.classList.toggle("f4-bank-app-admin",isPrivate&&next==="admin");
  dock().hidden=!isPrivate;
- if(!isPrivate){hideCustom();role=null;return;}
+ if(!isPrivate){hideCustom();role=null;memberStatement=null;$("f4BankProfileDetail")?.remove();return;}
  if(next!==role){
   role=next;screen="dashboard";dock().replaceChildren(...(role==="admin"?adminDock:memberDock).map(x=>action(x,true)));
   if(role==="member")requestNonce="";
   memberStatement=null;
+  if(role==="admin")$("f4BankProfileDetail")?.remove();
  }
  ensureHome();
  if(role==="member")ensureMemberPages();
