@@ -116,8 +116,8 @@ function ensureHome(){
  let reservoir=$("f4BankDashboardSource");
  if(!reservoir){reservoir=el("div","f4-bank-hidden-source");reservoir.id="f4BankDashboardSource";reservoir.hidden=true;page.append(reservoir);}
  for(const id of ["v14Primary","v14Extra"]){const node=$(id);if(node&&node.parentElement!==reservoir)reservoir.append(node);}
- const header=page.querySelector(".v14-head"),banner=page.querySelector(".v14-hero"),status=$("v14Status");
- const legacyToolbar=page.parentElement?.querySelector(":scope > .toolbar");
+ const header=page.querySelector(".v14-head")||reservoir.querySelector(".v14-head"),banner=page.querySelector(".v14-hero")||reservoir.querySelector(".v14-hero"),status=$("v14Status");
+ const legacyToolbar=page.parentElement?.querySelector(":scope > .toolbar")||reservoir.querySelector(":scope > .toolbar");
  if(role==="member"){
   for(const node of [header,banner,status,legacyToolbar]){
    if(node&&node.parentElement!==reservoir)reservoir.append(node);
