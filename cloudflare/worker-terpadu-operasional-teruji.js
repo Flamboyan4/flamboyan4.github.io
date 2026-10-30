@@ -888,7 +888,23 @@ async function handleAdminContent(request, env, who, url) {
     }
     if (kind === "tariffs") return ok({ data: await list(db, "SELECT contribution_type,amount_rp,active,updated_at FROM bookkeeping_contribution_tariffs ORDER BY contribution_type") });
     if (kind === "settings") return ok({ data: await list(db, "SELECT setting_key,setting_value,description FROM app_settings WHERE setting_key IN ('TANGGAL_SETOR_RT','BATAS_PERIODE_KAS')") });
-    return ok({ data: await list(db, `SELECT p.id AS payer_id,p.display_name AS nama,h.house_code AS rumah,o.qty_iuran_bulanan,o.qty_kebersihan,o.qty_kas_lorong,o.qty_arisan FROM bookkeeping_payers p JOIN households h ON h.id=p.household_id LEFT JOIN bookkeeping_payer_iuran_obligations o ON o.payer_id=p.id WHERE p.payer_type='warga' ORDER BY h.house_code`) });
+    const payers=await list(db,"SELECT p.id AS payer_id,p.display_name AS nama,h.house_code AS rumah,p.active FROM bookkeeping_payers p JOIN households h ON h.id=p.household_id WHERE p.payer_type='warga' ORDER BY h.house_code");
+    const versions=await list(db,"SELECT payer_id,effective_from,qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan FROM bookkeeping_payer_obligation_periods ORDER BY payer_id,effective_from LIMIT 10000");
+    const grouped=new Map();
+    for(const v of versions){const id=String(v.payer_id);if(!grouped.has(id))grouped.set(id,[]);grouped.get(id).push(v)}
+    const month=f4CurrentIuranMonth();
+    const keys=["qty_iuran_bulanan","qty_kebersihan","qty_kas_lorong","qty_arisan"];
+    return ok({ data:payers.map(p=>{
+      const entries=grouped.get(String(p.payer_id))||[];
+      const current=entries.filter(x=>x.effective_from<=month).at(-1)||null;
+      const upcoming=entries.find(x=>x.effective_from>month)||null;
+      const result={...p,effective_from:current?.effective_from||"",next_effective_from:upcoming?.effective_from||""};
+      for(const k of keys){
+        result[k]=Number(current?.[k]||0);
+        result["next_"+k]=upcoming?Number(upcoming[k]||0):null;
+      }
+      return result;
+    }) });
   }
   if (request.method !== "POST") return err("Metode tidak didukung.", 405);
   const origin = request.headers.get("origin") || "";
@@ -947,6 +963,18 @@ async function handleAdminContent(request, env, who, url) {
     return ok({ id: key });
   }
   if (kind === "obligations") {
+    const effective=String(payload.effective_from||"").trim();
+    const effectiveFrom=/^20\\d{2}-(0[1-9]|1[0-2])$/.test(effective)?effective+"-01":"";
+    const nextMonth=f4NextIuranMonth();
+    const nowMonth=f4CurrentIuranMonth();
+    if(!effectiveFrom)
+      return err("Pilih bulan mulai berlaku (YYYY-MM); transaksi lama tidak boleh berubah.",400);
+    if(action==="add_payer"&&effectiveFrom<nowMonth)
+      return err("Pembayar baru hanya boleh mulai bulan ini atau sesudahnya.",409);
+    if(action!=="add_payer"&&effectiveFrom<nextMonth)
+      return err("Perubahan kewajiban hanya boleh berlaku mulai bulan depan. Periode sebelumnya terkunci.",409);
+    if(action!=="add_payer"&&action!=="save")
+      return err("Aksi kewajiban tidak dikenal.",400);
     if (action === "add_payer") {
       // A TPQ or other payer can pay iuran without becoming a Bank Sampah
       // member or receiving a login. Never alter an existing resident's identity.
@@ -974,11 +1002,13 @@ async function handleAdminContent(request, env, who, url) {
           .bind(payerId,null,"Ya",null,"Pembayar iuran tanpa akun anggota"),
         db.prepare("INSERT INTO bookkeeping_payer_iuran_obligations(payer_id,qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan) VALUES(?,?,?,?,?)")
           .bind(payerId,...vals),
+        db.prepare("INSERT INTO bookkeeping_payer_obligation_periods(payer_id,effective_from,qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan,created_by) VALUES(?,?,?,?,?,?,?)")
+          .bind(payerId,effectiveFrom,...vals,who.id),
         db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)")
           .bind("audit:"+crypto.randomUUID(),who.id,"master_pembukuan","tambah_pembayar_iuran","bookkeeping_payers",payerId,null,
-            JSON.stringify({householdId,nama:name,obligations:Object.fromEntries(keys.map((k,i)=>[k,vals[i]])),memberCreated:false}))
+            JSON.stringify({householdId,nama:name,effectiveFrom,obligations:Object.fromEntries(keys.map((k,i)=>[k,vals[i]])),memberCreated:false}))
       ]);
-      return ok({id:payerId,memberCreated:false});
+      return ok({id:payerId,effective_from:effectiveFrom,memberCreated:false});
     }
     const payer = String(payload.payer_id || "");
     if (!payer || payer.length > 130) return err("ID Warga wajib.", 400);
@@ -987,12 +1017,16 @@ async function handleAdminContent(request, env, who, url) {
     if (vals.some((x) => !Number.isInteger(x) || x < 0 || x > 100)) return err("Kewajiban harus 0\u2013100.", 400);
     const valid = await one(db, "SELECT id FROM bookkeeping_payers WHERE id=? AND payer_type='warga'", [payer]);
     if (!valid) return err("Warga tidak ditemukan.", 404);
-    const before = await one(db, "SELECT * FROM bookkeeping_payer_iuran_obligations WHERE payer_id=?", [payer]);
+    // Only the future-dated version can be inserted or edited. The baseline,
+    // older schedules, and already-paid allocations never change.
+    const prior=await one(db,"SELECT * FROM bookkeeping_payer_obligation_periods WHERE payer_id=? AND effective_from=?",[payer,effectiveFrom]);
     await db.batch([
-      db.prepare("INSERT INTO bookkeeping_payer_iuran_obligations(payer_id,qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan) VALUES(?,?,?,?,?) ON CONFLICT(payer_id) DO UPDATE SET qty_iuran_bulanan=excluded.qty_iuran_bulanan,qty_kebersihan=excluded.qty_kebersihan,qty_kas_lorong=excluded.qty_kas_lorong,qty_arisan=excluded.qty_arisan,verified_at=CURRENT_TIMESTAMP").bind(payer, ...vals),
-      db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)").bind("audit:" + crypto.randomUUID(), who.id, "master_pembukuan", "ubah_kewajiban", "bookkeeping_payer_iuran_obligations", payer, JSON.stringify(before), JSON.stringify(Object.fromEntries(keys.map((k, i) => [k, vals[i]]))))
+      db.prepare("INSERT INTO bookkeeping_payer_obligation_periods(payer_id,effective_from,qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan,created_by) VALUES(?,?,?,?,?,?,?) ON CONFLICT(payer_id,effective_from) DO UPDATE SET qty_iuran_bulanan=excluded.qty_iuran_bulanan,qty_kebersihan=excluded.qty_kebersihan,qty_kas_lorong=excluded.qty_kas_lorong,qty_arisan=excluded.qty_arisan,created_by=excluded.created_by")
+        .bind(payer,effectiveFrom,...vals,who.id),
+      db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)")
+        .bind("audit:" + crypto.randomUUID(),who.id,"master_pembukuan","jadwalkan_kewajiban","bookkeeping_payer_obligation_periods",payer,JSON.stringify(prior),JSON.stringify({effectiveFrom,qty:Object.fromEntries(keys.map((k,i)=>[k,vals[i]]))}))
     ]);
-    return ok({ id: payer });
+    return ok({id:payer,effective_from:effectiveFrom,scheduled:true});
   }
   if(kind==="jersey" && payload?.values?.group_key!==undefined && !["bapak","ibu"].includes(String(payload.values.group_key)))
     return err("Jenis pemesan Jersey harus bapak atau ibu.",400);
