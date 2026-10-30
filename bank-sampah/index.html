@@ -2293,6 +2293,9 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
    const rawDetails=onlyArray(x.rincian||x.details||x.items||x.lines);
    return {
     id:String(pick(x,['id','deposit_id','setoranId'])||''),
+    batchId:String(pick(x,['batchId','batch_id'])||''),
+    tanggalPengesahan:pick(x,['tanggalPengesahan','batch_confirmed_at'])||null,
+    tanggalJual:pick(x,['tanggalJual','sold_on'])||null,
     tanggal:pick(x,['tanggal','deposited_on','date'])||'',
     beratKg:number(pick(x,['beratKg','weightKg'])??number(pick(x,['beratGram','total_grams']))/1000),
     estimasiRp:number(pick(x,['estimasiRp','estimated_total_rp','estimatedRp'])),
