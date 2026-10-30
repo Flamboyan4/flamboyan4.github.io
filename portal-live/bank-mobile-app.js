@@ -86,7 +86,7 @@ function ensureHome(){
   const cardHead=el("span","f4-bank-member-card-head"),logo=el("img");logo.src="/assets/logo-flamboyan.svg";logo.alt="";
   cardHead.append(logo,el("span","","BANK SAMPAH · FLAMBOYAN 4"),el("span","f4-bank-member-card-chip"));
   const identity=el("span","f4-bank-member-card-foot");
-  const box=el("span");box.append(el("small","","KARTU ANGGOTA DIGITAL"),el("strong","","—"));
+  const box=el("span");box.append(el("small","","NOMOR ANGGOTA"),el("strong","","—"));
   box.querySelector("strong").id="f4BankCardNumber";box.append(el("small","f4-bank-card-house","Rumah —"));
   identity.append(box,el("span","f4-bank-card-leaf","✦"));card.append(cardHead,identity);
   const savings=el("button","f4-bank-app-member-balance");savings.id="f4BankAppMemberBalance";savings.type="button";
