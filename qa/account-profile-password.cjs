@@ -22,4 +22,8 @@ new vm.Script(handover,{filename:'bank-sale-handover'});
 assert(handover.includes('border-collapse:separate;border-spacing:0') && handover.includes('border-right:1px solid #000'),'Black PDF table grid must stay visible');
 assert(handover.includes("win.addEventListener('load',autoPrint,{once:true})") && handover.includes("win.print()"),'Automatic handover print must run after document load');
 assert(!handover.includes('await win.document.fonts.ready') && !handover.includes('await Promise.all(Array.from(win.document.images'),'Auto-print must not wait asynchronously for assets');
+const bankPage=fs.readFileSync('bank-sampah/index.html','utf8');
+assert(bankPage.includes("const verified=String(detail.sale?.receipt_no||'').trim()"),'Receipt must be verified against D1 sale-detail');
+assert(bankPage.includes("refreshed.find(x=>String(x.id)===String(record.id))"),'Receipt must be verified in refreshed sales history');
+assert(bankPage.includes("Nomor nota tersimpan dan terverifikasi"),'Do not signal successful receipt write before verification');
 console.log('F4_ACCOUNT_PROFILE_PASSWORD_OK');
