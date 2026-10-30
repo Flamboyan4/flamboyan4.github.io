@@ -337,6 +337,9 @@ function syncSavings(){
  text("f4BankSavingsBalance",$("v12Balance")?.textContent||"—");
  text("f4BankSavingsCredit",$("v12Credit")?.textContent||"—");
  text("f4BankSavingsDebit",$("v12Debit")?.textContent||"—");
+ text("f4BankPayoutBalance",$("v12Balance")?.textContent||"—");
+ const requestButton=$("f4BankRequestSubmit");
+ if(requestButton)requestButton.disabled=!requestEnabled||$("v12Private")?.classList.contains("hidden");
  chartSavings();
  if($("bank-history"))showHistory();
  if($("bank-report"))showReport();
@@ -379,7 +382,7 @@ async function requestsMember(){
  text("f4BankPayoutBalance",$("v12Balance")?.textContent||"—");
  try{
   const response=await api("/api/member/bank/payout-requests");
-  requestEnabled=true;if(button)button.disabled=false;
+  requestEnabled=true;if(button)button.disabled=$("v12Private")?.classList.contains("hidden");
   status.textContent="Pengajuan diperiksa pengelola. Saldo berkurang setelah uang dibayar.";
   list.replaceChildren(...response.items.map(item=>{
    const row=el("div","f4-bank-request-entry");
