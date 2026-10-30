@@ -955,7 +955,7 @@ async function handleAdminContent(request, env, who, url) {
       const keys = ["qty_iuran_bulanan", "qty_kebersihan", "qty_kas_lorong", "qty_arisan"];
       const vals = keys.map(k => Number(payload[k]));
       if (!householdId || householdId.length > 120 || !name || name.length > 160 ||
-          /[\\x00-\\x1F\\x7F]/.test(name))
+          /[\x00-\x1F\x7F]/.test(name))
         return err("Pilih rumah dan isi nama pembayar yang valid.", 400);
       if (vals.some(n => !Number.isInteger(n) || n < 0 || n > 100) ||
           !vals.some(n => n > 0))
