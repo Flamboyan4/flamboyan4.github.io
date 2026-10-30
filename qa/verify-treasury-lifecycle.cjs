@@ -84,6 +84,12 @@ function makeScenario({central=0,already=["old"],linked=[],excluded=[],sourceRow
  assert(ui.includes('expectedAvailableRp:row.available'));
  assert(ui.includes('row.available<=row.diff'));
  assert(ui.includes('const funds=data.catalog.funds.filter(f=>f.active!==false)'));
+ assert.match(worker,/Nama pos yang sudah ada transaksi tidak bisa diubah/);
+ assert.match(ui,/newName.readOnly=!!fund.hasHistory/);
+ assert.match(ui,/const visibleSources=sources.filter/);
+ assert.match(ui,/for\(const src of visibleSources\.slice/);
+ assert.match(worker,/bankPendingCounts:bankUnreviewed\.map/);
  assert(!css.includes("!important"),"No CSS important overrides");
+ assert.equal((css.match(/@media\(max-width:760px\)/g)||[]).length,1,"Only one mobile rule block");
  console.log("TREASURY_LIFECYCLE_AND_UNPOSTED_ONLY_OK=1");
 })().catch(e=>{console.error(e);process.exitCode=1});
