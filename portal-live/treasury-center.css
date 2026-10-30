@@ -78,6 +78,50 @@
 .tc-date-day.selected{background:#7040bb;color:#fff}
 .tc-date-footer{margin-top:12px;padding-top:10px;border-top:1px solid #ede8f6;display:flex;justify-content:space-between}
 @media(max-width:600px){.tc-date-dialog{padding:12px}.tc-date-day{min-height:42px;font-size:17px}.tc-date-week{font-size:12px}}
+
+/* Compact one-screen opening balances (new transaction-entry workflow). */
+.tc-opening-panel{padding:13px}
+.tc-opening-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:9px}
+.tc-opening-heading h3{margin:0}
+.tc-opening-heading small{font-size:11px;color:#607789}
+.tc-opening-controls{display:flex;align-items:end;gap:10px;margin-bottom:10px}
+.tc-opening-controls .tc-field{width:min(240px,100%)}
+.tc-opening-table{border:1px solid #dfe9ee;border-radius:10px;overflow:hidden}
+.tc-opening-row{display:grid;grid-template-columns:minmax(150px,1.65fr) repeat(3,minmax(95px,1fr));gap:0;align-items:center;border-top:1px solid #e6eef3;min-width:0}
+.tc-opening-row:first-child{border-top:0}
+.tc-opening-row.tc-opening-header{background:#f1f5f9;color:#516879;font-size:11px;min-height:32px}
+.tc-opening-header strong{padding:8px 10px}
+.tc-opening-name{padding:7px 10px;font-size:12px;color:#294f67;overflow-wrap:anywhere}
+.tc-opening-cell{min-width:0;display:block;padding:5px 7px}
+.tc-opening-cell span{display:none}
+.tc-opening-cell input{display:block;width:100%;min-width:0;min-height:35px;padding:7px 8px;
+ font:600 12px system-ui;color:#264b64;text-align:right;border:1px solid #d3e1eb;border-radius:7px;background:#fff}
+.tc-opening-cell input:focus{outline:2px solid #a2bce2;outline-offset:1px}
+.tc-opening-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:11px}
+.tc-opening-total{font-size:14px;color:#294f67;font-variant-numeric:tabular-nums}
+.tc-opening-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tc-opening-actions .tc-primary{margin:0}
+.tc-opening-actions .tc-secondary{border:1px solid #bbd2e3}
+.tc-opening-panel .tc-helper{margin:10px 0 0}
+.tc-opening-history{padding:11px 13px}
+.tc-opening-history summary{cursor:pointer;font-size:12px;font-weight:700;color:#486577}
+.tc-opening-history .tc-table-wrap{margin-top:9px}
+.tc-opening-panel .tc-date-trigger:disabled{background:#f5f7f9;cursor:default;color:#637180}
+@media(max-width:690px){
+ .tc-opening-panel{padding:10px}
+ .tc-opening-heading small{display:block}
+ .tc-opening-row{grid-template-columns:repeat(3,minmax(0,1fr));padding:3px 4px}
+ .tc-opening-row.tc-opening-header{display:none}
+ .tc-opening-name{grid-column:1/-1;padding:6px 6px 2px;font-size:12px}
+ .tc-opening-cell{padding:3px 4px 7px}
+ .tc-opening-cell span{display:block;font-size:10px;color:#688091;margin:0 0 3px 2px}
+ .tc-opening-cell input{text-align:right;font-size:12px;padding:7px 4px}
+ .tc-opening-actions{width:100%;display:grid;grid-template-columns:1fr 1fr}
+ .tc-opening-actions button{min-width:0;padding:9px 5px}
+ .tc-opening-total{font-size:13px}
+ .tc-opening-controls .tc-field{width:100%}
+}
+
 @media print{
  #f4-account-page aside,.f4-sa-standalone-menu,.tc-no-print,.tc-center .tc-notice{display:none}
  #f4-account-page{display:block}
