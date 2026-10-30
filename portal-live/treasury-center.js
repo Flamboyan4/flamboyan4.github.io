@@ -576,6 +576,7 @@ function buildDynamicFund(target,data,refresh){
      if(row.querySelector(".tc-custom-edit"))return;
      const editor=el("form",undefined,"tc-custom-edit");
      const newName=el("input");newName.value=fund.name;newName.required=true;newName.minLength=3;newName.maxLength=70;
+     newName.readOnly=!!fund.hasHistory;newName.title=fund.hasHistory?"Nama terkunci karena sudah ada transaksi":"";
      const newPurpose=el("input");newPurpose.value=fund.purpose||"";newPurpose.maxLength=200;newPurpose.placeholder="Catatan";
      const apply=el("button","Simpan","tc-primary");apply.type="submit";
      const cancel=el("button","Batal","tc-secondary");cancel.type="button";cancel.onclick=()=>editor.remove();
