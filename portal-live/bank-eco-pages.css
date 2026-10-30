@@ -537,16 +537,9 @@ body.f4-bank-embedded #dashboardView .section,
 #dashboardView .f4-bank-app-home[data-bank-role="admin"] .f4-bank-app-member-balance,
 #dashboardView .f4-bank-app-home[data-bank-role="admin"] .f4-bank-app-personal-greeting,
 #dashboardView .f4-bank-app-home[data-bank-role="member"] #f4BankAppAdminHero{display:none}
-#dashboardView .f4-bank-app-shortcuts-wrap{display:grid;gap:9px;padding:1px 0}
-#dashboardView .f4-bank-app-shortcuts-title{font-size:14px;line-height:1.3;margin:0;color:#234b36;font-weight:850}
 #dashboardView .f4-bank-app-shortcuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-#dashboardView .f4-bank-app-action{min-width:0;min-height:75px;padding:8px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;background:#fff;border:1px solid #e3ece6;border-radius:12px;color:#325b45;font-size:10px;line-height:1.2;font-weight:700;text-align:center}
 .f4-bank-app-action-icon{width:37px;height:37px;display:grid;place-items:center;flex:none;border-radius:50%;background:#e7f7e9}
 .f4-bank-app-action-icon img{width:22px;height:22px;object-fit:contain}
-.f4-bank-app-action:nth-child(2) .f4-bank-app-action-icon{background:#e6f0ff}
-.f4-bank-app-action:nth-child(3) .f4-bank-app-action-icon{background:#fff1d5}
-.f4-bank-app-action:nth-child(4) .f4-bank-app-action-icon{background:#f3edff}
-.f4-bank-app-action-name{overflow-wrap:anywhere}
 #dashboardView .f4-bank-app-minis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 #dashboardView .f4-bank-app-mini{display:grid;gap:5px;min-width:0;padding:11px;background:#f1f8f2;border:1px solid #e3eee6;border-radius:12px}
 .f4-bank-app-mini small{color:#67806e;font-size:11px}
