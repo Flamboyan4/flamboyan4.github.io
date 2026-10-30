@@ -99,13 +99,25 @@ try:
     ordered=pathlib.Path("/tmp/f4-ordered-ephemeral.sql")
     ordered.write_text("PRAGMA defer_foreign_keys=TRUE;\n"+"\n".join(schema+inserts+indices+other),encoding="utf8")
     run([WRANGLER,"d1","execute","flamboyan4-staging","--local","--config",str(CONFIG),"--file",str(ordered),"--persist-to",str(LOCAL),"--yes"],timeout=180)
-    files=list(LOCAL.rglob("*.sqlite"))
-    if not files:raise ValueError("Local SQLite state missing after import")
+    candidates=list(LOCAL.rglob("*.sqlite"))
+    if not candidates:raise ValueError("Local SQLite state missing after import")
+    required={"bookkeeping_payers","bookkeeping_payments","households","members"}
+    files=[]
+    for candidate in candidates:
+        with sqlite3.connect(str(candidate)) as probe:
+            present={row[0] for row in probe.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'")}
+        if required.issubset(present):
+            files=[candidate]
+            break
+    if not files:
+        raise ValueError("Disposable D1 clone is incomplete: required finance tables absent; remote records were not modified")
     connection=sqlite3.connect(str(files[0]))
     connection.execute("PRAGMA foreign_keys=ON")
     migration=(ROOT/"cloudflare/migrations/20261025_bank_progress_photos.sql").read_text(encoding="utf8")
     connection.executescript(migration)
     connection.executescript((ROOT/"cloudflare/migrations/20261025_portal_legacy_arisan_jersey.sql").read_text(encoding="utf8"))
+    connection.executescript((ROOT/"cloudflare/migrations/20261030_iuran_period_obligations.sql").read_text(encoding="utf8"))
     portal_counts=(connection.execute("SELECT COUNT(*) FROM portal_arisan_schedule").fetchone()[0],
                    connection.execute("SELECT COUNT(*) FROM portal_jersey_orders").fetchone()[0])
     assert_step("portal_legacy_source_to_d1_local",portal_counts==(26,26))
