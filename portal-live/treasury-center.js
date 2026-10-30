@@ -261,7 +261,7 @@ function printTreasury(data){
  const byFund=data.catalog.funds.map(f=>{
   const cash=amount(data.balances,f.id,f.cash),qris=amount(data.balances,f.id,"qris"),mandiri=amount(data.balances,f.id,"mandiri");
   return {name:f.name,cash,qris,mandiri,total:cash+qris+mandiri};
- });
+ }).filter(f=>f.total!==0);
  const totalCash=byFund.reduce((n,x)=>n+x.cash,0),totalQris=byFund.reduce((n,x)=>n+x.qris,0);
  const totalBank=byFund.reduce((n,x)=>n+x.mandiri,0);
  const total=totalCash+totalQris+totalBank;
@@ -405,56 +405,100 @@ function buildForm(target,data,refresh){
 }
 function buildSources(target,data,refresh){
  if(!data.confirmed)return;
- const book=(data.sources||[]).filter(x=>x.type==="book");
- const bank=(data.sources||[]).filter(x=>x.type==="bank");
- if(!book.length&&!bank.length&&!data.sourceWarnings?.length)return;
- const panel=el("details",undefined,"tc-panel tc-source-panel tc-no-print");
- panel.append(el("summary","Cocokkan Transaksi Portal ("+(book.length+bank.length)+")"));
- if(data.sourceWarnings?.length)panel.open=true;
- const status=el("p","","tc-status");
- if(data.sourceWarnings?.length){
-  panel.append(el("p",data.sourceWarnings.length+" transaksi yang sudah dihubungkan berubah atau dibatalkan di modul sumber. Periksa dan koreksi mutasi sebelum menggunakan total saldo.","tc-source-warning"));
- }
- const quick=el("div",undefined,"tc-sync");
- const sync=el("button","Sinkronkan Kas Lorong ("+book.length+")","tc-secondary");
- sync.type="button";sync.disabled=!book.length;
- sync.onclick=async()=>{
-  if(!confirm("Cocokkan jurnal Kas Lorong yang telah dibukukan sebagai Cash Kas Lorong? Pastikan dana belum termasuk saldo awal."))return;
-  sync.disabled=true;status.textContent="Mencocokkan Kas Lorong…";
-  try{
-   const v=await post({action:"sync-book"});
-   status.textContent=(v.imported||0)+" transaksi dihubungkan.";
-   await refresh();
-  }catch(e){status.textContent=e.message;sync.disabled=false}
- };
- if(book.length){quick.append(sync);panel.append(quick)}
- if(bank.length){
-  panel.append(el("h4","Bank Sampah — pilih tempat uang sebenarnya"));
-  const table=el("div",undefined,"tc-source-list");
-  const fundById=new Map(data.catalog.funds.map(f=>[f.id,f]));
-  bank.slice(0,30).forEach(src=>{
-   const line=el("div",undefined,"tc-source-row");
-   const details=el("div",undefined,"tc-source-details");
-   details.append(el("strong",src.date+" · "+rp(src.amountRp)),
-    el("span",(fundById.get(src.fund)?.name||"Bank Sampah")+" · "+src.note));
-   const pick=select([{id:"",name:"Pilih tempat uang"},...fields(data.catalog,src.fund)]);
-   pick.value="";pick.setAttribute("aria-label","Tempat penerimaan atau pengeluaran");
-   const save=el("button","Catat","tc-secondary");save.type="button";
-   save.onclick=async()=>{
-    if(!pick.value){status.textContent="Pilih tempat uang untuk transaksi Bank Sampah.";pick.focus();return}
-    save.disabled=true;status.textContent="Menghubungkan transaksi…";
+ const sources=(data.sources||[]),warnings=data.sourceWarnings||[];
+ const section=el("section",undefined,"tc-panel tc-review tc-no-print");
+ const top=el("div",undefined,"tc-section-head");
+ const label=el("h3","Menunggu Pemeriksaan ("+sources.length+")");
+ const reload=el("button","Muat Ulang","tc-secondary");reload.type="button";
+ reload.onclick=async()=>{reload.disabled=true;try{await refresh()}catch(e){reload.disabled=false}};
+ top.append(label,reload);section.append(top);
+ if(warnings.length)section.append(el("p",warnings.length+" transaksi sumber yang sudah disahkan berubah atau dibatalkan. Periksa sebelum menggunakan saldo sebagai laporan resmi.","tc-source-warning"));
+ if(!sources.length)section.append(el("p","Belum ada transaksi baru. Penerimaan berikutnya dari modul terhubung akan muncul di sini.","tc-muted"));
+ const status=el("p","","tc-status");status.setAttribute("role","status");
+ const funds=new Map(data.catalog.funds.map(x=>[x.id,x]));
+ const list=el("div",undefined,"tc-source-list");
+ for(const src of sources.slice(0,100)){
+  const item=el("div",undefined,"tc-review-row");
+  const meta=el("div",undefined,"tc-review-meta");
+  meta.append(el("strong",src.sourceLabel+" · "+formatDate(src.date)+" · "+rp(Math.abs(src.amountRp))),
+    el("span",(funds.get(src.fund)?.name||"Pos perlu diperiksa")+" · "+(src.note||src.category)));
+  if(src.category)meta.append(el("small",src.category));
+  const sameDay=src.date===data.confirmedOn;
+  if(sameDay)meta.append(el("small","Tanggal sama dengan saldo awal — pastikan belum dihitung.","tc-same-day"));
+  const options=fields(data.catalog,src.fund);
+  const pick=select([{id:"",name:"Pilih tempat dana"},...options]);
+  pick.value=options.some(x=>x.id===src.suggestedLocation)?src.suggestedLocation:"";
+  pick.setAttribute("aria-label","Pilih tempat dana untuk "+src.sourceLabel);
+  const save=el("button","Periksa & Sahkan","tc-primary");save.type="button";
+  save.onclick=async()=>{
+   if(!pick.value){status.textContent="Pilih tempat uang yang benar dahulu.";pick.focus();return}
+   const question="Sahkan "+rp(Math.abs(src.amountRp))+" dari "+src.sourceLabel+
+     " untuk "+(funds.get(src.fund)?.name||"pos")+"?\n\nPastikan uang benar-benar ada."+
+     (sameDay?"\n\nPERHATIAN: Tanggal sama dengan saldo awal. Pastikan TIDAK termasuk saldo awal.":"");
+   if(!confirm(question))return;
+   save.disabled=true;status.textContent="Mengesahkan transaksi…";
+   try{
+    await post({action:"link",sourceType:src.type,sourceId:src.id,
+      expectedAmountRp:src.amountRp,expectedFundId:src.fund,location:pick.value,
+      sameDayConfirmed:sameDay?"SUDAH DIPERIKSA":""});
+    await refresh();
+   }catch(e){status.textContent=e.message;save.disabled=false}
+  };
+  const skip=el("button","Sudah Tercakup","tc-secondary tc-skip");skip.type="button";
+  skip.title="Tidak tambahkan saldo, karena sudah dihitung atau bukan dana yang dikelola";
+  skip.onclick=async()=>{
+    const reason=prompt("Mengapa transaksi ini tidak ditambahkan?","Sudah masuk saldo awal");
+    if(reason===null)return;
+    if(reason.trim().length<5){status.textContent="Tulis alasan minimal 5 karakter.";return}
+    if(!confirm("Tandai transaksi ini tidak perlu ditambahkan? Jejaknya tetap tersimpan."))return;
+    skip.disabled=true;status.textContent="Menyimpan pengecualian…";
     try{
-     await post({action:"link",sourceType:src.type,sourceId:src.id,location:pick.value});
-     await refresh();
-    }catch(e){status.textContent=e.message;save.disabled=false}
-   };
-   line.append(details,pick,save);table.append(line);
-  });
-  panel.append(table);
+      await post({action:"exclude-source",sourceKey:"source:"+src.type+":"+src.id,reason:reason.trim()});
+      await refresh();
+    }catch(e){status.textContent=e.message;skip.disabled=false}
+  };
+  item.append(meta,pick,save,skip);list.append(item);
  }
- 
- if(data.sourcePartial||bank.length>30)panel.append(el("p","Masih ada transaksi lain; selesaikan daftar ini, lalu muat ulang.","tc-muted"));
- panel.append(status);target.append(panel);
+ section.append(list);
+ if(data.sourcePartial)section.append(el("p","Masih ada transaksi lain. Selesaikan daftar ini, lalu muat ulang.","tc-muted"));
+ const excluded=data.excludedSources||[];
+ if(excluded.length){
+  const hidden=el("details",undefined,"tc-excluded");
+  hidden.append(el("summary","Sudah tercakup / dikecualikan ("+excluded.length+")"));
+  for(const row of excluded.slice(0,100)){
+    const entry=el("div",undefined,"tc-excluded-row");
+    entry.append(el("span",row.reason+" · "+row.source_key));
+    const restore=el("button","Pulihkan","tc-secondary");restore.type="button";
+    restore.onclick=async()=>{
+      restore.disabled=true;
+      try{await post({action:"restore-source",sourceKey:row.source_key});await refresh()}
+      catch(e){status.textContent=e.message;restore.disabled=false}
+    };
+    entry.append(restore);hidden.append(entry);
+  }
+  section.append(hidden);
+ }
+ section.append(status);target.append(section);
+}
+function buildDynamicFund(target,data,refresh){
+ if(!data.confirmed)return;
+ const shell=el("details",undefined,"tc-panel tc-custom-fund tc-no-print");
+ shell.append(el("summary","Tambah Pos Dana (Projek / Donasi Khusus)"));
+ const form=el("form",undefined,"tc-custom-fund-form");
+ const name=el("input");name.maxLength=70;name.minLength=3;name.required=true;name.placeholder="Mis. Donasi Gapura";
+ const purpose=el("input");purpose.maxLength=200;purpose.placeholder="Peruntukan (opsional)";
+ const save=el("button","Buat Pos Dana","tc-secondary");save.type="submit";
+ const msg=el("span","","tc-status");msg.setAttribute("role","status");
+ form.append(field("Nama pos",name),field("Keterangan",purpose),save,msg);
+ shell.append(form);
+ shell.append(el("p","Donasi umum yang sudah dibukukan tetap muncul dari Kas Lorong dengan kategori Donasi. Buat pos baru hanya jika dananya memang khusus.","tc-helper"));
+ form.onsubmit=async e=>{
+  e.preventDefault();if(!form.reportValidity())return;
+  save.disabled=true;msg.textContent="Menyimpan…";
+  try{await post({action:"create-fund",name:name.value.trim(),purpose:purpose.value.trim()});await refresh()}
+  catch(err){msg.textContent=err.message;save.disabled=false}
+ };
+ target.append(shell);
 }
 function render(data){
  current=data;
@@ -487,14 +531,17 @@ function render(data){
  ownership.append(el("h3","Saldo per Pos"));
  const rows=data.catalog.funds.map(f=>{
   const ownCash=amount(data.balances,f.id,f.cash),ownQris=amount(data.balances,f.id,"qris"),ownBank=amount(data.balances,f.id,"mandiri");
-  return [f.name,rp(ownCash),rp(ownQris),rp(ownBank),rp(ownCash+ownQris+ownBank)];
- });
+  const total=ownCash+ownQris+ownBank;
+  if(!total&&f.kind!=="custom"&&!(data.sources||[]).some(x=>x.fund===f.id))return null;
+  return [f.name,rp(ownCash),rp(ownQris),rp(ownBank),rp(total)];
+ }).filter(Boolean);
  rows.push(["TOTAL",rp(cash),rp(qris),rp(mandiri),rp(data.totalRp)]);
  simpleTable(ownership,["Program","Cash","QRIS","Mandiri","Total"],rows,"tc-balance-table");
  panel.append(ownership);
  const refresh=()=>fetchData().then(render);
- buildForm(panel,data,refresh);
  buildSources(panel,data,refresh);
+ buildForm(panel,data,refresh);
+ buildDynamicFund(panel,data,refresh);
  const history=el("section",undefined,"tc-panel");
  const h=el("div",undefined,"tc-section-head");
  h.append(el("h3","Riwayat Transaksi"));
@@ -522,5 +569,26 @@ async function open(){
  try{render(await fetchData())}
  catch(e){main.append(el("p",e.message,"tc-status"))}
 }
+// Baca ulang sumber tanpa menulis saldo. Jangan mengganti form yang sedang diedit.
+let polling=false;
+setInterval(async()=>{
+ if(polling||!document.querySelector(".tc-center")||document.hidden||!current?.confirmed)return;
+ polling=true;
+ try{
+  const latest=await fetchData();
+  const before=(current.sources||[]).map(x=>x.type+":"+x.id).sort().join("|");
+  const after=(latest.sources||[]).map(x=>x.type+":"+x.id).sort().join("|");
+  if(before!==after){
+   const center=document.querySelector(".tc-center");
+   if(center&&!center.querySelector(".tc-new-source")){
+    const alert=el("div",undefined,"tc-new-source");
+    alert.append(el("span","Ada perubahan transaksi yang perlu diperiksa."));
+    const button=el("button","Lihat","tc-secondary");button.type="button";button.onclick=()=>render(latest);
+    alert.append(button);center.insertBefore(alert,center.children[1]||null);
+   }
+  }
+ }catch(e){/* Dashboard lama tetap tampil bila jaringan putus. */}
+ finally{polling=false}
+},45000);
 window.f4OpenTreasuryCenter=open;
 })();

@@ -1081,8 +1081,12 @@ async function handleAdminContent(request, env, who, url) {
     }
     const changed = { ...exists, ...clean };
     if (model.required.some((k) => !changed[k])) return err("Kolom wajib belum diisi.", 400);
+    const jerseyIncrease=kind==="jersey"?treasuryJerseyPaid(changed)-treasuryJerseyPaid(exists):0;
+    const jerseyObserved=jerseyIncrease>0?treasuryReceiptObservation(db,"jersey",id,"jersey",jerseyIncrease,
+      "Penerimaan Jersey — "+String(changed.resident||"").slice(0,90)):null;
     await db.batch([
       db.prepare("UPDATE " + model.table + " SET " + updates.map((k) => k + "=?").join(",") + " WHERE id=?").bind(...updates.map((k) => clean[k]), id),
+      ...(jerseyObserved?[jerseyObserved]:[]),
       db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)").bind("audit:" + crypto.randomUUID(), who.id, "portal_content", "edit", model.table, id, JSON.stringify(exists), JSON.stringify(changed))
     ]);
     return ok({ id, updated: true });
@@ -1093,8 +1097,12 @@ async function handleAdminContent(request, env, who, url) {
     model.fields[k]==="bool"?1:["order","fundTarget"].includes(model.fields[k])?0:null;
   if (model.required.some((k) => !clean[k])) return err("Kolom wajib belum diisi.", 400);
   const newId = kind + ":web:" + crypto.randomUUID(), cols = ["id", ...fields];
+  const jerseyPaid=kind==="jersey"?treasuryJerseyPaid(clean):0;
+  const jerseyObserved=jerseyPaid>0?treasuryReceiptObservation(db,"jersey",newId,"jersey",jerseyPaid,
+    "Penerimaan Jersey — "+String(clean.resident||"").slice(0,90)):null;
   await db.batch([
     db.prepare("INSERT INTO " + model.table + "(" + cols.join(",") + ") VALUES(" + cols.map(() => "?").join(",") + ")").bind(newId, ...fields.map((k) => clean[k])),
+    ...(jerseyObserved?[jerseyObserved]:[]),
     db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)").bind("audit:" + crypto.randomUUID(), who.id, "portal_content", "create", model.table, newId, null, JSON.stringify(clean))
   ]);
   return ok({ id: newId, created: true }, 201);
@@ -1107,9 +1115,13 @@ async function treasuryCatalog(db){
     {id:"kas_rt",name:"Kas Lorong",cash:"cash:kas_rt"},
     {id:"bank_warga",name:"Bank Sampah — Hak Warga",cash:"cash:bank_sampah"},
     {id:"bank_lingkungan",name:"Bank Sampah — Lingkungan",cash:"cash:bank_sampah"},
+    {id:"bank_cadangan",name:"Bank Sampah — Cadangan",cash:"cash:bank_sampah"},
     {id:"jersey",name:"Jersey",cash:"cash:jersey"}
   ];
-  const projects=await list(db,"SELECT id,title,linked_key FROM portal_project_cards WHERE active=1 AND project_kind IN ('pesanan','penggalangan') ORDER BY sort_order,id LIMIT 100");
+  const [projects,customFunds]=await Promise.all([
+    list(db,"SELECT id,title,linked_key,active FROM portal_project_cards WHERE project_kind IN ('pesanan','penggalangan') ORDER BY sort_order,id LIMIT 150"),
+    list(db,"SELECT id,name,cash_location,purpose,active FROM treasury_funds ORDER BY name LIMIT 150")
+  ]);
   for(const p of projects){
     // Avoid a second Jersey fund for a project card that links to the Jersey module.
     const linked=String(p.linked_key||"").trim().toLowerCase()==="jersey"||
@@ -1118,7 +1130,18 @@ async function treasuryCatalog(db){
       const historical=await one(db,"SELECT id FROM treasury_entries WHERE fund_id=? LIMIT 1",["project:"+p.id]);
       if(!historical)continue;
     }
-    funds.push({id:"project:"+p.id,name:"Projek — "+p.title,cash:"cash:project:"+p.id});
+    if(!Number(p.active)){
+      const historical=await one(db,"SELECT id FROM treasury_entries WHERE fund_id=? LIMIT 1",["project:"+p.id]);
+      if(!historical)continue;
+    }
+    funds.push({id:"project:"+p.id,name:"Projek — "+p.title,cash:"cash:project:"+p.id,kind:"project"});
+  }
+  for(const f of customFunds){
+    if(!Number(f.active)){
+      const historical=await one(db,"SELECT id FROM treasury_entries WHERE fund_id=? LIMIT 1",[f.id]);
+      if(!historical)continue;
+    }
+    funds.push({id:f.id,name:f.name,cash:f.cash_location,kind:"custom",purpose:f.purpose});
   }
   const locations=[
     {id:"qris",name:"QRIS Bersama",type:"qris"},
@@ -1139,14 +1162,52 @@ function treasuryBookCashEligible(row){
  return true;
 }
 __name(treasuryBookCashEligible,"treasuryBookCashEligible");
+// Documented payment observations are proposals, NOT automatically booked cash.
+function treasuryJerseyPaid(row){
+  if(!row)return 0;
+  const tags=[...String(row.method||"").matchAll(/\[F4BAYAR:(\d{1,12})\]/g)];
+  if(tags.length)return Number(tags[tags.length-1][1]);
+  const price=Math.max(0,Number(row.nominal_rp)||0);
+  const st=String(row.payment_status||"").toLowerCase();
+  if(st.includes("lunas")&&!/\b(belum|blm|tidak|non)\s*lunas\b/.test(st))return price;
+  if(!/dp|cicil/.test(st))return 0;
+  const m=st.match(/(?:rp\s*)?(\d[\d.,]*)/i);
+  if(!m)return 0;
+  let n=Number(m[1].replace(/[.,]/g,""));
+  if(n>0&&n<1000)n*=1000;
+  return Number.isSafeInteger(n)?n:0;
+}
+__name(treasuryJerseyPaid,"treasuryJerseyPaid");
+function treasuryReceiptObservation(db,kind,id,fund,amount,note){
+  if(!Number.isSafeInteger(amount)||amount<=0)return null;
+  return db.prepare(`INSERT INTO treasury_receipt_observations
+    (id,source_kind,source_id,fund_id,amount_rp,observed_on,note)
+    SELECT ?,?,?,?,?,date('now','+7 hours'),?
+    WHERE EXISTS(SELECT 1 FROM treasury_config WHERE id=1 AND confirmed_at IS NOT NULL)`)
+    .bind("observation:"+crypto.randomUUID(),kind,id,fund,amount,String(note||"Penerimaan baru").slice(0,240));
+}
+__name(treasuryReceiptObservation,"treasuryReceiptObservation");
 // Source references are classified independently; reading them NEVER changes balances.
+function treasurySuggestedLocation(method){
+ const text=String(method||"").toLowerCase().trim();
+ const found=[
+  /(?:qris|(?:^|\W)qr(?:\W|$))/.test(text)?"qris":"",
+  /mandiri|transfer|rekening/.test(text)?"mandiri":"",
+  /cash|tunai|kontan/.test(text)?"cash":""
+ ].filter(Boolean);
+ // Pembayaran campuran tidak boleh ditebak menjadi satu lokasi.
+ if(found.length!==1)return "";
+ return found[0]==="cash"?"cash":found[0];
+}
+__name(treasurySuggestedLocation,"treasurySuggestedLocation");
+// Semua transaksi yang memenuhi syarat muncul otomatis untuk diperiksa.
+// Deteksi tidak mengubah saldo; hanya pengesahan yang membuat mutasi terpusat.
 async function treasurySources(db,confirmedOn){
  if(!confirmedOn)return {pending:[],partial:false,warnings:[]};
- const [cash,bank,wCash,wBank]=await Promise.all([
+ const [cash,bank,contributions,observed,wCash,wBank,wContribution,wObservation]=await Promise.all([
   list(db,`SELECT c.id,c.occurred_on,c.transaction_type,c.category,c.note,c.debit_rp,c.credit_rp
-    FROM bookkeeping_cash_transactions_posted c WHERE c.status='aktif' AND c.occurred_on>?
+    FROM bookkeeping_cash_transactions_posted c WHERE c.status='aktif' AND c.occurred_on>=?
       AND (c.debit_rp>0 OR c.credit_rp>0)
-      -- Setoran RT dan Arisan merupakan alokasi administrasi, bukan saldo Humas.
       AND LOWER(TRIM(COALESCE(c.category,''))) NOT LIKE 'setoran rt%'
       AND LOWER(TRIM(COALESCE(c.category,''))) NOT LIKE 'iuran rt%'
       AND LOWER(TRIM(COALESCE(c.category,''))) NOT LIKE 'kebersihan%'
@@ -1154,36 +1215,78 @@ async function treasurySources(db,confirmedOn){
       AND LOWER(TRIM(COALESCE(c.category,''))) NOT LIKE 'saldo awal%'
       AND LOWER(TRIM(COALESCE(c.transaction_type,''))) NOT IN ('setoran_rt','iuran_rt','kebersihan','arisan','saldo_awal')
       AND NOT EXISTS(SELECT 1 FROM treasury_events t WHERE t.request_key='source:book:'||c.id)
+      AND NOT EXISTS(SELECT 1 FROM treasury_source_exclusions e WHERE e.source_key='source:book:'||c.id)
     ORDER BY c.occurred_on,c.id LIMIT 101`,[confirmedOn]),
   list(db,`SELECT c.id,c.occurred_on,c.fund_position,c.transaction_type,c.note,c.cash_in_rp,c.cash_out_rp
-    FROM waste_cash_ledger c WHERE c.status='aktif' AND c.occurred_on>?
+    FROM waste_cash_ledger c WHERE c.status='aktif' AND c.occurred_on>=?
       AND (c.cash_in_rp>0 OR c.cash_out_rp>0)
       AND NOT EXISTS(SELECT 1 FROM treasury_events t WHERE t.request_key='source:bank:'||c.id)
+      AND NOT EXISTS(SELECT 1 FROM treasury_source_exclusions e WHERE e.source_key='source:bank:'||c.id)
     ORDER BY c.occurred_on,c.id LIMIT 101`,[confirmedOn]),
+  list(db,`SELECT c.id,c.project_id,c.contributor,c.amount_rp,c.payment_method,c.contributed_on,c.notes
+    FROM portal_project_contributions c JOIN portal_project_cards p ON p.id=c.project_id
+    WHERE c.status='aktif' AND p.project_kind='penggalangan' AND c.contributed_on>=? AND c.amount_rp>0
+      AND NOT EXISTS(SELECT 1 FROM treasury_events t WHERE t.request_key='source:contribution:'||c.id)
+      AND NOT EXISTS(SELECT 1 FROM treasury_source_exclusions e WHERE e.source_key='source:contribution:'||c.id)
+    ORDER BY c.contributed_on,c.id LIMIT 101`,[confirmedOn]),
+  list(db,`SELECT o.id,o.source_kind,o.source_id,o.fund_id,o.amount_rp,o.observed_on,o.note
+    FROM treasury_receipt_observations o
+    WHERE o.observed_on>=? AND o.created_at>=
+       (SELECT confirmed_at FROM treasury_config WHERE id=1)
+      AND NOT EXISTS(SELECT 1 FROM treasury_events t WHERE t.request_key='source:receipt:'||o.id)
+      AND NOT EXISTS(SELECT 1 FROM treasury_source_exclusions e WHERE e.source_key='source:receipt:'||o.id)
+    ORDER BY o.created_at,o.id LIMIT 101`,[confirmedOn]),
   list(db,`SELECT e.request_key AS source_key FROM treasury_events e
     LEFT JOIN bookkeeping_cash_transactions_posted c ON e.request_key='source:book:'||c.id AND c.status='aktif'
-    WHERE e.request_key LIKE 'source:book:%' AND (
-      c.id IS NULL OR COALESCE(c.debit_rp,0)-COALESCE(c.credit_rp,0) <>
-        (SELECT COALESCE(SUM(x.amount_rp),0) FROM treasury_entries x WHERE x.event_id=e.id)
-    ) LIMIT 25`),
+    WHERE e.request_key LIKE 'source:book:%' AND
+      (c.id IS NULL OR COALESCE(c.debit_rp,0)-COALESCE(c.credit_rp,0) <>
+        (SELECT COALESCE(SUM(x.amount_rp),0) FROM treasury_entries x WHERE x.event_id=e.id))
+    LIMIT 25`),
   list(db,`SELECT e.request_key AS source_key FROM treasury_events e
     LEFT JOIN waste_cash_ledger c ON e.request_key='source:bank:'||c.id AND c.status='aktif'
-    WHERE e.request_key LIKE 'source:bank:%' AND (
-      c.id IS NULL OR COALESCE(c.cash_in_rp,0)-COALESCE(c.cash_out_rp,0) <>
+    WHERE e.request_key LIKE 'source:bank:%' AND
+      (c.id IS NULL OR COALESCE(c.cash_in_rp,0)-COALESCE(c.cash_out_rp,0) <>
+        (SELECT COALESCE(SUM(x.amount_rp),0) FROM treasury_entries x WHERE x.event_id=e.id))
+    LIMIT 25`),
+  list(db,`SELECT e.request_key AS source_key FROM treasury_events e
+    LEFT JOIN portal_project_contributions c ON e.request_key='source:contribution:'||c.id AND c.status='aktif'
+    WHERE e.request_key LIKE 'source:contribution:%' AND
+      (c.id IS NULL OR COALESCE(c.amount_rp,0) <>
+        (SELECT COALESCE(SUM(x.amount_rp),0) FROM treasury_entries x WHERE x.event_id=e.id))
+    LIMIT 25`),
+  list(db,`SELECT e.request_key AS source_key FROM treasury_events e
+    LEFT JOIN treasury_receipt_observations o ON e.request_key='source:receipt:'||o.id
+    WHERE e.request_key LIKE 'source:receipt:%' AND
+      (o.id IS NULL OR COALESCE(o.amount_rp,0) <>
         (SELECT COALESCE(SUM(x.amount_rp),0) FROM treasury_entries x WHERE x.event_id=e.id)
-    ) LIMIT 25`)
+       OR (o.source_kind='project_order' AND NOT EXISTS(
+         SELECT 1 FROM portal_project_orders p WHERE p.id=o.source_id AND p.status='aktif'))
+       OR (o.source_kind='jersey' AND NOT EXISTS(
+         SELECT 1 FROM portal_jersey_orders j WHERE j.id=o.source_id)))
+    LIMIT 25`)
  ]);
  const pending=[
   ...cash.filter(treasuryBookCashEligible).slice(0,100).map(x=>({type:"book",id:x.id,date:x.occurred_on,
-    fund:"kas_rt",note:x.category||x.note||"Kas Lorong",
-    amountRp:Number(x.debit_rp||0)-Number(x.credit_rp||0),suggestedLocation:"cash:kas_rt"})),
+    fund:"kas_rt",note:[x.category,x.note].filter(Boolean).join(" — ").slice(0,240)||"Kas Lorong",
+    category:x.category||"Kas Lorong",amountRp:Number(x.debit_rp||0)-Number(x.credit_rp||0),
+    suggestedLocation:"cash:kas_rt",sourceLabel:"Pembukuan Kas Lorong"})),
   ...bank.slice(0,100).map(x=>({type:"bank",id:x.id,date:x.occurred_on,
-    fund:x.fund_position==="tabungan_warga"?"bank_warga":"bank_lingkungan",
-    note:x.note||x.transaction_type||"Bank Sampah",
-    amountRp:Number(x.cash_in_rp||0)-Number(x.cash_out_rp||0),suggestedLocation:"cash:bank_sampah"}))
- ];
- return {pending,partial:cash.length>100||bank.length>100,
-   warnings:[...wCash,...wBank].map(x=>x.source_key)};
+    fund:x.fund_position==="tabungan_warga"?"bank_warga":x.fund_position==="cadangan"?"bank_cadangan":x.fund_position==="lingkungan"?"bank_lingkungan":"",
+    note:x.note||x.transaction_type||"Bank Sampah",category:"Bank Sampah",
+    amountRp:Number(x.cash_in_rp||0)-Number(x.cash_out_rp||0),
+    suggestedLocation:"",sourceLabel:"Bank Sampah"})),
+  ...contributions.slice(0,100).map(x=>({type:"contribution",id:x.id,date:x.contributed_on,
+    fund:"project:"+x.project_id,note:"Donasi — "+x.contributor+(x.notes?" · "+x.notes:""),
+    category:"Donasi",amountRp:Number(x.amount_rp||0),
+    suggestedLocation:treasurySuggestedLocation(x.payment_method)==="cash"?"cash:project:"+x.project_id:treasurySuggestedLocation(x.payment_method),
+    sourceLabel:"Penggalangan Dana"})),
+  ...observed.slice(0,100).map(x=>({type:"receipt",id:x.id,date:x.observed_on,
+    fund:x.fund_id,note:x.note,category:x.source_kind==="jersey"?"Jersey":"Pesanan",
+    amountRp:Number(x.amount_rp),suggestedLocation:"",sourceLabel:x.source_kind==="jersey"?"Jersey":"Pesanan Barang"}))
+ ].filter(x=>!!x.fund&&Number.isSafeInteger(x.amountRp)&&x.amountRp!==0)
+  .sort((a,b)=>b.date.localeCompare(a.date)||a.type.localeCompare(b.type));
+ return {pending,partial:[cash,bank,contributions,observed].some(a=>a.length>100),
+   warnings:[...wCash,...wBank,...wContribution,...wObservation].map(x=>x.source_key)};
 }
 __name(treasurySources,"treasurySources");
 async function treasurySourceRow(db,type,id){
@@ -1197,9 +1300,33 @@ async function treasurySourceRow(db,type,id){
   const row=await one(db,`SELECT id,occurred_on,fund_position,transaction_type,note,cash_in_rp,cash_out_rp
     FROM waste_cash_ledger WHERE id=? AND status='aktif' LIMIT 1`,[id]);
   return row&&{type,id,date:row.occurred_on,
-    fund:row.fund_position==="tabungan_warga"?"bank_warga":"bank_lingkungan",
+    fund:row.fund_position==="tabungan_warga"?"bank_warga":row.fund_position==="cadangan"?"bank_cadangan":row.fund_position==="lingkungan"?"bank_lingkungan":"",
     note:row.note||row.transaction_type||"Bank Sampah",
     amount:Number(row.cash_in_rp||0)-Number(row.cash_out_rp||0)};
+ }
+ if(type==="contribution"){
+  const row=await one(db,`SELECT c.id,c.project_id,c.contributor,c.amount_rp,c.contributed_on,c.notes
+    FROM portal_project_contributions c JOIN portal_project_cards p ON p.id=c.project_id
+    WHERE c.id=? AND c.status='aktif' AND p.project_kind='penggalangan' LIMIT 1`,[id]);
+  return row&&{type,id,date:row.contributed_on,fund:"project:"+row.project_id,
+    note:"Donasi — "+row.contributor+(row.notes?" · "+row.notes:""),amount:Number(row.amount_rp||0)};
+ }
+ if(type==="receipt"){
+  const row=await one(db,`SELECT o.id,o.source_kind,o.source_id,o.fund_id,o.amount_rp,o.observed_on,o.note,
+    o.created_at FROM treasury_receipt_observations o WHERE o.id=? LIMIT 1`,[id]);
+  if(!row)return null;
+  const cfg=await one(db,"SELECT confirmed_at FROM treasury_config WHERE id=1");
+  if(!cfg?.confirmed_at||row.created_at<cfg.confirmed_at)return null;
+  // Observasi berasal dari kenaikan pembayaran di modul sumber; jika sumber
+  // sudah dibatalkan/hilang, wajib diperiksa dulu dan tidak boleh disahkan.
+  if(row.source_kind==="project_order"){
+    const source=await one(db,"SELECT status,paid_rp FROM portal_project_orders WHERE id=?",[row.source_id]);
+    if(!source||source.status!=="aktif"||Number(source.paid_rp)<Number(row.amount_rp))return null;
+  }else if(row.source_kind==="jersey"){
+    const source=await one(db,"SELECT payment_status,nominal_rp,method FROM portal_jersey_orders WHERE id=?",[row.source_id]);
+    if(!source||treasuryJerseyPaid(source)<Number(row.amount_rp))return null;
+  }
+  return {type,id,date:row.observed_on,fund:row.fund_id,note:row.note,amount:Number(row.amount_rp)};
  }
  return null;
 }
@@ -1251,11 +1378,13 @@ async function treasuryApi(request,env,who,url){
     const total=balances.reduce((n,row)=>n+Number(row.amount_rp||0),0);
     const complete=history.length<=800;
     const sources=await treasurySources(db,config.confirmed_on);
+    const exclusions=await list(db,"SELECT source_key,reason,excluded_at FROM treasury_source_exclusions ORDER BY excluded_at DESC LIMIT 101");
     return ok({catalog,confirmed:!!config.confirmed_at,confirmedOn:config.confirmed_on||null,
       openingCount:Number(openings?.n||0),openingDate:openings?.date_first||null,
       openingDateConsistent:!openings?.date_first||openings.date_first===openings.date_last,totalRp:total,balances,openingBalances,
       history:history.slice(0,800),riwayatLengkap:complete,
       sources:sources.pending,sourcePartial:sources.partial,sourceWarnings:sources.warnings,
+      excludedSources:exclusions.slice(0,100),exclusionPartial:exclusions.length>100,
       sourceIntegration:"reconciliation-required"});
   }
   if(method!=="POST")return err("Metode tidak tersedia.",405);
@@ -1264,39 +1393,85 @@ async function treasuryApi(request,env,who,url){
   if(origin&&!["https://flamboyan4.web.id","https://www.flamboyan4.web.id"].includes(origin))
     return err("Asal permintaan tidak diizinkan.",403);
   let p;try{p=await body(request)}catch(e){return err("Isian tidak valid.",400)}
-  if(p.action==="sync-book"||p.action==="link"){
-    if(!config.confirmed_at)return err("Sahkan saldo awal sebelum menyambungkan transaksi.",409);
-    if(p.action==="sync-book"){
-      const found=await treasurySources(db,config.confirmed_on);
-      const candidates=found.pending.filter(x=>x.type==="book").slice(0,25);
-      const rows=[];
-      for(const c of candidates){
-        const src=await treasurySourceRow(db,"book",c.id);
-        if(!src||src.date<=config.confirmed_on||!Number.isSafeInteger(src.amount)||src.amount===0)
-          return err("Sumber Kas Lorong berubah atau bukan kas Humas. Muat ulang dahulu.",409);
-        rows.push(src);
-      }
-      if(!rows.length)return ok({imported:0});
-      try{await treasurySourceBatch(env,who,rows,()=>"cash:kas_rt")}
-      catch{return err("Sinkronisasi ditolak: saldo Cash Kas Lorong tidak cukup, sumber berubah, atau transaksi sudah masuk.",409)}
-      return ok({imported:rows.length});
+  if(p.action==="exclude-source"||p.action==="restore-source"){
+    if(!config.confirmed_at)return err("Sahkan saldo awal terlebih dahulu.",409);
+    const key=String(p.sourceKey||"");
+    if(!/^source:(book|bank|contribution|receipt):.{1,180}$/.test(key))
+      return err("Referensi sumber tidak dikenal.",400);
+    if(p.action==="exclude-source"){
+      const reason=String(p.reason||"").trim();
+      if(reason.length<5||reason.length>240)return err("Isi alasan pengecualian minimal 5 karakter.",400);
+      const [type,id]=[key.split(":")[1],key.slice("source:".length+key.split(":")[1].length+1)];
+      const row=await treasurySourceRow(db,type,id);
+      if(!row)return err("Sumber sudah tidak tersedia. Muat ulang.",409);
+      if(await one(db,"SELECT id FROM treasury_events WHERE request_key=?",[key]))
+        return err("Sumber sudah disahkan. Gunakan koreksi kas, bukan pengecualian.",409);
+      try{
+        await db.batch([
+          db.prepare("INSERT INTO treasury_source_exclusions(source_key,reason,excluded_by) VALUES(?,?,?)")
+            .bind(key,reason,who.id),
+          db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'pusat_keuangan','exclude_source','treasury_source_exclusions',?,?,?)")
+            .bind("audit:"+crypto.randomUUID(),who.id,key,reason,JSON.stringify({sourceKey:key,reason}))
+        ]);
+      }catch{return err("Sumber sudah dikecualikan atau terjadi konflik.",409)}
+      return ok({excluded:true});
     }
+    const existing=await one(db,"SELECT reason FROM treasury_source_exclusions WHERE source_key=?",[key]);
+    if(!existing)return err("Pengecualian tidak ditemukan.",404);
+    await db.batch([
+      db.prepare("DELETE FROM treasury_source_exclusions WHERE source_key=?").bind(key),
+      db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'pusat_keuangan','restore_source','treasury_source_exclusions',?,?,?)")
+        .bind("audit:"+crypto.randomUUID(),who.id,key,"Pulihkan pemeriksaan",JSON.stringify({sourceKey:key,previousReason:existing.reason}))
+    ]);
+    return ok({restored:true});
+  }
+  if(p.action==="create-fund"){
+    const name=String(p.name||"").trim(),purpose=String(p.purpose||"").trim();
+    if(name.length<3||name.length>70||purpose.length>200||/[\x00-\x1F\x7F]/.test(name+purpose))
+      return err("Nama pos harus 3–70 karakter dan catatan maksimal 200 karakter.",400);
+    if(catalog.funds.some(f=>f.name.toLowerCase()===name.toLowerCase()))
+      return err("Pos dana dengan nama ini sudah tersedia.",409);
+    const id="fund:"+crypto.randomUUID(),location="cash:"+id;
+    try{
+      await db.batch([
+        db.prepare("INSERT INTO treasury_funds(id,name,cash_location,purpose,created_by) VALUES(?,?,?,?,?)")
+          .bind(id,name,location,purpose,who.id),
+        db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'pusat_keuangan','create_fund','treasury_funds',?,?,?)")
+          .bind("audit:"+crypto.randomUUID(),who.id,id,name,JSON.stringify({name,purpose,cash_location:location}))
+      ]);
+    }catch{return err("Pos dana gagal dibuat atau nama sudah dipakai.",409)}
+    return ok({id,name,created:true},201);
+  }
+  // Periksa satu transaksi sumber, lalu sahkan. Tidak ada impor massal otomatis:
+  // pencatatan yang sudah berada di saldo awal tidak boleh dihitung kedua kali.
+  if(p.action==="link"||p.action==="sync-book"){
+    if(!config.confirmed_at)return err("Sahkan saldo awal sebelum mencocokkan transaksi.",409);
+    if(p.action==="sync-book")return err("Gunakan Periksa & Sahkan pada masing-masing transaksi.",409);
     const type=String(p.sourceType||""),id=String(p.sourceId||"");
     const location=String(p.location||"");
-    if(!["bank","book"].includes(type)||id.length<1||id.length>180)
+    if(!["bank","book","contribution","receipt"].includes(type)||id.length<1||id.length>180)
       return err("Referensi transaksi tidak valid.",400);
     const row=await treasurySourceRow(db,type,id);
-    if(!row||row.date<=config.confirmed_on||!Number.isSafeInteger(row.amount)||row.amount===0)
-      return err("Transaksi tidak aktif atau di luar periode Pusat Keuangan.",409);
+    if(!row||!Number.isSafeInteger(row.amount)||row.amount===0)
+      return err("Transaksi sumber berubah, dibatalkan, atau tidak valid.",409);
+    if(row.date<config.confirmed_on)
+      return err("Tanggal sebelum saldo awal, tidak boleh dibukukan ulang.",409);
+    if(row.date===config.confirmed_on&&p.sameDayConfirmed!=="SUDAH DIPERIKSA")
+      return err("Transaksi bertanggal saldo awal; pastikan uang belum dihitung lalu konfirmasi.",409);
+    if(!Number.isSafeInteger(p.expectedAmountRp)||p.expectedAmountRp!==row.amount||
+       String(p.expectedFundId||"")!==row.fund)
+      return err("Nominal atau pos berubah di sumber. Muat ulang sebelum mengesahkan.",409);
     const fund=catalog.funds.find(f=>f.id===row.fund);
     if(!fund||!["qris","mandiri",fund.cash].includes(location))
-      return err("Pilih lokasi uang yang sesuai.",400);
+      return err("Pilih tempat uang yang sesuai.",400);
     const key="source:"+type+":"+id;
+    if(await one(db,"SELECT source_key FROM treasury_source_exclusions WHERE source_key=?",[key]))
+      return err("Sumber ini ditandai sudah tercakup. Pulihkan dahulu bila ingin disahkan.",409);
     if(await one(db,"SELECT id FROM treasury_events WHERE request_key=?",[key]))
-      return err("Transaksi ini sudah masuk Pusat Keuangan.",409);
+      return err("Transaksi ini sudah dicocokkan.",409);
     try{await treasurySourceBatch(env,who,[row],()=>location)}
-    catch{return err("Pencatatan sumber ditolak: saldo kurang atau sudah diproses.",409)}
-    return ok({imported:1});
+    catch{return err("Pengesahan ditolak: saldo sumber kurang, data berubah, atau sudah diproses.",409)}
+    return ok({imported:1,approved:true});
   }
   // Saldo awal satu formulir: seluruh kombinasi pos/tempat disimpan atomik.
   // Koreksi sebelum disahkan berupa jurnal selisih, bukan UPDATE/DELETE sejarah.
@@ -1501,18 +1676,26 @@ async function handleProjectModule(request,env,who,url){
   }catch(e){return err(e.message||"Isian tidak valid.",400)}
   if(old){
     const next={...old,...clean};
+    const increase=mode==="orders"?Number(clean.paid_rp)-Number(old.paid_rp||0):0;
+    const observed=increase>0?treasuryReceiptObservation(db,"project_order",id,"project:"+projectId,increase,
+      "Pembayaran barang — "+String(clean.resident||"").slice(0,95)):null;
     await db.batch([
       db.prepare("UPDATE "+table+" SET "+cols.map(k=>k+"=?").join(",")+",updated_at=CURRENT_TIMESTAMP WHERE id=? AND project_id=?")
         .bind(...cols.map(k=>clean[k]),id,projectId),
+      ...(observed?[observed]:[]),
       db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)")
         .bind("audit:"+crypto.randomUUID(),who.id,"project_module","edit",table,id,JSON.stringify(old),JSON.stringify(next))
     ]);
     return ok({id,updated:true});
   }
   const newId=(mode==="orders"?"project-order:":"project-contribution:")+crypto.randomUUID();
+  const observed=mode==="orders"&&Number(clean.paid_rp)>0?
+    treasuryReceiptObservation(db,"project_order",newId,"project:"+projectId,Number(clean.paid_rp),
+      "Pembayaran barang — "+String(clean.resident||"").slice(0,95)):null;
   await db.batch([
     db.prepare("INSERT INTO "+table+"(id,project_id,"+cols.join(",")+") VALUES("+Array(cols.length+2).fill("?").join(",")+")")
       .bind(newId,projectId,...cols.map(k=>clean[k])),
+    ...(observed?[observed]:[]),
     db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)")
       .bind("audit:"+crypto.randomUUID(),who.id,"project_module","create",table,newId,null,JSON.stringify({project_id:projectId,...clean}))
   ]);
