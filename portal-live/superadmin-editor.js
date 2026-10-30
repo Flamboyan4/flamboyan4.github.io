@@ -534,6 +534,10 @@ function populate(){
    const action=node('td');
    if(active==='obligations'){
      action.append(btn('Edit',()=>showForm(x)));
+     if(x.next_effective_from){
+       const tag=node('small','Mulai '+x.next_effective_from.slice(0,7),'f4-obligation-upcoming');
+       action.append(tag);
+     }
      if(obligationActive(x)){
        const remove=btn('Hapus',()=>removeObligation(x));
        remove.title='Hapus dari daftar kewajiban tanpa menghapus identitas dan riwayat pembayaran';
@@ -841,8 +845,8 @@ function showForm(record){
  editing=true;
  if(record?._f4_bank_kind)return showBankForm(record._f4_bank_kind,record);
  const def=types[active],isNew=!record;
- header((isNew?'Tambah ':'Edit ')+def.label,'Formulir ini mengubah data master yang ditampilkan di portal. Tautan foto/video tetap berada di Google Drive.');
- const form=node('form',undefined,'f4-admin-editor');form.noValidate=true;main.append(form);
+ header((isNew?'Tambah ':'Edit ')+def.label,active==='obligations'?'Perubahan berlaku mulai bulan yang dipilih. Riwayat lama tetap.':'Formulir ini mengubah data master yang ditampilkan di portal. Tautan foto/video tetap berada di Google Drive.');
+ const form=node('form',undefined,'f4-admin-editor'+(active==='obligations'?' f4-obligation-form':''));form.noValidate=true;main.append(form);
  if(active==='documentation'||active==='inventory'){
   const scopeField=node('label'),caption=node('span','Tujuan publikasi'),scope=node('select');
   scope.append(new Option('Portal Utama','portal'),new Option('Bank Sampah','bank-sampah'));
@@ -854,7 +858,7 @@ function showForm(record){
   };
   scopeField.append(caption,scope);form.append(scopeField);
  }
- const grid=node('div',undefined,'f4-admin-fields');form.append(grid);
+ const grid=node('div',undefined,'f4-admin-fields'+(active==='obligations'?' f4-obligation-edit-fields':''));form.append(grid);
  for(const [key,label,type,required] of def.columns){
   const field=node('label');field.append(node('span',label));
   let input;
@@ -913,6 +917,18 @@ function showForm(record){
   else if(type==='projectKind')input.value='informasi';
   else if(type==='number')input.value='0';
   field.append(input);grid.append(field);
+ }
+ if(active==='obligations'){
+   const period=node('div',undefined,'f4-obligation-period');
+   const {wrap,field}=f4ObligationControl('effective_from','Berlaku mulai',{type:'month',value:f4ObligationNextMonth()});
+   field.min=f4ObligationNextMonth();field.max='2100-12';
+   period.append(wrap,node('span','Hanya bulan mendatang. Tagihan lama tidak diubah.'));
+   form.append(period);
+   const pending=Array.isArray(record?.scheduled_versions)?record.scheduled_versions:[];
+   if(pending.length){
+     const note=node('p','Perubahan terjadwal: '+pending.map(v=>v.effective_from.slice(0,7)).join(', '),'f4-admin-note');
+     form.append(note);
+   }
  }
  if(active==='projects'){
   const typeField=form.elements.namedItem('project_kind');
@@ -1134,6 +1150,10 @@ function showForm(record){
    else if(active==='settings'){obj.setting_key=record.setting_key;obj.setting_value=values.setting_value;}
    else{
      obj.payer_id=record.payer_id;
+     obj.effective_from=String(form.elements.namedItem('effective_from')?.value||'');
+     if(!/^20\d{2}-(0[1-9]|1[0-2])$/.test(obj.effective_from)||obj.effective_from<f4ObligationNextMonth()){
+       notice.textContent='Perubahan paling cepat berlaku bulan depan.';return;
+     }
      // Worker requires the complete four-component obligation record.
      // Partial edit payloads previously sent Number(undefined) -> NaN -> HTTP 400.
      const keys=['qty_iuran_bulanan','qty_kebersihan','qty_kas_lorong','qty_arisan'];
@@ -1167,6 +1187,14 @@ function showForm(record){
   try{
    const saved=await send(base+active,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});
    records=await fetchData(active);
+   if(active==='obligations'){
+     const latest=records.find(x=>String(x.payer_id)===String(obj.payer_id));
+     const snapshot=f4ScheduledVersion(latest,obj.effective_from);
+     if(!snapshot||OBLIGATION_KEYS.some(key=>Number(snapshot[key])!==Number(obj[key]))){
+       notice.textContent='Jadwal perubahan belum terverifikasi. Jangan simpan ulang sebelum memeriksa.';
+       return;
+     }
+   }
    if(active==='jersey'){
     const savedId=String(record?.id||saved.id||'');
     const latest=records.find(x=>String(x.id)===savedId);
@@ -1179,7 +1207,7 @@ function showForm(record){
    }
    viewList();
    const info=main.querySelector('.f4-admin-note');
-   if(info)info.textContent='Data berhasil disimpan dan diverifikasi dari server. '+records.length+' baris tersedia.';
+   if(info)info.textContent=active==='obligations'?'Perubahan '+String(record?.nama||'')+' terjadwal '+String(obj.effective_from||'')+'. Data lama tidak berubah.':'Data berhasil disimpan dan diverifikasi dari server. '+records.length+' baris tersedia.';
    if(active==='projects'&&!record&&saved?.id){
     const newest=records.find(x=>String(x.id)===String(saved.id));
     if(newest&&['pesanan','penggalangan'].includes(newest.project_kind)){
