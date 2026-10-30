@@ -1417,11 +1417,15 @@ async function treasuryApproveBankBalance(db,who,catalog,req){
     !Number.isSafeInteger(expectedSource)||!Number.isSafeInteger(expectedCentral)||
     !/^[a-f0-9-]{36}$/i.test(key)||req.confirmation!=="SUDAH COCOK")
    return err("Pilihan dana atau nilai pemeriksaan tidak valid.",400);
+ const requestFingerprint=await sha(JSON.stringify({fundId,location,expectedSource,expectedCentral}));
+ const previous=await one(db,"SELECT id,payload_hash FROM treasury_events WHERE request_key=?",[key]);
+ if(previous)return previous.payload_hash===requestFingerprint?
+   ok({approved:true,duplicate:true}):err("Kunci transaksi digunakan untuk nilai berbeda.",409);
  const placeholders=positions.map(() => "?").join(",");
  const rows=await list(db,`SELECT id,fund_position,cash_in_rp,cash_out_rp
    FROM waste_cash_ledger WHERE status='aktif' AND fund_position IN (${placeholders})
-   AND (cash_in_rp<>0 OR cash_out_rp<>0) ORDER BY id LIMIT 501`,positions);
- if(rows.length>500)return err("Jurnal sumber terlalu panjang. Periksa per transaksi.",409);
+   AND (cash_in_rp<>0 OR cash_out_rp<>0) ORDER BY id LIMIT 151`,positions);
+ if(rows.length>150)return err("Jurnal sumber terlalu panjang. Periksa per transaksi.",409);
  if(!rows.length)return err("Belum ada transaksi Bank Sampah untuk pos ini.",409);
  const snapshot=rows.map(x=>({
    id:x.id,position:x.fund_position,amount:Number(x.cash_in_rp||0)-Number(x.cash_out_rp||0)
@@ -1446,18 +1450,14 @@ async function treasuryApproveBankBalance(db,who,catalog,req){
  // Sumber yang sudah masuk lewat pengesahan per transaksi atau telah ditandai
  // termasuk saldo awal tidak menjadi bukti penerimaan baru.
  const linked=await list(db,`SELECT request_key FROM treasury_events
-   WHERE request_key LIKE 'source:bank:%' OR request_key LIKE 'bank-balance:%'`);
+   WHERE request_key LIKE 'source:bank:%'`);
  const seen=new Set(linked.map(x=>String(x.request_key)));
  const excluded=await list(db,
    "SELECT source_key FROM treasury_source_exclusions WHERE source_key LIKE 'source:bank:%'");
  const ignored=new Set(excluded.map(x=>String(x.source_key)));
  if(!fresh.some(x=>!seen.has("source:bank:"+x.id)&&!ignored.has("source:bank:"+x.id)))
    return err("Tidak ada sumber baru yang dapat digunakan untuk pengesahan.",409);
- const prior=await one(db,"SELECT id,payload_hash FROM treasury_events WHERE request_key=?",[key]);
- const fingerprint=await sha(JSON.stringify({fundId,location,sourceTotal,centralTotal,diff,
-    fresh:fresh.map(x=>[x.id,x.amount])}));
- if(prior)return prior.payload_hash===fingerprint?ok({approved:true,duplicate:true,amountRp:diff}):
-   err("Kunci transaksi sudah digunakan untuk isi berbeda.",409);
+ const fingerprint=requestFingerprint;
  const eventId="treasury:bank-reconcile:"+crypto.randomUUID();
  const date=new Date(Date.now()+7*60*60000).toISOString().slice(0,10);
  const note="Cocokkan saldo Bank Sampah — "+fund.name;
