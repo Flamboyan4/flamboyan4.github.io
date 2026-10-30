@@ -37,4 +37,18 @@ assert(editor.includes('qty_iuran_bulanan:0,qty_kebersihan:0,qty_kas_lorong:0,qt
 assert(editor.includes('showZeroObligations'),'Removed payers need a restore path');
 const book=fs.readFileSync('pembukuan/index.html','utf8');
 assert(book.includes('some(n=>Number(n||0)>0)'),'Zero-obligation payers should not appear on new payments');
+const historicalMigration=fs.readFileSync('cloudflare/migrations/20261030_iuran_period_obligations.sql','utf8');
+const deploy=fs.readFileSync('.github/workflows/f4-finance-guarded-deploy.yml','utf8');
+assert(historicalMigration.includes('CREATE TABLE IF NOT EXISTS bookkeeping_payer_obligation_periods'),'Missing history table');
+assert(historicalMigration.includes('WHERE NOT EXISTS(SELECT 1 FROM bookkeeping_payer_obligation_periods'),'Missing one-time historical baseline');
+assert(deploy.includes('D1_ADDITIVE_IURAN_HISTORY_SCHEMA_OK=1'),'Historical schema must deploy before Worker');
+assert(worker.includes('async function f4PeriodObligation'),'Period-specific obligation reader missing');
+assert(worker.includes('const requiredByPeriod=new Map()'),'Payment must validate selected period, not current obligation');
+assert(worker.includes('const targetMonth=f4IuranMonth(year,month)'),'Arisan reports must use period-specific obligation');
+assert(worker.includes('const effectiveFrom=/^20'),'New obligation changes need validated effective period');
+assert(worker.includes('effectiveFrom<nextMonth'),'Existing obligations must not change in current or past month');
+assert(worker.includes('jadwalkan_kewajiban'),'Future changes must be audited');
+assert(editor.includes('f4-obligation-identity')&&editor.includes('f4-obligation-amounts'),'Compact iuran form missing');
+assert(editor.includes("obj.effective_from=String(form.elements.namedItem('effective_from')"),'Edit form missing effective period');
+assert(book.includes('F4_IURAN_PREVIEW_SEQUENCE')&&book.includes('/api/bookkeeping/iuran/outstanding?'),'Payment preview must use period-specific outstanding');
 console.log('F4_ACCOUNT_PROFILE_PASSWORD_OK');
