@@ -12,6 +12,7 @@ const append=(parent,...items)=>{parent.append(...items);return parent};
 const amount=(balances,fund,location)=>Number(balances.find(x=>x.fund_id===fund&&x.location_id===location)?.amount_rp||0);
 const kindLabels={opening:"Saldo awal",incoming:"Dana masuk",outgoing:"Dana keluar",move:"Pindah tempat",allocation:"Pindah pos"};
 let current=null;
+let fundPanelOpen=false;
 function showTreasuryNotice(message){
  // Notifikasi hanya pada tindakan pengesahan, tidak tersimpan dan tidak ditampilkan ulang.
  document.querySelectorAll(".tc-flash").forEach(node=>node.remove());
@@ -545,6 +546,8 @@ function buildSources(target,data,refresh){
 function buildDynamicFund(target,data,refresh){
  if(!data.confirmed)return;
  const shell=el("details",undefined,"tc-panel tc-custom-fund tc-no-print");
+ shell.open=fundPanelOpen;
+ shell.addEventListener("toggle",()=>{fundPanelOpen=shell.open});
  shell.append(el("summary","Pos Dana"));
  const form=el("form",undefined,"tc-custom-fund-form");
  const name=el("input");name.maxLength=70;name.minLength=3;name.required=true;name.placeholder="Contoh: Donasi Gapura";
