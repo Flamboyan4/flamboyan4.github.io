@@ -63,7 +63,7 @@ function treasuryDateControl(){
  const wrap=el("div",undefined,"tc-date-control");
  const trigger=el("button",undefined,"tc-date-trigger");trigger.type="button";
  trigger.setAttribute("aria-label","Pilih tanggal");
- const text=el("span"),icon=el("span","▦","tc-date-icon");
+ const text=el("span"),icon=el("img",undefined,"tc-date-icon");icon.src="/assets/icons/calendar.svg";icon.alt="";icon.setAttribute("aria-hidden","true");
  trigger.append(text,icon);wrap.append(input,trigger);
  const months=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
  const days=["Sen","Sel","Rab","Kam","Jum","Sab","Min"];
@@ -110,13 +110,13 @@ function treasuryDateControl(){
     const iso=year+"-"+two(month+1)+"-"+two(day);
     const b=el("button",String(day),"tc-date-day"+(input.value===iso?" selected":""));
     b.type="button";b.setAttribute("aria-label",format(iso));
-    b.onclick=()=>{input.value=iso;input.dispatchEvent(new Event("change",{bubbles:true}));update();close()};
+    b.onclick=()=>{input.value=iso;input.dispatchEvent(new Event("input",{bubbles:true}));input.dispatchEvent(new Event("change",{bubbles:true}));update();close()};
     grid.append(b);
    }
    const footer=el("div",undefined,"tc-date-footer");
    const current=el("button","Hari ini"),cancel=el("button","Tutup");
    current.type=cancel.type="button";
-   current.onclick=()=>{input.value=today();input.dispatchEvent(new Event("change",{bubbles:true}));update();close()};
+   current.onclick=()=>{input.value=today();input.dispatchEvent(new Event("input",{bubbles:true}));input.dispatchEvent(new Event("change",{bubbles:true}));update();close()};
    cancel.onclick=close;footer.append(current,cancel);
    dialog.append(nav,grid,footer);
    prev.focus({preventScroll:true});
