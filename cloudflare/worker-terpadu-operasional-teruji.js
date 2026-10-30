@@ -1378,39 +1378,49 @@ async function treasuryApi(request,env,who,url){
   if(origin&&!["https://flamboyan4.web.id","https://www.flamboyan4.web.id"].includes(origin))
     return err("Asal permintaan tidak diizinkan.",403);
   let p;try{p=await body(request)}catch(e){return err("Isian tidak valid.",400)}
-  if(p.action==="sync-book"||p.action==="link"){
-    if(!config.confirmed_at)return err("Sahkan saldo awal sebelum menyambungkan transaksi.",409);
-    if(p.action==="sync-book"){
-      const found=await treasurySources(db,config.confirmed_on);
-      const candidates=found.pending.filter(x=>x.type==="book").slice(0,25);
-      const rows=[];
-      for(const c of candidates){
-        const src=await treasurySourceRow(db,"book",c.id);
-        if(!src||src.date<=config.confirmed_on||!Number.isSafeInteger(src.amount)||src.amount===0)
-          return err("Sumber Kas Lorong berubah atau bukan kas Humas. Muat ulang dahulu.",409);
-        rows.push(src);
-      }
-      if(!rows.length)return ok({imported:0});
-      try{await treasurySourceBatch(env,who,rows,()=>"cash:kas_rt")}
-      catch{return err("Sinkronisasi ditolak: saldo Cash Kas Lorong tidak cukup, sumber berubah, atau transaksi sudah masuk.",409)}
-      return ok({imported:rows.length});
-    }
+  if(p.action==="create-fund"){
+    const name=String(p.name||"").trim(),purpose=String(p.purpose||"").trim();
+    if(name.length<3||name.length>70||purpose.length>200||/[\x00-\x1F\x7F]/.test(name+purpose))
+      return err("Nama pos harus 3–70 karakter dan catatan maksimal 200 karakter.",400);
+    if(catalog.funds.some(f=>f.name.toLowerCase()===name.toLowerCase()))
+      return err("Pos dana dengan nama ini sudah tersedia.",409);
+    const id="fund:"+crypto.randomUUID(),location="cash:"+id;
+    try{
+      await db.batch([
+        db.prepare("INSERT INTO treasury_funds(id,name,cash_location,purpose,created_by) VALUES(?,?,?,?,?)")
+          .bind(id,name,location,purpose,who.id),
+        db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'pusat_keuangan','create_fund','treasury_funds',?,?,?)")
+          .bind("audit:"+crypto.randomUUID(),who.id,id,name,JSON.stringify({name,purpose,cash_location:location}))
+      ]);
+    }catch{return err("Pos dana gagal dibuat atau nama sudah dipakai.",409)}
+    return ok({id,name,created:true},201);
+  }
+  // Periksa satu transaksi sumber, lalu sahkan. Tidak ada impor massal otomatis:
+  // pencatatan yang sudah berada di saldo awal tidak boleh dihitung kedua kali.
+  if(p.action==="link"||p.action==="sync-book"){
+    if(!config.confirmed_at)return err("Sahkan saldo awal sebelum mencocokkan transaksi.",409);
+    if(p.action==="sync-book")return err("Gunakan Periksa & Sahkan pada masing-masing transaksi.",409);
     const type=String(p.sourceType||""),id=String(p.sourceId||"");
     const location=String(p.location||"");
-    if(!["bank","book"].includes(type)||id.length<1||id.length>180)
+    if(!["bank","book","contribution","receipt"].includes(type)||id.length<1||id.length>180)
       return err("Referensi transaksi tidak valid.",400);
     const row=await treasurySourceRow(db,type,id);
-    if(!row||row.date<=config.confirmed_on||!Number.isSafeInteger(row.amount)||row.amount===0)
-      return err("Transaksi tidak aktif atau di luar periode Pusat Keuangan.",409);
+    if(!row||!Number.isSafeInteger(row.amount)||row.amount===0)
+      return err("Transaksi sumber berubah, dibatalkan, atau tidak valid.",409);
+    if(type==="receipt"?row.date<config.confirmed_on:row.date<=config.confirmed_on)
+      return err("Tanggal transaksi termasuk periode saldo awal. Hindari pencatatan ganda.",409);
+    if(!Number.isSafeInteger(p.expectedAmountRp)||p.expectedAmountRp!==row.amount||
+       String(p.expectedFundId||"")!==row.fund)
+      return err("Nominal atau pos berubah di sumber. Muat ulang sebelum mengesahkan.",409);
     const fund=catalog.funds.find(f=>f.id===row.fund);
     if(!fund||!["qris","mandiri",fund.cash].includes(location))
-      return err("Pilih lokasi uang yang sesuai.",400);
+      return err("Pilih tempat uang yang sesuai.",400);
     const key="source:"+type+":"+id;
     if(await one(db,"SELECT id FROM treasury_events WHERE request_key=?",[key]))
-      return err("Transaksi ini sudah masuk Pusat Keuangan.",409);
+      return err("Transaksi ini sudah dicocokkan.",409);
     try{await treasurySourceBatch(env,who,[row],()=>location)}
-    catch{return err("Pencatatan sumber ditolak: saldo kurang atau sudah diproses.",409)}
-    return ok({imported:1});
+    catch{return err("Pengesahan ditolak: saldo sumber kurang, data berubah, atau sudah diproses.",409)}
+    return ok({imported:1,approved:true});
   }
   // Saldo awal satu formulir: seluruh kombinasi pos/tempat disimpan atomik.
   // Koreksi sebelum disahkan berupa jurnal selisih, bukan UPDATE/DELETE sejarah.
