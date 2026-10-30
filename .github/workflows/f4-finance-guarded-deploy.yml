@@ -138,7 +138,7 @@ jobs:
                 or historical_sql.upper().count("CREATE INDEX IF NOT EXISTS")!=1
                 or historical_sql.upper().count("INSERT INTO BOOKKEEPING_PAYER_OBLIGATION_PERIODS")!=1):
               raise RuntimeError("Unexpected historical iuran migration: abort deploy")
-          historical_clean="\\n".join(line for line in historical_sql.splitlines()
+          historical_clean="\n".join(line for line in historical_sql.splitlines()
                                      if not line.lstrip().startswith("--"))
           for statement in historical_clean.split(";"):
               q=statement.strip()
