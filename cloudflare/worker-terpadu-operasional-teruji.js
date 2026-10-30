@@ -1146,6 +1146,13 @@ async function treasurySources(db,confirmedOn){
   list(db,`SELECT c.id,c.occurred_on,c.transaction_type,c.category,c.note,c.debit_rp,c.credit_rp
     FROM bookkeeping_cash_transactions_posted c WHERE c.status='aktif' AND c.occurred_on>?
       AND (c.debit_rp>0 OR c.credit_rp>0)
+      -- Setoran RT dan Arisan merupakan alokasi administrasi, bukan saldo Humas.
+      AND LOWER(TRIM(COALESCE(c.category,''))) NOT LIKE 'setoran rt%'
+      AND LOWER(TRIM(COALESCE(c.category,''))) NOT LIKE 'iuran rt%'
+      AND LOWER(TRIM(COALESCE(c.category,''))) NOT LIKE 'kebersihan%'
+      AND LOWER(TRIM(COALESCE(c.category,''))) NOT LIKE 'arisan%'
+      AND LOWER(TRIM(COALESCE(c.category,''))) NOT LIKE 'saldo awal%'
+      AND LOWER(TRIM(COALESCE(c.transaction_type,''))) NOT IN ('setoran_rt','iuran_rt','kebersihan','arisan','saldo_awal')
       AND NOT EXISTS(SELECT 1 FROM treasury_events t WHERE t.request_key='source:book:'||c.id)
     ORDER BY c.occurred_on,c.id LIMIT 101`,[confirmedOn]),
   list(db,`SELECT c.id,c.occurred_on,c.fund_position,c.transaction_type,c.note,c.cash_in_rp,c.cash_out_rp
