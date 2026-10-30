@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - cloudflare/worker-terpadu-operasional-teruji.js
+      - qa/account-profile-password.cjs
+      - .github/workflows/f4-finance-guarded-deploy.yml
   workflow_dispatch:
 permissions:
   contents: read
