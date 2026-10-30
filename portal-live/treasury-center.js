@@ -353,9 +353,9 @@ function printTreasury(data){
 function buildForm(target,data,refresh){
  const {funds}=data.catalog;
  const shell=el("details",undefined,"tc-panel tc-mutation-panel tc-no-print");
- shell.append(el("summary","Catat Mutasi Dana"));
+ shell.append(el("summary","Pindah Dana"));
  const form=el("form",undefined,"tc-form");
- const action=select(["move","allocation","incoming","outgoing"].map(k=>({id:k,name:kindLabels[k]})));
+ const action=select([{id:"move",name:"Pindah tempat"},{id:"allocation",name:"Pindah pos"},{id:"incoming",name:"Uang masuk (manual)"},{id:"outgoing",name:"Uang keluar (manual)"}]);
  const fromFund=select(funds),toFund=select(funds);
  const fromLoc=select([]),toLoc=select([]);
  const dateCtl=treasuryDateControl(),date=dateCtl.input;
@@ -364,12 +364,12 @@ function buildForm(target,data,refresh){
  const originFund=field("Pos asal",fromFund),destinationFund=field("Pos tujuan",toFund);
  const originLoc=field("Tempat asal",fromLoc),destinationLoc=field("Tempat tujuan",toLoc);
  const grid=el("div",undefined,"tc-form-grid");
- append(grid,field("Jenis",action),field("Tanggal",dateCtl.element),
+ append(grid,field("Aksi",action),field("Tanggal",dateCtl.element),
   originFund,originLoc,destinationFund,destinationLoc,
   field("Nominal (Rp)",value),field("Keterangan",note,"tc-wide"));
  form.append(grid);
  const status=el("p","","tc-status");status.setAttribute("role","status");
- const save=el("button","Simpan Mutasi","tc-primary");save.type="submit";
+ const save=el("button","Simpan","tc-primary");save.type="submit";
  append(form,save,status);shell.append(form);target.append(shell);
  function locChoices(box,fund){
   const previous=box.value;box.replaceChildren();
@@ -408,12 +408,24 @@ function buildSources(target,data,refresh){
  const sources=(data.sources||[]),warnings=data.sourceWarnings||[];
  const section=el("section",undefined,"tc-panel tc-review tc-no-print");
  const top=el("div",undefined,"tc-section-head");
- const label=el("h3","Menunggu Pemeriksaan ("+sources.length+")");
+ const pendingBank=new Map();
+ for(const x of data.bankSourceBalances||[]){
+  pendingBank.set(x.fundId,(pendingBank.get(x.fundId)||0)+Number(x.amountRp||0));
+ }
+ const eligibleBank=new Map();
+ for(const x of data.bankPendingCounts||[])eligibleBank.set(x.fundId,
+   (eligibleBank.get(x.fundId)||0)+Number(x.count||0));
+ const pendingBankCount=[...pendingBank].filter(([fund,total])=>
+   total>(data.balances||[]).filter(y=>y.fund_id===fund).reduce((n,y)=>n+Number(y.amount_rp||0),0)
+   &&(eligibleBank.get(fund)||0)>0).length;
+ const label=el("h3","Periksa Dana ("+(sources.length+pendingBankCount)+")");
  const reload=el("button","Muat Ulang","tc-secondary");reload.type="button";
  reload.onclick=async()=>{reload.disabled=true;try{await refresh()}catch(e){reload.disabled=false}};
  top.append(label,reload);section.append(top);
- if(warnings.length)section.append(el("p",warnings.length+" transaksi sumber yang sudah disahkan berubah atau dibatalkan. Periksa sebelum menggunakan saldo sebagai laporan resmi.","tc-source-warning"));
- if(!sources.length)section.append(el("p","Belum ada transaksi baru. Penerimaan berikutnya dari modul terhubung akan muncul di sini.","tc-muted"));
+ if(warnings.length||(data.bankCoverageWarnings||[]).length)
+    section.append(el("p","Ada perubahan data yang sudah disahkan. Periksa riwayat.","tc-source-warning"));
+ if(!sources.length&&!(data.bankSourceBalances||[]).some(x=>Number(x.amountRp)>0))
+    section.append(el("p","Belum ada dana baru.","tc-muted"));
  const status=el("p","","tc-status");status.setAttribute("role","status");
  const funds=new Map(data.catalog.funds.map(x=>[x.id,x]));
  const list=el("div",undefined,"tc-source-list");
@@ -463,20 +475,49 @@ function buildSources(target,data,refresh){
  }
  section.append(list);
  if(data.sourcePartial)section.append(el("p","Masih ada transaksi lain. Selesaikan daftar ini, lalu muat ulang.","tc-muted"));
- const sourceBank=(data.bankSourceBalances||[]).filter(x=>Number(x.amountRp)!==0);
- if(sourceBank.length){
-  const details=el("details",undefined,"tc-bank-source");
-  const grand=sourceBank.reduce((n,x)=>n+Number(x.amountRp),0);
-  details.append(el("summary","Saldo sumber Bank Sampah · "+rp(grand)));
-  const rows=sourceBank.map(x=>{
-    const fund=funds.get(x.fundId);
-    const central=(data.balances||[]).filter(y=>y.fund_id===x.fundId)
-      .reduce((n,y)=>n+Number(y.amount_rp||0),0);
-    return [fund?.name||x.sourcePosition,rp(x.amountRp),rp(central)];
-  });
-  simpleTable(details,["Pos","Di Bank Sampah","Di Pusat Keuangan"],rows,"tc-bank-source-table");
-  details.append(el("p","Angka sumber mencakup seluruh transaksi aktif, termasuk sebelum saldo awal. Periksa dahulu jika berbeda; jangan memasukkan ulang uang yang sudah tercakup.","tc-helper"));
-  section.append(details);
+ const bankGroups=new Map();
+ for(const x of data.bankSourceBalances||[]){
+  if(!x.fundId)continue;
+  bankGroups.set(x.fundId,(bankGroups.get(x.fundId)||0)+Number(x.amountRp||0));
+ }
+ const bankItems=[...bankGroups].map(([fundId,source])=>{
+  const central=(data.balances||[]).filter(y=>y.fund_id===fundId)
+    .reduce((n,y)=>n+Number(y.amount_rp||0),0);
+  return {fundId,source,central,diff:source-central,fund:funds.get(fundId)};
+ }).filter(x=>x.source!==0||x.central!==0);
+ if(bankItems.length){
+  const panel=el("div",undefined,"tc-bank-reconcile");
+  panel.append(el("h4","Saldo Bank Sampah"));
+  const board=el("div",undefined,"tc-bank-rows");
+  for(const row of bankItems){
+   const item=el("div",undefined,"tc-bank-row");
+   const info=el("div",undefined,"tc-bank-info");
+   info.append(el("strong",(row.fund?.name||row.fundId).replace(/^Bank Sampah — /,"")),
+    el("span","Bank Sampah "+rp(row.source)+" · Pusat "+rp(row.central)));
+   item.append(info);
+   if(row.diff>0&&(eligibleBank.get(row.fundId)||0)>0){
+    const pick=select([{id:"",name:"Tempat uang"},...fields(data.catalog,row.fundId)]);
+    pick.value="";pick.setAttribute("aria-label","Tempat uang untuk "+(row.fund?.name||row.fundId));
+    const confirmButton=el("button","Sahkan "+rp(row.diff),"tc-primary");confirmButton.type="button";
+    confirmButton.onclick=async()=>{
+     if(!pick.value){status.textContent="Pilih tempat uang dahulu.";pick.focus();return}
+     const where=[...pick.options].find(x=>x.value===pick.value)?.textContent||pick.value;
+     if(!confirm("Sahkan "+rp(row.diff)+" untuk "+(row.fund?.name||row.fundId)+" di "+where+
+         "?\n\nPastikan uang sudah diterima dan belum termasuk saldo awal."))return;
+     confirmButton.disabled=true;status.textContent="Mengesahkan…";
+     try{
+      await post({action:"approve-bank-balance",fundId:row.fundId,location:pick.value,
+        expectedSourceRp:row.source,expectedCentralRp:row.central,
+        requestKey:crypto.randomUUID(),confirmation:"SUDAH COCOK"});
+      await refresh();
+     }catch(e){status.textContent=e.message;confirmButton.disabled=false}
+    };
+    item.append(pick,confirmButton);
+   }else item.append(el("span",row.diff===0?"Cocok":row.diff>0?"Cek riwayat":"Periksa selisih","tc-bank-status"));
+   board.append(item);
+  }
+  panel.append(board);
+  section.insertBefore(panel,list);
  }
  const excluded=data.excludedSources||[];
  if(excluded.length){
@@ -554,9 +595,9 @@ function render(data){
  }).filter(Boolean);
  rows.push(["TOTAL",rp(cash),rp(qris),rp(mandiri),rp(data.totalRp)]);
  simpleTable(ownership,["Program","Cash","QRIS","Mandiri","Total"],rows,"tc-balance-table");
- panel.append(ownership);
  const refresh=()=>fetchData().then(render);
  buildSources(panel,data,refresh);
+ panel.append(ownership);
  buildForm(panel,data,refresh);
  buildDynamicFund(panel,data,refresh);
  const history=el("section",undefined,"tc-panel");

@@ -64,11 +64,17 @@
 .tc-review-row select{width:100%;min-width:0;min-height:37px;border:1px solid #cadce8;border-radius:8px;font:500 12px system-ui;background:#fff;color:#284b63;padding:7px}
 .tc-review-row button{white-space:nowrap;margin:0}
 .tc-review-row .tc-skip{background:#f5f6f8;color:#597080}
-.tc-bank-source{margin-top:11px;border:1px solid #dfebf2;border-radius:9px;padding:9px 11px}
-.tc-bank-source summary{font-size:12px;font-weight:750;color:#305c74;cursor:pointer}
-.tc-bank-source .tc-table-wrap{margin-top:8px}
-.tc-bank-source-table .tc-table{min-width:420px}
-.tc-bank-source-table .tc-table th:not(:first-child),.tc-bank-source-table .tc-table td:not(:first-child){text-align:right;white-space:nowrap}
+.tc-bank-reconcile{border:1px solid #e0e8ed;background:#f8fafc;border-radius:10px;padding:9px 11px;margin:8px 0}
+.tc-bank-reconcile h4{font-size:12px;color:#32566c;margin:0 0 6px}
+.tc-bank-rows{display:grid;gap:0}
+.tc-bank-row{display:grid;grid-template-columns:minmax(130px,1fr) minmax(145px,190px) auto;gap:9px;align-items:center;padding:8px 0;border-top:1px solid #e5edf2}
+.tc-bank-row:first-child{border-top:0}
+.tc-bank-info{display:grid;gap:3px;min-width:0}
+.tc-bank-info strong{color:#294e64;font-size:12px}
+.tc-bank-info span{color:#687d8c;font-size:11px;font-variant-numeric:tabular-nums}
+.tc-bank-row select{min-width:0;width:100%;min-height:35px;border:1px solid #d1dfe8;border-radius:8px;background:white;color:#294a5c;font:500 12px system-ui;padding:6px}
+.tc-bank-row .tc-primary{min-height:35px;white-space:nowrap;font-size:11px;padding:7px 12px}
+.tc-bank-status{font-size:11px;font-weight:700;color:#2a7857;justify-self:end}
 .tc-excluded{margin-top:11px;border-top:1px solid #e4ecf1;padding-top:9px}
 .tc-excluded summary{font-size:11px;font-weight:750;color:#688092;cursor:pointer}
 .tc-excluded-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0;font-size:11px;border-bottom:1px solid #e8eef1;overflow-wrap:anywhere}
@@ -115,6 +121,8 @@
 .tc-date-day.selected{background:#7040bb;color:#fff}
 .tc-date-footer{display:flex;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid #ede8f6}
 @media(max-width:760px){
+ .tc-bank-row{grid-template-columns:minmax(0,1fr) minmax(110px,155px) auto;gap:6px}
+ .tc-bank-row .tc-primary{white-space:normal;padding:7px 8px}
  .tc-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
  .tc-stat{padding:9px}
  .tc-stat strong{font-size:17px}
@@ -140,6 +148,10 @@
  .tc-custom-fund-form button{grid-column:1/-1}
 }
 @media(max-width:430px){
+ .tc-bank-row{grid-template-columns:1fr 1fr;gap:5px;padding:9px 0}
+ .tc-bank-info{grid-column:1/-1}
+ .tc-bank-row select{grid-column:1}
+ .tc-bank-row .tc-primary{grid-column:2}
  .tc-review-row{grid-template-columns:1fr 1fr}
  .tc-review-row select{grid-column:1/-1;width:100%}
  .tc-review-row button{white-space:normal;padding:7px 5px}
