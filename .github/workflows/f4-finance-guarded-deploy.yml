@@ -10,6 +10,7 @@ on:
       - qa/verify-treasury-dynamic.py
       - qa/verify-treasury-bank-detection.py
       - cloudflare/migrations/20261030_treasury_bank_coverage.sql
+      - cloudflare/migrations/20261031_bank_payout_requests.sql
       - qa/verify-treasury-bank-approval.py
       - qa/verify-treasury-lifecycle.cjs
       - .github/workflows/f4-finance-guarded-deploy.yml
@@ -211,6 +212,18 @@ jobs:
           if not {"source_id","event_id","fund_id","captured_amount_rp"}.issubset(actual):
               raise RuntimeError("Incomplete Bank Sampah approval coverage schema")
           print("D1_TREASURY_BANK_COVERAGE_OK=1")
+          # Pengajuan pencairan: skema tambahan, tanpa mengubah buku tabungan maupun kas.
+          payout_sql=pathlib.Path("cloudflare/migrations/20261031_bank_payout_requests.sql").read_text()
+          if payout_sql.upper().count("CREATE TABLE IF NOT EXISTS")!=1 or payout_sql.upper().count("CREATE INDEX IF NOT EXISTS")!=2:
+              raise RuntimeError("Unexpected withdrawal-request migration")
+          payout_clean="\n".join(line for line in payout_sql.splitlines() if not line.lstrip().startswith("--"))
+          for statement in payout_clean.split(";"):
+              query=statement.strip()
+              if query:d1query(query)
+          payout_cols={c.get("name") for c in d1query("PRAGMA table_info(waste_payout_requests)")}
+          if not {"id","request_key","member_id","amount_rp","method","status","paid_at","ledger_id"}.issubset(payout_cols):
+              raise RuntimeError("Payout request table incomplete; deployment blocked")
+          print("D1_ADDITIVE_PAYOUT_REQUESTS_OK=1")
           write_flags={k:by_name[k].get("text") for k in by_name if k.endswith("_WRITE_ENABLED")}
           if not write_flags or any(v not in ("true","false") for v in write_flags.values()):
               raise RuntimeError("Missing or unrecognized Worker write flags")
