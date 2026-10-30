@@ -27,8 +27,8 @@ assert.match(worker,/name:"Kas Lorong",cash:"cash:kas_rt"/,'Kas Lorong label mus
 assert.doesNotMatch(worker.slice(worker.indexOf('async function treasuryCatalog'),worker.indexOf('__name(treasuryCatalog')),/Kas RT/,'No RT label in treasury catalog');
 assert.match(ui,/function treasuryDateControl\(\)/);
 assert.doesNotMatch(ui,/type="date"/);
-assert.match(html,/treasury-center\.js\?v=20261030-print-popup5/);
-assert.match(html,/treasury-center\.css\?v=20261030-print-popup5/);
+assert.match(html,/treasury-center\.js\?v=20261030-auto-review6/);
+assert.match(html,/treasury-center\.css\?v=20261030-auto-review6/);
 // Opening balance grid must use one date, immutable adjustment entries and atomic D1 batch.
 assert.match(worker,/if\(p\.action==="opening-grid"\)/);
 assert.match(worker,/source:book:/);
@@ -102,4 +102,24 @@ const movements=tools.tidyHistory(sample);
 assert.equal(movements.length,1,'Correction records must be excluded, both transfer legs grouped');
 assert.equal(movements[0].amount,50000);
 assert.equal(movements[0].kindName,'Pindah tempat');
+// Source detection never guesses mixed payment methods or imports historical Jersey.
+const helperStart=worker.indexOf('function treasurySuggestedLocation(method){');
+const helperEnd=worker.indexOf('__name(treasurySuggestedLocation',helperStart);
+assert.ok(helperStart>=0&&helperEnd>helperStart);
+const suggest=vm.runInNewContext(worker.slice(helperStart,helperEnd)+';treasurySuggestedLocation;');
+assert.equal(suggest('QRIS'),'qris');
+assert.equal(suggest('Mandiri'),'mandiri');
+assert.equal(suggest('Cash'),'cash');
+assert.equal(suggest('QRIS dan Cash'),'');
+const paidStart=worker.indexOf('function treasuryJerseyPaid(row){');
+const paidEnd=worker.indexOf('__name(treasuryJerseyPaid',paidStart);
+assert.ok(paidStart>0&&paidEnd>paidStart);
+const jersey=vm.runInNewContext(worker.slice(paidStart,paidEnd)+';treasuryJerseyPaid;');
+assert.equal(jersey({nominal_rp:90000,payment_status:'Lunas',method:'QRIS'}),90000);
+assert.equal(jersey({nominal_rp:90000,payment_status:'-',method:'QRIS [F4BAYAR:50000]'}),50000);
+assert.equal(jersey({nominal_rp:90000,payment_status:'DP Rp45000',method:'Cash'}),45000);
+assert.equal(jersey({nominal_rp:90000,payment_status:'Belum Lunas',method:'Cash'}),0);
+assert.match(worker,/action==="create-fund"/);
+assert.match(worker,/if\(p\.action==="exclude-source"\|\|p\.action==="restore-source"\)/);
+assert.match(worker,/if\(p\.action==="sync-book"\)return err/);
 console.log('TREASURY_HUMAS_CLASSIFICATION_AND_CALENDAR_OK=1');
