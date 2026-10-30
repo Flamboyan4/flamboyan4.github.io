@@ -60,9 +60,15 @@
 .tc-review-meta span{font-size:11px;color:#607e8b;overflow-wrap:anywhere}
 .tc-review-meta small{display:inline-block;width:max-content;max-width:100%;font-size:10px;font-weight:700;color:#65518f}
 .tc-review-meta .tc-same-day{width:auto;color:#98531a}
+.tc-review-meta .tc-source-date{font-size:10px;color:#526b83}
 .tc-review-row select{width:100%;min-width:0;min-height:37px;border:1px solid #cadce8;border-radius:8px;font:500 12px system-ui;background:#fff;color:#284b63;padding:7px}
 .tc-review-row button{white-space:nowrap;margin:0}
 .tc-review-row .tc-skip{background:#f5f6f8;color:#597080}
+.tc-bank-source{margin-top:11px;border:1px solid #dfebf2;border-radius:9px;padding:9px 11px}
+.tc-bank-source summary{font-size:12px;font-weight:750;color:#305c74;cursor:pointer}
+.tc-bank-source .tc-table-wrap{margin-top:8px}
+.tc-bank-source-table .tc-table{min-width:420px}
+.tc-bank-source-table .tc-table th:not(:first-child),.tc-bank-source-table .tc-table td:not(:first-child){text-align:right;white-space:nowrap}
 .tc-excluded{margin-top:11px;border-top:1px solid #e4ecf1;padding-top:9px}
 .tc-excluded summary{font-size:11px;font-weight:750;color:#688092;cursor:pointer}
 .tc-excluded-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0;font-size:11px;border-bottom:1px solid #e8eef1;overflow-wrap:anywhere}

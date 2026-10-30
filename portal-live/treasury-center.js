@@ -422,6 +422,8 @@ function buildSources(target,data,refresh){
   const meta=el("div",undefined,"tc-review-meta");
   meta.append(el("strong",src.sourceLabel+" · "+formatDate(src.date)+" · "+rp(Math.abs(src.amountRp))),
     el("span",(funds.get(src.fund)?.name||"Pos perlu diperiksa")+" · "+(src.note||src.category)));
+  if(src.type==="bank"&&src.sourceDate&&src.sourceDate!==src.date)
+    meta.append(el("small","Tanggal penjualan "+formatDate(src.sourceDate)+" · disahkan "+formatDate(src.date),"tc-source-date"));
   if(src.category)meta.append(el("small",src.category));
   const sameDay=src.date===data.confirmedOn;
   if(sameDay)meta.append(el("small","Tanggal sama dengan saldo awal — pastikan belum dihitung.","tc-same-day"));
@@ -461,6 +463,21 @@ function buildSources(target,data,refresh){
  }
  section.append(list);
  if(data.sourcePartial)section.append(el("p","Masih ada transaksi lain. Selesaikan daftar ini, lalu muat ulang.","tc-muted"));
+ const sourceBank=(data.bankSourceBalances||[]).filter(x=>Number(x.amountRp)!==0);
+ if(sourceBank.length){
+  const details=el("details",undefined,"tc-bank-source");
+  const grand=sourceBank.reduce((n,x)=>n+Number(x.amountRp),0);
+  details.append(el("summary","Saldo sumber Bank Sampah · "+rp(grand)));
+  const rows=sourceBank.map(x=>{
+    const fund=funds.get(x.fundId);
+    const central=(data.balances||[]).filter(y=>y.fund_id===x.fundId)
+      .reduce((n,y)=>n+Number(y.amount_rp||0),0);
+    return [fund?.name||x.sourcePosition,rp(x.amountRp),rp(central)];
+  });
+  simpleTable(details,["Pos","Di Bank Sampah","Di Pusat Keuangan"],rows,"tc-bank-source-table");
+  details.append(el("p","Angka sumber mencakup seluruh transaksi aktif, termasuk sebelum saldo awal. Periksa dahulu jika berbeda; jangan memasukkan ulang uang yang sudah tercakup.","tc-helper"));
+  section.append(details);
+ }
  const excluded=data.excludedSources||[];
  if(excluded.length){
   const hidden=el("details",undefined,"tc-excluded");

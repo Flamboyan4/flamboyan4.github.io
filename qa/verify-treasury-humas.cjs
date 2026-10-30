@@ -27,8 +27,8 @@ assert.match(worker,/name:"Kas Lorong",cash:"cash:kas_rt"/,'Kas Lorong label mus
 assert.doesNotMatch(worker.slice(worker.indexOf('async function treasuryCatalog'),worker.indexOf('__name(treasuryCatalog')),/Kas RT/,'No RT label in treasury catalog');
 assert.match(ui,/function treasuryDateControl\(\)/);
 assert.doesNotMatch(ui,/type="date"/);
-assert.match(html,/treasury-center\.js\?v=20261030-auto-review6/);
-assert.match(html,/treasury-center\.css\?v=20261030-auto-review6/);
+assert.match(html,/treasury-center\.js\?v=20261030-bank-source7/);
+assert.match(html,/treasury-center\.css\?v=20261030-bank-source7/);
 // Opening balance grid must use one date, immutable adjustment entries and atomic D1 batch.
 assert.match(worker,/if\(p\.action==="opening-grid"\)/);
 assert.match(worker,/source:book:/);
@@ -122,4 +122,18 @@ assert.equal(jersey({nominal_rp:90000,payment_status:'Belum Lunas',method:'Cash'
 assert.match(worker,/action==="create-fund"/);
 assert.match(worker,/if\(p\.action==="exclude-source"\|\|p\.action==="restore-source"\)/);
 assert.match(worker,/if\(p\.action==="sync-book"\)return err/);
+// Bank Sampah funds must reflect real sale allocation keys.
+const mapStart=worker.indexOf('function treasuryBankFund(position){');
+const mapEnd=worker.indexOf('__name(treasuryBankFund',mapStart);
+assert.ok(mapStart>0&&mapEnd>mapStart);
+const bankFund=vm.runInNewContext(worker.slice(mapStart,mapEnd)+';treasuryBankFund;');
+for(const [key,value] of [['tabungan_warga','bank_warga'],['operasional','bank_lingkungan'],
+ ['lingkungan','bank_lingkungan'],['kas_lorong','bank_kas_lorong'],['cadangan','bank_cadangan']]){
+ assert.equal(bankFund(key),value,key);
+}
+assert.equal(bankFund('unknown'),'');
+assert.match(ui,/Saldo sumber Bank Sampah/);
+assert.match(ui,/sourceConfirmedAt/);
+assert.match(worker,/bankSourceBalances/);
+assert.match(worker,/b.confirmed_at>=/);
 console.log('TREASURY_HUMAS_CLASSIFICATION_AND_CALENDAR_OK=1');

@@ -28,6 +28,7 @@ jobs:
           python3 qa/verify-treasury.py
           node qa/verify-treasury-humas.cjs
           python3 qa/verify-treasury-dynamic.py
+          python3 qa/verify-treasury-bank-detection.py
       - name: Publish tested source, strictly inherit all production bindings
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
