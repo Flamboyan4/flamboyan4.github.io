@@ -412,13 +412,18 @@ function buildSources(target,data,refresh){
  for(const x of data.bankSourceBalances||[]){
   pendingBank.set(x.fundId,(pendingBank.get(x.fundId)||0)+Number(x.amountRp||0));
  }
+ const eligibleBank=new Map();
+ for(const x of data.bankPendingCounts||[])eligibleBank.set(x.fundId,
+   (eligibleBank.get(x.fundId)||0)+Number(x.count||0));
  const pendingBankCount=[...pendingBank].filter(([fund,total])=>
-   total>(data.balances||[]).filter(y=>y.fund_id===fund).reduce((n,y)=>n+Number(y.amount_rp||0),0)).length;
+   total>(data.balances||[]).filter(y=>y.fund_id===fund).reduce((n,y)=>n+Number(y.amount_rp||0),0)
+   &&(eligibleBank.get(fund)||0)>0).length;
  const label=el("h3","Periksa Dana ("+(sources.length+pendingBankCount)+")");
  const reload=el("button","Muat Ulang","tc-secondary");reload.type="button";
  reload.onclick=async()=>{reload.disabled=true;try{await refresh()}catch(e){reload.disabled=false}};
  top.append(label,reload);section.append(top);
- if(warnings.length)section.append(el("p",warnings.length+" data berubah. Periksa laporan sumber.","tc-source-warning"));
+ if(warnings.length||(data.bankCoverageWarnings||[]).length)
+    section.append(el("p","Ada perubahan data yang sudah disahkan. Periksa riwayat.","tc-source-warning"));
  if(!sources.length&&!(data.bankSourceBalances||[]).some(x=>Number(x.amountRp)>0))
     section.append(el("p","Belum ada dana baru.","tc-muted"));
  const status=el("p","","tc-status");status.setAttribute("role","status");
@@ -490,7 +495,7 @@ function buildSources(target,data,refresh){
    info.append(el("strong",(row.fund?.name||row.fundId).replace(/^Bank Sampah — /,"")),
     el("span","Bank Sampah "+rp(row.source)+" · Pusat "+rp(row.central)));
    item.append(info);
-   if(row.diff>0){
+   if(row.diff>0&&(eligibleBank.get(row.fundId)||0)>0){
     const pick=select([{id:"",name:"Tempat uang"},...fields(data.catalog,row.fundId)]);
     pick.value="";pick.setAttribute("aria-label","Tempat uang untuk "+(row.fund?.name||row.fundId));
     const confirmButton=el("button","Sahkan "+rp(row.diff),"tc-primary");confirmButton.type="button";
@@ -508,7 +513,7 @@ function buildSources(target,data,refresh){
      }catch(e){status.textContent=e.message;confirmButton.disabled=false}
     };
     item.append(pick,confirmButton);
-   }else item.append(el("span",row.diff===0?"Cocok":"Periksa selisih","tc-bank-status"));
+   }else item.append(el("span",row.diff===0?"Cocok":row.diff>0?"Cek riwayat":"Periksa selisih","tc-bank-status"));
    board.append(item);
   }
   panel.append(board);
