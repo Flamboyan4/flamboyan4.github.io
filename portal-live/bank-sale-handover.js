@@ -16,14 +16,14 @@ const css=[
 '.brand{min-width:0;flex:1 1 auto}.brand strong{display:block;color:#155337;font-size:11pt;line-height:1.12}.brand small{display:block;color:#476c56;font-size:8pt;margin-top:1px}',
 '.doc-title{text-align:right;max-width:82mm;flex:none;font-size:10pt;font-weight:800;line-height:1.18;color:#173e2b}',
 '.doc-title small{display:block;font-size:8pt;font-weight:500;margin-top:1mm;color:#567363}',
-'.meta{display:grid;grid-template-columns:1.2fr .95fr 1.3fr 1.1fr;gap:1.5mm;margin:0 0 2.5mm;padding:2mm 2.4mm;border:1px solid #000;border-radius:1.5mm;background:#f8fbf8}',
+'.meta{display:grid;grid-template-columns:1.2fr .95fr 1.3fr 1.1fr;gap:1.5mm;margin:0 0 2.5mm;padding:2mm 2.4mm;border:1px solid #000;background:#f8fbf8}',
 '.meta>div{min-width:0;overflow-wrap:anywhere}.meta small{display:block;font-size:8pt;color:#597565;line-height:1.05;margin-bottom:.6mm}.meta b{font-size:9pt;line-height:1.15;display:block}',
-'table{width:100%;border-collapse:collapse;table-layout:fixed;margin:0 0 2mm}',
-'th,td{border:1px solid #000;padding:1.3mm 1.6mm;font-size:8.5pt;line-height:1.15;overflow-wrap:anywhere;vertical-align:top}',
+'table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;margin:0 0 2mm;border-top:1px solid #000;border-left:1px solid #000}',
+'th,td{border:0;border-right:1px solid #000;border-bottom:1px solid #000;padding:1.3mm 1.6mm;font-size:8.5pt;line-height:1.15;overflow-wrap:anywhere;vertical-align:top}',
 'th{background:#e5f1e8!important;color:#234d35;text-align:center;font-weight:700}',
 'td.right{text-align:right;white-space:nowrap}',
 'tfoot td{font-size:9pt;font-weight:750;background:#f8fbf9}',
-'.totals{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2mm;border:1px solid #000;border-radius:1.5mm;margin:2mm 0;padding:1.7mm 2.5mm;background:#f6faf7}',
+'.totals{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2mm;border:1px solid #000;margin:2mm 0;padding:1.7mm 2.5mm;background:#f6faf7}',
 '.totals div{display:flex;align-items:center;justify-content:space-between;gap:2mm;min-width:0}',
 '.totals span{font-size:8pt;color:#526d59;white-space:nowrap}.totals b{font-size:9.5pt;white-space:nowrap}',
 '.desc{font-size:8.2pt;line-height:1.22;margin:2.2mm 0 0;max-width:100%}',
@@ -83,10 +83,21 @@ window.F4SaleHandover=function(record){
   if(String(data.sale?.id||'')!==id||!Array.isArray(data.lines))throw Error('Rincian transaksi tidak sesuai.');
   const html=build(data.sale,data.lines);
   if(win.closed)return;
+  // Pasang listener sebelum mengganti dokumen agar event load tidak terlewat.
+  // Tunggu logo dan font supaya kop ikut tercetak, termasuk di perangkat HP.
+  let printed=false;
+  const printReady=async()=>{
+    if(printed||win.closed)return;
+    printed=true;
+    try{
+      if(win.document.fonts?.ready)await win.document.fonts.ready;
+      await Promise.all(Array.from(win.document.images,im=>im.decode().catch(()=>{})));
+    }catch{}
+    if(!win.closed){win.focus();try{win.print()}catch{}}
+  };
+  win.addEventListener('load',printReady,{once:true});
   win.document.open();win.document.write(html);win.document.close();
-  win.focus();
-  // Coba buka dialog cetak; jika ditolak browser, tersedia tombol cetak di pratinjau.
-  win.addEventListener('load',()=>setTimeout(()=>{if(!win.closed)try{win.print()}catch{}},250),{once:true});
+  if(win.document.readyState==='complete')void printReady();
  })().catch(error=>{
   if(win.closed)return;
   win.document.open();win.document.write(page('<main class="sheet"><h2>Gagal memuat form</h2><p>'+esc(error.message)+'</p><p>Tidak ada data yang berubah.</p></main>',true));win.document.close();
