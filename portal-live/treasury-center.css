@@ -151,17 +151,17 @@
  .tc-opening-actions button{min-width:0;padding:9px 5px}
  .tc-date-day{min-height:42px;font-size:17px}
  .tc-date-week{font-size:12px}
-}
-@media(max-width:760px){
+
  .tc-review-row{grid-template-columns:minmax(0,1fr) auto auto}
- .tc-review-meta{grid-column:1/-1}
- .tc-review-row select{min-width:130px}
- .tc-custom-fund-form{grid-template-columns:repeat(2,minmax(0,1fr))}
- .tc-custom-fund-form button{grid-column:1/-1}
- .tc-custom-edit{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
- .tc-custom-edit input{grid-column:1/-1}
- .tc-custom-edit button{min-width:0}
+  .tc-review-meta{grid-column:1/-1}
+  .tc-review-row select{min-width:130px}
+  .tc-custom-fund-form{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tc-custom-fund-form button{grid-column:1/-1}
+  .tc-custom-edit{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .tc-custom-edit input{grid-column:1/-1}
+  .tc-custom-edit button{min-width:0}
 }
+
 @media(max-width:430px){
  .tc-bank-row{grid-template-columns:1fr 1fr;gap:5px;padding:9px 0}
  .tc-bank-info{grid-column:1/-1}
