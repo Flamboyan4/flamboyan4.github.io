@@ -458,7 +458,7 @@ function sidebar(g=group){
  for(const [key,label] of groups){
   const b=button('',()=>open(key),g===key?'active':'');
   const icon=el('img',undefined,'sa-nav-icon');
-  icon.src='/assets/icons/'+({overview:'superadmin',treasury:'book',accounts:'user',content:'home',bank:'bank',masters:'inventory',audit:'book'}[key])+'.svg';
+  icon.src='/assets/icons/'+({overview:'superadmin',treasury:'cash',accounts:'user',content:'home',bank:'bank',masters:'inventory',audit:'book'}[key])+'.svg';
   icon.alt='';icon.setAttribute('aria-hidden','true');b.append(icon,el('span',label));
   b.setAttribute('aria-current',g===key?'page':'false');side.append(b);
  }
