@@ -2786,7 +2786,8 @@ async function getIuranOutstanding(db, request) {
   if (!payerId || payerId.length > 150 || !Number.isInteger(year) || year < 2e3 || year > 2200 || !Number.isInteger(month) || month < 1 || month > 12)
     return safeError("Pembayar, tahun, atau bulan tidak valid.", 400);
   const payer = await db.prepare("SELECT id,display_name,active FROM bookkeeping_payers WHERE id=?").bind(payerId).first();
-  if (!payer || Number(payer.active) !== 1) return safeError("Pembayar tidak ditemukan atau tidak aktif.", 404);
+  if (!payer) return safeError("Pembayar tidak ditemukan.", 404);
+  // Historical outstanding remains readable even after a resident is inactive.
   const obligation = await f4PeriodObligation(db,payerId,year,month);
   if (!obligation) return safeError("Belum ada kewajiban untuk pembayar pada periode ini.",404);
   let tariff;
@@ -4380,8 +4381,15 @@ async function residentsApi(request, env, who) {
       if (!id) return safeError("ID warga wajib.", 400);
       const name = str("nama", 160);
       if (!name) return safeError("Nama wajib.", 400);
-      const old = await db.prepare("SELECT id FROM bookkeeping_payers WHERE id=? AND payer_type='warga'").bind(id).first();
+      const old = await db.prepare("SELECT id,display_name FROM bookkeeping_payers WHERE id=? AND payer_type='warga'").bind(id).first();
       if (!old) return safeError("Warga tidak ditemukan.", 404);
+      if(name!==old.display_name){
+        const financial=await db.prepare(`SELECT
+          EXISTS(SELECT 1 FROM bookkeeping_payments WHERE payer_id=? LIMIT 1) AS payments,
+          EXISTS(SELECT 1 FROM bookkeeping_cash_transactions WHERE payer_id=? LIMIT 1) AS cash`).bind(id,id).first();
+        if(financial?.payments||financial?.cash)
+          return safeError("Nama pembayar sudah tercatat dalam transaksi. Jangan mengganti penghuni lama; tambahkan warga baru pada nomor rumah yang sama.",409);
+      }
       const cols = ["status_tinggal", "status_aktif", "nomor_hp", "keterangan_warga"];
       const vals = cols.map((x) => str(x, x === "keterangan_warga" ? 500 : 80));
       const active = data.active === false ? 0 : 1;
