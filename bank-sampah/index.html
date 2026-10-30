@@ -3596,7 +3596,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       primary.parentElement.querySelectorAll('.f4-member-finance-note').forEach(n=>n.remove());
       const brief=document.createElement('p');brief.className='f4-member-finance-note';
       brief.textContent='Memeriksa status setoran…';
-      primary.after(brief);
+      // Notice lama tidak ditempel ke UI anggota modern.
       const report=Promise.resolve(call('bsV12Statement',token));
       const progress=Promise.resolve(call('bsV14ProgressPublik',token));
       const settled=await Promise.allSettled([report,progress]);
@@ -3619,7 +3619,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
        }
        const weightMissing=active.some(x=>x.beratKg==null);
        const weight=weightMissing?null:active.reduce((sum,x)=>sum+Number(x.beratKg||0),0);
-       v37MemberWeightChart(active);
+       // Grafik anggota hanya ditampilkan di Tabungan.
        primary.replaceChildren(
         v14Stat('Saldo sah',rupiah(d.saldo||0),'Sudah sah'),
         v14Stat('Perkiraan setoran',rupiah(unconfirmed.reduce((sum,x)=>sum+Number(x.estimasiRp||0),0)),'Belum sah'),
@@ -5738,8 +5738,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </style>
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261029-member-weighing-color-cards-2">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261028-chevron-gallery-3">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261031-bank-pages-v8">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261031-bank-clean-v9">
 <script src="/portal-live/bank-sale-handover.js?v=auto-print-firefox-20261030b"></script>
 <script src="/portal-live/direct-shell.js?v=profile-display-20261028"></script><script src="/portal-live/unified-account.js?v=logout-after-password-20261030"></script><script defer src="/portal-live/mobile-cards.js?v=20261028-saldo-grid"></script><script defer src="/portal-live/native-controls.js?v=20261027-audit6"></script><script defer src="/portal-live/bank-page-history.js?v=20261027-final4"></script>
-<script defer src="/portal-live/bank-mobile-app.js?v=20261031-bank-pages-v8"></script></body>
+<script defer src="/portal-live/bank-mobile-app.js?v=20261031-bank-clean-v9"></script></body>
 </html>
