@@ -36,7 +36,7 @@
     {title:"Laporan",route:"report",icon:"pay.svg"},
     {title:"Profil",route:"profile",icon:"user.svg"}
   ];
-  let role=null, currentPage="dashboard", primaryObserver=null, started=false;
+  let role=null, currentPage="dashboard", primaryObserver=null, extraObserver=null, started=false;
   let monthFilter="latest", pendingAnchor="", savingsObserver=null, depositsObserver=null;
   const roleType=()=>{
     const r=String(document.body.dataset.f4BankRole||"").toLowerCase();
@@ -179,11 +179,30 @@
     }
     ensureMemberCard();
     ensureSavings();
+    attachLiveSummaryObservers();
     updateIdentity();
     updateHero();
     updateDock();
   }
 
+  // Dashboard panels are created after login; observe them only when they exist.
+  let observedPrimary=null, observedExtra=null;
+  function attachLiveSummaryObservers(){
+    const primary=byId("v14Primary");
+    if(primary&&primary!==observedPrimary){
+      if(primaryObserver)primaryObserver.disconnect();
+      primaryObserver=new MutationObserver(updateHero);
+      primaryObserver.observe(primary,{childList:true,characterData:true,subtree:true});
+      observedPrimary=primary;
+    }
+    const extra=byId("v14Extra");
+    if(extra&&extra!==observedExtra){
+      if(extraObserver)extraObserver.disconnect();
+      extraObserver=new MutationObserver(updateHero);
+      extraObserver.observe(extra,{childList:true,characterData:true,subtree:true});
+      observedExtra=extra;
+    }
+  }
   // Card is a membership identity, not a payment instrument. No synthetic card number.
   function ensureMemberCard(){
     const hub=byId("f4BankAppHome");
@@ -395,13 +414,7 @@
   function init(){
     if(started)return;started=true;
     ensureHome();ensureDock();
-    const primary=byId("v14Primary");
-    if(primary){
-      primaryObserver=new MutationObserver(updateHero);
-      primaryObserver.observe(primary,{childList:true,characterData:true,subtree:true});
-    }
-    const extra=byId("v14Extra");
-    if(extra)new MutationObserver(updateHero).observe(extra,{childList:true,characterData:true,subtree:true});
+    attachLiveSummaryObservers();
     for(const id of ["pName","pHome"])if(byId(id))new MutationObserver(updateIdentity).observe(byId(id),{childList:true,characterData:true,subtree:true});
     // Keep the legacy navigation and permission checks as the only routing authority.
     const original=window.goPage;
