@@ -1238,6 +1238,7 @@ async function treasurySources(db,confirmedOn){
       AND s.id=c.source_transaction_id AND s.status='terkonfirmasi'
     LEFT JOIN waste_batches b ON b.id=s.batch_id AND b.status='disahkan'
     WHERE c.status='aktif'
+      AND (c.transaction_type!='penjualan_terkonfirmasi' OR b.confirmed_at IS NOT NULL)
       AND (c.occurred_on>=? OR
         (c.transaction_type='penjualan_terkonfirmasi' AND b.confirmed_at>=
           (SELECT confirmed_at FROM treasury_config WHERE id=1)))
@@ -1328,7 +1329,9 @@ async function treasurySourceRow(db,type,id){
     LEFT JOIN waste_sales s ON c.transaction_type='penjualan_terkonfirmasi'
       AND s.id=c.source_transaction_id AND s.status='terkonfirmasi'
     LEFT JOIN waste_batches b ON b.id=s.batch_id AND b.status='disahkan'
-    WHERE c.id=? AND c.status='aktif' LIMIT 1`,[id]);
+    WHERE c.id=? AND c.status='aktif'
+      AND (c.transaction_type!='penjualan_terkonfirmasi' OR b.confirmed_at IS NOT NULL)
+    LIMIT 1`,[id]);
   if(!row||!treasuryBankFund(row.fund_position))return null;
   const date=row.treasury_date||row.occurred_on;
   // Tanggal penjualan lama bukan tanggal dana disahkan; keduanya disimpan untuk audit.
