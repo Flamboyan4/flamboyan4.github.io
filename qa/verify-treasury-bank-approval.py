@@ -43,7 +43,7 @@ for str_required in [
  'SELECT COALESCE(SUM(amount_rp),0) FROM treasury_entries WHERE fund_id=?',
  'THEN ? ELSE 0 END',
  'confirmation!=="SUDAH COCOK"',
- 'const requestFingerprint=await sha',
+ 'const fingerprint=await sha',
  'request_key=?'
 ]:
  assert str_required in worker,str_required
