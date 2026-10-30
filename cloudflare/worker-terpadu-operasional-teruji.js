@@ -947,6 +947,39 @@ async function handleAdminContent(request, env, who, url) {
     return ok({ id: key });
   }
   if (kind === "obligations") {
+    if (action === "add_payer") {
+      // A TPQ or other payer can pay iuran without becoming a Bank Sampah
+      // member or receiving a login. Never alter an existing resident's identity.
+      const householdId = String(payload.household_id || "").trim();
+      const name = String(payload.nama || "").trim();
+      const keys = ["qty_iuran_bulanan", "qty_kebersihan", "qty_kas_lorong", "qty_arisan"];
+      const vals = keys.map(k => Number(payload[k]));
+      if (!householdId || householdId.length > 120 || !name || name.length > 160 ||
+          /[\\x00-\\x1F\\x7F]/.test(name))
+        return err("Pilih rumah dan isi nama pembayar yang valid.", 400);
+      if (vals.some(n => !Number.isInteger(n) || n < 0 || n > 100) ||
+          !vals.some(n => n > 0))
+        return err("Isi minimal satu kewajiban bernilai 1 sampai 100.", 400);
+      const house = await one(db, "SELECT id FROM households WHERE id=?", [householdId]);
+      if (!house) return err("Rumah tidak ditemukan; muat ulang daftar.", 404);
+      const existing = await one(db,
+        "SELECT id FROM bookkeeping_payers WHERE household_id=? AND payer_type='warga' AND lower(trim(display_name))=lower(trim(?))",
+        [householdId,name]);
+      if (existing) return err("Pembayar sudah ada di rumah ini. Gunakan Edit atau tampilkan Tanpa Kewajiban untuk mengaktifkan lagi.", 409);
+      const payerId="payer:"+crypto.randomUUID();
+      await db.batch([
+        db.prepare("INSERT INTO bookkeeping_payers(id,household_id,member_id,display_name,payer_type,active) VALUES(?,?,NULL,?,'warga',1)")
+          .bind(payerId,householdId,name),
+        db.prepare("INSERT INTO resident_directory_profiles(payer_id,status_tinggal,status_aktif,nomor_hp,keterangan) VALUES(?,?,?,?,?)")
+          .bind(payerId,null,"Ya",null,"Pembayar iuran tanpa akun anggota"),
+        db.prepare("INSERT INTO bookkeeping_payer_iuran_obligations(payer_id,qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan) VALUES(?,?,?,?,?)")
+          .bind(payerId,...vals),
+        db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)")
+          .bind("audit:"+crypto.randomUUID(),who.id,"master_pembukuan","tambah_pembayar_iuran","bookkeeping_payers",payerId,null,
+            JSON.stringify({householdId,nama:name,obligations:Object.fromEntries(keys.map((k,i)=>[k,vals[i]])),memberCreated:false}))
+      ]);
+      return ok({id:payerId,memberCreated:false});
+    }
     const payer = String(payload.payer_id || "");
     if (!payer || payer.length > 130) return err("ID Warga wajib.", 400);
     const keys = ["qty_iuran_bulanan", "qty_kebersihan", "qty_kas_lorong", "qty_arisan"];
