@@ -2838,7 +2838,7 @@ __name(getIuranOutstanding, "getIuranOutstanding");
 
 function f4PeriodIndex(year,month){return Number(year)*12+Number(month)-1;}
 function f4IndexPeriod(index){return {year:Math.floor(index/12),month:index%12+1};}
-function f4SuggestIuranPeriod({current,versions,allocations,tariff}){
+function f4SuggestIuranPeriod({current,versions,allocations,tariff,globalStartIndex}){
   // The 2000 migration baseline is not an actual start of billing.
   const today=f4PeriodIndex(current.year,current.month),oldest=today-47;
   const relevant=allocations.filter(x=>Number.isInteger(x.period_year)&&Number.isInteger(x.period_month)
@@ -2847,7 +2847,11 @@ function f4SuggestIuranPeriod({current,versions,allocations,tariff}){
   const versionsAsc=[...versions].sort((a,b)=>String(a.effective_from).localeCompare(String(b.effective_from)));
   const first=versionsAsc[0]?.effective_from;
   const firstIndex=first?f4PeriodIndex(Number(first.slice(0,4)),Number(first.slice(5,7))):today;
-  const start=Math.max(oldest,firstIndex,indexes.length?Math.min(today,...indexes):today);
+  // Start of the program comes from the first active recorded iuran
+  // allocation anywhere, not from a fictitious year-2000 migration baseline.
+  // This detects a missing September even when a payer only paid October.
+  const knownStart=Number.isInteger(globalStartIndex)?globalStartIndex:today;
+  const start=Math.max(oldest,firstIndex,Math.min(today,knownStart,...indexes));
   const stop=Math.max(today+1,indexes.length?Math.max(...indexes)+1:today+1,firstIndex);
   const paid=new Map();
   for(const item of relevant){
@@ -2875,7 +2879,7 @@ async function getIuranSuggestedPeriod(db,request){
   const payer=await db.prepare('SELECT id,active FROM bookkeeping_payers WHERE id=?').bind(payerId).first();
   if(!payer||Number(payer.active)!==1)return safeError('Pembayar tidak ditemukan atau tidak aktif.',404);
   const now=f4CurrentIuranMonth(),current={year:Number(now.slice(0,4)),month:Number(now.slice(5,7))};
-  const [history,versions,tariff]=await Promise.all([
+  const [history,versions,tariff,firstActivity]=await Promise.all([
     db.prepare(`SELECT a.period_year,a.period_month,a.contribution_type,COALESCE(SUM(a.amount_rp),0) AS amount_rp
       FROM bookkeeping_payment_allocations a JOIN bookkeeping_payments p ON p.id=a.payment_id
       WHERE a.payer_id=? AND a.status='aktif' AND p.status='aktif'
@@ -2884,13 +2888,19 @@ async function getIuranSuggestedPeriod(db,request){
       .bind(payerId,current.year-4,current.year+5).all(),
     db.prepare(`SELECT effective_from,qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan
       FROM bookkeeping_payer_obligation_periods WHERE payer_id=? ORDER BY effective_from`).bind(payerId).all(),
-    getIuranTariffs(db)
+    getIuranTariffs(db),
+    db.prepare(`SELECT MIN(a.period_year*12+a.period_month-1) AS first_month
+      FROM bookkeeping_payment_allocations a JOIN bookkeeping_payments p ON p.id=a.payment_id
+      WHERE a.status='aktif' AND p.status='aktif'
+      AND a.period_year BETWEEN ? AND ?
+      AND (a.period_year*12+a.period_month-1)<=?`)
+      .bind(current.year-2,current.year,f4PeriodIndex(current.year,current.month)).first()
   ]);
   const entries=versions.results||[];
   if(!entries.length)return safeError('Belum ada kewajiban pembayar.',404);
   const selection=f4SuggestIuranPeriod({current,versions:entries,
     allocations:(history.results||[]).map(x=>({...x,period_year:Number(x.period_year),period_month:Number(x.period_month)})),
-    tariff});
+    globalStartIndex:firstActivity?.first_month==null?null:Number(firstActivity.first_month),tariff});
   return json({ok:true,source:'cloudflare-d1',payerId,...selection});
 }
 __name(getIuranSuggestedPeriod,"getIuranSuggestedPeriod");
