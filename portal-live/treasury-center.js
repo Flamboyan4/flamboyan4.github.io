@@ -12,7 +12,7 @@ const append=(parent,...items)=>{parent.append(...items);return parent};
 const amount=(balances,fund,location)=>Number(balances.find(x=>x.fund_id===fund&&x.location_id===location)?.amount_rp||0);
 const kindLabels={opening:"Saldo awal",incoming:"Dana masuk",outgoing:"Dana keluar",move:"Pindah tempat",allocation:"Pindah pos"};
 let current=null;
-let fundPanelOpen=false;
+let activeView="saldo";
 function showTreasuryNotice(message){
  // Notifikasi hanya pada tindakan pengesahan, tidak tersimpan dan tidak ditampilkan ulang.
  document.querySelectorAll(".tc-flash").forEach(node=>node.remove());
@@ -354,8 +354,8 @@ function printTreasury(data){
 function buildForm(target,data,refresh){
  const funds=data.catalog.funds.filter(f=>f.active!==false);
  const shell=el("details",undefined,"tc-panel tc-mutation-panel tc-no-print");
- shell.append(el("summary","Pindah Dana"));
- shell.append(el("p","Tempat = QRIS / Mandiri / Tunai · Pos = pemilik dana","tc-muted"));
+ shell.open=true;
+ shell.append(el("summary","Transaksi Baru"));
  const form=el("form",undefined,"tc-form");
  const action=select([{id:"move",name:"Pindah tempat"},{id:"allocation",name:"Pindah pos"},{id:"incoming",name:"Uang masuk (manual)"},{id:"outgoing",name:"Uang keluar (manual)"}]);
  const fromFund=select(funds),toFund=select(funds);
@@ -545,10 +545,8 @@ function buildSources(target,data,refresh){
 }
 function buildDynamicFund(target,data,refresh){
  if(!data.confirmed)return;
- const shell=el("details",undefined,"tc-panel tc-custom-fund tc-no-print");
- shell.open=fundPanelOpen;
- shell.addEventListener("toggle",()=>{fundPanelOpen=shell.open});
- shell.append(el("summary","Pos Dana"));
+ const shell=el("section",undefined,"tc-panel tc-custom-fund tc-no-print");
+ shell.append(el("h3","Kelola Pos Dana"));
  const form=el("form",undefined,"tc-custom-fund-form");
  const name=el("input");name.maxLength=70;name.minLength=3;name.required=true;name.placeholder="Contoh: Donasi Gapura";
  const purpose=el("input");purpose.maxLength=200;purpose.placeholder="Catatan (opsional)";
@@ -648,64 +646,206 @@ function buildDynamicFund(target,data,refresh){
  }
  target.append(shell);
 }
+function pendingTreasuryCount(data){
+ const raw=data.sources||[];
+ const pending=new Map();
+ for(const x of data.bankSourceBalances||[]){
+  pending.set(x.fundId,(pending.get(x.fundId)||0)+Number(x.amountRp||0));
+ }
+ const eligible=new Map();
+ for(const x of data.bankPendingCounts||[]){
+  eligible.set(x.fundId,(eligible.get(x.fundId)||0)+Number(x.amountRp||0));
+ }
+ let count=raw.length;
+ for(const [fund,total] of pending){
+  const central=(data.balances||[]).filter(x=>x.fund_id===fund)
+   .reduce((n,x)=>n+Number(x.amount_rp||0),0);
+  const available=eligible.get(fund)||0;
+  if(available>0&&total>central&&available<=total-central)
+    count=count-raw.filter(x=>x.type==="bank"&&x.fund===fund).length+1;
+  else if(total!==central)count++;
+ }
+ return Math.max(0,count);
+}
 function render(data){
  current=data;
  main.replaceChildren();
  const panel=el("div",undefined,"tc-center");
  main.append(panel);
- panel.append(heading("Pusat Keuangan","Kas Lorong & program lain • QRIS/Mandiri bersama"));
- // Status pengesahan tidak menjadi banner permanen di halaman.
- // Sebelum disahkan, petunjuk sudah berada di formulir saldo awal.
- if(!data.confirmed){
-   const refresh=()=>fetchData().then(render);
-   buildOpeningGrid(panel,data,refresh);
-   if(data.openingCount){
-    const summary=openingSummary(data);
-    const history=el("div",undefined,"tc-opening-notice");
-    history.textContent="Saldo awal tersimpan: "+rp(summary.grand)+" • "+formatDate(summary.date)+". Perubahan sebelumnya disimpan di audit, bukan transaksi.";
-    panel.append(history);
-   }
-   return;
- }
- const cards=el("div",undefined,"tc-summary");
- const cash=data.balances.filter(x=>x.location_id.startsWith("cash:")).reduce((n,x)=>n+Number(x.amount_rp||0),0);
- const qris=data.balances.filter(x=>x.location_id==="qris").reduce((n,x)=>n+Number(x.amount_rp||0),0);
- const mandiri=data.balances.filter(x=>x.location_id==="mandiri").reduce((n,x)=>n+Number(x.amount_rp||0),0);
- append(cards,card("Total Tercatat",rp(data.totalRp),data.confirmed?"Sejak saldo awal":"Belum disahkan"),
-  card("Cash",rp(cash),"Terpisah per program"),card("QRIS",rp(qris),"Hanya yang belum cair"),
-  card("Mandiri",rp(mandiri),"Rekening bersama"));
- panel.append(cards);
- const ownership=el("section",undefined,"tc-panel");
- const ownershipHead=el("div",undefined,"tc-section-head");
- ownershipHead.append(el("h3","Saldo per Pos"));
- const manage=el("button","Kelola Pos","tc-secondary tc-no-print");
- manage.type="button";
- manage.onclick=()=>{
-  const section=main.querySelector(".tc-custom-fund");
-  if(!section)return;
-  section.open=true;fundPanelOpen=true;
-  section.scrollIntoView({behavior:"smooth",block:"start"});
- };
- ownershipHead.append(manage);ownership.append(ownershipHead);
- const rows=data.catalog.funds.map(f=>{
-  const ownCash=amount(data.balances,f.id,f.cash),ownQris=amount(data.balances,f.id,"qris"),ownBank=amount(data.balances,f.id,"mandiri");
-  const total=ownCash+ownQris+ownBank;
-  if(!total&&(f.active===false||f.kind!=="custom"&&!(data.sources||[]).some(x=>x.fund===f.id)))return null;
-  return [f.name,rp(ownCash),rp(ownQris),rp(ownBank),rp(total)];
- }).filter(Boolean);
- rows.push(["TOTAL",rp(cash),rp(qris),rp(mandiri),rp(data.totalRp)]);
- simpleTable(ownership,["Program","Cash","QRIS","Mandiri","Total"],rows,"tc-balance-table");
+ panel.append(heading("Pusat Keuangan","Saldo dan transaksi semua program"));
  const refresh=()=>fetchData().then(render);
- buildSources(panel,data,refresh);
- panel.append(ownership);
- buildForm(panel,data,refresh);
- buildDynamicFund(panel,data,refresh);
- const history=el("section",undefined,"tc-panel");
- const h=el("div",undefined,"tc-section-head");
- h.append(el("h3","Riwayat Transaksi"));
- const print=el("button","Cetak Laporan","tc-secondary tc-no-print");print.type="button";
- print.disabled=!data.riwayatLengkap;print.onclick=()=>printTreasury(data);
- h.append(print);history.append(h);
+ if(!data.confirmed){
+  buildOpeningGrid(panel,data,refresh);
+  if(data.openingCount){
+   const summary=openingSummary(data);
+   const notice=el("div","Saldo awal tersimpan: "+rp(summary.grand)+" • "+formatDate(summary.date),"tc-opening-notice");
+   panel.append(notice);
+  }
+  return;
+ }
+
+ const balances=data.balances||[];
+ const cash=balances.filter(x=>x.location_id.startsWith("cash:")).reduce((n,x)=>n+Number(x.amount_rp||0),0);
+ const qris=balances.filter(x=>x.location_id==="qris").reduce((n,x)=>n+Number(x.amount_rp||0),0);
+ const mandiri=balances.filter(x=>x.location_id==="mandiri").reduce((n,x)=>n+Number(x.amount_rp||0),0);
+ const catalog=data.catalog.funds||[];
+ const activeFunds=catalog.filter(f=>f.active!==false);
+ const metrics=el("div",undefined,"tc-overview");
+ metrics.append(
+  card("Total Dana",rp(data.totalRp),"Semua program"),
+  card("Pos Aktif",String(activeFunds.length),"Kas dan program")
+ );
+ panel.append(metrics);
+
+ const views=[
+  {id:"saldo",name:"Saldo",icon:"cash.svg"},
+  {id:"transaksi",name:"Transaksi",icon:"pay.svg"},
+  {id:"pos",name:"Pos Dana",icon:"inventory.svg"},
+  {id:"laporan",name:"Laporan",icon:"book.svg"}
+ ];
+ const nav=el("div",undefined,"tc-view-nav");
+ nav.setAttribute("role","tablist");
+ nav.setAttribute("aria-label","Menu Pusat Keuangan");
+ const viewPanels={},buttons={};
+ function switchView(id,focus){
+  if(!viewPanels[id])return;
+  activeView=id;
+  for(const view of views){
+   const selected=view.id===id;
+   viewPanels[view.id].hidden=!selected;
+   buttons[view.id].classList.toggle("is-active",selected);
+   buttons[view.id].setAttribute("aria-selected",String(selected));
+   buttons[view.id].tabIndex=selected?0:-1;
+  }
+  if(focus)buttons[id].focus();
+ }
+ for(const view of views){
+  const button=el("button",undefined,"tc-view-btn");
+  button.type="button";
+  button.id="tc-tab-"+view.id;
+  button.setAttribute("role","tab");
+  button.setAttribute("aria-controls","tc-view-"+view.id);
+  const img=el("img");img.src="/assets/icons/"+view.icon;img.alt="";img.setAttribute("aria-hidden","true");
+  button.append(img,el("span",view.name));
+  button.onclick=()=>switchView(view.id,false);
+  button.onkeydown=e=>{
+   const index=views.findIndex(x=>x.id===view.id);
+   const step=e.key==="ArrowRight"?1:e.key==="ArrowLeft"?-1:0;
+   if(step){e.preventDefault();switchView(views[(index+step+views.length)%views.length].id,true)}
+   if(e.key==="Home"){e.preventDefault();switchView(views[0].id,true)}
+   if(e.key==="End"){e.preventDefault();switchView(views[views.length-1].id,true)}
+  };
+  nav.append(button);buttons[view.id]=button;
+  const region=el("section",undefined,"tc-view");
+  region.id="tc-view-"+view.id;
+  region.setAttribute("role","tabpanel");
+  region.setAttribute("aria-labelledby",button.id);
+  region.hidden=true;
+  viewPanels[view.id]=region;
+ }
+ panel.append(nav);
+ for(const view of views)panel.append(viewPanels[view.id]);
+
+ // Saldo: daftar ringkas, rincian hanya saat satu pos dibuka.
+ const saldo=viewPanels.saldo;
+ const locations=el("div",undefined,"tc-location-strip");
+ for(const [name,value] of [["Cash",cash],["QRIS",qris],["Mandiri",mandiri]]){
+  const item=el("div",undefined,"tc-location");
+  item.append(el("span",name),el("strong",rp(value)));locations.append(item);
+ }
+ saldo.append(locations);
+ const ownership=el("section",undefined,"tc-panel tc-ownership");
+ const ownHead=el("div",undefined,"tc-section-head");
+ ownHead.append(el("h3","Saldo per Pos"));
+ const manage=el("button","Kelola Pos","tc-secondary");
+ manage.type="button";
+ manage.onclick=()=>switchView("pos",true);
+ ownHead.append(manage);ownership.append(ownHead);
+ const fundList=el("div",undefined,"tc-fund-balances");
+ const rows=catalog.map(f=>{
+  const ownCash=amount(balances,f.id,f.cash),ownQris=amount(balances,f.id,"qris");
+  const ownBank=amount(balances,f.id,"mandiri");
+  return {f,cash:ownCash,qris:ownQris,mandiri:ownBank,total:ownCash+ownQris+ownBank};
+ }).filter(x=>x.total!==0||(x.f.kind==="custom"&&x.f.active!==false));
+ for(const x of rows){
+  const item=el("details",undefined,"tc-fund-balance");
+  const summary=el("summary",undefined,"tc-fund-balance-summary");
+  const label=el("span",undefined,"tc-balance-name");
+  label.append(el("strong",x.f.name));
+  if(x.f.active===false)label.append(el("small","Arsip"));
+  const right=el("span",undefined,"tc-balance-total");
+  right.append(el("strong",rp(x.total)));
+  const caret=el("span","›","tc-balance-caret");caret.setAttribute("aria-hidden","true");
+  right.append(caret);
+  summary.append(label,right);item.append(summary);
+  const split=el("div",undefined,"tc-balance-breakdown");
+  for(const [name,value] of [["Cash",x.cash],["QRIS",x.qris],["Mandiri",x.mandiri]]){
+   const sub=el("div");sub.append(el("span",name),el("strong",rp(value)));split.append(sub);
+  }
+  item.append(split);fundList.append(item);
+ }
+ if(!rows.length)fundList.append(el("p","Belum ada saldo pada pos dana.","tc-muted"));
+ ownership.append(fundList);saldo.append(ownership);
+
+ // Transaksi: satu tempat untuk pencatatan dan pemeriksaan dana.
+ const transaksi=viewPanels.transaksi;
+ const count=pendingTreasuryCount(data);
+ const caution=(data.sourceWarnings||[]).length+(data.bankCoverageWarnings||[]).length;
+ const hasReview=count>0||caution>0;
+ if(hasReview){
+  const alert=el("button",undefined,"tc-review-alert");
+  alert.type="button";
+  const text=el("span",undefined);
+  text.append(el("strong",count>0?"Periksa Dana ("+count+")":"Periksa Dana"),
+   el("small",caution?"Ada data yang perlu diperiksa":"Ada dana yang belum dicatat"));
+  alert.append(text,el("span","Lihat ›"));
+  alert.onclick=()=>{
+   const target=transaksi.querySelector(".tc-review");
+   if(!target)return;
+   const wrapper=target.closest(".tc-review-fold");
+   if(wrapper)wrapper.open=true;
+   target.scrollIntoView({behavior:"smooth",block:"start"});
+  };
+  transaksi.append(alert);
+ }
+ buildForm(transaksi,data,refresh);
+ if(hasReview||(data.excludedSources||[]).length){
+  const fold=el("details",undefined,"tc-review-fold");
+  fold.open=hasReview;
+  fold.append(el("summary",hasReview?"Periksa Dana":"Riwayat Pemeriksaan"));
+  buildSources(fold,data,refresh);
+  transaksi.append(fold);
+ }
+ const entries=tidyHistory(data);
+ const recent=el("section",undefined,"tc-panel tc-recent");
+ const recentHeader=el("div",undefined,"tc-section-head");
+ recentHeader.append(el("h3","Transaksi Terakhir"));
+ const seeAll=el("button","Lihat Semua","tc-secondary");
+ seeAll.type="button";seeAll.onclick=()=>switchView("laporan",true);
+ recentHeader.append(seeAll);recent.append(recentHeader);
+ if(entries.length){
+  for(const x of entries.slice(0,5)){
+   const line=el("div",undefined,"tc-recent-row");
+   const info=el("div");info.append(el("strong",x.kindName),el("small",formatDate(x.date)+" · "+x.note));
+   line.append(info,el("b",rp(x.amount)));recent.append(line);
+  }
+ }else recent.append(el("p","Belum ada transaksi setelah saldo awal.","tc-muted"));
+ transaksi.append(recent);
+
+ // Pengelolaan pos: tindakan hanya untuk pos tambahan; pos bawaan terlindungi.
+ buildDynamicFund(viewPanels.pos,data,refresh);
+
+ // Laporan: saldo pembuka, seluruh riwayat, dan cetak.
+ const laporan=viewPanels.laporan;
+ const reportHead=el("div",undefined,"tc-panel tc-report-head");
+ const reportCaption=el("div",undefined,"tc-report-caption");
+ reportCaption.append(el("h3","Laporan Keuangan"),el("span","Saldo dan seluruh riwayat"));
+ const print=el("button","Cetak Laporan","tc-primary");
+ print.type="button";print.disabled=!data.riwayatLengkap;
+ print.onclick=()=>printTreasury(data);
+ reportHead.append(reportCaption,print);laporan.append(reportHead);
+ const history=el("section",undefined,"tc-panel tc-history-panel");
+ history.append(el("h3","Riwayat Transaksi"));
  const opening=openingSummary(data);
  const opened=el("details",undefined,"tc-opening-recap");
  opened.append(el("summary","Saldo awal • "+formatDate(opening.date)+" • "+rp(opening.grand)));
@@ -714,13 +854,12 @@ function render(data){
   rp(opening.rows.reduce((n,x)=>n+x.mandiri,0)),rp(opening.grand)]);
  simpleTable(opened,["Program","Cash","QRIS","Mandiri","Total"],openingRows,"tc-balance-table");
  history.append(opened);
- const entries=tidyHistory(data);
  const historyRows=entries.map(x=>[formatDate(x.date),x.kindName,x.from,x.to,rp(x.amount),x.note]);
  if(historyRows.length)simpleTable(history,["Tanggal","Jenis","Dari","Ke","Nominal","Keterangan"],historyRows,"tc-history-table");
  else history.append(el("p","Belum ada transaksi setelah saldo awal.","tc-muted"));
  if(!data.riwayatLengkap)history.append(el("p","Riwayat panjang; cetak dinonaktifkan agar tidak terpotong.","tc-status"));
- panel.append(history);
- 
+ laporan.append(history);
+ switchView(views.some(x=>x.id===activeView)?activeView:"saldo",false);
 }
 async function open(){
  main.replaceChildren(heading("Pusat Keuangan","Memuat saldo…"));
