@@ -1188,12 +1188,16 @@ function treasuryReceiptObservation(db,kind,id,fund,amount,note){
 }
 __name(treasuryReceiptObservation,"treasuryReceiptObservation");
 // Source references are classified independently; reading them NEVER changes balances.
-function treasurySuggestedLocation(method,fund){
+function treasurySuggestedLocation(method){
  const text=String(method||"").toLowerCase().trim();
- if(/(?:qris|(?:^|\W)qr(?:\W|$))/.test(text))return "qris";
- if(/mandiri|transfer|rekening/.test(text))return "mandiri";
- if(/cash|tunai|kontan/.test(text))return fund?.cash||"";
- return "";
+ const found=[
+  /(?:qris|(?:^|\W)qr(?:\W|$))/.test(text)?"qris":"",
+  /mandiri|transfer|rekening/.test(text)?"mandiri":"",
+  /cash|tunai|kontan/.test(text)?"cash":""
+ ].filter(Boolean);
+ // Pembayaran campuran tidak boleh ditebak menjadi satu lokasi.
+ if(found.length!==1)return "";
+ return found[0]==="cash"?"cash":found[0];
 }
 __name(treasurySuggestedLocation,"treasurySuggestedLocation");
 // Semua transaksi yang memenuhi syarat muncul otomatis untuk diperiksa.
@@ -1270,7 +1274,7 @@ async function treasurySources(db,confirmedOn){
   ...contributions.slice(0,100).map(x=>({type:"contribution",id:x.id,date:x.contributed_on,
     fund:"project:"+x.project_id,note:"Donasi — "+x.contributor+(x.notes?" · "+x.notes:""),
     category:"Donasi",amountRp:Number(x.amount_rp||0),
-    suggestedLocation:treasurySuggestedLocation(x.payment_method),
+    suggestedLocation:treasurySuggestedLocation(x.payment_method)==="cash"?"cash:project:"+x.project_id:treasurySuggestedLocation(x.payment_method),
     sourceLabel:"Penggalangan Dana"})),
   ...observed.slice(0,100).map(x=>({type:"receipt",id:x.id,date:x.observed_on,
     fund:x.fund_id,note:x.note,category:x.source_kind==="jersey"?"Jersey":"Pesanan",
