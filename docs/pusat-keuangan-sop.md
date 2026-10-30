@@ -49,3 +49,11 @@
 - Pilih **Simpan Saldo Awal** untuk menyimpan semua nilai sekaligus. Sebelum disahkan, revisi nominal yang keliru dapat disimpan sebagai selisih jurnal sehingga audit tetap utuh; tanggal pembuka tidak bisa diubah sesudah isian pertama tersimpan.
 - Setelah memeriksa total dan posisi, pilih **Sahkan Saldo**. Angka pembuka akan terkunci; transaksi berikutnya masuk di **Mutasi Dana**.
 - Jika telah ada data saldo awal atau perbedaan tanggal dari versi lama, verifikasi riwayat dan jangan sahkan angka yang belum cocok.
+
+## Tampilan setelah saldo awal disahkan — 30 Oktober 2026
+- Riwayat transaksi menampilkan **satu baris per kegiatan**. Perpindahan QRIS ke Cash adalah satu kejadian (tempat asal dan tujuan), bukan dua pemasukan/pengeluaran.
+- Semua penyesuaian saldo pembuka sebelum pengesahan **tetap tersimpan di jurnal dan audit** tetapi tidak muncul sebagai pengeluaran/penerimaan biasa. Pengurus dapat melihat ringkasan **Saldo awal** final berdasarkan penjumlahan seluruh jurnal opening.
+- Form **Catat Mutasi Dana** dalam panel ringkas yang bisa dibuka ketika diperlukan. Panel Cocokkan Transaksi Portal disembunyikan jika tidak ada transaksi menunggu dan tidak ada peringatan.
+- **Cetak Laporan** membuat dokumen tersendiri sesuai gaya Pembukuan: kop logo, alamat, 3 ringkasan, rincian program, rincian transaksi, garis tabel hitam, dan pengesahan. Tidak mencetak navigasi Superadmin atau semua kartu di layar.
+- File `portal-live/treasury-center.css` menjadi satu sumber style antarmuka Pusat Keuangan, tanpa tumpukan aturan cetak maupun override `!important`; cetak mengandung style terisolasi di dokumen iframe.
+- Laporan mencakup seluruh riwayat yang dimuat (maksimum 800 baris jurnal). Cetak diblokir jika data riwayat belum lengkap agar laporan tidak terpotong tanpa diketahui.
