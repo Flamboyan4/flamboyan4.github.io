@@ -666,6 +666,3 @@ body.f4-bank-embedded #dashboardView .section,
  #dashboardView .f4-bank-screen{max-width:700px}
  #dashboardView .f4-bank-member-card{max-width:430px}
 }
-@media print{
- .f4-bank-app-dock,.f4-bank-app-home,.f4-bank-screen,.f4-bank-savings-hero,.f4-bank-savings-chart{display:none}
-}
