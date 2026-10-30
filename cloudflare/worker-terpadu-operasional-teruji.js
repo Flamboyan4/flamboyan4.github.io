@@ -1081,8 +1081,12 @@ async function handleAdminContent(request, env, who, url) {
     }
     const changed = { ...exists, ...clean };
     if (model.required.some((k) => !changed[k])) return err("Kolom wajib belum diisi.", 400);
+    const jerseyIncrease=kind==="jersey"?treasuryJerseyPaid(changed)-treasuryJerseyPaid(exists):0;
+    const jerseyObserved=jerseyIncrease>0?treasuryReceiptObservation(db,"jersey",id,"jersey",jerseyIncrease,
+      "Penerimaan Jersey — "+String(changed.resident||"").slice(0,90)):null;
     await db.batch([
       db.prepare("UPDATE " + model.table + " SET " + updates.map((k) => k + "=?").join(",") + " WHERE id=?").bind(...updates.map((k) => clean[k]), id),
+      ...(jerseyObserved?[jerseyObserved]:[]),
       db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)").bind("audit:" + crypto.randomUUID(), who.id, "portal_content", "edit", model.table, id, JSON.stringify(exists), JSON.stringify(changed))
     ]);
     return ok({ id, updated: true });
@@ -1093,8 +1097,12 @@ async function handleAdminContent(request, env, who, url) {
     model.fields[k]==="bool"?1:["order","fundTarget"].includes(model.fields[k])?0:null;
   if (model.required.some((k) => !clean[k])) return err("Kolom wajib belum diisi.", 400);
   const newId = kind + ":web:" + crypto.randomUUID(), cols = ["id", ...fields];
+  const jerseyPaid=kind==="jersey"?treasuryJerseyPaid(clean):0;
+  const jerseyObserved=jerseyPaid>0?treasuryReceiptObservation(db,"jersey",newId,"jersey",jerseyPaid,
+    "Penerimaan Jersey — "+String(clean.resident||"").slice(0,90)):null;
   await db.batch([
     db.prepare("INSERT INTO " + model.table + "(" + cols.join(",") + ") VALUES(" + cols.map(() => "?").join(",") + ")").bind(newId, ...fields.map((k) => clean[k])),
+    ...(jerseyObserved?[jerseyObserved]:[]),
     db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)").bind("audit:" + crypto.randomUUID(), who.id, "portal_content", "create", model.table, newId, null, JSON.stringify(clean))
   ]);
   return ok({ id: newId, created: true }, 201);
@@ -1109,7 +1117,10 @@ async function treasuryCatalog(db){
     {id:"bank_lingkungan",name:"Bank Sampah — Lingkungan",cash:"cash:bank_sampah"},
     {id:"jersey",name:"Jersey",cash:"cash:jersey"}
   ];
-  const projects=await list(db,"SELECT id,title,linked_key FROM portal_project_cards WHERE active=1 AND project_kind IN ('pesanan','penggalangan') ORDER BY sort_order,id LIMIT 100");
+  const [projects,customFunds]=await Promise.all([
+    list(db,"SELECT id,title,linked_key,active FROM portal_project_cards WHERE project_kind IN ('pesanan','penggalangan') ORDER BY sort_order,id LIMIT 150"),
+    list(db,"SELECT id,name,cash_location,purpose,active FROM treasury_funds ORDER BY name LIMIT 150")
+  ]);
   for(const p of projects){
     // Avoid a second Jersey fund for a project card that links to the Jersey module.
     const linked=String(p.linked_key||"").trim().toLowerCase()==="jersey"||
@@ -1118,7 +1129,18 @@ async function treasuryCatalog(db){
       const historical=await one(db,"SELECT id FROM treasury_entries WHERE fund_id=? LIMIT 1",["project:"+p.id]);
       if(!historical)continue;
     }
-    funds.push({id:"project:"+p.id,name:"Projek — "+p.title,cash:"cash:project:"+p.id});
+    if(!Number(p.active)){
+      const historical=await one(db,"SELECT id FROM treasury_entries WHERE fund_id=? LIMIT 1",["project:"+p.id]);
+      if(!historical)continue;
+    }
+    funds.push({id:"project:"+p.id,name:"Projek — "+p.title,cash:"cash:project:"+p.id,kind:"project"});
+  }
+  for(const f of customFunds){
+    if(!Number(f.active)){
+      const historical=await one(db,"SELECT id FROM treasury_entries WHERE fund_id=? LIMIT 1",[f.id]);
+      if(!historical)continue;
+    }
+    funds.push({id:f.id,name:f.name,cash:f.cash_location,kind:"custom",purpose:f.purpose});
   }
   const locations=[
     {id:"qris",name:"QRIS Bersama",type:"qris"},
@@ -1139,6 +1161,31 @@ function treasuryBookCashEligible(row){
  return true;
 }
 __name(treasuryBookCashEligible,"treasuryBookCashEligible");
+// Documented payment observations are proposals, NOT automatically booked cash.
+function treasuryJerseyPaid(row){
+  if(!row)return 0;
+  const tags=[...String(row.method||"").matchAll(/\[F4BAYAR:(\d{1,12})\]/g)];
+  if(tags.length)return Number(tags[tags.length-1][1]);
+  const price=Math.max(0,Number(row.nominal_rp)||0);
+  const st=String(row.payment_status||"").toLowerCase();
+  if(st.includes("lunas")&&!/\b(belum|blm|tidak|non)\s*lunas\b/.test(st))return price;
+  if(!/dp|cicil/.test(st))return 0;
+  const m=st.match(/(?:rp\s*)?(\d[\d.,]*)/i);
+  if(!m)return 0;
+  let n=Number(m[1].replace(/[.,]/g,""));
+  if(n>0&&n<1000)n*=1000;
+  return Number.isSafeInteger(n)?n:0;
+}
+__name(treasuryJerseyPaid,"treasuryJerseyPaid");
+function treasuryReceiptObservation(db,kind,id,fund,amount,note){
+  if(!Number.isSafeInteger(amount)||amount<=0)return null;
+  return db.prepare(`INSERT INTO treasury_receipt_observations
+    (id,source_kind,source_id,fund_id,amount_rp,observed_on,note)
+    SELECT ?,?,?,?,?,date('now','+7 hours'),?
+    WHERE EXISTS(SELECT 1 FROM treasury_config WHERE id=1 AND confirmed_at IS NOT NULL)`)
+    .bind("observation:"+crypto.randomUUID(),kind,id,fund,amount,String(note||"Penerimaan baru").slice(0,240));
+}
+__name(treasuryReceiptObservation,"treasuryReceiptObservation");
 // Source references are classified independently; reading them NEVER changes balances.
 async function treasurySources(db,confirmedOn){
  if(!confirmedOn)return {pending:[],partial:false,warnings:[]};
@@ -1501,18 +1548,26 @@ async function handleProjectModule(request,env,who,url){
   }catch(e){return err(e.message||"Isian tidak valid.",400)}
   if(old){
     const next={...old,...clean};
+    const increase=mode==="orders"?Number(clean.paid_rp)-Number(old.paid_rp||0):0;
+    const observed=increase>0?treasuryReceiptObservation(db,"project_order",id,"project:"+projectId,increase,
+      "Pembayaran barang — "+String(clean.resident||"").slice(0,95)):null;
     await db.batch([
       db.prepare("UPDATE "+table+" SET "+cols.map(k=>k+"=?").join(",")+",updated_at=CURRENT_TIMESTAMP WHERE id=? AND project_id=?")
         .bind(...cols.map(k=>clean[k]),id,projectId),
+      ...(observed?[observed]:[]),
       db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)")
         .bind("audit:"+crypto.randomUUID(),who.id,"project_module","edit",table,id,JSON.stringify(old),JSON.stringify(next))
     ]);
     return ok({id,updated:true});
   }
   const newId=(mode==="orders"?"project-order:":"project-contribution:")+crypto.randomUUID();
+  const observed=mode==="orders"&&Number(clean.paid_rp)>0?
+    treasuryReceiptObservation(db,"project_order",newId,"project:"+projectId,Number(clean.paid_rp),
+      "Pembayaran barang — "+String(clean.resident||"").slice(0,95)):null;
   await db.batch([
     db.prepare("INSERT INTO "+table+"(id,project_id,"+cols.join(",")+") VALUES("+Array(cols.length+2).fill("?").join(",")+")")
       .bind(newId,projectId,...cols.map(k=>clean[k])),
+    ...(observed?[observed]:[]),
     db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)")
       .bind("audit:"+crypto.randomUUID(),who.id,"project_module","create",table,newId,null,JSON.stringify({project_id:projectId,...clean}))
   ]);
