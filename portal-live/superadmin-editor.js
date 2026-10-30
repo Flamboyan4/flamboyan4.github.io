@@ -252,79 +252,104 @@ const obligationActive=r=>OBLIGATION_KEYS.some(k=>Number(r?.[k]||0)>0);
 
 async function removeObligation(record){
  if(active!=='obligations'||!record?.payer_id||!obligationActive(record))return;
- const approved=await f4ContentDialog('Hapus dari Kewajiban?',
-   'Seluruh kewajiban '+String(record.nama||'')+' ('+String(record.rumah||'')+') akan dibuat 0. Transaksi lama tetap tersimpan, tetapi perhitungan tunggakan periode lama juga dapat berubah karena sistem menggunakan tarif dan kewajiban yang berlaku saat ini. Jika hanya ingin mengubah jumlah, pilih Edit. Untuk memulihkan, pilih Lihat Tanpa Kewajiban lalu Edit.',
-   'Ya, Hapus Kewajiban',true,true);
- if(!approved)return;
+ const month=f4ObligationNextMonth();
+ const agreed=await f4ContentDialog('Hentikan Kewajiban?',
+  'Kewajiban '+String(record.nama||'')+' ('+String(record.rumah||'')+') dihentikan mulai '+month+'. Periode dan pembayaran sebelumnya tidak berubah.',
+  'Ya, Jadwalkan',true,true);
+ if(!agreed)return;
  try{
    await send(base+'obligations',{method:'POST',headers:{'Content-Type':'application/json'},
-     body:JSON.stringify({action:'save',payer_id:record.payer_id,
+     body:JSON.stringify({action:'save',payer_id:record.payer_id,effective_from:month,
        qty_iuran_bulanan:0,qty_kebersihan:0,qty_kas_lorong:0,qty_arisan:0})});
-   const refreshed=await fetchData('obligations');
-   const saved=refreshed.find(x=>String(x.payer_id)===String(record.payer_id));
-   if(!saved||obligationActive(saved))throw Error('API merespons, tetapi kewajiban belum terverifikasi. Periksa data sebelum mengulang.');
+   const refreshed=await fetchData('obligations'),saved=refreshed.find(x=>String(x.payer_id)===String(record.payer_id));
+   const future=f4ScheduledVersion(saved,month);
+   if(!future||OBLIGATION_KEYS.some(key=>Number(future[key])!==0))
+     throw Error('Jadwal penghentian belum terbaca dari D1; jangan ulangi sebelum memeriksa.');
    records=refreshed;viewList();
    const info=main.querySelector('.f4-admin-note');
-   if(info)info.textContent='Kewajiban '+String(record.nama||'')+' sudah dinolkan. Data warga dan transaksi lama tetap aman.';
- }catch(error){await f4ContentDialog('Belum dapat menghapus kewajiban',error.message,'Tutup',false,false)}
+   if(info)info.textContent='Kewajiban '+String(record.nama||'')+' dijadwalkan berhenti mulai '+month+'. Periode lalu tetap utuh.';
+ }catch(error){await f4ContentDialog('Belum dapat mengubah kewajiban',error.message,'Tutup',false,false)}
 }
 
+function f4ObligationNextMonth(){
+ const now=new Date(Date.now()+7*3600*1000);
+ now.setUTCMonth(now.getUTCMonth()+1);
+ return now.toISOString().slice(0,7);
+}
+function f4ObligationCurrentMonth(){return new Date(Date.now()+7*3600*1000).toISOString().slice(0,7)}
+function f4ScheduledVersion(row,month){
+ return (Array.isArray(row?.scheduled_versions)?row.scheduled_versions:[])
+   .find(x=>String(x.effective_from)===month+'-01');
+}
+function f4ObligationControl(key,title,{type='number',value='0',required=true}={}){
+ const wrap=node('label',undefined,'f4-obligation-field');
+ wrap.append(node('span',title));
+ const field=node(type==='select'?'select':'input');
+ field.name=key;field.required=required;
+ if(type!=='select'){
+   field.type=type;field.value=value;
+   if(type==='number'){field.min='0';field.max='100';field.step='1';field.inputMode='numeric';}
+   if(type==='text'){field.maxLength=160;field.placeholder='Nama warga / TPQ';}
+ }
+ wrap.append(field);return {wrap,field};
+}
 async function showAddObligationPayer(){
  if(active!=='obligations'||!inContext())return;
  editing=true;
- header('Tambah Pembayar Iuran','Gunakan rumah yang sudah terdaftar. TPQ boleh dicatat sebagai pembayar tanpa membuat akun login atau anggota Bank Sampah.');
- const form=node('form',undefined,'f4-admin-editor');form.noValidate=true;main.append(form);
- const addField=(name,label,type='number')=>{
-   const wrap=node('label'),caption=node('span',label),field=node('input');
-   field.name=name;field.type=type;field.required=true;
-   if(type==='number'){field.min='0';field.max='100';field.step='1';field.value='0'}
-   if(type==='text'){field.maxLength=160;field.placeholder='Contoh: TPQ'}
-   wrap.append(caption,field);form.append(wrap);return field;
- };
- const houseWrap=node('label'),houseCaption=node('span','Rumah / lokasi'),house=node('select');
- house.name='household_id';house.required=true;
- house.append(new Option('Memuat rumah…',''));houseWrap.append(houseCaption,house);form.append(houseWrap);
- const name=addField('nama','Nama pembayar (warga atau TPQ)','text');
- const labels=[['qty_iuran_bulanan','Iuran bulanan (x)'],
-  ['qty_kebersihan','Kebersihan (x)'],['qty_kas_lorong','Kas Lorong (x)'],['qty_arisan','Arisan (x)']];
- const numbers=labels.map(([k,label])=>addField(k,label));
- const notice=node('p','','f4-admin-message');form.append(notice);
- const actions=node('div',undefined,'f4-warga-form-actions'),
-   submit=btn('Simpan Pembayar',()=>{if(form.reportValidity())form.requestSubmit()},'f4-admin-primary');
+ header('Tambah Pembayar','Catat pembayar dan kewajiban mulai bulan yang dipilih.');
+ const form=node('form',undefined,'f4-admin-editor f4-obligation-form');form.noValidate=true;main.append(form);
+ const identity=node('div',undefined,'f4-obligation-identity');
+ const {wrap:houseWrap,field:house}=f4ObligationControl('household_id','Rumah',{type:'select'});
+ house.append(new Option('Memuat rumah…',''));
+ const {wrap:nameWrap,field:name}=f4ObligationControl('nama','Nama pembayar',{type:'text',value:''});
+ identity.append(houseWrap,nameWrap);form.append(identity);
+ const amountHead=node('div',undefined,'f4-obligation-section-title');
+ amountHead.append(node('strong','Kewajiban / bulan'),node('span','Isi 0 jika tidak ikut'));
+ form.append(amountHead);
+ const quantityGrid=node('div',undefined,'f4-obligation-amounts');
+ const labels=[['qty_iuran_bulanan','Bulanan'],['qty_kebersihan','Kebersihan'],['qty_kas_lorong','Kas Lorong'],['qty_arisan','Arisan']];
+ const amounts=labels.map(([key,label])=>{const control=f4ObligationControl(key,label);quantityGrid.append(control.wrap);return control.field;});
+ form.append(quantityGrid);
+ const period=node('div',undefined,'f4-obligation-period');
+ const {wrap:periodWrap,field:effective}=f4ObligationControl('effective_from','Berlaku mulai',{type:'month',value:f4ObligationCurrentMonth()});
+ effective.min=f4ObligationCurrentMonth();effective.max='2100-12';
+ period.append(periodWrap,node('span','Periode sebelumnya tetap menggunakan catatan lama.'));
+ form.append(period);
+ const notice=node('p','','f4-admin-message');notice.setAttribute('role','status');form.append(notice);
+ const actions=node('div',undefined,'f4-warga-form-actions f4-obligation-actions');
+ const submit=btn('Simpan Pembayar',()=>{if(form.reportValidity())form.requestSubmit()},'f4-admin-primary');
  actions.append(btn('Batal',viewList),submit);form.append(actions);
  try{
    const data=await send('https://api.flamboyan4.web.id/api/v2/admin/residents');
    const unique=new Map();
-   for(const r of data.rows||[]){
-     if(r.household_id&&!unique.has(String(r.household_id)))
-       unique.set(String(r.household_id),String(r.rumah||'Rumah tanpa nomor'));
-   }
-   const entries=[...unique].sort((a,b)=>a[1].localeCompare(b[1],'id',{numeric:true}));
+   for(const row of data.rows||[])if(row.household_id&&!unique.has(String(row.household_id)))
+     unique.set(String(row.household_id),String(row.rumah||'Rumah tanpa nomor'));
    house.replaceChildren(new Option('Pilih rumah…',''));
-   for(const [id,label] of entries)house.append(new Option(label,id));
-   if(!entries.length)notice.textContent='Belum ada rumah. Tambahkan rumah terlebih dahulu di Data Warga & Rumah.';
- }catch(e){notice.textContent='Gagal mengambil daftar rumah: '+e.message;submit.disabled=true}
+   for(const [id,label] of [...unique].sort((a,b)=>a[1].localeCompare(b[1],'id',{numeric:true})))
+     house.append(new Option(label,id));
+   if(!unique.size){notice.textContent='Belum ada rumah. Tambah rumah dahulu di Data Warga & Rumah.';submit.disabled=true;}
+ }catch(error){notice.textContent='Gagal memuat rumah: '+error.message;submit.disabled=true;}
  form.addEventListener('submit',async event=>{
    event.preventDefault();if(submit.disabled)return;
-   const nama=name.value.trim(),household_id=house.value;
-   const vals=Object.fromEntries(labels.map(([k],i)=>[k,Number(numbers[i].value)]));
-   if(!household_id||!nama||nama.length>160||Object.values(vals).some(v=>!Number.isInteger(v)||v<0||v>100)||!Object.values(vals).some(v=>v>0)){
-     notice.textContent='Pilih rumah, isi nama, dan minimal satu kewajiban lebih dari 0.';return;
+   const nama=name.value.trim(),household_id=house.value,month=effective.value;
+   const qty=Object.fromEntries(labels.map(([key],i)=>[key,Number(amounts[i].value)]));
+   if(!household_id||!nama||!/^(20\d{2})-(0[1-9]|1[0-2])$/.test(month)||month<f4ObligationCurrentMonth()||
+      Object.values(qty).some(n=>!Number.isInteger(n)||n<0||n>100)||!Object.values(qty).some(n=>n>0)){
+     notice.textContent='Pilih rumah, nama, bulan berlaku, dan minimal satu iuran lebih dari 0.';return;
    }
-   submit.disabled=true;notice.textContent='Menyimpan pembayar ke D1…';
+   submit.disabled=true;notice.textContent='Menyimpan…';
    try{
-     const created=await send(base+'obligations',{method:'POST',
-       headers:{'Content-Type':'application/json'},
-       body:JSON.stringify({action:'add_payer',household_id,nama,...vals})});
-     const refreshed=await fetchData('obligations');
-     const actual=refreshed.find(x=>String(x.payer_id)===String(created.id));
-     if(!actual||String(actual.nama)!==nama||labels.some(([k])=>Number(actual[k])!==vals[k])){
-       notice.textContent='Pembayar mungkin sudah dibuat tetapi daftar belum sinkron. Jangan simpan ulang; muat ulang dan periksa.';return;
+     const created=await send(base+'obligations',{method:'POST',headers:{'Content-Type':'application/json'},
+       body:JSON.stringify({action:'add_payer',household_id,nama,effective_from:month,...qty})});
+     const refreshed=await fetchData('obligations'),saved=refreshed.find(x=>String(x.payer_id)===String(created.id));
+     const snapshot=String(saved?.effective_from)===month+'-01'?saved:f4ScheduledVersion(saved,month);
+     if(!snapshot||String(saved.nama)!==nama||labels.some(([key])=>Number(snapshot[key])!==qty[key])){
+       notice.textContent='Data mungkin sudah tersimpan tetapi belum terbaca kembali. Jangan simpan dua kali. Periksa daftar dahulu.';return;
      }
      records=refreshed;filter=nama;showZeroObligations=false;viewList();
      const info=main.querySelector('.f4-admin-note');
-     if(info)info.textContent=nama+' berhasil ditambahkan dan diverifikasi dari D1. Tidak ada akun login/Bank Sampah baru.';
-   }catch(error){notice.textContent='Gagal menyimpan pembayar: '+error.message}
+     if(info)info.textContent=nama+' tersimpan • berlaku '+month+' • transaksi lama tetap utuh.';
+   }catch(error){notice.textContent='Belum tersimpan: '+error.message}
    finally{submit.disabled=false}
  });
 }
