@@ -531,7 +531,8 @@ body.f4-bank-embedded #dashboardView .section,
 .f4-bank-member-card-head span:nth-child(2){display:grid;gap:1px}
 .f4-bank-member-card-head b{font-size:14px;font-weight:850;letter-spacing:.025em;line-height:1.1}
 .f4-bank-member-card-head small{font-size:9px;letter-spacing:.14em;color:#daf1e3}
-.f4-bank-member-card-leaf{font-size:35px;line-height:1;color:#85d55a;transform:rotate(-28deg)}
+.f4-bank-member-card-leaf{display:grid;place-items:center;width:39px;height:39px;flex:none;border-radius:50%;background:#ffffff14}
+.f4-bank-member-card-leaf img{width:34px;height:34px;object-fit:contain}
 .f4-bank-member-card-chip{margin-left:auto;width:35px;height:25px;border:1px solid #ffeab3;border-radius:6px;background:linear-gradient(135deg,#efbc46,#fbe09a 45%,#d7a338 46%,#edc56c);box-shadow:inset 0 0 0 1px #ffffff70;opacity:.95}
 .f4-bank-member-card-foot{display:flex;justify-content:space-between;align-items:end;gap:10px}
 .f4-bank-member-card-foot>span:first-child{display:grid;gap:3px;min-width:0}
@@ -557,6 +558,10 @@ body.f4-bank-embedded #dashboardView .section,
 .f4-bank-savings-hero strong{font-size:clamp(23px,4vw,31px);font-weight:850;line-height:1.2;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .f4-bank-savings-hero span:nth-of-type(2){font-size:12px;font-weight:700;color:#fff}
 .f4-bank-savings-hero-note{font-size:11px;color:#d7f0de}
+.f4-bank-member-payout{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 10px;align-items:center;margin:12px 0;padding:12px 13px;background:#fff8e9;border:1px solid #f7e4bd;border-radius:13px;scroll-margin-top:95px}
+.f4-bank-member-payout strong{font-size:13px;color:#76540c}
+.f4-bank-member-payout span{grid-column:1;font-size:11px;line-height:1.4;color:#8e713a}
+#dashboardView #pagePribadi .f4-bank-member-payout button{grid-column:2;grid-row:1 / span 2;align-self:center;padding:9px 11px;border:1px solid #e8bf57;border-radius:9px;background:#fbbf24;color:#fff;font-size:11px;font-weight:800}
 .f4-bank-savings-chart{display:grid;gap:14px;margin:15px 0 7px;padding:15px 13px;background:#fff;border:1px solid #e0ebe4;border-radius:14px}
 .f4-bank-mobile-section-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .f4-bank-mobile-section-head h3{margin:0;font-size:14px;line-height:1.25;color:#174632}
