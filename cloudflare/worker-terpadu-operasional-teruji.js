@@ -1114,7 +1114,8 @@ async function treasuryCatalog(db){
   const funds=[
     {id:"kas_rt",name:"Kas Lorong",cash:"cash:kas_rt"},
     {id:"bank_warga",name:"Bank Sampah — Hak Warga",cash:"cash:bank_sampah"},
-    {id:"bank_lingkungan",name:"Bank Sampah — Lingkungan",cash:"cash:bank_sampah"},
+    {id:"bank_lingkungan",name:"Bank Sampah — Kas Pengelola",cash:"cash:bank_sampah"},
+    {id:"bank_kas_lorong",name:"Bank Sampah — Bagian Kas Lorong",cash:"cash:bank_sampah"},
     {id:"bank_cadangan",name:"Bank Sampah — Cadangan",cash:"cash:bank_sampah"},
     {id:"jersey",name:"Jersey",cash:"cash:jersey"}
   ];
@@ -1151,6 +1152,17 @@ async function treasuryCatalog(db){
   return {funds,locations};
 }
 __name(treasuryCatalog,"treasuryCatalog");
+// Persis mengikuti fund_position hasil pengesahan penjualan Bank Sampah.
+// Kas lorong dari Bank Sampah belum dianggap Cash Humas sampai ada serah terima.
+function treasuryBankFund(position){
+ const value=String(position||"").trim().toLowerCase();
+ if(value==="tabungan_warga")return "bank_warga";
+ if(value==="operasional"||value==="lingkungan")return "bank_lingkungan";
+ if(value==="kas_lorong")return "bank_kas_lorong";
+ if(value==="cadangan")return "bank_cadangan";
+ return "";
+}
+__name(treasuryBankFund,"treasuryBankFund");
 // Only posted Humas cash belongs to Kas Lorong. Never import Iuran RT,
 // Kebersihan or Arisan payment allocations into the Humas treasury.
 function treasuryBookCashEligible(row){
@@ -1217,12 +1229,22 @@ async function treasurySources(db,confirmedOn){
       AND NOT EXISTS(SELECT 1 FROM treasury_events t WHERE t.request_key='source:book:'||c.id)
       AND NOT EXISTS(SELECT 1 FROM treasury_source_exclusions e WHERE e.source_key='source:book:'||c.id)
     ORDER BY c.occurred_on,c.id LIMIT 101`,[confirmedOn]),
-  list(db,`SELECT c.id,c.occurred_on,c.fund_position,c.transaction_type,c.note,c.cash_in_rp,c.cash_out_rp
-    FROM waste_cash_ledger c WHERE c.status='aktif' AND c.occurred_on>=?
+  list(db,`SELECT c.id,c.occurred_on,c.fund_position,c.transaction_type,c.note,c.cash_in_rp,c.cash_out_rp,
+      b.confirmed_at AS sale_confirmed_at,
+      CASE WHEN c.transaction_type='penjualan_terkonfirmasi' AND b.confirmed_at IS NOT NULL
+        THEN substr(b.confirmed_at,1,10) ELSE c.occurred_on END AS treasury_date
+    FROM waste_cash_ledger c
+    LEFT JOIN waste_sales s ON c.transaction_type='penjualan_terkonfirmasi'
+      AND s.id=c.source_transaction_id AND s.status='terkonfirmasi'
+    LEFT JOIN waste_batches b ON b.id=s.batch_id AND b.status='disahkan'
+    WHERE c.status='aktif'
+      AND (c.occurred_on>=? OR
+        (c.transaction_type='penjualan_terkonfirmasi' AND b.confirmed_at>=
+          (SELECT confirmed_at FROM treasury_config WHERE id=1)))
       AND (c.cash_in_rp>0 OR c.cash_out_rp>0)
       AND NOT EXISTS(SELECT 1 FROM treasury_events t WHERE t.request_key='source:bank:'||c.id)
       AND NOT EXISTS(SELECT 1 FROM treasury_source_exclusions e WHERE e.source_key='source:bank:'||c.id)
-    ORDER BY c.occurred_on,c.id LIMIT 101`,[confirmedOn]),
+    ORDER BY treasury_date,c.id LIMIT 101`,[confirmedOn]),
   list(db,`SELECT c.id,c.project_id,c.contributor,c.amount_rp,c.payment_method,c.contributed_on,c.notes
     FROM portal_project_contributions c JOIN portal_project_cards p ON p.id=c.project_id
     WHERE c.status='aktif' AND p.project_kind='penggalangan' AND c.contributed_on>=? AND c.amount_rp>0
@@ -1270,8 +1292,9 @@ async function treasurySources(db,confirmedOn){
     fund:"kas_rt",note:[x.category,x.note].filter(Boolean).join(" — ").slice(0,240)||"Kas Lorong",
     category:x.category||"Kas Lorong",amountRp:Number(x.debit_rp||0)-Number(x.credit_rp||0),
     suggestedLocation:"cash:kas_rt",sourceLabel:"Pembukuan Kas Lorong"})),
-  ...bank.slice(0,100).map(x=>({type:"bank",id:x.id,date:x.occurred_on,
-    fund:x.fund_position==="tabungan_warga"?"bank_warga":x.fund_position==="cadangan"?"bank_cadangan":x.fund_position==="lingkungan"?"bank_lingkungan":"",
+  ...bank.slice(0,100).map(x=>({type:"bank",id:x.id,date:x.treasury_date||x.occurred_on,
+    sourceDate:x.occurred_on,sourceConfirmedAt:x.sale_confirmed_at||"",
+    fund:treasuryBankFund(x.fund_position),
     note:x.note||x.transaction_type||"Bank Sampah",category:"Bank Sampah",
     amountRp:Number(x.cash_in_rp||0)-Number(x.cash_out_rp||0),
     suggestedLocation:"",sourceLabel:"Bank Sampah"})),
@@ -1297,12 +1320,22 @@ async function treasurySourceRow(db,type,id){
     note:row.category||row.note||"Kas Lorong",amount:Number(row.debit_rp||0)-Number(row.credit_rp||0)}:null;
  }
  if(type==="bank"){
-  const row=await one(db,`SELECT id,occurred_on,fund_position,transaction_type,note,cash_in_rp,cash_out_rp
-    FROM waste_cash_ledger WHERE id=? AND status='aktif' LIMIT 1`,[id]);
-  return row&&{type,id,date:row.occurred_on,
-    fund:row.fund_position==="tabungan_warga"?"bank_warga":row.fund_position==="cadangan"?"bank_cadangan":row.fund_position==="lingkungan"?"bank_lingkungan":"",
-    note:row.note||row.transaction_type||"Bank Sampah",
-    amount:Number(row.cash_in_rp||0)-Number(row.cash_out_rp||0)};
+  const row=await one(db,`SELECT c.id,c.occurred_on,c.fund_position,c.transaction_type,c.note,c.cash_in_rp,c.cash_out_rp,
+    b.confirmed_at AS sale_confirmed_at,
+    CASE WHEN c.transaction_type='penjualan_terkonfirmasi' AND b.confirmed_at IS NOT NULL
+      THEN substr(b.confirmed_at,1,10) ELSE c.occurred_on END AS treasury_date
+    FROM waste_cash_ledger c
+    LEFT JOIN waste_sales s ON c.transaction_type='penjualan_terkonfirmasi'
+      AND s.id=c.source_transaction_id AND s.status='terkonfirmasi'
+    LEFT JOIN waste_batches b ON b.id=s.batch_id AND b.status='disahkan'
+    WHERE c.id=? AND c.status='aktif' LIMIT 1`,[id]);
+  if(!row||!treasuryBankFund(row.fund_position))return null;
+  const date=row.treasury_date||row.occurred_on;
+  // Tanggal penjualan lama bukan tanggal dana disahkan; keduanya disimpan untuk audit.
+  const note=(row.note||row.transaction_type||"Bank Sampah")+
+    (row.sale_confirmed_at&&date!==row.occurred_on?" (jual "+row.occurred_on+")":"");
+  return {type,id,date,fund:treasuryBankFund(row.fund_position),
+    note:note.slice(0,240),amount:Number(row.cash_in_rp||0)-Number(row.cash_out_rp||0)};
  }
  if(type==="contribution"){
   const row=await one(db,`SELECT c.id,c.project_id,c.contributor,c.amount_rp,c.contributed_on,c.notes
