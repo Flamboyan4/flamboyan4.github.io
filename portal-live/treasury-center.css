@@ -6,9 +6,7 @@
 .tc-panel{padding:13px}
 .tc-panel h3{font-size:15px;font-weight:800;color:#294c61;margin:0 0 9px}
 .tc-panel h4{font-size:13px;color:#385d72;margin:12px 0 7px}
-.tc-notice{padding:9px 12px;border-radius:9px;font-size:12px;font-weight:650}
-.tc-warn{background:#fff5db;color:#7b5900}
-.tc-ok{background:#eaf5ef;color:#237349}
+.tc-flash{position:fixed;z-index:1001;top:100px;right:18px;max-width:min(360px,calc(100vw - 36px));padding:10px 13px;border:1px solid #b7dec8;border-radius:10px;background:#eaf5ef;color:#237349;font-size:12px;font-weight:700;box-shadow:0 8px 22px #243b4626}
 .tc-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 .tc-stat{display:grid;gap:3px;padding:10px 12px}
 .tc-stat small{color:#587185;font-size:11px;font-weight:750}

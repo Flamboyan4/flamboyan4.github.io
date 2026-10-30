@@ -27,8 +27,8 @@ assert.match(worker,/name:"Kas Lorong",cash:"cash:kas_rt"/,'Kas Lorong label mus
 assert.doesNotMatch(worker.slice(worker.indexOf('async function treasuryCatalog'),worker.indexOf('__name(treasuryCatalog')),/Kas RT/,'No RT label in treasury catalog');
 assert.match(ui,/function treasuryDateControl\(\)/);
 assert.doesNotMatch(ui,/type="date"/);
-assert.match(html,/treasury-center\.js\?v=20261030-compact-report4/);
-assert.match(html,/treasury-center\.css\?v=20261030-compact-report4/);
+assert.match(html,/treasury-center\.js\?v=20261030-print-popup5/);
+assert.match(html,/treasury-center\.css\?v=20261030-print-popup5/);
 // Opening balance grid must use one date, immutable adjustment entries and atomic D1 batch.
 assert.match(worker,/if\(p\.action==="opening-grid"\)/);
 assert.match(worker,/source:book:/);
@@ -54,7 +54,14 @@ assert.match(ui,/print-color-adjust:exact/);
 assert.match(ui,/border:1px solid #000/);
 assert.match(ui,/LAPORAN PUSAT KEUANGAN FLAMBOYAN 4/);
 assert.match(ui,/logo-flamboyan\.svg/);
-assert.match(ui,/frame\.contentWindow\.print\(\)/);
+assert.match(ui,/const printWindow=window\.open\("","_blank"\)/);
+assert.match(ui,/printWindow\.document\.write\(html\)/);
+assert.match(ui,/printWindow\.print\(\)/);
+assert.match(ui,/printWindow\.document\.fonts\?\.ready/);
+assert.doesNotMatch(ui,/frame\.srcdoc=html|width:"0",height:"0"/,'Zero-size printable iframe must never return');
+assert.doesNotMatch(ui,/Saldo awal dikunci \+/,'Permanent confirmation banner must be absent');
+assert.match(ui,/showTreasuryNotice\("Saldo awal berhasil disahkan\."\)/);
+assert.match(ui,/setTimeout\(\(\)=>notice\.remove\(\),3500\)/);
 assert.doesNotMatch(ui,/print\.onclick=\(\)=>window\.print\(\)/);
 assert.match(worker,/openingBalances/);
 assert.match(ui,/const shell=el\("details",undefined,"tc-panel tc-mutation-panel/);
