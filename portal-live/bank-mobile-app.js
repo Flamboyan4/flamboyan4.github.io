@@ -299,29 +299,55 @@ function showHistory(){
 function showReport(){
  const page=ensureScreen("bank-report","Laporan Tabungan");
  if(!$("f4BankReportMonth")){
-  const filter=el("div","f4-bank-report-period");
-  filter.append(el("label","","Periode"));
-  const select=el("select");select.id="f4BankReportMonth";filter.append(select);
+  const period=el("div","f4-bank-report-period");
+  const monthCell=el("label","","Bulan"),month=el("select");month.id="f4BankReportMonth";monthCell.append(month);
+  const yearCell=el("label","","Tahun"),year=el("select");year.id="f4BankReportYear";yearCell.append(year);
+  period.append(monthCell,yearCell);
   const summary=el("div","f4-bank-report-summary");summary.id="f4BankReportSummary";
   const actions=el("div","f4-bank-report-actions");
-  const pdf=el("button","f4-bank-gold-action","Cetak / PDF");pdf.type="button";
+  const pdf=el("button","f4-bank-gold-action","Cetak PDF");pdf.type="button";
   pdf.onclick=()=>typeof window.v12Print==="function"&&window.v12Print();
   const csv=el("button","f4-bank-secondary-action","Unduh CSV");csv.type="button";
   csv.onclick=()=>typeof window.v12CSV==="function"&&window.v12CSV();
   actions.append(pdf,csv);
-  page.append(el("p","f4-bank-screen-status","Memuat laporan..."),filter,summary,actions);
+  const title=el("h3","f4-bank-screen-subhead","Transaksi Bulan Ini");
+  const transactions=el("div","f4-bank-report-list");transactions.id="f4BankReportList";
+  page.append(el("p","f4-bank-screen-status","Memuat laporan..."),period,summary,actions,title,transactions);
  }
- const rows=ledger(),available=months(rows);
- if(!reportMonth||reportMonth!=="all"&&!available.includes(reportMonth))reportMonth="all";
- populateMonths($("f4BankReportMonth"),available,reportMonth,x=>{reportMonth=x;showReport();});
- window.f4BankReportPeriod=()=>reportMonth==="all"?"":reportMonth;
- const visible=rows.filter(x=>reportMonth==="all"||x.month===reportMonth);
- const credits=visible.reduce((n,x)=>n+x.credit,0),debits=visible.reduce((n,x)=>n+x.debit,0);
- const box=$("f4BankReportSummary");box.replaceChildren();
- for(const [key,val] of [["Saldo saat ini",memberStatement?rupiah(memberStatement.saldo):"—"],
-    ["Masuk periode",rupiah(credits)],["Keluar periode",rupiah(debits)],["Transaksi",String(visible.length)]]){
-  const tile=el("div","f4-bank-report-tile");tile.append(el("small","",key),el("strong","",val));box.append(tile);
+ const all=historyLines();
+ const periods=[...new Set(all.map(x=>x.month).filter(x=>/^\d{4}-\d{2}$/.test(x)))].sort().reverse();
+ if(!reportMonth||reportMonth==="all")reportMonth=periods[0]||today().slice(0,7);
+ const [yearValue,monthValue]=reportMonth.split("-").map(Number);
+ const year=$("f4BankReportYear"),month=$("f4BankReportMonth");
+ const years=[...new Set([yearValue,...periods.map(x=>Number(x.slice(0,4))),...Array.from({length:21},(_,i)=>2026+i)])]
+  .filter(Number.isFinite).sort((a,b)=>b-a);
+ year.replaceChildren(...years.map(y=>{const op=new Option(String(y),String(y));op.selected=y===yearValue;return op;}));
+ const names=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+ month.replaceChildren(...names.map((name,i)=>{const op=new Option(name,String(i+1).padStart(2,"0"));op.selected=i+1===monthValue;return op;}));
+ year.onchange=()=>{reportMonth=year.value+"-"+month.value;showReport();};
+ month.onchange=()=>{reportMonth=year.value+"-"+month.value;showReport();};
+ window.f4BankReportPeriod=()=>reportMonth;
+ const selected=ledger().filter(x=>x.month===reportMonth);
+ const transactions=all.filter(x=>x.month===reportMonth);
+ const deposits=(memberStatement?.setoran||[]).filter(x=>String(x.tanggal||"").startsWith(reportMonth)&&!/batal/i.test(String(x.status)));
+ const missingWeight=deposits.some(x=>x.beratKg==null);
+ const weight=deposits.reduce((n,x)=>n+Number(x.beratKg||0),0);
+ const credit=selected.reduce((n,x)=>n+x.credit,0),debit=selected.reduce((n,x)=>n+x.debit,0);
+ const tiles=[["Setoran",missingWeight?"—":weight.toLocaleString("id-ID",{maximumFractionDigits:3})+" kg"],
+  ["Hasil jual sah",rupiah(credit)],["Pencairan / keluar",rupiah(debit)],["Transaksi",String(transactions.length)]];
+ const summary=$("f4BankReportSummary");summary.replaceChildren();
+ for(const [label,value] of tiles){const box=el("div","f4-bank-report-tile");
+  box.append(el("small","",label),el("strong","",value));summary.append(box);}
+ const list=$("f4BankReportList");list.replaceChildren();
+ for(const entry of transactions){
+  const node=el("article","f4-bank-report-transaction"),deposit=entry.kind==="deposit",out=entry.debit>0;
+  const left=el("span");left.append(el("strong","",entry.type),el("small","",entry.date));
+  const right=el("span","",deposit?entry.amountText:(out?"− ":"+ ")+rupiah(out?entry.debit:entry.credit));
+  if(deposit)right.title=entry.note;
+  right.className=out?"is-out":"is-in";
+  node.append(left,right);list.append(node);
  }
+ if(!transactions.length)list.append(el("p","f4-bank-empty","Belum ada transaksi di periode ini."));
  statusFor(page);
 }
 function memberBuckets(){
