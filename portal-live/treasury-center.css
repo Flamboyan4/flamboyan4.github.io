@@ -1,72 +1,93 @@
-/* Pusat Keuangan — isolated, no !important overrides */
-.tc-center{display:grid;gap:13px;max-width:1320px;margin:0 auto;color:#273b48}
+/* Pusat Keuangan: satu stylesheet untuk UI; dokumen cetak dibuat terpisah. */
+.tc-center{display:grid;gap:10px;max-width:1320px;margin:0 auto;color:#273b48}
 .tc-center *{box-sizing:border-box}
 .tc-center .f4-work-heading{margin-bottom:0}
-.tc-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.tc-stat,.tc-panel{background:#fff;border:1px solid #dbe6ec;border-radius:14px;padding:15px;min-width:0}
-.tc-stat{display:grid;gap:5px}
-.tc-stat small{color:#587185;font-weight:750;font-size:12px}
-.tc-stat strong{font-size:clamp(16px,2vw,23px);color:#174b70;line-height:1.25;overflow-wrap:anywhere}
-.tc-stat span{color:#71808b;font-size:11px}
-.tc-panel h3{font-size:16px;font-weight:800;color:#294c61;margin:0 0 11px}
-.tc-notice{padding:10px 13px;border-radius:10px;font-size:12px;font-weight:650}
+.tc-panel,.tc-stat{min-width:0;background:#fff;border:1px solid #dbe6ec;border-radius:12px}
+.tc-panel{padding:13px}
+.tc-panel h3{font-size:15px;font-weight:800;color:#294c61;margin:0 0 9px}
+.tc-panel h4{font-size:13px;color:#385d72;margin:12px 0 7px}
+.tc-notice{padding:9px 12px;border-radius:9px;font-size:12px;font-weight:650}
 .tc-warn{background:#fff5db;color:#7b5900}
 .tc-ok{background:#eaf5ef;color:#237349}
-.tc-table-wrap{width:100%;overflow:auto;max-width:100%}
-.tc-table{border-collapse:collapse;width:100%;min-width:620px;font-size:12px;color:#364b5b}
-.tc-table th{background:#f2f6f9;color:#486274;text-align:left;white-space:nowrap}
-.tc-table th,.tc-table td{border-bottom:1px solid #e4ecf1;padding:9px 10px;vertical-align:middle}
-.tc-table td:nth-child(n+2){font-variant-numeric:tabular-nums}
-.tc-table tr:last-child td{font-weight:750}
-.tc-table .tc-num{text-align:right;white-space:nowrap}
-.tc-form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.tc-field{display:grid;gap:5px;min-width:0;font-size:12px;font-weight:650;color:#526b7b}
-.tc-field[hidden]{display:none}
-.tc-field input,.tc-field select,.tc-confirm-row input{width:100%;background:#fff;border:1px solid #cddde7;border-radius:9px;padding:10px;color:#28465a;font:500 13px system-ui;min-height:40px}
-.tc-field select{max-width:100%}
-.tc-field input:focus,.tc-field select:focus{outline:2px solid #9fc5ed;outline-offset:1px}
-.tc-wide{grid-column:span 2}
-.tc-primary,.tc-secondary{border:0;border-radius:9px;padding:10px 15px;font-size:12px;font-weight:800;min-height:39px;cursor:pointer}
-.tc-primary{color:#fff;background:#276d9b;margin-top:10px}
+.tc-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.tc-stat{display:grid;gap:3px;padding:10px 12px}
+.tc-stat small{color:#587185;font-size:11px;font-weight:750}
+.tc-stat strong{font-size:clamp(16px,1.7vw,21px);color:#174b70;line-height:1.2;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.tc-stat span{color:#71808b;font-size:10px}
+.tc-table-wrap{width:100%;max-width:100%;overflow-x:auto}
+.tc-table{width:100%;min-width:610px;table-layout:fixed;border-collapse:collapse;font-size:11.5px;color:#364b5b}
+.tc-table thead{background:#f2f6f9}
+.tc-table th{color:#486274;font-weight:800;text-align:left;white-space:nowrap}
+.tc-table th,.tc-table td{padding:8px 9px;border-bottom:1px solid #e4ecf1;vertical-align:middle;overflow-wrap:anywhere}
+.tc-table td{font-variant-numeric:tabular-nums}
+.tc-num{white-space:nowrap;text-align:right}
+.tc-balance-table .tc-table{min-width:580px}
+.tc-balance-table .tc-table th:first-child{width:32%}
+.tc-balance-table .tc-table th:not(:first-child),.tc-balance-table .tc-table td:not(:first-child){text-align:right;white-space:nowrap}
+.tc-balance-table .tc-table tr:last-child td{font-weight:800;background:#f8fafc}
+.tc-history-table .tc-table{min-width:790px}
+.tc-history-table .tc-table th:nth-child(1){width:13%}
+.tc-history-table .tc-table th:nth-child(2){width:15%}
+.tc-history-table .tc-table th:nth-child(3){width:19%}
+.tc-history-table .tc-table th:nth-child(4){width:19%}
+.tc-history-table .tc-table th:nth-child(5){width:15%;text-align:right}
+.tc-history-table .tc-table th:nth-child(6){width:19%}
+.tc-history-table .tc-table td:nth-child(5){text-align:right;white-space:nowrap}
+.tc-section-head,.tc-opening-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.tc-section-head h3,.tc-opening-heading h3{margin:0}
+.tc-secondary,.tc-primary{border:0;border-radius:9px;padding:9px 13px;min-height:37px;font-size:12px;font-weight:750;cursor:pointer}
+.tc-primary{background:#276d9b;color:#fff}
 .tc-secondary{background:#e8f2fa;color:#265777}
 .tc-primary:disabled,.tc-secondary:disabled{opacity:.5;cursor:not-allowed}
-.tc-helper,.tc-status,.tc-footer,.tc-muted{font-size:12px;line-height:1.5;color:#667b88;margin:9px 0 0}
+.tc-helper,.tc-status,.tc-muted,.tc-footer{font-size:11px;line-height:1.45;color:#667b88;margin:8px 0 0}
 .tc-status{color:#375b78}
-.tc-section-head,.tc-confirm-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-.tc-section-head h3{margin:0}
-.tc-confirm-row input{max-width:180px}
-.tc-footer{font-size:11px}
-@media(max-width:760px){
- .tc-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
- .tc-stat,.tc-panel{padding:11px}
- .tc-form-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
- .tc-wide{grid-column:span 2}
- .tc-stat strong{font-size:17px}
- .tc-table th,.tc-table td{padding:7px 8px}
-}
-@media(max-width:410px){
- .tc-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
- .tc-field input,.tc-field select{font-size:12px}
-}
-.tc-source-warning{background:#fff0e9;color:#8a4229;border-radius:9px;padding:10px;font-size:12px;line-height:1.5}
-.tc-sync{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:8px 0}
-.tc-sync .tc-secondary{flex-shrink:0}
-.tc-source-list{display:grid;gap:8px;max-height:420px;overflow:auto}
-.tc-panel h4{font-size:13px;margin:15px 0 9px;color:#385d72}
-.tc-source-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(130px,210px) auto;gap:8px;align-items:center;border:1px solid #e4ecf1;border-radius:9px;padding:9px}
+.tc-source-warning{background:#fff0e9;color:#8a4229;padding:9px;border-radius:9px;font-size:12px}
+.tc-mutation-panel summary,.tc-source-panel summary,.tc-opening-recap summary{font-size:13px;font-weight:800;color:#2c5873;cursor:pointer;list-style-position:inside}
+.tc-mutation-panel[open] summary,.tc-source-panel[open] summary{margin-bottom:12px}
+.tc-opening-recap{border:1px solid #e0e9ee;border-radius:9px;padding:9px 11px;margin:9px 0}
+.tc-opening-recap summary{font-size:12px;color:#536a78}
+.tc-opening-recap .tc-table-wrap{margin-top:9px}
+.tc-form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;align-items:end}
+.tc-field{display:grid;gap:4px;min-width:0;font-size:11px;font-weight:700;color:#526b7b}
+.tc-field[hidden]{display:none}
+.tc-field input,.tc-field select{width:100%;min-width:0;min-height:38px;background:#fff;border:1px solid #cddde7;border-radius:8px;padding:8px 9px;color:#28465a;font:500 12px system-ui}
+.tc-field input:focus-visible,.tc-field select:focus-visible{outline:2px solid #9fc5ed;outline-offset:1px}
+.tc-wide{grid-column:span 2}
+.tc-form .tc-primary{margin-top:10px}
+.tc-sync{display:flex;gap:9px;align-items:center;margin:8px 0}
+.tc-source-list{display:grid;gap:7px;max-height:420px;overflow:auto}
+.tc-source-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(130px,210px) auto;gap:8px;align-items:center;border:1px solid #e4ecf1;border-radius:8px;padding:8px}
 .tc-source-details{display:grid;gap:3px;min-width:0}
 .tc-source-details strong{font-size:12px;color:#29506b}
 .tc-source-details span{font-size:11px;color:#678092;overflow-wrap:anywhere}
-.tc-source-row select{min-width:0;width:100%;font-size:12px;border:1px solid #cadce8;border-radius:8px;min-height:37px;background:white;color:#284b63;padding:8px}
-@media(max-width:600px){.tc-source-row{grid-template-columns:minmax(0,1fr) auto}.tc-source-details{grid-column:1/-1}.tc-source-row select{grid-column:1}}
-
-/* Treasury calendar matches the purple Superadmin theme on desktop and mobile. */
+.tc-source-row select{min-width:0;width:100%;font-size:12px;border:1px solid #cadce8;border-radius:8px;min-height:37px;background:#fff;color:#284b63;padding:7px}
+.tc-opening-panel{padding:12px}
+.tc-opening-heading{margin-bottom:9px}
+.tc-opening-heading small{font-size:11px;color:#607789}
+.tc-opening-controls{display:flex;align-items:end;gap:10px;margin-bottom:10px}
+.tc-opening-controls .tc-field{width:min(240px,100%)}
+.tc-opening-table{border:1px solid #dfe9ee;border-radius:9px;overflow:hidden}
+.tc-opening-row{display:grid;grid-template-columns:minmax(145px,1.65fr) repeat(3,minmax(95px,1fr));align-items:center;border-top:1px solid #e6eef3}
+.tc-opening-row:first-child{border-top:0}
+.tc-opening-row.tc-opening-header{min-height:32px;background:#f1f5f9;color:#516879;font-size:11px}
+.tc-opening-header strong{padding:8px 10px}
+.tc-opening-name{padding:7px 10px;font-size:12px;color:#294f67;overflow-wrap:anywhere}
+.tc-opening-cell{display:block;min-width:0;padding:5px 7px}
+.tc-opening-cell span{display:none}
+.tc-opening-cell input{display:block;width:100%;min-width:0;min-height:35px;padding:7px 8px;font:600 12px system-ui;color:#264b64;text-align:right;border:1px solid #d3e1eb;border-radius:7px;background:#fff}
+.tc-opening-cell input:focus-visible{outline:2px solid #a2bce2;outline-offset:1px}
+.tc-opening-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:11px}
+.tc-opening-total{font-size:14px;color:#294f67;font-variant-numeric:tabular-nums}
+.tc-opening-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tc-opening-actions .tc-secondary{border:1px solid #bbd2e3}
+.tc-opening-notice{padding:9px 12px;border-radius:9px;background:#f4f8fb;color:#415f75;font-size:11px}
 .tc-date-control{position:relative;width:100%;min-width:0}
-.tc-date-trigger{width:100%;min-height:40px;border:1px solid #cddde7;border-radius:9px;background:#fff;color:#28465a;font:500 13px system-ui;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 11px;cursor:pointer;text-align:left}
+.tc-date-trigger{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:38px;border:1px solid #cddde7;border-radius:8px;background:#fff;color:#28465a;font:500 12px system-ui;text-align:left;padding:8px 10px;cursor:pointer}
+.tc-date-trigger:disabled{background:#f5f7f9;cursor:default;color:#637180}
 .tc-date-trigger:focus-visible{outline:2px solid #8150d3;outline-offset:2px}
-.tc-date-icon{font-size:20px;color:#7752b7;line-height:1}
+.tc-date-icon{width:17px;height:17px}
 .tc-date-overlay{position:fixed;inset:0;z-index:99998;display:grid;place-items:center;background:rgba(26,20,50,.43);padding:12px}
-.tc-date-dialog{background:#fff;color:#30244b;border:1px solid #dfd5f4;border-radius:17px;padding:14px;width:min(340px,calc(100vw - 24px));box-shadow:0 15px 45px rgba(35,21,72,.2);max-height:calc(100dvh - 24px);overflow:auto}
+.tc-date-dialog{background:#fff;color:#30244b;border:1px solid #dfd5f4;border-radius:16px;padding:14px;width:min(340px,calc(100vw - 24px));box-shadow:0 15px 45px rgba(35,21,72,.2);max-height:calc(100dvh - 24px);overflow:auto}
 .tc-date-nav{display:flex;align-items:center;justify-content:space-between;gap:7px;margin-bottom:10px}
 .tc-date-nav strong{font-size:16px;color:#55328b}
 .tc-date-nav button,.tc-date-footer button{border:0;background:#f1ecfa;color:#5e3b98;border-radius:9px;cursor:pointer;font-weight:750;min-height:36px;padding:7px 12px}
@@ -76,61 +97,26 @@
 .tc-date-day{min-width:0;min-height:38px;background:#fff;border:0;border-radius:9px;color:#352b47;font-size:14px;font-weight:650;cursor:pointer}
 .tc-date-day:hover,.tc-date-day:focus-visible{background:#eee7fa;outline:0}
 .tc-date-day.selected{background:#7040bb;color:#fff}
-.tc-date-footer{margin-top:12px;padding-top:10px;border-top:1px solid #ede8f6;display:flex;justify-content:space-between}
-@media(max-width:600px){.tc-date-dialog{padding:12px}.tc-date-day{min-height:42px;font-size:17px}.tc-date-week{font-size:12px}}
-
-/* Compact one-screen opening balances (new transaction-entry workflow). */
-.tc-opening-panel{padding:13px}
-.tc-opening-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:9px}
-.tc-opening-heading h3{margin:0}
-.tc-opening-heading small{font-size:11px;color:#607789}
-.tc-opening-controls{display:flex;align-items:end;gap:10px;margin-bottom:10px}
-.tc-opening-controls .tc-field{width:min(240px,100%)}
-.tc-opening-table{border:1px solid #dfe9ee;border-radius:10px;overflow:hidden}
-.tc-opening-row{display:grid;grid-template-columns:minmax(150px,1.65fr) repeat(3,minmax(95px,1fr));gap:0;align-items:center;border-top:1px solid #e6eef3;min-width:0}
-.tc-opening-row:first-child{border-top:0}
-.tc-opening-row.tc-opening-header{background:#f1f5f9;color:#516879;font-size:11px;min-height:32px}
-.tc-opening-header strong{padding:8px 10px}
-.tc-opening-name{padding:7px 10px;font-size:12px;color:#294f67;overflow-wrap:anywhere}
-.tc-opening-cell{min-width:0;display:block;padding:5px 7px}
-.tc-opening-cell span{display:none}
-.tc-opening-cell input{display:block;width:100%;min-width:0;min-height:35px;padding:7px 8px;
- font:600 12px system-ui;color:#264b64;text-align:right;border:1px solid #d3e1eb;border-radius:7px;background:#fff}
-.tc-opening-cell input:focus{outline:2px solid #a2bce2;outline-offset:1px}
-.tc-opening-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:11px}
-.tc-opening-total{font-size:14px;color:#294f67;font-variant-numeric:tabular-nums}
-.tc-opening-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.tc-opening-actions .tc-primary{margin:0}
-.tc-opening-actions .tc-secondary{border:1px solid #bbd2e3}
-.tc-opening-panel .tc-helper{margin:10px 0 0}
-.tc-opening-history{padding:11px 13px}
-.tc-opening-history summary{cursor:pointer;font-size:12px;font-weight:700;color:#486577}
-.tc-opening-history .tc-table-wrap{margin-top:9px}
-.tc-opening-panel .tc-date-trigger:disabled{background:#f5f7f9;cursor:default;color:#637180}
-@media(max-width:690px){
- .tc-opening-panel{padding:10px}
- .tc-opening-heading small{display:block}
+.tc-date-footer{display:flex;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid #ede8f6}
+@media(max-width:760px){
+ .tc-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .tc-stat{padding:9px}
+ .tc-stat strong{font-size:17px}
+ .tc-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .tc-panel{padding:11px}
  .tc-opening-row{grid-template-columns:repeat(3,minmax(0,1fr));padding:3px 4px}
  .tc-opening-row.tc-opening-header{display:none}
- .tc-opening-name{grid-column:1/-1;padding:6px 6px 2px;font-size:12px}
+ .tc-opening-name{grid-column:1/-1;padding:6px 6px 2px}
  .tc-opening-cell{padding:3px 4px 7px}
  .tc-opening-cell span{display:block;font-size:10px;color:#688091;margin:0 0 3px 2px}
  .tc-opening-cell input{text-align:right;font-size:12px;padding:7px 4px}
- .tc-opening-actions{width:100%;display:grid;grid-template-columns:1fr 1fr}
- .tc-opening-actions button{min-width:0;padding:9px 5px}
- .tc-opening-total{font-size:13px}
  .tc-opening-controls .tc-field{width:100%}
+ .tc-opening-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}
+ .tc-opening-actions button{min-width:0;padding:9px 5px}
+ .tc-date-day{min-height:42px;font-size:17px}
+ .tc-date-week{font-size:12px}
 }
-
-@media print{
- #f4-account-page aside,.f4-sa-standalone-menu,.tc-no-print,.tc-center .tc-notice{display:none}
- #f4-account-page{display:block}
- #f4-account-page main{display:block;width:100%;margin:0;padding:0;background:#fff}
- .tc-center{display:block;color:#000}
- .tc-summary{grid-template-columns:repeat(4,1fr)}
- .tc-panel,.tc-stat{border:1px solid #000;margin-bottom:8px;break-inside:avoid}
- .tc-table-wrap{overflow:visible}
- .tc-table{min-width:0;font-size:9px}
- .tc-table th,.tc-table td{border:1px solid #000;padding:5px}
- @page{size:A4 landscape;margin:12mm}
+@media(max-width:600px){
+ .tc-source-row{grid-template-columns:minmax(0,1fr) auto}
+ .tc-source-details,.tc-source-row select{grid-column:1/-1}
 }
