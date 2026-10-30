@@ -1411,89 +1411,88 @@ __name(treasuryBankPositions,"treasuryBankPositions");
 async function treasuryApproveBankBalance(db,who,catalog,req){
  const fundId=String(req.fundId||""),location=String(req.location||"");
  const positions=treasuryBankPositions(fundId),fund=catalog.funds.find(x=>x.id===fundId);
- const expectedSource=Number(req.expectedSourceRp),expectedCentral=Number(req.expectedCentralRp);
+ const sourceExpected=req.expectedSourceRp,centralExpected=req.expectedCentralRp,
+       availableExpected=req.expectedAvailableRp;
  const key=String(req.requestKey||"");
- if(!fund||!positions.length||!["qris","mandiri",fund.cash].includes(location)||
-    !Number.isSafeInteger(expectedSource)||!Number.isSafeInteger(expectedCentral)||
+ if(!fund||fund.active===false||!positions.length||!["qris","mandiri",fund.cash].includes(location)||
+    ![sourceExpected,centralExpected,availableExpected].every(Number.isSafeInteger)||
     !/^[a-f0-9-]{36}$/i.test(key)||req.confirmation!=="SUDAH COCOK")
-   return err("Pilihan dana atau nilai pemeriksaan tidak valid.",400);
- const requestFingerprint=await sha(JSON.stringify({fundId,location,expectedSource,expectedCentral}));
- const previous=await one(db,"SELECT id,payload_hash FROM treasury_events WHERE request_key=?",[key]);
- if(previous)return previous.payload_hash===requestFingerprint?
-   ok({approved:true,duplicate:true}):err("Kunci transaksi digunakan untuk nilai berbeda.",409);
- const placeholders=positions.map(() => "?").join(",");
+   return err("Pos, tempat, atau nominal tidak valid.",400);
+ const fingerprint=await sha(JSON.stringify({fundId,location,sourceExpected,centralExpected,availableExpected}));
+ const prior=await one(db,"SELECT id,payload_hash FROM treasury_events WHERE request_key=?",[key]);
+ if(prior)return prior.payload_hash===fingerprint?ok({approved:true,duplicate:true}):
+   err("Transaksi ini dipakai untuk data berbeda.",409);
+ const marks=positions.map(()=>"?").join(",");
  const rows=await list(db,`SELECT id,fund_position,cash_in_rp,cash_out_rp
-   FROM waste_cash_ledger WHERE status='aktif' AND fund_position IN (${placeholders})
+   FROM waste_cash_ledger WHERE status='aktif' AND fund_position IN (${marks})
    AND (cash_in_rp<>0 OR cash_out_rp<>0) ORDER BY id LIMIT 151`,positions);
- if(rows.length>150)return err("Jurnal sumber terlalu panjang. Periksa per transaksi.",409);
- if(!rows.length)return err("Belum ada transaksi Bank Sampah untuk pos ini.",409);
- const snapshot=rows.map(x=>({
-   id:x.id,position:x.fund_position,amount:Number(x.cash_in_rp||0)-Number(x.cash_out_rp||0)
- }));
- if(snapshot.some(x=>!Number.isSafeInteger(x.amount)))return err("Nominal jurnal Bank Sampah tidak valid.",409);
+ if(rows.length>150)return err("Terlalu banyak transaksi. Periksa satu per satu.",409);
+ if(!rows.length)return err("Belum ada dana Bank Sampah.",409);
+ const snapshot=rows.map(x=>({id:x.id,position:x.fund_position,
+   amount:Number(x.cash_in_rp||0)-Number(x.cash_out_rp||0)}));
+ if(snapshot.some(x=>!Number.isSafeInteger(x.amount)))return err("Ada nominal tidak valid.",409);
  const sourceTotal=snapshot.reduce((n,x)=>n+x.amount,0);
- const centralRow=await one(db,
-   "SELECT COALESCE(SUM(amount_rp),0) AS value FROM treasury_entries WHERE fund_id=?",[fundId]);
+ const centralRow=await one(db,"SELECT COALESCE(SUM(amount_rp),0) AS value FROM treasury_entries WHERE fund_id=?",[fundId]);
  const centralTotal=Number(centralRow?.value||0);
- const diff=sourceTotal-centralTotal;
- if(sourceTotal!==expectedSource||centralTotal!==expectedCentral)
-   return err("Saldo berubah. Muat ulang sebelum mengesahkan.",409);
- if(!Number.isSafeInteger(diff)||diff<=0||diff>10000000000)
-   return err("Tidak ada selisih positif yang bisa disahkan.",409);
- const already=await list(db,
-   "SELECT c.source_id,c.captured_amount_rp FROM treasury_bank_source_coverage c WHERE c.fund_id=?",[fundId]);
- const covered=new Map(already.map(x=>[x.source_id,Number(x.captured_amount_rp)]));
+ const [coveredRows,linkedRows,excludedRows]=await Promise.all([
+  list(db,"SELECT source_id,captured_amount_rp FROM treasury_bank_source_coverage WHERE fund_id=?",[fundId]),
+  list(db,"SELECT request_key FROM treasury_events WHERE request_key LIKE 'source:bank:%'"),
+  list(db,"SELECT source_key FROM treasury_source_exclusions WHERE source_key LIKE 'source:bank:%'")
+ ]);
+ const covered=new Map(coveredRows.map(x=>[x.source_id,Number(x.captured_amount_rp)]));
+ const linked=new Set(linkedRows.map(x=>String(x.request_key)));
+ const excluded=new Set(excludedRows.map(x=>String(x.source_key)));
  if(snapshot.some(x=>covered.has(x.id)&&covered.get(x.id)!==x.amount))
-   return err("Jurnal Bank Sampah yang pernah disahkan berubah. Periksa audit dahulu.",409);
- const fresh=snapshot.filter(x=>!covered.has(x.id));
- if(!fresh.length)return err("Semua transaksi sumber sudah pernah diperiksa. Jangan catat ulang.",409);
- // Sumber yang sudah masuk lewat pengesahan per transaksi atau telah ditandai
- // termasuk saldo awal tidak menjadi bukti penerimaan baru.
- const linked=await list(db,`SELECT request_key FROM treasury_events
-   WHERE request_key LIKE 'source:bank:%'`);
- const seen=new Set(linked.map(x=>String(x.request_key)));
- const excluded=await list(db,
-   "SELECT source_key FROM treasury_source_exclusions WHERE source_key LIKE 'source:bank:%'");
- const ignored=new Set(excluded.map(x=>String(x.source_key)));
- if(!fresh.some(x=>!seen.has("source:bank:"+x.id)&&!ignored.has("source:bank:"+x.id)))
-   return err("Tidak ada sumber baru yang dapat digunakan untuk pengesahan.",409);
- const fingerprint=requestFingerprint;
- const eventId="treasury:bank-reconcile:"+crypto.randomUUID();
- const date=new Date(Date.now()+7*60*60000).toISOString().slice(0,10);
- const note="Cocokkan saldo Bank Sampah — "+fund.name;
+   return err("Data Bank Sampah yang sudah disahkan berubah. Periksa riwayat.",409);
+ const fresh=snapshot.filter(x=>!covered.has(x.id)&&
+   !linked.has("source:bank:"+x.id)&&!excluded.has("source:bank:"+x.id));
+ const available=fresh.reduce((n,x)=>n+x.amount,0);
+ // Selisih total bukan bukti dana baru: kas bisa sudah dibelanjakan/dipindahkan.
+ // Hanya nominal yang belum pernah diperiksa boleh ditambahkan.
+ const gap=sourceTotal-centralTotal;
+ if(sourceExpected!==sourceTotal||centralExpected!==centralTotal||availableExpected!==available)
+   return err("Nominal berubah. Muat ulang dan periksa lagi.",409);
+ if(!Number.isSafeInteger(available)||available<=0||available>10000000000)
+   return err("Tidak ada dana baru untuk disahkan.",409);
+ if(gap<=0||available>gap)
+   return err("Ada dana yang mungkin sudah masuk saldo awal. Periksa transaksi satu per satu.",409);
+ const eventId="treasury:bank-review:"+crypto.randomUUID();
+ const date=new Date(Date.now()+7*3600000).toISOString().slice(0,10);
+ const eventNote=("Pengesahan Bank Sampah — "+fund.name).slice(0,240);
  const statements=[
    db.prepare("INSERT INTO treasury_events(id,request_key,payload_hash,kind,occurred_on,note,created_by) VALUES(?,?,?,?,?,?,?)")
-     .bind(eventId,key,fingerprint,"incoming",date,note,who.id),
-   // Bandingkan kembali nilai SUM sumber dan saldo pusat di DALAM D1.batch.
-   // Jika ada perubahan serentak, CHECK melarang 0 dan seluruh batch rollback.
+     .bind(eventId,key,fingerprint,"incoming",date,eventNote,who.id),
    db.prepare(`INSERT INTO treasury_entries(id,event_id,fund_id,location_id,amount_rp)
      VALUES(?,?,?,?,CASE WHEN
       (SELECT COALESCE(SUM(cash_in_rp-cash_out_rp),0) FROM waste_cash_ledger
-       WHERE status='aktif' AND fund_position IN (${placeholders}))=?
+       WHERE status='aktif' AND fund_position IN (${marks}))=?
       AND (SELECT COALESCE(SUM(amount_rp),0) FROM treasury_entries WHERE fund_id=?)=?
       THEN ? ELSE 0 END)`)
-     .bind(eventId+":0",eventId,fundId,location,...positions,sourceTotal,fundId,centralTotal,diff)
+     .bind(eventId+":0",eventId,fundId,location,...positions,sourceTotal,fundId,centralTotal,available)
  ];
  for(const x of fresh){
+   const sourceKey="source:bank:"+x.id;
    statements.push(db.prepare(`INSERT INTO treasury_bank_source_coverage
-      (source_id,event_id,fund_id,captured_amount_rp)
-      VALUES(?,?,?,CASE WHEN
-        (SELECT cash_in_rp-cash_out_rp FROM waste_cash_ledger
-         WHERE id=? AND status='aktif' AND fund_position=?)=?
-        THEN ? ELSE NULL END)`)
-     .bind(x.id,eventId,fundId,x.id,x.position,x.amount,x.amount));
+     (source_id,event_id,fund_id,captured_amount_rp)
+     VALUES(?,?,?,CASE WHEN
+      (SELECT cash_in_rp-cash_out_rp FROM waste_cash_ledger
+       WHERE id=? AND status='aktif' AND fund_position=?)=?
+      AND NOT EXISTS(SELECT 1 FROM treasury_events WHERE request_key=?)
+      AND NOT EXISTS(SELECT 1 FROM treasury_source_exclusions WHERE source_key=?)
+      THEN ? ELSE NULL END)`)
+     .bind(x.id,eventId,fundId,x.id,x.position,x.amount,sourceKey,sourceKey,x.amount));
  }
  statements.push(db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'pusat_keuangan','approve_bank_balance','treasury_events',?,?,?)")
-   .bind("audit:"+crypto.randomUUID(),who.id,eventId,"Cocokkan saldo Bank Sampah",
-     JSON.stringify({fundId,location,sourceTotal,centralTotal,diff,sourceCount:fresh.length})));
+  .bind("audit:"+crypto.randomUUID(),who.id,eventId,"Pengesahan Bank Sampah",
+     JSON.stringify({fundId,location,sourceTotal,centralTotal,available,sourceIds:fresh.map(x=>x.id)})));
  try{await db.batch(statements)}
- catch(e){
+ catch{
    const winner=await one(db,"SELECT id,payload_hash FROM treasury_events WHERE request_key=?",[key]);
-   if(winner)return winner.payload_hash===fingerprint?ok({approved:true,duplicate:true,amountRp:diff}):
-      err("Kunci transaksi sudah digunakan untuk isi berbeda.",409);
-   return err("Pengesahan ditolak karena sumber atau saldo berubah. Muat ulang.",409);
+   if(winner)return winner.payload_hash===fingerprint?ok({approved:true,duplicate:true}):
+      err("Transaksi ini dipakai untuk data berbeda.",409);
+   return err("Dana berubah atau sudah disahkan. Muat ulang.",409);
  }
- return ok({approved:true,amountRp:diff,fundId,location},201);
+ return ok({approved:true,amountRp:available,fundId,location},201);
 }
 __name(treasuryApproveBankBalance,"treasuryApproveBankBalance");
 
