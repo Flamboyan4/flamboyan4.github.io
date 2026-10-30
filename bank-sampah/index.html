@@ -2747,20 +2747,44 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const raw=await window.f4UiDialog.prompt('Nomor nota dari lapak untuk penjualan '+record.tanggal+' (boleh dikosongkan bila belum ada):',original);
     if(raw===null)return;
     const receiptNo=String(raw).trim();
-    if(receiptNo.length>80){note('riwayatJualNotice','Nomor nota maksimal 80 karakter.',true);return;}
+    if(receiptNo.length>80||/[\x00-\x1F\x7F]/.test(receiptNo)){
+      note('riwayatJualNotice','Nomor nota maksimal 80 karakter, tanpa baris baru.',true);return;
+    }
     if(receiptNo===original)return;
+    let accepted=false;
     try{
-      note('riwayatJualNotice','Menyimpan nomor nota tanpa mengubah transaksi...');
-      const response=await fetch('https://api.flamboyan4.web.id/api/v2/admin/bank/sale-receipt',{
-        method:'POST',credentials:'include',cache:'no-store',
+      note('riwayatJualNotice','Menyimpan dan memeriksa nomor nota...');
+      const endpoint='https://api.flamboyan4.web.id/api/v2/admin/bank/sale-receipt';
+      const response=await fetch(endpoint,{
+        method:'POST',credentials:'include',mode:'cors',cache:'no-store',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({saleId:record.id,receiptNo,evidenceUrl:String(record.bukti||'')})
       });
       const result=await response.json().catch(()=>({}));
-      if(!response.ok||result.ok===false)throw Error(result.error||'HTTP '+response.status);
-      await loadRiwayatJual();
-      note('riwayatJualNotice','Nomor nota berhasil diperbarui. Cetak serah terima akan menggunakan nomor terbaru.');
-    }catch(e){note('riwayatJualNotice','Gagal menyimpan nota: '+(e.message||e),true);}
+      if(!response.ok||result.ok===false){
+        if(response.status===404&&/endpoint|api v2|tidak ditemukan/i.test(String(result.error||'')))
+          throw Error('API simpan nota belum tersedia di Worker aktif. Periksa rilis Cloudflare; data belum berubah.');
+        throw Error(result.error||'Gagal menyimpan (HTTP '+response.status+').');
+      }
+      accepted=true;
+      // Jangan tampilkan berhasil sebelum nilai terbaru terbaca kembali dari D1.
+      const detailRes=await fetch('https://api.flamboyan4.web.id/api/v2/admin/bank/sale-detail?id='+encodeURIComponent(record.id),{
+        credentials:'include',mode:'cors',cache:'no-store'
+      });
+      const detail=await detailRes.json().catch(()=>({}));
+      if(!detailRes.ok||detail.ok===false)throw Error('Data tersimpan, tetapi rincian belum dapat diperiksa.');
+      const verified=String(detail.sale?.receipt_no||'').trim();
+      if(verified!==receiptNo)throw Error('API menerima perubahan, tetapi nomor nota belum terbaca kembali dari D1. Jangan mengisi ulang sebelum memeriksa.');
+      const refreshed=await call('bsV7PenjualanAdmin',token);
+      const current=refreshed.find(x=>String(x.id)===String(record.id));
+      if(!current||String(current.nota||'').trim()!==receiptNo)
+        throw Error('Nomor nota sudah tersimpan, tetapi daftar penjualan belum sinkron. Muat ulang halaman untuk memeriksa.');
+      const area=$('riwayatJualList');
+      area.replaceChildren(...refreshed.map(r=>v7HistoryCard(r,'penjualan')));
+      note('riwayatJualNotice','Nomor nota tersimpan dan terverifikasi. Form serah terima sudah memakai nomor terbaru.');
+    }catch(e){
+      note('riwayatJualNotice',(accepted?'Perlu pemeriksaan: ':'Gagal menyimpan nota: ')+(e.message||e),true);
+    }
   }
   async function loadRiwayatV7(){const area=$('riwayatList');area.textContent='Memuat riwayat...';try{const data=await call('bsV6SetoranAdmin',token);area.replaceChildren(...data.map(r=>v7HistoryCard(r,'setoran')));if(!data.length)area.textContent='Belum ada setoran.';}catch(e){area.textContent='Gagal: '+(e.message||e);}}
   async function loadRiwayatJual(){const area=$('riwayatJualList');area.classList.add('f4-bs-history-list');area.textContent='Memuat penjualan...';try{const data=await call('bsV7PenjualanAdmin',token);area.replaceChildren(...data.map(r=>v7HistoryCard(r,'penjualan')));if(!data.length)area.textContent='Belum ada penjualan.';}catch(e){area.textContent='Gagal: '+(e.message||e);}}
