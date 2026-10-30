@@ -610,7 +610,8 @@ body.f4-bank-embedded #dashboardView .section,
 .f4-bank-request-form label,.f4-bank-report-period label{display:block;font-size:12px;font-weight:700;color:#22583c;margin:4px 0 0}
 #dashboardView .f4-bank-request-form input,
 #dashboardView .f4-bank-request-form select,
-#dashboardView #f4BankReportMonth{width:100%;height:42px;padding:9px 12px;border:1px solid #cddfd3;background:#fff;border-radius:10px;color:#244735;font-size:13px}
+#dashboardView #f4BankReportMonth,
+#dashboardView #f4BankReportYear{width:100%;height:42px;padding:9px 12px;border:1px solid #cddfd3;background:#fff;border-radius:10px;color:#244735;font-size:13px}
 #dashboardView .f4-bank-quick-amounts{display:flex;gap:7px;margin:0 0 5px}
 #dashboardView .f4-bank-quick-amount{flex:1;padding:9px 6px;border:1px solid #dce9df;border-radius:9px;background:#f8fbf8;color:#246645;font-size:12px}
 #dashboardView .f4-bank-gold-action{background:#ffbc20;color:#fff;border:1px solid #f3b01b;padding:10px 13px;min-height:42px;border-radius:10px;font-weight:800;font-size:12px}
@@ -626,7 +627,7 @@ body.f4-bank-embedded #dashboardView .section,
 .f4-bank-request-state.is-dibayar{background:#ddf4e4;color:#08613c}
 .f4-bank-request-state.is-ditolak{background:#ffebe7;color:#c4493d}
 .f4-bank-request-state.is-disetujui{background:#e6f1ff;color:#225eaa}
-#dashboardView .f4-bank-report-period{display:grid;gap:5px}
+#dashboardView .f4-bank-report-period{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
 #dashboardView .f4-bank-report-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
 .f4-bank-report-tile{display:grid;gap:6px;padding:13px;border-radius:12px;background:#f1f8f2;border:1px solid #dce9df}
 .f4-bank-report-tile:nth-child(2){background:#eaf3ff}
@@ -635,6 +636,14 @@ body.f4-bank-embedded #dashboardView .section,
 .f4-bank-report-tile small{font-size:11px;color:#627a6a}
 .f4-bank-report-tile strong{font-size:16px;line-height:1.2;color:#195239}
 #dashboardView .f4-bank-report-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+#dashboardView .f4-bank-report-list{display:grid;gap:0}
+#dashboardView .f4-bank-report-transaction{display:flex;justify-content:space-between;align-items:center;gap:11px;padding:12px 3px;border-bottom:1px solid #e8f0ea}
+#dashboardView .f4-bank-report-transaction>span:first-child{display:grid;gap:3px;min-width:0}
+#dashboardView .f4-bank-report-transaction strong{font-size:12px;color:#214e37;overflow-wrap:anywhere}
+#dashboardView .f4-bank-report-transaction small{font-size:10px;color:#7b8b7d}
+#dashboardView .f4-bank-report-transaction>span:last-child{font-size:12px;font-weight:800;white-space:nowrap;color:#168453}
+#dashboardView .f4-bank-report-transaction>span.is-out{color:#d45145}
+
 #dashboardView .f4-bank-manager-requests{display:grid;gap:10px;margin:0 0 16px;padding:13px;border:1px solid #d5e8d8;border-radius:13px;background:#fff}
 .f4-bank-mobile-section-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .f4-bank-mobile-section-head h3{font-size:15px;margin:0;color:#20593b}
