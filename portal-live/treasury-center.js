@@ -56,6 +56,75 @@ function select(options,cls=""){
 function field(label,node,cls=""){
  const w=el("label",undefined,"tc-field "+cls);w.append(el("span",label),node);return w;
 }
+// Standalone themed calendar for Treasury forms (desktop and phone).
+// The submitted value stays ISO YYYY-MM-DD; no native date dialog is shown.
+function treasuryDateControl(){
+ const input=el("input");input.type="hidden";input.value=today();
+ const wrap=el("div",undefined,"tc-date-control");
+ const trigger=el("button",undefined,"tc-date-trigger");trigger.type="button";
+ trigger.setAttribute("aria-label","Pilih tanggal");
+ const text=el("span"),icon=el("img",undefined,"tc-date-icon");icon.src="/assets/icons/calendar.svg";icon.alt="";icon.setAttribute("aria-hidden","true");
+ trigger.append(text,icon);wrap.append(input,trigger);
+ const months=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+ const days=["Sen","Sel","Rab","Kam","Jum","Sab","Min"];
+ const format=iso=>{
+  const m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m?Number(m[3])+" "+months[Number(m[2])-1]+" "+m[1]:"Pilih tanggal";
+ };
+ const two=n=>String(n).padStart(2,"0");
+ function update(){text.textContent=format(input.value)}
+ update();
+ trigger.onclick=()=>{
+  const parts=input.value.split("-").map(Number);
+  let year=parts[0]||new Date().getFullYear(),month=(parts[1]||1)-1;
+  const overlay=el("div",undefined,"tc-date-overlay");
+  const dialog=el("section",undefined,"tc-date-dialog");
+  dialog.setAttribute("role","dialog");dialog.setAttribute("aria-modal","true");
+  dialog.setAttribute("aria-label","Kalender Pusat Keuangan");
+  overlay.append(dialog);document.body.append(overlay);
+  const oldFocus=document.activeElement;
+  const close=()=>{
+   document.removeEventListener("keydown",keyHandler);
+   overlay.remove();oldFocus?.focus?.({preventScroll:true});
+  };
+  const keyHandler=e=>{if(e.key==="Escape"){e.preventDefault();close()}};
+  document.addEventListener("keydown",keyHandler);
+  overlay.addEventListener("click",e=>{if(e.target===overlay)close()});
+  function render(){
+   dialog.replaceChildren();
+   const nav=el("div",undefined,"tc-date-nav");
+   const prev=el("button","‹"),heading=el("strong",months[month]+" "+year);
+   const next=el("button","›");
+   prev.type=next.type="button";
+   prev.setAttribute("aria-label","Bulan sebelumnya");
+   next.setAttribute("aria-label","Bulan berikutnya");
+   prev.onclick=()=>{month--;if(month<0){month=11;year--}render()};
+   next.onclick=()=>{month++;if(month>11){month=0;year++}render()};
+   nav.append(prev,heading,next);
+   const grid=el("div",undefined,"tc-date-grid");
+   days.forEach(day=>grid.append(el("span",day,"tc-date-week")));
+   const offset=(new Date(year,month,1).getDay()+6)%7;
+   for(let j=0;j<offset;j++)grid.append(el("span"));
+   const max=new Date(year,month+1,0).getDate();
+   for(let day=1;day<=max;day++){
+    const iso=year+"-"+two(month+1)+"-"+two(day);
+    const b=el("button",String(day),"tc-date-day"+(input.value===iso?" selected":""));
+    b.type="button";b.setAttribute("aria-label",format(iso));
+    b.onclick=()=>{input.value=iso;input.dispatchEvent(new Event("input",{bubbles:true}));input.dispatchEvent(new Event("change",{bubbles:true}));update();close()};
+    grid.append(b);
+   }
+   const footer=el("div",undefined,"tc-date-footer");
+   const current=el("button","Hari ini"),cancel=el("button","Tutup");
+   current.type=cancel.type="button";
+   current.onclick=()=>{input.value=today();input.dispatchEvent(new Event("input",{bubbles:true}));input.dispatchEvent(new Event("change",{bubbles:true}));update();close()};
+   cancel.onclick=close;footer.append(current,cancel);
+   dialog.append(nav,grid,footer);
+   prev.focus({preventScroll:true});
+  }
+  render();
+ };
+ return {input,element:wrap};
+}
 function buildForm(target,data,refresh){
  const {funds}=data.catalog;
  const shell=el("section",undefined,"tc-panel tc-no-print");
@@ -65,14 +134,14 @@ function buildForm(target,data,refresh){
    .map(k=>({id:k,name:kindLabels[k]})));
  const fromFund=select(funds),toFund=select(funds);
  const fromLoc=select([]),toLoc=select([]);
- const date=el("input");date.type="date";date.value=today();date.required=true;
+ const dateCtl=treasuryDateControl(),date=dateCtl.input;
  const value=el("input");value.type="number";value.min="1";value.max="10000000000";value.step="1";value.placeholder="0";value.required=true;
  const note=el("input");note.maxLength=240;note.minLength=4;note.required=true;note.placeholder="Keterangan singkat";
  const originFund=field("Pos asal",fromFund),destinationFund=field("Pos tujuan",toFund);
  const originLoc=field("Tempat asal",fromLoc),destinationLoc=field("Tempat tujuan",toLoc);
  const actionField=field("Jenis",action);
  const grid=el("div",undefined,"tc-form-grid");
- append(grid,actionField,field("Tanggal",date),originFund,originLoc,destinationFund,destinationLoc,field("Nominal (Rp)",value),field("Keterangan",note,"tc-wide"));
+ append(grid,actionField,field("Tanggal",dateCtl.element),originFund,originLoc,destinationFund,destinationLoc,field("Nominal (Rp)",value),field("Keterangan",note,"tc-wide"));
  form.append(grid);
  const noteText=el("p",data.confirmed?
    "Dana dari modul lain jangan dicatat ulang jika sudah tercatat di Pusat Keuangan.":
@@ -124,7 +193,7 @@ function buildConfirm(target,data,refresh){
  const head=el("h3","Sahkan Saldo Awal");
  const desc=el("p","Cocokkan Cash tiap program, saldo QRIS belum cair, dan rekening Mandiri. Pengesahan mengunci saldo awal.");
  const row=el("div",undefined,"tc-confirm-row");
- const date=el("input");date.type="date";date.value=today();
+ const dateCtl=treasuryDateControl(),date=dateCtl.input;
  const b=el("button","Saldo Sudah Cocok","tc-primary");b.type="button";b.disabled=!data.openingCount;
  const msg=el("p",data.openingCount?"":"Isi minimal satu saldo awal.","tc-status");
  b.onclick=async()=>{
@@ -133,7 +202,7 @@ function buildConfirm(target,data,refresh){
    try{await post({action:"confirm",date:date.value,confirmation:"SALDO COCOK"});await refresh()}
    catch(e){msg.textContent=e.message;b.disabled=false}
  };
- row.append(date,b);panel.append(head,desc,row,msg);target.append(panel);
+ row.append(dateCtl.element,b);panel.append(head,desc,row,msg);target.append(panel);
 }
 function buildSources(target,data,refresh){
  if(!data.confirmed)return;
@@ -148,18 +217,18 @@ function buildSources(target,data,refresh){
   panel.append(el("p",data.sourceWarnings.length+" transaksi yang sudah dihubungkan berubah atau dibatalkan di modul sumber. Periksa dan koreksi mutasi sebelum menggunakan total saldo.","tc-source-warning"));
  }
  const quick=el("div",undefined,"tc-sync");
- const sync=el("button","Sinkronkan Buku Kas ("+book.length+")","tc-secondary");
+ const sync=el("button","Sinkronkan Kas Lorong ("+book.length+")","tc-secondary");
  sync.type="button";sync.disabled=!book.length;
  sync.onclick=async()=>{
-  if(!confirm("Masukkan transaksi Buku Kas yang sudah dibukukan sebagai Cash Kas RT? Pastikan belum tercakup dalam saldo awal."))return;
-  sync.disabled=true;status.textContent="Mencocokkan Buku Kas…";
+  if(!confirm("Cocokkan jurnal Kas Lorong yang telah dibukukan sebagai Cash Kas Lorong? Pastikan dana belum termasuk saldo awal."))return;
+  sync.disabled=true;status.textContent="Mencocokkan Kas Lorong…";
   try{
    const v=await post({action:"sync-book"});
    status.textContent=(v.imported||0)+" transaksi dihubungkan.";
    await refresh();
   }catch(e){status.textContent=e.message;sync.disabled=false}
  };
- quick.append(sync,el("span","Dikerjakan per 25 transaksi; dana yang belum dibukukan tidak diikutkan.","tc-muted"));
+ quick.append(sync,el("span","Hanya jurnal Kas Lorong yang sudah dibukukan; Setoran RT dan Arisan tidak ikut.","tc-muted"));
  panel.append(quick);
  if(bank.length){
   panel.append(el("h4","Bank Sampah — pilih tempat uang sebenarnya"));
@@ -194,7 +263,7 @@ function render(data){
  main.replaceChildren();
  const panel=el("div",undefined,"tc-center");
  main.append(panel);
- panel.append(heading("Pusat Keuangan","Cash terpisah • QRIS dan Mandiri bersama"));
+ panel.append(heading("Pusat Keuangan","Kas Lorong & program lain • QRIS/Mandiri bersama"));
  const banner=el("div",data.confirmed?
   "Saldo awal dikunci "+data.confirmedOn+". Perubahan setelahnya mengikuti jurnal Pusat Keuangan.":
   "Saldo belum final. Isi saldo awal per pos dan tempat dana, lalu sahkan.","tc-notice "+(data.confirmed?"tc-ok":"tc-warn"));
@@ -235,7 +304,7 @@ function render(data){
  if(!historyRows.length)history.append(el("p","Belum ada mutasi.","tc-muted"));
  if(!data.riwayatLengkap)history.append(el("p","Riwayat panjang; cetak dinonaktifkan agar tidak terpotong.","tc-status"));
  panel.append(history);
- panel.append(el("p","Penting: laporan sumber dari Pembukuan, Bank Sampah, dan Jersey belum tersinkron otomatis ke jurnal ini. Saldo pusat hanya akurat setelah semua saldo awal dan mutasi lanjutan dicocokkan.","tc-footer tc-no-print"));
+ panel.append(el("p","Kas Lorong hanya menghitung jurnal kas Humas yang telah dibukukan; Setoran RT dan Arisan bukan saldo Humas. Dana Jersey dan projek lain perlu dicocokkan terpisah.","tc-footer tc-no-print"));
 }
 async function open(){
  main.replaceChildren(heading("Pusat Keuangan","Memuat saldo…"));

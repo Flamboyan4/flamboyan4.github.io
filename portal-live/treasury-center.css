@@ -59,6 +59,25 @@
 .tc-source-details span{font-size:11px;color:#678092;overflow-wrap:anywhere}
 .tc-source-row select{min-width:0;width:100%;font-size:12px;border:1px solid #cadce8;border-radius:8px;min-height:37px;background:white;color:#284b63;padding:8px}
 @media(max-width:600px){.tc-source-row{grid-template-columns:minmax(0,1fr) auto}.tc-source-details{grid-column:1/-1}.tc-source-row select{grid-column:1}}
+
+/* Treasury calendar matches the purple Superadmin theme on desktop and mobile. */
+.tc-date-control{position:relative;width:100%;min-width:0}
+.tc-date-trigger{width:100%;min-height:40px;border:1px solid #cddde7;border-radius:9px;background:#fff;color:#28465a;font:500 13px system-ui;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 11px;cursor:pointer;text-align:left}
+.tc-date-trigger:focus-visible{outline:2px solid #8150d3;outline-offset:2px}
+.tc-date-icon{font-size:20px;color:#7752b7;line-height:1}
+.tc-date-overlay{position:fixed;inset:0;z-index:99998;display:grid;place-items:center;background:rgba(26,20,50,.43);padding:12px}
+.tc-date-dialog{background:#fff;color:#30244b;border:1px solid #dfd5f4;border-radius:17px;padding:14px;width:min(340px,calc(100vw - 24px));box-shadow:0 15px 45px rgba(35,21,72,.2);max-height:calc(100dvh - 24px);overflow:auto}
+.tc-date-nav{display:flex;align-items:center;justify-content:space-between;gap:7px;margin-bottom:10px}
+.tc-date-nav strong{font-size:16px;color:#55328b}
+.tc-date-nav button,.tc-date-footer button{border:0;background:#f1ecfa;color:#5e3b98;border-radius:9px;cursor:pointer;font-weight:750;min-height:36px;padding:7px 12px}
+.tc-date-nav button{font-size:22px;min-width:38px}
+.tc-date-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.tc-date-week{color:#807790;font-size:11px;font-weight:750;text-align:center;padding:7px 0}
+.tc-date-day{min-width:0;min-height:38px;background:#fff;border:0;border-radius:9px;color:#352b47;font-size:14px;font-weight:650;cursor:pointer}
+.tc-date-day:hover,.tc-date-day:focus-visible{background:#eee7fa;outline:0}
+.tc-date-day.selected{background:#7040bb;color:#fff}
+.tc-date-footer{margin-top:12px;padding-top:10px;border-top:1px solid #ede8f6;display:flex;justify-content:space-between}
+@media(max-width:600px){.tc-date-dialog{padding:12px}.tc-date-day{min-height:42px;font-size:17px}.tc-date-week{font-size:12px}}
 @media print{
  #f4-account-page aside,.f4-sa-standalone-menu,.tc-no-print,.tc-center .tc-notice{display:none}
  #f4-account-page{display:block}
