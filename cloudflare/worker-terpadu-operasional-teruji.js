@@ -1258,7 +1258,11 @@ async function treasurySources(db,confirmedOn){
     LEFT JOIN treasury_receipt_observations o ON e.request_key='source:receipt:'||o.id
     WHERE e.request_key LIKE 'source:receipt:%' AND
       (o.id IS NULL OR COALESCE(o.amount_rp,0) <>
-        (SELECT COALESCE(SUM(x.amount_rp),0) FROM treasury_entries x WHERE x.event_id=e.id))
+        (SELECT COALESCE(SUM(x.amount_rp),0) FROM treasury_entries x WHERE x.event_id=e.id)
+       OR (o.source_kind='project_order' AND NOT EXISTS(
+         SELECT 1 FROM portal_project_orders p WHERE p.id=o.source_id AND p.status='aktif'))
+       OR (o.source_kind='jersey' AND NOT EXISTS(
+         SELECT 1 FROM portal_jersey_orders j WHERE j.id=o.source_id)))
     LIMIT 25`)
  ]);
  const pending=[
