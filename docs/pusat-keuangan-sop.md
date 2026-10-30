@@ -88,3 +88,12 @@
 - Backend membandingkan saldo sumber dan pusat secara atomik, lalu menyimpan selisih dalam satu jurnal. Semua ID transaksi Bank Sampah sumber saat itu ditandai dalam `treasury_bank_source_coverage` agar tidak bisa disahkan kembali per transaksi.
 - Jika transaksi sumber berubah atau hilang setelah disahkan, dashboard memberi peringatan audit. Bila posisi pusat sudah dipindahkan dan tidak ada sumber baru, tombol **Sahkan** tidak ditawarkan lagi meskipun nominal sumber berbeda.
 - **Pindah Dana** dipakai untuk QRIS → Mandiri, Mandiri → Cash, antarprogram, atau penyesuaian manual khusus; pemindahan tidak membuat pemasukan baru.
+
+## Audit alur dan perbaikan kontrol (30 Oktober 2026)
+- **Pos** = siapa pemilik/hak dana; **Tempat** = lokasi uang. Pilihan tempat otomatis mengikuti pos: QRIS, Mandiri (bersama), dan Tunai yang disimpan program terkait. Nama lokasi dipendekkan; ID historis tidak diubah.
+- **Pos Dana** bisa Tambah, Ubah (nama hanya sebelum digunakan), Hapus jika belum punya transaksi, Arsip jika historis dan seluruh saldo per tempat sudah Rp0, serta Aktifkan lagi. Data yang pernah punya transaksi **tidak pernah dihapus**. Pos arsip tidak menerima transaksi baru dan tetap ada dalam laporan historis.
+- Bank Sampah: Sahkan hanya untuk **nominal sumber yang benar-benar belum pernah digunakan**. Selisih saldo sumber - saldo pusat **tidak cukup** menjadi bukti uang baru, karena dana bisa sudah dipindah/dibelanjakan.
+- Jika sumber baru lebih besar daripada selisih yang layak, pengesahan gabungan ditolak dan harus diperiksa per transaksi agar tidak mengulang saldo awal.
+- Jika pengesahan gabungan aman, Pusat Keuangan menunjukkan hanya **satu jalur per pos**; jika tidak aman, transaksi satuan ditampilkan.
+- Untuk perpindahan QRIS → Mandiri atau Tunai, gunakan **Pindah Dana**, bukan pemasukan. Total kepemilikan dana tidak bertambah.
+- Tidak ada perubahan angka historis dalam perbaikan ini. Semua perubahan pos dan pengesahan terekam di audit.

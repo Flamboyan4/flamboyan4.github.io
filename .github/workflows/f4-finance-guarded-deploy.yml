@@ -11,6 +11,7 @@ on:
       - qa/verify-treasury-bank-detection.py
       - cloudflare/migrations/20261030_treasury_bank_coverage.sql
       - qa/verify-treasury-bank-approval.py
+      - qa/verify-treasury-lifecycle.cjs
       - .github/workflows/f4-finance-guarded-deploy.yml
   workflow_dispatch:
 permissions:
@@ -33,6 +34,7 @@ jobs:
           node qa/account-profile-password.cjs
           python3 qa/verify-treasury.py
           node qa/verify-treasury-humas.cjs
+          node qa/verify-treasury-lifecycle.cjs
           python3 qa/verify-treasury-dynamic.py
           python3 qa/verify-treasury-bank-detection.py
           python3 qa/verify-treasury-bank-approval.py

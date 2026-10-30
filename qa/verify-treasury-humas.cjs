@@ -27,8 +27,8 @@ assert.match(worker,/name:"Kas Lorong",cash:"cash:kas_rt"/,'Kas Lorong label mus
 assert.doesNotMatch(worker.slice(worker.indexOf('async function treasuryCatalog'),worker.indexOf('__name(treasuryCatalog')),/Kas RT/,'No RT label in treasury catalog');
 assert.match(ui,/function treasuryDateControl\(\)/);
 assert.doesNotMatch(ui,/type="date"/);
-assert.match(html,/treasury-center\.js\?v=20261030-bank-approve8/);
-assert.match(html,/treasury-center\.css\?v=20261030-bank-approve8/);
+assert.match(html,/treasury-center\.js\?v=20261030-treasury-audit9/);
+assert.match(html,/treasury-center\.css\?v=20261030-treasury-audit9/);
 // Opening balance grid must use one date, immutable adjustment entries and atomic D1 batch.
 assert.match(worker,/if\(p\.action==="opening-grid"\)/);
 assert.match(worker,/source:book:/);
@@ -138,7 +138,7 @@ assert.match(ui,/src\.sourceDate&&src\.sourceDate!==src\.date/);
 assert.match(worker,/bankSourceBalances/);
 assert.match(worker,/bankPendingCounts/);
 assert.match(worker,/bankCoverageWarnings/);
-assert.match(ui,/eligibleBank\.get\(row\.fundId\)/);
+assert.match(ui,/row\.available<=row\.diff/);
 assert.match(worker,/b.confirmed_at>=/);
 // Bank Sampah balance totals now require explicit location and approval.
 assert.match(ui,/action:"approve-bank-balance"/);
