@@ -29,4 +29,18 @@ assert.match(ui,/function treasuryDateControl\(\)/);
 assert.doesNotMatch(ui,/type="date"/);
 assert.match(html,/treasury-center\.js\?v=20261030-kas-lorong/);
 assert.match(html,/treasury-center\.css\?v=20261030-kas-lorong/);
+// Opening balance grid must use one date, immutable adjustment entries and atomic D1 batch.
+assert.match(worker,/if\(p\.action==="opening-grid"\)/);
+assert.match(worker,/source:book:/);
+assert.match(worker,/confirmed_at IS NULL/);
+assert.match(worker,/openingDateConsistent/);
+assert.match(ui,/function buildOpeningGrid\(/);
+assert.match(ui,/action:"opening-grid"/);
+assert.match(ui,/function treasuryDateControl\(/);
+assert.match(ui,/const days=\["Min","Sen","Sel","Rab","Kam","Jum","Sab"\]/);
+assert.match(ui,/const offset=new Date\(year,month,1\)\.getDay\(\);/);
+assert.doesNotMatch(ui,/function buildConfirm\(/,'No separate duplicate date for opening approval');
+assert.match(ui,/dateCtl\.trigger\.disabled=true/,'Opening date must not change once saved');
+assert.match(ui,/changed\)\{status\.textContent/,'Unsaved changes must block confirmation');
+assert.match(ui,/return;\s*}\s*const cards=el\("div"/,'Pre-confirmation layout should skip duplicate 0-value overview cards');
 console.log('TREASURY_HUMAS_CLASSIFICATION_AND_CALENDAR_OK=1');
