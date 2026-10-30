@@ -120,9 +120,9 @@ function ensureHome(){
   const chart=$("f4-member-weight-chart");if(chart&&chart.parentElement!==reservoir)reservoir.append(chart);
   const flow=$("f4MemberFlow");if(flow){flow.hidden=false;if(flow.parentElement!==hub)hub.append(flow);}
   const panels=page.querySelector(".v14-panels");
+  const link=$("v14AllDeposits");if(link){link.textContent="Lihat semua";link.onclick=()=>navigate("bank-history");}
   const recent=$("v14Recent")?.closest(".v14-panel");
   if(recent&&recent.parentElement!==hub){
-   const link=$("v14AllDeposits");if(link){link.textContent="Lihat semua";link.onclick=()=>navigate("bank-history");}
    hub.append(recent);
   }
   const remaining=panels?.querySelector(".v14-panel");
@@ -551,6 +551,9 @@ function handleRoute(route,old,args){
  }
  hideCustom();
  const result=old.call(window,route,...args);
+ if(route==="dashboard"&&role==="member"){
+  const link=$("v14AllDeposits");if(link){link.textContent="Lihat semua";link.onclick=()=>navigate("bank-history");}
+ }
  screen=route;markDock();
  if(route==="tabungan"&&roleType()==="admin")loadManagerRequests();
  if(route==="pribadi")ensureMemberPages();
