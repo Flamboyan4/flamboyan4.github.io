@@ -67,4 +67,39 @@ for(const phrase of [
  if(!bank.includes(phrase))throw Error('Weight presentation must preserve final versus raw grams: '+phrase);
 }
 
+// Mobile-banking regression: D1 statement is the only monetary source.
+const app=fs.readFileSync('portal-live/bank-mobile-app.js','utf8');
+new vm.Script(app,{filename:'bank-mobile-app.js'});
+if(!bank.includes("history.appendChild(v12Table(['Tanggal','Mutasi','Masuk','Keluar','Saldo'],d.mutasi.map("))
+ throw Error('Member statement rendering must use its own mutasi (previously undefined variable)');
+if(!bank.includes("window.dispatchEvent(new CustomEvent('f4-bank-member-statement',{detail:d}))"))
+ throw Error('D1-backed member statement is not delivered to mobile screens');
+if(!app.includes('card.onclick=()=>navigate("profile")'))throw Error('Member card must open profile');
+if(!app.includes('["Pencairan","bank-payout","pay.svg"]'))throw Error('Central payout missing');
+if(!app.includes('$("f4BankAppShortcuts").parentElement.hidden=role==="member"'))throw Error('Repeated shortcut tiles remain');
+if(!app.includes('updateProfileCard()')||!app.includes('function memberBuckets()'))throw Error('Profile card or trusted chart missing');
+if(app.includes('function ledger(){\n return [...($("v12History")'))
+ throw Error('Member history must not depend on scraped hidden HTML');
+const sample={
+ saldo:3000,totalMasuk:3000,totalCair:0,wargaId:'member:test-001',
+ mutasi:[{tanggal:'2026-10-30',jenis:'Hasil penjualan',kredit:3000,debit:0,saldo:3000}],
+ setoran:[{tanggal:'2026-10-20',tanggalJual:'2026-10-30',beratKg:1.9,status:'Terkonfirmasi',nilaiSahRp:3000},
+         {tanggal:'2026-09-08',beratKg:2,status:'Estimasi',estimasiRp:4000}]
+};
+const source=(name,next)=>{const start=app.indexOf('function '+name+'(');
+ const end=app.indexOf('\nfunction '+next+'(',start);
+ if(start<0||end<=start)throw Error('Cannot isolate '+name);
+ return app.slice(start,end);
+};
+const result=new Function('memberStatement','rupiah',
+ source('ledger','months')+'\n'+source('memberBuckets','ensureHomeChart')+
+ '\nreturn {ledger:ledger(),buckets:memberBuckets(),history:historyLines()};')
+ (sample,n=>'Rp '+Number(n).toLocaleString('id-ID'));
+if(result.ledger.length!==1||result.ledger[0].credit!==3000)throw Error('Actual ledger credit must remain 3000');
+if(result.history.length!==3||result.history.filter(x=>x.kind==='deposit').length!==2)
+ throw Error('History must show deposits as weight entries, separately from money');
+if(result.buckets.length!==2||result.buckets[1].weight!==1.9||result.buckets[1].confirmed!==3000||
+   result.buckets[0].estimated!==4000)
+ throw Error('Weight/confirmed/pending monthly chart grouping is incorrect');
+
 console.log('BANK_MEMBER_VIEW_GUARD_OK');
