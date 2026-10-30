@@ -340,7 +340,7 @@ html.f4-sa-drawer-lock{overflow:hidden!important}
  color:#27658e;font:700 22px/1 system-ui;cursor:pointer}
 @media(max-width:1023px){.f4-sa-standalone-menu{display:grid;place-items:center}}
 </style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261028-hidden-scroll-panel"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
-<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261028-calendar-font-hp">
+<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261028-calendar-font-hp"><link rel="stylesheet" href="/portal-live/treasury-center.css?v=20261030">
 <style id="f4-superadmin-form-value-typography-20261028">
 /* Label is emphasized, but entered values must remain normal-weight.
    The native controls inherit 650 from their wrapping <label> otherwise. */
@@ -384,6 +384,7 @@ html.f4-sa-drawer-lock{overflow:hidden!important}
 <div id="sa-toast" class="sa-toast" hidden></div>
 <script src="/portal-live/ui-dialog.js?v=20261027-dialog4"></script>
 <script src="/portal-live/loading-state.js?v=786606f"></script>
+<script src="/portal-live/treasury-center.js?v=20261030"></script>
 <script>
 (()=>{
 'use strict';
@@ -419,7 +420,7 @@ saBackdrop.addEventListener('click',()=>saCloseDrawer());
 window.addEventListener('popstate',()=>{if(!history.state?.f4SaDrawer)saCloseDrawer(true)});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&saMenuOpened()){e.preventDefault();saCloseDrawer()}});
 window.addEventListener('resize',()=>{if(innerWidth>=1024)saCloseDrawer(true)});
-const groups=[['overview','Ringkasan Sistem'],['accounts','Akun & Hak Akses'],['content','Portal Utama'],['bank','Bank Sampah'],['masters','Data Acuan'],['audit','Pengaturan & Audit']];
+const groups=[['overview','Ringkasan Sistem'],['treasury','Pusat Keuangan'],['accounts','Akun & Hak Akses'],['content','Portal Utama'],['bank','Bank Sampah'],['masters','Data Acuan'],['audit','Pengaturan & Audit']];
 const submenu={
  content:[['projects','Project Card'],['agenda','Rencana Kegiatan'],['documentation','Dokumentasi'],['inventory','Inventaris'],['banners','Banner Slider'],['meetings','Hasil Rapat'],['arisan','Jadwal Arisan'],['jersey','Pesanan Jersey']],
  bank:[['bank_progress','Kegiatan'],['bank_albums','Dokumentasi'],['bank_inventory','Inventaris'],['bankcatalog','Jenis & Harga'],['bank_split','Bagi Hasil']],
@@ -457,7 +458,7 @@ function sidebar(g=group){
  for(const [key,label] of groups){
   const b=button('',()=>open(key),g===key?'active':'');
   const icon=el('img',undefined,'sa-nav-icon');
-  icon.src='/assets/icons/'+({overview:'superadmin',accounts:'user',content:'home',bank:'bank',masters:'inventory',audit:'book'}[key])+'.svg';
+  icon.src='/assets/icons/'+({overview:'superadmin',treasury:'book',accounts:'user',content:'home',bank:'bank',masters:'inventory',audit:'book'}[key])+'.svg';
   icon.alt='';icon.setAttribute('aria-hidden','true');b.append(icon,el('span',label));
   b.setAttribute('aria-current',g===key?'page':'false');side.append(b);
  }
@@ -543,6 +544,7 @@ function open(name,push=true){
  if(push&&window.parent!==window)
   window.parent.postMessage({type:'f4:superadmin-section',section:name},location.origin);
  if(name==='overview')overview();
+ if(name==='treasury')window.f4OpenTreasuryCenter?.();
  if(name==='accounts')accountsPage();
  if(name==='content'||name==='bank'||name==='masters'){
    openEditor(submenu[name][0][0]);
@@ -1035,7 +1037,7 @@ async function boot(){
   // immediately replace it with Content/Data Acuan (visible as a flash).
   if(window.parent!==window){
    try{
-    const parentFragment=window.parent.location.hash.match(/^#superadmin\/(overview|accounts|content|bank|masters|audit)$/)?.[1];
+    const parentFragment=window.parent.location.hash.match(/^#superadmin\/(overview|treasury|accounts|content|bank|masters|audit)$/)?.[1];
     if(parentFragment)requested=parentFragment;
    }catch{}
   }
