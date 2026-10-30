@@ -940,7 +940,7 @@ async function handleAdminContent(request, env, who, url) {
     }catch(e){return err("Konten memiliki referensi terkait atau tidak dapat dihapus. Data tetap utuh.",409)}
     return ok({id,deleted:true});
   }
-  if (!["save", "create"].includes(action)) return err("Aksi tidak diizinkan.", 400);
+  if (!["save", "create"].includes(action) && !(kind === "obligations" && action === "add_payer")) return err("Aksi tidak diizinkan.", 400);
   if (kind === "tariffs") {
     const tariff = String(payload.contribution_type || ""), amount = Number(payload.amount_rp);
     if (!["IURAN_BULANAN", "KEBERSIHAN", "KAS_LORONG", "ARISAN"].includes(tariff) || !Number.isSafeInteger(amount) || amount < 0 || amount > 5e6) return err("Tarif tidak valid.", 400);
