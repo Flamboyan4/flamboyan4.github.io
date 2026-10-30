@@ -17,7 +17,7 @@ for(const phrase of ['#v11Public .v17-public-banner.v27-banner-program','#v18Pub
  '#pageSetoran','#pagePenjualan','#pageRekonsiliasi','#pagePengesahan','#pageTabungan',
  '#pageBiaya','#pageDokumentasi','#pageInventaris','#pageMaster','#pageAdmin',
  '.f4-member-progress-modal-panel','width:min(226px,75vw)',
- 'max-width:1023px','max-width:760px','--eco-leaf:#118866',
+ 'max-width:1023px','max-width:760px','--eco-leaf:#087c50',
  'background:#086345!important','background:var(--eco-gold)!important']){
  assert(css.includes(phrase),'Missing themed component '+phrase);
 }
