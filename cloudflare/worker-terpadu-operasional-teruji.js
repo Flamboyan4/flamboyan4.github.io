@@ -898,7 +898,7 @@ async function handleAdminContent(request, env, who, url) {
       const entries=grouped.get(String(p.payer_id))||[];
       const current=entries.filter(x=>x.effective_from<=month).at(-1)||null;
       const upcoming=entries.find(x=>x.effective_from>month)||null;
-      const result={...p,effective_from:current?.effective_from||"",next_effective_from:upcoming?.effective_from||""};
+      const result={...p,effective_from:current?.effective_from||"",next_effective_from:upcoming?.effective_from||"",scheduled_versions:entries.filter(x=>x.effective_from>month)};
       for(const k of keys){
         result[k]=Number(current?.[k]||0);
         result["next_"+k]=upcoming?Number(upcoming[k]||0):null;
@@ -964,7 +964,7 @@ async function handleAdminContent(request, env, who, url) {
   }
   if (kind === "obligations") {
     const effective=String(payload.effective_from||"").trim();
-    const effectiveFrom=/^20\\d{2}-(0[1-9]|1[0-2])$/.test(effective)?effective+"-01":"";
+    const effectiveFrom=/^20\d{2}-(0[1-9]|1[0-2])$/.test(effective)?effective+"-01":"";
     const nextMonth=f4NextIuranMonth();
     const nowMonth=f4CurrentIuranMonth();
     if(!effectiveFrom)
