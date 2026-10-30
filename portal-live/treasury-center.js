@@ -344,6 +344,11 @@ function printTreasury(data){
  printWindow.document.write(html);
  printWindow.addEventListener("load",afterReady,{once:true});
  printWindow.document.close();
+ // Fallback jika browser tidak memancarkan event load pada about:blank hasil document.write.
+ setTimeout(()=>{
+  if(!started&&!printWindow.closed&&printWindow.document.querySelector("table"))
+   startPrint();
+ },1800);
 }
 function buildForm(target,data,refresh){
  const {funds}=data.catalog;
