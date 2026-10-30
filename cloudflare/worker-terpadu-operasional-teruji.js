@@ -1187,13 +1187,22 @@ function treasuryReceiptObservation(db,kind,id,fund,amount,note){
 }
 __name(treasuryReceiptObservation,"treasuryReceiptObservation");
 // Source references are classified independently; reading them NEVER changes balances.
+function treasurySuggestedLocation(method,fund){
+ const text=String(method||"").toLowerCase().trim();
+ if(/(?:qris|(?:^|\W)qr(?:\W|$))/.test(text))return "qris";
+ if(/mandiri|transfer|rekening/.test(text))return "mandiri";
+ if(/cash|tunai|kontan/.test(text))return fund?.cash||"";
+ return "";
+}
+__name(treasurySuggestedLocation,"treasurySuggestedLocation");
+// Semua transaksi yang memenuhi syarat muncul otomatis untuk diperiksa.
+// Deteksi tidak mengubah saldo; hanya pengesahan yang membuat mutasi terpusat.
 async function treasurySources(db,confirmedOn){
  if(!confirmedOn)return {pending:[],partial:false,warnings:[]};
- const [cash,bank,wCash,wBank]=await Promise.all([
+ const [cash,bank,contributions,observed,wCash,wBank,wContribution,wObservation]=await Promise.all([
   list(db,`SELECT c.id,c.occurred_on,c.transaction_type,c.category,c.note,c.debit_rp,c.credit_rp
     FROM bookkeeping_cash_transactions_posted c WHERE c.status='aktif' AND c.occurred_on>?
       AND (c.debit_rp>0 OR c.credit_rp>0)
-      -- Setoran RT dan Arisan merupakan alokasi administrasi, bukan saldo Humas.
       AND LOWER(TRIM(COALESCE(c.category,''))) NOT LIKE 'setoran rt%'
       AND LOWER(TRIM(COALESCE(c.category,''))) NOT LIKE 'iuran rt%'
       AND LOWER(TRIM(COALESCE(c.category,''))) NOT LIKE 'kebersihan%'
@@ -1207,30 +1216,64 @@ async function treasurySources(db,confirmedOn){
       AND (c.cash_in_rp>0 OR c.cash_out_rp>0)
       AND NOT EXISTS(SELECT 1 FROM treasury_events t WHERE t.request_key='source:bank:'||c.id)
     ORDER BY c.occurred_on,c.id LIMIT 101`,[confirmedOn]),
+  list(db,`SELECT c.id,c.project_id,c.contributor,c.amount_rp,c.payment_method,c.contributed_on,c.notes
+    FROM portal_project_contributions c JOIN portal_project_cards p ON p.id=c.project_id
+    WHERE c.status='aktif' AND p.project_kind='penggalangan' AND c.contributed_on>? AND c.amount_rp>0
+      AND NOT EXISTS(SELECT 1 FROM treasury_events t WHERE t.request_key='source:contribution:'||c.id)
+    ORDER BY c.contributed_on,c.id LIMIT 101`,[confirmedOn]),
+  list(db,`SELECT o.id,o.source_kind,o.source_id,o.fund_id,o.amount_rp,o.observed_on,o.note
+    FROM treasury_receipt_observations o
+    WHERE o.observed_on>=? AND o.created_at>=
+       (SELECT confirmed_at FROM treasury_config WHERE id=1)
+      AND NOT EXISTS(SELECT 1 FROM treasury_events t WHERE t.request_key='source:receipt:'||o.id)
+    ORDER BY o.created_at,o.id LIMIT 101`,[confirmedOn]),
   list(db,`SELECT e.request_key AS source_key FROM treasury_events e
     LEFT JOIN bookkeeping_cash_transactions_posted c ON e.request_key='source:book:'||c.id AND c.status='aktif'
-    WHERE e.request_key LIKE 'source:book:%' AND (
-      c.id IS NULL OR COALESCE(c.debit_rp,0)-COALESCE(c.credit_rp,0) <>
-        (SELECT COALESCE(SUM(x.amount_rp),0) FROM treasury_entries x WHERE x.event_id=e.id)
-    ) LIMIT 25`),
+    WHERE e.request_key LIKE 'source:book:%' AND
+      (c.id IS NULL OR COALESCE(c.debit_rp,0)-COALESCE(c.credit_rp,0) <>
+        (SELECT COALESCE(SUM(x.amount_rp),0) FROM treasury_entries x WHERE x.event_id=e.id))
+    LIMIT 25`),
   list(db,`SELECT e.request_key AS source_key FROM treasury_events e
     LEFT JOIN waste_cash_ledger c ON e.request_key='source:bank:'||c.id AND c.status='aktif'
-    WHERE e.request_key LIKE 'source:bank:%' AND (
-      c.id IS NULL OR COALESCE(c.cash_in_rp,0)-COALESCE(c.cash_out_rp,0) <>
-        (SELECT COALESCE(SUM(x.amount_rp),0) FROM treasury_entries x WHERE x.event_id=e.id)
-    ) LIMIT 25`)
+    WHERE e.request_key LIKE 'source:bank:%' AND
+      (c.id IS NULL OR COALESCE(c.cash_in_rp,0)-COALESCE(c.cash_out_rp,0) <>
+        (SELECT COALESCE(SUM(x.amount_rp),0) FROM treasury_entries x WHERE x.event_id=e.id))
+    LIMIT 25`),
+  list(db,`SELECT e.request_key AS source_key FROM treasury_events e
+    LEFT JOIN portal_project_contributions c ON e.request_key='source:contribution:'||c.id AND c.status='aktif'
+    WHERE e.request_key LIKE 'source:contribution:%' AND
+      (c.id IS NULL OR COALESCE(c.amount_rp,0) <>
+        (SELECT COALESCE(SUM(x.amount_rp),0) FROM treasury_entries x WHERE x.event_id=e.id))
+    LIMIT 25`),
+  list(db,`SELECT e.request_key AS source_key FROM treasury_events e
+    LEFT JOIN treasury_receipt_observations o ON e.request_key='source:receipt:'||o.id
+    WHERE e.request_key LIKE 'source:receipt:%' AND
+      (o.id IS NULL OR COALESCE(o.amount_rp,0) <>
+        (SELECT COALESCE(SUM(x.amount_rp),0) FROM treasury_entries x WHERE x.event_id=e.id))
+    LIMIT 25`)
  ]);
  const pending=[
   ...cash.filter(treasuryBookCashEligible).slice(0,100).map(x=>({type:"book",id:x.id,date:x.occurred_on,
-    fund:"kas_rt",note:x.category||x.note||"Kas Lorong",
-    amountRp:Number(x.debit_rp||0)-Number(x.credit_rp||0),suggestedLocation:"cash:kas_rt"})),
+    fund:"kas_rt",note:[x.category,x.note].filter(Boolean).join(" — ").slice(0,240)||"Kas Lorong",
+    category:x.category||"Kas Lorong",amountRp:Number(x.debit_rp||0)-Number(x.credit_rp||0),
+    suggestedLocation:"cash:kas_rt",sourceLabel:"Pembukuan Kas Lorong"})),
   ...bank.slice(0,100).map(x=>({type:"bank",id:x.id,date:x.occurred_on,
     fund:x.fund_position==="tabungan_warga"?"bank_warga":"bank_lingkungan",
-    note:x.note||x.transaction_type||"Bank Sampah",
-    amountRp:Number(x.cash_in_rp||0)-Number(x.cash_out_rp||0),suggestedLocation:"cash:bank_sampah"}))
- ];
- return {pending,partial:cash.length>100||bank.length>100,
-   warnings:[...wCash,...wBank].map(x=>x.source_key)};
+    note:x.note||x.transaction_type||"Bank Sampah",category:"Bank Sampah",
+    amountRp:Number(x.cash_in_rp||0)-Number(x.cash_out_rp||0),
+    suggestedLocation:"",sourceLabel:"Bank Sampah"})),
+  ...contributions.slice(0,100).map(x=>({type:"contribution",id:x.id,date:x.contributed_on,
+    fund:"project:"+x.project_id,note:"Donasi — "+x.contributor+(x.notes?" · "+x.notes:""),
+    category:"Donasi",amountRp:Number(x.amount_rp||0),
+    suggestedLocation:treasurySuggestedLocation(x.payment_method),
+    sourceLabel:"Penggalangan Dana"})),
+  ...observed.slice(0,100).map(x=>({type:"receipt",id:x.id,date:x.observed_on,
+    fund:x.fund_id,note:x.note,category:x.source_kind==="jersey"?"Jersey":"Pesanan",
+    amountRp:Number(x.amount_rp),suggestedLocation:"",sourceLabel:x.source_kind==="jersey"?"Jersey":"Pesanan Barang"}))
+ ].filter(x=>Number.isSafeInteger(x.amountRp)&&x.amountRp!==0)
+  .sort((a,b)=>b.date.localeCompare(a.date)||a.type.localeCompare(b.type));
+ return {pending,partial:[cash,bank,contributions,observed].some(a=>a.length>100),
+   warnings:[...wCash,...wBank,...wContribution,...wObservation].map(x=>x.source_key)};
 }
 __name(treasurySources,"treasurySources");
 async function treasurySourceRow(db,type,id){
@@ -1247,6 +1290,30 @@ async function treasurySourceRow(db,type,id){
     fund:row.fund_position==="tabungan_warga"?"bank_warga":"bank_lingkungan",
     note:row.note||row.transaction_type||"Bank Sampah",
     amount:Number(row.cash_in_rp||0)-Number(row.cash_out_rp||0)};
+ }
+ if(type==="contribution"){
+  const row=await one(db,`SELECT c.id,c.project_id,c.contributor,c.amount_rp,c.contributed_on,c.notes
+    FROM portal_project_contributions c JOIN portal_project_cards p ON p.id=c.project_id
+    WHERE c.id=? AND c.status='aktif' AND p.project_kind='penggalangan' LIMIT 1`,[id]);
+  return row&&{type,id,date:row.contributed_on,fund:"project:"+row.project_id,
+    note:"Donasi — "+row.contributor+(row.notes?" · "+row.notes:""),amount:Number(row.amount_rp||0)};
+ }
+ if(type==="receipt"){
+  const row=await one(db,`SELECT o.id,o.source_kind,o.source_id,o.fund_id,o.amount_rp,o.observed_on,o.note,
+    o.created_at FROM treasury_receipt_observations o WHERE o.id=? LIMIT 1`,[id]);
+  if(!row)return null;
+  const cfg=await one(db,"SELECT confirmed_at FROM treasury_config WHERE id=1");
+  if(!cfg?.confirmed_at||row.created_at<cfg.confirmed_at)return null;
+  // Observasi berasal dari kenaikan pembayaran di modul sumber; jika sumber
+  // sudah dibatalkan/hilang, wajib diperiksa dulu dan tidak boleh disahkan.
+  if(row.source_kind==="project_order"){
+    const source=await one(db,"SELECT status,paid_rp FROM portal_project_orders WHERE id=?",[row.source_id]);
+    if(!source||source.status!=="aktif"||Number(source.paid_rp)<Number(row.amount_rp))return null;
+  }else if(row.source_kind==="jersey"){
+    const source=await one(db,"SELECT payment_status,nominal_rp,method FROM portal_jersey_orders WHERE id=?",[row.source_id]);
+    if(!source||treasuryJerseyPaid(source)<Number(row.amount_rp))return null;
+  }
+  return {type,id,date:row.observed_on,fund:row.fund_id,note:row.note,amount:Number(row.amount_rp)};
  }
  return null;
 }
