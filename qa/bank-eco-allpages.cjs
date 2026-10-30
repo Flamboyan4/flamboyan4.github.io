@@ -22,7 +22,7 @@ for(const phrase of ['#v11Public .v17-public-banner.v27-banner-program','#v18Pub
  assert(css.includes(phrase),'Missing themed component '+phrase);
 }
 assert(!css.includes('#a0dcb3'),'Old mint gradient present');
-assert(css.includes('--eco-gold:#F5B52E'),'Bright golden yellow token missing');
+assert(css.includes('--eco-gold:#ffc026'),'Current golden yellow theme token missing');
 assert(css.includes('background:#086345!important;border:1px solid #054d35!important'),'Deep green public hero missing');
 assert(css.includes('#v17Program .v17-feature{'),'Program card selector missing');
 assert(css.includes('background:#fff!important;border:1px solid #e0eae3!important'),'Solid white program missing');
