@@ -261,7 +261,7 @@ function printTreasury(data){
  const byFund=data.catalog.funds.map(f=>{
   const cash=amount(data.balances,f.id,f.cash),qris=amount(data.balances,f.id,"qris"),mandiri=amount(data.balances,f.id,"mandiri");
   return {name:f.name,cash,qris,mandiri,total:cash+qris+mandiri};
- });
+ }).filter(f=>f.total!==0);
  const totalCash=byFund.reduce((n,x)=>n+x.cash,0),totalQris=byFund.reduce((n,x)=>n+x.qris,0);
  const totalBank=byFund.reduce((n,x)=>n+x.mandiri,0);
  const total=totalCash+totalQris+totalBank;
