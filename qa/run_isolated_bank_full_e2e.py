@@ -632,15 +632,18 @@ try:
                 FROM waste_allocations a JOIN waste_batches b ON b.id=a.batch_id AND b.status='disahkan'
                 JOIN waste_sales s ON s.batch_id=a.batch_id AND s.status='terkonfirmasi'
                 WHERE substr(s.sold_on,1,7)='2026-10'""").fetchone()
-            verified_deposit_weight=verify.execute("""SELECT COALESCE(SUM(d.total_grams),0)/1000.0 FROM waste_deposits d
-                JOIN waste_batches b ON b.id=d.batch_id
-                JOIN waste_sales s ON s.batch_id=b.id AND s.status='terkonfirmasi'
-                WHERE d.status='terkonfirmasi' AND b.status='disahkan' AND substr(s.sold_on,1,7)='2026-10'""").fetchone()[0]
+            # Confirmed sold weight is the actual lapak sale line weight.
+            # Deposit weights may differ after sale reconciliation; they are not financial truth.
+            verified_sold_weight=verify.execute("""SELECT COALESCE(SUM(l.grams),0)/1000.0 FROM waste_sale_lines l
+                JOIN waste_sales s ON s.id=l.sale_id AND s.status='terkonfirmasi'
+                JOIN waste_batches b ON b.id=s.batch_id AND b.status='disahkan'
+                WHERE substr(s.sold_on,1,7)='2026-10'""").fetchone()[0]
         summarized=public_month[1].get("ringkasan",{})
         assert_step("bank_public_monthly_report_reconciles_allocations",
           (summarized.get("batch"),summarized.get("hasilPenjualan"),summarized.get("hakWarga"),
-           summarized.get("operasional"))==settled and summarized.get("beratKg")==verified_deposit_weight,
-          {"totals_match":(summarized.get("hasilPenjualan"),summarized.get("hakWarga"))==settled[1:3]})
+           summarized.get("operasional"))==settled and summarized.get("beratKg")==verified_sold_weight,
+          {"totals_match":(summarized.get("hasilPenjualan"),summarized.get("hakWarga"))==settled[1:3],
+           "weight_match":summarized.get("beratKg")==verified_sold_weight})
         summary_all=call(bank_base+"/api/v2/public/bank/report")
         assert_step("bank_public_report_includes_monthly_and_available_periods",
           summary_all[0]==200 and "2026-10" in summary_all[1].get("periodeTersedia",[]) and
