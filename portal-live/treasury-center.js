@@ -416,23 +416,24 @@ function buildSources(target,data,refresh){
  const eligibleBank=new Map();
  for(const x of data.bankPendingCounts||[])eligibleBank.set(x.fundId,
    (eligibleBank.get(x.fundId)||0)+Number(x.amountRp||0));
- const pendingBankCount=[...pendingBank].filter(([fund,total])=>{
+ const bankApprovalFunds=new Set([...pendingBank].filter(([fund,total])=>{
    const central=(data.balances||[]).filter(y=>y.fund_id===fund).reduce((n,y)=>n+Number(y.amount_rp||0),0);
    const fresh=eligibleBank.get(fund)||0;
    return fresh>0&&total>central&&fresh<=total-central;
- }).length;
- const label=el("h3","Periksa Dana ("+(sources.length+pendingBankCount)+")");
+ }).map(([fund])=>fund));
+ const visibleSources=sources.filter(x=>x.type!=="bank"||!bankApprovalFunds.has(x.fund));
+ const label=el("h3","Periksa Dana ("+(visibleSources.length+bankApprovalFunds.size)+")");
  const reload=el("button","Muat Ulang","tc-secondary");reload.type="button";
  reload.onclick=async()=>{reload.disabled=true;try{await refresh()}catch(e){reload.disabled=false}};
  top.append(label,reload);section.append(top);
  if(warnings.length||(data.bankCoverageWarnings||[]).length)
     section.append(el("p","Ada perubahan data yang sudah disahkan. Periksa riwayat.","tc-source-warning"));
- if(!sources.length&&!(data.bankSourceBalances||[]).some(x=>Number(x.amountRp)>0))
+ if(!visibleSources.length&&!(data.bankSourceBalances||[]).some(x=>Number(x.amountRp)>0))
     section.append(el("p","Belum ada dana baru.","tc-muted"));
  const status=el("p","","tc-status");status.setAttribute("role","status");
  const funds=new Map(data.catalog.funds.map(x=>[x.id,x]));
  const list=el("div",undefined,"tc-source-list");
- for(const src of sources.slice(0,100)){
+ for(const src of visibleSources.slice(0,100)){
   const item=el("div",undefined,"tc-review-row");
   const meta=el("div",undefined,"tc-review-meta");
   meta.append(el("strong",src.sourceLabel+" · "+formatDate(src.date)+" · "+rp(Math.abs(src.amountRp))),
