@@ -70,3 +70,14 @@
 - Untuk penerimaan yang tidak memiliki catatan transaksi asal, **Catat Mutasi Dana** tetap tersedia sebagai pengecualian; keterangan wajib menyebut asal dan peruntukan.
 - **Batasan yang masih berlaku:** tidak ada koneksi real-time ke bank/penyedia QRIS; “otomatis terdeteksi” berarti setelah pencatatan di modul, bukan dana fisik langsung dibaca dari rekening. Pembayaran campuran tidak ditebak lokasinya. Dataset Jersey lama yang tidak memiliki tanggal penerimaan wajib ditinjau manual; peristiwa baru setelah fitur dipasang saja yang dideteksi.
 - Untuk sumber yang diedit/dibatalkan sesudah pengesahan, mutasi lama tidak diam-diam diubah. Perubahan itu harus diperiksa dan dikoreksi dengan transaksi baru atau prosedur audit.
+
+## Deteksi saldo Bank Sampah yang sudah disahkan
+- Setelah penjualan disahkan, Bank Sampah menulis beberapa baris `waste_cash_ledger` dengan `fund_position` sebenarnya: `tabungan_warga`, `operasional`, `kas_lorong`, dan `cadangan` (hanya baris berjumlah positif).
+- Pusat Keuangan harus membaca semuanya, bukan hanya `tabungan_warga`. Pemetaan:
+  - `tabungan_warga` → Bank Sampah — Hak Warga;
+  - `operasional` dan warisan `lingkungan` → Bank Sampah — Kas Pengelola;
+  - `kas_lorong` → Bank Sampah — Bagian Kas Lorong, **belum** otomatis masuk Cash Humas; perlu pemindahan pos/tempat setelah penyerahan uang;
+  - `cadangan` → Bank Sampah — Cadangan.
+- Untuk penjualan yang dicatat bertanggal lama tetapi **baru disahkan sesudah Pusat Keuangan aktif**, tanggal pengesahan batch menjadi tanggal *usulan posting* di Pusat Keuangan; tanggal asli penjualan tetap ditampilkan sebagai referensi. Ini untuk menghindari hilangnya transaksi akibat tanggal penjualan lebih lama dari tanggal saldo awal.
+- Penjualan yang **sudah disahkan sebelum saldo awal** tidak langsung dibukukan sebagai pemasukan baru. Angka netonya tetap terlihat pada bagian **Saldo sumber Bank Sampah**, sehingga bisa dibandingkan dengan posisi pusat. Jika belum masuk saldo awal, lakukan pemeriksaan/koreksi tercatat; jangan mengimpor ulang secara otomatis.
+- Modul sumber Bank Sampah tetap pemilik data rinci; Pusat Keuangan hanya mengusulkan untuk diperiksa. Pilih lokasi Cash Bank Sampah, QRIS bersama, atau Mandiri bersama sesuai fisik uang lalu **Periksa & Sahkan**. Jangan masukkan dana berulang.
