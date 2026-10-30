@@ -537,4 +537,3 @@ body.f4-bank-embedded #dashboardView .section,
  .f4-bank-app-dock .f4-bank-app-dock-action:focus-visible{outline:2px solid #e6a125}
 }
 @media(min-width:761px){#pageDashboard.f4-bank-app-dashboard>.v14-head{display:none}}
-@media print{.f4-bank-app-home,.f4-bank-app-dock{display:none}}
