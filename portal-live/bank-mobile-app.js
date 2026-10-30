@@ -116,7 +116,7 @@ function ensureHome(){
  $("f4BankAppShortcuts").replaceChildren(...(role==="admin"?adminActions:memberActions).map(x=>action(x)));
  const name=$("pName")?.textContent?.trim()||"Anggota";
  const house=$("pHome")?.textContent?.trim()||"—";
- text("f4BankCardName",name);text("f4BankAppWelcome", "Halo, "+name+"!");
+ text("f4BankCardName",name);
  const welcome=$("f4BankAppWelcome");if(welcome){
    welcome.replaceChildren(el("small","","Selamat datang"),el("strong","","Halo, "+name+"!"));
    welcome.append(el("small","","Rumah "+house));
@@ -544,7 +544,11 @@ function init(){
  if(view)new MutationObserver(sync).observe(view,{attributes:true,attributeFilter:["class"]});
  new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:["data-f4-bank-role"]});
  const page=$("pageDashboard");
- if(page)new MutationObserver(()=>{if(page.classList.contains("v14-home")&&!$("f4BankAppHome"))sync();}).observe(page,{childList:true});
+ if(page)new MutationObserver(()=>{
+   if(page.classList.contains("v14-home")&&!$("f4BankAppHome"))sync();
+   const source=$("f4BankDashboardSource"),chart=$("f4-member-weight-chart");
+   if(role==="member"&&source&&chart&&chart.parentElement!==source)source.append(chart);
+  }).observe(page,{childList:true,subtree:true});
  sync();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
