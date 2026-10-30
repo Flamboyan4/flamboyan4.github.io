@@ -9,6 +9,8 @@ on:
       - qa/verify-treasury-humas.cjs
       - qa/verify-treasury-dynamic.py
       - qa/verify-treasury-bank-detection.py
+      - cloudflare/migrations/20261030_treasury_bank_coverage.sql
+      - qa/verify-treasury-bank-approval.py
       - .github/workflows/f4-finance-guarded-deploy.yml
   workflow_dispatch:
 permissions:
@@ -194,6 +196,18 @@ jobs:
               actual={c.get("name") for c in d1query("PRAGMA table_info("+table+")")}
               if not cols.issubset(actual):raise RuntimeError("Incomplete treasury dynamic schema: "+table)
           print("D1_ADDITIVE_TREASURY_DYNAMIC_OK=1")
+          coverage_sql=pathlib.Path("cloudflare/migrations/20261030_treasury_bank_coverage.sql").read_text()
+          if coverage_sql.upper().count("CREATE TABLE IF NOT EXISTS")!=1 or coverage_sql.upper().count("CREATE INDEX IF NOT EXISTS")!=1:
+              raise RuntimeError("Unexpected Bank Sampah coverage migration")
+          coverage_clean="\n".join(line for line in coverage_sql.splitlines()
+                                      if not line.lstrip().startswith("--"))
+          for statement in coverage_clean.split(";"):
+              q=statement.strip()
+              if q:d1query(q)
+          actual={c.get("name") for c in d1query("PRAGMA table_info(treasury_bank_source_coverage)")}
+          if not {"source_id","event_id","fund_id","captured_amount_rp"}.issubset(actual):
+              raise RuntimeError("Incomplete Bank Sampah approval coverage schema")
+          print("D1_TREASURY_BANK_COVERAGE_OK=1")
           write_flags={k:by_name[k].get("text") for k in by_name if k.endswith("_WRITE_ENABLED")}
           if not write_flags or any(v not in ("true","false") for v in write_flags.values()):
               raise RuntimeError("Missing or unrecognized Worker write flags")
