@@ -135,6 +135,60 @@ function buildConfirm(target,data,refresh){
  };
  row.append(date,b);panel.append(head,desc,row,msg);target.append(panel);
 }
+function buildSources(target,data,refresh){
+ if(!data.confirmed)return;
+ const panel=el("section",undefined,"tc-panel tc-no-print");
+ const head=el("div",undefined,"tc-section-head");
+ head.append(el("h3","Cocokkan Transaksi Portal"));
+ panel.append(head);
+ const book=(data.sources||[]).filter(x=>x.type==="book");
+ const bank=(data.sources||[]).filter(x=>x.type==="bank");
+ const status=el("p","","tc-status");
+ if(data.sourceWarnings?.length){
+  panel.append(el("p",data.sourceWarnings.length+" transaksi yang sudah dihubungkan berubah atau dibatalkan di modul sumber. Periksa dan koreksi mutasi sebelum menggunakan total saldo.","tc-source-warning"));
+ }
+ const quick=el("div",undefined,"tc-sync");
+ const sync=el("button","Sinkronkan Buku Kas ("+book.length+")","tc-secondary");
+ sync.type="button";sync.disabled=!book.length;
+ sync.onclick=async()=>{
+  if(!confirm("Masukkan transaksi Buku Kas yang sudah dibukukan sebagai Cash Kas RT? Pastikan belum tercakup dalam saldo awal."))return;
+  sync.disabled=true;status.textContent="Mencocokkan Buku Kas…";
+  try{
+   const v=await post({action:"sync-book"});
+   status.textContent=(v.imported||0)+" transaksi dihubungkan.";
+   await refresh();
+  }catch(e){status.textContent=e.message;sync.disabled=false}
+ };
+ quick.append(sync,el("span","Dikerjakan per 25 transaksi; dana yang belum dibukukan tidak diikutkan.","tc-muted"));
+ panel.append(quick);
+ if(bank.length){
+  panel.append(el("h4","Bank Sampah — pilih tempat uang sebenarnya"));
+  const table=el("div",undefined,"tc-source-list");
+  const fundById=new Map(data.catalog.funds.map(f=>[f.id,f]));
+  bank.slice(0,30).forEach(src=>{
+   const line=el("div",undefined,"tc-source-row");
+   const details=el("div",undefined,"tc-source-details");
+   details.append(el("strong",src.date+" · "+rp(src.amountRp)),
+    el("span",(fundById.get(src.fund)?.name||"Bank Sampah")+" · "+src.note));
+   const pick=select([{id:"",name:"Pilih tempat uang"},...fields(data.catalog,src.fund)]);
+   pick.value="";pick.setAttribute("aria-label","Tempat penerimaan atau pengeluaran");
+   const save=el("button","Catat","tc-secondary");save.type="button";
+   save.onclick=async()=>{
+    if(!pick.value){status.textContent="Pilih tempat uang untuk transaksi Bank Sampah.";pick.focus();return}
+    save.disabled=true;status.textContent="Menghubungkan transaksi…";
+    try{
+     await post({action:"link",sourceType:src.type,sourceId:src.id,location:pick.value});
+     await refresh();
+    }catch(e){status.textContent=e.message;save.disabled=false}
+   };
+   line.append(details,pick,save);table.append(line);
+  });
+  panel.append(table);
+ }
+ if(!book.length&&!bank.length)panel.append(el("p","Tidak ada transaksi sumber baru yang menunggu dicocokkan.","tc-muted"));
+ if(data.sourcePartial||bank.length>30)panel.append(el("p","Masih ada transaksi lain; selesaikan daftar ini, lalu muat ulang.","tc-muted"));
+ panel.append(status);target.append(panel);
+}
 function render(data){
  current=data;
  main.replaceChildren();
@@ -165,6 +219,7 @@ function render(data){
  const refresh=()=>fetchData().then(render);
  buildForm(panel,data,refresh);
  buildConfirm(panel,data,refresh);
+ buildSources(panel,data,refresh);
  const history=el("section",undefined,"tc-panel");
  const h=el("div",undefined,"tc-section-head");
  h.append(el("h3","Riwayat Mutasi"));
