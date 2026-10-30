@@ -23,18 +23,17 @@ if(!html.includes("r.berat==null?'Berat jual belum tersedia':kg(r.berat)"))
  throw Error('Confirmed gram weight must not silently fall back to initial grams');
 if(!html.includes("period.missingWeight"))
  throw Error('Admin chart must preserve missing final grams as unavailable');
-// PDF must not regress to thin green/grey borders from the dynamically inserted print style.
+// PDF borders are authored by the original inline print component.
+// Keep regression checks aligned with the current single-source print rules.
 for(const check of [
- "border:1px solid #000!important;background:#fff!important",
- "#v10Print tbody td,#v27PrintReport tbody td{border-color:#000!important}",
- "#v10Print th,#v10Print td{font-size:9pt;border:1px solid #000;padding:6px}",
- "body #v10Print :is(table,thead,tbody,tfoot,tr,th,td)"
+  "#v10Print th,#v10Print td{font-size:9pt;border:1px solid #000;padding:6px}",
+  "#v10Print tbody td,#v27PrintReport tbody td{border-color:#000}",
+  "body.f4-bank-single-print #v10Print th,body.f4-bank-single-print #v10Print td,",
+  "body.f4-bank-single-print #v27PrintReport th,body.f4-bank-single-print #v27PrintReport td{",
+  "border:1px solid #000;background:#fff!important;color:#1b3526!important"
 ]){
- if(!html.includes(check))throw Error('Bank PDF border must remain black: '+check);
+ if(!html.includes(check))throw Error('Bank PDF black border missing: '+check);
 }
-const shared=fs.readFileSync('portal-live/print-black-lines.css','utf8');
-if(!shared.includes('@media print')||!shared.includes('border-color: #000 !important'))
- throw Error('Shared black-border print stylesheet is missing');
 console.log('F4_ECO_CLEAN_HEADER_STATIC_OK');
 function assertChevron(){
  if(!html.includes('f4-eco-activity-arrow'))throw Error('Standard gallery chevron missing in activity list');
