@@ -20,5 +20,6 @@ assert(!account.includes('b.click();'),'Password change must not invoke logout w
 const handover=fs.readFileSync('portal-live/bank-sale-handover.js','utf8');
 new vm.Script(handover,{filename:'bank-sale-handover'});
 assert(handover.includes('border-collapse:separate;border-spacing:0') && handover.includes('border-right:1px solid #000'),'Black PDF table grid must stay visible');
-assert(handover.includes("im.decode().catch(()=>{})"),'Logo must finish loading before print');
+assert(handover.includes("win.addEventListener('load',autoPrint,{once:true})") && handover.includes("win.print()"),'Automatic handover print must run after document load');
+assert(!handover.includes('await win.document.fonts.ready') && !handover.includes('await Promise.all(Array.from(win.document.images'),'Auto-print must not wait asynchronously for assets');
 console.log('F4_ACCOUNT_PROFILE_PASSWORD_OK');
