@@ -323,6 +323,9 @@
     const records=[...table.querySelectorAll("tbody tr")].map(tr=>{
       const cells=[...tr.cells].map(c=>c.textContent.trim());
       return {date:cells[0]||"",name:cells[1]||"Transaksi",credit:moneyAmount(cells[2]),debit:moneyAmount(cells[3]),balance:cells[4]||"",month:formatMonth(cells[0])};
+    }).sort((a,b)=>{
+      const day=s=>Number((s.date.match(/^\d{1,2}/)||["0"])[0]);
+      return b.month.localeCompare(a.month)||day(b)-day(a);
     });
     months.replaceChildren();
     if(!records.length){host.textContent="Belum ada transaksi.";scrollToSavingAnchor();return;}
