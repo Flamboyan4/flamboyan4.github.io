@@ -78,7 +78,7 @@ function statusFor(page){
  if(!page)return;
  const msg=page.querySelector(".f4-bank-screen-status");
  if(!msg)return;
- const loaded=privateArea&&!privateArea.classList.contains("hidden");
+ const loaded=!!memberStatement;
  msg.hidden=!!loaded;
  if(!loaded)msg.textContent=gate?.textContent?.trim()||"Memuat tabungan...";
 }
@@ -210,6 +210,8 @@ function mountSavings(){
   const hero=el("section","f4-bank-savings-hero");hero.id="f4BankSavingsHero";
   hero.append(el("small","","SALDO TABUNGAN"),el("strong","","—"),el("span","","Saldo dari hasil penjualan sah"));
   priv.insertBefore(hero,priv.firstChild);hero.querySelector("strong").id="f4BankSavingsBalance";
+  const payout=el("button","f4-bank-gold-action f4-bank-savings-payout","Ajukan Pencairan");
+  payout.type="button";payout.onclick=()=>navigate("bank-payout");hero.append(payout);
  }
  if(!$("f4BankSavingsStats")){
   const mini=el("div","f4-bank-savings-stats");mini.id="f4BankSavingsStats";
@@ -224,6 +226,8 @@ function mountSavings(){
   chart.append(el("h3","","Perkembangan Setoran"));
   const bars=el("div","f4-bank-savings-bars","Memuat...");bars.id="f4BankSavingsBars";chart.append(bars);
   $("f4BankSavingsStats")?.after(chart);
+  const report=el("button","f4-bank-report-open","Lihat Laporan & Cetak PDF");
+  report.type="button";report.onclick=()=>navigate("bank-report");chart.after(report);
  }
  // Source table remains untouched for full PDF and CSV and private API bookkeeping.
  syncSavings();
