@@ -20,7 +20,7 @@ const css=[
 '.meta>div{min-width:0;overflow-wrap:anywhere}.meta small{display:block;font-size:8pt;color:#597565;line-height:1.05;margin-bottom:.6mm}.meta b{font-size:9pt;line-height:1.15;display:block}',
 'table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;margin:0 0 2mm;border-top:1px solid #000;border-left:1px solid #000}',
 'th,td{border:0;border-right:1px solid #000;border-bottom:1px solid #000;padding:1.3mm 1.6mm;font-size:8.5pt;line-height:1.15;overflow-wrap:anywhere;vertical-align:top}',
-'th{background:#e5f1e8!important;color:#234d35;text-align:center;font-weight:700}',
+'th{background:#e5f1e8;color:#234d35;text-align:center;font-weight:700}',
 'td.right{text-align:right;white-space:nowrap}',
 'tfoot td{font-size:9pt;font-weight:750;background:#f8fbf9}',
 '.totals{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2mm;border:1px solid #000;margin:2mm 0;padding:1.7mm 2.5mm;background:#f6faf7}',
@@ -35,7 +35,7 @@ const css=[
 '.toolbar{max-width:192mm;margin:12px auto;display:flex;justify-content:flex-end;gap:8px}',
 '.toolbar button{background:#18764d;color:#fff;border:0;border-radius:7px;padding:10px 15px;font:700 10pt Arial;cursor:pointer}',
 '.toolbar button:first-child{background:#e4f2e8;color:#21543a}',
-'@media print{.sheet{max-width:none;margin:0 auto}.toolbar{display:none!important}thead{display:table-header-group}tr,.head,.meta,.totals,.sign{break-inside:avoid}}'
+'@media print{.sheet{max-width:none;margin:0 auto}.toolbar{display:none}thead{display:table-header-group}tr,.head,.meta,.totals,.sign{break-inside:avoid}}'
 ].join('');
 function page(body,tools){
  return '<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
