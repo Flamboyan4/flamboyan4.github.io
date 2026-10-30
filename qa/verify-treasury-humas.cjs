@@ -65,7 +65,7 @@ assert.match(ui,/setTimeout\(\(\)=>notice\.remove\(\),3500\)/);
 assert.doesNotMatch(ui,/print\.onclick=\(\)=>window\.print\(\)/);
 assert.match(worker,/openingBalances/);
 assert.match(ui,/const shell=el\("details",undefined,"tc-panel tc-mutation-panel/);
-assert.match(ui,/shell.append\(el\("summary","Pindah Dana"\)\)/);
+assert.match(ui,/shell.append\(el\("summary","Transaksi Baru"\)\)/);
 assert.match(ui,/function buildSources\(target,data,refresh\)/);
 assert.match(ui,/Periksa Dana/);
 assert.match(ui,/sourceType:src\.type,sourceId:src\.id/);
