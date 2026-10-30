@@ -1334,7 +1334,8 @@ async function treasuryApi(request,env,who,url){
     const finalTotal=positions.reduce((n,x)=>n+x.amount,0);
     if(!Number.isSafeInteger(finalTotal)||finalTotal<=0)return err("Masukkan minimal satu saldo uang yang benar.",400);
     const eventId="treasury:opening-grid:"+crypto.randomUUID(),note="Saldo awal "+date;
-    const statements=[db.prepare("INSERT INTO treasury_events(id,request_key,payload_hash,kind,occurred_on,note,created_by) VALUES(?,?,?,?,?,?,?)")
+    const statements=[db.prepare(`INSERT INTO treasury_events(id,request_key,payload_hash,kind,occurred_on,note,created_by)
+      SELECT ?,?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM treasury_config WHERE id=1 AND confirmed_at IS NULL)`)
       .bind(eventId,key,fingerprint,"opening",date,note,who.id)];
     for(const [i,x] of deltas.entries()){
       // Di dalam D1.batch, semua saldo dicek ulang; konflik akan rollback seluruh formulir.
