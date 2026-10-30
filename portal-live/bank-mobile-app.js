@@ -223,7 +223,7 @@ function mountSavings(){
   const chart=el("section","f4-bank-savings-chart");chart.id="f4BankSavingsChart";
   chart.append(el("h3","","Perkembangan Setoran"));
   const bars=el("div","f4-bank-savings-bars","Memuat...");bars.id="f4BankSavingsBars";chart.append(bars);
-  priv.querySelector(".stats")?.after(chart);
+  $("f4BankSavingsStats")?.after(chart);
  }
  // Source table remains untouched for full PDF and CSV and private API bookkeeping.
  syncSavings();
@@ -337,12 +337,12 @@ function chartSavings(){
  }
 }
 function syncSavings(){
- text("f4BankSavingsBalance",$("v12Balance")?.textContent||"—");
- text("f4BankSavingsCredit",$("v12Credit")?.textContent||"—");
- text("f4BankSavingsDebit",$("v12Debit")?.textContent||"—");
- text("f4BankPayoutBalance",$("v12Balance")?.textContent||"—");
+ text("f4BankSavingsBalance",memberStatement?rupiah(memberStatement.saldo):"—");
+ text("f4BankSavingsCredit",memberStatement?rupiah(memberStatement.totalMasuk):"—");
+ text("f4BankSavingsDebit",memberStatement?rupiah(memberStatement.totalCair):"—");
+ text("f4BankPayoutBalance",memberStatement?rupiah(memberStatement.saldo):"—");
  const requestButton=$("f4BankRequestSubmit");
- if(requestButton)requestButton.disabled=!requestEnabled||$("v12Private")?.classList.contains("hidden");
+ if(requestButton)requestButton.disabled=!requestEnabled||!memberStatement;
  chartSavings();
  if($("bank-history"))showHistory();
  if($("bank-report"))showReport();
@@ -351,10 +351,6 @@ function syncSavings(){
 function ensureMemberPages(){
  if(role!=="member")return;
  mountSavings();
- const deposit=ensureScreen("bank-deposit","Cara Setor");
- if(!$("f4MemberFlow")?.isConnected||$("f4MemberFlow").parentElement!==deposit){
-  if($("f4MemberFlow"))deposit.append($("f4MemberFlow"));
- }
  ensureScreen("bank-history","Riwayat Transaksi");
  ensureScreen("bank-payout","Pengajuan Pencairan");
  ensureScreen("bank-report","Laporan Tabungan");
@@ -374,7 +370,7 @@ function buildRequestPage(){
   el("h3","f4-bank-screen-subhead","Riwayat Pengajuan"),list);
  for(const [label,value] of [["25% ",.25],["50% ",.5],["100% ",1]]){
   const b=el("button","f4-bank-quick-amount",label.trim());b.type="button";
-  b.onclick=()=>{const n=money($("v12Balance")?.textContent);$("f4BankPayoutAmount").value=String(Math.floor(n*value));};
+  b.onclick=()=>{const n=Number(memberStatement?.saldo||0);$("f4BankPayoutAmount").value=String(Math.floor(n*value));};
   $("f4BankQuickAmounts").append(b);
  }
 }
@@ -382,10 +378,10 @@ async function requestsMember(){
  const list=$("f4BankMemberRequests"),status=$("f4BankRequestStatus"),button=$("f4BankRequestSubmit");
  if(!list)return;
  requestEnabled=false;if(button)button.disabled=true;status.textContent="Memeriksa pengajuan...";list.textContent="";
- text("f4BankPayoutBalance",$("v12Balance")?.textContent||"—");
+ text("f4BankPayoutBalance",memberStatement?rupiah(memberStatement.saldo):"—");
  try{
   const response=await api("/api/member/bank/payout-requests");
-  requestEnabled=true;if(button)button.disabled=$("v12Private")?.classList.contains("hidden");
+  requestEnabled=true;if(button)button.disabled=!memberStatement;
   status.textContent="Pengajuan diperiksa pengelola. Saldo berkurang setelah uang dibayar.";
   list.replaceChildren(...response.items.map(item=>{
    const row=el("div","f4-bank-request-entry");
@@ -399,7 +395,7 @@ async function requestsMember(){
 async function submitRequest(event){
  event.preventDefault();if(!requestEnabled)return;
  const button=$("f4BankRequestSubmit"),amount=Number($("f4BankPayoutAmount").value);
- const balance=money($("v12Balance")?.textContent);
+ const balance=Number(memberStatement?.saldo||0);
  if(!Number.isSafeInteger(amount)||amount<=0||amount>balance){$("f4BankRequestStatus").textContent="Nominal harus sesuai saldo terkonfirmasi.";return;}
  if(!requestNonce)requestNonce="PR"+crypto.randomUUID().replace(/-/g,"");
  const original=button.textContent;button.disabled=true;button.textContent="Mengirim...";
@@ -474,20 +470,22 @@ function hideCustom(){
 }
 function navigate(route){
  if(route==="menu"){$("v18PrivateMenuButton")?.click();return;}
- if(route==="bank-history"||route==="bank-report"||route==="bank-payout"||route==="bank-deposit"){
+ if(route==="bank-deposit"){
+  window.goPage("dashboard");
+  const flow=$("f4MemberFlow");if(flow){flow.open=true;flow.scrollIntoView({behavior:"smooth",block:"start"});}
+  return;
+ }
+ if(route==="bank-history"||route==="bank-report"||route==="bank-payout"){
   window.goPage(route);return;
  }
  if(typeof window.goPage==="function")window.goPage(route);
 }
 function handleRoute(route,old,args){
  if(custom.includes(route)&&roleType()==="member"){
-  old.call(window,route==="bank-deposit"?"dashboard":"pribadi",...args);
+  old.call(window,"pribadi",...args);
   ensureMemberPages();
   hideCustom();
-  if(route==="bank-deposit"){
-   $("pageDashboard")?.classList.add("hidden");
-   const flow=$("f4MemberFlow");if(flow)flow.open=true;
-  }else $("pagePribadi")?.classList.add("hidden");
+  $("pagePribadi")?.classList.add("hidden");
   $(route)?.classList.remove("hidden");screen=route;markDock();
   if(route==="bank-history")showHistory();
   if(route==="bank-report")showReport();
@@ -511,6 +509,7 @@ function sync(){
  if(next!==role){
   role=next;screen="dashboard";dock().replaceChildren(...(role==="admin"?adminDock:memberDock).map(x=>action(x,true)));
   if(role==="member")requestNonce="";
+  memberStatement=null;
  }
  ensureHome();
  if(role==="member")ensureMemberPages();
