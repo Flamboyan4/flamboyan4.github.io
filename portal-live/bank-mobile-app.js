@@ -190,8 +190,8 @@ function mountSavings(){
  page.classList.add("f4-bank-savings-page");
  const source=$("f4BankPrivateSource")||el("div","f4-bank-hidden-source");
  source.id="f4BankPrivateSource";source.hidden=true;if(!source.isConnected)priv.append(source);
- const first=$("v12Balance")?.closest(".stat");
- if(first&&first.parentElement!==source)source.append(first);
+ const originalStats=priv.querySelector(":scope > .stats");
+ if(originalStats&&originalStats.parentElement!==source)source.append(originalStats);
  const toolbar=priv.querySelector(".f4-member-tools");
  if(toolbar&&toolbar.parentElement!==source)source.append(toolbar);
  const history=$("v12History");
@@ -202,10 +202,22 @@ function mountSavings(){
  }
  priv.querySelector(".f4-member-payout-help")?.remove();
  $("f4BankMemberPayout")?.remove();
+ const detailsHead=$("v12Deposits")?.previousElementSibling;
+ if(detailsHead?.tagName==="P"&&detailsHead.classList.contains("hint"))detailsHead.remove();
+ const revised=$("v12Deposits")?.previousElementSibling;
+ if(revised?.tagName==="H2")revised.textContent="Rincian Setoran";
  if(!$("f4BankSavingsHero")){
   const hero=el("section","f4-bank-savings-hero");hero.id="f4BankSavingsHero";
   hero.append(el("small","","SALDO TABUNGAN"),el("strong","","—"),el("span","","Saldo dari hasil penjualan sah"));
   priv.insertBefore(hero,priv.firstChild);hero.querySelector("strong").id="f4BankSavingsBalance";
+ }
+ if(!$("f4BankSavingsStats")){
+  const mini=el("div","f4-bank-savings-stats");mini.id="f4BankSavingsStats";
+  for(const [title,key] of [["Masuk","f4BankSavingsCredit"],["Dicairkan","f4BankSavingsDebit"]]){
+   const tile=el("div","f4-bank-savings-stat");tile.append(el("small","",title));
+   const value=el("strong","","—");value.id=key;tile.append(value);mini.append(tile);
+  }
+  $("f4BankSavingsHero")?.after(mini);
  }
  if(!$("f4BankSavingsChart")){
   const chart=el("section","f4-bank-savings-chart");chart.id="f4BankSavingsChart";
@@ -323,6 +335,8 @@ function chartSavings(){
 }
 function syncSavings(){
  text("f4BankSavingsBalance",$("v12Balance")?.textContent||"—");
+ text("f4BankSavingsCredit",$("v12Credit")?.textContent||"—");
+ text("f4BankSavingsDebit",$("v12Debit")?.textContent||"—");
  chartSavings();
  if($("bank-history"))showHistory();
  if($("bank-report"))showReport();
