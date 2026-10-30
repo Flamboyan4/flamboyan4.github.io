@@ -253,7 +253,7 @@ const obligationActive=r=>OBLIGATION_KEYS.some(k=>Number(r?.[k]||0)>0);
 async function removeObligation(record){
  if(active!=='obligations'||!record?.payer_id||!obligationActive(record))return;
  const approved=await f4ContentDialog('Hapus dari Kewajiban?',
-   'Kewajiban '+String(record.nama||'')+' ('+String(record.rumah||'')+') akan dibuat 0. Identitas warga dan riwayat pembayaran tetap disimpan. Untuk mengaktifkan kembali, pilih Lihat Tanpa Kewajiban lalu Edit.',
+   'Seluruh kewajiban '+String(record.nama||'')+' ('+String(record.rumah||'')+') akan dibuat 0. Transaksi lama tetap tersimpan, tetapi perhitungan tunggakan periode lama juga dapat berubah karena sistem menggunakan tarif dan kewajiban yang berlaku saat ini. Jika hanya ingin mengubah jumlah, pilih Edit. Untuk memulihkan, pilih Lihat Tanpa Kewajiban lalu Edit.',
    'Ya, Hapus Kewajiban',true,true);
  if(!approved)return;
  try{
