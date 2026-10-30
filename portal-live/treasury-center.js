@@ -563,6 +563,16 @@ function buildDynamicFund(target,data,refresh){
   catch(err){msg.textContent=err.message;save.disabled=false}
  };
  const custom=data.catalog.customFunds||[];
+ // Pos bawaan/projek berasal dari modul lain dan tidak boleh dihapus lewat pengelola dana.
+ // Tampilkan juga di sini agar setiap pos yang terlihat di Saldo per Pos jelas statusnya.
+ const fixed=(data.catalog.funds||[]).filter(f=>f.kind!=="custom"&&f.active!==false&&(
+  (data.balances||[]).some(b=>b.fund_id===f.id&&Number(b.amount_rp)!==0)||
+  (data.sources||[]).some(src=>src.fund===f.id)
+ ));
+ const listTitle=el("div",undefined,"tc-fund-list-heading");
+ listTitle.append(el("strong","Daftar Pos"),el("span","Kelola pos tambahan"));
+ shell.append(listTitle);
+ if(!custom.length)shell.append(el("p","Belum ada pos tambahan.","tc-custom-empty"));
  if(custom.length){
   const list=el("div",undefined,"tc-custom-list");
   for(const fund of custom){
@@ -573,9 +583,10 @@ function buildDynamicFund(target,data,refresh){
    if(!fund.active)info.append(el("small","Arsip"));
    const balance=(data.balances||[]).filter(x=>x.fund_id===fund.id);
    const outstanding=balance.some(x=>Number(x.amount_rp)!==0);
+   if(outstanding)info.append(el("small","Saldo masih ada"));
    const actions=el("div",undefined,"tc-custom-actions");
    if(fund.active){
-    const edit=el("button","Ubah","tc-secondary");edit.type="button";
+    const edit=el("button","Edit","tc-secondary");edit.type="button";edit.title="Edit nama atau catatan";
     edit.onclick=()=>{
      if(row.querySelector(".tc-custom-edit"))return;
      const editor=el("form",undefined,"tc-custom-edit");
@@ -619,6 +630,22 @@ function buildDynamicFund(target,data,refresh){
   }
   shell.append(list);
  }
+ if(fixed.length){
+  const builtins=el("details",undefined,"tc-fixed-funds");
+  builtins.open=!custom.length;
+  builtins.append(el("summary","Pos bawaan / projek ("+fixed.length+")"));
+  const fixedList=el("div",undefined,"tc-custom-list");
+  for(const fund of fixed){
+   const row=el("div",undefined,"tc-custom-row tc-fixed-row");
+   const info=el("div",undefined,"tc-custom-info");
+   info.append(el("strong",fund.name));
+   const kind=fund.kind==="project"?"Projek":"Bawaan";
+   const status=el("span",kind,"tc-fund-kind");
+   status.title=kind==="Projek"?"Kelola dari menu Projek":"Pos sistem, tidak dapat dihapus";
+   row.append(info,status);fixedList.append(row);
+  }
+  builtins.append(fixedList);shell.append(builtins);
+ }
  target.append(shell);
 }
 function render(data){
@@ -649,7 +676,17 @@ function render(data){
   card("Mandiri",rp(mandiri),"Rekening bersama"));
  panel.append(cards);
  const ownership=el("section",undefined,"tc-panel");
- ownership.append(el("h3","Saldo per Pos"));
+ const ownershipHead=el("div",undefined,"tc-section-head");
+ ownershipHead.append(el("h3","Saldo per Pos"));
+ const manage=el("button","Kelola Pos","tc-secondary tc-no-print");
+ manage.type="button";
+ manage.onclick=()=>{
+  const section=main.querySelector(".tc-custom-fund");
+  if(!section)return;
+  section.open=true;fundPanelOpen=true;
+  section.scrollIntoView({behavior:"smooth",block:"start"});
+ };
+ ownershipHead.append(manage);ownership.append(ownershipHead);
  const rows=data.catalog.funds.map(f=>{
   const ownCash=amount(data.balances,f.id,f.cash),ownQris=amount(data.balances,f.id,"qris"),ownBank=amount(data.balances,f.id,"mandiri");
   const total=ownCash+ownQris+ownBank;
