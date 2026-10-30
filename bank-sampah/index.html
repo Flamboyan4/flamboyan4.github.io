@@ -3085,11 +3085,15 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     };
   }
   async function v12Load(){
+    const sessionToken=token,memberKey=String(profile?.wargaId||'');
     v12Data=null;$('v12Private').classList.add('hidden');$('v12Gate').classList.remove('hidden');note('v12Gate','Memuat laporan pribadi...');
     try{
-      const access=await call('bsV12AksesLaporan',token);
+      const access=await call('bsV12AksesLaporan',sessionToken);
+      if(sessionToken!==token||memberKey!==String(profile?.wargaId||'')||profile?.peran!=='Warga')return;
       if(!access.siap){note('v12Gate',access.pesan);return;}
-      const d=await call('bsV12Statement',token);v12Data=d;
+      const d=await call('bsV12Statement',sessionToken);
+      if(sessionToken!==token||memberKey!==String(profile?.wargaId||'')||profile?.peran!=='Warga')return;
+      v12Data=d;
       $('v12Gate').classList.add('hidden');$('v12Private').classList.remove('hidden');
       $('v12Balance').textContent=rupiah(d.saldo);$('v12Credit').textContent=rupiah(d.totalMasuk);$('v12Debit').textContent=rupiah(d.totalCair);
       const history=$('v12History');history.replaceChildren();history.appendChild(v12Table(['Tanggal','Mutasi','Masuk','Keluar','Saldo'],d.mutasi.map(x=>[f4MemberDateID(x.tanggal),x.jenis,rupiah(x.kredit),rupiah(x.debit),rupiah(x.saldo)])));
@@ -3110,7 +3114,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       });
       if(!d.setoran.length)deposits.textContent='Belum ada setoran tercatat.';
       window.dispatchEvent(new CustomEvent('f4-bank-member-statement',{detail:d}));
-    }catch(e){note('v12Gate','Laporan belum tersedia: '+(e.message||e),true);}
+    }catch(e){if(sessionToken===token&&memberKey===String(profile?.wargaId||'')&&profile?.peran==='Warga')
+      note('v12Gate','Laporan belum tersedia: '+(e.message||e),true);}
   }
   function v12Print(){
     if(!v12Data)return;const d=v12Data,root=$('v10Print');root.replaceChildren();
