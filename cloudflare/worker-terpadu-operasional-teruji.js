@@ -972,7 +972,7 @@ async function handleAdminContent(request, env, who, url) {
       if(!found)return err("Pembayar tidak ditemukan.",404);
       const previous=await one(db,"SELECT keterangan FROM resident_directory_profiles WHERE payer_id=?",[payerId]);
       await db.batch([
-        db.prepare("INSERT INTO resident_directory_profiles(payer_id,keterangan) VALUES(?,?) ON CONFLICT(payer_id) DO UPDATE SET keterangan=excluded.keterangan").bind(payerId,remark||null),
+        db.prepare("INSERT INTO resident_directory_profiles(payer_id,status_tinggal,status_aktif,nomor_hp,keterangan) VALUES(?,NULL,'Ya',NULL,?) ON CONFLICT(payer_id) DO UPDATE SET keterangan=excluded.keterangan").bind(payerId,remark||null),
         db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)").bind("audit:"+crypto.randomUUID(),who.id,"master_pembukuan","ubah_keterangan_pembayar","resident_directory_profiles",payerId,JSON.stringify(previous),JSON.stringify({keterangan:remark}))
       ]);
       return ok({id:payerId,keterangan:remark});
