@@ -1894,7 +1894,7 @@ async function f4QuickIuranSummary(db, request) {
     else if (p.method.includes("mandiri")) t.mandiri += p.amount;
   }
   t.selisih = t.totalMasuk - t.setoranRT - t.kasLorong - t.arisan;
-  const summaryMonth=/^\\d{4}-\\d{2}/.test(to||from||"")?(to||from).slice(0,7)+"-01":f4CurrentIuranMonth();
+  const summaryMonth=/^\d{4}-\d{2}/.test(to||from||"")?(to||from).slice(0,7)+"-01":f4CurrentIuranMonth();
   const obligationRows=await db.prepare(`SELECT o.payer_id,o.qty_iuran_bulanan,o.qty_kebersihan,o.qty_kas_lorong,o.qty_arisan
     FROM bookkeeping_payer_obligation_periods o JOIN bookkeeping_payers p ON p.id=o.payer_id
     WHERE o.effective_from=(SELECT MAX(v.effective_from) FROM bookkeeping_payer_obligation_periods v
