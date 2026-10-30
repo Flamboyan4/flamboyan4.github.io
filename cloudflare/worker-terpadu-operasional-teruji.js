@@ -4629,6 +4629,84 @@ async function reconcilePreview(db, batchId) {
 }
 __name(reconcilePreview,"reconcilePreview");
 
+// Permintaan pencairan warga: tidak mengurangi saldo sebelum dibayar.
+async function bankPayoutRequests(request,env,who,url){
+  const path=url.pathname.replace(/\/+$/,"");
+  const manager=path.startsWith("/api/admin/");
+  const denied=requireRole(who,manager?["admin","superadmin"]:["anggota"]);
+  if(denied)return denied;
+  if(!manager&&!who.member_id)return safeError("Akun belum terhubung ke anggota.",403);
+  const db=env.DB;
+  if(request.method==="GET"){
+    const result=manager?
+      await db.prepare("SELECT p.id,p.member_id,m.display_name AS nama,h.house_code AS rumah,p.amount_rp,p.method,p.note,p.status,p.requested_at,p.reviewed_at,p.admin_note,p.paid_at,p.ledger_id,COALESCE((SELECT SUM(CASE WHEN l.kind IN ('kredit','koreksi_kredit') THEN l.amount_rp ELSE -l.amount_rp END) FROM waste_savings_ledger l WHERE l.member_id=p.member_id),0) AS balance_rp FROM waste_payout_requests p JOIN members m ON m.id=p.member_id LEFT JOIN households h ON h.id=m.household_id ORDER BY CASE p.status WHEN 'diajukan' THEN 0 WHEN 'disetujui' THEN 1 ELSE 2 END,p.requested_at DESC LIMIT 150").all():
+      await db.prepare("SELECT id,amount_rp,method,note,status,requested_at,reviewed_at,admin_note,paid_at FROM waste_payout_requests WHERE member_id=? ORDER BY requested_at DESC LIMIT 100").bind(who.member_id).all();
+    return json({ok:true,items:result.results||[]});
+  }
+  if(request.method!=="POST")return safeError("Metode tidak diizinkan.",405);
+  if(env.BANK_WRITE_ENABLED!=="true"||env.BANK_PAYOUT_WRITE_ENABLED!=="true")
+    return safeError("Pengajuan pencairan belum diaktifkan.",503);
+  let p;try{p=await requestJson(request)}catch{return safeError("Formulir tidak valid.",400)}
+  if(!manager){
+    const key=String(p.requestKey||""),amount=Number(p.amountRp),note=String(p.note||"").trim();
+    if(!/^[A-Za-z0-9_-]{24,100}$/.test(key)||!Number.isSafeInteger(amount)||amount<=0||amount>100000000||note.length>180||p.method!=="tunai")
+      return safeError("Nominal atau data pengajuan tidak valid.",400);
+    const existing=await one(db,"SELECT id,member_id,amount_rp,status FROM waste_payout_requests WHERE request_key=?",[key]);
+    if(existing){
+      if(existing.member_id!==who.member_id||Number(existing.amount_rp)!==amount)return safeError("Kode permintaan telah digunakan.",409);
+      return json({ok:true,id:existing.id,status:existing.status,duplicate:true});
+    }
+    if(!await one(db,"SELECT id FROM members WHERE id=? AND status='aktif'",[who.member_id]))
+      return safeError("Anggota tidak aktif.",403);
+    const id="request:bank:"+crypto.randomUUID();
+    // INSERT bersyarat dan UNIQUE key mencegah pengajuan ganda/kelebihan saldo.
+    const sql="INSERT INTO waste_payout_requests(id,request_key,member_id,amount_rp,method,note,status) SELECT ?,?,?,?,?,?,'diajukan' WHERE ? <= COALESCE((SELECT SUM(CASE WHEN kind IN ('kredit','koreksi_kredit') THEN amount_rp ELSE -amount_rp END) FROM waste_savings_ledger WHERE member_id=?),0)-COALESCE((SELECT SUM(amount_rp) FROM waste_payout_requests WHERE member_id=? AND status IN ('diajukan','disetujui')),0)";
+    const inserted=await db.prepare(sql).bind(id,key,who.member_id,amount,"tunai",note,amount,who.member_id,who.member_id).run().catch(async e=>{
+      const prior=await one(db,"SELECT id,member_id,amount_rp,status FROM waste_payout_requests WHERE request_key=?",[key]);
+      if(prior&&prior.member_id===who.member_id&&Number(prior.amount_rp)===amount)return {meta:{changes:0},duplicate:prior};
+      throw e;
+    });
+    if(inserted.duplicate)return json({ok:true,id:inserted.duplicate.id,status:inserted.duplicate.status,duplicate:true});
+    if(!inserted.meta?.changes)return safeError("Saldo tidak cukup atau masih ada pengajuan aktif.",409);
+    await db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'banksampah','request_withdrawal','waste_payout_requests',?,?,?)")
+      .bind(crypto.randomUUID(),who.id,id,note||"Pengajuan pencairan",JSON.stringify({amountRp:amount})).run();
+    return json({ok:true,id,status:"diajukan"},201);
+  }
+  const id=String(p.id||""),note=String(p.note||"").trim();
+  if(!/^request:bank:[a-f0-9-]{36}$/i.test(id)||note.length>250)return safeError("Pengajuan tidak dikenal.",400);
+  const current=await one(db,"SELECT * FROM waste_payout_requests WHERE id=?",[id]);
+  if(!current)return safeError("Pengajuan tidak ditemukan.",404);
+  if(path.endsWith("/review")){
+    const action=String(p.action||"");
+    if(!["setujui","tolak"].includes(action))return safeError("Pilih setujui atau tolak.",400);
+    if(action==="tolak"&&note.length<5)return safeError("Alasan penolakan minimal 5 karakter.",400);
+    const status=action==="setujui"?"disetujui":"ditolak";
+    const changed=await db.prepare("UPDATE waste_payout_requests SET status=?,reviewed_by=?,reviewed_at=CURRENT_TIMESTAMP,admin_note=? WHERE id=? AND status='diajukan'")
+      .bind(status,who.id,note,id).run();
+    if(!changed.meta?.changes)return safeError("Status sudah berubah. Muat ulang daftar.",409);
+    return json({ok:true,id,status});
+  }
+  if(path.endsWith("/paid")){
+    if(current.status==="dibayar")return json({ok:true,id,status:"dibayar",duplicate:true});
+    if(current.status!=="disetujui")return safeError("Setujui pengajuan sebelum mencatat pembayaran.",409);
+    const on=String(p.paidOn||"");
+    if(!validDateOnly(on))return safeError("Tanggal pembayaran tidak valid.",400);
+    // Gunakan pencairan ledger resmi yang bersifat idempoten.
+    const withdrawalRequest=new Request(request.url,{method:"POST",headers:{"content-type":"application/json"},
+      body:JSON.stringify({requestKey:"payout_"+id.replace(/[^A-Za-z0-9]/g,""),memberId:current.member_id,
+        withdrawnOn:on,amountRp:Number(current.amount_rp),note:"Pengajuan "+id+(current.note?" • "+current.note:"")})});
+    const receipt=await bankWithdraw(withdrawalRequest,env,who);
+    if(!receipt.ok)return receipt;
+    const result=await receipt.json();
+    const changed=await db.prepare("UPDATE waste_payout_requests SET status='dibayar',paid_by=?,paid_at=CURRENT_TIMESTAMP,ledger_id=? WHERE id=? AND status='disetujui'")
+      .bind(who.id,result.id,id).run();
+    if(!changed.meta?.changes)return safeError("Pembayaran tercatat; status perlu diperiksa.",409);
+    return json({ok:true,id,status:"dibayar",ledgerId:result.id});
+  }
+  return safeError("Aksi pencairan tidak dikenal.",404);
+}
+__name(bankPayoutRequests,"bankPayoutRequests");
+
 // Pencairan tabungan hanya dari hak warga yang telah terkonfirmasi.
 async function bankWithdraw(request,env,who){
   const denied=requireRole(who,["admin","superadmin"]);if(denied)return denied;
@@ -5303,6 +5381,12 @@ async function handle(request, env) {
   if (path === "/api/v2/admin/residents") return residentsApi(request, env, who);
   // Rute nota spesifik harus ditangani sebelum fallback umum /api/v2/.
   if (path === "/api/v2/admin/bank/sale-receipt" && request.method === "POST") return bankUpdateSaleReceipt(request,env,who);
+  if (path === "/api/member/bank/payout-requests" && ["GET","POST"].includes(request.method))
+    return bankPayoutRequests(request,env,who,url);
+  if ((path === "/api/admin/bank/payout-requests" && request.method === "GET")
+    || (["/api/admin/bank/payout-requests/review","/api/admin/bank/payout-requests/paid"].includes(path)
+      && request.method === "POST"))
+    return bankPayoutRequests(request,env,who,url);
   if (path === "/api/v2/admin/treasury") return treasuryApi(request,env,who,url);
   if (path.startsWith("/api/v2/")) return handleUnifiedApi(request, env, who);
   if (path === "/api/auth/change-password" && request.method === "POST") return changePassword(request, env, who);
