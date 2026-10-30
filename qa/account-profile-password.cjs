@@ -28,6 +28,8 @@ assert(bankPage.includes("refreshed.find(x=>String(x.id)===String(record.id))"),
 assert(bankPage.includes("Nomor nota tersimpan dan terverifikasi"),'Do not signal successful receipt write before verification');
 const editor=fs.readFileSync('portal-live/superadmin-editor.js','utf8');
 new vm.Script(editor,{filename:'superadmin-editor'});
+assert(worker.includes('!(kind === "obligations" && action === "add_payer")'),'Action allowlist must permit only obligations add_payer before its handler');
+assert(worker.indexOf('const denied = superadmin(who);',worker.indexOf('async function handleAdminContent(')) < worker.indexOf('if (action === "add_payer")'),'Payer creation must remain behind superadmin validation');
 assert(worker.includes('if (action === "add_payer")'),'Missing authenticated create-payer route');
 assert(worker.includes("VALUES(?,?,NULL,?,'warga',1)"),'Special payer must never create Bank Sampah member/account');
 assert(worker.includes('"tambah_pembayar_iuran"'),'New iuran payer must be audit logged');
