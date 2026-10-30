@@ -1521,7 +1521,8 @@ async function treasuryApi(request,env,who,url){
       list(db,"SELECT source_key,reason,excluded_at FROM treasury_source_exclusions ORDER BY excluded_at DESC LIMIT 101"),
       list(db,`SELECT fund_position,COALESCE(SUM(cash_in_rp-cash_out_rp),0) AS amount_rp
         FROM waste_cash_ledger WHERE status='aktif' GROUP BY fund_position ORDER BY fund_position`),
-      list(db,`SELECT c.fund_position,COUNT(*) AS count
+      list(db,`SELECT c.fund_position,COUNT(*) AS count,
+          COALESCE(SUM(c.cash_in_rp-c.cash_out_rp),0) AS amount_rp
         FROM waste_cash_ledger c WHERE c.status='aktif' AND (c.cash_in_rp<>0 OR c.cash_out_rp<>0)
         AND NOT EXISTS(SELECT 1 FROM treasury_bank_source_coverage x WHERE x.source_id=c.id)
         AND NOT EXISTS(SELECT 1 FROM treasury_events t WHERE t.request_key='source:bank:'||c.id)
@@ -1540,7 +1541,7 @@ async function treasuryApi(request,env,who,url){
       bankSourceBalances:bankSourceTotals.map(x=>({fundId:treasuryBankFund(x.fund_position),sourcePosition:x.fund_position,
         amountRp:Number(x.amount_rp||0)})).filter(x=>x.fundId),
       bankPendingCounts:bankUnreviewed.map(x=>({fundId:treasuryBankFund(x.fund_position),
-        count:Number(x.count||0)})).filter(x=>x.fundId),
+        count:Number(x.count||0),amountRp:Number(x.amount_rp||0)})).filter(x=>x.fundId),
       bankCoverageWarnings:bankCoverageWarnings.map(x=>x.source_id),
       excludedSources:exclusions.slice(0,100),exclusionPartial:exclusions.length>100,
       sourceIntegration:"reconciliation-required"});
