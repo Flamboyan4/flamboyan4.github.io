@@ -408,11 +408,13 @@ function buildSources(target,data,refresh){
  const sources=(data.sources||[]),warnings=data.sourceWarnings||[];
  const section=el("section",undefined,"tc-panel tc-review tc-no-print");
  const top=el("div",undefined,"tc-section-head");
- const pendingBank=(data.bankSourceBalances||[]).reduce((acc,x)=>{
-  const central=(data.balances||[]).filter(r=>r.fund_id===x.fundId).reduce((n,r)=>n+Number(r.amount_rp||0),0);
-  return acc+(Number(x.amountRp)>central?1:0);
- },0);
- const label=el("h3","Periksa Dana ("+(sources.length+pendingBank)+")");
+ const pendingBank=new Map();
+ for(const x of data.bankSourceBalances||[]){
+  pendingBank.set(x.fundId,(pendingBank.get(x.fundId)||0)+Number(x.amountRp||0));
+ }
+ const pendingBankCount=[...pendingBank].filter(([fund,total])=>
+   total>(data.balances||[]).filter(y=>y.fund_id===fund).reduce((n,y)=>n+Number(y.amount_rp||0),0)).length;
+ const label=el("h3","Periksa Dana ("+(sources.length+pendingBankCount)+")");
  const reload=el("button","Muat Ulang","tc-secondary");reload.type="button";
  reload.onclick=async()=>{reload.disabled=true;try{await refresh()}catch(e){reload.disabled=false}};
  top.append(label,reload);section.append(top);
@@ -588,9 +590,9 @@ function render(data){
  }).filter(Boolean);
  rows.push(["TOTAL",rp(cash),rp(qris),rp(mandiri),rp(data.totalRp)]);
  simpleTable(ownership,["Program","Cash","QRIS","Mandiri","Total"],rows,"tc-balance-table");
- panel.append(ownership);
  const refresh=()=>fetchData().then(render);
  buildSources(panel,data,refresh);
+ panel.append(ownership);
  buildForm(panel,data,refresh);
  buildDynamicFund(panel,data,refresh);
  const history=el("section",undefined,"tc-panel");
