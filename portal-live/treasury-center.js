@@ -354,6 +354,7 @@ function buildForm(target,data,refresh){
  const funds=data.catalog.funds.filter(f=>f.active!==false);
  const shell=el("details",undefined,"tc-panel tc-mutation-panel tc-no-print");
  shell.append(el("summary","Pindah Dana"));
+ shell.append(el("p","Tempat = QRIS / Mandiri / Tunai · Pos = pemilik dana","tc-muted"));
  const form=el("form",undefined,"tc-form");
  const action=select([{id:"move",name:"Pindah tempat"},{id:"allocation",name:"Pindah pos"},{id:"incoming",name:"Uang masuk (manual)"},{id:"outgoing",name:"Uang keluar (manual)"}]);
  const fromFund=select(funds),toFund=select(funds);
@@ -505,7 +506,7 @@ function buildSources(target,data,refresh){
      if(!pick.value){status.textContent="Pilih tempat uang dahulu.";pick.focus();return}
      const where=[...pick.options].find(x=>x.value===pick.value)?.textContent||pick.value;
      if(!confirm("Sahkan "+rp(row.available)+" untuk "+(row.fund?.name||row.fundId)+" di "+where+
-         "?\n\nPastikan uang sudah diterima dan belum termasuk saldo awal."))return;
+         "?\n\nPastikan uang memang ada dan belum pernah dihitung."))return;
      confirmButton.disabled=true;status.textContent="Mengesahkan…";
      try{
       await post({action:"approve-bank-balance",fundId:row.fundId,location:pick.value,
