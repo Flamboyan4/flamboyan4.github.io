@@ -124,7 +124,7 @@ const categories={
  bank:[['bank_progress','Kegiatan'],['bank_albums','Dokumentasi'],['bank_inventory','Inventaris']],
  book:[['residents','Data Warga & Rumah'],['obligations','Kewajiban Iuran'],['tariffs','Tarif Iuran'],['settings','Aturan Tanggal']]
 };
-let active='',records=[],filter='',requestSerial=0,editing=false,lastSavedJerseyId=null;
+let active='',records=[],filter='',requestSerial=0,editing=false,lastSavedJerseyId=null,showZeroObligations=false;
 const node=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=String(text??'');if(cls)n.className=cls;return n};
 function btn(text,fn,cls='f4-admin-btn'){const b=node('button',text,cls);b.type='button';b.onclick=fn;return b;}
 function inContext(){return document.body.classList.contains('role-superadmin')}
@@ -247,18 +247,110 @@ function header(label,description){
  sub.append(node('h3','Kelola '+label),node('p',description));
  main.append(sub);
 }
+const OBLIGATION_KEYS=['qty_iuran_bulanan','qty_kebersihan','qty_kas_lorong','qty_arisan'];
+const obligationActive=r=>OBLIGATION_KEYS.some(k=>Number(r?.[k]||0)>0);
+
+async function removeObligation(record){
+ if(active!=='obligations'||!record?.payer_id||!obligationActive(record))return;
+ const approved=await f4ContentDialog('Hapus dari Kewajiban?',
+   'Kewajiban '+String(record.nama||'')+' ('+String(record.rumah||'')+') akan dibuat 0. Identitas warga dan riwayat pembayaran tetap disimpan. Untuk mengaktifkan kembali, pilih Lihat Tanpa Kewajiban lalu Edit.',
+   'Ya, Hapus Kewajiban',true,true);
+ if(!approved)return;
+ try{
+   await send(base+'obligations',{method:'POST',headers:{'Content-Type':'application/json'},
+     body:JSON.stringify({action:'save',payer_id:record.payer_id,
+       qty_iuran_bulanan:0,qty_kebersihan:0,qty_kas_lorong:0,qty_arisan:0})});
+   const refreshed=await fetchData('obligations');
+   const saved=refreshed.find(x=>String(x.payer_id)===String(record.payer_id));
+   if(!saved||obligationActive(saved))throw Error('API merespons, tetapi kewajiban belum terverifikasi. Periksa data sebelum mengulang.');
+   records=refreshed;viewList();
+   const info=main.querySelector('.f4-admin-note');
+   if(info)info.textContent='Kewajiban '+String(record.nama||'')+' sudah dinolkan. Data warga dan transaksi lama tetap aman.';
+ }catch(error){await f4ContentDialog('Belum dapat menghapus kewajiban',error.message,'Tutup',false,false)}
+}
+
+async function showAddObligationPayer(){
+ if(active!=='obligations'||!inContext())return;
+ editing=true;
+ header('Tambah Pembayar Iuran','Gunakan rumah yang sudah terdaftar. TPQ boleh dicatat sebagai pembayar tanpa membuat akun login atau anggota Bank Sampah.');
+ const form=node('form',undefined,'f4-admin-editor');form.noValidate=true;main.append(form);
+ const addField=(name,label,type='number')=>{
+   const wrap=node('label'),caption=node('span',label),field=node('input');
+   field.name=name;field.type=type;field.required=true;
+   if(type==='number'){field.min='0';field.max='100';field.step='1';field.value='0'}
+   if(type==='text'){field.maxLength=160;field.placeholder='Contoh: TPQ'}
+   wrap.append(caption,field);form.append(wrap);return field;
+ };
+ const houseWrap=node('label'),houseCaption=node('span','Rumah / lokasi'),house=node('select');
+ house.name='household_id';house.required=true;
+ house.append(new Option('Memuat rumah…',''));houseWrap.append(houseCaption,house);form.append(houseWrap);
+ const name=addField('nama','Nama pembayar (warga atau TPQ)','text');
+ const labels=[['qty_iuran_bulanan','Iuran bulanan (x)'],
+  ['qty_kebersihan','Kebersihan (x)'],['qty_kas_lorong','Kas Lorong (x)'],['qty_arisan','Arisan (x)']];
+ const numbers=labels.map(([k,label])=>addField(k,label));
+ const notice=node('p','','f4-admin-message');form.append(notice);
+ const actions=node('div',undefined,'f4-warga-form-actions'),
+   submit=btn('Simpan Pembayar',()=>{if(form.reportValidity())form.requestSubmit()},'f4-admin-primary');
+ actions.append(btn('Batal',viewList),submit);form.append(actions);
+ try{
+   const data=await send('https://api.flamboyan4.web.id/api/v2/admin/residents');
+   const unique=new Map();
+   for(const r of data.rows||[]){
+     if(r.household_id&&!unique.has(String(r.household_id)))
+       unique.set(String(r.household_id),String(r.rumah||'Rumah tanpa nomor'));
+   }
+   const entries=[...unique].sort((a,b)=>a[1].localeCompare(b[1],'id',{numeric:true}));
+   house.replaceChildren(new Option('Pilih rumah…',''));
+   for(const [id,label] of entries)house.append(new Option(label,id));
+   if(!entries.length)notice.textContent='Belum ada rumah. Tambahkan rumah terlebih dahulu di Data Warga & Rumah.';
+ }catch(e){notice.textContent='Gagal mengambil daftar rumah: '+e.message;submit.disabled=true}
+ form.addEventListener('submit',async event=>{
+   event.preventDefault();if(submit.disabled)return;
+   const nama=name.value.trim(),household_id=house.value;
+   const vals=Object.fromEntries(labels.map(([k],i)=>[k,Number(numbers[i].value)]));
+   if(!household_id||!nama||nama.length>160||Object.values(vals).some(v=>!Number.isInteger(v)||v<0||v>100)||!Object.values(vals).some(v=>v>0)){
+     notice.textContent='Pilih rumah, isi nama, dan minimal satu kewajiban lebih dari 0.';return;
+   }
+   submit.disabled=true;notice.textContent='Menyimpan pembayar ke D1…';
+   try{
+     const created=await send(base+'obligations',{method:'POST',
+       headers:{'Content-Type':'application/json'},
+       body:JSON.stringify({action:'add_payer',household_id,nama,...vals})});
+     const refreshed=await fetchData('obligations');
+     const actual=refreshed.find(x=>String(x.payer_id)===String(created.id));
+     if(!actual||String(actual.nama)!==nama||labels.some(([k])=>Number(actual[k])!==vals[k])){
+       notice.textContent='Pembayar mungkin sudah dibuat tetapi daftar belum sinkron. Jangan simpan ulang; muat ulang dan periksa.';return;
+     }
+     records=refreshed;filter=nama;showZeroObligations=false;viewList();
+     const info=main.querySelector('.f4-admin-note');
+     if(info)info.textContent=nama+' berhasil ditambahkan dan diverifikasi dari D1. Tidak ada akun login/Bank Sampah baru.';
+   }catch(error){notice.textContent='Gagal menyimpan pembayar: '+error.message}
+   finally{submit.disabled=false}
+ });
+}
+
 function viewList(){
  const def=types[active];if(!def)return;
  editing=false;
- header(def.label,'Pilih Edit untuk memperbarui data tanpa mengubah transaksi warga.');
+ header(def.label,active==='obligations'?'Kelola kewajiban pembayar tanpa menghapus warga atau riwayat transaksi.':'Pilih Edit untuk memperbarui data tanpa mengubah transaksi warga.');
  const tools=node('div',undefined,'f4-admin-controls');
  const search=node('input');search.placeholder='Cari data';search.value=filter;search.oninput=()=>{filter=search.value;populate();};
  tools.append(search);
  if(def.section==='portal')tools.append(btn('+ Tambah '+def.label,()=>showForm(null)));
+ if(active==='obligations'){
+   tools.append(btn('+ Tambah Warga/TPQ',showAddObligationPayer,'f4-admin-btn f4-admin-primary'));
+   tools.append(btn(showZeroObligations?'Tampilkan Aktif':'Lihat Tanpa Kewajiban',()=>{
+     showZeroObligations=!showZeroObligations;viewList();
+   }));
+ }
  if(active==='jersey')tools.append(btn('Cetak Laporan Jersey',()=>printJerseyReport(),'f4-admin-primary'));
  tools.append(btn('Muat Ulang',()=>window.openSuperadminEditor(active)));
  main.append(tools);
- const info=node('p',records.length+' data tersedia','f4-admin-note');main.append(info);
+ const obligationCount=records.filter(obligationActive).length;
+ const summary=active==='obligations'
+   ?obligationCount+' pembayar berkewajiban • '+(records.length-obligationCount)+' tanpa kewajiban. Hapus hanya menghentikan kewajiban, bukan menghapus transaksi.'
+   :records.length+' data tersedia';
+ const info=node('p',summary,'f4-admin-note');main.append(info);
  if(active==='jersey'){
   const t=jerseyPaymentSummary(records);
   const panel=node('section',undefined,'f4-jersey-payment-snapshot');
@@ -371,7 +463,7 @@ function populate(){
  list.replaceChildren();
  const query=filter.trim().toLowerCase();
  const def=types[active];
- const rows=records.filter(x=>!query||JSON.stringify(x).toLowerCase().includes(query));
+ const rows=records.filter(x=>(active!=='obligations'||showZeroObligations||obligationActive(x))&&(!query||JSON.stringify(x).toLowerCase().includes(query)));
  if(active==='jersey'){populateJersey(rows,list,query);return;}
  if(['arisan','agenda','documentation','inventory','meetings','obligations'].includes(active)){
   const fields={
@@ -414,7 +506,16 @@ function populate(){
   for(const x of rows){
    const tr=node('tr');
    for(const [key] of fields){const td=node('td');td.append(showValue(x,key));tr.append(td)}
-   const action=node('td');action.append(def.section==='portal'?deletionActions(x):btn('Edit',()=>showForm(x)));tr.append(action);body.append(tr);
+   const action=node('td');
+   if(active==='obligations'){
+     action.append(btn('Edit',()=>showForm(x)));
+     if(obligationActive(x)){
+       const remove=btn('Hapus',()=>removeObligation(x));
+       remove.title='Hapus dari daftar kewajiban tanpa menghapus identitas dan riwayat pembayaran';
+       action.append(remove);
+     }
+   }else action.append(def.section==='portal'?deletionActions(x):btn('Edit',()=>showForm(x)));
+   tr.append(action);body.append(tr);
   }
   if(!rows.length){const tr=node('tr'),td=node('td','Tidak ada data yang cocok.');td.colSpan=fields.length+1;tr.append(td);body.append(tr)}
   table.append(body);scroll.append(table);list.append(scroll);return;
