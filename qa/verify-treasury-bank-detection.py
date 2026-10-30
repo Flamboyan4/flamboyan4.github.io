@@ -14,6 +14,7 @@ db.executescript("""
 CREATE TABLE treasury_config(id INTEGER PRIMARY KEY,confirmed_at TEXT);
 CREATE TABLE treasury_events(request_key TEXT PRIMARY KEY);
 CREATE TABLE treasury_source_exclusions(source_key TEXT PRIMARY KEY);
+CREATE TABLE treasury_bank_source_coverage(source_id TEXT PRIMARY KEY);
 CREATE TABLE waste_batches(id TEXT PRIMARY KEY,status TEXT,confirmed_at TEXT);
 CREATE TABLE waste_sales(id TEXT PRIMARY KEY,batch_id TEXT,status TEXT);
 CREATE TABLE waste_cash_ledger(
@@ -47,6 +48,10 @@ db.execute("INSERT INTO treasury_source_exclusions VALUES('source:bank:new:opera
 db.execute("INSERT INTO treasury_events VALUES('source:bank:new:cadangan')")
 rows2=[dict(x) for x in db.execute(query,('2026-10-30',)).fetchall()]
 assert len(rows2)==3,rows2
+db.execute("INSERT INTO treasury_bank_source_coverage VALUES('new:tabungan_warga')")
+rows3=[dict(x) for x in db.execute(query,('2026-10-30',)).fetchall()]
+assert len(rows3)==2,rows3
+assert 'new:tabungan_warga' not in {x['id'] for x in rows3}
 assert 'function treasuryBankFund(position)' in worker
 for position,fund in [('tabungan_warga','bank_warga'),('operasional','bank_lingkungan'),
 ('kas_lorong','bank_kas_lorong'),('cadangan','bank_cadangan')]:
