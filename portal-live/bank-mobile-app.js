@@ -30,13 +30,13 @@ const adminDock=[
 const memberDock=[
  ["Beranda","dashboard","home.svg"],["Tabungan","pribadi","cash.svg"],
  ["Pencairan","bank-payout","pay.svg"],["Riwayat","bank-history","book.svg"],
- ["Profil","profile","user.svg"]
+ ["Laporan","bank-report","book.svg"]
 ];
 let role=null,screen="dashboard",historyMonth="latest",reportMonth="",activePage=null;
 let homeSource=null,summaryExtra=null,memberSource=null,managerQueue=null;
 let primaryNode=null,extraNode=null;
 let ready=false,requestNonce="",requestEnabled=false;
-let memberStatement=null,memberChartMode="kg";
+let memberStatement=null,memberChartMode="kg",memberChartGroup="month",memberChartPeriod="";
 let refreshing=false;
 const custom=["bank-history","bank-payout","bank-report"];
 const text=(id,val)=>{if($(id)&&$(id).textContent!==String(val))$(id).textContent=String(val)};
@@ -116,6 +116,20 @@ function ensureHome(){
  let reservoir=$("f4BankDashboardSource");
  if(!reservoir){reservoir=el("div","f4-bank-hidden-source");reservoir.id="f4BankDashboardSource";reservoir.hidden=true;page.append(reservoir);}
  for(const id of ["v14Primary","v14Extra"]){const node=$(id);if(node&&node.parentElement!==reservoir)reservoir.append(node);}
+ const header=page.querySelector(".v14-head"),banner=page.querySelector(".v14-hero"),status=$("v14Status");
+ const legacyToolbar=page.parentElement?.querySelector(":scope > .toolbar");
+ if(role==="member"){
+  for(const node of [header,banner,status,legacyToolbar]){
+   if(node&&node.parentElement!==reservoir)reservoir.append(node);
+  }
+  page.querySelectorAll(".f4-member-finance-note").forEach(node=>node.remove());
+ }else{
+  if(legacyToolbar?.parentElement===reservoir)page.parentElement?.prepend(legacyToolbar);
+  if(header?.parentElement===reservoir)page.prepend(header);
+  if(banner?.parentElement===reservoir)header?.after(banner);
+  if(status?.parentElement===reservoir)page.append(status);
+  $("f4BankWeighingSchedule")?.remove();
+ }
  if(role==="member"){
   const chart=$("f4-member-weight-chart");if(chart&&chart.parentElement!==reservoir)reservoir.append(chart);
   const flow=$("f4MemberFlow");if(flow){flow.hidden=false;if(flow.parentElement!==hub)hub.append(flow);}
@@ -126,8 +140,8 @@ function ensureHome(){
    hub.append(recent);
   }
   const remaining=panels?.querySelector(".v14-panel");
-  if(remaining&&remaining.parentElement!==hub){hub.append(remaining);remaining.hidden=false;}
-  ensureHomeChart();
+  if(remaining&&remaining.parentElement!==reservoir)reservoir.append(remaining);
+  ensureWeighingSchedule(hub);
  }else{
   const recent=$("v14Recent")?.closest(".v14-panel");
   if(recent&&recent.parentElement!==page.querySelector(".v14-panels"))page.querySelector(".v14-panels")?.prepend(recent);
@@ -351,73 +365,106 @@ function showReport(){
  statusFor(page);
 }
 function memberBuckets(){
- const list=Array.isArray(memberStatement?.setoran)?memberStatement.setoran:[];
- const grouped=new Map();
- for(const row of list){
-  if(/batal/i.test(String(row.status||"")))continue;
-  const confirmed=/terkonfirmasi/i.test(String(row.status||""));
-  const period=String(confirmed?(row.tanggalJual||row.tanggal):row.tanggal).slice(0,7);
-  if(!/^\d{4}-\d{2}$/.test(period))continue;
-  if(!grouped.has(period))grouped.set(period,{month:period,weight:0,confirmed:0,estimated:0,missingWeight:false,missingValue:false});
-  const entry=grouped.get(period);
-  if(row.beratKg==null)entry.missingWeight=true;
-  else entry.weight+=Number(row.beratKg)||0;
-  if(confirmed){
-   if(row.nilaiSahRp==null)entry.missingValue=true;
-   else entry.confirmed+=Number(row.nilaiSahRp)||0;
-  }else entry.estimated+=Number(row.estimasiRp)||0;
- }
- return [...grouped.values()].sort((a,b)=>a.month.localeCompare(b.month)).slice(-6);
+ // Each point is ONE genuine deposit. Never combine transactions in a bar.
+ const deposits=Array.isArray(memberStatement?.setoran)?memberStatement.setoran:[];
+ return deposits.filter(row=>!/batal/i.test(String(row.status||""))).map((row,index)=>{
+  const final=/terkonfirmasi|confirmed/i.test(String(row.status||""));
+  const period=String(row.tanggal||"").slice(0,7);
+  const date=String(row.tanggal||"").slice(0,10);
+  const confirmedAt=String(row.tanggalPengesahan||row.tanggalJual||"").slice(0,10);
+  return {
+   id:String(row.id||"tx-"+index),date,month:period,
+   batch:String(row.batchId||""),confirmedAt,final,
+   weight:row.beratKg==null?0:Number(row.beratKg)||0,
+   confirmed:final?(row.nilaiSahRp==null?0:Number(row.nilaiSahRp)||0):0,
+   estimated:final?0:Number(row.estimasiRp)||0,
+   missingWeight:row.beratKg==null,
+   missingValue:final&&row.nilaiSahRp==null
+  };
+ }).sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id));
 }
-function ensureHomeChart(){
- if(role!=="member"||!$("f4BankAppHome"))return;
- if(!$("f4BankHomeChart")){
-  const box=el("section","f4-bank-savings-chart");box.id="f4BankHomeChart";
-  box.append(el("h3","","Perkembangan Setoran"));
-  const bars=el("div","f4-bank-savings-bars");bars.id="f4BankHomeBars";box.append(bars);
-  $("f4BankAppMemberBalance")?.after(box);
- }
- chartSavings();
+function weighingNextDate(){
+ // The schedule is weekly, not an unverified appointment time.
+ const [year,month,day]=today().split("-").map(Number);
+ const current=new Date(Date.UTC(year,month-1,day));
+ const days=(7-current.getUTCDay())%7;
+ current.setUTCDate(current.getUTCDate()+days);
+ return {days,label:new Intl.DateTimeFormat("id-ID",{weekday:"long",day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}).format(current)};
 }
-function drawSavingsBars(id){
- const host=$(id);if(!host)return;
- host.replaceChildren();
- if(!memberStatement){host.append(el("p","f4-bank-empty","Memuat grafik..."));return;}
- const data=memberBuckets();
- if(!data.length){host.append(el("p","f4-bank-empty","Belum ada setoran."));return;}
- const kg=memberChartMode==="kg";
- const max=Math.max(0.001,...data.map(x=>kg?x.weight:x.confirmed+x.estimated));
- for(const item of data){
-  const col=el("div","f4-bank-savings-bar"),track=el("span","f4-bank-savings-bar-rail"),fill=el("i");
-  fill.style.height=Math.max(4,(kg?item.weight:item.confirmed+item.estimated)/max*100)+"%";
-  fill.className=!kg&&item.estimated>0?"is-estimate":"is-confirmed";
-  track.append(fill);
-  const value=kg?(item.missingWeight?"—":item.weight.toLocaleString("id-ID",{maximumFractionDigits:2})):
-    item.missingValue?"—":rupiah(item.confirmed+item.estimated);
-  col.append(el("strong","",value),track,el("small","",monthName(item.month).split(" ")[0]));
-  if(item.missingWeight||item.missingValue)col.title="Ada data hasil jual yang belum tersedia";
-  host.append(col);
+function ensureWeighingSchedule(home){
+ if(role!=="member"||!home)return;
+ let card=$("f4BankWeighingSchedule");
+ if(!card){
+  card=el("section","f4-bank-weigh-schedule");card.id="f4BankWeighingSchedule";
+  const icon=el("span","f4-bank-weigh-icon","◷");
+  const content=el("span","f4-bank-weigh-copy");
+  content.append(el("small","","JADWAL PENIMBANGAN"),el("strong","","—"),el("span","","Setiap hari Minggu"));
+  card.append(icon,content);
+  home.append(card);
  }
+ const next=weighingNextDate();
+ const title=card.querySelector("strong");if(title)title.textContent=next.days===0?"Hari ini • Minggu":next.label;
 }
 function chartSavings(){
- for(const id of ["f4BankSavingsChart","f4BankHomeChart"]){
-  const box=$(id);if(!box)continue;
-  let switcher=box.querySelector(".f4-bank-chart-switch");
-  if(!switcher){
-   switcher=el("div","f4-bank-chart-switch");
-   for(const [mode,label] of [["kg","Kg"],["rp","Rp"]]){
-    const button=el("button","",label);button.type="button";button.dataset.mode=mode;
-    button.onclick=()=>{memberChartMode=mode;chartSavings();};
-    switcher.append(button);
-   }
-   box.querySelector(".f4-bank-savings-bars")?.before(switcher);
+ const root=$("f4BankSavingsChart"),host=$("f4BankSavingsBars");
+ if(!root||!host)return;
+ let filters=$("f4BankSavingsFilters");
+ if(!filters){
+  filters=el("div","f4-bank-chart-filters");filters.id="f4BankSavingsFilters";
+  const tabs=el("div","f4-bank-chart-groups");
+  for(const [id,label] of [["month","Per bulan"],["approval","Pengesahan"]]){
+   const button=el("button","",label);button.type="button";button.dataset.group=id;
+   button.onclick=()=>{memberChartGroup=id;memberChartPeriod="";chartSavings();};
+   tabs.append(button);
   }
-  switcher.querySelectorAll("button").forEach(b=>{
-   const chosen=b.dataset.mode===memberChartMode;b.classList.toggle("is-active",chosen);
-   b.setAttribute("aria-pressed",String(chosen));
-  });
+  const period=el("select");period.id="f4BankChartPeriod";period.setAttribute("aria-label","Pilih bulan atau periode pengesahan");
+  period.onchange=()=>{memberChartPeriod=period.value;chartSavings();};
+  const units=el("div","f4-bank-chart-switch");
+  for(const [id,label] of [["kg","Kg"],["rp","Rp"]]){
+   const button=el("button","",label);button.type="button";button.dataset.mode=id;
+   button.onclick=()=>{memberChartMode=id;chartSavings();};units.append(button);
+  }
+  filters.append(tabs,period,units);
+  root.querySelector("h3")?.after(filters);
  }
- drawSavingsBars("f4BankSavingsBars");drawSavingsBars("f4BankHomeBars");
+ const points=memberBuckets();
+ filters.querySelectorAll(".f4-bank-chart-groups button").forEach(b=>{
+  const active=b.dataset.group===memberChartGroup;b.classList.toggle("is-active",active);b.setAttribute("aria-pressed",String(active));
+ });
+ filters.querySelectorAll(".f4-bank-chart-switch button").forEach(b=>{
+  const active=b.dataset.mode===memberChartMode;b.classList.toggle("is-active",active);b.setAttribute("aria-pressed",String(active));
+ });
+ const options=memberChartGroup==="month"
+  ? [...new Set(points.map(p=>p.month).filter(p=>/^\d{4}-\d{2}$/.test(p)))].sort().reverse().map(m=>[m,monthName(m)])
+  : [...new Map(points.filter(p=>p.final&&p.batch)
+       .map(p=>[p.batch,[p.batch,p.confirmedAt?new Intl.DateTimeFormat("id-ID",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}).format(new Date(p.confirmedAt+"T12:00:00Z")):"Pengesahan"]])).values()].reverse();
+ const period=$("f4BankChartPeriod");
+ if(!options.some(x=>x[0]===memberChartPeriod))memberChartPeriod=options[0]?.[0]||"";
+ period.replaceChildren(...options.map(([id,label])=>{
+  const o=new Option(label,id);o.selected=id===memberChartPeriod;return o;
+ }));
+ period.disabled=!options.length;
+ const chosen=points.filter(p=>memberChartGroup==="month"?p.month===memberChartPeriod:p.final&&p.batch===memberChartPeriod);
+ host.replaceChildren();
+ if(!memberStatement){host.append(el("p","f4-bank-empty","Memuat transaksi..."));return;}
+ if(!chosen.length){host.append(el("p","f4-bank-empty",memberChartGroup==="approval"?"Belum ada pengesahan pada pilihan ini.":"Belum ada transaksi pada bulan ini."));return;}
+ const useKg=memberChartMode==="kg";
+ const max=Math.max(0.001,...chosen.map(p=>useKg?p.weight:p.confirmed+p.estimated));
+ const list=chosen.slice(-12);
+ for(const item of list){
+  const column=el("div","f4-bank-savings-bar");
+  const track=el("span","f4-bank-savings-bar-rail"),bar=el("i");
+  const amount=useKg?item.weight:item.confirmed+item.estimated;
+  bar.style.height=Math.max(4,amount/max*100)+"%";
+  bar.className=item.final?"is-confirmed":"is-estimate";
+  track.append(bar);
+  const label=item.date.slice(8,10)+"/"+item.date.slice(5,7);
+  const value=useKg?(item.missingWeight?"—":item.weight.toLocaleString("id-ID",{maximumFractionDigits:3})+" kg"):
+   item.missingValue?"—":rupiah(amount);
+  column.append(el("strong","",value),track,el("small","",label));
+  column.title=(item.final?"Sah":"Perkiraan")+" • "+item.date+" • "+value;
+  host.append(column);
+ }
 }
 function syncSavings(){
  text("f4BankSavingsBalance",memberStatement?rupiah(memberStatement.saldo):"—");
