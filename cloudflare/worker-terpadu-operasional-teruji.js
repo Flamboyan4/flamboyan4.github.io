@@ -1104,26 +1104,46 @@ __name(handleAdminContent, "handleAdminContent");
 // Jurnal ini add-only. Saldo awal ditetapkan sekali; tidak mengimpor buku kas historis.
 async function treasuryCatalog(db){
   const funds=[
-    {id:"kas_rt",name:"Kas RT / Iuran",cash:"cash:kas_rt"},
+    {id:"kas_rt",name:"Kas Lorong",cash:"cash:kas_rt"},
     {id:"bank_warga",name:"Bank Sampah — Hak Warga",cash:"cash:bank_sampah"},
     {id:"bank_lingkungan",name:"Bank Sampah — Lingkungan",cash:"cash:bank_sampah"},
     {id:"jersey",name:"Jersey",cash:"cash:jersey"}
   ];
-  const projects=await list(db,"SELECT id,title FROM portal_project_cards WHERE active=1 AND project_kind IN ('pesanan','penggalangan') ORDER BY sort_order,id LIMIT 100");
-  for(const p of projects)funds.push({id:"project:"+p.id,name:"Projek — "+p.title,cash:"cash:project:"+p.id});
+  const projects=await list(db,"SELECT id,title,linked_key FROM portal_project_cards WHERE active=1 AND project_kind IN ('pesanan','penggalangan') ORDER BY sort_order,id LIMIT 100");
+  for(const p of projects){
+    // Avoid a second Jersey fund for a project card that links to the Jersey module.
+    const linked=String(p.linked_key||"").trim().toLowerCase()==="jersey"||
+      /^(?:pemesanan\s*)?jersey$/i.test(String(p.title||"").trim());
+    if(linked){
+      const historical=await one(db,"SELECT id FROM treasury_entries WHERE fund_id=? LIMIT 1",["project:"+p.id]);
+      if(!historical)continue;
+    }
+    funds.push({id:"project:"+p.id,name:"Projek — "+p.title,cash:"cash:project:"+p.id});
+  }
   const locations=[
     {id:"qris",name:"QRIS Bersama",type:"qris"},
     {id:"mandiri",name:"Mandiri Bersama",type:"bank"},
-    ...[...new Map(funds.map(f=>[f.cash,{id:f.cash,name:"Cash — "+(f.cash==="cash:kas_rt"?"Kas RT":f.cash==="cash:bank_sampah"?"Bank Sampah":f.cash==="cash:jersey"?"Jersey":f.name.replace(/^Projek — /,"")),type:"cash"}])).values()]
+    ...[...new Map(funds.map(f=>[f.cash,{id:f.cash,name:"Cash — "+(f.cash==="cash:kas_rt"?"Kas Lorong":f.cash==="cash:bank_sampah"?"Bank Sampah":f.cash==="cash:jersey"?"Jersey":f.name.replace(/^Projek — /,"")),type:"cash"}])).values()]
   ];
   return {funds,locations};
 }
 __name(treasuryCatalog,"treasuryCatalog");
+// Only posted Humas cash belongs to Kas Lorong. Never import Iuran RT,
+// Kebersihan or Arisan payment allocations into the Humas treasury.
+function treasuryBookCashEligible(row){
+ const category=String(row?.category||"").trim().toLowerCase().replace(/[_-]+/g," ").replace(/\s+/g," ");
+ const type=String(row?.transaction_type||"").trim().toLowerCase().replace(/[_-]+/g," ");
+ if(!category&&!type)return false;
+ if(/^(?:setoran\s*rt|iuran\s*rt|kebersihan|arisan|saldo\s*awal)(?:\s|$)/.test(category))return false;
+ if(/^(?:setoran\s*rt|iuran\s*rt|kebersihan|arisan|saldo\s*awal)(?:\s|$)/.test(type))return false;
+ return true;
+}
+__name(treasuryBookCashEligible,"treasuryBookCashEligible");
 // Source references are classified independently; reading them NEVER changes balances.
 async function treasurySources(db,confirmedOn){
  if(!confirmedOn)return {pending:[],partial:false,warnings:[]};
  const [cash,bank,wCash,wBank]=await Promise.all([
-  list(db,`SELECT c.id,c.occurred_on,c.category,c.note,c.debit_rp,c.credit_rp
+  list(db,`SELECT c.id,c.occurred_on,c.transaction_type,c.category,c.note,c.debit_rp,c.credit_rp
     FROM bookkeeping_cash_transactions_posted c WHERE c.status='aktif' AND c.occurred_on>?
       AND (c.debit_rp>0 OR c.credit_rp>0)
       AND NOT EXISTS(SELECT 1 FROM treasury_events t WHERE t.request_key='source:book:'||c.id)
@@ -1147,8 +1167,8 @@ async function treasurySources(db,confirmedOn){
     ) LIMIT 25`)
  ]);
  const pending=[
-  ...cash.slice(0,100).map(x=>({type:"book",id:x.id,date:x.occurred_on,
-    fund:"kas_rt",note:x.category||x.note||"Buku Kas",
+  ...cash.filter(treasuryBookCashEligible).slice(0,100).map(x=>({type:"book",id:x.id,date:x.occurred_on,
+    fund:"kas_rt",note:x.category||x.note||"Kas Lorong",
     amountRp:Number(x.debit_rp||0)-Number(x.credit_rp||0),suggestedLocation:"cash:kas_rt"})),
   ...bank.slice(0,100).map(x=>({type:"bank",id:x.id,date:x.occurred_on,
     fund:x.fund_position==="tabungan_warga"?"bank_warga":"bank_lingkungan",
@@ -1161,10 +1181,10 @@ async function treasurySources(db,confirmedOn){
 __name(treasurySources,"treasurySources");
 async function treasurySourceRow(db,type,id){
  if(type==="book"){
-  const row=await one(db,`SELECT id,occurred_on,category,note,debit_rp,credit_rp FROM bookkeeping_cash_transactions_posted
+  const row=await one(db,`SELECT id,occurred_on,transaction_type,category,note,debit_rp,credit_rp FROM bookkeeping_cash_transactions_posted
     WHERE id=? AND status='aktif' LIMIT 1`,[id]);
-  return row&&{type,id,date:row.occurred_on,fund:"kas_rt",
-    note:row.category||row.note||"Buku Kas",amount:Number(row.debit_rp||0)-Number(row.credit_rp||0)};
+  return row&&treasuryBookCashEligible(row)?{type,id,date:row.occurred_on,fund:"kas_rt",
+    note:row.category||row.note||"Kas Lorong",amount:Number(row.debit_rp||0)-Number(row.credit_rp||0)}:null;
  }
  if(type==="bank"){
   const row=await one(db,`SELECT id,occurred_on,fund_position,transaction_type,note,cash_in_rp,cash_out_rp
@@ -1242,12 +1262,12 @@ async function treasuryApi(request,env,who,url){
       for(const c of candidates){
         const src=await treasurySourceRow(db,"book",c.id);
         if(!src||src.date<=config.confirmed_on||!Number.isSafeInteger(src.amount)||src.amount===0)
-          return err("Sumber Buku Kas berubah. Muat ulang dahulu.",409);
+          return err("Sumber Kas Lorong berubah atau bukan kas Humas. Muat ulang dahulu.",409);
         rows.push(src);
       }
       if(!rows.length)return ok({imported:0});
       try{await treasurySourceBatch(env,who,rows,()=>"cash:kas_rt")}
-      catch{return err("Sinkronisasi ditolak: saldo Cash Kas RT tidak cukup, sumber berubah, atau transaksi sudah masuk.",409)}
+      catch{return err("Sinkronisasi ditolak: saldo Cash Kas Lorong tidak cukup, sumber berubah, atau transaksi sudah masuk.",409)}
       return ok({imported:rows.length});
     }
     const type=String(p.sourceType||""),id=String(p.sourceId||"");
