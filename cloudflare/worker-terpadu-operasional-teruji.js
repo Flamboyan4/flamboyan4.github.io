@@ -4137,7 +4137,7 @@ async function ownSavings(db, memberId) {
       COALESCE(SUM(CASE WHEN kind='kredit' THEN amount_rp ELSE 0 END),0) AS credit_total_rp,
       COALESCE(SUM(CASE WHEN kind='pencairan' THEN amount_rp ELSE 0 END),0) AS payout_total_rp
       FROM waste_savings_ledger WHERE member_id=?`).bind(memberId).first(),
-    db.prepare(`SELECT d.id,d.batch_id,d.deposited_on,d.status,d.total_grams,d.estimated_total_rp,
+    db.prepare(`SELECT d.id,d.batch_id,d.deposited_on,d.status,d.total_grams,d.estimated_total_rp,b.confirmed_at AS batch_confirmed_at,
         (SELECT sold_on FROM waste_sales s WHERE s.batch_id=d.batch_id AND s.status='terkonfirmasi'
           ORDER BY s.sold_on DESC LIMIT 1) AS sold_on
       FROM waste_deposits d JOIN waste_batches b ON b.id=d.batch_id
@@ -4193,6 +4193,8 @@ async function ownSavings(db, memberId) {
   const limitedDetails=(details.results||[]).slice(0,300);
   const ownDeposits = (deposits.results || []).slice(0,60).map((d) => ({
     id: d.id,
+    batchId:d.batch_id||null,
+    tanggalPengesahan:d.batch_confirmed_at||null,
     tanggal: d.deposited_on,
     tanggalJual:d.sold_on||null,
     status: d.status,
