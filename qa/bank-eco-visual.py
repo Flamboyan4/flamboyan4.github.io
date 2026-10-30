@@ -104,17 +104,17 @@ async def main():
             print("VISUAL_STATE",mode,json.dumps(state,ensure_ascii=False),flush=True)
             assert state["banner"] == "rgb(8, 99, 69)", f"{mode}: hero not deep leaf green: {state['banner']}"
             assert state["title"] == "rgb(255, 255, 255)", f"{mode}: title not white"
-            assert state["button"] == "rgb(245, 181, 46)", f"{mode}: CTA not bright golden yellow"
+            assert state["button"] == "rgb(255, 192, 38)", f"{mode}: CTA not bright golden yellow"
             assert state["buttonText"] == "rgb(255, 255, 255)", f"{mode}: CTA text not white"
             assert state["savingsButton"] == state["button"], f"{mode}: savings CTA not same gold"
             assert state["savingsButtonText"] == "rgb(255, 255, 255)", f"{mode}: savings CTA text not white"
             assert state["feature"] == "rgb(255, 255, 255)", f"{mode}: program card not solid white"
             assert state["featureText"] == "rgb(18, 79, 56)", f"{mode}: program label not dark green"
-            assert state["submenu"] == "rgb(17, 136, 102)", f"{mode}: submenu inactive color"
-            assert state["firstCard"] == "rgb(17, 136, 102)", f"{mode}: member balance not leaf green"
+            assert state["submenu"] == "rgb(8, 124, 80)", f"{mode}: submenu inactive color"
+            assert state["firstCard"] == "rgb(8, 124, 80)", f"{mode}: member balance not leaf green"
             assert state["firstText"] == "rgb(255, 255, 255)", f"{mode}: member balance text not white"
-            assert state["reportColors"] == ["rgb(217, 238, 224)","rgb(233, 242, 252)",
-                "rgb(255, 240, 220)","rgb(241, 235, 255)"], f"{mode}: public report cards differ: {state['reportColors']}"
+            assert state["reportColors"] == ["rgb(207, 233, 215)","rgb(222, 237, 251)",
+                "rgb(255, 240, 212)","rgb(241, 235, 255)"], f"{mode}: public report cards differ: {state['reportColors']}"
             assert not state["horizontalOverflow"], f"{mode}: horizontal overflow"
             if mode == "hp":
                 rect = state["statRects"]
