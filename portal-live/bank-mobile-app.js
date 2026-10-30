@@ -163,7 +163,7 @@ function updateDashboard(){
  if(role==="member"){
   const button=$("f4BankAppMemberBalance");
   if(button)button.replaceChildren(el("small","","Saldo terkonfirmasi"),
-    el("strong","",map.get("Saldo sah")||"—"),el("span","f4-bank-member-chevron","›"));
+    el("strong","",memberStatement?rupiah(memberStatement.saldo):(map.get("Saldo sah")||"—")),el("span","f4-bank-member-chevron","›"));
   $("f4BankAppMinis")?.replaceChildren();
  }else{
   text("f4BankAppBalance",map.get("Hasil diterima lapak")||"—");
@@ -245,6 +245,22 @@ function ledger(){
    balance:rupiah(Number(x.saldo)||0),month:iso.slice(0,7)};
  }).sort((a,b)=>b.iso.localeCompare(a.iso));
 }
+function historyLines(){
+ const sales=ledger().map(item=>({...item,kind:item.debit>0?"out":"in",sortId:"m"}));
+ const deposits=Array.isArray(memberStatement?.setoran)?memberStatement.setoran:[];
+ const weights=deposits.filter(x=>!/batal/i.test(String(x.status||""))).map(x=>{
+  const iso=String(x.tanggal||"");const isFinal=/terkonfirmasi/i.test(String(x.status||""));
+  const kg=x.beratKg==null?"—":Number(x.beratKg).toLocaleString("id-ID",{maximumFractionDigits:3})+" kg";
+  const moneyNote=isFinal?(x.nilaiSahRp==null?"Nilai belum tersedia":"Hasil jual "+rupiah(x.nilaiSahRp)):
+    "Perkiraan "+rupiah(x.estimasiRp);
+  const date=/^\d{4}-\d{2}-\d{2}$/.test(iso)?
+   new Date(iso+"T12:00:00Z").toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}):iso;
+  return {iso,date,month:iso.slice(0,7),type:"Setoran Sampah",kind:"deposit",amountText:kg,
+   note:moneyNote+" • "+(isFinal?"Sudah sah":"Belum sah"),sortId:"d"};
+ });
+ return [...sales,...weights].sort((a,b)=>b.iso.localeCompare(a.iso)||a.sortId.localeCompare(b.sortId));
+}
+
 function months(items){
  return [...new Set(items.map(x=>x.month).filter(Boolean))].sort().reverse();
 }
@@ -269,18 +285,19 @@ function showHistory(){
   const list=el("div","f4-bank-history-list");list.id="f4BankHistoryList";
   page.append(el("p","f4-bank-screen-status","Memuat transaksi..."),filter,list);
  }
- const rows=ledger(),available=months(rows);
+ const rows=historyLines(),available=months(rows);
  if(historyMonth==="latest"||!available.includes(historyMonth)&&historyMonth!=="all")
   historyMonth=available[0]||"all";
  populateMonths($("f4BankHistoryMonths"),available,historyMonth,key=>{historyMonth=key;showHistory();});
  const host=$("f4BankHistoryList");host.replaceChildren();
  for(const line of rows.filter(x=>historyMonth==="all"||x.month===historyMonth)){
-  const out=line.debit>0,amount=out?line.debit:line.credit;
+  const deposit=line.kind==="deposit",out=line.debit>0,amount=out?line.debit:line.credit;
   const item=el("article","f4-bank-history-line");
-  item.append(el("span","f4-bank-history-icon "+(out?"is-out":"is-in"),out?"↑":"↓"));
+  item.append(el("span","f4-bank-history-icon "+(deposit?"is-deposit":out?"is-out":"is-in"),deposit?"♻":out?"↑":"↓"));
   const desc=el("span","f4-bank-history-copy");desc.append(el("strong","",line.type),el("small","",line.date));
-  const total=el("span","f4-bank-history-amount "+(out?"is-out":"is-in"));
-  total.append(el("strong","",(out?"− ":"+ ")+rupiah(amount)),el("small","","Saldo "+line.balance));
+  const total=el("span","f4-bank-history-amount "+(deposit?"is-deposit":out?"is-out":"is-in"));
+  total.append(el("strong","",deposit?line.amountText:(out?"− ":"+ ")+rupiah(amount)),
+   el("small","",deposit?line.note:"Saldo "+line.balance));
   item.append(desc,total);host.append(item);
  }
  if(!host.childElementCount)host.append(el("p","f4-bank-empty",rows.length?"Tidak ada transaksi pada bulan ini.":"Belum ada transaksi tercatat."));
