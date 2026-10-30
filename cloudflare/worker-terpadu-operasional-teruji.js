@@ -1736,11 +1736,15 @@ async function f4ContributionReport(db, request) {
   }
   const tariff = await db.prepare("SELECT amount_rp FROM bookkeeping_contribution_tariffs WHERE contribution_type='ARISAN'").first();
   const value = Number(tariff?.amount_rp || 0);
-  const obligations = await db.prepare("SELECT payer_id,qty_arisan FROM bookkeeping_payer_iuran_obligations").all();
-  const qty = new Map((obligations.results || []).map((x) => [x.payer_id, Number(x.qty_arisan || 0)]));
+  const targetMonth=f4IuranMonth(year,month);
+  const obligations = await db.prepare(`SELECT o.payer_id,o.qty_arisan FROM bookkeeping_payer_obligation_periods o
+    WHERE o.effective_from=(SELECT MAX(v.effective_from) FROM bookkeeping_payer_obligation_periods v
+      WHERE v.payer_id=o.payer_id AND v.effective_from<=?)`).bind(targetMonth).all();
+  const qty = new Map((obligations.results || []).map(x=>[x.payer_id,Number(x.qty_arisan||0)]));
   const rows = entries.filter((x) => x.nominalBayar > 0).map((x) => {
-    const expected = value * (qty.get(x.idWarga) || 1);
-    return { ...x, qtyArisan: qty.get(x.idWarga) || 1, nominalWajib: expected, status: expected > 0 && x.nominalBayar >= expected ? "LUNAS" : "SEBAGIAN" };
+    const periodQty=qty.has(x.idWarga)?qty.get(x.idWarga):0;
+    const expected=value*periodQty;
+    return {...x,qtyArisan:periodQty,nominalWajib:expected,status:expected>0&&x.nominalBayar>=expected?"LUNAS":"PERIKSA"};
   });
   return json({ ok: true, data: {
     namaBulan: monthNames[month],
@@ -1856,8 +1860,11 @@ async function f4QuickIuranSummary(db, request) {
     else if (p.method.includes("mandiri")) t.mandiri += p.amount;
   }
   t.selisih = t.totalMasuk - t.setoranRT - t.kasLorong - t.arisan;
-  const obligationRows = await db.prepare(`SELECT o.payer_id,o.qty_iuran_bulanan,o.qty_kebersihan,o.qty_kas_lorong,o.qty_arisan
-    FROM bookkeeping_payer_iuran_obligations o JOIN bookkeeping_payers p ON p.id=o.payer_id WHERE p.active=1`).all();
+  const summaryMonth=/^\\d{4}-\\d{2}/.test(to||from||"")?(to||from).slice(0,7)+"-01":f4CurrentIuranMonth();
+  const obligationRows=await db.prepare(`SELECT o.payer_id,o.qty_iuran_bulanan,o.qty_kebersihan,o.qty_kas_lorong,o.qty_arisan
+    FROM bookkeeping_payer_obligation_periods o JOIN bookkeeping_payers p ON p.id=o.payer_id
+    WHERE o.effective_from=(SELECT MAX(v.effective_from) FROM bookkeeping_payer_obligation_periods v
+    WHERE v.payer_id=o.payer_id AND v.effective_from<=?)`).bind(summaryMonth).all();
   const required = { total: /* @__PURE__ */ new Set(), rt: /* @__PURE__ */ new Set(), kas: /* @__PURE__ */ new Set(), arisan: /* @__PURE__ */ new Set() };
   for (const o of obligationRows.results || []) {
     const rt = Number(o.qty_iuran_bulanan || 0) + Number(o.qty_kebersihan || 0), kas = Number(o.qty_kas_lorong || 0), arisan = Number(o.qty_arisan || 0);
@@ -2711,6 +2718,33 @@ async function getIuranTariffs(db) {
   return result;
 }
 __name(getIuranTariffs, "getIuranTariffs");
+// Historical, period-effective obligations. Past months resolve to their
+// original version, never to the current editing form values.
+function f4IuranMonth(year, month) {
+  return String(year).padStart(4,"0")+"-"+String(month).padStart(2,"0")+"-01";
+}
+function f4CurrentIuranMonth() {
+  return new Date(Date.now()+7*3600*1000).toISOString().slice(0,7)+"-01";
+}
+function f4NextIuranMonth() {
+  const current=f4CurrentIuranMonth();
+  const dt=new Date(current+"T00:00:00Z");
+  dt.setUTCMonth(dt.getUTCMonth()+1);
+  return dt.toISOString().slice(0,10);
+}
+async function f4PeriodObligation(db,payerId,year,month) {
+  return db.prepare("SELECT qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan,effective_from FROM bookkeeping_payer_obligation_periods WHERE payer_id=? AND effective_from<=? ORDER BY effective_from DESC LIMIT 1")
+    .bind(payerId,f4IuranMonth(year,month)).first();
+}
+function f4IuranAmounts(obligation,tariff) {
+  return {
+    IURAN_BULANAN:Number(obligation.qty_iuran_bulanan)*tariff.TARIF_BULANAN,
+    KEBERSIHAN:Number(obligation.qty_kebersihan)*tariff.TARIF_KEBERSIHAN,
+    KAS_LORONG:Number(obligation.qty_kas_lorong)*tariff.TARIF_KAS_LORONG,
+    ARISAN:Number(obligation.qty_arisan)*tariff.TARIF_ARISAN
+  };
+}
+
 async function getIuranOutstanding(db, request) {
   const q = new URL(request.url).searchParams;
   const payerId = q.get("payerId") || "";
@@ -2719,21 +2753,15 @@ async function getIuranOutstanding(db, request) {
     return safeError("Pembayar, tahun, atau bulan tidak valid.", 400);
   const payer = await db.prepare("SELECT id,display_name,active FROM bookkeeping_payers WHERE id=?").bind(payerId).first();
   if (!payer || Number(payer.active) !== 1) return safeError("Pembayar tidak ditemukan atau tidak aktif.", 404);
-  const obligation = await db.prepare(`SELECT qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan
-    FROM bookkeeping_payer_iuran_obligations WHERE payer_id=?`).bind(payerId).first();
-  if (!obligation) return safeError("Kewajiban pembayar belum diverifikasi.", 503);
+  const obligation = await f4PeriodObligation(db,payerId,year,month);
+  if (!obligation) return safeError("Belum ada kewajiban untuk pembayar pada periode ini.",404);
   let tariff;
   try {
     tariff = await getIuranTariffs(db);
   } catch {
     return safeError("Tarif D1 belum dikonfigurasi.", 503);
   }
-  const nominal = {
-    IURAN_BULANAN: obligation.qty_iuran_bulanan * tariff.TARIF_BULANAN,
-    KEBERSIHAN: obligation.qty_kebersihan * tariff.TARIF_KEBERSIHAN,
-    KAS_LORONG: obligation.qty_kas_lorong * tariff.TARIF_KAS_LORONG,
-    ARISAN: obligation.qty_arisan * tariff.TARIF_ARISAN
-  };
+  const nominal=f4IuranAmounts(obligation,tariff);
   const paid = await db.prepare(`SELECT a.contribution_type AS jenis,COALESCE(SUM(a.amount_rp),0) AS jumlah
     FROM bookkeeping_payment_allocations a JOIN bookkeeping_payments p ON p.id=a.payment_id
     WHERE a.payer_id=? AND a.period_year=? AND a.period_month=?
@@ -2813,17 +2841,17 @@ async function createIuranPayment(request, env, who) {
   } catch {
     return safeError("Tarif iuran D1 belum dikonfigurasi dengan lengkap.", 503);
   }
-  const obligation = await env.DB.prepare(`SELECT qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan
-    FROM bookkeeping_payer_iuran_obligations WHERE payer_id=?`).bind(payerId).first();
-  if (!obligation) return safeError("Jumlah kewajiban pembayar belum diverifikasi pada D1.", 503);
   const tariff = await getIuranTariffs(env.DB);
-  const required = {
-    IURAN_BULANAN: obligation.qty_iuran_bulanan * tariff.TARIF_BULANAN,
-    KEBERSIHAN: obligation.qty_kebersihan * tariff.TARIF_KEBERSIHAN,
-    KAS_LORONG: obligation.qty_kas_lorong * tariff.TARIF_KAS_LORONG,
-    ARISAN: obligation.qty_arisan * tariff.TARIF_ARISAN
-  };
-  if (Object.values(required).some((v) => !Number.isSafeInteger(v) || v < 0)) return safeError("Konfigurasi kewajiban pembayar tidak valid.", 503);
+  const requiredByPeriod=new Map();
+  for(const period of periods){
+    const [yr,mo]=period.split(":").map(Number);
+    const version=await f4PeriodObligation(env.DB,payerId,yr,mo);
+    if(!version)return safeError("Pembayar belum memiliki kewajiban pada "+mo+"/"+yr+".",409);
+    const amounts=f4IuranAmounts(version,tariff);
+    if(Object.values(amounts).some(v=>!Number.isSafeInteger(v)||v<0))
+      return safeError("Kewajiban periode "+mo+"/"+yr+" tidak valid.",503);
+    requiredByPeriod.set(period,amounts);
+  }
   const submitted = new Map(items.map((a) => [a.tahun + ":" + a.bulan + ":" + a.jenis, a.nominal]));
   const years = [...new Set(items.map((a) => a.tahun))];
   const paidRows = await env.DB.prepare(`SELECT a.period_year,a.period_month,a.contribution_type,
@@ -2839,6 +2867,7 @@ async function createIuranPayment(request, env, who) {
   ]));
   for (const period of periods) {
     const [year, month] = period.split(":").map(Number);
+    const required=requiredByPeriod.get(period);
     for (const kind of allowed) {
       const key2 = year + ":" + month + ":" + kind;
       const amount = submitted.get(key2) ?? 0;
@@ -2861,6 +2890,7 @@ async function createIuranPayment(request, env, who) {
     const iuranCovered=forPeriod.filter(x=>["IURAN_BULANAN","KEBERSIHAN"].includes(x.jenis))
       .reduce((v,x)=>v+x.nominal,0);
     talanganRepayRp=Number(activeAdvance.amount_rp)-Number(activeAdvance.reimbursed_rp);
+    const required=requiredByPeriod.get(periodYear+":"+periodMonth);
     // Only the full outstanding RT/Kebersihan portion for this exact month
     // can settle the matching advance; never use Arisan or Kas Lorong funds.
     if(!Number.isSafeInteger(talanganRepayRp)||talanganRepayRp<=0||
