@@ -159,7 +159,7 @@ jobs:
               or treasury_sql.upper().count("CREATE INDEX IF NOT EXISTS")!=2
               or "INSERT OR IGNORE INTO TREASURY_CONFIG" not in treasury_sql.upper()):
               raise RuntimeError("Unexpected treasury migration")
-          treasury_clean="\\n".join(line for line in treasury_sql.splitlines()
+          treasury_clean="\n".join(line for line in treasury_sql.splitlines()
                                       if not line.lstrip().startswith("--"))
           for statement in treasury_clean.split(";"):
               q=statement.strip()
