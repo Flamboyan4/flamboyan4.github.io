@@ -1115,6 +1115,7 @@ async function treasuryCatalog(db){
     {id:"kas_rt",name:"Kas Lorong",cash:"cash:kas_rt"},
     {id:"bank_warga",name:"Bank Sampah — Hak Warga",cash:"cash:bank_sampah"},
     {id:"bank_lingkungan",name:"Bank Sampah — Lingkungan",cash:"cash:bank_sampah"},
+    {id:"bank_cadangan",name:"Bank Sampah — Cadangan",cash:"cash:bank_sampah"},
     {id:"jersey",name:"Jersey",cash:"cash:jersey"}
   ];
   const [projects,customFunds]=await Promise.all([
@@ -1262,7 +1263,7 @@ async function treasurySources(db,confirmedOn){
     category:x.category||"Kas Lorong",amountRp:Number(x.debit_rp||0)-Number(x.credit_rp||0),
     suggestedLocation:"cash:kas_rt",sourceLabel:"Pembukuan Kas Lorong"})),
   ...bank.slice(0,100).map(x=>({type:"bank",id:x.id,date:x.occurred_on,
-    fund:x.fund_position==="tabungan_warga"?"bank_warga":"bank_lingkungan",
+    fund:x.fund_position==="tabungan_warga"?"bank_warga":x.fund_position==="cadangan"?"bank_cadangan":x.fund_position==="lingkungan"?"bank_lingkungan":"",
     note:x.note||x.transaction_type||"Bank Sampah",category:"Bank Sampah",
     amountRp:Number(x.cash_in_rp||0)-Number(x.cash_out_rp||0),
     suggestedLocation:"",sourceLabel:"Bank Sampah"})),
@@ -1274,7 +1275,7 @@ async function treasurySources(db,confirmedOn){
   ...observed.slice(0,100).map(x=>({type:"receipt",id:x.id,date:x.observed_on,
     fund:x.fund_id,note:x.note,category:x.source_kind==="jersey"?"Jersey":"Pesanan",
     amountRp:Number(x.amount_rp),suggestedLocation:"",sourceLabel:x.source_kind==="jersey"?"Jersey":"Pesanan Barang"}))
- ].filter(x=>Number.isSafeInteger(x.amountRp)&&x.amountRp!==0)
+ ].filter(x=>!!x.fund&&Number.isSafeInteger(x.amountRp)&&x.amountRp!==0)
   .sort((a,b)=>b.date.localeCompare(a.date)||a.type.localeCompare(b.type));
  return {pending,partial:[cash,bank,contributions,observed].some(a=>a.length>100),
    warnings:[...wCash,...wBank,...wContribution,...wObservation].map(x=>x.source_key)};
@@ -1291,7 +1292,7 @@ async function treasurySourceRow(db,type,id){
   const row=await one(db,`SELECT id,occurred_on,fund_position,transaction_type,note,cash_in_rp,cash_out_rp
     FROM waste_cash_ledger WHERE id=? AND status='aktif' LIMIT 1`,[id]);
   return row&&{type,id,date:row.occurred_on,
-    fund:row.fund_position==="tabungan_warga"?"bank_warga":"bank_lingkungan",
+    fund:row.fund_position==="tabungan_warga"?"bank_warga":row.fund_position==="cadangan"?"bank_cadangan":row.fund_position==="lingkungan"?"bank_lingkungan":"",
     note:row.note||row.transaction_type||"Bank Sampah",
     amount:Number(row.cash_in_rp||0)-Number(row.cash_out_rp||0)};
  }
