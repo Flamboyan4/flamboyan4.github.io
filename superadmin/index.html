@@ -45,6 +45,36 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #76
 .f4-admin-fields label{display:flex;flex-direction:column;gap:5px;font-weight:650;font-size:12px}
 .f4-admin-fields input,.f4-admin-fields textarea,.f4-admin-fields select{width:100%;border:1px solid var(--edge);border-radius:9px;padding:11px;background:#fff}
 .f4-admin-editor{border:1px solid var(--edge);background:#fff;padding:20px;border-radius:14px}
+
+/* Compact master iuran form: genuine component styles, no cascade overlays. */
+.f4-obligation-form{padding:16px 18px;display:grid;gap:11px;max-width:1000px}
+.f4-obligation-identity{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:12px}
+.f4-obligation-field{display:flex;flex-direction:column;gap:5px;min-width:0;font-size:12px;font-weight:700;color:#34516b}
+.f4-obligation-field :is(input,select){width:100%;height:42px;min-width:0;padding:8px 12px;border:1px solid #d8e4ee;border-radius:9px;background:#fff;color:#18334b;font:500 13px system-ui}
+.f4-obligation-field :is(input,select):focus-visible{outline:2px solid #477cb4;outline-offset:1px}
+.f4-obligation-section-title{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;color:#23435d;margin-top:2px}
+.f4-obligation-section-title span{font-size:11px;color:#6b8190}
+.f4-obligation-amounts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.f4-obligation-amounts input{text-align:center;font-weight:600}
+.f4-obligation-period{display:flex;align-items:end;gap:12px;flex-wrap:wrap}
+.f4-obligation-period .f4-obligation-field{width:min(100%,215px)}
+.f4-obligation-period>span{padding-bottom:9px;font-size:11px;color:#678093}
+.f4-obligation-form .f4-obligation-edit-fields{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.f4-obligation-form .f4-obligation-edit-fields label{gap:5px}
+.f4-obligation-form .f4-obligation-edit-fields input{min-height:41px;padding:8px 11px}
+.f4-obligation-form .f4-obligation-actions{justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:8px;margin-top:0;padding-top:10px;border-top:1px solid #e8eef4}
+.f4-obligation-form .f4-admin-message{margin:0;font-size:12px}
+.f4-obligation-upcoming{display:block;margin:4px 0;font-size:10px;color:#52769e;white-space:nowrap}
+@media(max-width:760px){
+ .f4-obligation-form{padding:12px;gap:10px}
+ .f4-obligation-identity{grid-template-columns:1fr}
+ .f4-obligation-amounts{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .f4-obligation-form .f4-obligation-edit-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .f4-obligation-period .f4-obligation-field{width:100%}
+ .f4-obligation-period>span{padding:0}
+ .f4-obligation-form .f4-obligation-actions>*{flex:1 1 0;min-width:0}
+}
+
 .f4-admin-editor .f4-content-destination{display:flex;flex-direction:column;gap:6px;max-width:320px;margin:0 0 14px;font-size:12px;font-weight:700;color:var(--navy)}
 .f4-admin-editor .f4-content-destination select{width:100%;min-height:41px;padding:9px 11px;border:1px solid var(--edge);border-radius:9px;background:#fff;color:var(--navy);font:500 13px system-ui}
 .f4-admin-editor .f4-content-destination select:focus-visible{outline:2px solid #327cae;outline-offset:1px}
