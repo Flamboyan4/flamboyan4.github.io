@@ -133,7 +133,7 @@ for(const [key,value] of [['tabungan_warga','bank_warga'],['operasional','bank_l
 }
 assert.equal(bankFund('unknown'),'');
 assert.match(ui,/Saldo sumber Bank Sampah/);
-assert.match(ui,/sourceConfirmedAt/);
+assert.match(ui,/src\.sourceDate&&src\.sourceDate!==src\.date/);
 assert.match(worker,/bankSourceBalances/);
 assert.match(worker,/b.confirmed_at>=/);
 console.log('TREASURY_HUMAS_CLASSIFICATION_AND_CALENDAR_OK=1');
