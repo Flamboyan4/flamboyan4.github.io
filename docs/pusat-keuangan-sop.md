@@ -81,3 +81,10 @@
 - Untuk penjualan yang dicatat bertanggal lama tetapi **baru disahkan sesudah Pusat Keuangan aktif**, tanggal pengesahan batch menjadi tanggal *usulan posting* di Pusat Keuangan; tanggal asli penjualan tetap ditampilkan sebagai referensi. Ini untuk menghindari hilangnya transaksi akibat tanggal penjualan lebih lama dari tanggal saldo awal.
 - Penjualan yang **sudah disahkan sebelum saldo awal** tidak langsung dibukukan sebagai pemasukan baru. Angka netonya tetap terlihat pada bagian **Saldo sumber Bank Sampah**, sehingga bisa dibandingkan dengan posisi pusat. Jika belum masuk saldo awal, lakukan pemeriksaan/koreksi tercatat; jangan mengimpor ulang secara otomatis.
 - Modul sumber Bank Sampah tetap pemilik data rinci; Pusat Keuangan hanya mengusulkan untuk diperiksa. Pilih lokasi Cash Bank Sampah, QRIS bersama, atau Mandiri bersama sesuai fisik uang lalu **Periksa & Sahkan**. Jangan masukkan dana berulang.
+
+## Sahkan saldo Bank Sampah yang sudah tercatat di sumber
+- **Periksa Dana → Saldo Bank Sampah** menampilkan saldo sumber dan saldo pusat per pos; pengurus memilih Cash/QRIS/Mandiri lalu tombol **Sahkan Rp…** sesuai selisih positif.
+- Saldo sumber dapat berasal dari transaksi sebelum saldo awal; pengesahan hanya dilakukan **jika uang benar-benar belum dimasukkan dalam saldo awal dan berada pada tempat yang dipilih**. Tidak ada pengesahan otomatis.
+- Backend membandingkan saldo sumber dan pusat secara atomik, lalu menyimpan selisih dalam satu jurnal. Semua ID transaksi Bank Sampah sumber saat itu ditandai dalam `treasury_bank_source_coverage` agar tidak bisa disahkan kembali per transaksi.
+- Jika transaksi sumber berubah atau hilang setelah disahkan, dashboard memberi peringatan audit. Bila posisi pusat sudah dipindahkan dan tidak ada sumber baru, tombol **Sahkan** tidak ditawarkan lagi meskipun nominal sumber berbeda.
+- **Pindah Dana** dipakai untuk QRIS → Mandiri, Mandiri → Cash, antarprogram, atau penyesuaian manual khusus; pemindahan tidak membuat pemasukan baru.
