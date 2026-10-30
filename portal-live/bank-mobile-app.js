@@ -314,27 +314,74 @@ function showReport(){
  }
  statusFor(page);
 }
+function memberBuckets(){
+ const list=Array.isArray(memberStatement?.setoran)?memberStatement.setoran:[];
+ const grouped=new Map();
+ for(const row of list){
+  if(/batal/i.test(String(row.status||"")))continue;
+  const confirmed=/terkonfirmasi/i.test(String(row.status||""));
+  const period=String(confirmed?(row.tanggalJual||row.tanggal):row.tanggal).slice(0,7);
+  if(!/^\d{4}-\d{2}$/.test(period))continue;
+  if(!grouped.has(period))grouped.set(period,{month:period,weight:0,confirmed:0,estimated:0,missingWeight:false,missingValue:false});
+  const entry=grouped.get(period);
+  if(row.beratKg==null)entry.missingWeight=true;
+  else entry.weight+=Number(row.beratKg)||0;
+  if(confirmed){
+   if(row.nilaiSahRp==null)entry.missingValue=true;
+   else entry.confirmed+=Number(row.nilaiSahRp)||0;
+  }else entry.estimated+=Number(row.estimasiRp)||0;
+ }
+ return [...grouped.values()].sort((a,b)=>a.month.localeCompare(b.month)).slice(-6);
+}
+function ensureHomeChart(){
+ if(role!=="member"||!$("f4BankAppHome"))return;
+ if(!$("f4BankHomeChart")){
+  const box=el("section","f4-bank-savings-chart");box.id="f4BankHomeChart";
+  box.append(el("h3","","Perkembangan Setoran"));
+  const bars=el("div","f4-bank-savings-bars");bars.id="f4BankHomeBars";box.append(bars);
+  $("f4BankAppMemberBalance")?.after(box);
+ }
+ chartSavings();
+}
+function drawSavingsBars(id){
+ const host=$(id);if(!host)return;
+ host.replaceChildren();
+ if(!memberStatement){host.append(el("p","f4-bank-empty","Memuat grafik..."));return;}
+ const data=memberBuckets();
+ if(!data.length){host.append(el("p","f4-bank-empty","Belum ada setoran."));return;}
+ const kg=memberChartMode==="kg";
+ const max=Math.max(0.001,...data.map(x=>kg?x.weight:x.confirmed+x.estimated));
+ for(const item of data){
+  const col=el("div","f4-bank-savings-bar"),track=el("span","f4-bank-savings-bar-rail"),fill=el("i");
+  fill.style.height=Math.max(4,(kg?item.weight:item.confirmed+item.estimated)/max*100)+"%";
+  fill.className=!kg&&item.estimated>0?"is-estimate":"is-confirmed";
+  track.append(fill);
+  const value=kg?(item.missingWeight?"—":item.weight.toLocaleString("id-ID",{maximumFractionDigits:2})):
+    item.missingValue?"—":rupiah(item.confirmed+item.estimated);
+  col.append(el("strong","",value),track,el("small","",monthName(item.month).split(" ")[0]));
+  if(item.missingWeight||item.missingValue)col.title="Ada data hasil jual yang belum tersedia";
+  host.append(col);
+ }
+}
 function chartSavings(){
- const target=$("f4BankSavingsBars"),source=$("v12Deposits");if(!target||!source)return;
- const byMonth=new Map();
- for(const details of source.querySelectorAll("details")){
-  const summary=details.querySelector("summary")?.textContent||"";
-  const key=dateMonth(summary),weight=summary.match(/([\d.,]+)\s*kg/);
-  if(!key||!weight)continue;
-  const kg=Number(weight[1].replace(/\./g,"").replace(",","."));if(!Number.isFinite(kg)||kg<0)continue;
-  byMonth.set(key,(byMonth.get(key)||0)+kg);
+ for(const id of ["f4BankSavingsChart","f4BankHomeChart"]){
+  const box=$(id);if(!box)continue;
+  let switcher=box.querySelector(".f4-bank-chart-switch");
+  if(!switcher){
+   switcher=el("div","f4-bank-chart-switch");
+   for(const [mode,label] of [["kg","Kg"],["rp","Rp"]]){
+    const button=el("button","",label);button.type="button";button.dataset.mode=mode;
+    button.onclick=()=>{memberChartMode=mode;chartSavings();};
+    switcher.append(button);
+   }
+   box.querySelector(".f4-bank-savings-bars")?.before(switcher);
+  }
+  switcher.querySelectorAll("button").forEach(b=>{
+   const chosen=b.dataset.mode===memberChartMode;b.classList.toggle("is-active",chosen);
+   b.setAttribute("aria-pressed",String(chosen));
+  });
  }
- const values=[...byMonth].sort((a,b)=>a[0].localeCompare(b[0])).slice(-6);
- target.replaceChildren();
- if(!values.length){target.append(el("p","f4-bank-empty","Belum ada setoran."));return;}
- const max=Math.max(0.001,...values.map(x=>x[1]));
- for(const [key,kg] of values){
-  const col=el("div","f4-bank-savings-bar");
-  const track=el("span","f4-bank-savings-bar-rail");
-  const fill=el("i");fill.style.height=Math.max(4,kg/max*100)+"%";track.append(fill);
-  col.append(el("strong","",kg.toLocaleString("id-ID",{maximumFractionDigits:2})),track,el("small","",monthName(key).split(" ")[0]));
-  target.append(col);
- }
+ drawSavingsBars("f4BankSavingsBars");drawSavingsBars("f4BankHomeBars");
 }
 function syncSavings(){
  text("f4BankSavingsBalance",memberStatement?rupiah(memberStatement.saldo):"—");
@@ -538,8 +585,53 @@ function refreshSources(){
   observer.observe(target,id==="v12Private"?{attributes:true,attributeFilter:["class"]}:{childList:true,characterData:true,subtree:true});
  }
 }
+
+function memberID(){
+ return String(memberStatement?.wargaId||$("pId")?.textContent||"").trim().replace(/^member:/i,"");
+}
+function updateCardNumber(){
+ const id=memberID();
+ text("f4BankCardNumber",id&&id!=="Administrator"?id:"—");
+ text("f4BankProfileNumber",id&&id!=="Administrator"?id:"—");
+ const house=$("pHome")?.textContent?.trim()||"—";
+ if($("f4BankProfileHouse"))$("f4BankProfileHouse").textContent="Rumah "+house;
+}
+function updateProfileCard(){
+ if(role!=="member")return;
+ const target=$("pageProfile"),card=$("f4BankMemberCard");if(!target||!card)return;
+ if(!$("f4BankProfileDetail")){
+  const wrapper=el("section","f4-bank-profile-detail");wrapper.id="f4BankProfileDetail";
+  wrapper.append(el("h3","","Detail Kartu Anggota"));
+  const copy=card.cloneNode(true);
+  copy.removeAttribute("id");copy.classList.add("f4-bank-profile-card");
+  copy.type="button";copy.onclick=null;copy.tabIndex=-1;
+  copy.setAttribute("aria-label","Identitas anggota Bank Sampah Flamboyan 4");
+  const number=copy.querySelector("#f4BankCardNumber");if(number)number.id="f4BankProfileNumber";
+  const room=copy.querySelector(".f4-bank-card-house");if(room)room.id="f4BankProfileHouse";
+  const info=el("p","f4-bank-profile-card-note","Kartu identitas anggota, bukan alat pembayaran.");
+  const button=el("button","f4-bank-profile-copy","Salin nomor anggota");button.type="button";
+  button.onclick=async()=>{
+   const id=memberID();if(!id||id==="—")return;
+   try{await navigator.clipboard.writeText(id);button.textContent="Nomor tersalin";}
+   catch{window.prompt("Nomor anggota:",id);}
+  };
+  wrapper.append(copy,info,button);
+  target.prepend(wrapper);
+  const head=target.querySelector(":scope > h2");if(head)head.textContent="Profil & Pengaturan";
+ }
+ updateCardNumber();
+}
+function acceptMemberStatement(event){
+ if(roleType()!=="member")return;
+ const data=event?.detail;
+ if(!data||!Array.isArray(data.mutasi)||!Array.isArray(data.setoran))return;
+ memberStatement=data;
+ updateCardNumber();updateDashboard();syncSavings();
+}
+
 function init(){
  if(ready)return;ready=true;
+ window.addEventListener("f4-bank-member-statement",acceptMemberStatement);
  const original=window.goPage;
  if(typeof original==="function")window.goPage=function(route,...args){return handleRoute(route,original,args);};
  const view=$("dashboardView");
