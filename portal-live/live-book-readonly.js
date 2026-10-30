@@ -14,14 +14,14 @@
  async function bootstrap(){
   // Master bersama Cloudflare D1: semua rumah, termasuk rumah kosong.
   const [p,t,directory,settings]=await Promise.all([
-    read('/api/bookkeeping/iuran/payers'),
+    read('/api/v2/admin/content/obligations'),
     read('/api/bookkeeping/iuran/tariffs'),
     read('/api/v2/admin/residents'),
     read('/api/v2/admin/content/settings').catch(()=>({data:[]}))
   ]);
   const payerRows=rows(p);
   const residents=Array.isArray(directory.rows)?directory.rows:[];
-  const obligations=new Map(payerRows.map(x=>[String(x.payerId||x.id||''),x]));
+  const obligations=new Map(payerRows.map(x=>[String(x.payer_id||x.payerId||x.id||''),x]));
   const orderedHouses=[...new Map(residents.filter(x=>x.household_id).map(x=>[x.household_id,x])).entries()]
     .sort(([,x],[,y])=>String(x.rumah||'').localeCompare(String(y.rumah||''),'id',{numeric:true}));
   const houses=orderedHouses.map(([id,r],i)=>{
@@ -37,10 +37,10 @@
     return {idWarga:String(r.payer_id),idRumah:r.household_id,noUrutRumah:house.noUrut||0,
       nama:r.nama||'',blok:house.blok||'',noRumah:house.noRumah||'',
       statusTinggal:r.status_tinggal||'',statusAktif:r.active?'Ya':'Tidak',
-      qtyIuranBulanan:n(quantity.qtyIuranBulanan??r.qty_iuran_bulanan),
-      qtyKebersihan:n(quantity.qtyKebersihan??r.qty_kebersihan),
-      qtyKasLorong:n(quantity.qtyKasLorong??r.qty_kas_lorong),
-      qtyArisan:n(quantity.qtyArisan??r.qty_arisan),
+      qtyIuranBulanan:n(quantity.qty_iuran_bulanan??r.qty_iuran_bulanan),
+      qtyKebersihan:n(quantity.qty_kebersihan??r.qty_kebersihan),
+      qtyKasLorong:n(quantity.qty_kas_lorong??r.qty_kas_lorong),
+      qtyArisan:n(quantity.qty_arisan??r.qty_arisan),
       noHP:r.nomor_hp||'',keterangan:r.keterangan_warga||''};
   });
   const config={...(t.config||{})};
