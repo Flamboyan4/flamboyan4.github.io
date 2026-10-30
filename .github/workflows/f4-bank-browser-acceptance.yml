@@ -11,6 +11,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: f4-d1-sensitive-readonly-qa
+  cancel-in-progress: false
 jobs:
   bank-browser:
     runs-on: ubuntu-latest
