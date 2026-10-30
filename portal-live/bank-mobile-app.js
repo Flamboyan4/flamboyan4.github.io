@@ -36,16 +36,17 @@ const adminDock=[
   ["Penjualan","penjualan","cash.svg"],["Saldo","tabungan","pay.svg"],["Menu","menu","menu.svg"]
 ];
 const memberDock=[
-  ["Beranda","dashboard","home.svg"],["Tabungan","pribadi","cash.svg"],
-  ["Riwayat","bank-history","book.svg"],["Pencairan","bank-payout","pay.svg"],
-  ["Laporan","bank-report","book.svg"]
+ ["Beranda","dashboard","home.svg"],["Tabungan","pribadi","cash.svg"],
+ ["Pencairan","bank-payout","pay.svg"],["Riwayat","bank-history","book.svg"],
+ ["Profil","profile","user.svg"]
 ];
 let role=null,screen="dashboard",historyMonth="latest",reportMonth="",activePage=null;
 let homeSource=null,summaryExtra=null,memberSource=null,managerQueue=null;
 let primaryNode=null,extraNode=null;
 let ready=false,requestNonce="",requestEnabled=false;
+let memberStatement=null,memberChartMode="kg";
 let refreshing=false;
-const custom=["bank-history","bank-payout","bank-report","bank-deposit"];
+const custom=["bank-history","bank-payout","bank-report"];
 const text=(id,val)=>{if($(id)&&$(id).textContent!==String(val))$(id).textContent=String(val)};
 const image=file=>{const img=el("img");img.src="/assets/icons/"+file;img.alt="";img.setAttribute("aria-hidden","true");return img;};
 function roleType(){
@@ -89,12 +90,12 @@ function ensureHome(){
   hub=el("section","f4-bank-app-home");hub.id="f4BankAppHome";
   const welcome=el("div","f4-bank-app-personal-greeting");welcome.id="f4BankAppWelcome";
   welcome.append(el("small","","TABUNGAN LINGKUNGAN"),el("strong","", "Halo!"));
-  const card=el("button","f4-bank-member-card");card.id="f4BankMemberCard";card.type="button";card.onclick=()=>navigate("pribadi");
+  const card=el("button","f4-bank-member-card");card.id="f4BankMemberCard";card.type="button";card.onclick=()=>navigate("profile");
   const cardHead=el("span","f4-bank-member-card-head"),logo=el("img");logo.src="/assets/logo-flamboyan.svg";logo.alt="";
   cardHead.append(logo,el("span","","BANK SAMPAH · FLAMBOYAN 4"),el("span","f4-bank-member-card-chip"));
   const identity=el("span","f4-bank-member-card-foot");
   const box=el("span");box.append(el("small","","KARTU ANGGOTA DIGITAL"),el("strong","","—"));
-  box.querySelector("strong").id="f4BankCardName";box.append(el("small","f4-bank-card-house","Rumah —"));
+  box.querySelector("strong").id="f4BankCardNumber";box.append(el("small","f4-bank-card-house","Rumah —"));
   identity.append(box,el("span","f4-bank-card-leaf","✦"));card.append(cardHead,identity);
   const savings=el("button","f4-bank-app-member-balance");savings.id="f4BankAppMemberBalance";savings.type="button";
   savings.append(el("span","f4-bank-member-balance-label","Saldo terkonfirmasi"),
@@ -113,26 +114,25 @@ function ensureHome(){
   page.prepend(hub);
  }
  hub.dataset.bankRole=role;
- $("f4BankAppShortcuts").replaceChildren(...(role==="admin"?adminActions:memberActions).map(x=>action(x)));
+ $("f4BankAppShortcuts").replaceChildren(...(role==="admin"?adminActions:[]).map(x=>action(x)));
+ $("f4BankAppShortcuts").parentElement.hidden=role==="member";
  const name=$("pName")?.textContent?.trim()||"Anggota";
  const house=$("pHome")?.textContent?.trim()||"—";
- text("f4BankCardName",name);
+ updateCardNumber();
  const welcome=$("f4BankAppWelcome");if(welcome){
    welcome.replaceChildren(el("small","","Selamat datang"),el("strong","","Halo, "+name+"!"));
    welcome.append(el("small","","Rumah "+house));
  }
- text("f4BankCardName",name);
+ updateCardNumber();
  const houseNode=hub.querySelector(".f4-bank-card-house");if(houseNode)houseNode.textContent="Rumah "+house;
+ updateProfileCard();
  // Keep the original live-data nodes in the DOM but out of the visual hierarchy.
  let reservoir=$("f4BankDashboardSource");
  if(!reservoir){reservoir=el("div","f4-bank-hidden-source");reservoir.id="f4BankDashboardSource";reservoir.hidden=true;page.append(reservoir);}
  for(const id of ["v14Primary","v14Extra"]){const node=$(id);if(node&&node.parentElement!==reservoir)reservoir.append(node);}
  if(role==="member"){
   const chart=$("f4-member-weight-chart");if(chart&&chart.parentElement!==reservoir)reservoir.append(chart);
-  const flow=$("f4MemberFlow");if(flow){
-   const box=ensureScreen("bank-deposit","Cara Setor");
-   if(flow.parentElement!==box)box.append(flow);
-  }
+  const flow=$("f4MemberFlow");if(flow&&flow.parentElement!==hub)hub.append(flow);
   const panels=page.querySelector(".v14-panels");
   const recent=$("v14Recent")?.closest(".v14-panel");
   if(recent&&recent.parentElement!==hub){
@@ -140,7 +140,8 @@ function ensureHome(){
    hub.append(recent);
   }
   const remaining=panels?.querySelector(".v14-panel");
-  if(remaining)remaining.hidden=true;
+  if(remaining&&remaining.parentElement!==hub){hub.append(remaining);remaining.hidden=false;}
+  ensureHomeChart();
  }else{
   const recent=$("v14Recent")?.closest(".v14-panel");
   if(recent&&recent.parentElement!==page.querySelector(".v14-panels"))page.querySelector(".v14-panels")?.prepend(recent);
@@ -160,7 +161,6 @@ function updateDashboard(){
  if(!role||!$("f4BankAppHome"))return;
  const map=dashboardMetrics();
  if(role==="member"){
-  text("f4BankAppMemberBalance", "");
   const button=$("f4BankAppMemberBalance");
   if(button)button.replaceChildren(el("small","","Saldo terkonfirmasi"),
     el("strong","",map.get("Saldo sah")||"—"),el("span","f4-bank-member-chevron","›"));
@@ -236,11 +236,14 @@ function dateMonth(raw){
  return m<0?"":match[3]+"-"+String(m+1).padStart(2,"0");
 }
 function ledger(){
- return [...($("v12History")?.querySelectorAll("tbody tr")||[])].map(tr=>{
-  const cells=[...tr.cells].map(x=>x.textContent.trim());
-  return {date:cells[0]||"",type:cells[1]||"Transaksi",credit:money(cells[2]),debit:money(cells[3]),balance:cells[4]||"",month:dateMonth(cells[0])};
- }).sort((a,b)=>b.month.localeCompare(a.month)||
-  Number((b.date.match(/^\d{1,2}/)||["0"])[0])-Number((a.date.match(/^\d{1,2}/)||["0"])[0]));
+ if(!memberStatement||!Array.isArray(memberStatement.mutasi))return [];
+ return memberStatement.mutasi.map(x=>{
+  const iso=String(x.tanggal||""),credit=Number(x.kredit)||0,debit=Number(x.debit)||0;
+  const date=/^\d{4}-\d{2}-\d{2}$/.test(iso)?
+   new Date(iso+"T12:00:00Z").toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}):iso;
+  return {date,iso,type:String(x.jenis||"Transaksi"),credit,debit,
+   balance:rupiah(Number(x.saldo)||0),month:iso.slice(0,7)};
+ }).sort((a,b)=>b.iso.localeCompare(a.iso));
 }
 function months(items){
  return [...new Set(items.map(x=>x.month).filter(Boolean))].sort().reverse();
