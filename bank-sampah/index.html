@@ -3092,7 +3092,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       const d=await call('bsV12Statement',token);v12Data=d;
       $('v12Gate').classList.add('hidden');$('v12Private').classList.remove('hidden');
       $('v12Balance').textContent=rupiah(d.saldo);$('v12Credit').textContent=rupiah(d.totalMasuk);$('v12Debit').textContent=rupiah(d.totalCair);
-      const history=$('v12History');history.replaceChildren();history.appendChild(v12Table(['Tanggal','Mutasi','Masuk','Keluar','Saldo'],d.mutasi.map(x=>[f4MemberDateID(x.tanggal),x.jenis,rupiah(x.kredit),rupiah(x.debit),rupiah(x.saldo)])));
+      const history=$('v12History');history.replaceChildren();history.appendChild(v12Table(['Tanggal','Mutasi','Masuk','Keluar','Saldo'],mutasi.map(x=>[f4MemberDateID(x.tanggal),x.jenis,rupiah(x.kredit),rupiah(x.debit),rupiah(x.saldo)])));
       const deposits=$('v12Deposits');deposits.replaceChildren();
       d.setoran.forEach(s=>{
         const info=f4MemberDepositDisplay(s);
@@ -3113,20 +3113,23 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   }
   function v12Print(){
     if(!v12Data)return;const d=v12Data,root=$('v10Print');root.replaceChildren();
+    const selected=typeof window.f4BankReportPeriod==='function'?String(window.f4BankReportPeriod()||''):'';
+    const mutasi=d.mutasi.filter(x=>!selected||String(x.tanggal||'').startsWith(selected));
+    const setoran=d.setoran.filter(x=>!selected||String(x.tanggal||'').startsWith(selected));
     root.appendChild(v29Kop());
     const title=document.createElement('h1');title.textContent='LAPORAN TABUNGAN WARGA — FLAMBOYAN 4';root.appendChild(title);
-    const identity=document.createElement('p');identity.textContent=d.nama+' • '+d.rumah+' • '+d.dibuatPada;root.appendChild(identity);
-    const amount=document.createElement('p');amount.textContent='Saldo '+rupiah(d.saldo)+' | Masuk '+rupiah(d.totalMasuk)+' | Dicairkan '+rupiah(d.totalCair);root.appendChild(amount);
+    const identity=document.createElement('p');identity.textContent=d.nama+' • '+d.rumah+' • '+d.dibuatPada+' • Periode '+(selected||'Semua');root.appendChild(identity);
+    const amount=document.createElement('p');amount.textContent='Saldo saat ini '+rupiah(d.saldo)+' | Masuk periode '+rupiah(mutasi.reduce((n,x)=>n+Number(x.kredit||0),0))+' | Keluar periode '+rupiah(mutasi.reduce((n,x)=>n+Number(x.debit||0),0));root.appendChild(amount);
     const h=document.createElement('h2');h.textContent='Riwayat tabungan';root.appendChild(h);
     root.appendChild(v12Table(['Tanggal','Keterangan','Masuk','Keluar','Saldo'],d.mutasi.map(x=>[f4MemberDateID(x.tanggal),x.jenis,rupiah(x.kredit),rupiah(x.debit),rupiah(x.saldo)])));
     const h2=document.createElement('h2');h2.textContent='Ringkasan setoran';root.appendChild(h2);
-    root.appendChild(v12Table(['Tanggal','Berat sesuai status','Timbang awal','Status','Perkiraan','Hasil jual'],d.setoran.map(s=>{
+    root.appendChild(v12Table(['Tanggal','Berat sesuai status','Timbang awal','Status','Perkiraan','Hasil jual'],setoran.map(s=>{
       const info=f4MemberDepositDisplay(s);
       return [f4MemberDateID(s.tanggal),s.beratKg==null?'—':v12Kg(s.beratKg),
         v12Kg(s.beratTimbangKg??s.beratKg),info.status,rupiah(s.estimasiRp),info.final===null?'—':rupiah(info.final)];
     })));
     const h3=document.createElement('h2');h3.textContent='Rincian timbang (perkiraan)';root.appendChild(h3);
-    root.appendChild(v12Table(['Tanggal','Barang','Berat','Tarif awal/kg','Perkiraan'],d.setoran.flatMap(s=>s.rincian.map(x=>[f4MemberDateID(s.tanggal),x.barang,v12Kg(x.beratKg),rupiah(x.tarif),rupiah(x.nilai)]))));
+    root.appendChild(v12Table(['Tanggal','Barang','Berat','Tarif awal/kg','Perkiraan'],setoran.flatMap(s=>s.rincian.map(x=>[f4MemberDateID(s.tanggal),x.barang,v12Kg(x.beratKg),rupiah(x.tarif),rupiah(x.nilai)]))));
     const remark=document.createElement('p');remark.style.marginTop='14px';remark.textContent='Berat akhir mengikuti nota penjualan sah, dibagi per jenis dan setoran; timbang awal dan perkiraan tetap tersimpan untuk pemeriksaan.';root.appendChild(remark);
     const signature=document.createElement('div');signature.className='f4-bank-report-signature';
     signature.textContent='Mengetahui, Humas Flamboyan 4';
@@ -3136,25 +3139,27 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   }
   function v12CSV(){
     if(!v12Data)return;
-    const d=v12Data,rows=[
+    const d=v12Data,selected=typeof window.f4BankReportPeriod==='function'?String(window.f4BankReportPeriod()||''):'',
+    mutasi=d.mutasi.filter(x=>!selected||String(x.tanggal||'').startsWith(selected)),
+    setoran=d.setoran.filter(x=>!selected||String(x.tanggal||'').startsWith(selected)),rows=[
       ['LAPORAN TABUNGAN PRIBADI - FLAMBOYAN 4'],
-      ['Nama',d.nama],['Rumah',d.rumah],['Dicetak',d.dibuatPada],
-      ['Saldo tersedia (Rp)',d.saldo],['Masuk terkonfirmasi (Rp)',d.totalMasuk],['Sudah dicairkan (Rp)',d.totalCair],
+      ['Nama',d.nama],['Rumah',d.rumah],['Dicetak',d.dibuatPada],['Periode',selected||'Semua'],
+      ['Saldo saat ini (Rp)',d.saldo],['Masuk periode (Rp)',mutasi.reduce((n,x)=>n+Number(x.kredit||0),0)],['Keluar periode (Rp)',mutasi.reduce((n,x)=>n+Number(x.debit||0),0)],
       [],
       ['RIWAYAT TABUNGAN'],
       ['Tanggal','Jenis','Masuk Rp','Keluar Rp','Saldo Rp'],
-      ...d.mutasi.map(x=>[x.tanggal,x.jenis,x.kredit,x.debit,x.saldo]),
+      ...mutasi.map(x=>[x.tanggal,x.jenis,x.kredit,x.debit,x.saldo]),
       [],
       ['RINGKASAN SETORAN (HASIL JUAL = HAK WARGA SAH)'],
       ['Tanggal','Berat sesuai status (kg)','Timbang awal (kg)','Status','Perkiraan Rp','Hasil jual Rp'],
-      ...d.setoran.map(s=>{
+      ...setoran.map(s=>{
         const info=f4MemberDepositDisplay(s);
         return [s.tanggal,s.beratKg==null?'':s.beratKg,s.beratTimbangKg,info.status,s.estimasiRp,info.final===null?'':info.final];
       }),
       [],
       ['RINCIAN BARANG (PERKIRAAN SAAT TIMBANG)'],
       ['Tanggal','Barang','Berat (kg)','Tarif Awal Rp/kg','Perkiraan Rp','Status'],
-      ...d.setoran.flatMap(s=>s.rincian.map(x=>[s.tanggal,x.barang,x.beratKg,x.tarif,x.nilai,s.status]))
+      ...setoran.flatMap(s=>s.rincian.map(x=>[s.tanggal,x.barang,x.beratKg,x.tarif,x.nilai,s.status]))
     ];
     const safe=v=>{
       const text=String(v??'');
@@ -5723,8 +5728,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </style>
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261029-member-weighing-color-cards-2">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261028-chevron-gallery-3">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261031-mobile-banking-v3">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261031-bank-pages-v4">
 <script src="/portal-live/bank-sale-handover.js?v=auto-print-firefox-20261030b"></script>
 <script src="/portal-live/direct-shell.js?v=profile-display-20261028"></script><script src="/portal-live/unified-account.js?v=logout-after-password-20261030"></script><script defer src="/portal-live/mobile-cards.js?v=20261028-saldo-grid"></script><script defer src="/portal-live/native-controls.js?v=20261027-audit6"></script><script defer src="/portal-live/bank-page-history.js?v=20261027-final4"></script>
-<script defer src="/portal-live/bank-mobile-app.js?v=20261031-mobile-banking-v3"></script></body>
+<script defer src="/portal-live/bank-mobile-app.js?v=20261031-bank-pages-v4"></script></body>
 </html>
