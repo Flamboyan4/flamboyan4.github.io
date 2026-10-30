@@ -3785,12 +3785,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   v15UpdatePublicButton();
   // v16: satu menu utama per kategori; submenu ditampilkan sebagai tab konten.
   const v16Groups=[
-    {id:'home',label:'Ringkasan',icon:'home',admin:true,member:true,tabs:[['dashboard','Dashboard']]},
+    {id:'home',label:'Ringkasan',icon:'home',admin:true,tabs:[['dashboard','Dashboard']]},
     {id:'entry',label:'Pencatatan',icon:'edit',admin:true,tabs:[['setoran','Input setoran'],['riwayat','Riwayat setoran'],['penjualan','Penjualan lapak'],['riwayatJual','Riwayat penjualan']]},
     {id:'money',label:'Keuangan',icon:'wallet',admin:true,tabs:[['rekonsiliasi','Cek selisih'],['pengesahan','Sahkan hasil'],['tabungan','Saldo & pencairan'],['biaya','Pembelian & pengeluaran'],['laporan','Laporan admin']]},
     {id:'program',label:'Kegiatan',icon:'leaf',admin:true,tabs:[['kegiatan','Input perkembangan'],['dokumentasi','Dokumentasi'],['inventaris','Inventaris'],['progress','Progres publik']]},
     {id:'settings',label:'Data & anggota',icon:'database',admin:true,tabs:[['master','Harga barang'],['admin','Akun warga']]},
-    {id:'saving',label:'Tabungan saya',icon:'wallet',member:true,tabs:[['pribadi','Tabungan saya']]},
+    {id:'saving',label:'Tabungan saya',icon:'wallet',member:false,tabs:[['pribadi','Tabungan saya']]},
     {id:'progress',label:'Perkembangan',icon:'leaf',member:true,tabs:[['progress','Progres kegiatan']]},
     {id:'public',label:'Portal publik',icon:'globe',admin:true,member:true,tabs:[]}
   ];
