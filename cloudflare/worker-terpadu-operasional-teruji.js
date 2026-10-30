@@ -1517,11 +1517,21 @@ async function treasuryApi(request,env,who,url){
     ]);
     const total=balances.reduce((n,row)=>n+Number(row.amount_rp||0),0);
     const complete=history.length<=800;
-    const [sources,exclusions,bankSourceTotals]=await Promise.all([
+    const [sources,exclusions,bankSourceTotals,bankUnreviewed,bankCoverageWarnings]=await Promise.all([
       treasurySources(db,config.confirmed_on),
       list(db,"SELECT source_key,reason,excluded_at FROM treasury_source_exclusions ORDER BY excluded_at DESC LIMIT 101"),
       list(db,`SELECT fund_position,COALESCE(SUM(cash_in_rp-cash_out_rp),0) AS amount_rp
-        FROM waste_cash_ledger WHERE status='aktif' GROUP BY fund_position ORDER BY fund_position`)
+        FROM waste_cash_ledger WHERE status='aktif' GROUP BY fund_position ORDER BY fund_position`),
+      list(db,`SELECT c.fund_position,COUNT(*) AS count
+        FROM waste_cash_ledger c WHERE c.status='aktif' AND (c.cash_in_rp<>0 OR c.cash_out_rp<>0)
+        AND NOT EXISTS(SELECT 1 FROM treasury_bank_source_coverage x WHERE x.source_id=c.id)
+        AND NOT EXISTS(SELECT 1 FROM treasury_events t WHERE t.request_key='source:bank:'||c.id)
+        AND NOT EXISTS(SELECT 1 FROM treasury_source_exclusions e WHERE e.source_key='source:bank:'||c.id)
+        GROUP BY c.fund_position`),
+      list(db,`SELECT c.source_id FROM treasury_bank_source_coverage c
+        LEFT JOIN waste_cash_ledger s ON s.id=c.source_id
+        WHERE s.id IS NULL OR s.status!='aktif' OR
+          c.captured_amount_rp<>COALESCE(s.cash_in_rp-s.cash_out_rp,0) LIMIT 25`)
     ]);
     return ok({catalog,confirmed:!!config.confirmed_at,confirmedOn:config.confirmed_on||null,
       openingCount:Number(openings?.n||0),openingDate:openings?.date_first||null,
@@ -1530,6 +1540,9 @@ async function treasuryApi(request,env,who,url){
       sources:sources.pending,sourcePartial:sources.partial,sourceWarnings:sources.warnings,
       bankSourceBalances:bankSourceTotals.map(x=>({fundId:treasuryBankFund(x.fund_position),sourcePosition:x.fund_position,
         amountRp:Number(x.amount_rp||0)})).filter(x=>x.fundId),
+      bankPendingCounts:bankUnreviewed.map(x=>({fundId:treasuryBankFund(x.fund_position),
+        count:Number(x.count||0)})).filter(x=>x.fundId),
+      bankCoverageWarnings:bankCoverageWarnings.map(x=>x.source_id),
       excludedSources:exclusions.slice(0,100),exclusionPartial:exclusions.length>100,
       sourceIntegration:"reconciliation-required"});
   }
