@@ -19,7 +19,7 @@ const types={
  bank_progress:{label:'Kegiatan Bank Sampah',section:'bank',columns:[]},
  bank_albums:{label:'Dokumentasi Bank Sampah',section:'bank',columns:[]},
  bank_inventory:{label:'Inventaris Bank Sampah',section:'bank',columns:[]},
- obligations:{label:'Kewajiban Iuran Warga',section:'book',key:'payer_id',columns:[['nama','Nama warga','readonly'],['rumah','Rumah','readonly'],['qty_iuran_bulanan','Iuran bulanan (x)','number',true],['qty_kebersihan','Kebersihan (x)','number',true],['qty_kas_lorong','Kas lorong (x)','number',true],['qty_arisan','Arisan (x)','number',true]]}
+ obligations:{label:'Kewajiban Iuran',section:'book',key:'payer_id',columns:[['nama','Nama warga','readonly'],['rumah','Rumah','readonly'],['qty_iuran_bulanan','Iuran bulanan (x)','number',true],['qty_kebersihan','Kebersihan (x)','number',true],['qty_kas_lorong','Kas lorong (x)','number',true],['qty_arisan','Arisan (x)','number',true]]}
 };
 
 /* Jersey transitional storage in the existing D1 method field. This is a
@@ -248,6 +248,20 @@ function header(label,description){
  main.append(sub);
 }
 const OBLIGATION_KEYS=['qty_iuran_bulanan','qty_kebersihan','qty_kas_lorong','qty_arisan'];
+function f4ObligationActionIcon(kind,handler){
+ const dangerous=kind==='hapus';
+ const action=btn('',handler,'f4-obligation-icon-btn'+(dangerous?' f4-obligation-icon-danger':''));
+ const label=dangerous?'Hentikan kewajiban bulan depan':'Edit kewajiban';
+ action.title=label;action.setAttribute('aria-label',label);
+ const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('width','16');svg.setAttribute('height','16');
+ svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');
+ svg.setAttribute('stroke-width','1.8');svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');
+ const paths=dangerous?['M3 6h18','M8 6V4h8v2','M5 6l1 14h12l1-14','M10 10v6','M14 10v6']:
+   ['M12 20h9','M16.5 3.5a2.12 2.12 0 0 1 3 3L9 17l-4 1 1-4 10.5-10.5z'];
+ for(const d of paths){const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',d);svg.append(path);}
+ action.append(svg);return action;
+}
 const obligationActive=r=>OBLIGATION_KEYS.some(k=>Number(r?.[k]||0)>0);
 
 async function removeObligation(record){
@@ -357,14 +371,14 @@ async function showAddObligationPayer(){
 function viewList(){
  const def=types[active];if(!def)return;
  editing=false;
- header(def.label,active==='obligations'?'Kelola kewajiban pembayar tanpa menghapus warga atau riwayat transaksi.':'Pilih Edit untuk memperbarui data tanpa mengubah transaksi warga.');
- const tools=node('div',undefined,'f4-admin-controls');
+ header(def.label,active==='obligations'?'Atur iuran per warga dan bulan berlaku.':'Pilih Edit untuk memperbarui data tanpa mengubah transaksi warga.');
+ const tools=node('div',undefined,'f4-admin-controls'+(active==='obligations'?' f4-obligation-toolbar':''));
  const search=node('input');search.placeholder='Cari data';search.value=filter;search.oninput=()=>{filter=search.value;populate();};
  tools.append(search);
  if(def.section==='portal')tools.append(btn('+ Tambah '+def.label,()=>showForm(null)));
  if(active==='obligations'){
    tools.append(btn('+ Tambah Warga/TPQ',showAddObligationPayer,'f4-admin-btn f4-admin-primary'));
-   tools.append(btn(showZeroObligations?'Tampilkan Aktif':'Lihat Tanpa Kewajiban',()=>{
+   tools.append(btn(showZeroObligations?'Lihat Aktif':'Tanpa Kewajiban',()=>{
      showZeroObligations=!showZeroObligations;viewList();
    }));
  }
@@ -373,7 +387,7 @@ function viewList(){
  main.append(tools);
  const obligationCount=records.filter(obligationActive).length;
  const summary=active==='obligations'
-   ?obligationCount+' pembayar berkewajiban • '+(records.length-obligationCount)+' tanpa kewajiban. Hapus hanya menghentikan kewajiban, bukan menghapus transaksi.'
+   ?obligationCount+' aktif • '+(records.length-obligationCount)+' tanpa kewajiban'
    :records.length+' data tersedia';
  const info=node('p',summary,'f4-admin-note');main.append(info);
  if(active==='jersey'){
@@ -530,19 +544,18 @@ function populate(){
   };
   for(const x of rows){
    const tr=node('tr');
-   for(const [key] of fields){const td=node('td');td.append(showValue(x,key));tr.append(td)}
+   for(const [key] of fields){
+     const td=node('td');td.append(showValue(x,key));
+     if(active==='obligations'&&key==='nama'&&x.next_effective_from)
+       td.append(node('small','Berlaku '+x.next_effective_from.slice(0,7),'f4-obligation-upcoming'));
+     tr.append(td);
+   }
    const action=node('td');
    if(active==='obligations'){
-     action.append(btn('Edit',()=>showForm(x)));
-     if(x.next_effective_from){
-       const tag=node('small','Mulai '+x.next_effective_from.slice(0,7),'f4-obligation-upcoming');
-       action.append(tag);
-     }
-     if(obligationActive(x)){
-       const remove=btn('Hapus',()=>removeObligation(x));
-       remove.title='Hapus dari daftar kewajiban tanpa menghapus identitas dan riwayat pembayaran';
-       action.append(remove);
-     }
+     const controls=node('div',undefined,'f4-obligation-row-actions');
+     controls.append(f4ObligationActionIcon('edit',()=>showForm(x)));
+     if(obligationActive(x))controls.append(f4ObligationActionIcon('hapus',()=>removeObligation(x)));
+     action.append(controls);
    }else action.append(def.section==='portal'?deletionActions(x):btn('Edit',()=>showForm(x)));
    tr.append(action);body.append(tr);
   }
