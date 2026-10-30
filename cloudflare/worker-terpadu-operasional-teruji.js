@@ -1588,6 +1588,31 @@ async function treasuryApi(request,env,who,url){
     ]);
     return ok({restored:true});
   }
+  if(p.action==="update-fund"){
+    if(!config.confirmed_at)return err("Sahkan saldo awal dahulu.",409);
+    const id=String(p.fundId||""),name=String(p.name||"").trim(),
+      purpose=String(p.purpose||"").trim(),expectedName=String(p.expectedName||"");
+    if(!/^fund:[a-f0-9-]{36}$/i.test(id)||name.length<3||name.length>70||
+       purpose.length>200||/[\x00-\x1F\x7F]/.test(name+purpose))
+      return err("Nama atau catatan tidak valid.",400);
+    const existing=await one(db,"SELECT name,purpose FROM treasury_funds WHERE id=?",[id]);
+    if(!existing)return err("Pos tidak ditemukan.",404);
+    if(existing.name!==expectedName)return err("Pos berubah. Muat ulang.",409);
+    if(catalog.funds.some(f=>f.id!==id&&f.name.toLowerCase()===name.toLowerCase()))
+      return err("Nama pos sudah digunakan.",409);
+    try{
+      const results=await db.batch([
+        db.prepare("UPDATE treasury_funds SET name=?,purpose=? WHERE id=? AND name=?")
+          .bind(name,purpose,id,expectedName),
+        db.prepare(`INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json)
+          SELECT ?,?,'pusat_keuangan','update_fund','treasury_funds',?,?,?
+          WHERE changes()=1`)
+          .bind("audit:"+crypto.randomUUID(),who.id,id,JSON.stringify(existing),JSON.stringify({name,purpose}))
+      ]);
+      if(Number(results[0]?.meta?.changes||0)!==1)return err("Pos berubah. Muat ulang.",409);
+    }catch{return err("Nama pos sudah dipakai atau gagal disimpan.",409)}
+    return ok({updated:true});
+  }
   if(p.action==="remove-fund"||p.action==="restore-fund"){
     if(!config.confirmed_at)return err("Sahkan saldo awal lebih dahulu.",409);
     const id=String(p.fundId||"");
