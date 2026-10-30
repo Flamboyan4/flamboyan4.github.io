@@ -1,6 +1,61 @@
 /* Pusat Keuangan: satu stylesheet untuk UI; dokumen cetak dibuat terpisah. */
 .tc-center{display:grid;gap:10px;max-width:1320px;margin:0 auto;color:#273b48}
 .tc-center *{box-sizing:border-box}
+/* Pusat Keuangan: navigasi empat menu, tanpa menumpuk kartu satu layar. */
+.tc-overview{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:10px}
+.tc-overview .tc-stat{padding:15px 17px;border-radius:15px;gap:6px}
+.tc-overview .tc-stat:first-child{background:linear-gradient(125deg,#fff,#f3f7fd)}
+.tc-overview .tc-stat small{color:#587186;font-size:11px}
+.tc-overview .tc-stat strong{font-size:clamp(18px,2.1vw,27px);line-height:1.15;color:#173e64;white-space:nowrap;letter-spacing:-.035em}
+.tc-overview .tc-stat span{font-size:10px;color:#718394}
+.tc-view-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:6px;background:#fff;border:1px solid #dbe6ef;border-radius:17px}
+.tc-view-btn{appearance:none;min-width:0;min-height:79px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:10px 6px;border:1px solid transparent;border-radius:12px;background:transparent;color:#567286;font:700 12px system-ui;cursor:pointer;transition:background-color .15s,border-color .15s}
+.tc-view-btn img{display:block;width:23px;height:23px;object-fit:contain;opacity:.75}
+.tc-view-btn span{display:block;white-space:nowrap}
+.tc-view-btn.is-active{color:#235c91;background:#e8f1fc;border-color:#d7e7f9}
+.tc-view-btn.is-active img{opacity:1}
+.tc-view-btn:focus-visible{outline:2px solid #4d85bd;outline-offset:2px}
+.tc-view{display:grid;gap:10px;min-width:0}
+.tc-location-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tc-location{background:#fff;border:1px solid #e1eaf0;border-radius:12px;padding:12px 14px;display:grid;gap:4px;min-width:0}
+.tc-location span{font-size:10px;font-weight:700;color:#6d8290}
+.tc-location strong{font-size:clamp(12px,1.5vw,16px);color:#284e6e;letter-spacing:-.01em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.tc-ownership .tc-section-head{margin-bottom:5px}
+.tc-fund-balances{display:grid}
+.tc-fund-balance{border-top:1px solid #e8eef2}
+.tc-fund-balance:first-child{border-top:0}
+.tc-fund-balance-summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:51px;padding:9px 4px;cursor:pointer}
+.tc-fund-balance-summary::-webkit-details-marker{display:none}
+.tc-balance-name{display:grid;min-width:0;gap:3px}
+.tc-balance-name strong{font-size:12px;color:#2b4b61;overflow-wrap:anywhere}
+.tc-balance-name small{color:#8e6a33;font-size:10px}
+.tc-balance-total{display:flex;align-items:center;justify-content:flex-end;gap:12px;white-space:nowrap;color:#1f4a6b}
+.tc-balance-total strong{font-size:13px;font-variant-numeric:tabular-nums}
+.tc-balance-caret{font-size:23px;font-weight:400;color:#7892a4;transition:transform .15s}
+.tc-fund-balance[open] .tc-balance-caret{transform:rotate(90deg)}
+.tc-balance-breakdown{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:5px 4px 13px}
+.tc-balance-breakdown>div{display:grid;gap:3px;padding:8px;border-radius:8px;background:#f4f8fb;min-width:0}
+.tc-balance-breakdown span{color:#7a8d9a;font-size:10px}
+.tc-balance-breakdown strong{color:#2b506c;font-size:11px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.tc-review-alert{border:1px solid #e6d7ad;border-radius:12px;background:#fff8e7;color:#795b21;width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;text-align:left;cursor:pointer;font:700 12px system-ui}
+.tc-review-alert span:first-child{display:grid;gap:3px}
+.tc-review-alert small{font-size:10px;font-weight:500;color:#947742}
+.tc-review-alert span:last-child{font-size:11px;white-space:nowrap}
+.tc-review-fold{min-width:0}
+.tc-review-fold>summary{cursor:pointer;border:1px solid #dbe6ec;background:#fff;color:#345a75;border-radius:11px;padding:12px 14px;font-size:12px;font-weight:750}
+.tc-review-fold[open]>summary{margin-bottom:8px}
+.tc-review-fold>.tc-review{padding:11px}
+.tc-recent-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid #e8eef3}
+.tc-recent-row:last-child{border-bottom:0}
+.tc-recent-row>div{display:grid;gap:3px;min-width:0}
+.tc-recent-row strong{font-size:12px;color:#315470}
+.tc-recent-row small{font-size:10px;color:#778b99;overflow-wrap:anywhere}
+.tc-recent-row b{font-size:12px;color:#2b506b;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tc-report-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.tc-report-caption{display:grid;gap:4px}
+.tc-report-caption h3{margin:0}
+.tc-report-caption span{font-size:11px;color:#758895}
+.tc-history-panel>h3{margin-bottom:10px}
 .tc-center .f4-work-heading{margin-bottom:0}
 .tc-panel,.tc-stat{min-width:0;background:#fff;border:1px solid #dbe6ec;border-radius:12px}
 .tc-panel{padding:13px}
@@ -78,8 +133,8 @@
 .tc-excluded{margin-top:11px;border-top:1px solid #e4ecf1;padding-top:9px}
 .tc-excluded summary{font-size:11px;font-weight:750;color:#688092;cursor:pointer}
 .tc-excluded-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0;font-size:11px;border-bottom:1px solid #e8eef1;overflow-wrap:anywhere}
-.tc-custom-fund summary{font-size:12px;font-weight:750;color:#365b70;cursor:pointer}
-.tc-custom-fund[open] summary{margin-bottom:10px}
+.tc-custom-fund>h3{font-size:15px;font-weight:800;color:#294c61;margin:0 0 10px}
+.tc-custom-fund-form{margin-bottom:4px}
 .tc-custom-fund-form{display:grid;grid-template-columns:minmax(110px,1fr) minmax(160px,1.4fr) auto;gap:9px;align-items:end}
 .tc-custom-fund-form .tc-status{grid-column:1/-1}
 .tc-fund-list-heading{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:10px;margin-top:11px;border-top:1px solid #e7eef3;color:#31536b;font-size:12px}
@@ -143,7 +198,21 @@
 @media(max-width:760px){
  .tc-bank-row{grid-template-columns:minmax(0,1fr) minmax(110px,155px) auto;gap:6px}
  .tc-bank-row .tc-primary{white-space:normal;padding:7px 8px}
- .tc-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .tc-overview{gap:7px}
+ .tc-overview .tc-stat{padding:12px 10px}
+ .tc-overview .tc-stat strong{font-size:clamp(16px,4.5vw,22px)}
+ .tc-view-nav{gap:3px;padding:4px;border-radius:14px}
+ .tc-view-btn{min-height:66px;padding:7px 2px;gap:5px;font-size:10px;border-radius:10px}
+ .tc-view-btn img{width:21px;height:21px}
+ .tc-location-strip{gap:6px}
+ .tc-location{padding:9px 7px}
+ .tc-location strong{font-size:clamp(10px,2.8vw,13px)}
+ .tc-balance-breakdown{gap:5px}
+ .tc-balance-breakdown>div{padding:7px 5px}
+ .tc-balance-breakdown strong{font-size:10px}
+ .tc-recent-row b{font-size:11px}
+ .tc-report-head{align-items:flex-start}
+ .tc-report-head button{padding:8px 10px;font-size:11px}
  .tc-stat{padding:9px}
  .tc-stat strong{font-size:17px}
  .tc-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
