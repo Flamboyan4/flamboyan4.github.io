@@ -1410,13 +1410,19 @@ async function treasuryApi(request,env,who,url){
     ]);
     const total=balances.reduce((n,row)=>n+Number(row.amount_rp||0),0);
     const complete=history.length<=800;
-    const sources=await treasurySources(db,config.confirmed_on);
-    const exclusions=await list(db,"SELECT source_key,reason,excluded_at FROM treasury_source_exclusions ORDER BY excluded_at DESC LIMIT 101");
+    const [sources,exclusions,bankSourceTotals]=await Promise.all([
+      treasurySources(db,config.confirmed_on),
+      list(db,"SELECT source_key,reason,excluded_at FROM treasury_source_exclusions ORDER BY excluded_at DESC LIMIT 101"),
+      list(db,`SELECT fund_position,COALESCE(SUM(cash_in_rp-cash_out_rp),0) AS amount_rp
+        FROM waste_cash_ledger WHERE status='aktif' GROUP BY fund_position ORDER BY fund_position`)
+    ]);
     return ok({catalog,confirmed:!!config.confirmed_at,confirmedOn:config.confirmed_on||null,
       openingCount:Number(openings?.n||0),openingDate:openings?.date_first||null,
       openingDateConsistent:!openings?.date_first||openings.date_first===openings.date_last,totalRp:total,balances,openingBalances,
       history:history.slice(0,800),riwayatLengkap:complete,
       sources:sources.pending,sourcePartial:sources.partial,sourceWarnings:sources.warnings,
+      bankSourceBalances:bankSourceTotals.map(x=>({fundId:treasuryBankFund(x.fund_position),sourcePosition:x.fund_position,
+        amountRp:Number(x.amount_rp||0)})).filter(x=>x.fundId),
       excludedSources:exclusions.slice(0,100),exclusionPartial:exclusions.length>100,
       sourceIntegration:"reconciliation-required"});
   }
