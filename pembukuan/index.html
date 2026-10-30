@@ -2008,16 +2008,17 @@ main > section.card{overflow:visible!important}
       <div class="max-w-6xl mx-auto">
         <div class="mb-5"><h2 class="font-black text-xl text-violet-950">Input Iuran Warga</h2><p class="text-sm text-slate-500 mt-1">Pilih warga dan periode. Nominal dihitung otomatis dari tarif dan kondisi warga.</p></div>
         <form id="form-iuran" onsubmit="simpanIuran(event)" class="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-12 lg:gap-4 desktop-compact-form">
-          <div><label class="text-sm font-bold">Nama Warga</label><select id="inp-warga" class="field mt-1" onchange="updatePreview()"><option value="">Pilih warga...</option></select></div>
+          <div><label class="text-sm font-bold">Nama Warga</label><select id="inp-warga" class="field mt-1" onchange="pilihWargaIuran()"><option value="">Pilih warga...</option></select></div>
           <div class="grid sm:grid-cols-2 gap-4">
             <div><label class="text-sm font-bold">Tanggal Bayar</label><input id="inp-tanggal" type="date" class="field mt-1" required></div>
             <div><label class="text-sm font-bold">Metode</label><select id="inp-metode" class="field mt-1" required><option value="Cash">Cash</option><option value="QRIS">QRIS</option><option value="Transfer Mandiri">Transfer Mandiri</option></select></div>
           </div>
           <div class="grid sm:grid-cols-3 gap-4">
-            <div><label class="text-sm font-bold">Bulan Awal</label><select id="inp-bulan" class="field mt-1" onchange="updatePreview()"></select></div>
-            <div><label class="text-sm font-bold">Tahun</label><input id="inp-tahun" type="number" min="2020" max="2100" class="field mt-1" onchange="updatePreview()"></div>
+            <div><label class="text-sm font-bold">Bulan Awal</label><select id="inp-bulan" class="field mt-1" onchange="f4IuranManualPeriod()"></select></div>
+            <div><label class="text-sm font-bold">Tahun</label><input id="inp-tahun" type="number" min="2020" max="2100" class="field mt-1" oninput="f4IuranManualPeriod()" onchange="f4IuranManualPeriod()"></div>
             <div><label class="text-sm font-bold">Jml Bulan</label><select id="inp-jumlah" class="field mt-1" onchange="updatePreview()"><option value="1">1 bulan</option><option value="2">2 bulan</option><option value="3">3 bulan</option></select></div>
           </div>
+          <p id="inp-saran-periode" class="text-[11px] text-violet-700" role="status" aria-live="polite"></p>
 
           <div class="rounded-2xl border border-violet-200 bg-violet-50/60 p-4">
             <div class="font-black text-violet-950 mb-3">Rincian Otomatis</div>
@@ -2674,9 +2675,63 @@ function status(t,type='info'){const e=document.getElementById('status-box');if(
 function hideStatus(){document.getElementById('status-box').classList.add('hidden')}
 async function muatUlang(){status('Memuat data...');try{const r=await jsonp(APPS_SCRIPT_URL,{action:'bootstrap',t:Date.now()});if(r.status!=='success')throw new Error(r.message||'Gagal');DATA.config=r.config||{};document.getElementById('backend-version').textContent=r.version?('Backend '+r.version):'Backend lama';DATA.rumah=r.rumah||[];DATA.warga=r.warga||[];renderSemua();const kk=document.getElementById('kurang-kas-tanggal');if(kk&&!kk.value)kk.value=new Date().toISOString().slice(0,10);status('Data berhasil dimuat.','success');setTimeout(()=>loadRiwayat(true).catch(()=>{}),100);setTimeout(()=>loadKekuranganKas(true).catch(()=>{}),350)}catch(e){status(e.message,'error')}}
 function renderSemua(){const total=DATA.rumah.length,dihuni=DATA.rumah.filter(x=>(x.statusRumah||'').toLowerCase()==='dihuni').length,kosong=DATA.rumah.filter(x=>(x.statusRumah||'').toLowerCase()==='kosong').length,aktif=DATA.warga.filter(x=>['ya','aktif'].includes((x.statusAktif||'').toLowerCase())).length,kontrak=DATA.warga.filter(x=>['ya','aktif'].includes((x.statusAktif||'').toLowerCase())&&(x.statusTinggal||'').toLowerCase()==='kontrak').length;document.getElementById('sum-unit').textContent=total;document.getElementById('sum-dihuni').textContent=dihuni;document.getElementById('sum-kosong').textContent=kosong;document.getElementById('sum-warga').textContent=aktif;document.getElementById('sum-kontrak').textContent=kontrak;document.getElementById('ringkasan-hunian').innerHTML=`<div class="flex justify-between py-2 border-b border-violet-50"><span>Total unit terdata</span><b>${total}</b></div><div class="flex justify-between py-2 border-b border-violet-50"><span>Dihuni</span><b class="text-violet-700">${dihuni}</b></div><div class="flex justify-between py-2 border-b border-violet-50"><span>Kosong</span><b class="text-amber-600">${kosong}</b></div><div class="flex justify-between py-2"><span>Kontrak aktif</span><b class="text-fuchsia-700">${kontrak}</b></div>`;document.getElementById('ringkasan-tarif').innerHTML=`<div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">IURAN BULANAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_BULANAN)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">KEBERSIHAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_KEBERSIHAN)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">KAS LORONG</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_KAS_LORONG)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">ARISAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_ARISAN)}</div></div>`;renderRumah();renderWarga();renderConfig();isiForm();lucide.createIcons();initPinjamanUi();}
-function isiForm(){const sel=document.getElementById('inp-warga');const old=sel.value;sel.innerHTML='<option value="">Pilih warga...</option>'+DATA.warga.filter(w=>['ya','aktif'].includes((w.statusAktif||'').toLowerCase())&&[w.qtyIuranBulanan,w.qtyKebersihan,w.qtyKasLorong,w.qtyArisan].some(n=>Number(n||0)>0)).map(w=>`<option value="${w.idWarga}">${w.nama} (${w.blok}/${w.noRumah})</option>`).join('');if(old)sel.value=old;const now=new Date();document.getElementById('inp-tanggal').value=now.toISOString().slice(0,10);document.getElementById('inp-tahun').value=now.getFullYear();document.getElementById('inp-bulan').innerHTML=BULAN.slice(1).map((b,i)=>`<option value="${i+1}">${b}</option>`).join('');document.getElementById('inp-bulan').value=now.getMonth()+1;updatePreview()}
+function isiForm(){const sel=document.getElementById('inp-warga');const old=sel.value;sel.innerHTML='<option value="">Pilih warga...</option>'+DATA.warga.filter(w=>['ya','aktif'].includes((w.statusAktif||'').toLowerCase())&&[w.qtyIuranBulanan,w.qtyKebersihan,w.qtyKasLorong,w.qtyArisan].some(n=>Number(n||0)>0)).map(w=>`<option value="${w.idWarga}">${w.nama} (${w.blok}/${w.noRumah})</option>`).join('');if(old)sel.value=old;const now=new Date();document.getElementById('inp-tanggal').value=now.toISOString().slice(0,10);document.getElementById('inp-tahun').value=now.getFullYear();document.getElementById('inp-bulan').innerHTML=BULAN.slice(1).map((b,i)=>`<option value="${i+1}">${b}</option>`).join('');document.getElementById('inp-bulan').value=now.getMonth()+1;pilihWargaIuran()}
 function periodeList(b,y,j){const a=[];let m=Number(b),yr=Number(y);for(let i=0;i<Number(j);i++){a.push(BULAN[m]+' '+yr);m++;if(m>12){m=1;yr++}}return a}
 let F4_IURAN_PREVIEW=null,F4_IURAN_PREVIEW_SEQUENCE=0;
+let F4_IURAN_SUGGEST_SEQ=0;
+function f4IuranPeriodText(period){
+ const [year,month]=String(period||'').split('-').map(Number);
+ return (BULAN[month]||'Bulan')+' '+year;
+}
+function f4IuranPeriodNote(msg){
+ const element=document.getElementById('inp-saran-periode');
+ if(element)element.textContent=msg||'';
+}
+function f4IuranManualPeriod(){
+ ++F4_IURAN_SUGGEST_SEQ;
+ if(document.getElementById('inp-warga')?.value)
+   f4IuranPeriodNote('Bulan dipilih manual. Rincian dihitung sesuai bulan ini.');
+ updatePreview();
+}
+async function pilihWargaIuran(){
+ const ticket=++F4_IURAN_SUGGEST_SEQ;
+ ++F4_IURAN_PREVIEW_SEQUENCE;
+ F4_IURAN_PREVIEW=null;
+ const id=String(document.getElementById('inp-warga')?.value||'');
+ const bulan=document.getElementById('inp-bulan'),tahun=document.getElementById('inp-tahun');
+ if(!id){f4IuranPeriodNote('');updatePreview();return;}
+ const today=new Date(Date.now()+7*60*60*1000);
+ bulan.value=String(today.getUTCMonth()+1);tahun.value=String(today.getUTCFullYear());
+ window.refreshAllCustomSelects?.();
+ f4IuranPeriodNote('Memeriksa pembayaran warga…');
+ const empty=document.getElementById('preview-empty'),details=document.getElementById('preview-detail');
+ if(empty){empty.textContent='Memeriksa pembayaran warga…';empty.classList.remove('hidden');}
+ details?.classList.add('hidden');
+ try{
+   const url='https://api.flamboyan4.web.id/api/bookkeeping/iuran/suggested-period?'+new URLSearchParams({payerId:id});
+   const res=await fetch(url,{credentials:'include',mode:'cors',cache:'no-store'});
+   const result=await res.json().catch(()=>({}));
+   if(!res.ok||result.ok===false)throw Error(result.error||'Riwayat iuran tidak dapat diperiksa.');
+   if(ticket!==F4_IURAN_SUGGEST_SEQ||String(document.getElementById('inp-warga')?.value)!==id)return;
+   if(result.period&&Number(result.month)>=1&&Number(result.month)<=12&&Number.isInteger(Number(result.year))){
+     bulan.value=String(result.month);tahun.value=String(result.year);
+     const periodText=f4IuranPeriodText(result.period);
+     const reason=result.reason==='sebagian'?'masih dibayar sebagian':
+       result.reason==='tunggakan'?'belum lunas':
+       result.reason==='berikutnya'?'periode berikutnya':'bulan berjalan';
+     f4IuranPeriodNote('Otomatis: '+periodText+' • '+reason+'. Bisa diubah manual.');
+   }else{
+     f4IuranPeriodNote('Belum ada kewajiban aktif yang dapat disarankan. Periksa periode manual.');
+   }
+ }catch(error){
+   if(ticket!==F4_IURAN_SUGGEST_SEQ)return;
+   f4IuranPeriodNote('Saran bulan belum tersedia: '+(error.message||error)+'. Silakan pilih manual.');
+ }
+ if(ticket!==F4_IURAN_SUGGEST_SEQ)return;
+ window.refreshAllCustomSelects?.();
+ updatePreview();
+}
+
 function f4IuranPreviewKey(){
  return ['inp-warga','inp-bulan','inp-tahun','inp-jumlah'].map(id=>document.getElementById(id)?.value||'').join('|');
 }
