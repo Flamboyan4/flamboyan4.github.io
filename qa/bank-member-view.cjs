@@ -76,7 +76,7 @@ if(!bank.includes("window.dispatchEvent(new CustomEvent('f4-bank-member-statemen
  throw Error('D1-backed member statement is not delivered to mobile screens');
 if(!app.includes('card.onclick=()=>navigate("profile")'))throw Error('Member card must open profile');
 if(!app.includes('["Pencairan","bank-payout","pay.svg"]'))throw Error('Central payout missing');
-if(!app.includes('$("f4BankAppShortcuts").parentElement.hidden=role==="member"'))throw Error('Repeated shortcut tiles remain');
+if(app.includes('f4BankAppShortcuts'))throw Error('Redundant shortcut tiles must be removed for all roles');
 if(!app.includes('updateProfileCard()')||!app.includes('function memberBuckets()'))throw Error('Profile card or trusted chart missing');
 if(app.includes('function ledger(){\n return [...($("v12History")'))
  throw Error('Member history must not depend on scraped hidden HTML');
