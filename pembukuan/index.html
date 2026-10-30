@@ -2676,27 +2676,78 @@ async function muatUlang(){status('Memuat data...');try{const r=await jsonp(APPS
 function renderSemua(){const total=DATA.rumah.length,dihuni=DATA.rumah.filter(x=>(x.statusRumah||'').toLowerCase()==='dihuni').length,kosong=DATA.rumah.filter(x=>(x.statusRumah||'').toLowerCase()==='kosong').length,aktif=DATA.warga.filter(x=>['ya','aktif'].includes((x.statusAktif||'').toLowerCase())).length,kontrak=DATA.warga.filter(x=>['ya','aktif'].includes((x.statusAktif||'').toLowerCase())&&(x.statusTinggal||'').toLowerCase()==='kontrak').length;document.getElementById('sum-unit').textContent=total;document.getElementById('sum-dihuni').textContent=dihuni;document.getElementById('sum-kosong').textContent=kosong;document.getElementById('sum-warga').textContent=aktif;document.getElementById('sum-kontrak').textContent=kontrak;document.getElementById('ringkasan-hunian').innerHTML=`<div class="flex justify-between py-2 border-b border-violet-50"><span>Total unit terdata</span><b>${total}</b></div><div class="flex justify-between py-2 border-b border-violet-50"><span>Dihuni</span><b class="text-violet-700">${dihuni}</b></div><div class="flex justify-between py-2 border-b border-violet-50"><span>Kosong</span><b class="text-amber-600">${kosong}</b></div><div class="flex justify-between py-2"><span>Kontrak aktif</span><b class="text-fuchsia-700">${kontrak}</b></div>`;document.getElementById('ringkasan-tarif').innerHTML=`<div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">IURAN BULANAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_BULANAN)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">KEBERSIHAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_KEBERSIHAN)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">KAS LORONG</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_KAS_LORONG)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">ARISAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_ARISAN)}</div></div>`;renderRumah();renderWarga();renderConfig();isiForm();lucide.createIcons();initPinjamanUi();}
 function isiForm(){const sel=document.getElementById('inp-warga');const old=sel.value;sel.innerHTML='<option value="">Pilih warga...</option>'+DATA.warga.filter(w=>['ya','aktif'].includes((w.statusAktif||'').toLowerCase())&&[w.qtyIuranBulanan,w.qtyKebersihan,w.qtyKasLorong,w.qtyArisan].some(n=>Number(n||0)>0)).map(w=>`<option value="${w.idWarga}">${w.nama} (${w.blok}/${w.noRumah})</option>`).join('');if(old)sel.value=old;const now=new Date();document.getElementById('inp-tanggal').value=now.toISOString().slice(0,10);document.getElementById('inp-tahun').value=now.getFullYear();document.getElementById('inp-bulan').innerHTML=BULAN.slice(1).map((b,i)=>`<option value="${i+1}">${b}</option>`).join('');document.getElementById('inp-bulan').value=now.getMonth()+1;updatePreview()}
 function periodeList(b,y,j){const a=[];let m=Number(b),yr=Number(y);for(let i=0;i<Number(j);i++){a.push(BULAN[m]+' '+yr);m++;if(m>12){m=1;yr++}}return a}
-function updatePreview(){
-  const w=DATA.warga.find(x=>x.idWarga===document.getElementById('inp-warga').value);
-  if(!w){document.getElementById('preview-empty').classList.remove('hidden');document.getElementById('preview-detail').classList.add('hidden');return}
-  const c=DATA.config;
-  const bul=w.qtyIuranBulanan*(c.TARIF_BULANAN||0),keb=w.qtyKebersihan*(c.TARIF_KEBERSIHAN||0),kas=w.qtyKasLorong*(c.TARIF_KAS_LORONG||0),ari=w.qtyArisan*(c.TARIF_ARISAN||0),j=Number(document.getElementById('inp-jumlah').value||1);
-  const total=(bul+keb+kas+ari)*j;
-  document.getElementById('preview-empty').classList.add('hidden');document.getElementById('preview-detail').classList.remove('hidden');
-  document.getElementById('pv-bulanan').textContent=rupiah(bul);document.getElementById('pv-kebersihan').textContent=rupiah(keb);document.getElementById('pv-kebersihan-x').textContent=w.qtyKebersihan>1?`${w.qtyKebersihan}x pembayaran`:'';document.getElementById('pv-kas').textContent=rupiah(kas);document.getElementById('pv-arisan').textContent=rupiah(ari);document.getElementById('pv-total').textContent=rupiah(total);document.getElementById('pv-periode').textContent=periodeList(document.getElementById('inp-bulan').value,document.getElementById('inp-tahun').value,j).join(', ');
-  const inp=document.getElementById('inp-nominal-dibayar');const prev=Number(inp?.dataset.lastTotal||0);
-  if(inp){if(inp.dataset.edited!=='1'||Number(inp.value||0)===prev){inp.value=total;inp.dataset.edited=''}inp.dataset.lastTotal=String(total)}
-  updateNominalParsialInfo();
+let F4_IURAN_PREVIEW=null,F4_IURAN_PREVIEW_SEQUENCE=0;
+function f4IuranPreviewKey(){
+ return ['inp-warga','inp-bulan','inp-tahun','inp-jumlah'].map(id=>document.getElementById(id)?.value||'').join('|');
+}
+async function updatePreview(){
+ const ticket=++F4_IURAN_PREVIEW_SEQUENCE;
+ const w=DATA.warga.find(x=>String(x.idWarga)===String(document.getElementById('inp-warga').value));
+ const empty=document.getElementById('preview-empty'),detail=document.getElementById('preview-detail');
+ F4_IURAN_PREVIEW=null;
+ if(!w){empty.textContent='Pilih warga untuk melihat rincian.';empty.classList.remove('hidden');detail.classList.add('hidden');return}
+ const firstMonth=Number(document.getElementById('inp-bulan').value),
+       year=Number(document.getElementById('inp-tahun').value),
+       count=Number(document.getElementById('inp-jumlah').value||1),key=f4IuranPreviewKey();
+ empty.textContent='Memeriksa kewajiban sesuai periode…';
+ empty.classList.remove('hidden');detail.classList.add('hidden');
+ if(!Number.isInteger(firstMonth)||firstMonth<1||firstMonth>12||!Number.isInteger(year)||year<2020||
+    !Number.isInteger(count)||count<1||count>12){empty.textContent='Periksa pilihan bulan dan tahun.';return}
+ try{
+   const periods=Array.from({length:count},(_,i)=>{
+     const point=new Date(Date.UTC(year,firstMonth-1+i,1));
+     return {year:point.getUTCFullYear(),month:point.getUTCMonth()+1};
+   });
+   const rows=await Promise.all(periods.map(async p=>{
+     const url='https://api.flamboyan4.web.id/api/bookkeeping/iuran/outstanding?'+new URLSearchParams({
+       payerId:String(w.idWarga),year:String(p.year),month:String(p.month)
+     });
+     const response=await fetch(url,{credentials:'include',cache:'no-store',mode:'cors'});
+     const body=await response.json().catch(()=>({}));
+     if(!response.ok||body.ok===false)throw Error(body.error||'Kewajiban periode '+p.month+'/'+p.year+' gagal dibaca.');
+     return body;
+   }));
+   if(ticket!==F4_IURAN_PREVIEW_SEQUENCE||key!==f4IuranPreviewKey())return;
+   const sums={IURAN_BULANAN:0,KEBERSIHAN:0,KAS_LORONG:0,ARISAN:0};
+   for(const row of rows)for(const item of row.komponen||[]){
+     if(Object.hasOwn(sums,item.jenis))sums[item.jenis]+=Math.max(0,Number(item.sisaRp)||0);
+   }
+   const bul=sums.IURAN_BULANAN,keb=sums.KEBERSIHAN,kas=sums.KAS_LORONG,ari=sums.ARISAN,total=bul+keb+kas+ari;
+   F4_IURAN_PREVIEW={key,total,fixed:bul+keb+ari,kas};
+   empty.classList.add('hidden');detail.classList.remove('hidden');
+   document.getElementById('pv-bulanan').textContent=rupiah(bul);
+   document.getElementById('pv-kebersihan').textContent=rupiah(keb);
+   document.getElementById('pv-kebersihan-x').textContent=count>1?'Total '+count+' periode':'';
+   document.getElementById('pv-kas').textContent=rupiah(kas);
+   document.getElementById('pv-arisan').textContent=rupiah(ari);
+   document.getElementById('pv-total').textContent=rupiah(total);
+   document.getElementById('pv-periode').textContent=periodeList(firstMonth,year,count).join(', ');
+   const input=document.getElementById('inp-nominal-dibayar'),last=Number(input?.dataset.lastTotal||0);
+   if(input){
+     if(input.dataset.edited!=='1'||Number(input.value||0)===last){input.value=String(total);input.dataset.edited=''}
+     input.dataset.lastTotal=String(total);
+   }
+   updateNominalParsialInfo();
+ }catch(error){
+   if(ticket!==F4_IURAN_PREVIEW_SEQUENCE)return;
+   empty.textContent='Tidak dapat menghitung tagihan: '+(error.message||error)+'. Pembayaran belum dapat disimpan.';
+   empty.classList.remove('hidden');detail.classList.add('hidden');
+   updateNominalParsialInfo();
+ }
 }
 function updateNominalParsialInfo(){
-  const inp=document.getElementById('inp-nominal-dibayar'),info=document.getElementById('inp-parsial-info');if(!inp||!info)return;
-  const w=DATA.warga.find(x=>x.idWarga===document.getElementById('inp-warga')?.value);if(!w){info.className='text-[11px] mt-1 text-slate-400';info.textContent='Default mengikuti total tagihan.';return}
-  const c=DATA.config,j=Number(document.getElementById('inp-jumlah').value||1),bul=w.qtyIuranBulanan*(c.TARIF_BULANAN||0),keb=w.qtyKebersihan*(c.TARIF_KEBERSIHAN||0),kas=w.qtyKasLorong*(c.TARIF_KAS_LORONG||0),ari=w.qtyArisan*(c.TARIF_ARISAN||0),total=(bul+keb+kas+ari)*j,wajib=(bul+keb+ari)*j,dibayar=Number(inp.value||0),kurang=Math.max(0,total-dibayar);
-  if(!dibayar){info.className='text-[11px] mt-1 text-red-600';info.textContent='Masukkan nominal yang benar-benar diterima.';return}
-  if(dibayar>total){info.className='text-[11px] mt-1 text-red-600';info.textContent='Nominal melebihi total tagihan.';return}
-  if(dibayar<wajib){info.className='text-[11px] mt-1 text-red-600';info.textContent=`Minimal ${rupiah(wajib)} karena komponen selain Kas Lorong harus dibayar penuh.`;return}
-  if(kurang>0){info.className='text-[11px] mt-1 text-amber-700 font-bold';info.textContent=`Kurang ${rupiah(kurang)} → otomatis dicatat sebagai kekurangan Kas Lorong.`;return}
-  info.className='text-[11px] mt-1 text-emerald-700';info.textContent='Pembayaran penuh.';
+ const input=document.getElementById('inp-nominal-dibayar'),info=document.getElementById('inp-parsial-info');
+ if(!input||!info)return;
+ const state=F4_IURAN_PREVIEW;
+ if(!state||state.key!==f4IuranPreviewKey()){
+   info.className='text-[11px] mt-1 text-slate-500';info.textContent='Menunggu rincian kewajiban periode…';return;
+ }
+ const total=state.total,required=state.fixed,paid=Number(input.value||0),missing=Math.max(0,total-paid);
+ if(!paid){info.className='text-[11px] mt-1 text-red-600';info.textContent='Masukkan nominal yang diterima.';return}
+ if(paid>total){info.className='text-[11px] mt-1 text-red-600';info.textContent='Melebihi sisa tagihan.';return}
+ if(paid<required){info.className='text-[11px] mt-1 text-red-600';info.textContent='Minimal '+rupiah(required)+' untuk komponen selain Kas Lorong.';return}
+ if(missing>0){info.className='text-[11px] mt-1 text-amber-700 font-bold';info.textContent='Sisa Kas Lorong '+rupiah(missing);return}
+ info.className='text-[11px] mt-1 text-emerald-700';info.textContent='Pembayaran penuh.';
 }
 let saveStatusTimer=null;
 function hideSaveStatus(){const e=document.getElementById('save-status');if(e)e.classList.add('hidden')}
@@ -2728,6 +2779,9 @@ async function simpanIuran(ev){
   ev.preventDefault();
   const idWarga=document.getElementById('inp-warga').value;
   if(!idWarga){saveStatus('Pilih warga terlebih dahulu.','error',2600);return}
+  if(!F4_IURAN_PREVIEW||F4_IURAN_PREVIEW.key!==f4IuranPreviewKey()){
+    saveStatus('Kewajiban periode belum terverifikasi. Periksa rincian sebelum menyimpan.','error',3800);return;
+  }
   const btn=document.getElementById('btn-simpan');btn.disabled=true;btn.classList.add('opacity-60');
   saveStatus('Menyimpan pembayaran...');
   try{
