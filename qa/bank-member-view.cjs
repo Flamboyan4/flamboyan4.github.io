@@ -92,7 +92,7 @@ const source=(name,next)=>{const start=app.indexOf('function '+name+'(');
  return app.slice(start,end);
 };
 const result=new Function('memberStatement','rupiah',
- source('ledger','months')+'\n'+source('memberBuckets','ensureHomeChart')+
+ source('ledger','months')+'\n'+source('memberBuckets','weighingNextDate')+
  '\nreturn {ledger:ledger(),buckets:memberBuckets(),history:historyLines()};')
  (sample,n=>'Rp '+Number(n).toLocaleString('id-ID'));
 if(result.ledger.length!==1||result.ledger[0].credit!==3000)throw Error('Actual ledger credit must remain 3000');
