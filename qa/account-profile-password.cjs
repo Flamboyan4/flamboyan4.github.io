@@ -12,4 +12,13 @@ assert(worker.includes('nama: who.display_name, rumah: who.house_code'),'Member 
 assert(shell.includes("window.addEventListener('f4-account-profile-updated'"),'Shell must react to profile changes');
 assert(shell.includes('session?.account?.displayName||session?.member?.nama'),'Account menu missing alias');
 assert(account.includes("window.dispatchEvent(new CustomEvent('f4-account-profile-updated'"),'Profile save not propagated');
+const receiptRoute='if (path === "/api/v2/admin/bank/sale-receipt" && request.method === "POST")';
+const fallbackRoute='if (path.startsWith("/api/v2/")) return handleUnifiedApi';
+assert(worker.includes(receiptRoute) && worker.indexOf(receiptRoute)<worker.indexOf(fallbackRoute),'Sale-receipt route must precede generic v2 handler');
+assert(account.includes("location.replace('/');"),'After password change session must return to public home');
+assert(!account.includes('b.click();'),'Password change must not invoke logout with revoked session');
+const handover=fs.readFileSync('portal-live/bank-sale-handover.js','utf8');
+new vm.Script(handover,{filename:'bank-sale-handover'});
+assert(handover.includes('border-collapse:separate;border-spacing:0') && handover.includes('border-right:1px solid #000'),'Black PDF table grid must stay visible');
+assert(handover.includes("im.decode().catch(()=>{})"),'Logo must finish loading before print');
 console.log('F4_ACCOUNT_PROFILE_PASSWORD_OK');
