@@ -809,14 +809,14 @@ function render(data){
   transaksi.append(alert);
  }
  buildForm(transaksi,data,refresh);
- if(hasReview||(data.excludedSources||[]).length){
+ if(hasReview||(data.excludedSources||[]).length||(data.bankSourceBalances||[]).some(x=>Number(x.amountRp)!==0)){
   const fold=el("details",undefined,"tc-review-fold");
   fold.open=hasReview;
-  fold.append(el("summary",hasReview?"Periksa Dana":"Riwayat Pemeriksaan"));
+  fold.append(el("summary",hasReview?"Rincian Pemeriksaan":"Riwayat Pemeriksaan"));
   buildSources(fold,data,refresh);
   transaksi.append(fold);
  }
- const entries=tidyHistory(data);
+ const entries=tidyHistory(data).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
  const recent=el("section",undefined,"tc-panel tc-recent");
  const recentHeader=el("div",undefined,"tc-section-head");
  recentHeader.append(el("h3","Transaksi Terakhir"));
