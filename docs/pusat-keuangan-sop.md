@@ -1,8 +1,8 @@
 # Pusat Keuangan Flamboyan 4 — SOP awal (30 Oktober 2026)
 
 ## Dua dimensi wajib
-- **Tempat uang**: Cash Kas RT, Cash Bank Sampah, Cash Jersey, Cash masing-masing projek baru, QRIS bersama, Mandiri bersama.
-- **Pos/hak dana**: Kas RT/Iuran, Bank Sampah Hak Warga, Bank Sampah Lingkungan, Jersey, dan projek lain.
+- **Tempat uang**: Cash Kas Lorong, Cash Bank Sampah, Cash Jersey, Cash masing-masing projek baru, QRIS bersama, Mandiri bersama.
+- **Pos/hak dana**: Kas Lorong (Humas), Bank Sampah Hak Warga, Bank Sampah Lingkungan, Jersey, dan projek lain.
 - QRIS dan Mandiri bisa menyimpan beberapa pos sekaligus. Uang tunai disimpan terpisah menurut program.
 - Tabungan warga hasil timbang estimasi **tidak** boleh dibukukan sebagai kas; hanya dana sah atau penerimaan fisik yang sudah ada.
 
@@ -15,15 +15,15 @@
 
 ## Operasional harian
 - **Pindah Tempat**: QRIS → Mandiri, Mandiri → Cash; nominal tidak menambah uang keseluruhan.
-- **Pindah Pos**: perpindahan hak atau serah-terima misalnya Bank Sampah lingkungan ke Kas RT. Saldo keseluruhan tidak berubah.
+- **Pindah Pos**: perpindahan hak atau serah-terima misalnya Bank Sampah lingkungan ke Kas Lorong. Saldo keseluruhan tidak berubah.
 - **Dana Masuk/Keluar** manual hanya untuk transaksi yang belum tercatat di modul sumber dan belum dihubungkan; periksa dahulu untuk mencegah pencatatan ganda.
-- Buku Kas yang sudah diposting setelah tanggal batas dapat dipasangkan sebagai Cash Kas RT dengan tombol **Sinkronkan Buku Kas** (25 per proses; ulangi hingga habis). Pembayaran iuran yang belum dibukukan **tidak** ikut.
+- Jurnal Kas Lorong yang sudah diposting setelah tanggal batas dapat dipasangkan sebagai Cash Kas Lorong dengan tombol **Sinkronkan Buku Kas** (25 per proses; ulangi hingga habis). Pembayaran iuran yang belum dibukukan **tidak** ikut.
 - Jurnal Bank Sampah setelah tanggal batas dipasangkan satu per satu, dengan memilih lokasi uang sebenarnya (Cash Bank Sampah, QRIS atau Mandiri). Jangan menganggap estimasi setoran sebagai penerimaan.
 - Bila nilai/status transaksi asal berubah setelah dipasangkan, Pusat Keuangan menampilkan peringatan. Periksa sebelum membuat koreksi; tidak ada perubahan otomatis pada transaksi sumber.
 
 ## Batas fase awal
 - Modul sumber yang dibaca: transaksi Buku Kas terposting dan jurnal Bank Sampah berstatus aktif. Pencocokan tidak mengubah kedua sumber tersebut.
-- **Jersey lama**, pesanan projek dan jenis transaksi di luar dua jurnal itu **belum disinkron otomatis**. Catat saldo awalnya, dan mutasi setelah batas melalui Pusat Keuangan secara terverifikasi; jangan mencampur dengan Kas RT.
+- **Jersey lama**, pesanan projek dan jenis transaksi di luar dua jurnal itu **belum disinkron otomatis**. Catat saldo awalnya, dan mutasi setelah batas melalui Pusat Keuangan secara terverifikasi; jangan mencampur dengan Kas Lorong.
 - Tidak ada pemindahan uang bank/QRIS sungguhan oleh website. Ini pencatatan, bukan integrasi perbankan.
 - Tidak ada saldo historis yang diimpor otomatis: sumber transaksi lama tetap berada di modul asal dan tidak dihapus.
 - Saldo pusat baru dapat dianggap lengkap setelah semua saldo awal disahkan, transaksi sumber yang relevan dipasangkan, dan setiap sumber tanpa jurnal dinilai terpisah.
@@ -34,3 +34,10 @@
 - Debit divalidasi ulang di dalam transaksi SQLite dan ditolak jika menyebabkan saldo lokasi-pos negatif.
 - `request_key` mencegah pengulangan; sumber dipasangkan dengan `source:book:<ID>` atau `source:bank:<ID>`.
 - Backup database sebelum menambah fitur lebih lanjut. Tidak perlu menjalankan migrasi data lama berulang.
+
+## Batas kepemilikan dana iuran
+- Pembukuan Iuran mencatat tiga pos: **Kas Lorong**, **Setoran RT** (Iuran RT dan Kebersihan), dan **Arisan**.
+- Pusat Keuangan Humas hanya mengakui **Kas Lorong yang sudah masuk jurnal kas**, beserta denda dan pemasukan/pengeluaran lain yang memang dikelola Humas.
+- Setoran RT dan Arisan **tidak** dihitung sebagai saldo Kas Lorong dan **tidak** disinkron melalui tombol Kas Lorong, meskipun dibayar dalam satu transaksi warga.
+- Metode pembayaran QRIS/Mandiri pada transaksi warga tidak otomatis berarti seluruh uang itu milik Humas. Catat hanya porsi dan penerimaan yang benar-benar dikuasai dan telah dibukukan.
+- ID internal historis `kas_rt` / `cash:kas_rt` sementara dipertahankan untuk integritas mutasi D1 lama. Label yang terlihat pengguna dan tercetak adalah **Kas Lorong**; jangan mengganti ID tanpa migrasi tervalidasi.
