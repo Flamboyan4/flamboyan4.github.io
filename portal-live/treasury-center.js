@@ -351,7 +351,7 @@ function printTreasury(data){
  },1800);
 }
 function buildForm(target,data,refresh){
- const {funds}=data.catalog;
+ const funds=data.catalog.funds.filter(f=>f.active!==false);
  const shell=el("details",undefined,"tc-panel tc-mutation-panel tc-no-print");
  shell.append(el("summary","Pindah Dana"));
  const form=el("form",undefined,"tc-form");
@@ -414,10 +414,12 @@ function buildSources(target,data,refresh){
  }
  const eligibleBank=new Map();
  for(const x of data.bankPendingCounts||[])eligibleBank.set(x.fundId,
-   (eligibleBank.get(x.fundId)||0)+Number(x.count||0));
- const pendingBankCount=[...pendingBank].filter(([fund,total])=>
-   total>(data.balances||[]).filter(y=>y.fund_id===fund).reduce((n,y)=>n+Number(y.amount_rp||0),0)
-   &&(eligibleBank.get(fund)||0)>0).length;
+   (eligibleBank.get(x.fundId)||0)+Number(x.amountRp||0));
+ const pendingBankCount=[...pendingBank].filter(([fund,total])=>{
+   const central=(data.balances||[]).filter(y=>y.fund_id===fund).reduce((n,y)=>n+Number(y.amount_rp||0),0);
+   const fresh=eligibleBank.get(fund)||0;
+   return fresh>0&&total>central&&fresh<=total-central;
+ }).length;
  const label=el("h3","Periksa Dana ("+(sources.length+pendingBankCount)+")");
  const reload=el("button","Muat Ulang","tc-secondary");reload.type="button";
  reload.onclick=async()=>{reload.disabled=true;try{await refresh()}catch(e){reload.disabled=false}};
@@ -435,12 +437,12 @@ function buildSources(target,data,refresh){
   meta.append(el("strong",src.sourceLabel+" · "+formatDate(src.date)+" · "+rp(Math.abs(src.amountRp))),
     el("span",(funds.get(src.fund)?.name||"Pos perlu diperiksa")+" · "+(src.note||src.category)));
   if(src.type==="bank"&&src.sourceDate&&src.sourceDate!==src.date)
-    meta.append(el("small","Tanggal penjualan "+formatDate(src.sourceDate)+" · disahkan "+formatDate(src.date),"tc-source-date"));
+    meta.append(el("small","Jual "+formatDate(src.sourceDate)+" · Sah "+formatDate(src.date),"tc-source-date"));
   if(src.category)meta.append(el("small",src.category));
   const sameDay=src.date===data.confirmedOn;
   if(sameDay)meta.append(el("small","Tanggal sama dengan saldo awal — pastikan belum dihitung.","tc-same-day"));
   const options=fields(data.catalog,src.fund);
-  const pick=select([{id:"",name:"Pilih tempat dana"},...options]);
+  const pick=select([{id:"",name:"Simpan di"},...options]);
   pick.value=options.some(x=>x.id===src.suggestedLocation)?src.suggestedLocation:"";
   pick.setAttribute("aria-label","Pilih tempat dana untuk "+src.sourceLabel);
   const save=el("button","Periksa & Sahkan","tc-primary");save.type="button";
@@ -483,7 +485,7 @@ function buildSources(target,data,refresh){
  const bankItems=[...bankGroups].map(([fundId,source])=>{
   const central=(data.balances||[]).filter(y=>y.fund_id===fundId)
     .reduce((n,y)=>n+Number(y.amount_rp||0),0);
-  return {fundId,source,central,diff:source-central,fund:funds.get(fundId)};
+  return {fundId,source,central,diff:source-central,available:eligibleBank.get(fundId)||0,fund:funds.get(fundId)};
  }).filter(x=>x.source!==0||x.central!==0);
  if(bankItems.length){
   const panel=el("div",undefined,"tc-bank-reconcile");
@@ -493,27 +495,27 @@ function buildSources(target,data,refresh){
    const item=el("div",undefined,"tc-bank-row");
    const info=el("div",undefined,"tc-bank-info");
    info.append(el("strong",(row.fund?.name||row.fundId).replace(/^Bank Sampah — /,"")),
-    el("span","Bank Sampah "+rp(row.source)+" · Pusat "+rp(row.central)));
+    el("span","Sumber "+rp(row.source)+" · Tercatat "+rp(row.central)));
    item.append(info);
-   if(row.diff>0&&(eligibleBank.get(row.fundId)||0)>0){
-    const pick=select([{id:"",name:"Tempat uang"},...fields(data.catalog,row.fundId)]);
+   if(row.diff>0&&row.available>0&&row.available<=row.diff){
+    const pick=select([{id:"",name:"Simpan di"},...fields(data.catalog,row.fundId)]);
     pick.value="";pick.setAttribute("aria-label","Tempat uang untuk "+(row.fund?.name||row.fundId));
-    const confirmButton=el("button","Sahkan "+rp(row.diff),"tc-primary");confirmButton.type="button";
+    const confirmButton=el("button","Sahkan "+rp(row.available),"tc-primary");confirmButton.type="button";
     confirmButton.onclick=async()=>{
      if(!pick.value){status.textContent="Pilih tempat uang dahulu.";pick.focus();return}
      const where=[...pick.options].find(x=>x.value===pick.value)?.textContent||pick.value;
-     if(!confirm("Sahkan "+rp(row.diff)+" untuk "+(row.fund?.name||row.fundId)+" di "+where+
+     if(!confirm("Sahkan "+rp(row.available)+" untuk "+(row.fund?.name||row.fundId)+" di "+where+
          "?\n\nPastikan uang sudah diterima dan belum termasuk saldo awal."))return;
      confirmButton.disabled=true;status.textContent="Mengesahkan…";
      try{
       await post({action:"approve-bank-balance",fundId:row.fundId,location:pick.value,
-        expectedSourceRp:row.source,expectedCentralRp:row.central,
+        expectedSourceRp:row.source,expectedCentralRp:row.central,expectedAvailableRp:row.available,
         requestKey:crypto.randomUUID(),confirmation:"SUDAH COCOK"});
       await refresh();
      }catch(e){status.textContent=e.message;confirmButton.disabled=false}
     };
     item.append(pick,confirmButton);
-   }else item.append(el("span",row.diff===0?"Cocok":row.diff>0?"Cek riwayat":"Periksa selisih","tc-bank-status"));
+   }else item.append(el("span",row.available<=0?"Cocok":row.available>row.diff?"Cek asal":"Cek riwayat","tc-bank-status"));
    board.append(item);
   }
   panel.append(board);
