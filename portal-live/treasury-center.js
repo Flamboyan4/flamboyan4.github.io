@@ -66,7 +66,7 @@ function treasuryDateControl(){
  const text=el("span"),icon=el("img",undefined,"tc-date-icon");icon.src="/assets/icons/calendar.svg";icon.alt="";icon.setAttribute("aria-hidden","true");
  trigger.append(text,icon);wrap.append(input,trigger);
  const months=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
- const days=["Sen","Sel","Rab","Kam","Jum","Sab","Min"];
+ const days=["Min","Sen","Sel","Rab","Kam","Jum","Sab"];
  const format=iso=>{
   const m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})$/);
   return m?Number(m[3])+" "+months[Number(m[2])-1]+" "+m[1]:"Pilih tanggal";
@@ -103,7 +103,7 @@ function treasuryDateControl(){
    nav.append(prev,heading,next);
    const grid=el("div",undefined,"tc-date-grid");
    days.forEach(day=>grid.append(el("span",day,"tc-date-week")));
-   const offset=(new Date(year,month,1).getDay()+6)%7;
+   const offset=new Date(year,month,1).getDay();
    for(let j=0;j<offset;j++)grid.append(el("span"));
    const max=new Date(year,month+1,0).getDate();
    for(let day=1;day<=max;day++){
@@ -123,7 +123,89 @@ function treasuryDateControl(){
   }
   render();
  };
- return {input,element:wrap};
+ return {input,element:wrap,trigger,refresh:update};
+}
+function buildOpeningGrid(target,data,refresh){
+ const shell=el("section",undefined,"tc-panel tc-opening-panel tc-no-print");
+ const head=el("div",undefined,"tc-opening-heading");
+ head.append(el("h3","Saldo Awal"),el("small","Isi posisi uang sebenarnya, bukan seluruh pembayaran iuran."));
+ shell.append(head);
+ const form=el("form",undefined,"tc-opening-form");
+ const controls=el("div",undefined,"tc-opening-controls");
+ const dateCtl=treasuryDateControl(),date=dateCtl.input;
+ date.value=data.openingDate||today();dateCtl.refresh();
+ if(data.openingCount){dateCtl.trigger.disabled=true;dateCtl.trigger.title="Tanggal saldo awal sudah tercatat";}
+ controls.append(field("Tanggal saldo awal",dateCtl.element));
+ if(!data.openingDateConsistent)controls.append(el("p","Tanggal pembuka lama tidak seragam. Periksa sebelum menyimpan.","tc-source-warning"));
+ shell.append(controls);
+ const grid=el("div",undefined,"tc-opening-table");
+ const header=el("div",undefined,"tc-opening-row tc-opening-header");
+ ["Program","Cash","QRIS","Mandiri"].forEach(x=>header.append(el("strong",x)));
+ grid.append(header);
+ const entries=[];
+ const use=["cash","qris","mandiri"];
+ for(const f of data.catalog.funds){
+  const line=el("div",undefined,"tc-opening-row");
+  line.append(el("strong",f.name,"tc-opening-name"));
+  for(const type of use){
+   const location=type==="cash"?f.cash:type;
+   const cell=el("label",undefined,"tc-opening-cell");
+   cell.append(el("span",type==="cash"?"Cash":type==="qris"?"QRIS":"Mandiri"));
+   const amountInput=el("input");
+   amountInput.type="number";amountInput.inputMode="numeric";amountInput.min="0";amountInput.max="10000000000";
+   amountInput.step="1";amountInput.placeholder="0";
+   amountInput.setAttribute("aria-label",f.name+" — "+(type==="cash"?"Cash":type==="qris"?"QRIS":"Mandiri"));
+   const existing=amount(data.balances,f.id,location);
+   amountInput.value=existing?String(existing):"";
+   cell.append(amountInput);line.append(cell);
+   entries.push({fundId:f.id,locationId:location,input:amountInput});
+  }
+  grid.append(line);
+ }
+ form.append(grid);
+ const footer=el("div",undefined,"tc-opening-footer");
+ const total=el("strong","Total: Rp0","tc-opening-total");
+ const actions=el("div",undefined,"tc-opening-actions");
+ const save=el("button","Simpan Saldo Awal","tc-primary");save.type="submit";
+ const approve=el("button","Sahkan Saldo","tc-secondary");approve.type="button";
+ approve.disabled=!data.openingCount||!data.openingDateConsistent;
+ if(!data.openingCount)approve.title="Simpan saldo awal terlebih dahulu";
+ actions.append(save,approve);footer.append(total,actions);form.append(footer);
+ const status=el("p","","tc-status");status.setAttribute("role","status");form.append(status);
+ shell.append(form);
+ const hint=el("p","Cash dipisah per program. QRIS hanya yang belum cair; Mandiri hanya yang sudah masuk rekening.","tc-helper");
+ shell.append(hint);target.append(shell);
+ let requestKey="";
+ const positions=()=>entries.map(e=>({fundId:e.fundId,locationId:e.locationId,amountRp:Number(e.input.value||0)}));
+ const updateTotal=()=>{
+  const values=positions(),sum=values.reduce((n,x)=>n+x.amountRp,0);
+  total.textContent="Total: "+rp(sum);
+  save.disabled=values.some(x=>!Number.isSafeInteger(x.amountRp)||x.amountRp<0||x.amountRp>10000000000)
+   ||sum<=0||!data.openingDateConsistent;
+ };
+ form.addEventListener("input",()=>{requestKey="";updateTotal()});
+ updateTotal();
+ form.onsubmit=async e=>{
+  e.preventDefault();
+  if(!form.reportValidity()||save.disabled)return;
+  requestKey||=crypto.randomUUID();
+  save.disabled=true;approve.disabled=true;status.textContent="Menyimpan saldo awal…";
+  try{
+   const result=await post({action:"opening-grid",date:date.value,positions:positions(),requestKey});
+   status.textContent=result.unchanged?"Saldo tidak berubah.":"Saldo awal tersimpan.";
+   await refresh();
+  }catch(err){status.textContent=err.message;updateTotal();approve.disabled=!data.openingCount}
+ };
+ approve.onclick=async()=>{
+  if(!data.openingCount)return;
+  const currentValues=positions();
+  const changed=currentValues.some(x=>x.amountRp!==amount(data.balances,x.fundId,x.locationId));
+  if(changed){status.textContent="Simpan perubahan nominal dahulu, baru sahkan.";return}
+  if(!confirm("Sudah cocok dengan uang Cash, QRIS yang belum cair, dan Mandiri? Saldo awal akan dikunci dan tidak dapat diubah."))return;
+  approve.disabled=true;save.disabled=true;status.textContent="Mengesahkan saldo awal…";
+  try{await post({action:"confirm",date:date.value,confirmation:"SALDO COCOK"});await refresh()}
+  catch(err){status.textContent=err.message;approve.disabled=false;updateTotal()}
+ };
 }
 function buildForm(target,data,refresh){
  const {funds}=data.catalog;
@@ -186,23 +268,6 @@ function buildForm(target,data,refresh){
   try{await post(payload);status.textContent="Mutasi tersimpan.";await refresh()}
   catch(err){status.textContent=err.message;save.disabled=false}
  };
-}
-function buildConfirm(target,data,refresh){
- if(data.confirmed)return;
- const panel=el("section",undefined,"tc-panel tc-no-print");
- const head=el("h3","Sahkan Saldo Awal");
- const desc=el("p","Cocokkan Cash tiap program, saldo QRIS belum cair, dan rekening Mandiri. Pengesahan mengunci saldo awal.");
- const row=el("div",undefined,"tc-confirm-row");
- const dateCtl=treasuryDateControl(),date=dateCtl.input;
- const b=el("button","Saldo Sudah Cocok","tc-primary");b.type="button";b.disabled=!data.openingCount;
- const msg=el("p",data.openingCount?"":"Isi minimal satu saldo awal.","tc-status");
- b.onclick=async()=>{
-   if(!confirm("Yakin seluruh saldo awal sudah dicocokkan? Setelah disahkan tidak bisa diubah."))return;
-   b.disabled=true;msg.textContent="Mengesahkan…";
-   try{await post({action:"confirm",date:date.value,confirmation:"SALDO COCOK"});await refresh()}
-   catch(e){msg.textContent=e.message;b.disabled=false}
- };
- row.append(dateCtl.element,b);panel.append(head,desc,row,msg);target.append(panel);
 }
 function buildSources(target,data,refresh){
  if(!data.confirmed)return;
@@ -268,6 +333,21 @@ function render(data){
   "Saldo awal dikunci "+data.confirmedOn+". Perubahan setelahnya mengikuti jurnal Pusat Keuangan.":
   "Saldo belum final. Isi saldo awal per pos dan tempat dana, lalu sahkan.","tc-notice "+(data.confirmed?"tc-ok":"tc-warn"));
  panel.append(banner);
+ if(!data.confirmed){
+   const refresh=()=>fetchData().then(render);
+   buildOpeningGrid(panel,data,refresh);
+   const history=el("section",undefined,"tc-panel tc-opening-history");
+   const rows=data.history.slice(0,30).map(x=>[x.occurred_on,
+     data.catalog.funds.find(f=>f.id===x.fund_id)?.name||"Pos tersimpan",
+     data.catalog.locations.find(l=>l.id===x.location_id)?.name||"Tempat",
+     (Number(x.amount_rp)>0?"+":"−")+rp(Math.abs(Number(x.amount_rp)))]);
+   if(rows.length){
+    const details=el("details");details.append(el("summary","Riwayat pengisian saldo awal ("+rows.length+")"));
+    simpleTable(details,["Tanggal","Program","Tempat","Perubahan"],rows);history.append(details);
+    panel.append(history);
+   }
+   return;
+ }
  const cards=el("div",undefined,"tc-summary");
  const cash=data.balances.filter(x=>x.location_id.startsWith("cash:")).reduce((n,x)=>n+Number(x.amount_rp||0),0);
  const qris=data.balances.filter(x=>x.location_id==="qris").reduce((n,x)=>n+Number(x.amount_rp||0),0);
@@ -287,7 +367,6 @@ function render(data){
  panel.append(ownership);
  const refresh=()=>fetchData().then(render);
  buildForm(panel,data,refresh);
- buildConfirm(panel,data,refresh);
  buildSources(panel,data,refresh);
  const history=el("section",undefined,"tc-panel");
  const h=el("div",undefined,"tc-section-head");

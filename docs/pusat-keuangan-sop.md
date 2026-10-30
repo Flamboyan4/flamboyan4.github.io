@@ -41,3 +41,11 @@
 - Setoran RT dan Arisan **tidak** dihitung sebagai saldo Kas Lorong dan **tidak** disinkron melalui tombol Kas Lorong, meskipun dibayar dalam satu transaksi warga.
 - Metode pembayaran QRIS/Mandiri pada transaksi warga tidak otomatis berarti seluruh uang itu milik Humas. Catat hanya porsi dan penerimaan yang benar-benar dikuasai dan telah dibukukan.
 - ID internal historis `kas_rt` / `cash:kas_rt` sementara dipertahankan untuk integritas mutasi D1 lama. Label yang terlihat pengguna dan tercetak adalah **Kas Lorong**; jangan mengganti ID tanpa migrasi tervalidasi.
+
+## Antarmuka ringkas (30 Oktober 2026)
+- Kalender dibuka dengan urutan **Minggu–Sabtu**, bukan Senin–Minggu.
+- Sebelum pengesahan hanya ada satu formulir tanggal dan tabel saldo per program: **Cash**, **QRIS**, **Mandiri**. Kolom kosong berarti Rp0.
+- Isi Cash sesuai uang tunai di masing-masing program, QRIS hanya saldo belum cair, dan Mandiri saldo yang sudah masuk bank. Total QRIS/Mandiri dapat terbagi kepemilikannya ke beberapa program.
+- Pilih **Simpan Saldo Awal** untuk menyimpan semua nilai sekaligus. Sebelum disahkan, revisi nominal yang keliru dapat disimpan sebagai selisih jurnal sehingga audit tetap utuh; tanggal pembuka tidak bisa diubah sesudah isian pertama tersimpan.
+- Setelah memeriksa total dan posisi, pilih **Sahkan Saldo**. Angka pembuka akan terkunci; transaksi berikutnya masuk di **Mutasi Dana**.
+- Jika telah ada data saldo awal atau perbedaan tanggal dari versi lama, verifikasi riwayat dan jangan sahkan angka yang belum cocok.
