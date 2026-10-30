@@ -42,6 +42,7 @@ const memberDock=[
 ];
 let role=null,screen="dashboard",historyMonth="latest",reportMonth="",activePage=null;
 let homeSource=null,summaryExtra=null,memberSource=null,managerQueue=null;
+let primaryNode=null,extraNode=null;
 let ready=false,requestNonce="",requestEnabled=false;
 let refreshing=false;
 const custom=["bank-history","bank-payout","bank-report","bank-deposit"];
@@ -498,19 +499,24 @@ function sync(){
 }
 function refreshSources(){
  const p=$("v14Primary"),q=$("v14Extra");
- if(p&&p!==homeSource){
-  homeSource?.disconnect?.();
-  homeSource=new MutationObserver(updateDashboard);homeSource.observe(p,{childList:true,characterData:true,subtree:true});
+ if(p&&p!==primaryNode){
+  homeSource?.disconnect();
+  homeSource=new MutationObserver(updateDashboard);
+  homeSource.observe(p,{childList:true,characterData:true,subtree:true});primaryNode=p;
  }
- if(q&&q!==summaryExtra){
-  summaryExtra?.disconnect?.();
-  summaryExtra=new MutationObserver(updateDashboard);summaryExtra.observe(q,{childList:true,characterData:true,subtree:true});
+ if(q&&q!==extraNode){
+  summaryExtra?.disconnect();
+  summaryExtra=new MutationObserver(updateDashboard);
+  summaryExtra.observe(q,{childList:true,characterData:true,subtree:true});extraNode=q;
  }
- const privateArea=$("v12Private");
- if(privateArea&&privateArea!==memberSource){
-  memberSource?.disconnect?.();
-  memberSource=new MutationObserver(()=>{if(!refreshing){refreshing=true;try{syncSavings();}finally{refreshing=false;}}});
-  memberSource.observe(privateArea,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:["class"]});
+ const targets=["v12Balance","v12Credit","v12Debit","v12History","v12Deposits","v12Gate","v12Private"];
+ const observer=memberSource||new MutationObserver(syncSavings);
+ if(!memberSource)memberSource=observer;
+ for(const id of targets){
+  const target=$(id);
+  if(!target||target.dataset.f4BankObserved==="1")continue;
+  target.dataset.f4BankObserved="1";
+  observer.observe(target,id==="v12Private"?{attributes:true,attributeFilter:["class"]}:{childList:true,characterData:true,subtree:true});
  }
 }
 function init(){
