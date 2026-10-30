@@ -1119,37 +1119,37 @@ async function treasuryCatalog(db){
     {id:"bank_cadangan",name:"Bank Sampah — Cadangan",cash:"cash:bank_sampah"},
     {id:"jersey",name:"Jersey",cash:"cash:jersey"}
   ];
-  const [projects,customFunds]=await Promise.all([
+  const [projects,customFunds,usedFunds]=await Promise.all([
     list(db,"SELECT id,title,linked_key,active FROM portal_project_cards WHERE project_kind IN ('pesanan','penggalangan') ORDER BY sort_order,id LIMIT 150"),
-    list(db,"SELECT id,name,cash_location,purpose,active FROM treasury_funds ORDER BY name LIMIT 150")
+    list(db,"SELECT id,name,cash_location,purpose,active FROM treasury_funds ORDER BY name LIMIT 150"),
+    list(db,"SELECT DISTINCT fund_id FROM treasury_entries")
   ]);
+  const used=new Set(usedFunds.map(x=>x.fund_id));
   for(const p of projects){
     // Avoid a second Jersey fund for a project card that links to the Jersey module.
     const linked=String(p.linked_key||"").trim().toLowerCase()==="jersey"||
       /^(?:pemesanan\s*)?jersey$/i.test(String(p.title||"").trim());
     if(linked){
-      const historical=await one(db,"SELECT id FROM treasury_entries WHERE fund_id=? LIMIT 1",["project:"+p.id]);
-      if(!historical)continue;
+      if(!used.has("project:"+p.id))continue;
     }
     if(!Number(p.active)){
-      const historical=await one(db,"SELECT id FROM treasury_entries WHERE fund_id=? LIMIT 1",["project:"+p.id]);
-      if(!historical)continue;
+      if(!used.has("project:"+p.id))continue;
     }
-    funds.push({id:"project:"+p.id,name:"Projek — "+p.title,cash:"cash:project:"+p.id,kind:"project"});
+    funds.push({id:"project:"+p.id,name:"Projek — "+p.title,cash:"cash:project:"+p.id,kind:"project",active:!!Number(p.active)});
   }
   for(const f of customFunds){
-    if(!Number(f.active)){
-      const historical=await one(db,"SELECT id FROM treasury_entries WHERE fund_id=? LIMIT 1",[f.id]);
-      if(!historical)continue;
-    }
-    funds.push({id:f.id,name:f.name,cash:f.cash_location,kind:"custom",purpose:f.purpose});
+    if(!Number(f.active)&&!used.has(f.id))continue;
+    funds.push({id:f.id,name:f.name,cash:f.cash_location,kind:"custom",
+      purpose:f.purpose,active:!!Number(f.active)});
   }
   const locations=[
-    {id:"qris",name:"QRIS Bersama",type:"qris"},
-    {id:"mandiri",name:"Mandiri Bersama",type:"bank"},
-    ...[...new Map(funds.map(f=>[f.cash,{id:f.cash,name:"Cash — "+(f.cash==="cash:kas_rt"?"Kas Lorong":f.cash==="cash:bank_sampah"?"Bank Sampah":f.cash==="cash:jersey"?"Jersey":f.name.replace(/^Projek — /,"")),type:"cash"}])).values()]
+    {id:"qris",name:"QRIS",type:"qris"},
+    {id:"mandiri",name:"Mandiri",type:"bank"},
+    ...[...new Map(funds.map(f=>[f.cash,{id:f.cash,name:"Tunai "+(f.cash==="cash:kas_rt"?"Kas Lorong":f.cash==="cash:bank_sampah"?"Bank Sampah":f.cash==="cash:jersey"?"Jersey":f.name.replace(/^Projek — /,"")),type:"cash"}])).values()]
   ];
-  return {funds,locations};
+  return {funds,locations,customFunds:customFunds.map(f=>({
+    id:f.id,name:f.name,purpose:f.purpose,active:!!Number(f.active),hasHistory:used.has(f.id)
+  }))};
 }
 __name(treasuryCatalog,"treasuryCatalog");
 // Persis mengikuti fund_position hasil pengesahan penjualan Bank Sampah.
@@ -1588,6 +1588,45 @@ async function treasuryApi(request,env,who,url){
     ]);
     return ok({restored:true});
   }
+  if(p.action==="remove-fund"||p.action==="restore-fund"){
+    if(!config.confirmed_at)return err("Sahkan saldo awal lebih dahulu.",409);
+    const id=String(p.fundId||"");
+    if(!/^fund:[a-f0-9-]{36}$/i.test(id))return err("Pos dana tidak valid.",400);
+    const fund=await one(db,"SELECT id,name,active FROM treasury_funds WHERE id=?",[id]);
+    if(!fund)return err("Pos dana sudah tidak ada.",404);
+    const balance=await one(db,`SELECT COUNT(*) AS count,MAX(ABS(balance)) AS highest
+      FROM (SELECT location_id,SUM(amount_rp) AS balance
+        FROM treasury_entries WHERE fund_id=? GROUP BY location_id)`,[id]);
+    if(p.action==="remove-fund"){
+      if(!Number(fund.active))return err("Pos sudah tidak aktif.",409);
+      if(Number(balance?.highest||0)!==0)return err("Masih ada uang. Pindahkan atau selesaikan saldonya dulu.",409);
+      const hasHistory=Number(balance?.count||0)>0;
+      const stmt=hasHistory?
+        db.prepare(`UPDATE treasury_funds SET active=0 WHERE id=? AND active=1 AND NOT EXISTS(
+         SELECT 1 FROM treasury_entries WHERE fund_id=? GROUP BY location_id HAVING SUM(amount_rp)<>0)`).bind(id,id):
+        db.prepare("DELETE FROM treasury_funds WHERE id=? AND active=1 AND NOT EXISTS(SELECT 1 FROM treasury_entries WHERE fund_id=?)").bind(id,id);
+      const results=await db.batch([
+        stmt,
+        db.prepare(`INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json)
+         SELECT ?,?,'pusat_keuangan',?,'treasury_funds',?,?,?
+         WHERE changes()=1`)
+         .bind("audit:"+crypto.randomUUID(),who.id,hasHistory?"archive_fund":"delete_fund",
+           id,fund.name,JSON.stringify({id,name:fund.name,hasHistory}))
+      ]);
+      if(Number(results[0]?.meta?.changes||0)!==1)return err("Pos berubah. Muat ulang.",409);
+      return ok({removed:true,archived:hasHistory});
+    }
+    if(Number(fund.active))return err("Pos ini sudah aktif.",409);
+    const results=await db.batch([
+      db.prepare("UPDATE treasury_funds SET active=1 WHERE id=? AND active=0").bind(id),
+      db.prepare(`INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json)
+       SELECT ?,?,'pusat_keuangan','restore_fund','treasury_funds',?,?,?
+       WHERE changes()=1`)
+       .bind("audit:"+crypto.randomUUID(),who.id,id,fund.name,JSON.stringify({id,restored:true}))
+    ]);
+    if(Number(results[0]?.meta?.changes||0)!==1)return err("Gagal mengaktifkan pos.",409);
+    return ok({restored:true});
+  }
   if(p.action==="create-fund"){
     const name=String(p.name||"").trim(),purpose=String(p.purpose||"").trim();
     if(name.length<3||name.length>70||purpose.length>200||/[\x00-\x1F\x7F]/.test(name+purpose))
@@ -1625,7 +1664,7 @@ async function treasuryApi(request,env,who,url){
        String(p.expectedFundId||"")!==row.fund)
       return err("Nominal atau pos berubah di sumber. Muat ulang sebelum mengesahkan.",409);
     const fund=catalog.funds.find(f=>f.id===row.fund);
-    if(!fund||!["qris","mandiri",fund.cash].includes(location))
+    if(!fund||fund.active===false||!["qris","mandiri",fund.cash].includes(location))
       return err("Pilih tempat uang yang sesuai.",400);
     const key="source:"+type+":"+id;
     if(await one(db,"SELECT source_key FROM treasury_source_exclusions WHERE source_key=?",[key]))
@@ -1722,7 +1761,10 @@ async function treasuryApi(request,env,who,url){
      config.confirmed_on&&date<config.confirmed_on)
     return err("Tanggal, nominal, keterangan, atau kunci transaksi tidak valid.",400);
   const lookup=new Map(catalog.funds.map(f=>[f.id,f]));
-  const allowed=(fund,location)=>!!lookup.get(fund)&&["qris","mandiri",lookup.get(fund).cash].includes(location);
+  const allowed=(fund,location)=>{
+    const info=lookup.get(fund);
+    return !!info&&info.active!==false&&["qris","mandiri",info.cash].includes(location);
+  };
   let entries=[];
   if(kind==="opening"||kind==="incoming"){
     if(!allowed(toFund,toLoc))return err("Pilih pos dan tempat penerimaan yang sesuai.",400);
