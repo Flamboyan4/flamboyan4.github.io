@@ -20,3 +20,12 @@ CREATE TABLE IF NOT EXISTS treasury_receipt_observations (
 );
 CREATE INDEX IF NOT EXISTS idx_treasury_receipt_source ON treasury_receipt_observations(source_kind,source_id,observed_on);
 CREATE INDEX IF NOT EXISTS idx_treasury_funds_active ON treasury_funds(active,name);
+-- Transaksi yang sudah masuk saldo awal atau bukan hak pengelola dapat dikecualikan
+-- dari kotak pemeriksaan tanpa menghapus transaksi aslinya.
+CREATE TABLE IF NOT EXISTS treasury_source_exclusions (
+ source_key TEXT PRIMARY KEY,
+ reason TEXT NOT NULL,
+ excluded_by TEXT NOT NULL,
+ excluded_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_treasury_exclusions_date ON treasury_source_exclusions(excluded_at);
