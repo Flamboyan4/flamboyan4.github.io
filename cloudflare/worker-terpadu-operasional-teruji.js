@@ -1598,6 +1598,8 @@ async function treasuryApi(request,env,who,url){
     const existing=await one(db,"SELECT name,purpose FROM treasury_funds WHERE id=?",[id]);
     if(!existing)return err("Pos tidak ditemukan.",404);
     if(existing.name!==expectedName)return err("Pos berubah. Muat ulang.",409);
+    if(existing.name!==name&&await one(db,"SELECT 1 AS found FROM treasury_entries WHERE fund_id=? LIMIT 1",[id]))
+      return err("Nama pos yang sudah ada transaksi tidak bisa diubah. Catatannya masih bisa.",409);
     if(catalog.funds.some(f=>f.id!==id&&f.name.toLowerCase()===name.toLowerCase()))
       return err("Nama pos sudah digunakan.",409);
     try{
