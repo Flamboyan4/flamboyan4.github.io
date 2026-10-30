@@ -51,7 +51,7 @@ css=(root/"portal-live/treasury-center.css").read_text()
 ui=(root/"portal-live/treasury-center.js").read_text()
 assert '!important' not in css
 assert '@media print' not in css
-assert 'Pindah Dana' in ui
+assert 'Transaksi Baru' in ui
 assert 'Saldo Bank Sampah' in ui
 assert 'action:"approve-bank-balance"' in ui
 assert 'expectedSourceRp:row.source' in ui
