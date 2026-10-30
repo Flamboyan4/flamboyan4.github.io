@@ -500,6 +500,7 @@ body.f4-bank-embedded #dashboardView .section,
 /* Bank Sampah mobile application: canonical styles for members and managers. */
 .f4-bank-app-home{display:grid;gap:13px;margin:0 0 18px;min-width:0}
 .f4-bank-app-home [hidden],.f4-bank-app-dock[hidden]{display:none}
+#dashboardView .f4-bank-member-card[hidden],#dashboardView .f4-bank-app-member-balance[hidden]{display:none}
 .f4-bank-app-hero{display:grid;gap:13px;min-width:0;padding:19px 20px;border-radius:17px;background:linear-gradient(126deg,#06472f,#087245 72%,#0c8857);color:#fff;box-shadow:0 8px 24px #064e3626}
 .f4-bank-app-hero-header,.f4-bank-app-hero-foot{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .f4-bank-app-hero-copy{display:grid;gap:4px;min-width:0}
