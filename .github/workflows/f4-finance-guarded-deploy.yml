@@ -5,6 +5,10 @@ on:
     paths:
       - cloudflare/worker-terpadu-operasional-teruji.js
       - qa/account-profile-password.cjs
+      - qa/verify-treasury.py
+      - qa/verify-treasury-humas.cjs
+      - qa/verify-treasury-dynamic.py
+      - qa/verify-treasury-bank-detection.py
       - .github/workflows/f4-finance-guarded-deploy.yml
   workflow_dispatch:
 permissions:
