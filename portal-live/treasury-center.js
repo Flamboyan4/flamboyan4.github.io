@@ -12,6 +12,14 @@ const append=(parent,...items)=>{parent.append(...items);return parent};
 const amount=(balances,fund,location)=>Number(balances.find(x=>x.fund_id===fund&&x.location_id===location)?.amount_rp||0);
 const kindLabels={opening:"Saldo awal",incoming:"Dana masuk",outgoing:"Dana keluar",move:"Pindah tempat",allocation:"Pindah pos"};
 let current=null;
+function showTreasuryNotice(message){
+ // Notifikasi hanya pada tindakan pengesahan, tidak tersimpan dan tidak ditampilkan ulang.
+ document.querySelectorAll(".tc-flash").forEach(node=>node.remove());
+ const notice=el("div",message,"tc-flash");
+ notice.setAttribute("role","status");
+ main.append(notice);
+ setTimeout(()=>notice.remove(),3500);
+}
 function heading(title,sub){
  const head=el("header",undefined,"f4-work-heading");
  head.append(el("h2",title),el("p",sub));return head;
@@ -203,7 +211,11 @@ function buildOpeningGrid(target,data,refresh){
   if(changed){status.textContent="Simpan perubahan nominal dahulu, baru sahkan.";return}
   if(!confirm("Sudah cocok dengan uang Cash, QRIS yang belum cair, dan Mandiri? Saldo awal akan dikunci dan tidak dapat diubah."))return;
   approve.disabled=true;save.disabled=true;status.textContent="Mengesahkan saldo awal…";
-  try{await post({action:"confirm",date:date.value,confirmation:"SALDO COCOK"});await refresh()}
+  try{
+   await post({action:"confirm",date:date.value,confirmation:"SALDO COCOK"});
+   await refresh();
+   showTreasuryNotice("Saldo awal berhasil disahkan.");
+  }
   catch(err){status.textContent=err.message;approve.disabled=false;updateTotal()}
  };
 }
@@ -300,20 +312,38 @@ function printTreasury(data){
  <section class="approval"><div>Mengetahui,<br>Humas Flamboyan 4</div><div class="space"></div><div class="line">Heri Juwandi</div></section>
  <div class="footer">Dicetak pada ${safeHTML(dated)} • Flamboyan 4 • Cash disimpan terpisah; QRIS dan Mandiri digunakan bersama sesuai pos masing-masing.</div>
  </body></html>`;
- const frame=document.createElement("iframe");
- frame.title="Cetak Laporan Pusat Keuangan";
- frame.setAttribute("aria-hidden","true");
- Object.assign(frame.style,{position:"fixed",width:"0",height:"0",border:"0",right:"0",bottom:"0"});
- frame.addEventListener("load",()=>{
-  const image=frame.contentDocument?.querySelector(".logo");
-  let fired=false;
-  const run=()=>{if(fired)return;fired=true;
-    try{frame.contentWindow.focus();frame.contentWindow.print()}catch(e){alert("Cetak gagal dibuka. Coba lagi.")} };
-  if(!image||image.complete)run();else{image.addEventListener("load",run,{once:true});image.addEventListener("error",run,{once:true});setTimeout(run,1000)}
- },{once:true});
- document.body.append(frame);frame.srcdoc=html;
- // The frame is not visible; release it after the browser finishes the dialog.
- frame.contentWindow?.addEventListener("afterprint",()=>frame.remove(),{once:true});
+ // Gunakan jendela cetak berukuran nyata seperti laporan Pembukuan.
+ // iframe lama berukuran 0×0 membuat preview Firefox menjadi halaman kosong.
+ const printWindow=window.open("","_blank");
+ if(!printWindow){
+  alert("Jendela cetak diblokir browser. Izinkan pop-up untuk laporan, lalu coba lagi.");
+  return;
+ }
+ let started=false;
+ const startPrint=()=>{
+  if(started||printWindow.closed)return;
+  started=true;
+  try{printWindow.focus();printWindow.print()}
+  catch(e){alert("Gagal membuka dialog cetak. Gunakan menu Cetak pada jendela laporan.")}
+ };
+ const afterReady=()=>{
+  const image=printWindow.document.querySelector(".logo");
+  const schedule=()=>{
+   Promise.resolve(printWindow.document.fonts?.ready).catch(()=>{}).then(()=>{
+    if(printWindow.closed)return;
+    printWindow.requestAnimationFrame(()=>printWindow.requestAnimationFrame(()=>setTimeout(startPrint,250)));
+   });
+  };
+  if(!image||image.complete)schedule();
+  else{
+   image.addEventListener("load",schedule,{once:true});
+   image.addEventListener("error",schedule,{once:true});
+  }
+ };
+ printWindow.document.open();
+ printWindow.document.write(html);
+ printWindow.addEventListener("load",afterReady,{once:true});
+ printWindow.document.close();
 }
 function buildForm(target,data,refresh){
  const {funds}=data.catalog;
@@ -427,10 +457,8 @@ function render(data){
  const panel=el("div",undefined,"tc-center");
  main.append(panel);
  panel.append(heading("Pusat Keuangan","Kas Lorong & program lain • QRIS/Mandiri bersama"));
- const banner=el("div",data.confirmed?
-  "Saldo awal dikunci "+data.confirmedOn+". Perubahan setelahnya mengikuti jurnal Pusat Keuangan.":
-  "Saldo belum final. Isi saldo awal per pos dan tempat dana, lalu sahkan.","tc-notice "+(data.confirmed?"tc-ok":"tc-warn"));
- panel.append(banner);
+ // Status pengesahan tidak menjadi banner permanen di halaman.
+ // Sebelum disahkan, petunjuk sudah berada di formulir saldo awal.
  if(!data.confirmed){
    const refresh=()=>fetchData().then(render);
    buildOpeningGrid(panel,data,refresh);
