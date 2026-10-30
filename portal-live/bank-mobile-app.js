@@ -17,10 +17,10 @@
     {title:"Laporan",route:"laporan",icon:"book.svg"}
   ];
   const memberActions=[
-    {title:"Tabungan",route:"pribadi",icon:"cash.svg"},
+    {title:"Cara Setor",route:"deposit-info",icon:"bank.svg"},
     {title:"Riwayat",route:"history",icon:"book.svg"},
-    {title:"Laporan",route:"report",icon:"pay.svg"},
-    {title:"Kegiatan",route:"progress",icon:"calendar.svg"}
+    {title:"Pencairan",route:"payout-info",icon:"cash.svg"},
+    {title:"Laporan",route:"report",icon:"pay.svg"}
   ];
   const adminDock=[
     {title:"Beranda",route:"dashboard",icon:"home.svg"},
@@ -50,6 +50,19 @@
     if(route==="menu"){
       if(typeof window.f4ToggleBankMenu==="function")window.f4ToggleBankMenu();
       else byId("v18PrivateMenuButton")?.click();
+      return;
+    }
+    if(route==="deposit-info"){
+      if(typeof window.goPage==="function")window.goPage("dashboard");
+      currentPage="dashboard";updateDock();
+      const flow=byId("f4MemberFlow");
+      if(flow){flow.open=true;requestAnimationFrame(()=>flow.scrollIntoView({behavior:"smooth",block:"start"}));}
+      return;
+    }
+    if(route==="payout-info"){
+      pendingAnchor="payout";
+      if(typeof window.goPage==="function")window.goPage("pribadi");
+      currentPage="pribadi";updateDock();scrollToSavingAnchor();
       return;
     }
     if(route==="public"){
@@ -213,7 +226,7 @@
       card.id="f4BankMemberCard";
       card.type="button";
       card.setAttribute("aria-label","Buka tabungan anggota");
-      card.innerHTML='<span class="f4-bank-member-card-head"><span class="f4-bank-member-card-leaf" aria-hidden="true">◈</span><span><b>BANK SAMPAH</b><small>FLAMBOYAN 4</small></span><span class="f4-bank-member-card-chip" aria-hidden="true"></span></span>'+
+      card.innerHTML='<span class="f4-bank-member-card-head"><span class="f4-bank-member-card-leaf" aria-hidden="true"><img src="/assets/logo-flamboyan.svg" alt=""></span><span><b>BANK SAMPAH</b><small>FLAMBOYAN 4</small></span><span class="f4-bank-member-card-chip" aria-hidden="true"></span></span>'+
       '<span class="f4-bank-member-card-foot"><span><small>KARTU ANGGOTA DIGITAL</small><strong id="f4BankCardName">—</strong><span id="f4BankCardHouse">Rumah —</span></span><span class="f4-bank-member-card-mark" aria-hidden="true">✦</span></span>';
       card.onclick=()=>navigate("pribadi");
       hub.insertBefore(card,hub.querySelector(".f4-bank-app-shortcuts-title"));
@@ -284,7 +297,7 @@
   };
   function scrollToSavingAnchor(){
     if(!pendingAnchor)return;
-    const target=byId(pendingAnchor==="history"?"f4BankAppMobileHistory":"f4BankAppStatementTools");
+    const target=byId(pendingAnchor==="history"?"f4BankAppMobileHistory":pendingAnchor==="payout"?"f4BankMemberPayout":"f4BankAppStatementTools");
     if(!target||target.closest(".hidden"))return;
     const anchor=pendingAnchor;pendingAnchor="";
     requestAnimationFrame(()=>target.scrollIntoView({behavior:"smooth",block:anchor==="report"?"center":"start"}));
@@ -304,6 +317,15 @@
         new MutationObserver(update).observe(sourceBalance,{childList:true,characterData:true,subtree:true});
         update();
       }
+    }
+    if(!byId("f4BankMemberPayout")){
+      const payout=element("section","f4-bank-member-payout");
+      payout.id="f4BankMemberPayout";
+      payout.innerHTML='<strong>Pencairan tabungan</strong><span>Melalui pengelola setelah uang dibayarkan.</span><button type="button">Lihat riwayat</button>';
+      payout.querySelector("button").onclick=()=>navigate("history");
+      const help=privateData.querySelector(".f4-member-payout-help");
+      if(help)help.replaceWith(payout);
+      else privateData.querySelector(".stats")?.after(payout);
     }
     if(!byId("f4BankSavingsChart")){
       const chart=element("section","f4-bank-savings-chart");
