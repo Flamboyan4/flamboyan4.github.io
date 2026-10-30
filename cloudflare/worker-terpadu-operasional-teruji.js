@@ -2819,6 +2819,65 @@ async function getIuranOutstanding(db, request) {
   });
 }
 __name(getIuranOutstanding, "getIuranOutstanding");
+
+function f4PeriodIndex(year,month){return Number(year)*12+Number(month)-1;}
+function f4IndexPeriod(index){return {year:Math.floor(index/12),month:index%12+1};}
+function f4SuggestIuranPeriod({current,versions,allocations,tariff}){
+  // The 2000 migration baseline is not an actual start of billing.
+  const today=f4PeriodIndex(current.year,current.month),oldest=today-47;
+  const relevant=allocations.filter(x=>Number.isInteger(x.period_year)&&Number.isInteger(x.period_month)
+    &&x.period_month>=1&&x.period_month<=12&&f4PeriodIndex(x.period_year,x.period_month)>=oldest);
+  const indexes=relevant.map(x=>f4PeriodIndex(x.period_year,x.period_month));
+  const versionsAsc=[...versions].sort((a,b)=>String(a.effective_from).localeCompare(String(b.effective_from)));
+  const first=versionsAsc[0]?.effective_from;
+  const firstIndex=first?f4PeriodIndex(Number(first.slice(0,4)),Number(first.slice(5,7))):today;
+  const start=Math.max(oldest,firstIndex,indexes.length?Math.min(today,...indexes):today);
+  const stop=Math.max(today+1,indexes.length?Math.max(...indexes)+1:today+1,firstIndex);
+  const paid=new Map();
+  for(const item of relevant){
+    const key=f4PeriodIndex(item.period_year,item.period_month)+':'+String(item.contribution_type);
+    paid.set(key,(paid.get(key)||0)+Number(item.amount_rp||0));
+  }
+  let lastLunas=null,previousPaid=false;
+  for(let index=start;index<=stop&&index<start+62;index++){
+    const date=f4IndexPeriod(index),period=f4IuranMonth(date.year,date.month);
+    const version=versionsAsc.filter(x=>String(x.effective_from)<=period).at(-1);
+    if(!version)continue;
+    const entries=Object.entries(f4IuranAmounts(version,tariff));
+    if(!entries.some(([,due])=>due>0))continue;
+    const paidHere=entries.reduce((sum,[kind])=>sum+(paid.get(index+':'+kind)||0),0);
+    const remainingRp=entries.reduce((sum,[kind,due])=>sum+Math.max(0,due-(paid.get(index+':'+kind)||0)),0);
+    if(remainingRp>0)return {...date,period,remainingRp,previousPaid,lastLunas,
+      reason:paidHere>0?'sebagian':index<today?'tunggakan':index>today?'berikutnya':'bulan_ini'};
+    if(paidHere>0){previousPaid=true;lastLunas=period;}
+  }
+  return {period:null,reason:'tanpa_kewajiban'};
+}
+async function getIuranSuggestedPeriod(db,request){
+  const payerId=new URL(request.url).searchParams.get('payerId')||'';
+  if(!payerId||payerId.length>150)return safeError('Pembayar tidak valid.',400);
+  const payer=await db.prepare('SELECT id,active FROM bookkeeping_payers WHERE id=?').bind(payerId).first();
+  if(!payer||Number(payer.active)!==1)return safeError('Pembayar tidak ditemukan atau tidak aktif.',404);
+  const now=f4CurrentIuranMonth(),current={year:Number(now.slice(0,4)),month:Number(now.slice(5,7))};
+  const [history,versions,tariff]=await Promise.all([
+    db.prepare(`SELECT a.period_year,a.period_month,a.contribution_type,COALESCE(SUM(a.amount_rp),0) AS amount_rp
+      FROM bookkeeping_payment_allocations a JOIN bookkeeping_payments p ON p.id=a.payment_id
+      WHERE a.payer_id=? AND a.status='aktif' AND p.status='aktif'
+        AND a.period_year BETWEEN ? AND ?
+      GROUP BY a.period_year,a.period_month,a.contribution_type`)
+      .bind(payerId,current.year-4,current.year+5).all(),
+    db.prepare(`SELECT effective_from,qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan
+      FROM bookkeeping_payer_obligation_periods WHERE payer_id=? ORDER BY effective_from`).bind(payerId).all(),
+    getIuranTariffs(db)
+  ]);
+  const entries=versions.results||[];
+  if(!entries.length)return safeError('Belum ada kewajiban pembayar.',404);
+  const selection=f4SuggestIuranPeriod({current,versions:entries,
+    allocations:(history.results||[]).map(x=>({...x,period_year:Number(x.period_year),period_month:Number(x.period_month)})),
+    tariff});
+  return json({ok:true,source:'cloudflare-d1',payerId,...selection});
+}
+__name(getIuranSuggestedPeriod,"getIuranSuggestedPeriod");
 async function createIuranPayment(request, env, who) {
   if (env.FINANCE_WRITE_ENABLED !== "true" || env.IURAN_WRITE_ENABLED !== "true") return safeError("Pencatatan iuran D1 belum diaktifkan.", 503);
   let d;
@@ -4550,6 +4609,11 @@ async function handle(request, env) {
     if (denied) return denied;
     if (!who.member_id) return safeError("Akun belum ditautkan ke data anggota.", 403);
     return json(await ownSavings(env.DB, who.member_id));
+  }
+  if (path === "/api/bookkeeping/iuran/suggested-period" && request.method === "GET") {
+    const denied=requireRole(who,["superadmin"]);
+    if(denied)return denied;
+    return getIuranSuggestedPeriod(env.DB,request);
   }
   if (path === "/api/bookkeeping/iuran/outstanding" && request.method === "GET") {
     const denied = requireRole(who, ["superadmin"]);
