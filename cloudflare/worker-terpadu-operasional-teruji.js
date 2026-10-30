@@ -1201,7 +1201,7 @@ async function treasurySources(db,confirmedOn){
  if(!confirmedOn)return {pending:[],partial:false,warnings:[]};
  const [cash,bank,contributions,observed,wCash,wBank,wContribution,wObservation]=await Promise.all([
   list(db,`SELECT c.id,c.occurred_on,c.transaction_type,c.category,c.note,c.debit_rp,c.credit_rp
-    FROM bookkeeping_cash_transactions_posted c WHERE c.status='aktif' AND c.occurred_on>?
+    FROM bookkeeping_cash_transactions_posted c WHERE c.status='aktif' AND c.occurred_on>=?
       AND (c.debit_rp>0 OR c.credit_rp>0)
       AND LOWER(TRIM(COALESCE(c.category,''))) NOT LIKE 'setoran rt%'
       AND LOWER(TRIM(COALESCE(c.category,''))) NOT LIKE 'iuran rt%'
@@ -1210,22 +1210,26 @@ async function treasurySources(db,confirmedOn){
       AND LOWER(TRIM(COALESCE(c.category,''))) NOT LIKE 'saldo awal%'
       AND LOWER(TRIM(COALESCE(c.transaction_type,''))) NOT IN ('setoran_rt','iuran_rt','kebersihan','arisan','saldo_awal')
       AND NOT EXISTS(SELECT 1 FROM treasury_events t WHERE t.request_key='source:book:'||c.id)
+      AND NOT EXISTS(SELECT 1 FROM treasury_source_exclusions e WHERE e.source_key='source:book:'||c.id)
     ORDER BY c.occurred_on,c.id LIMIT 101`,[confirmedOn]),
   list(db,`SELECT c.id,c.occurred_on,c.fund_position,c.transaction_type,c.note,c.cash_in_rp,c.cash_out_rp
-    FROM waste_cash_ledger c WHERE c.status='aktif' AND c.occurred_on>?
+    FROM waste_cash_ledger c WHERE c.status='aktif' AND c.occurred_on>=?
       AND (c.cash_in_rp>0 OR c.cash_out_rp>0)
       AND NOT EXISTS(SELECT 1 FROM treasury_events t WHERE t.request_key='source:bank:'||c.id)
+      AND NOT EXISTS(SELECT 1 FROM treasury_source_exclusions e WHERE e.source_key='source:bank:'||c.id)
     ORDER BY c.occurred_on,c.id LIMIT 101`,[confirmedOn]),
   list(db,`SELECT c.id,c.project_id,c.contributor,c.amount_rp,c.payment_method,c.contributed_on,c.notes
     FROM portal_project_contributions c JOIN portal_project_cards p ON p.id=c.project_id
-    WHERE c.status='aktif' AND p.project_kind='penggalangan' AND c.contributed_on>? AND c.amount_rp>0
+    WHERE c.status='aktif' AND p.project_kind='penggalangan' AND c.contributed_on>=? AND c.amount_rp>0
       AND NOT EXISTS(SELECT 1 FROM treasury_events t WHERE t.request_key='source:contribution:'||c.id)
+      AND NOT EXISTS(SELECT 1 FROM treasury_source_exclusions e WHERE e.source_key='source:contribution:'||c.id)
     ORDER BY c.contributed_on,c.id LIMIT 101`,[confirmedOn]),
   list(db,`SELECT o.id,o.source_kind,o.source_id,o.fund_id,o.amount_rp,o.observed_on,o.note
     FROM treasury_receipt_observations o
     WHERE o.observed_on>=? AND o.created_at>=
        (SELECT confirmed_at FROM treasury_config WHERE id=1)
       AND NOT EXISTS(SELECT 1 FROM treasury_events t WHERE t.request_key='source:receipt:'||o.id)
+      AND NOT EXISTS(SELECT 1 FROM treasury_source_exclusions e WHERE e.source_key='source:receipt:'||o.id)
     ORDER BY o.created_at,o.id LIMIT 101`,[confirmedOn]),
   list(db,`SELECT e.request_key AS source_key FROM treasury_events e
     LEFT JOIN bookkeeping_cash_transactions_posted c ON e.request_key='source:book:'||c.id AND c.status='aktif'
@@ -1365,11 +1369,13 @@ async function treasuryApi(request,env,who,url){
     const total=balances.reduce((n,row)=>n+Number(row.amount_rp||0),0);
     const complete=history.length<=800;
     const sources=await treasurySources(db,config.confirmed_on);
+    const exclusions=await list(db,"SELECT source_key,reason,excluded_at FROM treasury_source_exclusions ORDER BY excluded_at DESC LIMIT 101");
     return ok({catalog,confirmed:!!config.confirmed_at,confirmedOn:config.confirmed_on||null,
       openingCount:Number(openings?.n||0),openingDate:openings?.date_first||null,
       openingDateConsistent:!openings?.date_first||openings.date_first===openings.date_last,totalRp:total,balances,openingBalances,
       history:history.slice(0,800),riwayatLengkap:complete,
       sources:sources.pending,sourcePartial:sources.partial,sourceWarnings:sources.warnings,
+      excludedSources:exclusions.slice(0,100),exclusionPartial:exclusions.length>100,
       sourceIntegration:"reconciliation-required"});
   }
   if(method!=="POST")return err("Metode tidak tersedia.",405);
@@ -1378,6 +1384,38 @@ async function treasuryApi(request,env,who,url){
   if(origin&&!["https://flamboyan4.web.id","https://www.flamboyan4.web.id"].includes(origin))
     return err("Asal permintaan tidak diizinkan.",403);
   let p;try{p=await body(request)}catch(e){return err("Isian tidak valid.",400)}
+  if(p.action==="exclude-source"||p.action==="restore-source"){
+    if(!config.confirmed_at)return err("Sahkan saldo awal terlebih dahulu.",409);
+    const key=String(p.sourceKey||"");
+    if(!/^source:(book|bank|contribution|receipt):.{1,180}$/.test(key))
+      return err("Referensi sumber tidak dikenal.",400);
+    if(p.action==="exclude-source"){
+      const reason=String(p.reason||"").trim();
+      if(reason.length<5||reason.length>240)return err("Isi alasan pengecualian minimal 5 karakter.",400);
+      const [type,id]=[key.split(":")[1],key.slice("source:".length+key.split(":")[1].length+1)];
+      const row=await treasurySourceRow(db,type,id);
+      if(!row)return err("Sumber sudah tidak tersedia. Muat ulang.",409);
+      if(await one(db,"SELECT id FROM treasury_events WHERE request_key=?",[key]))
+        return err("Sumber sudah disahkan. Gunakan koreksi kas, bukan pengecualian.",409);
+      try{
+        await db.batch([
+          db.prepare("INSERT INTO treasury_source_exclusions(source_key,reason,excluded_by) VALUES(?,?,?)")
+            .bind(key,reason,who.id),
+          db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'pusat_keuangan','exclude_source','treasury_source_exclusions',?,?,?)")
+            .bind("audit:"+crypto.randomUUID(),who.id,key,reason,JSON.stringify({sourceKey:key,reason}))
+        ]);
+      }catch{return err("Sumber sudah dikecualikan atau terjadi konflik.",409)}
+      return ok({excluded:true});
+    }
+    const existing=await one(db,"SELECT reason FROM treasury_source_exclusions WHERE source_key=?",[key]);
+    if(!existing)return err("Pengecualian tidak ditemukan.",404);
+    await db.batch([
+      db.prepare("DELETE FROM treasury_source_exclusions WHERE source_key=?").bind(key),
+      db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'pusat_keuangan','restore_source','treasury_source_exclusions',?,?,?)")
+        .bind("audit:"+crypto.randomUUID(),who.id,key,"Pulihkan pemeriksaan",JSON.stringify({sourceKey:key,previousReason:existing.reason}))
+    ]);
+    return ok({restored:true});
+  }
   if(p.action==="create-fund"){
     const name=String(p.name||"").trim(),purpose=String(p.purpose||"").trim();
     if(name.length<3||name.length>70||purpose.length>200||/[\x00-\x1F\x7F]/.test(name+purpose))
@@ -1407,8 +1445,10 @@ async function treasuryApi(request,env,who,url){
     const row=await treasurySourceRow(db,type,id);
     if(!row||!Number.isSafeInteger(row.amount)||row.amount===0)
       return err("Transaksi sumber berubah, dibatalkan, atau tidak valid.",409);
-    if(type==="receipt"?row.date<config.confirmed_on:row.date<=config.confirmed_on)
-      return err("Tanggal transaksi termasuk periode saldo awal. Hindari pencatatan ganda.",409);
+    if(row.date<config.confirmed_on)
+      return err("Tanggal sebelum saldo awal, tidak boleh dibukukan ulang.",409);
+    if(row.date===config.confirmed_on&&p.sameDayConfirmed!=="SUDAH DIPERIKSA")
+      return err("Transaksi bertanggal saldo awal; pastikan uang belum dihitung lalu konfirmasi.",409);
     if(!Number.isSafeInteger(p.expectedAmountRp)||p.expectedAmountRp!==row.amount||
        String(p.expectedFundId||"")!==row.fund)
       return err("Nominal atau pos berubah di sumber. Muat ulang sebelum mengesahkan.",409);
@@ -1416,6 +1456,8 @@ async function treasuryApi(request,env,who,url){
     if(!fund||!["qris","mandiri",fund.cash].includes(location))
       return err("Pilih tempat uang yang sesuai.",400);
     const key="source:"+type+":"+id;
+    if(await one(db,"SELECT source_key FROM treasury_source_exclusions WHERE source_key=?",[key]))
+      return err("Sumber ini ditandai sudah tercakup. Pulihkan dahulu bila ingin disahkan.",409);
     if(await one(db,"SELECT id FROM treasury_events WHERE request_key=?",[key]))
       return err("Transaksi ini sudah dicocokkan.",409);
     try{await treasurySourceBatch(env,who,[row],()=>location)}
