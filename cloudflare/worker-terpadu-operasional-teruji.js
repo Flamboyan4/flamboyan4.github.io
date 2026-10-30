@@ -4386,8 +4386,11 @@ async function residentsApi(request, env, who) {
       if(name!==old.display_name){
         const financial=await db.prepare(`SELECT
           EXISTS(SELECT 1 FROM bookkeeping_payments WHERE payer_id=? LIMIT 1) AS payments,
-          EXISTS(SELECT 1 FROM bookkeeping_cash_transactions WHERE payer_id=? LIMIT 1) AS cash`).bind(id,id).first();
-        if(financial?.payments||financial?.cash)
+          EXISTS(SELECT 1 FROM bookkeeping_cash_transactions WHERE payer_id=? LIMIT 1) AS cash,
+          EXISTS(SELECT 1 FROM bookkeeping_fines WHERE payer_id=? LIMIT 1) AS fines,
+          EXISTS(SELECT 1 FROM bookkeeping_loans WHERE payer_id=? LIMIT 1) AS loans,
+          EXISTS(SELECT 1 FROM bookkeeping_advances WHERE payer_id=? LIMIT 1) AS advances`).bind(id,id,id,id,id).first();
+        if(financial&&Object.values(financial).some(Boolean))
           return safeError("Nama pembayar sudah tercatat dalam transaksi. Jangan mengganti penghuni lama; tambahkan warga baru pada nomor rumah yang sama.",409);
       }
       const cols = ["status_tinggal", "status_aktif", "nomor_hp", "keterangan_warga"];
