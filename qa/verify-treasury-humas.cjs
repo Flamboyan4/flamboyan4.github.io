@@ -42,7 +42,7 @@ assert.match(ui,/const offset=new Date\(year,month,1\)\.getDay\(\);/);
 assert.doesNotMatch(ui,/function buildConfirm\(/,'No separate duplicate date for opening approval');
 assert.match(ui,/dateCtl\.trigger\.disabled=true/,'Opening date must not change once saved');
 assert.match(ui,/changed\)\{status\.textContent/,'Unsaved changes must block confirmation');
-assert.match(ui,/return;\s*}\s*const cards=el\("div"/,'Pre-confirmation layout should skip duplicate 0-value overview cards');
+assert.match(ui,/if\(!data\.openingCount\)return;/,'Before recording an opening balance, confirmation must stay blocked');
 // Print: saldo awal final only, every transfer displayed as one logical event.
 const css=fs.readFileSync('portal-live/treasury-center.css','utf8');
 assert.doesNotMatch(css,/!important|@media print/i,'Stylesheet must not stack print overrides');
