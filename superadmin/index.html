@@ -263,28 +263,41 @@ html body #f4-account-page>aside{overflow-x:hidden!important}
 .sa-resident-grid td:last-child{text-align:right;width:88px}
 .sa-resident-grid td .sa-action{padding:7px 12px}
 
-.f4-obligation-scroll{width:100%;overflow-x:auto;border:1px solid #d8e4f2;border-radius:13px;background:#fff}
-.f4-obligation-grid{border-collapse:collapse;min-width:780px;width:100%;font-size:12px}
-.f4-obligation-grid th{padding:11px 12px;text-align:left;background:#edf4fd;color:#315b83;border-bottom:1px solid #d8e4f2;white-space:nowrap}
-.f4-obligation-grid td{padding:10px 12px;border-bottom:1px solid #edf1f7;color:#243c55}
+/* Shared compact tables; replace the two old overlapping table rule blocks. */
+.f4-obligation-scroll{width:100%;max-width:100%;overflow-x:auto;border:1px solid #d8e4f2;border-radius:12px;background:#fff}
+.f4-obligation-grid{border-collapse:collapse;min-width:760px;width:100%;font-size:12px}
+.f4-obligation-grid th{padding:9px 11px;text-align:left;background:#f4f7fb;color:#315b83;border-bottom:1px solid #d8e4f2;white-space:nowrap}
+.f4-obligation-grid td{padding:8px 11px;border-bottom:1px solid #edf1f7;color:#243c55;vertical-align:middle}
 .f4-obligation-grid tr:nth-child(even){background:#f9fbfe}
+.f4-obligation-grid td:first-child{font-weight:700}
 .f4-obligation-grid td:nth-child(n+3):nth-child(-n+6){text-align:center;font-weight:700}
-.f4-obligation-grid td:last-child{text-align:right}
-
-/* Compact editable lists; preserve vertical root sidebar + horizontal subtabs. */
-.f4-obligation-scroll{overflow-x:auto;max-width:100%;border-radius:12px}
-.f4-obligation-grid{min-width:800px;width:100%;border-collapse:collapse;table-layout:auto}
-.f4-obligation-grid th{white-space:nowrap;text-align:left}
-.f4-obligation-grid td{min-width:85px;max-width:290px;vertical-align:middle}
-.f4-obligation-grid td:first-child{font-weight:730}
-.f4-obligation-grid td:last-child{width:85px;min-width:85px;text-align:right}
-.f4-obligation-grid[data-module="obligations"] td:nth-child(n+3):nth-child(-n+6){text-align:center}
-.f4-obligation-grid:not([data-module="obligations"]) td:nth-child(n+3):nth-child(-n+6){text-align:left;font-weight:normal}
+.f4-obligation-grid:not([data-module="obligations"]) td:nth-child(n+3):nth-child(-n+6){text-align:left;font-weight:400}
+.f4-obligation-grid:not([data-module="obligations"]) td:last-child{text-align:right;min-width:150px;width:150px}
+.f4-obligation-grid[data-module="obligations"]{table-layout:fixed;min-width:690px}
+.f4-obligation-grid[data-module="obligations"] th:first-child{width:25%}
+.f4-obligation-grid[data-module="obligations"] th:nth-child(2){width:16%}
+.f4-obligation-grid[data-module="obligations"] th:nth-child(n+3):nth-child(-n+6){width:12%;text-align:center}
+.f4-obligation-grid[data-module="obligations"] th:last-child{width:11%;text-align:center}
+.f4-obligation-grid[data-module="obligations"] td{padding:6px 9px;height:43px;white-space:nowrap}
+.f4-obligation-grid[data-module="obligations"] td:last-child{text-align:center}
+.f4-obligation-row-actions{display:flex;justify-content:center;align-items:center;gap:5px;white-space:nowrap}
+.f4-obligation-icon-btn{display:inline-grid;place-items:center;width:30px;height:30px;min-width:30px;padding:0;border:1px solid #d4dff0;border-radius:8px;background:#f8f9ff;color:#6650ba;cursor:pointer}
+.f4-obligation-icon-btn:hover,.f4-obligation-icon-btn:focus-visible{background:#ede8ff;border-color:#bfb0ed}
+.f4-obligation-icon-danger{color:#ba5f59;background:#fff9f7;border-color:#ecd8d5}
+.f4-obligation-icon-danger:hover,.f4-obligation-icon-danger:focus-visible{background:#ffeae5;border-color:#e6b5b1}
+.f4-obligation-upcoming{display:block;margin-top:2px;font-weight:500;font-size:10px;color:#657fa4;line-height:1.2}
+.f4-obligation-toolbar{align-items:center;padding:10px 11px;gap:7px;margin:9px 0}
+.f4-obligation-toolbar input{min-width:120px;height:37px;padding:7px 10px}
+.f4-obligation-toolbar button{min-height:37px;padding:7px 11px;white-space:nowrap}
 .f4-admin-truncate{display:block;max-width:235px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .f4-admin-source-link{color:#2967a0;text-decoration:underline;text-underline-offset:2px;font-weight:600}
 .f4-admin-muted{color:#8e9ab0}
-@media(max-width:760px){.f4-obligation-grid{min-width:760px}}
-
+@media(max-width:760px){
+ .f4-obligation-grid[data-module="obligations"]{min-width:650px}
+ .f4-obligation-grid[data-module="obligations"] td{padding:6px 7px}
+ .f4-obligation-toolbar input{flex:1 1 100%;min-width:0}
+ .f4-obligation-toolbar button{flex:0 1 auto}
+}
 .f4-admin-action-set{display:inline-flex;align-items:center;justify-content:flex-end;gap:7px;white-space:nowrap}
 .f4-admin-danger{background:#fff2f1!important;color:#a53c39!important;border-color:#efc5c1!important}
 .f4-admin-danger:hover,.f4-admin-danger:focus-visible{background:#fbe4e2!important;color:#882820!important}
@@ -1043,6 +1056,6 @@ window.addEventListener('message',e=>{
 boot();
 })();
 </script>
-<script src="/portal-live/superadmin-editor.js?v=compact-periods-20261030"></script>
+<script src="/portal-live/superadmin-editor.js?v=obligation-table-compact-20261030"></script>
 <script src="/portal-live/project-modules.js?v=project-manager-final-20261028"></script>
 <script src="/portal-live/direct-shell.js?v=profile-display-20261028"></script><script src="/portal-live/unified-account.js?v=logout-after-password-20261030"></script><script defer src="/portal-live/mobile-cards.js?v=20261027-refresh-guard"></script><script defer src="/portal-live/native-controls.js?v=20261027-audit6"></script></body></html>
