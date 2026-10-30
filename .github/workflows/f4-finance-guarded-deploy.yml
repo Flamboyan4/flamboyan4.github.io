@@ -131,6 +131,26 @@ jobs:
               actual={x.get("name") for x in d1query("PRAGMA table_info("+table+")")}
               if not columns_required.issubset(actual):raise RuntimeError("Kas batch schema incomplete: "+table)
           print("D1_ADDITIVE_KAS_BATCH_SCHEMA_OK=1")
+          # Freeze existing iuran obligations as a baseline, then use
+          # additive month-effective versions for all future changes.
+          historical_sql=pathlib.Path("cloudflare/migrations/20261030_iuran_period_obligations.sql").read_text()
+          if (historical_sql.upper().count("CREATE TABLE IF NOT EXISTS")!=1
+                or historical_sql.upper().count("CREATE INDEX IF NOT EXISTS")!=1
+                or historical_sql.upper().count("INSERT INTO BOOKKEEPING_PAYER_OBLIGATION_PERIODS")!=1):
+              raise RuntimeError("Unexpected historical iuran migration: abort deploy")
+          historical_clean="\\n".join(line for line in historical_sql.splitlines()
+                                     if not line.lstrip().startswith("--"))
+          for statement in historical_clean.split(";"):
+              q=statement.strip()
+              if q:d1query(q)
+          historical_cols={x.get("name") for x in d1query("PRAGMA table_info(bookkeeping_payer_obligation_periods)")}
+          if not {"payer_id","effective_from","qty_iuran_bulanan","qty_kebersihan",
+                  "qty_kas_lorong","qty_arisan"}.issubset(historical_cols):
+              raise RuntimeError("Historical iuran columns incomplete, abort deploy")
+          baseline_unmigrated=d1query("SELECT COUNT(*) AS n FROM bookkeeping_payer_iuran_obligations o WHERE NOT EXISTS (SELECT 1 FROM bookkeeping_payer_obligation_periods h WHERE h.payer_id=o.payer_id)")
+          if int(baseline_unmigrated[0].get("n",0))!=0:
+              raise RuntimeError("Historical obligation baseline is incomplete")
+          print("D1_ADDITIVE_IURAN_HISTORY_SCHEMA_OK=1")
           write_flags={k:by_name[k].get("text") for k in by_name if k.endswith("_WRITE_ENABLED")}
           if not write_flags or any(v not in ("true","false") for v in write_flags.values()):
               raise RuntimeError("Missing or unrecognized Worker write flags")
