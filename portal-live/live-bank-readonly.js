@@ -144,7 +144,8 @@
     kredit:isCredit?amount:0,debit:isCredit?0:amount,saldo:balance,keterangan:x.keterangan||''};
   });
   const deposits=onlyArray(r.setoran).map(x=>({
-   id:x.id||'',tanggal:x.tanggal||'',tanggalJual:x.tanggalJual||null,
+   id:x.id||'',batchId:String(x.batchId||''),tanggalPengesahan:x.tanggalPengesahan||null,
+   tanggal:x.tanggal||'',tanggalJual:x.tanggalJual||null,
    beratTimbangKg:number(x.beratGram)/1000,
    beratSahKg:x.beratSahGram==null?null:number(x.beratSahGram)/1000,
    beratKg:x.status==='terkonfirmasi'?(x.beratSahGram==null?null:number(x.beratSahGram)/1000):number(x.beratGram)/1000,
