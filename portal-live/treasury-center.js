@@ -207,43 +207,145 @@ function buildOpeningGrid(target,data,refresh){
   catch(err){status.textContent=err.message;approve.disabled=false;updateTotal()}
  };
 }
+// Bookkeeping-style print lives in a separate document. Superadmin CSS is not printed.
+function tidyHistory(data){
+ const groups=new Map();
+ const funds=new Map(data.catalog.funds.map(x=>[x.id,x.name]));
+ const locations=new Map(data.catalog.locations.map(x=>[x.id,x.name]));
+ for(const line of data.history||[]){
+  if(line.kind==="opening")continue; // Revisi saldo pembuka bukan arus kas.
+  if(!groups.has(line.id))groups.set(line.id,{id:line.id,date:line.occurred_on,kind:line.kind,note:line.note||"",entries:[]});
+  groups.get(line.id).entries.push(line);
+ }
+ const desc=line=>line?(funds.get(line.fund_id)||"Pos arsip")+" / "+(locations.get(line.location_id)||"Tempat arsip"):"—";
+ return [...groups.values()].map(event=>{
+  const debit=event.entries.find(x=>Number(x.amount_rp)<0);
+  const credit=event.entries.find(x=>Number(x.amount_rp)>0);
+  const quantity=credit||debit;
+  return {...event,from:desc(debit),to:desc(credit),amount:Math.abs(Number(quantity?.amount_rp||0)),
+    kindName:kindLabels[event.kind]||event.kind};
+ });
+}
+function openingSummary(data){
+ const balances=data.openingBalances||[];
+ const rows=data.catalog.funds.map(f=>{
+  const cash=amount(balances,f.id,f.cash),qris=amount(balances,f.id,"qris"),mandiri=amount(balances,f.id,"mandiri");
+  return {name:f.name,cash,qris,mandiri,total:cash+qris+mandiri};
+ });
+ const grand=rows.reduce((n,x)=>n+x.total,0);
+ return {rows,grand,date:data.openingDate||data.confirmedOn};
+}
+function formatDate(value){
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(String(value||"")))return String(value||"—");
+ const [y,m,d]=value.split("-").map(Number);
+ return new Date(y,m-1,d).toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"});
+}
+function safeHTML(value){
+ return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function printTreasury(data){
+ if(!data.confirmed||!data.riwayatLengkap){alert("Laporan belum siap dicetak lengkap.");return}
+ const movements=tidyHistory(data),opening=openingSummary(data);
+ const byFund=data.catalog.funds.map(f=>{
+  const cash=amount(data.balances,f.id,f.cash),qris=amount(data.balances,f.id,"qris"),mandiri=amount(data.balances,f.id,"mandiri");
+  return {name:f.name,cash,qris,mandiri,total:cash+qris+mandiri};
+ });
+ const totalCash=byFund.reduce((n,x)=>n+x.cash,0),totalQris=byFund.reduce((n,x)=>n+x.qris,0);
+ const totalBank=byFund.reduce((n,x)=>n+x.mandiri,0);
+ const total=totalCash+totalQris+totalBank;
+ const fmt=n=>rp(n);
+ const body=byFund.map(x=>`<tr><td>${safeHTML(x.name)}</td><td class="num">${fmt(x.cash)}</td><td class="num">${fmt(x.qris)}</td><td class="num">${fmt(x.mandiri)}</td><td class="num"><strong>${fmt(x.total)}</strong></td></tr>`).join("");
+ const eventRows=movements.map((x,i)=>`<tr><td class="center">${i+1}</td><td class="center nowrap">${safeHTML(formatDate(x.date))}</td><td>${safeHTML(x.kindName)}<span class="sub">${safeHTML(x.note)}</span></td><td>${safeHTML(x.from)}</td><td>${safeHTML(x.to)}</td><td class="num nowrap">${fmt(x.amount)}</td></tr>`).join("")||'<tr><td colspan="6" class="empty">Belum ada mutasi setelah saldo awal.</td></tr>';
+ const dated=new Date().toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"});
+ const html=`<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+ <title>Laporan Pusat Keuangan Flamboyan 4</title>
+ <style>
+ @page{size:A4 portrait;margin:11mm 12mm 12mm}
+ *{box-sizing:border-box}body{margin:0;font:10px/1.4 Arial,Helvetica,sans-serif;color:#1e293b;background:#fff;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+ .header{display:flex;align-items:center;gap:12px;border-bottom:2px solid #1e293b;padding:0 0 9px;margin-bottom:10px;break-inside:avoid}
+ .logo{width:52px;height:52px;object-fit:contain}.headtext{flex:1}.headtext h1{font-size:16px;line-height:1.2;margin:0 0 3px;font-weight:800}
+ .headtext p{font-size:10px;margin:2px 0;color:#475569}.headtext .period{color:#3730a3;font-weight:700}
+ .tag{border:1px solid #c7d2fe;background:#eef2ff;color:#3730a3;border-radius:12px;padding:4px 7px;font-size:8px;font-weight:700}
+ .summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:9px 0 12px;break-inside:avoid}
+ .metric{border:1px solid #cbd5e1;border-radius:5px;padding:8px}.label{font-size:8.5px;font-weight:700;color:#64748b;text-transform:uppercase}
+ .value{font-size:13px;font-weight:800;margin-top:3px;font-variant-numeric:tabular-nums}
+ h2{font-size:12px;margin:12px 0 6px;color:#1e293b}
+ table{width:100%;border-collapse:collapse;table-layout:fixed}
+ th{background:#f1f5f9;border:1px solid #000;padding:5px 4px;font-size:9px;text-align:center;color:#334155}
+ td{border:1px solid #000;padding:4px 5px;vertical-align:middle;overflow-wrap:anywhere;font-size:9px}
+ thead{display:table-header-group}tr{break-inside:avoid;page-break-inside:avoid}
+ .num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}.center{text-align:center}.nowrap{white-space:nowrap}
+ .bold td{font-weight:800;background:#f8fafc}.sub{display:block;color:#64748b;font-size:8px;line-height:1.3;margin-top:2px}
+ .empty{text-align:center;padding:9px;color:#64748b}
+ .opening-note{font-size:9px;color:#475569;margin:7px 0 9px}
+ .approval{width:62mm;margin:12mm auto 0;text-align:center;break-inside:avoid}
+ .approval .space{height:14mm}.approval .line{border-top:1px solid #000;padding-top:4px;font-weight:700}
+ .footer{font-size:8px;color:#64748b;border-top:1px solid #000;padding-top:5px;margin-top:9px}
+ @media screen{body{max-width:186mm;margin:14px auto}}
+ </style></head><body>
+ <header class="header"><img class="logo" src="https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027-v2" alt="Logo Flamboyan 4">
+ <div class="headtext"><h1>LAPORAN PUSAT KEUANGAN FLAMBOYAN 4</h1><p>RT 001 RW 026 Pesona Kahuripan 2</p><p class="period">Saldo per ${safeHTML(dated)} · Saldo awal ${safeHTML(formatDate(opening.date))}</p></div><span class="tag">HUMAS</span></header>
+ <div class="summary"><div class="metric"><div class="label">Total Dana</div><div class="value">${fmt(total)}</div></div>
+ <div class="metric"><div class="label">Cash</div><div class="value">${fmt(totalCash)}</div></div>
+ <div class="metric"><div class="label">QRIS + Mandiri</div><div class="value">${fmt(totalQris+totalBank)}</div></div></div>
+ <h2>Rincian Saldo per Program</h2>
+ <table><colgroup><col style="width:32%"><col style="width:17%"><col style="width:17%"><col style="width:17%"><col style="width:17%"></colgroup>
+ <thead><tr><th>Program</th><th>Cash</th><th>QRIS</th><th>Mandiri</th><th>Total</th></tr></thead><tbody>${body}</tbody>
+ <tfoot><tr class="bold"><td>TOTAL</td><td class="num">${fmt(totalCash)}</td><td class="num">${fmt(totalQris)}</td><td class="num">${fmt(totalBank)}</td><td class="num">${fmt(total)}</td></tr></tfoot></table>
+ <p class="opening-note"><strong>Saldo Awal:</strong> ${fmt(opening.grand)} per ${safeHTML(formatDate(opening.date))}. Koreksi sebelum pengesahan tersimpan di audit dan tidak dianggap sebagai uang masuk atau keluar.</p>
+ <h2>Riwayat Transaksi Setelah Saldo Awal</h2>
+ <table><colgroup><col style="width:5%"><col style="width:13%"><col style="width:28%"><col style="width:19%"><col style="width:19%"><col style="width:16%"></colgroup>
+ <thead><tr><th>No</th><th>Tanggal</th><th>Keterangan</th><th>Dari</th><th>Ke</th><th>Nominal</th></tr></thead>
+ <tbody>${eventRows}</tbody></table>
+ <section class="approval"><div>Mengetahui,<br>Humas Flamboyan 4</div><div class="space"></div><div class="line">Heri Juwandi</div></section>
+ <div class="footer">Dicetak pada ${safeHTML(dated)} • Flamboyan 4 • Cash disimpan terpisah; QRIS dan Mandiri digunakan bersama sesuai pos masing-masing.</div>
+ </body></html>`;
+ const frame=document.createElement("iframe");
+ frame.title="Cetak Laporan Pusat Keuangan";
+ frame.setAttribute("aria-hidden","true");
+ Object.assign(frame.style,{position:"fixed",width:"0",height:"0",border:"0",right:"0",bottom:"0"});
+ frame.addEventListener("load",()=>{
+  const image=frame.contentDocument?.querySelector(".logo");
+  let fired=false;
+  const run=()=>{if(fired)return;fired=true;
+    try{frame.contentWindow.focus();frame.contentWindow.print()}catch(e){alert("Cetak gagal dibuka. Coba lagi.")} };
+  if(!image||image.complete)run();else{image.addEventListener("load",run,{once:true});image.addEventListener("error",run,{once:true});setTimeout(run,1000)}
+ },{once:true});
+ document.body.append(frame);frame.srcdoc=html;
+ // The frame is not visible; release it after the browser finishes the dialog.
+ frame.contentWindow?.addEventListener("afterprint",()=>frame.remove(),{once:true});
+}
 function buildForm(target,data,refresh){
  const {funds}=data.catalog;
- const shell=el("section",undefined,"tc-panel tc-no-print");
- shell.append(el("h3",data.confirmed?"Catat Mutasi Dana":"Isi Saldo Awal"));
+ const shell=el("details",undefined,"tc-panel tc-mutation-panel tc-no-print");
+ shell.append(el("summary","Catat Mutasi Dana"));
  const form=el("form",undefined,"tc-form");
- const action=select((data.confirmed?["move","allocation","incoming","outgoing"]:["opening"])
-   .map(k=>({id:k,name:kindLabels[k]})));
+ const action=select(["move","allocation","incoming","outgoing"].map(k=>({id:k,name:kindLabels[k]})));
  const fromFund=select(funds),toFund=select(funds);
  const fromLoc=select([]),toLoc=select([]);
  const dateCtl=treasuryDateControl(),date=dateCtl.input;
- const value=el("input");value.type="number";value.min="1";value.max="10000000000";value.step="1";value.placeholder="0";value.required=true;
+ const value=el("input");value.type="number";value.min="1";value.max="10000000000";value.step="1";value.placeholder="Nominal";value.required=true;
  const note=el("input");note.maxLength=240;note.minLength=4;note.required=true;note.placeholder="Keterangan singkat";
  const originFund=field("Pos asal",fromFund),destinationFund=field("Pos tujuan",toFund);
  const originLoc=field("Tempat asal",fromLoc),destinationLoc=field("Tempat tujuan",toLoc);
- const actionField=field("Jenis",action);
  const grid=el("div",undefined,"tc-form-grid");
- append(grid,actionField,field("Tanggal",dateCtl.element),originFund,originLoc,destinationFund,destinationLoc,field("Nominal (Rp)",value),field("Keterangan",note,"tc-wide"));
+ append(grid,field("Jenis",action),field("Tanggal",dateCtl.element),
+  originFund,originLoc,destinationFund,destinationLoc,
+  field("Nominal (Rp)",value),field("Keterangan",note,"tc-wide"));
  form.append(grid);
- const noteText=el("p",data.confirmed?
-   "Dana dari modul lain jangan dicatat ulang jika sudah tercatat di Pusat Keuangan.":
-   "Masukkan uang yang benar-benar ada pada setiap tempat, tanpa menghitung QRIS yang sudah masuk Mandiri.","tc-helper");
  const status=el("p","","tc-status");status.setAttribute("role","status");
- const save=el("button",data.confirmed?"Simpan Mutasi":"Simpan Saldo Awal","tc-primary");save.type="submit";
- append(form,noteText,save,status);shell.append(form);target.append(shell);
- function locChoices(box,fund,prefer){
-  const previous=prefer||box.value;
-  box.replaceChildren();
+ const save=el("button","Simpan Mutasi","tc-primary");save.type="submit";
+ append(form,save,status);shell.append(form);target.append(shell);
+ function locChoices(box,fund){
+  const previous=box.value;box.replaceChildren();
   fields(data.catalog,fund).forEach(o=>{const opt=el("option",o.name);opt.value=o.id;box.append(opt)});
   if([...box.options].some(o=>o.value===previous))box.value=previous;
  }
  function refreshFields(){
   const kind=action.value;
-  originFund.hidden=kind==="opening"||kind==="incoming";
-  originLoc.hidden=kind==="opening"||kind==="incoming";
+  originFund.hidden=kind==="incoming";originLoc.hidden=kind==="incoming";
   destinationFund.hidden=kind==="outgoing"||kind==="move";
   destinationLoc.hidden=kind==="outgoing";
-  // Dropdown tujuan perpindahan tempat mengikuti pos asal.
   locChoices(fromLoc,fromFund.value);
   locChoices(toLoc,kind==="move"?fromFund.value:toFund.value);
   if(kind==="move"&&toLoc.value===fromLoc.value){
@@ -251,32 +353,29 @@ function buildForm(target,data,refresh){
    if(alternate)toLoc.value=alternate.value;
   }
  }
- action.onchange=refreshFields;
- fromFund.onchange=refreshFields;
- toFund.onchange=refreshFields;
- fromLoc.onchange=()=>{if(action.value==="move"&&toLoc.value===fromLoc.value)refreshFields()};
+ action.onchange=refreshFields;fromFund.onchange=refreshFields;toFund.onchange=refreshFields;fromLoc.onchange=()=>{
+  if(action.value==="move"&&toLoc.value===fromLoc.value)refreshFields();
+ };
  refreshFields();
  let pendingKey="";
  form.addEventListener("input",()=>{pendingKey=""});
  form.onsubmit=async e=>{
-  e.preventDefault();
-  if(!form.reportValidity())return;
-  pendingKey||=crypto.randomUUID();
-  save.disabled=true;status.textContent="Menyimpan…";
+  e.preventDefault();if(!form.reportValidity())return;
+  pendingKey||=crypto.randomUUID();save.disabled=true;status.textContent="Menyimpan…";
   const payload={action:action.value,date:date.value,amountRp:Number(value.value),note:note.value.trim(),
    fromFund:fromFund.value,fromLocation:fromLoc.value,toFund:toFund.value,toLocation:toLoc.value,requestKey:pendingKey};
-  try{await post(payload);status.textContent="Mutasi tersimpan.";await refresh()}
+  try{await post(payload);await refresh()}
   catch(err){status.textContent=err.message;save.disabled=false}
  };
 }
 function buildSources(target,data,refresh){
  if(!data.confirmed)return;
- const panel=el("section",undefined,"tc-panel tc-no-print");
- const head=el("div",undefined,"tc-section-head");
- head.append(el("h3","Cocokkan Transaksi Portal"));
- panel.append(head);
  const book=(data.sources||[]).filter(x=>x.type==="book");
  const bank=(data.sources||[]).filter(x=>x.type==="bank");
+ if(!book.length&&!bank.length&&!data.sourceWarnings?.length)return;
+ const panel=el("details",undefined,"tc-panel tc-source-panel tc-no-print");
+ panel.append(el("summary","Cocokkan Transaksi Portal ("+(book.length+bank.length)+")"));
+ if(data.sourceWarnings?.length)panel.open=true;
  const status=el("p","","tc-status");
  if(data.sourceWarnings?.length){
   panel.append(el("p",data.sourceWarnings.length+" transaksi yang sudah dihubungkan berubah atau dibatalkan di modul sumber. Periksa dan koreksi mutasi sebelum menggunakan total saldo.","tc-source-warning"));
@@ -293,8 +392,7 @@ function buildSources(target,data,refresh){
    await refresh();
   }catch(e){status.textContent=e.message;sync.disabled=false}
  };
- quick.append(sync,el("span","Hanya jurnal Kas Lorong yang sudah dibukukan; Setoran RT dan Arisan tidak ikut.","tc-muted"));
- panel.append(quick);
+ if(book.length){quick.append(sync);panel.append(quick)}
  if(bank.length){
   panel.append(el("h4","Bank Sampah — pilih tempat uang sebenarnya"));
   const table=el("div",undefined,"tc-source-list");
@@ -319,7 +417,7 @@ function buildSources(target,data,refresh){
   });
   panel.append(table);
  }
- if(!book.length&&!bank.length)panel.append(el("p","Tidak ada transaksi sumber baru yang menunggu dicocokkan.","tc-muted"));
+ 
  if(data.sourcePartial||bank.length>30)panel.append(el("p","Masih ada transaksi lain; selesaikan daftar ini, lalu muat ulang.","tc-muted"));
  panel.append(status);target.append(panel);
 }
@@ -336,14 +434,10 @@ function render(data){
  if(!data.confirmed){
    const refresh=()=>fetchData().then(render);
    buildOpeningGrid(panel,data,refresh);
-   const history=el("section",undefined,"tc-panel tc-opening-history");
-   const rows=data.history.slice(0,30).map(x=>[x.occurred_on,
-     data.catalog.funds.find(f=>f.id===x.fund_id)?.name||"Pos tersimpan",
-     data.catalog.locations.find(l=>l.id===x.location_id)?.name||"Tempat",
-     (Number(x.amount_rp)>0?"+":"−")+rp(Math.abs(Number(x.amount_rp)))]);
-   if(rows.length){
-    const details=el("details");details.append(el("summary","Riwayat pengisian saldo awal ("+rows.length+")"));
-    simpleTable(details,["Tanggal","Program","Tempat","Perubahan"],rows);history.append(details);
+   if(data.openingCount){
+    const summary=openingSummary(data);
+    const history=el("div",undefined,"tc-opening-notice");
+    history.textContent="Saldo awal tersimpan: "+rp(summary.grand)+" • "+formatDate(summary.date)+". Perubahan sebelumnya disimpan di audit, bukan transaksi.";
     panel.append(history);
    }
    return;
@@ -363,27 +457,32 @@ function render(data){
   return [f.name,rp(ownCash),rp(ownQris),rp(ownBank),rp(ownCash+ownQris+ownBank)];
  });
  rows.push(["TOTAL",rp(cash),rp(qris),rp(mandiri),rp(data.totalRp)]);
- simpleTable(ownership,["Program","Cash","QRIS","Mandiri","Total"],rows);
+ simpleTable(ownership,["Program","Cash","QRIS","Mandiri","Total"],rows,"tc-balance-table");
  panel.append(ownership);
  const refresh=()=>fetchData().then(render);
  buildForm(panel,data,refresh);
  buildSources(panel,data,refresh);
  const history=el("section",undefined,"tc-panel");
  const h=el("div",undefined,"tc-section-head");
- h.append(el("h3","Riwayat Mutasi"));
- const print=el("button","Cetak","tc-secondary tc-no-print");print.type="button";
- print.disabled=!data.riwayatLengkap;print.onclick=()=>window.print();
+ h.append(el("h3","Riwayat Transaksi"));
+ const print=el("button","Cetak Laporan","tc-secondary tc-no-print");print.type="button";
+ print.disabled=!data.riwayatLengkap;print.onclick=()=>printTreasury(data);
  h.append(print);history.append(h);
- const funds=new Map(data.catalog.funds.map(x=>[x.id,x.name]));
- const locations=new Map(data.catalog.locations.map(x=>[x.id,x.name]));
- const historyRows=data.history.map(x=>[x.occurred_on,kindLabels[x.kind]||x.kind,
-  funds.get(x.fund_id)||"Pos arsip",locations.get(x.location_id)||"Tempat arsip",
-  (Number(x.amount_rp)>0?"+":"−")+rp(Math.abs(Number(x.amount_rp))),x.note]);
- simpleTable(history,["Tanggal","Jenis","Pos","Tempat","Mutasi","Keterangan"],historyRows);
- if(!historyRows.length)history.append(el("p","Belum ada mutasi.","tc-muted"));
+ const opening=openingSummary(data);
+ const opened=el("details",undefined,"tc-opening-recap");
+ opened.append(el("summary","Saldo awal • "+formatDate(opening.date)+" • "+rp(opening.grand)));
+ const openingRows=opening.rows.filter(x=>x.total!==0).map(x=>[x.name,rp(x.cash),rp(x.qris),rp(x.mandiri),rp(x.total)]);
+ openingRows.push(["TOTAL",rp(opening.rows.reduce((n,x)=>n+x.cash,0)),rp(opening.rows.reduce((n,x)=>n+x.qris,0)),
+  rp(opening.rows.reduce((n,x)=>n+x.mandiri,0)),rp(opening.grand)]);
+ simpleTable(opened,["Program","Cash","QRIS","Mandiri","Total"],openingRows,"tc-balance-table");
+ history.append(opened);
+ const entries=tidyHistory(data);
+ const historyRows=entries.map(x=>[formatDate(x.date),x.kindName,x.from,x.to,rp(x.amount),x.note]);
+ if(historyRows.length)simpleTable(history,["Tanggal","Jenis","Dari","Ke","Nominal","Keterangan"],historyRows,"tc-history-table");
+ else history.append(el("p","Belum ada transaksi setelah saldo awal.","tc-muted"));
  if(!data.riwayatLengkap)history.append(el("p","Riwayat panjang; cetak dinonaktifkan agar tidak terpotong.","tc-status"));
  panel.append(history);
- panel.append(el("p","Kas Lorong hanya menghitung jurnal kas Humas yang telah dibukukan; Setoran RT dan Arisan bukan saldo Humas. Dana Jersey dan projek lain perlu dicocokkan terpisah.","tc-footer tc-no-print"));
+ 
 }
 async function open(){
  main.replaceChildren(heading("Pusat Keuangan","Memuat saldo…"));

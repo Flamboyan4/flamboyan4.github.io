@@ -1237,20 +1237,23 @@ async function treasuryApi(request,env,who,url){
   const config=await one(db,"SELECT confirmed_on,confirmed_at,confirmed_by FROM treasury_config WHERE id=1");
   if(!config)return err("Skema Pusat Keuangan belum tersedia.",503);
   if(method==="GET"){
-    const [balances,history,openings]=await Promise.all([
+    const [balances,history,openings,openingBalances]=await Promise.all([
       list(db,"SELECT fund_id,location_id,COALESCE(SUM(amount_rp),0) AS amount_rp FROM treasury_entries GROUP BY fund_id,location_id"),
       list(db,`SELECT v.id,v.kind,v.occurred_on,v.note,v.created_at,v.created_by,
             e.fund_id,e.location_id,e.amount_rp
             FROM treasury_events v JOIN treasury_entries e ON e.event_id=v.id
             ORDER BY v.occurred_on DESC,v.created_at DESC,v.id DESC,e.id LIMIT 801`),
-      one(db,"SELECT COUNT(*) AS n,MIN(occurred_on) AS date_first,MAX(occurred_on) AS date_last FROM treasury_events WHERE kind='opening'")
+      one(db,"SELECT COUNT(*) AS n,MIN(occurred_on) AS date_first,MAX(occurred_on) AS date_last FROM treasury_events WHERE kind='opening'"),
+      list(db,`SELECT e.fund_id,e.location_id,COALESCE(SUM(e.amount_rp),0) AS amount_rp
+        FROM treasury_entries e JOIN treasury_events t ON t.id=e.event_id
+        WHERE t.kind='opening' GROUP BY e.fund_id,e.location_id`)
     ]);
     const total=balances.reduce((n,row)=>n+Number(row.amount_rp||0),0);
     const complete=history.length<=800;
     const sources=await treasurySources(db,config.confirmed_on);
     return ok({catalog,confirmed:!!config.confirmed_at,confirmedOn:config.confirmed_on||null,
       openingCount:Number(openings?.n||0),openingDate:openings?.date_first||null,
-      openingDateConsistent:!openings?.date_first||openings.date_first===openings.date_last,totalRp:total,balances,
+      openingDateConsistent:!openings?.date_first||openings.date_first===openings.date_last,totalRp:total,balances,openingBalances,
       history:history.slice(0,800),riwayatLengkap:complete,
       sources:sources.pending,sourcePartial:sources.partial,sourceWarnings:sources.warnings,
       sourceIntegration:"reconciliation-required"});
