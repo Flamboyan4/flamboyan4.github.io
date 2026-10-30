@@ -65,8 +65,9 @@ assert.match(ui,/setTimeout\(\(\)=>notice\.remove\(\),3500\)/);
 assert.doesNotMatch(ui,/print\.onclick=\(\)=>window\.print\(\)/);
 assert.match(worker,/openingBalances/);
 assert.match(ui,/const shell=el\("details",undefined,"tc-panel tc-mutation-panel/);
+assert.match(ui,/shell.append\(el\("summary","Pindah Dana"\)\)/);
 assert.match(ui,/function buildSources\(target,data,refresh\)/);
-assert.match(ui,/Menunggu Pemeriksaan/);
+assert.match(ui,/Periksa Dana/);
 assert.match(ui,/sourceType:src\.type,sourceId:src\.id/);
 assert.match(ui,/expectedAmountRp:src\.amountRp,expectedFundId:src\.fund/);
 assert.match(ui,/sameDayConfirmed:sameDay\?"SUDAH DIPERIKSA":""/);
@@ -132,8 +133,14 @@ for(const [key,value] of [['tabungan_warga','bank_warga'],['operasional','bank_l
  assert.equal(bankFund(key),value,key);
 }
 assert.equal(bankFund('unknown'),'');
-assert.match(ui,/Saldo sumber Bank Sampah/);
+assert.match(ui,/Saldo Bank Sampah/);
 assert.match(ui,/src\.sourceDate&&src\.sourceDate!==src\.date/);
 assert.match(worker,/bankSourceBalances/);
 assert.match(worker,/b.confirmed_at>=/);
+// Bank Sampah balance totals now require explicit location and approval.
+assert.match(ui,/action:"approve-bank-balance"/);
+assert.match(ui,/expectedSourceRp:row\.source,expectedCentralRp:row\.central/);
+assert.match(ui,/confirmButton=el\("button","Sahkan "/);
+assert.match(worker,/treasury_bank_source_coverage/);
+assert.match(worker,/function treasuryBankPositions\(fundId\)/);
 console.log('TREASURY_HUMAS_CLASSIFICATION_AND_CALENDAR_OK=1');
