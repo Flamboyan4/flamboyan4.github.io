@@ -138,7 +138,7 @@ assert.match(ui,/src\.sourceDate&&src\.sourceDate!==src\.date/);
 assert.match(worker,/bankSourceBalances/);
 assert.match(worker,/bankPendingCounts/);
 assert.match(worker,/bankCoverageWarnings/);
-assert.match(ui,/eligibleBank\.get\(row\.fundId\)/);
+assert.match(ui,/row\.available<=row\.diff/);
 assert.match(worker,/b.confirmed_at>=/);
 // Bank Sampah balance totals now require explicit location and approval.
 assert.match(ui,/action:"approve-bank-balance"/);
