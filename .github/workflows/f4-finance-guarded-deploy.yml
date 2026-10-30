@@ -25,6 +25,7 @@ jobs:
         run: |
           node --check cloudflare/worker-terpadu-operasional-teruji.js
           node qa/account-profile-password.cjs
+          python3 qa/verify-treasury.py
       - name: Publish tested source, strictly inherit all production bindings
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -153,6 +154,24 @@ jobs:
           if int(baseline_unmigrated[0].get("n",0))!=0:
               raise RuntimeError("Historical obligation baseline is incomplete")
           print("D1_ADDITIVE_IURAN_HISTORY_SCHEMA_OK=1")
+          # Pusat Keuangan: add-only event journal + positions; no historical cash rewrite.
+          treasury_sql=pathlib.Path("cloudflare/migrations/20261030_treasury_center.sql").read_text()
+          if (treasury_sql.upper().count("CREATE TABLE IF NOT EXISTS")!=3
+              or treasury_sql.upper().count("CREATE INDEX IF NOT EXISTS")!=2
+              or "INSERT OR IGNORE INTO TREASURY_CONFIG" not in treasury_sql.upper()):
+              raise RuntimeError("Unexpected treasury migration")
+          treasury_clean="\n".join(line for line in treasury_sql.splitlines()
+                                      if not line.lstrip().startswith("--"))
+          for statement in treasury_clean.split(";"):
+              q=statement.strip()
+              if q:d1query(q)
+          for table,cols in [
+              ("treasury_events",{"id","request_key","payload_hash","kind","occurred_on","created_by"}),
+              ("treasury_entries",{"id","event_id","fund_id","location_id","amount_rp"}),
+              ("treasury_config",{"id","confirmed_on","confirmed_at","confirmed_by"})]:
+              actual={c.get("name") for c in d1query("PRAGMA table_info("+table+")")}
+              if not cols.issubset(actual):raise RuntimeError("Incomplete treasury schema: "+table)
+          print("D1_ADDITIVE_TREASURY_SCHEMA_OK=1")
           write_flags={k:by_name[k].get("text") for k in by_name if k.endswith("_WRITE_ENABLED")}
           if not write_flags or any(v not in ("true","false") for v in write_flags.values()):
               raise RuntimeError("Missing or unrecognized Worker write flags")

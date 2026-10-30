@@ -27,7 +27,7 @@
   'rapat':'/rapat/','dokumentasi':'/dokumentasi/','inventaris':'/dokumentasi/#inventaris'
  };
  if(route[hash]){location.replace(route[hash]);return}
- if(/^superadmin\/(overview|accounts|content|bank|masters|audit)$/.test(hash)){location.replace('/superadmin/#sa-'+hash.split('/')[1]);return}
+ if(/^superadmin\/(overview|treasury|accounts|content|bank|masters|audit)$/.test(hash)){location.replace('/superadmin/#sa-'+hash.split('/')[1]);return}
  if(hash==='akun'){try{sessionStorage.setItem('f4-native-account-refresh','1')}catch{}}
  if(['keuangan','projek','kalender','pembayaran','komentar'].includes(hash))
   location.replace('/?halaman='+encodeURIComponent(hash));
