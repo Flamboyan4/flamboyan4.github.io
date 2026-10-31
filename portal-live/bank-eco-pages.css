@@ -337,13 +337,13 @@ body.f4-bank-embedded #dashboardView .section,
  html body.f4-bank-app-admin #sideNav #v16NavList>.v16-mobile-extra{
    display:flex
  }
- /* Cegah menu bawah muncul lagi di drawer, termasuk lewat kelompok lama. */
+}
+@media screen and (max-width:760px){
+ /* Only HP has a bottom dock: hide equivalent routes in its slide drawer. */
  html body.f4-bank-app-admin #sideNav #v16NavList>.v16-item:is(
    [data-group="home"],[data-group="entry"],[data-group="money"]){
    display:none
  }
-}
-@media screen and (max-width:760px){
  #dashboardView #v16Tabs.v16-tabs{
   flex-wrap:nowrap!important;overflow-x:auto!important;gap:6px!important
  }
