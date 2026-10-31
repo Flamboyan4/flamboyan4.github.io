@@ -41,5 +41,13 @@ assert(css.includes('#dashboardView #pagePribadi #v12Private>.stats>.stat:last-c
 assert(h.includes('aria-label="Muat ulang data tabungan"'),'Icon-only reload changed');
 assert(h.includes('function bankMenuClose()'),'Drawer logic changed');
 assert(dashboard.includes('.f4-eco-kpi'),'Dashboard design missing');
+// Prevent the old compact/underlined dock from reappearing.
+const dockSection=css.split('/* Navigasi bawah tunggal:')[1]?.split('body.f4-bank-drawer-open')[0];
+assert(dockSection,'Canonical mobile dock section missing');
+assert(!dockSection.includes('!important'),'Dock uses priority overrides');
+assert((css.match(/\.f4-bank-app-dock-action\{/g)||[]).length===1,'Duplicated dock action rule');
+assert((css.match(/\.f4-bank-app-dock:not\(\[hidden\]\)\{/g)||[]).length===1,'Duplicated dock container rule');
+assert(!css.includes('tinggi 62px'),'Old compact dock returned');
+assert(!css.includes('border-bottom:2px solid #087850'),'Underline-only tab returned');
 assert(!css.includes('@media print'),'Theme must not alter PDFs');
 console.log('F4_BANK_CANONICAL_THEME_OK');
