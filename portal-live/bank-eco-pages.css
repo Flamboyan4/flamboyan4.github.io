@@ -1033,13 +1033,41 @@ body.f4-bank-embedded #dashboardView .section,
  body.f4-bank-app-private #dashboardView .section{min-width:0;padding:22px clamp(18px,2.3vw,32px) 44px;background:#fafbf9}
  body.f4-bank-app-private #dashboardView #pageDashboard{padding:0;background:transparent}
  body.f4-bank-app-private #dashboardView #f4BankAppHome{width:100%;max-width:1120px;margin-inline:auto;gap:14px;align-items:stretch}
- #dashboardView #f4BankAppHome[data-bank-role="member"]{grid-template-columns:repeat(12,minmax(0,1fr));grid-template-rows:auto 103px 103px auto}
- #dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-bank-app-personal-greeting{grid-column:1/-1;grid-row:1;margin:0 0 2px}
- #dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-bank-member-card{grid-column:1/span 4;grid-row:2/span 2;height:220px;min-height:0;max-height:220px;aspect-ratio:auto;max-width:none;align-self:stretch}
- #dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-bank-app-member-balance{grid-column:5/-1;grid-row:2;height:103px;padding:15px 22px}
- #dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-bank-weigh-schedule{grid-column:5/-1;grid-row:3;height:103px;align-self:stretch;padding:15px 22px}
- #dashboardView #f4BankAppHome[data-bank-role="member"]>.v14-panel{grid-column:1/span 7;grid-row:4;min-width:0;align-self:start}
- #dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-member-flow{grid-column:8/-1;grid-row:4;margin:0;min-width:0;align-self:start}
+ /* Desktop member dashboard: explicit areas for each real component, never auto-place in 12 narrow tracks. */
+ #dashboardView #f4BankAppHome[data-bank-role="member"]{
+  display:grid;grid-template-columns:minmax(280px,.9fr) minmax(0,1.1fr);
+  grid-template-areas:
+   "card balance"
+   "card flow"
+   "history schedule"
+   "progress progress"
+   "info info";
+  grid-template-rows:auto auto auto auto auto;gap:14px 16px;
+  align-items:stretch;max-width:1140px
+ }
+ #dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-bank-member-card{
+  grid-area:card;min-width:0;max-width:none;max-height:240px;
+  height:auto;min-height:190px;aspect-ratio:1.78;align-self:stretch
+ }
+ #dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-bank-app-member-balance{
+  grid-area:balance;min-height:84px;padding:14px 20px
+ }
+ #dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-member-flow{
+  grid-area:flow;min-width:0;align-self:stretch
+ }
+ #dashboardView #f4BankAppHome[data-bank-role="member"]>.v14-panel{
+  grid-area:history;min-width:0;align-self:start
+ }
+ #dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-bank-weigh-schedule{
+  grid-area:schedule;align-self:start;min-width:0;min-height:106px;padding:15px 18px
+ }
+ #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberEnvironmentPreview{
+  grid-area:progress;min-width:0;width:100%;max-width:none
+ }
+ #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberInfoShortcut{
+  grid-area:info;min-width:0
+ }
+ #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankAppMinis{display:none}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]{grid-template-columns:repeat(2,minmax(0,1fr))}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppAdminHero{grid-column:1/-1;min-height:158px;padding:20px 24px;align-content:center;grid-template-columns:minmax(0,1fr) auto;column-gap:20px}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppAdminHero>:not(.f4-bank-admin-deposit-action){grid-column:1}
@@ -1072,11 +1100,6 @@ body.f4-bank-embedded #dashboardView .section,
  #dashboardView #bank-payout .f4-bank-quick-amounts{max-width:340px}
  #dashboardView #bank-payout .f4-bank-request-form{max-width:700px}
  #dashboardView #bank-payout .f4-bank-payout-hero{padding:14px 18px}
-}
-@media(min-width:1024px) and (max-width:1170px){
- #dashboardView #f4BankAppHome[data-bank-role="member"]{grid-template-columns:repeat(12,minmax(0,1fr))}
- #dashboardView #f4BankAppHome[data-bank-role="member"]>.v14-panel{grid-column:1/span 7}
- #dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-member-flow{grid-column:8/-1}
 }
 @media(min-width:761px) and (max-width:1023px){
  html.f4-bank-embedded body.f4-bank-app-private #dashboardView>.grid{display:block}
