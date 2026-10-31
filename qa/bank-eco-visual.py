@@ -89,7 +89,7 @@ async def main():
             source = pathlib.Path("bank-sampah/index.html").read_text()
             # Load the actual page-level stylesheet that owns the public Program component,
             # before the external canonical theme. A CSS-only fixture omitted it previously.
-            base = re.search(r"<style(?:\\s[^>]*)?>([\\s\\S]*?)</style>", source, re.I)
+            base = re.search(r"<style[^>]*>(.*?)</style>", source, re.I | re.S)
             assert base, "Base Bank Sampah stylesheet missing"
             await page.add_style_tag(content=base.group(1))
             # Reproduce the actual mobile report rule before the canonical theme.
