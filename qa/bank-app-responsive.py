@@ -203,6 +203,8 @@ async def admin_mobile_shell(browser):
       return {
         scroll:scrollY,positions,center:{w:center.width,h:center.height,y:center.y},
         dockY:bottom.y,dockCount:document.querySelectorAll(".f4-bank-app-dock").length,
+        centerLabelGap:+(actions[2].querySelector(".f4-bank-app-action-name").getBoundingClientRect().top-
+          center.bottom).toFixed(2),
         gapIconLabel:actions.map(b=>+(b.querySelector(".f4-bank-app-action-name").getBoundingClientRect().top-
           b.querySelector(".f4-bank-app-action-icon img").getBoundingClientRect().bottom).toFixed(2)),
         textBottomGap:+(bottom.bottom-actions[0].querySelector(".f4-bank-app-action-name").getBoundingClientRect().bottom).toFixed(2),
@@ -229,6 +231,7 @@ async def admin_mobile_shell(browser):
     assert all(x["w"]>50 and x["right"]<=391 for x in state["positions"]),state
     assert all(state["positions"][i]["x"]<state["positions"][i+1]["x"] for i in range(4)),state
     assert state["center"]["w"]>=45 and state["center"]["h"]>=45,state
+    assert 2<=state["centerLabelGap"]<=10,state
     assert state["center"]["y"]<state["dockY"]-4,state
     assert state["dockCount"]==1,state
     assert state["activeBackground"]=="rgb(216, 237, 223)",state
@@ -236,6 +239,24 @@ async def admin_mobile_shell(browser):
     assert state["legacyDisplay"]=="none",state
     assert state["visible"]==["Riwayat setoran","Sahkan hasil","Pencairan"],state
     assert not state["horizontalOverflow"],state
+    # The admin hamburger opens a compact grid popover, NOT a sliding side drawer.
+    popover=await page.evaluate("""() => {
+      const side=document.querySelector("#sideNav");
+      const initial=getComputedStyle(side).visibility;
+      side.classList.add("open");
+      const box=side.getBoundingClientRect();
+      const nav=document.querySelector("#v16NavList");
+      return {initial,visibility:getComputedStyle(side).visibility,
+        transform:getComputedStyle(side).transform,top:box.top,left:box.left,
+        width:box.width,height:box.height,grid:getComputedStyle(nav).gridTemplateColumns,
+        scrollOverflow:document.documentElement.scrollWidth>innerWidth+3};
+    }""")
+    assert popover["initial"]=="hidden" and popover["visibility"]=="visible",popover
+    assert popover["transform"]=="none" and 55<=popover["top"]<=80,popover
+    assert 0<=popover["left"]<=16 and 300<popover["width"]<=390,popover
+    assert len(popover["grid"].split())==2 and not popover["scrollOverflow"],popover
+    await page.evaluate('document.querySelector("#sideNav").classList.remove("open")')
+    print("ADMIN_POPOVER_NO_SLIDE_OK",popover,flush=True)
     # The exact same dock dimensions must apply when the role switches to member.
     member=await page.evaluate("""() => {
       document.body.classList.replace("f4-bank-app-admin","f4-bank-app-member");
@@ -349,6 +370,52 @@ async def public_chart_and_flat_roster(browser):
     await page.close()
 
 
+async def public_report_compact(browser):
+    """Public summary: 6 metrics use compact two-column cards at narrow Android widths."""
+    import re
+    from pathlib import Path
+    html_source=Path("bank-sampah/index.html").read_text(encoding="utf-8")
+    owner=re.search(r'<style id="f4-bank-mobile-3view-fix-20261028">(.*?)</style>',html_source,re.S)
+    if not owner: raise AssertionError("Public summary stylesheet missing")
+    rows=[
+      ("Berat jual sah","1,9 kg"),("Timbang belum sah","0 kg"),
+      ("Penjualan diterima","Rp 6.000"),("Hak tabungan warga sah","Rp 3.000"),
+      ("Dana lingkungan sah","Rp 3.000"),("Perkiraan belum sah","Rp 0")
+    ]
+    cards="".join('<div class="v17-public-metric"><small>'+label+'</small><strong>'+val+'</strong></div>' for label,val in rows)
+    for width in (390,320):
+        page=await browser.new_page(viewport={"width":width,"height":820},device_scale_factor=1)
+        markup="""<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
+        <base href="http://127.0.0.1:8765/">
+        <link rel="stylesheet" href="/portal-live/modern-portals.css">
+        <style>body{margin:0}#v11Public{padding:11px}#v25ReportMetrics.v26-compact{
+          display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+        </style><style>"""+owner.group(1)+"""</style>
+        <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
+        </head><body><section id="v11Public"><div id="v25ReportRoot"><div id="v25ReportMetrics" class="v25-public-metrics v26-compact">"""+cards+"""</div></div></section></body></html>"""
+        await page.goto(ROOT,wait_until="domcontentloaded")
+        await page.set_content(markup,wait_until="load")
+        metrics=await page.evaluate("""() => {
+          const grid=document.querySelector("#v25ReportMetrics");
+          const items=[...grid.querySelectorAll(".v17-public-metric")];
+          return {
+            heights:items.map(n=>Math.round(n.getBoundingClientRect().height)),
+            widths:items.map(n=>Math.round(n.getBoundingClientRect().width)),
+            positions:items.map(n=>Math.round(n.getBoundingClientRect().top)),
+            valueFonts:items.map(n=>parseFloat(getComputedStyle(n.querySelector("strong")).fontSize)),
+            padding:getComputedStyle(items[0]).padding,
+            columns:getComputedStyle(grid).gridTemplateColumns.split(" ").length,
+            overflow:document.documentElement.scrollWidth>innerWidth+3
+          };
+        }""")
+        assert metrics["columns"]==2 and len(metrics["heights"])==6,metrics
+        assert max(metrics["heights"])<=105 and min(metrics["heights"])>=60,metrics
+        assert all(17<=font<=20 for font in metrics["valueFonts"]),metrics
+        assert not metrics["overflow"],metrics
+        print("PUBLIC_REPORT_COMPACT_OK",width,metrics,flush=True)
+        await page.close()
+
+
 async def main():
     async with async_playwright() as p:
         browser=await p.chromium.launch(args=["--no-sandbox"])
@@ -401,6 +468,7 @@ async def main():
         await savings_chart(browser)
         await admin_mobile_shell(browser)
         await public_chart_and_flat_roster(browser)
+        await public_report_compact(browser)
         await browser.close()
 if __name__=="__main__":
     asyncio.run(main())
