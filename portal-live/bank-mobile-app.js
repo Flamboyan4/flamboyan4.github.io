@@ -194,8 +194,9 @@ function ensureHome(){
  }else{
   const recent=$("v14Recent")?.closest(".v14-panel");
   if(recent&&recent.parentElement!==hub)hub.append(recent);
+  // The full public development chart/timeline replaces the old duplicate activity preview.
   const activity=$("v14Activities")?.closest(".v14-panel");
-  if(activity&&activity.parentElement!==hub)hub.append(activity);
+  if(activity&&activity.parentElement!==reservoir)reservoir.append(activity);
   const flow=$("f4MemberFlow");if(flow)flow.hidden=true;
  }
  const legacyPanels=page.querySelector(".v14-panels");
