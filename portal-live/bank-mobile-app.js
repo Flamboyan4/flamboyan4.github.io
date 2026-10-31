@@ -39,7 +39,7 @@ let ready=false,requestNonce="",requestEnabled=false;
 let memberStatement=null,memberChartMode="kg",memberChartGroup="month",memberChartPeriod="";
 let adminOverview=null;
 let refreshing=false;
-const custom=["bank-history","bank-payout","bank-report"];
+const custom=["bank-history","bank-payout","bank-report","bank-payout-admin"];
 const text=(id,val)=>{if($(id)&&$(id).textContent!==String(val))$(id).textContent=String(val)};
 const image=file=>{const img=el("img");img.src="/assets/icons/"+file;img.alt="";img.setAttribute("aria-hidden","true");return img;};
 function roleType(){
@@ -547,15 +547,32 @@ async function submitRequest(event){
  finally{button.textContent=original;button.disabled=!requestEnabled;}
 }
 function managerRequestsPanel(){
- const parent=$("pageTabungan");
- if(!parent||role!=="admin")return;
+ if(role!=="admin")return;
+ const page=ensureScreen("bank-payout-admin","Pencairan Tabungan");
  if(!$("f4BankManagerRequests")){
   const section=el("section","f4-bank-manager-requests");section.id="f4BankManagerRequests";
-  const head=el("div","f4-bank-mobile-section-head");head.append(el("h3","","Pengajuan Pencairan"));
+  const head=el("div","f4-bank-mobile-section-head");
+  head.append(el("h3","","Pengajuan Anggota"));
   const refresh=el("button","f4-bank-refresh-button","Muat ulang");refresh.type="button";refresh.onclick=loadManagerRequests;
   head.append(refresh);
-  const content=el("div","f4-bank-manager-request-list","Memuat...");content.id="f4BankManagerRequestList";
-  section.append(head,content);parent.prepend(section);
+  const content=el("div","f4-bank-manager-request-list","Buka menu Pencairan untuk memuat pengajuan.");content.id="f4BankManagerRequestList";
+  section.append(head,content);page.append(section);
+ }
+ if(!$("f4BankManualPayout")){
+  const detail=el("details","f4-bank-manual-payout");detail.id="f4BankManualPayout";
+  detail.append(el("summary","","Pencairan manual (tanpa pengajuan)"));
+  detail.append(el("p","f4-bank-screen-status","Hanya untuk warga tanpa pengajuan. Periksa status agar tidak dibayar dua kali."));
+  const form=$("v9Form")?.closest(".f4-savings-payout");
+  if(form)detail.append(form);
+  const history=$("v9History")?.closest(".f4-savings-history");
+  if(history)detail.append(history);
+  page.append(detail);
+ }
+ const savings=$("pageTabungan");
+ if(savings&&!$("f4BankPayoutLink")){
+  const go=el("button","f4-bank-secondary-action f4-bank-payout-link","Lihat pengajuan pencairan");
+  go.id="f4BankPayoutLink";go.type="button";go.onclick=()=>navigate("bank-payout-admin");
+  savings.querySelector(".f4-savings-utility")?.prepend(go);
  }
 }
 async function loadManagerRequests(){
@@ -620,6 +637,16 @@ function navigate(route){
  if(typeof window.goPage==="function")window.goPage(route);
 }
 function handleRoute(route,old,args){
+ if(route==="bank-payout-admin"&&roleType()==="admin"){
+  hideCustom();
+  old.call(window,"tabungan",...args);
+  managerRequestsPanel();
+  $("pageTabungan")?.classList.add("hidden");
+  $("bank-payout-admin")?.classList.remove("hidden");
+  screen="bank-payout-admin";markDock();
+  loadManagerRequests();
+  return;
+ }
  if(custom.includes(route)&&roleType()==="member"){
   old.call(window,"pribadi",...args);
   ensureMemberPages();
@@ -637,7 +664,7 @@ function handleRoute(route,old,args){
   const link=$("v14AllDeposits");if(link){link.textContent="Lihat semua";link.onclick=()=>navigate("bank-history");}
  }
  screen=route;markDock();
- if(route==="tabungan"&&roleType()==="admin")loadManagerRequests();
+ if(route==="tabungan"&&roleType()==="admin")managerRequestsPanel();
  if(route==="pribadi")ensureMemberPages();
  return result;
 }
