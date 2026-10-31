@@ -195,7 +195,7 @@
     .v17-public-account{margin-left:auto;flex-shrink:0;width:41px;height:41px;border:1px solid #d8e6d6;border-radius:50%;background:#e6f0e4;color:#27583e;font-weight:850;padding:0;display:grid;place-items:center;overflow:hidden}
     .v17-public-account img{width:100%;height:100%;object-fit:cover}
     .v17-public-main{max-width:1250px;margin:auto;padding:22px 20px 56px}
-    .v17-public-banner{background:#204e38;color:#fff;border-radius:17px;padding:28px;display:flex;align-items:center;gap:24px;justify-content:space-between}
+    .v17-public-banner{background:#204e38;color:#fff;border-radius:17px;padding:28px;display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,33%);align-items:center;gap:24px}
     .v17-public-banner h1{font-size:27px;margin:6px 0 10px;color:#fff}.v17-public-banner p{font-size:14px;color:#d6e6d8;margin:0;max-width:670px}
     .v17-public-banner .emblem{font-size:70px;opacity:.85}
     .v17-public-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}
@@ -292,7 +292,7 @@
       #v11Public #v18PublicContent{display:block;box-sizing:border-box;width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:hidden}
       #v11Public #v18PublicContent .v17-public-main{width:100%!important;max-width:100%!important;min-width:0!important;padding:66px 10px 32px!important;margin:0!important;box-sizing:border-box}
       #v19PublicFloatingMenu{display:grid;position:fixed;z-index:35;top:12px;left:12px;background:#fff;box-shadow:0 3px 14px #183e2624}
-      #v11Public .v17-public-banner{width:100%;max-width:100%;display:block;overflow:hidden;padding:20px 17px}
+      #v11Public .v17-public-banner{width:100%;max-width:100%;grid-template-columns:minmax(0,1fr);overflow:hidden;padding:20px 17px}
       #v11Public .v17-public-banner .emblem{display:none}
       #v11Public .v17-public-banner h1{font-size:23px;line-height:1.22;overflow-wrap:anywhere}
       #v11Public .v17-public-banner p{font-size:13px;overflow-wrap:anywhere}
@@ -455,52 +455,26 @@
   #v25ReportMetrics.v26-compact{grid-template-columns:repeat(4,minmax(0,1fr))}
   @media(max-width:830px){#v25ReportMetrics.v26-compact{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @media(max-width:440px){#v25ReportMetrics.v26-compact{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#v25ReportMetrics.v26-compact .v17-public-metric{padding:12px 10px}}
-  /* Program publik: alur sederhana tanpa kartu atau chip. */
-  #v11Public .v17-public-banner.v27-banner-program{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 22px;align-items:center}
-  #v11Public .v27-banner-program #v17Program{grid-column:1/-1;padding:14px 0 0;margin:0;background:transparent;border:0;border-top:1px solid #ffffff47;min-width:0}
-  #v11Public .v27-banner-program #v17Program>h2{display:block;margin:0 0 12px;font-size:10px;font-weight:850;letter-spacing:.12em;text-transform:uppercase;color:#c5eed8}
-  #v11Public .v27-banner-program #v17Program>.v17-subtle{display:none}
-  #v11Public .v27-banner-program #v17Program .v17-program-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;align-items:start}
-  #v11Public .v27-banner-program #v17Program .v17-feature{position:relative;min-width:0;padding:0 0 0 32px;border:0;border-radius:0;background:transparent;box-shadow:none;color:#fff}
-  #v11Public .v27-banner-program #v17Program .v17-feature::before{position:absolute;top:0;left:0;display:grid;place-items:center;width:23px;height:23px;border:1px solid #ffffff86;border-radius:50%;color:#f6d66e;font-size:11px;font-weight:850}
-  #v11Public .v27-banner-program #v17Program .v17-feature:nth-child(1)::before{content:"1"}
-  #v11Public .v27-banner-program #v17Program .v17-feature:nth-child(2)::before{content:"2"}
-  #v11Public .v27-banner-program #v17Program .v17-feature:nth-child(3)::before{content:"3"}
-  #v11Public .v27-banner-program #v17Program .v17-feature strong{display:block;color:#fff;font-size:12px;line-height:1.32;font-weight:800}
-  #v11Public .v27-banner-program #v17Program .v17-feature .f4-program-icon{display:none}
-  #v11Public .v27-banner-program #v17Program .v17-feature p{display:block;margin:3px 0 0;color:#cfe9d9;font-size:11px;line-height:1.35}
   .v27-progress-no-photo{width:80px;height:78px;display:grid;place-items:center;border-radius:9px;background:#e2eee3;color:#83a58a;font-size:23px}
   .v27-photo-missing{color:#b57c49!important;font-size:10px!important}
   .v27-cancel-panel{border:1px solid #efcaa9;border-radius:12px;margin-top:22px;background:#fffaf4;padding:15px}
   .v27-cancel-panel summary{font-weight:750;color:#885226;cursor:pointer}
   .v27-cancel-panel .field{margin-top:12px}.v27-cancel-panel button{background:#9a5d3a}
   #v27PrintReport{display:none}
-  @media(max-width:720px){
-    #v11Public .v17-public-banner.v27-banner-program{grid-template-columns:minmax(0,1fr) auto;gap:9px}
-    #v11Public .v27-banner-program #v17Program{padding-top:12px}
-    #v11Public .v27-banner-program #v17Program .v17-program-grid{grid-template-columns:minmax(0,1fr);gap:12px}
-    #v11Public .v27-banner-program #v17Program .v17-feature{padding-left:32px}
-    #v11Public .v27-banner-program #v17Program .v17-feature p{font-size:11px}
-  }
-  /* v30 — foto asli dokumentasi menggantikan emoji daun pada banner. */
-  #v11Public .v17-public-banner.v27-banner-program{grid-template-columns:minmax(0,1fr) minmax(215px,33%);grid-template-rows:auto auto;column-gap:24px;position:relative;overflow:hidden}
-  #v11Public .v27-banner-program>.v30-hero-photo{grid-column:2;grid-row:1/3;align-self:center;height:190px;min-height:0;max-height:190px;border-radius:13px;overflow:hidden;display:none;background:#315b45}
-  #v11Public .v27-banner-program>.v30-hero-photo.has-photo{display:block}
-  #v11Public .v30-hero-photo img{width:100%;height:190px;max-height:190px;display:block;object-fit:cover;object-position:center}
+  /* Hero foto resmi; Program berdiri sendiri di bawah banner. */
+  #v11Public .v17-public-banner>.v30-hero-photo{min-width:0;height:190px;border-radius:13px;overflow:hidden;display:none;background:#315b45}
+  #v11Public .v17-public-banner>.v30-hero-photo.has-photo{display:block}
+  #v11Public .v30-hero-photo img{width:100%;height:190px;display:block;object-fit:cover;object-position:center;transition:opacity .25s ease,transform .25s ease}
   #v11Public .v30-hero-photo{padding:0;border:0;cursor:pointer;box-shadow:none;position:relative}
   #v11Public .v30-hero-photo:focus-visible{outline:3px solid #f4ca6e;outline-offset:3px}
-  #v11Public .v30-hero-photo.has-photo:hover img{transform:scale(1.035)}
-  #v11Public .v30-hero-photo img{transition:opacity .4s ease,transform .3s ease}
+  #v11Public .v30-hero-photo.has-photo:hover img{transform:scale(1.025)}
   #v31ScrollTop{position:fixed;bottom:max(20px,env(safe-area-inset-bottom) + 16px);right:20px;width:48px;height:48px;border-radius:50%;padding:0;display:grid;place-items:center;background:#315c46;color:#fff;box-shadow:0 5px 18px #152b2050;z-index:90;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(10px);transition:opacity .2s ease,transform .2s ease,visibility .2s}
   #v31ScrollTop.v31-visible{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0)}
   #v31ScrollTop:hover{background:#254d38}
   @media(prefers-reduced-motion:reduce){#v11Public .v30-hero-photo img,#v31ScrollTop{transition:none!important}}
-  #v11Public .v27-banner-program #v17Program{grid-column:1;grid-row:2;align-self:end}
   @media(max-width:720px){
-    #v11Public .v17-public-banner.v27-banner-program{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto;gap:12px}
-    #v11Public .v27-banner-program>.v30-hero-photo{grid-column:1;grid-row:2;height:150px;min-height:0;max-height:150px;aspect-ratio:auto}
-    #v11Public .v30-hero-photo img{height:150px;max-height:150px}
-    #v11Public .v27-banner-program #v17Program{grid-column:1;grid-row:3}
+    #v11Public .v17-public-banner>.v30-hero-photo{height:150px}
+    #v11Public .v30-hero-photo img{height:150px}
     #v31ScrollTop{width:46px;height:46px;right:15px;bottom:max(16px,env(safe-area-inset-bottom) + 12px)}
   }
   @page{size:A4 portrait;margin:14mm 12mm}
@@ -893,18 +867,9 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
  .f4-member-progress-modal{padding:12px!important}
  .f4-member-progress-modal-head{padding:14px 15px 12px!important}
  .f4-member-progress-modal-scroll{padding:14px 14px 18px!important}
- #v11Public .v17-public-banner.v27-banner-program>div:first-child{min-width:0!important;width:100%!important}
- #v11Public .v17-public-banner.v27-banner-program #f4-public-my-savings{
-  display:flex!important;width:100%!important;max-width:none!important;
-  min-height:49px!important;padding:11px 15px!important;margin-top:16px!important;
-  background:#F5B52E!important;border:1px solid #E6A125!important;color:#fff!important;
-  text-shadow:0 1px 2px #624500a6!important;
-  font-size:14px!important;font-weight:850!important;border-radius:11px!important;
-  box-shadow:0 3px 10px #104e3222!important
- }
- #v11Public .v17-public-banner.v27-banner-program #f4-public-my-savings:hover,
- #v11Public .v17-public-banner.v27-banner-program #f4-public-my-savings:focus-visible{
-  background:#EAA218!important;color:#fff!important
+ #v11Public .v17-public-banner #f4-public-my-savings{
+  display:flex;justify-content:center;width:100%;max-width:none;
+  min-height:49px;padding:11px 15px;margin-top:16px;font-size:14px
  }
 }
 </style><style id="f4-bank-private-navigation-fix">
@@ -4025,7 +3990,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     pub.innerHTML=`<div class="v17-public-head"><div class="v17-public-logo"><img id="v17Logo" alt="Logo Flamboyan 4"><span>Bank Sampah<br>Flamboyan 4</span></div><nav class="v17-public-links" aria-label="Navigasi portal publik"><a href="#v17Program">Program</a><a href="#v17Perkembangan">Perkembangan</a><a href="#v17Dokumentasi">Dokumentasi</a><a href="#v17Inventaris">Inventaris</a><a href="#v17Transparansi">Transparansi</a></nav><button id="v17PublicAccount" class="v17-public-account" type="button" title="Akun atau masuk" aria-label="Akun atau masuk">↪</button></div>
       <div class="v17-public-main"><div class="v17-public-banner"><div><span class="v14-eyebrow">🌱 Bank Sampah</span><h1>Sampah terpilah. Manfaat bertambah.</h1></div><button id="v30HeroPhoto" type="button" class="v30-hero-photo" aria-label="Lihat dokumentasi dan inventaris" title="Lihat dokumentasi dan inventaris"></button></div>
       <div id="v17PublicMetrics" class="v17-public-metrics">Memuat ringkasan...</div>
-      <section id="v17Program" class="v17-section"><h2>Program Bank Sampah</h2><div class="v17-program-grid"><div class="v17-feature"><strong><img class="f4-program-icon" src="/assets/icons/bank.svg" alt="">Pemilahan & setoran</strong><p>Pilah, timbang, setor.</p></div><div class="v17-feature"><strong><img class="f4-program-icon" src="/assets/icons/cash.svg" alt="">Penjualan & cek</strong><p>Cek hasil lapak, lalu sahkan saldo.</p></div><div class="v17-feature"><strong><img class="f4-program-icon" src="/assets/icons/home.svg" alt="">Manfaat lingkungan</strong><p>Untuk cadangan, kas lorong, dan operasional.</p></div></div></section>
+      <section id="v17Program" class="f4-bank-program" aria-labelledby="f4BankProgramTitle"><div class="f4-bank-program-heading"><span class="f4-bank-program-kicker">CARA KERJA</span><h2 id="f4BankProgramTitle">Dari sampah jadi manfaat</h2></div><ol class="f4-bank-program-flow"><li class="f4-bank-program-step"><strong>Pilah & setor</strong><p>Warga membawa sampah terpilah untuk ditimbang.</p></li><li class="f4-bank-program-step"><strong>Jual & sahkan</strong><p>Pengurus mencatat hasil jual dan mengesahkannya.</p></li><li class="f4-bank-program-step"><strong>Tabungan & lingkungan</strong><p>Hasil dibagi untuk tabungan warga dan kas lingkungan.</p></li></ol></section>
       <section id="v17Perkembangan" class="v17-section"><h2>Perkembangan</h2><div class="v17-two"><div class="v17-panel"><h3>Berat setoran per bulan</h3><div class="f4-public-chart-legend"><span><i></i>Berat jual sah</span><span><i></i>Timbang belum sah</span></div><div id="v17WeightBars" class="v17-bars"></div><p id="v17WeightNote" class="v17-subtle">Memuat grafik...</p></div><div class="v17-panel"><h3>Linimasa kegiatan</h3><ol id="v17Timeline" class="v17-timeline"><li>Memuat perkembangan...</li></ol></div></div><div class="v17-panel f4-public-value-panel"><h3>Nilai setoran per bulan</h3><div class="f4-public-chart-legend"><span><i></i>Hak warga sah</span><span><i></i>Perkiraan belum sah</span></div><div id="v17ValueBars" class="v17-bars">Memuat nilai setoran…</div><p id="v17ValueNote" class="v17-subtle">Hasil jual dan perkiraan dipisah.</p></div></section>
       <section id="v17Dokumentasi" class="v17-section"><h2>Dokumentasi kegiatan</h2><div id="v17Albums" class="v17-albums">Memuat album...</div></section>
       <section id="v17Inventaris" class="v17-section"><h2>Inventaris kegiatan</h2><div id="v17Inventory" class="v17-inventory">Memuat inventaris...</div></section>
@@ -5036,13 +5001,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     explain.id='v26ReportExplanation';root.insertBefore(explain,metrics);
     const prior=v25ReportData;if(prior)v25RenderReport(prior);
   })();
-  // v27 — tiga poin program menjadi chip kecil di banner atas.
-  (function v27CompactProgram(){
-    const banner=$('v11Public')?.querySelector('.v17-public-banner'),program=$('v17Program');
-    if(!banner||!program)return;
-    banner.classList.add('v27-banner-program');banner.appendChild(program);
-  })();
-
   // Admin: pembatalan batch final hanya melalui konfirmasi ID dan alasan audit.
   function v27SetupCancel(){
     const page=$('pagePengesahan');if(!page||$('v27CancelPanel'))return;
