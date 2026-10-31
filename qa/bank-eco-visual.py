@@ -111,9 +111,11 @@ async def main():
             assert state["feature"] == "rgb(255, 255, 255)", f"{mode}: program card not solid white"
             assert state["featureText"] == "rgb(18, 79, 56)", f"{mode}: program label not dark green"
             assert state["submenu"] == "rgb(8, 124, 80)", f"{mode}: submenu inactive color"
-            assert state["firstCard"] == "rgb(8, 124, 80)", f"{mode}: member balance not leaf green"
-            assert state["firstText"] == "rgb(255, 255, 255)", f"{mode}: member balance text not white"
+            assert state["firstCard"] == "rgb(255, 255, 255)", f"{mode}: legacy member summary not white"
+            assert state["firstText"] == "rgb(11, 87, 56)", f"{mode}: legacy member summary not deep green"
             assert state["reportColors"] == ["rgb(255, 255, 255)"]*4, f"{mode}: public report cards should be white: {state['reportColors']}"
+            assert state["lastCard"] == "rgb(255, 255, 255)", f"{mode}: member summary still pastel"
+            assert state["progressBg"] == "rgb(255, 255, 255)", f"{mode}: progress summary still pastel"
             assert not state["horizontalOverflow"], f"{mode}: horizontal overflow"
             if mode == "hp":
                 rect = state["statRects"]
