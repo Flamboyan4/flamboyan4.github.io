@@ -440,8 +440,8 @@ function f4PrivateChartEntries(points){
  const utc=date=>Date.parse(date+"T00:00:00Z");
  const now=utc(today());
  let list=points;
- if(origin==="7"||origin==="30"){
-  const days=origin==="7"?7:30;
+ if(origin==="30"){
+  const days=30;
   const earliest=now-(days-1)*86400000;
   list=points.filter(p=>utc(p.date)>=earliest&&utc(p.date)<=now);
  }
@@ -470,12 +470,12 @@ function f4PrivateChartEntries(points){
  }else if(origin==="month"){
   for(const point of list)add(point.month,monthName(point.month),point.month,point);
  }else{
-  const days=origin==="7"?7:30,bin=origin==="7"?1:5;
+  const days=30,bin=5;
   for(let index=0;index<days;index+=bin){
    const start=new Date(now-(days-1-index)*86400000).toISOString().slice(0,10);
    const finish=new Date(now-(days-1-Math.min(index+bin-1,days-1))*86400000).toISOString().slice(0,10);
    const key=String(index);
-   groups.set(key,{key,label:days===7?start.slice(8,10):labelDate(start),
+   groups.set(key,{key,label:labelDate(start),
     full:start===finish?start:start+" – "+finish,count:0,finalCount:0,
     confirmedWeight:0,pendingWeight:0,confirmedRp:0,estimatedRp:0,
     missingWeight:false,missingValue:false});
@@ -538,7 +538,7 @@ function chartSavings(){
  if(!filters){
   filters=el("div","f4-bank-chart-filters");filters.id="f4BankSavingsFilters";
   const tabs=el("div","f4-bank-chart-groups");
-  for(const [id,label] of [["period","Periode"],["7","7 hari"],["30","30 hari"],["month","Per bulan"]]){
+  for(const [id,label] of [["period","Periode"],["30","30 hari"],["month","Per bulan"]]){
    const button=el("button","",label);button.type="button";button.dataset.group=id;
    button.onclick=()=>{memberChartGroup=id;chartSavings();};
    tabs.append(button);
