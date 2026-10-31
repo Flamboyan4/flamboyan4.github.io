@@ -85,7 +85,13 @@ const profileCss=fs.readFileSync('portal-live/bank-eco-pages.css','utf8');
 if(!profileCss.includes('#dashboardView #pageProfile .f4-profile-meta:not([hidden]){'))
  throw Error('Canonical profile CSS must respect the hidden metadata attribute');
 if(!app.includes('card.onclick=()=>navigate("profile")'))throw Error('Member card must open profile');
-if(!app.includes('["Pencairan","bank-payout","pay.svg"]'))throw Error('Central payout missing');
+if(!app.includes('["Pencairan","bank-payout","rp"]'))throw Error('Member payout must use distinct Rp symbol');
+if(!app.includes('if(asset==="rp")')||!app.includes('el("span","f4-bank-currency-mark","Rp")'))
+ throw Error('Rp icon must render as text in the member payout dock, not a broken image URL');
+if(app.includes('["Pencairan","bank-payout","pay.svg"]'))
+ throw Error('Member payout still shares the savings icon');
+if(!app.includes('["Laporan","laporan","book.svg"]'))
+ throw Error('Admin center action should remain the report icon');
 if(app.includes('f4BankAppShortcuts'))throw Error('Redundant shortcut tiles must be removed for all roles');
 if(!app.includes('updateProfileCard()')||!app.includes('function memberBuckets()'))throw Error('Profile card or trusted chart missing');
 if(app.includes('function ledger(){\n return [...($("v12History")'))
