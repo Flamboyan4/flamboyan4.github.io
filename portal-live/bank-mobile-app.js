@@ -902,8 +902,7 @@ function memberFeature(route){
   const albumPage=$("v22DocsPage");
   albumPage?.classList.remove("hidden");
   window.f4BankRenderDocumentation?.();
-  const docBack=albumPage?.querySelector(".v22-back-home");
-  if(docBack)docBack.onclick=()=>navigate("bank-member-info");
+  // Original public-page back action remains untouched. Member uses its top navigation.
  }else{
   moveFeature(["v17Transparansi","v17Dokumentasi","v17Inventaris"],content);
   let shortcut=$("f4MemberDocsShortcut");
