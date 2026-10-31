@@ -8,24 +8,27 @@
  }
 }
 @media(min-width:1024px){
+ /* Fixed sidebar never scrolls with the document; only its own menu scrolls. */
  body.f4-bank-app-member #dashboardView>.grid{
-  display:grid;grid-template-columns:244px minmax(0,1fr);
-  align-items:start;gap:0;min-width:0
+  display:block;min-width:0
  }
  body.f4-bank-app-member #dashboardView>.grid>.section{
-  grid-column:2;grid-row:1;min-width:0;width:100%;max-width:none;
-  padding:24px clamp(20px,3vw,44px) 48px;margin:0
+  display:block;min-width:0;width:calc(100% - 244px);max-width:none;
+  padding:25px clamp(22px,3vw,48px) 52px;margin:0 0 0 244px
  }
  body.f4-bank-app-member #dashboardView #sideNav.side{
-  grid-column:1;grid-row:1;display:block;position:sticky;top:56px;left:0;
+  display:block;position:fixed;top:56px;bottom:0;left:0;z-index:32;
   width:244px;min-width:0;height:calc(100dvh - 56px);
   max-height:calc(100dvh - 56px);min-height:0;
   overflow-y:auto;overflow-x:hidden;transform:none;visibility:visible;
-  border-right:1px solid #e0e9e2;background:#fff;
-  padding:14px 10px 22px;box-shadow:none
+  overscroll-behavior:contain;border-right:1px solid #e0e9e2;
+  background:#fff;padding:14px 10px 22px;box-shadow:none
  }
  body.f4-bank-app-member #f4-direct-bar{padding-left:254px}
- body.f4-bank-app-member #f4-direct-bar .f4-bank-member-top-identity{max-width:360px}
+ body.f4-bank-app-member #f4-direct-bar .f4-bank-member-top-identity{display:none}
+ body.f4-bank-app-member #f4-direct-bar #f4-mobile-menu{display:none}
+ body.f4-bank-app-member.f4-bank-member-secondary #f4-direct-bar #f4-mobile-menu{display:none}
+ body.f4-bank-app-member #f4BankAppWelcome{display:grid;grid-area:welcome;min-width:0}
 }
 body.f4-bank-app-member #f4-direct-bar #f4-mobile-menu{display:none}
 body.f4-bank-app-member.f4-bank-member-secondary #f4-direct-bar #f4-mobile-menu{
@@ -65,6 +68,61 @@ body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-repo
  background:transparent;box-shadow:none;align-content:start
 }
 body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page:not(.hidden){display:block}
+body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page{
+ border:0;border-radius:0;background:transparent;box-shadow:none
+}
+/* Functional groups stay visibly separated within otherwise frameless member pages. */
+body.f4-bank-app-member #dashboardView :is(
+ .f4-bank-form-panel,.f4-bank-request-history-panel,
+ .f4-bank-history-panel,.f4-bank-report-panel,.f4-bank-report-transactions){
+ min-width:0;display:grid;gap:12px;
+ padding:17px;background:#fff;border:1px solid #dce8df;
+ border-radius:16px;box-shadow:0 3px 15px #143b2508
+}
+body.f4-bank-app-member #dashboardView :is(.f4-bank-form-panel,.f4-bank-request-history-panel)>.f4-bank-screen-subhead{
+ margin:0 0 3px;font-weight:850;color:#184e35
+}
+body.f4-bank-app-member #dashboardView .f4-bank-history-panel{gap:9px}
+body.f4-bank-app-member #dashboardView .f4-bank-request-history-panel{
+ align-content:start;grid-auto-rows:max-content
+}
+body.f4-bank-app-member #dashboardView .f4-bank-report-transactions{align-content:start}
+body.f4-bank-app-member #dashboardView .f4-bank-report-transactions>.f4-bank-screen-subhead{margin:0}
+@media(min-width:1024px){
+ body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page:not(.hidden){
+  width:100%;max-width:none
+ }
+ body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-report).f4-bank-screen:not(.hidden){
+  width:100%;max-width:none;margin:0;gap:16px
+ }
+ body.f4-bank-app-member #dashboardView #bank-payout.f4-bank-screen:not(.hidden){
+  grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);align-items:start
+ }
+ body.f4-bank-app-member #dashboardView #bank-payout>:is(.f4-bank-screen-title,.f4-bank-screen-status,.f4-bank-payout-hero){
+  grid-column:1/-1
+ }
+ body.f4-bank-app-member #dashboardView #bank-payout>.f4-bank-form-panel{grid-column:1}
+ body.f4-bank-app-member #dashboardView #bank-payout>.f4-bank-request-history-panel{grid-column:2}
+ body.f4-bank-app-member #dashboardView #bank-report.f4-bank-screen:not(.hidden){
+  grid-template-columns:minmax(330px,.9fr) minmax(0,1.1fr);align-items:start
+ }
+ body.f4-bank-app-member #dashboardView #bank-report>:is(.f4-bank-screen-title,.f4-bank-screen-status){grid-column:1/-1}
+ body.f4-bank-app-member #dashboardView #bank-report>.f4-bank-report-panel{grid-column:1}
+ body.f4-bank-app-member #dashboardView #bank-report>.f4-bank-report-transactions{grid-column:2}
+ body.f4-bank-app-member #dashboardView #bank-report .f4-bank-report-summary{
+  grid-template-columns:repeat(2,minmax(0,1fr))
+ }
+ body.f4-bank-app-member #dashboardView #bank-history .f4-bank-history-panel{
+  padding:21px 24px;max-width:none
+ }
+}
+@media(max-width:640px){
+ body.f4-bank-app-member #dashboardView :is(
+  .f4-bank-form-panel,.f4-bank-request-history-panel,
+  .f4-bank-history-panel,.f4-bank-report-panel,.f4-bank-report-transactions){
+  padding:14px 12px;border-radius:14px;gap:10px
+ }
+}
 body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-report)>.f4-bank-screen-title{margin:2px 0 8px}
 body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page>h2{margin:2px 0 14px}
 #dashboardView .f4-member-environment-preview{
