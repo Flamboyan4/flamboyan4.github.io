@@ -849,7 +849,7 @@ function memberFeature(route){
  }
  let content=page.querySelector(".f4-member-feature-content");
  if(!content){content=el("div","f4-member-feature-content");page.append(content);}
- moveFeature(progress?["v17Perkembangan"]:["v17Transparansi","v17Dokumentasi","v17Inventaris"],content);
+ moveFeature(progress?["v17PublicMetrics","v17Perkembangan"]:["v17Transparansi","v17Dokumentasi","v17Inventaris"],content);
  document.body.classList.add("f4-member-feature");
  const top=$("f4-mobile-menu");if(top){top.textContent="←";top.title="Kembali ke Beranda";top.setAttribute("aria-label","Kembali ke Beranda");}
  if(!memberSnapshotsLoaded)publicSnapshot();
