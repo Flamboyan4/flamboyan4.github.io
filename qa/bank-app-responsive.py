@@ -530,6 +530,8 @@ async def member_profile_dropdown_chevrons(browser):
         assert closed[0]["text"]=="Ubah foto profil" and closed[1]["text"]=="Ganti password",(size,closed)
         await page.locator("#v15PhotoPanel summary").click()
         await page.locator("#v15PasswordBox summary").click()
+        # CSS transitions start at slightly different times; inspect the settled final state.
+        await page.wait_for_timeout(230)
         opened=await page.evaluate(probe())
         assert all(x["open"] for x in opened),(size,opened)
         assert opened[0]["afterTransform"]==opened[1]["afterTransform"],(size,opened)
