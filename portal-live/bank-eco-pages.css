@@ -103,8 +103,7 @@ body.f4-bank-embedded #dashboardView .section,
  border-color:#d0e4d8!important;border-radius:12px!important;background:#fff!important
 }
 /* Public: LEAF GREEN hero, white text, golden primary button. */
-#v11Public .v17-public-banner,
-#v11Public .v17-public-banner.v27-banner-program{
+#v11Public .v17-public-banner{
  background:#086345!important;border:1px solid #054d35!important;
  border-radius:15px!important;box-shadow:none!important
 }
@@ -646,15 +645,13 @@ body.f4-bank-embedded #dashboardView .section,
 .f4-bank-manager-request>small{font-size:11px;color:#718174}
 .f4-bank-manager-request-actions{display:flex;gap:8px}
 .f4-bank-manager-request-actions button{flex:1}
+/* Satu navigasi bawah untuk anggota & pengurus. Tidak ada style dock lain. */
 .f4-bank-app-dock{display:none}
 @media(max-width:760px){
- body.f4-bank-app-private #dashboardView{padding-bottom:calc(68px + env(safe-area-inset-bottom,0px))}
+ body.f4-bank-app-private #dashboardView{padding-bottom:calc(78px + env(safe-area-inset-bottom,0px))}
  body.f4-bank-app-private #dashboardView .mobile-nav{display:none}
- body.f4-bank-app-private #v18PrivateMenuButton{color:#08734d;background:#f1f9f3;min-width:39px;min-height:36px;padding:6px 10px;border-radius:9px}
- body.f4-bank-app-private #v18MobileTitle{color:#17563b;font-weight:800;font-size:12px}
  body.f4-bank-app-private #pageDashboard.f4-member-dashboard{padding:0}
- body.f4-bank-app-private #pageDashboard.f4-member-dashboard .v14-head{display:none}
- body.f4-bank-app-private #pageDashboard:not(.f4-member-dashboard) .v14-head{display:none}
+ body.f4-bank-app-private #pageDashboard :is(.v14-head){display:none}
  body.f4-bank-app-private #f4BankAppHome{gap:12px;margin:0}
  body.f4-bank-app-private #f4BankAppHome>:is(.f4-bank-member-card,.f4-bank-app-member-balance,.f4-bank-weigh-schedule,.f4-member-flow,.v14-panel){margin:0;min-width:0}
  body.f4-bank-app-private #dashboardView .section{padding-bottom:12px}
@@ -667,19 +664,52 @@ body.f4-bank-embedded #dashboardView .section,
  body.f4-bank-app-private #pagePribadi{padding:13px 12px}
  body.f4-bank-app-private #pagePribadi>.desc{display:none}
  body.f4-bank-app-private #pagePribadi #v12Private>.f4-bank-savings-chart{margin-top:0}
- body.f4-bank-app-private .f4-bank-app-dock:not([hidden]){position:fixed;bottom:0;left:0;right:0;z-index:55;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;padding:5px max(4px,env(safe-area-inset-left,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(4px,env(safe-area-inset-right,0px));background:#fff;border-top:1px solid #dce9df;box-shadow:0 -5px 20px #153c2612}
- body.f4-bank-app-private .f4-bank-app-dock-action{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:52px;border:0;border-radius:10px;background:transparent;color:#718576;padding:5px 1px;font:750 10px/1.1 system-ui}
- body.f4-bank-app-private .f4-bank-app-dock-action.is-active{background:#d5eddd;color:#075e3d}
- body.f4-bank-app-member .f4-bank-app-dock-action:nth-child(3){position:relative;display:grid;grid-template-rows:23px 12px;place-items:center;align-content:center;gap:4px;align-self:center;justify-self:center;min-height:52px;width:100%;max-width:78px;transform:none;border-radius:12px;background:transparent;color:#805500;font-weight:800}
- body.f4-bank-app-member .f4-bank-app-dock-action:nth-child(3).is-active{background:transparent;color:#805500}
- body.f4-bank-app-member .f4-bank-app-dock-action:nth-child(3) .f4-bank-app-action-icon{position:relative;display:grid;place-items:center;width:43px;height:43px;transform:translateY(-13px);border-radius:13px;background:#ffc026;box-shadow:0 4px 12px #ad7a2045}
- body.f4-bank-app-member .f4-bank-app-dock-action:nth-child(3) .f4-bank-app-action-icon img{width:23px;height:23px;filter:brightness(0) invert(1)}
-
- body.f4-bank-app-private .f4-bank-app-dock .f4-bank-app-action-icon{height:23px;width:23px;border-radius:0;background:transparent}
- body.f4-bank-app-private .f4-bank-app-dock .f4-bank-app-action-icon img{width:22px;height:22px}
- body.f4-bank-app-admin .f4-bank-app-dock-action:nth-child(3){color:#795000;font-weight:850}
- body.f4-bank-app-admin .f4-bank-app-dock-action:nth-child(3) .f4-bank-app-action-icon{display:grid;place-items:center;width:35px;height:35px;border-radius:11px;background:#ffc026}
- body.f4-bank-app-admin .f4-bank-app-dock-action:nth-child(3) .f4-bank-app-action-icon img{filter:brightness(0) invert(1)}
+ body.f4-bank-app-private .f4-bank-app-dock:not([hidden]){
+  position:fixed;inset:auto 0 0;z-index:55;box-sizing:border-box;
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
+  align-items:end;gap:2px;height:calc(72px + env(safe-area-inset-bottom,0px));
+  padding:5px max(5px,env(safe-area-inset-right,0px)) calc(7px + env(safe-area-inset-bottom,0px)) max(5px,env(safe-area-inset-left,0px));
+  background:#fff;border-top:1px solid #d8e5dc;box-shadow:0 -4px 14px #143c2410
+ }
+ body.f4-bank-app-private .f4-bank-app-dock-action{
+  box-sizing:border-box;display:flex;flex-direction:column;justify-content:end;align-items:center;
+  gap:5px;min-width:0;width:100%;height:60px;min-height:0;margin:0;padding:5px 1px 3px;
+  border:0;border-radius:10px;background:transparent;
+  color:#536c60;font:750 10px/1.15 system-ui,-apple-system,sans-serif;cursor:pointer;
+  touch-action:manipulation
+ }
+ body.f4-bank-app-private .f4-bank-app-dock-action .f4-bank-app-action-icon{
+  box-sizing:border-box;display:grid;place-items:center;flex:0 0 23px;
+  width:23px;height:23px;border-radius:0;background:transparent;
+  transform:none;box-shadow:none
+ }
+ body.f4-bank-app-private .f4-bank-app-dock-action .f4-bank-app-action-icon img{
+  display:block;width:22px;height:22px;object-fit:contain;filter:none
+ }
+ body.f4-bank-app-private .f4-bank-app-dock-action .f4-bank-app-action-name{
+  display:block;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;text-align:center;font-size:10px;line-height:1.15
+ }
+ body.f4-bank-app-private .f4-bank-app-dock-action.is-active{
+  color:#075d3d;background:transparent;font-weight:850
+ }
+ body.f4-bank-app-private .f4-bank-app-dock-action.is-active:not(:nth-child(3)) .f4-bank-app-action-icon{
+  border-bottom:2px solid #087850;padding-bottom:2px
+ }
+ body.f4-bank-app-private .f4-bank-app-dock-action:nth-child(3){
+  position:relative;justify-content:end;gap:0;height:70px;padding:0 1px 3px;
+  transform:translateY(-8px);color:#775000;font-weight:850
+ }
+ body.f4-bank-app-private .f4-bank-app-dock-action:nth-child(3) .f4-bank-app-action-icon{
+  flex:0 0 47px;width:47px;height:47px;border-radius:15px;
+  background:#ffc026;box-shadow:0 5px 12px #a67a1d35
+ }
+ body.f4-bank-app-private .f4-bank-app-dock-action:nth-child(3) .f4-bank-app-action-icon img{
+  width:25px;height:25px;filter:brightness(0) invert(1)
+ }
+ body.f4-bank-app-private .f4-bank-app-dock-action:nth-child(3) .f4-bank-app-action-name{
+  margin-top:4px;color:#775000;font-weight:850
+ }
  body.f4-bank-drawer-open{overscroll-behavior-y:contain}
 }
 /* Drawer is a complementary mobile navigation; dock routes stay only in bottom bar. */
@@ -693,7 +723,6 @@ body.f4-bank-embedded #dashboardView .section,
  body.f4-bank-app-private #dashboardView>.grid,
  body.f4-bank-app-private #dashboardView>.grid>.section{overflow:visible;scroll-behavior:auto}
  body.f4-bank-app-private #sideNav.side{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
- body.f4-bank-app-private #f4BankAppDock{position:fixed;bottom:0;transform:none}
 }
 /* Responsive Bank Sampah: one sidebar category, submenu tabs in content. */
 @media(min-width:1024px){
