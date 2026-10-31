@@ -4719,6 +4719,17 @@ async function bankWithdraw(request,env,who){
   const hash=await sha(JSON.stringify({memberId,on,amount}));
   const previous=await one(env.DB,"SELECT target_id,source_fingerprint FROM migration_source_map WHERE source_system='api_v2' AND source_sheet='bank_withdrawal' AND source_row_key=? AND target_table='waste_savings_ledger'",[key]);
   if(previous){if(previous.source_fingerprint!==hash)return safeError("requestKey digunakan untuk transaksi berbeda.",409);return json({ok:true,id:previous.target_id,duplicate:true})}
+  // Pencairan manual tidak boleh melewati pengajuan aktif; pembayaran pengajuan
+  // harus menunjuk permintaan yang sudah disetujui dan nominal yang sama.
+  const pending=await one(env.DB,"SELECT id,status,amount_rp FROM waste_payout_requests WHERE member_id=? AND status IN ('diajukan','disetujui') ORDER BY requested_at DESC LIMIT 1",[memberId]);
+  if(pending){
+    const expected="payout_"+String(pending.id).replace(/[^A-Za-z0-9]/g,"");
+    if(key!==expected)return safeError("Ada pengajuan pencairan aktif. Proses melalui menu Pengajuan, bukan pencairan manual.",409);
+    if(pending.status!=="disetujui"||Number(pending.amount_rp)!==Number(amount))
+      return safeError("Pengajuan belum disetujui atau nominal pembayaran berbeda.",409);
+  }else if(key.startsWith("payout_requestbank")){
+    return safeError("Pengajuan tidak ditemukan atau sudah diproses. Muat ulang riwayat.",409);
+  }
   if(await one(env.DB,"SELECT fiscal_year FROM fiscal_closings WHERE fiscal_year=?",[Number(on.slice(0,4))])) return safeError("Tahun sudah ditutup.",409);
   if(!await one(env.DB,"SELECT id FROM members WHERE id=? AND status='aktif'",[memberId])) return safeError("Anggota tidak aktif atau tidak ditemukan.",404);
   const id="withdraw:bank:"+crypto.randomUUID(),note=String(p.note||"").trim().slice(0,250);
