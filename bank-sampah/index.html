@@ -150,9 +150,9 @@
     #sideNav.side{position:sticky;top:69px;height:calc(100vh - 69px);min-height:calc(100vh - 69px);max-height:calc(100vh - 69px);border:0;border-right:1px solid #dfebe0;border-radius:0;box-shadow:none;padding:16px 12px;overflow-y:auto;overflow-x:hidden;background:#fff}
     #dashboardView .section{padding:24px 25px 45px;min-width:0}
     #v11Public{max-width:1370px;margin:auto;padding:24px}
-    .v16-brand{display:flex;gap:10px;align-items:center;padding:5px 8px 11px;margin-bottom:7px;border-bottom:1px solid #e5eee3}
-    .v16-brand img{width:42px;height:42px;object-fit:contain;flex-shrink:0}
-    .v16-brand strong{color:#2b5b40;font-size:14px;line-height:1.2;letter-spacing:-.2px}
+    .v16-brand{display:flex;gap:9px;align-items:center;padding:5px 8px 9px;margin-bottom:6px;border-bottom:1px solid #e5eee3}
+    .v16-brand img{width:35px;height:35px;object-fit:contain;flex-shrink:0}
+    .v16-brand strong{color:#2b5b40;font-size:12.5px;line-height:1.2;letter-spacing:-.2px}
     .v16-brand small{display:block;font-size:10px;font-weight:550;color:#839383;margin-top:3px}
     .v16-nav-caption{padding:6px 10px 5px;color:#8b9c8f;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px}
     .v16-nav-list{display:flex;flex-direction:column;gap:2px}
@@ -851,7 +851,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
 <link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261031-compact-public-v2">
 
 <style id="f4-bank-admin-report-compact-20261027">
-#pageLaporan.card{padding:17px 19px!important;background:#fff!important}
+@media(min-width:1024px){#pageLaporan.card{padding:17px 19px;background:#fff}}
 #pageLaporan>h2{font-size:19px!important;line-height:1.3!important;margin:0 0 4px!important}
 #pageLaporan>.desc{font-size:12px!important;color:#687b71!important;margin:0 0 14px!important;line-height:1.45!important}
 #pageLaporan .v33-report-controls{display:grid;gap:12px;margin:0 0 12px;padding:14px;border:1px solid #e1ebe6;background:#fcfefd;border-radius:15px}
@@ -909,7 +909,6 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
  #pageLaporan #v10ReportSummary,#pageLaporan #v33ReportMoreMetrics{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
 @media(max-width:480px){
- #pageLaporan.card{padding:13px!important}
  #pageLaporan .v33-report-controls{padding:10px;gap:10px}
  #pageLaporan .v33-report-period{grid-template-columns:minmax(0,1fr) 95px}
  #pageLaporan .v33-report-chip{font-size:11px;padding:7px 9px}
@@ -986,9 +985,11 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
 
 <style id="f4-bank-entry-compact-20261028">
 /* Form input Bank Sampah: kartu isian barang ringkas, tidak mengubah input / tarif / endpoint. */
-#pageSetoran.card,#pagePenjualan.card{
- background:#fff!important;border:1px solid #e0eae4!important;border-radius:16px!important;
- padding:19px 21px!important;box-shadow:none!important
+@media(min-width:1024px){
+ #pageSetoran.card,#pagePenjualan.card{
+  background:#fff;border:1px solid #e0eae4;border-radius:15px;
+  padding:19px 21px;box-shadow:none
+ }
 }
 #pageSetoran>h2,#pagePenjualan>h2{font-size:19px!important;line-height:1.26!important;
  color:#173e2f!important;margin:0 0 5px!important}
@@ -1161,7 +1162,6 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
  #pagePenjualan .f4-sale-top-fields>.field:last-child{grid-column:1/-1!important}
 }
 @media(max-width:719px){
- #pageSetoran.card,#pagePenjualan.card{padding:15px 12px!important}
  #pageSetoran .f4-entry-top-fields,#pagePenjualan .f4-entry-top-fields{
   grid-template-columns:1fr!important;gap:9px!important;margin-bottom:13px!important
  }
@@ -1211,9 +1211,8 @@ body.f4-direct-bank #dashboardView #pagePenjualan #saleItems input[type=number]{
 
 <style id="f4-bank-savings-compact-20261028">
 /* Scoped Bank Sampah savings screen: white dashboard, side-by-side ledger + payout. */
-#pageTabungan.card{
- background:#fff!important;border:1px solid #e0e9e3!important;border-radius:16px!important;
- padding:19px 20px!important;box-shadow:none!important
+@media(min-width:1024px){
+ #pageTabungan.card{background:#fff;border:1px solid #e0e9e3;border-radius:15px;padding:19px 20px;box-shadow:none}
 }
 #pageTabungan .f4-savings-head{margin-bottom:13px}
 #pageTabungan .f4-savings-head h2{font-size:19px!important;line-height:1.3!important;margin:0 0 5px!important;color:#1e3d30}
@@ -1342,7 +1341,6 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.f4-payout-submit{
  body.f4-direct-bank #dashboardView #pageTabungan .f4-bs-saldo-finder>input{max-width:350px!important}
 }
 @media(max-width:700px){
- #pageTabungan.card{padding:14px 11px!important}
  #pageTabungan .f4-savings-head h2{font-size:18px!important}
  body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
  body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo .metric{padding:10px!important}
@@ -3687,6 +3685,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   // v16: satu menu utama per kategori; submenu ditampilkan sebagai tab konten.
   // Satu halaman per menu pengurus: kategori tidak bersarang lagi.
   // Navigasi HP memakai dock + Akses Cepat; PC memakai kategori ini sebagai sidebar.
+  const v16AdminPrimary=new Set(['home','saldo','deposit','sale','report']);
   const v16Groups=[
     {id:'home',label:'Beranda',icon:'home',admin:true,member:true,tabs:[['dashboard','Beranda']]},
     {id:'saldo',label:'Saldo Warga',icon:'wallet',admin:true,tabs:[['tabungan','Saldo warga']]},
@@ -3760,7 +3759,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       const list=document.createElement('div');list.id='v16NavList';list.className='v16-nav-list';nav.append(label,list);brand.after(nav);
     }
     const list=$('v16NavList');list.replaceChildren();
-    v16Groups.filter(g=>profile?.peran==='Admin'?g.admin:g.member).forEach(g=>{
+    v16Groups.filter(g=>profile?.peran==='Admin'?(g.admin&&v16AdminPrimary.has(g.id)):g.member).forEach(g=>{
       const b=document.createElement('button');b.type='button';b.className='v16-item';b.dataset.group=g.id;
       const symbol=v16Icon(g.icon);
       b.append(symbol,document.createTextNode(g.label));
