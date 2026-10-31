@@ -40,7 +40,7 @@ let memberStatement=null,memberChartMode="kg",memberChartGroup="period";
 let adminOverview=null;
 let refreshing=false;
 const custom=["bank-history","bank-payout","bank-report","bank-payout-admin"];
-const featureRoutes=["bank-member-progress","bank-member-info"];
+const featureRoutes=["bank-member-progress","bank-member-info","bank-member-docs"];
 let moved=[],memberSnapshotsLoaded=false,snapshotBusy=false,snapshotObserver=null;
 const text=(id,val)=>{if($(id)&&$(id).textContent!==String(val))$(id).textContent=String(val)};
 const image=file=>{const img=el("img");img.src="/assets/icons/"+file;img.alt="";img.setAttribute("aria-hidden","true");return img;};
@@ -245,6 +245,7 @@ function mountSavings(){
  const page=$("pagePribadi"),priv=$("v12Private");
  if(!page||!priv||role!=="member")return;
  page.classList.add("f4-bank-savings-page");
+ page.classList.remove("card"); // outer frame removed; inner functional cards remain
  const source=$("f4BankPrivateSource")||el("div","f4-bank-hidden-source");
  source.id="f4BankPrivateSource";source.hidden=true;if(!source.isConnected)priv.append(source);
  const originalStats=priv.querySelector(":scope > .stats");
@@ -344,7 +345,9 @@ function showHistory(){
  if(!$("f4BankHistoryList")){
   const filter=el("div","f4-bank-month-filter");filter.id="f4BankHistoryMonths";
   const list=el("div","f4-bank-history-list");list.id="f4BankHistoryList";
-  page.append(el("p","f4-bank-screen-status","Memuat transaksi..."),filter,list);
+  const panel=el("section","f4-bank-history-panel");
+  panel.append(filter,list);
+  page.append(el("p","f4-bank-screen-status","Memuat transaksi..."),panel);
  }
  const rows=historyLines(),available=months(rows);
  if(historyMonth==="latest"||!available.includes(historyMonth)&&historyMonth!=="all")
@@ -380,7 +383,10 @@ function showReport(){
   actions.append(pdf,csv);
   const title=el("h3","f4-bank-screen-subhead","Transaksi Bulan Ini");
   const transactions=el("div","f4-bank-report-list");transactions.id="f4BankReportList";
-  page.append(el("p","f4-bank-screen-status","Memuat laporan..."),period,summary,actions,title,transactions);
+  const controls=el("section","f4-bank-report-panel");
+  const log=el("section","f4-bank-report-transactions");
+  controls.append(period,summary,actions);log.append(title,transactions);
+  page.append(el("p","f4-bank-screen-status","Memuat laporan..."),controls,log);
  }
  const all=historyLines();
  const periods=[...new Set(all.map(x=>x.month).filter(x=>/^\d{4}-\d{2}$/.test(x)))].sort().reverse();
@@ -671,8 +677,11 @@ function buildRequestPage(){
  form.onsubmit=submitRequest;
  const status=el("p","f4-bank-request-status","Memeriksa layanan pengajuan...");status.id="f4BankRequestStatus";status.setAttribute("role","status");
  const list=el("div","f4-bank-request-history");list.id="f4BankMemberRequests";
- page.append(el("p","f4-bank-screen-status","Memuat saldo..."),balance,form,status,
-  el("h3","f4-bank-screen-subhead","Riwayat Pengajuan"),list);
+ const formPanel=el("section","f4-bank-form-panel");
+ formPanel.append(el("h3","f4-bank-screen-subhead","Ajukan pencairan"),form,status);
+ const historyPanel=el("section","f4-bank-request-history-panel");
+ historyPanel.append(el("h3","f4-bank-screen-subhead","Riwayat Pengajuan"),list);
+ page.append(el("p","f4-bank-screen-status","Memuat saldo..."),balance,formPanel,historyPanel);
  for(const [label,value] of [["25% ",.25],["50% ",.5],["100% ",1]]){
   const b=el("button","f4-bank-quick-amount",label.trim());b.type="button";
   b.onclick=()=>{const n=Number(memberStatement?.saldo||0);$("f4BankPayoutAmount").value=String(Math.floor(n*value));};
@@ -790,7 +799,11 @@ async function paidRequest(item){
 
 /* Reuse existing public graph/report nodes, never duplicate their data or listeners. */
 function restoreFeature(){
- for(const item of moved)if(item.anchor.parentNode)item.anchor.replaceWith(item.node);
+ for(const item of moved){
+  if(item.node.id==="v22DocsPage")item.node.classList.add("hidden");
+  if(item.anchor.parentNode)item.anchor.replaceWith(item.node);
+ }
+ $("f4MemberDocsShortcut")?.remove();
  moved=[];
  document.body.classList.remove("f4-member-feature");
  const back=$("f4-mobile-menu");
@@ -871,24 +884,57 @@ function publicSnapshot(){
  }).catch(()=>{}).finally(()=>{snapshotBusy=false});
 }
 function memberFeature(route){
- const progress=route==="bank-member-progress";
- const page=ensureScreen(route,progress?"Perkembangan":"Informasi & Laporan");
+ const progress=route==="bank-member-progress",docs=route==="bank-member-docs";
+ const name=progress?"Perkembangan":docs?"Dokumentasi":"Informasi & Laporan";
+ const page=ensureScreen(route,name);
  page.querySelector(":scope > .f4-bank-screen-title")?.remove();
  if(!page.querySelector(".f4-member-feature-header")){
   const header=el("header","f4-member-feature-header");
-  // Navigation back remains exclusively in the top bar, not duplicated inside the page.
-  const title=el("div");title.append(el("h2","",progress?"Perkembangan":"Informasi & Laporan"),
-    el("small","",progress?"Bank Sampah Flamboyan 4":"Laporan publik · Dokumentasi · Inventaris"));
+  const title=el("div");
+  title.append(el("h2","",name),el("small","",progress?"Bank Sampah Flamboyan 4":docs?"Daftar album kegiatan":"Laporan publik · Dokumentasi · Inventaris"));
   header.append(title);page.prepend(header);
  }
  let content=page.querySelector(".f4-member-feature-content");
  if(!content){content=el("div","f4-member-feature-content");page.append(content);}
- moveFeature(progress?["v17PublicMetrics","v17Perkembangan"]:["v17Transparansi","v17Dokumentasi","v17Inventaris"],content);
+ if(progress)moveFeature(["v17PublicMetrics","v17Perkembangan"],content);
+ else if(docs){
+  moveFeature(["v22DocsPage"],content);
+  const albumPage=$("v22DocsPage");
+  albumPage?.classList.remove("hidden");
+  window.f4BankRenderDocumentation?.();
+  const docBack=albumPage?.querySelector(".v22-back-home");
+  if(docBack)docBack.onclick=()=>navigate("bank-member-info");
+ }else{
+  moveFeature(["v17Transparansi","v17Dokumentasi","v17Inventaris"],content);
+  let shortcut=$("f4MemberDocsShortcut");
+  if(!shortcut){
+   const section=$("v17Dokumentasi");
+   shortcut=el("button","f4-member-doc-shortcut","Lihat semua album");
+   shortcut.id="f4MemberDocsShortcut";shortcut.type="button";
+   shortcut.onclick=()=>navigate("bank-member-docs");
+   section?.querySelector(".v21-section-bar")?.append(shortcut);
+   if(!shortcut.isConnected)section?.prepend(shortcut);
+  }
+  if(typeof window.v25LoadReport==="function")window.v25LoadReport();
+ }
  document.body.classList.add("f4-member-feature");
- // syncMemberBack() handles every non-home route through markDock().
  if(!memberSnapshotsLoaded)publicSnapshot();
- if(!progress&&typeof window.v25LoadReport==="function")window.v25LoadReport();
  window.scrollTo({top:0,behavior:"instant"});
+}
+function bindMemberDocumentation(){
+ const section=$("v17Dokumentasi");if(!section||section.dataset.f4MemberDocsBound)return;
+ section.dataset.f4MemberDocsBound="1";
+ section.addEventListener("click",event=>{
+  if(roleType()!=="member"||!section.closest("#bank-member-info"))return;
+  if(!event.target.closest("#v17Albums button, .v22-section-title"))return;
+  event.preventDefault();event.stopImmediatePropagation();
+  navigate("bank-member-docs");
+ },true);
+ section.addEventListener("keydown",event=>{
+  if(roleType()!=="member"||!section.closest("#bank-member-info"))return;
+  if(!["Enter"," "].includes(event.key)||!event.target.closest(".v22-section-title"))return;
+  event.preventDefault();event.stopImmediatePropagation();navigate("bank-member-docs");
+ },true);
 }
 function visibleMemberRoute(){
  for(const id of [...featureRoutes,...custom,"pagePribadi","pageProfile","pageDashboard"]){
@@ -981,7 +1027,7 @@ function sync(){
  memberSide(role==="member");
  ensureHome();
  if(role==="member"){
-  ensureMemberPages();progressPreview();infoShortcut();orderMemberHome();publicSnapshot();
+  ensureMemberPages();progressPreview();infoShortcut();orderMemberHome();bindMemberDocumentation();publicSnapshot();
  }else managerRequestsPanel();
  markDock();refreshSources();
 }
