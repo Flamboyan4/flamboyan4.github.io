@@ -84,6 +84,13 @@ if(!bank.includes('id="pHome"')||!bank.includes('id="pId"'))
 const profileCss=fs.readFileSync('portal-live/bank-eco-pages.css','utf8');
 if(!profileCss.includes('#dashboardView #pageProfile .f4-profile-meta:not([hidden]){'))
  throw Error('Canonical profile CSS must respect the hidden metadata attribute');
+// Reuse the sidebar's SVG convention; keep the member profile entry visible and functional.
+if(!bank.includes("user:'<circle cx=")||!bank.includes('cy="8" r="4"'))
+ throw Error('Shared outline user icon missing from Bank Sampah sidebar');
+if(!bank.includes("back.replaceChildren(v16Icon('user'),document.createTextNode(label))"))
+ throw Error('Kartu & Profil entry must show a user icon instead of bare text');
+if(!bank.includes("currentRole==='warga'?'Kartu & Profil':'Profil pengurus'"))
+ throw Error('Kartu & Profil label missing for members');
 if(!app.includes('card.onclick=()=>navigate("profile")'))throw Error('Member card must open profile');
 if(!app.includes('["Pencairan","bank-payout","rp"]'))throw Error('Member payout must use distinct Rp symbol');
 if(!app.includes('if(asset==="rp")')||!app.includes('el("span","f4-bank-currency-mark","Rp")'))
