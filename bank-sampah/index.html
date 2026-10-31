@@ -150,13 +150,13 @@
     #sideNav.side{position:sticky;top:69px;height:calc(100vh - 69px);min-height:calc(100vh - 69px);max-height:calc(100vh - 69px);border:0;border-right:1px solid #dfebe0;border-radius:0;box-shadow:none;padding:16px 12px;overflow-y:auto;overflow-x:hidden;background:#fff}
     #dashboardView .section{padding:24px 25px 45px;min-width:0}
     #v11Public{max-width:1370px;margin:auto;padding:24px}
-    .v16-brand{display:flex;gap:10px;align-items:center;padding:7px 9px 17px;margin-bottom:12px;border-bottom:1px solid #e5eee3}
+    .v16-brand{display:flex;gap:10px;align-items:center;padding:5px 8px 11px;margin-bottom:7px;border-bottom:1px solid #e5eee3}
     .v16-brand img{width:42px;height:42px;object-fit:contain;flex-shrink:0}
     .v16-brand strong{color:#2b5b40;font-size:14px;line-height:1.2;letter-spacing:-.2px}
     .v16-brand small{display:block;font-size:10px;font-weight:550;color:#839383;margin-top:3px}
-    .v16-nav-caption{padding:10px 11px 6px;color:#8b9c8f;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px}
-    .v16-nav-list{display:flex;flex-direction:column;gap:3px}
-    #sideNav .v16-item{border:0;border-radius:9px;background:transparent!important;color:#526e5b!important;font-size:13px;font-weight:650;display:flex;gap:11px;align-items:center;text-align:left;padding:12px 13px;min-height:44px;margin:0;box-shadow:none!important}
+    .v16-nav-caption{padding:6px 10px 5px;color:#8b9c8f;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px}
+    .v16-nav-list{display:flex;flex-direction:column;gap:2px}
+    #sideNav .v16-item{border:0;border-radius:9px;background:transparent!important;color:#526e5b!important;font-size:13px;font-weight:650;display:flex;gap:10px;align-items:center;text-align:left;padding:6px 10px;min-height:43px;margin:0;box-shadow:none!important}
     #sideNav .v16-item:hover{background:#edf5ed!important;color:#215b3d!important}
     #sideNav .v16-item.active{background:#dcecdc!important;color:#205e3e!important;font-weight:800}
     .v16-item svg{width:18px;height:18px;flex-shrink:0;stroke:currentColor;stroke-width:1.9;fill:none;stroke-linecap:round;stroke-linejoin:round}
@@ -357,7 +357,7 @@
     .v21-inventory-row{display:flex;align-items:center;gap:12px;background:#f7faf7;border:1px solid #e7eee6;color:#2f5040;border-radius:12px;padding:10px;min-width:0;text-align:left;width:100%;font-size:13px}
     .v21-inventory-row:hover{background:#eef5ec}.v21-inventory-row img,.v21-inventory-placeholder{width:49px;height:49px;flex:0 0 49px;object-fit:cover;border-radius:9px;background:#e1eade;display:grid;place-items:center}
     .v21-inventory-name{flex:1;min-width:0;font-weight:750;overflow-wrap:anywhere}.v21-inventory-qty{background:#d9f3df;color:#286741;border-radius:40px;padding:4px 9px;flex:0 0 auto;font-size:11px;font-weight:800}
-    .v21-modal{position:fixed;inset:0;z-index:90;background:#10231bba;display:grid;place-items:center;padding:24px}
+    .v21-modal{position:fixed;inset:0;z-index:600;background:#10231bba;display:grid;place-items:center;padding:24px}
     .v21-modal.hidden{display:none!important}.v21-modal-card{background:#fff;border-radius:17px;width:min(100%,1000px);max-height:90dvh;min-height:220px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 18px 70px #0c201b69;min-width:0}
     .v21-modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:17px 19px;border-bottom:1px solid #e6eee8;flex:none}
     .v21-modal-head h2{margin:0;font-size:19px;color:#203d2d}.v21-modal-head p{margin:3px 0 0;color:#6c7e70;font-size:12px}
@@ -371,7 +371,7 @@
     .v21-gallery-tile{position:relative;min-width:0;border-radius:12px;overflow:hidden;border:1px solid #dbe5d9;background:#e6ede5;padding:0;height:165px;display:grid;place-items:center;color:#24513a}
     .v21-gallery-tile img{width:100%;height:100%;object-fit:cover}.v21-gallery-tile .v21-play{position:absolute;display:grid;place-items:center;background:#cf2929;color:#fff;border-radius:50%;width:47px;height:47px;font-size:22px}
     .v21-back{font-size:12px;margin-bottom:14px;padding:9px 12px;background:#ecf5e9;color:#315f42}
-    .v21-lightbox{z-index:100;background:#06120ff0;color:#fff;padding:14px}
+    .v21-lightbox{z-index:610;background:#06120ff0;color:#fff;padding:14px}
     .v21-lightbox .v21-modal-head{padding:0 5px 10px;border:0}.v21-lightbox .v21-modal-head h2,.v21-lightbox .v21-modal-head p{color:#fff}
     .v21-stage{width:100%;height:min(79dvh,780px);display:flex;align-items:center;justify-content:center;gap:8px}
     .v21-stage img{max-height:100%;max-width:100%;object-fit:contain;min-width:0}
@@ -5638,8 +5638,8 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261031-plain-white-dashboard">
 <link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261031-desktop-and-albums-v39">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261031-mobile-progress-v2">
-<link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261031-member-sidebar-cards-v8">
+<link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261031-member-history-v9">
 <script src="/portal-live/bank-sale-handover.js?v=auto-print-firefox-20261030b"></script>
 <script src="/portal-live/direct-shell.js?v=bank-member-navigation-20261031"></script><script src="/portal-live/unified-account.js?v=bank-member-profile-redirect-20261031"></script><script defer src="/portal-live/mobile-cards.js?v=20261031-detail-eye-icon-v2"></script><script defer src="/portal-live/native-controls.js?v=20261027-audit6"></script><script defer src="/portal-live/bank-page-history.js?v=20261027-final4"></script>
-<script defer src="/portal-live/bank-mobile-app.js?v=20261031-member-ui-v29"></script></body>
+<script defer src="/portal-live/bank-mobile-app.js?v=20261031-member-savings-v30"></script></body>
 </html>
