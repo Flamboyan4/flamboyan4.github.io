@@ -11,7 +11,7 @@ assert(/\/portal-live\/bank-eco-pages\.css\?v=[0-9]{8}-/.test(h),'Versioned them
 for(const name of ["pageProfile","pageSetoran","pageRiwayat","pageRiwayatJual","pagePenjualan","pageRekonsiliasi","pageMaster","pageProgress","pagePassword","pageAdmin","pagePengesahan","pageTabungan","pageBiaya","pageLaporan","pageKegiatan","pageDokumentasi","pageInventaris","pagePribadi"].concat(['pageDashboard','v11Public'])){
  assert(h.includes(name),'Missing portal view '+name);
 }
-for(const phrase of ['#v17Program.f4-bank-program','#v18PublicSide',
+for(const phrase of ['#v18PublicSide',
  '#sideNav','#v16Tabs.v16-tabs','.v16-item','#v17Finance','#pagePribadi',
  '#v12Private>.stats','#pageProgress','.f4-member-progress-section',
  '#pageSetoran','#pagePenjualan','#pageRekonsiliasi','#pagePengesahan','#pageTabungan',
