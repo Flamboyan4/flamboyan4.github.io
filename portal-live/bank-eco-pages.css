@@ -784,6 +784,10 @@ body.f4-bank-embedded #dashboardView .section,
  body.f4-bank-app-private .f4-bank-app-dock-action:nth-child(3) .f4-bank-app-action-icon img{
   width:25px;height:25px;filter:brightness(0) invert(1)
  }
+ body.f4-bank-app-private .f4-bank-app-dock-action:nth-child(3) .f4-bank-currency-mark{
+  display:block;color:#fff;font:900 22px/1 system-ui,-apple-system,sans-serif;
+  letter-spacing:-.07em;text-align:center
+ }
  body.f4-bank-app-private .f4-bank-app-dock-action:nth-child(3) .f4-bank-app-action-name{
   margin:0;color:#775000;font-weight:850
  }
