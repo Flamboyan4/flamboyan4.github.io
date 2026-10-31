@@ -88,6 +88,17 @@ function memberTopIdentity(){
  const home=$("pHome")?.textContent?.trim()||"—";
  identity.replaceChildren(el("strong","",name),el("small","","Rumah "+home));
 }
+function adminTopIdentity(){
+ const bar=$("f4-direct-bar"),links=bar?.querySelector(".f4-nav-links");
+ let badge=$("f4BankAdminTopIdentity");
+ if(roleType()!=="admin"||!bar||!links){badge?.remove();return;}
+ if(!badge){
+  badge=el("strong","f4-bank-admin-top-identity","Pengelola");
+  badge.id="f4BankAdminTopIdentity";
+  bar.insertBefore(badge,links);
+ }
+ badge.textContent="Pengelola";
+}
 function syncMemberBack(){
  const button=$("f4-mobile-menu"),secondary=screen!=="dashboard";
  document.body.classList.toggle("f4-bank-member-secondary",secondary);
@@ -159,7 +170,7 @@ function ensureHome(){
    welcome.replaceChildren(el("strong","",name));
    welcome.append(el("small","","Rumah "+house));
  }
- memberTopIdentity();
+ memberTopIdentity();adminTopIdentity();
  updateCardNumber();
  const houseNode=hub.querySelector(".f4-bank-card-house");if(houseNode)houseNode.textContent="Rumah "+house;
  updateProfileCard();
@@ -901,6 +912,44 @@ function restoreAdminProgress(){
   adminProgressAnchor.replaceWith(adminProgressNode);
  adminProgressNode=null;adminProgressAnchor=null;
 }
+let adminMediaRestore=[];
+function restoreAdminMedia(){
+ for(const item of adminMediaRestore){
+  if(item.anchor.parentNode)item.anchor.replaceWith(item.node);
+  if(item.node.id==="v22DocsPage")item.node.classList.add("hidden");
+ }
+ adminMediaRestore=[];
+}
+function adminMediaMove(id,container){
+ const node=$(id);if(!node?.parentNode)return;
+ if(!adminMediaRestore.some(item=>item.node===node)){
+  const anchor=document.createComment("Kembalikan "+id);
+  node.before(anchor);adminMediaRestore.push({node,anchor});
+ }
+ container.append(node);node.classList.remove("hidden");
+}
+function showAdminDocumentation(which="albums"){
+ const page=ensureScreen("bank-admin-docs","Dokumentasi");
+ let tabs=$("f4BankAdminDocsTabs");
+ if(!tabs){
+  tabs=el("div","f4-bank-admin-history-tabs");tabs.id="f4BankAdminDocsTabs";
+  page.append(tabs);
+ }
+ let content=$("f4BankAdminDocsContent");
+ if(!content){content=el("div","f4-bank-admin-doc-content");content.id="f4BankAdminDocsContent";page.append(content);}
+ window.f4BankRenderDocumentation?.();
+ adminMediaMove("v22DocsPage",content);
+ adminMediaMove("v17Inventaris",content);
+ const album=$("v22DocsPage"),inventory=$("v17Inventaris");
+ tabs.replaceChildren(...[["albums","Album"],["inventory","Inventaris"]].map(([key,label])=>{
+  const button=el("button","f4-bank-admin-history-tab"+(which===key?" is-active":""),label);
+  button.type="button";button.setAttribute("aria-pressed",String(which===key));
+  button.onclick=()=>showAdminDocumentation(key);return button;
+ }));
+ if(album)album.hidden=which!=="albums";
+ if(inventory)inventory.hidden=which!=="inventory";
+ page.classList.remove("hidden");
+}
 function showAdminHistory(selected="setoran"){
  const page=ensureScreen("bank-admin-history","Riwayat");
  let tabs=$("f4BankAdminHistoryTabs");
@@ -1153,11 +1202,18 @@ function navigate(route){
  if(typeof window.goPage==="function")window.goPage(route);
 }
 function handleRoute(route,old,args){
+ if(route!=="bank-admin-docs"&&adminMediaRestore.length)restoreAdminMedia();
  // Dedicated operational pages for admins; keep existing data and action handlers.
  if(roleType()==="admin"){
   if(["riwayat","riwayatJual"].includes(route))route="bank-admin-history";
   if(route==="pengesahan")route="rekonsiliasi";
   if(["kegiatan","dokumentasi","inventaris","progress","public"].includes(route))route="dashboard";
+  if(route==="bank-admin-docs"){
+   hideCustom();old.call(window,"dashboard",...args);
+   $("pageDashboard")?.classList.add("hidden");
+   showAdminDocumentation();screen=route;
+   window.v16Sync?.(route);markDock();window.scrollTo(0,0);return;
+  }
   if(route==="bank-admin-history"){
    hideCustom();old.call(window,"riwayat",...args);
    showAdminHistory();screen=route;
@@ -1233,8 +1289,8 @@ function sync(){
  dock().hidden=!isPrivate;
  if(!isPrivate){
   if(document.body.classList.contains("f4-member-feature"))restoreFeature();
-  hideCustom();memberSide(false);restoreAdminProgress();
-  $("f4BankMemberTopIdentity")?.remove();document.body.classList.remove("f4-bank-member-secondary");
+  hideCustom();memberSide(false);restoreAdminProgress();restoreAdminMedia();
+  $("f4BankMemberTopIdentity")?.remove();$("f4BankAdminTopIdentity")?.remove();document.body.classList.remove("f4-bank-member-secondary");
   role=null;memberStatement=null;memberSnapshotsLoaded=false;
   $("f4BankProfileDetail")?.remove();return;
  }
@@ -1245,7 +1301,7 @@ function sync(){
   memberStatement=null;adminOverview=null;
   if(role==="admin")$("f4BankProfileDetail")?.remove();
  }
- memberSide(role==="member");
+ memberSide(role==="member");adminTopIdentity();
  ensureHome();
  if(role==="member"){
   ensureMemberPages();progressPreview();infoShortcut();orderMemberHome();bindMemberDocumentation();publicSnapshot();
