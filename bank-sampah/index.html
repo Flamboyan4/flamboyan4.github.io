@@ -2921,25 +2921,63 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       note('v12Gate','Laporan belum tersedia: '+(e.message||e),true);}
   }
   function v12Print(){
-    if(!v12Data)return;const d=v12Data,root=$('v10Print');root.replaceChildren();
+    if(!v12Data)return;
+    const d=v12Data,root=$('v10Print');root.replaceChildren();
     const selected=typeof window.f4BankReportPeriod==='function'?String(window.f4BankReportPeriod()||''):'';
-    const mutasi=d.mutasi.filter(x=>!selected||String(x.tanggal||'').startsWith(selected));
-    const setoran=d.setoran.filter(x=>!selected||String(x.tanggal||'').startsWith(selected));
+    const mutasi=(d.mutasi||[]).filter(x=>!selected||String(x.tanggal||'').startsWith(selected));
+    const setoran=(d.setoran||[]).filter(x=>!selected||String(x.tanggal||'').startsWith(selected));
+    const totalMasuk=mutasi.reduce((n,x)=>n+Number(x.kredit||0),0);
+    const totalKeluar=mutasi.reduce((n,x)=>n+Number(x.debit||0),0);
     root.appendChild(v29Kop());
-    const title=document.createElement('h1');title.textContent='LAPORAN TABUNGAN WARGA — FLAMBOYAN 4';root.appendChild(title);
-    const identity=document.createElement('p');identity.textContent=d.nama+' • '+d.rumah+' • '+d.dibuatPada+' • Periode '+(selected||'Semua');root.appendChild(identity);
-    const amount=document.createElement('p');amount.textContent='Saldo saat ini '+rupiah(d.saldo)+' | Masuk periode '+rupiah(mutasi.reduce((n,x)=>n+Number(x.kredit||0),0))+' | Keluar periode '+rupiah(mutasi.reduce((n,x)=>n+Number(x.debit||0),0));root.appendChild(amount);
-    const h=document.createElement('h2');h.textContent='Riwayat tabungan';root.appendChild(h);
-    root.appendChild(v12Table(['Tanggal','Keterangan','Masuk','Keluar','Saldo'],mutasi.map(x=>[f4MemberDateID(x.tanggal),x.jenis,rupiah(x.kredit),rupiah(x.debit),rupiah(x.saldo)])));
-    const h2=document.createElement('h2');h2.textContent='Ringkasan setoran';root.appendChild(h2);
-    root.appendChild(v12Table(['Tanggal','Berat sesuai status','Timbang awal','Status','Perkiraan','Hasil jual'],setoran.map(s=>{
-      const info=f4MemberDepositDisplay(s);
-      return [f4MemberDateID(s.tanggal),s.beratKg==null?'—':v12Kg(s.beratKg),
-        v12Kg(s.beratTimbangKg??s.beratKg),info.status,rupiah(s.estimasiRp),info.final===null?'—':rupiah(info.final)];
-    })));
-    const h3=document.createElement('h2');h3.textContent='Rincian timbang (perkiraan)';root.appendChild(h3);
-    root.appendChild(v12Table(['Tanggal','Barang','Berat','Tarif awal/kg','Perkiraan'],setoran.flatMap(s=>s.rincian.map(x=>[f4MemberDateID(s.tanggal),x.barang,v12Kg(x.beratKg),rupiah(x.tarif),rupiah(x.nilai)]))));
-    const remark=document.createElement('p');remark.style.marginTop='14px';remark.textContent='Berat akhir mengikuti nota penjualan sah, dibagi per jenis dan setoran; timbang awal dan perkiraan tetap tersimpan untuk pemeriksaan.';root.appendChild(remark);
+    const title=document.createElement('h1');title.textContent='LAPORAN TABUNGAN WARGA';root.appendChild(title);
+    const identity=document.createElement('p');identity.className='f4-member-print-meta';
+    identity.textContent='Nama: '+d.nama+'   •   Rumah: '+d.rumah+'   •   Periode: '+(selected||'Semua');
+    root.appendChild(identity);
+    const printed=document.createElement('p');printed.className='f4-member-print-date';
+    printed.textContent='Dicetak: '+d.dibuatPada;root.appendChild(printed);
+    // Data cetak pribadi menggunakan hak warga yang sudah sah, tanpa angka perkiraan.
+    const summary=document.createElement('div');summary.className='f4-member-print-summary';
+    [['SALDO SAAT INI',rupiah(d.saldo)],['MASUK PERIODE',rupiah(totalMasuk)],['KELUAR PERIODE',rupiah(totalKeluar)]].forEach(([label,value])=>{
+      const cell=document.createElement('div');cell.className='f4-member-print-summary-cell';
+      const caption=document.createElement('small');caption.textContent=label;
+      const number=document.createElement('strong');number.textContent=value;
+      cell.append(caption,number);summary.appendChild(cell);
+    });
+    root.appendChild(summary);
+    function section(label,headings,rows,widths,moneyFrom){
+      const wrap=document.createElement('section');wrap.className='f4-member-print-section';
+      const heading=document.createElement('h2');heading.textContent=label;wrap.appendChild(heading);
+      const table=v12Table(headings,rows);table.className='f4-member-print-table';
+      const cols=document.createElement('colgroup');
+      widths.forEach(width=>{const col=document.createElement('col');col.style.width=width+'%';cols.appendChild(col);});
+      table.prepend(cols);
+      if(moneyFrom!=null){
+        [...table.querySelectorAll('tr')].forEach(row=>{
+          [...row.children].forEach((cell,index)=>{if(index>=moneyFrom)cell.classList.add('f4-member-print-numeric');});
+        });
+      }
+      wrap.appendChild(table);root.appendChild(wrap);
+    }
+    section('Riwayat tabungan',['Tanggal','Keterangan','Masuk','Keluar','Saldo'],
+      mutasi.map(x=>[f4MemberDateID(x.tanggal),x.jenis,rupiah(x.kredit),rupiah(x.debit),rupiah(x.saldo)]),
+      [18,34,16,16,16],2);
+    section('Ringkasan setoran',['Tanggal','Timbang awal','Berat sah','Status','Hasil jual'],
+      setoran.map(item=>{
+        const info=f4MemberDepositDisplay(item),sah=info.status==='Sudah sah';
+        const beratFinal=item.beratSahKg??item.beratKg;
+        const timbang=item.beratTimbangKg??item.beratKg;
+        return [f4MemberDateID(item.tanggal),timbang==null?'—':v12Kg(timbang),
+          sah&&beratFinal!=null?v12Kg(beratFinal):'—',info.status,
+          info.final==null?'—':rupiah(info.final)];
+      }),[19,19,19,22,21],4);
+    section('Rincian barang',['Tanggal','Jenis sampah','Berat timbang','Status'],
+      setoran.flatMap(item=>(item.rincian||[]).map(x=>[
+        f4MemberDateID(item.tanggal),x.barang||'—',
+        x.beratKg==null?'—':v12Kg(x.beratKg),f4MemberDepositDisplay(item).status
+      ])),[22,40,19,19],null);
+    const remark=document.createElement('p');remark.className='f4-member-print-note';
+    remark.textContent='Hasil jual ditampilkan setelah penjualan sah. Berat per jenis merupakan hasil timbang saat setoran.';
+    root.appendChild(remark);
     const signature=document.createElement('div');signature.className='f4-bank-report-signature';
     signature.textContent='Mengetahui, Humas Flamboyan 4';
     const signName=document.createElement('strong');signName.textContent='Heri Juwandi';
@@ -2960,15 +2998,15 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       ...mutasi.map(x=>[x.tanggal,x.jenis,x.kredit,x.debit,x.saldo]),
       [],
       ['RINGKASAN SETORAN (HASIL JUAL = HAK WARGA SAH)'],
-      ['Tanggal','Berat sesuai status (kg)','Timbang awal (kg)','Status','Perkiraan Rp','Hasil jual Rp'],
+      ['Tanggal','Timbang awal (kg)','Berat sah (kg)','Status','Hasil jual Rp'],
       ...setoran.map(s=>{
         const info=f4MemberDepositDisplay(s);
-        return [s.tanggal,s.beratKg==null?'':s.beratKg,s.beratTimbangKg,info.status,s.estimasiRp,info.final===null?'':info.final];
+        return [s.tanggal,s.beratTimbangKg??s.beratKg??'',info.status==='Sudah sah'?(s.beratSahKg??s.beratKg??''):'',info.status,info.final===null?'':info.final];
       }),
       [],
-      ['RINCIAN BARANG (PERKIRAAN SAAT TIMBANG)'],
-      ['Tanggal','Barang','Berat (kg)','Tarif Awal Rp/kg','Perkiraan Rp','Status'],
-      ...setoran.flatMap(s=>s.rincian.map(x=>[s.tanggal,x.barang,x.beratKg,x.tarif,x.nilai,s.status]))
+      ['RINCIAN BARANG (BERAT SAAT SETORAN)'],
+      ['Tanggal','Barang','Berat timbang (kg)','Status'],
+      ...setoran.flatMap(s=>(s.rincian||[]).map(x=>[s.tanggal,x.barang,x.beratKg,f4MemberDepositDisplay(s).status]))
     ];
     const safe=v=>{
       const text=String(v??'');
