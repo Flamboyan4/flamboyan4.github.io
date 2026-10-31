@@ -3872,17 +3872,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         v16CloseMenu();
        }
      };
-      if(profile?.peran==='Admin'&&g.tabs.length>1){
-        const group=document.createElement('div');group.className='v16-menu-group';
-        const children=document.createElement('div');children.className='v16-subnav';
-        for(const [route,label] of g.tabs){
-          const link=document.createElement('button');link.type='button';
-          link.className='v16-subitem';link.dataset.route=route;link.textContent=label;
-          link.onclick=()=>{v16CloseMenu();goPage(route);v16Sync(route);};
-          children.append(link);
-        }
-        group.append(b,children);list.append(group);
-      }else list.appendChild(b);
+      list.appendChild(b);
     });
     if(!$('v16Tabs')){
       const tabs=document.createElement('div');tabs.id='v16Tabs';tabs.className='v16-tabs hidden';
@@ -3903,13 +3893,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       const selected=!!group&&button.dataset.group===group.id;
       button.classList.toggle('active',selected);
       button.setAttribute('aria-current',selected?'page':'false');
-      const wrap=button.closest('.v16-menu-group');
-      if(wrap)wrap.classList.toggle('is-current',selected);
-    });
-    document.querySelectorAll('#v16NavList .v16-subitem').forEach(button=>{
-      const active=button.dataset.route===page;
-      button.classList.toggle('active',active);
-      if(active)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');
     });
     document.body.dataset.f4BankSection=group?.id||'account';
     tabs.replaceChildren();
