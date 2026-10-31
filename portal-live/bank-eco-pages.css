@@ -455,18 +455,25 @@ body.f4-bank-embedded #dashboardView .section,
   border-radius:11px!important;padding:0!important;margin:0 0 12px!important;
   box-shadow:none!important;
 }
-#dashboardView #pageProfile #v15PhotoPanel>summary{
-  position:relative;display:list-item;list-style:none;cursor:pointer;
+/* Both profile dropdowns share the same summary and right-side chevron. */
+#dashboardView #pageProfile :is(#v15PhotoPanel,#v15PasswordBox)>summary{
+  position:relative;display:block;list-style:none;cursor:pointer;
   padding:12px 34px 12px 13px;color:#275c40;font-size:13px;font-weight:750;
   line-height:1.4;
 }
-#dashboardView #pageProfile #v15PhotoPanel>summary::-webkit-details-marker{display:none}
-#dashboardView #pageProfile #v15PhotoPanel>summary::after{
+#dashboardView #pageProfile :is(#v15PhotoPanel,#v15PasswordBox)>summary::-webkit-details-marker{display:none}
+#dashboardView #pageProfile :is(#v15PhotoPanel,#v15PasswordBox)>summary::marker{content:''}
+#dashboardView #pageProfile :is(#v15PhotoPanel,#v15PasswordBox)>summary::after{
   content:'';position:absolute;right:16px;top:50%;width:7px;height:7px;
   border-right:2px solid #547462;border-bottom:2px solid #547462;
   transform:translateY(-65%) rotate(45deg);transition:transform .16s;
 }
-#dashboardView #pageProfile #v15PhotoPanel[open]>summary::after{transform:translateY(-20%) rotate(225deg)}
+#dashboardView #pageProfile :is(#v15PhotoPanel,#v15PasswordBox)[open]>summary::after{
+  transform:translateY(-20%) rotate(225deg);
+}
+#dashboardView #pageProfile :is(#v15PhotoPanel,#v15PasswordBox)>summary:focus-visible{
+  outline:2px solid #087850;outline-offset:-3px;border-radius:10px;
+}
 #dashboardView #pageProfile .f4-profile-photo-form{border-top:1px solid #e6eee7;padding:12px 13px}
 #dashboardView #pageProfile .f4-profile-upload-row{
   display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-width:0;
@@ -506,10 +513,6 @@ body.f4-bank-embedded #dashboardView .section,
 #dashboardView #pageProfile #v15PasswordBox{
   padding:0!important;margin:0!important;border:1px solid #e0eae2!important;
   border-radius:11px!important;background:#fff!important;
-}
-#dashboardView #pageProfile #v15PasswordBox>summary{
-  padding:12px 13px!important;color:#275c40!important;
-  font-size:13px!important;font-weight:750!important;
 }
 #dashboardView #pageProfile #v15PasswordBox form{
   border-top:1px solid #e6eee7;padding:13px!important;margin:0!important;
