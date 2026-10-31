@@ -175,8 +175,8 @@ function updateDashboard(){
   const headline=$("f4BankAppAdminHero")?.querySelector(".f4-bank-app-balance-title");if(headline)headline.textContent="Kas milik Bank Sampah";
   text("f4BankAppBalance",Number.isFinite(owned)?rupiah(owned):"—");
   text("f4BankAppSecondary",current?"Hasil diterima lapak: "+rupiah(current.diterimaLapakRp):"Memuat posisi kas...");
-  const opts=current?[["Kas gabungan",rupiah(current.kasGabunganRp)],["Hak warga",rupiah(current.hakWargaBelumCairRp)],["Anggota",current.wargaAktif]]:
-   [["Kas gabungan","—"],["Hak warga","—"],["Anggota",map.get("Anggota aktif")]];
+  const opts=current?[["Kas gabungan",rupiah(current.kasGabunganRp)],["Hak warga",rupiah(current.hakWargaBelumCairRp)],["Kas lingkungan",rupiah(current.kasLingkunganRp)],["Anggota",current.wargaAktif]]:
+   [["Kas gabungan","—"],["Hak warga","—"],["Kas lingkungan","—"],["Anggota",map.get("Anggota aktif")]];
   $("f4BankAppMinis")?.replaceChildren(...opts.map(([label,value])=>{
    const node=el("div","f4-bank-app-mini");node.append(el("small","",label),el("strong","",value||"—"));return node;
   }));
