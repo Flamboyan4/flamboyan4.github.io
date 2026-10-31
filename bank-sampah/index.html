@@ -3946,16 +3946,16 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       const [home,albums,chart]=await Promise.all([call('bsV11PublicHome'),call('bsV22AlbumIndexPublik'),call('bsV17GrafikPublik')]);
       $('v17PublicMetrics').replaceChildren(v17PublicStat('Anggota aktif',home.anggotaAktif),v17PublicStat('Jenis barang',home.jenisBarang),v17PublicStat('Berat terkonfirmasi',kg(home.beratTerkonfirmasi)),v17PublicStat('Kegiatan terpublikasi',home.kegiatan));
       v17BindPublicChart();
-      v17PublicChartRows=Array.isArray(chart.bulan)?chart.bulan.slice(-6):[];
+      v17PublicChartRows=Array.isArray(chart.bulan)?chart.bulan.slice(-6):[];v17PublicDailyRows=null;
       v17PublicReportReady=false;v17PublicReportFailed=false;
       v17RenderPublicChart();
       // Satu grafik; laporan publik menjadi sumber final berat dan nominal.
       call('bsV25LaporanPublik','semua').then(report=>{
-        if(chartSerial!==v17PublicLoadSerial||!$('v17WeightBars')?.isConnected)return;
+        if(chartSerial!==v17PublicLoadSerial||!$('f4DevChart')?.isConnected)return;
         const monthly=(Array.isArray(report.bulanan)?report.bulanan:[]).slice(-6);
-        v17PublicChartRows=monthly;v17PublicReportReady=true;v17PublicReportFailed=false;v17RenderPublicChart();
+        v17PublicChartRows=monthly;v17PublicDailyRows=Array.isArray(report.harian)?report.harian:null;v17PublicReportReady=true;v17PublicReportFailed=false;v17RenderPublicChart();
       }).catch(()=>{
-        if(chartSerial!==v17PublicLoadSerial||!$('v17WeightBars')?.isConnected)return;
+        if(chartSerial!==v17PublicLoadSerial||!$('f4DevChart')?.isConnected)return;
         v17PublicReportReady=false;v17PublicReportFailed=true;v17RenderPublicChart();
       });
       // v27: renderer langsung, termasuk untuk pengunjung yang belum login.
@@ -4651,22 +4651,61 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     if(p.agenda)wrap.appendChild(v21Node('p','v25-detail-text','Agenda berikutnya: '+p.agenda));
     v21ShowModal(p.judul||'Perkembangan','Catatan perkembangan kegiatan',wrap);
   }
+  // Linimasa publik: tiga kegiatan terbaru, tahap asli D1, detail penuh di modal.
+  let v17ProgressItems=[],v17ShowAllProgress=false;
+  function f4DevStatusKind(value){
+    const s=String(value||'').toLowerCase();
+    if(/selesai|tuntas|terlaksana|rampung|sukses|done|completed/.test(s))return 'done';
+    if(/berjalan|proses|berlangsung|dikerjakan|aktif|progress/.test(s))return 'active';
+    return 'plan';
+  }
   function v25RenderTimeline(items){
-    const timeline=$('v17Timeline');if(!timeline)return;timeline.replaceChildren();
-    (items||[]).slice(0,12).forEach(p=>{
-      const li=v21Node('li'),hasPhoto=!!v21ImageSrc(p.foto);
-      const button=v21Node('button','v25-progress-tile');button.type='button';
-      button.title='Buka detail '+(p.judul||'kegiatan');button.onclick=()=>v25ShowProgress(p);
-      if(hasPhoto){const img=v21Photo(p.foto,p.judul);img.classList.add('v25-progress-thumb');button.appendChild(img);}
-      else button.appendChild(v21Node('span','v27-progress-no-photo','📷'));
-      const info=v21Node('span','v25-progress-copy');info.append(
-        v21Node('strong','',p.judul||p.langkah||'Kegiatan'),
-        v21Node('small','',[p.tanggal,p.status].filter(Boolean).join(' • ')),
-        v21Node('p','',p.deskripsi||''));
-      if(!hasPhoto)info.appendChild(v21Node('small','v27-photo-missing','Belum ada foto kegiatan'));
-      button.appendChild(info);li.appendChild(button);timeline.appendChild(li);
+    const timeline=$('v17Timeline');if(!timeline)return;
+    v17ProgressItems=(Array.isArray(items)?items:[]).slice().sort((a,b)=>
+      String(b.tanggal||'').localeCompare(String(a.tanggal||'')));
+    v17ProgressCount=v17ProgressItems.length;
+    $('f4DevStepCount').textContent=v17ProgressCount+' tahap';
+    const track=$('f4DevStepTrack');
+    track.replaceChildren();
+    const chronological=v17ProgressItems.slice().reverse().slice(0,6);
+    track.style.setProperty('--dev-steps',String(Math.max(1,chronological.length)));
+    chronological.forEach((p,i)=>{
+      const step=document.createElement('div');step.className='f4-dev-step';
+      const status=f4DevStatusKind(p.status);if(status!=='plan')step.classList.add('is-'+status);
+      const dot=document.createElement('i');dot.textContent=status==='done'?'✓':String(i+1);
+      const title=document.createElement('span');title.textContent='Tahap '+(i+1);
+      step.title=(p.judul||p.langkah||'Kegiatan')+' • '+(p.status||'Direncanakan');
+      step.append(dot,title);track.append(step);
     });
-    if(!timeline.childElementCount)timeline.textContent='Belum ada perkembangan yang dipublikasikan.';
+    const more=$('f4DevShowAll');
+    more.hidden=v17ProgressCount<=3;
+    more.textContent=v17ShowAllProgress?'Tampilkan 3':'Lihat semua';
+    more.onclick=()=>{v17ShowAllProgress=!v17ShowAllProgress;v25RenderTimeline(v17ProgressItems)};
+    timeline.replaceChildren();
+    const visible=v17ShowAllProgress?v17ProgressItems:v17ProgressItems.slice(0,3);
+    visible.forEach(p=>{
+      const li=document.createElement('li');
+      const button=document.createElement('button');button.type='button';button.className='f4-dev-activity';
+      button.title='Lihat kegiatan '+(p.judul||p.langkah||'');
+      button.onclick=()=>v25ShowProgress(p);
+      if(p.foto&&v21ImageSrc(p.foto)){
+        const img=v21Photo(p.foto,p.judul||'Foto kegiatan');img.classList.add('f4-dev-activity-img');button.append(img);
+      }else{
+        const icon=document.createElement('span');icon.className='f4-dev-activity-icon';icon.textContent='♻';icon.setAttribute('aria-hidden','true');button.append(icon);
+      }
+      const info=document.createElement('span');info.className='f4-dev-activity-info';
+      const name=document.createElement('strong');name.textContent=p.judul||p.langkah||'Kegiatan';
+      const date=document.createElement('small');date.textContent=p.tanggal||'Tanggal belum diisi';
+      info.append(name,date);
+      const state=document.createElement('span');state.className='f4-dev-activity-state';
+      const kind=f4DevStatusKind(p.status);if(kind==='plan')state.classList.add('is-plan');else if(kind==='active')state.classList.add('is-active');
+      state.textContent=p.status||'Rencana';
+      button.append(info,state);li.append(button);timeline.append(li);
+    });
+    if(!timeline.childElementCount){
+      const empty=document.createElement('li');empty.className='f4-dev-empty-activity';empty.textContent='Belum ada kegiatan yang dipublikasikan.';timeline.append(empty);
+    }
+    v17RenderPublicChart();
   }
   function v25PreviewURL(id){
     const input=$(id);if(!input)return;
