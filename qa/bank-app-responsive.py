@@ -3,7 +3,7 @@ import asyncio
 from playwright.async_api import async_playwright
 
 ROOT="http://127.0.0.1:8765"
-HTML="""<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
+HTML="""<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><base href="http://127.0.0.1:8765/">
 <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
 <style>.hidden{display:none}.section{padding:20px;max-width:100%;box-sizing:border-box}
 @media(min-width:1024px){.section{margin-left:244px}}</style></head>
@@ -37,7 +37,6 @@ async def main():
         browser=await p.chromium.launch(args=["--no-sandbox"])
         for device,width in [("pc",1366),("hp",390)]:
             page=await browser.new_page(viewport={"width":width,"height":850},device_scale_factor=1)
-            await page.goto(ROOT+"/",wait_until="domcontentloaded")
             await page.set_content(HTML,wait_until="load")
             await page.add_script_tag(url=ROOT+"/portal-live/bank-mobile-app.js")
             await page.evaluate("""() => window.dispatchEvent(new CustomEvent('f4-bank-admin-overview',{
