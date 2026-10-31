@@ -29,7 +29,7 @@ const adminDock=[
 ];
 const memberDock=[
  ["Beranda","dashboard","home.svg"],["Tabungan","pribadi","cash.svg"],
- ["Pencairan","bank-payout","pay.svg"],["Riwayat","bank-history","book.svg"],
+ ["Pencairan","bank-payout","rp"],["Riwayat","bank-history","book.svg"],
  ["Laporan","bank-report","book.svg"]
 ];
 let role=null,screen="dashboard",historyMonth="latest",reportMonth="",activePage=null;
@@ -49,7 +49,12 @@ function roleType(){
 function action([title,route,asset],dock=false){
  const b=el("button",dock?"f4-bank-app-dock-action":"f4-bank-app-action");
  b.type="button";b.dataset.bankAppRoute=route;b.setAttribute("aria-label",title);
- const symbol=el("span","f4-bank-app-action-icon");symbol.append(image(asset));
+ const symbol=el("span","f4-bank-app-action-icon");
+ if(asset==="rp"){
+  const currency=el("span","f4-bank-currency-mark","Rp");
+  currency.setAttribute("aria-hidden","true");
+  symbol.append(currency);
+ }else symbol.append(image(asset));
  b.append(symbol,el("span","f4-bank-app-action-name",title));
  b.onclick=()=>navigate(route);return b;
 }
