@@ -24,7 +24,7 @@
 .f4-activity-switch button.is-active{color:white;background:var(--f4-progress-green);box-shadow:0 3px 9px rgba(12,119,76,.17)}
 .f4-activity-switch button:disabled{opacity:.42;cursor:not-allowed}
 .f4-activity-switch button:focus-visible,.f4-activity-show-all:focus-visible,.f4-activity-dialog-close:focus-visible{outline:2px solid #0a8055;outline-offset:3px}
-.f4-activity-bars{display:grid;grid-template-columns:repeat(var(--f4-activity-columns,6),minmax(0,1fr));grid-template-rows:minmax(0,1fr);align-items:end;gap:8px;height:206px;margin:8px 0 0;min-width:0;max-width:100%}
+.f4-activity-bars{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-template-rows:minmax(0,1fr);align-items:end;gap:8px;height:206px;margin:8px 0 0;min-width:0;max-width:100%}
 .f4-activity-column{display:flex;flex-direction:column;min-width:0;max-width:100%;min-height:0;text-align:center;align-items:stretch;justify-content:end;height:100%;gap:7px}
 .f4-activity-column>b{display:block;font-size:11px;font-weight:800;line-height:1.2;color:#26684a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.3px}
 .f4-activity-bar-track{position:relative;height:151px;display:flex;flex-direction:column-reverse;justify-content:flex-start;align-items:center;gap:0;border-bottom:1px solid #dbe8df}
