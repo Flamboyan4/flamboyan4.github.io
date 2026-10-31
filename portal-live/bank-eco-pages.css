@@ -291,44 +291,56 @@ body.f4-bank-embedded #dashboardView .section,
  html body :is(#v18PublicSide,#sideNav) button svg{
    width:19px!important;height:19px!important;flex:none!important
  }
- /* Pengurus HP: menu tambahan berbentuk popover, bukan drawer samping.
-    Satu sumber ukuran untuk mobile; pilihan primer tetap pada dock bawah. */
+ /* Pengurus HP: drawer kiri yang hanya berisi menu tambahan.
+    Beranda, Setoran, Penjualan, Laporan dan Saldo khusus dock bawah. */
  html body.f4-bank-app-admin.v17-dashboard #sideNav.side{
    display:block;box-sizing:border-box;
-   position:fixed;inset:64px auto auto 10px;
-   width:calc(100vw - 20px);max-width:540px;
-   height:auto;min-height:0;max-height:calc(100dvh - 56px - 84px);
-   padding:12px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
-   background:#fff;border:1px solid #d5e5db;border-radius:15px;
-   box-shadow:0 16px 45px #0b362b33;z-index:241;
-   transform:none;opacity:0;visibility:hidden;pointer-events:none;
-   transition:opacity .14s ease
+   position:fixed;inset:56px auto 0 0;
+   width:min(300px,84vw);max-width:min(300px,84vw);
+   height:calc(100dvh - 56px);min-height:0;max-height:calc(100dvh - 56px);
+   padding:16px 12px 24px;overflow-x:hidden;overflow-y:auto;
+   overscroll-behavior:contain;
+   background:#fff;border:0;border-right:1px solid #dce9e1;border-radius:0;
+   box-shadow:9px 0 22px #183f3217;z-index:241;
+   transform:translateX(-105%);opacity:1;visibility:hidden;pointer-events:none;
+   transition:transform .2s ease,visibility .2s ease
  }
  html body.f4-bank-app-admin.v17-dashboard #sideNav.side.open{
-   transform:none;opacity:1;visibility:visible;pointer-events:auto
+   transform:translateX(0);opacity:1;visibility:visible;pointer-events:auto
  }
  html body.f4-bank-app-admin #v16Backdrop.open{
    display:block;position:fixed;inset:56px 0 0;
    z-index:240;background:#173d2c55;pointer-events:auto
  }
- html body.f4-bank-app-admin #sideNav :is(#v16Brand,#v15Footer){display:none}
+ html body.f4-bank-app-admin #sideNav #v15Footer{display:none}
+ html body.f4-bank-app-admin #sideNav #v16Brand{
+   display:flex;align-items:center;gap:10px;margin:0 0 12px;
+   padding:5px 4px 15px;border-bottom:1px solid #e2eee5
+ }
+ html body.f4-bank-app-admin #sideNav #v16Brand img{width:35px;height:35px}
+ html body.f4-bank-app-admin #sideNav #v16Brand small{display:none}
  html body.f4-bank-app-admin #sideNav #v16Navigation{display:block}
  html body.f4-bank-app-admin #sideNav .v16-nav-caption{
-   margin:0;padding:0 3px 10px;font-size:11px;letter-spacing:.06em;color:#617a6d
+   margin:0;padding:0 5px 8px;font-size:11px;letter-spacing:.06em;color:#738a7d
  }
  html body.f4-bank-app-admin #sideNav #v16NavList{
-   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px
+   display:flex;flex-direction:column;gap:3px
  }
  html body.f4-bank-app-admin #sideNav #v16NavList>.v16-item{
    box-sizing:border-box;width:100%;min-width:0;max-width:100%;
-   margin:0;gap:8px;align-items:center;justify-content:flex-start;
+   margin:0;gap:10px;align-items:center;justify-content:flex-start;
    white-space:normal;text-align:left
  }
  html body.f4-bank-app-admin #sideNav #v16NavList>.v16-item svg{
-   width:18px;height:18px;flex:none
+   width:19px;height:19px;flex:none
  }
- html body.f4-bank-app-admin #sideNav #v16NavList>.v16-item[data-group="public"]{
-   grid-column:1/-1
+ html body.f4-bank-app-admin #sideNav #v16NavList>.v16-mobile-extra{
+   display:flex
+ }
+ /* Cegah menu bawah muncul lagi di drawer, termasuk lewat kelompok lama. */
+ html body.f4-bank-app-admin #sideNav #v16NavList>.v16-item:is(
+   [data-group="home"],[data-group="entry"],[data-group="money"]){
+   display:none
  }
 }
 @media screen and (max-width:760px){
@@ -796,10 +808,6 @@ body.f4-bank-embedded #dashboardView .section,
 /* Drawer is a complementary mobile navigation; dock routes stay only in bottom bar. */
 #dashboardView #sideNav .v16-mobile-extra{display:none}
 @media(max-width:1023px){
- body.f4-bank-app-admin #dashboardView #sideNav .v16-item[data-group="home"],
- body.f4-bank-app-admin #dashboardView #sideNav .v16-item[data-group="entry"],
- body.f4-bank-app-admin #dashboardView #sideNav .v16-item[data-group="money"]{display:none}
- body.f4-bank-app-admin #dashboardView #sideNav .v16-mobile-extra{display:flex}
  body.f4-bank-app-private #dashboardView .mobile-nav{display:none}
  body.f4-bank-app-private #dashboardView>.grid,
  body.f4-bank-app-private #dashboardView>.grid>.section{overflow:visible;scroll-behavior:auto}
