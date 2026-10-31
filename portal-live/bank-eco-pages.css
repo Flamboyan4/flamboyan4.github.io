@@ -533,6 +533,15 @@ body.f4-bank-embedded #dashboardView .section,
 #dashboardView .f4-bank-app-balance-title{font-size:13px;font-weight:650;color:#e2f4e9}
 #dashboardView .f4-bank-app-balance{font-size:26px;font-weight:850;color:#fff;line-height:1.16;font-variant-numeric:tabular-nums}
 #dashboardView .f4-bank-app-secondary{font-size:11px;color:#e0f2e8}
+#dashboardView .f4-bank-admin-deposit-action{justify-self:start;margin-top:8px;padding:10px 15px;min-height:38px;border:1px solid #ffc026;border-radius:10px;background:#ffc026;color:#134f32;font-size:12px;font-weight:850;box-shadow:0 3px 12px #001d1040}
+#dashboardView .f4-bank-admin-deposit-action:hover{background:#ffcf47;border-color:#ffcf47}
+#dashboardView .f4-bank-manual-payout{border:1px solid #c9dfd0;border-radius:12px;background:#f8fcf9;padding:12px}
+#dashboardView .f4-bank-manual-payout>summary{cursor:pointer;font-weight:800;font-size:13px;color:#1d6040;list-style:disclosure-closed}
+#dashboardView .f4-bank-manual-payout[open]>summary{list-style:disclosure-open;margin-bottom:11px}
+#dashboardView .f4-bank-manual-payout .f4-savings-payout{margin:13px 0}
+#dashboardView #bank-payout-admin{width:100%}
+#dashboardView .f4-bank-payout-link{max-width:max-content}
+
 #dashboardView .f4-bank-app-home[data-bank-role="admin"] .f4-bank-member-card,
 #dashboardView .f4-bank-app-home[data-bank-role="admin"] .f4-bank-app-member-balance,
 #dashboardView .f4-bank-app-home[data-bank-role="admin"] .f4-bank-app-personal-greeting,
@@ -541,7 +550,7 @@ body.f4-bank-embedded #dashboardView .section,
 .f4-bank-app-action-icon{width:37px;height:37px;display:grid;place-items:center;flex:none;border-radius:50%;background:#e7f7e9}
 .f4-bank-app-action-icon img{width:22px;height:22px;object-fit:contain}
 #dashboardView .f4-bank-app-minis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-#dashboardView .f4-bank-app-mini{display:grid;gap:5px;min-width:0;padding:11px;background:#f1f8f2;border:1px solid #e3eee6;border-radius:12px}
+#dashboardView .f4-bank-app-mini{display:grid;gap:5px;min-width:0;padding:14px;background:#e0f1e5;border:1px solid #b5d8c0;border-radius:12px}
 .f4-bank-app-mini small{color:#67806e;font-size:11px}
 .f4-bank-app-mini strong{font-size:15px;line-height:1.2;overflow-wrap:anywhere;color:#0c5835}
 #dashboardView #f4BankAppHome>.v14-panel{padding:13px 12px;border:1px solid #e1ece3;border-radius:13px;background:#fff;margin:0}
@@ -658,7 +667,7 @@ body.f4-bank-embedded #dashboardView .section,
 #dashboardView .f4-bank-report-transaction>span:last-child{font-size:12px;font-weight:800;white-space:nowrap;color:#168453}
 #dashboardView .f4-bank-report-transaction>span.is-out{color:#d45145}
 
-#dashboardView .f4-bank-manager-requests{display:grid;gap:10px;margin:0 0 16px;padding:13px;border:1px solid #d5e8d8;border-radius:13px;background:#fff}
+#dashboardView .f4-bank-manager-requests{display:grid;gap:10px;margin:0 0 16px;padding:15px;border:1px solid #bad8c3;border-radius:13px;background:#fff}
 .f4-bank-mobile-section-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .f4-bank-mobile-section-head h3{font-size:15px;margin:0;color:#20593b}
 #dashboardView .f4-bank-refresh-button{padding:7px 9px;font-size:11px;border:1px solid #d6e8dc;background:#eaf6ed;color:#1a6643}
@@ -697,9 +706,35 @@ body.f4-bank-embedded #dashboardView .section,
 
  body.f4-bank-app-private .f4-bank-app-dock .f4-bank-app-action-icon{height:23px;width:23px;border-radius:0;background:transparent}
  body.f4-bank-app-private .f4-bank-app-dock .f4-bank-app-action-icon img{width:22px;height:22px}
+ body.f4-bank-app-admin .f4-bank-app-dock-action:nth-child(3){color:#795000;font-weight:850}
+ body.f4-bank-app-admin .f4-bank-app-dock-action:nth-child(3) .f4-bank-app-action-icon{display:grid;place-items:center;width:35px;height:35px;border-radius:11px;background:#ffc026}
+ body.f4-bank-app-admin .f4-bank-app-dock-action:nth-child(3) .f4-bank-app-action-icon img{filter:brightness(0) invert(1)}
+ body.f4-bank-drawer-open{overflow:hidden}
 }
 @media(min-width:761px){
- #dashboardView .f4-bank-app-home{max-width:680px}
- #dashboardView .f4-bank-screen{max-width:700px}
- #dashboardView .f4-bank-member-card{max-width:430px}
+ #dashboardView #f4BankAppHome{max-width:none;width:100%;grid-template-columns:minmax(0,1.3fr) minmax(280px,.9fr);gap:16px;align-items:start}
+ #dashboardView #f4BankAppHome>.f4-bank-app-personal-greeting{grid-column:1/-1}
+ #dashboardView #f4BankAppHome>.f4-bank-member-card{grid-column:1;grid-row:2 / span 2;max-width:none;max-height:none;min-height:240px}
+ #dashboardView #f4BankAppHome>.f4-bank-app-member-balance{grid-column:2;grid-row:2}
+ #dashboardView #f4BankAppHome>.f4-bank-weigh-schedule{grid-column:2;grid-row:3}
+ #dashboardView #f4BankAppHome>.f4-member-flow{grid-column:1}
+ #dashboardView #f4BankAppHome[data-bank-role="member"]>.v14-panel{grid-column:2;align-self:stretch}
+ #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppAdminHero{grid-column:1;min-height:210px;align-content:center;padding:24px}
+ #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppMinis{grid-column:2;grid-template-columns:1fr;align-self:stretch;gap:8px}
+ #dashboardView #f4BankAppHome[data-bank-role="admin"]>.v14-panel{min-width:0}
+ #dashboardView #f4BankAppHome[data-bank-role="admin"]>.v14-panel:nth-last-of-type(2){grid-column:1}
+ #dashboardView #f4BankAppHome[data-bank-role="admin"]>.v14-panel:last-of-type{grid-column:2}
+ #dashboardView .f4-bank-screen{max-width:none;width:100%;box-sizing:border-box}
+ #dashboardView .f4-bank-member-card{max-width:none}
+}
+@media(min-width:761px) and (max-width:1050px){
+ #dashboardView #f4BankAppHome{grid-template-columns:minmax(0,1fr)}
+ #dashboardView #f4BankAppHome>*{grid-column:1}
+ #dashboardView #f4BankAppHome>.f4-bank-member-card,
+ #dashboardView #f4BankAppHome>.f4-bank-app-member-balance,
+ #dashboardView #f4BankAppHome>.f4-bank-weigh-schedule{grid-column:1;grid-row:auto}
+ #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppAdminHero,
+ #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppMinis,
+ #dashboardView #f4BankAppHome[data-bank-role="admin"]>.v14-panel{grid-column:1;grid-row:auto}
+ #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppMinis{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
