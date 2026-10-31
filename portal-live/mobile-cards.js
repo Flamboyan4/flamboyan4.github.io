@@ -52,7 +52,7 @@ function nameFor(label){
  return null;
 }
 function iconify(button){
- if(!button||button.classList.contains('f4-card-detail-toggle')||button.classList.contains('f4-global-refresh')||button.dataset.f4RefreshIconified==='1')return;
+ if(!button||button.classList.contains('f4-card-detail-toggle')||button.classList.contains('f4-bs-detail-button')||button.classList.contains('f4-global-refresh')||button.dataset.f4RefreshIconified==='1')return;
  // Focal-point navigation and financial actions must retain visible text.
  if(button.matches('#v14QuickAction,#v14AllDeposits,#v9Sync,.v14-action,.wide,.f4-primary-action,[data-f4-keep-label]')||
     button.closest('.f4-bank-quick,.f4-public-primary-actions')||
