@@ -165,6 +165,7 @@ body.f4-account-open #f4-direct-bar{z-index:500!important}
 #f4-direct-sidebar .f4-direct-other-pages{border-top:1px solid var(--f4-nav-line);margin-top:15px;padding-top:16px}
 #f4-direct-sidebar button{min-height:43px}
 @media(max-width:1023px){
+ body.f4-direct-bank #f4-direct-bar{background:#fff;backdrop-filter:none;transition:none}
  body.f4-direct-portal #f4-direct-sidebar,body.f4-direct-simple #f4-direct-sidebar{top:56px!important;bottom:0!important;height:calc(100dvh - 56px)!important}
  body.f4-direct-portal #f4-direct-bar,body.f4-direct-simple #f4-direct-bar,body.f4-direct-bank #f4-direct-bar,body.f4-direct-book #f4-direct-bar,body.f4-direct-superadmin #f4-direct-bar{left:0!important}
 }
