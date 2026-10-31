@@ -3656,7 +3656,10 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     v16Groups.filter(g=>profile?.peran==='Admin'?g.admin:g.member).map(g=>
       g.id==='program'&&document.body.dataset.f4BankRole==='superadmin'
        ?{...g,label:'Dokumentasi & Inventaris',tabs:g.tabs.filter(t=>t[0]!=='kegiatan')} : g).forEach(g=>{
-      const b=document.createElement('button');b.type='button';b.className='v16-item';b.dataset.group=g.id;b.append(v16Icon(g.icon),document.createTextNode(g.label));
+      const b=document.createElement('button');b.type='button';b.className='v16-item';b.dataset.group=g.id;
+      const symbol=g.icon==='image'?document.createElement('img'):v16Icon(g.icon);
+      if(g.icon==='image'){symbol.src='/assets/icons/book.svg';symbol.alt='';symbol.width=18;symbol.height=18;}
+      b.append(symbol,document.createTextNode(g.label));
       b.onclick=()=>{
        const target=g.id==='public'?'public':g.tabs[0]?.[0]||'dashboard';
        // Close the drawer BEFORE loading API-driven pages: load errors must never
