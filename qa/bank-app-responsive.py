@@ -257,6 +257,8 @@ async def admin_mobile_shell(browser):
     assert state["visible"]==["Riwayat setoran","Sahkan hasil","Pencairan"],state
     assert not state["horizontalOverflow"],state
     # The admin hamburger restores the left slide drawer; no bottom dock routes appear twice.
+    # Wait for any entrance/visibility transition before checking its closed state.
+    await page.wait_for_timeout(260)
     drawer_before=await page.evaluate("""() => {
       const side=document.querySelector("#sideNav");
       return {visible:getComputedStyle(side).visibility,
