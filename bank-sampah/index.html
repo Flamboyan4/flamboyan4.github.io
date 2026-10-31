@@ -2827,6 +2827,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   (async()=>{v8Setup();v9Setup();v10Setup();v11Setup();const entry=document.createElement('button');entry.className='secondary wide';entry.textContent='Lihat portal publik';entry.onclick=v11ShowPublic;$('authNotice').before(entry);const nav=document.createElement('button');nav.id='navPublic';nav.className='secondary';nav.textContent='Info Bank Sampah';nav.onclick=v11ShowPublic;$('navProgress').after(nav);if(token){try{showDashboard(await call('authMe',token));}catch(e){showAuth();v11ShowPublic();}}else if(!document.documentElement.classList.contains('f4-bank-auth-pending'))v11ShowPublic();})();
   // v12 — hanya menampilkan rincian pribadi dari sesi warga yang sedang aktif.
   let v12Data=null;
+  window.f4BankMemberPrintReady=()=>!!v12Data&&Array.isArray(v12Data.mutasi)&&Array.isArray(v12Data.setoran);
   const v12Show=showDashboard,v12Go=goPage,v12Auth=showAuth;
   showDashboard=function(p){v12Show(p);v12Setup();};
   showAuth=function(){v12Data=null;if($('v10Print'))$('v10Print').replaceChildren();if($('v12History'))$('v12History').replaceChildren();if($('v12Deposits'))$('v12Deposits').replaceChildren();v12Auth();};
