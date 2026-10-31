@@ -7,10 +7,31 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  grid-column:1;width:100%;max-width:980px;min-width:0;margin-inline:auto
 }
 body.f4-bank-app-member #f4-direct-bar #f4-mobile-menu{display:none}
-body.f4-bank-app-member.f4-member-feature #f4-direct-bar #f4-mobile-menu{
- display:grid;width:40px;height:40px;align-items:center;justify-content:center;
- background:#e8f6ee;color:#0b7852;font-size:26px;font-weight:500
+body.f4-bank-app-member.f4-bank-member-secondary #f4-direct-bar #f4-mobile-menu{
+ display:grid;align-items:center;justify-content:center;
+ width:36px;height:40px;padding:0;margin:0 4px 0 0;
+ background:transparent;border:0;border-radius:0;box-shadow:none;
+ color:#087e58;font-family:Arial,system-ui,sans-serif;font-size:28px;
+ line-height:1;font-weight:400;cursor:pointer
 }
+body.f4-bank-app-member.f4-bank-member-secondary #f4-direct-bar #f4-mobile-menu:hover{
+ background:transparent
+}
+body.f4-bank-app-member #f4-direct-bar .f4-bank-member-top-identity{
+ display:grid;grid-template-rows:auto auto;gap:2px;align-content:center;
+ flex:1 1 auto;min-width:0;max-width:245px;margin-right:4px;
+ font-family:system-ui,-apple-system,sans-serif
+}
+body.f4-bank-app-member #f4-direct-bar .f4-bank-member-top-identity strong{
+ font-size:13px;line-height:1.15;font-weight:850;color:#164b35;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+body.f4-bank-app-member #f4-direct-bar .f4-bank-member-top-identity small{
+ font-size:10px;line-height:1.1;font-weight:600;color:#77907f;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+body.f4-bank-app-member #f4-direct-bar .f4-nav-links{margin-left:auto}
+body.f4-bank-app-member #f4BankAppWelcome{display:none}
 body.f4-bank-app-member.f4-member-feature #f4-direct-bar #f4-mobile-menu:focus-visible,
 body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-shortcut,.f4-member-feature-header) button:focus-visible{
  outline:2px solid #087a52;outline-offset:2px
@@ -77,12 +98,14 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
 #dashboardView .f4-member-info-shortcut img{width:21px;height:21px;object-fit:contain}
 #dashboardView .f4-member-info-shortcut span:nth-child(2){flex:1}
 #dashboardView :is(#bank-member-progress,#bank-member-info).f4-bank-screen{
- display:grid;gap:14px;padding:14px;border-radius:18px;border:1px solid #e1ebe4;background:#fff
+ display:grid;gap:18px;min-width:0;
+ margin:0;padding:0;border:0;border-radius:0;
+ background:transparent;box-shadow:none
 }
 #dashboardView :is(#bank-member-progress,#bank-member-info).hidden{display:none}
 #dashboardView .f4-member-feature-header{
- display:flex;align-items:center;gap:10px;padding:1px 0 10px;
- border-bottom:1px solid #e5ede6
+ display:flex;align-items:center;gap:10px;padding:2px 0 10px;
+ border-bottom:1px solid #e8eee9
 }
 #dashboardView .f4-member-feature-header div{min-width:0;display:grid;gap:3px}
 #dashboardView .f4-member-feature-header h2{
@@ -132,36 +155,49 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
  box-shadow:none
 }
 #dashboardView #bank-member-info .v17-section{
- margin:0;min-width:0;padding:15px;border:1px solid #dce8df;
- border-radius:16px;background:#fff
+ margin:0;min-width:0;padding:0;border:0;border-radius:0;
+ background:transparent;box-shadow:none
 }
 #dashboardView #bank-member-info .v17-section h2{
  margin:0 0 12px;font-size:17px;font-weight:850;color:#1c5137
 }
-#dashboardView #bank-member-info .v17-panel{background:#fff;min-width:0}
+#dashboardView #bank-member-info #v25ReportRoot.v17-panel{
+ min-width:0;margin:0;padding:12px;border:1px solid #d7e7dc;
+ border-radius:16px;background:#fff;box-shadow:none
+}
 #dashboardView #bank-member-info .v25-report-toolbar{
- display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:8px 0 12px
+ display:flex;flex-wrap:wrap;align-items:center;gap:6px;
+ margin:0 0 12px;padding:0
 }
 #dashboardView #bank-member-info .v25-report-toolbar select{
- flex:1;min-width:135px;max-width:340px;min-height:38px;background:#fff;
- color:#23533a;border:1px solid #d5e4d9;border-radius:10px;padding:8px
+ flex:1 1 100%;width:100%;max-width:none;min-width:0;min-height:40px;
+ margin:0 0 2px;padding:8px 11px;border:1px solid #d8e8df;
+ border-radius:10px;background:#fff;color:#23533a;font-size:13px;font-weight:700
 }
 #dashboardView #bank-member-info .v25-report-toolbar button{
- min-height:38px;padding:7px 10px;border-radius:9px;background:#eff7f1;
- color:#1b6040;border:1px solid #d6e7db;font-weight:750;font-size:12px
+ flex:0 0 auto;min-width:34px;min-height:34px;
+ margin:0;padding:7px 10px;border-radius:9px;background:#e8f7ee;
+ color:#0c7950;border:0;box-shadow:none;font-weight:800;font-size:11px
 }
-#dashboardView #bank-member-info .v25-public-metrics{
- display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px
+#dashboardView #bank-member-info #v25ReportMetrics.v25-public-metrics{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:6px;margin:8px 0 11px;min-width:0
 }
-#dashboardView #bank-member-info .v17-public-metric{
- min-width:0;border:1px solid #e0e9e2;border-radius:11px;
- padding:10px 8px;background:#f9fcfa
+#dashboardView #bank-member-info #v25ReportMetrics>.v17-public-metric{
+ min-width:0;min-height:54px;display:grid;align-content:center;gap:4px;
+ padding:8px 7px;border:1px solid #deebe1;border-left:3px solid #09845b;
+ border-radius:11px;background:#fff;box-shadow:none
 }
-#dashboardView #bank-member-info .v17-public-metric small{
- display:block;font-size:10px;color:#7c907e
+#dashboardView #bank-member-info #v25ReportMetrics>.v17-public-metric:nth-child(2){
+ border-left-color:#d7a51f
 }
-#dashboardView #bank-member-info .v17-public-metric strong{
- display:block;margin-top:4px;font-size:15px;color:#165438;overflow-wrap:anywhere
+#dashboardView #bank-member-info #v25ReportMetrics>.v17-public-metric small{
+ display:block;margin:0;font-size:10px;font-weight:650;line-height:1.15;
+ color:#677f6e;white-space:normal
+}
+#dashboardView #bank-member-info #v25ReportMetrics>.v17-public-metric strong{
+ display:block;margin:0;font-size:clamp(12px,2.4vw,15px);font-weight:850;
+ line-height:1.15;color:#165438;overflow-wrap:anywhere
 }
 #dashboardView #bank-member-info .v25-report-table{
  max-width:100%;overflow-x:auto
@@ -184,9 +220,13 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
  #dashboardView #bank-member-progress #v17PublicMetrics .v17-public-metric{padding:10px 8px;gap:3px 7px}
  #dashboardView #bank-member-progress #v17PublicMetrics .v17-public-metric strong{font-size:17px}
  #dashboardView :is(#bank-member-progress,#bank-member-info).f4-bank-screen{
-  padding:11px;border-radius:15px
+  padding:0;border-radius:0
  }
- #dashboardView #bank-member-info .v17-section{padding:11px}
- #dashboardView #bank-member-info .v25-public-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #dashboardView #bank-member-info .v17-section{padding:0}
+ #dashboardView #bank-member-info #v25ReportMetrics.v25-public-metrics{
+  grid-template-columns:repeat(3,minmax(0,1fr));gap:5px
+ }
+ #dashboardView #bank-member-info #v25ReportMetrics>.v17-public-metric{padding:7px 6px}
+ #dashboardView #bank-member-info #v25ReportMetrics>.v17-public-metric strong{font-size:12px}
  #dashboardView .f4-member-environment-preview{padding:12px}
 }
