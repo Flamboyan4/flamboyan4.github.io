@@ -135,8 +135,13 @@ async def savings_chart(browser):
     }""")
     assert state["groups"]==["Per bulan","Periode"],state
     assert not state["select"],state
-    assert [x["value"] for x in state["month"]]==["1,9 kg","3,5 kg"],state
+    assert [x["value"] for x in state["month"]]==["0,9 kg","1 kg","2 kg","1,5 kg"],state
     assert state["visibleNav"]==["progress","public"],state
+    assert await page.locator('.f4-bank-chart-groups button[data-group="period"]').get_attribute("aria-pressed")=="true"
+    await page.locator('.f4-bank-chart-groups button[data-group="month"]').click()
+    monthly_kg=await page.locator("#f4BankSavingsBars .f4-bank-savings-bar").evaluate_all(
+      "(nodes)=>nodes.map(x=>x.querySelector('strong').textContent)")
+    assert monthly_kg==["1,9 kg","3,5 kg"],monthly_kg
     await page.locator('.f4-bank-chart-groups button[data-group="period"]').click()
     period=await page.locator("#f4BankSavingsBars .f4-bank-savings-bar").evaluate_all(
       "(nodes)=>nodes.map(x=>x.querySelector('small').textContent)")
