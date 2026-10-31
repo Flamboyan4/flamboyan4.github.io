@@ -147,6 +147,8 @@
        bars.replaceChildren(el('p','f4-activity-empty','Rekap harian belum tersedia.'));
        footer.replaceChildren();legend.replaceChildren();caption.textContent='';return;
      }
+     // Keep every period in one horizontal chart row (7 days = 7 columns; month/30 days = 6).
+     bars.style.setProperty('--f4-activity-columns',String(rows.length));
      const key=isRupiah?'rp':'kg',pending=isRupiah?'estimateRp':'estimateKg';
      const maximum=Math.max(0,...rows.map(r=>r[key]+r[pending]));
      bars.replaceChildren();
