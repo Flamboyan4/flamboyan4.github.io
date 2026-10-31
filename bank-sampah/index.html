@@ -3939,7 +3939,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     return d;
   }
   let v17PublicChartMode='berat';
-  let v17PublicChartRows=[],v17PublicReportReady=false;
+  let v17PublicChartRows=[],v17PublicReportReady=false,v17PublicReportFailed=false,v17PublicLoadSerial=0;
   function v17RenderPublicChart(){
     const root=$('v17WeightBars'),note=$('v17WeightNote'),legend=$('v17PublicChartLegend');
     if(!root||!note||!legend)return;
@@ -3959,14 +3959,16 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     });
     root.setAttribute('aria-label',(isValue?'Nilai setoran dalam rupiah':'Berat setoran dalam kilogram')+' per bulan, hijau sudah sah dan kuning belum sah');
     if(isValue&&!v17PublicReportReady){
-      root.replaceChildren();root.textContent='Memuat nilai setoran...';
+      root.replaceChildren();root.textContent=v17PublicReportFailed?'Data nilai belum tersedia.':'Memuat nilai setoran...';
       note.textContent='';return;
     }
     const data=v17PublicChartRows;
     v17Chart(root,data,keys,names);
     const amount=key=>data.reduce((sum,r)=>sum+Math.max(0,Number(r?.[key])||0),0);
     const fmt=isValue?rupiah:kg;
-    note.textContent=data.length?'Sah '+fmt(amount(keys[0]))+' · Belum sah '+fmt(amount(keys[1])):'Belum ada data setoran.';
+    note.textContent=!v17PublicReportReady?
+      (data.length?'Berat sah '+kg(amount('beratKg'))+' · '+(v17PublicReportFailed?'Data belum sah belum tersedia.':'Memuat data belum sah...'):'Belum ada data setoran.'):
+      (data.length?'Sah '+fmt(amount(keys[0]))+' · Belum sah '+fmt(amount(keys[1])):'Belum ada data setoran.');
   }
   function v17BindPublicChart(){
     $('v17Perkembangan')?.querySelectorAll('[data-public-chart-mode]').forEach(button=>{
@@ -3979,25 +3981,22 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     });
   }
   async function v17LoadPublic(){
-    v17SetupPublic();$('v17PublicMetrics').textContent='Memuat informasi...';
+    v17SetupPublic();const chartSerial=++v17PublicLoadSerial;$('v17PublicMetrics').textContent='Memuat informasi...';
     try{
       const [home,albums,chart]=await Promise.all([call('bsV11PublicHome'),call('bsV22AlbumIndexPublik'),call('bsV17GrafikPublik')]);
       $('v17PublicMetrics').replaceChildren(v17PublicStat('Anggota aktif',home.anggotaAktif),v17PublicStat('Jenis barang',home.jenisBarang),v17PublicStat('Berat terkonfirmasi',kg(home.beratTerkonfirmasi)),v17PublicStat('Kegiatan terpublikasi',home.kegiatan));
       v17BindPublicChart();
       v17PublicChartRows=Array.isArray(chart.bulan)?chart.bulan.slice(-6):[];
-      v17PublicReportReady=false;
+      v17PublicReportReady=false;v17PublicReportFailed=false;
       v17RenderPublicChart();
       // Satu grafik; laporan publik menjadi sumber final berat dan nominal.
       call('bsV25LaporanPublik','semua').then(report=>{
-        if(!$('v17WeightBars')?.isConnected)return;
+        if(chartSerial!==v17PublicLoadSerial||!$('v17WeightBars')?.isConnected)return;
         const monthly=(Array.isArray(report.bulanan)?report.bulanan:[]).slice(-6);
-        v17PublicChartRows=monthly;v17PublicReportReady=true;v17RenderPublicChart();
+        v17PublicChartRows=monthly;v17PublicReportReady=true;v17PublicReportFailed=false;v17RenderPublicChart();
       }).catch(()=>{
-        if(!$('v17WeightBars')?.isConnected)return;
-        if(v17PublicChartMode==='nilai'){
-          $('v17WeightBars').textContent='Data nilai belum tersedia.';
-          $('v17WeightNote').textContent='';
-        }else $('v17WeightNote').textContent='Berat sah tersedia. Data belum sah belum dapat dimuat.';
+        if(chartSerial!==v17PublicLoadSerial||!$('v17WeightBars')?.isConnected)return;
+        v17PublicReportReady=false;v17PublicReportFailed=true;v17RenderPublicChart();
       });
       // v27: renderer langsung, termasuk untuk pengunjung yang belum login.
       v25RenderTimeline(home.progres||[]);
