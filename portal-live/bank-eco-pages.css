@@ -549,7 +549,7 @@ body.f4-bank-embedded #dashboardView .section,
 #dashboardView .f4-bank-app-shortcuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 .f4-bank-app-action-icon{width:37px;height:37px;display:grid;place-items:center;flex:none;border-radius:50%;background:#e7f7e9}
 .f4-bank-app-action-icon img{width:22px;height:22px;object-fit:contain}
-#dashboardView .f4-bank-app-minis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#dashboardView .f4-bank-app-minis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 #dashboardView .f4-bank-app-mini{display:grid;gap:5px;min-width:0;padding:14px;background:#d9ebdf;border:1px solid #91caa8;border-radius:12px}
 .f4-bank-app-mini small{color:#67806e;font-size:11px}
 .f4-bank-app-mini strong{font-size:15px;line-height:1.2;overflow-wrap:anywhere;color:#0c5835}
@@ -720,7 +720,7 @@ body.f4-bank-embedded #dashboardView .section,
  #dashboardView #f4BankAppHome>.f4-member-flow{grid-column:1}
  #dashboardView #f4BankAppHome[data-bank-role="member"]>.v14-panel{grid-column:2;align-self:stretch}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppAdminHero{grid-column:1;min-height:210px;align-content:center;padding:24px}
- #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppMinis{grid-column:2;grid-template-columns:1fr;align-self:stretch;gap:8px}
+ #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppMinis{grid-column:2;grid-template-columns:repeat(2,minmax(0,1fr));align-self:stretch;gap:8px}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>.v14-panel{min-width:0}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>.v14-panel:nth-last-of-type(2){grid-column:1}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>.v14-panel:last-of-type{grid-column:2}
@@ -736,5 +736,5 @@ body.f4-bank-embedded #dashboardView .section,
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppAdminHero,
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppMinis,
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>.v14-panel{grid-column:1;grid-row:auto}
- #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppMinis{grid-template-columns:repeat(3,minmax(0,1fr))}
+ #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppMinis{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
