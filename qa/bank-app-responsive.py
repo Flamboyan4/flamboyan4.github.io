@@ -203,6 +203,10 @@ async def admin_mobile_shell(browser):
       return {
         scroll:scrollY,positions,center:{w:center.width,h:center.height,y:center.y},
         dockY:bottom.y,dockCount:document.querySelectorAll(".f4-bank-app-dock").length,
+        gapIconLabel:actions.map(b=>+(b.querySelector(".f4-bank-app-action-name").getBoundingClientRect().top-
+          b.querySelector(".f4-bank-app-action-icon img").getBoundingClientRect().bottom).toFixed(2)),
+        textBottomGap:+(bottom.bottom-actions[0].querySelector(".f4-bank-app-action-name").getBoundingClientRect().bottom).toFixed(2),
+        dockPadding:getComputedStyle(document.querySelector("#dashboardView")).paddingBottom,
         activeBackground:getComputedStyle(actions[0]).backgroundColor,
         centerBackground:getComputedStyle(actions[2].querySelector(".f4-bank-app-action-icon")).backgroundColor,
         names,navHeight:dock.getBoundingClientRect().height,
@@ -218,7 +222,10 @@ async def admin_mobile_shell(browser):
     assert abs(state["headerY"])<1 and state["headerPosition"]=="fixed",state
     assert abs(state["dockBottom"]-820)<2,state
     assert state["names"]==["Beranda","Setoran","Laporan","Penjualan","Saldo"],state
-    assert 68<=state["navHeight"]<=84,state
+    assert abs(state["navHeight"]-68)<1,state
+    assert all(0<=state["gapIconLabel"][i]<=7 for i in (0,1,3,4)),state
+    assert 5<=state["textBottomGap"]<=17,state
+    assert state["dockPadding"]=="76px",state
     assert all(x["w"]>50 and x["right"]<=391 for x in state["positions"]),state
     assert all(state["positions"][i]["x"]<state["positions"][i+1]["x"] for i in range(4)),state
     assert state["center"]["w"]>=45 and state["center"]["h"]>=45,state
@@ -229,7 +236,27 @@ async def admin_mobile_shell(browser):
     assert state["legacyDisplay"]=="none",state
     assert state["visible"]==["Riwayat setoran","Sahkan hasil","Pencairan"],state
     assert not state["horizontalOverflow"],state
-    print("ADMIN_MOBILE_SCROLL_OK",state,flush=True)
+    # The exact same dock dimensions must apply when the role switches to member.
+    member=await page.evaluate("""() => {
+      document.body.classList.replace("f4-bank-app-admin","f4-bank-app-member");
+      const dock=document.getElementById("f4BankAppDock");
+      const first=dock.querySelector(".f4-bank-app-dock-action");
+      const icon=first.querySelector(".f4-bank-app-action-icon img").getBoundingClientRect();
+      const label=first.querySelector(".f4-bank-app-action-name").getBoundingClientRect();
+      return {
+        height:dock.getBoundingClientRect().height,
+        bottom:dock.getBoundingClientRect().bottom,
+        iconLabelGap:+(label.top-icon.bottom).toFixed(2),
+        textBottomGap:+(dock.getBoundingClientRect().bottom-label.bottom).toFixed(2),
+        padding:getComputedStyle(document.querySelector("#dashboardView")).paddingBottom
+      };
+    }""")
+    assert abs(member["height"]-state["navHeight"])<1,(state,member)
+    assert abs(member["bottom"]-state["dockBottom"])<1,(state,member)
+    assert abs(member["iconLabelGap"]-state["gapIconLabel"][0])<1,(state,member)
+    assert abs(member["textBottomGap"]-state["textBottomGap"])<1,(state,member)
+    assert member["padding"]==state["dockPadding"],(state,member)
+    print("ADMIN_AND_MEMBER_DOCK_PARITY_OK",state,member,flush=True)
     await page.close()
 
 async def main():
