@@ -179,7 +179,13 @@ async def admin_mobile_shell(browser):
       <main class="section" style="min-height:2400px">Halaman panjang</main>
      </div>
     </div>
-    <nav id="f4BankAppDock" class="f4-bank-app-dock"><button>Beranda</button></nav>
+    <nav id="f4BankAppDock" class="f4-bank-app-dock">
+    <button class="f4-bank-app-dock-action" data-bank-app-route="dashboard"><span class="f4-bank-app-action-icon"><img src="/assets/icons/home.svg"></span><span class="f4-bank-app-action-name">Beranda</span></button>
+    <button class="f4-bank-app-dock-action" data-bank-app-route="setoran"><span class="f4-bank-app-action-icon"><img src="/assets/icons/bank.svg"></span><span class="f4-bank-app-action-name">Setoran</span></button>
+    <button class="f4-bank-app-dock-action" data-bank-app-route="laporan"><span class="f4-bank-app-action-icon"><img src="/assets/icons/book.svg"></span><span class="f4-bank-app-action-name">Laporan</span></button>
+    <button class="f4-bank-app-dock-action" data-bank-app-route="penjualan"><span class="f4-bank-app-action-icon"><img src="/assets/icons/cash.svg"></span><span class="f4-bank-app-action-name">Penjualan</span></button>
+    <button class="f4-bank-app-dock-action" data-bank-app-route="tabungan"><span class="f4-bank-app-action-icon"><img src="/assets/icons/pay.svg"></span><span class="f4-bank-app-action-name">Saldo</span></button>
+    </nav>
     </body></html>"""
     await page.goto(ROOT,wait_until="domcontentloaded")
     await page.set_content(html,wait_until="load")
@@ -189,8 +195,14 @@ async def admin_mobile_shell(browser):
       const top=document.querySelector('#f4-direct-bar').getBoundingClientRect();
       const bottom=document.querySelector('#f4BankAppDock').getBoundingClientRect();
       const nav=document.querySelector('#v16NavList');
+      const dock=document.querySelector('#f4BankAppDock');
+      const actions=[...dock.querySelectorAll('.f4-bank-app-dock-action')];
+      const positions=actions.map(b=>{const r=b.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right}});
+      const center=actions[2].querySelector('.f4-bank-app-action-icon').getBoundingClientRect();
+      const names=actions.map(b=>b.querySelector('.f4-bank-app-action-name').textContent);
       return {
-        scroll:scrollY,
+        scroll:scrollY,positions,center:{w:center.width,h:center.height},
+        names,navHeight:dock.getBoundingClientRect().height,
         headerY:top.y,
         headerPosition:getComputedStyle(document.querySelector('#f4-direct-bar')).position,
         legacyDisplay:getComputedStyle(document.querySelector('#dashboardView .mobile-nav')).display,
@@ -202,6 +214,11 @@ async def admin_mobile_shell(browser):
     assert state["scroll"]>500,state
     assert abs(state["headerY"])<1 and state["headerPosition"]=="fixed",state
     assert abs(state["dockBottom"]-820)<2,state
+    assert state["names"]==["Beranda","Setoran","Laporan","Penjualan","Saldo"],state
+    assert 68<=state["navHeight"]<=84,state
+    assert all(x["w"]>50 and x["right"]<=391 for x in state["positions"]),state
+    assert all(state["positions"][i]["x"]<state["positions"][i+1]["x"] for i in range(4)),state
+    assert state["center"]["w"]>=45 and state["center"]["h"]>=45,state
     assert state["legacyDisplay"]=="none",state
     assert state["visible"]==["Riwayat setoran","Sahkan hasil","Pencairan"],state
     assert not state["horizontalOverflow"],state
