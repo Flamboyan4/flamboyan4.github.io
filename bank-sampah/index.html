@@ -914,6 +914,89 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
 @media print{
  #pageLaporan .v33-report-controls,#pageLaporan .v33-report-more{display:none!important}
 }
+
+/* Admin reports: one column grid, shared by screen and PDF (no CSS overrides). */
+#pageLaporan #v10ReportTable{overflow:visible}
+#pageLaporan .f4-report-section{min-width:0;margin:14px 0 18px}
+#pageLaporan .f4-report-table-scroll{
+  width:100%;overflow-x:auto;overscroll-behavior-x:contain;
+  border:1px solid #ccddd2;border-radius:10px;background:#fff
+}
+#pageLaporan table.f4-admin-report-table{
+  width:100%;min-width:630px;table-layout:fixed;border-collapse:collapse;
+  background:#fff;font-size:13px
+}
+#pageLaporan .f4-admin-report-table :is(th,td){
+  box-sizing:border-box;padding:9px 10px;border-right:1px solid #d5e2d9;
+  border-bottom:1px solid #dce8e0;font-size:13px;line-height:1.42;
+  text-align:left;vertical-align:middle;overflow-wrap:break-word
+}
+#pageLaporan .f4-admin-report-table tr>:last-child{border-right:0}
+#pageLaporan .f4-admin-report-table tbody tr:last-child>td{border-bottom:0}
+#pageLaporan .f4-admin-report-table thead th{
+  background:#e9f5ed;color:#1d5039;font-weight:750;border-bottom-color:#b7d6c4
+}
+#pageLaporan .f4-admin-report-table tbody tr:nth-child(even){background:#f8fbf9}
+#pageLaporan .f4-admin-report-table tbody tr:hover{background:#eff8f1}
+#pageLaporan .f4-admin-report-table .f4-report-num{text-align:right;font-variant-numeric:tabular-nums}
+#pageLaporan .f4-admin-report-table .f4-report-center{text-align:center}
+#pageLaporan .f4-admin-report-table .f4-report-status{font-weight:700}
+#pageLaporan .f4-admin-report-table [data-state="sah"]{color:#18724d}
+#pageLaporan .f4-admin-report-table [data-state="batal"]{color:#a43b3b}
+#pageLaporan .f4-admin-report-table .f4-report-empty{
+  text-align:center;color:#708277;padding:16px 10px
+}
+@media(max-width:720px){
+  #pageLaporan .f4-report-table-scroll{
+    overflow:visible;border:0;background:transparent;border-radius:0
+  }
+  #pageLaporan table.f4-admin-report-table.f4-mobile-card-table{
+    min-width:0;table-layout:auto
+  }
+  #pageLaporan .f4-admin-report-table.f4-mobile-card-table :is(td,th){border:0}
+  #pageLaporan .f4-admin-report-table.f4-mobile-card-table .f4-report-num,
+  #pageLaporan .f4-admin-report-table.f4-mobile-card-table .f4-report-center{text-align:left}
+}
+@media print{
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-admin-print-summary{
+    display:block;margin:7px 0 12px;border:1px solid #1c422e;
+    background:#fff;break-inside:avoid;page-break-inside:avoid
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-admin-print-primary,
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-admin-print-secondary{
+    display:grid;gap:0;grid-template-columns:repeat(4,minmax(0,1fr))
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-admin-print-secondary{
+    grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid #bdcfc2
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-admin-print-metric{
+    display:flex;flex-direction:column;justify-content:center;gap:2px;
+    box-sizing:border-box;min-width:0;padding:5px 8px;
+    border-right:1px solid #d0ded3
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-admin-print-metric:last-child{
+    border-right:0
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-admin-print-metric small{
+    display:block;color:#526b5c;font:9px/1.25 Arial,Helvetica,sans-serif
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-admin-print-metric strong{
+    display:block;color:#173a29;font:700 12px/1.25 Arial,Helvetica,sans-serif;
+    font-variant-numeric:tabular-nums;white-space:nowrap
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print table.f4-admin-report-table{
+    width:100%;border-collapse:collapse;border-spacing:0
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-admin-report-table .f4-report-num{
+    text-align:right;font-variant-numeric:tabular-nums
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-admin-report-table .f4-report-center{
+    text-align:center
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-admin-report-table .f4-report-empty{
+    text-align:center;color:#53685a
+  }
+}
 </style>
 
 <style id="f4-bank-approval-compact-20261028">
