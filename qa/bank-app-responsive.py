@@ -222,10 +222,10 @@ async def admin_mobile_shell(browser):
     assert abs(state["headerY"])<1 and state["headerPosition"]=="fixed",state
     assert abs(state["dockBottom"]-820)<2,state
     assert state["names"]==["Beranda","Setoran","Laporan","Penjualan","Saldo"],state
-    assert abs(state["navHeight"]-68)<1,state
+    assert abs(state["navHeight"]-64)<1,state
     assert all(0<=state["gapIconLabel"][i]<=7 for i in (0,1,3,4)),state
     assert 5<=state["textBottomGap"]<=17,state
-    assert state["dockPadding"]=="76px",state
+    assert state["dockPadding"]=="72px",state
     assert all(x["w"]>50 and x["right"]<=391 for x in state["positions"]),state
     assert all(state["positions"][i]["x"]<state["positions"][i+1]["x"] for i in range(4)),state
     assert state["center"]["w"]>=45 and state["center"]["h"]>=45,state
