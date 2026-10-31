@@ -70,10 +70,26 @@ assert(!h.includes('max-height:310px!important;overflow-y:auto!important'),'Old 
 // Mobile Bank Sampah controls must not regress into the three bugs in the 31 Oct report.
 assert(!dockSection.includes('transform:translateY(-8px)'),'Center caption must not overlap gold action');
 assert(dockSection.includes('transform:translateY(-21px)'),'Raised central icon geometry changed');
-const managerPopover=css.split('/* Pengurus HP: menu tambahan berbentuk popover')[1]?.split('html body.f4-bank-app-admin #sideNav #v16NavList>.v16-item[data-group="public"]')[0];
-assert(managerPopover && managerPopover.includes('transform:none;opacity:0;visibility:hidden;pointer-events:none'),
- 'Admin should use compact popover instead of a sliding drawer');
-assert(!managerPopover.includes('!important'),'Admin mobile popover must not use CSS priority overrides');
+const managerDrawer=css.split('/* Pengurus HP: drawer kiri')[1]?.split('@media screen and (max-width:760px)')[0];
+assert(managerDrawer,'Admin mobile slide drawer style missing');
+assert(managerDrawer.includes('transform:translateX(-105%)') &&
+       managerDrawer.includes('transform:translateX(0)') &&
+       managerDrawer.includes('flex-direction:column'),
+ 'Manager menu must slide from left in one column, not display as a grid popover');
+assert(!managerDrawer.includes('grid-template-columns:repeat(2,minmax(0,1fr))'),
+ 'Admin sidebar grid menu returned');
+assert(!managerDrawer.includes('!important'),
+ 'Admin drawer must not use priority overrides');
+assert(css.includes('/* Only HP has a bottom dock: hide equivalent routes in its slide drawer. */'),
+ 'The admin drawer must exclude bottom dock routes only on HP');
+assert(css.includes('[data-group="home"],[data-group="entry"],[data-group="money"]'),
+ 'Duplicate Beranda/Setoran/Penjualan/Laporan/Saldo menu groups returned');
+assert(css.includes('#sideNav #v16NavList>.v16-mobile-extra'),
+ 'Extra admin routes must remain visible');
+assert(h.includes("['riwayat','Riwayat setoran','edit']")&&
+       h.includes("['pengesahan','Sahkan hasil','wallet']")&&
+       h.includes("['biaya','Pengeluaran','wallet']"),
+ 'Admin extra menu routes may not be removed');
 assert(h.includes('html.f4-bank-embedded body.v17-dashboard:not(.f4-bank-app-admin) #sideNav.side'),
  'Embedded old drawer must exclude the admin role');
 const reportStyle=h.split('<style>')[1]?.split('</style>')[0];
@@ -115,7 +131,11 @@ assert(!css.includes('#dashboardView #pageProfile #v15PasswordBox>summary{'),
 assert(!h.includes('#v15PasswordBox>summary{cursor:pointer'),
  'Old left-side triangle style returned');
 assert(h.includes("summary.textContent='Ganti password'"),'Password must have no emoji or separate triangle');
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261031-profile-chevron-unified-v28'),
- 'Profile CSS version must be refreshed');
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261031-profile-chevron-rp-v29'),
+ 'Bank Sampah profile/dock stylesheet must be cache-busted');
+assert(h.includes('/portal-live/bank-mobile-app.js?v=20261031-payout-rp-v16'),
+ 'Member payout icon script must be refreshed');
+assert(css.includes('.f4-bank-currency-mark{'),
+ 'Rp payout icon must use the canonical bank dock styles');
 
 console.log('F4_BANK_CANONICAL_THEME_OK');
