@@ -958,7 +958,7 @@ function ensureAdminProfile(){
   cancel.onclick=()=>editing(false);
   form.onsubmit=async event=>{
    event.preventDefault();
-   const value=input.value.trim().replace(/\\s+/g," ");
+   const value=input.value.trim().replace(/\s+/g," ");
    if(value.length<2||value.length>100||/[<>\x00-\x1f]/.test(value)){
     status.textContent="Nama harus 2–100 karakter.";return;
    }
@@ -1372,7 +1372,7 @@ function init(){
  window.addEventListener("f4-account-profile-updated",memberTopIdentity);
  const openPublic=window.v11ShowPublic;
  if(typeof openPublic==="function")window.v11ShowPublic=function(...args){
-  restoreFeature();hideCustom();return openPublic.apply(this,args);
+  restoreFeature();hideCustom();restoreAdminProgress();return openPublic.apply(this,args);
  };
  window.addEventListener("f4-bank-member-statement",acceptMemberStatement);
  window.addEventListener("f4-bank-admin-overview",updateAdminOverview);
