@@ -825,14 +825,13 @@ function updateProfileCard(){
   copy.setAttribute("aria-label","Identitas anggota Bank Sampah Flamboyan 4");
   const number=copy.querySelector("#f4BankCardNumber");if(number)number.id="f4BankProfileNumber";
   const room=copy.querySelector(".f4-bank-card-house");if(room)room.id="f4BankProfileHouse";
-  const info=el("p","f4-bank-profile-card-note","Kartu identitas anggota, bukan alat pembayaran.");
   const button=el("button","f4-bank-profile-copy","Salin nomor anggota");button.type="button";
   button.onclick=async()=>{
    const id=memberID();if(!id||id==="—")return;
    try{await navigator.clipboard.writeText(id);button.textContent="Nomor tersalin";}
    catch{window.prompt("Nomor anggota:",id);}
   };
-  wrapper.append(copy,info,button);
+  wrapper.append(copy,button);
   target.prepend(wrapper);
   const head=target.querySelector(":scope > h2");if(head)head.textContent="Profil & Pengaturan";
  }
