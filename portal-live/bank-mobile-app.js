@@ -92,8 +92,12 @@ function syncMemberBack(){
  document.body.classList.toggle("f4-bank-member-secondary",secondary);
  if(!button)return;
  if(secondary){
-  // Plain arrow, no custom SVG and no enclosing colored button.
-  button.replaceChildren(document.createTextNode("←"));
+  // Consistent accessible back icon, not a text glyph that varies by device/font.
+  const arrow=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  arrow.setAttribute("viewBox","0 0 24 24");
+  arrow.setAttribute("aria-hidden","true");
+  arrow.innerHTML='<path d="M19 12H5m7-7-7 7 7 7"/>';
+  button.replaceChildren(arrow);
   button.setAttribute("aria-label","Kembali ke Beranda");
   button.title="Kembali ke Beranda";
  }else{
@@ -890,7 +894,9 @@ function memberFeature(route){
  const name=progress?"Perkembangan":docs?"Dokumentasi":"Informasi & Laporan";
  const page=ensureScreen(route,name);
  page.querySelector(":scope > .f4-bank-screen-title")?.remove();
- if(!page.querySelector(".f4-member-feature-header")){
+ // The report already has its own "Laporan Publik" heading; avoid repeating it.
+ if(!progress&&!docs)page.querySelector(".f4-member-feature-header")?.remove();
+ else if(!page.querySelector(".f4-member-feature-header")){
   const header=el("header","f4-member-feature-header");
   const title=el("div");
   title.append(el("h2","",name),el("small","",progress?"Bank Sampah Flamboyan 4":docs?"Daftar album kegiatan":"Laporan publik · Dokumentasi · Inventaris"));
