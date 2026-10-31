@@ -180,7 +180,7 @@ async def admin_mobile_shell(browser):
      </div>
     </div>
     <nav id="f4BankAppDock" class="f4-bank-app-dock">
-    <button class="f4-bank-app-dock-action" data-bank-app-route="dashboard"><span class="f4-bank-app-action-icon"><img src="/assets/icons/home.svg"></span><span class="f4-bank-app-action-name">Beranda</span></button>
+    <button class="f4-bank-app-dock-action is-active" aria-current="page" data-bank-app-route="dashboard"><span class="f4-bank-app-action-icon"><img src="/assets/icons/home.svg"></span><span class="f4-bank-app-action-name">Beranda</span></button>
     <button class="f4-bank-app-dock-action" data-bank-app-route="setoran"><span class="f4-bank-app-action-icon"><img src="/assets/icons/bank.svg"></span><span class="f4-bank-app-action-name">Setoran</span></button>
     <button class="f4-bank-app-dock-action" data-bank-app-route="laporan"><span class="f4-bank-app-action-icon"><img src="/assets/icons/book.svg"></span><span class="f4-bank-app-action-name">Laporan</span></button>
     <button class="f4-bank-app-dock-action" data-bank-app-route="penjualan"><span class="f4-bank-app-action-icon"><img src="/assets/icons/cash.svg"></span><span class="f4-bank-app-action-name">Penjualan</span></button>
@@ -201,7 +201,10 @@ async def admin_mobile_shell(browser):
       const center=actions[2].querySelector('.f4-bank-app-action-icon').getBoundingClientRect();
       const names=actions.map(b=>b.querySelector('.f4-bank-app-action-name').textContent);
       return {
-        scroll:scrollY,positions,center:{w:center.width,h:center.height},
+        scroll:scrollY,positions,center:{w:center.width,h:center.height,y:center.y},
+        dockY:bottom.y,dockCount:document.querySelectorAll(".f4-bank-app-dock").length,
+        activeBackground:getComputedStyle(actions[0]).backgroundColor,
+        centerBackground:getComputedStyle(actions[2].querySelector(".f4-bank-app-action-icon")).backgroundColor,
         names,navHeight:dock.getBoundingClientRect().height,
         headerY:top.y,
         headerPosition:getComputedStyle(document.querySelector('#f4-direct-bar')).position,
@@ -219,6 +222,10 @@ async def admin_mobile_shell(browser):
     assert all(x["w"]>50 and x["right"]<=391 for x in state["positions"]),state
     assert all(state["positions"][i]["x"]<state["positions"][i+1]["x"] for i in range(4)),state
     assert state["center"]["w"]>=45 and state["center"]["h"]>=45,state
+    assert state["center"]["y"]<state["dockY"]-4,state
+    assert state["dockCount"]==1,state
+    assert state["activeBackground"]=="rgb(216, 237, 223)",state
+    assert state["centerBackground"]=="rgb(255, 192, 38)",state
     assert state["legacyDisplay"]=="none",state
     assert state["visible"]==["Riwayat setoran","Sahkan hasil","Pencairan"],state
     assert not state["horizontalOverflow"],state
