@@ -1197,6 +1197,7 @@ function handleRoute(route,old,args){
  if(route==="dashboard"&&role==="member"){
   const link=$("v14AllDeposits");if(link){link.textContent="Lihat semua";link.onclick=()=>navigate("bank-history");}
  }
+ if(route==="dashboard"&&role==="admin")ensureAdminHome();
  screen=route;markDock();
  if(route==="tabungan"&&roleType()==="admin")managerRequestsPanel();
  if(route==="pribadi")ensureMemberPages();
