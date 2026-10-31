@@ -206,7 +206,21 @@
     .v17-timeline{padding:0;margin:0;list-style:none}.v17-timeline li{position:relative;border-left:2px solid #c7ddca;margin-left:5px;padding:0 0 18px 17px;font-size:13px}
     .v17-timeline li:before{content:'';position:absolute;left:-6px;top:2px;width:10px;height:10px;border-radius:50%;background:#4a9869}
     .v17-timeline strong{display:block;color:#24573d}.v17-timeline small{color:#799080}.v17-timeline p{margin:5px 0;color:#586f60;font-size:12px}
-    .v17-program-grid,.v17-albums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+    .v17-albums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+    /* Satu komponen Program publik, terpisah dari hero dan tidak memakai kartu. */
+    #v17Program.f4-bank-program{margin:20px 0 22px;padding:20px 0 0;border-top:1px solid #dce8df;scroll-margin-top:76px;color:#183e2c}
+    #v17Program .f4-bank-program-heading{display:flex;align-items:end;justify-content:space-between;flex-wrap:wrap;gap:4px 16px;margin-bottom:16px}
+    #v17Program .f4-bank-program-kicker{font-size:10px;line-height:1.4;letter-spacing:.14em;font-weight:850;color:#0b7c52}
+    #v17Program .f4-bank-program-heading h2{margin:0;font-size:clamp(18px,2vw,23px);line-height:1.25;color:#124f35}
+    #v17Program .f4-bank-program-flow{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin:0;padding:0}
+    #v17Program .f4-bank-program-step{position:relative;min-width:0;padding:3px 0 3px 38px;background:transparent;border:0}
+    #v17Program .f4-bank-program-step::before{position:absolute;left:0;top:0;width:27px;height:27px;display:grid;place-items:center;border-radius:50%;background:#0b754c;color:#fff;font-weight:800;font-size:12px}
+    #v17Program .f4-bank-program-step:nth-child(1)::before{content:"1"}
+    #v17Program .f4-bank-program-step:nth-child(2)::before{content:"2"}
+    #v17Program .f4-bank-program-step:nth-child(3)::before{content:"3"}
+    #v17Program .f4-bank-program-step strong{display:block;color:#123f2b;font-size:13px;line-height:1.3;font-weight:850}
+    #v17Program .f4-bank-program-step p{margin:4px 0 0;color:#617468;font-size:12px;line-height:1.42}
+
     .v17-feature{background:#fff;border:1px solid var(--line);border-radius:13px;padding:17px}
     .v17-feature strong{display:block;color:#2b6445;font-size:14px}.v17-feature p{font-size:12px;color:#657a69;margin-bottom:0}
     .v17-album{background:#fff;border:1px solid var(--line);border-radius:13px;padding:13px;min-width:0}
@@ -215,11 +229,16 @@
     .v17-album p{font-size:12px;color:#657b6a}.v17-media-list{border-top:1px solid var(--line);padding-top:9px;margin-top:10px;display:grid;gap:8px}
     .v17-media-list a{font-size:12px;color:#226a42;overflow-wrap:anywhere}
     .v17-inventory{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.v17-inventory .v17-feature{padding:13px}
-    @media(max-width:900px){.v17-finance-kpis,.v17-public-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.v17-finance-grid,.v17-two{grid-template-columns:1fr}.v17-program-grid,.v17-albums{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:900px){.v17-finance-kpis,.v17-public-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.v17-finance-grid,.v17-two{grid-template-columns:1fr}.v17-albums{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media(max-width:720px){body.v17-dashboard #sideNav.side{top:0;height:100dvh;max-height:100dvh;min-height:0}
       .v17-public-head{padding:8px 11px;gap:8px}.v17-public-logo{min-width:0;font-size:11px;max-width:140px}.v17-public-logo img{width:31px;height:31px}.v17-public-links{gap:0}.v17-public-links a{padding:9px 6px;font-size:11px}
       .v17-public-main{padding:12px 11px 36px}.v17-public-banner{padding:18px}.v17-public-banner h1{font-size:21px}.v17-public-banner .emblem{font-size:39px}.v17-public-metric{padding:12px}.v17-public-metric strong{font-size:20px}
-      .v17-program-grid,.v17-albums,.v17-inventory{grid-template-columns:1fr}.v17-section{scroll-margin-top:65px}
+      .v17-albums,.v17-inventory{grid-template-columns:1fr}.v17-section{scroll-margin-top:65px}
+      #v17Program.f4-bank-program{margin:16px 0 18px;padding-top:16px;scroll-margin-top:70px}
+      #v17Program .f4-bank-program-heading{margin-bottom:14px}
+      #v17Program .f4-bank-program-flow{grid-template-columns:minmax(0,1fr);gap:14px}
+      #v17Program .f4-bank-program-step{padding-left:39px}
+      #v17Program .f4-bank-program-step p{font-size:12px}
       .v17-finance-kpis{gap:8px}.v17-finance-kpi{padding:13px}.v17-finance-kpi strong{font-size:17px}
     }
     /* v18 — tampilan HP satu kolom, menu drawer kiri, tanpa navigasi warisan. */
@@ -300,7 +319,7 @@
       #v11Public .v17-public-metrics>*{min-width:0;width:auto}
       #v11Public .v17-public-metric{padding:12px 10px}
       #v11Public .v17-public-metric strong{font-size:19px}
-      #v11Public .v17-program-grid,#v11Public .v17-two,#v11Public .v17-albums,#v11Public .v17-inventory{grid-template-columns:minmax(0,1fr)!important;width:100%;min-width:0}
+      #v11Public .v17-two,#v11Public .v17-albums,#v11Public .v17-inventory{grid-template-columns:minmax(0,1fr)!important;width:100%;min-width:0}
       #v11Public .v17-section{scroll-margin-top:16px}
       #v18PublicSide.open{z-index:49}
       #v18PublicBackdrop.open{z-index:48}
