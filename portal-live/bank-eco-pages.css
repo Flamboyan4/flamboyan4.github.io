@@ -913,23 +913,41 @@ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
  border:1px solid #dbe9df;border-radius:16px
 }
 .f4-bank-admin-shortcuts>h2{margin:0;font-size:16px;font-weight:850;color:#174c33}
+/* Favorite-transactions style: two rows, four equal quick access shortcuts. */
 .f4-bank-admin-shortcut-grid{
- display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+ gap:12px 7px;align-items:start
 }
-.f4-bank-admin-shortcut-grid>.f4-bank-app-action{
- display:flex;align-items:center;gap:9px;min-width:0;min-height:53px;
- border:1px solid #dce9df;border-radius:12px;padding:8px 9px;
- background:#f9fcfa;color:#175338;text-align:left;
- font:750 12px/1.25 system-ui;cursor:pointer
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut{
+ display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+ gap:7px;min-width:0;min-height:83px;padding:6px 2px;
+ background:transparent;border:0;border-radius:12px;
+ color:#344b40;text-align:center;font:700 11px/1.25 system-ui;cursor:pointer
 }
-.f4-bank-admin-shortcut-grid .f4-bank-app-action-icon{
- width:31px;height:31px;border-radius:9px;flex:none
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:hover,
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:focus-visible{
+ background:#f2faf5;outline-offset:2px
 }
-.f4-bank-admin-shortcut-grid .f4-bank-app-action-icon img{
- width:19px;height:19px;object-fit:contain
+.f4-bank-admin-shortcut-icon{
+ display:grid;place-items:center;flex:0 0 47px;
+ width:47px;height:47px;border-radius:50%;
+ background:#eaf5ff;color:#1685bd;
 }
-.f4-bank-admin-shortcut-grid .f4-bank-app-action-name{
- display:block;white-space:normal;overflow-wrap:anywhere
+.f4-bank-admin-shortcut:nth-child(2n) .f4-bank-admin-shortcut-icon{
+ background:#e7f5ee;color:#087b54
+}
+.f4-bank-admin-shortcut:nth-child(3n) .f4-bank-admin-shortcut-icon{
+ background:#edf0ff;color:#6578bc
+}
+.f4-bank-admin-shortcut:nth-child(4n) .f4-bank-admin-shortcut-icon{
+ background:#fff4dc;color:#bb861b
+}
+.f4-bank-admin-shortcut-icon svg{
+ width:23px;height:23px;display:block;fill:none;stroke:currentColor;
+ stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round
+}
+.f4-bank-admin-shortcut>span:last-child{
+ display:block;max-width:100%;overflow-wrap:break-word
 }
 #dashboardView #bank-admin-history.f4-bank-screen{
  width:100%;max-width:1080px;min-width:0;
@@ -976,7 +994,7 @@ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
 }
 @media(max-width:1023px){
  body.f4-bank-app-admin .f4-bank-admin-shortcut-grid{
-  grid-template-columns:repeat(2,minmax(0,1fr))
+  grid-template-columns:repeat(4,minmax(0,1fr))
  }
  body.f4-bank-app-admin #dashboardView #f4BankAppHome>#v17Perkembangan{
   width:100%;min-width:0
