@@ -189,9 +189,11 @@ async def admin_mobile_shell(browser):
        <button class="v16-item" data-group="home">Beranda</button>
        <button class="v16-item" data-group="entry">Pencatatan</button>
        <button class="v16-item" data-group="money">Keuangan</button>
-       <button class="v16-item v16-mobile-extra" data-route="riwayat">Riwayat setoran</button>
-       <button class="v16-item v16-mobile-extra" data-route="pengesahan">Sahkan hasil</button>
        <button class="v16-item" data-group="payout">Pencairan</button>
+       <button class="v16-item" data-group="program">Kegiatan</button>
+       <button class="v16-item" data-group="settings">Data & anggota</button>
+       <button class="v16-item" data-group="public">Portal publik</button>
+       <button class="v16-item f4-back-account">Profil pengurus</button>
       </div></aside>
       <main class="section" style="min-height:2400px">Halaman panjang</main>
      </div>
@@ -254,7 +256,7 @@ async def admin_mobile_shell(browser):
     assert state["activeBackground"]=="rgb(216, 237, 223)",state
     assert state["centerBackground"]=="rgb(255, 192, 38)",state
     assert state["legacyDisplay"]=="none",state
-    assert state["visible"]==["Riwayat setoran","Sahkan hasil","Pencairan"],state
+    assert state["visible"]==["Pencairan","Kegiatan","Data & anggota","Portal publik","Profil pengurus"],state
     assert not state["horizontalOverflow"],state
     # The admin hamburger restores the left slide drawer; no bottom dock routes appear twice.
     # Wait for any entrance/visibility transition before checking its closed state.
@@ -284,7 +286,9 @@ async def admin_mobile_shell(browser):
     assert abs(drawer["left"])<2 and 275<=drawer["width"]<=301,drawer
     assert drawer["display"]=="flex" and drawer["direction"]=="column",drawer
     assert drawer["hiddenGroups"],drawer
-    assert drawer["visible"]==["Riwayat setoran","Sahkan hasil","Pencairan"],drawer
+    assert len(drawer["visible"])==5 and all(name not in drawer["visible"] for name in
+        ["Riwayat setoran","Riwayat penjualan","Cek selisih","Sahkan hasil","Pengeluaran"]),drawer
+    assert drawer["visible"]==["Pencairan","Kegiatan","Data & anggota","Portal publik","Profil pengurus"],drawer
     assert not drawer["scrollOverflow"],drawer
     await page.evaluate('document.querySelector("#sideNav").classList.remove("open")')
     await page.wait_for_timeout(260)
@@ -293,7 +297,7 @@ async def admin_mobile_shell(browser):
       return {x:side.getBoundingClientRect().x,visibility:getComputedStyle(side).visibility};
     }""")
     assert drawer_closed["x"]<0 and drawer_closed["visibility"]=="hidden",drawer_closed
-    print("ADMIN_SLIDE_EXTRAS_ONLY_OK",drawer,flush=True)
+    print("ADMIN_SLIDE_CATEGORIES_ONLY_OK",drawer,flush=True)
     # Tablet has no dock: primary admin groups must remain accessible in sidebar.
     await page.set_viewport_size({"width":820,"height":820})
     tablet=await page.evaluate("""() => ({
