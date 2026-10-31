@@ -371,28 +371,27 @@ async def public_chart_and_flat_roster(browser):
 
 
 async def public_report_compact(browser):
-    """Public summary: 6 metrics use compact two-column cards at narrow Android widths."""
+    """PC cards have a width ceiling; mobile cards remain two columns without overflow."""
     import re
     from pathlib import Path
-    html_source=Path("bank-sampah/index.html").read_text(encoding="utf-8")
-    owner=re.search(r'<style id="f4-bank-mobile-3view-fix-20261028">(.*?)</style>',html_source,re.S)
-    if not owner: raise AssertionError("Public summary stylesheet missing")
+    source=Path("bank-sampah/index.html").read_text(encoding="utf-8")
+    core=re.search(r'<style>(.*?)</style>',source,re.S)
+    if not core: raise AssertionError("Canonical report style missing")
     rows=[
-      ("Berat jual sah","1,9 kg"),("Timbang belum sah","0 kg"),
-      ("Penjualan diterima","Rp 6.000"),("Hak tabungan warga sah","Rp 3.000"),
-      ("Dana lingkungan sah","Rp 3.000"),("Perkiraan belum sah","Rp 0")
+      ("Berat sah","1,9 kg"),("Belum sah","0 kg"),
+      ("Penjualan","Rp 6.000"),("Hak warga","Rp 3.000"),
+      ("Dana lingkungan","Rp 3.000"),("Perkiraan","Rp 0")
     ]
     cards="".join('<div class="v17-public-metric"><small>'+label+'</small><strong>'+val+'</strong></div>' for label,val in rows)
-    for width in (390,320):
+    for width in (1366,1024,768,390,320):
         page=await browser.new_page(viewport={"width":width,"height":820},device_scale_factor=1)
         markup="""<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
         <base href="http://127.0.0.1:8765/">
+        <style>"""+core.group(1)+"""</style>
         <link rel="stylesheet" href="/portal-live/modern-portals.css">
-        <style>body{margin:0}#v11Public{padding:11px}#v25ReportMetrics.v26-compact{
-          display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
-        </style><style>"""+owner.group(1)+"""</style>
         <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
-        </head><body><section id="v11Public"><div id="v25ReportRoot"><div id="v25ReportMetrics" class="v25-public-metrics v26-compact">"""+cards+"""</div></div></section></body></html>"""
+        </head><body><section id="v11Public" style="width:calc(100% - 22px);margin:0 11px">
+        <div id="v25ReportRoot"><div id="v25ReportMetrics" class="v25-public-metrics v26-compact">"""+cards+"""</div></div></section></body></html>"""
         await page.goto(ROOT,wait_until="domcontentloaded")
         await page.set_content(markup,wait_until="load")
         metrics=await page.evaluate("""() => {
@@ -408,9 +407,15 @@ async def public_report_compact(browser):
             overflow:document.documentElement.scrollWidth>innerWidth+3
           };
         }""")
-        assert metrics["columns"]==2 and len(metrics["heights"])==6,metrics
+        assert len(metrics["heights"])==6,metrics
         assert max(metrics["heights"])<=105 and min(metrics["heights"])>=60,metrics
         assert all(15.5<=font<=19 for font in metrics["valueFonts"]),metrics
+        if width<=640:
+            assert metrics["columns"]==2,metrics
+            assert all(w<=190 for w in metrics["widths"]),metrics
+        else:
+            assert metrics["columns"]>=3,metrics
+            assert max(metrics["widths"])<=190,metrics
         assert not metrics["overflow"],metrics
         print("PUBLIC_REPORT_COMPACT_OK",width,metrics,flush=True)
         await page.close()
