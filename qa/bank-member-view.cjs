@@ -74,6 +74,16 @@ if(!bank.includes("history.appendChild(v12Table(['Tanggal','Mutasi','Masuk','Kel
  throw Error('Member statement rendering must use its own mutasi (previously undefined variable)');
 if(!bank.includes("window.dispatchEvent(new CustomEvent('f4-bank-member-statement',{detail:d}))"))
  throw Error('D1-backed member statement is not delivered to mobile screens');
+// A member's house and member ID already appear on the card. Keep hidden DOM
+// values for card, receipts and existing statement logic; do not show them twice.
+if(!bank.includes('<div class="f4-profile-meta" hidden>'))throw Error('Repeated member house/ID is visible under profile name');
+if(!bank.includes("querySelector('.f4-profile-meta').hidden=p.peran==='Warga'"))
+ throw Error('Member profile metadata should hide without affecting admin accounts');
+if(!bank.includes('id="pHome"')||!bank.includes('id="pId"'))
+ throw Error('Internal house and member ID source nodes must remain available');
+const profileCss=fs.readFileSync('portal-live/bank-eco-pages.css','utf8');
+if(!profileCss.includes('#dashboardView #pageProfile .f4-profile-meta:not([hidden]){'))
+ throw Error('Canonical profile CSS must respect the hidden metadata attribute');
 if(!app.includes('card.onclick=()=>navigate("profile")'))throw Error('Member card must open profile');
 if(!app.includes('["Pencairan","bank-payout","pay.svg"]'))throw Error('Central payout missing');
 if(app.includes('f4BankAppShortcuts'))throw Error('Redundant shortcut tiles must be removed for all roles');
