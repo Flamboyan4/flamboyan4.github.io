@@ -1166,8 +1166,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:1080px;align-conten
 .f4-bank-app-dock{display:none}
 @media(max-width:1023px){
  /* Ukuran dock identik untuk anggota dan pengurus; satu variabel untuk ruang konten. */
- body.f4-bank-app-private{--f4-bank-dock-height:64px;overscroll-behavior-y:none}
- html:has(body.f4-bank-app-admin){overscroll-behavior-y:none}
+ body.f4-bank-app-private{--f4-bank-dock-height:64px}
  body.f4-bank-app-private #dashboardView{padding-bottom:calc(var(--f4-bank-dock-height) + 8px)}
  body.f4-bank-app-private #pageDashboard.f4-member-dashboard{padding:0}
  body.f4-bank-app-private #pageDashboard :is(.v14-head){display:none}
