@@ -67,4 +67,20 @@ assert(!h.includes('gulir daftar untuk melihat semuanya'),'Nested scroll instruc
 const modern=fs.readFileSync('portal-live/modern-portals.css','utf8');
 assert(!modern.includes('#v9List{max-height:390px'),'Old capped roster in shared CSS returned');
 assert(!h.includes('max-height:310px!important;overflow-y:auto!important'),'Old roster scrolling returned');
+// Mobile Bank Sampah controls must not regress into the three bugs in the 31 Oct report.
+assert(!dockSection.includes('transform:translateY(-8px)'),'Center caption must not overlap gold action');
+assert(dockSection.includes('transform:translateY(-21px)'),'Raised central icon geometry changed');
+const managerPopover=css.split('/* Pengurus HP: menu tambahan berbentuk popover')[1]?.split('html body.f4-bank-app-admin #sideNav #v16NavList>.v16-item[data-group="public"]')[0];
+assert(managerPopover && managerPopover.includes('transform:none;opacity:0;visibility:hidden;pointer-events:none'),
+ 'Admin should use compact popover instead of a sliding drawer');
+assert(!managerPopover.includes('!important'),'Admin mobile popover must not use CSS priority overrides');
+assert(h.includes('html.f4-bank-embedded body.v17-dashboard:not(.f4-bank-app-admin) #sideNav.side'),
+ 'Embedded old drawer must exclude the admin role');
+const mobileReportStyle=h.match(/<style id="f4-bank-mobile-3view-fix-20261028">([\\s\\S]*?)<\\/style>/)?.[1];
+assert(mobileReportStyle && mobileReportStyle.includes('min-height:66px'),
+ 'Public report cards should be compact');
+assert(!mobileReportStyle.includes('min-height:95px!important'),
+ 'Oversized public report cards returned');
+assert(!mobileReportStyle.includes('max-width:360px'),
+ 'Tiny screens must not revert to tall one-column metric contents');
 console.log('F4_BANK_CANONICAL_THEME_OK');
