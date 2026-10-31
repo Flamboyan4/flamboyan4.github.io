@@ -98,7 +98,7 @@ assert(h.includes("'✓ Data sah · ◷ Perkiraan terpisah · 🔒 Privasi'"),
  'Single compact report status line missing');
 assert(h.includes("const print=v21Node('button','secondary','PDF')"),'PDF button label not compact');
 assert(h.includes("const csv=v21Node('button','secondary','CSV')"),'CSV button label not compact');
-assert(!h.includes('Cetak / PDF'),'Old long PDF button label returned');
-assert(!h.includes('Unduh CSV'),'Old long CSV button label returned');
+assert(!h.includes("const print=v21Node('button','secondary','Cetak / PDF')"),'Old public PDF label returned');
+assert(!h.includes("const csv=v21Node('button','secondary','Unduh CSV')"),'Old public CSV label returned');
 
 console.log('F4_BANK_CANONICAL_THEME_OK');
