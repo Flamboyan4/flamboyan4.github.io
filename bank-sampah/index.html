@@ -912,8 +912,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
  #pageLaporan .v33-report-controls{padding:10px;gap:10px}
  #pageLaporan .v33-report-period{grid-template-columns:minmax(0,1fr) 95px}
  #pageLaporan .v33-report-chip{font-size:11px;padding:7px 9px}
- #pageLaporan .v33-report-actions{display:grid;grid-template-columns:1fr 1fr}
- #pageLaporan .v33-report-actions button:nth-child(1){grid-column:1 / -1}
+ #pageLaporan .v33-report-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
  #pageLaporan .v33-report-actions button{width:100%!important;padding:9px 6px!important}
 }
 @media print{
@@ -983,231 +982,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
 @media print{#pagePengesahan{display:none!important}}
 </style>
 
-<style id="f4-bank-entry-compact-20261028">
-/* Form input Bank Sampah: kartu isian barang ringkas, tidak mengubah input / tarif / endpoint. */
-@media(min-width:1024px){
- #pageSetoran.card,#pagePenjualan.card{
-  background:#fff;border:1px solid #e0eae4;border-radius:15px;
-  padding:19px 21px;box-shadow:none
- }
-}
-#pageSetoran>h2,#pagePenjualan>h2{font-size:19px!important;line-height:1.26!important;
- color:#173e2f!important;margin:0 0 5px!important}
-#pageSetoran>.desc,#pagePenjualan>.desc{font-size:12px!important;line-height:1.5!important;
- margin:0 0 15px!important;color:#657a70!important}
-#pageSetoran .f4-entry-top-fields,#pagePenjualan .f4-entry-top-fields{
- display:grid!important;grid-template-columns:minmax(0,1.55fr) minmax(185px,.85fr)!important;
- gap:10px!important;align-items:end;margin:0 0 17px!important
-}
-#pagePenjualan .f4-sale-top-fields{grid-template-columns:minmax(0,1.2fr) minmax(150px,.65fr) minmax(0,1fr)!important}
-#pageSetoran .f4-entry-top-fields>.field,#pagePenjualan .f4-entry-top-fields>.field{margin:0!important;min-width:0}
-#pageSetoran .field label,#pagePenjualan .field label{
- display:block!important;margin:0 0 5px!important;font-size:12px!important;
- font-weight:700!important;color:#2b5040!important
-}
-#pageSetoran .f4-entry-top-fields :is(select,input),#pagePenjualan .f4-entry-top-fields :is(select,input),
-#pageSetoran :is(#setNotes),#pagePenjualan :is(#saleStatus,#saleReceived,#saleProof,#saleReason){
- min-width:0!important;max-width:100%!important;width:100%!important;
- min-height:40px!important;height:40px!important;padding:7px 11px!important;
- font-size:13px!important;border:1px solid #d7e5dc!important;
- background:#fff!important;border-radius:9px!important;box-shadow:none!important
-}
-#pageSetoran .f4-entry-goods-heading,#pagePenjualan .f4-entry-goods-heading{
- display:flex!important;align-items:center;justify-content:space-between;gap:10px;
- margin:0 0 10px!important
-}
-#pageSetoran .f4-entry-goods-heading h3,#pagePenjualan .f4-entry-goods-heading h3{
- margin:0 0 3px!important;font-size:15px!important;line-height:1.25;color:#163a2b
-}
-#pageSetoran .f4-entry-goods-heading p,#pagePenjualan .f4-entry-goods-heading p{
- margin:0!important;font-size:11.5px!important;line-height:1.4!important;color:#708177!important
-}
-#pageSetoran .f4-entry-item-count,#pagePenjualan .f4-entry-item-count{
- flex:none;display:inline-flex;align-items:center;justify-content:center;
- border:1px solid #d4e8da;border-radius:99px;background:#f1f8f3;
- padding:5px 10px;color:#2b7050;font-size:11px;font-weight:750;white-space:nowrap
-}
-#pageSetoran #setBarang,#pagePenjualan #saleItems{
- margin:0!important;padding:0!important;overflow:visible!important;width:100%!important
-}
-#pageSetoran #setBarang table,#pagePenjualan #saleItems table{
- display:block!important;width:100%!important;min-width:0!important;
- max-width:100%!important;border:none!important;margin:0!important
-}
-#pageSetoran #setBarang thead,#pagePenjualan #saleItems thead{display:none!important}
-#pageSetoran #setBarang tbody,#pagePenjualan #saleItems tbody{
- display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
- gap:9px!important;margin:0!important;padding:0!important;border:0!important
-}
-#pageSetoran #setBarang tbody tr,#pagePenjualan #saleItems tbody tr{
- display:grid!important;position:relative;min-width:0!important;height:auto!important;
- margin:0!important;padding:10px 11px!important;border:1px solid #e1eae3!important;
- border-radius:11px!important;background:#fff!important;
- box-shadow:0 1px 2px rgba(31,66,45,.02)!important;
- break-inside:avoid;transition:background .15s,border-color .15s
-}
-#pageSetoran #setBarang tbody tr:focus-within,#pagePenjualan #saleItems tbody tr:focus-within{
- border-color:#70aa88!important;box-shadow:0 0 0 2px rgba(83,155,108,.1)!important
-}
-#pageSetoran #setBarang tbody tr.f4-entry-filled,#pagePenjualan #saleItems tbody tr.f4-entry-filled{
- background:#f6fbf7!important;border-color:#a9d9b8!important
-}
-#pageSetoran #setBarang tbody td,#pagePenjualan #saleItems tbody td{
- display:block!important;float:none!important;min-width:0!important;width:auto!important;
- margin:0!important;padding:0!important;border:0!important;background:transparent!important;
- box-shadow:none!important;font-size:12px!important;text-align:left!important;
- line-height:1.35!important;white-space:normal!important
-}
-#pageSetoran #setBarang tbody td::after,#pagePenjualan #saleItems tbody td::after{content:none!important;display:none!important}
-/* Input Setoran memakai pola dua baris yang sama dengan Penjualan Lapak.
-   Baris 1: nama barang utuh. Baris 2: tarif dan isian berat sejajar. */
-#pageSetoran #setBarang tbody tr{
- grid-template-columns:repeat(2,minmax(0,1fr))!important;
- grid-template-rows:auto auto!important;
- gap:6px 8px!important;
- align-items:stretch!important;
-}
-#pageSetoran #setBarang tbody td:first-child{
- display:block!important;
- grid-column:1/-1!important;grid-row:1!important;
- width:100%!important;min-height:17px!important;
- padding:0 0 7px!important;
- border-bottom:1px solid #ebf0ec!important;
- font-size:12.5px!important;font-weight:750!important;
- line-height:1.35!important;color:#284539!important;
- overflow-wrap:break-word!important;
-}
-#pageSetoran #setBarang tbody td:nth-child(2){
- display:block!important;
- grid-column:1!important;grid-row:2!important;
- width:100%!important;min-width:0!important;
- font-size:12px!important;line-height:1.4!important;
- color:#264d3c!important;white-space:normal!important;
-}
-#pageSetoran #setBarang tbody td:nth-child(2)::before{
- display:block!important;content:"Tarif warga/kg"!important;
- margin:0 0 5px!important;
- font-size:10px!important;font-weight:650!important;
- color:#6e8276!important;line-height:1.3!important;
-}
-#pageSetoran #setBarang tbody td:nth-child(3){
- display:block!important;
- grid-column:2!important;grid-row:2!important;
- width:100%!important;min-width:0!important;
-}
-#pageSetoran #setBarang tbody td:nth-child(3)::before{
- display:block!important;content:"Berat (kg)"!important;
- font-size:10px!important;font-weight:650!important;
- color:#6e8276!important;line-height:1.3!important;
- margin:0 0 5px!important;
-}
-#pagePenjualan #saleItems tbody tr{
- grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:auto auto!important;
- gap:6px 8px!important
-}
-#pagePenjualan #saleItems tbody td:first-child{
- grid-column:1/-1!important;grid-row:1!important;color:#294638!important;
- font-size:12.5px!important;font-weight:750!important;min-height:17px
-}
-#pagePenjualan #saleItems tbody td:nth-child(2){grid-column:1!important;grid-row:2!important}
-#pagePenjualan #saleItems tbody td:nth-child(3){grid-column:2!important;grid-row:2!important}
-#pagePenjualan #saleItems tbody td:nth-child(2)::before,
-#pagePenjualan #saleItems tbody td:nth-child(3)::before{
- display:block;font-size:10px;font-weight:650;color:#6e8276;margin-bottom:4px
-}
-#pagePenjualan #saleItems tbody td:nth-child(2)::before{content:"Berat (kg)"}
-#pagePenjualan #saleItems tbody td:nth-child(3)::before{content:"Harga/kg (Rp)"}
-#pageSetoran #setBarang input[type=number],#pagePenjualan #saleItems input[type=number]{
- display:block!important;box-sizing:border-box!important;width:100%!important;
- min-width:0!important;max-width:100%!important;height:36px!important;
- min-height:36px!important;padding:5px 7px!important;margin:0!important;
- background:#fff!important;color:#254435!important;
- border:1px solid #d4e2d9!important;border-radius:8px!important;
- font-size:13px!important;line-height:1.25!important;box-shadow:none!important
-}
-#pageSetoran #setBarang input:disabled{opacity:.5!important;background:#f7f9f7!important}
-#pageSetoran #setoranForm>.summary-box,#pagePenjualan #saleForm>.summary-box{
- display:flex!important;align-items:center!important;justify-content:flex-start!important;
- flex-wrap:wrap!important;gap:10px 30px!important;width:100%!important;min-height:0!important;
- margin:13px 0 13px!important;padding:10px 14px!important;border:1px solid #dceae1!important;
- background:#f5faf6!important;border-radius:11px!important
-}
-#pageSetoran #setoranForm>.summary-box>div,#pagePenjualan #saleForm>.summary-box>div{
- min-width:120px!important;flex:0 1 auto!important;margin:0!important
-}
-#pageSetoran #setoranForm>.summary-box small,#pagePenjualan #saleForm>.summary-box small{
- font-size:10.5px!important;color:#637f6d!important;line-height:1.2!important
-}
-#pageSetoran #setoranForm>.summary-box strong,#pagePenjualan #saleForm>.summary-box strong{
- font-size:18px!important;line-height:1.2!important;margin-top:3px!important;color:#1c6545!important
-}
-#pageSetoran #setoranForm>.field,#pagePenjualan #saleForm>.field{
- margin:0 0 12px!important;min-width:0!important
-}
-#pagePenjualan #saleForm>.field:has(#saleStatus){display:inline-block!important;vertical-align:top!important;width:calc(50% - 7px)!important;margin-right:10px!important}
-#pagePenjualan #saleForm>.field:has(#saleReceived){display:inline-block!important;vertical-align:top!important;width:calc(50% - 7px)!important;margin-right:0!important}
-#pagePenjualan .field .hint{font-size:11px!important;line-height:1.4!important;color:#73847a!important;margin:5px 0 0!important}
-#pageSetoran #saveSetoranBtn,#pagePenjualan #saleForm>button[type=submit]{
- min-height:40px!important;padding:9px 16px!important;border-radius:9px!important;
- font-size:13px!important;font-weight:750!important;width:auto!important;max-width:100%!important
-}
-#pageSetoran #setoranNotice:not(:empty),#pagePenjualan #saleNotice:not(:empty){
- margin-top:11px!important;font-size:12px!important;line-height:1.45!important;border-radius:9px!important
-}
-@media(max-width:1199px){
- #pageSetoran #setBarang tbody,#pagePenjualan #saleItems tbody{
-  grid-template-columns:repeat(2,minmax(0,1fr))!important
- }
- #pagePenjualan .f4-sale-top-fields{grid-template-columns:repeat(2,minmax(0,1fr))!important}
- #pagePenjualan .f4-sale-top-fields>.field:last-child{grid-column:1/-1!important}
-}
-@media(max-width:719px){
- #pageSetoran .f4-entry-top-fields,#pagePenjualan .f4-entry-top-fields{
-  grid-template-columns:1fr!important;gap:9px!important;margin-bottom:13px!important
- }
- #pagePenjualan .f4-sale-top-fields>.field:last-child{grid-column:auto!important}
- #pageSetoran #setBarang tbody,#pagePenjualan #saleItems tbody{grid-template-columns:1fr!important;gap:7px!important}
- /* Gunakan susunan kartu dua kolom yang sama pada HP. */
- #pageSetoran .f4-entry-goods-heading,#pagePenjualan .f4-entry-goods-heading{align-items:flex-start}
- #pageSetoran .f4-entry-goods-heading p,#pagePenjualan .f4-entry-goods-heading p{font-size:11px!important}
- #pageSetoran .f4-entry-item-count,#pagePenjualan .f4-entry-item-count{padding:4px 7px;font-size:10px}
- #pagePenjualan #saleForm>.field:has(#saleStatus),#pagePenjualan #saleForm>.field:has(#saleReceived){
-  width:100%!important;margin-right:0!important;display:block!important
- }
- #pageSetoran #saveSetoranBtn,#pagePenjualan #saleForm>button[type=submit]{width:100%!important}
-}
-@media print{#pageSetoran,#pagePenjualan{display:none!important}}
 
-/* Pastikan kartu input menang dari aturan tabel desktop lawas di modern-portals.css. */
-body.f4-direct-bank #dashboardView #pageSetoran #setBarang,
-body.f4-direct-bank #dashboardView #pagePenjualan #saleItems{
- max-width:100%!important;width:100%!important
-}
-body.f4-direct-bank #dashboardView #pageSetoran #setBarang table,
-body.f4-direct-bank #dashboardView #pagePenjualan #saleItems table{
- display:block!important;table-layout:auto!important
-}
-body.f4-direct-bank #dashboardView #pageSetoran #setBarang tbody td,
-body.f4-direct-bank #dashboardView #pagePenjualan #saleItems tbody td,
-body.f4-direct-bank #dashboardView #pageSetoran #setBarang>table td:nth-child(n),
-body.f4-direct-bank #dashboardView #pagePenjualan #saleItems>table td:nth-child(n){
- padding:0!important;margin:0!important;border:0!important;width:auto!important;
- max-width:100%!important;vertical-align:middle!important;line-height:1.35!important
-}
-body.f4-direct-bank #dashboardView #pageSetoran #setBarang tbody tr:nth-child(even),
-body.f4-direct-bank #dashboardView #pagePenjualan #saleItems tbody tr:nth-child(even){
- background:#fff!important
-}
-body.f4-direct-bank #dashboardView #pageSetoran #setBarang tbody tr.f4-entry-filled,
-body.f4-direct-bank #dashboardView #pagePenjualan #saleItems tbody tr.f4-entry-filled{
- background:#f6fbf7!important
-}
-body.f4-direct-bank #dashboardView #pageSetoran #setBarang input[type=number],
-body.f4-direct-bank #dashboardView #pagePenjualan #saleItems input[type=number]{
- width:100%!important;max-width:100%!important;height:36px!important;
- padding:5px 7px!important
-}
-</style>
 
 <style id="f4-bank-savings-compact-20261028">
 /* Scoped Bank Sampah savings screen: white dashboard, side-by-side ledger + payout. */
@@ -1900,7 +1675,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
         <div id="pageMaster" class="card hidden"><div class="toolbar"><div><h2>Harga barang</h2></div><button class="secondary" onclick="loadMaster()">Perbarui</button></div><div class="pill-note">Harga lapak ≠ tarif warga. Atur <strong>Tarif Warga Aktif</strong>. Data lama tetap.</div><div id="masterList" class="tablewrap">Memuat...</div></div>
         <div id="pageProgress" class="card hidden"><h2>Perkembangan</h2><div id="progressList" class="block-gap">Memuat...</div></div>
         <div id="pagePassword" class="card hidden"><h2>Ganti password</h2><p class="desc">Minimal 4 karakter.</p><form onsubmit="doChangePassword(event)"><div class="field"><label for="oldPass">Password sekarang</label><input id="oldPass" type="password" required autocomplete="current-password"></div><div class="field"><label for="newPass">Password baru</label><input id="newPass" type="password" minlength="4" required autocomplete="new-password"></div><button type="submit">Simpan password baru</button></form></div>
-        <div id="pageAdmin" class="card hidden"><div class="toolbar"><div><h2>Kelola akun warga</h2></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button id="bulkBtn" onclick="provisionAll()">Siapkan semua akun</button><button class="secondary" onclick="loadAccounts()">Muat ulang</button></div></div><div class="notice">🔒 Bagikan akun hanya kepada pemiliknya.</div><div id="bulkProgress" class="hint" role="status"></div><div id="accountList" class="tablewrap"></div></div>
+        <div id="pageAdmin" class="card hidden"><div class="toolbar"><div><h2>Kelola akun warga</h2></div><div class="f4-bank-admin-actions"><button id="bulkBtn" onclick="provisionAll()">Siapkan semua akun</button><button class="secondary" onclick="loadAccounts()">Muat ulang</button></div></div><div class="notice">🔒 Bagikan akun hanya kepada pemiliknya.</div><div id="bulkProgress" class="hint" role="status"></div><div id="accountList" class="tablewrap"></div></div>
         <div id="dashNotice" role="status" aria-live="polite"></div>
       </div></div>
     </section>
@@ -3731,7 +3506,6 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     {id:'payout',label:'Pencairan',icon:'wallet',admin:true,tabs:[['bank-payout-admin','Pencairan']]},
     {id:'prices',label:'Harga Barang',icon:'database',admin:true,tabs:[['master','Harga barang']]},
     {id:'accounts',label:'Data Anggota',icon:'user',admin:true,tabs:[['admin','Data anggota']]},
-    {id:'admin-profile',label:'Profil Pengurus',icon:'user',admin:true,tabs:[['profile','Profil pengurus']]},
     {id:'saving',label:'Tabungan',icon:'wallet',member:true,tabs:[['pribadi','Tabungan saya']]},
     {id:'withdrawal',label:'Pencairan',icon:'wallet',member:true,tabs:[['bank-payout','Ajukan pencairan']]},
     {id:'statement',label:'Riwayat',icon:'edit',member:true,tabs:[['bank-history','Riwayat transaksi']]},
@@ -5769,10 +5543,10 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
 
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261031-mobile-spacing-v2">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261031-plain-white-dashboard">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261101-compact-input-desktop-v45">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261101-admin-layout-clean-v47">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261031-mobile-progress-v2">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261031-member-history-v9">
 <script src="/portal-live/bank-sale-handover.js?v=auto-print-firefox-20261030b"></script>
 <script src="/portal-live/direct-shell.js?v=20261101-unified-globe-nav-v1"></script><script src="/portal-live/unified-account.js?v=bank-member-profile-redirect-20261031"></script><script defer src="/portal-live/mobile-cards.js?v=20261031-detail-eye-icon-v2"></script><script defer src="/portal-live/native-controls.js?v=20261027-audit6"></script><script defer src="/portal-live/bank-page-history.js?v=20261027-final4"></script>
-<script defer src="/portal-live/bank-mobile-app.js?v=20261101-cash-tabs-mobile-v38"></script></body>
+<script defer src="/portal-live/bank-mobile-app.js?v=20261101-admin-profile-clean-v40"></script></body>
 </html>
