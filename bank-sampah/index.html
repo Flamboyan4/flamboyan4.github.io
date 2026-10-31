@@ -3678,21 +3678,28 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   }
   v15UpdatePublicButton();
   // v16: satu menu utama per kategori; submenu ditampilkan sebagai tab konten.
+  // Satu halaman per menu pengurus: kategori tidak bersarang lagi.
+  // Navigasi HP memakai dock + Akses Cepat; PC memakai kategori ini sebagai sidebar.
   const v16Groups=[
     {id:'home',label:'Beranda',icon:'home',admin:true,member:true,tabs:[['dashboard','Beranda']]},
-    {id:'entry',label:'Pencatatan',icon:'edit',admin:true,tabs:[['setoran','Input setoran'],['riwayat','Riwayat setoran'],['penjualan','Penjualan lapak'],['riwayatJual','Riwayat penjualan']]},
-    {id:'money',label:'Keuangan',icon:'wallet',admin:true,tabs:[['rekonsiliasi','Cek selisih'],['pengesahan','Sahkan hasil'],['tabungan','Saldo warga'],['biaya','Pembelian & pengeluaran'],['laporan','Laporan admin']]},
-    {id:'payout',label:'Pencairan',icon:'wallet',admin:true,tabs:[['bank-payout-admin','Pengajuan pencairan']]},
-    {id:'program',label:'Kegiatan',icon:'leaf',admin:true,tabs:[['kegiatan','Input perkembangan'],['dokumentasi','Dokumentasi'],['inventaris','Inventaris'],['progress','Progres publik']]},
-    {id:'settings',label:'Data & anggota',icon:'database',admin:true,tabs:[['master','Harga barang'],['admin','Akun warga']]},
+    {id:'saldo',label:'Saldo Warga',icon:'wallet',admin:true,tabs:[['tabungan','Saldo warga']]},
+    {id:'deposit',label:'Setoran',icon:'edit',admin:true,tabs:[['setoran','Setoran']]},
+    {id:'sale',label:'Penjualan',icon:'wallet',admin:true,tabs:[['penjualan','Penjualan']]},
+    {id:'report',label:'Laporan Admin',icon:'database',admin:true,tabs:[['laporan','Laporan admin']]},
+    {id:'history',label:'Riwayat',icon:'edit',admin:true,tabs:[['bank-admin-history','Riwayat']]},
+    {id:'verify',label:'Cek & Sahkan',icon:'wallet',admin:true,tabs:[['rekonsiliasi','Cek & sahkan']]},
+    {id:'expenses',label:'Pengeluaran',icon:'database',admin:true,tabs:[['biaya','Pengeluaran']]},
+    {id:'payout',label:'Pencairan',icon:'wallet',admin:true,tabs:[['bank-payout-admin','Pencairan']]},
+    {id:'prices',label:'Harga Barang',icon:'database',admin:true,tabs:[['master','Harga barang']]},
+    {id:'accounts',label:'Data Anggota',icon:'user',admin:true,tabs:[['admin','Data anggota']]},
+    {id:'admin-profile',label:'Profil Pengurus',icon:'user',admin:true,tabs:[['profile','Profil pengurus']]},
     {id:'saving',label:'Tabungan',icon:'wallet',member:true,tabs:[['pribadi','Tabungan saya']]},
     {id:'withdrawal',label:'Pencairan',icon:'wallet',member:true,tabs:[['bank-payout','Ajukan pencairan']]},
     {id:'statement',label:'Riwayat',icon:'edit',member:true,tabs:[['bank-history','Riwayat transaksi']]},
     {id:'memberreport',label:'Laporan',icon:'database',member:true,tabs:[['bank-report','Laporan tabungan']]},
     {id:'progress',label:'Perkembangan',icon:'leaf',member:true,tabs:[['bank-member-progress','Perkembangan']]},
     {id:'memberinfo',label:'Informasi & Laporan',icon:'globe',member:true,tabs:[['bank-member-info','Informasi & Laporan']]},
-    {id:'memberdocs',label:'Dokumentasi',icon:'image',member:true,tabs:[['bank-member-docs','Dokumentasi']]},
-    {id:'public',label:'Portal publik',icon:'globe',admin:true,tabs:[]}
+    {id:'memberdocs',label:'Dokumentasi',icon:'image',member:true,tabs:[['bank-member-docs','Dokumentasi']]}
   ];
   const v16SvgPaths={
     home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
@@ -3744,9 +3751,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       const list=document.createElement('div');list.id='v16NavList';list.className='v16-nav-list';nav.append(label,list);brand.after(nav);
     }
     const list=$('v16NavList');list.replaceChildren();
-    v16Groups.filter(g=>profile?.peran==='Admin'?g.admin:g.member).map(g=>
-      g.id==='program'&&document.body.dataset.f4BankRole==='superadmin'
-       ?{...g,label:'Dokumentasi & Inventaris',tabs:g.tabs.filter(t=>t[0]!=='kegiatan')} : g).forEach(g=>{
+    v16Groups.filter(g=>profile?.peran==='Admin'?g.admin:g.member).forEach(g=>{
       const b=document.createElement('button');b.type='button';b.className='v16-item';b.dataset.group=g.id;
       const symbol=v16Icon(g.icon);
       b.append(symbol,document.createTextNode(g.label));
@@ -3783,9 +3788,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   }
   function v16Sync(page){
     const tabs=$('v16Tabs');if(!tabs||!profile)return;
-    const available=v16Groups.filter(g=>profile.peran==='Admin'?g.admin:g.member).map(g=>
-      g.id==='program'&&document.body.dataset.f4BankRole==='superadmin'
-      ?{...g,label:'Dokumentasi & Inventaris',tabs:g.tabs.filter(t=>t[0]!=='kegiatan')}:g);
+    const available=v16Groups.filter(g=>profile.peran==='Admin'?g.admin:g.member);
     const group=available.find(g=>g.tabs.some(t=>t[0]===page)||g.id==='public'&&page==='public')||
       (page==='profile'||page==='password'?null:available.find(g=>g.id==='home'));
     document.querySelectorAll('#v16NavList .v16-item').forEach(button=>{
