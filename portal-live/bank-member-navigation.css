@@ -84,11 +84,6 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
  display:flex;align-items:center;gap:10px;padding:1px 0 10px;
  border-bottom:1px solid #e5ede6
 }
-#dashboardView .f4-member-feature-header button{
- flex:none;width:36px;height:36px;padding:0;display:grid;place-items:center;
- border-radius:11px;background:#edf8f1;color:#087a52;box-shadow:none;
- font-size:23px;font-weight:500
-}
 #dashboardView .f4-member-feature-header div{min-width:0;display:grid;gap:3px}
 #dashboardView .f4-member-feature-header h2{
  font-size:19px;line-height:1.2;color:#164a32;margin:0;font-weight:850
