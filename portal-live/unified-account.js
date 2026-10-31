@@ -141,6 +141,13 @@ function rightsPage(){
 function close(){setAccountMenu(false);root.hidden=true;document.body.classList.remove('f4-account-open');
  if(mobileMenu){mobileMenu.setAttribute('aria-controls','portal-sidebar');mobileMenu.setAttribute('aria-label','Buka menu halaman');mobileMenu.setAttribute('aria-expanded','false')}if(location.hash==='#akun')history.replaceState(null,'',window.__f4AccountReturnHash||'#portal');if(photoUrl){URL.revokeObjectURL(photoUrl);photoUrl=''}}
 async function open(){
+ // No duplicate settings workspace for Bank Sampah members.
+ if(document.body.classList.contains('f4-direct-bank')&&
+    document.body.dataset.f4BankRole==='warga'){
+   if(!root.hidden)close();
+   window.f4OpenBankProfile?.();
+   return;
+ }
  if(root.hidden){window.__f4AccountReturnHash=location.hash==='#akun'?(window.__f4AccountReturnHash||'#portal'):(location.hash||'#portal');if(location.hash!=='#akun')history.pushState(null,'','#akun');}
  const accountPanel=document.getElementById('f4-account-page'),residents=document.getElementById('f4-warga-panel');
  if(accountPanel)accountPanel.hidden=true;if(residents)residents.hidden=true;
