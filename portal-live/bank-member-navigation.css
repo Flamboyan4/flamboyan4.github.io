@@ -1,10 +1,31 @@
 /* Bank Sampah member-only navigation and feature surfaces.
    Scoped component stylesheet with native selector precedence. */
-body.f4-bank-app-member #dashboardView>.grid{
- display:block;grid-template-columns:minmax(0,1fr);min-width:0
+/* Mobile is one column; desktop restores sidebar and responsive content. */
+@media(max-width:1023px){
+ body.f4-bank-app-member #dashboardView>.grid{display:block;min-width:0}
+ body.f4-bank-app-member #dashboardView>.grid>.section{
+  grid-column:auto;min-width:0;width:100%;max-width:980px;margin-inline:auto
+ }
 }
-body.f4-bank-app-member #dashboardView>.grid>.section{
- grid-column:1;width:100%;max-width:980px;min-width:0;margin-inline:auto
+@media(min-width:1024px){
+ body.f4-bank-app-member #dashboardView>.grid{
+  display:grid;grid-template-columns:244px minmax(0,1fr);
+  align-items:start;gap:0;min-width:0
+ }
+ body.f4-bank-app-member #dashboardView>.grid>.section{
+  grid-column:2;grid-row:1;min-width:0;width:100%;max-width:none;
+  padding:24px clamp(20px,3vw,44px) 48px;margin:0
+ }
+ body.f4-bank-app-member #dashboardView #sideNav.side{
+  grid-column:1;grid-row:1;display:block;position:sticky;top:56px;left:0;
+  width:244px;min-width:0;height:calc(100dvh - 56px);
+  max-height:calc(100dvh - 56px);min-height:0;
+  overflow-y:auto;overflow-x:hidden;transform:none;visibility:visible;
+  border-right:1px solid #e0e9e2;background:#fff;
+  padding:14px 10px 22px;box-shadow:none
+ }
+ body.f4-bank-app-member #f4-direct-bar{padding-left:254px}
+ body.f4-bank-app-member #f4-direct-bar .f4-bank-member-top-identity{max-width:360px}
 }
 body.f4-bank-app-member #f4-direct-bar #f4-mobile-menu{display:none}
 body.f4-bank-app-member.f4-bank-member-secondary #f4-direct-bar #f4-mobile-menu{
@@ -36,6 +57,16 @@ body.f4-bank-app-member.f4-member-feature #f4-direct-bar #f4-mobile-menu:focus-v
 body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-shortcut,.f4-member-feature-header) button:focus-visible{
  outline:2px solid #087a52;outline-offset:2px
 }
+/* Member page shells are unboxed; individual functional cards keep their own borders. */
+body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page,
+body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-report).f4-bank-screen{
+ display:grid;min-width:0;width:100%;max-width:1080px;
+ margin:0 auto;padding:0;border:0;border-radius:0;
+ background:transparent;box-shadow:none;align-content:start
+}
+body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page{display:block}
+body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-report)>.f4-bank-screen-title{margin:2px 0 8px}
+body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page>h2{margin:2px 0 14px}
 #dashboardView .f4-member-environment-preview{
  display:grid;gap:13px;padding:15px;border:1px solid #dce9df;border-radius:18px;
  background:#fff;min-width:0;box-shadow:0 5px 15px #1746300b
