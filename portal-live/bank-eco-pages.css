@@ -1344,13 +1344,13 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:1080px;align-conten
  body.f4-bank-app-admin #dashboardView #pageLaporan .v33-report-row{
   grid-template-columns:minmax(0,.94fr) minmax(0,1.06fr)
  }
- body.f4-bank-app-private #dashboardView .f4-bank-screen{width:100%;max-width:960px;padding:21px 23px;margin-inline:auto}
+ body.f4-bank-app-member #dashboardView .f4-bank-screen{width:100%;max-width:960px;padding:21px 23px;margin-inline:auto}
  body.f4-bank-app-private #dashboardView #bank-payout{max-width:760px}
  body.f4-bank-app-private #dashboardView #bank-report{max-width:980px}
  body.f4-bank-app-private #dashboardView #pagePribadi{max-width:980px;margin-inline:auto}
- body.f4-bank-app-private #dashboardView .section>.card:not(#pageDashboard){width:100%;max-width:1080px;margin-inline:auto;padding:21px 23px}
+ body.f4-bank-app-member #dashboardView .section>.card:not(#pageDashboard){width:100%;max-width:1080px;margin-inline:auto;padding:21px 23px}
  body.f4-bank-app-private #dashboardView .section>#pagePribadi{max-width:980px}
- body.f4-bank-app-admin #dashboardView .section>.card:not(#pageDashboard){max-width:1120px}
+
  body.f4-bank-app-private #dashboardView #pageSetoran .f4-entry-top-fields,
  body.f4-bank-app-private #dashboardView #pagePenjualan .f4-entry-top-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
  body.f4-bank-app-private #dashboardView :is(#pageLaporan,#pageSetoran,#pagePenjualan,#pageRiwayat,#pageRiwayatJual,#pageTabungan) .tablewrap{max-width:100%;overflow-x:auto}
