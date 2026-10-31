@@ -52,6 +52,7 @@ async def main():
                 return {
                     hero:box('#f4BankAppAdminHero'),
                     metrics:box('#f4BankAppMinis'),
+                    tiles:[...document.querySelectorAll('#f4BankAppMinis .f4-bank-app-mini')].map(n=>{const r=n.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}}),
                     home:box('#f4BankAppHome'),
                     dock:getComputedStyle(document.querySelector('#f4BankAppDock')).display,
                     labels:[...document.querySelectorAll('#f4BankAppDock .f4-bank-app-action-name')].map(n=>n.textContent),
@@ -65,10 +66,12 @@ async def main():
             assert not state["overflow"],state
             if device=="pc":
                 assert state["home"]["w"]>850,state
-                assert state["metrics"]["x"]>state["hero"]["x"]+state["hero"]["w"]-4,state
+                assert state["metrics"]["y"]>=state["hero"]["y"]+state["hero"]["h"]-3,state
+                assert len(state["tiles"])==4 and abs(state["tiles"][0]["y"]-state["tiles"][3]["y"])<3,state
                 assert state["dock"]=="none",state
             else:
                 assert state["metrics"]["y"]>=state["hero"]["y"]+state["hero"]["h"]-2,state
+                assert len(state["tiles"])==4 and state["tiles"][2]["y"]>state["tiles"][0]["y"],state
                 assert state["dock"]!="none",state
             assert "+ Catat setoran" in state["quick"],state
             assert await page.locator("#f4BankManualPayout").count()==1
