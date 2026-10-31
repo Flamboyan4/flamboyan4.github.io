@@ -95,6 +95,42 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
 }
 #dashboardView .f4-member-feature-header small{font-size:11px;color:#718477}
 #dashboardView .f4-member-feature-content{min-width:0;display:grid;gap:18px}
+#dashboardView #bank-member-progress #v17PublicMetrics{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;
+ min-width:0;margin:0
+}
+#dashboardView #bank-member-progress #v17PublicMetrics .v17-public-metric{
+ display:grid;grid-template-columns:35px minmax(0,1fr);grid-template-rows:auto auto;
+ align-content:center;gap:3px 9px;min-width:0;padding:12px;
+ border:1px solid #dce9df;border-left:3px solid #078256;
+ border-radius:14px;background:#fff
+}
+#dashboardView #bank-member-progress #v17PublicMetrics .v17-public-metric:nth-child(even){
+ border-left-color:#d6a019
+}
+#dashboardView #bank-member-progress #v17PublicMetrics .v17-public-metric::before{
+ content:"";grid-column:1;grid-row:1 / span 2;align-self:center;
+ width:35px;height:35px;background:#e7f7ef url("/assets/icons/user.svg") center/19px no-repeat;
+ border-radius:11px
+}
+#dashboardView #bank-member-progress #v17PublicMetrics .v17-public-metric:nth-child(2)::before{
+ background-color:#eef3fb;background-image:url("/assets/icons/inventory.svg")
+}
+#dashboardView #bank-member-progress #v17PublicMetrics .v17-public-metric:nth-child(3)::before{
+ background-color:#fff6e4;background-image:url("/assets/icons/bank.svg")
+}
+#dashboardView #bank-member-progress #v17PublicMetrics .v17-public-metric:nth-child(4)::before{
+ background-color:#f2edfc;background-image:url("/assets/icons/calendar.svg")
+}
+#dashboardView #bank-member-progress #v17PublicMetrics .v17-public-metric small{
+ grid-column:2;grid-row:1;min-width:0;color:#738779;
+ font-size:11px;font-weight:650;line-height:1.2
+}
+#dashboardView #bank-member-progress #v17PublicMetrics .v17-public-metric strong{
+ grid-column:2;grid-row:2;color:#10593c;font-weight:850;
+ font-size:19px;line-height:1.2;overflow-wrap:anywhere
+}
+#dashboardView #bank-member-progress #f4DevStats{display:none}
 #dashboardView #bank-member-progress #v17Perkembangan{margin:0}
 #dashboardView #bank-member-progress #v17Perkembangan>.f4-dev-intro{display:none}
 #dashboardView #bank-member-progress :is(.f4-dev-chart-card,.f4-dev-activity-card){
@@ -149,6 +185,9 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
  display:grid;grid-template-columns:minmax(0,1fr);gap:9px
 }
 @media(max-width:640px){
+ #dashboardView #bank-member-progress #v17PublicMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #dashboardView #bank-member-progress #v17PublicMetrics .v17-public-metric{padding:10px 8px;gap:3px 7px}
+ #dashboardView #bank-member-progress #v17PublicMetrics .v17-public-metric strong{font-size:17px}
  #dashboardView :is(#bank-member-progress,#bank-member-info).f4-bank-screen{
   padding:11px;border-radius:15px
  }
