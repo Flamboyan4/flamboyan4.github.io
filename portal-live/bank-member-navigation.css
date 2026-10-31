@@ -92,6 +92,35 @@ body.f4-bank-app-member #dashboardView .f4-bank-report-transactions>.f4-bank-scr
  body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page:not(.hidden){
   width:100%;max-width:none
  }
+ body.f4-bank-app-member #dashboardView #pagePribadi #v12Private:not(.hidden){
+  display:grid;grid-template-columns:minmax(320px,.9fr) minmax(0,1.1fr);
+  grid-template-areas:
+   "hero chart"
+   "stats chart"
+   "report chart"
+   "history-title history-title"
+   "deposits deposits";
+  grid-auto-rows:max-content;gap:13px 17px;align-items:start
+ }
+ body.f4-bank-app-member #dashboardView #pagePribadi #f4BankSavingsHero{
+  grid-area:hero;min-width:0;max-width:none;margin:0
+ }
+ body.f4-bank-app-member #dashboardView #pagePribadi #f4BankSavingsStats{
+  grid-area:stats;min-width:0;margin:0
+ }
+ body.f4-bank-app-member #dashboardView #pagePribadi #f4BankSavingsChart{
+  grid-area:chart;min-width:0;margin:0
+ }
+ body.f4-bank-app-member #dashboardView #pagePribadi .f4-bank-report-open{
+  grid-area:report;min-width:0;margin:0
+ }
+ body.f4-bank-app-member #dashboardView #pagePribadi #v12Private>h2{
+  grid-area:history-title;margin:12px 0 0
+ }
+ body.f4-bank-app-member #dashboardView #pagePribadi #v12Deposits{
+  grid-area:deposits;min-width:0;padding:9px 16px;
+  border:1px solid #dce8df;border-radius:15px;background:#fff
+ }
  body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-report).f4-bank-screen:not(.hidden){
   width:100%;max-width:none;margin:0;gap:16px
  }
