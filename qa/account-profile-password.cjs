@@ -12,6 +12,26 @@ assert(worker.includes('nama: who.display_name, rumah: who.house_code'),'Member 
 assert(shell.includes("window.addEventListener('f4-account-profile-updated'"),'Shell must react to profile changes');
 assert(shell.includes('session?.account?.displayName||session?.member?.nama'),'Account menu missing alias');
 assert(account.includes("window.dispatchEvent(new CustomEvent('f4-account-profile-updated'"),'Profile save not propagated');
+// Members of Bank Sampah edit the alias inside their existing card/profile.
+// This must not reopen the global multi-tab account overlay.
+assert(shell.includes("settings.textContent=portal==='bank'&&role==='warga'?'Kartu & Profil':'Pengaturan Akun'"),
+ 'Member Bank Sampah setting label must point at existing card');
+assert(shell.includes("if(portal==='bank'&&role==='warga')"),'Member Bank Sampah must bypass duplicate settings');
+assert(shell.includes('window.f4OpenBankProfile?.();'),'Member profile redirect missing');
+assert(account.includes("document.body.classList.contains('f4-direct-bank')"),'Global account overlay must guard Bank Sampah members');
+const memberApp=fs.readFileSync('portal-live/bank-mobile-app.js','utf8');
+new vm.Script(memberApp,{filename:'bank-mobile-app'});
+assert(memberApp.includes('function inlineMemberDisplayName()'),'Inline member name editing missing');
+assert(memberApp.includes('const result=await api("/api/member/profile",{nama:value});'),
+ 'Member alias must be saved via authenticated profile endpoint');
+assert(memberApp.includes('window.dispatchEvent(new CustomEvent("f4-account-profile-updated"'),
+ 'Member name must synchronize with the shared account menu');
+assert(worker.includes('INSERT INTO member_account_profiles(account_id,display_name,updated_at)'),
+ 'Display name must be account-scoped, not rewrite member transaction identity');
+assert(memberApp.includes('inlineMemberDisplayName();'),'Edit pencil must be activated on member profile');
+assert(!memberApp.includes('Kartu identitas anggota, bukan alat pembayaran.'),
+ 'Duplicate card disclaimer returned');
+
 const receiptRoute='if (path === "/api/v2/admin/bank/sale-receipt" && request.method === "POST")';
 const fallbackRoute='if (path.startsWith("/api/v2/")) return handleUnifiedApi';
 assert(worker.includes(receiptRoute) && worker.indexOf(receiptRoute)<worker.indexOf(fallbackRoute),'Sale-receipt route must precede generic v2 handler');
