@@ -844,7 +844,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
 }
 </style>
 <link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261101-bank-admin-header-align-v2"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
-<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261101-bank-report-grid-v1">
+<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261101-bank-report-grid-v2">
 
 <style id="f4-bank-admin-report-compact-20261027">
 @media(min-width:1024px){#pageLaporan.card{padding:17px 19px;background:#fff}}
@@ -2664,23 +2664,43 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     return Object.entries(v10Specs).filter(([key])=>active?active.includes(key):(legacy==='semua'||key===legacy))
       .map(([key,spec])=>({key,spec,rows:v10ReportData[key]||[]}));
   }
-  // One column specification for the administration screen and its printable PDF.
-  const v10ReportWidths={
-    setoran:[25,13,17,16,16,13],
-    penjualan:[23,13,17,17,15,15],
-    pengeluaran:[14,13,30,12,16,15],
-    mutasi:[30,16,22,16,16],
-    setoranBank:[16,23,16,20,25]
+  // Semua bagian laporan menggunakan garis kisi global 16 unit.
+  // Tabel 5 kolom menggabungkan dua slot tengah; garis kolom lain tetap
+  // tepat sejajar dengan tabel 6 kolom, seperti merged cells di Excel.
+  const v10ReportGridUnits=16;
+  const v10ReportGridSix=[4,2,2,2,3,3];
+  const v10ReportGridFive=[4,2,4,3,3];
+  const v10ReportOrder={
+    // Kolom deskripsi lebar ditaruh di kolom pertama yang berukuran 4 unit.
+    pengeluaran:['keterangan','tanggal','jenis','pos','nominal','status'],
+    setoranBank:['barang','tanggal','berat','diterima','keterangan']
   };
+  function v10ReportFields(spec,kind){
+    const source=spec.fields;
+    const preferred=v10ReportOrder[kind];
+    if(!preferred)return source;
+    return preferred.map(key=>source.find(([field])=>field===key)).filter(Boolean)
+      .concat(source.filter(([field])=>!preferred.includes(field)));
+  }
   function v10MakeTable(spec,rows,kind){
-    const table=document.createElement('table');table.className='f4-admin-report-table';
-    const widths=v10ReportWidths[kind]||Array(spec.fields.length).fill(100/spec.fields.length);
+    const fields=v10ReportFields(spec,kind);
+    const spans=fields.length===6?v10ReportGridSix:
+      fields.length===5?v10ReportGridFive:null;
+    const table=document.createElement('table');
+    table.className='f4-admin-report-table';
+    table.dataset.gridUnits=String(v10ReportGridUnits);
+    // Five and six columns share the same 16-unit coordinate system.
     const colgroup=document.createElement('colgroup');
-    widths.forEach(width=>{const col=document.createElement('col');col.style.width=width+'%';colgroup.appendChild(col)});
+    (spans||Array(fields.length).fill(v10ReportGridUnits/fields.length))
+      .forEach(units=>{
+        const col=document.createElement('col');
+        col.style.width=(units/v10ReportGridUnits*100)+'%';
+        colgroup.appendChild(col);
+      });
     table.appendChild(colgroup);
     const thead=document.createElement('thead'),heading=document.createElement('tr');
     const numeric=new Set(['berat','beratTimbang','nilai','bruto','diterima','nominal','kredit','debit']);
-    spec.fields.forEach(([key,label])=>{
+    fields.forEach(([key,label])=>{
       const th=document.createElement('th');th.scope='col';th.textContent=label;
       if(numeric.has(key))th.classList.add('f4-report-num');
       if(key==='tanggal'||key==='status'||key==='disahkan')th.classList.add('f4-report-center');
@@ -2691,7 +2711,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     rows.forEach(record=>{
       const tr=document.createElement('tr');
       if(/batal/i.test(String(record.status||'')))tr.classList.add('f4-report-row-canceled');
-      spec.fields.forEach(([key,label])=>{
+      fields.forEach(([key,label])=>{
         const td=document.createElement('td');td.dataset.label=label;
         td.textContent=typeof record[key]==='boolean'?(record[key]?'Ya':'Tidak'):String(record[key]??'');
         if(numeric.has(key))td.classList.add('f4-report-num');
@@ -2707,7 +2727,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     });
     if(!rows.length){
       const tr=document.createElement('tr'),td=document.createElement('td');
-      td.colSpan=spec.fields.length;td.className='f4-report-empty';
+      td.colSpan=fields.length;td.className='f4-report-empty';
       td.textContent='Tidak ada transaksi pada periode ini.';
       tr.appendChild(td);tbody.appendChild(tr);
     }
