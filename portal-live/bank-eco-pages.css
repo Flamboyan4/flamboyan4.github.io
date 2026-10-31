@@ -1123,7 +1123,6 @@ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
   min-height:36px;padding:5px 9px;gap:9px;font-size:12px;line-height:1.25
  }
  body.f4-bank-app-admin #sideNav #v16NavList>.v16-item svg{width:17px;height:17px}
- body.f4-bank-app-admin #sideNav #v15Footer .account-entry{display:none}
  body.f4-bank-app-admin #sideNav #v15Footer{display:none}
  body.f4-bank-app-admin #dashboardView .f4-bank-screen{
   padding:19px 20px;border:1px solid #dfeae2;border-radius:15px;background:#fff
@@ -1224,7 +1223,12 @@ body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm{
 .f4-bank-own-status{font-size:12px;color:#2b6a4b;min-height:0;margin:0}
 body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:start}
 .f4-bank-admin-cash-body{display:grid;gap:14px}
-.f4-bank-admin-cash-actions{display:flex;gap:9px;flex-wrap:wrap}
+.f4-bank-cash-toolbar{
+ display:flex;align-items:center;justify-content:space-between;
+ flex-wrap:wrap;gap:10px;min-width:0
+}
+.f4-bank-cash-toolbar .f4-bank-admin-cash-tabs{flex:1 1 auto}
+.f4-bank-cash-toolbar .f4-bank-cash-expense-action{flex:0 1 auto}
 .f4-bank-admin-cash-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
 .f4-bank-admin-cash-stat{
  display:grid;gap:5px;min-width:0;padding:12px;
