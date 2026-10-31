@@ -923,6 +923,7 @@ body.f4-bank-app-member #dashboardView .f4-bank-screen{
 .f4-bank-manager-request-actions{display:flex;gap:8px}
 .f4-bank-manager-request-actions button{flex:1}
 /* Pengurus: satu sistem formulir dan aksi, tanpa menimpa scroll. */
+body.f4-bank-app-admin{--bank-sidebar-width:208px}
 body.f4-bank-app-admin #dashboardView{--bank-input-h:42px;--bank-form-gap:13px}
 body.f4-bank-app-admin #dashboardView .section :is(form,.field,.toolbar){min-width:0}
 body.f4-bank-app-admin #dashboardView .section :is(#pageMaster,#pageAdmin,#pageRiwayat,#pageRiwayatJual,#pageTabungan,#pageLaporan)>.toolbar{
@@ -1106,14 +1107,14 @@ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
  }
  body.f4-bank-app-admin #dashboardView #sideNav.side{
   display:block;position:fixed;top:0;bottom:0;left:0;z-index:210;
-  width:208px;height:100dvh;max-height:100dvh;min-width:0;
+  width:var(--bank-sidebar-width);height:100dvh;max-height:100dvh;min-width:0;
   overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
   border-right:1px solid #dce8df;background:#fff;
   padding:10px 8px 16px;transform:none;visibility:visible
  }
  body.f4-bank-app-admin #dashboardView>.grid>.section{
   box-sizing:border-box;display:block;min-width:0;
-  width:calc(100% - 208px);margin-left:208px
+  width:calc(100% - var(--bank-sidebar-width));margin-left:var(--bank-sidebar-width)
  }
  body.f4-bank-app-admin #sideNav .v16-brand{padding:4px 5px 9px;gap:7px;margin-bottom:3px}
  body.f4-bank-app-admin #sideNav .v16-brand img{width:32px;height:32px}

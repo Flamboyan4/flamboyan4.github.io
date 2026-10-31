@@ -140,14 +140,11 @@ html.f4p-overlay-active #f4-direct-sidebar{
 }
 body.f4-account-open #f4-direct-bar{z-index:500!important}
 }
-@media(min-width:1024px){
- body.f4-direct-bank #f4-direct-bar{left:244px}
- body.f4-direct-superadmin #f4-direct-bar{left:244px}
-}
 /* 26 Oct — Unified top rail: same geometry as the approved Superadmin header. */
 @media(min-width:1024px){
  body.f4-direct-portal #f4-direct-bar,body.f4-direct-simple #f4-direct-bar{left:226px!important}
- body.f4-direct-bank #f4-direct-bar,body.f4-direct-superadmin #f4-direct-bar{left:244px!important}
+ body.f4-direct-bank:not(.f4-bank-app-admin) #f4-direct-bar,body.f4-direct-superadmin #f4-direct-bar{left:244px!important}
+ body.f4-direct-bank.f4-bank-app-admin #f4-direct-bar{left:var(--bank-sidebar-width,208px)}
  body.f4-direct-book #f4-direct-bar{left:258px!important}
  body.f4-direct-portal #f4-direct-sidebar,body.f4-direct-simple #f4-direct-sidebar{top:0!important;bottom:0!important;height:100dvh!important;padding-top:17px}
  body.f4-direct-bank #v18PublicSide{position:fixed!important;top:0!important;left:0!important;bottom:0!important;width:244px!important;height:100dvh!important;max-height:100dvh!important}
