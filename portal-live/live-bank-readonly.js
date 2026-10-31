@@ -225,6 +225,8 @@
   const netSavings=ledger.reduce((sum,x)=>sum+(['kredit','koreksi_kredit'].includes(x.kind)?1:-1)*number(x.amount_rp),0);
   const weightPending=validDeposits.some(x=>x.status==='Terkonfirmasi'&&x.beratSah===null);
   const activeCash=cash.filter(x=>x.status==='aktif');
+  const totalCash=activeCash.reduce((n,x)=>n+number(x.cash_in_rp)-number(x.cash_out_rp),0);
+  const bankOwnedCash=totalCash-netSavings; // Hak warga adalah kewajiban, bukan kas milik bank.
   return {wargaAktif:members.filter(x=>x.status==='Aktif').length,
    jenisBarangAktif:items.filter(x=>x.active!==0).length,
    beratSetoranKg:weightPending?null:validDeposits.reduce((n,x)=>n+x.berat,0),
@@ -237,7 +239,10 @@
    beratPenjualanKg:number(publicInfo.overview?.confirmedSalesWeightKg),
    diterimaLapakRp:confirmedSales.reduce((n,x)=>n+x.diterima,0),
    netMutasiTabunganRp:netSavings,
-   netKasRp:activeCash.reduce((n,x)=>n+number(x.cash_in_rp)-number(x.cash_out_rp),0),
+   netKasRp:totalCash,
+   kasGabunganRp:totalCash,
+   hakWargaBelumCairRp:netSavings,
+   kasMilikBankRp:bankOwnedCash,
    tarifBelumDitetapkan:items.filter(x=>!x.priceRpPerKg).length};
  };
  const adminProgress=async()=> (await adminRows('progress')).map(x=>({
