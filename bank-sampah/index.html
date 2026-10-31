@@ -470,10 +470,63 @@
   #authView.v26-simple-login h1{margin-bottom:12px}
   #authView.v26-simple-login #loginForm>.hint{font-size:11px;margin-top:11px}
   #authView.v26-simple-login{padding-top:23px;padding-bottom:22px}
-  .v26-report-subtitle{margin:5px 0 14px;color:#72877a;font-size:12px}
-  #v25ReportMetrics.v26-compact{grid-template-columns:repeat(4,minmax(0,1fr))}
-  @media(max-width:830px){#v25ReportMetrics.v26-compact{grid-template-columns:repeat(2,minmax(0,1fr))}}
-  @media(max-width:440px){#v25ReportMetrics.v26-compact{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#v25ReportMetrics.v26-compact .v17-public-metric{padding:12px 10px}}
+  /* Laporan Publik: satu definisi untuk HP dan PC. Angka jelas, kartu tak melebar. */
+  #v11Public #v25ReportRoot{padding:12px;border-radius:13px}
+  #v11Public #v25ReportMetrics.v26-compact{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(156px,188px));
+    gap:8px;margin:10px 0 12px;align-items:stretch
+  }
+  #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric{
+    display:grid;grid-template-columns:26px minmax(0,1fr);grid-template-rows:auto auto;
+    align-content:center;align-items:center;column-gap:8px;row-gap:2px;
+    min-width:0;min-height:68px;padding:8px 9px;margin:0;
+    border-radius:11px;box-shadow:none
+  }
+  #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric::before{
+    display:block;grid-column:1;grid-row:1 / 3;align-self:center;
+    width:26px;height:26px;margin:0;background-size:16px
+  }
+  #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric small{
+    grid-column:2;grid-row:1;min-width:0;margin:0;
+    font-size:11px;line-height:1.22;font-weight:600;color:#62776a
+  }
+  #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric strong{
+    grid-column:2;grid-row:2;min-width:0;margin:0;padding:0;
+    font-size:18px;line-height:1.15;font-weight:850;letter-spacing:-.3px;
+    color:#164e33;overflow-wrap:anywhere
+  }
+  #v11Public #v25ReportRoot .v25-report-toolbar{gap:7px;margin:4px 0 7px}
+  #v11Public #v25ReportRoot .v25-report-toolbar :is(button,select){
+    min-height:36px;margin:0;padding:7px 11px;border-radius:9px;font-size:12px
+  }
+  #v11Public #v25ReportRoot .v25-report-toolbar select{min-width:140px}
+  #v11Public #v25ReportRoot .v25-report-toolbar button:first-of-type{
+    width:38px;padding:0;font-size:19px;line-height:1
+  }
+  #v11Public #v25ReportRoot .v26-report-subtitle{
+    margin:5px 0 9px;color:#667f70;font-size:11px;line-height:1.4
+  }
+  #v11Public #v25ReportRoot #v25ReportNote[hidden]{display:none}
+  @media(max-width:640px){
+    #v11Public #v25ReportRoot{padding:10px}
+    #v11Public #v25ReportMetrics.v26-compact{
+      grid-template-columns:repeat(2,minmax(0,1fr));gap:7px
+    }
+    #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric{
+      grid-template-columns:24px minmax(0,1fr);
+      min-height:64px;padding:7px 8px;column-gap:7px
+    }
+    #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric::before{
+      width:24px;height:24px;background-size:15px
+    }
+    #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric small{font-size:10.5px}
+    #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric strong{
+      font-size:clamp(16px,4.3vw,18px)
+    }
+    #v11Public #v25ReportRoot .v25-report-toolbar select{
+      flex:1 1 100%;min-width:0
+    }
+  }
   .v27-progress-no-photo{width:80px;height:78px;display:grid;place-items:center;border-radius:9px;background:#e2eee3;color:#83a58a;font-size:23px}
   .v27-photo-missing{color:#b57c49!important;font-size:10px!important}
   .v27-cancel-panel{border:1px solid #efcaa9;border-radius:12px;margin-top:22px;background:#fffaf4;padding:15px}
@@ -1673,46 +1726,6 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
   #pageTabungan .f4-savings-main{gap:10px!important}
   #pageTabungan .f4-savings-panel{padding:13px!important}
   #pageTabungan #v9Form{row-gap:9px!important}
-  /* Ringkasan laporan publik: satu ikon kecil, label dan nilai di sisi kanan. */
-  #v11Public #v25ReportRoot{padding:11px;border-radius:13px}
-  #v11Public #v25ReportMetrics.v26-compact{
-    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:7px;margin:10px 0 12px;min-width:0
-  }
-  #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric{
-    display:grid;grid-template-columns:24px minmax(0,1fr);
-    grid-template-rows:auto auto;align-content:center;align-items:center;
-    column-gap:7px;row-gap:2px;min-width:0;min-height:66px;
-    margin:0;padding:7px 8px;border-radius:10px;box-shadow:none
-  }
-  #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric::before{
-    display:block;grid-column:1;grid-row:1/3;align-self:center;
-    width:24px;height:24px;margin:0;background-size:15px
-  }
-  #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric small{
-    grid-column:2;grid-row:1;min-width:0;margin:0;
-    font-size:10.5px;line-height:1.22;font-weight:600;color:#5d7567
-  }
-  #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric strong{
-    grid-column:2;grid-row:2;min-width:0;margin:0;padding:0;
-    font-size:clamp(16px,4.3vw,19px);line-height:1.12;font-weight:850;
-    letter-spacing:-.3px;color:#21563d;overflow-wrap:anywhere
-  }
-  #v11Public #v25ReportRoot .v25-report-toolbar{
-    display:flex!important;gap:7px!important;flex-wrap:wrap!important;
-    margin:7px 0 9px!important;align-items:center!important
-  }
-  #v11Public #v25ReportRoot .v25-report-toolbar :is(button,select){
-    margin:0!important;min-height:39px!important;padding:8px 11px!important;
-    border-radius:9px!important;font-size:13px!important
-  }
-  #v11Public #v25ReportRoot .v25-report-toolbar select{min-width:0!important;flex:1 1 100%!important}
-  #v11Public #v25ReportRoot .v26-report-subtitle{
-    margin:6px 0 10px!important;line-height:1.45!important
-  }
-  #v11Public #v25ReportRoot>.v17-subtle{
-    margin:9px 0 0!important;line-height:1.45!important
-  }
   #v11Public #v25ReportTable.v25-report-table{
     padding:0!important;border:0!important;border-radius:12px!important;overflow:visible!important
   }
@@ -4818,18 +4831,18 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     const root=$('v17Transparansi');if(!root||$('v25ReportRoot'))return;
     root.replaceChildren();
     root.appendChild(v21Node('h2','','Laporan Publik'));
-    root.appendChild(v21Node('p','v17-subtle','Ringkasan hasil penjualan dan manfaat untuk warga serta lingkungan, berdasarkan pembukuan yang sudah disahkan.'));
+    // Judul sudah menjelaskan konteks; hindari paragraf pembuka berulang.
     const box=v21Node('div','v17-panel');box.id='v25ReportRoot';
     const toolbar=v21Node('div','v25-report-toolbar');
     const period=document.createElement('select');period.id='v25ReportPeriod';period.setAttribute('aria-label','Pilih periode laporan');
     period.add(new Option('Seluruh periode','semua'));period.onchange=()=>{v25ReportPeriod=period.value;v25LoadReport();};
-    const refresh=v21Node('button','secondary','Perbarui');refresh.type='button';refresh.onclick=v25LoadReport;
-    const print=v21Node('button','secondary','Cetak / PDF');print.type='button';print.onclick=v25PrintReport;
-    const csv=v21Node('button','secondary','Unduh CSV');csv.type='button';csv.onclick=v25DownloadReport;
+    const refresh=v21Node('button','secondary','↻');refresh.type='button';refresh.title='Muat ulang';refresh.setAttribute('aria-label','Muat ulang laporan');refresh.onclick=v25LoadReport;
+    const print=v21Node('button','secondary','PDF');print.type='button';print.setAttribute('aria-label','Cetak atau simpan PDF');print.onclick=v25PrintReport;
+    const csv=v21Node('button','secondary','CSV');csv.type='button';csv.setAttribute('aria-label','Unduh laporan CSV');csv.onclick=v25DownloadReport;
     toolbar.append(period,refresh,print,csv);
     const summary=v21Node('div','v25-public-metrics');summary.id='v25ReportMetrics';
     const table=v21Node('div','v25-report-table');table.id='v25ReportTable';
-    const note=v21Node('p','v17-subtle','Memuat data laporan...');note.id='v25ReportNote';
+    const note=v21Node('p','v17-subtle','Memuat laporan...');note.id='v25ReportNote';note.setAttribute('role','status');note.setAttribute('aria-live','polite');
     box.append(toolbar,summary,table,note);root.appendChild(box);
     const menu=$('v18PublicSide')?.querySelector('[data-public-menu="trans"]');
     if(menu){const label=menu.lastChild;if(label?.nodeType===3)label.textContent='Laporan Publik';}
@@ -4837,17 +4850,17 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   function v25RenderReport(data){
     const sum=data.ringkasan;
     $('v25ReportMetrics').replaceChildren(
-      v17PublicStat('Berat jual sah',kg(sum.beratKg)),
-      v17PublicStat('Timbang belum sah',kg(sum.pendingWeightKg||0)),
-      v17PublicStat('Penjualan diterima',rupiah(sum.hasilPenjualan)),
-      v17PublicStat('Hak tabungan warga sah',rupiah(sum.hakWarga)),
-      v17PublicStat('Dana lingkungan sah',rupiah(sum.cadangan+sum.kasLorong+sum.operasional)),
-      v17PublicStat('Perkiraan belum sah',rupiah(sum.pendingEstimateRp||0)));
+      v17PublicStat('Berat sah',kg(sum.beratKg)),
+      v17PublicStat('Belum sah',kg(sum.pendingWeightKg||0)),
+      v17PublicStat('Penjualan',rupiah(sum.hasilPenjualan)),
+      v17PublicStat('Hak warga',rupiah(sum.hakWarga)),
+      v17PublicStat('Dana lingkungan',rupiah(sum.cadangan+sum.kasLorong+sum.operasional)),
+      v17PublicStat('Perkiraan',rupiah(sum.pendingEstimateRp||0)));
     $('v25ReportMetrics').classList.add('v26-compact');
     const caution=$('v26ReportExplanation');
     if(caution)caution.textContent=sum.batch===0?
-      'Belum ada penjualan yang disahkan. Nilai kuning masih perkiraan, bukan saldo tabungan.':
-      'Nilai sah berasal dari penjualan yang disahkan. Perkiraan menunggu disajikan terpisah dan tidak menambah saldo.';
+      '◷ Belum ada penjualan sah · 🔒 Privasi':
+      '✓ Data sah · ◷ Perkiraan terpisah · 🔒 Privasi';
     const root=$('v25ReportTable'),table=document.createElement('table'),thead=document.createElement('thead'),h=document.createElement('tr');
     const columns=[['periode','Periode'],['beratKg','Berat jual (kg)'],['pendingWeightKg','Timbang belum sah (kg)'],['hasilPenjualan','Penjualan sah'],['hakWarga','Hak warga sah'],
       ['pendingEstimateRp','Perkiraan belum sah'],['cadangan','Cadangan'],['kasLorong','Kas lorong'],['operasional','Operasional'],['pengeluaran','Pengeluaran']];
@@ -4857,7 +4870,9 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       const value=key==='periode'?r[key]:(key==='beratKg'||key==='pendingWeightKg')?kg(r[key]):rupiah(r[key]);tr.appendChild(v21Node('td','',value));
     });body.appendChild(tr);});table.appendChild(body);root.replaceChildren(table);
     if(!data.bulanan.length)root.appendChild(v21Node('p','v17-subtle','Belum ada data pada periode ini.'));
-    $('v25ReportNote').textContent=data.catatan+' Data pribadi warga tidak ditampilkan.';
+    // Detail status sudah diringkas di atas kartu; pesan ini hanya untuk loading/kegagalan.
+    $('v25ReportNote').hidden=true;
+    $('v25ReportNote').textContent='';
     const picker=$('v25ReportPeriod');picker.replaceChildren(new Option('Seluruh periode','semua'));
     (data.periodeTersedia||[]).forEach(x=>picker.add(new Option(x,x)));
     if(v25ReportPeriod!=='semua'&&![...picker.options].some(x=>x.value===v25ReportPeriod))picker.add(new Option(v25ReportPeriod,v25ReportPeriod));
@@ -4865,9 +4880,9 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   }
   async function v25LoadReport(){
     v25SetupReport();if(v25ReportBusy||!$('v25ReportRoot'))return;
-    v25ReportBusy=true;$('v25ReportNote').textContent='Memuat laporan publik...';
+    v25ReportBusy=true;$('v25ReportNote').hidden=false;$('v25ReportNote').textContent='Memuat laporan...';
     try{const data=await call('bsV25LaporanPublik',v25ReportPeriod);v25ReportData=data;v25RenderReport(data);}
-    catch(e){$('v25ReportNote').textContent='Gagal memuat laporan: '+(e.message||e);}
+    catch(e){$('v25ReportNote').hidden=false;$('v25ReportNote').textContent='Gagal memuat: '+(e.message||e);}
     finally{v25ReportBusy=false;}
   }
   function v25PrintReport(){
@@ -4919,7 +4934,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   })();
   (function v26ExplainReport(){
     const root=$('v25ReportRoot'),metrics=$('v25ReportMetrics');if(!root||!metrics||$('v26ReportExplanation'))return;
-    const explain=v21Node('p','v26-report-subtitle','✓ Data sah');
+    const explain=v21Node('p','v26-report-subtitle','✓ Data sah · ◷ Perkiraan terpisah · 🔒 Privasi');
     explain.id='v26ReportExplanation';root.insertBefore(explain,metrics);
     const prior=v25ReportData;if(prior)v25RenderReport(prior);
   })();
