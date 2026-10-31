@@ -1186,12 +1186,11 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:1080px;align-conten
  /* Navigasi bawah tunggal: tab aktif hijau dan tombol tengah terangkat.
     Satu sumber aturan, tanpa CSS penambal dan deklarasi prioritas. */
  body.f4-bank-app-private .f4-bank-app-dock:not([hidden]){
-  position:fixed;inset:auto 0 0;z-index:150;box-sizing:border-box;
+  position:fixed;inset:auto 0 0;z-index:55;box-sizing:border-box;
   display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
   align-items:stretch;gap:3px;
   height:var(--f4-bank-dock-height);
   padding:5px 6px;
-  transform:translate3d(0,0,0);backface-visibility:hidden;isolation:isolate;
   background:#fff;border-top:1px solid #d8e5dc;
   box-shadow:0 -3px 12px #143c2410
  }
