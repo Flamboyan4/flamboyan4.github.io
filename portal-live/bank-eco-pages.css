@@ -411,6 +411,35 @@ body.f4-bank-embedded #dashboardView .section,
   font-weight:800!important;letter-spacing:-.35px;color:#174b35!important;
   overflow-wrap:anywhere;
 }
+/* Nama tampilan anggota: satu edit inline, tanpa modal dan tanpa CSS prioritas. */
+#dashboardView #pageProfile .f4-member-name-row{
+ display:flex;align-items:center;flex-wrap:wrap;gap:7px;min-width:0;
+}
+#dashboardView #pageProfile #pName[hidden],
+#dashboardView #pageProfile .f4-member-name-row [hidden],
+#dashboardView #pageProfile .f4-member-name-status[hidden]{display:none}
+#dashboardView #pageProfile .f4-member-name-edit,
+#dashboardView #pageProfile .f4-member-name-save,
+#dashboardView #pageProfile .f4-member-name-cancel{
+ display:grid;place-items:center;flex:none;width:32px;height:32px;min-height:32px;
+ margin:0;padding:0;border:1px solid #d5e7da;border-radius:9px;
+ background:#f1f8f3;color:#0b7148;box-shadow:none;cursor:pointer
+}
+#dashboardView #pageProfile .f4-member-name-cancel{background:#fff;color:#6e8275}
+#dashboardView #pageProfile .f4-member-name-edit svg{display:block;width:17px;height:17px}
+#dashboardView #pageProfile .f4-member-name-input{
+ flex:1 1 145px;min-width:0;max-width:320px;height:36px;min-height:36px;
+ margin:0;padding:6px 9px;border:1px solid #80b497;border-radius:9px;
+ background:#fff;color:#174b35;font-size:16px;font-weight:750
+}
+#dashboardView #pageProfile .f4-member-name-status{
+ display:block;margin:4px 0 0;color:#b0542b;font-size:11px;line-height:1.35
+}
+#dashboardView #pageProfile .f4-member-name-edit:focus-visible,
+#dashboardView #pageProfile .f4-member-name-save:focus-visible,
+#dashboardView #pageProfile .f4-member-name-cancel:focus-visible{
+ outline:2px solid #087850;outline-offset:2px
+}
 #dashboardView #pageProfile .f4-profile-meta{
   display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:9px;
   color:#4d6e59;font-size:12px;line-height:1.35;
