@@ -58,13 +58,13 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
  outline:2px solid #087a52;outline-offset:2px
 }
 /* Member page shells are unboxed; individual functional cards keep their own borders. */
-body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page,
-body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-report).f4-bank-screen{
+body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page:not(.hidden),
+body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-report).f4-bank-screen:not(.hidden){
  display:grid;min-width:0;width:100%;max-width:1080px;
  margin:0 auto;padding:0;border:0;border-radius:0;
  background:transparent;box-shadow:none;align-content:start
 }
-body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page{display:block}
+body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page:not(.hidden){display:block}
 body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-report)>.f4-bank-screen-title{margin:2px 0 8px}
 body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page>h2{margin:2px 0 14px}
 #dashboardView .f4-member-environment-preview{
