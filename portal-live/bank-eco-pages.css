@@ -834,12 +834,30 @@ body.f4-bank-embedded #dashboardView .section,
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups button{padding:6px 3px;font-size:10px}
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch button{min-width:27px;padding:6px 3px;font-size:10px}
 }
-#dashboardView .f4-bank-weigh-schedule{display:flex;align-items:center;gap:12px;padding:13px 15px;background:#fff;border:1px solid #d8e4da;border-radius:13px;color:#075437}
-#dashboardView .f4-bank-weigh-icon{flex:none;display:grid;place-items:center;width:41px;height:41px;border-radius:12px;background:#06754a;color:#fff;font-size:24px}
+#dashboardView .f4-bank-weigh-schedule{
+ display:flex;align-items:center;gap:13px;padding:16px 15px;
+ background:linear-gradient(112deg,#e9f7ed 0%,#f5fbf2 58%,#fff7df 100%);
+ border:1px solid #dce8d8;border-left:4px solid #d7a517;
+ border-radius:16px;color:#075437;
+ box-shadow:0 6px 18px #1b4b2d10
+}
+#dashboardView .f4-bank-weigh-icon{
+ flex:none;display:grid;place-items:center;width:49px;height:49px;
+ border-radius:14px;background:#087b51
+}
+#dashboardView .f4-bank-weigh-icon img{
+ display:block;width:25px;height:25px;object-fit:contain;
+ filter:brightness(0) invert(1)
+}
 #dashboardView .f4-bank-weigh-copy{display:grid;gap:3px;min-width:0}
-#dashboardView .f4-bank-weigh-copy small{font-size:10px;font-weight:850;letter-spacing:.05em;color:#28644b}
-#dashboardView .f4-bank-weigh-copy strong{font-size:15px;line-height:1.25;color:#064b30}
-#dashboardView .f4-bank-weigh-copy span{font-size:11px;color:#366a52}
+#dashboardView .f4-bank-weigh-copy small{
+ font-size:10px;font-weight:850;letter-spacing:.09em;color:#317052
+}
+#dashboardView .f4-bank-weigh-copy strong{
+ font-size:clamp(17px,2.7vw,21px);font-weight:850;line-height:1.22;
+ color:#095437;letter-spacing:-.02em
+}
+#dashboardView .f4-bank-weigh-copy span{font-size:11px;color:#5d7865}
 
 #dashboardView .f4-bank-savings-payout{margin-top:7px;justify-self:stretch;min-height:42px}
 #dashboardView .f4-bank-report-open{width:100%;min-height:38px;margin-bottom:14px;padding:9px 12px;border:1px solid #dce9df;border-radius:10px;background:#fff;color:#1d6243;font-size:12px;font-weight:800}
