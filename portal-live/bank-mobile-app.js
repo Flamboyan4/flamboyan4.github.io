@@ -150,6 +150,8 @@ function ensureHome(){
   if(activity&&activity.parentElement!==hub)hub.append(activity);
   const flow=$("f4MemberFlow");if(flow)flow.hidden=true;
  }
+ const legacyPanels=page.querySelector(".v14-panels");
+ if(legacyPanels&&legacyPanels.parentElement!==reservoir)reservoir.append(legacyPanels);
  updateDashboard();
 }
 function dashboardMetrics(){
@@ -643,6 +645,7 @@ function handleRoute(route,old,args){
   managerRequestsPanel();
   $("pageTabungan")?.classList.add("hidden");
   $("bank-payout-admin")?.classList.remove("hidden");
+  if(typeof window.v16Sync==="function")window.v16Sync("bank-payout-admin");
   screen="bank-payout-admin";markDock();
   loadManagerRequests();
   return;
