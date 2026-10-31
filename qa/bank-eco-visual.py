@@ -87,6 +87,11 @@ async def main():
             # Load actual theme sheets (not duplicated CSS) for PC/HP assertions.
             await page.set_content(FIXTURE, wait_until="load")
             source = pathlib.Path("bank-sampah/index.html").read_text()
+            # Load the actual page-level stylesheet that owns the public Program component,
+            # before the external canonical theme. A CSS-only fixture omitted it previously.
+            base = re.search(r"<style(?:\\s[^>]*)?>([\\s\\S]*?)</style>", source, re.I)
+            assert base, "Base Bank Sampah stylesheet missing"
+            await page.add_style_tag(content=base.group(1))
             # Reproduce the actual mobile report rule before the canonical theme.
             pattern = r'(#v11Public #v25ReportMetrics\.v26-compact>\.v17-public-metric\{[^}]+\})'
             rule = re.search(pattern, source)
