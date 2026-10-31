@@ -7,6 +7,14 @@
  const idNum=value=>n(value).toLocaleString('id-ID',{maximumFractionDigits:2});
  const money=value=>'Rp '+Math.round(n(value)).toLocaleString('id-ID');
  const amount=(value,unit)=>unit==='kg'?idNum(value)+' kg':money(value);
+ const shortAmount=(value,unit)=>{
+   const v=n(value);
+   if(unit==='kg')return idNum(v)+' kg';
+   if(v>=1e9)return idNum(v/1e9)+' M';
+   if(v>=1e6)return idNum(v/1e6)+' jt';
+   if(v>=1e3)return idNum(v/1e3)+' rb';
+   return v===0?'0':idNum(v);
+ };
  const el=(tag,cls,text)=>{
    const node=document.createElement(tag);
    if(cls)node.className=cls;
@@ -146,7 +154,7 @@
        const column=el('div','f4-activity-column');
        column.setAttribute('aria-label',row.label+': sah '+amount(row[key],state.unit)+
          ', belum sah '+amount(row[pending],state.unit));
-       const value=el('b','',maximum===0?'—':(total>0?amount(row[key],state.unit):'0'));
+       const value=el('b','',maximum===0?'—':(total>0?shortAmount(row[key],state.unit):'0'));
        const track=el('div','f4-activity-bar-track');
        const confirmed=el('span','f4-activity-bar-confirmed');
        const estimate=el('span','f4-activity-bar-pending');
