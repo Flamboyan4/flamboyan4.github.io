@@ -264,7 +264,7 @@ async def public_chart_and_flat_roster(browser):
     import re
     from pathlib import Path
     source=Path("bank-sampah/index.html").read_text(encoding="utf-8")
-    roster_css=re.search(r'<style id="f4-bank-savings-compact-20261028">([\\s\\S]*?)</style>',source)
+    roster_css=re.search(r'<style id="f4-bank-savings-compact-20261028">(.*?)</style>',source,re.S)
     if not roster_css: raise AssertionError("Roster stylesheet unavailable")
     rows="".join(
         '<div class="f4-saldo-row" role="listitem"><div class="f4-saldo-person">'
