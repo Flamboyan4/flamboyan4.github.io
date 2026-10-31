@@ -2858,7 +2858,9 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
         const details=document.createElement('details');details.className='f4-member-tx';
         const summary=document.createElement('summary');summary.className='f4-member-tx-summary';
         const icon=document.createElement('span');icon.className='f4-member-tx-icon';icon.setAttribute('aria-hidden','true');
-        icon.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.2 7.5 10 3l2 3.2M10 3H6a3 3 0 0 0-2.6 1.5L2 7"/><path d="m17 7 5 4-3.5 1M22 11l-2-3.5A3 3 0 0 0 17.5 6h-4"/><path d="m17 17-2.6 4H9l2-3M14.4 21H18a3 3 0 0 0 2.5-1.5L22 17"/><path d="M3 12l-1 4 4 3m-4-3h5"/><path d="M4 16l2 4a3 3 0 0 0 2.7 1.5H10"/></svg>';
+        // Gunakan ikon resmi yang sama dengan menu Setoran; tidak membuat SVG sendiri.
+        const iconImage=document.createElement('img');iconImage.src='/assets/icons/bank.svg';iconImage.alt='';
+        iconImage.width=21;iconImage.height=21;icon.appendChild(iconImage);
         const copy=document.createElement('span');copy.className='f4-member-tx-copy';
         const name=document.createElement('strong');name.textContent='Setoran sampah';
         const sub=document.createElement('small');
@@ -2872,7 +2874,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
         caption.textContent=confirmed?(info.final==null?'Hasil belum tersedia':'Hasil jual'):'Perkiraan';
         amount.append(nominal,caption);
         const chevron=document.createElement('span');chevron.className='f4-member-tx-chevron';
-        chevron.setAttribute('aria-hidden','true');chevron.textContent='⌄';
+        chevron.setAttribute('aria-hidden','true');
         summary.append(icon,copy,amount,chevron);details.appendChild(summary);
         const content=document.createElement('div');content.className='f4-member-tx-detail';
         const head=document.createElement('div');head.className='f4-member-tx-detail-title';head.textContent='Jenis sampah';
@@ -5599,7 +5601,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
 
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261031-mobile-spacing-v2">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261031-plain-white-dashboard">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261031-private-history-v33">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261031-member-icons-v34">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261031-mobile-progress-v2">
 <script src="/portal-live/bank-sale-handover.js?v=auto-print-firefox-20261030b"></script>
 <script src="/portal-live/direct-shell.js?v=bank-member-single-profile-20261031"></script><script src="/portal-live/unified-account.js?v=bank-member-profile-redirect-20261031"></script><script defer src="/portal-live/mobile-cards.js?v=20261031-detail-eye-icon-v2"></script><script defer src="/portal-live/native-controls.js?v=20261027-audit6"></script><script defer src="/portal-live/bank-page-history.js?v=20261027-final4"></script>
