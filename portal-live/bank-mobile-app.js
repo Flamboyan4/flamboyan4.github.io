@@ -36,7 +36,7 @@ let role=null,screen="dashboard",historyMonth="latest",reportMonth="",activePage
 let homeSource=null,summaryExtra=null,memberSource=null,managerQueue=null;
 let primaryNode=null,extraNode=null;
 let ready=false,requestNonce="",requestEnabled=false;
-let memberStatement=null,memberChartMode="kg",memberChartGroup="month",memberChartPeriod="";
+let memberStatement=null,memberChartMode="kg",memberChartGroup="month";
 let adminOverview=null;
 let refreshing=false;
 const custom=["bank-history","bank-payout","bank-report","bank-payout-admin"];
@@ -423,59 +423,89 @@ function chartSavings(){
  if(!filters){
   filters=el("div","f4-bank-chart-filters");filters.id="f4BankSavingsFilters";
   const tabs=el("div","f4-bank-chart-groups");
-  for(const [id,label] of [["month","Per bulan"],["approval","Pengesahan"]]){
+  for(const [id,label] of [["month","Per bulan"],["period","Periode"]]){
    const button=el("button","",label);button.type="button";button.dataset.group=id;
-   button.onclick=()=>{memberChartGroup=id;memberChartPeriod="";chartSavings();};
+   button.onclick=()=>{memberChartGroup=id;chartSavings();};
    tabs.append(button);
   }
-  const period=el("select");period.id="f4BankChartPeriod";period.setAttribute("aria-label","Pilih bulan atau periode pengesahan");
-  period.onchange=()=>{memberChartPeriod=period.value;chartSavings();};
   const units=el("div","f4-bank-chart-switch");
   for(const [id,label] of [["kg","Kg"],["rp","Rp"]]){
    const button=el("button","",label);button.type="button";button.dataset.mode=id;
    button.onclick=()=>{memberChartMode=id;chartSavings();};units.append(button);
   }
-  filters.append(tabs,period,units);
+  filters.append(tabs,units);
   root.querySelector("h3")?.after(filters);
  }
- const points=memberBuckets();
+ // Older sessions may already have mounted the previous selector.
+ $("f4BankChartPeriod")?.remove();
+ const points=memberBuckets().filter(p=>/^\d{4}-\d{2}-\d{2}$/.test(p.date));
  filters.querySelectorAll(".f4-bank-chart-groups button").forEach(b=>{
   const active=b.dataset.group===memberChartGroup;b.classList.toggle("is-active",active);b.setAttribute("aria-pressed",String(active));
  });
  filters.querySelectorAll(".f4-bank-chart-switch button").forEach(b=>{
   const active=b.dataset.mode===memberChartMode;b.classList.toggle("is-active",active);b.setAttribute("aria-pressed",String(active));
  });
- const options=memberChartGroup==="month"
-  ? [...new Set(points.map(p=>p.month).filter(p=>/^\d{4}-\d{2}$/.test(p)))].sort().reverse().map(m=>[m,monthName(m)])
-  : [...new Map(points.filter(p=>p.final&&p.batch)
-       .map(p=>[p.batch,[p.batch,p.confirmedAt?new Intl.DateTimeFormat("id-ID",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}).format(new Date(p.confirmedAt+"T12:00:00Z")):"Pengesahan"]])).values()].reverse();
- const period=$("f4BankChartPeriod");
- if(!options.some(x=>x[0]===memberChartPeriod))memberChartPeriod=options[0]?.[0]||"";
- period.replaceChildren(...options.map(([id,label])=>{
-  const o=new Option(label,id);o.selected=id===memberChartPeriod;return o;
- }));
- period.disabled=!options.length;
- const chosen=points.filter(p=>memberChartGroup==="month"?p.month===memberChartPeriod:p.final&&p.batch===memberChartPeriod);
- host.replaceChildren();
- if(!memberStatement){host.append(el("p","f4-bank-empty","Memuat transaksi..."));return;}
- if(!chosen.length){host.append(el("p","f4-bank-empty",memberChartGroup==="approval"?"Belum ada pengesahan pada pilihan ini.":"Belum ada transaksi pada bulan ini."));return;}
+ const monthly=memberChartGroup==="month";
+ let entries;
+ if(monthly){
+  const byMonth=new Map();
+  for(const point of points){
+   let month=byMonth.get(point.month);
+   if(!month){
+    month={month:point.month,date:point.month+"-01",weight:0,confirmed:0,estimated:0,
+      final:true,missingWeight:false,missingValue:false,count:0,confirmedCount:0};
+    byMonth.set(point.month,month);
+   }
+   month.weight+=point.weight;
+   month.confirmed+=point.confirmed;
+   month.estimated+=point.estimated;
+   month.final=month.final&&point.final;
+   month.missingWeight=month.missingWeight||point.missingWeight;
+   month.missingValue=month.missingValue||point.missingValue;
+   month.count++;
+   if(point.final)month.confirmedCount++;
+  }
+  entries=[...byMonth.values()].sort((a,b)=>a.month.localeCompare(b.month));
+ }else{
+  // Periode means the genuine individual weighings, not one selected month.
+  entries=points;
+ }
  const useKg=memberChartMode==="kg";
- const max=Math.max(0.001,...chosen.map(p=>useKg?p.weight:p.confirmed+p.estimated));
- const list=chosen.slice(-12);
- for(const item of list){
+ const amount=item=>useKg?(item.missingWeight?null:item.weight):
+    item.missingValue?null:item.confirmed+item.estimated;
+ const max=Math.max(0.001,...entries.map(x=>amount(x)||0));
+ const previousView=host.dataset.bankChartView||"";
+ const currentView=memberChartGroup+":"+memberChartMode;
+ const oldScroll=host.scrollLeft;
+ host.replaceChildren();
+ host.dataset.bankChartView=currentView;
+ host.dataset.chartGroup=memberChartGroup;
+ if(!memberStatement){host.append(el("p","f4-bank-empty","Memuat transaksi..."));return;}
+ if(!entries.length){host.append(el("p","f4-bank-empty","Belum ada setoran."));return;}
+ for(const item of entries){
   const column=el("div","f4-bank-savings-bar");
   const track=el("span","f4-bank-savings-bar-rail"),bar=el("i");
-  const amount=useKg?item.weight:item.confirmed+item.estimated;
-  bar.style.height=Math.max(4,amount/max*100)+"%";
+  const actual=amount(item),total=actual==null?0:actual;
+  bar.style.height=(actual==null?0:Math.max(4,total/max*100))+"%";
+  const mixed=monthly&&item.confirmedCount>0&&item.confirmedCount<item.count;
   bar.className=item.final?"is-confirmed":"is-estimate";
+  if(mixed&&!useKg&&item.confirmed+item.estimated>0){
+   const share=Math.max(0,Math.min(100,item.confirmed/(item.confirmed+item.estimated)*100));
+   bar.style.background="linear-gradient(to top,#159962 0%,#159962 "+share+"%,#f4a91f "+share+"%,#f4a91f 100%)";
+  }
   track.append(bar);
-  const label=item.date.slice(8,10)+"/"+item.date.slice(5,7);
-  const value=useKg?(item.missingWeight?"—":item.weight.toLocaleString("id-ID",{maximumFractionDigits:3})+" kg"):
-   item.missingValue?"—":rupiah(amount);
+  const label=monthly?monthName(item.month):item.date.slice(8,10)+"/"+item.date.slice(5,7);
+  const value=actual==null?"—":useKg?
+    total.toLocaleString("id-ID",{maximumFractionDigits:3})+" kg":rupiah(total);
   column.append(el("strong","",value),track,el("small","",label));
-  column.title=(item.final?"Sah":"Perkiraan")+" • "+item.date+" • "+value;
+  const kind=monthly?(mixed?"Sah dan perkiraan":item.final?"Sah":"Perkiraan"):(item.final?"Sah":"Perkiraan");
+  column.title=kind+" • "+label+" • "+value+(monthly?" • "+item.count+" setoran":"");
+  column.setAttribute("aria-label",column.title);
   host.append(column);
  }
+ // Chronological order, with the most recent bars visible first on opening.
+ if(previousView===currentView)host.scrollLeft=oldScroll;
+ else host.scrollLeft=host.scrollWidth;
 }
 function syncSavings(){
  text("f4BankSavingsBalance",memberStatement?rupiah(memberStatement.saldo):"—");
