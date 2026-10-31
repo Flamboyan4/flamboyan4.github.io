@@ -55,13 +55,16 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
 #v11Public .v17-public-banner h1{color:#173f33!important;font-weight:750!important;letter-spacing:-.8px;font-size:clamp(24px,2.5vw,34px)!important;line-height:1.18!important}
 #v11Public .v17-public-banner p{color:#63766d!important;font-size:14px!important;line-height:1.65!important}
 #v11Public .v14-eyebrow{color:#087f5b!important;background:#e9f9f1;padding:5px 10px;border-radius:7px;display:inline-block;font-size:11px;letter-spacing:.04em}
-#v11Public .v17-public-metric,#dashboardView .stat,#dashboardView .metric{background:white!important;border:1px solid #e2ebe6!important;border-radius:16px!important;padding:16px!important;box-shadow:0 3px 12px #17462e04!important;position:relative}
+#v11Public .v17-public-metric{background:white;border:1px solid #e2ebe6;border-radius:16px;padding:16px;box-shadow:0 3px 12px #17462e04;position:relative}
+#dashboardView .stat,#dashboardView .metric{background:white!important;border:1px solid #e2ebe6!important;border-radius:16px!important;padding:16px!important;box-shadow:0 3px 12px #17462e04!important;position:relative}
 #v11Public .v17-public-metric:before{content:'';display:block;width:34px;height:34px;border-radius:11px;margin-bottom:10px;background:#e3f8ef url('/assets/icons/bank.svg?v=lucide-recycle-20261027') center/20px no-repeat}
 #v11Public .v17-public-metric:nth-child(2):before{background-color:#e8f2ff;background-image:url('/assets/icons/user.svg')}
 #v11Public .v17-public-metric:nth-child(3):before{background-color:#fff1dc;background-image:url('/assets/icons/cash.svg')}
 #v11Public .v17-public-metric:nth-child(4):before{background-color:#f0eaff;background-image:url('/assets/icons/calendar.svg')}
-#v11Public .v17-public-metric strong,#dashboardView .stat strong,#dashboardView .metric strong{color:#224539!important;font-size:24px!important;letter-spacing:-.5px}
-#v11Public .v17-public-metric small,#dashboardView .stat small,#dashboardView .metric small{font-size:12px!important;color:#63766d!important}
+#v11Public .v17-public-metric strong{color:#224539;font-size:24px;letter-spacing:-.5px}
+#dashboardView .stat strong,#dashboardView .metric strong{color:#224539!important;font-size:24px!important;letter-spacing:-.5px}
+#v11Public .v17-public-metric small{font-size:12px;color:#63766d}
+#dashboardView .stat small,#dashboardView .metric small{font-size:12px!important;color:#63766d!important}
 #v11Public .v17-panel,#v11Public .v17-feature,#v11Public .v17-album,#v11Public .v17-inventory-card,#dashboardView .card{background:#fff!important;border:1px solid #e2ebe6!important;border-radius:16px!important;box-shadow:none!important}
 #v11Public .v17-section h2{font-size:20px!important;letter-spacing:-.35px;color:#203d32!important}
 #v11Public .v17-panel h3{font-size:15px!important;color:#284b3e!important}
@@ -88,8 +91,8 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
  #f4-account-page .f4-admin-controls button{flex:1;white-space:normal}
  #f4-account-page .f4-admin-item{align-items:flex-start;flex-wrap:wrap;padding:13px}
  #f4-account-page .f4-admin-action-set{justify-content:flex-start}
- #v11Public .v17-public-metric{padding:13px!important}
- #v11Public .v17-public-metric strong{font-size:21px!important}
+ #v11Public .v17-public-metric{padding:13px}
+ #v11Public .v17-public-metric strong{font-size:21px}
  #v11Public .v17-section h2{font-size:18px!important}
  #v11Public .v17-public-banner{border-radius:16px!important}
 }
