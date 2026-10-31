@@ -57,7 +57,7 @@ for(const phrase of [
  if(!bridge.includes(phrase))throw Error('Member/admin weight binding missing: '+phrase);
 }
 for(const phrase of [
-  "v17PublicChartRows=monthly;v17PublicReportReady=true;v17RenderPublicChart();",
+  "v17PublicChartRows=monthly;v17PublicReportReady=true;v17PublicReportFailed=false;v17RenderPublicChart();",
   "p.missingWeight?'—':kg(p.berat)",
   "weight===null?'—':kg(weight)",
   "v14Stat('Berat tercatat'",
