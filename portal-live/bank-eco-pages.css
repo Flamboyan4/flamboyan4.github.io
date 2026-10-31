@@ -648,7 +648,9 @@ body.f4-bank-embedded #dashboardView .section,
 /* Satu navigasi bawah untuk anggota & pengurus. Tidak ada style dock lain. */
 .f4-bank-app-dock{display:none}
 @media(max-width:760px){
- body.f4-bank-app-private #dashboardView{padding-bottom:calc(90px + env(safe-area-inset-bottom,0px))}
+ /* Ukuran dock identik untuk anggota dan pengurus; satu variabel untuk ruang konten. */
+ body.f4-bank-app-private{--f4-bank-dock-height:68px}
+ body.f4-bank-app-private #dashboardView{padding-bottom:calc(var(--f4-bank-dock-height) + 8px)}
  body.f4-bank-app-private #pageDashboard.f4-member-dashboard{padding:0}
  body.f4-bank-app-private #pageDashboard :is(.v14-head){display:none}
  body.f4-bank-app-private #f4BankAppHome{gap:12px;margin:0}
@@ -669,13 +671,13 @@ body.f4-bank-embedded #dashboardView .section,
   position:fixed;inset:auto 0 0;z-index:55;box-sizing:border-box;
   display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
   align-items:stretch;gap:3px;
-  height:calc(74px + env(safe-area-inset-bottom,0px));
-  padding:5px 6px calc(5px + env(safe-area-inset-bottom,0px));
+  height:var(--f4-bank-dock-height);
+  padding:5px 6px;
   background:#fff;border-top:1px solid #d8e5dc;
   box-shadow:0 -3px 12px #143c2410
  }
  body.f4-bank-app-private .f4-bank-app-dock-action{
-  box-sizing:border-box;display:grid;grid-template-rows:40px 17px;
+  box-sizing:border-box;display:grid;grid-template-rows:31px 16px;
   justify-items:center;align-content:center;gap:0;min-width:0;width:100%;
   height:100%;min-height:0;margin:0;padding:2px 1px;
   border:0;border-radius:12px;background:transparent;
@@ -684,7 +686,7 @@ body.f4-bank-embedded #dashboardView .section,
  }
  body.f4-bank-app-private .f4-bank-app-dock-action .f4-bank-app-action-icon{
   box-sizing:border-box;display:grid;place-items:center;
-  width:36px;height:38px;min-width:0;border-radius:11px;
+  width:29px;height:29px;min-width:0;border-radius:9px;
   background:transparent;transform:none;box-shadow:none
  }
  body.f4-bank-app-private .f4-bank-app-dock-action .f4-bank-app-action-icon img{
@@ -705,7 +707,7 @@ body.f4-bank-embedded #dashboardView .section,
  }
  body.f4-bank-app-private .f4-bank-app-dock-action:nth-child(3) .f4-bank-app-action-icon{
   width:45px;height:45px;border-radius:12px;
-  background:#ffc026;transform:translateY(-16px);
+  background:#ffc026;transform:translateY(-18px);
   box-shadow:0 5px 13px #a67a1d35
  }
  body.f4-bank-app-private .f4-bank-app-dock-action:nth-child(3) .f4-bank-app-action-icon img{
