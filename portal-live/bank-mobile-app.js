@@ -655,7 +655,9 @@ function handleRoute(route,old,args){
   ensureMemberPages();
   hideCustom();
   $("pagePribadi")?.classList.add("hidden");
-  $(route)?.classList.remove("hidden");screen=route;markDock();
+  $(route)?.classList.remove("hidden");screen=route;
+  if(typeof window.v16Sync==="function")window.v16Sync(route);
+  markDock();
   if(route==="bank-history")showHistory();
   if(route==="bank-report")showReport();
   if(route==="bank-payout")requestsMember();
