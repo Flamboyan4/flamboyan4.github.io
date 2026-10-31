@@ -18,7 +18,12 @@ function navButton(key,url,label){
  if((portal==='portal'&&key==='home')||(portal==='bank'&&key==='bank')||(portal==='book'&&key==='book')||(portal==='superadmin'&&key==='superadmin'))a.classList.add('f4-selected');
  links.append(a);return a;
 }
-navButton('home',paths.portal,'Portal Utama');navButton('bank',paths.bank,'Bank Sampah');
+const portalMainLink=navButton('home',paths.portal,'Portal Utama');
+if(portal==='bank'&&typeof window.v16Icon==='function'){
+ // Reuse the established globe icon from Bank Sampah; reserve the house for Beranda anggota.
+ portalMainLink.replaceChildren(window.v16Icon('globe'));
+}
+navButton('bank',paths.bank,'Bank Sampah');
 const bookLink=navButton('book',paths.book,'Pembukuan');const adminLink=navButton('superadmin',paths.superadmin,'Superadmin');
 bookLink.hidden=true;adminLink.hidden=true;
 const login=el('button','f4-direct-login');login.type='button';login.textContent='LOGIN';
