@@ -29,12 +29,12 @@ body.f4-bank-embedded #dashboardView .section,
 /* Navigation: sidebar, public menu, member menu and ALL submenu tabs. */
 #dashboardView #sideNav :is(button,.v16-item).active,
 #v11Public #v18PublicSide button.active{
- background:#dcefe3!important;color:var(--eco-dark)!important;
- box-shadow:inset 3px 0 0 var(--eco-leaf)!important;border-radius:10px!important
+ background:#087850!important;color:#fff!important;
+ box-shadow:inset 3px 0 0 #e4b329!important;border-radius:10px!important
 }
 #dashboardView #sideNav button:not(.active):hover,
 #v11Public #v18PublicSide button:not(.active):hover{
- background:#f1f9f3!important;color:var(--eco-dark)!important
+ background:#fff!important;color:var(--eco-dark)!important
 }
 #dashboardView #v16Tabs.v16-tabs{
  background:#fff!important;border-bottom:1px solid #dceadf!important;
@@ -42,7 +42,7 @@ body.f4-bank-embedded #dashboardView .section,
 }
 #dashboardView #v16Tabs.v16-tabs.hidden{display:none!important}
 #dashboardView #v16Tabs.v16-tabs button{
- color:#206444!important;background:#f0f8f2!important;
+ color:#206444!important;background:#fff!important;
  border:1px solid #cfdfd4!important;border-radius:9px!important;
  min-height:39px!important;padding:8px 12px!important;font-weight:700!important
 }
@@ -688,7 +688,7 @@ body.f4-bank-embedded #dashboardView .section,
 #dashboardView #v16NavList .v16-menu-group{min-width:0}
 #dashboardView #v16NavList .v16-subnav{display:none}
 #dashboardView #v16NavList .v16-subitem{display:block;width:100%;min-height:34px;margin:2px 0;padding:7px 12px 7px 42px;text-align:left;background:transparent;border:0;border-radius:9px;color:#426b52;font-size:12px;font-weight:650;box-shadow:none}
-#dashboardView #v16NavList .v16-subitem:hover{background:#fff;color:#075e40}
+#dashboardView #v16NavList .v16-subitem:hover{background:#f8faf8;color:#075e40}
 #dashboardView #v16NavList .v16-subitem.active{background:#075e40;color:#fff;font-weight:800}
 @media(min-width:1024px){
  body.f4-bank-app-private #dashboardView>.grid{grid-template-columns:242px minmax(0,1fr);gap:0;align-items:stretch}
