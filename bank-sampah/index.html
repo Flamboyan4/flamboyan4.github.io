@@ -3759,7 +3759,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       const list=document.createElement('div');list.id='v16NavList';list.className='v16-nav-list';nav.append(label,list);brand.after(nav);
     }
     const list=$('v16NavList');list.replaceChildren();
-    v16Groups.filter(g=>profile?.peran==='Admin'?(g.admin&&v16AdminPrimary.has(g.id)):g.member).forEach(g=>{
+    v16Groups.filter(g=>/admin/i.test(String(profile?.peran||''))?(g.admin&&v16AdminPrimary.has(g.id)):g.member).forEach(g=>{
       const b=document.createElement('button');b.type='button';b.className='v16-item';b.dataset.group=g.id;
       const symbol=v16Icon(g.icon);
       b.append(symbol,document.createTextNode(g.label));
@@ -3796,7 +3796,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   }
   function v16Sync(page){
     const tabs=$('v16Tabs');if(!tabs||!profile)return;
-    const available=v16Groups.filter(g=>profile.peran==='Admin'?g.admin:g.member);
+    const available=v16Groups.filter(g=>/admin/i.test(String(profile?.peran||''))?g.admin:g.member);
     const group=available.find(g=>g.tabs.some(t=>t[0]===page)||g.id==='public'&&page==='public')||
       (page==='profile'||page==='password'?null:available.find(g=>g.id==='home'));
     document.querySelectorAll('#v16NavList .v16-item').forEach(button=>{
