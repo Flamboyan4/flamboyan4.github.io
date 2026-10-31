@@ -550,7 +550,7 @@ body.f4-bank-embedded #dashboardView .section,
 .f4-bank-app-action-icon{width:37px;height:37px;display:grid;place-items:center;flex:none;border-radius:50%;background:#e7f7e9}
 .f4-bank-app-action-icon img{width:22px;height:22px;object-fit:contain}
 #dashboardView .f4-bank-app-minis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-#dashboardView .f4-bank-app-mini{display:grid;gap:5px;min-width:0;padding:14px;background:#e0f1e5;border:1px solid #b5d8c0;border-radius:12px}
+#dashboardView .f4-bank-app-mini{display:grid;gap:5px;min-width:0;padding:14px;background:#d9ebdf;border:1px solid #91caa8;border-radius:12px}
 .f4-bank-app-mini small{color:#67806e;font-size:11px}
 .f4-bank-app-mini strong{font-size:15px;line-height:1.2;overflow-wrap:anywhere;color:#0c5835}
 #dashboardView #f4BankAppHome>.v14-panel{padding:13px 12px;border:1px solid #e1ece3;border-radius:13px;background:#fff;margin:0}
@@ -672,7 +672,7 @@ body.f4-bank-embedded #dashboardView .section,
 .f4-bank-mobile-section-head h3{font-size:15px;margin:0;color:#20593b}
 #dashboardView .f4-bank-refresh-button{padding:7px 9px;font-size:11px;border:1px solid #d6e8dc;background:#eaf6ed;color:#1a6643}
 .f4-bank-manager-request-list{display:grid;gap:8px}
-.f4-bank-manager-request{display:grid;gap:8px;padding:12px;border:1px solid #e3ebe5;border-radius:11px}
+.f4-bank-manager-request{display:grid;gap:9px;padding:14px;border:1px solid #a9d4b8;border-radius:11px;background:#f7fbf7}
 .f4-bank-manager-request-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .f4-bank-manager-request-head strong{font-size:12px;color:#24533a}
 .f4-bank-manager-request-details{display:flex;justify-content:space-between;gap:8px;align-items:center}
@@ -684,7 +684,7 @@ body.f4-bank-embedded #dashboardView .section,
 .f4-bank-app-dock{display:none}
 @media(max-width:760px){
  body.f4-bank-app-private #dashboardView{padding-bottom:calc(82px + env(safe-area-inset-bottom,0px))}
- body.f4-bank-app-private #dashboardView .mobile-nav{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 12px;background:#fff;border-bottom:1px solid #e1ebe3}
+ body.f4-bank-app-private #dashboardView .mobile-nav{position:sticky;top:0;z-index:38;display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 12px;background:#fff;border-bottom:1px solid #a7cbb4;box-shadow:0 3px 10px #042d1e0b}
  body.f4-bank-app-private #v18PrivateMenuButton{color:#08734d;background:#f1f9f3;min-width:39px;min-height:36px;padding:6px 10px;border-radius:9px}
  body.f4-bank-app-private #v18MobileTitle{color:#17563b;font-weight:800;font-size:12px}
  body.f4-bank-app-private #pageDashboard.f4-member-dashboard{padding:7px 6px 12px}
