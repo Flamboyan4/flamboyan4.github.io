@@ -76,7 +76,7 @@ assert(managerPopover && managerPopover.includes('transform:none;opacity:0;visib
 assert(!managerPopover.includes('!important'),'Admin mobile popover must not use CSS priority overrides');
 assert(h.includes('html.f4-bank-embedded body.v17-dashboard:not(.f4-bank-app-admin) #sideNav.side'),
  'Embedded old drawer must exclude the admin role');
-const mobileReportStyle=h.match(/<style id="f4-bank-mobile-3view-fix-20261028">([\\s\\S]*?)<\\/style>/)?.[1];
+const mobileReportStyle=h.split('<style id="f4-bank-mobile-3view-fix-20261028">')[1]?.split('</style>')[0];
 assert(mobileReportStyle && mobileReportStyle.includes('min-height:66px'),
  'Public report cards should be compact');
 assert(!mobileReportStyle.includes('min-height:95px!important'),
