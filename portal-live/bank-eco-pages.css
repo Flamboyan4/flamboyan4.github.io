@@ -334,12 +334,9 @@ body.f4-bank-embedded #dashboardView .section,
  html body.f4-bank-app-admin #sideNav #v16NavList>.v16-item svg{
    width:19px;height:19px;flex:none
  }
- html body.f4-bank-app-admin #sideNav #v16NavList>.v16-mobile-extra{
-   display:flex
- }
 }
 @media screen and (max-width:760px){
- /* Only HP has a bottom dock: hide equivalent routes in its slide drawer. */
+ /* HP: the five primary categories are in the dock, not repeated in the slide drawer. */
  html body.f4-bank-app-admin #sideNav #v16NavList>.v16-item:is(
    [data-group="home"],[data-group="entry"],[data-group="money"]){
    display:none
@@ -806,7 +803,6 @@ body.f4-bank-embedded #dashboardView .section,
  body.f4-bank-drawer-open{overscroll-behavior-y:contain}
 }
 /* Drawer is a complementary mobile navigation; dock routes stay only in bottom bar. */
-#dashboardView #sideNav .v16-mobile-extra{display:none}
 @media(max-width:1023px){
  body.f4-bank-app-private #dashboardView .mobile-nav{display:none}
  body.f4-bank-app-private #dashboardView>.grid,
