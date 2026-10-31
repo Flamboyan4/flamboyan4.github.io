@@ -297,7 +297,8 @@ body.f4-bank-embedded #dashboardView .section,
  html body.f4-bank-app-admin.v17-dashboard #sideNav.side.open,
  html body.f4-bank-app-admin #v16Backdrop,
  html body.f4-bank-app-admin #v16Backdrop.open,
- html body.f4-bank-app-admin #f4-direct-bar #f4-mobile-menu{
+ html body.f4-bank-app-admin #f4-direct-bar #f4-mobile-menu,
+ html body.f4-bank-app-admin #f4-direct-bar .f4-nav-links a[aria-label="Portal Utama"]{
    display:none;visibility:hidden;pointer-events:none
  }
  html body.f4-bank-app-admin.v17-dashboard #dashboardView>.grid{
