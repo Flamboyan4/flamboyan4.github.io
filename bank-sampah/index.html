@@ -603,7 +603,7 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
   margin-top:16px;padding:10px 16px;border:1px solid #b1d6b7;border-radius:10px;
   background:#e7f3e8;color:#20553b;font:750 13px system-ui;cursor:pointer;box-shadow:none}
 #f4-public-my-savings:hover{background:#d5e9d8}
-@media(max-width:700px){#f4-public-my-savings{width:100%;max-width:260px}}
+@media(max-width:700px){#f4-public-my-savings{width:100%;max-width:none;min-height:44px;margin-top:12px}}
 </style>
 
 <style id="f4-final-bank-print">
@@ -812,9 +812,9 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
 #pageDashboard.f4-member-dashboard #v14Status{display:none!important}
 /* The private navigation stays in place while the iframe document scrolls. */
 @media(min-width:1024px){
- body.v17-dashboard #dashboardView>.grid{display:grid!important;grid-template-columns:244px minmax(0,1fr)!important;align-items:start!important}
- body.v17-dashboard #sideNav.side{position:fixed!important;inset:0 auto 0 0!important;top:0!important;bottom:0!important;left:0!important;width:244px!important;height:100dvh!important;max-height:100dvh!important;min-height:0!important;z-index:25!important;overflow-y:auto!important;overscroll-behavior:contain!important}
- body.v17-dashboard #dashboardView>.grid>.section{grid-column:2!important;min-width:0!important}
+ body.v17-dashboard:not(.f4-bank-app-member) #dashboardView>.grid{display:grid!important;grid-template-columns:244px minmax(0,1fr)!important;align-items:start!important}
+ body.v17-dashboard:not(.f4-bank-app-member) #sideNav.side{position:fixed!important;inset:0 auto 0 0!important;top:0!important;bottom:0!important;left:0!important;width:244px!important;height:100dvh!important;max-height:100dvh!important;min-height:0!important;z-index:25!important;overflow-y:auto!important;overscroll-behavior:contain!important}
+ body.v17-dashboard:not(.f4-bank-app-member) #dashboardView>.grid>.section{grid-column:2!important;min-width:0!important}
 }
 </style>
 <link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261031-bank-mobile-fixed-header"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
@@ -5626,7 +5626,8 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261031-plain-white-dashboard">
 <link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261031-chart-inline-v35">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261031-mobile-progress-v2">
+<link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261031-member-route-v1">
 <script src="/portal-live/bank-sale-handover.js?v=auto-print-firefox-20261030b"></script>
 <script src="/portal-live/direct-shell.js?v=bank-member-single-profile-20261031"></script><script src="/portal-live/unified-account.js?v=bank-member-profile-redirect-20261031"></script><script defer src="/portal-live/mobile-cards.js?v=20261031-detail-eye-icon-v2"></script><script defer src="/portal-live/native-controls.js?v=20261027-audit6"></script><script defer src="/portal-live/bank-page-history.js?v=20261027-final4"></script>
-<script defer src="/portal-live/bank-mobile-app.js?v=20261031-chart-inline-v20"></script></body>
+<script defer src="/portal-live/bank-mobile-app.js?v=20261031-member-route-v21"></script></body>
 </html>
