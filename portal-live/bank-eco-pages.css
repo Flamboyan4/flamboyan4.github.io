@@ -943,9 +943,9 @@ body.f4-bank-embedded #dashboardView .section,
 .f4-bank-manager-request>small{font-size:11px;color:#718174}
 .f4-bank-manager-request-actions{display:flex;gap:8px}
 .f4-bank-manager-request-actions button{flex:1}
-/* Satu navigasi bawah untuk anggota & pengurus. Tidak ada style dock lain. */
+/* Satu navigasi bawah untuk anggota & pengurus: HP dan tablet sebelum sidebar desktop aktif. */
 .f4-bank-app-dock{display:none}
-@media(max-width:760px){
+@media(max-width:1023px){
  /* Ukuran dock identik untuk anggota dan pengurus; satu variabel untuk ruang konten. */
  body.f4-bank-app-private{--f4-bank-dock-height:64px}
  body.f4-bank-app-private #dashboardView{padding-bottom:calc(var(--f4-bank-dock-height) + 8px)}
