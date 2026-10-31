@@ -15,9 +15,10 @@
 .f4-activity-panel-head h3{margin:0;font-size:18px;font-weight:850;line-height:1.3;color:var(--f4-progress-ink)}
 .f4-activity-panel-head p{margin:4px 0 0;font-size:12px;line-height:1.45;color:#73887a}
 .f4-activity-mini-tag{flex:none;color:#106b4d;background:#eaf7ef;padding:6px 10px;border-radius:100px;font-size:11px;font-weight:750}
-.f4-activity-control-line{margin:0 0 11px}
-.f4-activity-control-line.is-unit{display:flex;justify-content:flex-end;margin-top:-52px;margin-bottom:19px;pointer-events:none}
-.f4-activity-control-line.is-unit .f4-activity-switch{pointer-events:auto}
+.f4-activity-controls{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.f4-activity-control-line{margin:0}
+.f4-activity-control-line.is-unit{display:flex;justify-content:flex-end;margin:0}
+
 .f4-activity-switch{display:inline-flex;max-width:100%;gap:3px;padding:4px;background:#eff6f1;border:1px solid #dfece3;border-radius:13px}
 .f4-activity-switch button{background:transparent;border:0;border-radius:10px;color:#4f6e5c;cursor:pointer;font-family:inherit;font-size:12px;font-weight:750;line-height:1.1;padding:9px 13px;min-height:35px;white-space:nowrap;transition:background-color .15s,color .15s}
 .f4-activity-switch button.is-active{color:white;background:var(--f4-progress-green);box-shadow:0 3px 9px rgba(12,119,76,.17)}
@@ -89,8 +90,9 @@
  .f4-activity-summary .f4-activity-metric strong{font-size:22px}
  .f4-activity-panel{padding:14px 12px;border-radius:16px}
  .f4-activity-panel-head h3{font-size:16px}
- .f4-activity-control-line{margin:0 0 12px}
- .f4-activity-control-line.is-unit{margin:0 0 11px;justify-content:flex-start;pointer-events:auto}
+ .f4-activity-controls{align-items:flex-start;gap:7px;margin-bottom:14px}
+ .f4-activity-control-line{margin:0}
+ .f4-activity-control-line.is-unit{margin:0;justify-content:flex-end;margin-left:auto}
  .f4-activity-control-line.is-unit .f4-activity-switch{margin-left:auto}
  .f4-activity-switch{flex-wrap:nowrap}
  .f4-activity-switch button{min-height:34px;font-size:11.5px;padding:8px 11px}
