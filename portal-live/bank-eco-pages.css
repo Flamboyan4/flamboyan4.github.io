@@ -302,7 +302,7 @@ body.f4-bank-embedded #dashboardView .section,
    background:#fff;border:1px solid #d5e5db;border-radius:15px;
    box-shadow:0 16px 45px #0b362b33;z-index:241;
    transform:none;opacity:0;visibility:hidden;pointer-events:none;
-   transition:opacity .14s ease,visibility .14s ease
+   transition:opacity .14s ease
  }
  html body.f4-bank-app-admin.v17-dashboard #sideNav.side.open{
    transform:none;opacity:1;visibility:visible;pointer-events:auto
