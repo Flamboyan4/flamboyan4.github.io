@@ -1283,10 +1283,10 @@ body #dashboardView #pageDashboard.f4-member-dashboard .v14-primary{
  }
  body.f4-direct-bank #dashboardView #v9KasInfo>.metric strong{font-size:22px!important;line-height:1.2!important}
  /* General read-only bank tables with sensible row heights; don't alter editable grid. */
- body.f4-direct-bank #dashboardView :is(#masterList,#v10ReportTable,#accountList) table{
+ body.f4-direct-bank #dashboardView :is(#masterList,#accountList) table{
   width:100%!important;min-width:0!important;font-size:12px!important
  }
- body.f4-direct-bank #dashboardView :is(#masterList,#v10ReportTable,#accountList) table :is(th,td){
+ body.f4-direct-bank #dashboardView :is(#masterList,#accountList) table :is(th,td){
   padding:9px 10px!important;font-size:12px!important;line-height:1.4!important;
   white-space:normal!important;overflow-wrap:anywhere!important
  }
