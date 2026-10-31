@@ -1,0 +1,118 @@
+/* Laman Perkembangan Bank Sampah — satu komponen, tanpa override CSS lama. */
+#pageProgress #progressList.f4-activity-app{display:grid;gap:14px}
+.f4-activity-app{--f4-progress-green:#087953;--f4-progress-ink:#173e2c;--f4-progress-gold:#ffba26;--f4-progress-line:#dbe9e0;color:var(--f4-progress-ink)}
+.f4-activity-app *{box-sizing:border-box}
+.f4-activity-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.f4-activity-metric{display:flex;min-width:0;flex-direction:column;justify-content:center;gap:6px;padding:16px;background:#fff;border:1px solid var(--f4-progress-line);border-radius:17px;box-shadow:0 4px 20px rgba(16,67,42,.035)}
+.f4-activity-metric strong{display:block;color:var(--f4-progress-ink);font-size:25px;line-height:1.2;font-weight:850;letter-spacing:-.6px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.f4-activity-metric small{display:block;color:#62776a;font-weight:600;font-size:12px;line-height:1.3}
+.f4-activity-summary .f4-activity-metric:before{content:'';display:block;width:25px;height:4px;border-radius:4px;background:#0e865f;margin-bottom:3px}
+.f4-activity-summary .f4-activity-metric.is-weight:before{background:var(--f4-progress-gold)}
+.f4-activity-summary .f4-activity-metric.is-deposits:before{background:#40aa79}
+.f4-activity-summary .f4-activity-metric.is-events:before{background:#a8c8ba}
+.f4-activity-panel{background:#fff;border:1px solid var(--f4-progress-line);border-radius:19px;padding:18px;min-width:0;box-shadow:0 7px 28px rgba(14,70,44,.035)}
+.f4-activity-panel-head{display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:15px}
+.f4-activity-panel-head h3{margin:0;font-size:18px;font-weight:850;line-height:1.3;color:var(--f4-progress-ink)}
+.f4-activity-panel-head p{margin:4px 0 0;font-size:12px;line-height:1.45;color:#73887a}
+.f4-activity-mini-tag{flex:none;color:#106b4d;background:#eaf7ef;padding:6px 10px;border-radius:100px;font-size:11px;font-weight:750}
+.f4-activity-control-line{margin:0 0 11px}
+.f4-activity-control-line.is-unit{display:flex;justify-content:flex-end;margin-top:-52px;margin-bottom:19px;pointer-events:none}
+.f4-activity-control-line.is-unit .f4-activity-switch{pointer-events:auto}
+.f4-activity-switch{display:inline-flex;max-width:100%;gap:3px;padding:4px;background:#eff6f1;border:1px solid #dfece3;border-radius:13px}
+.f4-activity-switch button{background:transparent;border:0;border-radius:10px;color:#4f6e5c;cursor:pointer;font-family:inherit;font-size:12px;font-weight:750;line-height:1.1;padding:9px 13px;min-height:35px;white-space:nowrap;transition:background-color .15s,color .15s}
+.f4-activity-switch button.is-active{color:white;background:var(--f4-progress-green);box-shadow:0 3px 9px rgba(12,119,76,.17)}
+.f4-activity-switch button:disabled{opacity:.42;cursor:not-allowed}
+.f4-activity-switch button:focus-visible,.f4-activity-show-all:focus-visible,.f4-activity-dialog-close:focus-visible{outline:2px solid #0a8055;outline-offset:3px}
+.f4-activity-bars{display:grid;align-items:end;gap:8px;height:206px;margin:8px 0 0;min-width:0}
+.f4-activity-column{display:flex;flex-direction:column;min-width:0;text-align:center;align-items:stretch;justify-content:end;height:100%;gap:7px}
+.f4-activity-column>b{display:block;font-size:11px;font-weight:800;line-height:1.2;color:#26684a;white-space:nowrap;letter-spacing:-.3px}
+.f4-activity-bar-track{position:relative;height:151px;display:flex;flex-direction:column-reverse;justify-content:flex-start;align-items:center;gap:0;border-bottom:1px solid #dbe8df}
+.f4-activity-bar-track:before{content:'';position:absolute;inset:0 0 auto;height:1px;background:#f0f5f1}
+.f4-activity-bar-track>span{display:block;width:min(100%,52px);flex:none}
+.f4-activity-bar-confirmed{background:linear-gradient(180deg,#5ed591 0%,#078258 100%);border-radius:10px 10px 2px 2px}
+.f4-activity-bar-pending{background:linear-gradient(180deg,#ffd667 0%,#e9a31a 100%);border-radius:8px 8px 2px 2px}
+.f4-activity-axis-label{display:block;min-width:0;white-space:nowrap;font-size:11px;font-weight:650;color:#667f6f;line-height:1.3}
+.f4-activity-bars.is-empty .f4-activity-bar-track{height:151px}
+.f4-activity-legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:17px;font-size:11px;font-weight:600;color:#5b7363}
+.f4-activity-legend span{display:inline-flex;align-items:center;gap:7px}
+.f4-activity-legend i{display:inline-block;width:9px;height:9px;border-radius:3px;background:#12865e}
+.f4-activity-legend i.is-pending{background:#f2b430}
+.f4-activity-totals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:15px}
+.f4-activity-totals .f4-activity-metric{border-radius:12px;background:#f5faf7;padding:12px 13px;gap:3px;box-shadow:none}
+.f4-activity-totals .f4-activity-metric.is-pending{background:#fff9ed;border-color:#f6e7c5}
+.f4-activity-totals .f4-activity-metric strong{font-size:18px}
+.f4-activity-totals .f4-activity-metric small{font-size:11px}
+.f4-activity-chart-caption{margin:10px 0 0;color:#6d8475;font-size:11px;line-height:1.35}
+.f4-activity-empty{grid-column:1/-1;align-self:center;justify-self:center;color:#74887a;font-size:13px;line-height:1.5;padding:14px 0}
+.f4-activity-progress{border-radius:15px;padding:14px 16px;background:linear-gradient(115deg,#e7f6eb,#f4faf5);margin-bottom:17px}
+.f4-activity-progress-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:11px}
+.f4-activity-progress-meta strong{color:#145c3e;font-size:13px}
+.f4-activity-progress-meta span{font-size:11px;color:#6b826f;font-weight:700}
+.f4-activity-progress-track{height:7px;border-radius:20px;background:#cde4d4;overflow:hidden}
+.f4-activity-progress-track>span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#0c8053,#4cc18a);transition:width .2s}
+.f4-activity-list{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.f4-activity-entry{min-width:0}
+.f4-activity-step{border-radius:14px;border:1px solid #e0ebe3;background:white;overflow:hidden;transition:border-color .15s,box-shadow .15s}
+.f4-activity-step[open]{border-color:#c6e2ce;box-shadow:0 5px 18px rgba(21,91,57,.055)}
+.f4-activity-step-summary{display:flex;align-items:center;gap:11px;min-height:70px;padding:13px;cursor:pointer;list-style:none}
+.f4-activity-step-summary::-webkit-details-marker{display:none}
+.f4-activity-step-summary:focus-visible{outline:2px solid #10855d;outline-offset:-2px}
+.f4-activity-step-icon{flex:none;width:34px;height:34px;display:grid;place-items:center;border-radius:12px;background:#e4f6eb;color:#12845c}
+.f4-activity-step.is-active .f4-activity-step-icon{background:#fff3d8;color:#b87710}
+.f4-activity-step.is-planned .f4-activity-step-icon{background:#eef2f5;color:#637c90}
+.f4-activity-step-icon svg{width:19px;height:19px}
+.f4-activity-step-copy{flex:1;min-width:0}
+.f4-activity-step-copy strong{display:block;font-size:13px;font-weight:750;line-height:1.33;color:#203f30;overflow-wrap:anywhere}
+.f4-activity-step-copy small{display:block;margin-top:4px;font-size:11px;line-height:1.35;color:#718779}
+.f4-activity-step-right{display:flex;align-items:center;gap:7px;flex:none}
+.f4-activity-status{font-size:10px;font-weight:750;padding:5px 8px;border-radius:100px;background:#e7f6ec;color:#19704b;white-space:nowrap}
+.f4-activity-step.is-active .f4-activity-status{background:#fff1d7;color:#95601c}
+.f4-activity-step.is-planned .f4-activity-status{background:#eff2f7;color:#677c90}
+.f4-activity-chevron{color:#618371;font-size:22px;line-height:.6;transition:transform .15s}
+.f4-activity-step[open] .f4-activity-chevron{transform:rotate(180deg)}
+.f4-activity-step-body{padding:0 14px 14px 58px;color:#4a6355;font-size:12px;line-height:1.55}
+.f4-activity-step-body p{margin:9px 0 0}
+.f4-activity-next{border-radius:10px;background:#f2faf5;padding:10px}
+.f4-activity-next b{color:#166b46}
+.f4-activity-photo{display:block;width:100%;height:auto;max-height:190px;object-fit:cover;margin-top:10px;border-radius:10px}
+.f4-activity-show-all{display:block;width:100%;min-height:42px;margin-top:13px;background:#f3f9f5;border:1px solid #d6e9dc;color:#08744d;border-radius:12px;font-size:12px;font-weight:800;cursor:pointer}
+.f4-activity-show-all:hover{background:#e8f5ec}
+.f4-activity-dialog{position:fixed;inset:0;z-index:9900;background:rgba(14,36,22,.55);display:grid;place-items:center;padding:14px}
+.f4-activity-dialog-panel{display:flex;flex-direction:column;width:min(100%,570px);max-height:90dvh;overflow:hidden;border-radius:20px;background:white;box-shadow:0 18px 48px rgba(0,0,0,.19)}
+.f4-activity-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;border-bottom:1px solid #e1eae2}
+.f4-activity-dialog-head h2{font-size:17px;margin:0;color:#1d4a32}
+.f4-activity-dialog-close{display:grid;place-items:center;flex:none;width:35px;height:35px;border-radius:9px;border:1px solid #d9e9de;background:white;color:#205b3e;font-size:25px;cursor:pointer}
+.f4-activity-dialog-scroll{overflow-y:auto;overscroll-behavior:contain;padding:15px;scrollbar-width:thin}
+@media(max-width:600px){
+ .f4-activity-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .f4-activity-summary .f4-activity-metric{min-height:89px;padding:12px 13px;border-radius:15px}
+ .f4-activity-summary .f4-activity-metric strong{font-size:22px}
+ .f4-activity-panel{padding:14px 12px;border-radius:16px}
+ .f4-activity-panel-head h3{font-size:16px}
+ .f4-activity-control-line{margin:0 0 12px}
+ .f4-activity-control-line.is-unit{margin:0 0 11px;justify-content:flex-start;pointer-events:auto}
+ .f4-activity-control-line.is-unit .f4-activity-switch{margin-left:auto}
+ .f4-activity-switch{flex-wrap:nowrap}
+ .f4-activity-switch button{min-height:34px;font-size:11.5px;padding:8px 11px}
+ .f4-activity-bars{height:187px;gap:6px}
+ .f4-activity-bar-track,.f4-activity-bars.is-empty .f4-activity-bar-track{height:132px}
+ .f4-activity-column>b{font-size:10px}
+ .f4-activity-axis-label{font-size:10px}
+ .f4-activity-bar-track>span{width:min(100%,39px)}
+ .f4-activity-step-summary{padding:12px 10px;gap:9px}
+ .f4-activity-step-icon{width:30px;height:30px;border-radius:10px}
+ .f4-activity-step-icon svg{width:17px;height:17px}
+ .f4-activity-status{font-size:9px;padding:5px 7px}
+ .f4-activity-step-right{gap:4px}
+ .f4-activity-step-body{padding-left:49px}
+ .f4-activity-progress{padding:12px 13px}
+ .f4-activity-dialog-panel{max-height:88dvh}
+}
+@media(max-width:360px){
+ .f4-activity-switch button{padding:8px 9px;font-size:11px}
+ .f4-activity-status{max-width:66px;overflow:hidden;text-overflow:ellipsis}
+ .f4-activity-step-copy strong{font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){
+ .f4-activity-progress-track>span,.f4-activity-chevron,.f4-activity-step,.f4-activity-switch button{transition:none}
+}
