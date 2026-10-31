@@ -101,4 +101,21 @@ assert(h.includes("const csv=v21Node('button','secondary','CSV')"),'CSV button l
 assert(!h.includes("const print=v21Node('button','secondary','Cetak / PDF')"),'Old public PDF label returned');
 assert(!h.includes("const csv=v21Node('button','secondary','Unduh CSV')"),'Old public CSV label returned');
 
+// Member account accordions must have one canonical right chevron, not a native
+// triangle on the left for password and a custom icon on the right for photo.
+const summarySelector='#dashboardView #pageProfile :is(#v15PhotoPanel,#v15PasswordBox)>summary';
+assert(css.includes(summarySelector+'{'),'Both profile summaries must share one CSS rule');
+assert(css.includes(summarySelector+'::-webkit-details-marker{display:none}'),'Native Safari triangle must be hidden');
+assert(css.includes(summarySelector+'::marker{content:\'\'}'),'Native details marker must be removed');
+assert(css.includes(summarySelector+'::after{'),'Right chevron must be shared');
+assert(css.includes('#dashboardView #pageProfile :is(#v15PhotoPanel,#v15PasswordBox)[open]>summary::after'),
+ 'Both accordions must flip their chevron when open');
+assert(!css.includes('#dashboardView #pageProfile #v15PasswordBox>summary{'),
+ 'Obsolete password-specific override returned');
+assert(!h.includes('#v15PasswordBox>summary{cursor:pointer'),
+ 'Old left-side triangle style returned');
+assert(h.includes("summary.textContent='Ganti password'"),'Password must have no emoji or separate triangle');
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261031-profile-chevron-unified-v28'),
+ 'Profile CSS version must be refreshed');
+
 console.log('F4_BANK_CANONICAL_THEME_OK');
