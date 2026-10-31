@@ -1279,13 +1279,13 @@ body.f4-direct-bank #dashboardView #pagePenjualan #saleItems input[type=number]{
 #pageTabungan .f4-savings-head h2{font-size:19px!important;line-height:1.3!important;margin:0 0 5px!important;color:#1e3d30}
 #pageTabungan .f4-savings-head p{margin:0!important;color:#688074!important;font-size:12px!important;line-height:1.45!important}
 body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo{
- display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
  gap:9px!important;width:100%!important;min-width:0!important;
  border:0!important;background:transparent!important;padding:0!important;margin:0!important
 }
 body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo .metric{
- min-width:0!important;margin:0!important;padding:12px 14px!important;border:1px solid #dfeae3!important;
- border-radius:11px!important;background:#f9fcfa!important;box-shadow:none!important
+ min-width:0!important;margin:0!important;padding:12px 14px!important;border:1px solid #b5d9c3!important;
+ border-radius:11px!important;background:#e7f3eb!important;box-shadow:none!important
 }
 body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo .metric small{
  display:block!important;font-size:11px!important;line-height:1.3!important;color:#698073!important
@@ -2949,8 +2949,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       const result=await call('bsV9PostingKasPenjualan',token);
       const total=Number(result?.diposting||0);
       const message=total>0
-        ?'✓ Kas sesuai. '+total+' batch disahkan cocok dengan catatan penjualan dan buku kas. Saldo kas tercatat '+rupiah(result.kas)+'. Tidak ada transaksi baru.'
-        :'✓ Pemeriksaan selesai. Belum ada batch disahkan untuk dicocokkan. Saldo kas tercatat '+rupiah(result.kas)+'.';
+        ?'✓ Kas sesuai. '+total+' batch disahkan cocok dengan catatan penjualan dan buku kas. Kas gabungan '+rupiah(result.kas)+'. Tidak ada transaksi baru.'
+        :'✓ Pemeriksaan selesai. Belum ada batch disahkan untuk dicocokkan. Kas gabungan '+rupiah(result.kas)+'.';
       note('v9CashCheckStatus',message);
       if(status)status.dataset.checkState='success';
     }catch(error){
