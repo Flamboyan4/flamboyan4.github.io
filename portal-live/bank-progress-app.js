@@ -109,12 +109,13 @@
    head.append(heading,el('span','f4-activity-mini-tag','6 bulan'));
    const rangeControl=el('div','f4-activity-control-line');
    const unitControl=el('div','f4-activity-control-line is-unit');
+   const controls=el('div','f4-activity-controls');controls.append(rangeControl,unitControl);
    const bars=el('div','f4-activity-bars');
    bars.setAttribute('role','group');bars.setAttribute('aria-label','Grafik setoran Bank Sampah');
    const legend=el('div','f4-activity-legend');
    const footer=el('div','f4-activity-totals');
    const caption=el('p','f4-activity-chart-caption');
-   card.append(head,rangeControl,unitControl,bars,legend,footer,caption);
+   card.append(head,controls,bars,legend,footer,caption);
    const dailyAvailable=Array.isArray(report?.harian);
    function draw(){
      const range=[['week','7 hari'],['days30','30 hari'],['month','Per bulan']];
