@@ -41,7 +41,7 @@ let adminOverview=null;
 let refreshing=false;
 const custom=["bank-history","bank-payout","bank-report","bank-payout-admin"];
 const featureRoutes=["bank-member-progress","bank-member-info"];
-let moved=[],memberSnapshotsLoaded=false,snapshotBusy=false,snapshotObserver=null,sideMarker=null,savedSide=null;
+let moved=[],memberSnapshotsLoaded=false,snapshotBusy=false,snapshotObserver=null;
 const text=(id,val)=>{if($(id)&&$(id).textContent!==String(val))$(id).textContent=String(val)};
 const image=file=>{const img=el("img");img.src="/assets/icons/"+file;img.alt="";img.setAttribute("aria-hidden","true");return img;};
 function roleType(){
@@ -769,12 +769,17 @@ function moveFeature(ids,target){
  }
 }
 function memberSide(enabled){
- const side=$("sideNav");
- if(enabled&&side&&!sideMarker){
-  sideMarker=document.createComment("Member navigation via bottom dock");savedSide=side;side.replaceWith(sideMarker);
-  $("v16Backdrop")?.classList.remove("open");document.body.classList.remove("f4-bank-drawer-open");
- }else if(!enabled&&sideMarker&&savedSide){
-  sideMarker.replaceWith(savedSide);sideMarker=null;savedSide=null;
+ // Keep #sideNav mounted: legacy goPage()/v16Sync() still require that node.
+ const side=$("sideNav");if(!side)return;
+ side.classList.toggle("hidden",enabled);
+ if(enabled){
+  side.classList.remove("open");
+  side.setAttribute("aria-hidden","true");
+  side.inert=true;
+  $("v16Backdrop")?.classList.remove("open");
+  document.body.classList.remove("f4-bank-drawer-open");
+ }else{
+  side.removeAttribute("aria-hidden");side.inert=false;
  }
 }
 function progressPreview(){
