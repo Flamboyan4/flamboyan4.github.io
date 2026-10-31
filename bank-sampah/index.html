@@ -3815,8 +3815,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   toggleMenu=function(){
     $('sideNav').classList.toggle('open');const opened=$('sideNav').classList.contains('open');
     $('v16Backdrop').classList.toggle('open',opened);
+    document.body.classList.toggle('f4-bank-drawer-open',opened);
   };
-  function v16CloseMenu(){if($('sideNav'))$('sideNav').classList.remove('open');if($('v16Backdrop'))$('v16Backdrop').classList.remove('open');}
+  function v16CloseMenu(){if($('sideNav'))$('sideNav').classList.remove('open');if($('v16Backdrop'))$('v16Backdrop').classList.remove('open');document.body.classList.remove('f4-bank-drawer-open');}
   function v16Icon(id){const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');svg.innerHTML=v16SvgPaths[id]||v16SvgPaths.home;return svg;}
   function v16BuildNav(){
     const side=$('sideNav');if(!side)return;
@@ -3914,7 +3915,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const page=$('pageLaporan');if(!page||$('v17Finance'))return;
     const header=page.querySelector('h2');if(header)header.textContent='Laporan';
     const box=document.createElement('section');box.id='v17Finance';
-    box.innerHTML=`<div class="v17-finance-head"><div><h2>Ringkasan kas</h2><p>Kas gabungan termasuk hak tabungan warga.</p></div><button class="secondary" type="button" onclick="v17LoadFinance()">Perbarui</button></div><div class="v17-finance-kpis" id="v17FinanceKpis">Memuat...</div><div class="v17-finance-grid"><div class="v17-panel"><h3>Arus kas 6 bulan terakhir</h3><div class="v17-bars" id="v17FinanceBars"></div><p class="v17-legend"><span style="background:#347b54"></span> Masuk &nbsp; <span style="background:#e5bb75"></span> Keluar</p></div><div class="v17-panel"><h3>Rincian periode terpilih</h3><div id="v17FinanceDetails">Memuat...</div></div></div><p id="v17FinanceNote" class="v17-subtle"></p>`;
+    box.innerHTML=`<div class="v17-finance-head"><div><h2>Posisi dana</h2><p>Kas bank = kas gabungan − hak warga.</p></div><button class="secondary" type="button" onclick="v17LoadFinance()">Perbarui</button></div><div class="v17-finance-kpis" id="v17FinanceKpis">Memuat...</div><div class="v17-finance-grid"><div class="v17-panel"><h3>Arus kas 6 bulan terakhir</h3><div class="v17-bars" id="v17FinanceBars"></div><p class="v17-legend"><span style="background:#347b54"></span> Masuk &nbsp; <span style="background:#e5bb75"></span> Keluar</p></div><div class="v17-panel"><h3>Rincian periode terpilih</h3><div id="v17FinanceDetails">Memuat...</div></div></div><p id="v17FinanceNote" class="v17-subtle"></p>`;
     page.prepend(box);
     const month=$('v10Month');if(month){month.value=month.value||new Date().toISOString().slice(0,7);month.addEventListener('change',v17LoadFinance);}
   }
@@ -3965,8 +3966,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   async function v17LoadFinance(){
     if(!profile||profile.peran!=='Admin')return;v17SetupFinance();
     const seenToken=token,period=$('v10Month')?.value||'';$('v17FinanceNote').textContent='Memuat arus kas...';
-    try{const d=await call('bsV17RingkasanKasAdmin',seenToken,period);if(token!==seenToken)return;
-      $('v17FinanceKpis').replaceChildren(v17Kpi('Kas gabungan',rupiah(d.kasTercatat),true),v17Kpi('Masuk periode',rupiah(d.masukPeriode)),v17Kpi('Keluar periode',rupiah(d.keluarPeriode)),v17Kpi('Selisih',rupiah(d.selisihPeriode)));
+    try{const [d,members]=await Promise.all([call('bsV17RingkasanKasAdmin',seenToken,period),call('bsV9SaldoAdmin',seenToken)]);if(token!==seenToken)return;
+      const warga=members.reduce((n,x)=>n+Number(x.saldo||0),0);
+      $('v17FinanceKpis').replaceChildren(v17Kpi('Kas milik Bank Sampah',rupiah(d.kasTercatat-warga),true),v17Kpi('Hak warga',rupiah(warga)),v17Kpi('Kas gabungan',rupiah(d.kasTercatat)),v17Kpi('Arus bersih periode',rupiah(d.selisihPeriode)));
       v17Chart($('v17FinanceBars'),d.bulanan,['masuk','keluar'],['Masuk','Keluar']);
       const list=$('v17FinanceDetails');list.replaceChildren();
       d.rincian.forEach(x=>{const line=document.createElement('div');line.className='v17-line';const name=document.createElement('span');name.textContent=x.jenis;
