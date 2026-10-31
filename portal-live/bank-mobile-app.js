@@ -975,9 +975,12 @@ function navigate(route){
  if(typeof window.goPage==="function")window.goPage(route);
 }
 function handleRoute(route,old,args){
- // Restore the sidebar brand after navigating a long menu on a short PC viewport.
- if(roleType()==="member"&&window.matchMedia("(min-width:1024px)").matches){
-  const side=$("sideNav");if(side)side.scrollTop=0;
+ // Navigating between member pages always starts with a visible header and sidebar brand.
+ if(roleType()==="member"){
+  if(window.matchMedia("(min-width:1024px)").matches){
+   const side=$("sideNav");if(side)side.scrollTop=0;
+  }
+  window.scrollTo(0,0);
  }
  if(roleType()==="member"&&featureRoutes.includes(route)){
   restoreFeature();hideCustom();
