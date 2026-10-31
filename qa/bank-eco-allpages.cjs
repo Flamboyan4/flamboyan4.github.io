@@ -24,15 +24,15 @@ for(const phrase of ['#v11Public .v17-public-banner.v27-banner-program','#v18Pub
 assert(!css.includes('#a0dcb3'),'Old mint gradient present');
 assert(css.includes('--eco-gold:#ffc026'),'Current golden yellow theme token missing');
 assert(css.includes('background:#086345!important;border:1px solid #054d35!important'),'Deep green public hero missing');
-assert(css.includes('#v17Program .v17-feature{'),'Program card selector missing');
-assert(css.includes('background:#fff!important;border:1px solid #e0eae3!important'),'Solid white program missing');
+assert(h.includes('#v17Program .v17-feature{') && h.includes('border:0;border-radius:0;background:transparent'), 'Public program must be an unboxed step sequence');
 assert(css.includes('color:#fff!important;\n border:1px solid #E6A125!important'),'White text on bright gold missing');
 assert(h.includes('background:#F5B52E!important;border:1px solid #E6A125!important;color:#fff!important'),'Mobile button must match desktop');
 assert(css.includes('#v11Public .v17-public-banner :is(h1,h2,h3,strong)'),'White title missing');
 assert(css.includes('color:#fff!important'),'Foreground contrast missing');
 assert(!h.includes('.stats .stat:last-child{grid-column:1/-1}'),'Wide last savings card regression');
 const reportRule=h.match(/#v11Public #v25ReportMetrics\.v26-compact>\.v17-public-metric\{([^}]+)\}/);
-assert(reportRule&&!reportRule[1].includes('background:#fff'),'Mobile report must use original pastel colors');
+assert(reportRule,'Public mobile report source missing');
+assert(css.includes('background:#fff!important;border:1px solid #d8e5dc!important'),'Public report cards must stay white');
 assert(css.includes('#dashboardView #pagePribadi #v12Private>.stats>.stat:last-child'),'Last card sizing not fixed');
 assert(h.includes('aria-label="Muat ulang data tabungan"'),'Icon-only reload changed');
 assert(h.includes('function bankMenuClose()'),'Drawer logic changed');
