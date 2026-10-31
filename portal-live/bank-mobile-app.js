@@ -25,7 +25,7 @@ async function api(path,payload){
 }
 const adminDock=[
   ["Beranda","dashboard","home.svg"],["Setoran","setoran","bank.svg"],
-  ["Penjualan","penjualan","cash.svg"],["Saldo","tabungan","pay.svg"],["Menu","menu","menu.svg"]
+  ["Laporan","laporan","book.svg"],["Penjualan","penjualan","cash.svg"],["Saldo","tabungan","pay.svg"]
 ];
 const memberDock=[
  ["Beranda","dashboard","home.svg"],["Tabungan","pribadi","cash.svg"],
@@ -37,6 +37,7 @@ let homeSource=null,summaryExtra=null,memberSource=null,managerQueue=null;
 let primaryNode=null,extraNode=null;
 let ready=false,requestNonce="",requestEnabled=false;
 let memberStatement=null,memberChartMode="kg",memberChartGroup="month",memberChartPeriod="";
+let adminOverview=null;
 let refreshing=false;
 const custom=["bank-history","bank-payout","bank-report"];
 const text=(id,val)=>{if($(id)&&$(id).textContent!==String(val))$(id).textContent=String(val)};
@@ -98,6 +99,8 @@ function ensureHome(){
     amount=el("strong","f4-bank-app-balance","—"),secondary=el("span","f4-bank-app-secondary","Memuat...");
   amount.id="f4BankAppBalance";secondary.id="f4BankAppSecondary";
   hero.append(heading,label,amount,secondary);
+  const addDeposit=el("button","f4-bank-admin-deposit-action","+ Catat setoran");
+  addDeposit.type="button";addDeposit.onclick=()=>navigate("setoran");hero.append(addDeposit);
   const minis=el("div","f4-bank-app-minis");minis.id="f4BankAppMinis";
   hub.append(welcome,card,savings,hero,minis);
   page.prepend(hub);
@@ -125,9 +128,7 @@ function ensureHome(){
   page.querySelectorAll(".f4-member-finance-note").forEach(node=>node.remove());
  }else{
   if(legacyToolbar?.parentElement===reservoir)page.parentElement?.prepend(legacyToolbar);
-  if(header?.parentElement===reservoir)page.prepend(header);
-  if(banner?.parentElement===reservoir)header?.after(banner);
-  if(status?.parentElement===reservoir)page.append(status);
+  for(const node of [header,banner,status])if(node&&node.parentElement!==reservoir)reservoir.append(node);
   $("f4BankWeighingSchedule")?.remove();
  }
  if(role==="member"){
@@ -144,9 +145,9 @@ function ensureHome(){
   ensureWeighingSchedule(hub);
  }else{
   const recent=$("v14Recent")?.closest(".v14-panel");
-  if(recent&&recent.parentElement!==page.querySelector(".v14-panels"))page.querySelector(".v14-panels")?.prepend(recent);
+  if(recent&&recent.parentElement!==hub)hub.append(recent);
   const activity=$("v14Activities")?.closest(".v14-panel");
-  if(activity&&activity.parentElement!==page.querySelector(".v14-panels"))page.querySelector(".v14-panels")?.append(activity);
+  if(activity&&activity.parentElement!==hub)hub.append(activity);
   const flow=$("f4MemberFlow");if(flow)flow.hidden=true;
  }
  updateDashboard();
@@ -169,13 +170,21 @@ function updateDashboard(){
     el("strong","",memberStatement?rupiah(memberStatement.saldo):(map.get("Saldo sah")||"—")),el("span","f4-bank-member-chevron","›"));
   $("f4BankAppMinis")?.replaceChildren();
  }else{
-  text("f4BankAppBalance",map.get("Hasil diterima lapak")||"—");
-  text("f4BankAppSecondary","Berat tercatat: "+(map.get("Berat tercatat")||"—"));
-  const opts=[["Anggota",map.get("Anggota aktif")],["Setoran",map.get("Setoran")],["Berat",map.get("Berat tercatat")]];
+  const current=adminOverview;
+  const owned=current?.kasMilikBankRp;
+  const headline=$("f4BankAppAdminHero")?.querySelector(".f4-bank-app-balance-title");if(headline)headline.textContent="Kas milik Bank Sampah";
+  text("f4BankAppBalance",Number.isFinite(owned)?rupiah(owned):"—");
+  text("f4BankAppSecondary",current?"Hasil diterima lapak: "+rupiah(current.diterimaLapakRp):"Memuat posisi kas...");
+  const opts=current?[["Kas gabungan",rupiah(current.kasGabunganRp)],["Hak warga",rupiah(current.hakWargaBelumCairRp)],["Anggota",current.wargaAktif]]:
+   [["Kas gabungan","—"],["Hak warga","—"],["Anggota",map.get("Anggota aktif")]];
   $("f4BankAppMinis")?.replaceChildren(...opts.map(([label,value])=>{
    const node=el("div","f4-bank-app-mini");node.append(el("small","",label),el("strong","",value||"—"));return node;
   }));
  }
+}
+function updateAdminOverview(event){
+ if(roleType()!=="admin"||!event.detail)return;
+ adminOverview=event.detail;updateDashboard();
 }
 function ensureScreen(id,title){
  let node=$(id);
@@ -642,7 +651,7 @@ function sync(){
  if(next!==role){
   role=next;screen="dashboard";dock().replaceChildren(...(role==="admin"?adminDock:memberDock).map(x=>action(x,true)));
   if(role==="member")requestNonce="";
-  memberStatement=null;
+  memberStatement=null;adminOverview=null;
   if(role==="admin")$("f4BankProfileDetail")?.remove();
  }
  ensureHome();
@@ -719,6 +728,7 @@ function acceptMemberStatement(event){
 function init(){
  if(ready)return;ready=true;
  window.addEventListener("f4-bank-member-statement",acceptMemberStatement);
+ window.addEventListener("f4-bank-admin-overview",updateAdminOverview);
  const original=window.goPage;
  if(typeof original==="function")window.goPage=function(route,...args){return handleRoute(route,original,args);};
  const view=$("dashboardView");
