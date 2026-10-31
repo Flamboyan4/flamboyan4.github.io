@@ -389,7 +389,11 @@ function showReport(){
   const summary=el("div","f4-bank-report-summary");summary.id="f4BankReportSummary";
   const actions=el("div","f4-bank-report-actions");
   const pdf=el("button","f4-bank-gold-action","Cetak PDF");pdf.type="button";
-  pdf.onclick=()=>typeof window.v12Print==="function"&&window.v12Print();
+  pdf.id="f4BankMemberPrintAction";
+  pdf.onclick=()=>{
+   if(typeof window.f4BankMemberPrintReady==="function"&&!window.f4BankMemberPrintReady())return;
+   if(typeof window.v12Print==="function")window.v12Print();
+  };
   const csv=el("button","f4-bank-secondary-action","Unduh CSV");csv.type="button";
   csv.onclick=()=>typeof window.v12CSV==="function"&&window.v12CSV();
   actions.append(pdf,csv);
@@ -434,6 +438,8 @@ function showReport(){
   node.append(left,right);list.append(node);
  }
  if(!transactions.length)list.append(el("p","f4-bank-empty","Belum ada transaksi di periode ini."));
+ const printAction=$("f4BankMemberPrintAction");
+ if(printAction)printAction.disabled=typeof window.f4BankMemberPrintReady==="function"&&!window.f4BankMemberPrintReady();
  statusFor(page);
 }
 function memberBuckets(){
