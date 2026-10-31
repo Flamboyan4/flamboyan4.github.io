@@ -19,10 +19,9 @@ function navButton(key,url,label){
  links.append(a);return a;
 }
 const portalMainLink=navButton('home',paths.portal,'Portal Utama');
-if(portal==='bank'&&typeof window.v16Icon==='function'){
- // Reuse the established globe icon from Bank Sampah; reserve the house for Beranda anggota.
- portalMainLink.replaceChildren(window.v16Icon('globe'));
-}
+// One shared Portal Utama icon on every portal and for every role:
+// exactly the globe pictogram used by Bank Sampah; not the Beranda house.
+portalMainLink.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18"></path></svg>';
 navButton('bank',paths.bank,'Bank Sampah');
 const bookLink=navButton('book',paths.book,'Pembukuan');const adminLink=navButton('superadmin',paths.superadmin,'Superadmin');
 bookLink.hidden=true;adminLink.hidden=true;
