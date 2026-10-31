@@ -1,6 +1,6 @@
 /* Flamboyan 4 • Fresh Eco Dashboard • 2026-10-28
    Layout-only layer. Values stay live; existing handlers and navigation remain unchanged.
-   White page background; compact softly colored cards for BOTH Admin and Warga. */
+   White card surfaces with green/gold accents for both admin and members. */
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard{
   --eco-ink:#173d32;--eco-muted:#516c60;--eco-line:#dceae1;
   background:#fff!important;max-width:100%;isolation:isolate
@@ -22,27 +22,27 @@ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary.v14-pri
   align-items:stretch!important;margin:0 0 14px!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi{
-  --tone:#358e5b;--soft:#e8f6e8;--edge:#d5e9d8;--watermark:'/assets/icons/bank.svg';
+  --tone:#358e5b;--edge:#d5e9d8;--watermark:'/assets/icons/bank.svg';
   box-sizing:border-box!important;position:relative!important;overflow:hidden!important;
   display:flex!important;flex-direction:column!important;align-items:flex-start!important;
   justify-content:center!important;gap:0!important;
   grid-template-rows:none!important;grid-template-columns:none!important;
   min-height:140px!important;height:auto!important;width:100%!important;
   padding:15px 16px!important;margin:0!important;border-radius:16px!important;
-  background:linear-gradient(130deg,#f6fcf5 0%,var(--soft) 100%)!important;
+  background:#fff!important;
   border:1px solid var(--edge)!important;box-shadow:0 3px 12px #235e2e08!important;
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(2){
-  --tone:#159f9e;--soft:#e0f7f4;--edge:#cdebe9;
-  background:linear-gradient(130deg,#f5fffd 0%,var(--soft) 100%)!important
+  --tone:#d2a020;--edge:#cdebe9;
+  background:#fff!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(3){
-  --tone:#cc7b14;--soft:#fff0d9;--edge:#f5e2c9;
-  background:linear-gradient(130deg,#fffdf8 0%,var(--soft) 100%)!important
+  --tone:#cc7b14;--edge:#f5e2c9;
+  background:#fff!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(4){
-  --tone:#7960d6;--soft:#eee8fc;--edge:#e6ddf9;
-  background:linear-gradient(130deg,#fefcff 0%,var(--soft) 100%)!important
+  --tone:#d2a020;--edge:#e6ddf9;
+  background:#fff!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:before{
   content:""!important;display:block!important;flex:0 0 36px!important;
@@ -85,10 +85,10 @@ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-bank-quick>butt
   flex:0 1 auto!important;min-width:0!important;width:auto!important;min-height:39px!important;
   border-radius:10px!important;padding:9px 14px!important;
   font-size:13px!important;font-weight:740!important;
-  background:#e9f7ee!important;border:1px solid #c8e8d5!important;color:#0a7452!important
+  background:#fff!important;border:1px solid #c8e8d5!important;color:#0a7452!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-bank-quick>button:nth-child(2){
-  background:#f3effe!important;border-color:#e4dafd!important;color:#6850b1!important
+  background:#fff!important;border-color:#e4dafd!important;color:#6850b1!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-bank-quick>button:hover{filter:brightness(.97)}
 
@@ -132,7 +132,7 @@ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-member-recent{
   display:flex!important;align-items:center!important;justify-content:space-between!important;
   gap:10px!important;min-width:0!important;
   border:1px solid #dfebe5!important;border-radius:12px!important;
-  background:#fbfefd!important;padding:10px 12px!important;margin:0!important;
+  background:#fff!important;padding:10px 12px!important;margin:0!important;
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-recent-item>div:first-child,
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-member-recent>div:first-child{
@@ -142,11 +142,11 @@ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-recent-item>div
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-member-recent>div:first-child:before{
   content:"";display:block;position:absolute;top:50%;transform:translateY(-50%);left:0;
   width:34px;height:34px;border-radius:50%;
-  background:#e6f6eb url('/assets/icons/user.svg') center/19px no-repeat
+  background:#fff url('/assets/icons/user.svg') center/19px no-repeat
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-recent-item:nth-child(2n)>div:first-child:before,
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-member-recent:nth-child(2n)>div:first-child:before{
-  background-color:#e9f0fd
+  background-color:#fff
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-recent-item strong,
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-member-recent strong{
@@ -171,26 +171,26 @@ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-activity{
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-activity-item{
   position:relative!important;display:block!important;
-  border:1px solid #e0eee7!important;background:#f3faf6!important;
+  border:1px solid #e0eee7!important;background:#fff!important;
   border-radius:12px!important;padding:11px 12px 11px 55px!important;
   min-height:58px!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-activity-item:nth-child(2){
-  background:#f1f5ff!important;border-color:#e2eafa!important
+  background:#fff!important;border-color:#e0eee7!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-activity-item:nth-child(3){
-  background:#fff8e9!important;border-color:#f4e8d1!important
+  background:#fff!important;border-color:#e0eee7!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-activity-item:before{
   content:"";position:absolute;left:11px;top:50%;transform:translateY(-50%);
   width:34px;height:34px;border-radius:50%;
-  background:#dcf4e6 url('/assets/icons/project.svg') center/19px no-repeat
+  background:#fff url('/assets/icons/project.svg') center/19px no-repeat
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-activity-item:nth-child(2):before{
-  background-color:#e5edff;background-image:url('/assets/icons/book.svg')
+  background-color:#fff;background-image:url('/assets/icons/book.svg')
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-activity-item:nth-child(3):before{
-  background-color:#ffedc9;background-image:url('/assets/icons/calendar.svg')
+  background-color:#fff;background-image:url('/assets/icons/calendar.svg')
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-activity-item strong{
   color:#274b3b!important;font-weight:760!important;font-size:13px!important;line-height:1.4!important
@@ -204,7 +204,7 @@ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-activity-item 
 body #dashboardView #pageDashboard.f4-member-dashboard .f4-bank-quick,
 body #dashboardView #pageDashboard.f4-member-dashboard #f4-monthly-trend{display:none!important}
 body #dashboardView #pageDashboard.f4-member-dashboard .f4-member-finance-note{
-  color:#3a6453!important;background:#f3fbf7!important;border-color:#d7ebdf!important;
+  color:#3a6453!important;background:#fff!important;border-color:#d7ebdf!important;
   font-size:13px!important;line-height:1.5!important
 }
 body #dashboardView #pageDashboard.f4-member-dashboard .v14-panels{
@@ -273,26 +273,26 @@ body #dashboardView #pageDashboard.f4-member-dashboard .v14-panels{
 }
 
 /* Specificity guard for old member/mobile !important rules in inline stylesheet.
-   Both accounts intentionally receive tinted card backgrounds, never white. */
+   Both accounts share the same white card backgrounds. */
 body.f4-direct-bank #dashboardView #pageDashboard.v14-home.f4-eco-dashboard.f4-member-dashboard
  #v14Primary.v14-primary>.f4-eco-kpi{
  display:flex!important;flex-direction:column!important;align-items:flex-start!important;
  justify-content:center!important;grid-template-rows:none!important;grid-template-columns:none!important;
  min-height:140px!important;padding:15px 16px!important;
- background:linear-gradient(130deg,#f6fcf5 0%,#e8f6e8 100%)!important;
- border:1px solid #d5e9d8!important
+ background:#fff!important;
+ border:1px solid #d8e5dd!important
 }
 body.f4-direct-bank #dashboardView #pageDashboard.v14-home.f4-eco-dashboard.f4-member-dashboard
  #v14Primary.v14-primary>.f4-eco-kpi:nth-child(2){
- background:linear-gradient(130deg,#f5fffd 0%,#e0f7f4 100%)!important;border-color:#cdebe9!important
+ background:#fff!important;border-color:#cdebe9!important
 }
 body.f4-direct-bank #dashboardView #pageDashboard.v14-home.f4-eco-dashboard.f4-member-dashboard
  #v14Primary.v14-primary>.f4-eco-kpi:nth-child(3){
- background:linear-gradient(130deg,#fffdf8 0%,#fff0d9 100%)!important;border-color:#f5e2c9!important
+ background:#fff!important;border-color:#f5e2c9!important
 }
 body.f4-direct-bank #dashboardView #pageDashboard.v14-home.f4-eco-dashboard.f4-member-dashboard
  #v14Primary.v14-primary>.f4-eco-kpi:nth-child(4){
- background:linear-gradient(130deg,#fefcff 0%,#eee8fc 100%)!important;border-color:#e6ddf9!important
+ background:#fff!important;border-color:#e6ddf9!important
 }
 body.f4-direct-bank #dashboardView #pageDashboard.v14-home.f4-eco-dashboard.f4-member-dashboard
  #v14Primary.v14-primary>.f4-eco-kpi::before{
@@ -348,9 +348,9 @@ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco
  border-radius:50%!important;color:#fff!important;margin:0 0 10px!important;
  background:linear-gradient(145deg,#51b970,#1a8e56)!important;flex:none!important;z-index:2!important
 }
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(2)>.f4-eco-icon{background:linear-gradient(145deg,#45d4c6,#11a5a2)!important}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(2)>.f4-eco-icon{background:linear-gradient(145deg,#0b754c,#044e33)!important}
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(3)>.f4-eco-icon{background:linear-gradient(145deg,#ffc457,#f69a23)!important}
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(4)>.f4-eco-icon{background:linear-gradient(145deg,#ac92f6,#7857db)!important}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(4)>.f4-eco-icon{background:linear-gradient(145deg,#eabd2c,#cb9512)!important}
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi>.f4-eco-icon svg{display:block!important}
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:after{
  width:105px!important;height:110px!important;right:-4px!important;bottom:8px!important;
@@ -361,7 +361,7 @@ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(3):after{-webkit-mask-image:url('/assets/icons/cash.svg');mask-image:url('/assets/icons/cash.svg')}
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(4):after{-webkit-mask-image:url('/assets/icons/calendar.svg');mask-image:url('/assets/icons/calendar.svg')}
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-deposit-badge{
- display:inline-flex;align-items:center;background:#e5f6ec;color:#2f7953!important;
+ display:inline-flex;align-items:center;background:#fff;color:#2f7953!important;
  border-radius:999px;padding:3px 10px;margin-top:5px;font-size:11px!important;font-weight:650!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-activity-link{cursor:pointer!important;padding-right:46px!important}
