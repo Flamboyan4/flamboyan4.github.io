@@ -239,8 +239,8 @@ body.f4-bank-embedded #dashboardView .section,
 @media screen and (max-width:1023px){
  html body #v18PublicSide,
  html.f4-bank-embedded body #v18PublicSide,
- html body.v17-dashboard #sideNav.side,
- html.f4-bank-embedded body.v17-dashboard #sideNav.side{
+ html body.v17-dashboard:not(.f4-bank-app-admin) #sideNav.side,
+ html.f4-bank-embedded body.v17-dashboard:not(.f4-bank-app-admin) #sideNav.side{
    box-sizing:border-box!important;position:fixed!important;
    left:0!important;top:0!important;bottom:0!important;
    width:min(226px,75vw)!important;max-width:min(226px,75vw)!important;
@@ -255,12 +255,12 @@ body.f4-bank-embedded #dashboardView .section,
  }
  html body #v18PublicSide.open,
  html.f4-bank-embedded body #v18PublicSide.open,
- html body.v17-dashboard #sideNav.side.open,
- html.f4-bank-embedded body.v17-dashboard #sideNav.side.open{
+ html body.v17-dashboard:not(.f4-bank-app-admin) #sideNav.side.open,
+ html.f4-bank-embedded body.v17-dashboard:not(.f4-bank-app-admin) #sideNav.side.open{
    transform:translateX(0)!important;visibility:visible!important;
    pointer-events:auto!important
  }
- html body #v18PublicBackdrop.open,html body #v16Backdrop.open{
+ html body #v18PublicBackdrop.open,html body:not(.f4-bank-app-admin) #v16Backdrop.open{
    position:fixed!important;inset:0!important;display:block!important;
    z-index:240!important;background:#103c2b70!important;
    pointer-events:auto!important
@@ -290,6 +290,45 @@ body.f4-bank-embedded #dashboardView .section,
  }
  html body :is(#v18PublicSide,#sideNav) button svg{
    width:19px!important;height:19px!important;flex:none!important
+ }
+ /* Pengurus HP: menu tambahan berbentuk popover, bukan drawer samping.
+    Satu sumber ukuran untuk mobile; pilihan primer tetap pada dock bawah. */
+ html body.f4-bank-app-admin.v17-dashboard #sideNav.side{
+   display:block;box-sizing:border-box;
+   position:fixed;inset:64px auto auto 10px;
+   width:calc(100vw - 20px);max-width:540px;
+   height:auto;min-height:0;max-height:calc(100dvh - 56px - 84px);
+   padding:12px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
+   background:#fff;border:1px solid #d5e5db;border-radius:15px;
+   box-shadow:0 16px 45px #0b362b33;z-index:241;
+   transform:none;opacity:0;visibility:hidden;pointer-events:none;
+   transition:opacity .14s ease,visibility .14s ease
+ }
+ html body.f4-bank-app-admin.v17-dashboard #sideNav.side.open{
+   transform:none;opacity:1;visibility:visible;pointer-events:auto
+ }
+ html body.f4-bank-app-admin #v16Backdrop.open{
+   display:block;position:fixed;inset:56px 0 0;
+   z-index:240;background:#173d2c55;pointer-events:auto
+ }
+ html body.f4-bank-app-admin #sideNav :is(#v16Brand,#v15Footer){display:none}
+ html body.f4-bank-app-admin #sideNav #v16Navigation{display:block}
+ html body.f4-bank-app-admin #sideNav .v16-nav-caption{
+   margin:0;padding:0 3px 10px;font-size:11px;letter-spacing:.06em;color:#617a6d
+ }
+ html body.f4-bank-app-admin #sideNav #v16NavList{
+   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px
+ }
+ html body.f4-bank-app-admin #sideNav #v16NavList>.v16-item{
+   box-sizing:border-box;width:100%;min-width:0;max-width:100%;
+   margin:0;gap:8px;align-items:center;justify-content:flex-start;
+   white-space:normal;text-align:left
+ }
+ html body.f4-bank-app-admin #sideNav #v16NavList>.v16-item svg{
+   width:18px;height:18px;flex:none
+ }
+ html body.f4-bank-app-admin #sideNav #v16NavList>.v16-item[data-group="public"]{
+   grid-column:1/-1
  }
 }
 @media screen and (max-width:760px){
@@ -707,14 +746,14 @@ body.f4-bank-embedded #dashboardView .section,
  }
  body.f4-bank-app-private .f4-bank-app-dock-action:nth-child(3) .f4-bank-app-action-icon{
   width:45px;height:45px;border-radius:12px;
-  background:#ffc026;transform:translateY(-19px);
+  background:#ffc026;transform:translateY(-21px);
   box-shadow:0 5px 13px #a67a1d35
  }
  body.f4-bank-app-private .f4-bank-app-dock-action:nth-child(3) .f4-bank-app-action-icon img{
   width:25px;height:25px;filter:brightness(0) invert(1)
  }
  body.f4-bank-app-private .f4-bank-app-dock-action:nth-child(3) .f4-bank-app-action-name{
-  margin:0;color:#775000;font-weight:850;transform:translateY(-8px)
+  margin:0;color:#775000;font-weight:850
  }
  body.f4-bank-drawer-open{overscroll-behavior-y:contain}
 }
