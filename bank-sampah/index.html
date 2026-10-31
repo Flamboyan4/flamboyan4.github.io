@@ -451,7 +451,7 @@
   .v25-report-toolbar select{width:auto;min-width:155px;margin:0;background:#fff}
   .v25-report-toolbar button{font-size:12px;padding:10px 12px}
   .v25-report-table{overflow-x:auto;border:1px solid #dbe8dc;border-radius:12px;background:#fff}
-  .v25-report-table table{width:100%;min-width:760px;border-collapse:collapse}
+  .v25-report-table table{width:100%;min-width:0;border-collapse:collapse}
   .v25-report-table th,.v25-report-table td{padding:11px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid #e8eee7;font-size:12px}
   .v25-report-table th:first-child,.v25-report-table td:first-child{text-align:left}
   .v25-report-table th{background:#edf5ed;color:#355e42;font-weight:750}
@@ -470,32 +470,25 @@
   #authView.v26-simple-login h1{margin-bottom:12px}
   #authView.v26-simple-login #loginForm>.hint{font-size:11px;margin-top:11px}
   #authView.v26-simple-login{padding-top:23px;padding-bottom:22px}
-  /* Laporan Publik: satu definisi untuk HP dan PC. Angka jelas, kartu tak melebar. */
-  #v11Public #v25ReportRoot{padding:12px;border-radius:13px}
+  /* Laporan Publik: tiga angka sah, ringkas dan konsisten pada PC/HP. */
+  #v11Public #v25ReportRoot{padding:11px;border-radius:12px}
   #v11Public #v25ReportMetrics.v26-compact{
-    display:grid;grid-template-columns:repeat(auto-fit,minmax(156px,188px));
-    gap:8px;margin:10px 0 12px;align-items:stretch
+    display:grid;grid-template-columns:repeat(3,minmax(0,165px));
+    gap:6px;margin:8px 0 10px;align-items:stretch
   }
   #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric{
-    display:grid;grid-template-columns:26px minmax(0,1fr);grid-template-rows:auto auto;
-    align-content:center;align-items:center;column-gap:8px;row-gap:2px;
-    min-width:0;min-height:68px;padding:8px 9px;margin:0;
-    border-radius:11px;box-shadow:none
+    display:flex;flex-direction:column;justify-content:center;gap:2px;
+    min-width:0;min-height:49px;padding:7px 10px;margin:0;border-radius:9px;box-shadow:none
   }
-  #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric::before{
-    display:block;grid-column:1;grid-row:1 / 3;align-self:center;
-    width:26px;height:26px;margin:0;background-size:16px
-  }
+  #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric::before{display:none}
   #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric small{
-    grid-column:2;grid-row:1;min-width:0;margin:0;
-    font-size:11px;line-height:1.22;font-weight:600;color:#62776a
+    display:block;min-width:0;margin:0;font-size:11px;line-height:1.2;font-weight:600;color:#62776a
   }
   #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric strong{
-    grid-column:2;grid-row:2;min-width:0;margin:0;padding:0;
-    font-size:18px;line-height:1.15;font-weight:850;letter-spacing:-.3px;
-    color:#164e33;overflow-wrap:anywhere
+    display:block;min-width:0;margin:0;padding:0;font-size:15px;line-height:1.2;
+    font-weight:800;letter-spacing:-.2px;color:#164e33;overflow-wrap:anywhere
   }
-  #v11Public #v25ReportRoot .v25-report-toolbar{gap:7px;margin:4px 0 7px}
+  #v11Public #v25ReportRoot .v25-report-toolbar{gap:7px;margin:4px 0 8px}
   #v11Public #v25ReportRoot .v25-report-toolbar :is(button,select){
     min-height:36px;margin:0;padding:7px 11px;border-radius:9px;font-size:12px
   }
@@ -503,31 +496,18 @@
   #v11Public #v25ReportRoot .v25-report-toolbar button:first-of-type{
     width:38px;padding:0;font-size:19px;line-height:1
   }
-  #v11Public #v25ReportRoot .v26-report-subtitle{
-    margin:5px 0 9px;color:#667f70;font-size:11px;line-height:1.4
-  }
   #v11Public #v25ReportRoot #v25ReportNote[hidden]{display:none}
   @media(max-width:640px){
     #v11Public #v25ReportRoot{padding:10px}
-    #v11Public #v25ReportMetrics.v26-compact{
-      grid-template-columns:repeat(2,minmax(0,1fr));gap:7px
-    }
+    #v11Public #v25ReportMetrics.v26-compact{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
     #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric{
-      grid-template-columns:24px minmax(0,1fr);
-      min-height:64px;padding:7px 8px;column-gap:7px
+      min-height:48px;padding:7px 8px
     }
-    #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric::before{
-      width:24px;height:24px;background-size:15px
-    }
-    #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric small{font-size:10.5px}
-    #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric strong{
-      font-size:clamp(16px,4.3vw,18px)
-    }
-    #v11Public #v25ReportRoot .v25-report-toolbar select{
-      flex:1 1 100%;min-width:0
-    }
+    #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric small{font-size:10px}
+    #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric strong{font-size:clamp(11px,3.6vw,15px)}
+    #v11Public #v25ReportRoot .v25-report-toolbar select{flex:1 1 100%;min-width:0}
   }
-  .v27-progress-no-photo{width:80px;height:78px;display:grid;place-items:center;border-radius:9px;background:#e2eee3;color:#83a58a;font-size:23px}
+    .v27-progress-no-photo{width:80px;height:78px;display:grid;place-items:center;border-radius:9px;background:#e2eee3;color:#83a58a;font-size:23px}
   .v27-photo-missing{color:#b57c49!important;font-size:10px!important}
   .v27-cancel-panel{border:1px solid #efcaa9;border-radius:12px;margin-top:22px;background:#fffaf4;padding:15px}
   .v27-cancel-panel summary{font-weight:750;color:#885226;cursor:pointer}
@@ -557,8 +537,8 @@
     #v27PrintReport h1{font-size:17pt;margin:0;text-align:center;color:#234d34}
     #v27PrintReport .v27-print-sub{text-align:center;margin:4px 0 17px;font-size:9pt}
     #v27PrintReport .v27-print-divider{border-top:2px solid #000;margin:13px 0 16px}
-    #v27PrintReport .v27-print-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0 19px}
-    #v27PrintReport .v27-print-kpi{border:1px solid #000;padding:9px;break-inside:avoid}
+    #v27PrintReport .v27-print-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:10px 0 13px}
+    #v27PrintReport .v27-print-kpi{border:1px solid #000;padding:7px 8px;break-inside:avoid}
     #v27PrintReport .v27-print-kpi small{display:block;color:#5a6c61;font-size:8pt;margin-bottom:5px}
     #v27PrintReport .v27-print-kpi strong{font-size:13pt}
     #v27PrintReport table{width:100%;border-collapse:collapse;table-layout:auto;margin-top:10px;font-size:7.5pt}
@@ -1715,7 +1695,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
 #v17Perkembangan .f4-public-chart-legend i{display:inline-block;width:9px;height:9px;border-radius:3px;background:#26875e}
 #v17Perkembangan .f4-public-chart-legend span:nth-child(2) i{background:#e6a62a}
 #v17Perkembangan #v17WeightBars .v17-bar.out{background:#e6a62a!important}
-#v25ReportTable td:nth-child(5){color:#987019!important;font-weight:700}
+
 </style>
 <style id="f4-bank-mobile-3view-fix-20261028">
 /* 2026-10-28: Saldo anggota + publik + pengelola. Padatkan ruang, JANGAN perkecil font.
@@ -4830,26 +4810,18 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     const sum=data.ringkasan;
     $('v25ReportMetrics').replaceChildren(
       v17PublicStat('Berat sah',kg(sum.beratKg)),
-      v17PublicStat('Belum sah',kg(sum.pendingWeightKg||0)),
-      v17PublicStat('Penjualan',rupiah(sum.hasilPenjualan)),
-      v17PublicStat('Hak warga',rupiah(sum.hakWarga)),
-      v17PublicStat('Dana lingkungan',rupiah(sum.cadangan+sum.kasLorong+sum.operasional)),
-      v17PublicStat('Perkiraan',rupiah(sum.pendingEstimateRp||0)));
+      v17PublicStat('Penjualan sah',rupiah(sum.hasilPenjualan)),
+      v17PublicStat('Pengeluaran',rupiah(sum.pengeluaran||0)));
     $('v25ReportMetrics').classList.add('v26-compact');
-    const caution=$('v26ReportExplanation');
-    if(caution)caution.textContent=sum.batch===0?
-      '◷ Belum ada penjualan sah · 🔒 Privasi':
-      '✓ Data sah · ◷ Perkiraan terpisah · 🔒 Privasi';
     const root=$('v25ReportTable'),table=document.createElement('table'),thead=document.createElement('thead'),h=document.createElement('tr');
-    const columns=[['periode','Periode'],['beratKg','Berat jual (kg)'],['pendingWeightKg','Timbang belum sah (kg)'],['hasilPenjualan','Penjualan sah'],['hakWarga','Hak warga sah'],
-      ['pendingEstimateRp','Perkiraan belum sah'],['cadangan','Cadangan'],['kasLorong','Kas lorong'],['operasional','Operasional'],['pengeluaran','Pengeluaran']];
+    const columns=[['periode','Periode'],['beratKg','Berat sah'],['hasilPenjualan','Penjualan sah'],['pengeluaran','Pengeluaran']];
     columns.forEach(([,name])=>h.appendChild(v21Node('th','',name)));thead.appendChild(h);table.appendChild(thead);
     const body=document.createElement('tbody');
     (data.bulanan||[]).forEach(r=>{const tr=document.createElement('tr');columns.forEach(([key])=>{
-      const value=key==='periode'?r[key]:(key==='beratKg'||key==='pendingWeightKg')?kg(r[key]):rupiah(r[key]);tr.appendChild(v21Node('td','',value));
+      const value=key==='periode'?r[key]:key==='beratKg'?kg(r[key]):rupiah(r[key]);
+      tr.appendChild(v21Node('td','',value));
     });body.appendChild(tr);});table.appendChild(body);root.replaceChildren(table);
-    if(!data.bulanan.length)root.appendChild(v21Node('p','v17-subtle','Belum ada data pada periode ini.'));
-    // Detail status sudah diringkas di atas kartu; pesan ini hanya untuk loading/kegagalan.
+    if(!data.bulanan?.length)root.appendChild(v21Node('p','v17-subtle','Belum ada data pada periode ini.'));
     $('v25ReportNote').hidden=true;
     $('v25ReportNote').textContent='';
     const picker=$('v25ReportPeriod');picker.replaceChildren(new Option('Seluruh periode','semua'));
@@ -4874,27 +4846,26 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       v27PrintNode('p','','Periode: '+(v25ReportPeriod==='semua'?'Seluruh periode':v25ReportPeriod)),
       v27PrintNode('p','','Tanggal cetak: '+new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})));
     const metrics=v27PrintNode('div','v27-print-kpis');
-    [['Berat terkonfirmasi',kg(sum.beratKg)],['Penjualan diterima',rupiah(sum.hasilPenjualan)],
-      ['Hak tabungan warga',rupiah(sum.hakWarga)],['Alokasi lingkungan & operasional',rupiah(sum.cadangan+sum.kasLorong+sum.operasional)]].forEach(([name,value])=>{
+    [['Berat sah',kg(sum.beratKg)],['Penjualan sah',rupiah(sum.hasilPenjualan)],
+      ['Pengeluaran',rupiah(sum.pengeluaran||0)]].forEach(([name,value])=>{
       const box=v27PrintNode('div','v27-print-kpi');box.append(v27PrintNode('small','',name),v27PrintNode('strong','',value));metrics.appendChild(box);
     });root.append(metrics,v27PrintNode('h2','','Rekapitulasi Periode'));
-    const columns=[['periode','Periode'],['beratKg','Berat kg'],['hasilPenjualan','Penjualan'],['hakWarga','Hak warga'],
-      ['cadangan','Cadangan'],['kasLorong','Kas lorong'],['operasional','Operasional'],['pengeluaran','Pengeluaran']];
+    const columns=[['periode','Periode'],['beratKg','Berat sah'],['hasilPenjualan','Penjualan sah'],['pengeluaran','Pengeluaran']];
     const table=document.createElement('table'),head=document.createElement('thead'),tr=document.createElement('tr');
     columns.forEach(([,label])=>tr.appendChild(v27PrintNode('th','',label)));head.appendChild(tr);table.appendChild(head);
     const tbody=document.createElement('tbody');
     if(!data.bulanan?.length){const row=document.createElement('tr');row.appendChild(v27PrintNode('td','','Belum ada data disahkan'));
-      columns.slice(1).forEach(([,label])=>row.appendChild(v27PrintNode('td','',label==='Berat kg'?'0':'Rp 0')));tbody.appendChild(row);
+      columns.slice(1).forEach(([,label])=>row.appendChild(v27PrintNode('td','',label==='Berat sah'?'0 kg':'Rp 0')));tbody.appendChild(row);
     }else data.bulanan.forEach(r=>{const row=document.createElement('tr');columns.forEach(([key])=>row.appendChild(v27PrintNode('td','',key==='periode'?r[key]:key==='beratKg'?kg(r[key]):rupiah(r[key]))));tbody.appendChild(row);});
     table.appendChild(tbody);root.appendChild(table);
-    root.appendChild(v27PrintNode('p','v27-print-note',data.catatan+' Laporan tidak memuat rincian identitas atau saldo pribadi warga.'));
+    root.appendChild(v27PrintNode('p','v27-print-note','Data berasal dari transaksi sah. Tidak memuat identitas atau saldo pribadi warga.'));
     const sign=v27PrintNode('div','v27-print-sign');sign.append(v27PrintNode('div','','Mengetahui,'),v27PrintNode('div','','Humas Flamboyan 4'),v27PrintNode('strong','','Heri Juwandi'));root.appendChild(sign);
     v36BankPrint(root,'public');
   }
  function v25DownloadReport(){
     if(!v25ReportData)return window.f4UiDialog.alert('Muat laporan terlebih dahulu.');
-    const fields=['periode','beratKg','pendingWeightKg','hasilPenjualan','hakWarga','pendingEstimateRp','cadangan','kasLorong','operasional','pengeluaran'];
-    const labels=['Periode','Berat jual sah (kg)','Timbang belum sah (kg)','Penjualan sah (Rp)','Hak warga sah (Rp)','Perkiraan belum sah (Rp)','Cadangan (Rp)','Kas lorong (Rp)','Operasional (Rp)','Pengeluaran (Rp)'];
+    const fields=['periode','beratKg','hasilPenjualan','pengeluaran'];
+    const labels=['Periode','Berat sah (kg)','Penjualan sah (Rp)','Pengeluaran (Rp)'];
     const csv='\uFEFF'+[labels.join(';'),...(v25ReportData.bulanan||[]).map(row=>fields.map(k=>String(row[k]??0)).join(';'))].join('\r\n');
     const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');
     a.href=url;a.download='Laporan_Publik_BankSampah_'+v25ReportPeriod+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);
@@ -4932,12 +4903,6 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       brand.setAttribute('aria-label','Bank Sampah Flamboyan 4, kembali ke portal publik');
       brand.onclick=back.onclick;brand.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();back.onclick();}};}
     const title=auth.querySelector('h1');if(title)title.textContent='Masuk akun';
-  })();
-  (function v26ExplainReport(){
-    const root=$('v25ReportRoot'),metrics=$('v25ReportMetrics');if(!root||!metrics||$('v26ReportExplanation'))return;
-    const explain=v21Node('p','v26-report-subtitle','✓ Data sah · ◷ Perkiraan terpisah · 🔒 Privasi');
-    explain.id='v26ReportExplanation';root.insertBefore(explain,metrics);
-    const prior=v25ReportData;if(prior)v25RenderReport(prior);
   })();
   // Admin: pembatalan batch final hanya melalui konfirmasi ID dan alasan audit.
   function v27SetupCancel(){
