@@ -32,6 +32,65 @@ if(target)target.classList.remove('hidden');
 };</script>
 </body></html>"""
 
+# Keep the member dashboard layout and white card palette under browser checks too.
+MEMBER_HTML = """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
+<base href="http://127.0.0.1:8765/">
+<link rel="stylesheet" href="/portal-live/bank-member-polish.css">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
+<style>body{margin:0;font-family:system-ui;background:#fff}.grid{display:grid;grid-template-columns:242px minmax(0,1fr)}
+.section{min-width:0;padding:0}#pageDashboard{padding:0}
+@media(max-width:760px){.grid{display:block}}</style></head>
+<body class="f4-bank-app-private f4-bank-app-member" data-f4-bank-role="warga">
+<div id="dashboardView"><div class="grid"><aside id="sideNav">Navigasi</aside><main class="section">
+<section id="pageDashboard" class="v14-home f4-member-dashboard">
+<div id="f4BankAppHome" data-bank-role="member">
+<div class="f4-bank-app-personal-greeting"><strong>Halo, Anggota!</strong></div>
+<button class="f4-bank-member-card"><span>BANK SAMPAH</span><span>W017</span></button>
+<button class="f4-bank-app-member-balance"><small>Saldo sah</small><strong>Rp 3.000</strong></button>
+<section class="f4-bank-weigh-schedule"><span>Jadwal timbang</span></section>
+<details id="f4MemberFlow" class="f4-member-flow" open><summary class="f4-member-flow-head">
+<span class="f4-member-flow-icon">✦</span><span class="f4-member-flow-copy"><strong>Cara setor sampah</strong><small>Pilah → Antar → Timbang → Saldo</small></span>
+<span class="f4-member-flow-toggle">Lihat alur</span></summary><div class="f4-member-flow-body">
+<ol class="f4-member-flow-steps">
+<li><span class="f4-member-flow-number">1</span><div><strong>Pilah di rumah</strong><p>Pisahkan sesuai jenis</p></div></li>
+<li><span class="f4-member-flow-number">2</span><div><strong>Antar ke gudang</strong><p>Datang saat ada petugas</p></div></li>
+<li><span class="f4-member-flow-number">3</span><div><strong>Timbang dan catat</strong><p>Petugas mencatat</p></div></li>
+<li><span class="f4-member-flow-number">4</span><div><strong>Saldo sah</strong><p>Setelah hasil jual disahkan</p></div></li>
+</ol></div></details>
+<section class="v14-panel"><h3>Setoran pribadi terbaru</h3><div class="f4-member-recent">27 Okt 2026 — Rp 2.250</div></section>
+</div></section></main></div></div></body></html>"""
+
+async def member_layout(browser):
+    for device,width in [("pc",1366),("hp",390)]:
+        page=await browser.new_page(viewport={"width":width,"height":850})
+        await page.set_content(MEMBER_HTML,wait_until="load")
+        result=await page.evaluate("""() => {
+            const rect=sel=>{const r=document.querySelector(sel).getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}};
+            const steps=[...document.querySelectorAll('#f4MemberFlow .f4-member-flow-steps>li')];
+            return {
+                recent:rect('#f4BankAppHome>.v14-panel'),
+                guide:rect('#f4MemberFlow'),
+                steps:steps.map(el=>({x:el.getBoundingClientRect().x,y:el.getBoundingClientRect().y})),
+                guideColor:getComputedStyle(document.querySelector('#f4MemberFlow')).backgroundColor,
+                stepColors:steps.map(el=>getComputedStyle(el).backgroundColor),
+                balanceColor:getComputedStyle(document.querySelector('#f4BankAppHome>.f4-bank-app-member-balance')).backgroundColor,
+                overflow:document.documentElement.scrollWidth>window.innerWidth+3
+            };
+        }""")
+        assert not result["overflow"],(device,result)
+        assert result["guideColor"]=="rgb(255, 255, 255)",(device,result)
+        assert result["balanceColor"]=="rgb(255, 255, 255)",(device,result)
+        assert all(c=="rgb(255, 255, 255)" for c in result["stepColors"]),(device,result)
+        if device=="pc":
+            assert result["recent"]["x"]<result["guide"]["x"],result
+            assert result["recent"]["w"]>result["guide"]["w"],result
+            assert abs(result["steps"][0]["y"]-result["steps"][1]["y"])<3,result
+        else:
+            assert result["guide"]["y"]<result["recent"]["y"],result
+            assert result["steps"][1]["y"]>result["steps"][0]["y"],result
+        print("MEMBER_LAYOUT_OK",device,result,flush=True)
+        await page.close()
+
 async def main():
     async with async_playwright() as p:
         browser=await p.chromium.launch(args=["--no-sandbox"])
@@ -80,6 +139,7 @@ async def main():
             await page.screenshot(path=f"ops-audit/bank-eco-theme/manager-{device}.png",full_page=True)
             print("MANAGER_RESPONSIVE_OK",device,state,flush=True)
             await page.close()
+        await member_layout(browser)
         await browser.close()
 if __name__=="__main__":
     asyncio.run(main())
