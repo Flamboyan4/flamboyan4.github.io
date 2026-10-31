@@ -1,9 +1,26 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="f4-bank-auth-pending">
 <head>
   <meta charset="utf-8">
   <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style id="f4-bank-startup-style">
+    /* Only one initial view is revealed, after Cloudflare session resolves. */
+    html.f4-bank-auth-pending body>.shell,
+    html.f4-bank-auth-pending body>#f4-direct-bar{visibility:hidden}
+    #f4-bank-startup{display:none}
+    html.f4-bank-auth-pending #f4-bank-startup{
+      position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;gap:12px;background:#f7fbf8;
+      color:#24583f;font:650 13px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif
+    }
+    #f4-bank-startup::before{
+      content:'';width:27px;height:27px;border:3px solid #d6e9dc;
+      border-top-color:#087a52;border-radius:50%;animation:f4-bank-start 700ms linear infinite
+    }
+    @keyframes f4-bank-start{to{transform:rotate(360deg)}}
+    @media(prefers-reduced-motion:reduce){#f4-bank-startup::before{animation:none}}
+  </style>
   <style>
     :root{--forest:#2e6146;--leaf:#537d59;--sage:#e9f0e6;--cream:#f8f9f4;--ink:#22372c;--muted:#64756b;--line:#dbe5d9;--orange:#e9ad63;--white:#fff}
     *{box-sizing:border-box}body{margin:0;font:15px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--cream);color:var(--ink)}button,input{font:inherit}button{cursor:pointer;border:0;border-radius:12px;padding:12px 16px;background:var(--forest);color:white;font-weight:650}button:disabled{opacity:.55;cursor:wait}button.secondary{background:var(--sage);color:var(--forest)}button.ghost{background:transparent;color:var(--forest);border:1px solid var(--line)}button.warning{background:#f5e7d4;color:#75521c}input{width:100%;padding:13px 12px;border:1px solid #c8d7cb;border-radius:11px;background:white;color:var(--ink);outline-color:var(--leaf)}label{display:block;font-weight:600;margin-bottom:6px;font-size:13px}.field{margin:0 0 15px}.hint{font-size:12px;color:var(--muted);margin-top:5px}.shell{max-width:1100px;margin:auto;min-height:100vh}.top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:17px 22px;background:#fff;border-bottom:1px solid var(--line)}.brand{font-weight:800;color:var(--forest);display:flex;gap:12px;align-items:center}.logo{display:grid;place-items:center;width:43px;height:43px;background:var(--sage);border-radius:14px;font-size:23px}.sub{font-weight:500;font-size:12px;color:var(--muted)}.content{padding:26px 18px 60px}.auth{max-width:440px;margin:32px auto}.card{background:white;border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:0 8px 26px rgba(36,78,46,.045)}h1{font-size:25px;margin:0 0 6px;line-height:1.2}h2{font-size:20px;margin:0 0 12px}.desc{color:var(--muted);margin:0 0 23px}.switch{display:flex;gap:6px;background:var(--sage);padding:5px;border-radius:13px;margin-bottom:22px}.switch button{flex:1;background:transparent;color:var(--forest);padding:9px 6px}.switch button.active{background:white;box-shadow:0 2px 7px #3363451a}.wide{width:100%}.notice{border-radius:12px;padding:12px 14px;margin:14px 0;font-size:13px;background:#eaf1e8;color:var(--forest);overflow-wrap:anywhere}.notice.error{background:#fff0e7;color:#96551f}.hidden{display:none!important}#v11Public.v18-public-shell.hidden{display:none!important}.grid{display:grid;grid-template-columns:240px 1fr;gap:22px}.side{background:white;border:1px solid var(--line);border-radius:18px;padding:18px;height:max-content}.side button{width:100%;margin:4px 0;text-align:left}.side .active{background:var(--forest);color:white}.section{min-width:0}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.stat{padding:16px;background:var(--sage);border-radius:15px}.stat small{color:var(--muted)}.stat strong{display:block;font-size:17px;margin-top:7px;overflow-wrap:anywhere}.tag{display:inline-block;padding:4px 10px;background:var(--sage);color:var(--forest);border-radius:99px;font-size:12px;font-weight:650}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.tablewrap{overflow:auto;margin-top:12px}table{border-collapse:collapse;width:100%;min-width:640px}th,td{padding:13px 11px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}th{font-size:12px;color:var(--muted);background:var(--cream)}td{font-size:13px}td button{padding:8px 10px;font-size:12px}.code{font-size:20px;letter-spacing:2px;font-weight:800;overflow-wrap:anywhere}.tiny{font-size:12px;color:var(--muted)}.footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}.mobile-nav{display:none}
@@ -1804,6 +1821,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
 <link rel="stylesheet" href="/portal-live/bank-progress-app.css?v=20261031-chart-grid-v4">
 </head>
 <body>
+<div id="f4-bank-startup" role="status" aria-live="polite">Memuat Bank Sampah…</div>
 <div class="shell">
   <header class="top"><div class="brand"><div class="logo"><img src="/assets/logo-flamboyan.svg?v=official-20261027-v2" alt="Logo resmi Flamboyan 4" width="35" height="35" style="object-fit:contain"></div><div>Bank Sampah Flamboyan 4<div class="sub">Portal akun warga dan administrator</div></div></div></header>
   <main class="content">
@@ -2776,7 +2794,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   async function v11SaveMedia(e){e.preventDefault();busy(e.target,true);try{const r=await call('bsV20TambahMedia',token,{albumId:$('v11MediaAlbum').value,jenis:$('v11MediaType').value,url:$('v11MediaURL').value,caption:$('v11MediaCaption').value});note('v11MediaNotice','Dokumentasi '+r.id+' ditambahkan.');e.target.reset();v20MediaTypeChange();await v11LoadAlbums();}catch(err){note('v11MediaNotice','Gagal: '+(err.message||err),true);}finally{busy(e.target,false);}}
   async function v11LoadInventory(){/* Form tidak membutuhkan data personal; inventaris publik dimuat di beranda. */}
   async function v11SaveInventory(e){e.preventDefault();busy(e.target,true);try{const r=await call('bsV11TambahInventaris',token,{nama:$('v11InvName').value,jumlah:$('v11InvAmount').value+' '+$('v11InvUnit').value.trim(),kategori:$('v11InvCategory').value,lokasi:$('v11InvLocation').value,foto:$('v11InvPhoto').value});note('v11InvNotice',r.id+' tersimpan.');e.target.reset();}catch(err){note('v11InvNotice','Gagal: '+(err.message||err),true);}finally{busy(e.target,false);}}
-  (async()=>{v8Setup();v9Setup();v10Setup();v11Setup();const entry=document.createElement('button');entry.className='secondary wide';entry.textContent='Lihat portal publik';entry.onclick=v11ShowPublic;$('authNotice').before(entry);const nav=document.createElement('button');nav.id='navPublic';nav.className='secondary';nav.textContent='Info Bank Sampah';nav.onclick=v11ShowPublic;$('navProgress').after(nav);if(token){try{showDashboard(await call('authMe',token));}catch(e){showAuth();v11ShowPublic();}}else v11ShowPublic();})();
+  (async()=>{v8Setup();v9Setup();v10Setup();v11Setup();const entry=document.createElement('button');entry.className='secondary wide';entry.textContent='Lihat portal publik';entry.onclick=v11ShowPublic;$('authNotice').before(entry);const nav=document.createElement('button');nav.id='navPublic';nav.className='secondary';nav.textContent='Info Bank Sampah';nav.onclick=v11ShowPublic;$('navProgress').after(nav);if(token){try{showDashboard(await call('authMe',token));}catch(e){showAuth();v11ShowPublic();}}else if(!document.documentElement.classList.contains('f4-bank-auth-pending'))v11ShowPublic();})();
   // v12 — hanya menampilkan rincian pribadi dari sesi warga yang sedang aktif.
   let v12Data=null;
   const v12Show=showDashboard,v12Go=goPage,v12Auth=showAuth;
@@ -5356,6 +5374,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     };
   }
   function activate(role,account){
+    try{
     const matching=profile&&currentRole===role;
     currentRole=role||'public';identity=account||{};
     document.body.dataset.f4BankRole=currentRole;
@@ -5394,6 +5413,10 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     pendingSection='';
     if(pendingProfile){openOriginalProfile();return;}
     if(requested&&['admin','superadmin'].includes(currentRole))openAdmin(requested);
+    }finally{
+      // Release initial screen only after the selected public/private view is ready.
+      document.documentElement.classList.remove('f4-bank-auth-pending');
+    }
   }
   function openAdmin(section){
     const allowed=['dashboard','setoran','riwayat','penjualan','riwayatJual','rekonsiliasi','pengesahan','tabungan','biaya','laporan','kegiatan','dokumentasi','inventaris','master','admin','progress'];
