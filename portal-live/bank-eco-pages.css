@@ -860,7 +860,6 @@ body.f4-bank-embedded #dashboardView .section,
 #dashboardView .f4-bank-weigh-copy span{font-size:11px;color:#5d7865}
 
 #dashboardView .f4-bank-savings-payout{margin-top:7px;justify-self:stretch;min-height:42px}
-#dashboardView .f4-bank-report-open{width:100%;min-height:38px;margin-bottom:14px;padding:9px 12px;border:1px solid #dce9df;border-radius:10px;background:#fff;color:#1d6243;font-size:12px;font-weight:800}
 #dashboardView .f4-bank-history-icon.is-deposit{background:#e3f8ec;color:#0b8a59}
 #dashboardView .f4-bank-history-amount.is-deposit strong{color:#128052}
 
