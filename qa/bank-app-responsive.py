@@ -157,6 +157,57 @@ async def savings_chart(browser):
     print("SAVINGS_CHART_OK",state,period,money,monthly_money,flush=True)
     await page.close()
 
+async def admin_mobile_shell(browser):
+    """Fixed unified header and bottom dock must remain stationary on Android-sized viewports."""
+    page=await browser.new_page(viewport={"width":390,"height":820},device_scale_factor=1)
+    html="""<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" href="/portal-live/direct-shell.css">
+    <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
+    </head><body class="f4-direct-bank f4-bank-app-private f4-bank-app-admin v17-dashboard">
+    <div id="f4-direct-bar">Header tetap</div>
+    <div id="dashboardView">
+     <div class="mobile-nav">Header lama</div>
+     <div class="grid">
+      <aside id="sideNav" class="side"><div id="v16NavList">
+       <button class="v16-item" data-group="home">Beranda</button>
+       <button class="v16-item" data-group="entry">Pencatatan</button>
+       <button class="v16-item" data-group="money">Keuangan</button>
+       <button class="v16-item v16-mobile-extra" data-route="riwayat">Riwayat setoran</button>
+       <button class="v16-item v16-mobile-extra" data-route="pengesahan">Sahkan hasil</button>
+       <button class="v16-item" data-group="payout">Pencairan</button>
+      </div></aside>
+      <main class="section" style="min-height:2400px">Halaman panjang</main>
+     </div>
+    </div>
+    <nav id="f4BankAppDock" class="f4-bank-app-dock"><button>Beranda</button></nav>
+    </body></html>"""
+    await page.goto(ROOT,wait_until="domcontentloaded")
+    await page.set_content(html,wait_until="load")
+    await page.evaluate("window.scrollTo(0, 750)")
+    await page.wait_for_timeout(100)
+    state=await page.evaluate("""() => {
+      const top=document.querySelector('#f4-direct-bar').getBoundingClientRect();
+      const bottom=document.querySelector('#f4BankAppDock').getBoundingClientRect();
+      const nav=document.querySelector('#v16NavList');
+      return {
+        scroll:scrollY,
+        headerY:top.y,
+        headerPosition:getComputedStyle(document.querySelector('#f4-direct-bar')).position,
+        legacyDisplay:getComputedStyle(document.querySelector('#dashboardView .mobile-nav')).display,
+        dockBottom:bottom.bottom,
+        visible:[...nav.querySelectorAll('button')].filter(b=>getComputedStyle(b).display!=='none').map(b=>b.textContent),
+        horizontalOverflow:document.documentElement.scrollWidth>innerWidth+3
+      };
+    }""")
+    assert state["scroll"]>500,state
+    assert abs(state["headerY"])<1 and state["headerPosition"]=="fixed",state
+    assert abs(state["dockBottom"]-820)<2,state
+    assert state["legacyDisplay"]=="none",state
+    assert state["visible"]==["Riwayat setoran","Sahkan hasil","Pencairan"],state
+    assert not state["horizontalOverflow"],state
+    print("ADMIN_MOBILE_SCROLL_OK",state,flush=True)
+    await page.close()
+
 async def main():
     async with async_playwright() as p:
         browser=await p.chromium.launch(args=["--no-sandbox"])
@@ -207,6 +258,7 @@ async def main():
             await page.close()
         await member_layout(browser)
         await savings_chart(browser)
+        await admin_mobile_shell(browser)
         await browser.close()
 if __name__=="__main__":
     asyncio.run(main())
