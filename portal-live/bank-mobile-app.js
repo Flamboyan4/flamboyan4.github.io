@@ -24,8 +24,9 @@ async function api(path,payload){
   return body;
 }
 const adminDock=[
-  ["Beranda","dashboard","home.svg"],["Setoran","setoran","bank.svg"],
-  ["Laporan","laporan","book.svg"],["Penjualan","penjualan","cash.svg"],["Saldo","tabungan","pay.svg"]
+  ["Beranda","dashboard","home.svg"],["Saldo","tabungan","pay.svg"],
+  ["Setoran","setoran","bank.svg"],["Penjualan","penjualan","cash.svg"],
+  ["Laporan","laporan","book.svg"]
 ];
 const memberDock=[
  ["Beranda","dashboard","home.svg"],["Tabungan","pribadi","cash.svg"],
@@ -39,7 +40,7 @@ let ready=false,requestNonce="",requestEnabled=false;
 let memberStatement=null,memberChartMode="kg",memberChartGroup="period";
 let adminOverview=null;
 let refreshing=false;
-const custom=["bank-history","bank-payout","bank-report","bank-payout-admin"];
+const custom=["bank-history","bank-payout","bank-report","bank-payout-admin","bank-admin-history"];
 const featureRoutes=["bank-member-progress","bank-member-info","bank-member-docs"];
 let moved=[],memberSnapshotsLoaded=false,snapshotBusy=false,snapshotObserver=null;
 const text=(id,val)=>{if($(id)&&$(id).textContent!==String(val))$(id).textContent=String(val)};
@@ -68,7 +69,7 @@ function dock(){
 function markDock(){
  const nav=dock();
  for(const b of nav.querySelectorAll("[data-bank-app-route]")){
-  const selected=b.dataset.bankAppRoute===screen || (role==="admin"&&b.dataset.bankAppRoute==="menu"&&!["dashboard","setoran","penjualan","tabungan"].includes(screen));
+  const selected=b.dataset.bankAppRoute===screen;
   b.classList.toggle("is-active",selected);
   if(selected)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");
  }
@@ -835,6 +836,154 @@ function moveFeature(ids,target){
   const node=$(id);if(!node?.parentNode)continue;
   const anchor=document.createComment("Restore "+id);node.before(anchor);
   moved.push({node,anchor});target.append(node);
+ }
+}
+/* Pengurus: mobile dock + aksi cepat; PC sidebar tetap terpisah dari submenu. */
+const adminShortcuts=[
+ ["Riwayat","bank-admin-history","clock.svg"],
+ ["Cek & Sahkan","rekonsiliasi","book.svg"],
+ ["Pengeluaran","biaya","cash.svg"],
+ ["Pencairan","bank-payout-admin","pay.svg"],
+ ["Harga Barang","master","bank.svg"],
+ ["Data Anggota","admin","home.svg"],
+ ["Profil Pengurus","profile","pay.svg"]
+];
+let adminProgressAnchor=null,adminProgressNode=null,adminLastRoute="dashboard";
+function ensureAdminHome(){
+ if(role!=="admin")return;
+ const home=$("f4BankAppHome");if(!home)return;
+ let shortcuts=$("f4BankAdminShortcuts");
+ if(!shortcuts){
+  shortcuts=el("section","f4-bank-admin-shortcuts");shortcuts.id="f4BankAdminShortcuts";
+  shortcuts.append(el("h2","","Akses Cepat"));
+  const grid=el("div","f4-bank-admin-shortcut-grid");
+  grid.append(...adminShortcuts.map(entry=>action(entry)));
+  shortcuts.append(grid);
+  home.insertBefore(shortcuts,home.querySelector(".v14-panel")||null);
+ }
+ // Memindahkan grafik yang sama, bukan membuat grafik versi kedua.
+ const progress=$("v17Perkembangan");
+ if(progress&&progress.parentElement!==home){
+  if(!adminProgressAnchor||!adminProgressAnchor.isConnected){
+   adminProgressAnchor=document.createComment("Grafik publik kembali di sini");
+   progress.before(adminProgressAnchor);
+  }
+  adminProgressNode=progress;
+  home.append(progress);
+  if(typeof window.v17LoadPublic==="function")window.v17LoadPublic();
+ }
+}
+function restoreAdminProgress(){
+ if(adminProgressNode&&adminProgressAnchor?.parentNode)
+  adminProgressAnchor.replaceWith(adminProgressNode);
+ adminProgressNode=null;adminProgressAnchor=null;
+}
+function showAdminHistory(selected="setoran"){
+ const page=ensureScreen("bank-admin-history","Riwayat");
+ let tabs=$("f4BankAdminHistoryTabs");
+ if(!tabs){
+  tabs=el("div","f4-bank-admin-history-tabs");tabs.id="f4BankAdminHistoryTabs";
+  page.append(tabs);
+ }
+ const setoran=$("pageRiwayat"),penjualan=$("pageRiwayatJual");
+ for(const panel of [setoran,penjualan])if(panel?.parentNode!==page)page.append(panel);
+ const options=[["setoran","Setoran",setoran],["penjualan","Penjualan",penjualan]];
+ tabs.replaceChildren(...options.map(([key,label])=>{
+  const button=el("button","f4-bank-admin-history-tab"+(selected===key?" is-active":""),label);
+  button.type="button";button.setAttribute("aria-pressed",String(selected===key));
+  button.onclick=()=>showAdminHistory(key);
+  return button;
+ }));
+ for(const [key,,panel] of options)panel?.classList.toggle("hidden",key!==selected);
+ page.classList.remove("hidden");
+ if(selected==="setoran")window.loadRiwayatV7?.();
+ else window.loadRiwayatJual?.();
+}
+function combineAdminApproval(){
+ const root=$("pageRekonsiliasi"),approval=$("pagePengesahan");
+ if(!root||!approval)return;
+ const heading=root.querySelector(":scope > h2");
+ if(heading)heading.textContent="Cek Selisih & Sahkan Hasil";
+ if(approval.parentNode!==root)root.append(approval);
+ approval.classList.remove("hidden");
+ approval.classList.add("f4-bank-admin-approval");
+ const reconPicker=$("reconBatch")?.closest(".field");
+ if(reconPicker)reconPicker.hidden=true;
+ const selection=$("v8Batch");
+ const preview=$("reconResult");
+ if(selection&&preview&&preview.previousElementSibling!==selection.closest(".field"))
+  selection.closest(".field")?.after(preview);
+ if(selection&&!selection.dataset.f4ReconBound){
+  selection.dataset.f4ReconBound="1";
+  selection.addEventListener("change",()=>{
+   const other=$("reconBatch");
+   if(!other)return;
+   if(selection.value&&![...other.options].some(o=>o.value===selection.value))
+    other.add(new Option(selection.options[selection.selectedIndex]?.text||selection.value,selection.value));
+   other.value=selection.value;
+   window.loadRekonsiliasi?.();
+  });
+ }
+ if(typeof window.v8LoadBatches==="function")window.v8LoadBatches();
+}
+function ensureAdminProfile(){
+ if(role!=="admin")return;
+ const page=$("pageProfile");if(!page)return;
+ const heading=page.querySelector(".f4-profile-header h2");
+ if(heading)heading.textContent="Profil Pengurus";
+ const label=page.querySelector(".f4-profile-identity small");
+ if(label)label.textContent="Nama tampilan";
+ const name=$("pName");
+ if(name&&!$("f4BankAdminNameEdit")){
+  const row=el("div","f4-bank-admin-name-row");
+  name.before(row);row.append(name);
+  const edit=el("button","f4-bank-admin-name-edit");
+  edit.id="f4BankAdminNameEdit";edit.type="button";
+  edit.setAttribute("aria-label","Edit nama tampilan");edit.title="Edit nama";
+  edit.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16 4a2 2 0 0 1 3 3L9 17l-4 1 1-4L16 4Z"/></svg>';
+  row.append(edit);
+  const form=el("form","f4-bank-admin-name-form");form.hidden=true;
+  const input=el("input");input.type="text";input.maxLength=100;input.minLength=2;
+  input.setAttribute("aria-label","Nama tampilan pengurus");input.required=true;
+  const save=el("button","f4-bank-gold-action","Simpan");save.type="submit";
+  const cancel=el("button","f4-bank-secondary-action","Batal");cancel.type="button";
+  const status=el("small","f4-bank-admin-name-status");
+  form.append(input,save,cancel,status);row.after(form);
+  function editing(active){
+   form.hidden=!active;row.hidden=active;
+   if(active){input.value=name.textContent.trim();status.textContent="";input.focus();}
+  }
+  edit.onclick=()=>editing(true);
+  cancel.onclick=()=>editing(false);
+  form.onsubmit=async event=>{
+   event.preventDefault();
+   const value=input.value.trim().replace(/\\s+/g," ");
+   if(value.length<2||value.length>100||/[<>\x00-\x1f]/.test(value)){
+    status.textContent="Nama harus 2–100 karakter.";return;
+   }
+   save.disabled=true;status.textContent="Menyimpan...";
+   try{
+    const result=await api("/api/member/profile",{nama:value});
+    const saved=String(result.profile?.nama||value);
+    name.textContent=saved;
+    const greeting=$("greeting");if(greeting)greeting.textContent="Halo, "+saved;
+    const welcome=$("f4BankAppWelcome")?.querySelector("strong");if(welcome)welcome.textContent=saved;
+    window.dispatchEvent(new CustomEvent("f4-account-profile-updated",{detail:{nama:saved}}));
+    editing(false);
+   }catch(error){status.textContent=error.message||"Nama gagal disimpan.";}
+   finally{save.disabled=false;}
+  };
+ }
+ const password=$("pagePassword");
+ if(password){
+  let details=$("f4BankAdminPassword");
+  if(!details){
+   details=el("details","f4-bank-admin-profile-password");details.id="f4BankAdminPassword";
+   details.append(el("summary","","Ganti Password"));
+   page.append(details);
+  }
+  if(password.parentNode!==details)details.append(password);
+  password.classList.remove("hidden");
  }
 }
 function memberSide(enabled){
