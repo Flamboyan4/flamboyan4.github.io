@@ -1,4 +1,4 @@
-/* Bank Sampah — Perkembangan publik, satu komponen khusus. Tanpa !important. */
+/* Bank Sampah — Perkembangan publik: satu komponen, tanpa override prioritas. */
 #v17Perkembangan.f4-dev{margin-top:22px;scroll-margin-top:85px;color:#163c2c}
 #v17Perkembangan .f4-dev-intro{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
 #v17Perkembangan .f4-dev-kicker{display:block;color:#12815c;font-size:10px;font-weight:850;letter-spacing:.15em;margin-bottom:2px}
