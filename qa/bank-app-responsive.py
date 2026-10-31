@@ -480,6 +480,69 @@ async def member_profile_inline_name(browser):
     await page.close()
 
 
+async def member_profile_dropdown_chevrons(browser):
+    """Foto profil/password accordion must render identical right-side chevrons on HP/PC."""
+    from pathlib import Path
+    import re
+    source=Path("bank-sampah/index.html").read_text(encoding="utf-8")
+    main_style=re.search(r'<style>(.*?)</style>',source,re.S)
+    if not main_style: raise AssertionError("Base Bank Sampah CSS missing")
+    for size in (390,768,1366):
+        page=await browser.new_page(viewport={"width":size,"height":820})
+        markup="""<!doctype html><html lang="id"><head>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <base href="http://127.0.0.1:8765/">
+        <style>"""+main_style.group(1)+"""</style>
+        <link rel="stylesheet" href="/portal-live/bank-eco-pages.css"></head>
+        <body class="f4-direct-bank"><main id="dashboardView">
+        <section id="pageProfile" class="card f4-profile-card" style="max-width:750px">
+          <details id="v15PhotoPanel" class="f4-profile-edit">
+            <summary>Ubah foto profil</summary><p>Form foto</p>
+          </details>
+          <details id="v15PasswordBox">
+            <summary>Ganti password</summary><form><input type="password"></form>
+          </details>
+        </section></main></body></html>"""
+        await page.goto(ROOT,wait_until="domcontentloaded")
+        await page.set_content(markup,wait_until="load")
+        def probe():
+            return """() => {
+              const ids=['v15PhotoPanel','v15PasswordBox'];
+              return ids.map(id=>{
+                const section=document.getElementById(id),summary=section.querySelector('summary');
+                const block=summary.getBoundingClientRect(),after=getComputedStyle(summary,'::after');
+                const own=getComputedStyle(summary),marker=getComputedStyle(summary,'::marker');
+                return {id,open:section.open,display:own.display,listStyle:own.listStyleType,
+                  paddingRight:own.paddingRight,paddingLeft:own.paddingLeft,
+                  afterContent:after.content,afterRight:after.right,afterTransform:after.transform,
+                  markerContent:marker.content,summaryRight:block.right,
+                  text:summary.textContent.trim()};
+              });
+            }"""
+        closed=await page.evaluate(probe())
+        assert all(x["display"]=="block" and x["listStyle"]=="none" for x in closed),(size,closed)
+        assert all(x["afterContent"] not in ("none","normal") for x in closed),(size,closed)
+        assert all(x["afterRight"]=="16px" for x in closed),(size,closed)
+        assert all(x["paddingRight"]==closed[0]["paddingRight"] and
+                   x["paddingLeft"]==closed[0]["paddingLeft"] for x in closed),(size,closed)
+        assert all(x["markerContent"] in ('""',"none") for x in closed),(size,closed)
+        assert closed[0]["afterTransform"]==closed[1]["afterTransform"],(size,closed)
+        assert closed[0]["text"]=="Ubah foto profil" and closed[1]["text"]=="Ganti password",(size,closed)
+        await page.locator("#v15PhotoPanel summary").click()
+        await page.locator("#v15PasswordBox summary").click()
+        opened=await page.evaluate(probe())
+        assert all(x["open"] for x in opened),(size,opened)
+        assert opened[0]["afterTransform"]==opened[1]["afterTransform"],(size,opened)
+        assert opened[0]["afterTransform"]!=closed[0]["afterTransform"],(size,closed,opened)
+        await page.locator("#v15PasswordBox summary").focus()
+        await page.keyboard.press("Enter")
+        assert not await page.locator("#v15PasswordBox").evaluate("(node)=>node.open"),size
+        overflow=await page.evaluate("document.documentElement.scrollWidth>innerWidth+3")
+        assert not overflow,(size,closed,opened)
+        print("MEMBER_PROFILE_ACCORDION_PARITY_OK",size,closed,opened,flush=True)
+        await page.close()
+
+
 async def main():
     async with async_playwright() as p:
         browser=await p.chromium.launch(args=["--no-sandbox"])
@@ -534,6 +597,7 @@ async def main():
         await public_chart_and_flat_roster(browser)
         await public_report_compact(browser)
         await member_profile_inline_name(browser)
+        await member_profile_dropdown_chevrons(browser)
         await browser.close()
 if __name__=="__main__":
     asyncio.run(main())
