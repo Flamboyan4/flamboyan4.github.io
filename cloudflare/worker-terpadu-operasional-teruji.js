@@ -179,7 +179,46 @@ async function publicBankReport(db, url) {
   const bulanan=periodeTersedia.filter(m=>!month||m===month).map(m=>byMonth.get(m));
   const summary={batch:0,beratKg:0,hasilPenjualan:0,hakWarga:0,cadangan:0,kasLorong:0,operasional:0,pengeluaran:0,pendingCount:0,pendingEstimateRp:0,pendingWeightKg:0};
   for(const row of bulanan)for(const key of Object.keys(summary))summary[key]+=row[key];
-  return ok({period:month||'semua',ringkasan:summary,bulanan,periodeTersedia,
+  // Grafik 7/30 hari: hanya agregat publik, tanpa anggota/ID transaksi.
+  // Periode harian mengikuti tanggal WIB agar batas hari sama dengan tampilan warga.
+  const [dailySales,dailyPending]=await Promise.all([
+    list(db,`SELECT s.sold_on AS tanggal,
+      COALESCE(SUM(a.received_rp),0) AS hasilPenjualan,
+      COALESCE(SUM((SELECT COALESCE(SUM(l.grams),0)/1000.0
+        FROM waste_sale_lines l WHERE l.sale_id=s.id)),0) AS beratKg
+      FROM waste_allocations a
+      JOIN waste_batches b ON b.id=a.batch_id AND b.status='disahkan'
+      JOIN waste_sales s ON s.batch_id=a.batch_id AND s.status='terkonfirmasi'
+      WHERE s.sold_on BETWEEN date('now','+7 hours','-29 days') AND date('now','+7 hours')
+      GROUP BY s.sold_on ORDER BY s.sold_on`),
+    list(db,`SELECT d.deposited_on AS tanggal,
+      COALESCE(SUM(d.total_grams),0)/1000.0 AS pendingWeightKg,
+      COALESCE(SUM(d.estimated_total_rp),0) AS pendingEstimateRp
+      FROM waste_deposits d JOIN waste_batches b ON b.id=d.batch_id
+      WHERE d.status='estimasi' AND b.status IN ('draft','siap')
+        AND d.deposited_on BETWEEN date('now','+7 hours','-29 days') AND date('now','+7 hours')
+      GROUP BY d.deposited_on ORDER BY d.deposited_on`)
+  ]);
+  const dailyMap=new Map();
+  const dailyRow=date=>{
+    if(!dailyMap.has(date))dailyMap.set(date,{tanggal:date,beratKg:0,hasilPenjualan:0,pendingWeightKg:0,pendingEstimateRp:0});
+    return dailyMap.get(date);
+  };
+  for(const entry of dailySales){
+    const row=dailyRow(String(entry.tanggal||''));
+    row.beratKg=Number(entry.beratKg||0);
+    row.hasilPenjualan=Number(entry.hasilPenjualan||0);
+  }
+  for(const entry of dailyPending){
+    const row=dailyRow(String(entry.tanggal||''));
+    row.pendingWeightKg=Number(entry.pendingWeightKg||0);
+    row.pendingEstimateRp=Number(entry.pendingEstimateRp||0);
+  }
+  const harian=[...dailyMap.values()].sort((a,b)=>a.tanggal.localeCompare(b.tanggal));
+  if(harian.some(row=>!Number.isSafeInteger(row.hasilPenjualan)||!Number.isSafeInteger(row.pendingEstimateRp)||
+    row.hasilPenjualan<0||row.pendingEstimateRp<0||!Number.isFinite(row.beratKg)||!Number.isFinite(row.pendingWeightKg)))
+    return err('Rekap harian belum dapat diperiksa.',409);
+  return ok({period:month||'semua',ringkasan:summary,bulanan,harian,periodeTersedia,
     readOnly:true,source:'cloudflare-d1',
     notice:'Hasil jual hanya dari transaksi sah. Perkiraan menunggu disajikan terpisah dan tidak masuk saldo.'});
 }
