@@ -664,7 +664,7 @@ body.f4-bank-embedded #dashboardView .section,
  body.f4-bank-app-private #pagePribadi>.desc{display:none}
  body.f4-bank-app-private #pagePribadi #v12Private>.f4-bank-savings-chart{margin-top:0}
  /* Navigasi bawah tunggal: tab aktif hijau dan tombol tengah terangkat.
-    Satu sumber aturan, tanpa CSS penambal maupun !important. */
+    Satu sumber aturan, tanpa CSS penambal dan deklarasi prioritas. */
  body.f4-bank-app-private .f4-bank-app-dock:not([hidden]){
   position:fixed;inset:auto 0 0;z-index:55;box-sizing:border-box;
   display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
