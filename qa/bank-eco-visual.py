@@ -10,15 +10,18 @@ FIXTURE = """
 <div id="v11Public" class="v18-public-shell">
   <aside id="v18PublicSide" class="open"><button class="active">Beranda</button><button>Program</button></aside>
   <div id="v18PublicContent"><main class="v17-public-main">
-    <section class="v17-public-banner v27-banner-program">
+    <section class="v17-public-banner">
       <div><span class="v14-eyebrow">DARI RUMAH, UNTUK BUMI</span>
         <h2>Sampah terpilah. Manfaat bertambah.</h2>
         <p>Informasi lingkungan dan sampah warga.</p>
         <button id="f4-public-manage-bank">Kelola Bank Sampah</button>
         <button id="f4-public-my-savings">Lihat Tabungan Saya</button>
-        <div id="v17Program"><div class="v17-feature"><strong>Pemilahan & setoran</strong></div></div>
       </div>
     </section>
+    <section id="v17Program" class="f4-bank-program"><div class="f4-bank-program-heading"><h2>Dari sampah jadi manfaat</h2></div>
+      <ol class="f4-bank-program-flow"><li class="f4-bank-program-step"><strong>Pilah & setor</strong><p>Warga timbang sampah</p></li>
+      <li class="f4-bank-program-step"><strong>Jual & sahkan</strong><p>Pengurus menyahkan</p></li>
+      <li class="f4-bank-program-step"><strong>Tabungan & lingkungan</strong><p>Bagi hasil</p></li></ol></section>
     <section id="v17Transparansi"><div id="v25ReportRoot">
       <div id="v25ReportMetrics" class="v25-public-metrics v26-compact">
         <div class="v17-public-metric"><small>Berat</small><strong>2 kg</strong></div>
@@ -57,7 +60,27 @@ async def main():
         for mode, width in [("pc", 1366), ("hp", 390)]:
             page = await browser.new_page(viewport={"width": width, "height": 840}, device_scale_factor=1)
             await page.goto(ROOT, wait_until="domcontentloaded", timeout=45000)
-            await page.wait_for_timeout(1100)
+            await page.wait_for_selector("#v17Program.f4-bank-program .f4-bank-program-step", timeout=12000)
+            live = await page.evaluate("""() => {
+              const section=document.querySelector('#v17Program');
+              const steps=[...section.querySelectorAll('.f4-bank-program-step')];
+              const rect=section.getBoundingClientRect();
+              return {
+                parent:section.parentElement.className,
+                count:steps.length,
+                color:getComputedStyle(steps[0].querySelector('strong')).color,
+                background:getComputedStyle(steps[0]).backgroundColor,
+                width:rect.width,
+                cropped:steps.some(el=>el.getBoundingClientRect().right>rect.right+2),
+                columns:getComputedStyle(section.querySelector('.f4-bank-program-flow')).gridTemplateColumns.split(' ').length
+              };
+            }""")
+            print("PUBLIC_PROGRAM_LIVE_OK",mode,live,flush=True)
+            assert live["parent"]=="v17-public-main",live
+            assert live["count"]==3 and not live["cropped"],live
+            assert live["color"]=="rgb(18, 63, 43)",live
+            assert live["background"]=="rgba(0, 0, 0, 0)",live
+            assert live["columns"]==(1 if mode=="hp" else 3),live
             await page.screenshot(path=str(DEST / (mode+"-public.png")), full_page=False)
             # Render a deterministic fixture in a new document: the live app
             # otherwise continues mutating the DOM after replacing body.innerHTML.
@@ -86,8 +109,12 @@ async def main():
                 buttonText:color('#f4-public-manage-bank','color'),
                 savingsButton:color('#f4-public-my-savings','backgroundColor'),
                 savingsButtonText:color('#f4-public-my-savings','color'),
-                feature:color('#v17Program .v17-feature','backgroundColor'),
-                featureText:color('#v17Program .v17-feature strong','color'),
+                feature:color('#v17Program .f4-bank-program-step','backgroundColor'),
+                featureText:color('#v17Program .f4-bank-program-step strong','color'),
+                programParent:e('#v17Program').parentElement.className,
+                programWidth:r('#v17Program').width,
+                programColumns:getComputedStyle(e('#v17Program .f4-bank-program-flow')).gridTemplateColumns.split(' ').length,
+                programNoOverflow:[...document.querySelectorAll('#v17Program .f4-bank-program-step')].every(n=>n.getBoundingClientRect().right <= r('#v17Program').right+1),
                 submenu:color('#v16Tabs button.active','backgroundColor'),
                 firstCard:color('#pagePribadi .stat:first-child','backgroundColor'),
                 firstText:color('#pagePribadi .stat:first-child strong','color'),
@@ -109,7 +136,10 @@ async def main():
             assert state["savingsButton"] == state["button"], f"{mode}: savings CTA not same gold"
             assert state["savingsButtonText"] == "rgb(255, 255, 255)", f"{mode}: savings CTA text not white"
             assert state["feature"] == "rgba(0, 0, 0, 0)", f"{mode}: program steps should be unboxed"
-            assert state["featureText"] == "rgb(255, 255, 255)", f"{mode}: program step contrast not white"
+            assert state["featureText"] == "rgb(18, 63, 43)", f"{mode}: program labels should be dark green on white"
+            assert state["programParent"] == "v17-public-main", f"{mode}: program was moved back inside hero"
+            assert state["programWidth"] <= width and state["programNoOverflow"], f"{mode}: program overflows or clips"
+            assert state["programColumns"] == (1 if mode=="hp" else 3), f"{mode}: program grid mismatch"
             assert state["submenu"] == "rgb(8, 124, 80)", f"{mode}: submenu inactive color"
             assert state["firstCard"] == "rgb(255, 255, 255)", f"{mode}: legacy member summary not white"
             assert state["firstText"] == "rgb(11, 87, 56)", f"{mode}: legacy member summary not deep green"
