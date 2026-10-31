@@ -201,6 +201,7 @@ function ensureHome(){
  const legacyPanels=page.querySelector(".v14-panels");
  if(legacyPanels&&legacyPanels.parentElement!==reservoir)reservoir.append(legacyPanels);
  updateDashboard();
+ if(role==="admin")ensureAdminHome();
 }
 function dashboardMetrics(){
  const map=new Map();
@@ -1130,6 +1131,25 @@ function navigate(route){
  if(typeof window.goPage==="function")window.goPage(route);
 }
 function handleRoute(route,old,args){
+ // Dedicated operational pages for admins; keep existing data and action handlers.
+ if(roleType()==="admin"){
+  if(["riwayat","riwayatJual"].includes(route))route="bank-admin-history";
+  if(route==="pengesahan")route="rekonsiliasi";
+  if(["kegiatan","dokumentasi","inventaris","progress","public"].includes(route))route="dashboard";
+  if(route==="bank-admin-history"){
+   hideCustom();old.call(window,"riwayat",...args);
+   showAdminHistory();screen=route;
+   window.v16Sync?.(route);markDock();window.scrollTo(0,0);return;
+  }
+  if(route==="rekonsiliasi"){
+   hideCustom();old.call(window,route,...args);
+   combineAdminApproval();screen=route;markDock();window.scrollTo(0,0);return;
+  }
+  if(route==="profile"){
+   hideCustom();old.call(window,route,...args);
+   ensureAdminProfile();screen=route;markDock();window.scrollTo(0,0);return;
+  }
+ }
  // Navigating between member pages always starts with a visible header and sidebar brand.
  if(roleType()==="member"){
   if(window.matchMedia("(min-width:1024px)").matches){
@@ -1190,12 +1210,13 @@ function sync(){
  dock().hidden=!isPrivate;
  if(!isPrivate){
   if(document.body.classList.contains("f4-member-feature"))restoreFeature();
-  hideCustom();memberSide(false);
+  hideCustom();memberSide(false);restoreAdminProgress();
   $("f4BankMemberTopIdentity")?.remove();document.body.classList.remove("f4-bank-member-secondary");
   role=null;memberStatement=null;memberSnapshotsLoaded=false;
   $("f4BankProfileDetail")?.remove();return;
  }
  if(next!==role){
+  if(role==="admin"&&next!=="admin")restoreAdminProgress();
   role=next;screen=next==="member"?visibleMemberRoute():"dashboard";dock().replaceChildren(...(role==="admin"?adminDock:memberDock).map(x=>action(x,true)));
   if(role==="member")requestNonce="";
   memberStatement=null;adminOverview=null;
@@ -1205,7 +1226,11 @@ function sync(){
  ensureHome();
  if(role==="member"){
   ensureMemberPages();progressPreview();infoShortcut();orderMemberHome();bindMemberDocumentation();publicSnapshot();
- }else managerRequestsPanel();
+ }else{
+  managerRequestsPanel();
+  ensureAdminHome();
+  ensureAdminProfile();
+ }
  markDock();refreshSources();
 }
 function refreshSources(){
