@@ -29,7 +29,7 @@ const adminDock=[
 ];
 const memberDock=[
  ["Beranda","dashboard","home.svg"],["Tabungan","pribadi","cash.svg"],
- ["Pencairan","bank-payout","rp"],["Riwayat","bank-history","calendar.svg"],
+ ["Pencairan","bank-payout","rp"],["Riwayat","bank-history","clock.svg"],
  ["Laporan","bank-report","book.svg"]
 ];
 let role=null,screen="dashboard",historyMonth="latest",reportMonth="",activePage=null;
@@ -72,6 +72,41 @@ function markDock(){
   b.classList.toggle("is-active",selected);
   if(selected)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");
  }
+ if(roleType()==="member")syncMemberBack();
+}
+// Compact member identity replaces the oversized greeting on the member dashboard.
+function memberTopIdentity(){
+ const bar=$("f4-direct-bar"),links=bar?.querySelector(".f4-nav-links");
+ let identity=$("f4BankMemberTopIdentity");
+ if(roleType()!=="member"||!bar||!links){identity?.remove();return;}
+ if(!identity){
+  identity=el("span","f4-bank-member-top-identity");identity.id="f4BankMemberTopIdentity";
+  bar.insertBefore(identity,links);
+ }
+ const name=$("pName")?.textContent?.trim()||"Anggota";
+ const home=$("pHome")?.textContent?.trim()||"—";
+ identity.replaceChildren(el("strong","",name),el("small","","Rumah "+home));
+}
+function syncMemberBack(){
+ const button=$("f4-mobile-menu"),secondary=screen!=="dashboard";
+ document.body.classList.toggle("f4-bank-member-secondary",secondary);
+ if(!button)return;
+ if(secondary){
+  // Plain arrow, no custom SVG and no enclosing colored button.
+  button.replaceChildren(document.createTextNode("←"));
+  button.setAttribute("aria-label","Kembali ke Beranda");
+  button.title="Kembali ke Beranda";
+ }else{
+  button.replaceChildren(el("span","f4-svg-icon f4-svg-menu"));
+  button.setAttribute("aria-label","Buka menu halaman");button.title="Buka menu halaman";
+ }
+}
+function orderMemberHome(){
+ const home=$("f4BankAppHome");if(!home||roleType()!=="member")return;
+ const feed=$("v14Recent")?.closest(".v14-panel");
+ const items=[$("f4MemberFlow"),feed,$("f4BankWeighingSchedule"),$("f4MemberEnvironmentPreview"),$("f4MemberInfoShortcut")];
+ // Preserve member card and balance at the top, place private history and schedule before progress.
+ for(const item of items)if(item&&item.parentNode===home)home.append(item);
 }
 function statusFor(page){
  const gate=$("v12Gate"),privateArea=$("v12Private");
@@ -116,9 +151,10 @@ function ensureHome(){
  const name=$("pName")?.textContent?.trim()||"Anggota";
  const house=$("pHome")?.textContent?.trim()||"—";
  const welcome=$("f4BankAppWelcome");if(welcome){
-   welcome.replaceChildren(el("strong","","Halo, "+name+"!"));
+   welcome.replaceChildren(el("strong","",name));
    welcome.append(el("small","","Rumah "+house));
  }
+ memberTopIdentity();
  updateCardNumber();
  const houseNode=hub.querySelector(".f4-bank-card-house");if(houseNode)houseNode.textContent="Rumah "+house;
  updateProfileCard();
@@ -414,9 +450,9 @@ function ensureWeighingSchedule(home){
  let card=$("f4BankWeighingSchedule");
  if(!card){
   card=el("section","f4-bank-weigh-schedule");card.id="f4BankWeighingSchedule";
-  const icon=el("span","f4-bank-weigh-icon","◷");
+  const icon=el("span","f4-bank-weigh-icon");icon.append(image("calendar.svg"));
   const content=el("span","f4-bank-weigh-copy");
-  content.append(el("small","","JADWAL PENIMBANGAN"),el("strong","","—"),el("span","","Setiap hari Minggu"));
+  content.append(el("small","","JADWAL BERIKUTNYA"),el("strong","","—"),el("span","","Penimbangan rutin setiap Minggu"));
   card.append(icon,content);
   home.append(card);
  }
@@ -850,7 +886,7 @@ function memberFeature(route){
  if(!content){content=el("div","f4-member-feature-content");page.append(content);}
  moveFeature(progress?["v17PublicMetrics","v17Perkembangan"]:["v17Transparansi","v17Dokumentasi","v17Inventaris"],content);
  document.body.classList.add("f4-member-feature");
- const top=$("f4-mobile-menu");if(top){top.textContent="←";top.title="Kembali ke Beranda";top.setAttribute("aria-label","Kembali ke Beranda");}
+ // syncMemberBack() handles every non-home route through markDock().
  if(!memberSnapshotsLoaded)publicSnapshot();
  if(!progress&&typeof window.v25LoadReport==="function")window.v25LoadReport();
  window.scrollTo({top:0,behavior:"instant"});
@@ -932,6 +968,7 @@ function sync(){
  if(!isPrivate){
   if(document.body.classList.contains("f4-member-feature"))restoreFeature();
   hideCustom();memberSide(false);
+  $("f4BankMemberTopIdentity")?.remove();document.body.classList.remove("f4-bank-member-secondary");
   role=null;memberStatement=null;memberSnapshotsLoaded=false;
   $("f4BankProfileDetail")?.remove();return;
  }
@@ -944,7 +981,7 @@ function sync(){
  memberSide(role==="member");
  ensureHome();
  if(role==="member"){
-  ensureMemberPages();progressPreview();infoShortcut();publicSnapshot();
+  ensureMemberPages();progressPreview();infoShortcut();orderMemberHome();publicSnapshot();
  }else managerRequestsPanel();
  markDock();refreshSources();
 }
@@ -1078,8 +1115,9 @@ function init(){
  $("f4-mobile-menu")?.addEventListener("click",event=>{
   if(roleType()!=="member")return;
   event.preventDefault();event.stopImmediatePropagation();
-  if(document.body.classList.contains("f4-member-feature"))navigate("dashboard");
+  if(screen!=="dashboard")navigate("dashboard");
  },true);
+ window.addEventListener("f4-account-profile-updated",memberTopIdentity);
  const openPublic=window.v11ShowPublic;
  if(typeof openPublic==="function")window.v11ShowPublic=function(...args){
   restoreFeature();hideCustom();return openPublic.apply(this,args);
