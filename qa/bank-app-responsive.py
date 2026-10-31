@@ -421,6 +421,65 @@ async def public_report_compact(browser):
         await page.close()
 
 
+async def member_profile_inline_name(browser):
+    """The member edits only their display alias directly beside the existing name."""
+    from pathlib import Path
+    source=Path('portal-live/bank-mobile-app.js').read_text(encoding='utf-8')
+    start=source.index('function inlineMemberDisplayName(){')
+    end=source.index('function updateProfileCard(){',start)
+    script=source[start:end]
+    page=await browser.new_page(viewport={"width":390,"height":820})
+    markup="""<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
+    <base href="http://127.0.0.1:8765/">
+    <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
+    </head><body><div id="dashboardView"><section id="pageProfile">
+    <div class="f4-profile-identity"><small>Nama anggota</small><strong id="pName">Heri Awal</strong></div>
+    </section><span id="greeting"></span><span id="welcomeName"></span>
+    <span id="v15AccountName"></span><div id="f4BankAppHome"><div class="f4-bank-app-personal-greeting"><strong>Halo, Heri Awal!</strong></div></div>
+    </div></body></html>"""
+    await page.goto(ROOT,wait_until='domcontentloaded')
+    await page.set_content(markup,wait_until='load')
+    helpers="""const role="member";const $=id=>document.getElementById(id);
+    const el=(tag,cls,text)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(text!==undefined)x.textContent=text;return x};
+    const roleType=()=>role;
+    window.__saved=[];
+    const api=async(path,payload)=>{
+      window.__saved.push({path,payload});
+      return {ok:true,profile:{nama:payload.nama}};
+    };
+    window.__updatedName=null;
+    window.addEventListener('f4-account-profile-updated',e=>{window.__updatedName=e.detail.nama});"""
+    await page.add_script_tag(content=helpers+script+"inlineMemberDisplayName();inlineMemberDisplayName();")
+    assert await page.locator('.f4-member-name-edit').count()==1
+    assert await page.locator('.f4-member-name-row').count()==1
+    await page.locator('.f4-member-name-edit').click()
+    input=page.locator('.f4-member-name-input')
+    assert await input.is_visible()
+    await input.fill('Heri Tampilan')
+    await input.press('Enter')
+    await page.wait_for_function("document.getElementById('pName').textContent==='Heri Tampilan'")
+    values=await page.evaluate("""() => ({
+      name:document.getElementById('pName').textContent,
+      account:document.getElementById('v15AccountName').textContent,
+      greeting:document.getElementById('greeting').textContent,
+      alias:window.__updatedName,
+      saved:window.__saved,
+      inputHidden:document.querySelector('.f4-member-name-input').hidden,
+      overflow:document.documentElement.scrollWidth>innerWidth+3
+    })""")
+    assert values['name']==values['account']==values['alias']=='Heri Tampilan',values
+    assert values['greeting']=='Halo, Heri Tampilan' and values['inputHidden'],values
+    assert values['saved']==[{"path":"/api/member/profile","payload":{"nama":"Heri Tampilan"}}],values
+    assert not values['overflow'],values
+    await page.locator('.f4-member-name-edit').click()
+    await input.fill('Nama Batal')
+    await input.press('Escape')
+    assert await page.locator('#pName').inner_text()=='Heri Tampilan'
+    assert len(await page.evaluate('window.__saved'))==1
+    print("MEMBER_INLINE_ALIAS_OK",values,flush=True)
+    await page.close()
+
+
 async def main():
     async with async_playwright() as p:
         browser=await p.chromium.launch(args=["--no-sandbox"])
@@ -474,6 +533,7 @@ async def main():
         await admin_mobile_shell(browser)
         await public_chart_and_flat_roster(browser)
         await public_report_compact(browser)
+        await member_profile_inline_name(browser)
         await browser.close()
 if __name__=="__main__":
     asyncio.run(main())
