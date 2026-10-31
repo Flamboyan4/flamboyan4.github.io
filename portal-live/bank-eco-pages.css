@@ -114,16 +114,6 @@ body.f4-bank-embedded #dashboardView .section,
  color:#fff!important;background:#ffffff25!important;
  border:1px solid #ffffff50!important;border-radius:8px!important
 }
-#v11Public .v17-public-banner.v27-banner-program #v17Program .v17-feature{
- background:#fff!important;border:1px solid #e0eae3!important;
- border-radius:10px!important;color:#124f38!important;box-shadow:none!important
-}
-#v11Public .v17-public-banner.v27-banner-program #v17Program .v17-feature strong{
- color:#124f38!important
-}
-#v11Public .v17-public-banner.v27-banner-program #v17Program .v17-feature p{
- color:#496756!important
-}
 #v11Public .v17-public-banner button:not(.v30-hero-photo),
 #v11Public .v17-public-banner #f4-public-my-savings,
 #v11Public .v17-public-banner #f4-public-manage-bank{
