@@ -1279,23 +1279,6 @@ body #dashboardView #pageDashboard.f4-member-dashboard .v14-primary{
   border-radius:11px!important
  }
  body.f4-direct-bank #dashboardView #v9KasInfo>.metric strong{font-size:22px!important;line-height:1.2!important}
- /* Readable ledger: capped height and sticky header, without breaking native HTML table. */
- body.f4-direct-bank #dashboardView #v9List{
-  width:100%!important;max-height:390px!important;overflow-y:auto!important;
-  overflow-x:auto!important;overscroll-behavior:contain!important;
-  border:1px solid #e4ebe6!important;border-radius:12px!important;background:#fff!important
- }
- body.f4-direct-bank #dashboardView #v9List table{
-  width:100%!important;min-width:0!important;table-layout:fixed!important;border-collapse:separate!important;border-spacing:0!important
- }
- body.f4-direct-bank #dashboardView #v9List table th{
-  position:sticky!important;top:0!important;z-index:2!important;background:#f6f9f7!important
- }
- body.f4-direct-bank #dashboardView #v9List table :is(th,td){
-  padding:10px 12px!important;font-size:12px!important;white-space:normal!important;
-  overflow-wrap:anywhere!important;border-bottom:1px solid #edf1ef!important
- }
- body.f4-direct-bank #dashboardView #v9List table tbody tr:nth-child(even){background:#fcfdfc!important}
  /* General read-only bank tables with sensible row heights; don't alter editable grid. */
  body.f4-direct-bank #dashboardView :is(#masterList,#v10ReportTable,#accountList) table{
   width:100%!important;min-width:0!important;font-size:12px!important
@@ -1362,11 +1345,10 @@ body #dashboardView #pageDashboard.f4-member-dashboard .v14-primary{
  body.f4-direct-bank #dashboardView .f4-bs-history-row>.tiny{margin:6px 0!important}
 }
 @media print{
- body.f4-direct-bank #dashboardView #v9List{max-height:none!important;overflow:visible!important}
 }
 
 
-/* Bank Sampah saldo lookup and safe input control width overrides. */
+/* Bank Sampah saldo search and input sizing. */
 body.f4-direct-bank #dashboardView .f4-bs-saldo-finder{
  display:flex;align-items:center;justify-content:space-between;
  gap:12px;margin:12px 0 8px;min-width:0
@@ -1385,9 +1367,7 @@ body.f4-direct-bank #dashboardView .f4-bs-saldo-footer{
 }
 body.f4-direct-bank #dashboardView .f4-bs-saldo-footer button{
  width:auto;min-height:37px;padding:8px 12px;font-size:12px;border-radius:9px
-}
-body.f4-direct-bank #dashboardView .f4-bs-saldo-footer[hidden],
-body.f4-direct-bank #dashboardView #v9List tr[hidden]{display:none!important}
+}body.f4-direct-bank #dashboardView .f4-bs-saldo-footer[hidden]{display:none!important}
 @media screen and (min-width:761px){
  body.f4-direct-bank #dashboardView #setoranForm #setBarang td input[type=number],
  body.f4-direct-bank #dashboardView #saleForm #saleItems td input[type=number]{
@@ -1397,7 +1377,6 @@ body.f4-direct-bank #dashboardView #v9List tr[hidden]{display:none!important}
  }
  body.f4-direct-bank #dashboardView #saleForm>.field:has(#saleStatus){grid-column:1!important}
  body.f4-direct-bank #dashboardView #saleForm>.field:has(#saleReceived){grid-column:2!important}
- body.f4-direct-bank #dashboardView #v9List{max-height:390px!important}
 }
 @media screen and (max-width:760px){
  body.f4-direct-bank #dashboardView .f4-bs-saldo-finder{gap:8px;flex-wrap:wrap}
@@ -1462,11 +1441,6 @@ body.f4-direct-bank #dashboardView #v9List tr[hidden]{display:none!important}
  }
  body.f4-direct-bank #dashboardView :is(#setBarang,#saleItems){
   width:100%!important;max-width:850px!important
- }
- body.f4-direct-bank #dashboardView #v9List table :is(th,td):nth-child(1){width:52%!important}
- body.f4-direct-bank #dashboardView #v9List table :is(th,td):nth-child(2){width:18%!important}
- body.f4-direct-bank #dashboardView #v9List table :is(th,td):nth-child(3){
-  width:30%!important;text-align:right!important;font-variant-numeric:tabular-nums!important
  }
  body.f4-direct-bank #dashboardView #v9History .stat,
  body.f4-direct-bank #dashboardView #v10History .stat{
