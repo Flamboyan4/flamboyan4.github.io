@@ -93,7 +93,7 @@ async function refreshSession(){
  const authed=!!session?.account;
  login.hidden=authed;avatar.hidden=!authed;bookLink.hidden=role!=='superadmin';adminLink.hidden=role!=='superadmin';
  updateAccountIdentity();
- settings.textContent=portal==='bank'&&role==='warga'?'Kartu & Profil':'Pengaturan Akun';
+ settings.textContent=portal==='bank'&&role==='warga'?'Kartu & Profil':portal==='bank'&&['admin','superadmin'].includes(role)?'Profil Pengurus':'Pengaturan Akun';
  if(authed)avatarLoad();
  notifyRole();
  if(portal==='book'||portal==='superadmin'){
@@ -135,8 +135,8 @@ dialog.querySelector('form').addEventListener('submit',async e=>{
 avatar.onclick=()=>{menu.hidden=!menu.hidden};
 settings.onclick=()=>{
  menu.hidden=true;
- // Anggota Bank Sampah sudah memiliki satu halaman Kartu & Profil.
- if(portal==='bank'&&role==='warga'){
+ // Bank Sampah hanya memiliki satu profil sesuai peran, tanpa menu akun ganda.
+ if(portal==='bank'&&['warga','admin','superadmin'].includes(role)){
   window.f4CloseUnifiedAccount?.();
   window.f4OpenBankProfile?.();
   return;
