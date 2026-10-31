@@ -256,24 +256,51 @@ async def admin_mobile_shell(browser):
     assert state["legacyDisplay"]=="none",state
     assert state["visible"]==["Riwayat setoran","Sahkan hasil","Pencairan"],state
     assert not state["horizontalOverflow"],state
-    # The admin hamburger opens a compact grid popover, NOT a sliding side drawer.
-    popover=await page.evaluate("""() => {
+    # The admin hamburger restores the left slide drawer; no bottom dock routes appear twice.
+    drawer_before=await page.evaluate("""() => {
       const side=document.querySelector("#sideNav");
-      const initial=getComputedStyle(side).visibility;
-      side.classList.add("open");
-      const box=side.getBoundingClientRect();
-      const nav=document.querySelector("#v16NavList");
-      return {initial,visibility:getComputedStyle(side).visibility,
+      return {visible:getComputedStyle(side).visibility,
+        x:side.getBoundingClientRect().x,
+        column:getComputedStyle(document.querySelector("#v16NavList")).flexDirection};
+    }""")
+    assert drawer_before["visible"]=="hidden" and drawer_before["x"]<0,drawer_before
+    await page.evaluate('document.querySelector("#sideNav").classList.add("open")')
+    await page.wait_for_timeout(260)
+    drawer=await page.evaluate("""() => {
+      const side=document.querySelector("#sideNav");
+      const nav=document.querySelector("#v16NavList"),box=side.getBoundingClientRect();
+      const buttons=[...nav.querySelectorAll("button")];
+      return {visibility:getComputedStyle(side).visibility,
         transform:getComputedStyle(side).transform,top:box.top,left:box.left,
-        width:box.width,height:box.height,grid:getComputedStyle(nav).gridTemplateColumns,
+        width:box.width,height:box.height,display:getComputedStyle(nav).display,
+        direction:getComputedStyle(nav).flexDirection,
+        visible:buttons.filter(x=>getComputedStyle(x).display!=="none").map(x=>x.textContent),
+        hiddenGroups:buttons.filter(x=>["home","entry","money"].includes(x.dataset.group)).every(x=>getComputedStyle(x).display==="none"),
         scrollOverflow:document.documentElement.scrollWidth>innerWidth+3};
     }""")
-    assert popover["initial"]=="hidden" and popover["visibility"]=="visible",popover
-    assert popover["transform"]=="none" and 55<=popover["top"]<=80,popover
-    assert 0<=popover["left"]<=16 and 300<popover["width"]<=390,popover
-    assert len(popover["grid"].split())==2 and not popover["scrollOverflow"],popover
+    assert drawer["visibility"]=="visible" and abs(drawer["top"]-56)<2,drawer
+    assert abs(drawer["left"])<2 and 275<=drawer["width"]<=301,drawer
+    assert drawer["display"]=="flex" and drawer["direction"]=="column",drawer
+    assert drawer["hiddenGroups"],drawer
+    assert drawer["visible"]==["Riwayat setoran","Sahkan hasil","Pencairan"],drawer
+    assert not drawer["scrollOverflow"],drawer
     await page.evaluate('document.querySelector("#sideNav").classList.remove("open")')
-    print("ADMIN_POPOVER_NO_SLIDE_OK",popover,flush=True)
+    await page.wait_for_timeout(260)
+    drawer_closed=await page.evaluate("""() => {
+      const side=document.querySelector("#sideNav");
+      return {x:side.getBoundingClientRect().x,visibility:getComputedStyle(side).visibility};
+    }""")
+    assert drawer_closed["x"]<0 and drawer_closed["visibility"]=="hidden",drawer_closed
+    print("ADMIN_SLIDE_EXTRAS_ONLY_OK",drawer,flush=True)
+    # Tablet has no dock: primary admin groups must remain accessible in sidebar.
+    await page.set_viewport_size({"width":820,"height":820})
+    tablet=await page.evaluate("""() => ({
+      dock:getComputedStyle(document.querySelector("#f4BankAppDock")).display,
+      groups:[...document.querySelectorAll("#v16NavList .v16-item[data-group]")]
+        .filter(x=>getComputedStyle(x).display!=="none").map(x=>x.dataset.group)
+    })""")
+    assert tablet["dock"]=="none" and all(g in tablet["groups"] for g in ["home","entry","money"]),tablet
+    await page.set_viewport_size({"width":390,"height":820})
     # The exact same dock dimensions must apply when the role switches to member.
     member=await page.evaluate("""() => {
       document.body.classList.replace("f4-bank-app-admin","f4-bank-app-member");
