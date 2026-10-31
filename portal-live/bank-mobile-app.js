@@ -40,7 +40,7 @@ let ready=false,requestNonce="",requestEnabled=false;
 let memberStatement=null,memberChartMode="kg",memberChartGroup="period";
 let adminOverview=null;
 let refreshing=false;
-const custom=["bank-history","bank-payout","bank-report","bank-payout-admin","bank-admin-history"];
+const custom=["bank-history","bank-payout","bank-report","bank-payout-admin","bank-admin-history","bank-admin-docs","bank-admin-cash"];
 const featureRoutes=["bank-member-progress","bank-member-info","bank-member-docs"];
 let moved=[],memberSnapshotsLoaded=false,snapshotBusy=false,snapshotObserver=null;
 const text=(id,val)=>{if($(id)&&$(id).textContent!==String(val))$(id).textContent=String(val)};
@@ -912,6 +912,171 @@ function restoreAdminProgress(){
   adminProgressAnchor.replaceWith(adminProgressNode);
  adminProgressNode=null;adminProgressAnchor=null;
 }
+/* Bank Sampah sebagai penyetor milik pengelola, bukan akun warga fiktif.
+   Nilai uang harus sudah diterima sebelum ditulis ke jurnal kas. */
+let ownCatalog=null,ownRequestKey="",ownFormMode="warga";
+function chooseOwnMode(value){
+ ownFormMode=value==="bank"?"bank":"warga";
+ const own=$("f4BankOwnDepositForm"),normal=$("setoranForm"),tabs=$("f4BankOwnModeTabs");
+ if(normal)normal.hidden=ownFormMode==="bank";
+ if(own)own.hidden=ownFormMode!=="bank";
+ tabs?.querySelectorAll("button").forEach(b=>{
+  const active=b.dataset.mode===ownFormMode;
+  b.classList.toggle("is-active",active);b.setAttribute("aria-pressed",String(active));
+ });
+ if(ownFormMode==="bank")loadOwnCatalog();
+}
+function ensureOwnDepositForm(){
+ if(role!=="admin")return;
+ const page=$("pageSetoran"),normal=$("setoranForm");if(!page||!normal)return;
+ if(!$("f4BankOwnModeTabs")){
+  const tabs=el("div","f4-bank-own-mode-tabs");tabs.id="f4BankOwnModeTabs";
+  for(const [value,name] of [["warga","Setoran Warga"],["bank","Bank Sampah"]]){
+   const b=el("button","",name);b.type="button";b.dataset.mode=value;b.onclick=()=>chooseOwnMode(value);
+   tabs.append(b);
+  }
+  normal.before(tabs);
+  const form=el("form","f4-bank-own-deposit-form");form.id="f4BankOwnDepositForm";form.hidden=true;
+  const intro=el("p","f4-bank-own-intro","Setoran milik Bank Sampah • langsung masuk kas setelah uang diterima.");
+  const dateField=el("label","f4-bank-own-field");
+  dateField.append(el("span","","Tanggal"),Object.assign(el("input"),{type:"date",required:true,value:today()}));
+  dateField.querySelector("input").id="f4BankOwnDate";
+  const amountField=el("label","f4-bank-own-field");
+  amountField.append(el("span","","Uang diterima (Rp)"),Object.assign(el("input"),{type:"number",min:"1",step:"1",required:true,placeholder:"0"}));
+  amountField.querySelector("input").id="f4BankOwnAmount";
+  const fields=el("div","f4-bank-own-fields");fields.append(dateField,amountField);
+  const detail=el("div","f4-bank-own-detail");
+  const head=el("div","f4-bank-own-detail-head");
+  head.append(el("strong","","Rincian sampah"));
+  const add=el("button","f4-bank-secondary-action","Tambah jenis");add.type="button";
+  add.onclick=()=>addOwnItemRow();
+  head.append(add);detail.append(head);
+  const rows=el("div","f4-bank-own-lines");rows.id="f4BankOwnLines";detail.append(rows);
+  const weight=el("small","f4-bank-own-weight","Total berat: 0 kg");weight.id="f4BankOwnWeight";detail.append(weight);
+  const note=el("label","f4-bank-own-field");note.append(el("span","","Catatan (opsional)"));
+  const noteInput=el("input");noteInput.id="f4BankOwnNote";noteInput.maxLength=200;noteInput.placeholder="Keterangan penerimaan kas";
+  note.append(noteInput);
+  const save=el("button","f4-bank-gold-action","Catat ke Kas Bank Sampah");save.type="submit";
+  const status=el("p","f4-bank-own-status");status.id="f4BankOwnStatus";status.setAttribute("role","status");
+  form.append(intro,fields,detail,note,save,status);
+  form.onsubmit=submitOwnDeposit;tabs.after(form);
+ }
+ chooseOwnMode(ownFormMode);
+}
+function updateOwnWeight(){
+ const sum=[...document.querySelectorAll("#f4BankOwnLines [data-own-weight]")]
+  .reduce((n,x)=>n+Math.max(0,Number(x.value)||0),0);
+ text("f4BankOwnWeight","Total berat: "+new Intl.NumberFormat("id-ID",{maximumFractionDigits:3}).format(sum)+" kg");
+}
+function addOwnItemRow(){
+ const lines=$("f4BankOwnLines");if(!lines)return;
+ if(lines.childElementCount>=30)return;
+ const row=el("div","f4-bank-own-line");
+ const select=el("select");select.required=true;select.setAttribute("aria-label","Jenis sampah");
+ select.add(new Option("Pilih jenis",""));
+ for(const item of ownCatalog||[])select.add(new Option(item.name,item.id));
+ const weight=el("input");weight.type="number";weight.step="0.001";weight.min="0.001";
+ weight.max="10000";weight.required=true;weight.dataset.ownWeight="1";weight.placeholder="Berat (kg)";
+ weight.setAttribute("aria-label","Berat sampah kilogram");weight.oninput=updateOwnWeight;
+ const del=el("button","f4-bank-own-remove");del.type="button";
+ del.title="Hapus jenis";del.setAttribute("aria-label","Hapus jenis");
+ del.textContent="×";del.onclick=()=>{row.remove();updateOwnWeight();};
+ row.append(select,weight,del);lines.append(row);
+}
+async function loadOwnCatalog(){
+ if(!$("f4BankOwnDepositForm")||ownFormMode!=="bank")return;
+ if(!ownCatalog){
+  const status=$("f4BankOwnStatus");if(status)status.textContent="Memuat jenis barang...";
+  try{
+   const result=await api("/api/v2/admin/bank/catalog");
+   ownCatalog=(result.data||[]).filter(x=>Number(x.active)===1)
+    .map(x=>({id:String(x.id),name:x.name}));if(status)status.textContent="";
+  }catch(error){if(status)status.textContent="Jenis barang belum tersedia: "+error.message;return;}
+ }
+ const rows=$("f4BankOwnLines");
+ if(rows&&!rows.childElementCount)addOwnItemRow();
+}
+async function submitOwnDeposit(event){
+ event.preventDefault();
+ const form=event.currentTarget,button=form.querySelector('[type="submit"]');
+ const date=$("f4BankOwnDate")?.value,amountRp=Number($("f4BankOwnAmount")?.value||0);
+ const items=[...form.querySelectorAll(".f4-bank-own-line")].map(row=>{
+  const kg=Number(row.querySelector("input")?.value);
+  return {itemId:row.querySelector("select")?.value,grams:Math.round(kg*1000),kg};
+ });
+ const status=$("f4BankOwnStatus");
+ if(!items.length||items.some(x=>!x.itemId||!Number.isFinite(x.kg)||x.kg<=0||!Number.isSafeInteger(x.grams)||x.grams<1)){
+  status.textContent="Lengkapi jenis dan berat barang.";return;
+ }
+ if(!Number.isSafeInteger(amountRp)||amountRp<1){
+  status.textContent="Masukkan nominal yang benar-benar sudah diterima.";return;
+ }
+ if(!window.confirm("Catat "+rupiah(amountRp)+" sebagai kas operasional Bank Sampah, tanpa pembagian ke tabungan warga?"))return;
+ if(!ownRequestKey)ownRequestKey="own"+crypto.randomUUID().replace(/-/g,"");
+ button.disabled=true;status.textContent="Menyimpan ke kas...";
+ try{
+  const res=await api("/api/v2/admin/bank/own-deposits",{
+   requestKey:ownRequestKey,depositedOn:date,amountRp,
+   items:items.map(({itemId,grams})=>({itemId,grams})),
+   note:$("f4BankOwnNote")?.value.trim()||""
+  });
+  status.textContent=res.duplicate?"Setoran sudah tercatat.":"Penerimaan "+rupiah(amountRp)+" tersimpan di kas Bank Sampah.";
+  ownRequestKey="";form.reset();$("f4BankOwnDate").value=today();
+  $("f4BankOwnLines")?.replaceChildren();addOwnItemRow();updateOwnWeight();
+  adminOverview=null;updateDashboard();
+ }catch(error){status.textContent=error.message||"Setoran gagal disimpan.";}
+ finally{button.disabled=false;}
+}
+function showAdminCash(){
+ const page=ensureScreen("bank-admin-cash","Debit / Kredit");
+ let body=$("f4BankAdminCashBody");
+ if(!body){
+  body=el("div","f4-bank-admin-cash-body");body.id="f4BankAdminCashBody";
+  const actions=el("div","f4-bank-admin-cash-actions");
+  for(const [label,route] of [["Setoran Bank Sampah","setoran"],["Pengeluaran","biaya"]]){
+   const button=el("button",route==="setoran"?"f4-bank-gold-action":"f4-bank-secondary-action",label);
+   button.type="button";button.onclick=()=>{
+    if(route==="setoran")ownFormMode="bank";navigate(route);
+   };actions.append(button);
+  }
+  body.append(actions,el("div","f4-bank-admin-cash-stats"));
+  body.append(el("div","f4-bank-admin-cash-table","Memuat mutasi kas..."));
+  page.append(body);
+ }
+ page.classList.remove("hidden");loadAdminCash();
+}
+async function loadAdminCash(){
+ const page=$("f4BankAdminCashBody");if(!page)return;
+ const target=page.querySelector(".f4-bank-admin-cash-table");
+ target.textContent="Memuat mutasi kas...";
+ try{
+  const res=await api("/api/v2/admin/bank/cash?limit=300");
+  const rows=(res.data||[]).filter(x=>x.status==="aktif").sort((a,b)=>
+   String(b.occurred_on||"").localeCompare(String(a.occurred_on||"")));
+  const totalIn=rows.reduce((n,x)=>n+Number(x.cash_in_rp||0),0);
+  const totalOut=rows.reduce((n,x)=>n+Number(x.cash_out_rp||0),0);
+  page.querySelector(".f4-bank-admin-cash-stats").replaceChildren(...[
+   ["Kredit",totalIn],["Debit",totalOut],["Selisih",totalIn-totalOut]
+  ].map(([name,value])=>{
+   const node=el("div","f4-bank-admin-cash-stat");
+   node.append(el("small","",name),el("strong","",rupiah(value)));return node;
+  }));
+  const table=el("table","f4-bank-admin-cash-ledger");
+  const thead=el("thead"),heading=el("tr");
+  for(const label of ["Tanggal","Keterangan","Pos","Kredit","Debit"])heading.append(el("th","",label));
+  thead.append(heading);table.append(thead);
+  const tbody=el("tbody");
+  for(const item of rows){
+   const tr=el("tr");
+   for(const value of [item.occurred_on||"—",item.note||item.transaction_type||"—",
+     item.fund_position||"—",rupiah(item.cash_in_rp),rupiah(item.cash_out_rp)])
+    tr.append(el("td","",value));
+   tbody.append(tr);
+  }
+  table.append(tbody);target.replaceChildren(table);
+  if(!rows.length)target.textContent="Belum ada mutasi kas.";
+ }catch(error){target.textContent="Mutasi kas belum dapat dibuka: "+error.message;}
+}
 let adminMediaRestore=[];
 function restoreAdminMedia(){
  for(const item of adminMediaRestore){
@@ -1208,6 +1373,12 @@ function handleRoute(route,old,args){
   if(["riwayat","riwayatJual"].includes(route))route="bank-admin-history";
   if(route==="pengesahan")route="rekonsiliasi";
   if(["kegiatan","dokumentasi","inventaris","progress","public"].includes(route))route="dashboard";
+  if(route==="bank-admin-cash"){
+   hideCustom();old.call(window,"dashboard",...args);
+   $("pageDashboard")?.classList.add("hidden");
+   showAdminCash();screen=route;
+   window.v16Sync?.(route);markDock();window.scrollTo(0,0);return;
+  }
   if(route==="bank-admin-docs"){
    hideCustom();old.call(window,"dashboard",...args);
    $("pageDashboard")?.classList.add("hidden");
@@ -1276,6 +1447,7 @@ function handleRoute(route,old,args){
   const link=$("v14AllDeposits");if(link){link.textContent="Lihat semua";link.onclick=()=>navigate("bank-history");}
  }
  if(route==="dashboard"&&role==="admin")ensureAdminHome();
+ if(route==="setoran"&&role==="admin")ensureOwnDepositForm();
  screen=route;markDock();
  if(route==="tabungan"&&roleType()==="admin")managerRequestsPanel();
  if(route==="pribadi")ensureMemberPages();
