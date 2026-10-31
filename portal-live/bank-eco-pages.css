@@ -623,8 +623,8 @@ body.f4-bank-embedded #dashboardView .section,
  margin:0;font-size:17px;line-height:1.2;font-weight:850;letter-spacing:-.025em;color:#164832
 }
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-filters{
- display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;
- min-width:0
+ display:flex;flex-wrap:nowrap;align-items:center;justify-content:space-between;gap:6px;
+ min-width:0;width:100%
 }
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups,
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch{
@@ -632,7 +632,10 @@ body.f4-bank-embedded #dashboardView .section,
  padding:4px;margin:0;border:1px solid #e2ece5;border-radius:12px;background:#f1f6f2
 }
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups{
- flex:1 1 270px;max-width:none
+ flex:1 1 auto;min-width:0;max-width:none
+}
+#dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch{
+ flex:0 0 auto
 }
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups button,
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch button{
@@ -819,10 +822,17 @@ body.f4-bank-embedded #dashboardView .section,
 }
 @media(max-width:760px){
  #dashboardView #pagePribadi #f4BankSavingsChart{padding:14px 12px;gap:12px}
- #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups{flex-basis:100%;width:100%}
- #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups button{padding:7px 6px;font-size:11px}
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups{flex:1 1 auto;min-width:0;width:auto}
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups button{padding:7px 5px;font-size:11px}
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch button{min-width:31px;padding:7px 5px;font-size:11px}
  #dashboardView #pagePribadi #f4BankSavingsBars{min-height:192px}
  #dashboardView #pagePribadi #f4BankSavingsBars .f4-bank-savings-bar-rail{height:111px}
+}
+@media(max-width:370px){
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-filters{gap:4px}
+ #dashboardView #pagePribadi #f4BankSavingsChart :is(.f4-bank-chart-groups,.f4-bank-chart-switch){gap:1px;padding:3px}
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups button{padding:6px 3px;font-size:10px}
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch button{min-width:27px;padding:6px 3px;font-size:10px}
 }
 #dashboardView .f4-bank-weigh-schedule{display:flex;align-items:center;gap:12px;padding:13px 15px;background:#fff;border:1px solid #d8e4da;border-radius:13px;color:#075437}
 #dashboardView .f4-bank-weigh-icon{flex:none;display:grid;place-items:center;width:41px;height:41px;border-radius:12px;background:#06754a;color:#fff;font-size:24px}
