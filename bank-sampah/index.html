@@ -1994,7 +1994,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
       <div class="section"><div class="toolbar" style="margin-bottom:16px"><div><h1 id="greeting">Halo!</h1><div class="sub">Bank Sampah Flamboyan 4</div></div><span id="roleBadge" class="tag"></span></div>
         <div id="pageDashboard" class="card"><div class="toolbar"><div><h2>Dashboard Bank Sampah</h2></div><button class="secondary" onclick="loadDashboard()">Perbarui</button></div><div id="adminMetrics" class="hidden"><div id="metricGrid" class="metric-grid block-gap"></div><div id="dashboardWarnings" class="pill-note block-gap"></div></div><div id="memberWelcome" class="hidden"><div class="notice">🔒 Data pribadi hanya untuk pemilik akun.</div><div class="stats"><div class="stat"><small>Nama</small><strong id="welcomeName">—</strong></div><div class="stat"><small>Rumah</small><strong id="welcomeHouse">—</strong></div><div class="stat"><small>ID anggota</small><strong id="welcomeId">—</strong></div></div></div><p class="hint" id="metricStatus">Memuat ringkasan...</p></div>
         <div id="pageProfile" class="card hidden f4-profile-card">
-          <div class="f4-profile-header"><h2>Profil saya</h2><span class="f4-profile-privacy">Akun pribadi</span></div>
+          <div class="f4-profile-header"><h2>Profil saya</h2></div>
           <div class="f4-profile-overview">
             <div class="f4-profile-avatar"><img id="v15PhotoPreview" alt="Foto profil" hidden><span id="f4ProfileInitials" aria-hidden="true">?</span></div>
             <div class="f4-profile-identity">
@@ -2014,7 +2014,6 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
               <div id="v15PhotoStatus" class="hint" role="status" aria-live="polite"></div>
             </div>
           </details>
-          <div class="notice f4-profile-tip">Saldo &amp; laporan ada di menu Tabungan saya. Ganti password awal untuk keamanan.</div>
         </div>
         <div id="pageSetoran" class="card hidden"><h2>Setoran</h2><p class="desc">Nilai perkiraan, belum jadi saldo.</p><form id="setoranForm" onsubmit="submitSetoran(event)"><div class="f4-entry-top-fields"><div class="field"><label for="setWarga">Nama anggota</label><select id="setWarga" required><option value="">Pilih warga</option></select></div><div class="field"><label for="setDate">Tanggal setoran</label><input type="date" id="setDate" required></div></div><div class="f4-entry-goods-heading"><div><h3>Rincian sampah</h3></div><span id="f4SetFilledCount" class="f4-entry-item-count">0 jenis diisi</span></div><div id="setBarang" class="tablewrap"></div><div class="summary-box block-gap"><div><small>Total berat</small><strong id="previewKg" style="display:block">0 kg</strong></div><div><small>Estimasi hak warga</small><strong id="previewRp" style="display:block">Rp 0</strong></div></div><div class="field block-gap"><label for="setNotes">Catatan (opsional)</label><input id="setNotes" maxlength="300" placeholder="Contoh: kegiatan timbang rutin"></div><button id="saveSetoranBtn" type="submit" class="wide">Simpan setoran estimasi</button></form><div id="setoranNotice" role="status" aria-live="polite"></div></div>
         <div id="pageRiwayat" class="card hidden"><div class="toolbar"><h2>Riwayat setoran</h2><button class="secondary" onclick="loadRiwayatV7()">Perbarui</button></div><div class="pill-note">ⓘ Setoran batal tetap tersimpan.</div><div id="riwayatList" class="tablewrap">Memuat...</div><div id="riwayatNotice" role="status"></div></div>
@@ -2938,7 +2937,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   };
   function v12Setup(){
     if($('memberWelcome'))$('memberWelcome').querySelector('.notice').textContent='Lihat saldo tabungan dan rincian setoran lewat menu Tabungan saya. Demi privasi, ganti password awal satu kali sebelum membukanya.';
-    $('pageProfile').querySelector('.notice').textContent='Saldo & laporan ada di Tabungan saya. Ganti password awal untuk keamanan.';
+    // Detail kartu dan profil sudah cukup; tidak perlu catatan pengulangan menu.
     if(!$('pagePribadi')){
       const nav=document.createElement('button');nav.id='navPribadi';nav.className='secondary';nav.textContent='💚 Tabungan saya';nav.onclick=()=>goPage('pribadi');$('navProfile').after(nav);
       const page=document.createElement('section');page.id='pagePribadi';page.className='card hidden';
@@ -5412,7 +5411,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       list.appendChild(back);
     }
     back.className='v16-item '+(currentRole==='superadmin'?'f4-back-management':'f4-back-account');
-    back.textContent=currentRole==='superadmin'?'← Menu Pengelolaan':'Profil & Pengaturan';
+    back.textContent=currentRole==='superadmin'?'← Menu Pengelolaan':currentRole==='warga'?'Kartu & Profil':'Profil pengurus';
     back.onclick=()=>currentRole==='superadmin'
       ?window.parent.postMessage({type:'f4:manage-home'},location.origin)
       :openOriginalProfile();
@@ -5446,6 +5445,16 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     document.body.dataset.f4BankRole=currentRole;
     syncAccountTabs();
     if(matching&&currentRole!=='public'){
+      // Satu akun, satu nama tampilan. Sinkronkan header/kartu saat nama diedit,
+      // tanpa memuat ulang data transaksi atau mengganti identitas pembukuan.
+      if(profile&&identity.nama&&identity.nama!==profile.nama){
+        profile.nama=identity.nama;
+        $('pName').textContent=profile.nama;
+        $('greeting').textContent='Halo, '+profile.nama;
+        $('welcomeName').textContent=profile.nama;
+        if($('v15AccountName'))$('v15AccountName').textContent=profile.nama;
+        window.dispatchEvent(new CustomEvent('f4-bank-display-name-synced',{detail:{nama:profile.nama}}));
+      }
       syncReturnButton();
       if(pendingProfile)openOriginalProfile();
       else if(pendingSection){const page=pendingSection;pendingSection='';openAdmin(page);}
