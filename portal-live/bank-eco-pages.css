@@ -440,7 +440,7 @@ body.f4-bank-embedded #dashboardView .section,
 #dashboardView #pageProfile .f4-member-name-cancel:focus-visible{
  outline:2px solid #087850;outline-offset:2px
 }
-#dashboardView #pageProfile .f4-profile-meta{
+#dashboardView #pageProfile .f4-profile-meta:not([hidden]){
   display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:9px;
   color:#4d6e59;font-size:12px;line-height:1.35;
 }
@@ -522,7 +522,7 @@ body.f4-bank-embedded #dashboardView .section,
   #dashboardView #pageProfile .f4-profile-overview{gap:12px;padding:15px 0}
   #dashboardView #pageProfile .f4-profile-avatar{width:64px;height:64px;flex-basis:64px;font-size:20px}
   #dashboardView #pageProfile #pName{font-size:18px!important;line-height:1.25!important}
-  #dashboardView #pageProfile .f4-profile-meta{margin-top:7px;gap:6px}
+  #dashboardView #pageProfile .f4-profile-meta:not([hidden]){margin-top:7px;gap:6px}
   #dashboardView #pageProfile .f4-profile-house{padding:4px 7px}
   #dashboardView #pageProfile .f4-profile-file-name{flex-basis:calc(100% - 105px)}
 }
