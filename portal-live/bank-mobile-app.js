@@ -421,6 +421,175 @@ function ensureWeighingSchedule(home){
  const next=weighingNextDate();
  const title=card.querySelector("strong");if(title)title.textContent=next.days===0?"Hari ini • Minggu":next.label;
 }
+function f4PrivateShort(n,mode){
+ const value=Math.max(0,Number(n)||0);
+ const fmt=x=>x.toLocaleString("id-ID",{maximumFractionDigits:1});
+ if(mode==="rp"){
+  if(value>=1000000)return fmt(value/1000000)+" jt";
+  if(value>=1000)return fmt(value/1000)+" rb";
+  return fmt(value);
+ }
+ return fmt(value);
+}
+function f4PrivateKg(n){
+ return (Number(n)||0).toLocaleString("id-ID",{maximumFractionDigits:3})+" kg";
+}
+function f4PrivateChartEntries(points){
+ // Existing default stays "Periode": one real deposit per group, not one month.
+ const origin=memberChartGroup;
+ const utc=date=>Date.parse(date+"T00:00:00Z");
+ const now=utc(today());
+ let list=points;
+ if(origin==="7"||origin==="30"){
+  const days=origin==="7"?7:30;
+  const earliest=now-(days-1)*86400000;
+  list=points.filter(p=>utc(p.date)>=earliest&&utc(p.date)<=now);
+ }
+ const groups=new Map();
+ const add=(key,label,full,point)=>{
+  let entry=groups.get(key);
+  if(!entry){
+   entry={key,label,full,count:0,finalCount:0,confirmedWeight:0,pendingWeight:0,
+    confirmedRp:0,estimatedRp:0,missingWeight:false,missingValue:false};
+   groups.set(key,entry);
+  }
+  entry.count++;
+  if(point.final)entry.finalCount++;
+  if(point.missingWeight)entry.missingWeight=true;
+  if(point.missingValue)entry.missingValue=true;
+  if(!point.missingWeight){
+   if(point.final)entry.confirmedWeight+=point.weight;
+   else entry.pendingWeight+=point.weight;
+  }
+  entry.confirmedRp+=point.confirmed;
+  entry.estimatedRp+=point.estimated;
+ };
+ const labelDate=date=>date.slice(8,10)+"/"+date.slice(5,7);
+ if(origin==="period"){
+  for(const point of list)add(point.id,labelDate(point.date),point.date,point);
+ }else if(origin==="month"){
+  for(const point of list)add(point.month,monthName(point.month),point.month,point);
+ }else{
+  const days=origin==="7"?7:30,bin=origin==="7"?1:5;
+  for(let index=0;index<days;index+=bin){
+   const start=new Date(now-(days-1-index)*86400000).toISOString().slice(0,10);
+   const finish=new Date(now-(days-1-Math.min(index+bin-1,days-1))*86400000).toISOString().slice(0,10);
+   const key=String(index);
+   groups.set(key,{key,label:days===7?start.slice(8,10):labelDate(start),
+    full:start===finish?start:start+" – "+finish,count:0,finalCount:0,
+    confirmedWeight:0,pendingWeight:0,confirmedRp:0,estimatedRp:0,
+    missingWeight:false,missingValue:false});
+  }
+  for(const point of list){
+   const offset=Math.floor((utc(point.date)-(now-(days-1)*86400000))/86400000);
+   const groupKey=String(Math.floor(offset/bin)*bin);
+   if(groups.has(groupKey)){
+    const entry=groups.get(groupKey);entry.count++;if(point.final)entry.finalCount++;
+    if(point.missingWeight)entry.missingWeight=true;
+    if(point.missingValue)entry.missingValue=true;
+    if(!point.missingWeight){if(point.final)entry.confirmedWeight+=point.weight;else entry.pendingWeight+=point.weight;}
+    entry.confirmedRp+=point.confirmed;entry.estimatedRp+=point.estimated;
+   }
+  }
+ }
+ const result=[...groups.values()];
+ return origin==="month"?result.slice(-6):result;
+}
+function f4PrivateChartSummary(host,entries,mode){
+ let summary=$("f4BankSavingsChartSummary");
+ let stats=$("f4BankSavingsChartStats");
+ if(!summary){
+  summary=el("div","f4-bank-private-chart-summary");summary.id="f4BankSavingsChartSummary";
+  stats=el("div","f4-bank-private-chart-stats");stats.id="f4BankSavingsChartStats";
+  host.parentElement.insertBefore(summary,host);
+  summary.after(stats);
+ }
+ const total=key=>entries.reduce((sum,row)=>sum+row[key],0);
+ const count=entries.reduce((sum,row)=>sum+row.count,0);
+ const actualWeight=total("confirmedWeight"),waitingWeight=total("pendingWeight"),
+   actualMoney=total("confirmedRp"),waitingMoney=total("estimatedRp");
+ const caption=el("small","","Dari setoran "+(memberChartGroup==="period"?"seluruh periode":
+  memberChartGroup==="month"?"6 bulan aktif terakhir":memberChartGroup==="7"?"7 hari terakhir":"30 hari terakhir"));
+ const totalDisplay=el("strong","",mode==="kg"?f4PrivateKg(actualWeight):rupiah(actualMoney));
+ const label=el("span","",mode==="kg"?"Berat sudah sah":"Hasil jual sah");
+ summary.replaceChildren(label,totalDisplay,caption);
+ const values=[
+  ["Setoran",String(count),"deposits"],
+  ["Berat sah",f4PrivateKg(actualWeight),"weight"],
+  ["Belum sah",f4PrivateKg(waitingWeight),"pending"],
+  ["Hasil jual",rupiah(actualMoney),"money"]
+ ];
+ stats.replaceChildren(...values.map(([name,value,icon])=>{
+  const tile=el("div","f4-bank-private-chart-stat");
+  tile.dataset.statIcon=icon;
+  tile.append(el("small","",name),el("strong","",value));return tile;
+ }));
+ let legend=$("f4BankSavingsLegend");
+ if(!legend){
+  legend=el("div","f4-bank-private-chart-legend");legend.id="f4BankSavingsLegend";host.after(legend);
+ }
+ legend.replaceChildren();
+ for(const [name,kind] of [[mode==="kg"?"Berat sah":"Hasil sah","confirmed"],
+   [mode==="kg"?"Belum sah":"Perkiraan","estimate"]]){
+  const item=el("span",""),dot=el("i","is-"+kind);
+  dot.setAttribute("aria-hidden","true");item.append(dot,document.createTextNode(name));legend.append(item);
+ }
+ let foot=$("f4BankSavingsChartNote");
+ if(!foot){
+  foot=el("p","f4-bank-private-chart-note");foot.id="f4BankSavingsChartNote";legend.after(foot);
+ }
+ foot.textContent=mode==="rp"?
+  "Nilai sah masuk tabungan. Perkiraan belum menjadi saldo.":
+  "Berat sah memakai hasil jual; belum sah memakai timbang awal.";
+ if(entries.some(x=>x.missingValue||x.missingWeight))
+  foot.textContent+=" Ada nilai yang belum tersedia.";
+}
+function f4PrivateDepositFeed(){
+ const root=$("f4BankSavingsChart");if(!root)return;
+ let panel=$("f4BankPrivateRecent");
+ if(!panel){
+  panel=el("section","f4-bank-private-recent");panel.id="f4BankPrivateRecent";
+  const head=el("div","f4-bank-private-recent-head");
+  head.append(el("h4","","Setoran terbaru"));
+  const more=el("button","","Lihat semua");more.type="button";more.onclick=()=>navigate("bank-history");
+  head.append(more);
+  const list=el("div","f4-bank-private-recent-list");list.id="f4BankPrivateRecentList";
+  panel.append(head,list);root.append(panel);
+ }
+ const list=$("f4BankPrivateRecentList");
+ list.replaceChildren();
+ const source=Array.isArray(memberStatement?.setoran)?memberStatement.setoran:[];
+ const deposits=source.filter(row=>!/batal/i.test(String(row.status||"")))
+  .slice().sort((a,b)=>String(b.tanggal||"").localeCompare(String(a.tanggal||""))).slice(0,3);
+ if(!deposits.length){
+  list.append(el("p","f4-bank-empty",memberStatement?"Belum ada setoran tercatat.":"Memuat setoran..."));return;
+ }
+ for(const row of deposits){
+  const final=/terkonfirmasi|confirmed/i.test(String(row.status||""));
+  const item=el("details","f4-bank-private-deposit");
+  const head=el("summary","");
+  const icon=el("span","f4-bank-private-deposit-icon","♻");
+  icon.setAttribute("aria-hidden","true");
+  const copy=el("span","f4-bank-private-deposit-copy");
+  const date=String(row.tanggal||"");
+  const display=/^\d{4}-\d{2}-\d{2}$/.test(date)?date.slice(8,10)+"/"+date.slice(5,7)+"/"+date.slice(2,4):date;
+  copy.append(el("strong","","Setoran "+display),
+   el("small","",row.beratKg==null?"Berat belum tersedia":f4PrivateKg(row.beratKg)));
+  const state=el("span","f4-bank-private-deposit-state "+(final?"is-confirmed":"is-pending"),final?"Sah":"Perkiraan");
+  head.append(icon,copy,state);
+  const detail=el("div","f4-bank-private-deposit-detail");
+  const price=final?(row.nilaiSahRp==null?"Nilai belum tersedia":rupiah(row.nilaiSahRp)):rupiah(row.estimasiRp);
+  detail.append(el("strong","",final?"Hasil jual "+price:"Perkiraan "+price));
+  const items=Array.isArray(row.rincian)?row.rincian:[];
+  for(const line of items){
+   const lineNode=el("div","f4-bank-private-deposit-line");
+   lineNode.append(el("span","",line.barang||"Barang"),
+    el("span","",f4PrivateKg(line.beratKg)));
+   detail.append(lineNode);
+  }
+  item.append(head,detail);list.append(item);
+ }
+}
 function chartSavings(){
  const root=$("f4BankSavingsChart"),host=$("f4BankSavingsBars");
  if(!root||!host)return;
@@ -428,7 +597,7 @@ function chartSavings(){
  if(!filters){
   filters=el("div","f4-bank-chart-filters");filters.id="f4BankSavingsFilters";
   const tabs=el("div","f4-bank-chart-groups");
-  for(const [id,label] of [["month","Per bulan"],["period","Periode"]]){
+  for(const [id,label] of [["period","Periode"],["7","7 hari"],["30","30 hari"],["month","Per bulan"]]){
    const button=el("button","",label);button.type="button";button.dataset.group=id;
    button.onclick=()=>{memberChartGroup=id;chartSavings();};
    tabs.append(button);
@@ -441,76 +610,58 @@ function chartSavings(){
   filters.append(tabs,units);
   root.querySelector("h3")?.after(filters);
  }
- // Older sessions may already have mounted the previous selector.
  $("f4BankChartPeriod")?.remove();
+ filters.querySelectorAll("[data-group]").forEach(button=>{
+  const active=button.dataset.group===memberChartGroup;
+  button.classList.toggle("is-active",active);button.setAttribute("aria-pressed",String(active));
+ });
+ filters.querySelectorAll("[data-mode]").forEach(button=>{
+  const active=button.dataset.mode===memberChartMode;
+  button.classList.toggle("is-active",active);button.setAttribute("aria-pressed",String(active));
+ });
  const points=memberBuckets().filter(p=>/^\d{4}-\d{2}-\d{2}$/.test(p.date));
- filters.querySelectorAll(".f4-bank-chart-groups button").forEach(b=>{
-  const active=b.dataset.group===memberChartGroup;b.classList.toggle("is-active",active);b.setAttribute("aria-pressed",String(active));
- });
- filters.querySelectorAll(".f4-bank-chart-switch button").forEach(b=>{
-  const active=b.dataset.mode===memberChartMode;b.classList.toggle("is-active",active);b.setAttribute("aria-pressed",String(active));
- });
- const monthly=memberChartGroup==="month";
- let entries;
- if(monthly){
-  const byMonth=new Map();
-  for(const point of points){
-   let month=byMonth.get(point.month);
-   if(!month){
-    month={month:point.month,date:point.month+"-01",weight:0,confirmed:0,estimated:0,
-      final:true,missingWeight:false,missingValue:false,count:0,confirmedCount:0};
-    byMonth.set(point.month,month);
-   }
-   month.weight+=point.weight;
-   month.confirmed+=point.confirmed;
-   month.estimated+=point.estimated;
-   month.final=month.final&&point.final;
-   month.missingWeight=month.missingWeight||point.missingWeight;
-   month.missingValue=month.missingValue||point.missingValue;
-   month.count++;
-   if(point.final)month.confirmedCount++;
-  }
-  entries=[...byMonth.values()].sort((a,b)=>a.month.localeCompare(b.month));
- }else{
-  // Periode means the genuine individual weighings, not one selected month.
-  entries=points;
- }
+ const entries=f4PrivateChartEntries(points);
  const useKg=memberChartMode==="kg";
- const amount=item=>useKg?(item.missingWeight?null:item.weight):
-    item.missingValue?null:item.confirmed+item.estimated;
- const max=Math.max(0.001,...entries.map(x=>amount(x)||0));
+ const fields=useKg?["confirmedWeight","pendingWeight"]:["confirmedRp","estimatedRp"];
+ f4PrivateChartSummary(host,entries,memberChartMode);
+ const max=Math.max(.001,...entries.flatMap(row=>fields.map(key=>row[key])));
  const previousView=host.dataset.bankChartView||"";
  const currentView=memberChartGroup+":"+memberChartMode;
  const oldScroll=host.scrollLeft;
  host.replaceChildren();
  host.dataset.bankChartView=currentView;
  host.dataset.chartGroup=memberChartGroup;
- if(!memberStatement){host.append(el("p","f4-bank-empty","Memuat transaksi..."));return;}
- if(!entries.length){host.append(el("p","f4-bank-empty","Belum ada setoran."));return;}
- for(const item of entries){
-  const column=el("div","f4-bank-savings-bar");
-  const track=el("span","f4-bank-savings-bar-rail"),bar=el("i");
-  const actual=amount(item),total=actual==null?0:actual;
-  bar.style.height=(actual==null?0:Math.max(4,total/max*100))+"%";
-  const mixed=monthly&&item.confirmedCount>0&&item.confirmedCount<item.count;
-  bar.className=item.final?"is-confirmed":"is-estimate";
-  if(mixed&&!useKg&&item.confirmed+item.estimated>0){
-   const share=Math.max(0,Math.min(100,item.confirmed/(item.confirmed+item.estimated)*100));
-   bar.style.background="linear-gradient(to top,#159962 0%,#159962 "+share+"%,#f4a91f "+share+"%,#f4a91f 100%)";
+ host.setAttribute("role","img");
+ host.setAttribute("aria-label","Perkembangan setoran pribadi. "+entries.map(e=>e.full+": "+
+  fields.map((key,i)=>(i?"Perkiraan ":"Sah ")+(useKg?f4PrivateKg(e[key]):rupiah(e[key]))).join(", ")).join("; "));
+ if(!memberStatement){host.append(el("p","f4-bank-empty","Memuat setoran..."));return;}
+ if(!entries.some(e=>e.count)){
+  host.append(el("p","f4-bank-empty","Belum ada setoran pada periode ini."));
+ }else{
+  for(const item of entries){
+   const column=el("div","f4-bank-savings-bar");
+   const amounts=fields.map(key=>item[key]);
+   const val=amounts[0]>0?amounts[0]:amounts[1];
+   const amountLabel=useKg?f4PrivateShort(val,"kg")+" kg":f4PrivateShort(val,"rp");
+   const noFinal=useKg?item.missingWeight:item.missingValue;
+   column.append(el("strong","",noFinal?"—":amountLabel));
+   const rail=el("span","f4-bank-savings-bar-rail");
+   for(const [index,key] of fields.entries()){
+    const bar=el("i",index?"is-estimate":"is-confirmed");
+    bar.style.height=item[key]>0?Math.max(4,item[key]/max*100)+"%":"0%";
+    bar.title=(index?"Belum sah / perkiraan":"Sudah sah")+": "+(useKg?f4PrivateKg(item[key]):rupiah(item[key]));
+    rail.append(bar);
+   }
+   column.append(rail,el("small","",item.label));
+   column.title=item.full+" • "+fields.map((key,i)=>(i?"Belum sah / perkiraan ":"Sah ")+
+    (useKg?f4PrivateKg(item[key]):rupiah(item[key]))).join(" • ");
+   column.setAttribute("aria-label",column.title);
+   host.append(column);
   }
-  track.append(bar);
-  const label=monthly?monthName(item.month):item.date.slice(8,10)+"/"+item.date.slice(5,7);
-  const value=actual==null?"—":useKg?
-    total.toLocaleString("id-ID",{maximumFractionDigits:3})+" kg":rupiah(total);
-  column.append(el("strong","",value),track,el("small","",label));
-  const kind=monthly?(mixed?"Sah dan perkiraan":item.final?"Sah":"Perkiraan"):(item.final?"Sah":"Perkiraan");
-  column.title=kind+" • "+label+" • "+value+(monthly?" • "+item.count+" setoran":"");
-  column.setAttribute("aria-label",column.title);
-  host.append(column);
  }
- // Chronological order, with the most recent bars visible first on opening.
  if(previousView===currentView)host.scrollLeft=oldScroll;
- else host.scrollLeft=host.scrollWidth;
+ else host.scrollLeft=memberChartGroup==="period"?host.scrollWidth:0;
+ f4PrivateDepositFeed();
 }
 function syncSavings(){
  text("f4BankSavingsBalance",memberStatement?rupiah(memberStatement.saldo):"—");
