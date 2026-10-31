@@ -920,6 +920,7 @@ function handleRoute(route,old,args){
   $("pageDashboard")?.classList.add("hidden");
   memberFeature(route);
   $(route)?.classList.remove("hidden");
+  if(typeof window.v16Sync==="function")window.v16Sync(route);
   screen=route;markDock();return;
  }
  if(document.body.classList.contains("f4-member-feature")){restoreFeature();hideCustom();}
