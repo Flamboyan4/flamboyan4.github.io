@@ -841,11 +841,10 @@ function memberFeature(route){
  page.querySelector(":scope > .f4-bank-screen-title")?.remove();
  if(!page.querySelector(".f4-member-feature-header")){
   const header=el("header","f4-member-feature-header");
-  const back=el("button","","←");back.type="button";back.setAttribute("aria-label","Kembali ke Beranda");
-  back.onclick=()=>navigate("dashboard");
+  // Navigation back remains exclusively in the top bar, not duplicated inside the page.
   const title=el("div");title.append(el("h2","",progress?"Perkembangan":"Informasi & Laporan"),
     el("small","",progress?"Bank Sampah Flamboyan 4":"Laporan publik · Dokumentasi · Inventaris"));
-  header.append(back,title);page.prepend(header);
+  header.append(title);page.prepend(header);
  }
  let content=page.querySelector(".f4-member-feature-content");
  if(!content){content=el("div","f4-member-feature-content");page.append(content);}
