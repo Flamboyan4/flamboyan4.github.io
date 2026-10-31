@@ -805,18 +805,17 @@ function moveFeature(ids,target){
  }
 }
 function memberSide(enabled){
- // Keep #sideNav mounted: legacy goPage()/v16Sync() still require that node.
+ // Mobile: bottom dock only. Desktop: full left sidebar, same route handlers.
  const side=$("sideNav");if(!side)return;
- side.classList.toggle("hidden",enabled);
- if(enabled){
-  side.classList.remove("open");
-  side.setAttribute("aria-hidden","true");
-  side.inert=true;
-  $("v16Backdrop")?.classList.remove("open");
-  document.body.classList.remove("f4-bank-drawer-open");
- }else{
-  side.removeAttribute("aria-hidden");side.inert=false;
- }
+ const desktop=window.matchMedia("(min-width:1024px)").matches;
+ const visible=enabled&&desktop;
+ side.classList.toggle("hidden",enabled&&!desktop);
+ side.classList.remove("open");
+ if(enabled&&!desktop){side.setAttribute("aria-hidden","true");side.inert=true;}
+ else{side.removeAttribute("aria-hidden");side.inert=false;}
+ $("v16Backdrop")?.classList.remove("open");
+ document.body.classList.remove("f4-bank-drawer-open");
+ document.body.classList.toggle("f4-bank-member-desktop",visible);
 }
 function progressPreview(){
  if(roleType()!=="member")return;
@@ -1112,6 +1111,10 @@ function acceptMemberStatement(event){
 
 function init(){
  if(ready)return;ready=true;
+ // Resizing between phone and PC must restore/hide the real sidebar immediately.
+ window.addEventListener("resize",()=>{
+  if(role==="member")memberSide(true);
+ });
  $("f4-mobile-menu")?.addEventListener("click",event=>{
   if(roleType()!=="member")return;
   event.preventDefault();event.stopImmediatePropagation();
