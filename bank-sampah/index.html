@@ -3900,7 +3900,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         button.type='button';button.className='v16-item v16-mobile-extra';
         button.dataset.route=route;button.append(v16Icon(icon),document.createTextNode(label));
         button.onclick=()=>{v16CloseMenu();goPage(route);v16Sync(route);};
-        list.appendChild(button);
+        const next=list.querySelector('[data-group="payout"]');
+        if(next)list.insertBefore(button,next);else list.appendChild(button);
       });
     }
     if(!$('v16Tabs')){
