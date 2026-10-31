@@ -922,6 +922,92 @@ body.f4-bank-app-member #dashboardView .f4-bank-screen{
 .f4-bank-manager-request>small{font-size:11px;color:#718174}
 .f4-bank-manager-request-actions{display:flex;gap:8px}
 .f4-bank-manager-request-actions button{flex:1}
+/* Pengurus: satu sistem formulir dan aksi, tanpa menimpa scroll. */
+body.f4-bank-app-admin #dashboardView{--bank-input-h:42px;--bank-form-gap:13px}
+body.f4-bank-app-admin #dashboardView .section :is(form,.field,.toolbar){min-width:0}
+body.f4-bank-app-admin #dashboardView .section :is(#pageMaster,#pageAdmin,#pageRiwayat,#pageRiwayatJual,#pageTabungan,#pageLaporan)>.toolbar{
+ display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px 14px;margin-bottom:14px
+}
+body.f4-bank-app-admin #dashboardView .section .toolbar h2{margin:0;line-height:1.3}
+body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm){
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:var(--bank-form-gap) 14px
+}
+body.f4-bank-app-admin #dashboardView .section #setoranForm>*,
+body.f4-bank-app-admin #dashboardView .section #saleForm>:is(
+ .f4-entry-top-fields,.f4-entry-goods-heading,#saleItems,.summary-box,.f4-sale-note-fields,button[type=submit]){
+ grid-column:1/-1
+}
+body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm)>.field{margin:0;min-width:0}
+body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-top-fields{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:end;gap:12px;margin:0
+}
+body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields{
+ grid-template-columns:repeat(3,minmax(0,1fr))
+}
+body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-goods-heading{
+ display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0
+}
+body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-goods-heading h3{
+ margin:0;font-size:15px;line-height:1.3
+}
+body.f4-bank-app-admin #dashboardView .section .field>label,
+body.f4-bank-app-admin #dashboardView .section .f4-bank-own-field>span:first-child{
+ display:block;margin:0 0 6px;font-size:12px;font-weight:700;color:#27553e
+}
+body.f4-bank-app-admin #dashboardView .section .field :is(
+ input:not([type=checkbox]):not([type=radio]):not([type=file]),select,textarea),
+body.f4-bank-app-admin #dashboardView .section .f4-bank-own-field :is(input,select){
+ box-sizing:border-box;width:100%;max-width:100%;min-width:0;min-height:var(--bank-input-h);
+ margin:0;padding:9px 11px;font-size:13px;line-height:1.4
+}
+body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm)>.summary-box{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ align-items:center;gap:12px;min-width:0;margin:0;padding:12px 14px
+}
+body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm)>.summary-box>*{min-width:0}
+body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm)>button[type=submit]{
+ justify-self:start;min-height:41px;width:auto;max-width:100%;margin:2px 0 0;
+ padding:10px 17px;border-radius:10px;font-size:13px
+}
+body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-history-tabs,.f4-bank-admin-cash-tabs){
+ display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-width:0
+}
+body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-history-tab,.f4-bank-secondary-action,.f4-bank-gold-action){
+ min-height:38px;max-width:100%;margin:0;padding:9px 13px;font-size:12px;line-height:1.3
+}
+body.f4-bank-app-admin #dashboardView .section .f4-bank-admin-actions{
+ display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,.85fr);align-items:center;gap:8px
+}
+body.f4-bank-app-admin #dashboardView .section .f4-bank-admin-actions button{
+ min-width:0;min-height:39px;margin:0;padding:9px 12px;
+ white-space:normal;font-size:12px;line-height:1.25
+}
+body.f4-bank-app-admin #dashboardView .section .f4-bank-manager-request-actions{
+ display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px
+}
+body.f4-bank-app-admin #dashboardView .section .f4-bank-manager-request-actions button{
+ flex:1 1 125px;max-width:220px
+}
+body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.tablewrap){
+ max-width:100%;overflow-x:auto
+}
+@media(max-width:1023px){
+ body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>.field:last-child{grid-column:1/-1}
+}
+@media(max-width:600px){
+ body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-top-fields,
+ body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields{grid-template-columns:minmax(0,1fr)}
+ body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>.field:last-child{grid-column:auto}
+ body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm){column-gap:9px;row-gap:11px}
+ body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm)>button[type=submit]{
+  justify-self:stretch;width:100%
+ }
+ body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm)>.summary-box{gap:7px;padding:11px}
+ body.f4-bank-app-admin #dashboardView .section .f4-bank-admin-actions{
+  width:100%;grid-template-columns:minmax(0,1.5fr) minmax(0,.85fr)
+ }
+}
 /* Pengurus: komponen operasional asli, tanpa menu/portal duplikat pada HP. */
 body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
  display:grid;gap:10px;margin:0;padding:15px;background:#fff;
@@ -965,7 +1051,7 @@ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
  display:block;max-width:100%;overflow-wrap:break-word
 }
 #dashboardView #bank-admin-history.f4-bank-screen{
- width:100%;max-width:1080px;min-width:0;
+ width:100%;max-width:none;min-width:0;
  align-content:start
 }
 .f4-bank-admin-history-tabs{display:flex;gap:7px}
@@ -995,15 +1081,13 @@ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
 .f4-bank-admin-name-form input{flex:1 1 210px;min-width:0}
 .f4-bank-admin-name-form button{min-height:39px}
 .f4-bank-admin-name-status{flex-basis:100%;color:#667c6c}
-#dashboardView #pageProfile .f4-bank-admin-profile-password{
- margin-top:14px;border:1px solid #dce9df;border-radius:13px;padding:12px 14px
+#dashboardView #pageProfile #v15PasswordBox{
+ margin-top:12px;padding:0;border:1px solid #dce9df;border-radius:11px;background:#fff
 }
-#dashboardView #pageProfile .f4-bank-admin-profile-password>summary{
- cursor:pointer;font-size:13px;font-weight:800;color:#164e36
+#dashboardView #pageProfile #v15PasswordBox form{
+ display:grid;gap:12px;max-width:560px;margin:0;padding:13px;border-top:1px solid #e6eee7
 }
-#dashboardView #pageProfile .f4-bank-admin-profile-password #pagePassword{
- width:100%;max-width:none;margin:12px 0 0;padding:0;border:0;box-shadow:none
-}
+#dashboardView #pageProfile #v15PasswordBox form .field{min-width:0;margin:0}
 #dashboardView #f4BankAppHome[data-bank-role="admin"]>#v17Perkembangan{
  grid-column:1/-1;min-width:0;margin:0
 }
@@ -1040,7 +1124,7 @@ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
  }
  body.f4-bank-app-admin #sideNav #v16NavList>.v16-item svg{width:17px;height:17px}
  body.f4-bank-app-admin #sideNav #v15Footer .account-entry{display:none}
- body.f4-bank-app-admin #sideNav #v15Footer{display:flex;justify-content:flex-end;padding-top:9px}
+ body.f4-bank-app-admin #sideNav #v15Footer{display:none}
  body.f4-bank-app-admin #dashboardView .f4-bank-screen{
   padding:19px 20px;border:1px solid #dfeae2;border-radius:15px;background:#fff
  }
@@ -1052,7 +1136,7 @@ body.f4-bank-app-admin #f4-direct-bar .f4-bank-admin-top-identity{
  color:#164d35;font:850 15px/1.2 system-ui
 }
 body.f4-bank-app-admin #dashboardView #bank-admin-docs{
- align-content:start;max-width:1080px;width:100%
+ align-content:start;max-width:none;width:100%
 }
 body.f4-bank-app-admin #bank-admin-docs .f4-bank-admin-doc-content{
  display:grid;min-width:0;gap:10px;
@@ -1096,8 +1180,8 @@ body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm{
 }
 .f4-compact-rows{display:grid;gap:9px;min-width:0}
 .f4-compact-row{
- display:grid;grid-template-columns:minmax(0,1.5fr) minmax(110px,1fr) 37px;
- align-items:stretch;gap:8px;min-width:0
+ display:grid;grid-template-columns:minmax(0,1.45fr) minmax(110px,1fr) 38px;
+ align-items:stretch;gap:9px;min-width:0
 }
 .f4-compact-sale-row{grid-template-columns:minmax(0,1.35fr) minmax(95px,.8fr) minmax(110px,.9fr) 37px}
 .f4-compact-row :is(select,input){
@@ -1130,12 +1214,15 @@ body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm{
 .f4-bank-own-detail-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .f4-bank-own-detail-head strong{color:#16472f}
 .f4-bank-own-lines{display:grid;gap:8px}
-.f4-bank-own-line{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(90px,1fr) 34px;gap:7px}
-.f4-bank-own-line :is(input,select){width:100%;min-width:0;box-sizing:border-box}
-.f4-bank-own-remove{border:1px solid #e1e5df;border-radius:8px;background:#fff;color:#915332;cursor:pointer;padding:0}
+.f4-bank-own-line{
+ display:grid;grid-template-columns:minmax(0,1.45fr) minmax(110px,1fr) 38px;
+ align-items:stretch;min-width:0;gap:9px
+}
+.f4-bank-own-line :is(input,select){width:100%;min-width:0;min-height:42px;box-sizing:border-box}
+.f4-bank-own-remove{min-height:42px;border:1px solid #e1e5df;border-radius:10px;background:#fff;color:#915332;cursor:pointer;padding:0;font-size:20px}
 .f4-bank-own-weight{font-size:12px;font-weight:800;color:#126847}
 .f4-bank-own-status{font-size:12px;color:#2b6a4b;min-height:0;margin:0}
-body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:1080px;align-content:start}
+body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:start}
 .f4-bank-admin-cash-body{display:grid;gap:14px}
 .f4-bank-admin-cash-actions{display:flex;gap:9px;flex-wrap:wrap}
 .f4-bank-admin-cash-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
@@ -1345,25 +1432,18 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:1080px;align-conten
   grid-area:progress;min-width:0;width:100%;margin:0;align-self:start
  }
  /* Operational desktops use wide data tables, and forms are kept in columns. */
- body.f4-bank-app-admin #dashboardView .section>.card:not(#pageDashboard){
-  width:100%;max-width:1480px;padding:22px 25px;margin-inline:auto
- }
+ body.f4-bank-app-admin #dashboardView .section>.card:not(#pageDashboard,#pageProfile){
+ width:100%;max-width:1480px;padding:21px 23px;margin-inline:auto
+}
+body.f4-bank-app-admin #dashboardView .section>#pageProfile{
+ width:100%;max-width:940px;padding:21px 23px;margin-inline:0
+}
  body.f4-bank-app-admin #dashboardView .section>.f4-bank-screen{
   width:100%;max-width:1480px;padding:22px 25px;margin-inline:auto
  }
- body.f4-bank-app-admin #dashboardView :is(#pageSetoran,#pagePenjualan) .f4-entry-top-fields{
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px
- }
- body.f4-bank-app-admin #dashboardView #pagePenjualan .f4-sale-top-fields{
-  grid-template-columns:repeat(3,minmax(0,1fr))
- }
  body.f4-bank-app-admin #dashboardView :is(#pageSetoran,#pagePenjualan) :is(#setBarang,#saleItems){
-  width:100%;max-width:100%;min-width:0
- }
- body.f4-bank-app-admin #dashboardView #pageSetoran #setBarang tbody,
- body.f4-bank-app-admin #dashboardView #pagePenjualan #saleItems tbody{
-  grid-template-columns:repeat(3,minmax(0,1fr))
- }
+ width:100%;max-width:100%;min-width:0
+}
  body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-main{
   display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:18px
  }
