@@ -249,6 +249,22 @@ function updateAdminOverview(event){
  if(roleType()!=="admin"||!event.detail)return;
  adminOverview=event.detail;updateDashboard();
 }
+// Hanya wadah halaman pengurus yang tanpa frame di HP.
+ // Panel riwayat, form, dan kartu data di dalam halaman tetap berbingkai.
+function syncAdminPageFrames(){
+ const section=$("dashboardView")?.querySelector(".grid > .section");
+ if(!section)return;
+ const mobile=roleType()==="admin"&&window.matchMedia("(max-width:1023px)").matches;
+ for(const page of section.querySelectorAll("[id^='page']")){
+  if(page.id==="pagePengesahan"||page.id==="pagePribadi")continue;
+  if(!page.dataset.f4OriginalAdminCard&&page.classList.contains("card"))
+   page.dataset.f4OriginalAdminCard="1";
+  if(page.dataset.f4OriginalAdminCard!=="1")continue;
+  const unframed=mobile&&page.parentElement===section;
+  page.classList.toggle("card",!unframed);
+  page.classList.toggle("f4-bank-admin-unframed",unframed);
+ }
+}
 function ensureScreen(id,title){
  let node=$(id);
  if(!node){
@@ -1124,6 +1140,7 @@ function showAdminHistory(selected="setoran"){
  }
  const setoran=$("pageRiwayat"),penjualan=$("pageRiwayatJual");
  for(const panel of [setoran,penjualan])if(panel?.parentNode!==page)page.append(panel);
+ syncAdminPageFrames();
  const options=[["setoran","Setoran",setoran],["penjualan","Penjualan",penjualan]];
  tabs.replaceChildren(...options.map(([key,label])=>{
   const button=el("button","f4-bank-admin-history-tab"+(selected===key?" is-active":""),label);
@@ -1451,6 +1468,7 @@ function handleRoute(route,old,args){
  screen=route;markDock();
  if(route==="tabungan"&&roleType()==="admin")managerRequestsPanel();
  if(route==="pribadi")ensureMemberPages();
+ if(role==="admin")syncAdminPageFrames();
  return result;
 }
 function sync(){
@@ -1464,6 +1482,7 @@ function sync(){
   hideCustom();memberSide(false);restoreAdminProgress();restoreAdminMedia();
   $("f4BankMemberTopIdentity")?.remove();$("f4BankAdminTopIdentity")?.remove();document.body.classList.remove("f4-bank-member-secondary");
   role=null;memberStatement=null;memberSnapshotsLoaded=false;
+  syncAdminPageFrames();
   $("f4BankProfileDetail")?.remove();return;
  }
  if(next!==role){
@@ -1474,6 +1493,7 @@ function sync(){
   if(role==="admin")$("f4BankProfileDetail")?.remove();
  }
  memberSide(role==="member");adminTopIdentity();
+ syncAdminPageFrames();
  ensureHome();
  if(role==="member"){
   ensureMemberPages();progressPreview();infoShortcut();orderMemberHome();bindMemberDocumentation();publicSnapshot();
@@ -1612,7 +1632,7 @@ function acceptMemberStatement(event){
 function init(){
  if(ready)return;ready=true;
  // Resizing between phone and PC must restore/hide the real sidebar immediately.
- window.addEventListener("resize",()=>{
+ window.addEventListener("resize",()=>{syncAdminPageFrames();
   if(role==="member")memberSide(true);
  });
  $("f4-mobile-menu")?.addEventListener("click",event=>{
