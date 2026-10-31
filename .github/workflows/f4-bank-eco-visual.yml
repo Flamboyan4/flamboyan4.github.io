@@ -5,6 +5,9 @@ on:
     paths:
       - bank-sampah/index.html
       - portal-live/bank-eco-pages.css
+      - portal-live/bank-mobile-app.js
+      - portal-live/live-bank-readonly.js
+      - qa/bank-app-responsive.py
       - qa/bank-eco-visual.py
       - .github/workflows/f4-bank-eco-visual.yml
   workflow_dispatch:
@@ -26,6 +29,8 @@ jobs:
           sleep 2
       - name: Inspect computed colors and desktop/mobile card layouts
         run: python3 qa/bank-eco-visual.py
+      - name: Verify manager screen layout and dedicated payout UI
+        run: python3 qa/bank-app-responsive.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
