@@ -3599,8 +3599,9 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     {id:'withdrawal',label:'Pencairan',icon:'wallet',member:true,tabs:[['bank-payout','Ajukan pencairan']]},
     {id:'statement',label:'Riwayat',icon:'edit',member:true,tabs:[['bank-history','Riwayat transaksi']]},
     {id:'memberreport',label:'Laporan',icon:'database',member:true,tabs:[['bank-report','Laporan tabungan']]},
-    {id:'progress',label:'Perkembangan',icon:'leaf',member:true,tabs:[['progress','Progres kegiatan']]},
-    {id:'public',label:'Portal publik',icon:'globe',admin:true,member:true,tabs:[]}
+    {id:'progress',label:'Perkembangan',icon:'leaf',member:true,tabs:[['bank-member-progress','Perkembangan']]},
+    {id:'memberinfo',label:'Informasi & Laporan',icon:'globe',member:true,tabs:[['bank-member-info','Informasi & Laporan']]},
+    {id:'public',label:'Portal publik',icon:'globe',admin:true,tabs:[]}
   ];
   const v16SvgPaths={
     home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
@@ -3795,7 +3796,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
           <section class="f4-dev-chart-card" aria-labelledby="f4DevChartTitle">
             <div class="f4-dev-head"><h3 id="f4DevChartTitle">Grafik setoran</h3><small class="f4-dev-head-note" id="f4DevChartPeriod">Per bulan</small></div>
             <div class="f4-dev-controls">
-              <div class="f4-dev-periods" role="group" aria-label="Rentang perkembangan"><button type="button" data-dev-range="7" aria-pressed="false">7 hari</button><button type="button" data-dev-range="30" aria-pressed="false">30 hari</button><button type="button" data-dev-range="bulan" aria-pressed="true">Per bulan</button></div>
+              <div class="f4-dev-periods" role="group" aria-label="Rentang perkembangan"><button type="button" data-dev-range="period" aria-pressed="true">Periode</button><button type="button" data-dev-range="30" aria-pressed="false">30 hari</button><button type="button" data-dev-range="bulan" aria-pressed="false">Per bulan</button></div>
               <div class="f4-dev-modes" role="group" aria-label="Jenis grafik"><button type="button" data-dev-mode="berat" aria-pressed="true">Kg</button><button type="button" data-dev-mode="nilai" aria-pressed="false">Rp</button></div>
             </div>
             <div id="f4DevChartSummary" class="f4-dev-chart-summary"></div>
@@ -3846,7 +3847,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     });d.appendChild(list);}
     return d;
   }
-  let v17PublicChartMode='berat',v17PublicChartRange='bulan';
+  let v17PublicChartMode='berat',v17PublicChartRange='period';
   let v17PublicChartRows=[],v17PublicDailyRows=null,v17PublicReportReady=false,v17PublicReportFailed=false,v17PublicLoadSerial=0;
   let v17ProgressCount=0;
   function f4DevUnit(value,mode='berat'){
@@ -3884,7 +3885,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       });
     if(!v17PublicReportReady||!Array.isArray(v17PublicDailyRows))return null;
     const byDay=new Map(v17PublicDailyRows.map(row=>[String(row.tanggal||''),row]));
-    const windowDays=v17PublicChartRange==='7'?7:30;
+    const windowDays=30;
     const today=f4DevTodayWib();
     const days=Array.from({length:windowDays},(_,i)=>{
       const date=new Date(today-(windowDays-1-i)*86400000);
@@ -3892,13 +3893,15 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       const label=String(date.getUTCDate()).padStart(2,'0')+'/'+String(date.getUTCMonth()+1).padStart(2,'0');
       return normalize(byDay.get(key),label,key);
     });
-    if(windowDays===7)return days;
+    // Periode: only dates with actual deposits/sales. Do not fabricate empty transactions.
+    if(v17PublicChartRange==='period')return days.filter(row=>
+      row.beratKg>0||row.pendingWeightKg>0||row.hasilPenjualan>0);
     const groups=[];
     for(let i=0;i<days.length;i+=5){
       const block=days.slice(i,i+5);
       const start=block[0],end=block[block.length-1];
       const row={};fields.forEach(key=>{row[key]=block.reduce((sum,d)=>sum+d[key],0)});
-      groups.push(normalize(row,String(i/5+1),start.full+' s.d. '+end.full));
+      groups.push(normalize(row,start.label,start.full+' s.d. '+end.full));
     }
     return groups;
   }
@@ -3926,7 +3929,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       const selected=button.dataset.devMode===v17PublicChartMode||button.dataset.devRange===v17PublicChartRange;
       button.classList.toggle('is-active',selected);button.setAttribute('aria-pressed',String(selected));
     });
-    const periodLabel=v17PublicChartRange==='7'?'7 hari terakhir':v17PublicChartRange==='30'?'30 hari terakhir':'6 bulan terakhir';
+    const periodLabel=v17PublicChartRange==='period'?'Periode setoran':v17PublicChartRange==='30'?'30 hari terakhir':'6 bulan terakhir';
     $('f4DevChartPeriod').textContent=periodLabel;
     const data=f4DevDataRows();
     const dataAvailable=data!==null&&(!valueMode||v17PublicReportReady);
@@ -3949,7 +3952,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       const info=document.createElement('div');info.className='f4-dev-empty';
       info.textContent=v17PublicChartRange!=='bulan'?'Rekap harian belum tersedia.':incomplete?'Nominal belum dapat dimuat.':'Memuat laporan...';
       root.append(info);
-      note.textContent=v17PublicChartRange!=='bulan'?'Rekap harian diperlukan untuk grafik 7/30 hari.':'Grafik nilai hanya menampilkan hasil jual yang sudah sah.';
+      note.textContent=v17PublicChartRange==='period'?'Periode menggunakan tanggal setoran dari rekap harian yang tersedia.':v17PublicChartRange==='30'?'Rekap 30 hari belum tersedia.':'Grafik nilai hanya menampilkan hasil jual yang sudah sah.';
       return;
     }
     if(!rows.length){
@@ -3984,6 +3987,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     note.textContent=!v17PublicReportReady?
       (incomplete?'Rincian belum sah belum dapat dimuat.':'Memuat rincian periode...'):
       v17PublicChartRange==='30'?'Setiap batang mewakili 5 hari. Nominal hanya transaksi sah.':
+      v17PublicChartRange==='period'?'Periode berdasarkan tanggal yang tercatat dalam 30 hari terakhir.':
       valueMode?'Hanya hasil penjualan sah, bukan perkiraan.':'Berat sah dan setoran belum sah ditampilkan terpisah.';
   }
   function v17BindPublicChart(){
