@@ -903,7 +903,8 @@ function ensureAdminHome(){
  if(role!=="admin")return;
  const home=$("f4BankAppHome");if(!home)return;
  let shortcuts=$("f4BankAdminShortcuts");
- if(!shortcuts){
+ if(window.matchMedia("(min-width:1024px)").matches){shortcuts?.remove();shortcuts=null;}
+ if(!shortcuts&&window.matchMedia("(max-width:1023px)").matches){
   shortcuts=el("section","f4-bank-admin-shortcuts");shortcuts.id="f4BankAdminShortcuts";
   shortcuts.append(el("h2","","Akses Cepat"));
   const grid=el("div","f4-bank-admin-shortcut-grid");
@@ -960,6 +961,8 @@ function ensureOwnDepositForm(){
   const amountField=el("label","f4-bank-own-field");
   amountField.append(el("span","","Uang diterima (Rp)"),Object.assign(el("input"),{type:"number",min:"1",step:"1",required:true,placeholder:"0"}));
   amountField.querySelector("input").id="f4BankOwnAmount";
+  amountField.querySelector("input").addEventListener("input",event=>{event.currentTarget.dataset.manual="1";});
+  amountField.append(el("small","f4-bank-own-price-hint","Otomatis dari tarif barang • bisa dikoreksi"));
   const fields=el("div","f4-bank-own-fields");fields.append(dateField,amountField);
   const detail=el("div","f4-bank-own-detail");
   const head=el("div","f4-bank-own-detail-head");
@@ -980,9 +983,15 @@ function ensureOwnDepositForm(){
  chooseOwnMode(ownFormMode);
 }
 function updateOwnWeight(){
- const sum=[...document.querySelectorAll("#f4BankOwnLines [data-own-weight]")]
-  .reduce((n,x)=>n+Math.max(0,Number(x.value)||0),0);
+ let sum=0,estimate=0;
+ for(const row of document.querySelectorAll("#f4BankOwnLines .f4-bank-own-line")){
+  const kg=Math.max(0,Number(row.querySelector("[data-own-weight]")?.value)||0);
+  const item=ownCatalog?.find(x=>x.id===row.querySelector("select")?.value);
+  sum+=kg;estimate+=kg*Number(item?.priceRpPerKg||0);
+ }
  text("f4BankOwnWeight","Total berat: "+new Intl.NumberFormat("id-ID",{maximumFractionDigits:3}).format(sum)+" kg");
+ const amount=$("f4BankOwnAmount");
+ if(amount&&!amount.dataset.manual)amount.value=estimate>0?String(Math.round(estimate)):"";
 }
 function addOwnItemRow(){
  const lines=$("f4BankOwnLines");if(!lines)return;
@@ -991,6 +1000,7 @@ function addOwnItemRow(){
  const select=el("select");select.required=true;select.setAttribute("aria-label","Jenis sampah");
  select.add(new Option("Pilih jenis",""));
  for(const item of ownCatalog||[])select.add(new Option(item.name,item.id));
+ select.onchange=updateOwnWeight;
  const weight=el("input");weight.type="number";weight.step="0.001";weight.min="0.001";
  weight.max="10000";weight.required=true;weight.dataset.ownWeight="1";weight.placeholder="Berat (kg)";
  weight.setAttribute("aria-label","Berat sampah kilogram");weight.oninput=updateOwnWeight;
@@ -1006,7 +1016,7 @@ async function loadOwnCatalog(){
   try{
    const result=await api("/api/v2/admin/bank/catalog");
    ownCatalog=(result.data||[]).filter(x=>Number(x.active)===1)
-    .map(x=>({id:String(x.id),name:x.name}));if(status)status.textContent="";
+    .map(x=>({id:String(x.id),name:x.name,priceRpPerKg:Number(x.priceRpPerKg)||0}));if(status)status.textContent="";
   }catch(error){if(status)status.textContent="Jenis barang belum tersedia: "+error.message;return;}
  }
  const rows=$("f4BankOwnLines");
@@ -1024,6 +1034,7 @@ async function submitOwnDeposit(event){
  if(!items.length||items.some(x=>!x.itemId||!Number.isFinite(x.kg)||x.kg<=0||!Number.isSafeInteger(x.grams)||x.grams<1)){
   status.textContent="Lengkapi jenis dan berat barang.";return;
  }
+ if(new Set(items.map(x=>x.itemId)).size!==items.length){status.textContent="Jenis sampah yang sama cukup satu baris.";return;}
  if(!Number.isSafeInteger(amountRp)||amountRp<1){
   status.textContent="Masukkan nominal yang benar-benar sudah diterima.";return;
  }
@@ -1037,25 +1048,26 @@ async function submitOwnDeposit(event){
    note:$("f4BankOwnNote")?.value.trim()||""
   });
   status.textContent=res.duplicate?"Setoran sudah tercatat.":"Penerimaan "+rupiah(amountRp)+" tersimpan di kas Bank Sampah.";
-  ownRequestKey="";form.reset();$("f4BankOwnDate").value=today();
+  ownRequestKey="";form.reset();$("f4BankOwnAmount").dataset.manual="";$("f4BankOwnDate").value=today();
   $("f4BankOwnLines")?.replaceChildren();addOwnItemRow();updateOwnWeight();
   adminOverview=null;updateDashboard();
  }catch(error){status.textContent=error.message||"Setoran gagal disimpan.";}
  finally{button.disabled=false;}
 }
+let adminCashTab="in";
 function showAdminCash(){
  const page=ensureScreen("bank-admin-cash","Debit / Kredit");
  let body=$("f4BankAdminCashBody");
  if(!body){
   body=el("div","f4-bank-admin-cash-body");body.id="f4BankAdminCashBody";
-  const actions=el("div","f4-bank-admin-cash-actions");
-  for(const [label,route] of [["Setoran Bank Sampah","setoran"],["Pengeluaran","biaya"]]){
-   const button=el("button",route==="setoran"?"f4-bank-gold-action":"f4-bank-secondary-action",label);
-   button.type="button";button.onclick=()=>{
-    if(route==="setoran")ownFormMode="bank";navigate(route);
-   };actions.append(button);
+  const tabs=el("div","f4-bank-admin-history-tabs f4-bank-admin-cash-tabs");tabs.id="f4BankCashTabs";
+  for(const [key,label] of [["in","Pemasukan"],["out","Pengeluaran"]]){
+   const button=el("button","f4-bank-admin-history-tab",label);button.type="button";button.dataset.cashTab=key;
+   button.onclick=()=>{adminCashTab=key;loadAdminCash();};tabs.append(button);
   }
-  body.append(actions,el("div","f4-bank-admin-cash-stats"));
+  body.append(tabs,el("div","f4-bank-admin-cash-stats"));
+  const action=el("button","f4-bank-secondary-action f4-bank-cash-expense-action","Catat pengeluaran");
+  action.type="button";action.onclick=()=>navigate("biaya");body.append(action);
   body.append(el("div","f4-bank-admin-cash-table","Memuat mutasi kas..."));
   page.append(body);
  }
@@ -1065,32 +1077,39 @@ async function loadAdminCash(){
  const page=$("f4BankAdminCashBody");if(!page)return;
  const target=page.querySelector(".f4-bank-admin-cash-table");
  target.textContent="Memuat mutasi kas...";
+ page.querySelectorAll("[data-cash-tab]").forEach(button=>{
+  const active=button.dataset.cashTab===adminCashTab;
+  button.classList.toggle("is-active",active);button.setAttribute("aria-pressed",String(active));
+ });
+ const expense=page.querySelector(".f4-bank-cash-expense-action");
+ if(expense)expense.hidden=adminCashTab!=="out";
  try{
   const res=await api("/api/v2/admin/bank/cash?limit=300");
-  const rows=(res.data||[]).filter(x=>x.status==="aktif").sort((a,b)=>
+  const all=(res.data||[]).filter(x=>x.status==="aktif").sort((a,b)=>
    String(b.occurred_on||"").localeCompare(String(a.occurred_on||"")));
-  const totalIn=rows.reduce((n,x)=>n+Number(x.cash_in_rp||0),0);
-  const totalOut=rows.reduce((n,x)=>n+Number(x.cash_out_rp||0),0);
+  const incoming=all.reduce((n,x)=>n+Number(x.cash_in_rp||0),0);
+  const outgoing=all.reduce((n,x)=>n+Number(x.cash_out_rp||0),0);
+  const rows=all.filter(x=>adminCashTab==="in"?Number(x.cash_in_rp)>0:Number(x.cash_out_rp)>0);
   page.querySelector(".f4-bank-admin-cash-stats").replaceChildren(...[
-   ["Kredit",totalIn],["Debit",totalOut],["Selisih",totalIn-totalOut]
+   ["Pemasukan",incoming],["Pengeluaran",outgoing],["Selisih mutasi",incoming-outgoing]
   ].map(([name,value])=>{
    const node=el("div","f4-bank-admin-cash-stat");
    node.append(el("small","",name),el("strong","",rupiah(value)));return node;
   }));
   const table=el("table","f4-bank-admin-cash-ledger");
   const thead=el("thead"),heading=el("tr");
-  for(const label of ["Tanggal","Keterangan","Pos","Kredit","Debit"])heading.append(el("th","",label));
+  for(const label of ["Tanggal","Keterangan","Pos","Nominal"])heading.append(el("th","",label));
   thead.append(heading);table.append(thead);
   const tbody=el("tbody");
   for(const item of rows){
    const tr=el("tr");
    for(const value of [item.occurred_on||"—",item.note||item.transaction_type||"—",
-     item.fund_position||"—",rupiah(item.cash_in_rp),rupiah(item.cash_out_rp)])
+     item.fund_position||"—",rupiah(adminCashTab==="in"?item.cash_in_rp:item.cash_out_rp)])
     tr.append(el("td","",value));
    tbody.append(tr);
   }
   table.append(tbody);target.replaceChildren(table);
-  if(!rows.length)target.textContent="Belum ada mutasi kas.";
+  if(!rows.length)target.textContent=adminCashTab==="in"?"Belum ada pemasukan.":"Belum ada pengeluaran.";
  }catch(error){target.textContent="Mutasi kas belum dapat dibuka: "+error.message;}
 }
 let adminMediaRestore=[];
@@ -1633,6 +1652,7 @@ function init(){
  if(ready)return;ready=true;
  // Resizing between phone and PC must restore/hide the real sidebar immediately.
  window.addEventListener("resize",()=>{syncAdminPageFrames();
+  if(role==="admin")ensureAdminHome();
   if(role==="member")memberSide(true);
  });
  $("f4-mobile-menu")?.addEventListener("click",event=>{
