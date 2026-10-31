@@ -288,9 +288,17 @@ function mountSavings(){
   chart.append(el("h3","","Perkembangan Setoran"));
   const bars=el("div","f4-bank-savings-bars","Memuat...");bars.id="f4BankSavingsBars";chart.append(bars);
   $("f4BankSavingsStats")?.after(chart);
-  const report=el("button","f4-bank-report-open","Lihat Laporan & Cetak PDF");
-  report.type="button";report.onclick=()=>navigate("bank-report");chart.after(report);
  }
+ // Riwayat becomes the right-hand panel on PC, and remains below the chart on HP.
+ const deposits=$("v12Deposits");
+ if(deposits&&!$("f4BankSavingsHistoryPanel")){
+  const panel=el("section","f4-bank-savings-history-panel");panel.id="f4BankSavingsHistoryPanel";
+  const heading=deposits.previousElementSibling;
+  if(heading?.tagName==="H2"){heading.textContent="Riwayat Setoran";panel.append(heading);}
+  else panel.append(el("h2","","Riwayat Setoran"));
+  panel.append(deposits);priv.append(panel);
+ }
+ priv.querySelector(".f4-bank-report-open")?.remove();
  // Source table remains untouched for full PDF and CSV and private API bookkeeping.
  syncSavings();
 }
@@ -967,6 +975,10 @@ function navigate(route){
  if(typeof window.goPage==="function")window.goPage(route);
 }
 function handleRoute(route,old,args){
+ // Restore the sidebar brand after navigating a long menu on a short PC viewport.
+ if(roleType()==="member"&&window.matchMedia("(min-width:1024px)").matches){
+  const side=$("sideNav");if(side)side.scrollTop=0;
+ }
  if(roleType()==="member"&&featureRoutes.includes(route)){
   restoreFeature();hideCustom();
   old.call(window,"dashboard",...args);
