@@ -842,15 +842,36 @@ function moveFeature(ids,target){
 }
 /* Pengurus: mobile dock + aksi cepat; PC sidebar tetap terpisah dari submenu. */
 const adminShortcuts=[
- ["Riwayat","bank-admin-history","clock.svg"],
- ["Cek & Sahkan","rekonsiliasi","book.svg"],
- ["Pengeluaran","biaya","cash.svg"],
- ["Pencairan","bank-payout-admin","pay.svg"],
- ["Harga Barang","master","bank.svg"],
- ["Data Anggota","admin","home.svg"],
- ["Profil Pengurus","profile","pay.svg"]
+ ["Cek & Sahkan","rekonsiliasi","shield-check"],
+ ["Riwayat","bank-admin-history","history"],
+ ["Debit/Kredit","bank-admin-cash","wallet"],
+ ["Pencairan","bank-payout-admin","hand-coins"],
+ ["Harga Barang","master","tags"],
+ ["Data Anggota","admin","users"],
+ ["Dokumentasi","bank-admin-docs","images"],
+ ["Profil","profile","user-round"]
 ];
-let adminProgressAnchor=null,adminProgressNode=null,adminLastRoute="dashboard";
+const adminShortcutPaths={
+ "shield-check":'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m8 12 3 3 5-5"/>',
+ history:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/><path d="M4 4v5h5"/>',
+ wallet:'<rect x="3" y="6" width="18" height="15" rx="2"/><path d="M3 10h18M16 15h2M7 3h12"/>',
+ "hand-coins":'<path d="M2 17h3l3 3h8l5-5-1.5-1.5-4 2H9"/><path d="M8 12h5a2 2 0 0 1 2 2"/><circle cx="16" cy="6" r="4"/><path d="M16 4v4m-1-3h2"/>',
+ tags:'<path d="m3 12 9-9h8v8l-9 9-8-8Z"/><circle cx="16" cy="7" r="1"/>',
+ users:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2"/><path d="M17 5a3 3 0 0 1 0 6m1 5c2 0 3 2 3 4"/>',
+ images:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 16 5-5 4 4 3-3 6 6"/>',
+ "user-round":'<circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/>'
+};
+function adminShortcut([name,route,iconName]){
+ const button=el("button","f4-bank-admin-shortcut");
+ button.type="button";button.dataset.bankAppRoute=route;button.setAttribute("aria-label",name);
+ const circle=el("span","f4-bank-admin-shortcut-icon");
+ const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("aria-hidden","true");
+ svg.innerHTML=adminShortcutPaths[iconName]||adminShortcutPaths.wallet;
+ circle.append(svg);button.append(circle,el("span","",name));
+ button.onclick=()=>navigate(route);return button;
+}
+let adminProgressAnchor=null,adminProgressNode=null;
 function ensureAdminHome(){
  if(role!=="admin")return;
  const home=$("f4BankAppHome");if(!home)return;
@@ -859,7 +880,7 @@ function ensureAdminHome(){
   shortcuts=el("section","f4-bank-admin-shortcuts");shortcuts.id="f4BankAdminShortcuts";
   shortcuts.append(el("h2","","Akses Cepat"));
   const grid=el("div","f4-bank-admin-shortcut-grid");
-  grid.append(...adminShortcuts.map(entry=>action(entry)));
+  grid.append(...adminShortcuts.map(adminShortcut));
   shortcuts.append(grid);
   home.insertBefore(shortcuts,home.querySelector(".v14-panel")||null);
  }
