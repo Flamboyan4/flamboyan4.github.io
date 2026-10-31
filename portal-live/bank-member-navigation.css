@@ -22,7 +22,7 @@
   max-height:100dvh;min-height:0;
   overflow-y:auto;overflow-x:hidden;transform:none;visibility:visible;
   overscroll-behavior:contain;border-right:1px solid #e0e9e2;
-  background:#fff;padding:17px 10px 22px;box-shadow:none
+  background:#fff;padding:12px 10px 18px;box-shadow:none
  }
  body.f4-bank-app-member #f4-direct-bar{padding-left:12px}
  body.f4-bank-app-member.f4-bank-member-desktop #f4-direct-bar .f4-bank-member-top-identity{display:none}
@@ -74,6 +74,19 @@ body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page:not(.hi
 body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page{
  border:0;border-radius:0;background:transparent;box-shadow:none
 }
+#dashboardView #pagePribadi #f4BankSavingsHistoryPanel{
+ min-width:0;display:grid;align-content:start;gap:10px;
+ padding:15px 16px;border:1px solid #dce8df;
+ border-radius:16px;background:#fff;box-shadow:0 3px 15px #143b2508
+}
+#dashboardView #pagePribadi #f4BankSavingsHistoryPanel>h2{
+ margin:0;padding:0 0 10px;border-bottom:1px solid #e2ece5;
+ color:#164a32;font-size:17px;font-weight:850
+}
+#dashboardView #pagePribadi #f4BankSavingsHistoryPanel>#v12Deposits{
+ min-width:0;margin:0;padding:0;border:0;border-radius:0;
+ background:transparent;box-shadow:none
+}
 /* Functional groups stay visibly separated within otherwise frameless member pages. */
 body.f4-bank-app-member #dashboardView :is(
  .f4-bank-form-panel,.f4-bank-request-history-panel,
@@ -98,11 +111,9 @@ body.f4-bank-app-member #dashboardView .f4-bank-report-transactions>.f4-bank-scr
  body.f4-bank-app-member #dashboardView #pagePribadi #v12Private:not(.hidden){
   display:grid;grid-template-columns:minmax(320px,.9fr) minmax(0,1.1fr);
   grid-template-areas:
-   "hero chart"
-   "stats chart"
-   "report chart"
-   "history-title history-title"
-   "deposits deposits";
+   "hero history"
+   "stats history"
+   "chart history";
   grid-auto-rows:max-content;gap:13px 17px;align-items:start
  }
  body.f4-bank-app-member #dashboardView #pagePribadi #f4BankSavingsHero{
@@ -114,15 +125,8 @@ body.f4-bank-app-member #dashboardView .f4-bank-report-transactions>.f4-bank-scr
  body.f4-bank-app-member #dashboardView #pagePribadi #f4BankSavingsChart{
   grid-area:chart;min-width:0;margin:0
  }
- body.f4-bank-app-member #dashboardView #pagePribadi .f4-bank-report-open{
-  grid-area:report;min-width:0;margin:0
- }
- body.f4-bank-app-member #dashboardView #pagePribadi #v12Private>h2{
-  grid-area:history-title;margin:12px 0 0
- }
- body.f4-bank-app-member #dashboardView #pagePribadi #v12Deposits{
-  grid-area:deposits;min-width:0;padding:9px 16px;
-  border:1px solid #dce8df;border-radius:15px;background:#fff
+ body.f4-bank-app-member #dashboardView #pagePribadi #f4BankSavingsHistoryPanel{
+  grid-area:history;min-width:0;align-self:start
  }
  body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-report).f4-bank-screen:not(.hidden){
   width:100%;max-width:none;margin:0;gap:16px
