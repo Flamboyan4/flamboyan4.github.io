@@ -29,7 +29,7 @@ const adminDock=[
 ];
 const memberDock=[
  ["Beranda","dashboard","home.svg"],["Tabungan","pribadi","cash.svg"],
- ["Pencairan","bank-payout","rp"],["Riwayat","bank-history","book.svg"],
+ ["Pencairan","bank-payout","rp"],["Riwayat","bank-history","calendar.svg"],
  ["Laporan","bank-report","book.svg"]
 ];
 let role=null,screen="dashboard",historyMonth="latest",reportMonth="",activePage=null;
@@ -40,6 +40,8 @@ let memberStatement=null,memberChartMode="kg",memberChartGroup="period";
 let adminOverview=null;
 let refreshing=false;
 const custom=["bank-history","bank-payout","bank-report","bank-payout-admin"];
+const featureRoutes=["bank-member-progress","bank-member-info"];
+let moved=[],memberSnapshotsLoaded=false,snapshotBusy=false,snapshotObserver=null,sideMarker=null,savedSide=null;
 const text=(id,val)=>{if($(id)&&$(id).textContent!==String(val))$(id).textContent=String(val)};
 const image=file=>{const img=el("img");img.src="/assets/icons/"+file;img.alt="";img.setAttribute("aria-hidden","true");return img;};
 function roleType(){
@@ -749,11 +751,119 @@ async function paidRequest(item){
   if(typeof window.v9Load==="function")window.v9Load();
  }catch(error){window.alert("Belum berhasil mencatat pembayaran: "+error.message);}
 }
+
+/* Reuse existing public graph/report nodes, never duplicate their data or listeners. */
+function restoreFeature(){
+ for(const item of moved)if(item.anchor.parentNode)item.anchor.replaceWith(item.node);
+ moved=[];
+ document.body.classList.remove("f4-member-feature");
+ const back=$("f4-mobile-menu");
+ if(back){back.replaceChildren(el("span","f4-svg-icon f4-svg-menu"));back.title="Buka menu halaman";back.setAttribute("aria-label","Buka menu halaman");}
+}
+function moveFeature(ids,target){
+ restoreFeature();
+ for(const id of ids){
+  const node=$(id);if(!node?.parentNode)continue;
+  const anchor=document.createComment("Restore "+id);node.before(anchor);
+  moved.push({node,anchor});target.append(node);
+ }
+}
+function memberSide(enabled){
+ const side=$("sideNav");
+ if(enabled&&side&&!sideMarker){
+  sideMarker=document.createComment("Member navigation via bottom dock");savedSide=side;side.replaceWith(sideMarker);
+  $("v16Backdrop")?.classList.remove("open");document.body.classList.remove("f4-bank-drawer-open");
+ }else if(!enabled&&sideMarker&&savedSide){
+  sideMarker.replaceWith(savedSide);sideMarker=null;savedSide=null;
+ }
+}
+function progressPreview(){
+ if(roleType()!=="member")return;
+ const home=$("f4BankAppHome");if(!home)return;
+ let preview=$("f4MemberEnvironmentPreview");
+ if(!preview){
+  preview=el("section","f4-member-environment-preview");preview.id="f4MemberEnvironmentPreview";
+  const heading=el("div","f4-member-environment-head");
+  heading.append(el("h3","","Perkembangan"));
+  const view=el("button","","Lihat semua");view.type="button";view.onclick=()=>navigate("bank-member-progress");
+  heading.append(view);
+  const stats=el("div","f4-member-environment-stats");stats.id="f4MemberEnvironmentStats";
+  const recent=el("button","f4-member-environment-latest");recent.id="f4MemberEnvironmentLatest";recent.type="button";
+  recent.onclick=()=>navigate("bank-member-progress");
+  preview.append(heading,stats,recent);
+  const history=$("v14Recent")?.closest(".v14-panel");
+  if(history?.parentElement===home)history.before(preview);else home.append(preview);
+ }
+ const rows=[...($("f4DevStats")?.querySelectorAll(".f4-dev-stat")||[])];
+ const values=rows.map(node=>node.querySelector(".f4-dev-stat-value")?.textContent?.trim()||"—");
+ const stats=$("f4MemberEnvironmentStats");
+ stats.replaceChildren(...[["Berat sah",values[0]||"—","bank.svg"],["Hasil jual",values[2]||"—","cash.svg"],["Tahap",values[3]||"—","calendar.svg"]].map(([label,value,asset])=>{
+  const tile=el("div","f4-member-environment-stat");
+  tile.append(image(asset));
+  const data=el("span");data.append(el("small","",label),el("strong","",value));tile.append(data);return tile;
+ }));
+ const latest=$("f4MemberEnvironmentLatest"),activity=$("v17Timeline")?.querySelector(".f4-dev-activity");
+ latest.replaceChildren();
+ const thumb=activity?.querySelector("img");
+ if(thumb){const img=el("img");img.src=thumb.src;img.alt="";latest.append(img);}else latest.append(image("calendar.svg"));
+ const info=el("span");info.append(el("small","","Kegiatan terbaru"),el("strong","",activity?.querySelector(".f4-dev-activity-info strong")?.textContent||"Lihat linimasa"));
+ latest.append(info,el("span","f4-member-next","›"));
+}
+function infoShortcut(){
+ const home=$("f4BankAppHome");if(roleType()!=="member"||!home)return;
+ let link=$("f4MemberInfoShortcut");
+ if(!link){
+  link=el("button","f4-member-info-shortcut");link.id="f4MemberInfoShortcut";link.type="button";
+  link.append(image("book.svg"),el("span","","Informasi & Laporan"),el("span","f4-member-next","›"));
+  link.onclick=()=>navigate("bank-member-info");
+ }
+ home.append(link);
+}
+function publicSnapshot(){
+ if(roleType()!=="member"||memberSnapshotsLoaded||snapshotBusy||typeof window.v17LoadPublic!=="function")return;
+ snapshotBusy=true;
+ Promise.resolve().then(()=>window.v17LoadPublic()).then(()=>{
+  memberSnapshotsLoaded=true;progressPreview();
+  if(!snapshotObserver&&$("f4DevStats")){
+   snapshotObserver=new MutationObserver(progressPreview);
+   snapshotObserver.observe($("f4DevStats"),{subtree:true,childList:true,characterData:true});
+  }
+ }).catch(()=>{}).finally(()=>{snapshotBusy=false});
+}
+function memberFeature(route){
+ const progress=route==="bank-member-progress";
+ const page=ensureScreen(route,progress?"Perkembangan":"Informasi & Laporan");
+ page.querySelector(":scope > .f4-bank-screen-title")?.remove();
+ if(!page.querySelector(".f4-member-feature-header")){
+  const header=el("header","f4-member-feature-header");
+  const back=el("button","","←");back.type="button";back.setAttribute("aria-label","Kembali ke Beranda");
+  back.onclick=()=>navigate("dashboard");
+  const title=el("div");title.append(el("h2","",progress?"Perkembangan":"Informasi & Laporan"),
+    el("small","",progress?"Bank Sampah Flamboyan 4":"Laporan publik · Dokumentasi · Inventaris"));
+  header.append(back,title);page.prepend(header);
+ }
+ let content=page.querySelector(".f4-member-feature-content");
+ if(!content){content=el("div","f4-member-feature-content");page.append(content);}
+ moveFeature(progress?["v17Perkembangan"]:["v17Transparansi","v17Dokumentasi","v17Inventaris"],content);
+ document.body.classList.add("f4-member-feature");
+ const top=$("f4-mobile-menu");if(top){top.textContent="←";top.title="Kembali ke Beranda";top.setAttribute("aria-label","Kembali ke Beranda");}
+ if(!memberSnapshotsLoaded)publicSnapshot();
+ if(!progress&&typeof window.v25LoadReport==="function")window.v25LoadReport();
+ window.scrollTo({top:0,behavior:"instant"});
+}
+function visibleMemberRoute(){
+ for(const id of [...featureRoutes,...custom,"pagePribadi","pageProfile","pageDashboard"]){
+  if($(id)&&!$(id).classList.contains("hidden"))
+   return id==="pagePribadi"?"pribadi":id==="pageProfile"?"profile":id==="pageDashboard"?"dashboard":id;
+ }
+ return "dashboard";
+}
+
 function hideCustom(){
- for(const id of custom)$(id)?.classList.add("hidden");
+ for(const id of [...custom,...featureRoutes])$(id)?.classList.add("hidden");
 }
 function navigate(route){
- if(route==="menu"){$("v18PrivateMenuButton")?.click();return;}
+ if(route==="menu"){if(roleType()==="admin")$("v18PrivateMenuButton")?.click();return;}
  if(route==="bank-deposit"){
   window.goPage("dashboard");
   const flow=$("f4MemberFlow");if(flow){flow.open=true;flow.scrollIntoView({behavior:"smooth",block:"start"});}
@@ -765,6 +875,16 @@ function navigate(route){
  if(typeof window.goPage==="function")window.goPage(route);
 }
 function handleRoute(route,old,args){
+ if(roleType()==="member"&&featureRoutes.includes(route)){
+  restoreFeature();hideCustom();
+  old.call(window,"dashboard",...args);
+  $("pageDashboard")?.classList.add("hidden");
+  memberFeature(route);
+  $(route)?.classList.remove("hidden");
+  screen=route;markDock();return;
+ }
+ if(document.body.classList.contains("f4-member-feature")){restoreFeature();hideCustom();}
+
  if(route==="bank-payout-admin"&&roleType()==="admin"){
   hideCustom();
   old.call(window,"tabungan",...args);
@@ -805,16 +925,23 @@ function sync(){
  document.body.classList.toggle("f4-bank-app-member",isPrivate&&next==="member");
  document.body.classList.toggle("f4-bank-app-admin",isPrivate&&next==="admin");
  dock().hidden=!isPrivate;
- if(!isPrivate){hideCustom();role=null;memberStatement=null;$("f4BankProfileDetail")?.remove();return;}
+ if(!isPrivate){
+  if(document.body.classList.contains("f4-member-feature"))restoreFeature();
+  hideCustom();memberSide(false);
+  role=null;memberStatement=null;memberSnapshotsLoaded=false;
+  $("f4BankProfileDetail")?.remove();return;
+ }
  if(next!==role){
-  role=next;screen="dashboard";dock().replaceChildren(...(role==="admin"?adminDock:memberDock).map(x=>action(x,true)));
+  role=next;screen=next==="member"?visibleMemberRoute():"dashboard";dock().replaceChildren(...(role==="admin"?adminDock:memberDock).map(x=>action(x,true)));
   if(role==="member")requestNonce="";
   memberStatement=null;adminOverview=null;
   if(role==="admin")$("f4BankProfileDetail")?.remove();
  }
+ memberSide(role==="member");
  ensureHome();
- if(role==="member")ensureMemberPages();
- else managerRequestsPanel();
+ if(role==="member"){
+  ensureMemberPages();progressPreview();infoShortcut();publicSnapshot();
+ }else managerRequestsPanel();
  markDock();refreshSources();
 }
 function refreshSources(){
@@ -944,6 +1071,15 @@ function acceptMemberStatement(event){
 
 function init(){
  if(ready)return;ready=true;
+ $("f4-mobile-menu")?.addEventListener("click",event=>{
+  if(roleType()!=="member")return;
+  event.preventDefault();event.stopImmediatePropagation();
+  if(document.body.classList.contains("f4-member-feature"))navigate("dashboard");
+ },true);
+ const openPublic=window.v11ShowPublic;
+ if(typeof openPublic==="function")window.v11ShowPublic=function(...args){
+  restoreFeature();hideCustom();return openPublic.apply(this,args);
+ };
  window.addEventListener("f4-bank-member-statement",acceptMemberStatement);
  window.addEventListener("f4-bank-admin-overview",updateAdminOverview);
  const original=window.goPage;
