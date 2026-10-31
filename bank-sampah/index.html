@@ -3789,44 +3789,153 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     });d.appendChild(list);}
     return d;
   }
-  let v17PublicChartMode='berat';
-  let v17PublicChartRows=[],v17PublicReportReady=false,v17PublicReportFailed=false,v17PublicLoadSerial=0;
-  function v17RenderPublicChart(){
-    const root=$('v17WeightBars'),note=$('v17WeightNote'),legend=$('v17PublicChartLegend');
-    if(!root||!note||!legend)return;
-    const isValue=v17PublicChartMode==='nilai';
-    const buttons=$('v17Perkembangan')?.querySelectorAll('[data-public-chart-mode]')||[];
-    buttons.forEach(button=>{
-      const selected=button.dataset.publicChartMode===v17PublicChartMode;
-      button.classList.toggle('is-active',selected);
-      button.setAttribute('aria-pressed',String(selected));
-    });
-    const names=isValue?['Hak warga sah','Perkiraan belum sah']:['Berat jual sah','Timbang belum sah'];
-    const keys=isValue?['hakWarga','pendingEstimateRp']:['beratKg','pendingWeightKg'];
-    legend.replaceChildren();
-    names.forEach(name=>{
-      const item=document.createElement('span'),mark=document.createElement('i');
-      mark.setAttribute('aria-hidden','true');item.append(mark,document.createTextNode(name));legend.append(item);
-    });
-    root.setAttribute('aria-label',(isValue?'Nilai setoran dalam rupiah':'Berat setoran dalam kilogram')+' per bulan, hijau sudah sah dan kuning belum sah');
-    if(isValue&&!v17PublicReportReady){
-      root.replaceChildren();root.textContent=v17PublicReportFailed?'Data nilai belum tersedia.':'Memuat nilai setoran...';
-      note.textContent='';return;
+  let v17PublicChartMode='berat',v17PublicChartRange='bulan';
+  let v17PublicChartRows=[],v17PublicDailyRows=null,v17PublicReportReady=false,v17PublicReportFailed=false,v17PublicLoadSerial=0;
+  let v17ProgressCount=0;
+  function f4DevUnit(value,mode='berat'){
+    const n=Number(value)||0;
+    return mode==='nilai'?rupiah(Math.round(n)):new Intl.NumberFormat('id-ID',{maximumFractionDigits:2}).format(n)+' kg';
+  }
+  function f4DevShort(value,mode){
+    const n=Math.max(0,Number(value)||0);
+    if(mode==='nilai'){
+      if(n>=1000000)return new Intl.NumberFormat('id-ID',{maximumFractionDigits:1}).format(n/1000000)+' jt';
+      if(n>=1000)return new Intl.NumberFormat('id-ID',{maximumFractionDigits:1}).format(n/1000)+' rb';
+      return new Intl.NumberFormat('id-ID').format(n);
     }
-    const data=v17PublicChartRows;
-    v17Chart(root,data,keys,names);
-    const amount=key=>data.reduce((sum,r)=>sum+Math.max(0,Number(r?.[key])||0),0);
-    const fmt=isValue?rupiah:kg;
+    return new Intl.NumberFormat('id-ID',{maximumFractionDigits:1}).format(n);
+  }
+  function f4DevTodayWib(){
+    const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+    const o=Object.fromEntries(parts.filter(p=>p.type!=='literal').map(p=>[p.type,p.value]));
+    return Date.UTC(Number(o.year),Number(o.month)-1,Number(o.day));
+  }
+  function f4DevDataRows(){
+    const fields=['beratKg','pendingWeightKg','hasilPenjualan'];
+    const normalize=(row,label,full)=>({
+      label,full,
+      beratKg:Math.max(0,Number(row?.beratKg)||0),
+      pendingWeightKg:Math.max(0,Number(row?.pendingWeightKg)||0),
+      hasilPenjualan:Math.max(0,Number(row?.hasilPenjualan)||0)
+    });
+    if(v17PublicChartRange==='bulan')return v17PublicChartRows
+      .filter(row=>/^\d{4}-(0[1-9]|1[0-2])$/.test(String(row.periode||row.bulan||'')))
+      .sort((x,y)=>String(x.periode||x.bulan).localeCompare(String(y.periode||y.bulan)))
+      .slice(-6).map(row=>{
+        const code=String(row.periode||row.bulan);
+        return normalize(row,v17Label(code),code);
+      });
+    if(!v17PublicReportReady||!Array.isArray(v17PublicDailyRows))return null;
+    const byDay=new Map(v17PublicDailyRows.map(row=>[String(row.tanggal||''),row]));
+    const windowDays=v17PublicChartRange==='7'?7:30;
+    const today=f4DevTodayWib();
+    const days=Array.from({length:windowDays},(_,i)=>{
+      const date=new Date(today-(windowDays-1-i)*86400000);
+      const key=date.toISOString().slice(0,10);
+      const label=String(date.getUTCDate()).padStart(2,'0')+'/'+String(date.getUTCMonth()+1).padStart(2,'0');
+      return normalize(byDay.get(key),label,key);
+    });
+    if(windowDays===7)return days;
+    const groups=[];
+    for(let i=0;i<days.length;i+=5){
+      const block=days.slice(i,i+5);
+      const start=block[0],end=block[block.length-1];
+      const row={};fields.forEach(key=>{row[key]=block.reduce((sum,d)=>sum+d[key],0)});
+      groups.push(normalize(row,String(i/5+1),start.full+' s.d. '+end.full));
+    }
+    return groups;
+  }
+  function f4DevMakeStat(label,value,icon){
+    const box=document.createElement('div');box.className='f4-dev-stat';
+    const symbol=document.createElement('span');symbol.className='f4-dev-stat-icon';
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');
+    const paths={
+      weight:'<path d="M5 8h14l2 12H3L5 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/><path d="M12 12v4"/>',
+      pending:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+      sales:'<rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/><path d="M6 15h5"/>',
+      steps:'<path d="M4 20V4h12v4"/><path d="m9 14 4 4 8-9"/>'
+    };
+    svg.innerHTML=paths[icon]||paths.weight;symbol.append(svg);
+    const copy=document.createElement('div');copy.className='f4-dev-stat-copy';
+    const small=document.createElement('small');small.className='f4-dev-stat-label';small.textContent=label;
+    const strong=document.createElement('strong');strong.className='f4-dev-stat-value';strong.textContent=value;
+    copy.append(small,strong);box.append(symbol,copy);return box;
+  }
+  function v17RenderPublicChart(){
+    const root=$('f4DevChart'),note=$('f4DevChartNote'),legend=$('f4DevLegend'),stats=$('f4DevStats'),summary=$('f4DevChartSummary');
+    if(!root||!note||!legend||!stats||!summary)return;
+    const valueMode=v17PublicChartMode==='nilai';
+    $('v17Perkembangan').querySelectorAll('[data-dev-mode],[data-dev-range]').forEach(button=>{
+      const selected=button.dataset.devMode===v17PublicChartMode||button.dataset.devRange===v17PublicChartRange;
+      button.classList.toggle('is-active',selected);button.setAttribute('aria-pressed',String(selected));
+    });
+    const periodLabel=v17PublicChartRange==='7'?'7 hari terakhir':v17PublicChartRange==='30'?'30 hari terakhir':'6 bulan terakhir';
+    $('f4DevChartPeriod').textContent=periodLabel;
+    const data=f4DevDataRows();
+    const dataAvailable=data!==null&&(!valueMode||v17PublicReportReady);
+    const rows=dataAvailable?data:[];
+    const amount=key=>rows.reduce((sum,row)=>sum+row[key],0);
+    const weight=amount('beratKg'),pending=amount('pendingWeightKg'),sales=amount('hasilPenjualan');
+    stats.replaceChildren(
+      f4DevMakeStat('Berat sah',dataAvailable?f4DevUnit(weight):'—','weight'),
+      f4DevMakeStat('Belum sah',dataAvailable&&v17PublicReportReady?f4DevUnit(pending):'—','pending'),
+      f4DevMakeStat('Hasil jual',dataAvailable&&v17PublicReportReady?f4DevUnit(sales,'nilai'):'—','sales'),
+      f4DevMakeStat('Tahap kegiatan',String(v17ProgressCount),'steps')
+    );
+    const strong=document.createElement('strong');strong.textContent=dataAvailable?f4DevUnit(valueMode?sales:weight,v17PublicChartMode):'—';
+    const descriptor=document.createElement('small');descriptor.textContent=valueMode?'Hasil penjualan sah':'Berat penjualan sah';
+    summary.replaceChildren(strong,descriptor);
+    root.replaceChildren();legend.replaceChildren();
+    root.style.setProperty('--dev-count',String(Math.max(1,rows.length)));
+    const incomplete=!v17PublicReportReady&&v17PublicReportFailed;
+    if(!dataAvailable){
+      const info=document.createElement('div');info.className='f4-dev-empty';
+      info.textContent=v17PublicChartRange!=='bulan'?'Rekap harian belum tersedia.':incomplete?'Nominal belum dapat dimuat.':'Memuat laporan...';
+      root.append(info);
+      note.textContent=v17PublicChartRange!=='bulan'?'Rekap harian diperlukan untuk grafik 7/30 hari.':'Grafik nilai hanya menampilkan hasil jual yang sudah sah.';
+      return;
+    }
+    if(!rows.length){
+      const empty=document.createElement('div');empty.className='f4-dev-empty';empty.textContent='Belum ada transaksi pada periode ini.';root.append(empty);
+    }else{
+      const key=valueMode?'hasilPenjualan':'beratKg';
+      const max=Math.max(1,...rows.map(row=>valueMode?row.hasilPenjualan:Math.max(row.beratKg,row.pendingWeightKg)));
+      rows.forEach(row=>{
+        const col=document.createElement('div');col.className='f4-dev-column';
+        col.setAttribute('aria-label',row.full+': '+f4DevUnit(row[key],v17PublicChartMode)+(valueMode?'':', belum sah '+f4DevUnit(row.pendingWeightKg)));
+        const number=document.createElement('span');number.className='f4-dev-column-value';
+        number.textContent=f4DevShort(row[key],v17PublicChartMode)+(valueMode?'':'');
+        const track=document.createElement('div');track.className='f4-dev-column-track';
+        const confirmed=document.createElement('span');confirmed.className='f4-dev-column-bar';confirmed.style.setProperty('--dev-height',row[key]>0?Math.max(3,row[key]/max*100)+'%':'0%');
+        confirmed.title='Sah: '+f4DevUnit(row[key],v17PublicChartMode)+' • '+row.full;track.append(confirmed);
+        if(!valueMode&&v17PublicReportReady){
+          const waiting=document.createElement('span');waiting.className='f4-dev-column-bar is-pending';
+          waiting.style.setProperty('--dev-height',row.pendingWeightKg>0?Math.max(3,row.pendingWeightKg/max*100)+'%':'0%');
+          waiting.title='Belum sah: '+f4DevUnit(row.pendingWeightKg)+' • '+row.full;track.append(waiting);
+        }
+        const label=document.createElement('span');label.className='f4-dev-column-label';label.textContent=row.label;
+        col.append(number,track,label);root.append(col);
+      });
+    }
+    const addLegend=(label,pending=false)=>{
+      const item=document.createElement('span');if(pending)item.className='is-pending';
+      const dot=document.createElement('i');dot.setAttribute('aria-hidden','true');item.append(dot,document.createTextNode(label));legend.append(item);
+    };
+    addLegend(valueMode?'Hasil jual sah':'Berat sah');
+    if(!valueMode&&v17PublicReportReady)addLegend('Belum sah',true);
+    root.setAttribute('aria-label',(valueMode?'Hasil jual rupiah':'Berat sampah kilogram')+' — '+periodLabel+'. '+rows.map(row=>row.full+': '+f4DevUnit(row[valueMode?'hasilPenjualan':'beratKg'],v17PublicChartMode)).join('; '));
     note.textContent=!v17PublicReportReady?
-      (data.length?'Berat sah '+kg(amount('beratKg'))+' · '+(v17PublicReportFailed?'Data belum sah belum tersedia.':'Memuat data belum sah...'):'Belum ada data setoran.'):
-      (data.length?'Sah '+fmt(amount(keys[0]))+' · Belum sah '+fmt(amount(keys[1])):'Belum ada data setoran.');
+      (incomplete?'Rincian belum sah belum dapat dimuat.':'Memuat rincian periode...'):
+      v17PublicChartRange==='30'?'Setiap batang mewakili 5 hari. Nominal hanya transaksi sah.':
+      valueMode?'Hanya hasil penjualan sah, bukan perkiraan.':'Berat sah dan setoran belum sah ditampilkan terpisah.';
   }
   function v17BindPublicChart(){
-    $('v17Perkembangan')?.querySelectorAll('[data-public-chart-mode]').forEach(button=>{
+    $('v17Perkembangan')?.querySelectorAll('[data-dev-mode],[data-dev-range]').forEach(button=>{
       if(button.dataset.chartBound==='1')return;
       button.dataset.chartBound='1';
       button.addEventListener('click',()=>{
-        v17PublicChartMode=button.dataset.publicChartMode;
+        if(button.dataset.devMode)v17PublicChartMode=button.dataset.devMode;
+        if(button.dataset.devRange)v17PublicChartRange=button.dataset.devRange;
         v17RenderPublicChart();
       });
     });
