@@ -1247,16 +1247,16 @@ function ensureAdminProfile(){
    finally{save.disabled=false;}
   };
  }
- const password=$("pagePassword");
- if(password){
-  let details=$("f4BankAdminPassword");
-  if(!details){
-   details=el("details","f4-bank-admin-profile-password");details.id="f4BankAdminPassword";
-   details.append(el("summary","","Ganti Password"));
-   page.append(details);
-  }
-  if(password.parentNode!==details)details.append(password);
-  password.classList.remove("hidden");
+ // The existing v15PasswordBox already owns the real password form.
+ // Never create a second accordion or move its empty pagePassword wrapper.
+ const passwordBox=$("v15PasswordBox"),passwordPage=$("pagePassword");
+ if(passwordBox){
+  const form=passwordPage?.querySelector("form");
+  if(form&&form.parentNode!==passwordBox)passwordBox.append(form);
+  const summary=passwordBox.querySelector("summary");
+  if(summary)summary.textContent="Ganti password";
+  $("f4BankAdminPassword")?.remove();
+  passwordPage?.classList.add("hidden");
  }
 }
 function memberSide(enabled){
