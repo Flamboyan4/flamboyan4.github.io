@@ -458,7 +458,7 @@
   .v25-photo-preview{display:block;max-width:100%;width:240px;max-height:190px;object-fit:contain;border:1px solid #e0eae0;border-radius:10px;margin:8px 0}
   .v25-photo-preview.hidden{display:none!important}
   @media(max-width:740px){.v25-public-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.v25-report-toolbar select{flex:1;min-width:120px}}
-  @media print{body.v25-print-public>*:not(#v11Public){display:none!important}body.v25-print-public #v18PublicSide,body.v25-print-public .v17-public-head,body.v25-print-public #v17Program,body.v25-print-public #v17Perkembangan,body.v25-print-public #v17Dokumentasi,body.v25-print-public #v17Inventaris,body.v25-print-public .v25-report-toolbar{display:none!important}body.v25-print-public #v17Transparansi{display:block!important}body.v25-print-public .v25-report-table{overflow:visible}body.v25-print-public .v25-report-table table{min-width:0}body.v25-print-public .v25-report-table th,body.v25-print-public .v25-report-table td{white-space:normal}}
+
   /* v26 — jalur masuk singkat, kembali ke portal mudah, kartu publik ringkas. */
   body:not(.v17-dashboard):not(.v17-public) .shell>.top .brand{cursor:pointer}
   body:not(.v17-dashboard):not(.v17-public) .shell>.top .brand:hover{color:#28704a}
@@ -4816,7 +4816,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     const period=document.createElement('select');period.id='v25ReportPeriod';period.setAttribute('aria-label','Pilih periode laporan');
     period.add(new Option('Seluruh periode','semua'));period.onchange=()=>{v25ReportPeriod=period.value;v25LoadReport();};
     const refresh=v21Node('button','secondary','↻');refresh.type='button';refresh.title='Muat ulang';refresh.setAttribute('aria-label','Muat ulang laporan');refresh.onclick=v25LoadReport;
-    const print=v21Node('button','secondary','PDF');print.type='button';print.setAttribute('aria-label','Cetak atau simpan PDF');print.onclick=v25PrintReport;
+    const print=v21Node('button','secondary','PDF');print.type='button';print.setAttribute('aria-label','Cetak atau simpan PDF');print.onclick=()=>v25PrintReport();
     const csv=v21Node('button','secondary','CSV');csv.type='button';csv.setAttribute('aria-label','Unduh laporan CSV');csv.onclick=v25DownloadReport;
     toolbar.append(period,refresh,print,csv);
     const summary=v21Node('div','v25-public-metrics');summary.id='v25ReportMetrics';
@@ -4866,10 +4866,32 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   }
   function v25PrintReport(){
     if(!v25ReportData)return window.f4UiDialog.alert('Muat laporan terlebih dahulu.');
-    document.body.classList.add('v25-print-public');window.print();
-    setTimeout(()=>document.body.classList.remove('v25-print-public'),1000);
+    let root=$('v27PrintReport');if(!root){root=document.createElement('section');root.id='v27PrintReport';document.body.appendChild(root);}
+    root.replaceChildren();const data=v25ReportData,sum=data.ringkasan;
+    root.append(v29Kop(),
+      v27PrintNode('p','v27-print-sub','LAPORAN KEGIATAN DAN KEUANGAN PUBLIK'),
+      v27PrintNode('div','v27-print-divider'),
+      v27PrintNode('p','','Periode: '+(v25ReportPeriod==='semua'?'Seluruh periode':v25ReportPeriod)),
+      v27PrintNode('p','','Tanggal cetak: '+new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})));
+    const metrics=v27PrintNode('div','v27-print-kpis');
+    [['Berat terkonfirmasi',kg(sum.beratKg)],['Penjualan diterima',rupiah(sum.hasilPenjualan)],
+      ['Hak tabungan warga',rupiah(sum.hakWarga)],['Alokasi lingkungan & operasional',rupiah(sum.cadangan+sum.kasLorong+sum.operasional)]].forEach(([name,value])=>{
+      const box=v27PrintNode('div','v27-print-kpi');box.append(v27PrintNode('small','',name),v27PrintNode('strong','',value));metrics.appendChild(box);
+    });root.append(metrics,v27PrintNode('h2','','Rekapitulasi Periode'));
+    const columns=[['periode','Periode'],['beratKg','Berat kg'],['hasilPenjualan','Penjualan'],['hakWarga','Hak warga'],
+      ['cadangan','Cadangan'],['kasLorong','Kas lorong'],['operasional','Operasional'],['pengeluaran','Pengeluaran']];
+    const table=document.createElement('table'),head=document.createElement('thead'),tr=document.createElement('tr');
+    columns.forEach(([,label])=>tr.appendChild(v27PrintNode('th','',label)));head.appendChild(tr);table.appendChild(head);
+    const tbody=document.createElement('tbody');
+    if(!data.bulanan?.length){const row=document.createElement('tr');row.appendChild(v27PrintNode('td','','Belum ada data disahkan'));
+      columns.slice(1).forEach(([,label])=>row.appendChild(v27PrintNode('td','',label==='Berat kg'?'0':'Rp 0')));tbody.appendChild(row);
+    }else data.bulanan.forEach(r=>{const row=document.createElement('tr');columns.forEach(([key])=>row.appendChild(v27PrintNode('td','',key==='periode'?r[key]:key==='beratKg'?kg(r[key]):rupiah(r[key]))));tbody.appendChild(row);});
+    table.appendChild(tbody);root.appendChild(table);
+    root.appendChild(v27PrintNode('p','v27-print-note',data.catatan+' Laporan tidak memuat rincian identitas atau saldo pribadi warga.'));
+    const sign=v27PrintNode('div','v27-print-sign');sign.append(v27PrintNode('div','','Mengetahui,'),v27PrintNode('div','','Humas Flamboyan 4'),v27PrintNode('strong','','Heri Juwandi'));root.appendChild(sign);
+    v36BankPrint(root,'public');
   }
-  function v25DownloadReport(){
+ function v25DownloadReport(){
     if(!v25ReportData)return window.f4UiDialog.alert('Muat laporan terlebih dahulu.');
     const fields=['periode','beratKg','pendingWeightKg','hasilPenjualan','hakWarga','pendingEstimateRp','cadangan','kasLorong','operasional','pengeluaran'];
     const labels=['Periode','Berat jual sah (kg)','Timbang belum sah (kg)','Penjualan sah (Rp)','Hak warga sah (Rp)','Perkiraan belum sah (Rp)','Cadangan (Rp)','Kas lorong (Rp)','Operasional (Rp)','Pengeluaran (Rp)'];
@@ -4977,33 +4999,6 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
 
   // Cetak dibuat dalam lembar khusus; tidak tergantung layout sidebar/screen.
   function v27PrintNode(tag,cls,value){return v21Node(tag,cls,value);}
-  v25PrintReport=function(){
-    if(!v25ReportData)return window.f4UiDialog.alert('Muat laporan terlebih dahulu.');
-    let root=$('v27PrintReport');if(!root){root=document.createElement('section');root.id='v27PrintReport';document.body.appendChild(root);}
-    root.replaceChildren();const data=v25ReportData,sum=data.ringkasan;
-    root.append(v29Kop(),
-      v27PrintNode('p','v27-print-sub','LAPORAN KEGIATAN DAN KEUANGAN PUBLIK'),
-      v27PrintNode('div','v27-print-divider'),
-      v27PrintNode('p','','Periode: '+(v25ReportPeriod==='semua'?'Seluruh periode':v25ReportPeriod)),
-      v27PrintNode('p','','Tanggal cetak: '+new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})));
-    const metrics=v27PrintNode('div','v27-print-kpis');
-    [['Berat terkonfirmasi',kg(sum.beratKg)],['Penjualan diterima',rupiah(sum.hasilPenjualan)],
-      ['Hak tabungan warga',rupiah(sum.hakWarga)],['Alokasi lingkungan & operasional',rupiah(sum.cadangan+sum.kasLorong+sum.operasional)]].forEach(([name,value])=>{
-      const box=v27PrintNode('div','v27-print-kpi');box.append(v27PrintNode('small','',name),v27PrintNode('strong','',value));metrics.appendChild(box);
-    });root.append(metrics,v27PrintNode('h2','','Rekapitulasi Periode'));
-    const columns=[['periode','Periode'],['beratKg','Berat kg'],['hasilPenjualan','Penjualan'],['hakWarga','Hak warga'],
-      ['cadangan','Cadangan'],['kasLorong','Kas lorong'],['operasional','Operasional'],['pengeluaran','Pengeluaran']];
-    const table=document.createElement('table'),head=document.createElement('thead'),tr=document.createElement('tr');
-    columns.forEach(([,label])=>tr.appendChild(v27PrintNode('th','',label)));head.appendChild(tr);table.appendChild(head);
-    const tbody=document.createElement('tbody');
-    if(!data.bulanan?.length){const row=document.createElement('tr');row.appendChild(v27PrintNode('td','','Belum ada data disahkan'));
-      columns.slice(1).forEach(([,label])=>row.appendChild(v27PrintNode('td','',label==='Berat kg'?'0':'Rp 0')));tbody.appendChild(row);
-    }else data.bulanan.forEach(r=>{const row=document.createElement('tr');columns.forEach(([key])=>row.appendChild(v27PrintNode('td','',key==='periode'?r[key]:key==='beratKg'?kg(r[key]):rupiah(r[key]))));tbody.appendChild(row);});
-    table.appendChild(tbody);root.appendChild(table);
-    root.appendChild(v27PrintNode('p','v27-print-note',data.catatan+' Laporan tidak memuat rincian identitas atau saldo pribadi warga.'));
-    const sign=v27PrintNode('div','v27-print-sign');sign.append(v27PrintNode('div','','Mengetahui,'),v27PrintNode('div','','Humas Flamboyan 4'),v27PrintNode('strong','','Heri Juwandi'));root.appendChild(sign);
-    v36BankPrint(root,'public');
-  };
   window.addEventListener('afterprint',()=>document.body.classList.remove('v27-print-report'));
   // v29: kop resmi konsisten dan laporan audit opsional khusus administrator.
   const v29Styles=document.createElement('style');v29Styles.textContent=`
@@ -5220,8 +5215,6 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     try{v29OldMemberPrint();}
     finally{v12Data=original;}
   };
-  const v29OldPublicPrint=v25PrintReport;
-  v25PrintReport=function(){return v29OldPublicPrint();};
 
   /* Bank Sampah — compact, accessible multi-section admin report controls.
    * Existing v10Month is retained as the API/finance period source of truth. */
