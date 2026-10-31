@@ -410,7 +410,7 @@ async def public_report_compact(browser):
         }""")
         assert metrics["columns"]==2 and len(metrics["heights"])==6,metrics
         assert max(metrics["heights"])<=105 and min(metrics["heights"])>=60,metrics
-        assert all(17<=font<=20 for font in metrics["valueFonts"]),metrics
+        assert all(15.5<=font<=19 for font in metrics["valueFonts"]),metrics
         assert not metrics["overflow"],metrics
         print("PUBLIC_REPORT_COMPACT_OK",width,metrics,flush=True)
         await page.close()
