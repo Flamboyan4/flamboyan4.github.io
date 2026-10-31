@@ -36,7 +36,7 @@ let role=null,screen="dashboard",historyMonth="latest",reportMonth="",activePage
 let homeSource=null,summaryExtra=null,memberSource=null,managerQueue=null;
 let primaryNode=null,extraNode=null;
 let ready=false,requestNonce="",requestEnabled=false;
-let memberStatement=null,memberChartMode="kg",memberChartGroup="month";
+let memberStatement=null,memberChartMode="kg",memberChartGroup="period";
 let adminOverview=null;
 let refreshing=false;
 const custom=["bank-history","bank-payout","bank-report","bank-payout-admin"];
@@ -82,7 +82,7 @@ function ensureHome(){
  if(!hub){
   hub=el("section","f4-bank-app-home");hub.id="f4BankAppHome";
   const welcome=el("div","f4-bank-app-personal-greeting");welcome.id="f4BankAppWelcome";
-  welcome.append(el("small","","TABUNGAN LINGKUNGAN"),el("strong","", "Halo!"));
+  welcome.append(el("strong","", "Halo!"));
   const card=el("button","f4-bank-member-card");card.id="f4BankMemberCard";card.type="button";card.onclick=()=>navigate("profile");
   const cardHead=el("span","f4-bank-member-card-head"),logo=el("img");logo.src="/assets/logo-flamboyan.svg";logo.alt="";
   cardHead.append(logo,el("span","","BANK SAMPAH · FLAMBOYAN 4"),el("span","f4-bank-member-card-chip"));
@@ -109,7 +109,7 @@ function ensureHome(){
  const name=$("pName")?.textContent?.trim()||"Anggota";
  const house=$("pHome")?.textContent?.trim()||"—";
  const welcome=$("f4BankAppWelcome");if(welcome){
-   welcome.replaceChildren(el("small","","Selamat datang"),el("strong","","Halo, "+name+"!"));
+   welcome.replaceChildren(el("strong","","Halo, "+name+"!"));
    welcome.append(el("small","","Rumah "+house));
  }
  updateCardNumber();
