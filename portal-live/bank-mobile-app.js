@@ -579,7 +579,7 @@ function f4PrivateDepositFeed(){
   head.append(icon,copy,state);
   const detail=el("div","f4-bank-private-deposit-detail");
   const price=final?(row.nilaiSahRp==null?"Nilai belum tersedia":rupiah(row.nilaiSahRp)):rupiah(row.estimasiRp);
-  detail.append(el("strong","",final?"Hasil jual "+price:"Perkiraan "+price));
+  detail.append(el("strong","",final?(row.nilaiSahRp==null?"Hasil jual belum tersedia":"Hasil jual "+price):"Perkiraan "+price));
   const items=Array.isArray(row.rincian)?row.rincian:[];
   for(const line of items){
    const lineNode=el("div","f4-bank-private-deposit-line");
@@ -634,7 +634,7 @@ function chartSavings(){
  host.setAttribute("role","img");
  host.setAttribute("aria-label","Perkembangan setoran pribadi. "+entries.map(e=>e.full+": "+
   fields.map((key,i)=>(i?"Perkiraan ":"Sah ")+(useKg?f4PrivateKg(e[key]):rupiah(e[key]))).join(", ")).join("; "));
- if(!memberStatement){host.append(el("p","f4-bank-empty","Memuat setoran..."));return;}
+ if(!memberStatement){host.append(el("p","f4-bank-empty","Memuat setoran..."));f4PrivateDepositFeed();return;}
  if(!entries.some(e=>e.count)){
   host.append(el("p","f4-bank-empty","Belum ada setoran pada periode ini."));
  }else{
