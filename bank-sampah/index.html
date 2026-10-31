@@ -3601,6 +3601,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     {id:'memberreport',label:'Laporan',icon:'database',member:true,tabs:[['bank-report','Laporan tabungan']]},
     {id:'progress',label:'Perkembangan',icon:'leaf',member:true,tabs:[['bank-member-progress','Perkembangan']]},
     {id:'memberinfo',label:'Informasi & Laporan',icon:'globe',member:true,tabs:[['bank-member-info','Informasi & Laporan']]},
+    {id:'memberdocs',label:'Dokumentasi',icon:'image',member:true,tabs:[['bank-member-docs','Dokumentasi']]},
     {id:'public',label:'Portal publik',icon:'globe',admin:true,tabs:[]}
   ];
   const v16SvgPaths={
@@ -4564,6 +4565,8 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   }
   // “Semua album” pada penampil kini kembali ke halaman kategori, bukan popup kedua.
   v21ShowAlbumArchive=v22OpenDocs;
+  // Member screen reuses the existing public album directory and its D1-backed filters.
+  window.f4BankRenderDocumentation=()=>{v22SetupDocs();v22RenderDocs();};
   v22SetupAdmin();v22SetupDocs();
   // v23 — pencarian akun berdasarkan nama atau nomor rumah, tanda baca diabaikan.
   function v23NormalizeSearch(value){return String(value||'').toLocaleLowerCase('id-ID').replace(/[^a-z0-9]/g,'');}
