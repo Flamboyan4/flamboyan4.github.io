@@ -91,6 +91,67 @@ async def member_layout(browser):
         print("MEMBER_LAYOUT_OK",device,result,flush=True)
         await page.close()
 
+async def savings_chart(browser):
+    """Ensure monthly bars are aggregated, period bars show weighings, and scroll is available."""
+    page=await browser.new_page(viewport={"width":390,"height":850})
+    await page.set_content(MEMBER_HTML,wait_until="load")
+    await page.evaluate("""() => {
+      document.querySelector('#sideNav').innerHTML='<div id="v16NavList">'+
+        ['home','saving','withdrawal','statement','memberreport','progress','public'].map(g=>
+         '<button class="v16-item" data-group="'+g+'">'+g+'</button>').join('')+'</div>';
+      const main=document.querySelector('.section');
+      const wallet=document.createElement('section');
+      wallet.id='pagePribadi';wallet.className='card';
+      wallet.innerHTML='<h2>Tabungan saya</h2><div id="v12Private"></div>';
+      main.append(wallet);
+      const profile=document.createElement('div');
+      profile.id='pageProfile';profile.innerHTML='<span id="pName">Heri</span><span id="pHome">A5/41</span><span id="pId">W017</span>';
+      main.append(profile);
+      window.goPage=()=>{};
+    }""")
+    await page.add_script_tag(url=ROOT+"/portal-live/bank-mobile-app.js")
+    await page.evaluate("""() => {
+      const setoran=[
+       {id:'a',tanggal:'2026-10-18',status:'Terkonfirmasi',beratKg:0.9,nilaiSahRp:750},
+       {id:'b',tanggal:'2026-10-27',status:'Terkonfirmasi',beratKg:1,nilaiSahRp:2250},
+       {id:'c',tanggal:'2026-11-02',status:'Terkonfirmasi',beratKg:2,nilaiSahRp:3000},
+       {id:'d',tanggal:'2026-11-10',status:'Estimasi',beratKg:1.5,estimasiRp:700}
+      ];
+      window.dispatchEvent(new CustomEvent('f4-bank-member-statement',{detail:{
+       wargaId:'W017',saldo:6000,totalMasuk:6000,totalCair:0,mutasi:[],setoran
+      }}));
+    }""")
+    await page.locator("#f4BankSavingsBars .f4-bank-savings-bar").first.wait_for()
+    state=await page.evaluate("""() => {
+      const root=document.querySelector('#f4BankSavingsBars');
+      return {
+       groups:[...document.querySelectorAll('.f4-bank-chart-groups button')].map(x=>x.textContent),
+       select:!!document.querySelector('#f4BankChartPeriod'),
+       month:[...root.querySelectorAll('.f4-bank-savings-bar')].map(x=>({
+        label:x.querySelector('small').textContent,value:x.querySelector('strong').textContent
+       })),
+       visibleNav:[...document.querySelectorAll('#v16NavList .v16-item')].filter(x=>getComputedStyle(x).display!=='none').map(x=>x.dataset.group)
+      };
+    }""")
+    assert state["groups"]==["Per bulan","Periode"],state
+    assert not state["select"],state
+    assert [x["value"] for x in state["month"]]==["1,9 kg","3,5 kg"],state
+    assert state["visibleNav"]==["progress","public"],state
+    await page.locator('.f4-bank-chart-groups button[data-group="period"]').click()
+    period=await page.locator("#f4BankSavingsBars .f4-bank-savings-bar").evaluate_all(
+      "(nodes)=>nodes.map(x=>x.querySelector('small').textContent)")
+    assert period==["18/10","27/10","02/11","10/11"],period
+    await page.locator('.f4-bank-chart-switch button[data-mode="rp"]').click()
+    money=await page.locator("#f4BankSavingsBars .f4-bank-savings-bar").evaluate_all(
+      "(nodes)=>nodes.map(x=>x.querySelector('strong').textContent)")
+    assert money==["Rp 750","Rp 2.250","Rp 3.000","Rp 700"],money
+    await page.locator('.f4-bank-chart-groups button[data-group="month"]').click()
+    monthly_money=await page.locator("#f4BankSavingsBars .f4-bank-savings-bar").evaluate_all(
+      "(nodes)=>nodes.map(x=>x.querySelector('strong').textContent)")
+    assert monthly_money==["Rp 3.000","Rp 3.700"],monthly_money
+    print("SAVINGS_CHART_OK",state,period,money,monthly_money,flush=True)
+    await page.close()
+
 async def main():
     async with async_playwright() as p:
         browser=await p.chromium.launch(args=["--no-sandbox"])
@@ -140,6 +201,7 @@ async def main():
             print("MANAGER_RESPONSIVE_OK",device,state,flush=True)
             await page.close()
         await member_layout(browser)
+        await savings_chart(browser)
         await browser.close()
 if __name__=="__main__":
     asyncio.run(main())
