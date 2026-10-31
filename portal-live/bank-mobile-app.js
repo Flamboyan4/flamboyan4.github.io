@@ -1065,10 +1065,12 @@ function showAdminCash(){
    const button=el("button","f4-bank-admin-history-tab",label);button.type="button";button.dataset.cashTab=key;
    button.onclick=()=>{adminCashTab=key;loadAdminCash();};tabs.append(button);
   }
-  body.append(tabs,el("div","f4-bank-admin-cash-stats"));
+  const toolbar=el("div","f4-bank-cash-toolbar");
   const action=el("button","f4-bank-secondary-action f4-bank-cash-expense-action","Catat pengeluaran");
-  action.type="button";action.onclick=()=>navigate("biaya");body.append(action);
-  body.append(el("div","f4-bank-admin-cash-table","Memuat mutasi kas..."));
+  action.type="button";action.onclick=()=>navigate("biaya");
+  toolbar.append(tabs,action);
+  body.append(toolbar,el("div","f4-bank-admin-cash-stats"),
+   el("div","f4-bank-admin-cash-table","Memuat mutasi kas..."));
   page.append(body);
  }
  page.classList.remove("hidden");loadAdminCash();
