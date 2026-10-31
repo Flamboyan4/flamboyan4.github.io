@@ -642,105 +642,85 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
 </style>
 <style id="f4-bank-report-print-alignment-20261027">
 @media print{
-  /* Canonical member A4 layout: larger text, full-width aligned tables, no estimates. */
+  /* Member print is a compact table document, not dashboard cards.
+     Each report table shares the same five column widths. */
   body.f4-bank-single-print.f4-bank-print-member #v10Print{
-    font:13.5px/1.45 Arial,Helvetica,sans-serif!important;
-    color:#1d3427!important;margin:0!important;padding:0!important;
+    font:12.5px/1.35 Arial,Helvetica,sans-serif!important;
+    color:#1c3427!important;
   }
   body.f4-bank-single-print.f4-bank-print-member #v10Print .v29-kop{
-    display:flex!important;gap:11px!important;align-items:center!important;
-    margin:0 0 14px!important;padding:0 0 9px!important;
-    border-bottom:2px solid #153d29!important;
+    margin:0 0 8px!important;padding:0 0 7px!important;
+    border-bottom:1.5px solid #153d29!important;
   }
   body.f4-bank-single-print.f4-bank-print-member #v10Print .v29-kop-logo{
-    width:55px!important;height:55px!important;object-fit:contain!important;
+    width:46px!important;height:46px!important;
   }
   body.f4-bank-single-print.f4-bank-print-member #v10Print .v29-kop strong{
-    font-size:16px!important;line-height:1.25!important;color:#153e2b!important;
+    font-size:14px!important;
   }
   body.f4-bank-single-print.f4-bank-print-member #v10Print .v29-kop small{
-    font-size:11px!important;line-height:1.35!important;
+    font-size:10.5px!important;
   }
   body.f4-bank-single-print.f4-bank-print-member #v10Print h1{
-    margin:0 0 7px!important;font-size:20px!important;line-height:1.25!important;
-    font-weight:800!important;color:#143b28!important;
-  }
-  body.f4-bank-single-print.f4-bank-print-member #v10Print p{
-    margin:4px 0 8px!important;font-size:12.5px!important;line-height:1.45!important;
+    font-size:17px!important;margin:6px 0 4px!important;line-height:1.2!important;
   }
   body.f4-bank-single-print.f4-bank-print-member #v10Print .f4-member-print-meta{
-    font-size:13px!important;font-weight:700!important;
-  }
-  body.f4-bank-single-print.f4-bank-print-member #v10Print .f4-member-print-date{
-    color:#51695a!important;margin-bottom:12px!important;
+    font-size:11.5px!important;margin:0 0 7px!important;
   }
   body.f4-bank-single-print.f4-bank-print-member #v10Print .f4-member-print-summary{
-    box-sizing:border-box;width:100%;display:grid;
-    grid-template-columns:repeat(3,minmax(0,1fr));gap:0;
-    border:1.5px solid #254a32;border-radius:9px;
-    margin:10px 0 16px;overflow:hidden;break-inside:avoid;
-    background:#fff;
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    width:100%;box-sizing:border-box;border-top:1px solid #bacbbd;
+    border-bottom:1px solid #bacbbd;background:#fff;
+    margin:0 0 12px;padding:7px 0;break-inside:avoid;
   }
-  body.f4-bank-single-print.f4-bank-print-member #v10Print .f4-member-print-summary-cell{
-    display:flex;flex-direction:column;justify-content:center;gap:7px;
-    min-width:0;padding:13px 12px;background:#fff;
-  }
-  body.f4-bank-single-print.f4-bank-print-member #v10Print .f4-member-print-summary-cell+div{
-    border-left:1px solid #aabeb1;
+  body.f4-bank-single-print.f4-bank-print-member #v10Print .f4-member-print-summary-item{
+    display:inline-flex;align-items:baseline;gap:5px;white-space:nowrap;
+    min-width:0;
   }
   body.f4-bank-single-print.f4-bank-print-member #v10Print .f4-member-print-summary small{
-    font-size:10.5px;line-height:1.3;font-weight:750;
-    color:#4d6859;letter-spacing:.025em;
+    font-size:11px;line-height:1.3;font-weight:650;color:#4d6859;
   }
   body.f4-bank-single-print.f4-bank-print-member #v10Print .f4-member-print-summary strong{
-    display:block;font-size:19px;line-height:1.2;font-weight:800;
-    color:#10462d;font-variant-numeric:tabular-nums;
-  }
-  body.f4-bank-single-print.f4-bank-print-member #v10Print .f4-member-print-section{
-    box-sizing:border-box;width:100%;margin:0 0 15px;
+    font-size:14px;line-height:1.2;font-weight:800;color:#10462d;
+    font-variant-numeric:tabular-nums;
   }
   body.f4-bank-single-print.f4-bank-print-member #v10Print h2{
-    margin:0 0 7px!important;font-size:15px!important;
-    font-weight:800!important;line-height:1.3!important;
-    color:#17432e!important;break-after:avoid!important;
+    font-size:13.5px!important;font-weight:800!important;
+    margin:11px 0 5px!important;line-height:1.25!important;
+    break-after:avoid!important;
   }
   body.f4-bank-single-print.f4-bank-print-member #v10Print table.f4-member-print-table{
-    box-sizing:border-box;display:table!important;
-    width:100%!important;max-width:100%!important;min-width:0!important;
-    margin:0!important;table-layout:fixed!important;border-collapse:collapse!important;
+    display:table!important;box-sizing:border-box;width:100%!important;
+    max-width:100%!important;min-width:0!important;
+    table-layout:fixed!important;border-collapse:collapse!important;
+    margin:0 0 12px!important;
   }
   body.f4-bank-single-print.f4-bank-print-member #v10Print .f4-member-print-table th,
   body.f4-bank-single-print.f4-bank-print-member #v10Print .f4-member-print-table td{
-    box-sizing:border-box;display:table-cell!important;
-    padding:9px 8px!important;line-height:1.4!important;
-    font-size:13px!important;vertical-align:middle!important;
-    border:1px solid #000!important;overflow-wrap:anywhere!important;
-    white-space:normal!important;color:#1c3427!important;
-    text-align:left!important;
+    display:table-cell!important;box-sizing:border-box;
+    font-size:12px!important;line-height:1.32!important;
+    padding:7px 7px!important;vertical-align:middle!important;
+    border:1px solid #000!important;color:#1c3427!important;
+    background:#fff!important;overflow-wrap:anywhere!important;
+    white-space:normal!important;text-align:left!important;
   }
   body.f4-bank-single-print.f4-bank-print-member #v10Print .f4-member-print-table th{
-    font-size:12px!important;font-weight:800!important;
-    background:#e9f2eb!important;color:#193c29!important;
+    font-size:11.5px!important;font-weight:800!important;
+    color:#193c29!important;background:#eaf2eb!important;
     -webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;
   }
-  body.f4-bank-single-print.f4-bank-print-member #v10Print .f4-member-print-table .f4-member-print-numeric{
-    text-align:right!important;font-variant-numeric:tabular-nums;
-  }
-  body.f4-bank-single-print.f4-bank-print-member #v10Print .f4-member-print-table thead{
-    display:table-header-group!important;
-  }
-  body.f4-bank-single-print.f4-bank-print-member #v10Print .f4-member-print-table tr{
-    display:table-row!important;break-inside:avoid!important;
+  body.f4-bank-single-print.f4-bank-print-member #v10Print .f4-member-print-table td:nth-child(n+3){
+    font-variant-numeric:tabular-nums;
   }
   body.f4-bank-single-print.f4-bank-print-member #v10Print .f4-member-print-note{
-    font-size:11.5px!important;color:#475c4b!important;line-height:1.45!important;
-    margin:13px 0 8px!important;
+    font-size:10.5px!important;line-height:1.4!important;
+    margin:10px 0!important;color:#486452!important;
   }
   body.f4-bank-single-print.f4-bank-print-member #v10Print .f4-bank-report-signature{
-    margin:18px 0 0!important;font-size:12px!important;break-inside:avoid!important;
+    margin-top:16px!important;font-size:11px!important;
   }
   body.f4-bank-single-print.f4-bank-print-member #v10Print .f4-bank-report-signature strong{
-    font-size:12px!important;margin-top:30px!important;
+    font-size:11px!important;margin-top:26px!important;
   }
   /* Administration and audit tables have up to six fields: keep them readable. */
   body:not(.f4-bank-print-member):not(.v27-print-report):not(.v25-print-public) #v10Print h1{
