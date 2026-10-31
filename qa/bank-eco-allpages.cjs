@@ -11,7 +11,7 @@ assert(/\/portal-live\/bank-eco-pages\.css\?v=[0-9]{8}-/.test(h),'Versioned them
 for(const name of ["pageProfile","pageSetoran","pageRiwayat","pageRiwayatJual","pagePenjualan","pageRekonsiliasi","pageMaster","pageProgress","pagePassword","pageAdmin","pagePengesahan","pageTabungan","pageBiaya","pageLaporan","pageKegiatan","pageDokumentasi","pageInventaris","pagePribadi"].concat(['pageDashboard','v11Public'])){
  assert(h.includes(name),'Missing portal view '+name);
 }
-for(const phrase of ['#v11Public .v17-public-banner.v27-banner-program','#v18PublicSide',
+for(const phrase of ['#v17Program.f4-bank-program','#v18PublicSide',
  '#sideNav','#v16Tabs.v16-tabs','.v16-item','#v17Finance','#pagePribadi',
  '#v12Private>.stats','#pageProgress','.f4-member-progress-section',
  '#pageSetoran','#pagePenjualan','#pageRekonsiliasi','#pagePengesahan','#pageTabungan',
@@ -24,9 +24,13 @@ for(const phrase of ['#v11Public .v17-public-banner.v27-banner-program','#v18Pub
 assert(!css.includes('#a0dcb3'),'Old mint gradient present');
 assert(css.includes('--eco-gold:#ffc026'),'Current golden yellow theme token missing');
 assert(css.includes('background:#086345!important;border:1px solid #054d35!important'),'Deep green public hero missing');
-assert(h.includes('#v17Program .v17-feature{') && h.includes('border:0;border-radius:0;background:transparent'), 'Public program must be an unboxed step sequence');
+assert(h.includes('<section id="v17Program" class="f4-bank-program"'), 'Program must be a separate semantic section');
+assert(h.includes('#v17Program .f4-bank-program-step{'), 'Canonical unboxed program steps missing');
+assert(!h.includes('v27-banner-program'), 'Obsolete program banner layout must be removed');
+assert(!h.includes('v27CompactProgram'), 'Obsolete program DOM reparenting must be removed');
+assert(h.includes('border:0}').valueOf() || h.includes('background:transparent;border:0'), 'Public program must not use cards');
 assert(css.includes('color:#fff!important;\n border:1px solid #E6A125!important'),'White text on bright gold missing');
-assert(h.includes('background:#F5B52E!important;border:1px solid #E6A125!important;color:#fff!important'),'Mobile button must match desktop');
+assert(h.includes('#v11Public .v17-public-banner #f4-public-my-savings'), 'Responsive member CTA missing');
 assert(css.includes('#v11Public .v17-public-banner :is(h1,h2,h3,strong)'),'White title missing');
 assert(css.includes('color:#fff!important'),'Foreground contrast missing');
 assert(!h.includes('.stats .stat:last-child{grid-column:1/-1}'),'Wide last savings card regression');
