@@ -455,21 +455,33 @@
   #v25ReportMetrics.v26-compact{grid-template-columns:repeat(4,minmax(0,1fr))}
   @media(max-width:830px){#v25ReportMetrics.v26-compact{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @media(max-width:440px){#v25ReportMetrics.v26-compact{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#v25ReportMetrics.v26-compact .v17-public-metric{padding:12px 10px}}
-  /* v27: program ringkas masuk ke banner utama. */
+  /* Program publik: alur sederhana tanpa kartu atau chip. */
   #v11Public .v17-public-banner.v27-banner-program{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 22px;align-items:center}
-  #v11Public .v27-banner-program #v17Program{grid-column:1/-1;padding:0;margin:0;background:transparent;border:0;min-width:0}
-  #v11Public .v27-banner-program #v17Program>h2,#v11Public .v27-banner-program #v17Program>.v17-subtle{display:none!important}
-  #v11Public .v27-banner-program #v17Program .v17-program-grid{display:flex!important;flex-wrap:wrap!important;gap:7px!important}
-  #v11Public .v27-banner-program #v17Program .v17-feature{width:auto!important;min-width:0!important;flex:0 1 auto;padding:7px 12px!important;border-radius:9px;background:#ffffff1b!important;border:1px solid #ffffff38!important;box-shadow:none!important;color:#f2faf1!important}
-  #v11Public .v27-banner-program #v17Program .v17-feature strong{color:#f2faf1!important;font-size:11px!important}
-  #v11Public .v27-banner-program #v17Program .v17-feature p{display:none!important}
+  #v11Public .v27-banner-program #v17Program{grid-column:1/-1;padding:14px 0 0;margin:0;background:transparent;border:0;border-top:1px solid #ffffff47;min-width:0}
+  #v11Public .v27-banner-program #v17Program>h2{display:block;margin:0 0 12px;font-size:10px;font-weight:850;letter-spacing:.12em;text-transform:uppercase;color:#c5eed8}
+  #v11Public .v27-banner-program #v17Program>.v17-subtle{display:none}
+  #v11Public .v27-banner-program #v17Program .v17-program-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;align-items:start}
+  #v11Public .v27-banner-program #v17Program .v17-feature{position:relative;min-width:0;padding:0 0 0 32px;border:0;border-radius:0;background:transparent;box-shadow:none;color:#fff}
+  #v11Public .v27-banner-program #v17Program .v17-feature::before{position:absolute;top:0;left:0;display:grid;place-items:center;width:23px;height:23px;border:1px solid #ffffff86;border-radius:50%;color:#f6d66e;font-size:11px;font-weight:850}
+  #v11Public .v27-banner-program #v17Program .v17-feature:nth-child(1)::before{content:"1"}
+  #v11Public .v27-banner-program #v17Program .v17-feature:nth-child(2)::before{content:"2"}
+  #v11Public .v27-banner-program #v17Program .v17-feature:nth-child(3)::before{content:"3"}
+  #v11Public .v27-banner-program #v17Program .v17-feature strong{display:block;color:#fff;font-size:12px;line-height:1.32;font-weight:800}
+  #v11Public .v27-banner-program #v17Program .v17-feature .f4-program-icon{display:none}
+  #v11Public .v27-banner-program #v17Program .v17-feature p{display:block;margin:3px 0 0;color:#cfe9d9;font-size:11px;line-height:1.35}
   .v27-progress-no-photo{width:80px;height:78px;display:grid;place-items:center;border-radius:9px;background:#e2eee3;color:#83a58a;font-size:23px}
   .v27-photo-missing{color:#b57c49!important;font-size:10px!important}
   .v27-cancel-panel{border:1px solid #efcaa9;border-radius:12px;margin-top:22px;background:#fffaf4;padding:15px}
   .v27-cancel-panel summary{font-weight:750;color:#885226;cursor:pointer}
   .v27-cancel-panel .field{margin-top:12px}.v27-cancel-panel button{background:#9a5d3a}
   #v27PrintReport{display:none}
-  @media(max-width:720px){#v11Public .v17-public-banner.v27-banner-program{grid-template-columns:minmax(0,1fr) auto;gap:9px}#v11Public .v27-banner-program #v17Program .v17-feature{padding:6px 8px!important}#v11Public .v27-banner-program #v17Program .v17-feature strong{font-size:10px!important}}
+  @media(max-width:720px){
+    #v11Public .v17-public-banner.v27-banner-program{grid-template-columns:minmax(0,1fr) auto;gap:9px}
+    #v11Public .v27-banner-program #v17Program{padding-top:12px}
+    #v11Public .v27-banner-program #v17Program .v17-program-grid{grid-template-columns:minmax(0,1fr);gap:12px}
+    #v11Public .v27-banner-program #v17Program .v17-feature{padding-left:32px}
+    #v11Public .v27-banner-program #v17Program .v17-feature p{font-size:11px}
+  }
   /* v30 — foto asli dokumentasi menggantikan emoji daun pada banner. */
   #v11Public .v17-public-banner.v27-banner-program{grid-template-columns:minmax(0,1fr) minmax(215px,33%);grid-template-rows:auto auto;column-gap:24px;position:relative;overflow:hidden}
   #v11Public .v27-banner-program>.v30-hero-photo{grid-column:2;grid-row:1/3;align-self:center;height:190px;min-height:0;max-height:190px;border-radius:13px;overflow:hidden;display:none;background:#315b45}
