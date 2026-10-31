@@ -4252,6 +4252,8 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   }
   function v21RenderAlbumCover(albums){
     v21PrepareSections();v21Albums=Array.isArray(albums)?albums:[];
+    // Keep the full album directory synchronized when the public D1 fetch finishes.
+    v22RenderDocs();
     const area=$('v17Albums');if(!area)return;area.className='v22-preview-grid';area.replaceChildren();
     if(!v21Albums.length){area.textContent='Belum ada album dokumentasi yang dipublikasikan.';return;}
     v21Albums.slice(0,2).forEach(a=>{const button=v21Node('button','v21-feature-cover v22-preview-card');button.type='button';
