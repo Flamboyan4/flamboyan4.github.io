@@ -134,7 +134,6 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primar
 #dashboardView #f4MemberFlow .f4-flow-share-lingkungan{color:#805809;border-color:#e9d7a0}
 #dashboardView #f4MemberFlow .f4-member-flow-share b{font-size:12px;font-weight:850}
 @media(max-width:570px){
- #dashboardView #pageDashboard.f4-member-dashboard #f4MemberFlow.f4-member-flow{margin:8px 0 12px}
  #dashboardView #f4MemberFlow>.f4-member-flow-head{padding:11px}
  #dashboardView #f4MemberFlow .f4-member-flow-body{padding:10px}
  #dashboardView #f4MemberFlow .f4-member-flow-steps{grid-template-columns:minmax(0,1fr);gap:7px}
