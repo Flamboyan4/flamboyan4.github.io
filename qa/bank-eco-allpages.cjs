@@ -76,11 +76,29 @@ assert(managerPopover && managerPopover.includes('transform:none;opacity:0;visib
 assert(!managerPopover.includes('!important'),'Admin mobile popover must not use CSS priority overrides');
 assert(h.includes('html.f4-bank-embedded body.v17-dashboard:not(.f4-bank-app-admin) #sideNav.side'),
  'Embedded old drawer must exclude the admin role');
+const reportStyle=h.split('<style>')[1]?.split('</style>')[0];
 const mobileReportStyle=h.split('<style id="f4-bank-mobile-3view-fix-20261028">')[1]?.split('</style>')[0];
-assert(mobileReportStyle && mobileReportStyle.includes('min-height:66px'),
- 'Public report cards should be compact');
-assert(!mobileReportStyle.includes('min-height:95px!important'),
- 'Oversized public report cards returned');
-assert(!mobileReportStyle.includes('max-width:360px'),
- 'Tiny screens must not revert to tall one-column metric contents');
+assert(reportStyle && reportStyle.includes('grid-template-columns:repeat(auto-fit,minmax(156px,188px))'),
+ 'PC report KPI cards must be capped at a compact width');
+assert(reportStyle.includes('min-height:68px') && reportStyle.includes('min-height:64px'),
+ 'Canonical report cards must be compact on both desktop and mobile');
+assert(mobileReportStyle && !mobileReportStyle.includes('#v25ReportMetrics.v26-compact'),
+ 'Mobile report CSS duplicated instead of sharing the canonical report styling');
+assert(!h.includes('min-height:95px!important'),'Old oversized report KPI rule returned');
+assert(!h.includes("Ringkasan hasil penjualan dan manfaat untuk warga serta lingkungan, berdasarkan pembukuan yang sudah disahkan."),
+ 'Verbose report introduction returned');
+assert(!h.includes("Nilai sah berasal dari penjualan yang disahkan. Perkiraan menunggu disajikan terpisah dan tidak menambah saldo."),
+ 'Verbose approval note returned');
+assert(!h.includes("data.catatan+' Data pribadi warga tidak ditampilkan.'"),
+ 'Duplicated report footnote returned');
+for(const label of ['Berat sah','Belum sah','Penjualan','Hak warga','Dana lingkungan','Perkiraan']){
+ assert(h.includes("v17PublicStat('"+label+"'"),'Compact KPI title missing: '+label);
+}
+assert(h.includes("'✓ Data sah · ◷ Perkiraan terpisah · 🔒 Privasi'"),
+ 'Single compact report status line missing');
+assert(h.includes("const print=v21Node('button','secondary','PDF')"),'PDF button label not compact');
+assert(h.includes("const csv=v21Node('button','secondary','CSV')"),'CSV button label not compact');
+assert(!h.includes('Cetak / PDF'),'Old long PDF button label returned');
+assert(!h.includes('Unduh CSV'),'Old long CSV button label returned');
+
 console.log('F4_BANK_CANONICAL_THEME_OK');
