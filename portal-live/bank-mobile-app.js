@@ -962,7 +962,7 @@ function ensureOwnDepositForm(){
   amountField.append(el("span","","Uang diterima (Rp)"),Object.assign(el("input"),{type:"number",min:"1",step:"1",required:true,placeholder:"0"}));
   amountField.querySelector("input").id="f4BankOwnAmount";
   amountField.querySelector("input").addEventListener("input",event=>{event.currentTarget.dataset.manual="1";});
-  amountField.append(el("small","f4-bank-own-price-hint","Otomatis dari tarif barang • bisa dikoreksi"));
+  amountField.append(el("small","f4-bank-own-price-hint","Perkiraan tarif warga • sesuaikan uang diterima"));
   const fields=el("div","f4-bank-own-fields");fields.append(dateField,amountField);
   const detail=el("div","f4-bank-own-detail");
   const head=el("div","f4-bank-own-detail-head");
@@ -1056,7 +1056,7 @@ async function submitOwnDeposit(event){
 }
 let adminCashTab="in";
 function showAdminCash(){
- const page=ensureScreen("bank-admin-cash","Debit / Kredit");
+ const page=ensureScreen("bank-admin-cash","Pemasukan & Pengeluaran");
  let body=$("f4BankAdminCashBody");
  if(!body){
   body=el("div","f4-bank-admin-cash-body");body.id="f4BankAdminCashBody";
