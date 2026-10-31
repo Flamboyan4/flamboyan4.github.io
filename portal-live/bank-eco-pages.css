@@ -291,56 +291,20 @@ body.f4-bank-embedded #dashboardView .section,
  html body :is(#v18PublicSide,#sideNav) button svg{
    width:19px!important;height:19px!important;flex:none!important
  }
- /* Pengurus HP: drawer kiri yang hanya berisi menu tambahan.
-    Beranda, Setoran, Penjualan, Laporan dan Saldo khusus dock bawah. */
- html body.f4-bank-app-admin.v17-dashboard #sideNav.side{
-   display:block;box-sizing:border-box;
-   position:fixed;inset:56px auto 0 0;
-   width:min(300px,84vw);max-width:min(300px,84vw);
-   height:calc(100dvh - 56px);min-height:0;max-height:calc(100dvh - 56px);
-   padding:16px 12px 24px;overflow-x:hidden;overflow-y:auto;
-   overscroll-behavior:contain;
-   background:#fff;border:0;border-right:1px solid #dce9e1;border-radius:0;
-   box-shadow:9px 0 22px #183f3217;z-index:241;
-   transform:translateX(-105%);opacity:1;visibility:hidden;pointer-events:none;
-   transition:transform .2s ease,visibility .2s ease
+ /* Pengurus HP tidak memakai drawer sama sekali: navigasi di dock & Akses Cepat.
+    Sidebar penuh hanya untuk PC. */
+ html body.f4-bank-app-admin.v17-dashboard #sideNav.side,
+ html body.f4-bank-app-admin.v17-dashboard #sideNav.side.open,
+ html body.f4-bank-app-admin #v16Backdrop,
+ html body.f4-bank-app-admin #v16Backdrop.open,
+ html body.f4-bank-app-admin #f4-direct-bar #f4-mobile-menu{
+   display:none;visibility:hidden;pointer-events:none
  }
- html body.f4-bank-app-admin.v17-dashboard #sideNav.side.open{
-   transform:translateX(0);opacity:1;visibility:visible;pointer-events:auto
- }
- html body.f4-bank-app-admin #v16Backdrop.open{
-   display:block;position:fixed;inset:56px 0 0;
-   z-index:240;background:#173d2c55;pointer-events:auto
- }
- html body.f4-bank-app-admin #sideNav #v15Footer{display:none}
- html body.f4-bank-app-admin #sideNav #v16Brand{
-   display:flex;align-items:center;gap:10px;margin:0 0 12px;
-   padding:5px 4px 15px;border-bottom:1px solid #e2eee5
- }
- html body.f4-bank-app-admin #sideNav #v16Brand img{width:35px;height:35px}
- html body.f4-bank-app-admin #sideNav #v16Brand small{display:none}
- html body.f4-bank-app-admin #sideNav #v16Navigation{display:block}
- html body.f4-bank-app-admin #sideNav .v16-nav-caption{
-   margin:0;padding:0 5px 8px;font-size:11px;letter-spacing:.06em;color:#738a7d
- }
- html body.f4-bank-app-admin #sideNav #v16NavList{
-   display:flex;flex-direction:column;gap:3px
- }
- html body.f4-bank-app-admin #sideNav #v16NavList>.v16-item{
-   box-sizing:border-box;width:100%;min-width:0;max-width:100%;
-   margin:0;gap:10px;align-items:center;justify-content:flex-start;
-   white-space:normal;text-align:left
- }
- html body.f4-bank-app-admin #sideNav #v16NavList>.v16-item svg{
-   width:19px;height:19px;flex:none
+ html body.f4-bank-app-admin.v17-dashboard #dashboardView>.grid{
+   display:block;grid-template-columns:minmax(0,1fr)
  }
 }
 @media screen and (max-width:760px){
- /* HP: the five primary categories are in the dock, not repeated in the slide drawer. */
- html body.f4-bank-app-admin #sideNav #v16NavList>.v16-item:is(
-   [data-group="home"],[data-group="entry"],[data-group="money"]){
-   display:none
- }
  #dashboardView #v16Tabs.v16-tabs{
   flex-wrap:nowrap!important;overflow-x:auto!important;gap:6px!important
  }
@@ -942,6 +906,103 @@ body.f4-bank-embedded #dashboardView .section,
 .f4-bank-manager-request>small{font-size:11px;color:#718174}
 .f4-bank-manager-request-actions{display:flex;gap:8px}
 .f4-bank-manager-request-actions button{flex:1}
+/* Pengurus: komponen operasional asli, tanpa menu/portal duplikat pada HP. */
+body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
+ display:grid;gap:10px;margin:0;padding:15px;background:#fff;
+ border:1px solid #dbe9df;border-radius:16px
+}
+.f4-bank-admin-shortcuts>h2{margin:0;font-size:16px;font-weight:850;color:#174c33}
+.f4-bank-admin-shortcut-grid{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px
+}
+.f4-bank-admin-shortcut-grid>.f4-bank-app-action{
+ display:flex;align-items:center;gap:9px;min-width:0;min-height:53px;
+ border:1px solid #dce9df;border-radius:12px;padding:8px 9px;
+ background:#f9fcfa;color:#175338;text-align:left;
+ font:750 12px/1.25 system-ui;cursor:pointer
+}
+.f4-bank-admin-shortcut-grid .f4-bank-app-action-icon{
+ width:31px;height:31px;border-radius:9px;flex:none
+}
+.f4-bank-admin-shortcut-grid .f4-bank-app-action-icon img{
+ width:19px;height:19px;object-fit:contain
+}
+.f4-bank-admin-shortcut-grid .f4-bank-app-action-name{
+ display:block;white-space:normal;overflow-wrap:anywhere
+}
+#dashboardView #bank-admin-history.f4-bank-screen{
+ width:100%;max-width:1080px;min-width:0;
+ align-content:start
+}
+.f4-bank-admin-history-tabs{display:flex;gap:7px}
+.f4-bank-admin-history-tab{
+ padding:9px 16px;border:1px solid #d3e5d9;
+ border-radius:10px;background:#fff;color:#236044;font-weight:800;cursor:pointer
+}
+.f4-bank-admin-history-tab.is-active{
+ background:#087a54;border-color:#087a54;color:#fff
+}
+#dashboardView #bank-admin-history>.card:not(.hidden){
+ width:100%;margin:0;max-width:none
+}
+#dashboardView #pageRekonsiliasi>.f4-bank-admin-approval{
+ margin-top:14px;padding:15px;border:1px solid #dce9df;
+ border-radius:14px;background:#fff
+}
+#dashboardView #pageRekonsiliasi .field[hidden]{display:none}
+#dashboardView #pageRekonsiliasi #reconResult{margin:12px 0;min-width:0}
+.f4-bank-admin-name-row{display:flex;align-items:center;gap:8px;min-width:0}
+.f4-bank-admin-name-edit{
+ display:grid;place-items:center;width:33px;height:33px;min-width:33px;
+ border:1px solid #d4e7dc;border-radius:9px;
+ background:#eff9f2;color:#0d6847;cursor:pointer;padding:0
+}
+.f4-bank-admin-name-form:not([hidden]){display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+.f4-bank-admin-name-form input{flex:1 1 210px;min-width:0}
+.f4-bank-admin-name-form button{min-height:39px}
+.f4-bank-admin-name-status{flex-basis:100%;color:#667c6c}
+#dashboardView #pageProfile .f4-bank-admin-profile-password{
+ margin-top:14px;border:1px solid #dce9df;border-radius:13px;padding:12px 14px
+}
+#dashboardView #pageProfile .f4-bank-admin-profile-password>summary{
+ cursor:pointer;font-size:13px;font-weight:800;color:#164e36
+}
+#dashboardView #pageProfile .f4-bank-admin-profile-password #pagePassword{
+ width:100%;max-width:none;margin:12px 0 0;padding:0;border:0;box-shadow:none
+}
+#dashboardView #f4BankAppHome[data-bank-role="admin"]>#v17Perkembangan{
+ grid-column:1/-1;min-width:0;margin:0
+}
+@media(max-width:1023px){
+ body.f4-bank-app-admin .f4-bank-admin-shortcut-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))
+ }
+ body.f4-bank-app-admin #dashboardView #f4BankAppHome>#v17Perkembangan{
+  width:100%;min-width:0
+ }
+ body.f4-bank-app-admin #dashboardView #v16Tabs{display:none}
+}
+@media(min-width:1024px){
+ body.f4-bank-app-admin #dashboardView>.grid{
+  display:block;min-width:0
+ }
+ body.f4-bank-app-admin #dashboardView #sideNav.side{
+  display:block;position:fixed;top:0;bottom:0;left:0;z-index:210;
+  width:242px;height:100dvh;max-height:100dvh;min-width:0;
+  overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
+  border-right:1px solid #dce8df;background:#fff;
+  padding:12px 10px 20px;transform:none;visibility:visible
+ }
+ body.f4-bank-app-admin #dashboardView>.grid>.section{
+  box-sizing:border-box;display:block;min-width:0;
+  width:calc(100% - 242px);margin-left:242px
+ }
+ body.f4-bank-app-admin #sideNav #v16NavList{gap:2px}
+ body.f4-bank-app-admin #sideNav #v16NavList>.v16-item{
+  min-height:40px;padding:6px 10px;gap:10px
+ }
+ body.f4-bank-app-admin #f4-direct-bar{padding-left:12px}
+}
 /* Satu navigasi bawah untuk anggota & pengurus: HP dan tablet sebelum sidebar desktop aktif. */
 .f4-bank-app-dock{display:none}
 @media(max-width:1023px){
