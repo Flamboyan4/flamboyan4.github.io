@@ -754,6 +754,65 @@ function updateCardNumber(){
  const house=$("pHome")?.textContent?.trim()||"—";
  if($("f4BankProfileHouse"))$("f4BankProfileHouse").textContent="Rumah "+house;
 }
+/* Nama tampilan diedit langsung di Profil Saya, bukan lewat formulir/halaman akun lain.
+   Endpoint ini hanya mengubah alias pemilik akun; identitas ledger warga tetap. */
+function inlineMemberDisplayName(){
+ if(role!=="member")return;
+ const name=$("pName");if(!name||name.closest(".f4-member-name-row"))return;
+ const row=el("div","f4-member-name-row");name.before(row);row.append(name);
+ const edit=el("button","f4-member-name-edit");edit.type="button";
+ edit.title="Edit nama tampilan";edit.setAttribute("aria-label","Edit nama tampilan");
+ edit.innerHTML='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16 4a2.1 2.1 0 0 1 3 3L9 17l-4 1 1-4L16 4Z"/></svg>';
+ const input=el("input","f4-member-name-input");input.type="text";input.maxLength=100;input.autocomplete="nickname";
+ input.setAttribute("aria-label","Nama tampilan");
+ const save=el("button","f4-member-name-save","✓");save.type="button";save.title="Simpan nama";save.setAttribute("aria-label","Simpan nama tampilan");
+ const cancel=el("button","f4-member-name-cancel","×");cancel.type="button";cancel.title="Batal";cancel.setAttribute("aria-label","Batalkan edit nama");
+ const status=el("span","f4-member-name-status");status.setAttribute("role","status");status.setAttribute("aria-live","polite");status.hidden=true;
+ row.append(edit,input,save,cancel);row.after(status);
+ let saving=false;
+ function mode(active){
+  name.hidden=active;edit.hidden=active;
+  input.hidden=!active;save.hidden=!active;cancel.hidden=!active;
+  if(active){status.hidden=true;status.textContent="";}
+ }
+ mode(false);
+ edit.onclick=()=>{
+  input.value=name.textContent.trim();mode(true);input.focus();input.select();
+ };
+ cancel.onclick=()=>{if(saving)return;mode(false);edit.focus();};
+ async function persist(){
+  if(saving)return;
+  const value=input.value.trim().replace(/\s+/g," ");
+  if(value.length<2||value.length>100||/[<>\x00-\x1f]/.test(value)){
+    status.textContent="Nama harus 2–100 karakter.";status.hidden=false;input.focus();return;
+  }
+  if(value===name.textContent.trim()){mode(false);return;}
+  saving=true;save.disabled=true;cancel.disabled=true;
+  status.textContent="Menyimpan...";status.hidden=false;
+  try{
+    const result=await api("/api/member/profile",{nama:value});
+    if(roleType()!=="member"||!$("dashboardView")||$("dashboardView").classList.contains("hidden"))return;
+    const persisted=String(result.profile?.nama||value).trim();
+    name.textContent=persisted;
+    const sidebar=$("v15AccountName");if(sidebar)sidebar.textContent=persisted;
+    const greeting=$("greeting");if(greeting)greeting.textContent="Halo, "+persisted;
+    const welcome=$("welcomeName");if(welcome)welcome.textContent=persisted;
+    const mobile=$("f4BankAppHome")?.querySelector(".f4-bank-app-personal-greeting strong");
+    if(mobile)mobile.textContent="Halo, "+persisted+"!";
+    mode(false);
+    window.dispatchEvent(new CustomEvent("f4-account-profile-updated",{detail:{nama:persisted}}));
+  }catch(error){
+    status.textContent=error.message||"Nama belum tersimpan.";status.hidden=false;input.focus();
+  }finally{
+    saving=false;save.disabled=false;cancel.disabled=false;
+  }
+ }
+ save.onclick=persist;
+ input.addEventListener("keydown",event=>{
+  if(event.key==="Enter"){event.preventDefault();persist();}
+  if(event.key==="Escape"){event.preventDefault();cancel.click();}
+ });
+}
 function updateProfileCard(){
  if(role!=="member")return;
  const target=$("pageProfile"),card=$("f4BankMemberCard");if(!target||!card)return;
@@ -778,6 +837,7 @@ function updateProfileCard(){
   const head=target.querySelector(":scope > h2");if(head)head.textContent="Profil & Pengaturan";
  }
  updateCardNumber();
+ inlineMemberDisplayName();
 }
 function acceptMemberStatement(event){
  if(roleType()!=="member")return;
