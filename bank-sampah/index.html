@@ -745,31 +745,7 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
  #v10Print tbody td,#v27PrintReport tbody td{border-color:#000}
 }
 </style>
-<style id="f4-compact-bank-development-20261023">
-/* Satu ukuran proporsional seperti tampilan Bank Sampah asli.
-   Semua perkembangan tetap tersedia melalui scroll di kolom linimasa. */
-@media(min-width:901px){
- #v17Perkembangan .v17-two{align-items:stretch!important}
- #v17Perkembangan .v17-two>.v17-panel{
-   height:auto;min-height:320px;max-height:none;
-   box-sizing:border-box;overflow:visible;
- }
- #v17Perkembangan #v17WeightBars{height:164px!important;padding-top:10px!important}
- #v17Perkembangan #v17WeightNote{line-height:1.35!important;margin-top:9px!important}
- #v17Perkembangan #v17Timeline{
-   max-height:222px!important;overflow-y:auto!important;overflow-x:hidden!important;
-   scrollbar-width:thin;scrollbar-color:#b7d6be transparent;padding-right:5px!important;
- }
- #v17Perkembangan #v17Timeline li{padding-bottom:12px!important}
- #v17Perkembangan .v25-progress-thumb,
- #v17Perkembangan .v27-progress-no-photo{width:74px!important;height:74px!important}
- #v17Perkembangan .v25-progress-tile{grid-template-columns:74px minmax(0,1fr)!important;gap:10px!important}
-}
-@media(max-width:900px){
- #v17Perkembangan .v17-two>.v17-panel{height:auto!important;max-height:none!important}
- #v17Perkembangan #v17Timeline{max-height:320px;overflow-y:auto;scrollbar-width:thin}
-}
-</style><style id="f4-bank-embedded-single-menu">
+<style id="f4-bank-embedded-single-menu">
 /* Keep original Bank Sampah drawer, but shell owns the sole mobile hamburger. */
 @media(max-width:1023px){
  html.f4-bank-embedded #v18PublicMenuButton,
@@ -1569,20 +1545,6 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
  #dashboardView #pageDashboard .f4-chart-admin-head{align-items:flex-start}
 }
 
-/* Nominal publik bersumber dari D1, tidak bercampur dengan estimasi. */
-#v17Perkembangan .f4-public-chart-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px}
-#v17Perkembangan .f4-public-chart-head h3{margin:0;font-size:15px}
-#v17Perkembangan .f4-public-chart-tabs{display:inline-flex;gap:4px;align-items:center;padding:3px;border:1px solid #d3e5d8;border-radius:10px;background:#f2f8f3}
-#v17Perkembangan .f4-public-chart-tabs button{min-height:32px;padding:6px 10px;border:0;border-radius:7px;background:transparent;color:#3e6b52;font-size:12px;line-height:1.2;font-weight:750}
-#v17Perkembangan .f4-public-chart-tabs button.is-active{background:#087850;color:#fff}
-#v17Perkembangan .f4-public-chart-tabs button:focus-visible{outline:2px solid #087850;outline-offset:2px}
-#v17Perkembangan .f4-public-chart-panel .v17-bars{height:170px;min-height:0;padding-top:8px;margin-bottom:18px}
-#v17Perkembangan .f4-public-chart-panel #v17WeightNote{margin-top:6px;line-height:1.35}
-#v17Perkembangan .f4-public-chart-legend{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:5px 0 12px;color:#557462;font-size:11.5px}
-#v17Perkembangan .f4-public-chart-legend span{display:flex;align-items:center;gap:5px}
-#v17Perkembangan .f4-public-chart-legend i{display:inline-block;width:9px;height:9px;border-radius:3px;background:#26875e}
-#v17Perkembangan .f4-public-chart-legend span:nth-child(2) i{background:#e6a62a}
-#v17Perkembangan #v17WeightBars .v17-bar.out{background:#e6a62a!important}
 
 </style>
 <style id="f4-bank-mobile-3view-fix-20261028">
@@ -3769,7 +3731,29 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       <div class="v17-public-main"><div class="v17-public-banner"><div><span class="v14-eyebrow">🌱 Bank Sampah</span><h1>Sampah terpilah. Manfaat bertambah.</h1></div><button id="v30HeroPhoto" type="button" class="v30-hero-photo" aria-label="Lihat dokumentasi dan inventaris" title="Lihat dokumentasi dan inventaris"></button></div>
       <div id="v17PublicMetrics" class="v17-public-metrics">Memuat ringkasan...</div>
       <section id="v17Program" class="f4-bank-program" aria-labelledby="f4BankProgramTitle"><div class="f4-bank-program-heading"><span class="f4-bank-program-kicker">CARA KERJA</span><h2 id="f4BankProgramTitle">Dari sampah jadi manfaat</h2></div><ol class="f4-bank-program-flow"><li class="f4-bank-program-step"><strong>Pilah & setor</strong><p>Warga membawa sampah terpilah untuk ditimbang.</p></li><li class="f4-bank-program-step"><strong>Jual & sahkan</strong><p>Pengurus mencatat hasil jual dan mengesahkannya.</p></li><li class="f4-bank-program-step"><strong>Tabungan & lingkungan</strong><p>Hasil dibagi untuk tabungan warga dan kas lingkungan.</p></li></ol></section>
-      <section id="v17Perkembangan" class="v17-section"><h2>Perkembangan</h2><div class="v17-two"><div class="v17-panel f4-public-chart-panel"><div class="f4-public-chart-head"><h3>Setoran per bulan</h3><div class="f4-public-chart-tabs" role="group" aria-label="Jenis grafik setoran"><button type="button" data-public-chart-mode="berat" aria-pressed="true">Berat (kg)</button><button type="button" data-public-chart-mode="nilai" aria-pressed="false">Nilai (Rp)</button></div></div><div id="v17PublicChartLegend" class="f4-public-chart-legend" aria-label="Status setoran"></div><div id="v17WeightBars" class="v17-bars" role="img" aria-label="Grafik perkembangan setoran bulanan"></div><p id="v17WeightNote" class="v17-subtle" aria-live="polite">Memuat grafik...</p></div><div class="v17-panel"><h3>Linimasa kegiatan</h3><ol id="v17Timeline" class="v17-timeline"><li>Memuat perkembangan...</li></ol></div></div></section>
+      <section id="v17Perkembangan" class="v17-section f4-dev" aria-labelledby="f4DevTitle">
+        <header class="f4-dev-intro"><div><small class="f4-dev-kicker">BANK SAMPAH FLAMBOYAN 4</small><h2 id="f4DevTitle">Perkembangan</h2></div><span class="f4-dev-intro-chip">Data terkini</span></header>
+        <div id="f4DevStats" class="f4-dev-mini-stats" aria-live="polite"></div>
+        <div class="f4-dev-grid">
+          <section class="f4-dev-chart-card" aria-labelledby="f4DevChartTitle">
+            <div class="f4-dev-head"><h3 id="f4DevChartTitle">Grafik setoran</h3><small class="f4-dev-head-note" id="f4DevChartPeriod">Per bulan</small></div>
+            <div class="f4-dev-controls">
+              <div class="f4-dev-periods" role="group" aria-label="Rentang perkembangan"><button type="button" data-dev-range="7" aria-pressed="false">7 hari</button><button type="button" data-dev-range="30" aria-pressed="false">30 hari</button><button type="button" data-dev-range="bulan" aria-pressed="true">Per bulan</button></div>
+              <div class="f4-dev-modes" role="group" aria-label="Jenis grafik"><button type="button" data-dev-mode="berat" aria-pressed="true">Kg</button><button type="button" data-dev-mode="nilai" aria-pressed="false">Rp</button></div>
+            </div>
+            <div id="f4DevChartSummary" class="f4-dev-chart-summary"></div>
+            <div id="f4DevChart" class="f4-dev-chart" role="img" aria-label="Grafik perkembangan setoran"></div>
+            <div id="f4DevLegend" class="f4-dev-legend"></div>
+            <p id="f4DevChartNote" class="f4-dev-chart-note" aria-live="polite">Memuat grafik...</p>
+          </section>
+          <section class="f4-dev-activity-card" aria-labelledby="f4DevActivityTitle">
+            <div class="f4-dev-head"><h3 id="f4DevActivityTitle">Linimasa kegiatan</h3><small id="f4DevStepCount" class="f4-dev-head-note"></small></div>
+            <div id="f4DevStepTrack" class="f4-dev-step-track" aria-label="Tahapan kegiatan"></div>
+            <div class="f4-dev-timeline-head"><strong>Kegiatan terbaru</strong><button id="f4DevShowAll" class="f4-dev-show-more" type="button" hidden>Lihat semua</button></div>
+            <ol id="v17Timeline" class="f4-dev-timeline"><li class="f4-dev-empty-activity">Memuat kegiatan...</li></ol>
+          </section>
+        </div>
+      </section>
       <section id="v17Dokumentasi" class="v17-section"><h2>Dokumentasi kegiatan</h2><div id="v17Albums" class="v17-albums">Memuat album...</div></section>
       <section id="v17Inventaris" class="v17-section"><h2>Inventaris kegiatan</h2><div id="v17Inventory" class="v17-inventory">Memuat inventaris...</div></section>
       <section id="v17Transparansi" class="v17-section"><h2>Transparansi kegiatan</h2><div class="v17-panel"><p>🔒 Saldo dan riwayat pribadi tersedia setelah login.</p></div></section></div>`;
@@ -5431,6 +5415,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261031-mobile-spacing-v2">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261031-plain-white-dashboard">
 <link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261031-admin-clean-drawer-v31">
+<link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261031-mobile-progress-v1">
 <script src="/portal-live/bank-sale-handover.js?v=auto-print-firefox-20261030b"></script>
 <script src="/portal-live/direct-shell.js?v=bank-member-single-profile-20261031"></script><script src="/portal-live/unified-account.js?v=bank-member-profile-redirect-20261031"></script><script defer src="/portal-live/mobile-cards.js?v=20261031-detail-eye-icon-v2"></script><script defer src="/portal-live/native-controls.js?v=20261027-audit6"></script><script defer src="/portal-live/bank-page-history.js?v=20261027-final4"></script>
 <script defer src="/portal-live/bank-mobile-app.js?v=20261031-payout-rp-v16"></script></body>
