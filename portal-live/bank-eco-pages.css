@@ -1022,6 +1022,93 @@ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
  }
  body.f4-bank-app-admin #f4-direct-bar{padding-left:12px}
 }
+/* Setoran milik Bank Sampah: tanpa membagikan saldo warga. */
+body.f4-bank-app-admin #f4-direct-bar .f4-bank-admin-top-identity{
+ display:flex;align-items:center;margin-right:auto;
+ color:#164d35;font:850 15px/1.2 system-ui
+}
+body.f4-bank-app-admin #dashboardView #bank-admin-docs{
+ align-content:start;max-width:1080px;width:100%
+}
+body.f4-bank-app-admin #bank-admin-docs .f4-bank-admin-doc-content{
+ display:grid;min-width:0;gap:10px;
+}
+body.f4-bank-app-admin #bank-admin-docs #v22DocsPage,
+body.f4-bank-app-admin #bank-admin-docs #v17Inventaris{
+ display:block;min-width:0;width:100%;box-sizing:border-box;
+ background:#fff;border:1px solid #dbe9df;border-radius:15px;padding:15px;
+}
+body.f4-bank-app-admin #bank-admin-docs :is(#v22DocsPage,#v17Inventaris)[hidden]{
+ display:none
+}
+body.f4-bank-app-admin #bank-admin-docs #v22DocsPage .v22-back-home{
+ display:none
+}
+body.f4-bank-app-admin #bank-admin-docs .v22-doc-list{
+ display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px
+}
+body.f4-bank-app-admin #pageSetoran .f4-bank-own-mode-tabs{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;
+ margin:12px 0 16px;padding:5px;border-radius:12px;
+ background:#f0f5f1
+}
+body.f4-bank-app-admin .f4-bank-own-mode-tabs>button{
+ padding:11px 9px;min-height:40px;border:0;border-radius:9px;
+ color:#4b6658;background:transparent;font-weight:800;cursor:pointer
+}
+body.f4-bank-app-admin .f4-bank-own-mode-tabs>button.is-active{
+ background:#087950;color:#fff
+}
+body.f4-bank-app-admin #pageSetoran #setoranForm[hidden],
+body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm[hidden]{display:none}
+body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm{
+ display:grid;gap:14px;align-content:start
+}
+.f4-bank-own-intro{font-size:12px;color:#567465;margin:0}
+.f4-bank-own-fields{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px
+}
+.f4-bank-own-field{display:grid;gap:6px;min-width:0;font-size:12px;font-weight:750;color:#295f42}
+.f4-bank-own-field input{width:100%;min-width:0;box-sizing:border-box}
+.f4-bank-own-detail{
+ display:grid;gap:10px;border:1px solid #dbe9df;
+ border-radius:14px;background:#fff;padding:13px;min-width:0
+}
+.f4-bank-own-detail-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.f4-bank-own-detail-head strong{color:#16472f}
+.f4-bank-own-lines{display:grid;gap:8px}
+.f4-bank-own-line{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(90px,1fr) 34px;gap:7px}
+.f4-bank-own-line :is(input,select){width:100%;min-width:0;box-sizing:border-box}
+.f4-bank-own-remove{border:1px solid #e1e5df;border-radius:8px;background:#fff;color:#915332;cursor:pointer;padding:0}
+.f4-bank-own-weight{font-size:12px;font-weight:800;color:#126847}
+.f4-bank-own-status{font-size:12px;color:#2b6a4b;min-height:0;margin:0}
+body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:1080px;align-content:start}
+.f4-bank-admin-cash-body{display:grid;gap:14px}
+.f4-bank-admin-cash-actions{display:flex;gap:9px;flex-wrap:wrap}
+.f4-bank-admin-cash-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.f4-bank-admin-cash-stat{
+ display:grid;gap:5px;min-width:0;padding:12px;
+ border:1px solid #dce9df;border-radius:12px;background:#fff
+}
+.f4-bank-admin-cash-stat small{font-size:11px;color:#668070}
+.f4-bank-admin-cash-stat strong{font-size:17px;color:#165c3c}
+.f4-bank-admin-cash-table{max-width:100%;overflow-x:auto}
+.f4-bank-admin-cash-ledger{
+ width:100%;border-collapse:collapse;min-width:520px;font-size:12px
+}
+.f4-bank-admin-cash-ledger th,.f4-bank-admin-cash-ledger td{
+ padding:9px 10px;text-align:left;border-bottom:1px solid #dce9df
+}
+.f4-bank-admin-cash-ledger th{background:#edf7f0;color:#214b34}
+@media(max-width:760px){
+ .f4-bank-own-fields{grid-template-columns:minmax(0,1fr)}
+ .f4-bank-admin-cash-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+ .f4-bank-admin-cash-stat{padding:9px}
+ .f4-bank-admin-cash-stat strong{font-size:13px}
+}
+@media(min-width:1024px){
+ body.f4-bank-app-admin #f4-direct-bar .f4-bank-admin-top-identity{display:none}
+}
 /* Satu navigasi bawah untuk anggota & pengurus: HP dan tablet sebelum sidebar desktop aktif. */
 .f4-bank-app-dock{display:none}
 @media(max-width:1023px){
