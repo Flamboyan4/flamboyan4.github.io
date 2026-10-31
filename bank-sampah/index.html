@@ -3763,24 +3763,8 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
      };
       list.appendChild(b);
     });
-    // Menu HP hanya berisi fitur pelengkap, bukan duplikasi navigasi bawah.
-    if(profile?.peran==='Admin'){
-      const extras=[
-        ['riwayat','Riwayat setoran','edit'],
-        ['riwayatJual','Riwayat penjualan','edit'],
-        ['rekonsiliasi','Cek selisih','wallet'],
-        ['pengesahan','Sahkan hasil','wallet'],
-        ['biaya','Pengeluaran','wallet']
-      ];
-      extras.forEach(([route,label,icon])=>{
-        const button=document.createElement('button');
-        button.type='button';button.className='v16-item v16-mobile-extra';
-        button.dataset.route=route;button.append(v16Icon(icon),document.createTextNode(label));
-        button.onclick=()=>{v16CloseMenu();goPage(route);v16Sync(route);};
-        const next=list.querySelector('[data-group="payout"]');
-        if(next)list.insertBefore(button,next);else list.appendChild(button);
-      });
-    }
+    // Menu samping hanya menampilkan kategori yang belum tersedia di dock bawah.
+    // Riwayat, pengesahan, cek selisih dan pengeluaran tetap di tab kategori masing-masing.
     if(!$('v16Tabs')){
       const tabs=document.createElement('div');tabs.id='v16Tabs';tabs.className='v16-tabs hidden';
       const section=$('dashboardView').querySelector('.section');section.querySelector(':scope > .toolbar').after(tabs);
@@ -3800,11 +3784,6 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       const selected=!!group&&button.dataset.group===group.id;
       button.classList.toggle('active',selected);
       button.setAttribute('aria-current',selected?'page':'false');
-    });
-    document.querySelectorAll('#v16NavList .v16-mobile-extra').forEach(button=>{
-      const active=button.dataset.route===page;
-      button.classList.toggle('active',active);
-      button.setAttribute('aria-current',active?'page':'false');
     });
     document.body.dataset.f4BankSection=group?.id||'account';
     tabs.replaceChildren();
