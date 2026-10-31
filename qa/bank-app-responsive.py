@@ -259,6 +259,96 @@ async def admin_mobile_shell(browser):
     print("ADMIN_AND_MEMBER_DOCK_PARITY_OK",state,member,flush=True)
     await page.close()
 
+async def public_chart_and_flat_roster(browser):
+    """Actual Bank Sampah styles: 33 saldo rows follow page scroll; public chart switches units."""
+    import re
+    from pathlib import Path
+    source=Path("bank-sampah/index.html").read_text(encoding="utf-8")
+    roster_css=re.search(r'<style id="f4-bank-savings-compact-20261028">([\\s\\S]*?)</style>',source)
+    if not roster_css: raise AssertionError("Roster stylesheet unavailable")
+    rows="".join(
+        '<div class="f4-saldo-row" role="listitem"><div class="f4-saldo-person">'
+        f'<strong class="f4-saldo-name">Warga {i}</strong><small class="f4-saldo-house">A5/{i}</small>'
+        f'</div><strong class="f4-saldo-amount">Rp {i*1000:,}</strong></div>'
+        for i in range(1,34))
+    for label,width in [("hp",390),("pc",1366)]:
+        page=await browser.new_page(viewport={"width":width,"height":820})
+        markup=f"""<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
+        <base href="http://127.0.0.1:8765/">
+        <link rel="stylesheet" href="/portal-live/modern-portals.css">
+        <style>body{{margin:0;font-family:system-ui}} #dashboardView{{max-width:100%;padding:12px}}
+        #pageTabungan{{padding:10px}} .f4-savings-main{{display:block}}</style>
+        <style>{roster_css.group(1)}</style></head>
+        <body class="f4-direct-bank f4-bank-app-private f4-bank-app-admin">
+        <div id="dashboardView"><section id="pageTabungan">
+        <div class="f4-savings-main"><section class="f4-savings-roster f4-savings-members">
+        <div class="f4-savings-panel-title"><h3>Saldo anggota</h3></div>
+        <div class="f4-bs-saldo-finder"><input placeholder="Cari anggota"></div>
+        <div id="v9List"><div class="f4-saldo-list" role="list">{rows}</div></div>
+        </section></div></section></div></body></html>"""
+        await page.set_content(markup,wait_until="load")
+        values=await page.evaluate("""() => {
+          const area=document.querySelector("#v9List"),frame=document.querySelector(".f4-savings-roster");
+          const last=document.querySelector(".f4-saldo-row:last-child");
+          return {count:document.querySelectorAll(".f4-saldo-row").length,
+            overflow:getComputedStyle(area).overflowY,maxHeight:getComputedStyle(area).maxHeight,
+            paneBorder:getComputedStyle(frame).borderTopWidth,areaBorder:getComputedStyle(area).borderTopWidth,
+            scrollHeight:document.documentElement.scrollHeight,viewport:innerHeight,
+            lastBottom:last.getBoundingClientRect().bottom,overflowX:document.documentElement.scrollWidth>innerWidth+2};
+        }""")
+        assert values["count"]==33,(label,values)
+        assert values["overflow"]=="visible" and values["maxHeight"]=="none",(label,values)
+        assert values["paneBorder"]=="0px" and values["areaBorder"]=="0px",(label,values)
+        assert values["scrollHeight"]>values["viewport"]+300 and not values["overflowX"],(label,values)
+        await page.evaluate("window.scrollTo(0,document.documentElement.scrollHeight)")
+        assert await page.evaluate("scrollY>300"),(label,values)
+        print("FLAT_MANAGER_ROSTER_OK",label,values,flush=True)
+        await page.close()
+
+    def between(start,end):
+        begin=source.index(start);finish=source.index(end,begin)
+        return source[begin:finish]
+    chart_js=between("  function v17Chart(root,rows,keys,colorNames){","  async function v17LoadFinance(){")
+    public_js=between("  let v17PublicChartMode='berat';","  async function v17LoadPublic(){")
+    page=await browser.new_page(viewport={"width":390,"height":820})
+    await page.set_content("""<!doctype html><html><body><section id="v17Perkembangan">
+    <div class="f4-public-chart-tabs"><button data-public-chart-mode="berat">Berat (kg)</button>
+    <button data-public-chart-mode="nilai">Nilai (Rp)</button></div>
+    <div id="v17PublicChartLegend"></div><div id="v17WeightBars"></div>
+    <p id="v17WeightNote"></p></section></body></html>""")
+    helpers="""const $=id=>document.getElementById(id);
+    const kg=n=>Number(n).toLocaleString('id-ID')+' kg';
+    const rupiah=n=>'Rp '+Number(n).toLocaleString('id-ID');
+    const v17Label=value=>String(value||'').slice(5)||'—';"""
+    await page.add_script_tag(content=helpers+chart_js+public_js+"""
+    v17PublicChartRows=[
+      {periode:'2026-09',beratKg:1.2,pendingWeightKg:0.3,hakWarga:750,pendingEstimateRp:1000},
+      {periode:'2026-10',beratKg:1.9,pendingWeightKg:0,hakWarga:2250,pendingEstimateRp:0}
+    ];
+    v17PublicReportReady=true;v17BindPublicChart();v17RenderPublicChart();""")
+    weight=await page.evaluate("""() => ({
+      bars:document.querySelectorAll("#v17WeightBars .v17-bar-group").length,
+      note:document.querySelector("#v17WeightNote").textContent,
+      legend:document.querySelector("#v17PublicChartLegend").textContent,
+      firstBar:document.querySelector("#v17WeightBars .v17-bar")?.title
+    })""")
+    assert weight["bars"]==2 and "3,1 kg" in weight["note"],weight
+    assert "Timbang belum sah" in weight["legend"] and "kg" in weight["firstBar"],weight
+    await page.locator('[data-public-chart-mode="nilai"]').click()
+    money=await page.evaluate("""() => ({
+      bars:document.querySelectorAll("#v17WeightBars .v17-bar-group").length,
+      note:document.querySelector("#v17WeightNote").textContent,
+      legend:document.querySelector("#v17PublicChartLegend").textContent,
+      firstBar:document.querySelector("#v17WeightBars .v17-bar")?.title,
+      active:document.querySelector('[data-public-chart-mode="nilai"]').getAttribute("aria-pressed")
+    })""")
+    assert money["bars"]==2 and "Rp 3.000" in money["note"],money
+    assert money["active"]=="true" and "Hak warga sah" in money["legend"],money
+    assert "Rp" in money["firstBar"] and "kg" not in money["firstBar"],money
+    print("ONE_PUBLIC_CHART_TWO_UNITS_OK",weight,money,flush=True)
+    await page.close()
+
+
 async def main():
     async with async_playwright() as p:
         browser=await p.chromium.launch(args=["--no-sandbox"])
@@ -310,6 +400,7 @@ async def main():
         await member_layout(browser)
         await savings_chart(browser)
         await admin_mobile_shell(browser)
+        await public_chart_and_flat_roster(browser)
         await browser.close()
 if __name__=="__main__":
     asyncio.run(main())
