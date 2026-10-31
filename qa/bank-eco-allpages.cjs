@@ -80,16 +80,23 @@ assert(!managerDrawer.includes('grid-template-columns:repeat(2,minmax(0,1fr))'),
  'Admin sidebar grid menu returned');
 assert(!managerDrawer.includes('!important'),
  'Admin drawer must not use priority overrides');
-assert(css.includes('/* Only HP has a bottom dock: hide equivalent routes in its slide drawer. */'),
- 'The admin drawer must exclude bottom dock routes only on HP');
+assert(css.includes('/* HP: the five primary categories are in the dock, not repeated in the slide drawer. */'),
+ 'Bank Sampah must keep primary navigation in the mobile dock');
 assert(css.includes('[data-group="home"],[data-group="entry"],[data-group="money"]'),
- 'Duplicate Beranda/Setoran/Penjualan/Laporan/Saldo menu groups returned');
-assert(css.includes('#sideNav #v16NavList>.v16-mobile-extra'),
- 'Extra admin routes must remain visible');
-assert(h.includes("['riwayat','Riwayat setoran','edit']")&&
-       h.includes("['pengesahan','Sahkan hasil','wallet']")&&
-       h.includes("['biaya','Pengeluaran','wallet']"),
- 'Admin extra menu routes may not be removed');
+ 'Main admin categories must be omitted from the HP drawer');
+assert(!css.includes('v16-mobile-extra')&&!h.includes('v16-mobile-extra'),
+ 'Duplicated tab submenus must not return to the admin sidebar');
+assert(!h.includes('const extras=['),
+ 'Admin drawer must not dynamically inject tab links');
+assert(h.includes("tabs:[['setoran','Input setoran'],['riwayat','Riwayat setoran'],['penjualan','Penjualan lapak'],['riwayatJual','Riwayat penjualan']]"),
+ 'Setoran/penjualan history must remain inside Pencatatan tabs');
+assert(h.includes("tabs:[['rekonsiliasi','Cek selisih'],['pengesahan','Sahkan hasil'],['tabungan','Saldo warga'],['biaya','Pembelian & pengeluaran'],['laporan','Laporan admin']]"),
+ 'Reconciliation, approval, and expenses must remain inside Keuangan tabs');
+for(const id of ['payout','program','settings','public']){
+ assert(h.includes("{id:'"+id+"'"),'Independent admin drawer category missing: '+id);
+}
+assert(h.includes("back.replaceChildren(v16Icon('user'),document.createTextNode(label))"),
+ 'Admin profile entry must remain in the drawer');
 assert(h.includes('html.f4-bank-embedded body.v17-dashboard:not(.f4-bank-app-admin) #sideNav.side'),
  'Embedded old drawer must exclude the admin role');
 const reportStyle=h.split('<style>')[1]?.split('</style>')[0];
