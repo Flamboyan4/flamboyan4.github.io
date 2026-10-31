@@ -1,5 +1,5 @@
 /* Bank Sampah member-only navigation and feature surfaces.
-   One scoped component stylesheet; no legacy override chains or !important. */
+   Scoped component stylesheet with native selector precedence. */
 body.f4-bank-app-member #dashboardView>.grid{
  display:block;grid-template-columns:minmax(0,1fr);min-width:0
 }
