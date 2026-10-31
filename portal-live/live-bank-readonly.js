@@ -225,8 +225,16 @@
   const netSavings=ledger.reduce((sum,x)=>sum+(['kredit','koreksi_kredit'].includes(x.kind)?1:-1)*number(x.amount_rp),0);
   const weightPending=validDeposits.some(x=>x.status==='Terkonfirmasi'&&x.beratSah===null);
   const activeCash=cash.filter(x=>x.status==='aktif');
-  const totalCash=activeCash.reduce((n,x)=>n+number(x.cash_in_rp)-number(x.cash_out_rp),0);
-  const bankOwnedCash=totalCash-netSavings; // Hak warga adalah kewajiban, bukan kas milik bank.
+  const cashFund=new Map();
+  for(const row of activeCash){
+    const pos=String(row.fund_position||"").trim().toLowerCase();
+    cashFund.set(pos,(cashFund.get(pos)||0)+number(row.cash_in_rp)-number(row.cash_out_rp));
+  }
+  const totalCash=[...cashFund.values()].reduce((n,x)=>n+x,0);
+  const bankOwnedCash=(cashFund.get("operasional")||0)+(cashFund.get("cadangan")||0);
+  const neighborhoodCash=cashFund.get("kas_lorong")||0;
+  const wargaHeld=cashFund.get("tabungan_warga")||0;
+  const otherCash=totalCash-bankOwnedCash-neighborhoodCash-wargaHeld;
   return {wargaAktif:members.filter(x=>x.status==='Aktif').length,
    jenisBarangAktif:items.filter(x=>x.active!==0).length,
    beratSetoranKg:weightPending?null:validDeposits.reduce((n,x)=>n+x.berat,0),
@@ -243,6 +251,9 @@
    kasGabunganRp:totalCash,
    hakWargaBelumCairRp:netSavings,
    kasMilikBankRp:bankOwnedCash,
+   kasLingkunganRp:neighborhoodCash,
+   kasHakWargaDitampungRp:wargaHeld,
+   kasPosLainRp:otherCash,
    tarifBelumDitetapkan:items.filter(x=>!x.priceRpPerKg).length};
  };
  const adminProgress=async()=> (await adminRows('progress')).map(x=>({
@@ -284,6 +295,8 @@
    selisihPeriode:rows.reduce((n,x)=>n+x.masuk-x.keluar,0),
    bulanan:[...grouped.values()].sort((a,b)=>a.periode.localeCompare(b.periode)),
    rincian:rows.map(x=>({...x,jenis:x.keterangan||x.jenis})),
+   kasMilikBankRp:eligible.filter(x=>['operasional','cadangan'].includes(String(x.pos||'').toLowerCase())).reduce((n,x)=>n+x.masuk-x.keluar,0),
+   kasLingkunganRp:eligible.filter(x=>String(x.pos||'').toLowerCase()==='kas_lorong').reduce((n,x)=>n+x.masuk-x.keluar,0),
    transaksi:rows.length,periode:month||'semua',catatan:'Riwayat arus kas, bukan saldo akhir'};
  };
  // Nama dan rumah berasal dari data anggota, bukan kode internal ledger.
@@ -443,7 +456,15 @@
    const balance=active.reduce((v,r)=>v+number(r.cash_in_rp)-number(r.cash_out_rp),0);
    const allocated=new Set(allocations.map(r=>String(r.batch_id)));
    const pending=sales.filter(r=>r.status==='terkonfirmasi'&&!allocated.has(String(r.batch_id))).map(r=>({batch:String(r.batch_id),penjualan:String(r.id)}));
-   return {saldoKasTercatat:balance,batchBelumDiposting:pending,kasGabungan:balance};
+   const byFund=new Map();
+   for(const row of active){
+     const pos=String(row.fund_position||"").trim().toLowerCase();
+     byFund.set(pos,(byFund.get(pos)||0)+number(row.cash_in_rp)-number(row.cash_out_rp));
+   }
+   return {saldoKasTercatat:balance,batchBelumDiposting:pending,kasGabungan:balance,
+     kasMilikBankRp:(byFund.get("operasional")||0)+(byFund.get("cadangan")||0),
+     kasLingkunganRp:byFund.get("kas_lorong")||0,
+     kasHakWargaDitampungRp:byFund.get("tabungan_warga")||0};
   },
   bsV10KasPosAdmin:async()=>{
    const cash=await adminRows('cash');
