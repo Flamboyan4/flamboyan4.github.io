@@ -2055,12 +2055,16 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
     tanggalJual:pick(x,['tanggalJual','sold_on'])||null,
     tanggal:pick(x,['tanggal','deposited_on','date'])||'',
     beratKg:number(pick(x,['beratKg','weightKg'])??number(pick(x,['beratGram','total_grams']))/1000),
+    beratSahKg:pick(x,['beratSahKg','beratSahGram'])==null?null:
+      number(pick(x,['beratSahKg'])??number(pick(x,['beratSahGram']))/1000),
     estimasiRp:number(pick(x,['estimasiRp','estimated_total_rp','estimatedRp'])),
     nilaiSahRp:pick(x,['nilaiSahRp'])==null?null:number(pick(x,['nilaiSahRp'])),
     status:pick(x,['status','state'])||'Estimasi',
     rincian:rawDetails.map(y=>({
      barang:pick(y,['barang','jenis','name','item_name','category'])||'—',
      beratKg:number(pick(y,['beratKg','weightKg'])??number(pick(y,['beratGram','weight_g','grams']))/1000),
+     beratSahKg:pick(y,['beratSahKg','beratSahGram'])==null?null:
+       number(pick(y,['beratSahKg'])??number(pick(y,['beratSahGram']))/1000),
      // Worker returns tarifWargaRpPerKg (historical tariff stored per deposit line).
      tarif:number(pick(y,['tarifWargaRpPerKg','tarif','tarifWargaRp','citizen_rate_rp_per_kg','unit_price_rp','price_rp'])),
      nilai:number(pick(y,['nilai','estimasiRp','estimated_rp','amount_rp']))
@@ -2954,6 +2958,15 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   // Urutan cetak kronologis agar perubahan saldo dibaca dari atas ke bawah.
   // Sort stabil mempertahankan urutan asal bila beberapa transaksi bertanggal sama.
   const v12PrintOldestFirst=(a,b)=>String(a.tanggal||'').localeCompare(String(b.tanggal||''));
+  // Angka rincian sah berasal dari alokasi berat penjualan, bukan hasil timbang awal.
+  // Backend lama hanya memiliki total setoran: aman dipakai jika setoran berisi tepat satu barang.
+  function v12ConfirmedItemKg(deposit,line){
+    if(f4MemberDepositDisplay(deposit).status!=='Sudah sah')return null;
+    if(line.beratSahKg!=null&&Number.isFinite(Number(line.beratSahKg)))return Number(line.beratSahKg);
+    if((deposit.rincian||[]).length===1&&deposit.beratSahKg!=null&&Number.isFinite(Number(deposit.beratSahKg)))
+      return Number(deposit.beratSahKg);
+    return null;
+  }
   function v12Print(){
     if(!v12Data)return;
     const d=v12Data,root=$('v10Print');root.replaceChildren();
@@ -3007,14 +3020,15 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
           info.status==='Sudah sah'&&s.beratSahKg!=null?v12Kg(s.beratSahKg):'—',
           info.final==null?'—':rupiah(info.final)];
       }));
-    addTable('Rincian barang',['Tanggal','Jenis sampah','Berat timbang','Status'],
-      setoran.flatMap(s=>(s.rincian||[]).map(x=>[
-        f4MemberDateID(s.tanggal),x.barang||'—',
-        x.beratKg==null?'—':v12Kg(x.beratKg),f4MemberDepositDisplay(s).status
-      ])),true);
+    addTable('Rincian barang',['Tanggal','Jenis sampah','Berat sah','Status'],
+      setoran.flatMap(s=>(s.rincian||[]).map(x=>{
+        const sahKg=v12ConfirmedItemKg(s,x);
+        return [f4MemberDateID(s.tanggal),x.barang||'—',
+          sahKg==null?'—':v12Kg(sahKg),f4MemberDepositDisplay(s).status];
+      })),true);
 
     const note=document.createElement('p');note.className='f4-member-print-note';
-    note.textContent='Hasil jual adalah hak warga setelah transaksi disahkan. Data timbang awal dicantumkan sebagai catatan berat, bukan perkiraan uang.';
+    note.textContent='Berat per barang berasal dari hasil penjualan yang disahkan. Tanda — berarti berat sah belum tersedia.';
     root.appendChild(note);
     const signature=document.createElement('div');signature.className='f4-bank-report-signature';
     signature.textContent='Mengetahui, Humas Flamboyan 4';
@@ -3039,12 +3053,12 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       ['Tanggal','Timbang awal (kg)','Berat sah (kg)','Status','Hasil jual Rp'],
       ...setoran.map(s=>{
         const info=f4MemberDepositDisplay(s);
-        return [s.tanggal,s.beratTimbangKg??s.beratKg??'',info.status==='Sudah sah'?(s.beratSahKg??s.beratKg??''):'',info.status,info.final===null?'':info.final];
+        return [s.tanggal,s.beratTimbangKg??s.beratKg??'',info.status==='Sudah sah'?(s.beratSahKg??''):'',info.status,info.final===null?'':info.final];
       }),
       [],
-      ['RINCIAN BARANG (BERAT SAAT SETORAN)'],
-      ['Tanggal','Barang','Berat timbang (kg)','Status'],
-      ...setoran.flatMap(s=>(s.rincian||[]).map(x=>[s.tanggal,x.barang,x.beratKg,f4MemberDepositDisplay(s).status]))
+      ['RINCIAN BARANG (BERAT PENJUALAN SAH)'],
+      ['Tanggal','Barang','Berat sah (kg)','Status'],
+      ...setoran.flatMap(s=>(s.rincian||[]).map(x=>[s.tanggal,x.barang,v12ConfirmedItemKg(s,x)??'',f4MemberDepositDisplay(s).status]))
     ];
     const safe=v=>{
       const text=String(v??'');
