@@ -123,7 +123,15 @@
     pendingWeightKg:number(sum.pendingWeightKg),
     batch:number(sum.batch??r.batches?.length??0)
    },
-   bulanan:monthly,periodeTersedia:onlyArray(r.periodeTersedia||[]),
+   bulanan:monthly,
+   // Null berarti Worker belum menyediakan rekap harian; jangan menebak dari bulanan.
+   harian:Array.isArray(r.harian)?r.harian.map(row=>({
+    tanggal:String(row.tanggal||''),beratKg:number(row.beratKg),
+    hasilPenjualan:number(row.hasilPenjualan),
+    pendingWeightKg:number(row.pendingWeightKg),
+    pendingEstimateRp:number(row.pendingEstimateRp)
+   })):null,
+   periodeTersedia:onlyArray(r.periodeTersedia||[]),
    catatan:String(r.notice||'Laporan dihitung dari transaksi yang telah disahkan.')
   };
  }
