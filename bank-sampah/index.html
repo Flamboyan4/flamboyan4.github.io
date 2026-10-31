@@ -2951,12 +2951,15 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     }catch(e){if(sessionToken===token&&memberKey===String(profile?.wargaId||'')&&profile?.peran==='Warga')
       note('v12Gate','Laporan belum tersedia: '+(e.message||e),true);}
   }
+  // Urutan cetak kronologis agar perubahan saldo dibaca dari atas ke bawah.
+  // Sort stabil mempertahankan urutan asal bila beberapa transaksi bertanggal sama.
+  const v12PrintOldestFirst=(a,b)=>String(a.tanggal||'').localeCompare(String(b.tanggal||''));
   function v12Print(){
     if(!v12Data)return;
     const d=v12Data,root=$('v10Print');root.replaceChildren();
     const selected=typeof window.f4BankReportPeriod==='function'?String(window.f4BankReportPeriod()||''):'';
-    const mutasi=(d.mutasi||[]).filter(x=>!selected||String(x.tanggal||'').startsWith(selected));
-    const setoran=(d.setoran||[]).filter(x=>!selected||String(x.tanggal||'').startsWith(selected));
+    const mutasi=(d.mutasi||[]).filter(x=>!selected||String(x.tanggal||'').startsWith(selected)).sort(v12PrintOldestFirst);
+    const setoran=(d.setoran||[]).filter(x=>!selected||String(x.tanggal||'').startsWith(selected)).sort(v12PrintOldestFirst);
     root.appendChild(v29Kop());
     const title=document.createElement('h1');title.textContent='LAPORAN TABUNGAN WARGA — FLAMBOYAN 4';root.appendChild(title);
     const identity=document.createElement('p');identity.className='f4-member-print-meta';
@@ -3022,8 +3025,8 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   function v12CSV(){
     if(!v12Data)return;
     const d=v12Data,selected=typeof window.f4BankReportPeriod==='function'?String(window.f4BankReportPeriod()||''):'',
-    mutasi=d.mutasi.filter(x=>!selected||String(x.tanggal||'').startsWith(selected)),
-    setoran=d.setoran.filter(x=>!selected||String(x.tanggal||'').startsWith(selected)),rows=[
+    mutasi=d.mutasi.filter(x=>!selected||String(x.tanggal||'').startsWith(selected)).sort(v12PrintOldestFirst),
+    setoran=d.setoran.filter(x=>!selected||String(x.tanggal||'').startsWith(selected)).sort(v12PrintOldestFirst),rows=[
       ['LAPORAN TABUNGAN PRIBADI - FLAMBOYAN 4'],
       ['Nama',d.nama],['Rumah',d.rumah],['Dicetak',d.dibuatPada],['Periode',selected||'Semua'],
       ['Saldo saat ini (Rp)',d.saldo],['Masuk periode (Rp)',mutasi.reduce((n,x)=>n+Number(x.kredit||0),0)],['Keluar periode (Rp)',mutasi.reduce((n,x)=>n+Number(x.debit||0),0)],
