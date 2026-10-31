@@ -751,8 +751,8 @@ body.f4-bank-embedded #dashboardView .section,
  width:36px;height:36px;flex:none;display:grid;place-items:center;
  border-radius:50%;background:#e7f6ed;color:#087a52
 }
-#dashboardView #pagePribadi #v12Deposits .f4-member-tx-icon svg{
- display:block;width:20px;height:20px
+#dashboardView #pagePribadi #v12Deposits .f4-member-tx-icon img{
+ display:block;width:21px;height:21px;object-fit:contain
 }
 #dashboardView #pagePribadi #v12Deposits .f4-member-tx-copy{
  display:grid;gap:4px;min-width:0;overflow:hidden
@@ -775,11 +775,12 @@ body.f4-bank-embedded #dashboardView .section,
  color:#829185;font-size:10px;font-weight:600;white-space:nowrap
 }
 #dashboardView #pagePribadi #v12Deposits .f4-member-tx-chevron{
- color:#719380;display:grid;place-items:center;font-size:21px;
- line-height:1;transition:transform .15s ease
+ display:block;justify-self:center;align-self:center;width:8px;height:8px;
+ border-right:2px solid #719380;border-bottom:2px solid #719380;
+ transform:rotate(45deg);transition:transform .15s ease
 }
 #dashboardView #pagePribadi #v12Deposits .f4-member-tx[open] .f4-member-tx-chevron{
- transform:rotate(180deg)
+ transform:rotate(225deg)
 }
 #dashboardView #pagePribadi #v12Deposits .f4-member-tx-detail{
  display:grid;gap:0;padding:1px 0 12px 47px;border-top:1px solid #f0f4f0;
