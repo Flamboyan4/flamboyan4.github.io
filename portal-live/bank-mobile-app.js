@@ -805,6 +805,8 @@ function restoreFeature(){
  }
  $("f4MemberDocsShortcut")?.remove();
  moved=[];
+ // The public homepage must not retain the album-only mode after member navigation.
+ document.querySelector("#v11Public .v17-public-main")?.classList.remove("v22-show-docs");
  document.body.classList.remove("f4-member-feature");
  const back=$("f4-mobile-menu");
  if(back){back.replaceChildren(el("span","f4-svg-icon f4-svg-menu"));back.title="Buka menu halaman";back.setAttribute("aria-label","Buka menu halaman");}
