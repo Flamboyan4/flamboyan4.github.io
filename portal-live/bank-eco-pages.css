@@ -165,19 +165,19 @@ body.f4-bank-embedded #dashboardView .section,
  box-sizing:border-box!important;min-width:0!important;width:100%!important;min-height:78px!important;
  padding:11px 13px!important;margin:0!important;grid-column:auto!important;
  border:1px solid #b6d9c1!important;border-radius:12px!important;
- background:#dcefe3!important;box-shadow:none!important
+ background:#fff!important;box-shadow:none!important
 }
 #dashboardView #pagePribadi #v12Private>.stats>.stat:first-child{
- background:var(--eco-leaf)!important;border-color:var(--eco-leaf)!important
+ background:#fff!important;border-color:#d8e5dd!important;border-left:3px solid #087850!important
 }
 #dashboardView #pagePribadi #v12Private>.stats>.stat:first-child :is(small,strong){
- color:#fff!important
+ color:#0b5738!important
 }
 #dashboardView #pagePribadi #v12Private>.stats>.stat:nth-child(2){
- background:var(--eco-blue)!important;border-color:#d2e3f3!important
+ background:#fff!important;border-color:#d8e5dd!important;border-left:3px solid #d6a019!important
 }
 #dashboardView #pagePribadi #v12Private>.stats>.stat:nth-child(3){
- background:var(--eco-peach)!important;border-color:#f0d9b9!important
+ background:#fff!important;border-color:#d8e5dd!important;border-left:3px solid #087850!important
 }
 #dashboardView #pagePribadi #v12Private>.stats>.stat strong{
  font-size:clamp(18px,2vw,25px)!important;line-height:1.2!important;
@@ -189,14 +189,14 @@ body.f4-bank-embedded #dashboardView .section,
  padding-bottom:8px!important;border-bottom:2px solid #b5dfc4!important
 }
 #dashboardView #pagePribadi #v12History th{
- background:#dff0e4!important;color:#1a6142!important
+ background:#fff!important;color:#1a6142!important
 }
 #dashboardView #pagePribadi #v12Deposits>.details-panel{
- background:#f4faf6!important;border:1px solid #d3e7dc!important;
+ background:#fff!important;border:1px solid #d3e7dc!important;
  border-left:3px solid var(--eco-leaf)!important;border-radius:11px!important
 }
 #dashboardView #pagePribadi .f4-member-payout-help{
- background:#f3faf5!important;border-color:#d0e7d9!important;
+ background:#fff!important;border-color:#d0e7d9!important;
  padding:8px 10px!important;border-radius:10px!important
 }
 /* Member and manager progress + timeline (same visual system). */
@@ -205,14 +205,14 @@ body.f4-bank-embedded #dashboardView .section,
  gap:9px!important
 }
 #dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat{
- background:var(--eco-green)!important;border:1px solid #b4ddc3!important;
+ background:#fff!important;border:1px solid #d8e5dd!important;border-left:3px solid #087850!important;
  border-radius:12px!important;min-height:83px!important;padding:11px!important
 }
 #dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat:nth-child(2){
- background:var(--eco-blue)!important;border-color:#d8e6f3!important
+ background:#fff!important;border-color:#d8e5dd!important;border-left-color:#d6a019!important
 }
 #dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat:nth-child(3){
- background:var(--eco-peach)!important;border-color:#f2dfc3!important
+ background:#fff!important;border-color:#d8e5dd!important;border-left-color:#087850!important
 }
 #dashboardView #pageProgress :is(h2,h3,.f4-member-progress-stat strong){
  color:var(--eco-dark)!important
@@ -233,19 +233,19 @@ body.f4-bank-embedded #dashboardView .section,
  background:var(--eco-leaf)!important
 }
 #dashboardView #pageProgress .f4-member-progress-step{
- background:#f4faf6!important;border:1px solid #d7e7dd!important;border-radius:12px!important
+ background:#fff!important;border:1px solid #d7e7dd!important;border-radius:12px!important
 }
 #dashboardView #pageProgress .f4-member-progress-timeline>li:nth-child(2) .f4-member-progress-step{
- background:#f4f8ff!important;border-color:#d8e5f3!important
+ background:#fff!important;border-color:#d7e7dd!important
 }
 #dashboardView #pageProgress .f4-member-progress-timeline>li:nth-child(3) .f4-member-progress-step{
- background:#fff8ec!important;border-color:#f0e1c7!important
+ background:#fff!important;border-color:#d7e7dd!important
 }
 #dashboardView #pageProgress .f4-member-progress-count{
- background:#e1f2e5!important;color:var(--eco-dark)!important
+ background:#fff!important;color:var(--eco-dark)!important
 }
 .f4-member-progress-modal-head h2{color:var(--eco-dark)!important}
-.f4-member-progress-modal-close{background:#e1f2e7!important;color:var(--eco-dark)!important}
+.f4-member-progress-modal-close{background:#fff!important;color:var(--eco-dark)!important}
 }
 @media screen and (max-width:1023px){
  html body #v18PublicSide,
