@@ -88,6 +88,7 @@ async function refreshSession(){
  const authed=!!session?.account;
  login.hidden=authed;avatar.hidden=!authed;bookLink.hidden=role!=='superadmin';adminLink.hidden=role!=='superadmin';
  updateAccountIdentity();
+ settings.textContent=portal==='bank'&&role==='warga'?'Kartu & Profil':'Pengaturan Akun';
  if(authed)avatarLoad();
  notifyRole();
  if(portal==='book'||portal==='superadmin'){
@@ -127,7 +128,16 @@ dialog.querySelector('form').addEventListener('submit',async e=>{
  finally{b.disabled=false;dialog.querySelector('#f4-direct-password').value=''}
 });
 avatar.onclick=()=>{menu.hidden=!menu.hidden};
-settings.onclick=()=>{menu.hidden=true;window.f4OpenUnifiedAccount?.()};
+settings.onclick=()=>{
+ menu.hidden=true;
+ // Anggota Bank Sampah sudah memiliki satu halaman Kartu & Profil.
+ if(portal==='bank'&&role==='warga'){
+  window.f4CloseUnifiedAccount?.();
+  window.f4OpenBankProfile?.();
+  return;
+ }
+ window.f4OpenUnifiedAccount?.();
+};
 logout.onclick=async()=>{
  menu.hidden=true;
  try{await api('/api/auth/logout',{method:'POST'})}
