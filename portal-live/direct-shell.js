@@ -150,12 +150,23 @@ logout.onclick=async()=>{
  if(portal==='book'||portal==='superadmin'){location.assign('/');return}
  window.f4CloseUnifiedAccount?.();await refreshSession();
 };
+// Change-password already revokes sessions and clears the cookie on the Worker.
+ // Sync the browser to the now-public session; a second /auth/logout returns 401.
+async function syncAfterSessionRevoked(){
+ menu.hidden=true;
+ closeLogin();
+ session=null;role='public';
+ await refreshSession();
+ if(portal==='book'||portal==='superadmin')location.replace('/');
+}
+window.addEventListener('f4-account-password-updated',()=>{void syncAfterSessionRevoked()});
 document.addEventListener('pointerdown',e=>{if(!bar.contains(e.target))menu.hidden=true});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){menu.hidden=true;closeLogin()}});
 window.addEventListener('message',e=>{
  if(e.origin!==location.origin||e.source!==window||!e.data)return;
  const data=e.data;
- if(data.type==='f4:auth-changed'||data.type==='f4:logout-request'){logout.click();}
+ if(data.type==='f4:auth-changed'){void syncAfterSessionRevoked()}
+ if(data.type==='f4:logout-request'){logout.click()}
  if(data.type==='f4:show-login')openLogin();
  if(data.type==='f4:bank-avatar-updated')avatarLoad();
  if(data.type==='f4:go-portal'||data.type==='f4:navigate'){
