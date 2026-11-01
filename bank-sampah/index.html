@@ -2179,7 +2179,9 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
      headers:{'Content-Type':'application/json'},body:JSON.stringify({currentPassword,newPassword})});
    const data=await r.json().catch(()=>({}));
    if(!r.ok||data.ok===false)throw Error(data.error||'Gagal mengganti password (HTTP '+r.status+').');
-   window.parent.postMessage({type:'f4:auth-changed'},location.origin);
+   // Sesi sudah dicabut oleh Worker; jangan memanggil logout dengan cookie yang kedaluwarsa.
+   window.dispatchEvent(new CustomEvent('f4-account-password-updated'));
+   if(window.parent!==window)window.parent.postMessage({type:'f4:auth-changed'},location.origin);
    return {berhasil:true,pesan:'Password berhasil diganti. Silakan login kembali.'};
  };
  const read={
@@ -5719,6 +5721,6 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261031-mobile-progress-v2">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261031-member-history-v9">
 <script src="/portal-live/bank-sale-handover.js?v=auto-print-firefox-20261030b"></script>
-<script src="/portal-live/direct-shell.js?v=20261101-unified-globe-nav-v1"></script><script src="/portal-live/unified-account.js?v=bank-member-profile-redirect-20261031"></script><script defer src="/portal-live/mobile-cards.js?v=20261031-detail-eye-icon-v2"></script><script defer src="/portal-live/native-controls.js?v=20261027-audit6"></script><script defer src="/portal-live/bank-page-history.js?v=20261027-final4"></script>
+<script src="/portal-live/direct-shell.js?v=20261101-password-logout-fix-v2"></script><script src="/portal-live/unified-account.js?v=bank-member-profile-redirect-20261031"></script><script defer src="/portal-live/mobile-cards.js?v=20261031-detail-eye-icon-v2"></script><script defer src="/portal-live/native-controls.js?v=20261027-audit6"></script><script defer src="/portal-live/bank-page-history.js?v=20261027-final4"></script>
 <script defer src="/portal-live/bank-mobile-app.js?v=20261101-admin-profile-clean-v41"></script></body>
 </html>
