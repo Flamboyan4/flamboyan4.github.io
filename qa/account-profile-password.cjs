@@ -37,12 +37,30 @@ const fallbackRoute='if (path.startsWith("/api/v2/")) return handleUnifiedApi';
 assert(worker.includes(receiptRoute) && worker.indexOf(receiptRoute)<worker.indexOf(fallbackRoute),'Sale-receipt route must precede generic v2 handler');
 assert(account.includes("location.replace('/');"),'After password change session must return to public home');
 assert(!account.includes('b.click();'),'Password change must not invoke logout with revoked session');
+assert(shell.includes("if(data.type==='f4:auth-changed'){void syncAfterSessionRevoked()}"),
+ 'Session invalidation must refresh the UI instead of issuing a duplicate logout');
+assert(shell.includes("if(data.type==='f4:logout-request'){logout.click()}"),
+ 'Manual logout must remain distinct from password-change session invalidation');
+assert(shell.includes("window.addEventListener('f4-account-password-updated'"),
+ 'Password change must notify every portal to clear stale session UI');
+assert(shell.includes("await refreshSession();") && shell.includes("session=null;role='public';"),
+ 'Password-change handler must reset local session and refresh public UI');
+assert(worker.includes('UPDATE sessions SET revoked_at=CURRENT_TIMESTAMP WHERE account_id=? AND revoked_at IS NULL'),
+ 'Password changes must revoke all active server sessions');
+assert(worker.includes('"set-cookie": "f4_session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0"'),
+ 'Password changes must clear the session cookie');
+
 const handover=fs.readFileSync('portal-live/bank-sale-handover.js','utf8');
 new vm.Script(handover,{filename:'bank-sale-handover'});
 assert(handover.includes('border-collapse:separate;border-spacing:0') && handover.includes('border-right:1px solid #000'),'Black PDF table grid must stay visible');
 assert(handover.includes("win.addEventListener('load',autoPrint,{once:true})") && handover.includes("win.print()"),'Automatic handover print must run after document load');
 assert(!handover.includes('await win.document.fonts.ready') && !handover.includes('await Promise.all(Array.from(win.document.images'),'Auto-print must not wait asynchronously for assets');
 const bankPage=fs.readFileSync('bank-sampah/index.html','utf8');
+assert(bankPage.includes("window.dispatchEvent(new CustomEvent('f4-account-password-updated'))"),
+ 'Bank password change must notify native session state');
+assert(bankPage.includes("if(window.parent!==window)window.parent.postMessage({type:'f4:auth-changed'}"),
+ 'Embedded Bank pages must still notify their parent after session revocation');
+
 assert(bankPage.includes("const verified=String(detail.sale?.receipt_no||'').trim()"),'Receipt must be verified against D1 sale-detail');
 assert(bankPage.includes("refreshed.find(x=>String(x.id)===String(record.id))"),'Receipt must be verified in refreshed sales history');
 assert(bankPage.includes("Nomor nota tersimpan dan terverifikasi"),'Do not signal successful receipt write before verification');
