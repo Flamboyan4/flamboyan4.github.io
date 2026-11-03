@@ -1726,6 +1726,8 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
 @media(max-width:760px){
  html.f4-bank-embedded body.f4-bank-app-private #dashboardView>.mobile-nav{display:none}
  body.f4-bank-app-member #sideNav #v16NavList .v16-item:is([data-group="home"],[data-group="saving"],[data-group="withdrawal"],[data-group="statement"],[data-group="memberreport"]){display:none}
+ /* Admin slide is supporting navigation only: avoid repeating the five-button dock. */
+ body.f4-bank-app-admin #sideNav #v16NavList>.v16-item:is([data-group="home"],[data-group="deposit"],[data-group="sale"],[data-group="report"],.f4-back-account){display:none}
 }
 
 
