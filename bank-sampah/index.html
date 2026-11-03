@@ -4725,11 +4725,12 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   }
   function v22RenderDocs(){
     const filters=$('v22DocFilters'),list=$('v22DocList');if(!filters||!list)return;
-    filters.replaceChildren();v22Categories.forEach(c=>{
+    filters.replaceChildren();v22Categories.filter(c=>c!=='Inventaris').forEach(c=>{
       const btn=v21Node('button',v22ActiveCategory===c?'active':'',c);btn.type='button';
       btn.onclick=()=>{v22ActiveCategory=c;v22RenderDocs();};filters.appendChild(btn);
     });
-    const rows=v21Albums.filter(a=>(v22ActiveCategory==='Semua'||v23CategoryLabel(a.kategori)===v22ActiveCategory)&&
+    const rows=v21Albums.filter(a=>v23CategoryLabel(a.kategori)!=='Inventaris'&&
+      (v22ActiveCategory==='Semua'||v23CategoryLabel(a.kategori)===v22ActiveCategory)&&
       (!v22Query||(a.judul+' '+a.deskripsi+' '+a.kategori).toLowerCase().includes(v22Query)));
     $('v22DocCount').textContent=rows.length+' album kegiatan';list.replaceChildren();
     rows.forEach(a=>{
@@ -4740,8 +4741,8 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       card.appendChild(info);card.onclick=()=>v21OpenAlbum(a.id);list.appendChild(card);
     });
     if(!rows.length)list.textContent=!v21Albums.length
-      ?'Belum ada album khusus Bank Sampah. Album Portal Utama tidak ditampilkan di sini.'
-      :'Tidak ada album dalam kategori atau pencarian ini.';
+      ?'Belum ada album Bank Sampah.'
+      :'Tidak ada album yang cocok.';
   }
   // “Semua album” pada penampil kini kembali ke halaman kategori, bukan popup kedua.
   v21ShowAlbumArchive=v22OpenDocs;
