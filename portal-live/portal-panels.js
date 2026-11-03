@@ -33,8 +33,8 @@ function visiblePanel(){
   // Scrollspy: the last section reaching the reading line is the active menu.
   const landmarks=[
    ['beranda',sectionTargets.beranda],
-   ['keuangan',sectionTargets.keuangan],
-   ['keuangan',document.getElementById('arisan')],
+   ['keuangan',current.role==='public'?null:sectionTargets.keuangan],
+   ['keuangan',current.role==='public'?null:document.getElementById('arisan')],
    ['projek',sectionTargets.projek],
    ['kalender',sectionTargets.kalender],
    ['inventaris',document.getElementById('kegiatan')],
@@ -52,7 +52,7 @@ function visiblePanel(){
  });
 }
 function showPanel(panel){
- if(!Object.hasOwn(sectionTargets,panel))panel='beranda';
+ if(!Object.hasOwn(sectionTargets,panel)||(panel==='keuangan'&&current.role==='public'))panel='beranda';
  current.panel=panel;
  if(panel==='keuangan'&&isMember(current.role))createFinanceTabs();
  const element=sectionTargets[panel]||sectionTargets.beranda;
@@ -361,6 +361,13 @@ window.addEventListener('message',event=>{
   // This attribute is the UI's existing signed-in visibility guard for cash
   // print buttons and the recent ledger, not an authorization token.
   document.body.dataset.previewRole=current.role;
+  const authenticated=current.role!=='public';
+  if(finance){finance.hidden=!authenticated;finance.classList.toggle('hidden',!authenticated);}
+  document.querySelectorAll('[data-f4-private-finance],[data-f4-panel="keuangan"]').forEach(node=>{
+   node.hidden=!authenticated;node.classList.toggle('hidden',!authenticated);
+  });
+  if(!authenticated&&current.panel==='keuangan')showPanel('beranda');
+  document.dispatchEvent(new CustomEvent('f4:cash-access-change',{detail:{authenticated}}));
   // Only members can select a personal ledger; Admin/Superadmin see
   // Laporan Lingkungan without duplicate controls.
   personalRequestSerial++;

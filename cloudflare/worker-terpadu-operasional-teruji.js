@@ -81,9 +81,9 @@ async function publicPortal(db) {
   return ok({agenda,banners,projects:publicProjects,inventory,meetings,documentation,arisan,jerseyBapak,jerseyIbu});
 }
 __name(publicPortal, "publicPortal");
-// Public transparency report: read only, from the authoritative active D1 cash journal.
+// Login-only cash report: read only, from the authoritative active D1 cash journal.
 // No superadmin reports are exposed; only date, cash category and amounts as in the
-// existing publicly displayed Kas Lingkungan report.
+// signed-in Kas Lingkungan report.
 async function publicPortalCash(db){
   const found=await db.prepare(`SELECT id,occurred_on,transaction_type,category,debit_rp,credit_rp,note,payment_method
     FROM bookkeeping_cash_transactions_posted WHERE status='aktif'
@@ -128,7 +128,7 @@ __name(publicBank, "publicBank");
 async function publicBankReport(db, url) {
   const month=periodFilter(url);
   // One row per confirmed batch. Avoid multiplying totals by joining deposit lines
-  // to sale lines. This endpoint is PUBLIC and contains no member identities.
+  // to sale lines. Financial aggregates require an authenticated session.
   const [sales,expenses,pending]=await Promise.all([
     list(db,`SELECT substr(s.sold_on,1,7) AS periode,COUNT(*) AS batch,
       COALESCE(SUM(a.received_rp),0) AS hasilPenjualan,
@@ -2100,9 +2100,13 @@ async function handleUnifiedApi(request, env, who) {
       member: who.member_id ? { id: who.member_id, nama: who.display_name, rumah: who.house_code } : null });
   }
   if (method === "GET" && path === "/api/v2/public/portal") return publicPortal(db);
-  if (method === "GET" && path === "/api/v2/public/portal/cash") return publicPortalCash(db);
+  if (method === "GET" && path === "/api/v2/public/portal/cash") {
+    if (!who) return err("Silakan login untuk melihat laporan keuangan.", 401);
+    return publicPortalCash(db);
+  }
   if (method === "GET" && path === "/api/v2/public/bank") return publicBank(db);
   if (method === "GET" && path === "/api/v2/public/bank/report") {
+    if (!who) return err("Silakan login untuk melihat laporan keuangan.", 401);
     try {
       return await publicBankReport(db, url);
     } catch (e) {
