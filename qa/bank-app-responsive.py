@@ -392,44 +392,41 @@ async def public_chart_and_flat_roster(browser):
     def between(start,end):
         begin=source.index(start);finish=source.index(end,begin)
         return source[begin:finish]
-    chart_js=between("  function v17Chart(root,rows,keys,colorNames){","  async function v17LoadFinance(){")
-    public_js=between("  let v17PublicChartMode='berat';","  async function v17LoadPublic(){")
+    # Verify the current public graph: weight only until authenticated.
+    # The public Rp toggle and detailed date modes stay hidden.
+    chart_js=between("  let v17PublicChartMode='berat',v17PublicChartRange='bulan';","  async function v17LoadPublic(){")
     page=await browser.new_page(viewport={"width":390,"height":820})
     await page.set_content("""<!doctype html><html><body><section id="v17Perkembangan">
-    <div class="f4-public-chart-tabs"><button data-public-chart-mode="berat">Berat (kg)</button>
-    <button data-public-chart-mode="nilai">Nilai (Rp)</button></div>
-    <div id="v17PublicChartLegend"></div><div id="v17WeightBars"></div>
-    <p id="v17WeightNote"></p></section></body></html>""")
+    <button data-dev-range="bulan" aria-pressed="true">Per bulan</button>
+    <button data-dev-range="30" hidden>30 hari</button>
+    <button data-dev-mode="berat" aria-pressed="true">Kg</button>
+    <button data-dev-mode="nilai" hidden>Rp</button>
+    <div id="f4DevStats"></div><small id="f4DevChartPeriod"></small>
+    <div id="f4DevChartSummary"></div><div id="f4DevChart"></div>
+    <div id="f4DevLegend"></div><p id="f4DevChartNote"></p></section></body></html>""")
     helpers="""const $=id=>document.getElementById(id);
     const kg=n=>Number(n).toLocaleString('id-ID')+' kg';
     const rupiah=n=>'Rp '+Number(n).toLocaleString('id-ID');
     const v17Label=value=>String(value||'').slice(5)||'—';"""
-    await page.add_script_tag(content=helpers+chart_js+public_js+"""
+    await page.add_script_tag(content=helpers+chart_js+"""
     v17PublicChartRows=[
-      {periode:'2026-09',beratKg:1.2,pendingWeightKg:0.3,hakWarga:750,pendingEstimateRp:1000},
-      {periode:'2026-10',beratKg:1.9,pendingWeightKg:0,hakWarga:2250,pendingEstimateRp:0}
+      {periode:'2026-09',beratKg:1.2,pendingWeightKg:0.3,hasilPenjualan:1500},
+      {periode:'2026-10',beratKg:1.9,pendingWeightKg:0,hasilPenjualan:4500}
     ];
-    v17PublicReportReady=true;v17BindPublicChart();v17RenderPublicChart();""")
+    v17PublicReportReady=false;v17BindPublicChart();v17RenderPublicChart();""")
     weight=await page.evaluate("""() => ({
-      bars:document.querySelectorAll("#v17WeightBars .v17-bar-group").length,
-      note:document.querySelector("#v17WeightNote").textContent,
-      legend:document.querySelector("#v17PublicChartLegend").textContent,
-      firstBar:document.querySelector("#v17WeightBars .v17-bar")?.title
+      bars:document.querySelectorAll("#f4DevChart .f4-dev-column").length,
+      summary:document.querySelector("#f4DevChartSummary").textContent,
+      legend:document.querySelector("#f4DevLegend").textContent,
+      firstBar:document.querySelector("#f4DevChart .f4-dev-column-bar")?.title,
+      privacy:document.querySelector('[data-dev-mode="nilai"]').hidden,
+      privateDate:document.querySelector('[data-dev-range="30"]').hidden,
+      chartText:document.querySelector("#f4DevChart").textContent
     })""")
-    assert weight["bars"]==2 and "3,1 kg" in weight["note"],weight
-    assert "Timbang belum sah" in weight["legend"] and "kg" in weight["firstBar"],weight
-    await page.locator('[data-public-chart-mode="nilai"]').click()
-    money=await page.evaluate("""() => ({
-      bars:document.querySelectorAll("#v17WeightBars .v17-bar-group").length,
-      note:document.querySelector("#v17WeightNote").textContent,
-      legend:document.querySelector("#v17PublicChartLegend").textContent,
-      firstBar:document.querySelector("#v17WeightBars .v17-bar")?.title,
-      active:document.querySelector('[data-public-chart-mode="nilai"]').getAttribute("aria-pressed")
-    })""")
-    assert money["bars"]==2 and "Rp 3.000" in money["note"],money
-    assert money["active"]=="true" and "Hak warga sah" in money["legend"],money
-    assert "Rp" in money["firstBar"] and "kg" not in money["firstBar"],money
-    print("ONE_PUBLIC_CHART_TWO_UNITS_OK",weight,money,flush=True)
+    assert weight["bars"]==2 and "3,1 kg" in weight["summary"],weight
+    assert "Berat sah" in weight["legend"] and "kg" in weight["firstBar"],weight
+    assert weight["privacy"] and weight["privateDate"] and "Rp" not in weight["chartText"],weight
+    print("PUBLIC_WEIGHT_CHART_PRIVACY_OK",weight,flush=True)
     await page.close()
 
 
