@@ -251,7 +251,7 @@ body.theme-home .portal-floating-actions #portal-suggestion-open{background:#554
 .feedback[data-kind=success]{display:none}
 .portal-inventory-total{font-size:12px;color:var(--soft);font-weight:750}
 .portal-inventory-preview{max-height:278px;overflow-y:auto;scrollbar-width:thin}
-.banner-slide.banner-image-only:before{background:transparent!important}
+.banner-slide.banner-image-only:before{background:transparent}
 .banner-image-only .banner-image{object-fit:cover}
 .banner-click-surface{position:absolute;inset:0;z-index:2}
 .portal-project-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
@@ -334,7 +334,7 @@ body.theme-home .portal-floating-actions #portal-suggestion-open{background:#554
  flex-shrink:0;
 }
 .portal-month-controls button{min-width:34px;height:34px}
-#portal-current-month{width:auto;min-width:75px;padding:0 9px!important}
+#portal-current-month{width:auto;min-width:75px;padding:0 9px}
 .f4-lightbox-close{position:relative}
 .f4-lightbox-view{display:grid;place-items:center;min-height:0;min-width:0}
 .f4-lightbox-view img{display:block;margin:auto;max-height:100%;max-width:100%;object-fit:contain}
@@ -385,7 +385,7 @@ body.theme-home .portal-floating-actions #portal-suggestion-open{background:#554
 
 /* Aset preview berada di depan background, tidak hilang akibat z-index lama. */
 .portal-album-feature .portal-preview-visual{position:absolute;inset:0;z-index:0;background:#222459}
-.portal-album-feature .portal-preview-visual img{position:absolute;inset:0;width:100%;height:100%;z-index:0!important;object-fit:cover}
+.portal-album-feature .portal-preview-visual img{position:absolute;inset:0;width:100%;height:100%;z-index:0;object-fit:cover}
 .portal-album-feature::before{z-index:1;pointer-events:none}
 .portal-album-feature .portal-album-feature-text{z-index:2}
 .portal-album-feature .portal-preview-dots{z-index:3}
