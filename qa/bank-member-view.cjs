@@ -57,12 +57,12 @@ for(const phrase of [
  if(!bridge.includes(phrase))throw Error('Member/admin weight binding missing: '+phrase);
 }
 for(const phrase of [
-  "v17PublicChartRows=monthly;v17PublicReportReady=true;v17PublicReportFailed=false;v17RenderPublicChart();",
+  "v17PublicChartRows=(Array.isArray(report.bulanan)?report.bulanan:[]).slice(-6);",
   "p.missingWeight?'—':kg(p.berat)",
   "weight===null?'—':kg(weight)",
   "v14Stat('Berat tercatat'",
   "['beratTimbang','Timbang awal kg']",
-  "['Tanggal','Berat sesuai status (kg)','Timbang awal (kg)'"
+  "['berat','Berat sesuai status kg']"
 ]){
  if(!bank.includes(phrase))throw Error('Weight presentation must preserve final versus raw grams: '+phrase);
 }
@@ -126,6 +126,6 @@ if(result.buckets.length!==2||result.buckets[1].weight!==1.9||result.buckets[1].
  throw Error('Weight/confirmed/pending monthly chart grouping is incorrect');
 
 if(bank.includes('id="v17ValueBars"'))throw Error('Duplicate public value chart returned');
-if(!bank.includes("const keys=isValue?['hakWarga','pendingEstimateRp']:['beratKg','pendingWeightKg']"))
+if(!bank.includes("const fields=['beratKg','pendingWeightKg','hasilPenjualan']"))
  throw Error('Public mode must keep approved weight and value separate');
 console.log('BANK_MEMBER_VIEW_GUARD_OK');
