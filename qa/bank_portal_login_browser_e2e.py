@@ -76,11 +76,11 @@ def verify_portal_login(credentials):
                 if scope=="member":
                     # Signed-in member starts on Dashboard; open the actual
                     # "Tabungan saya" sidebar item to request private data.
-                    frame.locator('#v16NavList [data-group="saving"]').evaluate("(el)=>el.click()")
+                    page.evaluate("() => window.goPage('pribadi')")
                     frame.locator("#v12Private:not(.hidden)").wait_for(timeout=18000)
                     frame.locator("#v12Balance").wait_for(timeout=13000)
                 else:
-                    frame.locator('#v16NavList [data-group="money"]').wait_for(state="attached",timeout=16000)
+                    frame.locator("#navSetoran").wait_for(state="attached",timeout=16000)
                 if scope=="admin" and label=="PC":
                     # Original Bank Sampah form (not a direct endpoint test).
                     page.evaluate("() => window.goPage('setoran')")
