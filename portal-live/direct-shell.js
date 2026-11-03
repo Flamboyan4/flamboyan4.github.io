@@ -66,7 +66,7 @@ async function api(path,options){
 function notifyRole(){
  if(portal==='bank'||portal==='portal'){
   const member=session?.member||{};
-  window.postMessage({type:'f4:demo-role',role,identity:{nama:session?.account?.displayName||member.nama||session?.account?.username||'',rumah:member.rumah||'',wargaId:member.id||''}},location.origin);
+  window.postMessage({type:'f4:demo-role',role,identity:{accountId:session?.account?.id||'',nama:session?.account?.displayName||member.nama||session?.account?.username||'',rumah:member.rumah||'',wargaId:member.id||''}},location.origin);
  }
 }
 function displayAccountName(){return String(session?.account?.displayName||session?.member?.nama||session?.account?.username||'Pengguna')}
