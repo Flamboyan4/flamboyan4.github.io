@@ -551,7 +551,7 @@ function weighingNextDate(){
  const frequency=weighingRule.frequency||"weekly";
  if(frequency!=="weekly"){
   const supplied=weighingRule.nextOccurrence;
-  if(/^\\d{4}-\\d{2}-\\d{2}$/.test(supplied||"")){
+  if(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(supplied||"")){
    const date=new Date(supplied+"T00:00:00Z");
    if(Number.isFinite(date.getTime())&&date>=now)
     return {days:Math.round((date-now)/86400000),label:new Intl.DateTimeFormat("id-ID",{weekday:"long",day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}).format(date)};
