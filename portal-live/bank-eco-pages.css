@@ -1681,7 +1681,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
   padding:0 14px;align-self:start
  }
  body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-main>#saleItems{
-  padding-top:12px
+  padding-top:30px
  }
  body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-side>.field:has(#saleStatus),
  body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-side>.field:has(#saleReceived){
