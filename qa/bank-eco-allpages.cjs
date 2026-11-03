@@ -143,11 +143,22 @@ assert(!css.includes('#dashboardView #pageProfile #v15PasswordBox>summary{'),
 assert(!h.includes('#v15PasswordBox>summary{cursor:pointer'),
  'Old left-side triangle style returned');
 assert(h.includes("summary.textContent='Ganti password'"),'Password must have no emoji or separate triangle');
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-control-alignment-v2'),
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-bank-entry-grid-v3'),
  'Bank Sampah profile/dock stylesheet must be cache-busted');
 assert(h.includes('/portal-live/bank-mobile-app.js?v=20261103-login-only-reports'),
  'Member payout icon script must be refreshed');
 assert(css.includes('.f4-bank-currency-mark{'),
  'Rp payout icon must use the canonical bank dock styles');
 
+// Bank Sampah: shared form grid is owned by bank-eco-pages.css, not desktop overrides.
+assert(css.includes('grid-template-columns:repeat(12,minmax(0,1fr))'),
+ 'Shared twelve-track Bank Sampah entry grid missing');
+assert(css.includes('#saleForm>.field{grid-column:span 6}'),
+ 'Sale payment fields must share one grid baseline');
+assert(css.includes('#saleForm .f4-sale-top-fields>.field{'),
+ 'Sale three-field row must keep its explicit column spans');
+assert(!css.includes('body.f4-bank-app-private #dashboardView #pageSetoran .f4-entry-top-fields,'),
+ 'Legacy desktop grid override was reintroduced');
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-bank-entry-grid-v3'),
+ 'Bank entry stylesheet cache key was not refreshed');
 console.log('F4_BANK_CANONICAL_THEME_OK');

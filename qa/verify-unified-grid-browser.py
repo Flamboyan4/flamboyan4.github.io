@@ -78,6 +78,82 @@ async def main():
                                         'error':str(e)[:250]})
                     finally:
                         await context.close()
+            # Read-only Setoran/Penjualan fixture: test the actual bank stylesheet,
+            # no account, backend, transaction, or personal data needed.
+            for name,width,height,_,_ in SIZES:
+                context=await browser.new_context(viewport={'width':width,'height':height})
+                page=await context.new_page()
+                try:
+                    response=await page.goto(
+                        'http://127.0.0.1:8765/qa/fixtures/bank-entry-grid.html',
+                        wait_until='load',timeout=30000)
+                    state=await page.evaluate("""() => {
+                        const rect=el=>{const r=el.getBoundingClientRect();
+                            return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,
+                                width:r.width,height:r.height}};
+                        const one=sel=>rect(document.querySelector(sel));
+                        const many=sel=>[...document.querySelectorAll(sel)].map(rect);
+                        const columns=sel=>getComputedStyle(document.querySelector(sel))
+                            .gridTemplateColumns.trim().split(/\s+/).length;
+                        const sameTop=arr=>Math.max(...arr.map(x=>x.top))-
+                            Math.min(...arr.map(x=>x.top))<=2;
+                        const sameWidths=arr=>Math.max(...arr.map(x=>x.width))-
+                            Math.min(...arr.map(x=>x.width))<=2;
+                        const stack=arr=>arr.slice(1).every((r,i)=>r.top>=arr[i].bottom-2);
+                        const outer=(inner,root)=>Math.abs(inner.left-root.left)<=2 &&
+                            Math.abs(inner.right-root.right)<=2;
+                        const bounds=sel=>{
+                            const outer=document.querySelector(sel);
+                            const box=outer.getBoundingClientRect();
+                            return [...outer.children].every(el=>{
+                                const r=el.getBoundingClientRect();
+                                return r.width>0&&r.left>=box.left-2&&r.right<=box.right+2;
+                            });
+                        };
+                        const deposit=one('#setoranForm .f4-entry-top-fields'),
+                            sale=one('#saleForm .f4-sale-top-fields'),
+                            payment=many('#saleForm>.field'),
+                            topDeposit=many('#setoranForm .f4-entry-top-fields>.field'),
+                            topSale=many('#saleForm .f4-sale-top-fields>.field'),
+                            summary=one('#saleForm>.summary-box'),
+                            saleForm=one('#saleForm'),
+                            depositForm=one('#setoranForm');
+                        const w=window.innerWidth;
+                        const topDepositOk=topDeposit.length===2 &&
+                            (w<=600?stack(topDeposit):sameTop(topDeposit)&&sameWidths(topDeposit));
+                        const topSaleOk=topSale.length===3 &&
+                            (w<=600?stack(topSale):
+                             w<=1023?sameTop(topSale.slice(0,2))&&
+                                  sameWidths(topSale.slice(0,2))&&
+                                  topSale[2].top>=topSale[0].bottom-2&&
+                                  Math.abs(topSale[2].width-sale.width)<=2:
+                                  sameTop(topSale)&&sameWidths(topSale));
+                        const paymentsOk=payment.length===2 &&
+                            (w<=600?stack(payment):sameTop(payment)&&sameWidths(payment));
+                        const layoutOk=[depositForm,saleForm,deposit,sale,summary].every(x=>x.width>0) &&
+                            outer(deposit,depositForm)&&outer(sale,saleForm)&&
+                            outer(summary,saleForm)&&
+                            bounds('#setBarang .f4-compact-row')&&
+                            bounds('#saleItems .f4-compact-row');
+                        const gridOk=['#setoranForm','#saleForm',
+                            '#setoranForm .f4-entry-top-fields',
+                            '#saleForm .f4-sale-top-fields',
+                            '#saleForm>.summary-box'].every(x=>columns(x)===12);
+                        const responsiveOk=document.documentElement.scrollWidth<=w+2;
+                        return {gridOk,topDepositOk,topSaleOk,paymentsOk,layoutOk,responsiveOk,
+                            topDeposit,topSale,payment,summary,viewport:w};
+                    }""")
+                    good=(response is not None and response.status==200 and
+                          all(state[key] for key in
+                              ('gridOk','topDepositOk','topSaleOk','paymentsOk',
+                               'layoutOk','responsiveOk')))
+                    results.append({'page':'/qa/fixtures/bank-entry-grid.html',
+                        'size':name,'passed':good,**state})
+                except Exception as e:
+                    results.append({'page':'/qa/fixtures/bank-entry-grid.html',
+                        'size':name,'passed':False,'error':str(e)[:250]})
+                finally:
+                    await context.close()
             await browser.close()
     finally:
         proc.terminate()

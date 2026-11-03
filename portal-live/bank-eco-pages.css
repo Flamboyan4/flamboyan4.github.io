@@ -923,14 +923,16 @@ body.f4-bank-app-member #dashboardView .f4-bank-screen{
 .f4-bank-manager-request-actions button{flex:1}
 /* Pengurus: satu sistem formulir dan aksi, tanpa menimpa scroll. */
 body.f4-bank-app-admin{--bank-sidebar-width:208px}
-body.f4-bank-app-admin #dashboardView{--bank-input-h:42px;--bank-form-gap:13px}
+body.f4-bank-app-admin #dashboardView{--bank-input-h:42px;--bank-form-gap:12px}
 body.f4-bank-app-admin #dashboardView .section :is(form,.field,.toolbar){min-width:0}
 body.f4-bank-app-admin #dashboardView .section :is(#pageMaster,#pageAdmin,#pageRiwayat,#pageRiwayatJual,#pageTabungan,#pageLaporan)>.toolbar{
  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px 14px;margin-bottom:14px
 }
 body.f4-bank-app-admin #dashboardView .section .toolbar h2{margin:0;line-height:1.3}
+/* Setoran & Penjualan use the same twelve-track form grid. */
 body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm){
- display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:var(--bank-form-gap) 14px
+ display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
+ align-items:start;gap:var(--bank-form-gap)
 }
 body.f4-bank-app-admin #dashboardView .section #setoranForm>*,
 body.f4-bank-app-admin #dashboardView .section #saleForm>:is(
@@ -938,11 +940,16 @@ body.f4-bank-app-admin #dashboardView .section #saleForm>:is(
  grid-column:1/-1
 }
 body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm)>.field{margin:0;min-width:0}
+body.f4-bank-app-admin #dashboardView .section #saleForm>.field{grid-column:span 6}
 body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-top-fields{
- display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:12px;margin:0
+ display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
+ align-items:start;gap:var(--bank-form-gap);margin:0
 }
-body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields{
- grid-template-columns:repeat(3,minmax(0,1fr))
+body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-top-fields>.field{
+ grid-column:span 6
+}
+body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>.field{
+ grid-column:span 4
 }
 body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-goods-heading{
  display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0
@@ -950,8 +957,13 @@ body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-e
 body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-goods-heading h3{
  margin:0;font-size:15px;line-height:1.3
 }
-body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-top-fields>.field.f4-field-stack{display:grid;grid-template-rows:32px var(--bank-input-h) auto;align-content:start;gap:6px;min-width:0}
-body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-top-fields>.field.f4-field-stack>label{display:flex;align-items:flex-end;min-height:32px;line-height:1.3;margin:0}
+body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-top-fields>.field.f4-field-stack{
+ display:grid;grid-template-rows:minmax(18px,auto) var(--bank-input-h) auto;
+ align-content:start;gap:6px;min-width:0
+}
+body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-top-fields>.field.f4-field-stack>label{
+ display:flex;align-items:center;min-height:18px;line-height:1.3;margin:0
+}
 body.f4-bank-app-admin #dashboardView .section .field>label,
 body.f4-bank-app-admin #dashboardView .section .f4-bank-own-field>span:first-child{
  display:block;margin:0 0 6px;font-size:12px;font-weight:700;color:#27553e
@@ -963,10 +975,12 @@ body.f4-bank-app-admin #dashboardView .section .f4-bank-own-field :is(input,sele
  margin:0;padding:9px 11px;font-size:13px;line-height:1.4
 }
 body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm)>.summary-box{
- display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
- align-items:center;gap:12px;min-width:0;margin:0;padding:12px 14px
+ display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
+ align-items:center;gap:var(--bank-form-gap);min-width:0;margin:0;padding:12px 14px
 }
-body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm)>.summary-box>*{min-width:0}
+body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm)>.summary-box>*{
+ grid-column:span 6;min-width:0
+}
 body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm)>button[type=submit]{
  justify-self:start;display:inline-flex;align-items:center;justify-content:center;min-height:var(--bank-input-h);width:auto;max-width:100%;margin:2px 0 0;
  padding:10px 17px;border-radius:10px;font-size:13px
@@ -994,14 +1008,14 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
  max-width:100%;overflow-x:auto
 }
 @media(max-width:1023px){
- body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>.field{grid-column:span 6}
  body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>.field:last-child{grid-column:1/-1}
 }
 @media(max-width:600px){
- body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-top-fields,
- body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields{grid-template-columns:minmax(0,1fr)}
- body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>.field:last-child{grid-column:auto}
- body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm){column-gap:9px;row-gap:11px}
+ body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-top-fields>.field,
+ body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>.field,
+ body.f4-bank-app-admin #dashboardView .section #saleForm>.field{grid-column:1/-1}
+ body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm){--bank-form-gap:10px;row-gap:11px}
  body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm)>button[type=submit]{
   justify-self:stretch;width:100%
  }
@@ -1181,10 +1195,12 @@ body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm{
 }
 .f4-compact-rows{display:grid;gap:9px;min-width:0}
 .f4-compact-row{
- display:grid;grid-template-columns:minmax(0,1.45fr) minmax(110px,1fr) 38px;
- align-items:stretch;gap:9px;min-width:0
+ display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 38px;
+ align-items:stretch;gap:var(--bank-form-gap,12px);min-width:0
 }
-.f4-compact-sale-row{grid-template-columns:minmax(0,1.35fr) minmax(95px,.8fr) minmax(110px,.9fr) 37px}
+.f4-compact-sale-row{
+ grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) 38px
+}
 .f4-compact-row :is(select,input){
  box-sizing:border-box;width:100%;min-width:0;min-height:42px;margin:0;
  padding:8px 10px;border:1px solid #d6e4da;border-radius:10px;background:#fff;
@@ -1201,7 +1217,7 @@ body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm{
  .f4-compact-sale-row{grid-template-columns:minmax(0,1.2fr) minmax(0,.85fr) 34px}
  .f4-compact-sale-row input:nth-of-type(2){grid-column:1/3}
  .f4-compact-sale-row .f4-compact-remove{grid-column:3;grid-row:1/3}
- .f4-compact-row:not(.f4-compact-sale-row){grid-template-columns:minmax(0,1.45fr) minmax(0,1fr) 34px}
+ .f4-compact-row:not(.f4-compact-sale-row){grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 34px}
 }
 .f4-bank-own-fields{
  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px
@@ -1463,8 +1479,6 @@ body.f4-bank-app-admin #dashboardView .section>#pageProfile{
  body.f4-bank-app-member #dashboardView .section>.card:not(#pageDashboard){width:100%;max-width:1080px;margin-inline:auto;padding:21px 23px}
  body.f4-bank-app-private #dashboardView .section>#pagePribadi{max-width:980px}
 
- body.f4-bank-app-private #dashboardView #pageSetoran .f4-entry-top-fields,
- body.f4-bank-app-private #dashboardView #pagePenjualan .f4-entry-top-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
  body.f4-bank-app-private #dashboardView :is(#pageLaporan,#pageSetoran,#pagePenjualan,#pageRiwayat,#pageRiwayatJual,#pageTabungan) .tablewrap{max-width:100%;overflow-x:auto}
  #dashboardView #pagePribadi .f4-bank-savings-hero{
   padding:21px 23px;grid-template-columns:minmax(0,1fr);

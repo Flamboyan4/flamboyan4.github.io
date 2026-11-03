@@ -13,6 +13,7 @@ on:
       - qa/verify-unified-grid.cjs
       - qa/verify-css-ownership.cjs
       - qa/verify-unified-grid-browser.py
+      - qa/fixtures/bank-entry-grid.html
       - .github/workflows/f4-unified-grid-regression.yml
   workflow_dispatch:
 permissions:
