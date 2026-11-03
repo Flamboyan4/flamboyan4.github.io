@@ -210,6 +210,14 @@ async def admin_mobile_shell(browser):
     </body></html>"""
     await page.goto(ROOT,wait_until="domcontentloaded")
     await page.set_content(html,wait_until="load")
+    # The real drawer also depends on inline page styles, not only bank-eco-pages.css.
+    # Include the original source so the fixture does not assert against a half-loaded shell.
+    import re
+    from pathlib import Path
+    full=Path("bank-sampah/index.html").read_text(encoding="utf-8")
+    inline=re.search(r"<style>(.*?)</style>",full,re.S|re.I)
+    assert inline,"Original Bank Sampah drawer CSS not found"
+    await page.add_style_tag(content=inline.group(1))
     await page.evaluate("window.scrollTo(0, 750)")
     await page.wait_for_timeout(100)
     state=await page.evaluate("""() => {
