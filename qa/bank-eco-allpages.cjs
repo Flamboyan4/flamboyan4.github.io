@@ -92,14 +92,7 @@ assert(!css.includes('v16-mobile-extra')&&!h.includes('v16-mobile-extra'),
  'Duplicated tab submenus must not return to the admin sidebar');
 assert(!h.includes('const extras=['),
  'Admin drawer must not dynamically inject tab links');
-for(const [id,view] of [['deposit','setoran'],['sale','penjualan'],['verify','rekonsiliasi'],
-                         ['report','laporan'],['payout','bank-payout-admin']]){
- assert(h.includes("{id:'"+id+"'")&&h.includes("['"+view+"'"),
-  'Admin menu route missing: '+id);
-}
-for(const id of ['history','cash','documentation','prices','accounts']){
- assert(h.includes("{id:'"+id+"'"),'Admin quick access category missing: '+id);
-}
+// Admin routes are checked against the new six-category map below.
 assert(h.includes("back.replaceChildren(v16Icon('user'),document.createTextNode(label))"),
  'Admin profile entry must remain in the drawer');
 assert(h.includes('html.f4-bank-embedded body.v17-dashboard:not(.f4-bank-app-admin) #sideNav.side'),
