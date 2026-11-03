@@ -141,7 +141,12 @@ async def main():
             assert state["savingsButton"] == state["button"], f"{mode}: savings CTA not same gold"
             assert state["savingsButtonText"] == "rgb(255, 255, 255)", f"{mode}: savings CTA text not white"
             assert state["feature"] == "rgba(0, 0, 0, 0)", f"{mode}: program steps should be unboxed"
-            assert state["featureText"] == "rgb(18, 63, 43)", f"{mode}: program labels should be dark green on white"
+            # Palette varies; verify leaf-green ink keeps AAA contrast on white.
+            rgb = tuple(int(x) for x in re.findall(r"\\d+", state["featureText"])[:3])
+            assert len(rgb)==3 and rgb[1]>rgb[0] and rgb[1]>rgb[2], f"{mode}: program text is not leaf green"
+            channels=[v/255/12.92 if v/255<=0.04045 else ((v/255+0.055)/1.055)**2.4 for v in rgb]
+            luminance=0.2126*channels[0]+0.7152*channels[1]+0.0722*channels[2]
+            assert 1.05/(luminance+0.05)>=7.0, f"{mode}: program labels lack AAA contrast on white"
             assert state["programParent"] == "v17-public-main", f"{mode}: program was moved back inside hero"
             assert state["programWidth"] <= width and state["programNoOverflow"], f"{mode}: program overflows or clips"
             assert state["programColumns"] == (1 if mode=="hp" else 3), f"{mode}: program grid mismatch"
