@@ -138,7 +138,7 @@ assert(!css.includes('#dashboardView #pageProfile #v15PasswordBox>summary{'),
 assert(!h.includes('#v15PasswordBox>summary{cursor:pointer'),
  'Old left-side triangle style returned');
 assert(h.includes("summary.textContent='Ganti password'"),'Password must have no emoji or separate triangle');
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-half-grid-v12'),
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-compact-gap-v13'),
  'Bank Sampah profile/dock stylesheet must be cache-busted');
 assert(h.includes('/portal-live/bank-mobile-app.js?v=20261103-forms-v10'),
  'Member payout icon script must be refreshed');
@@ -156,7 +156,7 @@ assert(css.includes('#saleForm .f4-sale-top-fields>.field{'),
  'Sale three-field row must keep its explicit column spans');
 assert(!css.includes('body.f4-bank-app-private #dashboardView #pageSetoran .f4-entry-top-fields,'),
  'Legacy desktop grid override was reintroduced');
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-half-grid-v12'),
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-compact-gap-v13'),
  'Bank entry stylesheet cache key was not refreshed');
 const modernCss=fs.readFileSync('portal-live/modern-portals.css','utf8');
 assert(!modernCss.includes('max-width:850px!important') &&
@@ -174,6 +174,10 @@ assert(css.includes('.f4-compact-row>select{grid-column:span 6}') &&
  'Shared 6-3-3 goods grid boundaries missing');
 assert(css.includes('max-height:var(--bank-input-h);padding-block:0;align-self:start'),
  'Setoran and Penjualan native inputs must have a fixed, equal control height');
+assert(css.includes('align-content:start;gap:4px;min-width:0;margin:0') &&
+       css.includes('align-content:start;gap:6px;min-width:0;margin:0') &&
+       css.includes('#saleForm .f4-sale-top-fields{gap:8px}'),
+ 'Sale field spacing must not inherit legacy bottom margins');
 assert(css.includes('#saleForm .f4-sale-note-fields>.field>label{') &&
        css.includes('#saleForm .f4-sale-note-fields>.field>input{'),
  'Sale proof and reason labels/inputs must share one owner');
