@@ -138,7 +138,7 @@ assert(!css.includes('#dashboardView #pageProfile #v15PasswordBox>summary{'),
 assert(!h.includes('#v15PasswordBox>summary{cursor:pointer'),
  'Old left-side triangle style returned');
 assert(h.includes("summary.textContent='Ganti password'"),'Password must have no emoji or separate triangle');
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-grid-v11'),
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-half-grid-v12'),
  'Bank Sampah profile/dock stylesheet must be cache-busted');
 assert(h.includes('/portal-live/bank-mobile-app.js?v=20261103-forms-v10'),
  'Member payout icon script must be refreshed');
@@ -148,13 +148,15 @@ assert(css.includes('.f4-bank-currency-mark{'),
 // Bank Sampah: shared form grid is owned by bank-eco-pages.css, not desktop overrides.
 assert(css.includes('grid-template-columns:repeat(12,minmax(0,1fr))'),
  'Shared twelve-track Bank Sampah entry grid missing');
-assert(css.includes('#saleForm>.f4-sale-side{') && h.includes('class="f4-sale-side"'),
- 'Sale payment must be in independent desktop panel');
+assert(css.includes('#dashboardView .section :is(#saleForm,#setoranForm)>:is(.f4-sale-side,.f4-setoran-side){') &&
+       h.includes('class="f4-sale-side"') &&
+       h.includes('class="f4-sale-payment-fields"'),
+ 'Sale payment must remain inside its independent desktop panel');
 assert(css.includes('#saleForm .f4-sale-top-fields>.field{'),
  'Sale three-field row must keep its explicit column spans');
 assert(!css.includes('body.f4-bank-app-private #dashboardView #pageSetoran .f4-entry-top-fields,'),
  'Legacy desktop grid override was reintroduced');
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-grid-v11'),
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-half-grid-v12'),
  'Bank entry stylesheet cache key was not refreshed');
 const modernCss=fs.readFileSync('portal-live/modern-portals.css','utf8');
 assert(!modernCss.includes('max-width:850px!important') &&
@@ -221,10 +223,12 @@ assert(mobile.includes('const unframed=admin&&page.parentElement===section;'),
  'Admin page outer frames must be removed on PC as well as HP');
 assert(!mobile.includes('const unframed=mobile&&page.parentElement===section;'),
  'Mobile-only outer frame removal regressed');
-assert(css.includes('#saleForm .f4-sale-side>.field:has(#saleStatus),') &&
-       css.includes('#saleForm .f4-sale-side>.field:has(#saleReceived){') &&
-       css.includes('grid-template-columns:minmax(0,1.2fr) minmax(355px,.8fr);'),
- 'Desktop sale must have compact side-by-side goods and payment areas');
+assert(h.includes('class="f4-sale-payment-fields"') &&
+       h.indexOf('id="saleReceived"') < h.indexOf('id="saleStatus"') &&
+       css.includes('#saleForm .f4-sale-payment-fields{') &&
+       css.includes('grid-template-columns:repeat(2,minmax(0,1fr));') &&
+       css.includes('#dashboardView .section :is(#saleForm,#setoranForm){'),
+ 'Desktop Sale and Setoran must use equal columns with amount before payment status');
 assert(!css.includes('#dashboardView .section>.card:not(#pageDashboard,#pageProfile)'),
  'Old desktop outside card owner returned');
 assert(css.includes('grid-template-rows:18px 42px auto;align-content:start;') &&
@@ -238,9 +242,10 @@ assert(mobile.includes('f4-bank-admin-operation-icon') &&
 assert(css.includes('#f4BankAdminOperations .f4-bank-admin-operation-copy strong{') &&
        css.includes('grid-template-columns:48px minmax(0,1fr) 28px;'),
  'Admin primary task cards no longer use the canonical focal layout');
-assert(css.includes('grid-template-rows:18px var(--bank-input-h);') &&
-       css.includes('#saleForm .f4-sale-main>#saleItems{') &&
-       css.includes('#saleForm>.f4-sale-side{') &&
-       h.includes('class="f4-setoran-side"'),
- 'PC Sale and Setoran panels must remain independent');
+assert(css.includes('#dashboardView .section :is(#saleForm,#setoranForm)>:is(.f4-sale-side,.f4-setoran-side){') &&
+       h.includes('class="f4-setoran-side"') &&
+       h.includes('class="f4-sale-main"') &&
+       h.includes('class="f4-sale-side"') &&
+       css.includes('grid-column:1;grid-row:1 / span 2;align-self:start'),
+ 'PC Sale and Setoran entry panels must remain independent of right-side controls');
 console.log('F4_BANK_CANONICAL_THEME_OK');
