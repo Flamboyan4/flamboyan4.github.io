@@ -16,6 +16,8 @@ body.f4-direct-superadmin{--f4-nav:#2d6593;--f4-nav-tint:#e7f2fb;--f4-nav-line:#
 .f4-page-width{width:100%;max-width:var(--f4-content-max);min-width:0;margin-inline:auto}
 @media(max-width:1023px){
  .f4-grid[data-cols="3"],.f4-grid[data-cols="4"],.f4-grid[data-cols="5"]{--f4-grid-cols:2}
+ .f4-grid[data-cols="3"]>:last-child:nth-child(odd),
+ .f4-grid[data-cols="5"]>:last-child:nth-child(odd){grid-column:1/-1}
 }
 @media(max-width:640px){
  .f4-grid{gap:var(--f4-grid-gap-compact)}
