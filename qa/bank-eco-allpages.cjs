@@ -150,7 +150,8 @@ assert(h.includes('/portal-live/bank-mobile-app.js?v=20261104-cash-tabs-v2'),
 assert(css.includes('.f4-bank-currency-mark{'),
  'Rp payout icon must use the canonical bank dock styles');
 assert(h.includes('id="f4BankPageGreeting"'), 'Manager greeting must be scopeable to the home route');
-assert(mobile.includes('greeting.hidden=screen!=="dashboard"'), 'Manager greeting may only display on Beranda');
+assert(mobile.includes('greeting.hidden=roleType()!=="admin"||screen!=="dashboard"'),
+ 'Manager greeting may only display on Admin Beranda, not after an account switch');
 assert(!mobile.includes('Beranda Pengelola') && !mobile.includes('Mulai pencatatan dan periksa pekerjaan Bank Sampah'),
  'Duplicate manager homepage title/intro returned');
 assert(h.includes("window.matchMedia('(max-width:1023px)').matches") && h.includes("tabs.classList.add('hidden');return;"),
