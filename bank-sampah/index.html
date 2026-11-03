@@ -4907,7 +4907,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     let root=$('v27PrintReport');if(!root){root=document.createElement('section');root.id='v27PrintReport';document.body.appendChild(root);}
     root.replaceChildren();const data=v25ReportData,sum=data.ringkasan;
     root.append(v29Kop(),
-      v27PrintNode('p','v27-print-sub','LAPORAN KEGIATAN DAN KEUANGAN PUBLIK'),
+      v27PrintNode('p','v27-print-sub','LAPORAN KEUANGAN BANK SAMPAH'),
       v27PrintNode('div','v27-print-divider'),
       v27PrintNode('p','','Periode: '+(v25ReportPeriod==='semua'?'Seluruh periode':v25ReportPeriod)),
       v27PrintNode('p','','Tanggal cetak: '+new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})));
@@ -4934,7 +4934,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     const labels=['Periode','Berat sah (kg)','Penjualan sah (Rp)','Pengeluaran (Rp)'];
     const csv='\uFEFF'+[labels.join(';'),...(v25ReportData.bulanan||[]).map(row=>fields.map(k=>String(row[k]??0)).join(';'))].join('\r\n');
     const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');
-    a.href=url;a.download='Laporan_Publik_BankSampah_'+v25ReportPeriod+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);
+    a.href=url;a.download='Laporan_Keuangan_BankSampah_'+v25ReportPeriod+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);
   }
   const v25PreviousPublicLoader=v11LoadPublic;
   v11LoadPublic=async function(){
