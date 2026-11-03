@@ -15,7 +15,7 @@ for(const path of ['portal-live/bank-sale-sheet.js','portal-live/bank-member-pri
  assert(page.includes('/'+path+'?v='),'Cache-busted active load missing: '+path);
 }
 assert(worker.includes('bankSaleSheet(request,env,who,url)'),'Sale sheet endpoint missing');
-assert(worker.includes('status=\\'siap\\''),'Sale-sheet lock missing');
+assert(worker.includes("SET status='siap'"),'Sale-sheet lock missing');
 assert(worker.includes('saleNumber="BSF4-J-"'),'Sale number prefix missing');
 assert(sheet.includes('POST')&&sheet.includes('action:"prepare"'),'Worksheet preparation missing');
 assert(sheet.includes('Siapkan & Cetak Lembar'),'Printable worksheet missing');
