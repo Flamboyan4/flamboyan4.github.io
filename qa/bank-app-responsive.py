@@ -786,6 +786,75 @@ async def member_price_card_position(browser):
         await page.close()
 
 
+
+async def admin_docs_back_and_cross_account(browser):
+    """Regression for Admin→public→member without refresh and true prior-page back."""
+    import json
+    page=await browser.new_page(viewport={"width":390,"height":850})
+    await page.goto(ROOT,wait_until="domcontentloaded")
+    await page.set_content(HTML,wait_until="load")
+    await page.evaluate("""() => {
+      const section=document.querySelector('.section');
+      const heading=document.createElement('div');heading.id='f4BankPageGreeting';
+      heading.textContent='Halo, Admin';section.prepend(heading);
+      const docs=document.createElement('section');docs.id='v22DocsPage';
+      docs.innerHTML='<header class="v22-doc-heading"><h1>Dokumentasi</h1></header>'+
+        '<div id="v22DocCount">0 album</div><div id="v22DocFilters"></div><div class="v22-doc-list"></div>';
+      section.append(docs);
+      const inventory=document.createElement('section');inventory.id='v17Inventaris';
+      inventory.innerHTML='<h2>Inventaris</h2><div id="v17Inventory">Inventaris</div>';
+      section.append(inventory);
+      window.f4BankRenderDocumentation=()=>{};
+    }""")
+    async def mock_schedule(route):
+        await route.fulfill(status=200,headers={
+           "access-control-allow-origin":ROOT,"content-type":"application/json"},
+           body=json.dumps({"ok":True,"weekday":3,"dayName":"Rabu"}))
+    await page.route("https://api.flamboyan4.web.id/api/public/bank/weighing-schedule",mock_schedule)
+    await page.add_script_tag(url=ROOT+"/portal-live/bank-mobile-app.js")
+    await page.locator("#f4BankAdminOperations").wait_for(timeout=8000)
+    await page.evaluate("() => window.goPage('profile')")
+    await page.evaluate("() => window.goPage('bank-admin-docs')")
+    await page.locator("#f4BankAdminDocsTabs button").first.wait_for(timeout=8000)
+    assert await page.locator("#bank-admin-docs .f4-bank-screen-title").inner_text()=="Dokumentasi"
+    assert not await page.locator("#bank-admin-docs #v22DocsPage .v22-doc-heading").is_visible()
+    assert await page.locator("#bank-admin-docs #v22DocsPage").is_visible()
+    await page.locator("#f4BankAdminDocsTabs button").nth(1).click()
+    assert await page.locator("#bank-admin-docs #v17Inventaris").is_visible()
+    assert not await page.locator("#bank-admin-docs #v17Inventaris>h2").is_visible()
+    await page.locator("#f4BankAdminBack").click()
+    assert await page.locator("#pageProfile").is_visible(), "Back must return to previous profile screen"
+    assert await page.locator("#f4BankAdminBack").is_visible()
+    await page.locator("#f4BankAdminBack").click()
+    assert await page.locator("#pageDashboard").is_visible()
+    assert not await page.locator("#f4BankAdminBack").is_visible()
+    print("BANK_ADMIN_PREVIOUS_BACK_AND_DOCS_OK",flush=True)
+    # Simulate actual shared login role transitions. No navigation/reload.
+    await page.evaluate("""() => {
+      document.body.dataset.f4BankRole='public';
+      document.querySelector('#dashboardView').classList.add('hidden');
+    }""")
+    await page.wait_for_function("""() =>
+      !document.body.classList.contains('f4-bank-app-admin')
+      && !document.querySelector('#f4BankAdminOperations')
+      && !document.querySelector('#f4BankAdminShortcuts')""")
+    await page.evaluate("""() => {
+      document.body.dataset.f4BankRole='warga';
+      document.querySelector('#dashboardView').classList.remove('hidden');
+      document.querySelector('#pageDashboard').classList.remove('hidden');
+    }""")
+    await page.wait_for_function("() => document.body.classList.contains('f4-bank-app-member')")
+    assert await page.locator("#f4BankMemberCard").is_visible()
+    assert await page.locator("#f4BankAdminOperations").count()==0
+    assert await page.locator("#f4BankAdminShortcuts").count()==0
+    assert not await page.locator("#f4BankAdminBack").is_visible()
+    await page.wait_for_function("""() => document.querySelector('#f4BankWeighingSchedule')
+      ?.textContent?.includes('Setiap Rabu')""",timeout=9000)
+    assert await page.locator("#pageDashboard").is_visible()
+    print("BANK_ACCOUNT_SWITCH_NO_REFRESH_AND_WEDNESDAY_SCHEDULE_OK",flush=True)
+    await page.close()
+
+
 async def main():
     async with async_playwright() as p:
         browser=await p.chromium.launch(args=["--no-sandbox"])
@@ -845,6 +914,7 @@ async def main():
                 assert await page.locator("#pageTabungan").is_visible()
                 print("BANK_SALDO_WARGA_DIRECT_NAV_OK",flush=True)
             await page.close()
+        await admin_docs_back_and_cross_account(browser)
         await bank_policy_permission_ui(browser)
         await bank_cash_and_history_tabs(browser)
         await member_price_card_position(browser)
