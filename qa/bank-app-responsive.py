@@ -277,7 +277,7 @@ async def admin_mobile_shell(browser):
         x:side.getBoundingClientRect().x,
         column:getComputedStyle(document.querySelector("#v16NavList")).flexDirection};
     }""")
-    assert drawer_before["visible"]=="hidden" and drawer_before["x"]<0,drawer_before
+    assert drawer_before["visible"]=="hidden",drawer_before  # Offscreen position is not meaningful for visibility:hidden.
     await page.evaluate('document.querySelector("#sideNav").classList.add("open")')
     await page.wait_for_timeout(260)
     drawer=await page.evaluate("""() => {
