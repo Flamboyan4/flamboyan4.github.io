@@ -242,7 +242,7 @@ assert(mobile.includes('f4-bank-admin-operation-icon') &&
 assert(css.includes('#f4BankAdminOperations .f4-bank-admin-operation-copy strong{') &&
        css.includes('grid-template-columns:48px minmax(0,1fr) 28px;'),
  'Admin primary task cards no longer use the canonical focal layout');
-assert(css.includes('#saleForm>.f4-sale-side') &&
+assert(css.includes('#dashboardView .section :is(#saleForm,#setoranForm)>:is(.f4-sale-side,.f4-setoran-side){') &&
        h.includes('class="f4-setoran-side"') &&
        h.includes('class="f4-sale-main"') &&
        h.includes('class="f4-sale-side"') &&
