@@ -511,6 +511,103 @@ async def member_profile_dropdown_chevrons(browser):
         await page.close()
 
 
+
+async def note_print_is_visible(browser):
+    """Three-stage sale: note printing must be discoverable and reprint idempotent.
+
+    Browser fixture intercepts every note API request. It never writes to D1.
+    """
+    import json
+    for device,width in [("pc",1366),("hp",390)]:
+        page=await browser.new_page(viewport={"width":width,"height":820})
+        await page.goto(ROOT,wait_until="domcontentloaded")
+        fixture="""<!doctype html><html><head>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
+        <style>body{margin:0;font-family:system-ui}
+        #dashboardView{max-width:980px;margin:auto;padding:16px}
+        #pagePenjualan{background:#fff}</style></head>
+        <body class="f4-bank-app-private f4-bank-app-admin">
+        <div id="dashboardView"><main class="section"><section id="pagePenjualan">
+        <h2>Penjualan</h2>
+        <form id="saleForm"><div class="f4-entry-top-fields f4-sale-top-fields">
+        <div class="field"><label for="saleBatch">Nomor penjualan</label>
+        <select id="saleBatch"><option value="">Pilih kelompok</option>
+        <option value="batch-qa">Batch contoh</option></select></div>
+        <div class="field"><label for="saleDate">Tanggal</label><input id="saleDate" type="date"></div>
+        </div><div id="saleItems"></div></form></section></main></div></body></html>"""
+        await page.set_content(fixture,wait_until="load")
+        prepared={"yes":False,"post":0,"get":0}
+        async def mock_note(route):
+            req=route.request
+            headers={
+                "access-control-allow-origin":ROOT,
+                "access-control-allow-credentials":"true",
+                "access-control-allow-methods":"GET,POST,OPTIONS",
+                "access-control-allow-headers":"Content-Type",
+                "content-type":"application/json"}
+            if req.method=="OPTIONS":
+                await route.fulfill(status=204,headers=headers,body="")
+                return
+            if req.method=="POST":
+                payload=json.loads(req.post_data or "{}")
+                assert payload.get("batchId")=="batch-qa" and payload.get("action")=="prepare"
+                prepared["post"]+=1
+                prepared["yes"]=True
+            else:
+                prepared["get"]+=1
+            data={"ok":True,"batchId":"batch-qa","saleNumber":"BSF4-J-QA",
+                  "depositCount":2,"totalGrams":3000,"status":"siap" if prepared["yes"] else "draft",
+                  "lines":[{"itemId":"waste:kardus","name":"Kardus","grams":3000,"lastPrice":2500}]}
+            await route.fulfill(status=200,headers=headers,body=json.dumps(data))
+        await page.route("https://api.flamboyan4.web.id/api/admin/bank/sale-sheet**",mock_note)
+        await page.evaluate("""() => {
+          window.__printed=0;
+          window.__noteHtml='';
+          window.open=()=>({
+            closed:false,
+            document:{
+              readyState:'complete',
+              open(){window.__noteHtml=''},
+              write(s){window.__noteHtml+=s},
+              close(){}
+            },
+            focus(){},close(){},addEventListener(){},
+            print(){window.__printed++}
+          });
+        }""")
+        await page.add_script_tag(url=ROOT+"/portal-live/bank-sale-sheet.js")
+        button=page.locator("#f4SaleSheetPrint")
+        assert await button.is_visible(),(device,"Note button hidden before selection")
+        assert await button.is_enabled(),(device,"Note button disabled before selection")
+        adjacent=await page.evaluate("""() => {
+          const field=document.querySelector('#saleBatch').closest('.field');
+          const tools=document.querySelector('.f4-bank-sheet-tools');
+          return field?.nextElementSibling===tools
+            && getComputedStyle(tools).display!=='none';
+        }""")
+        assert adjacent,(device,"Note action must follow the sale group")
+        await button.click()
+        assert await page.locator("#f4SaleSheetStatus").text_content()=="Pilih kelompok setoran terlebih dahulu."
+        assert await page.evaluate("document.activeElement.id")=="saleBatch"
+        await page.locator("#saleBatch").select_option("batch-qa")
+        await page.wait_for_function(
+            "() => document.querySelector('#f4SaleSheetNumber')?.textContent==='BSF4-J-QA'")
+        assert await button.is_visible() and await button.is_enabled(),device
+        await button.click()
+        await page.wait_for_function("() => window.__printed>=1")
+        assert prepared["post"]==1,(device,prepared)
+        assert "LEMBAR TIMBANG & JUAL" in await page.evaluate("window.__noteHtml"),device
+        assert "Pemilik Lapak" in await page.evaluate("window.__noteHtml"),device
+        assert "Cetak Ulang" in (await button.text_content()),device
+        await button.click()
+        await page.wait_for_function("() => window.__printed>=2")
+        assert prepared["post"]==1,(device,"Reprint must never prepare a second time",prepared)
+        assert prepared["get"]>=2,(device,prepared)
+        print("BANK_WEIGH_NOTE_VISIBLE_AND_SAFE_REPRINT_OK",device,prepared,flush=True)
+        await page.close()
+
+
 async def main():
     async with async_playwright() as p:
         browser=await p.chromium.launch(args=["--no-sandbox"])
@@ -563,6 +660,7 @@ async def main():
             await page.screenshot(path=f"ops-audit/bank-eco-theme/manager-{device}.png",full_page=True)
             print("MANAGER_RESPONSIVE_OK",device,state,flush=True)
             await page.close()
+        await note_print_is_visible(browser)
         await member_layout(browser)
         await savings_chart(browser)
         await admin_mobile_shell(browser)
