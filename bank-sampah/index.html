@@ -4732,7 +4732,12 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     const rows=v21Albums.filter(a=>v23CategoryLabel(a.kategori)!=='Inventaris'&&
       (v22ActiveCategory==='Semua'||v23CategoryLabel(a.kategori)===v22ActiveCategory)&&
       (!v22Query||(a.judul+' '+a.deskripsi+' '+a.kategori).toLowerCase().includes(v22Query)));
-    $('v22DocCount').textContent=rows.length+' album kegiatan';list.replaceChildren();
+    const count=$('v22DocCount');
+    if(count){count.textContent=rows.length+' album kegiatan';count.hidden=rows.length===0;}
+    const hasAlbums=v21Albums.some(a=>v23CategoryLabel(a.kategori)!=='Inventaris');
+    filters.hidden=!hasAlbums;
+    const search=$('v22DocSearch');if(search)search.hidden=!hasAlbums;
+    list.replaceChildren();
     rows.forEach(a=>{
       const card=v21Node('button','v22-doc-card');card.type='button';
       card.appendChild(a.sampul?v21Photo(a.sampul,a.judul):v21Node('div','v21-placeholder','📷'));
