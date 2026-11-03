@@ -177,7 +177,8 @@ async def main():
                           setRow.right>=depositParts[1].right-2;
                         return {gridOk,topDepositOk,topSaleOk,paymentsOk,layoutOk,responsiveOk,
                             baseLineOk,priorityOk,deleteOk,
-                            topDeposit,topSale,payment,summary,viewport:w};
+                            topDeposit,topSale,payment,summary,
+                            saleParts,depositParts,note,viewport:w};
                     }""")
                     good=(response is not None and response.status==200 and
                           all(state[key] for key in
