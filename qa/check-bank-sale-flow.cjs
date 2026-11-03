@@ -1,0 +1,40 @@
+/* Regression checks for the Bank Sampah simple sale and member-price workflow.
+   Static checks only: NEVER create transactions against production. */
+const fs=require('node:fs');
+const assert=require('node:assert/strict');
+const read=path=>fs.readFileSync(path,'utf8');
+const worker=read('cloudflare/worker-terpadu-operasional-teruji.js');
+const page=read('bank-sampah/index.html');
+const sheet=read('portal-live/bank-sale-sheet.js');
+const member=read('portal-live/bank-member-prices.js');
+const handover=read('portal-live/bank-sale-handover.js');
+const mobile=read('portal-live/bank-mobile-app.js');
+const bridge=read('portal-live/f4-bank-write-bridge.js');
+const css=read('portal-live/bank-eco-pages.css');
+for(const path of ['portal-live/bank-sale-sheet.js','portal-live/bank-member-prices.js','portal-live/bank-sale-handover.js','portal-live/bank-mobile-app.js','portal-live/f4-bank-write-bridge.js']){
+ assert(page.includes('/'+path+'?v='),'Cache-busted active load missing: '+path);
+}
+assert(worker.includes('bankSaleSheet(request,env,who,url)'),'Sale sheet endpoint missing');
+assert(worker.includes('status=\\'siap\\''),'Sale-sheet lock missing');
+assert(worker.includes('saleNumber="BSF4-J-"'),'Sale number prefix missing');
+assert(sheet.includes('POST')&&sheet.includes('action:"prepare"'),'Worksheet preparation missing');
+assert(sheet.includes('Siapkan & Cetak Lembar'),'Printable worksheet missing');
+assert(sheet.includes('lastPrice'),'Last lapak price should be editable suggestion only');
+assert(handover.includes("const docCode='BSF4-J-'"),'Receipt must use stable group sale number');
+assert(page.includes('F4SaleHandover?.({id:r.id})'),'Post-sale receipt must print before approval');
+assert(worker.includes('bankMemberPriceList(db,who)'),'Private citizen price endpoint missing');
+assert(worker.includes('citizen_rate_rp_per_kg AS priceRpPerKg'),'Member list should use citizen rates');
+assert(!member.includes('reference_price_rp'),'Never show lapak reference price in member catalog');
+assert(member.includes('sort((a,b)=>'),'Member price order missing');
+assert(mobile.includes('F4MemberPrices?.shortcut(hub)'),'Prices shortcut missing');
+assert(worker.includes('bankSalePayment(request,env,who)'),'Draft lapak payment endpoint missing');
+assert(page.includes('v7SettleSale(r)'),'Lapak payment from history missing');
+assert(worker.includes('Penjualan belum lunas. Catat pelunasan lapak'),'Do not approve unpaid sale');
+assert(worker.includes('hasWeightDifference'),'Automatic weighing check missing');
+assert(bridge.includes('hasWeightDifference'),'Approval status bridge missing');
+assert(page.includes("v8Reason').required=!!p.hasWeightDifference"),'Weighing note should only be required if difference exists');
+assert(mobile.includes('f4BankReportRange'),'Custom statement range filter missing');
+assert(page.includes("window.f4BankReportRange"),'Printable and CSV statements must respect range');
+const newCss=css.slice(css.indexOf('/* Penjualan kolektif dan katalog harga anggota'));
+assert(newCss && !newCss.includes('!important'),'New Bank components must avoid priority overrides');
+console.log('BANK_SIMPLE_SALE_AND_MEMBER_STATEMENTS_CHECK_OK');
