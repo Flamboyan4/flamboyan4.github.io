@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
 <style>body{margin:0;padding:16px}.section{max-width:1160px;margin:0 auto}.f4-test-card{margin-bottom:30px}input,select,button{font:inherit}</style>
 <title>Flamboyan 4 — Form grid fixture</title></head>
-<body class="f4-bank-app-admin f4-bank-app-private">
+<body class="f4-direct-bank f4-bank-app-admin f4-bank-app-private">
 <main id="dashboardView"><div class="section">
 <div class="f4-test-card" id="pageSetoran"><form id="setoranForm">
  <div class="f4-entry-top-fields">
@@ -13,7 +13,7 @@
   <div class="field f4-field-stack"><label for="setDate">Tanggal setoran</label><input id="setDate" type="date"></div>
  </div>
  <div class="f4-entry-goods-heading"><h3>Rincian sampah</h3><button type="button">Tambah jenis</button></div>
- <div id="setBarang"><div class="f4-compact-rows"><div class="f4-compact-row"><select aria-label="Jenis sampah"><option>Jenis barang</option></select><input type="number" aria-label="Berat" placeholder="Berat (kg)"><button class="f4-compact-remove" type="button" aria-label="Hapus">×</button></div></div></div>
+ <div id="setBarang"><div class="f4-compact-rows"><div class="f4-compact-row"><select aria-label="Jenis sampah"><option>Jenis barang</option></select><div class="f4-compact-entry-group"><input type="number" aria-label="Berat" placeholder="Berat (kg)"><button class="f4-compact-remove" type="button" aria-label="Hapus">×</button></div></div></div></div>
  <div class="summary-box"><div><small>Total berat</small></div><div><small>Estimasi hak warga</small></div></div>
  <div class="field f4-field-stack"><label>Catatan</label><input></div><button type="button">Simpan</button>
 </form></div>
@@ -24,7 +24,7 @@
   <div class="field f4-field-stack"><label for="saleLapak">Nama lapak</label><input id="saleLapak"></div>
  </div>
  <div class="f4-entry-goods-heading"><h3>Hasil timbang</h3><button type="button">Tambah jenis</button></div>
- <div id="saleItems"><div class="f4-compact-rows"><div class="f4-compact-row f4-compact-sale-row"><select aria-label="Jenis sampah"><option>Jenis barang</option></select><input type="number" aria-label="Berat" placeholder="Berat (kg)"><input type="number" aria-label="Harga" placeholder="Harga/kg"><button type="button" class="f4-compact-remove" aria-label="Hapus">×</button></div></div></div>
+ <div id="saleItems"><div class="f4-compact-rows"><div class="f4-compact-row f4-compact-sale-row"><select aria-label="Jenis sampah"><option>Jenis barang</option></select><input type="number" aria-label="Berat" placeholder="Berat (kg)"><div class="f4-compact-entry-group"><input type="number" aria-label="Harga" placeholder="Harga/kg"><button type="button" class="f4-compact-remove" aria-label="Hapus">×</button></div></div></div></div>
  <div class="summary-box"><div><small>Berat terjual</small></div><div><small>Total jual</small></div></div>
  <div class="field f4-field-stack"><label for="saleStatus">Pembayaran</label><select id="saleStatus"><option>Lunas</option></select></div>
  <div class="field f4-field-stack"><label for="saleReceived">Diterima (Rp)</label><input id="saleReceived" type="number"><p class="hint">Belum dibayar</p></div>
