@@ -4638,6 +4638,55 @@ async function saleCreateDraft(request, env, who) {
   return json({ ok: true, id: input.requestId, status: "draft", grossRp: input.gross, receivedRp: input.received, confirmed: false });
 }
 __name(saleCreateDraft, "saleCreateDraft");
+
+// Penjualan kolektif: satu nomor dari kelompok, rekap jenis terisi otomatis.
+// Status "siap" membekukan setoran agar lembar yang dibawa ke lapak tidak berubah.
+async function bankSaleSheet(request,env,who,url){
+  const denied=requireRole(who,["admin","superadmin"]);if(denied)return denied;
+  const isWrite=request.method==="POST";
+  if(isWrite&&env.BANK_WRITE_ENABLED!=="true")return safeError("Persiapan penjualan belum diaktifkan.",503);
+  let input={};
+  if(isWrite){try{input=await requestJson(request)}catch{return safeError("Input tidak valid.",400)}}
+  const batchId=String(isWrite?input.batchId:url.searchParams.get("batchId")||"").trim();
+  if(!batchId||batchId.length>120)return safeError("Pilih kelompok setoran terlebih dahulu.",400);
+  const batch=await one(env.DB,"SELECT id,label,status FROM waste_batches WHERE id=?",[batchId]);
+  if(!batch||!["draft","siap"].includes(batch.status))return safeError("Kelompok tidak tersedia untuk penjualan.",409);
+  const active=await one(env.DB,"SELECT id FROM waste_sales WHERE batch_id=? AND status!='dibatalkan' LIMIT 1",[batchId]);
+  if(active)return safeError("Kelompok sudah memiliki transaksi penjualan.",409);
+  const lines=await list(env.DB,"SELECT i.id AS itemId,i.name,i.category,COALESCE(SUM(l.grams),0) AS grams FROM waste_deposits d JOIN waste_deposit_lines l ON l.deposit_id=d.id JOIN waste_items i ON i.id=l.waste_item_id WHERE d.batch_id=? AND d.status='estimasi' GROUP BY i.id,i.name,i.category HAVING SUM(l.grams)>0 ORDER BY i.category,i.name",[batchId]);
+  if(!lines.length)return safeError("Belum ada setoran untuk kelompok ini.",409);
+  const count=await one(env.DB,"SELECT COUNT(*) AS n FROM waste_deposits WHERE batch_id=? AND status='estimasi'",[batchId]);
+  if(isWrite){
+    if(input.action==="reopen"){
+      if(batch.status==="siap"){
+        const updated=await env.DB.prepare("UPDATE waste_batches SET status='draft' WHERE id=? AND status='siap' AND NOT EXISTS(SELECT 1 FROM waste_sales WHERE batch_id=? AND status!='dibatalkan') AND NOT EXISTS(SELECT 1 FROM waste_allocations WHERE batch_id=?)").bind(batchId,batchId,batchId).run();
+        if(updated.meta?.changes!==1)return safeError("Persiapan tidak dapat dibuka lagi.",409);
+        await env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason) VALUES(?,?,'banksampah','reopen_sale_sheet','waste_batches',?,?)").bind(crypto.randomUUID(),who.id,batchId,"Buka kembali setoran sebelum penjualan").run();
+      }
+      return json({ok:true,batchId,status:"draft"});
+    }
+    if(input.action!=="prepare")return safeError("Aksi persiapan tidak dikenal.",400);
+    if(batch.status==="draft"){
+      const updated=await env.DB.prepare("UPDATE waste_batches SET status='siap' WHERE id=? AND status='draft' AND EXISTS(SELECT 1 FROM waste_deposits d WHERE d.batch_id=? AND d.status='estimasi') AND NOT EXISTS(SELECT 1 FROM waste_sales s WHERE s.batch_id=? AND s.status!='dibatalkan')").bind(batchId,batchId,batchId).run();
+      if(updated.meta?.changes!==1)return safeError("Kelompok berubah. Perbarui data sebelum mencetak.",409);
+      await env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason) VALUES(?,?,'banksampah','prepare_sale_sheet','waste_batches',?,?)").bind(crypto.randomUUID(),who.id,batchId,"Menyiapkan lembar timbang kolektif").run();
+    }
+  }
+  // Nomor pendek deterministik mengikuti batch; tidak berubah saat hasil lapak diisi.
+  const saleNumber="BSF4-J-"+String(batch.label||batch.id).replace(/[^A-Za-z0-9-]/g,"").slice(0,48).toUpperCase();
+  return json({ok:true,batchId,saleNumber,status:isWrite?"siap":batch.status,depositCount:Number(count?.n||0),
+    totalGrams:lines.reduce((n,x)=>n+Number(x.grams||0),0),
+    lines:lines.map(x=>({itemId:x.itemId,name:x.name,category:x.category,grams:Number(x.grams)}))});
+}
+__name(bankSaleSheet,"bankSaleSheet");
+// Harga warga selalu dari tarif warga. Harga jual lapak tidak dikirim ke akun anggota.
+async function bankMemberPriceList(db,who){
+  const denied=requireRole(who,["anggota","admin","superadmin"]);if(denied)return denied;
+  const rows=await list(db,"SELECT i.id,i.name,i.category,p.citizen_rate_rp_per_kg AS priceRpPerKg,p.effective_from AS effectiveFrom FROM waste_items i LEFT JOIN waste_prices p ON p.id=(SELECT p2.id FROM waste_prices p2 WHERE p2.waste_item_id=i.id AND p2.effective_from<=date('now','+7 hours') ORDER BY p2.effective_from DESC,p2.id DESC LIMIT 1) WHERE i.active=1 ORDER BY i.category,CASE WHEN p.citizen_rate_rp_per_kg IS NULL THEN 1 ELSE 0 END,p.citizen_rate_rp_per_kg ASC,i.name LIMIT 250",[]);
+  return json({ok:true,items:rows});
+}
+__name(bankMemberPriceList,"bankMemberPriceList");
+
 // Metadata bukti fisik dapat dilengkapi setelah penjualan tercatat, termasuk
 // sesudah rekonsiliasi. Tidak mengubah nominal, status, tanggal, atau barang.
 async function bankUpdateSaleReceipt(request,env,who) {
@@ -5532,6 +5581,9 @@ async function handle(request, env) {
   if (path === "/api/auth/login" && request.method === "POST") return login(request, env);
   const who = await identity(request, env.DB);
   if (path === "/api/superadmin/bank-split" && request.method === "POST") return saveBankSplitPolicy(request,env,who);
+  if (path === "/api/member/bank/prices" && request.method === "GET") return bankMemberPriceList(env.DB,who);
+  if (path === "/api/admin/bank/sale-sheet" && ["GET","POST"].includes(request.method))
+    return bankSaleSheet(request,env,who,url);
   if (path === "/api/v2/admin/residents") return residentsApi(request, env, who);
   // Rute nota spesifik harus ditangani sebelum fallback umum /api/v2/.
   if (path === "/api/v2/admin/bank/sale-receipt" && request.method === "POST") return bankUpdateSaleReceipt(request,env,who);
