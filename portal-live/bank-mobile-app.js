@@ -1260,6 +1260,16 @@ function showAdminHistory(selected="setoran"){
  }else if(selected==="setoran")window.loadRiwayatV7?.();
  else window.loadRiwayatJual?.();
 }
+function ensureAdminReportLink(){
+ if(role!=="admin")return;
+ const page=$("pageLaporan");
+ if(!page||$("f4BankAdminProgressLink"))return;
+ const link=el("button","f4-bank-secondary-action f4-bank-report-progress-link","Perkembangan");
+ link.id="f4BankAdminProgressLink";link.type="button";
+ link.onclick=()=>navigate("bank-admin-progress");
+ const head=page.querySelector(":scope > h2");
+ if(head)head.after(link);else page.prepend(link);
+}
 function combineAdminApproval(){
  const root=$("pageRekonsiliasi"),approval=$("pagePengesahan");
  if(!root||!approval)return;
@@ -1588,6 +1598,7 @@ function handleRoute(route,old,args){
   const link=$("v14AllDeposits");if(link){link.textContent="Lihat semua";link.onclick=()=>navigate("bank-history");}
  }
  if(route==="dashboard"&&role==="admin")ensureAdminHome();
+ if(route==="laporan"&&role==="admin")ensureAdminReportLink();
  if(route==="setoran"&&role==="admin")ensureOwnDepositForm();
  screen=route;markDock();
  if(route==="tabungan"&&roleType()==="admin")managerRequestsPanel();
