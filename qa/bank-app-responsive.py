@@ -178,167 +178,72 @@ async def savings_chart(browser):
     await page.close()
 
 async def admin_mobile_shell(browser):
-    """Fixed unified header and bottom dock must remain stationary on Android-sized viewports."""
+    """Admin has no duplicated bottom dock; the slide has six complete categories."""
+    from pathlib import Path
+    import re
     page=await browser.new_page(viewport={"width":390,"height":820},device_scale_factor=1)
+    source=Path("bank-sampah/index.html").read_text(encoding="utf-8")
+    inline=re.search(r"<style>(.*?)</style>",source,re.S|re.I)
+    assert inline,"Source Bank Sampah styles are required"
     html="""<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
     <link rel="stylesheet" href="/portal-live/direct-shell.css">
     <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
     </head><body class="f4-direct-bank f4-bank-app-private f4-bank-app-admin v17-dashboard">
-    <div id="f4-direct-bar">Header tetap</div>
-    <div id="dashboardView">
-     <div class="mobile-nav">Header lama</div>
-     <div class="grid">
-      <aside id="sideNav" class="side"><div id="v16Navigation"><div id="v16NavList">
-       <button class="v16-item" data-group="home">Beranda</button>
-       <button class="v16-item" data-group="deposit">Setoran</button>
-       <button class="v16-item" data-group="sale">Penjualan</button>
-       <button class="v16-item" data-group="finance">Keuangan</button>
-       <button class="v16-item" data-group="management">Pengelolaan</button>
-       <button class="v16-item" data-group="report">Laporan</button>
-       <button class="v16-item f4-back-account">Profil pengurus</button>
+    <div id="f4-direct-bar">Pengelola</div>
+    <div id="dashboardView"><div class="mobile-nav">Legacy</div>
+    <div class="grid"><aside id="sideNav" class="side">
+      <div id="v16Navigation"><div id="v16NavList">
+      <button class="v16-item" data-group="home">Beranda</button>
+      <button class="v16-item" data-group="deposit">Setoran</button>
+      <button class="v16-item" data-group="sale">Penjualan</button>
+      <button class="v16-item" data-group="finance">Keuangan</button>
+      <button class="v16-item" data-group="management">Pengelolaan</button>
+      <button class="v16-item" data-group="report">Laporan</button>
       </div></div></aside>
-      <main class="section" style="min-height:2400px">Halaman panjang</main>
-     </div>
-    </div>
-    <nav id="f4BankAppDock" class="f4-bank-app-dock">
-    <button class="f4-bank-app-dock-action is-active" aria-current="page" data-bank-app-route="dashboard"><span class="f4-bank-app-action-icon"><img src="/assets/icons/home.svg"></span><span class="f4-bank-app-action-name">Beranda</span></button>
-    <button class="f4-bank-app-dock-action" data-bank-app-route="setoran"><span class="f4-bank-app-action-icon"><img src="/assets/icons/bank.svg"></span><span class="f4-bank-app-action-name">Setoran</span></button>
-    <button class="f4-bank-app-dock-action" data-bank-app-route="laporan"><span class="f4-bank-app-action-icon"><img src="/assets/icons/book.svg"></span><span class="f4-bank-app-action-name">Laporan</span></button>
-    <button class="f4-bank-app-dock-action" data-bank-app-route="penjualan"><span class="f4-bank-app-action-icon"><img src="/assets/icons/cash.svg"></span><span class="f4-bank-app-action-name">Penjualan</span></button>
-    <button class="f4-bank-app-dock-action" data-bank-app-route="tabungan"><span class="f4-bank-app-action-icon"><img src="/assets/icons/pay.svg"></span><span class="f4-bank-app-action-name">Saldo</span></button>
-    </nav>
+      <main class="section" style="min-height:2400px">
+      <button class="f4-bank-admin-back" type="button"><svg viewBox="0 0 24 24"><path d="M19 12H5"/></svg>Kembali</button>
+      Halaman panjang</main>
+    </div></div>
+    <nav id="f4BankAppDock" class="f4-bank-app-dock" hidden></nav>
     </body></html>"""
     await page.goto(ROOT,wait_until="domcontentloaded")
     await page.set_content(html,wait_until="load")
-    # The real drawer also depends on inline page styles, not only bank-eco-pages.css.
-    # Include the original source so the fixture does not assert against a half-loaded shell.
-    import re
-    from pathlib import Path
-    full=Path("bank-sampah/index.html").read_text(encoding="utf-8")
-    inline=re.search(r"<style>(.*?)</style>",full,re.S|re.I)
-    assert inline,"Original Bank Sampah drawer CSS not found"
     await page.add_style_tag(content=inline.group(1))
-    await page.evaluate("window.scrollTo(0, 750)")
-    await page.wait_for_timeout(100)
-    state=await page.evaluate("""() => {
-      const top=document.querySelector('#f4-direct-bar').getBoundingClientRect();
-      const bottom=document.querySelector('#f4BankAppDock').getBoundingClientRect();
-      const nav=document.querySelector('#v16NavList');
-      const dock=document.querySelector('#f4BankAppDock');
-      const actions=[...dock.querySelectorAll('.f4-bank-app-dock-action')];
-      const positions=actions.map(b=>{const r=b.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right}});
-      const center=actions[2].querySelector('.f4-bank-app-action-icon').getBoundingClientRect();
-      const names=actions.map(b=>b.querySelector('.f4-bank-app-action-name').textContent);
-      return {
-        scroll:scrollY,positions,center:{w:center.width,h:center.height,y:center.y},
-        dockY:bottom.y,dockCount:document.querySelectorAll(".f4-bank-app-dock").length,
-        centerLabelGap:+(actions[2].querySelector(".f4-bank-app-action-name").getBoundingClientRect().top-
-          center.bottom).toFixed(2),
-        gapIconLabel:actions.map(b=>+(b.querySelector(".f4-bank-app-action-name").getBoundingClientRect().top-
-          b.querySelector(".f4-bank-app-action-icon img").getBoundingClientRect().bottom).toFixed(2)),
-        textBottomGap:+(bottom.bottom-actions[0].querySelector(".f4-bank-app-action-name").getBoundingClientRect().bottom).toFixed(2),
-        dockPadding:getComputedStyle(document.querySelector("#dashboardView")).paddingBottom,
-        activeBackground:getComputedStyle(actions[0]).backgroundColor,
-        centerBackground:getComputedStyle(actions[2].querySelector(".f4-bank-app-action-icon")).backgroundColor,
-        names,navHeight:dock.getBoundingClientRect().height,
-        headerY:top.y,
-        headerPosition:getComputedStyle(document.querySelector('#f4-direct-bar')).position,
-        legacyDisplay:getComputedStyle(document.querySelector('#dashboardView .mobile-nav')).display,
-        dockBottom:bottom.bottom,
-        visible:[...nav.querySelectorAll('button')].filter(b=>getComputedStyle(b).display!=='none').map(b=>b.textContent),
-        horizontalOverflow:document.documentElement.scrollWidth>innerWidth+3
+    await page.evaluate("window.scrollTo(0,750)")
+    await page.wait_for_timeout(260)
+    before=await page.evaluate("""() => {
+      const side=document.querySelector("#sideNav"),header=document.querySelector("#f4-direct-bar");
+      return {scroll:scrollY,headerTop:header.getBoundingClientRect().top,
+        headerPosition:getComputedStyle(header).position,
+        dock:getComputedStyle(document.querySelector("#f4BankAppDock")).display,
+        padding:getComputedStyle(document.querySelector("#dashboardView")).paddingBottom,
+        drawerVisible:getComputedStyle(side).visibility,
+        nav:[...document.querySelectorAll("#v16NavList .v16-item")]
+          .filter(b=>getComputedStyle(b).display!=="none").map(b=>b.dataset.group),
+        overflow:document.documentElement.scrollWidth>innerWidth+3
       };
     }""")
-    assert state["scroll"]>500,state
-    assert abs(state["headerY"])<1 and state["headerPosition"]=="fixed",state
-    assert abs(state["dockBottom"]-820)<2,state
-    assert state["names"]==["Beranda","Setoran","Laporan","Penjualan","Saldo"],state
-    assert abs(state["navHeight"]-64)<1,state
-    assert all(0<=state["gapIconLabel"][i]<=7 for i in (0,1,3,4)),state
-    assert 5<=state["textBottomGap"]<=17,state
-    assert state["dockPadding"]=="72px",state
-    assert all(x["w"]>50 and x["right"]<=391 for x in state["positions"]),state
-    assert all(state["positions"][i]["x"]<state["positions"][i+1]["x"] for i in range(4)),state
-    assert state["center"]["w"]>=45 and state["center"]["h"]>=45,state
-    assert 2<=state["centerLabelGap"]<=10,state
-    assert state["center"]["y"]<state["dockY"]-4,state
-    assert state["dockCount"]==1,state
-    assert state["activeBackground"]=="rgb(216, 237, 223)",state
-    assert state["centerBackground"]=="rgb(255, 192, 38)",state
-    assert state["legacyDisplay"]=="none",state
-    assert state["visible"]==["Keuangan","Pengelolaan"],state
-    assert not state["horizontalOverflow"],state
-    # The admin hamburger restores the left slide drawer; no bottom dock routes appear twice.
-    # Wait for any entrance/visibility transition before checking its closed state.
-    await page.wait_for_timeout(260)
-    drawer_before=await page.evaluate("""() => {
-      const side=document.querySelector("#sideNav");
-      return {visible:getComputedStyle(side).visibility,
-        x:side.getBoundingClientRect().x,
-        column:getComputedStyle(document.querySelector("#v16NavList")).flexDirection};
-    }""")
-    assert drawer_before["visible"]=="hidden",drawer_before  # Offscreen position is not meaningful for visibility:hidden.
+    assert before["scroll"]>500,before
+    assert before["headerPosition"]=="fixed" and abs(before["headerTop"])<1,before
+    assert before["dock"]=="none" and before["padding"]=="8px",before
+    assert before["drawerVisible"]=="hidden",before
+    assert before["nav"]==["home","deposit","sale","finance","management","report"],before
+    assert not before["overflow"],before
     await page.evaluate('document.querySelector("#sideNav").classList.add("open")')
     await page.wait_for_timeout(260)
-    drawer=await page.evaluate("""() => {
-      const side=document.querySelector("#sideNav");
-      const nav=document.querySelector("#v16NavList"),box=side.getBoundingClientRect();
-      const buttons=[...nav.querySelectorAll("button")];
-      return {visibility:getComputedStyle(side).visibility,
-        transform:getComputedStyle(side).transform,top:box.top,left:box.left,
-        width:box.width,height:box.height,display:getComputedStyle(nav).display,
-        direction:getComputedStyle(nav).flexDirection,
-        visible:buttons.filter(x=>getComputedStyle(x).display!=="none").map(x=>x.textContent),
-        hiddenGroups:buttons.filter(x=>["home","deposit","sale","report"].includes(x.dataset.group)||x.classList.contains("f4-back-account")).every(x=>getComputedStyle(x).display==="none"),
-        navVisible:box.width>0 && getComputedStyle(document.querySelector("#v16Navigation")).display!=="none",
-        scrollOverflow:document.documentElement.scrollWidth>innerWidth+3};
+    opened=await page.evaluate("""() => {
+      const side=document.querySelector("#sideNav"),b=side.getBoundingClientRect();
+      return {visible:getComputedStyle(side).visibility,top:b.top,left:b.left,width:b.width,
+        height:b.height,direction:getComputedStyle(document.querySelector("#v16NavList")).flexDirection,
+        overflow:document.documentElement.scrollWidth>innerWidth+3};
     }""")
-    assert drawer["visibility"]=="visible" and abs(drawer["top"]-56)<2,drawer
-    assert abs(drawer["left"])<2 and 275<=drawer["width"]<=301,drawer
-    assert drawer["display"]=="flex" and drawer["direction"]=="column",drawer
-    assert drawer["navVisible"],drawer
-    assert drawer["hiddenGroups"],drawer
-    assert len(drawer["visible"])==2,drawer
-    assert drawer["visible"]==["Keuangan","Pengelolaan"],drawer
-    assert not drawer["scrollOverflow"],drawer
+    assert opened["visible"]=="visible" and abs(opened["top"]-56)<2,opened
+    assert abs(opened["left"])<2 and 275<=opened["width"]<=301,opened
+    assert opened["direction"]=="column" and not opened["overflow"],opened
     await page.evaluate('document.querySelector("#sideNav").classList.remove("open")')
     await page.wait_for_timeout(260)
-    drawer_closed=await page.evaluate("""() => {
-      const side=document.querySelector("#sideNav");
-      return {x:side.getBoundingClientRect().x,visibility:getComputedStyle(side).visibility};
-    }""")
-    assert drawer_closed["x"]<0 and drawer_closed["visibility"]=="hidden",drawer_closed
-    print("ADMIN_SLIDE_CATEGORIES_ONLY_OK",drawer,flush=True)
-    # Tablet still uses the mobile dock and can reveal all admin groups in the drawer.
-    await page.set_viewport_size({"width":820,"height":820})
-    tablet=await page.evaluate("""() => ({
-      dock:getComputedStyle(document.querySelector("#f4BankAppDock")).display,
-      groups:[...document.querySelectorAll("#v16NavList .v16-item[data-group]")]
-        .filter(x=>getComputedStyle(x).display!=="none").map(x=>x.dataset.group)
-    })""")
-    assert tablet["dock"]=="grid" and all(g in tablet["groups"] for g in ["home","deposit","sale","finance","management","report"]),tablet
-    await page.set_viewport_size({"width":390,"height":820})
-    # The exact same dock dimensions must apply when the role switches to member.
-    member=await page.evaluate("""() => {
-      document.body.classList.replace("f4-bank-app-admin","f4-bank-app-member");
-      const dock=document.getElementById("f4BankAppDock");
-      const first=dock.querySelector(".f4-bank-app-dock-action");
-      const icon=first.querySelector(".f4-bank-app-action-icon img").getBoundingClientRect();
-      const label=first.querySelector(".f4-bank-app-action-name").getBoundingClientRect();
-      return {
-        height:dock.getBoundingClientRect().height,
-        bottom:dock.getBoundingClientRect().bottom,
-        iconLabelGap:+(label.top-icon.bottom).toFixed(2),
-        textBottomGap:+(dock.getBoundingClientRect().bottom-label.bottom).toFixed(2),
-        padding:getComputedStyle(document.querySelector("#dashboardView")).paddingBottom
-      };
-    }""")
-    assert abs(member["height"]-state["navHeight"])<1,(state,member)
-    assert abs(member["bottom"]-state["dockBottom"])<1,(state,member)
-    assert abs(member["iconLabelGap"]-state["gapIconLabel"][0])<1,(state,member)
-    assert abs(member["textBottomGap"]-state["textBottomGap"])<1,(state,member)
-    assert member["padding"]==state["dockPadding"],(state,member)
-    print("ADMIN_AND_MEMBER_DOCK_PARITY_OK",state,member,flush=True)
+    assert await page.evaluate('getComputedStyle(document.querySelector("#sideNav")).visibility')=="hidden"
+    print("ADMIN_NO_DOCK_FULL_SLIDE_OK",before,opened,flush=True)
     await page.close()
 
 async def public_chart_and_flat_roster(browser):
@@ -636,7 +541,7 @@ async def main():
                 };
             }""")
             assert state["account"]=="Rp 1.500",(device,state)
-            assert state["labels"]==["Beranda","Saldo","Setoran","Penjualan","Laporan"],state
+            assert state["labels"]==[],state
             assert not state["overflow"],state
             # Current manager dashboard: kas as the left hero and three useful KPI tiles,
             # not the obsolete four-tile dashboard stacked under the balance.
@@ -650,7 +555,7 @@ async def main():
             else:
                 assert state["metrics"]["y"]>=state["hero"]["y"]+state["hero"]["h"]-2,state
                 assert state["tiles"][2]["y"]>=state["tiles"][0]["y"],state
-                assert state["dock"]!="none",state
+                assert state["dock"]=="none",state
             assert any("Catat Setoran" in x for x in state["quick"]),state
             assert await page.locator("#f4BankManualPayout").count()==1
             assert not await page.locator("#f4BankManualPayout").get_attribute("open")
