@@ -5919,6 +5919,7 @@ async function handle(request, env) {
   if (path === "/api/auth/login" && request.method === "POST") return login(request, env);
   const who = await identity(request, env.DB);
   if (path === "/api/superadmin/bank-split" && request.method === "POST") return saveBankSplitPolicy(request,env,who);
+  if (path === "/api/admin/bank/policy" && ["GET","POST"].includes(request.method)) return bankV3PolicyAPI(request,env,who);
   if (path === "/api/member/bank/prices" && request.method === "GET") return bankMemberPriceList(env.DB,who);
   if (path === "/api/admin/bank/sale-sheet" && ["GET","POST"].includes(request.method))
     return bankSaleSheet(request,env,who,url);
