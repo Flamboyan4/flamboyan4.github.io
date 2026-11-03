@@ -200,10 +200,14 @@ async def main():
                         const ownDate=one('#f4BankOwnDate'),ownMoney=one('#f4BankOwnAmount'),
                             ownDateLabel=one('.f4-bank-own-fields>.f4-bank-own-field:first-child>span'),
                             ownMoneyLabel=one('.f4-bank-own-fields>.f4-bank-own-field:last-child>span');
-                        const ownFieldsOk=close(ownDate.top,ownMoney.top) &&
-                          close(ownDate.height,ownMoney.height) &&
+                        const ownFieldsOk=close(ownDate.height,ownMoney.height) &&
                           close(ownDate.height,42) &&
-                          close(ownDateLabel.top,ownMoneyLabel.top);
+                          (w<=760?
+                            (ownMoney.top>=ownDate.bottom+8 &&
+                             close(ownDate.top-ownDateLabel.top,
+                                   ownMoney.top-ownMoneyLabel.top)):
+                            (close(ownDate.top,ownMoney.top) &&
+                             close(ownDateLabel.top,ownMoneyLabel.top)));
                         const unframedOk=['#pageSetoran','#pagePenjualan'].every(sel=>{
                           const css=getComputedStyle(document.querySelector(sel));
                           return css.borderTopWidth==='0px' && css.boxShadow==='none' &&
@@ -228,6 +232,8 @@ async def main():
                         return {gridOk,topDepositOk,topSaleOk,paymentsOk,layoutOk,responsiveOk,
                             baseLineOk,priorityOk,deleteOk,entryControlsOk,noteFieldsOk,
                             ownFieldsOk,unframedOk,desktopPanelOk,ownDate,ownMoney,
+                            saleFormBounds:one('#saleForm'),
+                            submitBounds:one('#saleForm>button[type=submit]'),
                             controlHeights,customPickerOk,nativeSelect,proof,reason,proofLabel,reasonLabel,
                             topDeposit,topSale,payment,summary,
                             saleParts,depositParts,note,viewport:w};
