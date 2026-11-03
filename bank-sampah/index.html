@@ -3848,7 +3848,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   function v17SetupPublic(){
     const pub=$('v11Public');if(!pub)return;
     if(pub.classList.contains('v17-public'))return;pub.classList.add('v17-public');
-    pub.innerHTML=`<div class="v17-public-head"><div class="v17-public-logo"><img id="v17Logo" alt="Logo Flamboyan 4"><span>Bank Sampah<br>Flamboyan 4</span></div><nav class="v17-public-links" aria-label="Navigasi portal publik"><a href="#v17Program">Program</a><a href="#v17Perkembangan">Perkembangan</a><a href="#v17Dokumentasi">Dokumentasi</a><a href="#v17Inventaris">Inventaris</a><a href="#v17Transparansi">Transparansi</a></nav><button id="v17PublicAccount" class="v17-public-account" type="button" title="Akun atau masuk" aria-label="Akun atau masuk">↪</button></div>
+    pub.innerHTML=`<div class="v17-public-head"><div class="v17-public-logo"><img id="v17Logo" alt="Logo Flamboyan 4"><span>Bank Sampah<br>Flamboyan 4</span></div><nav class="v17-public-links" aria-label="Navigasi portal publik"><a href="#v17Program">Program</a><a href="#v17Perkembangan">Perkembangan</a><a href="#v17Dokumentasi">Dokumentasi</a><a href="#v17Inventaris">Inventaris</a></nav><button id="v17PublicAccount" class="v17-public-account" type="button" title="Akun atau masuk" aria-label="Akun atau masuk">↪</button></div>
       <div class="v17-public-main"><div class="v17-public-banner"><div><span class="v14-eyebrow">🌱 Bank Sampah</span><h1>Sampah terpilah. Manfaat bertambah.</h1></div><button id="v30HeroPhoto" type="button" class="v30-hero-photo" aria-label="Lihat dokumentasi dan inventaris" title="Lihat dokumentasi dan inventaris"></button></div>
       <div id="v17PublicMetrics" class="v17-public-metrics">Memuat ringkasan...</div>
       <section id="v17Program" class="f4-bank-program" aria-labelledby="f4BankProgramTitle"><div class="f4-bank-program-heading"><span class="f4-bank-program-kicker">CARA KERJA</span><h2 id="f4BankProgramTitle">Dari sampah jadi manfaat</h2></div><ol class="f4-bank-program-flow"><li class="f4-bank-program-step"><strong>Pilah & setor</strong><p>Warga membawa sampah terpilah untuk ditimbang.</p></li><li class="f4-bank-program-step"><strong>Jual & sahkan</strong><p>Pengurus mencatat hasil jual dan mengesahkannya.</p></li><li class="f4-bank-program-step"><strong>Tabungan & lingkungan</strong><p>Hasil dibagi untuk tabungan warga dan kas lingkungan.</p></li></ol></section>
@@ -3859,8 +3859,8 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
           <section class="f4-dev-chart-card" aria-labelledby="f4DevChartTitle">
             <div class="f4-dev-head"><h3 id="f4DevChartTitle">Grafik setoran</h3><small class="f4-dev-head-note" id="f4DevChartPeriod">Per bulan</small></div>
             <div class="f4-dev-controls">
-              <div class="f4-dev-periods" role="group" aria-label="Rentang perkembangan"><button type="button" data-dev-range="period" aria-pressed="true">Periode</button><button type="button" data-dev-range="30" aria-pressed="false">30 hari</button><button type="button" data-dev-range="bulan" aria-pressed="false">Per bulan</button></div>
-              <div class="f4-dev-modes" role="group" aria-label="Jenis grafik"><button type="button" data-dev-mode="berat" aria-pressed="true">Kg</button><button type="button" data-dev-mode="nilai" aria-pressed="false">Rp</button></div>
+              <div class="f4-dev-periods" role="group" aria-label="Rentang perkembangan"><button type="button" data-dev-range="period" aria-pressed="false" class="hidden" hidden>Periode</button><button type="button" data-dev-range="30" aria-pressed="false" class="hidden" hidden>30 hari</button><button type="button" data-dev-range="bulan" aria-pressed="true">Per bulan</button></div>
+              <div class="f4-dev-modes" role="group" aria-label="Jenis grafik"><button type="button" data-dev-mode="berat" aria-pressed="true">Kg</button><button type="button" data-dev-mode="nilai" aria-pressed="false" class="hidden" hidden>Rp</button></div>
             </div>
             <div id="f4DevChartSummary" class="f4-dev-chart-summary"></div>
             <div id="f4DevChart" class="f4-dev-chart" role="img" aria-label="Grafik perkembangan setoran"></div>
@@ -3877,7 +3877,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       </section>
       <section id="v17Dokumentasi" class="v17-section"><h2>Dokumentasi kegiatan</h2><div id="v17Albums" class="v17-albums">Memuat album...</div></section>
       <section id="v17Inventaris" class="v17-section"><h2>Inventaris kegiatan</h2><div id="v17Inventory" class="v17-inventory">Memuat inventaris...</div></section>
-      <section id="v17Transparansi" class="v17-section"><h2>Transparansi kegiatan</h2><div class="v17-panel"><p>🔒 Saldo dan riwayat pribadi tersedia setelah login.</p></div></section></div>`;
+      <section id="v17Transparansi" class="v17-section hidden" hidden><h2>Laporan Keuangan</h2><div class="v17-panel"><p>🔒 Saldo dan riwayat pribadi tersedia setelah login.</p></div></section></div>`;
     $('v17Logo').src=v17Logo;
     $('v17Logo').addEventListener('error',()=>{$('v17Logo').replaceWith(document.createTextNode('🌿'));},{once:true});
     $('v17PublicAccount').onclick=v17PublicAccountClick;
@@ -3910,7 +3910,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     });d.appendChild(list);}
     return d;
   }
-  let v17PublicChartMode='berat',v17PublicChartRange='period';
+  let v17PublicChartMode='berat',v17PublicChartRange='bulan';
   let v17PublicChartRows=[],v17PublicDailyRows=null,v17PublicReportReady=false,v17PublicReportFailed=false,v17PublicLoadSerial=0;
   let v17ProgressCount=0;
   function f4DevUnit(value,mode='berat'){
@@ -4001,8 +4001,6 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     const weight=amount('beratKg'),pending=amount('pendingWeightKg'),sales=amount('hasilPenjualan');
     stats.replaceChildren(
       f4DevMakeStat('Berat sah',dataAvailable?f4DevUnit(weight):'—','weight'),
-      f4DevMakeStat('Belum sah',dataAvailable&&v17PublicReportReady?f4DevUnit(pending):'—','pending'),
-      f4DevMakeStat('Hasil jual',dataAvailable&&v17PublicReportReady?f4DevUnit(sales,'nilai'):'—','sales'),
       f4DevMakeStat('Tahap kegiatan',String(v17ProgressCount),'steps')
     );
     const strong=document.createElement('strong');strong.textContent=dataAvailable?f4DevUnit(valueMode?sales:weight,v17PublicChartMode):'—';
@@ -4073,15 +4071,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       v17PublicChartRows=Array.isArray(chart.bulan)?chart.bulan.slice(-6):[];v17PublicDailyRows=null;
       v17PublicReportReady=false;v17PublicReportFailed=false;
       v17RenderPublicChart();
-      // Satu grafik; laporan publik menjadi sumber final berat dan nominal.
-      call('bsV25LaporanPublik','semua').then(report=>{
-        if(chartSerial!==v17PublicLoadSerial||!$('f4DevChart')?.isConnected)return;
-        const monthly=(Array.isArray(report.bulanan)?report.bulanan:[]).slice(-6);
-        v17PublicChartRows=monthly;v17PublicDailyRows=Array.isArray(report.harian)?report.harian:null;v17PublicReportReady=true;v17PublicReportFailed=false;v17RenderPublicChart();
-      }).catch(()=>{
-        if(chartSerial!==v17PublicLoadSerial||!$('f4DevChart')?.isConnected)return;
-        v17PublicReportReady=false;v17PublicReportFailed=true;v17RenderPublicChart();
-      });
+      // Publik hanya melihat perkembangan berat, tanpa data keuangan.
       // v27: renderer langsung, termasuk untuk pengunjung yang belum login.
       v25RenderTimeline(home.progres||[]);
       v30SetHeroPhoto(albums,home.progres||[]);
@@ -4091,6 +4081,17 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     }catch(e){$('v17PublicMetrics').textContent='Informasi publik belum bisa dimuat: '+(e.message||e);}
     v17PublicAccount();
   }
+  // Rekap harian dan nominal hanya dimuat untuk akun aktif.
+  window.f4BankLoadPrivateChart=()=>{
+    if(!token||!profile)return;
+    v17PublicChartRange='period';v17PublicChartMode='berat';
+    call('bsV25LaporanPublik','semua').then(report=>{
+      if(!token||!profile)return;
+      v17PublicChartRows=(Array.isArray(report.bulanan)?report.bulanan:[]).slice(-6);
+      v17PublicDailyRows=Array.isArray(report.harian)?report.harian:null;
+      v17PublicReportReady=true;v17PublicReportFailed=false;v17RenderPublicChart();
+    }).catch(()=>{v17PublicReportReady=false;v17PublicReportFailed=true;v17RenderPublicChart();});
+  };
   v11LoadPublic=v17LoadPublic;
   v17SetupPublic();
   if(!$('v11Public').classList.contains('hidden')){v17State('public');v17LoadPublic();}
@@ -4155,7 +4156,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     const side=document.createElement('aside');side.id='v18PublicSide';side.setAttribute('aria-label','Menu portal publik');
     const logo=head.querySelector('.v17-public-logo');if(logo)side.appendChild(logo);
     head.querySelector('.v17-public-links')?.remove();
-    const links=[['dashboard','Beranda','home',null],['program','Program','leaf','v17Program'],['progress','Perkembangan','edit','v17Perkembangan'],['docs','Dokumentasi','database','v17Dokumentasi'],['stock','Inventaris','wallet','v17Inventaris'],['trans','Transparansi','globe','v17Transparansi']];
+    const links=[['dashboard','Beranda','home',null],['program','Program','leaf','v17Program'],['progress','Perkembangan','edit','v17Perkembangan'],['docs','Dokumentasi','database','v17Dokumentasi'],['stock','Inventaris','wallet','v17Inventaris']];
     links.forEach(([id,label,icon,target],i)=>{
       const b=document.createElement('button');b.type='button';b.dataset.publicMenu=id;
       if(i===0)b.classList.add('active');b.append(v16Icon(icon),document.createTextNode(label));
@@ -4221,8 +4222,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     ['program','v17Program'],
     ['progress','v17Perkembangan'],
     ['docs','v17Dokumentasi'],
-    ['stock','v17Inventaris'],
-    ['trans','v17Transparansi']
+    ['stock','v17Inventaris']
   ];
   function v19ScheduleScrollSpy(){
     if(v19ScrollSpyFrame)return;
@@ -4738,7 +4738,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
         const data=await publicResponse.json();
         if(data.ok===false)throw Error(data.error||'Layanan tidak tersedia');
         // Rekap rupiah dan harian diambil dari agregat PUBLIK; bukan saldo anggota.
-        const report=await fetch(publicUrl+'/report',{credentials:'omit',cache:'no-store'})
+        const report=await fetch(publicUrl+'/report',{credentials:'include',cache:'no-store'})
           .then(async response=>{
             if(!response.ok)throw Error('HTTP '+response.status);
             const result=await response.json();
@@ -4854,7 +4854,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   function v25SetupReport(){
     const root=$('v17Transparansi');if(!root||$('v25ReportRoot'))return;
     root.replaceChildren();
-    root.appendChild(v21Node('h2','','Laporan Publik'));
+    root.appendChild(v21Node('h2','','Laporan Keuangan'));
     // Judul sudah menjelaskan konteks; hindari paragraf pembuka berulang.
     const box=v21Node('div','v17-panel');box.id='v25ReportRoot';
     const toolbar=v21Node('div','v25-report-toolbar');
@@ -4895,6 +4895,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     picker.value=v25ReportPeriod;
   }
   async function v25LoadReport(){
+    if(!token||!profile){v25ReportData=null;return;}
     v25SetupReport();if(v25ReportBusy||!$('v25ReportRoot'))return;
     v25ReportBusy=true;$('v25ReportNote').hidden=false;$('v25ReportNote').textContent='Memuat laporan...';
     try{const data=await call('bsV25LaporanPublik',v25ReportPeriod);v25ReportData=data;v25RenderReport(data);}
@@ -4902,7 +4903,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     finally{v25ReportBusy=false;}
   }
   function v25PrintReport(){
-    if(!v25ReportData)return window.f4UiDialog.alert('Muat laporan terlebih dahulu.');
+    if(!token||!profile||!v25ReportData)return window.f4UiDialog.alert('Login untuk melihat laporan.');
     let root=$('v27PrintReport');if(!root){root=document.createElement('section');root.id='v27PrintReport';document.body.appendChild(root);}
     root.replaceChildren();const data=v25ReportData,sum=data.ringkasan;
     root.append(v29Kop(),
@@ -4928,7 +4929,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     v36BankPrint(root,'public');
   }
  function v25DownloadReport(){
-    if(!v25ReportData)return window.f4UiDialog.alert('Muat laporan terlebih dahulu.');
+    if(!token||!profile||!v25ReportData)return window.f4UiDialog.alert('Login untuk melihat laporan.');
     const fields=['periode','beratKg','hasilPenjualan','pengeluaran'];
     const labels=['Periode','Berat sah (kg)','Penjualan sah (Rp)','Pengeluaran (Rp)'];
     const csv='\uFEFF'+[labels.join(';'),...(v25ReportData.bulanan||[]).map(row=>fields.map(k=>String(row[k]??0)).join(';'))].join('\r\n');
