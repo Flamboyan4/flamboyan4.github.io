@@ -34,7 +34,7 @@ async def main():
                                   x.textContent='Kartu '+(i+1);x.style.minHeight='40px';
                                   root.append(x);
                                 }
-                                document.body.append(root);
+                                document.documentElement.append(root);
                                 const computed=getComputedStyle(root);
                                 const r=root.getBoundingClientRect();
                                 const children=[...root.children].map(x=>x.getBoundingClientRect());
