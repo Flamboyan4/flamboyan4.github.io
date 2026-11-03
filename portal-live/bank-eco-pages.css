@@ -1035,7 +1035,6 @@ body.f4-bank-app-admin #dashboardView .section #setoranForm>*,
 body.f4-bank-app-admin #dashboardView .section #saleForm>*{
  grid-column:1/-1
 }
-body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm)>.field{margin:0;min-width:0}
 body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-top-fields{
  display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
  align-items:start;gap:var(--bank-form-gap);margin:0
@@ -1044,10 +1043,10 @@ body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-e
  grid-column:span 6
 }
 body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>.field{
- grid-column:span 3
+ grid-column:span 6
 }
 body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>.field:first-child{
- grid-column:span 6
+ grid-column:1/-1
 }
 body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-goods-heading{
  display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0
@@ -1083,6 +1082,19 @@ body.f4-bank-app-admin #dashboardView .section .f4-bank-own-field :is(input,sele
  box-sizing:border-box;width:100%;max-width:100%;min-width:0;min-height:var(--bank-input-h);
  margin:0;padding:9px 11px;font-size:13px;line-height:1.4
 }
+/* Monetary amount precedes status and both use one consistent input row. */
+body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-payment-fields{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:var(--bank-form-gap);align-items:start;min-width:0
+}
+body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-payment-fields>.field{
+ display:grid;grid-template-rows:18px var(--bank-input-h) auto;
+ gap:6px;align-content:start;min-width:0;margin:0
+}
+body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-payment-fields>.field>:is(input,select){
+ box-sizing:border-box;width:100%;height:var(--bank-input-h);
+ min-height:var(--bank-input-h);max-height:var(--bank-input-h);padding-block:0
+}
 /* Sale notes are owned here, not by an inline style near the page footer. */
 body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-note-fields{
  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
@@ -1106,6 +1118,9 @@ body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-note-fields>.f
 @media(max-width:680px){
  body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-note-fields{
   grid-template-columns:minmax(0,1fr);gap:8px
+ }
+ body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-payment-fields{
+  grid-template-columns:minmax(0,1fr)
  }
 }
 /* Both sides are self-contained grids; form layout can change without changing inputs. */
@@ -1165,10 +1180,6 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
  body.f4-bank-app-admin #dashboardView .section :is(.f4-sale-side,.f4-setoran-side)>button[type=submit]{
   justify-self:stretch;width:100%
  }
-}
-@media(max-width:1023px){
- body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>.field{grid-column:span 6}
- body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>.field:last-child{grid-column:1/-1}
 }
 @media(max-width:600px){
  body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-top-fields>.field,
@@ -1363,7 +1374,7 @@ body.f4-bank-app-admin #pageSetoran .f4-bank-own-side>.f4-bank-gold-action{
 }
 @media(min-width:1024px){
  body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm{
-  grid-template-columns:minmax(0,1.45fr) minmax(295px,.8fr);gap:12px 16px
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px
  }
  body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm>.f4-bank-own-intro{
   grid-column:1/-1
@@ -1650,61 +1661,23 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  body.f4-bank-app-admin #dashboardView :is(#pageSetoran,#pagePenjualan) :is(#setBarang,#saleItems){
   width:100%;max-width:100%;min-width:0
  }
- body.f4-bank-app-admin #dashboardView .section #saleForm{
-  grid-template-columns:minmax(0,1.2fr) minmax(355px,.8fr);
-  gap:9px 16px;align-items:start
+ /* One exact half-width split for all bank-operational entry pages. */
+ body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm){
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px 16px;align-items:start
  }
- body.f4-bank-app-admin #dashboardView .section #saleForm>.f4-entry-top-fields{
-  grid-column:1/-1;grid-row:1
+ /* On desktop, identities occupy the right half and are above cash/summary fields. */
+ body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>.f4-entry-top-fields{
+  grid-column:2;grid-row:1;align-self:start
  }
- /* Sale sides have independent row tracks; growing goods must not push payment notes. */
- body.f4-bank-app-admin #dashboardView .section #saleForm>.f4-sale-main{
-  grid-column:1;grid-row:2
+ /* The left card owns only item entry; growing item rows never move right-side controls. */
+ body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>:is(.f4-sale-main,.f4-setoran-main){
+  grid-column:1;grid-row:1 / span 2;align-self:start
  }
- body.f4-bank-app-admin #dashboardView .section #saleForm>.f4-sale-side{
-  grid-column:2;grid-row:2;padding-top:12px
+ body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>:is(.f4-sale-side,.f4-setoran-side){
+  grid-column:2;grid-row:2;align-self:start
  }
- /* The title shares the same control row as Tambah jenis and Pembayaran. */
- body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-main>.f4-entry-goods-heading{
-  display:grid;grid-template-columns:minmax(0,1fr) auto;
-  grid-template-rows:18px var(--bank-input-h);
-  gap:6px 10px;align-items:center;align-content:start
- }
- body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-main>.f4-entry-goods-heading>div{
-  grid-column:1;grid-row:2;align-self:center
- }
- body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-main>.f4-entry-goods-heading>.f4-compact-add{
-  grid-column:2;grid-row:2;
-  box-sizing:border-box;height:var(--bank-input-h);min-height:var(--bank-input-h);
-  padding:0 14px;align-self:center
- }
- body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-main>#saleItems{
-  padding-top:30px
- }
-
- body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-side>.field:has(#saleStatus),
- body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-side>.field:has(#saleReceived){
-  display:grid;grid-template-rows:18px var(--bank-input-h) auto;
-  align-content:start;gap:6px;margin:0;min-width:0
- }
- body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-side>button[type=submit]{
-  justify-self:stretch;width:100%
- }
- /* Warga setoran: keep entries left and totals/actions beside them on PC. */
- body.f4-bank-app-admin #dashboardView .section #setoranForm{
-  grid-template-columns:minmax(0,1.45fr) minmax(295px,.8fr);
-  gap:12px 16px
- }
- body.f4-bank-app-admin #dashboardView .section #setoranForm>.f4-entry-top-fields{
-  grid-column:1/-1;grid-row:1
- }
- body.f4-bank-app-admin #dashboardView .section #setoranForm>.f4-setoran-main{
-  grid-column:1;grid-row:2
- }
- body.f4-bank-app-admin #dashboardView .section #setoranForm>.f4-setoran-side{
-  grid-column:2;grid-row:2
- }
- body.f4-bank-app-admin #dashboardView .section #setoranForm .f4-setoran-side>button[type=submit]{
+ body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm) :is(.f4-sale-side,.f4-setoran-side)>button[type=submit]{
   justify-self:stretch;width:100%
  }
  body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields{gap:10px}
