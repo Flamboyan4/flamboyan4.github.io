@@ -4254,6 +4254,19 @@ async function f4ConfirmedDepositGrams(db,batchIds){
     for(const id of deposits)byDeposit.set(id,totals.get(id)||0);
     for(const [lineId,grams] of batchLines.get(batch)||[])byLine.set(lineId,grams);
   }
+  // V3: timbang sah dipakai dari alokasi stok riil per baris sumber,
+  // bukan berat campuran di lapak yang dibagi ke semua setoran warga.
+  const ids=[...new Set(taken.map(x=>String(x.depositId)))];
+  if(ids.length){
+    const marks=ids.map(()=>'?').join(',');
+    const v3=await list(db,"SELECT l.source_deposit_id AS depositId,l.source_line_id AS lineId,COALESCE(SUM(m.sold_grams),0) AS soldGrams FROM bank_v3_inventory_lots l JOIN bank_v3_inventory_movements m ON m.lot_id=l.id JOIN waste_sales s ON s.id=m.sale_id WHERE l.owner_kind='member' AND l.source_deposit_id IN ("+marks+") AND s.status='terkonfirmasi' GROUP BY l.source_deposit_id,l.source_line_id",ids);
+    const grouped=new Map();
+    for(const r of v3){
+      byLine.set(r.lineId,Number(r.soldGrams));
+      grouped.set(r.depositId,(grouped.get(r.depositId)||0)+Number(r.soldGrams));
+    }
+    for(const [id,grams] of grouped)byDeposit.set(id,grams);
+  }
   return {byDeposit,byLine};
 }
 __name(f4ConfirmedDepositGrams,"f4ConfirmedDepositGrams");
@@ -4314,6 +4327,17 @@ async function ownSavings(db, memberId) {
       if(shared)for(const amount of shared)actualByDeposit.set(amount.id,amount.nilaiSahRp);
     }
   }
+  // Nilai hak v3 dirunut ke setoran asal, termasuk sisa stok yang dijual
+  // pada kelompok berikutnya. Tidak memaparkan harga jual/margin lapak.
+  const v3Ids=shownDeposits.filter(x=>x.status==='terkonfirmasi').map(x=>x.id);
+  const v3Remaining=new Map();
+  if(v3Ids.length){
+   const marks=v3Ids.map(()=>'?').join(',');
+   const memberLines=await list(db,"SELECT l.source_deposit_id AS depositId,COALESCE(SUM(l.remaining_grams),0) AS stockGrams FROM bank_v3_inventory_lots l WHERE l.owner_kind='member' AND l.source_deposit_id IN ("+marks+") GROUP BY l.source_deposit_id",v3Ids);
+   memberLines.forEach(x=>v3Remaining.set(x.depositId,Number(x.stockGrams)));
+   const values=await list(db,"SELECT l.source_deposit_id AS depositId,COALESCE(SUM(m.member_right_rp),0) AS amountRp FROM bank_v3_inventory_lots l JOIN bank_v3_inventory_movements m ON m.lot_id=l.id JOIN waste_sales s ON s.id=m.sale_id WHERE l.owner_kind='member' AND s.status='terkonfirmasi' AND l.source_deposit_id IN ("+marks+") GROUP BY l.source_deposit_id",v3Ids);
+   values.forEach(x=>actualByDeposit.set(x.depositId,Number(x.amountRp)));
+  }
   const hasMoreDeposits=(deposits.results||[]).length>60;
   const hasMoreDetails=(details.results||[]).length>300;
   const hasMoreLedger=(ledger.results||[]).length>100;
@@ -4326,6 +4350,7 @@ async function ownSavings(db, memberId) {
     tanggalJual:d.sold_on||null,
     status: d.status,
     beratGram: d.total_grams,
+    stokSisaGram:v3Remaining.has(d.id)?v3Remaining.get(d.id):0,
     beratSahGram:confirmedGrams.byDeposit.has(d.id)?confirmedGrams.byDeposit.get(d.id):null,
     estimasiRp: d.estimated_total_rp,
     // Null berarti belum ada nominal jual sah yang bisa dibuktikan dari jurnal.
