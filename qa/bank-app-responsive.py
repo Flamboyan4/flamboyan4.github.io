@@ -472,7 +472,7 @@ async def public_report_compact(browser):
         assert max(metrics["heights"])<=80 and min(metrics["heights"])>=45,metrics
         assert all(13.5<=font<=19 for font in metrics["valueFonts"]),metrics
         if width<=640:
-            assert 2<=metrics["columns"]<=3,metrics
+            assert metrics["columns"]==(2 if width<=360 else 3),metrics
             assert all(70<=w<=190 for w in metrics["widths"]),metrics
         else:
             assert metrics["columns"]>=3,metrics
