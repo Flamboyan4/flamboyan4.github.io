@@ -5,6 +5,7 @@ on:
     paths:
       - .github/workflows/f4-bank-browser-acceptance.yml
       - portal-live/bank-sampah/index.html
+      - portal-live/bank-development-app.css
       - portal-live/live-bank-readonly.js
       - portal-live/f4-bank-write-bridge.js
       - cloudflare/worker-terpadu-operasional-teruji.js
@@ -56,6 +57,33 @@ jobs:
                     viewport:window.innerWidth,
                     scrollWidth:document.documentElement.scrollWidth
                   })''')
+                  layout=await page.evaluate('''() => {
+                    const box=selector=>{
+                      const element=document.querySelector(selector);
+                      if(!element)return null;
+                      const r=element.getBoundingClientRect();
+                      return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width};
+                    };
+                    const hero=box('.v17-public-banner'),metrics=box('#v17PublicMetrics'),
+                      statLeft=box('#f4DevStats .f4-dev-stat:first-child'),
+                      statRight=box('#f4DevStats .f4-dev-stat:nth-child(2)'),
+                      chart=box('#v17Perkembangan .f4-dev-chart-card'),
+                      activity=box('#v17Perkembangan .f4-dev-activity-card'),
+                      docs=box('#v17Dokumentasi'),inventory=box('#v17Inventaris');
+                    const complete=[hero,metrics,statLeft,statRight,chart,activity,docs,inventory].every(Boolean);
+                    if(!complete)return {complete:false,columnsAligned:false,stacked:false,fullWidth:false};
+                    const near=(a,b)=>Math.abs(a-b)<=2;
+                    return {
+                      complete:true,
+                      fullWidth:near(hero.left,metrics.left)&&near(hero.right,metrics.right),
+                      columnsAligned:near(statLeft.left,chart.left)&&near(statLeft.width,chart.width)&&
+                        near(statRight.left,activity.left)&&near(statRight.width,activity.width)&&
+                        near(chart.left,docs.left)&&near(chart.width,docs.width)&&
+                        near(activity.left,inventory.left)&&near(activity.width,inventory.width)&&
+                        near(chart.top,activity.top)&&near(chart.bottom,activity.bottom),
+                      stacked:chart.bottom<=activity.top+2&&docs.bottom<=inventory.top+2
+                    };
+                  }''')
                   responseReport=await page.evaluate('''async url => {
                     const res=await fetch(url,{credentials:'omit',cache:'no-store'});
                     return {status:res.status,body:await res.json()};
@@ -72,6 +100,8 @@ jobs:
                     'api_http':responseReport['status'],'api_denied':responseReport['status'] in (401,403),
                     'no_financial_payload':no_financial_payload,'public_page_visible':state['visiblePublic'],
                     'report_hidden':state['reportHidden'],'report_note':state['reportNote'][:180],
+                    'grid_complete':layout['complete'],'grid_full_width':layout['fullWidth'],
+                    'grid_valid':layout['columnsAligned'] if size=='pc' else layout['stacked'],
                     'page_text_chars':state['bodyText'],
                     'overflow_px':max(0,state['scrollWidth']-state['viewport']),
                     'print_media':print_ok,'script_legacy_requests':len(legacy),
@@ -85,6 +115,7 @@ jobs:
           def passed(r):
             return r.get('http')==200 and r.get('api_denied') and r.get('no_financial_payload') and \
               r.get('public_page_visible') and r.get('report_hidden') and \
+              r.get('grid_complete') and r.get('grid_full_width') and r.get('grid_valid') and \
               r.get('print_media') and r.get('page_text_chars',0)>200 and r.get('overflow_px',99)<=4 and \
               r.get('script_legacy_requests')==0 and not r.get('js_errors') and not r.get('exception')
           result['total']=len(result['results'])
