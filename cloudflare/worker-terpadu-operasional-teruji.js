@@ -4375,7 +4375,12 @@ async function ownSavings(db, memberId) {
     // Setoran menunggu dihitung atas SEMUA baris sah, bukan hanya 60 terbaru.
     estimasiMenungguRp: Number((await db.prepare(`SELECT COALESCE(SUM(d.estimated_total_rp),0) AS total
       FROM waste_deposits d JOIN waste_batches b ON b.id=d.batch_id
-      WHERE d.member_id=? AND d.status='estimasi' AND b.status!='dibatalkan'`).bind(memberId).first())?.total || 0),
+      WHERE d.member_id=? AND d.status='estimasi' AND b.status!='dibatalkan'`).bind(memberId).first())?.total || 0)
+      + Number((await db.prepare(`SELECT COALESCE(SUM(CAST((l.remaining_grams*dl.citizen_rate_rp_per_kg+500)/1000 AS INTEGER)),0) AS total
+        FROM bank_v3_inventory_lots l JOIN waste_deposit_lines dl ON dl.id=l.source_line_id
+        JOIN waste_deposits d ON d.id=l.source_deposit_id
+        WHERE l.owner_kind='member' AND l.member_id=? AND l.remaining_grams>0
+          AND d.status='terkonfirmasi'`).bind(memberId).first())?.total || 0),
     riwayatLengkap: !(hasMoreDeposits||hasMoreDetails||hasMoreLedger),
     riwayatTerpotong: { setoran: hasMoreDeposits, rincian: hasMoreDetails, mutasi: hasMoreLedger },
     setoran: ownDeposits,
@@ -4873,7 +4878,7 @@ async function bankV3PolicyAPI(request,env,who){
  const db=env.DB,today=new Date(Date.now()+7*3600000).toISOString().slice(0,10);
  if(request.method==="GET"){
   const [current,versions]=await Promise.all([bankV3CurrentPolicy(db,today),list(db,"SELECT id,effective_from AS effectiveFrom,method,citizen_percent AS wargaPercent,created_at AS createdAt FROM bank_v3_policy_versions ORDER BY effective_from DESC LIMIT 40",[])]);
-  return json({ok:true,current,versions,versionedPrices:true});
+  return json({ok:true,current,versions,versionedPrices:true,canEdit:who.role==="superadmin"});
  }
  if(request.method!=="POST")return safeError("Metode tidak diizinkan.",405);
  if(env.BANK_WRITE_ENABLED!=="true")return safeError("Pengaturan harga belum diaktifkan.",503);
@@ -5042,7 +5047,7 @@ async function bankV3Preview(db,batchId,prepared){
  if(bankRightsRp<0)throw Error("Harga beli warga lebih tinggi daripada total penjualan sebesar Rp "+(-bankRightsRp).toLocaleString("id-ID")+". Pengesahan ditahan sampai dana penutup kerugian dicatat.");
  const batchDeposits=await list(db,"SELECT id FROM waste_deposits WHERE batch_id=? AND status='estimasi' ORDER BY id",[batchId]);
  return {ok:true,v3:true,batchId,saleId:sale.id,receivedRp:Number(sale.amount_received_rp),grossRp:Number(sale.amount_gross_rp),
-  estimatedRp:estimated,citizenRightsRp,environmentRp:bankRightsRp,bankRightsRp,
+  estimatedRp:0,estimatedAvailable:false,citizenRightsRp,environmentRp:bankRightsRp,bankRightsRp,
   wargaPercent:Number(prepared.citizen_percent),lingkunganPercent:100-Number(prepared.citizen_percent),
   policyId:prepared.policy_id,method:prepared.method,remainingRp:bankRightsRp,
   hasWeightDifference:lossGrams>0,weightDifferenceGrams:lossGrams,remainingStockGrams:leftoverGrams,
