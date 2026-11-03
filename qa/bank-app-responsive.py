@@ -650,7 +650,7 @@ async def bank_policy_permission_ui(browser):
         await page.goto(ROOT,wait_until="domcontentloaded")
         await page.set_content("""<!doctype html><html><head>
         <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
-        </head><body><section id="pageMaster"></section></body></html>""",wait_until="load")
+        </head><body><section id="pageMaster" class="hidden"></section></body></html>""",wait_until="load")
         async def policy(route):
             await route.fulfill(status=200,headers={
               "access-control-allow-origin":ROOT,"access-control-allow-credentials":"true",
@@ -659,6 +659,8 @@ async def bank_policy_permission_ui(browser):
                 "method":"percentage","wargaPercent":50}}))
         await page.route("https://api.flamboyan4.web.id/api/admin/bank/policy",policy)
         await page.add_script_tag(url=ROOT+"/portal-live/bank-policy-admin.js")
+        assert await page.locator("#f4BankPolicyCard").count()==0,(role,"Editor loaded before login")
+        await page.locator("#pageMaster").evaluate("(el)=>el.classList.remove('hidden')")
         if can_edit:
             await page.locator("#f4BankPolicyCard:not([hidden])").wait_for(timeout=8000)
             await page.locator("#f4BankPolicyCard summary").click()
