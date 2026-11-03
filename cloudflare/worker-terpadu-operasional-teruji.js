@@ -4257,10 +4257,10 @@ async function f4ConfirmedDepositGrams(db,batchIds){
   }
   // V3: timbang sah dipakai dari alokasi stok riil per baris sumber,
   // bukan berat campuran di lapak yang dibagi ke semua setoran warga.
-  const ids=[...new Set(taken.map(x=>String(x.depositId)))];
-  if(ids.length){
-    const marks=ids.map(()=>'?').join(',');
-    const v3=await list(db,"SELECT l.source_deposit_id AS depositId,l.source_line_id AS lineId,COALESCE(SUM(m.sold_grams),0) AS soldGrams FROM bank_v3_inventory_lots l JOIN bank_v3_inventory_movements m ON m.lot_id=l.id JOIN waste_sales s ON s.id=m.sale_id WHERE l.owner_kind='member' AND l.source_deposit_id IN ("+marks+") AND s.status='terkonfirmasi' GROUP BY l.source_deposit_id,l.source_line_id",ids);
+  const v3Ids=[...new Set(taken.map(x=>String(x.depositId)))];
+  if(v3Ids.length){
+    const marks=v3Ids.map(()=>'?').join(',');
+    const v3=await list(db,"SELECT l.source_deposit_id AS depositId,l.source_line_id AS lineId,COALESCE(SUM(m.sold_grams),0) AS soldGrams FROM bank_v3_inventory_lots l JOIN bank_v3_inventory_movements m ON m.lot_id=l.id JOIN waste_sales s ON s.id=m.sale_id WHERE l.owner_kind='member' AND l.source_deposit_id IN ("+marks+") AND s.status='terkonfirmasi' GROUP BY l.source_deposit_id,l.source_line_id",v3Ids);
     const grouped=new Map();
     for(const r of v3){
       byLine.set(r.lineId,Number(r.soldGrams));
