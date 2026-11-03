@@ -24,14 +24,24 @@ assert(sheet.includes('ready:()=>current?.status==="siap"') &&
        'A sale must use the prepared and locked worksheet');
 assert(sheet.includes('inputs[0].value=""')&&sheet.includes('inputs[1].value=""'),
        'Actual lapak weight/price must be entered by the manager, never prefilled from deposits');
-assert(sheet.includes('Siapkan & Cetak Lembar'),'Printable worksheet missing');
+assert(sheet.includes('Cetak Nota Penimbangan'),'Visible print action for the signed weighing note is missing');
+assert(sheet.includes('print.className="f4-bank-gold-action"'),'Weighing-note print must be a focal action');
+assert(page.includes('1. Cetak nota penimbangan → 2. Catat hasil lapak → 3. Cek & sahkan'),
+ 'The agreed three-stage sale must be visible to managers');
 assert(sheet.includes('lastPrice'),'Last lapak price should be editable suggestion only');
-assert(sheet.includes('topFields.append(tools)'),'Sale-sheet controls must stay inside the full-width sale top grid');
+assert(sheet.includes('groupField.after(tools)'),'Note action must appear immediately after sale group selector');
 assert(!sheet.includes('parent.after(tools)'),'Sale-sheet must not be inserted as a tiny grid column');
-assert(sheet.includes('tools.hidden=true')&&sheet.includes('tools.hidden=!batchId'),'Hide unavailable sale-sheet actions until a sale group is selected');
+assert(!sheet.includes('tools.hidden=true')&&!sheet.includes('tools.hidden=!batchId'),
+ 'First-stage print action must never be hidden before sale group selection');
+assert(sheet.includes('if(tools)tools.hidden=false'),'Print action must remain visible while changing batches');
+assert(sheet.includes('Pilih kelompok setoran terlebih dahulu.')&&sheet.includes('picker?.focus()'),
+ 'Print action must explain and focus a missing group instead of doing nothing');
+assert(sheet.includes('current.status==="siap"?undefined:{action:"prepare"}'),
+ 'Reprinting the same signed note must not re-prepare stock or create transactions');
 assert(css.includes('#pagePenjualan .f4-sale-top-fields>.f4-bank-sheet-tools{'),'Sale-sheet CSS owner must be scoped to form grid');
 assert(css.includes('grid-column:1/-1;min-width:0;width:100%'),'Sale-sheet must span the complete grid row');
-assert(css.includes('.f4-bank-sheet-tools[hidden]{display:none}'),'The hidden sale sheet must not occupy a grid row');
+assert(css.includes('.f4-bank-sheet-tools[hidden]{display:none}'),
+ 'Shared hidden attribute semantics must remain available elsewhere');
 assert(sheet.includes('<div class="sign">'),'The printed field worksheet must include signatures of manager and lapak');
 assert(sheet.includes('LEMBAR TIMBANG & JUAL'),'Only the signed weighing and sale worksheet is the paper proof');
 assert(!page.includes('F4SaleHandover?.(')&&!page.includes('Cetak Nota Penjualan'),'No secondary sales note or duplicated receipt after weighing');
