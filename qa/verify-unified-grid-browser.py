@@ -219,6 +219,57 @@ async def main():
                         'size':name,'passed':False,'error':str(e)[:250]})
                 finally:
                     await context.close()
+            # Dashboard redesign: validate geometry, tabs and access on three viewports.
+            for name,width,height,_,_ in SIZES:
+                context=await browser.new_context(viewport={'width':width,'height':height})
+                page=await context.new_page()
+                try:
+                    response=await page.goto(
+                        'http://127.0.0.1:8765/qa/fixtures/bank-admin-operational.html',
+                        wait_until='load',timeout=30000)
+                    state=await page.evaluate("""() => {
+                        const rect=el=>{const r=el.getBoundingClientRect();
+                            return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom}};
+                        const get=id=>document.getElementById(id);
+                        const a=rect(get('f4BankAdminOperations')),
+                              hero=rect(get('f4BankAppAdminHero')),
+                              mini=rect(get('f4BankAppMinis')),
+                              follow=rect(get('f4BankAdminNext')),
+                              recent=rect(document.querySelector('#f4BankAppHome>.v14-panel')),
+                              tabs=get('v16Tabs'), quick=get('f4BankAdminShortcuts'),
+                              home=get('f4BankAppHome');
+                        const buttons=[...get('f4BankAdminOperations').children].map(rect);
+                        const same=(x,y)=>Math.abs(x-y)<=2;
+                        const desktop=window.innerWidth>=1024;
+                        const cardOk=buttons.length===2&&buttons.every(x=>x.w>100) &&
+                            same(buttons[0].y,buttons[1].y)&&same(buttons[0].h,buttons[1].h);
+                        const grouped=desktop?
+                            (same(hero.y,mini.y)&&same(follow.y,recent.y) &&
+                             same(a.x,hero.x)&&
+                             getComputedStyle(quick).display==='none'):
+                            (hero.y>=a.bottom-2&&follow.y>=mini.bottom-2&&
+                             getComputedStyle(quick).display!=='none'&&
+                             getComputedStyle(tabs).display==='flex'&&
+                             tabs.scrollWidth>=tabs.clientWidth);
+                        const areas=getComputedStyle(home).gridTemplateAreas;
+                        const owners=desktop?areas.includes('"intro intro intro intro"') &&
+                            areas.includes('"next next recent recent"'):true;
+                        const overflow=document.documentElement.scrollWidth>window.innerWidth+2;
+                        return {desktop,cardOk,grouped,owners,overflow,
+                          actions:a,hero,mini,follow,recent,
+                          nav:{width:tabs.clientWidth,scrollWidth:tabs.scrollWidth},
+                          areas};
+                    }""")
+                    good=(response is not None and response.status==200 and
+                          state['cardOk'] and state['grouped'] and state['owners'] and
+                          not state['overflow'])
+                    results.append({'page':'/qa/fixtures/bank-admin-operational.html',
+                        'size':name,'passed':good,**state})
+                except Exception as e:
+                    results.append({'page':'/qa/fixtures/bank-admin-operational.html',
+                        'size':name,'passed':False,'error':str(e)[:250]})
+                finally:
+                    await context.close()
             await browser.close()
     finally:
         proc.terminate()

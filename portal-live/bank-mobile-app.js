@@ -40,7 +40,7 @@ let ready=false,requestNonce="",requestEnabled=false;
 let memberStatement=null,memberChartMode="kg",memberChartGroup="period";
 let adminOverview=null;
 let refreshing=false;
-const custom=["bank-history","bank-payout","bank-report","bank-payout-admin","bank-admin-history","bank-admin-docs","bank-admin-cash"];
+const custom=["bank-history","bank-payout","bank-report","bank-payout-admin","bank-admin-history","bank-admin-docs","bank-admin-cash","bank-admin-progress"];
 const featureRoutes=["bank-member-progress","bank-member-info","bank-member-docs"];
 let moved=[],memberSnapshotsLoaded=false,snapshotBusy=false,snapshotObserver=null;
 const text=(id,val)=>{if($(id)&&$(id).textContent!==String(val))$(id).textContent=String(val)};
@@ -157,8 +157,6 @@ function ensureHome(){
     amount=el("strong","f4-bank-app-balance","—"),secondary=el("span","f4-bank-app-secondary","Memuat...");
   amount.id="f4BankAppBalance";secondary.id="f4BankAppSecondary";
   hero.append(heading,label,amount,secondary);
-  const addDeposit=el("button","f4-bank-admin-deposit-action","+ Catat setoran");
-  addDeposit.type="button";addDeposit.onclick=()=>navigate("setoran");hero.append(addDeposit);
   const minis=el("div","f4-bank-app-minis");minis.id="f4BankAppMinis";
   hub.append(welcome,card,savings,hero,minis);
   page.prepend(hub);
@@ -238,8 +236,8 @@ function updateDashboard(){
   const headline=$("f4BankAppAdminHero")?.querySelector(".f4-bank-app-balance-title");if(headline)headline.textContent="Kas milik Bank Sampah";
   text("f4BankAppBalance",Number.isFinite(owned)?rupiah(owned):"—");
   text("f4BankAppSecondary",current?"Hasil diterima lapak: "+rupiah(current.diterimaLapakRp):"Memuat posisi kas...");
-  const opts=current?[["Kas gabungan",rupiah(current.kasGabunganRp)],["Hak warga",rupiah(current.hakWargaBelumCairRp)],["Kas lingkungan",rupiah(current.kasLingkunganRp)],["Anggota",current.wargaAktif]]:
-   [["Kas gabungan","—"],["Hak warga","—"],["Kas lingkungan","—"],["Anggota",map.get("Anggota aktif")]];
+  const opts=current?[["Hak warga",rupiah(current.hakWargaBelumCairRp)],["Kas lingkungan",rupiah(current.kasLingkunganRp)],["Anggota aktif",current.wargaAktif]]:
+   [["Hak warga","—"],["Kas lingkungan","—"],["Anggota aktif",map.get("Anggota aktif")]];
   $("f4BankAppMinis")?.replaceChildren(...opts.map(([label,value])=>{
    const node=el("div","f4-bank-app-mini");node.append(el("small","",label),el("strong","",value||"—"));return node;
   }));
@@ -869,14 +867,8 @@ function moveFeature(ids,target){
 }
 /* Pengurus: mobile dock + aksi cepat; PC sidebar tetap terpisah dari submenu. */
 const adminShortcuts=[
- ["Cek & Sahkan","rekonsiliasi","shield-check"],
- ["Riwayat","bank-admin-history","history"],
- ["Debit/Kredit","bank-admin-cash","wallet"],
- ["Pencairan","bank-payout-admin","hand-coins"],
- ["Harga Barang","master","tags"],
- ["Data Anggota","admin","users"],
- ["Dokumentasi","bank-admin-docs","images"],
- ["Profil","profile","user-round"]
+ ["Keuangan","bank-admin-cash","wallet"],
+ ["Pengelolaan","admin","users"]
 ];
 const adminShortcutPaths={
  "shield-check":'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m8 12 3 3 5-5"/>',
@@ -899,30 +891,68 @@ function adminShortcut([name,route,iconName]){
  button.onclick=()=>navigate(route);return button;
 }
 let adminProgressAnchor=null,adminProgressNode=null;
+function adminOperation(label,detail,route,primary){
+ const button=el("button","f4-bank-admin-operation"+(primary?" is-primary":""),label);
+ button.type="button";button.dataset.bankAppRoute=route;
+ button.append(el("small","",detail));
+ button.onclick=()=>navigate(route);return button;
+}
+function adminNextAction(label,detail,route){
+ const button=el("button","f4-bank-admin-next-action");
+ button.type="button";button.dataset.bankAppRoute=route;
+ const copy=el("span");copy.append(el("strong","",label),el("small","",detail));
+ button.append(copy,el("span","f4-bank-next-arrow","›"));button.onclick=()=>navigate(route);
+ return button;
+}
 function ensureAdminHome(){
  if(role!=="admin")return;
  const home=$("f4BankAppHome");if(!home)return;
+ let intro=$("f4BankAdminIntro");
+ if(!intro){
+  intro=el("header","f4-bank-admin-intro");intro.id="f4BankAdminIntro";
+  intro.append(el("h2","","Beranda Pengelola"),
+   el("p","","Mulai pencatatan dan periksa pekerjaan Bank Sampah."));
+  home.insertBefore(intro,$("f4BankAppAdminHero"));
+ }
+ if(!$("f4BankAdminOperations")){
+  const actions=el("div","f4-bank-admin-operations");actions.id="f4BankAdminOperations";
+  actions.append(
+   adminOperation("Catat Setoran","Warga / Bank Sampah","setoran",true),
+   adminOperation("Catat Penjualan","Hasil timbang lapak","penjualan",false)
+  );
+  intro.after(actions);
+ }
+ if(!$("f4BankAdminNext")){
+  const next=el("section","f4-bank-admin-next");next.id="f4BankAdminNext";
+  const head=el("h2","","Tindak lanjut");next.append(head,
+   adminNextAction("Cek & Sahkan","Periksa hasil penjualan","rekonsiliasi"),
+   adminNextAction("Pengajuan Pencairan","Tinjau permintaan anggota","bank-payout-admin"));
+  $("f4BankAppMinis")?.after(next);
+ }
+ // On phones the dock stays unchanged; only two links open supporting work areas.
  let shortcuts=$("f4BankAdminShortcuts");
  if(window.matchMedia("(min-width:1024px)").matches){shortcuts?.remove();shortcuts=null;}
  if(!shortcuts&&window.matchMedia("(max-width:1023px)").matches){
   shortcuts=el("section","f4-bank-admin-shortcuts");shortcuts.id="f4BankAdminShortcuts";
-  shortcuts.append(el("h2","","Akses Cepat"));
+  shortcuts.append(el("h2","","Menu lainnya"));
   const grid=el("div","f4-bank-admin-shortcut-grid");
   grid.append(...adminShortcuts.map(adminShortcut));
   shortcuts.append(grid);
-  home.insertBefore(shortcuts,home.querySelector(".v14-panel")||null);
+  $("f4BankAdminNext")?.after(shortcuts);
  }
- // Memindahkan grafik yang sama, bukan membuat grafik versi kedua.
+}
+function showAdminProgress(){
+ const page=ensureScreen("bank-admin-progress","Perkembangan Bank Sampah");
  const progress=$("v17Perkembangan");
- if(progress&&progress.parentElement!==home){
+ if(progress&&progress.parentElement!==page){
   if(!adminProgressAnchor||!adminProgressAnchor.isConnected){
-   adminProgressAnchor=document.createComment("Grafik publik kembali di sini");
+   adminProgressAnchor=document.createComment("Restore public Bank Sampah progress");
    progress.before(adminProgressAnchor);
   }
-  adminProgressNode=progress;
-  home.append(progress);
-  if(typeof window.v17LoadPublic==="function")window.v17LoadPublic();
+  adminProgressNode=progress;page.append(progress);
  }
+ page.classList.remove("hidden");
+ if(typeof window.v17LoadPublic==="function")window.v17LoadPublic();
 }
 function restoreAdminProgress(){
  if(adminProgressNode&&adminProgressAnchor?.parentNode)
@@ -1166,7 +1196,7 @@ function showAdminHistory(selected="setoran"){
  tabs.replaceChildren(...options.map(([key,label])=>{
   const button=el("button","f4-bank-admin-history-tab"+(selected===key?" is-active":""),label);
   button.type="button";button.setAttribute("aria-pressed",String(selected===key));
-  button.onclick=()=>showAdminHistory(key);
+  button.onclick=()=>navigate(key==="penjualan"?"bank-admin-sale-history":"bank-admin-history");
   return button;
  }));
  for(const [key,,panel] of options)panel?.classList.toggle("hidden",key!==selected);
@@ -1413,6 +1443,7 @@ function navigate(route){
  if(typeof window.goPage==="function")window.goPage(route);
 }
 function handleRoute(route,old,args){
+ if(route!=="bank-admin-progress"&&adminProgressNode)restoreAdminProgress();
  if(route!=="bank-admin-docs"&&adminMediaRestore.length)restoreAdminMedia();
  // Dedicated operational pages for admins; keep existing data and action handlers.
  if(roleType()==="admin"){
@@ -1431,9 +1462,16 @@ function handleRoute(route,old,args){
    showAdminDocumentation();screen=route;
    window.v16Sync?.(route);markDock();window.scrollTo(0,0);return;
   }
-  if(route==="bank-admin-history"){
-   hideCustom();old.call(window,"riwayat",...args);
-   showAdminHistory();screen=route;
+  if(route==="bank-admin-history"||route==="bank-admin-sale-history"){
+   const saleHistory=route==="bank-admin-sale-history";
+   hideCustom();old.call(window,saleHistory?"riwayatJual":"riwayat",...args);
+   showAdminHistory(saleHistory?"penjualan":"setoran");screen=route;
+   window.v16Sync?.(route);markDock();window.scrollTo(0,0);return;
+  }
+  if(route==="bank-admin-progress"){
+   hideCustom();old.call(window,"dashboard",...args);
+   $("pageDashboard")?.classList.add("hidden");
+   showAdminProgress();screen=route;
    window.v16Sync?.(route);markDock();window.scrollTo(0,0);return;
   }
   if(route==="rekonsiliasi"){

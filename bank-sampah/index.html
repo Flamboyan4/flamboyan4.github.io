@@ -3649,21 +3649,15 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   // v16: satu menu utama per kategori; submenu ditampilkan sebagai tab konten.
   // Satu halaman per menu pengurus: kategori tidak bersarang lagi.
   // Navigasi HP memakai dock + Akses Cepat; PC memakai kategori ini sebagai sidebar.
-  const v16AdminPrimary=new Set(['home','saldo','deposit','sale','report']);
+  // Six operational categories. Detailed routes live in local tabs, not duplicated in the sidebar.
+  const v16AdminPrimary=new Set(['home','deposit','sale','finance','management','report']);
   const v16Groups=[
     {id:'home',label:'Beranda',icon:'home',admin:true,member:true,tabs:[['dashboard','Beranda']]},
-    {id:'saldo',label:'Saldo Warga',icon:'wallet',admin:true,tabs:[['tabungan','Saldo warga']]},
-    {id:'deposit',label:'Setoran',icon:'edit',admin:true,tabs:[['setoran','Setoran']]},
-    {id:'sale',label:'Penjualan',icon:'wallet',admin:true,tabs:[['penjualan','Penjualan']]},
-    {id:'report',label:'Laporan Admin',icon:'database',admin:true,tabs:[['laporan','Laporan admin']]},
-    {id:'history',label:'Riwayat',icon:'edit',admin:true,tabs:[['bank-admin-history','Riwayat']]},
-    {id:'cash',label:'Debit / Kredit',icon:'wallet',admin:true,tabs:[['bank-admin-cash','Debit / Kredit']]},
-    {id:'documentation',label:'Dokumentasi',icon:'image',admin:true,tabs:[['bank-admin-docs','Album & Inventaris']]},
-    {id:'verify',label:'Cek & Sahkan',icon:'wallet',admin:true,tabs:[['rekonsiliasi','Cek & sahkan']]},
-    {id:'expenses',label:'Pengeluaran',icon:'database',admin:true,tabs:[['biaya','Pengeluaran']]},
-    {id:'payout',label:'Pencairan',icon:'wallet',admin:true,tabs:[['bank-payout-admin','Pencairan']]},
-    {id:'prices',label:'Harga Barang',icon:'database',admin:true,tabs:[['master','Harga barang']]},
-    {id:'accounts',label:'Data Anggota',icon:'user',admin:true,tabs:[['admin','Data anggota']]},
+    {id:'deposit',label:'Setoran',icon:'edit',admin:true,tabs:[['setoran','Catat setoran'],['bank-admin-history','Riwayat setoran']]},
+    {id:'sale',label:'Penjualan',icon:'wallet',admin:true,tabs:[['penjualan','Catat penjualan'],['bank-admin-sale-history','Riwayat penjualan'],['rekonsiliasi','Cek & sahkan']]},
+    {id:'finance',label:'Keuangan',icon:'wallet',admin:true,tabs:[['bank-admin-cash','Kas & mutasi'],['tabungan','Saldo warga'],['biaya','Pengeluaran'],['bank-payout-admin','Pencairan']]},
+    {id:'management',label:'Pengelolaan',icon:'user',admin:true,tabs:[['admin','Data anggota'],['master','Harga barang'],['bank-admin-docs','Dokumentasi & inventaris'],['profile','Profil pengurus']]},
+    {id:'report',label:'Laporan',icon:'database',admin:true,tabs:[['laporan','Laporan keuangan'],['bank-admin-progress','Perkembangan']]},
     {id:'saving',label:'Tabungan',icon:'wallet',member:true,tabs:[['pribadi','Tabungan saya']]},
     {id:'withdrawal',label:'Pencairan',icon:'wallet',member:true,tabs:[['bank-payout','Ajukan pencairan']]},
     {id:'statement',label:'Riwayat',icon:'edit',member:true,tabs:[['bank-history','Riwayat transaksi']]},
@@ -3780,6 +3774,8 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     });
     tabs.classList.remove('hidden');
   }
+  // Custom operational screens must be able to activate their parent tab.
+  window.v16Sync=v16Sync;
   if(profile&&token){v16BuildNav();v16Sync('dashboard');}
   // v17 — tata letak tunggal dan ringkasan kas admin.
   const v17PrevShow=showDashboard,v17PrevGo=goPage,v17PrevPublic=v11ShowPublic,v17PrevAuth=showAuth;
@@ -4098,6 +4094,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     }).catch(()=>{v17PublicReportReady=false;v17PublicReportFailed=true;v17RenderPublicChart();});
   };
   v11LoadPublic=v17LoadPublic;
+  window.v17LoadPublic=v17LoadPublic;
   v17SetupPublic();
   if(!$('v11Public').classList.contains('hidden')){v17State('public');v17LoadPublic();}
   // v18 — navigasi perangkat kecil dan riwayat mudah dikenali warga.
@@ -5718,10 +5715,10 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
 
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261103-css-ownership-v1">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261031-plain-white-dashboard">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261103-entry-control-alignment-v5">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261103-admin-operational-v6">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261103-aligned-public-grid-v1">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261031-member-history-v9">
 <script src="/portal-live/bank-sale-handover.js?v=auto-print-firefox-20261030b"></script>
 <script src="/portal-live/direct-shell.js?v=20261101-password-logout-fix-v2"></script><script src="/portal-live/unified-account.js?v=bank-member-profile-redirect-20261031"></script><script defer src="/portal-live/mobile-cards.js?v=20261031-detail-eye-icon-v2"></script><script defer src="/portal-live/native-controls.js?v=20261027-audit6"></script><script defer src="/portal-live/bank-page-history.js?v=20261027-final4"></script>
-<script defer src="/portal-live/bank-mobile-app.js?v=20261103-login-only-reports"></script></body>
+<script defer src="/portal-live/bank-mobile-app.js?v=20261103-admin-operational-v6"></script></body>
 </html>

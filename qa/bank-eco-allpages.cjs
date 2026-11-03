@@ -4,6 +4,8 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const h=fs.readFileSync('bank-sampah/index.html','utf8');
 const css=fs.readFileSync('portal-live/bank-eco-pages.css','utf8');
 const dashboard=fs.readFileSync('portal-live/bank-eco-dashboard.css','utf8');
+const mobile=fs.readFileSync('portal-live/bank-mobile-app.js','utf8');
+new vm.Script(mobile,{filename:'portal-live/bank-mobile-app.js'});
 const source=[...h.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].find(x=>x[1].includes('function v14Setup()'))?.[1];
 assert(source,'Bank app inline JavaScript missing');
 new vm.Script(source,{filename:'bank-sampah/index.html:inline'});
@@ -84,20 +86,13 @@ assert(adminMobile.includes('html body.f4-bank-app-admin.v17-dashboard #sideNav.
        adminMobile.includes('display:none;visibility:hidden;pointer-events:none'),
  'Admin mobile drawer must remain hidden');
 assert(css.includes('.f4-bank-admin-shortcut-grid{'),'Admin shortcut grid missing');
-assert(h.includes("const v16AdminPrimary=new Set(['home','saldo','deposit','sale','report']);"),
- 'Five admin dock categories missing');
+assert(h.includes("const v16AdminPrimary=new Set(['home','deposit','sale','finance','management','report']);"),
+ 'Six admin sidebar categories missing');
 assert(!css.includes('v16-mobile-extra')&&!h.includes('v16-mobile-extra'),
  'Duplicated tab submenus must not return to the admin sidebar');
 assert(!h.includes('const extras=['),
  'Admin drawer must not dynamically inject tab links');
-for(const [id,view] of [['deposit','setoran'],['sale','penjualan'],['verify','rekonsiliasi'],
-                         ['report','laporan'],['payout','bank-payout-admin']]){
- assert(h.includes("{id:'"+id+"'")&&h.includes("['"+view+"'"),
-  'Admin menu route missing: '+id);
-}
-for(const id of ['history','cash','documentation','prices','accounts']){
- assert(h.includes("{id:'"+id+"'"),'Admin quick access category missing: '+id);
-}
+// Admin routes are checked against the new six-category map below.
 assert(h.includes("back.replaceChildren(v16Icon('user'),document.createTextNode(label))"),
  'Admin profile entry must remain in the drawer');
 assert(h.includes('html.f4-bank-embedded body.v17-dashboard:not(.f4-bank-app-admin) #sideNav.side'),
@@ -143,9 +138,9 @@ assert(!css.includes('#dashboardView #pageProfile #v15PasswordBox>summary{'),
 assert(!h.includes('#v15PasswordBox>summary{cursor:pointer'),
  'Old left-side triangle style returned');
 assert(h.includes("summary.textContent='Ganti password'"),'Password must have no emoji or separate triangle');
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-entry-control-alignment-v5'),
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-admin-operational-v6'),
  'Bank Sampah profile/dock stylesheet must be cache-busted');
-assert(h.includes('/portal-live/bank-mobile-app.js?v=20261103-login-only-reports'),
+assert(h.includes('/portal-live/bank-mobile-app.js?v=20261103-admin-operational-v6'),
  'Member payout icon script must be refreshed');
 assert(css.includes('.f4-bank-currency-mark{'),
  'Rp payout icon must use the canonical bank dock styles');
@@ -159,7 +154,7 @@ assert(css.includes('#saleForm .f4-sale-top-fields>.field{'),
  'Sale three-field row must keep its explicit column spans');
 assert(!css.includes('body.f4-bank-app-private #dashboardView #pageSetoran .f4-entry-top-fields,'),
  'Legacy desktop grid override was reintroduced');
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-entry-control-alignment-v5'),
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-admin-operational-v6'),
  'Bank entry stylesheet cache key was not refreshed');
 const modernCss=fs.readFileSync('portal-live/modern-portals.css','utf8');
 assert(!modernCss.includes('max-width:850px!important') &&
@@ -191,4 +186,35 @@ assert(pickerOwner.includes('.f4-warga-picker-open{box-sizing:border-box;') &&
 assert(!pickerOwner.includes('min-height:47px'),'Old 47px warga picker returned');
 assert(h.includes("trigger.className='f4-warga-picker-open'"),
  'Warga picker button must remain wired to searchable warga selection');
+// Six operational menu categories; no orphaned finance, inventory, history, or approval routes.
+const navSource=h.match(/const v16Groups=\[([\s\S]*?)\];/)?.[1]||'';
+const adminGroups=[...navSource.matchAll(/\{id:'([^']+)',label:'([^']+)',icon:'[^']+',admin:true/g)]
+ .map(x=>x[1]);
+assert.deepEqual(adminGroups,['home','deposit','sale','finance','management','report'],
+ 'Admin sidebar must contain six operational categories');
+for(const route of ['setoran','bank-admin-history','penjualan','bank-admin-sale-history',
+ 'rekonsiliasi','bank-admin-cash','tabungan','biaya','bank-payout-admin',
+ 'admin','master','bank-admin-docs','profile','laporan','bank-admin-progress']){
+ assert(navSource.includes("['"+route+"',"),
+  'Operational route is inaccessible: '+route);
+}
+assert(h.includes('window.v16Sync=v16Sync;') &&
+       h.includes('window.v17LoadPublic=v17LoadPublic;'),
+ 'Custom category tabs or the reporting progress refresh is missing');
+assert(mobile.includes('function showAdminProgress()') &&
+       mobile.includes('function restoreAdminProgress()') &&
+       mobile.includes('showAdminHistory(saleHistory?"penjualan":"setoran")'),
+ 'Separate sale history or safe progress lifecycle is missing');
+assert(mobile.includes('f4BankAdminOperations') &&
+       mobile.includes('f4BankAdminNext') &&
+       mobile.includes('Catat Setoran') &&
+       mobile.includes('Catat Penjualan'),
+ 'Task-first entry and follow-up actions are missing');
+assert(css.includes('grid-area:actions') &&
+       css.includes('grid-area:next') &&
+       css.includes('grid-area:recent'),
+ 'Operational dashboard grid is incomplete');
+assert(css.includes('#v16Tabs.v16-tabs:not(.hidden)') &&
+       !css.includes('body.f4-bank-app-admin #dashboardView #v16Tabs{display:none}'),
+ 'Contextual tabs must remain visible on smaller viewports');
 console.log('F4_BANK_CANONICAL_THEME_OK');

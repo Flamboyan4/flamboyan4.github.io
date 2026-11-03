@@ -14,6 +14,7 @@ on:
       - qa/verify-css-ownership.cjs
       - qa/verify-unified-grid-browser.py
       - qa/fixtures/bank-entry-grid.html
+      - qa/fixtures/bank-admin-operational.html
       - .github/workflows/f4-unified-grid-regression.yml
   workflow_dispatch:
 permissions:
