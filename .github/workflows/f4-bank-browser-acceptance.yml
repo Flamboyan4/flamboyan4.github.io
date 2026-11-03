@@ -32,7 +32,7 @@ jobs:
           base='https://flamboyan4.web.id/portal-live/bank-sampah/'
           api='https://api.flamboyan4.web.id/api/v2/public/bank/report'
           result={'utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
-                  'scope':'LIVE BANK PUBLIC PC HP PRINT; anonymous only; zero data writes',
+                  'scope':'LIVE BANK PUBLIC PRIVACY PC HP; anonymous only; zero data writes',
                   'results':[]}
           pathlib.Path('ops-audit/bank-browser-screenshots').mkdir(parents=True,exist_ok=True)
           async def test():
@@ -50,7 +50,7 @@ jobs:
                   await page.wait_for_timeout(3200)
                   state=await page.evaluate('''() => ({
                     visiblePublic:!!document.querySelector('#v11Public:not(.hidden)'),
-                    report:!!document.querySelector('#v25ReportTable'),
+                    reportHidden:document.querySelector('#v17Transparansi')?.hidden===true,
                     reportNote:document.querySelector('#v25ReportNote')?.textContent||'',
                     bodyText:(document.body?.innerText||'').length,
                     viewport:window.innerWidth,
@@ -60,12 +60,8 @@ jobs:
                     const res=await fetch(url,{credentials:'omit',cache:'no-store'});
                     return {status:res.status,body:await res.json()};
                   }''',api)
-                  data=responseReport['body'];summary=data.get('ringkasan',{})
-                  validAmount=(summary.get('hasilPenjualan',-1)==sum(summary.get(k,0) for k in
-                    ('hakWarga','cadangan','kasLorong','operasional')))
-                  reportReady=('Gagal memuat' not in state['reportNote'] and
-                    'gagal' not in state['reportNote'].lower() and
-                    'memuat' not in state['reportNote'].lower())
+                  data=responseReport['body']
+                  no_financial_payload=not any(k in data for k in ('ringkasan','bulanan','harian'))
                   await page.screenshot(path=f'ops-audit/bank-browser-screenshots/{size}-bank-public.png',
                     full_page=False,timeout=15000)
                   await page.emulate_media(media='print')
@@ -73,10 +69,9 @@ jobs:
                   await page.screenshot(path=f'ops-audit/bank-browser-screenshots/{size}-bank-print.png',
                     full_page=False,timeout=15000)
                   result['results'].append({'viewport':size,'http':response.status if response else 0,
-                    'api_http':responseReport['status'],'api_d1_readonly':data.get('readOnly') is True,
-                    'report_monthly':isinstance(data.get('bulanan'),list),
-                    'report_has_amount_split':validAmount,'public_page_visible':state['visiblePublic'],
-                    'public_report_rendered':state['report'],'public_report_ready':reportReady,'report_note':state['reportNote'][:180],
+                    'api_http':responseReport['status'],'api_denied':responseReport['status'] in (401,403),
+                    'no_financial_payload':no_financial_payload,'public_page_visible':state['visiblePublic'],
+                    'report_hidden':state['reportHidden'],'report_note':state['reportNote'][:180],
                     'page_text_chars':state['bodyText'],
                     'overflow_px':max(0,state['scrollWidth']-state['viewport']),
                     'print_media':print_ok,'script_legacy_requests':len(legacy),
@@ -88,9 +83,8 @@ jobs:
               await browser.close()
           asyncio.run(test())
           def passed(r):
-            return r.get('http')==200 and r.get('api_http')==200 and r.get('api_d1_readonly') and \
-              r.get('report_monthly') and r.get('report_has_amount_split') and r.get('public_page_visible') and \
-              r.get('public_report_rendered') and r.get('public_report_ready') and \
+            return r.get('http')==200 and r.get('api_denied') and r.get('no_financial_payload') and \
+              r.get('public_page_visible') and r.get('report_hidden') and \
               r.get('print_media') and r.get('page_text_chars',0)>200 and r.get('overflow_px',99)<=4 and \
               r.get('script_legacy_requests')==0 and not r.get('js_errors') and not r.get('exception')
           result['total']=len(result['results'])
