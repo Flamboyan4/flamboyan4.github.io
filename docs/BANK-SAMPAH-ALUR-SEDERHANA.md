@@ -1,54 +1,31 @@
-# Bank Sampah Flamboyan 4 — Alur Operasional Sederhana
+# Bank Sampah Flamboyan 4 — alur operasional dan pekerjaan backend
 
-Status: rancangan implementasi; jangan mengganti perilaku keuangan produksi tanpa migrasi dan uji.
+**Kesepakatan UX final:** lihat [Keputusan 3 Tahap (3 November 2026)](./bank-sampah-alur-sederhana-20261103.md). Dokumen ini tidak boleh dipakai untuk menghidupkan kembali lima tahap, nota kedua, atau dock pengelola.
 
-## Prinsip UX
-- Tidak menambah menu utama. Pengurus menggunakan Setoran, Penjualan, Riwayat, Laporan; pemeriksaan dan pengesahan berada pada konteks penjualan.
-- Nomor penjualan dibuat sekali, dipakai lembar timbang, simpan hasil lapak, nota, laporan dan pengesahan.
-- Data jenis dan berat awal berasal dari setoran (warga dan bank), sehingga tidak dimasukkan ulang saat jual.
-- Pengguna HP tidak memerlukan printer di lapak; lembar timbang boleh dicetak sebelum berangkat dan diisi tangan.
-- Pengurus hanya memasukkan berat hasil lapak, harga, pembayaran dan alasan koreksi jika perlu. Harga lapak terdahulu adalah nilai saran yang dapat diubah.
-- Nota penjualan berbeda dari bukti pengesahan saldo warga. Nota dapat dibuat setelah transaksi lapak tersimpan, tanpa menunggu pengesahan tabungan.
+## Alur pengurus — 3 tahap
+1. **Siapkan Penjualan**: nomor tunggal dari kelompok, rekap stok otomatis, cetak lembar A5, alokasi stok dikunci.
+2. **Timbang & Jual di Lapak**: input tangan berat, tarif, jumlah, pembayaran dan tanda tangan kedua pihak pada **lembar yang sama**. Lembar itu bukti fisik; tidak ada nota/serah terima terpisah.
+3. **Input Hasil & Selesaikan**: kembali ke nomor sama; masukkan hasil riil. Simpan transaksi, periksa selisih/pembayaran dan sahkan hak warga dalam konteks yang sama ketika semua syarat terpenuhi.
 
-## Status transaksi
-1. **Disiapkan:** server membuat nomor jual dan mengunci alokasi stok terpilih untuk mencegah penjualan ganda; lembar lapak bisa dicetak.
-2. **Terjual / pembayaran belum lunas, sebagian, lunas:** catat berat dan tarif lapak, nominal diterima, piutang, serta nomor bukti lapak; nota penjualan tersedia dan punya nomor revisi jika dikoreksi.
-3. **Perlu pemeriksaan:** sistem mendeteksi selisih berat per jenis, stok belum terjual, pembayaran kurang, kepemilikan warga vs bank, dan risiko harga beli melebihi jual. Hasil otomatis ditampilkan tanpa langkah tambahan.
-4. **Disahkan:** hanya setelah aturan alokasi selisih dan stok lengkap; buat snapshot perhitungan hak warga dan kas bank serta mutasi buku besar atomik dan idempoten. Perubahan selanjutnya harus melalui jurnal koreksi.
+Riwayat boleh mencetak **laporan internal read-only satu transaksi**, bukan dokumen jual bertanda tangan baru. Laporan admin mendukung per bulan dan rentang tanggal; warga hanya riwayatnya sendiri.
 
-## Perhitungan
-- Penjualan kolektif dihitung per jenis dan disimpan terpisah dari kepemilikan warga/bank.
-- Jangan anggap seluruh beda berat sebagai selisih jika sebagian stok sengaja belum dijual. Simpan kuantitas dialokasikan, terjual, sisa stok dan selisih timbang.
-- Untuk selisih yang tidak diketahui penyebabnya, sediakan koreksi proporsional dengan konfirmasi eksplisit. Berat setoran awal tidak diubah.
-- Metode bagi hasil **percentage**: hak warga = nilai realisasi bagian warga × persen warga; bagian bank/lingkungan = sisanya.
-- Metode **fixed_buy_price**: hak warga = berat dasar sah × harga beli warga per jenis; selisih dari nilai realisasi menjadi margin/kerugian bank. Peringatkan bila margin negatif, jangan batasi secara diam-diam.
-- Setoran milik bank tidak dikenai bagi hasil warga; penerimaannya masuk 100% ke kas bank dan harus dipisah secara akuntansi dari kewajiban tabungan warga.
-- Status pembayaran lapak dan status pembagian hasil adalah dua dimensi yang berbeda. Bedakan piutang jual, uang diterima dan saldo warga yang boleh dicairkan.
+## Kewajiban backend yang belum selesai (issue #81)
+- Bedakan **setoran sampah milik warga** dan **setoran fisik milik Bank**; milik Bank bukan otomatis uang masuk dan hak Bank 100% dari penjualannya.
+- Penjualan kolektif dari stok warga dan Bank harus mempertahankan jejak kepemilikan tanpa mengulang input jenis/berat awal.
+- D1 memerlukan stok per pemilik per jenis dengan alokasi terkunci, **sisa stok** terpisah dari **selisih timbang**, pencegahan jual dua kali dan jurnal koreksi.
+- Metode pembagian berversi: `percentage` (contoh historis 50:50) dan `fixed_buy_price` (berat sah per jenis × harga beli warga). Setiap aturan memiliki ID, tanggal berlaku, tarif per jenis dan snapshot transaksi; aturan lama yang sudah dipakai tidak boleh ditimpa.
+- Status bayar lapak: belum bayar, sebagian, lunas; piutang terpisah dari kas. Hak warga baru bisa dikreditkan setelah lunas dan sah.
+- Pengesahan harus atomik, idempoten, berbasis D1, tidak mengubah transaksi sah lama. Koreksi setelah sah memakai jurnal audit.
+- Harga yang ditampilkan di akun warga adalah harga beli warga (atau estimasi bila metode persentase), dikelompokkan per kategori dan termurah lebih dulu; harga jual lapak tidak bocor.
+- Cetak laporan per transaksi dan e-statement per bulan/rentang tanggal, tabel rapi, PDF dan CSV.
 
-## Aturan harga berversi
-- Simpan aturan sebagai `rule_id`, `method`, `effective_from`, `effective_until` dan tarif per jenis; tidak boleh mengedit aturan yang sudah dipakai.
-- Saat penjualan disiapkan, ikat ke versi tarif tertentu. Jika perlu memilih versi lain sebelum sah, wajib tindakan eksplisit dan jejak audit.
-- Saat pengesahan, simpan snapshot metode, tarif, berat alokasi, hak warga, hak bank dan jumlah transaksi.
-- Perubahan aturan masa depan tidak boleh menghitung ulang saldo dan transaksi sah terdahulu.
-- API akun warga hanya menyajikan `priceRpPerKg` untuk warga (berlabel *estimasi* jika persentase; *harga beli* jika tetap), kategori, satuan dan tanggal berlaku; jangan mengirim harga lapak/margin.
+## Kriteria uji wajib sebelum migrasi/aktivasi backend
+1. Tiga warga dan stok milik Bank → satu nomor penjualan → satu lembar bertanda tangan → input hasil → satu laporan digital, **tanpa nota kedua**.
+2. Stok belum terjual disimpan; selisih hasil timbang dilaporkan berbeda; tidak ada double sell.
+3. Pembayaran 0/sebagian/lunas memisahkan piutang, kas diterima dan hak warga sah.
+4. Pengesahan dua kali tidak menambah saldo; pengesahan gagal tidak memutasi sebagian.
+5. Mengganti 50:50 menjadi harga beli tetap hanya mempengaruhi transaksi baru; histori tidak berubah.
+6. Semua izin divalidasi oleh server; peran anggota tidak bisa membaca margin atau akun lain.
+7. PC/HP responsif, grid simetris, scroll normal, satu menu slide pengelola tanpa dock, tidak ada CSS bertumpuk atau deklarasi `!important` baru.
 
-## Riwayat dan e-Statement
-- Detail per nomor penjualan: lembar timbang, nota lapak, laporan hasil dan pengesahan, tanpa membuat transaksi baru.
-- Laporan warga: setoran milik sendiri, hak sah, mutasi/pencairan dan saldo berjalan; jangan menampilkan data warga lain.
-- Laporan pengurus: per transaksi, per bulan dan rentang tanggal, ekspor PDF dan Excel yang bersumber dari buku besar yang sama.
-- Ringkasan laporan memisahkan uang masuk, piutang lapak, kas milik bank, kewajiban tabungan warga dan stok.
-- PDF A5 untuk lembar timbang/nota; tabel laporan dengan kolom konsisten di setiap halaman, header berulang, nomor halaman dan periode.
-- Transaksi salah yang sudah tercetak harus diluruskan dengan revisi bernomor, bukan menimpa nota terdahulu.
-
-## Batasan implementasi saat ini
-Repository GitHub Pages yang terhubung terutama berisi frontend. Perubahan pada Cloudflare Worker/D1 wajib diinspeksi dan dikerjakan bersama perubahan frontend sebelum alur diaktifkan. Jangan memperkenalkan penyimpanan lokal pengganti D1, CSS override bertumpuk, maupun deklarasi !important baru.
-
-## Pengujian penerimaan wajib
-- Setoran 3 warga dan stok milik bank → 1 penjualan kolektif dengan nomor tetap.
-- Siapkan dan cetak lembar kosong → pilih nomor sama → isi hasil lapak → cetak nota sebelum sah.
-- Selisih berat vs stok tidak terjual ditangani berbeda; stok tidak bisa dijual ganda.
-- Status belum bayar, sebagian, dan lunas menghasilkan saldo kas dan piutang yang benar.
-- Pengesahan dua kali tidak membuat mutasi ganda.
-- Ubah 50:50 menjadi harga tetap → semua transaksi lama dan saldo tidak berubah.
-- Warga hanya melihat tarif warga dan transaksi sendiri; pengurus melihat data operasional.
-- Uji HP/PC, scroll normal, fokus input, tabel/cetak PDF dan tidak ada !important baru.
+**Status:** PR #82–84 menyelesaikan UX 3 tahap dan cetak laporan internal. Perhitungan dan stok campuran masih menunggu implementasi backend serta uji D1 staging; jangan klaim produksi sudah menggunakannya.
