@@ -148,8 +148,10 @@ assert(css.includes('.f4-bank-currency-mark{'),
 // Bank Sampah: shared form grid is owned by bank-eco-pages.css, not desktop overrides.
 assert(css.includes('grid-template-columns:repeat(12,minmax(0,1fr))'),
  'Shared twelve-track Bank Sampah entry grid missing');
-assert(css.includes('#saleForm>.f4-sale-side{') && h.includes('class="f4-sale-side"'),
- 'Sale payment must be in independent desktop panel');
+assert(css.includes('#dashboardView .section :is(#saleForm,#setoranForm)>:is(.f4-sale-side,.f4-setoran-side){') &&
+       h.includes('class="f4-sale-side"') &&
+       h.includes('class="f4-sale-payment-fields"'),
+ 'Sale payment must remain inside its independent desktop panel');
 assert(css.includes('#saleForm .f4-sale-top-fields>.field{'),
  'Sale three-field row must keep its explicit column spans');
 assert(!css.includes('body.f4-bank-app-private #dashboardView #pageSetoran .f4-entry-top-fields,'),
