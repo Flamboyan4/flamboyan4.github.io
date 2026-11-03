@@ -83,22 +83,26 @@ function fill(data){
 }
 function install(){
  if(installed||!$("saleBatch"))return;
- installed=true;
  const picker=$("saleBatch"),topFields=picker.closest(".f4-sale-top-fields");
  if(!topFields)return;
+ installed=true;
  const tools=document.createElement("div");tools.className="f4-bank-sheet-tools";
  const label=document.createElement("div");label.className="f4-bank-sheet-summary";
- const number=document.createElement("strong");number.id="f4SaleSheetNumber";number.textContent="Nomor penjualan otomatis";
+ const number=document.createElement("strong");number.id="f4SaleSheetNumber";number.textContent="Tahap 1 · Nota Penimbangan";
  const statusNode=document.createElement("small");statusNode.id="f4SaleSheetStatus";statusNode.setAttribute("role","status");
  label.append(number,statusNode);
  const actions=document.createElement("div");actions.className="f4-bank-sheet-actions";
- const print=document.createElement("button");print.type="button";print.className="secondary";print.id="f4SaleSheetPrint";print.textContent="Siapkan & Cetak Lembar";
- print.disabled=true;print.onclick=prepareAndPrint;
+ const print=document.createElement("button");print.type="button";print.className="f4-bank-gold-action";print.id="f4SaleSheetPrint";print.textContent="Cetak Nota Penimbangan";
+ print.setAttribute("aria-describedby","f4SaleSheetStatus");
+ print.onclick=prepareAndPrint;
  const reopen=document.createElement("button");reopen.type="button";reopen.className="secondary";reopen.id="f4SaleSheetReopen";reopen.textContent="Buka kembali setoran";reopen.hidden=true;reopen.onclick=reopenBatch;
  actions.append(print,reopen);tools.append(label,actions);
- tools.hidden=true;
- // Panel persiapan berada di baris penuh grid kanan, bukan kolom kecil otomatis.
- topFields.append(tools);
+ // Letakkan tepat setelah pemilihan kelompok: tahap cetak selalu terlihat,
+ // termasuk saat belum ada kelompok atau data masih dimuat.
+ const groupField=picker.closest(".field");
+ if(groupField&&groupField.parentElement===topFields)groupField.after(tools);
+ else topFields.append(tools);
+ status("Pilih kelompok setoran, lalu cetak nota sebelum ke lapak.");
  picker.addEventListener("change",refresh);
 }
 async function refresh(){
@@ -107,12 +111,15 @@ async function refresh(){
  const batchId=picker.value,version=++seq;
  const print=$("f4SaleSheetPrint"),reopen=$("f4SaleSheetReopen");
  const tools=$("f4SaleSheetNumber")?.closest(".f4-bank-sheet-tools");
- if(tools)tools.hidden=!batchId;
+ // Jangan sembunyikan tombol tahap pertama: pengguna perlu tahu alurnya.
+ if(tools)tools.hidden=false;
  current=null;
- if(print)print.disabled=true;
+ if(print){print.disabled=false;print.textContent="Cetak Nota Penimbangan";}
  if(reopen)reopen.hidden=true;
- $("f4SaleSheetNumber").textContent=batchId?"Memuat rekap...":"Nomor penjualan otomatis";
- status(batchId?"Mengambil total berat per jenis dari setoran warga.":"");
+ $("f4SaleSheetNumber").textContent=batchId?"Memuat rekap...":"Tahap 1 · Nota Penimbangan";
+ status(batchId?"Memuat rekap sampah...":picker.disabled
+  ?"Belum ada kelompok setoran yang bisa dijual."
+  :"Pilih kelompok setoran, lalu cetak nota sebelum ke lapak.");
  if(!batchId)return;
  try{
   const data=await fetchSheet(batchId);
@@ -126,7 +133,10 @@ async function refresh(){
    selected.title="Nomor penjualan "+data.saleNumber;
   }
   status(data.depositCount+" setoran · "+kg(data.totalGrams)+" kg · "+(data.status==="siap"?"Siap dibawa ke lapak":"Belum disiapkan"));
-  if(print)print.disabled=!(Array.isArray(data.lines)&&data.lines.length>0);
+  if(print){
+   print.disabled=!(Array.isArray(data.lines)&&data.lines.length>0);
+   print.textContent=data.status==="siap"?"Cetak Ulang Nota Penimbangan":"Cetak Nota Penimbangan";
+  }
   if(reopen)reopen.hidden=data.status!=="siap";
   fill(data);
  }catch(e){if(version===seq){$("f4SaleSheetNumber").textContent="Rekap belum tersedia";status(e.message||String(e),true)}}
@@ -143,18 +153,28 @@ function sheetHtml(data){
  '<p class="foot">Isi berat, harga, total dan pembayaran di lapak, lalu tanda tangani bersama. Lembar ini menjadi bukti transaksi; input hasilnya ke nomor penjualan yang sama di website.</p></body></html>';
 }
 async function prepareAndPrint(){
- if(!current)return;
+ const picker=$("saleBatch");
+ if(!picker?.value){
+  status(picker?.disabled?"Belum ada kelompok setoran yang bisa dijual.":"Pilih kelompok setoran terlebih dahulu.",true);
+  picker?.focus();return;
+ }
+ if(!current){
+  status("Rekap belum siap. Pilih kembali kelompok setoran.",true);
+  picker.focus();return;
+ }
  // Jendela dibuka dalam klik pengguna supaya browser tidak memblokirnya.
  const popup=window.open("","_blank");
  if(!popup){status("Izinkan popup untuk mencetak lembar timbang.",true);return}
  const print=$("f4SaleSheetPrint");print.disabled=true;
  popup.document.write("<title>Menyiapkan lembar penjualan</title><p>Memeriksa rekap setoran...</p>");
  try{
-  const data=await fetchSheet(current.batchId,{action:"prepare"});
+  // Cetak ulang kelompok yang sudah dikunci cukup membaca data, tanpa
+  // mempersiapkan stok atau menggandakan transaksi lagi.
+  const data=await fetchSheet(current.batchId,current.status==="siap"?undefined:{action:"prepare"});
   current=data;
   $("f4SaleSheetNumber").textContent=data.saleNumber;
   $("f4SaleSheetReopen").hidden=false;
-  status("Rekap terkunci untuk penjualan. Lembar siap dicetak.");
+  status("Nota siap dicetak. Bawa ke lapak, isi hasil timbang dan minta tanda tangan.");
   popup.document.open();popup.document.write(sheetHtml(data));popup.document.close();
   popup.focus();
   // Print sekali saja: Firefox dapat memicu load setelah readyState complete.
@@ -163,7 +183,10 @@ async function prepareAndPrint(){
   popup.addEventListener("load",printOnce,{once:true});
   if(popup.document.readyState==="complete")printOnce();
  }catch(e){popup.close();status(e.message||String(e),true)}
- finally{print.disabled=!current}
+ finally{
+  print.disabled=false;
+  print.textContent=current?.status==="siap"?"Cetak Ulang Nota Penimbangan":"Cetak Nota Penimbangan";
+ }
 }
 async function reopenBatch(){
  if(!current||current.status!=="siap")return;
