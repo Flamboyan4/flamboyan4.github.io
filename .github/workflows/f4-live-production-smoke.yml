@@ -4,10 +4,14 @@ on:
     branches: [main]
     paths: [.github/workflows/f4-live-production-smoke.yml]
   workflow_dispatch:
+  workflow_run:
+    workflows: ["F4 Finance Guarded Deployment"]
+    types: [completed]
 permissions:
   contents: read
 jobs:
   verify:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 6
     steps:
