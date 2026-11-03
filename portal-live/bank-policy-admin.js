@@ -15,10 +15,13 @@
  }
  function init(){
   const page=$("pageMaster");if(!page||$("f4BankPolicyCard"))return;
-  const card=el("section","f4-bank-policy-card");card.id="f4BankPolicyCard";
-  const title=el("h3","","Aturan Harga & Bagi Hasil");
-  const desc=el("p","f4-bank-policy-desc","Perubahan hanya berlaku untuk penjualan yang disiapkan setelah tanggal berlaku. Transaksi sah sebelumnya tetap.");
-  const current=el("p","f4-bank-policy-current","Memuat kebijakan...");current.id="f4BankPolicyCurrent";
+  // Kebijakan tetap pada Harga Barang: ringkasan terlihat, formulir lanjutan opsional.
+  const card=el("details","f4-bank-policy-card");card.id="f4BankPolicyCard";
+  const head=el("summary","f4-bank-policy-summary");
+  const title=el("strong","","Aturan Harga & Bagi Hasil");
+  const current=el("span","f4-bank-policy-current","Memuat aturan...");current.id="f4BankPolicyCurrent";
+  head.append(title,current);
+  const desc=el("p","f4-bank-policy-desc","Aturan baru hanya berlaku ke depan. Transaksi sah lama tidak berubah.");
   const form=el("form","f4-bank-policy-form");
   const method=el("select");method.name="method";method.required=true;
   method.add(new Option("Bagi hasil persentase","percentage"));
@@ -33,7 +36,7 @@
   const submit=el("button","f4-bank-gold-action","Simpan Aturan Baru");
   submit.type="submit";form.append(submit);
   const message=el("p","f4-bank-policy-status","");message.id="f4BankPolicyStatus";message.setAttribute("role","status");
-  card.append(title,desc,current,form,message);
+  card.append(head,desc,form,message);
   page.prepend(card);
   form.onsubmit=async event=>{
    event.preventDefault();if(loading)return;
@@ -54,8 +57,8 @@
     const data=await fetchPolicy(),active=data.current||{};
     form.hidden=data.canEdit!==true;
     desc.textContent=data.canEdit===true?
-      "Perubahan hanya berlaku untuk penjualan yang disiapkan setelah tanggal berlaku. Transaksi sah sebelumnya tetap.":
-      "Kebijakan aktif dapat dilihat pengurus. Perubahan metode dan tanggal berlaku hanya melalui Superadmin.";
+      "Aturan baru berlaku untuk penjualan berikutnya. Transaksi sah lama tetap.":
+      "Perubahan aturan hanya untuk Superadmin.";
     current.textContent="Aktif: "+(active.method==="fixed_buy_price"?"Harga beli tetap per jenis":"Bagi hasil "+active.wargaPercent+"% warga / "+(100-active.wargaPercent)+"% Bank")+
       (active.effectiveFrom?" · berlaku sejak "+active.effectiveFrom:" · metode lama");
     if(!form.dataset.initialized){
