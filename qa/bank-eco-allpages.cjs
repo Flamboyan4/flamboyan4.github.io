@@ -145,7 +145,7 @@ assert(!h.includes('#v15PasswordBox>summary{cursor:pointer'),
 assert(h.includes("summary.textContent='Ganti password'"),'Password must have no emoji or separate triangle');
 assert(h.includes('/portal-live/bank-eco-pages.css?v=20261104-nav-schedule-v1'),
  'Bank Sampah profile/dock stylesheet must be cache-busted');
-assert(h.includes('/portal-live/bank-mobile-app.js?v=20261104-session-isolation-v2'),
+assert(h.includes('/portal-live/bank-mobile-app.js?v=20261104-session-isolation-v3'),
  'Member payout icon script must be refreshed');
 assert(css.includes('.f4-bank-currency-mark{'),
  'Rp payout icon must use the canonical bank dock styles');
