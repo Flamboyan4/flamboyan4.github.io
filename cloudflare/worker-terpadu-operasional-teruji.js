@@ -5200,11 +5200,86 @@ async function bankWithdraw(request,env,who){
   return json({ok:true,id,memberId,amountRp:amount,withdrawnOn:on,duplicate:false},201);
 }
 __name(bankWithdraw,"bankWithdraw");
+// BANK_V3_CONFIRM_START
+async function bankV3Confirm(env,who,p,prepared){
+ const db=env.DB,batchId=String(p.batchId||""),saleId=String(p.saleId||"");
+ const operationRp=p.operationRp,neighborhoodRp=p.neighborhoodRp,reserveRp=p.reserveRp??0;
+ if(!batchId||!saleId||batchId.length>120||saleId.length>128||
+   ![operationRp,neighborhoodRp,reserveRp].every(x=>Number.isSafeInteger(x)&&x>=0))
+  return safeError("Nomor transaksi dan pembagian dana tidak valid.",400);
+ const settled=await one(db,"SELECT * FROM bank_v3_settlements WHERE batch_id=?",[batchId]);
+ if(settled){
+  const alloc=await one(db,"SELECT operation_rp,neighborhood_rp,reserve_rp FROM waste_allocations WHERE batch_id=?",[batchId]);
+  if(settled.sale_id===saleId&&Number(alloc?.operation_rp)===operationRp&&
+     Number(alloc?.neighborhood_rp)===neighborhoodRp&&Number(alloc?.reserve_rp)===reserveRp)
+   return json({ok:true,batchId,saleId,status:"disahkan",duplicate:true,citizenRightsRp:settled.citizen_rights_rp});
+  return safeError("Penjualan sudah sah dengan alokasi yang berbeda.",409);
+ }
+ let preview;try{preview=await bankV3Preview(db,batchId,prepared)}
+ catch(e){return safeError(String(e.message||"Pemeriksaan gagal"),409)}
+ if(preview.saleId!==saleId||operationRp+neighborhoodRp+reserveRp!==preview.bankRightsRp)
+  return safeError("Periksa kembali pembagian kas Bank dan nomor penjualan.",409);
+ const note=String(p.note||"").trim();
+ if(preview.hasWeightDifference&&(note.length<5||note.length>300))
+  return safeError("Ada selisih timbang di luar stok tersisa. Isi alasan 5–300 karakter.",400);
+ if(p.expectedWargaPercent!==undefined&&Number(p.expectedWargaPercent)!==preview.wargaPercent)
+  return safeError("Versi aturan berbeda dengan tampilan. Muat ulang sebelum sahkan.",409);
+ const date=(await one(db,"SELECT sold_on FROM waste_sales WHERE id=?",[saleId]))?.sold_on;
+ if(!date)return safeError("Tanggal penjualan tidak ditemukan.",409);
+ const stmts=[
+  // Insersi bersyarat mencegah konfirmasi ketika status berubah; CHECK negatif
+  // membatalkan seluruh D1.batch, bukan memberi saldo sebagian.
+  db.prepare("INSERT INTO waste_allocations(id,batch_id,received_rp,citizen_rights_rp,reserve_rp,neighborhood_rp,operation_rp,adjustment_rp) VALUES(?,?,?,CASE WHEN EXISTS(SELECT 1 FROM waste_batches WHERE id=? AND status='siap') AND EXISTS(SELECT 1 FROM waste_sales WHERE id=? AND batch_id=? AND status='draft') AND EXISTS(SELECT 1 FROM bank_v3_batches WHERE batch_id=? AND sale_id=?) THEN ? ELSE -1 END,?,?,?,0)")
+   .bind("alloc:bank:"+batchId,batchId,preview.receivedRp,batchId,saleId,batchId,batchId,saleId,preview.citizenRightsRp,reserveRp,neighborhoodRp,operationRp),
+  db.prepare("INSERT INTO bank_v3_settlements(sale_id,batch_id,policy_id,method,citizen_percent,gross_rp,citizen_rights_rp,bank_rights_rp,weight_loss_grams,leftover_grams,note) VALUES(?,?,?,?,?,?,?,?,?,?,?)")
+   .bind(saleId,batchId,prepared.policy_id,preview.method,preview.wargaPercent,preview.grossRp,preview.citizenRightsRp,preview.bankRightsRp,preview.weightDifferenceGrams,preview.remainingStockGrams,note),
+  db.prepare("UPDATE waste_sales SET status='terkonfirmasi' WHERE id=? AND batch_id=? AND status='draft'").bind(saleId,batchId),
+  db.prepare("UPDATE waste_batches SET status='disahkan',confirmed_at=CURRENT_TIMESTAMP,confirmed_by=? WHERE id=? AND status='siap'").bind(who.id,batchId),
+  ...preview.depositIds.map(id=>db.prepare("UPDATE waste_deposits SET status='terkonfirmasi' WHERE id=? AND batch_id=? AND status='estimasi'").bind(id,batchId))
+ ];
+ for(const m of preview.movements){
+  const consumed=m.soldGrams+m.lossGrams;
+  stmts.push(db.prepare("UPDATE bank_v3_inventory_lots SET remaining_grams=CASE WHEN remaining_grams=? AND reserved_batch_id=? THEN ? ELSE -1 END,reserved_batch_id=NULL WHERE id=?")
+   .bind(m.plannedGrams,batchId,m.stockGrams,m.lotId));
+  stmts.push(db.prepare("INSERT INTO bank_v3_inventory_movements(sale_id,lot_id,waste_item_id,owner_kind,member_id,allocated_grams,sold_grams,stock_grams,loss_grams,sale_revenue_rp,member_right_rp) VALUES(?,?,?,?,?,?,?,?,?,?,?)")
+   .bind(saleId,m.lotId,m.itemId,m.ownerKind,m.memberId,m.plannedGrams,m.soldGrams,m.stockGrams,m.lossGrams,m.revenueRp,m.rightRp));
+ }
+ for(const r of preview.rights.filter(x=>x.amountRp>0)){
+  stmts.push(db.prepare("INSERT INTO waste_savings_ledger(id,member_id,transaction_on,kind,amount_rp,batch_id,reference_id,note,created_by) VALUES(?,?,?,'kredit',?,?,?,?,?)")
+   .bind("bank-right:"+saleId+":"+r.memberId,r.memberId,date,r.amountRp,batchId,saleId+":"+r.memberId,
+    preview.method==="fixed_buy_price"?"Hak tabungan harga beli tetap (versi tersimpan)":"Hak tabungan "+preview.wargaPercent+"% dari penjualan warga",who.id));
+ }
+ for(const [fund,amount] of [["tabungan_warga",preview.citizenRightsRp],["operasional",operationRp],["kas_lorong",neighborhoodRp],["cadangan",reserveRp]]){
+  if(amount>0)stmts.push(db.prepare("INSERT INTO waste_cash_ledger(id,occurred_on,source_transaction_id,transaction_type,fund_position,cash_in_rp,cash_out_rp,status,note) VALUES(?,?,?,'penjualan_terkonfirmasi',?,?,0,'aktif',?)")
+   .bind("bank-sale-cash:"+saleId+":"+fund,date,saleId,fund,amount,"Hasil jual kolektif, alur stok v3 "+batchId));
+ }
+ stmts.push(db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'banksampah','confirm_v3_reconciliation','waste_batches',?,?,?)")
+  .bind("audit:bank-confirm:"+saleId,who.id,batchId,note||"Pengesahan sesuai lembar timbang asli",JSON.stringify({
+   saleId,policyId:prepared.policy_id,method:prepared.method,wargaPercent:preview.wargaPercent,
+   citizenRightsRp:preview.citizenRightsRp,bankRightsRp:preview.bankRightsRp,
+   operationRp,neighborhoodRp,reserveRp,lossGrams:preview.weightDifferenceGrams,
+   remainingStockGrams:preview.remainingStockGrams,rights:preview.rights})));
+ try{await db.batch(stmts)}catch(e){
+  const done=await one(db,"SELECT sale_id,citizen_rights_rp FROM bank_v3_settlements WHERE batch_id=?",[batchId]);
+  if(done?.sale_id===saleId)return json({ok:true,batchId,saleId,status:"disahkan",duplicate:true,citizenRightsRp:done.citizen_rights_rp});
+  return safeError("Pengesahan gagal; seluruh mutasi stok dan saldo ditolak. Muat ulang dan periksa kembali.",409);
+ }
+ return json({ok:true,batchId,saleId,status:"disahkan",receivedRp:preview.receivedRp,
+  citizenRightsRp:preview.citizenRightsRp,environmentRp:preview.bankRightsRp,
+  wargaPercent:preview.wargaPercent,lingkunganPercent:preview.lingkunganPercent,
+  operationRp,neighborhoodRp,reserveRp,rights:preview.rights,method:preview.method,
+  weightDifferenceGrams:preview.weightDifferenceGrams,remainingStockGrams:preview.remainingStockGrams},201);
+}
+__name(bankV3Confirm,"bankV3Confirm");
+// BANK_V3_CONFIRM_END
+
 async function bankReconcileConfirm(request,env,who){
   const denied=requireRole(who,["admin","superadmin"]);
   if(denied)return denied;
   if(env.BANK_WRITE_ENABLED!=="true" || env.BANK_RECONCILIATION_WRITE_ENABLED!=="true") return safeError("Pengesahan Bank Sampah masih terkunci.",503);
   let p;try{p=await requestJson(request)}catch(e){return safeError("JSON tidak valid.",400)}
+  const v3Prepared=await one(env.DB,"SELECT * FROM bank_v3_batches WHERE batch_id=?",[String(p.batchId||"")]);
+  if(v3Prepared)return bankV3Confirm(env,who,p,v3Prepared);
   const batchId=String(p.batchId||""),expectedSaleId=String(p.saleId||"");
   const operationRp=p.operationRp, neighborhoodRp=p.neighborhoodRp, reserveRp=p.reserveRp ?? 0;
   if(!batchId || batchId.length>120 || !expectedSaleId || expectedSaleId.length>120 || !Number.isSafeInteger(operationRp) || operationRp<0 || !Number.isSafeInteger(neighborhoodRp) || neighborhoodRp<0 || !Number.isSafeInteger(reserveRp) || reserveRp<0) return safeError("Wajib mengirim batchId, saleId, operationRp dan neighborhoodRp yang valid.",400);
@@ -5260,6 +5335,8 @@ async function bankReverseConfirmed(request,env,who){
   const batchId=String(input?.batch||""),confirmation=String(input?.konfirmasi||""),reason=String(input?.alasan||"").trim(),db=env.DB;
   if(!batchId||batchId.length>120||confirmation!==batchId||reason.length<10||reason.length>300)
     return safeError("Ketik ID batch dan alasan pembatalan 10–300 karakter.",400);
+  if(await one(db,"SELECT sale_id FROM bank_v3_settlements WHERE batch_id=?",[batchId]))
+    return safeError("Transaksi dengan pencatatan stok v3 memerlukan jurnal koreksi terpisah. Pembatalan langsung ditolak.",409);
   const batch=await one(db,"SELECT id,status FROM waste_batches WHERE id=?",[batchId]);
   if(!batch)return safeError("Batch tidak ditemukan.",404);
   const auditKey="audit:bank-reverse:"+batchId;
