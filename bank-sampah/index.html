@@ -1764,7 +1764,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
         <div id="dashNotice" role="status" aria-live="polite"></div>
       </div></div>
     </section>
-  </main><footer class="footer">Bank Sampah Flamboyan 4 • Bersama menjaga lingkungan</footer>
+  </main><footer class="footer">Bank Sampah Flamboyan 4</footer>
   <div id="credentialModal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="credentialTitle" style="position:fixed;inset:0;background:#15251bcc;display:grid;place-items:center;padding:18px;z-index:50">
     <div class="card" style="width:min(100%,420px);max-height:90vh;overflow:auto;box-shadow:0 16px 48px #18271a55"><h2 id="credentialTitle">Akun warga</h2><div class="stat"><small>Username</small><strong id="credUser"></strong></div><div class="stat" style="margin-top:9px"><small>Password awal</small><strong id="credPass"></strong></div><div style="display:flex;gap:8px;margin-top:18px"><button id="copyCred" onclick="copyCredential()">Salin akun</button><button class="secondary" onclick="closeCredential()">Tutup</button></div></div>
   </div>
@@ -3902,7 +3902,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     const page=$('pageLaporan');if(!page||$('v17Finance'))return;
     const header=page.querySelector('h2');if(header)header.textContent='Laporan';
     const box=document.createElement('section');box.id='v17Finance';
-    box.innerHTML=`<div class="v17-finance-head"><div><h2>Posisi dana</h2><p>Kas bank: operasional & cadangan. Dana Lorong dan hak warga terpisah.</p></div><button class="secondary" type="button" onclick="v17LoadFinance()">Perbarui</button></div><div class="v17-finance-kpis" id="v17FinanceKpis">Memuat...</div><div class="v17-finance-grid"><div class="v17-panel"><h3>Arus kas 6 bulan terakhir</h3><div class="v17-bars" id="v17FinanceBars"></div><p class="v17-legend"><span style="background:#347b54"></span> Masuk &nbsp; <span style="background:#e5bb75"></span> Keluar</p></div><div class="v17-panel"><h3>Rincian periode terpilih</h3><div id="v17FinanceDetails">Memuat...</div></div></div><p id="v17FinanceNote" class="v17-subtle"></p>`;
+    box.innerHTML=`<div class="v17-finance-head"><div><h2>Posisi dana</h2></div><button class="secondary" type="button" onclick="v17LoadFinance()">Perbarui</button></div><div class="v17-finance-kpis" id="v17FinanceKpis">Memuat...</div><div class="v17-finance-grid"><div class="v17-panel"><h3>Arus kas 6 bulan terakhir</h3><div class="v17-bars" id="v17FinanceBars"></div><p class="v17-legend"><span style="background:#347b54"></span> Masuk &nbsp; <span style="background:#e5bb75"></span> Keluar</p></div><div class="v17-panel"><h3>Rincian periode terpilih</h3><div id="v17FinanceDetails">Memuat...</div></div></div><p id="v17FinanceNote" class="v17-subtle"></p>`;
     page.prepend(box);
     const month=$('v10Month');if(month){month.value=month.value||new Date().toISOString().slice(0,7);month.addEventListener('change',v17LoadFinance);}
   }
@@ -5525,7 +5525,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       }
     },true);
     updateChoice();
-    const heading=report.querySelector(':scope > h2');if(heading)heading.textContent='Laporan Bank Sampah';
+    const heading=report.querySelector(':scope > h2');if(heading)heading.textContent='Laporan';
     const desc=report.querySelector(':scope > .desc');
     if(desc)desc.remove();
   }
