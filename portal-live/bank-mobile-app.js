@@ -23,11 +23,6 @@ async function api(path,payload){
   if(!response.ok||body.ok===false)throw Error(body.error||"Layanan belum tersedia ("+response.status+").");
   return body;
 }
-const adminDock=[
-  ["Beranda","dashboard","home.svg"],["Saldo","tabungan","pay.svg"],
-  ["Setoran","setoran","bank.svg"],["Penjualan","penjualan","cash.svg"],
-  ["Laporan","laporan","book.svg"]
-];
 const memberDock=[
  ["Beranda","dashboard","home.svg"],["Tabungan","pribadi","cash.svg"],
  ["Pencairan","bank-payout","rp"],["Riwayat","bank-history","clock.svg"],
@@ -74,6 +69,24 @@ function markDock(){
   if(selected)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");
  }
  if(roleType()==="member")syncMemberBack();
+ if(roleType()==="admin")syncAdminBack();
+}
+function syncAdminBack(){
+ const section=$("dashboardView")?.querySelector(".section");
+ if(!section)return;
+ let back=$("f4BankAdminBack");
+ if(!back){
+  back=el("button","f4-bank-admin-back");
+  back.id="f4BankAdminBack";back.type="button";
+  back.setAttribute("aria-label","Kembali ke Beranda Pengelola");
+  const arrow=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  arrow.setAttribute("viewBox","0 0 24 24");arrow.setAttribute("aria-hidden","true");
+  arrow.innerHTML='<path d="M19 12H5m7-7-7 7 7 7"/>';
+  back.append(arrow,el("span","","Kembali"));
+  back.onclick=()=>navigate("dashboard");
+  section.prepend(back);
+ }
+ back.hidden=screen==="dashboard";
 }
 // Compact member identity replaces the oversized greeting on the member dashboard.
 function memberTopIdentity(){
@@ -895,8 +908,14 @@ function moveFeature(ids,target){
 }
 /* Pengurus: mobile dock + aksi cepat; PC sidebar tetap terpisah dari submenu. */
 const adminShortcuts=[
+ ["Cek & Sahkan","rekonsiliasi","shield-check"],
+ ["Riwayat","bank-admin-history","history"],
  ["Keuangan","bank-admin-cash","wallet"],
- ["Pengelolaan","admin","users"]
+ ["Pencairan","bank-payout-admin","hand-coins"],
+ ["Harga Barang","master","tags"],
+ ["Data Anggota","admin","users"],
+ ["Dokumentasi","bank-admin-docs","images"],
+ ["Laporan","laporan","file-text"]
 ];
 const adminShortcutPaths={
  "shield-check":'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m8 12 3 3 5-5"/>',
@@ -906,7 +925,8 @@ const adminShortcutPaths={
  tags:'<path d="m3 12 9-9h8v8l-9 9-8-8Z"/><circle cx="16" cy="7" r="1"/>',
  users:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2"/><path d="M17 5a3 3 0 0 1 0 6m1 5c2 0 3 2 3 4"/>',
  images:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 16 5-5 4 4 3-3 6 6"/>',
- "user-round":'<circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/>'
+ "user-round":'<circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/>',
+ "file-text":'<path d="M6 2h8l5 5v15H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z"/><path d="M14 2v6h5M8 12h8M8 16h8"/>'
 };
 function adminShortcut([name,route,iconName]){
  const button=el("button","f4-bank-admin-shortcut");
@@ -961,19 +981,13 @@ function ensureAdminHome(){
   );
   intro.after(actions);
  }
- if(!$("f4BankAdminNext")){
-  const next=el("section","f4-bank-admin-next");next.id="f4BankAdminNext";
-  const head=el("h2","","Tindak lanjut");next.append(head,
-   adminNextAction("Cek & Sahkan","Periksa hasil penjualan","rekonsiliasi"),
-   adminNextAction("Pengajuan Pencairan","Tinjau permintaan anggota","bank-payout-admin"));
-  $("f4BankAppMinis")?.after(next);
- }
- // On phones the dock stays unchanged; only two links open supporting work areas.
+ $("f4BankAdminNext")?.remove();
+ // Delapan akses cepat hanya di HP; tindakan utama Setor/Jual tetap di atas.
  let shortcuts=$("f4BankAdminShortcuts");
  if(window.matchMedia("(min-width:1024px)").matches){shortcuts?.remove();shortcuts=null;}
  if(!shortcuts&&window.matchMedia("(max-width:1023px)").matches){
   shortcuts=el("section","f4-bank-admin-shortcuts");shortcuts.id="f4BankAdminShortcuts";
-  shortcuts.append(el("h2","","Menu lainnya"));
+  shortcuts.append(el("h2","","Akses Cepat"));
   const grid=el("div","f4-bank-admin-shortcut-grid");
   grid.append(...adminShortcuts.map(adminShortcut));
   shortcuts.append(grid);
@@ -1585,7 +1599,7 @@ function sync(){
  document.body.classList.toggle("f4-bank-app-private",isPrivate);
  document.body.classList.toggle("f4-bank-app-member",isPrivate&&next==="member");
  document.body.classList.toggle("f4-bank-app-admin",isPrivate&&next==="admin");
- dock().hidden=!isPrivate;
+ dock().hidden=!isPrivate||next==="admin";
  if(!isPrivate){
   if(document.body.classList.contains("f4-member-feature"))restoreFeature();
   hideCustom();memberSide(false);restoreAdminProgress();restoreAdminMedia();
@@ -1596,7 +1610,7 @@ function sync(){
  }
  if(next!==role){
   if(role==="admin"&&next!=="admin")restoreAdminProgress();
-  role=next;screen=next==="member"?visibleMemberRoute():"dashboard";dock().replaceChildren(...(role==="admin"?adminDock:memberDock).map(x=>action(x,true)));
+  role=next;screen=next==="member"?visibleMemberRoute():"dashboard";dock().replaceChildren(...(role==="member"?memberDock:[]).map(x=>action(x,true)));
   if(role==="member")requestNonce="";
   memberStatement=null;adminOverview=null;
   if(role==="admin")$("f4BankProfileDetail")?.remove();
