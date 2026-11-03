@@ -188,7 +188,7 @@ async def admin_mobile_shell(browser):
     <div id="dashboardView">
      <div class="mobile-nav">Header lama</div>
      <div class="grid">
-      <aside id="sideNav" class="side"><div id="v16NavList">
+      <aside id="sideNav" class="side"><div id="v16Navigation"><div id="v16NavList">
        <button class="v16-item" data-group="home">Beranda</button>
        <button class="v16-item" data-group="deposit">Setoran</button>
        <button class="v16-item" data-group="sale">Penjualan</button>
@@ -196,7 +196,7 @@ async def admin_mobile_shell(browser):
        <button class="v16-item" data-group="management">Pengelolaan</button>
        <button class="v16-item" data-group="report">Laporan</button>
        <button class="v16-item f4-back-account">Profil pengurus</button>
-      </div></aside>
+      </div></div></aside>
       <main class="section" style="min-height:2400px">Halaman panjang</main>
      </div>
     </div>
@@ -290,11 +290,13 @@ async def admin_mobile_shell(browser):
         direction:getComputedStyle(nav).flexDirection,
         visible:buttons.filter(x=>getComputedStyle(x).display!=="none").map(x=>x.textContent),
         hiddenGroups:buttons.filter(x=>["home","deposit","sale","report"].includes(x.dataset.group)||x.classList.contains("f4-back-account")).every(x=>getComputedStyle(x).display==="none"),
+        navVisible:box.width>0 && getComputedStyle(document.querySelector("#v16Navigation")).display!=="none",
         scrollOverflow:document.documentElement.scrollWidth>innerWidth+3};
     }""")
     assert drawer["visibility"]=="visible" and abs(drawer["top"]-56)<2,drawer
     assert abs(drawer["left"])<2 and 275<=drawer["width"]<=301,drawer
     assert drawer["display"]=="flex" and drawer["direction"]=="column",drawer
+    assert drawer["navVisible"],drawer
     assert drawer["hiddenGroups"],drawer
     assert len(drawer["visible"])==2,drawer
     assert drawer["visible"]==["Keuangan","Pengelolaan"],drawer
