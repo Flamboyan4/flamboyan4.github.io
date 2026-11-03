@@ -555,6 +555,7 @@ body:not(.f4-bank-app-admin) #dashboardView #pageProfile.f4-profile-card{
 #dashboardView .f4-bank-app-secondary{font-size:11px;color:#e0f2e8}
 
 #dashboardView #f4BankPageGreeting[hidden]{display:none}
+body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
 /* Primary operator actions: one component owner; no later card overrides. */
 #dashboardView #f4BankAdminOperations{
  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;min-width:0
@@ -1229,6 +1230,10 @@ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
 #dashboardView .f4-bank-admin-history-tabs[hidden]{display:none}
 .f4-bank-admin-cash-links{display:flex;flex-wrap:wrap;gap:8px}
 .f4-bank-admin-cash-links .f4-bank-secondary-action{min-height:36px}
+#dashboardView #f4BankAdminProgressLink{display:none}
+@media(max-width:1023px){
+ #dashboardView #f4BankAdminProgressLink{display:inline-flex;margin:0 0 12px}
+}
 .f4-bank-admin-history-tab{
  padding:9px 16px;border:1px solid #d3e5d9;
  border-radius:10px;background:#fff;color:#236044;font-weight:800;cursor:pointer
