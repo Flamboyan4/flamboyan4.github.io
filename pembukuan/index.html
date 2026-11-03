@@ -119,7 +119,7 @@
   body{background:#fff!important;color:#111!important}
   body *{visibility:hidden!important}
   #report-print-area,#report-print-area *{visibility:visible!important}
-  #report-print-area{position:absolute!important;left:0!important;top:0!important;width:100%!important;padding:0!important;margin:0!important}
+  #report-print-area{position:absolute!important;top:0!important;width:100%!important;}
   .no-print{display:none!important}
   .print-only{display:block!important}
   .report-letterhead{display:flex!important;align-items:center!important;gap:12px!important;margin:0 0 10px!important;padding:0 0 9px!important;border-bottom:1.5px solid #5b21b6!important}
@@ -135,7 +135,7 @@
   .report-card .text-lg,.report-card .text-xl{font-size:15px!important;line-height:1.2!important}
   .report-card .text-xs{font-size:10.5px!important}
   .report-table-wrap{overflow:visible!important;border-color:#bbb!important;border-radius:8px!important}
-  #report-rt-panel table{font-size:12px!important;min-width:0!important;width:100%!important}
+  #report-rt-panel table{}
   #report-rt-panel th,#report-rt-panel td{padding:7px 8px!important;line-height:1.25!important}
   #report-rt-panel thead th{font-size:11.5px!important}
   #report-rt-panel tfoot td{font-size:12px!important}
@@ -305,7 +305,7 @@
   #report-arisan-panel .report-letterhead{margin-bottom:8px!important}
   #report-arisan-panel>div.mb-5{text-align:center!important;margin-bottom:8px!important}
   #report-arisan-panel>div.grid.grid-cols-2.sm\:grid-cols-4{gap:5px!important;margin-bottom:8px!important}
-  #report-arisan-panel .report-card{padding:6px 8px!important;border-radius:8px!important}
+  #report-arisan-panel .report-card{border-radius:8px!important}
   #report-arisan-panel .report-card>div:first-child{font-size:8.5px!important;line-height:1!important}
   #report-arisan-panel .report-card>div[id]{font-size:13px!important;line-height:1.1!important;margin-top:3px!important}
   #report-arisan-panel table{font-size:10.5px!important;min-width:0!important;width:100%!important}
@@ -318,10 +318,10 @@
   #report-tahunan-panel .report-card{padding:7px!important}
 }
 
-</style>
-  
 
-<style id="v6172-debit-credit-precise">
+
+/* CSS owner consolidated from #v6172-debit-credit-precise; prior cascade position preserved */
+
 /* Desktop Debit/Kredit: alur kiri -> kanan seperti contoh pengguna */
 @media (min-width:1024px){
   #tab-transaksi .trx-layout{
@@ -352,9 +352,10 @@
   #tab-transaksi .trx-type .kas-jenis-btn{height:48px!important;padding-top:0!important;padding-bottom:0!important}
   #tab-transaksi label{display:block!important;margin-bottom:4px!important;line-height:1.2!important}
 }
-</style>
 
-<style id="v6174-history-report-polish">
+
+/* CSS owner consolidated from #v6174-history-report-polish; prior cascade position preserved */
+
 /* Riwayat: desktop tables must fit the card instead of running off-screen. */
 @media screen and (min-width: 768px){
   #tab-riwayat .history-scroll,
@@ -432,7 +433,7 @@
   #tab-laporan .report-table-wrap{overflow-x:auto!important}
   #tab-laporan .report-table-wrap table{width:100%!important;min-width:0!important;table-layout:auto!important;font-size:15px!important}
   #tab-laporan .report-table-wrap th{font-size:14px!important;font-weight:900!important}
-  #tab-laporan .report-table-wrap th,#tab-laporan .report-table-wrap td{padding:10px 10px!important;line-height:1.3!important;white-space:normal!important;vertical-align:middle!important}
+  #tab-laporan .report-table-wrap th,#tab-laporan .report-table-wrap td{padding:10px 10px!important;white-space:normal!important;vertical-align:middle!important}
   #tab-laporan .report-card{padding:10px 12px!important}
   #tab-laporan .report-card .text-xl{font-size:18px!important}
   #report-rt-panel table{table-layout:fixed!important}
@@ -449,10 +450,10 @@
 @media print{
   .report-letterhead .kop-unit{font-size:.72em!important}
 }
-</style>
 
 
-<style id="v6175-proportion-fix">
+/* CSS owner consolidated from #v6175-proportion-fix; prior cascade position preserved */
+
 /* v6.17.5 — proporsi, alur baca, dan ukuran font (font-size, bukan font-weight) */
 
 /* Talangan: dua kolom independen di desktop supaya rincian kanan tidak mendorong form kiri. */
@@ -487,7 +488,7 @@
   #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(1){width:10%!important}
   #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(2){width:18%!important}
   #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(3),#history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(4),#history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(5){width:9%!important}
-  #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(6){width:8%!important}
+  #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(6){}
   #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(7){width:19%!important}
   #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(8){width:18%!important}
 
@@ -514,14 +515,14 @@
 
 /* Print: margin A4 normal; jangan ikutkan padding layar. */
 @media print{
-  #report-print-area{padding:0!important}
+  #report-print-area{}
   @page{size:A4 portrait;margin:14mm}
   #report-kas-panel .no-print,#report-pinjaman-panel .no-print{display:none!important}
 }
-</style>
 
 
-<style>
+/* CSS owner consolidated from anonymous style 5; prior cascade position preserved */
+
 /* v6.18.2 - mobile custom dropdown ditempatkan di atas viewport agar tidak tertutup keyboard */
 @media (max-width: 640px){
   .custom-select-panel{
@@ -623,9 +624,10 @@ main > section.card{overflow:visible!important}
   .custom-select-panel{max-height:min(420px,calc(100vh - 32px))!important}
   .cs-list{max-height:min(340px,calc(100vh - 120px))!important}
 }
-</style>
 
-<style id="v619-mobile-mode-clean">
+
+/* CSS owner consolidated from #v619-mobile-mode-clean; prior cascade position preserved */
+
 /* v6.19 — mobile Catat/Bayar selalu terlihat + tombol aktif solid tanpa glow */
 .process-btn.active,.history-btn.active,.drawer-item.active,.loan-mode-btn.active,.denda-mode-btn.active,.kas-jenis-btn.active{box-shadow:none!important;filter:none!important}
 .process-btn:focus-visible,.history-btn:focus-visible,.drawer-item:focus-visible,.loan-mode-btn:focus-visible,.denda-mode-btn:focus-visible,.kas-jenis-btn:focus-visible{box-shadow:none!important}
@@ -683,9 +685,10 @@ main > section.card{overflow:visible!important}
 .loan-payment-history .loan-history-body{padding:0 0 12px}
 .loan-payment-history .loan-history-note{padding:10px 16px 8px;font-size:12px;color:#64748b}
 @media(max-width:640px){.loan-payment-history>summary{padding:12px}.loan-payment-history .loan-history-note{padding:9px 12px 7px}}
-</style>
 
-<style id="v6206-loan-columns-compact-fix">
+
+/* CSS owner consolidated from #v6206-loan-columns-compact-fix; prior cascade position preserved */
+
 /* v6.20.6 — FIX selector + rapatkan kolom Riwayat Pinjaman agar semua aksi muat. */
 @media screen and (min-width:768px){
   /* Target tabel ringkasan pinjaman secara LANGSUNG, bukan :first-of-type yang sebelumnya tidak kena. */
@@ -734,9 +737,10 @@ main > section.card{overflow:visible!important}
     flex:0 0 auto!important;
   }
 }
-</style>
 
-<style id="v6207-tables-balanced-mobile-compact">
+
+/* CSS owner consolidated from #v6207-tables-balanced-mobile-compact; prior cascade position preserved */
+
 /* v6.20.8 — desktop pinjaman lebih seimbang + semua tabel HP lebih padat. */
 @media screen and (min-width:768px){
   /* Riwayat Pinjaman: distribusi kolom lebih seimbang, tetap sisakan ruang cukup untuk 3 tombol aksi. */
@@ -781,7 +785,7 @@ main > section.card{overflow:visible!important}
   #history-iuran-panel .history-scroll table{min-width:430px!important;width:430px!important}
   #history-kasumum-panel .history-scroll table{min-width:560px!important;width:560px!important}
   #history-batch-panel table{min-width:460px!important;width:460px!important}
-  #history-pinjaman-panel > .loan-scroll > table{min-width:515px!important;width:515px!important;table-layout:fixed!important}
+  #history-pinjaman-panel > .loan-scroll > table{min-width:515px!important;width:515px!important;}
   #history-talangan-panel .loan-scroll table{min-width:550px!important;width:550px!important}
   #history-denda-panel .loan-scroll table{min-width:515px!important;width:515px!important}
   .loan-payment-history .loan-scroll table{min-width:455px!important;width:455px!important}
@@ -820,12 +824,12 @@ main > section.card{overflow:visible!important}
   #history-pinjaman-panel > .loan-scroll > table th:nth-child(6){width:9%!important}
   #history-pinjaman-panel > .loan-scroll > table th:nth-child(7){width:14%!important}
   #history-pinjaman-panel > .loan-scroll > table th:nth-child(8){width:16%!important}
-  #history-pinjaman-panel > .loan-scroll > table td:nth-child(8)>div{gap:3px!important;justify-content:flex-start!important}
+  #history-pinjaman-panel > .loan-scroll > table td:nth-child(8)>div{}
 }
-</style>
 
 
-<style id="v6209-mobile-column-spacing-fix">
+/* CSS owner consolidated from #v6209-mobile-column-spacing-fix; prior cascade position preserved */
+
 /* v6.20.9 — HP: KECILKAN JARAK ANTAR KOLOM, BUKAN FONT.
    Font dikembalikan ke ukuran normal; tabel mengikuti lebar isi agar tidak ada ruang kosong besar. */
 @media screen and (max-width:767px){
@@ -866,7 +870,6 @@ main > section.card{overflow:visible!important}
   #tab-laporan table{
     width:max-content!important;
     min-width:100%!important;
-    table-layout:auto!important;
   }
 
   /* Kolom teks boleh membungkus agar tidak memaksa tabel jadi terlalu panjang. */
@@ -876,7 +879,6 @@ main > section.card{overflow:visible!important}
   #tab-talangan td,
   #tab-denda td,
   #tab-laporan td{
-    white-space:normal!important;
     overflow-wrap:normal!important;
     word-break:normal!important;
   }
@@ -907,16 +909,15 @@ main > section.card{overflow:visible!important}
 
   /* Riwayat Pinjaman: tetap rapat tetapi tombol aksi muat. */
   #history-pinjaman-panel > .loan-scroll > table th,
-  #history-pinjaman-panel > .loan-scroll > table td{width:auto!important;min-width:0!important}
+  #history-pinjaman-panel > .loan-scroll > table td{}
   #history-pinjaman-panel > .loan-scroll > table td:nth-child(2){max-width:125px!important}
   #history-pinjaman-panel > .loan-scroll > table td:nth-child(7){max-width:120px!important}
   #history-pinjaman-panel > .loan-scroll > table td:nth-child(8)>div{gap:3px!important}
 }
-</style>
 
 
+/* CSS owner consolidated from #v6210-true-column-gap-fix; prior cascade position preserved */
 
-<style id="v6210-true-column-gap-fix">
 /* v6.20.10 — HP: yang dipadatkan adalah JARAK ANTAR KOLOM, bukan ukuran teks.
    Target visual: A   B   C, bukan A                 B                 C. */
 @media screen and (max-width:767px){
@@ -987,8 +988,6 @@ main > section.card{overflow:visible!important}
   #history-pinjaman-panel > .loan-scroll > table td:nth-child(2){max-width:118px!important}
   #history-pinjaman-panel > .loan-scroll > table td:nth-child(7){max-width:105px!important}
   #history-pinjaman-panel > .loan-scroll > table td:nth-child(8)>div{
-    gap:4px!important;
-    justify-content:flex-start!important;
   }
 
   /* Riwayat Iuran: jangan ada kolom yang mengembang hanya karena w-full/min-width lama. */
@@ -1002,10 +1001,10 @@ main > section.card{overflow:visible!important}
     min-width:0!important;
   }
 }
-</style>
 
 
-<style id="v6211-table-balance-fix">
+/* CSS owner consolidated from #v6211-table-balance-fix; prior cascade position preserved */
+
 /* v6.20.11 — HP table balance: font normal, gap antar kolom rapat, tiap tabel punya lebar proporsional.
    Prinsip: nama warga satu baris, header singkat, tombol tidak terpotong, scroll horizontal tetap pendek. */
 @media screen and (max-width:767px){
@@ -1054,14 +1053,14 @@ main > section.card{overflow:visible!important}
   #history-kasumum-panel th:nth-child(2),#history-kasumum-panel td:nth-child(2){width:78px!important}
   #history-kasumum-panel th:nth-child(3),#history-kasumum-panel td:nth-child(3){width:92px!important}
   #history-kasumum-panel th:nth-child(4),#history-kasumum-panel td:nth-child(4){width:145px!important}
-  #history-kasumum-panel th:nth-child(5),#history-kasumum-panel td:nth-child(5){width:78px!important;white-space:nowrap!important}
-  #history-kasumum-panel th:nth-child(6),#history-kasumum-panel td:nth-child(6){width:78px!important;white-space:nowrap!important}
-  #history-kasumum-panel th:nth-child(7),#history-kasumum-panel td:nth-child(7){width:75px!important;white-space:nowrap!important}
-  #history-kasumum-panel th:nth-child(8),#history-kasumum-panel td:nth-child(8){width:66px!important;white-space:nowrap!important}
+  #history-kasumum-panel th:nth-child(5),#history-kasumum-panel td:nth-child(5){width:78px!important;}
+  #history-kasumum-panel th:nth-child(6),#history-kasumum-panel td:nth-child(6){width:78px!important;}
+  #history-kasumum-panel th:nth-child(7),#history-kasumum-panel td:nth-child(7){width:75px!important;}
+  #history-kasumum-panel th:nth-child(8),#history-kasumum-panel td:nth-child(8){width:66px!important;}
   #history-kasumum-panel th:nth-child(9),#history-kasumum-panel td:nth-child(9){width:80px!important;white-space:nowrap!important}
 
   /* RIWAYAT PINJAMAN — nama 1 baris, 3 tombol aksi tetap utuh. */
-  #history-pinjaman-panel > .loan-scroll > table{width:790px!important;min-width:790px!important;table-layout:fixed!important}
+  #history-pinjaman-panel > .loan-scroll > table{width:790px!important;min-width:790px!important;}
   #history-pinjaman-panel > .loan-scroll > table th:nth-child(1),#history-pinjaman-panel > .loan-scroll > table td:nth-child(1){width:88px!important}
   #history-pinjaman-panel > .loan-scroll > table th:nth-child(2),#history-pinjaman-panel > .loan-scroll > table td:nth-child(2){width:135px!important;white-space:nowrap!important}
   #history-pinjaman-panel > .loan-scroll > table th:nth-child(3),#history-pinjaman-panel > .loan-scroll > table td:nth-child(3){width:78px!important}
@@ -1073,7 +1072,7 @@ main > section.card{overflow:visible!important}
   #history-pinjaman-panel > .loan-scroll > table td:nth-child(8)>div{gap:4px!important;justify-content:flex-start!important;flex-wrap:nowrap!important}
 
   /* DETAIL CICILAN */
-  .loan-payment-history .loan-scroll table{width:660px!important;min-width:660px!important;table-layout:fixed!important}
+  .loan-payment-history .loan-scroll table{width:660px!important;min-width:660px!important;}
   .loan-payment-history th:nth-child(1),.loan-payment-history td:nth-child(1){width:88px!important}
   .loan-payment-history th:nth-child(2),.loan-payment-history td:nth-child(2){width:135px!important;white-space:nowrap!important}
   .loan-payment-history th:nth-child(3),.loan-payment-history td:nth-child(3){width:82px!important}
@@ -1083,7 +1082,7 @@ main > section.card{overflow:visible!important}
   .loan-payment-history th:nth-child(7),.loan-payment-history td:nth-child(7){width:125px!important;white-space:nowrap!important}
 
   /* RIWAYAT TALANGAN — header dipendekkan; nama warga 1 baris. */
-  #history-talangan-panel table{width:820px!important;min-width:820px!important;table-layout:fixed!important}
+  #history-talangan-panel table{width:820px!important;min-width:820px!important;}
   #history-talangan-panel th:nth-child(1),#history-talangan-panel td:nth-child(1){width:108px!important}
   #history-talangan-panel th:nth-child(2),#history-talangan-panel td:nth-child(2){width:125px!important;white-space:nowrap!important}
   #history-talangan-panel th:nth-child(3),#history-talangan-panel td:nth-child(3){width:80px!important}
@@ -1095,7 +1094,7 @@ main > section.card{overflow:visible!important}
   #history-talangan-panel th:nth-child(9),#history-talangan-panel td:nth-child(9){width:100px!important;white-space:nowrap!important}
 
   /* RIWAYAT DENDA */
-  #history-denda-panel table{width:675px!important;min-width:675px!important;table-layout:fixed!important}
+  #history-denda-panel table{width:675px!important;min-width:675px!important;}
   #history-denda-panel th:nth-child(1),#history-denda-panel td:nth-child(1){width:88px!important}
   #history-denda-panel th:nth-child(2),#history-denda-panel td:nth-child(2){width:125px!important;white-space:nowrap!important}
   #history-denda-panel th:nth-child(3),#history-denda-panel td:nth-child(3){width:125px!important}
@@ -1105,7 +1104,7 @@ main > section.card{overflow:visible!important}
   #history-denda-panel th:nth-child(7),#history-denda-panel td:nth-child(7){width:80px!important;white-space:nowrap!important}
 
   /* RIWAYAT BATCH */
-  #history-batch-panel table{width:620px!important;min-width:620px!important;table-layout:fixed!important}
+  #history-batch-panel table{width:620px!important;min-width:620px!important;}
   #history-batch-panel th:nth-child(1),#history-batch-panel td:nth-child(1){width:88px!important}
   #history-batch-panel th:nth-child(2),#history-batch-panel td:nth-child(2){width:90px!important}
   #history-batch-panel th:nth-child(3),#history-batch-panel td:nth-child(3){width:155px!important}
@@ -1156,7 +1155,7 @@ main > section.card{overflow:visible!important}
 .history-period-box>.field{width:150px}
 .history-period-box>div>.field{width:145px}
 .history-month-pair{display:grid;grid-template-columns:minmax(118px,1.25fr) minmax(82px,.75fr);gap:6px;min-width:210px}
-.history-range-box{display:flex;align-items:center;gap:6px}
+.history-range-box{gap:6px}
 .history-range-sep{font-size:12px;font-weight:800;color:#64748b;white-space:nowrap}
 .history-iuran-search{margin-left:auto}
 .history-iuran-search input{width:220px}
@@ -1204,10 +1203,10 @@ main > section.card{overflow:visible!important}
   #history-talangan-panel td:nth-child(2)>div:first-child,
   #history-denda-panel td:nth-child(2)>div:first-child{white-space:nowrap!important}
 }
-</style>
 
 
-<style id="v6214-table-proportion-master-fix">
+/* CSS owner consolidated from #v6214-table-proportion-master-fix; prior cascade position preserved */
+
 /* v6.21.4 — MASTER TABLE PROPORTION FIX
    Fokus: kolom seimbang, jarak tidak mubazir, info rumah/ID inline di desktop,
    tetap bertumpuk rapi di HP. Semua revisi v6.21.3 tetap dipertahankan. */
@@ -1383,7 +1382,7 @@ main > section.card{overflow:visible!important}
   #history-iuran-panel th:nth-child(5),#history-iuran-panel td:nth-child(5){width:72px!important}
   #history-iuran-panel th:nth-child(6),#history-iuran-panel td:nth-child(6){width:108px!important}
 
-  #history-kasumum-panel table{width:720px!important;min-width:720px!important;table-layout:fixed!important}
+  #history-kasumum-panel table{width:720px!important;min-width:720px!important;}
   #history-batch-panel table{width:560px!important;min-width:560px!important;table-layout:fixed!important}
   #history-pinjaman-panel > .loan-scroll > table{width:700px!important;min-width:700px!important;table-layout:fixed!important}
   .loan-payment-history .loan-scroll table{width:590px!important;min-width:590px!important;table-layout:fixed!important}
@@ -1400,7 +1399,7 @@ main > section.card{overflow:visible!important}
   }
 
   /* Icon action HP lebih ringkas, tetap nyaman disentuh. */
-  #tab-riwayat .action-icons{gap:4px!important;justify-content:center!important}
+  #tab-riwayat .action-icons{gap:4px!important;}
   #tab-riwayat .action-icon{width:32px!important;height:32px!important;padding:0!important}
   #tab-riwayat .action-icon svg{width:16px!important;height:16px!important}
 
@@ -1412,10 +1411,10 @@ main > section.card{overflow:visible!important}
   #tab-riwayat .loan-scroll table thead tr,
   #tab-riwayat .loan-scroll table thead th{background:#f5f3ff!important}
 }
-</style>
 
 
-<style id="v6231-iuran-quick-summary">
+/* CSS owner consolidated from #v6231-iuran-quick-summary; prior cascade position preserved */
+
 .iuran-quick-summary{border:1px solid #ede9fe;background:linear-gradient(180deg,#fcfbff 0%,#fff 100%);border-radius:16px;padding:12px}
 .iuran-quick-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
 .iuran-quick-title{font-size:14px;line-height:1.15;font-weight:900;color:#2e1065}
@@ -1436,10 +1435,10 @@ main > section.card{overflow:visible!important}
   .iuran-summary-tile{min-height:49px;padding:6px 8px;border-radius:9px}
   .iuran-summary-tile span{font-size:9.5px}.iuran-summary-tile strong{font-size:13px;margin-top:3px}
 }
-</style>
 
 
-<style id="v6240-iuran-counts-cash-position">
+/* CSS owner consolidated from #v6240-iuran-counts-cash-position; prior cascade position preserved */
+
 .iuran-summary-tile.has-meta{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px}
 .iq-main{min-width:0;display:flex;flex-direction:column;justify-content:center}
 .iq-counts{font-size:9.5px;line-height:1.2;font-weight:800;color:#64748b;text-align:right;white-space:nowrap}
@@ -1470,9 +1469,10 @@ main > section.card{overflow:visible!important}
     margin-top:24px !important;
   }
 }
-</style>
 
-<style id="v6255-report-rt-cell-color-bigger-text">
+
+/* CSS owner consolidated from #v6255-report-rt-cell-color-bigger-text; prior cascade position preserved */
+
 /* Keterangan: warna seluruh CELL, teks tetap hitam dan ukuran sama dengan kolom lain.
    Inset shadow membantu warna sel ikut tercetak walau opsi Print backgrounds browser mati. */
 #report-rt-panel td.report-ket-rt{background:#fef3c7!important;box-shadow:inset 0 0 0 9999px #fef3c7!important;color:#111827!important;font-weight:700!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
@@ -1491,9 +1491,7 @@ main > section.card{overflow:visible!important}
     border-radius:0!important;
   }
   #report-rt-panel table{
-    width:100%!important;
     min-width:0!important;
-    table-layout:fixed!important;
     font-size:12px!important;
   }
   #report-rt-panel th,#report-rt-panel td{
@@ -1506,15 +1504,15 @@ main > section.card{overflow:visible!important}
   #report-rt-panel tfoot td{font-size:11.8px!important;padding-top:3.7px!important;padding-bottom:3.7px!important}
 
   /* Kolom dibuat rapat; tidak ada ruang kosong berlebihan */
-  #report-rt-panel th:nth-child(1),#report-rt-panel td:nth-child(1){width:6%!important}
+  #report-rt-panel th:nth-child(1),#report-rt-panel td:nth-child(1){}
   #report-rt-panel th:nth-child(2),#report-rt-panel td:nth-child(2){width:24%!important}
-  #report-rt-panel th:nth-child(3),#report-rt-panel td:nth-child(3){width:13%!important}
+  #report-rt-panel th:nth-child(3),#report-rt-panel td:nth-child(3){}
   #report-rt-panel th:nth-child(4),#report-rt-panel td:nth-child(4){width:21%!important}
   #report-rt-panel th:nth-child(5),#report-rt-panel td:nth-child(5){width:18%!important;white-space:nowrap!important}
   #report-rt-panel th:nth-child(6),#report-rt-panel td:nth-child(6){width:18%!important;white-space:nowrap!important}
 
   #report-rt-panel .report-qty-badge{display:none!important}
-  #report-rt-panel .mt-5.text-right{width:90%!important;max-width:184mm!important;margin:14px auto 0!important;font-size:10.5px!important}
+  #report-rt-panel .mt-5.text-right{width:90%!important;max-width:184mm!important;margin:14px auto 0!important;}
   #report-rt-panel .mb-5{margin-bottom:8px!important}
   #report-rt-panel h2{font-size:18px!important;line-height:1.1!important}
   #report-rt-panel p{font-size:10px!important;margin-top:2px!important}
@@ -1525,9 +1523,10 @@ main > section.card{overflow:visible!important}
   #report-rt-panel .report-letterhead .kop-name{font-size:14px!important}
   #report-rt-panel .report-letterhead .kop-sub{font-size:9px!important}
 }
-</style>
 
-<style id="v6260-main-report-style-sync">
+
+/* CSS owner consolidated from #v6260-main-report-style-sync; prior cascade position preserved */
+
 /* Laporan Kas mengikuti gaya formal laman utama: 3 ringkasan, tabel bersih, total di bawah. */
 #report-kas-panel .kas-report-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}
 #report-kas-panel .kas-report-brand{display:flex;align-items:flex-start;gap:13px;min-width:0}
@@ -1616,9 +1615,10 @@ main > section.card{overflow:visible!important}
   #report-kas-panel .kas-report-brand h2{font-size:16px}
   #report-kas-panel .kas-report-badge{display:none}
 }
-</style>
 
-<style id="v6263-iuran-counts-two-rows">
+
+/* CSS owner consolidated from #v6263-iuran-counts-two-rows; prior cascade position preserved */
+
 /* Jumlah bayar/belum tetap di kanan card, tetapi dua baris supaya tidak menabrak nominal. */
 .iuran-summary-tile.has-meta{grid-template-columns:minmax(0,1fr) max-content!important;align-items:center!important;column-gap:7px!important}
 .iuran-summary-tile.has-meta .iq-main{min-width:0!important}
@@ -1635,9 +1635,10 @@ main > section.card{overflow:visible!important}
  .iuran-summary-tile.has-meta .iq-count-mobile .mitem{display:inline-flex!important;gap:2px!important;align-items:center!important}
  .iuran-summary-tile.has-meta .iq-count-mobile svg{width:11px!important;height:11px!important;flex:none!important}
 }
-</style>
 
-<style id="v6268-desktop-fixed-sidebar">
+
+/* CSS owner consolidated from #v6268-desktop-fixed-sidebar; prior cascade position preserved */
+
 /* Sidebar is persistent only on PC. Phone/tablet retain the existing drawer. */
 @media screen and (min-width: 1024px) {
   :root { --desktop-nav-width: 258px; }
@@ -1655,8 +1656,10 @@ main > section.card{overflow:visible!important}
   body > #side-drawer { display:none!important; }
   body > header, body > main { margin-left:0!important; width:auto!important; }
 }
-</style>
-<style id="v6269-talangan-colwidth">
+
+
+/* CSS owner consolidated from #v6269-talangan-colwidth; prior cascade position preserved */
+
 @media screen and (min-width:1024px){
 #history-talangan-panel th:nth-child(1),#history-talangan-panel td:nth-child(1){width:13%!important}
 #history-talangan-panel th:nth-child(2),#history-talangan-panel td:nth-child(2){width:17%!important}
@@ -1673,16 +1676,22 @@ main > section.card{overflow:visible!important}
 <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://api.flamboyan4.web.id; form-action 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com;"><!-- Production: offline-common.js removed because it denies all POST writes. --><script src="/portal-live/calendar-unified.js"></script><!-- D1 only: contoh offline tidak pernah dimuat pada laman operasional -->
 <script src="/portal-live/live-book-readonly.js?v=iuran-period-history-20261030"></script>
 <script src="/portal-live/f4-book-write-bridge.js?v=kas-denda-batch-20261028a"></script>
-<script src="/portal-live/f4-book-operations-bridge.js?v=kas-gorol-batch-20261028"></script><style id="f4-no-double-navbar">body>header:first-of-type{display:none!important} @media(max-width:850px){#f4-demo-book-hamburger{display:grid!important}} #f4-demo-book-hamburger{display:none;position:fixed;left:11px;top:9px;z-index:60;place-items:center;width:38px;height:38px;background:#f1ebff;color:#5b33c4;border:1px solid #d8cafa;border-radius:9px}</style><style id="f4-book-integrated-alignment">
+<script src="/portal-live/f4-book-operations-bridge.js?v=kas-gorol-batch-20261028"></script><style id="f4-no-double-navbar">body>header:first-of-type{display:none!important} @media(max-width:850px){#f4-demo-book-hamburger{display:grid!important}} #f4-demo-book-hamburger{display:none;position:fixed;left:11px;top:9px;z-index:60;place-items:center;width:38px;height:38px;background:#f1ebff;color:#5b33c4;border:1px solid #d8cafa;border-radius:9px}
+
+/* CSS owner consolidated from #f4-book-integrated-alignment; prior cascade position preserved */
+
 /* Desktop: original bookkeeping sidebar starts at y=0; content clears shared 56px overlay */
 @media(min-width:1024px){
  body>main{padding-top:64px!important}
  body>#side-drawer{top:0!important;height:100dvh!important}
  body>#side-drawer .drawer-panel{height:100dvh!important}
  body>#side-drawer .drawer-panel>div:first-child{height:80px!important;padding:16px 17px!important;border-bottom:1px solid #eee9f8!important}
- body>#side-drawer .drawer-panel>div:first-child .font-black{font-size:15px!important;line-height:1.3!important}
+ body>#side-drawer .drawer-panel>div:first-child .font-black{line-height:1.3!important}
 }
-</style><style id="f4-original-sidebar-consistency">
+
+
+/* CSS owner consolidated from #f4-original-sidebar-consistency; prior cascade position preserved */
+
   @media(min-width:1024px){
     body>#side-drawer .drawer-panel{background:#fff!important;border-radius:0!important}
     body>#side-drawer .drawer-panel>div:first-child{height:82px!important;border-color:#eee8f5!important;padding:13px 14px!important}
@@ -1704,16 +1713,22 @@ main > section.card{overflow:visible!important}
     body>#side-drawer .drawer-item:hover:not(.active){background:#f5f0fc!important;color:#6535d7!important}
     body>#side-drawer .drawer-item i,body>#side-drawer .drawer-item svg{width:19px!important;height:19px!important}
   }
-  </style><style id="f4-book-mobile-nav-repair">
+  
+
+/* CSS owner consolidated from #f4-book-mobile-nav-repair; prior cascade position preserved */
+
 @media(max-width:1023px){
- #f4-demo-book-hamburger{display:none!important}
+ #f4-demo-book-hamburger{}
  body>header:first-of-type{display:none!important}
- body>main{padding-top:60px!important;max-width:100%!important;min-width:0!important}
+ body>main{max-width:100%!important;min-width:0!important}
  body>#side-drawer{z-index:160!important}
  body>#side-drawer .drawer-panel{width:min(300px,86vw)!important;max-width:86vw!important}
  body>main .overflow-x-auto{max-width:100%!important}
 }
-</style><style id="f4-book-single-mobile-menu">
+
+
+/* CSS owner consolidated from #f4-book-single-mobile-menu; prior cascade position preserved */
+
 @media(max-width:1023px){
  #f4-demo-book-hamburger{display:none!important}
  body>main>header button[aria-label="Buka menu"],
@@ -1741,7 +1756,7 @@ main > section.card{overflow:visible!important}
   #report-arisan-panel h2,#report-denda-panel h2,#report-pinjaman-panel h2,
   #report-talangan-panel h2{font-size:16px!important;line-height:1.15!important;margin:5px 0 4px!important;text-align:center!important}
   #report-arisan-panel>div.grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important;margin-bottom:8px!important}
-  #report-arisan-panel .report-card{min-width:0!important;padding:6px 8px!important;border:1px solid #cbd5e1!important;border-radius:5px!important}
+  #report-arisan-panel .report-card{min-width:0!important;padding:6px 8px!important;border:1px solid #cbd5e1!important;}
   #report-arisan-panel .report-card>div[id]{font-size:12px!important}
   #report-arisan-panel .report-table-wrap,#report-denda-panel .report-table-wrap,
   #report-pinjaman-panel .report-table-wrap,#report-talangan-panel .report-table-wrap{
@@ -1749,9 +1764,8 @@ main > section.card{overflow:visible!important}
     overflow:visible!important;margin:0!important;border-radius:0!important;break-inside:auto!important
   }
   #report-arisan-panel table,#report-denda-panel table,#report-pinjaman-panel table,#report-talangan-panel table{
-    box-sizing:border-box!important;width:100%!important;max-width:none!important;min-width:0!important;table-layout:auto!important;
-    margin:0!important;font-size:9.5px!important;line-height:1.15!important;border-collapse:collapse!important
-  }
+    box-sizing:border-box!important;
+    margin:0!important;font-size:9.5px!important;line-height:1.15!important;}
   #report-arisan-panel table th,#report-arisan-panel table td,
   #report-denda-panel table th,#report-denda-panel table td,
   #report-pinjaman-panel table th,#report-pinjaman-panel table td,
@@ -3821,7 +3835,7 @@ function printKasSepertiLamanUtama(){
   const tanggalCetak=new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
   const w=window.open('','_blank'); if(!w)return alert('Pop-up diblokir. Izinkan pop-up lalu coba kembali.');
   w.document.write(`<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapePrint(getNamaFileLaporan())}</title><style>
-@page{size:A4 portrait;margin:11mm 12mm 12mm}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#1e293b;font-size:10.5px;line-height:1.42;-webkit-print-color-adjust:exact;print-color-adjust:exact}.header{display:flex;align-items:center;gap:12px;border-bottom:2px solid #1e293b;padding-bottom:9px;margin-bottom:10px;break-inside:avoid}.logo{width:54px;height:54px;object-fit:contain}.headtext{flex:1}.headtext h1{font-size:17px;margin:0 0 3px;font-weight:800}.headtext p{margin:2px 0;color:#475569}.periode{font-weight:700;color:#312e81!important}.badge{font-size:9px;font-weight:700;border:1px solid #c7d2fe;background:#eef2ff;color:#3730a3;padding:4px 7px;border-radius:12px;white-space:nowrap}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:9px 0 11px;break-inside:avoid}.metric{border:1px solid #cbd5e1;border-radius:5px;padding:8px}.mlabel{font-size:8.5px;color:#64748b;text-transform:uppercase;font-weight:700}.mvalue{font-size:13.5px;font-weight:800;margin-top:3px}.masuk{color:#047857}.keluar{color:#be123c}.saldo{color:#3730a3}.tersedia{color:#0f766e}h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collapse:collapse;table-layout:fixed}thead{display:table-header-group}tr{break-inside:avoid}th{background:#f1f5f9;color:#334155;font-size:10.5px;text-align:center;border:1px solid #000;padding:3px 5px}td{border:1px solid #000;padding:3px 5px;vertical-align:middle;overflow-wrap:anywhere}.c{text-align:center}.r{text-align:right}.nowrap{white-space:nowrap}.empty{text-align:center;color:#64748b;padding:12px}tfoot tr{break-inside:avoid;page-break-inside:avoid}tfoot td{background:#f8fafc!important;font-weight:800!important;border-top:1.5px solid #000;padding:6px 5px!important;white-space:nowrap}.total-label{text-align:left;color:#334155}.approval{margin-top:7mm;text-align:center;break-inside:avoid;page-break-inside:avoid}.approval>div{width:60mm;max-width:100%;margin:0 auto}.sign-title{font-size:10px;margin-bottom:14mm}.sign-line{border-top:1px solid #000;padding-top:4px;font-size:10px;font-weight:700}.note{margin-top:8px;font-size:8.5px;color:#64748b;border-top:1px solid #000;padding-top:5px}@media screen{body{max-width:186mm;margin:14px auto;padding:0 4px;background:white}}</style></head><body>
+@page{size:A4 portrait;margin:11mm 12mm 12mm}*{}body{line-height:1.42;}.header{padding-bottom:9px;margin-bottom:10px;break-inside:avoid}.logo{width:54px;height:54px;}.headtext{}.headtext h1{font-size:17px;}.headtext p{}.periode{}.badge{font-size:9px;font-weight:700;border:1px solid #c7d2fe;background:#eef2ff;color:#3730a3;padding:4px 7px;border-radius:12px;white-space:nowrap}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:9px 0 11px;break-inside:avoid}.metric{border:1px solid #cbd5e1;border-radius:5px;padding:8px}.mlabel{font-size:8.5px;color:#64748b;text-transform:uppercase;font-weight:700}.mvalue{font-size:13.5px;font-weight:800;margin-top:3px}.masuk{color:#047857}.keluar{color:#be123c}.saldo{color:#3730a3}.tersedia{color:#0f766e}h2{margin:10px 0 5px;color:#1e293b}table{}thead{display:table-header-group}tr{break-inside:avoid}th{font-size:10.5px;padding:3px 5px}td{padding:3px 5px;overflow-wrap:anywhere}.c{}.r{}.nowrap{}.empty{}tfoot tr{break-inside:avoid;page-break-inside:avoid}tfoot td{background:#f8fafc!important;font-weight:800!important;border-top:1.5px solid #000;padding:6px 5px!important;white-space:nowrap}.total-label{text-align:left;color:#334155}.approval{margin-top:7mm;text-align:center;break-inside:avoid;page-break-inside:avoid}.approval>div{width:60mm;max-width:100%;margin:0 auto}.sign-title{font-size:10px;margin-bottom:14mm}.sign-line{border-top:1px solid #000;padding-top:4px;font-size:10px;font-weight:700}.note{}@media screen{body{background:white}}</style></head><body>
 <header class="header"><img class="logo" src="https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027-v2" alt="Logo"><div class="headtext"><h1>LAPORAN KEUANGAN KAS WARGA FLAMBOYAN 4</h1><p>RT 001 RW 026 Pesona Kahuripan 2</p><p class="periode">${escapePrint(periode?`Periode ${periode}`:'')}</p></div><span class="badge">LAPORAN KAS</span></header>
 <div class="summary"><div class="metric"><div class="mlabel">Saldo Awal</div><div class="mvalue saldo">${escapePrint(rupiah(r.saldoAwal||0))}</div></div><div class="metric"><div class="mlabel">${escapePrint(labelSaldoKas)}</div><div class="mvalue masuk">${escapePrint(f4KasSignedNet(r.saldoPeriode))}</div></div><div class="metric"><div class="mlabel">${escapePrint(labelSaldoAkhir)}</div><div class="mvalue tersedia">${escapePrint(rupiah(saldoAkhir))}</div></div></div>
 <h2>Rincian Transaksi</h2><table><colgroup><col style="width:5%"><col style="width:15%"><col style="width:34%"><col style="width:14%"><col style="width:14%"><col style="width:18%"></colgroup><thead><tr><th>No</th><th>Tanggal</th><th>Keterangan</th><th class="r">Debit</th><th class="r">Kredit</th><th class="r">Saldo Berjalan</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td colspan="3" class="total-label">Total Periode</td><td class="r masuk nowrap">${escapePrint(rupiah(r.debit||0))}</td><td class="r keluar nowrap">${escapePrint(rupiah(r.kredit||0))}</td><td class="r nowrap" style="color:#64748b">—</td></tr></tfoot></table>
@@ -4316,8 +4330,10 @@ async function hapusPinjamanPermanen(id){const x=(DATA_PINJAMAN.rows||[]).find(v
     min-height:46px!important;width:100%!important;
   }
 }
-</style>
-<style id="v6212-history-filter-dropdown-anchored">
+
+
+/* CSS owner consolidated from #v6212-history-filter-dropdown-anchored; prior cascade position preserved */
+
 /* v6.21.2 — dropdown filter Riwayat menempel ke field, tidak meloncat ke atas layar */
 @media screen and (max-width:640px){
   .history-iuran-filter .custom-select-wrap{position:relative!important;z-index:auto!important}
@@ -4330,13 +4346,14 @@ async function hapusPinjamanPermanen(id){const x=(DATA_PINJAMAN.rows||[]).find(v
   .history-iuran-filter .custom-select-panel .cs-list{max-height:270px!important;overflow-y:auto!important}
   .history-iuran-filter .custom-select-btn{font-size:15px!important}
   .history-iuran-filter .cs-option{font-size:15px!important;line-height:1.25!important;padding:10px 12px!important;min-height:42px!important}
-  .history-period-box{grid-template-columns:145px minmax(0,1fr)!important;gap:8px!important}
+  .history-period-box{}
   .history-period-box > .custom-select-wrap:first-child .custom-select-panel{width:190px!important;min-width:190px!important;max-width:min(210px,calc(100vw - 48px))!important}
   .history-iuran-search .custom-select-panel{width:145px!important;min-width:145px!important;max-width:180px!important}
 }
-</style>
 
-<style id="v6213-combined-month-year-filter">
+
+/* CSS owner consolidated from #v6213-combined-month-year-filter; prior cascade position preserved */
+
 /* v6.21.3 — Bulan + tahun menjadi satu kontrol kalender */
 .history-month-single{width:185px;min-width:185px}
 .history-month-single .field,.history-year-single .field{width:100%}
@@ -4351,10 +4368,10 @@ async function hapusPinjamanPermanen(id){const x=(DATA_PINJAMAN.rows||[]).find(v
   .history-range-box>input.field{width:100%!important;min-width:0!important}
   #riwayat-period-month,#riwayat-period-start,#riwayat-period-end,#riwayat-period-year{font-size:16px!important}
 }
-</style>
 
 
-<style id="v6215-mobile-dropdown-smart-position">
+/* CSS owner consolidated from #v6215-mobile-dropdown-smart-position; prior cascade position preserved */
+
 /* v6.21.5 — HP: dropdown biasa menempel ke field; dropdown dengan search naik responsif di atas keyboard. */
 @media screen and (max-width:640px){
   /* DEFAULT: semua dropdown TANPA search menempel di bawah field. */
@@ -4415,12 +4432,10 @@ async function hapusPinjamanPermanen(id){const x=(DATA_PINJAMAN.rows||[]).find(v
   /* Tidak ada backdrop gelap. */
   .custom-select-wrap.open:before{display:none!important;content:none!important;background:transparent!important}
 }
-</style>
 
 
+/* CSS owner consolidated from #v6216-history-filter-table-final-polish; prior cascade position preserved */
 
-
-<style id="v6216-history-filter-table-final-polish">
 /* v6.21.6 — final polish: filter jelas, aksi center, Kas tanpa Jenis, filter periode tidak tumpuk. */
 
 /* Pastikan hanya kontrol periode aktif yang tampil. */
@@ -5210,8 +5225,10 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
     padding:3px 4px!important;border:1px solid #d5dbe7!important;
   }
 }
-</style>
-<style id="f4-book-annual-table-unified-20261024">
+
+
+/* CSS owner consolidated from #f4-book-annual-table-unified-20261024; prior cascade position preserved */
+
 /* Rekap 12 bulan: gaya tabel sama dengan laporan lainnya; tidak mengubah data. */
 #tab-laporan #report-tahunan-panel .report-table-wrap{width:100%;max-width:100%;border:1px solid #d9e1ed!important;border-radius:12px!important;overflow-x:auto!important}
 #tab-laporan #report-tahunan-panel .report-table-wrap>table{width:100%!important;min-width:0!important;max-width:100%!important;table-layout:fixed!important;border-collapse:collapse!important;font-size:13px!important;line-height:1.35!important;font-variant-numeric:tabular-nums}
@@ -5365,9 +5382,7 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
     overflow:hidden!important;box-sizing:border-box!important;
     padding-right:35px!important;
   }
-  body .upr-field .upr-field-text{
-    display:block!important;flex:1 1 0!important;min-width:0!important;
-    white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+  body .upr-field .upr-field-text{flex:1 1 0!important;
     font-size:13px!important;line-height:1.2!important;
   }
   body .upr-field svg{
@@ -5378,9 +5393,10 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
   }
 
 }
-</style>
 
-<style id="f4-20261028-calendar-legible">
+
+/* CSS owner consolidated from #f4-20261028-calendar-legible; prior cascade position preserved */
+
 /* Teks diperbesar; ruang kalender ditata dari padding, bukan memperkecil font. */
 @media screen and (max-width:767px){
   .upr-pop,.mdc-pop{padding:12px!important}
@@ -5394,12 +5410,13 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
   .upr-field .upr-field-text{font-size:15px!important;letter-spacing:-.1px}
   .upr-field svg{width:18px!important;height:18px!important;right:7px!important}
   .upr-range{gap:5px!important}
-  .upr-sep{font-size:13px!important}
+  .upr-sep{}
   .mdc-btn .mdc-text{font-size:15px!important}
 }
-</style>
 
-<style id="f4-cash-names-period-calendar-20261028">
+
+/* CSS owner consolidated from #f4-cash-names-period-calendar-20261028; prior cascade position preserved */
+
 .f4-trans-ref{margin-top:4px;font-size:11px;line-height:1.4;color:#64748b;max-width:100%;overflow-wrap:anywhere}
 .f4-trans-ref summary{font-weight:600;color:#6d28d9;cursor:pointer;width:fit-content;list-style:disclosure-closed}
 .f4-trans-ref[open] summary{list-style:disclosure-open}

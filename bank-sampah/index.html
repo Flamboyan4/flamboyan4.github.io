@@ -24,14 +24,14 @@
   <style>
     :root{--forest:#2e6146;--leaf:#537d59;--sage:#e9f0e6;--cream:#f8f9f4;--ink:#22372c;--muted:#64756b;--line:#dbe5d9;--orange:#e9ad63;--white:#fff}
     *{box-sizing:border-box}body{margin:0;font:15px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--cream);color:var(--ink)}button,input{font:inherit}button{cursor:pointer;border:0;border-radius:12px;padding:12px 16px;background:var(--forest);color:white;font-weight:650}button:disabled{opacity:.55;cursor:wait}button.secondary{background:var(--sage);color:var(--forest)}button.ghost{background:transparent;color:var(--forest);border:1px solid var(--line)}button.warning{background:#f5e7d4;color:#75521c}input{width:100%;padding:13px 12px;border:1px solid #c8d7cb;border-radius:11px;background:white;color:var(--ink);outline-color:var(--leaf)}label{display:block;font-weight:600;margin-bottom:6px;font-size:13px}.field{margin:0 0 15px}.hint{font-size:12px;color:var(--muted);margin-top:5px}.shell{max-width:1100px;margin:auto;min-height:100vh}.top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:17px 22px;background:#fff;border-bottom:1px solid var(--line)}.brand{font-weight:800;color:var(--forest);display:flex;gap:12px;align-items:center}.logo{display:grid;place-items:center;width:43px;height:43px;background:var(--sage);border-radius:14px;font-size:23px}.sub{font-weight:500;font-size:12px;color:var(--muted)}.content{padding:26px 18px 60px}.auth{max-width:440px;margin:32px auto}.card{background:white;border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:0 8px 26px rgba(36,78,46,.045)}h1{font-size:25px;margin:0 0 6px;line-height:1.2}h2{font-size:20px;margin:0 0 12px}.desc{color:var(--muted);margin:0 0 23px}.switch{display:flex;gap:6px;background:var(--sage);padding:5px;border-radius:13px;margin-bottom:22px}.switch button{flex:1;background:transparent;color:var(--forest);padding:9px 6px}.switch button.active{background:white;box-shadow:0 2px 7px #3363451a}.wide{width:100%}.notice{border-radius:12px;padding:12px 14px;margin:14px 0;font-size:13px;background:#eaf1e8;color:var(--forest);overflow-wrap:anywhere}.notice.error{background:#fff0e7;color:#96551f}.hidden{display:none!important}#v11Public.v18-public-shell.hidden{display:none!important}.grid{display:grid;grid-template-columns:240px 1fr;gap:22px}.side{background:white;border:1px solid var(--line);border-radius:18px;padding:18px;height:max-content}.side button{width:100%;margin:4px 0;text-align:left}.side .active{background:var(--forest);color:white}.section{min-width:0}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.stat{padding:16px;background:var(--sage);border-radius:15px}.stat small{color:var(--muted)}.stat strong{display:block;font-size:17px;margin-top:7px;overflow-wrap:anywhere}.tag{display:inline-block;padding:4px 10px;background:var(--sage);color:var(--forest);border-radius:99px;font-size:12px;font-weight:650}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.tablewrap{overflow:auto;margin-top:12px}table{border-collapse:collapse;width:100%;min-width:640px}th,td{padding:13px 11px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}th{font-size:12px;color:var(--muted);background:var(--cream)}td{font-size:13px}td button{padding:8px 10px;font-size:12px}.code{font-size:20px;letter-spacing:2px;font-weight:800;overflow-wrap:anywhere}.tiny{font-size:12px;color:var(--muted)}.footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}.mobile-nav{display:none}
-    @media(max-width:720px){.top{padding:13px 15px}.content{padding:15px 12px 38px}.auth{margin:15px auto}.card{padding:18px;border-radius:15px}.grid{display:block}.side{display:none;margin-bottom:14px}.side.open{display:block}.mobile-nav{display:flex;margin:0 0 13px;justify-content:space-between;align-items:center}.stats{grid-template-columns:1fr 1fr}.stats .stat:last-child{grid-column:auto}.tablewrap{overflow:visible}table{min-width:0}thead{display:none}tbody{display:grid;gap:10px}tr{display:block;background:var(--cream);border-radius:12px;border:1px solid var(--line);padding:10px}td{display:none;border:0;padding:4px 2px}td:nth-child(1),td:nth-child(2),td:last-child{display:block}tr.expanded td{display:block}td[data-label]:before{content:attr(data-label) ': ';font-weight:700;color:var(--muted)}td:last-child button{width:100%;margin-top:5px}.mobile-detail{display:inline-block!important}tr.expanded .mobile-detail{display:inline-block!important}}
+    @media(max-width:720px){.top{padding:13px 15px}.content{padding:15px 12px 38px}.auth{margin:15px auto}.card{padding:18px;border-radius:15px}.grid{}.side{display:none;margin-bottom:14px}.side.open{}.mobile-nav{display:flex;margin:0 0 13px;justify-content:space-between;align-items:center}.stats{grid-template-columns:1fr 1fr}.stats .stat:last-child{grid-column:auto}.tablewrap{overflow:visible}table{min-width:0}thead{display:none}tbody{display:grid;gap:10px}tr{display:block;background:var(--cream);border-radius:12px;border:1px solid var(--line);padding:10px}td{display:none;border:0;padding:4px 2px}td:nth-child(1),td:nth-child(2),td:last-child{display:block}tr.expanded td{display:block}td[data-label]:before{content:attr(data-label) ': ';font-weight:700;color:var(--muted)}td:last-child button{width:100%;margin-top:5px}.mobile-detail{display:inline-block!important}tr.expanded .mobile-detail{display:inline-block!important}}
     .metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.metric{background:#eaf1e9;border-radius:14px;padding:16px}.metric small{display:block;color:#617367}.metric strong{display:block;font-size:23px;color:#2e6146;margin-top:5px}.section-caption{color:#687a70;font-size:13px;margin:0}.pill-note{background:#fff0db;color:#7c5a20;padding:11px 13px;border-radius:12px;font-size:13px}.block-gap{margin-top:17px}
     select{width:100%;padding:12px;border:1px solid #c8d7cb;border-radius:11px;background:#fff;font:inherit;color:var(--ink)}.input-small{max-width:140px}.summary-box{display:flex;gap:12px;flex-wrap:wrap;justify-content:space-between;background:#e9f0e6;padding:15px;border-radius:12px}.summary-box strong{font-size:18px;color:#2e6146}
     @media(max-width:720px){.metric-grid{grid-template-columns:1fr 1fr}.metric strong{font-size:18px}.input-small{max-width:none}}
     @media(min-width:721px){.mobile-detail{display:none}}
     @media(max-width:720px){#saleItems td,#setBarang td,#reconDetails td{display:block}#saleItems td input,#setBarang td input{width:100%}#reconResult .metric{min-width:0}}
     .details-panel{background:#f3f7ef;border-radius:12px;padding:13px;margin:7px 0}.details-panel table{min-width:0}.details-panel td{padding:8px 6px}
-    @media print{body{background:white;font:11pt/1.35 Arial,sans-serif}body .shell{display:none!important}#v10Print{display:block!important;color:#111}#v10Print table{min-width:0;width:100%;border-collapse:collapse}#v10Print th,#v10Print td{font-size:9pt;border:1px solid #000;padding:6px}#v10Print h1{font-size:18pt}#v10Print h2{font-size:12pt;margin-top:20px;break-after:avoid}#v10Print tr{break-inside:avoid}@page{size:A4;margin:14mm}}
+    @media print{body{background:white;font:11pt/1.35 Arial,sans-serif}body .shell{display:none!important}#v10Print{display:block!important;color:#111}#v10Print table{min-width:0;width:100%;border-collapse:collapse}#v10Print th,#v10Print td{font-size:9pt;padding:6px}#v10Print h1{font-size:18pt}#v10Print h2{font-size:12pt;margin-top:20px;break-after:avoid}#v10Print tr{break-inside:avoid}@page{size:A4;margin:14mm}}
     .public-hero{background:#e9f0e6;border-radius:20px;padding:26px;margin-bottom:17px}.public-hero h1{font-size:28px}.public-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.public-tile{background:#fff;border:1px solid var(--line);border-radius:15px;padding:16px;overflow:hidden}.public-tile h3{margin:0 0 5px;font-size:16px}.public-tile p{color:var(--muted);font-size:13px;margin:4px 0}.public-tile a{color:var(--forest);overflow-wrap:anywhere}.public-image{width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin:5px 0}.public-section{margin-top:24px}.public-section h2{font-size:19px}@media(max-width:720px){.public-hero{padding:18px}.public-hero h1{font-size:23px}.public-grid{grid-template-columns:1fr}.public-tile{padding:14px}}@media(min-width:721px) and (max-width:900px){.public-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
     /* v13 — gaya Pembukuan: sidebar kompak, konten lapang, hijau daun lembut. */
     :root{--forest:#2e6247;--leaf:#5f8662;--sage:#edf3eb;--cream:#fafbf8;--ink:#24362d;--muted:#68796d;--line:#dce7db;--orange:#e8b570}
@@ -43,7 +43,7 @@
     .side button:not(.active):hover{background:#e3ece1;box-shadow:0 2px 8px #2e624711}
     .side button.active{box-shadow:0 5px 12px #2e624723}
     .nav-group{margin:5px 0;border:1px solid var(--line);border-radius:12px;background:#f8faf7;overflow:hidden}
-    .nav-group>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;padding:11px 12px;font-size:12px;font-weight:800;color:var(--forest)}
+    .nav-group>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;padding:11px 12px;font-weight:800;color:var(--forest)}
     .nav-group>summary::-webkit-details-marker{display:none}.nav-group>summary:after{content:'⌄';font-size:17px;line-height:1;transition:transform .15s}
     .nav-group[open]>summary:after{transform:rotate(180deg)}.nav-group[open]>summary{background:#e8f0e6}.nav-group-items{padding:4px 7px 7px}
     .nav-group button{font-weight:550;background:transparent!important;color:var(--forest)!important}
@@ -56,7 +56,7 @@
     .v13-kop-mark{display:grid;place-items:center;width:54px;height:54px;background:#e8f0e6;color:#2e6247;border-radius:13px;font-size:28px}
     .v13-kop strong{display:block;font-size:18px;line-height:1.3;color:#235037}.v13-kop small{color:#526858;font-size:11px}
     @media(max-width:720px){
-      .top{position:relative}.content{padding:12px 10px 35px}.card{padding:16px}.grid{display:block}
+      .top{position:relative}.content{padding:12px 10px 35px}.card{padding:16px}.grid{}
       .mobile-nav{position:sticky;top:0;z-index:19;background:#fafbf8;padding:9px 4px;margin:0 0 8px;border-bottom:1px solid var(--line)}
       .side{position:relative;top:auto;max-height:min(68vh,600px);overflow-y:auto;margin-bottom:13px;padding:12px}
       .side:not(.open){display:none}.side.open{display:block}.nav-group>summary{padding:13px 12px;font-size:14px}
@@ -71,7 +71,7 @@
       .public-hero{padding:20px 15px}.public-hero .toolbar{align-items:stretch}.public-hero .toolbar button{width:100%}
       .v13-kop strong{font-size:15px}.v13-kop-mark{width:44px;height:44px;font-size:23px}
     }
-    @media print{.v13-kop{display:flex!important}.v13-kop-mark{background:#fff;border:1px solid #000}#v10Print td,#v10Print th{white-space:normal}#v10Print thead{display:table-header-group!important}#v10Print tbody{display:table-row-group!important}#v10Print tr{display:table-row!important}#v10Print td{display:table-cell!important}}
+    @media print{.v13-kop{display:flex!important}.v13-kop-mark{background:#fff;border:1px solid #000}#v10Print td,#v10Print th{white-space:normal}#v10Print thead{}#v10Print tbody{}#v10Print tr{}#v10Print td{display:table-cell!important}}
     /* v14: dashboard pengelola mengikuti hierarki referensi, tanpa angka tiruan. */
     .shell{max-width:1500px}.grid{grid-template-columns:212px minmax(0,1fr);gap:16px}
     .top{padding:13px 21px}.side{padding:10px}.side .brand{font-size:14px}.side button{font-size:12.5px}
@@ -86,7 +86,7 @@
     .v14-hero p{font-size:13px;color:#d6e8d8;margin:0;max-width:490px}
     .v14-hero-art{width:28%;min-width:170px;display:grid;place-items:center;background:radial-gradient(circle at 25% 50%,#84a47866,transparent 60%),linear-gradient(135deg,#3d7552,#254b37);font-size:62px;opacity:.95}
     .v14-primary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin-bottom:16px}
-    .v14-kpi{border:1px solid var(--line);background:#fff;border-radius:12px;padding:16px 15px;min-width:0}
+    .v14-kpi{border:1px solid var(--line);border-radius:12px;padding:16px 15px;min-width:0}
     .v14-kpi .v14-kpi-label{font-size:12px;color:#708076;margin:0 0 10px}.v14-kpi strong{display:block;font-size:23px;line-height:1.22;color:#254b38;overflow-wrap:anywhere}
     .v14-kpi small{display:block;margin-top:7px;color:#668473;font-size:11px}
     .v14-panels{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(250px,1fr);gap:13px;margin-bottom:13px}
@@ -304,9 +304,9 @@
       #v11Public .v17-public-main{padding:13px 10px 35px}
       #v11Public .v17-public-banner{padding:16px;gap:8px}
       #v11Public .v17-public-banner .emblem{font-size:33px}
-      #v11Public .v17-public-metrics{gap:8px}
+      #v11Public .v17-public-metrics{}
       #v11Public .v17-public-metric{padding:12px;overflow-wrap:anywhere}
-      #v11Public .v17-public-metric strong{font-size:19px}
+      #v11Public .v17-public-metric strong{}
       #v11Public .v17-section{margin-top:16px}
     }
     /* v19 — portal publik sepenuhnya sidebar; tidak ada header atau navbar. */
@@ -569,8 +569,10 @@
     #v27PrintReport .v27-print-sign{text-align:right;margin-top:30px;padding-right:13px;line-height:1.8}
     #v27PrintReport .v27-print-sign strong{display:block;margin-top:46px}
   }
-</style>
-<style id="f4-bank-embedded-utility-layout">
+
+
+/* CSS owner consolidated from #f4-bank-embedded-utility-layout; prior cascade position preserved */
+
 /* Only when embedded in Uji Terpadu: utility bar belongs to parent. */
 body.f4-embedded-bank #sideNav #v15Footer,body.f4-embedded-bank #v19PublicAccountFooter{display:none!important}
 /* Utility bar terpadu adalah satu-satunya header pada mode embedded. */
@@ -598,8 +600,10 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
  body.f4-embedded-bank #v11Public .v17-public-main{padding-top:14px!important}
 }
 @media print{body.f4-embedded-bank #dashboardView .section,body.f4-embedded-bank #v11Public{padding-top:0!important}}
-</style>
-<style id="f4-bank-account-shortcut-style">
+
+
+/* CSS owner consolidated from #f4-bank-account-shortcut-style; prior cascade position preserved */
+
 #f4-public-my-savings{display:inline-flex;align-items:center;justify-content:center;min-height:40px;
   margin-top:16px;padding:10px 16px;border:1px solid #b1d6b7;border-radius:10px;
   background:#e7f3e8;color:#20553b;font:750 13px system-ui;cursor:pointer;box-shadow:none}
@@ -998,9 +1002,10 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
     text-align:center;color:#53685a
   }
 }
-</style>
 
-<style id="f4-bank-approval-compact-20261028">
+
+/* CSS owner consolidated from #f4-bank-approval-compact-20261028; prior cascade position preserved */
+
 /* Pengesahan: fokus pada pilihan batch, ringkasan, dan alokasi; tidak mengubah halaman lain. */
 #pagePengesahan.card{padding:20px 22px!important;background:#fff!important;border-radius:16px!important}
 #pagePengesahan .f4-approval-heading{margin:0 0 12px}
@@ -1060,11 +1065,10 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
  #pagePengesahan .f4-approval-final{grid-template-columns:1fr}
 }
 @media print{#pagePengesahan{display:none!important}}
-</style>
 
 
+/* CSS owner consolidated from #f4-bank-savings-compact-20261028; prior cascade position preserved */
 
-<style id="f4-bank-savings-compact-20261028">
 /* Scoped Bank Sampah savings screen: white dashboard, side-by-side ledger + payout. */
 @media(min-width:1024px){
  #pageTabungan.card{background:#fff;border:1px solid #e0e9e3;border-radius:15px;padding:19px 20px;box-shadow:none}
@@ -1207,9 +1211,10 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.f4-payout-submit{
  body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.field{grid-column:1/-1!important}
  body.f4-direct-bank #dashboardView #pageTabungan .f4-bs-saldo-finder>input{max-width:100%!important}
 }
-</style>
 
-<style id="f4-bank-public-compact-and-scrollspy-20261028">
+
+/* CSS owner consolidated from #f4-bank-public-compact-and-scrollspy-20261028; prior cascade position preserved */
+
 /* Beranda publik: ikon di kiri, label dan angka di kanan. Tidak menyentuh laporan. */
 #v11Public #v17PublicMetrics .v17-public-metric{
  display:grid!important;
@@ -1251,9 +1256,10 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.f4-payout-submit{
  #v11Public #v17PublicMetrics .v17-public-metric small{font-size:11px!important}
  #v11Public #v17PublicMetrics .v17-public-metric strong{font-size:18px!important}
 }
-</style>
 
-<style id="f4-bank-expense-budget-compact-20261028">
+
+/* CSS owner consolidated from #f4-bank-expense-budget-compact-20261028; prior cascade position preserved */
+
 /* Pembelian & Pengeluaran: satu baris kartu ringkas di PC; tidak mengubah nilai anggaran. */
 body.f4-direct-bank #dashboardView #pageBiaya #v10Budget{
  display:grid!important;
@@ -1295,9 +1301,10 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
  }
  body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{font-size:17px!important}
 }
-</style>
 
-<style id="f4-member-dashboard-compact-weight-20261028">
+
+/* CSS owner consolidated from #f4-member-dashboard-compact-weight-20261028; prior cascade position preserved */
+
 /* Ringkasan anggota saja: ikon di samping judul, angka dan keterangan lebar penuh.
    Ukuran tulisan dipertahankan; hanya ruang vertikal yang dipadatkan. */
 body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primary.v14-primary{
@@ -1446,8 +1453,10 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
 }
 
 
-</style>
-<style id="f4-bank-mobile-3view-fix-20261028">
+
+
+/* CSS owner consolidated from #f4-bank-mobile-3view-fix-20261028; prior cascade position preserved */
+
 /* 2026-10-28: Saldo anggota + publik + pengelola. Padatkan ruang, JANGAN perkecil font.
    CSS hanya berlaku untuk layar, tidak mengubah format laporan cetak. */
 @media screen and (max-width:760px){
@@ -1480,23 +1489,20 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
   #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary.v14-primary{
     display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;margin:0 0 10px!important
   }
-  #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary>.v14-kpi{grid-template-columns:34px minmax(0,1fr)!important;align-content:center!important;
-    column-gap:9px!important;row-gap:4px!important;
+  #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary>.v14-kpi{align-content:center!important;row-gap:4px!important;
     min-width:0!important;min-height:100px!important;height:auto!important;
     margin:0!important;padding:11px!important;border-radius:13px!important;
     background:#fff!important;box-shadow:none!important
   }
   #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary>.v14-kpi::before{grid-row:1/3!important;
-    display:block!important;height:34px!important;background-size:20px!important
+    display:block!important;background-size:20px!important
   }
-  #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary .v14-kpi-label{grid-row:1!important;
-    font-size:13px!important;font-weight:600!important;
-    line-height:1.35!important;margin:0!important;color:#60796c!important
+  #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary .v14-kpi-label{color:#60796c!important
   }
-  #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary>.v14-kpi strong{grid-row:2!important;margin:0!important;padding:0!important;line-height:1.2!important;letter-spacing:-.4px!important;
+  #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary>.v14-kpi strong{letter-spacing:-.4px!important;
     color:#1d5740!important
   }
-  #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary>.v14-kpi small{grid-row:3!important;font-size:12px!important;
+  #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary>.v14-kpi small{
     color:#6e8175!important
   }
   #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) .f4-bank-quick{
@@ -1517,48 +1523,43 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
 @media screen and (max-width:760px){
   /* Ikon hanya baris pertama. Nilai di baris kedua memakai lebar penuh. */
   #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary>.v14-kpi{
-    display:grid!important;grid-template-columns:34px minmax(0,1fr)!important;
+    display:grid!important;
     grid-template-rows:auto auto auto!important;
     align-items:center!important;justify-content:stretch!important;
     align-content:start!important;row-gap:5px!important;column-gap:9px!important;padding:12px!important;
   }
-  #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary>.v14-kpi::before{grid-row:1!important;align-self:center!important;
-    width:34px!important;height:34px!important;margin:0!important;
+  #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary>.v14-kpi::before{
   }
   #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary .v14-kpi-label{
     grid-column:2!important;grid-row:1!important;min-width:0!important;
     font-size:13px!important;font-weight:600!important;
     line-height:1.35!important;margin:0!important;
   }
-  #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary>.v14-kpi strong{grid-row:2!important;
-    position:static!important;align-self:start!important;
-    display:block!important;margin:0!important;padding:0!important;
-    font-size:24px!important;line-height:1.2!important;
+  #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary>.v14-kpi strong{
+    position:static!important;
+    display:block!important;padding:0!important;line-height:1.2!important;
   }
   #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary>.v14-kpi small{
     grid-column:1/-1!important;grid-row:3!important;align-self:start!important;
-    display:block!important;margin:0!important;padding:0!important;
+    display:block!important;margin:0!important;
     font-size:12px!important;line-height:1.35!important;
   }
   /* Kartu tambahan: label dan nilai berjarak konsisten, rata atas. */
   #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Extra.v14-stats-extra{
-    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;align-items:stretch!important;grid-auto-rows:auto!important;
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:auto!important;
     margin-top:0!important
   }
   #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Extra>.v14-extra{
-    display:flex!important;flex-direction:column!important;
-    justify-content:flex-start!important;gap:6px!important;
+    display:flex!important;flex-direction:column!important;gap:6px!important;
     height:auto!important;min-width:0!important;
     margin:0!important;padding:12px!important;
     background:#fff!important;border-radius:12px!important;
   }
   #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Extra>.v14-extra small{
-    display:block!important;margin:0!important;line-height:1.35!important;
-    font-size:13px!important;font-weight:500!important;color:#667e71!important;
+    display:block!important;line-height:1.35!important;font-weight:500!important;color:#667e71!important;
   }
   #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Extra>.v14-extra strong{
-    display:block!important;margin:0!important;padding:0!important;
-    font-size:19px!important;line-height:1.25!important;font-weight:800!important;
+    display:block!important;padding:0!important;line-height:1.25!important;font-weight:800!important;
     color:#24533d!important;overflow-wrap:anywhere!important
   }
 }
