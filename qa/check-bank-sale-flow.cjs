@@ -18,6 +18,11 @@ assert(worker.includes('bankSaleSheet(request,env,who,url)'),'Sale sheet endpoin
 assert(worker.includes("SET status='siap'"),'Sale-sheet lock missing');
 assert(worker.includes('saleNumber="BSF4-J-"'),'Sale number prefix missing');
 assert(sheet.includes('POST')&&sheet.includes('action:"prepare"'),'Worksheet preparation missing');
+assert(sheet.includes('ready:()=>current?.status==="siap"') &&
+       page.includes("window.F4SaleSheet?.ready?.()"),
+       'A sale must use the prepared and locked worksheet');
+assert(sheet.includes('inputs[0].value=""')&&sheet.includes('inputs[1].value=""'),
+       'Actual lapak weight/price must be entered by the manager, never prefilled from deposits');
 assert(sheet.includes('Siapkan & Cetak Lembar'),'Printable worksheet missing');
 assert(sheet.includes('lastPrice'),'Last lapak price should be editable suggestion only');
 assert(sheet.includes('topFields.append(tools)'),'Sale-sheet controls must stay inside the full-width sale top grid');
