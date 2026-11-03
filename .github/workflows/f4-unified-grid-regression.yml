@@ -1,0 +1,42 @@
+name: F4 Unified Grid and CSS Specificity Audit
+on:
+  pull_request:
+    paths:
+      - index.html
+      - bank-sampah/index.html
+      - pembukuan/index.html
+      - superadmin/index.html
+      - rapat/index.html
+      - dokumentasi/index.html
+      - portal-live/*.css
+      - portal-live/dokumentasi/site.css
+      - qa/verify-unified-grid.cjs
+      - qa/verify-unified-grid-browser.py
+      - .github/workflows/f4-unified-grid-regression.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  grid:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify grid markers and prevent additional CSS priority rules
+        run: node qa/verify-unified-grid.cjs
+      - name: Browser tools
+        run: |
+          python3 -m pip install --quiet playwright
+          python3 -m playwright install --with-deps chromium
+      - name: Check responsive grid in six portal shells (read only)
+        run: python3 qa/verify-unified-grid-browser.py
+      - name: Upload audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f4-unified-grid-audit
+          path: ops-audit/unified-grid-smoke.json
+          if-no-files-found: ignore
