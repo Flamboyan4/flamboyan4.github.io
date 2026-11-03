@@ -98,8 +98,8 @@ assert(!css.includes('v16-mobile-extra')&&!h.includes('v16-mobile-extra'),
 assert(!h.includes('const extras=['),
  'Admin drawer must not dynamically inject tab links');
 // Admin routes are checked against the new six-category map below.
-assert(h.includes("back.replaceChildren(v16Icon('user'),document.createTextNode(label))"),
- 'Admin profile entry must remain in the drawer');
+assert(h.includes("window.f4OpenBankProfile=openOriginalProfile;"),
+ 'Profile must stay available from the account icon');
 assert(h.includes('html.f4-bank-embedded body.v17-dashboard:not(.f4-bank-app-admin) #sideNav.side'),
  'Embedded old drawer must exclude the admin role');
 const reportStyle=h.split('<style>')[1]?.split('</style>')[0];
@@ -216,14 +216,16 @@ const adminGroups=[...navSource.matchAll(/\{id:'([^']+)',label:'([^']+)',icon:'[
 assert.deepEqual(adminGroups,['home','deposit','sale','finance','management','report'],
  'Admin sidebar must contain six operational categories');
 for(const route of ['setoran','bank-admin-history','penjualan','bank-admin-sale-history',
- 'rekonsiliasi','bank-admin-cash','tabungan','biaya','bank-payout-admin',
- 'admin','master','bank-admin-docs','profile','laporan','bank-admin-progress']){
+ 'rekonsiliasi','bank-admin-cash','tabungan','bank-payout-admin',
+ 'admin','master','bank-admin-docs','laporan','bank-admin-progress']){
  assert(navSource.includes("['"+route+"',"),
   'Operational route is inaccessible: '+route);
 }
 assert(h.includes('window.v16Sync=v16Sync;') &&
-       h.includes('window.v17LoadPublic=v17LoadPublic;'),
- 'Custom category tabs or the reporting progress refresh is missing');
+       h.includes('window.v17LoadPublic=v17LoadPublic;') &&
+       !navSource.includes("['biaya','Pengeluaran']") &&
+       !navSource.includes("['profile','Profil pengurus']"),
+ 'Expense must be within Debit/Kredit, and profile through the account icon');
 assert(mobile.includes('function showAdminProgress()') &&
        mobile.includes('function restoreAdminProgress()') &&
        mobile.includes('showAdminHistory(saleHistory?"penjualan":"setoran")'),
@@ -233,13 +235,24 @@ assert(mobile.includes('f4BankAdminOperations') &&
        mobile.includes('Catat Setoran') &&
        mobile.includes('Catat Penjualan'),
  'Task-first entry and eight shortcuts are missing');
+assert(mobile.includes('["Saldo Warga","tabungan","coins"]') &&
+       !mobile.includes('["Profil","profile","user-round"]'),
+ 'Saldo Warga must replace the redundant profile quick access');
+assert(mobile.includes('ensureCashExpenseForm()') &&
+       mobile.includes('adminCashTab==="out"') &&
+       h.includes("new CustomEvent('f4-bank-expense-saved'"),
+ 'Expense form and ledger must share the Pengeluaran tab and refresh after saving');
+assert(css.includes('.f4-bank-cash-expense-section[hidden]{display:none}') &&
+       css.includes('.f4-bank-price-shortcut-copy{'),
+ 'Embedded expense and prominent member price action style owners missing');
 assert(css.includes('grid-area:actions') &&
        !css.includes('grid-area:next') &&
        css.includes('grid-area:recent'),
  'Operational dashboard grid contains duplicate/empty follow-up card');
 assert(css.includes('#v16Tabs.v16-tabs:not(.hidden)') &&
-       !css.includes('body.f4-bank-app-admin #dashboardView #v16Tabs{display:none}'),
- 'Contextual tabs must remain visible on smaller viewports');
+       mobile.includes('tabs.hidden=false') &&
+       mobile.includes('for(const [key,,panel] of options)panel?.classList.toggle("hidden",key!==selected);'),
+ 'Useful tabs must remain for Riwayat and Debit/Kredit on mobile');
 assert(mobile.includes('const unframed=admin&&page.parentElement===section;'),
  'Admin page outer frames must be removed on PC as well as HP');
 assert(!mobile.includes('const unframed=mobile&&page.parentElement===section;'),
