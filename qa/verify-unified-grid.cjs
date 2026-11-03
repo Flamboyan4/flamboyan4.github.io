@@ -99,7 +99,7 @@ assert(dashboardCss.includes('body #dashboardView #pageDashboard.f4-member-dashb
 assert.equal(homeOverrides.split('#f4-private-transactions tbody tr[hidden]{display:none!important}').length-1,1,
   'Duplicate responsive hidden-row override returned');
 // CSS ownership: adjacent legacy overlays are coalesced at their original cascade location.
-const styleCount=source=>(source.match(/<style\\b[^>]*>/gi)||[]).length;
+const styleCount=source=>(source.match(/<style\b[^>]*>/gi)||[]).length;
 assert(styleCount(read('pembukuan/index.html'))<=32,'Bookkeeping legacy CSS blocks regressed');
 assert(styleCount(read('bank-sampah/index.html'))<=11,'Bank Sampah legacy CSS blocks regressed');
 const remaining=Object.values(totals).reduce((a,b)=>a+b,0);
