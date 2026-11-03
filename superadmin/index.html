@@ -6,7 +6,7 @@
 </style></noscript>
 <meta name="robots" content="noindex,nofollow">
 <title>Pusat Pengelolaan | Flamboyan 4</title>
-<link rel="stylesheet" href="/portal-live/account-workspace.css?v=4portal-spec">
+
 <style>
 :root{--blue:#2d6593;--navy:#1b344c;--tint:#e8f2fa;--edge:#d9e6f0;--muted:#60788b}
 body{--work-bg:#eff5f8;--work-accent:#2d6593;--work-tint:#e8f2fa;--work-line:#d9e6f0;--work-text:#1b344c}
@@ -14,8 +14,8 @@ body{--work-bg:#eff5f8;--work-accent:#2d6593;--work-tint:#e8f2fa;--work-line:#d9
 button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #76addc;outline-offset:2px}
 [hidden]{display:none!important}#guard{padding:28px;max-width:560px;margin:88px auto;background:#fff;border:1px solid var(--edge);border-radius:16px}
 #f4-account-page:not([hidden]){display:grid;grid-template-columns:244px minmax(0,1fr);min-height:100dvh;position:relative;inset:auto;background:#eff5f8;color:inherit}
-#f4-account-page>aside{position:sticky;top:0;align-self:start;height:100dvh;overflow-y:auto;background:#fff;border-right:1px solid var(--edge);padding:16px 12px;display:flex;flex-direction:column;gap:5px}
-#f4-account-page>main{max-width:none;width:100%;padding:84px 26px 40px;overflow:visible;min-width:0}
+#f4-account-page>aside{position:sticky;top:0;align-self:start;height:100dvh;max-height:100dvh;overflow-x:hidden;overflow-y:auto;background:#fff;border-right:1px solid var(--edge);padding:16px 12px;display:flex;flex-direction:column;gap:5px}
+#f4-account-page>main{max-width:none;width:100%;padding:66px 22px 30px;overflow-y:auto;overflow-x:hidden;min-width:0}
 .f4-sa-brand{display:flex;gap:10px;align-items:center;padding:12px 8px 15px;border-bottom:1px solid var(--edge);margin-bottom:11px}
 .f4-sa-logo{height:42px;width:42px;object-fit:contain}.f4-sa-brand strong{display:block;font-size:14px;color:var(--navy)}.f4-sa-brand small{display:block;font-size:10px;color:var(--muted)}
 .f4-sa-label{font-size:10px!important;color:#8196a8!important;text-transform:uppercase;letter-spacing:.09em;padding:11px 10px 5px!important}
@@ -98,27 +98,7 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #76
  .f4-admin-fields{grid-template-columns:1fr}
 }
 
-/* Override legacy account-workspace !important rules so this is a real portal,
-   not the old fixed management popup hidden beneath the global utility bar. */
-html body #f4-account-page:not([hidden]){
- position:relative!important;inset:auto!important;z-index:auto!important;
- display:grid!important;grid-template-columns:244px minmax(0,1fr)!important;
- min-height:100dvh!important;background:#eff5f8!important;color:#193047!important
-}
-html body #f4-account-page>aside{
- position:sticky!important;top:0!important;align-self:start!important;
- height:100dvh!important;max-height:100dvh!important;overflow-y:auto!important;
- display:flex!important;flex-direction:column!important;padding:16px 12px!important;
- background:#fff!important;border-right:1px solid #d9e6f0!important
-}
-html body #f4-account-page>main{
- padding:66px 22px 30px!important;overflow-y:auto!important;overflow-x:hidden!important;
- width:100%!important;min-width:0!important
-}
-html body #f4-account-page .f4-work-heading{display:block!important}
-html body #f4-account-page .f4-work-heading h2{margin-bottom:5px!important;color:#1b344c!important}
-html body #f4-account-page aside .f4-sa-label{font-size:10px!important;padding:11px 10px 5px!important;color:#8196a8!important}
-html body #f4-account-page aside .f4-sa-brand strong{padding:0!important}
+/* Portal Superadmin memakai layout asli, tanpa overlay account-workspace lama. */
 @media(max-width:1023px){
  html,body{max-width:100vw!important;overflow-x:hidden!important}
  html body #f4-account-page:not([hidden]){
