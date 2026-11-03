@@ -27,7 +27,7 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #76
 .f4-work-heading{border-bottom:1px solid var(--edge);padding-bottom:14px;margin-bottom:18px}
 .f4-work-heading h2{font-size:24px!important}
 .f4-work-section,.f4-admin-controls,.sa-card{background:white;border:1px solid var(--edge);border-radius:14px;padding:17px}
-.sa-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}
+.sa-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--f4-grid-gap,16px);margin:16px 0}
 .sa-card small{display:block;color:var(--muted);font-size:11px}.sa-card strong{display:block;font-size:22px;color:var(--navy);margin-top:6px}.sa-card span{display:block;color:var(--muted);font-size:11px}
 .sa-section{border:1px solid var(--edge);border-radius:14px;background:#fff;padding:17px;margin:12px 0}
 .sa-section h3{margin:0 0 9px;font-size:16px;color:var(--navy)}
@@ -41,20 +41,20 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #76
 .f4-admin-item strong,.f4-admin-item small{display:block}.f4-admin-item small{color:var(--muted);font-size:11px}
 .f4-admin-controls{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
 .f4-admin-controls input{min-width:180px;flex:1;padding:10px;border-radius:9px;border:1px solid var(--edge)}
-.f4-admin-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.f4-admin-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--f4-grid-gap,16px)}
 .f4-admin-fields label{display:flex;flex-direction:column;gap:5px;font-weight:650;font-size:12px}
 .f4-admin-fields input,.f4-admin-fields textarea,.f4-admin-fields select{width:100%;border:1px solid var(--edge);border-radius:9px;padding:11px;background:#fff}
 .f4-admin-editor{border:1px solid var(--edge);background:#fff;padding:20px;border-radius:14px}
 
 /* Compact master iuran form: genuine component styles, no cascade overlays. */
 .f4-obligation-form{padding:16px 18px;display:grid;gap:11px;max-width:1000px}
-.f4-obligation-identity{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:12px}
+.f4-obligation-identity{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--f4-grid-gap,16px)}
 .f4-obligation-field{display:flex;flex-direction:column;gap:5px;min-width:0;font-size:12px;font-weight:700;color:#34516b}
 .f4-obligation-field :is(input,select){width:100%;height:42px;min-width:0;padding:8px 12px;border:1px solid #d8e4ee;border-radius:9px;background:#fff;color:#18334b;font:500 13px system-ui}
 .f4-obligation-field :is(input,select):focus-visible{outline:2px solid #477cb4;outline-offset:1px}
 .f4-obligation-section-title{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;color:#23435d;margin-top:2px}
 .f4-obligation-section-title span{font-size:11px;color:#6b8190}
-.f4-obligation-amounts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.f4-obligation-amounts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--f4-grid-gap-compact,10px)}
 .f4-obligation-amounts input{text-align:center;font-weight:600}
 .f4-obligation-period{display:flex;align-items:end;gap:12px;flex-wrap:wrap}
 .f4-obligation-period .f4-obligation-field{width:min(100%,215px)}
@@ -339,7 +339,7 @@ html.f4-sa-drawer-lock{overflow:hidden!important}
  width:39px;height:39px;padding:0;border:0;border-radius:10px;background:#e4f1fb;
  color:#27658e;font:700 22px/1 system-ui;cursor:pointer}
 @media(max-width:1023px){.f4-sa-standalone-menu{display:grid;place-items:center}}
-</style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261028-hidden-scroll-panel"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+</style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261103-unified-grid-v1"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261028-calendar-font-hp"><link rel="stylesheet" href="/portal-live/treasury-center.css?v=20261030-treasury-tabs12">
 <style id="f4-superadmin-form-value-typography-20261028">
 /* Label is emphasized, but entered values must remain normal-weight.
