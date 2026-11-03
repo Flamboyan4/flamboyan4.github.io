@@ -309,14 +309,14 @@ async def admin_mobile_shell(browser):
     }""")
     assert drawer_closed["x"]<0 and drawer_closed["visibility"]=="hidden",drawer_closed
     print("ADMIN_SLIDE_CATEGORIES_ONLY_OK",drawer,flush=True)
-    # Tablet has no dock: primary admin groups must remain accessible in sidebar.
+    # Tablet still uses the mobile dock and can reveal all admin groups in the drawer.
     await page.set_viewport_size({"width":820,"height":820})
     tablet=await page.evaluate("""() => ({
       dock:getComputedStyle(document.querySelector("#f4BankAppDock")).display,
       groups:[...document.querySelectorAll("#v16NavList .v16-item[data-group]")]
         .filter(x=>getComputedStyle(x).display!=="none").map(x=>x.dataset.group)
     })""")
-    assert tablet["dock"]=="none" and all(g in tablet["groups"] for g in ["home","deposit","sale","finance","management","report"]),tablet
+    assert tablet["dock"]=="grid" and all(g in tablet["groups"] for g in ["home","deposit","sale","finance","management","report"]),tablet
     await page.set_viewport_size({"width":390,"height":820})
     # The exact same dock dimensions must apply when the role switches to member.
     member=await page.evaluate("""() => {
