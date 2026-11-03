@@ -37,6 +37,9 @@ function fill(data){
   const original=Number(line.grams)/1000;
   inputs[0].value=String(original);
   inputs[1].value=Number(line.lastPrice)>0?String(line.lastPrice):"";
+  // Harga historis hanyalah saran: pengurus tetap mengisi hasil timbang dan tarif lapak nyata.
+  inputs[1].setAttribute("aria-label","Harga jual lapak untuk "+String(line.name||"barang")+" per kg");
+  inputs[0].setAttribute("aria-label","Hasil timbang lapak "+String(line.name||"barang")+" dalam kilogram");
   row.dataset.initialGrams=String(Number(line.grams));
   const diff=document.createElement("small");diff.className="f4-bank-sale-diff";
   row.append(diff);
@@ -85,6 +88,12 @@ async function refresh(){
   if(version!==seq||picker.value!==batchId)return;
   current=data;
   $("f4SaleSheetNumber").textContent=data.saleNumber;
+  // Tampilkan nomor jual yang konsisten tanpa mengubah nilai batch yang dipakai API lama.
+  const selected=picker.selectedOptions?.[0];
+  if(selected&&data.saleNumber){
+   selected.textContent=data.saleNumber;
+   selected.title="Nomor penjualan "+data.saleNumber;
+  }
   status(data.depositCount+" setoran · "+kg(data.totalGrams)+" kg · "+(data.status==="siap"?"Siap dibawa ke lapak":"Belum disiapkan"));
   if(print)print.disabled=false;
   if(reopen)reopen.hidden=data.status!=="siap";
