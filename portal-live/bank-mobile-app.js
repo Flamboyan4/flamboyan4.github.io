@@ -29,6 +29,7 @@ const memberDock=[
  ["Laporan","bank-report","book.svg"]
 ];
 let role=null,screen="dashboard",historyMonth="latest",reportMonth="",reportRange=null,activePage=null;
+const routeHistory=[];let returningFromBack=false;
 let homeSource=null,summaryExtra=null,memberSource=null,managerQueue=null;
 let primaryNode=null,extraNode=null;
 let ready=false,requestNonce="",requestEnabled=false;
@@ -75,6 +76,12 @@ function syncAdminGreeting(){
  const greeting=$("f4BankPageGreeting");
  if(greeting)greeting.hidden=screen!=="dashboard";
 }
+function previousBankPage(){
+ let destination=routeHistory.pop()||"dashboard";
+ if(destination===screen)destination="dashboard";
+ returningFromBack=true;
+ try{navigate(destination);}finally{returningFromBack=false;}
+}
 function syncAdminBack(){
  const section=$("dashboardView")?.querySelector(".section");
  if(!section)return;
@@ -82,15 +89,15 @@ function syncAdminBack(){
  if(!back){
   back=el("button","f4-bank-admin-back");
   back.id="f4BankAdminBack";back.type="button";
-  back.setAttribute("aria-label","Kembali ke Beranda");
+  back.setAttribute("aria-label","Kembali ke halaman sebelumnya");
   const arrow=document.createElementNS("http://www.w3.org/2000/svg","svg");
   arrow.setAttribute("viewBox","0 0 24 24");arrow.setAttribute("aria-hidden","true");
   arrow.innerHTML='<path d="M19 12H5m7-7-7 7 7 7"/>';
   back.append(arrow); // Ikon panah saja, nama aksi tetap tersedia via aria-label.
-  back.onclick=()=>navigate("dashboard");
+  back.onclick=previousBankPage;
   section.prepend(back);
  }
- back.hidden=screen==="dashboard";
+ back.hidden=screen==="dashboard"||!$("pageDashboard")?.classList.contains("hidden")||roleType()!=="admin";
 }
 // Compact member identity replaces the oversized greeting on the member dashboard.
 function memberTopIdentity(){
@@ -1537,6 +1544,10 @@ function navigate(route){
  if(typeof window.goPage==="function")window.goPage(route);
 }
 function handleRoute(route,old,args){
+ if(roleType()&&route!==screen&&!returningFromBack){
+  routeHistory.push(screen);
+  if(routeHistory.length>24)routeHistory.shift();
+ }
  if(route!=="bank-admin-progress"&&adminProgressNode)restoreAdminProgress();
  if(route!=="bank-admin-docs"&&adminMediaRestore.length)restoreAdminMedia();
  // Dedicated operational pages for admins; keep existing data and action handlers.
@@ -1635,6 +1646,24 @@ function handleRoute(route,old,args){
  if(role==="admin")syncAdminPageFrames();
  return result;
 }
+function resetRoleSurface(){
+ routeHistory.length=0;returningFromBack=false;screen="dashboard";
+ if(document.body.classList.contains("f4-member-feature"))restoreFeature();
+ hideCustom();restoreAdminProgress();restoreAdminMedia();
+ const form=$("v10ExpenseForm"),notice=$("v10ExpenseNotice"),home=$("pageBiaya");
+ if(form&&home&&form.parentElement!==home)home.append(form);
+ if(notice&&home&&notice.parentElement!==home)home.append(notice);
+ for(const id of ["f4BankAdminOperations","f4BankAdminShortcuts","f4BankAdminNext"]){$(id)?.remove();}
+ $("f4BankAdminBack")?.setAttribute("hidden","");
+ $("f4BankPageGreeting")?.removeAttribute("hidden");
+ $("f4BankProfileDetail")?.remove();
+ const history=$("bank-admin-history"),section=$("dashboardView")?.querySelector(".grid > .section");
+ for(const id of ["pageRiwayat","pageRiwayatJual"]){
+  const page=$(id);if(page&&history?.contains(page)&&section)section.append(page);
+ }
+ document.body.classList.remove("f4-bank-member-secondary");
+ memberStatement=null;adminOverview=null;memberSnapshotsLoaded=false;
+}
 function sync(){
  const next=roleType(),isPrivate=!!next&&!$("dashboardView")?.classList.contains("hidden");
  document.body.classList.toggle("f4-bank-app-private",isPrivate);
@@ -1642,16 +1671,18 @@ function sync(){
  document.body.classList.toggle("f4-bank-app-admin",isPrivate&&next==="admin");
  dock().hidden=!isPrivate||next==="admin";
  if(!isPrivate){
-  if(document.body.classList.contains("f4-member-feature"))restoreFeature();
-  hideCustom();memberSide(false);restoreAdminProgress();restoreAdminMedia();
-  $("f4BankMemberTopIdentity")?.remove();$("f4BankAdminTopIdentity")?.remove();document.body.classList.remove("f4-bank-member-secondary");
+  if(role!==null)resetRoleSurface();
+  memberSide(false);
+  $("f4BankMemberTopIdentity")?.remove();$("f4BankAdminTopIdentity")?.remove();
+  $("f4BankAdminBack")?.setAttribute("hidden","");
   role=null;memberStatement=null;memberSnapshotsLoaded=false;
   syncAdminPageFrames();
   $("f4BankProfileDetail")?.remove();return;
  }
  if(next!==role){
-  if(role==="admin"&&next!=="admin")restoreAdminProgress();
-  role=next;screen=next==="member"?visibleMemberRoute():"dashboard";dock().replaceChildren(...(role==="member"?memberDock:[]).map(x=>action(x,true)));
+  resetRoleSurface();
+  role=next;screen="dashboard";
+  dock().replaceChildren(...(role==="member"?memberDock:[]).map(x=>action(x,true)));
   if(role==="member")requestNonce="";
   memberStatement=null;adminOverview=null;
   if(role==="admin")$("f4BankProfileDetail")?.remove();
