@@ -33,7 +33,7 @@ const memberDock=[
  ["Pencairan","bank-payout","rp"],["Riwayat","bank-history","clock.svg"],
  ["Laporan","bank-report","book.svg"]
 ];
-let role=null,screen="dashboard",historyMonth="latest",reportMonth="",activePage=null;
+let role=null,screen="dashboard",historyMonth="latest",reportMonth="",reportRange=null,activePage=null;
 let homeSource=null,summaryExtra=null,memberSource=null,managerQueue=null;
 let primaryNode=null,extraNode=null;
 let ready=false,requestNonce="",requestEnabled=false;
@@ -414,6 +414,24 @@ function showReport(){
   const monthCell=el("label","","Bulan"),month=el("select");month.id="f4BankReportMonth";monthCell.append(month);
   const yearCell=el("label","","Tahun"),year=el("select");year.id="f4BankReportYear";yearCell.append(year);
   period.append(monthCell,yearCell);
+  const rangeButton=el("button","f4-bank-secondary-action","Atur periode");rangeButton.type="button";
+  rangeButton.id="f4BankReportRangeToggle";
+  rangeButton.onclick=()=>{
+   reportRange=reportRange?null:{from:reportMonth+"-01",to:today()};
+   if(reportRange&&reportRange.from>reportRange.to)reportRange.from=reportRange.to;
+   showReport();
+  };
+  const dateFields=el("div","f4-bank-report-range-fields");dateFields.id="f4BankReportRangeFields";
+  const from=el("input");from.type="date";from.id="f4BankReportFrom";from.setAttribute("aria-label","Dari tanggal");
+  const to=el("input");to.type="date";to.id="f4BankReportTo";to.setAttribute("aria-label","Sampai tanggal");
+  const changeRange=()=>{
+   if(from.value>to.value)return;
+   reportRange={from:from.value,to:to.value};showReport();
+  };
+  from.onchange=changeRange;to.onchange=changeRange;
+  const first=el("label","","Dari");first.append(from);const last=el("label","","Sampai");last.append(to);
+  dateFields.append(first,last);period.append(rangeButton,dateFields);
+
   const summary=el("div","f4-bank-report-summary");summary.id="f4BankReportSummary";
   const actions=el("div","f4-bank-report-actions");
   const pdf=el("button","f4-bank-gold-action","Cetak PDF");pdf.type="button";
@@ -425,7 +443,7 @@ function showReport(){
   const csv=el("button","f4-bank-secondary-action","Unduh CSV");csv.type="button";
   csv.onclick=()=>typeof window.v12CSV==="function"&&window.v12CSV();
   actions.append(pdf,csv);
-  const title=el("h3","f4-bank-screen-subhead","Transaksi Bulan Ini");
+  const title=el("h3","f4-bank-screen-subhead","Transaksi Periode");
   const transactions=el("div","f4-bank-report-list");transactions.id="f4BankReportList";
   const controls=el("section","f4-bank-report-panel");
   const log=el("section","f4-bank-report-transactions");
@@ -444,10 +462,19 @@ function showReport(){
  month.replaceChildren(...names.map((name,i)=>{const op=new Option(name,String(i+1).padStart(2,"0"));op.selected=i+1===monthValue;return op;}));
  year.onchange=()=>{reportMonth=year.value+"-"+month.value;showReport();};
  month.onchange=()=>{reportMonth=year.value+"-"+month.value;showReport();};
- window.f4BankReportPeriod=()=>reportMonth;
- const selected=ledger().filter(x=>x.month===reportMonth);
- const transactions=all.filter(x=>x.month===reportMonth);
- const deposits=(memberStatement?.setoran||[]).filter(x=>String(x.tanggal||"").startsWith(reportMonth)&&!/batal/i.test(String(x.status)));
+ window.f4BankReportPeriod=()=>reportRange?"":reportMonth;
+ window.f4BankReportRange=()=>reportRange;
+ const rangeInputs=$("f4BankReportRangeFields");
+ rangeInputs.hidden=!reportRange;
+ $("f4BankReportRangeToggle").textContent=reportRange?"Per Bulan":"Atur Periode";
+ $("f4BankReportMonth").closest("label").hidden=!!reportRange;
+ $("f4BankReportYear").closest("label").hidden=!!reportRange;
+ if(reportRange){$("f4BankReportFrom").value=reportRange.from;$("f4BankReportTo").value=reportRange.to;}
+ const inPeriod=date=>reportRange?date>=reportRange.from&&date<=reportRange.to:String(date||"").startsWith(reportMonth);
+
+ const selected=ledger().filter(x=>inPeriod(x.iso));
+ const transactions=all.filter(x=>inPeriod(x.iso));
+ const deposits=(memberStatement?.setoran||[]).filter(x=>inPeriod(String(x.tanggal||""))&&!/batal/i.test(String(x.status)));
  const missingWeight=deposits.some(x=>x.beratKg==null);
  const weight=deposits.reduce((n,x)=>n+Number(x.beratKg||0),0);
  const credit=selected.reduce((n,x)=>n+x.credit,0),debit=selected.reduce((n,x)=>n+x.debit,0);
