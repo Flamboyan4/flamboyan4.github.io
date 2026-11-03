@@ -1273,6 +1273,8 @@ function adminMediaMove(id,container){
  }
  container.append(node);node.classList.remove("hidden");
 }
+let bankAdminDocsLastRefresh=0;
+let bankAdminDocsRefreshPromise=null;
 function showAdminDocumentation(which="albums"){
  const page=ensureScreen("bank-admin-docs","Dokumentasi");
  let tabs=$("f4BankAdminDocsTabs");
@@ -1295,6 +1297,22 @@ function showAdminDocumentation(which="albums"){
  if(album)album.hidden=which!=="albums";
  if(inventory)inventory.hidden=which!=="inventory";
  page.classList.remove("hidden");
+ // This screen reuses the public album/inventory nodes. Refresh their D1-backed
+ // source when entering the manager screen; otherwise a fresh login can show
+ // empty albums or an indefinitely pending inventory until the public page opens.
+ if(!bankAdminDocsRefreshPromise&&Date.now()-bankAdminDocsLastRefresh>10000){
+  const refresh=window.v17LoadPublic;
+  if(typeof refresh==="function"){
+   bankAdminDocsRefreshPromise=Promise.resolve().then(()=>refresh()).then(()=>{
+    bankAdminDocsLastRefresh=Date.now();
+    window.f4BankRenderDocumentation?.();
+   }).catch(error=>{
+    const target=which==="inventory"?$("v17Inventory"):$("v22DocList");
+    if(target&&!target.children.length)target.textContent="Gagal memuat data. Coba buka kembali halaman ini.";
+    console.error("Gagal memperbarui dokumentasi Bank Sampah",error);
+   }).finally(()=>{bankAdminDocsRefreshPromise=null;});
+  }
+ }
 }
 function showAdminHistory(selected="setoran"){
  const page=ensureScreen("bank-admin-history","Riwayat");
