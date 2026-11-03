@@ -109,17 +109,37 @@ async function saveAlbum(_token,p){
 
 async function recon(_token,batchId){
  const p=await api('/api/admin/reconciliation/preview',{batchId});
- const [batch,sale]=await Promise.all([api('/api/v2/admin/bank/batches'),api('/api/v2/admin/bank/sale-detail?id='+encodeURIComponent(p.saleId))]);
- const b=rows(batch).find(x=>x.id===batchId);
- const beratSetoran=n(b?.grams)/1000,beratLapak=(sale.lines||[]).reduce((s,x)=>s+n(x.grams),0)/1000;
- return {batch:batchId,saleId:p.saleId,siap:true,siapDiperiksa:true,peringatan:[],
- setoran:p.depositIds?.length||0,penjualan:1,beratSetoran,beratLapak,selisihKg:beratSetoran-beratLapak,hasWeightDifference:!!p.hasWeightDifference,weightDifferenceGrams:Number(p.weightDifferenceGrams||0),
- estimasiWarga:p.citizenRightsRp,diterima:p.receivedRp,bruto:p.grossRp,marginBank:p.environmentRp,marginSementara:p.environmentRp,wargaPercent:p.wargaPercent,lingkunganPercent:p.lingkunganPercent,belumLunas:0};
+ const [batches,sale]=await Promise.all([
+   api('/api/v2/admin/bank/batches'),
+   api('/api/v2/admin/bank/sale-detail?id='+encodeURIComponent(p.saleId))
+ ]);
+ const b=rows(batches).find(x=>x.id===batchId);
+ const beratSetoran=n(b?.grams)/1000;
+ const beratLapak=(sale.lines||[]).reduce((sum,x)=>sum+n(x.grams),0)/1000;
+ const gross=Number(p.grossRp??sale.sale?.amount_gross_rp);
+ const received=Number(p.receivedRp??sale.sale?.amount_received_rp);
+ if(!Number.isSafeInteger(gross)||!Number.isSafeInteger(received)||gross<=0||received<0)
+   throw Error('Nominal penjualan tidak valid. Periksa transaksi sebelum mengesahkan.');
+ const unpaid=Math.max(0,gross-received);
+ const warnings=[];
+ if(unpaid)warnings.push('Pembayaran lapak belum lunas ('+unpaid.toLocaleString('id-ID')+' rupiah).');
+ if(p.ready===false||p.siap===false||p.canConfirm===false)warnings.push('Pemeriksaan server belum mengizinkan pengesahan.');
+ if(received>gross)warnings.push('Uang diterima melebihi nilai penjualan. Periksa nota lapak.');
+ const ready=warnings.length===0;
+ return {batch:batchId,saleId:p.saleId,siap:ready,siapDiperiksa:ready,peringatan:warnings,
+   setoran:p.depositIds?.length||0,penjualan:1,beratSetoran,beratLapak,
+   selisihKg:beratSetoran-beratLapak,hasWeightDifference:!!p.hasWeightDifference,
+   weightDifferenceGrams:Number(p.weightDifferenceGrams||0),
+   estimasiWarga:p.citizenRightsRp,diterima:received,bruto:gross,
+   selisihPenerimaan:gross-received,marginBank:p.environmentRp,marginSementara:p.environmentRp,
+   wargaPercent:p.wargaPercent,lingkunganPercent:p.lingkunganPercent,belumLunas:unpaid>0?1:0};
 }
 async function confirm(_token,p){
  const batchId=String(p?.batch||'');
  if(!batchId||p.konfirmasi!==batchId||p.semuaTerjual!==true)throw Error('ID batch dan persetujuan tidak cocok.');
  const v=await recon(_token,batchId);
+ if(!v.siap)throw Error(v.peringatan.join(' ')||'Penjualan belum siap disahkan.');
+ if(v.hasWeightDifference&&String(p.alasanSelisihBerat||'').trim().length<5)throw Error('Jelaskan selisih timbang minimal 5 karakter sebelum mengesahkan.');
  const reserveRp=Number(p.cadangan),neighborhoodRp=Number(p.kasLorong),operationRp=Number(p.operasional);
  if(![reserveRp,neighborhoodRp,operationRp].every(x=>Number.isSafeInteger(x)&&x>=0)||reserveRp+neighborhoodRp+operationRp!==v.marginBank)throw Error('Alokasi hasil lingkungan belum sesuai.');
  const r=await api('/api/admin/reconciliation/confirm',{batchId,saleId:v.saleId,reserveRp,neighborhoodRp,operationRp,expectedWargaPercent:v.wargaPercent,note:String(p.alasanSelisihBerat||'').slice(0,300)});
