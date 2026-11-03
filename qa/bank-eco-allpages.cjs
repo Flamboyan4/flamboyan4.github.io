@@ -143,12 +143,23 @@ assert(!css.includes('#dashboardView #pageProfile #v15PasswordBox>summary{'),
 assert(!h.includes('#v15PasswordBox>summary{cursor:pointer'),
  'Old left-side triangle style returned');
 assert(h.includes("summary.textContent='Ganti password'"),'Password must have no emoji or separate triangle');
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-v3-inventory'),
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261104-compact-direct-ui'),
  'Bank Sampah profile/dock stylesheet must be cache-busted');
-assert(h.includes('/portal-live/bank-mobile-app.js?v=20261103-v3-inventory'),
+assert(h.includes('/portal-live/bank-mobile-app.js?v=20261104-compact-direct-ui'),
  'Member payout icon script must be refreshed');
 assert(css.includes('.f4-bank-currency-mark{'),
  'Rp payout icon must use the canonical bank dock styles');
+assert(h.includes('id="f4BankPageGreeting"'), 'Manager greeting must be scopeable to the home route');
+assert(mobile.includes('greeting.hidden=screen!=="dashboard"'), 'Manager greeting may only display on Beranda');
+assert(!mobile.includes('Beranda Pengelola') && !mobile.includes('Mulai pencatatan dan periksa pekerjaan Bank Sampah'),
+ 'Duplicate manager homepage title/intro returned');
+assert(h.includes("window.matchMedia('(max-width:1023px)').matches") && h.includes("tabs.classList.add('hidden');return;"),
+ 'Manager HP shortcut pages must not be grouped into extra route tabs');
+assert(!h.includes('Album foto dan video kegiatan Bank Sampah Flamboyan 4'),
+ 'Redundant documentation subtitle returned');
+assert(css.includes('.f4-compact-sale-row>input{grid-column:span 2}') &&
+       css.includes('.f4-compact-sale-row>.f4-compact-entry-group{grid-column:span 4}'),
+ 'Sale price input must be allocated more width than the weight input');
 
 // Bank Sampah: shared form grid is owned by bank-eco-pages.css, not desktop overrides.
 assert(css.includes('grid-template-columns:repeat(12,minmax(0,1fr))'),
@@ -161,7 +172,7 @@ assert(css.includes('#saleForm .f4-sale-top-fields>.field{'),
  'Sale three-field row must keep its explicit column spans');
 assert(!css.includes('body.f4-bank-app-private #dashboardView #pageSetoran .f4-entry-top-fields,'),
  'Legacy desktop grid override was reintroduced');
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-v3-inventory'),
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261104-compact-direct-ui'),
  'Bank entry stylesheet cache key was not refreshed');
 const modernCss=fs.readFileSync('portal-live/modern-portals.css','utf8');
 assert(!modernCss.includes('max-width:850px!important') &&
