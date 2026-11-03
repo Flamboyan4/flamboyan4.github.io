@@ -87,11 +87,13 @@ def verify_portal_login(credentials):
                     page.wait_for_function("""() => {
                       const d=document;
                       return (d?.querySelectorAll('#setWarga option').length||0)>1 &&
-                        !!d?.querySelector('#setBarang input[data-kode]:not([disabled])');
+                        !!d?.querySelector('#setBarang .f4-compact-row select') &&
+                        !!d?.querySelector('#setBarang .f4-compact-row input[type=number]');
                     }""",timeout=17000)
                     frame.locator("#setWarga").select_option(index=1)
                     frame.locator("#setDate").fill("2026-10-25")
-                    frame.locator("#setBarang input[data-kode]:not([disabled])").first.fill("0.100")
+                    frame.locator("#setBarang .f4-compact-row select").first.select_option(index=1)
+                    frame.locator("#setBarang .f4-compact-row input[type=number]").first.fill("0.100")
                     frame.locator("#setNotes").fill("QA_UI_BANK_LOCAL_ONLY")
                     page.once("dialog",lambda dialog:dialog.accept())
                     frame.locator("#saveSetoranBtn").click()
