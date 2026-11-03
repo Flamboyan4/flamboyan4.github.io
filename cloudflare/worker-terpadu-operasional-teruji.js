@@ -106,7 +106,16 @@ __name(publicPortalCash,"publicPortalCash");
 async function publicBank(db) {
   const [catalog, albums, progress, inventory, overview, monthlyWeights] = await Promise.all([
     list(db, `SELECT i.id,i.name,i.category,i.unit, p.citizen_rate_rp_per_kg AS priceRpPerKg,p.effective_from AS effectiveFrom FROM waste_items i LEFT JOIN waste_prices p ON p.id=(SELECT p2.id FROM waste_prices p2 WHERE p2.waste_item_id=i.id ORDER BY p2.effective_from DESC,p2.id DESC LIMIT 1) WHERE i.active=1 ORDER BY i.category,i.name`),
-    list(db, `SELECT a.id,a.title,a.category,a.event_on,a.description,COUNT(m.id) AS mediaCount,(SELECT cm.external_url FROM album_media cm WHERE cm.album_id=a.id AND cm.media_type='foto' AND cm.status='aktif' AND cm.external_url IS NOT NULL ORDER BY cm.sort_order,cm.id LIMIT 1) AS coverUrl FROM albums a LEFT JOIN album_media m ON m.album_id=a.id AND m.status='aktif' WHERE a.visibility='publik' AND a.status='aktif' GROUP BY a.id ORDER BY a.event_on DESC,a.id DESC LIMIT 80`),
+    list(db, `SELECT a.id,a.title,a.category,a.event_on,a.description,
+      CASE WHEN a.id LIKE 'album:api:%' OR a.id LIKE 'album:bank:%'
+       OR LOWER(a.category) LIKE 'bank sampah:%' OR LOWER(a.category) LIKE 'bank_sampah:%'
+       THEN 'bank-sampah' ELSE 'portal-utama' END AS portal_scope,
+      COUNT(m.id) AS mediaCount,
+      (SELECT cm.external_url FROM album_media cm WHERE cm.album_id=a.id AND cm.media_type='foto'
+       AND cm.status='aktif' AND cm.external_url IS NOT NULL ORDER BY cm.sort_order,cm.id LIMIT 1) AS coverUrl
+      FROM albums a LEFT JOIN album_media m ON m.album_id=a.id AND m.status='aktif'
+      WHERE a.visibility='publik' AND a.status='aktif'
+      GROUP BY a.id ORDER BY a.event_on DESC,a.id DESC LIMIT 80`),
     list(db, `SELECT p.id,p.happened_on,p.title,p.stage,p.description,p.status,p.next_step,pm.photo_url AS photoUrl FROM progress_entries p LEFT JOIN bank_progress_photos pm ON pm.progress_id=p.id WHERE p.public_visible=1 ORDER BY p.happened_on DESC,p.id DESC LIMIT 70`),
     list(db, `SELECT i.id,i.name,i.quantity,i.unit,i.condition,im.external_url AS photoUrl
     FROM inventory i LEFT JOIN inventory_external_media im ON im.inventory_id=i.id
@@ -708,7 +717,7 @@ async function createBankAlbum(request, env) {
     !['publik','privat'].includes(visibility)||
     (coverUrl&&(!urlSafe(coverUrl)||coverUrl.length>2000)))
     return err('Data album atau tautan sampul HTTPS tidak valid.',400);
-  const id='album:api:'+crypto.randomUUID();
+  const id='album:bank:'+crypto.randomUUID();
   const statements=[env.DB.prepare("INSERT INTO albums(id,title,category,event_on,description,visibility,status) VALUES(?,?,?,?,?,?,'aktif')")
     .bind(id,title,category,eventOn,description,visibility)];
   if(coverUrl)statements.push(env.DB.prepare("INSERT INTO album_media(id,album_id,media_type,external_url,caption,sort_order,status) VALUES(?,?,'foto',?,?,0,'aktif')")
@@ -2123,7 +2132,12 @@ async function handleUnifiedApi(request, env, who) {
     if (path === "/api/v2/admin/bank/own-deposits" && (method==="GET"||method==="POST"))
       return bankOwnDeposit(request,env,who);
     if (method === "GET") {
-      if (path === "/api/v2/admin/bank/albums") return ok({data:await list(db,"SELECT id,title,category,event_on,description,visibility,status FROM albums WHERE status='aktif' ORDER BY event_on DESC,id DESC LIMIT 500")});
+      if (path === "/api/v2/admin/bank/albums") return ok({data:await list(db,`SELECT
+         id,title,category,event_on,description,visibility,status,
+         CASE WHEN id LIKE 'album:api:%' OR id LIKE 'album:bank:%'
+          OR LOWER(category) LIKE 'bank sampah:%' OR LOWER(category) LIKE 'bank_sampah:%'
+          THEN 'bank-sampah' ELSE 'portal-utama' END AS portal_scope
+         FROM albums WHERE status='aktif' ORDER BY event_on DESC,id DESC LIMIT 500`)});
       const detail = await detailBank(db, url);
       if (detail) return detail;
       const result = await adminBank(db, url);
