@@ -1,8 +1,8 @@
 /* Pusat Keuangan: satu stylesheet untuk UI; dokumen cetak dibuat terpisah. */
-.tc-center{display:grid;gap:10px;max-width:1320px;margin:0 auto;color:#273b48}
+.tc-center{display:grid;gap:var(--f4-grid-gap,16px);max-width:var(--f4-content-max,1180px);margin:0 auto;color:#273b48}
 .tc-center *{box-sizing:border-box}
 /* Pusat Keuangan: navigasi empat menu, tanpa menumpuk kartu satu layar. */
-.tc-overview{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:10px}
+.tc-overview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--f4-grid-gap,16px)}
 .tc-overview .tc-stat{padding:15px 17px;border-radius:15px;gap:6px}
 .tc-overview .tc-stat:first-child{background:linear-gradient(125deg,#fff,#f3f7fd)}
 .tc-overview .tc-stat small{color:#587186;font-size:11px}
@@ -16,7 +16,7 @@
 .tc-view-btn.is-active img{opacity:1}
 .tc-view-btn:focus-visible{outline:2px solid #4d85bd;outline-offset:2px}
 .tc-view{display:grid;gap:10px;min-width:0}
-.tc-location-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tc-location-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--f4-grid-gap,16px)}
 .tc-location{background:#fff;border:1px solid #e1eaf0;border-radius:12px;padding:12px 14px;display:grid;gap:4px;min-width:0}
 .tc-location span{font-size:10px;font-weight:700;color:#6d8290}
 .tc-location strong{font-size:clamp(12px,1.5vw,16px);color:#284e6e;letter-spacing:-.01em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
@@ -62,7 +62,7 @@
 .tc-panel h3{font-size:15px;font-weight:800;color:#294c61;margin:0 0 9px}
 .tc-panel h4{font-size:13px;color:#385d72;margin:12px 0 7px}
 .tc-flash{position:fixed;z-index:1001;top:100px;right:18px;max-width:min(360px,calc(100vw - 36px));padding:10px 13px;border:1px solid #b7dec8;border-radius:10px;background:#eaf5ef;color:#237349;font-size:12px;font-weight:700;box-shadow:0 8px 22px #243b4626}
-.tc-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.tc-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--f4-grid-gap,16px)}
 .tc-stat{display:grid;gap:3px;padding:10px 12px}
 .tc-stat small{color:#587185;font-size:11px;font-weight:750}
 .tc-stat strong{font-size:clamp(16px,1.7vw,21px);color:#174b70;line-height:1.2;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
@@ -100,7 +100,7 @@
 .tc-opening-recap{border:1px solid #e0e9ee;border-radius:9px;padding:9px 11px;margin:9px 0}
 .tc-opening-recap summary{font-size:12px;color:#536a78}
 .tc-opening-recap .tc-table-wrap{margin-top:9px}
-.tc-form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;align-items:end}
+.tc-form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--f4-grid-gap,16px);align-items:end}
 .tc-field{display:grid;gap:4px;min-width:0;font-size:11px;font-weight:700;color:#526b7b}
 .tc-field[hidden]{display:none}
 .tc-field input,.tc-field select{width:100%;min-width:0;min-height:38px;background:#fff;border:1px solid #cddde7;border-radius:8px;padding:8px 9px;color:#28465a;font:500 12px system-ui}
