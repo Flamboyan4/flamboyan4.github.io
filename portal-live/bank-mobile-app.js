@@ -1680,6 +1680,9 @@ function resetRoleSurface(){
   const legacyPanels=reservoir?.querySelector(".v14-panels");
   (legacyPanels||reservoir||$("pageDashboard"))?.append(recent);
  }
+ const guide=$("f4MemberFlow");
+ if(hub&&guide&&hub.contains(guide))
+  (reservoir||$("pageDashboard"))?.append(guide);
  hub?.remove();
  for(const id of ["f4MemberPriceShortcut","f4BankWeighingSchedule","f4MemberEnvironmentPreview","f4MemberInfoShortcut"]){
   $(id)?.remove();
