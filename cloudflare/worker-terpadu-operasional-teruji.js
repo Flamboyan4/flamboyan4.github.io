@@ -511,7 +511,7 @@ async function cancelBankDraft(request,env,who,type){
   const sourceGuard=isSale?`AND NOT EXISTS(SELECT 1 FROM waste_cash_ledger c WHERE c.source_transaction_id=?)`:
     `AND NOT EXISTS(SELECT 1 FROM waste_sales s WHERE s.batch_id=${tab}.batch_id AND s.status!='dibatalkan')`;
   const sql=`UPDATE ${tab} SET status='dibatalkan' WHERE id=? AND status=?
-    AND EXISTS(SELECT 1 FROM waste_batches b WHERE b.id=${tab}.batch_id AND b.status='draft')
+    AND EXISTS(SELECT 1 FROM waste_batches b WHERE b.id=${tab}.batch_id AND b.status ${isSale?"IN ('draft','siap')":"='draft'"})
     AND NOT EXISTS(SELECT 1 FROM waste_allocations a WHERE a.batch_id=${tab}.batch_id)
     ${sourceGuard}`;
   const auditId='audit:bank-cancel:'+type+':'+id;
@@ -4679,6 +4679,32 @@ async function bankSaleSheet(request,env,who,url){
     lines:lines.map(x=>({itemId:x.itemId,name:x.name,category:x.category,grams:Number(x.grams),lastPrice:Number(x.lastPrice||0)}))});
 }
 __name(bankSaleSheet,"bankSaleSheet");
+
+// Catat pelunasan pada draft penjualan; tidak pernah mengubah transaksi yang telah sah.
+async function bankSalePayment(request,env,who){
+ const denied=requireRole(who,["admin","superadmin"]);if(denied)return denied;
+ if(env.BANK_WRITE_ENABLED!=="true")return safeError("Pencatatan pembayaran belum diaktifkan.",503);
+ let data;try{data=await requestJson(request)}catch{return safeError("Input pembayaran tidak valid.",400)}
+ const saleId=String(data.saleId||"").trim();
+ if(!saleId||saleId.length>128)return safeError("Nomor penjualan tidak valid.",400);
+ const sale=await one(env.DB,"SELECT s.id,s.status,s.batch_id,s.amount_gross_rp,s.amount_received_rp,b.status AS batch_status FROM waste_sales s JOIN waste_batches b ON b.id=s.batch_id WHERE s.id=?",[saleId]);
+ if(!sale||sale.status!=="draft"||!["draft","siap"].includes(sale.batch_status))return safeError("Hanya draft penjualan yang dapat dilunasi.",409);
+ if(await one(env.DB,"SELECT id FROM waste_allocations WHERE batch_id=?",[sale.batch_id]))return safeError("Penjualan telah disahkan.",409);
+ const received=Number(data.receivedRp);
+ if(!Number.isSafeInteger(received)||received<Number(sale.amount_received_rp)||received>Number(sale.amount_gross_rp))
+   return safeError("Jumlah diterima harus mencakup pembayaran sebelumnya dan tidak melebihi total jual.",400);
+ if(received===Number(sale.amount_received_rp))return json({ok:true,id:saleId,receivedRp:received,unchanged:true});
+ const note=String(data.note||"").trim();
+ if(note.length<5||note.length>250)return safeError("Catatan pelunasan minimal 5 karakter.",400);
+ const updated=await env.DB.prepare("UPDATE waste_sales SET amount_received_rp=? WHERE id=? AND status='draft' AND amount_received_rp=? AND NOT EXISTS(SELECT 1 FROM waste_allocations WHERE batch_id=?)")
+  .bind(received,saleId,sale.amount_received_rp,sale.batch_id).run();
+ if(updated.meta?.changes!==1)return safeError("Pembayaran berubah. Muat ulang transaksi.",409);
+ await env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,before_json,after_json) VALUES(?,?,'banksampah','payment_sale_draft','waste_sales',?,?,?,?)")
+  .bind(crypto.randomUUID(),who.id,saleId,note,JSON.stringify({receivedRp:sale.amount_received_rp}),JSON.stringify({receivedRp:received})).run();
+ return json({ok:true,id:saleId,receivedRp:received,status:"draft"});
+}
+__name(bankSalePayment,"bankSalePayment");
+
 // Harga warga selalu dari tarif warga. Harga jual lapak tidak dikirim ke akun anggota.
 async function bankMemberPriceList(db,who){
   const denied=requireRole(who,["anggota","admin","superadmin"]);if(denied)return denied;
@@ -4791,6 +4817,7 @@ async function reconcilePreview(db, batchId) {
   if (lock) throw Error("Tahun penjualan sudah ditutup");
   const lineStats=await one(db,"SELECT COUNT(*) n,COALESCE(SUM(total_rp),0) amount,COALESCE(SUM(grams),0) grams FROM waste_sale_lines WHERE sale_id=?",[sale.id]);
   if (!lineStats?.n || Number(lineStats.amount)!==Number(sale.amount_gross_rp) || !Number.isSafeInteger(sale.amount_received_rp) || sale.amount_received_rp>sale.amount_gross_rp) throw Error("Total rincian penjualan tidak konsisten");
+   if(Number(sale.amount_received_rp)!==Number(sale.amount_gross_rp))throw Error("Penjualan belum lunas. Catat pelunasan lapak sebelum mengesahkan hak warga.");
   const deposits=await list(db,"SELECT id,member_id,estimated_total_rp,total_grams,deposited_on FROM waste_deposits WHERE batch_id=? AND status='estimasi' ORDER BY id",[batchId]);
   if (!deposits.length) throw Error("Setoran estimasi tidak ditemukan");
   const confirmed=await one(db,"SELECT COUNT(*) n FROM waste_deposits WHERE batch_id=? AND status='terkonfirmasi'",[batchId]);
@@ -5584,6 +5611,7 @@ async function handle(request, env) {
   if (path === "/api/member/bank/prices" && request.method === "GET") return bankMemberPriceList(env.DB,who);
   if (path === "/api/admin/bank/sale-sheet" && ["GET","POST"].includes(request.method))
     return bankSaleSheet(request,env,who,url);
+  if (path === "/api/admin/bank/sales/payment" && request.method === "POST") return bankSalePayment(request,env,who);
   if (path === "/api/v2/admin/residents") return residentsApi(request, env, who);
   // Rute nota spesifik harus ditangani sebelum fallback umum /api/v2/.
   if (path === "/api/v2/admin/bank/sale-receipt" && request.method === "POST") return bankUpdateSaleReceipt(request,env,who);
