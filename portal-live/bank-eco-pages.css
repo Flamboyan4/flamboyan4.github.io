@@ -949,7 +949,10 @@ body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-e
  grid-column:span 6
 }
 body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>.field{
- grid-column:span 4
+ grid-column:span 3
+}
+body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>.field:first-child{
+ grid-column:span 6
 }
 body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-goods-heading{
  display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0
@@ -973,6 +976,19 @@ body.f4-bank-app-admin #dashboardView .section .field :is(
 body.f4-bank-app-admin #dashboardView .section .f4-bank-own-field :is(input,select){
  box-sizing:border-box;width:100%;max-width:100%;min-width:0;min-height:var(--bank-input-h);
  margin:0;padding:9px 11px;font-size:13px;line-height:1.4
+}
+/* Sale notes are owned here, not by an inline style near the page footer. */
+body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-note-fields{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:var(--bank-form-gap);margin:0;min-width:0
+}
+.f4-sale-note-fields>.field{min-width:0}
+.f4-sale-note-fields .hint{margin-top:5px;font-size:12px;line-height:1.4}
+.f4-sale-note-caption{display:inline;margin:0;color:#456858;font-weight:650}
+@media(max-width:680px){
+ body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-note-fields{
+  grid-template-columns:minmax(0,1fr);gap:8px
+ }
 }
 body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm)>.summary-box{
  display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
@@ -1013,7 +1029,7 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
 }
 @media(max-width:600px){
  body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-top-fields>.field,
- body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>.field,
+ body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>:is(.field,.field:first-child),
  body.f4-bank-app-admin #dashboardView .section #saleForm>.field{grid-column:1/-1}
  body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm){--bank-form-gap:10px;row-gap:11px}
  body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm)>button[type=submit]{
@@ -1193,13 +1209,19 @@ body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm{
  min-height:36px;padding:7px 13px;border:1px solid #cde2d4;border-radius:10px;
  background:#fff;color:#136744;font-size:12px;font-weight:800;cursor:pointer
 }
+/* Canonical Setoran/Penjualan item rows share the form's 12-track boundaries. */
 .f4-compact-rows{display:grid;gap:9px;min-width:0}
 .f4-compact-row{
- display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 38px;
+ display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
  align-items:stretch;gap:var(--bank-form-gap,12px);min-width:0
 }
-.f4-compact-sale-row{
- grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) 38px
+.f4-compact-row>select{grid-column:span 6}
+.f4-compact-row>.f4-compact-entry-group{grid-column:span 6}
+.f4-compact-sale-row>input{grid-column:span 3}
+.f4-compact-sale-row>.f4-compact-entry-group{grid-column:span 3}
+.f4-compact-entry-group{
+ display:grid;grid-template-columns:minmax(0,1fr) 38px;
+ gap:8px;min-width:0
 }
 .f4-compact-row :is(select,input){
  box-sizing:border-box;width:100%;min-width:0;min-height:42px;margin:0;
@@ -1214,10 +1236,13 @@ body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm{
 .f4-bank-cash-expense-action[hidden]{display:none}
 .f4-bank-admin-cash-tabs{margin-bottom:2px}
 @media(max-width:520px){
- .f4-compact-sale-row{grid-template-columns:minmax(0,1.2fr) minmax(0,.85fr) 34px}
- .f4-compact-sale-row input:nth-of-type(2){grid-column:1/3}
- .f4-compact-sale-row .f4-compact-remove{grid-column:3;grid-row:1/3}
- .f4-compact-row:not(.f4-compact-sale-row){grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 34px}
+ .f4-compact-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .f4-compact-row>select{grid-column:1}
+ .f4-compact-row>.f4-compact-entry-group{grid-column:2}
+ .f4-compact-sale-row>select{grid-column:1/-1}
+ .f4-compact-sale-row>input{grid-column:1}
+ .f4-compact-sale-row>.f4-compact-entry-group{grid-column:2}
+ .f4-compact-entry-group{grid-template-columns:minmax(0,1fr) 34px;gap:7px}
 }
 .f4-bank-own-fields{
  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px
