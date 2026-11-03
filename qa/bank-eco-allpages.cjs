@@ -148,8 +148,8 @@ assert(css.includes('.f4-bank-currency-mark{'),
 // Bank Sampah: shared form grid is owned by bank-eco-pages.css, not desktop overrides.
 assert(css.includes('grid-template-columns:repeat(12,minmax(0,1fr))'),
  'Shared twelve-track Bank Sampah entry grid missing');
-assert(css.includes('#saleForm>.field{grid-column:span 6}'),
- 'Sale payment fields must share one grid baseline');
+assert(css.includes('#saleForm>.f4-sale-side{') && h.includes('class="f4-sale-side"'),
+ 'Sale payment must be in independent desktop panel');
 assert(css.includes('#saleForm .f4-sale-top-fields>.field{'),
  'Sale three-field row must keep its explicit column spans');
 assert(!css.includes('body.f4-bank-app-private #dashboardView #pageSetoran .f4-entry-top-fields,'),
@@ -221,8 +221,8 @@ assert(mobile.includes('const unframed=admin&&page.parentElement===section;'),
  'Admin page outer frames must be removed on PC as well as HP');
 assert(!mobile.includes('const unframed=mobile&&page.parentElement===section;'),
  'Mobile-only outer frame removal regressed');
-assert(css.includes('#saleForm>.field:has(#saleStatus){') &&
-       css.includes('#saleForm>.field:has(#saleReceived){') &&
+assert(css.includes('#saleForm .f4-sale-side>.field:has(#saleStatus),') &&
+       css.includes('#saleForm .f4-sale-side>.field:has(#saleReceived){') &&
        css.includes('grid-template-columns:minmax(0,1.2fr) minmax(355px,.8fr);'),
  'Desktop sale must have compact side-by-side goods and payment areas');
 assert(!css.includes('#dashboardView .section>.card:not(#pageDashboard,#pageProfile)'),
@@ -239,7 +239,8 @@ assert(css.includes('#f4BankAdminOperations .f4-bank-admin-operation-copy strong
        css.includes('grid-template-columns:48px minmax(0,1fr) 28px;'),
  'Admin primary task cards no longer use the canonical focal layout');
 assert(css.includes('grid-template-rows:18px var(--bank-input-h);') &&
-       css.includes('#saleForm>#saleItems{') &&
-       css.includes('grid-column:1;grid-row:3;padding-top:24px'),
- 'PC Hasil timbang / Pembayaran / Diterima alignment must be preserved');
+       css.includes('#saleForm .f4-sale-main>#saleItems{') &&
+       css.includes('#saleForm>.f4-sale-side{') &&
+       h.includes('class="f4-setoran-side"'),
+ 'PC Sale and Setoran panels must remain independent');
 console.log('F4_BANK_CANONICAL_THEME_OK');
