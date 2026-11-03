@@ -247,18 +247,18 @@ function updateAdminOverview(event){
  if(roleType()!=="admin"||!event.detail)return;
  adminOverview=event.detail;updateDashboard();
 }
-// Hanya wadah halaman pengurus yang tanpa frame di HP.
- // Panel riwayat, form, dan kartu data di dalam halaman tetap berbingkai.
+// Admin has an unframed page shell on PC and HP; inner information cards stay intact.
+// Restore the original page class if a member account is opened in the same session.
 function syncAdminPageFrames(){
  const section=$("dashboardView")?.querySelector(".grid > .section");
  if(!section)return;
- const mobile=roleType()==="admin"&&window.matchMedia("(max-width:1023px)").matches;
+ const admin=roleType()==="admin";
  for(const page of section.querySelectorAll("[id^='page']")){
   if(page.id==="pagePengesahan"||page.id==="pagePribadi")continue;
   if(!page.dataset.f4OriginalAdminCard&&page.classList.contains("card"))
    page.dataset.f4OriginalAdminCard="1";
   if(page.dataset.f4OriginalAdminCard!=="1")continue;
-  const unframed=mobile&&page.parentElement===section;
+  const unframed=admin&&page.parentElement===section;
   page.classList.toggle("card",!unframed);
   page.classList.toggle("f4-bank-admin-unframed",unframed);
  }

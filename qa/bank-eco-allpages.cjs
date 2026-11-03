@@ -138,9 +138,9 @@ assert(!css.includes('#dashboardView #pageProfile #v15PasswordBox>summary{'),
 assert(!h.includes('#v15PasswordBox>summary{cursor:pointer'),
  'Old left-side triangle style returned');
 assert(h.includes("summary.textContent='Ganti password'"),'Password must have no emoji or separate triangle');
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-admin-operational-v6'),
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-admin-compact-v7'),
  'Bank Sampah profile/dock stylesheet must be cache-busted');
-assert(h.includes('/portal-live/bank-mobile-app.js?v=20261103-admin-operational-v6'),
+assert(h.includes('/portal-live/bank-mobile-app.js?v=20261103-admin-compact-v7'),
  'Member payout icon script must be refreshed');
 assert(css.includes('.f4-bank-currency-mark{'),
  'Rp payout icon must use the canonical bank dock styles');
@@ -154,7 +154,7 @@ assert(css.includes('#saleForm .f4-sale-top-fields>.field{'),
  'Sale three-field row must keep its explicit column spans');
 assert(!css.includes('body.f4-bank-app-private #dashboardView #pageSetoran .f4-entry-top-fields,'),
  'Legacy desktop grid override was reintroduced');
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-admin-operational-v6'),
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-admin-compact-v7'),
  'Bank entry stylesheet cache key was not refreshed');
 const modernCss=fs.readFileSync('portal-live/modern-portals.css','utf8');
 assert(!modernCss.includes('max-width:850px!important') &&
@@ -217,4 +217,17 @@ assert(css.includes('grid-area:actions') &&
 assert(css.includes('#v16Tabs.v16-tabs:not(.hidden)') &&
        !css.includes('body.f4-bank-app-admin #dashboardView #v16Tabs{display:none}'),
  'Contextual tabs must remain visible on smaller viewports');
+assert(mobile.includes('const unframed=admin&&page.parentElement===section;'),
+ 'Admin page outer frames must be removed on PC as well as HP');
+assert(!mobile.includes('const unframed=mobile&&page.parentElement===section;'),
+ 'Mobile-only outer frame removal regressed');
+assert(css.includes('#saleForm>.field:has(#saleStatus){') &&
+       css.includes('#saleForm>.field:has(#saleReceived){') &&
+       css.includes('grid-template-columns:minmax(0,1.2fr) minmax(355px,.8fr);'),
+ 'Desktop sale must have compact side-by-side goods and payment areas');
+assert(!css.includes('#dashboardView .section>.card:not(#pageDashboard,#pageProfile)'),
+ 'Old desktop outside card owner returned');
+assert(css.includes('grid-template-rows:18px 42px auto;align-content:start;') &&
+       css.includes('.f4-bank-own-field input{'),
+ 'Own-deposit date and amount must share fixed label/control baselines');
 console.log('F4_BANK_CANONICAL_THEME_OK');

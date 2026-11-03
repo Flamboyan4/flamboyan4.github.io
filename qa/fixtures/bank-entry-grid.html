@@ -7,7 +7,7 @@
 <title>Flamboyan 4 — Form grid fixture</title></head>
 <body class="f4-direct-bank f4-bank-app-admin f4-bank-app-private">
 <main id="dashboardView"><div class="section">
-<div class="f4-test-card" id="pageSetoran"><form id="setoranForm">
+<div class="f4-test-card f4-bank-admin-unframed" id="pageSetoran"><form id="setoranForm">
  <div class="f4-entry-top-fields">
   <div class="field f4-field-stack"><label for="setWarga">Nama anggota</label><div class="f4-warga-picker"><select id="setWarga"><option>Warga</option></select><button type="button" class="f4-warga-picker-open" aria-haspopup="listbox"><span>Pilih warga</span></button><div class="f4-warga-picker-pop" hidden><input type="search" placeholder="Cari warga"></div></div></div>
   <div class="field f4-field-stack"><label for="setDate">Tanggal setoran</label><input id="setDate" type="date"></div>
@@ -16,8 +16,18 @@
  <div id="setBarang"><div class="f4-compact-rows"><div class="f4-compact-row"><select aria-label="Jenis sampah"><option>Jenis barang</option></select><div class="f4-compact-entry-group"><input type="number" aria-label="Berat" placeholder="Berat (kg)"><button class="f4-compact-remove" type="button" aria-label="Hapus">×</button></div></div></div></div>
  <div class="summary-box"><div><small>Total berat</small></div><div><small>Estimasi hak warga</small></div></div>
  <div class="field f4-field-stack"><label>Catatan</label><input></div><button type="button">Simpan</button>
-</form></div>
-<div class="f4-test-card" id="pagePenjualan"><form id="saleForm">
+</form>
+ <form id="f4BankOwnDepositForm" aria-label="Setoran milik Bank Sampah">
+ <p class="f4-bank-own-intro">Setoran milik Bank Sampah • langsung masuk kas setelah uang diterima.</p>
+ <div class="f4-bank-own-fields">
+  <label class="f4-bank-own-field"><span>Tanggal</span><input id="f4BankOwnDate" type="date" value="2026-11-03"></label>
+  <label class="f4-bank-own-field"><span>Uang diterima (Rp)</span><input id="f4BankOwnAmount" type="number" value="0"><small class="f4-bank-own-price-hint">Perkiraan tarif warga</small></label>
+ </div>
+ <div class="f4-bank-own-detail"><div class="f4-bank-own-detail-head"><strong>Rincian sampah</strong><button>Tambah jenis</button></div>
+ <div class="f4-bank-own-lines"><div class="f4-bank-own-line"><select><option>Pilih jenis</option></select><input type="number" placeholder="Berat (kg)"><button class="f4-bank-own-remove">×</button></div></div></div>
+ </form>
+</div>
+<div class="f4-test-card f4-bank-admin-unframed" id="pagePenjualan"><form id="saleForm">
  <div class="f4-entry-top-fields f4-sale-top-fields">
   <div class="field f4-field-stack"><label for="saleBatch">Kelompok belum dijual</label><select id="saleBatch"><option>Kelompok</option></select><p class="hint">Satu kelompok untuk satu penjualan</p></div>
   <div class="field f4-field-stack"><label for="saleDate">Tanggal penjualan</label><input id="saleDate" type="date"></div>
@@ -29,6 +39,6 @@
  <div class="field f4-field-stack"><label for="saleStatus">Pembayaran</label><select id="saleStatus"><option>Lunas</option></select></div>
  <div class="field f4-field-stack"><label for="saleReceived">Diterima (Rp)</label><input id="saleReceived" type="number"><p class="hint">Belum dibayar</p></div>
  <div class="f4-sale-note-fields"><div class="field f4-field-stack"><label for="saleProof">No. nota (opsional)</label><input id="saleProof"><p class="hint">Nota bisa diisi nanti.</p></div><div class="field f4-field-stack"><label for="saleReason">Alasan selisih bayar</label><input id="saleReason"></div><div class="field f4-field-stack"><label for="saleProofUrl">Bukti (opsional)</label><input id="saleProofUrl"></div></div>
- <button type="button">Catat penjualan</button>
+ <button type="submit">Catat penjualan</button>
 </form></div>
 </div></main></body></html>
