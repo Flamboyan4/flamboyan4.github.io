@@ -49,7 +49,7 @@ function build(sale,lines){
  if(sale.status==='dibatalkan')throw Error('Transaksi sudah dibatalkan. Form tidak dapat diterbitkan.');
  const grams=lines.reduce((n,x)=>n+Number(x.grams||0),0);
  const reference=String(sale.id||'').replace(/[^a-z0-9]/gi,'').slice(-8).toUpperCase();
- const docCode='BS-'+String(sale.sold_on||'').replace(/[^0-9]/g,'').slice(0,8)+'-'+reference;
+ const docCode='BSF4-J-'+String(sale.batch_id||'').replace(/^batch:/,'').replace(/[^A-Za-z0-9-]/g,'').slice(0,48).toUpperCase();
  const receiptNo=String(sale.receipt_no||'').trim();
  const rows=lines.map((x,i)=>'<tr><td class="right">'+(i+1)+'</td><td>'+esc(x.name||'Barang')+'</td>'+
   '<td class="right">'+kg(x.grams)+'</td><td class="right">'+rp(x.priceRpPerKg)+'</td><td class="right">'+rp(x.total_rp)+'</td></tr>').join('');
@@ -60,7 +60,7 @@ function build(sale,lines){
  '<div class="meta"><div><small>No. nota lapak</small><b>'+esc(receiptNo||'Belum diisi')+'</b></div>'+
  '<div><small>Tanggal penjualan</small><b>'+esc(tanggal(sale.sold_on))+'</b></div>'+
  '<div><small>Lapak / pengepul</small><b>'+esc(sale.buyer_name||'—')+'</b></div>'+
- '<div><small>No. arsip otomatis</small><b>'+esc(docCode)+'</b></div></div>'+
+ '<div><small>No. penjualan</small><b>'+esc(docCode)+'</b></div></div>'+
  '<table><colgroup><col style="width:7%"><col style="width:37%"><col style="width:16%"><col style="width:20%"><col style="width:20%"></colgroup>'+
  '<thead><tr><th>No.</th><th>Jenis sampah</th><th>Berat</th><th>Harga/kg</th><th>Jumlah</th></tr></thead><tbody>'+rows+'</tbody>'+
  '<tfoot><tr><td colspan="2">TOTAL</td><td class="right">'+kg(grams)+'</td><td></td><td class="right">'+rp(bruto)+'</td></tr></tfoot></table>'+
