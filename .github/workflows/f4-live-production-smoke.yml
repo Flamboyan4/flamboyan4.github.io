@@ -26,6 +26,8 @@ jobs:
             ("/api/v2/public/portal",200),
             ("/api/v2/public/portal/cash",401),
             ("/api/v2/public/bank",200),
+            ("/api/public/bank/weighing-schedule",200),
+            ("/api/v2/admin/bank/albums",401),
             ("/api/v2/public/bank/report",401),
             ("/api/member/savings",401),
             ("/api/bookkeeping/reports/yearly?year=2026",401)
@@ -42,6 +44,18 @@ jobs:
                       code=response.status
                       data=json.load(response)
                       valid=isinstance(data,dict) and data.get("ok") is not False
+                      if path=="/api/v2/public/bank" and valid:
+                          albums=data.get("albums") or []
+                          catalog=data.get("catalog") or []
+                          progress=data.get("progress") or []
+                          inventory=data.get("inventory") or []
+                          scoped=sum(1 for row in albums if row.get("portal_scope")=="bank-sampah")
+                          unscoped=sum(1 for row in albums if row.get("portal_scope") not in ("bank-sampah","portal-utama"))
+                          print("BANK_PUBLIC_D1_SOURCE_COUNTS albums="+str(len(albums))+
+                            " bank_scoped="+str(scoped)+" missing_scope="+str(unscoped)+
+                            " catalog="+str(len(catalog))+" progress="+str(len(progress))+
+                            " inventory="+str(len(inventory)))
+                          if unscoped:valid=False
 
               except urllib.error.HTTPError as error:
                   code=error.code
