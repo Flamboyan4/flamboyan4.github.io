@@ -33,17 +33,18 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #76
 .sa-section h3{margin:0 0 9px;font-size:16px;color:var(--navy)}
 .sa-list{display:grid;gap:9px}.sa-item{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--edge);border-radius:11px;background:#fff}
 .sa-item strong{display:block;font-size:13px}.sa-item small{display:block;color:var(--muted);font-size:11px}.sa-chip{background:#e9f2fb;border-radius:20px;color:#286d9e;padding:5px 9px;font-size:10px;font-weight:800}
-.sa-controls{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin:12px 0}
-.sa-controls input,.sa-controls select{padding:10px 12px;border:1px solid #cbdde7;border-radius:9px;min-width:190px;flex:1}
+.sa-controls{display:flex;flex-wrap:wrap;align-items:center;gap:var(--f4-control-gap,10px);margin:12px 0}
+.sa-controls input,.sa-controls select{height:var(--f4-control-height,42px);padding:0 12px;border:1px solid #cbdde7;border-radius:9px;min-width:190px;flex:1}
 .sa-action,.f4-admin-btn,.f4-admin-primary,.f4-work-button{border:1px solid #bdd5e7;border-radius:10px;background:#eaf3fa;color:#18567f;padding:10px 12px;font-size:12px;font-weight:800}
 .f4-admin-primary{background:#286c9e;color:#fff;border-color:#286c9e}
 .f4-admin-list{display:grid;gap:9px}.f4-admin-item{background:white;border:1px solid var(--edge);border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center;gap:12px}
 .f4-admin-item strong,.f4-admin-item small{display:block}.f4-admin-item small{color:var(--muted);font-size:11px}
-.f4-admin-controls{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
-.f4-admin-controls input{min-width:180px;flex:1;padding:10px;border-radius:9px;border:1px solid var(--edge)}
+.f4-admin-controls{display:flex;align-items:center;gap:var(--f4-control-gap,10px);flex-wrap:wrap;margin:12px 0}
+.f4-admin-controls input{min-width:180px;flex:1;height:var(--f4-control-height,42px);padding:0 12px;border-radius:9px;border:1px solid var(--edge)}
 .f4-admin-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--f4-grid-gap,16px)}
 .f4-admin-fields label{display:flex;flex-direction:column;gap:5px;font-weight:650;font-size:12px}
 .f4-admin-fields input,.f4-admin-fields textarea,.f4-admin-fields select{width:100%;border:1px solid var(--edge);border-radius:9px;padding:11px;background:#fff}
+.f4-admin-fields :is(input,select){height:var(--f4-control-height,42px);padding-block:0}
 .f4-admin-editor{border:1px solid var(--edge);background:#fff;padding:20px;border-radius:14px}
 
 /* Compact master iuran form: genuine component styles, no cascade overlays. */
@@ -214,8 +215,8 @@ html body #f4-account-page>aside{overflow-x:hidden!important}
 .sa-account-note{background:#eaf2e9;color:#355f4a!important;border-radius:11px;padding:13px!important;margin:0 0 14px!important;line-height:1.55;font-size:12px!important}
 .sa-account-table{background:#f5f9f5;border:1px solid #d7e5d8;border-radius:13px;overflow:hidden}
 .sa-account-filters{padding:14px;display:flex;gap:9px;align-items:center;flex-wrap:wrap}
-.sa-account-filters input{flex:1 1 270px;max-width:500px;background:white;border:1px solid #c9d9cd;border-radius:10px;padding:12px;font-size:12px}
-.sa-account-filters select{max-width:180px;min-width:135px;padding:12px;background:white;border:1px solid #c9d9cd;border-radius:10px;font-size:12px}
+.sa-account-filters input{flex:1 1 270px;max-width:500px;height:var(--f4-control-height,42px);background:white;border:1px solid #c9d9cd;border-radius:10px;padding:12px;font-size:12px}
+.sa-account-filters select{max-width:180px;min-width:135px;height:var(--f4-control-height,42px);padding:12px;background:white;border:1px solid #c9d9cd;border-radius:10px;font-size:12px}
 #f4-account-page>main .sa-account-count{font-size:11px!important;flex-basis:100%;margin:0!important;color:#5e806d!important}
 .sa-account-scroll{overflow-x:auto;max-height:60vh;overflow-y:auto;background:white}
 .sa-account-grid{border-collapse:collapse;width:100%;min-width:690px;font-size:12px}
@@ -287,8 +288,8 @@ html body #f4-account-page>aside{overflow-x:hidden!important}
 .f4-obligation-icon-danger:hover,.f4-obligation-icon-danger:focus-visible{background:#ffeae5;border-color:#e6b5b1}
 .f4-obligation-upcoming{display:block;margin-top:2px;font-weight:500;font-size:10px;color:#657fa4;line-height:1.2}
 .f4-obligation-toolbar{align-items:center;padding:10px 11px;gap:7px;margin:9px 0}
-.f4-obligation-toolbar input{min-width:120px;height:37px;padding:7px 10px}
-.f4-obligation-toolbar button{min-height:37px;padding:7px 11px;white-space:nowrap}
+.f4-obligation-toolbar input{min-width:120px;height:var(--f4-control-height,42px);padding:0 10px}
+.f4-obligation-toolbar button{display:inline-flex;align-items:center;justify-content:center;min-height:var(--f4-control-height,42px);padding:0 11px;white-space:nowrap}
 .f4-admin-truncate{display:block;max-width:235px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .f4-admin-source-link{color:#2967a0;text-decoration:underline;text-underline-offset:2px;font-weight:600}
 .f4-admin-muted{color:#8e9ab0}
@@ -339,7 +340,7 @@ html.f4-sa-drawer-lock{overflow:hidden!important}
  width:39px;height:39px;padding:0;border:0;border-radius:10px;background:#e4f1fb;
  color:#27658e;font:700 22px/1 system-ui;cursor:pointer}
 @media(max-width:1023px){.f4-sa-standalone-menu{display:grid;place-items:center}}
-</style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261103-unified-grid-v1"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+</style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261103-control-alignment-v2"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261028-calendar-font-hp"><link rel="stylesheet" href="/portal-live/treasury-center.css?v=20261103-unified-grid-v1">
 <style id="f4-superadmin-form-value-typography-20261028">
 /* Label is emphasized, but entered values must remain normal-weight.
