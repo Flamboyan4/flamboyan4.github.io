@@ -235,7 +235,7 @@ async def main():
                         const receivedControl=one('#saleReceived');
                         const goodsControl=one('#saleItems .f4-compact-sale-row>select');
                         const desktopAlignmentOk=w<1024||(
-                          close(heading.top,paymentLabel.top) &&
+                          close((heading.top+heading.bottom)/2,(addKind.top+addKind.bottom)/2) &&
                           close(addKind.top,paymentSelect.top) &&
                           close(goodsControl.top,receivedControl.top)
                         );
