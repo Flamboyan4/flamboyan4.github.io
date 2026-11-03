@@ -166,11 +166,14 @@ async def savings_chart(browser):
     await page.locator('.f4-bank-chart-switch button[data-mode="rp"]').click()
     money=await page.locator("#f4BankSavingsBars .f4-bank-savings-bar").evaluate_all(
       "(nodes)=>nodes.map(x=>x.querySelector('strong').textContent)")
-    assert money==["Rp 750","Rp 2.250","Rp 3.000","Rp 700"],money
+    assert money==["750","2,3 rb","3 rb","700"],money
+    exact=await page.locator("#f4BankSavingsBars .f4-bank-savings-bar").evaluate_all(
+      "(nodes)=>nodes.map(x=>x.getAttribute('aria-label'))")
+    assert "Rp 2.250" in exact[1] and "Rp 3.000" in exact[2],exact
     await page.locator('.f4-bank-chart-groups button[data-group="month"]').click()
     monthly_money=await page.locator("#f4BankSavingsBars .f4-bank-savings-bar").evaluate_all(
       "(nodes)=>nodes.map(x=>x.querySelector('strong').textContent)")
-    assert monthly_money==["Rp 3.000","Rp 3.700"],monthly_money
+    assert monthly_money==["3 rb","3,7 rb"],monthly_money
     print("SAVINGS_CHART_OK",state,period,money,monthly_money,flush=True)
     await page.close()
 
