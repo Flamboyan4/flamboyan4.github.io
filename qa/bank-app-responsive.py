@@ -83,7 +83,7 @@ async def member_layout(browser):
         assert all(c=="rgb(255, 255, 255)" for c in result["stepColors"]),(device,result)
         if device=="pc":
             assert result["recent"]["x"]<result["guide"]["x"],result
-            assert result["recent"]["w"]>result["guide"]["w"],result
+            assert abs(result["recent"]["w"]-result["guide"]["w"])<3,result
             assert abs(result["steps"][0]["y"]-result["steps"][1]["y"])<3,result
         else:
             assert result["guide"]["y"]<result["recent"]["y"],result
