@@ -162,6 +162,11 @@ assert(!css.includes('body.f4-bank-app-private #dashboardView #pageSetoran .f4-e
 assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-bank-grid-owner-v4'),
  'Bank entry stylesheet cache key was not refreshed');
 const modernCss=fs.readFileSync('portal-live/modern-portals.css','utf8');
+assert(!modernCss.includes('max-width:850px!important') &&
+       css.includes('#saleForm .f4-sale-note-fields{'),
+ 'Bank goods must fill the full grid and sale notes must have a single canonical owner');
+assert(!h.includes('.f4-sale-note-fields{display:grid;'),
+ 'Retired inline sale notes grid returned to Bank HTML');
 assert(!modernCss.includes('#setoranForm')&&!modernCss.includes('#saleForm'),
  'Legacy forced Setoran/Penjualan CSS must not return to modern-portals.css');
 assert(h.includes("amountGroup.append(weight,remove)") &&
