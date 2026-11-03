@@ -231,7 +231,7 @@ body.f4-account-open #f4-direct-bar{z-index:500!important}
 #f4-direct-sidebar button .f4-svg-icon{width:18px;height:18px}
 #f4-direct-bar #f4-direct-avatar .f4-svg-icon{width:23px;height:23px}
 /* Eliminate double top padding inherited from the old iframe wrapper. */
-body.f4-direct-bank #v18PublicContent{padding-top:0!important}
+body.f4-direct-bank #v18PublicContent{}
 body.f4-direct-bank #v11Public .v17-public-main{padding-top:16px!important}
 body.f4-direct-book>main{padding-top:18px!important}
 @media(max-width:1023px){

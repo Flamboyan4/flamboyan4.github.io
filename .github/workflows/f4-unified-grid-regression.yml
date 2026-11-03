@@ -11,6 +11,7 @@ on:
       - portal-live/*.css
       - portal-live/dokumentasi/site.css
       - qa/verify-unified-grid.cjs
+      - qa/verify-css-ownership.cjs
       - qa/verify-unified-grid-browser.py
       - .github/workflows/f4-unified-grid-regression.yml
   workflow_dispatch:
@@ -27,6 +28,8 @@ jobs:
           node-version: '22'
       - name: Verify grid markers and prevent additional CSS priority rules
         run: node qa/verify-unified-grid.cjs
+      - name: Reject repeated CSS owners within the same media scope
+        run: node qa/verify-css-ownership.cjs
       - name: Browser tools
         run: |
           python3 -m pip install --quiet playwright
