@@ -1772,3 +1772,11 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  #pagePenjualan .f4-bank-sheet-actions button{flex:1 1 150px}
  .f4-bank-prices-group{padding:10px 12px}
 }
+
+/* Tanggal laporan anggota: pilihan ringkas pada panel yang sudah ada. */
+.f4-bank-report-period .f4-bank-report-range-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;grid-column:1/-1}
+.f4-bank-report-period .f4-bank-report-range-fields[hidden]{display:none}
+.f4-bank-report-range-fields label{display:grid;gap:5px;font-size:12px;color:#5b7664}
+.f4-bank-report-range-fields input{width:100%;min-width:0;min-height:42px;border:1px solid #cbded1;border-radius:9px;background:#fff;color:#234834;padding:8px;font:inherit}
+#f4BankReportRangeToggle{white-space:nowrap;min-height:42px;padding:8px 12px}
+.f4-bank-report-period label[hidden]{display:none}
