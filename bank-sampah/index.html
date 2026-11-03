@@ -5138,14 +5138,45 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   v10Specs.penjualan.fields.push(['status','Status']);
   const v29OldLoad=v10LoadReport;
   v10LoadReport=async function(){
-    v29SetupAudit();const include=$('v29AuditMode')?.value==='audit'&&$('v29ShowCanceled')?.checked===true;
+    v29SetupAudit();
+    const include=$('v29AuditMode')?.value==='audit'&&$('v29ShowCanceled')?.checked===true;
+    const start=$('v10Month').value;
+    const combine=$('v33ReportCombine')?.checked===true;
+    const until=combine?String($('v33ReportEndMonth')?.value||''):start;
     const statusToken=F4Loading.begin('v10ReportNotice','Memuat laporan Bank Sampah…');
     try{
-      v10ReportData=await call('bsV10LaporanAdmin',token,$('v10Month').value,include);
+      if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(start)||!/^\d{4}-(0[1-9]|1[0-2])$/.test(until)||until<start)
+        throw Error('Pilih rentang bulan yang benar.');
+      const span=(Number(until.slice(0,4))-Number(start.slice(0,4)))*12+Number(until.slice(5))-Number(start.slice(5))+1;
+      if(span>24)throw Error('Maksimal 24 bulan per laporan. Persempit rentangnya.');
+      const full=await call('bsV10LaporanAdmin',token,combine?'':start,include);
+      if(!combine||until===start){v10ReportData=full;}
+      else{
+        const within=row=>{const date=String(row?.tanggal||'').slice(0,7);return date>=start&&date<=until;};
+        const subset=key=>(Array.isArray(full[key])?full[key]:[]).filter(within);
+        const setoran=subset('setoran'),penjualan=subset('penjualan'),pengeluaran=subset('pengeluaran'),
+          mutasi=subset('mutasi'),setoranBank=subset('setoranBank');
+        const sum=(rows,key)=>rows.reduce((n,r)=>n+(Number(r[key])||0),0);
+        const sah=r=>String(r.status||'').toLowerCase()==='terkonfirmasi';
+        const confirmedDeposits=setoran.filter(sah),confirmedSales=penjualan.filter(sah);
+        const activeExpenses=pengeluaran.filter(r=>String(r.status||'').toLowerCase()==='lunas');
+        const credits=mutasi.filter(r=>r.jenis==='kredit'),withdrawals=mutasi.filter(r=>r.jenis==='pencairan');
+        v10ReportData={
+          periode:start+' s.d. '+until,
+          ringkasan:{
+            jumlahSetoran:confirmedDeposits.length,jumlahPenjualan:confirmedSales.length,
+            estimasi:sum(confirmedDeposits,'nilai'),diterima:sum(confirmedSales,'diterima'),
+            hakWargaDikredit:sum(credits,'kredit'),tabunganDicairkan:sum(withdrawals,'debit'),
+            biaya:sum(activeExpenses,'nominal'),setoranBankRp:sum(setoranBank,'diterima'),
+            saldoKasKini:Number(full.ringkasan?.saldoKasKini||0)
+          },
+          setoran,penjualan,pengeluaran,mutasi,setoranBank
+        };
+      }
       v10RenderReport();
-      if(include)F4Loading.empty('v10ReportNotice','Mode audit: transaksi batal ditampilkan, namun tidak dihitung sebagai saldo sah.',statusToken);
+      if(include)F4Loading.empty('v10ReportNotice','Mode audit: transaksi batal tidak dihitung sebagai saldo sah.',statusToken);
       else F4Loading.success('v10ReportNotice',statusToken);
-    }catch(e){F4Loading.error('v10ReportNotice','Gagal memuat laporan: '+(e.message||e),statusToken);}
+    }catch(e){v10ReportData=null;F4Loading.error('v10ReportNotice','Gagal memuat laporan: '+(e.message||e),statusToken);}
   };
   v10PrintReport=function(){
     if(!v10ReportData){note('v10ReportNotice','Muat laporan dahulu.',true);return;}
@@ -5327,6 +5358,17 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     const periodField=document.createElement('div');periodField.className='v33-report-period-field';
     const periodCaption=document.createElement('strong');periodCaption.textContent='Periode laporan';
     periodField.append(periodCaption,period);
+    const combineRow=document.createElement('div');combineRow.className='v33-report-combine';
+    const combineLabel=document.createElement('label');combineLabel.className='v33-report-combine-label';
+    const combine=document.createElement('input');combine.id='v33ReportCombine';combine.type='checkbox';
+    const combineText=document.createElement('span');combineText.textContent='Gabungkan beberapa bulan';
+    combineLabel.append(combine,combineText);
+    const endLabel=document.createElement('label');endLabel.className='v33-report-range-end';
+    endLabel.textContent='Sampai bulan';
+    const endMonth=document.createElement('input');endMonth.id='v33ReportEndMonth';
+    endMonth.type='month';endMonth.min='2026-01';endMonth.max='2046-12';endMonth.value=initial;
+    endLabel.append(endMonth);endLabel.hidden=true;
+    combineRow.append(combineLabel,endLabel);periodField.append(combineRow);
     row.append(periodField);
     const auditHolder=document.createElement('div');auditHolder.className='v33-report-audit';
     auditHolder.append(auditField);row.append(auditHolder);form.append(row);
@@ -5376,6 +5418,8 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     };
     monthSelect.addEventListener('change',updateMonth);
     yearSelect.addEventListener('change',updateMonth);
+    combine.addEventListener('change',()=>{endLabel.hidden=!combine.checked;invalidate();});
+    endMonth.addEventListener('change',invalidate);
     audit.addEventListener('change',syncAuditInline);
     syncAuditInline();
     const updateChoice=()=>{
