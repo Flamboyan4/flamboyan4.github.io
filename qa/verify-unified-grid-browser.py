@@ -231,6 +231,11 @@ async def main():
                         const proof=one('#saleProof'),reason=one('#saleReason'),
                             proofLabel=one('label[for="saleProof"]'),
                             reasonLabel=one('label[for="saleReason"]');
+                        const compactSpacingOk=[...document.querySelectorAll(
+                          '#saleForm .f4-entry-top-fields>.field, #saleForm .f4-sale-note-fields>.field'
+                        )].every(el=>Math.abs(parseFloat(getComputedStyle(el).marginBottom)||0)<=1) &&
+                          (topSale[1].top-topSale[0].bottom)<=11 &&
+                          (note[2].top-note[0].bottom)<=11;
                         const noteFieldsOk=Math.abs(proof.height-42)<=1 &&
                           Math.abs(reason.height-42)<=1 &&
                           (w<=680?reason.top>=proof.bottom:
@@ -260,7 +265,7 @@ async def main():
                           close(setSide.right,saleSide.right)
                         );
                         return {gridOk,topDepositOk,topSaleOk,paymentsOk,layoutOk,responsiveOk,
-                            baseLineOk,saleVerticalOk,paymentOrderOk,gridDividerOk,independentNotesOk,priorityOk,deleteOk,entryControlsOk,noteFieldsOk,
+                            baseLineOk,saleVerticalOk,paymentOrderOk,gridDividerOk,independentNotesOk,priorityOk,deleteOk,entryControlsOk,noteFieldsOk,compactSpacingOk,
                             desktopAlignmentOk,heading,addKind,paymentLabel,paymentSelect,
                             goodsControl,receivedControl,ownFieldsOk,unframedOk,desktopPanelOk,ownDate,ownMoney,
                             saleFormBounds:one('#saleForm'),
@@ -274,6 +279,7 @@ async def main():
                               ('gridOk','topDepositOk','topSaleOk','paymentsOk',
                                'layoutOk','responsiveOk','baseLineOk',
                                'priorityOk','deleteOk','entryControlsOk','noteFieldsOk',
+                               'compactSpacingOk',
                                'independentNotesOk','saleVerticalOk','paymentOrderOk','gridDividerOk',
                                'ownFieldsOk','unframedOk','desktopPanelOk',
                                'desktopAlignmentOk')))
