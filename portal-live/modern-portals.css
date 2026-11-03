@@ -16,7 +16,7 @@ body:has(#f4-account-page)[data-sa-area=bank]{--blue:#087f5b;--tint:#eaf9f2;--wo
 #f4-account-page>aside button:nth-of-type(2) .sa-nav-icon{background:#fff0db}
 #f4-account-page>aside button:nth-of-type(3) .sa-nav-icon{background:#e5f1ff}
 #f4-account-page>aside button:nth-of-type(4) .sa-nav-icon{background:#dff8ec}
-#f4-account-page>aside button:nth-of-type(5) .sa-nav-icon{background:#ffeaf0}
+#f4-account-page>aside button:nth-of-type(5) .sa-nav-icon{background:#dff8ec}
 #f4-account-page>aside button:nth-of-type(6) .sa-nav-icon{background:#e5f5fc}
 #f4-account-page>main .f4-work-heading{border:0;margin-bottom:16px;padding-bottom:0}
 #f4-account-page>main .f4-work-heading h2{font-size:27px!important;letter-spacing:-.7px;font-weight:750;color:var(--modern-ink)}
