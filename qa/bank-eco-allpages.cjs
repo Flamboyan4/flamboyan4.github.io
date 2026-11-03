@@ -138,7 +138,7 @@ assert(!css.includes('#dashboardView #pageProfile #v15PasswordBox>summary{'),
 assert(!h.includes('#v15PasswordBox>summary{cursor:pointer'),
  'Old left-side triangle style returned');
 assert(h.includes("summary.textContent='Ganti password'"),'Password must have no emoji or separate triangle');
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-forms-v10'),
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-grid-v11'),
  'Bank Sampah profile/dock stylesheet must be cache-busted');
 assert(h.includes('/portal-live/bank-mobile-app.js?v=20261103-forms-v10'),
  'Member payout icon script must be refreshed');
@@ -154,7 +154,7 @@ assert(css.includes('#saleForm .f4-sale-top-fields>.field{'),
  'Sale three-field row must keep its explicit column spans');
 assert(!css.includes('body.f4-bank-app-private #dashboardView #pageSetoran .f4-entry-top-fields,'),
  'Legacy desktop grid override was reintroduced');
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-forms-v10'),
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-grid-v11'),
  'Bank entry stylesheet cache key was not refreshed');
 const modernCss=fs.readFileSync('portal-live/modern-portals.css','utf8');
 assert(!modernCss.includes('max-width:850px!important') &&
