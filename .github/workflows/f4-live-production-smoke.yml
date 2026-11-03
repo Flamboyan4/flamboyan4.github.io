@@ -18,7 +18,7 @@ jobs:
       - name: Check live public routes and private boundaries without credentials
         run: |
           python3 - <<'PY'
-          import json,urllib.request,urllib.error,sys
+          import json,urllib.request,urllib.error,urllib.parse,sys
           base="https://api.flamboyan4.web.id"
           routes=[
             ("/api/health",200),
@@ -63,6 +63,22 @@ jobs:
                               category=str(row.get("category") or "").replace("\\n"," ").replace("\\r"," ")[:60]
                               print("PUBLIC_ALBUM_SCOPE_AUDIT title="+repr(title)+
                                 " category="+repr(category)+" scope="+repr(row.get("portal_scope")))
+                              if row.get("portal_scope")=="bank-sampah" and row.get("id"):
+                                  detail_url=base+"/api/v2/public/bank/album/"+urllib.parse.quote(str(row["id"]),safe="")
+                                  detail_request=urllib.request.Request(detail_url,headers={
+                                      "Accept":"application/json","Origin":"https://flamboyan4.web.id",
+                                      "User-Agent":"Mozilla/5.0 Flamboyan4-Smoke/1.0"
+                                  })
+                                  try:
+                                      with urllib.request.urlopen(detail_request,timeout=20) as detail_response:
+                                          album_data=json.load(detail_response)
+                                          detail_ok=detail_response.status==200 and isinstance(album_data.get("album"),dict)
+                                          print(("PASS" if detail_ok else "FAIL")+" BANK_D1_ALBUM_DETAIL"+
+                                                " media_count="+str(len(album_data.get("media") or [])))
+                                          if not detail_ok:valid=False
+                                  except Exception as detail_error:
+                                      print("FAIL BANK_D1_ALBUM_DETAIL HTTP/NETWORK="+type(detail_error).__name__)
+                                      valid=False
 
               except urllib.error.HTTPError as error:
                   code=error.code
