@@ -562,6 +562,7 @@ function loadWeighingDay(){
  if(weighingRequest)return;
  if(weighingLastFetched&&Date.now()-weighingLastFetched<90000)return;
  const seq=++weighingRequestId;
+ weighingLastFetched=Date.now(); // Throttle errors as well as successful reads.
  weighingRequest=fetch(apiRoot+"/api/public/bank/weighing-schedule",{
   method:"GET",credentials:"include",cache:"no-store"
  }).then(async response=>{
