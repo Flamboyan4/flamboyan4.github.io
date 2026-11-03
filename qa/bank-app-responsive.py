@@ -853,6 +853,34 @@ async def admin_docs_back_and_cross_account(browser):
       ?.textContent?.includes('Setiap Rabu')""",timeout=9000)
     assert await page.locator("#pageDashboard").is_visible()
     print("BANK_ACCOUNT_SWITCH_NO_REFRESH_AND_WEDNESDAY_SCHEDULE_OK",flush=True)
+    # Check both reverse directions and Superadmin without a page reload.
+    await page.evaluate("""() => {
+      window.f4BankResetForAccountSwitch();
+      document.body.dataset.f4BankRole='admin';
+      window.f4BankReconcileAccount();
+    }""")
+    await page.locator("#f4BankAdminOperations").wait_for(state="visible",timeout=8000)
+    assert not await page.locator("#f4BankWeighingSchedule").is_visible()
+    assert not await page.locator("#f4MemberPriceShortcut").is_visible()
+    assert not await page.locator("#f4BankMemberCard").is_visible()
+    assert await page.locator("#f4BankAdminShortcuts").is_visible()
+    await page.evaluate("""() => {
+      window.f4BankResetForAccountSwitch();
+      document.body.dataset.f4BankRole='superadmin';
+      window.f4BankReconcileAccount();
+    }""")
+    await page.locator("#f4BankAdminOperations").wait_for(state="visible",timeout=8000)
+    assert await page.locator("#f4BankAdminShortcuts").is_visible()
+    await page.evaluate("""() => {
+      window.f4BankResetForAccountSwitch();
+      document.body.dataset.f4BankRole='public';
+      document.querySelector('#dashboardView').classList.add('hidden');
+      window.f4BankReconcileAccount();
+    }""")
+    assert await page.locator("#f4BankAdminOperations").count()==0
+    assert await page.locator("#f4BankAdminShortcuts").count()==0
+    assert not await page.locator("#f4BankAdminBack").is_visible()
+    print("BANK_MEMBER_ADMIN_SUPERADMIN_PUBLIC_REUSE_NO_LEAK_OK",flush=True)
     await page.close()
 
 
