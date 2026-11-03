@@ -46,7 +46,7 @@ function build(sale,lines){
  const bruto=Number(sale.amount_gross_rp||0),diterima=Number(sale.amount_received_rp||0);
  const check=lines.reduce((n,x)=>n+Number(x.total_rp||0),0);
  if(!lines.length||!Number.isSafeInteger(check)||bruto!==check)throw Error('Jumlah rincian barang tidak sama dengan transaksi D1. Periksa data sebelum mencetak.');
- if(sale.status==='dibatalkan')throw Error('Transaksi sudah dibatalkan. Form tidak dapat diterbitkan.');
+ if(String(sale.status||'').toLowerCase()==='dibatalkan')throw Error('Transaksi dibatalkan. Nota tidak dapat diterbitkan.');
  const grams=lines.reduce((n,x)=>n+Number(x.grams||0),0);
  const reference=String(sale.id||'').replace(/[^a-z0-9]/gi,'').slice(-8).toUpperCase();
  const docCode='BSF4-J-'+String(sale.batch_id||'').replace(/^batch:/,'').replace(/[^A-Za-z0-9-]/g,'').slice(0,48).toUpperCase();
@@ -56,7 +56,7 @@ function build(sale,lines){
  const signature=(heading,role)=>'<div class="sig"><strong>'+heading+'</strong><small>'+role+'</small><div class="line"></div><small>Nama terang & tanda tangan</small></div>';
  return page('<main class="sheet">'+
  '<header class="head"><img src="/assets/logo-flamboyan.svg" alt="Logo Flamboyan 4"><div class="brand"><strong>BANK SAMPAH FLAMBOYAN 4</strong><small>Bersama menjaga lingkungan · flamboyan4.web.id</small></div>'+
- '<div class="doc-title">BERITA ACARA SERAH TERIMA<br>PENJUALAN SAMPAH<small>Untuk arsip fisik kedua pihak</small></div></header>'+
+ '<div class="doc-title">NOTA PENJUALAN<br>SAMPAH<small>Bukti transaksi dengan lapak</small></div></header>'+
  '<div class="meta"><div><small>No. nota lapak</small><b>'+esc(receiptNo||'Belum diisi')+'</b></div>'+
  '<div><small>Tanggal penjualan</small><b>'+esc(tanggal(sale.sold_on))+'</b></div>'+
  '<div><small>Lapak / pengepul</small><b>'+esc(sale.buyer_name||'—')+'</b></div>'+
@@ -69,7 +69,7 @@ function build(sale,lines){
  (bruto!==diterima?'<p class="status">Selisih bayar: <strong>'+rp(bruto-diterima)+'</strong> · Periksa pembayaran.</p>':'')+
  '<p class="desc">Kedua pihak menyatakan telah memeriksa dan menyepakati jenis barang, berat, harga, serta jumlah penjualan seperti tercantum di atas.</p>'+
  '<div class="sign">'+signature('Diserahkan oleh,','Humas Flamboyan 4')+signature('Diterima oleh,','Pemilik / wakil lapak')+'</div>'+
- '<footer class="footer">Status pencatatan: '+esc(sale.status==='terkonfirmasi'?'Terkonfirmasi':'Draft')+'. Dokumen ditandatangani secara manual; pencetakan tidak mengubah transaksi atau saldo warga.</footer>'+
+ '<footer class="footer">Status penjualan: '+esc(String(sale.status||'Tercatat'))+'. Nota diterbitkan dari transaksi tersimpan; pengesahan saldo warga dilakukan terpisah.</footer>'+
  '</main>',true);
 }
 window.F4SaleHandover=function(record){
@@ -81,6 +81,7 @@ window.F4SaleHandover=function(record){
   const data=await res.json().catch(()=>({}));
   if(!res.ok||data.ok===false)throw Error(data.error||'HTTP '+res.status);
   if(String(data.sale?.id||'')!==id||!Array.isArray(data.lines))throw Error('Rincian transaksi tidak sesuai.');
+  // Nomor resmi mengikuti label batch D1, termasuk setelah batch disahkan.
   const html=build(data.sale,data.lines);
   if(win.closed)return;
   // Firefox dapat menolak/mengabaikan print() setelah await fonts/images.
