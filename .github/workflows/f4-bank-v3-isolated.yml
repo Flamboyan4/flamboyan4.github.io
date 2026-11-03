@@ -1,0 +1,48 @@
+name: F4 Bank V3 Inventory and Pricing Isolated QA
+on:
+  pull_request:
+    paths:
+      - cloudflare/worker-terpadu-operasional-teruji.js
+      - cloudflare/migrations/20261103_bank_v3_inventory_policy.sql
+      - portal-live/bank-mobile-app.js
+      - portal-live/bank-sale-sheet.js
+      - portal-live/bank-member-prices.js
+      - portal-live/bank-policy-admin.js
+      - portal-live/f4-bank-write-bridge.js
+      - bank-sampah/index.html
+      - qa/check-bank-v3.cjs
+      - qa/verify_bank_v3_migration.py
+      - .github/workflows/f4-bank-v3-isolated.yml
+  push:
+    branches: [main]
+    paths:
+      - cloudflare/worker-terpadu-operasional-teruji.js
+      - cloudflare/migrations/20261103_bank_v3_inventory_policy.sql
+      - qa/check-bank-v3.cjs
+      - qa/verify_bank_v3_migration.py
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check all active Bank JavaScript sources
+        run: |
+          node --check cloudflare/worker-terpadu-operasional-teruji.js
+          node --check portal-live/bank-mobile-app.js
+          node --check portal-live/bank-sale-sheet.js
+          node --check portal-live/bank-member-prices.js
+          node --check portal-live/bank-policy-admin.js
+          node --check portal-live/f4-bank-write-bridge.js
+          node --check portal-live/bank-sale-report.js
+      - name: Test mixed inventory settlement and old records isolation
+        run: |
+          node qa/check-bank-v3.cjs
+          python3 qa/verify_bank_v3_migration.py
+          node qa/check-bank-sale-flow.cjs
