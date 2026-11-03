@@ -6250,7 +6250,11 @@ async function handle(request, env) {
       const payload = await requestJson(request);
       return json({ ok: true, ...await reconcilePreview(env.DB, String(payload.batchId || "")) });
     } catch (_error) {
-      return safeError("Pratinjau gagal. Periksa data batch dan transaksi.", 409);
+      const message=String(_error?.message||"");
+      // Hanya error bisnis yang sudah terkontrol yang boleh tampil ke pengurus.
+      if (/Penjualan belum lunas|Harga beli warga lebih tinggi|Sisa stok|Hasil timbang dan sisa stok|Snapshot harga beli|Gagal alokasi/i.test(message))
+        return safeError(message.slice(0,250),409);
+      return safeError("Pratinjau gagal. Periksa data batch dan transaksi.",409);
     }
   }
   if (path === "/api/admin/reconciliation/confirm" && request.method === "POST") {
