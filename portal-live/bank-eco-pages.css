@@ -500,8 +500,7 @@ body:not(.f4-bank-app-admin) #dashboardView #pageProfile.f4-profile-card{
   padding:0!important;margin:0!important;border:1px solid #e0eae2!important;
   border-radius:11px!important;background:#fff!important;
 }
-#dashboardView #pageProfile #v15PasswordBox form{
-  border-top:1px solid #e6eee7;padding:13px!important;margin:0!important;
+#dashboardView #pageProfile #v15PasswordBox form{padding:13px!important;margin:0!important;
   max-width:100%!important;
 }
 @media screen and (max-width:760px){
