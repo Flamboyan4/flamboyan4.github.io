@@ -2244,7 +2244,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
 </script>
 <script src="/portal-live/live-bank-readonly.js?v=20261031-public-daily-v5"></script>
 <script src="/portal-live/bank-progress-app.js?v=20261031-chart-grid-v4"></script>
-<script src="/portal-live/f4-bank-write-bridge.js?v=20261103-sale-reconcile-v2"></script>
+<script src="/portal-live/f4-bank-write-bridge.js?v=20261103-v3-inventory"></script>
 <script id="f4-bank-split-readonly">
 (()=>{
 'use strict';
@@ -2379,7 +2379,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     priceGroup.append(price,remove);
     row.append(type,weight,priceGroup);container.append(row);updateSaleTotals();
   }
-  function saleItems(){return [...$('saleItems').querySelectorAll('.f4-compact-sale-row')].map(row=>({kode:row.querySelector('select')?.value,berat:Number(row.querySelectorAll('input')[0]?.value),harga:Number(row.querySelectorAll('input')[1]?.value)})).filter(item=>item.kode&&item.berat>0);}
+  function saleItems(){return [...$('saleItems').querySelectorAll('.f4-compact-sale-row')].map(row=>({kode:row.querySelector('select')?.value,berat:Number(row.querySelectorAll('input')[0]?.value),harga:Number(row.querySelectorAll('input')[1]?.value),sisa:Number(row.querySelector('[data-bank-unsold]')?.value||0)})).filter(item=>item.kode&&item.berat>0);}
   function updateSaleTotals(){const items=saleItems();$('saleItems').querySelectorAll('.f4-compact-row').forEach(row=>row.classList.toggle('f4-entry-filled',Number(row.querySelector('input')?.value)>0));const weight=items.reduce((s,r)=>s+r.berat,0),gross=items.reduce((s,r)=>s+Math.round(r.berat*r.harga),0);$('saleWeight').textContent=kg(weight);$('saleGross').textContent=rupiah(gross);const received=$('saleReceived');received.disabled=$('saleStatus').value==='Belum Bayar';if(received.disabled)received.value='0';else if(!received.dataset.manual)received.value=String(gross);}
   async function loadBatchRekon(){
     const select=$('reconBatch'),old=select.value;
@@ -2526,6 +2526,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     })){note('saleNotice','Lengkapi jenis dan berat hasil timbang.',true);return;}
     if(new Set(items.map(x=>x.kode)).size!==items.length){
       note('saleNotice','Jenis sampah yang sama cukup satu baris.',true);return;
+    }
+    if(items.some(i=>!Number.isFinite(i.sisa)||i.sisa<0||Math.round(i.sisa*1000)>10000000)){
+      note('saleNotice','Sisa stok tidak valid. Isi 0 jika semuanya terjual.',true);return;
     }
     if(items.some(i=>!Number.isFinite(i.berat)||i.berat<=0||!Number.isSafeInteger(i.harga)||i.harga<=0)){
       note('saleNotice','Periksa berat dan harga setiap jenis.',true);return;
@@ -5868,7 +5871,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
 <link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261103-three-step-v1">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261103-aligned-public-grid-v1">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261031-member-history-v9">
-<script src="/portal-live/bank-sale-sheet.js?v=20261103-three-step-v1"></script><script src="/portal-live/bank-sale-report.js?v=20261103-internal-v1"></script><script src="/portal-live/bank-member-prices.js?v=20261103-01"></script>
+<script src="/portal-live/bank-sale-sheet.js?v=20261103-v3-inventory"></script><script src="/portal-live/bank-sale-report.js?v=20261103-internal-v1"></script><script src="/portal-live/bank-member-prices.js?v=20261103-01"></script>
 <script src="/portal-live/direct-shell.js?v=20261101-password-logout-fix-v2"></script><script src="/portal-live/unified-account.js?v=bank-member-profile-redirect-20261031"></script><script defer src="/portal-live/mobile-cards.js?v=20261031-detail-eye-icon-v2"></script><script defer src="/portal-live/native-controls.js?v=20261027-audit6"></script><script defer src="/portal-live/bank-page-history.js?v=20261027-final4"></script>
-<script defer src="/portal-live/bank-mobile-app.js?v=20261103-three-step-v1"></script></body>
+<script defer src="/portal-live/bank-mobile-app.js?v=20261103-v3-inventory"></script></body>
 </html>
