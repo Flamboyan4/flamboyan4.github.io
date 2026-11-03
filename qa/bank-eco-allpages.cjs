@@ -182,4 +182,13 @@ assert(css.includes('#saleForm .f4-sale-note-fields>.field>label{') &&
  'Sale proof and reason labels/inputs must share one owner');
 assert(h.includes("wrap.className='field f4-field-stack'"),
  'Dynamically created sale reason must use the same field structure');
+// The Warga picker is an enhanced button, not the hidden #setWarga <select>.
+const pickerOwner=h.match(/<style id="f4-bank-member-search-style">([\s\S]*?)<\/style>/)?.[1]||'';
+assert(pickerOwner.includes('.f4-warga-picker-open{box-sizing:border-box;') &&
+       pickerOwner.includes('height:42px;min-height:42px;max-height:42px;') &&
+       pickerOwner.includes('padding:0 13px!important;'),
+ 'The visible warga picker must match the adjacent 42px date control');
+assert(!pickerOwner.includes('min-height:47px'),'Old 47px warga picker returned');
+assert(h.includes("trigger.className='f4-warga-picker-open'"),
+ 'Warga picker button must remain wired to searchable warga selection');
 console.log('F4_BANK_CANONICAL_THEME_OK');

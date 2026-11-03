@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """Read-only browser fixture for shared grid across all native portals."""
-import asyncio, json, pathlib, subprocess, os, time
+import asyncio, json, pathlib, subprocess, os, time, re
 from playwright.async_api import async_playwright
 
 ROOT=pathlib.Path(__file__).resolve().parents[1]
+BANK_HTML=(ROOT/'bank-sampah/index.html').read_text(encoding='utf-8')
+PICKER_STYLE=re.search(r'<style id="f4-bank-member-search-style">([\s\S]*?)</style>',BANK_HTML)
+assert PICKER_STYLE,'Bank Sampah custom warga picker stylesheet missing'
 PAGES=['/','/bank-sampah/','/pembukuan/','/superadmin/','/rapat/','/dokumentasi/']
 SIZES=[('pc',1440,900,3,4),('tablet',900,900,2,2),('hp',390,844,1,2)]
 async def main():
@@ -87,6 +90,7 @@ async def main():
                     response=await page.goto(
                         'http://127.0.0.1:8765/qa/fixtures/bank-entry-grid.html',
                         wait_until='load',timeout=30000)
+                    await page.add_style_tag(content=PICKER_STYLE.group(1))
                     state=await page.evaluate("""() => {
                         const rect=el=>{const r=el.getBoundingClientRect();
                             return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,
@@ -176,10 +180,17 @@ async def main():
                           deleteButton.right<=saleRow.right+2 &&
                           setRow.right>=depositParts[1].right-2;
                         const controlHeights=[
-                          one('#setWarga'),one('#setDate'),one('#saleBatch'),
+                          one('#setoranForm .f4-warga-picker-open'),one('#setDate'),one('#saleBatch'),
                           one('#saleDate'),one('#saleLapak')
                         ];
-                        const entryControlsOk=controlHeights.every(r=>Math.abs(r.height-42)<=1) &&
+                        const nativeSelect=one('#setWarga');
+                        const hiddenSelectStyle=getComputedStyle(document.querySelector('#setWarga'));
+                        const customPickerOk=hiddenSelectStyle.position==='absolute' &&
+                          hiddenSelectStyle.opacity==='0' &&
+                          hiddenSelectStyle.pointerEvents==='none' &&
+                          Math.abs(controlHeights[0].height-controlHeights[1].height)<=1;
+                        const entryControlsOk=customPickerOk &&
+                          controlHeights.every(r=>Math.abs(r.height-42)<=1) &&
                           (w<=600 || Math.abs(controlHeights[0].top-controlHeights[1].top)<=1) &&
                           (w<=600 || Math.abs(controlHeights[2].top-controlHeights[3].top)<=1);
                         const proof=one('#saleProof'),reason=one('#saleReason'),
@@ -192,7 +203,7 @@ async def main():
                             Math.abs(proofLabel.top-reasonLabel.top)<=1);
                         return {gridOk,topDepositOk,topSaleOk,paymentsOk,layoutOk,responsiveOk,
                             baseLineOk,priorityOk,deleteOk,entryControlsOk,noteFieldsOk,
-                            controlHeights,proof,reason,proofLabel,reasonLabel,
+                            controlHeights,customPickerOk,nativeSelect,proof,reason,proofLabel,reasonLabel,
                             topDeposit,topSale,payment,summary,
                             saleParts,depositParts,note,viewport:w};
                     }""")
