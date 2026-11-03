@@ -4697,7 +4697,8 @@ __name(bankSalePayment,"bankSalePayment");
 async function bankMemberPriceList(db,who){
   const denied=requireRole(who,["anggota","admin","superadmin"]);if(denied)return denied;
   const rows=await list(db,"SELECT i.id,i.name,i.category,p.citizen_rate_rp_per_kg AS priceRpPerKg,p.effective_from AS effectiveFrom FROM waste_items i LEFT JOIN waste_prices p ON p.id=(SELECT p2.id FROM waste_prices p2 WHERE p2.waste_item_id=i.id AND p2.effective_from<=date('now','+7 hours') ORDER BY p2.effective_from DESC,p2.id DESC LIMIT 1) WHERE i.active=1 ORDER BY i.category,CASE WHEN p.citizen_rate_rp_per_kg IS NULL THEN 1 ELSE 0 END,p.citizen_rate_rp_per_kg ASC,i.name LIMIT 250",[]);
-  return json({ok:true,items:rows});
+  const policy=await bankV3CurrentPolicy(db);
+  return json({ok:true,items:rows,method:policy.method,estimated:policy.method==="percentage",effectiveFrom:policy.effectiveFrom});
 }
 __name(bankMemberPriceList,"bankMemberPriceList");
 
@@ -4737,6 +4738,51 @@ async function bankUpdateSaleReceipt(request,env,who) {
 __name(bankUpdateSaleReceipt, "bankUpdateSaleReceipt");
 var rupiah = /* @__PURE__ */ __name((v) => Number.isSafeInteger(v) && v >= 0 && v <= 1e12, "rupiah");
 // Satu aturan D1 untuk semua pengesahan baru. Transaksi yang sudah sah tetap utuh.
+// BANK_V3_POLICY_START
+// Aturan metode pembagian bersifat append-only; harga beli per jenis memakai
+// waste_prices.effective_from (juga append-only), dibekukan per penjualan.
+async function bankV3CurrentPolicy(db,on){
+ const date=String(on||new Date(Date.now()+7*3600000).toISOString().slice(0,10));
+ const row=await one(db,"SELECT id,effective_from,method,citizen_percent FROM bank_v3_policy_versions WHERE effective_from<=? ORDER BY effective_from DESC,id DESC LIMIT 1",[date]);
+ if(row)return {policyId:row.id,effectiveFrom:row.effective_from,method:row.method,wargaPercent:Number(row.citizen_percent),lingkunganPercent:100-Number(row.citizen_percent)};
+ const legacy=await getBankSplitPolicy(db);
+ return {policyId:null,effectiveFrom:null,method:"percentage",wargaPercent:legacy.wargaPercent,lingkunganPercent:legacy.lingkunganPercent};
+}
+__name(bankV3CurrentPolicy,"bankV3CurrentPolicy");
+async function bankV3PolicyAPI(request,env,who){
+ const denied=requireRole(who,request.method==="POST"?["superadmin"]:["admin","superadmin"]);if(denied)return denied;
+ const db=env.DB,today=new Date(Date.now()+7*3600000).toISOString().slice(0,10);
+ if(request.method==="GET"){
+  const [current,versions]=await Promise.all([bankV3CurrentPolicy(db,today),list(db,"SELECT id,effective_from AS effectiveFrom,method,citizen_percent AS wargaPercent,created_at AS createdAt FROM bank_v3_policy_versions ORDER BY effective_from DESC LIMIT 40",[])]);
+  return json({ok:true,current,versions,versionedPrices:true});
+ }
+ if(request.method!=="POST")return safeError("Metode tidak diizinkan.",405);
+ if(env.BANK_WRITE_ENABLED!=="true")return safeError("Pengaturan harga belum diaktifkan.",503);
+ let p;try{p=await requestJson(request)}catch{return safeError("Aturan tidak valid.",400)}
+ const method=String(p.method||""),from=String(p.effectiveFrom||""),pct=Number(p.wargaPercent??50);
+ if(!["percentage","fixed_buy_price"].includes(method)||!validDate(from)||from<today||
+    !Number.isSafeInteger(pct)||pct<0||pct>100||(method==="percentage"&&(pct<1||pct>99)))
+  return safeError("Pilih metode, tanggal berlaku hari ini atau mendatang, dan persentase yang valid.",400);
+ if(await one(db,"SELECT fiscal_year FROM fiscal_closings WHERE fiscal_year=?",[Number(from.slice(0,4))]))
+  return safeError("Tahun berlaku sudah ditutup.",409);
+ const previous=await one(db,"SELECT id,method,citizen_percent FROM bank_v3_policy_versions WHERE effective_from=?",[from]);
+ if(previous)return previous.method===method&&Number(previous.citizen_percent)===pct?
+  json({ok:true,id:previous.id,duplicate:true}):safeError("Tanggal ini sudah memiliki aturan. Pilih tanggal berlaku baru.",409);
+ if(method==="fixed_buy_price"){
+  const noPrices=await list(db,"SELECT i.name FROM waste_items i WHERE i.active=1 AND NOT EXISTS(SELECT 1 FROM waste_prices p WHERE p.waste_item_id=i.id AND p.effective_from<=?) LIMIT 8",[from]);
+  if(noPrices.length)return safeError("Harga beli warga belum tersedia untuk: "+noPrices.map(x=>x.name).join(", "),409);
+ }
+ const id="bank-policy:"+crypto.randomUUID();
+ try{await db.batch([
+  db.prepare("INSERT INTO bank_v3_policy_versions(id,effective_from,method,citizen_percent,created_by) VALUES(?,?,?,?,?)").bind(id,from,method,pct,who.id),
+  db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'banksampah','new_price_policy','bank_v3_policy_versions',?,?,?)")
+   .bind("audit:"+id,who.id,id,"Aturan baru hanya untuk penjualan yang disiapkan setelah berlaku",JSON.stringify({method,effectiveFrom:from,wargaPercent:pct}))
+ ])}catch{return safeError("Gagal menyimpan aturan. Cek tanggal dan coba muat ulang.",409)}
+ return json({ok:true,id,effectiveFrom:from,method,wargaPercent:pct},201);
+}
+__name(bankV3PolicyAPI,"bankV3PolicyAPI");
+// BANK_V3_POLICY_END
+
 const F4_BANK_SPLIT_KEY="BANK_WARGA_PERCENT";
 async function getBankSplitPolicy(db){
  const row=await one(db,"SELECT setting_value,updated_at FROM app_settings WHERE setting_key=?",[F4_BANK_SPLIT_KEY]);
