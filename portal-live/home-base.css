@@ -89,7 +89,7 @@ body[data-preview-role="public"] #f4-private-transactions{display:none!important
  #banner-track{width:100%!important;height:100%!important;max-width:100%!important}
  #banner-track>a{width:100%!important;min-width:100%!important;max-width:100%!important;flex:0 0 100%!important}
  #banner-track img{display:block!important;object-fit:contain!important;object-position:center!important;width:100%!important;height:100%!important;max-width:100%!important;transform:none!important}
- #keuangan>div.grid{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:10px!important;margin-bottom:15px!important}
+ #keuangan>div.grid{margin-bottom:15px}
  #keuangan>div.grid>div{min-width:0!important;width:100%!important}
  #card-pemasukan,#card-pengeluaran{padding:15px 16px!important;min-height:0!important;border-radius:14px!important}
  #keuangan h3{font-size:19px!important;line-height:1.25!important}
