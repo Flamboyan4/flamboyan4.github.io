@@ -11,7 +11,7 @@ body.f4-direct-superadmin{--f4-nav:#2d6593;--f4-nav-tint:#e7f2fb;--f4-nav-line:#
  select:not([multiple]),button:not([data-icon-only])){min-height:var(--f4-control-height);margin-block:0}
 .f4-controls :is(input:not([type=checkbox]):not([type=radio]):not([type=file]),
  select:not([multiple])){height:var(--f4-control-height);padding-block:0;line-height:var(--f4-control-line)}
-.f4-controls button:not([data-icon-only]){display:inline-flex;align-items:center;justify-content:center;gap:7px;line-height:var(--f4-control-line)}
+.f4-controls button:not([data-icon-only]){display:inline-flex;align-items:center;justify-content:center;gap:7px;height:var(--f4-control-height);padding-block:0;line-height:var(--f4-control-line)}
 .f4-controls :is(select,button,input){vertical-align:middle;box-sizing:border-box}
 .f4-field-stack{display:grid;grid-template-rows:auto minmax(var(--f4-control-height),auto);align-content:start;gap:6px;min-width:0}
 .f4-field-stack>label:first-child{display:block;margin:0;line-height:16px;min-height:16px}
