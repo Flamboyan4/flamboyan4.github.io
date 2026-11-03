@@ -637,7 +637,7 @@ function overview(){
   const item=el('div',undefined,'sa-card');item.append(el('small',label),el('strong','—'),el('span','Memeriksa data'));item.dataset.card=key;cards.append(item);
  }
  const feed=section('Koneksi dan publikasi');feed.append(el('p','Angka hanya ditampilkan dari respons API yang berhasil; tidak ada angka simulasi.'));
- const tasks=section('Akses cepat');const actions=el('div',undefined,'sa-controls');
+ const tasks=section('Akses cepat');const actions=el('div',undefined,'sa-controls f4-controls');
  for(const [key,label] of groups.slice(1))actions.append(button(label,()=>open(key),'sa-action'));tasks.append(actions);
  const pulls=[['accounts','/api/superadmin/accounts/preview'],['houses','/api/v2/admin/residents'],['projects','/api/v2/admin/content/projects']];
  Promise.allSettled(pulls.map(async ([id,path])=>{
@@ -774,7 +774,7 @@ function accountsPage(){
  const noticeBox=el('p','Akun digunakan bersama pada semua portal sesuai role. Aktivasi akun anggota yang belum aktif dan reset password anggota dikelola terpusat dan dicatat pada audit. Perubahan role dan akun Admin/Superadmin tidak dilakukan melalui tombol ini.','sa-account-note');
  panel.append(noticeBox);
  const listWrap=el('div',undefined,'sa-account-table');
- const filters=el('div',undefined,'sa-account-filters');
+ const filters=el('div',undefined,'sa-account-filters f4-controls');
  const input=el('input');input.placeholder='Cari nama, rumah atau username (contoh: A5/41)';
  input.setAttribute('aria-label','Cari akun warga');input.value=accountSearch;
  input.oninput=()=>{accountSearch=input.value;paintAccounts()};
@@ -953,7 +953,7 @@ async function openWarga(){
  active='residents';group='masters';
  if(!side.querySelector('button.active'))sidebar('masters');
  title('Data Warga & Rumah','Master lintas portal — identitas dan nomor rumah dikelola satu kali');
- const bar=el('div',undefined,'sa-controls sa-resident-controls'),search=el('input');search.placeholder='Cari warga atau rumah';
+ const bar=el('div',undefined,'sa-controls sa-resident-controls f4-controls'),search=el('input');search.placeholder='Cari warga atau rumah';
  const houseButton=button('Tambah Rumah',()=>wargaForm('add_house'),'sa-action sa-resident-icon-action');
  houseButton.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10H3z"/><path d="M9 20v-7h6"/><path d="M18 12v7m-3-3h6"/></svg>';
  houseButton.title='Tambah Rumah';houseButton.setAttribute('aria-label','Tambah Rumah');
