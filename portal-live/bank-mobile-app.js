@@ -40,7 +40,7 @@ let ready=false,requestNonce="",requestEnabled=false;
 let memberStatement=null,memberChartMode="kg",memberChartGroup="period";
 let adminOverview=null;
 let refreshing=false;
-const custom=["bank-history","bank-payout","bank-report","bank-payout-admin","bank-admin-history","bank-admin-docs","bank-admin-cash","bank-admin-progress"];
+const custom=["bank-history","bank-payout","bank-report","bank-prices","bank-payout-admin","bank-admin-history","bank-admin-docs","bank-admin-cash","bank-admin-progress"];
 const featureRoutes=["bank-member-progress","bank-member-info","bank-member-docs"];
 let moved=[],memberSnapshotsLoaded=false,snapshotBusy=false,snapshotObserver=null;
 const text=(id,val)=>{if($(id)&&$(id).textContent!==String(val))$(id).textContent=String(val)};
@@ -120,7 +120,7 @@ function syncMemberBack(){
 function orderMemberHome(){
  const home=$("f4BankAppHome");if(!home||roleType()!=="member")return;
  const feed=$("v14Recent")?.closest(".v14-panel");
- const items=[$("f4MemberFlow"),feed,$("f4BankWeighingSchedule"),$("f4MemberEnvironmentPreview"),$("f4MemberInfoShortcut")];
+ const items=[$("f4MemberFlow"),feed,$("f4BankWeighingSchedule"),$("f4MemberPriceShortcut"),$("f4MemberEnvironmentPreview"),$("f4MemberInfoShortcut")];
  // Preserve member card and balance at the top, place private history and schedule before progress.
  for(const item of items)if(item&&item.parentNode===home)home.append(item);
 }
@@ -199,7 +199,7 @@ function ensureHome(){
   }
   const remaining=panels?.querySelector(".v14-panel");
   if(remaining&&remaining.parentElement!==reservoir)reservoir.append(remaining);
-  ensureWeighingSchedule(hub);
+  ensureWeighingSchedule(hub);window.F4MemberPrices?.shortcut(hub);
  }else{
   const recent=$("v14Recent")?.closest(".v14-panel");
   if(recent&&recent.parentElement!==hub)hub.append(recent);
@@ -1535,6 +1535,7 @@ function handleRoute(route,old,args){
   markDock();
   if(route==="bank-history")showHistory();
   if(route==="bank-report")showReport();
+   if(route==="bank-prices")window.F4MemberPrices?.show();
   if(route==="bank-payout")requestsMember();
   return;
  }
