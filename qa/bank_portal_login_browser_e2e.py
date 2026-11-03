@@ -167,8 +167,7 @@ def verify_portal_login(credentials):
                          && !f.document.querySelector('#f4-account-page')?.hidden;
                     }""",timeout=20000)
                     page.evaluate("() => window.openWarga()")
-                    superpage.goto("https://flamboyan4.web.id/bank-sampah/",wait_until="domcontentloaded")
-                frame=page
+                    superframe=page
                     superframe.get_by_role("button",name="+ Tambah Rumah").click()
                     superframe.locator('form.f4-admin-editor [name="rumah"]').fill("QA/998")
                     superframe.locator('form.f4-admin-editor [name="nama_pemilik"]').fill("QA_LOCAL_ONLY")
