@@ -82,7 +82,7 @@ function syncAdminBack(){
  if(!back){
   back=el("button","f4-bank-admin-back");
   back.id="f4BankAdminBack";back.type="button";
-  back.setAttribute("aria-label","Kembali ke Beranda Pengelola");
+  back.setAttribute("aria-label","Kembali ke Beranda");
   const arrow=document.createElementNS("http://www.w3.org/2000/svg","svg");
   arrow.setAttribute("viewBox","0 0 24 24");arrow.setAttribute("aria-hidden","true");
   arrow.innerHTML='<path d="M19 12H5m7-7-7 7 7 7"/>';
