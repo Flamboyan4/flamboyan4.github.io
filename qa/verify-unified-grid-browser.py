@@ -216,7 +216,7 @@ async def main():
                         const desktopPanelOk=w<1024||(
                           saleRow.right<Math.min(...payment.map(x=>x.left)) &&
                           close(payment[0].right,saleForm.right) &&
-                          close(summary.left,saleForm.left) &&
+                          close(summary.left,saleRow.left) &&
                           summary.right<saleForm.right-100 &&
                           close(one('#saleForm .f4-sale-side>button').left,payment[0].left)
                         );
