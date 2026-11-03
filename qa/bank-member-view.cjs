@@ -97,8 +97,10 @@ if(!app.includes('if(asset==="rp")')||!app.includes('el("span","f4-bank-currency
  throw Error('Rp icon must render as text in the member payout dock, not a broken image URL');
 if(app.includes('["Pencairan","bank-payout","pay.svg"]'))
  throw Error('Member payout still shares the savings icon');
-if(!app.includes('["Laporan","laporan","book.svg"]'))
- throw Error('Admin center action should remain the report icon');
+if(!app.includes('["Laporan","bank-report","book.svg"]'))
+ throw Error('Member report must remain accessible in the member dock');
+if(app.includes('const adminDock=')||!app.includes('dock().hidden=!isPrivate||next==="admin"'))
+ throw Error('Manager dock reintroduced; manager uses focal Setor/Jual and mobile shortcuts');
 if(app.includes('f4BankAppShortcuts'))throw Error('Redundant shortcut tiles must be removed for all roles');
 if(!app.includes('updateProfileCard()')||!app.includes('function memberBuckets()'))throw Error('Profile card or trusted chart missing');
 if(app.includes('function ledger(){\n return [...($("v12History")'))
