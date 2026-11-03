@@ -16,7 +16,7 @@ const expected={
  'superadmin/index.html':3,
  'rapat/index.html':177,
  'dokumentasi/index.html':37,
- 'portal-live/modern-portals.css':1369,
+ 'portal-live/modern-portals.css':1326,
  'portal-live/bank-eco-dashboard.css':396,
  'portal-live/dokumentasi/media-theme.css':112,
  'portal-live/unified-account.css':90,
