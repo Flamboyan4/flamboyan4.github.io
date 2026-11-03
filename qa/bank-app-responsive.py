@@ -808,7 +808,8 @@ async def admin_docs_back_and_cross_account(browser):
     }""")
     async def mock_schedule(route):
         await route.fulfill(status=200,headers={
-           "access-control-allow-origin":ROOT,"content-type":"application/json"},
+           "access-control-allow-origin":ROOT,
+           "access-control-allow-credentials":"true","content-type":"application/json"},
            body=json.dumps({"ok":True,"weekday":3,"dayName":"Rabu"}))
     await page.route("https://api.flamboyan4.web.id/api/public/bank/weighing-schedule",mock_schedule)
     await page.add_script_tag(url=ROOT+"/portal-live/bank-mobile-app.js")
