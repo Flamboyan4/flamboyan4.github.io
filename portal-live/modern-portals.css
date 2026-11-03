@@ -207,12 +207,11 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
   min-width:0!important;max-width:100%!important;width:100%!important;box-sizing:border-box
  }
  #f4-account-page .sa-resident-controls{
-  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px!important;
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));
   border:0!important;padding:0!important;background:#fff!important;
  }
  #f4-account-page .sa-resident-controls input{
-  grid-column:1/-1;min-width:0!important;width:100%!important;max-width:100%!important
- }
+  grid-column:1/-1;width:100%!important;}
  #f4-account-page .sa-resident-controls button{
   width:100%;min-width:0!important;padding:10px 8px!important;font-size:12px!important
  }
@@ -408,7 +407,7 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
  #dashboardView .f4-compact-bank-card>div:first-child .f4-card-detail-toggle{margin-left:auto!important}
  #dashboardView .f4-compact-bank-card>div:first-child .tag{font-size:11px!important}
  #f4-account-page .f4-compact-super-card>div:first-child{min-width:0;flex:1}
- #f4-account-page .f4-compact-super-card>div:first-child strong{font-size:15px!important}
+ #f4-account-page .f4-compact-super-card>div:first-child strong{}
  #f4-account-page .f4-compact-super-card>.f4-card-detail-toggle{
   display:grid!important;place-items:center!important;flex:none!important;
   background:#f4f0ff!important;color:#6652b6!important;
@@ -468,8 +467,7 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
 /* Final alignment for title-only cards and mobile-only pictogram actions. */
 @media screen and (max-width:760px){
  #f4-account-page .f4-compact-super-card{
-  display:flex!important;align-items:center!important;flex-wrap:wrap!important;
-  gap:8px!important;justify-content:space-between!important
+  display:flex!important;flex-wrap:wrap!important;justify-content:space-between!important
  }
  #f4-account-page .f4-compact-super-card>div:first-child{order:1!important;flex:1 1 65%!important}
  #f4-account-page .f4-compact-super-card>.f4-card-detail-toggle{order:2!important;margin-left:auto!important}
@@ -1015,8 +1013,7 @@ body #dashboardView #pageDashboard.f4-member-dashboard .v14-primary{
  #f4-account-page .f4-admin-list>.f4-admin-item.f4-card-no-detail>button.f4-icon-action{
    display:inline-grid!important;place-items:center!important;
    width:40px!important;min-width:40px!important;max-width:40px!important;
-   height:40px!important;min-height:40px!important;padding:0!important
- }
+   height:40px!important;min-height:40px!important;}
  #f4-account-page .f4-admin-list>.f4-admin-item.f4-card-no-detail>button.f4-icon-action .f4-action-label{display:none!important}
  #f4-account-page .f4-admin-list>.f4-admin-item.f4-card-no-detail>button.f4-icon-action .f4-action-symbol{display:grid!important;place-items:center!important}
 }
@@ -1242,7 +1239,7 @@ body #dashboardView #pageDashboard.f4-member-dashboard .v14-primary{
  }
  /* Input barang: 3 aligned columns, compact numerical inputs, zero horizontal scrolling. */
  body.f4-direct-bank #dashboardView :is(#setBarang,#saleItems){
-  overflow-x:visible!important;width:100%!important;max-width:100%!important;
+  overflow-x:visible!important;max-width:100%!important;
   min-width:0!important;margin-top:2px!important
  }
  body.f4-direct-bank #dashboardView :is(#setBarang,#saleItems)>table{
