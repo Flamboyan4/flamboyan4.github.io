@@ -2396,7 +2396,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       }
     }catch(error){$('reconResult').textContent=error.message||'Gagal memuat kelompok.';}
   }
-  async function loadRekonsiliasi(){const batch=$('reconBatch').value,area=$('reconResult');if(!batch){area.textContent='Pilih kelompok terlebih dahulu.';return;}area.textContent='Menghitung pratinjau...';try{const r=await call('bsV6PratinjauRekonsiliasi',token,batch);const fields=[['Setoran',r.setoran],['Penjualan',r.penjualan],['Berat warga',kg(r.beratSetoran)],['Berat lapak',kg(r.beratLapak)],['Selisih berat',kg(r.selisihKg)],['Estimasi hak warga',rupiah(r.estimasiWarga)],['Total jual',rupiah(r.bruto)],['Diterima dari lapak',rupiah(r.diterima)],['Sisa hasil',rupiah(r.marginSementara)],['Belum lunas',r.belumLunas]];area.replaceChildren(...fields.map(([l,v])=>metric(l,v)));area.style.display='grid';area.style.gridTemplateColumns='repeat(auto-fit,minmax(170px,1fr))';const msg=document.createElement('p');msg.className='pill-note';msg.textContent=r.siapDiperiksa?'Dana tampak cukup untuk ditinjau, tetapi BELUM DISAHKAN.':'Perlu pemeriksaan: penjualan belum lengkap/lunas atau dana belum mencukupi estimasi hak warga.';area.appendChild(msg);}catch(e){area.textContent='Gagal menampilkan selisih: '+(e.message||e);}}
   function v7DetailTable(items,type){const wrap=document.createElement('div');wrap.className='details-panel';const table=document.createElement('table'),body=document.createElement('tbody');items.forEach(x=>{const tr=document.createElement('tr');cell(tr,x.barang,'Barang');cell(tr,kg(x.berat),'Berat');cell(tr,rupiah(type==='setoran'?x.tarif:x.harga)+'/kg','Tarif / harga');cell(tr,rupiah(x.nilai),'Nilai');body.appendChild(tr)});table.appendChild(body);wrap.appendChild(table);if(!items.length)wrap.textContent='Belum ada rincian.';return wrap;}
   // Aksi rincian selalu ikon mata; jangan menimpa SVG dengan textContent ketika status berubah.
   function v7SetDetailsButton(button,isOpen){
@@ -2556,8 +2555,13 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       const receiptAction=document.createElement('button');
       receiptAction.type='button';receiptAction.className='secondary f4-bank-sale-receipt-action';
       receiptAction.textContent='Cetak Nota Penjualan';
-      receiptAction.onclick=()=>window.F4SaleHandover?.({id:result.id});
+      receiptAction.onclick=()=>window.F4SaleHandover?.({id:result.id,saleNumber:number});
       $('saleNotice').appendChild(receiptAction);
+      const reviewAction=document.createElement('button');
+      reviewAction.type='button';reviewAction.className='secondary f4-bank-sale-receipt-action';
+      reviewAction.textContent='Periksa & Sahkan';
+      reviewAction.onclick=()=>{v8PendingBatch=batch;goPage('pengesahan');};
+      $('saleNotice').appendChild(reviewAction);
       saleNonce='';form.reset();
       await loadPenjualan();
     }catch(error){note('saleNotice','Gagal mencatat penjualan: '+(error.message||error),true);}
@@ -2571,7 +2575,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   function showCredential(username,password,nama){currentCredential={username,password,nama};$('credentialTitle').textContent='Akun '+nama;$('credUser').textContent=username;$('credPass').textContent=password;$('copyCred').textContent='Salin akun';$('credentialModal').classList.remove('hidden');}
   function closeCredential(){currentCredential=null;$('credUser').textContent='';$('credPass').textContent='';$('credentialModal').classList.add('hidden');}
   async function copyCredential(){if(!currentCredential)return;const c=currentCredential;const value='Bank Sampah Flamboyan 4\nNama: '+c.nama+'\nUsername: '+c.username+'\nPassword awal: '+c.password+'\nSilakan login melalui portal Bank Sampah.';try{await navigator.clipboard.writeText(value);$('copyCred').textContent='Tersalin';}catch(e){$('copyCred').textContent='Salin manual';}}
-  let v8PreviewData=null,v8ValidatedBatch='';
+  let v8PreviewData=null,v8ValidatedBatch='',v8PendingBatch='';
   function v8Setup(){if($('pagePengesahan'))return;const nav=document.createElement('button');nav.id='navPengesahan';nav.className='secondary';nav.textContent='Sahkan hasil';nav.onclick=()=>goPage('pengesahan');$('navRekonsiliasi').after(nav);const page=document.createElement('div');page.id='pagePengesahan';page.className='card hidden';page.innerHTML=`
   <div class="f4-approval-heading">
     
@@ -2610,7 +2614,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     v8PreviewData=null;v8ValidatedBatch='';
     $('v8Form').classList.add('hidden');
     $('v8Preview').textContent='Memuat kelompok...';
-    const old=sel.value;
+    const old=v8PendingBatch||sel.value;
+    v8PendingBatch='';
     sel.replaceChildren(new Option('Pilih kelompok',''));
     try{
       const rows=await call('bsV6BatchAdmin',token);
@@ -5201,14 +5206,45 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   v10Specs.penjualan.fields.push(['status','Status']);
   const v29OldLoad=v10LoadReport;
   v10LoadReport=async function(){
-    v29SetupAudit();const include=$('v29AuditMode')?.value==='audit'&&$('v29ShowCanceled')?.checked===true;
+    v29SetupAudit();
+    const include=$('v29AuditMode')?.value==='audit'&&$('v29ShowCanceled')?.checked===true;
+    const start=$('v10Month').value;
+    const combine=$('v33ReportCombine')?.checked===true;
+    const until=combine?String($('v33ReportEndMonth')?.value||''):start;
     const statusToken=F4Loading.begin('v10ReportNotice','Memuat laporan Bank Sampah…');
     try{
-      v10ReportData=await call('bsV10LaporanAdmin',token,$('v10Month').value,include);
+      if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(start)||!/^\d{4}-(0[1-9]|1[0-2])$/.test(until)||until<start)
+        throw Error('Pilih rentang bulan yang benar.');
+      const span=(Number(until.slice(0,4))-Number(start.slice(0,4)))*12+Number(until.slice(5))-Number(start.slice(5))+1;
+      if(span>24)throw Error('Maksimal 24 bulan per laporan. Persempit rentangnya.');
+      const full=await call('bsV10LaporanAdmin',token,combine?'':start,include);
+      if(!combine||until===start){v10ReportData=full;}
+      else{
+        const within=row=>{const date=String(row?.tanggal||'').slice(0,7);return date>=start&&date<=until;};
+        const subset=key=>(Array.isArray(full[key])?full[key]:[]).filter(within);
+        const setoran=subset('setoran'),penjualan=subset('penjualan'),pengeluaran=subset('pengeluaran'),
+          mutasi=subset('mutasi'),setoranBank=subset('setoranBank');
+        const sum=(rows,key)=>rows.reduce((n,r)=>n+(Number(r[key])||0),0);
+        const sah=r=>String(r.status||'').toLowerCase()==='terkonfirmasi';
+        const confirmedDeposits=setoran.filter(sah),confirmedSales=penjualan.filter(sah);
+        const activeExpenses=pengeluaran.filter(r=>String(r.status||'').toLowerCase()==='lunas');
+        const credits=mutasi.filter(r=>r.jenis==='kredit'),withdrawals=mutasi.filter(r=>r.jenis==='pencairan');
+        v10ReportData={
+          periode:start+' s.d. '+until,
+          ringkasan:{
+            jumlahSetoran:confirmedDeposits.length,jumlahPenjualan:confirmedSales.length,
+            estimasi:sum(confirmedDeposits,'nilai'),diterima:sum(confirmedSales,'diterima'),
+            hakWargaDikredit:sum(credits,'kredit'),tabunganDicairkan:sum(withdrawals,'debit'),
+            biaya:sum(activeExpenses,'nominal'),setoranBankRp:sum(setoranBank,'diterima'),
+            saldoKasKini:Number(full.ringkasan?.saldoKasKini||0)
+          },
+          setoran,penjualan,pengeluaran,mutasi,setoranBank
+        };
+      }
       v10RenderReport();
-      if(include)F4Loading.empty('v10ReportNotice','Mode audit: transaksi batal ditampilkan, namun tidak dihitung sebagai saldo sah.',statusToken);
+      if(include)F4Loading.empty('v10ReportNotice','Mode audit: transaksi batal tidak dihitung sebagai saldo sah.',statusToken);
       else F4Loading.success('v10ReportNotice',statusToken);
-    }catch(e){F4Loading.error('v10ReportNotice','Gagal memuat laporan: '+(e.message||e),statusToken);}
+    }catch(e){v10ReportData=null;F4Loading.error('v10ReportNotice','Gagal memuat laporan: '+(e.message||e),statusToken);}
   };
   v10PrintReport=function(){
     if(!v10ReportData){note('v10ReportNotice','Muat laporan dahulu.',true);return;}
@@ -5390,6 +5426,17 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     const periodField=document.createElement('div');periodField.className='v33-report-period-field';
     const periodCaption=document.createElement('strong');periodCaption.textContent='Periode laporan';
     periodField.append(periodCaption,period);
+    const combineRow=document.createElement('div');combineRow.className='v33-report-combine';
+    const combineLabel=document.createElement('label');combineLabel.className='v33-report-combine-label';
+    const combine=document.createElement('input');combine.id='v33ReportCombine';combine.type='checkbox';
+    const combineText=document.createElement('span');combineText.textContent='Gabungkan beberapa bulan';
+    combineLabel.append(combine,combineText);
+    const endLabel=document.createElement('label');endLabel.className='v33-report-range-end';
+    endLabel.textContent='Sampai bulan';
+    const endMonth=document.createElement('input');endMonth.id='v33ReportEndMonth';
+    endMonth.type='month';endMonth.min='2026-01';endMonth.max='2046-12';endMonth.value=initial;
+    endLabel.append(endMonth);endLabel.hidden=true;
+    combineRow.append(combineLabel,endLabel);periodField.append(combineRow);
     row.append(periodField);
     const auditHolder=document.createElement('div');auditHolder.className='v33-report-audit';
     auditHolder.append(auditField);row.append(auditHolder);form.append(row);
@@ -5439,6 +5486,8 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     };
     monthSelect.addEventListener('change',updateMonth);
     yearSelect.addEventListener('change',updateMonth);
+    combine.addEventListener('change',()=>{endLabel.hidden=!combine.checked;invalidate();});
+    endMonth.addEventListener('change',invalidate);
     audit.addEventListener('change',syncAuditInline);
     syncAuditInline();
     const updateChoice=()=>{
