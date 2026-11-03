@@ -627,16 +627,20 @@ async def main():
             assert state["account"]=="Rp 1.500",(device,state)
             assert state["labels"][2]=="Laporan" and "Menu" not in state["labels"],state
             assert not state["overflow"],state
+            # Current manager dashboard: kas as the left hero and three useful KPI tiles,
+            # not the obsolete four-tile dashboard stacked under the balance.
+            assert len(state["tiles"])==3,state
             if device=="pc":
                 assert state["home"]["w"]>850,state
-                assert state["metrics"]["y"]>=state["hero"]["y"]+state["hero"]["h"]-3,state
-                assert len(state["tiles"])==4 and abs(state["tiles"][0]["y"]-state["tiles"][3]["y"])<3,state
+                assert abs(state["metrics"]["y"]-state["hero"]["y"])<3,state
+                assert state["metrics"]["x"]>=state["hero"]["right"]+8,state
+                assert abs(state["tiles"][0]["y"]-state["tiles"][2]["y"])<3,state
                 assert state["dock"]=="none",state
             else:
                 assert state["metrics"]["y"]>=state["hero"]["y"]+state["hero"]["h"]-2,state
-                assert len(state["tiles"])==4 and state["tiles"][2]["y"]>state["tiles"][0]["y"],state
+                assert state["tiles"][2]["y"]>=state["tiles"][0]["y"],state
                 assert state["dock"]!="none",state
-            assert "+ Catat setoran" in state["quick"],state
+            assert any("Catat Setoran" in x for x in state["quick"]),state
             assert await page.locator("#f4BankManualPayout").count()==1
             assert not await page.locator("#f4BankManualPayout").get_attribute("open")
             assert await page.locator("#f4BankManualPayout #v9Form").count()==1
