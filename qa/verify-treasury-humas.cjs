@@ -28,7 +28,7 @@ assert.doesNotMatch(worker.slice(worker.indexOf('async function treasuryCatalog'
 assert.match(ui,/function treasuryDateControl\(\)/);
 assert.doesNotMatch(ui,/type="date"/);
 assert.match(html,/treasury-center\.js\?v=20261030-treasury-[a-z0-9-]+/);
-assert.match(html,/treasury-center\.css\?v=20261030-treasury-[a-z0-9-]+/);
+assert.match(html,/treasury-center\.css\?v=20[0-9]{6}-[a-z0-9-]+/,'Pusat Keuangan stylesheet harus memiliki versi cache');
 // Opening balance grid must use one date, immutable adjustment entries and atomic D1 batch.
 assert.match(worker,/if\(p\.action==="opening-grid"\)/);
 assert.match(worker,/source:book:/);

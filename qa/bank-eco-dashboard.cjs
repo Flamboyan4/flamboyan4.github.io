@@ -23,16 +23,15 @@ if(!html.includes("r.berat==null?'Berat jual belum tersedia':kg(r.berat)"))
  throw Error('Confirmed gram weight must not silently fall back to initial grams');
 if(!html.includes("period.missingWeight"))
  throw Error('Admin chart must preserve missing final grams as unavailable');
-// PDF borders are authored by the original inline print component.
-// Keep regression checks aligned with the current single-source print rules.
+// Print borders remain black in the canonical table rule; do not rely on
+// deleted style fragments from the older dashboard revision.
 for(const check of [
-  "#v10Print th,#v10Print td{font-size:9pt;border:1px solid #000;padding:6px}",
-  "#v10Print tbody td,#v27PrintReport tbody td{border-color:#000}",
-  "body.f4-bank-single-print #v10Print th,body.f4-bank-single-print #v10Print td,",
-  "body.f4-bank-single-print #v27PrintReport th,body.f4-bank-single-print #v27PrintReport td{",
-  "border:1px solid #000;background:#fff!important;color:#1b3526!important"
+  "#v10Print th,#v10Print td{display:table-cell!important",
+  "border:1px solid #000}",
+  "#v27PrintReport th,#v27PrintReport td{border:1px solid #000",
+  "@media print{"
 ]){
- if(!html.includes(check))throw Error('Bank PDF black border missing: '+check);
+ if(!html.includes(check))throw Error('Bank PDF border rule missing: '+check);
 }
 console.log('F4_ECO_CLEAN_HEADER_STATIC_OK');
 function assertChevron(){

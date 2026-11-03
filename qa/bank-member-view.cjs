@@ -42,7 +42,7 @@ for(const input of testCases){
 for(const phrase of [
   'async function f4ConfirmedDepositGrams(db,batchIds)',
   'waste_sale_lines l ON l.sale_id=s.id',
-  'beratSahGram:finalGrams.has(d.id)?finalGrams.get(d.id):null',
+  'beratSahGram:confirmedGrams.byDeposit.has(d.id)?confirmedGrams.byDeposit.get(d.id):null',
   'COALESCE(SUM(l.grams),0)/1000.0 AS beratKg',
   'AS confirmedWeightKg',
 ]){
