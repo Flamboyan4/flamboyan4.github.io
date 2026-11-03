@@ -103,13 +103,15 @@ assert(h.includes("back.replaceChildren(v16Icon('user'),document.createTextNode(
 assert(h.includes('html.f4-bank-embedded body.v17-dashboard:not(.f4-bank-app-admin) #sideNav.side'),
  'Embedded old drawer must exclude the admin role');
 const reportStyle=h.split('<style>')[1]?.split('</style>')[0];
-const mobileReportStyle=h.split('<style id="f4-bank-mobile-3view-fix-20261028">')[1]?.split('</style>')[0];
+const compactOwner=h.split('<style id="f4-bank-admin-report-compact-20261027">')[1]?.split('</style>')[0];
 assert(reportStyle && reportStyle.includes('grid-template-columns:repeat(3,minmax(0,165px))'),
  'Private report KPI cards must keep equal compact columns');
 assert(reportStyle.includes('min-height:49px') && reportStyle.includes('gap:6px;margin:8px 0 10px'),
  'Private report cards must stay compact across viewports');
-assert(mobileReportStyle && !mobileReportStyle.includes('#v25ReportMetrics.v26-compact'),
+assert(compactOwner && !compactOwner.includes('#v25ReportMetrics.v26-compact'),
  'Mobile report CSS duplicated instead of sharing the canonical report styling');
+assert(!h.includes('<style id="f4-bank-mobile-3view-fix-20261028">'),
+ 'Old separate mobile override owner returned');
 assert(!h.includes('min-height:95px!important'),'Old oversized report KPI rule returned');
 assert(!h.includes("Ringkasan hasil penjualan dan manfaat untuk warga serta lingkungan, berdasarkan pembukuan yang sudah disahkan."),
  'Verbose report introduction returned');
