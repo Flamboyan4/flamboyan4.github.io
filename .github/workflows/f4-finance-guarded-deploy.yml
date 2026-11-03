@@ -81,10 +81,31 @@ jobs:
               raise RuntimeError("Refuse unexpected Bank Sampah migration SQL")
           d1path="/d1/database/"+target["uuid"]+"/query"
           def d1query(sql):
-              res=call(d1path,"POST",json.dumps({"sql":sql}).encode("utf-8"),"application/json")
-              if not isinstance(res,list) or len(res)!=1 or res[0].get("success") is not True:
-                  raise RuntimeError("D1 schema query failed")
-              return res[0].get("results") or []
+              # Cloudflare may return transient 500/503 on valid idempotent
+              # statements. Retry only operations safe if the first attempt
+              # was committed but its response was lost. Never retry ALTER
+              # or unguarded financial INSERT/UPDATE/DELETE.
+              import time
+              normalized=sql.lstrip().upper()
+              safe_ddl=("CREATE TABLE IF NOT EXISTS","CREATE INDEX IF NOT EXISTS",
+                        "CREATE UNIQUE INDEX IF NOT EXISTS","CREATE VIEW IF NOT EXISTS")
+              repeatable=(normalized.startswith(("SELECT","PRAGMA","INSERT OR IGNORE"))
+                          or normalized.startswith(safe_ddl)
+                          or (normalized.startswith("INSERT INTO") and "WHERE NOT EXISTS" in normalized))
+              attempts=5 if repeatable else 1
+              for i in range(attempts):
+                  try:
+                      res=call(d1path,"POST",json.dumps({"sql":sql}).encode("utf-8"),"application/json")
+                      if not isinstance(res,list) or len(res)!=1 or res[0].get("success") is not True:
+                          raise RuntimeError("D1 schema query failed; no deployment")
+                      time.sleep(0.15)  # Reduce back-to-back remote D1 pressure.
+                      return res[0].get("results") or []
+                  except urllib.error.HTTPError as e:
+                      if e.code not in (429,500,502,503,504) or i+1>=attempts:
+                          raise
+                      print("D1_TRANSIENT_RETRY status="+str(e.code)+" attempt="+str(i+1)+
+                            " of "+str(attempts),flush=True)
+                      time.sleep(min(2**i,8))
           d1query(migration)
           columns=d1query("PRAGMA table_info(bank_progress_photos)")
           if not {"progress_id","photo_url","updated_at"}.issubset({v.get("name") for v in columns}):
