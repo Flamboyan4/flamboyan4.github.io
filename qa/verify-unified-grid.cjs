@@ -13,9 +13,17 @@ const expected={
  'index.html':0,
  'bank-sampah/index.html':1322,
  'pembukuan/index.html':2228,
- 'superadmin/index.html':152,
+ 'superadmin/index.html':8,
  'rapat/index.html':177,
- 'dokumentasi/index.html':37
+ 'dokumentasi/index.html':37,
+ 'portal-live/modern-portals.css':1377,
+ 'portal-live/bank-eco-dashboard.css':396,
+ 'portal-live/account-workspace.css':99,
+ 'portal-live/dokumentasi/media-theme.css':112,
+ 'portal-live/unified-account.css':96,
+ 'portal-live/home-overrides.css':45,
+ 'portal-live/bank-member-polish.css':21,
+ 'portal-live/loading-state.css':3
 };
 const totals={};
 for(const [path,max] of Object.entries(expected)){
@@ -57,6 +65,20 @@ assert(!core.slice(begin,end).includes('!important'),'Shared grid must not use !
 for(const selector of ['.f4-grid{display:grid;', '.f4-grid[data-cols="2"]{--f4-grid-cols:2}', '.f4-grid[data-cols="3"]{--f4-grid-cols:3}']){
  assert.equal(core.split(selector).length-1,1,'Duplicated shared grid selector: '+selector);
 }
+const bank=read('bank-sampah/index.html');
+const book=read('pembukuan/index.html');
+const sa=read('superadmin/index.html');
+const finance=read('portal-live/treasury-center.css');
+const shared=read('portal-live/modern-portals.css');
+assert(core.includes('--f4-control-height:42px'),'Control height token missing');
+assert(core.includes('.f4-controls{display:flex')&&core.includes('.f4-field-stack{display:grid'),'Canonical form controls missing');
+assert(!sa.includes('portal-live/account-workspace.css'),'Legacy management overlay stylesheet still stacked on Superadmin');
+assert(!sa.includes('Override legacy account-workspace'),'Legacy override-only Superadmin block returned');
+assert.equal((sa.match(/\\.sa-account-note\\{/g)||[]).length,1,'Superadmin account note still has duplicate ownership');
+assert(bank.includes('class="field f4-field-stack"'),'Bank weighing forms do not use aligned field stacks');
+assert(book.includes('class="f4-field-stack"'),'Bookkeeping report filters do not use aligned field stacks');
+assert(shared.includes('min-height:var(--f4-control-height,42px)'),'Shared visual controls still have divergent 43/44px sizes');
+assert(finance.includes('height:var(--f4-control-height,42px)'),'Treasury form input baseline not unified');
 const remaining=Object.values(totals).reduce((a,b)=>a+b,0);
 console.log('UNIFIED_GRID_STATIC_OK=1');
 console.log('LEGACY_IMPORTANT_COUNT='+remaining);
