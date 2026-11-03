@@ -78,7 +78,7 @@ assert(!h.includes('max-height:310px!important;overflow-y:auto!important'),'Old 
 // Mobile Bank Sampah controls must not regress into the three bugs in the 31 Oct report.
 assert(!dockSection.includes('transform:translateY(-8px)'),'Center caption must not overlap gold action');
 assert(dockSection.includes('transform:translateY(-21px)'),'Raised central icon geometry changed');
-// Admin HP keeps five primary dock routes; the slide drawer holds supporting categories.
+// Admin HP uses eight shortcuts and a full six-category slide; only members keep the dock.
 const adminMobile=css.split('/* Pengelola HP: menu slide untuk Keuangan dan Pengelolaan;')[1]
   ?.split('@media screen and (max-width:760px)')[0];
 assert(adminMobile,'Admin mobile navigation owner missing');
@@ -87,7 +87,10 @@ assert(adminMobile.includes('html body.f4-bank-app-admin.v17-dashboard #sideNav.
  'Admin mobile slide drawer must open, not remain forcibly hidden');
 assert(adminMobile.includes('html body.f4-bank-app-admin #v16Backdrop.open'),
  'Admin slide backdrop must open with the drawer');
-assert(css.includes('.f4-bank-admin-shortcut-grid{'),'Admin shortcut grid missing');
+assert(css.includes('grid-template-columns:repeat(4,minmax(0,1fr))'),'Admin shortcuts must be four equal columns');
+assert(mobile.includes('dock().hidden=!isPrivate||next==="admin"'),'Admin dock must stay hidden');
+assert(mobile.includes('function syncAdminBack()'),'Manager screens need a back control');
+assert(!mobile.includes('const adminDock='),'Repeated manager dock routes must be removed');
 assert(h.includes("const v16AdminPrimary=new Set(['home','deposit','sale','finance','management','report']);"),
  'Six admin sidebar categories missing');
 assert(!css.includes('v16-mobile-extra')&&!h.includes('v16-mobile-extra'),
@@ -140,7 +143,7 @@ assert(!css.includes('#dashboardView #pageProfile #v15PasswordBox>summary{'),
 assert(!h.includes('#v15PasswordBox>summary{cursor:pointer'),
  'Old left-side triangle style returned');
 assert(h.includes("summary.textContent='Ganti password'"),'Password must have no emoji or separate triangle');
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-admin-slide-v4'),
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-three-step-v1'),
  'Bank Sampah profile/dock stylesheet must be cache-busted');
 assert(h.includes('/portal-live/bank-mobile-app.js?v=20261103-chart-total-v2'),
  'Member payout icon script must be refreshed');
@@ -158,7 +161,7 @@ assert(css.includes('#saleForm .f4-sale-top-fields>.field{'),
  'Sale three-field row must keep its explicit column spans');
 assert(!css.includes('body.f4-bank-app-private #dashboardView #pageSetoran .f4-entry-top-fields,'),
  'Legacy desktop grid override was reintroduced');
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-admin-slide-v4'),
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-three-step-v1'),
  'Bank entry stylesheet cache key was not refreshed');
 const modernCss=fs.readFileSync('portal-live/modern-portals.css','utf8');
 assert(!modernCss.includes('max-width:850px!important') &&
@@ -214,14 +217,14 @@ assert(mobile.includes('function showAdminProgress()') &&
        mobile.includes('showAdminHistory(saleHistory?"penjualan":"setoran")'),
  'Separate sale history or safe progress lifecycle is missing');
 assert(mobile.includes('f4BankAdminOperations') &&
-       mobile.includes('f4BankAdminNext') &&
+       mobile.includes('adminShortcuts.map(adminShortcut)') &&
        mobile.includes('Catat Setoran') &&
        mobile.includes('Catat Penjualan'),
- 'Task-first entry and follow-up actions are missing');
+ 'Task-first entry and eight shortcuts are missing');
 assert(css.includes('grid-area:actions') &&
-       css.includes('grid-area:next') &&
+       !css.includes('grid-area:next') &&
        css.includes('grid-area:recent'),
- 'Operational dashboard grid is incomplete');
+ 'Operational dashboard grid contains duplicate/empty follow-up card');
 assert(css.includes('#v16Tabs.v16-tabs:not(.hidden)') &&
        !css.includes('body.f4-bank-app-admin #dashboardView #v16Tabs{display:none}'),
  'Contextual tabs must remain visible on smaller viewports');
