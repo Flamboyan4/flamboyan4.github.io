@@ -74,7 +74,7 @@ assert(core.includes('--f4-control-height:42px'),'Control height token missing')
 assert(core.includes('.f4-controls{display:flex')&&core.includes('.f4-field-stack{display:grid'),'Canonical form controls missing');
 assert(!sa.includes('portal-live/account-workspace.css'),'Legacy management overlay stylesheet still stacked on Superadmin');
 assert(!sa.includes('Override legacy account-workspace'),'Legacy override-only Superadmin block returned');
-assert.equal((sa.match(/\\.sa-account-note\\{/g)||[]).length,1,'Superadmin account note still has duplicate ownership');
+assert.equal(sa.split('.sa-account-note{').length-1,1,'Superadmin account note still has duplicate ownership');
 assert(bank.includes('class="field f4-field-stack"'),'Bank weighing forms do not use aligned field stacks');
 assert(book.includes('class="f4-field-stack"'),'Bookkeeping report filters do not use aligned field stacks');
 assert(shared.includes('min-height:var(--f4-control-height,42px)'),'Shared visual controls still have divergent 43/44px sizes');
