@@ -1903,3 +1903,13 @@ body.f4-bank-app-admin #sideNav #v16NavList>.v16-item.f4-back-account{display:no
   grid-template-columns:repeat(5,minmax(0,1fr));
  }
 }
+
+/* Form jadwal penimbangan disatukan pada pengelolaan Bank Sampah. */
+.f4-bank-weighing-editor{background:#fff;border:1px solid #dbe9df;border-radius:14px;padding:16px;margin:12px 0}
+.f4-bank-weighing-editor h3{margin:0 0 12px;font-size:16px;color:#155e40}
+.f4-bank-weighing-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:end}
+.f4-bank-weighing-form label{display:grid;gap:6px;min-width:0;font-weight:700;font-size:13px}
+.f4-bank-weighing-form :is(select,input){min-height:42px;max-width:100%;width:100%;border:1px solid #cdded2;border-radius:9px;padding:7px 10px;background:#fff}
+.f4-bank-weighing-form :is(.f4-bank-weighing-preview,.f4-bank-weighing-status){grid-column:1/-1;margin:0;font-size:13px;color:#32604a}
+.f4-bank-weighing-form .f4-bank-gold-action{justify-self:start;min-height:42px}
+@media(max-width:640px){.f4-bank-weighing-form{grid-template-columns:minmax(0,1fr)}}
