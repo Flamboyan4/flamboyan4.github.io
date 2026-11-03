@@ -540,13 +540,37 @@ function memberBuckets(){
   };
  }).sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id));
 }
+const weighingDayNames=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+let weighingWeekday=0,weighingLastFetched=0,weighingRequest=null,weighingRequestId=0;
 function weighingNextDate(){
- // The schedule is weekly, not an unverified appointment time.
  const [year,month,day]=today().split("-").map(Number);
  const current=new Date(Date.UTC(year,month-1,day));
- const days=(7-current.getUTCDay())%7;
+ const days=(weighingWeekday-current.getUTCDay()+7)%7;
  current.setUTCDate(current.getUTCDate()+days);
  return {days,label:new Intl.DateTimeFormat("id-ID",{weekday:"long",day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}).format(current)};
+}
+function updateWeighingCard(){
+ const card=$("f4BankWeighingSchedule");if(!card)return;
+ const next=weighingNextDate(),name=weighingDayNames[weighingWeekday];
+ const title=card.querySelector("strong");
+ if(title)title.textContent=next.days===0?"Hari ini • "+name:next.label;
+ const detail=card.querySelector(".f4-bank-weigh-copy > span:last-child");
+ if(detail)detail.textContent="Setiap "+name;
+}
+function loadWeighingDay(){
+ if(role!=="member")return;
+ if(weighingRequest)return;
+ if(weighingLastFetched&&Date.now()-weighingLastFetched<90000)return;
+ const seq=++weighingRequestId;
+ weighingRequest=fetch(apiRoot+"/api/public/bank/weighing-schedule",{
+  method:"GET",credentials:"include",cache:"no-store"
+ }).then(async response=>{
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok||result.ok===false||!Number.isInteger(result.weekday)||result.weekday<0||result.weekday>6)
+   throw Error("Jadwal belum tersedia");
+  if(seq!==weighingRequestId||role!=="member")return;
+  weighingWeekday=result.weekday;weighingLastFetched=Date.now();updateWeighingCard();
+ }).catch(()=>{}).finally(()=>{if(seq===weighingRequestId)weighingRequest=null;});
 }
 function ensureWeighingSchedule(home){
  if(role!=="member"||!home)return;
@@ -555,12 +579,10 @@ function ensureWeighingSchedule(home){
   card=el("section","f4-bank-weigh-schedule");card.id="f4BankWeighingSchedule";
   const icon=el("span","f4-bank-weigh-icon");icon.append(image("calendar.svg"));
   const content=el("span","f4-bank-weigh-copy");
-  content.append(el("small","","JADWAL BERIKUTNYA"),el("strong","","—"),el("span","","Penimbangan rutin setiap Minggu"));
-  card.append(icon,content);
-  home.append(card);
+  content.append(el("small","","JADWAL BERIKUTNYA"),el("strong","","—"),el("span","","Memuat jadwal…"));
+  card.append(icon,content);home.append(card);
  }
- const next=weighingNextDate();
- const title=card.querySelector("strong");if(title)title.textContent=next.days===0?"Hari ini • Minggu":next.label;
+ updateWeighingCard();loadWeighingDay();
 }
 function f4PrivateShort(n,mode){
  const value=Math.max(0,Number(n)||0);
@@ -1663,6 +1685,7 @@ function resetRoleSurface(){
  }
  document.body.classList.remove("f4-bank-member-secondary");
  memberStatement=null;adminOverview=null;memberSnapshotsLoaded=false;
+ weighingRequestId++;weighingRequest=null;weighingWeekday=0;weighingLastFetched=0;
 }
 function sync(){
  const next=roleType(),isPrivate=!!next&&!$("dashboardView")?.classList.contains("hidden");
