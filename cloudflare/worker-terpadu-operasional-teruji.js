@@ -4862,6 +4862,42 @@ async function bankUpdateSaleReceipt(request,env,who) {
 __name(bankUpdateSaleReceipt, "bankUpdateSaleReceipt");
 var rupiah = /* @__PURE__ */ __name((v) => Number.isSafeInteger(v) && v >= 0 && v <= 1e12, "rupiah");
 // Satu aturan D1 untuk semua pengesahan baru. Transaksi yang sudah sah tetap utuh.
+// BANK_WEEKLY_WEIGHING_START
+// One centralized recurring weekday. Existing app_settings avoids migration
+// and does not modify financial transactions, balances, or sales snapshots.
+const BANK_WEIGHING_DAY_KEY="BANK_WEIGHING_WEEKDAY";
+const BANK_WEEKDAYS=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+async function readBankWeighingDay(db){
+ const row=await one(db,"SELECT setting_value FROM app_settings WHERE setting_key=?",[BANK_WEIGHING_DAY_KEY]);
+ const raw=row?.setting_value;
+ const day=raw===undefined||raw===null?0:Number(raw);
+ const weekday=Number.isInteger(day)&&day>=0&&day<=6?day:0;
+ return {ok:true,weekday,dayName:BANK_WEEKDAYS[weekday]};
+}
+__name(readBankWeighingDay,"readBankWeighingDay");
+async function bankWeighingDayUpdate(request,env,who){
+ const denied=requireRole(who,["superadmin"]);if(denied)return denied;
+ if(request.method!=="POST")return safeError("Metode tidak diizinkan.",405);
+ let body;try{body=await requestJson(request)}catch{return safeError("Hari penimbangan tidak valid.",400)}
+ const weekday=Number(body.weekday);
+ if(!Number.isSafeInteger(weekday)||weekday<0||weekday>6||
+   !/^[0-6]$/.test(String(body.weekday)))return safeError("Pilih hari Senin–Minggu.",400);
+ const current=await readBankWeighingDay(env.DB);
+ if(weekday===current.weekday)return json({...current,unchanged:true});
+ const id="bank-weighing:"+crypto.randomUUID();
+ try{
+  await env.DB.batch([
+   env.DB.prepare("INSERT INTO app_settings(setting_key,setting_value,description,updated_at,updated_by) VALUES(?,?,?,CURRENT_TIMESTAMP,?) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value,description=excluded.description,updated_at=CURRENT_TIMESTAMP,updated_by=excluded.updated_by")
+    .bind(BANK_WEIGHING_DAY_KEY,String(weekday),"Hari rutin penimbangan Bank Sampah",who.id),
+   env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'banksampah','ubah_jadwal_penimbangan','app_settings',?,?,?)")
+    .bind("audit:"+id,who.id,BANK_WEIGHING_DAY_KEY,"Perubahan hari rutin penimbangan",JSON.stringify({previous:current.weekday,weekday,dayName:BANK_WEEKDAYS[weekday]}))
+  ]);
+ }catch{return safeError("Gagal menyimpan jadwal penimbangan.",500)}
+ return json({ok:true,weekday,dayName:BANK_WEEKDAYS[weekday]});
+}
+__name(bankWeighingDayUpdate,"bankWeighingDayUpdate");
+// BANK_WEEKLY_WEIGHING_END
+
 // BANK_V3_POLICY_START
 // Aturan metode pembagian bersifat append-only; harga beli per jenis memakai
 // waste_prices.effective_from (juga append-only), dibekukan per penjualan.
@@ -5937,6 +5973,10 @@ async function handle(request, env) {
     try{return json({ok:true,...await getBankSplitPolicy(env.DB)})}
     catch{return safeError("Aturan bagi hasil belum tersedia.",503)}
   }
+  if (path === "/api/public/bank/weighing-schedule" && request.method === "GET"){
+    try{return json(await readBankWeighingDay(env.DB),200,{"cache-control":"no-store"})}
+    catch{return safeError("Jadwal penimbangan tidak tersedia.",503)}
+  }
   if (path === "/api/public/summary" && request.method === "GET") return json(await publicSummary(env.DB));
   if (path === "/api/public/overview" && request.method === "GET") return json(await publicOverview(env.DB));
   if (path === "/api/public/albums" && request.method === "GET") return json(await publicAlbums(env.DB));
@@ -5950,6 +5990,8 @@ async function handle(request, env) {
   if (path === "/api/auth/login" && request.method === "POST") return login(request, env);
   const who = await identity(request, env.DB);
   if (path === "/api/superadmin/bank-split" && request.method === "POST") return saveBankSplitPolicy(request,env,who);
+  if (path === "/api/superadmin/bank/weighing-schedule" && request.method === "POST")
+    return bankWeighingDayUpdate(request,env,who);
   if (path === "/api/admin/bank/policy" && ["GET","POST"].includes(request.method)) return bankV3PolicyAPI(request,env,who);
   if (path === "/api/member/bank/prices" && request.method === "GET") return bankMemberPriceList(env.DB,who);
   if (path === "/api/admin/bank/sale-sheet" && ["GET","POST"].includes(request.method))
