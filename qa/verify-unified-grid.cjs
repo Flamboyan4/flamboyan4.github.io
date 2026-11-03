@@ -13,12 +13,11 @@ const expected={
  'index.html':0,
  'bank-sampah/index.html':1322,
  'pembukuan/index.html':2228,
- 'superadmin/index.html':8,
+ 'superadmin/index.html':3,
  'rapat/index.html':177,
  'dokumentasi/index.html':37,
  'portal-live/modern-portals.css':1377,
  'portal-live/bank-eco-dashboard.css':396,
- 'portal-live/account-workspace.css':99,
  'portal-live/dokumentasi/media-theme.css':112,
  'portal-live/unified-account.css':96,
  'portal-live/home-overrides.css':45,
@@ -73,6 +72,7 @@ const shared=read('portal-live/modern-portals.css');
 assert(core.includes('--f4-control-height:42px'),'Control height token missing');
 assert(core.includes('.f4-controls{display:flex')&&core.includes('.f4-field-stack{display:grid'),'Canonical form controls missing');
 assert(!sa.includes('portal-live/account-workspace.css'),'Legacy management overlay stylesheet still stacked on Superadmin');
+assert(!fs.existsSync('portal-live/account-workspace.css'),'Unreferenced legacy account workspace CSS returned');
 assert(!sa.includes('Override legacy account-workspace'),'Legacy override-only Superadmin block returned');
 assert.equal(sa.split('.sa-account-note{').length-1,1,'Superadmin account note still has duplicate ownership');
 assert(bank.includes('class="field f4-field-stack"'),'Bank weighing forms do not use aligned field stacks');
