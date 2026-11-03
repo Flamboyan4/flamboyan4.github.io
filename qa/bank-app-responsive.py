@@ -661,6 +661,7 @@ async def bank_policy_permission_ui(browser):
         await page.add_script_tag(url=ROOT+"/portal-live/bank-policy-admin.js")
         if can_edit:
             await page.locator("#f4BankPolicyCard:not([hidden])").wait_for(timeout=8000)
+            await page.locator("#f4BankPolicyCard summary").click()
             assert await page.locator("#f4BankPolicyCard form").is_visible(),role
         else:
             await page.wait_for_function("() => document.querySelector('#f4BankPolicyCard')===null",timeout=8000)
