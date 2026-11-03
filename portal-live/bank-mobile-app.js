@@ -543,10 +543,22 @@ function memberBuckets(){
 }
 const weighingDayNames=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
 let weighingWeekday=0,weighingLastFetched=0,weighingRequest=null,weighingRequestId=0;
+let weighingRule={frequency:"weekly",nextOccurrence:"",anchorDate:"",dayOfMonth:null};
 function weighingNextDate(){
- const [year,month,day]=today().split("-").map(Number);
- const current=new Date(Date.UTC(year,month-1,day));
- const days=(weighingWeekday-current.getUTCDay()+7)%7;
+ const now=new Date(today()+"T00:00:00Z");
+ const current=new Date(now);
+ const day=Number(weighingWeekday);
+ const frequency=weighingRule.frequency||"weekly";
+ if(frequency!=="weekly"){
+  const supplied=weighingRule.nextOccurrence;
+  if(/^\\d{4}-\\d{2}-\\d{2}$/.test(supplied||"")){
+   const date=new Date(supplied+"T00:00:00Z");
+   if(Number.isFinite(date.getTime())&&date>=now)
+    return {days:Math.round((date-now)/86400000),label:new Intl.DateTimeFormat("id-ID",{weekday:"long",day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}).format(date)};
+  }
+  return {days:null,label:"Jadwal berikutnya belum tersedia"};
+ }
+ const days=(day-current.getUTCDay()+7)%7;
  current.setUTCDate(current.getUTCDate()+days);
  return {days,label:new Intl.DateTimeFormat("id-ID",{weekday:"long",day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}).format(current)};
 }
@@ -556,7 +568,8 @@ function updateWeighingCard(){
  const title=card.querySelector("strong");
  if(title)title.textContent=next.days===0?"Hari ini • "+name:next.label;
  const detail=card.querySelector(".f4-bank-weigh-copy > span:last-child");
- if(detail)detail.textContent="Setiap "+name;
+ if(detail)detail.textContent=weighingRule.frequency==="biweekly"?"Setiap 2 minggu":
+  weighingRule.frequency==="monthly"?"Setiap bulan":"Setiap "+name;
 }
 function loadWeighingDay(){
  if(role!=="member")return;
@@ -571,7 +584,9 @@ function loadWeighingDay(){
   if(!response.ok||result.ok===false||!Number.isInteger(result.weekday)||result.weekday<0||result.weekday>6)
    throw Error("Jadwal belum tersedia");
   if(seq!==weighingRequestId||role!=="member")return;
-  weighingWeekday=result.weekday;weighingLastFetched=Date.now();updateWeighingCard();
+  weighingWeekday=result.weekday;
+  weighingRule={frequency:result.frequency||"weekly",nextOccurrence:result.nextOccurrence||result.next_occurrence||"",anchorDate:result.anchorDate||"",dayOfMonth:result.dayOfMonth||null};
+  weighingLastFetched=Date.now();updateWeighingCard();
  }).catch(()=>{}).finally(()=>{if(seq===weighingRequestId)weighingRequest=null;});
 }
 function ensureWeighingSchedule(home){
