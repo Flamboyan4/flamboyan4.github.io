@@ -156,6 +156,6 @@ async function reopenBatch(){
  try{await fetchSheet(current.batchId,{action:"reopen"});await refresh();status("Setoran dibuka kembali. Cetak ulang lembar setelah selesai mengubah data.")}
  catch(e){status(e.message||String(e),true)}
 }
-window.F4SaleSheet={refresh,number:()=>current?.saleNumber||''};
+window.F4SaleSheet={refresh,number:()=>current?.saleNumber||'',ready:()=>current?.status==="siap"};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
 })();
