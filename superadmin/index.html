@@ -186,55 +186,43 @@ html body #f4-account-page>aside{overflow-x:hidden!important}
 }
 
 /* Table identity and status layout adapted from original Bank Sampah. */
-.sa-accounts-shell{background:#fff;border:1px solid var(--edge);border-radius:16px;padding:20px;margin:4px 0 24px}
+/* Satu pemilik gaya tabel akun Superadmin: tanpa lapisan override warna lama. */
+.sa-accounts-shell{background:#fff;border:1px solid #d8e2f5;border-radius:16px;padding:20px;margin:4px 0 24px}
 .sa-account-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:12px}
 .sa-account-head h3{font-size:18px;color:#1b344c;margin:0 0 3px}
 #f4-account-page>main .sa-account-head p{margin:0;color:#688397;font-size:12px}
-.sa-account-actions{display:flex;gap:8px;flex-wrap:wrap}
-.sa-action-primary{background:#2e6146!important;color:white!important;border-color:#2e6146!important}
-.sa-account-note{background:#eaf2e9;color:#355f4a!important;border-radius:11px;padding:13px!important;margin:0 0 14px!important;line-height:1.55;font-size:12px!important}
-.sa-account-table{background:#f5f9f5;border:1px solid #d7e5d8;border-radius:13px;overflow:hidden}
-.sa-account-filters{padding:14px;display:flex;gap:9px;align-items:center;flex-wrap:wrap}
-.sa-account-filters input{flex:1 1 270px;max-width:500px;height:var(--f4-control-height,42px);background:white;border:1px solid #c9d9cd;border-radius:10px;padding:12px;font-size:12px}
-.sa-account-filters select{max-width:180px;min-width:135px;height:var(--f4-control-height,42px);padding:12px;background:white;border:1px solid #c9d9cd;border-radius:10px;font-size:12px}
-#f4-account-page>main .sa-account-count{font-size:11px!important;flex-basis:100%;margin:0!important;color:#5e806d!important}
-.sa-account-scroll{overflow-x:auto;max-height:60vh;overflow-y:auto;background:white}
-.sa-account-grid{border-collapse:collapse;width:100%;min-width:690px;font-size:12px}
-.sa-account-grid th{text-align:left;color:#678a73;text-transform:uppercase;font-size:10px;letter-spacing:.02em;background:#f9fcf9;padding:12px 14px;border-top:1px solid #dce8df;border-bottom:1px solid #dce8df;position:sticky;top:0}
+.sa-account-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.sa-action-primary{background:#5364a5;color:white;border-color:#5364a5}
+.sa-account-note{background:#f0f3ff;color:#425480;border-radius:11px;padding:13px;margin:0 0 14px;line-height:1.55;font-size:12px}
+.sa-account-table{background:#f7f8ff;border:1px solid #dce3f3;border-radius:13px;overflow:hidden}
+.sa-account-filters{padding:14px;display:flex;gap:var(--f4-control-gap,10px);align-items:center;flex-wrap:wrap}
+.sa-account-filters input,.sa-account-filters select{height:var(--f4-control-height,42px);padding:0 12px;background:#fff;border:1px solid #d5ddf1;border-radius:10px;font-size:12px;line-height:1.3;box-sizing:border-box}
+.sa-account-filters input{flex:1 1 270px;max-width:500px}
+.sa-account-filters select{flex:0 1 180px;max-width:180px;min-width:135px}
+#f4-account-page>main .sa-account-count{font-size:11px;flex-basis:100%;margin:0;color:#6c77a0}
+.sa-account-scroll{position:relative;max-height:none;overflow-x:auto;overflow-y:visible;background:#fff}
+.sa-account-grid{border-collapse:separate;border-spacing:0;width:100%;min-width:690px;font-size:12px}
+.sa-account-grid th{text-align:left;color:#6c75a1;text-transform:uppercase;font-size:10px;letter-spacing:.02em;background:#f8f9ff;padding:12px 14px;border-top:1px solid #e2e7f6;border-bottom:1px solid #e2e7f6;position:static}
 .sa-account-grid th:last-child,.sa-account-grid td:last-child{text-align:right}
-.sa-account-grid td{padding:12px 14px;border-bottom:1px solid #e4ebe4;color:#2d4638;vertical-align:middle}
-.sa-account-grid tr:nth-child(even){background:#fcfdfc}
-.sa-account-grid td strong{display:block;font-size:12px;color:#16442a}
+.sa-account-grid td{padding:12px 14px;border-bottom:1px solid #e7eafa;color:#344361;vertical-align:middle;position:static}
+.sa-account-grid tr:nth-child(even){background:#fbfcff}
+.sa-account-grid td strong{display:block;font-size:12px;color:#243867}
 .sa-account-grid td small{display:block;font-size:10px;color:#849c8b;margin-top:2px}
-.sa-account-role{display:inline-block;background:#e8f1fa;color:#286498;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:750}
+.sa-account-role{display:inline-block;background:#eaefff;color:#485fa1;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:750}
 .sa-account-role[data-role="admin"]{background:#e7eff9;color:#3558a7}
 .sa-account-role[data-role="superadmin"]{background:#efe9fd;color:#6d43aa}
-.sa-account-status{color:#286849!important;font-weight:750}
+.sa-account-status{color:#295b69;font-weight:750}
 .sa-account-status span[data-status="Nonaktif"]{color:#ad5454}
 .sa-account-status span[data-status="Belum aktif"]{color:#a37626}
-.sa-account-reset{border:0;background:#eaf2e9;color:#2d6143;border-radius:10px;padding:8px 11px;font-weight:700;font-size:11px}
-.sa-account-reset:disabled,.sa-action-primary:disabled{opacity:.65;cursor:not-allowed}
-@media(max-width:760px){.sa-accounts-shell{padding:12px}.sa-account-head{align-items:flex-start}.sa-account-scroll{max-height:none}.sa-account-filters{padding:10px}.sa-account-filters input{max-width:none}}
-
-/* Superadmin uses its blue/purple theme; only the table grid is scrollable. */
-.sa-accounts-shell{border-color:#d8e2f5!important}
-.sa-account-note{background:#f0f3ff!important;color:#425480!important}
-.sa-account-table{background:#f7f8ff!important;border-color:#dce3f3!important}
-.sa-account-filters input,.sa-account-filters select{border-color:#d5ddf1!important}
-.sa-account-count{color:#6c77a0!important}
-.sa-account-scroll{position:relative!important;max-height:none!important;overflow-y:visible!important;overflow-x:auto!important}
-.sa-account-grid{border-collapse:separate!important;border-spacing:0!important}
-.sa-account-grid thead,.sa-account-grid tbody,.sa-account-grid tr,.sa-account-grid td{position:static!important}
-.sa-account-grid th{position:static!important;background:#f8f9ff!important;color:#6c75a1!important;border-color:#e2e7f6!important}
-.sa-account-grid td{border-color:#e7eafa!important;color:#344361!important}
-.sa-account-grid td strong{color:#243867!important}
-.sa-account-grid tr:nth-child(even){background:#fbfcff!important}
-.sa-account-status{color:#295b69!important}
-.sa-account-role{background:#eaefff!important;color:#485fa1!important}
-.sa-account-reset{position:static!important;transform:none!important;inset:auto!important;background:#eef0ff!important;color:#555d99!important}
-.sa-account-reset:disabled{opacity:.66}
-.sa-action-primary{background:#5364a5!important;border-color:#5364a5!important}
-
+.sa-account-reset{position:static;transform:none;inset:auto;border:0;background:#eef0ff;color:#555d99;border-radius:10px;padding:8px 11px;font-weight:700;font-size:11px}
+.sa-account-reset:disabled,.sa-action-primary:disabled{opacity:.66;cursor:not-allowed}
+@media(max-width:760px){
+ .sa-accounts-shell{padding:12px}
+ .sa-account-head{align-items:flex-start}
+ .sa-account-filters{padding:10px}
+ .sa-account-filters input{max-width:none;flex-basis:100%}
+ .sa-account-filters select{max-width:100%;flex:1 1 135px}
+}
 /* Master warga: tabel horizontal ringkas; tetap bisa digeser di HP. */
 .sa-resident-scroll{width:100%;max-width:100%;overflow-x:auto;border:1px solid #d8e4f2;border-radius:13px;background:white}
 .sa-resident-grid{border-collapse:collapse;width:100%;min-width:850px;font-size:12px}
