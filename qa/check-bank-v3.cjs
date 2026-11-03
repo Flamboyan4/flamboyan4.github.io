@@ -6,6 +6,7 @@ const ui=fs.readFileSync('portal-live/bank-mobile-app.js','utf8');
 const bridge=fs.readFileSync('portal-live/f4-bank-write-bridge.js','utf8');
 const sheet=fs.readFileSync('portal-live/bank-sale-sheet.js','utf8');
 const policy=fs.readFileSync('portal-live/bank-policy-admin.js','utf8');
+const superadmin=fs.readFileSync('superadmin/index.html','utf8');
 const between=(a,b)=>{const i=worker.indexOf(a),j=worker.indexOf(b,i);assert(i>=0&&j>i,a+' missing');return worker.slice(i,j)};
 const own=between('// BANK_V3_OWN_START','// BANK_V3_OWN_END');
 assert(!own.includes("INSERT INTO waste_cash_ledger"),'Bank physical inventory must not create cash!');
@@ -32,6 +33,24 @@ assert(ui.includes('$("f4BankAdminOperations")?.after(shortcuts)'));
 assert(ui.includes('dock().hidden=!isPrivate||next==="admin"'));
 assert(policy.includes('el("details","f4-bank-policy-card")'));
 assert(policy.includes('card.append(head,desc,form,message)'));
+const weighing=between('// BANK_WEEKLY_WEIGHING_START','// BANK_WEEKLY_WEIGHING_END');
+assert(weighing.includes('requireRole(who,["superadmin"])'),'Only Superadmin may update weighing weekday');
+assert(weighing.includes('BANK_WEIGHING_WEEKDAY')&&weighing.includes('INSERT INTO app_settings('));
+assert(weighing.includes("'ubah_jadwal_penimbangan'"),'Audit log for weekday changes missing');
+assert(!weighing.includes('waste_cash_ledger')&&!weighing.includes('bookkeeping_payments'),
+ 'Changing weighing day may not touch transactions');
+assert(worker.includes('"/api/public/bank/weighing-schedule"')&&
+       worker.includes('"/api/superadmin/bank/weighing-schedule"'));
+assert(superadmin.includes("['bank_weighing','Jadwal Timbang']")&&
+       superadmin.includes("else if(kind==='bank_weighing')bankWeighingPage()"));
+assert(ui.includes('loadWeighingDay()')&&ui.includes('weighingWeekday-current.getUTCDay()'));
+assert(ui.includes('function resetRoleSurface()')&&
+       ui.includes('for(const id of ["f4BankAdminOperations","f4BankAdminShortcuts","f4BankAdminNext"])'));
+assert(ui.includes('function previousBankPage()')&&
+       ui.includes('back.onclick=previousBankPage')&&
+       !ui.includes('back.onclick=()=>navigate("dashboard")'));
+assert(page.includes("v22Categories.filter(c=>c!=='Inventaris')"),
+ 'Inventory must not duplicate its own tab inside Album filters');
 assert(policy.includes('card.hidden=true')&&policy.includes('if(data.canEdit!==true){card.remove();return;}'));
 assert(ui.includes('tabs.hidden=false')&&ui.includes('panel?.classList.toggle("hidden",key!==selected)'));
 assert(ui.includes('ensureCashExpenseForm()')&&ui.includes('if(route==="biaya"){adminCashTab="out";route="bank-admin-cash";}'));
