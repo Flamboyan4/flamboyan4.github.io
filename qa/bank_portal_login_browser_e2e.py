@@ -95,8 +95,8 @@ def verify_portal_login(credentials):
                     frame.locator("#setBarang .f4-compact-row select").first.select_option(index=1)
                     frame.locator("#setBarang .f4-compact-row input[type=number]").first.fill("0.100")
                     frame.locator("#setNotes").fill("QA_UI_BANK_LOCAL_ONLY")
-                    page.once("dialog",lambda dialog:dialog.accept())
                     frame.locator("#saveSetoranBtn").click()
+                    page.locator(".f4-ui-dialog-accept").click(timeout=12000)
                     try:
                         page.wait_for_function("""() => {
                           const d=document;
