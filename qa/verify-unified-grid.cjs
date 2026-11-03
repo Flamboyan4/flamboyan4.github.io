@@ -20,8 +20,8 @@ const expected={
  'portal-live/bank-eco-dashboard.css':396,
  'portal-live/dokumentasi/media-theme.css':112,
  'portal-live/unified-account.css':96,
- 'portal-live/home-overrides.css':45,
- 'portal-live/bank-member-polish.css':21,
+ 'portal-live/home-overrides.css':44,
+ 'portal-live/bank-member-polish.css':18,
  'portal-live/loading-state.css':3
 };
 const totals={};
@@ -88,6 +88,16 @@ const iconRule=galleryCss.slice(iconStart,iconEnd);
 assert(!iconRule.includes('!important'),'Legacy priority returned to gallery icon controls');
 assert(iconRule.includes('display:inline-grid;place-items:center;'),'Gallery icon alignment must remain centered');
 assert(galleryCss.includes('[hidden]{display:none!important}'),'Hidden element guard must remain intact');
+// Avoid mobile/desktop duplicate ownership where later canonical rules already win.
+const memberCss=read('portal-live/bank-member-polish.css');
+const dashboardCss=read('portal-live/bank-eco-dashboard.css');
+const homeOverrides=read('portal-live/home-overrides.css');
+assert(!memberCss.includes('#dashboardView #pageDashboard.f4-member-dashboard .f4-member-finance-note{'),
+  'Obsolete member note override returned');
+assert(dashboardCss.includes('body #dashboardView #pageDashboard.f4-member-dashboard .f4-member-finance-note{'),
+  'Canonical member note is missing');
+assert.equal(homeOverrides.split('#f4-private-transactions tbody tr[hidden]{display:none!important}').length-1,1,
+  'Duplicate responsive hidden-row override returned');
 const remaining=Object.values(totals).reduce((a,b)=>a+b,0);
 console.log('UNIFIED_GRID_STATIC_OK=1');
 console.log('LEGACY_IMPORTANT_COUNT='+remaining);

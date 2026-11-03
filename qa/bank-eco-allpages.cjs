@@ -30,7 +30,10 @@ assert(!h.includes('v27-banner-program'), 'Obsolete program banner layout must b
 assert(!h.includes('v27CompactProgram'), 'Obsolete program DOM reparenting must be removed');
 assert(h.includes('border:0}').valueOf() || h.includes('background:transparent;border:0'), 'Public program must not use cards');
 assert(css.includes('color:#fff!important;\n border:1px solid #E6A125!important'),'White text on bright gold missing');
-assert(h.includes('#v11Public .v17-public-banner #f4-public-my-savings'), 'Responsive member CTA missing');
+assert(h.includes('#f4-public-my-savings{display:inline-flex') &&
+       h.includes('@media(max-width:700px){#f4-public-my-savings{width:100%;max-width:none;min-height:44px') &&
+       h.includes("getElementById('f4-public-my-savings')"),
+ 'Responsive member CTA missing');
 assert(css.includes('#v11Public .v17-public-banner :is(h1,h2,h3,strong)'),'White title missing');
 assert(css.includes('color:#fff!important'),'Foreground contrast missing');
 assert(!h.includes('.stats .stat:last-child{grid-column:1/-1}'),'Wide last savings card regression');
@@ -55,11 +58,14 @@ assert((css.match(/\.f4-bank-app-dock:not\(\[hidden\]\)\{/g)||[]).length===1,'Du
 assert(!css.includes('tinggi 62px'),'Old compact dock returned');
 assert(!css.includes('border-bottom:2px solid #087850'),'Underline-only tab returned');
 assert(!css.includes('@media print'),'Theme must not alter PDFs');
-// One public chart, two clear metrics, and no independently scrolling roster.
-assert((h.match(/id="v17WeightBars"/g)||[]).length===1,'Public chart must be unique');
-assert(!h.includes('id="v17ValueBars"'),'Second public chart returned');
-assert(h.includes('data-public-chart-mode="nilai"'),'Public value tab missing');
-assert(h.includes('data-public-chart-mode="berat"'),'Public weight tab missing');
+// Public progress is weight-only until authentication; financial value stays private.
+assert((h.match(/id="f4DevChart"/g)||[]).length===1,'Public progress chart must be unique');
+assert(!h.includes('id="v17ValueBars"'),'Legacy value chart must not return');
+assert(h.includes('data-dev-mode="berat" aria-pressed="true"'),'Public weight mode missing');
+assert(h.includes('data-dev-mode="nilai" aria-pressed="false" class="hidden" hidden'),
+ 'Financial value tab must stay hidden for guests');
+assert(h.includes('id="v17Transparansi" class="v17-section hidden" hidden'),
+ 'Public financial transparency section must remain hidden');
 assert(h.includes('f4-savings-roster f4-savings-members'),'Member roster must be frameless');
 assert(h.includes("roster.className='f4-saldo-list'"),'Inline roster missing');
 assert(h.includes("querySelectorAll('.f4-saldo-row')"),'Roster search must target row list');
@@ -70,30 +76,27 @@ assert(!h.includes('max-height:310px!important;overflow-y:auto!important'),'Old 
 // Mobile Bank Sampah controls must not regress into the three bugs in the 31 Oct report.
 assert(!dockSection.includes('transform:translateY(-8px)'),'Center caption must not overlap gold action');
 assert(dockSection.includes('transform:translateY(-21px)'),'Raised central icon geometry changed');
-const managerDrawer=css.split('/* Pengurus HP: drawer kiri')[1]?.split('@media screen and (max-width:760px)')[0];
-assert(managerDrawer,'Admin mobile slide drawer style missing');
-assert(managerDrawer.includes('transform:translateX(-105%)') &&
-       managerDrawer.includes('transform:translateX(0)') &&
-       managerDrawer.includes('flex-direction:column'),
- 'Manager menu must slide from left in one column, not display as a grid popover');
-assert(!managerDrawer.includes('grid-template-columns:repeat(2,minmax(0,1fr))'),
- 'Admin sidebar grid menu returned');
-assert(!managerDrawer.includes('!important'),
- 'Admin drawer must not use priority overrides');
-assert(css.includes('/* HP: the five primary categories are in the dock, not repeated in the slide drawer. */'),
- 'Bank Sampah must keep primary navigation in the mobile dock');
-assert(css.includes('[data-group="home"],[data-group="entry"],[data-group="money"]'),
- 'Main admin categories must be omitted from the HP drawer');
+// Current admin HP has dock + shortcut grid, not a redundant drawer.
+const adminMobile=css.split('/* Pengurus HP tidak memakai drawer sama sekali:')[1]
+  ?.split('@media screen and (max-width:760px)')[0];
+assert(adminMobile,'Admin mobile navigation owner missing');
+assert(adminMobile.includes('html body.f4-bank-app-admin.v17-dashboard #sideNav.side') &&
+       adminMobile.includes('display:none;visibility:hidden;pointer-events:none'),
+ 'Admin mobile drawer must remain hidden');
+assert(css.includes('.f4-bank-admin-shortcut-grid{'),'Admin shortcut grid missing');
+assert(h.includes("const v16AdminPrimary=new Set(['home','saldo','deposit','sale','report']);"),
+ 'Five admin dock categories missing');
 assert(!css.includes('v16-mobile-extra')&&!h.includes('v16-mobile-extra'),
  'Duplicated tab submenus must not return to the admin sidebar');
 assert(!h.includes('const extras=['),
  'Admin drawer must not dynamically inject tab links');
-assert(h.includes("tabs:[['setoran','Input setoran'],['riwayat','Riwayat setoran'],['penjualan','Penjualan lapak'],['riwayatJual','Riwayat penjualan']]"),
- 'Setoran/penjualan history must remain inside Pencatatan tabs');
-assert(h.includes("tabs:[['rekonsiliasi','Cek selisih'],['pengesahan','Sahkan hasil'],['tabungan','Saldo warga'],['biaya','Pembelian & pengeluaran'],['laporan','Laporan admin']]"),
- 'Reconciliation, approval, and expenses must remain inside Keuangan tabs');
-for(const id of ['payout','program','settings','public']){
- assert(h.includes("{id:'"+id+"'"),'Independent admin drawer category missing: '+id);
+for(const [id,view] of [['deposit','setoran'],['sale','penjualan'],['verify','rekonsiliasi'],
+                         ['report','laporan'],['payout','bank-payout-admin']]){
+ assert(h.includes("{id:'"+id+"'")&&h.includes("['"+view+"'"),
+  'Admin menu route missing: '+id);
+}
+for(const id of ['history','cash','documentation','prices','accounts']){
+ assert(h.includes("{id:'"+id+"'"),'Admin quick access category missing: '+id);
 }
 assert(h.includes("back.replaceChildren(v16Icon('user'),document.createTextNode(label))"),
  'Admin profile entry must remain in the drawer');
@@ -101,10 +104,10 @@ assert(h.includes('html.f4-bank-embedded body.v17-dashboard:not(.f4-bank-app-adm
  'Embedded old drawer must exclude the admin role');
 const reportStyle=h.split('<style>')[1]?.split('</style>')[0];
 const mobileReportStyle=h.split('<style id="f4-bank-mobile-3view-fix-20261028">')[1]?.split('</style>')[0];
-assert(reportStyle && reportStyle.includes('grid-template-columns:repeat(auto-fit,minmax(156px,188px))'),
- 'PC report KPI cards must be capped at a compact width');
-assert(reportStyle.includes('min-height:68px') && reportStyle.includes('min-height:64px'),
- 'Canonical report cards must be compact on both desktop and mobile');
+assert(reportStyle && reportStyle.includes('grid-template-columns:repeat(3,minmax(0,165px))'),
+ 'Private report KPI cards must keep equal compact columns');
+assert(reportStyle.includes('min-height:49px') && reportStyle.includes('gap:6px;margin:8px 0 10px'),
+ 'Private report cards must stay compact across viewports');
 assert(mobileReportStyle && !mobileReportStyle.includes('#v25ReportMetrics.v26-compact'),
  'Mobile report CSS duplicated instead of sharing the canonical report styling');
 assert(!h.includes('min-height:95px!important'),'Old oversized report KPI rule returned');
@@ -114,11 +117,11 @@ assert(!h.includes("Nilai sah berasal dari penjualan yang disahkan. Perkiraan me
  'Verbose approval note returned');
 assert(!h.includes("data.catatan+' Data pribadi warga tidak ditampilkan.'"),
  'Duplicated report footnote returned');
-for(const label of ['Berat sah','Belum sah','Penjualan','Hak warga','Dana lingkungan','Perkiraan']){
- assert(h.includes("v17PublicStat('"+label+"'"),'Compact KPI title missing: '+label);
+for(const label of ['Anggota aktif','Jenis barang','Berat terkonfirmasi','Kegiatan terpublikasi']){
+ assert(h.includes("v17PublicStat('"+label+"'"),'Public safe metric missing: '+label);
 }
-assert(h.includes("'✓ Data sah · ◷ Perkiraan terpisah · 🔒 Privasi'"),
- 'Single compact report status line missing');
+assert(h.includes('🔒 Saldo dan riwayat pribadi tersedia setelah login.'),
+ 'Guest message must explain private financial records');
 assert(h.includes("const print=v21Node('button','secondary','PDF')"),'PDF button label not compact');
 assert(h.includes("const csv=v21Node('button','secondary','CSV')"),'CSV button label not compact');
 assert(!h.includes("const print=v21Node('button','secondary','Cetak / PDF')"),'Old public PDF label returned');
@@ -138,9 +141,9 @@ assert(!css.includes('#dashboardView #pageProfile #v15PasswordBox>summary{'),
 assert(!h.includes('#v15PasswordBox>summary{cursor:pointer'),
  'Old left-side triangle style returned');
 assert(h.includes("summary.textContent='Ganti password'"),'Password must have no emoji or separate triangle');
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261031-admin-clean-drawer-v31'),
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-control-alignment-v2'),
  'Bank Sampah profile/dock stylesheet must be cache-busted');
-assert(h.includes('/portal-live/bank-mobile-app.js?v=20261031-payout-rp-v16'),
+assert(h.includes('/portal-live/bank-mobile-app.js?v=20261103-login-only-reports'),
  'Member payout icon script must be refreshed');
 assert(css.includes('.f4-bank-currency-mark{'),
  'Rp payout icon must use the canonical bank dock styles');
