@@ -4879,37 +4879,110 @@ __name(bankUpdateSaleReceipt, "bankUpdateSaleReceipt");
 var rupiah = /* @__PURE__ */ __name((v) => Number.isSafeInteger(v) && v >= 0 && v <= 1e12, "rupiah");
 // Satu aturan D1 untuk semua pengesahan baru. Transaksi yang sudah sah tetap utuh.
 // BANK_WEEKLY_WEIGHING_START
-// One centralized recurring weekday. Existing app_settings avoids migration
-// and does not modify financial transactions, balances, or sales snapshots.
+// Recurrence policy is stored in app_settings: no new table or financial data changes.
 const BANK_WEIGHING_DAY_KEY="BANK_WEIGHING_WEEKDAY";
+const BANK_WEIGHING_RULE_KEY="BANK_WEIGHING_RULE_V2";
 const BANK_WEEKDAYS=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+function bankScheduleDate(value){
+ if(typeof value!=="string"||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(value))return null;
+ const date=new Date(value+"T00:00:00Z");
+ return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value?date:null;
+}
+__name(bankScheduleDate,"bankScheduleDate");
+function bankScheduleToday(){
+ return new Date(Date.now()+7*3600000).toISOString().slice(0,10);
+}
+__name(bankScheduleToday,"bankScheduleToday");
+function bankScheduleOccurrence(rule,on){
+ const now=bankScheduleDate(on||bankScheduleToday());
+ if(!now)return null;
+ let date=new Date(now);
+ if(rule.frequency==="biweekly"){
+  const start=bankScheduleDate(rule.anchorDate);
+  if(!start)return null;
+  const elapsed=Math.ceil((now.getTime()-start.getTime())/86400000);
+  const intervals=Math.max(0,Math.ceil(elapsed/14));
+  date=new Date(start.getTime()+intervals*14*86400000);
+ }else if(rule.frequency==="monthly"){
+  const desired=Number(rule.dayOfMonth);
+  if(!Number.isSafeInteger(desired)||desired<1||desired>31)return null;
+  const occurrence=(year,month)=>new Date(Date.UTC(year,month,Math.min(desired,new Date(Date.UTC(year,month+1,0)).getUTCDate())));
+  date=occurrence(now.getUTCFullYear(),now.getUTCMonth());
+  if(date<now)date=occurrence(now.getUTCFullYear(),now.getUTCMonth()+1);
+ }else{
+  date.setUTCDate(date.getUTCDate()+(rule.weekday-date.getUTCDay()+7)%7);
+ }
+ return date.toISOString().slice(0,10);
+}
+__name(bankScheduleOccurrence,"bankScheduleOccurrence");
 async function readBankWeighingDay(db){
- const row=await one(db,"SELECT setting_value FROM app_settings WHERE setting_key=?",[BANK_WEIGHING_DAY_KEY]);
- const raw=row?.setting_value;
- const day=raw===undefined||raw===null?0:Number(raw);
- const weekday=Number.isInteger(day)&&day>=0&&day<=6?day:0;
- return {ok:true,weekday,dayName:BANK_WEEKDAYS[weekday]};
+ const [legacy,stored]=await Promise.all([
+  one(db,"SELECT setting_value FROM app_settings WHERE setting_key=?",[BANK_WEIGHING_DAY_KEY]),
+  one(db,"SELECT setting_value FROM app_settings WHERE setting_key=?",[BANK_WEIGHING_RULE_KEY])
+ ]);
+ const day=Number(legacy?.setting_value??0);
+ const oldWeekday=Number.isInteger(day)&&day>=0&&day<=6?day:0;
+ let rule={frequency:"weekly",weekday:oldWeekday};
+ if(stored?.setting_value){
+  try{
+   const value=JSON.parse(stored.setting_value);
+   if(value&&["weekly","biweekly","monthly"].includes(value.frequency)){
+    const weekday=Number(value.weekday);
+    if(Number.isInteger(weekday)&&weekday>=0&&weekday<=6){
+     const next={frequency:value.frequency,weekday};
+     if(next.frequency==="biweekly"&&bankScheduleDate(value.anchorDate))
+      next.anchorDate=value.anchorDate;
+     else if(next.frequency==="monthly"&&Number.isInteger(value.dayOfMonth)&&value.dayOfMonth>=1&&value.dayOfMonth<=31)
+      next.dayOfMonth=value.dayOfMonth;
+     if(next.frequency==="weekly"||next.anchorDate||next.dayOfMonth)rule=next;
+    }
+   }
+  }catch{}
+ }
+ return {ok:true,schemaVersion:2,supportsRecurrence:true,...rule,
+  dayName:BANK_WEEKDAYS[rule.weekday],timezone:"Asia/Jakarta",
+  nextOccurrence:bankScheduleOccurrence(rule)};
 }
 __name(readBankWeighingDay,"readBankWeighingDay");
 async function bankWeighingDayUpdate(request,env,who){
  const denied=requireRole(who,["superadmin"]);if(denied)return denied;
  if(request.method!=="POST")return safeError("Metode tidak diizinkan.",405);
- let body;try{body=await requestJson(request)}catch{return safeError("Hari penimbangan tidak valid.",400)}
+ let body;try{body=await requestJson(request)}catch{return safeError("Jadwal penimbangan tidak valid.",400)}
+ const frequency=body.frequency??"weekly";
+ if(!["weekly","biweekly","monthly"].includes(frequency))return safeError("Frekuensi jadwal tidak valid.",400);
  const weekday=Number(body.weekday);
- if(!Number.isSafeInteger(weekday)||weekday<0||weekday>6||
-   !/^[0-6]$/.test(String(body.weekday)))return safeError("Pilih hari Senin–Minggu.",400);
+ if(!Number.isSafeInteger(weekday)||weekday<0||weekday>6||!(/^[0-6]$/).test(String(body.weekday)))
+  return safeError("Pilih hari Minggu sampai Sabtu.",400);
+ const rule={frequency,weekday};
+ if(frequency==="biweekly"){
+  if(!bankScheduleDate(body.anchorDate))return safeError("Tanggal penimbangan pertama tidak valid.",400);
+  rule.anchorDate=body.anchorDate;
+  if(bankScheduleDate(body.anchorDate).getUTCDay()!==weekday)
+   return safeError("Hari penimbangan dan tanggal pertama harus sama.",400);
+ }else if(frequency==="monthly"){
+  if(!Number.isSafeInteger(body.dayOfMonth)||body.dayOfMonth<1||body.dayOfMonth>31)
+   return safeError("Tanggal bulanan harus antara 1 dan 31.",400);
+  rule.dayOfMonth=body.dayOfMonth;
+ }
  const current=await readBankWeighingDay(env.DB);
- if(weekday===current.weekday)return json({...current,unchanged:true});
+ const unchanged=current.frequency===rule.frequency&&current.weekday===rule.weekday&&
+  (rule.frequency!=="biweekly"||current.anchorDate===rule.anchorDate)&&
+  (rule.frequency!=="monthly"||current.dayOfMonth===rule.dayOfMonth);
+ if(unchanged)return json({...current,unchanged:true});
  const id="bank-weighing:"+crypto.randomUUID();
+ const statement=(key,value,description)=>env.DB.prepare(
+  "INSERT INTO app_settings(setting_key,setting_value,description,updated_at,updated_by) VALUES(?,?,?,CURRENT_TIMESTAMP,?) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value,description=excluded.description,updated_at=CURRENT_TIMESTAMP,updated_by=excluded.updated_by"
+ ).bind(key,value,description,who.id);
  try{
   await env.DB.batch([
-   env.DB.prepare("INSERT INTO app_settings(setting_key,setting_value,description,updated_at,updated_by) VALUES(?,?,?,CURRENT_TIMESTAMP,?) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value,description=excluded.description,updated_at=CURRENT_TIMESTAMP,updated_by=excluded.updated_by")
-    .bind(BANK_WEIGHING_DAY_KEY,String(weekday),"Hari rutin penimbangan Bank Sampah",who.id),
+   statement(BANK_WEIGHING_DAY_KEY,String(weekday),"Hari acuan penimbangan Bank Sampah"),
+   statement(BANK_WEIGHING_RULE_KEY,JSON.stringify(rule),"Frekuensi dan tanggal penimbangan Bank Sampah"),
    env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'banksampah','ubah_jadwal_penimbangan','app_settings',?,?,?)")
-    .bind("audit:"+id,who.id,BANK_WEIGHING_DAY_KEY,"Perubahan hari rutin penimbangan",JSON.stringify({previous:current.weekday,weekday,dayName:BANK_WEEKDAYS[weekday]}))
+    .bind("audit:"+id,who.id,BANK_WEIGHING_RULE_KEY,"Perubahan jadwal rutin penimbangan",JSON.stringify({previous:current,rule}))
   ]);
  }catch{return safeError("Gagal menyimpan jadwal penimbangan.",500)}
- return json({ok:true,weekday,dayName:BANK_WEEKDAYS[weekday]});
+ return json({ok:true,schemaVersion:2,supportsRecurrence:true,...rule,
+  dayName:BANK_WEEKDAYS[weekday],timezone:"Asia/Jakarta",nextOccurrence:bankScheduleOccurrence(rule)});
 }
 __name(bankWeighingDayUpdate,"bankWeighingDayUpdate");
 // BANK_WEEKLY_WEIGHING_END
