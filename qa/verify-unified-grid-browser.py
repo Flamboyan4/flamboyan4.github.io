@@ -229,9 +229,22 @@ async def main():
                           (w<=680?reason.top>=proof.bottom:
                             Math.abs(proof.top-reason.top)<=1 &&
                             Math.abs(proofLabel.top-reasonLabel.top)<=1);
+                        const heading=one('#saleForm .f4-entry-goods-heading h3');
+                        const addKind=one('#saleForm .f4-entry-goods-heading button');
+                        const paymentLabel=one('label[for="saleStatus"]');
+                        const paymentSelect=one('#saleStatus');
+                        const receivedControl=one('#saleReceived');
+                        const goodsControl=one('#saleItems .f4-compact-sale-row>select');
+                        const desktopAlignmentOk=w<1024||(
+                          close(heading.top,paymentLabel.top) &&
+                          close(addKind.top,paymentSelect.top) &&
+                          close(goodsControl.top,receivedControl.top) &&
+                          close(summary.top,proofLabel.top)
+                        );
                         return {gridOk,topDepositOk,topSaleOk,paymentsOk,layoutOk,responsiveOk,
                             baseLineOk,priorityOk,deleteOk,entryControlsOk,noteFieldsOk,
-                            ownFieldsOk,unframedOk,desktopPanelOk,ownDate,ownMoney,
+                            desktopAlignmentOk,heading,addKind,paymentLabel,paymentSelect,
+                            goodsControl,receivedControl,ownFieldsOk,unframedOk,desktopPanelOk,ownDate,ownMoney,
                             saleFormBounds:one('#saleForm'),
                             submitBounds:one('#saleForm>button[type=submit]'),
                             controlHeights,customPickerOk,nativeSelect,proof,reason,proofLabel,reasonLabel,
@@ -243,7 +256,8 @@ async def main():
                               ('gridOk','topDepositOk','topSaleOk','paymentsOk',
                                'layoutOk','responsiveOk','baseLineOk',
                                'priorityOk','deleteOk','entryControlsOk','noteFieldsOk',
-                               'ownFieldsOk','unframedOk','desktopPanelOk')))
+                               'ownFieldsOk','unframedOk','desktopPanelOk',
+                               'desktopAlignmentOk')))
                     results.append({'page':'/qa/fixtures/bank-entry-grid.html',
                         'size':name,'passed':good,**state})
                 except Exception as e:
@@ -273,8 +287,19 @@ async def main():
                         const buttons=[...get('f4BankAdminOperations').children].map(rect);
                         const same=(x,y)=>Math.abs(x-y)<=2;
                         const desktop=window.innerWidth>=1024;
+                        const small=window.innerWidth<=420;
                         const cardOk=buttons.length===2&&buttons.every(x=>x.w>100) &&
-                            same(buttons[0].y,buttons[1].y)&&same(buttons[0].h,buttons[1].h);
+                            (small?buttons[1].y>=buttons[0].bottom:
+                              same(buttons[0].y,buttons[1].y)&&same(buttons[0].h,buttons[1].h));
+                        const actions=[...get('f4BankAdminOperations').children];
+                        const focalOk=actions.every(b=>{
+                            const svg=b.querySelector('.f4-bank-admin-operation-icon svg');
+                            const title=b.querySelector('.f4-bank-admin-operation-copy strong');
+                            const detail=b.querySelector('.f4-bank-admin-operation-copy small');
+                            return !!svg&&!!title&&!!detail&&rect(svg).w>=20&&
+                              b.querySelector('.f4-bank-admin-operation-arrow')!==null;
+                        }) && getComputedStyle(actions[0]).backgroundImage.includes('gradient') &&
+                             rect(actions[0]).h>=76;
                         const grouped=desktop?
                             (same(hero.y,mini.y)&&same(follow.y,recent.y) &&
                              same(a.x,hero.x)&&
@@ -287,13 +312,13 @@ async def main():
                         const owners=desktop?areas.includes('"intro intro intro intro"') &&
                             areas.includes('"next next recent recent"'):true;
                         const overflow=document.documentElement.scrollWidth>window.innerWidth+2;
-                        return {desktop,cardOk,grouped,owners,overflow,
+                        return {desktop,cardOk,focalOk,grouped,owners,overflow,
                           actions:a,hero,mini,follow,recent,
                           nav:{width:tabs.clientWidth,scrollWidth:tabs.scrollWidth},
                           areas};
                     }""")
                     good=(response is not None and response.status==200 and
-                          state['cardOk'] and state['grouped'] and state['owners'] and
+                          state['cardOk'] and state['focalOk'] and state['grouped'] and state['owners'] and
                           not state['overflow'])
                     results.append({'page':'/qa/fixtures/bank-admin-operational.html',
                         'size':name,'passed':good,**state})
