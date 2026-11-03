@@ -1880,3 +1880,26 @@ body.f4-bank-app-admin #sideNav #v16NavList>.v16-item.f4-back-account{display:no
 #pageLaporan .v33-report-range-end{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;font-size:12px;color:#526d5b}
 #pageLaporan .v33-report-range-end[hidden]{display:none}
 #pageLaporan .v33-report-range-end input{max-width:190px;min-height:40px;min-width:0;border:1px solid #c7dacf;border-radius:9px;padding:7px 10px;background:#fff;color:#244a34;font:inherit}
+
+/* Pengelola PC: shortcut mandiri, bukan menu kelompok yang tersembunyi. */
+@media (min-width:1024px){
+ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
+  padding:18px 20px;gap:14px;max-width:100%;
+ }
+ body.f4-bank-app-admin .f4-bank-admin-shortcut-grid{
+  grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;
+ }
+ body.f4-bank-app-admin .f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut{
+  min-height:104px;gap:10px;padding:14px 8px;
+  border:1px solid #dbe9df;background:#fff;
+  font-size:13px;border-radius:14px;
+ }
+ body.f4-bank-app-admin .f4-bank-admin-shortcut-icon{
+  width:44px;height:44px;flex-basis:44px;
+ }
+}
+@media (min-width:1440px){
+ body.f4-bank-app-admin .f4-bank-admin-shortcut-grid{
+  grid-template-columns:repeat(5,minmax(0,1fr));
+ }
+}
