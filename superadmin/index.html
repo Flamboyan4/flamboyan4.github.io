@@ -18,14 +18,14 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #76
 #f4-account-page>main{max-width:none;width:100%;padding:66px 22px 30px;overflow-y:auto;overflow-x:hidden;min-width:0}
 .f4-sa-brand{display:flex;gap:10px;align-items:center;padding:12px 8px 15px;border-bottom:1px solid var(--edge);margin-bottom:11px}
 .f4-sa-logo{height:42px;width:42px;object-fit:contain}.f4-sa-brand strong{display:block;font-size:14px;color:var(--navy)}.f4-sa-brand small{display:block;font-size:10px;color:var(--muted)}
-.f4-sa-label{font-size:10px!important;color:#8196a8!important;text-transform:uppercase;letter-spacing:.09em;padding:11px 10px 5px!important}
+.f4-sa-label{font-size:10px;color:#8196a8;text-transform:uppercase;letter-spacing:.09em;padding:11px 10px 5px}
 #f4-account-page>aside button{width:100%;min-height:42px;text-align:left;border:0;border-radius:10px;background:transparent;padding:10px 11px;color:#28516d;font-size:12px;font-weight:700}
 #f4-account-page>aside button.active,#f4-account-page>aside button:hover{background:var(--tint);color:#125080}
 #f4-account-page>aside .f4-sa-subtitle{margin-top:13px;border-top:1px solid var(--edge)}
 #f4-account-page>main h2{font-size:25px;margin:0 0 5px;font-weight:850;color:var(--navy)}
 #f4-account-page>main p{margin:5px 0 16px;color:var(--muted)}
 .f4-work-heading{border-bottom:1px solid var(--edge);padding-bottom:14px;margin-bottom:18px}
-.f4-work-heading h2{font-size:24px!important}
+.f4-work-heading h2{font-size:24px}
 .f4-work-section,.f4-admin-controls,.sa-card{background:white;border:1px solid var(--edge);border-radius:14px;padding:17px}
 .sa-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--f4-grid-gap,16px);margin:16px 0}
 .sa-card small{display:block;color:var(--muted);font-size:11px}.sa-card strong{display:block;font-size:22px;color:var(--navy);margin-top:6px}.sa-card span{display:block;color:var(--muted);font-size:11px}
@@ -82,7 +82,7 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #76
 @media(max-width:700px){.f4-admin-editor .f4-content-destination{max-width:100%}}
 .f4-warga-form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
 .f4-admin-note,.f4-admin-message{color:#5c7584;font-size:12px}
-.sa-warn{padding:12px;border-radius:10px;background:#fff7ec;color:#83562d!important;border:1px solid #f1dbb9}
+.sa-warn{padding:12px;border-radius:10px;background:#fff7ec;color:#83562d;border:1px solid #f1dbb9}
 .sa-toast{position:fixed;bottom:18px;right:18px;border-radius:12px;padding:12px;background:#173d60;color:#fff;z-index:10;box-shadow:0 7px 22px #112c4422;max-width:320px}
 .sa-back{display:none}
 @media(max-width:760px){
@@ -90,7 +90,7 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #76
  #f4-account-page>aside{position:sticky;top:0;z-index:7;height:auto;max-height:190px;overflow-y:auto;display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;padding:8px;gap:6px;box-shadow:0 2px 8px #112c4415}
  #f4-account-page>aside .f4-sa-brand{min-width:122px;flex:none;margin:0;padding:5px 8px;border:0}
  #f4-account-page>aside .f4-sa-brand img{width:30px;height:30px}
- #f4-account-page>aside .f4-sa-brand small,.f4-sa-label{display:none!important}
+ #f4-account-page>aside .f4-sa-brand small,.f4-sa-label{display:none}
  #f4-account-page>aside button{min-width:125px;width:auto;flex:none;padding:8px;min-height:37px;text-align:center}
  #f4-account-page>aside .f4-sa-subtitle{border:0;margin:0}
  #f4-account-page>main{padding:72px 12px 28px}
@@ -139,10 +139,10 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #76
  #f4-account-page .f4-obligation-scroll{max-width:100%;overflow-x:auto}
 }
 @media(prefers-reduced-motion:reduce){
- html body #f4-account-page>aside{transition:none!important}
+ html body #f4-account-page>aside{transition:none}
 }
 /* Five root menus stay left; only the selected group's submenus become tabs. */
-html body #f4-account-page>aside{overflow-x:hidden!important}
+html body #f4-account-page>aside{overflow-x:hidden}
 #f4-account-page .sa-tabbar{
  position:sticky;top:56px;z-index:3;display:flex;align-items:center;gap:7px;
  padding:10px 1px 12px;margin:-4px 0 16px;background:#eff5f8;
@@ -182,7 +182,7 @@ html body #f4-account-page>aside{overflow-x:hidden!important}
 @media(prefers-reduced-motion:reduce){
  #f4-account-page .sa-tabbar{scroll-behavior:auto}
  #f4-account-page .sa-tabbar button{transition:none}
- #f4-account-page>main>*{animation:none!important}
+ #f4-account-page>main>*{animation:none}
 }
 
 /* Table identity and status layout adapted from original Bank Sampah. */
@@ -314,11 +314,11 @@ html.f4-sa-drawer-lock{overflow:hidden!important}
 /* Label is emphasized, but entered values must remain normal-weight.
    The native controls inherit 650 from their wrapping <label> otherwise. */
 #f4-account-page .f4-admin-editor .f4-admin-fields :is(input:not([type="checkbox"]),select,textarea){
-  font-weight:400!important;
-  letter-spacing:normal!important;
+  font-weight:400;
+  letter-spacing:normal;
 }
 #f4-account-page .f4-admin-editor .f4-admin-fields :is(input,textarea)::placeholder{
-  font-weight:400!important;
+  font-weight:400;
   color:#85929c;
 }
 /* Bagi hasil Bank Sampah terpusat: dua angka, satu input. */
@@ -330,10 +330,10 @@ html.f4-sa-drawer-lock{overflow:hidden!important}
 .sa-bank-split-field>span:first-child{display:block;margin-bottom:7px}
 .sa-bank-split-percent{display:flex;align-items:center;gap:6px;border:1px solid #d5e6db;background:#f3faf5;border-radius:12px;padding:0 12px;color:#2f764e}
 .sa-bank-split-field:first-child .sa-bank-split-percent{border-color:#b5dbc3;background:#eaf7ee}
-.sa-bank-split-percent input{display:block;width:100%;min-width:0;height:55px;background:transparent!important;border:0!important;box-shadow:none!important;padding:7px 0!important;color:#194b34!important;font-size:27px!important;font-weight:850!important;text-align:center}
+#f4-account-page .sa-bank-split .sa-bank-split-percent input{display:block;width:100%;min-width:0;height:55px;background:transparent;border:0;box-shadow:none;padding:7px 0;color:#194b34;font-size:27px;font-weight:850;text-align:center}
 .sa-bank-split-percent input:focus{outline:0}
 .sa-bank-split-percent:focus-within{outline:2px solid #d69a16;outline-offset:2px}
-.sa-bank-split-percent input[readonly]{color:#657f6b!important;cursor:default}
+#f4-account-page .sa-bank-split-percent input[readonly]{color:#657f6b;cursor:default}
 .sa-bank-split-percent b{font-size:17px}
 .sa-bank-split-example{margin-top:13px;padding:12px;border-radius:11px;background:#fff8e7;border:1px solid #f2dfaa;color:#705213}
 .sa-bank-split-example strong{font-size:12px}
@@ -342,7 +342,7 @@ html.f4-sa-drawer-lock{overflow:hidden!important}
 .sa-bank-split-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .sa-bank-split-actions>button{min-height:42px}
 .sa-bank-split-status{margin:10px 0 0;font-size:12px;line-height:1.5;color:#3d6b4c}
-@media(max-width:520px){.sa-bank-split{padding:15px}.sa-bank-split-fields{gap:8px}.sa-bank-split-percent input{height:47px;font-size:23px!important}.sa-bank-split-actions>button{flex:1}}
+@media(max-width:520px){.sa-bank-split{padding:15px}.sa-bank-split-fields{gap:8px}#f4-account-page .sa-bank-split .sa-bank-split-percent input{height:47px;font-size:23px}.sa-bank-split-actions>button{flex:1}}
 
 </style>
 
