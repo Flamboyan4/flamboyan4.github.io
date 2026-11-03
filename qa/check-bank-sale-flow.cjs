@@ -20,7 +20,7 @@ assert(worker.includes('saleNumber="BSF4-J-"'),'Sale number prefix missing');
 assert(sheet.includes('POST')&&sheet.includes('action:"prepare"'),'Worksheet preparation missing');
 assert(sheet.includes('Siapkan & Cetak Lembar'),'Printable worksheet missing');
 assert(sheet.includes('lastPrice'),'Last lapak price should be editable suggestion only');
-assert(handover.includes('const docCode=String(officialNumber'),'Nota must prefer the official sale-sheet number');
+assert(handover.includes("const docCode='BSF4-J-'"),'Receipt number must be derived from the same immutable D1 batch label as sale-sheet');
 assert(page.includes('F4SaleHandover?.({id:result.id,saleNumber:number})'),'Post-sale receipt must print with official number before approval');
 assert(page.includes("v8PendingBatch=batch;goPage('pengesahan')"),'Saved sale must link to approval without new navigation menu');
 assert((page.match(/async function submitSale\(e\)/g)||[]).length===1,'There must be exactly one sale-submit handler');
