@@ -3751,10 +3751,9 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   }
   v15UpdatePublicButton();
   // v16: satu menu utama per kategori; submenu ditampilkan sebagai tab konten.
-  // Satu halaman per menu pengurus: kategori tidak bersarang lagi.
-  // Navigasi HP memakai dock + Akses Cepat; PC memakai kategori ini sebagai sidebar.
-  // Six operational categories. Detailed routes live in local tabs, not duplicated in the sidebar.
-  const v16AdminPrimary=new Set(['home','deposit','sale','finance','management','report']);
+  // Keanggotaan grup dipertahankan untuk pemetaan rute dan fitur, tetapi sidebar
+  // pengelola hanya berisi tiga navigasi utama; fitur lain melalui Akses Cepat.
+  const v16AdminSidebar=new Set(['home','deposit','sale']);
   const v16Groups=[
     {id:'home',label:'Beranda',icon:'home',admin:true,member:true,tabs:[['dashboard','Beranda']]},
     {id:'deposit',label:'Setoran',icon:'edit',admin:true,tabs:[['setoran','Catat setoran'],['bank-admin-history','Riwayat setoran']]},
@@ -3820,7 +3819,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       const list=document.createElement('div');list.id='v16NavList';list.className='v16-nav-list';nav.append(label,list);brand.after(nav);
     }
     const list=$('v16NavList');list.replaceChildren();
-    v16Groups.filter(g=>/admin/i.test(String(profile?.peran||''))?(g.admin&&g.id!=='expenses'):g.member).forEach(g=>{
+    v16Groups.filter(g=>/admin/i.test(String(profile?.peran||''))?(g.admin&&v16AdminSidebar.has(g.id)):g.member).forEach(g=>{
       const b=document.createElement('button');b.type='button';b.className='v16-item';b.dataset.group=g.id;
       const symbol=v16Icon(g.icon);
       b.append(symbol,document.createTextNode(g.label));
@@ -3845,8 +3844,8 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
      };
       list.appendChild(b);
     });
-    // Menu samping hanya menampilkan kategori yang belum tersedia di dock bawah.
-    // Riwayat, pengesahan, cek selisih dan pengeluaran tetap di tab kategori masing-masing.
+    // Akses Cepat membuka fitur langsung: tidak menyalin Keuangan, Pengelolaan,
+    // Riwayat, dan Laporan ke sidebar pengelola. Navigasi warga tidak berubah.
     if(!$('v16Tabs')){
       const tabs=document.createElement('div');tabs.id='v16Tabs';tabs.className='v16-tabs hidden';
       const section=$('dashboardView').querySelector('.section');section.querySelector(':scope > .toolbar').after(tabs);
@@ -3867,9 +3866,9 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     });
     document.body.dataset.f4BankSection=group?.id||'account';
     tabs.replaceChildren();
-    // Mobile manager pages open directly from their own Akses Cepat entry.
-    // Keep desktop subnavigation and member controls unchanged.
-    if(/admin/i.test(String(profile?.peran||''))&&window.matchMedia('(max-width:1023px)').matches){
+    // Setiap laman pengelola berdiri sendiri di PC dan HP.
+    // Jangan munculkan tab kategori kedua yang menduplikasi Akses Cepat.
+    if(/admin/i.test(String(profile?.peran||''))){
       tabs.classList.add('hidden');return;
     }
     if(!group||group.tabs.length<2){tabs.classList.add('hidden');return;}
