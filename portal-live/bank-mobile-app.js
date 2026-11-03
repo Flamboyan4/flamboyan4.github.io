@@ -1678,6 +1678,11 @@ function resetRoleSurface(){
  for(const id of ["f4BankAdminOperations","f4BankAdminShortcuts","f4BankAdminNext"]){$(id)?.remove();}
  $("f4BankAdminBack")?.setAttribute("hidden","");
  $("f4BankPageGreeting")?.removeAttribute("hidden");
+ const menu=$("f4-mobile-menu");
+ if(menu){
+  menu.replaceChildren(el("span","f4-svg-icon f4-svg-menu"));
+  menu.setAttribute("aria-label","Buka menu halaman");menu.title="Buka menu halaman";
+ }
  $("f4BankProfileDetail")?.remove();
  const history=$("bank-admin-history"),section=$("dashboardView")?.querySelector(".grid > .section");
  for(const id of ["pageRiwayat","pageRiwayatJual"]){
@@ -1857,7 +1862,7 @@ function init(){
  $("f4-mobile-menu")?.addEventListener("click",event=>{
   if(roleType()!=="member")return;
   event.preventDefault();event.stopImmediatePropagation();
-  if(screen!=="dashboard")navigate("dashboard");
+  if(screen!=="dashboard")previousBankPage();
  },true);
  window.addEventListener("f4-account-profile-updated",memberTopIdentity);
  const openPublic=window.v11ShowPublic;
