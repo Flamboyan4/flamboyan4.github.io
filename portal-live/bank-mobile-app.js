@@ -1018,7 +1018,9 @@ function ensureOwnDepositForm(){
   note.append(noteInput);
   const save=el("button","f4-bank-gold-action","Catat ke Kas Bank Sampah");save.type="submit";
   const status=el("p","f4-bank-own-status");status.id="f4BankOwnStatus";status.setAttribute("role","status");
-  form.append(intro,fields,detail,note,save,status);
+  const main=el("div","f4-bank-own-main"),side=el("div","f4-bank-own-side");
+  main.append(detail);side.append(fields,note,save,status);
+  form.append(intro,main,side);
   form.onsubmit=submitOwnDeposit;tabs.after(form);
  }
  chooseOwnMode(ownFormMode);
