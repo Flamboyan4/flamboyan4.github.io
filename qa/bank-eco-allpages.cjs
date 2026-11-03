@@ -30,7 +30,10 @@ assert(!h.includes('v27-banner-program'), 'Obsolete program banner layout must b
 assert(!h.includes('v27CompactProgram'), 'Obsolete program DOM reparenting must be removed');
 assert(h.includes('border:0}').valueOf() || h.includes('background:transparent;border:0'), 'Public program must not use cards');
 assert(css.includes('color:#fff!important;\n border:1px solid #E6A125!important'),'White text on bright gold missing');
-assert(h.includes('#v11Public .v17-public-banner #f4-public-my-savings'), 'Responsive member CTA missing');
+assert(h.includes('#f4-public-my-savings{display:inline-flex') &&
+       h.includes('@media(max-width:700px){#f4-public-my-savings{width:100%;max-width:none;min-height:44px') &&
+       h.includes("getElementById('f4-public-my-savings')"),
+ 'Responsive member CTA missing');
 assert(css.includes('#v11Public .v17-public-banner :is(h1,h2,h3,strong)'),'White title missing');
 assert(css.includes('color:#fff!important'),'Foreground contrast missing');
 assert(!h.includes('.stats .stat:last-child{grid-column:1/-1}'),'Wide last savings card regression');
