@@ -11,8 +11,8 @@ const expected={
  'portal-live/dokumentasi/site.css':2,
  'portal-live/treasury-center.css':0,
  'index.html':0,
- 'bank-sampah/index.html':1322,
- 'pembukuan/index.html':2228,
+ 'bank-sampah/index.html':1288,
+ 'pembukuan/index.html':2175,
  'superadmin/index.html':3,
  'rapat/index.html':177,
  'dokumentasi/index.html':37,
@@ -98,6 +98,10 @@ assert(dashboardCss.includes('body #dashboardView #pageDashboard.f4-member-dashb
   'Canonical member note is missing');
 assert.equal(homeOverrides.split('#f4-private-transactions tbody tr[hidden]{display:none!important}').length-1,1,
   'Duplicate responsive hidden-row override returned');
+// CSS ownership: adjacent legacy overlays are coalesced at their original cascade location.
+const styleCount=source=>(source.match(/<style\\b[^>]*>/gi)||[]).length;
+assert(styleCount(read('pembukuan/index.html'))<=32,'Bookkeeping legacy CSS blocks regressed');
+assert(styleCount(read('bank-sampah/index.html'))<=11,'Bank Sampah legacy CSS blocks regressed');
 const remaining=Object.values(totals).reduce((a,b)=>a+b,0);
 console.log('UNIFIED_GRID_STATIC_OK=1');
 console.log('LEGACY_IMPORTANT_COUNT='+remaining);
