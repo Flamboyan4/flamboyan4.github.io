@@ -525,6 +525,11 @@
     #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric strong{font-size:clamp(11px,3.6vw,15px)}
     #v11Public #v25ReportRoot .v25-report-toolbar select{flex:1 1 100%;min-width:0}
   }
+  /* Layar sempit: dua kartu agar nominal tetap terbaca tanpa ukuran huruf mini. */
+  @media(max-width:360px){
+    #v11Public #v25ReportMetrics.v26-compact{grid-template-columns:repeat(2,minmax(0,1fr))}
+    #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric strong{font-size:14px}
+  }
     .v27-progress-no-photo{width:80px;height:78px;display:grid;place-items:center;border-radius:9px;background:#e2eee3;color:#83a58a;font-size:23px}
   .v27-photo-missing{color:#b57c49!important;font-size:10px!important}
   .v27-cancel-panel{border:1px solid #efcaa9;border-radius:12px;margin-top:22px;background:#fffaf4;padding:15px}
