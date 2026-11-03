@@ -4932,8 +4932,105 @@ function bankSplitRights(received, weights, wargaPercent) {
   return {citizenRightsRp,environmentRp,rights:rights.map(({memberId,amountRp})=>({memberId,amountRp}))};
 }
 __name(bankSplitRights,"bankSplitRights");
+// BANK_V3_RECONCILE_START
+function bankV3Distribute(total,rows,weightKey){
+ if(!Number.isSafeInteger(total)||total<0)throw Error("Jumlah pembagian tidak valid.");
+ const sorted=rows.slice().sort((a,b)=>String(a.id).localeCompare(String(b.id)));
+ const weights=sorted.map(x=>BigInt(x[weightKey]||0));
+ const sum=weights.reduce((n,x)=>n+x,0n),result=new Map(sorted.map(x=>[x.id,0]));
+ if(total===0)return result;
+ if(sum<=0n)throw Error("Bobot stok atau pembagian tidak tersedia.");
+ const units=BigInt(total),ranks=[];
+ for(let i=0;i<sorted.length;i++){
+  const value=units*weights[i],whole=Number(value/sum),rem=value%sum;
+  result.set(sorted[i].id,whole);ranks.push({id:sorted[i].id,rem});
+ }
+ let left=total-[...result.values()].reduce((n,x)=>n+x,0);
+ ranks.sort((a,b)=>a.rem===b.rem?a.id.localeCompare(b.id):(a.rem>b.rem?-1:1));
+ for(let i=0;i<left;i++)result.set(ranks[i].id,result.get(ranks[i].id)+1);
+ return result;
+}
+__name(bankV3Distribute,"bankV3Distribute");
+async function bankV3Preview(db,batchId,prepared){
+ const sales=await list(db,"SELECT id,status,sold_on,amount_received_rp,amount_gross_rp FROM waste_sales WHERE batch_id=? AND status!='dibatalkan'",[batchId]);
+ if(sales.length!==1||sales[0].status!=="draft"||prepared.sale_id!==sales[0].id)
+  throw Error("Penjualan harus tepat satu draft pada kelompok yang disiapkan.");
+ const sale=sales[0];
+ if(await one(db,"SELECT id FROM waste_allocations WHERE batch_id=?",[batchId]))throw Error("Penjualan sudah disahkan.");
+ if(await one(db,"SELECT fiscal_year FROM fiscal_closings WHERE fiscal_year=?",[Number(sale.sold_on.slice(0,4))]))throw Error("Tahun penjualan sudah ditutup.");
+ if(Number(sale.amount_received_rp)!==Number(sale.amount_gross_rp))
+  throw Error("Penjualan belum lunas. Catat pelunasan lapak sebelum mengesahkan hak warga.");
+ const lines=await list(db,"SELECT sl.waste_item_id AS itemId,sl.grams,sl.total_rp AS total,COALESCE(u.unsold_grams,0) AS unsold, u.price_snapshot_rp_per_kg AS citizenRate FROM waste_sale_lines sl LEFT JOIN bank_v3_sale_unsold u ON u.sale_id=sl.sale_id AND u.waste_item_id=sl.waste_item_id WHERE sl.sale_id=?",[sale.id]);
+ if(!lines.length||lines.reduce((n,x)=>n+Number(x.total),0)!==Number(sale.amount_gross_rp))
+  throw Error("Rincian hasil lapak tidak sesuai total.");
+ const lots=await bankV3EligibleLots(db,batchId,true);
+ if(!lots.length)throw Error("Alokasi stok persiapan tidak tersedia.");
+ const linesMap=new Map(lines.map(x=>[x.itemId,x]));
+ const group=new Map();
+ for(const lot of lots){let arr=group.get(lot.waste_item_id);if(!arr){arr=[];group.set(lot.waste_item_id,arr)}arr.push(lot)}
+ if(lines.some(x=>!group.has(x.itemId)))throw Error("Jenis yang dijual tidak ada di lembar persiapan.");
+ const movements=[],rights=new Map();
+ let lossGrams=0,leftoverGrams=0,citizenRevenue=0,totalRevenue=0,estimated=0;
+ for(const [itemId,source] of group){
+  const line=linesMap.get(itemId),planned=source.reduce((n,x)=>n+Number(x.remaining_grams),0);
+  const actual=line?Number(line.grams):0,unsold=line?Number(line.unsold):planned;
+  if(!Number.isSafeInteger(actual)||!Number.isSafeInteger(unsold)||actual<0||unsold<0||actual+unsold>planned)
+   throw Error("Hasil timbang dan sisa stok tidak cocok untuk barang "+itemId);
+  const lost=planned-actual-unsold;lossGrams+=lost;leftoverGrams+=unsold;
+  const soldMap=bankV3Distribute(actual,source.map(x=>({id:x.id,weight:Number(x.remaining_grams)})),"weight");
+  const residual=source.map(x=>({id:x.id,weight:Number(x.remaining_grams)-soldMap.get(x.id)}));
+  const unsoldMap=bankV3Distribute(unsold,residual,"weight");
+  const gross=line?Number(line.total):0;
+  const revenueMap=bankV3Distribute(gross,source.map(x=>({id:x.id,weight:soldMap.get(x.id)})),"weight");
+  totalRevenue+=gross;
+  for(const lot of source){
+   const sold=soldMap.get(lot.id),stock=unsoldMap.get(lot.id),variance=Number(lot.remaining_grams)-sold-stock;
+   const revenue=revenueMap.get(lot.id),member=lot.owner_kind==="member";
+   if(member)citizenRevenue+=revenue;
+   const rate=Number(line?.citizenRate||0);
+   if(member&&prepared.method==="fixed_buy_price"&&sold>0&&(!Number.isSafeInteger(rate)||rate<1))
+    throw Error("Snapshot harga beli belum tersedia untuk "+itemId);
+   const amount=member&&prepared.method==="fixed_buy_price"?
+    Number((BigInt(sold)*BigInt(rate)+500n)/1000n):0;
+   if(!Number.isSafeInteger(amount)||amount<0)throw Error("Harga beli melebihi batas hitung.");
+   movements.push({lotId:lot.id,itemId,memberId:member?lot.member_id:null,
+    ownerKind:lot.owner_kind,plannedGrams:Number(lot.remaining_grams),soldGrams:sold,
+    stockGrams:stock,lossGrams:variance,revenueRp:revenue,rightRp:amount});
+   if(member&&amount>0)rights.set(lot.member_id,(rights.get(lot.member_id)||0)+amount);
+   estimated+=member?Number(lot.remaining_grams):0;
+  }
+ }
+ if(totalRevenue!==Number(sale.amount_gross_rp))throw Error("Alokasi hasil lapak tidak seimbang.");
+ if(prepared.method==="percentage"){
+  const memberRows=movements.filter(x=>x.memberId&&x.revenueRp>0)
+   .map(x=>({id:x.lotId,weight:x.revenueRp}));
+  const target=Number(BigInt(citizenRevenue)*BigInt(prepared.citizen_percent)/100n);
+  const distributed=bankV3Distribute(target,memberRows,"weight");
+  for(const m of movements){
+   if(m.memberId){m.rightRp=distributed.get(m.lotId)||0;rights.set(m.memberId,(rights.get(m.memberId)||0)+m.rightRp)}
+  }
+ }
+ const citizenRightsRp=[...rights.values()].reduce((n,x)=>n+x,0),bankRightsRp=Number(sale.amount_gross_rp)-citizenRightsRp;
+ if(!Number.isSafeInteger(bankRightsRp))throw Error("Kalkulasi kas Bank tidak valid.");
+ // Negatif wajib ditampilkan dan diblokir sampai ada pendanaan rugi yang dapat diaudit.
+ if(bankRightsRp<0)throw Error("Harga beli warga lebih tinggi daripada total penjualan sebesar Rp "+(-bankRightsRp).toLocaleString("id-ID")+". Pengesahan ditahan sampai dana penutup kerugian dicatat.");
+ const batchDeposits=await list(db,"SELECT id FROM waste_deposits WHERE batch_id=? AND status='estimasi' ORDER BY id",[batchId]);
+ return {ok:true,v3:true,batchId,saleId:sale.id,receivedRp:Number(sale.amount_received_rp),grossRp:Number(sale.amount_gross_rp),
+  estimatedRp:estimated,citizenRightsRp,environmentRp:bankRightsRp,bankRightsRp,
+  wargaPercent:Number(prepared.citizen_percent),lingkunganPercent:100-Number(prepared.citizen_percent),
+  policyId:prepared.policy_id,method:prepared.method,remainingRp:bankRightsRp,
+  hasWeightDifference:lossGrams>0,weightDifferenceGrams:lossGrams,remainingStockGrams:leftoverGrams,
+  rights:[...rights].sort(([a],[b])=>a.localeCompare(b)).map(([memberId,amountRp])=>({memberId,amountRp})),
+  depositIds:batchDeposits.map(x=>x.id),movements,
+  warning:"Sisa stok "+(leftoverGrams/1000).toLocaleString("id-ID")+" kg disimpan terpisah dari selisih "+(lossGrams/1000).toLocaleString("id-ID")+" kg. Hak warga berdasarkan "+(prepared.method==="fixed_buy_price"?"harga beli tetap":"bagi hasil "+prepared.citizen_percent+"%")+" yang dibekukan saat penjualan disiapkan."};
+}
+__name(bankV3Preview,"bankV3Preview");
+// BANK_V3_RECONCILE_END
+
 async function reconcilePreview(db, batchId) {
   if (!batchId || typeof batchId!=="string" || batchId.length>120) throw Error("ID batch tidak valid");
+  const v3=await one(db,"SELECT * FROM bank_v3_batches WHERE batch_id=?",[batchId]);
+  if(v3)return bankV3Preview(db,batchId,v3);
   const batch = await one(db,"SELECT id,status FROM waste_batches WHERE id=?",[batchId]);
   if (!batch || !["draft","siap"].includes(batch.status)) throw Error("Batch tidak dapat direkonsiliasi");
   if (await one(db,"SELECT id FROM waste_allocations WHERE batch_id=?",[batchId])) throw Error("Batch sudah direkonsiliasi");
