@@ -8,7 +8,7 @@ const expected={
  'portal-live/portal-polish.css':179,
  'portal-live/home-base.css':82,
  'portal-live/bank-eco-pages.css':323,
- 'portal-live/dokumentasi/site.css':12,
+ 'portal-live/dokumentasi/site.css':2,
  'portal-live/treasury-center.css':0,
  'index.html':0,
  'bank-sampah/index.html':1322,
@@ -79,6 +79,15 @@ assert(bank.includes('class="field f4-field-stack"'),'Bank weighing forms do not
 assert(book.includes('class="f4-field-stack"'),'Bookkeeping report filters do not use aligned field stacks');
 assert(shared.includes('min-height:var(--f4-control-height,42px)'),'Shared visual controls still have divergent 43/44px sizes');
 assert(finance.includes('height:var(--f4-control-height,42px)'),'Treasury form input baseline not unified');
+// Gallery icon controls: owner rules must not be reintroduced with forced priority.
+const galleryCss=read('portal-live/dokumentasi/site.css');
+const iconStart=galleryCss.indexOf('/* Refinement: semua kontrol navigasi');
+const iconEnd=galleryCss.indexOf('.portal-month-controls button{',iconStart);
+assert(iconStart>=0&&iconEnd>iconStart,'Gallery icon control rule missing');
+const iconRule=galleryCss.slice(iconStart,iconEnd);
+assert(!iconRule.includes('!important'),'Legacy priority returned to gallery icon controls');
+assert(iconRule.includes('display:inline-grid;place-items:center;'),'Gallery icon alignment must remain centered');
+assert(galleryCss.includes('[hidden]{display:none!important}'),'Hidden element guard must remain intact');
 const remaining=Object.values(totals).reduce((a,b)=>a+b,0);
 console.log('UNIFIED_GRID_STATIC_OK=1');
 console.log('LEGACY_IMPORTANT_COUNT='+remaining);
