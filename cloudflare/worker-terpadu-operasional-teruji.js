@@ -4558,7 +4558,9 @@ function validatedSalePayload(input) {
     if (!item || item.length > 100 || seen.has(item)) throw Error("Jenis barang kosong atau ganda");
     seen.add(item);
     const grams = Number(line.grams), rate = Number(line.priceRpPerKg);
-    lines.push({ item, grams, rate, total: rupiahSaleLine(grams, rate) });
+    const unsoldGrams=Number(line.unsoldGrams??0);
+    if(!Number.isSafeInteger(unsoldGrams)||unsoldGrams<0||unsoldGrams>10000000)throw Error("Sisa stok (gram) tidak valid");
+    lines.push({ item, grams, rate, unsoldGrams, total: rupiahSaleLine(grams, rate) });
   }
   const gross = lines.reduce((sum, l) => sum + l.total, 0);
   const received = Number(input.receivedRp);
@@ -4603,6 +4605,8 @@ async function saleCreateDraft(request, env, who) {
   } catch (e) {
     return safeError(e.message, 400);
   }
+  const prepared=await one(env.DB,"SELECT * FROM bank_v3_batches WHERE batch_id=?",[input.batchId]);
+  if(prepared)return bankV3SaleDraft(request,env,who,input,prepared);
   const priorId = await env.DB.prepare("SELECT id FROM waste_sales WHERE id=?").bind(input.requestId).first();
   if (priorId) return safeError("Permintaan ini sudah dicatat.", 409);
   const batch = await env.DB.prepare("SELECT status FROM waste_batches WHERE id=?").bind(input.batchId).first();
@@ -4625,6 +4629,50 @@ async function saleCreateDraft(request, env, who) {
   return json({ ok: true, id: input.requestId, status: "draft", grossRp: input.gross, receivedRp: input.received, confirmed: false });
 }
 __name(saleCreateDraft, "saleCreateDraft");
+
+// BANK_V3_DRAFT_START
+async function bankV3SaleDraft(request,env,who,input,prepared){
+ const db=env.DB;
+ if(prepared.sale_id)return safeError("Kelompok ini sudah digunakan untuk penjualan.",409);
+ const lots=await bankV3EligibleLots(db,input.batchId,true);
+ if(!lots.length)return safeError("Stok yang dikunci untuk penjualan tidak ditemukan.",409);
+ const available=new Map();
+ for(const l of lots)available.set(l.waste_item_id,(available.get(l.waste_item_id)||0)+Number(l.remaining_grams));
+ for(const l of input.lines){
+  const stock=available.get(l.item)||0;
+  if(l.grams>stock||l.grams+l.unsoldGrams>stock)
+   return safeError("Berat jual dan stok tersisa untuk "+l.item+" melebihi persiapan lembar timbang.",409);
+ }
+ const prices=new Map();
+ if(prepared.method==="fixed_buy_price"){
+  for(const l of input.lines){
+   const price=await one(db,"SELECT citizen_rate_rp_per_kg AS rate FROM waste_prices WHERE waste_item_id=? AND effective_from<=? ORDER BY effective_from DESC,id DESC LIMIT 1",[l.item,input.soldOn]);
+   if(!price||!Number.isSafeInteger(price.rate)||price.rate<1)
+    return safeError("Harga beli warga belum tersedia untuk jenis "+l.item+" pada tanggal penjualan.",409);
+   prices.set(l.item,price.rate);
+  }
+ }
+ const stmts=[
+  db.prepare("INSERT INTO waste_sales(id,batch_id,sold_on,buyer_name,amount_gross_rp,amount_received_rp,status,created_by) VALUES(?,?,?,?,?,?,'draft',?)")
+   .bind(input.requestId,input.batchId,input.soldOn,input.buyer||null,input.gross,input.received,who.id)
+ ];
+ for(const l of input.lines){
+  stmts.push(db.prepare("INSERT INTO waste_sale_lines(id,sale_id,waste_item_id,grams,actual_rate_rp_per_kg,total_rp) VALUES(?,?,?,?,?,?)")
+   .bind(crypto.randomUUID(),input.requestId,l.item,l.grams,l.rate,l.total));
+  stmts.push(db.prepare("INSERT INTO bank_v3_sale_unsold(sale_id,waste_item_id,unsold_grams,price_snapshot_rp_per_kg) VALUES(?,?,?,?)")
+   .bind(input.requestId,l.item,l.unsoldGrams,prices.get(l.item)??null));
+ }
+ if(input.receiptNo||input.evidenceUrl)stmts.push(db.prepare("INSERT INTO waste_sale_receipts(sale_id,receipt_no,evidence_url,updated_by) VALUES(?,?,?,?)")
+  .bind(input.requestId,input.receiptNo,input.evidenceUrl,who.id));
+ stmts.push(db.prepare("UPDATE bank_v3_batches SET sale_id=CASE WHEN sale_id IS NULL THEN ? ELSE '__SALE_DUPLICATE__' END WHERE batch_id=?")
+  .bind(input.requestId,input.batchId));
+ stmts.push(db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'banksampah','v3_sale_draft','waste_sales',?,?,?)")
+  .bind("audit:bank-v3-draft:"+input.requestId,who.id,input.requestId,input.adjustment||"Hasil lapak dari lembar timbang asli",JSON.stringify({gross:input.gross,received:input.received,unsold:input.lines.map(x=>[x.item,x.unsoldGrams]),policyId:prepared.policy_id,method:prepared.method})));
+ try{await db.batch(stmts)}catch{return safeError("Gagal mencatat hasil lapak; kelompok atau stok mungkin sudah berubah. Tidak ada saldo yang disahkan.",409)}
+ return json({ok:true,id:input.requestId,status:"draft",grossRp:input.gross,receivedRp:input.received,confirmed:false},201);
+}
+__name(bankV3SaleDraft,"bankV3SaleDraft");
+// BANK_V3_DRAFT_END
 
 // Penjualan kolektif: satu nomor dari kelompok, rekap jenis terisi otomatis.
 // Status "siap" membekukan setoran agar lembar yang dibawa ke lapak tidak berubah.
