@@ -1415,7 +1415,7 @@ main > section.card{overflow:visible!important}
 .iuran-quick-title{font-size:14px;line-height:1.15;font-weight:900;color:#2e1065}
 .iuran-quick-period{font-size:11px;line-height:1.15;color:#7c3aed;font-weight:700;margin-top:2px}
 .iuran-quick-note{font-size:10px;line-height:1.1;color:#94a3b8;white-space:nowrap}
-.iuran-quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.iuran-quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--f4-grid-gap-compact,10px)}
 .iuran-summary-tile{min-width:0;border:1px solid #eee9fb;background:#fff;border-radius:11px;padding:8px 9px;display:flex;flex-direction:column;justify-content:center;min-height:58px}
 .iuran-summary-tile span{font-size:10px;line-height:1.05;color:#64748b;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .iuran-summary-tile strong{font-size:14px;line-height:1.12;color:#1e293b;font-weight:900;margin-top:4px;white-space:nowrap;letter-spacing:-.2px}
@@ -1531,7 +1531,7 @@ main > section.card{overflow:visible!important}
 #report-kas-panel .kas-report-period{font-size:12px;font-weight:800;color:#4338ca;margin-top:4px}
 #report-kas-panel .kas-report-badge{flex:none;border:1px solid #ddd6fe;background:#f5f3ff;color:#5b21b6;border-radius:999px;padding:7px 11px;font-size:10px;font-weight:900}
 #report-kas-panel .kas-report-rule{height:3px;background:#1e293b;margin:14px 0 15px}
-#report-kas-panel .kas-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:15px}
+#report-kas-panel .kas-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--f4-grid-gap-compact,10px);margin-bottom:15px}
 #report-kas-panel .kas-summary-card{border:1px solid #dbe1ea;border-radius:10px;padding:12px 13px;background:#fff}
 #report-kas-panel .kas-summary-label{font-size:10px;font-weight:900;color:#64748b;text-transform:uppercase}
 #report-kas-panel .kas-summary-value{font-size:19px;line-height:1.2;font-weight:900;margin-top:7px}
@@ -1810,7 +1810,7 @@ main > section.card{overflow:visible!important}
  #report-arisan-panel .report-card{border-color:#d3dfed!important;border-radius:5px!important}
  #report-arisan-panel td:nth-child(5){font-variant-numeric:tabular-nums!important}
 }
-</style><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261028-hidden-scroll-panel"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+</style><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261103-unified-grid-v1"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 
 <style id="f4-bookkeeping-mobile-density-20261027">
 /* Compact forms only on mobile; no changes to input IDs, calculations or reports. */
@@ -1991,7 +1991,7 @@ main > section.card{overflow:visible!important}
 
     <div id="tab-dashboard" class="tab-panel hidden p-4 sm:p-5">
 
-  <section class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
+  <section class="f4-grid mb-6" data-cols="5">
     <div class="card bg-white rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Total Unit</div><div id="sum-unit" class="text-2xl font-black mt-2">0</div></div>
     <div class="card bg-white rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Dihuni</div><div id="sum-dihuni" class="text-2xl font-black text-violet-700 mt-2">0</div></div>
     <div class="card bg-white rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Rumah Kosong</div><div id="sum-kosong" class="text-2xl font-black text-amber-600 mt-2">0</div></div>
@@ -2110,7 +2110,7 @@ main > section.card{overflow:visible!important}
 
       <div id="kas-status" class="hidden mb-4 rounded-xl border px-4 py-3 text-sm"></div>
 
-      <div class="kas-summary grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+      <div class="kas-summary f4-grid mb-5" data-cols="4">
         <div class="rounded-xl border border-violet-100 bg-violet-50/50 p-4"><div class="text-[10px] font-bold text-slate-400">BELUM DIBUKUKAN</div><div id="kas-count-belum" class="text-2xl font-black text-violet-700 mt-1">0</div></div>
         <div class="rounded-xl border border-violet-100 bg-violet-50/50 p-4"><div class="text-[10px] font-bold text-slate-400">NOMINAL BELUM</div><div id="kas-nominal-belum" class="text-2xl font-black text-violet-700 mt-1">Rp 0</div></div>
         <div class="rounded-xl border border-slate-200 bg-slate-50 p-4"><div class="text-[10px] font-bold text-slate-400">SUDAH DIBUKUKAN</div><div id="kas-count-sudah" class="text-2xl font-black mt-1">0</div></div>
@@ -2361,21 +2361,21 @@ main > section.card{overflow:visible!important}
           <div id="report-arisan-panel" class="hidden">
             <div class="report-letterhead"><img src="https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027-v2" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4 <span class="kop-unit">(HUMAS 3)</span></div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
             <div class="mb-5 text-center"><h2 class="font-black text-2xl text-violet-950">LAPORAN ARISAN WARGA</h2><p id="report-arisan-period" class="text-sm text-slate-500 mt-1"></p></div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5"><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Peserta</div><div id="rep-arisan-peserta" class="text-xl font-black mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sudah Bayar</div><div id="rep-arisan-lunas" class="text-xl font-black text-emerald-700 mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Belum Bayar</div><div id="rep-arisan-belum" class="text-xl font-black text-red-600 mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Terkumpul</div><div id="rep-arisan-total" class="text-xl font-black text-violet-700 mt-2">Rp 0</div></div></div>
+            <div class="f4-grid mb-5" data-cols="4"><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Peserta</div><div id="rep-arisan-peserta" class="text-xl font-black mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sudah Bayar</div><div id="rep-arisan-lunas" class="text-xl font-black text-emerald-700 mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Belum Bayar</div><div id="rep-arisan-belum" class="text-xl font-black text-red-600 mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Terkumpul</div><div id="rep-arisan-total" class="text-xl font-black text-violet-700 mt-2">Rp 0</div></div></div>
             <div class="report-table-wrap overflow-x-auto rounded-2xl border border-violet-100"><table class="w-full text-sm min-w-[820px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center w-14">No</th><th class="p-3 text-left">Nama</th><th class="p-3 text-left">Rumah</th><th class="p-3 text-center">Qty</th><th class="p-3 text-right">Nominal</th><th class="p-3 text-center">Status</th><th class="p-3 text-left">Metode</th></tr></thead><tbody id="report-arisan-tbody" class="divide-y divide-violet-50"><tr><td colspan="7" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody><tfoot class="bg-violet-50 font-black"><tr><td colspan="4" class="p-3 text-right">TOTAL TERKUMPUL</td><td id="report-arisan-foot-total" class="p-3 text-right">Rp 0</td><td colspan="2"></td></tr></tfoot></table></div>
           </div>
 
           <div id="report-denda-panel" class="hidden">
             <div class="report-letterhead"><img src="https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027-v2" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4 <span class="kop-unit">(HUMAS 3)</span></div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
             <div class="mb-5 text-center"><h2 class="font-black text-2xl text-violet-950">LAPORAN DENDA GOROL</h2><p id="report-denda-period" class="text-sm text-slate-500 mt-1"></p></div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5"><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Belum Bayar</div><div id="rep-denda-belum" class="text-xl font-black text-red-600 mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Nominal Belum</div><div id="rep-denda-nominal-belum" class="text-xl font-black text-red-600 mt-2">Rp 0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sudah Bayar</div><div id="rep-denda-lunas" class="text-xl font-black text-emerald-700 mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Pemasukan Denda</div><div id="rep-denda-nominal-lunas" class="text-xl font-black text-violet-700 mt-2">Rp 0</div></div></div>
+            <div class="f4-grid mb-5" data-cols="4"><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Belum Bayar</div><div id="rep-denda-belum" class="text-xl font-black text-red-600 mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Nominal Belum</div><div id="rep-denda-nominal-belum" class="text-xl font-black text-red-600 mt-2">Rp 0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sudah Bayar</div><div id="rep-denda-lunas" class="text-xl font-black text-emerald-700 mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Pemasukan Denda</div><div id="rep-denda-nominal-lunas" class="text-xl font-black text-violet-700 mt-2">Rp 0</div></div></div>
             <div class="report-table-wrap overflow-x-auto rounded-2xl border border-violet-100"><table class="w-full text-sm min-w-[980px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center">No</th><th class="p-3 text-left">Nama</th><th class="p-3 text-left">Rumah</th><th class="p-3 text-left">Kegiatan</th><th class="p-3 text-right">Denda</th><th class="p-3 text-center">Status</th><th class="p-3 text-left">Pembayaran</th></tr></thead><tbody id="report-denda-tbody" class="divide-y divide-violet-50"><tr><td colspan="7" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody></table></div>
           </div>
 
           <div id="report-pinjaman-panel" class="hidden">
             <div class="report-letterhead"><img src="https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027-v2" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4 <span class="kop-unit">(HUMAS 3)</span></div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
             <div class="mb-5 text-center"><h2 class="font-black text-2xl text-violet-950">LAPORAN PINJAMAN WARGA</h2><p id="report-pinjaman-period" class="text-sm text-slate-500 mt-1">Posisi pinjaman terkini</p></div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+            <div class="f4-grid mb-5" data-cols="4">
               <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Pinjaman Aktif</div><div id="rep-pinjaman-aktif" class="text-xl font-black text-amber-700 mt-2">0</div></div>
               <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Total Pinjaman</div><div id="rep-pinjaman-total" class="text-xl font-black mt-2">Rp 0</div></div>
               <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sudah Dibayar</div><div id="rep-pinjaman-dibayar" class="text-xl font-black text-emerald-700 mt-2">Rp 0</div></div>
@@ -2387,7 +2387,7 @@ main > section.card{overflow:visible!important}
           <div id="report-talangan-panel" class="hidden">
             <div class="report-letterhead"><img src="https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027-v2" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4 <span class="kop-unit">(HUMAS 3)</span></div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
             <div class="mb-5 text-center"><h2 class="font-black text-2xl text-violet-950">REKAP TALANGAN IURAN</h2><p id="report-talangan-period" class="text-sm text-slate-500 mt-1"></p></div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+            <div class="f4-grid mb-5" data-cols="4">
               <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Jumlah Talangan</div><div id="rep-talangan-jumlah" class="text-xl font-black mt-2">0</div></div>
               <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Total Talangan</div><div id="rep-talangan-total" class="text-xl font-black mt-2">Rp 0</div></div>
               <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sudah Diganti</div><div id="rep-talangan-diganti" class="text-xl font-black text-emerald-700 mt-2">Rp 0</div></div>
