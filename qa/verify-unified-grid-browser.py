@@ -175,8 +175,24 @@ async def main():
                         const deleteOk=price.right<=deleteButton.left-5 &&
                           deleteButton.right<=saleRow.right+2 &&
                           setRow.right>=depositParts[1].right-2;
+                        const controlHeights=[
+                          one('#setWarga'),one('#setDate'),one('#saleBatch'),
+                          one('#saleDate'),one('#saleLapak')
+                        ];
+                        const entryControlsOk=controlHeights.every(r=>Math.abs(r.height-42)<=1) &&
+                          (w<=600 || Math.abs(controlHeights[0].top-controlHeights[1].top)<=1) &&
+                          (w<=600 || Math.abs(controlHeights[2].top-controlHeights[3].top)<=1);
+                        const proof=one('#saleProof'),reason=one('#saleReason'),
+                            proofLabel=one('label[for="saleProof"]'),
+                            reasonLabel=one('label[for="saleReason"]');
+                        const noteFieldsOk=Math.abs(proof.height-42)<=1 &&
+                          Math.abs(reason.height-42)<=1 &&
+                          (w<=680?reason.top>=proof.bottom:
+                            Math.abs(proof.top-reason.top)<=1 &&
+                            Math.abs(proofLabel.top-reasonLabel.top)<=1);
                         return {gridOk,topDepositOk,topSaleOk,paymentsOk,layoutOk,responsiveOk,
-                            baseLineOk,priorityOk,deleteOk,
+                            baseLineOk,priorityOk,deleteOk,entryControlsOk,noteFieldsOk,
+                            controlHeights,proof,reason,proofLabel,reasonLabel,
                             topDeposit,topSale,payment,summary,
                             saleParts,depositParts,note,viewport:w};
                     }""")
@@ -184,7 +200,7 @@ async def main():
                           all(state[key] for key in
                               ('gridOk','topDepositOk','topSaleOk','paymentsOk',
                                'layoutOk','responsiveOk','baseLineOk',
-                               'priorityOk','deleteOk')))
+                               'priorityOk','deleteOk','entryControlsOk','noteFieldsOk')))
                     results.append({'page':'/qa/fixtures/bank-entry-grid.html',
                         'size':name,'passed':good,**state})
                 except Exception as e:
