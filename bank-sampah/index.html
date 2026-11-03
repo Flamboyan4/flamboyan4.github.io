@@ -211,11 +211,11 @@
     .v17-public-links a:hover{background:#edf5ea;color:#1d613b}
     .v17-public-account{margin-left:auto;flex-shrink:0;width:41px;height:41px;border:1px solid #d8e6d6;border-radius:50%;background:#e6f0e4;color:#27583e;font-weight:850;padding:0;display:grid;place-items:center;overflow:hidden}
     .v17-public-account img{width:100%;height:100%;object-fit:cover}
-    .v17-public-main{--f4-public-grid-gap:15px;max-width:1250px;margin:auto;padding:22px 20px 56px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--f4-public-grid-gap)}
+    .v17-public-main{--f4-public-grid-gap:var(--f4-grid-gap,16px);max-width:1250px;margin:auto;padding:22px 20px 56px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--f4-public-grid-gap)}
     .v17-public-banner{background:#204e38;color:#fff;border-radius:17px;padding:28px;display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,33%);align-items:center;gap:24px}
     .v17-public-banner h1{font-size:27px;margin:6px 0 10px;color:#fff}.v17-public-banner p{font-size:14px;color:#d6e6d8;margin:0;max-width:670px}
     .v17-public-banner .emblem{font-size:70px;opacity:.85}
-    .v17-public-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}
+    .v17-public-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--f4-public-grid-gap);margin:0}
     .v17-public-metric{border:1px solid #dce8da;background:#fff;padding:16px;border-radius:12px}
     .v17-public-metric small{display:block;font-size:12px;color:#758777}.v17-public-metric strong{display:block;font-size:23px;color:#2c5940;margin-top:7px}
     .v17-section{margin-top:20px;scroll-margin-top:85px}.v17-section>h2{font-size:21px;margin:0 0 5px}.v17-section>.v17-subtle{margin:0 0 13px}
@@ -225,7 +225,7 @@
     .v17-timeline strong{display:block;color:#24573d}.v17-timeline small{color:#799080}.v17-timeline p{margin:5px 0;color:#586f60;font-size:12px}
     .v17-albums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
     /* Satu komponen Program publik, terpisah dari hero dan tidak memakai kartu. */
-    #v17Program.f4-bank-program{margin:20px 0 22px;padding:20px 0 0;border-top:1px solid #dce8df;scroll-margin-top:76px;color:#183e2c}
+    #v17Program.f4-bank-program{margin:0;padding:20px 0 0;border-top:1px solid #dce8df;scroll-margin-top:76px;color:#183e2c}
     #v17Program .f4-bank-program-heading{display:flex;align-items:end;justify-content:space-between;flex-wrap:wrap;gap:4px 16px;margin-bottom:16px}
     #v17Program .f4-bank-program-kicker{font-size:10px;line-height:1.4;letter-spacing:.14em;font-weight:850;color:#0b7c52}
     #v17Program .f4-bank-program-heading h2{margin:0;font-size:clamp(18px,2vw,23px);line-height:1.25;color:#124f35}
@@ -320,6 +320,7 @@
     #v19PublicAccountText small{display:block;font-size:10px;font-weight:500;color:#788c7b;margin-top:2px}
     #v11Public #v18PublicContent .v17-public-main{min-width:0;max-width:1180px;width:100%}
     #v11Public .v17-public-main>*{min-width:0;max-width:100%;grid-column:1/-1}
+    #v11Public .v17-public-main>.v17-section{margin-top:0}
     #v11Public .v17-public-metric,#v11Public .v17-feature,#v11Public .v17-panel{min-width:0;max-width:100%;overflow-wrap:anywhere}
     #v19PublicFloatingMenu{display:none}
     @media(max-width:720px){
@@ -342,7 +343,7 @@
       #v18PublicBackdrop.open{z-index:48}
     }
     /* v21: visual gallery + inventory ala portal lama, cards white and leaf green. */
-    .v21-media-layout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--f4-public-grid-gap,15px);align-items:stretch;margin-top:24px}
+    .v21-media-layout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--f4-public-grid-gap,16px);align-items:stretch;margin-top:0}
     .v21-media-layout>.v17-section{margin-top:0;border:1px solid var(--line);border-radius:15px;padding:18px;background:#fff;min-width:0}
     .v21-section-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
     .v21-section-bar h2{font-size:18px;margin:0;color:#254f38}
@@ -380,7 +381,7 @@
     .v21-stage-content{flex:1;min-width:0;display:flex;height:100%;align-items:center;justify-content:center}
     .v21-gallery-count{text-align:center;color:#bfcfc6;font-size:12px;padding:8px}
     @media(max-width:900px){.v21-media-layout{grid-template-columns:1fr}.v21-album-list{grid-template-columns:repeat(2,minmax(0,1fr))}.v21-gallery-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-    @media(max-width:720px){.v21-media-layout{margin-top:18px;gap:12px}.v21-media-layout>.v17-section{padding:13px}.v21-feature-cover{height:205px}
+    @media(max-width:720px){.v21-media-layout{margin-top:0;gap:var(--f4-grid-gap-compact,10px)}.v21-media-layout>.v17-section{padding:13px}.v21-feature-cover{height:205px}
       .v21-modal{padding:9px}.v21-modal-card{max-height:94dvh;border-radius:13px}.v21-modal-body{padding:12px}.v21-modal-head{padding:13px}
       .v21-album-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.v21-gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
       .v21-gallery-tile{height:140px}.v21-album-tile>img,.v21-album-tile>.v21-placeholder{height:105px}
@@ -843,7 +844,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
  body.v17-dashboard:not(.f4-bank-app-private) #dashboardView>.grid>.section{grid-column:2!important;min-width:0!important}
 }
 </style>
-<link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261101-bank-admin-header-align-v2"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+<link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261103-unified-grid-v1"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261101-bank-report-grid-v2">
 
 <style id="f4-bank-admin-report-compact-20261027">
