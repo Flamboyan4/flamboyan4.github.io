@@ -4628,44 +4628,89 @@ __name(saleCreateDraft, "saleCreateDraft");
 
 // Penjualan kolektif: satu nomor dari kelompok, rekap jenis terisi otomatis.
 // Status "siap" membekukan setoran agar lembar yang dibawa ke lapak tidak berubah.
+// BANK_V3_SHEET_START
+// Fresh member deposits are projected until preparation, then immutable member
+// lots are created. Previously unsold member lots and physical Bank lots carry on.
+async function bankV3EligibleLots(db,batchId,ready){
+ if(ready)return list(db,"SELECT l.* FROM bank_v3_inventory_lots l WHERE l.reserved_batch_id=? AND l.remaining_grams>0 ORDER BY l.waste_item_id,l.id",[batchId]);
+ const owned=await list(db,"SELECT l.* FROM bank_v3_inventory_lots l WHERE l.remaining_grams>0 AND l.reserved_batch_id IS NULL AND (l.owner_kind='bank' OR l.source_deposit_id IN (SELECT d.id FROM waste_deposits d JOIN waste_batches b ON b.id=d.batch_id WHERE (d.batch_id=? AND d.status='estimasi') OR (b.status='disahkan' AND EXISTS(SELECT 1 FROM bank_v3_inventory_movements m WHERE m.lot_id=l.id)))) ORDER BY l.waste_item_id,l.id",[batchId]);
+ const fresh=await list(db,"SELECT dl.id AS source_line_id,dl.deposit_id AS source_deposit_id,d.member_id,dl.waste_item_id,dl.grams AS initial_grams,dl.grams AS remaining_grams,d.deposited_on FROM waste_deposit_lines dl JOIN waste_deposits d ON d.id=dl.deposit_id LEFT JOIN bank_v3_inventory_lots l ON l.source_line_id=dl.id WHERE d.batch_id=? AND d.status='estimasi' AND l.id IS NULL ORDER BY dl.id",[batchId]);
+ return owned.concat(fresh.map(x=>({id:"stock:member:"+x.source_line_id,owner_kind:"member",...x,reserved_batch_id:null})));
+}
+__name(bankV3EligibleLots,"bankV3EligibleLots");
 async function bankSaleSheet(request,env,who,url){
-  const denied=requireRole(who,["admin","superadmin"]);if(denied)return denied;
-  const isWrite=request.method==="POST";
-  if(isWrite&&env.BANK_WRITE_ENABLED!=="true")return safeError("Persiapan penjualan belum diaktifkan.",503);
-  let input={};
-  if(isWrite){try{input=await requestJson(request)}catch{return safeError("Input tidak valid.",400)}}
-  const batchId=String(isWrite?input.batchId:url.searchParams.get("batchId")||"").trim();
-  if(!batchId||batchId.length>120)return safeError("Pilih kelompok setoran terlebih dahulu.",400);
-  const batch=await one(env.DB,"SELECT id,label,status FROM waste_batches WHERE id=?",[batchId]);
-  if(!batch||!["draft","siap"].includes(batch.status))return safeError("Kelompok tidak tersedia untuk penjualan.",409);
-  const active=await one(env.DB,"SELECT id FROM waste_sales WHERE batch_id=? AND status!='dibatalkan' LIMIT 1",[batchId]);
-  if(active)return safeError("Kelompok sudah memiliki transaksi penjualan.",409);
-  const lines=await list(env.DB,"SELECT i.id AS itemId,i.name,i.category,COALESCE(SUM(l.grams),0) AS grams,(SELECT sl.actual_rate_rp_per_kg FROM waste_sale_lines sl JOIN waste_sales s ON s.id=sl.sale_id WHERE sl.waste_item_id=i.id AND s.status='terkonfirmasi' ORDER BY s.sold_on DESC,sl.id DESC LIMIT 1) AS lastPrice FROM waste_deposits d JOIN waste_deposit_lines l ON l.deposit_id=d.id JOIN waste_items i ON i.id=l.waste_item_id WHERE d.batch_id=? AND d.status='estimasi' GROUP BY i.id,i.name,i.category HAVING SUM(l.grams)>0 ORDER BY i.category,i.name",[batchId]);
-  if(!lines.length)return safeError("Belum ada setoran untuk kelompok ini.",409);
-  const count=await one(env.DB,"SELECT COUNT(*) AS n FROM waste_deposits WHERE batch_id=? AND status='estimasi'",[batchId]);
-  if(isWrite){
-    if(input.action==="reopen"){
-      if(batch.status==="siap"){
-        const updated=await env.DB.prepare("UPDATE waste_batches SET status='draft' WHERE id=? AND status='siap' AND NOT EXISTS(SELECT 1 FROM waste_sales WHERE batch_id=? AND status!='dibatalkan') AND NOT EXISTS(SELECT 1 FROM waste_allocations WHERE batch_id=?)").bind(batchId,batchId,batchId).run();
-        if(updated.meta?.changes!==1)return safeError("Persiapan tidak dapat dibuka lagi.",409);
-        await env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason) VALUES(?,?,'banksampah','reopen_sale_sheet','waste_batches',?,?)").bind(crypto.randomUUID(),who.id,batchId,"Buka kembali setoran sebelum penjualan").run();
-      }
-      return json({ok:true,batchId,status:"draft"});
-    }
-    if(input.action!=="prepare")return safeError("Aksi persiapan tidak dikenal.",400);
-    if(batch.status==="draft"){
-      const updated=await env.DB.prepare("UPDATE waste_batches SET status='siap' WHERE id=? AND status='draft' AND EXISTS(SELECT 1 FROM waste_deposits d WHERE d.batch_id=? AND d.status='estimasi') AND NOT EXISTS(SELECT 1 FROM waste_sales s WHERE s.batch_id=? AND s.status!='dibatalkan')").bind(batchId,batchId,batchId).run();
-      if(updated.meta?.changes!==1)return safeError("Kelompok berubah. Perbarui data sebelum mencetak.",409);
-      await env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason) VALUES(?,?,'banksampah','prepare_sale_sheet','waste_batches',?,?)").bind(crypto.randomUUID(),who.id,batchId,"Menyiapkan lembar timbang kolektif").run();
-    }
+ const denied=requireRole(who,["admin","superadmin"]);if(denied)return denied;
+ const write=request.method==="POST",db=env.DB;
+ if(write&&env.BANK_WRITE_ENABLED!=="true")return safeError("Persiapan belum diaktifkan.",503);
+ let input={};
+ if(write){try{input=await requestJson(request)}catch{return safeError("Input tidak valid.",400)}}
+ const batchId=String(write?input.batchId:url.searchParams.get("batchId")||"").trim();
+ if(!batchId||batchId.length>120)return safeError("Pilih kelompok setoran.",400);
+ const batch=await one(db,"SELECT id,label,status FROM waste_batches WHERE id=?",[batchId]);
+ if(!batch||!["draft","siap"].includes(batch.status))return safeError("Kelompok tidak tersedia untuk penjualan.",409);
+ const active=await one(db,"SELECT id FROM waste_sales WHERE batch_id=? AND status!='dibatalkan' LIMIT 1",[batchId]);
+ if(active)return safeError("Kelompok sudah memiliki penjualan aktif.",409);
+ let reserved=await one(db,"SELECT batch_id,method,citizen_percent,policy_id FROM bank_v3_batches WHERE batch_id=?",[batchId]);
+ if(write&&input.action==="reopen"){
+  if(batch.status==="siap"){
+   if(reserved){
+    try{await db.batch([
+     db.prepare("UPDATE bank_v3_inventory_lots SET reserved_batch_id=NULL WHERE reserved_batch_id=?").bind(batchId),
+     db.prepare("DELETE FROM bank_v3_batches WHERE batch_id=? AND sale_id IS NULL").bind(batchId),
+     db.prepare("UPDATE waste_batches SET status='draft' WHERE id=? AND status='siap'").bind(batchId),
+     db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason) VALUES(?,?,'banksampah','reopen_v3_sheet','waste_batches',?,?)").bind(crypto.randomUUID(),who.id,batchId,"Buka kembali persiapan sebelum penjualan")
+    ])}catch{return safeError("Tidak dapat membuka kembali persiapan.",409)}
+   }else{
+    const result=await db.prepare("UPDATE waste_batches SET status='draft' WHERE id=? AND status='siap' AND NOT EXISTS(SELECT 1 FROM waste_sales WHERE batch_id=? AND status!='dibatalkan')").bind(batchId,batchId).run();
+    if(result.meta?.changes!==1)return safeError("Kelompok sudah berubah.",409);
+   }
   }
-  // Nomor pendek deterministik mengikuti batch; tidak berubah saat hasil lapak diisi.
-  const saleNumber="BSF4-J-"+String(batch.label||batch.id).replace(/[^A-Za-z0-9-]/g,"").slice(0,48).toUpperCase();
-  return json({ok:true,batchId,saleNumber,status:isWrite?"siap":batch.status,depositCount:Number(count?.n||0),
-    totalGrams:lines.reduce((n,x)=>n+Number(x.grams||0),0),
-    lines:lines.map(x=>({itemId:x.itemId,name:x.name,category:x.category,grams:Number(x.grams),lastPrice:Number(x.lastPrice||0)}))});
+  return json({ok:true,batchId,status:"draft"});
+ }
+ if(write&&input.action!=="prepare")return safeError("Aksi persiapan tidak dikenal.",400);
+ if(write&&!reserved){
+  const lots=await bankV3EligibleLots(db,batchId,false);
+  if(!lots.length)return safeError("Tidak ada stok tersedia untuk kelompok penjualan.",409);
+  const policy=await bankV3CurrentPolicy(db);
+  const stmts=[];
+  for(const lot of lots.filter(x=>x.source_line_id&&!x.created_by)){
+   stmts.push(db.prepare("INSERT OR IGNORE INTO bank_v3_inventory_lots(id,owner_kind,member_id,source_deposit_id,source_line_id,request_key,waste_item_id,deposited_on,initial_grams,remaining_grams,created_by) VALUES(?,'member',?,?,?,?,?,?,?,?,?)")
+    .bind(lot.id,lot.member_id,lot.source_deposit_id,lot.source_line_id,null,lot.waste_item_id,lot.deposited_on,lot.initial_grams,lot.remaining_grams,who.id));
+  }
+  stmts.push(db.prepare("INSERT INTO bank_v3_batches(batch_id,policy_id,method,citizen_percent,prepared_by) VALUES(?,?,?,?,?)").bind(batchId,policy.policyId,policy.method,policy.wargaPercent,who.id));
+  stmts.push(db.prepare("UPDATE waste_batches SET status='siap' WHERE id=? AND status IN ('draft','siap') AND NOT EXISTS(SELECT 1 FROM waste_sales WHERE batch_id=? AND status!='dibatalkan')").bind(batchId,batchId));
+  for(const lot of lots)stmts.push(db.prepare("UPDATE bank_v3_inventory_lots SET reserved_batch_id=CASE WHEN remaining_grams=? AND reserved_batch_id IS NULL THEN ? ELSE '__LOCK_FAILURE__' END WHERE id=?")
+   .bind(lot.remaining_grams,batchId,lot.id));
+  stmts.push(db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'banksampah','prepare_v3_sale_sheet','waste_batches',?,?,?)")
+   .bind("audit:bank-v3-sheet:"+batchId,who.id,batchId,"Mengunci stok penjualan kolektif",JSON.stringify({policy,lotIds:lots.map(x=>x.id)})));
+  try{await db.batch(stmts)}catch{return safeError("Stok berubah atau sudah disiapkan transaksi lain. Muat ulang lembar.",409)}
+  reserved=await one(db,"SELECT batch_id,method,citizen_percent,policy_id FROM bank_v3_batches WHERE batch_id=?",[batchId]);
+ }
+ const ready=!!reserved;
+ const lots=await bankV3EligibleLots(db,batchId,ready);
+ const sums=new Map();
+ for(const l of lots){
+  let x=sums.get(l.waste_item_id);if(!x){x={itemId:l.waste_item_id,grams:0,bankGrams:0,memberGrams:0};sums.set(l.waste_item_id,x)}
+  const n=Number(l.remaining_grams);x.grams+=n;
+  if(l.owner_kind==="bank")x.bankGrams+=n;else x.memberGrams+=n;
+ }
+ const items=await list(db,"SELECT id,name,category FROM waste_items WHERE active=1",[]);
+ const catalog=new Map(items.map(i=>[i.id,i]));
+ const lines=await Promise.all([...sums.values()].map(async x=>{
+  const item=catalog.get(x.itemId);
+  const last=await one(db,"SELECT sl.actual_rate_rp_per_kg AS price FROM waste_sale_lines sl JOIN waste_sales s ON s.id=sl.sale_id WHERE sl.waste_item_id=? AND s.status='terkonfirmasi' ORDER BY s.sold_on DESC,sl.id DESC LIMIT 1",[x.itemId]);
+  return {...x,name:item?.name||x.itemId,category:item?.category||"",lastPrice:Number(last?.price||0)};
+ }));
+ lines.sort((a,b)=>a.category.localeCompare(b.category)||a.name.localeCompare(b.name));
+ const count=await one(db,"SELECT COUNT(*) AS n FROM waste_deposits WHERE batch_id=? AND status='estimasi'",[batchId]);
+ const saleNumber="BSF4-J-"+String(batch.label||batch.id).replace(/[^A-Za-z0-9-]/g,"").slice(0,48).toUpperCase();
+ return json({ok:true,batchId,saleNumber,status:ready?"siap":batch.status,depositCount:Number(count?.n||0),
+  totalGrams:lines.reduce((n,x)=>n+x.grams,0),bankGrams:lines.reduce((n,x)=>n+x.bankGrams,0),
+  memberGrams:lines.reduce((n,x)=>n+x.memberGrams,0),policyMethod:reserved?.method||null,
+  lines});
 }
 __name(bankSaleSheet,"bankSaleSheet");
+// BANK_V3_SHEET_END
 
 // Catat pelunasan pada draft penjualan; tidak pernah mengubah transaksi yang telah sah.
 async function bankSalePayment(request,env,who){
