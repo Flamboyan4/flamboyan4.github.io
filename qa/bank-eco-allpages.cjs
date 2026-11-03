@@ -78,13 +78,15 @@ assert(!h.includes('max-height:310px!important;overflow-y:auto!important'),'Old 
 // Mobile Bank Sampah controls must not regress into the three bugs in the 31 Oct report.
 assert(!dockSection.includes('transform:translateY(-8px)'),'Center caption must not overlap gold action');
 assert(dockSection.includes('transform:translateY(-21px)'),'Raised central icon geometry changed');
-// Current admin HP has dock + shortcut grid, not a redundant drawer.
-const adminMobile=css.split('/* Pengurus HP tidak memakai drawer sama sekali:')[1]
+// Admin HP keeps five primary dock routes; the slide drawer holds supporting categories.
+const adminMobile=css.split('/* Pengelola HP: menu slide untuk Keuangan dan Pengelolaan;')[1]
   ?.split('@media screen and (max-width:760px)')[0];
 assert(adminMobile,'Admin mobile navigation owner missing');
-assert(adminMobile.includes('html body.f4-bank-app-admin.v17-dashboard #sideNav.side') &&
-       adminMobile.includes('display:none;visibility:hidden;pointer-events:none'),
- 'Admin mobile drawer must remain hidden');
+assert(adminMobile.includes('html body.f4-bank-app-admin.v17-dashboard #sideNav.side.open') &&
+       adminMobile.includes('transform:translateX(0);visibility:visible;pointer-events:auto'),
+ 'Admin mobile slide drawer must open, not remain forcibly hidden');
+assert(adminMobile.includes('html body.f4-bank-app-admin #v16Backdrop.open'),
+ 'Admin slide backdrop must open with the drawer');
 assert(css.includes('.f4-bank-admin-shortcut-grid{'),'Admin shortcut grid missing');
 assert(h.includes("const v16AdminPrimary=new Set(['home','deposit','sale','finance','management','report']);"),
  'Six admin sidebar categories missing');
