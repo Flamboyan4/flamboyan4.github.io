@@ -1876,9 +1876,14 @@ function updateProfileCard(){
  inlineMemberDisplayName();
 }
 function acceptMemberStatement(event){
- if(roleType()!=="member")return;
+ if(roleType()!=="member"||$("dashboardView")?.classList.contains("hidden"))return;
  const data=event?.detail;
  if(!data||!Array.isArray(data.mutasi)||!Array.isArray(data.setoran))return;
+ // Reject a delayed response from a different member after logout/login.
+ const normalize=id=>String(id||"").trim().replace(/^member:/i,"");
+ const expected=normalize($("pId")?.textContent);
+ const received=normalize(data.wargaId||data.memberId||data.member_id);
+ if(!received||!expected||expected==="Administrator"||received!==expected)return;
  memberStatement=data;
  updateCardNumber();updateDashboard();syncSavings();
 }
