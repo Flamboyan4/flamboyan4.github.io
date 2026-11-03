@@ -1211,9 +1211,9 @@ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
  border:1px solid #dbe9df;border-radius:16px
 }
 .f4-bank-admin-shortcuts>h2{margin:0;font-size:16px;font-weight:850;color:#174c33}
-/* Two supporting work areas on phones; the primary actions are above the KPI strip. */
+/* Eight quick actions in 4 balanced columns; Setor/Jual stay focal above. */
 .f4-bank-admin-shortcut-grid{
- display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
  gap:8px;align-items:stretch
 }
 .f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut{
@@ -1290,7 +1290,7 @@ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
 }
 @media(max-width:1023px){
  body.f4-bank-app-admin .f4-bank-admin-shortcut-grid{
-  grid-template-columns:repeat(2,minmax(0,1fr))
+  grid-template-columns:repeat(4,minmax(0,1fr))
  }
  body.f4-bank-app-admin #dashboardView #v16Tabs.v16-tabs:not(.hidden){
   display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;
@@ -1507,6 +1507,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
 @media(max-width:1023px){
  /* Ukuran dock identik untuk anggota dan pengurus; satu variabel untuk ruang konten. */
  body.f4-bank-app-private{--f4-bank-dock-height:64px}
+ body.f4-bank-app-admin{--f4-bank-dock-height:0px}
  body.f4-bank-app-private #dashboardView{padding-bottom:calc(var(--f4-bank-dock-height) + 8px)}
  body.f4-bank-app-private #pageDashboard.f4-member-dashboard{padding:0}
  body.f4-bank-app-private #pageDashboard :is(.v14-head){display:none}
@@ -1580,7 +1581,20 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  }
  body.f4-bank-drawer-open{overscroll-behavior-y:contain}
 }
-/* Drawer is a complementary mobile navigation; dock routes stay only in bottom bar. */
+/* One admin back control, visible on secondary screens only. */
+.f4-bank-admin-back{display:none}
+@media(max-width:1023px){
+ body.f4-bank-app-admin #dashboardView .f4-bank-admin-back:not([hidden]){
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  background:transparent;color:#176342;padding:7px 10px;margin:2px 0 12px;
+  min-height:36px;font-size:13px;font-weight:750;border-radius:9px
+ }
+ body.f4-bank-app-admin #dashboardView .f4-bank-admin-back svg{
+  width:18px;height:18px;stroke:currentColor;stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round;fill:none
+ }
+}
+/* Drawer is the manager's complete mobile navigation; members retain their five-button dock. */
 @media(max-width:1023px){
  body.f4-bank-app-private #dashboardView .mobile-nav{display:none}
  body.f4-bank-app-private #dashboardView>.grid,
@@ -1735,8 +1749,8 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
 @media(max-width:760px){
  html.f4-bank-embedded body.f4-bank-app-private #dashboardView>.mobile-nav{display:none}
  body.f4-bank-app-member #sideNav #v16NavList .v16-item:is([data-group="home"],[data-group="saving"],[data-group="withdrawal"],[data-group="statement"],[data-group="memberreport"]){display:none}
- /* Admin slide is supporting navigation only: avoid repeating the five-button dock. */
- body.f4-bank-app-admin #sideNav #v16NavList>.v16-item:is([data-group="home"],[data-group="deposit"],[data-group="sale"],[data-group="report"],.f4-back-account){display:none}
+ /* Admin now has no bottom dock: all six main categories stay in the slide menu. */
+ body.f4-bank-app-admin #sideNav #v16NavList>.v16-item.f4-back-account{display:none}
 }
 
 
