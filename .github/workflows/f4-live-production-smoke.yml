@@ -56,6 +56,13 @@ jobs:
                             " catalog="+str(len(catalog))+" progress="+str(len(progress))+
                             " inventory="+str(len(inventory)))
                           if unscoped:valid=False
+                          # Public metadata only: diagnose the single unscoped
+                          # legacy album before making any ownership changes.
+                          for row in albums[:10]:
+                              title=str(row.get("title") or "").replace("\\n"," ").replace("\\r"," ")[:100]
+                              category=str(row.get("category") or "").replace("\\n"," ").replace("\\r"," ")[:60]
+                              print("PUBLIC_ALBUM_SCOPE_AUDIT title="+repr(title)+
+                                " category="+repr(category)+" scope="+repr(row.get("portal_scope")))
 
               except urllib.error.HTTPError as error:
                   code=error.code
