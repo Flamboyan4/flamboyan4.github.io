@@ -4653,7 +4653,7 @@ async function bankSaleSheet(request,env,who,url){
   if(!batch||!["draft","siap"].includes(batch.status))return safeError("Kelompok tidak tersedia untuk penjualan.",409);
   const active=await one(env.DB,"SELECT id FROM waste_sales WHERE batch_id=? AND status!='dibatalkan' LIMIT 1",[batchId]);
   if(active)return safeError("Kelompok sudah memiliki transaksi penjualan.",409);
-  const lines=await list(env.DB,"SELECT i.id AS itemId,i.name,i.category,COALESCE(SUM(l.grams),0) AS grams FROM waste_deposits d JOIN waste_deposit_lines l ON l.deposit_id=d.id JOIN waste_items i ON i.id=l.waste_item_id WHERE d.batch_id=? AND d.status='estimasi' GROUP BY i.id,i.name,i.category HAVING SUM(l.grams)>0 ORDER BY i.category,i.name",[batchId]);
+  const lines=await list(env.DB,"SELECT i.id AS itemId,i.name,i.category,COALESCE(SUM(l.grams),0) AS grams,(SELECT sl.actual_rate_rp_per_kg FROM waste_sale_lines sl JOIN waste_sales s ON s.id=sl.sale_id WHERE sl.waste_item_id=i.id AND s.status='terkonfirmasi' ORDER BY s.sold_on DESC,sl.id DESC LIMIT 1) AS lastPrice FROM waste_deposits d JOIN waste_deposit_lines l ON l.deposit_id=d.id JOIN waste_items i ON i.id=l.waste_item_id WHERE d.batch_id=? AND d.status='estimasi' GROUP BY i.id,i.name,i.category HAVING SUM(l.grams)>0 ORDER BY i.category,i.name",[batchId]);
   if(!lines.length)return safeError("Belum ada setoran untuk kelompok ini.",409);
   const count=await one(env.DB,"SELECT COUNT(*) AS n FROM waste_deposits WHERE batch_id=? AND status='estimasi'",[batchId]);
   if(isWrite){
@@ -4676,7 +4676,7 @@ async function bankSaleSheet(request,env,who,url){
   const saleNumber="BSF4-J-"+String(batch.label||batch.id).replace(/[^A-Za-z0-9-]/g,"").slice(0,48).toUpperCase();
   return json({ok:true,batchId,saleNumber,status:isWrite?"siap":batch.status,depositCount:Number(count?.n||0),
     totalGrams:lines.reduce((n,x)=>n+Number(x.grams||0),0),
-    lines:lines.map(x=>({itemId:x.itemId,name:x.name,category:x.category,grams:Number(x.grams)}))});
+    lines:lines.map(x=>({itemId:x.itemId,name:x.name,category:x.category,grams:Number(x.grams),lastPrice:Number(x.lastPrice||0)}))});
 }
 __name(bankSaleSheet,"bankSaleSheet");
 // Harga warga selalu dari tarif warga. Harga jual lapak tidak dikirim ke akun anggota.
