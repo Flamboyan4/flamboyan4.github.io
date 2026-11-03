@@ -1561,9 +1561,9 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
 .f4-bank-admin-back{display:none}
 @media(max-width:1023px){
  body.f4-bank-app-admin #dashboardView .f4-bank-admin-back:not([hidden]){
-  display:inline-flex;align-items:center;justify-content:center;gap:7px;
-  background:transparent;color:#176342;padding:7px 10px;margin:2px 0 12px;
-  min-height:36px;font-size:13px;font-weight:750;border-radius:9px
+  display:inline-flex;align-items:center;justify-content:center;
+  border:0;background:transparent;color:#176342;padding:7px;margin:2px 0 12px;
+  width:36px;height:36px;min-height:36px;border-radius:50%;cursor:pointer
  }
  body.f4-bank-app-admin #dashboardView .f4-bank-admin-back svg{
   width:18px;height:18px;stroke:currentColor;stroke-width:1.9;
