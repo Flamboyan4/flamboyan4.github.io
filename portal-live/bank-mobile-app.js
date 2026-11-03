@@ -892,9 +892,20 @@ function adminShortcut([name,route,iconName]){
 }
 let adminProgressAnchor=null,adminProgressNode=null;
 function adminOperation(label,detail,route,primary){
- const button=el("button","f4-bank-admin-operation"+(primary?" is-primary":""),label);
+ const button=el("button","f4-bank-admin-operation"+(primary?" is-primary":""));
  button.type="button";button.dataset.bankAppRoute=route;
- button.append(el("small","",detail));
+ const icon=el("span","f4-bank-admin-operation-icon");
+ const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("aria-hidden","true");
+ svg.innerHTML=primary
+  ?'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8m-4-4h8"/>'
+  :adminShortcutPaths.wallet;
+ icon.append(svg);
+ const copy=el("span","f4-bank-admin-operation-copy");
+ copy.append(el("strong","",label),el("small","",detail));
+ const arrow=el("span","f4-bank-admin-operation-arrow","›");
+ arrow.setAttribute("aria-hidden","true");
+ button.append(icon,copy,arrow);
  button.onclick=()=>navigate(route);return button;
 }
 function adminNextAction(label,detail,route){
