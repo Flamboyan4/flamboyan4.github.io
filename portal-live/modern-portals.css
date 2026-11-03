@@ -1392,9 +1392,6 @@ body.f4-direct-bank #dashboardView .f4-bs-saldo-footer button{
   padding:9px 10px!important;font-size:12px!important;
   vertical-align:middle!important;line-height:1.45!important
  }
- body.f4-direct-bank #dashboardView :is(#setBarang,#saleItems){
-  width:100%!important;max-width:850px!important
- }
  body.f4-direct-bank #dashboardView #v9History .stat,
  body.f4-direct-bank #dashboardView #v10History .stat{
   padding:11px 13px!important;margin:0 0 8px!important;border-radius:11px!important;
