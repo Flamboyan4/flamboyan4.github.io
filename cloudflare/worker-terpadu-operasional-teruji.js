@@ -508,6 +508,7 @@ async function cancelBankDraft(request,env,who,type){
   try{
     const results=await env.DB.batch([
       env.DB.prepare(sql).bind(...updateParams),
+      ...(isSale?[env.DB.prepare("UPDATE bank_v3_batches SET sale_id=NULL WHERE batch_id=? AND sale_id=? AND EXISTS(SELECT 1 FROM waste_sales WHERE id=? AND status='dibatalkan')").bind(data.batch_id,id,id)]:[]),
       env.DB.prepare(auditSql).bind(auditId,who.id,isSale?'cancel_draft_sale':'cancel_estimated_deposit',tab,id,reason)
     ]);
     if(Number(results[0]?.meta?.changes||0)!==1)return err('Batch tidak lagi terbuka untuk pembatalan. Muat ulang riwayat.',409);
