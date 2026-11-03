@@ -4838,12 +4838,19 @@ async function reconcilePreview(db, batchId) {
     WHERE d.batch_id=? AND d.status='estimasi' AND dl.waste_item_id=sl.waste_item_id),0) deposit_grams
     FROM waste_sale_lines sl WHERE sl.sale_id=? GROUP BY sl.waste_item_id`,[batchId,sale.id]);
   if(excess.some(x=>x.sale_grams>x.deposit_grams || x.sale_grams<=0)) throw Error("Berat penjualan melebihi atau tidak sesuai setoran per kategori");
+  // Setiap jenis setoran harus tercakup dalam penjualan. Jika ada yang sama sekali belum
+  // dijual, sisanya merupakan stok, bukan selisih penimbangan.
+  const allItems=await list(db,"SELECT dl.waste_item_id,SUM(dl.grams) AS deposit_grams,COALESCE((SELECT SUM(sl.grams) FROM waste_sale_lines sl WHERE sl.sale_id=? AND sl.waste_item_id=dl.waste_item_id),0) AS sale_grams FROM waste_deposit_lines dl JOIN waste_deposits d ON d.id=dl.deposit_id WHERE d.batch_id=? AND d.status='estimasi' GROUP BY dl.waste_item_id",[sale.id,batchId]);
+  if(allItems.some(x=>Number(x.sale_grams)<=0))throw Error("Masih ada jenis sampah yang belum dijual. Pengesahan stok sebagian belum tersedia.");
+  const hasWeightDifference=allItems.some(x=>Number(x.deposit_grams)!==Number(x.sale_grams));
+  const weightDifferenceGrams=allItems.reduce((sum,x)=>sum+Number(x.deposit_grams)-Number(x.sale_grams),0);
   const policy=await getBankSplitPolicy(db);
   const split=bankSplitRights(sale.amount_received_rp,[...weights].map(([memberId,weightRp])=>({memberId,weightRp})),policy.wargaPercent);
   return {batchId,saleId:sale.id,receivedRp:sale.amount_received_rp,grossRp:sale.amount_gross_rp,
     estimatedRp:[...weights.values()].reduce((a,b)=>a+b,0),
     citizenRightsRp:split.citizenRightsRp,environmentRp:split.environmentRp,
     wargaPercent:policy.wargaPercent,lingkunganPercent:policy.lingkunganPercent,
+    hasWeightDifference,weightDifferenceGrams,
     remainingRp:split.environmentRp,rights:split.rights,depositIds:deposits.map(x=>x.id),
     warning:"Konfirmasi akan mengunci batch dan membagi hasil "+policy.wargaPercent+":"+policy.lingkunganPercent+" dari uang diterima; estimasi awal bukan saldo siap cair."};
 }
@@ -4985,6 +4992,9 @@ async function bankReconcileConfirm(request,env,who){
   }
   let preview;try{preview=await reconcilePreview(env.DB,batchId)}catch(e){return safeError(String(e.message||"Rekonsiliasi gagal"),409)}
   if(preview.saleId!==expectedSaleId || operationRp+neighborhoodRp+reserveRp!==preview.environmentRp) return safeError("ID penjualan atau pembagian lingkungan berbeda dari pratinjau.",409);
+  const weightNote=String(p.note||"").trim();
+  if(preview.hasWeightDifference && (weightNote.length<5||weightNote.length>300))
+    return safeError("Ada selisih timbangan. Isi alasan selisih 5–300 karakter sebelum pengesahan.",400);
   if(p.expectedWargaPercent!==undefined && p.expectedWargaPercent!==preview.wargaPercent)
     return safeError("Persentase telah berubah. Muat ulang pratinjau sebelum mengesahkan.",409);
   const auditId="audit:bank-confirm:"+expectedSaleId;
@@ -4998,7 +5008,7 @@ async function bankReconcileConfirm(request,env,who){
     ...preview.depositIds.map(id=>env.DB.prepare("UPDATE waste_deposits SET status='terkonfirmasi' WHERE id=? AND batch_id=? AND status='estimasi'").bind(id,batchId)),
     ...preview.rights.filter(r=>r.amountRp>0).map(r=>env.DB.prepare("INSERT INTO waste_savings_ledger(id,member_id,transaction_on,kind,amount_rp,batch_id,reference_id,note,created_by) VALUES(?,?,?,'kredit',?,?,?,?,?)").bind("bank-right:"+expectedSaleId+":"+r.memberId,r.memberId,date,r.amountRp,batchId,expectedSaleId+":"+r.memberId,"Hak tabungan "+preview.wargaPercent+"% dari penjualan",who.id)),
     ...[["tabungan_warga",preview.citizenRightsRp],["operasional",operationRp],["kas_lorong",neighborhoodRp],["cadangan",reserveRp]].filter(([_,amount])=>amount>0).map(([fund,amount])=>env.DB.prepare("INSERT INTO waste_cash_ledger(id,occurred_on,source_transaction_id,transaction_type,fund_position,cash_in_rp,cash_out_rp,status,note) VALUES(?,?,?,'penjualan_terkonfirmasi',?,?,0,'aktif',?)").bind("bank-sale-cash:"+expectedSaleId+":"+fund,date,expectedSaleId,fund,amount,"Pembagian hasil penjualan batch "+batchId)),
-    env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?, 'banksampah','confirm_reconciliation','waste_batches',?,?,?)").bind(auditId,who.id,batchId,"Konfirmasi pembagian "+preview.wargaPercent+":"+preview.lingkunganPercent,JSON.stringify({wargaPercent:preview.wargaPercent,lingkunganPercent:preview.lingkunganPercent,saleId:expectedSaleId,receivedRp:preview.receivedRp,citizenRightsRp:preview.citizenRightsRp,operationRp,neighborhoodRp,reserveRp,rights:preview.rights}))
+    env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?, 'banksampah','confirm_reconciliation','waste_batches',?,?,?)").bind(auditId,who.id,batchId,"Konfirmasi pembagian "+preview.wargaPercent+":"+preview.lingkunganPercent,JSON.stringify({wargaPercent:preview.wargaPercent,lingkunganPercent:preview.lingkunganPercent,saleId:expectedSaleId,receivedRp:preview.receivedRp,citizenRightsRp:preview.citizenRightsRp,operationRp,neighborhoodRp,reserveRp,weightDifferenceGrams:preview.weightDifferenceGrams,weightNote,rights:preview.rights}))
   ];
   try{
     const r=await env.DB.batch(stmts); // Cloudflare D1.batch: satu transaksi, gagal => seluruh perubahan rollback
