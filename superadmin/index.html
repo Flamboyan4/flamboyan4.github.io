@@ -421,21 +421,9 @@ function sidebar(g=group){
  for(const [key,label] of groups){
   const b=button('',()=>open(key),g===key?'active':'');
   const icon=el('img',undefined,'sa-nav-icon');
-  icon.src='/assets/icons/'+({overview:'superadmin',treasury:'cash',accounts:'user',content:'home',bank:'bank',masters:'inventory',audit:'book'}[key])+'.svg';
+  icon.src='/assets/icons/'+({overview:'superadmin',treasury:'cash',accounts:'user',content:'home',bank:'bank-superadmin',masters:'inventory',audit:'book'}[key])+'.svg';
   icon.alt='';icon.setAttribute('aria-hidden','true');
-  if(key==='bank'){
-   // Vector recycling paths remain visible; never color/filter an entire image element.
-   const recycling=document.createElementNS('http://www.w3.org/2000/svg','svg');
-   recycling.setAttribute('viewBox','0 0 24 24');
-   recycling.setAttribute('width','22');recycling.setAttribute('height','22');
-   recycling.setAttribute('fill','none');recycling.setAttribute('stroke','#08794f');
-   recycling.setAttribute('stroke-width','2');recycling.setAttribute('stroke-linecap','round');
-   recycling.setAttribute('stroke-linejoin','round');recycling.setAttribute('aria-hidden','true');
-   recycling.innerHTML='<path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="m14 16-3 3 3 3"/><path d="M8.293 13.596 7.196 9.5 3.1 10.598"/><path d="m9.344 5.811 1.093-1.892A1.83 1.83 0 0 1 11.985 3a1.784 1.784 0 0 1 1.546.888l3.943 6.843"/><path d="m13.378 9.633 4.096 1.098 1.097-4.096"/>';
-   recycling.style.cssText='display:block;flex:none;width:22px;height:22px';
-   b.append(recycling);
-  }else b.append(icon);
-  b.append(el('span',label));
+  b.append(icon,el('span',label));
   b.setAttribute('aria-current',g===key?'page':'false');side.append(b);
  }
  document.body.dataset.saArea=g;
