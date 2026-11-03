@@ -4,9 +4,9 @@ const fs=require('node:fs');
 const assert=require('node:assert/strict');
 const read=path=>fs.readFileSync(path,'utf8');
 const expected={
- 'portal-live/direct-shell.css':171,
- 'portal-live/portal-polish.css':179,
- 'portal-live/home-base.css':82,
+ 'portal-live/direct-shell.css':170,
+ 'portal-live/portal-polish.css':167,
+ 'portal-live/home-base.css':78,
  'portal-live/bank-eco-pages.css':323,
  'portal-live/dokumentasi/site.css':2,
  'portal-live/treasury-center.css':0,
@@ -16,10 +16,10 @@ const expected={
  'superadmin/index.html':3,
  'rapat/index.html':177,
  'dokumentasi/index.html':37,
- 'portal-live/modern-portals.css':1377,
+ 'portal-live/modern-portals.css':1369,
  'portal-live/bank-eco-dashboard.css':396,
  'portal-live/dokumentasi/media-theme.css':112,
- 'portal-live/unified-account.css':96,
+ 'portal-live/unified-account.css':90,
  'portal-live/home-overrides.css':44,
  'portal-live/bank-member-polish.css':18,
  'portal-live/loading-state.css':3
