@@ -950,7 +950,8 @@ const adminShortcuts=[
  ["Harga Barang","master","tags"],
  ["Data Anggota","admin","users"],
  ["Dokumentasi","bank-admin-docs","images"],
- ["Saldo Warga","tabungan","coins"]
+ ["Saldo Warga","tabungan","coins"],
+ ["Laporan","laporan","file-text"]
 ];
 const adminShortcutPaths={
  "shield-check":'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m8 12 3 3 5-5"/>',
@@ -1014,10 +1015,9 @@ function ensureAdminHome(){
   $("f4BankAppAdminHero")?.before(actions);
  }
  $("f4BankAdminNext")?.remove();
- // Delapan akses cepat hanya di HP; dua tombol utama tetap paling menonjol.
+ // Akses cepat sama untuk PC dan HP, dengan grid responsif masing-masing.
  let shortcuts=$("f4BankAdminShortcuts");
- if(window.matchMedia("(min-width:1024px)").matches){shortcuts?.remove();shortcuts=null;}
- if(!shortcuts&&window.matchMedia("(max-width:1023px)").matches){
+ if(!shortcuts){
   shortcuts=el("section","f4-bank-admin-shortcuts");shortcuts.id="f4BankAdminShortcuts";
   shortcuts.append(el("h2","","Akses Cepat"));
   const grid=el("div","f4-bank-admin-shortcut-grid");
