@@ -43,8 +43,13 @@ function show(){
  }).then(async response=>{
   const data=await response.json().catch(()=>({}));
   if(!response.ok||data.ok===false)throw Error(data.error||"Layanan harga belum tersedia");
-  return Array.isArray(data.items)?data.items:[];
- }).then(rows=>{
+  return {rows:Array.isArray(data.items)?data.items:[],method:data.method||"percentage"};
+ }).then(result=>{
+  const rows=result.rows;
+  const intro=$("bank-prices")?.querySelector(".f4-bank-prices-intro");
+  if(intro)intro.textContent=result.method==="fixed_buy_price"?
+   "Harga beli Bank Sampah kepada warga per kilogram (bukan harga lapak). Harga saat setoran/penjualan mengikuti periode berlaku.":
+   "Tarif warga sebagai acuan perkiraan. Hak akhir mengikuti persentase pada penjualan yang sudah disahkan; bukan harga jual lapak.";
   if(requestId!==req)return;
   const render=()=>{
    const query=search.value.trim().toLocaleLowerCase("id-ID");
