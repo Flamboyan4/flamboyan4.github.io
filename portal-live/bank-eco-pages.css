@@ -1320,17 +1320,21 @@ body.f4-bank-app-admin #dashboardView #bank-admin-docs{
 body.f4-bank-app-admin #bank-admin-docs .f4-bank-admin-doc-content{
  display:grid;min-width:0;gap:10px;
 }
-body.f4-bank-app-admin #bank-admin-docs #v22DocsPage,
-body.f4-bank-app-admin #bank-admin-docs #v17Inventaris{
+/* Dokumentasi manager: tab is the only heading; no extra outer panel. */
+body.f4-bank-app-admin #bank-admin-docs :is(#v22DocsPage,#v17Inventaris){
  display:block;min-width:0;width:100%;box-sizing:border-box;
- background:#fff;border:1px solid #dbe9df;border-radius:15px;padding:15px;
+ background:transparent;border:0;border-radius:0;padding:0;margin:0;box-shadow:none
 }
-body.f4-bank-app-admin #bank-admin-docs :is(#v22DocsPage,#v17Inventaris)[hidden]{
- display:none
+body.f4-bank-app-admin #bank-admin-docs :is(#v22DocsPage,#v17Inventaris)[hidden]{display:none}
+body.f4-bank-app-admin #bank-admin-docs #v22DocsPage .v22-doc-heading,
+body.f4-bank-app-admin #bank-admin-docs #v17Inventaris>h2{display:none}
+body.f4-bank-app-admin #bank-admin-docs #v22DocFilters{
+ display:flex;flex-wrap:wrap;overflow:visible;gap:7px;min-width:0
 }
-body.f4-bank-app-admin #bank-admin-docs #v22DocsPage .v22-back-home{
- display:none
+body.f4-bank-app-admin #bank-admin-docs #v22DocFilters>button{
+ white-space:nowrap;flex:0 0 auto
 }
+body.f4-bank-app-admin #bank-admin-docs #v22DocSearch{width:100%;box-sizing:border-box;max-width:460px}
 body.f4-bank-app-admin #bank-admin-docs .v22-doc-list{
  display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px
 }
