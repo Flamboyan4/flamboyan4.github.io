@@ -27,7 +27,7 @@ assert(css.includes('#pagePenjualan .f4-sale-top-fields>.f4-bank-sheet-tools{'),
 assert(css.includes('grid-column:1/-1;min-width:0;width:100%'),'Sale-sheet must span the complete grid row');
 assert(css.includes('.f4-bank-sheet-tools[hidden]{display:none}'),'The hidden sale sheet must not occupy a grid row');
 assert(sheet.includes('<div class="sign">'),'The printed field worksheet must include signatures of manager and lapak');
-assert(sheet.includes('LEMBAR TIMBANG LAPAK'),'Only the field worksheet is the paper proof');
+assert(sheet.includes('LEMBAR TIMBANG & JUAL'),'Only the signed weighing and sale worksheet is the paper proof');
 assert(!page.includes('F4SaleHandover?.(')&&!page.includes('Cetak Nota Penjualan'),'No secondary sales note or duplicated receipt after weighing');
 assert(!page.includes('/portal-live/bank-sale-handover.js?'),'Do not load the redundant second receipt script');
 assert(page.includes("v8PendingBatch=batch;goPage('pengesahan')"),'Saved sale must link to approval without new navigation menu');
