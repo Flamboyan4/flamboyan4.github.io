@@ -625,7 +625,7 @@ async def main():
                 };
             }""")
             assert state["account"]=="Rp 1.500",(device,state)
-            assert state["labels"][2]=="Laporan" and "Menu" not in state["labels"],state
+            assert state["labels"]==["Beranda","Saldo","Setoran","Penjualan","Laporan"],state
             assert not state["overflow"],state
             # Current manager dashboard: kas as the left hero and three useful KPI tiles,
             # not the obsolete four-tile dashboard stacked under the balance.
