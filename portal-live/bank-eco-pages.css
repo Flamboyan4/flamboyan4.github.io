@@ -1331,6 +1331,7 @@ body.f4-bank-app-admin #bank-admin-docs #v17Inventaris>h2{display:none}
 body.f4-bank-app-admin #bank-admin-docs #v22DocFilters{
  display:flex;flex-wrap:wrap;overflow:visible;gap:7px;min-width:0
 }
+body.f4-bank-app-admin #bank-admin-docs #v22DocFilters[hidden]{display:none}
 body.f4-bank-app-admin #bank-admin-docs #v22DocFilters>button{
  white-space:nowrap;flex:0 0 auto
 }
