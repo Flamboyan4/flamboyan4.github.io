@@ -134,9 +134,7 @@ async def main():
                                   sameTop(topSale)&&
                                   Math.abs(topSale[1].width-topSale[2].width)<=2 &&
                                   Math.abs(topSale[0].width-(topSale[1].width*2+12))<=2);
-                        const paymentsOk=payment.length===2 &&
-                            (w>=1024?stack(payment)&&sameWidths(payment):
-                             w<=600?stack(payment):sameTop(payment)&&sameWidths(payment));
+                        const paymentsOk=payment.length===2 && stack(payment)&&sameWidths(payment);
                         const layoutOk=[depositForm,saleForm,deposit,sale,summary].every(x=>x.width>0) &&
                             outer(deposit,depositForm)&&outer(sale,saleForm)&&
                             (w>=1024?summary.right<saleForm.right-100:outer(summary,saleForm))&&
@@ -169,7 +167,7 @@ async def main():
                              close(note[0].left,payment[0].left)):
                             (close(saleParts[0].right,topSale[0].right) &&
                              close(saleParts[1].left,topSale[1].left) &&
-                             close(note[0].right,payment[0].right))
+                             close(note[0].left,payment[0].left))
                         );
                         const saleVerticalOk=w<1024 || (
                           close(saleRow.top,one('#saleReceived').top) &&
@@ -207,12 +205,9 @@ async def main():
                             ownMoneyLabel=one('.f4-bank-own-fields>.f4-bank-own-field:last-child>span');
                         const ownFieldsOk=close(ownDate.height,ownMoney.height) &&
                           close(ownDate.height,42) &&
-                          (w<=760?
-                            (ownMoney.top>=ownDate.bottom+8 &&
-                             close(ownDate.top-ownDateLabel.top,
-                                   ownMoney.top-ownMoneyLabel.top)):
-                            (close(ownDate.top,ownMoney.top) &&
-                             close(ownDateLabel.top,ownMoneyLabel.top)));
+                          ownMoney.top>=ownDate.bottom+8 &&
+                          close(ownDate.top-ownDateLabel.top,
+                                ownMoney.top-ownMoneyLabel.top);
                         const unframedOk=['#pageSetoran','#pagePenjualan'].every(sel=>{
                           const css=getComputedStyle(document.querySelector(sel));
                           return css.borderTopWidth==='0px' && css.boxShadow==='none' &&
