@@ -1730,10 +1730,12 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
 
 
 /* Penjualan kolektif dan katalog harga anggota — pemilik tunggal komponen. */
-#pagePenjualan .f4-bank-sheet-tools{
- display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px 16px;
- margin:12px 0 16px;padding:13px 15px;border:1px solid #d2e6d9;border-radius:12px;background:#fff;
+#pagePenjualan .f4-sale-top-fields>.f4-bank-sheet-tools{
+ grid-column:1/-1;min-width:0;width:100%;box-sizing:border-box;
+ display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px 12px;
+ margin:2px 0 0;padding:11px 13px;border:1px solid #d2e6d9;border-radius:12px;background:#fff;
 }
+#pagePenjualan .f4-sale-top-fields>.f4-bank-sheet-tools[hidden]{display:none}
 #pagePenjualan .f4-bank-sheet-summary{display:grid;gap:4px;min-width:0}
 #pagePenjualan .f4-bank-sheet-summary strong{font-size:14px;line-height:1.35;color:#185d3e;overflow-wrap:anywhere}
 #pagePenjualan .f4-bank-sheet-summary small{font-size:11px;color:#677e70;line-height:1.4}
@@ -1767,7 +1769,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
 .f4-bank-price-row span{overflow-wrap:anywhere;color:#284638}
 .f4-bank-price-row strong{white-space:nowrap;color:#18583b;font-variant-numeric:tabular-nums}
 @media(max-width:720px){
- #pagePenjualan .f4-bank-sheet-tools{grid-template-columns:minmax(0,1fr);padding:11px 12px}
+ #pagePenjualan .f4-sale-top-fields>.f4-bank-sheet-tools{grid-template-columns:minmax(0,1fr);padding:11px 12px}
  #pagePenjualan .f4-bank-sheet-actions{justify-content:stretch}
  #pagePenjualan .f4-bank-sheet-actions button{flex:1 1 150px}
  .f4-bank-prices-group{padding:10px 12px}

@@ -92,6 +92,9 @@ async def main():
                         wait_until='load',timeout=30000)
                     await page.add_style_tag(content=PICKER_STYLE.group(1))
                     state=await page.evaluate("""() => {
+                        const sheetEl=document.querySelector('#saleForm .f4-sale-top-fields>.f4-bank-sheet-tools');
+                        const sheetHidden=!!sheetEl?.hidden && getComputedStyle(sheetEl).display==='none';
+                        if(sheetEl)sheetEl.hidden=false;
                         const rect=el=>{const r=el.getBoundingClientRect();
                             return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,
                                 width:r.width,height:r.height}};
@@ -221,6 +224,19 @@ async def main():
                           return css.borderTopWidth==='0px' && css.boxShadow==='none' &&
                             css.backgroundColor==='rgba(0, 0, 0, 0)';
                         });
+                        const sheetRect=sheetEl?rect(sheetEl):null;
+                        const sheetTitle=sheetEl?rect(document.querySelector('#f4SaleSheetNumber')):null;
+                        const sheetAction=sheetEl?rect(document.querySelector('#f4SaleSheetPrint')):null;
+                        const sheetGridOk=!!sheetEl && sheetHidden &&
+                          getComputedStyle(sheetEl).gridColumnStart==='1' &&
+                          sheetRect.width>200 &&
+                          close(sheetRect.width,sale.width) &&
+                          close(sheetRect.left,sale.left) &&
+                          close(sheetRect.right,sale.right) &&
+                          sheetRect.top>=topSale[2].bottom-2 &&
+                          sheetTitle.width>=Math.min(110,sheetRect.width*.4) &&
+                          sheetAction.width>=110 &&
+                          sheetAction.right<=sheetRect.right-8;
                         const desktopPanelOk=w<1024||(
                           saleRow.right<saleSide.left &&
                           close(payment[1].right,saleForm.right) &&
@@ -267,7 +283,7 @@ async def main():
                           close(setMain.right,saleMain.right)&&
                           close(setSide.right,saleSide.right)
                         );
-                        return {gridOk,topDepositOk,topSaleOk,paymentsOk,layoutOk,responsiveOk,
+                        return {gridOk,topDepositOk,topSaleOk,paymentsOk,layoutOk,responsiveOk,sheetGridOk,sheetHidden,sheetRect,sheetTitle,sheetAction,
                             baseLineOk,saleVerticalOk,paymentOrderOk,gridDividerOk,independentNotesOk,priorityOk,deleteOk,entryControlsOk,noteFieldsOk,compactSpacingOk,
                             desktopAlignmentOk,heading,addKind,paymentLabel,paymentSelect,
                             goodsControl,receivedControl,ownFieldsOk,unframedOk,desktopPanelOk,ownDate,ownMoney,
@@ -279,7 +295,7 @@ async def main():
                     }""")
                     good=(response is not None and response.status==200 and
                           all(state[key] for key in
-                              ('gridOk','topDepositOk','topSaleOk','paymentsOk',
+                              ('gridOk','topDepositOk','topSaleOk','paymentsOk','sheetGridOk',
                                'layoutOk','responsiveOk','baseLineOk',
                                'priorityOk','deleteOk','entryControlsOk','noteFieldsOk',
                                'compactSpacingOk',
