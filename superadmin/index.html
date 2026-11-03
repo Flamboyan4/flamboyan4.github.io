@@ -401,7 +401,7 @@ window.addEventListener('resize',()=>{if(innerWidth>=1024)saCloseDrawer(true)});
 const groups=[['overview','Ringkasan Sistem'],['treasury','Pusat Keuangan'],['accounts','Akun & Hak Akses'],['content','Portal Utama'],['bank','Bank Sampah'],['masters','Data Acuan'],['audit','Pengaturan & Audit']];
 const submenu={
  content:[['projects','Project Card'],['agenda','Rencana Kegiatan'],['documentation','Dokumentasi'],['inventory','Inventaris'],['banners','Banner Slider'],['meetings','Hasil Rapat'],['arisan','Jadwal Arisan'],['jersey','Pesanan Jersey']],
- bank:[['bank_progress','Kegiatan'],['bank_albums','Dokumentasi'],['bank_inventory','Inventaris'],['bankcatalog','Jenis & Harga'],['bank_split','Bagi Hasil']],
+ bank:[['bank_progress','Kegiatan'],['bank_albums','Dokumentasi'],['bank_inventory','Inventaris'],['bankcatalog','Jenis & Harga'],['bank_weighing','Jadwal Timbang']],
  masters:[['residents','Data Warga & Rumah'],['obligations','Kewajiban Iuran'],['tariffs','Tarif Iuran'],['settings','Aturan Tanggal']]
 };
 let role='public',group='overview',active='',accounts=[],accountSearch='',residentRows=[];
@@ -437,7 +437,20 @@ function sidebar(g=group){
   const b=button('',()=>open(key),g===key?'active':'');
   const icon=el('img',undefined,'sa-nav-icon');
   icon.src='/assets/icons/'+({overview:'superadmin',treasury:'cash',accounts:'user',content:'home',bank:'bank',masters:'inventory',audit:'book'}[key])+'.svg';
-  icon.alt='';icon.setAttribute('aria-hidden','true');if(key==='bank'){icon.style.filter='brightness(0) saturate(100%) invert(35%) sepia(60%) saturate(550%) hue-rotate(105deg) brightness(92%)';}b.append(icon,el('span',label));
+  icon.alt='';icon.setAttribute('aria-hidden','true');
+  if(key==='bank'){
+   // Vector recycling paths remain visible; never color/filter an entire image element.
+   const recycling=document.createElementNS('http://www.w3.org/2000/svg','svg');
+   recycling.setAttribute('viewBox','0 0 24 24');
+   recycling.setAttribute('width','22');recycling.setAttribute('height','22');
+   recycling.setAttribute('fill','none');recycling.setAttribute('stroke','#08794f');
+   recycling.setAttribute('stroke-width','2');recycling.setAttribute('stroke-linecap','round');
+   recycling.setAttribute('stroke-linejoin','round');recycling.setAttribute('aria-hidden','true');
+   recycling.innerHTML='<path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="m14 16-3 3 3 3"/><path d="M8.293 13.596 7.196 9.5 3.1 10.598"/><path d="m9.344 5.811 1.093-1.892A1.83 1.83 0 0 1 11.985 3a1.784 1.784 0 0 1 1.546.888l3.943 6.843"/><path d="m13.378 9.633 4.096 1.098 1.097-4.096"/>';
+   recycling.style.cssText='display:block;flex:none;width:22px;height:22px';
+   b.append(recycling);
+  }else b.append(icon);
+  b.append(el('span',label));
   b.setAttribute('aria-current',g===key?'page':'false');side.append(b);
  }
  document.body.dataset.saArea=g;
@@ -532,134 +545,113 @@ function open(name,push=true){
  if(!submenu[name])f4SaRememberRoute();
 }
 function bankWeighingPage(){
- title('Jadwal Penimbangan','');
- const panel=section('Hari Penimbangan');
+ title('Jadwal Penimbangan','Atur frekuensi dan tanggal penimbangan Bank Sampah.');
+ const panel=section('Jadwal Rutin');
  const form=el('form',undefined,'sa-weighing-form');
- const label=el('label','Hari rutin penimbangan','sa-weighing-label');
- label.htmlFor='saBankWeighingDay';
- const select=el('select');select.id='saBankWeighingDay';select.required=true;
- const days=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
- days.forEach((name,index)=>select.add(new Option(name,String(index))));
- select.disabled=true;
- const controls=el('div',undefined,'sa-weighing-actions');
- const save=el('button','Simpan Jadwal','sa-action sa-action-primary');
- save.type='submit';save.disabled=true;
- controls.append(save);
+ const weekdays=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+ const row=(name,id,control)=>{
+  const label=el('label',name,'sa-weighing-label');label.htmlFor=id;
+  control.id=id;
+  const field=el('div',undefined,'sa-weighing-field');field.append(label,control);
+  return field;
+ };
+ const frequency=el('select');frequency.required=true;
+ [['weekly','Setiap minggu'],['biweekly','Setiap 2 minggu'],['monthly','Setiap bulan']].forEach(([value,name])=>frequency.add(new Option(name,value)));
+ const weekday=el('select');weekday.required=true;
+ weekdays.forEach((name,i)=>weekday.add(new Option(name,String(i))));
+ const anchor=el('input');anchor.type='date';
+ const monthly=el('select');for(let i=1;i<=31;i++)monthly.add(new Option('Tanggal '+i,String(i)));
+ const frequencyField=row('Frekuensi','saBankWeighingFrequency',frequency);
+ const weekdayField=row('Hari penimbangan','saBankWeighingDay',weekday);
+ const anchorField=row('Tanggal penimbangan pertama','saBankWeighingAnchor',anchor);
+ const monthField=row('Tanggal setiap bulan','saBankWeighingMonthDate',monthly);
+ const preview=el('p','', 'sa-weighing-preview');
  const status=el('p','Memuat jadwal…','sa-weighing-status');
  status.setAttribute('role','status');status.setAttribute('aria-live','polite');
- form.append(label,select,controls,status);panel.append(form);
- let previous=null,waiting=false;
- function refreshSave(){
-  save.disabled=waiting||previous===null||select.value===String(previous);
+ const actions=el('div',undefined,'sa-weighing-actions');
+ const save=el('button','Simpan Jadwal','sa-action sa-action-primary');save.type='submit';save.disabled=true;
+ actions.append(save);
+ form.append(frequencyField,weekdayField,anchorField,monthField,preview,actions,status);
+ panel.append(form);
+ let loaded=false,waiting=false,serverVersion=0;
+ const today=()=>new Date(Date.now()+7*3600000).toISOString().slice(0,10);
+ const dateAt=value=>{
+  if(!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(value||''))return null;
+  const date=new Date(value+'T00:00:00Z');
+  return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value?date:null;
+ };
+ const format=date=>new Intl.DateTimeFormat('id-ID',{
+  weekday:'long',year:'numeric',month:'long',day:'numeric',timeZone:'UTC'
+ }).format(date);
+ function nextOccurrence(){
+  const now=dateAt(today());let date=new Date(now);
+  if(frequency.value==='weekly'){
+   date.setUTCDate(date.getUTCDate()+(Number(weekday.value)-date.getUTCDay()+7)%7);
+  }else if(frequency.value==='biweekly'){
+   const base=dateAt(anchor.value);if(!base)return null;
+   const cycles=Math.max(0,Math.ceil((now-base)/86400000/14));
+   date=new Date(base.getTime()+cycles*14*86400000);
+  }else{
+   const n=Number(monthly.value),year=date.getUTCFullYear(),month=date.getUTCMonth();
+   const occurrence=(y,m)=>new Date(Date.UTC(y,m,Math.min(n,new Date(Date.UTC(y,m+1,0)).getUTCDate())));
+   date=occurrence(year,month);
+   if(date<now)date=occurrence(year,month+1);
+  }
+  return date;
  }
- select.onchange=refreshSave;
+ function update(){
+  weekdayField.hidden=frequency.value==='monthly'||frequency.value==='biweekly';
+  anchorField.hidden=frequency.value!=='biweekly';
+  monthField.hidden=frequency.value!=='monthly';
+  if(frequency.value==='biweekly'&&dateAt(anchor.value))
+   weekday.value=String(dateAt(anchor.value).getUTCDay());
+  const next=nextOccurrence();
+  preview.textContent=next?'Penimbangan berikutnya: '+format(next):'Pilih tanggal penimbangan pertama.';
+  const valid=!!next&&(frequency.value!=='biweekly'||!!dateAt(anchor.value));
+  save.disabled=waiting||!loaded||!valid;
+ }
+ frequency.onchange=update;weekday.onchange=update;anchor.onchange=update;monthly.onchange=update;
  async function load(){
-  waiting=true;select.disabled=true;refreshSave();
+  waiting=true;update();
   try{
-   const result=await get('/api/public/bank/weighing-schedule');
-   if(!Number.isInteger(result.weekday)||result.weekday<0||result.weekday>6)throw Error('Jadwal tidak valid');
-   previous=result.weekday;select.value=String(previous);
-   status.textContent='Jadwal aktif: '+days[previous]+'.';
-  }catch(error){
-   previous=null;status.textContent='Gagal memuat jadwal: '+safe(error);
-  }finally{waiting=false;select.disabled=previous===null;refreshSave();}
+   const data=await get('/api/public/bank/weighing-schedule');
+   if(!Number.isInteger(data.weekday)||data.weekday<0||data.weekday>6)
+    throw Error('Jadwal dari server tidak valid.');
+   serverVersion=Number(data.schemaVersion)||1;
+   frequency.value=['weekly','biweekly','monthly'].includes(data.frequency)?data.frequency:'weekly';
+   weekday.value=String(data.weekday);
+   anchor.value=dateAt(data.anchorDate)?data.anchorDate:today();
+   monthly.value=String(data.dayOfMonth>=1&&data.dayOfMonth<=31?data.dayOfMonth:1);
+   loaded=true;
+   status.textContent=serverVersion>=2?'Jadwal aktif telah dimuat.':'Layanan jadwal sedang diperbarui.';
+  }catch(error){loaded=false;status.textContent='Gagal memuat jadwal: '+safe(error);}
+  finally{waiting=false;update();}
  }
  form.onsubmit=async event=>{
   event.preventDefault();if(save.disabled||waiting)return;
-  const weekday=Number(select.value);
-  if(!Number.isSafeInteger(weekday)||weekday<0||weekday>6)return;
-  if(!await window.f4UiDialog.confirm('Ubah hari penimbangan rutin menjadi '+days[weekday]+'?'))return;
-  waiting=true;select.disabled=true;refreshSave();status.textContent='Menyimpan…';
+  const rule={frequency:frequency.value,weekday:Number(weekday.value)};
+  if(rule.frequency==='biweekly')rule.anchorDate=anchor.value;
+  if(rule.frequency==='monthly')rule.dayOfMonth=Number(monthly.value);
+  waiting=true;update();status.textContent='Menyimpan jadwal…';
   try{
-   const response=await fetch(API+'/api/superadmin/bank/weighing-schedule',{
+   const res=await fetch(API+'/api/superadmin/bank/weighing-schedule',{
     method:'POST',credentials:'include',cache:'no-store',
-    headers:{'Content-Type':'application/json'},body:JSON.stringify({weekday})
+    headers:{'Content-Type':'application/json'},body:JSON.stringify(rule)
    });
-   const data=await response.json().catch(()=>({}));
-   if(!response.ok||data.ok===false)throw Error(data.error||'HTTP '+response.status);
-   previous=data.weekday;select.value=String(data.weekday);
-   status.textContent='Jadwal tersimpan: setiap '+data.dayName+'.';
-  }catch(error){status.textContent='Gagal menyimpan: '+safe(error); }
-  finally{waiting=false;select.disabled=false;refreshSave();}
- };
- load();
-}
-function bankSplitPage(){
- title('Bagi Hasil','Satu aturan untuk semua penjualan baru Bank Sampah.');
- const panel=el('section',undefined,'sa-bank-split');
- const heading=el('div',undefined,'sa-bank-split-heading');
- heading.append(el('h3','Pembagian hasil penjualan'),el('p','Isi bagian warga saja; bagian lingkungan terisi otomatis.'));
- panel.append(heading);
- const form=el('form',undefined,'sa-bank-split-form');
- form.noValidate=true;
- const field=el('div',undefined,'sa-bank-split-fields');
- const warga=el('label',undefined,'sa-bank-split-field');
- warga.append(el('span','Tabungan warga'));
- const wargaControl=el('span',undefined,'sa-bank-split-percent');
- const input=el('input');input.type='number';input.min='1';input.max='99';input.step='1';input.inputMode='numeric';
- input.id='saBankWargaPercent';input.setAttribute('aria-label','Porsi warga dalam persen');input.required=true;input.disabled=true;
- wargaControl.append(input,el('b','%'));warga.append(wargaControl);
- const lingkungan=el('label',undefined,'sa-bank-split-field');
- lingkungan.append(el('span','Dana lingkungan'));
- const envControl=el('span',undefined,'sa-bank-split-percent');
- const envInput=el('input');envInput.type='number';envInput.readOnly=true;envInput.tabIndex=-1;envInput.id='saBankLingkunganPercent';
- envInput.setAttribute('aria-label','Porsi lingkungan otomatis');envControl.append(envInput,el('b','%'));
- lingkungan.append(envControl);field.append(warga,lingkungan);form.append(field);
- const example=el('div',undefined,'sa-bank-split-example');
- const exampleTitle=el('strong','Contoh hasil jual Rp100.000');
- const output=el('p','Memuat aturan yang berlaku...');
- example.append(exampleTitle,output);form.append(example);
- const note=el('p','Aturan baru berlaku saat pengesahan berikutnya. Saldo dan catatan penjualan yang sudah sah tidak diubah.','sa-bank-split-note');
- form.append(note);
- const actions=el('div',undefined,'sa-bank-split-actions');
- const save=button('Simpan pembagian',()=>{},'sa-action sa-action-primary');save.type='submit';save.disabled=true;
- const refresh=button('Muat ulang',()=>load(),'sa-action');actions.append(save,refresh);form.append(actions);
- const status=el('p','Membaca aturan dari database…','sa-bank-split-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
- form.append(status);panel.append(form);main.append(panel);
- const show=()=>{
-  const p=Number(input.value);
-  const valid=input.value.trim()!==''&&Number.isSafeInteger(p)&&p>=1&&p<=99;
-  envInput.value=valid?String(100-p):'';
-  save.disabled=!valid||input.disabled;
-  output.textContent=valid?'Warga: Rp '+(p*1000).toLocaleString('id-ID')+
-   '  ·  Lingkungan: Rp '+((100-p)*1000).toLocaleString('id-ID'):'Isi angka 1 sampai 99.';
-  return valid;
- };
- let previous=null;
- input.addEventListener('input',show);
- async function load(){
-  save.disabled=true;input.disabled=true;status.textContent='Memuat aturan…';
-  try{
-   const data=await get('/api/public/bank-split');
-   if(!Number.isSafeInteger(data.wargaPercent)||data.wargaPercent<1||data.wargaPercent>99)throw Error('Aturan tidak valid');
-   previous=data.wargaPercent;input.value=String(previous);input.disabled=false;
-   status.textContent='Aturan aktif: '+previous+'% warga · '+data.lingkunganPercent+'% lingkungan.';
-   show();
-  }catch(error){
-   previous=null;input.value='';envInput.value='';
-   status.textContent='Tidak dapat memuat aturan: '+safe(error)+'. Penyimpanan dinonaktifkan.';
-   output.textContent='Pastikan Worker D1 versi baru telah diterapkan.';
-  }
- }
- form.addEventListener('submit',async e=>{
-  e.preventDefault();if(!show()||previous===null)return;
-  const percent=Number(input.value);
-  if(percent===previous){status.textContent='Tidak ada perubahan.';return;}
-  if(!await window.f4UiDialog.confirm('Ubah pembagian menjadi '+percent+'% warga dan '+(100-percent)+'% lingkungan? Berlaku untuk pengesahan baru; transaksi sah tidak berubah.'))return;
-  input.disabled=true;save.disabled=true;refresh.disabled=true;status.textContent='Menyimpan ke D1…';
-  try{
-   const res=await fetch(API+'/api/superadmin/bank-split',{method:'POST',credentials:'include',cache:'no-store',
-     headers:{'Content-Type':'application/json'},body:JSON.stringify({wargaPercent:percent})});
    const data=await res.json().catch(()=>({}));
    if(!res.ok||data.ok===false)throw Error(data.error||'HTTP '+res.status);
-   previous=data.wargaPercent;
-   input.value=String(previous);envInput.value=String(data.lingkunganPercent);
-   status.textContent='Tersimpan: '+previous+'% warga · '+data.lingkunganPercent+'% lingkungan. Berlaku untuk pengesahan baru.';
-  }catch(error){status.textContent='Gagal menyimpan: '+safe(error)+'. Periksa kembali sebelum mencoba lagi.';}
-  finally{refresh.disabled=false;input.disabled=false;show();}
- });
+   if(data.frequency!==rule.frequency||
+      (rule.frequency==='biweekly'&&data.anchorDate!==rule.anchorDate)||
+      (rule.frequency==='monthly'&&Number(data.dayOfMonth)!==rule.dayOfMonth))
+    throw Error('Server belum mengonfirmasi pola jadwal yang dipilih.');
+   status.textContent='Jadwal tersimpan. '+preview.textContent;
+   loaded=true;serverVersion=Number(data.schemaVersion)||serverVersion;
+  }catch(error){status.textContent='Gagal menyimpan: '+safe(error);}
+  finally{waiting=false;update();}
+ };
  load();
 }
+
 function openEditor(kind){
  if(role!=='superadmin')return;
  const target=Object.entries(submenu).find(([,items])=>items.some(([key])=>key===kind));
@@ -670,8 +662,7 @@ function openEditor(kind){
  if(kind==='residents'||kind==='bankcatalog')window.f4CancelSuperadminEditor?.();
  if(kind==='residents')window.openWarga();
  else if(kind==='bankcatalog')catalogPage();
- else if(kind==='bank_split')bankSplitPage();
-
+ else if(kind==='bank_weighing')bankWeighingPage();
  else if(typeof window.openSuperadminEditor==='function')window.openSuperadminEditor(kind);
  else title('Memuat Modul','Editor sedang disiapkan…');
  if(switched){
