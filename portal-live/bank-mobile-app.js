@@ -699,7 +699,8 @@ function chartSavings(){
   for(const item of entries){
    const column=el("div","f4-bank-savings-bar");
    const amounts=fields.map(key=>item[key]);
-   const val=amounts[0]>0?amounts[0]:amounts[1];
+   // Tampilkan total satu periode/bulan; warna batang tetap memisahkan sah dan estimasi.
+   const val=amounts.reduce((sum,value)=>sum+(Number(value)||0),0);
    const amountLabel=useKg?f4PrivateShort(val,"kg")+" kg":f4PrivateShort(val,"rp");
    const noFinal=useKg?item.missingWeight:item.missingValue;
    column.append(el("strong","",noFinal?"—":amountLabel));
