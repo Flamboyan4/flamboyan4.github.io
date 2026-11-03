@@ -1,6 +1,5 @@
 /* Khusus Bank Sampah anggota, tanpa mengubah nilai dan laporan keuangan. */
-#dashboardView #pageDashboard.f4-member-dashboard #f4-bank-quick,
-#dashboardView #pageDashboard.f4-member-dashboard #f4-monthly-trend{display:none!important}
+#dashboardView #pageDashboard.f4-member-dashboard #f4-bank-quick{display:none!important}
 #dashboardView #pageDashboard.f4-member-dashboard .f4-member-recent{display:flex;align-items:center;justify-content:space-between;gap:11px}
 #dashboardView #pageDashboard.f4-member-dashboard .f4-member-recent>div{min-width:0}
 #dashboardView #pageDashboard.f4-member-dashboard .f4-member-recent-value{
@@ -16,9 +15,6 @@
 }
 #dashboardView #pageDashboard.f4-member-dashboard .f4-member-recent strong{font-size:14px}
 #dashboardView #pageDashboard.f4-member-dashboard .f4-member-recent small{color:#526e5e;font-size:12px}
-#dashboardView #pageDashboard.f4-member-dashboard .f4-member-finance-note{
- color:#3f6454!important;font-size:13px!important;line-height:1.5!important
-}
 body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primary>.v14-kpi small{
  color:#526e5f!important;font-size:12.5px!important;line-height:1.4!important
 }
