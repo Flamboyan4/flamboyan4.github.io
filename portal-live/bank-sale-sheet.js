@@ -95,7 +95,7 @@ async function refresh(){
    selected.title="Nomor penjualan "+data.saleNumber;
   }
   status(data.depositCount+" setoran · "+kg(data.totalGrams)+" kg · "+(data.status==="siap"?"Siap dibawa ke lapak":"Belum disiapkan"));
-  if(print)print.disabled=false;
+  if(print)print.disabled=!(Array.isArray(data.lines)&&data.lines.length>0);
   if(reopen)reopen.hidden=data.status!=="siap";
   fill(data);
  }catch(e){if(version===seq){$("f4SaleSheetNumber").textContent="Rekap belum tersedia";status(e.message||String(e),true)}}
@@ -126,8 +126,11 @@ async function prepareAndPrint(){
   status("Rekap terkunci untuk penjualan. Lembar siap dicetak.");
   popup.document.open();popup.document.write(sheetHtml(data));popup.document.close();
   popup.focus();
-  popup.addEventListener("load",()=>{if(!popup.closed)popup.print()},{once:true});
-  if(popup.document.readyState==="complete")popup.print();
+  // Print sekali saja: Firefox dapat memicu load setelah readyState complete.
+  let printed=false;
+  const printOnce=()=>{if(printed||popup.closed)return;printed=true;popup.print();};
+  popup.addEventListener("load",printOnce,{once:true});
+  if(popup.document.readyState==="complete")printOnce();
  }catch(e){popup.close();status(e.message||String(e),true)}
  finally{print.disabled=!current}
 }
