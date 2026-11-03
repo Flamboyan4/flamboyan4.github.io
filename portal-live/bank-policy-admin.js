@@ -137,6 +137,8 @@
   async function load(){
    busy=true;refresh();
    try{
+    const privileges=await fetchPolicy();
+    if(privileges.canEdit!==true){card.remove();return;}
     const response=await fetch(endpoint+"/api/public/bank/weighing-schedule",{credentials:"include",cache:"no-store"});
     const data=await response.json().catch(()=>({}));
     if(!response.ok||data.ok===false||!Number.isInteger(data.weekday))throw Error(data.error||"Gagal memuat jadwal");
