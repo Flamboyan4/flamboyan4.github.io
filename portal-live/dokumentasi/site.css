@@ -327,10 +327,9 @@ body.theme-home .portal-floating-actions #portal-suggestion-open{background:#554
 #portal-suggestion-close,#portal-rapat-close,.portal-month-controls button,
 .banner-arrow,.portal-preview-controls button,.portal-finance-dialog-head button,
 #media-dialog-close,.portal-floating-actions button{
- display:inline-grid!important;place-items:center!important;
- align-items:center!important;justify-items:center!important;
- text-align:center;line-height:1!important;
- padding:0!important;text-indent:0!important;
+ display:inline-grid;place-items:center;
+ text-align:center;line-height:1;
+ padding:0;text-indent:0;
  font-family:Arial,system-ui,sans-serif;
  flex-shrink:0;
 }
