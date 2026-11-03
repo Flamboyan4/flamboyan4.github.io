@@ -7,7 +7,7 @@ No production app API receives transactions, and no real user password is used.
 import urllib.parse,urllib.request,urllib.error
 from playwright.sync_api import sync_playwright
 
-WEB="https://flamboyan4.web.id/portal-live/?v=csp-submit-01489ea9#bank-sampah"
+WEB="https://flamboyan4.web.id/"
 HOST="https://api.flamboyan4.web.id"
 LOCAL="http://127.0.0.1:8787"
 ORIGIN="https://flamboyan4.web.id"
@@ -59,18 +59,19 @@ def verify_portal_login(credentials):
                 page.route(HOST+"/**",proxy)
                 resp=page.goto(WEB,wait_until="domcontentloaded",timeout=35000)
                 if not resp or resp.status!=200:raise AssertionError("Portal unavailable")
-                page.locator("#login-button").click(timeout=15000)
-                page.locator("#login-username").fill(credentials[scope]["username"])
-                page.locator("#login-password").fill(credentials[scope]["password"])
-                page.locator("#login-confirm").click()
+                page.locator(".f4-direct-login").click(timeout=15000)
+                page.locator("#f4-direct-username").fill(credentials[scope]["username"])
+                page.locator("#f4-direct-password").fill(credentials[scope]["password"])
+                page.locator('#f4-direct-login-form button[type="submit"]').click()
                 try:
                     page.wait_for_function("""() => {
-                        const a=document.querySelector('#avatar-button');
-                        return !!a && !a.hidden && document.querySelector('#login-shade')?.hidden;
+                        const a=document.querySelector('#f4-direct-avatar');
+                        return !!a && !a.hidden && document.querySelector('#f4-direct-dialog')?.hidden;
                     }""",timeout=20000)
                 except:
                     raise AssertionError("Portal login/session cookie exchange failed on "+label+"/"+scope)
-                frame=page.frame_locator("#appframe")
+                page.goto("https://flamboyan4.web.id/bank-sampah/",wait_until="domcontentloaded")
+                frame=page
                 frame.locator("#dashboardView:not(.hidden)").wait_for(timeout=20000)
                 if scope=="member":
                     # Signed-in member starts on Dashboard; open the actual
@@ -82,9 +83,9 @@ def verify_portal_login(credentials):
                     frame.locator('#v16NavList [data-group="money"]').wait_for(state="attached",timeout=16000)
                 if scope=="admin" and label=="PC":
                     # Original Bank Sampah form (not a direct endpoint test).
-                    page.evaluate("() => document.querySelector('#appframe').contentWindow.goPage('setoran')")
+                    page.evaluate("() => window.goPage('setoran')")
                     page.wait_for_function("""() => {
-                      const d=document.querySelector('#appframe')?.contentDocument;
+                      const d=document;
                       return (d?.querySelectorAll('#setWarga option').length||0)>1 &&
                         !!d?.querySelector('#setBarang input[data-kode]:not([disabled])');
                     }""",timeout=17000)
@@ -96,22 +97,22 @@ def verify_portal_login(credentials):
                     frame.locator("#saveSetoranBtn").click()
                     try:
                         page.wait_for_function("""() => {
-                          const d=document.querySelector('#appframe')?.contentDocument;
+                          const d=document;
                           return (d?.querySelector('#setoranNotice')?.textContent||'').includes('berhasil disimpan');
                         }""",timeout=18000)
                     except:
-                        message=page.evaluate("""() => document.querySelector('#appframe')?.contentDocument
+                        message=page.evaluate("""() => document
                             ?.querySelector('#setoranNotice')?.textContent||'(no notice)'""")
                         raise AssertionError("Actual Bank Sampah setoran save failed: "+str({
                             "notice":message,"writes":writes[-6:],"js_errors":errors[-3:]})[:600])
                 if scope=="admin" and label=="PC":
                     # The real Pembukuan form, authenticated through the real
                     # GitHub Pages shell. Every API request routes to LOCAL D1.
-                    page.locator('[data-target="pembukuan"]').first.evaluate("(el)=>el.click()")
-                    book=page.frame_locator("#appframe")
+                    page.goto("https://flamboyan4.web.id/pembukuan/",wait_until="domcontentloaded")
+                    book=page
                     book.locator("#inp-warga option").first.wait_for(state="attached",timeout=20000)
                     page.wait_for_function("""() => {
-                        const doc=document.querySelector('#appframe')?.contentDocument;
+                        const doc=document;
                         return doc && doc.querySelectorAll('#inp-warga option').length>1;
                     }""",timeout=18000)
                     book.locator("#inp-warga").select_option(index=1)
@@ -123,9 +124,9 @@ def verify_portal_login(credentials):
                     book.locator("#inp-metode").select_option("Cash")
                     amount=book.locator("#inp-nominal-dibayar").input_value()
                     if not amount or int(amount)<=0:raise AssertionError("Pembukuan Iuran preview failed: "+repr(amount))
-                    before=page.evaluate("""() => {let f=document.querySelector('#appframe')?.contentDocument;
+                    before=page.evaluate("""() => {let f=document;
                       let form=f?.querySelector('#form-iuran');
-                      return {src:document.querySelector('#appframe')?.getAttribute('src'),
+                      return {src:location.pathname,
                        url:f?.URL,ready:!!form,valid:form?.checkValidity(),
                        invalid:[...(form?.elements||[])].filter(x=>!x.validity?.valid).map(x=>x.id),
                        due:f?.querySelector('#inp-nominal-dibayar')?.value,
@@ -138,18 +139,17 @@ def verify_portal_login(credentials):
                     book.locator("#btn-simpan").click()
                     try:
                         page.wait_for_function("""() => {
-                          const doc=document.querySelector('#appframe')?.contentDocument;
+                          const doc=document;
                           return (doc?.querySelector('#save-status')?.textContent||'').includes('Pembayaran berhasil disimpan');
                         }""",timeout=18000)
                     except:
                         if not writes:
-                            page.evaluate("""() => document.querySelector('#appframe')
-                              ?.contentDocument?.querySelector('#form-iuran')?.requestSubmit()""")
+                            page.evaluate("""() => document?.querySelector('#form-iuran')?.requestSubmit()""")
                             page.wait_for_timeout(1800)
-                        message=page.evaluate("""() => document.querySelector('#appframe')?.contentDocument
+                        message=page.evaluate("""() => document
                           ?.querySelector('#save-status')?.textContent||'(no status)'""")
-                        after=page.evaluate("""() => {const doc=document.querySelector('#appframe')?.contentDocument;
-                          return {src:document.querySelector('#appframe')?.getAttribute('src'),
+                        after=page.evaluate("""() => {const doc=document;
+                          return {src:location.pathname,
                             url:doc?.URL,form:!!doc?.querySelector('#form-iuran'),
                             status:doc?.querySelector('#save-status')?.textContent,
                             selected:doc?.querySelector('#inp-warga')?.value,
@@ -160,47 +160,48 @@ def verify_portal_login(credentials):
                 if scope=="admin" and label=="PC":
                     # Existing Superadmin fourth portal: real Tambah Rumah button
                     # to local cloned D1, never live resident database.
-                    page.locator('[data-target="superadmin"]').first.evaluate("(el)=>el.click()")
+                    page.goto("https://flamboyan4.web.id/superadmin/",wait_until="domcontentloaded")
                     page.wait_for_function("""() => {
-                      const f=document.querySelector('#appframe')?.contentWindow;
+                      const f=window;
                       return typeof f?.openWarga==='function'
                          && !f.document.querySelector('#f4-account-page')?.hidden;
                     }""",timeout=20000)
-                    page.evaluate("() => document.querySelector('#appframe').contentWindow.openWarga()")
-                    superframe=page.frame_locator("#appframe")
+                    page.evaluate("() => window.openWarga()")
+                    superpage.goto("https://flamboyan4.web.id/bank-sampah/",wait_until="domcontentloaded")
+                frame=page
                     superframe.get_by_role("button",name="+ Tambah Rumah").click()
                     superframe.locator('form.f4-admin-editor [name="rumah"]').fill("QA/998")
                     superframe.locator('form.f4-admin-editor [name="nama_pemilik"]').fill("QA_LOCAL_ONLY")
                     superframe.locator('form.f4-admin-editor .f4-admin-primary').click()
                     try:
                         page.wait_for_function("""() => {
-                          const doc=document.querySelector('#appframe')?.contentDocument;
+                          const doc=document;
                           return (doc?.querySelector('.sa-chip')?.textContent||'').includes('Data berhasil disimpan ke D1.');
                         }""",timeout=17000)
                     except:
-                        message=page.evaluate("""() => document.querySelector('#appframe')?.contentDocument
+                        message=page.evaluate("""() => document
                             ?.querySelector('form.f4-admin-editor .f4-admin-note')?.textContent||'(no notice)'""")
                         raise AssertionError("Actual Superadmin house form save failed: "+str({
                             "notice":message,"writes":writes[-6:],"js_errors":errors[-3:]})[:750])
                 # Portal finance role separation: member gets private swipe tabs;
                 # Superadmin sees only the existing environment financial report.
-                page.locator('[data-target="portal"]').first.evaluate("(el)=>el.click()")
+                page.goto(WEB,wait_until="domcontentloaded")
+                page.evaluate("() => window.f4PortalSelectPanel?.('keuangan')")
                 page.wait_for_function("""() => {
-                  const d=document.querySelector('#appframe')?.contentDocument;
+                  const d=document;
                   return !!d?.querySelector('#card-pemasukan') &&
                     typeof d?.defaultView?.f4PortalSelectPanel==='function';
                 }""",timeout=20000)
                 if scope=="member":
                     page.wait_for_function("""() => {
-                      const d=document.querySelector('#appframe')?.contentDocument;
+                      const d=document;
                       return !!d?.querySelector('.f4-user-finance:not([hidden]) [data-finance-mode="saya"]');
                     }""",timeout=12000)
                     frame.locator('[data-finance-mode="saya"]').click()
-                    page.wait_for_function("""() => document.querySelector('#appframe')
-                      ?.contentDocument?.querySelector('#keuangan')?.classList
+                    page.wait_for_function("""() => document?.querySelector('#keuangan')?.classList
                       .contains('f4-finance-personal-active')""",timeout=12000)
                     ui=page.evaluate("""() => {
-                      const d=document.querySelector('#appframe').contentDocument;
+                      const d=document;
                       const rail=d.querySelector('.f4-user-finance-sub');
                       return {
                         publicCardHidden:d.querySelector('#card-pemasukan').getClientRects().length===0,
@@ -217,7 +218,7 @@ def verify_portal_login(credentials):
                         raise AssertionError("HP member category strip does not overflow horizontally")
                 else:
                     ui=page.evaluate("""() => {
-                      const d=document.querySelector('#appframe').contentDocument;
+                      const d=document;
                       const controls=d.querySelector('.f4-user-finance');
                       return {
                         extraControlsHidden:!controls||controls.hidden,
@@ -226,10 +227,10 @@ def verify_portal_login(credentials):
                     }""")
                     if not(ui["extraControlsHidden"] and ui["publicCardVisible"]):
                         raise AssertionError("Superadmin must see environment report without tabs: "+str(ui))
-                page.locator("#avatar-button").click()
+                page.locator("#f4-direct-avatar").click()
                 page.locator('[data-account-action="logout"]').click()
                 page.wait_for_function("""() => {
-                    const button=document.querySelector('#login-button');
+                    const button=document.querySelector('.f4-direct-login');
                     return !!button && !button.hidden;
                 }""",timeout=12000)
                 if errors:raise AssertionError("Uncaught JS error in "+label+"/"+scope+": "+repr(errors[:2]))
