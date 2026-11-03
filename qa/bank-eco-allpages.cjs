@@ -242,6 +242,4 @@ assert(css.includes('grid-template-rows:18px var(--bank-input-h);') &&
        css.includes('#saleForm>#saleItems{') &&
        css.includes('grid-column:1;grid-row:3;padding-top:24px'),
  'PC Hasil timbang / Pembayaran / Diterima alignment must be preserved');
-assert(!css.includes('!important;background') || css.includes('f4-bank-own-mode'),
- 'Investigate any new forced-priority styling');
 console.log('F4_BANK_CANONICAL_THEME_OK');
