@@ -69,7 +69,11 @@ function markDock(){
   if(selected)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");
  }
  if(roleType()==="member")syncMemberBack();
- if(roleType()==="admin")syncAdminBack();
+ if(roleType()==="admin"){syncAdminBack();syncAdminGreeting();}
+}
+function syncAdminGreeting(){
+ const greeting=$("f4BankPageGreeting");
+ if(greeting)greeting.hidden=screen!=="dashboard";
 }
 function syncAdminBack(){
  const section=$("dashboardView")?.querySelector(".section");
@@ -823,7 +827,7 @@ function managerRequestsPanel(){
  if(!$("f4BankManualPayout")){
   const detail=el("details","f4-bank-manual-payout");detail.id="f4BankManualPayout";
   detail.append(el("summary","","Pencairan manual (tanpa pengajuan)"));
-  detail.append(el("p","f4-bank-screen-status","Hanya untuk warga tanpa pengajuan. Periksa status agar tidak dibayar dua kali."));
+  detail.append(el("p","f4-bank-screen-status","Khusus tanpa pengajuan. Cegah bayar ganda."));
   const form=$("v9Form")?.closest(".f4-savings-payout");
   if(form)detail.append(form);
   const history=$("v9History")?.closest(".f4-savings-history");
@@ -950,7 +954,8 @@ function adminOperation(label,detail,route,primary){
   :adminShortcutPaths.wallet;
  icon.append(svg);
  const copy=el("span","f4-bank-admin-operation-copy");
- copy.append(el("strong","",label),el("small","",detail));
+ copy.append(el("strong","",label));
+ if(detail)copy.append(el("small","",detail));
  const arrow=el("span","f4-bank-admin-operation-arrow","›");
  arrow.setAttribute("aria-hidden","true");
  button.append(icon,copy,arrow);
@@ -966,20 +971,15 @@ function adminNextAction(label,detail,route){
 function ensureAdminHome(){
  if(role!=="admin")return;
  const home=$("f4BankAppHome");if(!home)return;
- let intro=$("f4BankAdminIntro");
- if(!intro){
-  intro=el("header","f4-bank-admin-intro");intro.id="f4BankAdminIntro";
-  intro.append(el("h2","","Beranda Pengelola"),
-   el("p","","Mulai pencatatan dan periksa pekerjaan Bank Sampah."));
-  home.insertBefore(intro,$("f4BankAppAdminHero"));
- }
+ // The page greeting already says "Halo, admin"; never repeat a home heading.
+ $("f4BankAdminIntro")?.remove();
  if(!$("f4BankAdminOperations")){
   const actions=el("div","f4-bank-admin-operations");actions.id="f4BankAdminOperations";
   actions.append(
-   adminOperation("Catat Setoran","Warga / Bank Sampah","setoran",true),
-   adminOperation("Catat Penjualan","Hasil timbang lapak","penjualan",false)
+   adminOperation("Catat Setoran","","setoran",true),
+   adminOperation("Catat Penjualan","","penjualan",false)
   );
-  intro.after(actions);
+  $("f4BankAppAdminHero")?.before(actions);
  }
  $("f4BankAdminNext")?.remove();
  // Delapan akses cepat hanya di HP; dua tombol utama tetap paling menonjol.
@@ -1128,7 +1128,7 @@ async function submitOwnDeposit(event){
 }
 let adminCashTab="in";
 function showAdminCash(){
- const page=ensureScreen("bank-admin-cash","Pemasukan & Pengeluaran");
+ const page=ensureScreen("bank-admin-cash","Debit/Kredit");
  let body=$("f4BankAdminCashBody");
  if(!body){
   body=el("div","f4-bank-admin-cash-body");body.id="f4BankAdminCashBody";
@@ -1141,7 +1141,14 @@ function showAdminCash(){
   const action=el("button","f4-bank-secondary-action f4-bank-cash-expense-action","Catat pengeluaran");
   action.type="button";action.onclick=()=>navigate("biaya");
   toolbar.append(tabs,action);
-  body.append(toolbar,el("div","f4-bank-admin-cash-stats"),
+  // Routes without an Akses Cepat entry remain reachable, but are pages,
+  // not extra top-level mobile tabs.
+  const links=el("div","f4-bank-admin-cash-links");
+  for(const [caption,route] of [["Saldo warga","tabungan"],["Catat pengeluaran","biaya"]]){
+   const b=el("button","f4-bank-secondary-action",caption);
+   b.type="button";b.onclick=()=>navigate(route);links.append(b);
+  }
+  body.append(toolbar,links,el("div","f4-bank-admin-cash-stats"),
    el("div","f4-bank-admin-cash-table","Memuat mutasi kas..."));
   page.append(body);
  }
@@ -1215,13 +1222,15 @@ function showAdminDocumentation(which="albums"){
  adminMediaMove("v22DocsPage",content);
  adminMediaMove("v17Inventaris",content);
  const album=$("v22DocsPage"),inventory=$("v17Inventaris");
+ const mobile=window.matchMedia("(max-width:1023px)").matches;
  tabs.replaceChildren(...[["albums","Album"],["inventory","Inventaris"]].map(([key,label])=>{
   const button=el("button","f4-bank-admin-history-tab"+(which===key?" is-active":""),label);
   button.type="button";button.setAttribute("aria-pressed",String(which===key));
   button.onclick=()=>showAdminDocumentation(key);return button;
  }));
- if(album)album.hidden=which!=="albums";
- if(inventory)inventory.hidden=which!=="inventory";
+ tabs.hidden=mobile;
+ if(album)album.hidden=!mobile&&which!=="albums";
+ if(inventory)inventory.hidden=!mobile&&which!=="inventory";
  page.classList.remove("hidden");
 }
 function showAdminHistory(selected="setoran"){
@@ -1241,9 +1250,14 @@ function showAdminHistory(selected="setoran"){
   button.onclick=()=>navigate(key==="penjualan"?"bank-admin-sale-history":"bank-admin-history");
   return button;
  }));
- for(const [key,,panel] of options)panel?.classList.toggle("hidden",key!==selected);
+ const mobile=window.matchMedia("(max-width:1023px)").matches;
+ tabs.hidden=mobile;
+ for(const [key,,panel] of options)panel?.classList.toggle("hidden",!mobile&&key!==selected);
  page.classList.remove("hidden");
- if(selected==="setoran")window.loadRiwayatV7?.();
+ if(mobile){
+  window.loadRiwayatV7?.();
+  window.loadRiwayatJual?.();
+ }else if(selected==="setoran")window.loadRiwayatV7?.();
  else window.loadRiwayatJual?.();
 }
 function combineAdminApproval(){
@@ -1409,7 +1423,7 @@ function memberFeature(route){
  else if(!page.querySelector(".f4-member-feature-header")){
   const header=el("header","f4-member-feature-header");
   const title=el("div");
-  title.append(el("h2","",name),el("small","",progress?"Bank Sampah Flamboyan 4":docs?"Daftar album kegiatan":"Laporan publik · Dokumentasi · Inventaris"));
+  title.append(el("h2","",name));
   header.append(title);page.prepend(header);
  }
  let content=page.querySelector(".f4-member-feature-content");
