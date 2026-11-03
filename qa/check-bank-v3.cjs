@@ -8,7 +8,7 @@ const sheet=fs.readFileSync('portal-live/bank-sale-sheet.js','utf8');
 const between=(a,b)=>{const i=worker.indexOf(a),j=worker.indexOf(b,i);assert(i>=0&&j>i,a+' missing');return worker.slice(i,j)};
 const own=between('// BANK_V3_OWN_START','// BANK_V3_OWN_END');
 assert(!own.includes("INSERT INTO waste_cash_ledger"),'Bank physical inventory must not create cash!');
-for(const term of ['bank_v3_own_events','bank_v3_inventory_lots',"status:'stok'","amountRp:0"]){
+for(const term of ['bank_v3_own_events','bank_v3_inventory_lots','status:"stok"',"amountRp:0"]){
  assert(own.includes(term),'Own-bank stock persistence missing '+term)
 }
 assert(ui.includes('Belum ada pemasukan kas')===false||ui.includes('Belum ada pemasukan kas'));
