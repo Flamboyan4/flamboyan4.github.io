@@ -35,18 +35,29 @@ function fill(data){
    row.remove();continue;
   }
   const original=Number(line.grams)/1000;
-  inputs[0].value=String(original);
-  inputs[1].value=Number(line.lastPrice)>0?String(line.lastPrice):"";
-  // Harga historis hanyalah saran: pengurus tetap mengisi hasil timbang dan tarif lapak nyata.
-  inputs[1].setAttribute("aria-label","Harga jual lapak untuk "+String(line.name||"barang")+" per kg");
-  inputs[0].setAttribute("aria-label","Hasil timbang lapak "+String(line.name||"barang")+" dalam kilogram");
+  // Beri referensi, tetapi JANGAN prefill hasil lapak: berat nyata wajib diinput dari lembar bertanda tangan.
+  inputs[0].value="";
+  inputs[0].placeholder=kg(line.grams)+" kg awal";
+  inputs[0].required=true;
+  inputs[1].value="";
+  if(Number(line.lastPrice)>0)inputs[1].placeholder="Acuan "+Number(line.lastPrice).toLocaleString("id-ID");
+  inputs[1].required=true;
+  // Harga historis hanya petunjuk, bukan nilai transaksi yang dianggap benar otomatis.
+  inputs[1].setAttribute("aria-label","Harga jual lapak aktual untuk "+String(line.name||"barang")+" per kg");
+  inputs[0].setAttribute("aria-label","Hasil timbang lapak aktual "+String(line.name||"barang")+" dalam kilogram");
   row.dataset.initialGrams=String(Number(line.grams));
   const diff=document.createElement("small");diff.className="f4-bank-sale-diff";
   row.append(diff);
   const check=()=>{
-   const grams=Math.round(Number(inputs[0].value||0)*1000),delta=grams-Number(line.grams);
-   diff.textContent="Awal "+kg(line.grams)+" kg · "+(delta===0?"Sesuai":delta<0?"Selisih −"+kg(-delta)+" kg":"Lebih +"+kg(delta)+" kg");
-   diff.dataset.state=delta>0?"excess":delta<0?"difference":"equal";
+   const raw=String(inputs[0].value).trim();
+   if(!raw){
+    diff.textContent="Awal "+kg(line.grams)+" kg · isi hasil lapak";
+    diff.dataset.state="unentered";
+   }else{
+    const grams=Math.round(Number(raw)*1000),delta=grams-Number(line.grams);
+    diff.textContent="Awal "+kg(line.grams)+" kg · "+(delta===0?"Sesuai":delta<0?"Selisih −"+kg(-delta)+" kg":"Lebih +"+kg(delta)+" kg");
+    diff.dataset.state=delta>0?"excess":delta<0?"difference":"equal";
+   }
    window.updateSaleTotals?.();
   };
   inputs[0].addEventListener("input",check);
