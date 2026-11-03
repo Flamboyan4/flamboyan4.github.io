@@ -52,6 +52,10 @@
   const load=async()=>{
    try{
     const data=await fetchPolicy(),active=data.current||{};
+    form.hidden=data.canEdit!==true;
+    desc.textContent=data.canEdit===true?
+      "Perubahan hanya berlaku untuk penjualan yang disiapkan setelah tanggal berlaku. Transaksi sah sebelumnya tetap.":
+      "Kebijakan aktif dapat dilihat pengurus. Perubahan metode dan tanggal berlaku hanya melalui Superadmin.";
     current.textContent="Aktif: "+(active.method==="fixed_buy_price"?"Harga beli tetap per jenis":"Bagi hasil "+active.wargaPercent+"% warga / "+(100-active.wargaPercent)+"% Bank")+
       (active.effectiveFrom?" · berlaku sejak "+active.effectiveFrom:" · metode lama");
     if(!form.dataset.initialized){
