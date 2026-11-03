@@ -54,7 +54,7 @@ const begin=core.indexOf('/* Layout tunggal untuk kartu');
 const end=core.indexOf('#f4-direct-bar,#f4-direct-bar',begin);
 assert(begin>=0&&end>begin,'Single shared grid definition missing');
 assert(!core.slice(begin,end).includes('!important'),'Shared grid must not use !important');
-for(const selector of ['.f4-grid{display:grid;', '.f4-grid[data-cols="2"]', '.f4-grid[data-cols="3"]']){
+for(const selector of ['.f4-grid{display:grid;', '.f4-grid[data-cols="2"]{--f4-grid-cols:2}', '.f4-grid[data-cols="3"]{--f4-grid-cols:3}']){
  assert.equal(core.split(selector).length-1,1,'Duplicated shared grid selector: '+selector);
 }
 const remaining=Object.values(totals).reduce((a,b)=>a+b,0);
