@@ -5633,10 +5633,24 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       else window.parent.postMessage({type:'f4:logout-request'},location.origin);
     };
   }
+  let activeAccountKey='public';
   function activate(role,account){
     try{
-    const matching=profile&&currentRole===role;
-    currentRole=role||'public';identity=account||{};
+    const nextRole=role||'public';
+    const nextIdentity=account||{};
+    const nextAccountKey=nextRole==='public'?'public':
+      String(nextIdentity.accountId||'').trim()
+      ?'account:'+String(nextIdentity.accountId).trim()
+      :nextRole+':'+String(nextIdentity.wargaId||nextIdentity.nama||'').trim();
+    const matching=!!profile&&currentRole===nextRole&&activeAccountKey===nextAccountKey;
+    if(!matching){
+      // Reset before the next role is applied. No prior account's private
+      // cards, media, observers, or pending navigation can bleed across logins.
+      window.f4BankResetForAccountSwitch?.();
+      lastAdminSection='';pendingSection='';pendingProfile=false;
+    }
+    activeAccountKey=nextAccountKey;
+    currentRole=nextRole;identity=nextIdentity;
     document.body.dataset.f4BankRole=currentRole;
     syncAccountTabs();
     if(matching&&currentRole!=='public'){
@@ -5658,7 +5672,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     }
     if(currentRole==='public'){
       token='';profile=null;lastAdminSection='';pendingSection='';pendingProfile=false;
-      v11ShowPublic();
+      v11ShowPublic();window.f4BankReconcileAccount?.();
       return;
     }
     token='cloudflare-session-readonly';
@@ -5668,6 +5682,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       rumah:identity.rumah||'',wargaId:identity.wargaId||''
     };
     showDashboard(p);
+    window.f4BankReconcileAccount?.();
     syncReturnButton();
     const requested=pendingSection||lastAdminSection;
     pendingSection='';
