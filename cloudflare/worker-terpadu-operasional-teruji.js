@@ -109,6 +109,7 @@ async function publicBank(db) {
     list(db, `SELECT a.id,a.title,a.category,a.event_on,a.description,
       CASE WHEN a.id LIKE 'album:api:%' OR a.id LIKE 'album:bank:%'
        OR LOWER(a.category) LIKE 'bank sampah:%' OR LOWER(a.category) LIKE 'bank_sampah:%'
+       OR (LOWER(TRIM(a.title))='gorol membersihkan drop point' AND LOWER(TRIM(a.category))='kerja bakti')
        THEN 'bank-sampah' ELSE 'portal-utama' END AS portal_scope,
       COUNT(m.id) AS mediaCount,
       (SELECT cm.external_url FROM album_media cm WHERE cm.album_id=a.id AND cm.media_type='foto'
@@ -2136,6 +2137,7 @@ async function handleUnifiedApi(request, env, who) {
          id,title,category,event_on,description,visibility,status,
          CASE WHEN id LIKE 'album:api:%' OR id LIKE 'album:bank:%'
           OR LOWER(category) LIKE 'bank sampah:%' OR LOWER(category) LIKE 'bank_sampah:%'
+          OR (LOWER(TRIM(title))='gorol membersihkan drop point' AND LOWER(TRIM(category))='kerja bakti')
           THEN 'bank-sampah' ELSE 'portal-utama' END AS portal_scope
          FROM albums WHERE status='aktif' ORDER BY event_on DESC,id DESC LIMIT 500`)});
       const detail = await detailBank(db, url);
