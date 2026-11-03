@@ -641,6 +641,148 @@ async def sale_price_field_proportions(browser):
         await page.close()
 
 
+
+async def bank_policy_permission_ui(browser):
+    """Admin must never see Superadmin editor, including during API loading."""
+    import json
+    for role,can_edit in [("admin",False),("superadmin",True)]:
+        page=await browser.new_page(viewport={"width":390,"height":780})
+        await page.goto(ROOT,wait_until="domcontentloaded")
+        await page.set_content("""<!doctype html><html><head>
+        <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
+        </head><body><section id="pageMaster"></section></body></html>""",wait_until="load")
+        async def policy(route):
+            await route.fulfill(status=200,headers={
+              "access-control-allow-origin":ROOT,"access-control-allow-credentials":"true",
+              "content-type":"application/json"},
+              body=json.dumps({"ok":True,"canEdit":can_edit,"current":{
+                "method":"percentage","wargaPercent":50}}))
+        await page.route("https://api.flamboyan4.web.id/api/admin/bank/policy",policy)
+        await page.add_script_tag(url=ROOT+"/portal-live/bank-policy-admin.js")
+        if can_edit:
+            await page.locator("#f4BankPolicyCard:not([hidden])").wait_for(timeout=8000)
+            assert await page.locator("#f4BankPolicyCard form").is_visible(),role
+        else:
+            await page.wait_for_function("() => document.querySelector('#f4BankPolicyCard')===null",timeout=8000)
+            assert await page.locator("#pageMaster input").count()==0,role
+        print("BANK_POLICY_PERMISSION_UI_OK",role,flush=True)
+        await page.close()
+
+
+async def bank_cash_and_history_tabs(browser):
+    """Real manager JS: Pengeluaran contains the form, Riwayat has two tabs."""
+    import json
+    page=await browser.new_page(viewport={"width":390,"height":850})
+    await page.goto(ROOT,wait_until="domcontentloaded")
+    extra="""<section id="pageBiaya" class="hidden"><div id="v10Budget"></div><div id="v10History"></div>
+    <form id="v10ExpenseForm" class="block-gap">
+     <div class="field"><label for="v10Type">Jenis transaksi</label><select id="v10Type">
+      <option value="Pengeluaran">Pengeluaran</option><option value="Pembelian">Pembelian barang</option></select></div>
+     <div class="field"><label for="v10Date">Tanggal</label><input id="v10Date" type="date"></div>
+     <div class="field"><label for="v10Position">Pos</label><select id="v10Position"><option>Operasional</option></select></div>
+     <div class="field"><label for="v10Description">Keterangan</label><input id="v10Description"></div>
+     <div class="field"><label for="v10Qty">Jumlah</label><input id="v10Qty" type="number" value="1"></div>
+     <div class="field"><label for="v10Unit">Satuan</label><input id="v10Unit" value="unit"></div>
+     <div class="field"><label for="v10Price">Harga</label><input id="v10Price" type="number"></div>
+     <div class="summary-box"><strong id="v10Amount">Rp0</strong></div>
+     <div class="field"><label for="v10Vendor">Toko</label><input id="v10Vendor"></div>
+     <div id="v10InventoryBox" class="field hidden"><input id="v10Inventory" type="checkbox"></div>
+     <div class="field"><label for="v10Proof">Bukti</label><input id="v10Proof"></div>
+     <div class="field"><label for="v10Notes">Catatan</label><input id="v10Notes"></div>
+     <button type="submit">Simpan</button></form><div id="v10ExpenseNotice"></div></section>
+     <section id="pageRiwayat" class="hidden">Setoran warga</section>
+     <section id="pageRiwayatJual" class="hidden">Penjualan lapak</section>"""
+    await page.set_content(HTML.replace("</body></html>",extra+"</body></html>"),wait_until="load")
+    await page.evaluate("""() => {
+      window.__expenseLoads=0;
+      window.v10LoadBiaya=()=>{window.__expenseLoads++};
+      window.loadRiwayatV7=()=>{};
+      window.loadRiwayatJual=()=>{};
+    }""")
+    async def cash(route):
+        await route.fulfill(status=200,headers={
+          "access-control-allow-origin":ROOT,"access-control-allow-credentials":"true",
+          "content-type":"application/json"},
+          body=json.dumps({"ok":True,"data":[{
+            "id":"qa","occurred_on":"2026-11-03","status":"aktif",
+            "transaction_type":"Pengeluaran","note":"Beli kantong sampah",
+            "fund_position":"Operasional","cash_in_rp":0,"cash_out_rp":5000}]}))
+    await page.route("https://api.flamboyan4.web.id/api/v2/admin/bank/cash**",cash)
+    await page.add_script_tag(url=ROOT+"/portal-live/bank-mobile-app.js")
+    await page.evaluate("() => window.goPage('bank-admin-cash')")
+    await page.locator("#f4BankCashTabs button").first.wait_for(timeout=8000)
+    assert await page.locator("#f4BankCashTabs button").all_text_contents()==["Pemasukan","Pengeluaran"]
+    await page.locator("#f4BankCashTabs button[data-cash-tab=out]").click()
+    await page.locator("#f4BankCashExpense").wait_for(state="visible",timeout=8000)
+    fields=await page.evaluate("""() => {
+      const form=document.querySelector('#v10ExpenseForm');
+      return {
+        parent:form?.parentElement?.id,
+        amountLabel:document.querySelector('#v10Price')?.closest('.field')?.querySelector('label')?.textContent,
+        qty:document.querySelector('#v10Qty')?.value,
+        qtyHidden:document.querySelector('#v10Qty')?.closest('.field')?.hidden,
+        optionalClosed:!document.querySelector('.f4-bank-expense-extras')?.open,
+        loads:window.__expenseLoads,
+        overflow:document.documentElement.scrollWidth>innerWidth+3
+      };
+    }""")
+    assert fields["parent"]=="f4BankCashExpense" and fields["amountLabel"]=="Nominal (Rp)",fields
+    assert fields["qty"]=="1" and fields["qtyHidden"] and fields["optionalClosed"],fields
+    assert fields["loads"]>=1 and not fields["overflow"],fields
+    assert await page.locator("#f4BankCashExpense button[type=submit]").inner_text()=="Simpan Pengeluaran"
+    await page.evaluate("() => window.goPage('bank-admin-history')")
+    await page.locator("#f4BankAdminHistoryTabs button").first.wait_for(timeout=8000)
+    assert await page.locator("#f4BankAdminHistoryTabs button").all_text_contents()==["Setoran","Penjualan"]
+    assert await page.locator("#f4BankAdminHistoryTabs").is_visible()
+    assert await page.locator("#pageRiwayat").is_visible()
+    assert not await page.locator("#pageRiwayatJual").is_visible()
+    await page.locator("#f4BankAdminHistoryTabs button").nth(1).click()
+    assert await page.locator("#pageRiwayatJual").is_visible()
+    assert not await page.locator("#pageRiwayat").is_visible()
+    print("BANK_CASH_EXPENSE_HISTORY_TABS_OK",fields,flush=True)
+    await page.close()
+
+
+async def member_price_card_position(browser):
+    """The member price CTA is prominent and above the weighing schedule."""
+    for device,width in [("pc",1366),("hp",390)]:
+        page=await browser.new_page(viewport={"width":width,"height":850})
+        await page.goto(ROOT,wait_until="domcontentloaded")
+        fixture="""<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
+         <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
+         <style>body{margin:0;font-family:system-ui}
+          #dashboardView{padding:18px;max-width:1150px;margin:auto}</style></head>
+         <body class="f4-bank-app-private f4-bank-app-member">
+         <div id="dashboardView"><main class="section">
+         <div id="f4BankAppHome" data-bank-role="member" class="f4-bank-app-home">
+          <div class="f4-bank-app-personal-greeting">Halo, Warga</div>
+          <button class="f4-bank-member-card">Kartu Anggota</button>
+          <button class="f4-bank-app-member-balance">Saldo</button>
+          <button id="f4MemberPriceShortcut" class="f4-bank-price-shortcut">
+           <span class="f4-bank-price-shortcut-icon">♻</span>
+           <span class="f4-bank-price-shortcut-copy"><strong class="f4-bank-price-shortcut-label">Daftar Harga</strong>
+           <small>Tarif warga per kg</small></span><span class="f4-bank-price-shortcut-arrow">›</span>
+          </button>
+          <section id="f4BankWeighingSchedule" class="f4-bank-weigh-schedule">Jadwal Penimbangan</section>
+          <section class="v14-panel">Riwayat</section><section class="f4-member-flow">Panduan</section>
+          <section id="f4MemberEnvironmentPreview">Perkembangan</section>
+          <section id="f4MemberInfoShortcut">Informasi</section>
+         </div></main></div></body></html>"""
+        await page.set_content(fixture,wait_until="load")
+        result=await page.evaluate("""() => {
+          const p=document.querySelector('#f4MemberPriceShortcut'),s=document.querySelector('#f4BankWeighingSchedule');
+          const a=p.getBoundingClientRect(),b=s.getBoundingClientRect();
+          return {priceBottom:a.bottom,scheduleY:b.top,priceH:a.height,
+            border:getComputedStyle(p).borderColor,
+            overflow:document.documentElement.scrollWidth>innerWidth+3};
+        }""")
+        assert result["priceBottom"]<=result["scheduleY"]+2,(device,result)
+        assert result["priceH"]>=60 and not result["overflow"],(device,result)
+        assert result["border"]!="rgb(215, 230, 218)",(device,result)
+        print("MEMBER_PRICE_ABOVE_SCHEDULE_OK",device,result,flush=True)
+        await page.close()
+
+
 async def main():
     async with async_playwright() as p:
         browser=await p.chromium.launch(args=["--no-sandbox"])
@@ -693,6 +835,9 @@ async def main():
             await page.screenshot(path=f"ops-audit/bank-eco-theme/manager-{device}.png",full_page=True)
             print("MANAGER_RESPONSIVE_OK",device,state,flush=True)
             await page.close()
+        await bank_policy_permission_ui(browser)
+        await bank_cash_and_history_tabs(browser)
+        await member_price_card_position(browser)
         await sale_price_field_proportions(browser)
         await note_print_is_visible(browser)
         await member_layout(browser)
