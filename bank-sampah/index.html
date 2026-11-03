@@ -2335,7 +2335,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     type.onchange=()=>{weight.value='';weight.setAttribute('aria-label','Berat '+(setCatalog.find(x=>x.kode===type.value)?.nama||'sampah')+' (kg)');previewSetoran()};
     weight.oninput=previewSetoran;
     remove.onclick=()=>{row.remove();if(!container.children.length)addSetoranItemRow();previewSetoran()};
-    row.append(type,weight,remove);container.append(row);previewSetoran();
+    const amountGroup=document.createElement('div');amountGroup.className='f4-compact-entry-group';
+    amountGroup.append(weight,remove);
+    row.append(type,amountGroup);container.append(row);previewSetoran();
   }
   function getSetItems(){return [...$('setBarang').querySelectorAll('.f4-compact-row')].map(row=>({kode:row.querySelector('select')?.value,berat:Number(row.querySelector('input')?.value)})).filter(item=>item.kode&&item.berat>0);}
   function previewSetoran(){const items=getSetItems();$('setBarang').querySelectorAll('.f4-compact-row').forEach(row=>row.classList.toggle('f4-entry-filled',Number(row.querySelector('input')?.value)>0));let kgTotal=0,rpTotal=0;items.forEach(item=>{const b=setCatalog.find(v=>v.kode===item.kode);kgTotal+=item.berat;rpTotal+=Math.round(item.berat*(b?.tarif||0));});$('previewKg').textContent=kg(kgTotal);$('previewRp').textContent=rupiah(rpTotal);}
@@ -2368,7 +2370,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     type.onchange=()=>{const item=saleCatalog.find(x=>x.kode===type.value);price.value=item?.acuan>0?String(item.acuan):'';updateSaleTotals()};
     weight.oninput=updateSaleTotals;price.oninput=updateSaleTotals;
     remove.onclick=()=>{row.remove();if(!container.children.length)addSaleItemRow();updateSaleTotals()};
-    row.append(type,weight,price,remove);container.append(row);updateSaleTotals();
+    const priceGroup=document.createElement('div');priceGroup.className='f4-compact-entry-group';
+    priceGroup.append(price,remove);
+    row.append(type,weight,priceGroup);container.append(row);updateSaleTotals();
   }
   function saleItems(){return [...$('saleItems').querySelectorAll('.f4-compact-sale-row')].map(row=>({kode:row.querySelector('select')?.value,berat:Number(row.querySelectorAll('input')[0]?.value),harga:Number(row.querySelectorAll('input')[1]?.value)})).filter(item=>item.kode&&item.berat>0);}
   function updateSaleTotals(){const items=saleItems();$('saleItems').querySelectorAll('.f4-compact-row').forEach(row=>row.classList.toggle('f4-entry-filled',Number(row.querySelector('input')?.value)>0));const weight=items.reduce((s,r)=>s+r.berat,0),gross=items.reduce((s,r)=>s+Math.round(r.berat*r.harga),0);$('saleWeight').textContent=kg(weight);$('saleGross').textContent=rupiah(gross);const received=$('saleReceived');received.disabled=$('saleStatus').value==='Belum Bayar';if(received.disabled)received.value='0';else if(!received.dataset.manual)received.value=String(gross);}
@@ -5719,7 +5723,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
 
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261103-css-ownership-v1">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261031-plain-white-dashboard">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261103-bank-entry-grid-v3">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261103-bank-grid-owner-v4">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261103-aligned-public-grid-v1">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261031-member-history-v9">
 <script src="/portal-live/bank-sale-handover.js?v=auto-print-firefox-20261030b"></script>
