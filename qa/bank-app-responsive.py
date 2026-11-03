@@ -608,6 +608,39 @@ async def note_print_is_visible(browser):
         await page.close()
 
 
+async def sale_price_field_proportions(browser):
+    """Price field must be wider than the weight field on PC and phones."""
+    for device,width in [("pc",1366),("hp",390)]:
+        page=await browser.new_page(viewport={"width":width,"height":820})
+        await page.goto(ROOT,wait_until="domcontentloaded")
+        fixture="""<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
+        <style>body{margin:0;font-family:system-ui}#dashboardView{padding:16px;max-width:1060px;margin:auto}
+        #pagePenjualan{width:100%;max-width:600px;box-sizing:border-box}</style></head>
+        <body class="f4-bank-app-private f4-bank-app-admin">
+        <div id="dashboardView"><main class="section"><div id="pagePenjualan">
+        <form id="saleForm"><div id="saleItems"><div class="f4-compact-rows">
+        <div class="f4-compact-row f4-compact-sale-row">
+        <select aria-label="Jenis sampah"><option>Kardus</option></select>
+        <input type="number" aria-label="Berat terjual (kg)" placeholder="Berat (kg)">
+        <div class="f4-compact-entry-group">
+        <input type="number" aria-label="Harga per kg" placeholder="Harga/kg">
+        <button class="f4-compact-remove" type="button">×</button>
+        </div></div></div></div></form></div></main></div></body></html>"""
+        await page.set_content(fixture,wait_until="load")
+        sizes=await page.evaluate("""() => {
+          const width=(sel)=>document.querySelector(sel)?.getBoundingClientRect().width || 0;
+          return {kind:width('#saleItems select'),weight:width('#saleItems .f4-compact-sale-row>input'),
+            price:width('#saleItems .f4-compact-entry-group>input'),
+            remove:width('#saleItems .f4-compact-remove'),
+            overflow:document.documentElement.scrollWidth>innerWidth+2};
+        }""")
+        assert sizes["kind"]>sizes["price"]>sizes["weight"]>0,(device,sizes)
+        assert sizes["remove"]>=30 and not sizes["overflow"],(device,sizes)
+        print("BANK_PRICE_FIELD_WIDER_THAN_WEIGHT_OK",device,sizes,flush=True)
+        await page.close()
+
+
 async def main():
     async with async_playwright() as p:
         browser=await p.chromium.launch(args=["--no-sandbox"])
@@ -660,6 +693,7 @@ async def main():
             await page.screenshot(path=f"ops-audit/bank-eco-theme/manager-{device}.png",full_page=True)
             print("MANAGER_RESPONSIVE_OK",device,state,flush=True)
             await page.close()
+        await sale_price_field_proportions(browser)
         await note_print_is_visible(browser)
         await member_layout(browser)
         await savings_chart(browser)
