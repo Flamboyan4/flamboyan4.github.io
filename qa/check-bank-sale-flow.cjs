@@ -11,7 +11,7 @@ const handover=read('portal-live/bank-sale-handover.js');
 const mobile=read('portal-live/bank-mobile-app.js');
 const bridge=read('portal-live/f4-bank-write-bridge.js');
 const css=read('portal-live/bank-eco-pages.css');
-for(const path of ['portal-live/bank-sale-sheet.js','portal-live/bank-member-prices.js','portal-live/bank-sale-handover.js','portal-live/bank-mobile-app.js','portal-live/f4-bank-write-bridge.js']){
+for(const path of ['portal-live/bank-sale-sheet.js','portal-live/bank-member-prices.js','portal-live/bank-mobile-app.js','portal-live/f4-bank-write-bridge.js']){
  assert(page.includes('/'+path+'?v='),'Cache-busted active load missing: '+path);
 }
 assert(worker.includes('bankSaleSheet(request,env,who,url)'),'Sale sheet endpoint missing');
@@ -26,8 +26,10 @@ assert(sheet.includes('tools.hidden=true')&&sheet.includes('tools.hidden=!batchI
 assert(css.includes('#pagePenjualan .f4-sale-top-fields>.f4-bank-sheet-tools{'),'Sale-sheet CSS owner must be scoped to form grid');
 assert(css.includes('grid-column:1/-1;min-width:0;width:100%'),'Sale-sheet must span the complete grid row');
 assert(css.includes('.f4-bank-sheet-tools[hidden]{display:none}'),'The hidden sale sheet must not occupy a grid row');
-assert(handover.includes("const docCode='BSF4-J-'"),'Receipt number must be derived from the same immutable D1 batch label as sale-sheet');
-assert(page.includes('F4SaleHandover?.({id:result.id,saleNumber:number})'),'Post-sale receipt must print with official number before approval');
+assert(sheet.includes('<div class="sign">'),'The printed field worksheet must include signatures of manager and lapak');
+assert(sheet.includes('LEMBAR TIMBANG LAPAK'),'Only the field worksheet is the paper proof');
+assert(!page.includes('F4SaleHandover?.(')&&!page.includes('Cetak Nota Penjualan'),'No secondary sales note or duplicated receipt after weighing');
+assert(!page.includes('/portal-live/bank-sale-handover.js?'),'Do not load the redundant second receipt script');
 assert(page.includes("v8PendingBatch=batch;goPage('pengesahan')"),'Saved sale must link to approval without new navigation menu');
 assert((page.match(/async function submitSale\(e\)/g)||[]).length===1,'There must be exactly one sale-submit handler');
 assert(page.includes('statusBayar===\'Belum Bayar\'?\'Belum dibayar oleh lapak\''),'Unpaid sale needs automatic meaningful audit reason');
