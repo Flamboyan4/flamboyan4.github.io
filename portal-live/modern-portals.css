@@ -35,11 +35,11 @@ body:has(#f4-account-page)[data-sa-area=bank]{--blue:#087f5b;--tint:#eaf9f2;--wo
 #f4-account-page .sa-card small,#f4-account-page .sa-card span{font-size:12px}
 #f4-account-page .f4-admin-controls{padding:12px;border:1px solid var(--edge);border-radius:14px;background:#fff}
 #f4-account-page .f4-admin-controls input{background:#fafbfc;border-color:var(--edge);font-size:14px}
-#f4-account-page .f4-admin-btn,#f4-account-page .sa-action{background:#fff;border:1px solid var(--edge);color:var(--blue);font-size:13px;min-height:40px}
+#f4-account-page .f4-admin-btn,#f4-account-page .sa-action{background:#fff;border:1px solid var(--edge);color:var(--blue);font-size:13px;min-height:var(--f4-control-height,42px);display:inline-flex;align-items:center;justify-content:center;gap:7px}
 #f4-account-page .f4-admin-primary{background:var(--blue);border-color:var(--blue);color:white;min-height:42px}
 #f4-account-page .f4-admin-controls>.f4-admin-btn:nth-child(2){background:var(--blue);color:#fff;border-color:var(--blue)}
 #f4-account-page .f4-admin-fields label{font-size:13px;color:var(--modern-ink)}
-#f4-account-page .f4-admin-fields input,#f4-account-page .f4-admin-fields select,#f4-account-page .f4-admin-fields textarea{border-color:#dce3e9;border-radius:10px;min-height:44px;font-size:14px}
+#f4-account-page .f4-admin-fields input,#f4-account-page .f4-admin-fields select,#f4-account-page .f4-admin-fields textarea{border-color:#dce3e9;border-radius:10px;min-height:var(--f4-control-height,42px);font-size:14px}
 #f4-account-page .f4-admin-fields :is(input,select,textarea):focus{outline:2px solid var(--blue);outline-offset:2px}
 #f4-account-page .f4-content-destination select:disabled{opacity:1;color:var(--blue);background:var(--tint);border:0;font-weight:700}
 .f4-transfer-options{border:1px dashed var(--edge);border-radius:10px;padding:10px 12px;margin-bottom:16px;font-size:13px;color:var(--muted)}
@@ -79,7 +79,7 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
 #v18PublicSide button:nth-of-type(3n+2) svg{background:#fff1dc;color:#b46a18}
 #v18PublicSide button:nth-of-type(3n) svg{background:#eaf0ff;color:#576ac3}
 #dashboardView .summary-box,#dashboardView .details-panel{background:#fff!important;border:1px solid #e2ebe6}
-#dashboardView input,#dashboardView select,#dashboardView textarea{border-color:#d6e3dc;border-radius:10px;font-size:14px;min-height:43px}
+#dashboardView input,#dashboardView select,#dashboardView textarea{border-color:#d6e3dc;border-radius:10px;font-size:14px;min-height:var(--f4-control-height,42px)}
 #dashboardView button{min-height:40px}#dashboardView table th{background:#f8fbf9;color:#5d7367}
 @media(max-width:760px){
  #f4-account-page>main .f4-work-heading h2{font-size:23px!important}
