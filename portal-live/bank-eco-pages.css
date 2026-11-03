@@ -291,15 +291,24 @@ body.f4-bank-embedded #dashboardView .section,
  html body :is(#v18PublicSide,#sideNav) button svg{
    width:19px!important;height:19px!important;flex:none!important
  }
- /* Pengurus HP tidak memakai drawer sama sekali: navigasi di dock & Akses Cepat.
-    Sidebar penuh hanya untuk PC. */
- html body.f4-bank-app-admin.v17-dashboard #sideNav.side,
- html body.f4-bank-app-admin.v17-dashboard #sideNav.side.open,
- html body.f4-bank-app-admin #v16Backdrop,
- html body.f4-bank-app-admin #v16Backdrop.open,
- html body.f4-bank-app-admin #f4-direct-bar #f4-mobile-menu,
- html body.f4-bank-app-admin #f4-direct-bar .f4-nav-links a[aria-label="Portal Utama"]{
-   display:none;visibility:hidden;pointer-events:none
+ /* Pengelola HP: menu slide untuk Keuangan dan Pengelolaan;
+    lima tujuan utama tetap ada di dock, tanpa duplikasi. */
+ html body.f4-bank-app-admin.v17-dashboard #sideNav.side{
+   box-sizing:border-box;display:block;position:fixed;
+   top:56px;bottom:0;left:0;right:auto;
+   width:min(288px,84vw);min-width:0;
+   height:calc(100dvh - 56px);max-height:calc(100dvh - 56px);
+   padding:12px 10px 18px;overflow-y:auto;
+   border-radius:0;background:#fff;z-index:241;
+   transform:translateX(-105%);visibility:hidden;pointer-events:none;
+   transition:transform .2s ease,visibility .2s ease
+ }
+ html body.f4-bank-app-admin.v17-dashboard #sideNav.side.open{
+   transform:translateX(0);visibility:visible;pointer-events:auto
+ }
+ html body.f4-bank-app-admin #v16Backdrop.open{
+   display:block;position:fixed;inset:56px 0 0;z-index:240;
+   background:#103c2b70;pointer-events:auto
  }
  html body.f4-bank-app-admin.v17-dashboard #dashboardView>.grid{
    display:block;grid-template-columns:minmax(0,1fr)
