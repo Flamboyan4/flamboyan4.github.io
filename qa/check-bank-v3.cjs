@@ -5,6 +5,7 @@ const page=fs.readFileSync('bank-sampah/index.html','utf8');
 const ui=fs.readFileSync('portal-live/bank-mobile-app.js','utf8');
 const bridge=fs.readFileSync('portal-live/f4-bank-write-bridge.js','utf8');
 const sheet=fs.readFileSync('portal-live/bank-sale-sheet.js','utf8');
+const policy=fs.readFileSync('portal-live/bank-policy-admin.js','utf8');
 const between=(a,b)=>{const i=worker.indexOf(a),j=worker.indexOf(b,i);assert(i>=0&&j>i,a+' missing');return worker.slice(i,j)};
 const own=between('// BANK_V3_OWN_START','// BANK_V3_OWN_END');
 assert(!own.includes("INSERT INTO waste_cash_ledger"),'Bank physical inventory must not create cash!');
@@ -14,8 +15,19 @@ for(const term of ['bank_v3_own_events','bank_v3_inventory_lots','status:"stok"'
 assert(ui.includes('Belum ada pemasukan kas')===false||ui.includes('Belum ada pemasukan kas'));
 assert(!ui.includes('id="f4BankOwnAmount"'));
 assert(!ui.includes('requestKey:ownRequestKey,depositedOn:date,amountRp'));
-assert(sheet.includes('Sisa belum dijual (kg)'));
+// One signed sheet, three stages, no permanent extra inputs for optional leftovers.
+assert(sheet.includes('Siapkan & Cetak Lembar'));
+assert(sheet.includes('LEMBAR TIMBANG & JUAL'));
+assert(!page.includes('Cetak Nota Penjualan'));
+assert(sheet.includes('document.createElement("details")') && sheet.includes('unsoldWrap.append(unsoldSummary,unsoldLabel)'));
+assert(sheet.includes('unsoldInput.dataset.bankUnsold="1"'));
 assert(page.includes('data-bank-unsold'));
+assert(ui.includes('["Debit/Kredit","bank-admin-cash","wallet"]'));
+assert(ui.includes('["Profil","profile","user-round"]'));
+assert(ui.includes('$("f4BankAdminOperations")?.after(shortcuts)'));
+assert(ui.includes('dock().hidden=!isPrivate||next==="admin"'));
+assert(policy.includes('el("details","f4-bank-policy-card")'));
+assert(policy.includes('card.append(head,desc,form,message)'));
 assert(bridge.includes('unsoldGrams:Math.round(n(x.sisa)*1000)'));
 for(const term of ['BANK_V3_SHEET_START','BANK_V3_DRAFT_START','BANK_V3_CONFIRM_START','BANK_V3_POLICY_START']){
  assert(worker.includes(term),'V3 stage missing: '+term)
