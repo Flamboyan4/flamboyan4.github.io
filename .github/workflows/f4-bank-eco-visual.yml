@@ -10,6 +10,14 @@ on:
       - qa/bank-app-responsive.py
       - qa/bank-eco-visual.py
       - .github/workflows/f4-bank-eco-visual.yml
+  pull_request:
+    paths:
+      - bank-sampah/index.html
+      - portal-live/bank-eco-pages.css
+      - portal-live/bank-mobile-app.js
+      - qa/bank-app-responsive.py
+      - qa/bank-eco-visual.py
+      - .github/workflows/f4-bank-eco-visual.yml
   workflow_dispatch:
 permissions:
   contents: read
