@@ -14,8 +14,10 @@ function shortcut(home){
  if($("f4MemberPriceShortcut"))return;
  const b=el("button","f4-bank-price-shortcut");
  b.id="f4MemberPriceShortcut";b.type="button";
- b.append(el("span","f4-bank-price-shortcut-icon","♻"),
-  el("span","f4-bank-price-shortcut-label","Harga Sampah"),
+ const copy=el("span","f4-bank-price-shortcut-copy");
+ copy.append(el("strong","f4-bank-price-shortcut-label","Daftar Harga"),
+  el("small","","Tarif warga per kg"));
+ b.append(el("span","f4-bank-price-shortcut-icon","♻"),copy,
   el("span","f4-bank-price-shortcut-arrow","›"));
  b.setAttribute("aria-label","Lihat daftar harga sampah untuk warga");
  b.onclick=()=>window.goPage?.("bank-prices");
@@ -26,7 +28,7 @@ function show(){
  if(!page){
   page=el("section","f4-bank-screen f4-bank-prices-screen");page.id="bank-prices";
   page.append(el("h2","f4-bank-screen-title","Harga Sampah"));
-  page.append(el("p","f4-bank-prices-intro","Harga untuk warga per kilogram, bukan harga jual ke lapak. Dalam metode bagi hasil persentase, tarif ini merupakan perkiraan sampai penjualan disahkan."));
+  page.append(el("p","f4-bank-prices-intro","Tarif warga, bukan harga lapak. Saldo sah setelah penjualan disahkan."));
   const search=el("input","f4-bank-price-search");search.type="search";search.id="f4BankPriceSearch";
   search.placeholder="Cari jenis sampah...";search.setAttribute("aria-label","Cari jenis sampah");
   const status=el("p","f4-bank-prices-status","Memuat harga warga...");status.id="f4BankPriceStatus";
@@ -48,8 +50,8 @@ function show(){
   const rows=result.rows;
   const intro=$("bank-prices")?.querySelector(".f4-bank-prices-intro");
   if(intro)intro.textContent=result.method==="fixed_buy_price"?
-   "Harga beli Bank Sampah kepada warga per kilogram (bukan harga lapak). Harga saat setoran/penjualan mengikuti periode berlaku.":
-   "Tarif warga sebagai acuan perkiraan. Hak akhir mengikuti persentase pada penjualan yang sudah disahkan; bukan harga jual lapak.";
+   "Harga beli warga per kg. Berlaku sesuai periode.":
+   "Tarif perkiraan warga per kg. Nilai akhir setelah penjualan sah.";
   if(requestId!==req)return;
   const render=()=>{
    const query=search.value.trim().toLocaleLowerCase("id-ID");
