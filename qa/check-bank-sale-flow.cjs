@@ -21,7 +21,10 @@ assert(sheet.includes('POST')&&sheet.includes('action:"prepare"'),'Worksheet pre
 assert(sheet.includes('Siapkan & Cetak Lembar'),'Printable worksheet missing');
 assert(sheet.includes('lastPrice'),'Last lapak price should be editable suggestion only');
 assert(handover.includes("const docCode='BSF4-J-'"),'Receipt must use stable group sale number');
-assert(page.includes('F4SaleHandover?.({id:r.id})'),'Post-sale receipt must print before approval');
+assert(page.includes('F4SaleHandover?.({id:result.id})'),'Post-sale receipt must print before approval');
+assert((page.match(/async function submitSale\(e\)/g)||[]).length===1,'There must be exactly one sale-submit handler');
+assert(page.includes('statusBayar===\'Belum Bayar\'?\'Belum dibayar oleh lapak\''),'Unpaid sale needs automatic meaningful audit reason');
+assert(page.includes('<option value="Belum Bayar">Belum Bayar</option><option value="Lunas">Lunas</option>'),'Unpaid must be the safe initial payment choice');
 assert(worker.includes('bankMemberPriceList(db,who)'),'Private citizen price endpoint missing');
 assert(worker.includes('citizen_rate_rp_per_kg AS priceRpPerKg'),'Member list should use citizen rates');
 assert(!member.includes('reference_price_rp'),'Never show lapak reference price in member catalog');
