@@ -1016,7 +1016,7 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
 }
 @media(max-width:600px){
  body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-top-fields>.field,
- body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>.field,
+ body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>:is(.field,.field:first-child),
  body.f4-bank-app-admin #dashboardView .section #saleForm>.field{grid-column:1/-1}
  body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm){--bank-form-gap:10px;row-gap:11px}
  body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm)>button[type=submit]{
