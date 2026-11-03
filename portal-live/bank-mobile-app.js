@@ -910,12 +910,12 @@ function moveFeature(ids,target){
 const adminShortcuts=[
  ["Cek & Sahkan","rekonsiliasi","shield-check"],
  ["Riwayat","bank-admin-history","history"],
- ["Keuangan","bank-admin-cash","wallet"],
+ ["Debit/Kredit","bank-admin-cash","wallet"],
  ["Pencairan","bank-payout-admin","hand-coins"],
  ["Harga Barang","master","tags"],
  ["Data Anggota","admin","users"],
  ["Dokumentasi","bank-admin-docs","images"],
- ["Laporan","laporan","file-text"]
+ ["Profil","profile","user-round"]
 ];
 const adminShortcutPaths={
  "shield-check":'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m8 12 3 3 5-5"/>',
@@ -982,7 +982,7 @@ function ensureAdminHome(){
   intro.after(actions);
  }
  $("f4BankAdminNext")?.remove();
- // Delapan akses cepat hanya di HP; tindakan utama Setor/Jual tetap di atas.
+ // Delapan akses cepat hanya di HP; dua tombol utama tetap paling menonjol.
  let shortcuts=$("f4BankAdminShortcuts");
  if(window.matchMedia("(min-width:1024px)").matches){shortcuts?.remove();shortcuts=null;}
  if(!shortcuts&&window.matchMedia("(max-width:1023px)").matches){
@@ -991,7 +991,7 @@ function ensureAdminHome(){
   const grid=el("div","f4-bank-admin-shortcut-grid");
   grid.append(...adminShortcuts.map(adminShortcut));
   shortcuts.append(grid);
-  $("f4BankAdminNext")?.after(shortcuts);
+  $("f4BankAdminOperations")?.after(shortcuts);
  }
 }
 function showAdminProgress(){
@@ -1037,7 +1037,7 @@ function ensureOwnDepositForm(){
   }
   normal.before(tabs);
   const form=el("form","f4-bank-own-deposit-form");form.id="f4BankOwnDepositForm";form.hidden=true;
-  const intro=el("p","f4-bank-own-intro","Setoran milik Bank menjadi stok fisik. Kas baru bertambah saat barang dijual dan hasilnya disahkan.");
+  const intro=el("p","f4-bank-own-intro","Stok milik Bank dicatat tanpa pembagian. Kas masuk setelah penjualan disahkan.");
   const dateField=el("label","f4-bank-own-field");
   dateField.append(el("span","","Tanggal"),Object.assign(el("input"),{type:"date",required:true,value:today()}));
   dateField.querySelector("input").id="f4BankOwnDate";
@@ -1053,7 +1053,7 @@ function ensureOwnDepositForm(){
   const note=el("label","f4-bank-own-field");note.append(el("span","","Catatan (opsional)"));
   const noteInput=el("input");noteInput.id="f4BankOwnNote";noteInput.maxLength=200;noteInput.placeholder="Asal sampah / keterangan stok";
   note.append(noteInput);
-  const save=el("button","f4-bank-gold-action","Simpan Stok Bank Sampah");save.type="submit";
+  const save=el("button","f4-bank-gold-action","Simpan Setoran Bank");save.type="submit";
   const status=el("p","f4-bank-own-status");status.id="f4BankOwnStatus";status.setAttribute("role","status");
   const main=el("div","f4-bank-own-main"),side=el("div","f4-bank-own-side");
   main.append(detail);side.append(fields,note,save,status);
@@ -1110,7 +1110,7 @@ async function submitOwnDeposit(event){
   status.textContent="Lengkapi jenis dan berat barang.";return;
  }
  if(new Set(items.map(x=>x.itemId)).size!==items.length){status.textContent="Jenis sampah yang sama cukup satu baris.";return;}
- if(!window.confirm("Simpan stok milik Bank Sampah? Belum ada pemasukan kas sampai barang terjual."))return;
+ if(!window.confirm("Catat setoran milik Bank sebagai stok? Belum menambah kas sebelum penjualan sah."))return;
  if(!ownRequestKey)ownRequestKey="own"+crypto.randomUUID().replace(/-/g,"");
  button.disabled=true;status.textContent="Menyimpan stok...";
  try{
@@ -1119,7 +1119,7 @@ async function submitOwnDeposit(event){
    items:items.map(({itemId,grams})=>({itemId,grams})),
    note:$("f4BankOwnNote")?.value.trim()||""
   });
-  status.textContent=res.duplicate?"Stok sudah tercatat.":"Stok Bank Sampah tersimpan, belum menambah kas.";
+  status.textContent=res.duplicate?"Setoran sudah tercatat.":"Setoran Bank tercatat sebagai stok, belum menambah kas.";
   ownRequestKey="";form.reset();$("f4BankOwnDate").value=today();
   $("f4BankOwnLines")?.replaceChildren();addOwnItemRow();updateOwnWeight();
   adminOverview=null;updateDashboard();
