@@ -6,6 +6,13 @@ on:
       - bank-sampah/index.html
       - portal-live/bank-eco-pages.css
       - qa/bank-eco-allpages.cjs
+      - qa/check-bank-sale-flow.cjs
+      - cloudflare/worker-terpadu-operasional-teruji.js
+      - portal-live/bank-sale-sheet.js
+      - portal-live/bank-member-prices.js
+      - portal-live/bank-sale-handover.js
+      - portal-live/bank-mobile-app.js
+      - portal-live/f4-bank-write-bridge.js
       - .github/workflows/f4-bank-eco-allpages.yml
   pull_request:
     paths:
@@ -25,3 +32,13 @@ jobs:
           node-version: '22'
       - name: Validate full theme and inline JavaScript
         run: node qa/bank-eco-allpages.cjs
+      - name: Validate Bank Sampah sale and member workflow
+        run: |
+          node --check cloudflare/worker-terpadu-operasional-teruji.js
+          node --check portal-live/bank-sale-sheet.js
+          node --check portal-live/bank-member-prices.js
+          node --check portal-live/bank-sale-handover.js
+          node --check portal-live/bank-mobile-app.js
+          node --check portal-live/f4-bank-write-bridge.js
+          node --check qa/check-bank-sale-flow.cjs
+          node qa/check-bank-sale-flow.cjs
