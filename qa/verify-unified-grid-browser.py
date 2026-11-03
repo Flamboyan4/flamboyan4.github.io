@@ -244,7 +244,7 @@ async def main():
                         const goodsControl=one('#saleItems .f4-compact-sale-row>select');
                         const desktopAlignmentOk=w<1024||(
                           close((heading.top+heading.bottom)/2,(addKind.top+addKind.bottom)/2) &&
-                          close(addKind.top,one('#setoranForm .f4-entry-goods-heading button').top+0) &&
+                          close(saleMain.top,sale.top) && close(setMain.top,deposit.top) &&
                           close(payment[0].top,payment[1].top)
                         );
                         const ownMain=one('#f4BankOwnDepositForm .f4-bank-own-main'),
