@@ -554,9 +554,7 @@ body:not(.f4-bank-app-admin) #dashboardView #pageProfile.f4-profile-card{
 #dashboardView .f4-bank-app-balance{font-size:26px;font-weight:850;color:#fff;line-height:1.16;font-variant-numeric:tabular-nums}
 #dashboardView .f4-bank-app-secondary{font-size:11px;color:#e0f2e8}
 
-#dashboardView #f4BankAdminIntro{display:grid;gap:3px;min-width:0}
-#dashboardView #f4BankAdminIntro h2{margin:0;font-size:clamp(20px,2.3vw,26px);color:#154d34;line-height:1.2}
-#dashboardView #f4BankAdminIntro p{margin:0;font-size:12px;color:#627e6b;line-height:1.45}
+#dashboardView #f4BankPageGreeting[hidden]{display:none}
 /* Primary operator actions: one component owner; no later card overrides. */
 #dashboardView #f4BankAdminOperations{
  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;min-width:0
@@ -1228,6 +1226,9 @@ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
  align-content:start
 }
 .f4-bank-admin-history-tabs{display:flex;gap:7px}
+#dashboardView .f4-bank-admin-history-tabs[hidden]{display:none}
+.f4-bank-admin-cash-links{display:flex;flex-wrap:wrap;gap:8px}
+.f4-bank-admin-cash-links .f4-bank-secondary-action{min-height:36px}
 .f4-bank-admin-history-tab{
  padding:9px 16px;border:1px solid #d3e5d9;
  border-radius:10px;background:#fff;color:#236044;font-weight:800;cursor:pointer
@@ -1388,8 +1389,8 @@ body.f4-bank-app-admin #pageSetoran .f4-bank-own-side>.f4-bank-gold-action{
 }
 .f4-compact-row>select{grid-column:span 6}
 .f4-compact-row>.f4-compact-entry-group{grid-column:span 6}
-.f4-compact-sale-row>input{grid-column:span 3}
-.f4-compact-sale-row>.f4-compact-entry-group{grid-column:span 3}
+.f4-compact-sale-row>input{grid-column:span 2}
+.f4-compact-sale-row>.f4-compact-entry-group{grid-column:span 4}
 .f4-compact-entry-group{
  display:grid;grid-template-columns:minmax(0,1fr) 38px;
  gap:8px;min-width:0
@@ -1410,6 +1411,7 @@ body.f4-bank-app-admin #pageSetoran .f4-bank-own-side>.f4-bank-gold-action{
  .f4-compact-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
  .f4-compact-row>select{grid-column:1}
  .f4-compact-row>.f4-compact-entry-group{grid-column:2}
+ .f4-compact-sale-row{grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr)}
  .f4-compact-sale-row>select{grid-column:1/-1}
  .f4-compact-sale-row>input{grid-column:1}
  .f4-compact-sale-row>.f4-compact-entry-group{grid-column:2}
@@ -1630,14 +1632,12 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  #dashboardView #f4BankAppHome[data-bank-role="admin"]{
   display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
   grid-template-areas:
-   "intro intro intro intro"
    "actions actions actions actions"
    "hero minis minis minis"
    "recent recent recent recent";
   gap:var(--f4-grid-gap,16px);grid-auto-rows:max-content;align-items:stretch;
   width:100%;max-width:1480px;margin:0 auto
  }
- #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminIntro{grid-area:intro}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations{grid-area:actions}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppAdminHero{
   grid-area:hero;display:grid;grid-template-columns:minmax(0,1fr);
