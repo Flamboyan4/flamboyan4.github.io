@@ -16,7 +16,10 @@ assert(ui.includes('Belum ada pemasukan kas')===false||ui.includes('Belum ada pe
 assert(!ui.includes('id="f4BankOwnAmount"'));
 assert(!ui.includes('requestKey:ownRequestKey,depositedOn:date,amountRp'));
 // One signed sheet, three stages, no permanent extra inputs for optional leftovers.
-assert(sheet.includes('Siapkan & Cetak Lembar'));
+assert(sheet.includes('Cetak Nota Penimbangan'));
+assert(sheet.includes('groupField.after(tools)'));
+assert(!sheet.includes('tools.hidden=!batchId'));
+assert(page.includes('1. Cetak nota penimbangan → 2. Catat hasil lapak → 3. Cek & sahkan'));
 assert(sheet.includes('LEMBAR TIMBANG & JUAL'));
 assert(!page.includes('Cetak Nota Penjualan'));
 assert(sheet.includes('document.createElement("details")') && sheet.includes('unsoldWrap.append(unsoldSummary,unsoldLabel)'));
