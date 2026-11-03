@@ -5492,7 +5492,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     syncAuditInline();
     const updateChoice=()=>{
       const total=list.querySelectorAll('input[data-report-section]:checked').length;
-      count.textContent=total+' dari 4 jenis data dipilih';
+      count.textContent=total+' dari '+Object.keys(v10Specs).length+' jenis data dipilih';
       if(total===0)count.textContent='Pilih minimal 1 jenis data';
       if(v10ReportData)v10RenderReport();
     };
