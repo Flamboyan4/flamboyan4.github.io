@@ -39,6 +39,10 @@ async def main():
                                 const r=root.getBoundingClientRect();
                                 const children=[...root.children].map(x=>x.getBoundingClientRect());
                                 const result={columns:computed.gridTemplateColumns.split(' ').filter(Boolean).length,
+                                  tracks:computed.gridTemplateColumns,
+                                  matched:root.matches('.f4-grid[data-cols="'+cols+'"]'),
+                                  custom:computed.getPropertyValue('--f4-grid-cols').trim(),
+                                  display:computed.display,
                                   fits:children.every(x=>x.left>=r.left-2&&x.right<=r.right+2),
                                   width:r.width};
                                 root.remove();return result;
@@ -52,7 +56,9 @@ async def main():
                             state['grid4']['columns']==expected4 and
                             state['grid3']['fits'] and state['grid4']['fits'])
                         results.append({'page':path,'size':name,'passed':good,
-                            'grid3':state['grid3']['columns'],'grid4':state['grid4']['columns']})
+                            'grid3':state['grid3']['columns'],'grid4':state['grid4']['columns'],
+                            'grid3_debug':state['grid3'] if not good else None,
+                            'grid4_debug':state['grid4'] if not good else None})
                     except Exception as e:
                         results.append({'page':path,'size':name,'passed':False,
                                         'error':str(e)[:250]})
