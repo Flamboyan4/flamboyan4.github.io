@@ -138,9 +138,9 @@ assert(!css.includes('#dashboardView #pageProfile #v15PasswordBox>summary{'),
 assert(!h.includes('#v15PasswordBox>summary{cursor:pointer'),
  'Old left-side triangle style returned');
 assert(h.includes("summary.textContent='Ganti password'"),'Password must have no emoji or separate triangle');
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-admin-compact-v7'),
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-sale-cta-v8'),
  'Bank Sampah profile/dock stylesheet must be cache-busted');
-assert(h.includes('/portal-live/bank-mobile-app.js?v=20261103-admin-compact-v7'),
+assert(h.includes('/portal-live/bank-mobile-app.js?v=20261103-sale-cta-v8'),
  'Member payout icon script must be refreshed');
 assert(css.includes('.f4-bank-currency-mark{'),
  'Rp payout icon must use the canonical bank dock styles');
@@ -154,7 +154,7 @@ assert(css.includes('#saleForm .f4-sale-top-fields>.field{'),
  'Sale three-field row must keep its explicit column spans');
 assert(!css.includes('body.f4-bank-app-private #dashboardView #pageSetoran .f4-entry-top-fields,'),
  'Legacy desktop grid override was reintroduced');
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-admin-compact-v7'),
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-sale-cta-v8'),
  'Bank entry stylesheet cache key was not refreshed');
 const modernCss=fs.readFileSync('portal-live/modern-portals.css','utf8');
 assert(!modernCss.includes('max-width:850px!important') &&
@@ -230,4 +230,18 @@ assert(!css.includes('#dashboardView .section>.card:not(#pageDashboard,#pageProf
 assert(css.includes('grid-template-rows:18px 42px auto;align-content:start;') &&
        css.includes('.f4-bank-own-field input{'),
  'Own-deposit date and amount must share fixed label/control baselines');
+// Primary work cards must carry real icons, labels and action affordances.
+assert(mobile.includes('f4-bank-admin-operation-icon') &&
+       mobile.includes('f4-bank-admin-operation-copy') &&
+       mobile.includes('f4-bank-admin-operation-arrow'),
+ 'Admin primary task cards must include icon, copy and directional affordance');
+assert(css.includes('#f4BankAdminOperations .f4-bank-admin-operation-copy strong{') &&
+       css.includes('grid-template-columns:48px minmax(0,1fr) 28px;'),
+ 'Admin primary task cards no longer use the canonical focal layout');
+assert(css.includes('grid-template-rows:18px var(--bank-input-h);') &&
+       css.includes('#saleForm>#saleItems{') &&
+       css.includes('grid-column:1;grid-row:3;padding-top:24px'),
+ 'PC Hasil timbang / Pembayaran / Diterima alignment must be preserved');
+assert(!css.includes('!important;background') || css.includes('f4-bank-own-mode'),
+ 'Investigate any new forced-priority styling');
 console.log('F4_BANK_CANONICAL_THEME_OK');
