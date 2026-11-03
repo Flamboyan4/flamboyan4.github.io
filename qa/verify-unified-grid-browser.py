@@ -324,7 +324,6 @@ async def main():
                         const a=rect(get('f4BankAdminOperations')),
                               hero=rect(get('f4BankAppAdminHero')),
                               mini=rect(get('f4BankAppMinis')),
-                              follow=rect(get('f4BankAdminNext')),
                               recent=rect(document.querySelector('#f4BankAppHome>.v14-panel')),
                               tabs=get('v16Tabs'), quick=get('f4BankAdminShortcuts'),
                               home=get('f4BankAppHome');
@@ -344,20 +343,22 @@ async def main():
                               b.querySelector('.f4-bank-admin-operation-arrow')!==null;
                         }) && getComputedStyle(actions[0]).backgroundImage.includes('gradient') &&
                              rect(actions[0]).h>=76;
+                        const quickRect=rect(quick);
+                        const icons=[...quick.querySelectorAll('.f4-bank-admin-shortcut')];
                         const grouped=desktop?
-                            (same(hero.y,mini.y)&&same(follow.y,recent.y) &&
-                             same(a.x,hero.x)&&
-                             getComputedStyle(quick).display==='none'):
-                            (hero.y>=a.bottom-2&&follow.y>=mini.bottom-2&&
+                            (same(hero.y,mini.y)&&recent.y>=mini.bottom-2 &&
+                             same(a.x,hero.x)&&getComputedStyle(quick).display==='none'):
+                            (hero.y>=a.bottom-2&&quickRect.y>=mini.bottom-2&&
+                             recent.y>=quickRect.bottom-2&&icons.length===8&&
                              getComputedStyle(quick).display!=='none'&&
                              getComputedStyle(tabs).display==='flex'&&
                              tabs.scrollWidth>=tabs.clientWidth);
                         const areas=getComputedStyle(home).gridTemplateAreas;
                         const owners=desktop?areas.includes('"intro intro intro intro"') &&
-                            areas.includes('"next next recent recent"'):true;
+                            areas.includes('"recent recent recent recent"'):true;
                         const overflow=document.documentElement.scrollWidth>window.innerWidth+2;
                         return {desktop,cardOk,focalOk,grouped,owners,overflow,
-                          actions:a,hero,mini,follow,recent,
+                          actions:a,hero,mini,recent,
                           nav:{width:tabs.clientWidth,scrollWidth:tabs.scrollWidth},
                           areas};
                     }""")

@@ -608,24 +608,6 @@ body:not(.f4-bank-app-admin) #dashboardView #pageProfile.f4-profile-card{
  #dashboardView #f4BankAdminOperations .f4-bank-admin-operation{transition:none}
  #dashboardView #f4BankAdminOperations .f4-bank-admin-operation:is(:hover,:focus-visible){transform:none}
 }
-#dashboardView #f4BankAdminNext{
- display:grid;gap:8px;min-width:0;align-content:start;
- padding:16px 18px;border:1px solid #dce9df;border-radius:14px;background:#fff
-}
-#dashboardView #f4BankAdminNext h2{margin:0 0 4px;font-size:15px;color:#164d36}
-#dashboardView #f4BankAdminNext .f4-bank-admin-next-action{
- display:flex;align-items:center;justify-content:space-between;gap:12px;
- min-width:0;min-height:66px;padding:12px;border:1px solid #d9e8de;
- border-radius:11px;background:#fbfdfb;color:#1c553b;text-align:left;
- cursor:pointer;box-shadow:none
-}
-#dashboardView #f4BankAdminNext .f4-bank-admin-next-action>span:first-child{display:grid;gap:3px;min-width:0}
-#dashboardView #f4BankAdminNext .f4-bank-admin-next-action strong{font-size:13px}
-#dashboardView #f4BankAdminNext .f4-bank-admin-next-action small{font-size:11px;color:#6c8173}
-#dashboardView #f4BankAdminNext .f4-bank-next-arrow{font-size:21px;color:#137d52}
-#dashboardView #f4BankAdminNext .f4-bank-admin-next-action:is(:hover,:focus-visible){
- border-color:#92c4a6;background:#f1f9f4;outline-offset:2px
-}
 #dashboardView #bank-admin-progress{min-width:0}
 #dashboardView #bank-admin-progress>#v17Perkembangan{width:100%;max-width:none;min-width:0;margin:0}
 @media(max-width:600px){
@@ -1211,9 +1193,9 @@ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
  border:1px solid #dbe9df;border-radius:16px
 }
 .f4-bank-admin-shortcuts>h2{margin:0;font-size:16px;font-weight:850;color:#174c33}
-/* Two supporting work areas on phones; the primary actions are above the KPI strip. */
+/* Eight quick actions in 4 balanced columns; Setor/Jual stay focal above. */
 .f4-bank-admin-shortcut-grid{
- display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
  gap:8px;align-items:stretch
 }
 .f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut{
@@ -1290,7 +1272,7 @@ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
 }
 @media(max-width:1023px){
  body.f4-bank-app-admin .f4-bank-admin-shortcut-grid{
-  grid-template-columns:repeat(2,minmax(0,1fr))
+  grid-template-columns:repeat(4,minmax(0,1fr))
  }
  body.f4-bank-app-admin #dashboardView #v16Tabs.v16-tabs:not(.hidden){
   display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;
@@ -1507,6 +1489,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
 @media(max-width:1023px){
  /* Ukuran dock identik untuk anggota dan pengurus; satu variabel untuk ruang konten. */
  body.f4-bank-app-private{--f4-bank-dock-height:64px}
+ body.f4-bank-app-admin{--f4-bank-dock-height:0px}
  body.f4-bank-app-private #dashboardView{padding-bottom:calc(var(--f4-bank-dock-height) + 8px)}
  body.f4-bank-app-private #pageDashboard.f4-member-dashboard{padding:0}
  body.f4-bank-app-private #pageDashboard :is(.v14-head){display:none}
@@ -1580,7 +1563,20 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  }
  body.f4-bank-drawer-open{overscroll-behavior-y:contain}
 }
-/* Drawer is a complementary mobile navigation; dock routes stay only in bottom bar. */
+/* One admin back control, visible on secondary screens only. */
+.f4-bank-admin-back{display:none}
+@media(max-width:1023px){
+ body.f4-bank-app-admin #dashboardView .f4-bank-admin-back:not([hidden]){
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  background:transparent;color:#176342;padding:7px 10px;margin:2px 0 12px;
+  min-height:36px;font-size:13px;font-weight:750;border-radius:9px
+ }
+ body.f4-bank-app-admin #dashboardView .f4-bank-admin-back svg{
+  width:18px;height:18px;stroke:currentColor;stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round;fill:none
+ }
+}
+/* Drawer is the manager's complete mobile navigation; members retain their five-button dock. */
 @media(max-width:1023px){
  body.f4-bank-app-private #dashboardView .mobile-nav{display:none}
  body.f4-bank-app-private #dashboardView>.grid,
@@ -1643,13 +1639,12 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
    "intro intro intro intro"
    "actions actions actions actions"
    "hero minis minis minis"
-   "next next recent recent";
+   "recent recent recent recent";
   gap:var(--f4-grid-gap,16px);grid-auto-rows:max-content;align-items:stretch;
   width:100%;max-width:1480px;margin:0 auto
  }
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminIntro{grid-area:intro}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations{grid-area:actions}
- #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminNext{grid-area:next}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppAdminHero{
   grid-area:hero;display:grid;grid-template-columns:minmax(0,1fr);
   min-width:0;min-height:126px;padding:17px 19px;align-content:center;
@@ -1735,8 +1730,8 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
 @media(max-width:760px){
  html.f4-bank-embedded body.f4-bank-app-private #dashboardView>.mobile-nav{display:none}
  body.f4-bank-app-member #sideNav #v16NavList .v16-item:is([data-group="home"],[data-group="saving"],[data-group="withdrawal"],[data-group="statement"],[data-group="memberreport"]){display:none}
- /* Admin slide is supporting navigation only: avoid repeating the five-button dock. */
- body.f4-bank-app-admin #sideNav #v16NavList>.v16-item:is([data-group="home"],[data-group="deposit"],[data-group="sale"],[data-group="report"],.f4-back-account){display:none}
+ /* Admin now has no bottom dock: all six main categories stay in the slide menu. */
+ body.f4-bank-app-admin #sideNav #v16NavList>.v16-item.f4-back-account{display:none}
 }
 
 
