@@ -114,7 +114,7 @@ async function recon(_token,batchId){
    api('/api/v2/admin/bank/sale-detail?id='+encodeURIComponent(p.saleId))
  ]);
  const b=rows(batches).find(x=>x.id===batchId);
- const beratSetoran=n(b?.grams)/1000;
+ const beratSetoran=p.v3?(Number(p.weightDifferenceGrams||0)+Number(p.remainingStockGrams||0)+(sale.lines||[]).reduce((sum,x)=>sum+n(x.grams),0))/1000:n(b?.grams)/1000;
  const beratLapak=(sale.lines||[]).reduce((sum,x)=>sum+n(x.grams),0)/1000;
  const gross=Number(p.grossRp??sale.sale?.amount_gross_rp);
  const received=Number(p.receivedRp??sale.sale?.amount_received_rp);
@@ -128,7 +128,7 @@ async function recon(_token,batchId){
  const ready=warnings.length===0;
  return {batch:batchId,saleId:p.saleId,siap:ready,siapDiperiksa:ready,peringatan:warnings,
    setoran:p.depositIds?.length||0,penjualan:1,beratSetoran,beratLapak,
-   selisihKg:beratSetoran-beratLapak,hasWeightDifference:!!p.hasWeightDifference,
+   selisihKg:p.v3?Number(p.weightDifferenceGrams||0)/1000:beratSetoran-beratLapak,stokSisaKg:Number(p.remainingStockGrams||0)/1000,metode:p.method||"percentage",hasWeightDifference:!!p.hasWeightDifference,
    weightDifferenceGrams:Number(p.weightDifferenceGrams||0),
    estimasiWarga:p.citizenRightsRp,diterima:received,bruto:gross,
    selisihPenerimaan:gross-received,marginBank:p.environmentRp,marginSementara:p.environmentRp,
@@ -157,7 +157,7 @@ async function saleDraft(_token,p){
  const payload={requestId:await stableUuid(p?.nonce),batchId:String(p.batch),soldOn:String(p.tanggal||''),buyerName:String(p.lapak||''),receivedRp:n(p.diterima),adjustmentNote:String(p.alasanSelisih||'').trim(),
  receiptNo:/^https:\/\//i.test(rawProof)?'':rawProof,
  evidenceUrl:String(p.buktiUrl||(/^https:\/\//i.test(rawProof)?rawProof:'' )).trim(),
- lines:(p.items||[]).map(x=>({itemId:String(x.kode||'').startsWith('waste:')?String(x.kode):'waste:'+String(x.kode||''),grams:Math.round(n(x.berat)*1000),priceRpPerKg:n(x.harga)}))};
+ lines:(p.items||[]).map(x=>({itemId:String(x.kode||'').startsWith('waste:')?String(x.kode):'waste:'+String(x.kode||''),grams:Math.round(n(x.berat)*1000),priceRpPerKg:n(x.harga),unsoldGrams:Math.round(n(x.sisa)*1000)}))};
  const r=await api('/api/admin/sales/draft',payload);
  return {id:r.id,brutoRp:r.grossRp,diterimaRp:r.receivedRp,status:'Draft'};
 }
