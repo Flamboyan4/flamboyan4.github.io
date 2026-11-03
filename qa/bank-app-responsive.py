@@ -346,8 +346,10 @@ async def public_chart_and_flat_roster(browser):
     import re
     from pathlib import Path
     source=Path("bank-sampah/index.html").read_text(encoding="utf-8")
-    roster_css=re.search(r'<style id="f4-bank-savings-compact-20261028">(.*?)</style>',source,re.S)
-    if not roster_css: raise AssertionError("Roster stylesheet unavailable")
+    # The former standalone roster styles were consolidated into the admin report style owner.
+    roster_css=re.search(r'<style id="f4-bank-admin-report-compact-20261027">(.*?)</style>',source,re.S)
+    if not roster_css or 'CSS owner consolidated from #f4-bank-savings-compact-20261028' not in roster_css.group(1):
+        raise AssertionError("Consolidated roster stylesheet unavailable")
     rows="".join(
         '<div class="f4-saldo-row" role="listitem"><div class="f4-saldo-person">'
         f'<strong class="f4-saldo-name">Warga {i}</strong><small class="f4-saldo-house">A5/{i}</small>'
