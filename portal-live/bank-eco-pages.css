@@ -565,7 +565,7 @@ body:not(.f4-bank-app-admin) #dashboardView #pageProfile.f4-profile-card{
 #dashboardView .f4-bank-app-home[data-bank-role="admin"] .f4-bank-app-member-balance,
 #dashboardView .f4-bank-app-home[data-bank-role="admin"] .f4-bank-app-personal-greeting,
 #dashboardView .f4-bank-app-home[data-bank-role="member"] #f4BankAppAdminHero{display:none}
-#dashboardView .f4-bank-app-shortcuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+#dashboardView .f4-bank-app-shortcuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--f4-grid-gap-compact,10px)}
 .f4-bank-app-action-icon{width:37px;height:37px;display:grid;place-items:center;flex:none;border-radius:50%;background:#e7f7e9}
 .f4-bank-app-action-icon img{width:22px;height:22px;object-fit:contain}
 #dashboardView .f4-bank-app-minis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
@@ -585,7 +585,7 @@ body:not(.f4-bank-app-admin) #dashboardView #pageProfile.f4-profile-card{
 .f4-bank-savings-hero small{color:#d2eee1;font-size:11px;letter-spacing:.08em;font-weight:750}
 .f4-bank-savings-hero strong{font-size:27px;letter-spacing:-.025em;line-height:1.2;font-weight:850;color:#fff}
 .f4-bank-savings-hero span{font-size:11px;color:#e4f4eb}
-#dashboardView .f4-bank-savings-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:11px 0 14px}
+#dashboardView .f4-bank-savings-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--f4-grid-gap-compact,10px);margin:11px 0 14px}
 .f4-bank-savings-stat{display:grid;gap:5px;min-width:0;padding:13px 12px;background:#fff;border:1px solid #dbe5dd;border-left:3px solid #087850;border-radius:12px}
 .f4-bank-savings-stat:nth-child(2){border-left-color:#d6a019}
 .f4-bank-savings-stat small{font-size:11px;color:#6c7d70}
@@ -892,7 +892,7 @@ body.f4-bank-app-member #dashboardView .f4-bank-screen{
 .f4-bank-request-state.is-ditolak{background:#ffebe7;color:#c4493d}
 .f4-bank-request-state.is-disetujui{background:#e6f1ff;color:#225eaa}
 #dashboardView .f4-bank-report-period{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-#dashboardView .f4-bank-report-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#dashboardView .f4-bank-report-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--f4-grid-gap-compact,10px)}
 .f4-bank-report-tile{display:grid;gap:6px;padding:13px;border-radius:11px;background:#fff;border:1px solid #dce9df;border-left:3px solid #087850}
 .f4-bank-report-tile:nth-child(2){border-left-color:#d6a019}
 .f4-bank-report-tile:nth-child(3){border-left-color:#087850}
@@ -1348,7 +1348,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  /* Desktop member dashboard: explicit areas for each real component, never auto-place in 12 narrow tracks. */
  /* Member PC uses named areas: no phone grid stretched across a wide screen. */
  #dashboardView #f4BankAppHome[data-bank-role="member"]{
-  display:grid;grid-template-columns:minmax(290px,.9fr) minmax(0,1.1fr);
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
   grid-template-areas:
    "welcome welcome"
    "card balance"
@@ -1356,7 +1356,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
    "history flow"
    "progress progress"
    "info info";
-  gap:14px 16px;grid-auto-rows:max-content;
+  gap:var(--f4-grid-gap,16px);grid-auto-rows:max-content;
   align-items:stretch;max-width:none
  }
  #dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-bank-app-personal-greeting{
@@ -1390,12 +1390,12 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankAppMinis{display:none}
  /* Pengurus PC: grid dashboard asli, bukan layout satu kolom versi HP. */
  #dashboardView #f4BankAppHome[data-bank-role="admin"]{
-  display:grid;grid-template-columns:minmax(0,1.05fr) minmax(345px,.95fr);
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
   grid-template-areas:
    "hero recent"
    "minis minis"
    "progress progress";
-  gap:16px 18px;grid-auto-rows:max-content;align-items:start;
+  gap:var(--f4-grid-gap,16px);grid-auto-rows:max-content;align-items:start;
   width:100%;max-width:1480px;margin:0 auto
  }
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppAdminHero{
@@ -1422,7 +1422,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
   width:20px;height:20px
  }
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppMinis{
-  grid-area:minis;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px
+  grid-area:minis;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--f4-grid-gap,16px)
  }
  #dashboardView #f4BankAppHome[data-bank-role="admin"] .f4-bank-app-mini{
   min-height:86px;padding:15px 18px;align-content:center
@@ -1450,7 +1450,7 @@ body.f4-bank-app-admin #dashboardView .section>#pageProfile{
  width:100%;max-width:100%;min-width:0
 }
  body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-main{
-  display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:18px
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--f4-grid-gap,16px)
  }
  body.f4-bank-app-admin #dashboardView #pageLaporan .v33-report-row{
   grid-template-columns:minmax(0,.94fr) minmax(0,1.06fr)
