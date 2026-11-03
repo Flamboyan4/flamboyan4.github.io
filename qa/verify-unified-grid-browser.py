@@ -127,7 +127,9 @@ async def main():
                                   sameWidths(topSale.slice(0,2))&&
                                   topSale[2].top>=topSale[0].bottom-2&&
                                   Math.abs(topSale[2].width-sale.width)<=2:
-                                  sameTop(topSale)&&sameWidths(topSale));
+                                  sameTop(topSale)&&
+                                  Math.abs(topSale[1].width-topSale[2].width)<=2 &&
+                                  Math.abs(topSale[0].width-(topSale[1].width*2+12))<=2);
                         const paymentsOk=payment.length===2 &&
                             (w<=600?stack(payment):sameTop(payment)&&sameWidths(payment));
                         const layoutOk=[depositForm,saleForm,deposit,sale,summary].every(x=>x.width>0) &&
@@ -140,13 +142,48 @@ async def main():
                             '#saleForm .f4-sale-top-fields',
                             '#saleForm>.summary-box'].every(x=>columns(x)===12);
                         const responsiveOk=document.documentElement.scrollWidth<=w+2;
+                        const close=(a,b)=>Math.abs(a-b)<=2;
+                        const saleRow=one('#saleItems .f4-compact-sale-row');
+                        const setRow=one('#setBarang .f4-compact-row');
+                        const saleParts=[
+                          one('#saleItems .f4-compact-sale-row>select'),
+                          one('#saleItems .f4-compact-sale-row>input'),
+                          one('#saleItems .f4-compact-sale-row>.f4-compact-entry-group')
+                        ];
+                        const depositParts=[
+                          one('#setBarang .f4-compact-row>select'),
+                          one('#setBarang .f4-compact-row>.f4-compact-entry-group')
+                        ];
+                        const price=one('#saleItems .f4-compact-entry-group>input');
+                        const deleteButton=one('#saleItems .f4-compact-entry-group>button');
+                        const note=many('#saleForm .f4-sale-note-fields>.field');
+                        const baseLineOk=w<=600||(
+                          close(depositParts[0].right,topDeposit[0].right) &&
+                          close(depositParts[1].left,topDeposit[1].left) &&
+                          close(saleParts[0].right,topSale[0].right) &&
+                          close(saleParts[1].left,topSale[1].left) &&
+                          close(payment[0].right,topDeposit[0].right) &&
+                          close(payment[1].left,topDeposit[1].left) &&
+                          close(note[0].right,payment[0].right) &&
+                          close(note[1].left,payment[1].left) &&
+                          (w<=1023||(close(saleParts[1].right,topSale[1].right) &&
+                                      close(saleParts[2].left,topSale[2].left)))
+                        );
+                        const priorityOk=getComputedStyle(document.querySelector('#saleForm')).gridTemplateColumns.trim().split(/\s+/).length===12 &&
+                          getComputedStyle(document.querySelector('#saleForm>.summary-box')).display==='grid' &&
+                          getComputedStyle(document.querySelector('#setoranForm>.summary-box')).display==='grid';
+                        const deleteOk=price.right<=deleteButton.left-5 &&
+                          deleteButton.right<=saleRow.right+2 &&
+                          setRow.right>=depositParts[1].right-2;
                         return {gridOk,topDepositOk,topSaleOk,paymentsOk,layoutOk,responsiveOk,
+                            baseLineOk,priorityOk,deleteOk,
                             topDeposit,topSale,payment,summary,viewport:w};
                     }""")
                     good=(response is not None and response.status==200 and
                           all(state[key] for key in
                               ('gridOk','topDepositOk','topSaleOk','paymentsOk',
-                               'layoutOk','responsiveOk')))
+                               'layoutOk','responsiveOk','baseLineOk',
+                               'priorityOk','deleteOk')))
                     results.append({'page':'/qa/fixtures/bank-entry-grid.html',
                         'size':name,'passed':good,**state})
                 except Exception as e:
