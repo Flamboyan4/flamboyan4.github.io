@@ -1227,7 +1227,7 @@ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
  align-content:start
 }
 .f4-bank-admin-history-tabs{display:flex;gap:7px}
-#dashboardView .f4-bank-admin-history-tabs[hidden]{display:none}
+body.f4-bank-app-admin #dashboardView .section .f4-bank-admin-history-tabs[hidden]{display:none}
 .f4-bank-admin-cash-links{display:flex;flex-wrap:wrap;gap:8px}
 .f4-bank-admin-cash-links .f4-bank-secondary-action{min-height:36px}
 #dashboardView #f4BankAdminProgressLink{display:none}
