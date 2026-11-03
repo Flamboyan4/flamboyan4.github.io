@@ -1721,11 +1721,11 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  #dashboardView #f4BankAppHome{grid-template-columns:minmax(0,1fr)}
  #dashboardView #f4BankAppHome>.f4-bank-member-card{max-width:390px}
 }
+/* Profil Pengelola melalui avatar di PC dan Akses Cepat di HP, bukan sidebar. */
+body.f4-bank-app-admin #sideNav #v16NavList>.v16-item.f4-back-account{display:none}
 @media(max-width:760px){
  html.f4-bank-embedded body.f4-bank-app-private #dashboardView>.mobile-nav{display:none}
  body.f4-bank-app-member #sideNav #v16NavList .v16-item:is([data-group="home"],[data-group="saving"],[data-group="withdrawal"],[data-group="statement"],[data-group="memberreport"]){display:none}
- /* Admin now has no bottom dock: all six main categories stay in the slide menu. */
- body.f4-bank-app-admin #sideNav #v16NavList>.v16-item.f4-back-account{display:none}
 }
 
 
