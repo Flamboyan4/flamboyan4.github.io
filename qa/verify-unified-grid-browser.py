@@ -137,7 +137,8 @@ async def main():
                         const paymentsOk=payment.length===2 && stack(payment)&&sameWidths(payment);
                         const layoutOk=[depositForm,saleForm,deposit,sale,summary].every(x=>x.width>0) &&
                             outer(deposit,depositForm)&&outer(sale,saleForm)&&
-                            (w>=1024?summary.right<saleForm.right-100:outer(summary,saleForm))&&
+                            (w>=1024?summary.right<saleForm.right-100:
+                             summary.left>=saleForm.left-2&&summary.right<=saleForm.right+2)&&
                             bounds('#setBarang .f4-compact-row')&&
                             bounds('#saleItems .f4-compact-row');
                         const gridOk=['#setoranForm .f4-entry-top-fields',
@@ -162,11 +163,10 @@ async def main():
                         const note=many('#saleForm .f4-sale-note-fields>.field');
                         const baseLineOk=w<=600||(
                           w>=1024?
-                            (close(saleRow.left,one('#saleForm .f4-sale-main').left) &&
+                            (close(saleRow.left,one('#saleForm .f4-entry-goods-heading').left) &&
                              close(payment[0].left,payment[1].left) &&
                              close(note[0].left,payment[0].left)):
-                            (close(saleParts[0].right,topSale[0].right) &&
-                             close(saleParts[1].left,topSale[1].left) &&
+                            (close(saleRow.left,one('#saleForm .f4-entry-goods-heading').left) &&
                              close(note[0].left,payment[0].left))
                         );
                         const saleVerticalOk=w<1024 || (
@@ -216,7 +216,7 @@ async def main():
                         const desktopPanelOk=w<1024||(
                           saleRow.right<Math.min(...payment.map(x=>x.left)) &&
                           close(payment[0].right,saleForm.right) &&
-                          close(summary.left,saleForm.left) &&
+                          close(summary.left,saleRow.left) &&
                           summary.right<saleForm.right-100 &&
                           close(one('#saleForm .f4-sale-side>button').left,payment[0].left)
                         );
@@ -235,7 +235,7 @@ async def main():
                         const receivedControl=one('#saleReceived');
                         const goodsControl=one('#saleItems .f4-compact-sale-row>select');
                         const desktopAlignmentOk=w<1024||(
-                          close(heading.top,paymentLabel.top) &&
+                          close((heading.top+heading.bottom)/2,(addKind.top+addKind.bottom)/2) &&
                           close(addKind.top,paymentSelect.top) &&
                           close(goodsControl.top,receivedControl.top)
                         );
