@@ -4174,21 +4174,50 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   }
   async function v17LoadPublic(){
     v17SetupPublic();const chartSerial=++v17PublicLoadSerial;$('v17PublicMetrics').textContent='Memuat informasi...';
-    try{
-      const [home,albums,chart]=await Promise.all([call('bsV11PublicHome'),call('bsV22AlbumIndexPublik'),call('bsV17GrafikPublik')]);
+    // Independent public resources must not block each other: chart errors should
+    // never leave inventory stuck on "Memuat inventaris..." or hide valid albums.
+    const [homeResult,albumResult,chartResult]=await Promise.allSettled([
+      call('bsV11PublicHome'),call('bsV22AlbumIndexPublik'),call('bsV17GrafikPublik')
+    ]);
+    if(chartSerial!==v17PublicLoadSerial)return;
+    if(homeResult.status==='fulfilled'){
+      const home=homeResult.value;
       $('v17PublicMetrics').replaceChildren(v17PublicStat('Anggota aktif',home.anggotaAktif),v17PublicStat('Jenis barang',home.jenisBarang),v17PublicStat('Berat terkonfirmasi',kg(home.beratTerkonfirmasi)),v17PublicStat('Kegiatan terpublikasi',home.kegiatan));
-      v17BindPublicChart();
-      v17PublicChartRows=Array.isArray(chart.bulan)?chart.bulan.slice(-6):[];v17PublicDailyRows=null;
-      v17PublicReportReady=false;v17PublicReportFailed=false;
-      v17RenderPublicChart();
-      // Publik hanya melihat perkembangan berat, tanpa data keuangan.
-      // v27: renderer langsung, termasuk untuk pengunjung yang belum login.
       v25RenderTimeline(home.progres||[]);
-      v30SetHeroPhoto(albums,home.progres||[]);
+      const inv=$('v17Inventory');
+      if(inv){
+        inv.replaceChildren();inv.classList.add('v21-inventory-list');
+        (home.inventaris||[]).forEach(x=>inv.appendChild(v21InventoryRow(x)));
+        if(!inv.childElementCount)inv.textContent='Inventaris yang dapat dilihat publik belum tersedia.';
+      }
+    }else{
+      $('v17PublicMetrics').textContent='Informasi publik gagal dimuat: '+(homeResult.reason?.message||'Gangguan layanan.');
+      const inv=$('v17Inventory');
+      if(inv)inv.textContent='Gagal memuat inventaris. Coba buka kembali halaman.';
+      console.error('Bank Sampah: data publik dan inventaris gagal dimuat',homeResult.reason);
+    }
+    if(albumResult.status==='fulfilled'){
+      const albums=albumResult.value;
+      v30SetHeroPhoto(albums,homeResult.status==='fulfilled'?homeResult.value.progres||[]:[]);
       v21RenderAlbumCover(albums);
-      const inv=$('v17Inventory');inv.replaceChildren();inv.classList.add('v21-inventory-list');(home.inventaris||[]).forEach(x=>inv.appendChild(v21InventoryRow(x)));
-      if(!inv.childElementCount)inv.textContent='Inventaris yang dapat dilihat publik belum tersedia.';
-    }catch(e){$('v17PublicMetrics').textContent='Informasi publik belum bisa dimuat: '+(e.message||e);}
+    }else{
+      const list=$('v22DocList'),covers=$('v17Albums');
+      if(list)list.textContent='Gagal memuat album. Coba buka kembali halaman.';
+      if(covers)covers.textContent='Gagal memuat album dokumentasi.';
+      console.error('Bank Sampah: album gagal dimuat',albumResult.reason);
+    }
+    v17BindPublicChart();
+    if(chartResult.status==='fulfilled'){
+      const chart=chartResult.value;
+      v17PublicChartRows=Array.isArray(chart.bulan)?chart.bulan.slice(-6):[];
+      v17PublicDailyRows=null;
+      v17PublicReportReady=false;v17PublicReportFailed=false;
+    }else{
+      v17PublicChartRows=[];v17PublicDailyRows=null;
+      v17PublicReportReady=false;v17PublicReportFailed=true;
+      console.error('Bank Sampah: grafik publik gagal dimuat',chartResult.reason);
+    }
+    v17RenderPublicChart();
     v17PublicAccount();
   }
   // Rekap harian dan nominal hanya dimuat untuk akun aktif.
