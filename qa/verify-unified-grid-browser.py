@@ -116,7 +116,7 @@ async def main():
                         };
                         const deposit=one('#setoranForm .f4-entry-top-fields'),
                             sale=one('#saleForm .f4-sale-top-fields'),
-                            payment=many('#saleForm>.f4-sale-side>.field'),
+                            payment=many('#saleForm .f4-sale-payment-fields>.field'),
                             topDeposit=many('#setoranForm .f4-entry-top-fields>.field'),
                             topSale=many('#saleForm .f4-sale-top-fields>.field'),
                             summary=one('#saleForm .f4-sale-main>.summary-box'),
@@ -127,17 +127,24 @@ async def main():
                             (w<=600?stack(topDeposit):sameTop(topDeposit)&&sameWidths(topDeposit));
                         const topSaleOk=topSale.length===3 &&
                             (w<=600?stack(topSale):
-                             w<=1023?sameTop(topSale.slice(0,2))&&
-                                  sameWidths(topSale.slice(0,2))&&
-                                  topSale[2].top>=topSale[0].bottom-2&&
-                                  Math.abs(topSale[2].width-sale.width)<=2:
-                                  sameTop(topSale)&&
-                                  Math.abs(topSale[1].width-topSale[2].width)<=2 &&
-                                  Math.abs(topSale[0].width-(topSale[1].width*2+12))<=2);
-                        const paymentsOk=payment.length===2 && stack(payment)&&sameWidths(payment);
-                        const layoutOk=[depositForm,saleForm,deposit,sale,summary].every(x=>x.width>0) &&
-                            outer(deposit,depositForm)&&outer(sale,saleForm)&&
-                            (w>=1024?summary.right<saleForm.right-100:
+                             topSale[1].top>=topSale[0].bottom-2&&
+                             sameTop(topSale.slice(1))&&sameWidths(topSale.slice(1))&&
+                             Math.abs(topSale[0].width-sale.width)<=2);
+                        const paymentsOk=payment.length===2 &&
+                          (w<=680?stack(payment):
+                           sameTop(payment)&&sameWidths(payment)&&payment[0].right<=payment[1].left+2);
+                        const setMain=one('#setoranForm .f4-setoran-main'),
+                            setSide=one('#setoranForm .f4-setoran-side'),
+                            saleMain=one('#saleForm .f4-sale-main'),
+                            saleSide=one('#saleForm .f4-sale-side');
+                        const layoutOk=[depositForm,saleForm,deposit,sale,summary,setMain,setSide,saleMain,saleSide]
+                            .every(x=>x.width>0)&&
+                            (w>=1024?
+                             deposit.left>=setSide.left-2 && deposit.right<=setSide.right+2 &&
+                             sale.left>=saleSide.left-2 && sale.right<=saleSide.right+2 &&
+                             setMain.right<setSide.left && saleMain.right<saleSide.left &&
+                             summary.right<saleForm.right-100:
+                             outer(deposit,depositForm)&&outer(sale,saleForm)&&
                              summary.left>=saleForm.left-2&&summary.right<=saleForm.right+2)&&
                             bounds('#setBarang .f4-compact-row')&&
                             bounds('#saleItems .f4-compact-row');
@@ -161,18 +168,18 @@ async def main():
                         const price=one('#saleItems .f4-compact-entry-group>input');
                         const deleteButton=one('#saleItems .f4-compact-entry-group>button');
                         const note=many('#saleForm .f4-sale-note-fields>.field');
-                        const baseLineOk=w<=600||(
-                          w>=1024?
-                            (close(saleRow.left,one('#saleForm .f4-entry-goods-heading').left) &&
-                             close(payment[0].left,payment[1].left) &&
-                             close(note[0].left,payment[0].left)):
-                            (close(saleRow.left,one('#saleForm .f4-entry-goods-heading').left) &&
-                             close(note[0].left,payment[0].left))
+                        const baseLineOk=close(saleRow.left,one('#saleForm .f4-entry-goods-heading').left)&&
+                          close(note[0].left,payment[0].left)&&
+                          (w<1024||close(topSale[0].left,payment[0].left));
+                        const saleVerticalOk=w<=680 || (
+                          sameTop(payment) &&
+                          close(one('#saleReceived').top,one('#saleStatus').top)
                         );
-                        const saleVerticalOk=w<1024 || (
-                          close(saleRow.top,one('#saleReceived').top) &&
-                          close(one('#f4SaleAddKind').top,one('#saleStatus').top)
-                        );
+                        const paymentOrderOk=!!document.querySelector(
+                          '#saleForm .f4-sale-payment-fields>.field:first-child #saleReceived') &&
+                          !!document.querySelector(
+                          '#saleForm .f4-sale-payment-fields>.field:last-child #saleStatus') &&
+                          (w<=680?payment[1].top>=payment[0].bottom-2:payment[0].right<=payment[1].left+2);
                         const noteBefore=one('#saleProof').top;
                         const rows=document.querySelector('#saleItems .f4-compact-rows');
                         const extra=saleRow && document.querySelector('#saleItems .f4-compact-sale-row')?.cloneNode(true);
@@ -199,7 +206,8 @@ async def main():
                         const entryControlsOk=customPickerOk &&
                           controlHeights.every(r=>Math.abs(r.height-42)<=1) &&
                           (w<=600 || Math.abs(controlHeights[0].top-controlHeights[1].top)<=1) &&
-                          (w<=600 || Math.abs(controlHeights[2].top-controlHeights[3].top)<=1);
+                          (w<=600 || (close(controlHeights[3].top,controlHeights[4].top) &&
+                           controlHeights[3].top>=controlHeights[2].bottom-2));
                         const ownDate=one('#f4BankOwnDate'),ownMoney=one('#f4BankOwnAmount'),
                             ownDateLabel=one('.f4-bank-own-fields>.f4-bank-own-field:first-child>span'),
                             ownMoneyLabel=one('.f4-bank-own-fields>.f4-bank-own-field:last-child>span');
@@ -214,8 +222,8 @@ async def main():
                             css.backgroundColor==='rgba(0, 0, 0, 0)';
                         });
                         const desktopPanelOk=w<1024||(
-                          saleRow.right<Math.min(...payment.map(x=>x.left)) &&
-                          close(payment[0].right,saleForm.right) &&
+                          saleRow.right<saleSide.left &&
+                          close(payment[1].right,saleForm.right) &&
                           close(summary.left,saleRow.left) &&
                           summary.right<saleForm.right-100 &&
                           close(one('#saleForm .f4-sale-side>button').left,payment[0].left)
@@ -236,11 +244,23 @@ async def main():
                         const goodsControl=one('#saleItems .f4-compact-sale-row>select');
                         const desktopAlignmentOk=w<1024||(
                           close((heading.top+heading.bottom)/2,(addKind.top+addKind.bottom)/2) &&
-                          close(addKind.top,paymentSelect.top) &&
-                          close(goodsControl.top,receivedControl.top)
+                          close(addKind.top,one('#setoranForm .f4-entry-goods-heading button').top+0) &&
+                          close(payment[0].top,payment[1].top)
+                        );
+                        const ownMain=one('#f4BankOwnDepositForm .f4-bank-own-main'),
+                            ownSide=one('#f4BankOwnDepositForm .f4-bank-own-side');
+                        const gridDividerOk=w<1024||(
+                          close(setMain.width,setSide.width)&&
+                          close(saleMain.width,saleSide.width)&&
+                          close(ownMain.width,ownSide.width)&&
+                          close(setMain.left,saleMain.left)&&
+                          close(setSide.left,saleSide.left)&&
+                          close(ownSide.left,setSide.left)&&
+                          close(setMain.right,saleMain.right)&&
+                          close(setSide.right,saleSide.right)
                         );
                         return {gridOk,topDepositOk,topSaleOk,paymentsOk,layoutOk,responsiveOk,
-                            baseLineOk,saleVerticalOk,independentNotesOk,priorityOk,deleteOk,entryControlsOk,noteFieldsOk,
+                            baseLineOk,saleVerticalOk,paymentOrderOk,gridDividerOk,independentNotesOk,priorityOk,deleteOk,entryControlsOk,noteFieldsOk,
                             desktopAlignmentOk,heading,addKind,paymentLabel,paymentSelect,
                             goodsControl,receivedControl,ownFieldsOk,unframedOk,desktopPanelOk,ownDate,ownMoney,
                             saleFormBounds:one('#saleForm'),
@@ -254,7 +274,7 @@ async def main():
                               ('gridOk','topDepositOk','topSaleOk','paymentsOk',
                                'layoutOk','responsiveOk','baseLineOk',
                                'priorityOk','deleteOk','entryControlsOk','noteFieldsOk',
-                               'independentNotesOk','saleVerticalOk',
+                               'independentNotesOk','saleVerticalOk','paymentOrderOk','gridDividerOk',
                                'ownFieldsOk','unframedOk','desktopPanelOk',
                                'desktopAlignmentOk')))
                     results.append({'page':'/qa/fixtures/bank-entry-grid.html',
