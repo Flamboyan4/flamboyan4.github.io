@@ -1041,6 +1041,8 @@ async function boot(){
   document.body.classList.add('role-superadmin');guard.hidden=true;root.hidden=false;
   const own=location.hash.replace(/^#sa-/,'');
   let requested=own.split('/')[0],initialModule=own.split('/')[1]||'';
+  // Existing bookmarks to the removed duplicate Bagi Hasil open the restored schedule.
+  if(requested==='bank'&&initialModule==='bank_split')initialModule='bank_weighing';
   // Match the parent URL before first paint; do not paint Overview and then
   // immediately replace it with Content/Data Acuan (visible as a flash).
   if(window.parent!==window){
