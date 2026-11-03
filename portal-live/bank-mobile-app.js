@@ -82,7 +82,7 @@ function syncAdminBack(){
   const arrow=document.createElementNS("http://www.w3.org/2000/svg","svg");
   arrow.setAttribute("viewBox","0 0 24 24");arrow.setAttribute("aria-hidden","true");
   arrow.innerHTML='<path d="M19 12H5m7-7-7 7 7 7"/>';
-  back.append(arrow,el("span","","Kembali"));
+  back.append(arrow); // Ikon panah saja, nama aksi tetap tersedia via aria-label.
   back.onclick=()=>navigate("dashboard");
   section.prepend(back);
  }
