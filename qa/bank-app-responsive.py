@@ -190,12 +190,11 @@ async def admin_mobile_shell(browser):
      <div class="grid">
       <aside id="sideNav" class="side"><div id="v16NavList">
        <button class="v16-item" data-group="home">Beranda</button>
-       <button class="v16-item" data-group="entry">Pencatatan</button>
-       <button class="v16-item" data-group="money">Keuangan</button>
-       <button class="v16-item" data-group="payout">Pencairan</button>
-       <button class="v16-item" data-group="program">Kegiatan</button>
-       <button class="v16-item" data-group="settings">Data & anggota</button>
-       <button class="v16-item" data-group="public">Portal publik</button>
+       <button class="v16-item" data-group="deposit">Setoran</button>
+       <button class="v16-item" data-group="sale">Penjualan</button>
+       <button class="v16-item" data-group="finance">Keuangan</button>
+       <button class="v16-item" data-group="management">Pengelolaan</button>
+       <button class="v16-item" data-group="report">Laporan</button>
        <button class="v16-item f4-back-account">Profil pengurus</button>
       </div></aside>
       <main class="section" style="min-height:2400px">Halaman panjang</main>
@@ -259,7 +258,7 @@ async def admin_mobile_shell(browser):
     assert state["activeBackground"]=="rgb(216, 237, 223)",state
     assert state["centerBackground"]=="rgb(255, 192, 38)",state
     assert state["legacyDisplay"]=="none",state
-    assert state["visible"]==["Pencairan","Kegiatan","Data & anggota","Portal publik","Profil pengurus"],state
+    assert state["visible"]==["Keuangan","Pengelolaan"],state
     assert not state["horizontalOverflow"],state
     # The admin hamburger restores the left slide drawer; no bottom dock routes appear twice.
     # Wait for any entrance/visibility transition before checking its closed state.
@@ -282,16 +281,15 @@ async def admin_mobile_shell(browser):
         width:box.width,height:box.height,display:getComputedStyle(nav).display,
         direction:getComputedStyle(nav).flexDirection,
         visible:buttons.filter(x=>getComputedStyle(x).display!=="none").map(x=>x.textContent),
-        hiddenGroups:buttons.filter(x=>["home","entry","money"].includes(x.dataset.group)).every(x=>getComputedStyle(x).display==="none"),
+        hiddenGroups:buttons.filter(x=>["home","deposit","sale","report"].includes(x.dataset.group)||x.classList.contains("f4-back-account")).every(x=>getComputedStyle(x).display==="none"),
         scrollOverflow:document.documentElement.scrollWidth>innerWidth+3};
     }""")
     assert drawer["visibility"]=="visible" and abs(drawer["top"]-56)<2,drawer
     assert abs(drawer["left"])<2 and 275<=drawer["width"]<=301,drawer
     assert drawer["display"]=="flex" and drawer["direction"]=="column",drawer
     assert drawer["hiddenGroups"],drawer
-    assert len(drawer["visible"])==5 and all(name not in drawer["visible"] for name in
-        ["Riwayat setoran","Riwayat penjualan","Cek selisih","Sahkan hasil","Pengeluaran"]),drawer
-    assert drawer["visible"]==["Pencairan","Kegiatan","Data & anggota","Portal publik","Profil pengurus"],drawer
+    assert len(drawer["visible"])==2,drawer
+    assert drawer["visible"]==["Keuangan","Pengelolaan"],drawer
     assert not drawer["scrollOverflow"],drawer
     await page.evaluate('document.querySelector("#sideNav").classList.remove("open")')
     await page.wait_for_timeout(260)
@@ -308,7 +306,7 @@ async def admin_mobile_shell(browser):
       groups:[...document.querySelectorAll("#v16NavList .v16-item[data-group]")]
         .filter(x=>getComputedStyle(x).display!=="none").map(x=>x.dataset.group)
     })""")
-    assert tablet["dock"]=="none" and all(g in tablet["groups"] for g in ["home","entry","money"]),tablet
+    assert tablet["dock"]=="none" and all(g in tablet["groups"] for g in ["home","deposit","sale","finance","management","report"]),tablet
     await page.set_viewport_size({"width":390,"height":820})
     # The exact same dock dimensions must apply when the role switches to member.
     member=await page.evaluate("""() => {
