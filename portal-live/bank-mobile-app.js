@@ -70,11 +70,12 @@ function markDock(){
   if(selected)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");
  }
  if(roleType()==="member")syncMemberBack();
- if(roleType()==="admin"){syncAdminBack();syncAdminGreeting();}
+ if(roleType()==="admin")syncAdminBack();
+ syncAdminGreeting();
 }
 function syncAdminGreeting(){
  const greeting=$("f4BankPageGreeting");
- if(greeting)greeting.hidden=screen!=="dashboard";
+ if(greeting)greeting.hidden=roleType()!=="admin"||screen!=="dashboard";
 }
 function previousBankPage(){
  let destination=routeHistory.pop()||"dashboard";
@@ -1678,7 +1679,7 @@ function resetRoleSurface(){
  if(notice&&home&&notice.parentElement!==home)home.append(notice);
  for(const id of ["f4BankAdminOperations","f4BankAdminShortcuts","f4BankAdminNext"]){$(id)?.remove();}
  $("f4BankAdminBack")?.setAttribute("hidden","");
- $("f4BankPageGreeting")?.removeAttribute("hidden");
+ if($("f4BankPageGreeting"))$("f4BankPageGreeting").hidden=true;
  const menu=$("f4-mobile-menu");
  if(menu){
   menu.replaceChildren(el("span","f4-svg-icon f4-svg-menu"));
