@@ -837,6 +837,13 @@ async def main():
             assert await page.locator("#f4BankManualPayout #v9Form").count()==1
             await page.screenshot(path=f"ops-audit/bank-eco-theme/manager-{device}.png",full_page=True)
             print("MANAGER_RESPONSIVE_OK",device,state,flush=True)
+            if device=="hp":
+                direct=page.locator('#f4BankAdminShortcuts [data-bank-app-route="tabungan"]')
+                assert await direct.is_visible() and await direct.inner_text()=="Saldo Warga"
+                assert await page.locator('#f4BankAdminShortcuts [data-bank-app-route="profile"]').count()==0
+                await direct.click()
+                assert await page.locator("#pageTabungan").is_visible()
+                print("BANK_SALDO_WARGA_DIRECT_NAV_OK",flush=True)
             await page.close()
         await bank_policy_permission_ui(browser)
         await bank_cash_and_history_tabs(browser)
