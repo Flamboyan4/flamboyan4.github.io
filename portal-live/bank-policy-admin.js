@@ -15,8 +15,8 @@
  }
  function init(){
   const page=$("pageMaster");if(!page||$("f4BankPolicyCard"))return;
-  // Kebijakan tetap pada Harga Barang: ringkasan terlihat, formulir lanjutan opsional.
-  const card=el("details","f4-bank-policy-card");card.id="f4BankPolicyCard";
+  // Permission is verified by the API before showing the policy editor.
+  const card=el("details","f4-bank-policy-card");card.id="f4BankPolicyCard";card.hidden=true;
   const head=el("summary","f4-bank-policy-summary");
   const title=el("strong","","Aturan Harga & Bagi Hasil");
   const current=el("span","f4-bank-policy-current","Memuat aturan...");current.id="f4BankPolicyCurrent";
@@ -55,7 +55,9 @@
   const load=async()=>{
    try{
     const data=await fetchPolicy(),active=data.current||{};
-    form.hidden=data.canEdit!==true;
+    if(data.canEdit!==true){card.remove();return;}
+    card.hidden=false;
+    form.hidden=false;
     desc.textContent=data.canEdit===true?
       "Aturan baru berlaku untuk penjualan berikutnya. Transaksi sah lama tetap.":
       "Perubahan aturan hanya untuk Superadmin.";
@@ -65,8 +67,8 @@
      method.value=active.method||"percentage";pct.value=String(active.wargaPercent??50);change();form.dataset.initialized="1";
     }
    }catch(e){
-    current.textContent=e.message||"Aturan tidak tersedia";
-    if(/khusus|akses|403/i.test(current.textContent)){form.hidden=true;desc.textContent="Aturan hanya dapat diubah oleh Superadmin."}
+    // No privileged controls may leak through the Admin interface on API failure.
+    card.remove();
    }
   };
   load();
