@@ -26,11 +26,16 @@ assert(sheet.includes('document.createElement("details")') && sheet.includes('un
 assert(sheet.includes('unsoldInput.dataset.bankUnsold="1"'));
 assert(page.includes('data-bank-unsold'));
 assert(ui.includes('["Debit/Kredit","bank-admin-cash","wallet"]'));
-assert(ui.includes('["Profil","profile","user-round"]'));
+assert(ui.includes('["Saldo Warga","tabungan","coins"]'));
+assert(!ui.includes('["Profil","profile","user-round"]'));
 assert(ui.includes('$("f4BankAdminOperations")?.after(shortcuts)'));
 assert(ui.includes('dock().hidden=!isPrivate||next==="admin"'));
 assert(policy.includes('el("details","f4-bank-policy-card")'));
 assert(policy.includes('card.append(head,desc,form,message)'));
+assert(policy.includes('card.hidden=true')&&policy.includes('if(data.canEdit!==true){card.remove();return;}'));
+assert(ui.includes('tabs.hidden=false')&&ui.includes('panel?.classList.toggle("hidden",key!==selected)'));
+assert(ui.includes('ensureCashExpenseForm()')&&ui.includes('if(route==="biaya"){adminCashTab="out";route="bank-admin-cash";}'));
+assert(page.includes("new CustomEvent('f4-bank-expense-saved'"));
 assert(bridge.includes('unsoldGrams:Math.round(n(x.sisa)*1000)'));
 for(const term of ['BANK_V3_SHEET_START','BANK_V3_DRAFT_START','BANK_V3_CONFIRM_START','BANK_V3_POLICY_START']){
  assert(worker.includes(term),'V3 stage missing: '+term)
