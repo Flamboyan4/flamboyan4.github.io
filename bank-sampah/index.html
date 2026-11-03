@@ -211,7 +211,7 @@
     .v17-public-links a:hover{background:#edf5ea;color:#1d613b}
     .v17-public-account{margin-left:auto;flex-shrink:0;width:41px;height:41px;border:1px solid #d8e6d6;border-radius:50%;background:#e6f0e4;color:#27583e;font-weight:850;padding:0;display:grid;place-items:center;overflow:hidden}
     .v17-public-account img{width:100%;height:100%;object-fit:cover}
-    .v17-public-main{max-width:1250px;margin:auto;padding:22px 20px 56px}
+    .v17-public-main{--f4-public-grid-gap:15px;max-width:1250px;margin:auto;padding:22px 20px 56px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--f4-public-grid-gap)}
     .v17-public-banner{background:#204e38;color:#fff;border-radius:17px;padding:28px;display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,33%);align-items:center;gap:24px}
     .v17-public-banner h1{font-size:27px;margin:6px 0 10px;color:#fff}.v17-public-banner p{font-size:14px;color:#d6e6d8;margin:0;max-width:670px}
     .v17-public-banner .emblem{font-size:70px;opacity:.85}
@@ -229,7 +229,7 @@
     #v17Program .f4-bank-program-heading{display:flex;align-items:end;justify-content:space-between;flex-wrap:wrap;gap:4px 16px;margin-bottom:16px}
     #v17Program .f4-bank-program-kicker{font-size:10px;line-height:1.4;letter-spacing:.14em;font-weight:850;color:#0b7c52}
     #v17Program .f4-bank-program-heading h2{margin:0;font-size:clamp(18px,2vw,23px);line-height:1.25;color:#124f35}
-    #v17Program .f4-bank-program-flow{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin:0;padding:0}
+    #v17Program .f4-bank-program-flow{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--f4-public-grid-gap);margin:0;padding:0}
     #v17Program .f4-bank-program-step{position:relative;min-width:0;padding:3px 0 3px 38px;background:transparent;border:0}
     #v17Program .f4-bank-program-step::before{position:absolute;left:0;top:0;width:27px;height:27px;display:grid;place-items:center;border-radius:50%;background:#0b754c;color:#fff;font-weight:800;font-size:12px}
     #v17Program .f4-bank-program-step:nth-child(1)::before{content:"1"}
@@ -319,7 +319,7 @@
     #v19PublicAccountText{font-size:12px;line-height:1.25;font-weight:800;color:#28553c;min-width:0;overflow-wrap:anywhere}
     #v19PublicAccountText small{display:block;font-size:10px;font-weight:500;color:#788c7b;margin-top:2px}
     #v11Public #v18PublicContent .v17-public-main{min-width:0;max-width:1180px;width:100%}
-    #v11Public .v17-public-main>*{min-width:0;max-width:100%}
+    #v11Public .v17-public-main>*{min-width:0;max-width:100%;grid-column:1/-1}
     #v11Public .v17-public-metric,#v11Public .v17-feature,#v11Public .v17-panel{min-width:0;max-width:100%;overflow-wrap:anywhere}
     #v19PublicFloatingMenu{display:none}
     @media(max-width:720px){
@@ -342,7 +342,7 @@
       #v18PublicBackdrop.open{z-index:48}
     }
     /* v21: visual gallery + inventory ala portal lama, cards white and leaf green. */
-    .v21-media-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:15px;align-items:stretch;margin-top:24px}
+    .v21-media-layout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--f4-public-grid-gap,15px);align-items:stretch;margin-top:24px}
     .v21-media-layout>.v17-section{margin-top:0;border:1px solid var(--line);border-radius:15px;padding:18px;background:#fff;min-width:0}
     .v21-section-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
     .v21-section-bar h2{font-size:18px;margin:0;color:#254f38}
@@ -1238,7 +1238,7 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.f4-payout-submit{
  font-size:19px!important;line-height:1.16!important;
  letter-spacing:-.3px!important;color:#224539!important;
 }
-#v11Public #v17PublicMetrics{gap:10px!important}
+#v11Public #v17PublicMetrics{gap:var(--f4-public-grid-gap)}
 @media(max-width:720px){
  #v11Public #v17PublicMetrics .v17-public-metric{
   grid-template-columns:27px minmax(0,1fr)!important;
@@ -5719,7 +5719,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261031-mobile-spacing-v2">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261031-plain-white-dashboard">
 <link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261101-admin-header-align-v49">
-<link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261031-mobile-progress-v2">
+<link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261103-aligned-public-grid-v1">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261031-member-history-v9">
 <script src="/portal-live/bank-sale-handover.js?v=auto-print-firefox-20261030b"></script>
 <script src="/portal-live/direct-shell.js?v=20261101-password-logout-fix-v2"></script><script src="/portal-live/unified-account.js?v=bank-member-profile-redirect-20261031"></script><script defer src="/portal-live/mobile-cards.js?v=20261031-detail-eye-icon-v2"></script><script defer src="/portal-live/native-controls.js?v=20261027-audit6"></script><script defer src="/portal-live/bank-page-history.js?v=20261027-final4"></script>
