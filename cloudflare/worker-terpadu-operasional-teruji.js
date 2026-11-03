@@ -4696,11 +4696,12 @@ async function bankSalePayment(request,env,who){
  if(received===Number(sale.amount_received_rp))return json({ok:true,id:saleId,receivedRp:received,unchanged:true});
  const note=String(data.note||"").trim();
  if(note.length<5||note.length>250)return safeError("Catatan pelunasan minimal 5 karakter.",400);
- const updated=await env.DB.prepare("UPDATE waste_sales SET amount_received_rp=? WHERE id=? AND status='draft' AND amount_received_rp=? AND NOT EXISTS(SELECT 1 FROM waste_allocations WHERE batch_id=?)")
-  .bind(received,saleId,sale.amount_received_rp,sale.batch_id).run();
- if(updated.meta?.changes!==1)return safeError("Pembayaran berubah. Muat ulang transaksi.",409);
- await env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,before_json,after_json) VALUES(?,?,'banksampah','payment_sale_draft','waste_sales',?,?,?,?)")
-  .bind(crypto.randomUUID(),who.id,saleId,note,JSON.stringify({receivedRp:sale.amount_received_rp}),JSON.stringify({receivedRp:received})).run();
+ const sql=[env.DB.prepare("UPDATE waste_sales SET amount_received_rp=? WHERE id=? AND status='draft' AND amount_received_rp=? AND NOT EXISTS(SELECT 1 FROM waste_allocations WHERE batch_id=?)")
+  .bind(received,saleId,sale.amount_received_rp,sale.batch_id),
+  env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,before_json,after_json) SELECT ?,?,'banksampah','payment_sale_draft','waste_sales',?,?,?,? WHERE changes()=1")
+   .bind(crypto.randomUUID(),who.id,saleId,note,JSON.stringify({receivedRp:sale.amount_received_rp}),JSON.stringify({receivedRp:received}))];
+ const result=await env.DB.batch(sql);
+ if(result[0]?.meta?.changes!==1)return safeError("Pembayaran berubah. Muat ulang transaksi.",409);
  return json({ok:true,id:saleId,receivedRp:received,status:"draft"});
 }
 __name(bankSalePayment,"bankSalePayment");
