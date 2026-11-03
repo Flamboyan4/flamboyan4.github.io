@@ -246,7 +246,7 @@ async def main():
                           close(summary.top,proofLabel.top)
                         );
                         return {gridOk,topDepositOk,topSaleOk,paymentsOk,layoutOk,responsiveOk,
-                            baseLineOk,priorityOk,deleteOk,entryControlsOk,noteFieldsOk,
+                            baseLineOk,saleVerticalOk,priorityOk,deleteOk,entryControlsOk,noteFieldsOk,
                             desktopAlignmentOk,heading,addKind,paymentLabel,paymentSelect,
                             goodsControl,receivedControl,ownFieldsOk,unframedOk,desktopPanelOk,ownDate,ownMoney,
                             saleFormBounds:one('#saleForm'),
