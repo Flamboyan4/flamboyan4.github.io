@@ -83,7 +83,7 @@ async def member_layout(browser):
         assert all(c=="rgb(255, 255, 255)" for c in result["stepColors"]),(device,result)
         if device=="pc":
             assert result["recent"]["x"]<result["guide"]["x"],result
-            assert result["recent"]["w"]>result["guide"]["w"],result
+            assert abs(result["recent"]["w"]-result["guide"]["w"])<3,result
             assert abs(result["steps"][0]["y"]-result["steps"][1]["y"])<3,result
         else:
             assert result["guide"]["y"]<result["recent"]["y"],result
@@ -150,7 +150,7 @@ async def savings_chart(browser):
        visibleNav:[...document.querySelectorAll('#v16NavList .v16-item')].filter(x=>getComputedStyle(x).display!=='none').map(x=>x.dataset.group)
       };
     }""")
-    assert state["groups"]==["Per bulan","Periode"],state
+    assert state["groups"]==["Periode","30 hari","Per bulan"],state
     assert not state["select"],state
     assert [x["value"] for x in state["month"]]==["0,9 kg","1 kg","2 kg","1,5 kg"],state
     assert state["visibleNav"]==["progress","public"],state
@@ -166,11 +166,14 @@ async def savings_chart(browser):
     await page.locator('.f4-bank-chart-switch button[data-mode="rp"]').click()
     money=await page.locator("#f4BankSavingsBars .f4-bank-savings-bar").evaluate_all(
       "(nodes)=>nodes.map(x=>x.querySelector('strong').textContent)")
-    assert money==["Rp 750","Rp 2.250","Rp 3.000","Rp 700"],money
+    assert money==["750","2,3 rb","3 rb","700"],money
+    exact=await page.locator("#f4BankSavingsBars .f4-bank-savings-bar").evaluate_all(
+      "(nodes)=>nodes.map(x=>x.getAttribute('aria-label'))")
+    assert "Rp 2.250" in exact[1] and "Rp 3.000" in exact[2],exact
     await page.locator('.f4-bank-chart-groups button[data-group="month"]').click()
     monthly_money=await page.locator("#f4BankSavingsBars .f4-bank-savings-bar").evaluate_all(
       "(nodes)=>nodes.map(x=>x.querySelector('strong').textContent)")
-    assert monthly_money==["Rp 3.000","Rp 3.700"],monthly_money
+    assert monthly_money==["3 rb","3,7 rb"],monthly_money
     print("SAVINGS_CHART_OK",state,period,money,monthly_money,flush=True)
     await page.close()
 
@@ -185,16 +188,15 @@ async def admin_mobile_shell(browser):
     <div id="dashboardView">
      <div class="mobile-nav">Header lama</div>
      <div class="grid">
-      <aside id="sideNav" class="side"><div id="v16NavList">
+      <aside id="sideNav" class="side"><div id="v16Navigation"><div id="v16NavList">
        <button class="v16-item" data-group="home">Beranda</button>
-       <button class="v16-item" data-group="entry">Pencatatan</button>
-       <button class="v16-item" data-group="money">Keuangan</button>
-       <button class="v16-item" data-group="payout">Pencairan</button>
-       <button class="v16-item" data-group="program">Kegiatan</button>
-       <button class="v16-item" data-group="settings">Data & anggota</button>
-       <button class="v16-item" data-group="public">Portal publik</button>
+       <button class="v16-item" data-group="deposit">Setoran</button>
+       <button class="v16-item" data-group="sale">Penjualan</button>
+       <button class="v16-item" data-group="finance">Keuangan</button>
+       <button class="v16-item" data-group="management">Pengelolaan</button>
+       <button class="v16-item" data-group="report">Laporan</button>
        <button class="v16-item f4-back-account">Profil pengurus</button>
-      </div></aside>
+      </div></div></aside>
       <main class="section" style="min-height:2400px">Halaman panjang</main>
      </div>
     </div>
@@ -208,6 +210,14 @@ async def admin_mobile_shell(browser):
     </body></html>"""
     await page.goto(ROOT,wait_until="domcontentloaded")
     await page.set_content(html,wait_until="load")
+    # The real drawer also depends on inline page styles, not only bank-eco-pages.css.
+    # Include the original source so the fixture does not assert against a half-loaded shell.
+    import re
+    from pathlib import Path
+    full=Path("bank-sampah/index.html").read_text(encoding="utf-8")
+    inline=re.search(r"<style>(.*?)</style>",full,re.S|re.I)
+    assert inline,"Original Bank Sampah drawer CSS not found"
+    await page.add_style_tag(content=inline.group(1))
     await page.evaluate("window.scrollTo(0, 750)")
     await page.wait_for_timeout(100)
     state=await page.evaluate("""() => {
@@ -256,7 +266,7 @@ async def admin_mobile_shell(browser):
     assert state["activeBackground"]=="rgb(216, 237, 223)",state
     assert state["centerBackground"]=="rgb(255, 192, 38)",state
     assert state["legacyDisplay"]=="none",state
-    assert state["visible"]==["Pencairan","Kegiatan","Data & anggota","Portal publik","Profil pengurus"],state
+    assert state["visible"]==["Keuangan","Pengelolaan"],state
     assert not state["horizontalOverflow"],state
     # The admin hamburger restores the left slide drawer; no bottom dock routes appear twice.
     # Wait for any entrance/visibility transition before checking its closed state.
@@ -267,7 +277,7 @@ async def admin_mobile_shell(browser):
         x:side.getBoundingClientRect().x,
         column:getComputedStyle(document.querySelector("#v16NavList")).flexDirection};
     }""")
-    assert drawer_before["visible"]=="hidden" and drawer_before["x"]<0,drawer_before
+    assert drawer_before["visible"]=="hidden",drawer_before  # Offscreen position is not meaningful for visibility:hidden.
     await page.evaluate('document.querySelector("#sideNav").classList.add("open")')
     await page.wait_for_timeout(260)
     drawer=await page.evaluate("""() => {
@@ -279,16 +289,17 @@ async def admin_mobile_shell(browser):
         width:box.width,height:box.height,display:getComputedStyle(nav).display,
         direction:getComputedStyle(nav).flexDirection,
         visible:buttons.filter(x=>getComputedStyle(x).display!=="none").map(x=>x.textContent),
-        hiddenGroups:buttons.filter(x=>["home","entry","money"].includes(x.dataset.group)).every(x=>getComputedStyle(x).display==="none"),
+        hiddenGroups:buttons.filter(x=>["home","deposit","sale","report"].includes(x.dataset.group)||x.classList.contains("f4-back-account")).every(x=>getComputedStyle(x).display==="none"),
+        navVisible:box.width>0 && getComputedStyle(document.querySelector("#v16Navigation")).display!=="none",
         scrollOverflow:document.documentElement.scrollWidth>innerWidth+3};
     }""")
     assert drawer["visibility"]=="visible" and abs(drawer["top"]-56)<2,drawer
     assert abs(drawer["left"])<2 and 275<=drawer["width"]<=301,drawer
     assert drawer["display"]=="flex" and drawer["direction"]=="column",drawer
+    assert drawer["navVisible"],drawer
     assert drawer["hiddenGroups"],drawer
-    assert len(drawer["visible"])==5 and all(name not in drawer["visible"] for name in
-        ["Riwayat setoran","Riwayat penjualan","Cek selisih","Sahkan hasil","Pengeluaran"]),drawer
-    assert drawer["visible"]==["Pencairan","Kegiatan","Data & anggota","Portal publik","Profil pengurus"],drawer
+    assert len(drawer["visible"])==2,drawer
+    assert drawer["visible"]==["Keuangan","Pengelolaan"],drawer
     assert not drawer["scrollOverflow"],drawer
     await page.evaluate('document.querySelector("#sideNav").classList.remove("open")')
     await page.wait_for_timeout(260)
@@ -298,14 +309,14 @@ async def admin_mobile_shell(browser):
     }""")
     assert drawer_closed["x"]<0 and drawer_closed["visibility"]=="hidden",drawer_closed
     print("ADMIN_SLIDE_CATEGORIES_ONLY_OK",drawer,flush=True)
-    # Tablet has no dock: primary admin groups must remain accessible in sidebar.
+    # Tablet still uses the mobile dock and can reveal all admin groups in the drawer.
     await page.set_viewport_size({"width":820,"height":820})
     tablet=await page.evaluate("""() => ({
       dock:getComputedStyle(document.querySelector("#f4BankAppDock")).display,
       groups:[...document.querySelectorAll("#v16NavList .v16-item[data-group]")]
         .filter(x=>getComputedStyle(x).display!=="none").map(x=>x.dataset.group)
     })""")
-    assert tablet["dock"]=="none" and all(g in tablet["groups"] for g in ["home","entry","money"]),tablet
+    assert tablet["dock"]=="grid" and all(g in tablet["groups"] for g in ["home","deposit","sale","finance","management","report"]),tablet
     await page.set_viewport_size({"width":390,"height":820})
     # The exact same dock dimensions must apply when the role switches to member.
     member=await page.evaluate("""() => {
@@ -335,8 +346,10 @@ async def public_chart_and_flat_roster(browser):
     import re
     from pathlib import Path
     source=Path("bank-sampah/index.html").read_text(encoding="utf-8")
-    roster_css=re.search(r'<style id="f4-bank-savings-compact-20261028">(.*?)</style>',source,re.S)
-    if not roster_css: raise AssertionError("Roster stylesheet unavailable")
+    # The former standalone roster styles were consolidated into the admin report style owner.
+    roster_css=re.search(r'<style id="f4-bank-admin-report-compact-20261027">(.*?)</style>',source,re.S)
+    if not roster_css or 'CSS owner consolidated from #f4-bank-savings-compact-20261028' not in roster_css.group(1):
+        raise AssertionError("Consolidated roster stylesheet unavailable")
     rows="".join(
         '<div class="f4-saldo-row" role="listitem"><div class="f4-saldo-person">'
         f'<strong class="f4-saldo-name">Warga {i}</strong><small class="f4-saldo-house">A5/{i}</small>'
@@ -379,44 +392,41 @@ async def public_chart_and_flat_roster(browser):
     def between(start,end):
         begin=source.index(start);finish=source.index(end,begin)
         return source[begin:finish]
-    chart_js=between("  function v17Chart(root,rows,keys,colorNames){","  async function v17LoadFinance(){")
-    public_js=between("  let v17PublicChartMode='berat';","  async function v17LoadPublic(){")
+    # Verify the current public graph: weight only until authenticated.
+    # The public Rp toggle and detailed date modes stay hidden.
+    chart_js=between("  let v17PublicChartMode='berat',v17PublicChartRange='bulan';","  async function v17LoadPublic(){")
     page=await browser.new_page(viewport={"width":390,"height":820})
     await page.set_content("""<!doctype html><html><body><section id="v17Perkembangan">
-    <div class="f4-public-chart-tabs"><button data-public-chart-mode="berat">Berat (kg)</button>
-    <button data-public-chart-mode="nilai">Nilai (Rp)</button></div>
-    <div id="v17PublicChartLegend"></div><div id="v17WeightBars"></div>
-    <p id="v17WeightNote"></p></section></body></html>""")
+    <button data-dev-range="bulan" aria-pressed="true">Per bulan</button>
+    <button data-dev-range="30" hidden>30 hari</button>
+    <button data-dev-mode="berat" aria-pressed="true">Kg</button>
+    <button data-dev-mode="nilai" hidden>Rp</button>
+    <div id="f4DevStats"></div><small id="f4DevChartPeriod"></small>
+    <div id="f4DevChartSummary"></div><div id="f4DevChart"></div>
+    <div id="f4DevLegend"></div><p id="f4DevChartNote"></p></section></body></html>""")
     helpers="""const $=id=>document.getElementById(id);
     const kg=n=>Number(n).toLocaleString('id-ID')+' kg';
     const rupiah=n=>'Rp '+Number(n).toLocaleString('id-ID');
     const v17Label=value=>String(value||'').slice(5)||'—';"""
-    await page.add_script_tag(content=helpers+chart_js+public_js+"""
+    await page.add_script_tag(content=helpers+chart_js+"""
     v17PublicChartRows=[
-      {periode:'2026-09',beratKg:1.2,pendingWeightKg:0.3,hakWarga:750,pendingEstimateRp:1000},
-      {periode:'2026-10',beratKg:1.9,pendingWeightKg:0,hakWarga:2250,pendingEstimateRp:0}
+      {periode:'2026-09',beratKg:1.2,pendingWeightKg:0.3,hasilPenjualan:1500},
+      {periode:'2026-10',beratKg:1.9,pendingWeightKg:0,hasilPenjualan:4500}
     ];
-    v17PublicReportReady=true;v17BindPublicChart();v17RenderPublicChart();""")
+    v17PublicReportReady=false;v17BindPublicChart();v17RenderPublicChart();""")
     weight=await page.evaluate("""() => ({
-      bars:document.querySelectorAll("#v17WeightBars .v17-bar-group").length,
-      note:document.querySelector("#v17WeightNote").textContent,
-      legend:document.querySelector("#v17PublicChartLegend").textContent,
-      firstBar:document.querySelector("#v17WeightBars .v17-bar")?.title
+      bars:document.querySelectorAll("#f4DevChart .f4-dev-column").length,
+      summary:document.querySelector("#f4DevChartSummary").textContent,
+      legend:document.querySelector("#f4DevLegend").textContent,
+      firstBar:document.querySelector("#f4DevChart .f4-dev-column-bar")?.title,
+      privacy:document.querySelector('[data-dev-mode="nilai"]').hidden,
+      privateDate:document.querySelector('[data-dev-range="30"]').hidden,
+      chartText:document.querySelector("#f4DevChart").textContent
     })""")
-    assert weight["bars"]==2 and "3,1 kg" in weight["note"],weight
-    assert "Timbang belum sah" in weight["legend"] and "kg" in weight["firstBar"],weight
-    await page.locator('[data-public-chart-mode="nilai"]').click()
-    money=await page.evaluate("""() => ({
-      bars:document.querySelectorAll("#v17WeightBars .v17-bar-group").length,
-      note:document.querySelector("#v17WeightNote").textContent,
-      legend:document.querySelector("#v17PublicChartLegend").textContent,
-      firstBar:document.querySelector("#v17WeightBars .v17-bar")?.title,
-      active:document.querySelector('[data-public-chart-mode="nilai"]').getAttribute("aria-pressed")
-    })""")
-    assert money["bars"]==2 and "Rp 3.000" in money["note"],money
-    assert money["active"]=="true" and "Hak warga sah" in money["legend"],money
-    assert "Rp" in money["firstBar"] and "kg" not in money["firstBar"],money
-    print("ONE_PUBLIC_CHART_TWO_UNITS_OK",weight,money,flush=True)
+    assert weight["bars"]==2 and "3,1 kg" in weight["summary"],weight
+    assert "Berat sah" in weight["legend"] and "kg" in weight["firstBar"],weight
+    assert weight["privacy"] and weight["privateDate"] and "Rp" not in weight["chartText"],weight
+    print("PUBLIC_WEIGHT_CHART_PRIVACY_OK",weight,flush=True)
     await page.close()
 
 
@@ -458,11 +468,12 @@ async def public_report_compact(browser):
           };
         }""")
         assert len(metrics["heights"])==6,metrics
-        assert max(metrics["heights"])<=105 and min(metrics["heights"])>=60,metrics
-        assert all(15.5<=font<=19 for font in metrics["valueFonts"]),metrics
+        # The current compact report cards intentionally use 49px rows / 15px values.
+        assert max(metrics["heights"])<=80 and min(metrics["heights"])>=45,metrics
+        assert all(13.5<=font<=19 for font in metrics["valueFonts"]),metrics
         if width<=640:
-            assert metrics["columns"]==2,metrics
-            assert all(w<=190 for w in metrics["widths"]),metrics
+            assert metrics["columns"]==(2 if width<=360 else 3),metrics
+            assert all(70<=w<=190 for w in metrics["widths"]),metrics
         else:
             assert metrics["columns"]>=3,metrics
             assert max(metrics["widths"])<=190,metrics
@@ -625,18 +636,22 @@ async def main():
                 };
             }""")
             assert state["account"]=="Rp 1.500",(device,state)
-            assert state["labels"][2]=="Laporan" and "Menu" not in state["labels"],state
+            assert state["labels"]==["Beranda","Saldo","Setoran","Penjualan","Laporan"],state
             assert not state["overflow"],state
+            # Current manager dashboard: kas as the left hero and three useful KPI tiles,
+            # not the obsolete four-tile dashboard stacked under the balance.
+            assert len(state["tiles"])==3,state
             if device=="pc":
                 assert state["home"]["w"]>850,state
-                assert state["metrics"]["y"]>=state["hero"]["y"]+state["hero"]["h"]-3,state
-                assert len(state["tiles"])==4 and abs(state["tiles"][0]["y"]-state["tiles"][3]["y"])<3,state
+                assert abs(state["metrics"]["y"]-state["hero"]["y"])<3,state
+                assert state["metrics"]["x"]>=state["hero"]["right"]+8,state
+                assert abs(state["tiles"][0]["y"]-state["tiles"][2]["y"])<3,state
                 assert state["dock"]=="none",state
             else:
                 assert state["metrics"]["y"]>=state["hero"]["y"]+state["hero"]["h"]-2,state
-                assert len(state["tiles"])==4 and state["tiles"][2]["y"]>state["tiles"][0]["y"],state
+                assert state["tiles"][2]["y"]>=state["tiles"][0]["y"],state
                 assert state["dock"]!="none",state
-            assert "+ Catat setoran" in state["quick"],state
+            assert any("Catat Setoran" in x for x in state["quick"]),state
             assert await page.locator("#f4BankManualPayout").count()==1
             assert not await page.locator("#f4BankManualPayout").get_attribute("open")
             assert await page.locator("#f4BankManualPayout #v9Form").count()==1

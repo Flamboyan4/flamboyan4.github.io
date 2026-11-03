@@ -525,6 +525,11 @@
     #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric strong{font-size:clamp(11px,3.6vw,15px)}
     #v11Public #v25ReportRoot .v25-report-toolbar select{flex:1 1 100%;min-width:0}
   }
+  /* Layar sempit: dua kartu agar nominal tetap terbaca tanpa ukuran huruf mini. */
+  @media(max-width:360px){
+    #v11Public #v25ReportMetrics.v26-compact{grid-template-columns:repeat(2,minmax(0,1fr))}
+    #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric strong{font-size:14px}
+  }
     .v27-progress-no-photo{width:80px;height:78px;display:grid;place-items:center;border-radius:9px;background:#e2eee3;color:#83a58a;font-size:23px}
   .v27-photo-missing{color:#b57c49!important;font-size:10px!important}
   .v27-cancel-panel{border:1px solid #efcaa9;border-radius:12px;margin-top:22px;background:#fffaf4;padding:15px}
@@ -5855,10 +5860,10 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
 
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261103-css-ownership-v1">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261031-plain-white-dashboard">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261103-sheet-grid-fix-v3">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261103-admin-slide-v4">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261103-aligned-public-grid-v1">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261031-member-history-v9">
 <script src="/portal-live/bank-sale-handover.js?v=20261103-numbered-v2"></script><script src="/portal-live/bank-sale-sheet.js?v=20261103-sheet-grid-fix-v3"></script><script src="/portal-live/bank-member-prices.js?v=20261103-01"></script>
 <script src="/portal-live/direct-shell.js?v=20261101-password-logout-fix-v2"></script><script src="/portal-live/unified-account.js?v=bank-member-profile-redirect-20261031"></script><script defer src="/portal-live/mobile-cards.js?v=20261031-detail-eye-icon-v2"></script><script defer src="/portal-live/native-controls.js?v=20261027-audit6"></script><script defer src="/portal-live/bank-page-history.js?v=20261027-final4"></script>
-<script defer src="/portal-live/bank-mobile-app.js?v=20261103-price-statement-v1"></script></body>
+<script defer src="/portal-live/bank-mobile-app.js?v=20261103-chart-total-v2"></script></body>
 </html>

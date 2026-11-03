@@ -78,13 +78,15 @@ assert(!h.includes('max-height:310px!important;overflow-y:auto!important'),'Old 
 // Mobile Bank Sampah controls must not regress into the three bugs in the 31 Oct report.
 assert(!dockSection.includes('transform:translateY(-8px)'),'Center caption must not overlap gold action');
 assert(dockSection.includes('transform:translateY(-21px)'),'Raised central icon geometry changed');
-// Current admin HP has dock + shortcut grid, not a redundant drawer.
-const adminMobile=css.split('/* Pengurus HP tidak memakai drawer sama sekali:')[1]
+// Admin HP keeps five primary dock routes; the slide drawer holds supporting categories.
+const adminMobile=css.split('/* Pengelola HP: menu slide untuk Keuangan dan Pengelolaan;')[1]
   ?.split('@media screen and (max-width:760px)')[0];
 assert(adminMobile,'Admin mobile navigation owner missing');
-assert(adminMobile.includes('html body.f4-bank-app-admin.v17-dashboard #sideNav.side') &&
-       adminMobile.includes('display:none;visibility:hidden;pointer-events:none'),
- 'Admin mobile drawer must remain hidden');
+assert(adminMobile.includes('html body.f4-bank-app-admin.v17-dashboard #sideNav.side.open') &&
+       adminMobile.includes('transform:translateX(0);visibility:visible;pointer-events:auto'),
+ 'Admin mobile slide drawer must open, not remain forcibly hidden');
+assert(adminMobile.includes('html body.f4-bank-app-admin #v16Backdrop.open'),
+ 'Admin slide backdrop must open with the drawer');
 assert(css.includes('.f4-bank-admin-shortcut-grid{'),'Admin shortcut grid missing');
 assert(h.includes("const v16AdminPrimary=new Set(['home','deposit','sale','finance','management','report']);"),
  'Six admin sidebar categories missing');
@@ -138,9 +140,9 @@ assert(!css.includes('#dashboardView #pageProfile #v15PasswordBox>summary{'),
 assert(!h.includes('#v15PasswordBox>summary{cursor:pointer'),
  'Old left-side triangle style returned');
 assert(h.includes("summary.textContent='Ganti password'"),'Password must have no emoji or separate triangle');
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-sheet-grid-fix-v3'),
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-admin-slide-v4'),
  'Bank Sampah profile/dock stylesheet must be cache-busted');
-assert(h.includes('/portal-live/bank-mobile-app.js?v=20261103-price-statement-v1'),
+assert(h.includes('/portal-live/bank-mobile-app.js?v=20261103-chart-total-v2'),
  'Member payout icon script must be refreshed');
 assert(css.includes('.f4-bank-currency-mark{'),
  'Rp payout icon must use the canonical bank dock styles');
@@ -156,7 +158,7 @@ assert(css.includes('#saleForm .f4-sale-top-fields>.field{'),
  'Sale three-field row must keep its explicit column spans');
 assert(!css.includes('body.f4-bank-app-private #dashboardView #pageSetoran .f4-entry-top-fields,'),
  'Legacy desktop grid override was reintroduced');
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-sheet-grid-fix-v3'),
+assert(h.includes('/portal-live/bank-eco-pages.css?v=20261103-admin-slide-v4'),
  'Bank entry stylesheet cache key was not refreshed');
 const modernCss=fs.readFileSync('portal-live/modern-portals.css','utf8');
 assert(!modernCss.includes('max-width:850px!important') &&
