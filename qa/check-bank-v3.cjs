@@ -2,6 +2,7 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const worker=fs.readFileSync('cloudflare/worker-terpadu-operasional-teruji.js','utf8');
 const page=fs.readFileSync('bank-sampah/index.html','utf8');
+const direct=fs.readFileSync('portal-live/direct-shell.js','utf8');
 const ui=fs.readFileSync('portal-live/bank-mobile-app.js','utf8');
 const bridge=fs.readFileSync('portal-live/f4-bank-write-bridge.js','utf8');
 const sheet=fs.readFileSync('portal-live/bank-sale-sheet.js','utf8');
@@ -10,6 +11,22 @@ const superadmin=fs.readFileSync('superadmin/index.html','utf8');
 const between=(a,b)=>{const i=worker.indexOf(a),j=worker.indexOf(b,i);assert(i>=0&&j>i,a+' missing');return worker.slice(i,j)};
 const own=between('// BANK_V3_OWN_START','// BANK_V3_OWN_END');
 assert(!own.includes("INSERT INTO waste_cash_ledger"),'Bank physical inventory must not create cash!');
+assert(worker.includes("AS portal_scope") &&
+       worker.includes("album:bank:%") && worker.includes("album:api:%"),
+       'Bank albums must be scoped in D1 reads without joining Portal Utama albums');
+assert(worker.includes("const id='album:bank:'"),
+       'New Bank albums require an unambiguous origin ID');
+assert(page.includes("const list=albums(r.albums)") &&
+       !page.includes("id:'legacy-bank-20261011'"),
+       'Album list must use real D1 records, not an unopenable fake album');
+assert(direct.includes("accountId:session?.account?.id"),
+       'Native login must pass a stable account ID for identity changes');
+assert(page.includes("activeAccountKey===nextAccountKey") &&
+       page.includes("window.f4BankResetForAccountSwitch?.()"),
+       'Same-role account changes must reset Bank account state');
+assert(ui.includes("window.f4BankResetForAccountSwitch=") &&
+       ui.includes("hub?.remove()"),
+       'Member/Admin card DOM must be torn down on every account switch');
 for(const term of ['bank_v3_own_events','bank_v3_inventory_lots','status:"stok"',"amountRp:0"]){
  assert(own.includes(term),'Own-bank stock persistence missing '+term)
 }
