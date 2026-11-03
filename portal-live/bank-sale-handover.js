@@ -42,14 +42,14 @@ function page(body,tools){
  '<title>Form Serah Terima Penjualan - Flamboyan 4</title><style>'+css+'</style></head><body>'+
  (tools?'<div class="toolbar"><button onclick="window.close()">Tutup</button><button onclick="window.print()">Cetak / Simpan PDF</button></div>':'')+body+'</body></html>';
 }
-function build(sale,lines,officialNumber){
+function build(sale,lines){
  const bruto=Number(sale.amount_gross_rp||0),diterima=Number(sale.amount_received_rp||0);
  const check=lines.reduce((n,x)=>n+Number(x.total_rp||0),0);
  if(!lines.length||!Number.isSafeInteger(check)||bruto!==check)throw Error('Jumlah rincian barang tidak sama dengan transaksi D1. Periksa data sebelum mencetak.');
  if(String(sale.status||'').toLowerCase()==='dibatalkan')throw Error('Transaksi dibatalkan. Nota tidak dapat diterbitkan.');
  const grams=lines.reduce((n,x)=>n+Number(x.grams||0),0);
  const reference=String(sale.id||'').replace(/[^a-z0-9]/gi,'').slice(-8).toUpperCase();
- const docCode=String(officialNumber||sale.sale_number||sale.saleNumber||'').trim()||'REF-'+reference;
+ const docCode='BSF4-J-'+String(sale.batch_id||'').replace(/^batch:/,'').replace(/[^A-Za-z0-9-]/g,'').slice(0,48).toUpperCase();
  const receiptNo=String(sale.receipt_no||'').trim();
  const rows=lines.map((x,i)=>'<tr><td class="right">'+(i+1)+'</td><td>'+esc(x.name||'Barang')+'</td>'+
   '<td class="right">'+kg(x.grams)+'</td><td class="right">'+rp(x.priceRpPerKg)+'</td><td class="right">'+rp(x.total_rp)+'</td></tr>').join('');
@@ -81,13 +81,8 @@ window.F4SaleHandover=function(record){
   const data=await res.json().catch(()=>({}));
   if(!res.ok||data.ok===false)throw Error(data.error||'HTTP '+res.status);
   if(String(data.sale?.id||'')!==id||!Array.isArray(data.lines))throw Error('Rincian transaksi tidak sesuai.');
-  let officialNumber=String(record?.saleNumber||record?.number||'').trim();
-  const batchId=String(data.sale.batch_id||'');
-  if(batchId){try{
-    const nr=await fetch('https://api.flamboyan4.web.id/api/admin/bank/sale-sheet?batchId='+encodeURIComponent(batchId),{credentials:'include',cache:'no-store'});
-    if(nr.ok){const nd=await nr.json();if(String(nd.batchId||'')===batchId&&/^BSF4-J-[A-Z0-9-]+$/i.test(String(nd.saleNumber||'')))officialNumber=String(nd.saleNumber);}
-  }catch{/* Rincian penjualan D1 tetap menjadi sumber utama; nomor fallback adalah referensi aman. */}}
-  const html=build(data.sale,data.lines,officialNumber);
+  // Nomor resmi mengikuti label batch D1, termasuk setelah batch disahkan.
+  const html=build(data.sale,data.lines);
   if(win.closed)return;
   // Firefox dapat menolak/mengabaikan print() setelah await fonts/images.
   // Panggil print pada load dokumen secara langsung, tanpa async await.
