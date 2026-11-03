@@ -1750,6 +1750,16 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
 #pagePenjualan .f4-bank-sheet-actions button{min-height:38px;padding:8px 12px;border-radius:9px;font-size:12px;white-space:normal}
 #pagePenjualan .f4-bank-sheet-actions button[hidden]{display:none}
 #pagePenjualan .f4-bank-sale-diff{display:block;grid-column:1/-1;margin:0;color:#607768;font-size:11px;line-height:1.3}
+#pagePenjualan .f4-bank-unsold-wrap{
+ grid-column:1/-1;display:flex;align-items:center;gap:9px;
+ min-width:0;color:#355e45;font-size:11px;font-weight:700
+}
+#pagePenjualan .f4-bank-unsold-wrap input{
+ width:100px;max-width:40%;min-width:72px;height:34px;min-height:34px;
+ margin:0;padding:5px 8px;border:1px solid #c8ddce;border-radius:8px;
+ background:#fff;color:#233d2d
+}
+
 #pagePenjualan .f4-bank-sale-diff[data-state="difference"]{color:#986323}
 #pagePenjualan .f4-bank-sale-diff[data-state="excess"]{color:#a43d2f}
 #pagePenjualan .f4-bank-sale-receipt-action{display:inline-flex;margin:10px 0 0;padding:8px 12px;border-radius:9px}
