@@ -47,16 +47,30 @@ async def main():
                                   width:r.width};
                                 root.remove();return result;
                             };
-                            return {grid3:sample(3,3),grid4:sample(4,4),
+                            const controls=()=>{
+                              const root=document.createElement('div');
+                              root.className='f4-controls';
+                              root.style.cssText='position:fixed;top:5px;left:5px;width:min(800px,calc(100vw - 10px));visibility:hidden';
+                              root.innerHTML='<input type="text" aria-label="Nama"><select aria-label="Periode"><option>November</option></select><button type="button">Muat</button>';
+                              document.documentElement.append(root);
+                              const boxes=[...root.children].map(e=>e.getBoundingClientRect());
+                              const heights=boxes.map(r=>r.height);
+                              const centers=boxes.map(r=>(r.top+r.bottom)/2);
+                              const ok=heights.every(n=>Math.abs(n-42)<=1)&&
+                                Math.max(...centers)-Math.min(...centers)<=1;
+                              root.remove();return {ok,heights,centers};
+                            };
+                            return {grid3:sample(3,3),grid4:sample(4,4),controls:controls(),
                               stylesheet:[...document.styleSheets].some(x=>
                                 String(x.href||'').includes('direct-shell.css'))};
                         }""")
                         good=(response is not None and response.status==200 and
                             state['stylesheet'] and state['grid3']['columns']==expected3 and
                             state['grid4']['columns']==expected4 and
-                            state['grid3']['fits'] and state['grid4']['fits'])
+                            state['grid3']['fits'] and state['grid4']['fits'] and state['controls']['ok'])
                         results.append({'page':path,'size':name,'passed':good,
                             'grid3':state['grid3']['columns'],'grid4':state['grid4']['columns'],
+                            'control_heights':state['controls']['heights'],'controls_aligned':state['controls']['ok'],
                             'grid3_debug':state['grid3'] if not good else None,
                             'grid4_debug':state['grid4'] if not good else None})
                     except Exception as e:
