@@ -14,11 +14,15 @@ assert(shell.includes('session?.account?.displayName||session?.member?.nama'),'A
 assert(account.includes("window.dispatchEvent(new CustomEvent('f4-account-profile-updated'"),'Profile save not propagated');
 // Members of Bank Sampah edit the alias inside their existing card/profile.
 // This must not reopen the global multi-tab account overlay.
-assert(shell.includes("settings.textContent=portal==='bank'&&role==='warga'?'Kartu & Profil':'Pengaturan Akun'"),
+assert(shell.includes("settings.textContent=portal==='bank'&&role==='warga'?'Kartu & Profil'"),
  'Member Bank Sampah setting label must point at existing card');
-assert(shell.includes("if(portal==='bank'&&role==='warga')"),'Member Bank Sampah must bypass duplicate settings');
+assert(shell.includes("if(portal==='bank'&&['warga','admin','superadmin'].includes(role))"),'Bank Sampah roles must bypass duplicate settings');
+assert(shell.includes("'Profil Pengurus'"),'Admin Bank Sampah must keep its own profile label');
 assert(shell.includes('window.f4OpenBankProfile?.();'),'Member profile redirect missing');
 assert(account.includes("document.body.classList.contains('f4-direct-bank')"),'Global account overlay must guard Bank Sampah members');
+assert(worker.includes('if (!who) return err("Silakan login untuk melihat laporan keuangan.", 401);'),'Finance report routes must deny guests');
+assert(worker.includes('path === "/api/v2/public/portal/cash"'),'Cash route must remain available to logged-in users');
+assert(worker.includes('path === "/api/v2/public/bank/report"'),'Bank report must remain available to logged-in users');
 const memberApp=fs.readFileSync('portal-live/bank-mobile-app.js','utf8');
 new vm.Script(memberApp,{filename:'bank-mobile-app'});
 assert(memberApp.includes('function inlineMemberDisplayName()'),'Inline member name editing missing');
