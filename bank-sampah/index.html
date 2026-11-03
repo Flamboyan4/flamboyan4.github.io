@@ -229,7 +229,7 @@
     #v17Program .f4-bank-program-heading{display:flex;align-items:end;justify-content:space-between;flex-wrap:wrap;gap:4px 16px;margin-bottom:16px}
     #v17Program .f4-bank-program-kicker{font-size:10px;line-height:1.4;letter-spacing:.14em;font-weight:850;color:#0b7c52}
     #v17Program .f4-bank-program-heading h2{margin:0;font-size:clamp(18px,2vw,23px);line-height:1.25;color:#124f35}
-    #v17Program .f4-bank-program-flow{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin:0;padding:0}
+    #v17Program .f4-bank-program-flow{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--f4-public-grid-gap);margin:0;padding:0}
     #v17Program .f4-bank-program-step{position:relative;min-width:0;padding:3px 0 3px 38px;background:transparent;border:0}
     #v17Program .f4-bank-program-step::before{position:absolute;left:0;top:0;width:27px;height:27px;display:grid;place-items:center;border-radius:50%;background:#0b754c;color:#fff;font-weight:800;font-size:12px}
     #v17Program .f4-bank-program-step:nth-child(1)::before{content:"1"}
@@ -1238,7 +1238,7 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.f4-payout-submit{
  font-size:19px!important;line-height:1.16!important;
  letter-spacing:-.3px!important;color:#224539!important;
 }
-#v11Public #v17PublicMetrics{gap:10px!important}
+#v11Public #v17PublicMetrics{gap:var(--f4-public-grid-gap)}
 @media(max-width:720px){
  #v11Public #v17PublicMetrics .v17-public-metric{
   grid-template-columns:27px minmax(0,1fr)!important;
