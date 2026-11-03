@@ -137,8 +137,8 @@ function syncMemberBack(){
 function orderMemberHome(){
  const home=$("f4BankAppHome");if(!home||roleType()!=="member")return;
  const feed=$("v14Recent")?.closest(".v14-panel");
- const items=[$("f4MemberFlow"),feed,$("f4BankWeighingSchedule"),$("f4MemberPriceShortcut"),$("f4MemberEnvironmentPreview"),$("f4MemberInfoShortcut")];
- // Preserve member card and balance at the top, place private history and schedule before progress.
+ const items=[$("f4MemberPriceShortcut"),$("f4BankWeighingSchedule"),feed,$("f4MemberFlow"),$("f4MemberEnvironmentPreview"),$("f4MemberInfoShortcut")];
+ // Member prices are the first action after their card/balance, directly above the weighing schedule.
  for(const item of items)if(item&&item.parentNode===home)home.append(item);
 }
 function statusFor(page){
@@ -919,7 +919,7 @@ const adminShortcuts=[
  ["Harga Barang","master","tags"],
  ["Data Anggota","admin","users"],
  ["Dokumentasi","bank-admin-docs","images"],
- ["Profil","profile","user-round"]
+ ["Saldo Warga","tabungan","coins"]
 ];
 const adminShortcutPaths={
  "shield-check":'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m8 12 3 3 5-5"/>',
@@ -930,6 +930,7 @@ const adminShortcutPaths={
  users:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2"/><path d="M17 5a3 3 0 0 1 0 6m1 5c2 0 3 2 3 4"/>',
  images:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 16 5-5 4 4 3-3 6 6"/>',
  "user-round":'<circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/>',
+ coins:'<ellipse cx="8" cy="17" rx="5" ry="3"/><path d="M3 17v3c0 1.7 2.2 3 5 3s5-1.3 5-3v-3"/><circle cx="16" cy="8" r="5"/><path d="M16 5v6m-2-5h4"/>' ,
  "file-text":'<path d="M6 2h8l5 5v15H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z"/><path d="M14 2v6h5M8 12h8M8 16h8"/>'
 };
 function adminShortcut([name,route,iconName]){
@@ -1127,6 +1128,42 @@ async function submitOwnDeposit(event){
  finally{button.disabled=false;}
 }
 let adminCashTab="in";
+function ensureCashExpenseForm(){
+ const host=$("f4BankCashExpense"),form=$("v10ExpenseForm");
+ if(!host||!form)return;
+ if(form.parentElement!==host){
+  const title=el("h3","","Catat pengeluaran");
+  title.id="f4BankCashExpenseTitle";
+  host.append(title,form);
+  const notice=$("v10ExpenseNotice");if(notice)host.append(notice);
+ }
+ if(form.dataset.f4CompactExpense==="1")return;
+ form.dataset.f4CompactExpense="1";
+ form.classList.add("f4-bank-compact-expense-form");
+ const amount=$("v10Price"),qty=$("v10Qty"),unit=$("v10Unit");
+ const priceLabel=amount?.closest(".field")?.querySelector("label");
+ if(priceLabel)priceLabel.textContent="Nominal (Rp)";
+ amount?.setAttribute("placeholder","0");
+ const descLabel=$("v10Description")?.closest(".field")?.querySelector("label");
+ if(descLabel)descLabel.textContent="Keterangan";
+ for(const id of ["v10Qty","v10Unit"]){
+  const field=$(id)?.closest(".field");
+  if(field)field.hidden=true;
+ }
+ if(qty){qty.value="1";qty.defaultValue="1";}
+ if(unit){unit.value="unit";unit.defaultValue="unit";}
+ const summary=form.querySelector(".summary-box");if(summary)summary.hidden=true;
+ const extras=el("details","f4-bank-expense-extras");
+ extras.append(el("summary","","Detail tambahan (opsional)"));
+ for(const id of ["v10Vendor","v10Proof","v10Notes","v10InventoryBox"]){
+  const node=$(id);
+  const field=id==="v10InventoryBox"?node:node?.closest(".field");
+  if(field)extras.append(field);
+ }
+ const submit=form.querySelector('button[type="submit"]');
+ if(submit){submit.textContent="Simpan Pengeluaran";submit.before(extras);}
+ else form.append(extras);
+}
 function showAdminCash(){
  const page=ensureScreen("bank-admin-cash","Debit/Kredit");
  let body=$("f4BankAdminCashBody");
@@ -1137,21 +1174,13 @@ function showAdminCash(){
    const button=el("button","f4-bank-admin-history-tab",label);button.type="button";button.dataset.cashTab=key;
    button.onclick=()=>{adminCashTab=key;loadAdminCash();};tabs.append(button);
   }
-  const toolbar=el("div","f4-bank-cash-toolbar");
-  const action=el("button","f4-bank-secondary-action f4-bank-cash-expense-action","Catat pengeluaran");
-  action.type="button";action.onclick=()=>navigate("biaya");
-  toolbar.append(tabs,action);
-  // Routes without an Akses Cepat entry remain reachable, but are pages,
-  // not extra top-level mobile tabs.
-  const links=el("div","f4-bank-admin-cash-links");
-  for(const [caption,route] of [["Saldo warga","tabungan"],["Catat pengeluaran","biaya"]]){
-   const b=el("button","f4-bank-secondary-action",caption);
-   b.type="button";b.onclick=()=>navigate(route);links.append(b);
-  }
-  body.append(toolbar,links,el("div","f4-bank-admin-cash-stats"),
+  const toolbar=el("div","f4-bank-cash-toolbar");toolbar.append(tabs);
+  const expense=el("section","f4-bank-cash-expense-section");expense.id="f4BankCashExpense";
+  body.append(toolbar,expense,el("div","f4-bank-admin-cash-stats"),
    el("div","f4-bank-admin-cash-table","Memuat mutasi kas..."));
   page.append(body);
  }
+ ensureCashExpenseForm();
  page.classList.remove("hidden");loadAdminCash();
 }
 async function loadAdminCash(){
@@ -1162,8 +1191,9 @@ async function loadAdminCash(){
   const active=button.dataset.cashTab===adminCashTab;
   button.classList.toggle("is-active",active);button.setAttribute("aria-pressed",String(active));
  });
- const expense=page.querySelector(".f4-bank-cash-expense-action");
+ const expense=$("f4BankCashExpense");
  if(expense)expense.hidden=adminCashTab!=="out";
+ if(adminCashTab==="out")window.v10LoadBiaya?.();
  try{
   const res=await api("/api/v2/admin/bank/cash?limit=300");
   const all=(res.data||[]).filter(x=>x.status==="aktif").sort((a,b)=>
@@ -1193,6 +1223,9 @@ async function loadAdminCash(){
   if(!rows.length)target.textContent=adminCashTab==="in"?"Belum ada pemasukan.":"Belum ada pengeluaran.";
  }catch(error){target.textContent="Mutasi kas belum dapat dibuka: "+error.message;}
 }
+window.addEventListener("f4-bank-expense-saved",()=>{
+ if(roleType()==="admin"&&$("f4BankAdminCashBody"))loadAdminCash();
+});
 let adminMediaRestore=[];
 function restoreAdminMedia(){
  for(const item of adminMediaRestore){
@@ -1222,15 +1255,14 @@ function showAdminDocumentation(which="albums"){
  adminMediaMove("v22DocsPage",content);
  adminMediaMove("v17Inventaris",content);
  const album=$("v22DocsPage"),inventory=$("v17Inventaris");
- const mobile=window.matchMedia("(max-width:1023px)").matches;
  tabs.replaceChildren(...[["albums","Album"],["inventory","Inventaris"]].map(([key,label])=>{
   const button=el("button","f4-bank-admin-history-tab"+(which===key?" is-active":""),label);
   button.type="button";button.setAttribute("aria-pressed",String(which===key));
   button.onclick=()=>showAdminDocumentation(key);return button;
  }));
- tabs.hidden=mobile;
- if(album)album.hidden=!mobile&&which!=="albums";
- if(inventory)inventory.hidden=!mobile&&which!=="inventory";
+ tabs.hidden=false;
+ if(album)album.hidden=which!=="albums";
+ if(inventory)inventory.hidden=which!=="inventory";
  page.classList.remove("hidden");
 }
 function showAdminHistory(selected="setoran"){
@@ -1250,14 +1282,10 @@ function showAdminHistory(selected="setoran"){
   button.onclick=()=>navigate(key==="penjualan"?"bank-admin-sale-history":"bank-admin-history");
   return button;
  }));
- const mobile=window.matchMedia("(max-width:1023px)").matches;
- tabs.hidden=mobile;
- for(const [key,,panel] of options)panel?.classList.toggle("hidden",!mobile&&key!==selected);
+ tabs.hidden=false;
+ for(const [key,,panel] of options)panel?.classList.toggle("hidden",key!==selected);
  page.classList.remove("hidden");
- if(mobile){
-  window.loadRiwayatV7?.();
-  window.loadRiwayatJual?.();
- }else if(selected==="setoran")window.loadRiwayatV7?.();
+ if(selected==="setoran")window.loadRiwayatV7?.();
  else window.loadRiwayatJual?.();
 }
 function ensureAdminReportLink(){
@@ -1514,6 +1542,7 @@ function handleRoute(route,old,args){
  // Dedicated operational pages for admins; keep existing data and action handlers.
  if(roleType()==="admin"){
   if(["riwayat","riwayatJual"].includes(route))route="bank-admin-history";
+  if(route==="biaya"){adminCashTab="out";route="bank-admin-cash";}
   if(route==="pengesahan")route="rekonsiliasi";
   if(["kegiatan","dokumentasi","inventaris","progress","public"].includes(route))route="dashboard";
   if(route==="bank-admin-cash"){
