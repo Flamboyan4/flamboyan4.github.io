@@ -14,7 +14,8 @@
   return d;
  }
  function init(){
-  const page=$("pageMaster");if(!page||$("f4BankPolicyCard"))return;
+  const page=$("pageMaster");
+  if(!page||page.classList.contains("hidden")||$("f4BankPolicyCard"))return;
   // Permission is verified by the API before showing the policy editor.
   const card=el("details","f4-bank-policy-card");card.id="f4BankPolicyCard";card.hidden=true;
   const head=el("summary","f4-bank-policy-summary");
@@ -55,6 +56,7 @@
   const load=async()=>{
    try{
     const data=await fetchPolicy(),active=data.current||{};
+    if(!card.isConnected||page.classList.contains("hidden")){card.remove();return;}
     if(data.canEdit!==true){card.remove();return;}
     card.hidden=false;
     form.hidden=false;
@@ -73,5 +75,15 @@
   };
   load();
  }
- if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+ function bind(){
+  const page=$("pageMaster");if(!page)return;
+  // Do not query privileged permissions while the visitor is still a guest.
+  // Re-check after each visit so account switching never reuses prior privileges.
+  new MutationObserver(()=>{
+   if(page.classList.contains("hidden"))$("f4BankPolicyCard")?.remove();
+   else init();
+  }).observe(page,{attributes:true,attributeFilter:["class"]});
+  init();
+ }
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind,{once:true});else bind();
 })();
