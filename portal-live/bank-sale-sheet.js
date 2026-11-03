@@ -47,13 +47,17 @@ function fill(data){
   inputs[0].setAttribute("aria-label","Hasil timbang lapak aktual "+String(line.name||"barang")+" dalam kilogram");
   row.dataset.initialGrams=String(Number(line.grams));
   const diff=document.createElement("small");diff.className="f4-bank-sale-diff";
-  const unsoldWrap=document.createElement("label");unsoldWrap.className="f4-bank-unsold-wrap";
-  const unsoldLabel=document.createElement("span");unsoldLabel.textContent="Sisa belum dijual (kg)";
+  // Sisa stok adalah pengecualian, bukan isian wajib pada setiap jenis.
+  // Tetap berada di baris yang sama untuk menjaga alur penjualan 3 tahap.
+  const unsoldWrap=document.createElement("details");unsoldWrap.className="f4-bank-unsold-wrap";
+  const unsoldSummary=document.createElement("summary");unsoldSummary.textContent="Ada sisa belum dijual?";
+  const unsoldLabel=document.createElement("label");unsoldLabel.textContent="Sisa (kg)";
   const unsoldInput=document.createElement("input");unsoldInput.type="number";
   unsoldInput.min="0";unsoldInput.step="0.001";unsoldInput.max=String(original);
   unsoldInput.placeholder="0";unsoldInput.value="0";unsoldInput.dataset.bankUnsold="1";
   unsoldInput.setAttribute("aria-label","Berat barang yang sengaja tidak dijual "+String(line.name||""));
-  unsoldWrap.append(unsoldLabel,unsoldInput);
+  unsoldLabel.append(unsoldInput);
+  unsoldWrap.append(unsoldSummary,unsoldLabel);
   row.append(diff,unsoldWrap);
   const check=()=>{
    const raw=String(inputs[0].value).trim();
@@ -63,7 +67,8 @@ function fill(data){
    }else{
     const grams=Math.round(Number(raw)*1000),remaining=Math.round(Number(unsoldInput.value||0)*1000);
     const delta=Number(line.grams)-grams-remaining;
-    diff.textContent="Awal "+kg(line.grams)+" kg · Sisa "+kg(remaining)+" kg · "+
+    unsoldSummary.textContent=remaining>0?"Sisa tersimpan "+kg(remaining)+" kg":"Ada sisa belum dijual?";
+    diff.textContent="Awal "+kg(line.grams)+" kg · "+
       (delta===0?"Sesuai":delta>0?"Selisih timbang "+kg(delta)+" kg":"Melebihi stok "+kg(-delta)+" kg");
     diff.dataset.state=delta<0?"excess":delta>0?"difference":"equal";
    }
