@@ -113,7 +113,7 @@ async function recon(_token,batchId){
  const b=rows(batch).find(x=>x.id===batchId);
  const beratSetoran=n(b?.grams)/1000,beratLapak=(sale.lines||[]).reduce((s,x)=>s+n(x.grams),0)/1000;
  return {batch:batchId,saleId:p.saleId,siap:true,siapDiperiksa:true,peringatan:[],
- setoran:p.depositIds?.length||0,penjualan:1,beratSetoran,beratLapak,selisihKg:beratSetoran-beratLapak,
+ setoran:p.depositIds?.length||0,penjualan:1,beratSetoran,beratLapak,selisihKg:beratSetoran-beratLapak,hasWeightDifference:!!p.hasWeightDifference,weightDifferenceGrams:Number(p.weightDifferenceGrams||0),
  estimasiWarga:p.citizenRightsRp,diterima:p.receivedRp,bruto:p.grossRp,marginBank:p.environmentRp,marginSementara:p.environmentRp,wargaPercent:p.wargaPercent,lingkunganPercent:p.lingkunganPercent,belumLunas:0};
 }
 async function confirm(_token,p){
