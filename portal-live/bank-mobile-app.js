@@ -1672,6 +1672,22 @@ function handleRoute(route,old,args){
 }
 function resetRoleSurface(){
  routeHistory.length=0;returningFromBack=false;screen="dashboard";
+ // Rebuild the role-specific home from source nodes, never from cached cards.
+ // The old member/account must not inherit operations or cached balance widgets.
+ const hub=$("f4BankAppHome"),reservoir=$("f4BankDashboardSource");
+ const recent=$("v14Recent")?.closest(".v14-panel");
+ if(hub&&recent&&hub.contains(recent)){
+  const legacyPanels=reservoir?.querySelector(".v14-panels");
+  (legacyPanels||reservoir||$("pageDashboard"))?.append(recent);
+ }
+ hub?.remove();
+ for(const id of ["f4MemberPriceShortcut","f4BankWeighingSchedule","f4MemberEnvironmentPreview","f4MemberInfoShortcut"]){
+  $(id)?.remove();
+ }
+ homeSource?.disconnect();summaryExtra?.disconnect();memberSource?.disconnect();
+ snapshotObserver?.disconnect();snapshotObserver=null;
+ homeSource=null;summaryExtra=null;memberSource=null;primaryNode=null;extraNode=null;
+ for(const node of document.querySelectorAll("[data-f4-bank-observed]"))delete node.dataset.f4BankObserved;
  if(document.body.classList.contains("f4-member-feature"))restoreFeature();
  hideCustom();restoreAdminProgress();restoreAdminMedia();
  const form=$("v10ExpenseForm"),notice=$("v10ExpenseNotice"),home=$("pageBiaya");
@@ -1693,7 +1709,17 @@ function resetRoleSurface(){
  document.body.classList.remove("f4-bank-member-secondary");
  memberStatement=null;adminOverview=null;memberSnapshotsLoaded=false;
  weighingRequestId++;weighingRequest=null;weighingWeekday=0;weighingLastFetched=0;
+ requestNonce="";requestEnabled=false;memberSnapshotsLoaded=false;
 }
+window.f4BankResetForAccountSwitch=()=>{
+ resetRoleSurface();
+ role=null;memberStatement=null;adminOverview=null;
+ dock().replaceChildren();
+ document.body.classList.remove("f4-bank-app-private","f4-bank-app-admin","f4-bank-app-member","f4-bank-member-secondary");
+ $("f4BankMemberTopIdentity")?.remove();$("f4BankAdminTopIdentity")?.remove();
+ memberSide(false);syncAdminPageFrames();
+};
+window.f4BankReconcileAccount=()=>sync();
 function sync(){
  const next=roleType(),isPrivate=!!next&&!$("dashboardView")?.classList.contains("hidden");
  document.body.classList.toggle("f4-bank-app-private",isPrivate);
