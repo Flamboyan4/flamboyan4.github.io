@@ -159,6 +159,17 @@ with tempfile.TemporaryDirectory(prefix="f4-bank-v3-local-") as temp:
     "batchId":bid,"saleId":sale_id,"operationRp":preview["bankRightsRp"],"neighborhoodRp":0,"reserveRp":0,
     "expectedWargaPercent":preview["wargaPercent"],"note":"Selisih timbang 0,1 kg pada lapak lokal"},token)
   check("confirmed_not_twice",duplicate.get("duplicate") is True)
+  # Read the REAL local SQLite journal, not only the HTTP response. Every ledger
+  # row must be unique and the entire sale must conserve physical weight and Rp.
+  with sqlite3.connect(found) as probe:
+   movements=probe.execute("SELECT COALESCE(SUM(allocated_grams),0),COALESCE(SUM(sold_grams),0),COALESCE(SUM(stock_grams),0),COALESCE(SUM(loss_grams),0) FROM bank_v3_inventory_movements WHERE sale_id=?",(sale_id,)).fetchone()
+   credits=probe.execute("SELECT COUNT(*),COALESCE(SUM(amount_rp),0) FROM waste_savings_ledger WHERE batch_id=? AND kind='kredit'",(bid,)).fetchone()
+   cashbook=probe.execute("SELECT COUNT(*),COALESCE(SUM(cash_in_rp-cash_out_rp),0) FROM waste_cash_ledger WHERE source_transaction_id=? AND status='aktif'",(sale_id,)).fetchone()
+   remaining=probe.execute("SELECT COALESCE(SUM(remaining_grams),0) FROM bank_v3_inventory_lots l WHERE EXISTS(SELECT 1 FROM bank_v3_inventory_movements m WHERE m.lot_id=l.id AND m.sale_id=?)",(sale_id,)).fetchone()[0]
+   allocation=probe.execute("SELECT received_rp,citizen_rights_rp FROM waste_allocations WHERE batch_id=?",(bid,)).fetchone()
+  check("atomic_physical_stock_conservation",movements==(2700,2300,300,100) and remaining==300,movements)
+  check("atomic_financial_journal_conservation",credits[1]==right and cashbook[1]==gross and allocation==(gross,right),(credits,cashbook,allocation))
+  check("confirmed_sale_single_cash_batch",cashbook[0]==2 and credits[0]==3,(cashbook,credits))
   # Physical leftover is real, available for the NEXT numbered sale, without re-input.
   sheet2=expect("next_sheet_finds_carryover","/api/admin/bank/sale-sheet?batchId="+bid2,token=token)
   check("carryover_exactly_remaining_stock",sheet2.get("totalGrams")==300,sheet2)
