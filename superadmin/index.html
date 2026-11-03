@@ -268,8 +268,8 @@ html body #f4-account-page>aside{overflow-x:hidden}
  .f4-obligation-toolbar button{flex:0 1 auto}
 }
 .f4-admin-action-set{display:inline-flex;align-items:center;justify-content:flex-end;gap:7px;white-space:nowrap}
-.f4-admin-danger{background:#fff2f1!important;color:#a53c39!important;border-color:#efc5c1!important}
-.f4-admin-danger:hover,.f4-admin-danger:focus-visible{background:#fbe4e2!important;color:#882820!important}
+#f4-account-page button.f4-admin-danger{background:#fff2f1;color:#a53c39;border-color:#efc5c1}
+#f4-account-page button.f4-admin-danger:is(:hover,:focus-visible){background:#fbe4e2;color:#882820}
 .f4-admin-danger:disabled{opacity:.55;cursor:wait}
 .f4-obligation-grid:not([data-module="obligations"]) td:last-child{min-width:150px;width:150px}
 @media(max-width:720px){.f4-admin-action-set{gap:5px}.f4-admin-action-set button{padding:8px 10px}}
