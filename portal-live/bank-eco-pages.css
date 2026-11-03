@@ -1353,7 +1353,30 @@ body.f4-bank-app-admin .f4-bank-own-mode-tabs>button:focus-visible{
 body.f4-bank-app-admin #pageSetoran #setoranForm[hidden],
 body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm[hidden]{display:none}
 body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm{
- display:grid;gap:10px;align-content:start
+ display:grid;gap:12px;align-content:start
+}
+body.f4-bank-app-admin #pageSetoran :is(.f4-bank-own-main,.f4-bank-own-side){
+ display:grid;align-content:start;gap:12px;min-width:0
+}
+body.f4-bank-app-admin #pageSetoran .f4-bank-own-side>.f4-bank-own-fields{
+ grid-template-columns:minmax(0,1fr)
+}
+body.f4-bank-app-admin #pageSetoran .f4-bank-own-side>.f4-bank-gold-action{
+ width:100%;min-height:42px
+}
+@media(min-width:1024px){
+ body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm{
+  grid-template-columns:minmax(0,1.45fr) minmax(295px,.8fr);gap:12px 16px
+ }
+ body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm>.f4-bank-own-intro{
+  grid-column:1/-1
+ }
+ body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm>.f4-bank-own-main{
+  grid-column:1;grid-row:2
+ }
+ body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm>.f4-bank-own-side{
+  grid-column:2;grid-row:2
+ }
 }
 .f4-bank-own-intro{font-size:12px;color:#567465;margin:0}
 .f4-bank-own-price-hint{font-size:11px;font-weight:500;color:#6e8377}
