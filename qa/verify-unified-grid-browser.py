@@ -83,7 +83,7 @@ async def main():
                         await context.close()
             # Read-only Setoran/Penjualan fixture: test the actual bank stylesheet,
             # no account, backend, transaction, or personal data needed.
-            for name,width,height,_,_ in SIZES:
+            for name,width,height,_,_ in SIZES+[('pc-1366',1366,768,3,4)]:
                 context=await browser.new_context(viewport={'width':width,'height':height})
                 page=await context.new_page()
                 try:
@@ -219,7 +219,7 @@ async def main():
                           close(summary.left,saleForm.left) &&
                           summary.right<saleForm.right-100 &&
                           close(one('#saleForm>button').left,payment[0].left) &&
-                          one('#saleForm').height<=590
+                          one('#saleForm').height<=530
                         );
                         const proof=one('#saleProof'),reason=one('#saleReason'),
                             proofLabel=one('label[for="saleProof"]'),
