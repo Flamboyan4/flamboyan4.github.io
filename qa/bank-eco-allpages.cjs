@@ -176,7 +176,7 @@ assert(css.includes('max-height:var(--bank-input-h);padding-block:0;align-self:s
  'Setoran and Penjualan native inputs must have a fixed, equal control height');
 assert(css.includes('align-content:start;gap:4px;min-width:0;margin:0') &&
        css.includes('align-content:start;gap:6px;min-width:0;margin:0') &&
-       css.includes('#saleForm .f4-sale-top-fields{gap:8px}'),
+       css.includes('#saleForm .f4-sale-top-fields{\n gap:8px'),
  'Sale field spacing must not inherit legacy bottom margins');
 assert(css.includes('#saleForm .f4-sale-note-fields>.field>label{') &&
        css.includes('#saleForm .f4-sale-note-fields>.field>input{'),
