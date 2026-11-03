@@ -186,8 +186,9 @@ assert(h.includes("amountGroup.append(weight,remove)") &&
        h.includes("priceGroup.append(price,remove)"),
  'Deposit/sale row delete action must share its grid cell with the amount input');
 assert(css.includes('.f4-compact-row>select{grid-column:span 6}') &&
-       css.includes('.f4-compact-sale-row>input{grid-column:span 3}'),
- 'Shared 6-3-3 goods grid boundaries missing');
+       css.includes('.f4-compact-sale-row>input{grid-column:span 2}') &&
+       css.includes('.f4-compact-sale-row>.f4-compact-entry-group{grid-column:span 4}'),
+ 'Sale goods grid must use 6-2-4 tracks so price is wider than weight');
 assert(css.includes('max-height:var(--bank-input-h);padding-block:0;align-self:start'),
  'Setoran and Penjualan native inputs must have a fixed, equal control height');
 assert(css.includes('align-content:start;gap:4px;min-width:0;margin:0') &&
