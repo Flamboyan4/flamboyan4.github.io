@@ -1,0 +1,73 @@
+name: F4 Bank V3 Inventory and Pricing Isolated QA
+on:
+  pull_request:
+    paths:
+      - cloudflare/worker-terpadu-operasional-teruji.js
+      - cloudflare/migrations/20261103_bank_v3_inventory_policy.sql
+      - portal-live/bank-mobile-app.js
+      - portal-live/bank-sale-sheet.js
+      - portal-live/bank-member-prices.js
+      - portal-live/bank-policy-admin.js
+      - portal-live/f4-bank-write-bridge.js
+      - bank-sampah/index.html
+      - qa/check-bank-v3.cjs
+      - qa/verify_bank_v3_migration.py
+      - qa/run_bank_v3_local_e2e.py
+      - .github/workflows/f4-bank-v3-isolated.yml
+  push:
+    branches: [main]
+    paths:
+      - cloudflare/worker-terpadu-operasional-teruji.js
+      - cloudflare/migrations/20261103_bank_v3_inventory_policy.sql
+      - qa/check-bank-v3.cjs
+      - qa/verify_bank_v3_migration.py
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check all active Bank JavaScript sources
+        run: |
+          node --check cloudflare/worker-terpadu-operasional-teruji.js
+          node --check portal-live/bank-mobile-app.js
+          node --check portal-live/bank-sale-sheet.js
+          node --check portal-live/bank-member-prices.js
+          node --check portal-live/bank-policy-admin.js
+          node --check portal-live/f4-bank-write-bridge.js
+          node --check portal-live/bank-sale-report.js
+      - name: Test mixed inventory settlement and old records isolation
+        run: |
+          node qa/check-bank-v3.cjs
+          python3 qa/verify_bank_v3_migration.py
+          node qa/check-bank-sale-flow.cjs
+
+  local-d1-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install Wrangler
+        run: npm install --no-save --ignore-scripts wrangler@4
+      - name: Clone staging D1 in READ ONLY and execute local Bank v3 lifecycle
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: python3 qa/run_bank_v3_local_e2e.py
+      - name: Upload nonprivate test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bank-v3-disposable-d1-e2e
+          path: ops-audit/bank-v3-local-e2e.json
+          if-no-files-found: ignore

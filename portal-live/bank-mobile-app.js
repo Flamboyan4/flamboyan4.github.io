@@ -1037,16 +1037,11 @@ function ensureOwnDepositForm(){
   }
   normal.before(tabs);
   const form=el("form","f4-bank-own-deposit-form");form.id="f4BankOwnDepositForm";form.hidden=true;
-  const intro=el("p","f4-bank-own-intro","Setoran milik Bank Sampah • langsung masuk kas setelah uang diterima.");
+  const intro=el("p","f4-bank-own-intro","Setoran milik Bank menjadi stok fisik. Kas baru bertambah saat barang dijual dan hasilnya disahkan.");
   const dateField=el("label","f4-bank-own-field");
   dateField.append(el("span","","Tanggal"),Object.assign(el("input"),{type:"date",required:true,value:today()}));
   dateField.querySelector("input").id="f4BankOwnDate";
-  const amountField=el("label","f4-bank-own-field");
-  amountField.append(el("span","","Uang diterima (Rp)"),Object.assign(el("input"),{type:"number",min:"1",step:"1",required:true,placeholder:"0"}));
-  amountField.querySelector("input").id="f4BankOwnAmount";
-  amountField.querySelector("input").addEventListener("input",event=>{event.currentTarget.dataset.manual="1";});
-  amountField.append(el("small","f4-bank-own-price-hint","Perkiraan tarif warga • sesuaikan uang diterima"));
-  const fields=el("div","f4-bank-own-fields");fields.append(dateField,amountField);
+  const fields=el("div","f4-bank-own-fields");fields.append(dateField);
   const detail=el("div","f4-bank-own-detail");
   const head=el("div","f4-bank-own-detail-head");
   head.append(el("strong","","Rincian sampah"));
@@ -1056,9 +1051,9 @@ function ensureOwnDepositForm(){
   const rows=el("div","f4-bank-own-lines");rows.id="f4BankOwnLines";detail.append(rows);
   const weight=el("small","f4-bank-own-weight","Total berat: 0 kg");weight.id="f4BankOwnWeight";detail.append(weight);
   const note=el("label","f4-bank-own-field");note.append(el("span","","Catatan (opsional)"));
-  const noteInput=el("input");noteInput.id="f4BankOwnNote";noteInput.maxLength=200;noteInput.placeholder="Keterangan penerimaan kas";
+  const noteInput=el("input");noteInput.id="f4BankOwnNote";noteInput.maxLength=200;noteInput.placeholder="Asal sampah / keterangan stok";
   note.append(noteInput);
-  const save=el("button","f4-bank-gold-action","Catat ke Kas Bank Sampah");save.type="submit";
+  const save=el("button","f4-bank-gold-action","Simpan Stok Bank Sampah");save.type="submit";
   const status=el("p","f4-bank-own-status");status.id="f4BankOwnStatus";status.setAttribute("role","status");
   const main=el("div","f4-bank-own-main"),side=el("div","f4-bank-own-side");
   main.append(detail);side.append(fields,note,save,status);
@@ -1068,15 +1063,10 @@ function ensureOwnDepositForm(){
  chooseOwnMode(ownFormMode);
 }
 function updateOwnWeight(){
- let sum=0,estimate=0;
- for(const row of document.querySelectorAll("#f4BankOwnLines .f4-bank-own-line")){
-  const kg=Math.max(0,Number(row.querySelector("[data-own-weight]")?.value)||0);
-  const item=ownCatalog?.find(x=>x.id===row.querySelector("select")?.value);
-  sum+=kg;estimate+=kg*Number(item?.priceRpPerKg||0);
- }
- text("f4BankOwnWeight","Total berat: "+new Intl.NumberFormat("id-ID",{maximumFractionDigits:3}).format(sum)+" kg");
- const amount=$("f4BankOwnAmount");
- if(amount&&!amount.dataset.manual)amount.value=estimate>0?String(Math.round(estimate)):"";
+ let total=0;
+ for(const row of document.querySelectorAll("#f4BankOwnLines .f4-bank-own-line"))
+  total+=Math.max(0,Number(row.querySelector("[data-own-weight]")?.value)||0);
+ text("f4BankOwnWeight","Total stok: "+new Intl.NumberFormat("id-ID",{maximumFractionDigits:3}).format(total)+" kg");
 }
 function addOwnItemRow(){
  const lines=$("f4BankOwnLines");if(!lines)return;
@@ -1110,7 +1100,7 @@ async function loadOwnCatalog(){
 async function submitOwnDeposit(event){
  event.preventDefault();
  const form=event.currentTarget,button=form.querySelector('[type="submit"]');
- const date=$("f4BankOwnDate")?.value,amountRp=Number($("f4BankOwnAmount")?.value||0);
+ const date=$("f4BankOwnDate")?.value;
  const items=[...form.querySelectorAll(".f4-bank-own-line")].map(row=>{
   const kg=Number(row.querySelector("input")?.value);
   return {itemId:row.querySelector("select")?.value,grams:Math.round(kg*1000),kg};
@@ -1120,20 +1110,17 @@ async function submitOwnDeposit(event){
   status.textContent="Lengkapi jenis dan berat barang.";return;
  }
  if(new Set(items.map(x=>x.itemId)).size!==items.length){status.textContent="Jenis sampah yang sama cukup satu baris.";return;}
- if(!Number.isSafeInteger(amountRp)||amountRp<1){
-  status.textContent="Masukkan nominal yang benar-benar sudah diterima.";return;
- }
- if(!window.confirm("Catat "+rupiah(amountRp)+" sebagai kas operasional Bank Sampah, tanpa pembagian ke tabungan warga?"))return;
+ if(!window.confirm("Simpan stok milik Bank Sampah? Belum ada pemasukan kas sampai barang terjual."))return;
  if(!ownRequestKey)ownRequestKey="own"+crypto.randomUUID().replace(/-/g,"");
- button.disabled=true;status.textContent="Menyimpan ke kas...";
+ button.disabled=true;status.textContent="Menyimpan stok...";
  try{
   const res=await api("/api/v2/admin/bank/own-deposits",{
-   requestKey:ownRequestKey,depositedOn:date,amountRp,
+   requestKey:ownRequestKey,depositedOn:date,
    items:items.map(({itemId,grams})=>({itemId,grams})),
    note:$("f4BankOwnNote")?.value.trim()||""
   });
-  status.textContent=res.duplicate?"Setoran sudah tercatat.":"Penerimaan "+rupiah(amountRp)+" tersimpan di kas Bank Sampah.";
-  ownRequestKey="";form.reset();$("f4BankOwnAmount").dataset.manual="";$("f4BankOwnDate").value=today();
+  status.textContent=res.duplicate?"Stok sudah tercatat.":"Stok Bank Sampah tersimpan, belum menambah kas.";
+  ownRequestKey="";form.reset();$("f4BankOwnDate").value=today();
   $("f4BankOwnLines")?.replaceChildren();addOwnItemRow();updateOwnWeight();
   adminOverview=null;updateDashboard();
  }catch(error){status.textContent=error.message||"Setoran gagal disimpan.";}

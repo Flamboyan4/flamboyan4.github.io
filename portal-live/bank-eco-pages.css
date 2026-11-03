@@ -1735,6 +1735,22 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
 }
 
 
+/* Kebijakan versi harga pada Harga Barang pengelola. */
+#pageMaster .f4-bank-policy-card{display:grid;gap:10px;margin:0 0 15px;padding:15px;
+ background:#fff;border:1px solid #d6e7d9;border-radius:14px}
+#pageMaster .f4-bank-policy-card h3{margin:0;font-size:16px;color:#175b3b}
+#pageMaster .f4-bank-policy-desc,#pageMaster .f4-bank-policy-current{
+ margin:0;font-size:12px;line-height:1.5;color:#526d5a
+}
+#pageMaster .f4-bank-policy-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:end}
+#pageMaster .f4-bank-policy-form>label{display:grid;gap:5px;font-size:12px;font-weight:700;min-width:0}
+#pageMaster .f4-bank-policy-form>label[hidden]{display:none}
+#pageMaster .f4-bank-policy-form>label input,#pageMaster .f4-bank-policy-form>label select{
+ box-sizing:border-box;width:100%;min-width:0;height:42px;min-height:42px
+}
+#pageMaster .f4-bank-policy-form>button{grid-column:1/-1;justify-self:start}
+#pageMaster .f4-bank-policy-status{margin:0;font-size:12px;color:#176c47}
+@media(max-width:640px){#pageMaster .f4-bank-policy-form{grid-template-columns:minmax(0,1fr)}}
 /* Penjualan kolektif dan katalog harga anggota — pemilik tunggal komponen. */
 #pagePenjualan .f4-sale-top-fields>.f4-bank-sheet-tools{
  grid-column:1/-1;min-width:0;width:100%;box-sizing:border-box;
@@ -1750,6 +1766,16 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
 #pagePenjualan .f4-bank-sheet-actions button{min-height:38px;padding:8px 12px;border-radius:9px;font-size:12px;white-space:normal}
 #pagePenjualan .f4-bank-sheet-actions button[hidden]{display:none}
 #pagePenjualan .f4-bank-sale-diff{display:block;grid-column:1/-1;margin:0;color:#607768;font-size:11px;line-height:1.3}
+#pagePenjualan .f4-bank-unsold-wrap{
+ grid-column:1/-1;display:flex;align-items:center;gap:9px;
+ min-width:0;color:#355e45;font-size:11px;font-weight:700
+}
+#pagePenjualan .f4-bank-unsold-wrap input{
+ width:100px;max-width:40%;min-width:72px;height:34px;min-height:34px;
+ margin:0;padding:5px 8px;border:1px solid #c8ddce;border-radius:8px;
+ background:#fff;color:#233d2d
+}
+
 #pagePenjualan .f4-bank-sale-diff[data-state="difference"]{color:#986323}
 #pagePenjualan .f4-bank-sale-diff[data-state="excess"]{color:#a43d2f}
 #pagePenjualan .f4-bank-sale-receipt-action{display:inline-flex;margin:10px 0 0;padding:8px 12px;border-radius:9px}
