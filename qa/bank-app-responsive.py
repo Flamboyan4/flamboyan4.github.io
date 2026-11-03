@@ -150,7 +150,7 @@ async def savings_chart(browser):
        visibleNav:[...document.querySelectorAll('#v16NavList .v16-item')].filter(x=>getComputedStyle(x).display!=='none').map(x=>x.dataset.group)
       };
     }""")
-    assert state["groups"]==["Per bulan","Periode"],state
+    assert state["groups"]==["Periode","30 hari","Per bulan"],state
     assert not state["select"],state
     assert [x["value"] for x in state["month"]]==["0,9 kg","1 kg","2 kg","1,5 kg"],state
     assert state["visibleNav"]==["progress","public"],state
