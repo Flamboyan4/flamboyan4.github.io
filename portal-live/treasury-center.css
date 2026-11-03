@@ -88,7 +88,7 @@
 .tc-history-table .tc-table td:nth-child(5){text-align:right;white-space:nowrap}
 .tc-section-head,.tc-opening-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .tc-section-head h3,.tc-opening-heading h3{margin:0}
-.tc-secondary,.tc-primary{border:0;border-radius:9px;padding:9px 13px;min-height:37px;font-size:12px;font-weight:750;cursor:pointer}
+.tc-secondary,.tc-primary{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:var(--f4-control-radius,10px);padding:9px 13px;min-height:var(--f4-control-height,42px);font-size:12px;line-height:1.3;font-weight:750;cursor:pointer}
 .tc-primary{background:#276d9b;color:#fff}
 .tc-secondary{background:#e8f2fa;color:#265777}
 .tc-primary:disabled,.tc-secondary:disabled{opacity:.5;cursor:not-allowed}
@@ -103,7 +103,7 @@
 .tc-form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--f4-grid-gap,16px);align-items:end}
 .tc-field{display:grid;gap:4px;min-width:0;font-size:11px;font-weight:700;color:#526b7b}
 .tc-field[hidden]{display:none}
-.tc-field input,.tc-field select{width:100%;min-width:0;min-height:38px;background:#fff;border:1px solid #cddde7;border-radius:8px;padding:8px 9px;color:#28465a;font:500 12px system-ui}
+.tc-field input,.tc-field select{box-sizing:border-box;width:100%;min-width:0;height:var(--f4-control-height,42px);min-height:var(--f4-control-height,42px);background:#fff;border:1px solid #cddde7;border-radius:var(--f4-control-radius,10px);padding:0 10px;color:#28465a;font:500 12px/1.3 system-ui;vertical-align:middle}
 .tc-field input:focus-visible,.tc-field select:focus-visible{outline:2px solid #9fc5ed;outline-offset:1px}
 .tc-wide{grid-column:span 2}
 .tc-form .tc-primary{margin-top:10px}
