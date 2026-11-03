@@ -58,18 +58,21 @@ function fill(data){
 function install(){
  if(installed||!$("saleBatch"))return;
  installed=true;
- const picker=$("saleBatch"),parent=picker.closest(".field");
- if(!parent)return;
+ const picker=$("saleBatch"),topFields=picker.closest(".f4-sale-top-fields");
+ if(!topFields)return;
  const tools=document.createElement("div");tools.className="f4-bank-sheet-tools";
  const label=document.createElement("div");label.className="f4-bank-sheet-summary";
- const number=document.createElement("strong");number.id="f4SaleSheetNumber";number.textContent="Pilih kelompok untuk melihat nomor penjualan";
+ const number=document.createElement("strong");number.id="f4SaleSheetNumber";number.textContent="Nomor penjualan otomatis";
  const statusNode=document.createElement("small");statusNode.id="f4SaleSheetStatus";statusNode.setAttribute("role","status");
  label.append(number,statusNode);
  const actions=document.createElement("div");actions.className="f4-bank-sheet-actions";
  const print=document.createElement("button");print.type="button";print.className="secondary";print.id="f4SaleSheetPrint";print.textContent="Siapkan & Cetak Lembar";
  print.disabled=true;print.onclick=prepareAndPrint;
  const reopen=document.createElement("button");reopen.type="button";reopen.className="secondary";reopen.id="f4SaleSheetReopen";reopen.textContent="Buka kembali setoran";reopen.hidden=true;reopen.onclick=reopenBatch;
- actions.append(print,reopen);tools.append(label,actions);parent.after(tools);
+ actions.append(print,reopen);tools.append(label,actions);
+ tools.hidden=true;
+ // Panel persiapan berada di baris penuh grid kanan, bukan kolom kecil otomatis.
+ topFields.append(tools);
  picker.addEventListener("change",refresh);
 }
 async function refresh(){
@@ -77,10 +80,12 @@ async function refresh(){
  const picker=$("saleBatch");if(!picker)return;
  const batchId=picker.value,version=++seq;
  const print=$("f4SaleSheetPrint"),reopen=$("f4SaleSheetReopen");
+ const tools=$("f4SaleSheetNumber")?.closest(".f4-bank-sheet-tools");
+ if(tools)tools.hidden=!batchId;
  current=null;
  if(print)print.disabled=true;
  if(reopen)reopen.hidden=true;
- $("f4SaleSheetNumber").textContent=batchId?"Memuat rekap...":"Pilih kelompok untuk melihat nomor penjualan";
+ $("f4SaleSheetNumber").textContent=batchId?"Memuat rekap...":"Nomor penjualan otomatis";
  status(batchId?"Mengambil total berat per jenis dari setoran warga.":"");
  if(!batchId)return;
  try{
