@@ -177,6 +177,10 @@ async def main():
                              close(note[0].right,payment[0].right) &&
                              close(note[1].left,payment[1].left)))
                         );
+                        const saleVerticalOk=w<1024 || (
+                          close(saleRow.top,one('#saleReceived').top) &&
+                          close(one('#f4SaleAddKind').top,one('#saleStatus').top)
+                        );
                         const priorityOk=columns('#saleForm')===(w>=1024?2:12) &&
                           getComputedStyle(document.querySelector('#saleForm>.summary-box')).display==='grid' &&
                           getComputedStyle(document.querySelector('#setoranForm>.summary-box')).display==='grid';
