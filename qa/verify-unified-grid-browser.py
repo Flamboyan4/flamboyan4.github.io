@@ -184,8 +184,10 @@ async def main():
                           one('#saleDate'),one('#saleLapak')
                         ];
                         const nativeSelect=one('#setWarga');
-                        const customPickerOk=nativeSelect.width<=2 &&
-                          getComputedStyle(document.querySelector('#setWarga')).position==='absolute' &&
+                        const hiddenSelectStyle=getComputedStyle(document.querySelector('#setWarga'));
+                        const customPickerOk=hiddenSelectStyle.position==='absolute' &&
+                          hiddenSelectStyle.opacity==='0' &&
+                          hiddenSelectStyle.pointerEvents==='none' &&
                           Math.abs(controlHeights[0].height-controlHeights[1].height)<=1;
                         const entryControlsOk=customPickerOk &&
                           controlHeights.every(r=>Math.abs(r.height-42)<=1) &&
