@@ -2424,6 +2424,13 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     try{
       const items=await call(type==='setoran'?'bsV7RincianSetoran':'bsV7RincianPenjualan',token,id);
       container.appendChild(v7DetailTable(items,type));
+      if(type==='penjualan'){
+        const print=document.createElement('button');print.type='button';
+        print.className='secondary f4-bank-sale-receipt-action';
+        print.textContent='Cetak Laporan Transaksi';
+        print.onclick=()=>window.F4SaleReport?.(id);
+        container.appendChild(print);
+      }
       v7SetDetailsButton(button,true);
     }catch(e){container.textContent='Gagal: '+(e.message||e);v7SetDetailsButton(button,false);}
     finally{button.disabled=false;}
@@ -5861,7 +5868,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
 <link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261103-three-step-v1">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261103-aligned-public-grid-v1">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261031-member-history-v9">
-<script src="/portal-live/bank-sale-sheet.js?v=20261103-three-step-v1"></script><script src="/portal-live/bank-member-prices.js?v=20261103-01"></script>
+<script src="/portal-live/bank-sale-sheet.js?v=20261103-three-step-v1"></script><script src="/portal-live/bank-sale-report.js?v=20261103-internal-v1"></script><script src="/portal-live/bank-member-prices.js?v=20261103-01"></script>
 <script src="/portal-live/direct-shell.js?v=20261101-password-logout-fix-v2"></script><script src="/portal-live/unified-account.js?v=bank-member-profile-redirect-20261031"></script><script defer src="/portal-live/mobile-cards.js?v=20261031-detail-eye-icon-v2"></script><script defer src="/portal-live/native-controls.js?v=20261027-audit6"></script><script defer src="/portal-live/bank-page-history.js?v=20261027-final4"></script>
 <script defer src="/portal-live/bank-mobile-app.js?v=20261103-three-step-v1"></script></body>
 </html>

@@ -7,7 +7,8 @@ const worker=read('cloudflare/worker-terpadu-operasional-teruji.js');
 const page=read('bank-sampah/index.html');
 const sheet=read('portal-live/bank-sale-sheet.js');
 const member=read('portal-live/bank-member-prices.js');
-const handover=read('portal-live/bank-sale-handover.js');
+const report=read('portal-live/bank-sale-report.js');
+new (require('node:vm').Script)(report,{filename:'bank-sale-report.js'});
 const mobile=read('portal-live/bank-mobile-app.js');
 const bridge=read('portal-live/f4-bank-write-bridge.js');
 const css=read('portal-live/bank-eco-pages.css');
@@ -35,6 +36,11 @@ assert(sheet.includes('<div class="sign">'),'The printed field worksheet must in
 assert(sheet.includes('LEMBAR TIMBANG & JUAL'),'Only the signed weighing and sale worksheet is the paper proof');
 assert(!page.includes('F4SaleHandover?.(')&&!page.includes('Cetak Nota Penjualan'),'No secondary sales note or duplicated receipt after weighing');
 assert(!page.includes('/portal-live/bank-sale-handover.js?'),'Do not load the redundant second receipt script');
+assert(page.includes('/portal-live/bank-sale-report.js?v=') &&
+       page.includes('F4SaleReport?.(id)') &&
+       report.includes('Arsip laporan digital.') &&
+       !report.includes('Diserahkan oleh,'),
+       'Printable per-sale detail must be an internal report, never another signed note');
 assert(page.includes("v8PendingBatch=batch;goPage('pengesahan')"),'Saved sale must link to approval without new navigation menu');
 assert((page.match(/async function submitSale\(e\)/g)||[]).length===1,'There must be exactly one sale-submit handler');
 assert(page.includes('statusBayar===\'Belum Bayar\'?\'Belum dibayar oleh lapak\''),'Unpaid sale needs automatic meaningful audit reason');
