@@ -1342,7 +1342,13 @@ function memberFeature(route){
  }
  let content=page.querySelector(".f4-member-feature-content");
  if(!content){content=el("div","f4-member-feature-content");page.append(content);}
- if(progress)moveFeature(["v17PublicMetrics","v17Perkembangan"],content);
+ if(progress){
+  moveFeature(["v17PublicMetrics","v17Perkembangan"],content);
+  for(const button of content.querySelectorAll('[data-dev-range="period"],[data-dev-range="30"],[data-dev-mode="nilai"]')){
+   button.hidden=false;button.classList.remove("hidden");
+  }
+  window.f4BankLoadPrivateChart?.();
+ }
  else if(docs){
   moveFeature(["v22DocsPage"],content);
   const albumPage=$("v22DocsPage");
@@ -1351,6 +1357,8 @@ function memberFeature(route){
   // Original public-page back action remains untouched. Member uses its top navigation.
  }else{
   moveFeature(["v17Transparansi","v17Dokumentasi","v17Inventaris"],content);
+  const finance=content.querySelector("#v17Transparansi");
+  if(finance){finance.hidden=false;finance.classList.remove("hidden");}
   let shortcut=$("f4MemberDocsShortcut");
   if(!shortcut){
    const section=$("v17Dokumentasi");

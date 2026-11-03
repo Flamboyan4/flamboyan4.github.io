@@ -1396,16 +1396,20 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     }
 
     // PROSES PERHITUNGAN KEUANGAN - LANGSUNG DARI BACKEND PEMBUKUAN
+    let f4CashLoadGeneration=0;
     async function loadKeuanganDariPembukuan() {
+      if(!f4CanReadKas())return;
+      const generation=++f4CashLoadGeneration;
       try {
         const statusEl = document.getElementById('loading-status');
         const kasToken=F4Loading.begin(statusEl,'Memuat laporan keuangan warga…');
 
         // Public D1 report; never fall back to old Google Apps Script JSONP.
         const response=await fetch('https://api.flamboyan4.web.id/api/v2/public/portal/cash',{
-          mode:'cors',cache:'no-store',headers:{'Accept':'application/json'}
+          mode:'cors',credentials:'include',cache:'no-store',headers:{'Accept':'application/json'}
         });
         const result=await response.json().catch(()=>{throw Error('Respons laporan kas tidak dapat dibaca.');});
+        if(generation!==f4CashLoadGeneration||!f4CanReadKas())return;
         if(!response.ok||result?.ok!==true||!Array.isArray(result?.data?.rows))
           throw Error(result?.error||'Laporan kas belum dapat dibaca.');
         const sourceRows = Array.isArray(result.data.rows) ? result.data.rows : [];
@@ -1534,6 +1538,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         // Widget proyek hanya membaca kategori kas terpilih dari D1 melalui loadProjectCards().
 
       } catch (err) {
+        if(generation!==f4CashLoadGeneration||!f4CanReadKas())return;
         console.error('Gagal memuat keuangan dari Pembukuan:', err);
         const statusEl = document.getElementById('loading-status');
         F4Loading.error(statusEl,'Gagal menghubungkan keuangan: '+(err.message||err));
@@ -1544,6 +1549,18 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       }
     }
 
+    document.addEventListener('f4:cash-access-change',()=>{
+      ++f4CashLoadGeneration;
+      if(f4CanReadKas()){void loadKeuanganDariPembukuan();return;}
+      globalKeuanganData=[];monthlyKeuanganList=[];
+      for(const id of ['modal-keuangan','modal-cetak-kas'])document.getElementById(id)?.classList.add('hidden');
+      for(const id of ['tabel-transaksi','tabel-transaksi-all'])document.getElementById(id)?.replaceChildren();
+      for(const id of ['pemasukan-bulan-ini','pengeluaran-bulan-ini','saldo-bulan','total-pemasukan-all','total-pengeluaran-all','sisa-saldo']){
+        const node=document.getElementById(id);if(node)node.textContent='—';
+      }
+      document.getElementById('btn-container-keuangan-all')?.classList.add('hidden');
+      const label=document.getElementById('label-update-kas');if(label)label.textContent='Data Kas';
+    });
     if (document.readyState === 'complete') {
       setTimeout(loadKeuanganDariPembukuan, 0);
     } else {

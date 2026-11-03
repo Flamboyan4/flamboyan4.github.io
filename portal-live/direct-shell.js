@@ -195,6 +195,7 @@ function makePortalSide(){
  for(const [key,label,iconName] of items){
   if(key==='dokumentasi'){const group=el('div','f4-direct-group-label f4-direct-other-pages');group.textContent='LAINNYA';side.append(group);}
   const b=el('button');b.type='button';b.dataset.f4Panel=key;
+  if(key==='keuangan'){b.hidden=true;b.classList.add('hidden');}
   b.innerHTML=svg(iconName);
   const labelEl=el('span');labelEl.textContent=label;b.append(labelEl);
   b.addEventListener('click',()=>{

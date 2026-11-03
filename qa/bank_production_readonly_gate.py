@@ -29,8 +29,8 @@ def verify(assert_step):
     assert_step("production_bank_public_overview_readonly",
         overview[0]==200 and "overview" in overview[1] and "progress" in overview[1])
     report=fetch("/api/v2/public/bank/report")
-    assert_step("production_bank_public_report_readonly",
-        report[0]==200 and "ringkasan" in report[1] and report[1].get("readOnly") is True)
+    assert_step("production_bank_report_requires_login",
+        report[0] in (401,403) and "ringkasan" not in report[1])
     private=fetch("/api/member/savings")
     assert_step("production_bank_savings_requires_login",private[0] in (401,403))
     admin=fetch("/api/v2/admin/bank/members?limit=1")

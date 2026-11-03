@@ -336,9 +336,10 @@ try:
           "title":"Tidak lolos URL","category":"Kegiatan","eventOn":"2026-10-25",
           "visibility":"publik","coverUrl":"javascript:alert(1)"},temporary)
         assert_step("bank_cover_requires_https",bad_cover[0]==400)
-        # Public cash transparency must read the SAME D1 journal as private bookkeeping.
-        # No token, no Google Apps Script, no financial data copied into the report log.
-        public_cash=call(base+"/api/v2/public/portal/cash")
+        # Cash reports require a session and must read the SAME D1 journal.
+        anonymous_cash=call(base+"/api/v2/public/portal/cash")
+        assert_step("portal_cash_guest_denied",anonymous_cash[0]==401)
+        public_cash=call(base+"/api/v2/public/portal/cash",token=temporary)
         assert_step("portal_public_cash_d1_http",public_cash[0]==200 and public_cash[1].get("readOnly") is True,
             {"http":public_cash[0]})
         public_rows=public_cash[1]["data"]["rows"]
@@ -622,7 +623,9 @@ try:
         assert_step("bank_reversal_public_report_still_reads",bank_public[0]==200)
 
         # Public reports and member statements must show REAL D1 values, not UI defaults.
-        public_month=call(bank_base+"/api/v2/public/bank/report?month=2026-10")
+        anonymous_report=call(bank_base+"/api/v2/public/bank/report?month=2026-10")
+        assert_step("bank_report_guest_denied",anonymous_report[0]==401)
+        public_month=call(bank_base+"/api/v2/public/bank/report?month=2026-10",token=temporary)
         assert_step("bank_public_monthly_report_has_real_rows",public_month[0]==200 and
           public_month[1].get("readOnly") is True and len(public_month[1].get("bulanan",[]))>=1,
           {"http":public_month[0]})
@@ -644,7 +647,7 @@ try:
            summarized.get("operasional"))==settled and summarized.get("beratKg")==verified_sold_weight,
           {"totals_match":(summarized.get("hasilPenjualan"),summarized.get("hakWarga"))==settled[1:3],
            "weight_match":summarized.get("beratKg")==verified_sold_weight})
-        summary_all=call(bank_base+"/api/v2/public/bank/report")
+        summary_all=call(bank_base+"/api/v2/public/bank/report",token=temporary)
         assert_step("bank_public_report_includes_monthly_and_available_periods",
           summary_all[0]==200 and "2026-10" in summary_all[1].get("periodeTersedia",[]) and
           summary_all[1].get("ringkasan",{}).get("hasilPenjualan",0)>=bank_rate)

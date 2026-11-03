@@ -92,7 +92,7 @@
     <div class="flex items-center justify-center gap-2 sm:gap-3 pt-1 sm:pt-2">
       
       <!-- Kas Warga -->
-      <a href="#keuangan" title="Kas Warga" class="flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl sm:rounded-2xl backdrop-blur-md transition group text-xs sm:text-sm font-semibold">
+      <a href="#keuangan" data-f4-private-finance hidden title="Kas Warga" class="hidden flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl sm:rounded-2xl backdrop-blur-md transition group text-xs sm:text-sm font-semibold">
         <i data-lucide="wallet" class="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform"></i>
         <span class="hidden sm:inline ml-2">Kas Warga</span>
       </a>
@@ -148,7 +148,7 @@
   </section>
     
     <!-- SECTION 1: LAPORAN KEUANGAN -->
-    <section id="keuangan" class="scroll-mt-20 w-full">
+    <section id="keuangan" class="scroll-mt-20 w-full hidden" hidden>
       <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
         <div class="flex items-center space-x-2">
           <i data-lucide="wallet" class="w-6 h-6 text-indigo-600 shrink-0"></i>
@@ -1013,7 +1013,7 @@
   
 
   <!-- SCRIPT KONTROL LOGIKA PORTAL -->
-  <script src="/portal-live/home-legacy.js?v=gapura-saldo-total-20261029"></script>
+  <script src="/portal-live/home-legacy.js?v=20261103-login-only-reports"></script>
 <script id="f4-footer-overlap-observer">
 document.addEventListener('DOMContentLoaded',()=>{
  const footer=document.getElementById('pembayaran');
@@ -1034,7 +1034,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  window.addEventListener('resize',schedule,{passive:true});
  update();
 });
-</script><script src="/portal-live/portal-panels.js?v=ringkas-portal-20261028"></script><script src="/portal-live/direct-shell.js?v=20261101-password-logout-fix-v2"></script><script src="/portal-live/unified-account.js?v=logout-after-password-20261030"></script><script id="f4-home-preview-guard-20261027">
+</script><script src="/portal-live/portal-panels.js?v=20261103-login-only-reports"></script><script src="/portal-live/direct-shell.js?v=20261103-login-only-reports"></script><script src="/portal-live/unified-account.js?v=logout-after-password-20261030"></script><script id="f4-home-preview-guard-20261027">
 (function(){
  function alignProject(){
   const image=document.getElementById('bs-step-img');
