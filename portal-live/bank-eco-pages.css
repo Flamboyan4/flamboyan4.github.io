@@ -977,6 +977,19 @@ body.f4-bank-app-admin #dashboardView .section .f4-bank-own-field :is(input,sele
  box-sizing:border-box;width:100%;max-width:100%;min-width:0;min-height:var(--bank-input-h);
  margin:0;padding:9px 11px;font-size:13px;line-height:1.4
 }
+/* Sale notes are owned here, not by an inline style near the page footer. */
+body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-note-fields{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:var(--bank-form-gap);margin:0;min-width:0
+}
+.f4-sale-note-fields>.field{min-width:0}
+.f4-sale-note-fields .hint{margin-top:5px;font-size:12px;line-height:1.4}
+.f4-sale-note-caption{display:inline;margin:0;color:#456858;font-weight:650}
+@media(max-width:680px){
+ body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-note-fields{
+  grid-template-columns:minmax(0,1fr);gap:8px
+ }
+}
 body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm)>.summary-box{
  display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
  align-items:center;gap:var(--bank-form-gap);min-width:0;margin:0;padding:12px 14px
