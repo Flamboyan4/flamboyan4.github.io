@@ -157,8 +157,6 @@ function ensureHome(){
     amount=el("strong","f4-bank-app-balance","—"),secondary=el("span","f4-bank-app-secondary","Memuat...");
   amount.id="f4BankAppBalance";secondary.id="f4BankAppSecondary";
   hero.append(heading,label,amount,secondary);
-  const addDeposit=el("button","f4-bank-admin-deposit-action","+ Catat setoran");
-  addDeposit.type="button";addDeposit.onclick=()=>navigate("setoran");hero.append(addDeposit);
   const minis=el("div","f4-bank-app-minis");minis.id="f4BankAppMinis";
   hub.append(welcome,card,savings,hero,minis);
   page.prepend(hub);
@@ -238,8 +236,8 @@ function updateDashboard(){
   const headline=$("f4BankAppAdminHero")?.querySelector(".f4-bank-app-balance-title");if(headline)headline.textContent="Kas milik Bank Sampah";
   text("f4BankAppBalance",Number.isFinite(owned)?rupiah(owned):"—");
   text("f4BankAppSecondary",current?"Hasil diterima lapak: "+rupiah(current.diterimaLapakRp):"Memuat posisi kas...");
-  const opts=current?[["Kas gabungan",rupiah(current.kasGabunganRp)],["Hak warga",rupiah(current.hakWargaBelumCairRp)],["Kas lingkungan",rupiah(current.kasLingkunganRp)],["Anggota",current.wargaAktif]]:
-   [["Kas gabungan","—"],["Hak warga","—"],["Kas lingkungan","—"],["Anggota",map.get("Anggota aktif")]];
+  const opts=current?[["Hak warga",rupiah(current.hakWargaBelumCairRp)],["Kas lingkungan",rupiah(current.kasLingkunganRp)],["Anggota aktif",current.wargaAktif]]:
+   [["Hak warga","—"],["Kas lingkungan","—"],["Anggota aktif",map.get("Anggota aktif")]];
   $("f4BankAppMinis")?.replaceChildren(...opts.map(([label,value])=>{
    const node=el("div","f4-bank-app-mini");node.append(el("small","",label),el("strong","",value||"—"));return node;
   }));
