@@ -2964,12 +2964,15 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     if(!v12Data)return;
     const d=v12Data,root=$('v10Print');root.replaceChildren();
     const selected=typeof window.f4BankReportPeriod==='function'?String(window.f4BankReportPeriod()||''):'';
-    const mutasi=(d.mutasi||[]).filter(x=>!selected||String(x.tanggal||'').startsWith(selected)).sort(v12PrintOldestFirst);
-    const setoran=(d.setoran||[]).filter(x=>!selected||String(x.tanggal||'').startsWith(selected)).sort(v12PrintOldestFirst);
+    const range=typeof window.f4BankReportRange==='function'?window.f4BankReportRange():null;
+    const matchesPeriod=date=>range?date>=range.from&&date<=range.to:!selected||date.startsWith(selected);
+    const periode=range?range.from+' s.d. '+range.to:(selected||'Semua');
+    const mutasi=(d.mutasi||[]).filter(x=>matchesPeriod(String(x.tanggal||''))).sort(v12PrintOldestFirst);
+    const setoran=(d.setoran||[]).filter(x=>matchesPeriod(String(x.tanggal||''))).sort(v12PrintOldestFirst);
     root.appendChild(v29Kop());
     const title=document.createElement('h1');title.textContent='LAPORAN TABUNGAN WARGA — FLAMBOYAN 4';root.appendChild(title);
     const identity=document.createElement('p');identity.className='f4-member-print-meta';
-    identity.textContent=d.nama+' • '+d.rumah+' • '+d.dibuatPada+' • Periode '+(selected||'Semua');
+    identity.textContent=d.nama+' • '+d.rumah+' • '+d.dibuatPada+' • Periode '+periode;
     root.appendChild(identity);
 
     // Ringkasan satu baris, tanpa kartu tinggi.
@@ -3032,10 +3035,12 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   function v12CSV(){
     if(!v12Data)return;
     const d=v12Data,selected=typeof window.f4BankReportPeriod==='function'?String(window.f4BankReportPeriod()||''):'',
-    mutasi=d.mutasi.filter(x=>!selected||String(x.tanggal||'').startsWith(selected)).sort(v12PrintOldestFirst),
-    setoran=d.setoran.filter(x=>!selected||String(x.tanggal||'').startsWith(selected)).sort(v12PrintOldestFirst),rows=[
+    range=typeof window.f4BankReportRange==='function'?window.f4BankReportRange():null,
+    inPeriod=x=>range?String(x.tanggal||'')>=range.from&&String(x.tanggal||'')<=range.to:!selected||String(x.tanggal||'').startsWith(selected),
+    mutasi=d.mutasi.filter(inPeriod).sort(v12PrintOldestFirst),
+    setoran=d.setoran.filter(inPeriod).sort(v12PrintOldestFirst),rows=[
       ['LAPORAN TABUNGAN PRIBADI - FLAMBOYAN 4'],
-      ['Nama',d.nama],['Rumah',d.rumah],['Dicetak',d.dibuatPada],['Periode',selected||'Semua'],
+      ['Nama',d.nama],['Rumah',d.rumah],['Dicetak',d.dibuatPada],['Periode',range?range.from+' s.d. '+range.to:selected||'Semua'],
       ['Saldo saat ini (Rp)',d.saldo],['Masuk periode (Rp)',mutasi.reduce((n,x)=>n+Number(x.kredit||0),0)],['Keluar periode (Rp)',mutasi.reduce((n,x)=>n+Number(x.debit||0),0)],
       [],
       ['RIWAYAT TABUNGAN'],
