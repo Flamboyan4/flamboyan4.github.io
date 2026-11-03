@@ -2509,6 +2509,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const rows=[...$('saleItems').querySelectorAll('.f4-compact-sale-row')];
     const items=saleItems(),batch=$('saleBatch').value;
     if(!batch||!items.length){note('saleNotice','Pilih nomor penjualan dan isi sedikitnya satu jenis barang.',true);return;}
+    if(!window.F4SaleSheet?.ready?.()){
+      note('saleNotice','Siapkan dan cetak Lembar Timbang lebih dulu agar setoran terkunci. Setelah dari lapak, isi hasil timbangan nyata.',true);return;
+    }
     if(rows.some(row=>{
       const code=row.querySelector('select')?.value;
       const weight=Number(row.querySelectorAll('input')[0]?.value||0);
