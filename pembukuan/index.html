@@ -71,7 +71,7 @@
   #history-batch-panel .batch-filter{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,.72fr);gap:.6rem;width:100%}
   #history-batch-panel .batch-filter select,#history-batch-panel .batch-filter input{min-width:0!important;width:100%!important}
   #history-batch-panel .batch-filter button{grid-column:1/-1;width:100%;min-width:0}
-  #history-batch-panel table{min-width:720px!important}
+  #history-batch-panel table{}
 }
 
 
@@ -213,10 +213,10 @@
   .kas-scroll,.history-scroll,.loan-scroll,.report-table-wrap{scrollbar-width:none!important;-ms-overflow-style:none!important}
   .kas-scroll::-webkit-scrollbar,.history-scroll::-webkit-scrollbar,.loan-scroll::-webkit-scrollbar,.report-table-wrap::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
   @media(max-width:640px){
-    #tab-kas .kas-scroll table{min-width:590px!important}
-    #tab-pinjaman .loan-scroll table{min-width:690px!important}
-    #tab-riwayat .history-scroll table{min-width:620px!important}
-    #history-batch-panel table{min-width:650px!important}
+    #tab-kas .kas-scroll table{}
+    #tab-pinjaman .loan-scroll table{}
+    #tab-riwayat .history-scroll table{}
+    #history-batch-panel table{}
     .kas-scroll th,.kas-scroll td,.history-scroll th,.history-scroll td,.loan-scroll th,.loan-scroll td,.report-table-wrap th,.report-table-wrap td{padding:.55rem .6rem!important;white-space:nowrap}
     .kas-scroll table,.history-scroll table,.loan-scroll table,.report-table-wrap table{font-size:.82rem!important}
     #tab-kas .kas-scroll th:first-child,#tab-kas .kas-scroll td:first-child{padding-left:.55rem!important}
@@ -431,11 +431,11 @@
   #tab-laporan #report-print-area h2{font-size:24px!important;line-height:1.15!important}
   #tab-laporan #report-print-area p{font-size:14px!important}
   #tab-laporan .report-table-wrap{overflow-x:auto!important}
-  #tab-laporan .report-table-wrap table{width:100%!important;min-width:0!important;table-layout:auto!important;font-size:15px!important}
-  #tab-laporan .report-table-wrap th{font-size:14px!important;font-weight:900!important}
-  #tab-laporan .report-table-wrap th,#tab-laporan .report-table-wrap td{padding:10px 10px!important;white-space:normal!important;vertical-align:middle!important}
+  #tab-laporan .report-table-wrap table{width:100%!important;min-width:0!important;table-layout:auto!important;}
+  #tab-laporan .report-table-wrap th{font-weight:900!important}
+  #tab-laporan .report-table-wrap th,#tab-laporan .report-table-wrap td{white-space:normal!important;vertical-align:middle!important}
   #tab-laporan .report-card{padding:10px 12px!important}
-  #tab-laporan .report-card .text-xl{font-size:18px!important}
+  #tab-laporan .report-card .text-xl{}
   #report-rt-panel table{table-layout:fixed!important}
   #report-rt-panel th:nth-child(1){width:6%}
   #report-rt-panel th:nth-child(2){width:20%}
@@ -704,14 +704,14 @@ main > section.card{overflow:visible!important}
   #history-pinjaman-panel > .loan-scroll > table td{
     padding:8px 6px!important;
   }
-  #history-pinjaman-panel > .loan-scroll > table th:nth-child(1){width:11%!important}
-  #history-pinjaman-panel > .loan-scroll > table th:nth-child(2){width:16%!important}
-  #history-pinjaman-panel > .loan-scroll > table th:nth-child(3){width:10%!important}
-  #history-pinjaman-panel > .loan-scroll > table th:nth-child(4){width:9%!important}
-  #history-pinjaman-panel > .loan-scroll > table th:nth-child(5){width:9%!important}
-  #history-pinjaman-panel > .loan-scroll > table th:nth-child(6){width:8%!important}
-  #history-pinjaman-panel > .loan-scroll > table th:nth-child(7){width:13%!important}
-  #history-pinjaman-panel > .loan-scroll > table th:nth-child(8){width:24%!important}
+  #history-pinjaman-panel > .loan-scroll > table th:nth-child(1){}
+  #history-pinjaman-panel > .loan-scroll > table th:nth-child(2){}
+  #history-pinjaman-panel > .loan-scroll > table th:nth-child(3){}
+  #history-pinjaman-panel > .loan-scroll > table th:nth-child(4){}
+  #history-pinjaman-panel > .loan-scroll > table th:nth-child(5){}
+  #history-pinjaman-panel > .loan-scroll > table th:nth-child(6){}
+  #history-pinjaman-panel > .loan-scroll > table th:nth-child(7){}
+  #history-pinjaman-panel > .loan-scroll > table th:nth-child(8){}
   #history-pinjaman-panel > .loan-scroll > table td:nth-child(2),
   #history-pinjaman-panel > .loan-scroll > table td:nth-child(7){
     overflow-wrap:anywhere!important;
@@ -723,7 +723,6 @@ main > section.card{overflow:visible!important}
   #history-pinjaman-panel > .loan-scroll > table td:nth-child(8)>div{
     display:flex!important;
     flex-wrap:nowrap!important;
-    justify-content:flex-end!important;
     align-items:center!important;
     gap:5px!important;
     width:100%!important;
@@ -765,8 +764,6 @@ main > section.card{overflow:visible!important}
   #tab-talangan table,
   #tab-denda table,
   #tab-laporan table{
-    font-size:11px!important;
-    line-height:1.15!important;
   }
   #tab-riwayat th,#tab-riwayat td,
   #tab-kas th,#tab-kas td,
@@ -775,20 +772,18 @@ main > section.card{overflow:visible!important}
   #tab-denda th,#tab-denda td,
   #tab-laporan th,#tab-laporan td{
     padding:4px 2px!important;
-    line-height:1.15!important;
   }
   #tab-riwayat th,#tab-kas th,#tab-pinjaman th,#tab-talangan th,#tab-denda th,#tab-laporan th{
-    font-size:10.5px!important;
   }
 
   /* Riwayat — tiap tabel diberi lebar minimum sekecil mungkin tanpa membuat data rusak. */
   #history-iuran-panel .history-scroll table{min-width:430px!important;width:430px!important}
   #history-kasumum-panel .history-scroll table{min-width:560px!important;width:560px!important}
-  #history-batch-panel table{min-width:460px!important;width:460px!important}
-  #history-pinjaman-panel > .loan-scroll > table{min-width:515px!important;width:515px!important;}
+  #history-batch-panel table{}
+  #history-pinjaman-panel > .loan-scroll > table{}
   #history-talangan-panel .loan-scroll table{min-width:550px!important;width:550px!important}
   #history-denda-panel .loan-scroll table{min-width:515px!important;width:515px!important}
-  .loan-payment-history .loan-scroll table{min-width:455px!important;width:455px!important}
+  .loan-payment-history .loan-scroll table{}
 
   /* Tabel modul input/pembukuan. */
   #tab-kas .kas-scroll table{min-width:440px!important;width:440px!important}
@@ -798,8 +793,8 @@ main > section.card{overflow:visible!important}
 
   /* Laporan: tetap bisa dibaca, tetapi lebih pendek saat digeser. */
   #tab-laporan .report-table-wrap table{min-width:500px!important;width:500px!important;table-layout:auto!important}
-  #report-rt-panel table{min-width:480px!important;width:480px!important}
-  #report-arisan-panel table{min-width:460px!important;width:460px!important}
+  #report-rt-panel table{}
+  #report-arisan-panel table{}
   #report-tahunan-panel table{min-width:510px!important;width:510px!important}
 
   /* Izinkan teks deskriptif membungkus; angka/status/tombol tetap satu baris. */
@@ -856,8 +851,6 @@ main > section.card{overflow:visible!important}
   #tab-laporan th,#tab-laporan td{
     padding-top:7px!important;
     padding-bottom:7px!important;
-    padding-left:3px!important;
-    padding-right:3px!important;
     line-height:1.25!important;
   }
 
@@ -869,7 +862,6 @@ main > section.card{overflow:visible!important}
   #tab-denda table,
   #tab-laporan table{
     width:max-content!important;
-    min-width:100%!important;
   }
 
   /* Kolom teks boleh membungkus agar tidak memaksa tabel jadi terlalu panjang. */
@@ -910,9 +902,9 @@ main > section.card{overflow:visible!important}
   /* Riwayat Pinjaman: tetap rapat tetapi tombol aksi muat. */
   #history-pinjaman-panel > .loan-scroll > table th,
   #history-pinjaman-panel > .loan-scroll > table td{}
-  #history-pinjaman-panel > .loan-scroll > table td:nth-child(2){max-width:125px!important}
-  #history-pinjaman-panel > .loan-scroll > table td:nth-child(7){max-width:120px!important}
-  #history-pinjaman-panel > .loan-scroll > table td:nth-child(8)>div{gap:3px!important}
+  #history-pinjaman-panel > .loan-scroll > table td:nth-child(2){}
+  #history-pinjaman-panel > .loan-scroll > table td:nth-child(7){}
+  #history-pinjaman-panel > .loan-scroll > table td:nth-child(8)>div{}
 }
 
 
@@ -1197,7 +1189,7 @@ main > section.card{overflow:visible!important}
   /* font tetap; yang dipadatkan adalah padding horizontal dan ruang kolom */
   #tab-riwayat table{font-size:inherit!important}
   #tab-riwayat th,#tab-riwayat td{padding-left:5px!important;padding-right:5px!important}
-  #history-iuran-panel table{min-width:650px!important}
+  #history-iuran-panel table{}
   #history-iuran-panel td:nth-child(2)>div:first-child,
   #history-pinjaman-panel td:nth-child(2)>div:first-child,
   #history-talangan-panel td:nth-child(2)>div:first-child,
@@ -1484,7 +1476,6 @@ main > section.card{overflow:visible!important}
 @media print{
   /* Jangan mengecilkan seluruh laporan. Header/judul tetap proporsional. */
   #report-rt-panel .report-table-wrap{
-    width:90%!important;
     max-width:184mm!important;
     margin-left:auto!important;
     margin-right:auto!important;
@@ -1492,27 +1483,24 @@ main > section.card{overflow:visible!important}
   }
   #report-rt-panel table{
     min-width:0!important;
-    font-size:12px!important;
   }
   #report-rt-panel th,#report-rt-panel td{
-    padding:2.9px 3.5px!important;
-    line-height:1.18!important;
     height:auto!important;
     vertical-align:middle!important;
   }
-  #report-rt-panel thead th{font-size:11px!important;white-space:nowrap!important}
-  #report-rt-panel tfoot td{font-size:11.8px!important;padding-top:3.7px!important;padding-bottom:3.7px!important}
+  #report-rt-panel thead th{white-space:nowrap!important}
+  #report-rt-panel tfoot td{padding-top:3.7px!important;padding-bottom:3.7px!important}
 
   /* Kolom dibuat rapat; tidak ada ruang kosong berlebihan */
   #report-rt-panel th:nth-child(1),#report-rt-panel td:nth-child(1){}
-  #report-rt-panel th:nth-child(2),#report-rt-panel td:nth-child(2){width:24%!important}
+  #report-rt-panel th:nth-child(2),#report-rt-panel td:nth-child(2){}
   #report-rt-panel th:nth-child(3),#report-rt-panel td:nth-child(3){}
-  #report-rt-panel th:nth-child(4),#report-rt-panel td:nth-child(4){width:21%!important}
+  #report-rt-panel th:nth-child(4),#report-rt-panel td:nth-child(4){}
   #report-rt-panel th:nth-child(5),#report-rt-panel td:nth-child(5){width:18%!important;white-space:nowrap!important}
   #report-rt-panel th:nth-child(6),#report-rt-panel td:nth-child(6){width:18%!important;white-space:nowrap!important}
 
   #report-rt-panel .report-qty-badge{display:none!important}
-  #report-rt-panel .mt-5.text-right{width:90%!important;max-width:184mm!important;margin:14px auto 0!important;}
+  #report-rt-panel .mt-5.text-right{max-width:184mm!important;margin:14px auto 0!important;}
   #report-rt-panel .mb-5{margin-bottom:8px!important}
   #report-rt-panel h2{font-size:18px!important;line-height:1.1!important}
   #report-rt-panel p{font-size:10px!important;margin-top:2px!important}
@@ -1644,7 +1632,7 @@ main > section.card{overflow:visible!important}
   :root { --desktop-nav-width: 258px; }
   body > #side-drawer { position:fixed!important; left:0!important;top:0!important;bottom:0!important;right:auto!important; width:var(--desktop-nav-width)!important; z-index:55!important; pointer-events:auto!important; }
   body > #side-drawer .drawer-backdrop { display:none!important; }
-  body > #side-drawer .drawer-panel { position:relative!important; left:0!important;top:0!important;bottom:auto!important; width:100%!important;height:100vh!important;height:100dvh!important;transform:none!important;transition:none!important;box-shadow:none!important; border-right:1px solid #e9e4f6!important; }
+  body > #side-drawer .drawer-panel { position:relative!important; left:0!important;top:0!important;bottom:auto!important; width:100%!important;height:100dvh!important;transform:none!important;transition:none!important;box-shadow:none!important; border-right:1px solid #e9e4f6!important; }
   body > #side-drawer .drawer-panel > div:first-child button { display:none!important; }
   body > header { margin-left:var(--desktop-nav-width)!important; width:calc(100% - var(--desktop-nav-width))!important; }
   body > header > div { max-width:1200px!important; }
@@ -1685,7 +1673,7 @@ main > section.card{overflow:visible!important}
  body>main{padding-top:64px!important}
  body>#side-drawer{top:0!important;height:100dvh!important}
  body>#side-drawer .drawer-panel{height:100dvh!important}
- body>#side-drawer .drawer-panel>div:first-child{height:80px!important;padding:16px 17px!important;border-bottom:1px solid #eee9f8!important}
+ body>#side-drawer .drawer-panel>div:first-child{border-bottom:1px solid #eee9f8!important}
  body>#side-drawer .drawer-panel>div:first-child .font-black{line-height:1.3!important}
 }
 
@@ -5382,8 +5370,7 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
     overflow:hidden!important;box-sizing:border-box!important;
     padding-right:35px!important;
   }
-  body .upr-field .upr-field-text{flex:1 1 0!important;
-    font-size:13px!important;line-height:1.2!important;
+  body .upr-field .upr-field-text{flex:1 1 0!important;line-height:1.2!important;
   }
   body .upr-field svg{
     position:absolute!important;right:9px!important;top:50%!important;
