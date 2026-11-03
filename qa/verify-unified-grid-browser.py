@@ -235,7 +235,10 @@ async def main():
                           '#saleForm .f4-entry-top-fields>.field, #saleForm .f4-sale-note-fields>.field'
                         )].every(el=>Math.abs(parseFloat(getComputedStyle(el).marginBottom)||0)<=1) &&
                           (topSale[1].top-topSale[0].bottom)<=11 &&
-                          (note[2].top-note[0].bottom)<=11;
+                          (w<=680?
+                           (note[1].top-note[0].bottom)<=11 &&
+                           (note[2].top-note[1].bottom)<=11:
+                           (note[2].top-note[0].bottom)<=11);
                         const noteFieldsOk=Math.abs(proof.height-42)<=1 &&
                           Math.abs(reason.height-42)<=1 &&
                           (w<=680?reason.top>=proof.bottom:
