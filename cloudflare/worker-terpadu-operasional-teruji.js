@@ -326,81 +326,68 @@ __name(detailBank, "detailBank");
 // Setoran MILIK Bank Sampah: tidak terhubung ke member, batch, atau jurnal tabungan.
 // Uang baru masuk kas operasional ketika nominal yang benar-benar diterima dicatat.
 // Semua berat/jenis disimpan sebagai jejak audit pada transaksi kas yang sama.
+// BANK_V3_OWN_START
+// Setoran milik Bank adalah STOCK, BUKAN pemasukan kas sebelum laku.
 async function bankOwnDeposit(request,env,who){
  const denied=requireRole(who,["admin","superadmin"]);if(denied)return denied;
  const db=env.DB;
  if(request.method==="GET"){
-  const rows=await list(db,`SELECT c.id,c.occurred_on AS depositedOn,c.cash_in_rp AS amountRp,
-    c.note,a.after_json AS detailJson
-    FROM waste_cash_ledger c LEFT JOIN audit_log a ON a.target_id=c.id
-     AND a.action='own_bank_deposit'
-    WHERE c.transaction_type='setoran_milik_bank' AND c.status='aktif'
-    ORDER BY c.occurred_on DESC,c.id DESC LIMIT 300`,[]);
-  return json({ok:true,items:rows.map(r=>{
-   let detail={};try{detail=JSON.parse(r.detailJson||"{}")}catch{}
-   return {id:r.id,tanggal:r.depositedOn,amountRp:r.amountRp,
-     beratGram:detail.totalGrams||0,items:detail.items||[],note:detail.note||r.note||""};
-  })});
+  const [old,stock]=await Promise.all([
+   list(db,"SELECT c.id,c.occurred_on AS depositedOn,c.cash_in_rp AS amountRp,c.note,a.after_json AS detailJson FROM waste_cash_ledger c LEFT JOIN audit_log a ON a.target_id=c.id AND a.action='own_bank_deposit' WHERE c.transaction_type='setoran_milik_bank' AND c.status='aktif' ORDER BY c.occurred_on DESC,c.id DESC LIMIT 300",[]),
+   list(db,"SELECT e.request_key,e.deposited_on,e.note,l.id,l.waste_item_id,l.initial_grams,l.remaining_grams,i.name FROM bank_v3_own_events e JOIN bank_v3_inventory_lots l ON l.request_key=e.request_key JOIN waste_items i ON i.id=l.waste_item_id ORDER BY e.deposited_on DESC,e.request_key LIMIT 600",[])
+  ]);
+  const result=old.map(r=>{let d={};try{d=JSON.parse(r.detailJson||"{}")}catch{}
+   return {id:r.id,tanggal:r.depositedOn,amountRp:r.amountRp,beratGram:d.totalGrams||0,items:d.items||[],note:d.note||r.note||"",status:"kas_historis"};
+  });
+  const grouped=new Map();
+  for(const l of stock){
+   let x=grouped.get(l.request_key);
+   if(!x){x={id:"stock:bank:"+l.request_key,tanggal:l.deposited_on,amountRp:0,beratGram:0,sisaGram:0,items:[],note:l.note,status:"stok_belum_terjual"};grouped.set(l.request_key,x)}
+   x.beratGram+=Number(l.initial_grams);x.sisaGram+=Number(l.remaining_grams);
+   x.items.push({itemId:l.waste_item_id,name:l.name,grams:l.initial_grams,remainingGrams:l.remaining_grams});
+  }
+  return json({ok:true,items:[...grouped.values(),...result].sort((a,b)=>String(b.tanggal).localeCompare(String(a.tanggal)))});
  }
  if(request.method!=="POST")return safeError("Metode tidak tersedia.",405);
- if(env.BANK_WRITE_ENABLED!=="true"||env.BANK_EXPENSE_WRITE_ENABLED!=="true")
-  return safeError("Pencatatan kas Bank Sampah belum diaktifkan.",503);
- let p;try{p=await requestJson(request)}catch{return safeError("Data setoran tidak valid.",400)}
- const key=String(p.requestKey||""),date=String(p.depositedOn||""),received=p.amountRp;
- const note=String(p.note||"").trim();
- if(!/^[a-zA-Z0-9_-]{12,64}$/.test(key)||!validDate(date)||
-    !Number.isSafeInteger(received)||received<1||received>1000000000||
-    note.length>200)return safeError("Tanggal, nominal diterima, atau kunci transaksi tidak valid.",400);
- if(!Array.isArray(p.items)||p.items.length<1||p.items.length>30)
-  return safeError("Isi 1–30 jenis sampah.",400);
+ if(env.BANK_WRITE_ENABLED!=="true")return safeError("Pencatatan stok belum diaktifkan.",503);
+ let p;try{p=await requestJson(request)}catch{return safeError("Input setoran tidak valid.",400)}
+ if(p.amountRp!==undefined && Number(p.amountRp)!==0)return safeError("Form lama masih mengirim nominal kas. Muat ulang halaman; setoran sampah adalah stok, bukan uang.",409);
+ const key=String(p.requestKey||""),date=String(p.depositedOn||""),note=String(p.note||"").trim();
+ if(!/^[a-zA-Z0-9_-]{12,64}$/.test(key)||!validDate(date)||note.length>200)
+  return safeError("Tanggal, catatan, atau kode transaksi tidak valid.",400);
+ if(!Array.isArray(p.items)||p.items.length<1||p.items.length>30)return safeError("Isi 1–30 jenis sampah.",400);
  const combined=new Map();
- for(const item of p.items){
-  const id=String(item?.itemId||""),grams=Number(item?.grams);
+ for(const row of p.items){
+  const id=String(row?.itemId||""),grams=Number(row?.grams);
   if(!id||id.length>128||!Number.isSafeInteger(grams)||grams<1||grams>10000000)
-   return safeError("Jenis sampah atau berat tidak valid.",400);
+   return safeError("Jenis dan berat harus valid.",400);
   combined.set(id,(combined.get(id)||0)+grams);
-  if(combined.get(id)>10000000)return safeError("Berat melebihi batas.",400);
+  if(combined.get(id)>10000000)return safeError("Berat melampaui batas.",400);
  }
- const catalog=await list(db,"SELECT id,name FROM waste_items WHERE active=1",[]);
- const names=new Map(catalog.map(x=>[x.id,x.name]));
- const items=[...combined].sort(([a],[b])=>a.localeCompare(b)).map(([itemId,grams])=>({itemId,grams,name:names.get(itemId)}));
- if(items.some(x=>!x.name))return safeError("Barang tidak tersedia di master aktif.",409);
- const totalGrams=items.reduce((sum,x)=>sum+x.grams,0);
- const checksum=await sha(JSON.stringify({date,received,items:items.map(({itemId,grams})=>[itemId,grams]),note}));
- const cashId="cash:bank-own:"+key;
- const prev=await one(db,`SELECT a.after_json AS auditJson FROM waste_cash_ledger c
-   LEFT JOIN audit_log a ON a.target_id=c.id AND a.action='own_bank_deposit'
-   WHERE c.id=?`,[cashId]);
- if(prev){
-  let detail={};try{detail=JSON.parse(prev.auditJson||"{}")}catch{}
-  return detail.checksum===checksum?
-   json({ok:true,id:cashId,duplicate:true}):
-   safeError("Nomor transaksi sudah digunakan untuk isi berbeda.",409);
- }
+ const items=[...combined].sort(([a],[b])=>a.localeCompare(b));
+ const allowed=new Set((await list(db,"SELECT id FROM waste_items WHERE active=1",[])).map(x=>x.id));
+ if(items.some(([id])=>!allowed.has(id)))return safeError("Jenis sampah tidak aktif.",409);
  if(await one(db,"SELECT fiscal_year FROM fiscal_closings WHERE fiscal_year=?",[Number(date.slice(0,4))]))
-  return safeError("Tahun keuangan sudah ditutup.",409);
- const summary=items.map(i=>i.name+" "+(i.grams/1000).toLocaleString("id-ID")+" kg").join(", ");
- const stored={date,received,totalGrams,items,note,checksum};
- try{
-  await db.batch([
-   db.prepare(`INSERT INTO waste_cash_ledger
-    (id,occurred_on,source_transaction_id,transaction_type,fund_position,
-     cash_in_rp,cash_out_rp,status,note)
-    VALUES(?,?,?,'setoran_milik_bank','operasional',?,0,'aktif',?)`)
-    .bind(cashId,date,cashId,received,"Setoran milik Bank Sampah • "+summary+(note?" • "+note:"")),
-   db.prepare(`INSERT INTO audit_log
-    (id,actor_account_id,scope,action,target_type,target_id,reason,after_json)
-    VALUES(?,?,'banksampah','own_bank_deposit','waste_cash_ledger',?,?,?)`)
-    .bind("audit:"+cashId,who.id,cashId,"Penerimaan kas Bank Sampah",JSON.stringify(stored))
-  ]);
- }catch(error){
-  const current=await one(db,"SELECT id FROM waste_cash_ledger WHERE id=?",[cashId]);
-  return current?safeError("Transaksi telah tercatat. Muat ulang riwayat sebelum mencoba lagi.",409):
-   safeError("Gagal mencatat kas. Tidak ada pemasukan sebagian.",409);
+  return safeError("Tahun tersebut sudah ditutup.",409);
+ const digest=await sha(JSON.stringify({date,note,items}));
+ const previous=await one(db,"SELECT checksum FROM bank_v3_own_events WHERE request_key=?",[key]);
+ if(previous)return previous.checksum===digest?json({ok:true,id:"stock:bank:"+key,duplicate:true,status:"stok"}):safeError("Kode transaksi dipakai untuk data berbeda.",409);
+ const stmt=[db.prepare("INSERT INTO bank_v3_own_events(request_key,deposited_on,checksum,note,created_by) VALUES(?,?,?,?,?)").bind(key,date,digest,note,who.id)];
+ for(const [id,grams] of items){
+  stmt.push(db.prepare("INSERT INTO bank_v3_inventory_lots(id,owner_kind,member_id,source_deposit_id,source_line_id,request_key,waste_item_id,deposited_on,initial_grams,remaining_grams,created_by) VALUES(?,'bank',NULL,NULL,NULL,?,?,?,?,?,?)")
+   .bind("stock:bank:"+key+":"+id,key,id,date,grams,grams,who.id));
  }
- return json({ok:true,id:cashId,amountRp:received,totalGrams,duplicate:false},201);
+ stmt.push(db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,after_json) VALUES(?,?,'banksampah','record_bank_stock','bank_v3_own_events',?,?,?)")
+  .bind("audit:bank-stock:"+key,who.id,key,note||"Catat stok fisik milik Bank",JSON.stringify({date,items})));
+ try{await db.batch(stmt)}catch{
+  const old=await one(db,"SELECT checksum FROM bank_v3_own_events WHERE request_key=?",[key]);
+  if(old?.checksum===digest)return json({ok:true,id:"stock:bank:"+key,duplicate:true,status:"stok"});
+  return safeError("Stok belum disimpan. Tidak ada kas yang berubah.",409);
+ }
+ return json({ok:true,id:"stock:bank:"+key,status:"stok",totalGrams:items.reduce((n,x)=>n+x[1],0),amountRp:0},201);
 }
 __name(bankOwnDeposit,"bankOwnDeposit");
+// BANK_V3_OWN_END
 async function bankDeposit(request, env) {
   let p;
   try {
