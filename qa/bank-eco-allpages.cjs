@@ -88,6 +88,11 @@ assert(adminMobile.includes('html body.f4-bank-app-admin.v17-dashboard #sideNav.
 assert(adminMobile.includes('html body.f4-bank-app-admin #v16Backdrop.open'),
  'Admin slide backdrop must open with the drawer');
 assert(css.includes('grid-template-columns:repeat(4,minmax(0,1fr))'),'Admin shortcuts must be four equal columns');
+assert(mobile.includes('adminShortcuts.filter(([,route])=>route!=="bank-admin-docs").map(adminShortcut)'),
+ 'HP Akses Cepat must show eight buttons without Dokumentasi');
+assert(mobile.includes('["Dokumentasi","bank-admin-docs","images"]') &&
+       css.includes('>.f4-bank-desktop-nav-link:not([data-bank-app-route="bank-admin-docs"]){'),
+ 'Dokumentasi must remain accessible through hamburger HP and sidebar PC');
 assert(mobile.includes('dock().hidden=!isPrivate||next==="admin"'),'Admin dock must stay hidden');
 assert(mobile.includes('function syncAdminBack()'),'Manager screens need a back control');
 assert(!mobile.includes('const adminDock='),'Repeated manager dock routes must be removed');
