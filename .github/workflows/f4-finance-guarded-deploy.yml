@@ -5,6 +5,7 @@ on:
     paths:
       - cloudflare/worker-terpadu-operasional-teruji.js
       - qa/account-profile-password.cjs
+      - qa/verify-iuran-counts.cjs
       - qa/verify-treasury.py
       - qa/verify-treasury-humas.cjs
       - qa/verify-treasury-dynamic.py
@@ -34,6 +35,7 @@ jobs:
       - name: Check Worker syntax and account policy
         run: |
           node --check cloudflare/worker-terpadu-operasional-teruji.js
+          node qa/verify-iuran-counts.cjs
           python3 qa/verify_bank_v3_migration.py
           node qa/account-profile-password.cjs
           python3 qa/verify-treasury.py
