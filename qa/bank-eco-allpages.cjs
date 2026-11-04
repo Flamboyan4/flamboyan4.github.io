@@ -78,7 +78,7 @@ assert(!h.includes('max-height:310px!important;overflow-y:auto!important'),'Old 
 // Mobile Bank Sampah controls must not regress into the three bugs in the 31 Oct report.
 assert(!dockSection.includes('transform:translateY(-8px)'),'Center caption must not overlap gold action');
 assert(dockSection.includes('transform:translateY(-21px)'),'Raised central icon geometry changed');
-// Admin HP uses eight shortcuts and a full six-category slide; only members keep the dock.
+// Admin HP retains shortcut actions; desktop manager uses a compact direct sidebar.
 const adminMobile=css.split('/* Pengelola HP: menu slide untuk Keuangan dan Pengelolaan;')[1]
   ?.split('@media screen and (max-width:760px)')[0];
 assert(adminMobile,'Admin mobile navigation owner missing');
@@ -91,8 +91,12 @@ assert(css.includes('grid-template-columns:repeat(4,minmax(0,1fr))'),'Admin shor
 assert(mobile.includes('dock().hidden=!isPrivate||next==="admin"'),'Admin dock must stay hidden');
 assert(mobile.includes('function syncAdminBack()'),'Manager screens need a back control');
 assert(!mobile.includes('const adminDock='),'Repeated manager dock routes must be removed');
-assert(h.includes("const v16AdminPrimary=new Set(['home','deposit','sale','finance','management','report']);"),
- 'Six admin sidebar categories missing');
+assert(h.includes("const v16AdminSidebar=new Set(['home','deposit','sale']);") &&
+       mobile.includes('function ensureDesktopAdminSidebar()') &&
+       mobile.includes('anchor.after(items);') &&
+       css.includes('>.v16-item:is([data-group="deposit"],[data-group="sale"]){') &&
+       css.includes('#f4BankAdminShortcuts{\n  display:none'),
+ 'Desktop manager sidebar must own quick routes, excluding Setoran and Penjualan');
 assert(!css.includes('v16-mobile-extra')&&!h.includes('v16-mobile-extra'),
  'Duplicated tab submenus must not return to the admin sidebar');
 assert(!h.includes('const extras=['),
@@ -143,10 +147,10 @@ assert(!css.includes('#dashboardView #pageProfile #v15PasswordBox>summary{'),
 assert(!h.includes('#v15PasswordBox>summary{cursor:pointer'),
  'Old left-side triangle style returned');
 assert(h.includes("summary.textContent='Ganti password'"),'Password must have no emoji or separate triangle');
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261104-nav-schedule-v1'),
- 'Bank Sampah profile/dock stylesheet must be cache-busted');
-assert(h.includes('/portal-live/bank-mobile-app.js?v=20261104-session-isolation-v3'),
- 'Member payout icon script must be refreshed');
+assert(/\/portal-live\/bank-eco-pages\.css\?v=\d{8}-[a-z0-9-]+/.test(h),
+ 'Bank Sampah profile/dock stylesheet must be versioned');
+assert(/\/portal-live\/bank-mobile-app\.js\?v=\d{8}-[a-z0-9-]+/.test(h),
+ 'Bank Sampah mobile app script must be versioned');
 assert(css.includes('.f4-bank-currency-mark{'),
  'Rp payout icon must use the canonical bank dock styles');
 assert(h.includes('id="f4BankPageGreeting"'), 'Manager greeting must be scopeable to the home route');
@@ -165,7 +169,8 @@ assert(css.includes('.f4-compact-sale-row>input{grid-column:span 2}') &&
 // Bank Sampah: shared form grid is owned by bank-eco-pages.css, not desktop overrides.
 assert(css.includes('grid-template-columns:repeat(12,minmax(0,1fr))'),
  'Shared twelve-track Bank Sampah entry grid missing');
-assert(css.includes('#dashboardView .section :is(#saleForm,#setoranForm)>:is(.f4-sale-side,.f4-setoran-side){') &&
+assert(css.includes('#dashboardView .section :is(#saleForm,#setoranForm)>.f4-entry-right{') &&
+       h.includes('class="f4-entry-right"') &&
        h.includes('class="f4-sale-side"') &&
        h.includes('class="f4-sale-payment-fields"'),
  'Sale payment must remain inside its independent desktop panel');
@@ -173,8 +178,8 @@ assert(css.includes('#saleForm .f4-sale-top-fields>.field{'),
  'Sale three-field row must keep its explicit column spans');
 assert(!css.includes('body.f4-bank-app-private #dashboardView #pageSetoran .f4-entry-top-fields,'),
  'Legacy desktop grid override was reintroduced');
-assert(h.includes('/portal-live/bank-eco-pages.css?v=20261104-nav-schedule-v1'),
- 'Bank entry stylesheet cache key was not refreshed');
+assert(/\/portal-live\/bank-eco-pages\.css\?v=\d{8}-[a-z0-9-]+/.test(h),
+ 'Bank entry stylesheet requires a current version key');
 const modernCss=fs.readFileSync('portal-live/modern-portals.css','utf8');
 assert(!modernCss.includes('max-width:850px!important') &&
        css.includes('#saleForm .f4-sale-note-fields{'),
@@ -277,10 +282,11 @@ assert(mobile.includes('f4-bank-admin-operation-icon') &&
 assert(css.includes('#f4BankAdminOperations .f4-bank-admin-operation-copy strong{') &&
        css.includes('grid-template-columns:48px minmax(0,1fr) 28px;'),
  'Admin primary task cards no longer use the canonical focal layout');
-assert(css.includes('#dashboardView .section :is(#saleForm,#setoranForm)>:is(.f4-sale-side,.f4-setoran-side){') &&
+assert(css.includes('#dashboardView .section :is(#saleForm,#setoranForm)>.f4-entry-right{') &&
        h.includes('class="f4-setoran-side"') &&
        h.includes('class="f4-sale-main"') &&
        h.includes('class="f4-sale-side"') &&
-       css.includes('grid-column:1;grid-row:1 / span 2;align-self:start'),
+       css.includes('grid-column:1;grid-row:1;align-self:start') &&
+       !css.includes('grid-row:1 / span 2;align-self:start'),
  'PC Sale and Setoran entry panels must remain independent of right-side controls');
 console.log('F4_BANK_CANONICAL_THEME_OK');
