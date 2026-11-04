@@ -1288,8 +1288,8 @@ body.f4-bank-app-admin #dashboardView .section .f4-bank-admin-history-tabs[hidde
  grid-column:1/-1;min-width:0;margin:0
 }
 @media(max-width:1023px){
- /* Sidebar daftar pengelolaan PC tidak ditampilkan pada menu geser HP. */
- body.f4-bank-app-admin #sideNav #v16NavList>.f4-bank-desktop-nav-link{
+ /* Menu HP hanya memperlihatkan Dokumentasi dari daftar akses sidebar PC. */
+ body.f4-bank-app-admin #sideNav #v16NavList>.f4-bank-desktop-nav-link:not([data-bank-app-route="bank-admin-docs"]){
   display:none
  }
  body.f4-bank-app-admin .f4-bank-admin-shortcut-grid{
