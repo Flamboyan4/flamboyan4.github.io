@@ -243,10 +243,10 @@ assert(mobile.includes('function showAdminProgress()') &&
        mobile.includes('showAdminHistory(saleHistory?"penjualan":"setoran")'),
  'Separate sale history or safe progress lifecycle is missing');
 assert(mobile.includes('f4BankAdminOperations') &&
-       mobile.includes('adminShortcuts.map(adminShortcut)') &&
+       mobile.includes('adminShortcuts.filter(([,route])=>route!=="bank-admin-docs").map(adminShortcut)') &&
        mobile.includes('Catat Setoran') &&
        mobile.includes('Catat Penjualan'),
- 'Task-first entry and eight shortcuts are missing');
+ 'Task-first entry and eight mobile shortcuts are missing');
 assert(mobile.includes('["Saldo Warga","tabungan","coins"]') &&
        !mobile.includes('["Profil","profile","user-round"]'),
  'Saldo Warga must replace the redundant profile quick access');
