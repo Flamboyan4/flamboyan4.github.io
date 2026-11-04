@@ -69,6 +69,11 @@ function markDock(){
   b.classList.toggle("is-active",selected);
   if(selected)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");
  }
+ for(const b of document.querySelectorAll("#v16NavList .f4-bank-desktop-nav-link")){
+  const selected=b.dataset.bankAppRoute===screen;
+  b.classList.toggle("active",selected);
+  if(selected)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");
+ }
  if(roleType()==="member")syncMemberBack();
  if(roleType()==="admin")syncAdminBack();
  syncAdminGreeting();
@@ -956,7 +961,7 @@ function moveFeature(ids,target){
   moved.push({node,anchor});target.append(node);
  }
 }
-/* Pengurus: mobile dock + aksi cepat; PC sidebar tetap terpisah dari submenu. */
+/* Pengurus: Akses Cepat tetap di beranda HP; PC menggunakan rute yang sama pada sidebar. */
 const adminShortcuts=[
  ["Cek & Sahkan","rekonsiliasi","shield-check"],
  ["Riwayat","bank-admin-history","history"],
@@ -990,6 +995,30 @@ function adminShortcut([name,route,iconName]){
  circle.append(svg);button.append(circle,el("span","",name));
  button.onclick=()=>navigate(route);return button;
 }
+/* Satu daftar rute melayani shortcut HP dan sidebar PC; jangan membuat menu duplikat. */
+function ensureDesktopAdminSidebar(){
+ if(role!=="admin")return;
+ const list=$("v16NavList");if(!list)return;
+ const anchor=list.querySelector('[data-group="home"]');
+ if(!anchor)return;
+ const oldLinks=[...list.querySelectorAll(".f4-bank-desktop-nav-link")];
+ if(oldLinks.length===adminShortcuts.length)return;
+ oldLinks.forEach(link=>link.remove());
+ const items=document.createDocumentFragment();
+ for(const [name,route,iconName] of adminShortcuts){
+  const button=el("button","v16-item f4-bank-desktop-nav-link");
+  button.type="button";button.dataset.bankAppRoute=route;
+  button.setAttribute("aria-label",name);
+  const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  svg.setAttribute("viewBox","0 0 24 24");
+  svg.setAttribute("aria-hidden","true");
+  svg.innerHTML=adminShortcutPaths[iconName]||adminShortcutPaths.wallet;
+  button.append(svg,el("span","",name));
+  button.onclick=()=>navigate(route);
+  items.append(button);
+ }
+ anchor.after(items);
+}
 let adminProgressAnchor=null,adminProgressNode=null;
 function adminOperation(label,detail,route,primary){
  const button=el("button","f4-bank-admin-operation"+(primary?" is-primary":""));
@@ -1018,6 +1047,7 @@ function adminNextAction(label,detail,route){
 }
 function ensureAdminHome(){
  if(role!=="admin")return;
+ ensureDesktopAdminSidebar();
  const home=$("f4BankAppHome");if(!home)return;
  // The page greeting already says "Halo, admin"; never repeat a home heading.
  $("f4BankAdminIntro")?.remove();
