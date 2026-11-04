@@ -127,6 +127,63 @@ try:
         from private_bank_roster_extract import emit
         emit(connection)
         assert_step("roster_encrypted_for_private_parity_check",True)
+    # Read-only, aggregate-only diagnosis for Iuran. Never write resident IDs or
+    # financial row-level data to public CI logs/artifacts.
+    iuran_diagnostics={}
+    for period in ("2026-10","2026-11"):
+        period_start=period+"-01"
+        dues=connection.execute("""
+          SELECT p.id,o.qty_iuran_bulanan,o.qty_kebersihan,o.qty_kas_lorong,o.qty_arisan
+          FROM bookkeeping_payers p JOIN bookkeeping_payer_obligation_periods o ON o.payer_id=p.id
+          WHERE p.active=1 AND p.payer_type='warga'
+            AND o.effective_from=(
+              SELECT MAX(v.effective_from) FROM bookkeeping_payer_obligation_periods v
+              WHERE v.payer_id=p.id AND v.effective_from<=?)
+        """,(period_start,)).fetchall()
+        paid_rows=connection.execute("""
+          SELECT p.payer_id,a.contribution_type,COALESCE(SUM(a.amount_rp),0)
+          FROM bookkeeping_payment_allocations a
+          JOIN bookkeeping_payments p ON p.id=a.payment_id
+          WHERE p.status='aktif' AND a.status='aktif'
+            AND printf('%04d-%02d',a.period_year,a.period_month)=?
+          GROUP BY p.payer_id,a.contribution_type
+        """,(period,)).fetchall()
+        paid={(str(i),str(k).upper()):int(v or 0) for i,k,v in paid_rows}
+        rates={str(k).upper():int(v or 0) for k,v in connection.execute(
+          "SELECT contribution_type,amount_rp FROM bookkeeping_contribution_tariffs"
+        ).fetchall()}
+        rt_rate=int(rates.get("IURAN_BULANAN",rates.get("BULANAN",0)))
+        clean_rate=int(rates.get("KEBERSIHAN",0))
+        kas_rate=int(rates.get("KAS_LORONG",0))
+        arisan_rate=int(rates.get("ARISAN",0))
+        qty_indices={"total":(1,2,3,4),"rt":(1,2),"kas":(3,),"arisan":(4,)}
+        kinds={"total":("IURAN_BULANAN","KEBERSIHAN","KAS_LORONG","ARISAN"),
+               "rt":("IURAN_BULANAN","KEBERSIHAN"),
+               "kas":("KAS_LORONG",),"arisan":("ARISAN",)}
+        labels={}
+        for key in ("total","rt","kas","arisan"):
+            eligible=[row for row in dues if sum(int(row[x] or 0) for x in qty_indices[key])>0]
+            payer_status=[]
+            for row in eligible:
+                pid=str(row[0])
+                receipt=sum(paid.get((pid,t),0) for t in kinds[key])
+                expected=(int(row[1] or 0)*rt_rate +int(row[2] or 0)*clean_rate +
+                          int(row[3] or 0)*kas_rate+int(row[4] or 0)*arisan_rate)
+                if key=="rt":expected=int(row[1] or 0)*rt_rate+int(row[2] or 0)*clean_rate
+                elif key=="kas":expected=int(row[3] or 0)*kas_rate
+                elif key=="arisan":expected=int(row[4] or 0)*arisan_rate
+                payer_status.append((receipt,expected))
+            labels[key]={"required":len(eligible),
+                         "any_paid":sum(receipt>0 for receipt,expected in payer_status),
+                         "fully_paid":sum(receipt>=expected>0 for receipt,expected in payer_status),
+                         "partial":sum(0<receipt<expected for receipt,expected in payer_status),
+                         "not_paid":sum(receipt==0 for receipt,expected in payer_status)}
+        iuran_diagnostics[period]={"active_payers_with_versions":len(dues),"groups":labels,
+                                  "paid_payers_any":len(set(pid for pid,_,value in paid_rows if int(value or 0)>0))}
+    result["iuran_aggregate_diagnosis"]=iuran_diagnostics
+    save()
+    print("IURAN_AGGREGATE_DIAGNOSIS="+json.dumps(iuran_diagnostics,sort_keys=True))
+
     # Original spreadsheet upload: 33 roster rows, 2 inventory, 1 documentation,
     # 3 progress entries, and zero manually entered deposit/expense rows.
     # Counts are an audit baseline, not proof of per-person identity migration.
