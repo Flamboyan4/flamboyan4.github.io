@@ -563,9 +563,9 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation{
  display:grid;grid-template-columns:48px minmax(0,1fr) 28px;
  align-items:center;column-gap:14px;min-width:0;min-height:110px;
- padding:18px 20px;border-radius:16px;border:1px solid #cbded2;
- background:#fff;color:#15563a;text-align:left;font:inherit;
- box-shadow:0 8px 22px #134d3520;cursor:pointer;
+ padding:18px 20px;border-radius:16px;border:1px solid #d79b22;
+ background:linear-gradient(135deg,#ffdc73,#f1b334);color:#21442e;text-align:left;font:inherit;
+ box-shadow:0 8px 22px #ba812c40;cursor:pointer;
  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease
 }
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation.is-primary{
@@ -574,7 +574,7 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
 }
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-icon{
  display:grid;place-items:center;width:48px;height:48px;min-width:0;
- border-radius:14px;background:#e5f4eb;color:#11744d
+ border-radius:14px;background:#fff7dd;color:#15553a
 }
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation.is-primary .f4-bank-admin-operation-icon{
  background:#ffcb43;color:#195139
@@ -594,7 +594,7 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
 }
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-arrow{
  display:grid;place-items:center;width:28px;height:28px;border-radius:50%;
- background:#eaf5ee;color:#16784c;font-size:22px;line-height:1
+ background:#fff8e2;color:#165139;font-size:22px;line-height:1
 }
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation.is-primary .f4-bank-admin-operation-arrow{
  background:#ffffff25;color:#fff
@@ -1200,20 +1200,29 @@ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
 .f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut{
  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
  gap:7px;min-width:0;min-height:83px;padding:6px 2px;
- background:transparent;border:0;border-radius:12px;
- color:#344b40;text-align:center;font:700 11px/1.25 system-ui;cursor:pointer
+ background:#fff;border:1px solid #e0eae3;border-radius:12px;
+ color:#244b39;text-align:center;font:700 11px/1.25 system-ui;cursor:pointer;
+ transition:background-color .18s ease,border-color .18s ease,transform .18s ease
 }
+/* Warna per fungsi agar mudah dibedakan tanpa mengubah susunan navigasi. */
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(1){--bank-shortcut-accent:#087b54;--bank-shortcut-tint:#e8f7ef}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(2){--bank-shortcut-accent:#2865b6;--bank-shortcut-tint:#eaf1fb}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(3){--bank-shortcut-accent:#087d88;--bank-shortcut-tint:#e7f5f5}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(4){--bank-shortcut-accent:#a96d08;--bank-shortcut-tint:#fff3dc}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(5){--bank-shortcut-accent:#6c50af;--bank-shortcut-tint:#f0ecfa}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(6){--bank-shortcut-accent:#2675a5;--bank-shortcut-tint:#e7f3fa}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(7){--bank-shortcut-accent:#b45728;--bank-shortcut-tint:#fceee4}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(8){--bank-shortcut-accent:#687d1d;--bank-shortcut-tint:#f0f5dc}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(9){--bank-shortcut-accent:#5556a9;--bank-shortcut-tint:#eeedfa}
 .f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:hover,
 .f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:focus-visible{
- background:#f2faf5;outline-offset:2px
+ background:var(--bank-shortcut-tint,#eef7f1);
+ border-color:var(--bank-shortcut-accent,#087b54);outline-offset:2px
 }
 .f4-bank-admin-shortcut-icon{
  display:grid;place-items:center;flex:0 0 47px;
  width:47px;height:47px;border-radius:50%;
- background:#e9f2e9;color:#17643e;
-}
-.f4-bank-admin-shortcut:nth-child(4n) .f4-bank-admin-shortcut-icon{
- background:#fff3d6;color:#89630b
+ background:var(--bank-shortcut-accent,#087b54);color:#fff;
 }
 .f4-bank-admin-shortcut-icon svg{
  width:23px;height:23px;display:block;fill:none;stroke:currentColor;
@@ -1896,7 +1905,8 @@ body.f4-bank-app-admin #sideNav #v16NavList>.v16-item.f4-back-account{display:no
  body.f4-bank-app-admin .f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut{
   display:flex;flex-direction:row;align-items:center;justify-content:flex-start;
   min-height:64px;gap:9px;padding:9px 11px;
-  border:1px solid #dbe9df;background:#fff;
+  border:1px solid #dce8e0;
+  background:linear-gradient(110deg,var(--bank-shortcut-tint,#f1f9f4),#fff 78%);
   color:#244b39;font-size:12px;text-align:left;border-radius:12px
  }
  body.f4-bank-app-admin .f4-bank-admin-shortcut-icon{
