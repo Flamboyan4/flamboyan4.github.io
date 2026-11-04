@@ -86,7 +86,10 @@ jobs:
               # was committed but its response was lost. Never retry ALTER
               # or unguarded financial INSERT/UPDATE/DELETE.
               import time
-              normalized=sql.lstrip().upper()
+              # A leading SQL comment must not turn repeatable CREATE IF NOT EXISTS
+              # into an unclassified one-shot operation on transient D1 HTTP 500.
+              normalized="\n".join(line for line in sql.splitlines()
+                                     if not line.lstrip().startswith("--")).lstrip().upper()
               safe_ddl=("CREATE TABLE IF NOT EXISTS","CREATE INDEX IF NOT EXISTS",
                         "CREATE UNIQUE INDEX IF NOT EXISTS","CREATE VIEW IF NOT EXISTS")
               repeatable=(normalized.startswith(("SELECT","PRAGMA","INSERT OR IGNORE"))
