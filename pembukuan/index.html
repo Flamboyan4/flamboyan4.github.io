@@ -2990,7 +2990,9 @@ function f4RebuildQuickSummaryFromPaymentAllocations(server){
   const period=window.UPR?.state?.('history-iuran');
   if(!period||!rows.length||!server?.totals)return null;
   const parts={rt:0,kas:0,arisan:0,total:0};
-  const paid={rt:new Set(),kas:new Set(),arisan:new Set()};
+  // Perhitungan nominal tetap dari alokasi; jumlah warga berasal dari kewajiban aktif server.
+  // Jangan menebak jumlah warga berdasarkan semua pembayar historis.
+
   const validTypes=new Set(['IURAN_BULANAN','KEBERSIHAN','KAS_LORONG','ARISAN']);
   let found=0;
   for(const row of rows){
@@ -3009,24 +3011,69 @@ function f4RebuildQuickSummaryFromPaymentAllocations(server){
       found++;parts.total+=amount;
       const kind=type==='KAS_LORONG'?'kas':type==='ARISAN'?'arisan':'rt';
       parts[kind]+=amount;
-      if(amount>0)paid[kind].add(String(row.idWarga||row.nama||''));
+      // Jumlah pembayar tidak dijumlahkan ulang di sini; server memakai himpunan warga wajib aktif.
     }
   }
   if(!found||parts.total!==Number(server.totals.totalMasuk||0))return null;
   const totals={...server.totals,setoranRT:parts.rt,kasLorong:parts.kas,arisan:parts.arisan,
     selisih:Number(server.totals.totalMasuk)-parts.rt-parts.kas-parts.arisan};
-  const counts={...server.counts};
-  for(const kind of ['rt','kas','arisan']){
-    const old=server.counts?.[kind]||{},required=Number(old.lunas||0)+Number(old.belum||0);
-    counts[kind]={...old,lunas:paid[kind].size,belum:Math.max(0,required-paid[kind].size)};
+  return {...server,totals,counts:server.counts,source:'d1-payment-allocations-local-check'};
+}
+function f4QuickCountsFromActiveResidents(server){
+  // Konsistensi sementara saat Worker yang baru belum tersaji di browser:
+  // bulan berjalan dihitung dari warga AKTIF + kewajiban aktif + alokasi sah.
+  // Bulan historis tetap memakai versi kewajiban D1 dari backend.
+  const period=window.UPR?.state?.('history-iuran');
+  const thisMonth=new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Jakarta'}).slice(0,7);
+  if(!server?.totals||period?.level!=='month'||String(period.to||'')!==thisMonth)return server;
+  const active=new Map((DATA.warga||[]).filter(w=>
+    ['ya','aktif'].includes(String(w.statusAktif||'').toLowerCase())&&String(w.idWarga||'').trim()
+  ).map(w=>[String(w.idWarga),w]));
+  if(!active.size)return server;
+  const required={total:new Set(),rt:new Set(),kas:new Set(),arisan:new Set()};
+  for(const [id,w] of active){
+    const rt=Number(w.qtyIuranBulanan||0)+Number(w.qtyKebersihan||0)>0;
+    const kas=Number(w.qtyKasLorong||0)>0,arisan=Number(w.qtyArisan||0)>0;
+    if(rt||kas||arisan)required.total.add(id);
+    if(rt)required.rt.add(id);
+    if(kas)required.kas.add(id);
+    if(arisan)required.arisan.add(id);
   }
-  return {...server,totals,counts,source:'d1-payment-allocations-local-check'};
+  const paid={total:new Set(),rt:new Set(),kas:new Set(),arisan:new Set()};
+  const groups={IURAN_BULANAN:'rt',KEBERSIHAN:'rt',KAS_LORONG:'kas',ARISAN:'arisan'};
+  let sum=0,found=0;
+  for(const row of DATA.riwayat||[]){
+    if(row.status!=='AKTIF')continue;
+    const id=String(row.idWarga||'');
+    for(const a of Array.isArray(row.alokasi)?row.alokasi:[]){
+      if(String(a.status||'aktif').toLowerCase()!=='aktif')continue;
+      const kind=groups[String(a.jenis||'').toUpperCase()];
+      if(!kind)continue;
+      const ym=String(a.tahun)+'-'+String(a.bulan).padStart(2,'0');
+      if(ym<String(period.from)||ym>String(period.to))continue;
+      const amount=Number(a.nominal??a.jumlahRp??0);
+      if(!Number.isSafeInteger(amount)||amount<0)return server;
+      sum+=amount;found++;
+      if(amount>0&&required[kind].has(id)){
+        paid[kind].add(id);paid.total.add(id);
+      }
+    }
+  }
+  // Hanya koreksi bila riwayat yang diunduh mencakup semua alokasi D1 pada periode.
+  if(!found||sum!==Number(server.totals.totalMasuk||0))return server;
+  const counts={...server.counts};
+  for(const kind of ['total','rt','kas','arisan']){
+    counts[kind]={...counts[kind],lunas:paid[kind].size,sebagian:0,
+      belum:required[kind].size-paid[kind].size};
+  }
+  return {...server,counts,source:'d1-validated-current-active-payers'};
 }
 function renderIuranQuickSummary(data){
   const box=document.getElementById('iuran-quick-summary');if(!box)return;
   if(data){
-    IURAN_QUICK_DATA=Math.abs(Number(data.totals?.selisih||0))>0?
+    const checked=Math.abs(Number(data.totals?.selisih||0))>0?
       (f4RebuildQuickSummaryFromPaymentAllocations(data)||data):data;
+    IURAN_QUICK_DATA=f4QuickCountsFromActiveResidents(checked);
   }
   const d=IURAN_QUICK_DATA;
   if(d&&d.totals){
