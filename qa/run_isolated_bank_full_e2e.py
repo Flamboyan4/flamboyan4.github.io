@@ -212,6 +212,44 @@ try:
     older_active={str(x[1]) for x in historical if (int(x[2]),int(x[3]))<(2026,10)}
     next_active={str(x[1]) for x in historical if (int(x[2]),int(x[3]))>(2026,10)}
     members_joined={str(x[0]):str(x[1] or "") for x in connection.execute("SELECT id,joined_at FROM members")}
+    oct_types=connection.execute("""
+      SELECT p.payer_id,a.contribution_type,COALESCE(SUM(a.amount_rp),0)
+      FROM bookkeeping_payment_allocations a JOIN bookkeeping_payments p ON p.id=a.payment_id
+      WHERE a.status='aktif' AND p.status='aktif'
+        AND a.period_year=2026 AND a.period_month=10
+      GROUP BY p.payer_id,a.contribution_type
+    """).fetchall()
+    kind_map={"IURAN_BULANAN":"rt","KEBERSIHAN":"rt","KAS_LORONG":"kas","ARISAN":"arisan"}
+    paid_by_kind={"total":set(),"rt":set(),"kas":set(),"arisan":set()}
+    for payer,kind,amount in oct_types:
+        if int(amount or 0)<=0 or str(kind).upper() not in kind_map:continue
+        paid_by_kind["total"].add(str(payer))
+        paid_by_kind[kind_map[str(kind).upper()]].add(str(payer))
+    req_by_kind={"total":set(),"rt":set(),"kas":set(),"arisan":set()}
+    for pid,house,qty_rt,qty_clean,qty_kas,qty_arisan in odues:
+        if int(qty_rt or 0)+int(qty_clean or 0)+int(qty_kas or 0)+int(qty_arisan or 0)>0:req_by_kind["total"].add(str(pid))
+        if int(qty_rt or 0)+int(qty_clean or 0)>0:req_by_kind["rt"].add(str(pid))
+        if int(qty_kas or 0)>0:req_by_kind["kas"].add(str(pid))
+        if int(qty_arisan or 0)>0:req_by_kind["arisan"].add(str(pid))
+    reconciled={}
+    for kind in ("total","rt","kas","arisan"):
+        direct=req_by_kind[kind]&paid_by_kind[kind]
+        missing_ids=req_by_kind[kind]-direct
+        extras=paid_by_kind[kind]-req_by_kind["total"]
+        due_by_home={}
+        extra_by_home={}
+        for pid in missing_ids:
+            house=payer_info.get(pid,("",0,""))[0]
+            if house:due_by_home.setdefault(house,[]).append(pid)
+        for pid in extras:
+            house=payer_info.get(pid,("",0,""))[0]
+            if house:extra_by_home.setdefault(house,[]).append(pid)
+        matched=sum(len(ids)==1 and len(extra_by_home.get(h,[]))==1
+                    for h,ids in due_by_home.items())
+        reconciled[kind]={"eligible":len(req_by_kind[kind]),
+                          "direct_paid":len(direct),"matched_historical":matched,
+                          "paid_after_match":len(direct)+matched,
+                          "unpaid_after_match":len(req_by_kind[kind])-len(direct)-matched}
     result["iuran_october_mismatch_diagnosis"]={
       "required_without_oct_payment":len(missing),
       "paid_without_active_oct_obligation":len(extra),
@@ -226,6 +264,7 @@ try:
                                     for x in missing if x in payer_info and payer_info[x][2]),
       "extra_joined_after_oct":sum(members_joined.get(payer_info[x][2],"")[:7]>"2026-10"
                                   for x in extra if x in payer_info and payer_info[x][2])
+      ,"reconciled_count_by_kind":reconciled
     }
     result["iuran_aggregate_diagnosis"]=iuran_diagnostics
     save()
