@@ -185,6 +185,22 @@ html body #f4-account-page>aside{overflow-x:hidden}
  #f4-account-page>main>*{animation:none}
 }
 
+/* Navigasi terkelompok: satu pemilik gaya, tanpa frame atau lapisan override. */
+#f4-account-page .sa-module-nav{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:-7px 0 17px}
+#f4-account-page .sa-module-nav button{border:0;border-radius:8px;padding:8px 12px;background:transparent;color:#4c677c;font-size:12px;font-weight:700}
+#f4-account-page .sa-module-nav button:hover{background:#e6f1f9}
+#f4-account-page .sa-module-nav button.is-active{background:#e2edf7;color:#185a88}
+#f4-account-page .sa-module-nav button:focus-visible{outline:2px solid #256fac;outline-offset:2px}
+#f4-account-page .sa-overview-grid{grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:10px}
+#f4-account-page .sa-overview-status{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 14px}
+#f4-account-page .sa-overview-state{font-size:12px;color:#236547;font-weight:750}
+#f4-account-page .sa-overview-state.is-warning{color:#98621c}
+@media(max-width:760px){
+ #f4-account-page .sa-overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #f4-account-page .sa-module-nav{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
+ #f4-account-page .sa-module-nav button{white-space:nowrap}
+}
+
 /* Table identity and status layout adapted from original Bank Sampah. */
 /* Satu pemilik gaya tabel akun Superadmin: tanpa lapisan override warna lama. */
 .sa-accounts-shell{background:#fff;border:1px solid #d8e2f5;border-radius:16px;padding:20px;margin:4px 0 24px}
@@ -383,11 +399,23 @@ saBackdrop.addEventListener('click',()=>saCloseDrawer());
 window.addEventListener('popstate',()=>{if(!history.state?.f4SaDrawer)saCloseDrawer(true)});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&saMenuOpened()){e.preventDefault();saCloseDrawer()}});
 window.addEventListener('resize',()=>{if(innerWidth>=1024)saCloseDrawer(true)});
-const groups=[['overview','Ringkasan Sistem'],['treasury','Pusat Keuangan'],['accounts','Akun & Hak Akses'],['content','Portal Utama'],['bank','Bank Sampah'],['masters','Data Acuan'],['audit','Pengaturan & Audit']];
+const groups=[['overview','Ringkasan Sistem'],['treasury','Pusat Keuangan'],['accounts','Akun & Hak Akses'],['content','Portal Utama'],['bank','Bank Sampah'],['masters','Data & Aturan'],['audit','Pengaturan & Audit']];
 const submenu={
  content:[['projects','Project Card'],['agenda','Rencana Kegiatan'],['documentation','Dokumentasi'],['inventory','Inventaris'],['banners','Banner Slider'],['meetings','Hasil Rapat'],['arisan','Jadwal Arisan'],['jersey','Pesanan Jersey']],
  bank:[['bank_progress','Kegiatan'],['bank_albums','Dokumentasi'],['bank_inventory','Inventaris'],['bankcatalog','Jenis & Harga'],['bank_weighing','Jadwal Timbang']],
  masters:[['residents','Data Warga & Rumah'],['obligations','Kewajiban Iuran'],['tariffs','Tarif Iuran'],['settings','Aturan Tanggal']]
+};
+// Kelompok navigasi ringkas; kunci modul lama tetap digunakan oleh API dan tautan.
+const moduleGroups={
+ content:[
+  {id:'publikasi',label:'Publikasi',items:['projects','banners','documentation']},
+  {id:'kegiatan',label:'Kegiatan & Arsip',items:['agenda','meetings','inventory']},
+  {id:'program',label:'Program Warga',items:['arisan','jersey']}
+ ],
+ bank:[
+  {id:'publikasi',label:'Publikasi',items:['bank_progress','bank_albums','bank_inventory']},
+  {id:'pengaturan',label:'Pengaturan',items:['bankcatalog','bank_weighing']}
+ ]
 };
 let role='public',group='overview',active='',accounts=[],accountSearch='',residentRows=[];
 const el=(tag,text,cls)=>{const v=document.createElement(tag);if(text!==undefined)v.textContent=String(text);if(cls)v.className=cls;return v};
@@ -395,8 +423,8 @@ const button=(label,on,cls)=>{const b=el('button',label,cls);b.type='button';b.o
 const title=(name,desc)=>{
  rememberTabScroll();
  main.replaceChildren();
- const category=group==='content'?'Portal Utama':group==='bank'?'Bank Sampah':group==='masters'?'Data Acuan':'';
- const categoryDesc=group==='content'?'Konten dan publikasi lingkungan Flamboyan 4.':group==='bank'?'Kegiatan, dokumentasi, inventaris, dan harga sampah.':'Data warga dan aturan iuran bersama.';
+ const category=group==='content'?'Portal Utama':group==='bank'?'Bank Sampah':group==='masters'?'Data & Aturan':'';
+ const categoryDesc=group==='content'?'Kelola konten, kegiatan, dan program warga.':group==='bank'?'Kelola publikasi dan pengaturan Bank Sampah.':'Kelola data warga dan aturan iuran.';
  const h=el('header',undefined,'f4-work-heading');
  h.append(el('h2',category&&active?category:name),el('p',category&&active?categoryDesc:desc));
  main.append(h);
@@ -442,23 +470,29 @@ function renderTabs(){
  const current=submenu[group];
  if(!current||!active||!current.some(([key])=>key===active))return;
  main.querySelector('.sa-tabbar')?.remove();
+ main.querySelector('.sa-module-nav')?.remove();
+ const grouped=moduleGroups[group];
+ const activeGroup=grouped?.find(item=>item.items.includes(active));
+ const options=grouped
+  ?grouped.map(item=>[item.id,item.label,item.items[0]])
+  :current.map(([key,label])=>[key,label,key]);
  const tabs=el('nav',undefined,'sa-tabbar');
  tabs.dataset.group=group;
  tabs.setAttribute('role','tablist');
- tabs.setAttribute('aria-label',group==='content'?'Menu Portal Utama':group==='bank'?'Menu Bank Sampah':'Menu Data Acuan');
- for(const [key,label] of current){
-  const tab=button(label,()=>openEditor(key));
+ tabs.setAttribute('aria-label',group==='content'?'Kelompok Portal Utama':group==='bank'?'Kelompok Bank Sampah':'Menu Data & Aturan');
+ for(const [key,label,first] of options){
+  const selected=grouped?activeGroup?.id===key:active===key;
+  const tab=button(label,()=>openEditor(first));
   tab.setAttribute('role','tab');
-  tab.setAttribute('aria-selected',String(active===key));
-  tab.tabIndex=active===key?0:-1;
+  tab.setAttribute('aria-selected',String(selected));
+  tab.tabIndex=selected?0:-1;
   tab.addEventListener('keydown',event=>{
    if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
    event.preventDefault();
-   const options=[...tabs.querySelectorAll('[role="tab"]')];
-   const index=options.indexOf(tab);
+   const index=options.findIndex(option=>option[0]===key);
    const next=event.key==='Home'?0:event.key==='End'?options.length-1:
-     (index+(event.key==='ArrowRight'?1:-1)+options.length)%options.length;
-   options[next]?.click();
+    (index+(event.key==='ArrowRight'?1:-1)+options.length)%options.length;
+   openEditor(options[next][2]);
    main.querySelectorAll('.sa-tabbar [role="tab"]')[next]?.focus({preventScroll:true});
   });
   tabs.append(tab);
@@ -472,6 +506,19 @@ function renderTabs(){
   if(currentRect.left<railRect.left)tabs.scrollLeft-=railRect.left-currentRect.left+8;
  }
  tabScrollPositions[group]=tabs.scrollLeft;
+ if(activeGroup){
+  const moduleNav=el('nav',undefined,'sa-module-nav');
+  moduleNav.setAttribute('aria-label','Pilih fitur '+activeGroup.label);
+  for(const key of activeGroup.items){
+   const entry=current.find(([id])=>id===key);
+   if(!entry)continue;
+   const chosen=key===active;
+   const item=button(entry[1],()=>openEditor(key),chosen?'is-active':'');
+   if(chosen)item.setAttribute('aria-current','page');
+   moduleNav.append(item);
+  }
+  tabs.after(moduleNav);
+ }
 }
 window.f4SuperadminRenderTabs=renderTabs;
 window.f4RenderManagementSidebar=(origin)=>{
@@ -646,35 +693,41 @@ function openEditor(kind){
 }
 window.f4SuperadminSwitchModule=openEditor;
 function overview(){
- title('Pusat Pengelolaan','Semua pengaturan lintas portal • Akun Superadmin');
- const cards=el('div',undefined,'sa-grid');main.append(cards);
- for(const [key,label] of [['accounts','Akun terdaftar'],['houses','Rumah'],['projects','Projek publik'],['health','Status koneksi']]){
-  const item=el('div',undefined,'sa-card');item.append(el('small',label),el('strong','—'),el('span','Memeriksa data'));item.dataset.card=key;cards.append(item);
+ title('Pusat Pengelolaan','Ringkasan sistem Flamboyan 4');
+ const cards=el('div',undefined,'sa-grid sa-overview-grid');main.append(cards);
+ for(const [key,label] of [['accounts','Akun terdaftar'],['houses','Rumah'],['projects','Projek publik']]){
+  const item=el('div',undefined,'sa-card');
+  item.append(el('small',label),el('strong','—'),el('span','Memeriksa data'));
+  item.dataset.card=key;cards.append(item);
  }
- const feed=section('Koneksi dan publikasi');feed.append(el('p','Angka hanya ditampilkan dari respons API yang berhasil; tidak ada angka simulasi.'));
- const tasks=section('Akses cepat');const actions=el('div',undefined,'sa-controls f4-controls');
- for(const [key,label] of groups.slice(1))actions.append(button(label,()=>open(key),'sa-action'));tasks.append(actions);
+ const status=el('div',undefined,'sa-overview-status');
+ const state=el('span','Memeriksa koneksi…','sa-overview-state');
+ status.append(state);main.append(status);
  const pulls=[['accounts','/api/superadmin/accounts/preview'],['houses','/api/v2/admin/residents'],['projects','/api/v2/admin/content/projects']];
  Promise.allSettled(pulls.map(async ([id,path])=>{
   const card=cards.querySelector('[data-card="'+id+'"]');
   try{
-   const r=rows(await get(path));
+   const result=rows(await get(path));
    if(!card?.isConnected)return;
-   card.querySelector('strong').textContent=String(r.length);
-   card.querySelector('span').textContent=r.length?'Data tersedia':'Belum ada data';
+   card.querySelector('strong').textContent=String(result.length);
+   card.querySelector('span').textContent='Data tersedia';
   }catch(error){
    if(card?.isConnected){
     card.querySelector('strong').textContent='—';
-    card.querySelector('span').textContent='Gagal dimuat: '+safe(error);
+    card.querySelector('span').textContent='Gagal dimuat';
+    card.title=safe(error);
    }
    throw error;
   }
  })).then(results=>{
-  const health=cards.querySelector('[data-card="health"]');
-  if(!health?.isConnected)return;
-  const failed=results.filter(r=>r.status==='rejected').length;
-  health.querySelector('strong').textContent=failed?'Periksa':'Terhubung';
-  health.querySelector('span').textContent=failed?failed+' layanan perlu diperiksa':'Semua respons diterima';
+  if(!status.isConnected)return;
+  const failed=results.filter(result=>result.status==='rejected').length;
+  state.className='sa-overview-state'+(failed?' is-warning':'');
+  state.textContent=failed?failed+' layanan perlu diperiksa':'● Sistem terhubung';
+  if(failed){
+   const link=button('Periksa layanan',()=>open('audit'),'sa-action');
+   status.append(link);
+  }
  });
 }
 // Match original Bank Sampah account-management table, add centralized role.
@@ -769,7 +822,7 @@ function accountsPage(){
  title('Akun & Hak Akses','Kelola identitas dan hak akses akun Flamboyan 4.');
  const panel=el('section',undefined,'sa-accounts-shell');
  const heading=el('div',undefined,'sa-account-head'),head=el('div');
- head.append(el('h3','Kelola akun warga'),el('p','Daftar akun terpusat untuk seluruh portal.'));
+ head.append(el('h3','Daftar Akun'));
  const actions=el('div',undefined,'sa-account-actions');
  const prepare=button('Siapkan semua akun',async()=>{
   const pending=accounts.filter(a=>a.role==='anggota'&&a.perluAktivasi===true);
@@ -786,7 +839,7 @@ function accountsPage(){
  prepare.disabled=true;prepare.title='Memeriksa akun yang belum aktif';
  actions.append(prepare);
  heading.append(head,actions);panel.append(heading);
- const noticeBox=el('p','Akun digunakan bersama pada semua portal sesuai role. Aktivasi akun anggota yang belum aktif dan reset password anggota dikelola terpusat dan dicatat pada audit. Perubahan role dan akun Admin/Superadmin tidak dilakukan melalui tombol ini.','sa-account-note');
+ const noticeBox=el('p','Aktivasi dan reset password akun anggota tersedia di sini. Hak akses Admin/Superadmin dikelola secara terpisah.','sa-account-note');
  panel.append(noticeBox);
  const listWrap=el('div',undefined,'sa-account-table');
  const filters=el('div',undefined,'sa-account-filters f4-controls');
@@ -1016,8 +1069,9 @@ function auditPage(){
  const item=el('div',undefined,'sa-item'),label=el('strong',name),state=el('span','Memeriksa…','sa-chip');item.append(label,state);list.append(item);
  get(url).then(()=>state.textContent='Terhubung').catch(e=>state.textContent='Perlu diperiksa');
  }
- const log=section('Jejak perubahan & cadangan');log.append(el('p','Audit edit/reset/pengesahan dan backup membutuhkan endpoint audit serta prosedur pemulihan terverifikasi. Tidak ada data log yang direka.'));
- const btn=button('Periksa kembali',auditPage,'sa-action');log.append(btn);
+ const log=section('Audit & Cadangan');
+ log.append(el('p','Riwayat perubahan dan cadangan belum tersedia untuk ditampilkan. Status ini tidak berarti data sudah dicadangkan.'));
+ const btn=button('Periksa ulang koneksi',auditPage,'sa-action');status.append(btn);
 }
 window.openWarga=openWarga;
 window.f4SuperadminNavigate=open;
