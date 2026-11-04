@@ -1167,8 +1167,18 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
  body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm){
   grid-template-columns:repeat(12,minmax(0,1fr))
  }
- body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>:is(.f4-sale-main,.f4-sale-side,.f4-setoran-main,.f4-setoran-side){
-  grid-column:1/-1;grid-row:auto
+ /* Preserve the mobile order: member/date, item details, then summary/payment. */
+ body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>.f4-entry-right{
+  display:contents
+ }
+ body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>.f4-entry-right>.f4-entry-top-fields{
+  grid-column:1/-1;grid-row:auto;order:0
+ }
+ body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>:is(.f4-sale-main,.f4-setoran-main){
+  grid-column:1/-1;grid-row:auto;order:1
+ }
+ body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>.f4-entry-right>:is(.f4-sale-side,.f4-setoran-side){
+  grid-column:1/-1;grid-row:auto;order:2
  }
  body.f4-bank-app-admin #dashboardView .section :is(.f4-sale-side,.f4-setoran-side)>button[type=submit]{
   justify-self:stretch;width:100%
@@ -1730,16 +1740,13 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
   grid-template-columns:repeat(2,minmax(0,1fr));
   gap:12px 16px;align-items:start
  }
- /* On desktop, identities occupy the right half and are above cash/summary fields. */
- body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>.f4-entry-top-fields{
-  grid-column:2;grid-row:1;align-self:start
+ /* Two independent grid items: growing goods never changes the right column offset. */
+ body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>.f4-entry-right{
+  display:grid;grid-column:2;grid-row:1;align-self:start;
+  align-content:start;gap:var(--bank-form-gap);min-width:0
  }
- /* The left card owns only item entry; growing item rows never move right-side controls. */
  body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>:is(.f4-sale-main,.f4-setoran-main){
-  grid-column:1;grid-row:1 / span 2;align-self:start
- }
- body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>:is(.f4-sale-side,.f4-setoran-side){
-  grid-column:2;grid-row:2;align-self:start
+  grid-column:1;grid-row:1;align-self:start
  }
  body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm) :is(.f4-sale-side,.f4-setoran-side)>button[type=submit]{
   justify-self:stretch;width:100%
