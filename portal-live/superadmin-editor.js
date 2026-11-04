@@ -238,13 +238,15 @@ function header(label,description){
  window.f4SuperadminRememberTabScroll?.();
  main.replaceChildren();
  const def=types[active];
- const category=def?.section==='bank'?'Bank Sampah':def?.section==='portal'?'Portal Utama':'Data Acuan';
+ const category=def?.section==='bank'?'Bank Sampah':def?.section==='portal'?'Portal Utama':'Data & Aturan';
  const h=node('header',undefined,'f4-work-heading');
- h.append(node('h2',category),node('p',def?.section==='bank'?'Anda sedang mengelola konten Bank Sampah.':def?.section==='portal'?'Anda sedang mengelola konten Portal Utama.':'Data warga dan aturan iuran bersama.'));
+ h.append(node('h2',category));
  main.append(h);
  window.f4SuperadminRenderTabs?.();
  const sub=node('section',undefined,'sa-module-heading');
- sub.append(node('h3','Kelola '+label),node('p',description));
+ sub.append(node('h3',label));
+ const repeated=/^(Kelola data acuan\.|Data dan publikasi khusus Bank Sampah\.|Kelola konten Bank Sampah menggunakan akses Superadmin\.)$/;
+ if(description&&!repeated.test(description))sub.append(node('p',description));
  main.append(sub);
 }
 const OBLIGATION_KEYS=['qty_iuran_bulanan','qty_kebersihan','qty_kas_lorong','qty_arisan'];
