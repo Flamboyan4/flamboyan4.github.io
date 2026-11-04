@@ -2762,14 +2762,17 @@ async function f4QuickIuranSummary(db, request) {
   // bookkeeping_allocation_details adalah tahap pembukuan batch SETOR RT; transaksi
   // baru belum tentu memiliki detail tersebut. Jangan menghitung pembagian dari
   // tabel posting karena seluruh iuran baru akan tampak sebagai "Selisih".
-  const found = await db.prepare(`SELECT a.id,a.payment_id,p.payer_id,a.amount_rp,p.payment_method,
+  const found = await db.prepare(`SELECT a.id,a.payment_id,p.payer_id,bp.household_id,a.amount_rp,p.payment_method,
     a.contribution_type
     FROM bookkeeping_payment_allocations a
     JOIN bookkeeping_payments p ON p.id=a.payment_id
+    JOIN bookkeeping_payers bp ON bp.id=p.payer_id
     WHERE ${conditions.join(" AND ")} ORDER BY a.period_year,a.period_month,a.id`).bind(...bind).all();
   const allocations = /* @__PURE__ */ new Map();
+  const payerHouse = new Map();
   for (const x of found.results || []) {
     const kind = String(x.contribution_type || "").trim().toUpperCase();
+    payerHouse.set(String(x.payer_id), String(x.household_id || ""));
     allocations.set(x.id, {
       payer: x.payer_id, amount: Number(x.amount_rp || 0),
       method: String(x.payment_method || "").toLowerCase(),
@@ -2785,7 +2788,7 @@ async function f4QuickIuranSummary(db, request) {
   const grouped = { total: /* @__PURE__ */ new Set(), rt: /* @__PURE__ */ new Set(), kas: /* @__PURE__ */ new Set(), arisan: /* @__PURE__ */ new Set() };
   for (const p of allocations.values()) {
     t.totalMasuk += p.amount;
-    grouped.total.add(p.payer);
+    if (p.amount > 0) grouped.total.add(p.payer);
     const rt = (p.detail.bulanan || 0) + (p.detail.kebersihan || 0), kas = p.detail.kas_lorong || 0, arisan = p.detail.arisan || 0;
     t.setoranRT += rt;
     t.kasLorong += kas;
@@ -2799,29 +2802,54 @@ async function f4QuickIuranSummary(db, request) {
   }
   t.selisih = t.totalMasuk - t.setoranRT - t.kasLorong - t.arisan;
   const summaryMonth=/^\d{4}-\d{2}/.test(to||from||"")?(to||from).slice(0,7)+"-01":f4CurrentIuranMonth();
-  const obligationRows=await db.prepare(`SELECT o.payer_id,o.qty_iuran_bulanan,o.qty_kebersihan,o.qty_kas_lorong,o.qty_arisan
+  const obligationRows=await db.prepare(`SELECT o.payer_id,p.household_id,o.qty_iuran_bulanan,o.qty_kebersihan,o.qty_kas_lorong,o.qty_arisan
     FROM bookkeeping_payer_obligation_periods o JOIN bookkeeping_payers p ON p.id=o.payer_id
     WHERE p.active=1 AND p.payer_type='warga'
       AND o.effective_from=(SELECT MAX(v.effective_from) FROM bookkeeping_payer_obligation_periods v
     WHERE v.payer_id=o.payer_id AND v.effective_from<=?)`).bind(summaryMonth).all();
   const required = { total: /* @__PURE__ */ new Set(), rt: /* @__PURE__ */ new Set(), kas: /* @__PURE__ */ new Set(), arisan: /* @__PURE__ */ new Set() };
   for (const o of obligationRows.results || []) {
+    payerHouse.set(String(o.payer_id), String(o.household_id || ""));
     const rt = Number(o.qty_iuran_bulanan || 0) + Number(o.qty_kebersihan || 0), kas = Number(o.qty_kas_lorong || 0), arisan = Number(o.qty_arisan || 0);
     if (rt + kas + arisan > 0) required.total.add(o.payer_id);
     if (rt) required.rt.add(o.payer_id);
     if (kas) required.kas.add(o.payer_id);
     if (arisan) required.arisan.add(o.payer_id);
   }
-  // Jumlah orang untuk setiap pos hanya boleh berasal dari pembayar yang
-  // memiliki kewajiban AKTIF di bulan ringkasan. Pembayaran lama/dari akun nonaktif
-  // tetap masuk rupiah buku kas, tetapi tidak menambah jumlah warga aktif.
-  const counts = Object.fromEntries(Object.entries(grouped).map(([k, v]) => {
-    const paid = [...v].filter((id) => required[k].has(id)).length;
-    return [k, {
-      lunas: paid,
-      sebagian: 0,
-      belum: required[k].size - paid
-    }];
+  // Riwayat menghitung orang sesuai kewajiban. Data Oktober pernah memiliki
+  // dua ID pembayar AKTIF pada satu rumah: ID yang membayar Oktober tidak
+  // lagi memiliki kewajiban, sedangkan ID pengganti punya kewajiban Oktober
+  // tetapi baru menerima alokasi November. Jangan mengubah transaksi lama.
+  // Kreditkan pembayaran HISTORIS hanya untuk hitungan bila tepat satu
+  // pasangan pembayar tanpa-kewajiban dan wajib-belum-bayar di rumah sama.
+  // Tidak berlaku lintas rumah, tidak berlaku untuk dua pembayar yang sama-sama
+  // berkewajiban, dan tidak menghitung satu pembayaran untuk dua orang.
+  const sameMonth = !!from && !!to && from.slice(0, 7) === to.slice(0, 7);
+  const counts = Object.fromEntries(Object.entries(grouped).map(([kind, paidIds]) => {
+    const directPaid = new Set([...required[kind]].filter((id) => paidIds.has(id)));
+    if (sameMonth) {
+      const dueByHouse = new Map(), extraByHouse = new Map();
+      for (const id of required[kind]) {
+        if (directPaid.has(id)) continue;
+        const house = payerHouse.get(String(id));
+        if (!house) continue;
+        if (!dueByHouse.has(house)) dueByHouse.set(house, []);
+        dueByHouse.get(house).push(id);
+      }
+      for (const id of paidIds) {
+        if (required.total.has(id)) continue;
+        const house = payerHouse.get(String(id));
+        if (!house) continue;
+        if (!extraByHouse.has(house)) extraByHouse.set(house, []);
+        extraByHouse.get(house).push(id);
+      }
+      for (const [house, due] of dueByHouse) {
+        const extra = extraByHouse.get(house) || [];
+        if (due.length === 1 && extra.length === 1) directPaid.add(due[0]);
+      }
+    }
+    return [kind, {lunas: directPaid.size, sebagian: 0,
+      belum: required[kind].size - directPaid.size}];
   }));
   return json({ ok: true, data: { totals: t, counts, labelPeriode: from && to ? `${from.slice(0, 7)} s.d. ${to.slice(0, 7)}` : "Semua periode", source: "cloudflare-d1-periode-alokasi" } });
 }
