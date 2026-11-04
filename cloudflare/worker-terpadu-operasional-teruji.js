@@ -2943,7 +2943,10 @@ async function bookkeepingIuranHistory(db, request) {
   for (const r of out.results || []) {
     if (!byId.has(r.id)) byId.set(r.id, {
       idPembayaran: r.id,
-      idWarga: r.member_id || r.payer_id,
+      // Pembukuan selalu memakai payer_id, sama dengan tabel kewajiban.
+      // member_id (Bank Sampah) berbeda dan tidak boleh dipakai untuk hitung iuran.
+      idWarga: r.payer_id,
+      memberId: r.member_id || null,
       nama: r.display_name || "",
       tanggal: r.paid_on,
       urutanInput: Number(r.payment_seq || 0),
