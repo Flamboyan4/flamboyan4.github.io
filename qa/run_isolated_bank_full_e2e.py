@@ -180,9 +180,57 @@ try:
                          "not_paid":sum(receipt==0 for receipt,expected in payer_status)}
         iuran_diagnostics[period]={"active_payers_with_versions":len(dues),"groups":labels,
                                   "paid_payers_any":len(set(pid for pid,_,value in paid_rows if int(value or 0)>0))}
+    # Identify whether the October mismatch is a changed payer at the same
+    # house, or a real unpaid obligation. Return aggregate counts only.
+    odues=connection.execute("""
+      SELECT p.id,p.household_id,o.qty_iuran_bulanan,o.qty_kebersihan,o.qty_kas_lorong,o.qty_arisan
+      FROM bookkeeping_payers p JOIN bookkeeping_payer_obligation_periods o ON o.payer_id=p.id
+      WHERE p.active=1 AND p.payer_type='warga' AND
+        o.effective_from=(SELECT MAX(v.effective_from) FROM bookkeeping_payer_obligation_periods v
+                          WHERE v.payer_id=p.id AND v.effective_from<='2026-10-01')
+    """).fetchall()
+    oct_paid=connection.execute("""
+      SELECT p.payer_id,COALESCE(SUM(a.amount_rp),0)
+      FROM bookkeeping_payment_allocations a JOIN bookkeeping_payments p ON p.id=a.payment_id
+      WHERE a.status='aktif' AND p.status='aktif'
+      AND a.period_year=2026 AND a.period_month=10
+      GROUP BY p.payer_id
+    """).fetchall()
+    positive={str(i) for i,n in oct_paid if int(n or 0)>0}
+    required_oct={str(x[0]) for x in odues if sum(int(z or 0) for z in x[2:])>0}
+    missing=required_oct-positive
+    extra=positive-required_oct
+    payer_info={str(x[0]):(str(x[1]),int(x[2] or 0),str(x[3] or ""))
+      for x in connection.execute("SELECT id,household_id,active,member_id FROM bookkeeping_payers")}
+    missing_houses={payer_info[x][0] for x in missing if x in payer_info}
+    extra_houses={payer_info[x][0] for x in extra if x in payer_info}
+    historical=connection.execute("""
+      SELECT p.id,p.payer_id,a.period_year,a.period_month
+      FROM bookkeeping_payment_allocations a JOIN bookkeeping_payments p ON p.id=a.payment_id
+      WHERE a.status='aktif' AND p.status='aktif'
+    """).fetchall()
+    older_active={str(x[1]) for x in historical if (int(x[2]),int(x[3]))<(2026,10)}
+    next_active={str(x[1]) for x in historical if (int(x[2]),int(x[3]))>(2026,10)}
+    members_joined={str(x[0]):str(x[1] or "") for x in connection.execute("SELECT id,joined_at FROM members")}
+    result["iuran_october_mismatch_diagnosis"]={
+      "required_without_oct_payment":len(missing),
+      "paid_without_active_oct_obligation":len(extra),
+      "extra_paid_inactive":sum(payer_info.get(x,("",0,""))[1]==0 for x in extra),
+      "extra_paid_active":sum(payer_info.get(x,("",0,""))[1]==1 for x in extra),
+      "same_household_overlap":len(missing_houses & extra_houses),
+      "missing_paid_before_oct":len(missing & older_active),
+      "missing_paid_after_oct":len(missing & next_active),
+      "extra_paid_before_oct":len(extra & older_active),
+      "extra_paid_after_oct":len(extra & next_active),
+      "missing_joined_after_oct":sum(members_joined.get(payer_info[x][2],"")[:7]>"2026-10"
+                                    for x in missing if x in payer_info and payer_info[x][2]),
+      "extra_joined_after_oct":sum(members_joined.get(payer_info[x][2],"")[:7]>"2026-10"
+                                  for x in extra if x in payer_info and payer_info[x][2])
+    }
     result["iuran_aggregate_diagnosis"]=iuran_diagnostics
     save()
     print("IURAN_AGGREGATE_DIAGNOSIS="+json.dumps(iuran_diagnostics,sort_keys=True))
+    print("IURAN_OCTOBER_MISMATCH="+json.dumps(result["iuran_october_mismatch_diagnosis"],sort_keys=True))
 
     # Original spreadsheet upload: 33 roster rows, 2 inventory, 1 documentation,
     # 3 progress entries, and zero manually entered deposit/expense rows.
