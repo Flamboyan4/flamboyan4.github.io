@@ -698,10 +698,9 @@ function render(data){
  panel.append(metrics);
 
  const views=[
-  {id:"saldo",name:"Saldo",icon:"cash.svg"},
-  {id:"transaksi",name:"Transaksi",icon:"pay.svg"},
-  {id:"pos",name:"Pos Dana",icon:"inventory.svg"},
-  {id:"laporan",name:"Laporan",icon:"book.svg"}
+  {id:"saldo",name:"Posisi Dana",icon:"cash.svg"},
+  {id:"transaksi",name:"Transaksi & Pengesahan",icon:"pay.svg"},
+  {id:"laporan",name:"Riwayat & Laporan",icon:"book.svg"}
  ];
  const nav=el("div",undefined,"tc-view-nav");
  nav.setAttribute("role","tablist");
@@ -759,7 +758,10 @@ function render(data){
  ownHead.append(el("h3","Saldo per Pos"));
  const manage=el("button","Kelola Pos","tc-secondary");
  manage.type="button";
- manage.onclick=()=>switchView("pos",true);
+ manage.onclick=()=>{
+  fundManage.open=true;
+  fundManage.scrollIntoView({behavior:"smooth",block:"start"});
+ };
  ownHead.append(manage);ownership.append(ownHead);
  const fundList=el("div",undefined,"tc-fund-balances");
  const rows=catalog.map(f=>{
@@ -832,8 +834,11 @@ function render(data){
  }else recent.append(el("p","Belum ada transaksi setelah saldo awal.","tc-muted"));
  transaksi.append(recent);
 
- // Pengelolaan pos: tindakan hanya untuk pos tambahan; pos bawaan terlindungi.
- buildDynamicFund(viewPanels.pos,data,refresh);
+ // Pengaturan opsional ditempatkan di bawah rincian saldo, tidak menjadi tab utama.
+ const fundManage=el("details",undefined,"tc-fund-manage");
+ fundManage.append(el("summary","Pengaturan Pos Dana"));
+ buildDynamicFund(fundManage,data,refresh);
+ saldo.append(fundManage);
 
  // Laporan: saldo pembuka, seluruh riwayat, dan cetak.
  const laporan=viewPanels.laporan;
