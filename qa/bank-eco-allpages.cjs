@@ -158,8 +158,9 @@ assert(mobile.includes('greeting.hidden=roleType()!=="admin"||screen!=="dashboar
  'Manager greeting may only display on Admin Beranda, not after an account switch');
 assert(!mobile.includes('Beranda Pengelola') && !mobile.includes('Mulai pencatatan dan periksa pekerjaan Bank Sampah'),
  'Duplicate manager homepage title/intro returned');
-assert(h.includes("window.matchMedia('(max-width:1023px)').matches") && h.includes("tabs.classList.add('hidden');return;"),
- 'Manager HP shortcut pages must not be grouped into extra route tabs');
+assert(h.includes("if(/admin/i.test(String(profile?.peran||''))){") &&
+       h.includes("tabs.classList.add('hidden');return;"),
+ 'Manager routes must not duplicate direct sidebar entries as category tabs');
 assert(!h.includes('Album foto dan video kegiatan Bank Sampah Flamboyan 4'),
  'Redundant documentation subtitle returned');
 assert(css.includes('.f4-compact-sale-row>input{grid-column:span 2}') &&
