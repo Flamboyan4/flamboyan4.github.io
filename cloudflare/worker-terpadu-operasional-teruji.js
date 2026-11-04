@@ -2792,7 +2792,8 @@ async function f4QuickIuranSummary(db, request) {
   const summaryMonth=/^\d{4}-\d{2}/.test(to||from||"")?(to||from).slice(0,7)+"-01":f4CurrentIuranMonth();
   const obligationRows=await db.prepare(`SELECT o.payer_id,o.qty_iuran_bulanan,o.qty_kebersihan,o.qty_kas_lorong,o.qty_arisan
     FROM bookkeeping_payer_obligation_periods o JOIN bookkeeping_payers p ON p.id=o.payer_id
-    WHERE o.effective_from=(SELECT MAX(v.effective_from) FROM bookkeeping_payer_obligation_periods v
+    WHERE p.active=1 AND p.payer_type='warga'
+      AND o.effective_from=(SELECT MAX(v.effective_from) FROM bookkeeping_payer_obligation_periods v
     WHERE v.payer_id=o.payer_id AND v.effective_from<=?)`).bind(summaryMonth).all();
   const required = { total: /* @__PURE__ */ new Set(), rt: /* @__PURE__ */ new Set(), kas: /* @__PURE__ */ new Set(), arisan: /* @__PURE__ */ new Set() };
   for (const o of obligationRows.results || []) {
@@ -2802,11 +2803,17 @@ async function f4QuickIuranSummary(db, request) {
     if (kas) required.kas.add(o.payer_id);
     if (arisan) required.arisan.add(o.payer_id);
   }
-  const counts = Object.fromEntries(Object.entries(grouped).map(([k, v]) => [k, {
-    lunas: v.size,
-    sebagian: 0,
-    belum: [...required[k]].filter((x) => !v.has(x)).length
-  }]));
+  // Jumlah orang untuk setiap pos hanya boleh berasal dari pembayar yang
+  // memiliki kewajiban AKTIF di bulan ringkasan. Pembayaran lama/dari akun nonaktif
+  // tetap masuk rupiah buku kas, tetapi tidak menambah jumlah warga aktif.
+  const counts = Object.fromEntries(Object.entries(grouped).map(([k, v]) => {
+    const paid = [...v].filter((id) => required[k].has(id)).length;
+    return [k, {
+      lunas: paid,
+      sebagian: 0,
+      belum: required[k].size - paid
+    }];
+  }));
   return json({ ok: true, data: { totals: t, counts, labelPeriode: from && to ? `${from.slice(0, 7)} s.d. ${to.slice(0, 7)}` : "Semua periode", source: "cloudflare-d1-periode-alokasi" } });
 }
 __name(f4QuickIuranSummary, "f4QuickIuranSummary");
