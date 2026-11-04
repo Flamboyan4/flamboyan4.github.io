@@ -1288,6 +1288,10 @@ body.f4-bank-app-admin #dashboardView .section .f4-bank-admin-history-tabs[hidde
  grid-column:1/-1;min-width:0;margin:0
 }
 @media(max-width:1023px){
+ /* Sidebar daftar pengelolaan PC tidak ditampilkan pada menu geser HP. */
+ body.f4-bank-app-admin #sideNav #v16NavList>.f4-bank-desktop-nav-link{
+  display:none
+ }
  body.f4-bank-app-admin .f4-bank-admin-shortcut-grid{
   grid-template-columns:repeat(4,minmax(0,1fr))
  }
@@ -1320,6 +1324,10 @@ body.f4-bank-app-admin #dashboardView .section .f4-bank-admin-history-tabs[hidde
  body.f4-bank-app-admin #sideNav #v16NavList{gap:1px}
  body.f4-bank-app-admin #sideNav #v16NavList>.v16-item{
   min-height:36px;padding:5px 9px;gap:9px;font-size:12px;line-height:1.25
+ }
+ /* Setoran dan Penjualan tetap tersedia melalui dua tombol utama di Beranda. */
+ body.f4-bank-app-admin #sideNav #v16NavList>.v16-item:is([data-group="deposit"],[data-group="sale"]){
+  display:none
  }
  body.f4-bank-app-admin #sideNav #v16NavList>.v16-item svg{width:17px;height:17px}
  body.f4-bank-app-admin #sideNav #v15Footer{display:none}
@@ -1703,7 +1711,6 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
   display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
   grid-template-areas:
    "actions actions actions actions"
-   "shortcuts shortcuts shortcuts shortcuts"
    "hero minis minis minis"
    "recent recent recent recent";
   gap:var(--f4-grid-gap,16px);grid-auto-rows:max-content;align-items:stretch;
@@ -1715,8 +1722,9 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
   min-width:0;min-height:126px;padding:17px 19px;align-content:center;
   gap:5px;box-shadow:none
  }
+ /* Shortcut pengelola hanya untuk HP; fungsi yang sama tersedia di sidebar PC. */
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminShortcuts{
-  grid-area:shortcuts;display:grid;min-width:0
+  display:none
  }
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppMinis{
   grid-area:minis;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--f4-grid-gap,16px)
@@ -1899,28 +1907,6 @@ body.f4-bank-app-admin #sideNav #v16NavList>.v16-item.f4-back-account{display:no
 #pageLaporan .v33-report-range-end{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;font-size:12px;color:#526d5b}
 #pageLaporan .v33-report-range-end[hidden]{display:none}
 #pageLaporan .v33-report-range-end input{max-width:190px;min-height:40px;min-width:0;border:1px solid #c7dacf;border-radius:9px;padding:7px 10px;background:#fff;color:#244a34;font:inherit}
-
-/* Pengelola PC: Akses Cepat tersusun rapat, tampil mandiri setelah dua aksi utama. */
-@media(min-width:1024px){
- body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
-  padding:14px 16px;gap:11px;min-width:0;max-width:100%
- }
- body.f4-bank-app-admin .f4-bank-admin-shortcut-grid{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));
-  gap:10px;align-items:stretch
- }
- body.f4-bank-app-admin .f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut{
-  display:flex;flex-direction:row;align-items:center;justify-content:flex-start;
-  min-height:64px;gap:9px;padding:9px 11px;
-  border:1px solid #dce8e0;
-  background:linear-gradient(110deg,var(--bank-shortcut-tint,#f1f9f4),#fff 78%);
-  color:#244b39;font-size:12px;text-align:left;border-radius:12px
- }
- body.f4-bank-app-admin .f4-bank-admin-shortcut-icon{
-  width:38px;height:38px;flex:0 0 38px
- }
- body.f4-bank-app-admin .f4-bank-admin-shortcut-icon svg{width:20px;height:20px}
-}
 
 /* Form jadwal penimbangan disatukan pada pengelolaan Bank Sampah. */
 .f4-bank-weighing-editor{background:#fff;border:1px solid #dbe9df;border-radius:14px;padding:16px;margin:12px 0}
