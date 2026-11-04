@@ -1066,7 +1066,8 @@ function ensureAdminHome(){
   shortcuts=el("section","f4-bank-admin-shortcuts");shortcuts.id="f4BankAdminShortcuts";
   shortcuts.append(el("h2","","Akses Cepat"));
   const grid=el("div","f4-bank-admin-shortcut-grid");
-  grid.append(...adminShortcuts.map(adminShortcut));
+  // Dokumentasi tersedia lewat menu hamburger HP dan sidebar PC, bukan Akses Cepat.
+  grid.append(...adminShortcuts.filter(([,route])=>route!=="bank-admin-docs").map(adminShortcut));
   shortcuts.append(grid);
   $("f4BankAdminOperations")?.after(shortcuts);
  }
