@@ -2655,10 +2655,19 @@ async function f4ContributionReport(db, request) {
   if (kind === "rt") {
     const rows2 = entries.filter((x) => x.nominalBulanan > 0 || x.nominalKebersihan > 0);
     const totalBulanan = rows2.reduce((a, x) => a + x.nominalBulanan, 0), totalKebersihan = rows2.reduce((a, x) => a + x.nominalKebersihan, 0);
+    // Laporan RT mencatat UNIT SETORAN, bukan jumlah pembayar unik.
+    // Satu warga yang melunasi dua kewajiban kebersihan bernilai 2 setoran.
+    const tarif = await getIuranTariffs(db);
+    const countUnits = (amount, rate) => rate > 0 ? amount / rate : null;
     return json({ ok: true, data: {
       namaBulan: monthNames[month],
       tahun: year,
-      ringkasan: { totalBulanan, totalKebersihan, totalSetoran: totalBulanan + totalKebersihan, talanganCount: 0 },
+      ringkasan: {
+        totalBulanan, totalKebersihan, totalSetoran: totalBulanan + totalKebersihan,
+        jumlahSetoranBulanan: countUnits(totalBulanan, tarif.TARIF_BULANAN),
+        jumlahSetoranKebersihan: countUnits(totalKebersihan, tarif.TARIF_KEBERSIHAN),
+        talanganCount: 0
+      },
       rows: rows2,
       catatan: "Setoran RT berdasarkan alokasi iuran D1; talangan belum digabung otomatis."
     } });
