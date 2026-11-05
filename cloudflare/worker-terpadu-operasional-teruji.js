@@ -5282,6 +5282,35 @@ async function reconcilePreview(db, batchId) {
 }
 __name(reconcilePreview,"reconcilePreview");
 
+// Badge tugas pengurus dihitung dari saldo stok D1 dan status pengajuan aktif.
+// Setoran warga dihitung sekali meski mempunyai beberapa jenis barang;
+// setoran milik Bank dihitung per kegiatan yang masih punya sisa berat.
+async function bankActionCounts(env,who){
+ const denied=requireRole(who,["admin","superadmin"]);if(denied)return denied;
+ const counts=await env.DB.prepare(`SELECT
+   (SELECT COUNT(*) FROM waste_deposits d
+     JOIN waste_batches b ON b.id=d.batch_id
+     WHERE d.status!='dibatalkan' AND b.status!='dibatalkan'
+       AND ((d.status='estimasi' AND NOT EXISTS (
+              SELECT 1 FROM waste_sales s
+              WHERE s.batch_id=d.batch_id AND s.status!='dibatalkan'))
+         OR EXISTS (SELECT 1 FROM bank_v3_inventory_lots l
+              WHERE l.owner_kind='member' AND l.source_deposit_id=d.id
+                AND l.remaining_grams>0))) AS unsold_members,
+   (SELECT COUNT(DISTINCT request_key) FROM bank_v3_inventory_lots
+      WHERE owner_kind='bank' AND remaining_grams>0
+        AND request_key IS NOT NULL) AS unsold_bank,
+   (SELECT COUNT(*) FROM waste_payout_requests
+      WHERE status IN ('diajukan','disetujui')) AS active_payouts,
+   (SELECT COUNT(*) FROM waste_payout_requests
+      WHERE status='diajukan') AS new_payouts`).first();
+ const member=Number(counts?.unsold_members||0),bank=Number(counts?.unsold_bank||0);
+ return json({ok:true,unsoldDeposits:member+bank,unsoldMemberDeposits:member,
+   unsoldBankDeposits:bank,pendingPayouts:Number(counts?.active_payouts||0),
+   newPayouts:Number(counts?.new_payouts||0)});
+}
+__name(bankActionCounts,"bankActionCounts");
+
 // Permintaan pencairan warga: tidak mengurangi saldo sebelum dibayar.
 async function bankPayoutRequests(request,env,who,url){
   const path=url.pathname.replace(/\/+$/,"");
@@ -6136,6 +6165,8 @@ async function handle(request, env) {
   if (path === "/api/v2/admin/residents") return residentsApi(request, env, who);
   // Rute nota spesifik harus ditangani sebelum fallback umum /api/v2/.
   if (path === "/api/v2/admin/bank/sale-receipt" && request.method === "POST") return bankUpdateSaleReceipt(request,env,who);
+  if (path === "/api/admin/bank/action-counts" && request.method === "GET")
+    return bankActionCounts(env,who);
   if (path === "/api/member/bank/payout-requests" && ["GET","POST"].includes(request.method))
     return bankPayoutRequests(request,env,who,url);
   if ((path === "/api/admin/bank/payout-requests" && request.method === "GET")
