@@ -1,0 +1,144 @@
+/* Pembukuan: satu pemilik grid layar untuk seluruh modul. Tidak mengubah cetak. */
+@media screen{
+ :root{--book-gap:12px;--book-tight:8px;--book-control:44px}
+ :where(#tab-input,#tab-transaksi,#tab-kas,#tab-talangan,#tab-denda,#tab-pinjaman,#tab-riwayat,#tab-laporan,#tab-dashboard,#tab-rumah,#tab-warga,#tab-config,#tab-importbulk){
+  width:100%;min-width:0;max-width:100%;box-sizing:border-box
+ }
+ :where(#tab-input,#tab-transaksi,#tab-kas,#tab-talangan,#tab-denda,#tab-pinjaman,#tab-riwayat,#tab-laporan,#tab-dashboard,#tab-rumah,#tab-warga,#tab-config,#tab-importbulk)
+ :where(form,section,article,.grid,.f4-grid,.report-table-wrap,.kas-scroll,.history-scroll,.loan-scroll){
+  min-width:0;max-width:100%;box-sizing:border-box
+ }
+ :where(#tab-input,#tab-transaksi,#tab-talangan,#tab-denda,#tab-pinjaman,#tab-riwayat,#tab-laporan,#tab-dashboard,#tab-rumah,#tab-warga)
+ :where(.field,input,select,textarea){min-width:0;max-width:100%;box-sizing:border-box}
+ :where(#tab-input,#tab-transaksi,#tab-talangan,#tab-denda,#tab-pinjaman,#tab-riwayat,#tab-laporan)
+ .f4-field-stack{display:grid;grid-template-rows:auto minmax(0,1fr);gap:5px;min-width:0}
+ #tab-dashboard .f4-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--book-gap)}
+ #tab-kas .kas-summary.f4-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--book-gap)}
+ #tab-dashboard .f4-grid>.card,#tab-kas .kas-summary.f4-grid>div{min-width:0;max-width:100%}
+ /* Grid Input Iuran: tiga baris kiri, rincian di kanan dan tombol di bagian akhir. */
+ #tab-input #form-iuran.f4-book-iuran-grid{
+  display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
+  gap:var(--book-gap);grid-auto-flow:row;align-items:start;width:100%;min-width:0;margin:0
+ }
+ #tab-input #form-iuran.f4-book-iuran-grid>*{min-width:0;max-width:100%;margin:0}
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(1){grid-column:1/span 6;grid-row:1}
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(2){grid-column:1/span 6;grid-row:2}
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(3){grid-column:1/span 6;grid-row:3}
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(4){grid-column:7/span 6;grid-row:1/span 3;align-self:start;min-height:0}
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(5){grid-column:1/span 6;grid-row:4}
+ #tab-input #form-iuran.f4-book-iuran-grid>#save-status{grid-column:1/-1;grid-row:5}
+ #tab-input #form-iuran.f4-book-iuran-grid>#btn-simpan{grid-column:7/span 6;grid-row:4;align-self:end;min-height:var(--book-control)}
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(2){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--book-gap)}
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(3){display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.8fr) minmax(0,1fr);gap:var(--book-tight)}
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(5){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--book-gap)}
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(2)>div,
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(3)>div,
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(5)>div{
+  display:flex;flex-direction:column;align-items:stretch;min-width:0;max-width:100%
+ }
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-period-title{grid-column:1/-1}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-iuran-preview{align-self:start;min-width:0;overflow:visible;padding:14px;border-radius:14px}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-iuran-preview:has(#preview-detail.hidden){min-height:0;padding:12px 14px}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-iuran-preview:has(#preview-detail.hidden)>div:first-child{margin-bottom:5px}
+ #tab-input #form-iuran.f4-book-iuran-grid #preview-detail>.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--book-tight)}
+ #tab-input #form-iuran.f4-book-iuran-grid #preview-detail>.grid>div{min-width:0;overflow-wrap:anywhere}
+ #tab-input #form-iuran.f4-book-iuran-grid :where(.field,.custom-select-btn){width:100%;max-width:100%;min-width:0;min-height:var(--book-control)}
+ #tab-input #kekurangan-kas-card,#tab-input #form-kekurangan-kas{min-width:0;max-width:100%}
+ /* Filter tanggal, pencarian, dan status pada Riwayat Iuran. */
+ #tab-riwayat #history-iuran-panel .history-iuran-filter{
+  display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);
+  gap:var(--book-gap);align-items:end;width:100%;min-width:0;margin:0 0 14px
+ }
+ #tab-riwayat #history-iuran-panel .history-period-box{
+  display:grid;grid-template-columns:minmax(0,1fr);gap:0;width:100%;min-width:0;margin:0
+ }
+ #tab-riwayat #history-iuran-panel .history-iuran-search{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(130px,.65fr);
+  gap:var(--book-tight);align-items:stretch;min-width:0;width:100%;margin:0
+ }
+ #tab-riwayat #history-iuran-panel .history-iuran-search :where(input,select,.custom-select-btn){
+  display:block;width:100%;min-width:0;max-width:100%;min-height:var(--book-control);
+  box-sizing:border-box;margin:0;overflow:hidden;text-overflow:ellipsis
+ }
+ #tab-riwayat #history-iuran-panel .history-iuran-search .custom-select-wrap{min-width:0;width:100%}
+ #tab-riwayat #history-iuran-panel .history-period-box .upr-range{
+  display:grid;grid-template-columns:minmax(0,1fr) 31px minmax(0,1fr);
+  width:100%;gap:var(--book-tight);align-items:center;min-width:0
+ }
+ #tab-riwayat #history-iuran-panel .history-period-box .upr-control{min-width:0;width:100%;max-width:100%}
+ #tab-riwayat #history-iuran-panel .history-period-box .upr-field{
+  display:flex;align-items:center;justify-content:flex-start;width:100%;max-width:100%;
+  min-width:0;height:var(--book-control);min-height:var(--book-control);
+  padding:8px 35px 8px 10px;box-sizing:border-box;overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+ }
+ #tab-riwayat #history-iuran-panel .history-period-box .upr-field svg{right:10px;width:17px;height:17px;min-width:17px}
+ #tab-riwayat #history-iuran-panel .history-period-box .upr-sep{text-align:center;font-size:12px}
+ #tab-riwayat #history-iuran-panel :where(.history-range-box,.history-month-single,.history-year-single){min-width:0;width:100%;max-width:100%}
+ #tab-riwayat #history-iuran-panel .history-range-box{
+  display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:var(--book-tight);align-items:center
+ }
+ /* Ringkasan keuangan: 8 kartu mengikuti empat kolom PC, dua kolom HP. */
+ #tab-riwayat #iuran-quick-summary{width:100%;max-width:100%;padding:14px;border-radius:14px}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-head{display:flex;align-items:center;justify-content:space-between;gap:var(--book-tight);margin-bottom:10px}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--book-tight)}
+ #tab-riwayat #iuran-quick-summary .iuran-summary-tile{min-width:0;max-width:100%;min-height:68px;padding:10px;border-radius:11px;overflow:hidden}
+ #tab-riwayat #iuran-quick-summary .iuran-summary-tile.has-meta{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px}
+ #tab-riwayat #iuran-quick-summary .iq-main{display:flex;flex-direction:column;justify-content:center;min-width:0}
+ #tab-riwayat #iuran-quick-summary .iq-counts{min-width:0;text-align:right;white-space:nowrap}
+ #tab-riwayat #iuran-quick-summary .iuran-summary-tile :is(strong){
+  max-width:100%;font-size:clamp(13px,1.35vw,18px);line-height:1.2;
+  white-space:normal;overflow-wrap:anywhere;font-variant-numeric:tabular-nums
+ }
+ #tab-riwayat #iuran-quick-summary .iuran-summary-tile span{white-space:normal}
+ #tab-riwayat .mhistory-cards,#tab-riwayat .mhistory-entry{width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+ #tab-riwayat .mhistory-entry>summary{min-width:0;gap:10px}
+ #tab-riwayat .mhistory-main{min-width:0}
+ #tab-riwayat .mhistory-right{flex:0 0 auto;max-width:43%;min-width:0;align-items:flex-end}
+ #tab-riwayat .mhistory-primary{overflow-wrap:anywhere}
+ #tab-riwayat .mhistory-amount{max-width:100%;font-variant-numeric:tabular-nums}
+ /* Laporan dan tabel tidak mengubah lebar berdasarkan isinya. */
+ #tab-riwayat :is(#history-iuran-panel,#history-kasumum-panel,#history-batch-panel,
+   #history-denda-panel,#history-talangan-panel,#history-pinjaman-panel)
+  :is(.history-scroll,.loan-scroll,.overflow-x-auto){
+  width:100%;max-width:100%;min-width:0
+ }
+ #tab-laporan .report-table-wrap,#tab-riwayat .history-scroll,#tab-riwayat .loan-scroll{max-width:100%;min-width:0}
+ #tab-rumah table,#tab-warga table{width:100%;border-collapse:collapse}
+ #tab-rumah th,#tab-rumah td,#tab-warga th,#tab-warga td{vertical-align:middle;line-height:1.35}
+ #tab-riwayat .f4-book-filter-picker,#tab-laporan .f4-book-filter-picker{
+  display:grid;grid-template-columns:120px minmax(0,310px);gap:12px;align-items:center;max-width:100%
+ }
+ #tab-riwayat .f4-book-filter-picker select,#tab-laporan .f4-book-filter-picker select{width:100%;min-width:0;max-width:100%;min-height:var(--book-control)}
+}
+@media screen and (min-width:768px) and (max-width:1199px){
+ #tab-dashboard .f4-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ #tab-kas .kas-summary.f4-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #tab-riwayat #history-iuran-panel .history-iuran-filter{grid-template-columns:1fr}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #tab-input #form-iuran.f4-book-iuran-grid{grid-template-columns:1fr}
+ #tab-input #form-iuran.f4-book-iuran-grid>*{grid-column:1/-1;grid-row:auto}
+ #tab-input #form-iuran.f4-book-iuran-grid #preview-detail>.grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media screen and (max-width:767px){
+ :root{--book-gap:10px;--book-tight:8px}
+ #tab-dashboard .f4-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #tab-dashboard .f4-grid>.card:last-child:nth-child(odd){grid-column:1/-1}
+ #tab-kas .kas-summary.f4-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #tab-input #form-iuran.f4-book-iuran-grid{grid-template-columns:1fr;gap:12px}
+ #tab-input #form-iuran.f4-book-iuran-grid>*{grid-column:1/-1;grid-row:auto}
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(2){grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(3){grid-template-columns:minmax(0,1.15fr) minmax(0,.78fr) minmax(0,1fr);gap:6px}
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(5){grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #tab-input #form-iuran.f4-book-iuran-grid #preview-detail>.grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #tab-riwayat #history-iuran-panel .history-iuran-filter{grid-template-columns:1fr;gap:10px;margin-bottom:12px}
+ #tab-riwayat #history-iuran-panel .history-period-box{grid-template-columns:1fr}
+ #tab-riwayat #history-iuran-panel .history-period-box .upr-range{grid-template-columns:minmax(0,1fr) 26px minmax(0,1fr);gap:6px}
+ #tab-riwayat #history-iuran-panel .history-iuran-search{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:8px;align-items:center}
+ #tab-riwayat #history-iuran-panel .history-iuran-search .field{height:44px;min-height:44px;padding:8px 10px;font-size:14px}
+ #tab-riwayat #history-iuran-panel .history-period-box .upr-field{height:46px;min-height:46px;padding:7px 31px 7px 9px;font-size:14px}
+ #tab-riwayat #iuran-quick-summary{padding:11px}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #tab-riwayat #iuran-quick-summary .iuran-summary-tile{padding:9px;min-height:70px}
+ #tab-riwayat #iuran-quick-summary .iuran-summary-tile :is(strong){font-size:clamp(13px,3.7vw,18px)}
+ #tab-riwayat .f4-book-filter-picker,#tab-laporan .f4-book-filter-picker{grid-template-columns:1fr;gap:5px}
+}
