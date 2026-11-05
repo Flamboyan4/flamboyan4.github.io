@@ -561,7 +561,7 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;min-width:0
 }
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation{
- display:grid;grid-template-columns:48px minmax(0,1fr) 28px;
+ position:relative;display:grid;grid-template-columns:48px minmax(0,1fr) 28px;
  align-items:center;column-gap:14px;min-width:0;min-height:110px;
  padding:18px 20px;border-radius:16px;border:1px solid #e8b003;
  background:linear-gradient(135deg,#ffe342,#ffba05);color:#21442e;text-align:left;font:inherit;
@@ -1207,7 +1207,7 @@ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
  gap:10px 8px;align-items:start
 }
 .f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut{
- display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+ position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
  gap:8px;min-width:0;min-height:88px;padding:7px 2px;
  background:transparent;border:0;border-radius:0;
  color:#244b39;text-align:center;font:750 11px/1.3 system-ui;cursor:pointer;
@@ -1241,6 +1241,25 @@ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
 .f4-bank-admin-shortcut>span:last-child{
  display:block;max-width:100%;overflow-wrap:break-word
 }
+/* Badge angka kecil di tombol aksi pengurus: tanpa frame dan tanpa prioritas paksa. */
+.f4-bank-alert-badge{
+ position:absolute;top:-7px;right:-7px;z-index:2;
+ display:flex;align-items:center;justify-content:center;
+ box-sizing:border-box;min-width:23px;height:23px;padding:0 5px;
+ border:2px solid #fff;border-radius:999px;background:#e33549;color:#fff;
+ box-shadow:0 2px 8px #7e28384d;font:800 11px/1 system-ui;
+ white-space:nowrap;pointer-events:none
+}
+.f4-bank-admin-shortcut>.f4-bank-alert-badge{
+ top:-1px;right:calc(50% - 31px)
+}
+body.f4-bank-app-admin #sideNav #v16NavList>.f4-bank-desktop-nav-link{
+ position:relative
+}
+body.f4-bank-app-admin #sideNav .f4-bank-desktop-nav-link>.f4-bank-alert-badge{
+ top:50%;right:8px;transform:translateY(-50%)
+}
+
 #dashboardView #bank-admin-history.f4-bank-screen{
  width:100%;max-width:none;min-width:0;
  align-content:start
