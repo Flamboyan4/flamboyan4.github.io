@@ -5539,7 +5539,11 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     if(heading){heading.textContent='Laporan Bank Sampah';report.prepend(heading);heading.after(form);}
     else report.prepend(form);
     // Existing API/print handlers remain attached to their original buttons.
-    form.append(actions,options);
+    // Feedback for load/print errors stays visible beside the report actions.
+    form.append(actions);
+    const notice=$('v10ReportNotice');
+    if(notice)form.append(notice);
+    form.append(options);
     const invalidate=()=>{
       v10ReportData=null;
       $('v10ReportSummary')?.replaceChildren();
