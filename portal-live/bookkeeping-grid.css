@@ -188,7 +188,8 @@
   gap:5px 12px;align-items:start;width:100%;max-width:100%;min-width:0;margin-bottom:14px
  }
  #tab-riwayat .f4-book-filter-picker label,#tab-laporan .f4-book-filter-picker label{
-  grid-column:1/-1;min-height:18px;line-height:18px;margin:0
+  grid-column:1/-1;min-height:18px;line-height:18px;margin:0;
+  font-size:13px;font-weight:750;color:#302454
  }
  #tab-riwayat .f4-book-filter-picker :is(select,.custom-select-wrap),
  #tab-laporan .f4-book-filter-picker :is(select,.custom-select-wrap){
