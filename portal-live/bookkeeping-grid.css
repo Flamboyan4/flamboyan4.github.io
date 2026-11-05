@@ -224,7 +224,7 @@
  #tab-riwayat #history-iuran-panel .history-period-box .upr-range{grid-template-columns:minmax(0,1fr) 26px minmax(0,1fr);gap:6px}
  #tab-riwayat #history-iuran-panel .history-iuran-search{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:8px;align-items:center}
  #tab-riwayat #history-iuran-panel .history-iuran-search .field{height:44px;min-height:44px;padding:8px 10px;font-size:14px}
- #tab-riwayat #history-iuran-panel .history-period-box .upr-field{height:46px;min-height:46px;padding:7px 31px 7px 9px;font-size:14px}
+ #tab-riwayat #history-iuran-panel .history-period-box .upr-field{height:44px;min-height:44px;padding:7px 31px 7px 9px;font-size:14px}
  #tab-riwayat #iuran-quick-summary{padding:11px}
  #tab-riwayat #iuran-quick-summary .iuran-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
  #tab-riwayat #iuran-quick-summary .iuran-summary-tile{padding:9px;min-height:70px}
