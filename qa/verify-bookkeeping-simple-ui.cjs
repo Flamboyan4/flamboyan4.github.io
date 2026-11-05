@@ -40,7 +40,7 @@ assert(!css.replace(/\/\*[\s\S]*?\*\//g,'').includes('!important'),
  'New CSS must not use !important');
 const legacyPriority=(html.match(/!important/g)||[]).length;
 assert(legacyPriority<=1963,'Old CSS priority rules must not grow beyond audited baseline');
-assert(html.includes('bookkeeping-grid.css?v=20261105-grid-v1'));
+assert(html.includes('bookkeeping-grid.css?v=20261105-grid-v4'));
 assert(html.includes('class="f4-book-iuran-grid desktop-compact-form"'));
 assert(!html.includes('#tab-input #form-iuran{display:flex!important'));
 assert(!grid.includes('!important'),'Grid owner must use ordinary scoped selectors');
