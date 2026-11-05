@@ -71,7 +71,6 @@
   #history-batch-panel .batch-filter{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,.72fr);gap:.6rem;width:100%}
   #history-batch-panel .batch-filter select,#history-batch-panel .batch-filter input{min-width:0!important;width:100%!important}
   #history-batch-panel .batch-filter button{grid-column:1/-1;width:100%;min-width:0}
-  #history-batch-panel table{}
 }
 
 
@@ -135,7 +134,6 @@
   .report-card .text-lg,.report-card .text-xl{font-size:15px!important;line-height:1.2!important}
   .report-card .text-xs{font-size:10.5px!important}
   .report-table-wrap{overflow:visible!important;border-color:#bbb!important;border-radius:8px!important}
-  #report-rt-panel table{}
   #report-rt-panel th,#report-rt-panel td{padding:7px 8px!important;line-height:1.25!important}
   #report-rt-panel thead th{font-size:11.5px!important}
   #report-rt-panel tfoot td{font-size:12px!important}
@@ -213,10 +211,6 @@
   .kas-scroll,.history-scroll,.loan-scroll,.report-table-wrap{scrollbar-width:none!important;-ms-overflow-style:none!important}
   .kas-scroll::-webkit-scrollbar,.history-scroll::-webkit-scrollbar,.loan-scroll::-webkit-scrollbar,.report-table-wrap::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
   @media(max-width:640px){
-    #tab-kas .kas-scroll table{}
-    #tab-pinjaman .loan-scroll table{}
-    #tab-riwayat .history-scroll table{}
-    #history-batch-panel table{}
     .kas-scroll th,.kas-scroll td,.history-scroll th,.history-scroll td,.loan-scroll th,.loan-scroll td,.report-table-wrap th,.report-table-wrap td{padding:.55rem .6rem!important;white-space:nowrap}
     .kas-scroll table,.history-scroll table,.loan-scroll table,.report-table-wrap table{font-size:.82rem!important}
     #tab-kas .kas-scroll th:first-child,#tab-kas .kas-scroll td:first-child{padding-left:.55rem!important}
@@ -435,7 +429,6 @@
   #tab-laporan .report-table-wrap th{font-weight:900!important}
   #tab-laporan .report-table-wrap th,#tab-laporan .report-table-wrap td{white-space:normal!important;vertical-align:middle!important}
   #tab-laporan .report-card{padding:10px 12px!important}
-  #tab-laporan .report-card .text-xl{}
   #report-rt-panel table{table-layout:fixed!important}
   #report-rt-panel th:nth-child(1){width:6%}
   #report-rt-panel th:nth-child(2){width:20%}
@@ -488,7 +481,6 @@
   #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(1){width:10%!important}
   #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(2){width:18%!important}
   #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(3),#history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(4),#history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(5){width:9%!important}
-  #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(6){}
   #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(7){width:19%!important}
   #history-pinjaman-panel .loan-scroll:first-of-type th:nth-child(8){width:18%!important}
 
@@ -515,7 +507,6 @@
 
 /* Print: margin A4 normal; jangan ikutkan padding layar. */
 @media print{
-  #report-print-area{}
   @page{size:A4 portrait;margin:14mm}
   #report-kas-panel .no-print,#report-pinjaman-panel .no-print{display:none!important}
 }
@@ -704,14 +695,6 @@ main > section.card{overflow:visible!important}
   #history-pinjaman-panel > .loan-scroll > table td{
     padding:8px 6px!important;
   }
-  #history-pinjaman-panel > .loan-scroll > table th:nth-child(1){}
-  #history-pinjaman-panel > .loan-scroll > table th:nth-child(2){}
-  #history-pinjaman-panel > .loan-scroll > table th:nth-child(3){}
-  #history-pinjaman-panel > .loan-scroll > table th:nth-child(4){}
-  #history-pinjaman-panel > .loan-scroll > table th:nth-child(5){}
-  #history-pinjaman-panel > .loan-scroll > table th:nth-child(6){}
-  #history-pinjaman-panel > .loan-scroll > table th:nth-child(7){}
-  #history-pinjaman-panel > .loan-scroll > table th:nth-child(8){}
   #history-pinjaman-panel > .loan-scroll > table td:nth-child(2),
   #history-pinjaman-panel > .loan-scroll > table td:nth-child(7){
     overflow-wrap:anywhere!important;
@@ -757,14 +740,6 @@ main > section.card{overflow:visible!important}
 }
 
 @media screen and (max-width:767px){
-  /* Semua tabel HP: font dipertahankan, horizontal padding dan min-width dipadatkan agar swipe lebih pendek. */
-  #tab-riwayat table,
-  #tab-kas table,
-  #tab-pinjaman table,
-  #tab-talangan table,
-  #tab-denda table,
-  #tab-laporan table{
-  }
   #tab-riwayat th,#tab-riwayat td,
   #tab-kas th,#tab-kas td,
   #tab-pinjaman th,#tab-pinjaman td,
@@ -773,17 +748,12 @@ main > section.card{overflow:visible!important}
   #tab-laporan th,#tab-laporan td{
     padding:4px 2px!important;
   }
-  #tab-riwayat th,#tab-kas th,#tab-pinjaman th,#tab-talangan th,#tab-denda th,#tab-laporan th{
-  }
 
   /* Riwayat — tiap tabel diberi lebar minimum sekecil mungkin tanpa membuat data rusak. */
   #history-iuran-panel .history-scroll table{min-width:430px!important;width:430px!important}
   #history-kasumum-panel .history-scroll table{min-width:560px!important;width:560px!important}
-  #history-batch-panel table{}
-  #history-pinjaman-panel > .loan-scroll > table{}
   #history-talangan-panel .loan-scroll table{min-width:550px!important;width:550px!important}
   #history-denda-panel .loan-scroll table{min-width:515px!important;width:515px!important}
-  .loan-payment-history .loan-scroll table{}
 
   /* Tabel modul input/pembukuan. */
   #tab-kas .kas-scroll table{min-width:440px!important;width:440px!important}
@@ -793,8 +763,6 @@ main > section.card{overflow:visible!important}
 
   /* Laporan: tetap bisa dibaca, tetapi lebih pendek saat digeser. */
   #tab-laporan .report-table-wrap table{min-width:500px!important;width:500px!important;table-layout:auto!important}
-  #report-rt-panel table{}
-  #report-arisan-panel table{}
   #report-tahunan-panel table{min-width:510px!important;width:510px!important}
 
   /* Izinkan teks deskriptif membungkus; angka/status/tombol tetap satu baris. */
@@ -819,7 +787,6 @@ main > section.card{overflow:visible!important}
   #history-pinjaman-panel > .loan-scroll > table th:nth-child(6){width:9%!important}
   #history-pinjaman-panel > .loan-scroll > table th:nth-child(7){width:14%!important}
   #history-pinjaman-panel > .loan-scroll > table th:nth-child(8){width:16%!important}
-  #history-pinjaman-panel > .loan-scroll > table td:nth-child(8)>div{}
 }
 
 
@@ -898,13 +865,6 @@ main > section.card{overflow:visible!important}
   #history-iuran-panel td{width:auto!important;min-width:0!important}
   #history-iuran-panel th:nth-child(2),#history-iuran-panel td:nth-child(2){max-width:130px!important}
   #history-iuran-panel th:nth-child(3),#history-iuran-panel td:nth-child(3){max-width:110px!important}
-
-  /* Riwayat Pinjaman: tetap rapat tetapi tombol aksi muat. */
-  #history-pinjaman-panel > .loan-scroll > table th,
-  #history-pinjaman-panel > .loan-scroll > table td{}
-  #history-pinjaman-panel > .loan-scroll > table td:nth-child(2){}
-  #history-pinjaman-panel > .loan-scroll > table td:nth-child(7){}
-  #history-pinjaman-panel > .loan-scroll > table td:nth-child(8)>div{}
 }
 
 
@@ -979,8 +939,6 @@ main > section.card{overflow:visible!important}
   }
   #history-pinjaman-panel > .loan-scroll > table td:nth-child(2){max-width:118px!important}
   #history-pinjaman-panel > .loan-scroll > table td:nth-child(7){max-width:105px!important}
-  #history-pinjaman-panel > .loan-scroll > table td:nth-child(8)>div{
-  }
 
   /* Riwayat Iuran: jangan ada kolom yang mengembang hanya karena w-full/min-width lama. */
   #history-iuran-panel .history-scroll table,
@@ -1141,17 +1099,8 @@ main > section.card{overflow:visible!important}
 <!-- v6.21.0 HISTORY FILTER + ICON ACTIONS + DATE SORT -->
 
 <style id="v6214-history-filter-icon-sort">
-/* v6.21.1 — filter periode dropdown bulan/tahun, tanpa input manual */
-.history-iuran-filter{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.history-period-box,.history-iuran-search{display:flex;align-items:center;gap:8px;min-width:0}
-.history-period-box>.field{width:150px}
-.history-period-box>div>.field{width:145px}
 .history-month-pair{display:grid;grid-template-columns:minmax(118px,1.25fr) minmax(82px,.75fr);gap:6px;min-width:210px}
-.history-range-box{gap:6px}
 .history-range-sep{font-size:12px;font-weight:800;color:#64748b;white-space:nowrap}
-.history-iuran-search{margin-left:auto}
-.history-iuran-search input{width:220px}
-.history-iuran-search select{width:120px}
 
 .action-icons{display:flex;justify-content:flex-end;align-items:center;gap:5px;flex-wrap:nowrap;white-space:nowrap}
 .action-icon{width:34px;height:34px;padding:0!important;display:inline-flex;align-items:center;justify-content:center;border-radius:9px;border:1px solid #ddd6fe;background:#fff;flex:0 0 auto;transition:.15s}
@@ -1176,20 +1125,13 @@ main > section.card{overflow:visible!important}
 }
 
 @media screen and (max-width:767px){
-  .history-iuran-filter{display:block}
-  .history-period-box{display:grid;grid-template-columns:120px minmax(150px,1fr);gap:7px;width:100%}
-  .history-period-box>.field,.history-period-box>div>.field{width:100%!important}
   .history-month-pair{grid-template-columns:minmax(0,1.35fr) minmax(82px,.65fr);gap:5px;min-width:0;width:100%}
-  .history-range-box{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:5px}
-  .history-iuran-search{display:grid;grid-template-columns:minmax(0,1fr) 105px;gap:7px;width:100%;margin-top:7px}
-  .history-iuran-search input,.history-iuran-search select{width:100%!important}
   .action-icons{gap:4px}
   .action-icon{width:31px;height:31px;border-radius:8px}
   .action-icon svg{width:15px;height:15px}
   /* font tetap; yang dipadatkan adalah padding horizontal dan ruang kolom */
   #tab-riwayat table{font-size:inherit!important}
   #tab-riwayat th,#tab-riwayat td{padding-left:5px!important;padding-right:5px!important}
-  #history-iuran-panel table{}
   #history-iuran-panel td:nth-child(2)>div:first-child,
   #history-pinjaman-panel td:nth-child(2)>div:first-child,
   #history-talangan-panel td:nth-child(2)>div:first-child,
@@ -1449,18 +1391,7 @@ main > section.card{overflow:visible!important}
 
 <!-- v6.23.5 ALIGN IURAN SAVE BUTTON -->
 <style>
-@media (min-width:1024px){
-  #tab-input #form-iuran > div:nth-child(5){
-    grid-column:1 / span 6 !important;
-    grid-row:4 !important;
-  }
-  #tab-input #form-iuran > #btn-simpan{
-    grid-column:7 / span 6 !important;
-    grid-row:4 !important;
-    align-self:start !important;
-    margin-top:24px !important;
-  }
-}
+
 
 
 /* CSS owner consolidated from #v6255-report-rt-cell-color-bigger-text; prior cascade position preserved */
@@ -1490,12 +1421,6 @@ main > section.card{overflow:visible!important}
   }
   #report-rt-panel thead th{white-space:nowrap!important}
   #report-rt-panel tfoot td{padding-top:3.7px!important;padding-bottom:3.7px!important}
-
-  /* Kolom dibuat rapat; tidak ada ruang kosong berlebihan */
-  #report-rt-panel th:nth-child(1),#report-rt-panel td:nth-child(1){}
-  #report-rt-panel th:nth-child(2),#report-rt-panel td:nth-child(2){}
-  #report-rt-panel th:nth-child(3),#report-rt-panel td:nth-child(3){}
-  #report-rt-panel th:nth-child(4),#report-rt-panel td:nth-child(4){}
   #report-rt-panel th:nth-child(5),#report-rt-panel td:nth-child(5){width:18%!important;white-space:nowrap!important}
   #report-rt-panel th:nth-child(6),#report-rt-panel td:nth-child(6){width:18%!important;white-space:nowrap!important}
 
@@ -1608,20 +1533,20 @@ main > section.card{overflow:visible!important}
 /* CSS owner consolidated from #v6263-iuran-counts-two-rows; prior cascade position preserved */
 
 /* Jumlah bayar/belum tetap di kanan card, tetapi dua baris supaya tidak menabrak nominal. */
-.iuran-summary-tile.has-meta{grid-template-columns:minmax(0,1fr) max-content!important;align-items:center!important;column-gap:7px!important}
-.iuran-summary-tile.has-meta .iq-main{min-width:0!important}
-.iuran-summary-tile.has-meta .iq-counts{display:flex!important;flex-direction:column!important;align-items:flex-end!important;justify-content:center!important;min-width:0!important;white-space:normal!important;text-align:right!important;line-height:1.25!important;font-size:11px!important}
-.iuran-summary-tile.has-meta .iq-count-desktop{display:flex!important;flex-direction:column!important;align-items:flex-end!important;gap:2px!important}
-.iuran-summary-tile.has-meta .iq-count-desktop>span{white-space:nowrap!important}
-.iuran-summary-tile.has-meta .iq-count-mobile{display:none!important}
+.iuran-summary-tile.has-meta{grid-template-columns:minmax(0,1fr) max-content;align-items:center;column-gap:7px}
+.iuran-summary-tile.has-meta .iq-main{min-width:0}
+.iuran-summary-tile.has-meta .iq-counts{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;min-width:0;white-space:normal;text-align:right;line-height:1.25;font-size:11px}
+.iuran-summary-tile.has-meta .iq-count-desktop{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.iuran-summary-tile.has-meta .iq-count-desktop>span{white-space:nowrap}
+.iuran-summary-tile.has-meta .iq-count-mobile{display:none}
 @media(max-width:767px){
- .iuran-summary-tile.has-meta{column-gap:3px!important}
- .iuran-summary-tile.has-meta .iq-counts{font-size:9px!important}
- .iuran-summary-tile.has-meta .iq-count-desktop{display:none!important}
- .iuran-summary-tile.has-meta .iq-count-mobile{display:flex!important;flex-direction:column!important;align-items:flex-end!important;gap:5px!important}
- .iuran-summary-tile.has-meta .iq-count-mobile-line{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:4px!important;white-space:nowrap!important}
- .iuran-summary-tile.has-meta .iq-count-mobile .mitem{display:inline-flex!important;gap:2px!important;align-items:center!important}
- .iuran-summary-tile.has-meta .iq-count-mobile svg{width:11px!important;height:11px!important;flex:none!important}
+ .iuran-summary-tile.has-meta{column-gap:3px}
+ .iuran-summary-tile.has-meta .iq-counts{font-size:9px}
+ .iuran-summary-tile.has-meta .iq-count-desktop{display:none}
+ .iuran-summary-tile.has-meta .iq-count-mobile{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+ .iuran-summary-tile.has-meta .iq-count-mobile-line{display:flex;align-items:center;justify-content:flex-end;gap:4px;white-space:nowrap}
+ .iuran-summary-tile.has-meta .iq-count-mobile .mitem{display:inline-flex;gap:2px;align-items:center}
+ .iuran-summary-tile.has-meta .iq-count-mobile svg{width:11px;height:11px;flex:none}
 }
 
 
@@ -1706,7 +1631,6 @@ main > section.card{overflow:visible!important}
 /* CSS owner consolidated from #f4-book-mobile-nav-repair; prior cascade position preserved */
 
 @media(max-width:1023px){
- #f4-demo-book-hamburger{}
  body>header:first-of-type{display:none!important}
  body>main{max-width:100%!important;min-width:0!important}
  body>#side-drawer{z-index:160!important}
@@ -1854,7 +1778,7 @@ main > section.card{overflow:visible!important}
  label.text-sm{display:block;min-width:0!important;font-size:13px!important;line-height:1.4!important;
   margin-bottom:2px!important;overflow-wrap:normal}
  /* Input Iuran: name full row; date+method 2 columns; month/year/quantity 3 columns. */
- #tab-input #form-iuran{display:flex!important;flex-direction:column!important;gap:12px!important}
+ 
  #tab-input #form-iuran>div:nth-child(2),
  #modal-edit form>div:nth-child(3){
   display:grid!important;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr)!important;
@@ -1940,6 +1864,7 @@ main > section.card{overflow:visible!important}
 </style>
 
 <link rel="stylesheet" href="/portal-live/bookkeeping-simple.css?v=20261105-simplified-v1">
+<link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261105-grid-v1">
 </head>
 <body oncontextmenu="return false;">
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
@@ -2024,7 +1949,7 @@ main > section.card{overflow:visible!important}
 
     <div id="tab-input" class="tab-panel p-4 sm:p-5">
       <div class="max-w-6xl mx-auto">
-        <form id="form-iuran" onsubmit="simpanIuran(event)" class="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-12 lg:gap-4 desktop-compact-form">
+        <form id="form-iuran" onsubmit="simpanIuran(event)" class="f4-book-iuran-grid desktop-compact-form">
           <div><label class="text-sm font-bold">Nama Warga</label><select id="inp-warga" class="field mt-1" onchange="pilihWargaIuran()"><option value="">Pilih warga...</option></select></div>
           <div class="grid sm:grid-cols-2 gap-4">
             <div><label class="text-sm font-bold">Tanggal Bayar</label><input id="inp-tanggal" type="date" class="field mt-1" required></div>
@@ -2505,7 +2430,7 @@ main > section.card{overflow:visible!important}
           </div>
         </div>
         <div class="history-iuran-search">
-          <input id="cari-riwayat" oninput="renderRiwayat()" placeholder="Cari nama / rumah..." class="field">
+          <input id="cari-riwayat" oninput="renderRiwayat()" placeholder="Cari nama/rumah" class="field">
           <select id="filter-riwayat" onchange="renderRiwayat()" class="field">
             <option value="AKTIF">Aktif</option>
             <option value="SEMUA">Semua</option>
@@ -4391,26 +4316,11 @@ async function hapusPinjamanPermanen(id){const x=(DATA_PINJAMAN.rows||[]).find(v
   .history-iuran-filter .custom-select-panel .cs-list{max-height:270px!important;overflow-y:auto!important}
   .history-iuran-filter .custom-select-btn{font-size:15px!important}
   .history-iuran-filter .cs-option{font-size:15px!important;line-height:1.25!important;padding:10px 12px!important;min-height:42px!important}
-  .history-period-box{}
   .history-period-box > .custom-select-wrap:first-child .custom-select-panel{width:190px!important;min-width:190px!important;max-width:min(210px,calc(100vw - 48px))!important}
   .history-iuran-search .custom-select-panel{width:145px!important;min-width:145px!important;max-width:180px!important}
 }
-
-
-/* CSS owner consolidated from #v6213-combined-month-year-filter; prior cascade position preserved */
-
-/* v6.21.3 — Bulan + tahun menjadi satu kontrol kalender */
-.history-month-single{width:185px;min-width:185px}
-.history-month-single .field,.history-year-single .field{width:100%}
-.history-year-single{width:120px;min-width:120px}
-.history-range-box{display:flex;align-items:center;gap:7px;min-width:0}
-.history-range-box>input.field{width:185px;min-width:165px}
 @media screen and (max-width:640px){
-  .history-period-box{display:grid!important;grid-template-columns:145px minmax(0,1fr)!important;gap:8px!important;width:100%!important}
-  .history-month-single,.history-year-single{width:100%!important;min-width:0!important}
-  .history-range-box{grid-column:1/-1;display:grid!important;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;gap:6px!important;width:100%!important}
   .history-range-box.hidden{display:none!important}
-  .history-range-box>input.field{width:100%!important;min-width:0!important}
   #riwayat-period-month,#riwayat-period-start,#riwayat-period-end,#riwayat-period-year{font-size:16px!important}
 }
 
@@ -4490,16 +4400,9 @@ async function hapusPinjamanPermanen(id){const x=(DATA_PINJAMAN.rows||[]).find(v
 
 /* Desktop filter: satu baris proporsional, tidak ada kontrol mode lain yang nyasar. */
 @media screen and (min-width:768px){
-  .history-iuran-filter{display:flex!important;align-items:center!important;gap:10px!important;flex-wrap:nowrap!important}
-  .history-period-box{display:flex!important;align-items:center!important;gap:8px!important;flex:1 1 auto!important;min-width:0!important}
   #riwayat-period-mode{width:150px!important;flex:0 0 150px!important}
-  .history-month-single{width:190px!important;min-width:190px!important}
-  .history-year-single{width:120px!important;min-width:120px!important}
-  .history-range-box{display:flex!important;align-items:center!important;gap:7px!important;width:auto!important;min-width:0!important}
   .history-range-box.hidden{display:none!important}
   .history-range-box>.custom-select-wrap{width:190px!important;min-width:190px!important}
-  .history-iuran-search{display:flex!important;align-items:center!important;gap:8px!important;margin-left:auto!important;flex:0 0 auto!important}
-  .history-iuran-search input{width:220px!important}
   .history-iuran-search .custom-select-wrap{width:110px!important}
 }
 
@@ -4537,14 +4440,8 @@ async function hapusPinjamanPermanen(id){const x=(DATA_PINJAMAN.rows||[]).find(v
     min-height:44px!important;
     padding:10px 12px!important;
   }
-
-  /* Satu baris mode + periode, baris kedua search + status. */
-  .history-period-box{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1.18fr)!important;gap:8px!important;width:100%!important}
-  .history-month-single,.history-year-single{width:100%!important;min-width:0!important}
-  .history-range-box{grid-column:1/-1!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;gap:6px!important;width:100%!important}
   .history-range-box.hidden{display:none!important}
   .history-range-box>.custom-select-wrap{width:100%!important;min-width:0!important}
-  .history-iuran-search{display:grid!important;grid-template-columns:minmax(0,1fr) 115px!important;gap:8px!important;width:100%!important;margin-top:8px!important}
   .history-iuran-search .custom-select-wrap{width:100%!important}
 
   /* Aksi rata tengah dan tabel HP tetap hemat scroll. */
@@ -4565,8 +4462,8 @@ async function hapusPinjamanPermanen(id){const x=(DATA_PINJAMAN.rows||[]).find(v
 </style>
 
 <style id="v6220-universal-range-calendar">
-.upr-range{display:flex;align-items:center;gap:8px;min-width:0}.upr-control{position:relative;min-width:0}.upr-field{width:190px;min-height:48px;border:1px solid #ddd6fe;background:#fff;border-radius:12px;padding:10px 40px 10px 13px;display:flex;align-items:center;justify-content:flex-start;font-size:15px;line-height:1.2;color:#1e1b2e;position:relative;white-space:nowrap}.upr-field:hover{background:#faf9ff}.upr-field:focus{outline:none;box-shadow:0 0 0 3px #ede9fe;border-color:#8b5cf6}.upr-field svg{position:absolute;right:12px;width:18px;height:18px;color:#6d28d9}.upr-sep{font-size:13px;font-weight:800;color:#64748b;white-space:nowrap}.upr-pop{position:absolute;left:0;top:calc(100% + 7px);z-index:190;width:310px;border:1px solid #ddd6fe;border-radius:16px;background:#fff;box-shadow:0 18px 55px rgba(46,16,101,.18);padding:10px;display:none}.upr-control.open .upr-pop{display:block}.upr-control[data-side="to"] .upr-pop{left:auto;right:0}.upr-head{display:grid;grid-template-columns:36px 1fr 36px;align-items:center;gap:4px;margin-bottom:8px}.upr-nav{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#6d28d9}.upr-nav:hover{background:#f5f3ff}.upr-title{height:38px;border-radius:10px;font-weight:900;color:#2e1065;text-align:center}.upr-title:hover{background:#f5f3ff}.upr-level-note{text-align:center;font-size:10px;color:#94a3b8;margin-top:-4px;margin-bottom:7px}.upr-week,.upr-days{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}.upr-week div{text-align:center;font-size:10px;font-weight:800;color:#64748b;padding:4px 0}.upr-day{aspect-ratio:1/1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:#1f2937}.upr-day:hover{background:#ede9fe;color:#5b21b6}.upr-day.muted{color:#cbd5e1}.upr-day.selected{background:#7c3aed;color:#fff;font-weight:900}.upr-day.today:not(.selected){box-shadow:inset 0 0 0 1px #8b5cf6;color:#6d28d9;font-weight:800}.upr-months,.upr-years{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:4px 2px}.upr-month,.upr-year{min-height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#334155}.upr-month:hover,.upr-year:hover{background:#ede9fe;color:#5b21b6}.upr-month.selected,.upr-year.selected{background:#7c3aed;color:#fff;font-weight:900}.report-universal-filter{display:flex;align-items:end;gap:10px;flex-wrap:wrap;max-width:100%!important}.upr-filter-status{width:150px;min-width:130px}#history-iuran-panel .history-period-box{display:block!important;flex:0 0 auto!important}#history-iuran-panel .history-iuran-filter{align-items:flex-start!important}
-@media(max-width:767px){.upr-range{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:6px;width:100%}.upr-control{width:100%}.upr-field{width:100%;font-size:16px;min-height:50px;padding-left:11px;padding-right:36px}.upr-sep{font-size:12px}.upr-pop{width:min(318px,calc(100vw - 32px));max-width:calc(100vw - 32px)}.upr-control[data-side="from"] .upr-pop{left:0;right:auto}.upr-control[data-side="to"] .upr-pop{right:0;left:auto}.upr-day{font-size:13px}.upr-month,.upr-year{font-size:14px;min-height:50px}#history-iuran-panel .history-iuran-filter{display:block!important}#history-iuran-panel .history-period-box{width:100%!important}#history-iuran-panel .history-iuran-search{margin-top:8px!important}.report-universal-filter{display:block!important;width:100%!important}.report-universal-filter .upr-range{width:100%!important;margin-bottom:8px}.report-universal-filter .upr-filter-status{width:100%!important}}
+.upr-range{display:flex;align-items:center;gap:8px;min-width:0}.upr-control{position:relative;min-width:0}.upr-field{width:190px;min-height:48px;border:1px solid #ddd6fe;background:#fff;border-radius:12px;padding:10px 40px 10px 13px;display:flex;align-items:center;justify-content:flex-start;font-size:15px;line-height:1.2;color:#1e1b2e;position:relative;white-space:nowrap}.upr-field:hover{background:#faf9ff}.upr-field:focus{outline:none;box-shadow:0 0 0 3px #ede9fe;border-color:#8b5cf6}.upr-field svg{position:absolute;right:12px;width:18px;height:18px;color:#6d28d9}.upr-sep{font-size:13px;font-weight:800;color:#64748b;white-space:nowrap}.upr-pop{position:absolute;left:0;top:calc(100% + 7px);z-index:190;width:310px;border:1px solid #ddd6fe;border-radius:16px;background:#fff;box-shadow:0 18px 55px rgba(46,16,101,.18);padding:10px;display:none}.upr-control.open .upr-pop{display:block}.upr-control[data-side="to"] .upr-pop{left:auto;right:0}.upr-head{display:grid;grid-template-columns:36px 1fr 36px;align-items:center;gap:4px;margin-bottom:8px}.upr-nav{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#6d28d9}.upr-nav:hover{background:#f5f3ff}.upr-title{height:38px;border-radius:10px;font-weight:900;color:#2e1065;text-align:center}.upr-title:hover{background:#f5f3ff}.upr-level-note{text-align:center;font-size:10px;color:#94a3b8;margin-top:-4px;margin-bottom:7px}.upr-week,.upr-days{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}.upr-week div{text-align:center;font-size:10px;font-weight:800;color:#64748b;padding:4px 0}.upr-day{aspect-ratio:1/1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:#1f2937}.upr-day:hover{background:#ede9fe;color:#5b21b6}.upr-day.muted{color:#cbd5e1}.upr-day.selected{background:#7c3aed;color:#fff;font-weight:900}.upr-day.today:not(.selected){box-shadow:inset 0 0 0 1px #8b5cf6;color:#6d28d9;font-weight:800}.upr-months,.upr-years{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:4px 2px}.upr-month,.upr-year{min-height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#334155}.upr-month:hover,.upr-year:hover{background:#ede9fe;color:#5b21b6}.upr-month.selected,.upr-year.selected{background:#7c3aed;color:#fff;font-weight:900}.report-universal-filter{display:flex;align-items:end;gap:10px;flex-wrap:wrap;max-width:100%!important}.upr-filter-status{width:150px;min-width:130px}
+@media(max-width:767px){.upr-range{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:6px;width:100%}.upr-control{width:100%}.upr-field{width:100%;font-size:16px;min-height:50px;padding-left:11px;padding-right:36px}.upr-sep{font-size:12px}.upr-pop{width:min(318px,calc(100vw - 32px));max-width:calc(100vw - 32px)}.upr-control[data-side="from"] .upr-pop{left:0;right:auto}.upr-control[data-side="to"] .upr-pop{right:0;left:auto}.upr-day{font-size:13px}.upr-month,.upr-year{font-size:14px;min-height:50px}.report-universal-filter{display:block!important;width:100%!important}.report-universal-filter .upr-range{width:100%!important;margin-bottom:8px}.report-universal-filter .upr-filter-status{width:100%!important}}
 </style>
 <script id="v6220-universal-range-calendar-script">
 (function(){
@@ -4779,12 +4676,6 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
 <style id="v6223-report-talangan-history-filter-fix">
 /* v6.22.3 — visual polish */
 @media screen and (max-width:767px){
-  /* Riwayat Iuran: status filter dibuat seimbang dengan filter laporan */
-  #history-iuran-panel .history-iuran-search{
-    grid-template-columns:minmax(0,1.25fr) minmax(150px,.75fr)!important;
-    gap:8px!important;
-    align-items:stretch!important;
-  }
   #history-iuran-panel .history-iuran-search input,
   #history-iuran-panel .history-iuran-search select,
   #history-iuran-panel .history-iuran-search .custom-select-btn{
@@ -5454,7 +5345,6 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
   .upr-field .upr-field-text{font-size:15px!important;letter-spacing:-.1px}
   .upr-field svg{width:18px!important;height:18px!important;right:7px!important}
   .upr-range{gap:5px!important}
-  .upr-sep{}
   .mdc-btn .mdc-text{font-size:15px!important}
 }
 
