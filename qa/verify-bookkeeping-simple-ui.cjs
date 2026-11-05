@@ -39,7 +39,7 @@ assert(css.includes('#group-nav-inputdata.f4-book-tab-shell.hidden{display:none}
 assert(!css.replace(/\/\*[\s\S]*?\*\//g,'').includes('!important'),
  'New CSS must not use !important');
 const legacyPriority=(html.match(/!important/g)||[]).length;
-assert(legacyPriority<=2014,'Old CSS priority rules must not grow beyond audited baseline');
+assert(legacyPriority<=1963,'Old CSS priority rules must not grow beyond audited baseline');
 assert(html.includes('bookkeeping-grid.css?v=20261105-grid-v1'));
 assert(html.includes('class="f4-book-iuran-grid desktop-compact-form"'));
 assert(!html.includes('#tab-input #form-iuran{display:flex!important'));
@@ -50,6 +50,10 @@ for(const mod of ['#tab-input','#tab-transaksi','#tab-kas','#tab-talangan','#tab
 assert(grid.includes('@media screen and (max-width:767px)'));
 assert(grid.includes('#tab-riwayat #history-iuran-panel .history-iuran-filter'));
 assert(grid.includes('#tab-riwayat #iuran-quick-summary .iuran-quick-grid'));
+assert(grid.includes('#tab-transaksi #form-transaksi-kas.trx-layout .trx-type{grid-column:1/5;grid-row:1}'));
+assert(grid.includes('#tab-transaksi #form-transaksi-kas.trx-layout :is(.trx-type,.trx-desc,.trx-note,.trx-status,.trx-save){grid-column:1/-1}'));
+assert(!html.includes('#tab-transaksi .trx-layout{\\n    display:grid!important'));
+
 assert(html.includes('const extra=[...(titleCell?.querySelectorAll'));
 assert(html.includes('p.textContent=f4IuranPeriodDisplay(d.labelPeriode'));
 assert(html.includes('function printLaporan()'));
