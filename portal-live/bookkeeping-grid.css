@@ -12,6 +12,44 @@
  :where(.field,input,select,textarea){min-width:0;max-width:100%;box-sizing:border-box}
  :where(#tab-input,#tab-transaksi,#tab-talangan,#tab-denda,#tab-pinjaman,#tab-riwayat,#tab-laporan)
  .f4-field-stack{display:grid;grid-template-rows:auto minmax(0,1fr);gap:5px;min-width:0}
+ /* Modul transaksi, talangan, denda, dan pinjaman memakai gap dan ukuran kontrol yang sama. */
+ #tab-transaksi #form-transaksi-kas.trx-layout,
+ #tab-talangan #form-talangan.talangan-columns,
+ #tab-denda :is(#form-denda-catat,#form-denda-bayar),
+ #tab-pinjaman :is(#loan-form-buat form,#loan-form-bayar form){
+  width:100%;max-width:100%;min-width:0;box-sizing:border-box;
+ }
+ #tab-transaksi #form-transaksi-kas.trx-layout>:where(div,button),
+ #tab-talangan #form-talangan.talangan-columns>:where(div,button),
+ #tab-denda :is(#form-denda-catat,#form-denda-bayar)>:where(div,button),
+ #tab-pinjaman :is(#loan-form-buat form,#loan-form-bayar form)>:where(div,button){
+  min-width:0;max-width:100%;box-sizing:border-box;
+ }
+ #tab-transaksi .trx-layout :where(.field,.custom-select-wrap),
+ #tab-talangan .talangan-columns :where(.field,.custom-select-wrap),
+ #tab-denda :is(#form-denda-catat,#form-denda-bayar) :where(.field,.custom-select-wrap),
+ #tab-pinjaman :is(#loan-form-buat form,#loan-form-bayar form) :where(.field,.custom-select-wrap){
+  min-width:0;max-width:100%;width:100%;box-sizing:border-box;
+ }
+ #tab-transaksi .trx-layout :where(.trx-type,.trx-date,.trx-nominal,.trx-method,.trx-category,.trx-month,.trx-year,.trx-desc,.trx-note),
+ #tab-talangan .talangan-columns :where(.tal-name,.tal-period,.tal-date-source,.tal-note){
+  min-width:0;max-width:100%;
+ }
+ /* Filter laporan: setiap baris berada pada kolom yang konsisten. */
+ #tab-laporan :is(#report-kas-filter,#report-rt-filter,#report-arisan-filter,
+ #report-denda-filter,#report-talangan-filter,#report-pinjaman-filter,#report-tahunan-filter){
+  min-width:0;max-width:100%;box-sizing:border-box;column-gap:var(--book-gap);row-gap:var(--book-gap)
+ }
+ #tab-laporan :is(#report-rt-filter,#report-arisan-filter){
+  grid-template-columns:repeat(2,minmax(0,1fr))
+ }
+ #tab-laporan :is(#report-denda-filter,#report-talangan-filter){
+  grid-template-columns:repeat(3,minmax(0,1fr))
+ }
+ #tab-laporan :is(#report-rt-filter,#report-arisan-filter,#report-denda-filter,#report-talangan-filter)
+ >.f4-field-stack{min-width:0}
+ #tab-laporan .report-universal-filter{max-width:100%;min-width:0;box-sizing:border-box}
+ #tab-laporan .report-universal-filter .upr-range{max-width:100%;min-width:0}
  #tab-dashboard .f4-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--book-gap)}
  #tab-kas .kas-summary.f4-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--book-gap)}
  #tab-dashboard .f4-grid>.card,#tab-kas .kas-summary.f4-grid>div{min-width:0;max-width:100%}
@@ -127,6 +165,11 @@
 }
 @media screen and (max-width:767px){
  :root{--book-gap:10px;--book-tight:8px}
+ #tab-laporan :is(#report-denda-filter,#report-talangan-filter){grid-template-columns:repeat(2,minmax(0,1fr))}
+ #tab-laporan :is(#report-denda-filter,#report-talangan-filter)>.f4-field-stack:last-child:nth-child(odd){grid-column:1/-1}
+ #tab-transaksi .trx-layout :is(.trx-type,.trx-desc,.trx-note,.trx-status,.trx-save){min-width:0;max-width:100%}
+ #tab-talangan #form-talangan .talangan-left,
+ #tab-talangan #form-talangan .talangan-right{min-width:0}
  #tab-dashboard .f4-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
  #tab-dashboard .f4-grid>.card:last-child:nth-child(odd){grid-column:1/-1}
  #tab-kas .kas-summary.f4-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
