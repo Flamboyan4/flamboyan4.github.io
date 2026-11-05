@@ -60,7 +60,7 @@ assert(worker.includes('"/api/public/bank/weighing-schedule"')&&
        worker.includes('"/api/superadmin/bank/weighing-schedule"'));
 assert(superadmin.includes("['bank_weighing','Jadwal Timbang']")&&
        superadmin.includes("else if(kind==='bank_weighing')bankWeighingPage()"));
-assert(ui.includes('loadWeighingDay()')&&ui.includes('weighingWeekday-current.getUTCDay()'));
+assert(ui.includes('loadWeighingDay()')&&ui.includes('function weighingNextDate()')&&ui.includes('day-current.getUTCDay()')&&ui.includes('weighingRule.nextOccurrence'), 'Jadwal mingguan dan pola tambahan harus tetap menghitung penimbangan berikutnya');
 assert(ui.includes('function resetRoleSurface()')&&
        ui.includes('for(const id of ["f4BankAdminOperations","f4BankAdminShortcuts","f4BankAdminNext"])'));
 assert(ui.includes('function previousBankPage()')&&
