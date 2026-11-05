@@ -548,7 +548,7 @@ body:not(.f4-bank-app-admin) #dashboardView #pageProfile.f4-profile-card{
 #dashboardView .f4-bank-app-member-balance>small{grid-column:1;font-size:11px;color:#6a8473}
 #dashboardView .f4-bank-app-member-balance>strong{grid-column:1;font-size:22px;font-weight:850;line-height:1.15;font-variant-numeric:tabular-nums;color:#164e32}
 #dashboardView .f4-bank-member-chevron{grid-column:2;grid-row:1/span 2;align-self:center;font-size:27px;color:#17895b}
-#dashboardView #f4BankAppAdminHero{display:grid;gap:7px;padding:17px 18px;background:linear-gradient(135deg,#07955e,#13b979);color:#fff;border-radius:16px;box-shadow:0 8px 20px #07935a24}
+#dashboardView #f4BankAppAdminHero{display:grid;gap:7px;padding:17px 18px;background:linear-gradient(135deg,#07955e,#0b9d68);color:#fff;border-radius:16px;box-shadow:0 8px 20px #07935a24}
 #dashboardView #f4BankAppAdminHero>small{color:#d5f0de;font-size:10px;letter-spacing:.09em;font-weight:800}
 #dashboardView .f4-bank-app-balance-title{font-size:13px;font-weight:650;color:#e2f4e9}
 #dashboardView .f4-bank-app-balance{font-size:26px;font-weight:850;color:#fff;line-height:1.16;font-variant-numeric:tabular-nums}
@@ -1214,15 +1214,15 @@ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
  transition:transform .18s ease,color .18s ease
 }
 /* Warna per fungsi agar mudah dibedakan tanpa mengubah susunan navigasi. */
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(1){--bank-shortcut-accent:#08a96c;--bank-shortcut-tint:#e8f7ef}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(2){--bank-shortcut-accent:#327de0;--bank-shortcut-tint:#eaf1fb}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(3){--bank-shortcut-accent:#0b9fa3;--bank-shortcut-tint:#e7f5f5}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(4){--bank-shortcut-accent:#b67a00;--bank-shortcut-tint:#fff3dc}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(5){--bank-shortcut-accent:#805bd1;--bank-shortcut-tint:#f0ecfa}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(6){--bank-shortcut-accent:#248fc4;--bank-shortcut-tint:#e7f3fa}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(7){--bank-shortcut-accent:#cf7137;--bank-shortcut-tint:#fceee4}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(8){--bank-shortcut-accent:#6a9624;--bank-shortcut-tint:#f0f5dc}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(9){--bank-shortcut-accent:#696ac4;--bank-shortcut-tint:#eeedfa}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(1){--bank-shortcut-accent:#08a96c}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(2){--bank-shortcut-accent:#327de0}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(3){--bank-shortcut-accent:#0b9fa3}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(4){--bank-shortcut-accent:#b67a00}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(5){--bank-shortcut-accent:#805bd1}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(6){--bank-shortcut-accent:#248fc4}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(7){--bank-shortcut-accent:#cf7137}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(8){--bank-shortcut-accent:#6a9624}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(9){--bank-shortcut-accent:#696ac4}
 .f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:hover{
  color:var(--bank-shortcut-accent,#087b54);transform:translateY(-2px)
 }
