@@ -10,7 +10,7 @@ const src=(start,end)=>{const a=html.indexOf(start),b=html.indexOf(end,a);
  assert(a>=0&&b>a,'Missing code: '+start);return html.slice(a,b)};
 const tags=[...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).filter(Boolean);
 for(const code of tags)new vm.Script(code);
-assert(html.includes('bookkeeping-simple.css?v=20261105-simplified-v1'));
+assert(html.includes('bookkeeping-simple.css?v=20261105-simplified-v2'));
 const inputNav=src('id="group-nav-inputdata"','id="group-nav-dataacuan"');
 assert.deepEqual([...inputNav.matchAll(/data-book-input-section="([^"]+)"/g)].map(m=>m[1]),
  ['input','kas','lainnya']);
@@ -40,7 +40,7 @@ assert(!css.replace(/\/\*[\s\S]*?\*\//g,'').includes('!important'),
  'New CSS must not use !important');
 const legacyPriority=(html.match(/!important/g)||[]).length;
 assert(legacyPriority<=1943,'Old CSS priority rules must not grow beyond audited baseline');
-assert(html.includes('bookkeeping-grid.css?v=20261105-grid-v4'));
+assert(html.includes('bookkeeping-grid.css?v=20261105-grid-v5'));
 assert(html.includes('class="f4-book-iuran-grid desktop-compact-form"'));
 const iuranForm=src('<form id="form-iuran"','</form>');
 for(const cls of ['f4-book-warga','f4-book-date-method','f4-book-period',
