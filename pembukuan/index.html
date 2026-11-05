@@ -2140,7 +2140,7 @@ main > section.card{overflow:visible!important}
 
     <div id="tab-talangan" class="tab-panel hidden p-4 sm:p-5">
       <div class="max-w-6xl mx-auto">
-        <div class="mb-5"><h2 class="font-black text-xl text-violet-950">Talangan Iuran Warga</h2><p class="text-sm text-slate-500 mt-1">Kas menalangi Iuran Bulanan + Kebersihan. Talangan ditahan dari pembukuan selama 14 hari setelah tanggal setor RT. Jika warga membayar sebelum batas itu, talangan selesai tanpa muncul sebagai pengeluaran kas.</p></div>
+        <div class="mb-5"><p class="text-sm text-slate-500">Talangan Iuran Bulanan dan Kebersihan ditahan selama 14 hari setelah setoran RT. Jika dibayar sebelum batas, tidak dibukukan sebagai pengeluaran kas.</p></div>
         <form id="form-talangan" onsubmit="simpanTalangan(event)" class="talangan-columns">
           <div class="talangan-left">
             <div class="tal-name"><label class="text-sm font-bold">Nama Warga</label><select id="tal-warga" class="field mt-1" onchange="previewTalangan()"><option value="">Pilih warga...</option></select></div>
@@ -2159,7 +2159,7 @@ main > section.card{overflow:visible!important}
 
     <div id="tab-denda" class="tab-panel hidden p-4 sm:p-5">
       <div class="max-w-6xl mx-auto">
-        <div class="mb-5"><h2 class="font-black text-xl text-violet-950">Denda Gorol</h2><p class="text-sm text-slate-500 mt-1">Catat warga yang terkena denda kerja bakti/gorol. Pembayaran denda otomatis masuk sebagai pemasukan Kas Warga.</p></div>
+        <div class="mb-5"><p class="text-sm text-slate-500">Catat atau terima pembayaran denda gorol. Pembayaran masuk sebagai pemasukan Kas Warga.</p></div>
         <div class="mode-switch grid grid-cols-2 gap-2 mb-5">
           <button id="btn-denda-catat" onclick="setModeDenda('catat')" class="denda-mode-btn active rounded-xl border border-violet-200 bg-violet-600 text-white font-black py-3">Buat</button>
           <button id="btn-denda-bayar" onclick="setModeDenda('bayar')" class="denda-mode-btn rounded-xl border border-violet-100 bg-white text-slate-600 font-black py-3">Bayar</button>
@@ -2253,7 +2253,7 @@ main > section.card{overflow:visible!important}
               <button id="report-mode-pinjaman" onclick="setModeLaporan('pinjaman')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Pinjaman</button>
               <button id="report-mode-tahunan" onclick="setModeLaporan('tahunan')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Tutup Buku & Arsip</button>
             </div></div>
-            <div><h2 class="font-black text-xl text-violet-950">Laporan & Rekap</h2><p class="text-sm text-slate-500 mt-1">Rekap pembukuan dan laporan tahunan.</p></div>
+            <div><p class="text-sm text-slate-500">Pilih jenis laporan dan periode untuk melihat rekap.</p></div>
           </div>
           <div class="mt-4 space-y-3">
             <div id="report-kas-filter" class="space-y-3">
@@ -3874,7 +3874,7 @@ function pilihMenu(n){document.querySelectorAll('.custom-select-wrap.open').forE
     talangan:['Talangan Iuran','Kelola talangan Iuran Bulanan + Kebersihan warga.'],
     denda:['Denda',''],
     laporan:['Laporan & Rekap',''],
-    riwayat:['Riwayat & Histori',''],
+    riwayat:['Riwayat Transaksi',''],
     dashboard:['Ringkasan Data','Ringkasan master hunian dan tarif sebagai data acuan.'],
     rumah:['Data Rumah','Data unit rumah sebagai acuan administrasi.'],
     warga:['Data Warga','Data warga aktif dan kondisi iurannya.'],
