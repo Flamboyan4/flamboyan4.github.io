@@ -4397,14 +4397,6 @@ async function hapusPinjamanPermanen(id){const x=(DATA_PINJAMAN.rows||[]).find(v
 
 @media screen and (max-width:767px){
   /* Filter Riwayat Iuran: tulisan dropdown sama jelasnya dengan field lain. */
-  .history-period-box .custom-select-btn,
-  .history-iuran-search .custom-select-btn{
-    font-size:16px!important;
-    line-height:1.25!important;
-    font-weight:500!important;
-    min-height:48px!important;
-    padding:11px 12px!important;
-  }
   .history-period-box .cs-option,
   .history-iuran-search .cs-option{
     font-size:16px!important;
@@ -4414,7 +4406,7 @@ async function hapusPinjamanPermanen(id){const x=(DATA_PINJAMAN.rows||[]).find(v
   }
   .history-range-box.hidden{display:none!important}
   .history-range-box>.custom-select-wrap{width:100%!important;min-width:0!important}
-  .history-iuran-search .custom-select-wrap{width:100%!important}
+  .history-iuran-search .custom-select-wrap{width:100%}
 
   /* Aksi rata tengah dan tabel HP tetap hemat scroll. */
   #tab-riwayat th:last-child,#tab-riwayat td:last-child{text-align:center!important}
@@ -4648,14 +4640,6 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
 <style id="v6223-report-talangan-history-filter-fix">
 /* v6.22.3 — visual polish */
 @media screen and (max-width:767px){
-  #history-iuran-panel .history-iuran-search input,
-  #history-iuran-panel .history-iuran-search select,
-  #history-iuran-panel .history-iuran-search .custom-select-btn{
-    min-height:50px!important;
-    height:50px!important;
-    font-size:16px!important;
-    line-height:1.15!important;
-  }
   #history-iuran-panel .history-iuran-search .custom-select-panel .cs-option{
     font-size:15px!important;
     min-height:44px!important;
