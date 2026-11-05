@@ -15,6 +15,7 @@ on:
       - cloudflare/migrations/20261103_bank_v3_inventory_policy.sql
       - cloudflare/migrations/20261105_jersey_package_type.sql
       - cloudflare/migrations/20261105_jersey_back_fields.sql
+      - qa/verify-jersey-back-fields.cjs
       - qa/verify_bank_v3_migration.py
       - qa/verify-treasury-bank-approval.py
       - qa/verify-treasury-lifecycle.cjs
@@ -37,6 +38,7 @@ jobs:
       - name: Check Worker syntax and account policy
         run: |
           node --check cloudflare/worker-terpadu-operasional-teruji.js
+          node qa/verify-jersey-back-fields.cjs
           node qa/verify-iuran-counts.cjs
           python3 qa/verify_bank_v3_migration.py
           node qa/account-profile-password.cjs
