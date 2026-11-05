@@ -1878,7 +1878,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
             'Ukuran':x.size,'Nama Punggung':back.name,'Nomor Punggung':back.number,
             'Status Pembayaran':x.payment_status,'Pembayaran':x.nominal_rp,
             'Keterangan':x.method,
-            'Paket':x.package_type==='atasan'?'Atasan saja':x.package_type==='set'?'Atasan + Bawahan':''
+            'Paket':x.package_type==='atasan'?'Atasan saja':x.package_type==='set'?'Atasan + Celana':''
           };
         };
         globalJerseyBapakData=(data.jerseyBapak||[]).map(makeRow);

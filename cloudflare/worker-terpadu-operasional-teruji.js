@@ -1164,7 +1164,7 @@ async function handleAdminContent(request, env, who, url) {
     return err("Kelompok Jersey harus bapak, ibu, atau anak.",400);
   if(kind==="jersey" && payload?.values?.package_type!==undefined &&
      !["atasan","set"].includes(String(payload.values.package_type)))
-    return err("Jenis pesanan Jersey harus Atasan saja atau Atasan + Bawahan.",400);
+    return err("Jenis pesanan Jersey harus Atasan saja atau Atasan + Celana.",400);
   const fields = Object.keys(model.fields), value = payload.values || {};
   if (!value || typeof value !== "object" || Array.isArray(value)) return err("Isian tidak valid.", 400);
   const extraneous = Object.keys(value).filter((k) => !fields.includes(k));

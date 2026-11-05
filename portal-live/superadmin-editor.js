@@ -78,7 +78,7 @@ function jerseyBackParts(row){
  return {name:old,number:''};
 }
 const jerseyRp=value=>'Rp '+(Number(value)||0).toLocaleString('id-ID');
-const jerseyPackageLabel=value=>value==='atasan'?'Atasan saja':value==='set'?'Atasan + Bawahan':'Belum ditentukan';
+const jerseyPackageLabel=value=>value==='atasan'?'Atasan saja':value==='set'?'Atasan + Celana':'Belum ditentukan';
 /* Summary for the existing Jersey data, shared by Superadmin and print.
    Only explicit [F4BAYAR] amounts can be assigned to a payment channel.
    Historical status-derived amounts remain unclassified by payment method. */
@@ -681,7 +681,7 @@ function printJerseyReport(includeFunds=null){
  (includeFunds?'<div class="summary"><div class="box">Jumlah Pemesan<strong>'+allOrders+' orang</strong></div>'+
  '<div class="box">Nilai Seluruh Pesanan<strong>'+money(allTotal)+'</strong></div>'+
  '<div class="box">Dana Terkumpul<strong>'+money(allReceived)+'</strong></div>'+
- '<div class="box">Sisa Kekurangan<strong>'+money(allOutstanding)+'</strong></div></div><p class="meta"><strong>Titipan sementara: '+money(allTitipan)+'</strong> — sudah termasuk uang diterima, belum dihitung sebagai pesanan bawahan</p>':
+ '<div class="box">Sisa Kekurangan<strong>'+money(allOutstanding)+'</strong></div></div><p class="meta"><strong>Titipan sementara: '+money(allTitipan)+'</strong> — sudah termasuk uang diterima, belum dihitung sebagai pesanan celana</p>':
  '<p class="meta">Total pemesan: <strong>'+allOrders+' orang</strong></p>')+
  (includeFunds?
   '<div class="f4-jersey-finance-compact">'+
@@ -903,7 +903,7 @@ function showForm(record){
   }
   else if(active==='jersey'&&key==='package_type'){
    input=node('select');
-   input.append(new Option('Pilih jenis pesanan',''),new Option('Atasan saja','atasan'),new Option('Atasan + Bawahan','set'));
+   input.append(new Option('Pilih jenis pesanan',''),new Option('Atasan saja','atasan'),new Option('Atasan + Celana','set'));
   }
   else if(active==='projects'&&key==='project_kind'){
    input=node('select');
