@@ -136,4 +136,25 @@ assert(side.dataacuan.classList.contains('active'),'Import goes to Data Acuan');
 assert.equal(admin.attributes.open,'','Admin tool must be expanded for import');
 context.pilihMenu('warga');
 assert(buttons.warga.classList.contains('active'),'Warga list still reachable');
+// Startup performance: avoid fetching large, hidden ledgers on the first screen.
+const boot=src('async function muatUlang(){','function renderSemua(){');
+assert(boot.includes("action:'bootstrap'"),'Startup must still load residents and tariff data');
+assert(!boot.includes('setTimeout(()=>loadRiwayat(true)'),'History should not prefetch at startup');
+assert(!boot.includes('setTimeout(()=>loadKekuranganKas(true)'),'Shortage should not prefetch at startup');
+assert(boot.includes("if(!document.getElementById('tab-riwayat')?.classList.contains('hidden'))"),
+ 'Manual refresh on history must still refresh it');
+const nav=src('function pilihMenu(n){','function pilihRiwayat(type){');
+assert(nav.includes("if(n==='riwayat')pilihRiwayat('iuran')"),
+ 'Navigation to history must issue only one history request');
+assert(!nav.includes("loadRiwayat(true);pilihRiwayat('iuran')"),
+ 'History nav should not fetch twice');
+assert(html.includes("shortage?.addEventListener('toggle'"),'Shortage data must load on expansion');
+assert(html.includes("F4_KURANG_KAS_PENDING=loadKekuranganKas(true)"),
+ 'Shortage fetch must be on demand with in-flight deduplication');
+assert(html.includes('Buka untuk memeriksa kekurangan.'),'Shortage initial state must not imply loaded totals');
+assert(html.includes('id="kurang-kas-total" class="font-black text-amber-700">—</div>'),
+ 'Unfetched financial totals must not be reported as zero');
+assert(html.includes('rel="preconnect" href="https://api.flamboyan4.web.id"'),
+ 'API preconnect should be declared in head');
+
 console.log('F4_BOOKKEEPING_SIMPLIFIED_UI_OK');
