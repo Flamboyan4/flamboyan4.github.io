@@ -116,7 +116,13 @@
  #tab-riwayat #history-iuran-panel .history-iuran-filter{grid-template-columns:1fr}
  #tab-riwayat #iuran-quick-summary .iuran-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  #tab-input #form-iuran.f4-book-iuran-grid{grid-template-columns:1fr}
- #tab-input #form-iuran.f4-book-iuran-grid>*{grid-column:1/-1;grid-row:auto}
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(1),
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(2),
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(3),
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(4),
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(5),
+ #tab-input #form-iuran.f4-book-iuran-grid>#save-status,
+ #tab-input #form-iuran.f4-book-iuran-grid>#btn-simpan{grid-column:1/-1;grid-row:auto}
  #tab-input #form-iuran.f4-book-iuran-grid #preview-detail>.grid{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
 @media screen and (max-width:767px){
@@ -125,7 +131,13 @@
  #tab-dashboard .f4-grid>.card:last-child:nth-child(odd){grid-column:1/-1}
  #tab-kas .kas-summary.f4-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
  #tab-input #form-iuran.f4-book-iuran-grid{grid-template-columns:1fr;gap:12px}
- #tab-input #form-iuran.f4-book-iuran-grid>*{grid-column:1/-1;grid-row:auto}
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(1),
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(2),
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(3),
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(4),
+ #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(5),
+ #tab-input #form-iuran.f4-book-iuran-grid>#save-status,
+ #tab-input #form-iuran.f4-book-iuran-grid>#btn-simpan{grid-column:1/-1;grid-row:auto}
  #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(2){grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
  #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(3){grid-template-columns:minmax(0,1.15fr) minmax(0,.78fr) minmax(0,1fr);gap:6px}
  #tab-input #form-iuran.f4-book-iuran-grid>div:nth-child(5){grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
