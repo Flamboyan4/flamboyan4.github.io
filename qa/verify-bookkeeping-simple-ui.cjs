@@ -5,6 +5,7 @@ const vm=require('node:vm');
 const assert=require('node:assert/strict');
 const html=fs.readFileSync('pembukuan/index.html','utf8');
 const css=fs.readFileSync('portal-live/bookkeeping-simple.css','utf8');
+const grid=fs.readFileSync('portal-live/bookkeeping-grid.css','utf8');
 const src=(start,end)=>{const a=html.indexOf(start),b=html.indexOf(end,a);
  assert(a>=0&&b>a,'Missing code: '+start);return html.slice(a,b)};
 const tags=[...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).filter(Boolean);
@@ -38,7 +39,25 @@ assert(css.includes('#group-nav-inputdata.f4-book-tab-shell.hidden{display:none}
 assert(!css.replace(/\/\*[\s\S]*?\*\//g,'').includes('!important'),
  'New CSS must not use !important');
 const legacyPriority=(html.match(/!important/g)||[]).length;
-assert(legacyPriority<=2123,'Old CSS priority rules must not increase');
+assert(legacyPriority<=2014,'Old CSS priority rules must not grow beyond audited baseline');
+assert(html.includes('bookkeeping-grid.css?v=20261105-grid-v1'));
+assert(html.includes('class="f4-book-iuran-grid desktop-compact-form"'));
+assert(!html.includes('#tab-input #form-iuran{display:flex!important'));
+assert(!grid.includes('!important'),'Grid owner must use ordinary scoped selectors');
+for(const mod of ['#tab-input','#tab-transaksi','#tab-kas','#tab-talangan','#tab-denda',
+ '#tab-pinjaman','#tab-riwayat','#tab-laporan','#tab-dashboard','#tab-rumah','#tab-warga'])
+ assert(grid.includes(mod),'Missing grid coverage: '+mod);
+assert(grid.includes('@media screen and (max-width:767px)'));
+assert(grid.includes('#tab-riwayat #history-iuran-panel .history-iuran-filter'));
+assert(grid.includes('#tab-riwayat #iuran-quick-summary .iuran-quick-grid'));
+assert(html.includes('const extra=[...(titleCell?.querySelectorAll'));
+assert(html.includes('p.textContent=f4IuranPeriodDisplay(d.labelPeriode'));
+assert(html.includes('function printLaporan()'));
+const periodCode=src('function f4IuranPeriodDisplay(label){','let IURAN_QUICK_DATA=');
+const periodLabel=vm.runInNewContext(periodCode+
+ ';f4IuranPeriodDisplay("2026-11 s.d. 2026-11")',{Date,Intl});
+assert.equal(periodLabel,'November 2026');
+
 
 // Navigate using the actual menu controller, with inert DOM and financial callbacks.
 function element(){const classes=new Set();return {
