@@ -1,0 +1,42 @@
+/* Pembukuan Flamboyan 4 — navigasi dan form operasional ringkas.
+   Satu pemilik gaya untuk komponen f4-book-*, tanpa !important. */
+#group-nav-inputdata.f4-book-tab-shell{display:grid;gap:10px}
+.f4-book-sections,.f4-book-subnav{display:flex;align-items:center;gap:7px;min-width:0;flex-wrap:wrap}
+.f4-book-sections{border-bottom:1px solid #ede9fe;padding-bottom:10px}
+.f4-book-section-btn{appearance:none;border:1px solid #e5defc;border-radius:10px;padding:10px 16px;min-height:40px;background:#fff;color:#554b76;font:750 13px/1.25 system-ui;cursor:pointer}
+.f4-book-section-btn.active{background:#7c3aed;border-color:#7c3aed;color:#fff}
+.f4-book-section-btn:hover:not(.active){background:#f5f1ff}
+.f4-book-section-btn:focus-visible,.f4-book-subnav button:focus-visible,.f4-book-admin-tools summary:focus-visible,.f4-book-shortage summary:focus-visible{outline:2px solid #7c3aed;outline-offset:2px}
+.f4-book-subnav button{appearance:none;min-height:35px;padding:7px 12px;border:1px solid #e7e0f6;border-radius:9px;background:#fff;color:#5e527b;font:700 12px/1.25 system-ui;cursor:pointer}
+.f4-book-subnav button.active{background:#ede9fe;color:#6226c8;border-color:#d7c9fa}
+#group-nav-dataacuan .tabs-scroll{align-items:center}
+.f4-book-admin-tools{margin-top:8px;display:inline-block;color:#685b83;font-size:12px}
+.f4-book-admin-tools summary{cursor:pointer;font-weight:700;padding:5px 0}
+.f4-book-admin-tools[open] .f4-book-admin-link{display:block;margin-top:6px}
+.f4-book-admin-link{border-radius:9px;border:1px solid #ded3f8;padding:7px 11px;background:#fff;color:#5f35a7;font:700 12px/1.3 system-ui;cursor:pointer}
+.f4-book-filter-picker{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.f4-book-filter-picker label{font-size:13px;font-weight:750;color:#302454}
+.f4-book-filter-picker select{flex:0 1 320px;min-width:200px;max-width:100%;height:42px}
+.f4-book-legacy-controls{display:none}
+#tab-input .f4-book-period-controls{align-items:start}
+#tab-input .f4-book-period-controls .f4-book-period-title{grid-column:1/-1;display:block;font-size:13px;font-weight:800;color:#37265d;line-height:1.3}
+#tab-input .f4-iuran-preview:has(#preview-detail.hidden){align-self:start;min-height:0}
+#tab-input .f4-iuran-preview .f4-preview-auto{float:right;color:#766893;font:600 11px/1.4 system-ui}
+#tab-input .f4-book-shortage>summary{cursor:pointer;list-style:none;align-items:center}
+#tab-input .f4-book-shortage>summary::-webkit-details-marker{display:none}
+#tab-input .f4-book-shortage>summary::after{content:"⌄";font-size:20px;color:#885d20;margin-left:6px}
+#tab-input .f4-book-shortage[open]>summary::after{transform:rotate(180deg)}
+#tab-input .f4-book-shortage[open] form{margin-top:15px}
+@media(max-width:767px){
+ .f4-book-sections{flex-wrap:nowrap}
+ .f4-book-section-btn{flex:1;min-width:0;padding:10px 6px;font-size:12px}
+ .f4-book-subnav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+ .f4-book-subnav button{flex:none}
+ .f4-book-filter-picker{display:block}
+ .f4-book-filter-picker label{display:block;margin-bottom:5px}
+ .f4-book-filter-picker select{width:100%;max-width:100%}
+ #tab-input .f4-book-shortage>summary{gap:6px}
+}
+@media print{
+ #group-nav-inputdata.f4-book-tab-shell,.f4-book-filter-picker,.f4-book-admin-tools,.f4-book-shortage{display:none}
+}
