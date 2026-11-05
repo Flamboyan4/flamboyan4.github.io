@@ -5,6 +5,7 @@ on:
     paths:
       - pembukuan/index.html
       - portal-live/bookkeeping-simple.css
+      - portal-live/bookkeeping-grid.css
       - qa/verify-bookkeeping-simple-ui.cjs
       - qa/verify-iuran-counts.cjs
       - .github/workflows/f4-bookkeeping-ui-guard.yml
@@ -12,6 +13,7 @@ on:
     paths:
       - pembukuan/index.html
       - portal-live/bookkeeping-simple.css
+      - portal-live/bookkeeping-grid.css
       - qa/verify-bookkeeping-simple-ui.cjs
       - qa/verify-iuran-counts.cjs
       - .github/workflows/f4-bookkeeping-ui-guard.yml
