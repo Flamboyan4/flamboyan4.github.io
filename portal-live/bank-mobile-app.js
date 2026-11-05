@@ -897,7 +897,10 @@ async function loadManagerRequests(){
  const host=$("f4BankManagerRequestList");if(!host)return;host.textContent="Memuat pengajuan...";
  try{
   const response=await api("/api/admin/bank/payout-requests");host.replaceChildren();
-  for(const item of response.items){
+  const items=alertRows(response);
+  adminAlerts.payout=items.filter(x=>["diajukan","disetujui"].includes(x.status)).length;
+  paintAdminAlerts();
+  for(const item of items){
    const card=el("article","f4-bank-manager-request");
    const top=el("div","f4-bank-manager-request-head");
    top.append(el("strong","",item.nama+" • "+(item.rumah||"—")),el("span","f4-bank-request-state is-"+item.status,item.status));
@@ -959,6 +962,98 @@ function moveFeature(ids,target){
   const node=$(id);if(!node?.parentNode)continue;
   const anchor=document.createComment("Restore "+id);node.before(anchor);
   moved.push({node,anchor});target.append(node);
+ }
+}
+/* Badge tugas pengurus: stok belum dijual dan pencairan aktif.
+   API ringkas D1 lebih diutamakan; fallback menjaga kompatibilitas selama Worker diperbarui. */
+const adminAlerts={unsold:null,payout:null};
+let adminAlertBusy=false,adminAlertFetched=0,adminAlertGeneration=0,adminAlertRefreshAgain=false;
+const alertRows=result=>Array.isArray(result?.data)?result.data:Array.isArray(result?.items)?result.items:[];
+function paintAdminAlerts(){
+ if(role!=="admin"||roleType()!=="admin")return;
+ for(const [route,count,unit] of [
+  ["penjualan",adminAlerts.unsold,"setoran atau stok menunggu penjualan"],
+  ["bank-payout-admin",adminAlerts.payout,"pengajuan pencairan belum selesai"]
+ ]){
+  for(const button of document.querySelectorAll('[data-bank-app-route="'+route+'"]')){
+   if(button.tagName!=="BUTTON")continue;
+   let badge=button.querySelector(":scope > .f4-bank-alert-badge");
+   if(!button.dataset.f4AlertBaseLabel){
+    button.dataset.f4AlertBaseLabel=button.getAttribute("aria-label")||
+     button.querySelector(".f4-bank-admin-operation-copy strong")?.textContent||
+     button.querySelector("span:last-child")?.textContent||"Menu";
+   }
+   if(!Number.isFinite(count)||count<=0){
+    badge?.remove();button.setAttribute("aria-label",button.dataset.f4AlertBaseLabel);
+    continue;
+   }
+   if(!badge){
+    badge=el("span","f4-bank-alert-badge");
+    badge.setAttribute("aria-hidden","true");
+    button.prepend(badge);
+   }
+   badge.textContent=count>99?"99+":String(count);
+   badge.title=count+" "+unit;
+   button.setAttribute("aria-label",button.dataset.f4AlertBaseLabel+" — "+count+" "+unit);
+  }
+ }
+}
+function resetAdminAlerts(){
+ adminAlertGeneration++;adminAlertBusy=false;adminAlertRefreshAgain=false;adminAlertFetched=0;
+ adminAlerts.unsold=null;adminAlerts.payout=null;
+ document.querySelectorAll(".f4-bank-alert-badge").forEach(b=>b.remove());
+ for(const button of document.querySelectorAll("[data-f4-alert-base-label]")){
+  button.setAttribute("aria-label",button.dataset.f4AlertBaseLabel);
+  delete button.dataset.f4AlertBaseLabel;
+ }
+}
+async function fallbackAdminAlerts(){
+ const [deposits,sales,stock,requests]=await Promise.all([
+  api("/api/v2/admin/bank/deposits?limit=300"),
+  api("/api/v2/admin/bank/sales?limit=300"),
+  api("/api/v2/admin/bank/own-deposits"),
+  api("/api/admin/bank/payout-requests")
+ ]);
+ const sold=new Set(alertRows(sales).filter(x=>String(x.status).toLowerCase()!=="dibatalkan")
+  .map(x=>String(x.batch_id||"")).filter(Boolean));
+ const member=alertRows(deposits).filter(x=>
+  String(x.status).toLowerCase()==="estimasi"&&!sold.has(String(x.batch_id||""))).length;
+ const bank=alertRows(stock).filter(x=>
+  x.status==="stok_belum_terjual"&&Number(x.sisaGram||0)>0).length;
+ const payout=alertRows(requests).filter(x=>["diajukan","disetujui"].includes(x.status)).length;
+ return {unsoldDeposits:member+bank,pendingPayouts:payout};
+}
+async function refreshAdminAlerts(force=false){
+ if(role!=="admin"||roleType()!=="admin"||document.hidden||
+    $("dashboardView")?.classList.contains("hidden"))return;
+ if(adminAlertBusy){if(force)adminAlertRefreshAgain=true;return;}
+ if(!force&&Date.now()-adminAlertFetched<45000){paintAdminAlerts();return;}
+ const generation=adminAlertGeneration;
+ adminAlertBusy=true;adminAlertFetched=Date.now();
+ try{
+  let result;
+  try{result=await api("/api/admin/bank/action-counts");}
+  catch(error){
+   // Saat endpoint baru belum terpasang, baca endpoint operasional yang sudah ada.
+   if(/401|403|akses ditolak|sesi/i.test(String(error.message)))throw error;
+   result=await fallbackAdminAlerts();
+  }
+  if(generation!==adminAlertGeneration||role!=="admin"||roleType()!=="admin")return;
+  adminAlerts.unsold=Number(result.unsoldDeposits)||0;
+  adminAlerts.payout=Number(result.pendingPayouts)||0;
+  paintAdminAlerts();
+ }catch(error){
+  if(generation===adminAlertGeneration){
+   adminAlertFetched=0;
+   console.warn("Notifikasi pengurus belum dapat diperbarui:",error.message);
+  }
+ }finally{
+  if(generation===adminAlertGeneration){
+   adminAlertBusy=false;
+   if(adminAlertRefreshAgain){
+    adminAlertRefreshAgain=false;refreshAdminAlerts(true);
+   }
+  }
  }
 }
 /* Pengurus: Akses Cepat tetap di beranda HP; PC menggunakan rute yang sama pada sidebar. */
@@ -1071,6 +1166,8 @@ function ensureAdminHome(){
   shortcuts.append(grid);
   $("f4BankAdminOperations")?.after(shortcuts);
  }
+ paintAdminAlerts();
+ refreshAdminAlerts();
 }
 function showAdminProgress(){
  const page=ensureScreen("bank-admin-progress","Perkembangan Bank Sampah");
@@ -1725,7 +1822,7 @@ function handleRoute(route,old,args){
  if(route==="dashboard"&&role==="member"){
   const link=$("v14AllDeposits");if(link){link.textContent="Lihat semua";link.onclick=()=>navigate("bank-history");}
  }
- if(route==="dashboard"&&role==="admin")ensureAdminHome();
+ if(route==="dashboard"&&role==="admin"){ensureAdminHome();refreshAdminAlerts(true);}
  if(route==="laporan"&&role==="admin")ensureAdminReportLink();
  if(route==="setoran"&&role==="admin")ensureOwnDepositForm();
  screen=route;markDock();
@@ -1735,6 +1832,7 @@ function handleRoute(route,old,args){
  return result;
 }
 function resetRoleSurface(){
+ resetAdminAlerts();
  routeHistory.length=0;returningFromBack=false;screen="dashboard";
  // Rebuild the role-specific home from source nodes, never from cached cards.
  // The old member/account must not inherit operations or cached balance widgets.
@@ -1971,6 +2069,10 @@ function init(){
  };
  window.addEventListener("f4-bank-member-statement",acceptMemberStatement);
  window.addEventListener("f4-bank-admin-overview",updateAdminOverview);
+ window.addEventListener("f4-bank-data-changed",()=>refreshAdminAlerts(true));
+ window.addEventListener("focus",()=>refreshAdminAlerts());
+ document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshAdminAlerts();});
+ setInterval(()=>{if(!document.hidden)refreshAdminAlerts();},45000);
  const original=window.goPage;
  if(typeof original==="function")window.goPage=function(route,...args){return handleRoute(route,original,args);};
  const view=$("dashboardView");
