@@ -1934,8 +1934,8 @@ main > section.card{overflow:visible!important}
 
         <details id="kekurangan-kas-card" class="f4-book-shortage mt-5 rounded-2xl border border-amber-200 bg-amber-50/40 p-4 sm:p-5">
           <summary class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
-            <div><h3 class="font-black text-violet-950">Pelunasan Kekurangan Kas Lorong</h3><p id="kurang-kas-state" class="text-xs text-slate-500 mt-1">Memeriksa kekurangan…</p></div>
-            <div class="text-right"><div class="text-[10px] font-bold text-slate-400">TOTAL KEKURANGAN</div><div id="kurang-kas-total" class="font-black text-amber-700">Rp 0</div></div>
+            <div><h3 class="font-black text-violet-950">Pelunasan Kekurangan Kas Lorong</h3><p id="kurang-kas-state" class="text-xs text-slate-500 mt-1">Buka untuk memeriksa kekurangan.</p></div>
+            <div class="text-right"><div class="text-[10px] font-bold text-slate-400">TOTAL KEKURANGAN</div><div id="kurang-kas-total" class="font-black text-amber-700">—</div></div>
           </summary>
           <form id="form-kekurangan-kas" onsubmit="bayarKekuranganKas(event)" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
             <div class="sm:col-span-2 lg:col-span-4"><label class="text-sm font-bold">Warga / Periode</label><select id="kurang-kas-id" class="field mt-1" onchange="previewKekuranganKas()"><option value="">Pilih kekurangan...</option></select></div>
@@ -2583,7 +2583,12 @@ function jsonp(_url,params={}) {
 }
 function status(t,type='info'){const e=document.getElementById('status-box');if(type==='success'&&/^Data berhasil dimuat\.?$/i.test(t)){F4Loading.success(e);return}if(type==='info'&&/^Memuat /i.test(t)){F4Loading.begin(e,t);return}if(type==='error'&&e.dataset.f4State==='loading')F4Loading.error(e,t);e.dataset.f4State='notice';e.className='mb-5 rounded-xl border px-4 py-3 text-sm';if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');else if(type==='success')e.classList.add('bg-violet-50','border-violet-200','text-violet-700');else e.classList.add('bg-slate-50','border-slate-200','text-slate-600');e.textContent=t;e.hidden=false;e.classList.remove('hidden')}
 function hideStatus(){document.getElementById('status-box').classList.add('hidden')}
-async function muatUlang(){status('Memuat data...');try{const r=await jsonp(APPS_SCRIPT_URL,{action:'bootstrap',t:Date.now()});if(r.status!=='success')throw new Error(r.message||'Gagal');DATA.config=r.config||{};document.getElementById('backend-version').textContent=r.version?('Backend '+r.version):'Backend lama';DATA.rumah=r.rumah||[];DATA.warga=r.warga||[];renderSemua();const kk=document.getElementById('kurang-kas-tanggal');if(kk&&!kk.value)kk.value=new Date().toISOString().slice(0,10);status('Data berhasil dimuat.','success');setTimeout(()=>loadRiwayat(true).catch(()=>{}),100);setTimeout(()=>loadKekuranganKas(true).catch(()=>{}),350)}catch(e){status(e.message,'error')}}
+async function muatUlang(){status('Memuat data...');try{const r=await jsonp(APPS_SCRIPT_URL,{action:'bootstrap',t:Date.now()});if(r.status!=='success')throw new Error(r.message||'Gagal');DATA.config=r.config||{};document.getElementById('backend-version').textContent=r.version?('Backend '+r.version):'Backend lama';DATA.rumah=r.rumah||[];DATA.warga=r.warga||[];renderSemua();const kk=document.getElementById('kurang-kas-tanggal');if(kk&&!kk.value)kk.value=new Date().toISOString().slice(0,10);status('Data berhasil dimuat.','success');
+  // Buka Input Iuran tanpa menarik riwayat/utang yang belum diperlukan.
+  // Perbarui modul aktif saja jika pengguna menekan Muat Ulang dari modul tersebut.
+  if(!document.getElementById('tab-riwayat')?.classList.contains('hidden'))loadRiwayat(true).catch(()=>{});
+  if(document.getElementById('kekurangan-kas-card')?.open)loadKekuranganKas(true).catch(()=>{});
+}catch(e){status(e.message,'error')}}
 function renderSemua(){const total=DATA.rumah.length,dihuni=DATA.rumah.filter(x=>(x.statusRumah||'').toLowerCase()==='dihuni').length,kosong=DATA.rumah.filter(x=>(x.statusRumah||'').toLowerCase()==='kosong').length,aktif=DATA.warga.filter(x=>['ya','aktif'].includes((x.statusAktif||'').toLowerCase())).length,kontrak=DATA.warga.filter(x=>['ya','aktif'].includes((x.statusAktif||'').toLowerCase())&&(x.statusTinggal||'').toLowerCase()==='kontrak').length;document.getElementById('sum-unit').textContent=total;document.getElementById('sum-dihuni').textContent=dihuni;document.getElementById('sum-kosong').textContent=kosong;document.getElementById('sum-warga').textContent=aktif;document.getElementById('sum-kontrak').textContent=kontrak;document.getElementById('ringkasan-hunian').innerHTML=`<div class="flex justify-between py-2 border-b border-violet-50"><span>Total unit terdata</span><b>${total}</b></div><div class="flex justify-between py-2 border-b border-violet-50"><span>Dihuni</span><b class="text-violet-700">${dihuni}</b></div><div class="flex justify-between py-2 border-b border-violet-50"><span>Kosong</span><b class="text-amber-600">${kosong}</b></div><div class="flex justify-between py-2"><span>Kontrak aktif</span><b class="text-fuchsia-700">${kontrak}</b></div>`;document.getElementById('ringkasan-tarif').innerHTML=`<div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">IURAN BULANAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_BULANAN)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">KEBERSIHAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_KEBERSIHAN)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">KAS LORONG</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_KAS_LORONG)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">ARISAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_ARISAN)}</div></div>`;renderRumah();renderWarga();renderConfig();isiForm();lucide.createIcons();initPinjamanUi();}
 function isiForm(){const sel=document.getElementById('inp-warga');const old=sel.value;sel.innerHTML='<option value="">Pilih warga...</option>'+DATA.warga.filter(w=>['ya','aktif'].includes((w.statusAktif||'').toLowerCase())&&[w.qtyIuranBulanan,w.qtyKebersihan,w.qtyKasLorong,w.qtyArisan].some(n=>Number(n||0)>0)).map(w=>`<option value="${w.idWarga}">${w.nama} (${w.blok}/${w.noRumah})</option>`).join('');if(old)sel.value=old;const now=new Date();document.getElementById('inp-tanggal').value=now.toISOString().slice(0,10);document.getElementById('inp-tahun').value=now.getFullYear();document.getElementById('inp-bulan').innerHTML=BULAN.slice(1).map((b,i)=>`<option value="${i+1}">${b}</option>`).join('');document.getElementById('inp-bulan').value=now.getMonth()+1;pilihWargaIuran()}
 function periodeList(b,y,j){const a=[];let m=Number(b),yr=Number(y);for(let i=0;i<Number(j);i++){a.push(BULAN[m]+' '+yr);m++;if(m>12){m=1;yr++}}return a}
@@ -2750,8 +2755,28 @@ async function simpanIuran(ev){
 });
 
 let DATA_KEKURANGAN_KAS={rows:[],totalKekurangan:0,jumlah:0};
+let F4_KURANG_KAS_LOADED=false;
+let F4_KURANG_KAS_PENDING=null;
+function f4LoadKekuranganKasOnDemand(){
+  if(F4_KURANG_KAS_LOADED||F4_KURANG_KAS_PENDING)return;
+  const state=document.getElementById('kurang-kas-state');
+  if(state)state.textContent='Memeriksa kekurangan…';
+  F4_KURANG_KAS_PENDING=loadKekuranganKas(true)
+    .catch(e=>{
+      if(state)state.textContent='Gagal memuat. Tutup dan buka lagi untuk mencoba ulang.';
+      console.warn('Kekurangan Kas Lorong belum dapat dimuat:',e?.message||e);
+    })
+    .finally(()=>{F4_KURANG_KAS_PENDING=null});
+}
 async function loadKekuranganKas(silent=false){
-  try{const r=await jsonp(APPS_SCRIPT_URL,{action:'kekurangankas',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memuat kekurangan Kas Lorong.');DATA_KEKURANGAN_KAS=r.data||{rows:[],totalKekurangan:0,jumlah:0};renderKekuranganKasOptions();return DATA_KEKURANGAN_KAS}catch(e){if(!silent)kurangKasMsg(e.message||String(e),'error');throw e}
+  try{
+    const r=await jsonp(APPS_SCRIPT_URL,{action:'kekurangankas',t:Date.now()});
+    if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memuat kekurangan Kas Lorong.');
+    DATA_KEKURANGAN_KAS=r.data||{rows:[],totalKekurangan:0,jumlah:0};
+    F4_KURANG_KAS_LOADED=true;
+    renderKekuranganKasOptions();
+    return DATA_KEKURANGAN_KAS;
+  }catch(e){if(!silent)kurangKasMsg(e.message||String(e),'error');throw e}
 }
 function renderKekuranganKasOptions(){const sel=document.getElementById('kurang-kas-id'),total=document.getElementById('kurang-kas-total');if(total)total.textContent=rupiah(DATA_KEKURANGAN_KAS.totalKekurangan||0);if(!sel)return;const cur=sel.value,rows=DATA_KEKURANGAN_KAS.rows||[];
  const state=document.getElementById('kurang-kas-state');
@@ -3849,7 +3874,7 @@ function pilihMenu(n){document.querySelectorAll('.custom-select-wrap.open').forE
   document.getElementById('page-title').textContent=meta[n]?.[0]||'Pembukuan Flamboyan 4';
   document.getElementById('page-subtitle').textContent=meta[n]?.[1]||'';
   document.getElementById('page-heading')?.classList.remove('hidden');
-  if(n==='riwayat'){loadRiwayat(true);pilihRiwayat('iuran')}
+  if(n==='riwayat')pilihRiwayat('iuran')
   if(n==='transaksi')initTransaksiKasUi();
   if(n==='kas'){if(!KAS_LOADED)loadPembukuanKas();else renderPembukuanKas()}
   if(n==='pinjaman'){initPinjamanUi();loadPinjaman(true)}
@@ -3899,7 +3924,14 @@ function renderRumah(){const q=(document.getElementById('cari-rumah')?.value||''
 function renderWarga(){const q=(document.getElementById('cari-warga')?.value||'').toLowerCase();const a=DATA.warga.filter(r=>[r.nama,r.blok,r.noRumah,r.statusTinggal,r.keterangan].join(' ').toLowerCase().includes(q));document.getElementById('tbody-warga').innerHTML=a.map((r,i)=>`<tr class="hover:bg-violet-50/40"><td class="p-3 text-center text-slate-400">${i+1}</td><td class="p-3 font-bold">${r.nama||'-'}</td><td class="p-3">${r.blok}/${r.noRumah}</td><td class="p-3">${r.statusTinggal||'-'}</td><td class="p-3 text-center">${r.statusAktif||'-'}</td><td class="p-3 text-center font-bold">${r.qtyIuranBulanan||0}x</td><td class="p-3 text-center font-bold">${r.qtyKebersihan||0}x</td><td class="p-3 text-center font-bold">${r.qtyKasLorong||0}x</td><td class="p-3 text-center font-bold">${r.qtyArisan||0}x</td><td class="p-3 text-slate-500">${r.keterangan||'-'}</td></tr>`).join('')||'<tr><td colspan="10" class="p-5 text-center text-slate-400">Tidak ada data.</td></tr>'}
 function renderConfig(){const m={TARIF_BULANAN:'Tarif Iuran Bulanan',TARIF_KEBERSIHAN:'Tarif Kebersihan',TARIF_KAS_LORONG:'Tarif Kas Lorong',TARIF_ARISAN:'Tarif Arisan',TANGGAL_SETOR_RT:'Tanggal Setor RT',BATAS_PERIODE_KAS:'Batas Periode Kas'};document.getElementById('config-list').innerHTML=Object.entries(DATA.config).map(([k,v])=>`<div class="rounded-xl border border-violet-100 bg-white p-4"><div class="text-[11px] font-bold text-slate-400 uppercase">${m[k]||k}</div><div class="mt-1 font-black text-lg text-violet-950">${k.startsWith('TARIF_')?rupiah(v):v}</div></div>`).join('')}
 function gantiTab(n,b){pilihMenu(n)}
-document.addEventListener('DOMContentLoaded',()=>{lucide.createIcons();initKasUi();initTransaksiKasUi();initHistoryBatchFilters();initRiwayatPeriodFilter();pilihMenu('input');muatUlang()});
+document.addEventListener('DOMContentLoaded',()=>{
+  lucide.createIcons();
+  initKasUi();initTransaksiKasUi();initHistoryBatchFilters();initRiwayatPeriodFilter();
+  const shortage=document.getElementById('kekurangan-kas-card');
+  shortage?.addEventListener('toggle',()=>{if(shortage.open)f4LoadKekuranganKasOnDemand()});
+  pilihMenu('input');
+  muatUlang();
+});
 </script>
 
 <script>
