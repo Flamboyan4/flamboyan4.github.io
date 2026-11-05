@@ -1,0 +1,36 @@
+name: F4 Superadmin UI Guard
+on:
+  push:
+    branches: [main]
+    paths:
+      - superadmin/index.html
+      - portal-live/superadmin-editor.js
+      - portal-live/treasury-center.js
+      - portal-live/treasury-center.css
+      - qa/verify-superadmin-navigation.cjs
+      - .github/workflows/f4-superadmin-ui-guard.yml
+  pull_request:
+    paths:
+      - superadmin/index.html
+      - portal-live/superadmin-editor.js
+      - portal-live/treasury-center.js
+      - portal-live/treasury-center.css
+      - qa/verify-superadmin-navigation.cjs
+      - .github/workflows/f4-superadmin-ui-guard.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify Superadmin navigation and JavaScript syntax
+        run: |
+          node --check portal-live/treasury-center.js
+          node --check portal-live/superadmin-editor.js
+          node qa/verify-superadmin-navigation.cjs
