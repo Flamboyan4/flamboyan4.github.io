@@ -2937,6 +2937,24 @@ function iuranQuickPeriodLabel(){
   }catch(e){}
   return 'Periode aktif';
 }
+function f4IuranPeriodDisplay(label){
+ const raw=String(label||'').trim();
+ const parts=raw.split(/\s+s\.d\.\s+/i);
+ const parse=value=>{
+  const m=/^(20\d{2})-(0[1-9]|1[0-2])$/.exec(value);
+  if(!m)return null;
+  const year=Number(m[1]),month=Number(m[2]);
+  return {year,month,date:new Date(Date.UTC(year,month-1,1))};
+ };
+ const start=parse(parts[0]);
+ if(!start||parts.length>2)return raw;
+ const end=parts.length===2?parse(parts[1]):null;
+ if(parts.length===2&&!end)return raw;
+ const full=d=>new Intl.DateTimeFormat('id-ID',{month:'long',year:'numeric',timeZone:'UTC'}).format(d);
+ const short=d=>new Intl.DateTimeFormat('id-ID',{month:'short',year:'numeric',timeZone:'UTC'}).format(d);
+ if(!end||start.year===end.year&&start.month===end.month)return full(start.date);
+ return short(start.date)+' – '+short(end.date);
+}
 let IURAN_QUICK_DATA=null,IURAN_QUICK_REQ=0;
 function iqCountHtml(c){
   c=c||{};const l=Number(c.lunas||0),s=Number(c.sebagian||0),b=Number(c.belum||0);
@@ -2993,7 +3011,7 @@ function renderIuranQuickSummary(data){
     const t=d.totals,c=d.counts||{};const put=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=rupiah(v||0)};
     put('iq-total',t.totalMasuk);put('iq-rt',t.setoranRT);put('iq-kas',t.kasLorong);put('iq-arisan',t.arisan);put('iq-cash',t.cash);put('iq-qris',t.qris);put('iq-mandiri',t.mandiri);put('iq-selisih',t.selisih);
     ['total','rt','kas','arisan'].forEach(k=>{const e=document.getElementById('iq-count-'+k);if(e)e.innerHTML=iqCountHtml(c[k])});
-    const p=document.getElementById('iuran-quick-period');if(p)p.textContent=d.labelPeriode||iuranQuickPeriodLabel();
+    const p=document.getElementById('iuran-quick-period');if(p)p.textContent=f4IuranPeriodDisplay(d.labelPeriode||iuranQuickPeriodLabel());
     const sc=document.getElementById('iq-selisih-card');if(sc)sc.classList.toggle('has-diff',Math.abs(Number(t.selisih||0))>.5);
     try{lucide.createIcons()}catch(_e){}
     return;
@@ -3002,7 +3020,7 @@ function renderIuranQuickSummary(data){
   const active=(DATA.riwayat||[]).filter(x=>x.status==='AKTIF'&&matchRiwayatPeriod(x));
   const n=k=>active.reduce((s,x)=>s+(Number(x?.[k])||0),0),total=n('totalDiterima'),rt=n('totalSetoranRT'),kas=n('totalKasLorong'),arisan=n('totalArisan');let cash=0,qris=0,mandiri=0;
   active.forEach(x=>{const v=Number(x.totalDiterima)||0,m=String(x.metode||'').toLowerCase();if(m.includes('cash')||m.includes('tunai'))cash+=v;else if(m.includes('qris')||m==='qr'||m.includes('qr '))qris+=v;else if(m.includes('mandiri'))mandiri+=v});
-  const selisih=Math.round(total-rt-kas-arisan),put=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=rupiah(v)};put('iq-total',total);put('iq-rt',rt);put('iq-kas',kas);put('iq-arisan',arisan);put('iq-cash',cash);put('iq-qris',qris);put('iq-mandiri',mandiri);put('iq-selisih',selisih);const p=document.getElementById('iuran-quick-period');if(p)p.textContent=iuranQuickPeriodLabel();const sc=document.getElementById('iq-selisih-card');if(sc)sc.classList.toggle('has-diff',Math.abs(selisih)>.5);
+  const selisih=Math.round(total-rt-kas-arisan),put=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=rupiah(v)};put('iq-total',total);put('iq-rt',rt);put('iq-kas',kas);put('iq-arisan',arisan);put('iq-cash',cash);put('iq-qris',qris);put('iq-mandiri',mandiri);put('iq-selisih',selisih);const p=document.getElementById('iuran-quick-period');if(p)p.textContent=f4IuranPeriodDisplay(iuranQuickPeriodLabel());const sc=document.getElementById('iq-selisih-card');if(sc)sc.classList.toggle('has-diff',Math.abs(selisih)>.5);
 }
 async function loadIuranQuickSummary(){
   const req=++IURAN_QUICK_REQ;
@@ -5089,8 +5107,12 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
       const oldOpen=new Set([...cards.querySelectorAll('details[open]')].map(d=>d.dataset.rkey));
       const frag=document.createDocumentFragment();
       entries.forEach((tr,index)=>{
-        const cells=[...tr.cells];const first=txt(cells[main[0]]?.querySelector('.f4-visible-title')||cells[main[0]])||'-';
-        const side=main.slice(1).map(i=>txt(cells[i])).filter(Boolean).join(' • ');
+        const cells=[...tr.cells];
+        const titleCell=cells[main[0]];
+        const first=txt(titleCell?.querySelector('.f4-visible-title')||
+          titleCell?.querySelector(':scope > div:first-child')||titleCell)||'-';
+        const extra=[...(titleCell?.querySelectorAll(':scope > div:not(:first-child)')||[])].map(txt);
+        const side=[...extra,...main.slice(1).map(i=>txt(cells[i]))].filter(Boolean).join(' • ');
         const amount=secondary.map(i=>txt(cells[i])).find(t=>/Rp\s*[\d.]+/i.test(t))||txt(cells[secondary[0]])||'';
         const status=secondary.map(i=>txt(cells[i])).find(t=>/^(lunas|aktif|batal|terkunci|belum|menunggu|sudah)/i.test(t))||'';
         const key=tbodyId+'-'+index+'-'+first+'-'+side;
