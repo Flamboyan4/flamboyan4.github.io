@@ -39,9 +39,34 @@ assert(css.includes('#group-nav-inputdata.f4-book-tab-shell.hidden{display:none}
 assert(!css.replace(/\/\*[\s\S]*?\*\//g,'').includes('!important'),
  'New CSS must not use !important');
 const legacyPriority=(html.match(/!important/g)||[]).length;
-assert(legacyPriority<=1963,'Old CSS priority rules must not grow beyond audited baseline');
+assert(legacyPriority<=1943,'Old CSS priority rules must not grow beyond audited baseline');
 assert(html.includes('bookkeeping-grid.css?v=20261105-grid-v4'));
 assert(html.includes('class="f4-book-iuran-grid desktop-compact-form"'));
+const iuranForm=src('<form id="form-iuran"','</form>');
+for(const cls of ['f4-book-warga','f4-book-date-method','f4-book-period',
+ 'f4-book-preview-column','f4-book-money','f4-book-submit','f4-book-submit-spacer']){
+ assert(iuranForm.includes('class="'+cls)||iuranForm.includes('class="'+cls+' '),
+ 'Missing iuran grid element '+cls);
+}
+const divTags=[...iuranForm.matchAll(/<[/]?div(?:\\s[^>]*)?>/g)].map(m=>m[0]);
+let divDepth=0;
+for(const tag of divTags){
+ divDepth+=tag.startsWith('</')?-1:1;
+ assert(divDepth>=0,'Iuran layout has unexpected closing div');
+}
+assert.equal(divDepth,0,'Iuran layout divs are not balanced');
+assert(grid.includes('>.f4-book-warga{grid-column:1;grid-row:1}'));
+assert(grid.includes('>.f4-book-preview-column{grid-column:2;grid-row:1/4;align-self:start}'));
+assert(grid.includes('>.f4-book-money{grid-column:1;grid-row:4}'));
+assert(grid.includes('>.f4-book-submit{grid-column:2;grid-row:4;align-self:start}'));
+assert(grid.includes('.f4-book-submit-spacer{display:none}'),'Mobile submit spacer not removed');
+assert(grid.includes('grid-template-columns:minmax(0,7fr) minmax(0,5fr)'),
+ 'History filter columns must fill the entire width');
+assert(!html.includes('.history-iuran-search .custom-select-wrap{width:110px!important}'),
+ 'Old 110px status override must stay removed');
+assert(!html.includes('min-height:50px!important;'),
+ 'Old mobile 50px overrides must stay removed');
+
 assert(!html.includes('#tab-input #form-iuran{display:flex!important'));
 assert(!grid.includes('!important'),'Grid owner must use ordinary scoped selectors');
 for(const mod of ['#tab-input','#tab-transaksi','#tab-kas','#tab-talangan','#tab-denda',
