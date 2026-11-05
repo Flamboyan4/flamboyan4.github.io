@@ -48,7 +48,7 @@ for(const cls of ['f4-book-warga','f4-book-date-method','f4-book-period',
  assert(iuranForm.includes('class="'+cls)||iuranForm.includes('class="'+cls+' '),
  'Missing iuran grid element '+cls);
 }
-const divTags=[...iuranForm.matchAll(/<[/]?div(?:\\s[^>]*)?>/g)].map(m=>m[0]);
+const divTags=[...iuranForm.matchAll(/<[/]?div[^>]*>/g)].map(m=>m[0]);
 let divDepth=0;
 for(const tag of divTags){
  divDepth+=tag.startsWith('</')?-1:1;
