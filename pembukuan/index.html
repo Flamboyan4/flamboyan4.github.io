@@ -316,38 +316,6 @@
 
 /* CSS owner consolidated from #v6172-debit-credit-precise; prior cascade position preserved */
 
-/* Desktop Debit/Kredit: alur kiri -> kanan seperti contoh pengguna */
-@media (min-width:1024px){
-  #tab-transaksi .trx-layout{
-    display:grid!important;
-    grid-template-columns:repeat(12,minmax(0,1fr))!important;
-    grid-template-rows:auto auto auto auto!important;
-    gap:12px 12px!important;
-    align-items:end!important;
-  }
-  #tab-transaksi .trx-type{grid-column:1 / 5!important;grid-row:1!important}
-  #tab-transaksi .trx-date{grid-column:5 / 7!important;grid-row:1!important}
-  #tab-transaksi .trx-desc{grid-column:7 / 13!important;grid-row:1!important}
-
-  #tab-transaksi .trx-nominal{grid-column:1 / 3!important;grid-row:2!important}
-  #tab-transaksi .trx-method{grid-column:3 / 5!important;grid-row:2!important}
-  #tab-transaksi .trx-category{grid-column:5 / 7!important;grid-row:2!important}
-  #tab-transaksi .trx-note{grid-column:7 / 13!important;grid-row:2!important}
-
-  #tab-transaksi .trx-month{grid-column:1 / 4!important;grid-row:3!important}
-  #tab-transaksi .trx-year{grid-column:4 / 7!important;grid-row:3!important}
-  #tab-transaksi .trx-save{grid-column:7 / 13!important;grid-row:3!important;height:100%!important;min-height:48px!important}
-  #tab-transaksi .trx-status{grid-column:1 / 13!important;grid-row:4!important}
-
-  #tab-transaksi .field,
-  #tab-transaksi .kas-jenis-btn,
-  #tab-transaksi .trx-save{min-height:48px!important}
-  #tab-transaksi .trx-type>div{height:48px!important}
-  #tab-transaksi .trx-type .kas-jenis-btn{height:48px!important;padding-top:0!important;padding-bottom:0!important}
-  #tab-transaksi label{display:block!important;margin-bottom:4px!important;line-height:1.2!important}
-}
-
-
 /* CSS owner consolidated from #v6174-history-report-polish; prior cascade position preserved */
 
 /* Riwayat: desktop tables must fit the card instead of running off-screen. */
@@ -1820,19 +1788,6 @@ main > section.card{overflow:visible!important}
  /* Edit Iuran follows the same two-column and three-column input pattern. */
  #modal-edit form{padding:13px!important;display:flex!important;flex-direction:column!important;gap:12px!important}
  #modal-edit form>div:nth-child(5){padding:11px!important}
- /* Kas Umum: semantic date/amount, method/category, month/year pairs. */
- #tab-transaksi #form-transaksi-kas.trx-layout{
-  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  grid-auto-flow:row!important;gap:10px!important;align-items:start!important
- }
- #tab-transaksi #form-transaksi-kas.trx-layout>*{
-  grid-row:auto!important;grid-column:auto!important;min-width:0!important;
-  margin:0!important
- }
- #tab-transaksi #form-transaksi-kas :is(.trx-type,.trx-desc,.trx-note,.trx-status,.trx-save){
-  grid-column:1/-1!important
- }
- #tab-transaksi #form-transaksi-kas .trx-type button{min-height:40px!important;padding:9px!important}
  /* Talangan: period and payout source share rows on phone. */
  #tab-talangan #form-talangan.talangan-columns{gap:11px!important}
  #tab-talangan #form-talangan :is(.tal-period,.tal-date-source){
@@ -4019,10 +3974,6 @@ document.addEventListener('DOMContentLoaded',()=>{lucide.createIcons();initKasUi
 <style id="v617-polish">
 /* v6.17 - alur form, mode Catat/Bayar, label laporan, history, mobile dropdown */
 @media(min-width:1024px){
-  .trx-layout{display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr));gap:12px!important;align-items:end}
-  .trx-type{grid-column:span 5}.trx-date{grid-column:span 3}.trx-nominal{grid-column:span 2}.trx-method{grid-column:span 2}
-  .trx-category{grid-column:span 3}.trx-month{grid-column:span 2}.trx-year{grid-column:span 2}
-  .trx-desc{grid-column:span 6}.trx-note{grid-column:span 6}.trx-status,.trx-save{grid-column:1/-1}
   #tab-pinjaman .max-w-5xl>.grid.grid-cols-2,#tab-denda .max-w-6xl>.grid.grid-cols-2{display:flex!important;grid-column:1/-1!important;gap:8px!important;margin:0 0 2px 0!important}
   #tab-pinjaman .loan-mode-btn,#tab-denda .denda-mode-btn{display:inline-flex!important;width:auto!important;min-width:110px!important;padding:.65rem 1.15rem!important;align-items:center;justify-content:center}
   #loan-form-buat.mode-inactive,#loan-form-bayar.mode-inactive,#denda-panel-catat.mode-inactive,#denda-panel-bayar.mode-inactive{pointer-events:none!important;opacity:.34!important}
