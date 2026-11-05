@@ -1768,8 +1768,6 @@ main > section.card{overflow:visible!important}
  #modal-edit form>div:nth-child(4)>div{min-width:0!important;max-width:100%!important}
  #tab-input #form-iuran>div:nth-child(3) .custom-select-btn,
  #modal-edit form>div:nth-child(4) .custom-select-btn{padding:8px 6px!important}
- #tab-input #form-iuran>div:nth-child(4){padding:12px!important;border-radius:13px!important}
- #tab-input #form-iuran>div:nth-child(4)>div:first-child{margin-bottom:8px!important}
  #tab-input #preview-detail>.grid{gap:7px!important}
  #tab-input #preview-detail>.grid>div{padding:9px!important;border-radius:9px!important;min-width:0!important}
  #tab-input #preview-detail>.mt-3{margin-top:9px!important;padding-top:9px!important}
@@ -1905,20 +1903,21 @@ main > section.card{overflow:visible!important}
     <div id="tab-input" class="tab-panel p-4 sm:p-5">
       <div class="max-w-6xl mx-auto">
         <form id="form-iuran" onsubmit="simpanIuran(event)" class="f4-book-iuran-grid desktop-compact-form">
-          <div><label class="text-sm font-bold">Nama Warga</label><select id="inp-warga" class="field mt-1" onchange="pilihWargaIuran()"><option value="">Pilih warga...</option></select></div>
-          <div class="grid sm:grid-cols-2 gap-4">
+          <div class="f4-book-warga"><label class="text-sm font-bold">Nama Warga</label><select id="inp-warga" class="field mt-1" onchange="pilihWargaIuran()"><option value="">Pilih warga...</option></select></div>
+          <div class="f4-book-date-method grid sm:grid-cols-2 gap-4">
             <div><label class="text-sm font-bold">Tanggal Bayar</label><input id="inp-tanggal" type="date" class="field mt-1" required></div>
             <div><label class="text-sm font-bold">Metode</label><select id="inp-metode" class="field mt-1" required><option value="Cash">Cash</option><option value="QRIS">QRIS</option><option value="Transfer Mandiri">Transfer Mandiri</option></select></div>
           </div>
-          <div class="grid sm:grid-cols-3 gap-4 f4-book-period-controls" aria-label="Periode pembayaran">
+          <div class="f4-book-period grid sm:grid-cols-3 gap-4 f4-book-period-controls" aria-label="Periode pembayaran">
             <span class="f4-book-period-title">Periode Pembayaran</span>
             <div><label class="text-sm font-bold">Bulan Awal</label><select id="inp-bulan" class="field mt-1" onchange="f4IuranManualPeriod()"></select></div>
             <div><label class="text-sm font-bold">Tahun</label><input id="inp-tahun" type="number" min="2020" max="2100" class="field mt-1" oninput="f4IuranManualPeriod()" onchange="f4IuranManualPeriod()"></div>
             <div><label class="text-sm font-bold">Jml Bulan</label><select id="inp-jumlah" class="field mt-1" onchange="updatePreview()"><option value="1">1 bulan</option><option value="2">2 bulan</option><option value="3">3 bulan</option></select></div>
           </div>
 
-          <div class="f4-iuran-preview rounded-2xl border border-violet-200 bg-violet-50/60 p-4">
-            <div class="font-black text-violet-950 mb-3">Rincian Tagihan <span class="f4-preview-auto">Otomatis</span></div>
+          <div class="f4-book-preview-column">
+            <label class="f4-book-preview-heading text-sm font-bold">Rincian Tagihan <span class="f4-preview-auto">Otomatis</span></label>
+            <div class="f4-iuran-preview rounded-2xl border border-violet-200 bg-violet-50/60 p-4">
             <div id="preview-empty" class="text-sm text-slate-500">Pilih warga untuk melihat rincian.</div>
             <div id="preview-detail" class="hidden">
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
@@ -1929,8 +1928,9 @@ main > section.card{overflow:visible!important}
               </div>
               <div class="mt-3 flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-t border-violet-200 pt-3"><div><div class="text-xs text-slate-500">Periode</div><div id="pv-periode" class="font-bold text-sm"></div></div><div class="text-left sm:text-right"><div class="text-xs text-slate-500">Total Tagihan</div><div id="pv-total" class="text-2xl font-black text-violet-700">Rp 0</div></div></div>
             </div>
+            </div>
           </div>
-          <div class="grid sm:grid-cols-2 gap-4">
+          <div class="f4-book-money grid sm:grid-cols-2 gap-4">
             <div>
               <label class="text-sm font-bold">Nominal Bayar</label>
               <input id="inp-nominal-dibayar" type="number" min="0" step="1000" class="field mt-1" placeholder="0" oninput="this.dataset.edited='1';updateNominalParsialInfo()">
@@ -1939,7 +1939,10 @@ main > section.card{overflow:visible!important}
             <div><label class="text-sm font-bold">Catatan <span class="font-normal text-slate-400">(opsional)</span></label><input id="inp-catatan" class="field mt-1" placeholder="Mis. pembayaran 3 bulan sekaligus"></div>
           </div>
           <div id="save-status" class="hidden rounded-xl border px-4 py-3 text-sm"></div>
-          <button id="btn-simpan" type="submit" class="w-full rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-black py-3.5 flex justify-center items-center gap-2"><i data-lucide="save" class="w-4 h-4"></i>Simpan Pembayaran</button>
+          <div class="f4-book-submit">
+            <span class="f4-book-submit-spacer" aria-hidden="true"></span>
+            <button id="btn-simpan" type="submit" class="w-full rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-black py-3.5 flex justify-center items-center gap-2"><i data-lucide="save" class="w-4 h-4"></i>Simpan Pembayaran</button>
+          </div>
         </form>
 
         <details id="kekurangan-kas-card" class="f4-book-shortage mt-5 rounded-2xl border border-amber-200 bg-amber-50/40 p-4 sm:p-5">
@@ -4372,7 +4375,7 @@ async function hapusPinjamanPermanen(id){const x=(DATA_PINJAMAN.rows||[]).find(v
   #riwayat-period-mode{width:150px!important;flex:0 0 150px!important}
   .history-range-box.hidden{display:none!important}
   .history-range-box>.custom-select-wrap{width:190px!important;min-width:190px!important}
-  .history-iuran-search .custom-select-wrap{width:110px!important}
+  .history-iuran-search .custom-select-wrap{min-width:0;width:100%}
 }
 
 /* Semua header Aksi dan icon benar-benar center. */
