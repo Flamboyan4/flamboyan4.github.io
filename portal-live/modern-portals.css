@@ -1399,21 +1399,63 @@ body.f4-direct-bank #dashboardView .f4-bs-saldo-footer button{
  }
 }
 
-/* Jersey: explicit cash amount, visual separation between order price and titipan. */
-#f4-account-page .f4-admin-fields .f4-jersey-received-field{
- display:flex;flex-direction:column;gap:6px;min-width:0;
+/* Jersey order form: one grid and spacing owner for PC, HP, and optional payment fields. */
+#f4-account-page .f4-jersey-order-form{
+ --f4-jersey-control-height:42px;
+ max-width:1040px;
+ padding:16px 18px;
 }
-#f4-account-page .f4-jersey-received-field input{
- width:100%;min-height:44px;border:1px solid #d5ddea;border-radius:10px;
- padding:9px 12px;font:inherit;font-weight:650;color:#23314a;background:#fff;
+#f4-account-page .f4-jersey-order-form .f4-admin-fields{
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ column-gap:16px;row-gap:12px;align-items:start;
 }
-#f4-account-page .f4-jersey-received-field .f4-admin-note{
- font-size:12px;color:#667990;line-height:1.45;margin:0;
+#f4-account-page .f4-jersey-order-form .f4-admin-fields>label,
+#f4-account-page .f4-jersey-order-form .f4-jersey-split-fields>label{
+ display:grid;grid-template-rows:18px var(--f4-jersey-control-height);
+ row-gap:5px;min-width:0;margin:0;
 }
-#f4-account-page .f4-admin-fields .f4-jersey-payment-preview{
- grid-column:1/-1;min-width:0;padding:12px 14px;
- border:1px solid #dcece6;border-radius:12px;background:#f5fbf8;
- color:#265744;font-size:12px;line-height:1.55;font-weight:650;
+#f4-account-page .f4-jersey-order-form .f4-admin-fields label>span{
+ line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#f4-account-page .f4-jersey-order-form .f4-admin-fields :is(input,select){
+ box-sizing:border-box;width:100%;min-width:0;
+ height:var(--f4-jersey-control-height);min-height:var(--f4-jersey-control-height);
+ padding:0 12px;font-size:14px;font-weight:400;
+}
+#f4-account-page .f4-jersey-order-form .f4-jersey-method-details,
+#f4-account-page .f4-jersey-order-form .f4-jersey-split-fields{
+ grid-column:1/-1;min-width:0;
+}
+#f4-account-page .f4-jersey-order-form .f4-jersey-method-details[hidden],
+#f4-account-page .f4-jersey-order-form .f4-jersey-split-fields[hidden]{display:none}
+#f4-account-page .f4-jersey-order-form .f4-jersey-split-fields{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;
+}
+#f4-account-page .f4-jersey-order-form .f4-admin-fields select[name="method"]{
+ appearance:auto;cursor:pointer;
+}
+#f4-account-page .f4-jersey-order-form .f4-jersey-payment-preview{
+ grid-column:1/-1;min-width:0;margin-top:2px;padding:10px 12px;
+ border:1px solid #dcece6;border-radius:10px;background:#f5fbf8;
+ color:#265744;font-size:12px;line-height:1.5;font-weight:650;
+}
+#f4-account-page .f4-jersey-order-form .f4-admin-message{margin:8px 0 0}
+#f4-account-page .f4-jersey-order-form .f4-admin-message:empty{display:none}
+#f4-account-page .f4-jersey-order-form .f4-warga-form-actions{
+ margin-top:12px;padding-top:12px;border-top:1px solid #e6edf3;
+ align-items:center;flex-wrap:wrap;
+}
+@media(max-width:760px){
+ #f4-account-page .f4-jersey-order-form{padding:12px}
+ #f4-account-page .f4-jersey-order-form .f4-admin-fields{
+  grid-template-columns:minmax(0,1fr);column-gap:0;row-gap:11px;
+ }
+ #f4-account-page .f4-jersey-order-form .f4-jersey-split-fields{
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;
+ }
+}
+@media(max-width:380px){
+ #f4-account-page .f4-jersey-order-form .f4-jersey-split-fields{grid-template-columns:minmax(0,1fr)}
 }
 
 /* Newly saved Jersey order stays open and clearly marked in its group. */
@@ -1428,16 +1470,6 @@ body.f4-direct-bank #dashboardView .f4-bs-saldo-footer button{
 #f4-account-page .f4-jersey-payment-snapshot p{margin:0}
 #f4-account-page .f4-jersey-payment-snapshot strong{color:#20385a}
 #f4-account-page .f4-jersey-payment-snapshot small{color:#6d7787;font-size:11px}
-
-/* Jersey: genuine native dropdown, reveal breakdown only for mixed payments. */
-#f4-account-page .f4-jersey-method-details[hidden],
-#f4-account-page .f4-jersey-split-fields[hidden]{display:none!important}
-#f4-account-page .f4-jersey-split-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;grid-column:1/-1}
-#f4-account-page .f4-jersey-split-fields label{display:flex;flex-direction:column;gap:5px;min-width:0}
-#f4-account-page .f4-admin-fields select[name="method"]{
- min-height:44px;padding:10px 12px;appearance:auto;background-color:#fff;cursor:pointer
-}
-@media(max-width:560px){#f4-account-page .f4-jersey-split-fields{grid-template-columns:1fr}}
 
 /* Expandable payment-source audit, only available to Superadmin. */
 #f4-account-page .f4-jersey-payment-reconciliation{border-top:1px solid #dee6f0;margin-top:5px;padding-top:7px}

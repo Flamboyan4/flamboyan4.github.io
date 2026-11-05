@@ -7,7 +7,7 @@ const main=page.querySelector('main'),side=page.querySelector('aside');
 const base='https://api.flamboyan4.web.id/api/v2/admin/content/';
 const types={
  arisan:{label:'Jadwal Arisan',section:'portal',columns:[['period_on','Bulan pelaksanaan','date',true],['host_name','Tuan rumah dan nomor rumah','text',true],['status','Status','text']]},
- jersey:{label:'Pesanan Jersey',section:'portal',columns:[['group_key','Kelompok pemesan','text',true],['package_type','Jenis pesanan','text',true],['sort_order','Nomor urut','number'],['resident','Nama dan rumah','text',true],['sleeves','Lengan','text'],['size','Ukuran','text'],['back_name','Nama Punggung','text'],['back_number','Nomor Punggung','text'],['payment_status','Status pembayaran','text'],['nominal_rp','Harga (Rp)','number'],['method','Metode','text']]},
+ jersey:{label:'Pesanan Jersey',section:'portal',columns:[['group_key','Kelompok pemesan','text',true],['package_type','Jenis pesanan','text',true],['resident','Nama dan rumah','text',true],['sort_order','Nomor urut','number'],['sleeves','Lengan','text'],['size','Ukuran','text'],['back_name','Nama Punggung','text'],['back_number','Nomor Punggung','text'],['nominal_rp','Harga (Rp)','number'],['payment_status','Status pembayaran','text'],['method','Metode','text']]},
  projects:{label:'Project Card',section:'portal',columns:[['title','Nama projek','text',true],['description','Deskripsi','textarea'],['image_ref','Foto / gambar Google Drive','url'],['target_url','Link tujuan / #bagian','text'],['project_kind','Jenis proyek','projectKind',true],['fund_source','Kategori kas terkait','text'],['fund_target_rp','Target dana (Rp)','number'],['linked_key','Portal / modul terhubung','projectModule'],['sort_order','Urutan','number'],['active','Aktif','boolean']]},
  agenda:{label:'Rencana Kegiatan',section:'portal',columns:[['title','Nama kegiatan','text',true],['starts_on','Tanggal mulai','date'],['ends_on','Tanggal selesai','date'],['location','Lokasi','text'],['description','Deskripsi','textarea'],['image_ref','Foto Google Drive','url'],['status','Status kegiatan','text'],['visibility','Tampilkan ke publik','visibility'],['sort_order','Urutan','number']]},
  documentation:{label:'Dokumentasi',section:'portal',columns:[['title','Judul dokumentasi','text',true],['event_on','Tanggal','date'],['description','Deskripsi','textarea'],['drive_url','Tautan album/folder Google Drive (foto dan video)','url'],['category','Kategori dokumentasi','category'],['sort_order','Urutan','number'],['visibility','Akses','visibility'],['active','Aktif','boolean']]},
@@ -879,8 +879,8 @@ function showForm(record){
  editing=true;
  if(record?._f4_bank_kind)return showBankForm(record._f4_bank_kind,record);
  const def=types[active],isNew=!record;
- header((isNew?'Tambah ':'Edit ')+def.label,active==='obligations'?'Perubahan berlaku mulai bulan yang dipilih. Riwayat lama tetap.':'Formulir ini mengubah data master yang ditampilkan di portal. Tautan foto/video tetap berada di Google Drive.');
- const form=node('form',undefined,'f4-admin-editor'+(active==='obligations'?' f4-obligation-form':''));form.noValidate=true;main.append(form);
+ header((isNew?'Tambah ':'Edit ')+def.label,active==='obligations'?'Perubahan berlaku mulai bulan yang dipilih. Riwayat lama tetap.':active==='jersey'?'Isi data pemesan, ukuran, nama dan nomor punggung, serta pembayaran.':'Formulir ini mengubah data master yang ditampilkan di portal. Tautan foto/video tetap berada di Google Drive.');
+ const form=node('form',undefined,'f4-admin-editor'+(active==='obligations'?' f4-obligation-form':active==='jersey'?' f4-jersey-order-form':''));form.noValidate=true;main.append(form);
  if(active==='documentation'||active==='inventory'){
   const scopeField=node('label'),caption=node('span','Tujuan publikasi'),scope=node('select');
   scope.append(new Option('Portal Utama','portal'),new Option('Bank Sampah','bank-sampah'));
@@ -1101,9 +1101,8 @@ function showForm(record){
   receivedField.placeholder='Contoh: 120000';
   const exact=paidJerseyExact(record);
   if(exact!==null)receivedField.value=String(exact);
-  label.append(receivedField,node('small',
-   'Jumlah uang yang benar-benar masuk. Jika lebih dari harga, selisih menjadi titipan, bukan otomatis celana.',
-   'f4-admin-note'));
+  receivedField.title='Uang yang benar-benar masuk. Jika lebih dari harga, selisihnya menjadi titipan, bukan otomatis celana.';
+  label.append(receivedField);
   grid.append(label);
   const preview=node('div',undefined,'f4-jersey-payment-preview');
   methodChoice=form.elements.namedItem('method');
