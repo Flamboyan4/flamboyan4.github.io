@@ -37,6 +37,8 @@ assert(css.includes('.f4-book-subnav.hidden{display:none}'));
 assert(css.includes('#group-nav-inputdata.f4-book-tab-shell.hidden{display:none}'));
 assert(!css.replace(/\/\*[\s\S]*?\*\//g,'').includes('!important'),
  'New CSS must not use !important');
+const legacyPriority=(html.match(/!important/g)||[]).length;
+assert(legacyPriority<=2123,'Old CSS priority rules must not increase');
 
 // Navigate using the actual menu controller, with inert DOM and financial callbacks.
 function element(){const classes=new Set();return {
