@@ -58,9 +58,9 @@ async function publicPortal(db) {
   // tables yield empty arrays instead of making the rest of Portal unavailable.
   const [arisan,jerseyBapak,jerseyIbu,jerseyAnak]=await Promise.all([
     list(db,"SELECT period_on,host_name,status FROM portal_arisan_schedule ORDER BY period_on LIMIT 200").catch(()=>[]),
-    list(db,"SELECT sort_order,resident,sleeves,size,printed_name,payment_status,nominal_rp,method,package_type FROM portal_jersey_orders WHERE group_key='bapak' ORDER BY sort_order LIMIT 200").catch(()=>[]),
-    list(db,"SELECT sort_order,resident,sleeves,size,printed_name,payment_status,nominal_rp,method,package_type FROM portal_jersey_orders WHERE group_key='ibu' ORDER BY sort_order LIMIT 200").catch(()=>[]),
-    list(db,"SELECT sort_order,resident,sleeves,size,printed_name,payment_status,nominal_rp,method,package_type FROM portal_jersey_orders WHERE group_key='anak' ORDER BY sort_order LIMIT 200").catch(()=>[])
+    list(db,"SELECT sort_order,resident,sleeves,size,printed_name,back_name,back_number,payment_status,nominal_rp,method,package_type FROM portal_jersey_orders WHERE group_key='bapak' ORDER BY sort_order LIMIT 200").catch(()=>[]),
+    list(db,"SELECT sort_order,resident,sleeves,size,printed_name,back_name,back_number,payment_status,nominal_rp,method,package_type FROM portal_jersey_orders WHERE group_key='ibu' ORDER BY sort_order LIMIT 200").catch(()=>[]),
+    list(db,"SELECT sort_order,resident,sleeves,size,printed_name,back_name,back_number,payment_status,nominal_rp,method,package_type FROM portal_jersey_orders WHERE group_key='anak' ORDER BY sort_order LIMIT 200").catch(()=>[])
   ]);
   const ordersByProject=new Map(orderSummary.map(r=>[r.project_id,r]));
   const fundsByProject=new Map(contributionSummary.map(r=>[r.project_id,r]));
@@ -864,7 +864,7 @@ var contentModel = {
   meetings: { table: "portal_meeting_records", fields: { title: "text", meeting_on: "date", summary: "long", document_ref: "url", visibility: "visibility" }, required: ["title"] },
   documentation: { table: "portal_documentation", fields: { event_on: "date", title: "text", description: "long", drive_url: "url", category: "text", sort_order: "order", visibility: "visibility", active: "bool" }, required: ["title"] },
   arisan: { table: "portal_arisan_schedule", fields: {period_on:"date",host_name:"text",status:"text"}, required:["period_on","host_name"] },
-  jersey: { table: "portal_jersey_orders", fields: {group_key:"text",package_type:"text",sort_order:"order",resident:"text",sleeves:"text",size:"text",printed_name:"text",payment_status:"text",nominal_rp:"order",method:"text"}, required:["group_key","resident"] }
+  jersey: { table: "portal_jersey_orders", fields: {group_key:"text",package_type:"text",sort_order:"order",resident:"text",sleeves:"text",size:"text",printed_name:"text",back_name:"text",back_number:"text",payment_status:"text",nominal_rp:"order",method:"text"}, required:["group_key","resident"] }
 };
 var contentPath = "/api/v2/admin/content/";
 function normalizeContent(type, v) {
@@ -1183,6 +1183,11 @@ async function handleAdminContent(request, env, who, url) {
     }
   } catch (e) {
     return err(e.message, 400);
+  }
+  if(kind==="jersey"){
+    if(clean.back_name!=null&&String(clean.back_name).length>80)return err("Nama punggung maksimal 80 karakter.",400);
+    if(clean.back_number!=null&&!/^\d{1,3}$/.test(String(clean.back_number)))
+      return err("Nomor punggung harus 1–3 angka.",400);
   }
   const exists = id ? await one(db, "SELECT * FROM " + model.table + " WHERE id=?", [id]) : null;
   if (id && !exists) return err("Data yang diedit tidak ditemukan.", 404);

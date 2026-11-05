@@ -7,7 +7,7 @@ const main=page.querySelector('main'),side=page.querySelector('aside');
 const base='https://api.flamboyan4.web.id/api/v2/admin/content/';
 const types={
  arisan:{label:'Jadwal Arisan',section:'portal',columns:[['period_on','Bulan pelaksanaan','date',true],['host_name','Tuan rumah dan nomor rumah','text',true],['status','Status','text']]},
- jersey:{label:'Pesanan Jersey',section:'portal',columns:[['group_key','Kelompok pemesan','text',true],['package_type','Jenis pesanan','text',true],['sort_order','Nomor urut','number'],['resident','Nama dan rumah','text',true],['sleeves','Lengan','text'],['size','Ukuran','text'],['printed_name','Nama dan nomor punggung','text'],['payment_status','Status pembayaran','text'],['nominal_rp','Harga (Rp)','number'],['method','Metode','text']]},
+ jersey:{label:'Pesanan Jersey',section:'portal',columns:[['group_key','Kelompok pemesan','text',true],['package_type','Jenis pesanan','text',true],['sort_order','Nomor urut','number'],['resident','Nama dan rumah','text',true],['sleeves','Lengan','text'],['size','Ukuran','text'],['back_name','Nama Punggung','text'],['back_number','Nomor Punggung','text'],['payment_status','Status pembayaran','text'],['nominal_rp','Harga (Rp)','number'],['method','Metode','text']]},
  projects:{label:'Project Card',section:'portal',columns:[['title','Nama projek','text',true],['description','Deskripsi','textarea'],['image_ref','Foto / gambar Google Drive','url'],['target_url','Link tujuan / #bagian','text'],['project_kind','Jenis proyek','projectKind',true],['fund_source','Kategori kas terkait','text'],['fund_target_rp','Target dana (Rp)','number'],['linked_key','Portal / modul terhubung','projectModule'],['sort_order','Urutan','number'],['active','Aktif','boolean']]},
  agenda:{label:'Rencana Kegiatan',section:'portal',columns:[['title','Nama kegiatan','text',true],['starts_on','Tanggal mulai','date'],['ends_on','Tanggal selesai','date'],['location','Lokasi','text'],['description','Deskripsi','textarea'],['image_ref','Foto Google Drive','url'],['status','Status kegiatan','text'],['visibility','Tampilkan ke publik','visibility'],['sort_order','Urutan','number']]},
  documentation:{label:'Dokumentasi',section:'portal',columns:[['title','Judul dokumentasi','text',true],['event_on','Tanggal','date'],['description','Deskripsi','textarea'],['drive_url','Tautan album/folder Google Drive (foto dan video)','url'],['category','Kategori dokumentasi','category'],['sort_order','Urutan','number'],['visibility','Akses','visibility'],['active','Aktif','boolean']]},
@@ -65,6 +65,17 @@ function paidJerseyAmount(row){
  let sum=Number(m[1].replace(/[.,]/g,''));
  if(sum>0&&sum<1000)sum*=1000;
  return Number.isFinite(sum)?sum:0;
+}
+function jerseyBackParts(row){
+ const ownName=String(row?.back_name??'').trim(),ownNumber=String(row?.back_number??'').trim();
+ if(row?.back_name!=null||row?.back_number!=null)return {name:ownName,number:ownNumber};
+ const old=String(row?.printed_name||'').trim();
+ if(!old||/^\(?tanpa\s+nama\s*(?:\/\s*(?:no|nomor))?\)?$/i.test(old))return {name:'',number:''};
+ const numberOnly=old.match(/^(\d{1,3})\s*\(\s*tanpa\s+nama\s*\)$/i);
+ if(numberOnly)return {name:'',number:numberOnly[1]};
+ const trailing=old.match(/^(.+?)\s+(\d{1,3})$/);
+ if(trailing)return {name:trailing[1].trim(),number:trailing[2]};
+ return {name:old,number:''};
 }
 const jerseyRp=value=>'Rp '+(Number(value)||0).toLocaleString('id-ID');
 const jerseyPackageLabel=value=>value==='atasan'?'Atasan saja':value==='set'?'Atasan + Bawahan':'Belum ditentukan';
@@ -475,8 +486,9 @@ function populateJersey(rows,list,query){
    if(sub)text.append(node('small',sub));
    head.append(text);item.append(head);
    const body=node('div',undefined,'f4-jersey-person-detail');
+   const back=jerseyBackParts(x);
    const fields=[['Nomor urut',x.sort_order],['Pesanan',jerseyPackageLabel(x.package_type)],['Lengan',x.sleeves],
-    ['Ukuran',x.size],['Nama dan nomor punggung',x.printed_name],
+    ['Ukuran',x.size],['Nama Punggung',back.name],['Nomor Punggung',back.number],
     ['Harga pesanan',jerseyRp(price)],
     ['Status pembayaran',x.payment_status||'Belum bayar'],
     ['Uang diterima',paidJerseyExact(x)===null?'Belum dicatat nominalnya':jerseyRp(paid)],
@@ -521,7 +533,7 @@ function populate(){
    inventory:[['name','Nama barang'],['quantity','Jumlah'],['unit','Satuan'],['category','Kategori'],['description','Kondisi / Keterangan']],
    meetings:[['title','Judul rapat'],['meeting_on','Tanggal'],['summary','Ringkasan'],['document_ref','Dokumen']],
    obligations:[['nama','Nama warga'],['rumah','Rumah'],['qty_iuran_bulanan','Iuran bulanan'],['qty_kebersihan','Kebersihan'],['qty_kas_lorong','Kas lorong'],['qty_arisan','Arisan']],
-   jersey:[['group_key','Kelompok'],['package_type','Pesanan'],['sort_order','No'],['resident','Nama & Rumah'],['sleeves','Lengan'],['size','Ukuran'],['printed_name','Nama/No Punggung'],['nominal_rp','Nilai Pesanan'],['payment_status','Status Pembayaran'],['method','Keterangan']]
+   jersey:[['group_key','Kelompok'],['package_type','Pesanan'],['sort_order','No'],['resident','Nama & Rumah'],['sleeves','Lengan'],['size','Ukuran'],['back_name','Nama Punggung'],['back_number','Nomor Punggung'],['nominal_rp','Nilai Pesanan'],['payment_status','Status Pembayaran'],['method','Keterangan']]
   }[active];
   const scroll=node('div',undefined,'f4-obligation-scroll');
   const table=node('table',undefined,'f4-obligation-grid'),thead=node('thead'),head=node('tr');table.dataset.module=active;
@@ -626,20 +638,20 @@ function printJerseyReport(includeFunds=null){
    .sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0));
   let total=0,received=0,titipan=0,outstanding=0;
   const rows=people.map(x=>{
-   const invoice=Number(x.nominal_rp||0),paid=paidJerseyAmount(x);
+   const invoice=Number(x.nominal_rp||0),paid=paidJerseyAmount(x),back=jerseyBackParts(x);
    total+=invoice;received+=paid;outstanding+=Math.max(0,invoice-paid);titipan+=Math.max(0,paid-invoice);
    return '<tr><td class="center">'+esc(x.sort_order??'-')+'</td><td>'+esc(x.resident)+'</td>'+
     '<td>'+esc(jerseyPackageLabel(x.package_type))+'</td><td>'+esc(x.sleeves||'-')+'</td><td>'+esc(x.size||'-')+'</td>'+
-    '<td>'+esc(x.printed_name||'-')+'</td>'+
+    '<td>'+esc(back.name||'-')+'</td><td class="center">'+esc(back.number||'-')+'</td>'+
     (includeFunds?'<td class="number">'+money(invoice)+'</td>'+
       '<td class="number">'+money(paid)+'</td><td>'+esc(x.payment_status||'-')+'</td>':'')+'</tr>';
   }).join('');
   allOrders+=people.length;allTotal+=total;allReceived+=received;allOutstanding+=outstanding;allTitipan+=titipan;
   sections.push('<section><h2>Pesanan '+label+' ('+people.length+' orang)</h2>'+
    '<table><thead><tr><th>No</th><th>Nama & Rumah</th><th>Pesanan</th><th>Lengan</th><th>Ukuran</th>'+
-   '<th>Nama / No. Punggung</th>'+
+   '<th>Nama Punggung</th><th>No. Punggung</th>'+
    (includeFunds?'<th>Nilai</th><th>Masuk</th><th>Status</th>':'')+'</tr></thead>'+
-   '<tbody>'+(rows||'<tr><td colspan="'+(includeFunds?9:6)+'">Belum ada pesanan.</td></tr>')+'</tbody></table>'+
+   '<tbody>'+(rows||'<tr><td colspan="'+(includeFunds?10:7)+'">Belum ada pesanan.</td></tr>')+'</tbody></table>'+
    (includeFunds?'<p class="sub">Nilai pesanan: '+money(total)+' &nbsp;|&nbsp; Dana masuk: '+money(received)+
    ' &nbsp;|&nbsp; Kekurangan: '+money(outstanding)+' &nbsp;|&nbsp; Titipan: '+money(titipan)+'</p>':'')+'</section>');
  }
@@ -663,31 +675,23 @@ function printJerseyReport(includeFunds=null){
  'tr{break-inside:avoid}th{text-align:left}.number{text-align:right;white-space:normal}.center{text-align:center}.sub{font-weight:bold;margin:3px 0 5px;font-size:8px}'+
  '.approval{text-align:right;margin-top:12px;break-inside:avoid;font-size:8px}.approval strong{display:block;margin-top:22px}'+
  '.foot{font-size:8px;color:#64748b;border-top:1px solid #000;margin-top:8px;padding-top:4px}'+
- "@media screen{body{max-width:850px;margin:16px auto;padding:0 12px}}\n@media print{\nbody.no-funds{font-size:11.5px!important;line-height:1.3!important}\nbody.with-funds{font-size:10.1px!important;line-height:1.22!important}\nbody h1{font-size:16px!important;line-height:1.25!important;margin:0 0 4px!important}\nbody h2{font-size:12px!important;line-height:1.25!important;margin:10px 0 5px!important}\nbody .meta{font-size:9.5px!important;line-height:1.3!important}\nbody .summary{margin:7px 0!important;gap:5px!important}\nbody .box{padding:5px!important;font-size:10px!important}\nbody .box strong{font-size:11px!important}\nbody table{width:100%!important;border-collapse:collapse!important;table-layout:fixed!important;margin:0 0 7px!important}\nbody.no-funds th,body.no-funds td{\nfont-size:11.5px!important;line-height:1.25!important;padding:4px 4px!important}\nbody.with-funds th,body.with-funds td{\nfont-size:10.1px!important;line-height:1.19!important;padding:3px 3px!important}\nbody tr{break-inside:avoid!important}\nbody .sub{font-size:9.5px!important;line-height:1.3!important;margin:4px 0 5px!important}\nbody .approval{margin-top:15px!important;font-size:10px!important;line-height:1.3!important;break-inside:avoid!important}\nbody .approval strong{margin-top:25px!important;font-size:10px!important}\nbody .foot{font-size:9px!important;margin-top:9px!important;padding-top:5px!important}\nbody th{background:#e8f0fa!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}\n}\n\n@media print{\n  body.no-funds th,body.no-funds td{\n    font-size:11.5px!important;line-height:1.22!important;padding:3.5px 4px!important\n  }\n  body.with-funds th,body.with-funds td{\n    font-size:10.8px!important;line-height:1.2!important;padding:3.2px!important\n  }\n  body.no-funds table :is(th,td):nth-child(1){width:6%!important}\n  body.no-funds table :is(th,td):nth-child(2){width:27%!important}\n  body.no-funds table :is(th,td):nth-child(3){width:13%!important}\n  body.no-funds table :is(th,td):nth-child(4){width:10%!important}\n  body.no-funds table :is(th,td):nth-child(5){width:44%!important}\n  body.with-funds table :is(th,td):nth-child(1){width:5%!important}\n  body.with-funds table :is(th,td):nth-child(2){width:24%!important}\n  body.with-funds table :is(th,td):nth-child(3){width:10%!important}\n  body.with-funds table :is(th,td):nth-child(4){width:8%!important}\n  body.with-funds table :is(th,td):nth-child(5){width:20%!important}\n  body.with-funds table :is(th,td):nth-child(6){width:11%!important}\n  body.with-funds table :is(th,td):nth-child(7){width:11%!important}\n  body.with-funds table :is(th,td):nth-child(8){width:11%!important}\n}\n\n@media print{\n .f4-jersey-finance-compact{font-size:9px;line-height:1.25;margin:5px 0 7px;padding:4px 6px;border:1px solid #000;break-inside:avoid}\n .f4-jersey-finance-compact>div+div{margin-top:2px}\n .f4-jersey-finance-compact strong{color:#263650}\n}\n\n</style></head><body class=\""+(includeFunds?'with-funds':'no-funds')+'">'+
- '<header><h1>LAPORAN PESANAN JERSEY WARGA FLAMBOYAN 4</h1>'+
- '<p class="meta">RT 001 RW 026 Pesona Kahuripan 2 • Dicetak '+esc(date)+' • A4 Portrait • '+(includeFunds?'Lengkap':'Tanpa dana')+'</p></header>'+
- (includeFunds?'<div class="summary"><div class="box">Jumlah Pemesan<strong>'+allOrders+' orang</strong></div>'+
- '<div class="box">Nilai Seluruh Pesanan<strong>'+money(allTotal)+'</strong></div>'+
- '<div class="box">Dana Terkumpul<strong>'+money(allReceived)+'</strong></div>'+
- '<div class="box">Sisa Kekurangan<strong>'+money(allOutstanding)+'</strong></div></div><p class="meta"><strong>Titipan sementara: '+money(allTitipan)+'</strong> — sudah termasuk uang diterima, belum dihitung sebagai pesanan bawahan</p>':
- '<p class="meta">Total pemesan: <strong>'+allOrders+' orang</strong></p>')+
- (includeFunds?
-  '<div class="f4-jersey-finance-compact">'+
-    '<div><strong>Status pembayaran:</strong> Lunas <b>'+paymentReport.lunas+'</b> • Belum lunas <b>'+paymentReport.belumLunas+
-       '</b> (DP '+paymentReport.dp+' • Belum bayar '+paymentReport.belumBayar+')</div>'+
-    '<div><strong>Dana menurut metode:</strong> QRIS <b>'+money(paymentReport.qris)+
-       '</b> • Cash <b>'+money(paymentReport.cash)+
-       '</b> • Metode belum jelas <b>'+money(paymentReport.perluRinci)+
-       '</b> • Berdasarkan status lama <b>'+money(paymentReport.nominalLama)+'</b></div>'+
-  '</div>':'')+
- paintedSections+
- (includeFunds?'<p class="meta">Catatan: nilai dari status pembayaran lama ('+money(paymentReport.nominalLama)+') masih perkiraan, belum termasuk nominal penerimaan terkonfirmasi. Metode belum jelas ('+money(paymentReport.perluRinci)+') harus ditelusuri sebelum diklasifikasikan sebagai QRIS/Cash. Titipan tidak mengurangi kekurangan pemesan lain.</p>':'')+
- '<div class="approval">Mengetahui, Humas Flamboyan 4<strong>Heri Juwandi</strong></div>'+
- '<p class="foot">Sumber: data pesanan Jersey pada flamboyan4.web.id</p>'+
- '<script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>';
- const w=window.open('','_blank');
- if(!w){window.f4UiDialog.alert('Izinkan pop-up laporan untuk mencetak atau menyimpan PDF.');return}
- w.document.write(html);w.document.close();
+ "@media screen{body{max-width:850px;margin:16px auto;padding:0 12px}}\n@media print{\nbody.no-funds{font-size:11.5px!important;line-height:1.3!important}\nbody.with-funds{font-size:10.1px!important;line-height:1.22!important}\nbody h1{font-size:16px!important;line-height:1.25!important;margin:0 0 4px!important}\nbody h2{font-size:12px!important;line-height:1.25!important;margin:10px 0 5px!important}\nbody .meta{font-size:9.5px!important;line-height:1.3!important}\nbody .summary{margin:7px 0!important;gap:5px!important}\nbody .box{padding:5px!important;font-size:10px!important}\nbody .box strong{font-size:11px!important}\nbody table{width:100%!important;border-collapse:collapse!important;table-layout:fixed!important;margin:0 0 7px!important}\nbody.no-funds th,body.no-funds td{\nfont-size:11.5px!important;line-height:1.25!important;padding:4px 4px!important}\nbody.with-funds th,body.with-funds td{\nfont-size:10.1px!important;line-height:1.19!important;padding:3px 3px!important}\nbody tr{break-inside:avoid!important}\nbody .sub{font-size:9.5px!important;line-height:1.3!important;margin:4px 0 5px!important}\nbody .approval{margin-top:15px!important;font-size:10px!important;line-height:1.3!important;break-inside:avoid!important}\nbody .approval strong{margin-top:25px!important;font-size:10px!important}\nbody .foot{font-size:9px!important;margin-top:9px!important;padding-top:5px!important}\nbody th{background:#e8f0fa!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}\n}\n\n@media print{\n  body.no-funds th,body.no-funds td{\n    font-size:11.5px!important;line-height:1.22!important;padding:3.5px 4px!important\n  }\n  body.with-funds th,body.with-funds td{\n    font-size:10.8px!important;line-height:1.2!important;padding:3.2px!important\n  }\n  body.no-funds table :is(th,td):nth-child(1){width:5%}
+  body.no-funds table :is(th,td):nth-child(2){width:24%}
+  body.no-funds table :is(th,td):nth-child(3){width:14%}
+  body.no-funds table :is(th,td):nth-child(4){width:9%}
+  body.no-funds table :is(th,td):nth-child(5){width:9%}
+  body.no-funds table :is(th,td):nth-child(6){width:26%}
+  body.no-funds table :is(th,td):nth-child(7){width:13%}
+  body.with-funds table :is(th,td):nth-child(1){width:4%}
+  body.with-funds table :is(th,td):nth-child(2){width:19%}
+  body.with-funds table :is(th,td):nth-child(3){width:11%}
+  body.with-funds table :is(th,td):nth-child(4){width:7%}
+  body.with-funds table :is(th,td):nth-child(5){width:7%}
+  body.with-funds table :is(th,td):nth-child(6){width:15%}
+  body.with-funds table :is(th,td):nth-child(7){width:8%}
+  body.with-funds table :is(th,td):nth-child(8){width:10%}
+  body.with-funds table :is(th,td):nth-child(9){width:9%}
+  body.with-funds table :is(th,td):nth-child(10){width:10%}
 }
 // One layout and destination selector for both content collections.
 // A destination change uses the audited atomic transfer API; no local copying.
@@ -935,13 +939,16 @@ function showForm(record){
    if(type==='readonly')input.readOnly=true;
   }
   input.name=key;input.required=!!required;
-  const examples={title:'Contoh: Kerja Bakti Lingkungan',description:'Contoh: Kegiatan membersihkan lorong bersama warga',drive_url:'Contoh: https://drive.google.com/drive/folders/...',photo_ref:'Contoh: https://drive.google.com/file/d/.../view',rumah:'Contoh: A5/41',nama:'Contoh: Pak Heri',qty_iuran_bulanan:'Contoh: 1 (kali)',qty_kebersihan:'Contoh: 1 (kali)',qty_kas_lorong:'Contoh: 1 (kali)',qty_arisan:'Contoh: 0 (tidak ikut)',setting_value:'Contoh: 10 (tanggal setiap bulan)',amount_rp:'Contoh: 25000',summary:'Contoh: Hasil kesepakatan rapat warga',event_on:'Pilih tanggal kegiatan'};
+  const examples={title:'Contoh: Kerja Bakti Lingkungan',description:'Contoh: Kegiatan membersihkan lorong bersama warga',drive_url:'Contoh: https://drive.google.com/drive/folders/...',photo_ref:'Contoh: https://drive.google.com/file/d/.../view',rumah:'Contoh: A5/41',nama:'Contoh: Pak Heri',qty_iuran_bulanan:'Contoh: 1 (kali)',qty_kebersihan:'Contoh: 1 (kali)',qty_kas_lorong:'Contoh: 1 (kali)',qty_arisan:'Contoh: 0 (tidak ikut)',setting_value:'Contoh: 10 (tanggal setiap bulan)',amount_rp:'Contoh: 25000',summary:'Contoh: Hasil kesepakatan rapat warga',event_on:'Pilih tanggal kegiatan',back_name:'Contoh: H.J.',back_number:'Contoh: 29'};
   if(input.tagName!=='SELECT'&&type!=='readonly')input.placeholder=examples[key]||'Isi '+label.toLowerCase();
-  if(record&&record[key]!=null)input.value=String(record[key]);
+  if(active==='jersey'&&record&&(key==='back_name'||key==='back_number'))input.value=jerseyBackParts(record)[key==='back_name'?'name':'number'];
+  else if(record&&record[key]!=null)input.value=String(record[key]);
   else if(type==='boolean')input.value='1';
   else if(type==='visibility')input.value='publik';
   else if(type==='projectKind')input.value='informasi';
   else if(type==='number')input.value='0';
+  if(active==='jersey'&&key==='back_name')input.maxLength=80;
+  if(active==='jersey'&&key==='back_number'){input.maxLength=3;input.inputMode='numeric';input.pattern='[0-9]{1,3}';}
   if(active==='jersey'&&key==='package_type'&&!record)input.value='atasan';
   if(active==='jersey'&&key==='package_type'&&record&&!record.package_type)input.required=false;
   field.append(input);grid.append(field);
@@ -1153,6 +1160,7 @@ function showForm(record){
    if(input.required&&!value){notice.textContent=input.name+' wajib diisi.';input.focus();return}
    if(input.readOnly)continue;
    if(active==='jersey'&&input.name==='method')continue; // Serialized below with amount and audit markers.
+   if(active==='jersey'&&['back_name','back_number'].includes(input.name))continue; // Write as a pair, preserving untouched legacy print.
    const next=input.type==='number'?Number(value):input.name==='active'?Number(value):value;
    // Edit parsial: jangan mengirim ulang kolom lama yang tidak disentuh.
    // Misalnya URL relatif pada data projek lama tetap utuh tanpa melewati validasi URL baru.
@@ -1160,6 +1168,18 @@ function showForm(record){
    values[input.name]=next;
   }
   if(active==='jersey'){
+    const backName=String(form.elements.namedItem('back_name')?.value||'').trim();
+    const backNumber=String(form.elements.namedItem('back_number')?.value||'').trim();
+    if(backName.length>80||backNumber&&!/^\d{1,3}$/.test(backNumber)){
+      notice.textContent='Nama punggung maksimal 80 karakter dan nomor punggung harus 1–3 angka.';
+      form.elements.namedItem(backNumber&&!/^\d{1,3}$/.test(backNumber)?'back_number':'back_name')?.focus();return;
+    }
+    const oldBack=jerseyBackParts(record);
+    if(!record||backName!==oldBack.name||backNumber!==oldBack.number){
+      values.back_name=backName;
+      values.back_number=backNumber;
+      values.printed_name=[backName,backNumber].filter(Boolean).join(' ');
+    }
     const price=Math.max(0,Number(form.elements.namedItem('nominal_rp')?.value||0));
     const kind=methodChoice.value,remark=methodDetails.value.trim();
     const oldKind=jerseyMethodKind(record?.method),oldRemark=jerseyMethodNote(record?.method,oldKind);

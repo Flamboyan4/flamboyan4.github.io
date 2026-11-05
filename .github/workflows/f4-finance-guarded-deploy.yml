@@ -14,6 +14,7 @@ on:
       - cloudflare/migrations/20261031_bank_payout_requests.sql
       - cloudflare/migrations/20261103_bank_v3_inventory_policy.sql
       - cloudflare/migrations/20261105_jersey_package_type.sql
+      - cloudflare/migrations/20261105_jersey_back_fields.sql
       - qa/verify_bank_v3_migration.py
       - qa/verify-treasury-bank-approval.py
       - qa/verify-treasury-lifecycle.cjs
@@ -130,6 +131,23 @@ jobs:
           if "package_type" not in jersey_cols:
               raise RuntimeError("Jersey type column missing: abort Worker publish")
           print("D1_ADDITIVE_JERSEY_PACKAGE_OK=1")
+          # Separate back-print fields, with no rewrite of historical combined names.
+          back_sql=pathlib.Path("cloudflare/migrations/20261105_jersey_back_fields.sql").read_text().strip()
+          expected_back=[
+              "ALTER TABLE portal_jersey_orders ADD COLUMN back_name TEXT",
+              "ALTER TABLE portal_jersey_orders ADD COLUMN back_number TEXT"
+          ]
+          actual_back=[x.strip() for x in back_sql.split(";") if x.strip()]
+          if actual_back!=expected_back:
+              raise RuntimeError("Unexpected Jersey back-fields migration")
+          jersey_cols={x.get("name") for x in d1query("PRAGMA table_info(portal_jersey_orders)")}
+          for name,statement in zip(("back_name","back_number"),actual_back):
+              if name not in jersey_cols:
+                  d1query(statement+";")
+          jersey_cols={x.get("name") for x in d1query("PRAGMA table_info(portal_jersey_orders)")}
+          if not {"back_name","back_number"}.issubset(jersey_cols):
+              raise RuntimeError("Jersey back-print columns missing: abort Worker publish")
+          print("D1_ADDITIVE_JERSEY_BACK_FIELDS_OK=1")
           # Idempotent, additive project modules. No deletion or mutation of existing orders/cash.
           project_columns={
               "project_kind":"TEXT NOT NULL DEFAULT 'informasi'",

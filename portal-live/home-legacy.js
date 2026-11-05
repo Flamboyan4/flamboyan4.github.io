@@ -1743,6 +1743,16 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     function escapeJerseyText(value) {
       return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     }
+    function jerseyPublicBackParts(x){
+      const ownName=String(x?.back_name??'').trim(),ownNumber=String(x?.back_number??'').trim();
+      if(x?.back_name!=null||x?.back_number!=null)return {name:ownName,number:ownNumber};
+      const old=String(x?.printed_name||'').trim();
+      if(!old||/^\(?tanpa\s+nama\s*(?:\/\s*(?:no|nomor))?\)?$/i.test(old))return {name:'',number:''};
+      const numberOnly=old.match(/^(\d{1,3})\s*\(\s*tanpa\s+nama\s*\)$/i);
+      if(numberOnly)return {name:'',number:numberOnly[1]};
+      const trailing=old.match(/^(.+?)\s+(\d{1,3})$/);
+      return trailing?{name:trailing[1].trim(),number:trailing[2]}:{name:old,number:''};
+    }
     function renderJerseyRow(row) {
       const keys = Object.keys(row);
       
@@ -1751,7 +1761,8 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       const namaBlok = f4CanReadKas() ? escapeJerseyText(row[keys[1]] || '-') : ('Pemesan ' + no);
       const lengan = escapeJerseyText(row[keys[2]] || '-');
       const ukuran = escapeJerseyText(row[keys[3]] || '-');
-      const namaNoPunggung = f4CanReadKas() ? escapeJerseyText(row[keys[4]] || '-') : '—';
+      const namaPunggung = f4CanReadKas() ? escapeJerseyText(row['Nama Punggung'] || '-') : '—';
+      const nomorPunggung = f4CanReadKas() ? escapeJerseyText(row['Nomor Punggung'] || '-') : '—';
       const paket = escapeJerseyText(row.Paket || '—');
       
       const totalHarga = getNominalHargaJerseyRow(row);
@@ -1775,7 +1786,8 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
           <td class="p-3 text-slate-600 whitespace-nowrap">${paket}</td>
           <td class="p-3 text-slate-600 whitespace-nowrap">${lengan}</td>
           <td class="p-3 font-semibold text-indigo-700 whitespace-nowrap">${ukuran}</td>
-          <td class="p-3 text-slate-700 break-words">${namaNoPunggung}</td>
+          <td class="p-3 text-slate-700 break-words">${namaPunggung}</td>
+          <td class="p-3 text-slate-700 text-center whitespace-nowrap">${nomorPunggung}</td>
           <td class="p-3 text-right font-bold text-slate-800 whitespace-nowrap">${f4CanReadKas() && nominalMasuk > 0 ? formatRupiah(nominalMasuk) : '—'}</td>
           <td class="p-3 text-center whitespace-nowrap">${statusBadge}</td>
         </tr>
@@ -1819,7 +1831,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         labelTitipan.textContent=activeTitipan>0?'Titipan: '+formatRupiah(activeTitipan):'';
       }
 
-      document.getElementById('tabel-jersey-all').innerHTML = html || `<tr><td colspan="8" class="p-4 text-center text-slate-400">Tidak ada pemesan ${{bapak:'Bapak-bapak',ibu:'Ibu-ibu',anak:'Anak-anak'}[currentJerseyTab]} yang cocok</td></tr>`;
+      document.getElementById('tabel-jersey-all').innerHTML = html || `<tr><td colspan="9" class="p-4 text-center text-slate-400">Tidak ada pemesan ${{bapak:'Bapak-bapak',ibu:'Ibu-ibu',anak:'Anak-anak'}[currentJerseyTab]} yang cocok</td></tr>`;
     }
 
     function calculateTotalJerseyRekap() {
@@ -1859,13 +1871,16 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         if(!response.ok)throw Error('HTTP '+response.status);
         const data=await response.json();
         if(data.ok===false)throw Error(data.error||'Data tidak tersedia');
-        const makeRow=x=>({
-          'No':x.sort_order,'Nama & Blok':x.resident,'Lengan':x.sleeves,
-          'Ukuran':x.size,'Nama & No. Punggung':x.printed_name,
-          'Status Pembayaran':x.payment_status,'Pembayaran':x.nominal_rp,
-          'Keterangan':x.method,
-          'Paket':x.package_type==='atasan'?'Atasan saja':x.package_type==='set'?'Atasan + Bawahan':''
-        });
+        const makeRow=x=>{
+          const back=jerseyPublicBackParts(x);
+          return {
+            'No':x.sort_order,'Nama & Blok':x.resident,'Lengan':x.sleeves,
+            'Ukuran':x.size,'Nama Punggung':back.name,'Nomor Punggung':back.number,
+            'Status Pembayaran':x.payment_status,'Pembayaran':x.nominal_rp,
+            'Keterangan':x.method,
+            'Paket':x.package_type==='atasan'?'Atasan saja':x.package_type==='set'?'Atasan + Bawahan':''
+          };
+        };
         globalJerseyBapakData=(data.jerseyBapak||[]).map(makeRow);
         globalJerseyIbuData=(data.jerseyIbu||[]).map(makeRow);
         globalJerseyAnakData=(data.jerseyAnak||[]).map(makeRow);
