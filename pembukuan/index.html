@@ -1939,6 +1939,7 @@ main > section.card{overflow:visible!important}
 }
 </style>
 
+<link rel="stylesheet" href="/portal-live/bookkeeping-simple.css?v=20261105-simplified-v1">
 </head>
 <body oncontextmenu="return false;">
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
@@ -1977,16 +1978,21 @@ main > section.card{overflow:visible!important}
 
 
   <section class="card bg-white rounded-2xl border border-violet-100 overflow-hidden">
-    <div id="group-nav-inputdata" class="group-nav">
-      <div class="tabs-scroll flex gap-2">
-        <button data-process-target="input" class="process-btn active px-4 py-2 rounded-xl border border-violet-200 text-sm font-bold whitespace-nowrap" onclick="pilihMenu('input')">Input Iuran</button>
-        <button data-process-target="transaksi" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('transaksi')">Debit / Kredit</button>
-        <button data-process-target="kas" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('kas')">Buku Kas</button>
-        <button data-process-target="talangan" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('talangan')">Talangan</button>
-        <button data-process-target="denda" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('denda')">Denda</button>
-        <button data-process-target="pinjaman" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('pinjaman')">Pinjaman</button>
-        <button data-process-target="importbulk" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('importbulk')"><span class="inline-flex items-center gap-2"><i data-lucide="file-up" class="w-4 h-4"></i>Import Bulk</span></button>
-      </div>
+    <div id="group-nav-inputdata" class="group-nav f4-book-tab-shell">
+      <nav class="f4-book-sections" aria-label="Jenis pencatatan">
+        <button type="button" data-book-input-section="input" class="f4-book-section-btn active" onclick="pilihMenu('input')">Iuran Warga</button>
+        <button type="button" data-book-input-section="kas" class="f4-book-section-btn" onclick="pilihMenu('transaksi')">Transaksi Kas</button>
+        <button type="button" data-book-input-section="lainnya" class="f4-book-section-btn" onclick="pilihMenu('talangan')">Lainnya</button>
+      </nav>
+      <nav id="f4-book-subnav-kas" class="f4-book-subnav hidden" aria-label="Pencatatan kas">
+        <button type="button" data-process-target="transaksi" class="process-btn" onclick="pilihMenu('transaksi')">Debit / Kredit</button>
+        <button type="button" data-process-target="kas" class="process-btn" onclick="pilihMenu('kas')">Buku Kas</button>
+      </nav>
+      <nav id="f4-book-subnav-lainnya" class="f4-book-subnav hidden" aria-label="Pencatatan lainnya">
+        <button type="button" data-process-target="talangan" class="process-btn" onclick="pilihMenu('talangan')">Talangan</button>
+        <button type="button" data-process-target="denda" class="process-btn" onclick="pilihMenu('denda')">Denda</button>
+        <button type="button" data-process-target="pinjaman" class="process-btn" onclick="pilihMenu('pinjaman')">Pinjaman</button>
+      </nav>
     </div>
     <div id="group-nav-dataacuan" class="group-nav hidden">
       <div class="tabs-scroll flex gap-2">
@@ -1995,6 +2001,10 @@ main > section.card{overflow:visible!important}
         <button data-process-target="warga" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('warga')">Data Warga</button>
         <button data-process-target="config" class="process-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihMenu('config')">Tarif & Aturan</button>
       </div>
+      <details class="f4-book-admin-tools">
+        <summary>Alat Administrasi</summary>
+        <button type="button" data-process-target="importbulk" class="f4-book-admin-link process-btn" onclick="pilihMenu('importbulk')">Import CSV Migrasi</button>
+      </details>
     </div>
 
     <div id="tab-dashboard" class="tab-panel hidden p-4 sm:p-5">
