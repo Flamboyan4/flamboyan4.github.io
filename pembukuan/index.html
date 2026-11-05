@@ -2755,10 +2755,10 @@ async function simpanIuran(ev){
 });
 
 let DATA_KEKURANGAN_KAS={rows:[],totalKekurangan:0,jumlah:0};
-let F4_KURANG_KAS_LOADED=false;
 let F4_KURANG_KAS_PENDING=null;
 function f4LoadKekuranganKasOnDemand(){
-  if(F4_KURANG_KAS_LOADED||F4_KURANG_KAS_PENDING)return;
+  // Selalu periksa ulang ketika dibuka, agar data keuangan tidak basi.
+  if(F4_KURANG_KAS_PENDING)return;
   const state=document.getElementById('kurang-kas-state');
   if(state)state.textContent='Memeriksa kekurangan…';
   F4_KURANG_KAS_PENDING=loadKekuranganKas(true)
@@ -2773,7 +2773,6 @@ async function loadKekuranganKas(silent=false){
     const r=await jsonp(APPS_SCRIPT_URL,{action:'kekurangankas',t:Date.now()});
     if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memuat kekurangan Kas Lorong.');
     DATA_KEKURANGAN_KAS=r.data||{rows:[],totalKekurangan:0,jumlah:0};
-    F4_KURANG_KAS_LOADED=true;
     renderKekuranganKasOptions();
     return DATA_KEKURANGAN_KAS;
   }catch(e){if(!silent)kurangKasMsg(e.message||String(e),'error');throw e}
