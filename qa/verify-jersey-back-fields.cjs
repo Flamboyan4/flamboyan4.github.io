@@ -10,7 +10,7 @@ const paths={
   migration:'cloudflare/migrations/20261105_jersey_back_fields.sql'
 };
 const source=Object.fromEntries(Object.entries(paths).map(([k,p])=>[k,fs.readFileSync(p,'utf8')]));
-for(const k of ['admin','home','worker'])new vm.Script(source[k],{filename:paths[k]});
+for(const k of ['admin','home'])new vm.Script(source[k],{filename:paths[k]}); // Worker is an ESM module, checked by node --check.
 const backFunc=source.admin.match(/function jerseyBackParts\(row\)\{[\s\S]*?\n\}/);
 const publicFunc=source.home.match(/function jerseyPublicBackParts\(x\)\{[\s\S]*?\n    \}/);
 assert.ok(backFunc,'Parser nama punggung Superadmin hilang');
