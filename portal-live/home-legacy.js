@@ -233,6 +233,7 @@
     
     let globalJerseyBapakData = [];
     let globalJerseyIbuData = [];
+    let globalJerseyAnakData = [];
     let currentJerseyTab = 'bapak';
 
     let globalRencanaData = [];
@@ -1724,20 +1725,18 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       return Number.isFinite(amount)?amount:0;
     }
     function switchJerseyTab(tab) {
-      currentJerseyTab = tab;
-      const btnBapak = document.getElementById('tab-jersey-bapak');
-      const btnIbu = document.getElementById('tab-jersey-ibu');
-      const labelTab = document.getElementById('label-tab-kategori');
-
-      if (tab === 'bapak') {
-        btnBapak.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-indigo-600 text-white border-indigo-600 shadow-sm";
-        btnIbu.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-white text-slate-600 border-slate-200 hover:bg-slate-100";
-        if (labelTab) labelTab.innerText = "(Bapak-bapak)";
-      } else {
-        btnIbu.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-indigo-600 text-white border-indigo-600 shadow-sm";
-        btnBapak.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-white text-slate-600 border-slate-200 hover:bg-slate-100";
-        if (labelTab) labelTab.innerText = "(Ibu-ibu)";
+      const labels={bapak:'Bapak-bapak',ibu:'Ibu-ibu',anak:'Anak-anak'};
+      currentJerseyTab=Object.hasOwn(labels,tab)?tab:'bapak';
+      const activeClass="flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-indigo-600 text-white border-indigo-600 shadow-sm";
+      const idleClass="flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-white text-slate-600 border-slate-200 hover:bg-slate-100";
+      for(const key of Object.keys(labels)){
+        const button=document.getElementById('tab-jersey-'+key);
+        if(!button)continue;
+        button.className=key===currentJerseyTab?activeClass:idleClass;
+        button.setAttribute('aria-pressed',String(key===currentJerseyTab));
       }
+      const labelTab=document.getElementById('label-tab-kategori');
+      if(labelTab)labelTab.innerText='('+labels[currentJerseyTab]+')';
       filterJerseyModal();
     }
 
@@ -1753,6 +1752,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       const lengan = escapeJerseyText(row[keys[2]] || '-');
       const ukuran = escapeJerseyText(row[keys[3]] || '-');
       const namaNoPunggung = f4CanReadKas() ? escapeJerseyText(row[keys[4]] || '-') : '—';
+      const paket = escapeJerseyText(row.Paket || '—');
       
       const totalHarga = getNominalHargaJerseyRow(row);
       const nominalMasuk = getNominalJerseyMasuk(row);
@@ -1772,6 +1772,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         <tr class="hover:bg-slate-50 transition">
           <td class="p-3 text-center text-slate-500 font-mono">${no}</td>
           <td class="p-3 font-bold text-slate-800 break-words">${namaBlok}</td>
+          <td class="p-3 text-slate-600 whitespace-nowrap">${paket}</td>
           <td class="p-3 text-slate-600 whitespace-nowrap">${lengan}</td>
           <td class="p-3 font-semibold text-indigo-700 whitespace-nowrap">${ukuran}</td>
           <td class="p-3 text-slate-700 break-words">${namaNoPunggung}</td>
@@ -1783,7 +1784,8 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 
     function filterJerseyModal() {
       const keyword = (document.getElementById('search-jersey').value || '').toLowerCase();
-      const activeData = (currentJerseyTab === 'bapak') ? globalJerseyBapakData : globalJerseyIbuData;
+      const activeData = currentJerseyTab==='bapak'?globalJerseyBapakData:
+        currentJerseyTab==='ibu'?globalJerseyIbuData:globalJerseyAnakData;
 
       let html = '';
       let activeTotalTagihan = 0;
@@ -1817,11 +1819,11 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         labelTitipan.textContent=activeTitipan>0?'Titipan: '+formatRupiah(activeTitipan):'';
       }
 
-      document.getElementById('tabel-jersey-all').innerHTML = html || `<tr><td colspan="7" class="p-4 text-center text-slate-400">Tidak ada pemesan ${currentJerseyTab === 'bapak' ? 'Bapak-bapak' : 'Ibu-ibu'} yang cocok</td></tr>`;
+      document.getElementById('tabel-jersey-all').innerHTML = html || `<tr><td colspan="8" class="p-4 text-center text-slate-400">Tidak ada pemesan ${{bapak:'Bapak-bapak',ibu:'Ibu-ibu',anak:'Anak-anak'}[currentJerseyTab]} yang cocok</td></tr>`;
     }
 
     function calculateTotalJerseyRekap() {
-      const allCombined = [...globalJerseyBapakData, ...globalJerseyIbuData];
+      const allCombined = [...globalJerseyBapakData, ...globalJerseyIbuData, ...globalJerseyAnakData];
       let countLunas = 0;
       let countDP = 0;
       let grandTotalTerkumpul = 0;
@@ -1847,37 +1849,32 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 
       document.getElementById('badge-count-bapak').innerText = globalJerseyBapakData.length;
       document.getElementById('badge-count-ibu').innerText = globalJerseyIbuData.length;
+      document.getElementById('badge-count-anak').innerText = globalJerseyAnakData.length;
     }
 
-    if (CSV_JERSEY_BAPAK_URL && CSV_JERSEY_BAPAK_URL.startsWith('http')) {
-      Papa.parse(CSV_JERSEY_BAPAK_URL, {
-        download: true,
-        header: true,
-        complete: function(results) {
-          globalJerseyBapakData = results.data.filter(row => {
-            const values = Object.values(row);
-            return values.length >= 2 && values[1] && values[1].toString().trim() !== '';
-          });
-          calculateTotalJerseyRekap();
-          filterJerseyModal();
-        }
-      });
-    }
-
-    if (CSV_JERSEY_IBU_URL && CSV_JERSEY_IBU_URL.startsWith('http')) {
-      Papa.parse(CSV_JERSEY_IBU_URL, {
-        download: true,
-        header: true,
-        complete: function(results) {
-          globalJerseyIbuData = results.data.filter(row => {
-            const values = Object.values(row);
-            return values.length >= 2 && values[1] && values[1].toString().trim() !== '';
-          });
-          calculateTotalJerseyRekap();
-          filterJerseyModal();
-        }
-      });
-    }
+    // One D1 read for all three Jersey groups; no legacy CSV sheets.
+    (async function loadJerseyOrders(){
+      try{
+        const response=await fetch('https://api.flamboyan4.web.id/api/v2/public/portal',{cache:'no-store'});
+        if(!response.ok)throw Error('HTTP '+response.status);
+        const data=await response.json();
+        if(data.ok===false)throw Error(data.error||'Data tidak tersedia');
+        const makeRow=x=>({
+          'No':x.sort_order,'Nama & Blok':x.resident,'Lengan':x.sleeves,
+          'Ukuran':x.size,'Nama & No. Punggung':x.printed_name,
+          'Status Pembayaran':x.payment_status,'Pembayaran':x.nominal_rp,
+          'Keterangan':x.method,
+          'Paket':x.package_type==='atasan'?'Atasan saja':x.package_type==='set'?'Atasan + Bawahan':''
+        });
+        globalJerseyBapakData=(data.jerseyBapak||[]).map(makeRow);
+        globalJerseyIbuData=(data.jerseyIbu||[]).map(makeRow);
+        globalJerseyAnakData=(data.jerseyAnak||[]).map(makeRow);
+        calculateTotalJerseyRekap();
+        filterJerseyModal();
+      }catch(error){
+        console.error('Daftar Jersey D1 gagal dimuat:',error);
+      }
+    })();
 
     (async function loadJerseyAndGapuraImages() {
       const folderJerseyId = extractFolderId(FOLDER_JERSEY_URL);

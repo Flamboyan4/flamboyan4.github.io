@@ -46,7 +46,7 @@
   
   <link rel="stylesheet" href="/portal-live/home-base.css?v=20261103-unified-grid-v1"><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261103-control-alignment-v2"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/portal-polish.css?v=20261103-unified-grid-v1">
-<link rel="stylesheet" href="/portal-live/home-overrides.css?v=20261103-css-ownership-v1">
+<link rel="stylesheet" href="/portal-live/home-overrides.css?v=20261105-jersey-tabs">
 
 </head>
 
@@ -796,6 +796,10 @@
             <span>👩 Ibu-ibu</span>
             <span id="badge-count-ibu" class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full text-[10px]">0</span>
           </button>
+          <button id="tab-jersey-anak" onclick="switchJerseyTab('anak')" class="flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-white text-slate-600 border-slate-200 hover:bg-slate-100">
+            <span>🧒 Anak-anak</span>
+            <span id="badge-count-anak" class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full text-[10px]">0</span>
+          </button>
         </div>
         <button type="button" onclick="closeModalDirect('modal-jersey')" class="f4-jersey-close text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition" aria-label="Tutup daftar Jersey">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -824,11 +828,12 @@
       </div>
 
       <div class="f4-jersey-table-wrap overflow-auto flex-1 min-h-0">
-        <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[650px]">
+        <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[760px]">
           <thead>
             <tr class="bg-slate-50 text-slate-600">
               <th class="w-12 text-center">No</th>
               <th class="w-1/4">Nama & Blok</th>
+               <th>Paket</th>
               <th>Lengan</th>
               <th>Ukuran</th>
               <th>Nama & No. Punggung</th>
@@ -1013,7 +1018,7 @@
   
 
   <!-- SCRIPT KONTROL LOGIKA PORTAL -->
-  <script src="/portal-live/home-legacy.js?v=20261103-login-only-reports"></script>
+  <script src="/portal-live/home-legacy.js?v=20261105-jersey-package"></script>
 <script id="f4-footer-overlap-observer">
 document.addEventListener('DOMContentLoaded',()=>{
  const footer=document.getElementById('pembayaran');

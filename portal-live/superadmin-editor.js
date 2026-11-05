@@ -7,7 +7,7 @@ const main=page.querySelector('main'),side=page.querySelector('aside');
 const base='https://api.flamboyan4.web.id/api/v2/admin/content/';
 const types={
  arisan:{label:'Jadwal Arisan',section:'portal',columns:[['period_on','Bulan pelaksanaan','date',true],['host_name','Tuan rumah dan nomor rumah','text',true],['status','Status','text']]},
- jersey:{label:'Pesanan Jersey',section:'portal',columns:[['group_key','Kelompok (bapak/ibu)','text',true],['sort_order','Nomor urut','number'],['resident','Nama dan rumah','text',true],['sleeves','Lengan','text'],['size','Ukuran','text'],['printed_name','Nama dan nomor punggung','text'],['payment_status','Status pembayaran','text'],['nominal_rp','Harga (Rp)','number'],['method','Metode','text']]},
+ jersey:{label:'Pesanan Jersey',section:'portal',columns:[['group_key','Kelompok pemesan','text',true],['package_type','Jenis pesanan','text',true],['sort_order','Nomor urut','number'],['resident','Nama dan rumah','text',true],['sleeves','Lengan','text'],['size','Ukuran','text'],['printed_name','Nama dan nomor punggung','text'],['payment_status','Status pembayaran','text'],['nominal_rp','Harga (Rp)','number'],['method','Metode','text']]},
  projects:{label:'Project Card',section:'portal',columns:[['title','Nama projek','text',true],['description','Deskripsi','textarea'],['image_ref','Foto / gambar Google Drive','url'],['target_url','Link tujuan / #bagian','text'],['project_kind','Jenis proyek','projectKind',true],['fund_source','Kategori kas terkait','text'],['fund_target_rp','Target dana (Rp)','number'],['linked_key','Portal / modul terhubung','projectModule'],['sort_order','Urutan','number'],['active','Aktif','boolean']]},
  agenda:{label:'Rencana Kegiatan',section:'portal',columns:[['title','Nama kegiatan','text',true],['starts_on','Tanggal mulai','date'],['ends_on','Tanggal selesai','date'],['location','Lokasi','text'],['description','Deskripsi','textarea'],['image_ref','Foto Google Drive','url'],['status','Status kegiatan','text'],['visibility','Tampilkan ke publik','visibility'],['sort_order','Urutan','number']]},
  documentation:{label:'Dokumentasi',section:'portal',columns:[['title','Judul dokumentasi','text',true],['event_on','Tanggal','date'],['description','Deskripsi','textarea'],['drive_url','Tautan album/folder Google Drive (foto dan video)','url'],['category','Kategori dokumentasi','category'],['sort_order','Urutan','number'],['visibility','Akses','visibility'],['active','Aktif','boolean']]},
@@ -67,6 +67,7 @@ function paidJerseyAmount(row){
  return Number.isFinite(sum)?sum:0;
 }
 const jerseyRp=value=>'Rp '+(Number(value)||0).toLocaleString('id-ID');
+const jerseyPackageLabel=value=>value==='atasan'?'Atasan saja':value==='set'?'Atasan + Bawahan':'Belum ditentukan';
 /* Summary for the existing Jersey data, shared by Superadmin and print.
    Only explicit [F4BAYAR] amounts can be assigned to a payment channel.
    Historical status-derived amounts remain unclassified by payment method. */
@@ -438,16 +439,19 @@ function viewList(){
  populate();
 }
 function populateJersey(rows,list,query){
- const groups=[['bapak','Bapak-bapak'],['ibu','Ibu-ibu']];
+ const groups=[['bapak','Bapak-bapak'],['ibu','Ibu-ibu'],['anak','Anak-anak']];
  const normalized=value=>String(value||'').trim().toLowerCase().replace(/[^a-z]/g,'');
+ const groupOf=value=>{
+  const code=normalized(value);
+  if(/^(bapak|bapakbapak|pria|laki|laki2|putra)$/.test(code))return 'bapak';
+  if(/^(ibu|ibuibu|wanita|perempuan|putri)$/.test(code))return 'ibu';
+  if(/^(anak|anakanak|kids|child)$/.test(code))return 'anak';
+  return '';
+ };
  const formatCurrency=n=>'Rp '+Number(n||0).toLocaleString('id-ID');
  const wrap=node('div',undefined,'f4-jersey-groups');
  for(const [key,label] of groups){
-  const members=rows.filter(row=>{
-   const code=normalized(row.group_key);
-   return key==='bapak'?(/^(bapak|bapakbapak|pria|laki|laki2|putra)$/.test(code)):
-    /^(ibu|ibuibu|wanita|perempuan|putri)$/.test(code);
-  }).sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0)||
+  const members=rows.filter(row=>groupOf(row.group_key)===key).sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0)||
     String(a.resident||'').localeCompare(String(b.resident||''),'id'));
   const group=node('details',undefined,'f4-jersey-group');
   group.open=!!query||members.some(x=>String(x.id)===String(lastSavedJerseyId));
@@ -466,12 +470,12 @@ function populateJersey(rows,list,query){
    const text=node('span',undefined,'f4-jersey-person-identity');
    text.append(node('strong',String(x.resident||'').trim()||'Nama warga belum tercatat'));
    const paid=paidJerseyAmount(x),price=Math.max(0,Number(x.nominal_rp)||0);
-   const sub=[x.size?'Ukuran '+x.size:'',x.payment_status||'Belum bayar',
+   const sub=[x.package_type?jerseyPackageLabel(x.package_type):'',x.size?'Ukuran '+x.size:'',x.payment_status||'Belum bayar',
     paidJerseyExact(x)!==null?'Diterima '+jerseyRp(paid):''].filter(Boolean).join(' • ');
    if(sub)text.append(node('small',sub));
    head.append(text);item.append(head);
    const body=node('div',undefined,'f4-jersey-person-detail');
-   const fields=[['Nomor urut',x.sort_order],['Lengan',x.sleeves],
+   const fields=[['Nomor urut',x.sort_order],['Pesanan',jerseyPackageLabel(x.package_type)],['Lengan',x.sleeves],
     ['Ukuran',x.size],['Nama dan nomor punggung',x.printed_name],
     ['Harga pesanan',jerseyRp(price)],
     ['Status pembayaran',x.payment_status||'Belum bayar'],
@@ -488,9 +492,7 @@ function populateJersey(rows,list,query){
   }
   group.append(content);wrap.append(group);
  }
- const recognized=rows.filter(row=>groups.some(([key])=>key==='bapak'
-  ?/^(bapak|bapakbapak|pria|laki|laki2|putra)$/.test(normalized(row.group_key))
-  :/^(ibu|ibuibu|wanita|perempuan|putri)$/.test(normalized(row.group_key))));
+ const recognized=rows.filter(row=>groups.some(([key])=>groupOf(row.group_key)===key));
  if(recognized.length!==rows.length){
   const other=node('details',undefined,'f4-jersey-group');
   const missing=rows.filter(row=>!recognized.includes(row));
@@ -519,7 +521,7 @@ function populate(){
    inventory:[['name','Nama barang'],['quantity','Jumlah'],['unit','Satuan'],['category','Kategori'],['description','Kondisi / Keterangan']],
    meetings:[['title','Judul rapat'],['meeting_on','Tanggal'],['summary','Ringkasan'],['document_ref','Dokumen']],
    obligations:[['nama','Nama warga'],['rumah','Rumah'],['qty_iuran_bulanan','Iuran bulanan'],['qty_kebersihan','Kebersihan'],['qty_kas_lorong','Kas lorong'],['qty_arisan','Arisan']],
-   jersey:[['group_key','Kelompok'],['sort_order','No'],['resident','Nama & Rumah'],['sleeves','Lengan'],['size','Ukuran'],['printed_name','Nama/No Punggung'],['nominal_rp','Nilai Pesanan'],['payment_status','Status Pembayaran'],['method','Keterangan']]
+   jersey:[['group_key','Kelompok'],['package_type','Pesanan'],['sort_order','No'],['resident','Nama & Rumah'],['sleeves','Lengan'],['size','Ukuran'],['printed_name','Nama/No Punggung'],['nominal_rp','Nilai Pesanan'],['payment_status','Status Pembayaran'],['method','Keterangan']]
   }[active];
   const scroll=node('div',undefined,'f4-obligation-scroll');
   const table=node('table',undefined,'f4-obligation-grid'),thead=node('thead'),head=node('tr');table.dataset.module=active;
@@ -597,7 +599,7 @@ function printJerseyReport(includeFunds=null){
   const choices=node('div',undefined,'f4-jersey-print-choices');
   for(const [value,label,desc] of [
    ['all','Laporan lengkap','Data pesanan dan rincian dana pembayaran.'],
-   ['no-funds','Tanpa laporan dana','Hanya nama pemesan, ukuran, lengan, dan nama/nomor punggung.']]){
+   ['no-funds','Tanpa laporan dana','Hanya nama pemesan, paket, ukuran, lengan, dan nama/nomor punggung.']]){
    const item=node('label',undefined,'f4-jersey-print-choice');
    const radio=document.createElement('input');radio.type='radio';radio.name='f4-jersey-print-mode';radio.value=value;radio.checked=value==='all';
    const detail=node('span');detail.append(node('strong',label),node('small',desc));
@@ -619,7 +621,7 @@ function printJerseyReport(includeFunds=null){
  const sections=[];
  let allOrders=0,allTotal=0,allReceived=0,allTitipan=0,allOutstanding=0;
  const paymentReport=jerseyPaymentSummary(records);
- for(const [kind,label] of [['bapak','Bapak-Bapak'],['ibu','Ibu-Ibu']]){
+ for(const [kind,label] of [['bapak','Bapak-Bapak'],['ibu','Ibu-Ibu'],['anak','Anak-anak']]){
   const people=records.filter(x=>String(x.group_key||'').toLowerCase()===kind)
    .sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0));
   let total=0,received=0,titipan=0,outstanding=0;
@@ -627,17 +629,17 @@ function printJerseyReport(includeFunds=null){
    const invoice=Number(x.nominal_rp||0),paid=paidJerseyAmount(x);
    total+=invoice;received+=paid;outstanding+=Math.max(0,invoice-paid);titipan+=Math.max(0,paid-invoice);
    return '<tr><td class="center">'+esc(x.sort_order??'-')+'</td><td>'+esc(x.resident)+'</td>'+
-    '<td>'+esc(x.sleeves||'-')+'</td><td>'+esc(x.size||'-')+'</td>'+
+    '<td>'+esc(jerseyPackageLabel(x.package_type))+'</td><td>'+esc(x.sleeves||'-')+'</td><td>'+esc(x.size||'-')+'</td>'+
     '<td>'+esc(x.printed_name||'-')+'</td>'+
     (includeFunds?'<td class="number">'+money(invoice)+'</td>'+
       '<td class="number">'+money(paid)+'</td><td>'+esc(x.payment_status||'-')+'</td>':'')+'</tr>';
   }).join('');
   allOrders+=people.length;allTotal+=total;allReceived+=received;allOutstanding+=outstanding;allTitipan+=titipan;
   sections.push('<section><h2>Pesanan '+label+' ('+people.length+' orang)</h2>'+
-   '<table><thead><tr><th>No</th><th>Nama & Rumah</th><th>Lengan</th><th>Ukuran</th>'+
+   '<table><thead><tr><th>No</th><th>Nama & Rumah</th><th>Pesanan</th><th>Lengan</th><th>Ukuran</th>'+
    '<th>Nama / No. Punggung</th>'+
    (includeFunds?'<th>Nilai</th><th>Masuk</th><th>Status</th>':'')+'</tr></thead>'+
-   '<tbody>'+(rows||'<tr><td colspan="'+(includeFunds?8:5)+'">Belum ada pesanan.</td></tr>')+'</tbody></table>'+
+   '<tbody>'+(rows||'<tr><td colspan="'+(includeFunds?9:6)+'">Belum ada pesanan.</td></tr>')+'</tbody></table>'+
    (includeFunds?'<p class="sub">Nilai pesanan: '+money(total)+' &nbsp;|&nbsp; Dana masuk: '+money(received)+
    ' &nbsp;|&nbsp; Kekurangan: '+money(outstanding)+' &nbsp;|&nbsp; Titipan: '+money(titipan)+'</p>':'')+'</section>');
  }
@@ -885,7 +887,11 @@ function showForm(record){
   if(type==='textarea'){input=node('textarea');input.rows=3;}
   else if(active==='jersey'&&key==='group_key'){
    input=node('select');
-   input.append(new Option('Bapak-Bapak','bapak'),new Option('Ibu-Ibu','ibu'));
+   input.append(new Option('Bapak-bapak','bapak'),new Option('Ibu-ibu','ibu'),new Option('Anak-anak','anak'));
+  }
+  else if(active==='jersey'&&key==='package_type'){
+   input=node('select');
+   input.append(new Option('Pilih jenis pesanan',''),new Option('Atasan saja','atasan'),new Option('Atasan + Bawahan','set'));
   }
   else if(active==='projects'&&key==='project_kind'){
    input=node('select');
@@ -936,6 +942,8 @@ function showForm(record){
   else if(type==='visibility')input.value='publik';
   else if(type==='projectKind')input.value='informasi';
   else if(type==='number')input.value='0';
+  if(active==='jersey'&&key==='package_type'&&!record)input.value='atasan';
+  if(active==='jersey'&&key==='package_type'&&record&&!record.package_type)input.required=false;
   field.append(input);grid.append(field);
  }
  if(active==='obligations'){
@@ -989,7 +997,7 @@ function showForm(record){
    if(goal?.parentElement)goal.parentElement.hidden=!['kas','penggalangan'].includes(kind);
    if(linked?.parentElement)linked.parentElement.hidden=!['informasi','portal','pesanan'].includes(kind);
    note.textContent=isLegacyJerseyProject({title:form.elements.namedItem('title')?.value,linked_key:linked?.value})
-    ?'Jersey lama: daftar Bapak-bapak dan Ibu-ibu, status bayar, QRIS/Cash, laporan, dan tombol lama tetap memakai modul Jersey D1 yang sudah ada. Tidak membuat tabel pesanan kosong.'
+    ?'Jersey: daftar Bapak-bapak, Ibu-ibu, dan Anak-anak beserta jenis pesanan, status bayar, QRIS/Cash, dan laporan tetap memakai data Jersey D1.'
     :kind==='pesanan'
     ?'Setelah proyek disimpan, tombol Kelola Pesanan otomatis tersedia. Setiap proyek memiliki daftar pesanan tersendiri (berdasarkan ID proyek). Bukan tabel Jersey lama.'
     :kind==='penggalangan'
@@ -1059,6 +1067,18 @@ function showForm(record){
  let receivedField=null;
  let methodChoice=null,methodDetails=null,qrisSplitField=null,cashSplitField=null;
  if(active==='jersey'){
+  const packageChoice=form.elements.namedItem('package_type');
+  const priceChoice=form.elements.namedItem('nominal_rp');
+  if(!record&&packageChoice&&priceChoice){
+   const suggestPrice=()=>{
+    if(packageChoice.value==='atasan'||packageChoice.value==='set'){
+     priceChoice.value=packageChoice.value==='set'?'120000':'90000';
+     priceChoice.dispatchEvent(new Event('input',{bubbles:true}));
+    }
+   };
+   packageChoice.addEventListener('change',suggestPrice);
+   suggestPrice();
+  }
   const label=node('label',undefined,'f4-jersey-received-field');
   label.append(node('span','Uang diterima (Rp)'));
   receivedField=node('input');receivedField.type='number';

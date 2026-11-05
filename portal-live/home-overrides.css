@@ -39,7 +39,7 @@
 #modal-jersey .f4-jersey-dialog{height:min(88vh,850px);height:min(88dvh,850px);max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);min-height:0}
 #modal-jersey .f4-jersey-topbar{display:grid;grid-template-columns:auto minmax(0,1fr) 36px;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid #e8edf4;background:#fff;flex-shrink:0}
 #modal-jersey .f4-jersey-modal-heading{font-size:14px;line-height:1.3;font-weight:800;color:#26334b;margin:0;white-space:nowrap}
-#modal-jersey .f4-jersey-tabs{display:flex;align-items:center;justify-content:center;gap:8px;min-width:0;max-width:590px;width:100%;margin-inline:auto}
+#modal-jersey .f4-jersey-tabs{display:flex;align-items:center;justify-content:center;gap:6px;min-width:0;max-width:680px;width:100%;margin-inline:auto}
 #modal-jersey .f4-jersey-tabs>button{min-width:0;min-height:36px;padding:7px 11px;border-radius:10px;font-size:12px;line-height:1.35;white-space:nowrap}
 #modal-jersey .f4-jersey-close{display:grid;place-items:center;width:36px;height:36px;min-width:36px}
 #modal-jersey .f4-jersey-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:8px 16px;background:#fafbfe;border-bottom:1px solid #edf0f6;flex-shrink:0}
@@ -61,7 +61,7 @@
  #modal-jersey .f4-jersey-modal-heading{grid-column:1;grid-row:1;font-size:14px}
  #modal-jersey .f4-jersey-close{grid-column:2;grid-row:1}
  #modal-jersey .f4-jersey-tabs{grid-column:1 / -1;grid-row:2;max-width:none}
- #modal-jersey .f4-jersey-tabs>button{font-size:12px;padding:7px 8px}
+ #modal-jersey .f4-jersey-tabs>button{font-size:11px;padding:7px 5px}
  #modal-jersey .f4-jersey-summary{padding:8px 12px;gap:5px}
  #modal-jersey .f4-jersey-stat{flex-direction:column;align-items:flex-start;gap:3px;padding:7px 8px}
  #modal-jersey .f4-jersey-stat p{font-size:10px}

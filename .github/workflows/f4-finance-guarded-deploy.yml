@@ -13,6 +13,7 @@ on:
       - cloudflare/migrations/20261030_treasury_bank_coverage.sql
       - cloudflare/migrations/20261031_bank_payout_requests.sql
       - cloudflare/migrations/20261103_bank_v3_inventory_policy.sql
+      - cloudflare/migrations/20261105_jersey_package_type.sql
       - qa/verify_bank_v3_migration.py
       - qa/verify-treasury-bank-approval.py
       - qa/verify-treasury-lifecycle.cjs
@@ -116,6 +117,19 @@ jobs:
           if not {"progress_id","photo_url","updated_at"}.issubset({v.get("name") for v in columns}):
               raise RuntimeError("New Bank Sampah media table missing required columns")
           print("D1_ADDITIVE_BANK_PHOTO_SCHEMA_OK=1")
+           # Jersey order type: one nullable column, no historical prices or payments changed.
+           jersey_sql=pathlib.Path("cloudflare/migrations/20261105_jersey_package_type.sql").read_text().strip()
+           if jersey_sql!="ALTER TABLE portal_jersey_orders ADD COLUMN package_type TEXT;":
+               raise RuntimeError("Unsafe Jersey migration: expected only one additive column")
+           jersey_cols={x.get("name") for x in d1query("PRAGMA table_info(portal_jersey_orders)")}
+           if not {"id","group_key","nominal_rp","method"}.issubset(jersey_cols):
+               raise RuntimeError("Jersey table structure is unrecognized")
+           if "package_type" not in jersey_cols:
+               d1query(jersey_sql)
+           jersey_cols={x.get("name") for x in d1query("PRAGMA table_info(portal_jersey_orders)")}
+           if "package_type" not in jersey_cols:
+               raise RuntimeError("Jersey type column missing: abort Worker publish")
+           print("D1_ADDITIVE_JERSEY_PACKAGE_OK=1")
           # Idempotent, additive project modules. No deletion or mutation of existing orders/cash.
           project_columns={
               "project_kind":"TEXT NOT NULL DEFAULT 'informasi'",

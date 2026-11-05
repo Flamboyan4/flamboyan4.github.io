@@ -56,10 +56,11 @@ async function publicPortal(db) {
   ]);
   // Arisan & Jersey were the last public Sheets CSV datasets. Absent migration
   // tables yield empty arrays instead of making the rest of Portal unavailable.
-  const [arisan,jerseyBapak,jerseyIbu]=await Promise.all([
+  const [arisan,jerseyBapak,jerseyIbu,jerseyAnak]=await Promise.all([
     list(db,"SELECT period_on,host_name,status FROM portal_arisan_schedule ORDER BY period_on LIMIT 200").catch(()=>[]),
-    list(db,"SELECT sort_order,resident,sleeves,size,printed_name,payment_status,nominal_rp,method FROM portal_jersey_orders WHERE group_key='bapak' ORDER BY sort_order LIMIT 200").catch(()=>[]),
-    list(db,"SELECT sort_order,resident,sleeves,size,printed_name,payment_status,nominal_rp,method FROM portal_jersey_orders WHERE group_key='ibu' ORDER BY sort_order LIMIT 200").catch(()=>[])
+    list(db,"SELECT sort_order,resident,sleeves,size,printed_name,payment_status,nominal_rp,method,package_type FROM portal_jersey_orders WHERE group_key='bapak' ORDER BY sort_order LIMIT 200").catch(()=>[]),
+    list(db,"SELECT sort_order,resident,sleeves,size,printed_name,payment_status,nominal_rp,method,package_type FROM portal_jersey_orders WHERE group_key='ibu' ORDER BY sort_order LIMIT 200").catch(()=>[]),
+    list(db,"SELECT sort_order,resident,sleeves,size,printed_name,payment_status,nominal_rp,method,package_type FROM portal_jersey_orders WHERE group_key='anak' ORDER BY sort_order LIMIT 200").catch(()=>[])
   ]);
   const ordersByProject=new Map(orderSummary.map(r=>[r.project_id,r]));
   const fundsByProject=new Map(contributionSummary.map(r=>[r.project_id,r]));
@@ -78,7 +79,7 @@ async function publicPortal(db) {
       jumlahKontributor:kind==="penggalangan"?Number(funds?.jumlah||0):0
     }};
   });
-  return ok({agenda,banners,projects:publicProjects,inventory,meetings,documentation,arisan,jerseyBapak,jerseyIbu});
+  return ok({agenda,banners,projects:publicProjects,inventory,meetings,documentation,arisan,jerseyBapak,jerseyIbu,jerseyAnak});
 }
 __name(publicPortal, "publicPortal");
 // Login-only cash report: read only, from the authoritative active D1 cash journal.
@@ -863,7 +864,7 @@ var contentModel = {
   meetings: { table: "portal_meeting_records", fields: { title: "text", meeting_on: "date", summary: "long", document_ref: "url", visibility: "visibility" }, required: ["title"] },
   documentation: { table: "portal_documentation", fields: { event_on: "date", title: "text", description: "long", drive_url: "url", category: "text", sort_order: "order", visibility: "visibility", active: "bool" }, required: ["title"] },
   arisan: { table: "portal_arisan_schedule", fields: {period_on:"date",host_name:"text",status:"text"}, required:["period_on","host_name"] },
-  jersey: { table: "portal_jersey_orders", fields: {group_key:"text",sort_order:"order",resident:"text",sleeves:"text",size:"text",printed_name:"text",payment_status:"text",nominal_rp:"order",method:"text"}, required:["group_key","resident"] }
+  jersey: { table: "portal_jersey_orders", fields: {group_key:"text",package_type:"text",sort_order:"order",resident:"text",sleeves:"text",size:"text",printed_name:"text",payment_status:"text",nominal_rp:"order",method:"text"}, required:["group_key","resident"] }
 };
 var contentPath = "/api/v2/admin/content/";
 function normalizeContent(type, v) {
@@ -1159,8 +1160,11 @@ async function handleAdminContent(request, env, who, url) {
     ]);
     return ok({id:payer,effective_from:effectiveFrom,scheduled:true});
   }
-  if(kind==="jersey" && payload?.values?.group_key!==undefined && !["bapak","ibu"].includes(String(payload.values.group_key)))
-    return err("Jenis pemesan Jersey harus bapak atau ibu.",400);
+  if(kind==="jersey" && payload?.values?.group_key!==undefined && !["bapak","ibu","anak"].includes(String(payload.values.group_key)))
+    return err("Kelompok Jersey harus bapak, ibu, atau anak.",400);
+  if(kind==="jersey" && payload?.values?.package_type!==undefined &&
+     !["atasan","set"].includes(String(payload.values.package_type)))
+    return err("Jenis pesanan Jersey harus Atasan saja atau Atasan + Bawahan.",400);
   const fields = Object.keys(model.fields), value = payload.values || {};
   if (!value || typeof value !== "object" || Array.isArray(value)) return err("Isian tidak valid.", 400);
   const extraneous = Object.keys(value).filter((k) => !fields.includes(k));
@@ -1211,6 +1215,8 @@ async function handleAdminContent(request, env, who, url) {
     kind==="projects"&&["fund_source","linked_key"].includes(k)?"": 
     model.fields[k]==="bool"?1:["order","fundTarget"].includes(model.fields[k])?0:null;
   if (model.required.some((k) => !clean[k])) return err("Kolom wajib belum diisi.", 400);
+  if (kind==="jersey" && !["atasan","set"].includes(clean.package_type))
+    return err("Pilih jenis pesanan Jersey terlebih dahulu.",400);
   const newId = kind + ":web:" + crypto.randomUUID(), cols = ["id", ...fields];
   const jerseyPaid=kind==="jersey"?treasuryJerseyPaid(clean):0;
   const jerseyObserved=jerseyPaid>0?treasuryReceiptObservation(db,"jersey",newId,"jersey",jerseyPaid,
