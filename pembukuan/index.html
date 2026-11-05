@@ -1747,31 +1747,20 @@ main > section.card{overflow:visible!important}
   margin-bottom:2px!important;overflow-wrap:normal}
  /* Input Iuran: name full row; date+method 2 columns; month/year/quantity 3 columns. */
  
- #tab-input #form-iuran>div:nth-child(2),
  #modal-edit form>div:nth-child(3){
   display:grid!important;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr)!important;
   gap:8px!important;align-items:start!important
  }
- #tab-input #form-iuran>div:nth-child(3),
  #modal-edit form>div:nth-child(4){
   display:grid!important;grid-template-columns:minmax(0,1.3fr) minmax(0,.82fr) minmax(0,1.05fr)!important;
   gap:7px!important;align-items:start!important
  }
- #tab-input #form-iuran>div:nth-child(5){
-  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  gap:9px!important;align-items:start!important
- }
- #tab-input #form-iuran>div:nth-child(2)>div,
- #tab-input #form-iuran>div:nth-child(3)>div,
- #tab-input #form-iuran>div:nth-child(5)>div,
  #modal-edit form>div:nth-child(3)>div,
  #modal-edit form>div:nth-child(4)>div{min-width:0!important;max-width:100%!important}
- #tab-input #form-iuran>div:nth-child(3) .custom-select-btn,
  #modal-edit form>div:nth-child(4) .custom-select-btn{padding:8px 6px!important}
  #tab-input #preview-detail>.grid{gap:7px!important}
  #tab-input #preview-detail>.grid>div{padding:9px!important;border-radius:9px!important;min-width:0!important}
  #tab-input #preview-detail>.mt-3{margin-top:9px!important;padding-top:9px!important}
- #tab-input #form-iuran #btn-simpan{min-height:44px!important;padding:10px 14px!important}
  #tab-input #kekurangan-kas-card{margin-top:13px!important;padding:12px!important}
  #tab-input #form-kekurangan-kas{
   display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
@@ -1809,9 +1798,7 @@ main > section.card{overflow:visible!important}
  #tab-pinjaman :is(#loan-form-buat form,#loan-form-bayar form)>.grid>div{min-width:0!important}
 }
 @media screen and (max-width:345px){
- #tab-input #form-iuran>div:nth-child(3),
  #modal-edit form>div:nth-child(4){gap:4px!important;grid-template-columns:minmax(0,1.2fr) minmax(0,.78fr) minmax(0,1fr)!important}
- #tab-input #form-iuran>div:nth-child(3) label,
  #modal-edit form>div:nth-child(4) label{font-size:12px!important}
 }
 </style>
