@@ -1,31 +1,31 @@
 /* Uniform Indonesian custom date/month picker for OFFLINE preview. No backend access. */
 (()=>{'use strict';
   const months=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-  const days=['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+  const days=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
   let input=null,viewYear=0,viewMonth=0,pop=null;
   const two=n=>String(n).padStart(2,'0');
   const localToday=()=>{const d=new Date();return d.getFullYear()+'-'+two(d.getMonth()+1)+'-'+two(d.getDate())};
   const mk=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e};
   const style=document.createElement('style');
   style.textContent=[
-   'input.f4-date-target{cursor:pointer!important;caret-color:transparent}',
+   'input.f4-date-target{cursor:pointer;caret-color:transparent}',
    'input.f4-date-target::-webkit-calendar-picker-indicator{pointer-events:none;opacity:.65}',
    '.f4-calendar{position:fixed;z-index:999999;min-width:288px;width:304px;max-width:calc(100vw - 20px);border:1px solid #dcd3fc;background:white;color:#261b45;border-radius:16px;padding:14px;box-shadow:0 18px 55px #210e493b;font:13px system-ui,-apple-system,Segoe UI,sans-serif}',
    '.f4-calendar *{box-sizing:border-box}', '.f4-cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}',
    '.f4-cal-head strong{font-size:14px;font-weight:750;color:#4f23a0;text-align:center}',
-   '.f4-cal-btn{border:0!important;background:#f4f0ff!important;color:#5c26b0!important;border-radius:9px!important;width:35px;height:35px;padding:0!important;display:grid!important;place-items:center;font:700 19px system-ui!important;cursor:pointer}',
+   '.f4-cal-btn{border:0;background:#f4f0ff;color:#5c26b0;border-radius:9px;width:35px;height:35px;padding:0;display:grid;place-items:center;font:700 19px system-ui;cursor:pointer}',
    '.f4-cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}',
    '.f4-cal-dayhead{font-size:11px;font-weight:700;color:#77809b;text-align:center;padding:8px 0}',
-   '.f4-cal-cell{font:600 12px system-ui!important;min-height:35px!important;background:transparent!important;border:0!important;border-radius:10px!important;padding:0!important;color:#25233c!important;cursor:pointer}',
-   '.f4-cal-cell:hover{background:#eee7ff!important}', '.f4-cal-cell.f4-selected{background:#7433ef!important;color:white!important}',
-   '.f4-cal-cell.f4-out{color:#adb2c3!important}', '.f4-cal-cell.f4-today{outline:1px solid #8a5bff;outline-offset:-2px}',
+   '.f4-cal-cell{font:600 12px system-ui;min-height:35px;background:transparent;border:0;border-radius:10px;padding:0;color:#25233c;cursor:pointer}',
+   '.f4-cal-cell:hover{background:#eee7ff}', '.f4-cal-cell.f4-selected{background:#7433ef;color:white}',
+   '.f4-cal-cell.f4-out{color:#adb2c3}', '.f4-cal-cell.f4-today{outline:1px solid #8a5bff;outline-offset:-2px}',
    '.f4-cal-cell:disabled{opacity:.23;cursor:not-allowed}',
    '.f4-cal-months{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}',
-   '.f4-cal-month{font:600 12px system-ui!important;border-radius:10px!important;padding:11px 5px!important;background:#f7f4ff!important;color:#47326d!important;border:0!important;cursor:pointer}',
-   '.f4-cal-month.f4-selected{background:#7433ef!important;color:white!important}',
+   '.f4-cal-month{font:600 12px system-ui;border-radius:10px;padding:11px 5px;background:#f7f4ff;color:#47326d;border:0;cursor:pointer}',
+   '.f4-cal-month.f4-selected{background:#7433ef;color:white}',
    '.f4-cal-foot{margin-top:12px;border-top:1px solid #eee8fc;padding-top:10px;display:flex;justify-content:space-between;gap:8px}',
-   '.f4-cal-foot button{padding:7px 11px!important;border-radius:9px!important;background:#f2edff!important;color:#5329a6!important;border:0!important;font:650 12px system-ui!important;cursor:pointer}',
-   '@media screen and (max-width:767px){.f4-calendar{width:min(340px,calc(100vw - 20px))!important;min-width:0!important;max-height:calc(100dvh - 20px);overflow-y:auto}.f4-cal-head strong{font-size:19px!important}.f4-cal-dayhead{font-size:14px!important;font-weight:800!important}.f4-cal-cell{font:650 18px system-ui!important;min-height:40px!important}.f4-cal-month{font:700 17px system-ui!important;min-height:48px!important}.f4-cal-foot button{font:700 14px system-ui!important;min-height:40px!important}}'
+   '.f4-cal-foot button{padding:7px 11px;border-radius:9px;background:#f2edff;color:#5329a6;border:0;font:650 12px system-ui;cursor:pointer}',
+   '@media screen and (max-width:767px){.f4-calendar{width:min(340px,calc(100vw - 20px));min-width:0;max-height:calc(100dvh - 20px);overflow-y:auto}.f4-cal-head strong{font-size:19px}.f4-cal-dayhead{font-size:14px;font-weight:800}.f4-cal-cell{font:650 18px system-ui;min-height:40px}.f4-cal-month{font:700 17px system-ui;min-height:48px}.f4-cal-foot button{font:700 14px system-ui;min-height:40px}}'
   ].join('');
   document.head.append(style);
   const inRange=value=>{
@@ -65,7 +65,7 @@
     }else{
       const grid=mk('div','f4-cal-grid');
       for(const day of days)grid.append(mk('span','f4-cal-dayhead',day));
-      const first=new Date(viewYear,viewMonth,1),shift=(first.getDay()+6)%7;
+      const first=new Date(viewYear,viewMonth,1),shift=first.getDay();
       for(let i=0;i<42;i++){
         const date=new Date(viewYear,viewMonth,1-shift+i),iso=date.getFullYear()+'-'+two(date.getMonth()+1)+'-'+two(date.getDate());
         const out=date.getMonth()!==viewMonth;
