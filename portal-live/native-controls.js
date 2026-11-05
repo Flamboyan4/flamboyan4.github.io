@@ -129,9 +129,9 @@ function calendar(field,trigger){
    });
    return;
   }
-  const weekdays=['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+  const weekdays=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
   weekdays.forEach(d=>{const span=document.createElement('span');span.className='f4-control-weekday';span.textContent=d;grid.append(span)});
-  const lead=(new Date(y,m,1).getDay()+6)%7;
+  const lead=new Date(y,m,1).getDay();
   for(let i=0;i<lead;i++)grid.append(document.createElement('span'));
   const total=new Date(y,m+1,0).getDate();
   for(let day=1;day<=total;day++){
