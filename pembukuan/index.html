@@ -2883,7 +2883,11 @@ let DATA_KEKURANGAN_KAS={rows:[],totalKekurangan:0,jumlah:0};
 async function loadKekuranganKas(silent=false){
   try{const r=await jsonp(APPS_SCRIPT_URL,{action:'kekurangankas',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memuat kekurangan Kas Lorong.');DATA_KEKURANGAN_KAS=r.data||{rows:[],totalKekurangan:0,jumlah:0};renderKekuranganKasOptions();return DATA_KEKURANGAN_KAS}catch(e){if(!silent)kurangKasMsg(e.message||String(e),'error');throw e}
 }
-function renderKekuranganKasOptions(){const sel=document.getElementById('kurang-kas-id'),total=document.getElementById('kurang-kas-total');if(total)total.textContent=rupiah(DATA_KEKURANGAN_KAS.totalKekurangan||0);if(!sel)return;const cur=sel.value,rows=DATA_KEKURANGAN_KAS.rows||[];sel.innerHTML='<option value="">Pilih kekurangan...</option>'+rows.map(x=>`<option value="${x.idAlokasi}">${x.nama} • ${x.blok}/${x.noRumah} • ${x.bulan} ${x.tahun} • kurang ${rupiah(x.kekurangan)}</option>`).join('');if(rows.some(x=>x.idAlokasi===cur))sel.value=cur;else sel.value='';previewKekuranganKas();window.refreshAllCustomSelects?.()}
+function renderKekuranganKasOptions(){const sel=document.getElementById('kurang-kas-id'),total=document.getElementById('kurang-kas-total');if(total)total.textContent=rupiah(DATA_KEKURANGAN_KAS.totalKekurangan||0);if(!sel)return;const cur=sel.value,rows=DATA_KEKURANGAN_KAS.rows||[];
+ const state=document.getElementById('kurang-kas-state');
+ if(state)state.textContent=rows.length?rows.length+' tagihan perlu dilunasi':'Tidak ada kekurangan yang perlu dilunasi';
+ if(!rows.length){const card=document.getElementById('kekurangan-kas-card');if(card)card.open=false}
+ sel.innerHTML='<option value="">Pilih kekurangan...</option>'+rows.map(x=>`<option value="${x.idAlokasi}">${x.nama} • ${x.blok}/${x.noRumah} • ${x.bulan} ${x.tahun} • kurang ${rupiah(x.kekurangan)}</option>`).join('');if(rows.some(x=>x.idAlokasi===cur))sel.value=cur;else sel.value='';previewKekuranganKas();window.refreshAllCustomSelects?.()}
 function previewKekuranganKas(){const id=document.getElementById('kurang-kas-id')?.value,e=document.getElementById('kurang-kas-preview'),n=document.getElementById('kurang-kas-nominal');if(!e)return;const x=(DATA_KEKURANGAN_KAS.rows||[]).find(v=>v.idAlokasi===id);if(!x){e.textContent='Pilih data kekurangan untuk melihat rincian.';if(n)n.value='';return}e.innerHTML=`<div class="font-black text-violet-950">${x.nama} • ${x.blok}/${x.noRumah}</div><div class="mt-1">${x.bulan} ${x.tahun} • Kas diterima ${rupiah(x.kasSudahDiterima)} dari ${rupiah(x.tagihanKasLorong)}</div><div class="text-xl font-black text-amber-700 mt-2">Sisa ${rupiah(x.kekurangan)}</div>`;if(n)n.value=x.kekurangan}
 function kurangKasMsg(t,type='info'){const e=document.getElementById('kurang-kas-status');if(!e)return;e.className='sm:col-span-2 lg:col-span-4 rounded-xl border px-4 py-3 text-sm';if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');else if(type==='success')e.classList.add('bg-emerald-50','border-emerald-200','text-emerald-700');else e.classList.add('bg-violet-50','border-violet-200','text-violet-700');e.textContent=t}
 async function bayarKekuranganKas(ev){ev.preventDefault();const id=document.getElementById('kurang-kas-id').value;if(!id){kurangKasMsg('Pilih kekurangan yang akan dibayar.','error');return}const btn=document.getElementById('kurang-kas-btn');btn.disabled=true;btn.classList.add('opacity-60');kurangKasMsg('Menyimpan pelunasan...');try{const r=await jsonp(APPS_SCRIPT_URL,{action:'bayarkekurangankas',idAlokasi:id,tanggal:document.getElementById('kurang-kas-tanggal').value,metode:document.getElementById('kurang-kas-metode').value,nominal:document.getElementById('kurang-kas-nominal').value,catatan:'Pelunasan kekurangan Kas Lorong',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal menyimpan pelunasan.');kurangKasMsg(`${r.message} • ${r.periode} • ${rupiah(r.nominal)}${Number(r.sisa||0)>0?` • sisa ${rupiah(r.sisa)}`:''}`,'success');await loadKekuranganKas(true);await loadRiwayat(true);try{await loadPembukuanKas()}catch(_e){}}catch(e){kurangKasMsg(e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}}
@@ -3648,6 +3652,8 @@ function setModeLaporan(mode,autoload=true){
   ['kas','rt','arisan','denda','pinjaman','talangan','tahunan'].forEach(x=>{document.getElementById('report-'+x+'-panel')?.classList.toggle('hidden',REPORT_MODE!==x);document.getElementById('report-'+x+'-filter')?.classList.toggle('hidden',REPORT_MODE!==x)});
   document.querySelectorAll('.report-mode-btn').forEach(b=>{b.classList.remove('active','bg-violet-600','text-white');b.classList.add('bg-white','text-slate-600')});
   const a=document.getElementById('report-mode-'+REPORT_MODE);if(a){a.classList.add('active','bg-violet-600','text-white');a.classList.remove('bg-white','text-slate-600')}
+  const picker=document.getElementById('f4-report-type');
+  if(picker&&picker.value!==REPORT_MODE)picker.value=REPORT_MODE;
   if(autoload)loadLaporan();
 }
 function reportMsg(text,type='info'){const e=document.getElementById('report-status');if(!e)return;if(type==='success'&&/^Laporan berhasil dimuat\.?$/i.test(text)){F4Loading.success(e);return}if(type==='info'&&/^Memuat /i.test(text)){F4Loading.begin(e,text);return}if(type==='error'&&e.dataset.f4State==='loading')F4Loading.error(e,text);e.dataset.f4State='notice';e.className='mt-3 rounded-xl border px-4 py-3 text-sm '+(type==='error'?'border-red-200 bg-red-50 text-red-700':type==='success'?'border-emerald-200 bg-emerald-50 text-emerald-700':'border-violet-100 bg-violet-50 text-violet-700');e.textContent=text;e.hidden=false;e.classList.remove('hidden')}
@@ -3933,8 +3939,8 @@ function pilihMenu(n){document.querySelectorAll('.custom-select-wrap.open').forE
   };
   document.querySelectorAll('.tab-panel').forEach(x=>x.classList.add('hidden'));
   const panel=document.getElementById('tab-'+n);if(panel)panel.classList.remove('hidden');
-  const inputGroup=['input','transaksi','kas','pinjaman','talangan','denda','importbulk'];
-  const dataGroup=['dashboard','rumah','warga','config'];
+  const inputGroup=['input','transaksi','kas','pinjaman','talangan','denda'];
+  const dataGroup=['dashboard','rumah','warga','config','importbulk'];
   const group=inputGroup.includes(n)?'inputdata':dataGroup.includes(n)?'dataacuan':n;
   document.querySelectorAll('.drawer-item').forEach(x=>x.classList.remove('active'));
   document.querySelector(`[data-menu-group="${group}"]`)?.classList.add('active');
@@ -3942,6 +3948,16 @@ function pilihMenu(n){document.querySelectorAll('.custom-select-wrap.open').forE
   document.getElementById('group-nav-dataacuan')?.classList.toggle('hidden',group!=='dataacuan');
   document.querySelectorAll('.process-btn').forEach(x=>x.classList.remove('active'));
   document.querySelector(`[data-process-target="${n}"]`)?.classList.add('active');
+  const section=n==='input'?'input':['transaksi','kas'].includes(n)?'kas':
+    ['talangan','denda','pinjaman'].includes(n)?'lainnya':null;
+  document.querySelectorAll('[data-book-input-section]').forEach(b=>{
+    const selected=group==='inputdata'&&b.dataset.bookInputSection===section;
+    b.classList.toggle('active',selected);
+    b.setAttribute('aria-pressed',String(selected));
+  });
+  document.getElementById('f4-book-subnav-kas')?.classList.toggle('hidden',section!=='kas'||group!=='inputdata');
+  document.getElementById('f4-book-subnav-lainnya')?.classList.toggle('hidden',section!=='lainnya'||group!=='inputdata');
+  if(n==='importbulk')document.querySelector('.f4-book-admin-tools')?.setAttribute('open','');
   document.getElementById('page-title').textContent=meta[n]?.[0]||'Pembukuan Flamboyan 4';
   document.getElementById('page-subtitle').textContent=meta[n]?.[1]||'';
   document.getElementById('page-heading')?.classList.remove('hidden');
@@ -3966,6 +3982,8 @@ function pilihRiwayat(type){
   document.getElementById('history-denda-panel')?.classList.toggle('hidden',type!=='denda');
   document.querySelectorAll('.history-btn').forEach(x=>x.classList.remove('active'));
   document.getElementById('history-btn-'+type)?.classList.add('active');
+  const picker=document.getElementById('f4-history-type');
+  if(picker&&picker.value!==type)picker.value=type;
   if(type==='iuran')loadRiwayat(true);
   if(type==='kasumum')loadRiwayatKas();
   if(type==='batch')muatRiwayatBatch();
