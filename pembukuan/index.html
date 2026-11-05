@@ -2307,7 +2307,19 @@ main > section.card{overflow:visible!important}
       <div class="max-w-6xl mx-auto">
         <div class="no-print mb-5">
           <div class="space-y-4">
-            <div class="tabs-scroll flex gap-2">
+            <div class="f4-book-filter-picker">
+              <label for="f4-report-type">Jenis Laporan</label>
+              <select id="f4-report-type" class="field" onchange="setModeLaporan(this.value)">
+                <option value="kas">Kas Warga</option>
+                <option value="rt">Setoran RT</option>
+                <option value="arisan">Arisan</option>
+                <option value="denda">Denda</option>
+                <option value="talangan">Talangan</option>
+                <option value="pinjaman">Pinjaman</option>
+                <option value="tahunan">Tahunan</option>
+              </select>
+            </div>
+            <div class="f4-book-legacy-controls" hidden aria-hidden="true"><div class="tabs-scroll flex gap-2">
               <button id="report-mode-kas" onclick="setModeLaporan('kas')" class="report-mode-btn active px-4 py-2 rounded-xl border border-violet-200 bg-violet-600 text-white text-sm font-black whitespace-nowrap">Kas Warga</button>
               <button id="report-mode-rt" onclick="setModeLaporan('rt')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Setoran RT</button>
               <button id="report-mode-arisan" onclick="setModeLaporan('arisan')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Arisan</button>
@@ -2315,7 +2327,7 @@ main > section.card{overflow:visible!important}
               <button id="report-mode-talangan" onclick="setModeLaporan('talangan')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Talangan</button>
               <button id="report-mode-pinjaman" onclick="setModeLaporan('pinjaman')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Pinjaman</button>
               <button id="report-mode-tahunan" onclick="setModeLaporan('tahunan')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Tutup Buku & Arsip</button>
-            </div>
+            </div></div>
             <div><h2 class="font-black text-xl text-violet-950">Laporan & Rekap</h2><p class="text-sm text-slate-500 mt-1">Rekap pembukuan dan laporan tahunan.</p></div>
           </div>
           <div class="mt-4 space-y-3">
@@ -2449,14 +2461,25 @@ main > section.card{overflow:visible!important}
 
     <div id="tab-riwayat" class="tab-panel hidden p-4 sm:p-5">
       <div class="mb-4">
-        <div class="tabs-scroll flex gap-2">
+        <div class="f4-book-filter-picker">
+          <label for="f4-history-type">Jenis Riwayat</label>
+          <select id="f4-history-type" class="field" onchange="pilihRiwayat(this.value)">
+            <option value="iuran">Iuran Warga</option>
+            <option value="kasumum">Transaksi Kas</option>
+            <option value="batch">Batch Kas</option>
+            <option value="talangan">Talangan</option>
+            <option value="denda">Denda</option>
+            <option value="pinjaman">Pinjaman</option>
+          </select>
+        </div>
+        <div class="f4-book-legacy-controls" hidden aria-hidden="true"><div class="tabs-scroll flex gap-2">
           <button id="history-btn-iuran" class="history-btn active px-4 py-2 rounded-xl border border-violet-200 text-sm font-bold whitespace-nowrap" onclick="pilihRiwayat('iuran')">Riwayat Iuran</button>
           <button id="history-btn-kasumum" class="history-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihRiwayat('kasumum')">Riwayat Kas</button>
           <button id="history-btn-batch" class="history-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50" onclick="pilihRiwayat('batch')">Riwayat Batch Kas</button>
         <button id="history-btn-talangan" onclick="pilihRiwayat('talangan')" class="history-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50">Riwayat Talangan</button>
         <button id="history-btn-denda" onclick="pilihRiwayat('denda')" class="history-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50">Riwayat Denda</button>
         <button id="history-btn-pinjaman" onclick="pilihRiwayat('pinjaman')" class="history-btn px-4 py-2 rounded-xl border border-violet-100 text-sm font-bold text-slate-600 whitespace-nowrap hover:bg-violet-50">Riwayat Pinjaman</button>
-        </div>
+        </div></div>
       </div>
 
       <div id="history-iuran-panel">
