@@ -1,0 +1,33 @@
+name: F4 Pembukuan UI Guard
+on:
+  push:
+    branches: [main]
+    paths:
+      - pembukuan/index.html
+      - portal-live/bookkeeping-simple.css
+      - qa/verify-bookkeeping-simple-ui.cjs
+      - qa/verify-iuran-counts.cjs
+      - .github/workflows/f4-bookkeeping-ui-guard.yml
+  pull_request:
+    paths:
+      - pembukuan/index.html
+      - portal-live/bookkeeping-simple.css
+      - qa/verify-bookkeeping-simple-ui.cjs
+      - qa/verify-iuran-counts.cjs
+      - .github/workflows/f4-bookkeeping-ui-guard.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify navigation and iuran/RT counting semantics
+        run: |
+          node qa/verify-bookkeeping-simple-ui.cjs
+          node qa/verify-iuran-counts.cjs
