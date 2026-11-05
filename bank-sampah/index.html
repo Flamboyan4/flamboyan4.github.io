@@ -860,6 +860,15 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
 #pageLaporan>h2{font-size:19px!important;line-height:1.3!important;margin:0 0 4px!important}
 #pageLaporan>.desc{font-size:12px!important;color:#687b71!important;margin:0 0 14px!important;line-height:1.45!important}
 #pageLaporan .v33-report-controls{display:grid;gap:12px;margin:0 0 12px;padding:14px;border:1px solid #e1ebe6;background:#fcfefd;border-radius:15px}
+#pageLaporan .v33-report-title{margin:0;font-size:17px;line-height:1.35;font-weight:800;color:#174c33}
+#pageLaporan .v33-report-options{min-width:0;margin:0;border-top:1px solid #e5eee8;padding-top:9px}
+#pageLaporan .v33-report-options>summary{cursor:pointer;font-size:12px;font-weight:750;color:#206547;padding:6px 2px;line-height:1.35}
+#pageLaporan .v33-report-options>summary:focus-visible{outline:2px solid #087b51;outline-offset:2px;border-radius:4px}
+#pageLaporan .v33-report-options[open]>.v33-report-choices{margin-top:10px}
+#pageLaporan .v17-finance-analysis{border:1px solid #dce9df;border-radius:12px;padding:10px 12px;margin:8px 0 12px}
+#pageLaporan .v17-finance-analysis>summary{cursor:pointer;font-size:13px;font-weight:750;color:#1b6447;padding:5px 2px}
+#pageLaporan .v17-finance-analysis>summary:focus-visible{outline:2px solid #087b51;outline-offset:2px;border-radius:4px}
+#pageLaporan .v17-finance-analysis[open]>.v17-finance-grid{margin-top:11px}
 #pageLaporan .v33-report-row{display:grid;grid-template-columns:minmax(0,.94fr) minmax(0,1.06fr);gap:12px;align-items:end}
 #pageLaporan .v33-report-period-field>strong{display:block;font-size:12px;line-height:16px;color:#355c47;margin:0 0 6px}
 #pageLaporan .v33-report-period{display:grid;grid-template-columns:minmax(0,1fr) 116px;gap:8px}
@@ -3898,7 +3907,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     const page=$('pageLaporan');if(!page||$('v17Finance'))return;
     const header=page.querySelector('h2');if(header)header.textContent='Laporan';
     const box=document.createElement('section');box.id='v17Finance';
-    box.innerHTML=`<div class="v17-finance-head"><div><h2>Posisi dana</h2></div><button class="secondary" type="button" onclick="v17LoadFinance()">Perbarui</button></div><div class="v17-finance-kpis" id="v17FinanceKpis">Memuat...</div><div class="v17-finance-grid"><div class="v17-panel"><h3>Arus kas 6 bulan terakhir</h3><div class="v17-bars" id="v17FinanceBars"></div><p class="v17-legend"><span style="background:#347b54"></span> Masuk &nbsp; <span style="background:#e5bb75"></span> Keluar</p></div><div class="v17-panel"><h3>Rincian periode terpilih</h3><div id="v17FinanceDetails">Memuat...</div></div></div><p id="v17FinanceNote" class="v17-subtle"></p>`;
+    box.innerHTML=`<div class="v17-finance-head"><div><h2>Posisi dana</h2></div><button class="secondary" type="button" onclick="v17LoadFinance()">Perbarui</button></div><div class="v17-finance-kpis" id="v17FinanceKpis">Memuat...</div><details class="v17-finance-analysis"><summary>Lihat grafik & rincian arus kas</summary><div class="v17-finance-grid"><div class="v17-panel"><h3>Arus kas 6 bulan terakhir</h3><div class="v17-bars" id="v17FinanceBars"></div><p class="v17-legend"><span style="background:#347b54"></span> Masuk &nbsp; <span style="background:#e5bb75"></span> Keluar</p></div><div class="v17-panel"><h3>Rincian periode terpilih</h3><div id="v17FinanceDetails">Memuat...</div></div></div></details><p id="v17FinanceNote" class="v17-subtle"></p>`;
     page.prepend(box);
     const month=$('v10Month');if(month){month.value=month.value||new Date().toISOString().slice(0,7);month.addEventListener('change',v17LoadFinance);}
   }
@@ -5460,6 +5469,8 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     const initial=/^\d{4}-(0[1-9]|1[0-2])$/.test(month.value)?month.value:fallback;
     month.value=initial;
     const form=document.createElement('section');form.id='v33ReportControls';form.className='v33-report-controls';
+    const title=document.createElement('h3');title.className='v33-report-title';title.textContent='Cetak & Unduh Laporan';
+    form.append(title);
     const row=document.createElement('div');row.className='v33-report-row';
     const period=document.createElement('div');period.className='v33-report-period';
     const monthBox=document.createElement('label');monthBox.textContent='Bulan';
@@ -5506,19 +5517,29 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       label.append(checkbox,text);list.append(label);
     }
     selections.append(list);
+    const options=document.createElement('details');options.className='v33-report-options';
+    const optionsLabel=document.createElement('summary');optionsLabel.textContent='Jenis data laporan';
+    options.append(optionsLabel);
     const foot=document.createElement('div');foot.className='v33-report-choice-foot';
     const count=document.createElement('small');count.id='v33SelectedCount';count.setAttribute('aria-live','polite');
     const all=document.createElement('button');all.type='button';all.id='v33SelectAll';all.textContent='Pilih semua';
     all.className='secondary';
     all.onclick=()=>{list.querySelectorAll('input[data-report-section]').forEach(x=>x.checked=true);updateChoice();};
-    foot.append(count,all);selections.append(foot);form.append(selections);
+    foot.append(count,all);selections.append(foot);options.append(selections);
     monthField.hidden=true;monthField.style.display='none';
     typeField.hidden=true;typeField.style.display='none';
     legacy.value='semua';
     actions.classList.add('v33-report-actions','f4-control-actions');
-    report.insertBefore(form,monthField);
-    // Keep existing action button handlers intact; only relocate their toolbar.
-    form.append(actions);
+    const loadButton=actions.querySelector('button[onclick*="v10LoadReport"]');
+    const printButton=actions.querySelector('button[onclick*="v10PrintReport"]');
+    if(loadButton)loadButton.textContent='Muat Laporan';
+    if(printButton)printButton.textContent='Cetak PDF';
+    // Cetak dan ekspor berada di atas posisi dana, grafik, dan rincian.
+    const heading=report.querySelector(':scope > h2');
+    if(heading){heading.textContent='Laporan Bank Sampah';report.prepend(heading);heading.after(form);}
+    else report.prepend(form);
+    // Existing API/print handlers remain attached to their original buttons.
+    form.append(actions,options);
     const invalidate=()=>{
       v10ReportData=null;
       $('v10ReportSummary')?.replaceChildren();
@@ -5541,6 +5562,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     syncAuditInline();
     const updateChoice=()=>{
       const total=list.querySelectorAll('input[data-report-section]:checked').length;
+      optionsLabel.textContent='Jenis data laporan • '+total+' dari '+Object.keys(v10Specs).length+' dipilih';
       count.textContent=total+' dari '+Object.keys(v10Specs).length+' jenis data dipilih';
       if(total===0)count.textContent='Pilih minimal 1 jenis data';
       if(v10ReportData)v10RenderReport();
@@ -5556,7 +5578,6 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       }
     },true);
     updateChoice();
-    const heading=report.querySelector(':scope > h2');if(heading)heading.textContent='Laporan';
     const desc=report.querySelector(':scope > .desc');
     if(desc)desc.remove();
   }
