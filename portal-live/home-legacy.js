@@ -2153,33 +2153,8 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       const today = new Date();
       const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
 
-      const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
-      const hasSpecificArisanInCsv = globalRencanaData.some(item => {
-        if (!item.parsedDate || !item.parsedDate.startsWith(monthPrefix)) return false;
-        const txt = (item.judul + " " + item.deskripsi).toLowerCase();
-        return txt.includes('arisan');
-      });
-
-      let secondSaturdayDate = null;
-      if (!hasSpecificArisanInCsv) {
-        let saturdayList = [];
-        for (let d = 1; d <= daysInMonth; d++) {
-          let checkDate = new Date(year, month, d);
-          if (checkDate.getDay() === 6) {
-            saturdayList.push(d);
-          }
-        }
-
-        if (firstDay >= 4) {
-          if (saturdayList[0] <= 3 && saturdayList.length > 2) {
-            secondSaturdayDate = saturdayList[2];
-          } else {
-            secondSaturdayDate = saturdayList[1];
-          }
-        } else {
-          secondSaturdayDate = saturdayList[1] || null;
-        }
-      }
+      // Tanggal arisan berasal dari jadwal resmi D1 melalui data agenda,
+      // bukan perkiraan Sabtu kedua setiap bulan.
 
       let gridHTML = '';
 
@@ -2196,18 +2171,6 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         
         let dayEvents = globalRencanaData.filter(item => item.parsedDate === dateKey);
-
-        if (day === secondSaturdayDate) {
-          dayEvents.push({
-            tanggalStr: `${day} ${monthNames[month]} ${year}`,
-            parsedDate: dateKey,
-            judul: "Arisan Warga Flamboyan 4",
-            deskripsi: "Putaran bulanan arisan warga rutin.",
-            status: "Terjadwal",
-            isGorol: false,
-            isArisan: true
-          });
-        }
 
         let isGorol = false;
         let isArisan = false;
