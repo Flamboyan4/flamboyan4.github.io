@@ -54,9 +54,31 @@
    case 'inventory':
     return csv([['Nama Barang','Jumlah / Satuan','Kondisi','URL Gambar'],
       ...(data.inventory||[]).map(x=>[x.name,[x.quantity,x.unit].filter(v=>v!==null&&v!==undefined&&v!=='').join(' '),x.condition||x.description,x.photo_ref])]);
-   case 'agenda':
+   case 'agenda': {
+    // Jadwal Arisan adalah acuan tanggal untuk kalender publik.
+    // Rencana Kegiatan bertema arisan yang sudah dibuat manual digabung,
+    // sehingga tidak muncul dua acara atau tanggal lama dalam bulan yang sama.
+    const agenda=Array.isArray(data.agenda)?data.agenda:[];
+    const arisan=(Array.isArray(data.arisan)?data.arisan:[])
+      .filter(x=>/^20\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(String(x.period_on||'')));
+    const months=new Set(arisan.map(x=>x.period_on.slice(0,7)));
+    const isArisanEvent=x=>/\barisan\b/i.test(String(x.title||'')+' '+String(x.description||''));
+    const matching=x=>months.has(String(x.starts_on||'').slice(0,7))&&isArisanEvent(x);
+    const others=agenda.filter(x=>!matching(x));
+    const scheduled=arisan
+      .filter(x=>!/(?:^|\s)(?:batal|dibatalkan)(?:\s|$)/i.test(String(x.status||'')))
+      .map(x=>{
+        const month=x.period_on.slice(0,7);
+        const manual=agenda.find(a=>String(a.starts_on||'').slice(0,7)===month&&isArisanEvent(a));
+        const host=String(x.host_name||'').trim();
+        const desc=[host?'Tuan rumah: '+host:'',String(manual?.description||'').trim()].filter(Boolean).join(' • ');
+        const status=/sudah|selesai|terlaksana/i.test(String(x.status||''))?'Selesai':String(manual?.status||'Direncanakan');
+        return [dmy(x.period_on),manual?.title||'Arisan Warga',desc,status,manual?.image_ref||''];
+      });
     return csv([['Tanggal','Judul','Deskripsi','Status','Foto'],
-      ...(data.agenda||[]).map(x=>[dmy(x.starts_on),x.title,x.description,x.status||'Direncanakan',x.image_ref])]);
+      ...others.map(x=>[dmy(x.starts_on),x.title,x.description,x.status||'Direncanakan',x.image_ref]),
+      ...scheduled]);
+   }
    case 'banners':
     return csv([['Judul Banner','Link Foto / Drive','Link Tujuan (Target)'],
       ...(data.banners||[]).map(x=>[x.title,x.image_ref,x.target_url])]);
