@@ -3656,7 +3656,12 @@ async function writeDendaPinjaman(request, env, kind, who) {
       env.DB.prepare("INSERT INTO bookkeeping_dp_cash_links(request_key,source_type,source_id,cash_transaction_id) VALUES(?,?,?,?)").bind(key, "loan-create", "loan_" + id, cashId)
     ];
   } else if (kind === "fine-pay" || kind === "loan-pay") {
-    if (typeof reference !== "string" || !/^[A-Za-z0-9_-]{1,150}$/.test(reference)) return safeError("Referensi transaksi tidak valid.", 400);
+    // D1 may contain migrated fine/loan IDs with separators like ':' or '.'.
+    // The ID comes from the trusted list and is only used via SQL parameter binding;
+    // validate length and control characters, not an invented ID naming convention.
+    if (typeof reference !== "string" || !reference.length || reference.length > 150 ||
+        reference.trim() !== reference || /[\x00-\x1f\x7f]/.test(reference))
+      return safeError("Referensi transaksi tidak valid.", 400);
     const target = kind === "fine-pay" ? await env.DB.prepare("SELECT id,payer_id,event_on,amount_rp,paid_rp,status FROM bookkeeping_fines WHERE id=?").bind(reference).first() : await env.DB.prepare("SELECT id,payer_id,loaned_on,amount_rp,status FROM bookkeeping_loans WHERE id=?").bind(reference).first();
     if (!target) return safeError("Transaksi induk tidak ditemukan.", 404);
     if (date < (kind === "fine-pay" ? target.event_on : target.loaned_on)) return safeError("Tanggal mendahului transaksi induk.", 400);
@@ -3671,9 +3676,9 @@ async function writeDendaPinjaman(request, env, kind, who) {
     }
     q.push(env.DB.prepare(`INSERT INTO bookkeeping_cash_transactions(id,occurred_on,payer_id,transaction_type,category,debit_rp,credit_rp,status,note,payment_method)
        VALUES(?,?,?,? ,?, ?,0,'aktif',?,?)`).bind(cashId, date, target.payer_id, kind === "fine-pay" ? "denda_menunggu_buku" : "angsuran_pinjaman", kind === "fine-pay" ? "Denda Gorol" : "Angsuran Pinjaman", amount, note, method));
-    // The real D1 schema has an immediate FK from loan_repayments.cash_transaction_id to cash.id.
-    // Insert cash first inside the same atomic batch, otherwise valid loan instalments fail HTTP 409.
-    if (kind === "loan-pay") q = [q[1], q[0]];
+    // Payments reference the cash transaction via an immediate D1 foreign key.
+    // Create cash first for both fine and loan repayments in the same atomic batch.
+    q = [q[1], q[0]];
     q.push(env.DB.prepare("INSERT INTO bookkeeping_dp_cash_links(request_key,source_type,source_id,cash_transaction_id) VALUES(?,?,?,?)").bind(key, kind, kind === "fine-pay" ? "fp_" + id : "lr_" + id, cashId));
   } else return safeError("Operasi tidak tersedia.", 404);
   const resultId = kind === "fine-create" ? "fine_" + id : kind === "loan-create" ? "loan_" + id : kind === "fine-pay" ? "fp_" + id : "lr_" + id;
