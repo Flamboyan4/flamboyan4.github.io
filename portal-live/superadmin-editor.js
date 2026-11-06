@@ -6,7 +6,7 @@ if(!page)return;
 const main=page.querySelector('main'),side=page.querySelector('aside');
 const base='https://api.flamboyan4.web.id/api/v2/admin/content/';
 const types={
- arisan:{label:'Jadwal Arisan',section:'portal',columns:[['period_on','Bulan pelaksanaan','date',true],['host_name','Tuan rumah dan nomor rumah','text',true],['status','Status','text']]},
+ arisan:{label:'Jadwal Arisan',section:'portal',columns:[['period_on','Tanggal pelaksanaan','date',true],['host_name','Tuan rumah dan nomor rumah','text',true],['status','Status','text']]},
  jersey:{label:'Pesanan Jersey',section:'portal',columns:[['group_key','Kelompok pemesan','text',true],['package_type','Jenis pesanan','text',true],['resident','Nama dan rumah','text',true],['sort_order','Nomor urut','number'],['sleeves','Lengan','text'],['size','Ukuran','text'],['back_name','Nama Punggung','text'],['back_number','Nomor Punggung','text'],['nominal_rp','Harga (Rp)','number'],['payment_status','Status pembayaran','text'],['method','Metode','text']]},
  projects:{label:'Project Card',section:'portal',columns:[['title','Nama projek','text',true],['description','Deskripsi','textarea'],['image_ref','Foto / gambar Google Drive','url'],['target_url','Link tujuan / #bagian','text'],['project_kind','Jenis proyek','projectKind',true],['fund_source','Kategori kas terkait','text'],['fund_target_rp','Target dana (Rp)','number'],['linked_key','Portal / modul terhubung','projectModule'],['sort_order','Urutan','number'],['active','Aktif','boolean']]},
  agenda:{label:'Rencana Kegiatan',section:'portal',columns:[['title','Nama kegiatan','text',true],['starts_on','Tanggal mulai','date'],['ends_on','Tanggal selesai','date'],['location','Lokasi','text'],['description','Deskripsi','textarea'],['image_ref','Foto Google Drive','url'],['status','Status kegiatan','text'],['visibility','Tampilkan ke publik','visibility'],['sort_order','Urutan','number']]},
@@ -1165,7 +1165,9 @@ function showForm(record){
   for(const input of form.querySelectorAll('[name]')){
    const value=input.value.trim();
    if(input.required&&!value){notice.textContent=input.name+' wajib diisi.';input.focus();return}
-   if(input.readOnly)continue;
+   // Picker tanggal membuat input readOnly untuk mencegah keyboard native.
+   // Jangan abaikan tanggal yang telah dipilih dari kalender.
+   if(input.readOnly && !['date','month'].includes(input.type))continue;
    if(active==='jersey'&&input.name==='method')continue; // Serialized below with amount and audit markers.
    if(active==='jersey'&&['back_name','back_number'].includes(input.name))continue; // Write as a pair, preserving untouched legacy print.
    const next=input.type==='number'?Number(value):input.name==='active'?Number(value):value;
