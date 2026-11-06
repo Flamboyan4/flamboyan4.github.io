@@ -595,7 +595,15 @@ function populate(){
  }
  if(!rows.length)list.append(node('p','Tidak ada data yang cocok.','f4-admin-note'));
 }
-function printJerseyReport(includeFunds=null){
+function readJerseyAppendixPhoto(file){
+ return new Promise((resolve,reject)=>{
+  const reader=new FileReader();
+  reader.onload=()=>resolve({name:file.name||'Foto desain',src:String(reader.result||'')});
+  reader.onerror=()=>reject(new Error('Foto desain gagal dibaca: '+file.name));
+  reader.readAsDataURL(file);
+ });
+}
+function printJerseyReport(includeFunds=null,designPhotos=[]){
  if(active!=='jersey'||!Array.isArray(records)||!records.length){
   window.f4UiDialog.alert('Belum ada pesanan Jersey untuk dicetak.');return;
  }
@@ -617,12 +625,35 @@ function printJerseyReport(includeFunds=null){
    const detail=node('span');detail.append(node('strong',label),node('small',desc));
    item.append(radio,detail);choices.append(item);
   }
+  const attach=node('label',undefined,'f4-jersey-print-choice');
+  const includeAppendix=document.createElement('input');includeAppendix.type='checkbox';
+  const attachText=node('span');attachText.append(node('strong','Lampiran Foto Desain'),
+    node('small','Foto dicetak di halaman terpisah setelah laporan, bukan di dalam tabel.'));
+  attach.append(includeAppendix,attachText);
+  const photoInput=document.createElement('input');
+  photoInput.type='file';photoInput.accept='image/png,image/jpeg,image/webp';photoInput.multiple=true;
+  photoInput.setAttribute('aria-label','Pilih foto desain jersey untuk lampiran');
+  photoInput.style.width='100%';photoInput.style.marginTop='8px';photoInput.hidden=true;
+  const photoHint=node('p','Pilih hingga 4 foto JPG, PNG, atau WebP (maksimal 8 MB per foto).','f4-jersey-print-hint');
+  photoHint.hidden=true;photoHint.style.margin='6px 0 0';
+  includeAppendix.onchange=()=>{photoInput.hidden=!includeAppendix.checked;photoHint.hidden=!includeAppendix.checked};
+  photoInput.onchange=()=>{if(photoInput.files?.length)includeAppendix.checked=true};
   const actions=node('div',undefined,'f4-jersey-print-actions');
-  actions.append(btn('Batal',()=>veil.remove(),'f4-jersey-print-cancel'),btn('Cetak / Simpan PDF',()=>{
+  actions.append(btn('Batal',()=>veil.remove(),'f4-jersey-print-cancel'),btn('Cetak / Simpan PDF',async()=>{
    const choice=choices.querySelector('input:checked')?.value;
-   veil.remove();printJerseyReport(choice!=='no-funds');
+   let photos=[];
+   if(includeAppendix.checked){
+    const files=Array.from(photoInput.files||[]);
+    if(!files.length){window.f4UiDialog.alert('Pilih foto desain untuk halaman lampiran.');return}
+    if(files.length>4||files.some(f=>f.size>8*1024*1024||!['image/png','image/jpeg','image/webp'].includes(f.type))){
+     window.f4UiDialog.alert('Maksimal 4 foto JPG/PNG/WebP, masing-masing hingga 8 MB.');return;
+    }
+    try{photos=await Promise.all(files.map(readJerseyAppendixPhoto))}
+    catch(error){window.f4UiDialog.alert(error.message);return}
+   }
+   veil.remove();printJerseyReport(choice!=='no-funds',photos);
   },'f4-jersey-print-submit'));
-  dialog.append(choices,actions);veil.append(dialog);
+  dialog.append(choices,attach,photoInput,photoHint,actions);veil.append(dialog);
   veil.onclick=e=>{if(e.target===veil)veil.remove()};
   dialog.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();veil.remove()}});
   document.body.append(veil);choices.querySelector('input:checked')?.focus();return;
@@ -656,6 +687,20 @@ function printJerseyReport(includeFunds=null){
    ' &nbsp;|&nbsp; Kekurangan: '+money(outstanding)+' &nbsp;|&nbsp; Titipan: '+money(titipan)+'</p>':'')+'</section>');
  }
  const date=new Date().toLocaleDateString('id-ID',{dateStyle:'long'});
+ const appendixPages=[];
+ if(Array.isArray(designPhotos)){
+  const photos=designPhotos.filter(p=>p&&/^data:image\/(?:png|jpeg|webp);base64,/i.test(p.src)).slice(0,4);
+  for(let i=0;i<photos.length;i+=2){
+   const group=photos.slice(i,i+2);
+   appendixPages.push('<section class="f4-jersey-appendix">'+
+    '<header><h1>LAMPIRAN — FOTO DESAIN JERSEY</h1>'+
+    '<p class="meta">Flamboyan 4 • '+esc(date)+' • Halaman Lampiran '+(Math.floor(i/2)+1)+'</p></header>'+
+    '<div class="f4-jersey-appendix-grid">'+group.map((p,index)=>
+     '<figure><img src="'+esc(p.src)+'" alt="Foto desain jersey '+(i+index+1)+'">'+
+     '<figcaption>'+esc(p.name||'Desain Jersey '+(i+index+1))+'</figcaption></figure>').join('')+
+    '</div></section>');
+  }
+ }
  // Inline SVG is printable *content*, not a browser-suppressed CSS background.
  // It preserves the blue table headers even when Firefox's "Print backgrounds"
  // option is disabled when the Superadmin saves the report as PDF.
@@ -675,7 +720,13 @@ function printJerseyReport(includeFunds=null){
  'tr{break-inside:avoid}th{text-align:left}.number{text-align:right;white-space:normal}.center{text-align:center}.sub{font-weight:bold;margin:3px 0 5px;font-size:8px}'+
  '.approval{text-align:right;margin-top:12px;break-inside:avoid;font-size:8px}.approval strong{display:block;margin-top:22px}'+
  '.foot{font-size:8px;color:#64748b;border-top:1px solid #000;margin-top:8px;padding-top:4px}'+
- "@media screen{body{max-width:850px;margin:16px auto;padding:0 12px}}\n@media print{\nbody.no-funds{font-size:11.5px!important;line-height:1.3!important}\nbody.with-funds{font-size:10.1px!important;line-height:1.22!important}\nbody h1{font-size:16px!important;line-height:1.25!important;margin:0 0 4px!important}\nbody h2{font-size:12px!important;line-height:1.25!important;margin:10px 0 5px!important}\nbody .meta{font-size:9.5px!important;line-height:1.3!important}\nbody .summary{margin:7px 0!important;gap:5px!important}\nbody .box{padding:5px!important;font-size:10px!important}\nbody .box strong{font-size:11px!important}\nbody table{width:100%!important;border-collapse:collapse!important;table-layout:fixed!important;margin:0 0 7px!important}\nbody.no-funds th,body.no-funds td{\nfont-size:11.5px!important;line-height:1.25!important;padding:4px 4px!important}\nbody.with-funds th,body.with-funds td{\nfont-size:10.1px!important;line-height:1.19!important;padding:3px 3px!important}\nbody tr{break-inside:avoid!important}\nbody .sub{font-size:9.5px!important;line-height:1.3!important;margin:4px 0 5px!important}\nbody .approval{margin-top:15px!important;font-size:10px!important;line-height:1.3!important;break-inside:avoid!important}\nbody .approval strong{margin-top:25px!important;font-size:10px!important}\nbody .foot{font-size:9px!important;margin-top:9px!important;padding-top:5px!important}\nbody th{background:#e8f0fa!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}\n}\n\n@media print{\n  body.no-funds th,body.no-funds td{\n    font-size:11.5px!important;line-height:1.22!important;padding:3.5px 4px!important\n  }\n  body.with-funds th,body.with-funds td{\n    font-size:10.8px!important;line-height:1.2!important;padding:3.2px!important\n  }\n  body.no-funds table :is(th,td):nth-child(1){width:5%}\n  body.no-funds table :is(th,td):nth-child(2){width:32%}\n  body.no-funds table :is(th,td):nth-child(3){width:17%}\n  body.no-funds table :is(th,td):nth-child(4){width:9%}\n  body.no-funds table :is(th,td):nth-child(5){width:9%}\n  body.no-funds table :is(th,td):nth-child(6){width:18%}\n  body.no-funds table :is(th,td):nth-child(7){width:10%}\n  body.with-funds table :is(th,td):nth-child(1){width:4%}\n  body.with-funds table :is(th,td):nth-child(2){width:19%}\n  body.with-funds table :is(th,td):nth-child(3){width:11%}\n  body.with-funds table :is(th,td):nth-child(4){width:7%}\n  body.with-funds table :is(th,td):nth-child(5){width:7%}\n  body.with-funds table :is(th,td):nth-child(6){width:15%}\n  body.with-funds table :is(th,td):nth-child(7){width:8%}\n  body.with-funds table :is(th,td):nth-child(8){width:10%}\n  body.with-funds table :is(th,td):nth-child(9){width:9%}\n  body.with-funds table :is(th,td):nth-child(10){width:10%}\n  body.no-funds table th:nth-child(7),body.with-funds table th:nth-child(7){text-align:center}\n}\n\n@media print{\n .f4-jersey-finance-compact{font-size:9px;line-height:1.25;margin:5px 0 7px;padding:4px 6px;border:1px solid #000;break-inside:avoid}\n .f4-jersey-finance-compact>div+div{margin-top:2px}\n .f4-jersey-finance-compact strong{color:#263650}\n}\n\n</style></head><body class=\""+(includeFunds?'with-funds':'no-funds')+'">'+
+ "@media screen{body{max-width:850px;margin:16px auto;padding:0 12px}}\n@media print{\nbody.no-funds{font-size:11.5px!important;line-height:1.3!important}\nbody.with-funds{font-size:10.1px!important;line-height:1.22!important}\nbody h1{font-size:16px!important;line-height:1.25!important;margin:0 0 4px!important}\nbody h2{font-size:12px!important;line-height:1.25!important;margin:10px 0 5px!important}\nbody .meta{font-size:9.5px!important;line-height:1.3!important}\nbody .summary{margin:7px 0!important;gap:5px!important}\nbody .box{padding:5px!important;font-size:10px!important}\nbody .box strong{font-size:11px!important}\nbody table{width:100%!important;border-collapse:collapse!important;table-layout:fixed!important;margin:0 0 7px!important}\nbody.no-funds th,body.no-funds td{\nfont-size:11.5px!important;line-height:1.25!important;padding:4px 4px!important}\nbody.with-funds th,body.with-funds td{\nfont-size:10.1px!important;line-height:1.19!important;padding:3px 3px!important}\nbody tr{break-inside:avoid!important}\nbody .sub{font-size:9.5px!important;line-height:1.3!important;margin:4px 0 5px!important}\nbody .approval{margin-top:15px!important;font-size:10px!important;line-height:1.3!important;break-inside:avoid!important}\nbody .approval strong{margin-top:25px!important;font-size:10px!important}\nbody .foot{font-size:9px!important;margin-top:9px!important;padding-top:5px!important}\nbody th{background:#e8f0fa!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}\n}\n\n@media print{\n  body.no-funds th,body.no-funds td{\n    font-size:11.5px!important;line-height:1.22!important;padding:3.5px 4px!important\n  }\n  body.with-funds th,body.with-funds td{\n    font-size:10.8px!important;line-height:1.2!important;padding:3.2px!important\n  }\n  body.no-funds table :is(th,td):nth-child(1){width:5%}\n  body.no-funds table :is(th,td):nth-child(2){width:32%}\n  body.no-funds table :is(th,td):nth-child(3){width:17%}\n  body.no-funds table :is(th,td):nth-child(4){width:9%}\n  body.no-funds table :is(th,td):nth-child(5){width:9%}\n  body.no-funds table :is(th,td):nth-child(6){width:18%}\n  body.no-funds table :is(th,td):nth-child(7){width:10%}\n  body.with-funds table :is(th,td):nth-child(1){width:4%}\n  body.with-funds table :is(th,td):nth-child(2){width:19%}\n  body.with-funds table :is(th,td):nth-child(3){width:11%}\n  body.with-funds table :is(th,td):nth-child(4){width:7%}\n  body.with-funds table :is(th,td):nth-child(5){width:7%}\n  body.with-funds table :is(th,td):nth-child(6){width:15%}\n  body.with-funds table :is(th,td):nth-child(7){width:8%}\n  body.with-funds table :is(th,td):nth-child(8){width:10%}\n  body.with-funds table :is(th,td):nth-child(9){width:9%}\n  body.with-funds table :is(th,td):nth-child(10){width:10%}\n  body.no-funds table th:nth-child(7),body.with-funds table th:nth-child(7){text-align:center}\n}\n\n@media print{\n .f4-jersey-finance-compact{font-size:9px;line-height:1.25;margin:5px 0 7px;padding:4px 6px;border:1px solid #000;break-inside:avoid}\n .f4-jersey-finance-compact>div+div{margin-top:2px}\n .f4-jersey-finance-compact strong{color:#263650}\n}\n\n.f4-jersey-appendix{break-before:page;page-break-before:always;padding-top:0}
+.f4-jersey-appendix header{margin-bottom:12px}
+.f4-jersey-appendix-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.f4-jersey-appendix figure{margin:0;min-width:0;break-inside:avoid}
+.f4-jersey-appendix img{display:block;width:100%;height:215mm;object-fit:contain;border:1px solid #cbd5e1}
+.f4-jersey-appendix figcaption{text-align:center;font-size:10px;margin-top:6px;overflow-wrap:anywhere}
+</style></head><body class=\""+(includeFunds?'with-funds':'no-funds')+'">'+
  '<header><h1>LAPORAN PESANAN JERSEY WARGA FLAMBOYAN 4</h1>'+
  '<p class="meta">RT 001 RW 026 Pesona Kahuripan 2 • Dicetak '+esc(date)+' • A4 Portrait • '+(includeFunds?'Lengkap':'Tanpa dana')+'</p></header>'+
  (includeFunds?'<div class="summary"><div class="box">Jumlah Pemesan<strong>'+allOrders+' orang</strong></div>'+
@@ -696,7 +747,8 @@ function printJerseyReport(includeFunds=null){
  (includeFunds?'<p class="meta">Catatan: nilai dari status pembayaran lama ('+money(paymentReport.nominalLama)+') masih perkiraan, belum termasuk nominal penerimaan terkonfirmasi. Metode belum jelas ('+money(paymentReport.perluRinci)+') harus ditelusuri sebelum diklasifikasikan sebagai QRIS/Cash. Titipan tidak mengurangi kekurangan pemesan lain.</p>':'')+
  '<div class="approval">Mengetahui, Humas Flamboyan 4<strong>Heri Juwandi</strong></div>'+
  '<p class="foot">Sumber: data pesanan Jersey pada flamboyan4.web.id</p>'+
- '<script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>';
+ appendixPages.join('')+
+ '<script>window.onload=function(){var imgs=Array.from(document.images);Promise.all(imgs.map(function(im){return im.complete?Promise.resolve():new Promise(function(done){im.addEventListener("load",done,{once:true});im.addEventListener("error",done,{once:true})})})).then(function(){setTimeout(function(){window.print()},300)})}<\/script></body></html>';
  const w=window.open('','_blank');
  if(!w){window.f4UiDialog.alert('Izinkan pop-up laporan untuk mencetak atau menyimpan PDF.');return}
  w.document.write(html);w.document.close();
