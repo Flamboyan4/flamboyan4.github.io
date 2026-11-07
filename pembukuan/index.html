@@ -3741,10 +3741,45 @@ function printKasSepertiLamanUtama(){
   const tanggalCetak=new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
   const w=window.open('','_blank'); if(!w)return alert('Pop-up diblokir. Izinkan pop-up lalu coba kembali.');
   w.document.write(`<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapePrint(getNamaFileLaporan())}</title><style>
-@page{size:A4 portrait;margin:11mm 12mm 12mm}*{}body{line-height:1.42;}.header{padding-bottom:9px;margin-bottom:10px;break-inside:avoid}.logo{width:54px;height:54px;}.headtext{}.headtext h1{font-size:17px;}.headtext p{}.periode{}.badge{font-size:9px;font-weight:700;border:1px solid #c7d2fe;background:#eef2ff;color:#3730a3;padding:4px 7px;border-radius:12px;white-space:nowrap}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:9px 0 11px;break-inside:avoid}.metric{border:1px solid #cbd5e1;border-radius:5px;padding:8px}.mlabel{font-size:8.5px;color:#64748b;text-transform:uppercase;font-weight:700}.mvalue{font-size:13.5px;font-weight:800;margin-top:3px}.masuk{color:#047857}.keluar{color:#be123c}.saldo{color:#3730a3}.tersedia{color:#0f766e}h2{margin:10px 0 5px;color:#1e293b}table{}thead{display:table-header-group}tr{break-inside:avoid}th{font-size:10.5px;padding:3px 5px}td{padding:3px 5px;overflow-wrap:anywhere}.c{}.r{}.nowrap{}.empty{}tfoot tr{break-inside:avoid;page-break-inside:avoid}tfoot td{background:#f8fafc!important;font-weight:800!important;border-top:1.5px solid #000;padding:6px 5px!important;white-space:nowrap}.total-label{text-align:left;color:#334155}.approval{margin-top:7mm;text-align:center;break-inside:avoid;page-break-inside:avoid}.approval>div{width:60mm;max-width:100%;margin:0 auto}.sign-title{font-size:10px;margin-bottom:14mm}.sign-line{border-top:1px solid #000;padding-top:4px;font-size:10px;font-weight:700}.note{}@media screen{body{background:white}}</style></head><body>
+@page{size:A4 portrait;margin:10mm 11mm 11mm}
+*{box-sizing:border-box}
+html,body{padding:0;margin:0}
+body{font:11px/1.36 Arial,Helvetica,sans-serif;color:#172238;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.header{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:9px;border-bottom:1.5px solid #334155;padding:0 0 7px;margin:0 0 7px;break-inside:avoid}
+.logo{display:block;width:38px;height:38px;object-fit:contain}
+.headtext{min-width:0}
+.headtext h1{font-size:13px;line-height:1.22;font-weight:800;letter-spacing:-.12px;margin:0 0 3px}
+.headtext p{font-size:9.5px;line-height:1.25;margin:2px 0;color:#475569}
+.headtext .periode{font-size:9.5px;color:#312e81;font-weight:700}
+.badge{align-self:start;font-size:8px;line-height:1;border:1px solid #a5b4fc;background:#eef2ff;color:#3730a3;font-weight:700;padding:5px 6px;border-radius:6px;white-space:nowrap}
+.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:7px 0 9px;break-inside:avoid}
+.metric{min-width:0;border:1px solid #cbd5e1;border-radius:5px;padding:6px 8px;background:#fff}
+.mlabel{font-size:8.5px;line-height:1.25;color:#64748b;text-transform:uppercase;font-weight:700}
+.mvalue{font-size:12px;line-height:1.3;font-weight:800;margin-top:3px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.masuk{color:#047857}.keluar{color:#be123c}.saldo{color:#3730a3}.tersedia{color:#0f766e}
+h2{font-size:12px;line-height:1.25;margin:9px 0 5px;font-weight:800;color:#1e293b}
+table{width:100%;min-width:0;border-collapse:collapse;table-layout:fixed;font-size:10.6px;line-height:1.28;font-variant-numeric:tabular-nums}
+thead{display:table-header-group}
+th,td{border:1px solid #334155;padding:5px 5px;vertical-align:top}
+th{background:#e8eef7;color:#1e293b;font-size:10px;line-height:1.25;font-weight:800;text-align:center;vertical-align:middle}
+td{overflow-wrap:break-word;word-break:normal}
+tr{break-inside:avoid;page-break-inside:avoid}
+.c{text-align:center}.r{text-align:right}.nowrap{white-space:nowrap}
+.empty{padding:16px 6px;color:#64748b;text-align:center}
+tfoot{display:table-row-group}
+tfoot tr{break-inside:avoid;page-break-inside:avoid}
+tfoot td{background:#f1f5f9;color:#1e293b;font-weight:800;border-top:1.5px solid #334155;padding:6px 5px}
+.total-label{text-align:left}
+.approval{margin:11mm 0 0;text-align:center;break-inside:avoid;page-break-inside:avoid}
+.approval>div{width:53mm;max-width:100%;margin:0 auto}
+.sign-title{font-size:9.2px;line-height:1.3;margin-bottom:9mm}
+.sign-line{border-top:1px solid #334155;padding-top:4px;font-size:9.2px;font-weight:700}
+.note{font-size:8px;line-height:1.3;color:#64748b;border-top:1px solid #cbd5e1;margin:9px 0 0;padding-top:5px}
+@media screen{body{width:min(188mm,calc(100% - 24px));margin:12px auto;padding:0 0 18px}}
+</style></head><body>
 <header class="header"><img class="logo" src="https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027-v2" alt="Logo"><div class="headtext"><h1>LAPORAN KEUANGAN KAS WARGA FLAMBOYAN 4</h1><p>RT 001 RW 026 Pesona Kahuripan 2</p><p class="periode">${escapePrint(periode?`Periode ${periode}`:'')}</p></div><span class="badge">LAPORAN KAS</span></header>
 <div class="summary"><div class="metric"><div class="mlabel">Saldo Awal</div><div class="mvalue saldo">${escapePrint(rupiah(r.saldoAwal||0))}</div></div><div class="metric"><div class="mlabel">${escapePrint(labelSaldoKas)}</div><div class="mvalue masuk">${escapePrint(f4KasSignedNet(r.saldoPeriode))}</div></div><div class="metric"><div class="mlabel">${escapePrint(labelSaldoAkhir)}</div><div class="mvalue tersedia">${escapePrint(rupiah(saldoAkhir))}</div></div></div>
-<h2>Rincian Transaksi</h2><table><colgroup><col style="width:5%"><col style="width:15%"><col style="width:34%"><col style="width:14%"><col style="width:14%"><col style="width:18%"></colgroup><thead><tr><th>No</th><th>Tanggal</th><th>Keterangan</th><th class="r">Debit</th><th class="r">Kredit</th><th class="r">Saldo Berjalan</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td colspan="3" class="total-label">Total Periode</td><td class="r masuk nowrap">${escapePrint(rupiah(r.debit||0))}</td><td class="r keluar nowrap">${escapePrint(rupiah(r.kredit||0))}</td><td class="r nowrap" style="color:#64748b">—</td></tr></tfoot></table>
+<h2>Rincian Transaksi</h2><table><colgroup><col style="width:6%"><col style="width:16%"><col style="width:31%"><col style="width:15%"><col style="width:14%"><col style="width:18%"></colgroup><thead><tr><th>No</th><th>Tanggal</th><th>Keterangan</th><th class="r">Debit</th><th class="r">Kredit</th><th class="r">Saldo Berjalan</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td colspan="3" class="total-label">Total Periode</td><td class="r masuk nowrap">${escapePrint(rupiah(r.debit||0))}</td><td class="r keluar nowrap">${escapePrint(rupiah(r.kredit||0))}</td><td class="r nowrap" style="color:#64748b">—</td></tr></tfoot></table>
 <section class="approval"><div><div class="sign-title">Mengetahui,<br>Humas Flamboyan 4</div><div class="sign-line">Heri Juwandi</div></div></section>
 <div class="note">Dicetak pada ${escapePrint(tanggalCetak)} • Flamboyan 4 • Data bersumber dari pembukuan kas pada flamboyan4.web.id</div><script>window.onload=()=>{setTimeout(()=>window.print(),350)}<\/script>
 
