@@ -19,10 +19,10 @@ const sandbox={
 };
 vm.createContext(sandbox);
 vm.runInContext(extract('f4QuickIuranSummary')+'\n'+extract('f4ContributionReport'),sandbox);
-function database(allocations,obligations,details=[]){
+function database(allocations,obligations){
  return {prepare(sql){
-   const rows=sql.includes('FROM bookkeeping_payment_allocations a')?
-     sql.includes('bookkeeping_allocation_details')?details:allocations:obligations;
+   if(sql.includes('JOIN bookkeeping_allocation_details'))throw Error('RT report must read canonical allocation lines only.');
+   const rows=sql.includes('FROM bookkeeping_payment_allocations a')?allocations:obligations;
    return {bind(){return {all:async()=>({results:rows})}},all:async()=>({results:rows})};
  }};
 }
@@ -64,16 +64,17 @@ function url(month){return 'https://api.example.test/api/bookkeeping/iuran/quick
  assert.equal(partial.data.counts.total.lunas,17);
  assert.equal(partial.data.counts.total.belum,17);
  // RT: 33 monthly deposits, but 31 payers pay 32 cleanliness units (one 2x).
- const reportDetails=[];
+ // Fixture emulates canonical D1 allocation rows, not duplicated legacy details.
+ const reportAllocations=[];
  for(let i=1;i<=33;i++){
-   reportDetails.push({payer_id:'payer:'+i,display_name:'Test '+i,house_code:'A/'+i,
-     payment_method:'cash',contribution_type:'bulanan',line_rp:25000});
+   reportAllocations.push({payer_id:'payer:'+i,display_name:'Test '+i,house_code:'A/'+i,
+     payment_method:'cash',contribution_type:'IURAN_BULANAN',line_rp:25000});
  }
  for(let i=1;i<=31;i++){
-   reportDetails.push({payer_id:'payer:'+i,display_name:'Test '+i,house_code:'A/'+i,
-     payment_method:'cash',contribution_type:'kebersihan',line_rp:i===31?40000:20000});
+   reportAllocations.push({payer_id:'payer:'+i,display_name:'Test '+i,house_code:'A/'+i,
+     payment_method:'cash',contribution_type:'KEBERSIHAN',line_rp:i===31?40000:20000});
  }
- const report=await sandbox.f4ContributionReport(database([],[],reportDetails),
+ const report=await sandbox.f4ContributionReport(database(reportAllocations,[]),
    new Request('https://api.example.test/api/bookkeeping/reports/contributions?kind=rt&level=month&from=2026-10-01&to=2026-10-31'));
  assert.equal(report.data.ringkasan.totalBulanan,825000);
  assert.equal(report.data.ringkasan.totalKebersihan,640000);
