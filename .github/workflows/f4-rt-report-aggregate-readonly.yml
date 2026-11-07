@@ -69,4 +69,16 @@ jobs:
                     AND a.period_year=2026 AND a.period_month=11
                     GROUP BY paid_month,target_month,category ORDER BY paid_month,category"""
           for row in q(paid_sql):print("PAYMENT_MONTH",row)
+          source_sql="""SELECT a.period_month AS m,a.contribution_type AS category,
+                   CASE WHEN p.id LIKE 'pay-%' THEN 'worker'
+                        WHEN p.id LIKE 'pay:%' THEN 'colon'
+                        ELSE 'other' END AS payment_source,
+                   count(DISTINCT p.id) AS payments,coalesce(sum(a.amount_rp),0) AS nominal,
+                   sum(CASE WHEN EXISTS(SELECT 1 FROM bookkeeping_allocation_details ad WHERE ad.allocation_id=a.id) THEN 1 ELSE 0 END) AS with_detail
+                   FROM bookkeeping_payment_allocations a
+                   JOIN bookkeeping_payments p ON p.id=a.payment_id
+                   WHERE a.status='aktif' AND p.status='aktif'
+                   AND a.period_year=2026 AND a.period_month IN (10,11)
+                   GROUP BY m,category,payment_source ORDER BY m,category,payment_source"""
+          for row in q(source_sql):print("SOURCE_TOTAL",row)
           PY
