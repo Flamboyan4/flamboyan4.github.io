@@ -595,6 +595,43 @@ function populate(){
  }
  if(!rows.length)list.append(node('p','Tidak ada data yang cocok.','f4-admin-note'));
 }
+function jerseyPrintOrderRecap(rows,esc){
+ const groupSizes={dewasa:new Map(),anak:new Map()};
+ const sleeves={pendek:0,panjang:0,belum:0};
+ const packages={atasan:0,set:0,belum:0};
+ const validGroups=new Set(['bapak','ibu','anak']);
+ const included=(rows||[]).filter(row=>validGroups.has(String(row.group_key||'').trim().toLowerCase()));
+ for(const row of included){
+  const group=String(row.group_key||'').trim().toLowerCase()==='anak'?'anak':'dewasa';
+  const rawSize=String(row.size||'').trim().replace(/\\s*\\((?:kids?|anak(?:-anak)?)\\)\\s*/ig,'').trim();
+  const size=rawSize&&!/^(?:-|—|tidak ada)$/i.test(rawSize)?rawSize.toUpperCase():'Belum diisi';
+  const sizes=groupSizes[group];
+  sizes.set(size,(sizes.get(size)||0)+1);
+  const sleeve=String(row.sleeves||'').trim().toLowerCase();
+  if(sleeve.includes('panjang'))sleeves.panjang++;
+  else if(sleeve.includes('pendek'))sleeves.pendek++;
+  else sleeves.belum++;
+  const packageType=String(row.package_type||'').trim().toLowerCase();
+  if(packageType==='set')packages.set++;
+  else if(packageType==='atasan')packages.atasan++;
+  else packages.belum++;
+ }
+ const order=['XXS','XS','S','M','L','XL','XXL','2XL','XXXL','3XL','XXXXL','4XL','5XL','6XL','BELUM DIISI'];
+ const indexOf=size=>{const i=order.indexOf(size.toUpperCase());return i<0?order.length:i};
+ const sizeLine=group=>{
+  const items=Array.from(groupSizes[group].entries()).sort((a,b)=>indexOf(a[0])-indexOf(b[0])||a[0].localeCompare(b[0],'id'));
+  return items.length?items.map(([size,n])=>esc(size)+' <b>'+n+'</b>').join(' &nbsp;•&nbsp; '):'—';
+ };
+ const row=(name,details)=>'<p><strong>'+name+':</strong> '+details+'</p>';
+ const missingSleeves=sleeves.belum?' &nbsp;•&nbsp; Belum diisi <b>'+sleeves.belum+'</b>':'';
+ const missingPackage=packages.belum?' &nbsp;•&nbsp; Belum ditentukan <b>'+packages.belum+'</b>':'';
+ return '<section class="f4-jersey-order-recap"><h2>Ringkasan Pesanan</h2>'+
+  row('Ukuran Dewasa',sizeLine('dewasa'))+
+  row('Ukuran Anak',sizeLine('anak'))+
+  row('Lengan','Pendek <b>'+sleeves.pendek+'</b> &nbsp;•&nbsp; Panjang <b>'+sleeves.panjang+'</b>'+missingSleeves)+
+  row('Jenis Pesanan','Atasan saja <b>'+packages.atasan+'</b> &nbsp;•&nbsp; Atasan + Celana <b>'+packages.set+'</b>'+missingPackage)+
+  '</section>';
+}
 function readJerseyAppendixPhoto(file){
  return new Promise((resolve,reject)=>{
   const reader=new FileReader();
@@ -664,6 +701,7 @@ function printJerseyReport(includeFunds=null,designPhotos=[]){
  const sections=[];
  let allOrders=0,allTotal=0,allReceived=0,allTitipan=0,allOutstanding=0;
  const paymentReport=jerseyPaymentSummary(records);
+ const orderRecap=jerseyPrintOrderRecap(records,esc);
  for(const [kind,label] of [['bapak','Bapak-Bapak'],['ibu','Ibu-Ibu'],['anak','Anak-anak']]){
   const people=records.filter(x=>String(x.group_key||'').toLowerCase()===kind)
    .sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0));
@@ -720,6 +758,9 @@ function printJerseyReport(includeFunds=null,designPhotos=[]){
  'tr{break-inside:avoid}th{text-align:left}.number{text-align:right;white-space:normal}.center{text-align:center}.sub{font-weight:bold;margin:3px 0 5px;font-size:8px}'+
  '.approval{text-align:right;margin-top:12px;break-inside:avoid;font-size:8px}.approval strong{display:block;margin-top:22px}'+
  '.foot{font-size:8px;color:#64748b;border-top:1px solid #000;margin-top:8px;padding-top:4px}'+
+ '.f4-jersey-order-recap{border-top:1px solid #cbd5e1;border-bottom:1px solid #cbd5e1;padding:4px 0;margin:6px 0 8px;break-inside:avoid}'+
+ '.f4-jersey-order-recap h2{font-size:11px;margin:0 0 3px}'+
+ '.f4-jersey-order-recap p{font-size:9.5px;line-height:1.35;margin:2px 0}'+
  "@media screen{body{max-width:850px;margin:16px auto;padding:0 12px}}\n@media print{\nbody.no-funds{font-size:11.5px!important;line-height:1.3!important}\nbody.with-funds{font-size:10.1px!important;line-height:1.22!important}\nbody h1{font-size:16px!important;line-height:1.25!important;margin:0 0 4px!important}\nbody h2{font-size:12px!important;line-height:1.25!important;margin:10px 0 5px!important}\nbody .meta{font-size:9.5px!important;line-height:1.3!important}\nbody .summary{margin:7px 0!important;gap:5px!important}\nbody .box{padding:5px!important;font-size:10px!important}\nbody .box strong{font-size:11px!important}\nbody table{width:100%!important;border-collapse:collapse!important;table-layout:fixed!important;margin:0 0 7px!important}\nbody.no-funds th,body.no-funds td{\nfont-size:11.5px!important;line-height:1.25!important;padding:4px 4px!important}\nbody.with-funds th,body.with-funds td{\nfont-size:10.1px!important;line-height:1.19!important;padding:3px 3px!important}\nbody tr{break-inside:avoid!important}\nbody .sub{font-size:9.5px!important;line-height:1.3!important;margin:4px 0 5px!important}\nbody .approval{margin-top:15px!important;font-size:10px!important;line-height:1.3!important;break-inside:avoid!important}\nbody .approval strong{margin-top:25px!important;font-size:10px!important}\nbody .foot{font-size:9px!important;margin-top:9px!important;padding-top:5px!important}\nbody th{background:#e8f0fa!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}\n}\n\n@media print{\n  body.no-funds th,body.no-funds td{\n    font-size:11.5px!important;line-height:1.22!important;padding:3.5px 4px!important\n  }\n  body.with-funds th,body.with-funds td{\n    font-size:10.8px!important;line-height:1.2!important;padding:3.2px!important\n  }\n  body.no-funds table :is(th,td):nth-child(1){width:5%}\n  body.no-funds table :is(th,td):nth-child(2){width:32%}\n  body.no-funds table :is(th,td):nth-child(3){width:17%}\n  body.no-funds table :is(th,td):nth-child(4){width:9%}\n  body.no-funds table :is(th,td):nth-child(5){width:9%}\n  body.no-funds table :is(th,td):nth-child(6){width:18%}\n  body.no-funds table :is(th,td):nth-child(7){width:10%}\n  body.with-funds table :is(th,td):nth-child(1){width:4%}\n  body.with-funds table :is(th,td):nth-child(2){width:19%}\n  body.with-funds table :is(th,td):nth-child(3){width:11%}\n  body.with-funds table :is(th,td):nth-child(4){width:7%}\n  body.with-funds table :is(th,td):nth-child(5){width:7%}\n  body.with-funds table :is(th,td):nth-child(6){width:15%}\n  body.with-funds table :is(th,td):nth-child(7){width:8%}\n  body.with-funds table :is(th,td):nth-child(8){width:10%}\n  body.with-funds table :is(th,td):nth-child(9){width:9%}\n  body.with-funds table :is(th,td):nth-child(10){width:10%}\n  body.no-funds table th:nth-child(7),body.with-funds table th:nth-child(7){text-align:center}\n}\n\n@media print{\n .f4-jersey-finance-compact{font-size:9px;line-height:1.25;margin:5px 0 7px;padding:4px 6px;border:1px solid #000;break-inside:avoid}\n .f4-jersey-finance-compact>div+div{margin-top:2px}\n .f4-jersey-finance-compact strong{color:#263650}\n}\n\n.f4-jersey-appendix{break-before:page;page-break-before:always;padding-top:0}\n.f4-jersey-appendix header{margin-bottom:12px}\n.f4-jersey-appendix-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:9mm}\n.f4-jersey-appendix figure{margin:0;min-width:0;break-inside:avoid;display:flex;flex-direction:column;align-items:center}\n.f4-jersey-appendix img{display:block;width:100%;height:auto;max-height:113mm;object-fit:contain}\n.f4-jersey-appendix figcaption{text-align:center;font-size:10px;margin-top:6px;overflow-wrap:anywhere}\n</style></head><body class=\""+(includeFunds?'with-funds':'no-funds')+'">'+
  '<header><h1>LAPORAN PESANAN JERSEY WARGA FLAMBOYAN 4</h1>'+
  '<p class="meta">RT 001 RW 026 Pesona Kahuripan 2 • Dicetak '+esc(date)+' • A4 Portrait • '+(includeFunds?'Lengkap':'Tanpa dana')+'</p></header>'+
@@ -737,6 +778,7 @@ function printJerseyReport(includeFunds=null,designPhotos=[]){
        '</b> • Metode belum jelas <b>'+money(paymentReport.perluRinci)+
        '</b> • Berdasarkan status lama <b>'+money(paymentReport.nominalLama)+'</b></div>'+
   '</div>':'')+
+ orderRecap+
  paintedSections+
  (includeFunds?'<p class="meta">Catatan: nilai dari status pembayaran lama ('+money(paymentReport.nominalLama)+') masih perkiraan, belum termasuk nominal penerimaan terkonfirmasi. Metode belum jelas ('+money(paymentReport.perluRinci)+') harus ditelusuri sebelum diklasifikasikan sebagai QRIS/Cash. Titipan tidak mengurangi kekurangan pemesan lain.</p>':'')+
  '<div class="approval">Mengetahui, Humas Flamboyan 4<strong>Heri Juwandi</strong></div>'+
