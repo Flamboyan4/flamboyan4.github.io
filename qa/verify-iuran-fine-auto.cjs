@@ -10,7 +10,7 @@ assert(worker.includes('async function f4IuranFineDue'));
 assert(worker.includes('fine_via_iuran'));
 assert(worker.includes("fine-pay"));
 assert(worker.includes('sum-totalFineRp'));
-assert(worker.includes('if(total+totalFineRp !== sum)'));
+assert(/if\s*\(\s*total\s*\+\s*totalFineRp\s*!==\s*sum\s*\)/.test(worker));
 assert(worker.includes("json_extract('invalid-fine-state','$')"));
 assert(worker.includes('Iuran ini telah melunasi Denda otomatis'));
 assert(book.includes('pv-denda-otomatis'));
