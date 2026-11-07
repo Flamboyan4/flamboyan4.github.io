@@ -47,6 +47,20 @@ assert(/bookkeeping-grid\.css\?v=[^"']+/.test(html),'Bookkeeping grid stylesheet
 assert(grid.includes('#modal-edit .f4-book-edit-card')&&grid.includes('max-height:calc(100dvh - 32px)'),'Edit modal must fit viewport');
 assert(grid.includes('#modal-edit .f4-book-edit-form')&&grid.includes('overflow-y:auto'),'Edit form must scroll inside modal');
 assert(grid.includes('z-index:320'),'Edit modal must render above direct-shell bar');
+
+const kasPrint=src('function printKasSepertiLamanUtama(){','function printRtSepertiLamanUtama(){');
+assert(kasPrint.includes('@page{size:A4 portrait;margin:10mm 11mm 11mm}'),'Kas print must fit A4');
+assert(kasPrint.includes('table{width:100%;min-width:0;border-collapse:collapse;table-layout:fixed'),
+ 'Kas print table must fill its printable page width with fixed columns');
+assert(kasPrint.includes('th,td{border:1px solid #334155'), 'Kas print ledger needs aligned grid lines');
+assert(kasPrint.includes('.header{display:grid;grid-template-columns:38px minmax(0,1fr) auto'),
+ 'Kas report letterhead must be compact');
+assert(kasPrint.includes('font:11px/1.36 Arial,Helvetica,sans-serif'),
+ 'Kas report must not use tiny default serif type');
+assert(kasPrint.includes('.logo{display:block;width:38px;height:38px'), 'Kas report logo must be appropriately small');
+assert(!kasPrint.includes('*{}body{line-height'), 'Kas print style must not retain the broken empty selectors');
+assert(!kasPrint.includes('style="width:5%"'), 'Kas report columns must use corrected proportional widths');
+
 assert(html.includes('class="f4-book-iuran-grid desktop-compact-form"'));
 const iuranForm=src('<form id="form-iuran"','</form>');
 for(const cls of ['f4-book-warga','f4-book-date-method','f4-book-period',
