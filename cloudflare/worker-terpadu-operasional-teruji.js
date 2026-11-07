@@ -4029,7 +4029,7 @@ async function createIuranPayment(request, env, who) {
   if (locks) return safeError("Tahun transaksi atau periode iuran sudah ditutup.", 409);
   const id = "pay-" + crypto.randomUUID(), cashId = "cash-" + crypto.randomUUID();
   const q = [
-    env.DB.prepare("INSERT INTO bookkeeping_payments(id,payer_id,household_id,paid_on,received_on,amount_rp,payment_method,description,status) VALUES(?,?,?,?,?,?,?,?,'aktif')").bind(id, payer.id, payer.household_id, date, date, sum, method, note),
+    env.DB.prepare("INSERT INTO bookkeeping_payments(id,payer_id,household_id,paid_on,received_on,amount_rp,payment_method,description,status) VALUES(?,?,?,?,?,?,?,?,'aktif')").bind(id, payer.id, payer.household_id, date, date, sum-totalFineRp, method, (totalFineRp?((note?note+" • ":"")+"Denda "+totalFineRp+" dialihkan dari Kebersihan; diterima "+sum):note)),
     env.DB.prepare("INSERT INTO bookkeeping_payment_request_keys(request_key,payment_id,payload_hash) VALUES(?,?,?)").bind(key, id, iuranHash)
   ];
   for (const a of items) q.push(env.DB.prepare("INSERT INTO bookkeeping_payment_allocations(id,payment_id,payer_id,period_year,period_month,contribution_type,amount_rp,status) VALUES(?,?,?,?,?,?,?,'aktif')").bind("alloc-" + crypto.randomUUID(), id, payer.id, a.tahun, a.bulan, a.jenis, a.nominal));
