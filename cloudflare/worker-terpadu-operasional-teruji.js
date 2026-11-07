@@ -3846,6 +3846,35 @@ async function getIuranSuggestedPeriod(db,request){
   return json({ok:true,source:'cloudflare-d1',payerId,...selection});
 }
 __name(getIuranSuggestedPeriod,"getIuranSuggestedPeriod");
+
+async function f4IuranFineDue(db,payerId,date){
+ const result=await db.prepare(`SELECT id,event_on,fine_type,amount_rp,paid_rp,status
+  FROM bookkeeping_fines WHERE payer_id=? AND event_on<=?
+  AND status NOT IN ('dibatalkan','batal') ORDER BY event_on,id LIMIT 101`).bind(payerId,date).all();
+ const rows=result.results||[];
+ if(rows.length>100)throw Error("Denda terlalu banyak; periksa secara manual.");
+ const open=[];
+ for(const row of rows){
+  const amount=Number(row.amount_rp),paid=Number(row.paid_rp),status=String(row.status||"");
+  if(!Number.isSafeInteger(amount)||amount<=0||!Number.isSafeInteger(paid)||paid<0||paid>amount||
+     (status==="lunas"&&paid!==amount)||(status==="belum"&&paid>=amount)||
+     !["belum","lunas","sebagian"].includes(status))
+    throw Error("Denda belum konsisten; periksa riwayat denda sebelum menyimpan iuran.");
+  if(paid<amount)open.push({id:row.id,tanggal:row.event_on,jenis:row.fine_type,
+    sisaRp:amount-paid,paidRp:paid,amountRp:amount});
+ }
+ return open;
+}
+__name(f4IuranFineDue,"f4IuranFineDue");
+async function getIuranFineDue(db,request){
+ const q=new URL(request.url).searchParams,payerId=q.get("payerId")||"",date=q.get("tanggal")||"";
+ if(!payerId||payerId.length>150||!validDateOnly(date))return safeError("Pembayar dan tanggal diperlukan.",400);
+ try{
+  const data=await f4IuranFineDue(db,payerId,date);
+  return json({ok:true,data,totalDendaRp:data.reduce((n,row)=>n+row.sisaRp,0)});
+ }catch(e){return safeError(e.message||"Denda perlu direkonsiliasi.",409)}
+}
+__name(getIuranFineDue,"getIuranFineDue");
 async function createIuranPayment(request, env, who) {
   if (env.FINANCE_WRITE_ENABLED !== "true" || env.IURAN_WRITE_ENABLED !== "true") return safeError("Pencatatan iuran D1 belum diaktifkan.", 503);
   let d;
@@ -3856,6 +3885,11 @@ async function createIuranPayment(request, env, who) {
   }
   const key = String(d.requestKey || ""), payerId = String(d.payerId || ""), date = String(d.tanggal || ""), method = String(d.metode || ""), note = String(d.catatan || "").trim();
   const sum = Number(d.jumlahRp), items = d.alokasi;
+  const fineItems=Array.isArray(d.denda)?d.denda:[];
+  if(fineItems.length>100||fineItems.some(x=>!x||typeof x.id!=="string"||x.id.length>150||!Number.isSafeInteger(x.nominal)||x.nominal<=0))
+    return safeError("Rincian denda otomatis tidak valid.",400);
+  const totalFineRp=fineItems.reduce((n,x)=>n+x.nominal,0);
+  if(!Number.isSafeInteger(totalFineRp))return safeError("Jumlah alokasi denda tidak valid.",400);
   const settleAdvanceId = String(d.settleAdvanceId||"");
   if(settleAdvanceId&&!/^adv_[a-f0-9-]{36}$/i.test(settleAdvanceId))return safeError("Referensi Talangan tidak valid.",400);
   if (!/^[a-f0-9-]{36}$/i.test(key) || payerId.length < 1 || payerId.length > 150 || !validDateOnly(date) || !validRupiah(sum) || !["Cash", "QRIS", "Transfer Mandiri"].includes(method) || note.length > 500 || !Array.isArray(items) || items.length < 1 || items.length > 60) return safeError("Data pembayaran tidak valid.", 400);
@@ -3871,8 +3905,8 @@ async function createIuranPayment(request, env, who) {
     total += a.nominal;
     if (!Number.isSafeInteger(total)) return safeError("Jumlah terlalu besar.", 400);
   }
-  if (total !== sum) return safeError("Total alokasi tidak sama dengan uang diterima.", 400);
-  const iuranHash = await tokenHash(JSON.stringify({ payerId, date, method, note, sum, ...(settleAdvanceId?{settleAdvanceId}:{}), alokasi: items.map((a) => ({ tahun: a.tahun, bulan: a.bulan, jenis: a.jenis, nominal: a.nominal })).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))) }));
+  if (total+totalFineRp !== sum) return safeError("Total alokasi Iuran dan Denda tidak sama dengan uang diterima.", 400);
+  const iuranHash = await tokenHash(JSON.stringify({ payerId, date, method, note, sum, ...(settleAdvanceId?{settleAdvanceId}:{}), alokasi: items.map((a) => ({ tahun: a.tahun, bulan: a.bulan, jenis: a.jenis, nominal: a.nominal })).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))), denda: fineItems.map(x=>({id:x.id,nominal:x.nominal})).sort((a,b)=>a.id.localeCompare(b.id)) }));
   const old = await env.DB.prepare("SELECT payment_id,payload_hash FROM bookkeeping_payment_request_keys WHERE request_key=?").bind(key).first();
   if (old) {
     if (!old.payload_hash || old.payload_hash !== iuranHash) return safeError("requestKey iuran sudah digunakan atau berasal dari data lama tanpa fingerprint.", 409);
@@ -6298,6 +6332,10 @@ async function handle(request, env) {
     const denied=requireRole(who,["superadmin"]);
     if(denied)return denied;
     return getIuranSuggestedPeriod(env.DB,request);
+  }
+  if (path === "/api/bookkeeping/iuran/fines" && request.method === "GET") {
+    const denied=requireRole(who,["superadmin"]);if(denied)return denied;
+    return getIuranFineDue(env.DB,request);
   }
   if (path === "/api/bookkeeping/iuran/outstanding" && request.method === "GET") {
     const denied = requireRole(who, ["superadmin"]);
