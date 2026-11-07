@@ -4,6 +4,7 @@ on:
     branches: ['fix/iuran-denda-kebersihan-20261107']
     paths:
       - .github/workflows/f4-iuran-fine-schema-readonly.yml
+      - qa/verify-iuran-fine-auto.cjs
 permissions:
   contents: read
 jobs:
@@ -11,6 +12,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate combined Iuran fine code
+        run: |
+          node --check cloudflare/worker-terpadu-operasional-teruji.js
+          node qa/verify-iuran-fine-auto.cjs
       - name: Inspect only D1 fine schema and triggers (no member data)
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
