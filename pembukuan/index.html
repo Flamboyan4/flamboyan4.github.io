@@ -1729,7 +1729,7 @@ main > section.card{overflow:visible!important}
  #tab-pinjaman .mb-5{margin-bottom:12px!important}
  #form-iuran,#form-transaksi-kas,
  #form-talangan,#form-denda-catat,#form-denda-bayar,
- #loan-form-buat form,#loan-form-bayar form,#form-kekurangan-kas,
+ #loan-form-buat form,#loan-form-bayar form,
  #modal-edit form{min-width:0!important}
  :is(#form-iuran,#form-transaksi-kas,#form-denda-catat,#form-denda-bayar,
  #loan-form-buat form,#loan-form-bayar form,#modal-edit form)>*{
@@ -1764,18 +1764,7 @@ main > section.card{overflow:visible!important}
  #tab-input #preview-detail>.grid{gap:7px!important}
  #tab-input #preview-detail>.grid>div{padding:9px!important;border-radius:9px!important;min-width:0!important}
  #tab-input #preview-detail>.mt-3{margin-top:9px!important;padding-top:9px!important}
- #tab-input #kekurangan-kas-card{margin-top:13px!important;padding:12px!important}
- #tab-input #form-kekurangan-kas{
-  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  gap:9px!important;align-items:end!important
- }
- #tab-input #form-kekurangan-kas>div:first-child,
- #tab-input #form-kekurangan-kas>#kurang-kas-preview,
- #tab-input #form-kekurangan-kas>#kurang-kas-nominal,
- #tab-input #form-kekurangan-kas>#kurang-kas-status,
- #tab-input #form-kekurangan-kas>#kurang-kas-btn{grid-column:1/-1!important}
- #tab-input #form-kekurangan-kas>div:has(#kurang-kas-nominal){grid-column:1/-1!important}
- /* Edit Iuran follows the same two-column and three-column input pattern. */
+
  #modal-edit form{padding:13px!important;display:flex!important;flex-direction:column!important;gap:12px!important}
  #modal-edit form>div:nth-child(5){padding:11px!important}
  /* Talangan: period and payout source share rows on phone. */
@@ -1936,21 +1925,6 @@ main > section.card{overflow:visible!important}
           </div>
         </form>
 
-        <details id="kekurangan-kas-card" class="f4-book-shortage mt-5 rounded-2xl border border-amber-200 bg-amber-50/40 p-4 sm:p-5">
-          <summary class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
-            <div><h3 class="font-black text-violet-950">Pelunasan Kekurangan Kas Lorong</h3><p id="kurang-kas-state" class="text-xs text-slate-500 mt-1">Buka untuk memeriksa kekurangan.</p></div>
-            <div class="text-right"><div class="text-[10px] font-bold text-slate-400">TOTAL KEKURANGAN</div><div id="kurang-kas-total" class="font-black text-amber-700">—</div></div>
-          </summary>
-          <form id="form-kekurangan-kas" onsubmit="bayarKekuranganKas(event)" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
-            <div class="sm:col-span-2 lg:col-span-4"><label class="text-sm font-bold">Warga / Periode</label><select id="kurang-kas-id" class="field mt-1" onchange="previewKekuranganKas()"><option value="">Pilih kekurangan...</option></select></div>
-            <div id="kurang-kas-preview" class="sm:col-span-2 lg:col-span-4 rounded-xl border border-amber-100 bg-white p-3 text-sm text-slate-500">Pilih data kekurangan untuk melihat rincian.</div>
-            <div><label class="text-sm font-bold">Tanggal Bayar</label><input id="kurang-kas-tanggal" type="date" class="field mt-1" required></div>
-            <div><label class="text-sm font-bold">Metode</label><select id="kurang-kas-metode" class="field mt-1"><option>Cash</option><option>QRIS</option><option>Transfer Mandiri</option></select></div>
-            <div><label class="text-sm font-bold">Jumlah Pelunasan</label><input id="kurang-kas-nominal" type="number" min="1" step="1000" class="field mt-1" required></div>
-            <button id="kurang-kas-btn" class="rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-black py-3.5">Simpan Pelunasan</button>
-            <div id="kurang-kas-status" class="hidden sm:col-span-2 lg:col-span-4 rounded-xl border px-4 py-3 text-sm"></div>
-          </form>
-        </details>
       </div>
     </div>
 
@@ -2587,11 +2561,10 @@ function jsonp(_url,params={}) {
 }
 function status(t,type='info'){const e=document.getElementById('status-box');if(type==='success'&&/^Data berhasil dimuat\.?$/i.test(t)){F4Loading.success(e);return}if(type==='info'&&/^Memuat /i.test(t)){F4Loading.begin(e,t);return}if(type==='error'&&e.dataset.f4State==='loading')F4Loading.error(e,t);e.dataset.f4State='notice';e.className='mb-5 rounded-xl border px-4 py-3 text-sm';if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');else if(type==='success')e.classList.add('bg-violet-50','border-violet-200','text-violet-700');else e.classList.add('bg-slate-50','border-slate-200','text-slate-600');e.textContent=t;e.hidden=false;e.classList.remove('hidden')}
 function hideStatus(){document.getElementById('status-box').classList.add('hidden')}
-async function muatUlang(){status('Memuat data...');try{const r=await jsonp(APPS_SCRIPT_URL,{action:'bootstrap',t:Date.now()});if(r.status!=='success')throw new Error(r.message||'Gagal');DATA.config=r.config||{};document.getElementById('backend-version').textContent=r.version?('Backend '+r.version):'Backend lama';DATA.rumah=r.rumah||[];DATA.warga=r.warga||[];renderSemua();const kk=document.getElementById('kurang-kas-tanggal');if(kk&&!kk.value)kk.value=new Date().toISOString().slice(0,10);status('Data berhasil dimuat.','success');
+async function muatUlang(){status('Memuat data...');try{const r=await jsonp(APPS_SCRIPT_URL,{action:'bootstrap',t:Date.now()});if(r.status!=='success')throw new Error(r.message||'Gagal');DATA.config=r.config||{};document.getElementById('backend-version').textContent=r.version?('Backend '+r.version):'Backend lama';DATA.rumah=r.rumah||[];DATA.warga=r.warga||[];renderSemua();status('Data berhasil dimuat.','success');
   // Buka Input Iuran tanpa menarik riwayat/utang yang belum diperlukan.
   // Perbarui modul aktif saja jika pengguna menekan Muat Ulang dari modul tersebut.
   if(!document.getElementById('tab-riwayat')?.classList.contains('hidden'))loadRiwayat(true).catch(()=>{});
-  if(document.getElementById('kekurangan-kas-card')?.open)loadKekuranganKas(true).catch(()=>{});
 }catch(e){status(e.message,'error')}}
 function renderSemua(){const total=DATA.rumah.length,dihuni=DATA.rumah.filter(x=>(x.statusRumah||'').toLowerCase()==='dihuni').length,kosong=DATA.rumah.filter(x=>(x.statusRumah||'').toLowerCase()==='kosong').length,aktif=DATA.warga.filter(x=>['ya','aktif'].includes((x.statusAktif||'').toLowerCase())).length,kontrak=DATA.warga.filter(x=>['ya','aktif'].includes((x.statusAktif||'').toLowerCase())&&(x.statusTinggal||'').toLowerCase()==='kontrak').length;document.getElementById('sum-unit').textContent=total;document.getElementById('sum-dihuni').textContent=dihuni;document.getElementById('sum-kosong').textContent=kosong;document.getElementById('sum-warga').textContent=aktif;document.getElementById('sum-kontrak').textContent=kontrak;document.getElementById('ringkasan-hunian').innerHTML=`<div class="flex justify-between py-2 border-b border-violet-50"><span>Total unit terdata</span><b>${total}</b></div><div class="flex justify-between py-2 border-b border-violet-50"><span>Dihuni</span><b class="text-violet-700">${dihuni}</b></div><div class="flex justify-between py-2 border-b border-violet-50"><span>Kosong</span><b class="text-amber-600">${kosong}</b></div><div class="flex justify-between py-2"><span>Kontrak aktif</span><b class="text-fuchsia-700">${kontrak}</b></div>`;document.getElementById('ringkasan-tarif').innerHTML=`<div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">IURAN BULANAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_BULANAN)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">KEBERSIHAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_KEBERSIHAN)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">KAS LORONG</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_KAS_LORONG)}</div></div><div class="rounded-xl bg-violet-50/60 p-3"><div class="text-[10px] font-bold text-slate-400">ARISAN</div><div class="font-black mt-1">${rupiah(DATA.config.TARIF_ARISAN)}</div></div>`;renderRumah();renderWarga();renderConfig();isiForm();lucide.createIcons();initPinjamanUi();}
 function isiForm(){const sel=document.getElementById('inp-warga');const old=sel.value;sel.innerHTML='<option value="">Pilih warga...</option>'+DATA.warga.filter(w=>['ya','aktif'].includes((w.statusAktif||'').toLowerCase())&&[w.qtyIuranBulanan,w.qtyKebersihan,w.qtyKasLorong,w.qtyArisan].some(n=>Number(n||0)>0)).map(w=>`<option value="${w.idWarga}">${w.nama} (${w.blok}/${w.noRumah})</option>`).join('');if(old)sel.value=old;const now=new Date();document.getElementById('inp-tanggal').value=now.toISOString().slice(0,10);document.getElementById('inp-tahun').value=now.getFullYear();document.getElementById('inp-bulan').innerHTML=BULAN.slice(1).map((b,i)=>`<option value="${i+1}">${b}</option>`).join('');document.getElementById('inp-bulan').value=now.getMonth()+1;pilihWargaIuran()}
@@ -2762,7 +2735,7 @@ async function simpanIuran(ev){
     const periode=Array.isArray(r.periode)?r.periode.join(', '):(r.periode||'');
     saveStatus(`Pembayaran berhasil disimpan${periode?` • ${periode}`:''} • diterima ${rupiah(r.totalDiterima)}${Number(r.dendaDibayarRp||0)>0?` • Denda ${rupiah(r.dendaDibayarRp)} dari Kebersihan`:''}${Number(r.kekuranganKasLorong||0)>0?` • kurang Kas ${rupiah(r.kekuranganKasLorong)}`:''}${talInfo}`,'success',3500);
     resetIuranFormAfterSave();
-    await Promise.all([loadRiwayat(true),loadKekuranganKas(true).catch(()=>{})]);
+    await loadRiwayat(true);
   }catch(e){saveStatus(e.message||String(e),'error',4200)}
   finally{btn.disabled=false;btn.classList.remove('opacity-60')}
 }
@@ -2773,39 +2746,7 @@ document.getElementById('inp-tanggal')?.addEventListener('change',()=>{void upda
   if(el){const clear=()=>{if(!document.getElementById('save-status')?.classList.contains('hidden'))hideSaveStatus()};el.addEventListener('change',clear);el.addEventListener('input',clear)}
 });
 
-let DATA_KEKURANGAN_KAS={rows:[],totalKekurangan:0,jumlah:0};
-let F4_KURANG_KAS_PENDING=null;
-function f4LoadKekuranganKasOnDemand(){
-  // Selalu periksa ulang ketika dibuka, agar data keuangan tidak basi.
-  if(F4_KURANG_KAS_PENDING)return;
-  const state=document.getElementById('kurang-kas-state');
-  if(state)state.textContent='Memeriksa kekurangan…';
-  F4_KURANG_KAS_PENDING=loadKekuranganKas(true)
-    .catch(e=>{
-      if(state)state.textContent='Gagal memuat. Tutup dan buka lagi untuk mencoba ulang.';
-      console.warn('Kekurangan Kas Lorong belum dapat dimuat:',e?.message||e);
-    })
-    .finally(()=>{F4_KURANG_KAS_PENDING=null});
-}
-async function loadKekuranganKas(silent=false){
-  try{
-    const r=await jsonp(APPS_SCRIPT_URL,{action:'kekurangankas',t:Date.now()});
-    if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memuat kekurangan Kas Lorong.');
-    DATA_KEKURANGAN_KAS=r.data||{rows:[],totalKekurangan:0,jumlah:0};
-    renderKekuranganKasOptions();
-    return DATA_KEKURANGAN_KAS;
-  }catch(e){if(!silent)kurangKasMsg(e.message||String(e),'error');throw e}
-}
-function renderKekuranganKasOptions(){const sel=document.getElementById('kurang-kas-id'),total=document.getElementById('kurang-kas-total');if(total)total.textContent=rupiah(DATA_KEKURANGAN_KAS.totalKekurangan||0);if(!sel)return;const cur=sel.value,rows=DATA_KEKURANGAN_KAS.rows||[];
- const state=document.getElementById('kurang-kas-state');
- if(state)state.textContent=rows.length?rows.length+' tagihan perlu dilunasi':'Tidak ada kekurangan yang perlu dilunasi';
- if(!rows.length){const card=document.getElementById('kekurangan-kas-card');if(card)card.open=false}
- sel.innerHTML='<option value="">Pilih kekurangan...</option>'+rows.map(x=>`<option value="${x.idAlokasi}">${x.nama} • ${x.blok}/${x.noRumah} • ${x.bulan} ${x.tahun} • kurang ${rupiah(x.kekurangan)}</option>`).join('');if(rows.some(x=>x.idAlokasi===cur))sel.value=cur;else sel.value='';previewKekuranganKas();window.refreshAllCustomSelects?.()}
-function previewKekuranganKas(){const id=document.getElementById('kurang-kas-id')?.value,e=document.getElementById('kurang-kas-preview'),n=document.getElementById('kurang-kas-nominal');if(!e)return;const x=(DATA_KEKURANGAN_KAS.rows||[]).find(v=>v.idAlokasi===id);if(!x){e.textContent='Pilih data kekurangan untuk melihat rincian.';if(n)n.value='';return}e.innerHTML=`<div class="font-black text-violet-950">${x.nama} • ${x.blok}/${x.noRumah}</div><div class="mt-1">${x.bulan} ${x.tahun} • Kas diterima ${rupiah(x.kasSudahDiterima)} dari ${rupiah(x.tagihanKasLorong)}</div><div class="text-xl font-black text-amber-700 mt-2">Sisa ${rupiah(x.kekurangan)}</div>`;if(n)n.value=x.kekurangan}
-function kurangKasMsg(t,type='info'){const e=document.getElementById('kurang-kas-status');if(!e)return;e.className='sm:col-span-2 lg:col-span-4 rounded-xl border px-4 py-3 text-sm';if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');else if(type==='success')e.classList.add('bg-emerald-50','border-emerald-200','text-emerald-700');else e.classList.add('bg-violet-50','border-violet-200','text-violet-700');e.textContent=t}
-async function bayarKekuranganKas(ev){ev.preventDefault();const id=document.getElementById('kurang-kas-id').value;if(!id){kurangKasMsg('Pilih kekurangan yang akan dibayar.','error');return}const btn=document.getElementById('kurang-kas-btn');btn.disabled=true;btn.classList.add('opacity-60');kurangKasMsg('Menyimpan pelunasan...');try{const r=await jsonp(APPS_SCRIPT_URL,{action:'bayarkekurangankas',idAlokasi:id,tanggal:document.getElementById('kurang-kas-tanggal').value,metode:document.getElementById('kurang-kas-metode').value,nominal:document.getElementById('kurang-kas-nominal').value,catatan:'Pelunasan kekurangan Kas Lorong',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal menyimpan pelunasan.');kurangKasMsg(`${r.message} • ${r.periode} • ${rupiah(r.nominal)}${Number(r.sisa||0)>0?` • sisa ${rupiah(r.sisa)}`:''}`,'success');await loadKekuranganKas(true);await loadRiwayat(true);try{await loadPembukuanKas()}catch(_e){}}catch(e){kurangKasMsg(e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}}
 
-async function loadRiwayat(silent=false){
   try{
     if(!silent) riwayatMsg('Memuat riwayat...','info');
     const r=await jsonp(APPS_SCRIPT_URL,{action:'riwayatpembayaran',t:Date.now()});
@@ -3118,7 +3059,7 @@ async function simpanEdit(ev){
   ev.preventDefault();const btn=document.getElementById('btn-edit-save');btn.disabled=true;btn.classList.add('opacity-60');editMsg('Menyimpan perubahan...');try{const p={action:'updatepembayaran',idPembayaran:document.getElementById('edit-id').value,idWarga:document.getElementById('edit-warga').value,tanggal:document.getElementById('edit-tanggal').value,metode:document.getElementById('edit-metode').value,bulan:document.getElementById('edit-bulan').value,tahun:document.getElementById('edit-tahun').value,jumlahBulan:document.getElementById('edit-jumlah').value,catatan:document.getElementById('edit-catatan').value,t:Date.now()};const r=await jsonp(APPS_SCRIPT_URL,p);if(!r||r.status!=='success')throw new Error(r?.message||'Gagal memperbarui.');try{await jsonp(BATCH_SCRIPT_URL,{action:'sinkrontalanganpembayaran',idPembayaran:p.idPembayaran,t:Date.now()})}catch(te){console.warn('Sinkron talangan edit:',te)}editMsg('Perubahan berhasil disimpan.','success');await loadRiwayat(true);setTimeout(()=>{tutupEdit();renderRiwayat()},500)}catch(e){editMsg(e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}
 }
 async function batalkanPembayaran(id){
-  const x=DATA.riwayat.find(r=>r.idPembayaran===id);if(!x||!x.canCancel){riwayatMsg('Transaksi ini tidak dapat dibatalkan.','error');return}if(!confirm(`Batalkan pembayaran ${x.nama} untuk ${(x.periode||[]).join(', ')}?\n\nData tidak dihapus permanen dan tetap tersimpan sebagai riwayat BATAL.`))return;try{riwayatMsg('Membatalkan transaksi...');const r=await jsonp(APPS_SCRIPT_URL,{action:'batalkanpembayaran',idPembayaran:id,alasan:'Dibatalkan dari web',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan.');try{await jsonp(BATCH_SCRIPT_URL,{action:'batalkanpelunasantalangan',idPembayaran:id,alasan:'Pembayaran iuran dibatalkan',t:Date.now()})}catch(te){console.warn('Reverse talangan:',te)}await loadRiwayat(true);await loadKekuranganKas(true).catch(()=>{});renderRiwayat();riwayatMsg(r.message||'Pembayaran dibatalkan.','success')}catch(e){riwayatMsg(e.message||String(e),'error')}
+  const x=DATA.riwayat.find(r=>r.idPembayaran===id);if(!x||!x.canCancel){riwayatMsg('Transaksi ini tidak dapat dibatalkan.','error');return}if(!confirm(`Batalkan pembayaran ${x.nama} untuk ${(x.periode||[]).join(', ')}?\n\nData tidak dihapus permanen dan tetap tersimpan sebagai riwayat BATAL.`))return;try{riwayatMsg('Membatalkan transaksi...');const r=await jsonp(APPS_SCRIPT_URL,{action:'batalkanpembayaran',idPembayaran:id,alasan:'Dibatalkan dari web',t:Date.now()});if(!r||r.status!=='success')throw new Error(r?.message||'Gagal membatalkan.');try{await jsonp(BATCH_SCRIPT_URL,{action:'batalkanpelunasantalangan',idPembayaran:id,alasan:'Pembayaran iuran dibatalkan',t:Date.now()})}catch(te){console.warn('Reverse talangan:',te)}await loadRiwayat(true);renderRiwayat();riwayatMsg(r.message||'Pembayaran dibatalkan.','success')}catch(e){riwayatMsg(e.message||String(e),'error')}
 }
 
 async function hapusPembayaran(id){
@@ -3133,7 +3074,7 @@ async function hapusPembayaran(id){
     if(!r||r.status!=='success')throw new Error(r?.message||'Gagal menghapus transaksi.');
     try{await jsonp(BATCH_SCRIPT_URL,{action:'batalkanpelunasantalangan',idPembayaran:id,alasan:'Pembayaran iuran dihapus permanen',t:Date.now()})}catch(te){console.warn('Reverse talangan hapus:',te)}
     await loadRiwayat(true);
-    await loadKekuranganKas(true).catch(()=>{});
+    
     renderRiwayat();
     riwayatMsg(r.message||'Pembayaran berhasil dihapus permanen.','success');
   }catch(e){riwayatMsg(e.message||String(e),'error')}
@@ -3945,8 +3886,6 @@ function gantiTab(n,b){pilihMenu(n)}
 document.addEventListener('DOMContentLoaded',()=>{
   lucide.createIcons();
   initKasUi();initTransaksiKasUi();initHistoryBatchFilters();initRiwayatPeriodFilter();
-  const shortage=document.getElementById('kekurangan-kas-card');
-  shortage?.addEventListener('toggle',()=>{if(shortage.open)f4LoadKekuranganKasOnDemand()});
   pilihMenu('input');
   muatUlang();
 });
@@ -4921,7 +4860,7 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
 (function(){
   const CLOSED_YEAR_CACHE={};
   const YEAR_SAVE_BUTTONS={
-    input:['btn-simpan','kurang-kas-btn'],transaksi:['btn-trx-simpan'],kas:['kas-btn-buat'],talangan:['tal-btn-simpan'],denda:['denda-btn-simpan','bayar-denda-btn'],pinjaman:['loan-btn-simpan','payloan-btn-simpan']
+    input:['btn-simpan'],transaksi:['btn-trx-simpan'],kas:['kas-btn-buat'],talangan:['tal-btn-simpan'],denda:['denda-btn-simpan','bayar-denda-btn'],pinjaman:['loan-btn-simpan','payloan-btn-simpan']
   };
   function nYear(v){const n=Number(v);return n>=2000&&n<=2200?n:0}
   function dateYear(v){const m=String(v||'').match(/^(\\d{4})-/);return m?nYear(m[1]):0}
@@ -5207,7 +5146,6 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
   'use strict';
   const handlers={
     'btn-simpan':'simpanIuran',
-    'kurang-kas-btn':'bayarKekuranganKas',
     'btn-trx-simpan':'simpanTransaksiKas',
     'loan-btn-simpan':'simpanPinjaman',
     'payloan-btn-simpan':'simpanPembayaranPinjaman',
