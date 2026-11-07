@@ -1807,7 +1807,7 @@ main > section.card{overflow:visible!important}
 </style>
 
 <link rel="stylesheet" href="/portal-live/bookkeeping-simple.css?v=20261105-simplified-v2">
-<link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261105-grid-v5">
+<link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261107-edit-modal-fit-v6">
 </head>
 <body oncontextmenu="return false;">
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
@@ -2536,14 +2536,14 @@ main > section.card{overflow:visible!important}
   </section>
 </main>
 
-<div id="modal-edit" class="hidden fixed inset-0 z-[80] bg-slate-950/35 backdrop-blur-[1px] p-4 overflow-y-auto">
-  <div class="min-h-full flex items-center justify-center">
-    <div class="w-full max-w-2xl bg-white rounded-2xl border border-violet-100 shadow-2xl overflow-hidden">
-      <div class="px-5 py-4 border-b border-violet-100 flex items-center justify-between">
-        <div><div class="font-black text-lg text-violet-950">Edit Pembayaran</div><div id="edit-id-label" class="text-xs text-slate-400 mt-0.5"></div></div>
+<div id="modal-edit" role="dialog" aria-modal="true" aria-labelledby="f4-book-edit-title" class="hidden fixed inset-0 bg-slate-950/35 backdrop-blur-[1px] overflow-y-auto">
+  <div class="f4-book-edit-center min-h-full flex items-center justify-center">
+    <div class="f4-book-edit-card w-full max-w-2xl bg-white rounded-2xl border border-violet-100 shadow-2xl overflow-hidden">
+      <div class="f4-book-edit-head px-5 py-4 border-b border-violet-100 flex items-center justify-between">
+        <div><div id="f4-book-edit-title" class="font-black text-lg text-violet-950">Edit Pembayaran</div><div id="edit-id-label" class="text-xs text-slate-400 mt-0.5"></div></div>
         <button onclick="tutupEdit()" class="w-9 h-9 rounded-xl hover:bg-violet-50 text-slate-500 flex items-center justify-center"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
-      <form onsubmit="simpanEdit(event)" class="p-5 space-y-4">
+      <form onsubmit="simpanEdit(event)" class="f4-book-edit-form p-5 space-y-4">
         <input id="edit-id" type="hidden">
         <div><label class="text-sm font-bold">Nama Warga</label><select id="edit-warga" class="field mt-1" onchange="updateEditPreview()"></select></div>
         <div class="grid sm:grid-cols-2 gap-4">
@@ -2558,7 +2558,7 @@ main > section.card{overflow:visible!important}
         <div id="edit-preview" class="rounded-xl bg-violet-50 border border-violet-100 p-4 text-sm"></div>
         <div><label class="text-sm font-bold">Catatan</label><input id="edit-catatan" class="field mt-1"></div>
         <div id="edit-status" class="hidden rounded-xl border px-4 py-3 text-sm"></div>
-        <div class="grid grid-cols-2 gap-3">
+        <div class="f4-book-edit-actions grid grid-cols-2 gap-3">
           <button type="button" onclick="tutupEdit()" class="rounded-xl border border-slate-200 py-3 font-bold text-slate-600">Batal</button>
           <button id="btn-edit-save" type="submit" class="rounded-xl bg-violet-600 hover:bg-violet-700 text-white py-3 font-black">Simpan Perubahan</button>
         </div>
@@ -3107,7 +3107,7 @@ function bukaEdit(id){
   }
   document.getElementById('edit-status').classList.remove('hidden');
   editMsg('Perubahan tanggal, metode, dan catatan dapat diedit. Untuk mengubah warga, periode, atau nominal, batalkan transaksi lalu input ulang.');
-  updateEditPreview();document.getElementById('modal-edit').classList.remove('hidden');document.body.style.overflow='hidden';lucide.createIcons();
+  updateEditPreview();const modal=document.getElementById('modal-edit');modal.classList.remove('hidden');modal.scrollTop=0;const form=modal.querySelector('.f4-book-edit-form');if(form)form.scrollTop=0;document.body.style.overflow='hidden';lucide.createIcons();
 }
 function tutupEdit(){document.getElementById('modal-edit').classList.add('hidden');document.body.style.overflow=''}
 function updateEditPreview(){
