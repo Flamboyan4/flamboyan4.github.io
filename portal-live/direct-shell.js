@@ -57,10 +57,44 @@ dialog.querySelector('#f4-direct-close-login').addEventListener('click',closeLog
 dialog.addEventListener('click',e=>{if(e.target===dialog)closeLogin()});
 window.f4ShowLogin=openLogin;
 let session=null,role='public';
+let sessionCheckCompleted=false,sessionRetryTimer=null,sessionRetryCount=0;
+let lastSessionRenewed=0,lastRenewAttempt=0,renewalPending=false;
+const SESSION_RENEW_INTERVAL=15*60*1000;
+const sessionChannel=typeof BroadcastChannel==='function'?new BroadcastChannel('f4-session'):null;
+const sessionNotice=el('aside');sessionNotice.id='f4-session-notice';
+sessionNotice.hidden=true;sessionNotice.setAttribute('role','status');
+const sessionNoticeText=el('span'),sessionNoticeAction=el('button'),sessionNoticeClose=el('button');
+sessionNoticeAction.type='button';
+sessionNoticeClose.type='button';sessionNoticeClose.textContent='×';sessionNoticeClose.setAttribute('aria-label','Tutup pemberitahuan');
+sessionNoticeClose.onclick=()=>{sessionNotice.hidden=true};
+sessionNotice.append(sessionNoticeText,sessionNoticeAction,sessionNoticeClose);
+document.body.append(sessionNotice);
+const sessionNoticeStyle=document.createElement('style');
+sessionNoticeStyle.textContent='#f4-session-notice:not([hidden]){position:fixed;right:14px;bottom:18px;z-index:10010;display:flex;align-items:center;gap:12px;max-width:min(460px,calc(100vw - 28px));padding:12px 14px;border:1px solid #cbd5e1;border-radius:12px;background:#fff;color:#22344b;box-shadow:0 8px 30px #0f172a26;font:13px/1.4 system-ui,sans-serif}#f4-session-notice span{flex:1;min-width:0}#f4-session-notice button{font:inherit;cursor:pointer;border:1px solid #cbd5e1;border-radius:8px;background:#eef2ff;color:#312e81;padding:6px 8px;white-space:nowrap}#f4-session-notice button:last-child{border:0;background:transparent;color:#475569;font-size:20px;padding:2px 4px}';
+document.head.append(sessionNoticeStyle);
+function showSessionNotice(message,actionLabel,action){
+ sessionNoticeText.textContent=message;
+ sessionNoticeAction.textContent=actionLabel;
+ sessionNoticeAction.onclick=action;
+ sessionNotice.hidden=false;
+}
+function clearSessionRetry(){
+ if(sessionRetryTimer){clearTimeout(sessionRetryTimer);sessionRetryTimer=null}
+ sessionRetryCount=0;
+}
+function scheduleSessionRetry(){
+ if(sessionRetryTimer)return;
+ const delay=Math.min(60000,6000*Math.pow(2,Math.min(sessionRetryCount++,4)));
+ sessionRetryTimer=setTimeout(()=>{sessionRetryTimer=null;void refreshSession()},delay);
+}
 async function api(path,options){
  const r=await fetch(API+path,{credentials:'include',cache:'no-store',...options});
  const d=await r.json().catch(()=>({}));
- if(!r.ok||d.ok===false)throw Error(d.error||'HTTP '+r.status);
+ if(!r.ok||d.ok===false){
+  const error=new Error(d.error||'HTTP '+r.status);
+  error.status=r.status;
+  throw error;
+ }
  return d;
 }
 function notifyRole(){
@@ -86,7 +120,41 @@ function avatarLoad(){
  img.onerror=()=>{avatar.innerHTML=svg('user')};avatar.replaceChildren(img);
 }
 async function refreshSession(){
- try{session=await api('/api/v2/auth/session')}catch{session=null}
+ const previousAccountId=session?.account?.id||null;
+ let verified;
+ try{
+  verified=await api('/api/v2/auth/session');
+  session=verified;
+  sessionCheckCompleted=true;
+  clearSessionRetry();
+  sessionNotice.hidden=true;
+  // A different user logged in from another tab of this browser.
+  // Reload once to avoid retaining any data belonging to the prior account.
+  if(previousAccountId&&verified.account?.id&&previousAccountId!==verified.account.id){
+   location.reload();return;
+  }
+ }catch(error){
+  if(error.status!==401){
+   showSessionNotice('Koneksi ke server terganggu. Sesi tidak dihapus; pemeriksaan akan dicoba lagi.','Coba Lagi',()=>{void refreshSession()});
+   scheduleSessionRetry();
+   // Do not turn an authenticated account into a guest on a transient failure.
+   // On first load keep protected pages pending until the server responds.
+   if(!sessionCheckCompleted){
+    login.hidden=true;
+    if(portal==='book'||portal==='superadmin')document.documentElement.classList.add('f4-auth-pending');
+   }
+   return;
+  }
+  const wasSignedIn=!!session?.account;
+  session=null;
+  sessionCheckCompleted=true;
+  clearSessionRetry();
+  if(wasSignedIn){
+   showSessionNotice('Sesi login telah berakhir. Silakan login kembali.','Login',openLogin);
+  }else{
+   sessionNotice.hidden=true;
+  }
+ }
  role=String(session?.account?.role||'public').toLowerCase();
  if(role==='anggota')role='warga';
  const authed=!!session?.account;
@@ -126,7 +194,8 @@ dialog.querySelector('form').addEventListener('submit',async e=>{
  b.disabled=true;status.textContent='';
  try{
   await api('/api/auth/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({username:dialog.querySelector('#f4-direct-username').value.trim(),password:dialog.querySelector('#f4-direct-password').value})});
-  closeLogin();await refreshSession();
+  closeLogin();lastSessionRenewed=Date.now();await refreshSession();
+  sessionChannel?.postMessage({type:'login'});
   if(portal==='book'||portal==='superadmin')location.reload();
  }catch(err){status.textContent='Login gagal: '+err.message}
  finally{b.disabled=false;dialog.querySelector('#f4-direct-password').value=''}
@@ -145,14 +214,18 @@ settings.onclick=()=>{
 logout.onclick=async()=>{
  menu.hidden=true;
  try{await api('/api/auth/logout',{method:'POST'})}
- catch(e){if(window.f4UiDialog)await window.f4UiDialog.alert('Gagal keluar: '+e.message);else alert('Gagal keluar: '+e.message);return}
+ catch(e){
+  if(e.status!==401){if(window.f4UiDialog)await window.f4UiDialog.alert('Gagal keluar: '+e.message);else alert('Gagal keluar: '+e.message);return}
+ }
+ sessionChannel?.postMessage({type:'logout'});
  session=null;role='public';
  if(portal==='book'||portal==='superadmin'){location.assign('/');return}
  window.f4CloseUnifiedAccount?.();await refreshSession();
 };
 // Change-password already revokes sessions and clears the cookie on the Worker.
  // Sync the browser to the now-public session; a second /auth/logout returns 401.
-async function syncAfterSessionRevoked(){
+async function syncAfterSessionRevoked(share=true){
+ if(share)sessionChannel?.postMessage({type:'logout'});
  menu.hidden=true;
  closeLogin();
  session=null;role='public';
@@ -160,6 +233,41 @@ async function syncAfterSessionRevoked(){
  if(portal==='book'||portal==='superadmin')location.replace('/');
 }
 window.addEventListener('f4-account-password-updated',()=>{void syncAfterSessionRevoked()});
+if(sessionChannel)sessionChannel.onmessage=event=>{
+ const type=event.data?.type;
+ if(type==='logout'){
+  // Cookie is shared across tabs on one browser, but not across devices.
+  void syncAfterSessionRevoked(false);
+ }else if(type==='login'){
+  void refreshSession();
+ }
+};
+async function renewActiveSession(){
+ if(!session?.account||renewalPending||document.visibilityState==='hidden')return;
+ const now=Date.now();
+ if(now-lastSessionRenewed<SESSION_RENEW_INTERVAL||now-lastRenewAttempt<60000)return;
+ lastRenewAttempt=now;
+ renewalPending=true;
+ try{
+  await api('/api/v2/auth/renew',{method:'POST'});
+  lastSessionRenewed=Date.now();
+  sessionNotice.hidden=true;
+ }catch(error){
+  if(error.status===401){
+   await refreshSession();
+  }else{
+   showSessionNotice('Koneksi ke server terganggu. Sesi tetap dipertahankan; akan dicoba lagi.','Coba Lagi',()=>{void refreshSession()});
+   scheduleSessionRetry();
+  }
+ }finally{renewalPending=false}
+}
+const noteUserActivity=()=>{void renewActiveSession()};
+document.addEventListener('pointerdown',noteUserActivity,{passive:true});
+document.addEventListener('keydown',noteUserActivity);
+document.addEventListener('scroll',noteUserActivity,{capture:true,passive:true});
+document.addEventListener('touchstart',noteUserActivity,{passive:true});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')noteUserActivity()});
+window.addEventListener('online',()=>{void refreshSession()});
 document.addEventListener('pointerdown',e=>{if(!bar.contains(e.target))menu.hidden=true});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){menu.hidden=true;closeLogin()}});
 window.addEventListener('message',e=>{
