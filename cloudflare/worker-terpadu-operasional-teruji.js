@@ -2316,9 +2316,9 @@ async function login(request, env) {
   const sessionId = crypto.randomUUID();
   await env.DB.batch([
     env.DB.prepare("UPDATE accounts SET failed_attempts=0,locked_until=NULL WHERE id=?").bind(account.id),
-    env.DB.prepare("INSERT INTO sessions(id,account_id,token_hash,expires_at) VALUES (?,?,?,?)").bind(sessionId, account.id, digest, future(720))
+    env.DB.prepare("INSERT INTO sessions(id,account_id,token_hash,expires_at) VALUES (?,?,?,?)").bind(sessionId, account.id, digest, future(1440))
   ]);
-  return json({ ok: true, role: account.role, expiresInMinutes: 720 }, 200, { "set-cookie": `f4_session=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=43200` });
+  return json({ ok: true, role: account.role, expiresInMinutes: 1440 }, 200, { "set-cookie": `f4_session=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=86400` });
 }
 __name(login, "login");
 async function changePassword(request, env, who) {
@@ -6170,6 +6170,25 @@ async function handle(request, env) {
   if (path === "/api/auth/bootstrap-superadmin" && request.method === "POST") return bootstrapSuperadmin(request, env);
   if (path === "/api/auth/login" && request.method === "POST") return login(request, env);
   const who = await identity(request, env.DB);
+  // Only explicit foreground activity renews the current browser's session.
+  // Never revoke other devices and never renew an expired/revoked session.
+  if (path === "/api/v2/auth/renew" && request.method === "POST") {
+    const requestOrigin = request.headers.get("origin");
+    if (!requestOrigin || !allowedOrigin(request, env)) return safeError("Origin tidak diizinkan.", 403);
+    if (!who) return safeError("Sesi tidak valid atau sudah berakhir.", 401);
+    const cookie = /\\bf4_session=([A-Za-z0-9_-]{32,256})(?:;|$)/.exec(request.headers.get("cookie") || "");
+    const token = cookie?.[1];
+    if (!token) return safeError("Sesi cookie tidak tersedia.", 401);
+    const digest = await tokenHash(token);
+    const update = await env.DB.prepare(
+      "UPDATE sessions SET expires_at=? WHERE token_hash=? AND account_id=? AND revoked_at IS NULL AND expires_at > CURRENT_TIMESTAMP"
+    ).bind(future(1440), digest, who.id).run();
+    if (!Number(update.meta?.changes || 0)) return safeError("Sesi tidak valid atau sudah berakhir.", 401);
+    return json({ok:true,expiresInMinutes:1440},200,{
+      "set-cookie": `f4_session=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=86400`,
+      "cache-control": "no-store"
+    });
+  }
   if (path === "/api/superadmin/bank-split" && request.method === "POST") return saveBankSplitPolicy(request,env,who);
   if (path === "/api/superadmin/bank/weighing-schedule" && request.method === "POST")
     return bankWeighingDayUpdate(request,env,who);
