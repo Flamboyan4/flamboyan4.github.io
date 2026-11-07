@@ -4053,8 +4053,6 @@ async function createIuranPayment(request, env, who) {
     q.push(env.DB.prepare("INSERT INTO bookkeeping_cash_transactions(id,occurred_on,payer_id,transaction_type,category,debit_rp,credit_rp,status,note,payment_method) VALUES(?,?,?,'denda_menunggu_buku','Denda Gorol',?,0,'aktif',?,?)").bind(fineCashId,date,payerId,fine.nominal,fineNote,method));
     q.push(env.DB.prepare("INSERT INTO bookkeeping_fine_payments(id,fine_id,paid_on,amount_rp,status,note,request_key,cash_transaction_id) VALUES(?,?,?,?,'aktif',?,?,?)").bind(fpId,fine.id,date,fine.nominal,fineNote,fineKey,fineCashId));
     q.push(env.DB.prepare("INSERT INTO bookkeeping_dp_cash_links(request_key,source_type,source_id,cash_transaction_id) VALUES(?,'fine-pay',?,?)").bind(fineKey,fpId,fineCashId));
-    q.push(env.DB.prepare("UPDATE bookkeeping_fines SET paid_rp=CASE WHEN paid_rp=? THEN ? ELSE paid_rp END, status=CASE WHEN (CASE WHEN paid_rp=? THEN ? ELSE paid_rp END)>=amount_rp THEN 'lunas' ELSE 'belum' END, paid_on=? WHERE id=? AND paid_rp IN (?,?)")
-      .bind(fine.paidRp,fine.paidRp+fine.nominal,fine.paidRp,fine.paidRp+fine.nominal,date,fine.id,fine.paidRp,fine.paidRp+fine.nominal));
     q.push(env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,after_json) VALUES(?,?,?,?,?,?,?)")
       .bind(crypto.randomUUID(),who.id,"pembukuan","fine_via_iuran","bookkeeping_fine_payments",fpId,JSON.stringify({paymentId:id,amountRp:fine.nominal,source:"kebersihan"})));
   }
