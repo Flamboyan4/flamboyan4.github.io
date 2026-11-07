@@ -69,24 +69,43 @@ async function buildPayment(p){
    throw Error('Sisa kewajiban tidak lengkap atau tidak valid untuk '+month+'/'+year);
   periods.push({year,month,items});
  }
+ const finesResponse=await fetchApi('/api/bookkeeping/iuran/fines?'+new URLSearchParams({payerId:p.payerId,tanggal:p.tanggal}));
+ const dueFines=Array.isArray(finesResponse.data)?finesResponse.data:[];
+ if(dueFines.some(x=>!x||!Number.isSafeInteger(Number(x.sisaRp))||Number(x.sisaRp)<0))
+  throw Error('Rincian Denda tidak valid. Periksa daftar Denda dahulu.');
+ const cleanTotal=periods.reduce((s,row)=>s+row.items.get('KEBERSIHAN'),0);
+ const fineTarget=Math.min(cleanTotal,dueFines.reduce((s,x)=>s+Number(x.sisaRp),0));
+ const denda=[];
+ let fineRemaining=fineTarget;
+ for(const fine of dueFines){
+  if(!fineRemaining)break;
+  const nominal=Math.min(Number(fine.sisaRp),fineRemaining);
+  if(nominal>0)denda.push({id:String(fine.id),nominal});
+  fineRemaining-=nominal;
+ }
  const settleAdvanceId=await checkAdvances(p.payerId,periods);
  const fixed=periods.reduce((sum,row)=>sum+kinds.filter(x=>x!=='KAS_LORONG').reduce((s,k)=>s+row.items.get(k),0),0);
  const total=periods.reduce((sum,row)=>sum+kinds.reduce((s,k)=>s+row.items.get(k),0),0);
  if(!Number.isSafeInteger(total)||p.jumlahRp<fixed||p.jumlahRp>total)
   throw Error('Nominal Rp '+p.jumlahRp.toLocaleString('id-ID')+' tidak sesuai sisa kewajiban. Komponen selain Kas Lorong harus lunas, sedangkan Kas Lorong boleh parsial.');
- let remainingKas=p.jumlahRp-fixed;
+ let remainingKas=p.jumlahRp-fixed,remainingCleanRedirect=fineTarget;
  const alokasi=[];
  for(const row of periods){
   for(const jenis of kinds){
    const outstanding=row.items.get(jenis);
-   const amount=jenis==='KAS_LORONG'?Math.min(outstanding,remainingKas):outstanding;
-   if(jenis==='KAS_LORONG')remainingKas-=amount;
+   let amount=outstanding;
+   if(jenis==='KAS_LORONG'){amount=Math.min(outstanding,remainingKas);remainingKas-=amount}
+   if(jenis==='KEBERSIHAN'){
+    const redirect=Math.min(outstanding,remainingCleanRedirect);
+    amount=outstanding-redirect;remainingCleanRedirect-=redirect;
+   }
    if(amount>0)alokasi.push({tahun:row.year,bulan:row.month,jenis,nominal:amount});
   }
  }
- if(remainingKas!==0||alokasi.reduce((sum,a)=>sum+a.nominal,0)!==p.jumlahRp)
-  throw Error('Alokasi otomatis tidak seimbang; transaksi dibatalkan sebelum tersimpan.');
- return {payerId:p.payerId,tanggal:p.tanggal,metode:p.metode,catatan:p.catatan,jumlahRp:p.jumlahRp,alokasi,...(settleAdvanceId?{settleAdvanceId}:{})};
+ if(remainingKas!==0||remainingCleanRedirect!==0||
+    alokasi.reduce((sum,a)=>sum+a.nominal,0)+denda.reduce((sum,x)=>sum+x.nominal,0)!==p.jumlahRp)
+  throw Error('Alokasi Iuran dan Denda tidak seimbang; transaksi tidak disimpan.');
+ return {payerId:p.payerId,tanggal:p.tanggal,metode:p.metode,catatan:p.catatan,jumlahRp:p.jumlahRp,alokasi,denda,...(settleAdvanceId?{settleAdvanceId}:{})};
 }
 async function saveIuran(params){
  const p=requireInput(params);
@@ -101,6 +120,8 @@ async function saveIuran(params){
  const r=await fetchApi('/api/bookkeeping/iuran',pending.payload);
  clearPending();memoryPending=null;
  return {status:'success',idPembayaran:r.idPembayaran,totalDiterima:pending.payload.jumlahRp,
+  dendaDibayarRp:pending.payload.denda.reduce((s,x)=>s+x.nominal,0),
+  iuranRp:pending.payload.alokasi.reduce((s,x)=>s+x.nominal,0),
   periode:[...new Set(pending.payload.alokasi.map(x=>x.tahun+'-'+String(x.bulan).padStart(2,'0')))],duplikat:!!r.duplikat};
 }
 async function cancelIuran(params){
