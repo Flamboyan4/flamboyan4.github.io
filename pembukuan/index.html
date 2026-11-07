@@ -1559,7 +1559,7 @@ main > section.card{overflow:visible!important}
 </style>
 <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://api.flamboyan4.web.id; form-action 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com;"><!-- Production: offline-common.js removed because it denies all POST writes. --><script src="/portal-live/calendar-unified.js?v=20261105-sunday-first"></script><!-- D1 only: contoh offline tidak pernah dimuat pada laman operasional -->
 <script src="/portal-live/live-book-readonly.js?v=iuran-period-history-20261030"></script>
-<script src="/portal-live/f4-book-write-bridge.js?v=kas-denda-batch-20261028a"></script>
+<script src="/portal-live/f4-book-write-bridge.js?v=20261107-denda-kebersihan-v1"></script>
 <script src="/portal-live/f4-book-operations-bridge.js?v=kas-gorol-batch-20261028"></script><style id="f4-no-double-navbar">body>header:first-of-type{display:none!important} @media(max-width:850px){#f4-demo-book-hamburger{display:grid!important}} #f4-demo-book-hamburger{display:none;position:fixed;left:11px;top:9px;z-index:60;place-items:center;width:38px;height:38px;background:#f1ebff;color:#5b33c4;border:1px solid #d8cafa;border-radius:9px}
 
 /* CSS owner consolidated from #f4-book-integrated-alignment; prior cascade position preserved */
@@ -1916,6 +1916,7 @@ main > section.card{overflow:visible!important}
                 <div class="bg-white rounded-xl p-3"><div class="text-[10px] font-bold text-slate-400">KAS LORONG</div><div id="pv-kas" class="font-black mt-1">Rp 0</div></div>
                 <div class="bg-white rounded-xl p-3"><div class="text-[10px] font-bold text-slate-400">ARISAN</div><div id="pv-arisan" class="font-black mt-1">Rp 0</div></div>
               </div>
+              <div id="pv-denda-otomatis" class="hidden mt-3 rounded-xl border border-amber-200 bg-amber-50/80 px-3 py-2 text-xs text-amber-900" role="status"></div>
               <div class="mt-3 flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-t border-violet-200 pt-3"><div><div class="text-xs text-slate-500">Periode</div><div id="pv-periode" class="font-bold text-sm"></div></div><div class="text-left sm:text-right"><div class="text-xs text-slate-500">Total Tagihan</div><div id="pv-total" class="text-2xl font-black text-violet-700">Rp 0</div></div></div>
             </div>
             </div>
@@ -2633,7 +2634,7 @@ async function pilihWargaIuran(){
 }
 
 function f4IuranPreviewKey(){
- return ['inp-warga','inp-bulan','inp-tahun','inp-jumlah'].map(id=>document.getElementById(id)?.value||'').join('|');
+ return ['inp-warga','inp-bulan','inp-tahun','inp-jumlah','inp-tanggal'].map(id=>document.getElementById(id)?.value||'').join('|');
 }
 async function updatePreview(){
  const ticket=++F4_IURAN_PREVIEW_SEQUENCE;
@@ -2662,13 +2663,26 @@ async function updatePreview(){
      if(!response.ok||body.ok===false)throw Error(body.error||'Kewajiban periode '+p.month+'/'+p.year+' gagal dibaca.');
      return body;
    }));
+   const fineURL='https://api.flamboyan4.web.id/api/bookkeeping/iuran/fines?'+new URLSearchParams({payerId:String(w.idWarga),tanggal:document.getElementById('inp-tanggal')?.value||''});
+   const fineResponse=await fetch(fineURL,{credentials:'include',cache:'no-store',mode:'cors'});
+   const fineBody=await fineResponse.json().catch(()=>({}));
+   if(!fineResponse.ok||fineBody.ok===false)throw Error(fineBody.error||'Daftar Denda gagal diperiksa.');
    if(ticket!==F4_IURAN_PREVIEW_SEQUENCE||key!==f4IuranPreviewKey())return;
    const sums={IURAN_BULANAN:0,KEBERSIHAN:0,KAS_LORONG:0,ARISAN:0};
    for(const row of rows)for(const item of row.komponen||[]){
      if(Object.hasOwn(sums,item.jenis))sums[item.jenis]+=Math.max(0,Number(item.sisaRp)||0);
    }
    const bul=sums.IURAN_BULANAN,keb=sums.KEBERSIHAN,kas=sums.KAS_LORONG,ari=sums.ARISAN,total=bul+keb+kas+ari;
-   F4_IURAN_PREVIEW={key,total,fixed:bul+keb+ari,kas};
+   const outstandingFine=Math.max(0,Number(fineBody.totalDendaRp)||0);
+   const redirectedFine=Math.min(keb,outstandingFine);
+   F4_IURAN_PREVIEW={key,total,fixed:bul+keb+ari,kas,dendaDialihkan:redirectedFine};
+   const finePreview=document.getElementById('pv-denda-otomatis');
+   if(finePreview){
+     finePreview.classList.toggle('hidden',redirectedFine<=0);
+     finePreview.textContent=redirectedFine>0
+       ?'Denda otomatis '+rupiah(redirectedFine)+' dialihkan dari Kebersihan. Kebersihan masih terutang '+rupiah(redirectedFine)+'.'
+       :'';
+   }
    empty.classList.add('hidden');detail.classList.remove('hidden');
    document.getElementById('pv-bulanan').textContent=rupiah(bul);
    document.getElementById('pv-kebersihan').textContent=rupiah(keb);
@@ -2697,11 +2711,12 @@ function updateNominalParsialInfo(){
  if(!state||state.key!==f4IuranPreviewKey()){
    info.className='text-[11px] mt-1 text-slate-500';info.textContent='Menunggu rincian kewajiban periode…';return;
  }
- const total=state.total,required=state.fixed,paid=Number(input.value||0),missing=Math.max(0,total-paid);
+ const total=state.total,required=state.fixed,paid=Number(input.value||0),missing=Math.max(0,total-paid),fine=Number(state.dendaDialihkan||0);
  if(!paid){info.className='text-[11px] mt-1 text-red-600';info.textContent='Masukkan nominal yang diterima.';return}
  if(paid>total){info.className='text-[11px] mt-1 text-red-600';info.textContent='Melebihi sisa tagihan.';return}
  if(paid<required){info.className='text-[11px] mt-1 text-red-600';info.textContent='Minimal '+rupiah(required)+' untuk komponen selain Kas Lorong.';return}
- if(missing>0){info.className='text-[11px] mt-1 text-amber-700 font-bold';info.textContent='Sisa Kas Lorong '+rupiah(missing);return}
+ if(missing>0){info.className='text-[11px] mt-1 text-amber-700 font-bold';info.textContent=(fine?'Denda dibayar '+rupiah(fine)+' dari Kebersihan • Sisa Kebersihan '+rupiah(fine)+' • ':'')+'Sisa Kas Lorong '+rupiah(missing);return}
+ if(fine>0){info.className='text-[11px] mt-1 text-amber-700 font-bold';info.textContent='Denda dialihkan '+rupiah(fine)+' dari Kebersihan; sisa Kebersihan '+rupiah(fine)+'.';return}
  info.className='text-[11px] mt-1 text-emerald-700';info.textContent='Pembayaran penuh.';
 }
 let saveStatusTimer=null;
@@ -2745,13 +2760,14 @@ async function simpanIuran(ev){
     let talInfo='';
     try{const tr=await jsonp(BATCH_SCRIPT_URL,{action:'sinkrontalanganpembayaran',idPembayaran:r.idPembayaran,t:Date.now()});if(tr?.status==='success'&&Number(tr.nominal||0)>0)talInfo=` • Penggantian talangan ${rupiah(tr.nominal)}`}catch(te){console.warn('Sinkron talangan:',te)}
     const periode=Array.isArray(r.periode)?r.periode.join(', '):(r.periode||'');
-    saveStatus(`Pembayaran berhasil disimpan${periode?` • ${periode}`:''} • diterima ${rupiah(r.totalDiterima)}${Number(r.kekuranganKasLorong||0)>0?` • kurang Kas ${rupiah(r.kekuranganKasLorong)}`:''}${talInfo}`,'success',2300);
+    saveStatus(`Pembayaran berhasil disimpan${periode?` • ${periode}`:''} • diterima ${rupiah(r.totalDiterima)}${Number(r.dendaDibayarRp||0)>0?` • Denda ${rupiah(r.dendaDibayarRp)} dari Kebersihan`:''}${Number(r.kekuranganKasLorong||0)>0?` • kurang Kas ${rupiah(r.kekuranganKasLorong)}`:''}${talInfo}`,'success',3500);
     resetIuranFormAfterSave();
     await Promise.all([loadRiwayat(true),loadKekuranganKas(true).catch(()=>{})]);
   }catch(e){saveStatus(e.message||String(e),'error',4200)}
   finally{btn.disabled=false;btn.classList.remove('opacity-60')}
 }
 
+document.getElementById('inp-tanggal')?.addEventListener('change',()=>{void updatePreview()});
 ['inp-warga','inp-tanggal','inp-metode','inp-bulan','inp-tahun','inp-jumlah','inp-nominal-dibayar','inp-catatan'].forEach(id=>{
   const el=document.getElementById(id);
   if(el){const clear=()=>{if(!document.getElementById('save-status')?.classList.contains('hidden'))hideSaveStatus()};el.addEventListener('change',clear);el.addEventListener('input',clear)}

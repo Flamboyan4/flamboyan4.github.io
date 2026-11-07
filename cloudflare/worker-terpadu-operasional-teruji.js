@@ -3846,6 +3846,35 @@ async function getIuranSuggestedPeriod(db,request){
   return json({ok:true,source:'cloudflare-d1',payerId,...selection});
 }
 __name(getIuranSuggestedPeriod,"getIuranSuggestedPeriod");
+
+async function f4IuranFineDue(db,payerId,date){
+ const result=await db.prepare(`SELECT id,event_on,fine_type,amount_rp,paid_rp,status
+  FROM bookkeeping_fines WHERE payer_id=? AND event_on<=?
+  AND status NOT IN ('dibatalkan','batal') ORDER BY event_on,id LIMIT 101`).bind(payerId,date).all();
+ const rows=result.results||[];
+ if(rows.length>100)throw Error("Denda terlalu banyak; periksa secara manual.");
+ const open=[];
+ for(const row of rows){
+  const amount=Number(row.amount_rp),paid=Number(row.paid_rp),status=String(row.status||"");
+  if(!Number.isSafeInteger(amount)||amount<=0||!Number.isSafeInteger(paid)||paid<0||paid>amount||
+     (status==="lunas"&&paid!==amount)||(status==="belum"&&paid>=amount)||
+     !["belum","lunas","sebagian"].includes(status))
+    throw Error("Denda belum konsisten; periksa riwayat denda sebelum menyimpan iuran.");
+  if(paid<amount)open.push({id:row.id,tanggal:row.event_on,jenis:row.fine_type,
+    sisaRp:amount-paid,paidRp:paid,amountRp:amount});
+ }
+ return open;
+}
+__name(f4IuranFineDue,"f4IuranFineDue");
+async function getIuranFineDue(db,request){
+ const q=new URL(request.url).searchParams,payerId=q.get("payerId")||"",date=q.get("tanggal")||"";
+ if(!payerId||payerId.length>150||!validDateOnly(date))return safeError("Pembayar dan tanggal diperlukan.",400);
+ try{
+  const data=await f4IuranFineDue(db,payerId,date);
+  return json({ok:true,data,totalDendaRp:data.reduce((n,row)=>n+row.sisaRp,0)});
+ }catch(e){return safeError(e.message||"Denda perlu direkonsiliasi.",409)}
+}
+__name(getIuranFineDue,"getIuranFineDue");
 async function createIuranPayment(request, env, who) {
   if (env.FINANCE_WRITE_ENABLED !== "true" || env.IURAN_WRITE_ENABLED !== "true") return safeError("Pencatatan iuran D1 belum diaktifkan.", 503);
   let d;
@@ -3856,6 +3885,11 @@ async function createIuranPayment(request, env, who) {
   }
   const key = String(d.requestKey || ""), payerId = String(d.payerId || ""), date = String(d.tanggal || ""), method = String(d.metode || ""), note = String(d.catatan || "").trim();
   const sum = Number(d.jumlahRp), items = d.alokasi;
+  const fineItems=Array.isArray(d.denda)?d.denda:[];
+  if(fineItems.length>100||fineItems.some(x=>!x||typeof x.id!=="string"||x.id.length>150||!Number.isSafeInteger(x.nominal)||x.nominal<=0))
+    return safeError("Rincian denda otomatis tidak valid.",400);
+  const totalFineRp=fineItems.reduce((n,x)=>n+x.nominal,0);
+  if(!Number.isSafeInteger(totalFineRp))return safeError("Jumlah alokasi denda tidak valid.",400);
   const settleAdvanceId = String(d.settleAdvanceId||"");
   if(settleAdvanceId&&!/^adv_[a-f0-9-]{36}$/i.test(settleAdvanceId))return safeError("Referensi Talangan tidak valid.",400);
   if (!/^[a-f0-9-]{36}$/i.test(key) || payerId.length < 1 || payerId.length > 150 || !validDateOnly(date) || !validRupiah(sum) || !["Cash", "QRIS", "Transfer Mandiri"].includes(method) || note.length > 500 || !Array.isArray(items) || items.length < 1 || items.length > 60) return safeError("Data pembayaran tidak valid.", 400);
@@ -3871,8 +3905,8 @@ async function createIuranPayment(request, env, who) {
     total += a.nominal;
     if (!Number.isSafeInteger(total)) return safeError("Jumlah terlalu besar.", 400);
   }
-  if (total !== sum) return safeError("Total alokasi tidak sama dengan uang diterima.", 400);
-  const iuranHash = await tokenHash(JSON.stringify({ payerId, date, method, note, sum, ...(settleAdvanceId?{settleAdvanceId}:{}), alokasi: items.map((a) => ({ tahun: a.tahun, bulan: a.bulan, jenis: a.jenis, nominal: a.nominal })).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))) }));
+  if (total+totalFineRp !== sum) return safeError("Total alokasi Iuran dan Denda tidak sama dengan uang diterima.", 400);
+  const iuranHash = await tokenHash(JSON.stringify({ payerId, date, method, note, sum, ...(settleAdvanceId?{settleAdvanceId}:{}), alokasi: items.map((a) => ({ tahun: a.tahun, bulan: a.bulan, jenis: a.jenis, nominal: a.nominal })).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))), ...(fineItems.length?{denda:fineItems.map(x=>({id:x.id,nominal:x.nominal})).sort((a,b)=>a.id.localeCompare(b.id))}:{}) }));
   const old = await env.DB.prepare("SELECT payment_id,payload_hash FROM bookkeeping_payment_request_keys WHERE request_key=?").bind(key).first();
   if (old) {
     if (!old.payload_hash || old.payload_hash !== iuranHash) return safeError("requestKey iuran sudah digunakan atau berasal dari data lama tanpa fingerprint.", 409);
@@ -3927,23 +3961,53 @@ async function createIuranPayment(request, env, who) {
     r.period_year + ":" + r.period_month + ":" + r.contribution_type,
     Number(r.paid_rp)
   ]));
-  for (const period of periods) {
-    const [year, month] = period.split(":").map(Number);
+  const orderedPeriods=[...periods].sort((a,b)=>{
+    const [ay,am]=a.split(":").map(Number),[by,bm]=b.split(":").map(Number);
+    return ay*12+am-(by*12+bm);
+  });
+  let availableCleanRp=0;
+  for(const period of orderedPeriods){
     const required=requiredByPeriod.get(period);
-    for (const kind of allowed) {
-      const key2 = year + ":" + month + ":" + kind;
-      const amount = submitted.get(key2) ?? 0;
-      const prior = paidByKey.get(key2) ?? 0;
-      const due = required[kind] - prior;
-      if (!Number.isSafeInteger(prior) || prior < 0 || due < 0)
-        return safeError("Riwayat kewajiban tidak konsisten. Periksa catatan sebelum melanjutkan.", 409);
-      if (kind === "KAS_LORONG") {
-        if (amount > due) return safeError("Pembayaran Kas Lorong melebihi sisa kewajiban.", 409);
-      } else if (amount !== due) {
-        return safeError("Komponen selain Kas Lorong harus melunasi tepat sisa kewajiban periode.", 409);
+    for(const kind of allowed){
+      const prior=paidByKey.get(period+":"+kind)??0,due=required[kind]-prior;
+      if(!Number.isSafeInteger(prior)||prior<0||due<0)
+        return safeError("Riwayat kewajiban tidak konsisten.",409);
+      if(kind==="KEBERSIHAN")availableCleanRp+=due;
+    }
+  }
+  let availableFines;
+  try{availableFines=await f4IuranFineDue(env.DB,payerId,date)}
+  catch(e){return safeError(e.message||"Denda belum dapat dihitung.",409)}
+  const fineTarget=Math.min(availableCleanRp,availableFines.reduce((sum,x)=>sum+x.sisaRp,0));
+  const expectedFines=[];
+  let fineRemaining=fineTarget;
+  for(const fine of availableFines){
+    if(!fineRemaining)break;
+    const nominal=Math.min(fine.sisaRp,fineRemaining);
+    expectedFines.push({...fine,nominal});fineRemaining-=nominal;
+  }
+  if(fineTarget!==totalFineRp||expectedFines.length!==fineItems.length||
+     expectedFines.some((x,i)=>x.id!==fineItems[i].id||x.nominal!==fineItems[i].nominal))
+    return safeError("Rincian denda berubah. Muat ulang tagihan sebelum menyimpan.",409);
+  let cleanRedirect=fineTarget;
+  for(const period of orderedPeriods){
+    const [year,month]=period.split(":").map(Number),required=requiredByPeriod.get(period);
+    for(const kind of allowed){
+      const key2=year+":"+month+":"+kind,amount=submitted.get(key2)??0,prior=paidByKey.get(key2)??0,due=required[kind]-prior;
+      if(kind==="KEBERSIHAN"){
+        const moved=Math.min(due,cleanRedirect);cleanRedirect-=moved;
+        if(amount!==due-moved)return safeError("Porsi Kebersihan harus dialihkan ke Denda lebih dahulu.",409);
+      }else if(kind==="KAS_LORONG"){
+        if(amount>due)return safeError("Pembayaran Kas Lorong melebihi sisa kewajiban.",409);
+      }else if(amount!==due){
+        return safeError("Iuran Bulanan dan Arisan wajib dibayar sesuai sisa periode.",409);
       }
     }
   }
+  if(cleanRedirect!==0)return safeError("Pengalihan Denda belum seimbang.",409);
+  if(totalFineRp>0&&env.DENDA_PINJAMAN_WRITE_ENABLED!=="true")
+    return safeError("Pembayaran denda otomatis belum diaktifkan; Iuran belum disimpan.",503);
+  if(sum-totalFineRp<=0)return safeError("Pembayaran hanya untuk Denda harus melalui menu Denda.",409);
   let talanganRepayRp=0;
   if(activeAdvance){
     const match=String(activeAdvance.description||"").match(/^\[Periode (20\d\d)-(0[1-9]|1[0-2])\]/);
@@ -3968,7 +4032,7 @@ async function createIuranPayment(request, env, who) {
   if (locks) return safeError("Tahun transaksi atau periode iuran sudah ditutup.", 409);
   const id = "pay-" + crypto.randomUUID(), cashId = "cash-" + crypto.randomUUID();
   const q = [
-    env.DB.prepare("INSERT INTO bookkeeping_payments(id,payer_id,household_id,paid_on,received_on,amount_rp,payment_method,description,status) VALUES(?,?,?,?,?,?,?,?,'aktif')").bind(id, payer.id, payer.household_id, date, date, sum, method, note),
+    env.DB.prepare("INSERT INTO bookkeeping_payments(id,payer_id,household_id,paid_on,received_on,amount_rp,payment_method,description,status) VALUES(?,?,?,?,?,?,?,?,'aktif')").bind(id, payer.id, payer.household_id, date, date, sum-totalFineRp, method, (totalFineRp?((note?note+" • ":"")+"Denda "+totalFineRp+" dialihkan dari Kebersihan; diterima "+sum):note)),
     env.DB.prepare("INSERT INTO bookkeeping_payment_request_keys(request_key,payment_id,payload_hash) VALUES(?,?,?)").bind(key, id, iuranHash)
   ];
   for (const a of items) q.push(env.DB.prepare("INSERT INTO bookkeeping_payment_allocations(id,payment_id,payer_id,period_year,period_month,contribution_type,amount_rp,status) VALUES(?,?,?,?,?,?,?,'aktif')").bind("alloc-" + crypto.randomUUID(), id, payer.id, a.tahun, a.bulan, a.jenis, a.nominal));
@@ -3978,6 +4042,19 @@ async function createIuranPayment(request, env, who) {
   const kasLorongRp = items.filter((a) => a.jenis === "KAS_LORONG").reduce((total, a) => total + a.nominal, 0);
   if (kasLorongRp > 0) {
     q.push(env.DB.prepare("INSERT INTO bookkeeping_cash_transactions(id,occurred_on,payer_id,household_id,transaction_type,category,debit_rp,credit_rp,status,note,source_payment_id,payment_method) VALUES(?,?,?,?,?,'Kas Lorong',?,0,'aktif',?,?,?)").bind(cashId, date, payer.id, payer.household_id, "iuran", kasLorongRp, note, id, method));
+  }
+  // Pembayaran Denda diambil dari porsi Kebersihan dan disimpan satu batch dengan Iuran.
+  for(const fine of expectedFines){
+    const fpId="fp_"+crypto.randomUUID(),fineCashId="cash-"+crypto.randomUUID(),fineKey=crypto.randomUUID();
+    const fineNote="[IURAN_AUTO:"+id+":"+fine.paidRp+"] Dari Kebersihan";
+    const fineHash=await tokenHash(JSON.stringify({kind:"fine-pay",paymentId:id,fineId:fine.id,nominal:fine.nominal}));
+    q.push(env.DB.prepare("SELECT CASE WHEN EXISTS(SELECT 1 FROM bookkeeping_fines WHERE id=? AND payer_id=? AND paid_rp=? AND status NOT IN ('dibatalkan','batal')) THEN 1 ELSE json_extract('invalid-fine-state','$') END AS checked").bind(fine.id,payerId,fine.paidRp));
+    q.push(env.DB.prepare("INSERT INTO bookkeeping_dp_request_ledger(request_key,operation,payload_hash,result_id,cash_transaction_id) VALUES(?,'fine-pay',?,?,?)").bind(fineKey,fineHash,fpId,fineCashId));
+    q.push(env.DB.prepare("INSERT INTO bookkeeping_cash_transactions(id,occurred_on,payer_id,transaction_type,category,debit_rp,credit_rp,status,note,payment_method) VALUES(?,?,?,'denda_menunggu_buku','Denda Gorol',?,0,'aktif',?,?)").bind(fineCashId,date,payerId,fine.nominal,fineNote,method));
+    q.push(env.DB.prepare("INSERT INTO bookkeeping_fine_payments(id,fine_id,paid_on,amount_rp,status,note,request_key,cash_transaction_id) VALUES(?,?,?,?,'aktif',?,?,?)").bind(fpId,fine.id,date,fine.nominal,fineNote,fineKey,fineCashId));
+    q.push(env.DB.prepare("INSERT INTO bookkeeping_dp_cash_links(request_key,source_type,source_id,cash_transaction_id) VALUES(?,'fine-pay',?,?)").bind(fineKey,fpId,fineCashId));
+    q.push(env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,after_json) VALUES(?,?,?,?,?,?,?)")
+      .bind(crypto.randomUUID(),who.id,"pembukuan","fine_via_iuran","bookkeeping_fine_payments",fpId,JSON.stringify({paymentId:id,amountRp:fine.nominal,source:"kebersihan"})));
   }
   if(activeAdvance){
     const repayId="ar_"+crypto.randomUUID(),cashRepay="ac_"+crypto.randomUUID(),repayKey="iuran_"+id;
@@ -4003,7 +4080,7 @@ async function createIuranPayment(request, env, who) {
     }
     return safeError("Gagal mencatat iuran secara utuh. Tidak ada transaksi parsial yang disimpan.", 409);
   }
-  return json({ ok: true, idPembayaran: id, totalDiterima: sum, periode: [...periods].sort(), alokasi: items.length }, 201);
+  return json({ ok: true, idPembayaran: id, totalDiterima: sum, iuranRp:sum-totalFineRp, dendaDibayarRp:totalFineRp, periode: [...periods].sort(), alokasi: items.length }, 201);
 }
 __name(createIuranPayment, "createIuranPayment");
 
@@ -4132,6 +4209,8 @@ async function cancelNewIuranPayment(request,env,who){
   if(!payment)return safeError("Pembayaran tidak ditemukan.",404);
   if(payment.status==="dibatalkan")return json({ok:true,idPembayaran:id,status:"dibatalkan",duplikat:true});
   if(payment.status!=="aktif")return safeError("Status pembayaran tidak dapat dibatalkan.",409);
+  if(await db.prepare("SELECT id FROM bookkeeping_fine_payments WHERE instr(note,?)=1 LIMIT 1").bind("[IURAN_AUTO:"+id+":").first())
+    return safeError("Iuran ini telah melunasi Denda otomatis. Pembatalan harus melalui koreksi gabungan terverifikasi; tidak boleh membatalkan Iuran saja.",409);
   const found=await db.prepare("SELECT id,period_year,contribution_type,amount_rp,status FROM bookkeeping_payment_allocations WHERE payment_id=?").bind(id).all();
   const items=found.results||[];
   if(!items.length||items.some(x=>x.status!=="aktif"))return safeError("Alokasi tidak utuh; periksa sebelum pembatalan.",409);
@@ -4182,6 +4261,8 @@ async function f4EditNewIuran(request,env,who){
  const prev=await db.prepare("SELECT id,payer_id,paid_on,amount_rp,payment_method,description,status FROM bookkeeping_payments WHERE id=?").bind(id).first();
  if(!prev)return safeError("Pembayaran tidak ditemukan.",404);
  if(prev.status!=="aktif")return safeError("Pembayaran tidak aktif.",409);
+ if(await db.prepare("SELECT id FROM bookkeeping_fine_payments WHERE instr(note,?)=1 LIMIT 1").bind("[IURAN_AUTO:"+id+":").first())
+   return safeError("Pembayaran terhubung ke pelunasan Denda. Edit tanggal/metode gabungan memerlukan koreksi terverifikasi.",409);
  const a=await db.prepare("SELECT id,period_year,status,contribution_type,amount_rp FROM bookkeeping_payment_allocations WHERE payment_id=?").bind(id).all();
  const rows=a.results||[];
  if(!rows.length||rows.some(x=>x.status!=="aktif"))return safeError("Alokasi tidak utuh.",409);
@@ -6298,6 +6379,10 @@ async function handle(request, env) {
     const denied=requireRole(who,["superadmin"]);
     if(denied)return denied;
     return getIuranSuggestedPeriod(env.DB,request);
+  }
+  if (path === "/api/bookkeeping/iuran/fines" && request.method === "GET") {
+    const denied=requireRole(who,["superadmin"]);if(denied)return denied;
+    return getIuranFineDue(env.DB,request);
   }
   if (path === "/api/bookkeeping/iuran/outstanding" && request.method === "GET") {
     const denied = requireRole(who, ["superadmin"]);
