@@ -2715,7 +2715,7 @@ function updateNominalParsialInfo(){
  if(!paid){info.className='text-[11px] mt-1 text-red-600';info.textContent='Masukkan nominal yang diterima.';return}
  if(paid>total){info.className='text-[11px] mt-1 text-red-600';info.textContent='Melebihi sisa tagihan.';return}
  if(paid<required){info.className='text-[11px] mt-1 text-red-600';info.textContent='Minimal '+rupiah(required)+' untuk komponen selain Kas Lorong.';return}
- if(missing>0){info.className='text-[11px] mt-1 text-amber-700 font-bold';info.textContent=(fine?'Denda '+rupiah(fine)+' lunas/terbayar, Kebersihan tersisa '+rupiah(fine)+' • ':'')+'Sisa Kas Lorong '+rupiah(missing);return}
+ if(missing>0){info.className='text-[11px] mt-1 text-amber-700 font-bold';info.textContent=(fine?'Denda dibayar '+rupiah(fine)+' dari Kebersihan • Sisa Kebersihan '+rupiah(fine)+' • ':'')+'Sisa Kas Lorong '+rupiah(missing);return}
  if(fine>0){info.className='text-[11px] mt-1 text-amber-700 font-bold';info.textContent='Denda dialihkan '+rupiah(fine)+' dari Kebersihan; sisa Kebersihan '+rupiah(fine)+'.';return}
  info.className='text-[11px] mt-1 text-emerald-700';info.textContent='Pembayaran penuh.';
 }
