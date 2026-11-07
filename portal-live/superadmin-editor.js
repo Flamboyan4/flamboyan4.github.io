@@ -603,7 +603,7 @@ function jerseyPrintOrderRecap(rows,esc){
  const included=(rows||[]).filter(row=>validGroups.has(String(row.group_key||'').trim().toLowerCase()));
  for(const row of included){
   const group=String(row.group_key||'').trim().toLowerCase()==='anak'?'anak':'dewasa';
-  const rawSize=String(row.size||'').trim().replace(/\\s*\\((?:kids?|anak(?:-anak)?)\\)\\s*/ig,'').trim();
+  const rawSize=String(row.size||'').trim().replace(/\s*\((?:kids?|anak(?:-anak)?)\)\s*/ig,'').trim();
   const size=rawSize&&!/^(?:-|—|tidak ada)$/i.test(rawSize)?rawSize.toUpperCase():'Belum diisi';
   const sizes=groupSizes[group];
   sizes.set(size,(sizes.get(size)||0)+1);
