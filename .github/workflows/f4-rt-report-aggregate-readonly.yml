@@ -81,4 +81,29 @@ jobs:
                    AND a.period_year=2026 AND a.period_month IN (10,11)
                    GROUP BY m,category,payment_source ORDER BY m,category,payment_source"""
           for row in q(source_sql):print("SOURCE_TOTAL",row)
+          comparisons="""WITH direct AS (
+                    SELECT a.period_year AS y,a.period_month AS m,
+                      CASE a.contribution_type
+                        WHEN 'IURAN_BULANAN' THEN 'bulanan'
+                        WHEN 'KEBERSIHAN' THEN 'kebersihan'
+                        WHEN 'ARISAN' THEN 'arisan'
+                        WHEN 'KAS_LORONG' THEN 'kas_lorong' END AS k,
+                      sum(a.amount_rp) AS nominal
+                    FROM bookkeeping_payment_allocations a
+                    JOIN bookkeeping_payments p ON p.id=a.payment_id
+                    WHERE a.status='aktif' AND p.status='aktif' AND a.period_year=2026
+                    GROUP BY y,m,k
+                  ), detail AS (
+                    SELECT a.period_year AS y,a.period_month AS m,
+                      ad.contribution_type AS k,sum(ad.amount_rp) AS nominal
+                    FROM bookkeeping_allocation_details ad
+                    JOIN bookkeeping_payment_allocations a ON a.id=ad.allocation_id
+                    JOIN bookkeeping_payments p ON p.id=a.payment_id
+                    WHERE a.status='aktif' AND p.status='aktif' AND a.period_year=2026
+                    GROUP BY y,m,k
+                  )
+                  SELECT d.y,d.m,d.k,d.nominal AS direct_rp,coalesce(t.nominal,0) AS detail_rp
+                  FROM direct d LEFT JOIN detail t ON t.y=d.y AND t.m=d.m AND t.k=d.k
+                  ORDER BY d.y,d.m,d.k"""
+          for row in q(comparisons):print("RECONCILE",row)
           PY
