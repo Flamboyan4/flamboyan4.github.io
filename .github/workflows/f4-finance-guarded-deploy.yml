@@ -6,6 +6,7 @@ on:
       - cloudflare/worker-terpadu-operasional-teruji.js
       - qa/account-profile-password.cjs
       - qa/verify-iuran-fine-auto.cjs
+      - qa/verify-book-rt-canonical-report.py
       - qa/verify-iuran-counts.cjs
       - qa/verify-treasury.py
       - qa/verify-treasury-humas.cjs
@@ -44,6 +45,7 @@ jobs:
           python3 qa/verify_bank_v3_migration.py
           node qa/account-profile-password.cjs
           node qa/verify-iuran-fine-auto.cjs
+          python3 qa/verify-book-rt-canonical-report.py
           python3 qa/verify-treasury.py
           node qa/verify-treasury-humas.cjs
           node qa/verify-treasury-lifecycle.cjs
