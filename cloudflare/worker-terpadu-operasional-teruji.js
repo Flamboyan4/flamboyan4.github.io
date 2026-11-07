@@ -3906,7 +3906,7 @@ async function createIuranPayment(request, env, who) {
     if (!Number.isSafeInteger(total)) return safeError("Jumlah terlalu besar.", 400);
   }
   if (total+totalFineRp !== sum) return safeError("Total alokasi Iuran dan Denda tidak sama dengan uang diterima.", 400);
-  const iuranHash = await tokenHash(JSON.stringify({ payerId, date, method, note, sum, ...(settleAdvanceId?{settleAdvanceId}:{}), alokasi: items.map((a) => ({ tahun: a.tahun, bulan: a.bulan, jenis: a.jenis, nominal: a.nominal })).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))), denda: fineItems.map(x=>({id:x.id,nominal:x.nominal})).sort((a,b)=>a.id.localeCompare(b.id)) }));
+  const iuranHash = await tokenHash(JSON.stringify({ payerId, date, method, note, sum, ...(settleAdvanceId?{settleAdvanceId}:{}), alokasi: items.map((a) => ({ tahun: a.tahun, bulan: a.bulan, jenis: a.jenis, nominal: a.nominal })).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))), ...(fineItems.length?{denda:fineItems.map(x=>({id:x.id,nominal:x.nominal})).sort((a,b)=>a.id.localeCompare(b.id))}:{}) }));
   const old = await env.DB.prepare("SELECT payment_id,payload_hash FROM bookkeeping_payment_request_keys WHERE request_key=?").bind(key).first();
   if (old) {
     if (!old.payload_hash || old.payload_hash !== iuranHash) return safeError("requestKey iuran sudah digunakan atau berasal dari data lama tanpa fingerprint.", 409);
@@ -4005,6 +4005,9 @@ async function createIuranPayment(request, env, who) {
     }
   }
   if(cleanRedirect!==0)return safeError("Pengalihan Denda belum seimbang.",409);
+  if(totalFineRp>0&&env.DENDA_PINJAMAN_WRITE_ENABLED!=="true")
+    return safeError("Pembayaran denda otomatis belum diaktifkan; Iuran belum disimpan.",503);
+  if(sum-totalFineRp<=0)return safeError("Pembayaran hanya untuk Denda harus melalui menu Denda.",409);
   let talanganRepayRp=0;
   if(activeAdvance){
     const match=String(activeAdvance.description||"").match(/^\[Periode (20\d\d)-(0[1-9]|1[0-2])\]/);
@@ -4079,7 +4082,7 @@ async function createIuranPayment(request, env, who) {
     }
     return safeError("Gagal mencatat iuran secara utuh. Tidak ada transaksi parsial yang disimpan.", 409);
   }
-  return json({ ok: true, idPembayaran: id, totalDiterima: sum, periode: [...periods].sort(), alokasi: items.length }, 201);
+  return json({ ok: true, idPembayaran: id, totalDiterima: sum, iuranRp:sum-totalFineRp, dendaDibayarRp:totalFineRp, periode: [...periods].sort(), alokasi: items.length }, 201);
 }
 __name(createIuranPayment, "createIuranPayment");
 
@@ -4208,6 +4211,8 @@ async function cancelNewIuranPayment(request,env,who){
   if(!payment)return safeError("Pembayaran tidak ditemukan.",404);
   if(payment.status==="dibatalkan")return json({ok:true,idPembayaran:id,status:"dibatalkan",duplikat:true});
   if(payment.status!=="aktif")return safeError("Status pembayaran tidak dapat dibatalkan.",409);
+  if(await db.prepare("SELECT id FROM bookkeeping_fine_payments WHERE instr(note,?)=1 LIMIT 1").bind("[IURAN_AUTO:"+id+":").first())
+    return safeError("Iuran ini telah melunasi Denda otomatis. Pembatalan harus melalui koreksi gabungan terverifikasi; tidak boleh membatalkan Iuran saja.",409);
   const found=await db.prepare("SELECT id,period_year,contribution_type,amount_rp,status FROM bookkeeping_payment_allocations WHERE payment_id=?").bind(id).all();
   const items=found.results||[];
   if(!items.length||items.some(x=>x.status!=="aktif"))return safeError("Alokasi tidak utuh; periksa sebelum pembatalan.",409);
@@ -4258,6 +4263,8 @@ async function f4EditNewIuran(request,env,who){
  const prev=await db.prepare("SELECT id,payer_id,paid_on,amount_rp,payment_method,description,status FROM bookkeeping_payments WHERE id=?").bind(id).first();
  if(!prev)return safeError("Pembayaran tidak ditemukan.",404);
  if(prev.status!=="aktif")return safeError("Pembayaran tidak aktif.",409);
+ if(await db.prepare("SELECT id FROM bookkeeping_fine_payments WHERE instr(note,?)=1 LIMIT 1").bind("[IURAN_AUTO:"+id+":").first())
+   return safeError("Pembayaran terhubung ke pelunasan Denda. Edit tanggal/metode gabungan memerlukan koreksi terverifikasi.",409);
  const a=await db.prepare("SELECT id,period_year,status,contribution_type,amount_rp FROM bookkeeping_payment_allocations WHERE payment_id=?").bind(id).all();
  const rows=a.results||[];
  if(!rows.length||rows.some(x=>x.status!=="aktif"))return safeError("Alokasi tidak utuh.",409);
