@@ -2629,14 +2629,18 @@ async function f4ContributionReport(db, request) {
     where.push(level === "date" ? "p.paid_on<=?" : "printf('%04d-%02d',a.period_year,a.period_month)<=?");
     bind.push(level === "date" ? to : to.slice(0, 7));
   }
+  // Bookkeeping uses one active allocation per contribution category.
+  // The legacy bookkeeping_allocation_details rows duplicate historical amounts
+  // and are absent for newer Worker payments; joining them causes missing November
+  // RT/Arisan results and can double-count older months.
   const found = await db.prepare(`SELECT a.id,p.id AS payment_id,bp.id AS payer_id,bp.display_name,
-  h.house_code,p.payment_method,a.period_year,a.period_month,ad.contribution_type,ad.amount_rp AS line_rp
+  h.house_code,p.payment_method,a.period_year,a.period_month,a.contribution_type,a.amount_rp AS line_rp
   FROM bookkeeping_payment_allocations a
   JOIN bookkeeping_payments p ON p.id=a.payment_id
   JOIN bookkeeping_payers bp ON bp.id=p.payer_id
-  LEFT JOIN households h ON h.id=bp.household_id
-  LEFT JOIN bookkeeping_allocation_details ad ON ad.allocation_id=a.id
-  WHERE ${where.join(" AND ")} ORDER BY bp.display_name,a.period_year,a.period_month`).bind(...bind).all();
+  LEFT JOIN households h ON h.id=COALESCE(bp.household_id,p.household_id)
+  WHERE ${where.join(" AND ")}
+  ORDER BY h.house_code,bp.display_name,a.period_year,a.period_month,a.id`).bind(...bind).all();
   const byPayer = /* @__PURE__ */ new Map();
   for (const x of found.results || []) {
     const payer = x.payer_id;
@@ -2655,9 +2659,10 @@ async function f4ContributionReport(db, request) {
       });
     }
     const entry = byPayer.get(payer), amount = Number(x.line_rp || 0);
-    if (x.contribution_type === "bulanan") entry.nominalBulanan += amount;
-    if (x.contribution_type === "kebersihan") entry.nominalKebersihan += amount;
-    if (x.contribution_type === "arisan") entry.nominalBayar += amount;
+    const category = String(x.contribution_type || "").trim().toUpperCase();
+    if (category === "IURAN_BULANAN") entry.nominalBulanan += amount;
+    if (category === "KEBERSIHAN") entry.nominalKebersihan += amount;
+    if (category === "ARISAN") entry.nominalBayar += amount;
   }
   const year = Number((from || to || "").slice(0, 4)) || (/* @__PURE__ */ new Date()).getUTCFullYear();
   const month = Number((from || to || "").slice(5, 7)) || (/* @__PURE__ */ new Date()).getUTCMonth() + 1;
@@ -2928,11 +2933,10 @@ async function f4YearlyReadOnlyReport(db, request) {
        WHERE status='aktif' AND occurred_on>=? AND occurred_on<=?
        GROUP BY substr(occurred_on,6,2)`).bind(begin,end).all(),
     db.prepare(`SELECT substr(p.paid_on,6,2) AS mon,
-       COALESCE(SUM(CASE WHEN ad.contribution_type IN ('bulanan','kebersihan') THEN ad.amount_rp ELSE 0 END),0) AS rt,
-       COALESCE(SUM(CASE WHEN ad.contribution_type='arisan' THEN ad.amount_rp ELSE 0 END),0) AS arisan
+       COALESCE(SUM(CASE WHEN a.contribution_type IN ('IURAN_BULANAN','KEBERSIHAN') THEN a.amount_rp ELSE 0 END),0) AS rt,
+       COALESCE(SUM(CASE WHEN a.contribution_type='ARISAN' THEN a.amount_rp ELSE 0 END),0) AS arisan
        FROM bookkeeping_payment_allocations a
        JOIN bookkeeping_payments p ON p.id=a.payment_id
-       JOIN bookkeeping_allocation_details ad ON ad.allocation_id=a.id
        WHERE p.status='aktif' AND a.status='aktif' AND p.paid_on>=? AND p.paid_on<=?
        GROUP BY substr(p.paid_on,6,2)`).bind(begin,end).all(),
     db.prepare(`SELECT COALESCE(SUM(max(0,l.amount_rp-COALESCE((SELECT SUM(r.amount_rp) FROM bookkeeping_loan_repayments r
