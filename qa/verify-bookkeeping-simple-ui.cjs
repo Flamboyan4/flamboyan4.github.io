@@ -40,7 +40,10 @@ assert(!css.replace(/\/\*[\s\S]*?\*\//g,'').includes('!important'),
  'New CSS must not use !important');
 const legacyPriority=(html.match(/!important/g)||[]).length;
 assert(legacyPriority<=1943,'Old CSS priority rules must not grow beyond audited baseline');
-assert(html.includes('bookkeeping-grid.css?v=20261105-grid-v5'));
+assert(/bookkeeping-grid\\.css\\?v=[^"']+/.test(html),'Bookkeeping grid stylesheet must be linked');
+assert(grid.includes('#modal-edit .f4-book-edit-card')&&grid.includes('max-height:calc(100dvh - 32px)'),'Edit modal must fit viewport');
+assert(grid.includes('#modal-edit .f4-book-edit-form')&&grid.includes('overflow-y:auto'),'Edit form must scroll inside modal');
+assert(grid.includes('z-index:320'),'Edit modal must render above direct-shell bar');
 assert(html.includes('class="f4-book-iuran-grid desktop-compact-form"'));
 const iuranForm=src('<form id="form-iuran"','</form>');
 for(const cls of ['f4-book-warga','f4-book-date-method','f4-book-period',
