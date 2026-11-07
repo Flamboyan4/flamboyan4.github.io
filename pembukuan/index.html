@@ -2747,6 +2747,7 @@ document.getElementById('inp-tanggal')?.addEventListener('change',()=>{void upda
 });
 
 
+async function loadRiwayat(silent=false){
   try{
     if(!silent) riwayatMsg('Memuat riwayat...','info');
     const r=await jsonp(APPS_SCRIPT_URL,{action:'riwayatpembayaran',t:Date.now()});
