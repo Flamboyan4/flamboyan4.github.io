@@ -1,6 +1,34 @@
 /* Pembukuan: satu pemilik grid layar untuk seluruh modul. Tidak mengubah cetak. */
 @media screen{
  :root{--book-gap:12px;--book-tight:8px;--book-control:44px}
+ /* Edit Riwayat: selalu di atas navbar 200; dialog membatasi tinggi pada viewport. */
+ #modal-edit{
+  z-index:320;box-sizing:border-box;padding:16px;overscroll-behavior:contain;
+ }
+ #modal-edit > .f4-book-edit-center{
+  min-height:100%;display:flex;align-items:center;justify-content:center;
+ }
+ #modal-edit .f4-book-edit-card{
+  display:flex;flex-direction:column;min-height:0;
+  width:100%;max-width:672px;max-height:calc(100dvh - 32px);
+  box-sizing:border-box;overflow:hidden;
+ }
+ #modal-edit .f4-book-edit-head{flex:0 0 auto}
+ #modal-edit .f4-book-edit-form{
+  display:flex;flex:1 1 auto;min-height:0;flex-direction:column;gap:12px;
+  padding:16px 20px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;
+ }
+ #modal-edit .f4-book-edit-form > *{margin-top:0;min-width:0}
+ #modal-edit .f4-book-edit-actions{
+  position:sticky;bottom:-16px;z-index:1;
+  padding:10px 0 2px;background:#fff;border-top:1px solid #ede9fe;
+ }
+ @media(max-width:640px){
+  #modal-edit{padding:10px}
+  #modal-edit .f4-book-edit-card{max-height:calc(100dvh - 20px)}
+  #modal-edit .f4-book-edit-form{padding:12px;gap:10px}
+  #modal-edit .f4-book-edit-actions{bottom:-12px}
+ }
  :where(#tab-input,#tab-transaksi,#tab-kas,#tab-talangan,#tab-denda,#tab-pinjaman,#tab-riwayat,#tab-laporan,#tab-dashboard,#tab-rumah,#tab-warga,#tab-config,#tab-importbulk){
   width:100%;min-width:0;max-width:100%;box-sizing:border-box
  }
