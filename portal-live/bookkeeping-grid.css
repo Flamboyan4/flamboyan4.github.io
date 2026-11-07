@@ -149,7 +149,6 @@
  #tab-input #form-iuran.f4-book-iuran-grid :where(.field,.custom-select-btn){
   width:100%;max-width:100%;min-width:0;min-height:var(--book-control)
  }
- #tab-input #kekurangan-kas-card,#tab-input #form-kekurangan-kas{min-width:0;max-width:100%}
  /* Filter tanggal, pencarian, dan status pada Riwayat Iuran. */
  #tab-riwayat #history-iuran-panel .history-iuran-filter{
   display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);

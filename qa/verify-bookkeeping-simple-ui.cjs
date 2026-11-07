@@ -30,8 +30,11 @@ for(const key of ['kas','rt','arisan','denda','talangan','pinjaman','tahunan'])
  assert(reports.includes('<option value="'+key+'">'),'Report type '+key);
 assert(html.includes('const picker=document.getElementById(\'f4-history-type\')'));
 assert(html.includes('const picker=document.getElementById(\'f4-report-type\')'));
-assert(html.includes('<details id="kekurangan-kas-card"'));
-assert(html.includes('id="kurang-kas-state"'));
+assert(html.includes('<form id="form-iuran"'));
+assert(!html.includes('id="kekurangan-kas-card"'),'Duplicate legacy Kas Lorong repayment form must stay removed');
+assert(!html.includes('form-kekurangan-kas'),'No second Kas repayment form');
+assert(!html.includes('bayarKekuranganKas'),'No dead submit handler');
+assert(!grid.includes('#kekurangan-kas-card'),'Obsolete layout rules must stay removed');
 assert(html.includes('f4-iuran-preview'));
 assert(html.includes('f4-book-period-controls'));
 assert(css.includes('.f4-book-subnav.hidden{display:none}'));
@@ -143,7 +146,7 @@ assert(buttons.warga.classList.contains('active'),'Warga list still reachable');
 const boot=src('async function muatUlang(){','function renderSemua(){');
 assert(boot.includes("action:'bootstrap'"),'Startup must still load residents and tariff data');
 assert(!boot.includes('setTimeout(()=>loadRiwayat(true)'),'History should not prefetch at startup');
-assert(!boot.includes('setTimeout(()=>loadKekuranganKas(true)'),'Shortage should not prefetch at startup');
+assert(!boot.includes('loadKekuranganKas('),'No obsolete shortage fetch on page load');
 assert(boot.includes("if(!document.getElementById('tab-riwayat')?.classList.contains('hidden'))"),
  'Manual refresh on history must still refresh it');
 const nav=src('function pilihMenu(n){','function pilihRiwayat(type){');
@@ -151,12 +154,14 @@ assert(nav.includes("if(n==='riwayat')pilihRiwayat('iuran')"),
  'Navigation to history must issue only one history request');
 assert(!nav.includes("loadRiwayat(true);pilihRiwayat('iuran')"),
  'History nav should not fetch twice');
-assert(html.includes("shortage?.addEventListener('toggle'"),'Shortage data must load on expansion');
-assert(html.includes("F4_KURANG_KAS_PENDING=loadKekuranganKas(true)"),
- 'Shortage fetch must be on demand with in-flight deduplication');
-assert(html.includes('Buka untuk memeriksa kekurangan.'),'Shortage initial state must not imply loaded totals');
-assert(html.includes('id="kurang-kas-total" class="font-black text-amber-700">—</div>'),
- 'Unfetched financial totals must not be reported as zero');
+assert(html.includes('/api/bookkeeping/iuran/suggested-period?'),
+ 'Main Iuran form must select the oldest open monthly obligation');
+assert(html.includes('/api/bookkeeping/iuran/outstanding?'),
+ 'Main Iuran form must read month-specific outstanding including Kas Lorong');
+assert(html.includes('updateNominalParsialInfo()'),
+ 'Main Iuran form must still preview partial Kas Lorong payments');
+assert(!html.includes('kekurangankas')&&!html.includes('bayarkekurangankas'),
+ 'Removed legacy endpoints must never be called');
 assert(html.includes('rel="preconnect" href="https://api.flamboyan4.web.id"'),
  'API preconnect should be declared in head');
 
