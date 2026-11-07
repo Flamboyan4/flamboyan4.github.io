@@ -3961,23 +3961,50 @@ async function createIuranPayment(request, env, who) {
     r.period_year + ":" + r.period_month + ":" + r.contribution_type,
     Number(r.paid_rp)
   ]));
-  for (const period of periods) {
-    const [year, month] = period.split(":").map(Number);
+  const orderedPeriods=[...periods].sort((a,b)=>{
+    const [ay,am]=a.split(":").map(Number),[by,bm]=b.split(":").map(Number);
+    return ay*12+am-(by*12+bm);
+  });
+  let availableCleanRp=0;
+  for(const period of orderedPeriods){
     const required=requiredByPeriod.get(period);
-    for (const kind of allowed) {
-      const key2 = year + ":" + month + ":" + kind;
-      const amount = submitted.get(key2) ?? 0;
-      const prior = paidByKey.get(key2) ?? 0;
-      const due = required[kind] - prior;
-      if (!Number.isSafeInteger(prior) || prior < 0 || due < 0)
-        return safeError("Riwayat kewajiban tidak konsisten. Periksa catatan sebelum melanjutkan.", 409);
-      if (kind === "KAS_LORONG") {
-        if (amount > due) return safeError("Pembayaran Kas Lorong melebihi sisa kewajiban.", 409);
-      } else if (amount !== due) {
-        return safeError("Komponen selain Kas Lorong harus melunasi tepat sisa kewajiban periode.", 409);
+    for(const kind of allowed){
+      const prior=paidByKey.get(period+":"+kind)??0,due=required[kind]-prior;
+      if(!Number.isSafeInteger(prior)||prior<0||due<0)
+        return safeError("Riwayat kewajiban tidak konsisten.",409);
+      if(kind==="KEBERSIHAN")availableCleanRp+=due;
+    }
+  }
+  let availableFines;
+  try{availableFines=await f4IuranFineDue(env.DB,payerId,date)}
+  catch(e){return safeError(e.message||"Denda belum dapat dihitung.",409)}
+  const fineTarget=Math.min(availableCleanRp,availableFines.reduce((sum,x)=>sum+x.sisaRp,0));
+  const expectedFines=[];
+  let fineRemaining=fineTarget;
+  for(const fine of availableFines){
+    if(!fineRemaining)break;
+    const nominal=Math.min(fine.sisaRp,fineRemaining);
+    expectedFines.push({...fine,nominal});fineRemaining-=nominal;
+  }
+  if(fineTarget!==totalFineRp||expectedFines.length!==fineItems.length||
+     expectedFines.some((x,i)=>x.id!==fineItems[i].id||x.nominal!==fineItems[i].nominal))
+    return safeError("Rincian denda berubah. Muat ulang tagihan sebelum menyimpan.",409);
+  let cleanRedirect=fineTarget;
+  for(const period of orderedPeriods){
+    const [year,month]=period.split(":").map(Number),required=requiredByPeriod.get(period);
+    for(const kind of allowed){
+      const key2=year+":"+month+":"+kind,amount=submitted.get(key2)??0,prior=paidByKey.get(key2)??0,due=required[kind]-prior;
+      if(kind==="KEBERSIHAN"){
+        const moved=Math.min(due,cleanRedirect);cleanRedirect-=moved;
+        if(amount!==due-moved)return safeError("Porsi Kebersihan harus dialihkan ke Denda lebih dahulu.",409);
+      }else if(kind==="KAS_LORONG"){
+        if(amount>due)return safeError("Pembayaran Kas Lorong melebihi sisa kewajiban.",409);
+      }else if(amount!==due){
+        return safeError("Iuran Bulanan dan Arisan wajib dibayar sesuai sisa periode.",409);
       }
     }
   }
+  if(cleanRedirect!==0)return safeError("Pengalihan Denda belum seimbang.",409);
   let talanganRepayRp=0;
   if(activeAdvance){
     const match=String(activeAdvance.description||"").match(/^\[Periode (20\d\d)-(0[1-9]|1[0-2])\]/);
