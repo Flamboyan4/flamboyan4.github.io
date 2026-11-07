@@ -40,7 +40,7 @@ assert(!css.replace(/\/\*[\s\S]*?\*\//g,'').includes('!important'),
  'New CSS must not use !important');
 const legacyPriority=(html.match(/!important/g)||[]).length;
 assert(legacyPriority<=1943,'Old CSS priority rules must not grow beyond audited baseline');
-assert(/bookkeeping-grid\\.css\\?v=[^"']+/.test(html),'Bookkeeping grid stylesheet must be linked');
+assert(/bookkeeping-grid\.css\?v=[^"']+/.test(html),'Bookkeeping grid stylesheet must be linked');
 assert(grid.includes('#modal-edit .f4-book-edit-card')&&grid.includes('max-height:calc(100dvh - 32px)'),'Edit modal must fit viewport');
 assert(grid.includes('#modal-edit .f4-book-edit-form')&&grid.includes('overflow-y:auto'),'Edit form must scroll inside modal');
 assert(grid.includes('z-index:320'),'Edit modal must render above direct-shell bar');
