@@ -4,6 +4,8 @@ on:
     branches: ['fix/book-rt-report-read-direct-allocations-20261107']
     paths:
       - '.github/workflows/f4-rt-report-aggregate-readonly.yml'
+      - 'qa/verify-book-rt-canonical-report.py'
+      - 'cloudflare/worker-terpadu-operasional-teruji.js'
 permissions:
   contents: read
 jobs:
@@ -11,6 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 4
     steps:
+      - uses: actions/checkout@v4
+      - name: Verify RT report SQL on legacy and modern in-memory D1
+        run: |
+          node --check cloudflare/worker-terpadu-operasional-teruji.js
+          python3 qa/verify-book-rt-canonical-report.py
       - name: Read D1 schema and monthly totals only (no personal records, no mutations)
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
