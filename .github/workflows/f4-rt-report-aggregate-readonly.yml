@@ -1,0 +1,50 @@
+name: F4 RT D1 Report Aggregate Read-only Audit
+on:
+  push:
+    branches: ['fix/book-rt-report-read-direct-allocations-20261107']
+    paths:
+      - '.github/workflows/f4-rt-report-aggregate-readonly.yml'
+permissions:
+  contents: read
+jobs:
+  aggregate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Read D1 schema and monthly totals only (no personal records, no mutations)
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,json,urllib.request
+          base="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CF_ACCOUNT"]
+          headers={"Authorization":"Bearer "+os.environ["CF_TOKEN"],"Content-Type":"application/json"}
+          def call(path,data=None):
+              req=urllib.request.Request(base+path,headers=headers,data=(json.dumps(data).encode() if data is not None else None))
+              with urllib.request.urlopen(req,timeout=20) as r: body=json.load(r)
+              if not body.get("success"): raise RuntimeError("D1 aggregate query failed")
+              return body["result"]
+          db=next((d for d in call("/d1/database") if d.get("name")=="flamboyan4-staging"),None)
+          if not db: raise RuntimeError("D1 database not found")
+          endpoint="/d1/database/"+db["uuid"]+"/query"
+          def q(sql):
+              x=call(endpoint,{"sql":sql})
+              return x[0]["results"] if x else []
+          for table in ("bookkeeping_payment_allocations","bookkeeping_allocation_details","bookkeeping_payments"):
+              print("COLUMNS",table,[x["name"] for x in q("PRAGMA table_info("+table+")")])
+          sql="""SELECT printf('%04d-%02d',a.period_year,a.period_month) AS period,
+                      a.contribution_type AS category,
+                      count(DISTINCT a.id) AS allocations,
+                      coalesce(sum(CASE WHEN ad.allocation_id IS NULL THEN a.amount_rp ELSE 0 END),0) AS direct_rp,
+                      count(ad.allocation_id) AS detail_lines,
+                      coalesce(sum(ad.amount_rp),0) AS detail_rp
+                  FROM bookkeeping_payment_allocations a
+                  JOIN bookkeeping_payments p ON p.id=a.payment_id
+                  LEFT JOIN bookkeeping_allocation_details ad ON ad.allocation_id=a.id
+                  WHERE a.status='aktif' AND p.status='aktif'
+                    AND a.period_year=2026 AND a.period_month IN (9,10,11)
+                  GROUP BY a.period_year,a.period_month,a.contribution_type
+                  ORDER BY period,category"""
+          for row in q(sql):print("AGGREGATE",row)
+          PY
