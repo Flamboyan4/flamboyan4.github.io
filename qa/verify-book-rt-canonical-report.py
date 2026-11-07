@@ -16,8 +16,7 @@ assert "a.contribution_type,a.amount_rp AS line_rp" in sql
 for category in ("IURAN_BULANAN", "KEBERSIHAN", "ARISAN"):
     assert 'category === "'+category+'"' in report_fn
 annual_start = src.index("async function f4YearlyReadOnlyReport")
-annual_end = src.index("__name(f4YearlyReadOnlyReport", annual_start)
-annual = src[annual_start:annual_end]
+annual = src[annual_start:annual_start+12000]
 year_offset = annual.index("SELECT substr(p.paid_on,6,2) AS mon")
 year_begin = annual.rfind(chr(96), 0, year_offset)
 year_end = annual.index(chr(96), year_offset)
