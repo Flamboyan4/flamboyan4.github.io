@@ -4040,6 +4040,21 @@ async function createIuranPayment(request, env, who) {
   if (kasLorongRp > 0) {
     q.push(env.DB.prepare("INSERT INTO bookkeeping_cash_transactions(id,occurred_on,payer_id,household_id,transaction_type,category,debit_rp,credit_rp,status,note,source_payment_id,payment_method) VALUES(?,?,?,?,?,'Kas Lorong',?,0,'aktif',?,?,?)").bind(cashId, date, payer.id, payer.household_id, "iuran", kasLorongRp, note, id, method));
   }
+  // Pembayaran Denda diambil dari porsi Kebersihan dan disimpan satu batch dengan Iuran.
+  for(const fine of expectedFines){
+    const fpId="fp_"+crypto.randomUUID(),fineCashId="cash-"+crypto.randomUUID(),fineKey=crypto.randomUUID();
+    const fineNote="[IURAN_AUTO:"+id+":"+fine.paidRp+"] Dari Kebersihan";
+    const fineHash=await tokenHash(JSON.stringify({kind:"fine-pay",paymentId:id,fineId:fine.id,nominal:fine.nominal}));
+    q.push(env.DB.prepare("SELECT CASE WHEN EXISTS(SELECT 1 FROM bookkeeping_fines WHERE id=? AND payer_id=? AND paid_rp=? AND status NOT IN ('dibatalkan','batal')) THEN 1 ELSE json_extract('invalid-fine-state','$') END AS checked").bind(fine.id,payerId,fine.paidRp));
+    q.push(env.DB.prepare("INSERT INTO bookkeeping_dp_request_ledger(request_key,operation,payload_hash,result_id,cash_transaction_id) VALUES(?,'fine-pay',?,?,?)").bind(fineKey,fineHash,fpId,fineCashId));
+    q.push(env.DB.prepare("INSERT INTO bookkeeping_cash_transactions(id,occurred_on,payer_id,transaction_type,category,debit_rp,credit_rp,status,note,payment_method) VALUES(?,?,?,'denda_menunggu_buku','Denda Gorol',?,0,'aktif',?,?)").bind(fineCashId,date,payerId,fine.nominal,fineNote,method));
+    q.push(env.DB.prepare("INSERT INTO bookkeeping_fine_payments(id,fine_id,paid_on,amount_rp,status,note,request_key,cash_transaction_id) VALUES(?,?,?,?,'aktif',?,?,?)").bind(fpId,fine.id,date,fine.nominal,fineNote,fineKey,fineCashId));
+    q.push(env.DB.prepare("INSERT INTO bookkeeping_dp_cash_links(request_key,source_type,source_id,cash_transaction_id) VALUES(?,'fine-pay',?,?)").bind(fineKey,fpId,fineCashId));
+    q.push(env.DB.prepare("UPDATE bookkeeping_fines SET paid_rp=CASE WHEN paid_rp=? THEN ? ELSE paid_rp END, status=CASE WHEN (CASE WHEN paid_rp=? THEN ? ELSE paid_rp END)>=amount_rp THEN 'lunas' ELSE 'belum' END, paid_on=? WHERE id=? AND paid_rp IN (?,?)")
+      .bind(fine.paidRp,fine.paidRp+fine.nominal,fine.paidRp,fine.paidRp+fine.nominal,date,fine.id,fine.paidRp,fine.paidRp+fine.nominal));
+    q.push(env.DB.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,after_json) VALUES(?,?,?,?,?,?,?)")
+      .bind(crypto.randomUUID(),who.id,"pembukuan","fine_via_iuran","bookkeeping_fine_payments",fpId,JSON.stringify({paymentId:id,amountRp:fine.nominal,source:"kebersihan"})));
+  }
   if(activeAdvance){
     const repayId="ar_"+crypto.randomUUID(),cashRepay="ac_"+crypto.randomUUID(),repayKey="iuran_"+id;
     const noteRepay="Penggantian Talangan "+activeAdvance.id+" melalui Iuran "+id;
