@@ -1,0 +1,164 @@
+/* Portal Bank Sampah: capaian publik & posisi keuangan akun anggota. */
+#v11Public .v17-public-main>.v17-public-banner {
+  grid-column:1/span 5;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:flex-start;
+  gap:18px;
+  margin:0;
+  min-height:330px;
+  padding:25px 22px;
+  border:0;
+  background:transparent;
+  color:#193b2b;
+}
+#v11Public .v17-public-banner .v14-eyebrow {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:7px 11px;
+  border-radius:99px;
+  color:#176a43;
+  background:#e6f2e8;
+  font-size:11px;
+  font-weight:750;
+}
+#v11Public .v17-public-banner h1 {
+  color:#123c29;
+  font-size:clamp(26px,3.2vw,42px);
+  line-height:1.17;
+  letter-spacing:-.035em;
+  margin:15px 0 8px;
+}
+#v11Public .v17-public-banner .f4-impact-intro {
+  color:#678072;
+  font-size:13px;
+  line-height:1.65;
+  max-width:440px;
+}
+#v11Public .v17-public-banner>.v30-hero-photo.has-photo {
+  max-width:100%;
+  width:100%;
+  height:100px;
+  border-radius:12px;
+}
+#v11Public .v17-public-banner>.v30-hero-photo img {width:100%;height:100px;object-fit:cover}
+#v11Public .v17-public-main>.v17-public-metrics {
+  grid-column:6/-1;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-rows:repeat(3,minmax(0,auto));
+  gap:0;
+  align-content:start;
+  margin:0;
+  border:1px solid #dce6df;
+  border-radius:17px;
+  overflow:hidden;
+  background:white;
+}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric {
+  border:0;
+  border-radius:0;
+  background:white;
+  padding:18px 20px;
+  min-height:104px;
+  border-top:1px solid #e4ebe6;
+}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:nth-child(even) {
+  border-right:1px solid #e4ebe6;
+}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child {
+  grid-column:1/-1;
+  min-height:126px;
+  border:0;
+  border-right:0;
+  padding:20px 24px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  background:#e5f1e9;
+}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child strong {
+  font-size:clamp(28px,3vw,39px);
+  color:#126c47;
+  letter-spacing:-.04em;
+}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric strong {
+  font-size:24px;
+  color:#144d34;
+  margin:5px 0 0;
+  line-height:1.2;
+  overflow-wrap:anywhere;
+}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric small {
+  font-size:12px;
+  color:#5d7466;
+  line-height:1.3;
+}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric::before {display:none}
+
+/* Warga melihat angka rupiah di ruang akun, bukan di halaman tanpa login. */
+#f4BankPrivateFinancialSummary {
+  min-width:0;
+  margin:0 0 18px;
+}
+#f4BankPrivateFinancialSummary .f4-bank-private-finance-title {
+  margin:0 0 9px;
+  color:#1c4833;
+  font-size:14px;
+  font-weight:800;
+}
+#f4BankPrivateFinancialSummary .f4-bank-private-finance-grid {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+}
+#f4BankPrivateFinancialSummary .f4-bank-private-finance-card {
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-width:0;
+  padding:17px 15px;
+  border:1px solid #dae8dd;
+  border-radius:13px;
+  background:#fff;
+}
+#f4BankPrivateFinancialSummary .f4-bank-private-finance-card:first-child {
+  background:#e8f3eb;
+  border-color:#cfe4d6;
+}
+#f4BankPrivateFinancialSummary .f4-bank-private-finance-card small {
+  color:#607b6b;
+  font-size:12px;
+  line-height:1.4;
+}
+#f4BankPrivateFinancialSummary .f4-bank-private-finance-card strong {
+  font-size:clamp(16px,1.9vw,23px);
+  line-height:1.25;
+  color:#176540;
+  overflow-wrap:anywhere;
+  font-variant-numeric:tabular-nums;
+}
+#f4BankPrivateFinancialSummary .f4-bank-private-finance-note {
+  margin:8px 0 0;
+  font-size:11px;
+  color:#6d8275;
+}
+@media(max-width:1020px) {
+  #v11Public .v17-public-main>.v17-public-banner {grid-column:1/-1;min-height:0;padding:10px 4px 14px}
+  #v11Public .v17-public-main>.v17-public-metrics {grid-column:1/-1}
+  #v11Public .v17-public-banner>.v30-hero-photo.has-photo {height:120px}
+  #v11Public .v17-public-banner>.v30-hero-photo img {height:120px}
+}
+@media(max-width:620px) {
+  #v11Public .v17-public-main>.v17-public-banner {padding:6px 2px 8px}
+  #v11Public .v17-public-banner h1 {font-size:26px}
+  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric {padding:14px 12px;min-height:92px}
+  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child {min-height:103px;padding:16px}
+  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric strong {font-size:19px}
+  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child strong {font-size:28px}
+  #f4BankPrivateFinancialSummary .f4-bank-private-finance-grid {grid-template-columns:minmax(0,1fr);gap:8px}
+  #f4BankPrivateFinancialSummary .f4-bank-private-finance-card {padding:13px 14px;gap:4px}
+  #f4BankPrivateFinancialSummary .f4-bank-private-finance-card strong {font-size:20px}
+}
