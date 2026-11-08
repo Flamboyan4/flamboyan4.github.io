@@ -3969,7 +3969,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     const pub=$('v11Public');if(!pub)return;
     if(pub.classList.contains('v17-public'))return;pub.classList.add('v17-public');
     pub.innerHTML=`<div class="v17-public-head"><div class="v17-public-logo"><img id="v17Logo" alt="Logo Flamboyan 4"><span>Bank Sampah<br>Flamboyan 4</span></div><nav class="v17-public-links" aria-label="Navigasi portal publik"><a href="#v17Program">Program</a><a href="#v17Perkembangan">Perkembangan</a><a href="#v17Dokumentasi">Dokumentasi</a><a href="#v17Inventaris">Inventaris</a></nav><button id="v17PublicAccount" class="v17-public-account" type="button" title="Akun atau masuk" aria-label="Akun atau masuk">↪</button></div>
-      <div class="v17-public-main"><div class="v17-public-banner"><div><span class="v14-eyebrow">🌱 Bank Sampah</span><h1>Sampah terpilah. Manfaat bertambah.</h1></div><button id="v30HeroPhoto" type="button" class="v30-hero-photo" aria-label="Lihat dokumentasi dan inventaris" title="Lihat dokumentasi dan inventaris"></button></div>
+      <div class="v17-public-main"><div class="v17-public-banner"><div><span class="v14-eyebrow">🌱 Bank Sampah</span><h1>Sampah terpilah, lingkungan lebih baik.</h1><p class="f4-impact-intro">Capaian pengelolaan Bank Sampah Flamboyan 4 berdasarkan setoran dan kegiatan yang tercatat.</p></div><button id="v30HeroPhoto" type="button" class="v30-hero-photo" aria-label="Lihat dokumentasi dan inventaris" title="Lihat dokumentasi dan inventaris"></button></div>
       <div id="v17PublicMetrics" class="v17-public-metrics">Memuat ringkasan...</div>
       <section id="v17Program" class="f4-bank-program" aria-labelledby="f4BankProgramTitle"><div class="f4-bank-program-heading"><span class="f4-bank-program-kicker">CARA KERJA</span><h2 id="f4BankProgramTitle">Dari sampah jadi manfaat</h2></div><ol class="f4-bank-program-flow"><li class="f4-bank-program-step"><strong>Pilah & setor</strong><p>Warga membawa sampah terpilah untuk ditimbang.</p></li><li class="f4-bank-program-step"><strong>Jual & sahkan</strong><p>Pengurus mencatat hasil jual dan mengesahkannya.</p></li><li class="f4-bank-program-step"><strong>Tabungan & lingkungan</strong><p>Hasil dibagi untuk tabungan warga dan kas lingkungan.</p></li></ol></section>
       <section id="v17Perkembangan" class="v17-section f4-dev" aria-labelledby="f4DevTitle">
@@ -4192,7 +4192,13 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     if(chartSerial!==v17PublicLoadSerial)return;
     if(homeResult.status==='fulfilled'){
       const home=homeResult.value;
-      $('v17PublicMetrics').replaceChildren(v17PublicStat('Anggota aktif',home.anggotaAktif),v17PublicStat('Jenis barang',home.jenisBarang),v17PublicStat('Berat terkonfirmasi',kg(home.beratTerkonfirmasi)),v17PublicStat('Kegiatan terpublikasi',home.kegiatan));
+      $('v17PublicMetrics').replaceChildren(
+        v17PublicStat('Berat sampah terjual',kg(home.beratTerkonfirmasi)),
+        v17PublicStat('Setoran terkonfirmasi',home.jumlahSetoranTerkonfirmasi),
+        v17PublicStat('Anggota aktif',home.anggotaAktif),
+        v17PublicStat('Jenis sampah diterima',home.jenisBarang),
+        v17PublicStat('Kegiatan terpublikasi',home.kegiatan)
+      );
       v25RenderTimeline(home.progres||[]);
       const inv=$('v17Inventory');
       if(inv){
@@ -5950,5 +5956,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
 <script src="/portal-live/bank-sale-sheet.js?v=20261104-print-note-step1"></script><script src="/portal-live/bank-sale-report.js?v=20261103-internal-v1"></script><script src="/portal-live/bank-member-prices.js?v=20261104-member-price-focus"></script>
 <script src="/portal-live/calendar-unified.js?v=20261105-sunday-first"></script>
 <script src="/portal-live/direct-shell.js?v=20261107-session-24h-active-renew-v1"></script><script src="/portal-live/unified-account.js?v=bank-member-profile-redirect-20261031"></script><script defer src="/portal-live/mobile-cards.js?v=20261031-detail-eye-icon-v2"></script><script defer src="/portal-live/native-controls.js?v=20261105-sunday-first"></script><script defer src="/portal-live/bank-page-history.js?v=20261027-final4"></script>
-<script defer src="/portal-live/bank-policy-admin.js?v=20261104-schedule-editor-v3"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261105-live-badges-v1"></script></body>
+<script defer src="/portal-live/bank-policy-admin.js?v=20261104-schedule-editor-v3"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261105-live-badges-v1"></script>
+<link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261109-public-finance-v1">
+<script defer src="/portal-live/bank-impact-summary.js?v=20261109-public-finance-v1"></script></body>
 </html>
