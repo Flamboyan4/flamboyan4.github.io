@@ -1,4 +1,4 @@
-/* Berkas hasil rapat: satu komponen, tanpa override !important. */
+/* Berkas hasil rapat: satu komponen responsif. */
 #container-grid-rapat.f4-rapat-file-grid {
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
