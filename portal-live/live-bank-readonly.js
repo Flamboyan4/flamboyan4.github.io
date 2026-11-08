@@ -61,6 +61,7 @@
   const p=progress(r.progress);
   return {
    anggotaAktif:number(o.activeMembers??o.memberCount??o.members??r.membersCount??0),
+   jumlahSetoranTerkonfirmasi:number(o.confirmedDeposits??0),
    jenisBarang:number(o.activeItems??r.catalog?.length??0),
    beratTerkonfirmasi:number(o.confirmedWeightKg??o.confirmedKg??0),
    kegiatan:p.length,
