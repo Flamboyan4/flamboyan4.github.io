@@ -136,6 +136,35 @@ async function publicBank(db) {
   })), overview });
 }
 __name(publicBank, "publicBank");
+// Ringkasan rupiah khusus akun login: hitung dari SELURUH jurnal sah,
+// bukan data riwayat yang dibatasi pagination atau estimasi timbang.
+async function authenticatedBankFinanceSummary(db) {
+  const [sales,savings,cash] = await Promise.all([
+    one(db,`SELECT COALESCE(SUM(a.received_rp),0) AS total
+      FROM waste_allocations a
+      JOIN waste_batches b ON b.id=a.batch_id AND b.status='disahkan'
+      JOIN waste_sales s ON s.batch_id=a.batch_id AND s.status='terkonfirmasi'`),
+    one(db,`SELECT COALESCE(SUM(CASE WHEN kind IN ('kredit','koreksi_kredit')
+      THEN amount_rp ELSE -amount_rp END),0) AS total FROM waste_savings_ledger`),
+    list(db,`SELECT fund_position,
+      COALESCE(SUM(cash_in_rp-cash_out_rp),0) AS total
+      FROM waste_cash_ledger
+      WHERE status='aktif' AND fund_position IN ('operasional','lingkungan','kas_lorong','cadangan')
+      GROUP BY fund_position`)
+  ]);
+  const totalPenjualanRp=Number(sales?.total ?? 0);
+  const totalTabunganWargaRp=Number(savings?.total ?? 0);
+  const kasBankSampahRp=cash.reduce((total,row)=>total+Number(row.total),0);
+  if(![totalPenjualanRp,totalTabunganWargaRp,kasBankSampahRp].every(Number.isSafeInteger) ||
+      totalPenjualanRp<0 || totalTabunganWargaRp<0)
+    return err('Saldo Bank Sampah perlu diperiksa sebelum ditampilkan.',409);
+  return ok({
+    totalPenjualanRp,totalTabunganWargaRp,kasBankSampahRp,
+    source:'cloudflare-d1',readOnly:true,
+    detail:'Penjualan sah, saldo bersih tabungan warga, dan saldo kas seluruh pos Bank Sampah di luar tabungan warga.'
+  });
+}
+__name(authenticatedBankFinanceSummary, "authenticatedBankFinanceSummary");
 async function publicBankReport(db, url) {
   const month=periodFilter(url);
   // One row per confirmed batch. Avoid multiplying totals by joining deposit lines
@@ -2114,6 +2143,12 @@ async function handleUnifiedApi(request, env, who) {
     return publicPortalCash(db);
   }
   if (method === "GET" && path === "/api/v2/public/bank") return publicBank(db);
+  if (method === "GET" && path === "/api/v2/bank/finance-summary") {
+    if (!who || !["anggota","admin","superadmin"].includes(who.role))
+      return err("Silakan login untuk melihat ringkasan keuangan Bank Sampah.",401);
+    try { return await authenticatedBankFinanceSummary(db); }
+    catch (e) { return err("Ringkasan keuangan belum tersedia.",503); }
+  }
   if (method === "GET" && path === "/api/v2/public/bank/report") {
     if (!who) return err("Silakan login untuk melihat laporan keuangan.", 401);
     try {
