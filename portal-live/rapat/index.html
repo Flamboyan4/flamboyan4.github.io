@@ -90,6 +90,7 @@
   </style>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; connect-src 'self' https://api.flamboyan4.web.id https://docs.google.com https://script.google.com https://*.googleusercontent.com https://*.google.com; img-src 'self' https: data: blob:; frame-src https: blob:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com; form-action 'none';">
 <style id="f4-rapat-preview">body>header,body>section:first-of-type{display:none!important}body>main{padding-top:16px!important}</style><script src="../loading-state.js?v=786606f"></script><link rel="stylesheet" href="../loading-state.css?v=28e10d5"><link id="f4-original-favicon" rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+<link rel="stylesheet" href="../rapat-file-cards.css?v=20261109-v1">
 </head>
 
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full" oncontextmenu="return false;">
@@ -137,7 +138,7 @@
     <div class="flex items-center justify-between">
       <div class="flex items-center space-x-2">
         <i data-lucide="folder-open" class="w-5 h-5 text-indigo-600 shrink-0"></i>
-        <h3 class="text-lg md:text-xl font-bold text-slate-900">Daftar Hasil Rapat</h3>
+        <h3 class="text-lg md:text-xl font-bold text-slate-900">Berkas Hasil Rapat</h3>
       </div>
       <span id="rapat-status-badge" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full">Memuat Data...</span>
     </div>
@@ -571,39 +572,106 @@
       share().catch(()=>alert('Gagal membagikan tautan.'));
     }
 
+    function rapatFileDetails(docUrl) {
+      const source = String(docUrl || '').replace(/[\[\]'"]/g, '').trim();
+      let link;
+      try { link = new URL(source); } catch { return { type: 'FILE', downloadUrl: '' }; }
+      if (link.protocol !== 'https:' && link.protocol !== 'http:') return { type: 'FILE', downloadUrl: '' };
+      const host = link.hostname.toLowerCase();
+      const path = link.pathname.toLowerCase();
+      const googleId = extractDriveFileId(source);
+      if (host === 'docs.google.com' && path.startsWith('/document/d/') && googleId) {
+        return { type: 'DOC', downloadUrl: 'https://docs.google.com/document/d/' + encodeURIComponent(googleId) + '/export?format=pdf' };
+      }
+      if (host === 'drive.google.com' && googleId) {
+        return { type: 'FILE', downloadUrl: 'https://drive.google.com/uc?export=download&id=' + encodeURIComponent(googleId) };
+      }
+      if (path.endsWith('.pdf')) return { type: 'PDF', downloadUrl: link.href };
+      if (path.endsWith('.doc') || path.endsWith('.docx')) return { type: 'DOC', downloadUrl: link.href };
+      return { type: 'FILE', downloadUrl: link.href };
+    }
+
     function renderRapatCards() {
       const container = document.getElementById('container-grid-rapat');
+      container.classList.add('f4-rapat-file-grid');
       if (globalRapatData.length === 0) {
-        container.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-xs">Belum ada dokumen hasil rapat yang dipublikasikan.</div>`;
+        container.innerHTML = '<div class="col-span-full text-center py-12 text-slate-400 text-xs">Belum ada hasil rapat.</div>';
         return;
       }
-
       container.replaceChildren();
-      globalRapatData.forEach(item=>{
-        const card=document.createElement('button');card.type='button';
-        card.className='text-left bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-md hover:border-indigo-300 transition min-w-0 flex flex-col group';
-        card.setAttribute('aria-label','Baca hasil rapat: '+item.judul);
-        card.onclick=()=>openModalDocRapat(item.id);
-        const cover=document.createElement('div');
-        cover.className='bg-slate-100 w-full aspect-[3/4] md:aspect-[16/10] overflow-hidden flex items-center justify-center';
-        const img=document.createElement('img');
-        img.src=fixDriveUrl(item.fotoPreview);img.alt='Pratinjau '+item.judul;
-        img.loading='lazy';img.className='w-full h-full object-cover group-hover:scale-[1.02] transition';
-        img.onerror=()=>{img.onerror=null;img.src=PLACEHOLDER_IMG};
-        cover.append(img);card.append(cover);
-        const title=document.createElement('strong');title.textContent=item.judul||'Hasil rapat';
-        title.className='block text-xs sm:text-sm font-semibold text-slate-800 p-2.5 sm:p-3 leading-snug line-clamp-2';
-        card.append(title);
-        const summary=document.createElement('p');summary.className='hidden md:block text-xs text-slate-500 px-3 pb-2 line-clamp-2';
-        summary.textContent=item.deskripsi||item.summary||item.ringkasan||'Baca hasil rapat warga';
-        const action=document.createElement('span');action.className='hidden md:block text-center text-xs font-bold text-indigo-700 bg-indigo-50 rounded-lg mx-3 mb-3 mt-auto py-2';
-        action.textContent='Baca Hasil Rapat';
-        card.append(summary,action);container.append(card);
-      });
-      lucide.createIcons();
+      globalRapatData.forEach(item => {
+        const detail = rapatFileDetails(item.docUrl);
+        const hasFile = Boolean(item.docUrl && detail.downloadUrl);
+        const card = document.createElement('article');
+        card.className = 'f4-rapat-file-card';
 
-      const targetId=new URLSearchParams(location.search).get('doc')||window.location.hash.slice(1);
-      if(targetId)openModalDocRapat(targetId,true);
+        const iconPanel = document.createElement('div');
+        iconPanel.className = 'f4-rapat-file-icon';
+        const fileIcon = document.createElement('i');
+        fileIcon.setAttribute('data-lucide', 'file-text');
+        fileIcon.setAttribute('aria-hidden', 'true');
+        const fileType = document.createElement('span');
+        fileType.className = 'f4-rapat-file-type';
+        fileType.textContent = detail.type;
+        iconPanel.append(fileIcon, fileType);
+
+        const content = document.createElement('div');
+        content.className = 'f4-rapat-file-main';
+        const title = document.createElement('button');
+        title.type = 'button';
+        title.className = 'f4-rapat-file-title';
+        title.textContent = item.judul || 'Hasil rapat warga';
+        title.title = title.textContent;
+        title.setAttribute('aria-label', 'Lihat hasil rapat: ' + title.textContent);
+        title.disabled = !hasFile;
+        title.addEventListener('click', () => openModalDocRapat(item.id));
+
+        const meta = document.createElement('div');
+        meta.className = 'f4-rapat-file-meta';
+        const category = document.createElement('span');
+        category.textContent = 'Hasil rapat';
+        const date = document.createElement('span');
+        date.textContent = item.tanggal || '-';
+        meta.append(category, date);
+        content.append(title, meta);
+
+        if (item.deskripsi && String(item.deskripsi).trim()) {
+          const description = document.createElement('p');
+          description.className = 'f4-rapat-file-desc';
+          description.textContent = String(item.deskripsi).trim();
+          content.append(description);
+        }
+        if (hasFile) {
+          const actions = document.createElement('div');
+          actions.className = 'f4-rapat-file-actions';
+          const viewButton = document.createElement('button');
+          viewButton.type = 'button';
+          viewButton.className = 'f4-rapat-file-view';
+          viewButton.textContent = 'Lihat';
+          viewButton.setAttribute('aria-label', 'Lihat ' + (item.judul || 'hasil rapat'));
+          viewButton.addEventListener('click', () => openModalDocRapat(item.id));
+          const download = document.createElement('a');
+          download.className = 'f4-rapat-file-download';
+          download.href = detail.downloadUrl;
+          download.target = '_blank';
+          download.rel = 'noopener noreferrer';
+          download.textContent = 'Unduh';
+          download.setAttribute('aria-label', 'Unduh ' + (item.judul || 'hasil rapat'));
+          actions.append(viewButton, download);
+          content.append(actions);
+        } else {
+          const missing = document.createElement('span');
+          missing.className = 'f4-rapat-file-empty';
+          missing.textContent = 'Berkas belum tersedia';
+          content.append(missing);
+        }
+        card.append(iconPanel, content);
+        container.append(card);
+      });
+      if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+
+      const targetId = new URLSearchParams(location.search).get('doc') || window.location.hash.slice(1);
+      if (targetId) openModalDocRapat(targetId, true);
     }
 
     const rapatToken=F4Loading.begin('rapat-status-badge','Memuat daftar rapat…');
