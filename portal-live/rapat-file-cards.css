@@ -1,0 +1,144 @@
+/* Berkas hasil rapat: satu komponen, tanpa override !important. */
+#container-grid-rapat.f4-rapat-file-grid {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;
+  align-items:stretch;
+}
+.f4-rapat-file-card {
+  display:grid;
+  grid-template-columns:66px minmax(0,1fr);
+  min-width:0;
+  min-height:166px;
+  overflow:hidden;
+  border:1px solid #dfe4ee;
+  border-radius:15px;
+  background:#fff;
+  transition:border-color .18s ease,box-shadow .18s ease;
+}
+.f4-rapat-file-card:hover {
+  border-color:#ad9eea;
+  box-shadow:0 8px 24px rgba(59,43,109,.08);
+}
+.f4-rapat-file-icon {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:10px 5px;
+  border-right:1px solid #e6e9f1;
+  background:#f7f8fc;
+  color:#526bc0;
+}
+.f4-rapat-file-icon svg {width:27px;height:27px;stroke-width:1.8}
+.f4-rapat-file-type {
+  border-radius:5px;
+  background:#3e59bb;
+  color:white;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.04em;
+  line-height:1;
+  padding:5px 7px;
+}
+.f4-rapat-file-main {
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:7px;
+  min-width:0;
+  padding:14px 12px 12px;
+}
+.f4-rapat-file-title {
+  border:0;
+  background:transparent;
+  padding:0;
+  margin:0;
+  min-width:0;
+  text-align:left;
+  color:#182438;
+  font-size:13px;
+  font-weight:750;
+  line-height:1.35;
+  cursor:pointer;
+  overflow:hidden;
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+}
+.f4-rapat-file-title:hover {color:#5d3eb0}
+.f4-rapat-file-meta {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:3px 10px;
+  color:#68758a;
+  font-size:11px;
+  line-height:1.35;
+}
+.f4-rapat-file-meta span {display:inline-flex;align-items:center;gap:4px}
+.f4-rapat-file-meta svg {width:12px;height:12px}
+.f4-rapat-file-desc {
+  margin:0;
+  color:#68758a;
+  font-size:11px;
+  line-height:1.35;
+  overflow:hidden;
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+}
+.f4-rapat-file-actions {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:auto;
+}
+.f4-rapat-file-view,
+.f4-rapat-file-download {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:30px;
+  padding:5px 11px;
+  border-radius:8px;
+  font-size:11px;
+  font-weight:700;
+  line-height:1.2;
+  text-decoration:none;
+  cursor:pointer;
+  transition:background .18s ease,border-color .18s ease;
+}
+.f4-rapat-file-view {
+  border:1px solid #5839bd;
+  color:white;
+  background:#5839bd;
+}
+.f4-rapat-file-view:hover {background:#472e99}
+.f4-rapat-file-download {
+  border:1px solid #c9d2e6;
+  color:#3f57a5;
+  background:#fff;
+}
+.f4-rapat-file-download:hover {background:#f2f5ff;border-color:#9caedc}
+.f4-rapat-file-title:focus-visible,
+.f4-rapat-file-view:focus-visible,
+.f4-rapat-file-download:focus-visible {
+  outline:3px solid #b9a8ef;
+  outline-offset:2px;
+}
+.f4-rapat-file-empty {color:#8b95a6;font-size:11px}
+@media(max-width:1100px) {
+  #container-grid-rapat.f4-rapat-file-grid {grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:820px) {
+  #container-grid-rapat.f4-rapat-file-grid {grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:560px) {
+  #container-grid-rapat.f4-rapat-file-grid {grid-template-columns:minmax(0,1fr);gap:10px}
+  .f4-rapat-file-card {min-height:142px;grid-template-columns:62px minmax(0,1fr)}
+  .f4-rapat-file-main {padding:12px}
+  .f4-rapat-file-title {font-size:13px}
+}
