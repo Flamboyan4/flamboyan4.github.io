@@ -46,6 +46,7 @@
   gap:var(--book-gap);grid-auto-flow:row;align-items:end;min-width:0;width:100%
  }
  #tab-transaksi #form-transaksi-kas.trx-layout>:where(div,button){min-width:0;max-width:100%;margin:0}
+ #tab-transaksi #form-transaksi-kas.trx-layout .trx-status{width:100%;overflow-wrap:anywhere}
  #tab-transaksi #form-transaksi-kas.trx-layout .field,
  #tab-transaksi #form-transaksi-kas.trx-layout .kas-jenis-btn,
  #tab-transaksi #form-transaksi-kas.trx-layout .trx-save{

@@ -1796,7 +1796,7 @@ main > section.card{overflow:visible!important}
 </style>
 
 <link rel="stylesheet" href="/portal-live/bookkeeping-simple.css?v=20261105-simplified-v2">
-<link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261107-edit-modal-fit-v6">
+<link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261108-cash-status-v7">
 </head>
 <body oncontextmenu="return false;">
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
@@ -1954,7 +1954,7 @@ main > section.card{overflow:visible!important}
 
           <div class="trx-desc"><label class="text-sm font-bold">Keterangan</label><input id="trx-keterangan" class="field mt-1" placeholder="Contoh: Donasi Gorol" required></div>
           <div class="trx-note"><label class="text-sm font-bold">Catatan <span class="font-normal text-slate-400">(opsional)</span></label><input id="trx-catatan" class="field mt-1" placeholder="Catatan tambahan"></div>
-          <div id="trx-status" class="trx-status hidden rounded-xl border px-4 py-3 text-sm"></div>
+          <div id="trx-status" class="trx-status hidden rounded-xl border px-4 py-3 text-sm" role="status" aria-live="polite"></div>
           <button id="btn-trx-simpan" type="submit" class="trx-save w-full rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-black py-3.5 flex items-center justify-center gap-2"><i data-lucide="save" class="w-4 h-4"></i>Simpan Transaksi</button>
         </form>
       </div>
@@ -3199,7 +3199,7 @@ function setJenisKas(jenis){
 
 function trxMsg(t,type='info'){
   const e=document.getElementById('trx-status');if(!e)return;
-  e.className='rounded-xl border px-4 py-3 text-sm';
+  e.className='trx-status rounded-xl border px-4 py-3 text-sm';
   if(type==='error')e.classList.add('bg-red-50','border-red-200','text-red-700');
   else if(type==='success')e.classList.add('bg-violet-50','border-violet-200','text-violet-700');
   else e.classList.add('bg-slate-50','border-slate-200','text-slate-600');
@@ -3220,7 +3220,7 @@ async function simpanTransaksiKas(ev){
     const bulan=Number(document.getElementById('trx-bulan').value),tahun=Number(document.getElementById('trx-tahun').value);
     const r=await jsonp(BATCH_SCRIPT_URL,{action:'inputtransaksikas',tanggal:document.getElementById('trx-tanggal').value,jenis:document.getElementById('trx-jenis').value,kategori:document.getElementById('trx-kategori').value,keterangan:document.getElementById('trx-keterangan').value,nominal:nominalAngka('trx-nominal'),metode:document.getElementById('trx-metode').value,periode:`${BULAN[bulan]} ${tahun}`,catatan:document.getElementById('trx-catatan').value,t:Date.now()});
     if(!r||r.status!=='success')throw new Error(r?.message||'Gagal menyimpan transaksi.');
-    trxMsg(`${r.idTransaksi} berhasil disimpan.`,'success');
+    trxMsg('Transaksi berhasil disimpan. Rinciannya tersedia di Riwayat.','success');
     document.getElementById('trx-keterangan').value='';document.getElementById('trx-nominal').value='';document.getElementById('trx-catatan').value='';
     await loadRiwayatKas(true);
   }catch(e){trxMsg(e.message||String(e),'error')}finally{btn.disabled=false;btn.classList.remove('opacity-60')}

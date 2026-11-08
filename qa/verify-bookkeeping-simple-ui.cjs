@@ -174,6 +174,28 @@ assert(html.includes('/api/bookkeeping/iuran/outstanding?'),
  'Main Iuran form must read month-specific outstanding including Kas Lorong');
 assert(html.includes('updateNominalParsialInfo()'),
  'Main Iuran form must still preview partial Kas Lorong payments');
+
+const cashForm=src('<form id="form-transaksi-kas"','</form>');
+assert(cashForm.includes('id="trx-status" class="trx-status hidden'), 'Cash save status must keep a grid positioning class');
+assert(cashForm.includes('aria-live="polite"'), 'Cash save feedback must be announced accessibly');
+assert(grid.includes('.trx-status{grid-column:1/-1;grid-row:4}'), 'Desktop transaction feedback must span the full row');
+assert(grid.includes('.trx-status{width:100%;overflow-wrap:anywhere}'), 'Long cash API errors must not squeeze the grid');
+const trxNoticeCode=src("function trxMsg(t,type='info'){","function formatNominalInput(el){");
+const trxStatusMock={
+ className:'trx-status hidden', textContent:'',
+ classList:{add(...classes){trxStatusMock.className+=' '+classes.join(' ')}}
+};
+const trxMsgIsolated=new Function('document',trxNoticeCode+';return trxMsg')({
+ getElementById:id=>id==='trx-status'?trxStatusMock:null
+});
+trxMsgIsolated('Transaksi berhasil disimpan.','success');
+assert(trxStatusMock.className.split(' ').includes('trx-status'), 'Success state must not erase grid class');
+assert(!trxStatusMock.className.split(' ').includes('hidden'), 'Success state should be visible');
+trxMsgIsolated('Koneksi bermasalah.','error');
+assert(trxStatusMock.className.split(' ').includes('trx-status'), 'Error state must retain grid class');
+assert(html.includes("trxMsg('Transaksi berhasil disimpan. Rinciannya tersedia di Riwayat.','success')"),
+ 'Cash save notification should use readable text without the long internal transaction ID');
+
 assert(!html.includes('kekurangankas')&&!html.includes('bayarkekurangankas'),
  'Removed legacy endpoints must never be called');
 assert(html.includes('rel="preconnect" href="https://api.flamboyan4.web.id"'),
