@@ -283,6 +283,7 @@
  body .f4-sheet-draggable:not(.f4-warga-picker-pop):not(.f4-user-year-popover){
   position:relative
  }
+ body .f4-sheet-draggable{box-sizing:border-box}
  body :is(#f4-direct-dialog section,#f4-superadmin-confirm .f4-sa-confirm-panel,
   #credentialModal .f4-bank-credential-panel,#modal-edit .f4-book-edit-card,
   #modal-doc-rapat>div,#modal-gateway>div,.v21-modal-card,.v24-edit-card,
@@ -308,7 +309,7 @@
   content:none;display:none
  }
  .f4-sheet-draggable>.f4-sheet-handle{
-  position:absolute;inset:0 0 auto;width:100%;height:30px;
+  position:fixed;inset:auto auto auto 0;width:100%;height:30px;
   display:flex;align-items:center;justify-content:center;
   border:0;padding:0;margin:0;background:transparent;
   touch-action:none;user-select:none;-webkit-user-select:none;
