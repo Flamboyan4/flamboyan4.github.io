@@ -67,9 +67,7 @@ async def verify():
         await swipe(mobile,grip,115)
         assert not await panel.evaluate("(el)=>el.classList.contains('f4-sheet-expanded')"), (
             "Geser turun ringan tidak mengembalikan popup")
-        print("DEBUG collapse:", await panel.evaluate("(el)=>({rect:el.getBoundingClientRect().toJSON(),expanded:el.classList.contains('f4-sheet-expanded')})"), await grip.bounding_box(),flush=True)
         await swipe(mobile,grip,150)
-        print("DEBUG after dismissal:", await panel.evaluate("(el)=>({rect:el.getBoundingClientRect().toJSON(),expanded:el.classList.contains('f4-sheet-expanded')})"),flush=True)
         assert await mobile.locator("#modal-arisan").evaluate(
             "(el)=>el.classList.contains('hidden')"), "Geser turun tidak menutup popup"
 
@@ -84,9 +82,7 @@ async def verify():
         await editor.add_style_tag(path=str(STYLE))
         await editor.add_script_tag(path=str(SCRIPT))
         await editor.wait_for_selector("#modal-edit .f4-sheet-handle")
-        print("DEBUG editor before:",await editor.locator("#modal-edit .f4-book-edit-card").evaluate("(el)=>({rect:el.getBoundingClientRect().toJSON(),handle:el.querySelector('.f4-sheet-handle').getBoundingClientRect().toJSON()})"),flush=True)
         await swipe(editor,editor.locator("#modal-edit .f4-sheet-handle"),-145)
-        print("DEBUG editor after:",await editor.locator("#modal-edit .f4-book-edit-card").evaluate("(el)=>({rect:el.getBoundingClientRect().toJSON(),expanded:el.classList.contains('f4-sheet-expanded'),parent:el.parentElement.getBoundingClientRect().toJSON()})"),flush=True)
         top=await editor.locator("#modal-edit .f4-book-edit-card").evaluate(
             "(el)=>el.getBoundingClientRect().top")
         assert top<=25, f"Wrapper editor Pembukuan menghalangi geser atas: {top}"
