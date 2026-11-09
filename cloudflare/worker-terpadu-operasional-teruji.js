@@ -1054,17 +1054,14 @@ async function handleAdminContent(request, env, who, url) {
     const versions=await list(db,"SELECT payer_id,effective_from,qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan FROM bookkeeping_payer_obligation_periods ORDER BY payer_id,effective_from LIMIT 10000");
     const grouped=new Map();
     for(const v of versions){const id=String(v.payer_id);if(!grouped.has(id))grouped.set(id,[]);grouped.get(id).push(v)}
-    const month=f4CurrentIuranMonth();
     const keys=["qty_iuran_bulanan","qty_kebersihan","qty_kas_lorong","qty_arisan"];
     return ok({ data:payers.map(p=>{
       const entries=grouped.get(String(p.payer_id))||[];
-      const current=entries.filter(x=>x.effective_from<=month).at(-1)||null;
-      const upcoming=entries.find(x=>x.effective_from>month)||null;
-      const result={...p,effective_from:current?.effective_from||"",next_effective_from:upcoming?.effective_from||"",scheduled_versions:entries.filter(x=>x.effective_from>month)};
-      for(const k of keys){
-        result[k]=Number(current?.[k]||0);
-        result["next_"+k]=upcoming?Number(upcoming[k]||0):null;
-      }
+      const latest=entries.at(-1)||null;
+      // Tabel master menampilkan aturan terbaru untuk setoran BELUM dicatat.
+      // Aturan periode yang sudah dibayar tetap dicari dari versi historis.
+      const result={...p,obligation_rule:"unrecorded_payments"};
+      for(const k of keys)result[k]=Number(latest?.[k]||0);
       return result;
     }) });
   }
@@ -1139,16 +1136,16 @@ async function handleAdminContent(request, env, who, url) {
       ]);
       return ok({id:payerId,keterangan:remark});
     }
-    const effective=String(payload.effective_from||"").trim();
-    const effectiveFrom=/^20\d{2}-(0[1-9]|1[0-2])$/.test(effective)?effective+"-01":"";
     const nextMonth=f4NextIuranMonth();
     const nowMonth=f4CurrentIuranMonth();
-    if(!effectiveFrom)
-      return err("Pilih bulan mulai berlaku (YYYY-MM); transaksi lama tidak boleh berubah.",400);
+    const effective=String(payload.effective_from||"").trim();
+    // Aksi edit tidak lagi memilih bulan; versi terbaru untuk periode tanpa
+    // alokasi pembayaran aktif. Tanggal hanya penanda versi internal.
+    const effectiveFrom=action==="add_payer"
+      ?(/^(20\d{2})-(0[1-9]|1[0-2])$/.test(effective)?effective+"-01":nowMonth)
+      :nextMonth;
     if(action==="add_payer"&&effectiveFrom<nowMonth)
-      return err("Pembayar baru hanya boleh mulai bulan ini atau sesudahnya.",409);
-    if(action!=="add_payer"&&effectiveFrom<nowMonth)
-      return err("Perubahan kewajiban tidak boleh berlaku mundur ke bulan yang sudah lewat.",409);
+      return err("Pembayar baru tidak bisa berlaku mundur sebelum bulan berjalan.",409);
     if(action!=="add_payer"&&action!=="save")
       return err("Aksi kewajiban tidak dikenal.",400);
     if (action === "add_payer") {
@@ -1195,23 +1192,9 @@ async function handleAdminContent(request, env, who, url) {
     if (vals.some((x) => !Number.isInteger(x) || x < 0 || x > 100)) return err("Kewajiban harus 0\u2013100.", 400);
     const valid = await one(db, "SELECT id FROM bookkeeping_payers WHERE id=? AND payer_type='warga'", [payer]);
     if (!valid) return err("Warga tidak ditemukan.", 404);
-    // Bulan yang sedang berjalan boleh diubah SEBELUM alokasi pembayaran
-    // aktif apa pun tersimpan untuk warga dan periode itu. Bulan lampau
-    // tetap terkunci, sedangkan versi masa depan disimpan apa adanya.
-    if(effectiveFrom===nowMonth){
-      const currentYear=Number(effectiveFrom.slice(0,4)),currentMonth=Number(effectiveFrom.slice(5,7));
-      const [activePayments,yearArchive,yearClose]=await Promise.all([
-        one(db,`SELECT COUNT(*) AS count FROM bookkeeping_payment_allocations a
-          JOIN bookkeeping_payments p ON p.id=a.payment_id
-          WHERE a.payer_id=? AND a.period_year=? AND a.period_month=?
-            AND a.status='aktif' AND p.status='aktif'`,[payer,currentYear,currentMonth]),
-        one(db,"SELECT id FROM bookkeeping_year_archives WHERE fiscal_year=? AND status IN ('closed','ditutup','terkunci','final') LIMIT 1",[currentYear]),
-        one(db,"SELECT fiscal_year FROM fiscal_closings WHERE fiscal_year=? LIMIT 1",[currentYear])
-      ]);
-      if(yearArchive||yearClose)return err("Tahun Pembukuan sudah ditutup. Kewajiban tidak dapat diubah.",409);
-      if(Number(activePayments?.count||0)>0)
-        return err("Bulan ini sudah memiliki pembayaran aktif. Kewajiban tidak dapat diubah; transaksi lama tetap utuh.",409);
-    }
+    // Pembayaran aktif tidak boleh diperbarui oleh perubahan master:
+    // f4PeriodObligation memakai versi historis untuk periode yang telah
+    // dicatat, dan versi terbaru hanya untuk periode yang belum dicatat.
     const prior=await one(db,"SELECT * FROM bookkeeping_payer_obligation_periods WHERE payer_id=? AND effective_from=?",[payer,effectiveFrom]);
     await db.batch([
       db.prepare("INSERT INTO bookkeeping_payer_obligation_periods(payer_id,effective_from,qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan,created_by) VALUES(?,?,?,?,?,?,?) ON CONFLICT(payer_id,effective_from) DO UPDATE SET qty_iuran_bulanan=excluded.qty_iuran_bulanan,qty_kebersihan=excluded.qty_kebersihan,qty_kas_lorong=excluded.qty_kas_lorong,qty_arisan=excluded.qty_arisan,created_by=excluded.created_by")
@@ -1219,7 +1202,7 @@ async function handleAdminContent(request, env, who, url) {
       db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)")
         .bind("audit:" + crypto.randomUUID(),who.id,"master_pembukuan","jadwalkan_kewajiban","bookkeeping_payer_obligation_periods",payer,JSON.stringify(prior),JSON.stringify({effectiveFrom,qty:Object.fromEntries(keys.map((k,i)=>[k,vals[i]]))}))
     ]);
-    return ok({id:payer,effective_from:effectiveFrom,scheduled:effectiveFrom>nowMonth,transactionHistoryUnchanged:true});
+    return ok({id:payer,rule:"unrecorded_payments",transactionHistoryUnchanged:true});
   }
   if(kind==="jersey" && payload?.values?.group_key!==undefined && !["bapak","ibu","anak"].includes(String(payload.values.group_key)))
     return err("Kelompok Jersey harus bapak, ibu, atau anak.",400);
@@ -3802,8 +3785,18 @@ function f4NextIuranMonth() {
   return dt.toISOString().slice(0,10);
 }
 async function f4PeriodObligation(db,payerId,year,month) {
-  return db.prepare("SELECT qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan,effective_from FROM bookkeeping_payer_obligation_periods WHERE payer_id=? AND effective_from<=? ORDER BY effective_from DESC LIMIT 1")
-    .bind(payerId,f4IuranMonth(year,month)).first();
+  const period=f4IuranMonth(year,month);
+  const [historical,latest,posted]=await Promise.all([
+    one(db,"SELECT qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan,effective_from FROM bookkeeping_payer_obligation_periods WHERE payer_id=? AND effective_from<=? ORDER BY effective_from DESC LIMIT 1",[payerId,period]),
+    one(db,"SELECT qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan,effective_from FROM bookkeeping_payer_obligation_periods WHERE payer_id=? ORDER BY effective_from DESC LIMIT 1",[payerId]),
+    one(db,`SELECT 1 AS recorded FROM bookkeeping_payment_allocations a
+       JOIN bookkeeping_payments p ON p.id=a.payment_id
+       WHERE a.payer_id=? AND a.period_year=? AND a.period_month=?
+         AND a.status='aktif' AND p.status='aktif' LIMIT 1`,[payerId,year,month])
+  ]);
+  // Pembayaran lama tidak dinilai ulang. Periode tanpa catatan memakai
+  // kewajiban terbaru, walaupun bulan tagihannya mendahului tanggal perubahan.
+  return posted?historical:(historical?latest:null);
 }
 function f4IuranAmounts(obligation,tariff) {
   return {
@@ -3872,16 +3865,19 @@ function f4SuggestIuranPeriod({current,versions,allocations,tariff,globalStartIn
   const knownStart=Number.isInteger(globalStartIndex)?globalStartIndex:today;
   const start=Math.max(oldest,firstIndex,Math.min(today,knownStart,...indexes));
   const stop=Math.max(today+1,indexes.length?Math.max(...indexes)+1:today+1,firstIndex);
-  const paid=new Map();
+  const paid=new Map(),recordedPeriods=new Set();
   for(const item of relevant){
-    const key=f4PeriodIndex(item.period_year,item.period_month)+':'+String(item.contribution_type);
+    const periodIndex=f4PeriodIndex(item.period_year,item.period_month);
+    const key=periodIndex+':'+String(item.contribution_type);
     paid.set(key,(paid.get(key)||0)+Number(item.amount_rp||0));
+    recordedPeriods.add(periodIndex);
   }
   let lastLunas=null,previousPaid=false;
   for(let index=start;index<=stop&&index<start+62;index++){
     const date=f4IndexPeriod(index),period=f4IuranMonth(date.year,date.month);
-    const version=versionsAsc.filter(x=>String(x.effective_from)<=period).at(-1);
-    if(!version)continue;
+    const historical=versionsAsc.filter(x=>String(x.effective_from)<=period).at(-1);
+    if(!historical)continue;
+    const version=recordedPeriods.has(index)?historical:versionsAsc.at(-1);
     const entries=Object.entries(f4IuranAmounts(version,tariff));
     if(!entries.some(([,due])=>due>0))continue;
     const paidHere=entries.reduce((sum,[kind])=>sum+(paid.get(index+':'+kind)||0),0);
