@@ -71,17 +71,19 @@ async def verify():
         assert await mobile.locator("#modal-arisan").evaluate(
             "(el)=>el.classList.contains('hidden')"), "Geser turun tidak menutup popup"
 
-        await mobile.set_content("""<meta name="viewport" content="width=device-width,initial-scale=1">
+        editor = await browser.new_page(viewport={"width":390,"height":844},
+                                        is_mobile=True,has_touch=True)
+        await editor.set_content("""<meta name="viewport" content="width=device-width,initial-scale=1">
         <style>html,body{margin:0}#modal-edit{position:fixed;inset:0;display:flex;
         align-items:flex-end;background:#0008}.f4-book-edit-center{height:420px;
         width:100%;max-height:90dvh}.f4-book-edit-card{height:100%;background:white}</style>
         <div id="modal-edit"><div class="f4-book-edit-center">
         <div class="f4-book-edit-card"><h2>Editor Pembukuan</h2></div></div></div>""")
-        await mobile.add_style_tag(path=str(STYLE))
-        await mobile.add_script_tag(path=str(SCRIPT))
-        await mobile.wait_for_selector("#modal-edit .f4-sheet-handle")
-        await swipe(mobile,mobile.locator("#modal-edit .f4-sheet-handle"),-145)
-        top=await mobile.locator("#modal-edit .f4-book-edit-card").evaluate(
+        await editor.add_style_tag(path=str(STYLE))
+        await editor.add_script_tag(path=str(SCRIPT))
+        await editor.wait_for_selector("#modal-edit .f4-sheet-handle")
+        await swipe(editor,editor.locator("#modal-edit .f4-sheet-handle"),-145)
+        top=await editor.locator("#modal-edit .f4-book-edit-card").evaluate(
             "(el)=>el.getBoundingClientRect().top")
         assert top<=25, f"Wrapper editor Pembukuan menghalangi geser atas: {top}"
 
