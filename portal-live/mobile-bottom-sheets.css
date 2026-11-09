@@ -354,10 +354,8 @@
 }
 
 
-/* v8: Layer safety + one viewport-anchored gesture handle for every portal.
-   A dismissed dialog must never intercept taps on the page underneath. */
-@media (max-width:767px) {
- body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
+/* v9: Hidden overlays must not intercept taps on mobile OR desktop. */
+body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
   .v21-modal,.v24-edit-overlay,.f4-activity-dialog,.f4-warga-picker-pop,
   .sa-account-shade,.f4-jersey-print-veil,.tc-date-overlay,.f4-ui-dialog,
   #f4-work-notice,.f4-pm-shade,#modal-event-detail,#modal-arisan,
@@ -368,6 +366,7 @@
   display:none;
   pointer-events:none;
  }
+@media (max-width:767px) {
  body > .f4-sheet-handle {
   position:fixed;
   display:flex;
