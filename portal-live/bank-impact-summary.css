@@ -13,7 +13,7 @@
   background:transparent;
   color:#193b2b;
 }
-#v11Public .v17-public-banner .v14-eyebrow {
+#v11Public .v17-public-main>.v17-public-banner .v14-eyebrow {
   display:inline-flex;
   align-items:center;
   gap:6px;
@@ -24,14 +24,14 @@
   font-size:11px;
   font-weight:750;
 }
-#v11Public .v17-public-banner h1 {
+#v11Public .v17-public-main>.v17-public-banner h1 {
   color:#123c29;
   font-size:clamp(26px,3.2vw,42px);
   line-height:1.17;
   letter-spacing:-.035em;
   margin:15px 0 8px;
 }
-#v11Public .v17-public-banner .f4-impact-intro {
+#v11Public .v17-public-main>.v17-public-banner .f4-impact-intro {
   color:#678072;
   font-size:13px;
   line-height:1.65;
