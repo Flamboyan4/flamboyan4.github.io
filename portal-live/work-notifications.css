@@ -1,5 +1,5 @@
 /* Flamboyan 4 — pusat notifikasi tugas admin, satu sumber tampilan. */
-#f4-work-bell{position:relative;display:inline-grid;place-items:center;flex:0 0 40px;width:40px;height:40px;padding:0;margin:0 0 0 auto;border:1px solid #e3dfed;border-radius:12px;background:#fff;color:#6550ae;cursor:pointer}
+#f4-work-bell{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:0 0 40px;width:40px;height:40px;padding:0;margin:0 0 0 auto;border:1px solid #e3dfed;border-radius:12px;background:#fff;color:#6550ae;line-height:1;text-align:center;cursor:pointer}
 body.f4-direct-bank #f4BankPageGreeting{align-items:center;gap:12px}
 body.f4-direct-bank #f4BankPageGreeting>div:first-child{flex:1;min-width:0}
 body.f4-direct-bank #f4BankPageGreeting h1{overflow-wrap:anywhere}
@@ -11,7 +11,7 @@ body.f4-direct-superadmin #f4-account-page>main>.f4-work-heading #f4-work-bell{g
 body.f4-direct-bank #f4-work-bell{color:#146e46}
 #f4-work-bell:hover,#f4-work-bell[aria-expanded="true"]{background:#eee9ff}
 body.f4-direct-bank #f4-work-bell:hover,body.f4-direct-bank #f4-work-bell[aria-expanded="true"]{background:#e4f2e8}
-#f4-work-bell svg{width:22px;height:22px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+#f4-work-bell svg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:block;flex:none;width:22px;height:22px;margin:0;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
 #f4-work-bell-count{position:absolute;top:1px;right:0;min-width:18px;height:18px;display:grid;place-items:center;padding:0 4px;background:#e54756;color:#fff;border:2px solid white;border-radius:20px;font-size:10px;font-weight:850;line-height:1}
 #f4-work-bell-count[hidden],#f4-work-bell[hidden],#f4-work-notice[hidden]{display:none}
 #f4-work-notice{position:fixed;inset:0;z-index:10020;display:flex;align-items:flex-start;justify-content:flex-end;padding:var(--f4-notice-top,112px) 17px 20px;background:rgba(19,29,43,.12);font-family:system-ui,-apple-system,sans-serif;color:#22354b}
