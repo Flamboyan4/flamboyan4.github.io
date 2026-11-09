@@ -42,3 +42,5 @@ body.f4-direct-bank #f4-work-notice .f4-work-notice-refresh{color:#146e46}
 @keyframes f4-notice-rise{from{transform:translateY(28px);opacity:.75}to{transform:translateY(0);opacity:1}}
 @media(prefers-reduced-motion:reduce){#f4-work-notice .f4-work-notice-panel{animation:none}}
 @media print{#f4-work-bell,#f4-work-notice{display:none}}
+
+body.f4-notice-open{overflow:hidden}
