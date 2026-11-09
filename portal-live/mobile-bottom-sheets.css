@@ -309,7 +309,7 @@
   content:none;display:none
  }
  .f4-sheet-draggable>.f4-sheet-handle{
-  position:fixed;inset:auto auto auto 0;width:100%;height:30px;
+  position:absolute;inset:0 0 auto;width:100%;height:30px;
   display:flex;align-items:center;justify-content:center;
   border:0;padding:0;margin:0;background:transparent;
   touch-action:none;user-select:none;-webkit-user-select:none;
