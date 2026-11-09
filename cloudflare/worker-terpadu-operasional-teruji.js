@@ -1141,7 +1141,7 @@ async function handleAdminContent(request, env, who, url) {
     const effective=String(payload.effective_from||"").trim();
     // Aksi edit tidak lagi memilih bulan; versi terbaru untuk periode tanpa
     // alokasi pembayaran aktif. Tanggal hanya penanda versi internal.
-    const effectiveFrom=action==="add_payer"
+    let effectiveFrom=action==="add_payer"
       ?(/^(20\d{2})-(0[1-9]|1[0-2])$/.test(effective)?effective+"-01":nowMonth)
       :nextMonth;
     if(action==="add_payer"&&effectiveFrom<nowMonth)
@@ -1195,9 +1195,27 @@ async function handleAdminContent(request, env, who, url) {
     // Pembayaran aktif tidak boleh diperbarui oleh perubahan master:
     // f4PeriodObligation memakai versi historis untuk periode yang telah
     // dicatat, dan versi terbaru hanya untuk periode yang belum dicatat.
-    const prior=await one(db,"SELECT * FROM bookkeeping_payer_obligation_periods WHERE payer_id=? AND effective_from=?",[payer,effectiveFrom]);
+    // Versi terbaru selalu ditambahkan (append-only), tidak menimpa aturan
+    // yang pernah dipakai periode berbayar. Bulan ini BUKAN tanggal mulai:
+    // tanggal hanya ID internal untuk urutan versi kebijakan.
+    const [latestRow,latestRecorded]=await Promise.all([
+      one(db,"SELECT effective_from,qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan FROM bookkeeping_payer_obligation_periods WHERE payer_id=? ORDER BY effective_from DESC LIMIT 1",[payer]),
+      one(db,`SELECT MAX(a.period_year*12+a.period_month-1) AS latest_month
+        FROM bookkeeping_payment_allocations a
+        JOIN bookkeeping_payments p ON p.id=a.payment_id
+        WHERE a.payer_id=? AND a.status='aktif' AND p.status='aktif'`,[payer])
+    ]);
+    const unchanged=latestRow&&keys.every((key,i)=>Number(latestRow[key])===vals[i]);
+    if(unchanged&&!Object.hasOwn(payload,"keterangan"))
+      return ok({id:payer,rule:"unrecorded_payments",unchanged:true});
+    const currentNext=f4PeriodIndex(Number(nextMonth.slice(0,4)),Number(nextMonth.slice(5,7)));
+    const latestIndex=latestRow?f4PeriodIndex(Number(latestRow.effective_from.slice(0,4)),Number(latestRow.effective_from.slice(5,7))):-1;
+    const recordedIndex=latestRecorded?.latest_month==null?-1:Number(latestRecorded.latest_month);
+    const newVersion=f4IndexPeriod(Math.max(currentNext,latestIndex+1,recordedIndex+1));
+    effectiveFrom=f4IuranMonth(newVersion.year,newVersion.month);
+    const prior=null;
     const updates=[
-      db.prepare("INSERT INTO bookkeeping_payer_obligation_periods(payer_id,effective_from,qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan,created_by) VALUES(?,?,?,?,?,?,?) ON CONFLICT(payer_id,effective_from) DO UPDATE SET qty_iuran_bulanan=excluded.qty_iuran_bulanan,qty_kebersihan=excluded.qty_kebersihan,qty_kas_lorong=excluded.qty_kas_lorong,qty_arisan=excluded.qty_arisan,created_by=excluded.created_by")
+      db.prepare("INSERT INTO bookkeeping_payer_obligation_periods(payer_id,effective_from,qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan,created_by) VALUES(?,?,?,?,?,?,?)")
         .bind(payer,effectiveFrom,...vals,who.id),
       db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)")
         .bind("audit:" + crypto.randomUUID(),who.id,"master_pembukuan","ubah_kewajiban_belum_tercatat","bookkeeping_payer_obligation_periods",payer,JSON.stringify(prior),JSON.stringify({rule:"unrecorded_payments",version:effectiveFrom,qty:Object.fromEntries(keys.map((k,i)=>[k,vals[i]]))}))
