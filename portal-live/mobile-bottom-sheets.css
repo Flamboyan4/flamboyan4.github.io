@@ -1,7 +1,7 @@
 /* Pola popup HP Flamboyan 4. PC tetap dialog tengah. Tanpa important. */
 #credentialModal{position:fixed;inset:0;z-index:650;display:grid;place-items:center;padding:18px;background:rgba(17,33,26,.74)}
 #credentialModal>.f4-bank-credential-panel{width:min(420px,100%);max-height:90dvh;overflow:auto;box-shadow:0 16px 48px #18271a55}
-@media(max-width:640px){
+@media(max-width:767px){
  #f4-direct-dialog{align-items:end;justify-items:stretch;padding:0;background:rgba(15,25,38,.54)}
  #f4-direct-dialog section{width:100%;max-height:90dvh;overflow-y:auto;border-radius:22px 22px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom,0px));box-shadow:0 -15px 40px #15233933;animation:f4-sheet-up .23s ease-out}
  #f4-direct-dialog section:before{content:"";display:block;margin:-12px auto 18px;width:42px;height:4px;border-radius:4px;background:#d5dbe3}
@@ -11,47 +11,47 @@
  #f4-superadmin-confirm .f4-sa-confirm-panel:before{content:"";display:block;margin:-12px auto 19px;width:42px;height:4px;border-radius:4px;background:#d5dbe3}
  #f4-superadmin-confirm .f4-sa-confirm-actions{flex-wrap:nowrap}
  #f4-superadmin-confirm .f4-sa-confirm-actions button{flex:1;min-height:47px}
- body.f4-direct-bank .v21-modal:not(.v21-lightbox){display:flex;align-items:flex-end;justify-content:stretch;padding:0;background:rgba(15,32,24,.54)}
- body.f4-direct-bank .v21-modal:not(.v21-lightbox)>.v21-modal-card{width:100%;min-height:0;max-height:88dvh;border-radius:22px 22px 0 0;animation:f4-sheet-up .23s ease-out}
- body.f4-direct-bank .v21-modal:not(.v21-lightbox)>.v21-modal-card:before{content:"";display:block;flex:none;margin:10px auto 1px;width:42px;height:4px;border-radius:10px;background:#d9e2dc}
- body.f4-direct-bank .v21-modal:not(.v21-lightbox)>.v21-modal-card .v21-modal-body{padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))}
+ body .v21-modal:not(.v21-lightbox){display:flex;align-items:flex-end;justify-content:stretch;padding:0;background:rgba(15,32,24,.54)}
+ body .v21-modal:not(.v21-lightbox)>.v21-modal-card{width:100%;min-height:0;max-height:88dvh;border-radius:22px 22px 0 0;animation:f4-sheet-up .23s ease-out}
+ body .v21-modal:not(.v21-lightbox)>.v21-modal-card:before{content:"";display:block;flex:none;margin:10px auto 1px;width:42px;height:4px;border-radius:10px;background:#d9e2dc}
+ body .v21-modal:not(.v21-lightbox)>.v21-modal-card .v21-modal-body{padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))}
  #credentialModal:not(.hidden){display:flex;align-items:flex-end;justify-content:stretch;padding:0}
  #credentialModal>.f4-bank-credential-panel{width:100%;max-height:84dvh;border-radius:22px 22px 0 0;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px));animation:f4-sheet-up .23s ease-out}
  #credentialModal>.f4-bank-credential-panel:before{content:"";display:block;margin:0 auto 12px;width:42px;height:4px;border-radius:4px;background:#d7e1da}
 
  /* Editor perkembangan Bank Sampah. */
- body.f4-direct-bank .v24-edit-overlay{
+ body .v24-edit-overlay{
   display:flex;align-items:flex-end;justify-content:center;
   padding:0;background:rgba(15,32,24,.54)
  }
- body.f4-direct-bank .v24-edit-overlay .v24-edit-card{
+ body .v24-edit-overlay .v24-edit-card{
   position:relative;flex:none;width:100%;max-height:88dvh;min-height:0;
   overflow-y:auto;overscroll-behavior:contain;
   padding:22px 17px calc(19px + env(safe-area-inset-bottom,0px));
   border-radius:22px 22px 0 0;
   animation:f4-sheet-up .23s ease-out
  }
- body.f4-direct-bank .v24-edit-overlay .v24-edit-card:before{
+ body .v24-edit-overlay .v24-edit-card:before{
   content:"";display:block;width:42px;height:4px;
   border-radius:10px;margin:-10px auto 17px;background:#d7e1da
  }
  /* Popup kegiatan dan perkembangan; penampil foto penuh tetap dikecualikan. */
- body.f4-direct-bank .f4-activity-dialog{
+ body .f4-activity-dialog{
   display:flex;align-items:flex-end;justify-content:center;
   padding:0;background:rgba(15,32,24,.54)
  }
- body.f4-direct-bank .f4-activity-dialog .f4-activity-dialog-panel{
+ body .f4-activity-dialog .f4-activity-dialog-panel{
   position:relative;flex:none;width:100%;max-height:88dvh;
   border-radius:22px 22px 0 0;
   padding-bottom:env(safe-area-inset-bottom,0px);
   animation:f4-sheet-up .23s ease-out
  }
- body.f4-direct-bank .f4-activity-dialog .f4-activity-dialog-panel:before{
+ body .f4-activity-dialog .f4-activity-dialog-panel:before{
   content:"";display:block;flex:none;width:42px;height:4px;
   margin:10px auto 0;border-radius:10px;background:#d7e1da
  }
  /* Pemilih warga juga naik dari bawah, bukan melayang di tengah. */
- body.f4-direct-bank .f4-warga-picker-pop{
+ body .f4-warga-picker-pop{
   position:fixed;inset:auto 0 0;top:auto;bottom:0;
   width:100%;max-height:min(82dvh,720px);
   overflow:hidden;overscroll-behavior:contain;
@@ -60,43 +60,62 @@
   box-shadow:0 0 0 100vmax rgba(14,31,21,.52),0 -16px 40px rgba(15,33,22,.2);
   animation:f4-sheet-up .23s ease-out
  }
- body.f4-direct-bank .f4-warga-picker-pop:before{
+ body .f4-warga-picker-pop:before{
   content:"";display:block;flex:none;width:42px;height:4px;
   margin:-10px auto 15px;border-radius:10px;background:#d7e1da
  }
  /* Superadmin: editor akun, laporan Jersey dan kalender Pusat Keuangan. */
- body.f4-direct-superadmin .sa-account-shade,
- body.f4-direct-superadmin .f4-jersey-print-veil,
- body.f4-direct-superadmin .tc-date-overlay{
+ body .sa-account-shade,
+ body .f4-jersey-print-veil,
+ body .tc-date-overlay{
   display:flex;align-items:flex-end;justify-content:center;
   padding:0;background:rgba(21,30,43,.54)
  }
- body.f4-direct-superadmin .sa-account-shade .sa-account-modal,
- body.f4-direct-superadmin .f4-jersey-print-veil .f4-jersey-print-dialog,
- body.f4-direct-superadmin .tc-date-overlay .tc-date-dialog{
+ body .sa-account-shade .sa-account-modal,
+ body .f4-jersey-print-veil .f4-jersey-print-dialog,
+ body .tc-date-overlay .tc-date-dialog{
   position:relative;flex:none;width:100%;min-width:0;max-height:88dvh;
   overflow-y:auto;overscroll-behavior:contain;
   padding:22px 18px calc(20px + env(safe-area-inset-bottom,0px));
   border:0;border-radius:22px 22px 0 0;
   animation:f4-sheet-up .23s ease-out
  }
- body.f4-direct-superadmin .sa-account-shade .sa-account-modal:before,
- body.f4-direct-superadmin .f4-jersey-print-veil .f4-jersey-print-dialog:before,
- body.f4-direct-superadmin .tc-date-overlay .tc-date-dialog:before{
+ body .sa-account-shade .sa-account-modal:before,
+ body .f4-jersey-print-veil .f4-jersey-print-dialog:before,
+ body .tc-date-overlay .tc-date-dialog:before{
   content:"";display:block;width:42px;height:4px;
   margin:-10px auto 17px;border-radius:10px;background:#d7dce8
  }
- body.f4-direct-superadmin .sa-account-modal-actions button{min-height:45px}
+ body .sa-account-modal-actions button{min-height:45px}
+ /* Pastikan kontainer yang dibangkitkan JS menempel pada dasar viewport. */
+ body :is(.v21-modal:not(.v21-lightbox),.v24-edit-overlay,.f4-activity-dialog,.sa-account-shade,.f4-jersey-print-veil,.tc-date-overlay){
+  align-items:flex-end;justify-content:center;padding:0;
+ }
+ body .v21-modal:not(.v21-lightbox)>.v21-modal-card,
+ body .f4-activity-dialog .f4-activity-dialog-panel{
+  max-width:100%;min-width:0;max-height:88dvh;
+  overflow:hidden;box-shadow:0 -16px 45px rgba(15,33,22,.21)
+ }
+ body .v21-modal:not(.v21-lightbox)>.v21-modal-card .v21-modal-body,
+ body .f4-activity-dialog .f4-activity-dialog-scroll{
+  min-height:0;overflow-y:auto;overscroll-behavior:contain
+ }
+ body .f4-warga-picker-pop{z-index:25000;min-width:0}
+ body .f4-warga-picker-pop .f4-warga-picker-table{flex:1;min-height:0;overflow-y:auto}
+ body :is(.sa-account-shade .sa-account-modal,.f4-jersey-print-veil .f4-jersey-print-dialog,.tc-date-overlay .tc-date-dialog){
+  max-width:100%;box-sizing:border-box
+ }
+
 }
 @keyframes f4-sheet-up{from{opacity:.75;transform:translateY(34px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){
  #f4-direct-dialog section,#f4-superadmin-confirm .f4-sa-confirm-panel,
- body.f4-direct-bank .v21-modal:not(.v21-lightbox)>.v21-modal-card,
+ body .v21-modal:not(.v21-lightbox)>.v21-modal-card,
  #credentialModal>.f4-bank-credential-panel,
- body.f4-direct-bank .v24-edit-overlay .v24-edit-card,
- body.f4-direct-bank .f4-activity-dialog .f4-activity-dialog-panel,
- body.f4-direct-bank .f4-warga-picker-pop,
- body.f4-direct-superadmin .sa-account-shade .sa-account-modal,
- body.f4-direct-superadmin .f4-jersey-print-veil .f4-jersey-print-dialog,
- body.f4-direct-superadmin .tc-date-overlay .tc-date-dialog{animation:none}
+ body .v24-edit-overlay .v24-edit-card,
+ body .f4-activity-dialog .f4-activity-dialog-panel,
+ body .f4-warga-picker-pop,
+ body .sa-account-shade .sa-account-modal,
+ body .f4-jersey-print-veil .f4-jersey-print-dialog,
+ body .tc-date-overlay .tc-date-dialog{animation:none}
 }
