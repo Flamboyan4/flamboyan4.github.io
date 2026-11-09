@@ -271,6 +271,13 @@ html body #f4-account-page>aside{overflow-x:hidden}
 .f4-obligation-icon-danger{color:#ba5f59;background:#fff9f7;border-color:#ecd8d5}
 .f4-obligation-icon-danger:hover,.f4-obligation-icon-danger:focus-visible{background:#ffeae5;border-color:#e6b5b1}
 .f4-obligation-upcoming{display:block;margin-top:2px;font-weight:500;font-size:10px;color:#657fa4;line-height:1.2}
+.f4-obligation-list-hint{margin:4px 0 10px;color:#63708a;font-size:11px;line-height:1.45}
+.f4-obligation-change{display:inline-flex;align-items:center;justify-content:center;gap:5px;font-variant-numeric:tabular-nums}
+.f4-obligation-old{font-weight:500;color:#8893a4}
+.f4-obligation-arrow{color:#8272b9;font-size:12px}
+.f4-obligation-new{display:inline-block;padding:3px 6px;border-radius:6px;background:#f0ebff;color:#5b35bd;font-size:13px;font-weight:850}
+.f4-obligation-grid[data-module="obligations"] td:has(.f4-obligation-new){background:#faf8ff}
+
 .f4-obligation-toolbar{align-items:center;padding:10px 11px;gap:7px;margin:9px 0}
 .f4-obligation-toolbar input{min-width:120px;height:var(--f4-control-height,42px);padding:0 10px}
 .f4-obligation-toolbar button{display:inline-flex;align-items:center;justify-content:center;min-height:var(--f4-control-height,42px);padding:0 11px;white-space:nowrap}
@@ -1110,7 +1117,7 @@ window.addEventListener('message',e=>{
 boot();
 })();
 </script>
-<script src="/portal-live/superadmin-editor.js?v=20261107-jersey-recap-compact-v4"></script>
+<script src="/portal-live/superadmin-editor.js?v=20261109-obligation-schedule-v1"></script>
 <script src="/portal-live/project-modules.js?v=project-manager-final-20261028"></script>
 <script src="/portal-live/calendar-unified.js?v=20261105-sunday-first"></script>
 <script src="/portal-live/direct-shell.js?v=20261107-session-24h-active-renew-v1"></script><script src="/portal-live/unified-account.js?v=logout-after-password-20261030"></script><script defer src="/portal-live/mobile-cards.js?v=20261027-refresh-guard"></script><script defer src="/portal-live/native-controls.js?v=20261105-sunday-first"></script></body></html>
