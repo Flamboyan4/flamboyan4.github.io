@@ -839,7 +839,7 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
  html.f4-bank-embedded #v18PublicBackdrop.open{z-index:240!important;pointer-events:auto!important}
 }
 html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
-</style><script src="/portal-live/ui-dialog.js?v=20261027-dialog4"></script>
+</style><script src="/portal-live/ui-dialog.js?v=20261109-mobile-sheet-v2"></script>
 <script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><style id="f4-bank-private-navigation-fix">
 /* A member dashboard is informational, not a duplicate menu with empty linked panels. */
 #pageDashboard.f4-member-dashboard .v14-panels,
@@ -1734,8 +1734,8 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
       </div></div>
     </section>
   </main><footer class="footer">Bank Sampah Flamboyan 4</footer>
-  <div id="credentialModal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="credentialTitle" style="position:fixed;inset:0;background:#15251bcc;display:grid;place-items:center;padding:18px;z-index:50">
-    <div class="card" style="width:min(100%,420px);max-height:90vh;overflow:auto;box-shadow:0 16px 48px #18271a55"><h2 id="credentialTitle">Akun warga</h2><div class="stat"><small>Username</small><strong id="credUser"></strong></div><div class="stat" style="margin-top:9px"><small>Password awal</small><strong id="credPass"></strong></div><div style="display:flex;gap:8px;margin-top:18px"><button id="copyCred" onclick="copyCredential()">Salin akun</button><button class="secondary" onclick="closeCredential()">Tutup</button></div></div>
+  <div id="credentialModal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="credentialTitle">
+    <div class="card f4-bank-credential-panel"><h2 id="credentialTitle">Akun warga</h2><div class="stat"><small>Username</small><strong id="credUser"></strong></div><div class="stat" style="margin-top:9px"><small>Password awal</small><strong id="credPass"></strong></div><div style="display:flex;gap:8px;margin-top:18px"><button id="copyCred" onclick="copyCredential()">Salin akun</button><button class="secondary" onclick="closeCredential()">Tutup</button></div></div>
   </div>
 </div>
 <script id="f4-cloudflare-data-bridge">
@@ -5921,5 +5921,6 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
 <script defer src="/portal-live/bank-impact-summary.js?v=20261109-public-finance-v1"></script>
 <link rel="stylesheet" href="/portal-live/work-notifications.css?v=20261109-admin-alert-v1">
 <script defer src="/portal-live/work-notifications.js?v=20261109-admin-alert-v1"></script>
+<link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261109-sheet-v1">
 </body>
 </html>
