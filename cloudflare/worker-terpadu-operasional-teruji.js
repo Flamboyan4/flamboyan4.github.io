@@ -1702,6 +1702,45 @@ async function treasuryApi(request,env,who,url){
   const catalog=await treasuryCatalog(db);
   const config=await one(db,"SELECT confirmed_on,confirmed_at,confirmed_by FROM treasury_config WHERE id=1");
   if(!config)return err("Skema Pusat Keuangan belum tersedia.",503);
+  // Ringan untuk notifikasi Superadmin; tidak menarik 800 baris riwayat.
+  if(method==="GET"&&url.searchParams.get("view")==="notifications"){
+    if(!config.confirmed_at)return ok({confirmed:false,needsOpening:true,pendingCount:0,warningCount:0});
+    const [sources,balances,bankSource,unreviewed,coverage]=await Promise.all([
+      treasurySources(db,config.confirmed_on),
+      list(db,"SELECT fund_id,COALESCE(SUM(amount_rp),0) AS total FROM treasury_entries GROUP BY fund_id"),
+      list(db,"SELECT fund_position,COALESCE(SUM(cash_in_rp-cash_out_rp),0) AS total FROM waste_cash_ledger WHERE status='aktif' GROUP BY fund_position"),
+      list(db,`SELECT fund_position,COALESCE(SUM(cash_in_rp-cash_out_rp),0) AS total
+        FROM waste_cash_ledger c WHERE status='aktif' AND (cash_in_rp<>0 OR cash_out_rp<>0)
+        AND NOT EXISTS(SELECT 1 FROM treasury_bank_source_coverage x WHERE x.source_id=c.id)
+        AND NOT EXISTS(SELECT 1 FROM treasury_events t WHERE t.request_key='source:bank:'||c.id)
+        AND NOT EXISTS(SELECT 1 FROM treasury_source_exclusions e WHERE e.source_key='source:bank:'||c.id)
+        GROUP BY fund_position`),
+      list(db,`SELECT c.source_id FROM treasury_bank_source_coverage c
+        LEFT JOIN waste_cash_ledger x ON x.id=c.source_id
+        WHERE x.id IS NULL OR x.status!='aktif' OR
+          c.captured_amount_rp<>COALESCE(x.cash_in_rp-x.cash_out_rp,0) LIMIT 25`)
+    ]);
+    const pending=(sources.pending||[]),balanceByFund=new Map(balances.map(x=>[String(x.fund_id),Number(x.total||0)]));
+    const bankByFund=new Map(),eligibleByFund=new Map();
+    for(const row of bankSource){
+      const fund=treasuryBankFund(row.fund_position);
+      if(fund)bankByFund.set(fund,(bankByFund.get(fund)||0)+Number(row.total||0));
+    }
+    for(const row of unreviewed){
+      const fund=treasuryBankFund(row.fund_position);
+      if(fund)eligibleByFund.set(fund,(eligibleByFund.get(fund)||0)+Number(row.total||0));
+    }
+    let pendingCount=pending.length;
+    for(const [fund,total] of bankByFund){
+      const diff=total-(balanceByFund.get(fund)||0),available=eligibleByFund.get(fund)||0;
+      if(available>0&&diff>0&&available<=diff)
+        pendingCount=pendingCount-pending.filter(x=>x.type==='bank'&&x.fund===fund).length+1;
+      else if(diff!==0)pendingCount++;
+    }
+    return ok({confirmed:true,needsOpening:false,
+      pendingCount:Math.max(0,pendingCount),
+      warningCount:(sources.warnings||[]).length+coverage.length+(sources.partial?1:0)});
+  }
   if(method==="GET"){
     const [balances,history,openings,openingBalances]=await Promise.all([
       list(db,"SELECT fund_id,location_id,COALESCE(SUM(amount_rp),0) AS amount_rp FROM treasury_entries GROUP BY fund_id,location_id"),
@@ -5557,11 +5596,16 @@ async function bankActionCounts(env,who){
    (SELECT COUNT(*) FROM waste_payout_requests
       WHERE status IN ('diajukan','disetujui')) AS active_payouts,
    (SELECT COUNT(*) FROM waste_payout_requests
-      WHERE status='diajukan') AS new_payouts`).first();
+      WHERE status='diajukan') AS new_payouts,
+   (SELECT COUNT(DISTINCT s.batch_id) FROM waste_sales s
+      JOIN waste_batches b ON b.id=s.batch_id
+      WHERE s.status='terkonfirmasi'
+        AND b.status NOT IN ('disahkan','dibatalkan')) AS pending_approvals`).first();
  const member=Number(counts?.unsold_members||0),bank=Number(counts?.unsold_bank||0);
  return json({ok:true,unsoldDeposits:member+bank,unsoldMemberDeposits:member,
    unsoldBankDeposits:bank,pendingPayouts:Number(counts?.active_payouts||0),
-   newPayouts:Number(counts?.new_payouts||0)});
+   newPayouts:Number(counts?.new_payouts||0),
+   pendingApprovals:Number(counts?.pending_approvals||0)});
 }
 __name(bankActionCounts,"bankActionCounts");
 
