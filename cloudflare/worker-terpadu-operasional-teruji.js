@@ -1196,13 +1196,25 @@ async function handleAdminContent(request, env, who, url) {
     // f4PeriodObligation memakai versi historis untuk periode yang telah
     // dicatat, dan versi terbaru hanya untuk periode yang belum dicatat.
     const prior=await one(db,"SELECT * FROM bookkeeping_payer_obligation_periods WHERE payer_id=? AND effective_from=?",[payer,effectiveFrom]);
-    await db.batch([
+    const updates=[
       db.prepare("INSERT INTO bookkeeping_payer_obligation_periods(payer_id,effective_from,qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan,created_by) VALUES(?,?,?,?,?,?,?) ON CONFLICT(payer_id,effective_from) DO UPDATE SET qty_iuran_bulanan=excluded.qty_iuran_bulanan,qty_kebersihan=excluded.qty_kebersihan,qty_kas_lorong=excluded.qty_kas_lorong,qty_arisan=excluded.qty_arisan,created_by=excluded.created_by")
         .bind(payer,effectiveFrom,...vals,who.id),
       db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)")
-        .bind("audit:" + crypto.randomUUID(),who.id,"master_pembukuan","jadwalkan_kewajiban","bookkeeping_payer_obligation_periods",payer,JSON.stringify(prior),JSON.stringify({effectiveFrom,qty:Object.fromEntries(keys.map((k,i)=>[k,vals[i]]))}))
-    ]);
-    return ok({id:payer,rule:"unrecorded_payments",transactionHistoryUnchanged:true});
+        .bind("audit:" + crypto.randomUUID(),who.id,"master_pembukuan","ubah_kewajiban_belum_tercatat","bookkeeping_payer_obligation_periods",payer,JSON.stringify(prior),JSON.stringify({rule:"unrecorded_payments",version:effectiveFrom,qty:Object.fromEntries(keys.map((k,i)=>[k,vals[i]]))}))
+    ];
+    let remark;
+    if(Object.hasOwn(payload,"keterangan")){
+      remark=String(payload.keterangan??"").trim();
+      if(remark.length>500)return err("Keterangan maksimal 500 karakter.",400);
+      const previous=await one(db,"SELECT keterangan FROM resident_directory_profiles WHERE payer_id=?",[payer]);
+      updates.push(
+        db.prepare("INSERT INTO resident_directory_profiles(payer_id,status_tinggal,status_aktif,nomor_hp,keterangan) VALUES(?,NULL,'Ya',NULL,?) ON CONFLICT(payer_id) DO UPDATE SET keterangan=excluded.keterangan").bind(payer,remark||null),
+        db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)")
+          .bind("audit:"+crypto.randomUUID(),who.id,"master_pembukuan","ubah_keterangan_pembayar","resident_directory_profiles",payer,JSON.stringify(previous),JSON.stringify({keterangan:remark}))
+      );
+    }
+    await db.batch(updates);
+    return ok({id:payer,rule:"unrecorded_payments",transactionHistoryUnchanged:true,...(remark!==undefined?{keterangan:remark}:{})});
   }
   if(kind==="jersey" && payload?.values?.group_key!==undefined && !["bapak","ibu","anak"].includes(String(payload.values.group_key)))
     return err("Kelompok Jersey harus bapak, ibu, atau anak.",400);
