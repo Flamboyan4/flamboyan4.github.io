@@ -2,6 +2,9 @@
 (()=>{
 "use strict";
 const API="https://api.flamboyan4.web.id/api/v2/admin/treasury";
+const askConfirm=message=>window.f4UiDialog.confirm(message);
+const askPrompt=(message,initial)=>window.f4UiDialog.prompt(message,initial);
+const showMessage=message=>{void window.f4UiDialog.alert(message)};
 const root=document.getElementById("f4-account-page");
 if(!root)return;
 const main=root.querySelector("main");
@@ -210,7 +213,7 @@ function buildOpeningGrid(target,data,refresh){
   const currentValues=positions();
   const changed=currentValues.some(x=>x.amountRp!==amount(data.balances,x.fundId,x.locationId));
   if(changed){status.textContent="Simpan perubahan nominal dahulu, baru sahkan.";return}
-  if(!confirm("Sudah cocok dengan uang Cash, QRIS yang belum cair, dan Mandiri? Saldo awal akan dikunci dan tidak dapat diubah."))return;
+  if(!await askConfirm("Sudah cocok dengan uang Cash, QRIS yang belum cair, dan Mandiri? Saldo awal akan dikunci dan tidak dapat diubah."))return;
   approve.disabled=true;save.disabled=true;status.textContent="Mengesahkan saldo awal…";
   try{
    await post({action:"confirm",date:date.value,confirmation:"SALDO COCOK"});
@@ -257,7 +260,7 @@ function safeHTML(value){
  return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
 function printTreasury(data){
- if(!data.confirmed||!data.riwayatLengkap){alert("Laporan belum siap dicetak lengkap.");return}
+ if(!data.confirmed||!data.riwayatLengkap){showMessage("Laporan belum siap dicetak lengkap.");return}
  const movements=tidyHistory(data),opening=openingSummary(data);
  const byFund=data.catalog.funds.map(f=>{
   const cash=amount(data.balances,f.id,f.cash),qris=amount(data.balances,f.id,"qris"),mandiri=amount(data.balances,f.id,"mandiri");
@@ -317,7 +320,7 @@ function printTreasury(data){
  // iframe lama berukuran 0×0 membuat preview Firefox menjadi halaman kosong.
  const printWindow=window.open("","_blank");
  if(!printWindow){
-  alert("Jendela cetak diblokir browser. Izinkan pop-up untuk laporan, lalu coba lagi.");
+  showMessage("Jendela cetak diblokir browser. Izinkan pop-up untuk laporan, lalu coba lagi.");
   return;
  }
  let started=false;
@@ -325,7 +328,7 @@ function printTreasury(data){
   if(started||printWindow.closed)return;
   started=true;
   try{printWindow.focus();printWindow.print()}
-  catch(e){alert("Gagal membuka dialog cetak. Gunakan menu Cetak pada jendela laporan.")}
+  catch(e){showMessage("Gagal membuka dialog cetak. Gunakan menu Cetak pada jendela laporan.")}
  };
  const afterReady=()=>{
   const image=printWindow.document.querySelector(".logo");
@@ -454,7 +457,7 @@ function buildSources(target,data,refresh){
    const question="Sahkan "+rp(Math.abs(src.amountRp))+" dari "+src.sourceLabel+
      " untuk "+(funds.get(src.fund)?.name||"pos")+"?\n\nPastikan uang benar-benar ada."+
      (sameDay?"\n\nPERHATIAN: Tanggal sama dengan saldo awal. Pastikan TIDAK termasuk saldo awal.":"");
-   if(!confirm(question))return;
+   if(!await askConfirm(question))return;
    save.disabled=true;status.textContent="Mengesahkan transaksi…";
    try{
     await post({action:"link",sourceType:src.type,sourceId:src.id,
@@ -466,10 +469,10 @@ function buildSources(target,data,refresh){
   const skip=el("button","Sudah Tercakup","tc-secondary tc-skip");skip.type="button";
   skip.title="Tidak tambahkan saldo, karena sudah dihitung atau bukan dana yang dikelola";
   skip.onclick=async()=>{
-    const reason=prompt("Mengapa transaksi ini tidak ditambahkan?","Sudah masuk saldo awal");
+    const reason=await askPrompt("Mengapa transaksi ini tidak ditambahkan?","Sudah masuk saldo awal");
     if(reason===null)return;
     if(reason.trim().length<5){status.textContent="Tulis alasan minimal 5 karakter.";return}
-    if(!confirm("Tandai transaksi ini tidak perlu ditambahkan? Jejaknya tetap tersimpan."))return;
+    if(!await askConfirm("Tandai transaksi ini tidak perlu ditambahkan? Jejaknya tetap tersimpan."))return;
     skip.disabled=true;status.textContent="Menyimpan pengecualian…";
     try{
       await post({action:"exclude-source",sourceKey:"source:"+src.type+":"+src.id,reason:reason.trim()});
@@ -507,7 +510,7 @@ function buildSources(target,data,refresh){
     confirmButton.onclick=async()=>{
      if(!pick.value){status.textContent="Pilih tempat uang dahulu.";pick.focus();return}
      const where=[...pick.options].find(x=>x.value===pick.value)?.textContent||pick.value;
-     if(!confirm("Sahkan "+rp(row.available)+" untuk "+(row.fund?.name||row.fundId)+" di "+where+
+     if(!await askConfirm("Sahkan "+rp(row.available)+" untuk "+(row.fund?.name||row.fundId)+" di "+where+
          "?\n\nPastikan uang memang ada dan belum pernah dihitung."))return;
      confirmButton.disabled=true;status.textContent="Mengesahkan…";
      try{
@@ -609,7 +612,7 @@ function buildDynamicFund(target,data,refresh){
     remove.title=outstanding?"Pindahkan uang dari pos ini dahulu":
       fund.hasHistory?"Arsipkan tanpa menghapus riwayat":"Hapus pos yang belum dipakai";
     remove.onclick=async()=>{
-     if(!confirm((fund.hasHistory?"Arsipkan ":"Hapus ")+fund.name+"?"))return;
+     if(!await askConfirm((fund.hasHistory?"Arsipkan ":"Hapus ")+fund.name+"?"))return;
      remove.disabled=true;msg.textContent="Menyimpan…";
      try{await post({action:"remove-fund",fundId:fund.id});await refresh()}
      catch(err){msg.textContent=err.message;remove.disabled=false}
