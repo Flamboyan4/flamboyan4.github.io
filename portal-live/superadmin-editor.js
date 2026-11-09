@@ -327,6 +327,38 @@ function f4ObligationFutureValue(row,key){
  const n=Number(upcoming[key]);
  return Number.isSafeInteger(n)&&n>=0?n:null;
 }
+async function f4ApplyScheduledObligationCurrentMonth(row){
+ if(active!=='obligations'||!inContext()||!row?.payer_id)return;
+ const current=f4ObligationCurrentMonth(),upcoming=f4ScheduledVersion(row,f4ObligationNextMonth());
+ if(!upcoming||!OBLIGATION_KEYS.some(key=>Number(upcoming[key]||0)!==Number(row[key]||0)))return;
+ const summary=OBLIGATION_KEYS.map((key,i)=>['Bulanan','Kebersihan','Kas Lorong','Arisan'][i]+' '+Number(upcoming[key]||0)).join(' · ');
+ const accept=await f4ContentDialog('Berlakukan kewajiban bulan ini?',
+  'Terapkan '+String(row.nama||'warga')+' ('+String(row.rumah||'')+') sejak '+f4ObligationMonthLabel(current)+': '+summary+'. Transaksi bulan sebelumnya tidak berubah. Jika periode ini sudah punya pembayaran, server akan menolak.',
+  'Ya, Terapkan',false,true);
+ if(!accept)return;
+ try{
+  const payload={action:'save',payer_id:row.payer_id,effective_from:current};
+  for(const key of OBLIGATION_KEYS){
+   const value=Number(upcoming[key]);
+   if(!Number.isSafeInteger(value)||value<0||value>100)throw Error('Data kewajiban terjadwal tidak valid.');
+   payload[key]=value;
+  }
+  await send(base+'obligations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  const refreshed=await fetchData('obligations');
+  const updated=refreshed.find(item=>String(item.payer_id)===String(row.payer_id));
+  const version=f4SavedObligationVersion(updated,current);
+  if(!version||OBLIGATION_KEYS.some(key=>Number(version[key])!==payload[key]))
+   throw Error('Perubahan belum terverifikasi dari D1. Periksa ulang sebelum mencoba lagi.');
+  records=refreshed;viewList();
+  await f4ContentDialog('Kewajiban diperbarui',
+   'Kewajiban '+String(row.nama||'warga')+' sekarang berlaku sejak '+f4ObligationMonthLabel(current)+'. Bulan sebelumnya tetap. Di Pembukuan, pilih ulang warga untuk memuat tagihan terbaru.',
+   'Selesai',false,false);
+ }catch(error){
+  await f4ContentDialog('Belum dapat menerapkan kewajiban',
+   error.message||'Server belum dapat menyimpan perubahan. Tidak ada pembayaran yang diubah.',
+   'Tutup',false,false);
+ }
+}
 function f4ObligationControl(key,title,{type='number',value='0',required=true}={}){
  const wrap=node('label',undefined,'f4-obligation-field');
  wrap.append(node('span',title));
@@ -603,8 +635,12 @@ function populate(){
          const future=f4ObligationFutureValue(x,k);
          return future!==null&&future!==Number(x[k]||0);
        });
-       if(x.next_effective_from&&changed)
+       if(x.next_effective_from&&changed){
          td.append(node('small','Perubahan mulai '+f4ObligationMonthLabel(x.next_effective_from),'f4-obligation-upcoming'));
+         if(String(x.next_effective_from)===f4ObligationNextMonth()+'-01')
+           td.append(btn('Terapkan '+f4ObligationMonthLabel(f4ObligationCurrentMonth()),
+             ()=>f4ApplyScheduledObligationCurrentMonth(x),'f4-obligation-apply-now'));
+       }
        else if(String(x.effective_from||'')===f4ObligationCurrentMonth()+'-01')
          td.append(node('small','Aktif sejak '+f4ObligationMonthLabel(x.effective_from),'f4-obligation-upcoming'));
      }
