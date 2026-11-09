@@ -210,6 +210,38 @@
   padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))
  }
 
+ /* Konfirmasi proyek yang dibangun dinamis oleh editor Superadmin. */
+ body .f4-pm-shade{
+  align-items:flex-end;justify-content:center;padding:0;
+  overscroll-behavior:contain
+ }
+ body .f4-pm-shade>.f4-pm-dialog{
+  width:100%;max-width:100%;min-width:0;max-height:85dvh;
+  box-sizing:border-box;overflow-y:auto;overscroll-behavior:contain;
+  border-radius:22px 22px 0 0;
+  padding:23px 20px calc(22px + env(safe-area-inset-bottom,0px));
+  box-shadow:0 -14px 40px rgba(18,31,24,.2);
+  animation:f4-sheet-up .23s ease-out
+ }
+ body .f4-pm-shade>.f4-pm-dialog:before{
+  content:"";display:block;width:42px;height:4px;
+  border-radius:10px;background:#d8e3db;margin:-10px auto 17px
+ }
+ /* Pemilihan tahun di Keuangan Warga. */
+ body #keuangan .f4-user-year-popover{
+  position:fixed;inset:auto 0 0;top:auto;bottom:0;left:0;right:0;
+  width:100%;min-width:0;max-width:100%;max-height:72dvh;
+  box-sizing:border-box;padding:22px 15px calc(18px + env(safe-area-inset-bottom,0px));
+  border:0;border-radius:22px 22px 0 0;
+  overflow-y:auto;overscroll-behavior:contain;
+  box-shadow:0 0 0 100vmax rgba(22,25,46,.45),0 -14px 40px rgba(28,25,53,.18);
+  animation:f4-sheet-up .23s ease-out
+ }
+ body #keuangan .f4-user-year-popover:before{
+  content:"";display:block;width:42px;height:4px;
+  border-radius:10px;background:#ded9ee;margin:-10px auto 14px
+ }
+
 }
 @keyframes f4-sheet-up{from{opacity:.75;transform:translateY(34px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){
