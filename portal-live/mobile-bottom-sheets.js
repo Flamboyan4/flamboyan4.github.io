@@ -56,12 +56,12 @@
  function positionGrip(panel){
   const grip=panel.querySelector(':scope > .f4-sheet-handle');
   if(!grip||!mobile.matches||!isVisible(panel))return;
-  const rect=panel.getBoundingClientRect();
-  grip.style.top=Math.max(0,rect.top)+'px';
-  grip.style.left=Math.max(0,rect.left)+'px';
-  grip.style.width=rect.width+'px';
+  // A scrolling panel moves absolute children with its scroll offset.
+  // Compensate that offset so the handle stays in view even while reading long content.
+  grip.style.top=panel.scrollTop+'px';
+  grip.style.left='0';
+  grip.style.width='100%';
  }
-
  function setExpanded(panel,expanded){
   if(!panel.isConnected)return;
   panel.classList.remove('f4-sheet-dragging','f4-sheet-dismissing');
@@ -145,6 +145,7 @@
   // Append rather than prepend: several old modules style the first child as a header.
   panel.append(grip);
   requestAnimationFrame(()=>positionGrip(panel));
+  panel.addEventListener('scroll',()=>positionGrip(panel),{passive:true});
   let drag=null,lastDragAt=-1000;
   function begin(event){
    if(!mobile.matches||!isVisible(panel))return;
