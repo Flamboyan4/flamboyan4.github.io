@@ -276,6 +276,7 @@
 }
 
 
+.f4-sheet-handle{display:none}
 /* Pegangan interaktif untuk setiap bottom sheet. Hanya aktif di HP.
    Handle ditambahkan di akhir konten agar selector :first-child lama tidak berubah. */
 @media(max-width:767px){
