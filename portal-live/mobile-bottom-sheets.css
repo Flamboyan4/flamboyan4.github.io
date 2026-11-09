@@ -326,6 +326,22 @@
   animation:none;transition:none
  }
  .f4-sheet-draggable.f4-sheet-dragging>.f4-sheet-handle{cursor:grabbing}
+ #modal-edit>.f4-book-edit-center:has(.f4-book-edit-card.f4-sheet-expanded){
+  max-height:calc(100dvh - 10px);
+  height:calc(100dvh - 10px)
+ }
+ body :is(#f4-direct-dialog section,#f4-superadmin-confirm .f4-sa-confirm-panel,
+  #credentialModal .f4-bank-credential-panel,#modal-edit .f4-book-edit-card,
+  #modal-doc-rapat>div,#modal-gateway>div,.v21-modal-card,.v24-edit-card,
+  .f4-activity-dialog-panel,.f4-warga-picker-pop,.sa-account-modal,
+  .f4-jersey-print-dialog,.tc-date-dialog,.f4p-album-card,.f4-pm-dialog,
+  .f4-user-year-popover,.f4-ui-dialog-panel,.f4-work-notice-panel,
+  .edit-modal-card,#modal-koreksi-migrasi>div,
+  #modal-event-detail>div,#modal-arisan>div,#modal-cetak-kas>div,
+  #modal-keuangan>div,#modal-jersey>div,#modal-dokumentasi>div,
+  #modal-gallery-grid>div,#modal-saran>div).f4-sheet-draggable.f4-sheet-dragging{
+  animation:none
+ }
  .f4-sheet-draggable.f4-sheet-expanded{
   border-radius:18px 18px 0 0
  }
