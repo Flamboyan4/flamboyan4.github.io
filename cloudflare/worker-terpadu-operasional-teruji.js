@@ -1147,8 +1147,8 @@ async function handleAdminContent(request, env, who, url) {
       return err("Pilih bulan mulai berlaku (YYYY-MM); transaksi lama tidak boleh berubah.",400);
     if(action==="add_payer"&&effectiveFrom<nowMonth)
       return err("Pembayar baru hanya boleh mulai bulan ini atau sesudahnya.",409);
-    if(action!=="add_payer"&&effectiveFrom<nextMonth)
-      return err("Perubahan kewajiban hanya boleh berlaku mulai bulan depan. Periode sebelumnya terkunci.",409);
+    if(action!=="add_payer"&&effectiveFrom<nowMonth)
+      return err("Perubahan kewajiban tidak boleh berlaku mundur ke bulan yang sudah lewat.",409);
     if(action!=="add_payer"&&action!=="save")
       return err("Aksi kewajiban tidak dikenal.",400);
     if (action === "add_payer") {
@@ -1195,8 +1195,23 @@ async function handleAdminContent(request, env, who, url) {
     if (vals.some((x) => !Number.isInteger(x) || x < 0 || x > 100)) return err("Kewajiban harus 0\u2013100.", 400);
     const valid = await one(db, "SELECT id FROM bookkeeping_payers WHERE id=? AND payer_type='warga'", [payer]);
     if (!valid) return err("Warga tidak ditemukan.", 404);
-    // Only the future-dated version can be inserted or edited. The baseline,
-    // older schedules, and already-paid allocations never change.
+    // Bulan yang sedang berjalan boleh diubah SEBELUM alokasi pembayaran
+    // aktif apa pun tersimpan untuk warga dan periode itu. Bulan lampau
+    // tetap terkunci, sedangkan versi masa depan disimpan apa adanya.
+    if(effectiveFrom===nowMonth){
+      const currentYear=Number(effectiveFrom.slice(0,4)),currentMonth=Number(effectiveFrom.slice(5,7));
+      const [activePayments,yearArchive,yearClose]=await Promise.all([
+        one(db,`SELECT COUNT(*) AS count FROM bookkeeping_payment_allocations a
+          JOIN bookkeeping_payments p ON p.id=a.payment_id
+          WHERE a.payer_id=? AND a.period_year=? AND a.period_month=?
+            AND a.status='aktif' AND p.status='aktif'`,[payer,currentYear,currentMonth]),
+        one(db,"SELECT id FROM bookkeeping_year_archives WHERE fiscal_year=? AND status IN ('closed','ditutup','terkunci','final') LIMIT 1",[currentYear]),
+        one(db,"SELECT fiscal_year FROM fiscal_closings WHERE fiscal_year=? LIMIT 1",[currentYear])
+      ]);
+      if(yearArchive||yearClose)return err("Tahun Pembukuan sudah ditutup. Kewajiban tidak dapat diubah.",409);
+      if(Number(activePayments?.count||0)>0)
+        return err("Bulan ini sudah memiliki pembayaran aktif. Kewajiban tidak dapat diubah; transaksi lama tetap utuh.",409);
+    }
     const prior=await one(db,"SELECT * FROM bookkeeping_payer_obligation_periods WHERE payer_id=? AND effective_from=?",[payer,effectiveFrom]);
     await db.batch([
       db.prepare("INSERT INTO bookkeeping_payer_obligation_periods(payer_id,effective_from,qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan,created_by) VALUES(?,?,?,?,?,?,?) ON CONFLICT(payer_id,effective_from) DO UPDATE SET qty_iuran_bulanan=excluded.qty_iuran_bulanan,qty_kebersihan=excluded.qty_kebersihan,qty_kas_lorong=excluded.qty_kas_lorong,qty_arisan=excluded.qty_arisan,created_by=excluded.created_by")
@@ -1204,7 +1219,7 @@ async function handleAdminContent(request, env, who, url) {
       db.prepare("INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,before_json,after_json) VALUES(?,?,?,?,?,?,?,?)")
         .bind("audit:" + crypto.randomUUID(),who.id,"master_pembukuan","jadwalkan_kewajiban","bookkeeping_payer_obligation_periods",payer,JSON.stringify(prior),JSON.stringify({effectiveFrom,qty:Object.fromEntries(keys.map((k,i)=>[k,vals[i]]))}))
     ]);
-    return ok({id:payer,effective_from:effectiveFrom,scheduled:true});
+    return ok({id:payer,effective_from:effectiveFrom,scheduled:effectiveFrom>nowMonth,transactionHistoryUnchanged:true});
   }
   if(kind==="jersey" && payload?.values?.group_key!==undefined && !["bapak","ibu","anak"].includes(String(payload.values.group_key)))
     return err("Kelompok Jersey harus bapak, ibu, atau anak.",400);
