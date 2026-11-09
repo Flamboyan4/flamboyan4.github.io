@@ -53,6 +53,15 @@
   ? 'Panel diperbesar. Geser ke bawah untuk mengecilkan atau menutup'
   : 'Geser ke atas untuk memperbesar atau ke bawah untuk menutup';
  const isVisible=el=>!!(el&&el.isConnected&&el.getClientRects().length);
+ function positionGrip(panel){
+  const grip=panel.querySelector(':scope > .f4-sheet-handle');
+  if(!grip||!mobile.matches||!isVisible(panel))return;
+  const rect=panel.getBoundingClientRect();
+  grip.style.top=Math.max(0,rect.top)+'px';
+  grip.style.left=Math.max(0,rect.left)+'px';
+  grip.style.width=rect.width+'px';
+ }
+
  function setExpanded(panel,expanded){
   if(!panel.isConnected)return;
   panel.classList.remove('f4-sheet-dragging','f4-sheet-dismissing');
@@ -66,6 +75,7 @@
    panel.style.removeProperty('height');
    panel.style.removeProperty('max-height');
   }
+  positionGrip(panel);
   const grip=panel.querySelector(':scope > .f4-sheet-handle');
   if(grip){
    grip.setAttribute('aria-expanded',String(expanded));
@@ -134,6 +144,7 @@
   grip.title=sheetLabel(false);
   // Append rather than prepend: several old modules style the first child as a header.
   panel.append(grip);
+  requestAnimationFrame(()=>positionGrip(panel));
   let drag=null,lastDragAt=-1000;
   function begin(event){
    if(!mobile.matches||!isVisible(panel))return;
@@ -213,6 +224,7 @@
   if(root){
    const lifecycle=new MutationObserver(()=>{
     if(!isVisible(panel))setExpanded(panel,false);
+    else requestAnimationFrame(()=>positionGrip(panel));
    });
    lifecycle.observe(root,{attributes:true,attributeFilter:['class','hidden','style','open']});
   }
@@ -224,6 +236,7 @@
  }
  function start(){
   inspect(document.body);
+  window.addEventListener('resize',()=>document.querySelectorAll(selector).forEach(positionGrip));
   const watcher=new MutationObserver(mutations=>{
    for(const mutation of mutations){
     mutation.addedNodes.forEach(inspect);
