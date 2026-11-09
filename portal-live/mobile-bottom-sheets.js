@@ -134,7 +134,7 @@
   grip.title=sheetLabel(false);
   // Append rather than prepend: several old modules style the first child as a header.
   panel.append(grip);
-  let drag=null,skipClick=false;
+  let drag=null,lastDragAt=-1000;
   function begin(event){
    if(!mobile.matches||!isVisible(panel))return;
    if(event.pointerType==='mouse'&&event.button!==0)return;
@@ -170,7 +170,7 @@
    const distance=previous.delta;
    const duration=Math.max(1,performance.now()-previous.time);
    const velocity=distance/duration;
-   skipClick=previous.moved;
+   lastDragAt=previous.moved?performance.now():-1000;
    if(distance< -55||(distance< -25&&velocity<-.48)){
     setExpanded(panel,true);
    }else if(distance>85||(distance>40&&velocity>.58)){
@@ -193,7 +193,7 @@
   grip.addEventListener('click',event=>{
    event.preventDefault();
    if(!mobile.matches)return;
-   if(skipClick){skipClick=false;return;}
+   if(performance.now()-lastDragAt<350)return;
    setExpanded(panel,!panel.classList.contains('f4-sheet-expanded'));
   });
   grip.addEventListener('keydown',event=>{
