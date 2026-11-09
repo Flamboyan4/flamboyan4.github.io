@@ -1,18 +1,32 @@
 /* Flamboyan 4 — pusat notifikasi tugas admin, satu sumber tampilan. */
-#f4-work-bell{position:relative;display:inline-grid;place-items:center;flex:0 0 40px;width:40px;height:40px;padding:0;margin:0 7px 0 0;border:0;border-radius:12px;background:transparent;color:#6550ae;cursor:pointer}
+#f4-work-bell{position:relative;display:inline-grid;place-items:center;flex:0 0 40px;width:40px;height:40px;padding:0;margin:0 0 0 auto;border:1px solid #e3dfed;border-radius:12px;background:#fff;color:#6550ae;cursor:pointer}
+body.f4-direct-bank #f4BankPageGreeting{align-items:center;gap:12px}
+body.f4-direct-bank #f4BankPageGreeting>div:first-child{flex:1;min-width:0}
+body.f4-direct-bank #f4BankPageGreeting h1{overflow-wrap:anywhere}
+body.f4-direct-bank #f4BankPageGreeting #f4-work-bell{flex:none;align-self:center;border-color:#d7e8dd;background:#f4faf6;color:#176d47}
+body.f4-direct-superadmin #f4-account-page>main>.f4-work-heading:has(#f4-work-bell){display:grid;grid-template-columns:minmax(0,1fr) 40px;align-items:center;column-gap:12px}
+body.f4-direct-superadmin #f4-account-page>main>.f4-work-heading:has(#f4-work-bell)>h2,
+body.f4-direct-superadmin #f4-account-page>main>.f4-work-heading:has(#f4-work-bell)>p{grid-column:1;min-width:0}
+body.f4-direct-superadmin #f4-account-page>main>.f4-work-heading #f4-work-bell{grid-column:2;grid-row:1 / span 2;align-self:center}
 body.f4-direct-bank #f4-work-bell{color:#146e46}
 #f4-work-bell:hover,#f4-work-bell[aria-expanded="true"]{background:#eee9ff}
 body.f4-direct-bank #f4-work-bell:hover,body.f4-direct-bank #f4-work-bell[aria-expanded="true"]{background:#e4f2e8}
 #f4-work-bell svg{width:22px;height:22px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
 #f4-work-bell-count{position:absolute;top:1px;right:0;min-width:18px;height:18px;display:grid;place-items:center;padding:0 4px;background:#e54756;color:#fff;border:2px solid white;border-radius:20px;font-size:10px;font-weight:850;line-height:1}
 #f4-work-bell-count[hidden],#f4-work-bell[hidden],#f4-work-notice[hidden]{display:none}
-#f4-work-notice{position:fixed;inset:0;z-index:10020;display:flex;align-items:flex-start;justify-content:flex-end;padding:66px 17px 20px;background:rgba(19,29,43,.12);font-family:system-ui,-apple-system,sans-serif;color:#22354b}
+#f4-work-notice{position:fixed;inset:0;z-index:10020;display:flex;align-items:flex-start;justify-content:flex-end;padding:var(--f4-notice-top,112px) 17px 20px;background:rgba(19,29,43,.12);font-family:system-ui,-apple-system,sans-serif;color:#22354b}
 #f4-work-notice *{box-sizing:border-box}
-#f4-work-notice .f4-work-notice-panel{width:min(360px,100%);max-height:min(610px,calc(100dvh - 82px));display:flex;flex-direction:column;overflow:hidden;border:1px solid #e2e5ed;border-radius:18px;background:white;box-shadow:0 17px 55px #111c3430}
+#f4-work-notice .f4-work-notice-panel{width:min(360px,100%);max-height:min(610px,calc(100dvh - var(--f4-notice-top,112px) - 16px));display:flex;flex-direction:column;overflow:hidden;border:1px solid #e2e5ed;border-radius:18px;background:white;box-shadow:0 17px 55px #111c3430}
 #f4-work-notice .f4-work-notice-header{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:16px 16px 12px;border-bottom:1px solid #eef0f5}
 #f4-work-notice h2{font-size:16px;font-weight:800;margin:0;color:#33296a}
 body.f4-direct-bank #f4-work-notice h2{color:#185a3c}
-#f4-work-notice .f4-work-notice-close{display:grid;place-items:center;width:32px;height:32px;border:0;border-radius:9px;background:#f3f4f8;color:#425066;font-size:23px;cursor:pointer}
+#f4-work-notice .f4-work-notice-tools{display:flex;align-items:center;gap:7px;flex:none}
+#f4-work-notice .f4-work-notice-close,
+#f4-work-notice .f4-work-notice-refresh{display:grid;place-items:center;flex:none;width:34px;height:34px;margin:0;padding:0;border:1px solid #e5e9f0;border-radius:10px;background:#f7f8fa;color:#57657c;cursor:pointer}
+#f4-work-notice .f4-work-notice-close:hover,
+#f4-work-notice .f4-work-notice-refresh:hover{background:#edf0f5}
+#f4-work-notice .f4-work-notice-close svg,
+#f4-work-notice .f4-work-notice-refresh svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 #f4-work-notice .f4-work-notice-list{padding:11px;overflow-y:auto;min-height:0;display:grid;align-content:start;gap:8px}
 #f4-work-notice .f4-work-notice-item{width:100%;display:flex;align-items:center;gap:11px;text-align:left;padding:13px 12px;border:1px solid #e3e8f1;border-radius:12px;background:#fff;color:#253c52;cursor:pointer}
 #f4-work-notice .f4-work-notice-item:hover{border-color:#c3b2f6;background:#faf8ff}
@@ -27,11 +41,13 @@ body.f4-direct-bank #f4-work-notice .f4-work-notice-item-icon{background:#e5f3e8
 #f4-work-notice .f4-work-notice-num{flex:none;border-radius:20px;background:#efebff;color:#653cb9;min-width:25px;padding:5px 7px;font-size:11px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums}
 body.f4-direct-bank #f4-work-notice .f4-work-notice-num{color:#146c43;background:#e8f4e8}
 #f4-work-notice .f4-work-notice-muted{margin:0;padding:18px 12px;text-align:center;color:#697789;font-size:12px;line-height:1.6}
-#f4-work-notice .f4-work-notice-refresh{display:block;margin:2px 11px 12px;padding:9px;border:1px solid #e1e6ed;border-radius:9px;background:#f8f9fc;color:#6550ae;font-size:12px;font-weight:700;cursor:pointer}
-body.f4-direct-bank #f4-work-notice .f4-work-notice-refresh{color:#146e46}
+body.f4-direct-bank #f4-work-notice .f4-work-notice-refresh{color:#146e46;background:#f3f9f5;border-color:#dceade}
 #f4-work-bell:focus-visible,#f4-work-notice button:focus-visible{outline:3px solid #aa9ade;outline-offset:2px}
 @media(max-width:640px){
- #f4-work-bell{flex-basis:36px;width:36px;height:36px;margin-right:2px}
+ #f4-work-bell{flex-basis:38px;width:38px;height:38px}
+ body.f4-direct-bank #f4BankPageGreeting{gap:8px}
+ body.f4-direct-bank #f4BankPageGreeting #f4-work-bell{width:38px;height:38px}
+ body.f4-direct-bank #f4BankPageGreeting h1{font-size:clamp(19px,5vw,25px)}
  #f4-work-notice{padding:0;align-items:flex-end;justify-content:stretch;background:rgba(13,24,31,.48)}
  #f4-work-notice .f4-work-notice-panel{width:100%;max-height:min(83dvh,720px);border:0;border-radius:22px 22px 0 0;padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -12px 38px #14212933;animation:f4-notice-rise .23s cubic-bezier(.17,.67,.2,1)}
  #f4-work-notice .f4-work-notice-panel:before{content:"";display:block;width:39px;height:4px;margin:10px auto 0;border-radius:12px;background:#d4dae1}
