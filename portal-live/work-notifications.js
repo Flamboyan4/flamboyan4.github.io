@@ -55,7 +55,7 @@ function mount(){
 }
 function hide(){
  if(!overlay)return;
- open=false;overlay.hidden=true;
+ open=false;overlay.hidden=true;document.body.classList.remove('f4-notice-open');
  bell?.setAttribute('aria-expanded','false');
  if(bell&&bell.isConnected)bell.focus({preventScroll:true});
 }
@@ -140,7 +140,7 @@ async function refreshData(force=false){
 }
 function show(){
  if(!mount()||!isAuthorized())return;
- open=true;overlay.hidden=false;bell.setAttribute('aria-expanded','true');
+ open=true;overlay.hidden=false;document.body.classList.add('f4-notice-open');bell.setAttribute('aria-expanded','true');
  paint();refreshData(true);
  panel.querySelector('.f4-work-notice-close')?.focus({preventScroll:true});
 }
@@ -160,6 +160,7 @@ function start(){
  const target=portal==='bank' ?$('dashboardView'):$('f4-account-page');
  if(target)new MutationObserver(sync).observe(target,{attributes:true,attributeFilter:['class','hidden']});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&open){e.stopPropagation();hide()}},true);
+ window.addEventListener('f4-treasury-updated',()=>refreshData(true));
  window.addEventListener('focus',()=>{if(isAuthorized())refreshData()});
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshData()});
  document.addEventListener('f4-bank-data-changed',()=>refreshData(true));
