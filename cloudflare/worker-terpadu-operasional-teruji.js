@@ -3808,7 +3808,11 @@ async function f4PeriodObligation(db,payerId,year,month) {
   ]);
   // Pembayaran lama tidak dinilai ulang. Periode tanpa catatan memakai
   // kewajiban terbaru, walaupun bulan tagihannya mendahului tanggal perubahan.
-  return posted?historical:(historical?latest:null);
+  if(posted)return historical;
+  if(!historical||!latest)return historical;
+  const changed=["qty_iuran_bulanan","qty_kebersihan","qty_kas_lorong","qty_arisan"]
+    .some(key=>Number(historical[key])!==Number(latest[key]));
+  return {...latest,_freezeForPayment:changed&&period<latest.effective_from};
 }
 function f4IuranAmounts(obligation,tariff) {
   return {
@@ -4023,7 +4027,7 @@ async function createIuranPayment(request, env, who) {
     return safeError("Tarif iuran D1 belum dikonfigurasi dengan lengkap.", 503);
   }
   const tariff = await getIuranTariffs(env.DB);
-  const requiredByPeriod=new Map();
+  const requiredByPeriod=new Map(),unrecordedVersions=new Map();
   for(const period of periods){
     const [yr,mo]=period.split(":").map(Number);
     const version=await f4PeriodObligation(env.DB,payerId,yr,mo);
@@ -4032,6 +4036,7 @@ async function createIuranPayment(request, env, who) {
     if(Object.values(amounts).some(v=>!Number.isSafeInteger(v)||v<0))
       return safeError("Kewajiban periode "+mo+"/"+yr+" tidak valid.",503);
     requiredByPeriod.set(period,amounts);
+    if(version._freezeForPayment)unrecordedVersions.set(period,version);
   }
   const submitted = new Map(items.map((a) => [a.tahun + ":" + a.bulan + ":" + a.jenis, a.nominal]));
   const years = [...new Set(items.map((a) => a.tahun))];
@@ -4125,21 +4130,10 @@ async function createIuranPayment(request, env, who) {
   // Masukkan dalam batch pembayaran yang sama: tidak ada snapshot yatim.
   const newPeriodSnapshots=[];
   for(const period of orderedPeriods){
-    const [yr,mo]=period.split(":").map(Number);
-    if(allowed.some(kind=>paidByKey.has(period+":"+kind)))continue;
-    const selected=requiredByPeriod.get(period);
-    const savedHistorical=await one(env.DB,
-      "SELECT qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan,effective_from FROM bookkeeping_payer_obligation_periods WHERE payer_id=? AND effective_from<=? ORDER BY effective_from DESC LIMIT 1",
-      [payerId,f4IuranMonth(yr,mo)]);
-    if(!savedHistorical)continue;
-    const historicalAmounts=f4IuranAmounts(savedHistorical,tariff);
-    if(allowed.every(kind=>historicalAmounts[kind]===selected[kind]))continue;
-    const latest=await one(env.DB,
-      "SELECT qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan,effective_from FROM bookkeeping_payer_obligation_periods WHERE payer_id=? ORDER BY effective_from DESC LIMIT 1",[payerId]);
-    if(!latest)continue;
-    const monthText=f4IuranMonth(yr,mo);
-    if(monthText>=latest.effective_from)continue;
-    newPeriodSnapshots.push({year:yr,month:mo,period:monthText,values:latest});
+    const version=unrecordedVersions.get(period);
+    if(!version||allowed.some(kind=>paidByKey.has(period+":"+kind)))continue;
+    const [year,month]=period.split(":").map(Number);
+    newPeriodSnapshots.push({year,month,period:f4IuranMonth(year,month),values:version});
   }
   if(newPeriodSnapshots.length){
     const earliest=newPeriodSnapshots.map(x=>x.period).sort()[0];
