@@ -1115,6 +1115,13 @@ function ensureDesktopAdminSidebar(){
  anchor.after(items);
 }
 let adminProgressAnchor=null,adminProgressNode=null;
+function f4BankChevronIcon(){
+ const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ svg.setAttribute("viewBox","0 0 24 24");
+ svg.setAttribute("aria-hidden","true");
+ svg.innerHTML='<path d="m9 18 6-6-6-6"/>';
+ return svg;
+}
 function adminOperation(label,detail,route,primary){
  const button=el("button","f4-bank-admin-operation"+(primary?" is-primary":""));
  button.type="button";button.dataset.bankAppRoute=route;
@@ -1128,8 +1135,9 @@ function adminOperation(label,detail,route,primary){
  const copy=el("span","f4-bank-admin-operation-copy");
  copy.append(el("strong","",label));
  if(detail)copy.append(el("small","",detail));
- const arrow=el("span","f4-bank-admin-operation-arrow","›");
+ const arrow=el("span","f4-bank-admin-operation-arrow");
  arrow.setAttribute("aria-hidden","true");
+ arrow.append(f4BankChevronIcon());
  button.append(icon,copy,arrow);
  button.onclick=()=>navigate(route);return button;
 }
@@ -1137,7 +1145,8 @@ function adminNextAction(label,detail,route){
  const button=el("button","f4-bank-admin-next-action");
  button.type="button";button.dataset.bankAppRoute=route;
  const copy=el("span");copy.append(el("strong","",label),el("small","",detail));
- button.append(copy,el("span","f4-bank-next-arrow","›"));button.onclick=()=>navigate(route);
+ const chevron=el("span","f4-bank-next-arrow");chevron.append(f4BankChevronIcon());
+ button.append(copy,chevron);button.onclick=()=>navigate(route);
  return button;
 }
 function ensureAdminHome(){
