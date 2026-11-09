@@ -64,7 +64,9 @@ async def verify():
         await mobile.mouse.wheel(0,250)
         assert not await mobile.locator("#modal-arisan").evaluate(
             "(el)=>el.classList.contains('hidden')"), "Scroll isi menutup popup"
+        print("DEBUG before downward swipe:", await panel.evaluate("(el)=>({top:el.getBoundingClientRect().top,bottom:el.getBoundingClientRect().bottom,height:el.getBoundingClientRect().height,expanded:el.classList.contains('f4-sheet-expanded')})"), await grip.bounding_box(), flush=True)
         await swipe(mobile,grip,115)
+        print("DEBUG after downward swipe:", await panel.evaluate("(el)=>({top:el.getBoundingClientRect().top,bottom:el.getBoundingClientRect().bottom,height:el.getBoundingClientRect().height,expanded:el.classList.contains('f4-sheet-expanded')})"), flush=True)
         assert not await panel.evaluate("(el)=>el.classList.contains('f4-sheet-expanded')"), (
             "Geser turun ringan tidak mengembalikan popup")
         await swipe(mobile,grip,150)
