@@ -1535,8 +1535,8 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
           if (updateEl) updateEl.innerText = 'Update: ' + formatTanggalKeuanganDisplay(globalKeuanganData[0].Tanggal);
         }
 
-        // Saldo kas total tidak boleh dianggap dana Gapura.
-        // Widget proyek hanya membaca kategori kas terpilih dari D1 melalui loadProjectCards().
+        // Saldo total Pembukuan dipakai sebagai pembanding target Gapura,
+        // bukan berarti seluruh uang kas dialokasikan khusus untuk proyek.
 
       } catch (err) {
         if(generation!==f4CashLoadGeneration||!f4CanReadKas())return;
@@ -2847,7 +2847,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     document.addEventListener('f4:cash-access-change',()=>{
       // Segera sembunyikan saldo saat logout/pergantian akun.
       ++f4ProjectLoadGeneration;
-      f4ProjectCashMessage('Login untuk lihat');
+      f4ProjectCashMessage(f4CanReadKas()?'Memuat saldo…':'Login untuk lihat');
       void loadProjectCards();
     });
 
