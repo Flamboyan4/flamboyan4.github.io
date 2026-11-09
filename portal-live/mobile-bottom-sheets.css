@@ -106,6 +106,110 @@
   max-width:100%;box-sizing:border-box
  }
 
+ /* Portal Utama: modal informasi dan formulir naik dari bagian bawah layar. */
+ :is(#modal-event-detail,#modal-arisan,#modal-cetak-kas,#modal-keuangan,
+     #modal-jersey,#modal-dokumentasi,#modal-gallery-grid,#modal-saran){
+  align-items:flex-end;justify-content:center;padding:0;
+  overscroll-behavior:contain
+ }
+ :is(#modal-event-detail,#modal-arisan,#modal-cetak-kas,#modal-keuangan,
+     #modal-jersey,#modal-dokumentasi,#modal-gallery-grid,#modal-saran)>div{
+  width:100%;max-width:100%;max-height:88dvh;min-height:0;min-width:0;
+  margin:0;border-radius:22px 22px 0 0;
+  overflow-y:auto;overscroll-behavior:contain;
+  box-shadow:0 -15px 42px rgba(19,28,54,.22);
+  animation:f4-sheet-up .23s ease-out
+ }
+ :is(#modal-event-detail,#modal-arisan,#modal-cetak-kas,#modal-keuangan,
+     #modal-jersey,#modal-dokumentasi,#modal-gallery-grid,#modal-saran)>div:before{
+  content:"";display:block;flex:none;width:42px;height:4px;
+  margin:10px auto 0;border-radius:12px;background:#d8dced
+ }
+ #modal-saran>div{transform:none}
+ #modal-saran>div>div:last-child{padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))}
+ /* Pembukuan: edit pembayaran, kas, pinjaman dan tanggal migrasi. */
+ #modal-edit:not(.hidden){
+  display:flex;align-items:flex-end;justify-content:center;
+  padding:0;overflow:hidden
+ }
+ #modal-edit>.f4-book-edit-center{
+  min-height:0;width:100%;max-height:90dvh;
+  align-items:flex-end;justify-content:center
+ }
+ #modal-edit .f4-book-edit-card{
+  width:100%;max-width:100%;max-height:90dvh;min-height:0;
+  display:flex;flex-direction:column;
+  border:0;border-radius:22px 22px 0 0;
+  animation:f4-sheet-up .23s ease-out
+ }
+ #modal-edit .f4-book-edit-card:before{
+  content:"";display:block;flex:none;width:42px;height:4px;
+  border-radius:12px;background:#dad6eb;margin:10px auto 2px
+ }
+ #modal-edit .f4-book-edit-form{
+  min-height:0;overflow-y:auto;overscroll-behavior:contain;
+  padding-bottom:calc(22px + env(safe-area-inset-bottom,0px))
+ }
+ .edit-modal.open{
+  align-items:flex-end;justify-content:center;padding:0;
+  overscroll-behavior:contain
+ }
+ .edit-modal.open>.edit-modal-card,
+ #modal-koreksi-migrasi>div{
+  width:100%;max-width:100%;max-height:88dvh;min-height:0;
+  box-sizing:border-box;margin:0;
+  overflow-y:auto;overscroll-behavior:contain;
+  border:0;border-radius:22px 22px 0 0;
+  padding:20px 18px calc(20px + env(safe-area-inset-bottom,0px));
+  animation:f4-sheet-up .23s ease-out
+ }
+ .edit-modal.open>.edit-modal-card:before,
+ #modal-koreksi-migrasi>div:before{
+  content:"";display:block;width:42px;height:4px;
+  border-radius:10px;background:#dad6eb;margin:-8px auto 18px
+ }
+ #modal-koreksi-migrasi{
+  align-items:flex-end;justify-content:center;padding:0;
+  overscroll-behavior:contain
+ }
+ /* Rapat: notulensi tetap bisa di-zoom, tetapi panel muncul dari bawah. */
+ #modal-doc-rapat:not(.hidden){
+  align-items:flex-end;justify-content:center;
+  padding:0;overscroll-behavior:contain
+ }
+ #modal-doc-rapat>div{
+  width:100%;max-width:100%;min-width:0;
+  height:92dvh;max-height:92dvh;min-height:0;
+  margin:0;border-radius:22px 22px 0 0;
+  display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 -14px 40px rgba(24,28,49,.24);
+  animation:f4-sheet-up .23s ease-out
+ }
+ #modal-doc-rapat>div:before{
+  content:"";display:block;flex:none;width:42px;height:4px;
+  border-radius:10px;background:#d7d9e5;margin:10px auto 5px
+ }
+ /* Dokumentasi: album sebagai sheet; penampil foto/video tetap fullscreen. */
+ .f4p-album-overlay:not([hidden]){
+  align-items:flex-end;justify-content:center;padding:0;
+  overscroll-behavior:contain
+ }
+ .f4p-album-overlay>.f4p-album-card{
+  width:100%;max-width:100%;min-width:0;min-height:0;
+  max-height:88dvh;margin:0;
+  border-radius:22px 22px 0 0;
+  box-shadow:0 -15px 42px rgba(14,26,36,.24);
+  animation:f4-sheet-up .23s ease-out
+ }
+ .f4p-album-overlay>.f4p-album-card:before{
+  content:"";display:block;flex:none;width:42px;height:4px;
+  border-radius:10px;background:#ded8eb;margin:10px auto 0
+ }
+ .f4p-album-overlay .f4p-album-grid{
+  min-height:0;overflow-y:auto;overscroll-behavior:contain;
+  padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))
+ }
+
 }
 @keyframes f4-sheet-up{from{opacity:.75;transform:translateY(34px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){
