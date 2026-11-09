@@ -599,6 +599,11 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation.is-primary .f4-bank-admin-operation-arrow{
  background:#ffffff25;color:#fff
 }
+#dashboardView #f4BankAdminOperations .f4-bank-admin-operation-arrow svg,
+#dashboardView .f4-bank-next-arrow svg{
+ width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;
+ stroke-linecap:round;stroke-linejoin:round
+}
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation:is(:hover,:focus-visible){
  transform:translateY(-2px);box-shadow:0 13px 28px #134d3533;outline-offset:3px
 }
