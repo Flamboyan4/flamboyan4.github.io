@@ -104,6 +104,23 @@ async function publicPortalCash(db){
   return ok({data:{rows,jumlahTransaksi:rows.length,source:"cloudflare-d1"},readOnly:true});
 }
 __name(publicPortalCash,"publicPortalCash");
+// Saldo kas penuh untuk akun login (tanpa batas 1000 baris laporan).
+// Termasuk saldo awal serah terima sebagaimana dicatat pada buku kas aktif.
+async function authenticatedPortalCashBalance(db){
+  const row=await one(db,`SELECT COUNT(*) AS jumlahTransaksi,
+      COALESCE(SUM(debit_rp),0) AS totalMasukRp,
+      COALESCE(SUM(credit_rp),0) AS totalKeluarRp
+    FROM bookkeeping_cash_transactions_posted WHERE status='aktif'`);
+  const totalMasukRp=Number(row?.totalMasukRp??0);
+  const totalKeluarRp=Number(row?.totalKeluarRp??0);
+  const saldoRp=totalMasukRp-totalKeluarRp;
+  const jumlahTransaksi=Number(row?.jumlahTransaksi??0);
+  if(![totalMasukRp,totalKeluarRp,saldoRp,jumlahTransaksi].every(Number.isSafeInteger)||
+     totalMasukRp<0||totalKeluarRp<0||jumlahTransaksi<0)
+    return err("Saldo Kas perlu diperiksa sebelum ditampilkan.",409);
+  return ok({data:{saldoRp,totalMasukRp,totalKeluarRp,jumlahTransaksi,source:"cloudflare-d1"},readOnly:true});
+}
+__name(authenticatedPortalCashBalance,"authenticatedPortalCashBalance");
 async function publicBank(db) {
   const [catalog, albums, progress, inventory, overview, monthlyWeights] = await Promise.all([
     list(db, `SELECT i.id,i.name,i.category,i.unit, p.citizen_rate_rp_per_kg AS priceRpPerKg,p.effective_from AS effectiveFrom FROM waste_items i LEFT JOIN waste_prices p ON p.id=(SELECT p2.id FROM waste_prices p2 WHERE p2.waste_item_id=i.id ORDER BY p2.effective_from DESC,p2.id DESC LIMIT 1) WHERE i.active=1 ORDER BY i.category,i.name`),
@@ -2141,6 +2158,12 @@ async function handleUnifiedApi(request, env, who) {
   if (method === "GET" && path === "/api/v2/public/portal/cash") {
     if (!who) return err("Silakan login untuk melihat laporan keuangan.", 401);
     return publicPortalCash(db);
+  }
+  if (method === "GET" && path === "/api/v2/portal/cash-balance") {
+    if (!who || !["anggota","admin","superadmin"].includes(who.role))
+      return err("Silakan login untuk melihat saldo kas.",401);
+    try { return await authenticatedPortalCashBalance(db); }
+    catch (e) { return err("Saldo Kas belum dapat dibaca.",503); }
   }
   if (method === "GET" && path === "/api/v2/public/bank") return publicBank(db);
   if (method === "GET" && path === "/api/v2/bank/finance-summary") {
