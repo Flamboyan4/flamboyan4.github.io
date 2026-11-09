@@ -265,7 +265,7 @@ const OBLIGATION_KEYS=['qty_iuran_bulanan','qty_kebersihan','qty_kas_lorong','qt
 function f4ObligationActionIcon(kind,handler){
  const dangerous=kind==='hapus';
  const action=btn('',handler,'f4-obligation-icon-btn'+(dangerous?' f4-obligation-icon-danger':''));
- const label=dangerous?'Hentikan kewajiban bulan depan':'Edit kewajiban';
+ const label=dangerous?'Hentikan kewajiban untuk pembayaran belum dicatat':'Edit kewajiban';
  action.title=label;action.setAttribute('aria-label',label);
  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
  svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('width','16');svg.setAttribute('height','16');
@@ -276,88 +276,25 @@ function f4ObligationActionIcon(kind,handler){
  for(const d of paths){const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',d);svg.append(path);}
  action.append(svg);return action;
 }
-const obligationActive=r=>OBLIGATION_KEYS.some(k=>Number(r?.[k]||0)>0)||
-  (Array.isArray(r?.scheduled_versions)&&r.scheduled_versions.some(v=>OBLIGATION_KEYS.some(k=>Number(v[k]||0)>0)));
-
+const obligationActive=r=>OBLIGATION_KEYS.some(k=>Number(r?.[k]||0)>0);
 async function removeObligation(record){
  if(active!=='obligations'||!record?.payer_id||!obligationActive(record))return;
- const month=f4ObligationNextMonth();
- const agreed=await f4ContentDialog('Hentikan Kewajiban?',
-  'Kewajiban '+String(record.nama||'')+' ('+String(record.rumah||'')+') dihentikan mulai '+month+'. Periode dan pembayaran sebelumnya tidak berubah.',
-  'Ya, Jadwalkan',true,true);
+ const agreed=await f4ContentDialog('Hentikan kewajiban?',
+   'Kewajiban '+String(record.nama||'')+' ('+String(record.rumah||'')+') dihentikan untuk pembayaran yang BELUM dicatat. Pembayaran yang sudah masuk tidak diubah.',
+   'Ya, Hentikan',true,true);
  if(!agreed)return;
  try{
    await send(base+'obligations',{method:'POST',headers:{'Content-Type':'application/json'},
-     body:JSON.stringify({action:'save',payer_id:record.payer_id,effective_from:month,
+     body:JSON.stringify({action:'save',payer_id:record.payer_id,
        qty_iuran_bulanan:0,qty_kebersihan:0,qty_kas_lorong:0,qty_arisan:0})});
-   const refreshed=await fetchData('obligations'),saved=refreshed.find(x=>String(x.payer_id)===String(record.payer_id));
-   const future=f4ScheduledVersion(saved,month);
-   if(!future||OBLIGATION_KEYS.some(key=>Number(future[key])!==0))
-     throw Error('Jadwal penghentian belum terbaca dari D1; jangan ulangi sebelum memeriksa.');
+   const refreshed=await fetchData('obligations');
+   const saved=refreshed.find(x=>String(x.payer_id)===String(record.payer_id));
+   if(!saved||OBLIGATION_KEYS.some(k=>Number(saved[k])!==0))
+     throw Error('Kewajiban belum terverifikasi dari D1. Periksa dahulu sebelum mencoba lagi.');
    records=refreshed;viewList();
    const info=main.querySelector('.f4-admin-note');
-   if(info)info.textContent='Kewajiban '+String(record.nama||'')+' dijadwalkan berhenti mulai '+month+'. Periode lalu tetap utuh.';
+   if(info)info.textContent='Kewajiban '+String(record.nama||'')+' dihentikan untuk pembayaran yang belum dicatat. Riwayat tetap.';
  }catch(error){await f4ContentDialog('Belum dapat mengubah kewajiban',error.message,'Tutup',false,false)}
-}
-
-function f4ObligationNextMonth(){
- const now=new Date(Date.now()+7*3600*1000);
- now.setUTCMonth(now.getUTCMonth()+1);
- return now.toISOString().slice(0,7);
-}
-function f4ObligationCurrentMonth(){return new Date(Date.now()+7*3600*1000).toISOString().slice(0,7)}
-function f4ScheduledVersion(row,month){
- return (Array.isArray(row?.scheduled_versions)?row.scheduled_versions:[])
-   .find(x=>String(x.effective_from)===month+'-01');
-}
-function f4SavedObligationVersion(row,month){
- const from=String(month||'')+'-01';
- if(String(row?.effective_from||'')===from)return row;
- return f4ScheduledVersion(row,month);
-}
-function f4ObligationMonthLabel(iso){
- const match=String(iso||'').match(/^(20\d{2})-(0[1-9]|1[0-2])/);
- if(!match)return String(iso||'');
- const months=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
- return months[Number(match[2])-1]+' '+match[1];
-}
-function f4ObligationFutureValue(row,key){
- const upcoming=Array.isArray(row?.scheduled_versions)?row.scheduled_versions[0]:null;
- if(!upcoming)return null;
- const n=Number(upcoming[key]);
- return Number.isSafeInteger(n)&&n>=0?n:null;
-}
-async function f4ApplyScheduledObligationCurrentMonth(row){
- if(active!=='obligations'||!inContext()||!row?.payer_id)return;
- const current=f4ObligationCurrentMonth(),upcoming=f4ScheduledVersion(row,f4ObligationNextMonth());
- if(!upcoming||!OBLIGATION_KEYS.some(key=>Number(upcoming[key]||0)!==Number(row[key]||0)))return;
- const summary=OBLIGATION_KEYS.map((key,i)=>['Bulanan','Kebersihan','Kas Lorong','Arisan'][i]+' '+Number(upcoming[key]||0)).join(' · ');
- const accept=await f4ContentDialog('Berlakukan kewajiban bulan ini?',
-  'Terapkan '+String(row.nama||'warga')+' ('+String(row.rumah||'')+') sejak '+f4ObligationMonthLabel(current)+': '+summary+'. Transaksi bulan sebelumnya tidak berubah. Jika periode ini sudah punya pembayaran, server akan menolak.',
-  'Ya, Terapkan',false,true);
- if(!accept)return;
- try{
-  const payload={action:'save',payer_id:row.payer_id,effective_from:current};
-  for(const key of OBLIGATION_KEYS){
-   const value=Number(upcoming[key]);
-   if(!Number.isSafeInteger(value)||value<0||value>100)throw Error('Data kewajiban terjadwal tidak valid.');
-   payload[key]=value;
-  }
-  await send(base+'obligations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-  const refreshed=await fetchData('obligations');
-  const updated=refreshed.find(item=>String(item.payer_id)===String(row.payer_id));
-  const version=f4SavedObligationVersion(updated,current);
-  if(!version||OBLIGATION_KEYS.some(key=>Number(version[key])!==payload[key]))
-   throw Error('Perubahan belum terverifikasi dari D1. Periksa ulang sebelum mencoba lagi.');
-  records=refreshed;viewList();
-  await f4ContentDialog('Kewajiban diperbarui',
-   'Kewajiban '+String(row.nama||'warga')+' sekarang berlaku sejak '+f4ObligationMonthLabel(current)+'. Bulan sebelumnya tetap. Di Pembukuan, pilih ulang warga untuk memuat tagihan terbaru.',
-   'Selesai',false,false);
- }catch(error){
-  await f4ContentDialog('Belum dapat menerapkan kewajiban',
-   error.message||'Server belum dapat menyimpan perubahan. Tidak ada pembayaran yang diubah.',
-   'Tutup',false,false);
- }
 }
 function f4ObligationControl(key,title,{type='number',value='0',required=true}={}){
  const wrap=node('label',undefined,'f4-obligation-field');
@@ -374,7 +311,7 @@ function f4ObligationControl(key,title,{type='number',value='0',required=true}={
 async function showAddObligationPayer(){
  if(active!=='obligations'||!inContext())return;
  editing=true;
- header('Tambah Pembayar','Catat pembayar dan kewajiban mulai bulan yang dipilih.');
+ header('Tambah Pembayar','Kewajiban digunakan pada pembayaran yang belum dicatat.');
  const form=node('form',undefined,'f4-admin-editor f4-obligation-form');form.noValidate=true;main.append(form);
  const identity=node('div',undefined,'f4-obligation-identity');
  const {wrap:houseWrap,field:house}=f4ObligationControl('household_id','Rumah',{type:'select'});
@@ -393,11 +330,6 @@ async function showAddObligationPayer(){
  const labels=[['qty_iuran_bulanan','Bulanan'],['qty_kebersihan','Kebersihan'],['qty_kas_lorong','Kas Lorong'],['qty_arisan','Arisan']];
  const amounts=labels.map(([key,label])=>{const control=f4ObligationControl(key,label);quantityGrid.append(control.wrap);return control.field;});
  form.append(quantityGrid);
- const period=node('div',undefined,'f4-obligation-period');
- const {wrap:periodWrap,field:effective}=f4ObligationControl('effective_from','Berlaku mulai',{type:'month',value:f4ObligationCurrentMonth()});
- effective.min=f4ObligationCurrentMonth();effective.max='2100-12';
- period.append(periodWrap,node('span','Periode sebelumnya tetap menggunakan catatan lama.'));
- form.append(period);
  const notice=node('p','','f4-admin-message');notice.setAttribute('role','status');form.append(notice);
  const actions=node('div',undefined,'f4-warga-form-actions f4-obligation-actions');
  const submit=btn('Simpan Pembayar',()=>{if(form.reportValidity())form.requestSubmit()},'f4-admin-primary');
@@ -414,24 +346,23 @@ async function showAddObligationPayer(){
  }catch(error){notice.textContent='Gagal memuat rumah: '+error.message;submit.disabled=true;}
  form.addEventListener('submit',async event=>{
    event.preventDefault();if(submit.disabled)return;
-   const nama=name.value.trim(),household_id=house.value,month=effective.value,keterangan=payerNote.value.trim();
+   const nama=name.value.trim(),household_id=house.value,keterangan=payerNote.value.trim();
    const qty=Object.fromEntries(labels.map(([key],i)=>[key,Number(amounts[i].value)]));
-   if(!household_id||!nama||!/^(20\d{2})-(0[1-9]|1[0-2])$/.test(month)||month<f4ObligationCurrentMonth()||
+   if(!household_id||!nama||
       Object.values(qty).some(n=>!Number.isInteger(n)||n<0||n>100)||!Object.values(qty).some(n=>n>0)){
-     notice.textContent='Pilih rumah, nama, bulan berlaku, dan minimal satu iuran lebih dari 0.';return;
+     notice.textContent='Pilih rumah, nama, dan minimal satu kewajiban lebih dari 0.';return;
    }
    submit.disabled=true;notice.textContent='Menyimpan…';
    try{
      const created=await send(base+'obligations',{method:'POST',headers:{'Content-Type':'application/json'},
-       body:JSON.stringify({action:'add_payer',household_id,nama,keterangan,effective_from:month,...qty})});
+       body:JSON.stringify({action:'add_payer',household_id,nama,keterangan,...qty})});
      const refreshed=await fetchData('obligations'),saved=refreshed.find(x=>String(x.payer_id)===String(created.id));
-     const snapshot=String(saved?.effective_from)===month+'-01'?saved:f4ScheduledVersion(saved,month);
-     if(!snapshot||String(saved.nama)!==nama||String(saved.keterangan||'')!==keterangan||labels.some(([key])=>Number(snapshot[key])!==qty[key])){
+     if(!saved||String(saved.nama)!==nama||String(saved.keterangan||'')!==keterangan||labels.some(([key])=>Number(saved[key])!==qty[key])){
        notice.textContent='Data mungkin sudah tersimpan tetapi belum terbaca kembali. Jangan simpan dua kali. Periksa daftar dahulu.';return;
      }
      records=refreshed;filter=nama;showZeroObligations=false;viewList();
      const info=main.querySelector('.f4-admin-note');
-     if(info)info.textContent=nama+' tersimpan • berlaku '+month+' • transaksi lama tetap utuh.';
+     if(info)info.textContent=nama+' tersimpan. Kewajiban aktif untuk pembayaran yang belum dicatat.';
    }catch(error){notice.textContent='Belum tersimpan: '+error.message}
    finally{submit.disabled=false}
  });
@@ -440,7 +371,7 @@ async function showAddObligationPayer(){
 function viewList(){
  const def=types[active];if(!def)return;
  editing=false;
- header(def.label,active==='obligations'?'Atur iuran per warga dan bulan berlaku.':'Pilih Edit untuk memperbarui data tanpa mengubah transaksi warga.');
+ header(def.label,active==='obligations'?'Perubahan berlaku pada pembayaran yang belum dicatat. Riwayat pembayaran tetap.':'Pilih Edit untuk memperbarui data tanpa mengubah transaksi warga.');
  const tools=node('div',undefined,'f4-admin-controls'+(active==='obligations'?' f4-obligation-toolbar':''));
  const search=node('input');search.placeholder='Cari data';search.value=filter;search.oninput=()=>{filter=search.value;populate();};
  tools.append(search);
@@ -585,8 +516,6 @@ function populate(){
    obligations:[['nama','Nama warga'],['rumah','Rumah'],['qty_iuran_bulanan','Iuran bulanan'],['qty_kebersihan','Kebersihan'],['qty_kas_lorong','Kas lorong'],['qty_arisan','Arisan']],
    jersey:[['group_key','Kelompok'],['package_type','Pesanan'],['sort_order','No'],['resident','Nama & Rumah'],['sleeves','Lengan'],['size','Ukuran'],['back_name','Nama Punggung'],['back_number','Nomor Punggung'],['nominal_rp','Nilai Pesanan'],['payment_status','Status Pembayaran'],['method','Keterangan']]
   }[active];
-  if(active==='obligations'&&rows.some(x=>x.next_effective_from))
-    list.append(node('p','Sekarang → Terjadwal. Angka setelah panah berlaku mulai bulan yang tertulis di bawah nama warga.','f4-obligation-list-hint'));
   const scroll=node('div',undefined,'f4-obligation-scroll');
   const table=node('table',undefined,'f4-obligation-grid'),thead=node('thead'),head=node('tr');table.dataset.module=active;
   for(const [,label] of fields)head.append(node('th',label));
@@ -619,31 +548,7 @@ function populate(){
    const tr=node('tr');
    for(const [key] of fields){
      const td=node('td');
-     if(active==='obligations'&&OBLIGATION_KEYS.includes(key)){
-       const current=Number(x[key]||0),future=f4ObligationFutureValue(x,key);
-       if(future!==null&&future!==current){
-         const change=node('span',undefined,'f4-obligation-change');
-         change.append(node('span',String(current),'f4-obligation-old'),
-                       node('span','→','f4-obligation-arrow'),
-                       node('strong',String(future),'f4-obligation-new'));
-         td.title='Sekarang '+current+' • Mulai '+f4ObligationMonthLabel(x.next_effective_from)+' '+future;
-         td.append(change);
-       }else td.append(showValue(x,key));
-     }else td.append(showValue(x,key));
-     if(active==='obligations'&&key==='nama'){
-       const changed=OBLIGATION_KEYS.some(k=>{
-         const future=f4ObligationFutureValue(x,k);
-         return future!==null&&future!==Number(x[k]||0);
-       });
-       if(x.next_effective_from&&changed){
-         td.append(node('small','Perubahan mulai '+f4ObligationMonthLabel(x.next_effective_from),'f4-obligation-upcoming'));
-         if(String(x.next_effective_from)===f4ObligationNextMonth()+'-01')
-           td.append(btn('Terapkan '+f4ObligationMonthLabel(f4ObligationCurrentMonth()),
-             ()=>f4ApplyScheduledObligationCurrentMonth(x),'f4-obligation-apply-now'));
-       }
-       else if(String(x.effective_from||'')===f4ObligationCurrentMonth()+'-01')
-         td.append(node('small','Aktif sejak '+f4ObligationMonthLabel(x.effective_from),'f4-obligation-upcoming'));
-     }
+     td.append(showValue(x,key));
      tr.append(td);
    }
    const action=node('td');
@@ -1045,7 +950,7 @@ function showForm(record){
  editing=true;
  if(record?._f4_bank_kind)return showBankForm(record._f4_bank_kind,record);
  const def=types[active],isNew=!record;
- header((isNew?'Tambah ':'Edit ')+def.label,active==='obligations'?'Perubahan berlaku mulai bulan yang dipilih. Riwayat lama tetap.':active==='jersey'?'Isi data pemesan, ukuran, nama dan nomor punggung, serta pembayaran.':'Formulir ini mengubah data master yang ditampilkan di portal. Tautan foto/video tetap berada di Google Drive.');
+ header((isNew?'Tambah ':'Edit ')+def.label,active==='obligations'?'Perubahan berlaku untuk pembayaran yang belum dicatat. Riwayat lama tetap.':active==='jersey'?'Isi data pemesan, ukuran, nama dan nomor punggung, serta pembayaran.':'Formulir ini mengubah data master yang ditampilkan di portal. Tautan foto/video tetap berada di Google Drive.');
  const form=node('form',undefined,'f4-admin-editor'+(active==='obligations'?' f4-obligation-form':active==='jersey'?' f4-jersey-order-form':''));form.noValidate=true;main.append(form);
  if(active==='documentation'||active==='inventory'){
   const scopeField=node('label'),caption=node('span','Tujuan publikasi'),scope=node('select');
@@ -1116,10 +1021,7 @@ function showForm(record){
   const examples={title:'Contoh: Kerja Bakti Lingkungan',description:'Contoh: Kegiatan membersihkan lorong bersama warga',drive_url:'Contoh: https://drive.google.com/drive/folders/...',photo_ref:'Contoh: https://drive.google.com/file/d/.../view',rumah:'Contoh: A5/41',nama:'Contoh: Pak Heri',qty_iuran_bulanan:'Contoh: 1 (kali)',qty_kebersihan:'Contoh: 1 (kali)',qty_kas_lorong:'Contoh: 1 (kali)',qty_arisan:'Contoh: 0 (tidak ikut)',setting_value:'Contoh: 10 (tanggal setiap bulan)',amount_rp:'Contoh: 25000',summary:'Contoh: Hasil kesepakatan rapat warga',event_on:'Pilih tanggal kegiatan',back_name:'Contoh: H.J.',back_number:'Contoh: 29'};
   if(input.tagName!=='SELECT'&&type!=='readonly')input.placeholder=examples[key]||'Isi '+label.toLowerCase();
   if(active==='jersey'&&record&&(key==='back_name'||key==='back_number'))input.value=jerseyBackParts(record)[key==='back_name'?'name':'number'];
-  else if(record&&record[key]!=null){
-    const version=active==='obligations'?f4ScheduledVersion(record,f4ObligationNextMonth()):null;
-    input.value=String(version&&OBLIGATION_KEYS.includes(key)?version[key]:record[key]);
-  }
+  else if(record&&record[key]!=null)input.value=String(record[key]);
   else if(type==='boolean')input.value='1';
   else if(type==='visibility')input.value='publik';
   else if(type==='projectKind')input.value='informasi';
@@ -1133,63 +1035,13 @@ function showForm(record){
  if(active==='obligations'){
    const noteWrap=node('label',undefined,'f4-obligation-field f4-obligation-note');
    noteWrap.append(node('span','Keterangan (opsional)'));
-   const noteInput=node('input');noteInput.type='text';noteInput.name='keterangan';
-   noteInput.maxLength=500;noteInput.value=String(record?.keterangan||'');
-   noteInput.placeholder='Contoh: Iuran kebersihan TPQ';
-   noteWrap.append(noteInput);form.append(noteWrap);
-   const noteAction=btn('Simpan Keterangan',async()=>{
-     if(noteAction.disabled)return;
-     const remark=noteInput.value.trim();
-     noteAction.disabled=true;
-     try{
-       await send(base+'obligations',{method:'POST',headers:{'Content-Type':'application/json'},
-         body:JSON.stringify({action:'update_note',payer_id:record.payer_id,keterangan:remark})});
-       const refreshed=await fetchData('obligations');
-       const found=refreshed.find(x=>String(x.payer_id)===String(record.payer_id));
-       if(!found||String(found.keterangan||'')!==remark)
-         throw Error('Keterangan belum terbaca kembali. Jangan simpan ulang sebelum memeriksa.');
-       records=refreshed;
-       const info=form.querySelector('.f4-obligation-note-status');
-       if(info)info.textContent='Keterangan tersimpan. Kewajiban dan transaksi lama tidak berubah.';
-     }catch(error){
-       const info=form.querySelector('.f4-obligation-note-status');
-       if(info)info.textContent='Gagal menyimpan keterangan: '+error.message;
-     }finally{noteAction.disabled=false}
-   },'f4-admin-btn');
-   form.append(noteAction,node('small','','f4-obligation-note-status'));
-   const period=node('div',undefined,'f4-obligation-period');
-   const {wrap,field}=f4ObligationControl('effective_from','Berlaku mulai',{type:'month',value:f4ObligationNextMonth()});
-   field.min=f4ObligationCurrentMonth();field.max='2100-12';
-   const refreshScheduledInputs=()=>{
-     const upcoming=f4ScheduledVersion(record,field.value);
-     if(!upcoming)return;
-     for(const key of OBLIGATION_KEYS){
-       const control=form.elements.namedItem(key);
-       if(control)control.value=String(upcoming[key]??0);
-     }
-   };
-   field.addEventListener('change',refreshScheduledInputs);
-   refreshScheduledInputs();
-   period.append(wrap,node('span','Bulan berjalan bisa diubah jika belum ada pembayaran aktif. Riwayat bulan lalu tetap.'));
-   form.append(period);
-   const next=f4ScheduledVersion(record,f4ObligationNextMonth());
-   if(next){
-     const applyCurrent=btn('Berlakukan juga sejak '+f4ObligationMonthLabel(f4ObligationCurrentMonth()),()=>{
-       field.value=f4ObligationCurrentMonth();
-       for(const key of OBLIGATION_KEYS){
-         const control=form.elements.namedItem(key);
-         if(control)control.value=String(next[key]??0);
-       }
-       const message=form.querySelector('.f4-obligation-current-notice');
-       if(message)message.textContent='Siap untuk '+f4ObligationMonthLabel(field.value)+'. Tekan Simpan Perubahan. Jika sudah ada pembayaran aktif, server akan menolak perubahan.';
-     },'f4-admin-btn f4-obligation-current-btn');
-     form.append(applyCurrent,node('p','','f4-obligation-current-notice'));
-   }
-   const pending=Array.isArray(record?.scheduled_versions)?record.scheduled_versions:[];
-   if(pending.length){
-     const note=node('p','Perubahan tersimpan: '+pending.map(v=>f4ObligationMonthLabel(v.effective_from)+' ('+OBLIGATION_KEYS.map((k,i)=>['Bulanan','Kebersihan','Kas','Arisan'][i]+' '+Number(v[k]||0)).join(' · ')+')').join('; '),'f4-admin-note');
-     form.append(note);
-   }
+   const noteInput=node('input');
+   noteInput.type='text';noteInput.name='keterangan';noteInput.maxLength=500;
+   noteInput.value=String(record?.keterangan||'');
+   noteInput.placeholder='Keterangan pembayaran';
+   noteWrap.append(noteInput);
+   form.append(noteWrap);
+   form.append(node('p','Aturan terbaru digunakan untuk pembayaran yang belum dicatat. Pembayaran lama tetap utuh.','f4-admin-note'));
  }
  if(active==='projects'){
   const typeField=form.elements.namedItem('project_kind');
@@ -1437,10 +1289,8 @@ function showForm(record){
    else if(active==='settings'){obj.setting_key=record.setting_key;obj.setting_value=values.setting_value;}
    else{
      obj.payer_id=record.payer_id;
-     obj.effective_from=String(form.elements.namedItem('effective_from')?.value||'');
-     if(!/^20\d{2}-(0[1-9]|1[0-2])$/.test(obj.effective_from)||obj.effective_from<f4ObligationCurrentMonth()){
-       notice.textContent='Perubahan paling cepat berlaku bulan ini jika belum ada pembayaran aktif.';return;
-     }
+     const remark=String(form.elements.namedItem('keterangan')?.value||'').trim();
+     if(remark!==String(record?.keterangan||''))obj.keterangan=remark;
      // Worker requires the complete four-component obligation record.
      // Partial edit payloads previously sent Number(undefined) -> NaN -> HTTP 400.
      const keys=['qty_iuran_bulanan','qty_kebersihan','qty_kas_lorong','qty_arisan'];
@@ -1476,9 +1326,9 @@ function showForm(record){
    records=await fetchData(active);
    if(active==='obligations'){
      const latest=records.find(x=>String(x.payer_id)===String(obj.payer_id));
-     const snapshot=f4SavedObligationVersion(latest,obj.effective_from);
-     if(!snapshot||OBLIGATION_KEYS.some(key=>Number(snapshot[key])!==Number(obj[key]))){
-       notice.textContent='Jadwal perubahan belum terverifikasi. Jangan simpan ulang sebelum memeriksa.';
+     if(!latest||OBLIGATION_KEYS.some(key=>Number(latest[key])!==Number(obj[key]))||
+       Object.hasOwn(obj,'keterangan')&&String(latest.keterangan||'')!==obj.keterangan){
+       notice.textContent='Perubahan belum terverifikasi dari D1. Periksa daftar sebelum menyimpan ulang.';
        return;
      }
    }
@@ -1494,7 +1344,7 @@ function showForm(record){
    }
    viewList();
    const info=main.querySelector('.f4-admin-note');
-   if(info)info.textContent=active==='obligations'?'Kewajiban '+String(record?.nama||'')+' berlaku mulai '+f4ObligationMonthLabel(obj.effective_from)+'. Pembayaran sebelumnya tetap utuh.':'Data berhasil disimpan dan diverifikasi dari server. '+records.length+' baris tersedia.';
+   if(info)info.textContent=active==='obligations'?'Kewajiban '+String(record?.nama||'')+' diperbarui untuk pembayaran yang belum dicatat. Riwayat lama tetap.':'Data berhasil disimpan dan diverifikasi dari server. '+records.length+' baris tersedia.';
    if(active==='projects'&&!record&&saved?.id){
     const newest=records.find(x=>String(x.id)===String(saved.id));
     if(newest&&['pesanan','penggalangan'].includes(newest.project_kind)){
