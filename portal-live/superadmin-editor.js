@@ -598,8 +598,16 @@ function populate(){
          td.append(change);
        }else td.append(showValue(x,key));
      }else td.append(showValue(x,key));
-     if(active==='obligations'&&key==='nama'&&x.next_effective_from)
-       td.append(node('small','Mulai '+f4ObligationMonthLabel(x.next_effective_from),'f4-obligation-upcoming'));
+     if(active==='obligations'&&key==='nama'){
+       const changed=OBLIGATION_KEYS.some(k=>{
+         const future=f4ObligationFutureValue(x,k);
+         return future!==null&&future!==Number(x[k]||0);
+       });
+       if(x.next_effective_from&&changed)
+         td.append(node('small','Perubahan mulai '+f4ObligationMonthLabel(x.next_effective_from),'f4-obligation-upcoming'));
+       else if(String(x.effective_from||'')===f4ObligationCurrentMonth()+'-01')
+         td.append(node('small','Aktif sejak '+f4ObligationMonthLabel(x.effective_from),'f4-obligation-upcoming'));
+     }
      tr.append(td);
    }
    const action=node('td');
