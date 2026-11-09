@@ -182,7 +182,7 @@
     #modal-rapat-body{overscroll-behavior:contain;background:white!important}
     #modal-rapat-body iframe{zoom:var(--f4-doc-zoom,1);max-width:none!important;background:white!important;min-height:100%}
     #modal-doc-rapat>div{background:white!important}
-    @media(max-width:640px){#modal-doc-rapat>div{height:94dvh}#modal-rapat-body{touch-action:pan-x pan-y pinch-zoom}}
+    @media(max-width:640px){#modal-doc-rapat>div{height:92dvh}#modal-rapat-body{touch-action:pan-x pan-y pinch-zoom}}
   </style>
 
   <style id="f4-rapat-mobile-viewer-fix-20261027">
@@ -197,19 +197,7 @@
       visibility:hidden!important;pointer-events:none!important
     }
     @media(max-width:760px){
-      #modal-doc-rapat:not(.hidden){
-        position:fixed!important;inset:0!important;
-        width:100vw!important;height:100dvh!important;
-        padding:0!important;margin:0!important;align-items:stretch!important;
-        justify-content:stretch!important;background:#fff!important;
-        backdrop-filter:none!important
-      }
-      #modal-doc-rapat>div{
-        width:100%!important;max-width:none!important;height:100dvh!important;
-        min-height:0!important;max-height:100dvh!important;
-        border:0!important;border-radius:0!important;box-shadow:none!important;
-        display:flex!important;flex-direction:column!important;overflow:hidden!important
-      }
+      /* Posisi panel mengikuti CSS bottom-sheet bersama; pertahankan toolbar dokumen. */
       #modal-doc-rapat>div>div:first-child{
         display:flex!important;align-items:center!important;
         gap:6px!important;min-width:0!important;flex:0 0 auto!important;
