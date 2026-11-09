@@ -4108,6 +4108,66 @@ async function createIuranPayment(request, env, who) {
     env.DB.prepare("INSERT INTO bookkeeping_payments(id,payer_id,household_id,paid_on,received_on,amount_rp,payment_method,description,status) VALUES(?,?,?,?,?,?,?,?,'aktif')").bind(id, payer.id, payer.household_id, date, date, sum-totalFineRp, method, (totalFineRp?((note?note+" • ":"")+"Denda "+totalFineRp+" dialihkan dari Kebersihan; diterima "+sum):note)),
     env.DB.prepare("INSERT INTO bookkeeping_payment_request_keys(request_key,payment_id,payload_hash) VALUES(?,?,?)").bind(key, id, iuranHash)
   ];
+  // Saat periode tanpa pembayaran memakai aturan terbaru yang lebih baru dari
+  // periode tagihannya, bekukan versi kewajiban pada bulan transaksi pertama.
+  // Masukkan dalam batch pembayaran yang sama: tidak ada snapshot yatim.
+  const newPeriodSnapshots=[];
+  for(const period of orderedPeriods){
+    const [yr,mo]=period.split(":").map(Number);
+    if(allowed.some(kind=>paidByKey.has(period+":"+kind)))continue;
+    const selected=requiredByPeriod.get(period);
+    const savedHistorical=await one(env.DB,
+      "SELECT qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan,effective_from FROM bookkeeping_payer_obligation_periods WHERE payer_id=? AND effective_from<=? ORDER BY effective_from DESC LIMIT 1",
+      [payerId,f4IuranMonth(yr,mo)]);
+    if(!savedHistorical)continue;
+    const historicalAmounts=f4IuranAmounts(savedHistorical,tariff);
+    if(allowed.every(kind=>historicalAmounts[kind]===selected[kind]))continue;
+    const latest=await one(env.DB,
+      "SELECT qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan,effective_from FROM bookkeeping_payer_obligation_periods WHERE payer_id=? ORDER BY effective_from DESC LIMIT 1",[payerId]);
+    if(!latest)continue;
+    const monthText=f4IuranMonth(yr,mo);
+    if(monthText>=latest.effective_from)continue;
+    newPeriodSnapshots.push({year:yr,month:mo,period:monthText,values:latest});
+  }
+  if(newPeriodSnapshots.length){
+    const earliest=newPeriodSnapshots.map(x=>x.period).sort()[0];
+    const latestDate=(await one(env.DB,
+      "SELECT MAX(effective_from) AS effective_from FROM bookkeeping_payer_obligation_periods WHERE payer_id=?",[payerId]))?.effective_from;
+    // Jaga periode SUDAH tercatat yang berada di antara bulan snapshot baru
+    // dan versi aturan terkini agar perubahan terdahulu tidak merembet.
+    const paidPeriods=await list(env.DB,`SELECT DISTINCT a.period_year AS year,a.period_month AS month
+      FROM bookkeeping_payment_allocations a
+      JOIN bookkeeping_payments p ON p.id=a.payment_id
+      WHERE a.payer_id=? AND a.status='aktif' AND p.status='aktif'
+        AND (a.period_year*12+a.period_month-1)>?
+        AND (a.period_year*12+a.period_month-1)<?
+      ORDER BY a.period_year,a.period_month LIMIT 500`,[
+        payerId,f4PeriodIndex(Number(earliest.slice(0,4)),Number(earliest.slice(5,7))),
+        f4PeriodIndex(Number(latestDate.slice(0,4)),Number(latestDate.slice(5,7)))
+      ]);
+    if(paidPeriods.length===500)return safeError("Terlalu banyak periode berbayar untuk direkonsiliasi otomatis.",409);
+    for(const paidPeriod of paidPeriods){
+      const monthText=f4IuranMonth(paidPeriod.year,paidPeriod.month);
+      const historical=await one(env.DB,
+        "SELECT qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan FROM bookkeeping_payer_obligation_periods WHERE payer_id=? AND effective_from<=? ORDER BY effective_from DESC LIMIT 1",
+        [payerId,monthText]);
+      if(historical)q.push(env.DB.prepare(`INSERT OR IGNORE INTO bookkeeping_payer_obligation_periods
+         (payer_id,effective_from,qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan,created_by)
+         VALUES(?,?,?,?,?,?,?)`).bind(payerId,monthText,
+           historical.qty_iuran_bulanan,historical.qty_kebersihan,historical.qty_kas_lorong,historical.qty_arisan,who.id));
+    }
+    for(const snapshot of newPeriodSnapshots){
+      const value=snapshot.values;
+      q.push(env.DB.prepare(`INSERT INTO bookkeeping_payer_obligation_periods
+        (payer_id,effective_from,qty_iuran_bulanan,qty_kebersihan,qty_kas_lorong,qty_arisan,created_by)
+        VALUES(?,?,?,?,?,?,?)
+        ON CONFLICT(payer_id,effective_from) DO UPDATE SET
+        qty_iuran_bulanan=excluded.qty_iuran_bulanan,qty_kebersihan=excluded.qty_kebersihan,
+        qty_kas_lorong=excluded.qty_kas_lorong,qty_arisan=excluded.qty_arisan,
+        created_by=excluded.created_by`).bind(payerId,snapshot.period,
+          value.qty_iuran_bulanan,value.qty_kebersihan,value.qty_kas_lorong,value.qty_arisan,who.id));
+    }
+  }
   for (const a of items) q.push(env.DB.prepare("INSERT INTO bookkeeping_payment_allocations(id,payment_id,payer_id,period_year,period_month,contribution_type,amount_rp,status) VALUES(?,?,?,?,?,?,?,'aktif')").bind("alloc-" + crypto.randomUUID(), id, payer.id, a.tahun, a.bulan, a.jenis, a.nominal));
   // Saldo Kas Warga hanya mencatat porsi KAS_LORONG. Komponen Iuran Bulanan,
   // Kebersihan, dan Arisan dicatat dalam alokasi administrasi, bukan debit Kas Warga.
