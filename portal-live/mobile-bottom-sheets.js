@@ -90,6 +90,18 @@
  function requestRefresh(){
   if(!refreshFrame)refreshFrame=requestAnimationFrame(refresh);
  }
+ function followAnimation(panel,duration){
+  const start=performance.now();
+  function frame(now){
+   if(!grip||active!==panel||!panel.isConnected||!media.matches)return;
+   const r=panel.getBoundingClientRect();
+   grip.style.left=Math.max(0,r.left)+'px';
+   grip.style.top=Math.max(0,r.top)+'px';
+   grip.style.width=r.width+'px';
+   if(now-start<duration+50)requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+ }
  function clearTimer(panel){
   if(timers.has(panel)){clearTimeout(timers.get(panel));timers.delete(panel);}
  }
@@ -129,6 +141,7 @@
   const root=rootOf(panel);
   observe(root,()=>resetIfClosed(panel));
   if(root!==panel)observe(panel,requestRefresh);
+  if(visible(panel))active=panel;
   const details=panel.closest('details');
   if(details)observe(details,()=>resetIfClosed(panel));
   requestRefresh();
@@ -178,6 +191,7 @@
   panel.classList.remove('f4-sheet-dragging','f4-sheet-dismissing');
   panel.classList.add('f4-sheet-settling');
   panel.classList.toggle('f4-sheet-expanded',expanded);
+  grip?.classList.add('f4-sheet-handle-settling');
   panel.style.transition=duration
    ?'transform '+duration+'ms cubic-bezier(.18,.75,.28,1),height '+duration+'ms cubic-bezier(.18,.75,.28,1)'
    :'none';
@@ -186,10 +200,12 @@
    panel.style.height=target+'px';
    panel.style.maxHeight=target+'px';
    panel.style.transform='translate3d(0,0,0)';
+   followAnimation(panel,duration);
    requestRefresh();
   });
   const timer=setTimeout(()=>{
    timers.delete(panel);
+   grip?.classList.remove('f4-sheet-handle-settling');
    if(!panel.isConnected)return;
    panel.classList.remove('f4-sheet-settling');
    panel.style.removeProperty('transition');
@@ -212,13 +228,16 @@
   const duration=reduced.matches?0:190;
   panel.classList.remove('f4-sheet-dragging','f4-sheet-settling');
   panel.classList.add('f4-sheet-dismissing');
+  grip?.classList.add('f4-sheet-handle-settling');
   panel.style.transition=duration?'transform '+duration+'ms cubic-bezier(.25,.8,.25,1)':'none';
   requestAnimationFrame(()=>{
    panel.style.transform='translate3d(0,'+(window.innerHeight+40)+'px,0)';
+   followAnimation(panel,duration);
    requestRefresh();
   });
   timers.set(panel,setTimeout(()=>{
    timers.delete(panel);
+   grip?.classList.remove('f4-sheet-handle-settling');
    dismiss(panel);
    clearPanel(panel);
    if(active===panel)active=null;
@@ -248,6 +267,7 @@
   }else{
    panel.style.transform='translate3d(0,0,0)';
   }
+  grip.classList.remove('f4-sheet-handle-settling');
   grip.classList.add('f4-sheet-handle-dragging');
   grip.setPointerCapture?.(event.pointerId);
   event.preventDefault();
