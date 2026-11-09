@@ -1889,6 +1889,7 @@ main > section.card{overflow:visible!important}
           </div>
           <div class="f4-book-period grid sm:grid-cols-3 gap-4 f4-book-period-controls" aria-label="Periode pembayaran">
             <span class="f4-book-period-title">Periode Pembayaran</span>
+            <p id="inp-periode-status" class="f4-book-period-status" role="status" aria-live="polite" hidden></p>
             <div><label class="text-sm font-bold">Bulan Awal</label><select id="inp-bulan" class="field mt-1" onchange="f4IuranManualPeriod()"></select></div>
             <div><label class="text-sm font-bold">Tahun</label><input id="inp-tahun" type="number" min="2020" max="2100" class="field mt-1" oninput="f4IuranManualPeriod()" onchange="f4IuranManualPeriod()"></div>
             <div><label class="text-sm font-bold">Jml Bulan</label><select id="inp-jumlah" class="field mt-1" onchange="updatePreview()"><option value="1">1 bulan</option><option value="2">2 bulan</option><option value="3">3 bulan</option></select></div>
@@ -2570,9 +2571,18 @@ function renderSemua(){const total=DATA.rumah.length,dihuni=DATA.rumah.filter(x=
 function isiForm(){const sel=document.getElementById('inp-warga');const old=sel.value;sel.innerHTML='<option value="">Pilih warga...</option>'+DATA.warga.filter(w=>['ya','aktif'].includes((w.statusAktif||'').toLowerCase())&&[w.qtyIuranBulanan,w.qtyKebersihan,w.qtyKasLorong,w.qtyArisan].some(n=>Number(n||0)>0)).map(w=>`<option value="${w.idWarga}">${w.nama} (${w.blok}/${w.noRumah})</option>`).join('');if(old)sel.value=old;const now=new Date();document.getElementById('inp-tanggal').value=now.toISOString().slice(0,10);document.getElementById('inp-tahun').value=now.getFullYear();document.getElementById('inp-bulan').innerHTML=BULAN.slice(1).map((b,i)=>`<option value="${i+1}">${b}</option>`).join('');document.getElementById('inp-bulan').value=now.getMonth()+1;pilihWargaIuran()}
 function periodeList(b,y,j){const a=[];let m=Number(b),yr=Number(y);for(let i=0;i<Number(j);i++){a.push(BULAN[m]+' '+yr);m++;if(m>12){m=1;yr++}}return a}
 let F4_IURAN_PREVIEW=null,F4_IURAN_PREVIEW_SEQUENCE=0;
-let F4_IURAN_SUGGEST_SEQ=0;
+let F4_IURAN_SUGGEST_SEQ=0,F4_IURAN_PERIOD_BLOCKED=false;
+function f4IuranPeriodNotice(message,type='info'){
+ const el=document.getElementById('inp-periode-status');
+ if(!el)return;
+ el.textContent=message||'';
+ el.hidden=!message;
+ el.dataset.state=type;
+}
 function f4IuranManualPeriod(){
  ++F4_IURAN_SUGGEST_SEQ;
+ F4_IURAN_PERIOD_BLOCKED=false;
+ f4IuranPeriodNotice('');
  updatePreview();
 }
 async function pilihWargaIuran(){
@@ -2581,25 +2591,57 @@ async function pilihWargaIuran(){
  F4_IURAN_PREVIEW=null;
  const id=String(document.getElementById('inp-warga')?.value||'');
  const bulan=document.getElementById('inp-bulan'),tahun=document.getElementById('inp-tahun');
- if(!id){updatePreview();return;}
+ F4_IURAN_PERIOD_BLOCKED=!!id;
+ if(!id){
+   f4IuranPeriodNotice('');
+   updatePreview();
+   return;
+ }
+ // Hari ini hanya titik awal sementara, BUKAN tanda periode yang belum dibayar.
  const today=new Date(Date.now()+7*60*60*1000);
- bulan.value=String(today.getUTCMonth()+1);tahun.value=String(today.getUTCFullYear());
+ bulan.value=String(today.getUTCMonth()+1);
+ tahun.value=String(today.getUTCFullYear());
  window.refreshAllCustomSelects?.();
+ f4IuranPeriodNotice('Memeriksa bulan yang belum lunas dari Pembukuan…');
  const empty=document.getElementById('preview-empty'),details=document.getElementById('preview-detail');
- if(empty){empty.textContent='Memeriksa pembayaran warga…';empty.classList.remove('hidden');}
+ if(empty){empty.textContent='Memeriksa riwayat pembayaran warga…';empty.classList.remove('hidden');}
  details?.classList.add('hidden');
  try{
    const url='https://api.flamboyan4.web.id/api/bookkeeping/iuran/suggested-period?'+new URLSearchParams({payerId:id});
    const res=await fetch(url,{credentials:'include',mode:'cors',cache:'no-store'});
-   const result=await res.json().catch(()=>({}));
-   if(!res.ok||result.ok===false)throw Error(result.error||'Riwayat iuran tidak dapat diperiksa.');
+   const result=await res.json().catch(()=>null);
+   if(!res.ok||result?.ok!==true)throw Error(result?.error||'Permintaan periode gagal (HTTP '+res.status+').');
    if(ticket!==F4_IURAN_SUGGEST_SEQ||String(document.getElementById('inp-warga')?.value)!==id)return;
-   if(result.period&&Number(result.month)>=1&&Number(result.month)<=12&&Number.isInteger(Number(result.year))){
-     bulan.value=String(result.month);
-     tahun.value=String(result.year);
+   const match=String(result.period||'').match(/^(20\d{2})-(0[1-9]|1[0-2])-01$/);
+   if(!match){
+     F4_IURAN_PERIOD_BLOCKED=true;
+     f4IuranPeriodNotice('Tidak ditemukan bulan yang perlu dibayar. Periksa riwayat, atau pilih periode manual.','warning');
+     empty.textContent='Tidak ada periode otomatis yang belum lunas. Pilih bulan secara manual bila ingin memeriksa.';
+     empty.classList.remove('hidden');
+     return;
    }
- }catch{
-   // Biarkan bulan berjalan sebagai pilihan awal; periode tetap bisa diubah manual.
+   const selectedYear=Number(match[1]),selectedMonth=Number(match[2]);
+   if(selectedYear!==Number(result.year)||selectedMonth!==Number(result.month)||
+      !Number.isSafeInteger(result.remainingRp)||result.remainingRp<=0)
+     throw Error('Hasil pemeriksaan periode tidak konsisten.');
+   bulan.value=String(selectedMonth);
+   tahun.value=String(selectedYear);
+   F4_IURAN_PERIOD_BLOCKED=false;
+   const periodName=BULAN[selectedMonth]+' '+selectedYear;
+   const paidLabel=String(result.lastLunas||'').match(/^(20\d{2})-(0[1-9]|1[0-2])/);
+   const lastPaid=paidLabel?' • Lunas terakhir '+BULAN[Number(paidLabel[2])]+' '+paidLabel[1]:'';
+   f4IuranPeriodNotice('Periode belum lunas: '+periodName+lastPaid,'success');
+ }catch(error){
+   if(ticket!==F4_IURAN_SUGGEST_SEQ||String(document.getElementById('inp-warga')?.value)!==id)return;
+   F4_IURAN_PERIOD_BLOCKED=true;
+   f4IuranPeriodNotice('Bulan otomatis gagal diperiksa. Pilih bulan manual atau pilih ulang warga.','error');
+   if(empty){
+     empty.textContent='Tidak dapat memeriksa pembayaran sebelumnya: '+(error.message||error)+'. Pilih bulan manual sebelum menyimpan.';
+     empty.classList.remove('hidden');
+   }
+   details?.classList.add('hidden');
+   console.warn('Pencarian bulan iuran gagal:',error);
+   return;
  }
  if(ticket!==F4_IURAN_SUGGEST_SEQ)return;
  window.refreshAllCustomSelects?.();
@@ -2615,6 +2657,10 @@ async function updatePreview(){
  const empty=document.getElementById('preview-empty'),detail=document.getElementById('preview-detail');
  F4_IURAN_PREVIEW=null;
  if(!w){empty.textContent='Pilih warga untuk melihat rincian.';empty.classList.remove('hidden');detail.classList.add('hidden');return}
+ if(F4_IURAN_PERIOD_BLOCKED){
+   empty.textContent='Tentukan periode pembayaran berdasarkan riwayat. Pilih ulang warga atau pilih Bulan Awal secara manual.';
+   empty.classList.remove('hidden');detail.classList.add('hidden');return;
+ }
  const firstMonth=Number(document.getElementById('inp-bulan').value),
        year=Number(document.getElementById('inp-tahun').value),
        count=Number(document.getElementById('inp-jumlah').value||1),key=f4IuranPreviewKey();
@@ -2646,6 +2692,15 @@ async function updatePreview(){
      if(Object.hasOwn(sums,item.jenis))sums[item.jenis]+=Math.max(0,Number(item.sisaRp)||0);
    }
    const bul=sums.IURAN_BULANAN,keb=sums.KEBERSIHAN,kas=sums.KAS_LORONG,ari=sums.ARISAN,total=bul+keb+kas+ari;
+   if(total===0){
+     F4_IURAN_PREVIEW=null;
+     detail.classList.add('hidden');empty.textContent='Periode ini sudah lunas atau tidak memiliki kewajiban. Pilih periode lain.';
+     empty.classList.remove('hidden');
+     const input=document.getElementById('inp-nominal-dibayar');
+     if(input){input.value='';delete input.dataset.lastTotal;delete input.dataset.edited;}
+     updateNominalParsialInfo();
+     return;
+   }
    const outstandingFine=Math.max(0,Number(fineBody.totalDendaRp)||0);
    const redirectedFine=Math.min(keb,outstandingFine);
    F4_IURAN_PREVIEW={key,total,fixed:bul+keb+ari,kas,dendaDialihkan:redirectedFine};
