@@ -190,7 +190,7 @@ async function prepareAndPrint(){
 }
 async function reopenBatch(){
  if(!current||current.status!=="siap")return;
- if(!confirm("Buka kembali kelompok setoran? Lembar timbang yang sudah dicetak harus diganti."))return;
+ if(!await window.f4UiDialog.confirm("Buka kembali kelompok setoran? Lembar timbang yang sudah dicetak harus diganti."))return;
  try{await fetchSheet(current.batchId,{action:"reopen"});await refresh();status("Setoran dibuka kembali. Cetak ulang lembar setelah selesai mengubah data.")}
  catch(e){status(e.message||String(e),true)}
 }
