@@ -2700,27 +2700,57 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       }
       return container;
     }
-    // Untuk Gapura: saldo kas SELURUH Pembukuan, termasuk saldo awal serah-terima.
-    // Kategori transaksi tetap tersedia bagi Project Card kas lainnya.
+    // Sumber Gapura adalah saldo akhir seluruh jurnal aktif Pembukuan, termasuk
+    // saldo awal serah terima. Permintaan tetap membutuhkan sesi login server.
+    function f4ProjectCashMessage(message){
+      for(const [id,value] of [
+        ['gapura-terkumpul',message],
+        ['gapura-kurang','—'],
+        ['gapura-percent','—']
+      ]){
+        const field=document.getElementById(id);
+        if(field)field.textContent=value;
+      }
+      const progress=document.getElementById('gapura-progress-bar');
+      if(progress)progress.style.width='0%';
+    }
     async function f4ProjectFullCashBalance(){
-      const response=await fetch('https://api.flamboyan4.web.id/api/v2/public/portal/cash',{
-        cache:'no-store',headers:{Accept:'application/json'}
-      });
+      const base='https://api.flamboyan4.web.id';
+      const options={mode:'cors',credentials:'include',cache:'no-store',headers:{Accept:'application/json'}};
+      let response=await fetch(base+'/api/v2/portal/cash-balance',options);
+      if(response.status===404){
+        // Transisi saat Worker baru belum diterbitkan: endpoint laporan yang
+        // sudah ada tetap aman karena memerlukan cookie sesi yang sama.
+        response=await fetch(base+'/api/v2/public/portal/cash',options);
+        const old=await response.json().catch(()=>null);
+        if(!response.ok||old?.ok!==true||!Array.isArray(old?.data?.rows)){
+          const error=new Error(old?.error||'Saldo kas belum tersedia.');
+          error.status=response.status;
+          throw error;
+        }
+        const balance=old.data.rows.reduce((total,row)=>{
+          const debit=Number(row.debit),kredit=Number(row.kredit);
+          if(!Number.isSafeInteger(debit)||!Number.isSafeInteger(kredit)||
+             debit<0||kredit<0||(debit>0&&kredit>0)||(debit===0&&kredit===0))
+            throw Error('Jurnal kas perlu diperiksa.');
+          return total+debit-kredit;
+        },0);
+        if(!Number.isSafeInteger(balance))throw Error('Saldo Kas tidak valid.');
+        return balance;
+      }
       const data=await response.json().catch(()=>null);
-      const rows=data?.data?.rows;
-      if(!response.ok||data?.ok!==true||!Array.isArray(rows))
-        throw Error(data?.error||'Saldo kas belum tersedia.');
-      const balance=rows.reduce((sum,item)=>{
-        const debit=Number(item.debit),kredit=Number(item.kredit);
-        if(!Number.isSafeInteger(debit)||!Number.isSafeInteger(kredit)||
-           debit<0||kredit<0||(debit>0&&kredit>0)||(debit===0&&kredit===0))
-          throw Error('Jurnal kas memerlukan pemeriksaan.');
-        return sum+debit-kredit;
-      },0);
-      if(!Number.isSafeInteger(balance))throw Error('Saldo kas tidak valid.');
+      if(!response.ok||data?.ok!==true){
+        const error=new Error(data?.error||'Saldo Kas belum tersedia.');
+        error.status=response.status;
+        throw error;
+      }
+      const balance=data?.data?.saldoRp;
+      if(!Number.isSafeInteger(balance))throw Error('Saldo Kas tidak valid.');
       return balance;
     }
+    let f4ProjectLoadGeneration=0;
     async function loadProjectCards(){
+      const generation=++f4ProjectLoadGeneration;
       let fullCashPromise;
       const slider=document.getElementById('slider-projek');
       if(!slider)return;
@@ -2735,6 +2765,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       if(!empty){empty=f4ProjectCardEl('p','text-xs text-slate-500 w-full py-4','Memuat proyek…');empty.id='f4-project-empty';slider.append(empty);}
       try{
         const response=await fetch(PROJECT_API,{cache:'no-store',headers:{Accept:'application/json'}});
+        if(generation!==f4ProjectLoadGeneration)return;
         if(!response.ok)throw Error('HTTP '+response.status);
         const data=await response.json();
         if(data.ok===false||!Array.isArray(data.projects))throw Error(data.error||'Data proyek tidak tersedia');
@@ -2773,12 +2804,16 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
             if(special==='gapura'&&['kas','penggalangan'].includes(row.project_kind)){
               const fromKas=row.project_kind==='kas';
               const goal=f4ProjectNumber(row.fund_target_rp);
+              if(fromKas&&!f4CanReadKas()){
+                f4ProjectCashMessage('Login untuk lihat');
+                continue;
+              }
               try{
-                // Saldo kas Gapura harus persis seperti "Saldo Kas" di Portal Utama:
-                // seluruh debit-kredit jurnal aktif, bukan satu kategori kas saja.
                 if(fromKas&&!fullCashPromise)fullCashPromise=f4ProjectFullCashBalance();
                 const money=fromKas?await fullCashPromise:
                   f4ProjectNumber(row.ringkasan?.danaMasukRp);
+                // Jangan menampilkan saldo milik akun lama ketika sesi berubah.
+                if(generation!==f4ProjectLoadGeneration||fromKas&&!f4CanReadKas())return;
                 const percent=goal>0?Math.max(0,Math.min(100,money/goal*100)):0;
                 const labels=[
                   ['gapura-terkumpul',f4ProjectRp(money)],
@@ -2789,11 +2824,9 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
                 const bar=document.getElementById('gapura-progress-bar');
                 if(bar)bar.style.width=percent+'%';
               }catch(error){
+                if(generation!==f4ProjectLoadGeneration)return;
                 console.warn('Saldo kas Gapura belum tersedia:',error);
-                const labels=[['gapura-terkumpul','Tidak tersedia'],['gapura-kurang','—'],['gapura-percent','—']];
-                labels.forEach(([id,value])=>{const node=document.getElementById(id);if(node)node.textContent=value});
-                const bar=document.getElementById('gapura-progress-bar');
-                if(bar)bar.style.width='0%';
+                f4ProjectCashMessage(error.status===401?'Login untuk lihat':'Saldo belum terbaca');
               }
             }
             continue;
@@ -2804,12 +2837,19 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         empty.hidden=rows.length>0;
         if(window.lucide)window.lucide.createIcons();
       }catch(error){
+        if(generation!==f4ProjectLoadGeneration)return;
         // No stale project and no ghost card after a failed public D1 request.
         empty.hidden=false;empty.textContent='Projek gagal dimuat. Coba muat ulang.';
         console.warn('Project Card D1:',error);
       }
     }
     document.addEventListener('DOMContentLoaded',loadProjectCards);
+    document.addEventListener('f4:cash-access-change',()=>{
+      // Segera sembunyikan saldo saat logout/pergantian akun.
+      ++f4ProjectLoadGeneration;
+      f4ProjectCashMessage('Login untuk lihat');
+      void loadProjectCards();
+    });
 
 
     // URL CSV Progres Bank Sampah
