@@ -140,10 +140,10 @@ __name(publicBank, "publicBank");
 // bukan data riwayat yang dibatasi pagination atau estimasi timbang.
 async function authenticatedBankFinanceSummary(db) {
   const [sales,savings,cash] = await Promise.all([
-    one(db,`SELECT COALESCE(SUM(a.received_rp),0) AS total
-      FROM waste_allocations a
-      JOIN waste_batches b ON b.id=a.batch_id AND b.status='disahkan'
-      JOIN waste_sales s ON s.batch_id=a.batch_id AND s.status='terkonfirmasi'`),
+    one(db,`SELECT COALESCE(SUM(s.amount_received_rp),0) AS total
+      FROM waste_sales s
+      JOIN waste_batches b ON b.id=s.batch_id AND b.status='disahkan'
+      WHERE s.status='terkonfirmasi'`),
     one(db,`SELECT COALESCE(SUM(CASE WHEN kind IN ('kredit','koreksi_kredit')
       THEN amount_rp ELSE -amount_rp END),0) AS total FROM waste_savings_ledger`),
     list(db,`SELECT fund_position,
