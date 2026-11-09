@@ -276,7 +276,8 @@ function f4ObligationActionIcon(kind,handler){
  for(const d of paths){const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',d);svg.append(path);}
  action.append(svg);return action;
 }
-const obligationActive=r=>OBLIGATION_KEYS.some(k=>Number(r?.[k]||0)>0);
+const obligationActive=r=>OBLIGATION_KEYS.some(k=>Number(r?.[k]||0)>0)||
+  (Array.isArray(r?.scheduled_versions)&&r.scheduled_versions.some(v=>OBLIGATION_KEYS.some(k=>Number(v[k]||0)>0)));
 
 async function removeObligation(record){
  if(active!=='obligations'||!record?.payer_id||!obligationActive(record))return;
@@ -308,6 +309,18 @@ function f4ObligationCurrentMonth(){return new Date(Date.now()+7*3600*1000).toIS
 function f4ScheduledVersion(row,month){
  return (Array.isArray(row?.scheduled_versions)?row.scheduled_versions:[])
    .find(x=>String(x.effective_from)===month+'-01');
+}
+function f4ObligationMonthLabel(iso){
+ const match=String(iso||'').match(/^(20\d{2})-(0[1-9]|1[0-2])/);
+ if(!match)return String(iso||'');
+ const months=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+ return months[Number(match[2])-1]+' '+match[1];
+}
+function f4ObligationFutureValue(row,key){
+ const upcoming=Array.isArray(row?.scheduled_versions)?row.scheduled_versions[0]:null;
+ if(!upcoming)return null;
+ const n=Number(upcoming[key]);
+ return Number.isSafeInteger(n)&&n>=0?n:null;
 }
 function f4ObligationControl(key,title,{type='number',value='0',required=true}={}){
  const wrap=node('label',undefined,'f4-obligation-field');
@@ -535,6 +548,8 @@ function populate(){
    obligations:[['nama','Nama warga'],['rumah','Rumah'],['qty_iuran_bulanan','Iuran bulanan'],['qty_kebersihan','Kebersihan'],['qty_kas_lorong','Kas lorong'],['qty_arisan','Arisan']],
    jersey:[['group_key','Kelompok'],['package_type','Pesanan'],['sort_order','No'],['resident','Nama & Rumah'],['sleeves','Lengan'],['size','Ukuran'],['back_name','Nama Punggung'],['back_number','Nomor Punggung'],['nominal_rp','Nilai Pesanan'],['payment_status','Status Pembayaran'],['method','Keterangan']]
   }[active];
+  if(active==='obligations'&&rows.some(x=>x.next_effective_from))
+    list.append(node('p','Sekarang → Terjadwal. Angka setelah panah berlaku mulai bulan yang tertulis di bawah nama warga.','f4-obligation-list-hint'));
   const scroll=node('div',undefined,'f4-obligation-scroll');
   const table=node('table',undefined,'f4-obligation-grid'),thead=node('thead'),head=node('tr');table.dataset.module=active;
   for(const [,label] of fields)head.append(node('th',label));
@@ -566,9 +581,20 @@ function populate(){
   for(const x of rows){
    const tr=node('tr');
    for(const [key] of fields){
-     const td=node('td');td.append(showValue(x,key));
+     const td=node('td');
+     if(active==='obligations'&&OBLIGATION_KEYS.includes(key)){
+       const current=Number(x[key]||0),future=f4ObligationFutureValue(x,key);
+       if(future!==null&&future!==current){
+         const change=node('span',undefined,'f4-obligation-change');
+         change.append(node('span',String(current),'f4-obligation-old'),
+                       node('span','→','f4-obligation-arrow'),
+                       node('strong',String(future),'f4-obligation-new'));
+         td.title='Sekarang '+current+' • Mulai '+f4ObligationMonthLabel(x.next_effective_from)+' '+future;
+         td.append(change);
+       }else td.append(showValue(x,key));
+     }else td.append(showValue(x,key));
      if(active==='obligations'&&key==='nama'&&x.next_effective_from)
-       td.append(node('small','Berlaku '+x.next_effective_from.slice(0,7),'f4-obligation-upcoming'));
+       td.append(node('small','Mulai '+f4ObligationMonthLabel(x.next_effective_from),'f4-obligation-upcoming'));
      tr.append(td);
    }
    const action=node('td');
@@ -1041,7 +1067,10 @@ function showForm(record){
   const examples={title:'Contoh: Kerja Bakti Lingkungan',description:'Contoh: Kegiatan membersihkan lorong bersama warga',drive_url:'Contoh: https://drive.google.com/drive/folders/...',photo_ref:'Contoh: https://drive.google.com/file/d/.../view',rumah:'Contoh: A5/41',nama:'Contoh: Pak Heri',qty_iuran_bulanan:'Contoh: 1 (kali)',qty_kebersihan:'Contoh: 1 (kali)',qty_kas_lorong:'Contoh: 1 (kali)',qty_arisan:'Contoh: 0 (tidak ikut)',setting_value:'Contoh: 10 (tanggal setiap bulan)',amount_rp:'Contoh: 25000',summary:'Contoh: Hasil kesepakatan rapat warga',event_on:'Pilih tanggal kegiatan',back_name:'Contoh: H.J.',back_number:'Contoh: 29'};
   if(input.tagName!=='SELECT'&&type!=='readonly')input.placeholder=examples[key]||'Isi '+label.toLowerCase();
   if(active==='jersey'&&record&&(key==='back_name'||key==='back_number'))input.value=jerseyBackParts(record)[key==='back_name'?'name':'number'];
-  else if(record&&record[key]!=null)input.value=String(record[key]);
+  else if(record&&record[key]!=null){
+    const version=active==='obligations'?f4ScheduledVersion(record,f4ObligationNextMonth()):null;
+    input.value=String(version&&OBLIGATION_KEYS.includes(key)?version[key]:record[key]);
+  }
   else if(type==='boolean')input.value='1';
   else if(type==='visibility')input.value='publik';
   else if(type==='projectKind')input.value='informasi';
@@ -1082,11 +1111,21 @@ function showForm(record){
    const period=node('div',undefined,'f4-obligation-period');
    const {wrap,field}=f4ObligationControl('effective_from','Berlaku mulai',{type:'month',value:f4ObligationNextMonth()});
    field.min=f4ObligationNextMonth();field.max='2100-12';
+   const refreshScheduledInputs=()=>{
+     const upcoming=f4ScheduledVersion(record,field.value);
+     if(!upcoming)return;
+     for(const key of OBLIGATION_KEYS){
+       const control=form.elements.namedItem(key);
+       if(control)control.value=String(upcoming[key]??0);
+     }
+   };
+   field.addEventListener('change',refreshScheduledInputs);
+   refreshScheduledInputs();
    period.append(wrap,node('span','Hanya bulan mendatang. Tagihan lama tidak diubah.'));
    form.append(period);
    const pending=Array.isArray(record?.scheduled_versions)?record.scheduled_versions:[];
    if(pending.length){
-     const note=node('p','Perubahan terjadwal: '+pending.map(v=>v.effective_from.slice(0,7)).join(', '),'f4-admin-note');
+     const note=node('p','Perubahan tersimpan: '+pending.map(v=>f4ObligationMonthLabel(v.effective_from)+' ('+OBLIGATION_KEYS.map((k,i)=>['Bulanan','Kebersihan','Kas','Arisan'][i]+' '+Number(v[k]||0)).join(' · ')+')').join('; '),'f4-admin-note');
      form.append(note);
    }
  }
