@@ -310,6 +310,11 @@ function f4ScheduledVersion(row,month){
  return (Array.isArray(row?.scheduled_versions)?row.scheduled_versions:[])
    .find(x=>String(x.effective_from)===month+'-01');
 }
+function f4SavedObligationVersion(row,month){
+ const from=String(month||'')+'-01';
+ if(String(row?.effective_from||'')===from)return row;
+ return f4ScheduledVersion(row,month);
+}
 function f4ObligationMonthLabel(iso){
  const match=String(iso||'').match(/^(20\d{2})-(0[1-9]|1[0-2])/);
  if(!match)return String(iso||'');
@@ -1110,7 +1115,7 @@ function showForm(record){
    form.append(noteAction,node('small','','f4-obligation-note-status'));
    const period=node('div',undefined,'f4-obligation-period');
    const {wrap,field}=f4ObligationControl('effective_from','Berlaku mulai',{type:'month',value:f4ObligationNextMonth()});
-   field.min=f4ObligationNextMonth();field.max='2100-12';
+   field.min=f4ObligationCurrentMonth();field.max='2100-12';
    const refreshScheduledInputs=()=>{
      const upcoming=f4ScheduledVersion(record,field.value);
      if(!upcoming)return;
@@ -1121,8 +1126,21 @@ function showForm(record){
    };
    field.addEventListener('change',refreshScheduledInputs);
    refreshScheduledInputs();
-   period.append(wrap,node('span','Hanya bulan mendatang. Tagihan lama tidak diubah.'));
+   period.append(wrap,node('span','Bulan berjalan bisa diubah jika belum ada pembayaran aktif. Riwayat bulan lalu tetap.'));
    form.append(period);
+   const next=f4ScheduledVersion(record,f4ObligationNextMonth());
+   if(next){
+     const applyCurrent=btn('Berlakukan juga sejak '+f4ObligationMonthLabel(f4ObligationCurrentMonth()),()=>{
+       field.value=f4ObligationCurrentMonth();
+       for(const key of OBLIGATION_KEYS){
+         const control=form.elements.namedItem(key);
+         if(control)control.value=String(next[key]??0);
+       }
+       const message=form.querySelector('.f4-obligation-current-notice');
+       if(message)message.textContent='Siap untuk '+f4ObligationMonthLabel(field.value)+'. Tekan Simpan Perubahan. Jika sudah ada pembayaran aktif, server akan menolak perubahan.';
+     },'f4-admin-btn f4-obligation-current-btn');
+     form.append(applyCurrent,node('p','','f4-obligation-current-notice'));
+   }
    const pending=Array.isArray(record?.scheduled_versions)?record.scheduled_versions:[];
    if(pending.length){
      const note=node('p','Perubahan tersimpan: '+pending.map(v=>f4ObligationMonthLabel(v.effective_from)+' ('+OBLIGATION_KEYS.map((k,i)=>['Bulanan','Kebersihan','Kas','Arisan'][i]+' '+Number(v[k]||0)).join(' · ')+')').join('; '),'f4-admin-note');
@@ -1376,8 +1394,8 @@ function showForm(record){
    else{
      obj.payer_id=record.payer_id;
      obj.effective_from=String(form.elements.namedItem('effective_from')?.value||'');
-     if(!/^20\d{2}-(0[1-9]|1[0-2])$/.test(obj.effective_from)||obj.effective_from<f4ObligationNextMonth()){
-       notice.textContent='Perubahan paling cepat berlaku bulan depan.';return;
+     if(!/^20\d{2}-(0[1-9]|1[0-2])$/.test(obj.effective_from)||obj.effective_from<f4ObligationCurrentMonth()){
+       notice.textContent='Perubahan paling cepat berlaku bulan ini jika belum ada pembayaran aktif.';return;
      }
      // Worker requires the complete four-component obligation record.
      // Partial edit payloads previously sent Number(undefined) -> NaN -> HTTP 400.
@@ -1414,7 +1432,7 @@ function showForm(record){
    records=await fetchData(active);
    if(active==='obligations'){
      const latest=records.find(x=>String(x.payer_id)===String(obj.payer_id));
-     const snapshot=f4ScheduledVersion(latest,obj.effective_from);
+     const snapshot=f4SavedObligationVersion(latest,obj.effective_from);
      if(!snapshot||OBLIGATION_KEYS.some(key=>Number(snapshot[key])!==Number(obj[key]))){
        notice.textContent='Jadwal perubahan belum terverifikasi. Jangan simpan ulang sebelum memeriksa.';
        return;
@@ -1432,7 +1450,7 @@ function showForm(record){
    }
    viewList();
    const info=main.querySelector('.f4-admin-note');
-   if(info)info.textContent=active==='obligations'?'Perubahan '+String(record?.nama||'')+' terjadwal '+String(obj.effective_from||'')+'. Data lama tidak berubah.':'Data berhasil disimpan dan diverifikasi dari server. '+records.length+' baris tersedia.';
+   if(info)info.textContent=active==='obligations'?'Kewajiban '+String(record?.nama||'')+' berlaku mulai '+f4ObligationMonthLabel(obj.effective_from)+'. Pembayaran sebelumnya tetap utuh.':'Data berhasil disimpan dan diverifikasi dari server. '+records.length+' baris tersedia.';
    if(active==='projects'&&!record&&saved?.id){
     const newest=records.find(x=>String(x.id)===String(saved.id));
     if(newest&&['pesanan','penggalangan'].includes(newest.project_kind)){
