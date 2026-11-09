@@ -7,6 +7,8 @@ if(!portal)return;
 const API='https://api.flamboyan4.web.id';
 const $=id=>document.getElementById(id);
 const bellIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 9h18c0-1-3-2-3-9"/><path d="M10 21h4"/></svg>';
+const closeIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+const refreshIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14-5L4 8m0-5v5h5"/><path d="M4 13a8 8 0 0 0 14 5l2-2m0 5v-5h-5"/></svg>';
 const icons={
  sale:'<svg viewBox="0 0 24 24"><path d="M3 7h18l-2 13H5L3 7Z"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>',
  approve:'<svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="m8 12 3 3 5-6"/></svg>',
@@ -23,9 +25,16 @@ function isAuthorized(){
 function create(tag,cls,txt){
  const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e;
 }
+function headingTarget(){
+ if(portal==='bank'){
+  const greeting=$('f4BankPageGreeting');
+  return greeting && !greeting.hidden ? greeting : null;
+ }
+ return $('f4-account-page')?.querySelector(':scope > main > .f4-work-heading')||null;
+}
 function mount(){
- const bar=$('f4-direct-bar'),links=bar?.querySelector('.f4-nav-links');
- if(!bar||!links)return false;
+ const target=headingTarget();
+ if(!target)return false;
  if(!bell||!bell.isConnected){
   bell=create('button');bell.id='f4-work-bell';bell.type='button';bell.hidden=true;
   bell.innerHTML=bellIcon;
@@ -33,21 +42,27 @@ function mount(){
   bell.setAttribute('aria-label','Notifikasi pekerjaan');
   bell.setAttribute('aria-haspopup','dialog');bell.setAttribute('aria-expanded','false');
   const count=create('span');count.id='f4-work-bell-count';count.hidden=true;count.setAttribute('aria-hidden','true');bell.append(count);
-  bar.insertBefore(bell,$('f4-direct-avatar')||$('f4-direct-bar')?.querySelector('.f4-direct-login'));
   bell.addEventListener('click',()=>{if(isAuthorized())show()});
  }
+ if(bell.parentElement!==target)target.append(bell);
  if(!overlay){
   overlay=create('div');overlay.id='f4-work-notice';overlay.hidden=true;
   panel=create('section','f4-work-notice-panel');panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');
   panel.setAttribute('aria-label','Notifikasi pekerjaan');
   const header=create('div','f4-work-notice-header'),h=create('h2',null,'Notifikasi');
-  const close=create('button','f4-work-notice-close','×');close.type='button';close.setAttribute('aria-label','Tutup notifikasi');
-  close.onclick=hide;
-  header.append(h,close);
-  const list=create('div','f4-work-notice-list');list.id='f4-work-notice-list';
-  const refresh=create('button','f4-work-notice-refresh','Perbarui');refresh.type='button';
+  const tools=create('div','f4-work-notice-tools');
+  const refresh=create('button','f4-work-notice-refresh');refresh.type='button';
+  refresh.innerHTML=refreshIcon;refresh.title='Muat ulang notifikasi';
+  refresh.setAttribute('aria-label','Muat ulang notifikasi');
   refresh.onclick=()=>refreshData(true);
-  panel.append(header,list,refresh);overlay.append(panel);
+  const close=create('button','f4-work-notice-close');close.type='button';
+  close.innerHTML=closeIcon;close.title='Tutup notifikasi';
+  close.setAttribute('aria-label','Tutup notifikasi');
+  close.onclick=hide;
+  tools.append(refresh,close);
+  header.append(h,tools);
+  const list=create('div','f4-work-notice-list');list.id='f4-work-notice-list';
+  panel.append(header,list);overlay.append(panel);
   overlay.addEventListener('click',event=>{if(event.target===overlay)hide()});
   document.body.append(overlay);
  }
@@ -140,6 +155,8 @@ async function refreshData(force=false){
 }
 function show(){
  if(!mount()||!isAuthorized())return;
+ const rect=bell.getBoundingClientRect();
+ overlay.style.setProperty('--f4-notice-top',Math.max(16,Math.min(window.innerHeight-160,rect.bottom+10))+'px');
  open=true;overlay.hidden=false;document.body.classList.add('f4-notice-open');bell.setAttribute('aria-expanded','true');
  paint();refreshData(true);
  panel.querySelector('.f4-work-notice-close')?.focus({preventScroll:true});
@@ -159,6 +176,13 @@ function start(){
  bodyObserver.observe(document.body,{attributes:true,attributeFilter:['class']});
  const target=portal==='bank' ?$('dashboardView'):$('f4-account-page');
  if(target)new MutationObserver(sync).observe(target,{attributes:true,attributeFilter:['class','hidden']});
+ if(portal==='superadmin'){
+  const main=$('f4-account-page')?.querySelector(':scope > main');
+  if(main)new MutationObserver(sync).observe(main,{childList:true});
+ }else{
+  const greeting=$('f4BankPageGreeting');
+  if(greeting)new MutationObserver(sync).observe(greeting,{attributes:true,attributeFilter:['hidden']});
+ }
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&open){e.stopPropagation();hide()}},true);
  window.addEventListener('f4-treasury-updated',()=>refreshData(true));
  window.addEventListener('focus',()=>{if(isAuthorized())refreshData()});
