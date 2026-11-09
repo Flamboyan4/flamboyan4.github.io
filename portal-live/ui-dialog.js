@@ -34,7 +34,7 @@ style.textContent=`
 .f4-ui-dialog button:focus-visible,.f4-ui-dialog input:focus-visible{outline:3px solid #99d6c0;outline-offset:2px}
 @media(max-width:500px){.f4-ui-dialog{padding:14px}.f4-ui-dialog-panel{padding:20px;border-radius:17px}.f4-ui-dialog-footer button{flex:1}}
 
-@media(max-width:640px){
+@media(max-width:767px){
  .f4-ui-dialog{align-items:flex-end;justify-content:stretch;padding:0;background:rgba(16,29,36,.52)}
  .f4-ui-dialog-panel{width:100%;max-height:min(88dvh,770px);padding:18px 20px calc(20px + env(safe-area-inset-bottom,0px));border:0;border-radius:22px 22px 0 0;box-shadow:0 -14px 38px rgba(10,27,25,.22);animation:f4-dialog-rise .22s cubic-bezier(.17,.67,.2,1)}
  .f4-ui-dialog-panel:before{content:"";display:block;margin:-8px auto 14px;width:42px;height:4px;border-radius:10px;background:#d6dfda}
