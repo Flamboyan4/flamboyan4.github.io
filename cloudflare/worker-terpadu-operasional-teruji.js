@@ -5599,7 +5599,7 @@ async function bankActionCounts(env,who){
       WHERE status='diajukan') AS new_payouts,
    (SELECT COUNT(DISTINCT s.batch_id) FROM waste_sales s
       JOIN waste_batches b ON b.id=s.batch_id
-      WHERE s.status='terkonfirmasi'
+      WHERE s.status='draft'
         AND b.status NOT IN ('disahkan','dibatalkan')) AS pending_approvals`).first();
  const member=Number(counts?.unsold_members||0),bank=Number(counts?.unsold_bank||0);
  return json({ok:true,unsoldDeposits:member+bank,unsoldMemberDeposits:member,
