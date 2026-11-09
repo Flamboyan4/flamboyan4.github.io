@@ -57,22 +57,16 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #76
 .f4-obligation-section-title span{font-size:11px;color:#6b8190}
 .f4-obligation-amounts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--f4-grid-gap-compact,10px)}
 .f4-obligation-amounts input{text-align:center;font-weight:600}
-.f4-obligation-period{display:flex;align-items:end;gap:12px;flex-wrap:wrap}
-.f4-obligation-period .f4-obligation-field{width:min(100%,215px)}
-.f4-obligation-period>span{padding-bottom:9px;font-size:11px;color:#678093}
 .f4-obligation-form .f4-obligation-edit-fields{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .f4-obligation-form .f4-obligation-edit-fields label{gap:5px}
 .f4-obligation-form .f4-obligation-edit-fields input{min-height:41px;padding:8px 11px}
 .f4-obligation-form .f4-obligation-actions{justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:8px;margin-top:0;padding-top:10px;border-top:1px solid #e8eef4}
 .f4-obligation-form .f4-admin-message{margin:0;font-size:12px}
-.f4-obligation-upcoming{display:block;margin:4px 0;font-size:10px;color:#52769e;white-space:nowrap}
 @media(max-width:760px){
  .f4-obligation-form{padding:12px;gap:10px}
  .f4-obligation-identity{grid-template-columns:1fr}
  .f4-obligation-amounts{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
  .f4-obligation-form .f4-obligation-edit-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
- .f4-obligation-period .f4-obligation-field{width:100%}
- .f4-obligation-period>span{padding:0}
  .f4-obligation-form .f4-obligation-actions>*{flex:1 1 0;min-width:0}
 }
 
@@ -270,7 +264,6 @@ html body #f4-account-page>aside{overflow-x:hidden}
 .f4-obligation-icon-btn:hover,.f4-obligation-icon-btn:focus-visible{background:#ede8ff;border-color:#bfb0ed}
 .f4-obligation-icon-danger{color:#ba5f59;background:#fff9f7;border-color:#ecd8d5}
 .f4-obligation-icon-danger:hover,.f4-obligation-icon-danger:focus-visible{background:#ffeae5;border-color:#e6b5b1}
-.f4-obligation-upcoming{display:block;margin-top:2px;font-weight:500;font-size:10px;color:#657fa4;line-height:1.2}
 
 .f4-obligation-toolbar{align-items:center;padding:10px 11px;gap:7px;margin:9px 0}
 .f4-obligation-toolbar input{min-width:120px;height:var(--f4-control-height,42px);padding:0 10px}
