@@ -39,6 +39,7 @@ async function post(payload){
  headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
  const v=await r.json().catch(()=>({}));
  if(!r.ok||v.ok===false)throw Error(v.error||"Penyimpanan ditolak.");
+ window.dispatchEvent(new Event("f4-treasury-updated"));
  return v;
 }
 function simpleTable(parent,head,rows,cls=""){
