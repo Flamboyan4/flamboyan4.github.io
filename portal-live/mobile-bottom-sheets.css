@@ -352,3 +352,58 @@
   animation:none;transition:none
  }
 }
+
+
+/* v8: Layer safety + one viewport-anchored gesture handle for every portal.
+   A dismissed dialog must never intercept taps on the page underneath. */
+@media (max-width:767px) {
+ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
+  .v21-modal,.v24-edit-overlay,.f4-activity-dialog,.f4-warga-picker-pop,
+  .sa-account-shade,.f4-jersey-print-veil,.tc-date-overlay,.f4-ui-dialog,
+  #f4-work-notice,.f4-pm-shade,#modal-event-detail,#modal-arisan,
+  #modal-cetak-kas,#modal-keuangan,#modal-jersey,#modal-dokumentasi,
+  #modal-gallery-grid,#modal-saran,#modal-edit,.edit-modal,
+  #modal-koreksi-migrasi,#modal-doc-rapat,.f4p-album-overlay,
+  #modal-gateway):is(.hidden,[hidden]) {
+  display:none;
+  pointer-events:none;
+ }
+ body > .f4-sheet-handle {
+  position:fixed;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  left:0;top:0;width:100%;height:32px;
+  margin:0;padding:0;
+  z-index:2147483000;
+  background:transparent;
+  border:0;
+  touch-action:none;
+  cursor:grab;
+  user-select:none;
+  -webkit-user-select:none;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+ }
+ body > .f4-sheet-handle[hidden] {display:none}
+ body > .f4-sheet-handle::before {
+  content:"";display:block;width:44px;height:5px;
+  background:#c4cbd0;border-radius:99px;
+  box-shadow:0 0 0 1px #ffffff60;
+ }
+ body > .f4-sheet-handle:focus-visible {
+  outline:2px solid #6c71ab;outline-offset:-3px;border-radius:12px;
+ }
+ body > .f4-sheet-handle.f4-sheet-handle-dragging {cursor:grabbing}
+ body .f4-sheet-draggable.f4-sheet-settling {
+  animation:none;
+ }
+ #modal-edit > .f4-book-edit-center:has(.f4-sheet-dragging) {
+  height:calc(100dvh - 10px);
+  max-height:calc(100dvh - 10px);
+ }
+}
+@media (prefers-reduced-motion:reduce) {
+ body .f4-sheet-draggable,
+ body .f4-sheet-draggable.f4-sheet-settling {animation:none}
+}
