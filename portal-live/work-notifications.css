@@ -43,7 +43,7 @@ body.f4-direct-bank #f4-work-notice .f4-work-notice-num{color:#146c43;background
 #f4-work-notice .f4-work-notice-muted{margin:0;padding:18px 12px;text-align:center;color:#697789;font-size:12px;line-height:1.6}
 body.f4-direct-bank #f4-work-notice .f4-work-notice-refresh{color:#146e46;background:#f3f9f5;border-color:#dceade}
 #f4-work-bell:focus-visible,#f4-work-notice button:focus-visible{outline:3px solid #aa9ade;outline-offset:2px}
-@media(max-width:640px){
+@media(max-width:767px){
  #f4-work-bell{flex-basis:38px;width:38px;height:38px}
  body.f4-direct-bank #f4BankPageGreeting{gap:8px}
  body.f4-direct-bank #f4BankPageGreeting #f4-work-bell{width:38px;height:38px}
