@@ -1,0 +1,27 @@
+/* Pola popup HP Flamboyan 4. PC tetap dialog tengah. Tanpa important. */
+#credentialModal{position:fixed;inset:0;z-index:650;display:grid;place-items:center;padding:18px;background:rgba(17,33,26,.74)}
+#credentialModal>.f4-bank-credential-panel{width:min(420px,100%);max-height:90dvh;overflow:auto;box-shadow:0 16px 48px #18271a55}
+@media(max-width:640px){
+ #f4-direct-dialog{align-items:end;justify-items:stretch;padding:0;background:rgba(15,25,38,.54)}
+ #f4-direct-dialog section{width:100%;max-height:90dvh;overflow-y:auto;border-radius:22px 22px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom,0px));box-shadow:0 -15px 40px #15233933;animation:f4-sheet-up .23s ease-out}
+ #f4-direct-dialog section:before{content:"";display:block;margin:-12px auto 18px;width:42px;height:4px;border-radius:4px;background:#d5dbe3}
+ #f4-direct-dialog .f4-login-actions button{flex:1;min-height:47px}
+ #f4-superadmin-confirm{align-items:end;justify-items:stretch;padding:0;background:rgba(18,29,45,.56)}
+ #f4-superadmin-confirm .f4-sa-confirm-panel{width:100%;max-height:88dvh;overflow-y:auto;border:0;border-radius:22px 22px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom,0px));animation:f4-sheet-up .23s ease-out}
+ #f4-superadmin-confirm .f4-sa-confirm-panel:before{content:"";display:block;margin:-12px auto 19px;width:42px;height:4px;border-radius:4px;background:#d5dbe3}
+ #f4-superadmin-confirm .f4-sa-confirm-actions{flex-wrap:nowrap}
+ #f4-superadmin-confirm .f4-sa-confirm-actions button{flex:1;min-height:47px}
+ body.f4-direct-bank .v21-modal:not(.v21-lightbox){display:flex;align-items:flex-end;justify-content:stretch;padding:0;background:rgba(15,32,24,.54)}
+ body.f4-direct-bank .v21-modal:not(.v21-lightbox)>.v21-modal-card{width:100%;min-height:0;max-height:88dvh;border-radius:22px 22px 0 0;animation:f4-sheet-up .23s ease-out}
+ body.f4-direct-bank .v21-modal:not(.v21-lightbox)>.v21-modal-card:before{content:"";display:block;flex:none;margin:10px auto 1px;width:42px;height:4px;border-radius:10px;background:#d9e2dc}
+ body.f4-direct-bank .v21-modal:not(.v21-lightbox)>.v21-modal-card .v21-modal-body{padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))}
+ #credentialModal:not(.hidden){display:flex;align-items:flex-end;justify-content:stretch;padding:0}
+ #credentialModal>.f4-bank-credential-panel{width:100%;max-height:84dvh;border-radius:22px 22px 0 0;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px));animation:f4-sheet-up .23s ease-out}
+ #credentialModal>.f4-bank-credential-panel:before{content:"";display:block;margin:0 auto 12px;width:42px;height:4px;border-radius:4px;background:#d7e1da}
+}
+@keyframes f4-sheet-up{from{opacity:.75;transform:translateY(34px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){
+ #f4-direct-dialog section,#f4-superadmin-confirm .f4-sa-confirm-panel,
+ body.f4-direct-bank .v21-modal:not(.v21-lightbox)>.v21-modal-card,
+ #credentialModal>.f4-bank-credential-panel{animation:none}
+}
