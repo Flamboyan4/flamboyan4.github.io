@@ -2779,14 +2779,23 @@ async function f4ContributionReport(db, request) {
         nominalBulanan: 0,
         nominalKebersihan: 0,
         nominalBayar: 0,
+        rincianBulanan: [],
+        rincianKebersihan: [],
         metode: x.payment_method || "",
         keterangan: ""
       });
     }
     const entry = byPayer.get(payer), amount = Number(x.line_rp || 0);
     const category = String(x.contribution_type || "").trim().toUpperCase();
-    if (category === "IURAN_BULANAN") entry.nominalBulanan += amount;
-    if (category === "KEBERSIHAN") entry.nominalKebersihan += amount;
+    const period = String(x.period_year).padStart(4, "0") + "-" + String(x.period_month).padStart(2, "0");
+    if (category === "IURAN_BULANAN") {
+      entry.nominalBulanan += amount;
+      if (amount > 0) entry.rincianBulanan.push({ periode: period, nominalRp: amount });
+    }
+    if (category === "KEBERSIHAN") {
+      entry.nominalKebersihan += amount;
+      if (amount > 0) entry.rincianKebersihan.push({ periode: period, nominalRp: amount });
+    }
     if (category === "ARISAN") entry.nominalBayar += amount;
   }
   const year = Number((from || to || "").slice(0, 4)) || (/* @__PURE__ */ new Date()).getUTCFullYear();
@@ -2794,23 +2803,100 @@ async function f4ContributionReport(db, request) {
   const monthNames = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
   const entries = [...byPayer.values()];
   if (kind === "rt") {
-    const rows2 = entries.filter((x) => x.nominalBulanan > 0 || x.nominalKebersihan > 0);
-    const totalBulanan = rows2.reduce((a, x) => a + x.nominalBulanan, 0), totalKebersihan = rows2.reduce((a, x) => a + x.nominalKebersihan, 0);
-    // Laporan RT mencatat UNIT SETORAN, bukan jumlah pembayar unik.
-    // Satu warga yang melunasi dua kewajiban kebersihan bernilai 2 setoran.
-    const tarif = await getIuranTariffs(db);
+    // Date-filter reports are receipts for a date window, not statements of
+    // monthly obligations. Only month/year range reports check unpaid dues.
+    const reportMonths = [];
+    const firstKey = from.slice(0, 7), lastKey = to.slice(0, 7);
+    const keyValid = value => /^20\d\d-(0[1-9]|1[0-2])$/.test(value);
+    if (level !== "date" && from && to && keyValid(firstKey) && keyValid(lastKey) && firstKey <= lastKey) {
+      let y = Number(firstKey.slice(0, 4)), m = Number(firstKey.slice(5, 7));
+      const ey = Number(lastKey.slice(0, 4)), em = Number(lastKey.slice(5, 7));
+      while (y < ey || y === ey && m <= em) {
+        reportMonths.push(String(y) + "-" + String(m).padStart(2, "0"));
+        if (++m > 12) { m = 1; y++; }
+        if (reportMonths.length > 1200) return safeError("Rentang laporan terlalu panjang.", 400);
+      }
+    }
+    const tariff = await getIuranTariffs(db);
+    const versionMap = new Map();
+    if (reportMonths.length) {
+      const statement = "SELECT o.payer_id,o.effective_from,o.qty_iuran_bulanan,o.qty_kebersihan," +
+        "p.display_name,h.house_code FROM bookkeeping_payer_obligation_periods o " +
+        "JOIN bookkeeping_payers p ON p.id=o.payer_id " +
+        "LEFT JOIN households h ON h.id=p.household_id " +
+        "WHERE p.active=1 AND p.payer_type='warga' AND o.effective_from<=? " +
+        "ORDER BY o.payer_id,o.effective_from";
+      const activeVersions = await db.prepare(statement).bind(reportMonths.at(-1) + "-01").all();
+      for (const item of activeVersions.results || []) {
+        const id = String(item.payer_id);
+        if (!versionMap.has(id)) versionMap.set(id, []);
+        versionMap.get(id).push(item);
+      }
+    }
+    const rateBulanan = Number(tariff.TARIF_BULANAN || 0);
+    const rateKebersihan = Number(tariff.TARIF_KEBERSIHAN || 0);
+    for (const [id, versions] of versionMap) {
+      const wajibBulanan = [], wajibKebersihan = [];
+      for (const period of reportMonths) {
+        let active = null;
+        for (const v of versions) {
+          if (String(v.effective_from) <= period + "-01") active = v;
+          else break;
+        }
+        if (!active) continue;
+        const bulanan = Number(active.qty_iuran_bulanan || 0) * rateBulanan;
+        const kebersihan = Number(active.qty_kebersihan || 0) * rateKebersihan;
+        if (Number.isSafeInteger(bulanan) && bulanan > 0)
+          wajibBulanan.push({ periode: period, wajibRp: bulanan });
+        if (Number.isSafeInteger(kebersihan) && kebersihan > 0)
+          wajibKebersihan.push({ periode: period, wajibRp: kebersihan });
+      }
+      let entry = byPayer.get(id);
+      if (!entry && !wajibBulanan.length && !wajibKebersihan.length) continue;
+      if (!entry) {
+        const latest = versions.at(-1), house = String(latest.house_code || "").split("/");
+        entry = { idWarga: id, nama: latest.display_name || "",
+          blok: house[0] || "", noRumah: house.slice(1).join("/") || "",
+          nominalBulanan: 0, nominalKebersihan: 0, nominalBayar: 0,
+          rincianBulanan: [], rincianKebersihan: [], metode: "", keterangan: "" };
+        byPayer.set(id, entry);
+      }
+      const paid = (details, month) =>
+        details.reduce((total, line) => total + (line.periode === month ? Number(line.nominalRp || 0) : 0), 0);
+      entry.wajibBulananPeriode = wajibBulanan.map(row => ({
+        ...row, dibayarRp: paid(entry.rincianBulanan, row.periode)
+      }));
+      entry.wajibKebersihanPeriode = wajibKebersihan.map(row => ({
+        ...row, dibayarRp: paid(entry.rincianKebersihan, row.periode)
+      }));
+    }
+    const rows2 = [...byPayer.values()].filter(row =>
+      row.nominalBulanan > 0 || row.nominalKebersihan > 0 ||
+      (row.wajibBulananPeriode || []).length > 0 || (row.wajibKebersihanPeriode || []).length > 0);
+    const totalBulanan = rows2.reduce((sum, row) => sum + row.nominalBulanan, 0);
+    const totalKebersihan = rows2.reduce((sum, row) => sum + row.nominalKebersihan, 0);
+    // Unit setoran is separate from distinct payer count.
     const countUnits = (amount, rate) => rate > 0 ? amount / rate : null;
+    let labelPeriode = "";
+    if (reportMonths.length) {
+      const first = reportMonths[0], last = reportMonths.at(-1);
+      const sy = Number(first.slice(0, 4)), sm = Number(first.slice(5, 7));
+      const ey = Number(last.slice(0, 4)), em = Number(last.slice(5, 7));
+      labelPeriode = first === last ? monthNames[sm] + " " + sy :
+        sy === ey ? monthNames[sm] + "–" + monthNames[em] + " " + sy :
+        monthNames[sm] + " " + sy + " – " + monthNames[em] + " " + ey;
+    } else labelPeriode = from && to ? from + " s.d. " + to : monthNames[month] + " " + year;
     return json({ ok: true, data: {
-      namaBulan: monthNames[month],
-      tahun: year,
+      namaBulan: monthNames[month], tahun: year, labelPeriode,
+      cekKewajibanPeriode: reportMonths.length > 0,
       ringkasan: {
         totalBulanan, totalKebersihan, totalSetoran: totalBulanan + totalKebersihan,
-        jumlahSetoranBulanan: countUnits(totalBulanan, tarif.TARIF_BULANAN),
-        jumlahSetoranKebersihan: countUnits(totalKebersihan, tarif.TARIF_KEBERSIHAN),
+        jumlahSetoranBulanan: countUnits(totalBulanan, rateBulanan),
+        jumlahSetoranKebersihan: countUnits(totalKebersihan, rateKebersihan),
         talanganCount: 0
       },
       rows: rows2,
-      catatan: "Setoran RT berdasarkan alokasi iuran D1; talangan belum digabung otomatis."
+      catatan: "Alokasi setoran RT sesuai bulan kewajiban D1; bukan tanggal uang diterima."
     } });
   }
   const tariff = await db.prepare("SELECT amount_rp FROM bookkeeping_contribution_tariffs WHERE contribution_type='ARISAN'").first();
