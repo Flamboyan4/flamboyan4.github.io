@@ -201,7 +201,7 @@
   const collapsed=Math.max(90,savedHeights.get(panel)||rect.height);
   const base=wasExpanded?0:height-rect.height;
   panel.classList.remove('f4-sheet-settling','f4-sheet-dismissing');
-  panel.classList.add('f4-sheet-dragging','f4-sheet-expanded');
+  panel.classList.add('f4-sheet-dragging','f4-sheet-expanded','f4-sheet-gesture-ready');
   panel.style.transition='none';
   panel.style.willChange='transform';
   panel.style.height=height+'px';
