@@ -226,6 +226,9 @@
   .custom-select-btn:focus-visible{outline:none;box-shadow:0 0 0 3px #ede9fe;border-color:#8b5cf6}
   .custom-select-btn .cs-value{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .custom-select-btn .cs-arrow{flex:0 0 auto;color:#7c3aed;transition:transform .16s}
+  .custom-select-btn .cs-arrow svg,.cs-option .cs-check svg{display:block;width:16px;height:16px}
+  .f4-icon-close{display:inline-flex;align-items:center;justify-content:center}
+  .f4-icon-close svg{display:block}
   .custom-select-wrap.open .cs-arrow{transform:rotate(180deg)}
   .custom-select-panel{position:absolute;z-index:80;left:0;right:0;top:calc(100% + 6px);background:#fff;border:1px solid #ddd6fe;border-radius:14px;box-shadow:0 18px 45px rgba(46,16,101,.16);overflow:hidden;display:none}
   .custom-select-wrap.open .custom-select-panel{display:block}
@@ -1838,7 +1841,7 @@ main > section.card{overflow:visible!important}
   <div id="status-box" class="mb-5 hidden rounded-xl border px-4 py-3 text-sm"></div>
 
 
-  <section class="card bg-white rounded-2xl border border-violet-100 overflow-hidden">
+  <section class="card f4-book-workspace bg-white rounded-2xl border border-violet-100 overflow-hidden">
     <div id="group-nav-inputdata" class="group-nav f4-book-tab-shell">
       <nav class="f4-book-sections" aria-label="Jenis pencatatan">
         <button type="button" data-book-input-section="input" class="f4-book-section-btn active" onclick="pilihMenu('input')">Iuran Warga</button>
@@ -4022,7 +4025,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       const n=document.createElement('span');n.className='cs-name';n.textContent=meta?.name||opt.textContent;
       const h=document.createElement('span');h.className='cs-house';h.textContent=meta?.house||'';row.append(n,h);btn.append(row);
     } else { const t=document.createElement('span');t.className='min-w-0';t.textContent=opt.textContent;btn.append(t); }
-    const ck=document.createElement('span');ck.className='cs-check';ck.textContent='✓';btn.append(ck);
+    const ck=document.createElement('span');ck.className='cs-check';ck.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg>';btn.append(ck);
     btn.addEventListener('click',()=>{select.value=opt.value;select.dispatchEvent(new Event('change',{bubbles:true}));refresh(select);const st=STATE.get(select);st?.wrap.classList.remove('open')});
     return btn;
   }
@@ -4044,7 +4047,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   function enhance(select){
     if(STATE.has(select)||select.dataset.noCustom==='1')return;
     const wrap=document.createElement('div');wrap.className='custom-select-wrap';
-    const btn=document.createElement('button');btn.type='button';btn.className='custom-select-btn';btn.innerHTML='<span class="cs-value"></span><span class="cs-arrow">⌄</span>';
+    const btn=document.createElement('button');btn.type='button';btn.className='custom-select-btn';btn.innerHTML='<span class="cs-value"></span><span class="cs-arrow" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>';
     const panel=document.createElement('div');panel.className='custom-select-panel';
     const isResident=RESIDENT_IDS.has(select.id);let search=null;
     if(select.dataset.noSearch!=='1' && (isResident || select.options.length>8)){const sw=document.createElement('div');sw.className='cs-search-wrap';search=document.createElement('input');search.type='search';search.className='cs-search';search.placeholder=isResident?'Cari nama / blok rumah...':'Cari pilihan...';sw.append(search);panel.append(sw)}
@@ -4112,7 +4115,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 <div id="modal-edit-kas" class="edit-modal" onclick="if(event.target===this)tutupEditKas()">
   <div class="edit-modal-card">
-    <div class="edit-modal-head"><h3>Edit Transaksi Kas Manual</h3><button type="button" onclick="tutupEditKas()" class="w-9 h-9 rounded-xl hover:bg-violet-50">✕</button></div>
+    <div class="edit-modal-head"><h3>Edit Transaksi Kas Manual</h3><button type="button" onclick="tutupEditKas()" aria-label="Tutup edit kas" title="Tutup" class="w-9 h-9 rounded-xl hover:bg-violet-50 f4-icon-close"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
     <input id="edit-kas-id" type="hidden">
     <div class="edit-grid">
       <div><label class="text-sm font-bold">Tanggal</label><input id="edit-kas-tanggal" type="date" class="field mt-1"></div>
@@ -4129,7 +4132,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 <div id="modal-edit-pinjaman" class="edit-modal" onclick="if(event.target===this)tutupEditPinjaman()">
   <div class="edit-modal-card">
-    <div class="edit-modal-head"><h3>Edit Pinjaman Belum Lunas</h3><button type="button" onclick="tutupEditPinjaman()" class="w-9 h-9 rounded-xl hover:bg-violet-50">✕</button></div>
+    <div class="edit-modal-head"><h3>Edit Pinjaman Belum Lunas</h3><button type="button" onclick="tutupEditPinjaman()" aria-label="Tutup edit pinjaman" title="Tutup" class="w-9 h-9 rounded-xl hover:bg-violet-50 f4-icon-close"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
     <input id="edit-pin-id" type="hidden">
     <div id="edit-pin-info" class="mb-3 rounded-xl bg-violet-50 border border-violet-100 p-3 text-sm text-violet-800"></div>
     <div class="edit-grid">
@@ -5073,20 +5076,21 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
 <style id="v6271-mobile-history">
 @media (max-width:767px){
   .mhistory-source{display:none!important}
-  .mhistory-cards{display:flex!important;flex-direction:column;gap:8px;margin-top:8px;min-width:0}
-  .mhistory-entry{border:1px solid #e9e1fa;background:white;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(55,25,105,.035)}
+  .mhistory-cards{display:flex!important;flex-direction:column;gap:7px;margin-top:7px;min-width:0}
+  .mhistory-entry{border:1px solid #e9e1fa;background:#fff;border-radius:12px;overflow:hidden;box-shadow:none}
   .mhistory-entry[open]{border-color:#c4b5fd}
-  .mhistory-entry>summary{list-style:none;cursor:pointer;padding:12px 13px;display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+  .mhistory-entry>summary{list-style:none;cursor:pointer;padding:9px 11px;min-height:58px;display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
   .mhistory-entry>summary::-webkit-details-marker{display:none}
   .mhistory-main{min-width:0;flex:1}
-  .mhistory-primary{font-size:14px;color:#2e1065;font-weight:850;line-height:1.25;overflow-wrap:anywhere}
-  .mhistory-secondary{font-size:11px;color:#8b91a3;margin-top:3px;line-height:1.3}
-  .mhistory-right{text-align:right;flex:none;max-width:42%;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
-  .mhistory-amount{font-weight:850;font-size:14px;color:#16152b;white-space:nowrap}
-  .mhistory-status{font-size:10px;font-weight:800;color:#6d28d9;max-width:100%;overflow-wrap:anywhere}
-  .mhistory-chevron{color:#7c3aed;font-size:15px;transition:transform .2s}
+  .mhistory-primary{font-size:13px;color:#2e1065;font-weight:850;line-height:1.22;overflow-wrap:anywhere}
+  .mhistory-secondary{font-size:11px;color:#8b91a3;margin-top:3px;line-height:1.25}
+  .mhistory-right{text-align:right;flex:none;max-width:44%;min-width:0;display:grid;grid-template-columns:minmax(0,1fr) 18px;grid-template-rows:auto auto;align-items:center;justify-items:end;gap:3px 5px}
+  .mhistory-amount{grid-column:1/-1;font-weight:850;font-size:14px;color:#16152b;white-space:nowrap}
+  .mhistory-status{grid-column:1;font-size:10px;font-weight:800;color:#6d28d9;max-width:100%;overflow-wrap:anywhere}
+  .mhistory-chevron{grid-column:2;grid-row:2;display:inline-flex;align-items:center;justify-content:center;color:#7c3aed;transition:transform .18s}
+  .mhistory-chevron svg{display:block;width:16px;height:16px}
   .mhistory-entry[open] .mhistory-chevron{transform:rotate(180deg)}
-  .mhistory-detail{border-top:1px solid #ede9fe;background:#faf9ff;padding:8px 12px 11px}
+  .mhistory-detail{border-top:1px solid #ede9fe;background:#faf9ff;padding:7px 11px 9px}
   .mhistory-line{display:grid;grid-template-columns:minmax(85px,32%) minmax(0,1fr);gap:9px;align-items:start;padding:7px 0;border-bottom:1px solid #eeeafb;font-size:12px}
   .mhistory-line:last-child{border-bottom:0}
   .mhistory-key{color:#64748b;font-weight:650}
@@ -5138,7 +5142,7 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
         const details=document.createElement('details');details.className='mhistory-entry';details.dataset.rkey=key;
         if(oldOpen.has(key))details.open=true;
         const summary=document.createElement('summary');
-        summary.innerHTML='<div class="mhistory-main"><div class="mhistory-primary">'+escapeText(first)+'</div><div class="mhistory-secondary">'+escapeText(side)+'</div></div><div class="mhistory-right"><div class="mhistory-amount">'+escapeText(amount)+'</div>'+(status?'<div class="mhistory-status">'+escapeText(status)+'</div>':'')+'<div class="mhistory-chevron" aria-hidden="true">⌄</div></div>';
+        summary.innerHTML='<div class="mhistory-main"><div class="mhistory-primary">'+escapeText(first)+'</div><div class="mhistory-secondary">'+escapeText(side)+'</div></div><div class="mhistory-right"><div class="mhistory-amount">'+escapeText(amount)+'</div>'+(status?'<div class="mhistory-status">'+escapeText(status)+'</div>':'')+'<span class="mhistory-chevron" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></div>';
         details.appendChild(summary);
         const body=document.createElement('div');body.className='mhistory-detail';
         cells.forEach((td,i)=>{
