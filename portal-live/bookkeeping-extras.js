@@ -287,15 +287,37 @@
   const c=canvas.getContext('2d');
   if(!c)throw Error('Gagal menggambar resi JPG.');
   c.fillStyle='#f2ecff';c.fillRect(0,0,W,H);
-  // Soft paper shadow and a scalloped (perforated) receipt silhouette.
-  c.shadowColor='rgba(63,31,121,.13)';c.shadowBlur=25;c.shadowOffsetY=8;
-  block(c,34,top,832,paperBottom-top,17,'#ffffff');
-  c.shadowColor='transparent';c.shadowBlur=0;c.shadowOffsetY=0;
-  c.fillStyle='#f2ecff';
-  for(let xx=45;xx<866;xx+=24){
-   c.beginPath();c.arc(xx,top,6.5,0,Math.PI*2);c.fill();
-   c.beginPath();c.arc(xx,paperBottom,6.5,0,Math.PI*2);c.fill();
+  // Tepi sobekan kertas asli: satu siluet bersambung dengan gerigi halus.
+  // Bukan potongan lingkaran berulang yang terlihat seperti deretan titik.
+  const paperLeft=34,paperRight=866,corner=17;
+  const tooth=[5,2,7,4,8,3,6,4,2,7,5,3,8,4,6,2,5,7];
+  const spans=[10,13,9,12,11,8,13,10,12,9,11,12];
+  c.save();
+  c.shadowColor='rgba(63,31,121,.11)';c.shadowBlur=22;c.shadowOffsetY=7;
+  c.fillStyle='#ffffff';
+  c.beginPath();
+  c.moveTo(paperLeft+corner,top+6);
+  let pos=paperLeft+corner,step=0;
+  while(pos<paperRight-corner){
+   pos=Math.min(paperRight-corner,pos+spans[step%spans.length]);
+   c.lineTo(pos,top+tooth[step%tooth.length]);
+   step++;
   }
+  c.quadraticCurveTo(paperRight,top+6,paperRight,top+corner+6);
+  c.lineTo(paperRight,paperBottom-corner-6);
+  c.quadraticCurveTo(paperRight,paperBottom-6,paperRight-corner,paperBottom-6);
+  pos=paperRight-corner;step=0;
+  while(pos>paperLeft+corner){
+   pos=Math.max(paperLeft+corner,pos-spans[(step+5)%spans.length]);
+   c.lineTo(pos,paperBottom-tooth[(step+7)%tooth.length]);
+   step++;
+  }
+  c.quadraticCurveTo(paperLeft,paperBottom-6,paperLeft,paperBottom-corner-6);
+  c.lineTo(paperLeft,top+corner+6);
+  c.quadraticCurveTo(paperLeft,top+6,paperLeft+corner,top+6);
+  c.closePath();
+  c.fill();
+  c.restore();
   // Branded purple header, independently designed for Flamboyan 4.
   block(c,51,headerY,798,headerH,17,purple);
   c.fillStyle='rgba(255,255,255,.07)';
