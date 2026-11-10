@@ -281,65 +281,57 @@
   const metaY=statusY+statusH+39;
   const metaHeight=70+idLines.length*34+55;
   const footerY=metaY+metaHeight+16;
-  const paperBottom=footerY+110;
+  const paperBottom=footerY+140;
   const H=Math.ceil(paperBottom+28);
   canvas.width=W;canvas.height=H;
   const c=canvas.getContext('2d');
   if(!c)throw Error('Gagal menggambar resi JPG.');
   c.fillStyle='#f2ecff';c.fillRect(0,0,W,H);
-  // Potongan kertas struk: gerigi BESAR, berjarak, dan seragam.
-  // Kurva kubik membentuk lengkung setinggi ~12px, bukan ~3px di versi lama.
-  // Semua sisi merupakan satu path tertutup: tidak ada lingkaran yang ditempel.
-  const paperLeft=34,paperRight=866,corner=18;
-  const upper=top+13,lower=paperBottom-13;
-  const topPitch=35,topDepth=18,sidePitch=39,sideDepth=15;
-  c.save();
-  c.shadowColor='rgba(50,28,104,.15)';
-  c.shadowBlur=15;c.shadowOffsetY=5;
-  c.fillStyle='#ffffff';
-  c.beginPath();
-  const horizontalWidth=paperRight-paperLeft-2*corner;
-  const topCount=Math.max(1,Math.round(horizontalWidth/topPitch));
-  const topStep=horizontalWidth/topCount;
-  let edge=paperLeft+corner;
-  c.moveTo(edge,upper);
-  for(let i=0;i<topCount;i++){
-   const next=paperLeft+corner+(i+1)*topStep;
-   c.bezierCurveTo(edge+topStep*.22,upper-topDepth,
-    next-topStep*.22,upper-topDepth,next);
-   edge=next;
+  // One continuous receipt silhouette, with large inward notches top/bottom
+  // and smaller notches on the sides. No dots, punched circles, or tiny zigzags.
+  {
+   const left=34,right=866,corner=18,upper=top-9,lower=paperBottom-18;
+   const w=right-left-corner*2,h=lower-upper-corner*2;
+   const nx=Math.max(8,Math.round(w/62)), ny=Math.max(8,Math.round(h/48));
+   const dx=w/nx,dy=h/ny,depth=34,sideDepth=11;
+   c.save();
+   c.shadowColor='rgba(50,28,104,.12)';
+   c.shadowBlur=15;c.shadowOffsetY=5;
+   c.fillStyle='#ffffff';
+   c.beginPath();
+   let px=left+corner;
+   c.moveTo(px,upper);
+   for(let i=0;i<nx;i++){
+    const next=left+corner+(i+1)*dx;
+    c.bezierCurveTo(px+dx*.24,upper+depth,next-dx*.24,upper+depth,next,upper);
+    px=next;
+   }
+   c.quadraticCurveTo(right,upper,right,upper+corner);
+   let py=upper+corner;
+   for(let i=0;i<ny;i++){
+    const next=upper+corner+(i+1)*dy;
+    c.bezierCurveTo(right-sideDepth,py+dy*.24,right-sideDepth,next-dy*.24,right,next);
+    py=next;
+   }
+   c.quadraticCurveTo(right,lower,right-corner,lower);
+   px=right-corner;
+   for(let i=0;i<nx;i++){
+    const next=right-corner-(i+1)*dx;
+    c.bezierCurveTo(px-dx*.24,lower-depth,next+dx*.24,lower-depth,next,lower);
+    px=next;
+   }
+   c.quadraticCurveTo(left,lower,left,lower-corner);
+   py=lower-corner;
+   for(let i=0;i<ny;i++){
+    const next=lower-corner-(i+1)*dy;
+    c.bezierCurveTo(left+sideDepth,py-dy*.24,left+sideDepth,next+dy*.24,left,next);
+    py=next;
+   }
+   c.quadraticCurveTo(left,upper,left+corner,upper);
+   c.closePath();
+   c.fill();
+   c.restore();
   }
-  c.quadraticCurveTo(paperRight,upper,paperRight,upper+corner);
-  const sideHeight=lower-upper-2*corner;
-  const sideCount=Math.max(1,Math.round(sideHeight/sidePitch));
-  const sideStep=sideHeight/sideCount;
-  edge=upper+corner;
-  for(let i=0;i<sideCount;i++){
-   const next=upper+corner+(i+1)*sideStep;
-   c.bezierCurveTo(paperRight+sideDepth,edge+sideStep*.22,
-    paperRight+sideDepth,next-sideStep*.22,paperRight,next);
-   edge=next;
-  }
-  c.quadraticCurveTo(paperRight,lower,paperRight-corner,lower);
-  edge=paperRight-corner;
-  for(let i=0;i<topCount;i++){
-   const next=paperRight-corner-(i+1)*topStep;
-   c.bezierCurveTo(edge-topStep*.22,lower+topDepth,
-    next+topStep*.22,lower+topDepth,next,lower);
-   edge=next;
-  }
-  c.quadraticCurveTo(paperLeft,lower,paperLeft,lower-corner);
-  edge=lower-corner;
-  for(let i=0;i<sideCount;i++){
-   const next=lower-corner-(i+1)*sideStep;
-   c.bezierCurveTo(paperLeft-sideDepth,edge-sideStep*.22,
-    paperLeft-sideDepth,next+sideStep*.22,paperLeft,next);
-   edge=next;
-  }
-  c.quadraticCurveTo(paperLeft,upper,paperLeft+corner,upper);
-  c.closePath();
-  c.fill();
-  c.restore();
   // Branded purple header, independently designed for Flamboyan 4.
   block(c,51,headerY,798,headerH,17,purple);
   c.fillStyle='rgba(255,255,255,.07)';
