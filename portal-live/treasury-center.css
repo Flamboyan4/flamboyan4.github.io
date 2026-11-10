@@ -2,11 +2,12 @@
 .tc-center{display:grid;gap:10px;width:100%;max-width:1380px;margin:0 auto;color:#273b48}
 .tc-center *{box-sizing:border-box}
 /* Navigasi tiga tahap: posisi dana, transaksi/pengesahan, dan laporan. */
-.tc-overview{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
-.tc-overview .tc-stat{padding:11px 14px;border-radius:12px;gap:2px}
-.tc-overview .tc-stat:first-child{background:linear-gradient(125deg,#fff,#f3f7fd)}
+.tc-overview{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;padding:4px;background:#fff;border:1px solid #dbe6ec;border-radius:12px}
+.tc-overview .tc-stat{padding:10px 14px;border:0;border-radius:0;gap:2px;background:transparent}
+.tc-overview .tc-stat:not(:last-child){border-right:1px solid #e6edf2}
+.tc-overview .tc-stat:first-child{background:transparent}
 .tc-overview .tc-stat small{color:#587186;font-size:11px}
-.tc-overview .tc-stat strong{font-size:clamp(17px,1.7vw,23px);line-height:1.2;color:#173e64;white-space:nowrap;letter-spacing:-.025em}
+.tc-overview .tc-stat strong{font-size:clamp(16px,1.7vw,23px);line-height:1.2;color:#173e64;white-space:normal;overflow-wrap:anywhere;letter-spacing:-.025em}
 .tc-overview .tc-stat span{font-size:10px;color:#718394}
 .tc-view-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:4px;background:#fff;border:1px solid #dbe6ef;border-radius:11px}
 .tc-view-btn{appearance:none;min-width:0;min-height:40px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:7px;padding:7px 10px;border:1px solid transparent;border-radius:8px;background:transparent;color:#567286;font:750 13px system-ui;cursor:pointer;transition:background-color .15s,border-color .15s}
@@ -212,7 +213,9 @@
 @media(max-width:760px){
  .tc-bank-row{grid-template-columns:minmax(0,1fr) minmax(110px,155px) auto;gap:6px}
  .tc-bank-row .tc-primary{white-space:normal;padding:7px 8px}
- .tc-overview{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+ .tc-overview{grid-template-columns:repeat(2,minmax(0,1fr));gap:0}
+ .tc-overview .tc-stat:nth-child(2){border-right:0}
+ .tc-overview .tc-stat:nth-child(-n+2){border-bottom:1px solid #e6edf2}
  .tc-overview .tc-stat{padding:12px 10px}
  .tc-overview .tc-stat strong{font-size:clamp(16px,4.5vw,22px)}
  .tc-view-nav{gap:3px;padding:4px;border-radius:14px}
