@@ -273,6 +273,10 @@
 }
 @media screen and (max-width:767px){
  :root{--book-gap:10px;--book-tight:8px}
+ /* One page scroll; don't nest another large white frame on phones. */
+ body.f4-direct-book>main{padding-left:12px;padding-right:12px}
+ body.f4-direct-book main>section.f4-book-workspace{border:0;border-radius:0;background:transparent;box-shadow:none;margin:0}
+ body.f4-direct-book main>section.f4-book-workspace>.tab-panel{padding:0}
  #tab-laporan :is(#report-denda-filter,#report-talangan-filter){grid-template-columns:repeat(2,minmax(0,1fr))}
  #tab-laporan :is(#report-denda-filter,#report-talangan-filter)>.f4-field-stack:last-child:nth-child(odd){grid-column:1/-1}
  #tab-transaksi .trx-layout :is(.trx-type,.trx-desc,.trx-note,.trx-status,.trx-save){min-width:0;max-width:100%}
@@ -292,16 +296,16 @@
  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-submit{grid-template-rows:var(--book-control)}
  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-submit-spacer{display:none}
  #tab-input #form-iuran.f4-book-iuran-grid #preview-detail>.grid{grid-template-columns:repeat(2,minmax(0,1fr))}
- #tab-riwayat #history-iuran-panel .history-iuran-filter{grid-template-columns:1fr;gap:10px;margin-bottom:12px}
+ #tab-riwayat #history-iuran-panel .history-iuran-filter{grid-template-columns:1fr;gap:8px;margin-bottom:10px}
  #tab-riwayat #history-iuran-panel .history-period-box{grid-template-columns:1fr}
  #tab-riwayat #history-iuran-panel .history-period-box .upr-range{grid-template-columns:minmax(0,1fr) 26px minmax(0,1fr);gap:6px}
  #tab-riwayat #history-iuran-panel .history-iuran-search{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:8px;align-items:center}
- #tab-riwayat #history-iuran-panel .history-iuran-search .field{height:44px;min-height:44px;padding:8px 10px;font-size:14px}
- #tab-riwayat #history-iuran-panel .history-period-box .upr-field{height:44px;min-height:44px;padding:7px 31px 7px 9px;font-size:14px}
- #tab-riwayat #iuran-quick-summary{padding:11px}
- #tab-riwayat #iuran-quick-summary .iuran-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
- #tab-riwayat #iuran-quick-summary .iuran-summary-tile{padding:9px;min-height:70px}
- #tab-riwayat #iuran-quick-summary .iuran-summary-tile :is(strong){font-size:clamp(13px,3.7vw,18px)}
+ #tab-riwayat #history-iuran-panel .history-iuran-search .field{height:42px;min-height:42px;padding:7px 10px;font-size:14px}
+ #tab-riwayat #history-iuran-panel .history-period-box .upr-field{height:42px;min-height:42px;padding:7px 31px 7px 9px;font-size:14px}
+ #tab-riwayat #iuran-quick-summary{padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+ #tab-riwayat #iuran-quick-summary .iuran-summary-tile{padding:7px 8px;min-height:52px;border-radius:10px}
+ #tab-riwayat #iuran-quick-summary .iuran-summary-tile :is(strong){font-size:clamp(13px,3.6vw,17px);line-height:1.15;margin-top:3px}
  #tab-riwayat .f4-book-filter-picker,#tab-laporan .f4-book-filter-picker{grid-template-columns:minmax(0,1fr);gap:5px}
  #tab-riwayat .f4-book-filter-picker :is(select,.custom-select-wrap),
  #tab-laporan .f4-book-filter-picker :is(select,.custom-select-wrap){grid-column:1/-1}
