@@ -86,7 +86,9 @@
     const w=eligible[cursor++];
     try{
      const r=await suggested(w.idWarga,abort.signal);
-     if(!r.period||!Number.isFinite(r.remaining)||r.remaining<=0)throw Error('Periode atau sisa tagihan tidak tersedia');
+     // Respons sah tanpa periode berarti tidak ada tunggakan yang bisa ditampilkan.
+     if(!r.period)continue;
+     if(!Number.isFinite(r.remaining)||r.remaining<=0)throw Error('Sisa tagihan tidak tersedia');
      if(r.period<=target)pending.push({w,period:r.period,amount:r.remaining,partial:receivedAt(w.idWarga,r.period)});
     }catch(e){
      if(e.name==='AbortError')return;
