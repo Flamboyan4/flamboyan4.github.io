@@ -266,3 +266,102 @@
  .tc-review-row select{grid-column:1/-1;width:100%}
  .tc-review-row button{white-space:normal;padding:7px 5px}
 }
+
+
+/* v3 — efficient responsive columns with minimal additional styles. */
+.tc-saldo-layout,.tc-transaksi-layout,.tc-report-top{
+ display:grid;
+ grid-template-columns:minmax(0,1fr);
+ align-items:start;
+ gap:12px;
+ min-width:0;
+}
+.tc-saldo-layout>.tc-panel,
+.tc-saldo-layout>.tc-fund-manage,
+.tc-transaksi-layout>.tc-panel,
+.tc-report-top>*{min-width:0}
+.tc-fund-manage{
+ margin:0;
+ min-width:0;
+ background:#fff;
+ border:1px solid #dbe6ec;
+ border-radius:12px;
+ overflow:visible;
+}
+.tc-fund-manage>summary{
+ list-style:none;
+ display:flex;
+ align-items:center;
+ min-height:46px;
+ margin:0;
+ padding:12px 14px;
+ color:#294c61;
+ font-size:14px;
+ font-weight:800;
+ cursor:pointer;
+}
+.tc-fund-manage>summary::-webkit-details-marker{display:none}
+.tc-fund-manage>summary::after{
+ content:"⌄";
+ margin-left:auto;
+ font-size:18px;
+ font-weight:500;
+ color:#64829a;
+ transition:transform .15s;
+}
+.tc-fund-manage[open]>summary::after{transform:rotate(180deg)}
+.tc-fund-manage>.tc-custom-fund{
+ margin:0;
+ padding:2px 14px 14px;
+ border:0;
+ border-radius:0 0 12px 12px;
+ background:transparent;
+ box-shadow:none;
+}
+.tc-fund-manage .tc-custom-fund-form{
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:9px;
+}
+.tc-fund-manage .tc-custom-fund-form button{
+ grid-column:1/-1;
+ justify-self:end;
+ min-width:88px;
+}
+.tc-fund-manage .tc-fund-list-heading{margin-top:11px}
+.tc-saldo-layout .tc-manage-trigger{display:none}
+.tc-report-top .tc-opening-recap{
+ margin:0;
+ min-width:0;
+ background:#fff;
+ border:1px solid #dbe6ec;
+ border-radius:12px;
+ padding:12px 14px;
+}
+.tc-report-top .tc-opening-recap>summary{font-size:12px;line-height:1.45}
+.tc-report-top .tc-report-head{
+ min-height:49px;
+ padding:12px 14px;
+}
+@media(min-width:1280px){
+ .tc-saldo-layout{grid-template-columns:minmax(0,1.08fr) minmax(0,1fr)}
+ .tc-transaksi-layout{grid-template-columns:minmax(0,1.55fr) minmax(0,1fr)}
+ .tc-transaksi-layout .tc-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .tc-transaksi-layout .tc-wide{grid-column:span 2}
+ .tc-report-top{grid-template-columns:minmax(245px,.8fr) minmax(0,1.5fr)}
+}
+@media(max-width:1279px){
+ .tc-saldo-layout .tc-manage-trigger{display:inline-flex}
+ .tc-fund-manage .tc-custom-fund-form{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+}
+@media(max-width:760px){
+ .tc-saldo-layout,.tc-transaksi-layout,.tc-report-top{gap:9px}
+ .tc-fund-manage>summary{min-height:43px;padding:10px 12px}
+ .tc-fund-manage>.tc-custom-fund{padding:2px 11px 11px}
+ .tc-fund-manage .tc-custom-fund-form{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .tc-fund-manage .tc-custom-fund-form button{grid-column:1/-1;justify-self:stretch}
+ .tc-report-top .tc-report-head{flex-wrap:wrap}
+}
+@media(max-width:430px){
+ .tc-fund-manage .tc-custom-fund-form{grid-template-columns:minmax(0,1fr)}
+ .tc-fund-manage .tc-custom-fund-form button{grid-column:1}
+}
