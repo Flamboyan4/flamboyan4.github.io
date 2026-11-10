@@ -11,6 +11,15 @@ for(const [label,html] of [['pembukuan',book],['bank-sampah',bank]]){
  assert(html.includes('transaction-receipts.js?v='),label+' must load the same resi engine');
 }
 assert(!engine.includes('!important'),'Receipt CSS must not use important');
+const original=fs.readFileSync('portal-live/bookkeeping-extras.js','utf8');
+assert(original.includes('const top=28,headerY=53,headerH=278'),'Original iuran ticket layout expected');
+assert(engine.includes('const top=28,headerY=53,headerH=278'),'Shared JPG must match original iuran banner geometry');
+assert(original.includes('const left=34,right=866,upper=top+3'),'Original iuran ticket scallops expected');
+assert(engine.includes('const left=34,right=866,upper=top+3'),'Shared JPG must use original scalloped ticket edge');
+assert(engine.includes('headerLines.slice(0,2)'),'Shared JPG must prevent overly long titles clipping');
+assert(engine.includes('detailsEnd+2'),'Shared JPG keeps original receipt notches and dashed separators');
+assert(engine.includes("status==='TERKONFIRMASI'"),'Confirmed bank deposit must show confirmation heading');
+assert(engine.includes("if(pending){"),'Pending bank deposits must not look like a completed payment');
 assert(!/\bfetch\s*\(|\bXMLHttpRequest\b|\bindexedDB\b/.test(engine),
  'Receipt renderer must remain local/read-only; never fetch or change ledger rows');
 for(const kind of ['denda','pinjaman','bayar-pinjaman','talangan','pelunasan-talangan','kas']){
@@ -40,7 +49,7 @@ const ctx=new Proxy({},{
  get(object,key){
   if(key==='measureText')return x=>({width:String(x).length*13});
   if(key==='fillText')return value=>logs.push(String(value));
-  if(['beginPath','fill','stroke','fillRect','roundRect','arc','moveTo','lineTo','setLineDash','closePath'].includes(key))return ()=>{};
+  if(['beginPath','fill','stroke','fillRect','roundRect','arc','moveTo','lineTo','setLineDash','closePath','quadraticCurveTo','save','restore'].includes(key))return ()=>{};
   return object[key];
  },
  set(object,key,value){object[key]=value;return true}
@@ -76,8 +85,21 @@ vm.runInNewContext(engine,sandbox);
  });
  assert.equal(newObjectUrls,1);
  assert(logs.some(x=>x.includes('TERKONFIRMASI')),'Rendered JPG missing final confirmation status');
+ assert(logs.some(x=>x.includes('Setoran Terkonfirmasi')),'Successful bank receipt heading is wrong');
+ assert(logs.some(x=>x.includes('Bukti Hasil Setoran Sampah')),'Subtitle must identify bank receipt');
+ assert(logs.some(x=>x.includes('RINCIAN PEMBAYARAN')),'Shared JPG needs familiar iuran details section');
+ assert(canvas.height>800,'Receipt paper should expand to fit its text');
  assert(logs.some(x=>x.includes('Rp 20.000')),'Rendered JPG missing actual amount');
  assert.equal(nodes.get('f4-tx-receipt-dialog').hidden,false);
+ logs.length=0;
+ await sandbox.window.F4TransactionReceipt.open({
+  scope:'bank',id:'deposit:qa-pending',title:'Bukti Penimbangan Sampah',
+  party:'Pak Heri',house:'A6/09',date:'2026-11-10',method:'Setoran sampah',
+  amount:10000,amountLabel:'Nilai Perkiraan',status:'ESTIMASI — BELUM SAH'
+ });
+ assert(logs.some(x=>x.includes('ESTIMASI — BELUM SAH')),'Unconfirmed deposit must retain caution text');
+ assert(!logs.some(x=>x.includes('Pembayaran Berhasil')),'Pending deposit must not claim successful payment');
+ assert(logs.some(x=>x.includes('Bukti Penimbangan Sampah')),'Estimated deposit must use correct subtitle');
  await assert.rejects(()=>sandbox.window.F4TransactionReceipt.open({id:'',amount:1}),/Nomor atau nominal/);
  sandbox.window.F4TransactionReceipt.close();
  assert.equal(nodes.get('f4-tx-receipt-dialog').hidden,true);
