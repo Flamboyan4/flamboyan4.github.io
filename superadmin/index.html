@@ -8,19 +8,19 @@
 <title>Pusat Pengelolaan | Flamboyan 4</title>
 
 <style>
-:root{--blue:#2d6593;--navy:#1b344c;--tint:#e8f2fa;--edge:#d9e6f0;--muted:#60788b}
-body{--work-bg:#eff5f8;--work-accent:#2d6593;--work-tint:#e8f2fa;--work-line:#d9e6f0;--work-text:#1b344c}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:#193047;background:#eff5f8}button,input,select,textarea{font:inherit}
-button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #76addc;outline-offset:2px}
+:root{--blue:#6650cc;--navy:#28334b;--tint:#f1edff;--edge:#e4e7ef;--muted:#69748b}
+body{--work-bg:#fff;--work-accent:var(--blue);--work-tint:var(--tint);--work-line:var(--edge);--work-text:var(--navy)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--navy);background:#fff}button,input,select,textarea{font:inherit}
+button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 [hidden]{display:none!important}#guard{padding:28px;max-width:560px;margin:88px auto;background:#fff;border:1px solid var(--edge);border-radius:16px}
-#f4-account-page:not([hidden]){display:grid;grid-template-columns:244px minmax(0,1fr);min-height:100dvh;position:relative;inset:auto;background:#eff5f8;color:inherit}
+#f4-account-page:not([hidden]){display:grid;grid-template-columns:244px minmax(0,1fr);min-height:100dvh;position:relative;inset:auto;background:#fff;color:inherit}
 #f4-account-page>aside{position:sticky;top:0;align-self:start;height:100dvh;max-height:100dvh;overflow-x:hidden;overflow-y:auto;background:#fff;border-right:1px solid var(--edge);padding:16px 12px;display:flex;flex-direction:column;gap:5px}
 #f4-account-page>main{max-width:none;width:100%;padding:66px 22px 30px;overflow-y:auto;overflow-x:hidden;min-width:0}
 .f4-sa-brand{display:flex;gap:10px;align-items:center;padding:12px 8px 15px;border-bottom:1px solid var(--edge);margin-bottom:11px}
 .f4-sa-logo{height:42px;width:42px;object-fit:contain}.f4-sa-brand strong{display:block;font-size:14px;color:var(--navy)}.f4-sa-brand small{display:block;font-size:10px;color:var(--muted)}
-.f4-sa-label{font-size:10px;color:#8196a8;text-transform:uppercase;letter-spacing:.09em;padding:11px 10px 5px}
-#f4-account-page>aside button{width:100%;min-height:42px;text-align:left;border:0;border-radius:10px;background:transparent;padding:10px 11px;color:#28516d;font-size:12px;font-weight:700}
-#f4-account-page>aside button.active,#f4-account-page>aside button:hover{background:var(--tint);color:#125080}
+.f4-sa-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;padding:11px 10px 5px}
+#f4-account-page>aside button{width:100%;min-height:42px;text-align:left;border:0;border-radius:10px;background:transparent;padding:10px 11px;color:var(--navy);font-size:12px;font-weight:700}
+#f4-account-page>aside button.active,#f4-account-page>aside button:hover{background:var(--tint);color:var(--blue)}
 #f4-account-page>aside .f4-sa-subtitle{margin-top:13px;border-top:1px solid var(--edge)}
 #f4-account-page>main h2{font-size:25px;margin:0 0 5px;font-weight:850;color:var(--navy)}
 #f4-account-page>main p{margin:5px 0 16px;color:var(--muted)}
@@ -32,11 +32,11 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #76
 .sa-section{border:1px solid var(--edge);border-radius:14px;background:#fff;padding:17px;margin:12px 0}
 .sa-section h3{margin:0 0 9px;font-size:16px;color:var(--navy)}
 .sa-list{display:grid;gap:9px}.sa-item{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--edge);border-radius:11px;background:#fff}
-.sa-item strong{display:block;font-size:13px}.sa-item small{display:block;color:var(--muted);font-size:11px}.sa-chip{background:#e9f2fb;border-radius:20px;color:#286d9e;padding:5px 9px;font-size:10px;font-weight:800}
+.sa-item strong{display:block;font-size:13px}.sa-item small{display:block;color:var(--muted);font-size:11px}.sa-chip{background:var(--tint);border-radius:20px;color:var(--blue);padding:5px 9px;font-size:10px;font-weight:800}
 .sa-controls{display:flex;flex-wrap:wrap;align-items:center;gap:var(--f4-control-gap,10px);margin:12px 0}
-.sa-controls input,.sa-controls select{height:var(--f4-control-height,42px);padding:0 12px;border:1px solid #cbdde7;border-radius:9px;min-width:190px;flex:1}
-.sa-action,.f4-admin-btn,.f4-admin-primary,.f4-work-button{border:1px solid #bdd5e7;border-radius:10px;background:#eaf3fa;color:#18567f;padding:10px 12px;font-size:12px;font-weight:800}
-.f4-admin-primary{background:#286c9e;color:#fff;border-color:#286c9e}
+.sa-controls input,.sa-controls select{height:var(--f4-control-height,42px);padding:0 12px;border:1px solid var(--edge);border-radius:9px;min-width:190px;flex:1}
+.sa-action,.f4-admin-btn,.f4-admin-primary,.f4-work-button{border:1px solid var(--edge);border-radius:10px;background:var(--tint);color:var(--blue);padding:10px 12px;font-size:12px;font-weight:800}
+.f4-admin-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
 .f4-admin-list{display:grid;gap:9px}.f4-admin-item{background:white;border:1px solid var(--edge);border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center;gap:12px}
 .f4-admin-item strong,.f4-admin-item small{display:block}.f4-admin-item small{color:var(--muted);font-size:11px}
 .f4-admin-controls{display:flex;align-items:center;gap:var(--f4-control-gap,10px);flex-wrap:wrap;margin:12px 0}
@@ -50,17 +50,17 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #76
 /* Compact master iuran form: genuine component styles, no cascade overlays. */
 .f4-obligation-form{padding:16px 18px;display:grid;gap:11px;max-width:1000px}
 .f4-obligation-identity{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--f4-grid-gap,16px)}
-.f4-obligation-field{display:flex;flex-direction:column;gap:5px;min-width:0;font-size:12px;font-weight:700;color:#34516b}
-.f4-obligation-field :is(input,select){width:100%;height:42px;min-width:0;padding:8px 12px;border:1px solid #d8e4ee;border-radius:9px;background:#fff;color:#18334b;font:500 13px system-ui}
-.f4-obligation-field :is(input,select):focus-visible{outline:2px solid #477cb4;outline-offset:1px}
-.f4-obligation-section-title{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;color:#23435d;margin-top:2px}
-.f4-obligation-section-title span{font-size:11px;color:#6b8190}
+.f4-obligation-field{display:flex;flex-direction:column;gap:5px;min-width:0;font-size:12px;font-weight:700;color:var(--navy)}
+.f4-obligation-field :is(input,select){width:100%;height:42px;min-width:0;padding:8px 12px;border:1px solid var(--edge);border-radius:9px;background:#fff;color:var(--navy);font:500 13px system-ui}
+.f4-obligation-field :is(input,select):focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+.f4-obligation-section-title{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;color:var(--navy);margin-top:2px}
+.f4-obligation-section-title span{font-size:11px;color:var(--muted)}
 .f4-obligation-amounts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--f4-grid-gap-compact,10px)}
 .f4-obligation-amounts input{text-align:center;font-weight:600}
 .f4-obligation-form .f4-obligation-edit-fields{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .f4-obligation-form .f4-obligation-edit-fields label{gap:5px}
 .f4-obligation-form .f4-obligation-edit-fields input{min-height:41px;padding:8px 11px}
-.f4-obligation-form .f4-obligation-actions{justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:8px;margin-top:0;padding-top:10px;border-top:1px solid #e8eef4}
+.f4-obligation-form .f4-obligation-actions{justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:8px;margin-top:0;padding-top:10px;border-top:1px solid var(--edge)}
 .f4-obligation-form .f4-admin-message{margin:0;font-size:12px}
 @media(max-width:760px){
  .f4-obligation-form{padding:12px;gap:10px}
@@ -72,12 +72,12 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #76
 
 .f4-admin-editor .f4-content-destination{display:flex;flex-direction:column;gap:6px;max-width:320px;margin:0 0 14px;font-size:12px;font-weight:700;color:var(--navy)}
 .f4-admin-editor .f4-content-destination select{width:100%;min-height:41px;padding:9px 11px;border:1px solid var(--edge);border-radius:9px;background:#fff;color:var(--navy);font:500 13px system-ui}
-.f4-admin-editor .f4-content-destination select:focus-visible{outline:2px solid #327cae;outline-offset:1px}
+.f4-admin-editor .f4-content-destination select:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
 @media(max-width:700px){.f4-admin-editor .f4-content-destination{max-width:100%}}
 .f4-warga-form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
-.f4-admin-note,.f4-admin-message{color:#5c7584;font-size:12px}
+.f4-admin-note,.f4-admin-message{color:var(--muted);font-size:12px}
 .sa-warn{padding:12px;border-radius:10px;background:#fff7ec;color:#83562d;border:1px solid #f1dbb9}
-.sa-toast{position:fixed;bottom:18px;right:18px;border-radius:12px;padding:12px;background:#173d60;color:#fff;z-index:10;box-shadow:0 7px 22px #112c4422;max-width:320px}
+.sa-toast{position:fixed;bottom:18px;right:18px;border-radius:12px;padding:12px;background:var(--navy);color:#fff;z-index:10;box-shadow:0 7px 22px #112c4422;max-width:320px}
 .sa-back{display:none}
 @media(max-width:760px){
  #f4-account-page:not([hidden]){grid-template-columns:minmax(0,1fr);display:block}
@@ -139,24 +139,24 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #76
 html body #f4-account-page>aside{overflow-x:hidden}
 #f4-account-page .sa-tabbar{
  position:sticky;top:56px;z-index:3;display:flex;align-items:center;gap:7px;
- padding:10px 1px 12px;margin:-4px 0 16px;background:#eff5f8;
+ padding:10px 1px 12px;margin:-4px 0 16px;background:#fff;
  overflow-x:auto;overflow-y:hidden;white-space:nowrap;scrollbar-width:thin;
  scroll-behavior:auto;overscroll-behavior-x:contain;
  border-bottom:1px solid var(--edge);
 }
 #f4-account-page .sa-tabbar button{
- flex:none;min-height:39px;padding:9px 15px;border:1px solid #d4e3ed;
- border-radius:10px;background:white;color:#28516d;font-size:12px;font-weight:750;
+ flex:none;min-height:39px;padding:9px 15px;border:1px solid var(--edge);
+ border-radius:10px;background:white;color:var(--navy);font-size:12px;font-weight:750;
  transition:background-color .16s ease,border-color .16s ease,color .16s ease,box-shadow .16s ease;
 }
-#f4-account-page .sa-tabbar button:hover{background:#e6f1f9;border-color:#abcce4}
+#f4-account-page .sa-tabbar button:hover{background:var(--tint);border-color:var(--edge)}
 #f4-account-page .sa-tabbar button[aria-selected="true"]{
- background:#2d6593;color:#fff;border-color:#2d6593;box-shadow:0 2px 6px #27496419
+ background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 2px 6px #27496419
 }
-#f4-account-page .sa-tabbar button:focus-visible{outline:2px solid #256fac;outline-offset:2px}
+#f4-account-page .sa-tabbar button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 #f4-account-page .sa-module-heading{margin:3px 0 14px;padding:1px 2px}
-#f4-account-page .sa-module-heading h3{font-size:18px;font-weight:800;margin:0 0 4px;color:#1b344c}
-#f4-account-page .sa-module-heading p{font-size:12px;color:#60788b;margin:0}
+#f4-account-page .sa-module-heading h3{font-size:18px;font-weight:800;margin:0 0 4px;color:var(--navy)}
+#f4-account-page .sa-module-heading p{font-size:12px;color:var(--muted);margin:0}
 
 @keyframes f4SaContentIn{from{opacity:.35;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 #f4-account-page>main>.f4-work-heading,
@@ -181,10 +181,10 @@ html body #f4-account-page>aside{overflow-x:hidden}
 
 /* Navigasi terkelompok: satu pemilik gaya, tanpa frame atau lapisan override. */
 #f4-account-page .sa-module-nav{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:-7px 0 17px}
-#f4-account-page .sa-module-nav button{border:0;border-radius:8px;padding:8px 12px;background:transparent;color:#4c677c;font-size:12px;font-weight:700}
-#f4-account-page .sa-module-nav button:hover{background:#e6f1f9}
-#f4-account-page .sa-module-nav button.is-active{background:#e2edf7;color:#185a88}
-#f4-account-page .sa-module-nav button:focus-visible{outline:2px solid #256fac;outline-offset:2px}
+#f4-account-page .sa-module-nav button{border:0;border-radius:8px;padding:8px 12px;background:transparent;color:var(--muted);font-size:12px;font-weight:700}
+#f4-account-page .sa-module-nav button:hover{background:var(--tint)}
+#f4-account-page .sa-module-nav button.is-active{background:var(--tint);color:var(--blue)}
+#f4-account-page .sa-module-nav button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 #f4-account-page .sa-overview-grid{grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:10px}
 #f4-account-page .sa-overview-status{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 14px}
 #f4-account-page .sa-overview-state{font-size:12px;color:#236547;font-weight:750}
@@ -197,34 +197,34 @@ html body #f4-account-page>aside{overflow-x:hidden}
 
 /* Table identity and status layout adapted from original Bank Sampah. */
 /* Satu pemilik gaya tabel akun Superadmin: tanpa lapisan override warna lama. */
-.sa-accounts-shell{background:#fff;border:1px solid #d8e2f5;border-radius:16px;padding:20px;margin:4px 0 24px}
+.sa-accounts-shell{background:#fff;border:1px solid var(--edge);border-radius:16px;padding:20px;margin:4px 0 24px}
 .sa-account-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:12px}
-.sa-account-head h3{font-size:18px;color:#1b344c;margin:0 0 3px}
-#f4-account-page>main .sa-account-head p{margin:0;color:#688397;font-size:12px}
+.sa-account-head h3{font-size:18px;color:var(--navy);margin:0 0 3px}
+#f4-account-page>main .sa-account-head p{margin:0;color:var(--muted);font-size:12px}
 .sa-account-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.sa-action-primary{background:#5364a5;color:white;border-color:#5364a5}
-.sa-account-note{background:#f0f3ff;color:#425480;border-radius:11px;padding:13px;margin:0 0 14px;line-height:1.55;font-size:12px}
-.sa-account-table{background:#f7f8ff;border:1px solid #dce3f3;border-radius:13px;overflow:hidden}
+.sa-action-primary{background:var(--blue);color:white;border-color:var(--blue)}
+.sa-account-note{background:var(--tint);color:var(--navy);border-radius:11px;padding:13px;margin:0 0 14px;line-height:1.55;font-size:12px}
+.sa-account-table{background:#fbfaff;border:1px solid var(--edge);border-radius:13px;overflow:hidden}
 .sa-account-filters{padding:14px;display:flex;gap:var(--f4-control-gap,10px);align-items:center;flex-wrap:wrap}
-.sa-account-filters input,.sa-account-filters select{height:var(--f4-control-height,42px);padding:0 12px;background:#fff;border:1px solid #d5ddf1;border-radius:10px;font-size:12px;line-height:1.3;box-sizing:border-box}
+.sa-account-filters input,.sa-account-filters select{height:var(--f4-control-height,42px);padding:0 12px;background:#fff;border:1px solid var(--edge);border-radius:10px;font-size:12px;line-height:1.3;box-sizing:border-box}
 .sa-account-filters input{flex:1 1 270px;max-width:500px}
 .sa-account-filters select{flex:0 1 180px;max-width:180px;min-width:135px}
-#f4-account-page>main .sa-account-count{font-size:11px;flex-basis:100%;margin:0;color:#6c77a0}
+#f4-account-page>main .sa-account-count{font-size:11px;flex-basis:100%;margin:0;color:var(--muted)}
 .sa-account-scroll{position:relative;max-height:none;overflow-x:auto;overflow-y:visible;background:#fff}
 .sa-account-grid{border-collapse:separate;border-spacing:0;width:100%;min-width:690px;font-size:12px}
-.sa-account-grid th{text-align:left;color:#6c75a1;text-transform:uppercase;font-size:10px;letter-spacing:.02em;background:#f8f9ff;padding:12px 14px;border-top:1px solid #e2e7f6;border-bottom:1px solid #e2e7f6;position:static}
+.sa-account-grid th{text-align:left;color:var(--muted);text-transform:uppercase;font-size:10px;letter-spacing:.02em;background:#f8f6fe;padding:12px 14px;border-top:1px solid var(--edge);border-bottom:1px solid var(--edge);position:static}
 .sa-account-grid th:last-child,.sa-account-grid td:last-child{text-align:right}
-.sa-account-grid td{padding:12px 14px;border-bottom:1px solid #e7eafa;color:#344361;vertical-align:middle;position:static}
-.sa-account-grid tr:nth-child(even){background:#fbfcff}
-.sa-account-grid td strong{display:block;font-size:12px;color:#243867}
-.sa-account-grid td small{display:block;font-size:10px;color:#849c8b;margin-top:2px}
-.sa-account-role{display:inline-block;background:#eaefff;color:#485fa1;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:750}
-.sa-account-role[data-role="admin"]{background:#e7eff9;color:#3558a7}
-.sa-account-role[data-role="superadmin"]{background:#efe9fd;color:#6d43aa}
-.sa-account-status{color:#295b69;font-weight:750}
+.sa-account-grid td{padding:12px 14px;border-bottom:1px solid var(--edge);color:var(--navy);vertical-align:middle;position:static}
+.sa-account-grid tr:nth-child(even){background:#fdfcff}
+.sa-account-grid td strong{display:block;font-size:12px;color:var(--navy)}
+.sa-account-grid td small{display:block;font-size:10px;color:var(--muted);margin-top:2px}
+.sa-account-role{display:inline-block;background:var(--tint);color:var(--blue);padding:5px 10px;border-radius:20px;font-size:11px;font-weight:750}
+.sa-account-role[data-role="admin"]{background:var(--tint);color:var(--blue)}
+.sa-account-role[data-role="superadmin"]{background:#efe9fd;color:var(--blue)}
+.sa-account-status{color:#087f5b;font-weight:750}
 .sa-account-status span[data-status="Nonaktif"]{color:#ad5454}
 .sa-account-status span[data-status="Belum aktif"]{color:#a37626}
-.sa-account-reset{position:static;transform:none;inset:auto;border:0;background:#eef0ff;color:#555d99;border-radius:10px;padding:8px 11px;font-weight:700;font-size:11px}
+.sa-account-reset{position:static;transform:none;inset:auto;border:0;background:var(--tint);color:var(--blue);border-radius:10px;padding:8px 11px;font-weight:700;font-size:11px}
 .sa-account-reset:disabled,.sa-action-primary:disabled{opacity:.66;cursor:not-allowed}
 @media(max-width:760px){
  .sa-accounts-shell{padding:12px}
@@ -234,20 +234,20 @@ html body #f4-account-page>aside{overflow-x:hidden}
  .sa-account-filters select{max-width:100%;flex:1 1 135px}
 }
 /* Master warga: tabel horizontal ringkas; tetap bisa digeser di HP. */
-.sa-resident-scroll{width:100%;max-width:100%;overflow-x:auto;border:1px solid #d8e4f2;border-radius:13px;background:white}
+.sa-resident-scroll{width:100%;max-width:100%;overflow-x:auto;border:1px solid var(--edge);border-radius:13px;background:white}
 .sa-resident-grid{border-collapse:collapse;width:100%;min-width:850px;font-size:12px}
-.sa-resident-grid th{background:#edf4fd;color:#315b83;font-weight:750;text-align:left;padding:11px 12px;white-space:nowrap;border-bottom:1px solid #d8e4f2}
-.sa-resident-grid td{padding:10px 12px;border-bottom:1px solid #edf1f7;color:#243c55;vertical-align:middle}
-.sa-resident-grid tr:nth-child(even){background:#f9fbfe}
+.sa-resident-grid th{background:#f7f5ff;color:var(--blue);font-weight:750;text-align:left;padding:11px 12px;white-space:nowrap;border-bottom:1px solid var(--edge)}
+.sa-resident-grid td{padding:10px 12px;border-bottom:1px solid var(--edge);color:var(--navy);vertical-align:middle}
+.sa-resident-grid tr:nth-child(even){background:#fdfcff}
 .sa-resident-grid td:last-child{text-align:right;width:88px}
 .sa-resident-grid td .sa-action{padding:7px 12px}
 
 /* Shared compact tables; replace the two old overlapping table rule blocks. */
-.f4-obligation-scroll{width:100%;max-width:100%;overflow-x:auto;border:1px solid #d8e4f2;border-radius:12px;background:#fff}
+.f4-obligation-scroll{width:100%;max-width:100%;overflow-x:auto;border:1px solid var(--edge);border-radius:12px;background:#fff}
 .f4-obligation-grid{border-collapse:collapse;min-width:760px;width:100%;font-size:12px}
-.f4-obligation-grid th{padding:9px 11px;text-align:left;background:#f4f7fb;color:#315b83;border-bottom:1px solid #d8e4f2;white-space:nowrap}
-.f4-obligation-grid td{padding:8px 11px;border-bottom:1px solid #edf1f7;color:#243c55;vertical-align:middle}
-.f4-obligation-grid tr:nth-child(even){background:#f9fbfe}
+.f4-obligation-grid th{padding:9px 11px;text-align:left;background:#f7f5ff;color:var(--blue);border-bottom:1px solid var(--edge);white-space:nowrap}
+.f4-obligation-grid td{padding:8px 11px;border-bottom:1px solid var(--edge);color:var(--navy);vertical-align:middle}
+.f4-obligation-grid tr:nth-child(even){background:#fdfcff}
 .f4-obligation-grid td:first-child{font-weight:700}
 .f4-obligation-grid td:nth-child(n+3):nth-child(-n+6){text-align:center;font-weight:700}
 .f4-obligation-grid:not([data-module="obligations"]) td:nth-child(n+3):nth-child(-n+6){text-align:left;font-weight:400}
@@ -260,7 +260,7 @@ html body #f4-account-page>aside{overflow-x:hidden}
 .f4-obligation-grid[data-module="obligations"] td{padding:6px 9px;height:43px;white-space:nowrap}
 .f4-obligation-grid[data-module="obligations"] td:last-child{text-align:center}
 .f4-obligation-row-actions{display:flex;justify-content:center;align-items:center;gap:5px;white-space:nowrap}
-.f4-obligation-icon-btn{display:inline-grid;place-items:center;width:30px;height:30px;min-width:30px;padding:0;border:1px solid #d4dff0;border-radius:8px;background:#f8f9ff;color:#6650ba;cursor:pointer}
+.f4-obligation-icon-btn{display:inline-grid;place-items:center;width:30px;height:30px;min-width:30px;padding:0;border:1px solid var(--edge);border-radius:8px;background:#f8f6fe;color:var(--blue);cursor:pointer}
 .f4-obligation-icon-btn:hover,.f4-obligation-icon-btn:focus-visible{background:#ede8ff;border-color:#bfb0ed}
 .f4-obligation-icon-danger{color:#ba5f59;background:#fff9f7;border-color:#ecd8d5}
 .f4-obligation-icon-danger:hover,.f4-obligation-icon-danger:focus-visible{background:#ffeae5;border-color:#e6b5b1}
@@ -269,8 +269,8 @@ html body #f4-account-page>aside{overflow-x:hidden}
 .f4-obligation-toolbar input{min-width:120px;height:var(--f4-control-height,42px);padding:0 10px}
 .f4-obligation-toolbar button{display:inline-flex;align-items:center;justify-content:center;min-height:var(--f4-control-height,42px);padding:0 11px;white-space:nowrap}
 .f4-admin-truncate{display:block;max-width:235px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.f4-admin-source-link{color:#2967a0;text-decoration:underline;text-underline-offset:2px;font-weight:600}
-.f4-admin-muted{color:#8e9ab0}
+.f4-admin-source-link{color:var(--blue);text-decoration:underline;text-underline-offset:2px;font-weight:600}
+.f4-admin-muted{color:var(--muted)}
 @media(max-width:760px){
  .f4-obligation-grid[data-module="obligations"]{min-width:650px}
  .f4-obligation-grid[data-module="obligations"] td{padding:6px 7px}
@@ -287,36 +287,36 @@ html body #f4-account-page>aside{overflow-x:hidden}
 /* Website-owned confirmation modal; works even when browser JS dialogs are blocked. */
 #f4-superadmin-confirm{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;
  background:rgba(18,29,45,.68);padding:18px;font-family:system-ui,-apple-system,sans-serif}
-#f4-superadmin-confirm .f4-sa-confirm-panel{width:min(100%,440px);background:#fff;color:#263d51;
- border:1px solid #d9e4f0;border-radius:16px;padding:24px;box-shadow:0 24px 65px rgba(0,0,0,.27)}
-#f4-superadmin-confirm h2{font:800 20px/1.3 system-ui;margin:0 0 11px;color:#233d56}
+#f4-superadmin-confirm .f4-sa-confirm-panel{width:min(100%,440px);background:#fff;color:var(--navy);
+ border:1px solid var(--edge);border-radius:16px;padding:24px;box-shadow:0 24px 65px rgba(0,0,0,.27)}
+#f4-superadmin-confirm h2{font:800 20px/1.3 system-ui;margin:0 0 11px;color:var(--navy)}
 #f4-superadmin-confirm p{margin:0 0 22px;white-space:pre-line;overflow-wrap:anywhere;
- font:400 14px/1.65 system-ui;color:#60728a}
+ font:400 14px/1.65 system-ui;color:var(--muted)}
 #f4-superadmin-confirm .f4-sa-confirm-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}
 #f4-superadmin-confirm button{border-radius:10px;padding:11px 17px;font:700 13px system-ui;cursor:pointer}
-#f4-superadmin-confirm .f4-sa-confirm-cancel{background:#f1f5fa;color:#344b62;border:1px solid #d5e0ed}
+#f4-superadmin-confirm .f4-sa-confirm-cancel{background:var(--tint);color:var(--navy);border:1px solid var(--edge)}
 #f4-superadmin-confirm .f4-sa-confirm-delete{background:#bd3434;color:white;border:1px solid #bd3434}
-#f4-superadmin-confirm .f4-sa-confirm-accept{background:#2d6792;color:white;border:1px solid #2d6792}
-#f4-superadmin-confirm button:focus-visible{outline:3px solid #8fbde8;outline-offset:2px}
+#f4-superadmin-confirm .f4-sa-confirm-accept{background:var(--blue);color:white;border:1px solid var(--blue)}
+#f4-superadmin-confirm button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 
 .sa-account-grid td:last-child{min-width:340px}
 .sa-account-grid td:last-child button{margin:2px 3px;white-space:nowrap}
-.sa-account-manage{background:#e6f1fa;color:#215b83;border:1px solid #c5ddec;border-radius:9px;padding:8px 10px;font-size:11px;font-weight:700}
+.sa-account-manage{background:var(--tint);color:var(--blue);border:1px solid var(--edge);border-radius:9px;padding:8px 10px;font-size:11px;font-weight:700}
 .sa-account-warning{background:#fff0ed;color:#a43e32;border-color:#efd1cb}
 .sa-account-shade{position:fixed;inset:0;z-index:10000;background:#152536a9;display:grid;place-items:center;padding:16px}
-.sa-account-modal{width:min(100%,480px);max-height:90dvh;overflow:auto;background:white;color:#233f56;border:1px solid #d4e0eb;padding:24px;border-radius:16px;box-shadow:0 18px 55px #14233349}
-.sa-account-modal h3{margin:0 0 8px;font-size:20px}.sa-account-subtitle{font-weight:700;color:#46677f}
-.sa-account-info{padding:12px;background:#eef4fa;border-radius:9px;font-size:13px}
+.sa-account-modal{width:min(100%,480px);max-height:90dvh;overflow:auto;background:white;color:var(--navy);border:1px solid var(--edge);padding:24px;border-radius:16px;box-shadow:0 18px 55px #14233349}
+.sa-account-modal h3{margin:0 0 8px;font-size:20px}.sa-account-subtitle{font-weight:700;color:var(--navy)}
+.sa-account-info{padding:12px;background:var(--tint);border-radius:9px;font-size:13px}
 .sa-account-modal label{display:block;margin:14px 0;font-size:13px;font-weight:700}
-.sa-account-modal input{display:block;margin-top:5px;width:100%;padding:11px;border:1px solid #c9d9e7;border-radius:9px;box-sizing:border-box;font:14px system-ui}
-.sa-account-feedback{font-size:12px;color:#225e7b}.sa-account-modal-actions{display:flex;justify-content:flex-end;gap:9px;flex-wrap:wrap;margin-top:15px}
+.sa-account-modal input{display:block;margin-top:5px;width:100%;padding:11px;border:1px solid var(--edge);border-radius:9px;box-sizing:border-box;font:14px system-ui}
+.sa-account-feedback{font-size:12px;color:var(--blue)}.sa-account-modal-actions{display:flex;justify-content:flex-end;gap:9px;flex-wrap:wrap;margin-top:15px}
 </style>
 <style id="f4-sa-standalone-nav-bridge">
 .f4-sa-mobile-backdrop{display:none}
 html.f4-sa-drawer-lock{overflow:hidden!important}
 .f4-sa-standalone-menu{display:none;position:fixed;top:9px;left:9px;z-index:100;
- width:39px;height:39px;padding:0;border:0;border-radius:10px;background:#e4f1fb;
- color:#27658e;font:700 22px/1 system-ui;cursor:pointer}
+ width:39px;height:39px;padding:0;border:0;border-radius:10px;background:var(--tint);
+ color:var(--blue);font:700 22px/1 system-ui;cursor:pointer}
 @media(max-width:1023px){.f4-sa-standalone-menu{display:grid;place-items:center}}
 </style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261103-control-alignment-v2"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261105-jersey-form-grid-v1"><link rel="stylesheet" href="/portal-live/treasury-center.css?v=20261110-unified-purple-batch-v6">
@@ -444,8 +444,9 @@ function sidebar(g=group){
  side.append(el('strong','MENU SUPERADMIN','f4-sa-label'));
  for(const [key,label] of groups){
   const b=button('',()=>open(key),g===key?'active':'');
+  b.dataset.saGroup=key;
   const icon=el('img',undefined,'sa-nav-icon');
-  icon.src='/assets/icons/'+({overview:'superadmin',treasury:'cash',accounts:'user',content:'home',bank:'bank-superadmin',masters:'inventory',audit:'book'}[key])+'.svg';
+  icon.src='/assets/icons/'+({overview:'superadmin',treasury:'cash',accounts:'user',content:'portal-superadmin',bank:'bank-superadmin',masters:'inventory',audit:'book'}[key])+'.svg';
   icon.alt='';icon.setAttribute('aria-hidden','true');
   b.append(icon,el('span',label));
   b.setAttribute('aria-current',g===key?'page':'false');side.append(b);
