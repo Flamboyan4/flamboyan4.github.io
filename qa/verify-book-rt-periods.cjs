@@ -29,7 +29,13 @@ const rows=[
  payment('p:one','Pak Satu','A5/10','2026-12-10',12,'KEBERSIHAN',20000,'pay:one-dec'),
  payment('p:partial','Bu Cicil','A5/11','2026-11-08',11,'KEBERSIHAN',10000,'pay:partial'),
  payment('p:effective','Bu Baru','A5/23','2026-12-11',12,'KEBERSIHAN',20000,'pay:effective'),
- payment('p:prepaid','Pak Awal','A5/24','2026-09-30',11,'IURAN_BULANAN',25000,'pay:prepaid')
+ payment('p:prepaid','Pak Awal','A5/24','2026-09-30',11,'IURAN_BULANAN',25000,'pay:prepaid'),
+ payment('p:octlate','Pak Oktober','A5/33','2026-10-25',11,'IURAN_BULANAN',25000,'pay:octlate'),
+ payment('p:octlate','Pak Oktober','A5/33','2026-10-25',11,'KEBERSIHAN',20000,'pay:octlate'),
+ payment('p:novlate','Pak Akhir','A5/34','2026-11-24',11,'IURAN_BULANAN',25000,'pay:novlate'),
+ payment('p:novlate','Pak Akhir','A5/34','2026-11-24',11,'KEBERSIHAN',20000,'pay:novlate'),
+ payment('p:cutoff','Pak Dua Puluh','A5/35','2026-11-20',11,'IURAN_BULANAN',25000,'pay:cutoff'),
+ payment('p:cutoff','Pak Dua Puluh','A5/35','2026-11-20',11,'KEBERSIHAN',20000,'pay:cutoff')
 ];
 const versions=[
  ['p:riadi','Pak Riadi','A6/13','2026-01-01',1,1],
@@ -40,7 +46,10 @@ const versions=[
  ['p:no-clean','Pak Iuran','A5/22','2026-01-01',1,0],
  ['p:effective','Bu Baru','A5/23','2026-11-01',0,0],
  ['p:effective','Bu Baru','A5/23','2026-12-01',0,1],
- ['p:prepaid','Pak Awal','A5/24','2026-01-01',1,0]
+ ['p:prepaid','Pak Awal','A5/24','2026-01-01',1,0],
+ ['p:octlate','Pak Oktober','A5/33','2026-01-01',1,1],
+ ['p:novlate','Pak Akhir','A5/34','2026-01-01',1,1],
+ ['p:cutoff','Pak Dua Puluh','A5/35','2026-01-01',1,1]
 ].map(([payer_id,display_name,house_code,effective_from,qty_iuran_bulanan,qty_kebersihan])=>
  ({payer_id,display_name,house_code,effective_from,qty_iuran_bulanan,qty_kebersihan}));
 const sqlQueries=[];
@@ -59,7 +68,7 @@ const db={prepare(sql){
      assert(sql.includes('a.period_year'),'Status query should filter obligation month');
      return {results:rows.filter(x=>{
        const period=x.period_year+'-'+String(x.period_month).padStart(2,'0');
-       return period>=args[0]&&period<=args[1];
+       return period>=args[0]&&period<=args[1]&&(!args[2]||x.paid_on<=args[2]);
      })};
    }
    throw Error('Unrecognized SQL '+sql.slice(0,120));
@@ -78,14 +87,18 @@ const byId=r=>new Map(r.data.rows.map(x=>[x.idWarga,x]));
  assert.equal(n.get('p:riadi').nominalKebersihan,40000);
  assert.equal(n.get('p:riadi').rincianBulanan.map(x=>x.periode).join(','),'2026-11,2026-12');
  assert.equal(n.get('p:riadi').wajibBulananPeriode[0].dibayarRp,25000);
- assert.equal(nov.data.ringkasan.totalSetoran,145000);
- assert.equal(nov.data.ringkasan.jumlahSetoranBulanan,3);
+ assert.equal(n.get('p:octlate').nominalBulanan,25000,'25 Okt disetorkan pada laporan Nov');
+ assert.equal(n.get('p:cutoff').nominalBulanan,25000,'Tanggal 20 Nov masih masuk Nov');
+ assert.equal(n.get('p:novlate').nominalBulanan,0,'24 Nov harus masuk Des');
+ assert.equal(n.get('p:novlate').wajibBulananPeriode[0].dibayarRp,0,'Setoran 24 Nov belum tercakup siklus Nov');
+ assert.equal(nov.data.ringkasan.totalSetoran,235000);
+ assert.equal(nov.data.ringkasan.jumlahSetoranBulanan,5);
  assert.equal(n.get('p:unpaid').wajibBulananPeriode.length,1);
  assert.equal(n.get('p:partial').wajibKebersihanPeriode[0].dibayarRp,10000);
  assert.equal(n.get('p:prepaid').nominalBulanan,0);
  assert.equal(n.get('p:prepaid').wajibBulananPeriode[0].dibayarRp,25000,
   'Earlier advance covers monthly duty without becoming November cash');
- assert.equal(n.get('p:prepaid').pelunasanDiMuka[0].dibayarPada,'2026-09');
+ assert.equal(n.get('p:prepaid').pelunasanDiMuka[0].dibayarPada,'2026-10');
  assert.equal(n.has('p:free'),false);
  assert.equal(n.has('p:effective'),false);
 
@@ -96,7 +109,7 @@ const byId=r=>new Map(r.data.rows.map(x=>[x.idWarga,x]));
  assert.equal(range.data.labelPeriode,'November–Desember 2026');
  assert.equal(combined.get('p:riadi').nominalBulanan,50000);
  assert.equal(combined.get('p:riadi').nominalKebersihan,40000);
- assert.equal(range.data.ringkasan.totalSetoran,210000,'Combined months have 145k November + 65k December');
+ assert.equal(range.data.ringkasan.totalSetoran,345000,'Combined periods have 235k November + 110k December');
 
  // December is not overdue until it actually starts.
  assert.equal(combined.get('p:unpaid').wajibBulananPeriode.length,1);
@@ -104,7 +117,7 @@ const byId=r=>new Map(r.data.rows.map(x=>[x.idWarga,x]));
  const beforeDecember=await handler(db,url('2026-12-01','2026-12-31'));
  assert.equal(beforeDecember.data.rows.some(x=>x.idWarga==='p:riadi'),false,
   'A December-only cash statement cannot recount Riadi November receipt');
- assert.equal(beforeDecember.data.ringkasan.totalSetoran,65000,
+ assert.equal(beforeDecember.data.ringkasan.totalSetoran,110000,
   'Prepayments are not rebooked even when December has a new payment');
  // The test contains future dated December payments to exercise filtering;
  // in production no future receipt should be entered before its actual date.
@@ -112,10 +125,12 @@ const byId=r=>new Map(r.data.rows.map(x=>[x.idWarga,x]));
  nowValue='2026-12-10T06:00:00Z';
  const dec=await handler(db,url('2026-12-01','2026-12-31'));
  const d=byId(dec);
- assert.equal(dec.data.ringkasan.totalBulanan,25000);
- assert.equal(dec.data.ringkasan.totalKebersihan,40000);
- assert.equal(dec.data.ringkasan.totalSetoran,65000);
+ assert.equal(dec.data.ringkasan.totalBulanan,50000);
+ assert.equal(dec.data.ringkasan.totalKebersihan,60000);
+ assert.equal(dec.data.ringkasan.totalSetoran,110000);
  assert.equal(d.get('p:riadi').nominalBulanan,0);
+ assert.equal(d.get('p:novlate').nominalBulanan,25000,'24 Nov masuk Des satu kali');
+ assert.equal(d.get('p:octlate').nominalBulanan,0,'25 Okt tidak boleh dihitung ulang Des');
  assert.equal(d.get('p:riadi').nominalKebersihan,0);
  assert.equal(d.get('p:riadi').wajibBulananPeriode[0].dibayarRp,25000);
  assert.equal(d.get('p:riadi').wajibKebersihanPeriode[0].dibayarRp,20000);
@@ -153,13 +168,18 @@ const byId=r=>new Map(r.data.rows.map(x=>[x.idWarga,x]));
  assert(!format.cell(d.get('p:riadi'),'bulanan').includes('Rp 25.000'),'November receipt must never become new December cash');
  assert.equal(format.warning(d.get('p:riadi'),'bulanan'),false,'Prepaid December is not red');
  assert(!format.note(n.get('p:prepaid')).includes('Sudah dibayar'),'Historical advance not duplicated in Keterangan');
- assert(format.cell(n.get('p:prepaid'),'bulanan').includes('Dibayar pada September'),'Old payment appears in correct nominal column');
+ assert(format.cell(n.get('p:prepaid'),'bulanan').includes('Dibayar pada Oktober'),'Previously reported October cycle is the only eligible label');
+ assert(format.cell(n.get('p:octlate'),'bulanan').includes('Rp 25.000'),'25 October should be full nominal in November report');
+ assert(!format.cell(n.get('p:octlate'),'bulanan').includes('Dibayar pada Oktober'),'Do not label 25 October as an earlier report');
+ assert(format.cell(d.get('p:novlate'),'bulanan').includes('Rp 25.000'),'24 November should be full nominal in December report');
+ assert(!format.cell(d.get('p:novlate'),'bulanan').includes('Belum bayar'),'Do not add unrelated overdue label under receipt');
+ assert(format.cell(n.get('p:novlate'),'bulanan').includes('Belum bayar'),'Unpaid as of November 20 cutoff');
  assert(format.cell(n.get('p:prepaid'),'kebersihan').includes('rt-dash'),'Do not mark a non-obligated category prepaid');
  assert(format.cell(n.get('p:unpaid'),'bulanan').includes('Belum bayar'));
  assert.equal(format.warning(n.get('p:no-clean'),'kebersihan'),false);
  assert(format.cell(n.get('p:partial'),'kebersihan').includes('Belum lunas'));
  assert(html.includes('f4RtKeteranganMarkup(x)'),'Screen/print must use memo column');
- assert(html.includes('Nominal merupakan setoran yang diterima pada periode laporan.'),
+ assert(html.includes('Siklus setoran RT: tanggal 21 bulan sebelumnya'),
   'Print must explain cash basis');
  assert(html.includes('td.rt-warning{background:#fff1f2'),'Red unpaid flag retained');
  assert.equal(format.paidLabel({rincianBulanan:[],rincianKebersihan:[
