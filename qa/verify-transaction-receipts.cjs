@@ -63,7 +63,7 @@ const create=tag=>{
 const doc={head:{appendChild(){}},body:{style:{overflow:''},appendChild(n){if(n.id)nodes.set(n.id,n)}},
  createElement:create,getElementById:id=>nodes.get(id),addEventListener(){}};
 let newObjectUrls=0;
-const sandbox={window:{},document:doc,navigator:{},URL:{
+const sandbox={window:{addEventListener(){}},document:doc,navigator:{},URL:{
  createObjectURL(){newObjectUrls++;return 'blob:mock'},
  revokeObjectURL(){}},Intl,Date,Number,Blob,File:class {},console};
 vm.runInNewContext(engine,sandbox);
