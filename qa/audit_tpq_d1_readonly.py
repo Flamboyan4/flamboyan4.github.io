@@ -45,6 +45,10 @@ WHERE p.id='W0018' OR lower(trim(p.display_name))='tpq'
 OR upper(replace(h.house_code,' ',''))='A5/43'
 ORDER BY p.id LIMIT 30""")
 tpq=[p for p in payers if str(p.get("display_name") or "").strip().lower()=="tpq"]
+aliases={p["id"]:"TPQ_"+str(i+1) for i,p in enumerate(sorted(tpq,key=lambda p:p["id"]))}
+_old_label=label
+def label(payer_id):
+    return aliases.get(payer_id,_old_label(payer_id))
 house=[p for p in payers if str(p.get("house_code") or "").upper().replace(" ","")=="A5/43"]
 records=query(dbid,"""SELECT p.id,p.payer_id,p.paid_on,p.amount_rp AS received,
 p.status AS payment_status,a.id AS allocation_id,a.payer_id AS allocation_payer,
@@ -71,8 +75,35 @@ WHERE a.period_year=2026 AND a.period_month IN (9,10)
 AND (bp.id='W0018' OR lower(trim(bp.display_name))='tpq')
 AND (upper(replace(h.house_code,' ',''))='A5/43' OR bp.id='W0018')
 ORDER BY a.period_month,a.payer_id,p.id LIMIT 60""")
+# Additional evidence for each TPQ identity, never log actual payer UUIDs.
+ids=[p["id"] for p in tpq]
+related=[]
+if ids:
+    marks=",".join(["?"]*len(ids))
+    related=query(dbid,f"""SELECT p.payer_id,p.id AS payment_id,p.status AS payment_status,
+       a.period_year,a.period_month,a.contribution_type,a.amount_rp,
+       a.status AS allocation_status
+       FROM bookkeeping_payments p
+       LEFT JOIN bookkeeping_payment_allocations a ON a.payment_id=p.id
+       WHERE p.payer_id IN ({marks})
+       ORDER BY p.paid_on,p.id,a.period_year,a.period_month LIMIT 90""",ids)
+linked={}
+for table in ("bookkeeping_cash_transactions","bookkeeping_fines","bookkeeping_loans","bookkeeping_advances"):
+    if not ids:continue
+    try:
+        counts=query(dbid,"SELECT payer_id,COUNT(*) AS n FROM "+table+
+            " WHERE payer_id IN ("+",".join(["?"]*len(ids))+") GROUP BY payer_id",ids)
+        linked[table]={label(x["payer_id"]):x["n"] for x in counts}
+    except (RuntimeError,urllib.error.HTTPError):
+        linked[table]={"status":"not_checked"}
+
 report={
     "db_binding_verified":True,
+    "distinct_tpq_ids":len(tpq),
+    "related_finance_rows":linked,
+    "all_tpq_payments":[{"payer":label(x["payer_id"]),"payment_kind":"bulk" if str(x["payment_id"]).upper().startswith("PAY") else "new",
+       "payment_status":x["payment_status"],"period":str(x["period_year"])+"-"+str(x["period_month"]),
+       "kind":x["contribution_type"],"amount":x["amount_rp"],"allocation_status":x["allocation_status"]} for x in related],
     "payers":[{"id_class":label(p["id"]),"id_equals_original":p["id"]=="W0018",
       "name_tpq":str(p["display_name"] or "").strip().lower()=="tpq",
       "same_house":str(p["house_code"] or "").upper().replace(" ","")=="A5/43",
