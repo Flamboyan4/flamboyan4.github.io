@@ -3813,6 +3813,61 @@ function sortedReportRtRows(data){
    String(a.nama||'').localeCompare(String(b.nama||''),'id',{sensitivity:'base'});
  });
 }
+/* Label per bulan asli dari alokasi D1, bukan perkiraan total ÷ tarif. */
+function f4RtLabelBulan(keys){
+ const periods=[...new Set((keys||[]).map(v=>String(v||'').slice(0,7))
+   .filter(v=>/^\d{4}-(0[1-9]|1[0-2])$/.test(v)))].sort();
+ if(!periods.length)return '';
+ const stamp=k=>{const [year,month]=k.split('-').map(Number);
+   return BULAN[month]+' '+year;};
+ const adjacent=(a,b)=>{
+   const [y,m]=a.split('-').map(Number);
+   return String(m===12?y+1:y)+'-'+String(m===12?1:m+1).padStart(2,'0')===b;
+ };
+ const consecutive=periods.every((v,i)=>i===0||adjacent(periods[i-1],v));
+ const first=periods[0],last=periods.at(-1);
+ let label;
+ if(periods.length===1)label=stamp(first);
+ else if(consecutive&&first.slice(0,4)===last.slice(0,4)){
+   label=BULAN[Number(first.slice(5,7))]+'–'+BULAN[Number(last.slice(5,7))]+' '+first.slice(0,4);
+ }else if(consecutive)label=stamp(first)+' – '+stamp(last);
+ else label=periods.map(stamp).join(', ');
+ return periods.length>1?periods.length+' bulan: '+label:label;
+}
+function f4RtDueMissing(row,type){
+ const field=type==='bulanan'?'wajibBulananPeriode':'wajibKebersihanPeriode';
+ return (Array.isArray(row?.[field])?row[field]:[]).filter(x=>
+   Number(x.wajibRp||0)>0&&Number(x.dibayarRp||0)<Number(x.wajibRp||0));
+}
+function f4RtCellMarkup(row,type){
+ const amount=Number(type==='bulanan'?row.nominalBulanan:row.nominalKebersihan)||0;
+ const field=type==='bulanan'?'rincianBulanan':'rincianKebersihan';
+ const paid=Array.isArray(row?.[field])?row[field].filter(x=>Number(x.nominalRp)>0):[];
+ const months=f4RtLabelBulan(paid.map(x=>x.periode));
+ const missing=f4RtDueMissing(row,type);
+ const obligationField=type==='bulanan'?'wajibBulananPeriode':'wajibKebersihanPeriode';
+ const expected=Array.isArray(row?.[obligationField])?row[obligationField]:[];
+ const monthNote=months?'<span class="rt-period block text-[10px] leading-tight text-slate-500 mt-1">'+esc(months)+'</span>':'';
+ if(amount<=0&&missing.length===0){
+   // 0 yang memang TIDAK diwajibkan tidak boleh dianggap penunggak.
+   return expected.length===0?'<span class="rt-dash text-slate-400">-</span>':
+     '<span class="rt-dash text-slate-400">Rp 0</span>';
+ }
+ if(amount<=0){
+   const monthsDue=f4RtLabelBulan(missing.map(x=>x.periode));
+   return '<strong class="rt-alert block text-red-700 text-xs">Belum bayar</strong>'+
+     (missing.length>1?'<span class="rt-period block text-[10px] text-red-700 mt-1">'+esc(monthsDue)+'</span>':'');
+ }
+ const value='<strong class="rt-money">'+esc(rupiah(amount))+'</strong>'+monthNote;
+ if(!missing.length)return value;
+ const partial=missing.some(x=>Number(x.dibayarRp||0)>0);
+ const status=partial?'Belum lunas':'Belum bayar';
+ const details=f4RtLabelBulan(missing.map(x=>x.periode));
+ return value+'<span class="rt-alert block text-[10px] font-bold text-red-700 mt-1">'+
+   esc(status+(details?': '+details:''))+'</span>';
+}
+function f4RtCellWarning(row,type){return f4RtDueMissing(row,type).length>0;}
+
 function renderLaporanRt(d){d=d||{};const r=d.ringkasan||{},rows=sortedReportRtRows(d),set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};// Laporan Setoran RT menghitung UNIT SETORAN, bukan jumlah warga unik.
 const unit=(fromApi,total,tariff)=>{
   if(fromApi!==null&&fromApi!==undefined&&Number.isFinite(Number(fromApi)))return Number(fromApi);
@@ -3821,7 +3876,7 @@ const unit=(fromApi,total,tariff)=>{
 };
 const fmtCount=n=>Number(n).toLocaleString('id-ID',{maximumFractionDigits:2});
 const jumlahBulanan=unit(r.jumlahSetoranBulanan,r.totalBulanan,DATA.config?.TARIF_BULANAN);
-const jumlahKebersihan=unit(r.jumlahSetoranKebersihan,r.totalKebersihan,DATA.config?.TARIF_KEBERSIHAN);set('report-rt-period',`Periode ${d.namaBulan||''} ${d.tahun||''}`);set('report-rt-foot-bulanan',rupiah(r.totalBulanan||0));set('report-rt-foot-keb',rupiah(r.totalKebersihan||0));set('report-rt-foot-bulanan-count',`${fmtCount(jumlahBulanan)} setoran`);set('report-rt-foot-keb-count',`${fmtCount(jumlahKebersihan)} setoran`);set('report-rt-foot-total',rupiah(r.totalSetoran||0));const note=document.getElementById('rep-rt-talangan-note');if(note){note.classList.toggle('hidden',!(r.talanganCount>0));note.textContent=`Catatan internal: ${r.talanganCount||0} warga pada laporan ini ditutup melalui talangan. Keterangan ini tidak ikut saat dicetak.`}const tb=document.getElementById('report-rt-tbody');if(tb)tb.innerHTML=rows.map((x,i)=>`<tr><td class="p-3 text-center">${i+1}</td><td class="p-3 font-bold">${esc(f4NamaCetak(x))}</td><td class="p-3">${esc(x.blok||'')}/${esc(x.noRumah||'')}</td><td class="p-3 ${keteranganCellClassRt(reportKeteranganRt(x))}">${badgeKeteranganRt(reportKeteranganRt(x))}</td><td class="p-3 text-right">${rupiah(x.nominalBulanan||0)}</td><td class="p-3 text-right">${rupiah(x.nominalKebersihan||0)}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada data setoran pada periode ini.</td></tr>'}
+const jumlahKebersihan=unit(r.jumlahSetoranKebersihan,r.totalKebersihan,DATA.config?.TARIF_KEBERSIHAN);set('report-rt-period',`Periode ${d.namaBulan||''} ${d.tahun||''}`);set('report-rt-foot-bulanan',rupiah(r.totalBulanan||0));set('report-rt-foot-keb',rupiah(r.totalKebersihan||0));set('report-rt-foot-bulanan-count',`${fmtCount(jumlahBulanan)} setoran`);set('report-rt-foot-keb-count',`${fmtCount(jumlahKebersihan)} setoran`);set('report-rt-foot-total',rupiah(r.totalSetoran||0));const note=document.getElementById('rep-rt-talangan-note');if(note){note.classList.toggle('hidden',!(r.talanganCount>0));note.textContent=`Catatan internal: ${r.talanganCount||0} warga pada laporan ini ditutup melalui talangan. Keterangan ini tidak ikut saat dicetak.`}const tb=document.getElementById('report-rt-tbody');if(tb)tb.innerHTML=rows.map((x,i)=>`<tr><td class="p-3 text-center">${i+1}</td><td class="p-3 font-bold">${esc(f4NamaCetak(x))}</td><td class="p-3">${esc(x.blok||'')}/${esc(x.noRumah||'')}</td><td class="p-3 ${keteranganCellClassRt(reportKeteranganRt(x))}">${badgeKeteranganRt(reportKeteranganRt(x))}</td><td class="p-3 text-right ${f4RtCellWarning(x,'bulanan')?'bg-red-50 text-red-800':''}">${f4RtCellMarkup(x,'bulanan')}</td><td class="p-3 text-right ${f4RtCellWarning(x,'kebersihan')?'bg-red-50 text-red-800':''}">${f4RtCellMarkup(x,'kebersihan')}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada data setoran pada periode ini.</td></tr>'}
 function renderLaporanArisan(d){
   d=d||{};
   const serverRows=Array.isArray(d.rows)?d.rows:[];
@@ -3901,7 +3956,7 @@ function getNamaFileLaporan(){
   if(REPORT_MODE==='rt'){
     const namaBulan=REPORT_DATA_RT?.namaBulan||BULAN[Number(document.getElementById('report-bulan')?.value||0)-1]||'';
     const tahun=REPORT_DATA_RT?.tahun||document.getElementById('report-tahun')?.value||'';
-    return clean(`Laporan Setoran RT ${namaBulan} ${tahun}`);
+    return clean(`Laporan Setoran RT ${REPORT_DATA_RT?.labelPeriode||[namaBulan,tahun].filter(Boolean).join(' ')}`);
   }
   if(REPORT_MODE==='arisan')return clean(`Laporan Arisan ${REPORT_DATA_ARISAN?.namaBulan||''} ${REPORT_DATA_ARISAN?.tahun||''}`);
   if(REPORT_MODE==='denda')return clean(`Laporan Denda Gorol ${REPORT_DATA_DENDA?.namaBulan||''} ${REPORT_DATA_DENDA?.tahun||''}`);
@@ -3971,7 +4026,7 @@ tfoot td{background:#f1f5f9;color:#1e293b;font-weight:800;border-top:1.5px solid
 </body></html>`); w.document.close();
 }
 function printRtSepertiLamanUtama(){
-  const d=REPORT_DATA_RT||{}; const rows=sortedReportRtRows(d); const periode=[d.namaBulan,d.tahun].filter(Boolean).join(' ');
+  const d=REPORT_DATA_RT||{}; const rows=sortedReportRtRows(d); const periode=d.labelPeriode||[d.namaBulan,d.tahun].filter(Boolean).join(' ');
   // Kolom cetak wajib sama dengan renderLaporanRt pada layar: nominalBulanan/nominalKebersihan.
   const nominalBulanan=x=>Number(x.nominalBulanan??x.iuranBulanan??x.bulanan??0);
   const nominalKebersihan=x=>Number(x.nominalKebersihan??x.kebersihan??0);
@@ -3980,12 +4035,12 @@ function printRtSepertiLamanUtama(){
    const t=String(k||'').toLowerCase();
    return t.includes('ketua rt')?'n-rt':t.includes('kebersihan 2')?'n-keb':t.includes('humas')?'n-humas':t.includes('tempat belajar')?'n-tpq':'';
   };
-  const body=rows.map((x,i)=>{const ket=reportKeteranganRt(x);return `<tr><td class="c">${i+1}</td><td>${escapePrint(f4NamaCetak(x))}</td><td>${escapePrint(rumah(x))}</td><td class="${noteClass(ket)}">${escapePrint(ket||'-')}</td><td class="r nowrap">${escapePrint(rupiah(nominalBulanan(x)))}</td><td class="r nowrap">${escapePrint(rupiah(nominalKebersihan(x)))}</td></tr>`}).join('')||'<tr><td colspan="6" class="empty">Belum ada data.</td></tr>';
+  const body=rows.map((x,i)=>{const ket=reportKeteranganRt(x);return `<tr><td class="c">${i+1}</td><td>${escapePrint(f4NamaCetak(x))}</td><td>${escapePrint(rumah(x))}</td><td class="${noteClass(ket)}">${escapePrint(ket||'-')}</td><td class="r ${f4RtCellWarning(x,'bulanan')?'rt-warning':''}">${f4RtCellMarkup(x,'bulanan')}</td><td class="r ${f4RtCellWarning(x,'kebersihan')?'rt-warning':''}">${f4RtCellMarkup(x,'kebersihan')}</td></tr>`}).join('')||'<tr><td colspan="6" class="empty">Belum ada data.</td></tr>';
   const totalBulanan=rows.reduce((a,x)=>a+nominalBulanan(x),0), totalKeb=rows.reduce((a,x)=>a+nominalKebersihan(x),0);
-  const countBulanan=rows.filter(x=>nominalBulanan(x)>0).length, countKeb=rows.filter(x=>nominalKebersihan(x)>0).length;
+  const countBulanan=Number(d.ringkasan?.jumlahSetoranBulanan??0), countKeb=Number(d.ringkasan?.jumlahSetoranKebersihan??0);
   const w=window.open('','_blank'); if(!w)return alert('Pop-up diblokir. Izinkan pop-up lalu coba kembali.');
   w.document.write(`<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapePrint(getNamaFileLaporan())}</title><style>
-@page{size:A4 portrait;margin:10mm 12mm 11mm}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#1e293b;font-size:10.5px;line-height:1.35;-webkit-print-color-adjust:exact;print-color-adjust:exact}.header{display:flex;align-items:center;gap:12px;border-bottom:2px solid #1e293b;padding-bottom:8px;margin-bottom:9px}.logo{width:50px;height:50px;object-fit:contain}.headtext{flex:1}.headtext h1{font-size:16px;margin:0 0 3px;font-weight:800}.headtext p{margin:2px 0;color:#475569}.periode{font-weight:700;color:#312e81!important}h2{font-size:12px;margin:9px 0 5px}table{width:100%;border-collapse:collapse;table-layout:fixed}th{background:#f1f5f9;color:#334155;font-size:10.3px;text-align:center;border:1px solid #000;padding:4px 5px}td{border:1px solid #000;padding:4px 5px;vertical-align:middle}.c{text-align:center}.r{text-align:right}.nowrap{white-space:nowrap}.empty{text-align:center;color:#64748b;padding:12px}.n-rt{background:#fff1c2;font-weight:700;color:#4c3b05}.n-keb{background:#dbfce6;font-weight:700;color:#155b31}.n-humas{background:#dff2ff;font-weight:700;color:#164465}.n-tpq{background:#ebe7ff;font-weight:700;color:#47318a}tfoot td{background:#f8fafc;font-weight:700}.muted{display:block;font-size:8.5px;color:#64748b;font-weight:600;margin-top:1px}.humas{margin-top:12px;text-align:right;font-size:10px;font-weight:700}.note{margin-top:8px;font-size:8.5px;color:#64748b;border-top:1px solid #000;padding-top:5px}@media screen{body{max-width:186mm;margin:14px auto;padding:0 4px;background:#fff}}</style></head><body>
+@page{size:A4 portrait;margin:10mm 12mm 11mm}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#1e293b;font-size:10.5px;line-height:1.35;-webkit-print-color-adjust:exact;print-color-adjust:exact}.header{display:flex;align-items:center;gap:12px;border-bottom:2px solid #1e293b;padding-bottom:8px;margin-bottom:9px}.logo{width:50px;height:50px;object-fit:contain}.headtext{flex:1}.headtext h1{font-size:16px;margin:0 0 3px;font-weight:800}.headtext p{margin:2px 0;color:#475569}.periode{font-weight:700;color:#312e81!important}h2{font-size:12px;margin:9px 0 5px}table{width:100%;border-collapse:collapse;table-layout:fixed}th{background:#f1f5f9;color:#334155;font-size:10.3px;text-align:center;border:1px solid #000;padding:4px 5px}td{border:1px solid #000;padding:4px 5px;vertical-align:middle}.c{text-align:center}.r{text-align:right}.nowrap{white-space:nowrap}.empty{text-align:center;color:#64748b;padding:12px}.n-rt{background:#fff1c2;font-weight:700;color:#4c3b05}.n-keb{background:#dbfce6;font-weight:700;color:#155b31}.n-humas{background:#dff2ff;font-weight:700;color:#164465}.n-tpq{background:#ebe7ff;font-weight:700;color:#47318a}td.rt-warning{background:#fff1f2;color:#991b1b}td .rt-alert{color:#b91c1c;font-weight:700;font-size:9px}td .rt-period{display:block;font-size:8.4px;line-height:1.22;margin-top:2px;color:#64748b;font-weight:500;overflow-wrap:anywhere}td.rt-warning .rt-period{color:#9f1239}td .rt-money{font-weight:700}td .rt-dash{color:#94a3b8}tfoot td{background:#f8fafc;font-weight:700}.muted{display:block;font-size:8.5px;color:#64748b;font-weight:600;margin-top:1px}.humas{margin-top:12px;text-align:right;font-size:10px;font-weight:700}.note{margin-top:8px;font-size:8.5px;color:#64748b;border-top:1px solid #000;padding-top:5px}@media screen{body{max-width:186mm;margin:14px auto;padding:0 4px;background:#fff}}</style></head><body>
 <header class="header"><img class="logo" src="https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027-v2" alt="Logo"><div class="headtext"><h1>LAPORAN SETORAN IURAN WARGA</h1><p>RT 001 RW 026 Pesona Kahuripan 2</p><p class="periode">${escapePrint(periode?`Periode ${periode}`:'')}</p></div></header>
 <h2>Rincian Setoran</h2><table><colgroup><col style="width:6%"><col style="width:22%"><col style="width:13%"><col style="width:25%"><col style="width:17%"><col style="width:17%"></colgroup><thead><tr><th>No</th><th>Nama</th><th>Rumah</th><th>Keterangan</th><th>Iuran Bulanan</th><th>Kebersihan</th></tr></thead><tbody>${body}</tbody><tfoot><tr><td colspan="4" class="r">TOTAL</td><td class="r">${escapePrint(rupiah(totalBulanan))}<span class="muted">${countBulanan} orang</span></td><td class="r">${escapePrint(rupiah(totalKeb))}<span class="muted">${countKeb} orang</span></td></tr><tr><td colspan="4" class="r">TOTAL SETORAN</td><td colspan="2" class="r">${escapePrint(rupiah(totalBulanan+totalKeb))}</td></tr></tfoot></table>
 <div class="humas">Humas Flamboyan 4<br>Heri Juwandi</div><script>window.onload=()=>{setTimeout(()=>window.print(),350)}<\/script></body></html>`); w.document.close();
