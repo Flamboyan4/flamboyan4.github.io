@@ -2574,12 +2574,29 @@ function isiForm(){const sel=document.getElementById('inp-warga');const old=sel.
 function periodeList(b,y,j){const a=[];let m=Number(b),yr=Number(y);for(let i=0;i<Number(j);i++){a.push(BULAN[m]+' '+yr);m++;if(m>12){m=1;yr++}}return a}
 let F4_IURAN_PREVIEW=null,F4_IURAN_PREVIEW_SEQUENCE=0;
 let F4_IURAN_SUGGEST_SEQ=0,F4_IURAN_PERIOD_BLOCKED=false;
+let F4_IURAN_PERIOD_NOTICE_TIMER=null;
 function f4IuranPeriodNotice(message,type='info'){
  const el=document.getElementById('inp-periode-status');
+ if(F4_IURAN_PERIOD_NOTICE_TIMER!==null){
+   clearTimeout(F4_IURAN_PERIOD_NOTICE_TIMER);
+   F4_IURAN_PERIOD_NOTICE_TIMER=null;
+ }
  if(!el)return;
- el.textContent=message||'';
- el.hidden=!message;
+ // Informasi periode hanya untuk form Input Iuran yang sedang aktif.
+ const active=!document.getElementById('tab-input')?.classList.contains('hidden');
+ const show=Boolean(message)&&active;
+ el.textContent=show?message:'';
+ el.hidden=!show;
  el.dataset.state=type;
+ // Hasil pemeriksaan sukses bukan label permanen: hilang setelah 3 detik.
+ // Peringatan/kegagalan tetap terlihat agar instruksi koreksinya terbaca.
+ if(show&&type==='success'){
+   F4_IURAN_PERIOD_NOTICE_TIMER=setTimeout(()=>{
+     F4_IURAN_PERIOD_NOTICE_TIMER=null;
+     el.textContent='';
+     el.hidden=true;
+   },3000);
+ }
 }
 function f4IuranManualPeriod(){
  ++F4_IURAN_SUGGEST_SEQ;
@@ -2762,6 +2779,9 @@ function saveStatus(t,type='info',autoHideMs=0){
   if(autoHideMs>0)saveStatusTimer=setTimeout(hideSaveStatus,autoHideMs);
 }
 function resetIuranFormAfterSave(){
+  f4IuranPeriodNotice('');
+  ++F4_IURAN_SUGGEST_SEQ;
+  F4_IURAN_PERIOD_BLOCKED=false;
   const now=new Date();
   const warga=document.getElementById('inp-warga');if(warga)warga.value='';
   const tanggal=document.getElementById('inp-tanggal');if(tanggal)tanggal.value=now.toISOString().slice(0,10);
@@ -3886,7 +3906,10 @@ function printLaporan(){
 function bukaMenu(){document.querySelectorAll('.custom-select-wrap.open').forEach(x=>x.classList.remove('open'));const d=document.getElementById('side-drawer');d.classList.add('open');d.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';lucide.createIcons()}
 function tutupMenu(){const d=document.getElementById('side-drawer');d.classList.remove('open');d.setAttribute('aria-hidden','true');document.body.style.overflow=''}
 
-function pilihMenu(n){document.querySelectorAll('.custom-select-wrap.open').forEach(x=>x.classList.remove('open'));
+function pilihMenu(n){
+  // Keterangan pemeriksaan periode tidak boleh tersimpan lintas menu.
+  if(n!=='input')f4IuranPeriodNotice('');
+  document.querySelectorAll('.custom-select-wrap.open').forEach(x=>x.classList.remove('open'));
   const meta={
     input:['Input Iuran Warga',''],
     transaksi:['Debit / Kredit',''],
