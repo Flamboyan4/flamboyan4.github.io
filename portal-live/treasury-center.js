@@ -869,7 +869,8 @@ function render(data){
  history.append(el("h3","Riwayat Transaksi"));
  const opening=openingSummary(data);
  const opened=el("details",undefined,"tc-opening-recap");
- opened.append(el("summary","Saldo awal • "+formatDate(opening.date)+" • "+rp(opening.grand)));
+ opened.append(el("summary","Saldo awal (arsip) • "+formatDate(opening.date)+" • "+rp(opening.grand)));
+ opened.append(el("p","Ini posisi saat pembukuan dibuka, bukan saldo sekarang. Pemindahan dan pengeluaran setelah tanggal tersebut ada di riwayat. Untuk saldo terbaru, buka tab Saldo.","tc-opening-explain"));
  const openingRows=opening.rows.filter(x=>x.total!==0).map(x=>[x.name,rp(x.cash),rp(x.qris),rp(x.mandiri),rp(x.total)]);
  openingRows.push(["TOTAL",rp(opening.rows.reduce((n,x)=>n+x.cash,0)),rp(opening.rows.reduce((n,x)=>n+x.qris,0)),
   rp(opening.rows.reduce((n,x)=>n+x.mandiri,0)),rp(opening.grand)]);
