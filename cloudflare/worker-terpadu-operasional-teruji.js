@@ -2917,12 +2917,12 @@ async function f4ContributionReport(db, request) {
           if (receiptMonths.length !== 1) continue;
           const paidMonth = receiptMonths[0];
           if (paidMonth < firstKey && paidMonth < item.periode)
-            advanceLabels.add(item.periode + "|" + paidMonth);
+            advanceLabels.add(kind + "|" + item.periode + "|" + paidMonth);
         }
       }
       entry.pelunasanDiMuka = [...advanceLabels].map(key => {
-        const [periode, dibayarPada] = key.split("|");
-        return { periode, dibayarPada };
+        const [jenis, periode, dibayarPada] = key.split("|");
+        return { jenis, periode, dibayarPada };
       });
     }
     const rows2 = [...byPayer.values()].filter(row =>
