@@ -50,7 +50,7 @@ async def install(page, html):
     await page.wait_for_selector("body > .f4-sheet-handle", state="attached")
     await page.wait_for_timeout(120)
 
-async def swipe(page, handle, distance):
+async def swipe(page, handle, distance, panel=None):
     box = await handle.bounding_box()
     assert box, "Pegangan harus ada ketika popup terbuka"
     x, y = box["x"]+box["width"]/2, box["y"]+box["height"]/2
@@ -58,6 +58,10 @@ async def swipe(page, handle, distance):
     await page.mouse.down()
     await page.mouse.move(x,y+distance,steps=14)
     await page.mouse.up()
+    if panel is not None:
+        # Height transitions repeatedly lay out the entire popup, causing jank.
+        css = await panel.evaluate("(e)=>e.style.transition")
+        assert "height" not in css, f"Sheet still animates height: {css}"
     await page.wait_for_timeout(290)
 
 async def verify():
@@ -75,7 +79,7 @@ async def verify():
         before=await panel.evaluate("(e)=>e.getBoundingClientRect().top")
         grip_before=(await handle.bounding_box())["y"]
         assert abs(before-grip_before)<5, "Pegangan tidak sejajar tepi panel"
-        await swipe(mobile,handle,-160)
+        await swipe(mobile,handle,-160,panel)
         assert await panel.evaluate("(e)=>e.classList.contains('f4-sheet-expanded')")
         top=await panel.evaluate("(e)=>e.getBoundingClientRect().top")
         assert top<=25, f"Sheet tidak mencapai bagian atas: {top}"
@@ -83,9 +87,9 @@ async def verify():
         await mobile.wait_for_timeout(90)
         box=await handle.bounding_box()
         assert abs(box["y"]-top)<6,"Pegangan berpindah sewaktu isi digulir"
-        await swipe(mobile,handle,115)
+        await swipe(mobile,handle,115,panel)
         assert not await panel.evaluate("(e)=>e.classList.contains('f4-sheet-expanded')")
-        await swipe(mobile,handle,150)
+        await swipe(mobile,handle,150,panel)
         assert await mobile.locator("#modal-arisan").evaluate(
             "(e)=>e.classList.contains('hidden')"), "Swipe ke bawah tidak menutup"
         assert not await handle.is_visible(), "Pegangan tetap menutup halaman"
