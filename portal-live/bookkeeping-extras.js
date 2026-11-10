@@ -203,7 +203,7 @@
  }
  function itemized(x){
   const labels={
-   IURAN_BULANAN:'Iuran Bulanan / RT',KEBERSIHAN:'Kebersihan',
+   IURAN_BULANAN:'Iuran Bulanan',KEBERSIHAN:'Kebersihan',
    KAS_LORONG:'Kas Lorong',ARISAN:'Arisan',DENDA:'Denda',
    DENDA_GOROL:'Denda Gorol'
   };
