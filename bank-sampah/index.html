@@ -2977,7 +2977,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   function v12Table(headings,rows){
     const table=document.createElement('table'),head=document.createElement('thead'),hrow=document.createElement('tr');
     headings.forEach(h=>{const th=document.createElement('th');th.textContent=h;hrow.appendChild(th);});head.appendChild(hrow);table.appendChild(head);
-    const body=document.createElement('tbody');rows.forEach(row=>{const tr=document.createElement('tr');row.forEach((val,i)=>{const td=document.createElement('td');td.dataset.label=headings[i];td.textContent=String(val??'—');tr.appendChild(td);});body.appendChild(tr);});table.appendChild(body);return table;
+    const body=document.createElement('tbody');rows.forEach(row=>{const tr=document.createElement('tr');row.forEach((val,i)=>{const td=document.createElement('td');td.dataset.label=headings[i];if(val&&val.nodeType===1)td.appendChild(val);else td.textContent=String(val??'—');tr.appendChild(td);});body.appendChild(tr);});table.appendChild(body);return table;
   }
   const v12Kg=n=>new Intl.NumberFormat('id-ID',{maximumFractionDigits:3}).format(n||0)+' kg';
   // Nilai yang dipajang setelah sah berasal dari kredit jual dalam ledger.
@@ -3005,7 +3005,20 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       v12Data=d;
       $('v12Gate').classList.add('hidden');$('v12Private').classList.remove('hidden');
       $('v12Balance').textContent=rupiah(d.saldo);$('v12Credit').textContent=rupiah(d.totalMasuk);$('v12Debit').textContent=rupiah(d.totalCair);
-      const history=$('v12History');history.replaceChildren();history.appendChild(v12Table(['Tanggal','Mutasi','Masuk','Keluar','Saldo'],d.mutasi.map(x=>[f4MemberDateID(x.tanggal),x.jenis,rupiah(x.kredit),rupiah(x.debit),rupiah(x.saldo)])));
+      const history=$('v12History');history.replaceChildren();
+      const personalMutations=(d.mutasi||[]).map(x=>{
+        const withdrawn=/pencairan/i.test(String(x.jenis||''))&&Number(x.debit)>0&&x.id;
+        const receipt=withdrawn?f4BankReceiptIcon(x,()=>({
+          scope:'bank',id:x.id,title:'Bukti Pencairan Tabungan',
+          party:d.nama||profile?.nama||'Anggota Bank Sampah',house:d.rumah||profile?.rumah||'-',
+          date:x.tanggal||'-',method:'Melalui pengurus',amount:Number(x.debit),
+          amountLabel:'Tabungan Dicairkan',status:'TERCATAT',
+          details:[['Jenis transaksi',x.jenis],['Saldo sesudahnya',rupiah(x.saldo)]],
+          note:'Bukti pencairan yang tercatat di mutasi tabungan anggota.'
+        })):'—';
+        return [f4MemberDateID(x.tanggal),x.jenis,rupiah(x.kredit),rupiah(x.debit),rupiah(x.saldo),receipt];
+      });
+      history.appendChild(v12Table(['Tanggal','Mutasi','Masuk','Keluar','Saldo','Resi'],personalMutations));
       const deposits=$('v12Deposits');deposits.replaceChildren();deposits.classList.add('f4-member-tx-feed');
       // Daftar ringkas seperti mutasi bank. Harga awal tidak boleh disebut hasil akhir.
       // D1 hanya memberi hasil sah PER SETORAN; belum ada harga sah per jenis barang.
@@ -3056,6 +3069,13 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
             note.textContent='Timbang '+v12Kg(s.beratTimbangKg)+' → terjual '+v12Kg(s.beratSahKg);
             content.appendChild(note);
           }
+        }
+        if(s.id){
+          const action=f4BankReceiptIcon(s,()=>f4BankDepositReceipt({
+            ...s,estimasi:s.estimasiRp,berat:s.beratKg
+          },{nama:d.nama,rumah:d.rumah}));
+          action.classList.add('f4-member-deposit-receipt');
+          content.appendChild(action);
         }
         details.appendChild(content);deposits.appendChild(details);
       });
