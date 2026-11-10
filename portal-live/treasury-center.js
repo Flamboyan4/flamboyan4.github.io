@@ -17,6 +17,7 @@ const kindLabels={opening:"Saldo awal",incoming:"Dana masuk",outgoing:"Dana kelu
 let current=null;
 let activeView="saldo";
 let reviewOpen=false;
+let manageOpen=null;
 function showTreasuryNotice(message){
  // Notifikasi hanya pada tindakan pengesahan, tidak tersimpan dan tidak ditampilkan ulang.
  document.querySelectorAll(".tc-flash").forEach(node=>node.remove());
@@ -561,7 +562,6 @@ function buildSources(target,data,refresh){
 function buildDynamicFund(target,data,refresh){
  if(!data.confirmed)return;
  const shell=el("section",undefined,"tc-panel tc-custom-fund tc-no-print");
- shell.append(el("h3","Kelola Pos Dana"));
  const form=el("form",undefined,"tc-custom-fund-form");
  const name=el("input");name.maxLength=70;name.minLength=3;name.required=true;name.placeholder="Contoh: Donasi Gapura";
  const purpose=el("input");purpose.maxLength=200;purpose.placeholder="Catatan (opsional)";
@@ -645,7 +645,7 @@ function buildDynamicFund(target,data,refresh){
  }
  if(fixed.length){
   const builtins=el("details",undefined,"tc-fixed-funds");
-  builtins.open=!custom.length;
+  builtins.open=false;
   builtins.append(el("summary","Pos bawaan / projek ("+fixed.length+")"));
   const fixedList=el("div",undefined,"tc-custom-list");
   for(const fund of fixed){
@@ -771,10 +771,12 @@ function render(data){
 
  // Saldo: daftar ringkas, rincian hanya saat satu pos dibuka.
  const saldo=viewPanels.saldo;
+ const saldoGrid=el("div",undefined,"tc-saldo-layout");
+ saldo.append(saldoGrid);
  const ownership=el("section",undefined,"tc-panel tc-ownership");
  const ownHead=el("div",undefined,"tc-section-head");
  ownHead.append(el("h3","Saldo per Pos"));
- const manage=el("button","Kelola Pos","tc-secondary");
+ const manage=el("button","Kelola Pos","tc-secondary tc-manage-trigger");
  manage.type="button";
  manage.onclick=()=>{
   fundManage.open=true;
@@ -805,11 +807,13 @@ function render(data){
   item.append(split);fundList.append(item);
  }
  if(!rows.length)fundList.append(el("p","Belum ada saldo pada pos dana.","tc-muted"));
- ownership.append(fundList);saldo.append(ownership);
+ ownership.append(fundList);saldoGrid.append(ownership);
 
  // Transaksi: satu tempat untuk pencatatan dan pemeriksaan dana.
  const transaksi=viewPanels.transaksi;
- buildForm(transaksi,data,refresh);
+ const transaksiGrid=el("div",undefined,"tc-transaksi-layout");
+ transaksi.append(transaksiGrid);
+ buildForm(transaksiGrid,data,refresh);
  // Pemeriksaan dana mudah ditemukan tanpa menutup bagian transaksi.
  if(hasReview||(data.excludedSources||[]).length||(data.bankSourceBalances||[]).some(x=>Number(x.amountRp)!==0)){
   const fold=el("details",undefined,"tc-review-fold");
@@ -840,23 +844,27 @@ function render(data){
    line.append(info,el("b",rp(x.amount)));recent.append(line);
   }
  }else recent.append(el("p","Belum ada transaksi setelah saldo awal.","tc-muted"));
- transaksi.append(recent);
+ transaksiGrid.append(recent);
 
- // Pengaturan opsional ditempatkan di bawah rincian saldo, tidak menjadi tab utama.
+ // Pengelolaan pos berdampingan dengan saldo di PC, satu kolom di HP.
  const fundManage=el("details",undefined,"tc-fund-manage");
- fundManage.append(el("summary","Pengaturan Pos Dana"));
+ fundManage.open=manageOpen===null?window.matchMedia("(min-width: 1280px)").matches:manageOpen;
+ fundManage.append(el("summary","Kelola Pos Dana"));
+ fundManage.addEventListener("toggle",()=>{manageOpen=fundManage.open});
  buildDynamicFund(fundManage,data,refresh);
- saldo.append(fundManage);
+ saldoGrid.append(fundManage);
 
  // Laporan: saldo pembuka, seluruh riwayat, dan cetak.
  const laporan=viewPanels.laporan;
+ const reportTop=el("div",undefined,"tc-report-top");
+ laporan.append(reportTop);
  const reportHead=el("div",undefined,"tc-panel tc-report-head");
  const reportCaption=el("div",undefined,"tc-report-caption");
  reportCaption.append(el("h3","Laporan Keuangan"),el("span","Saldo dan seluruh riwayat"));
  const print=el("button","Cetak Laporan","tc-primary");
  print.type="button";print.disabled=!data.riwayatLengkap;
  print.onclick=()=>printTreasury(data);
- reportHead.append(reportCaption,print);laporan.append(reportHead);
+ reportHead.append(reportCaption,print);reportTop.append(reportHead);
  const history=el("section",undefined,"tc-panel tc-history-panel");
  history.append(el("h3","Riwayat Transaksi"));
  const opening=openingSummary(data);
@@ -866,7 +874,7 @@ function render(data){
  openingRows.push(["TOTAL",rp(opening.rows.reduce((n,x)=>n+x.cash,0)),rp(opening.rows.reduce((n,x)=>n+x.qris,0)),
   rp(opening.rows.reduce((n,x)=>n+x.mandiri,0)),rp(opening.grand)]);
  simpleTable(opened,["Program","Cash","QRIS","Mandiri","Total"],openingRows,"tc-balance-table");
- history.append(opened);
+ reportTop.append(opened);
  const historyRows=entries.map(x=>[formatDate(x.date),x.kindName,x.from,x.to,rp(x.amount),x.note]);
  if(historyRows.length)simpleTable(history,["Tanggal","Jenis","Dari","Ke","Nominal","Keterangan"],historyRows,"tc-history-table");
  else history.append(el("p","Belum ada transaksi setelah saldo awal.","tc-muted"));
