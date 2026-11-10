@@ -412,5 +412,5 @@
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
  else start();
- window.F4MobileSheets={version:'20261110-transform-only-v10',refresh:requestRefresh};
+ window.F4MobileSheets={version:'20261110-compositor-v11',refresh:requestRefresh};
 })();
