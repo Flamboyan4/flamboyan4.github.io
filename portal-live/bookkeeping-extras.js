@@ -287,46 +287,53 @@
   const c=canvas.getContext('2d');
   if(!c)throw Error('Gagal menggambar resi JPG.');
   c.fillStyle='#f2ecff';c.fillRect(0,0,W,H);
-  // Sobekan struk: gelombang mungil, membulat, dan BERSAMBUNG di seluruh tepi.
-  // Siluet tunggal ini meniru karakter receipt paper, tanpa bulatan terpisah.
-  const paperLeft=34,paperRight=866,corner=15;
-  const upper=top+9,lower=paperBottom-9;
-  const pitch=16,notch=6,sidePitch=20,sideNotch=2.8;
+  // Potongan kertas struk: gerigi BESAR, berjarak, dan seragam.
+  // Kurva kubik membentuk lengkung setinggi ~12px, bukan ~3px di versi lama.
+  // Semua sisi merupakan satu path tertutup: tidak ada lingkaran yang ditempel.
+  const paperLeft=34,paperRight=866,corner=18;
+  const upper=top+13,lower=paperBottom-13;
+  const topPitch=35,topDepth=18,sidePitch=39,sideDepth=15;
   c.save();
-  c.shadowColor='rgba(50,28,104,.10)';
-  c.shadowBlur=16;
-  c.shadowOffsetY=5;
+  c.shadowColor='rgba(50,28,104,.15)';
+  c.shadowBlur=15;c.shadowOffsetY=5;
   c.fillStyle='#ffffff';
   c.beginPath();
-  // Atas: lengkungan putih kecil dengan celah masuk halus di antaranya.
+  const horizontalWidth=paperRight-paperLeft-2*corner;
+  const topCount=Math.max(1,Math.round(horizontalWidth/topPitch));
+  const topStep=horizontalWidth/topCount;
   let edge=paperLeft+corner;
   c.moveTo(edge,upper);
-  while(edge<paperRight-corner){
-   const next=Math.min(edge+pitch,paperRight-corner);
-   c.quadraticCurveTo((edge+next)/2,upper-notch,next,upper);
+  for(let i=0;i<topCount;i++){
+   const next=paperLeft+corner+(i+1)*topStep;
+   c.bezierCurveTo(edge+topStep*.22,upper-topDepth,
+    next-topStep*.22,upper-topDepth,next);
    edge=next;
   }
-  // Sudut kanan dan tepi samping: nyaris rata, hanya sedikit bergerigi.
   c.quadraticCurveTo(paperRight,upper,paperRight,upper+corner);
+  const sideHeight=lower-upper-2*corner;
+  const sideCount=Math.max(1,Math.round(sideHeight/sidePitch));
+  const sideStep=sideHeight/sideCount;
   edge=upper+corner;
-  while(edge<lower-corner){
-   const next=Math.min(edge+sidePitch,lower-corner);
-   c.quadraticCurveTo(paperRight-sideNotch,(edge+next)/2,paperRight,next);
+  for(let i=0;i<sideCount;i++){
+   const next=upper+corner+(i+1)*sideStep;
+   c.bezierCurveTo(paperRight+sideDepth,edge+sideStep*.22,
+    paperRight+sideDepth,next-sideStep*.22,paperRight,next);
    edge=next;
   }
   c.quadraticCurveTo(paperRight,lower,paperRight-corner,lower);
-  // Bawah: sobekan berkelanjutan, bukan lubang atau kumpulan lingkaran.
   edge=paperRight-corner;
-  while(edge>paperLeft+corner){
-   const next=Math.max(edge-pitch,paperLeft+corner);
-   c.quadraticCurveTo((edge+next)/2,lower+notch,next,lower);
+  for(let i=0;i<topCount;i++){
+   const next=paperRight-corner-(i+1)*topStep;
+   c.bezierCurveTo(edge-topStep*.22,lower+topDepth,
+    next+topStep*.22,lower+topDepth,next,lower);
    edge=next;
   }
   c.quadraticCurveTo(paperLeft,lower,paperLeft,lower-corner);
   edge=lower-corner;
-  while(edge>upper+corner){
-   const next=Math.max(edge-sidePitch,upper+corner);
-   c.quadraticCurveTo(paperLeft+sideNotch,(edge+next)/2,paperLeft,next);
+  for(let i=0;i<sideCount;i++){
+   const next=lower-corner-(i+1)*sideStep;
+   c.bezierCurveTo(paperLeft-sideDepth,edge-sideStep*.22,
+    paperLeft-sideDepth,next+sideStep*.22,paperLeft,next);
    edge=next;
   }
   c.quadraticCurveTo(paperLeft,upper,paperLeft+corner,upper);
