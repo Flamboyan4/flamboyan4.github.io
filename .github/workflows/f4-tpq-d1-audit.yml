@@ -1,0 +1,24 @@
+name: F4 TPQ D1 read-only audit
+on:
+  push:
+    branches: [main]
+    paths:
+      - qa/audit_tpq_d1_readonly.py
+      - .github/workflows/f4-tpq-d1-audit.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: f4-d1-tpq-audit
+  cancel-in-progress: false
+jobs:
+  verify-tpq:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read live D1 payer and allocation status without editing financial records
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: python3 qa/audit_tpq_d1_readonly.py
