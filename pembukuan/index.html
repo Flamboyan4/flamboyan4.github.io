@@ -3374,7 +3374,7 @@ function f4CetakResiLain(kind,id){
  if(!open){riwayatMsg('Fitur resi belum dimuat. Muat ulang portal.','error');return;}
  const name=x=>typeof f4NamaCetak==='function'?f4NamaCetak(x):String(x?.nama||'-');
  const home=x=>[x.blok,x.noRumah].filter(Boolean).join('/')||'-';
- const valid=x=>x&&String(x.status||'AKTIF').toUpperCase()!=='BATAL';
+ const valid=x=>x&&!/batal|cancelled|canceled/i.test(String(x.status||'AKTIF'));
  let r=null;
  if(kind==='denda'){
   const x=(DATA_DENDA.rows||[]).find(v=>String(v.idDenda)===String(id));
