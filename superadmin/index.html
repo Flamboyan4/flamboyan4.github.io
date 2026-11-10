@@ -154,10 +154,6 @@ html body #f4-account-page>aside{overflow-x:hidden}
  background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 2px 6px #27496419
 }
 #f4-account-page .sa-tabbar button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
-#f4-account-page .sa-module-heading{margin:3px 0 14px;padding:1px 2px}
-#f4-account-page .sa-module-heading h3{font-size:18px;font-weight:800;margin:0 0 4px;color:var(--navy)}
-#f4-account-page .sa-module-heading p{font-size:12px;color:var(--muted);margin:0}
-
 @keyframes f4SaContentIn{from{opacity:.35;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 #f4-account-page>main>.f4-work-heading,
 #f4-account-page>main>.sa-section,
@@ -425,11 +421,8 @@ const title=(name,desc)=>{
  h.append(el('h2',category&&active?category:name),el('p',category&&active?categoryDesc:desc));
  main.append(h);
  renderTabs();
- if(category&&active){
-  const module=el('section',undefined,'sa-module-heading');
-  module.append(el('h3',name),el('p',desc));
-  main.append(module);
- }
+ // The active submenu tab already names the module. Do not repeat
+ // its title/description beneath the tab navigation.
 };
 const section=(label)=>{const s=el('section',undefined,'sa-section');s.append(el('h3',label));main.append(s);return s};
 const value=(o,keys)=>{for(const k of keys)if(o&&o[k]!==undefined&&o[k]!==null)return String(o[k]);return ''};
