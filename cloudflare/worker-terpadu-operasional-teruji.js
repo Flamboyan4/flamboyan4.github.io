@@ -2746,18 +2746,31 @@ async function f4ContributionReport(db, request) {
   const from = params.get("from") || "", to = params.get("to") || "";
   if (from && !validDateOnly(from) || to && !validDateOnly(to) || from && to && from > to) return safeError("Periode tidak valid.", 400);
   const where = ["a.status='aktif'", "p.status='aktif'"], bind = [];
-  // RT Setoran is CASH RECEIVED: count each payment on its actual paid_on date,
-  // not the allocation's obligation month. Prepaid December received in November
-  // is reported in November, and cannot become a new December cash receipt.
-  // Keep Arisan's existing obligation-month semantics unchanged.
+  // Siklus laporan RT: tanggal 21 bulan sebelumnya sampai tanggal 20
+  // bulan laporan. Bukan bulan kewajiban, dan bukan tahapan kas lorong.
+  const monthlyRt = kind === "rt" && level !== "date";
+  const rtReportMonth = paidOn => {
+    const date = String(paidOn || "");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return "";
+    if (Number(date.slice(8, 10)) <= 20) return date.slice(0, 7);
+    const year = Number(date.slice(0, 4)), month = Number(date.slice(5, 7));
+    return month === 12 ? (year + 1) + "-01" : year + "-" + String(month + 1).padStart(2, "0");
+  };
+  const rtPeriodStart = date => {
+    const year = Number(date.slice(0, 4)), month = Number(date.slice(5, 7));
+    return (month === 1 ? (year - 1) + "-12" : year + "-" + String(month - 1).padStart(2, "0")) + "-21";
+  };
+  const receiptFrom = monthlyRt && from ? rtPeriodStart(from) : from;
+  const receiptTo = monthlyRt && to ? to.slice(0, 7) + "-20" : to;
+  // Arisan dan laporan tanggal spesifik tidak berubah.
   const byReceiptDate = kind === "rt" || level === "date";
   if (from) {
     where.push(byReceiptDate ? "p.paid_on>=?" : "printf('%04d-%02d',a.period_year,a.period_month)>=?");
-    bind.push(byReceiptDate ? from : from.slice(0, 7));
+    bind.push(byReceiptDate ? receiptFrom : from.slice(0, 7));
   }
   if (to) {
     where.push(byReceiptDate ? "p.paid_on<=?" : "printf('%04d-%02d',a.period_year,a.period_month)<=?");
-    bind.push(byReceiptDate ? to : to.slice(0, 7));
+    bind.push(byReceiptDate ? receiptTo : to.slice(0, 7));
   }
   // Bookkeeping uses one active allocation per contribution category.
   // The legacy bookkeeping_allocation_details rows duplicate historical amounts
@@ -2853,8 +2866,11 @@ async function f4ContributionReport(db, request) {
         "JOIN bookkeeping_payments p ON p.id=a.payment_id " +
         "WHERE a.status='aktif' AND p.status='aktif' " +
         "AND printf('%04d-%02d',a.period_year,a.period_month)>=? " +
-        "AND printf('%04d-%02d',a.period_year,a.period_month)<=?"
-      ).bind(dueMonths[0], dueMonths.at(-1)).all();
+        "AND printf('%04d-%02d',a.period_year,a.period_month)<=?" +
+        (monthlyRt && receiptTo ? " AND p.paid_on<=?" : "")
+      ).bind(...(monthlyRt && receiptTo ?
+        [dueMonths[0], dueMonths.at(-1), receiptTo] :
+        [dueMonths[0], dueMonths.at(-1)])).all();
       for (const a of paid.results || []) {
         const id = String(a.payer_id),category = String(a.contribution_type || "").toUpperCase();
         if (category !== "IURAN_BULANAN" && category !== "KEBERSIHAN") continue;
@@ -2913,11 +2929,14 @@ async function f4ContributionReport(db, request) {
         for (const item of due) {
           const paid = paidPeriods.get(kind + "|" + item.periode);
           if (!paid || Number(paid.dibayarRp) < item.wajibRp) continue;
-          const receiptMonths = [...new Set((paid.tanggalBayar || []).map(v => String(v).slice(0, 7)))];
+          // Label bulan sebelumnya hanya jika uangnya memang telah masuk
+          // siklus laporan RT yang lebih awal; tanggal 21-akhir bulan
+          // dihitung pada siklus laporan berikutnya.
+          const receiptMonths = [...new Set((paid.tanggalBayar || []).map(rtReportMonth).filter(Boolean))];
           if (receiptMonths.length !== 1) continue;
-          const paidMonth = receiptMonths[0];
-          if (paidMonth < firstKey && paidMonth < item.periode)
-            advanceLabels.add(kind + "|" + item.periode + "|" + paidMonth);
+          const reportedMonth = receiptMonths[0];
+          if (reportedMonth < firstKey && reportedMonth < item.periode)
+            advanceLabels.add(kind + "|" + item.periode + "|" + reportedMonth);
         }
       }
       entry.pelunasanDiMuka = [...advanceLabels].map(key => {
@@ -2951,7 +2970,7 @@ async function f4ContributionReport(db, request) {
         talanganCount: 0
       },
       rows: rows2,
-      catatan: "Setoran RT dihitung satu kali pada tanggal uang diterima. Bulan kewajiban hanya untuk keterangan dan status lunas."
+      catatan: "Setoran RT dihitung satu kali per siklus tanggal 21 bulan sebelumnya sampai tanggal 20 bulan laporan. Bulan kewajiban tidak menentukan bulan setoran."
     } });
   }
   const tariff = await db.prepare("SELECT amount_rp FROM bookkeeping_contribution_tariffs WHERE contribution_type='ARISAN'").first();
