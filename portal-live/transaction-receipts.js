@@ -76,99 +76,229 @@
   }
   download();
  }
+
  function draw(record){
-  const scope=record.scope==='bank'?'bank':'book';
-  const theme=scope==='bank'
-   ?{primary:'#157347',surface:'#eaf6ec',ink:'#1a3a2a',accent:'#f0ce43',sub:'#52715b'}
-   :{primary:'#5b21b6',surface:'#f4edff',ink:'#291b44',accent:'#e0c7ff',sub:'#665881'};
-  const canvas=document.createElement('canvas'),c=canvas.getContext('2d');
-  if(!c)throw Error('Browser tidak mendukung gambar resi.');
-  const W=900,left=82,right=818,width=right-left;
-  const font=(n,w=500)=>String(w)+' '+n+'px system-ui,Arial,sans-serif';
-  const wrap=(value,maxWidth,sz=26,w=600)=>{
-   c.font=font(sz,w);const source=text(value);
-   const words=source.split(' '),lines=[];let current='';
+  // Visual is deliberately based on buildReceipt() in bookkeeping-extras.js:
+  // white scalloped ticket, generous purple/green banner, clear amount,
+  // two-column detail list, dashed separators and a mint status card.
+  const bank=record.scope==='bank';
+  const theme=bank?{
+   primary:'#198653',accent:'#177947',ink:'#183127',secondary:'#587064',
+   paper:'#eaf6ee',pale:'#e3f5e9',headText:'#ecfff2',line:'#cce3d4',
+   decoration:'rgba(255,255,255,.09)'
+  }:{
+   primary:'#5b21b6',accent:'#6d28d9',ink:'#201735',secondary:'#605a71',
+   paper:'#f2ecff',pale:'#f4e9ff',headText:'#efe7ff',line:'#d9cdec',
+   decoration:'rgba(255,255,255,.07)'
+  };
+  const canvas=document.createElement('canvas');
+  const ctx=canvas.getContext('2d');
+  if(!ctx)throw Error('Browser tidak mendukung pembuatan JPG.');
+  const W=900,X=86,R=814,CW=R-X;
+  const font=(size,weight=500)=>String(weight)+' '+size+'px system-ui,Arial,sans-serif';
+  const wrap=(value,maxWidth,size=29,weight=700)=>{
+   const source=text(value);
+   ctx.font=font(size,weight);
+   const words=source.split(' '),out=[];
+   let current='';
    for(let word of words){
-    const next=current?current+' '+word:word;
-    if(c.measureText(next).width<=maxWidth){current=next;continue;}
-    if(current){lines.push(current);current='';}
-    while(word.length&&c.measureText(word).width>maxWidth){
-     let i=1;while(i<word.length&&c.measureText(word.slice(0,i+1)).width<=maxWidth)i++;
-     lines.push(word.slice(0,i));word=word.slice(i);
+    const candidate=current?current+' '+word:word;
+    if(ctx.measureText(candidate).width<=maxWidth){current=candidate;continue;}
+    if(current){out.push(current);current='';}
+    while(word&&ctx.measureText(word).width>maxWidth){
+     let n=1;
+     while(n<word.length&&ctx.measureText(word.slice(0,n+1)).width<=maxWidth)n++;
+     out.push(word.slice(0,n));word=word.slice(n);
     }
     current=word;
    }
-   if(current)lines.push(current);
-   return lines.length?lines:['-'];
+   if(current)out.push(current);
+   return out.length?out:['-'];
   };
-  const fields=[
-   ['Nama',record.party||'-'],['Nomor rumah',record.house||'-'],
-   ['Tanggal',record.date||'-'],['Metode',record.method||'-']
+  function rect(c,x,y,w,h,r,fill){
+   const rad=Math.min(r,w/2,h/2);
+   c.fillStyle=fill;c.beginPath();
+   c.moveTo(x+rad,y);c.lineTo(x+w-rad,y);
+   c.quadraticCurveTo(x+w,y,x+w,y+rad);
+   c.lineTo(x+w,y+h-rad);c.quadraticCurveTo(x+w,y+h,x+w-rad,y+h);
+   c.lineTo(x+rad,y+h);c.quadraticCurveTo(x,y+h,x,y+h-rad);
+   c.lineTo(x,y+rad);c.quadraticCurveTo(x,y,x+rad,y);
+   c.fill();
+  }
+  const status=text(record.status||'TERCATAT').toUpperCase();
+  const complete=/^(LUNAS|TERBAYAR|DIBAYARKAN|DITERIMA|SUDAH DIBAYAR|TERKONFIRMASI)$/.test(status);
+  const pending=/ESTIMASI|BELUM|SEBAGIAN|MENUNGGU|PROSES|PERIKSA|KURANG/.test(status);
+  const green=complete;
+  const indicator=green?'#d5f7e9':pending?'#fff0ce':'#e7f2ed';
+  const indicatorInk=green?'#087554':pending?'#9b5506':theme.accent;
+  const bannerTitle=String(record.heading||
+   (status==='LUNAS'||status==='TERBAYAR'||status==='SUDAH DIBAYAR'||status==='DIBAYARKAN'
+    ?'Pembayaran Berhasil'
+    :status==='TERKONFIRMASI'?'Setoran Terkonfirmasi'
+    :status==='DITERIMA'?'Penjualan Diterima'
+    :bank?'Transaksi Tercatat':'Transaksi Tercatat'));
+  const subtitle=String(record.title||'Bukti Transaksi');
+  const details=[
+   [bank?'Nama':'Nama warga',record.party||'-'],
+   ['Nomor rumah',record.house||'-'],
+   ['Tanggal '+(complete?'bayar':'transaksi'),record.date||'-'],
+   ['Metode'+(complete?' bayar':''),record.method||'-']
   ];
-  for(const v of Array.isArray(record.details)?record.details:[]){
-   if(Array.isArray(v)&&v[0]&&v[1]!=null&&v[1]!=='')fields.push([text(v[0]),text(v[1])]);
+  for(const field of Array.isArray(record.details)?record.details:[]){
+   if(Array.isArray(field)&&field[0]&&field[1]!=null&&field[1]!=='')
+    details.push([text(field[0]),text(field[1])]);
   }
-  const detailRows=fields.map(([label,value])=>({label,value:wrap(value,405,25,650)}));
-  const items=(Array.isArray(record.items)?record.items:[]).filter(x=>x&&x.label).map(x=>({
-   label:wrap(x.label,475,25,600),amount:Number(x.amount)
+  const rows=details.map(([label,value])=>({label,lines:wrap(value,438,29,700)}));
+  const explicit=Array.isArray(record.items)?record.items.filter(x=>x&&x.label):[];
+  // An item line is used for non-itemized records, just as iuran has
+  // its per-component rows. No extra money is implied or created.
+  const items=(explicit.length?explicit:[{
+   label:record.amountLabel||'Nominal transaksi',amount:Number(record.amount)
+  }]).map(x=>({
+   lines:wrap(x.label,460,29,550),
+   amount:Number.isSafeInteger(Number(x.amount))?Number(x.amount):null
   }));
-  const refLines=wrap(record.id,width-15,23,600);
-  const titleLines=wrap(record.title||'Bukti Transaksi',width,36,800);
-  const noteLines=wrap(record.note||'Dibuat dari riwayat transaksi Flamboyan 4.',width,23,500);
-  let y=573;
-  for(const row of detailRows){row.y=y;y+=Math.max(60,row.value.length*34+20);}
-  const itemHeadingY=y+43;
-  y=itemHeadingY+45;
-  for(const item of items){item.y=y;y+=Math.max(54,item.label.length*31+18);}
-  const statusY=y+37;const statusHeight=111;
-  const refY=statusY+statusHeight+45;
-  const footerY=refY+56+refLines.length*32+45+noteLines.length*32;
-  const H=footerY+115;
+  const identifier=text(record.id);
+  const idLines=wrap(identifier,CW-40,24,650);
+  const noteLines=wrap(record.note||'Bukti transaksi dari Flamboyan 4.',CW,22,500);
+  const made=new Intl.DateTimeFormat('id-ID',{
+   day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',
+   timeZone:'Asia/Jakarta'
+  }).format(new Date())+' WIB';
+  const headerLines=wrap(bannerTitle,708,42,800);
+  const subtitleLines=wrap(subtitle,710,25,500);
+  const amountText=money(record.amount);
+  const labelText=text(record.amountLabel||'TOTAL TRANSAKSI').toUpperCase();
+  // Calculate size before drawing to keep receipt tight on tall phone screens.
+  const top=28,headerY=53,headerH=278,amountY=365,detailsHeaderY=545;
+  let y=584;
+  for(const row of rows){row.y=y;y+=Math.max(62,26+row.lines.length*38);}
+  const detailsEnd=y+10,itemsHeaderY=detailsEnd+36;
+  y=itemsHeaderY+39;
+  for(const item of items){item.y=y;y+=Math.max(57,25+item.lines.length*36);}
+  const statusY=y+39,statusH=144;
+  const metaY=statusY+statusH+39;
+  const noteTop=metaY+70+idLines.length*34+48;
+  const footerY=noteTop+noteLines.length*32+40;
+  const paperBottom=footerY+140;
+  const H=Math.ceil(paperBottom+28);
   canvas.width=W;canvas.height=H;
-  c.fillStyle=theme.surface;c.fillRect(0,0,W,H);
-  c.fillStyle='#fff';c.beginPath();c.roundRect(30,25,W-60,H-50,17);c.fill();
-  c.fillStyle=theme.primary;c.beginPath();c.roundRect(50,47,W-100,302,15);c.fill();
-  c.textAlign='center';c.fillStyle='#fff';c.font=font(26,800);
-  c.fillText(scope==='bank'?'BANK SAMPAH FLAMBOYAN 4':'PEMBUKUAN FLAMBOYAN 4',W/2,103,730);
-  c.fillStyle=theme.accent;c.beginPath();c.arc(W/2,169,37,0,Math.PI*2);c.fill();
-  c.strokeStyle=theme.primary;c.lineWidth=6;c.lineCap='round';
-  c.beginPath();c.moveTo(428,170);c.lineTo(446,187);c.lineTo(472,155);c.stroke();
-  c.fillStyle='#fff';c.font=font(35,800);
-  titleLines.slice(0,2).forEach((t,i)=>c.fillText(t,W/2,268+i*38,740));
-  c.fillStyle=theme.sub;c.font=font(26,700);c.fillText(text(record.amountLabel||'NOMINAL TRANSAKSI').toUpperCase(),W/2,406,680);
-  c.fillStyle=theme.primary;c.font=font(65,850);c.fillText(money(record.amount),W/2,485,730);
-  const drawLine=yy=>{c.strokeStyle='#d6dbe0';c.lineWidth=2;c.setLineDash([9,8]);c.beginPath();c.moveTo(left,yy);c.lineTo(right,yy);c.stroke();c.setLineDash([]);};
-  drawLine(518);
-  c.textAlign='left';c.fillStyle=theme.primary;c.font=font(26,800);c.fillText('DETAIL TRANSAKSI',left,555);
-  for(const row of detailRows){
-   c.textAlign='left';c.fillStyle=theme.sub;c.font=font(24,500);c.fillText(row.label,left,row.y+27,260);
-   c.textAlign='right';c.fillStyle=theme.ink;c.font=font(25,680);
-   row.value.forEach((line,i)=>c.fillText(line,right,row.y+28+i*34,405));
+  const c=canvas.getContext('2d');
+  if(!c)throw Error('Tidak bisa menggambar resi.');
+  c.fillStyle=theme.paper;c.fillRect(0,0,W,H);
+  // Same ticket-cut geometry as the original Iuran Warga receipt.
+  {
+   const left=34,right=866,upper=top+3,lower=paperBottom-6;
+   const corner=11,topRadius=10,notchRadius=22;
+   const notchY=Math.max(upper+60,Math.min(lower-60,detailsEnd+2));
+   const width=right-left-corner*2;
+   const count=Math.max(12,Math.round(width/31));
+   const step=width/count;
+   c.save();
+   c.fillStyle='#fff';
+   c.shadowColor=bank?'rgba(14,72,40,.11)':'rgba(44,25,92,.10)';
+   c.shadowBlur=13;c.shadowOffsetY=4;
+   c.beginPath();c.moveTo(left+corner,upper);
+   for(let i=0;i<count;i++){
+    const x0=left+corner+i*step,cx=x0+step/2;
+    c.lineTo(cx-topRadius,upper);
+    c.arc(cx,upper,topRadius,Math.PI,0,true);
+   }
+   c.lineTo(right-corner,upper);
+   c.quadraticCurveTo(right,upper,right,upper+corner);
+   c.lineTo(right,notchY-notchRadius);
+   c.arc(right,notchY,notchRadius,-Math.PI/2,Math.PI/2,true);
+   c.lineTo(right,lower-corner);
+   c.quadraticCurveTo(right,lower,right-corner,lower);
+   for(let i=count-1;i>=0;i--){
+    const x0=left+corner+i*step,cx=x0+step/2;
+    c.lineTo(cx+topRadius,lower);
+    c.arc(cx,lower,topRadius,0,Math.PI,true);
+   }
+   c.lineTo(left+corner,lower);
+   c.quadraticCurveTo(left,lower,left,lower-corner);
+   c.lineTo(left,notchY+notchRadius);
+   c.arc(left,notchY,notchRadius,Math.PI/2,-Math.PI/2,true);
+   c.lineTo(left,upper+corner);
+   c.quadraticCurveTo(left,upper,left+corner,upper);
+   c.closePath();c.fill();c.restore();
   }
-  if(items.length){
-   drawLine(itemHeadingY-26);
-   c.textAlign='left';c.fillStyle=theme.primary;c.font=font(25,800);c.fillText('RINCIAN',left,itemHeadingY);
-   for(const item of items){
-    c.textAlign='left';c.fillStyle=theme.ink;c.font=font(25,560);
-    item.label.forEach((line,i)=>c.fillText(line,left,item.y+25+i*31,475));
-    if(Number.isFinite(item.amount)){
-     c.textAlign='right';c.font=font(25,750);c.fillText(money(item.amount),right,item.y+25,250);
-    }
+  rect(c,51,headerY,798,headerH,17,theme.primary);
+  c.fillStyle=theme.decoration;c.beginPath();
+  c.arc(805,85,115,0,Math.PI*2);c.fill();
+  c.beginPath();c.arc(84,330,110,0,Math.PI*2);c.fill();
+  c.textAlign='center';
+  c.fillStyle=theme.headText;c.font=font(bank?27:29,800);
+  c.fillText(bank?'BANK SAMPAH FLAMBOYAN 4':'FLAMBOYAN 4',W/2,106,740);
+  // White circular emblem, as in Iuran Warga. Use a clock mark when pending
+  // so an estimate or unpaid sale never looks like payment confirmation.
+  c.fillStyle='#fff';c.beginPath();c.arc(W/2,178,42,0,Math.PI*2);c.fill();
+  c.strokeStyle=theme.primary;c.lineWidth=8;c.lineCap='round';c.lineJoin='round';
+  if(pending){
+   c.beginPath();c.arc(W/2,178,23,0,Math.PI*2);c.stroke();
+   c.beginPath();c.moveTo(W/2,164);c.lineTo(W/2,179);c.lineTo(W/2+12,187);c.stroke();
+  }else{
+   c.beginPath();c.moveTo(W/2-18,178);c.lineTo(W/2-3,192);
+   c.lineTo(W/2+22,164);c.stroke();
+  }
+  c.fillStyle='#fff';c.font=font(headerLines.length>1?32:42,800);
+  headerLines.slice(0,2).forEach((line,i)=>
+   c.fillText(line,W/2,headerLines.length>1?244+i*36:266,710));
+  c.font=font(25,500);c.fillStyle=theme.headText;
+  subtitleLines.slice(0,2).forEach((line,i)=>
+   c.fillText(line,W/2,subtitleLines.length>1?295+i*26:302,710));
+  c.fillStyle=theme.secondary;c.font=font(25,750);
+  c.fillText(labelText,W/2,403,700);
+  c.fillStyle=theme.primary;c.font=font(66,850);
+  c.fillText(amountText,W/2,478,690);
+  c.textAlign='left';
+  function dash(yy){
+   c.save();c.setLineDash([11,9]);
+   c.strokeStyle=theme.line;c.lineWidth=2;
+   c.beginPath();c.moveTo(X,yy);c.lineTo(R,yy);c.stroke();
+   c.restore();
+  }
+  dash(514);
+  c.fillStyle=theme.accent;c.font=font(26,800);
+  c.fillText('DETAIL '+(complete?'PEMBAYARAN':'TRANSAKSI'),X,detailsHeaderY);
+  for(const row of rows){
+   c.fillStyle=theme.secondary;c.font=font(26,500);c.textAlign='left';
+   c.fillText(row.label,X,row.y+29);
+   c.fillStyle=theme.ink;c.font=font(29,700);c.textAlign='right';
+   row.lines.forEach((part,i)=>c.fillText(part,R,row.y+30+i*38,445));
+  }
+  c.textAlign='left';dash(detailsEnd+2);
+  c.fillStyle=theme.accent;c.font=font(26,800);
+  c.fillText('RINCIAN '+(complete?'PEMBAYARAN':'TRANSAKSI'),X,itemsHeaderY);
+  for(const item of items){
+   c.fillStyle=theme.ink;c.font=font(29,550);c.textAlign='left';
+   item.lines.forEach((part,i)=>c.fillText(part,X,item.y+27+i*36,480));
+   if(item.amount!=null){
+    c.fillStyle=theme.ink;c.font=font(29,750);c.textAlign='right';
+    c.fillText(money(item.amount),R,item.y+27,260);
    }
   }
-  drawLine(statusY-18);
-  c.fillStyle=theme.surface;c.beginPath();c.roundRect(left,statusY,width,statusHeight,15);c.fill();
-  c.textAlign='left';c.fillStyle=theme.primary;c.font=font(25,750);c.fillText('STATUS TRANSAKSI',left+21,statusY+38);
-  c.font=font(34,850);c.fillText(text(record.status||'TERCATAT').toUpperCase(),left+21,statusY+85,width-40);
-  c.textAlign='left';c.fillStyle=theme.sub;c.font=font(24,650);c.fillText('Nomor transaksi',left,refY+5);
-  c.fillStyle=theme.ink;c.font=font(23,650);
-  refLines.forEach((x,i)=>c.fillText(x,left,refY+47+i*32,width));
-  let yy=refY+76+refLines.length*32;
-  c.fillStyle=theme.sub;c.font=font(23,500);
-  noteLines.forEach((x,i)=>c.fillText(x,left,yy+i*32,width));
-  drawLine(footerY-7);
-  c.textAlign='center';c.fillStyle=theme.primary;c.font=font(26,850);c.fillText('Flamboyan 4',W/2,footerY+42);
-  c.fillStyle=theme.sub;c.font=font(22,500);c.fillText('Bukti dari aplikasi • bukan bukti transfer bank',W/2,footerY+79);
+  c.textAlign='left';dash(statusY-18);
+  rect(c,X,statusY,CW,statusH,17,indicator);
+  c.fillStyle=indicatorInk;c.font=font(24,800);
+  c.fillText('STATUS TRANSAKSI',X+26,statusY+40);
+  c.font=font(40,850);
+  c.fillText(status,X+26,statusY+95,CW-52);
+  c.fillStyle=theme.secondary;c.font=font(24,650);
+  c.fillText('Nomor transaksi',X,metaY+27);
+  c.fillStyle=theme.ink;c.font=font(24,650);
+  idLines.forEach((line,i)=>c.fillText(line,X,metaY+64+i*34,CW));
+  c.fillStyle=theme.secondary;c.font=font(24,500);
+  c.fillText('Dibuat: '+made,X,metaY+70+idLines.length*34+21,CW);
+  c.fillStyle=theme.secondary;c.font=font(22,500);
+  noteLines.forEach((line,i)=>c.fillText(line,X,noteTop+24+i*32,CW));
+  dash(footerY-12);
+  c.textAlign='center';c.fillStyle=theme.primary;c.font=font(26,800);
+  c.fillText('Flamboyan 4',W/2,footerY+35);
+  c.fillStyle=theme.secondary;c.font=font(22,500);
+  c.fillText(bank?'Bukti transaksi dari Bank Sampah Flamboyan 4':
+   'Bukti pembayaran dari Pembukuan Warga',W/2,footerY+68,CW);
+  c.textAlign='left';
   return canvas;
  }
  async function open(record){
