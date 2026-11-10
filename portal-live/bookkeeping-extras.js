@@ -218,82 +218,149 @@
   return [...sums].map(([key,v])=>({label:labels[key],amount:v}));
  }
  function buildReceipt(x,info,check){
+  // Flamboyan 4 original purple mobile-banking-style paper receipt (JPG).
+  // Canvas is measured first so long names, periods and transaction IDs are never cut off.
   const canvas=document.createElement('canvas');
-  const items=itemized(x);
-  canvas.width=900;canvas.height=1220+Math.max(0,items.length-1)*57;
-  const c=canvas.getContext('2d');
-  if(!c)throw Error('Canvas untuk resi tidak tersedia pada browser.');
-  const W=canvas.width,H=canvas.height,L=62,R=838;
-  c.fillStyle='#fff';c.fillRect(0,0,W,H);
-  block(c,0,0,W,225,0,'#5b21b6');
-  c.fillStyle='#ede9fe';c.font='600 25px system-ui,sans-serif';
-  c.fillText('FLAMBOYAN 4',L,74);
-  c.fillStyle='#fff';c.font='800 48px system-ui,sans-serif';
-  c.fillText('BUKTI PEMBAYARAN',L,133,760);
-  c.font='500 23px system-ui,sans-serif';
-  c.fillText('Iuran Warga · Pembukuan',L,180);
-  const total=Math.round(Number(x.totalDiterima)||0);
-  block(c,L,256,776,134,18,'#f5f3ff');
-  c.fillStyle='#64748b';c.font='600 21px system-ui,sans-serif';
-  c.fillText('TOTAL DITERIMA',L+25,299);
-  c.fillStyle='#4c1d95';c.font='800 46px system-ui,sans-serif';
-  c.fillText(money(total),L+25,357,720);
-  let y=439;
-  function field(k,v){
-   c.fillStyle='#64748b';c.font='600 21px system-ui,sans-serif';
-   c.fillText(k,L,y);
-   c.fillStyle='#1f2937';c.font='700 24px system-ui,sans-serif';
-   c.textAlign='right';c.fillText(String(v||'-'),R,y,485);
-   c.textAlign='left';y+=53;
-  }
-  const keys=typeof paymentMonthKeys==='function'?paymentMonthKeys(x):[];
-  const periodLabel=keys.length
-   ?keys.map(formatMonth).join(', '):(Array.isArray(x.periode)?x.periode.join(', '):String(x.periode||'-'));
-  field('Nama warga',x.nama||info.warga?.nama||'-');
-  field('Nomor rumah',info.rumah||'-');
-  field('Tanggal bayar',typeof histDate==='function'?histDate(x.tanggal):String(x.tanggal||'-'));
-  field('Metode',x.metode||'-');
-  field('Periode',periodLabel);
-  line(c,L,y-24,R,y-24);
-  c.fillStyle='#4c1d95';c.font='800 23px system-ui,sans-serif';
-  c.fillText('RINCIAN PEMBAYARAN',L,y+18);
-  y+=63;
-  if(!items.length){
-   c.fillStyle='#64748b';c.font='500 19px system-ui,sans-serif';
-   c.fillText('Rincian per pos belum tersedia dalam transaksi ini.',L,y);
-   y+=42;
-  }else{
-   for(const it of items){
-    c.fillStyle='#334155';c.font='500 23px system-ui,sans-serif';c.fillText(it.label,L,y);
-    c.fillStyle='#1f2937';c.font='700 23px system-ui,sans-serif';
-    c.textAlign='right';c.fillText(money(it.amount),R,y);c.textAlign='left';y+=51;
+  const ctx=canvas.getContext('2d');
+  if(!ctx)throw Error('Canvas untuk resi tidak tersedia pada browser.');
+  const W=900,X=86,R=814,contentWidth=R-X;
+  const ink='#201735',secondary='#605a71',purple='#5b21b6',muted='#6d28d9';
+  function font(size,weight=500){return String(weight)+' '+size+'px system-ui,Arial,sans-serif';}
+  function wrap(value,width,size,weight=500){
+   const str=String(value==null||value===''?'-':value).replace(/\s+/g,' ').trim();
+   ctx.font=font(size,weight);
+   const words=str.split(' '),out=[];let current='';
+   for(let word of words){
+    const candidate=current?current+' '+word:word;
+    if(ctx.measureText(candidate).width<=width){current=candidate;continue;}
+    if(current){out.push(current);current='';}
+    while(word && ctx.measureText(word).width>width){
+     let n=1;
+     while(n<word.length && ctx.measureText(word.slice(0,n+1)).width<=width)n++;
+     out.push(word.slice(0,n));word=word.slice(n);
+    }
+    current=word;
    }
+   if(current)out.push(current);
+   return out.length?out:['-'];
   }
-  y+=15;
-  line(c,L,y-19,R,y-19);
-  const remaining=check.status==='KURANG BAYAR'&&Number.isFinite(check.remaining)&&check.remaining>0;
-  const statusColor=check.status==='LUNAS'?'#047857':check.status==='KURANG BAYAR'?'#9a5807':'#64748b';
-  const statusBg=check.status==='LUNAS'?'#d1fae5':check.status==='KURANG BAYAR'?'#fef3c7':'#f1f5f9';
-  block(c,L,y+5,776,105,14,statusBg);
-  c.fillStyle=statusColor;c.font='800 19px system-ui,sans-serif';
-  c.fillText('STATUS KEWAJIBAN SAAT RESI DIBUAT',L+22,y+40);
-  c.font='900 34px system-ui,sans-serif';
-  c.fillText(check.status,L+22,y+85);
-  y+=146;
-  if(remaining){
-   c.fillStyle='#92400e';c.font='600 20px system-ui,sans-serif';
-   c.fillText('Sisa pada tunggakan '+formatMonth(check.period)+': '+money(check.remaining),L,y,770);
-   y+=39;
-  }
-  c.fillStyle='#64748b';c.font='500 17px system-ui,sans-serif';
-  c.fillText('Nomor transaksi: '+String(x.idPembayaran||'-'),L,y+4,770);
-  c.fillText('Dibuat: '+new Intl.DateTimeFormat('id-ID',{
+  const monthKeys=typeof paymentMonthKeys==='function'?paymentMonthKeys(x):[];
+  const periodLabel=monthKeys.length
+   ?monthKeys.map(formatMonth).join(', ')
+   :(Array.isArray(x.periode)?x.periode.join(', '):String(x.periode||'-'));
+  const rows=[
+   ['Nama warga',x.nama||info.warga?.nama||'-'],
+   ['Nomor rumah',info.rumah||'-'],
+   ['Tanggal bayar',typeof histDate==='function'?histDate(x.tanggal):String(x.tanggal||'-')],
+   ['Metode bayar',x.metode||'-'],
+   ['Periode',periodLabel]
+  ].map(([label,value])=>({label,lines:wrap(value,438,29,700)}));
+  const items=itemized(x).map(item=>({amount:item.amount,lines:wrap(item.label,460,29,550)}));
+  const status=String(check.status||'PERLU CEK').toUpperCase();
+  const shortage=status==='KURANG BAYAR'&&Number.isFinite(check.remaining)&&check.remaining>0;
+  const statusLabel=status==='LUNAS'?'LUNAS':status==='KURANG BAYAR'?'KURANG BAYAR':'PERLU CEK';
+  const identifier=String(x.idPembayaran||'-');
+  const idLines=wrap(identifier,contentWidth-40,24,650);
+  const made=new Intl.DateTimeFormat('id-ID',{
    day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',
-   timeZone:'Asia/Jakarta'}).format(new Date())+' WIB',L,y+35);
-  const footerY=Math.max(y+65,H-77);
-  line(c,L,footerY-22,R,footerY-22);
-  c.fillStyle='#64748b';c.font='500 18px system-ui,sans-serif';
-  c.fillText('Bukti ini dibuat dari transaksi Pembukuan Flamboyan 4.',L,footerY+12,775);
+   timeZone:'Asia/Jakarta'
+  }).format(new Date())+' WIB';
+  const moneyValue=money(x.totalDiterima);
+  // Compute all heights before painting, avoiding a fixed bottom gap.
+  const top=28,headerY=53,headerH=278,amountY=365,detailsHeaderY=545;
+  let y=584;
+  for(const row of rows){row.y=y;y+=Math.max(62,26+row.lines.length*38);}
+  const detailsEnd=y+10,itemsHeaderY=detailsEnd+36;
+  y=itemsHeaderY+39;
+  if(items.length){
+   for(const item of items){item.y=y;y+=Math.max(57,25+item.lines.length*36);}
+  }else{
+   y+=63;
+  }
+  const statusY=y+39,statusH=shortage?188:144;
+  const metaY=statusY+statusH+39;
+  const metaHeight=70+idLines.length*34+55;
+  const footerY=metaY+metaHeight+16;
+  const paperBottom=footerY+110;
+  const H=Math.ceil(paperBottom+28);
+  canvas.width=W;canvas.height=H;
+  const c=canvas.getContext('2d');
+  if(!c)throw Error('Gagal menggambar resi JPG.');
+  c.fillStyle='#f2ecff';c.fillRect(0,0,W,H);
+  // Soft paper shadow and a scalloped (perforated) receipt silhouette.
+  c.shadowColor='rgba(63,31,121,.13)';c.shadowBlur=25;c.shadowOffsetY=8;
+  block(c,34,top,832,paperBottom-top,17,'#ffffff');
+  c.shadowColor='transparent';c.shadowBlur=0;c.shadowOffsetY=0;
+  c.fillStyle='#f2ecff';
+  for(let xx=45;xx<866;xx+=24){
+   c.beginPath();c.arc(xx,top,6.5,0,Math.PI*2);c.fill();
+   c.beginPath();c.arc(xx,paperBottom,6.5,0,Math.PI*2);c.fill();
+  }
+  // Branded purple header, independently designed for Flamboyan 4.
+  block(c,51,headerY,798,headerH,17,purple);
+  c.fillStyle='rgba(255,255,255,.07)';
+  c.beginPath();c.arc(805,85,115,0,Math.PI*2);c.fill();
+  c.beginPath();c.arc(84,330,110,0,Math.PI*2);c.fill();
+  c.textAlign='center';
+  c.fillStyle='#f4ecff';c.font=font(29,800);c.fillText('FLAMBOYAN 4',W/2,106);
+  // Confirmation mark in a circle: a distinct non-bank mark.
+  c.fillStyle='#ffffff';c.beginPath();c.arc(W/2,178,42,0,Math.PI*2);c.fill();
+  c.strokeStyle=purple;c.lineWidth=8;c.lineCap='round';c.lineJoin='round';
+  c.beginPath();c.moveTo(W/2-18,178);c.lineTo(W/2-3,192);c.lineTo(W/2+22,164);c.stroke();
+  c.fillStyle='#ffffff';c.font=font(44,800);c.fillText('Pembayaran Berhasil',W/2,266,710);
+  c.font=font(25,500);c.fillStyle='#efe7ff';c.fillText('Bukti Iuran Warga',W/2,302);
+  // Amount is the primary element: legible after scaling for WhatsApp.
+  c.fillStyle=secondary;c.font=font(25,750);c.fillText('TOTAL PEMBAYARAN',W/2,403);
+  c.fillStyle=purple;c.font=font(66,850);c.fillText(moneyValue,W/2,478,690);
+  c.textAlign='left';
+  function dash(y0){
+   c.save();c.setLineDash([11,9]);line(c,X,y0,R,y0,'#d9cdec');c.restore();
+  }
+  dash(514);
+  c.fillStyle=muted;c.font=font(26,800);c.fillText('DETAIL PEMBAYARAN',X,detailsHeaderY);
+  for(const row of rows){
+   c.fillStyle=secondary;c.font=font(26,500);c.textAlign='left';
+   c.fillText(row.label,X,row.y+29);
+   c.fillStyle=ink;c.font=font(29,700);c.textAlign='right';
+   row.lines.forEach((part,i)=>c.fillText(part,R,row.y+30+i*38,445));
+  }
+  c.textAlign='left';dash(detailsEnd+2);
+  c.fillStyle=muted;c.font=font(26,800);c.fillText('RINCIAN IURAN',X,itemsHeaderY);
+  if(!items.length){
+   c.fillStyle=secondary;c.font=font(25,500);
+   c.fillText('Rincian per pos tidak tersedia.',X,itemsHeaderY+63);
+  }
+  for(const item of items){
+   c.fillStyle=ink;c.font=font(29,550);c.textAlign='left';
+   item.lines.forEach((part,i)=>c.fillText(part,X,item.y+27+i*36,480));
+   c.fillStyle=ink;c.font=font(29,750);c.textAlign='right';
+   c.fillText(money(item.amount),R,item.y+27,260);
+  }
+  c.textAlign='left';dash(statusY-18);
+  const good=status==='LUNAS',warn=status==='KURANG BAYAR';
+  const bg=good?'#d5f7e9':warn?'#fff0ce':'#ede9f3';
+  const tone=good?'#087554':warn?'#9b5506':'#584e6a';
+  block(c,X,statusY,contentWidth,statusH,17,bg);
+  c.fillStyle=tone;c.font=font(24,800);
+  c.fillText('STATUS PEMBAYARAN',X+26,statusY+40);
+  c.font=font(43,850);c.fillText(statusLabel,X+26,statusY+95);
+  if(shortage){
+   c.font=font(25,650);
+   const s='Sisa '+formatMonth(check.period)+': '+money(check.remaining);
+   c.fillText(s,X+26,statusY+147,contentWidth-52);
+  }
+  c.fillStyle=secondary;c.font=font(24,650);
+  c.fillText('Nomor transaksi',X,metaY+27);
+  c.fillStyle=ink;c.font=font(24,650);
+  idLines.forEach((part,i)=>c.fillText(part,X,metaY+64+i*34,contentWidth));
+  const dateY=metaY+70+idLines.length*34;
+  c.fillStyle=secondary;c.font=font(24,500);c.fillText('Dibuat: '+made,X,dateY+21,contentWidth);
+  dash(footerY-12);
+  c.textAlign='center';c.fillStyle=purple;c.font=font(26,800);
+  c.fillText('Flamboyan 4',W/2,footerY+35);
+  c.fillStyle=secondary;c.font=font(22,500);
+  c.fillText('Bukti pembayaran dari Pembukuan Warga',W/2,footerY+68,contentWidth);
+  c.textAlign='left';
   return canvas;
  }
  async function receipt(id){
