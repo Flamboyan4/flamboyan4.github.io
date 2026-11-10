@@ -147,7 +147,12 @@
     records.every(r=>r.attributeName==='style'))return;
    resetIfClosed(panel);
   });
-  if(root!==panel)observe(panel,requestRefresh);
+  if(root!==panel)observe(panel,()=>{
+   // Dragging and snapping already move both elements together; style
+   // mutations must not enqueue another layout/paint pass.
+   if(drag?.panel===panel||animating?.panel===panel)return;
+   requestRefresh();
+  });
   if(visible(panel))active=panel;
   const details=panel.closest('details');
   if(details)observe(details,()=>resetIfClosed(panel));
