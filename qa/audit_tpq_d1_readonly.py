@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Read-only audit of TPQ October 2026 in the bound operational D1 database.
-No personal rosters, credentials or raw query results appear in logs."""
+No personal rosters, credentials or raw query results appear in logs.
+Independently recheck D1 after the one-time reconciliation."""
 import json, os, sys, urllib.request, urllib.error
 
 account=os.environ["CLOUDFLARE_ACCOUNT_ID"]
