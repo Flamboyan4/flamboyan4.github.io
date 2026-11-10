@@ -80,10 +80,10 @@ ids=[p["id"] for p in tpq]
 related=[]
 if ids:
     marks=",".join(["?"]*len(ids))
-    related=query(dbid,f"""SELECT p.payer_id,p.id AS payment_id,p.status AS payment_status,
+    related=query(dbid,f"""SELECT p.payer_id,p.id AS payment_id,p.status AS payment_status,p.household_id AS payment_household,bp.household_id AS payer_household,
        a.period_year,a.period_month,a.contribution_type,a.amount_rp,
        a.status AS allocation_status
-       FROM bookkeeping_payments p
+       FROM bookkeeping_payments p JOIN bookkeeping_payers bp ON bp.id=p.payer_id
        LEFT JOIN bookkeeping_payment_allocations a ON a.payment_id=p.id
        WHERE p.payer_id IN ({marks})
        ORDER BY p.paid_on,p.id,a.period_year,a.period_month LIMIT 90""",ids)
@@ -102,7 +102,7 @@ report={
     "distinct_tpq_ids":len(tpq),
     "related_finance_rows":linked,
     "all_tpq_payments":[{"payer":label(x["payer_id"]),"payment_kind":"bulk" if str(x["payment_id"]).upper().startswith("PAY") else "new",
-       "payment_status":x["payment_status"],"period":str(x["period_year"])+"-"+str(x["period_month"]),
+       "payment_status":x["payment_status"],"payment_household":('null' if x['payment_household'] is None else 'matches' if x['payment_household']==x['payer_household'] else 'different'),"period":str(x["period_year"])+"-"+str(x["period_month"]),
        "kind":x["contribution_type"],"amount":x["amount_rp"],"allocation_status":x["allocation_status"]} for x in related],
     "payers":[{"id_class":label(p["id"]),"id_equals_original":p["id"]=="W0018",
       "name_tpq":str(p["display_name"] or "").strip().lower()=="tpq",
