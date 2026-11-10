@@ -255,11 +255,8 @@ function header(label,description){
  h.append(node('h2',category));
  main.append(h);
  window.f4SuperadminRenderTabs?.();
- const sub=node('section',undefined,'sa-module-heading');
- sub.append(node('h3',label));
- const repeated=/^(Kelola data acuan\.|Data dan publikasi khusus Bank Sampah\.|Kelola konten Bank Sampah menggunakan akses Superadmin\.)$/;
- if(description&&!repeated.test(description))sub.append(node('p',description));
- main.append(sub);
+ // Nama modul sudah ditampilkan oleh tab aktif; jangan ulangi
+ // judul dan deskripsi di bawah navigasi pada semua editor Superadmin.
 }
 const OBLIGATION_KEYS=['qty_iuran_bulanan','qty_kebersihan','qty_kas_lorong','qty_arisan'];
 function f4ObligationActionIcon(kind,handler){
