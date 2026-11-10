@@ -2,7 +2,7 @@
 :root{--f4-nav:#4b4496;--f4-nav-tint:#eeebff;--f4-nav-line:#dedbf2;--f4-grid-gap:16px;--f4-grid-gap-compact:10px;--f4-content-max:1180px;--f4-control-height:42px;--f4-control-gap:10px;--f4-control-radius:10px;--f4-control-line:1.3}
 body.f4-direct-bank{--f4-nav:#2c6547;--f4-nav-tint:#e5f2e6;--f4-nav-line:#d6e6d9}
 body.f4-direct-book{--f4-nav:#7035c9;--f4-nav-tint:#eee7ff;--f4-nav-line:#e5dafa}
-body.f4-direct-superadmin{--f4-nav:#2d6593;--f4-nav-tint:#e7f2fb;--f4-nav-line:#d8e5ef}
+body.f4-direct-superadmin{--f4-nav:#6650cc;--f4-nav-tint:#f1edff;--f4-nav-line:#e4dff4}
 /* Kontrol standar: ukuran input, select, dan tombol harus sejajar tanpa aturan
    prioritas paksa. Fitur khusus (ikon, checkbox, tab, dan dock) tidak dipaksa. */
 .f4-controls{display:flex;flex-wrap:wrap;align-items:center;gap:var(--f4-control-gap);min-width:0}
