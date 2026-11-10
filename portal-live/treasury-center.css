@@ -111,6 +111,7 @@
 .tc-opening-recap{border:1px solid #e0e9ee;border-radius:9px;padding:9px 11px;margin:9px 0}
 .tc-opening-recap summary{font-size:12px;color:#536a78}
 .tc-opening-recap .tc-table-wrap{margin-top:9px}
+.tc-opening-explain{margin:6px 0 10px;color:#647d8d;font-size:11px;line-height:1.5}
 .tc-form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 12px;align-items:end}
 .tc-field{display:grid;gap:4px;min-width:0;font-size:12px;font-weight:750;color:#526b7b}
 .tc-field[hidden]{display:none}
