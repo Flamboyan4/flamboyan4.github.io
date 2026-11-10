@@ -27,7 +27,7 @@ function start(trigger,title){
  panel.setAttribute('aria-label',title);
  const head=document.createElement('header');head.className='f4-control-header';
  const h=document.createElement('strong');h.textContent=title;
- const x=document.createElement('button');x.type='button';x.className='f4-control-x';x.textContent='✕';
+ const x=document.createElement('button');x.type='button';x.className='f4-control-x';x.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
  x.setAttribute('aria-label','Tutup pilihan');x.onclick=()=>close();
  head.append(h,x);panel.append(head);mask.append(panel);
  mask.onclick=e=>{if(e.target===mask)close()};
@@ -63,7 +63,7 @@ function selectPicker(field,trigger){
    b.disabled=o.disabled;
    const label=document.createElement('span');label.textContent=o.label||'—';
    const mark=document.createElement('span');mark.className='f4-control-check';
-   mark.textContent=o.value===field.value?'✓':'';
+   mark.innerHTML=o.value===field.value?'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m20 6-11 11-5-5"/></svg>':'';
    b.append(label,mark);b.onclick=()=>action(field,o.value);list.append(b);
   }
   if(!matching.length){const p=document.createElement('p');p.className='f4-control-empty';p.textContent='Tidak ada pilihan cocok';list.append(p)}
