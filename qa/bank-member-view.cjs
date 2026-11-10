@@ -70,7 +70,8 @@ for(const phrase of [
 // Mobile-banking regression: D1 statement is the only monetary source.
 const app=fs.readFileSync('portal-live/bank-mobile-app.js','utf8');
 new vm.Script(app,{filename:'bank-mobile-app.js'});
-if(!bank.includes("history.appendChild(v12Table(['Tanggal','Mutasi','Masuk','Keluar','Saldo'],d.mutasi.map("))
+if(!bank.includes("const personalMutations=(d.mutasi||[]).map(x=>") ||
+   !bank.includes("history.appendChild(v12Table(['Tanggal','Mutasi','Masuk','Keluar','Saldo','Resi'],personalMutations))"))
  throw Error('Member statement rendering must use its own mutasi (previously undefined variable)');
 if(!bank.includes("window.dispatchEvent(new CustomEvent('f4-bank-member-statement',{detail:d}))"))
  throw Error('D1-backed member statement is not delivered to mobile screens');
