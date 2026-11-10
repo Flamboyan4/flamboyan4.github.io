@@ -18,10 +18,10 @@
 .tc-view-btn.is-active img{opacity:1}
 .tc-view-btn:focus-visible{outline:2px solid #4d85bd;outline-offset:2px}
 .tc-view{display:grid;align-content:start;gap:9px;min-width:0}
-.tc-fund-manage{margin:6px 0 0;min-width:0}
-.tc-fund-manage>summary{cursor:pointer;color:#245b88;font-size:12px;font-weight:750;padding:11px 5px}
+.tc-fund-manage{margin:0;min-width:0;background:#fff;border:1px solid #dbe6ec;border-radius:12px;overflow:visible}
+.tc-fund-manage>summary{list-style:none;display:flex;align-items:center;min-height:46px;margin:0;padding:12px 14px;color:#294c61;font-size:14px;font-weight:800;cursor:pointer}
 .tc-fund-manage>summary:focus-visible{outline:2px solid #4d85bd;outline-offset:2px}
-.tc-fund-manage>.tc-custom-fund{margin-top:6px}
+.tc-fund-manage>.tc-custom-fund{margin:0;padding:2px 14px 14px;border:0;border-radius:0 0 12px 12px;background:transparent;box-shadow:none}
 .tc-location-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--f4-grid-gap,16px)}
 .tc-location{background:#fff;border:1px solid #e1eaf0;border-radius:12px;padding:12px 14px;display:grid;gap:4px;min-width:0}
 .tc-location span{font-size:10px;font-weight:700;color:#6d8290}
@@ -280,26 +280,6 @@
 .tc-saldo-layout>.tc-fund-manage,
 .tc-transaksi-layout>.tc-panel,
 .tc-report-top>*{min-width:0}
-.tc-fund-manage{
- margin:0;
- min-width:0;
- background:#fff;
- border:1px solid #dbe6ec;
- border-radius:12px;
- overflow:visible;
-}
-.tc-fund-manage>summary{
- list-style:none;
- display:flex;
- align-items:center;
- min-height:46px;
- margin:0;
- padding:12px 14px;
- color:#294c61;
- font-size:14px;
- font-weight:800;
- cursor:pointer;
-}
 .tc-fund-manage>summary::-webkit-details-marker{display:none}
 .tc-fund-manage>summary::after{
  content:"⌄";
@@ -310,14 +290,6 @@
  transition:transform .15s;
 }
 .tc-fund-manage[open]>summary::after{transform:rotate(180deg)}
-.tc-fund-manage>.tc-custom-fund{
- margin:0;
- padding:2px 14px 14px;
- border:0;
- border-radius:0 0 12px 12px;
- background:transparent;
- box-shadow:none;
-}
 .tc-fund-manage .tc-custom-fund-form{
  grid-template-columns:repeat(2,minmax(0,1fr));
  gap:9px;
