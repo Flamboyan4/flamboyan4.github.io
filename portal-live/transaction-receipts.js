@@ -191,5 +191,6 @@
   dialog.querySelector('.f4-tx-close').focus();
  }
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.getElementById('f4-tx-receipt-dialog')?.hidden)close()});
+ window.addEventListener('pagehide',close);
  window.F4TransactionReceipt={open,close};
 })();
