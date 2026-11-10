@@ -2403,9 +2403,6 @@ main > section.card{overflow:visible!important}
           <tbody id="tbody-riwayat" class="divide-y divide-violet-50"></tbody>
         </table>
       </div>
-      <div class="mt-3 flex justify-center">
-        <button id="btn-riwayat-more" onclick="toggleRiwayatSemua()" class="hidden px-4 py-2 rounded-xl border border-violet-200 text-violet-700 bg-white hover:bg-violet-50 text-sm font-bold">Lihat semua</button>
-      </div>
       </div>
 
 
@@ -2551,7 +2548,6 @@ const APPS_SCRIPT_URL = 'cloudflare-d1-only';
 const BATCH_SCRIPT_URL = 'cloudflare-d1-only';
 const DELETE_SCRIPT_URL = 'cloudflare-d1-only';
 let DATA={config:{},rumah:[],warga:[],riwayat:[]};
-let RIWAYAT_SEMUA=false;
 let RIWAYAT_KAS=[];
 let DATA_PINJAMAN={rows:[],aktif:[],ringkasan:{}};
 const BULAN=['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
@@ -3068,7 +3064,6 @@ function renderRiwayat(){
     historyDateTs(b.tanggal)-historyDateTs(a.tanggal) ||
     (Number(b.urutanInput)||0)-(Number(a.urutanInput)||0)
   );
-  const total=rows.length;if(!RIWAYAT_SEMUA)rows=rows.slice(0,10);
   tbody.innerHTML=rows.map(x=>{
     const info=riwayatResidentInfo(x);
     const batal=x.status==='BATAL';
@@ -3089,7 +3084,6 @@ function renderRiwayat(){
     const aksi=`<div class="action-icons">${actions.join('')}</div>`;
     return `<tr class="${batal?'opacity-55':''} hover:bg-violet-50/30"><td class="p-3 whitespace-nowrap">${histDate(x.tanggal)}</td><td class="p-3"><div class="font-bold whitespace-nowrap">${x.nama||'-'}</div><div class="text-xs text-slate-400 whitespace-nowrap">${info.rumah||'-'}</div></td><td class="p-3 text-right whitespace-nowrap"><div class="font-black">${rupiah(x.totalDiterima)}</div>${Number(x.kekuranganKasLorong||0)>0?`<div class="text-xs font-bold text-amber-700">Kurang Kas ${rupiah(x.kekuranganKasLorong)}</div>`:''}${x.jenisPembayaran==='PELUNASAN_KAS'?'<div class="text-xs text-emerald-700 font-bold">Pelunasan Kas</div>':''}</td><td class="p-3 whitespace-nowrap">${x.metode||'-'}</td><td class="p-3 text-center">${badge}</td><td class="p-3 text-right">${aksi}</td></tr>`;
   }).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada riwayat pembayaran pada periode ini.</td></tr>';
-  const b=document.getElementById('btn-riwayat-more');if(total>10){b.classList.remove('hidden');b.textContent=RIWAYAT_SEMUA?'Tampilkan 10 terbaru':'Lihat semua ('+total+')'}else b.classList.add('hidden');
   refreshHistoryIcons();
 }
 
@@ -3118,7 +3112,6 @@ async function simpanKoreksiMigrasi(){
  }catch(e){msg.textContent=e.message||String(e)}finally{btn.disabled=false;}
 }
 
-function toggleRiwayatSemua(){RIWAYAT_SEMUA=!RIWAYAT_SEMUA;renderRiwayat()}
 function isiEditOptions(){
   document.getElementById('edit-warga').innerHTML=DATA.warga.filter(w=>['ya','aktif'].includes((w.statusAktif||'').toLowerCase())).map(w=>`<option value="${w.idWarga}">${w.nama} (${w.blok}/${w.noRumah})</option>`).join('');
   document.getElementById('edit-bulan').innerHTML=BULAN.slice(1).map((b,i)=>`<option value="${i+1}">${b}</option>`).join('');
@@ -4540,7 +4533,7 @@ function day(k,side,v){const s=st(k),sel=pv(s.level,s[side]),y=v.y,m=v.m,f=new D
 function mon(k,side,v){const s=st(k),sel=pv(s.level,s[side]),y=v.y;return `<div class="upr-head"><button class="upr-nav" onclick="UPR.shift('${k}','${side}','month',-1)"><i data-lucide="chevron-left"></i></button><button class="upr-title" onclick="UPR.view('${k}','${side}','year')">${y}</button><button class="upr-nav" onclick="UPR.shift('${k}','${side}','month',1)"><i data-lucide="chevron-right"></i></button></div><div class="upr-level-note">Pilih bulan • klik tahun untuk memilih per tahun</div><div class="upr-months">${MS.map((n,i)=>`<button class="upr-month ${s.level==='month'&&sel.y===y&&sel.m===i+1?'selected':''}" onclick="UPR.pick('${k}','${side}','month',${y},${i+1},1)">${n}</button>`).join('')}</div>`}
 function yr(k,side,v){const s=st(k),sel=pv(s.level,s[side]),a=Math.floor(v.y/10)*10;let z='';for(let y=a-1;y<=a+10;y++)z+=`<button class="upr-year ${s.level==='year'&&sel.y===y?'selected':''}" onclick="UPR.pick('${k}','${side}','year',${y},1,1)">${y}</button>`;return `<div class="upr-head"><button class="upr-nav" onclick="UPR.shift('${k}','${side}','year',-1)"><i data-lucide="chevron-left"></i></button><div class="upr-title flex items-center justify-center">${a} – ${a+9}</div><button class="upr-nav" onclick="UPR.shift('${k}','${side}','year',1)"><i data-lucide="chevron-right"></i></button></div><div class="upr-level-note">Pilih tahun</div><div class="upr-years">${z}</div>`}
 function rp(k,side){const c=document.querySelector(`.upr-control[data-key="${k}"][data-side="${side}"]`);if(!c)return;const s=st(k),b=pv(s.level,s[side]),v=VW[k+'|'+side]||(VW[k+'|'+side]={mode:'day',y:b.y,m:b.m});c.querySelector('.upr-pop').innerHTML=v.mode==='month'?mon(k,side,v):v.mode==='year'?yr(k,side,v):day(k,side,v);try{lucide.createIcons()}catch(e){}}
-window.UPR={open(k,side,b){const c=b.closest('.upr-control'),w=c.classList.contains('open');ca();if(w)return;const s=st(k),p=pv(s.level,s[side]);VW[k+'|'+side]={mode:'day',y:p.y,m:p.m};c.classList.add('open');rp(k,side)},view(k,side,m){VW[k+'|'+side].mode=m;rp(k,side)},shift(k,side,m,d){const v=VW[k+'|'+side];if(m==='day'){v.m+=d;if(v.m<1){v.m=12;v.y--}if(v.m>12){v.m=1;v.y++}}else if(m==='month')v.y+=d;else v.y+=d*10;rp(k,side)},pick(k,side,l,y,m,d){const s=st(k),v=mv(l,{y,m,d});if(s.level!==l){s.level=l;s.from=v;s.to=v}else s[side]=v;if(rank(l,s.from)>rank(l,s.to)){if(side==='from')s.to=s.from;else s.from=s.to}rf(k);ca();if(k==='history-iuran'){window.RIWAYAT_SEMUA=false;window.IURAN_QUICK_DATA=null;window.F4BookExtras?.reset();window.renderRiwayat?.();window.loadIuranQuickSummary?.()}if(k==='history-kas'){window.f4KasAllPeriods=false;window.f4SyncKasPeriod?.();window.loadRiwayatKas?.(true)}},state:k=>({...st(k)}),params:k=>{const s=st(k);return{periodLevel:s.level,periodFrom:s.from,periodTo:s.to}},range:k=>bounds(st(k))};document.addEventListener('pointerdown',e=>{if(!e.target.closest('.upr-control'))ca()});
+window.UPR={open(k,side,b){const c=b.closest('.upr-control'),w=c.classList.contains('open');ca();if(w)return;const s=st(k),p=pv(s.level,s[side]);VW[k+'|'+side]={mode:'day',y:p.y,m:p.m};c.classList.add('open');rp(k,side)},view(k,side,m){VW[k+'|'+side].mode=m;rp(k,side)},shift(k,side,m,d){const v=VW[k+'|'+side];if(m==='day'){v.m+=d;if(v.m<1){v.m=12;v.y--}if(v.m>12){v.m=1;v.y++}}else if(m==='month')v.y+=d;else v.y+=d*10;rp(k,side)},pick(k,side,l,y,m,d){const s=st(k),v=mv(l,{y,m,d});if(s.level!==l){s.level=l;s.from=v;s.to=v}else s[side]=v;if(rank(l,s.from)>rank(l,s.to)){if(side==='from')s.to=s.from;else s.from=s.to}rf(k);ca();if(k==='history-iuran'){window.IURAN_QUICK_DATA=null;window.F4BookExtras?.reset();window.renderRiwayat?.();window.loadIuranQuickSummary?.()}if(k==='history-kas'){window.f4KasAllPeriods=false;window.f4SyncKasPeriod?.();window.loadRiwayatKas?.(true)}},state:k=>({...st(k)}),params:k=>{const s=st(k);return{periodLevel:s.level,periodFrom:s.from,periodTo:s.to}},range:k=>bounds(st(k))};document.addEventListener('pointerdown',e=>{if(!e.target.closest('.upr-control'))ca()});
 function mount(){const b=document.querySelector('#history-iuran-panel .history-period-box');if(b)b.innerHTML=html('history-iuran');rf('history-iuran');const cb=document.getElementById('history-kas-period');if(cb){cb.innerHTML=html('history-kas');rf('history-kas');window.f4SyncKasPeriod?.()}const defs=[['report-kas-filter','report-kas',''],['report-rt-filter','report-rt',''],['report-arisan-filter','report-arisan',''],['report-denda-filter','report-denda','<select id="report-denda-status-filter" class="field upr-filter-status"><option value="SEMUA">Semua</option><option value="BELUM">Belum Bayar</option><option value="LUNAS">Lunas</option><option value="BATAL">Batal</option></select>'],['report-pinjaman-filter','report-pinjaman','<select id="report-pinjaman-status-filter" class="field upr-filter-status"><option value="SEMUA">Semua</option><option value="AKTIF">Aktif</option><option value="LUNAS">Lunas</option><option value="BATAL">Batal</option></select>'],['report-talangan-filter','report-talangan','<select id="report-talangan-status-filter" class="field upr-filter-status"><option value="SEMUA">Semua</option><option value="MENUNGGU">Menunggu</option><option value="LUNAS">Lunas</option><option value="BATAL">Batal</option></select>']];defs.forEach(([id,k,x])=>{const e=document.getElementById(id);if(e){e.className=(e.className||'').replace(/\bgrid\b|\bspace-y-3\b|\bmax-w-\S+/g,'').trim();e.innerHTML=`<div class="report-universal-filter">${html(k)}${x}</div>`;rf(k)}});setTimeout(()=>window.refreshAllCustomSelects?.(),30)}
 window.matchRiwayatPeriod=function(x){
   const st=UPR.state('history-iuran');
