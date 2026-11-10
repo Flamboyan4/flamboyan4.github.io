@@ -39,7 +39,7 @@ if not bound or bound.get("id")!=db.get("uuid"):
     raise RuntimeError("D1 ID does not match the deployed Worker DB binding")
 dbid=db["uuid"]
 
-payers=query(dbid,"""SELECT p.id,p.display_name,p.active,p.household_id,h.house_code
+payers=query(dbid,"""SELECT p.id,p.display_name,p.active,p.household_id,p.payer_type,p.member_id,h.house_code
 FROM bookkeeping_payers p LEFT JOIN households h ON h.id=p.household_id
 WHERE p.id='W0018' OR lower(trim(p.display_name))='tpq'
 OR upper(replace(h.house_code,' ',''))='A5/43'
@@ -107,7 +107,7 @@ report={
     "payers":[{"id_class":label(p["id"]),"id_equals_original":p["id"]=="W0018",
       "name_tpq":str(p["display_name"] or "").strip().lower()=="tpq",
       "same_house":str(p["house_code"] or "").upper().replace(" ","")=="A5/43",
-      "active":int(p["active"] or 0)} for p in payers],
+      "active":int(p["active"] or 0),"payer_type":p["payer_type"],"has_member":bool(p["member_id"])} for p in payers],
     "source_records":[{"payment":r["id"],"payment_payer":label(r["payer_id"]),
       "allocation":r["allocation_id"],"allocation_payer":label(r["allocation_payer"]),
       "period":str(r["period_year"])+"-"+str(r["period_month"]),
