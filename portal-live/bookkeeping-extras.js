@@ -5,6 +5,7 @@
  'use strict';
  if(window.F4BookExtras)return;
  const api='https://api.flamboyan4.web.id/api/bookkeeping/iuran/suggested-period';
+ const outstandingApi='https://api.flamboyan4.web.id/api/bookkeeping/iuran/outstanding';
  const p2=n=>String(n).padStart(2,'0');
  const money=v=>'Rp '+Math.round(Number(v)||0).toLocaleString('id-ID');
  const months=['','Januari','Februari','Maret','April','Mei','Juni',
@@ -22,16 +23,19 @@
  const resident=id=>residents().find(w=>String(w.idWarga)===String(id));
  const feedback=msg=>{if(typeof riwayatMsg==='function')riwayatMsg(msg,'error');else alert(msg);};
  let requestId=0,controller=null,receiptBlob=null,receiptUrl='',receiptName='',openList=false;
+ let unpaidPreviousOverflow='';
  const list=()=>document.getElementById('f4-book-unpaid-list');
  const toggleButton=()=>document.getElementById('f4-book-unpaid-toggle');
  function setList(html){const e=document.getElementById('f4-book-unpaid-content');if(e)e.innerHTML=html;}
  function reset(){
   requestId++;
   if(controller){controller.abort();controller=null;}
+  if(openList)document.body.style.overflow=unpaidPreviousOverflow;
   openList=false;
   const e=list();if(e)e.hidden=true;
   const b=toggleButton();if(b)b.setAttribute('aria-expanded','false');
  }
+ function closeUnpaid(){reset();}
  async function suggested(payerId,signal){
   const url=api+'?'+new URLSearchParams({payerId:String(payerId)});
   const res=await fetch(url,{credentials:'include',mode:'cors',cache:'no-store',signal});
@@ -39,6 +43,24 @@
   if(!res.ok||data?.ok!==true)throw new Error(data?.error||'Gagal memeriksa kewajiban (HTTP '+res.status+')');
   const m=/^(20\d{2})-(0[1-9]|1[0-2])(?:-01)?$/.exec(String(data.period||''));
   return {period:m?m[1]+'-'+m[2]:'',remaining:Number(data.remainingRp),lastLunas:String(data.lastLunas||'')};
+ }
+ async function outstanding(payerId,period,signal){
+  const m=/^(20\d{2})-(0[1-9]|1[0-2])$/.exec(String(period||''));
+  if(!m)throw Error('Bulan pemeriksaan tidak valid');
+  const url=outstandingApi+'?'+new URLSearchParams({
+   payerId:String(payerId),year:m[1],month:String(Number(m[2]))
+  });
+  const res=await fetch(url,{credentials:'include',mode:'cors',cache:'no-store',signal});
+  const data=await res.json().catch(()=>null);
+  if(!res.ok||!data||data.ok===false||!Array.isArray(data.komponen))
+   throw Error(data?.error||'Gagal memeriksa kewajiban bulan (HTTP '+res.status+')');
+  let total=0;
+  for(const item of data.komponen){
+   const value=Number(item.sisaRp);
+   if(!Number.isFinite(value)||value<0)throw Error('Nominal kewajiban tidak valid');
+   total+=value;
+  }
+  return total;
  }
  function receivedAt(id,period){
   return payments().filter(r=>String(r.idWarga)===String(id)).some(r=>{
@@ -66,6 +88,8 @@
   if(openList){reset();return;}
   const target=currentPeriod();
   box.hidden=false;openList=true;btn.setAttribute('aria-expanded','true');
+  unpaidPreviousOverflow=document.body.style.overflow;
+  document.body.style.overflow='hidden';
   if(!target){
    setList('<div class="f4-unpaid-feedback">Pilih satu bulan pada filter Riwayat Iuran untuk melihat warga yang belum lunas sampai bulan tersebut.</div>');
    return;
@@ -77,7 +101,7 @@
   }
   const ticket=++requestId,abort=new AbortController();controller=abort;
   const header=document.getElementById('f4-book-unpaid-label');
-  if(header)header.textContent='Belum lunas s.d. '+formatMonth(target);
+  if(header)header.textContent='Kewajiban '+formatMonth(target);
   setList('<div class="f4-unpaid-feedback">Memeriksa kewajiban warga… 0/'+eligible.length+'</div>');
   const pending=[],errors=[];
   let cursor=0,done=0;
@@ -85,12 +109,9 @@
    while(cursor<eligible.length&&ticket===requestId){
     const w=eligible[cursor++];
     try{
-     const r=await suggested(w.idWarga,abort.signal);
-     // Respons sah tanpa periode berarti tidak ada tunggakan yang bisa ditampilkan.
-     if(r.period){
-      if(!Number.isFinite(r.remaining)||r.remaining<=0)throw Error('Sisa tagihan tidak tersedia');
-      if(r.period<=target)pending.push({w,period:r.period,amount:r.remaining,partial:receivedAt(w.idWarga,r.period)});
-     }
+     const remaining=await outstanding(w.idWarga,target,abort.signal);
+     if(remaining>0)pending.push({w,period:target,amount:remaining,
+       partial:receivedAt(w.idWarga,target)});
     }catch(e){
      if(e.name==='AbortError')return;
      errors.push(String(w.nama||w.idWarga));
@@ -108,21 +129,21 @@
    return k(a).localeCompare(k(b),'id',{numeric:true});
   });
   if(!pending.length&&!errors.length){
-   setList('<div class="f4-unpaid-feedback">Tidak ada tunggakan sampai '+escapeHtml(formatMonth(target))+'.</div>');
+   setList('<div class="f4-unpaid-feedback">Semua kewajiban '+escapeHtml(formatMonth(target))+' sudah lunas.</div>');
    return;
   }
-  const note='<div class="f4-unpaid-feedback">Sisa yang ditampilkan adalah tagihan pada <b>bulan tertua yang belum lunas</b>, bukan penjumlahan semua bulan.</div>';
+  const note='<div class="f4-unpaid-feedback">Nominal sisa berasal dari kewajiban '+escapeHtml(formatMonth(target))+', sesuai perhitungan Input Iuran.</div>';
   const rows=pending.map(item=>{
    const w=item.w,home=[w.blok,w.noRumah].filter(Boolean).join('/');
    return '<div class="f4-unpaid-row"><div><div class="f4-unpaid-name">'+escapeHtml(w.nama||'-')+
-    '<span class="f4-unpaid-home">'+escapeHtml(home)+'</span></div><small>Tunggakan sejak '+escapeHtml(formatMonth(item.period))+
+    '<span class="f4-unpaid-home">'+escapeHtml(home)+'</span></div><small>Periode '+escapeHtml(formatMonth(item.period))+
     '</small></div><div class="f4-unpaid-due"><strong>'+money(item.amount)+'</strong><span>'+
     (item.partial?'Kurang bayar':'Belum bayar')+'</span></div></div>';
   }).join('');
   const failed=errors.length?'<div class="f4-unpaid-feedback" role="alert">'+errors.length+
    ' warga belum berhasil diperiksa. Muat ulang untuk memastikan daftar lengkap.</div>':'';
   setList('<div class="f4-unpaid-feedback"><b>'+pending.length+
-   ' warga terdeteksi belum lunas</b> sampai '+escapeHtml(formatMonth(target))+
+   ' warga belum lunas</b> untuk '+escapeHtml(formatMonth(target))+
    (errors.length?' (daftar belum lengkap)':'')+'.</div>'+rows+note+failed);
  }
  function prepareModal(){
@@ -319,18 +340,28 @@
   btn.innerHTML='<i data-lucide="users-round"></i><span>Lihat Belum Lunas</span>';
   btn.addEventListener('click',toggleUnpaid);
   host.querySelector('.iuran-quick-note')?.replaceWith(btn);
-  const quick=document.getElementById('iuran-quick-summary');
   const box=document.createElement('div');
-  box.id='f4-book-unpaid-list';box.className='f4-unpaid-list';box.hidden=true;
-  box.innerHTML='<div class="f4-unpaid-list-head"><strong>Warga belum lunas</strong>'+
-   '<small id="f4-book-unpaid-label"></small></div><div id="f4-book-unpaid-content" class="f4-unpaid-list-content"></div>';
-  quick?.insertAdjacentElement('afterend',box);
+  box.id='f4-book-unpaid-list';box.className='f4-ui-dialog f4-unpaid-overlay';box.hidden=true;
+  box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');
+  box.setAttribute('aria-labelledby','f4-book-unpaid-heading');
+  box.innerHTML='<section class="f4-ui-dialog-panel f4-unpaid-panel">'+
+   '<div class="f4-unpaid-list-head">'+
+   '<div><strong id="f4-book-unpaid-heading">Warga belum lunas</strong>'+
+   '<small id="f4-book-unpaid-label"></small></div>'+
+   '<button type="button" class="f4-unpaid-close" aria-label="Tutup daftar belum lunas" title="Tutup"><i data-lucide="x"></i></button>'+
+   '</div><div id="f4-book-unpaid-content" class="f4-unpaid-list-content"></div></section>';
+  box.addEventListener('click',event=>{if(event.target===box)closeUnpaid()});
+  box.querySelector('.f4-unpaid-close').addEventListener('click',closeUnpaid);
+  document.body.appendChild(box);
   try{window.lucide?.createIcons?.()}catch(e){}
   document.addEventListener('keydown',e=>{
-   if(e.key==='Escape'&&!document.getElementById('f4-book-receipt-modal')?.hidden)closeReceipt();
+   if(e.key==='Escape'){
+    if(!document.getElementById('f4-book-receipt-modal')?.hidden)closeReceipt();
+    else if(openList)closeUnpaid();
+   }
   });
  }
- window.F4BookExtras={toggleUnpaid,receipt,reset,closeReceipt};
+ window.F4BookExtras={toggleUnpaid,receipt,reset,closeUnpaid,closeReceipt};
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});
  else mount();
 })();
