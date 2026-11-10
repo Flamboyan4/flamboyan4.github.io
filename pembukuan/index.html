@@ -1805,6 +1805,7 @@ main > section.card{overflow:visible!important}
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261110-compositor-v11">
 <link rel="stylesheet" href="/portal-live/bookkeeping-extras.css?v=20261110-svg-actions-v3">
 <script defer src="/portal-live/mobile-bottom-sheets.js?v=20261110-compositor-v11"></script>
+<script defer src="/portal-live/transaction-receipts.js?v=20261110-shared-jpg-v1"></script>
 <script defer src="/portal-live/bookkeeping-extras.js?v=20261110-d1-tpq-reconciled-v16"></script>
 </head>
 <body>
@@ -3361,6 +3362,81 @@ function f4CashHumanTitle(x,forReport=false){
   if(type.includes('talangan'))return 'Pelunasan Talangan';
   return Number(x?.debit)>0?'Penerimaan Kas':'Pengeluaran Kas';
 }
+
+/* Resi JPG untuk transaksi aktif yang sudah dimuat dari D1. Tidak memposting pembayaran. */
+function f4ResiAction(kind,id){
+ const safe=encodeURIComponent(String(id||'')).replace(/'/g,'%27');
+ return actionIcon('receipt-text','Resi JPG',
+  "f4CetakResiLain('"+kind+"',decodeURIComponent('"+safe+"'))",'violet');
+}
+function f4CetakResiLain(kind,id){
+ const open=window.F4TransactionReceipt?.open;
+ if(!open){riwayatMsg('Fitur resi belum dimuat. Muat ulang portal.','error');return;}
+ const name=x=>typeof f4NamaCetak==='function'?f4NamaCetak(x):String(x?.nama||'-');
+ const home=x=>[x.blok,x.noRumah].filter(Boolean).join('/')||'-';
+ const valid=x=>x&&String(x.status||'AKTIF').toUpperCase()!=='BATAL';
+ let r=null;
+ if(kind==='denda'){
+  const x=(DATA_DENDA.rows||[]).find(v=>String(v.idDenda)===String(id));
+  if(x&&x.status==='LUNAS'&&Number(x.nominal)>0&&x.tanggalBayar)
+   r={id:x.idTransaksiKas||x.idDenda,scope:'book',title:'Bukti Pembayaran Denda',
+    party:name(x),house:home(x),date:histDate(x.tanggalBayar),method:x.metode||'-',
+    amount:Number(x.nominal),amountLabel:'Denda Dibayar',status:'LUNAS',
+    details:[['ID denda',x.idDenda],['Kegiatan',x.namaKegiatan||'Denda Gorol']],
+    note:'Pembayaran denda yang tercatat lunas dalam Pembukuan.'};
+ }else if(kind==='pinjaman'){
+  const x=(DATA_PINJAMAN.rows||[]).find(v=>String(v.idPinjaman)===String(id));
+  if(valid(x)&&Number(x.nominalPinjaman)>0)
+   r={id:x.idPinjaman,scope:'book',title:'Bukti Pencatatan Pinjaman',
+    party:name(x),house:home(x),date:histDate(x.tanggalPinjaman),
+    method:x.metode||'Pembukuan',amount:Number(x.nominalPinjaman),
+    amountLabel:'Pokok Pinjaman',status:'TERCATAT',
+    details:[['Sisa pinjaman',rupiah(x.sisaPinjaman||0)]],
+    note:'Pencatatan pinjaman; bukan bukti bahwa pinjaman telah lunas.'};
+ }else if(kind==='bayar-pinjaman'){
+  let parent=null,payment=null;
+  for(const x of DATA_PINJAMAN.rows||[]){
+   const b=(x.pembayaran||[]).find(v=>String(v.idPembayaranPinjaman)===String(id));
+   if(b){parent=x;payment=b;break;}
+  }
+  if(parent&&payment&&valid(payment)&&Number(payment.nominalBayar)>0)
+   r={id:payment.idPembayaranPinjaman,scope:'book',title:'Bukti Angsuran Pinjaman',
+    party:name(parent),house:home(parent),date:histDate(payment.tanggalBayar),
+    method:payment.metode||'-',amount:Number(payment.nominalBayar),
+    amountLabel:'Angsuran Diterima',status:'TERBAYAR',
+    details:[['ID pinjaman',parent.idPinjaman]],
+    note:'Bukti angsuran yang diterima; bukan tanda pelunasan seluruh pinjaman.'};
+ }else if(kind==='talangan'||kind==='pelunasan-talangan'){
+  const x=(DATA_TALANGAN.rows||[]).find(v=>String(v.idTalangan)===String(id));
+  if(valid(x)&&Number(x.nominalTalangan)>0){
+   const paid=kind==='pelunasan-talangan';
+   if(!paid||(x.status==='LUNAS'&&x.idPembayaranPelunasan&&Number(x.nominalDiganti)>0))
+    r={id:paid?x.idPembayaranPelunasan:x.idTalangan,scope:'book',
+     title:paid?'Bukti Penggantian Talangan':'Bukti Pencatatan Talangan',
+     party:name(x),house:home(x),
+     date:histDate(paid?(x.tanggalLunas||x.tanggalTalangan):x.tanggalTalangan),
+     method:paid?'Pembukuan':'Talangan Kas Lorong',
+     amount:Number(paid?x.nominalDiganti:x.nominalTalangan),
+     amountLabel:paid?'Talangan Diganti':'Nilai Talangan',
+     status:paid?'LUNAS':'TERCATAT',details:[['ID talangan',x.idTalangan],['Periode',x.bulan+' '+x.tahun]],
+     note:paid?'Bukti penggantian talangan.':'Bukti talangan, bukan pembayaran warga.'};
+  }
+ }else if(kind==='kas'){
+  const x=(RIWAYAT_KAS||[]).find(v=>String(v.idTransaksi)===String(id));
+  if(valid(x)&&(Number(x.debit)>0||Number(x.kredit)>0)){
+   const masuk=Number(x.debit)>0;
+   r={id:x.idTransaksi,scope:'book',title:masuk?'Bukti Penerimaan Kas':'Bukti Pengeluaran Kas',
+    party:x.namaWarga?name({nama:x.namaWarga}):'Kas Flamboyan 4',house:x.rumah||'-',
+    date:histDate(x.tanggal),method:x.metode||'-',
+    amount:Number(masuk?x.debit:x.kredit),amountLabel:masuk?'Dana Masuk':'Dana Keluar',
+    status:'TERCATAT',details:[['Pos dana',x.kategori||'-'],['Keterangan',f4CashHumanTitle(x)]],
+    note:'Bukti jurnal kas aktif, bukan pelunasan otomatis untuk tagihan lain.'};
+  }
+ }
+ if(!r){riwayatMsg('Resi tidak tersedia untuk transaksi batal, belum dibayar, atau data belum lengkap.','error');return;}
+ open(r).catch(e=>riwayatMsg('Gagal membuat resi: '+(e.message||e),'error'));
+}
+
 function f4SystemIdDetails(id,source=''){
   if(!id&&!source)return '';
   return `<details class="f4-trans-ref no-print"><summary>Detail pencatatan</summary>${id?`<div>ID: ${esc(id)}</div>`:''}${source?`<div>Sumber: ${esc(source)}</div>`:''}</details>`;
