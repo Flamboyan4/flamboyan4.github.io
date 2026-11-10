@@ -26,6 +26,7 @@
 .f4-book-receipt-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid #ede9fe}
 .f4-book-receipt-head h2{font-size:16px;font-weight:850;color:#3b0764;margin:0}
 .f4-book-receipt-close{width:34px;height:34px;display:grid;place-items:center;border:1px solid #e9d5ff;border-radius:9px;color:#6b21a8;background:#fff;cursor:pointer}
+.f4-book-receipt-close svg{display:block;width:18px;height:18px}
 .f4-book-receipt-preview{padding:13px;min-height:0;overflow:auto;background:#f5f3ff}
 .f4-book-receipt-preview img{display:block;width:100%;max-width:370px;height:auto;margin:0 auto;border-radius:10px;border:1px solid #ddd6fe;box-shadow:0 5px 22px #1f15331a}
 .f4-book-receipt-actions{display:flex;gap:9px;padding:13px 16px calc(14px + env(safe-area-inset-bottom,0px))}
