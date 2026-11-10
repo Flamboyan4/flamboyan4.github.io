@@ -61,7 +61,51 @@
    if(!Number.isFinite(value)||value<0)throw Error('Nominal kewajiban tidak valid');
    total+=value;
   }
-  return total;
+  return {total,komponen:data.komponen};
+ }
+ // BULK_IMPORT can belong to an earlier payer ID even when the replacement
+ // payer has the same name and house. Credit only verified active allocations;
+ // do not create money or silently credit another resident.
+ function historicalBulkCredit(w,period,components,eligible){
+  const all=typeof DATA==='undefined'?[]:(DATA.riwayat||[]);
+  if(!all.length)return 0;
+  const house=x=>String(x?.rumah||[x?.blok,x?.noRumah].filter(Boolean).join('/'))
+   .toUpperCase().replace(/\s+/g,'');
+  const name=x=>String(x||'').trim().toLowerCase().replace(/\s+/g,' ');
+  const targetHouse=house(w),targetName=name(w.nama),targetId=String(w.idWarga||'');
+  if(!targetHouse||!targetName||!targetId)return 0;
+  const candidates=eligible.filter(x=>house(x)===targetHouse&&name(x.nama)===targetName);
+  if(candidates.length!==1||String(candidates[0].idWarga)!==targetId)return 0;
+  const activeIds=new Set(eligible.map(x=>String(x.idWarga)));
+  const master=typeof DATA==='undefined'?[]:(DATA.warga||[]);
+  const donors=new Map();
+  for(const p of all){
+   const donorId=String(p.idWarga||'');
+   if(String(p.status).toUpperCase()!=='AKTIF'||!/^PAY\d+$/i.test(String(p.idPembayaran||''))||
+      !donorId||donorId===targetId||activeIds.has(donorId)||
+      house(p)!==targetHouse||name(p.nama)!==targetName)continue;
+   const old=master.find(x=>String(x.idWarga)===donorId);
+   if(old&&(house(old)!==targetHouse||name(old.nama)!==targetName))continue;
+   for(const a of Array.isArray(p.alokasi)?p.alokasi:[]){
+    if(String(a.status||'aktif').toLowerCase()!=='aktif'||
+       String(a.tahun)+'-'+p2(a.bulan)!==period)continue;
+    const kind=String(a.jenis||'').toUpperCase(),amount=Number(a.nominal??a.jumlahRp);
+    if(!Number.isSafeInteger(amount)||amount<=0)continue;
+    if(!donors.has(donorId))donors.set(donorId,new Map());
+    const totals=donors.get(donorId);
+    totals.set(kind,(totals.get(kind)||0)+amount);
+   }
+  }
+  // A non-unique historical identity must be reconciled in D1, not guessed.
+  if(donors.size!==1)return 0;
+  const credit=[...donors.values()][0];
+  let applied=0;
+  for(const item of components){
+   const due=Number(item.sisaRp),kind=String(item.jenis||'').toUpperCase();
+   if(!Number.isSafeInteger(due)||due<=0)continue;
+   applied+=Math.min(due,credit.get(kind)||0);
+  }
+  return applied;
  }
  function receivedAt(id,period){
   return payments().filter(r=>String(r.idWarga)===String(id)).some(r=>{
@@ -110,9 +154,11 @@
    while(cursor<eligible.length&&ticket===requestId){
     const w=eligible[cursor++];
     try{
-     const remaining=await outstanding(w.idWarga,target,abort.signal);
+     const result=await outstanding(w.idWarga,target,abort.signal);
+     const bulkCredit=historicalBulkCredit(w,target,result.komponen,eligible);
+     const remaining=Math.max(0,result.total-bulkCredit);
      if(remaining>0)pending.push({w,period:target,amount:remaining,
-       partial:receivedAt(w.idWarga,target)});
+       partial:receivedAt(w.idWarga,target)||bulkCredit>0});
     }catch(e){
      if(e.name==='AbortError')return;
      errors.push(String(w.nama||w.idWarga));
