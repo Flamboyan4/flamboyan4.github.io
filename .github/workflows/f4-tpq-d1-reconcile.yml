@@ -1,4 +1,5 @@
 name: F4 TPQ guarded D1 duplicate reconciliation
+# Re-run against audited institution-to-payer identity roles, preserving payment amounts
 on:
   push:
     branches: [main]
