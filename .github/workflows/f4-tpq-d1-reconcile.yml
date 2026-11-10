@@ -2,10 +2,6 @@ name: F4 TPQ guarded D1 duplicate reconciliation
 # Re-run against audited institution-to-payer identity roles, preserving payment amounts
 # Historical migrated payments have NULL payment.household_id; relink to the verified home
 on:
-  push:
-    branches: [main]
-    paths:
-      - .github/workflows/f4-tpq-d1-reconcile.yml
   workflow_dispatch:
 permissions:
   contents: read
