@@ -88,9 +88,9 @@ function calendar(field,trigger){
  else{const now=new Date();y=now.getFullYear();m=now.getMonth()}
  const panel=start(trigger,kind==='month'?'Pilih bulan':'Pilih tanggal');
  const nav=document.createElement('div');nav.className='f4-control-calendar-nav';
- const prev=document.createElement('button');prev.type='button';prev.textContent='‹';prev.setAttribute('aria-label','Bulan atau tahun sebelumnya');
+ const prev=document.createElement('button');prev.type='button';prev.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>';prev.setAttribute('aria-label','Bulan atau tahun sebelumnya');
  const heading=document.createElement('strong');
- const next=document.createElement('button');next.type='button';next.textContent='›';next.setAttribute('aria-label','Bulan atau tahun berikutnya');
+ const next=document.createElement('button');next.type='button';next.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';next.setAttribute('aria-label','Bulan atau tahun berikutnya');
  nav.append(prev,heading,next);panel.append(nav);
  const grid=document.createElement('div');grid.className='f4-control-calendar';
  panel.append(grid);
