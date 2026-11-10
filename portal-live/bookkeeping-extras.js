@@ -196,7 +196,7 @@
  function buildReceipt(x,info,check){
   const canvas=document.createElement('canvas');
   const items=itemized(x);
-  canvas.width=900;canvas.height=1120+Math.max(0,items.length-4)*54;
+  canvas.width=900;canvas.height=1220+Math.max(0,items.length-1)*57;
   const c=canvas.getContext('2d');
   if(!c)throw Error('Canvas untuk resi tidak tersedia pada browser.');
   const W=canvas.width,H=canvas.height,L=62,R=838;
