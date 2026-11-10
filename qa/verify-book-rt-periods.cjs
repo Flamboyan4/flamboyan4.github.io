@@ -179,8 +179,12 @@ const byId=r=>new Map(r.data.rows.map(x=>[x.idWarga,x]));
  assert.equal(format.warning(n.get('p:no-clean'),'kebersihan'),false);
  assert(format.cell(n.get('p:partial'),'kebersihan').includes('Belum lunas'));
  assert(html.includes('f4RtKeteranganMarkup(x)'),'Screen/print must use memo column');
- assert(html.includes('Siklus setoran RT: tanggal 21 bulan sebelumnya'),
-  'Print must explain cash basis');
+ assert(!html.includes('Siklus setoran RT: tanggal 21 bulan sebelumnya'),
+  'Internal cash-cycle explanation must not appear on the resident-facing RT report');
+ assert(html.includes('f4RtSettlementNoteHtml(hasilRT)')&&html.includes('class="handover"'),
+  'RT print must show the compact Humas deduction note aligned with the sign-off');
+ assert(html.includes('.rt-net-highlight{background:#fde047'),
+  'Net handover amount must be yellow-highlighted in the PDF');
  assert(html.includes('td.rt-warning{background:#fff1f2'),'Red unpaid flag retained');
  assert.equal(format.paidLabel({rincianBulanan:[],rincianKebersihan:[
   {periode:'2026-11',nominalRp:20000},{periode:'2026-11',nominalRp:20000}]}),'',
