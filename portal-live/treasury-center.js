@@ -16,6 +16,7 @@ const amount=(balances,fund,location)=>Number(balances.find(x=>x.fund_id===fund&
 const kindLabels={opening:"Saldo awal",incoming:"Dana masuk",outgoing:"Dana keluar",move:"Pindah tempat",allocation:"Pindah pos"};
 let current=null;
 let activeView="saldo";
+let reviewOpen=false;
 function showTreasuryNotice(message){
  // Notifikasi hanya pada tindakan pengesahan, tidak tersimpan dan tidak ditampilkan ulang.
  document.querySelectorAll(".tc-flash").forEach(node=>node.remove());
@@ -359,9 +360,10 @@ function buildForm(target,data,refresh){
  const funds=data.catalog.funds.filter(f=>f.active!==false);
  const shell=el("details",undefined,"tc-panel tc-mutation-panel tc-no-print");
  shell.open=true;
- shell.append(el("summary","Transaksi Baru"));
+ shell.append(el("summary","Catat Transaksi"));
  const form=el("form",undefined,"tc-form");
- const action=select([{id:"move",name:"Pindah tempat"},{id:"allocation",name:"Pindah pos"},{id:"incoming",name:"Uang masuk (manual)"},{id:"outgoing",name:"Uang keluar (manual)"}]);
+ const action=select([{id:"",name:"Pilih jenis transaksi…"},{id:"incoming",name:"Pemasukan"},{id:"outgoing",name:"Pengeluaran"},{id:"move",name:"Pindah tempat uang"},{id:"allocation",name:"Pindah antarpos"}]);
+ action.required=true;
  const fromFund=select(funds),toFund=select(funds);
  const fromLoc=select([]),toLoc=select([]);
  const dateCtl=treasuryDateControl(),date=dateCtl.input;
@@ -374,6 +376,8 @@ function buildForm(target,data,refresh){
   originFund,originLoc,destinationFund,destinationLoc,
   field("Nominal (Rp)",value),field("Keterangan",note,"tc-wide"));
  form.append(grid);
+ const help=el("p","Pilih jenis transaksi agar kolom yang diperlukan muncul.","tc-form-help");
+ form.append(help);
  const status=el("p","","tc-status");status.setAttribute("role","status");
  const save=el("button","Simpan","tc-primary");save.type="submit";
  append(form,save,status);shell.append(form);target.append(shell);
@@ -384,9 +388,16 @@ function buildForm(target,data,refresh){
  }
  function refreshFields(){
   const kind=action.value;
-  originFund.hidden=kind==="incoming";originLoc.hidden=kind==="incoming";
-  destinationFund.hidden=kind==="outgoing"||kind==="move";
-  destinationLoc.hidden=kind==="outgoing";
+  originFund.hidden=!kind||kind==="incoming";
+  originLoc.hidden=!kind||kind==="incoming";
+  destinationFund.hidden=!kind||kind==="outgoing"||kind==="move";
+  destinationLoc.hidden=!kind||kind==="outgoing";
+  help.textContent={
+   incoming:"Uang baru yang diterima, beserta pos dan tempat penyimpanannya.",
+   outgoing:"Pembayaran yang sudah keluar, misalnya DP produksi Jersey.",
+   move:"Pindah tempat uang dalam pos yang sama, contohnya Mandiri ke Cash.",
+   allocation:"Pindah alokasi antarpos tanpa menambah total dana."
+  }[kind]||"Pilih jenis transaksi agar kolom yang diperlukan muncul.";
   locChoices(fromLoc,fromFund.value);
   locChoices(toLoc,kind==="move"?fromFund.value:toFund.value);
   if(kind==="move"&&toLoc.value===fromLoc.value){
@@ -693,18 +704,22 @@ function render(data){
  const qris=balances.filter(x=>x.location_id==="qris").reduce((n,x)=>n+Number(x.amount_rp||0),0);
  const mandiri=balances.filter(x=>x.location_id==="mandiri").reduce((n,x)=>n+Number(x.amount_rp||0),0);
  const catalog=data.catalog.funds||[];
- const activeFunds=catalog.filter(f=>f.active!==false);
  const metrics=el("div",undefined,"tc-overview");
  metrics.append(
-  card("Total Dana",rp(data.totalRp),"Semua program"),
-  card("Pos Aktif",String(activeFunds.length),"Kas dan program")
+  card("Total Dana",rp(data.totalRp),"Seluruh program"),
+  card("Cash",rp(cash),"Uang tunai"),
+  card("QRIS",rp(qris),"Belum cair"),
+  card("Mandiri",rp(mandiri),"Di rekening")
  );
  panel.append(metrics);
+ const reviewCount=pendingTreasuryCount(data);
+ const reviewWarnings=(data.sourceWarnings||[]).length+(data.bankCoverageWarnings||[]).length;
+ const hasReview=reviewCount>0||reviewWarnings>0;
 
  const views=[
-  {id:"saldo",name:"Posisi Dana",icon:"cash.svg"},
-  {id:"transaksi",name:"Transaksi & Pengesahan",icon:"pay.svg"},
-  {id:"laporan",name:"Riwayat & Laporan",icon:"book.svg"}
+  {id:"saldo",name:"Saldo",icon:"cash.svg"},
+  {id:"transaksi",name:"Transaksi",icon:"pay.svg"},
+  {id:"laporan",name:"Laporan",icon:"book.svg"}
  ];
  const nav=el("div",undefined,"tc-view-nav");
  nav.setAttribute("role","tablist");
@@ -730,6 +745,11 @@ function render(data){
   button.setAttribute("aria-controls","tc-view-"+view.id);
   const img=el("img");img.src="/assets/icons/"+view.icon;img.alt="";img.setAttribute("aria-hidden","true");
   button.append(img,el("span",view.name));
+  if(view.id==="transaksi"&&reviewCount>0){
+   const badge=el("span",String(reviewCount),"tc-tab-count");
+   badge.setAttribute("aria-label",reviewCount+" dana perlu diperiksa");
+   button.append(badge);
+  }
   button.onclick=()=>switchView(view.id,false);
   button.onkeydown=e=>{
    const index=views.findIndex(x=>x.id===view.id);
@@ -751,12 +771,6 @@ function render(data){
 
  // Saldo: daftar ringkas, rincian hanya saat satu pos dibuka.
  const saldo=viewPanels.saldo;
- const locations=el("div",undefined,"tc-location-strip");
- for(const [name,value] of [["Cash",cash],["QRIS",qris],["Mandiri",mandiri]]){
-  const item=el("div",undefined,"tc-location");
-  item.append(el("span",name),el("strong",rp(value)));locations.append(item);
- }
- saldo.append(locations);
  const ownership=el("section",undefined,"tc-panel tc-ownership");
  const ownHead=el("div",undefined,"tc-section-head");
  ownHead.append(el("h3","Saldo per Pos"));
@@ -795,33 +809,19 @@ function render(data){
 
  // Transaksi: satu tempat untuk pencatatan dan pemeriksaan dana.
  const transaksi=viewPanels.transaksi;
- const count=pendingTreasuryCount(data);
- const caution=(data.sourceWarnings||[]).length+(data.bankCoverageWarnings||[]).length;
- const hasReview=count>0||caution>0;
- if(hasReview){
-  const alert=el("button",undefined,"tc-review-alert");
-  alert.type="button";
-  const text=el("span",undefined);
-  text.append(el("strong",count>0?"Periksa Dana ("+count+")":"Periksa Dana"),
-   el("small",caution?"Ada data yang perlu diperiksa":"Ada dana yang belum dicatat"));
-  alert.append(text,el("span","Lihat ›"));
-  alert.onclick=()=>{
-   const target=transaksi.querySelector(".tc-review");
-   if(!target)return;
-   const wrapper=target.closest(".tc-review-fold");
-   if(wrapper)wrapper.open=true;
-   target.scrollIntoView({behavior:"smooth",block:"start"});
-  };
-  transaksi.append(alert);
- }
  buildForm(transaksi,data,refresh);
+ // Pemeriksaan dana mudah ditemukan tanpa menutup bagian transaksi.
  if(hasReview||(data.excludedSources||[]).length||(data.bankSourceBalances||[]).some(x=>Number(x.amountRp)!==0)){
   const fold=el("details",undefined,"tc-review-fold");
-  fold.open=hasReview;
-  fold.append(el("summary",hasReview?"Rincian Pemeriksaan":"Riwayat Pemeriksaan"));
+  fold.open=reviewOpen;
+  const summary=el("summary",undefined);
+  const title=el("strong",reviewCount>0?"Periksa Dana ("+reviewCount+")":"Pemeriksaan Dana");
+  const info=el("span",hasReview?"Ada dana yang perlu diperiksa · Klik untuk melihat":"Lihat catatan pemeriksaan","tc-review-hint");
+  summary.append(title,info);fold.append(summary);
+  fold.addEventListener("toggle",()=>{reviewOpen=fold.open});
   buildSources(fold,data,refresh);
   transaksi.append(fold);
- }
+ }else reviewOpen=false;
  const entries=tidyHistory(data).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
  const recent=el("section",undefined,"tc-panel tc-recent");
  const recentHeader=el("div",undefined,"tc-section-head");
@@ -830,7 +830,7 @@ function render(data){
  seeAll.type="button";seeAll.onclick=()=>switchView("laporan",true);
  recentHeader.append(seeAll);recent.append(recentHeader);
  if(entries.length){
-  for(const x of entries.slice(0,5)){
+  for(const x of entries.slice(0,3)){
    const line=el("div",undefined,"tc-recent-row");
    const info=el("div");info.append(el("strong",x.kindName),el("small",formatDate(x.date)+" · "+x.note));
    line.append(info,el("b",rp(x.amount)));recent.append(line);
