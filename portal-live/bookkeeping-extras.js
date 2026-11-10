@@ -15,6 +15,7 @@
   return m?months[Number(m[2])]+' '+m[1]:String(value||'-');
  };
  const shortName=str=>String(str||'').replace(/[^a-z0-9]+/gi,'-').replace(/^-|-$/g,'').slice(0,42)||'Warga';
+ const printName=x=>typeof window.F4NamaCetak==='function'?window.F4NamaCetak(x):String(x?.nama||x?.namaWarga||'-');
  const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
  const residents=()=>typeof DATA==='undefined'?[]:(DATA.warga||[]).filter(w=>
   ['ya','aktif'].includes(String(w.statusAktif||'').toLowerCase())&&
@@ -249,7 +250,7 @@
    ?monthKeys.map(formatMonth).join(', ')
    :(Array.isArray(x.periode)?x.periode.join(', '):String(x.periode||'-'));
   const rows=[
-   ['Nama warga',x.nama||info.warga?.nama||'-'],
+   ['Nama warga',printName({...x,nama:info.warga?.nama||x.nama})],
    ['Nomor rumah',info.rumah||'-'],
    ['Tanggal bayar',typeof histDate==='function'?histDate(x.tanggal):String(x.tanggal||'-')],
    ['Metode bayar',x.metode||'-'],
@@ -424,7 +425,7 @@
    prepareModal();
    closeReceipt();
    receiptBlob=blob;
-   receiptName='Resi-Flamboyan4-'+shortName(x.nama||info.warga?.nama)+'-'+shortName(x.idPembayaran)+'.jpg';
+   receiptName='Resi-Flamboyan4-'+shortName(printName({...x,nama:info.warga?.nama||x.nama}))+'-'+shortName(x.idPembayaran)+'.jpg';
    receiptUrl=URL.createObjectURL(blob);
    const modal=document.getElementById('f4-book-receipt-modal');
    modal.dataset.previousOverflow=document.body.style.overflow||'';
