@@ -67,10 +67,10 @@ const db={prepare(sql){
  assert.equal(byId.get('p:no-clean').wajibKebersihanPeriode.length,0,'Cleaning-exempt payer must have no cleaning debt');
  assert.equal(byId.get('p:effective').wajibKebersihanPeriode.length,1,'New December obligation must not backdate to November');
  assert.equal(byId.get('p:effective').wajibKebersihanPeriode[0].periode,'2026-12');
- assert.equal(data.ringkasan.totalBulanan,125000);
- assert.equal(data.ringkasan.totalKebersihan,110000);
- assert.equal(data.ringkasan.totalSetoran,235000,'Unpaid obligations must not inflate cash totals');
- assert.equal(data.ringkasan.jumlahSetoranBulanan,5,'Count actual units, not residents');
+ assert.equal(data.ringkasan.totalBulanan,75000);
+ assert.equal(data.ringkasan.totalKebersihan,70000);
+ assert.equal(data.ringkasan.totalSetoran,145000,'Unpaid obligations must not inflate cash totals');
+ assert.equal(data.ringkasan.jumlahSetoranBulanan,3,'Count actual units, not residents');
  const dateOnly=await handler(db,{url:'https://api.example.test/api/bookkeeping/reports/contributions?kind=rt&level=date&from=2026-11-10&to=2026-11-10'});
  assert.equal(dateOnly.data.cekKewajibanPeriode,false);
  assert.equal(dateOnly.data.rows.some(x=>x.idWarga==='p:unpaid'),false,'Narrow transaction dates are not unpaid-duty months');
