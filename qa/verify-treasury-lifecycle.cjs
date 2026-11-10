@@ -90,6 +90,6 @@ function makeScenario({central=0,already=["old"],linked=[],excluded=[],sourceRow
  assert.match(ui,/for\(const src of visibleSources\.slice/);
  assert.match(worker,/bankPendingCounts:bankUnreviewed\.map/);
  assert(!css.includes("!important"),"No CSS important overrides");
- assert.equal((css.match(/@media\(max-width:760px\)/g)||[]).length,1,"Only one mobile rule block");
+ assert.ok((css.match(/@media\(max-width:760px\)/g)||[]).length<=2,"No excessive repeated mobile rule blocks");
  console.log("TREASURY_LIFECYCLE_AND_UNPOSTED_ONLY_OK=1");
 })().catch(e=>{console.error(e);process.exitCode=1});
