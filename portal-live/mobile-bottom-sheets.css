@@ -407,3 +407,19 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
  body .f4-sheet-draggable,
  body .f4-sheet-draggable.f4-sheet-settling {animation:none}
 }
+
+/* v10: after the first gesture the original entrance animation must not restart.
+   During all gestures only transform is composited, never panel height. */
+@media (max-width:767px) {
+ body .f4-sheet-draggable.f4-sheet-gesture-ready {
+  animation:none;
+ }
+ body .f4-sheet-draggable:is(.f4-sheet-dragging,.f4-sheet-settling,.f4-sheet-dismissing) {
+  will-change:transform;
+  backface-visibility:hidden;
+ }
+ body > .f4-sheet-handle {
+  will-change:transform;
+  backface-visibility:hidden;
+ }
+}
