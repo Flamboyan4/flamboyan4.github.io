@@ -2817,6 +2817,10 @@ async function f4ContributionReport(db, request) {
         if (reportMonths.length > 1200) return safeError("Rentang laporan terlalu panjang.", 400);
       }
     }
+    // Laporan boleh memuat pembayaran di muka, tetapi belum jatuh tempo
+    // tidak boleh ditulis sebagai tunggakan. WIB tidak memakai DST.
+    const asOfMonth = new Date(Date.now() + 7 * 60 * 60 * 1000).toISOString().slice(0, 7);
+    const dueMonths = reportMonths.filter(period => period <= asOfMonth);
     const tariff = await getIuranTariffs(db);
     const versionMap = new Map();
     if (reportMonths.length) {
@@ -2837,7 +2841,7 @@ async function f4ContributionReport(db, request) {
     const rateKebersihan = Number(tariff.TARIF_KEBERSIHAN || 0);
     for (const [id, versions] of versionMap) {
       const wajibBulanan = [], wajibKebersihan = [];
-      for (const period of reportMonths) {
+      for (const period of dueMonths) {
         let active = null;
         for (const v of versions) {
           if (String(v.effective_from) <= period + "-01") active = v;
