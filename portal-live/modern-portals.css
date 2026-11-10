@@ -5,7 +5,7 @@ html:has(#v11Public),html:has(#f4-account-page){background:#fff!important}
 body:has(#v11Public),body:has(#f4-account-page){background:#fff!important;color:var(--modern-ink);-webkit-font-smoothing:antialiased}
 body:has(#v11Public){--forest:#087f5b;--leaf:#12a578;--sage:#eaf9f2;--cream:#fff;--ink:#20333d;--muted:#63757d;--line:#e1ebe6;--f4-nav:#087f5b;--f4-nav-tint:#eaf9f2}
 body:has(#f4-account-page){--blue:#6650cc;--navy:#28334b;--tint:#f1edff;--edge:#e4e7ef;--muted:#69748b;--work-bg:#fff;--work-accent:#6650cc;--work-tint:#f1edff;--work-line:#e4e7ef;--work-text:#28334b}
-body:has(#f4-account-page)[data-sa-area=bank]{--blue:#087f5b;--tint:#eaf9f2;--work-accent:#087f5b;--work-tint:#eaf9f2}
+/* Semua submenu Superadmin memakai satu tone ungu; Portal Bank Sampah tetap hijau pada aplikasinya sendiri. */
 /* White content surfaces, colour reserved for icons, navigation and useful status. */
 #f4-account-page:not([hidden]),#f4-account-page>main,#v11Public,#v18PublicContent,#dashboardView,.shell,.content{background:#fff!important}
 #f4-account-page>aside,#v18PublicSide,#sideNav{background:#fbfcfd!important;border-right:1px solid var(--modern-line)!important;box-shadow:none!important}
@@ -13,11 +13,14 @@ body:has(#f4-account-page)[data-sa-area=bank]{--blue:#087f5b;--tint:#eaf9f2;--wo
 #f4-account-page>aside button.active{background:var(--tint)!important;color:var(--blue)!important}
 #f4-account-page>aside button:hover{background:#f1f4f8}
 .sa-nav-icon{width:34px;height:34px;padding:8px;border-radius:11px;background:#ede9ff;flex:none;object-fit:contain}
-#f4-account-page>aside button:nth-of-type(2) .sa-nav-icon{background:#fff0db}
-#f4-account-page>aside button:nth-of-type(3) .sa-nav-icon{background:#e5f1ff}
-#f4-account-page>aside button:nth-of-type(4) .sa-nav-icon{background:#dff8ec}
-#f4-account-page>aside button:nth-of-type(5) .sa-nav-icon{background:#dff8ec}
-#f4-account-page>aside button:nth-of-type(6) .sa-nav-icon{background:#e5f5fc}
+/* Menu icon colors follow stable group IDs, not fragile nth-of-type order. */
+#f4-account-page>aside button[data-sa-group="overview"] .sa-nav-icon{background:#ede9ff}
+#f4-account-page>aside button[data-sa-group="treasury"] .sa-nav-icon{background:#fff0db}
+#f4-account-page>aside button[data-sa-group="accounts"] .sa-nav-icon{background:#e5f1ff}
+#f4-account-page>aside button[data-sa-group="content"] .sa-nav-icon{background:#eee9ff}
+#f4-account-page>aside button[data-sa-group="bank"] .sa-nav-icon{background:#dff8ec}
+#f4-account-page>aside button[data-sa-group="masters"] .sa-nav-icon{background:#e5f5fc}
+#f4-account-page>aside button[data-sa-group="audit"] .sa-nav-icon{background:#f0eaff}
 #f4-account-page>main .f4-work-heading{border:0;margin-bottom:16px;padding-bottom:0}
 #f4-account-page>main .f4-work-heading h2{font-size:27px!important;letter-spacing:-.7px;font-weight:750;color:var(--modern-ink)}
 #f4-account-page>main .f4-work-heading p{font-size:13px;margin:7px 0 0;color:var(--modern-muted)}
