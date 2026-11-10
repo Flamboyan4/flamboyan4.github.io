@@ -65,7 +65,8 @@ for payment_id in payids:
     lines=[x for x in pay if x["id"]==payment_id]
     verify(len({x["payer_id"] for x in lines}),1,"single payer per payment")
     verify(lines[0]["status"],"aktif","payment status")
-    verify(lines[0]["household_id"],keep["household_id"],"payment household")
+    if lines[0]["household_id"] is not None:
+        verify(lines[0]["household_id"],keep["household_id"],"payment household")
     verify(int(lines[0]["amount_rp"]),20000,"payment amount")
     verify(sum(int(x["allocation_amount"]) for x in lines),20000,"allocation total")
     months={int(x["period_month"]) for x in lines}
@@ -131,9 +132,9 @@ for month in (9,10):
     q("""UPDATE bookkeeping_payment_allocations SET payer_id=?
     WHERE payment_id=? AND payer_id=? AND period_year=2026 AND period_month=?
       AND status='aktif'""",target,payment_id,source,month)
-    q("""UPDATE bookkeeping_payments SET payer_id=?
+    q("""UPDATE bookkeeping_payments SET payer_id=?,household_id=COALESCE(household_id,?)
     WHERE id=? AND payer_id=? AND status='aktif' AND amount_rp=20000""",
-    target,payment_id,source)
+    target,keep["household_id"],payment_id,source)
 # Archive only the superseded institution alias; no delete or rewrites of payment content.
 q("UPDATE bookkeeping_payers SET active=0 WHERE id=? AND payer_type='lembaga' AND active=1",source)
 q("UPDATE resident_directory_profiles SET status_aktif='Tidak' WHERE payer_id=?",source)
