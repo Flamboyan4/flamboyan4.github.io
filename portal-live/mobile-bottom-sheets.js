@@ -109,14 +109,15 @@
  function clearPanel(panel){
   if(!panel?.isConnected)return;
   // Observers watch class/style: do not write unchanged attributes or recurse.
-  const dirty=panel.classList.contains('f4-sheet-dragging')||
+  const dirty=panel.classList.contains('f4-sheet-gesture-ready')||
+   panel.classList.contains('f4-sheet-dragging')||
    panel.classList.contains('f4-sheet-settling')||
    panel.classList.contains('f4-sheet-dismissing')||
    panel.classList.contains('f4-sheet-expanded')||
    ['transform','transition','height','max-height'].some(k=>panel.style.getPropertyValue(k));
   if(!dirty)return;
   clearTimer(panel);
-  panel.classList.remove('f4-sheet-dragging','f4-sheet-settling','f4-sheet-dismissing','f4-sheet-expanded');
+  panel.classList.remove('f4-sheet-dragging','f4-sheet-settling','f4-sheet-dismissing','f4-sheet-expanded','f4-sheet-gesture-ready');
   for(const k of ['transform','transition','height','max-height']){
    if(panel.style.getPropertyValue(k))panel.style.removeProperty(k);
   }
