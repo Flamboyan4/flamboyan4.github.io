@@ -2,21 +2,24 @@
 .f4-unpaid-trigger{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:8px 13px;border:1px solid #c4b5fd;border-radius:11px;background:#fff;color:#5b21b6;font-size:12px;font-weight:800;cursor:pointer}
 .f4-unpaid-trigger:hover,.f4-unpaid-trigger[aria-expanded="true"]{background:#f5f3ff}
 .f4-unpaid-trigger svg{width:16px;height:16px}
-.f4-unpaid-list{margin-top:12px;border:1px solid #e9ddff;border-radius:14px;background:#fff;overflow:hidden}
-.f4-unpaid-list[hidden]{display:none}
-.f4-unpaid-list-head{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 14px;border-bottom:1px solid #ede9fe;background:#faf9ff}
-.f4-unpaid-list-head strong{font-size:13px;color:#3b0764}
-.f4-unpaid-list-head small{color:#64748b;font-size:11px}
-.f4-unpaid-list-content{padding:7px 13px;max-height:350px;overflow-y:auto}
-.f4-unpaid-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #f3efff}
+.f4-unpaid-overlay{position:fixed;inset:0;z-index:1250;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(22,18,37,.56)}
+.f4-unpaid-overlay[hidden]{display:none;pointer-events:none}
+.f4-unpaid-panel{position:relative;width:min(560px,100%);max-width:100%;max-height:min(700px,calc(100dvh - 40px));min-height:0;display:flex;flex-direction:column;overflow:hidden;border-radius:20px;background:#fff;box-shadow:0 18px 70px #100c2640}
+.f4-unpaid-list-head{display:flex;justify-content:space-between;gap:12px;align-items:center;flex:none;padding:17px 20px;border-bottom:1px solid #ede9fe;background:#faf9ff}
+.f4-unpaid-list-head strong{display:block;font-size:16px;font-weight:850;color:#3b0764}
+.f4-unpaid-list-head small{display:block;color:#64748b;font-size:12px;margin-top:3px}
+.f4-unpaid-close{display:grid;place-items:center;width:36px;height:36px;flex:none;border:1px solid #e9d5ff;border-radius:10px;background:#fff;color:#6b21a8;cursor:pointer}
+.f4-unpaid-close svg{width:19px;height:19px}
+.f4-unpaid-list-content{min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain;padding:6px 20px 18px}
+.f4-unpaid-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:13px 0;border-bottom:1px solid #f3efff}
 .f4-unpaid-row:last-child{border-bottom:0}
 .f4-unpaid-name{font-weight:750;color:#26223a;font-size:13px}
-.f4-unpaid-home{font-weight:500;color:#64748b;margin-left:4px;font-size:11px}
-.f4-unpaid-row small{display:block;font-size:11px;color:#64748b;margin-top:3px}
+.f4-unpaid-home{font-weight:500;color:#64748b;margin-left:5px;font-size:11px}
+.f4-unpaid-row small{display:block;font-size:11px;color:#64748b;margin-top:4px}
 .f4-unpaid-due{text-align:right}
 .f4-unpaid-due strong{font-size:13px;color:#b45309;white-space:nowrap}
-.f4-unpaid-due span{display:block;color:#92400e;font-size:10px;font-weight:700}
-.f4-unpaid-feedback{font-size:12px;color:#64748b;padding:15px 3px}
+.f4-unpaid-due span{display:block;color:#92400e;font-size:10px;font-weight:700;margin-top:3px}
+.f4-unpaid-feedback{font-size:12px;color:#64748b;padding:14px 0;line-height:1.6}
 .f4-book-receipt-overlay{position:fixed;inset:0;z-index:1250;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(22,18,37,.56)}
 .f4-book-receipt-overlay[hidden]{display:none}
 .f4-book-receipt-panel{width:min(450px,100%);max-height:92dvh;display:flex;flex-direction:column;overflow:hidden;position:relative;background:#fff;border-radius:20px;box-shadow:0 18px 70px #100c2640}
@@ -29,6 +32,11 @@
 .f4-book-receipt-actions button{flex:1;min-width:0;min-height:44px;border-radius:11px;border:1px solid #c4b5fd;background:#fff;color:#5b21b6;font-size:13px;font-weight:750;cursor:pointer}
 .f4-book-receipt-actions button.primary{border-color:#7c3aed;background:#7c3aed;color:#fff}
 @media(max-width:767px){
+ .f4-unpaid-overlay{align-items:flex-end;justify-content:center;padding:0}
+ .f4-unpaid-panel{width:100%;max-width:100%;max-height:90dvh;border-radius:22px 22px 0 0;padding-top:30px}
+ .f4-unpaid-list-head{padding:12px 17px 14px}
+ .f4-unpaid-list-content{padding:4px 17px calc(24px + env(safe-area-inset-bottom,0px))}
+ .f4-unpaid-row{padding:12px 0}
  .f4-book-receipt-overlay{align-items:flex-end;justify-content:center;padding:0}
  .f4-book-receipt-panel{width:100%;max-width:100%;max-height:90dvh;border-radius:22px 22px 0 0;padding-top:30px}
  .f4-book-receipt-actions{flex-wrap:nowrap}
