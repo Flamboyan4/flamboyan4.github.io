@@ -65,7 +65,7 @@ const sessionNotice=el('aside');sessionNotice.id='f4-session-notice';
 sessionNotice.hidden=true;sessionNotice.setAttribute('role','status');
 const sessionNoticeText=el('span'),sessionNoticeAction=el('button'),sessionNoticeClose=el('button');
 sessionNoticeAction.type='button';
-sessionNoticeClose.type='button';sessionNoticeClose.textContent='×';sessionNoticeClose.setAttribute('aria-label','Tutup pemberitahuan');
+sessionNoticeClose.type='button';sessionNoticeClose.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';sessionNoticeClose.setAttribute('aria-label','Tutup pemberitahuan');
 sessionNoticeClose.onclick=()=>{sessionNotice.hidden=true};
 sessionNotice.append(sessionNoticeText,sessionNoticeAction,sessionNoticeClose);
 document.body.append(sessionNotice);
