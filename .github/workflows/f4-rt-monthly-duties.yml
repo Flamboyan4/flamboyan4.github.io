@@ -1,0 +1,25 @@
+name: F4 Setoran RT Month and Duty Regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - cloudflare/worker-terpadu-operasional-teruji.js
+      - pembukuan/index.html
+      - qa/verify-book-rt-periods.cjs
+      - .github/workflows/f4-rt-monthly-duties.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify read-only D1 report source and month-by-month obligations
+        run: |
+          node --check cloudflare/worker-terpadu-operasional-teruji.js
+          node qa/verify-book-rt-periods.cjs
