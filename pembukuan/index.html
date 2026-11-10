@@ -3887,12 +3887,16 @@ function f4RtCellMarkup(row,type){
      (partial?'Belum lunas':'Belum bayar')+'</strong>';
  }
  const value='<strong class="rt-money">'+esc(rupiah(amount))+'</strong>';
- if(!missing.length)return value;
+ // Jika ada penerimaan pada siklus ini, jangan beri 'Belum bayar'
+ // hanya karena alokasinya untuk kewajiban bulan sebelumnya.
  const partial=missing.some(x=>Number(x.dibayarRp||0)>0);
- const status=partial?'Belum lunas':'Belum bayar';
- return value+'<span class="rt-alert block text-[10px] font-bold text-red-700 mt-1">'+esc(status)+'</span>';
+ return partial?value+'<span class="rt-alert block text-[10px] font-bold text-red-700 mt-1">Belum lunas</span>':value;
 }
-function f4RtCellWarning(row,type){return f4RtDueMissing(row,type).length>0;}
+function f4RtCellWarning(row,type){
+ const amount=Number(type==='bulanan'?row.nominalBulanan:row.nominalKebersihan)||0;
+ const missing=f4RtDueMissing(row,type);
+ return amount>0?missing.some(x=>Number(x.dibayarRp||0)>0):missing.length>0;
+}
 
 function renderLaporanRt(d){d=d||{};const r=d.ringkasan||{},rows=sortedReportRtRows(d),set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};// Laporan Setoran RT menghitung UNIT SETORAN, bukan jumlah warga unik.
 const unit=(fromApi,total,tariff)=>{
@@ -4069,7 +4073,7 @@ function printRtSepertiLamanUtama(){
 @page{size:A4 portrait;margin:10mm 12mm 11mm}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#1e293b;font-size:10.5px;line-height:1.35;-webkit-print-color-adjust:exact;print-color-adjust:exact}.header{display:flex;align-items:center;gap:12px;border-bottom:2px solid #1e293b;padding-bottom:8px;margin-bottom:9px}.logo{width:50px;height:50px;object-fit:contain}.headtext{flex:1}.headtext h1{font-size:16px;margin:0 0 3px;font-weight:800}.headtext p{margin:2px 0;color:#475569}.periode{font-weight:700;color:#312e81!important}h2{font-size:12px;margin:9px 0 5px}table{width:100%;border-collapse:collapse;table-layout:fixed}th{background:#f1f5f9;color:#334155;font-size:10.3px;text-align:center;border:1px solid #000;padding:4px 5px}td{border:1px solid #000;padding:4px 5px;vertical-align:middle}.c{text-align:center}.r{text-align:right}.nowrap{white-space:nowrap}.empty{text-align:center;color:#64748b;padding:12px}.n-rt{background:#fff1c2;font-weight:700;color:#4c3b05}.n-keb{background:#dbfce6;font-weight:700;color:#155b31}.n-humas{background:#dff2ff;font-weight:700;color:#164465}.n-tpq{background:#ebe7ff;font-weight:700;color:#47318a}td.rt-warning{background:#fff1f2;color:#991b1b}td .rt-alert{color:#b91c1c;font-weight:700;font-size:9px}td .rt-paid-note{display:block;font-size:8.4px;line-height:1.2;margin-top:2px;color:#475569;font-weight:650;overflow-wrap:anywhere}td .rt-prepaid{display:block;color:#475569;font-size:9.5px;line-height:1.3;font-weight:600;white-space:normal;overflow-wrap:anywhere}td .rt-money{font-weight:700}td .rt-dash{color:#94a3b8}tfoot td{background:#f8fafc;font-weight:700}.muted{display:block;font-size:8.5px;color:#64748b;font-weight:600;margin-top:1px}.humas{margin-top:12px;text-align:right;font-size:10px;font-weight:700}.note{margin-top:8px;font-size:8.5px;color:#64748b;border-top:1px solid #000;padding-top:5px}@media screen{body{max-width:186mm;margin:14px auto;padding:0 4px;background:#fff}}</style></head><body>
 <header class="header"><img class="logo" src="https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027-v2" alt="Logo"><div class="headtext"><h1>LAPORAN SETORAN IURAN WARGA</h1><p>RT 001 RW 026 Pesona Kahuripan 2</p><p class="periode">${escapePrint(periode?`Periode ${periode}`:'')}</p></div></header>
 <h2>Rincian Setoran</h2><table><colgroup><col style="width:6%"><col style="width:22%"><col style="width:13%"><col style="width:25%"><col style="width:17%"><col style="width:17%"></colgroup><thead><tr><th>No</th><th>Nama</th><th>Rumah</th><th>Keterangan</th><th>Iuran Bulanan</th><th>Kebersihan</th></tr></thead><tbody>${body}</tbody><tfoot><tr><td colspan="4" class="r">TOTAL</td><td class="r">${escapePrint(rupiah(totalBulanan))}<span class="muted">${countBulanan} orang</span></td><td class="r">${escapePrint(rupiah(totalKeb))}<span class="muted">${countKeb} orang</span></td></tr><tr><td colspan="4" class="r">TOTAL SETORAN</td><td colspan="2" class="r">${escapePrint(rupiah(totalBulanan+totalKeb))}</td></tr></tfoot></table>
-<div class="note">Nominal merupakan setoran yang diterima pada periode laporan. Pembayaran bulan berikutnya yang sudah diterima lebih awal tidak dihitung kembali.</div>
+<div class="note">Siklus setoran RT: tanggal 21 bulan sebelumnya s.d. tanggal 20 bulan laporan. Tiap pembayaran hanya dihitung satu kali.</div>
 <div class="humas">Humas Flamboyan 4<br>Heri Juwandi</div><script>window.onload=()=>{setTimeout(()=>window.print(),350)}<\/script></body></html>`); w.document.close();
 }
 function printLaporan(){
