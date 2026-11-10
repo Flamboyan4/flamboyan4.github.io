@@ -438,7 +438,7 @@ function buildSources(target,data,refresh){
    return fresh>0&&total>central&&fresh<=total-central;
  }).map(([fund])=>fund));
  const visibleSources=sources.filter(x=>x.type!=="bank"||!bankApprovalFunds.has(x.fund));
- const label=el("h3","Periksa Dana ("+(visibleSources.length+bankApprovalFunds.size)+")");
+ const label=el("h3","Daftar Dana Menunggu");
  const reload=el("button","Muat Ulang","tc-secondary");reload.type="button";
  reload.onclick=async()=>{reload.disabled=true;try{await refresh()}catch(e){reload.disabled=false}};
  top.append(label,reload);section.append(top);
@@ -818,7 +818,11 @@ function render(data){
   const title=el("strong",reviewCount>0?"Periksa Dana ("+reviewCount+")":"Pemeriksaan Dana");
   const info=el("span",hasReview?"Ada dana yang perlu diperiksa · Klik untuk melihat":"Lihat catatan pemeriksaan","tc-review-hint");
   summary.append(title,info);fold.append(summary);
-  fold.addEventListener("toggle",()=>{reviewOpen=fold.open});
+  fold.addEventListener("toggle",()=>{
+   reviewOpen=fold.open;
+   info.textContent=fold.open?"Ketuk judul untuk menutup":
+    hasReview?"Ada dana yang perlu diperiksa · Klik untuk melihat":"Lihat catatan pemeriksaan";
+  });
   buildSources(fold,data,refresh);
   transaksi.append(fold);
  }else reviewOpen=false;
