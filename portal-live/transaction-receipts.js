@@ -190,7 +190,7 @@
   document.body.style.overflow='hidden';
   dialog.querySelector('.f4-tx-close').focus();
  }
- document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.getElementById('f4-tx-receipt-dialog')?.hidden)close()});
+ document.addEventListener('keydown',e=>{const modal=document.getElementById('f4-tx-receipt-dialog');if(e.key==='Escape'&&modal&&!modal.hidden)close()});
  window.addEventListener('pagehide',close);
  window.F4TransactionReceipt={open,close};
 })();
