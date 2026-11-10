@@ -1802,7 +1802,7 @@ main > section.card{overflow:visible!important}
 <script defer src="/portal-live/mobile-bottom-sheets.js?v=20261110-compositor-v11"></script>
 <script defer src="/portal-live/bookkeeping-extras.js?v=20261110-ticket-round-perforation-v12"></script>
 </head>
-<body oncontextmenu="return false;">
+<body>
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
     <div class="flex items-center gap-3 min-w-0">
@@ -5040,15 +5040,6 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
 })();
 </script>
 
-
-<script>
-// v6.23.7 - disable right-click/context menu on page body
-document.addEventListener('contextmenu', function(e){
-  const t = e.target;
-  if (!t) return;
-  e.preventDefault();
-}, true);
-</script>
 
 <style>
 .bulk-table th,.bulk-table td{white-space:nowrap;vertical-align:top}.bulk-table td:nth-child(3),.bulk-table td:nth-child(6){white-space:normal;min-width:220px}.bulk-badge{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:900}.bulk-badge.new{background:#dcfce7;color:#047857}.bulk-badge.update{background:#e0f2fe;color:#0369a1}.bulk-badge.same{background:#f1f5f9;color:#475569}.bulk-badge.error,.bulk-badge.conflict{background:#fee2e2;color:#b91c1c}.bulk-warning{margin-top:4px;color:#b45309;font-size:11px;font-weight:700}
