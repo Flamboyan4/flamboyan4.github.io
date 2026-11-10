@@ -448,6 +448,8 @@ function buildSources(target,data,refresh){
  if(!visibleSources.length&&!(data.bankSourceBalances||[]).some(x=>Number(x.amountRp)>0))
     section.append(el("p","Belum ada dana baru.","tc-muted"));
  const status=el("p","","tc-status");status.setAttribute("role","status");
+ // Setiap sumber tetap dicatat melalui API pengesahan yang sudah ada.
+ const bulkCandidates=[];
  const funds=new Map(data.catalog.funds.map(x=>[x.id,x]));
  const list=el("div",undefined,"tc-source-list");
  for(const src of visibleSources.slice(0,100)){
@@ -464,6 +466,15 @@ function buildSources(target,data,refresh){
   const pick=select([{id:"",name:"Simpan di"},...options]);
   pick.value=options.some(x=>x.id===src.suggestedLocation)?src.suggestedLocation:"";
   pick.setAttribute("aria-label","Pilih tempat dana untuk "+src.sourceLabel);
+  // Transaksi pada tanggal pembukaan wajib diperiksa sendiri.
+  if(src.type!=="bank"&&src.id&&src.fund&&Number.isFinite(Number(src.amountRp))&&Number(src.amountRp)!==0&&!sameDay){
+   bulkCandidates.push({
+    fundId:src.fund,pick,nominal:Math.abs(Number(src.amountRp)),
+    note:src.sourceLabel,
+    payload:()=>({action:"link",sourceType:src.type,sourceId:src.id,
+     expectedAmountRp:src.amountRp,expectedFundId:src.fund,location:pick.value})
+   });
+  }
   const save=el("button","Periksa & Sahkan","tc-primary");save.type="button";
   save.onclick=async()=>{
    if(!pick.value){status.textContent="Pilih tempat uang yang benar dahulu.";pick.focus();return}
@@ -519,6 +530,13 @@ function buildSources(target,data,refresh){
    if(row.diff>0&&row.available>0&&row.available<=row.diff){
     const pick=select([{id:"",name:"Simpan di"},...fields(data.catalog,row.fundId)]);
     pick.value="";pick.setAttribute("aria-label","Tempat uang untuk "+(row.fund?.name||row.fundId));
+    bulkCandidates.push({
+     fundId:row.fundId,pick,nominal:row.available,
+     note:row.fund?.name||row.fundId,
+     payload:()=>({action:"approve-bank-balance",fundId:row.fundId,location:pick.value,
+      expectedSourceRp:row.source,expectedCentralRp:row.central,expectedAvailableRp:row.available,
+      requestKey:crypto.randomUUID(),confirmation:"SUDAH COCOK"})
+    });
     const confirmButton=el("button","Sahkan "+rp(row.available),"tc-primary");confirmButton.type="button";
     confirmButton.onclick=async()=>{
      if(!pick.value){status.textContent="Pilih tempat uang dahulu.";pick.focus();return}
@@ -556,6 +574,85 @@ function buildSources(target,data,refresh){
     entry.append(restore);hidden.append(entry);
   }
   section.append(hidden);
+ }
+ // Satu aksi pengesahan untuk beberapa dana yang sudah diperiksa bersama.
+ // Tidak ada transaksi yang disahkan otomatis saat halaman dimuat.
+ if(bulkCandidates.length>=2){
+  const bar=el("div",undefined,"tc-bulk-bar");
+  const intro=el("div",undefined,"tc-bulk-intro");
+  intro.append(el("strong","Sahkan Bersama ("+bulkCandidates.length+")"),
+   el("small","Pilih lokasi uang dan periksa nominal sebelum mengesahkan."));
+  const group=el("div",undefined,"tc-bulk-actions");
+  const where=select([
+   {id:"",name:"Tempat untuk semua…"},
+   {id:"cash",name:"Cash masing-masing pos"},
+   {id:"qris",name:"QRIS"},
+   {id:"mandiri",name:"Mandiri"}
+  ]);
+  where.setAttribute("aria-label","Tempat penyimpanan semua dana");
+  where.onchange=()=>{
+   if(!where.value)return;
+   const invalid=bulkCandidates.filter(x=>{
+    const fund=funds.get(x.fundId);
+    const dest=where.value==="cash"?fund?.cash:where.value;
+    return !dest||![...x.pick.options].some(o=>o.value===dest);
+   });
+   if(invalid.length){
+    status.textContent="Lokasi tersebut tidak tersedia untuk "+invalid.length+" pos. Pilih tempat satu per satu.";
+    where.value="";return;
+   }
+   for(const x of bulkCandidates){
+    x.pick.value=where.value==="cash"?funds.get(x.fundId).cash:where.value;
+   }
+   status.textContent="";
+  };
+  const approve=el("button","Sahkan "+bulkCandidates.length+" Dana","tc-primary");
+  approve.type="button";
+  const unsafe=warnings.length||(data.bankCoverageWarnings||[]).length||data.sourcePartial;
+  if(unsafe){
+   approve.disabled=true;
+   approve.title="Ada peringatan atau daftar belum lengkap. Periksa satu per satu.";
+   intro.append(el("small","Perlu audit data sebelum pengesahan bersama.","tc-source-warning"));
+  }
+  let submitting=false;
+  approve.onclick=async()=>{
+   if(submitting||approve.disabled)return;
+   const missing=bulkCandidates.filter(x=>!x.pick.value);
+   if(missing.length){
+    status.textContent="Pilih tempat uang untuk "+missing.length+" dana dahulu.";
+    where.focus();return;
+   }
+   const count=bulkCandidates.length;
+   const total=bulkCandidates.reduce((sum,x)=>sum+x.nominal,0);
+   const summary=bulkCandidates.map(x=>
+    "• "+x.note+" — "+rp(x.nominal)+" ("+
+    ([...x.pick.options].find(o=>o.value===x.pick.value)?.textContent||x.pick.value)+")"
+   ).join("\n");
+   if(!await askConfirm("Sahkan "+count+" dana dengan total "+rp(total)+"?\n\n"+
+     summary+"\n\nPastikan uang sudah diterima dan belum pernah dihitung. "+
+     "Masing-masing tetap memiliki jejak transaksi."))return;
+   submitting=true;approve.disabled=true;where.disabled=true;
+   let completed=0,error=null;
+   for(const entry of bulkCandidates){
+    status.textContent="Mengesahkan "+(completed+1)+"/"+count+"…";
+    try{await post(entry.payload());completed++}
+    catch(e){error=e;break}
+   }
+   if(completed){
+    try{await refresh()}
+    catch(e){error=error||e}
+   }
+   if(error){
+    const message="Berhasil "+completed+" dari "+count+
+     " dana; sisanya belum disahkan. Periksa saldo dan muat ulang sebelum mencoba lagi. "+
+     (error.message||String(error));
+    if(completed)showMessage(message);
+    else status.textContent=message;
+    if(!completed){submitting=false;approve.disabled=false;where.disabled=false}
+   }else showTreasuryNotice(count+" dana berhasil disahkan, masing-masing tercatat terpisah.");
+  };
+  group.append(where,approve);bar.append(intro,group);
+  section.insertBefore(bar,section.querySelector(".tc-bank-reconcile")||list);
  }
  section.append(status);target.append(section);
 }
