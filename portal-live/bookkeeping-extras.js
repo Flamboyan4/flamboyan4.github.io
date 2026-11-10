@@ -287,46 +287,35 @@
   const c=canvas.getContext('2d');
   if(!c)throw Error('Gagal menggambar resi JPG.');
   c.fillStyle='#f2ecff';c.fillRect(0,0,W,H);
-  // One continuous receipt silhouette, with large inward notches top/bottom
-  // and smaller notches on the sides. No dots, punched circles, or tiny zigzags.
+  // Tepi struk kertas: hanya atas dan bawah yang berlekuk.
+  // Kiri dan kanan lurus (bukan bingkai bergelombang).
   {
-   const left=34,right=866,corner=18,upper=top-9,lower=paperBottom-18;
-   const w=right-left-corner*2,h=lower-upper-corner*2;
-   const nx=Math.max(8,Math.round(w/62)), ny=Math.max(8,Math.round(h/48));
-   const dx=w/nx,dy=h/ny,depth=34,sideDepth=11;
+   const left=34,right=866;
+   const upper=top+3,lower=paperBottom-6,corner=11;
+   const width=right-left-corner*2;
+   const count=Math.max(1,Math.round(width/32));
+   const step=width/count,depth=15;
    c.save();
-   c.shadowColor='rgba(50,28,104,.12)';
-   c.shadowBlur=15;c.shadowOffsetY=5;
    c.fillStyle='#ffffff';
+   c.shadowColor='rgba(44,25,92,.10)';
+   c.shadowBlur=13;c.shadowOffsetY=4;
    c.beginPath();
-   let px=left+corner;
-   c.moveTo(px,upper);
-   for(let i=0;i<nx;i++){
-    const next=left+corner+(i+1)*dx;
-    c.bezierCurveTo(px+dx*.24,upper+depth,next-dx*.24,upper+depth,next,upper);
-    px=next;
+   c.moveTo(left+corner,upper);
+   for(let i=0;i<count;i++){
+    const x0=left+corner+i*step,x1=x0+step;
+    c.bezierCurveTo(x0+step*.24,upper+depth,
+     x1-step*.24,upper+depth,x1,upper);
    }
    c.quadraticCurveTo(right,upper,right,upper+corner);
-   let py=upper+corner;
-   for(let i=0;i<ny;i++){
-    const next=upper+corner+(i+1)*dy;
-    c.bezierCurveTo(right-sideDepth,py+dy*.24,right-sideDepth,next-dy*.24,right,next);
-    py=next;
-   }
+   c.lineTo(right,lower-corner);
    c.quadraticCurveTo(right,lower,right-corner,lower);
-   px=right-corner;
-   for(let i=0;i<nx;i++){
-    const next=right-corner-(i+1)*dx;
-    c.bezierCurveTo(px-dx*.24,lower-depth,next+dx*.24,lower-depth,next,lower);
-    px=next;
+   for(let i=0;i<count;i++){
+    const x0=right-corner-i*step,x1=x0-step;
+    c.bezierCurveTo(x0-step*.24,lower-depth,
+     x1+step*.24,lower-depth,x1,lower);
    }
    c.quadraticCurveTo(left,lower,left,lower-corner);
-   py=lower-corner;
-   for(let i=0;i<ny;i++){
-    const next=lower-corner-(i+1)*dy;
-    c.bezierCurveTo(left+sideDepth,py-dy*.24,left+sideDepth,next+dy*.24,left,next);
-    py=next;
-   }
+   c.lineTo(left,upper+corner);
    c.quadraticCurveTo(left,upper,left+corner,upper);
    c.closePath();
    c.fill();
