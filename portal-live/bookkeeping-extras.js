@@ -287,32 +287,38 @@
   const c=canvas.getContext('2d');
   if(!c)throw Error('Gagal menggambar resi JPG.');
   c.fillStyle='#f2ecff';c.fillRect(0,0,W,H);
-  // Tepi struk kertas: hanya atas dan bawah yang berlekuk.
-  // Kiri dan kanan lurus (bukan bingkai bergelombang).
+  // Tepi kertas bergaya tiket: potongan V kecil di atas dan bawah SAJA.
+  // Sisi kiri/kanan lurus, tanpa gelombang berulang atau deretan bulatan.
   {
    const left=34,right=866;
    const upper=top+3,lower=paperBottom-6,corner=11;
    const width=right-left-corner*2;
-   const count=Math.max(1,Math.round(width/32));
-   const step=width/count,depth=15;
+   const count=Math.max(1,Math.round(width/34));
+   const step=width/count,cutDepth=13;
    c.save();
    c.fillStyle='#ffffff';
    c.shadowColor='rgba(44,25,92,.10)';
    c.shadowBlur=13;c.shadowOffsetY=4;
    c.beginPath();
    c.moveTo(left+corner,upper);
+   // Tepi atas: lekukan V menghadap ke bagian dalam kertas.
    for(let i=0;i<count;i++){
     const x0=left+corner+i*step,x1=x0+step;
-    c.bezierCurveTo(x0+step*.24,upper+depth,
-     x1-step*.24,upper+depth,x1,upper);
+    c.lineTo(x0+step*.18,upper);
+    c.lineTo(x0+step*.5,upper+cutDepth);
+    c.lineTo(x0+step*.82,upper);
+    c.lineTo(x1,upper);
    }
    c.quadraticCurveTo(right,upper,right,upper+corner);
    c.lineTo(right,lower-corner);
    c.quadraticCurveTo(right,lower,right-corner,lower);
+   // Tepi bawah: lekukan V yang sama, mengarah ke atas.
    for(let i=0;i<count;i++){
     const x0=right-corner-i*step,x1=x0-step;
-    c.bezierCurveTo(x0-step*.24,lower-depth,
-     x1+step*.24,lower-depth,x1,lower);
+    c.lineTo(x0-step*.18,lower);
+    c.lineTo(x0-step*.5,lower-cutDepth);
+    c.lineTo(x0-step*.82,lower);
+    c.lineTo(x1,lower);
    }
    c.quadraticCurveTo(left,lower,left,lower-corner);
    c.lineTo(left,upper+corner);
