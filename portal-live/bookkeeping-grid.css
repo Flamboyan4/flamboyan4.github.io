@@ -1,6 +1,6 @@
 /* Pembukuan: satu pemilik grid layar untuk seluruh modul. Tidak mengubah cetak. */
 @media screen{
- :root{--book-gap:12px;--book-tight:8px;--book-control:44px}
+ :root{--book-gap:12px;--book-tight:8px;--book-control:44px;--f4-control-height:var(--book-control)}
  /* Edit Riwayat: selalu di atas navbar 200; dialog membatasi tinggi pada viewport. */
  #modal-edit{
   z-index:320;box-sizing:border-box;padding:16px;overscroll-behavior:contain;
@@ -173,10 +173,12 @@
   gap:var(--book-tight);align-items:stretch;min-width:0;width:100%;margin:0
  }
  #tab-riwayat #history-iuran-panel .history-iuran-search :where(input,select,.custom-select-btn){
-  display:block;width:100%;min-width:0;max-width:100%;min-height:var(--book-control);
+  width:100%;min-width:0;max-width:100%;min-height:var(--book-control);
   box-sizing:border-box;margin:0;overflow:hidden;text-overflow:ellipsis
  }
- #tab-riwayat #history-iuran-panel .history-iuran-search .custom-select-wrap{min-width:0;width:100%}
+ /* Preserve the enhanced dropdown's flex layout: the label and SVG chevron stay in one line. */
+ #tab-riwayat #history-iuran-panel .history-iuran-search .custom-select-wrap{min-width:0;width:100%;margin-top:0}
+ #tab-riwayat #history-iuran-panel .history-iuran-search .custom-select-btn{height:var(--book-control);align-items:center}
  #tab-riwayat #history-iuran-panel .history-period-box .upr-range{
   display:grid;grid-template-columns:minmax(0,1fr) 31px minmax(0,1fr);
   width:100%;gap:var(--book-tight);align-items:center;min-width:0
@@ -234,6 +236,9 @@
   grid-column:1/span 4;width:100%;min-width:0;max-width:100%;
   min-height:var(--book-control)
  }
+ #tab-riwayat .f4-book-filter-picker .custom-select-wrap,
+ #tab-laporan .f4-book-filter-picker .custom-select-wrap,
+ #tab-laporan .f4-field-stack .custom-select-wrap{margin-top:0}
  #tab-riwayat .f4-book-filter-picker .custom-select-btn,
  #tab-laporan .f4-book-filter-picker .custom-select-btn{width:100%;min-height:var(--book-control)}
 }
@@ -300,8 +305,8 @@
  #tab-riwayat #history-iuran-panel .history-period-box{grid-template-columns:1fr}
  #tab-riwayat #history-iuran-panel .history-period-box .upr-range{grid-template-columns:minmax(0,1fr) 26px minmax(0,1fr);gap:6px}
  #tab-riwayat #history-iuran-panel .history-iuran-search{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:8px;align-items:center}
- #tab-riwayat #history-iuran-panel .history-iuran-search .field{height:42px;min-height:42px;padding:7px 10px;font-size:14px}
- #tab-riwayat #history-iuran-panel .history-period-box .upr-field{height:42px;min-height:42px;padding:7px 31px 7px 9px;font-size:14px}
+ #tab-riwayat #history-iuran-panel .history-iuran-search .field{height:var(--book-control);min-height:var(--book-control);padding:7px 10px;font-size:14px}
+ #tab-riwayat #history-iuran-panel .history-period-box .upr-field{height:var(--book-control);min-height:var(--book-control);padding:7px 31px 7px 9px;font-size:14px}
  #tab-riwayat #iuran-quick-summary{padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}
  #tab-riwayat #iuran-quick-summary .iuran-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
  #tab-riwayat #iuran-quick-summary .iuran-summary-tile{padding:7px 8px;min-height:52px;border-radius:10px}
