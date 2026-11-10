@@ -63,7 +63,7 @@ const db={prepare(sql){
      })};
    }
    throw Error('Unrecognized SQL '+sql.slice(0,120));
- }}};
+ }};
 }};
 }};
 const url=(from,to,level='month')=>({url:'https://api.test/api/bookkeeping/reports/contributions?'+
