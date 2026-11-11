@@ -1265,7 +1265,7 @@ function addOwnItemRow(){
  weight.setAttribute("aria-label","Berat sampah kilogram");weight.oninput=updateOwnWeight;
  const del=el("button","f4-bank-own-remove");del.type="button";
  del.title="Hapus jenis";del.setAttribute("aria-label","Hapus jenis");
- del.textContent="×";del.onclick=()=>{row.remove();updateOwnWeight();};
+ del.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';del.onclick=()=>{row.remove();updateOwnWeight();};
  row.append(select,weight,del);lines.append(row);
 }
 async function loadOwnCatalog(){
