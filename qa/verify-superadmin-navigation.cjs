@@ -44,7 +44,18 @@ assert(html.includes("main.querySelector('.sa-module-nav')?.remove()"),
 assert(html.includes('window.f4SuperadminSwitchModule=openEditor;'),
  'Retain deep-linking to legacy editors');
 assert(html.includes('Data & Aturan'),'Use user-facing naming');
-assert(html.includes('20261105-superadmin-simple-v1'),'Updated script/style cache keys');
+assert(html.includes('treasury-center.js?v=20261111-svg-controls-v1')&&
+ html.includes('treasury-center.css?v=20261111-svg-controls-v1')&&
+ html.includes('superadmin-editor.js?v=20261111-svg-actions-v1'),
+ 'Superadmin SVG icon assets must be versioned');
+assert(html.includes("standaloneButton.innerHTML='<svg"),'Standalone hamburger must be actual SVG');
+assert(treasury.includes("function tcSvgIcon(name)")&&!treasury.includes('el("button","‹")'),
+ 'Treasury calendar arrows must use real SVG');
+assert(treasuryCSS.includes('background-image:url("data:image/svg+xml,')&&
+ !treasuryCSS.includes('content:"⌄"'),
+ 'Native dropdowns and fund disclosure chevrons must use SVG');
+assert(editor.includes("function btnIcon(text,icon,fn")&&!editor.includes("btn('+ Tambah"),
+ 'Superadmin editor plus and back controls must use SVG icons');
 
 assert.equal((treasury.match(/id:"(?:saldo|transaksi|laporan)",name:/g)||[]).length,3,
  'Finance has exactly 3 main views');
