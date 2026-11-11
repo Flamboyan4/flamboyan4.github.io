@@ -88,17 +88,15 @@ if(!profileCss.includes('#dashboardView #pageProfile .f4-profile-meta:not([hidde
 // Reuse the sidebar's SVG convention; keep the member profile entry visible and functional.
 if(!bank.includes("user:'<circle cx=")||!bank.includes('cy="8" r="4"'))
  throw Error('Shared outline user icon missing from Bank Sampah sidebar');
-if(!bank.includes("back.replaceChildren(v16Icon('user'),document.createTextNode(label))"))
- throw Error('Kartu & Profil entry must show a user icon instead of bare text');
+if(!bank.includes("v16Icon(currentRole==='superadmin'?'back':'user')"))
+ throw Error('Kartu & Profil entry must use role-aware SVG, not bare text');
 if(!bank.includes("currentRole==='warga'?'Kartu & Profil':'Profil pengurus'"))
  throw Error('Kartu & Profil label missing for members');
-if(!app.includes('card.onclick=()=>navigate("profile")'))throw Error('Member card must open profile');
-if(!app.includes('["Pencairan","bank-payout","rp"]'))throw Error('Member payout must use distinct Rp symbol');
-if(!app.includes('if(asset==="rp")')||!app.includes('el("span","f4-bank-currency-mark","Rp")'))
- throw Error('Rp icon must render as text in the member payout dock, not a broken image URL');
-if(app.includes('["Pencairan","bank-payout","pay.svg"]'))
- throw Error('Member payout still shares the savings icon');
-if(!app.includes('["Laporan","bank-report","book.svg"]'))
+if(!app.includes('["Pencairan","bank-payout","pay.svg"]'))
+ throw Error('Member payout must use a dedicated real SVG icon');
+if(app.includes('el("span","f4-bank-currency-mark","Rp")')||
+   app.includes('el("span","f4-bank-member-chevron","›")'))
+ throw Error('Member action icons must not use text currency or arrow glyphs');
  throw Error('Member report must remain accessible in the member dock');
 if(app.includes('const adminDock=')||!app.includes('dock().hidden=!isPrivate||next==="admin"'))
  throw Error('Manager dock reintroduced; manager uses focal Setor/Jual and mobile shortcuts');
