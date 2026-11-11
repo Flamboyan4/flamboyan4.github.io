@@ -853,7 +853,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
  body.v17-dashboard:not(.f4-bank-app-private) #dashboardView>.grid>.section{grid-column:2!important;min-width:0!important}
 }
 </style>
-<link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261103-control-alignment-v2"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+<link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261103-control-alignment-v2"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261103-bank-grid-owner-v5">
 
 <style id="f4-bank-admin-report-compact-20261027">
@@ -1676,7 +1676,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
 }
 </style>
 
-<link rel="stylesheet" href="/portal-live/bank-progress-app.css?v=20261031-chart-grid-v4">
+<link rel="stylesheet" href="/portal-live/bank-progress-app.css?v=20261111-svg-chevron-v1">
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261110-compositor-v11">
 <script defer src="/portal-live/mobile-bottom-sheets.js?v=20261110-compositor-v11"></script>
 </head>
@@ -2210,7 +2210,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
 })();
 </script>
 <script src="/portal-live/live-bank-readonly.js?v=20261109-impact-metrics-v1"></script>
-<script src="/portal-live/bank-progress-app.js?v=20261031-chart-grid-v4"></script>
+<script src="/portal-live/bank-progress-app.js?v=20261111-svg-chevron-v1"></script>
 <script src="/portal-live/f4-bank-write-bridge.js?v=20261103-v3-inventory"></script>
 <script id="f4-bank-split-readonly">
 (()=>{
@@ -2933,7 +2933,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   function v11AttachImage(tile,url){if(!/^https:\/\//i.test(url))return;if(!/\.(png|jpe?g|webp)(\?|$)/i.test(url))return;const pic=document.createElement('img');pic.className='public-image';pic.alt='Foto kegiatan';pic.loading='lazy';pic.src=url;tile.appendChild(pic);}
   async function v11LoadPublic(){const prog=$('v11ProgressCards'),albums=$('v11AlbumCards'),inv=$('v11InventoryCards');prog.textContent='Memuat perkembangan...';try{const [home,items]=await Promise.all([call('bsV11PublicHome'),call('bsV11PublicAlbums')]);$('v11Metrics').replaceChildren(metric('Anggota aktif',home.anggotaAktif),metric('Jenis barang',home.jenisBarang),metric('Berat terkonfirmasi',kg(home.beratTerkonfirmasi)),metric('Perkembangan publik',home.kegiatan));prog.replaceChildren(...home.progres.map(p=>{const c=v11Tile(p.judul||p.langkah,p.deskripsi);const small=document.createElement('small');small.textContent=[p.tanggal,p.status,p.agenda?'Agenda: '+p.agenda:''].filter(Boolean).join(' • ');c.appendChild(small);v11AttachImage(c,p.foto);if(p.foto)c.appendChild(v11External(p.foto,'Lihat foto'));return c}));if(!home.progres.length)prog.textContent='Belum ada pembaruan kegiatan.';v11Albums=items;v11RenderAlbums();inv.replaceChildren(...home.inventaris.map(x=>{const c=v11Tile(x.nama,x.jumlah+' • '+x.kondisi);v11AttachImage(c,x.foto);if(x.foto)c.appendChild(v11External(x.foto,'Lihat foto'));return c}));if(!home.inventaris.length)inv.textContent='Inventaris belum dipublikasikan.';}catch(e){prog.textContent='Informasi belum dapat dimuat: '+(e.message||e);}}
   function v11RenderAlbums(){const area=$('v11AlbumCards');area.replaceChildren(...v11Albums.map(a=>{const tile=v11Tile(a.judul,a.tanggal+' • '+a.deskripsi);v11AttachImage(tile,a.sampul);const btn=document.createElement('button');btn.className='secondary';btn.textContent='Lihat album ('+a.media.length+')';btn.onclick=()=>v11OpenAlbum(a.id);tile.appendChild(btn);return tile}));$('v11MediaDetail').replaceChildren();if(!v11Albums.length)area.textContent='Album dokumentasi belum tersedia.';}
-  function v11OpenAlbum(id){const album=v11Albums.find(a=>a.id===id);if(!album)return;const area=$('v11MediaDetail');const wrap=document.createElement('div');wrap.className='public-section';const toolbar=document.createElement('div');toolbar.className='toolbar';const heading=document.createElement('h2');heading.textContent=album.judul;const back=document.createElement('button');back.className='secondary';back.textContent='← Kembali ke album';back.onclick=()=>v11RenderAlbums();toolbar.append(heading,back);wrap.appendChild(toolbar);const grid=document.createElement('div');grid.className='public-grid';album.media.forEach(m=>{const c=v11Tile(m.caption||m.jenis,m.jenis);v11AttachImage(c,m.url);c.appendChild(v11External(m.url,'Buka '+m.jenis.toLowerCase()));grid.appendChild(c)});wrap.appendChild(grid);if(!album.media.length){const p=document.createElement('p');p.textContent='Album ini belum berisi foto/video.';wrap.appendChild(p);}area.replaceChildren(wrap);area.scrollIntoView({behavior:'smooth',block:'start'});}
+  function v11OpenAlbum(id){const album=v11Albums.find(a=>a.id===id);if(!album)return;const area=$('v11MediaDetail');const wrap=document.createElement('div');wrap.className='public-section';const toolbar=document.createElement('div');toolbar.className='toolbar';const heading=document.createElement('h2');heading.textContent=album.judul;const back=document.createElement('button');back.className='secondary';back.textContent='Kembali ke album';back.insertAdjacentHTML('afterbegin','<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7M5 12h14"/></svg>');back.onclick=()=>v11RenderAlbums();toolbar.append(heading,back);wrap.appendChild(toolbar);const grid=document.createElement('div');grid.className='public-grid';album.media.forEach(m=>{const c=v11Tile(m.caption||m.jenis,m.jenis);v11AttachImage(c,m.url);c.appendChild(v11External(m.url,'Buka '+m.jenis.toLowerCase()));grid.appendChild(c)});wrap.appendChild(grid);if(!album.media.length){const p=document.createElement('p');p.textContent='Album ini belum berisi foto/video.';wrap.appendChild(p);}area.replaceChildren(wrap);area.scrollIntoView({behavior:'smooth',block:'start'});}
   async function v11SaveProgress(e){e.preventDefault();busy(e.target,true);try{const r=await call('bsV11TambahProgress',token,{tanggal:$('v11ProDate').value,judul:$('v11ProTitle').value,langkah:$('v11ProStep').value,deskripsi:$('v11ProDesc').value,status:$('v11ProStatus').value,agenda:$('v11ProAgenda').value,foto:$('v11ProPhoto').value,publik:$('v11ProPublic').checked});note('v11ProNotice','Perkembangan '+r.id+' tersimpan.');e.target.reset();}catch(err){note('v11ProNotice','Gagal: '+(err.message||err),true);}finally{busy(e.target,false);}}
   async function v11LoadAlbums(){try{const rows=await call('bsV22AlbumAdmin',token),select=$('v11MediaAlbum');select.replaceChildren(new Option('Pilih album',''));rows.filter(a=>a.status==='Aktif').forEach(a=>select.appendChild(new Option(a.judul+' ('+a.id+') • '+a.visibilitas,a.id)));$('v11AlbumDate').value=$('v11AlbumDate').value||new Date().toISOString().slice(0,10);v22RenderAlbumAdmin(rows);}catch(e){note('v11AlbumNotice','Gagal memuat album: '+(e.message||e),true);}}
   async function v11SaveAlbum(e){e.preventDefault();busy(e.target,true);try{const r=await call('bsV22TambahAlbum',token,{tanggal:$('v11AlbumDate').value,judul:$('v11AlbumTitle').value,deskripsi:$('v11AlbumDesc').value,sampul:$('v11AlbumCover').value,kategori:$('v22AlbumCategory').value,publik:$('v11AlbumPublic').checked});let mediaError='';
@@ -3254,7 +3254,8 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   function v13PublicButton(){
     const b=document.querySelector('#v11Public .public-hero button');if(!b)return;
     const logged=!!(profile&&token);
-    b.textContent=logged?'← Kembali ke dashboard saya':'Masuk akun warga / admin';
+    b.textContent=logged?'Kembali ke dashboard saya':'Masuk akun warga / admin';
+    if(logged)b.insertAdjacentHTML('afterbegin','<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7M5 12h14"/></svg>');
     b.onclick=()=>{if(logged)showDashboard(profile);else v11ShowLogin();};
   }
   // Catatan: tabel & ringkasan diambil dari backend lama; yang berubah hanya presentasi.
@@ -3818,7 +3819,8 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   function v15UpdatePublicButton(){
     const b=document.querySelector('#v11Public .public-hero button');if(!b)return;
     const valid=!!(token&&profile);
-    b.textContent=valid?'← Kembali ke akun saya':'Masuk akun warga / admin';
+    b.textContent=valid?'Kembali ke akun saya':'Masuk akun warga / admin';
+    if(valid)b.insertAdjacentHTML('afterbegin','<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7M5 12h14"/></svg>');
     b.onclick=()=>{if(token&&profile)showDashboard(profile);else v11ShowLogin();};
   }
   v15UpdatePublicButton();
@@ -5187,7 +5189,8 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     const auth=$('authView');auth?.classList.add('v26-simple-login');
     const legacyReturn=[...auth.querySelectorAll('button')].find(b=>b.textContent.trim()==='Lihat portal publik');
     legacyReturn?.remove();
-    const back=v21Node('button','v26-return-public','← Kembali ke portal publik');back.type='button';
+    const back=v21Node('button','v26-return-public','Kembali ke portal publik');back.type='button';
+    back.insertAdjacentHTML('afterbegin','<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7M5 12h14"/></svg>');
     back.onclick=()=>{note('authNotice','');v11ShowPublic();window.scrollTo({top:0,behavior:'instant'});};
     auth.insertBefore(back,auth.firstChild);
     const brand=document.querySelector('.shell > .top .brand');
@@ -5940,6 +5943,13 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
 .f4-warga-picker-row .f4-warga-home{text-align:right;font-weight:700;white-space:nowrap}
 @media(max-width:720px){.f4-warga-picker-pop{position:fixed;left:10px;right:10px;top:20dvh;width:auto;max-height:62dvh;z-index:25000;box-shadow:0 0 0 100vmax #10291c80,0 14px 38px #152d2740}}
 
+
+/* True SVG back icons, not decorative arrow characters. */
+#v11Public .public-hero button:has(svg),.v26-return-public:has(svg),
+.public-section .toolbar button:has(svg){display:inline-flex;align-items:center;justify-content:center;gap:7px}
+#v11Public .public-hero button svg,.v26-return-public svg,
+.public-section .toolbar button svg{display:block;width:18px;height:18px;flex:none;stroke-width:2}
+
 /* Consistent SVG dropdown arrows for all native Bank Sampah selects and icon buttons. */
 body:has(#dashboardView) select:not([multiple]):not([size]){
  -webkit-appearance:none;appearance:none;
@@ -6028,8 +6038,8 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 <script defer src="/portal-live/transaction-receipts.js?v=20261110-iuran-ticket-unified-v2"></script>
 <script src="/portal-live/bank-sale-sheet.js?v=20261109-mobile-confirm-v2"></script><script src="/portal-live/bank-sale-report.js?v=20261103-internal-v1"></script><script src="/portal-live/bank-member-prices.js?v=20261104-member-price-focus"></script>
 <script src="/portal-live/calendar-unified.js?v=20261105-sunday-first"></script>
-<script src="/portal-live/direct-shell.js?v=20261110-svg-session-close-v2"></script><script src="/portal-live/unified-account.js?v=bank-member-profile-redirect-20261031"></script><script defer src="/portal-live/mobile-cards.js?v=20261031-detail-eye-icon-v2"></script><script defer src="/portal-live/native-controls.js?v=20261110-svg-picker-controls-v3"></script><script defer src="/portal-live/bank-page-history.js?v=20261027-final4"></script>
-<script defer src="/portal-live/bank-policy-admin.js?v=20261104-schedule-editor-v3"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261109-icon-buttons-v2"></script>
+<script src="/portal-live/direct-shell.js?v=20261110-svg-session-close-v2"></script><script src="/portal-live/unified-account.js?v=20261111-svg-return-v1"></script><script defer src="/portal-live/mobile-cards.js?v=20261031-detail-eye-icon-v2"></script><script defer src="/portal-live/native-controls.js?v=20261110-svg-picker-controls-v3"></script><script defer src="/portal-live/bank-page-history.js?v=20261027-final4"></script>
+<script defer src="/portal-live/bank-policy-admin.js?v=20261104-schedule-editor-v3"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261111-svg-icons-v1"></script>
 <link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261109-public-finance-v1">
 <script defer src="/portal-live/bank-impact-summary.js?v=20261109-public-finance-v1"></script>
 <link rel="stylesheet" href="/portal-live/work-notifications.css?v=20261109-all-portals-sheet-v5">
