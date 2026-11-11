@@ -44,7 +44,7 @@
     .side button.active{box-shadow:0 5px 12px #2e624723}
     .nav-group{margin:5px 0;border:1px solid var(--line);border-radius:12px;background:#f8faf7;overflow:hidden}
     .nav-group>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;padding:11px 12px;font-weight:800;color:var(--forest)}
-    .nav-group>summary::-webkit-details-marker{display:none}.nav-group>summary:after{content:'⌄';font-size:17px;line-height:1;transition:transform .15s}
+    .nav-group>summary::-webkit-details-marker{display:none}.nav-group>summary:after{content:'';display:inline-block;flex:none;width:18px;height:18px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232b6947' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center/contain no-repeat;transition:transform .15s}
     .nav-group[open]>summary:after{transform:rotate(180deg)}.nav-group[open]>summary{background:#e8f0e6}.nav-group-items{padding:4px 7px 7px}
     .nav-group button{font-weight:550;background:transparent!important;color:var(--forest)!important}
     .nav-group button.active{background:var(--forest)!important;color:#fff!important}
@@ -264,7 +264,8 @@
     #sideNav #v16Navigation,#sideNav #v16NavList{display:flex;flex-direction:column;gap:4px}
     #dashboardView .mobile-nav{justify-content:flex-start;gap:12px}
     #v18MobileTitle{font-size:14px;color:#28563c;font-weight:800}
-    .v18-hamburger{display:grid;place-items:center;width:43px;height:43px;padding:0;flex:none;border:1px solid #d8e6da;border-radius:10px;background:#eaf2e8;color:#285b40;font-size:23px;line-height:1}
+    .v18-hamburger{display:grid;place-items:center;width:43px;height:43px;padding:0;flex:none;border:1px solid #d8e6da;border-radius:10px;background:#eaf2e8;color:#285b40}
+.v18-hamburger svg{display:block;width:21px;height:21px;stroke-width:2}
     #v11Public.v18-public-shell{width:100%;max-width:none;margin:0;padding:0;display:grid;grid-template-columns:244px minmax(0,1fr);align-items:start}
     #v18PublicSide{position:sticky;top:0;height:100dvh;background:white;border-right:1px solid #e1e9de;padding:17px 12px;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
     #v18PublicSide .v17-public-logo{min-width:0;margin-bottom:17px;padding:8px 8px 17px;border-bottom:1px solid #e1e9de}
@@ -2302,7 +2303,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const weight=document.createElement('input');weight.type='number';weight.min='0.001';weight.step='0.001';weight.max='10000';
     weight.placeholder='Berat (kg)';weight.setAttribute('aria-label','Berat sampah (kg)');
     const remove=document.createElement('button');remove.type='button';remove.className='f4-compact-remove';
-    remove.textContent='×';remove.title='Hapus jenis';remove.setAttribute('aria-label','Hapus jenis sampah');
+    remove.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';remove.title='Hapus jenis';remove.setAttribute('aria-label','Hapus jenis sampah');
     type.onchange=()=>{weight.value='';weight.setAttribute('aria-label','Berat '+(setCatalog.find(x=>x.kode===type.value)?.nama||'sampah')+' (kg)');previewSetoran()};
     weight.oninput=previewSetoran;
     remove.onclick=()=>{row.remove();if(!container.children.length)addSetoranItemRow();previewSetoran()};
@@ -2337,7 +2338,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const price=document.createElement('input');price.type='number';price.min='1';price.step='1';
     price.placeholder='Harga/kg';price.setAttribute('aria-label','Harga lapak per kilogram');
     const remove=document.createElement('button');remove.type='button';remove.className='f4-compact-remove';
-    remove.textContent='×';remove.title='Hapus jenis';remove.setAttribute('aria-label','Hapus jenis sampah');
+    remove.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';remove.title='Hapus jenis';remove.setAttribute('aria-label','Hapus jenis sampah');
     type.onchange=()=>{const item=saleCatalog.find(x=>x.kode===type.value);price.value='';updateSaleTotals()};
     weight.oninput=updateSaleTotals;price.oninput=updateSaleTotals;
     remove.onclick=()=>{row.remove();if(!container.children.length)addSaleItemRow();updateSaleTotals()};
@@ -4326,7 +4327,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     if(!button){
       mobile.replaceChildren();
       button=document.createElement('button');button.id='v18PrivateMenuButton';button.type='button';
-      button.className='v18-hamburger';button.textContent='☰';button.title='Buka menu';
+      button.className='v18-hamburger';button.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';button.title='Buka menu';
       button.setAttribute('aria-label','Buka menu samping');button.onclick=toggleMenu;
       const text=document.createElement('span');text.id='v18MobileTitle';text.textContent='Bank Sampah Flamboyan 4';
       mobile.append(button,text);
@@ -4388,7 +4389,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     });
     const content=document.createElement('div');content.id='v18PublicContent';
     pub.insertBefore(side,head);pub.insertBefore(content,head);content.append(head,main);
-    const burger=document.createElement('button');burger.id='v18PublicMenuButton';burger.type='button';burger.className='v18-hamburger';burger.textContent='☰';
+    const burger=document.createElement('button');burger.id='v18PublicMenuButton';burger.type='button';burger.className='v18-hamburger';burger.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
     burger.setAttribute('aria-label','Buka menu publik');burger.title='Buka menu samping';burger.onclick=v18TogglePublic;
     const title=document.createElement('strong');title.id='v18PublicHeading';title.textContent='Bank Sampah Flamboyan 4';
     head.prepend(title);head.prepend(burger);
@@ -4426,7 +4427,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     content.querySelector('.v17-public-head')?.remove();
     if(!$('v19PublicFloatingMenu')){
       const button=document.createElement('button');button.id='v19PublicFloatingMenu';button.type='button';
-      button.className='v18-hamburger';button.textContent='☰';
+      button.className='v18-hamburger';button.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
       button.title='Buka menu samping';button.setAttribute('aria-label','Buka menu samping');
       button.onclick=v18TogglePublic;content.prepend(button);
     }
@@ -5927,7 +5928,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
 .f4-warga-picker{position:relative;width:100%;min-width:0}
 .f4-warga-picker>select{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;left:4px;bottom:0}
 .f4-warga-picker-open{box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;height:42px;min-height:42px;max-height:42px;padding:0 13px!important;background:#fff!important;border:1px solid #cbdccc!important;border-radius:10px!important;color:#294b36!important;font:inherit;text-align:left;cursor:pointer}
-.f4-warga-picker-open span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.f4-warga-picker-open:after{content:'⌄';font-size:18px}
+.f4-warga-picker-open span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.f4-warga-picker-open:after{content:'';display:inline-block;flex:none;width:18px;height:18px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232b6947' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center/contain no-repeat}
 .f4-warga-picker-pop{position:absolute;z-index:350;top:calc(100% + 5px);left:0;width:100%;background:white;border:1px solid #cbdccc;border-radius:12px;box-shadow:0 13px 35px #192f252b;padding:9px;max-height:min(390px,65dvh);display:flex;flex-direction:column}
 .f4-warga-picker-pop[hidden]{display:none!important}
 .f4-warga-picker-pop input{width:100%;min-height:43px;flex:none;margin:0 0 7px!important;border:1px solid #bbd4c3;border-radius:8px;padding:9px!important;font:inherit}
@@ -5938,6 +5939,15 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
 .f4-warga-picker-row:hover,.f4-warga-picker-row:focus-visible{background:#eef7f0!important}
 .f4-warga-picker-row .f4-warga-home{text-align:right;font-weight:700;white-space:nowrap}
 @media(max-width:720px){.f4-warga-picker-pop{position:fixed;left:10px;right:10px;top:20dvh;width:auto;max-height:62dvh;z-index:25000;box-shadow:0 0 0 100vmax #10291c80,0 14px 38px #152d2740}}
+
+/* Consistent SVG dropdown arrows for all native Bank Sampah selects and icon buttons. */
+body:has(#dashboardView) select:not([multiple]):not([size]){
+ -webkit-appearance:none;appearance:none;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232b6947' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+ background-repeat:no-repeat;background-position:right 11px center;background-size:17px 17px;
+ padding-right:36px;
+}
+.f4-compact-remove svg{display:block;width:18px;height:18px;pointer-events:none}
 </style>
 <script id="f4-bank-member-search">
 (()=>{
