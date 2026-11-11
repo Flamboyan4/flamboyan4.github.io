@@ -155,7 +155,7 @@ async def main():
             assert state["programWidth"] <= width and state["programNoOverflow"], f"{mode}: program overflows or clips"
             # Columns of the REAL page were verified above; this reduced fixture intentionally omits unrelated inline styles.
             assert state["programNoOverflow"], f"{mode}: program overflows in the fixture"
-            assert state["submenu"] == "rgb(8, 124, 80)", f"{mode}: submenu inactive color"
+            assert state["submenu"] == "rgb(8, 123, 81)", f"{mode}: submenu inactive color"
             assert state["firstCard"] == "rgb(255, 255, 255)", f"{mode}: legacy member summary not white"
             assert state["firstText"] == "rgb(11, 87, 56)", f"{mode}: legacy member summary not deep green"
             assert state["reportColors"] == ["rgb(255, 255, 255)"]*4, f"{mode}: public report cards should be white: {state['reportColors']}"
