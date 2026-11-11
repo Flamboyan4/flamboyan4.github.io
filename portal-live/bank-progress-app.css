@@ -69,7 +69,8 @@
 .f4-activity-status{font-size:10px;font-weight:750;padding:5px 8px;border-radius:100px;background:#e7f6ec;color:#19704b;white-space:nowrap}
 .f4-activity-step.is-active .f4-activity-status{background:#fff1d7;color:#95601c}
 .f4-activity-step.is-planned .f4-activity-status{background:#eff2f7;color:#677c90}
-.f4-activity-chevron{color:#618371;font-size:22px;line-height:.6;transition:transform .15s}
+.f4-activity-chevron{display:inline-flex;align-items:center;justify-content:center;color:#618371;transition:transform .15s}
+.f4-activity-chevron svg{display:block;width:18px;height:18px;stroke-width:2}
 .f4-activity-step[open] .f4-activity-chevron{transform:rotate(180deg)}
 .f4-activity-step-body{padding:0 14px 14px 58px;color:#4a6355;font-size:12px;line-height:1.55}
 .f4-activity-step-body p{margin:9px 0 0}
