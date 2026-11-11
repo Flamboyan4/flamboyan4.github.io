@@ -393,6 +393,10 @@ async def member_profile_inline_name(browser):
     start=source.index('function inlineMemberDisplayName(){')
     end=source.index('function updateProfileCard(){',start)
     script=source[start:end]
+    icon_start=source.index("function bankUiSvg(name){")
+    icon_end=source.index("function bankIconSpan(",icon_start)
+    assert icon_start>=0 and icon_end>icon_start,"Canonical SVG helper is required"
+    icon_helper=source[icon_start:icon_end]
     page=await browser.new_page(viewport={"width":390,"height":820})
     markup="""<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
     <base href="http://127.0.0.1:8765/">
@@ -414,7 +418,8 @@ async def member_profile_inline_name(browser):
     };
     window.__updatedName=null;
     window.addEventListener('f4-account-profile-updated',e=>{window.__updatedName=e.detail.nama});"""
-    await page.add_script_tag(content=helpers+script+"inlineMemberDisplayName();inlineMemberDisplayName();")
+    await page.add_script_tag(content=helpers+icon_helper+script+"inlineMemberDisplayName();inlineMemberDisplayName();")
+    assert await page.locator(".f4-member-name-save svg, .f4-member-name-cancel svg").count()==2
     assert await page.locator('.f4-member-name-edit').count()==1
     assert await page.locator('.f4-member-name-row').count()==1
     await page.locator('.f4-member-name-edit').click()
