@@ -97,6 +97,7 @@ if(!app.includes('["Pencairan","bank-payout","pay.svg"]'))
 if(app.includes('el("span","f4-bank-currency-mark","Rp")')||
    app.includes('el("span","f4-bank-member-chevron","›")'))
  throw Error('Member action icons must not use text currency or arrow glyphs');
+if(!app.includes('["Laporan","bank-report","book.svg"]'))
  throw Error('Member report must remain accessible in the member dock');
 if(app.includes('const adminDock=')||!app.includes('dock().hidden=!isPrivate||next==="admin"'))
  throw Error('Manager dock reintroduced; manager uses focal Setor/Jual and mobile shortcuts');
