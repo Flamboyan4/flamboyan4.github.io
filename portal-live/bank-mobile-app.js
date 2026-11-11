@@ -427,7 +427,12 @@ function showHistory(){
  for(const line of rows.filter(x=>historyMonth==="all"||x.month===historyMonth)){
   const deposit=line.kind==="deposit",out=line.debit>0,amount=out?line.debit:line.credit;
   const item=el("article","f4-bank-history-line");
-  item.append(el("span","f4-bank-history-icon "+(deposit?"is-deposit":out?"is-out":"is-in"),deposit?"♻":out?"↑":"↓"));
+  const badge=el("span","f4-bank-history-icon "+(deposit?"is-deposit":out?"is-out":"is-in"));
+  badge.setAttribute("aria-hidden","true");
+  badge.innerHTML=deposit?'<img src="/assets/icons/bank.svg" alt="">':
+   out?'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m-7 7 7-7 7 7"/></svg>':
+   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m7-7-7 7-7-7"/></svg>';
+  item.append(badge);
   const desc=el("span","f4-bank-history-copy");desc.append(el("strong","",line.type),el("small","",line.date));
   const total=el("span","f4-bank-history-amount "+(deposit?"is-deposit":out?"is-out":"is-in"));
   total.append(el("strong","",deposit?line.amountText:(out?"− ":"+ ")+rupiah(amount)),
