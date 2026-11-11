@@ -19,19 +19,19 @@ for(const phrase of ['#v18PublicSide',
  '#pageSetoran','#pagePenjualan','#pageRekonsiliasi','#pagePengesahan','#pageTabungan',
  '#pageBiaya','#pageDokumentasi','#pageInventaris','#pageMaster','#pageAdmin',
  '.f4-member-progress-modal-panel','width:min(226px,75vw)',
- 'max-width:1023px','max-width:760px','--eco-leaf:#087c50',
- 'background:#086345!important','background:var(--eco-gold)!important']){
+ 'max-width:1023px','max-width:760px','--eco-leaf:#087b51',
+ 'background:#086345;border:1px solid #054d35','background:var(--eco-gold);color:#fff']){
  assert(css.includes(phrase),'Missing themed component '+phrase);
 }
 assert(!css.includes('#a0dcb3'),'Old mint gradient present');
 assert(css.includes('--eco-gold:#ffc026'),'Current golden yellow theme token missing');
-assert(css.includes('background:#086345!important;border:1px solid #054d35!important'),'Deep green public hero missing');
+assert(css.includes('background:#086345;border:1px solid #054d35'),'Deep green public hero missing');
 assert(h.includes('<section id="v17Program" class="f4-bank-program"'), 'Program must be a separate semantic section');
 assert(h.includes('#v17Program .f4-bank-program-step{'), 'Canonical unboxed program steps missing');
 assert(!h.includes('v27-banner-program'), 'Obsolete program banner layout must be removed');
 assert(!h.includes('v27CompactProgram'), 'Obsolete program DOM reparenting must be removed');
 assert(h.includes('border:0}').valueOf() || h.includes('background:transparent;border:0'), 'Public program must not use cards');
-assert(css.includes('color:#fff!important;\n border:1px solid #E6A125!important'),'White text on bright gold missing');
+assert(css.includes('background:var(--eco-gold);color:#fff;\n border:1px solid #E6A125'),'White text on bright gold missing');
 assert(h.includes('#f4-public-my-savings{display:inline-flex') &&
        h.includes('@media(max-width:700px){#f4-public-my-savings{width:100%;max-width:none;min-height:44px') &&
        h.includes("getElementById('f4-public-my-savings')"),
@@ -100,7 +100,7 @@ assert(h.includes("const v16AdminSidebar=new Set(['home','deposit','sale']);") &
        mobile.includes('function ensureDesktopAdminSidebar()') &&
        mobile.includes('anchor.after(items);') &&
        css.includes('>.v16-item:is([data-group="deposit"],[data-group="sale"]){') &&
-       css.includes('#f4BankAdminShortcuts{\n  display:none'),
+       css.includes('#f4BankAppHome[data-bank-role="admin"]>#f4BankAdminShortcuts{\n   display:none'),
  'Desktop manager sidebar must own quick routes, excluding Setoran and Penjualan');
 assert(!css.includes('v16-mobile-extra')&&!h.includes('v16-mobile-extra'),
  'Duplicated tab submenus must not return to the admin sidebar');
@@ -131,7 +131,7 @@ assert(!h.includes("data.catatan+' Data pribadi warga tidak ditampilkan.'"),
 for(const label of ['Anggota aktif','Jenis barang','Berat terkonfirmasi','Kegiatan terpublikasi']){
  assert(h.includes("v17PublicStat('"+label+"'"),'Public safe metric missing: '+label);
 }
-assert(h.includes('🔒 Saldo dan riwayat pribadi tersedia setelah login.'),
+assert(h.includes('<svg xmlns="http://www.w3.org/2000/svg"') && h.includes('Saldo dan riwayat pribadi tersedia setelah login.'),
  'Guest message must explain private financial records');
 assert(h.includes("const print=v21Node('button','secondary','PDF')"),'PDF button label not compact');
 assert(h.includes("const csv=v21Node('button','secondary','CSV')"),'CSV button label not compact');
@@ -168,7 +168,7 @@ assert(h.includes("if(/admin/i.test(String(profile?.peran||''))){") &&
  'Manager routes must not duplicate direct sidebar entries as category tabs');
 assert(!h.includes('Album foto dan video kegiatan Bank Sampah Flamboyan 4'),
  'Redundant documentation subtitle returned');
-assert(css.includes('.f4-compact-sale-row>input{grid-column:span 2}') &&
+assert(css.includes('.f4-compact-sale-row>input{grid-column:span 3}') &&
        css.includes('.f4-compact-sale-row>.f4-compact-entry-group{grid-column:span 4}'),
  'Sale price input must be allocated more width than the weight input');
 
@@ -197,15 +197,14 @@ assert(!modernCss.includes('#setoranForm')&&!modernCss.includes('#saleForm'),
 assert(h.includes("amountGroup.append(weight,remove)") &&
        h.includes("priceGroup.append(price,remove)"),
  'Deposit/sale row delete action must share its grid cell with the amount input');
-assert(css.includes('.f4-compact-row>select{grid-column:span 6}') &&
-       css.includes('.f4-compact-sale-row>input{grid-column:span 2}') &&
+assert(css.includes('.f4-compact-sale-row>select{grid-column:span 5}') &&
+       css.includes('.f4-compact-sale-row>input{grid-column:span 3}') &&
        css.includes('.f4-compact-sale-row>.f4-compact-entry-group{grid-column:span 4}'),
- 'Sale goods grid must use 6-2-4 tracks so price is wider than weight');
+ 'Sale goods grid must use 5-3-4 tracks so price is wider than weight');
 assert(css.includes('max-height:var(--bank-input-h);padding-block:0;align-self:start'),
  'Setoran and Penjualan native inputs must have a fixed, equal control height');
-assert(css.includes('align-content:start;gap:4px;min-width:0;margin:0') &&
-       css.includes('align-content:start;gap:6px;min-width:0;margin:0') &&
-       css.includes('#saleForm .f4-sale-top-fields{\n gap:8px'),
+assert(css.includes('align-content:start;gap:6px;min-width:0;margin:0') &&
+       css.includes('body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields{\n column-gap:16px;row-gap:var(--bank-form-gap)'),
  'Sale field spacing must not inherit legacy bottom margins');
 assert(css.includes('#saleForm .f4-sale-note-fields>.field>label{') &&
        css.includes('#saleForm .f4-sale-note-fields>.field>input{'),
