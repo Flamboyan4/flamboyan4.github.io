@@ -10,7 +10,7 @@ const src=(start,end)=>{const a=html.indexOf(start),b=html.indexOf(end,a);
  assert(a>=0&&b>a,'Missing code: '+start);return html.slice(a,b)};
 const tags=[...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).filter(Boolean);
 for(const code of tags)new vm.Script(code);
-assert(/bookkeeping-simple\\.css\\?v=[^"']+/.test(html),
+assert(html.includes('bookkeeping-simple.css?v='),
  'Bookkeeping simple stylesheet must be versioned, without pinning an obsolete build key');
 assert(css.includes('main > section.f4-book-workspace{'),
  'Every Pembukuan view must share the outer frame style');
