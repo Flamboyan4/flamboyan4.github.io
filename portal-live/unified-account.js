@@ -49,7 +49,9 @@ function navigation(){
  for(const [key,label] of [['identitas','Identitas Saya'],['foto','Foto Profil'],['password','Ganti Password'],['rights','Hak Akses Saya']]){
   const b=btn(label,()=>show(key),'ua-menu'+(tab===key?' active':''));aside.append(b);
  }
- aside.append(btn('← Kembali ke Portal',close,'ua-menu ua-return'));
+ const back=btn('Kembali ke Portal',close,'ua-menu ua-return');
+ back.insertAdjacentHTML('afterbegin','<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7M5 12h14"/></svg>');
+ aside.append(back);
 }
 function show(next){
  tab=next;navigation();setAccountMenu(false);
