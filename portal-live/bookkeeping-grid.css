@@ -319,3 +319,41 @@
  #tab-riwayat .f4-book-filter-picker :is(select,.custom-select-wrap),
  #tab-laporan .f4-book-filter-picker :is(select,.custom-select-wrap){grid-column:1/-1}
 }
+
+
+/* Laporan & Rekap: jenis laporan, periode, dan aksi dalam satu toolbar. */
+#tab-laporan .f4-report-toolbar{
+ display:grid;grid-template-columns:minmax(145px,170px) minmax(0,1fr) auto;
+ align-items:end;column-gap:10px;row-gap:10px;width:100%
+}
+#tab-laporan .f4-report-toolbar>.f4-book-filter-picker{
+ display:flex;flex-direction:column;gap:6px;min-width:0;width:100%
+}
+#tab-laporan .f4-report-toolbar>.f4-book-filter-picker>label{
+ display:block;margin:0;line-height:16px
+}
+#tab-laporan .f4-report-toolbar>.f4-book-filter-picker>select{
+ display:block;width:100%;min-width:0;margin:0;min-height:48px
+}
+#tab-laporan .f4-report-toolbar-period{min-width:0;width:100%;align-self:end}
+#tab-laporan .f4-report-toolbar-period>div:not(.hidden){margin:0}
+#tab-laporan .f4-report-toolbar-actions{
+ display:flex;align-items:center;gap:8px;white-space:nowrap
+}
+#tab-laporan .f4-report-toolbar-actions button{
+ display:inline-flex;align-items:center;justify-content:center;gap:6px;
+ min-height:48px;width:auto;padding:10px 13px;line-height:1.25
+}
+#tab-laporan .f4-report-toolbar-actions button:first-child{min-width:122px}
+#tab-laporan .f4-report-toolbar-actions button:last-child{min-width:88px}
+@media screen and (min-width:768px) and (max-width:1199px){
+ #tab-laporan .f4-report-toolbar{grid-template-columns:minmax(145px,170px) minmax(0,1fr)}
+ #tab-laporan .f4-report-toolbar-actions{grid-column:2;justify-self:start}
+}
+@media screen and (max-width:767px){
+ #tab-laporan .f4-report-toolbar{grid-template-columns:minmax(0,1fr);row-gap:10px}
+ #tab-laporan .f4-report-toolbar-actions{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%
+ }
+ #tab-laporan .f4-report-toolbar-actions button{width:100%;min-width:0}
+}
