@@ -1802,7 +1802,7 @@ main > section.card{overflow:visible!important}
 </style>
 
 <link rel="stylesheet" href="/portal-live/bookkeeping-simple.css?v=20261110-svg-chevron-v2">
-<link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261110-framed-mobile-v4">
+<link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261111-compact-report-toolbar-v1">
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261110-compositor-v11">
 <link rel="stylesheet" href="/portal-live/bookkeeping-extras.css?v=20261110-svg-actions-v3">
 <script defer src="/portal-live/mobile-bottom-sheets.js?v=20261110-compositor-v11"></script>
@@ -2166,7 +2166,7 @@ main > section.card{overflow:visible!important}
     <div id="tab-laporan" class="tab-panel hidden p-4 sm:p-5">
       <div class="max-w-6xl mx-auto">
         <div class="no-print mb-5">
-          <div class="space-y-4">
+          <div class="f4-report-toolbar">
             <div class="f4-book-filter-picker">
               <label for="f4-report-type">Jenis Laporan</label>
               <select id="f4-report-type" class="field" onchange="setModeLaporan(this.value)">
@@ -2188,9 +2188,7 @@ main > section.card{overflow:visible!important}
               <button id="report-mode-pinjaman" onclick="setModeLaporan('pinjaman')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Pinjaman</button>
               <button id="report-mode-tahunan" onclick="setModeLaporan('tahunan')" class="report-mode-btn px-4 py-2 rounded-xl border border-violet-100 bg-white text-slate-600 text-sm font-black whitespace-nowrap">Tutup Buku & Arsip</button>
             </div></div>
-            <div><p class="text-sm text-slate-500">Pilih jenis laporan dan periode untuk melihat rekap.</p></div>
-          </div>
-          <div class="mt-4 space-y-3">
+            <div class="f4-report-toolbar-period">
             <div id="report-kas-filter" class="space-y-3">
               <div class="grid sm:grid-cols-[220px_1fr] gap-3">
                 <div class="f4-field-stack"><label class="text-xs font-bold text-slate-500">Jenis Periode</label><select id="report-kas-jenis" class="field" onchange="updateKasPeriodControls()"><option value="bulan">1 Bulan</option><option value="rentang_bulan">Rentang Bulan</option><option value="tahun">1 Tahun</option><option value="rentang_tahun">Rentang Tahun</option></select></div>
@@ -2212,7 +2210,8 @@ main > section.card{overflow:visible!important}
     <button id="btn-year-archive" type="button" onclick="openYearArchive()" class="hidden year-archive-btn"><i data-lucide="archive" class="w-4 h-4"></i> Arsip</button>
   </div>
 </div>
-            <div class="grid sm:grid-cols-2 gap-3 max-w-xl"><button onclick="loadLaporan()" class="rounded-xl bg-violet-600 text-white font-black px-5 py-3">Muat Laporan</button><button onclick="printLaporan()" class="rounded-xl border border-violet-200 text-violet-700 font-black px-5 py-3"><span class="inline-flex items-center gap-2"><i data-lucide="printer" class="w-4 h-4"></i>Print</span></button></div>
+            </div>
+            <div class="f4-report-toolbar-actions"><button type="button" onclick="loadLaporan()" class="rounded-xl bg-violet-600 text-white font-black px-4 py-3">Muat Laporan</button><button type="button" onclick="printLaporan()" class="rounded-xl border border-violet-200 text-violet-700 font-black px-4 py-3"><span class="inline-flex items-center gap-2"><i data-lucide="printer" class="w-4 h-4"></i>Print</span></button></div>
           </div>
           <div id="report-status" class="hidden mt-3 rounded-xl border px-4 py-3 text-sm"></div>
         </div>
