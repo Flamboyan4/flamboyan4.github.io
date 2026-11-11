@@ -83,7 +83,8 @@
 .f4-activity-dialog-panel{display:flex;flex-direction:column;width:min(100%,570px);max-height:90dvh;overflow:hidden;border-radius:20px;background:white;box-shadow:0 18px 48px rgba(0,0,0,.19)}
 .f4-activity-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;border-bottom:1px solid #e1eae2}
 .f4-activity-dialog-head h2{font-size:17px;margin:0;color:#1d4a32}
-.f4-activity-dialog-close{display:grid;place-items:center;flex:none;width:35px;height:35px;border-radius:9px;border:1px solid #d9e9de;background:white;color:#205b3e;font-size:25px;cursor:pointer}
+.f4-activity-dialog-close{display:grid;place-items:center;flex:none;width:35px;height:35px;border-radius:9px;border:1px solid #d9e9de;background:white;color:#205b3e;cursor:pointer}
+.f4-activity-dialog-close svg{display:block;width:18px;height:18px}
 .f4-activity-dialog-scroll{overflow-y:auto;overscroll-behavior:contain;padding:15px;scrollbar-width:thin}
 @media(max-width:600px){
  .f4-activity-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
