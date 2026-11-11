@@ -100,7 +100,7 @@ assert(h.includes("const v16AdminSidebar=new Set(['home','deposit','sale']);") &
        mobile.includes('function ensureDesktopAdminSidebar()') &&
        mobile.includes('anchor.after(items);') &&
        css.includes('>.v16-item:is([data-group="deposit"],[data-group="sale"]){') &&
-       css.includes('#f4BankAppHome[data-bank-role="admin"]>#f4BankAdminShortcuts{\n   display:none'),
+       css.includes('#f4BankAppHome[data-bank-role="admin"]>#f4BankAdminShortcuts{\n  display:none'),
  'Desktop manager sidebar must own quick routes, excluding Setoran and Penjualan');
 assert(!css.includes('v16-mobile-extra')&&!h.includes('v16-mobile-extra'),
  'Duplicated tab submenus must not return to the admin sidebar');
