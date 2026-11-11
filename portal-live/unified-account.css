@@ -12,7 +12,8 @@ body.superadmin-mode #f4-unified-account{background:#eff5f8;--ua-accent:#2d6593;
 #f4-unified-account button{cursor:pointer}
 #f4-unified-account .ua-menu{background:transparent;border:0;color:var(--ua-ink);text-align:left;border-radius:9px;padding:11px 12px;font-size:13px;font-weight:700}
 #f4-unified-account .ua-menu.active,#f4-unified-account .ua-menu:hover{background:var(--ua-tint);color:var(--ua-accent)}
-#f4-unified-account .ua-return{margin-top:12px;border-top:1px solid var(--ua-edge)}
+#f4-unified-account .ua-return{margin-top:12px;border-top:1px solid var(--ua-edge);display:inline-flex;align-items:center;gap:8px}
+#f4-unified-account .ua-return svg{width:17px;height:17px;flex:none;display:block}
 #f4-unified-account .ua-content{padding:94px 26px 35px;min-width:0;overflow-y:auto;max-height:100dvh;overscroll-behavior-y:contain}
 #f4-unified-account .ua-heading{border-bottom:1px solid var(--ua-edge);padding-bottom:14px;margin-bottom:17px}
 #f4-unified-account h1{font-size:23px;margin:0;font-weight:850;color:var(--ua-ink)}#f4-unified-account .ua-heading p{color:var(--ua-muted);font-size:12px;margin:5px 0}
