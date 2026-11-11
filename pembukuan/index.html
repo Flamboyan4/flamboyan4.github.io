@@ -1801,7 +1801,7 @@ main > section.card{overflow:visible!important}
 }
 </style>
 
-<link rel="stylesheet" href="/portal-live/bookkeeping-simple.css?v=20261110-svg-chevron-v2">
+<link rel="stylesheet" href="/portal-live/bookkeeping-simple.css?v=20261111-input-landing-v1">
 <link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261111-history-toolbar-grid-v1">
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261110-compositor-v11">
 <link rel="stylesheet" href="/portal-live/bookkeeping-extras.css?v=20261110-svg-actions-v3">
@@ -1831,7 +1831,7 @@ main > section.card{overflow:visible!important}
     <div class="p-4 overflow-y-auto">
       <div class="text-[11px] font-black uppercase tracking-wider text-slate-400 px-2 mb-2">Navigasi</div>
       <div class="space-y-2">
-        <button data-menu-group="inputdata" onclick="pilihMenu('input')" class="drawer-item active w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm"><i data-lucide="square-pen" class="w-4 h-4"></i><span>Input Data</span></button>
+        <button data-menu-group="inputdata" onclick="pilihMenu('inputdata')" class="drawer-item active w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm"><i data-lucide="square-pen" class="w-4 h-4"></i><span>Input Data</span></button>
         <button data-menu-group="riwayat" onclick="pilihMenu('riwayat')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="history" class="w-4 h-4"></i><span>Riwayat</span></button>
         <button data-menu-group="laporan" onclick="pilihMenu('laporan')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="file-chart-column" class="w-4 h-4"></i><span>Laporan & Rekap</span></button>
         <button data-menu-group="dataacuan" onclick="pilihMenu('dashboard')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="database" class="w-4 h-4"></i><span>Data Acuan</span></button>
@@ -1841,16 +1841,34 @@ main > section.card{overflow:visible!important}
 </div>
 
 <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-  <section id="page-heading" class="mb-5"><h1 id="page-title" class="text-2xl sm:text-3xl font-black text-violet-950">Input Iuran Warga</h1><p id="page-subtitle" class="text-sm text-slate-500 mt-1">Pencatatan pembayaran iuran warga.</p></section>
+  <section id="page-heading" class="mb-5">
+    <div class="f4-book-heading-line">
+      <button id="f4-book-home-back" class="f4-book-home-back hidden" type="button" onclick="pilihMenu('inputdata')" aria-label="Kembali ke pilihan Input Data" title="Kembali ke pilihan Input Data"><i data-lucide="arrow-left" aria-hidden="true"></i></button>
+      <h1 id="page-title" class="text-2xl sm:text-3xl font-black text-violet-950">Input Data</h1>
+    </div>
+    <p id="page-subtitle" class="text-sm text-slate-500 mt-1"></p>
+  </section>
   <div id="status-box" class="mb-5 hidden rounded-xl border px-4 py-3 text-sm"></div>
 
 
   <section class="card f4-book-workspace bg-white rounded-2xl border border-violet-100 overflow-hidden">
-    <div id="group-nav-inputdata" class="group-nav f4-book-tab-shell">
-      <nav class="f4-book-sections" aria-label="Jenis pencatatan">
-        <button type="button" data-book-input-section="input" class="f4-book-section-btn active" onclick="pilihMenu('input')">Iuran Warga</button>
-        <button type="button" data-book-input-section="kas" class="f4-book-section-btn" onclick="pilihMenu('transaksi')">Transaksi Kas</button>
-        <button type="button" data-book-input-section="lainnya" class="f4-book-section-btn" onclick="pilihMenu('talangan')">Lainnya</button>
+    <div id="group-nav-inputdata" class="group-nav f4-book-tab-shell f4-book-landing">
+      <nav class="f4-book-sections" aria-label="Pilih jenis pencatatan">
+        <button type="button" data-book-input-section="input" class="f4-book-section-btn" onclick="pilihMenu('input')">
+          <span class="f4-book-section-icon"><i data-lucide="users-round" aria-hidden="true"></i></span>
+          <span class="f4-book-section-label">Iuran Warga</span>
+          <i class="f4-book-section-arrow" data-lucide="chevron-right" aria-hidden="true"></i>
+        </button>
+        <button type="button" data-book-input-section="kas" class="f4-book-section-btn" onclick="pilihMenu('transaksi')">
+          <span class="f4-book-section-icon"><i data-lucide="arrow-left-right" aria-hidden="true"></i></span>
+          <span class="f4-book-section-label">Transaksi Kas</span>
+          <i class="f4-book-section-arrow" data-lucide="chevron-right" aria-hidden="true"></i>
+        </button>
+        <button type="button" data-book-input-section="lainnya" class="f4-book-section-btn" onclick="pilihMenu('talangan')">
+          <span class="f4-book-section-icon"><i data-lucide="layout-grid" aria-hidden="true"></i></span>
+          <span class="f4-book-section-label">Lainnya</span>
+          <i class="f4-book-section-arrow" data-lucide="chevron-right" aria-hidden="true"></i>
+        </button>
       </nav>
       <nav id="f4-book-subnav-kas" class="f4-book-subnav hidden" aria-label="Pencatatan kas">
         <button type="button" data-process-target="transaksi" class="process-btn" onclick="pilihMenu('transaksi')">Debit / Kredit</button>
@@ -1890,7 +1908,7 @@ main > section.card{overflow:visible!important}
       </div>
     </div>
 
-    <div id="tab-input" class="tab-panel p-4 sm:p-5">
+    <div id="tab-input" class="tab-panel hidden p-4 sm:p-5">
       <div class="max-w-6xl mx-auto">
         <form id="form-iuran" onsubmit="simpanIuran(event)" class="f4-book-iuran-grid desktop-compact-form">
           <div class="f4-book-warga"><label class="text-sm font-bold">Nama Warga</label><select id="inp-warga" class="field mt-1" onchange="pilihWargaIuran()"><option value="">Pilih warga...</option></select></div>
@@ -4172,6 +4190,7 @@ function pilihMenu(n){
   if(n!=='input')f4IuranPeriodNotice('');
   document.querySelectorAll('.custom-select-wrap.open').forEach(x=>x.classList.remove('open'));
   const meta={
+    inputdata:['Input Data',''],
     input:['Input Iuran Warga',''],
     transaksi:['Debit / Kredit',''],
     kas:['Pembukuan',''],
@@ -4188,12 +4207,15 @@ function pilihMenu(n){
   };
   document.querySelectorAll('.tab-panel').forEach(x=>x.classList.add('hidden'));
   const panel=document.getElementById('tab-'+n);if(panel)panel.classList.remove('hidden');
-  const inputGroup=['input','transaksi','kas','pinjaman','talangan','denda'];
+  const inputGroup=['inputdata','input','transaksi','kas','pinjaman','talangan','denda'];
   const dataGroup=['dashboard','rumah','warga','config','importbulk'];
   const group=inputGroup.includes(n)?'inputdata':dataGroup.includes(n)?'dataacuan':n;
   document.querySelectorAll('.drawer-item').forEach(x=>x.classList.remove('active'));
   document.querySelector(`[data-menu-group="${group}"]`)?.classList.add('active');
-  document.getElementById('group-nav-inputdata')?.classList.toggle('hidden',group!=='inputdata');
+  const inputNav=document.getElementById('group-nav-inputdata');
+  inputNav?.classList.toggle('hidden',group!=='inputdata'||n==='input');
+  inputNav?.classList.toggle('f4-book-landing',n==='inputdata');
+  document.getElementById('f4-book-home-back')?.classList.toggle('hidden',group!=='inputdata'||n==='inputdata');
   document.getElementById('group-nav-dataacuan')?.classList.toggle('hidden',group!=='dataacuan');
   document.querySelectorAll('.process-btn').forEach(x=>x.classList.remove('active'));
   document.querySelector(`[data-process-target="${n}"]`)?.classList.add('active');
@@ -4263,7 +4285,7 @@ function gantiTab(n,b){pilihMenu(n)}
 document.addEventListener('DOMContentLoaded',()=>{
   lucide.createIcons();
   initKasUi();initTransaksiKasUi();initHistoryBatchFilters();initRiwayatPeriodFilter();
-  pilihMenu('input');
+  pilihMenu('inputdata');
   muatUlang();
 });
 </script>
