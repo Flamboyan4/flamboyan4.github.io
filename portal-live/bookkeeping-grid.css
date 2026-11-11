@@ -281,7 +281,7 @@
  /* Pembukuan keeps its compact framed workspace, also on phones. */
  body.f4-direct-book>main{padding-left:12px;padding-right:12px}
  body.f4-direct-book main>section.f4-book-workspace{
-  margin:0;border:1px solid #e9e2fa;border-radius:16px;
+  margin:0;border:1px solid #e9e2fa;border-radius:var(--f4-workspace-radius,18px);
   background:#fff;box-shadow:0 6px 20px rgba(80,46,138,.06);
   overflow:hidden;min-width:0;max-width:100%;box-sizing:border-box
  }
