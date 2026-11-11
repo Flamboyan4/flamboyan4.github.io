@@ -312,10 +312,13 @@ html body #f4-account-page>aside{overflow-x:hidden}
 html.f4-sa-drawer-lock{overflow:hidden!important}
 .f4-sa-standalone-menu{display:none;position:fixed;top:9px;left:9px;z-index:100;
  width:39px;height:39px;padding:0;border:0;border-radius:10px;background:var(--tint);
- color:var(--blue);font:700 22px/1 system-ui;cursor:pointer}
+ color:var(--blue);cursor:pointer}
+.f4-sa-standalone-menu svg{display:block;width:21px;height:21px;stroke-width:2}
+.f4-admin-icon-label{display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.f4-admin-icon-label svg{display:block;flex:none;width:17px;height:17px}
 @media(max-width:1023px){.f4-sa-standalone-menu{display:grid;place-items:center}}
 </style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261110-superadmin-purple-v2"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
-<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261110-sa-tone-icon-v2"><link rel="stylesheet" href="/portal-live/treasury-center.css?v=20261110-unified-purple-batch-v6">
+<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261110-sa-tone-icon-v2"><link rel="stylesheet" href="/portal-live/treasury-center.css?v=20261111-svg-controls-v1">
 <style id="f4-superadmin-form-value-typography-20261028">
 /* Label is emphasized, but entered values must remain normal-weight.
    The native controls inherit 650 from their wrapping <label> otherwise. */
@@ -355,7 +358,7 @@ html.f4-sa-drawer-lock{overflow:hidden!important}
 <div id="sa-toast" class="sa-toast" hidden></div>
 <script src="/portal-live/ui-dialog.js?v=20261109-all-portals-v4"></script>
 <script src="/portal-live/loading-state.js?v=786606f"></script>
-<script src="/portal-live/treasury-center.js?v=20261110-unified-purple-batch-v6"></script>
+<script src="/portal-live/treasury-center.js?v=20261111-svg-controls-v1"></script>
 <script>
 (()=>{
 'use strict';
@@ -365,7 +368,8 @@ saBackdrop.className='f4-sa-mobile-backdrop';saBackdrop.setAttribute('aria-hidde
 const saEmbedded=window.parent!==window;
 const standaloneButton=document.createElement('button');
 standaloneButton.type='button';standaloneButton.className='f4-sa-standalone-menu';
-standaloneButton.setAttribute('aria-label','Buka menu Superadmin');standaloneButton.textContent='☰';
+standaloneButton.setAttribute('aria-label','Buka menu Superadmin');
+standaloneButton.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
 if(!saEmbedded){document.body.append(standaloneButton);standaloneButton.onclick=()=>window.f4ToggleSuperadminMenu();}
 function saMenuOpened(){return root.classList.contains('f4-sa-drawer-open')}
 function saNotifyMenu(open){
@@ -1100,7 +1104,7 @@ window.addEventListener('message',e=>{
 boot();
 })();
 </script>
-<script src="/portal-live/superadmin-editor.js?v=20261110-no-duplicate-module-headings-v5"></script>
+<script src="/portal-live/superadmin-editor.js?v=20261111-svg-actions-v1"></script>
 <script src="/portal-live/project-modules.js?v=project-manager-final-20261028"></script>
 <script src="/portal-live/calendar-unified.js?v=20261105-sunday-first"></script>
 <script src="/portal-live/direct-shell.js?v=20261110-svg-session-close-v2"></script><script src="/portal-live/unified-account.js?v=logout-after-password-20261030"></script><script defer src="/portal-live/mobile-cards.js?v=20261027-refresh-guard"></script><script defer src="/portal-live/native-controls.js?v=20261110-svg-picker-controls-v3"></script>
