@@ -139,6 +139,19 @@ const categories={
 let active='',records=[],filter='',requestSerial=0,editing=false,lastSavedJerseyId=null,showZeroObligations=false;
 const node=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=String(text??'');if(cls)n.className=cls;return n};
 function btn(text,fn,cls='f4-admin-btn'){const b=node('button',text,cls);b.type='button';b.onclick=fn;return b;}
+/* Only real SVG paths are used for controls, never + or arrow characters. */
+function btnIcon(text,icon,fn,cls='f4-admin-btn'){
+ const button=btn(text,fn,cls);
+ const paths={plus:['M12 5v14','M5 12h14'],'arrow-left':['m12 19-7-7 7-7','M5 12h14']};
+ const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('width','17');svg.setAttribute('height','17');
+ svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');
+ svg.setAttribute('stroke-width','2');svg.setAttribute('stroke-linecap','round');
+ svg.setAttribute('stroke-linejoin','round');svg.setAttribute('aria-hidden','true');
+ for(const d of (paths[icon]||[])){const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',d);svg.append(path)}
+ if(!svg.childElementCount)throw Error('Unknown Superadmin icon');
+ button.classList.add('f4-admin-icon-label');button.prepend(svg);return button;
+}
 function inContext(){return document.body.classList.contains('role-superadmin')}
 function gotoOriginal(){if(window.f4SuperadminNavigate)window.f4SuperadminNavigate('overview');else window.openManagementHub?.();}
 function nav(kind){
@@ -162,7 +175,7 @@ function sideMenu(){
  const subheading=node('strong',tab==='book'?'Kelola Pembukuan':'Kelola Portal Utama','f4-work-brand f4-submenu-heading');
  side.append(subheading);
  for(const [id,label] of group)side.append(btn(label,()=>nav(id),id===active?'f4-admin-nav active':'f4-admin-nav'));
- side.append(btn('← Menu Pengelolaan',gotoOriginal,'f4-admin-nav'));
+ side.append(btnIcon('Menu Pengelolaan','arrow-left',gotoOriginal,'f4-admin-nav'));
 }
 async function send(url,options={}){
  const res=await fetch(url,{credentials:'include',cache:'no-store',...options});
@@ -372,9 +385,9 @@ function viewList(){
  const tools=node('div',undefined,'f4-admin-controls'+(active==='obligations'?' f4-obligation-toolbar':''));
  const search=node('input');search.placeholder='Cari data';search.value=filter;search.oninput=()=>{filter=search.value;populate();};
  tools.append(search);
- if(def.section==='portal')tools.append(btn('+ Tambah '+def.label,()=>showForm(null)));
+ if(def.section==='portal')tools.append(btnIcon('Tambah '+def.label,'plus',()=>showForm(null)));
  if(active==='obligations'){
-   tools.append(btn('+ Tambah Warga/TPQ',showAddObligationPayer,'f4-admin-btn f4-admin-primary'));
+   tools.append(btnIcon('Tambah Warga/TPQ','plus',showAddObligationPayer,'f4-admin-btn f4-admin-primary'));
    tools.append(btn(showZeroObligations?'Lihat Aktif':'Tanpa Kewajiban',()=>{
      showZeroObligations=!showZeroObligations;viewList();
    }));
@@ -1429,7 +1442,7 @@ async function openBankAdminEditor(kind){
  const def=bankModules[kind];
  header(def.label.replace(' Bank Sampah',''),'Data dan publikasi khusus Bank Sampah.');
  const tools=node('div',undefined,'f4-admin-controls'),q=node('input');
- q.placeholder='Cari data Bank Sampah';tools.append(q,btn('+ Tambah '+({bank_albums:'album',bank_inventory:'barang',bank_progress:'kegiatan'}[kind]),()=>showBankForm(kind,null)),btn('Muat Ulang',()=>openBankAdminEditor(kind)));
+ q.placeholder='Cari data Bank Sampah';tools.append(q,btnIcon('Tambah '+({bank_albums:'album',bank_inventory:'barang',bank_progress:'kegiatan'}[kind]),'plus',()=>showBankForm(kind,null)),btn('Muat Ulang',()=>openBankAdminEditor(kind)));
  main.append(tools);
  const info=node('p','Memuat data Bank Sampah…','f4-admin-note');main.append(info);
  const box=node('div',undefined,'f4-admin-list');main.append(box);
