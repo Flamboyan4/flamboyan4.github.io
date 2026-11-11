@@ -932,7 +932,8 @@ body.f4-bank-app-member #dashboardView .f4-bank-screen{
 #dashboardView .f4-bank-month-chip.is-active{background:#075d3d;color:#fff;border-color:#075d3d}
 .f4-bank-history-list{display:grid;gap:0}
 .f4-bank-history-line{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:9px;align-items:center;padding:13px 1px;border-bottom:1px solid #edf2ee}
-.f4-bank-history-icon{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:19px;font-weight:800}
+.f4-bank-history-icon{width:34px;height:34px;border-radius:50%;display:grid;place-items:center}
+.f4-bank-history-icon :is(svg,img){display:block;width:19px;height:19px;object-fit:contain}
 .f4-bank-history-icon.is-in{background:#e3f9e8;color:#079055}
 .f4-bank-history-icon.is-out{background:#ffe7e2;color:#dc493e}
 .f4-bank-history-copy{display:grid;gap:4px;min-width:0}
