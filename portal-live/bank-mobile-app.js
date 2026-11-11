@@ -8,6 +8,18 @@ const el=(tag,cls,text)=>{
   const node=document.createElement(tag);if(cls)node.className=cls;
   if(text!==undefined)node.textContent=text;return node;
 };
+function bankUiSvg(name){
+ const paths={'chevron-right':'m9 18 6-6-6-6','check':'m20 6-11 11-5-5','x':'M18 6 6 18M6 6l12 12'};
+ if(!paths[name])throw Error('Unknown Bank SVG icon');
+ const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('width','18');svg.setAttribute('height','18');
+ svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');
+ svg.setAttribute('stroke-width','2');svg.setAttribute('stroke-linecap','round');
+ svg.setAttribute('stroke-linejoin','round');svg.setAttribute('aria-hidden','true');
+ const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',paths[name]);svg.append(path);
+ return svg;
+}
+function bankIconSpan(cls,name){const span=el('span',cls);span.append(bankUiSvg(name));span.setAttribute('aria-hidden','true');return span;}
 const rupiah=n=>"Rp "+Number(n||0).toLocaleString("id-ID");
 const money=s=>Number(String(s||"").replace(/[^\d-]/g,""))||0;
 const today=()=>{
@@ -25,7 +37,7 @@ async function api(path,payload){
 }
 const memberDock=[
  ["Beranda","dashboard","home.svg"],["Tabungan","pribadi","cash.svg"],
- ["Pencairan","bank-payout","rp"],["Riwayat","bank-history","clock.svg"],
+ ["Pencairan","bank-payout","pay.svg"],["Riwayat","bank-history","clock.svg"],
  ["Laporan","bank-report","book.svg"]
 ];
 let role=null,screen="dashboard",historyMonth="latest",reportMonth="",reportRange=null,activePage=null;
@@ -49,11 +61,7 @@ function action([title,route,asset],dock=false){
  const b=el("button",dock?"f4-bank-app-dock-action":"f4-bank-app-action");
  b.type="button";b.dataset.bankAppRoute=route;b.setAttribute("aria-label",title);
  const symbol=el("span","f4-bank-app-action-icon");
- if(asset==="rp"){
-  const currency=el("span","f4-bank-currency-mark","Rp");
-  currency.setAttribute("aria-hidden","true");
-  symbol.append(currency);
- }else symbol.append(image(asset));
+ symbol.append(image(asset));
  b.append(symbol,el("span","f4-bank-app-action-name",title));
  b.onclick=()=>navigate(route);return b;
 }
@@ -177,10 +185,11 @@ function ensureHome(){
   const identity=el("span","f4-bank-member-card-foot");
   const box=el("span");box.append(el("small","","NOMOR ANGGOTA"),el("strong","","—"));
   box.querySelector("strong").id="f4BankCardNumber";box.append(el("small","f4-bank-card-house","Rumah —"));
-  identity.append(box,el("span","f4-bank-card-leaf","✦"));card.append(cardHead,identity);
+  const leaf=el("span","f4-bank-card-leaf");leaf.append(image("bank.svg"));leaf.setAttribute("aria-hidden","true");
+   identity.append(box,leaf);card.append(cardHead,identity);
   const savings=el("button","f4-bank-app-member-balance");savings.id="f4BankAppMemberBalance";savings.type="button";
   savings.append(el("span","f4-bank-member-balance-label","Saldo terkonfirmasi"),
-    el("strong","f4-bank-member-balance-value","—"),el("span","f4-bank-member-chevron","›"));
+    el("strong","f4-bank-member-balance-value","—"),bankIconSpan("f4-bank-member-chevron","chevron-right"));
   savings.onclick=()=>navigate("pribadi");
   const hero=el("div","f4-bank-app-hero");hero.id="f4BankAppAdminHero";
   const heading=el("small","","BANK SAMPAH FLAMBOYAN 4"),label=el("strong","f4-bank-app-balance-title","Hasil diterima lapak"),
@@ -258,7 +267,7 @@ function updateDashboard(){
  if(role==="member"){
   const button=$("f4BankAppMemberBalance");
   if(button)button.replaceChildren(el("small","","Saldo terkonfirmasi"),
-    el("strong","",memberStatement?rupiah(memberStatement.saldo):(map.get("Saldo sah")||"—")),el("span","f4-bank-member-chevron","›"));
+    el("strong","",memberStatement?rupiah(memberStatement.saldo):(map.get("Saldo sah")||"—")),bankIconSpan("f4-bank-member-chevron","chevron-right"));
   $("f4BankAppMinis")?.replaceChildren();
  }else{
   const current=adminOverview;
@@ -1634,14 +1643,14 @@ function progressPreview(){
  const thumb=activity?.querySelector("img");
  if(thumb){const img=el("img");img.src=thumb.src;img.alt="";latest.append(img);}else latest.append(image("calendar.svg"));
  const info=el("span");info.append(el("small","","Kegiatan terbaru"),el("strong","",activity?.querySelector(".f4-dev-activity-info strong")?.textContent||"Lihat linimasa"));
- latest.append(info,el("span","f4-member-next","›"));
+ latest.append(info,bankIconSpan("f4-member-next","chevron-right"));
 }
 function infoShortcut(){
  const home=$("f4BankAppHome");if(roleType()!=="member"||!home)return;
  let link=$("f4MemberInfoShortcut");
  if(!link){
   link=el("button","f4-member-info-shortcut");link.id="f4MemberInfoShortcut";link.type="button";
-  link.append(image("book.svg"),el("span","","Informasi & Laporan"),el("span","f4-member-next","›"));
+  link.append(image("book.svg"),el("span","","Informasi & Laporan"),bankIconSpan("f4-member-next","chevron-right"));
   link.onclick=()=>navigate("bank-member-info");
  }
  home.append(link);
@@ -1978,8 +1987,8 @@ function inlineMemberDisplayName(){
  edit.innerHTML='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16 4a2.1 2.1 0 0 1 3 3L9 17l-4 1 1-4L16 4Z"/></svg>';
  const input=el("input","f4-member-name-input");input.type="text";input.maxLength=100;input.autocomplete="nickname";
  input.setAttribute("aria-label","Nama tampilan");
- const save=el("button","f4-member-name-save","✓");save.type="button";save.title="Simpan nama";save.setAttribute("aria-label","Simpan nama tampilan");
- const cancel=el("button","f4-member-name-cancel","×");cancel.type="button";cancel.title="Batal";cancel.setAttribute("aria-label","Batalkan edit nama");
+ const save=el("button","f4-member-name-save");save.append(bankUiSvg('check'));save.type="button";save.title="Simpan nama";save.setAttribute("aria-label","Simpan nama tampilan");
+ const cancel=el("button","f4-member-name-cancel");cancel.append(bankUiSvg('x'));cancel.type="button";cancel.title="Batal";cancel.setAttribute("aria-label","Batalkan edit nama");
  const status=el("span","f4-member-name-status");status.setAttribute("role","status");status.setAttribute("aria-live","polite");status.hidden=true;
  row.append(edit,input,save,cancel);row.after(status);
  let saving=false;
