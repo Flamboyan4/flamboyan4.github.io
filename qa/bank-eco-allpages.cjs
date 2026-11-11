@@ -128,7 +128,7 @@ assert(!h.includes("Nilai sah berasal dari penjualan yang disahkan. Perkiraan me
  'Verbose approval note returned');
 assert(!h.includes("data.catatan+' Data pribadi warga tidak ditampilkan.'"),
  'Duplicated report footnote returned');
-for(const label of ['Anggota aktif','Jenis barang','Berat terkonfirmasi','Kegiatan terpublikasi']){
+for(const label of ['Berat sampah terjual','Setoran terkonfirmasi','Anggota aktif','Jenis sampah diterima','Kegiatan terpublikasi']){
  assert(h.includes("v17PublicStat('"+label+"'"),'Public safe metric missing: '+label);
 }
 assert(h.includes('<svg xmlns="http://www.w3.org/2000/svg"') && h.includes('Saldo dan riwayat pribadi tersedia setelah login.'),
