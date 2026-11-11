@@ -1952,3 +1952,10 @@ body.f4-bank-app-admin #sideNav #v16NavList>.v16-item.f4-back-account{display:no
 .f4-bank-weighing-form :is(.f4-bank-weighing-preview,.f4-bank-weighing-status){grid-column:1/-1;margin:0;font-size:13px;color:#32604a}
 .f4-bank-weighing-form .f4-bank-gold-action{justify-self:start;min-height:42px}
 @media(max-width:640px){.f4-bank-weighing-form{grid-template-columns:minmax(0,1fr)}}
+
+
+#dashboardView .f4-bank-member-chevron svg,
+#dashboardView .f4-member-next svg,
+#dashboardView .f4-member-name-save svg,
+#dashboardView .f4-member-name-cancel svg{display:block;width:18px;height:18px;flex:none}
+#dashboardView .f4-bank-card-leaf img{display:block;width:23px;height:23px;object-fit:contain}
