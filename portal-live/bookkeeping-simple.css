@@ -48,7 +48,12 @@
 .f4-book-home-back:focus-visible,.f4-book-section-btn:focus-visible{outline:2px solid #7c3aed;outline-offset:2px}
 .f4-book-home-back.hidden{display:none}
 .f4-book-home-back svg{height:19px;width:19px;stroke-width:2.3}
-#group-nav-inputdata.f4-book-tab-shell.f4-book-landing{padding:14px;border-bottom:0}
+/* The parent workspace intentionally keeps visible overflow for dropdowns.
+   Round both surfaces so the white landing background does not square off the corners. */
+main > section.f4-book-workspace{border-radius:18px}
+#group-nav-inputdata.f4-book-tab-shell.f4-book-landing{
+ padding:14px;border-bottom:0;border-radius:18px
+}
 #group-nav-inputdata.f4-book-tab-shell.f4-book-landing>.f4-book-sections{
  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:0;border:0;min-width:0
 }
