@@ -64,6 +64,9 @@ assert(treasury.includes('buildDynamicFund(fundManage,data,refresh)'));
 assert(treasury.includes('fundManage.open=true'),'Fund edit must remain reachable');
 assert(/\.tc-balance-breakdown\{[^}]*grid-template-columns:repeat\(3,minmax\(0,1fr\)\);gap:8px;padding:5px 4px 13px/.test(treasuryCSS),
  'Three balance locations must remain in a responsive CSS grid');
-assert(editor.includes("sub.append(node('h3',label))"),'Avoid repeated editor titles');
+assert(editor.includes('window.f4SuperadminRenderTabs?.();')&&
+ editor.includes("h.append(node('h2',category));")&&
+ !editor.includes("sub.append(node('h3',label))"),
+ 'Editor heading must use category and active tab without duplicate module title');
 
 console.log('F4_SUPERADMIN_NAVIGATION_OK: 7 menu, 17 modules, 5 groups, 3 finance views');
