@@ -11,6 +11,18 @@ const main=root.querySelector("main");
 const rp=n=>"Rp"+Math.round(Number(n)||0).toLocaleString("id-ID");
 const today=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)};
 const el=(tag,content,cls)=>{const node=document.createElement(tag);if(content!==undefined)node.textContent=String(content);if(cls)node.className=cls;return node};
+/* Real, accessible SVG icons for treasury controls (not font characters). */
+function tcSvgIcon(name){
+ const paths={'chevron-left':'m15 18-6-6 6-6','chevron-right':'m9 18 6-6-6-6'};
+ const d=paths[name];if(!d)throw Error('Unknown treasury SVG icon');
+ const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('width','18');svg.setAttribute('height','18');
+ svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');
+ svg.setAttribute('stroke-width','2');svg.setAttribute('stroke-linecap','round');
+ svg.setAttribute('stroke-linejoin','round');svg.setAttribute('aria-hidden','true');
+ const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+ path.setAttribute('d',d);svg.append(path);return svg;
+}
 const append=(parent,...items)=>{parent.append(...items);return parent};
 const amount=(balances,fund,location)=>Number(balances.find(x=>x.fund_id===fund&&x.location_id===location)?.amount_rp||0);
 const kindLabels={opening:"Saldo awal",incoming:"Dana masuk",outgoing:"Dana keluar",move:"Pindah tempat",allocation:"Pindah pos"};
@@ -108,8 +120,10 @@ function treasuryDateControl(){
   function render(){
    dialog.replaceChildren();
    const nav=el("div",undefined,"tc-date-nav");
-   const prev=el("button","‹"),heading=el("strong",months[month]+" "+year);
-   const next=el("button","›");
+   const prev=el("button"),heading=el("strong",months[month]+" "+year);
+   const next=el("button");
+   prev.append(tcSvgIcon('chevron-left'));
+   next.append(tcSvgIcon('chevron-right'));
    prev.type=next.type="button";
    prev.setAttribute("aria-label","Bulan sebelumnya");
    next.setAttribute("aria-label","Bulan berikutnya");
@@ -894,7 +908,8 @@ function render(data){
   if(x.f.active===false)label.append(el("small","Arsip"));
   const right=el("span",undefined,"tc-balance-total");
   right.append(el("strong",rp(x.total)));
-  const caret=el("span","›","tc-balance-caret");caret.setAttribute("aria-hidden","true");
+  const caret=el("span",undefined,"tc-balance-caret");caret.setAttribute("aria-hidden","true");
+  caret.append(tcSvgIcon('chevron-right'));
   right.append(caret);
   summary.append(label,right);item.append(summary);
   const split=el("div",undefined,"tc-balance-breakdown");
