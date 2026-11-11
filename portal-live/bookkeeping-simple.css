@@ -48,11 +48,28 @@
 .f4-book-home-back:focus-visible,.f4-book-section-btn:focus-visible{outline:2px solid #7c3aed;outline-offset:2px}
 .f4-book-home-back.hidden{display:none}
 .f4-book-home-back svg{height:19px;width:19px;stroke-width:2.3}
-/* The parent workspace intentionally keeps visible overflow for dropdowns.
-   Round both surfaces so the white landing background does not square off the corners. */
-main > section.f4-book-workspace{border-radius:18px}
-#group-nav-inputdata.f4-book-tab-shell.f4-book-landing{
- padding:14px;border-bottom:0;border-radius:18px
+/* Shared frame geometry for every Pembukuan menu.
+   Keep overflow visible so calendar/dropdown panels are not clipped. */
+main > section.f4-book-workspace{
+ --f4-workspace-radius:18px;
+ border-radius:var(--f4-workspace-radius);
+ background:#fff
+}
+/* Navigations paint a white background of their own. Round their exposed
+   top corners; a landing-only navigation has all four corners rounded. */
+main > section.f4-book-workspace > .group-nav:not(.hidden){
+ border-radius:17px 17px 0 0
+}
+#group-nav-inputdata.f4-book-tab-shell.f4-book-landing:not(.hidden){
+ padding:14px;border-bottom:0;border-radius:17px
+}
+/* A selected form without navigation occupies the full rounded frame.
+   Forms below a navigation only own the bottom corners. */
+main > section.f4-book-workspace > .tab-panel:not(.hidden){
+ border-radius:0 0 17px 17px
+}
+main > section.f4-book-workspace:not(:has(> .group-nav:not(.hidden))) > .tab-panel:not(.hidden){
+ border-radius:17px
 }
 #group-nav-inputdata.f4-book-tab-shell.f4-book-landing>.f4-book-sections{
  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:0;border:0;min-width:0
