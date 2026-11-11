@@ -2969,7 +2969,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     if($('memberWelcome'))$('memberWelcome').querySelector('.notice').textContent='Lihat saldo tabungan dan rincian setoran lewat menu Tabungan saya. Demi privasi, ganti password awal satu kali sebelum membukanya.';
     // Detail kartu dan profil sudah cukup; tidak perlu catatan pengulangan menu.
     if(!$('pagePribadi')){
-      const nav=document.createElement('button');nav.id='navPribadi';nav.className='secondary';nav.textContent='💚 Tabungan saya';nav.onclick=()=>goPage('pribadi');$('navProfile').after(nav);
+      const nav=document.createElement('button');nav.id='navPribadi';nav.className='secondary';nav.textContent='Tabungan saya';nav.insertAdjacentHTML('afterbegin','<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.4 5.4 0 0 0-7.6 0L12 5.8l-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6L12 21l8.8-8.8a5.4 5.4 0 0 0 0-7.6Z"/></svg>');nav.onclick=()=>goPage('pribadi');$('navProfile').after(nav);
       const page=document.createElement('section');page.id='pagePribadi';page.className='card hidden';
       page.innerHTML=`<h2>Tabungan saya</h2><div id="v12Gate" class="notice" role="status">Memeriksa akses...</div><div id="v12Private" class="hidden"><div class="stats"><div class="stat"><small>Saldo tersedia</small><strong id="v12Balance">—</strong></div><div class="stat"><small>Masuk</small><strong id="v12Credit">—</strong></div><div class="stat"><small>Dicairkan</small><strong id="v12Debit">—</strong></div></div><p class="f4-member-payout-help">Pencairan lewat pengurus.</p><div class="toolbar block-gap f4-member-tools"><button class="secondary f4-member-refresh" type="button" onclick="v12Load()" title="Muat ulang data tabungan" aria-label="Muat ulang data tabungan"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.35 5.65"/><path d="M20 4v7h-7"/></svg></button><button type="button" onclick="v12Print()">Cetak / PDF</button><button type="button" class="ghost" onclick="v12CSV()">Unduh CSV</button></div><h2 class="block-gap">Riwayat</h2><div id="v12History" class="tablewrap"></div><h2 class="block-gap">Rincian barang</h2><p class="hint">Harga setoran = estimasi, bukan saldo sah.</p><div id="v12Deposits"></div></div>`;
       $('pageProfile').after(page);
@@ -4092,7 +4092,9 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     const p=document.createElement('p');p.textContent=[a.tanggal,(a.media?.length||0)+' media',a.deskripsi].filter(Boolean).join(' • ');d.appendChild(p);
     if(a.media?.length){const list=document.createElement('div');list.className='v17-media-list';a.media.forEach(m=>{
       if(!/^https:\/\//.test(m.url||''))return;
-      const link=document.createElement('a');link.href=m.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent=m.jenis==='Album Google Drive'?'📁 Buka folder foto & video'+(m.caption?' — '+m.caption:''):(m.jenis||'Media')+' — '+(m.caption||'Lihat foto/video');list.appendChild(link);
+      const link=document.createElement('a');link.href=m.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent=m.jenis==='Album Google Drive'?'Buka folder foto & video'+(m.caption?' — '+m.caption:''):(m.jenis||'Media')+' — '+(m.caption||'Lihat foto/video');
+      if(m.jenis==='Album Google Drive')link.insertAdjacentHTML('afterbegin','<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v9H3Z"/></svg>');
+      list.appendChild(link);
     });d.appendChild(list);}
     return d;
   }
@@ -4513,6 +4515,17 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   // v21 — galeri publik langsung di website (tanpa menampilkan link folder Drive).
   let v21Albums=[],v21OpenedAlbum=null,v21MediaIndex=0;
   function v21Node(tag,cls,content){const el=document.createElement(tag);if(cls)el.className=cls;if(content!==undefined)el.textContent=content;return el;}
+  function v21IconNode(tag,cls,icon){
+    const element=v21Node(tag,cls);
+    const paths={
+      camera:'<path d="M4 7h3l2-3h6l2 3h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="14" r="3"/>',
+      box:'<path d="m12 2 9 5-9 5-9-5 9-5ZM3 7v10l9 5 9-5V7M12 12v10"/>',
+      play:'<path d="m8 5 11 7-11 7z"/>'
+    };
+    if(!paths[icon])throw Error('Unknown Bank SVG icon');
+    element.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+paths[icon]+'</svg>';
+    element.setAttribute('aria-hidden','true');return element;
+  }
   function v21ImageSrc(url){
     if(!/^https:\/\//i.test(url||''))return '';
     const id=url.match(/drive\.google\.com\/file\/d\/([\w-]+)/i)||url.match(/[?&]id=([\w-]+)/i);
@@ -4520,7 +4533,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   }
   function v21Photo(url,alt){
     const img=document.createElement('img');img.src=v21ImageSrc(url);img.alt=alt||'Foto dokumentasi';img.loading='lazy';
-    img.addEventListener('error',()=>{if(img.parentNode){const fall=v21Node('div','v21-placeholder','📷');img.replaceWith(fall);}}, {once:true});return img;
+    img.addEventListener('error',()=>{if(img.parentNode){const fall=v21IconNode('div','v21-placeholder','camera');img.replaceWith(fall);}}, {once:true});return img;
   }
   function v21PrepareSections(){
     const docs=$('v17Dokumentasi'),inv=$('v17Inventaris');if(!docs||!inv||$('v21MediaLayout'))return;
@@ -4539,14 +4552,14 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     if(!v21Albums.length){area.textContent='Belum ada album dokumentasi yang dipublikasikan.';return;}
     v21Albums.slice(0,2).forEach(a=>{const button=v21Node('button','v21-feature-cover v22-preview-card');button.type='button';
       if(a.sampul)button.appendChild(v21Photo(a.sampul,'Sampul '+a.judul));
-      else button.appendChild(v21Node('span','v21-empty-photo','📷'));
+      else button.appendChild(v21IconNode('span','v21-empty-photo','camera'));
       const text=v21Node('span','v21-cover-caption');text.append(v21Node('small','',a.kategori||'Umum'),v21Node('strong','',a.judul||'Kegiatan Bank Sampah'));
       button.appendChild(text);button.onclick=()=>v21OpenAlbum(a.id);area.appendChild(button);});
   }
   function v21InventoryRow(x){
     const row=v21Node('button','v21-inventory-row');row.type='button';
     if(x.foto)row.appendChild(v21Photo(x.foto,'Inventaris '+x.nama));
-    else row.appendChild(v21Node('span','v21-inventory-placeholder','📦'));
+    else row.appendChild(v21IconNode('span','v21-inventory-placeholder','box'));
     row.append(v21Node('span','v21-inventory-name',x.nama||'Barang inventaris'),v21Node('span','v21-inventory-qty',x.jumlah||'—'));
     row.onclick=()=>v21ShowInventory(x);return row;
   }
@@ -4611,7 +4624,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     const grid=v21Node('div','v21-album-list');
     v21Albums.forEach(a=>{
       const btn=v21Node('button','v21-album-tile');btn.type='button';
-      btn.appendChild(a.sampul?v21Photo(a.sampul,a.judul):v21Node('div','v21-placeholder','📷'));
+      btn.appendChild(a.sampul?v21Photo(a.sampul,a.judul):v21IconNode('div','v21-placeholder','camera'));
       const info=v21Node('div','v21-album-label');info.append(v21Node('strong','',a.judul),v21Node('small','',a.tanggal||''));btn.appendChild(info);
       btn.onclick=()=>v21OpenAlbum(a.id);grid.appendChild(btn);
     });
@@ -4714,8 +4727,8 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       v21OpenedAlbum=data;const wrap=v21Node('div');const back=v21Node('button','v21-back');back.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>';back.type='button';back.title='Kembali ke semua album';back.setAttribute('aria-label','Kembali ke semua album');back.onclick=v21ShowAlbumArchive;wrap.appendChild(back);
       const grid=v21Node('div','v21-gallery-grid');(data.media||[]).forEach((m,i)=>{
         const tile=v21Node('button','v21-gallery-tile');tile.type='button';tile.title=m.nama||m.jenis;
-        if(m.thumb)tile.appendChild(v21Photo(m.thumb,m.nama));else tile.appendChild(v21Node('span','v21-play','▶'));
-        if(m.jenis==='Video')tile.appendChild(v21Node('span','v21-play','▶'));
+        if(m.thumb)tile.appendChild(v21Photo(m.thumb,m.nama));else tile.appendChild(v21IconNode('span','v21-play','play'));
+        if(m.jenis==='Video')tile.appendChild(v21IconNode('span','v21-play','play'));
         tile.onclick=()=>v21OpenLightbox(i);grid.appendChild(tile);
       });
       if(!grid.childElementCount)grid.textContent=data.catatan||'Album belum memiliki foto/video yang dapat ditampilkan.';
@@ -4847,7 +4860,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     list.replaceChildren();
     rows.forEach(a=>{
       const card=v21Node('button','v22-doc-card');card.type='button';
-      card.appendChild(a.sampul?v21Photo(a.sampul,a.judul):v21Node('div','v21-placeholder','📷'));
+      card.appendChild(a.sampul?v21Photo(a.sampul,a.judul):v21IconNode('div','v21-placeholder','camera'));
       const info=v21Node('div','v22-doc-card-info');
       info.append(v21Node('span','v22-cat-badge',v23CategoryLabel(a.kategori)),v21Node('strong','',a.judul),v21Node('small','',a.tanggal||''));
       card.appendChild(info);card.onclick=()=>v21OpenAlbum(a.id);list.appendChild(card);
@@ -5955,6 +5968,14 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
 }
 #sideNav>.brand{display:flex;align-items:center;gap:8px}
 #sideNav>.brand img,.f4-dev-activity-icon img{display:block;width:21px;height:21px;object-fit:contain}
+
+
+#navPribadi:has(svg){display:inline-flex;align-items:center;gap:8px}
+#navPribadi svg{display:block;width:18px;height:18px;flex:none}
+.v21-placeholder svg,.v21-empty-photo svg,.v21-inventory-placeholder svg{display:block;width:28px;height:28px}
+.v21-play svg{display:block;width:18px;height:18px;stroke-width:2}
+#v11Public a:has(>svg){display:inline-flex;align-items:center;gap:7px}
+#v11Public a>svg{width:16px;height:16px;flex:none;display:block}
 
 /* True SVG back icons, not decorative arrow characters. */
 #v11Public .public-hero button:has(svg),.v26-return-public:has(svg),
