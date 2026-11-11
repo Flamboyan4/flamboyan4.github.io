@@ -239,7 +239,8 @@
    const panel=el('section','f4-activity-dialog-panel');
    const head=el('header','f4-activity-dialog-head');
    const title=el('h2','','Semua kegiatan');
-   const close=el('button','f4-activity-dialog-close','×');close.type='button';
+   const close=el('button','f4-activity-dialog-close');close.type='button';
+    close.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
    close.setAttribute('aria-label','Tutup semua kegiatan');
    head.append(title,close);
    const scroll=el('div','f4-activity-dialog-scroll');scroll.tabIndex=0;
