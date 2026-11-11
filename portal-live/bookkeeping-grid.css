@@ -363,3 +363,49 @@
  }
  #tab-laporan .f4-report-toolbar-actions button{width:100%;min-width:0}
 }
+
+
+/* Riwayat Iuran: single-row PC toolbar with the existing controls. */
+@media screen and (min-width:1200px){
+ #tab-riwayat:not(.hidden){
+  display:grid;
+  grid-template-columns:minmax(150px,170px) minmax(0,1.1fr) minmax(0,1fr);
+  column-gap:10px;row-gap:12px;align-items:end
+ }
+ #tab-riwayat>.mb-4{display:contents}
+ #tab-riwayat>.mb-4>.f4-book-filter-picker{
+  grid-column:1;grid-row:1;
+  display:flex;flex-direction:column;gap:6px;
+  width:100%;min-width:0;max-width:none;margin:0;align-self:end
+ }
+ #tab-riwayat>.mb-4>.f4-book-filter-picker>label{
+  display:block;min-height:16px;line-height:16px;margin:0
+ }
+ #tab-riwayat>.mb-4>.f4-book-filter-picker :is(select,.custom-select-wrap){
+  width:100%;min-width:0;max-width:none;margin:0
+ }
+ #tab-riwayat>.mb-4>.f4-book-filter-picker :is(select,.custom-select-btn){
+  height:48px;min-height:48px;box-sizing:border-box
+ }
+ #tab-riwayat>#history-iuran-panel:not(.hidden){display:contents}
+ #tab-riwayat>#history-iuran-panel:not(.hidden)>.history-iuran-filter{display:contents}
+ #tab-riwayat #history-iuran-panel .history-period-box{
+  grid-column:2;grid-row:1;min-width:0;align-self:end
+ }
+ #tab-riwayat #history-iuran-panel .history-iuran-search{
+  grid-column:3;grid-row:1;min-width:0;align-self:end
+ }
+ #tab-riwayat #history-iuran-panel .history-period-box .upr-field,
+ #tab-riwayat #history-iuran-panel .history-iuran-search :is(input.field,select.field,.custom-select-btn){
+  height:48px;min-height:48px;box-sizing:border-box
+ }
+ #tab-riwayat #history-iuran-panel .history-iuran-search .custom-select-wrap{
+  align-self:stretch;margin:0
+ }
+ #tab-riwayat>#history-iuran-panel:not(.hidden)>:not(.history-iuran-filter){
+  grid-column:1/-1;min-width:0
+ }
+ #tab-riwayat>[id^="history-"][id$="-panel"]:not(#history-iuran-panel){
+  grid-column:1/-1;min-width:0
+ }
+}
