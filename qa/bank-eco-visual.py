@@ -60,6 +60,10 @@ async def main():
         for mode, width in [("pc", 1366), ("hp", 390)]:
             page = await browser.new_page(viewport={"width": width, "height": 840}, device_scale_factor=1)
             await page.goto(ROOT, wait_until="domcontentloaded", timeout=45000)
+            # This module is an iframe in the integrated portal. When opened on its own
+            # for visual QA, simulate the same role message sent by the parent shell.
+            # Otherwise the page deliberately waits for the host and renders no public UI.
+            await page.evaluate("""() => window.postMessage({type:"f4:demo-role",role:"public",identity:{}}, location.origin)""")
             await page.wait_for_selector("#v17Program.f4-bank-program .f4-bank-program-step", timeout=12000)
             live = await page.evaluate("""() => {
               const section=document.querySelector('#v17Program');
