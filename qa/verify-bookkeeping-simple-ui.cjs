@@ -10,7 +10,16 @@ const src=(start,end)=>{const a=html.indexOf(start),b=html.indexOf(end,a);
  assert(a>=0&&b>a,'Missing code: '+start);return html.slice(a,b)};
 const tags=[...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).filter(Boolean);
 for(const code of tags)new vm.Script(code);
-assert(html.includes('bookkeeping-simple.css?v=20261105-simplified-v2'));
+assert(/bookkeeping-simple\\.css\\?v=[^"']+/.test(html),
+ 'Bookkeeping simple stylesheet must be versioned, without pinning an obsolete build key');
+assert(css.includes('main > section.f4-book-workspace{'),
+ 'Every Pembukuan view must share the outer frame style');
+assert(css.includes('> .group-nav:not(.hidden)')&&css.includes('.f4-book-landing:not(.hidden)'),
+ 'Visible navigation and landing must have rounded edges');
+assert(css.includes(':not(:has(> .group-nav:not(.hidden))) > .tab-panel:not(.hidden)'),
+ 'Menus without a navigation bar must also round their visible form');
+assert(grid.includes('border-radius:var(--f4-workspace-radius,18px)'),
+ 'Mobile frame radius must use the same shared token');
 const inputNav=src('id="group-nav-inputdata"','id="group-nav-dataacuan"');
 assert.deepEqual([...inputNav.matchAll(/data-book-input-section="([^"]+)"/g)].map(m=>m[1]),
  ['input','kas','lainnya']);
@@ -121,7 +130,7 @@ const buttons=Object.fromEntries(['transaksi','kas','talangan','denda','pinjaman
  'dashboard','rumah','warga','config','importbulk'].map(x=>[x,element()]));
 const side=Object.fromEntries(['inputdata','riwayat','laporan','dataacuan'].map(x=>[x,element()]));
 const ids=Object.fromEntries(['group-nav-inputdata','group-nav-dataacuan','f4-book-subnav-kas',
- 'f4-book-subnav-lainnya','page-title','page-subtitle','page-heading'].map(x=>[x,element()]));
+ 'f4-book-subnav-lainnya','f4-book-home-back','page-title','page-subtitle','page-heading'].map(x=>[x,element()]));
 for(const x of ['input','transaksi','kas','talangan','denda','pinjaman','importbulk',
  'dashboard','rumah','warga','config','riwayat','laporan'])ids['tab-'+x]=element();
 const admin=element(),doc={
@@ -137,6 +146,7 @@ const admin=element(),doc={
  return q==='.f4-book-admin-tools'?admin:null}
 };
 const noop=()=>{},context={document:doc,window:{scrollTo:noop},tutupMenu:noop,
+ f4IuranPeriodNotice:noop,
  loadRiwayat:noop,pilihRiwayat:noop,initTransaksiKasUi:noop,
  KAS_LOADED:true,renderPembukuanKas:noop,loadPembukuanKas:noop,
  initPinjamanUi:noop,loadPinjaman:noop,initTalanganUi:noop,loadTalangan:noop,
@@ -144,6 +154,13 @@ const noop=()=>{},context={document:doc,window:{scrollTo:noop},tutupMenu:noop,
  bulkRefreshControls:noop,lucide:{createIcons:noop}};
 vm.createContext(context);
 vm.runInContext(src('function pilihMenu(n){','\nfunction pilihRiwayat(type)'),context);
+context.pilihMenu('inputdata');
+assert(!ids['group-nav-inputdata'].classList.contains('hidden'),
+ 'Opening Input Data must show the three choices');
+assert(ids['group-nav-inputdata'].classList.contains('f4-book-landing'),
+ 'Opening Input Data must show the landing layout');
+assert(ids['f4-book-home-back'].classList.contains('hidden'),
+ 'Back should be hidden on the three-choice landing');
 for(const [route,section,sub] of [['input','input',null],['transaksi','kas','f4-book-subnav-kas'],
  ['kas','kas','f4-book-subnav-kas'],['denda','lainnya','f4-book-subnav-lainnya'],
  ['pinjaman','lainnya','f4-book-subnav-lainnya']]){
@@ -151,6 +168,8 @@ for(const [route,section,sub] of [['input','input',null],['transaksi','kas','f4-
  assert(sections[section].classList.contains('active'),route+' parent missing');
  if(sub)assert(!ids[sub].classList.contains('hidden'),route+' submenu missing');
 }
+assert(!ids['f4-book-home-back'].classList.contains('hidden'),
+ 'Back should be visible after choosing a form');
 context.pilihMenu('importbulk');
 assert(side.dataacuan.classList.contains('active'),'Import goes to Data Acuan');
 assert.equal(admin.attributes.open,'','Admin tool must be expanded for import');
