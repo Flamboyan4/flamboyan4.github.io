@@ -62,7 +62,8 @@ assert.equal((treasury.match(/id:"(?:saldo|transaksi|laporan)",name:/g)||[]).len
 assert(!treasury.includes('id:"pos",name:'),'Fund settings must not become another main tab');
 assert(treasury.includes('buildDynamicFund(fundManage,data,refresh)'));
 assert(treasury.includes('fundManage.open=true'),'Fund edit must remain reachable');
-assert(treasuryCSS.includes('grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:6px'));
+assert(/\.tc-balance-breakdown\{[^}]*grid-template-columns:repeat\(3,minmax\(0,1fr\)\);gap:8px;padding:5px 4px 13px/.test(treasuryCSS),
+ 'Three balance locations must remain in a responsive CSS grid');
 assert(editor.includes("sub.append(node('h3',label))"),'Avoid repeated editor titles');
 
 console.log('F4_SUPERADMIN_NAVIGATION_OK: 7 menu, 17 modules, 5 groups, 3 finance views');
