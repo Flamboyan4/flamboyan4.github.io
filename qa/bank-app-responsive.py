@@ -122,7 +122,7 @@ async def savings_chart(browser):
       }}));
     }""")
     await page.locator("#f4BankSavingsBars .f4-bank-savings-bar").first.wait_for()
-    # The member's central dock icon is a white Rp, not the savings/card image.
+    # The member payout dock must display a dedicated SVG asset, never a text Rp glyph.
     money_icon=await page.evaluate("""() => {
       const center=document.querySelector('#f4BankAppDock .f4-bank-app-dock-action:nth-child(3)');
       const icon=center?.querySelector('.f4-bank-app-action-icon');
@@ -130,15 +130,14 @@ async def savings_chart(browser):
       return {
         route:center?.dataset.bankAppRoute,label:center?.querySelector('.f4-bank-app-action-name')?.textContent,
         text:currency?.textContent,images:icon?.querySelectorAll('img').length,
-        color:currency?getComputedStyle(currency).color:'',
-        size:currency?getComputedStyle(currency).fontSize:'',
+        asset:icon?.querySelector('img')?.getAttribute('src')||null,
         overflow:document.documentElement.scrollWidth>window.innerWidth+3
       };
     }""")
     assert money_icon["route"]=="bank-payout" and money_icon["label"]=="Pencairan",money_icon
-    assert money_icon["text"]=="Rp" and money_icon["images"]==0,money_icon
-    assert money_icon["color"]=="rgb(255, 255, 255)" and not money_icon["overflow"],money_icon
-    print("MEMBER_PAYOUT_RP_DOCK_OK",money_icon,flush=True)
+    assert money_icon["text"] is None and money_icon["images"]==1,money_icon
+    assert money_icon["asset"]=="/assets/icons/pay.svg" and not money_icon["overflow"],money_icon
+    print("MEMBER_PAYOUT_SVG_DOCK_OK",money_icon,flush=True)
     state=await page.evaluate("""() => {
       const root=document.querySelector('#f4BankSavingsBars');
       return {
