@@ -2280,7 +2280,15 @@ async function f4GalleryPublic(db,env){
   const comments=await list(db,"SELECT c.message,COALESCE(pro.display_name,m.display_name,a.username,'Warga') AS nama FROM f4_gallery_comments c LEFT JOIN accounts a ON a.id=c.account_id LEFT JOIN members m ON m.id=a.member_id LEFT JOIN member_account_profiles pro ON pro.account_id=a.id WHERE c.target_type='photo' AND c.target_id=? AND c.status='aktif' ORDER BY c.created_at DESC LIMIT 2",[p.id]);
   highlights.push({...p,likes:Number(count?.n||0),comments});
  }
- return ok({albums,photos:data,highlights,uploadEnabled:f4GalleryDriveReady(env),maxFiles:12,maxFileMb:6});
+ const popularRanks=await list(db,"SELECT p.id, (SELECT COUNT(*) FROM f4_gallery_reactions r WHERE r.target_type='photo' AND r.target_id=p.id) AS likes, (SELECT COUNT(*) FROM f4_gallery_comments c WHERE c.target_type='photo' AND c.target_id=p.id AND c.status='aktif') AS commentCount FROM f4_gallery_photos p WHERE p.status IN ('baru','ditinjau') AND p.created_at>=datetime('now','-30 days') ORDER BY (likes*2+commentCount*3) DESC,p.created_at DESC LIMIT 8");
+ const popular=[];
+ for(const row of popularRanks){
+  const p=data.find(x=>x.id===row.id);if(!p)continue;
+  const fromLatest=highlights.find(x=>x.id===p.id);
+  const comments=fromLatest?.comments||await list(db,"SELECT c.message,COALESCE(pro.display_name,m.display_name,a.username,'Warga') AS nama FROM f4_gallery_comments c LEFT JOIN accounts a ON a.id=c.account_id LEFT JOIN members m ON m.id=a.member_id LEFT JOIN member_account_profiles pro ON pro.account_id=a.id WHERE c.target_type='photo' AND c.target_id=? AND c.status='aktif' ORDER BY c.created_at DESC LIMIT 2",[p.id]);
+  popular.push({...p,likes:Number(row.likes||0),commentCount:Number(row.commentCount||0),comments});
+ }
+ return ok({albums,photos:data,highlights,popular,uploadEnabled:f4GalleryDriveReady(env),maxFiles:12,maxFileMb:6});
 }
 __name(f4GalleryPublic,"f4GalleryPublic");
 async function f4GallerySocial(db,who,url){
