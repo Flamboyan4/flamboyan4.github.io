@@ -1,0 +1,194 @@
+/* Kas Saya (Portal Utama): two equal-height desktop columns and mobile sheets.
+   One scoped stylesheet, no !important declarations. */
+#keuangan.f4-finance-personal-active .f4-user-finance {
+  background:transparent;border:0;box-shadow:none;padding:0;min-width:0;
+}
+#keuangan.f4-finance-personal-active .f4-user-finance-heading {margin:0 0 7px;padding:0 3px}
+#keuangan.f4-finance-personal-active .f4-user-finance-controls {
+  margin-bottom:13px;padding:4px;background:#fff;border-color:#dfe4f0;
+}
+#keuangan .f4-resident-layout {
+  display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);
+  align-items:stretch;gap:14px;min-width:0;
+}
+#keuangan .f4-resident-dues,
+#keuangan .f4-resident-right {
+  box-sizing:border-box;min-width:0;height:392px;
+  background:#fff;border:1px solid #e1e5f0;border-radius:16px;
+  padding:16px 17px;box-shadow:0 5px 16px rgba(34,39,91,.035);
+}
+#keuangan .f4-resident-dues {display:flex;flex-direction:column;gap:10px}
+#keuangan .f4-resident-card-heading {display:flex;align-items:center;gap:10px;flex:none}
+#keuangan .f4-resident-card-icon {
+  flex:none;width:39px;height:39px;border-radius:11px;display:grid;place-items:center;
+  color:#5e51df;background:#f0eeff;
+}
+#keuangan .f4-resident-card-heading h3,
+#keuangan .f4-resident-status-heading h3 {
+  margin:0;color:#26344f;font-size:15px;line-height:1.35;font-weight:800;
+}
+#keuangan .f4-resident-card-heading p,
+#keuangan .f4-resident-status-heading p {
+  margin:2px 0 0;font-size:11px;color:#7a8498;line-height:1.4;
+}
+#keuangan .f4-resident-dues-content {min-height:0;display:flex;flex:1;flex-direction:column}
+#keuangan .f4-resident-dues-rows {
+  display:flex;flex:1;min-height:0;flex-direction:column;justify-content:center;
+  gap:12px;padding:5px 0;
+}
+#keuangan .f4-resident-dues-row,
+#keuangan .f4-resident-dues-total {
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  font-size:13px;line-height:1.3;color:#49556e;
+}
+#keuangan .f4-resident-dues-row strong {font-weight:750;color:#283651;white-space:nowrap;font-variant-numeric:tabular-nums}
+#keuangan .f4-resident-dues-total {
+  flex:none;padding-top:13px;border-top:1px solid #e8eaf3;font-weight:800;
+  color:#283651;
+}
+#keuangan .f4-resident-dues-total strong {font-size:18px;color:#5646ce;font-variant-numeric:tabular-nums}
+#keuangan .f4-resident-right {display:flex;flex-direction:column;gap:9px}
+#keuangan .f4-resident-status-heading {display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex:none}
+#keuangan .f4-resident-badge {
+  display:inline-flex;align-items:center;justify-content:center;
+  background:#eef1f8;color:#57647c;border-radius:999px;
+  padding:5px 10px;font-size:11px;font-weight:800;line-height:1.3;white-space:nowrap;
+}
+#keuangan .f4-resident-badge.is-paid {background:#e7f7ed;color:#217449}
+#keuangan .f4-resident-badge.is-unpaid {background:#fff3e0;color:#935d0b}
+#keuangan .f4-resident-badge.is-partial {background:#fff0e4;color:#ab5713}
+#keuangan .f4-resident-badge.is-neutral {background:#eff1f8;color:#616b7e}
+#keuangan .f4-resident-status-content {flex:none;padding:3px 0 11px;border-bottom:1px solid #e8ebf3}
+#keuangan .f4-resident-payment-primary {display:flex;align-items:baseline;gap:9px}
+#keuangan .f4-resident-payment-primary>strong {font-size:19px;font-weight:850;color:#28395d;font-variant-numeric:tabular-nums}
+#keuangan .f4-resident-payment-primary>span {font-size:11px;color:#7c879a}
+#keuangan .f4-resident-payment-split {display:grid;grid-template-columns:1fr 1fr;gap:18px;width:100%}
+#keuangan .f4-resident-payment-split>div {display:flex;flex-direction:column;gap:3px}
+#keuangan .f4-resident-payment-split span {color:#7a8497;font-size:11px}
+#keuangan .f4-resident-payment-split strong {color:#273550;font-size:16px;font-variant-numeric:tabular-nums}
+#keuangan .f4-resident-payment-split strong.f4-resident-remaining {color:#bb5d29}
+#keuangan .f4-resident-history-pane {display:flex;flex:1;flex-direction:column;min-width:0;min-height:0}
+#keuangan .f4-resident-history-pane .f4-user-finance-intro {
+  gap:7px;margin:0 0 6px;padding:0;border:0;flex:none;
+}
+#keuangan .f4-resident-history-pane .f4-user-finance-icon {width:25px;height:25px;flex-basis:25px;border-radius:7px}
+#keuangan .f4-resident-history-pane .f4-user-finance-icon svg {width:16px;height:16px}
+#keuangan .f4-resident-history-pane .f4-user-finance-intro h3 {font-size:13px;line-height:1.35}
+#keuangan .f4-resident-history-pane .f4-user-finance-intro p {display:none}
+#keuangan .f4-resident-history-pane .f4-user-finance-sub {
+  flex:none;gap:5px;padding:1px 0 5px;margin:0 0 3px;min-height:0;
+}
+#keuangan .f4-resident-history-pane .f4-user-finance-sub>button {
+  min-height:31px;padding:6px 9px;font-size:11px;border-radius:8px;
+}
+#keuangan .f4-resident-history-pane #f4-personal-data {
+  display:flex;flex:1;flex-direction:column;min-width:0;min-height:0;
+}
+#keuangan .f4-resident-history-pane .f4-user-category-heading {
+  margin:0 0 5px;flex:none;gap:5px;
+}
+#keuangan .f4-resident-history-pane .f4-user-category-heading h4 {font-size:12px}
+#keuangan .f4-resident-history-pane .f4-user-year-filter>span {display:none}
+#keuangan .f4-resident-history-pane .f4-user-year-trigger {
+  min-height:30px;min-width:90px;padding:5px 9px;font-size:11px;
+}
+#keuangan .f4-resident-history-pane .f4-user-year-picker {min-width:90px}
+#keuangan .f4-resident-history-pane .f4-user-year-content {
+  display:flex;flex:1;flex-direction:column;min-width:0;min-height:0;
+}
+#keuangan .f4-resident-history-pane .f4-user-year-context {display:none}
+#keuangan .f4-resident-history-pane .f4-user-metrics {
+  display:flex;gap:9px;margin:1px 0 8px;flex:none;
+}
+#keuangan .f4-resident-history-pane .f4-user-metric {
+  flex:1;min-width:0;border:0;border-radius:8px;
+  background:#f7f8fc;padding:6px 8px;
+}
+#keuangan .f4-resident-history-pane .f4-user-metric:last-child {display:none}
+#keuangan .f4-resident-history-pane .f4-user-metric span {font-size:10px}
+#keuangan .f4-resident-history-pane .f4-user-metric strong {font-size:12px;margin:2px 0 0}
+#keuangan .f4-resident-history-pane .f4-user-list-heading {display:none}
+#keuangan .f4-resident-history-pane .f4-user-entries {
+  min-height:0;flex:1;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+  scrollbar-width:thin;scrollbar-color:#cbd0e5 transparent;
+}
+#keuangan .f4-resident-history-pane .f4-user-row {padding:9px 11px;gap:6px}
+#keuangan .f4-resident-history-pane .f4-user-row-content>strong {font-size:11px}
+#keuangan .f4-resident-history-pane .f4-user-row-details {font-size:10px;margin-top:3px}
+#keuangan .f4-resident-history-pane .f4-user-amount {font-size:12px;align-self:center}
+#keuangan .f4-resident-history-pane .f4-user-more-controls {
+  flex:none;margin-top:5px;gap:5px;
+}
+#keuangan .f4-resident-history-pane .f4-user-more-controls>span {font-size:10px}
+#keuangan .f4-resident-history-pane .f4-user-more-controls button.f4-user-more-button {
+  min-height:28px;padding:5px 9px;font-size:11px;
+}
+#keuangan .f4-resident-placeholder {font-size:12px;color:#7a8599;line-height:1.55;margin:7px 0}
+#keuangan .f4-resident-mobile-actions {display:none}
+#keuangan .f4-resident-sheet-overlay[hidden] {display:none}
+@media(max-width:767px) {
+  #keuangan.f4-finance-personal-active .f4-user-finance-heading {display:none}
+  #keuangan.f4-finance-personal-active .f4-user-finance-controls {margin:0 0 11px}
+  #keuangan .f4-resident-layout {display:block}
+  #keuangan .f4-resident-layout>.f4-resident-dues {display:none}
+  #keuangan .f4-resident-layout>.f4-resident-right {height:auto;padding:14px;border-radius:14px;gap:12px}
+  #keuangan .f4-resident-layout .f4-resident-history-pane {display:none}
+  #keuangan .f4-resident-status-content {padding:0 0 12px}
+  #keuangan .f4-resident-payment-primary>strong {font-size:20px}
+  #keuangan .f4-resident-mobile-actions {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  #keuangan .f4-resident-mobile-actions button.f4-resident-sheet-opener {
+    display:flex;align-items:center;justify-content:space-between;gap:5px;
+    min-width:0;min-height:48px;padding:10px 9px;background:#f7f7fe;
+    border:1px solid #e2defa;border-radius:10px;color:#5346bf;
+    font-size:11px;font-weight:800;text-align:left;
+  }
+  #keuangan .f4-resident-sheet-opener svg {flex:none;width:17px;height:17px}
+  #keuangan .f4-resident-sheet-opener svg:last-child {width:13px;height:13px;margin-left:auto}
+  #keuangan .f4-resident-sheet-opener span {line-height:1.25;min-width:0}
+  body.f4-resident-sheet-open {overflow:hidden}
+  #keuangan .f4-resident-sheet-overlay {
+    position:fixed;inset:0;z-index:26000;display:flex;
+    align-items:flex-end;justify-content:center;padding:0;
+    background:rgba(21,27,49,.48);
+  }
+  #keuangan .f4-resident-sheet-panel {
+    display:flex;flex-direction:column;min-width:0;width:100%;
+    height:85dvh;max-height:calc(100dvh - 10px);overflow:hidden;
+    border-radius:20px 20px 0 0;background:#fff;
+    box-shadow:0 -15px 40px rgba(27,30,61,.24);
+    padding:32px 15px calc(17px + env(safe-area-inset-bottom,0px));
+    animation:f4-sheet-up .23s ease-out;
+  }
+  #keuangan .f4-resident-sheet-overlay[data-kind="dues"] .f4-resident-sheet-panel {
+    height:auto;max-height:85dvh;
+  }
+  #keuangan .f4-resident-sheet-panel .f4-resident-sheet-top {
+    display:flex;align-items:center;justify-content:space-between;
+    gap:12px;margin-bottom:15px;flex:none;
+  }
+  #keuangan .f4-resident-sheet-top h3 {margin:0;font-size:17px;font-weight:800;color:#283550}
+  #keuangan .f4-resident-sheet-top button.f4-resident-sheet-close {
+    width:34px;height:34px;display:grid;place-items:center;
+    background:#f1f3f9;color:#65718c;border:0;border-radius:10px;
+    padding:0;min-height:0;
+  }
+  #keuangan .f4-resident-sheet-content {
+    display:flex;flex:1;flex-direction:column;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+  }
+  #keuangan .f4-resident-sheet-content .f4-resident-dues {
+    display:flex;width:100%;height:auto;min-height:0;max-height:none;padding:0;
+    border:0;border-radius:0;box-shadow:none;
+  }
+  #keuangan .f4-resident-sheet-content .f4-resident-card-heading {display:none}
+  #keuangan .f4-resident-sheet-content .f4-resident-dues-rows {gap:15px;padding:3px 0 15px}
+  #keuangan .f4-resident-sheet-content .f4-resident-dues-total {margin-top:6px}
+  #keuangan .f4-resident-sheet-content .f4-resident-history-pane {
+    display:flex;flex:1;min-height:0;
+  }
+  #keuangan .f4-resident-sheet-content .f4-user-finance-intro {display:none}
+  #keuangan .f4-resident-sheet-content .f4-user-finance-sub {margin-bottom:9px}
+  #keuangan .f4-resident-sheet-content .f4-user-entries {min-height:100px}
+}
+@media(prefers-reduced-motion:reduce){
+  #keuangan .f4-resident-sheet-panel {animation:none}
+}
