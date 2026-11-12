@@ -3,7 +3,15 @@
 (()=>{'use strict';
 const node=(tag,cls='',label)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(label!==undefined)el.textContent=String(label);return el;};
 const svg=(name)=>{
- const paths={close:'<path d="M18 6 6 18M6 6 18 18"/>',prev:'<path d="m15 18-6-6 6-6"/>',next:'<path d="m9 18 6-6-6-6"/>'};
+ const paths={
+  close:'<path d="M18 6 6 18M6 6l12 12"/>',
+  prev:'<path d="m15 18-6-6 6-6"/>',
+  next:'<path d="m9 18 6-6-6-6"/>',
+  play:'<path d="m8 5 11 7-11 7V5z"/>',
+  images:'<rect x="3" y="3" width="14" height="14" rx="2"/><path d="M8 21h11a2 2 0 0 0 2-2V8"/>',
+  zoomIn:'<circle cx="10.5" cy="10.5" r="7.5"/><path d="M16 16l5 5M7.5 10.5h6m-3-3v6"/>',
+  zoomOut:'<circle cx="10.5" cy="10.5" r="7.5"/><path d="M16 16l5 5M7.5 10.5h6"/>'
+ };
  return '<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+paths[name]+'</svg>';
 };
 const safe=value=>{try{const u=new URL(String(value||''),location.href);return ['https:','http:'].includes(u.protocol)?u.href:null}catch{return null}};
@@ -19,6 +27,29 @@ const normalize=item=>{
    type==='video'&&yt?'https://www.youtube-nocookie.com/embed/'+yt:null};
 };
 let album=null,photo=null,items=[],at=0,albumTitle='Dokumentasi',currentAlbumId='',mediaContext='gallery',lastTile=null,closing=false;
+let photoZoom={scale:1,x:0,y:0};
+function applyPhotoZoom(scale=photoZoom.scale,x=photoZoom.x,y=photoZoom.y){
+ const content=photo?.querySelector('.f4p-photo-content');
+ const image=content?.querySelector('img.f4p-media-photo');
+ if(!image)return;
+ const next=Math.min(4,Math.max(1,Number(scale)||1));
+ const limitX=(next-1)*content.clientWidth/2,limitY=(next-1)*content.clientHeight/2;
+ photoZoom={scale:next,x:next===1?0:Math.min(limitX,Math.max(-limitX,x)),y:next===1?0:Math.min(limitY,Math.max(-limitY,y))};
+ image.style.transform='translate3d('+photoZoom.x+'px,'+photoZoom.y+'px,0) scale('+photoZoom.scale+')';
+ image.classList.toggle('f4p-zoomed',photoZoom.scale>1);
+ const zoom=photo.querySelector('.f4p-photo-zoom');
+ if(zoom){
+  zoom.innerHTML=svg(photoZoom.scale>1?'zoomOut':'zoomIn');
+  zoom.setAttribute('aria-label',photoZoom.scale>1?'Kembalikan ukuran foto':'Perbesar foto');
+  zoom.setAttribute('aria-pressed',String(photoZoom.scale>1));
+  zoom.title=photoZoom.scale>1?'Ukuran asli':'Zoom foto';
+ }
+}
+function resetPhotoZoom(){
+ photoZoom={scale:1,x:0,y:0};
+ const zoom=photo?.querySelector('.f4p-photo-zoom');
+ if(zoom){zoom.innerHTML=svg('zoomIn');zoom.setAttribute('aria-pressed','false');zoom.setAttribute('aria-label','Perbesar foto');zoom.title='Zoom foto';}
+}
 const isOpen=el=>!!el&&!el.hidden;
 const show=(el,on)=>{
  if(!el)return;
@@ -45,24 +76,73 @@ function ensure(){
  const grid=node('div','f4p-album-grid');card.append(head,grid);album.append(card);document.body.append(album);
  album.addEventListener('click',e=>{if(e.target===album)closeTop()});
  photo=node('div','f4p-overlay f4p-photo-overlay');photo.hidden=true;photo.setAttribute('role','dialog');photo.setAttribute('aria-label','Penampil foto dan video');photo.setAttribute('aria-modal','true');
- const bar=node('div','f4p-photo-head'),name=node('strong','f4p-photo-name'),cx=node('button','f4p-close');cx.type='button';cx.innerHTML=svg('close');cx.setAttribute('aria-label','Tutup foto');cx.title='Tutup foto';cx.onclick=closeTop;bar.append(name,cx);
+ const bar=node('div','f4p-photo-head'),name=node('strong','f4p-photo-name'),cx=node('button','f4p-close');cx.type='button';cx.innerHTML=svg('close');cx.setAttribute('aria-label','Tutup foto');cx.title='Tutup foto';cx.onclick=closeTop;
+ const photoControls=node('div','f4p-photo-controls'),zoom=node('button','f4p-photo-zoom');
+ zoom.type='button';zoom.innerHTML=svg('zoomIn');zoom.setAttribute('aria-label','Perbesar foto');zoom.setAttribute('aria-pressed','false');zoom.title='Zoom foto';zoom.onclick=()=>applyPhotoZoom(photoZoom.scale>1?1:2.5);
+ photoControls.append(zoom,cx);bar.append(name,photoControls);
  const stage=node('div','f4p-photo-stage'),prev=node('button','f4p-photo-arrow'),next=node('button','f4p-photo-arrow');
  prev.innerHTML=svg('prev');next.innerHTML=svg('next');prev.type=next.type='button';prev.title='Sebelumnya';next.title='Berikutnya';
  prev.setAttribute('aria-label','Media sebelumnya');next.setAttribute('aria-label','Media berikutnya');
  prev.onclick=()=>shift(-1);next.onclick=()=>shift(1);
  const view=node('div','f4p-photo-content');stage.append(prev,view,next);
+ // Zoom is isolated to the picture. The browser's document viewport remains unchanged.
+ let gesture=null,lastTap=null;
+ const distance=(a,b)=>Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+ view.addEventListener('touchstart',e=>{
+  if(!view.querySelector('img.f4p-media-photo'))return;
+  if(e.touches.length===2){
+   const [a,b]=e.touches;
+   gesture={kind:'pinch',distance:distance(a,b),scale:photoZoom.scale,x:photoZoom.x,y:photoZoom.y,
+    cx:(a.clientX+b.clientX)/2,cy:(a.clientY+b.clientY)/2};
+  }else if(e.touches.length===1&&photoZoom.scale>1){
+   gesture={kind:'pan',clientX:e.touches[0].clientX,clientY:e.touches[0].clientY,x:photoZoom.x,y:photoZoom.y};
+  }else gesture=null;
+ },{passive:true});
+ view.addEventListener('touchmove',e=>{
+  if(!view.querySelector('img.f4p-media-photo'))return;
+  if(e.touches.length===2&&gesture?.kind==='pinch'){
+   e.preventDefault();
+   const [a,b]=e.touches;
+   const next=gesture.scale*(distance(a,b)/Math.max(1,gesture.distance));
+   applyPhotoZoom(next,gesture.x+((a.clientX+b.clientX)/2-gesture.cx),gesture.y+((a.clientY+b.clientY)/2-gesture.cy));
+  }else if(e.touches.length===1&&gesture?.kind==='pan'){
+   e.preventDefault();
+   applyPhotoZoom(photoZoom.scale,gesture.x+e.touches[0].clientX-gesture.clientX,gesture.y+e.touches[0].clientY-gesture.clientY);
+  }
+ },{passive:false});
+ view.addEventListener('touchend',e=>{
+  if(e.touches.length===1&&photoZoom.scale>1){
+   gesture={kind:'pan',clientX:e.touches[0].clientX,clientY:e.touches[0].clientY,x:photoZoom.x,y:photoZoom.y};
+   lastTap=null;return;
+  }
+  if(e.touches.length!==0){gesture=null;return}
+  if(e.changedTouches.length===1&&gesture?.kind!=='pan'&&gesture?.kind!=='pinch'&&view.querySelector('img.f4p-media-photo')){
+   const t=e.changedTouches[0],now=Date.now();
+   if(lastTap&&now-lastTap.time<320&&Math.hypot(t.clientX-lastTap.x,t.clientY-lastTap.y)<36){
+    applyPhotoZoom(photoZoom.scale>1?1:2.5);
+    lastTap=null;
+   }else lastTap={time:now,x:t.clientX,y:t.clientY};
+  }else lastTap=null;
+  gesture=null;
+ },{passive:true});
+ view.addEventListener('touchcancel',()=>{gesture=null;lastTap=null},{passive:true});
+ view.addEventListener('dblclick',e=>{if(view.querySelector('img.f4p-media-photo')){e.preventDefault();applyPhotoZoom(photoZoom.scale>1?1:2.5)}});
+ view.addEventListener('wheel',e=>{
+  if(!isOpen(photo)||!view.querySelector('img.f4p-media-photo'))return;
+  e.preventDefault();applyPhotoZoom(photoZoom.scale*Math.exp(-e.deltaY*.002));
+ },{passive:false});
  // Gesture horizontal hanya untuk mengganti foto, bukan menutup penampil atau album.
  // Pasang pada stage (bukan tombol) agar foto dan video tetap bisa dikontrol.
  let touchOrigin=null;
  stage.addEventListener('touchstart',event=>{
-  if(!isOpen(photo)||items.length<2||event.touches.length!==1||event.target.closest('button,video,iframe,a,input,textarea')){touchOrigin=null;return;}
+  if(!isOpen(photo)||items.length<2||photoZoom.scale>1||event.touches.length!==1||event.target.closest('button,video,iframe,a,input,textarea')){touchOrigin=null;return;}
   const t=event.touches[0];
   touchOrigin={x:t.clientX,y:t.clientY,time:Date.now()};
  },{passive:true});
  stage.addEventListener('touchcancel',()=>{touchOrigin=null},{passive:true});
  stage.addEventListener('touchend',event=>{
   const start=touchOrigin;touchOrigin=null;
-  if(!start||!isOpen(photo)||items.length<2||event.changedTouches.length!==1)return;
+  if(!start||!isOpen(photo)||items.length<2||photoZoom.scale>1||event.changedTouches.length!==1)return;
   const end=event.changedTouches[0],dx=end.clientX-start.x,dy=end.clientY-start.y;
   if(Math.abs(dx)>=48&&Math.abs(dx)>Math.abs(dy)*1.35&&Date.now()-start.time<1300){
    shift(dx<0?1:-1);
@@ -103,7 +183,7 @@ function renderPhoto(){
  if(!photo||!items.length)return;
  const item=items[at];
  photo.querySelector('.f4p-photo-name').textContent=mediaContext==='gallery'?'Postingan · '+albumTitle:(item.caption||albumTitle);
- const view=photo.querySelector('.f4p-photo-content');view.replaceChildren();
+ const view=photo.querySelector('.f4p-photo-content');resetPhotoZoom();view.replaceChildren();
  if(item.type==='video'){
   if(item.embed){const frame=node('iframe','f4p-media-frame');frame.src=item.embed;frame.title=item.caption||albumTitle;frame.allowFullscreen=true;frame.allow='autoplay; fullscreen';view.append(frame)}
   else{
@@ -119,6 +199,7 @@ function renderPhoto(){
   img.onerror=()=>{if(img.isConnected)img.replaceWith(node('p','f4p-media-error','Foto tidak dapat dimuat.'))};
   view.append(img);
  }
+ photo.querySelector('.f4p-photo-zoom').hidden=item.type==='video';
  photo.querySelector('.f4p-photo-count').textContent=(at+1)+' dari '+items.length;
  for(const b of photo.querySelectorAll('.f4p-photo-arrow'))b.hidden=items.length<2;
  if(mediaContext==='gallery')document.dispatchEvent(new CustomEvent('f4:gallery:photo',{detail:{id:item.id,albumId:currentAlbumId||item.albumId,title:albumTitle,caption:item.caption,url:item.url}}));
@@ -139,14 +220,19 @@ function openMediaGallery(title,records,opts={}){
  items=(records||[]).map(normalize).filter(x=>x?.url);
  albumTitle=title||'Dokumentasi';currentAlbumId=String(opts.albumId||'');mediaContext='gallery';
  album.querySelector('.f4p-album-title').textContent=albumTitle;
- album.querySelector('.f4p-album-count').textContent=items.length+' media';
+ const count=album.querySelector('.f4p-album-count');
+ count.replaceChildren();
+ const countIcon=node('span','f4p-count-icon');countIcon.innerHTML=svg('images');
+ count.append(countIcon,node('span','',String(items.length)));
+ count.setAttribute('aria-label',items.length+' media');
  const grid=album.querySelector('.f4p-album-grid');grid.replaceChildren();
  if(!items.length)grid.append(node('p','f4p-media-empty',opts.empty||'Belum ada foto/video.'));
  items.forEach((item,index)=>{
   const button=node('button','f4p-album-tile');button.type='button';button.title=item.caption||albumTitle;
   if(item.type==='video'){
    if(item.embed){const marker=node('div','f4p-video-thumb');marker.innerHTML='<svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="10"/><path d="m9 7 7 5-7 5z"/></svg>';button.append(marker)}
-   else {const video=node('video','f4p-tile-video');video.muted=true;video.preload='metadata';video.src=item.url;button.append(video,node('span','f4p-tile-play','▶'))}
+   else {const video=node('video','f4p-tile-video');video.muted=true;video.preload='metadata';video.src=item.url;
+    const play=node('span','f4p-tile-play');play.innerHTML=svg('play');button.append(video,play)}
   }else{const img=node('img','f4p-tile-image');img.src=item.url;img.alt=item.caption||albumTitle;img.loading='lazy';img.onerror=()=>{if(img.isConnected)img.replaceWith(node('div','f4p-video-thumb','Foto'))};button.append(img)}
   button.onclick=()=>{lastTile=button;openPhoto(index)};
   grid.append(button);
