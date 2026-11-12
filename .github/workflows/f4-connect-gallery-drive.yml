@@ -1,0 +1,110 @@
+name: F4 Connect Google Drive Gallery
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/f4-connect-gallery-drive.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: f4-worker-drive-secrets
+  cancel-in-progress: false
+
+jobs:
+  connect:
+    name: Install Drive OAuth secrets without touching financial data
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Inspect and optionally connect Drive (never log token values)
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          DRIVE_ID: ${{ secrets.GALLERY_DRIVE_CLIENT_ID }}
+          DRIVE_SECRET: ${{ secrets.GALLERY_DRIVE_CLIENT_SECRET }}
+          DRIVE_REFRESH: ${{ secrets.GALLERY_DRIVE_REFRESH_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os,json,urllib.request,urllib.error,time,sys
+          worker="flamboyan4-terpadu-staging"
+          token=os.environ.get("CF_TOKEN","")
+          account=os.environ.get("CF_ACCOUNT","")
+          if not token or not account:
+              raise RuntimeError("Missing Cloudflare deployment credentials")
+          base="https://api.cloudflare.com/client/v4/accounts/"+account+"/workers/scripts/"+worker
+          def call(path,method="GET",payload=None):
+              headers={"Authorization":"Bearer "+token,"Accept":"application/json"}
+              data=None
+              if payload is not None:
+                  data=json.dumps(payload,separators=(",",":")).encode("utf-8")
+                  headers["Content-Type"]="application/json"
+              req=urllib.request.Request(base+path,method=method,headers=headers,data=data)
+              with urllib.request.urlopen(req,timeout=25) as response:
+                  result=json.load(response)
+              if result.get("success") is not True:
+                  raise RuntimeError("Cloudflare rejected secrets update")
+              return result.get("result")
+          initial=call("/settings")
+          previous={x.get("name"):x for x in initial.get("bindings",[])}
+          for must,kind in (("DB","d1"),("PHOTOS","r2_bucket"),("ASSETS","assets")):
+              if previous.get(must,{}).get("type")!=kind:
+                  raise RuntimeError("Missing critical binding: "+must+"; no changes made")
+          secrets={
+              "GALLERY_DRIVE_CLIENT_ID":os.environ.get("DRIVE_ID",""),
+              "GALLERY_DRIVE_CLIENT_SECRET":os.environ.get("DRIVE_SECRET",""),
+              "GALLERY_DRIVE_REFRESH_TOKEN":os.environ.get("DRIVE_REFRESH","")
+          }
+          missing=[name for name,val in secrets.items() if not val]
+          if missing:
+              print("DRIVE_CONNECTION_PENDING: create these GitHub Actions secrets first:")
+              for name in missing:print(" -",name)
+              print("No production settings or data changed.")
+              sys.exit(0)
+          if not secrets["GALLERY_DRIVE_CLIENT_ID"].endswith(".apps.googleusercontent.com"):
+              raise RuntimeError("Google OAuth Client ID format is invalid")
+          if len(secrets["GALLERY_DRIVE_REFRESH_TOKEN"])<20:
+              raise RuntimeError("Google refresh token appears invalid")
+          # Verify OAuth works against Google before installing any of the three secrets.
+          from urllib.parse import urlencode
+          params=urlencode({
+              "client_id":secrets["GALLERY_DRIVE_CLIENT_ID"],
+              "client_secret":secrets["GALLERY_DRIVE_CLIENT_SECRET"],
+              "refresh_token":secrets["GALLERY_DRIVE_REFRESH_TOKEN"],
+              "grant_type":"refresh_token"
+          }).encode()
+          token_request=urllib.request.Request(
+              "https://oauth2.googleapis.com/token",method="POST",data=params,
+              headers={"Content-Type":"application/x-www-form-urlencoded"})
+          try:
+              with urllib.request.urlopen(token_request,timeout=20) as response:
+                  test=json.load(response)
+          except urllib.error.HTTPError as ex:
+              raise RuntimeError("Google OAuth verification failed (HTTP "+str(ex.code)+")")
+          access=test.get("access_token")
+          if not access:raise RuntimeError("Google did not issue access token")
+          # Verify owner has access to the exact existing upload folder.
+          folder_id="1WZ1LoNjK0S1hP14vlgGW1IY7tvYfA8_a"
+          req=urllib.request.Request(
+              "https://www.googleapis.com/drive/v3/files/"+folder_id+
+              "?fields=id,mimeType,capabilities(canAddChildren)&supportsAllDrives=true",
+              headers={"Authorization":"Bearer "+access})
+          with urllib.request.urlopen(req,timeout=20) as response:folder=json.load(response)
+          if folder.get("id")!=folder_id or folder.get("mimeType")!="application/vnd.google-apps.folder" or folder.get("capabilities",{}).get("canAddChildren") is not True:
+              raise RuntimeError("Google account cannot write to verified Upload Warga folder")
+          print("GOOGLE_DRIVE_FOLDER_WRITE_PERMISSION_OK")
+          # Write only Gallery secrets. Cloudflare PUT creates a new Worker version.
+          for name,value in secrets.items():
+              call("/secrets","PUT",{"name":name,"text":value,"type":"secret_text"})
+              print("INSTALLED",name)
+          after=call("/settings")
+          current={x.get("name"):x for x in after.get("bindings",[])}
+          for must in ("DB","PHOTOS","ASSETS"):
+              if current.get(must)!=previous.get(must):
+                  raise RuntimeError("Critical binding changed unexpectedly: "+must)
+          if not all(current.get(name,{}).get("type")=="secret_text" for name in secrets):
+              raise RuntimeError("Gallery secrets were not all bound")
+          print("GALLERY_DRIVE_CONNECTION_CONFIGURED: sensitive values never printed")
+          PY
