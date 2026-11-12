@@ -1,0 +1,51 @@
+name: F4 Community Gallery Integration
+on:
+  push:
+    branches: [main]
+    paths:
+      - cloudflare/worker-terpadu-operasional-teruji.js
+      - portal-live/dokumentasi/community-gallery.js
+      - portal-live/dokumentasi/media-preview.js
+      - portal-live/dokumentasi/media-viewer.js
+      - portal-live/community-home.js
+      - dokumentasi/index.html
+      - index.html
+      - .github/workflows/f4-gallery-integration.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  gallery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate scripts
+        run: |
+          node --check cloudflare/worker-terpadu-operasional-teruji.js
+          node --check portal-live/dokumentasi/community-gallery.js
+          node --check portal-live/dokumentasi/media-preview.js
+          node --check portal-live/dokumentasi/media-viewer.js
+          node --check portal-live/community-home.js
+      - name: Verify read-only live gallery API
+        run: |
+          python3 - <<'PY'
+          import json,urllib.request,urllib.error
+          url='https://api.flamboyan4.web.id/api/v2/gallery'
+          request=urllib.request.Request(url,headers={'Origin':'https://flamboyan4.web.id','Accept':'application/json','User-Agent':'F4-gallery-smoke/1.0'})
+          try:
+            with urllib.request.urlopen(request,timeout=20) as response:
+              data=json.load(response)
+              assert data.get('ok') is True
+              assert isinstance(data.get('albums'),list)
+              assert isinstance(data.get('photos'),list)
+              assert isinstance(data.get('highlights'),list)
+              assert isinstance(data.get('popular'),list)
+              print('GALLERY_READ_OK albums=',len(data['albums']),'photos=',len(data['photos']),'driveConfigured=',bool(data.get('uploadEnabled')))
+          except urllib.error.HTTPError as exc:
+            print('GALLERY_READ_HTTP_ERROR',exc.code,exc.read(700).decode('utf-8','replace'))
+            raise
+          PY
