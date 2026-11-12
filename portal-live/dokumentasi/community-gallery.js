@@ -530,6 +530,6 @@ document.addEventListener('f4:gallery:photo',e=>{
  if(target.id)socialButtons(actions,target,true,paint);
  else{actions.replaceChildren(button('Bagikan foto','share',()=>share(target)));paint({comments:[]})}
 });
-document.addEventListener('f4:auth-changed',()=>activeSession().then(()=>{document.querySelector('.f4g-top-actions')?.remove();mount()}));
+document.addEventListener('f4:auth-changed',()=>activeSession().then(mount));
 activeSession().then(mount);
 })();
