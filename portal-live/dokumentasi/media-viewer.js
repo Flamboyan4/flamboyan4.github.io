@@ -23,6 +23,13 @@ const isOpen=el=>!!el&&!el.hidden;
 const show=(el,on)=>{
  if(!el)return;
  el.hidden=!on;el.setAttribute('aria-hidden',String(!on));
+ // Album tetap menyimpan posisi foto, tetapi tidak tampak/terbaca di belakang lightbox.
+ // Saat foto ditutup, album kembali ke posisi semula.
+ if(album){
+  const behindPhoto=isOpen(photo);
+  album.classList.toggle('f4p-under-photo',behindPhoto);
+  album.setAttribute('aria-hidden',String(behindPhoto||!isOpen(album)));
+ }
  const active=isOpen(album)||isOpen(photo);
  document.documentElement.classList.toggle('f4p-overlay-active',active);
  document.body.classList.toggle('f4p-overlay-active',active);
