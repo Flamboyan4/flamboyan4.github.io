@@ -26,23 +26,24 @@
 }
 #keuangan .f4-cash-overview {
   display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.95fr);
-  align-items:stretch;gap:14px;min-width:0;
+  align-items:stretch;gap:14px;min-width:0;height:476px;
 }
 #keuangan .f4-cash-summary {
-  display:flex;flex-direction:column;gap:10px;min-width:0;
+  display:flex;flex-direction:column;gap:10px;min-width:0;min-height:0;height:100%;
 }
 #keuangan .f4-cash-summary>div {
   display:flex;flex-direction:column;justify-content:space-between;
-  min-width:0;flex:1;padding:15px 17px;border-radius:16px;transform:none;
+  min-width:0;min-height:0;flex:1 1 0;padding:15px 17px;border-radius:16px;transform:none;
   box-shadow:0 5px 16px rgba(34,39,91,.035);
 }
 #keuangan .f4-cash-summary>div:first-child {
-  flex:1.16;justify-content:center;gap:7px;
+  flex:1 1 0;justify-content:center;gap:7px;
 }
 #keuangan .f4-cash-summary .mt-4 {margin-top:8px}
 #keuangan:not(.f4-finance-personal-active) .f4-cash-overview #f4-private-transactions,
 body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-finance-personal-active) .f4-cash-overview #f4-private-transactions {
-  min-width:0;min-height:0;display:flex;flex-direction:column;
+  min-width:0;min-height:0;height:100%;max-height:100%;
+  display:flex;flex-direction:column;
   overflow:hidden;border-radius:16px;box-shadow:0 5px 16px rgba(34,39,91,.035);
 }
 #keuangan .f4-cash-overview #f4-private-transactions>div.overflow-x-auto {
@@ -119,17 +120,17 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
   padding:9px 10px;
 }
 @media (min-width:768px) and (max-width:1150px) {
-  #keuangan .f4-cash-overview {grid-template-columns:minmax(0,1fr)}
-  #keuangan .f4-cash-summary {display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
-  #keuangan .f4-cash-summary>div {padding:13px}
+  #keuangan .f4-cash-overview {grid-template-columns:minmax(0,1fr);height:auto}
+  #keuangan .f4-cash-summary {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));height:auto}
+  #keuangan .f4-cash-summary>div {padding:13px;min-height:145px}
   #keuangan .f4-cash-summary>div:first-child {grid-column:auto}
-  #keuangan:not(.f4-finance-personal-active) .f4-cash-overview #f4-private-transactions {min-height:300px}
+  #keuangan:not(.f4-finance-personal-active) .f4-cash-overview #f4-private-transactions {height:350px;max-height:350px}
 }
 @media (max-width:767px) {
-  #keuangan .f4-cash-overview {grid-template-columns:minmax(0,1fr);gap:12px}
-  #keuangan .f4-cash-summary {display:flex;gap:10px}
-  #keuangan .f4-cash-summary>div {padding:13px 15px;min-height:0}
-  #keuangan:not(.f4-finance-personal-active) .f4-cash-overview #f4-private-transactions {min-height:280px;max-height:390px}
+  #keuangan .f4-cash-overview {grid-template-columns:minmax(0,1fr);gap:12px;height:auto}
+  #keuangan .f4-cash-summary {display:flex;gap:10px;height:auto}
+  #keuangan .f4-cash-summary>div {padding:13px 15px;min-height:0;flex:none}
+  #keuangan:not(.f4-finance-personal-active) .f4-cash-overview #f4-private-transactions {height:390px;max-height:390px;min-height:0}
   #keuangan .f4-cash-overview .f4-cash-table-toolbar {padding:9px 11px;gap:8px}
   #keuangan .f4-cash-overview .f4-cash-date-control {min-height:34px}
   #keuangan .f4-cash-overview #f4-cash-date-filter {width:116px;font-size:11px}
