@@ -2202,6 +2202,279 @@ async function deleteBankManagedContent(request,env,who,kind){
   return ok({id,deleted:true,archived:kind==="inventory"});
 }
 __name(deleteBankManagedContent,"deleteBankManagedContent");
+
+/* Galeri Warga: tabel terpisah, tidak menyentuh pembukuan atau arsip Bank Sampah. */
+let f4GallerySetup=null;
+async function f4GallerySchema(db){
+ if(!f4GallerySetup){
+  f4GallerySetup=(async()=>{
+   const statements=[
+    "CREATE TABLE IF NOT EXISTS f4_gallery_albums(id TEXT PRIMARY KEY,title TEXT NOT NULL,description TEXT NOT NULL DEFAULT '',created_by TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'aktif',drive_folder_id TEXT,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)",
+    "CREATE TABLE IF NOT EXISTS f4_gallery_photos(id TEXT PRIMARY KEY,album_ref TEXT NOT NULL,drive_file_id TEXT NOT NULL UNIQUE,drive_folder_id TEXT NOT NULL,uploader_id TEXT NOT NULL,filename TEXT NOT NULL,caption TEXT NOT NULL DEFAULT '',status TEXT NOT NULL DEFAULT 'baru',created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)",
+    "CREATE INDEX IF NOT EXISTS idx_f4_gallery_photos_album ON f4_gallery_photos(album_ref,status,created_at)",
+    "CREATE TABLE IF NOT EXISTS f4_gallery_reactions(target_type TEXT NOT NULL,target_id TEXT NOT NULL,account_id TEXT NOT NULL,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY(target_type,target_id,account_id))",
+    "CREATE TABLE IF NOT EXISTS f4_gallery_comments(id TEXT PRIMARY KEY,target_type TEXT NOT NULL,target_id TEXT NOT NULL,account_id TEXT NOT NULL,message TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'aktif',created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)",
+    "CREATE INDEX IF NOT EXISTS idx_f4_gallery_comments_target ON f4_gallery_comments(target_type,target_id,status,created_at)",
+    "CREATE TABLE IF NOT EXISTS f4_gallery_reports(id TEXT PRIMARY KEY,target_type TEXT NOT NULL,target_id TEXT NOT NULL,account_id TEXT NOT NULL,reason TEXT NOT NULL,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"
+   ];
+   for(const statement of statements)await db.prepare(statement).run();
+  })().catch(e=>{f4GallerySetup=null;throw e});
+ }
+ return f4GallerySetup;
+}
+__name(f4GallerySchema,"f4GallerySchema");
+function f4GalleryDriveReady(env){
+ return Boolean(env.GALLERY_DRIVE_CLIENT_ID&&env.GALLERY_DRIVE_CLIENT_SECRET&&env.GALLERY_DRIVE_REFRESH_TOKEN&&env.GALLERY_UPLOAD_FOLDER_ID);
+}
+__name(f4GalleryDriveReady,"f4GalleryDriveReady");
+async function f4GalleryDriveToken(env){
+ if(!f4GalleryDriveReady(env))throw Error("Google Drive belum dihubungkan oleh pengelola.");
+ const params=new URLSearchParams({client_id:env.GALLERY_DRIVE_CLIENT_ID,client_secret:env.GALLERY_DRIVE_CLIENT_SECRET,
+  refresh_token:env.GALLERY_DRIVE_REFRESH_TOKEN,grant_type:"refresh_token"});
+ const response=await fetch("https://oauth2.googleapis.com/token",{method:"POST",headers:{"content-type":"application/x-www-form-urlencoded"},body:params});
+ const data=await response.json().catch(()=>({}));
+ if(!response.ok||!data.access_token)throw Error("Izin Google Drive perlu diperbarui oleh pengelola.");
+ return data.access_token;
+}
+__name(f4GalleryDriveToken,"f4GalleryDriveToken");
+async function f4GalleryDriveRequest(token,path,options={}){
+ const headers=new Headers(options.headers||{});headers.set("authorization","Bearer "+token);
+ const response=await fetch("https://www.googleapis.com/drive/v3/"+path,{...options,headers});
+ const data=await response.json().catch(()=>({}));
+ if(!response.ok)throw Error("Google Drive menolak operasi ("+response.status+").");
+ return data;
+}
+__name(f4GalleryDriveRequest,"f4GalleryDriveRequest");
+function f4GalleryImageUrl(id){return "https://lh3.googleusercontent.com/d/"+encodeURIComponent(id);}
+__name(f4GalleryImageUrl,"f4GalleryImageUrl");
+function f4GalleryFolder(url){
+ return String(url||"").match(/(?:\/folders\/|[?&]folderId=)([A-Za-z0-9_-]{12,})/)?.[1]||"";
+}
+__name(f4GalleryFolder,"f4GalleryFolder");
+async function f4GalleryAlbum(db,ref){
+ if(!ref||ref.length>180)return null;
+ if(ref.startsWith("galbum:")){
+  const item=await one(db,"SELECT id,title,drive_folder_id FROM f4_gallery_albums WHERE id=? AND status='aktif'",[ref]);
+  return item?{id:item.id,title:item.title,folder:item.drive_folder_id||""}:null;
+ }
+ const doc=await one(db,"SELECT id,title,drive_url FROM portal_documentation WHERE id=? AND active=1 AND visibility='publik'",[ref]);
+ return doc?{id:doc.id,title:doc.title,folder:f4GalleryFolder(doc.drive_url)}:null;
+}
+__name(f4GalleryAlbum,"f4GalleryAlbum");
+async function f4GalleryCheckTarget(db,type,id){
+ if(!["album","photo"].includes(type)||!id||id.length>190)return false;
+ if(type==="album")return Boolean(await f4GalleryAlbum(db,id));
+ if(/^gdrive:[A-Za-z0-9_-]{12,100}$/.test(id))return true; // Foto arsip lama, hanya untuk interaksi warga login.
+ return Boolean(await one(db,"SELECT id FROM f4_gallery_photos WHERE id=? AND status IN ('baru','ditinjau')",[id]));
+}
+__name(f4GalleryCheckTarget,"f4GalleryCheckTarget");
+async function f4GalleryPublic(db,env){
+ const [albums,photos]=await Promise.all([
+  list(db,"SELECT id,title,description,drive_folder_id AS folder,created_at AS date FROM f4_gallery_albums WHERE status='aktif' ORDER BY created_at DESC LIMIT 150"),
+  list(db,"SELECT p.id,p.album_ref AS albumId,p.drive_file_id AS driveId,p.caption,p.created_at AS date,p.status,p.uploader_id AS uploaderId,COALESCE(pro.display_name,m.display_name,a.username,'Warga') AS uploader FROM f4_gallery_photos p LEFT JOIN accounts a ON a.id=p.uploader_id LEFT JOIN members m ON m.id=a.member_id LEFT JOIN member_account_profiles pro ON pro.account_id=a.id WHERE p.status IN ('baru','ditinjau') ORDER BY p.created_at DESC LIMIT 500")
+ ]);
+ const data=photos.map(p=>({...p,url:f4GalleryImageUrl(p.driveId)}));
+ const highlights=[];
+ for(const p of data.slice(0,8)){
+  const count=await one(db,"SELECT COUNT(*) AS n FROM f4_gallery_reactions WHERE target_type='photo' AND target_id=?",[p.id]);
+  const comments=await list(db,"SELECT c.message,COALESCE(pro.display_name,m.display_name,a.username,'Warga') AS nama FROM f4_gallery_comments c LEFT JOIN accounts a ON a.id=c.account_id LEFT JOIN members m ON m.id=a.member_id LEFT JOIN member_account_profiles pro ON pro.account_id=a.id WHERE c.target_type='photo' AND c.target_id=? AND c.status='aktif' ORDER BY c.created_at DESC LIMIT 2",[p.id]);
+  highlights.push({...p,likes:Number(count?.n||0),comments});
+ }
+ return ok({albums,photos:data,highlights,uploadEnabled:f4GalleryDriveReady(env),maxFiles:12,maxFileMb:6});
+}
+__name(f4GalleryPublic,"f4GalleryPublic");
+async function f4GallerySocial(db,who,url){
+ const type=url.searchParams.get("type")||"",id=url.searchParams.get("id")||"";
+ if(!await f4GalleryCheckTarget(db,type,id))return err("Konten tidak tersedia.",404);
+ const [likes,liked,comments]=await Promise.all([
+  one(db,"SELECT COUNT(*) AS n FROM f4_gallery_reactions WHERE target_type=? AND target_id=?",[type,id]),
+  who?one(db,"SELECT 1 AS yes FROM f4_gallery_reactions WHERE target_type=? AND target_id=? AND account_id=?",[type,id,who.id]):null,
+  list(db,"SELECT c.id,c.message,c.created_at AS date,COALESCE(pro.display_name,m.display_name,a.username,'Warga') AS author,c.account_id AS authorId FROM f4_gallery_comments c LEFT JOIN accounts a ON a.id=c.account_id LEFT JOIN members m ON m.id=a.member_id LEFT JOIN member_account_profiles pro ON pro.account_id=a.id WHERE c.target_type=? AND c.target_id=? AND c.status='aktif' ORDER BY c.created_at DESC,c.id DESC LIMIT 40",[type,id])
+ ]);
+ return ok({likes:Number(likes?.n||0),liked:Boolean(liked),comments});
+}
+__name(f4GallerySocial,"f4GallerySocial");
+async function f4GalleryUpload(req,env,who,url){
+ const denied=requireRole(who,["anggota","admin","superadmin"]);if(denied)return denied;
+ if(!f4GalleryDriveReady(env))return err("Upload Google Drive belum diaktifkan. Pengelola perlu menghubungkan akun penyimpanan.",503);
+ const albumId=String(url.searchParams.get("album")||"");
+ const album=await f4GalleryAlbum(env.DB,albumId);
+ if(!album)return err("Album tidak ditemukan. Muat ulang daftar album.",404);
+ const name=String(url.searchParams.get("name")||"Foto warga").trim().slice(0,120).replace(/[<>\/\\]/g,"_");
+ const caption=String(url.searchParams.get("caption")||"").trim().slice(0,350);
+ if(!name||/[^\S\r\n]*[\r\n]/.test(name)||/[\u0000-\u001f]/.test(caption))return err("Nama atau keterangan foto tidak valid.",400);
+ const size=Number(req.headers.get("content-length")||0);
+ if(size>6*1024*1024)return err("Ukuran foto maksimal 6 MB.",413);
+ const raw=await req.arrayBuffer();
+ if(raw.byteLength<100||raw.byteLength>6*1024*1024)return err("Ukuran foto tidak valid (maksimal 6 MB).",413);
+ const bytes=new Uint8Array(raw);
+ let mime="";
+ if(bytes[0]===255&&bytes[1]===216&&bytes[2]===255)mime="image/jpeg";
+ else if(bytes[0]===137&&bytes[1]===80&&bytes[2]===78&&bytes[3]===71&&bytes[4]===13&&bytes[5]===10)mime="image/png";
+ else if(String.fromCharCode(...bytes.slice(0,4))==="RIFF"&&String.fromCharCode(...bytes.slice(8,12))==="WEBP")mime="image/webp";
+ if(!mime)return err("Foto harus JPG, PNG, atau WebP.",415);
+ const recent=await one(env.DB,"SELECT COUNT(*) AS n FROM f4_gallery_photos WHERE uploader_id=? AND created_at>=datetime('now','-1 hour')",[who.id]);
+ if(Number(recent?.n||0)>=40)return err("Batas 40 unggahan per jam tercapai. Coba lagi nanti.",429);
+ const token=await f4GalleryDriveToken(env);
+ const boundary="f4_gallery_"+crypto.randomUUID().replace(/-/g,"");
+ const targetFolder=String(env.GALLERY_UPLOAD_FOLDER_ID).trim();
+ const metadata={name,parents:[targetFolder],mimeType:mime,description:caption.slice(0,300)};
+ const multipart=new Blob([
+  "--"+boundary+"\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n",JSON.stringify(metadata),"\r\n",
+  "--"+boundary+"\r\nContent-Type: "+mime+"\r\n\r\n",raw,"\r\n--"+boundary+"--\r\n"
+ ]);
+ const uploadResponse=await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,parents",{
+  method:"POST",headers:{"authorization":"Bearer "+token,"content-type":"multipart/related; boundary="+boundary},body:multipart
+ });
+ const uploaded=await uploadResponse.json().catch(()=>({}));
+ if(!uploadResponse.ok||!uploaded.id)return err("Gagal mengunggah ke Google Drive ("+uploadResponse.status+").",502);
+ try{
+  await f4GalleryDriveRequest(token,"files/"+encodeURIComponent(uploaded.id)+"/permissions?fields=id",{
+   method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({type:"anyone",role:"reader"})
+  });
+  const id="f4photo:"+crypto.randomUUID();
+  await env.DB.prepare("INSERT INTO f4_gallery_photos(id,album_ref,drive_file_id,drive_folder_id,uploader_id,filename,caption) VALUES(?,?,?,?,?,?,?)")
+   .bind(id,albumId,uploaded.id,targetFolder,who.id,name,caption).run();
+  return ok({id,albumId,url:f4GalleryImageUrl(uploaded.id),created:true},201);
+ }catch(e){
+  await f4GalleryDriveRequest(token,"files/"+encodeURIComponent(uploaded.id)+"?fields=id",{
+   method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify({trashed:true})
+  }).catch(()=>{});
+  return err(e.message||"Foto tidak dapat disimpan.",502);
+ }
+}
+__name(f4GalleryUpload,"f4GalleryUpload");
+async function f4GalleryAdmin(req,env,who){
+ const denied=superadmin(who);if(denied)return denied;
+ const db=env.DB;
+ if(req.method==="GET"){
+  const [photos,albums,comments,reports]=await Promise.all([
+   list(db,"SELECT p.id,p.album_ref AS albumId,p.drive_file_id AS driveId,p.filename,p.caption,p.status,p.created_at AS date,COALESCE(m.display_name,a.username,'Warga') AS uploader FROM f4_gallery_photos p LEFT JOIN accounts a ON a.id=p.uploader_id LEFT JOIN members m ON m.id=a.member_id ORDER BY p.created_at DESC LIMIT 500"),
+   list(db,"SELECT * FROM f4_gallery_albums ORDER BY created_at DESC LIMIT 150"),
+   list(db,"SELECT id,target_type AS type,target_id AS targetId,message,created_at AS date FROM f4_gallery_comments WHERE status='aktif' ORDER BY created_at DESC LIMIT 100"),
+   list(db,"SELECT id,target_type AS type,target_id AS targetId,reason,created_at AS date FROM f4_gallery_reports ORDER BY created_at DESC LIMIT 100")
+  ]);
+  return ok({photos:photos.map(p=>({...p,url:f4GalleryImageUrl(p.driveId)})),albums,comments,reports});
+ }
+ let p;try{p=await body(req)}catch{return err("Permintaan tidak valid.",400)}
+ const action=String(p.action||""),photoId=String(p.photoId||"");
+ if(action==="hide_comment"){
+  const res=await db.prepare("UPDATE f4_gallery_comments SET status='disembunyikan' WHERE id=?").bind(String(p.id||"")).run();
+  return ok({updated:Number(res.meta?.changes||0)>0});
+ }
+ if(action==="rename_album"||action==="delete_album"){
+  const albumId=String(p.albumId||"");const target=await one(db,"SELECT * FROM f4_gallery_albums WHERE id=?",[albumId]);
+  if(!target)return err("Album warga tidak ditemukan; album lama dikelola lewat editor Dokumentasi.",404);
+  if(action==="delete_album"){
+   await db.batch([
+    db.prepare("UPDATE f4_gallery_albums SET status='disembunyikan' WHERE id=?").bind(albumId),
+    db.prepare("UPDATE f4_gallery_photos SET status='disembunyikan' WHERE album_ref=?").bind(albumId)
+   ]);
+   return ok({updated:true});
+  }
+  const title=String(p.title||"").trim().replace(/\s+/g," ");
+  if(title.length<3||title.length>100||/[<>\u0000-\u001f]/.test(title))return err("Judul album harus 3–100 karakter.",400);
+  if(target.drive_folder_id&&f4GalleryDriveReady(env)){
+   const token=await f4GalleryDriveToken(env);
+   await f4GalleryDriveRequest(token,"files/"+encodeURIComponent(target.drive_folder_id)+"?fields=id",
+    {method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify({name:title})});
+  }
+  await db.prepare("UPDATE f4_gallery_albums SET title=? WHERE id=?").bind(title,albumId).run();
+  return ok({updated:true});
+ }
+ const photo=await one(db,"SELECT * FROM f4_gallery_photos WHERE id=?",[photoId]);
+ if(!photo)return err("Foto tidak ditemukan.",404);
+ if(action==="hide_photo"||action==="review_photo"){
+  await db.prepare("UPDATE f4_gallery_photos SET status=? WHERE id=?").bind(action==="hide_photo"?"disembunyikan":"ditinjau",photoId).run();
+  return ok({updated:true});
+ }
+ if(action==="delete_photo"){
+  if(!f4GalleryDriveReady(env))return err("Google Drive belum terhubung; gunakan Sembunyikan untuk sementara.",503);
+  const token=await f4GalleryDriveToken(env);
+  await f4GalleryDriveRequest(token,"files/"+encodeURIComponent(photo.drive_file_id)+"?fields=id",
+   {method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify({trashed:true})});
+  await db.prepare("UPDATE f4_gallery_photos SET status='dihapus' WHERE id=?").bind(photoId).run();
+  return ok({updated:true});
+ }
+ if(action==="move_photo"){
+  const album=await f4GalleryAlbum(db,String(p.albumId||""));
+  if(!album)return err("Album tujuan tidak tersedia.",404);
+  if(!f4GalleryDriveReady(env))return err("Google Drive perlu dihubungkan dahulu.",503);
+  const token=await f4GalleryDriveToken(env);
+  let target=album.folder||"";
+  if(!target){
+   if(!album.id.startsWith("galbum:"))return err("Folder album tujuan tidak tersedia.",400);
+   const created=await f4GalleryDriveRequest(token,"files?fields=id",{
+    method:"POST",headers:{"content-type":"application/json"},
+    body:JSON.stringify({name:album.title,mimeType:"application/vnd.google-apps.folder",parents:[String(env.GALLERY_UPLOAD_FOLDER_ID)]})
+   });
+   target=created.id;
+   await db.prepare("UPDATE f4_gallery_albums SET drive_folder_id=? WHERE id=?").bind(target,album.id).run();
+  }
+  if(target!==photo.drive_folder_id){
+   const query="files/"+encodeURIComponent(photo.drive_file_id)+"?addParents="+encodeURIComponent(target)+"&removeParents="+encodeURIComponent(photo.drive_folder_id)+"&fields=id,parents";
+   await f4GalleryDriveRequest(token,query,{method:"PATCH"});
+  }
+  await db.prepare("UPDATE f4_gallery_photos SET album_ref=?,drive_folder_id=?,status='ditinjau' WHERE id=?")
+   .bind(album.id,target,photoId).run();
+  return ok({updated:true});
+ }
+ return err("Aksi pengelolaan tidak dikenal.",400);
+}
+__name(f4GalleryAdmin,"f4GalleryAdmin");
+async function f4GalleryApi(req,env,who,url){
+ await f4GallerySchema(env.DB);
+ const path=url.pathname,method=req.method;
+ if(path==="/api/v2/gallery"&&method==="GET")return f4GalleryPublic(env.DB,env);
+ if(path==="/api/v2/gallery/social"&&method==="GET")return f4GallerySocial(env.DB,who,url);
+ if(path==="/api/v2/gallery/admin"&&["GET","POST"].includes(method))return f4GalleryAdmin(req,env,who);
+ if(!who||!["anggota","admin","superadmin"].includes(who.role))return err("Silakan masuk sebagai warga.",401);
+ // Mutasi wajib berasal dari halaman Flamboyan 4, bukan situs pihak ketiga.
+ if(method==="POST"&&!allowedOrigin(req,env))return err("Asal permintaan tidak diizinkan.",403);
+ if(path==="/api/v2/gallery/upload"&&method==="POST")return f4GalleryUpload(req,env,who,url);
+ if(path==="/api/v2/gallery/album"&&method==="POST"){
+  let p;try{p=await body(req)}catch{return err("Format album tidak valid.",400)}
+  const title=String(p.title||"").trim().replace(/\s+/g," ");
+  if(title.length<3||title.length>100||/[<>\u0000-\u001f]/.test(title))return err("Nama album harus 3–100 karakter.",400);
+  const recent=await one(env.DB,"SELECT COUNT(*) AS n FROM f4_gallery_albums WHERE created_by=? AND created_at>=datetime('now','-1 day')",[who.id]);
+  if(Number(recent?.n||0)>=8)return err("Batas 8 album per hari tercapai.",429);
+  const id="galbum:"+crypto.randomUUID();
+  await env.DB.prepare("INSERT INTO f4_gallery_albums(id,title,description,created_by) VALUES(?,?,?,?)").bind(id,title,String(p.description||"").slice(0,300),who.id).run();
+  return ok({id,title,created:true},201);
+ }
+ if(path==="/api/v2/gallery/react"&&method==="POST"){
+  let p;try{p=await body(req)}catch{return err("Format reaksi tidak valid.",400)}
+  const type=String(p.type||""),id=String(p.id||"");
+  if(!await f4GalleryCheckTarget(env.DB,type,id))return err("Konten tidak tersedia.",404);
+  const existing=await one(env.DB,"SELECT 1 AS yes FROM f4_gallery_reactions WHERE target_type=? AND target_id=? AND account_id=?",[type,id,who.id]);
+  if(existing)await env.DB.prepare("DELETE FROM f4_gallery_reactions WHERE target_type=? AND target_id=? AND account_id=?").bind(type,id,who.id).run();
+  else await env.DB.prepare("INSERT OR IGNORE INTO f4_gallery_reactions(target_type,target_id,account_id) VALUES(?,?,?)").bind(type,id,who.id).run();
+  return f4GallerySocial(env.DB,who,new URL("https://api.flamboyan4.web.id/api/v2/gallery/social?type="+encodeURIComponent(type)+"&id="+encodeURIComponent(id)));
+ }
+ if(path==="/api/v2/gallery/comment"&&method==="POST"){
+  let p;try{p=await body(req)}catch{return err("Format komentar tidak valid.",400)}
+  const type=String(p.type||""),id=String(p.id||""),message=String(p.message||"").trim();
+  if(!await f4GalleryCheckTarget(env.DB,type,id))return err("Konten tidak tersedia.",404);
+  if(message.length<1||message.length>500||/[\u0000-\u0008\u000e-\u001f]/.test(message))return err("Komentar maksimal 500 karakter.",400);
+  const recent=await one(env.DB,"SELECT COUNT(*) AS n FROM f4_gallery_comments WHERE account_id=? AND created_at>=datetime('now','-1 minute')",[who.id]);
+  if(Number(recent?.n||0)>=5)return err("Terlalu banyak komentar. Coba lagi sebentar.",429);
+  const idComment="f4comment:"+crypto.randomUUID();
+  await env.DB.prepare("INSERT INTO f4_gallery_comments(id,target_type,target_id,account_id,message) VALUES(?,?,?,?,?)")
+   .bind(idComment,type,id,who.id,message).run();
+  return ok({id:idComment,created:true},201);
+ }
+ if(path==="/api/v2/gallery/report"&&method==="POST"){
+  let p;try{p=await body(req)}catch{return err("Format laporan tidak valid.",400)}
+  const type=String(p.type||""),id=String(p.id||""),reason=String(p.reason||"Perlu ditinjau").trim().slice(0,350);
+  if(!await f4GalleryCheckTarget(env.DB,type,id))return err("Konten tidak tersedia.",404);
+  await env.DB.prepare("INSERT INTO f4_gallery_reports(id,target_type,target_id,account_id,reason) VALUES(?,?,?,?,?)")
+   .bind("f4report:"+crypto.randomUUID(),type,id,who.id,reason).run();
+  return ok({created:true},201);
+ }
+ return err("Fitur galeri tidak tersedia.",404);
+}
+__name(f4GalleryApi,"f4GalleryApi");
+
 async function handleUnifiedApi(request, env, who) {
   const url = new URL(request.url), path = url.pathname, method = request.method, db = env.DB;
   if (!path.startsWith("/api/v2/")) return null;
@@ -6697,6 +6970,7 @@ async function handle(request, env) {
       && request.method === "POST"))
     return bankPayoutRequests(request,env,who,url);
   if (path === "/api/v2/admin/treasury") return treasuryApi(request,env,who,url);
+  if (path.startsWith("/api/v2/gallery")) return f4GalleryApi(request, env, who, url);
   if (path.startsWith("/api/v2/")) return handleUnifiedApi(request, env, who);
   if (path === "/api/auth/change-password" && request.method === "POST") return changePassword(request, env, who);
   if (path === "/api/auth/logout" && request.method === "POST") {
