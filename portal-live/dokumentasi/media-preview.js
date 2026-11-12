@@ -24,6 +24,7 @@ const parseDate=text=>{
  return 0;
 };
 const asPortal=(source)=>({
+ id:String(source.id||''),
  date:String(source.date||source.event_on||source.tanggal||''),
  title:String(source.title||source.judul||'').trim(),
  description:String(source.description||source.deskripsi||''),
@@ -42,9 +43,10 @@ async function listMedia(doc){
  if(!id){
   doc.media=String(doc.folder||'').split(',').map(s=>s.trim()).filter(Boolean)
     .map(url=>({url:driveImage(url),type:/\.(mp4|webm|mov)(?:\?|$)/i.test(url)?'video':'foto',caption:doc.title}));
+  doc.media=doc.media.concat(doc.communityPhotos||[]);
   return doc.media;
  }
- if(photoFiles.has(id))return photoFiles.get(id);
+ if(photoFiles.has(id))return (await photoFiles.get(id)).concat(doc.communityPhotos||[]);
  const request=(async()=>{
   const response=await fetch(FOLDER_API+'?folderId='+encodeURIComponent(id),{cache:'no-store'});
   if(!response.ok)throw Error('Folder HTTP '+response.status);
@@ -61,7 +63,7 @@ async function listMedia(doc){
   }).filter(item=>item.url);
  })();
  photoFiles.set(id,request);
- try{return await request}catch(err){photoFiles.delete(id);throw err}
+ try{return (await request).concat(doc.communityPhotos||[])}catch(err){photoFiles.delete(id);throw err}
 }
 async function loadPortalArchive(){
  const indicator=window.F4Loading?.begin('feedback','Memeriksa pembaruan dokumentasi…');
@@ -109,7 +111,37 @@ async function loadPortalArchive(){
   }:x);
  }
  docs=[...byKey.values()].sort((a,b)=>parseDate(b.date)-parseDate(a.date));
+ // Lapisan unggahan baru dipisahkan dari arsip Google Drive lama; tidak membuat album ganda.
+ try{
+  const response=await fetch('https://api.flamboyan4.web.id/api/v2/gallery',{cache:'no-store'});
+  if(response.ok){
+   const collection=await response.json();
+   if(collection.ok!==false){
+    window.f4GalleryCommunity=collection;
+    const docById=new Map(docs.filter(d=>d.id).map(d=>[d.id,d]));
+    for(const a of collection.albums||[]){
+     if(docById.has(a.id))continue;
+     const album={id:a.id,date:a.date,title:a.title,description:a.description||'',folder:'',cover:'',category:'Lainnya',communityPhotos:[]};
+     docs.push(album);docById.set(a.id,album);
+    }
+    for(const p of collection.photos||[]){
+     const a=docById.get(p.albumId);if(!a)continue;
+     if(!a.communityPhotos)a.communityPhotos=[];
+     a.communityPhotos.push({id:p.id,albumId:p.albumId,url:p.url,type:'foto',caption:p.caption||p.uploader||'Foto warga'});
+     if(!a.cover)a.cover=p.url;
+    }
+   }
+  }
+ }catch(e){console.warn('Galeri interaktif belum tersedia:',e.message)}
+ docs.sort((a,b)=>parseDate(b.date)-parseDate(a.date));
+ window.f4GalleryAlbums=()=>docs.filter(d=>d.id).map(d=>({id:d.id,title:d.title}));
  drawAlbums();
+ document.dispatchEvent(new Event('f4:gallery:ready'));
+ const targetAlbum=new URLSearchParams(location.search).get('album');
+ if(targetAlbum){
+  const selected=docs.find(d=>d.id===targetAlbum);
+  if(selected)await openAlbum(selected);
+ }
  // Covers are read from original Drive folder listing, identical to landing.
  await Promise.allSettled(docs.slice(0,40).map(async doc=>{
    try{
@@ -143,9 +175,10 @@ async function openAlbum(a){
  const token=status('Memuat foto dan video dari folder dokumentasi…');
  let media=[],failure=null;
  try{media=await listMedia(a)}catch(e){failure=e;status('Folder media belum dapat dibaca: '+(e.message||e),'error',token);}
- openMediaGallery(a.title,media,{folderURL:safe(a.folder),
+ openMediaGallery(a.title,media,{albumId:a.id,folderURL:safe(a.folder),
   empty:'Media album ini belum dapat dibaca. Periksa izin akses dokumentasi atau sinkronisasi sumber media.'});
  if(!failure){if(media.length)status('', 'success',token);else status('Belum ada foto/video yang dapat dibaca untuk album ini.','empty',token);}
+ if(!window.f4GallerySharedOpened){const target=new URLSearchParams(location.search).get('foto');if(target&&window.f4MediaGallery?.openPhotoById(target))window.f4GallerySharedOpened=true;}
 }
 function drawAlbums(){
  const q=$('media-search').value.toLowerCase().trim();
@@ -199,4 +232,4 @@ $('media-tab-inventory').onclick=()=>tab('inventaris',true);
 $('media-search').oninput=drawAlbums;
 addEventListener('hashchange',()=>tab(location.hash==='#inventaris'?'inventaris':'dokumentasi',false));
 drawFilters();drawAlbums();drawInventory();tab(location.hash==='#inventaris'?'inventaris':'dokumentasi',false);
-loadPortalArchive().catch(error=>{docs.sort((a,b)=>parseDate(b.date)-parseDate(a.date));drawAlbums();status('Arsip online belum dapat diperbarui ('+(error.message||error)+'). Menampilkan arsip kegiatan asli yang sudah tersedia.','error');});
+loadPortalArchive().catch(error=>{docs.sort((a,b)=>parseDate(b.date)-parseDate(a.date));window.f4GalleryAlbums=()=>docs.filter(d=>d.id).map(d=>({id:d.id,title:d.title}));drawAlbums();document.dispatchEvent(new Event('f4:gallery:ready'));status('Arsip online belum dapat diperbarui ('+(error.message||error)+'). Menampilkan arsip kegiatan asli yang sudah tersedia.','error');});
