@@ -10,7 +10,11 @@ const svg=(name)=>{
   play:'<path d="m8 5 11 7-11 7V5z"/>',
   images:'<rect x="3" y="3" width="14" height="14" rx="2"/><path d="M8 21h11a2 2 0 0 0 2-2V8"/>',
   zoomIn:'<circle cx="10.5" cy="10.5" r="7.5"/><path d="M16 16l5 5M7.5 10.5h6m-3-3v6"/>',
-  zoomOut:'<circle cx="10.5" cy="10.5" r="7.5"/><path d="M16 16l5 5M7.5 10.5h6"/>'
+  zoomOut:'<circle cx="10.5" cy="10.5" r="7.5"/><path d="M16 16l5 5M7.5 10.5h6"/>',
+  pause:'<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>',
+  volume:'<path d="M11 5 6 9H3v6h3l5 4zM15 9a5 5 0 0 1 0 6M18 6a9 9 0 0 1 0 12"/>',
+  volumeOff:'<path d="M11 5 6 9H3v6h3l5 4zM16 9l5 6m0-6-5 6"/>',
+  maximize:'<path d="M8 3H4a1 1 0 0 0-1 1v4m13-5h4a1 1 0 0 1 1 1v4M3 16v4a1 1 0 0 0 1 1h4m13-5v4a1 1 0 0 1-1 1h-4"/>'
  };
  return '<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+paths[name]+'</svg>';
 };
@@ -51,6 +55,78 @@ function resetPhotoZoom(){
  if(zoom){zoom.innerHTML=svg('zoomIn');zoom.setAttribute('aria-pressed','false');zoom.setAttribute('aria-label','Perbesar foto');zoom.title='Zoom foto';}
 }
 const isOpen=el=>!!el&&!el.hidden;
+const timeLabel=value=>Number.isFinite(value)&&value>=0?Math.floor(value/60)+':'+String(Math.floor(value%60)).padStart(2,'0'):'0:00';
+function makeVideoPlayer(item){
+ const shell=node('div','f4p-video-shell'),video=node('video','f4p-media-video');
+ video.src=item.url;video.preload='metadata';video.playsInline=true;video.setAttribute('playsinline','');video.setAttribute('webkit-playsinline','');
+ video.controls=false;video.setAttribute('aria-label',item.caption||'Video kegiatan');
+ const center=node('button','f4p-video-big-play');center.type='button';center.setAttribute('aria-label','Putar video');
+ center.innerHTML=svg('play');
+ const controls=node('div','f4p-video-controls');
+ const toggle=node('button','f4p-v-btn f4p-v-toggle'),progress=node('input','f4p-v-progress');
+ const time=node('output','f4p-v-time','0:00 / 0:00');
+ const mute=node('button','f4p-v-btn f4p-v-mute'),full=node('button','f4p-v-btn f4p-v-fullscreen');
+ [toggle,mute,full].forEach(b=>b.type='button');
+ toggle.innerHTML=svg('play');toggle.setAttribute('aria-label','Putar video');
+ mute.innerHTML=svg('volume');mute.setAttribute('aria-label','Bisukan suara');
+ full.innerHTML=svg('maximize');full.setAttribute('aria-label','Layar penuh');
+ progress.type='range';progress.min='0';progress.max='1000';progress.step='1';progress.value='0';
+ progress.setAttribute('aria-label','Posisi pemutaran video');
+ controls.append(toggle,progress,time,mute,full);shell.append(video,center,controls);
+ let timer=0;
+ const showControls=()=>{
+  shell.classList.add('f4p-video-controls-visible');
+  clearTimeout(timer);
+  if(!video.paused)timer=setTimeout(()=>shell.classList.remove('f4p-video-controls-visible'),3200);
+ };
+ const update=()=>{
+  const duration=Number.isFinite(video.duration)?video.duration:0;
+  progress.value=duration?String(Math.round(video.currentTime/duration*1000)):'0';
+  progress.disabled=!duration;
+  time.textContent=timeLabel(video.currentTime)+' / '+timeLabel(duration);
+  const playing=!video.paused&&!video.ended;
+  toggle.innerHTML=svg(playing?'pause':'play');
+  toggle.setAttribute('aria-label',playing?'Jeda video':'Putar video');
+  center.hidden=playing;
+  center.setAttribute('aria-label',playing?'Jeda video':'Putar video');
+  mute.innerHTML=svg(video.muted?'volumeOff':'volume');
+  mute.setAttribute('aria-label',video.muted?'Aktifkan suara':'Bisukan suara');
+  shell.classList.toggle('f4p-video-playing',playing);
+  if(!playing)showControls();
+ };
+ const togglePlay=()=>{
+  if(video.paused||video.ended){
+   if(video.ended)video.currentTime=0;
+   const pending=video.play();if(pending?.catch)pending.catch(()=>showControls());
+  }else video.pause();
+  showControls();
+ };
+ center.addEventListener('click',togglePlay);
+ toggle.addEventListener('click',togglePlay);
+ video.addEventListener('click',()=>{if(!shell.classList.contains('f4p-video-controls-visible'))showControls();else togglePlay()});
+ progress.addEventListener('input',()=>{if(Number.isFinite(video.duration)&&video.duration>0)video.currentTime=video.duration*Number(progress.value)/1000;showControls()});
+ mute.addEventListener('click',()=>{video.muted=!video.muted;update();showControls()});
+ full.addEventListener('click',()=>{
+  if(document.fullscreenElement){document.exitFullscreen?.();return}
+  if(shell.requestFullscreen)shell.requestFullscreen().catch(()=>{});
+  else video.webkitEnterFullscreen?.();
+ });
+ shell.addEventListener('pointermove',showControls);
+ shell.addEventListener('touchstart',showControls,{passive:true});
+ for(const type of ['timeupdate','durationchange','loadedmetadata','play','pause','ended','volumechange'])video.addEventListener(type,update);
+ video.addEventListener('error',()=>{
+  if(!shell.isConnected)return;
+  const fail=node('p','f4p-media-error','Video tidak dapat diputar langsung.');
+  const link=node('a','f4p-media-open','Buka video');link.href=item.url;link.target='_blank';link.rel='noopener noreferrer';
+  shell.replaceChildren(fail,link);
+ });
+ shell.addEventListener('DOMNodeRemoved',()=>clearTimeout(timer),{once:true});
+ update();return shell;
+}
+function stopVideo(){
+ const view=photo?.querySelector('.f4p-photo-content');
+ view?.querySelector('video.f4p-media-video')?.pause();
+}
 const show=(el,on)=>{
  if(!el)return;
  el.hidden=!on;el.setAttribute('aria-hidden',String(!on));
@@ -85,6 +161,16 @@ function ensure(){
  prev.setAttribute('aria-label','Media sebelumnya');next.setAttribute('aria-label','Media berikutnya');
  prev.onclick=()=>shift(-1);next.onclick=()=>shift(1);
  const view=node('div','f4p-photo-content');stage.append(prev,view,next);
+ let navTimer=0;
+ const revealNavigation=()=>{
+  if(items.length<2)return;
+  stage.classList.add('f4p-nav-visible');
+  clearTimeout(navTimer);
+  navTimer=setTimeout(()=>stage.classList.remove('f4p-nav-visible'),2300);
+ };
+ stage.addEventListener('pointerdown',revealNavigation,{passive:true});
+ stage.addEventListener('pointermove',event=>{if(event.pointerType==='mouse')revealNavigation()},{passive:true});
+ stage.addEventListener('touchstart',revealNavigation,{passive:true});
  // Zoom is isolated to the picture. The browser's document viewport remains unchanged.
  let gesture=null,lastTap=null;
  const distance=(a,b)=>Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
@@ -149,7 +235,7 @@ function ensure(){
   }
  },{passive:true});
  const countPhoto=node('div','f4p-photo-count');photo.append(bar,stage,countPhoto);document.body.append(photo);
- photo.addEventListener('click',e=>{if(e.target===photo||e.target===stage||e.target===view)closeTop()});
+ photo.addEventListener('click',e=>{if(e.target===photo)closeTop()});
  document.addEventListener('keydown',e=>{
   if(!isOpen(photo)&&!isOpen(album))return;
   // Dialog komentar, unggah, dan konfirmasi berada di atas penampil media.
@@ -161,7 +247,7 @@ function ensure(){
  window.addEventListener('popstate',()=>{
   closing=false;
   const layer=history.state?.f4DocOverlay;
-  if(isOpen(photo)&&layer!=='photo'){show(photo,false);view.replaceChildren();if(isOpen(album))lastTile?.focus({preventScroll:true});}
+  if(isOpen(photo)&&layer!=='photo'){stopVideo();show(photo,false);view.replaceChildren();if(isOpen(album))lastTile?.focus({preventScroll:true});}
   if(isOpen(album)&&layer!=='photo'&&layer!=='album')show(album,false);
  });
 }
@@ -171,7 +257,7 @@ function closeTop(){
  if((isOpen(photo)&&layer==='photo')||(isOpen(album)&&layer==='album')){
   closing=true;history.back();return;
  }
- if(isOpen(photo)){show(photo,false);photo.querySelector('.f4p-photo-content').replaceChildren();return;}
+ if(isOpen(photo)){stopVideo();show(photo,false);photo.querySelector('.f4p-photo-content').replaceChildren();return;}
  if(isOpen(album))show(album,false);
 }
 function pushLayer(layer){
@@ -183,16 +269,11 @@ function renderPhoto(){
  if(!photo||!items.length)return;
  const item=items[at];
  photo.querySelector('.f4p-photo-name').textContent=mediaContext==='gallery'?'Postingan · '+albumTitle:(item.caption||albumTitle);
- const view=photo.querySelector('.f4p-photo-content');resetPhotoZoom();view.replaceChildren();
+ const view=photo.querySelector('.f4p-photo-content');stopVideo();resetPhotoZoom();view.replaceChildren();
  if(item.type==='video'){
   if(item.embed){const frame=node('iframe','f4p-media-frame');frame.src=item.embed;frame.title=item.caption||albumTitle;frame.allowFullscreen=true;frame.allow='autoplay; fullscreen';view.append(frame)}
   else{
-   const video=node('video','f4p-media-video');video.controls=true;video.playsInline=true;video.preload='metadata';video.src=item.url;
-   video.addEventListener('error',()=>{if(!video.isConnected)return;
-    const error=node('p','f4p-media-error','Video tidak dapat diputar langsung. Periksa izin berbagi atau format video.');
-    const link=node('a','f4p-media-open','Buka video di sumber');link.href=item.url;link.target='_blank';link.rel='noopener noreferrer';
-    video.replaceWith(error);view.append(link);
-   },{once:true});view.append(video);
+   view.append(makeVideoPlayer(item));
   }
  }else{
   const img=node('img','f4p-media-photo');img.src=item.url;img.alt=item.caption||albumTitle;img.loading='eager';img.decoding='async';
@@ -205,7 +286,9 @@ function renderPhoto(){
  if(mediaContext==='gallery')document.dispatchEvent(new CustomEvent('f4:gallery:photo',{detail:{id:item.id,albumId:currentAlbumId||item.albumId,title:albumTitle,caption:item.caption,url:item.url}}));
  else{photo.classList.remove('f4g-social-enabled');photo.querySelector('.f4g-photo-side')?.remove();photo.querySelector('.f4g-photo-actions')?.remove();}
 }
-function shift(n){if(!items.length)return;at=(at+n+items.length)%items.length;renderPhoto()}
+function shift(n){if(!items.length)return;at=(at+n+items.length)%items.length;renderPhoto();
+ photo?.querySelector('.f4p-photo-stage')?.classList.add('f4p-nav-visible');
+}
 function openPhoto(index=0){ensure();if(!items.length)return;at=Math.max(0,Math.min(index,items.length-1));renderPhoto();
  if(!isOpen(photo)){pushLayer('photo');show(photo,true)}
  photo.querySelector('.f4p-close')?.focus({preventScroll:true});
