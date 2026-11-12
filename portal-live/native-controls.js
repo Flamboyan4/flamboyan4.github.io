@@ -15,6 +15,7 @@ function close(fromBack=false){
  const last=overlay._trigger;
  overlay.remove();overlay=null;
  document.body.classList.remove('f4-custom-picker-open');
+ window.F4MobileSheets?.refresh?.();
  if(!fromBack&&history.state?.f4PickerEntry)history.back();
  last?.focus?.({preventScroll:true});
 }
@@ -33,6 +34,7 @@ function start(trigger,title){
  mask.onclick=e=>{if(e.target===mask)close()};
  mask._trigger=trigger;document.body.append(mask);overlay=mask;
  document.body.classList.add('f4-custom-picker-open');
+ window.F4MobileSheets?.refresh?.();
  history.pushState({...history.state,f4PickerEntry:++historyToken},'',location.href);
  return panel;
 }
