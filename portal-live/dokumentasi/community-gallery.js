@@ -472,63 +472,17 @@ document.addEventListener('f4:gallery:album',e=>{
  if(!target.id)actions.append(button(null,'share',()=>share(target)));
 });
 document.addEventListener('f4:gallery:photo',e=>{
- const target={type:'photo',id:e.detail.id,albumId:e.detail.albumId,title:e.detail.title};
+ const target={type:'photo',id:e.detail.id,albumId:e.detail.albumId,title:e.detail.title,caption:e.detail.caption};
  photoTarget=target;
- const overlay=document.querySelector('.f4p-photo-overlay');
- if(!overlay)return;
- overlay.classList.add('f4g-social-enabled');
- let side=overlay.querySelector('.f4g-photo-side');
- if(!side){
-  side=elem('aside','f4g-photo-side');
-  const head=elem('div','f4g-photo-side-head');
-  const avatar=elem('span','f4g-photo-side-avatar');avatar.innerHTML=svg('images');
-  const titles=elem('div','f4g-photo-side-titles');
-  titles.append(elem('small','','ALBUM WARGA'),elem('strong','','Dokumentasi'));
-  head.append(avatar,titles);
-  const caption=elem('p','f4g-photo-side-caption');
-  const actions=elem('div','f4g-photo-actions');
-  const section=elem('div','f4g-photo-side-comments');
-  const commentTitle=elem('strong','f4g-photo-comment-title','Percakapan Warga');
-  const preview=elem('div','f4g-photo-comment-preview');
-  const all=button('Lihat semua komentar','comment',()=>openComments(photoTarget),'f4g-photo-all');
-  section.append(commentTitle,preview,all);
-  const form=elem('form','f4g-photo-quick-form');
-  const input=elem('textarea');input.placeholder='Tulis komentar…';input.maxLength=500;input.rows=2;
-  const submit=button('Kirim','arrow',null,'primary');submit.type='submit';
-  form.append(input,submit);
-  form.addEventListener('submit',async event=>{
-   event.preventDefault();const value=input.value.trim();if(!value||!photoTarget?.id)return;
-   try{
-    await signedIn();submit.disabled=true;
-    await post('/comment',{type:'photo',id:photoTarget.id,message:value});
-    input.value='';document.dispatchEvent(new CustomEvent('f4:gallery:photo',{detail:{
-     id:photoTarget.id,albumId:photoTarget.albumId,title:photoTarget.title,
-     caption:side.querySelector('.f4g-photo-side-caption')?.textContent||''
-    }}));
-   }catch(error){if(user)notice(error.message)}
-   finally{submit.disabled=false}
-  });
-  side.append(head,caption,actions,section,form);
-  overlay.append(side);
- }
- side.querySelector('.f4g-photo-side-titles strong').textContent=target.title||'Dokumentasi';
- side.querySelector('.f4g-photo-side-caption').textContent=e.detail.caption||'Momen dari dokumentasi warga Flamboyan 4.';
- const preview=side.querySelector('.f4g-photo-comment-preview');
- const paint=data=>{
-  if(photoTarget?.id!==target.id||!preview.isConnected)return;
-  preview.replaceChildren();
-  const list=data.comments||[];
-  if(!list.length)preview.append(elem('p','f4g-photo-no-comments','Belum ada komentar. Jadilah yang pertama berbagi cerita.'));
-  else for(const comment of list.slice(0,2)){
-   const item=elem('p','f4g-photo-comment');
-   item.append(elem('b','',(comment.author||comment.nama||'Warga')+' '),
-    document.createTextNode(comment.message||''));
-   preview.append(item);
-  }
- };
- const actions=side.querySelector('.f4g-photo-actions');
- if(target.id)socialButtons(actions,target,true,paint);
- else{actions.replaceChildren(button('Bagikan foto','share',()=>share(target)));paint({comments:[]})}
+ const viewer=document.querySelector('.f4p-photo-overlay');
+ if(!viewer)return;
+ // Foto tetap penampil media layar penuh; komentar dibuka hanya saat tombol ditekan.
+ viewer.classList.remove('f4g-social-enabled');
+ viewer.querySelector('.f4g-photo-side')?.remove();
+ let actions=viewer.querySelector(':scope > .f4g-photo-actions');
+ if(!actions){actions=elem('div','f4g-photo-actions');viewer.append(actions);}
+ if(target.id)socialButtons(actions,target,true);
+ else actions.replaceChildren(button('Bagikan foto','share',()=>share(target)));
 });
 document.addEventListener('f4:auth-changed',()=>activeSession().then(mount));
 mount();
