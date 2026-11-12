@@ -157,7 +157,20 @@ async def validate_documentation(browser, name, width, height):
             })""")
             assert sheet["width"] >= sheet["windowWidth"]-3, "Album sheet is narrower than HP viewport"
             assert sheet["height"] < sheet["windowHeight"]*.80, "Small album leaves excessive empty white space"
-        await page.locator(".f4p-album-overlay .f4p-album-tile").first.click()
+        if name == "hp":
+            # Pinching a thumbnail must zoom the PHOTO in the viewer, never the document.
+            await page.evaluate("""() => {
+                const tile=document.querySelector('.f4p-album-overlay .f4p-album-tile');
+                const a=new Touch({identifier:1,target:tile,clientX:110,clientY:300});
+                const b=new Touch({identifier:2,target:tile,clientX:210,clientY:300});
+                tile.dispatchEvent(new TouchEvent('touchstart',{bubbles:true,cancelable:true,
+                    touches:[a,b],targetTouches:[a,b],changedTouches:[a,b]}));
+            }""")
+            await page.wait_for_function("!!document.querySelector('.f4p-photo-overlay:not([hidden])')")
+            assert await page.locator(".f4p-photo-zoom").get_attribute("aria-pressed") == "true", "Pinching album thumbnail did not zoom photo"
+            await page.locator(".f4p-photo-zoom").click()  # Reset for standard viewer tests.
+        else:
+            await page.locator(".f4p-album-overlay .f4p-album-tile").first.click()
         await page.wait_for_function("!!document.querySelector('.f4p-photo-overlay:not([hidden]) .f4g-photo-actions')")
         assert await page.locator(".f4p-photo-overlay .f4g-photo-actions").count() == 1
         assert await page.locator(".f4p-photo-overlay .f4g-photo-side").count() == 1, "Desktop/mobile photo detail component missing"
