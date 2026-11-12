@@ -108,7 +108,7 @@
 .f4p-tile-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
  display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#5a43b7;color:white}
 .f4p-media-empty{grid-column:1/-1;align-self:start;color:#667285}
-.f4p-photo-overlay{z-index:160;background:rgba(2,9,9,.95)!important;color:#fff;padding:12px 14px;
+.f4p-photo-overlay{z-index:160;background:#0b0b10;color:#fff;padding:12px 14px;
  display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:0}
 .f4p-photo-head{flex:none;display:flex;justify-content:space-between;align-items:center;gap:14px;
  width:100%;min-height:40px;padding:0 3px 8px;color:#fff}
@@ -128,13 +128,14 @@
  width:min(100%,960px);height:100%;object-fit:contain;border:0;background:black}
 .f4p-photo-count{flex:none;text-align:center;font:400 12px system-ui;color:#b7c4c9;padding:7px 0}
 .f4p-media-error{font:500 13px system-ui;color:#f8f2ff}
+.f4p-album-overlay.f4p-under-photo{visibility:hidden;pointer-events:none}
 @media(max-width:720px){
  .f4p-overlay{padding:9px}
  .f4p-album-card{max-height:94dvh;border-radius:13px}
  .f4p-album-head{padding:12px}
  .f4p-album-grid{padding:12px;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:142px;gap:9px}
- .f4p-photo-overlay{padding:7px}
- .f4p-photo-stage{height:75dvh;gap:4px}
+ .f4p-photo-overlay{padding:8px 5px calc(8px + env(safe-area-inset-bottom,0px));width:100vw;height:100dvh;max-height:100dvh;box-sizing:border-box}
+ .f4p-photo-stage{height:auto;flex:1;min-height:0;gap:4px}
  .f4p-photo-arrow{width:34px;height:40px}
  .f4p-photo-name{font-size:12px}
 }
