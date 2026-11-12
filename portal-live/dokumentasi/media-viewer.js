@@ -120,7 +120,6 @@ function makeVideoPlayer(item){
   const link=node('a','f4p-media-open','Buka video');link.href=item.url;link.target='_blank';link.rel='noopener noreferrer';
   shell.replaceChildren(fail,link);
  });
- shell.addEventListener('DOMNodeRemoved',()=>clearTimeout(timer),{once:true});
  update();return shell;
 }
 function stopVideo(){
@@ -268,7 +267,7 @@ function pushLayer(layer){
 function renderPhoto(){
  if(!photo||!items.length)return;
  const item=items[at];
- photo.querySelector('.f4p-photo-name').textContent=mediaContext==='gallery'?'Postingan · '+albumTitle:(item.caption||albumTitle);
+ photo.querySelector('.f4p-photo-name').textContent=albumTitle;
  const view=photo.querySelector('.f4p-photo-content');stopVideo();resetPhotoZoom();view.replaceChildren();
  if(item.type==='video'){
   if(item.embed){const frame=node('iframe','f4p-media-frame');frame.src=item.embed;frame.title=item.caption||albumTitle;frame.allowFullscreen=true;frame.allow='autoplay; fullscreen';view.append(frame)}
@@ -281,7 +280,7 @@ function renderPhoto(){
   view.append(img);
  }
  photo.querySelector('.f4p-photo-zoom').hidden=item.type==='video';
- photo.querySelector('.f4p-photo-count').textContent=(at+1)+' dari '+items.length;
+ photo.querySelector('.f4p-photo-count').textContent=(at+1)+' / '+items.length;
  for(const b of photo.querySelectorAll('.f4p-photo-arrow'))b.hidden=items.length<2;
  if(mediaContext==='gallery')document.dispatchEvent(new CustomEvent('f4:gallery:photo',{detail:{id:item.id,albumId:currentAlbumId||item.albumId,title:albumTitle,caption:item.caption,url:item.url}}));
  else{photo.classList.remove('f4g-social-enabled');photo.querySelector('.f4g-photo-side')?.remove();photo.querySelector('.f4g-photo-actions')?.remove();}
