@@ -192,6 +192,15 @@ async def validate_documentation(browser, name, width, height):
                   sideLeft:side.left,sideTop:side.top,sideWidth:side.width,
                   sideBottom:side.bottom,sideHeight:side.height}
         }""")
+        nav_geometry = await page.locator(".f4p-photo-stage").evaluate("""e => {
+          const stage=e.getBoundingClientRect(),content=e.querySelector('.f4p-photo-content').getBoundingClientRect();
+          const prev=e.querySelector('.f4p-photo-arrow').getBoundingClientRect();
+          return {stage:stage.width,content:content.width,stageLeft:stage.left,
+                  buttonLeft:prev.left,buttonRight:prev.right,position:getComputedStyle(e.querySelector('.f4p-photo-arrow')).position};
+        }""")
+        assert nav_geometry["content"] >= nav_geometry["stage"]-3, "Arrows still steal media width"
+        assert nav_geometry["position"] == "absolute", "Arrows must float over media"
+        assert nav_geometry["buttonLeft"] >= nav_geometry["stageLeft"]-2, "Navigation arrow outside media area"
         if name == "hp":
             assert abs(viewer["width"]-viewer["clientWidth"]) <= 2, "Photo viewer is not mobile full viewport width"
             assert geometry["sideTop"] >= geometry["stageBottom"]-3, "Mobile details obscures the photo instead of sitting below"
@@ -308,6 +317,48 @@ async def validate_upload_with_mock_drive(browser):
     finally:
         await context.close()
 
+async def validate_native_video(browser):
+    """Custom controls only on directly playable media; Drive iframe stays provider-managed."""
+    context = await make_context(browser, 390, 844)
+    page = await context.new_page()
+    try:
+        await context.route("https://media.qa.example/**", lambda route: route.fulfill(
+            status=200, content_type="video/mp4", body=b""))
+        await page.goto(HOST + "/dokumentasi/", wait_until="domcontentloaded", timeout=30000)
+        await page.wait_for_function("!!window.f4MediaGallery", timeout=15000)
+        direct = await page.evaluate("""() => {
+          window.f4MediaGallery.openMediaViewer("Video Audit",[
+            {url:"https://media.qa.example/video.mp4",type:"video",caption:"Contoh video"}
+          ]);
+          const root=document.querySelector('.f4p-photo-overlay');
+          const shell=root.querySelector('.f4p-video-shell'),video=shell?.querySelector('video');
+          const ctrls=shell?.querySelector('.f4p-video-controls');
+          return {video:!!video,controls:!!ctrls, nativeControls:video?.controls,
+            progress:!!ctrls?.querySelector('input[type="range"]'),
+            play:!!ctrls?.querySelector('button[aria-label="Putar video"]'),
+            volume:!!ctrls?.querySelector('button[aria-label="Bisukan suara"]'),
+            fullscreen:!!ctrls?.querySelector('button[aria-label="Layar penuh"]'),
+            width:shell?.getBoundingClientRect().width,
+            stage:root.querySelector('.f4p-photo-stage').getBoundingClientRect().width}
+        }""")
+        assert direct["video"] and direct["controls"] and not direct["nativeControls"], "Direct video player not customized"
+        assert direct["progress"] and direct["play"] and direct["volume"] and direct["fullscreen"], "Video controls incomplete"
+        assert direct["width"] >= direct["stage"]-3, "Video wrapper does not use full media width"
+        iframe = await page.evaluate("""() => {
+          window.f4MediaGallery.openMediaViewer("Video Drive",[
+            {url:"https://drive.google.com/file/d/1AbcDefGhijkLMnOPQrSTuvw/preview",type:"video"}
+          ]);
+          const root=document.querySelector('.f4p-photo-overlay');
+          return {embed:!!root.querySelector('.f4p-media-frame'),
+                  custom:!!root.querySelector('.f4p-video-controls')}
+        }""")
+        assert iframe["embed"] and not iframe["custom"], "Drive video iframe must keep provider controls"
+        await page.keyboard.press("Escape")
+        await page.wait_for_function("document.querySelector('.f4p-photo-overlay')?.hidden")
+        return {"directVideoControls":True,"arrowsOverlay":True,"driveEmbedPreserved":True}
+    finally:
+        await context.close()
+
 async def validate_home(browser):
     context = await make_context(browser, 1365, 850)
     page = await context.new_page()
@@ -366,6 +417,7 @@ async def main():
             try:
                 results.append(await validate_documentation(browser, "pc", 1365, 820))
                 results.append(await validate_documentation(browser, "hp", 390, 844))
+                results.append(await validate_native_video(browser))
                 results.append(await validate_home(browser))
                 results.append(await validate_legacy_home(browser))
                 results.append(await validate_suppression(browser))
