@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: f4-worker-drive-secrets
+  group: f4-worker-release
   cancel-in-progress: false
 
 jobs:
@@ -62,6 +62,11 @@ jobs:
               print("DRIVE_CONNECTION_PENDING: create these GitHub Actions secrets first:")
               for name in missing:print(" -",name)
               print("No production settings or data changed.")
+              with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as report:
+                  report.write("### Google Drive belum terhubung\\n")
+                  report.write("Tambahkan secret berikut di Settings → Secrets and variables → Actions:\\n")
+                  for name in missing:report.write("- `"+name+"`\\n")
+                  report.write("\\nTidak ada perubahan pada Worker atau database.\\n")
               sys.exit(0)
           if not secrets["GALLERY_DRIVE_CLIENT_ID"].endswith(".apps.googleusercontent.com"):
               raise RuntimeError("Google OAuth Client ID format is invalid")
