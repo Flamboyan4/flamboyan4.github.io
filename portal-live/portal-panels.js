@@ -214,23 +214,14 @@ async function loadPersonal(kind){
    const period=selected==='all'?'seluruh tahun':selected==='unknown'?'tanpa tahun':'tahun '+selected;
    const counter=el('p',list.length+' catatan pada '+period,'f4-user-year-context');
    content.append(counter);
+   head.textContent=(labels[kind]||'Riwayat')+' · '+list.length+' catatan';
    if(!list.length){
     const empty=el('div',undefined,'f4-user-empty');
     empty.append(el('strong','Belum ada catatan '+(labels[kind]||'keuangan').toLowerCase()),
      el('p','Tidak ada transaksi yang tercatat untuk '+period+'. Silakan pilih tahun lain atau Semua Tahun.'));
     content.append(empty);return;
    }
-   const amounts=list.map(amountOf).filter(value=>value!==null);
-   const total=amounts.reduce((sum,value)=>sum+value,0);
-   const stats=el('div',undefined,'f4-user-metrics');
-   const metric=(label,value,style='')=>{
-    const card=el('div',undefined,'f4-user-metric '+style);
-    card.append(el('span',label),el('strong',value));return card;
-   };
-   stats.append(metric('Total nominal • '+(selected==='all'?'Semua Tahun':selected==='unknown'?'Tanpa tahun':selected),amounts.length?money(total):'—','f4-user-metric-primary'),
-    metric('Jumlah catatan',list.length+' transaksi'),
-    metric('Catatan terbaru',dateOf(list[0])?niceDate(dateOf(list[0])):'—'));
-   content.append(stats);
+   // Total nominal tahunan tidak ditampilkan ulang di Kas Saya.
    const listHeading=el('div',undefined,'f4-user-list-heading');
    listHeading.append(el('strong','Rincian catatan'),el('span','Terbaru dahulu'));
    content.append(listHeading);
@@ -243,7 +234,16 @@ async function loadPersonal(kind){
     entries.replaceChildren();
     for(const row of list.slice(0,visible)){
      const item=el('article',undefined,'f4-user-row'),left=el('div',undefined,'f4-user-row-content');
-     left.append(el('strong',row.keterangan||row.periode||row.namaKegiatan||row.nama_kegiatan||row.jenis||'Catatan pribadi'));
+     const description=String(row.keterangan||'').trim();
+     // Humas / RT hanya ditampilkan bila tersimpan dalam keterangan.
+     const noteIsEmpty=['iuran_rt','kebersihan','kas_lorong','arisan'].includes(kind)
+       && !!row.periode && (!description||description===row.periode);
+     left.append(el('strong',description||row.periode||row.namaKegiatan||row.nama_kegiatan||row.jenis||'Catatan pribadi'));
+     if(noteIsEmpty){
+      const missing=el('span','Keterangan belum diisi','f4-user-row-note-missing');
+      missing.title='Keterangan transaksi ini belum tercatat di Pembukuan';
+      left.append(missing);
+     }
      const details=el('div',undefined,'f4-user-row-details');
      if(dateOf(row))details.append(el('time',niceDate(dateOf(row))));
      if(row.status)details.append(el('span',String(row.status),'f4-user-status-pill'));
