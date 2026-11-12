@@ -5,8 +5,8 @@
 #keuangan>div:first-child h3,#projek>div:first-child h3{letter-spacing:-.5px!important}
 #keuangan>div.grid{gap:var(--f4-grid-gap,16px);margin-bottom:17px;align-items:stretch}
 #card-pemasukan,#card-pengeluaran,#keuangan>div.grid>div:nth-child(3){
- border-radius:18px!important;padding:19px!important;min-width:0!important;min-height:152px!important;
- transform:none!important;box-shadow:0 3px 15px rgba(30,47,77,.04)!important
+ border-radius:18px;padding:19px;min-width:0;min-height:152px;
+ transform:none;box-shadow:0 3px 15px rgba(30,47,77,.04)
 }
 #card-pemasukan,#card-pengeluaran{border-color:var(--f4-polish-border)!important;background:#fff!important}
 #keuangan #pemasukan-bulan-ini,#keuangan #pengeluaran-bulan-ini{font-size:clamp(22px,2.4vw,30px)!important;letter-spacing:-.6px!important}
@@ -67,7 +67,7 @@ body[data-section-page=dokumentasi] .media-search{border-radius:12px!important;b
 @media(max-width:760px){
  #keuangan>div.grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
  #card-pemasukan,#card-pengeluaran,#keuangan>div.grid>div:nth-child(3){
-  padding:15px!important;min-height:135px!important;border-radius:15px!important
+  padding:15px;min-height:135px;border-radius:15px
  }
  #keuangan>div.grid>div:nth-child(3){grid-column:1/-1!important;min-height:120px!important}
  #keuangan #pemasukan-bulan-ini,#keuangan #pengeluaran-bulan-ini{font-size:20px!important}
