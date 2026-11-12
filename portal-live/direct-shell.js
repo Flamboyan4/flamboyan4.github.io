@@ -376,7 +376,9 @@ const legacy=new URLSearchParams(location.search).get('halaman');
 if(portal==='portal'&&legacy){
  const key=String(legacy).split('/')[0];
  if(key==='bank-sampah'||key==='pembukuan'||key==='superadmin'||key==='rapat'||key==='dokumentasi'||key==='inventaris'){
-  location.replace(key==='bank-sampah'?paths.bank:key==='pembukuan'?paths.book:key==='superadmin'?paths.superadmin:key==='inventaris'?'/dokumentasi/#inventaris':paths[key]);
+  const destination=key==='bank-sampah'?paths.bank:key==='pembukuan'?paths.book:key==='superadmin'?paths.superadmin:key==='inventaris'?'/dokumentasi/#inventaris':paths[key];
+  const docId=key==='rapat'?new URLSearchParams(location.search).get('doc'):null;
+  location.replace(docId?destination+'?doc='+encodeURIComponent(docId):destination);
   return;
  }
  if(['beranda','keuangan','projek','kalender','pembayaran','komentar'].includes(key)){
