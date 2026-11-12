@@ -356,24 +356,94 @@ async function adminDialog(){
  };
  await load();
 }
+
+let galleryView='feed';
+function setGalleryView(value){
+ galleryView=value==='albums'?'albums':'feed';
+ const root=document.getElementById('media-albums-section');
+ if(!root)return;
+ const feed=root.querySelector('.f4g-feed-pane'),albums=root.querySelector('.f4g-album-pane');
+ if(feed)feed.hidden=galleryView!=='feed';
+ if(albums)albums.hidden=galleryView!=='albums';
+ root.querySelectorAll('[data-gallery-view]').forEach(b=>{
+  const selected=b.dataset.galleryView===galleryView;
+  b.setAttribute('aria-selected',String(selected));
+  b.classList.toggle('selected',selected);
+ });
+ if(galleryView==='feed')renderRecent();
+}
+function renderRecent(){
+ const grid=document.getElementById('f4g-feed-grid');if(!grid)return;
+ const photos=window.f4GalleryRecentMedia?.()||[];grid.replaceChildren();
+ if(!photos.length){
+  const empty=elem('div','f4g-feed-empty');
+  const icon=elem('span','f4g-feed-empty-icon');icon.innerHTML=svg('images');
+  empty.append(icon,elem('strong','','Sedang memuat foto kegiatan…'),
+    elem('p','','Foto dari album dokumentasi akan muncul di sini.'),
+    button('Jelajahi album','images',()=>setGalleryView('albums')));
+  grid.append(empty);return;
+ }
+ for(const item of photos){
+  const card=elem('button','f4g-feed-card');card.type='button';card.setAttribute('aria-label','Buka foto dari '+item.title);
+  const image=elem('img');image.src=item.url;image.loading='lazy';image.alt=item.caption||item.title;
+  const info=elem('span','f4g-feed-card-caption');
+  info.append(elem('strong','',item.title),elem('small','',item.caption&&item.caption!==item.title?item.caption:item.date||'Dokumentasi'));
+  const badge=elem('span','f4g-feed-card-icon');badge.innerHTML=svg('images');
+  card.append(image,info,badge);
+  image.onerror=()=>{if(card.isConnected)card.remove()};
+  card.onclick=async()=>{
+   try{await window.f4GalleryOpenRecent?.(item.albumId,item.id)}
+   catch(e){notice('Foto belum dapat dibuka: '+e.message)}
+  };
+  grid.append(card);
+ }
+}
+function buildGalleryLayout(albums){
+ let hero=albums.querySelector(':scope > .f4g-hero');if(hero)return hero;
+ const head=albums.querySelector('.panel-head');if(!head)return null;
+ hero=elem('header','f4g-hero');const copy=elem('div','f4g-hero-copy');
+ const eye=elem('div','f4g-hero-eyebrow');eye.innerHTML=svg('sparkle');eye.append(elem('span','','DOKUMENTASI FLAMBOYAN 4'));
+ copy.append(eye,elem('h2','f4g-hero-title','Cerita & Momen Warga'),
+  elem('p','f4g-hero-desc','Dari arisan, kerja bakti hingga kegiatan bersama. Satu tempat untuk menyimpan dan berbagi kenangan lingkungan kita.'));
+ const stats=elem('div','f4g-hero-facts');stats.append(elem('span','f4g-fact','Galeri bersama'),elem('span','f4g-fact f4g-fact-count','Album kegiatan'));copy.append(stats);
+ hero.append(copy,elem('div','f4g-top-actions'));albums.insertBefore(hero,head);
+ const tabs=elem('nav','f4g-view-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Tampilan galeri');
+ for(const [value,name,icon] of [['feed','Foto Terbaru','grid'],['albums','Album Kegiatan','images']]){
+  const btn=button(name,icon,()=>setGalleryView(value),'f4g-view-button');
+  btn.dataset.galleryView=value;btn.setAttribute('role','tab');tabs.append(btn);
+ }
+ hero.after(tabs);
+ const albumPane=elem('div','f4g-album-pane');head.before(albumPane);
+ for(const id of ['media-category-filters','media-search','media-albums']){
+  const node=document.getElementById(id);if(node)albumPane.append(node);
+ }
+ albumPane.prepend(head);
+ const tools=elem('div','f4g-album-tools'),filter=albumPane.querySelector('#media-category-filters'),search=albumPane.querySelector('#media-search');
+ albumPane.insertBefore(tools,filter);tools.append(filter,search);
+ const feed=elem('section','f4g-feed-pane');feed.setAttribute('aria-label','Foto terbaru warga');
+ const summary=elem('div','f4g-feed-heading');
+ summary.append(elem('strong','f4g-feed-label','Momen yang dibagikan'),
+  elem('p','f4g-feed-description','Pilihan foto dari album kegiatan terbaru warga.'));
+ const tiles=elem('div','f4g-feed-grid');tiles.id='f4g-feed-grid';
+ feed.append(summary,tiles);tabs.after(feed);
+ setGalleryView(galleryView);return hero;
+}
 function mount(){
- const albums=document.getElementById('media-albums-section');
- if(!albums)return;
- const head=albums.querySelector('.panel-head');
- if(!head)return;
- // Aksi adalah saudara .panel-head, bukan anaknya. Pertahankan tepat satu set.
- let actions=albums.querySelector(':scope > .f4g-top-actions');
- if(!actions){actions=elem('div','f4g-top-actions');head.after(actions);}
- actions.replaceChildren();
+ const albums=document.getElementById('media-albums-section');if(!albums)return;
+ const hero=buildGalleryLayout(albums);if(!hero)return;
+ const actions=hero.querySelector('.f4g-top-actions');actions.replaceChildren();
  const upload=button('Unggah Foto','upload',uploadDialog,'primary');
- upload.title='Unggah satu atau beberapa foto sekaligus';
- actions.append(upload);
+ upload.title='Unggah satu atau beberapa foto sekaligus';actions.append(upload);
  if(user?.role==='superadmin')actions.append(button('Kelola Unggahan','shield',adminDialog));
+ const stat=hero.querySelector('.f4g-fact-count');
+ const count=window.f4GalleryAlbums?.().length;
+ if(stat)stat.textContent=Number.isFinite(count)?count+' album kegiatan':'Album kegiatan';
  if(user?.role==='superadmin'&&ready&&new URLSearchParams(location.search).get('kelola')==='1'&&!window.f4gAdminAutoOpened){
   window.f4gAdminAutoOpened=true;adminDialog();
  }
 }
-document.addEventListener('f4:gallery:ready',()=>{ready=true;collection=window.f4GalleryCommunity;mount()});
+document.addEventListener('f4:gallery:recent',renderRecent);
+document.addEventListener('f4:gallery:ready',()=>{ready=true;collection=window.f4GalleryCommunity;mount();renderRecent()});
 document.addEventListener('f4:gallery:album',e=>{
  const target={type:'album',id:e.detail.id,albumId:e.detail.id,title:e.detail.title};
  albumTarget=target;
