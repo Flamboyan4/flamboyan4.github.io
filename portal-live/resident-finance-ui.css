@@ -321,6 +321,11 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
     white-space:nowrap;font-size:12px;font-weight:800;
     font-variant-numeric:tabular-nums;
   }
+  /* The single-cell empty state must remain readable on HP. */
+  #keuangan .f4-cash-overview #f4-private-transactions tbody tr>td.f4-cash-no-results {
+    display:block;grid-column:1 / -1;grid-row:1 / -1;width:100%;
+    padding:12px 4px;text-align:center;white-space:normal;
+  }
   #keuangan .f4-cash-overview .f4-cash-table-toolbar {
     padding:10px 11px;gap:7px;flex-wrap:wrap;
   }
