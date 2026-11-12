@@ -8,16 +8,24 @@
 - Penyimpanan: Google Drive (tidak menggunakan R2 untuk unggahan komunitas).
 - **Upload tidak dapat diaktifkan tanpa OAuth Google Drive yang sah.** API publik menyertakan `uploadEnabled: false` jika binding OAuth belum lengkap.
 
+## Folder yang sudah diverifikasi (13 November 2026)
+
+- Folder induk: **Kegiatan Flamboyan IV**, ID `1Vfc92ToG71v2QfibvFz4p5s2d-_bMp-3`
+- Subfolder **Upload Warga** sudah dibuat di dalam folder induk dan diverifikasi, ID `1WZ1LoNjK0S1hP14vlgGW1IY7tvYfA8_a`
+- Kode Worker memiliki kedua ID sebagai konstanta non-rahasia; binding `GALLERY_UPLOAD_FOLDER_ID` adalah *opsional* untuk mengganti folder target bila suatu saat dipindahkan.
+- Subfolder lain seperti CCTV, Draft Rapat, atau Inventaris **tidak otomatis dipublikasikan** sebagai album. Hanya album Dokumentasi yang aktif dan diizinkan publik melalui D1 yang digunakan.
+- ChatGPT memiliki koneksi Google Drive atas izin pemilik folder, tetapi koneksi ini **tidak otomatis menyediakan OAuth Worker**. Jangan memasukkan token Google ke GitHub atau frontend.
+
 ## Konfigurasi yang diperlukan
 
-Gunakan akun Google Drive pengelola, bukan token dari pengguna situs. Siapkan folder **Upload Warga** di Google Drive pengelola dan salin ID folder dari URL. Konfigurasikan rahasia pada Cloudflare Worker `flamboyan4-terpadu-staging`:
+Gunakan akun Google Drive pengelola, bukan token dari pengguna situs. Folder **Upload Warga** sudah dibuat. Tidak perlu membuat folder baru atau memindahkan album lama. Konfigurasikan rahasia pada Cloudflare Worker `flamboyan4-terpadu-staging`:
 
 | Binding | Jenis | Kegunaan |
 | --- | --- | --- |
 | `GALLERY_DRIVE_CLIENT_ID` | Secret | Google OAuth client ID |
 | `GALLERY_DRIVE_CLIENT_SECRET` | Secret | Google OAuth client secret |
 | `GALLERY_DRIVE_REFRESH_TOKEN` | Secret | Token refresh akun pengelola dengan izin Drive yang sesuai |
-| `GALLERY_UPLOAD_FOLDER_ID` | Secret atau variable | ID folder Upload Warga |
+| `GALLERY_UPLOAD_FOLDER_ID` | Variable opsional | Override ID folder Upload Warga; sudah memiliki ID default yang diverifikasi |
 
 Jangan menaruh client secret atau refresh token di source code, GitHub, atau frontend. Gunakan OAuth yang telah diberi persetujuan oleh pemilik akun. Karena superadmin dapat memindahkan foto ke album Drive yang sudah ada, izin OAuth harus meliputi folder tujuan yang dikelola. Scope yang diperlukan dapat mencakup akses Google Drive penuh, sehingga sebaiknya gunakan akun khusus pengelola galeri.
 
