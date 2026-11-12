@@ -39,7 +39,7 @@ function enhance(personal){
  duesContent.setAttribute('aria-live','polite');
  dues.append(duesContent);
  const right=mk('section','f4-resident-right');
- right.innerHTML='<div class="f4-resident-status-heading"><div><span class="f4-resident-ticket-brand">FLAMBOYAN 4</span><h3>Status Pembayaran</h3><p id="f4-resident-period">Bulan berjalan</p></div><span class="f4-resident-ticket-mark" aria-hidden="true">'+svg('check')+'</span></div>';
+ right.innerHTML='<div class="f4-resident-status-heading"><div><span class="f4-resident-ticket-brand">FLAMBOYAN 4</span><h3>Status Pembayaran</h3><p id="f4-resident-period">Bulan berjalan</p></div><span class="f4-resident-ticket-mark" aria-hidden="true">'+svg('dues')+'</span></div>';
  const statusContent=mk('div','f4-resident-status-content','Memuat status pembayaran…');
  statusContent.id='f4-resident-status-content';
  statusContent.setAttribute('aria-live','polite');
@@ -124,6 +124,8 @@ function writeDues(personal,data){
  const due=Math.max(0,Number(data.totalWajibRp)||0);
  const paid=Math.max(0,Number(data.totalTerbayarRp)||0);
  const remaining=Math.max(0,Number(data.totalSisaRp)||0);
+ const mark=personal.querySelector('.f4-resident-ticket-mark');
+ if(mark)mark.innerHTML=svg(due>0&&remaining===0?'check':'dues');
  const receipt=mk('div','f4-resident-receipt-body');
  const totalPaid=mk('div','f4-resident-receipt-total');
  totalPaid.append(mk('span','','TOTAL DIBAYAR'),mk('strong','',money(paid)));
