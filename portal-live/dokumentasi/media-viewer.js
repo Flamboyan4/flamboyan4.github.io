@@ -116,9 +116,9 @@ function makeVideoPlayer(item){
  for(const type of ['timeupdate','durationchange','loadedmetadata','play','pause','ended','volumechange'])video.addEventListener(type,update);
  video.addEventListener('error',()=>{
   if(!shell.isConnected)return;
-  const fail=node('p','f4p-media-error','Video tidak dapat diputar langsung.');
-  const link=node('a','f4p-media-open','Buka video');link.href=item.url;link.target='_blank';link.rel='noopener noreferrer';
-  shell.replaceChildren(fail,link);
+  const fail=node('p','f4p-media-error','Video belum bisa diputar.');
+  // Hindari tautan unduh/asli Google di penampil warga.
+  shell.replaceChildren(fail);
  });
  update();return shell;
 }
@@ -270,10 +270,16 @@ function renderPhoto(){
  photo.querySelector('.f4p-photo-name').textContent=albumTitle;
  const view=photo.querySelector('.f4p-photo-content');stopVideo();resetPhotoZoom();view.replaceChildren();
  if(item.type==='video'){
-  if(item.embed){const frame=node('iframe','f4p-media-frame');frame.src=item.embed;frame.title=item.caption||albumTitle;frame.allowFullscreen=true;frame.allow='autoplay; fullscreen';view.append(frame)}
-  else{
-   view.append(makeVideoPlayer(item));
-  }
+  const driveVideo=item.embed&&item.id&&item.embed.startsWith('https://drive.google.com/file/d/');
+  if(driveVideo&&mediaContext==='gallery'){
+   // Video publik tetap disimpan di Drive, tetapi kontrol milik portal sendiri.
+   // URL proxy tidak memuat link asli dan OAuth hanya tersimpan di Worker.
+   view.append(makeVideoPlayer({...item,url:'https://api.flamboyan4.web.id/api/v2/gallery/video/'+encodeURIComponent(item.id.replace(/^gdrive:/,''))}));
+  }else if(item.embed){
+   // Viewer inventaris/YouTube di luar galeri tetap seperti sebelumnya.
+   const frame=node('iframe','f4p-media-frame');frame.src=item.embed;frame.title=item.caption||albumTitle;
+   frame.allowFullscreen=true;frame.allow='autoplay; fullscreen';view.append(frame);
+  }else view.append(makeVideoPlayer(item));
  }else{
   const img=node('img','f4p-media-photo');img.src=item.url;img.alt=item.caption||albumTitle;img.loading='eager';img.decoding='async';
   img.onerror=()=>{if(img.isConnected)img.replaceWith(node('p','f4p-media-error','Foto tidak dapat dimuat.'))};
