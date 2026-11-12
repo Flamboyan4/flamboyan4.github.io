@@ -937,7 +937,7 @@ function salinLinkAgenda(url) {
       return raw.replace(/\s+\d{1,2}:\d{2}(?::\d{2})?.*$/, '');
     }
 
-    function renderTableRow(row) {
+    function renderTableRow(row, rowNumber = null) {
       const keys = Object.keys(row);
       const tanggal = formatTanggalKeuanganDisplay(row[keys[0]]);
       const keterangan = row[keys[1]] || '-';
@@ -962,6 +962,7 @@ function salinLinkAgenda(url) {
 
       return `
         <tr>
+          ${Number.isInteger(rowNumber) ? `<td class="f4-cash-number-cell">${rowNumber}</td>` : ''}
           <td class="px-3 py-2 text-slate-600 whitespace-nowrap">${escapeJerseyText(tanggal)}</td>
           <td class="px-3 py-2 font-medium break-words text-slate-800">${escapeJerseyText(keterangan)}</td>
           <td class="px-3 py-2">${badgeKategori}</td>
@@ -969,6 +970,37 @@ function salinLinkAgenda(url) {
         </tr>
       `;
     }
+
+    // Kas Warga: full scrollable PC journal, compact HP preview.
+    // The same authenticated D1 rows feed the cards, archive and printed report.
+    const f4CashDesktopMedia=window.matchMedia('(min-width:768px)');
+    function renderKasWargaTransactions() {
+      const body=document.getElementById('tabel-transaksi');
+      if(!body)return;
+      const calendar=document.getElementById('f4-cash-date-filter');
+      const selectedDate=String(calendar?.value||'');
+      const clear=document.getElementById('f4-cash-date-clear');
+      if(clear)clear.hidden=!selectedDate;
+      const matching=globalKeuanganData.filter(row=>{
+        if(!selectedDate)return true;
+        const parsed=parseRowDate(row.Tanggal);
+        return !!parsed&&[parsed.year,String(parsed.month+1).padStart(2,'0'),String(parsed.day).padStart(2,'0')].join('-')===selectedDate;
+      });
+      const isDesktop=f4CashDesktopMedia.matches;
+      const visible=isDesktop||selectedDate?matching:matching.slice(0,6);
+      body.innerHTML=visible.map((row,index)=>renderTableRow(row,index+1)).join('')||
+        '<tr><td colspan="5" class="f4-cash-no-results">'+
+        (selectedDate?'Tidak ada transaksi pada tanggal tersebut.':'Belum ada transaksi.')+'</td></tr>';
+      const more=document.getElementById('btn-container-keuangan-all');
+      if(more)more.classList.toggle('hidden',isDesktop||!!selectedDate||matching.length<=6);
+    }
+    function filterKasWargaByDate(){renderKasWargaTransactions()}
+    function clearKasWargaDate(){
+      const input=document.getElementById('f4-cash-date-filter');
+      if(input)input.value='';
+      renderKasWargaTransactions();
+    }
+    f4CashDesktopMedia.addEventListener?.('change',renderKasWargaTransactions);
 
     function renderArisanRow(row, isCurrent = false, isNext = false) {
       const keys = Object.keys(row);
@@ -1506,28 +1538,16 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
             const tb = db ? new Date(db.year, db.month, db.day || 1).getTime() : 0;
             return tb - ta || a.originalIndex - b.originalIndex;
           }).map(item => item.row);
-        const top6Data = globalKeuanganData.slice(0, 6);
-
-        let tbodyHTML = '';
-        top6Data.forEach(row => { tbodyHTML += renderTableRow(row); });
-
-        let tbodyAllHTML = '';
-        globalKeuanganData.forEach(row => { tbodyAllHTML += renderTableRow(row); });
-
-        document.getElementById('tabel-transaksi').innerHTML = tbodyHTML || '<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada transaksi</td></tr>';
-        document.getElementById('tabel-transaksi-all').innerHTML = tbodyAllHTML || '<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada transaksi</td></tr>';
+        renderKasWargaTransactions();
+        const tbodyAllHTML=globalKeuanganData.map(row=>renderTableRow(row)).join('');
+        document.getElementById('tabel-transaksi-all').innerHTML=tbodyAllHTML||
+          '<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada transaksi</td></tr>';
 
         document.getElementById('total-pemasukan-all').innerText = formatRupiah(totalPemasukanAll);
         document.getElementById('total-pengeluaran-all').innerText = formatRupiah(totalPengeluaranAll);
         document.getElementById('sisa-saldo').innerText = formatRupiah(sisaSaldo);
 
         F4Loading.success(statusEl,kasToken);
-
-        if (globalKeuanganData.length > 6) {
-          document.getElementById('btn-container-keuangan-all').classList.remove('hidden');
-        } else {
-          document.getElementById('btn-container-keuangan-all').classList.add('hidden');
-        }
 
         // Update mengikuti transaksi paling baru dari Buku Kas.
         if (globalKeuanganData.length > 0 && globalKeuanganData[0].Tanggal) {
