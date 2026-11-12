@@ -234,16 +234,11 @@ async function loadPersonal(kind){
     entries.replaceChildren();
     for(const row of list.slice(0,visible)){
      const item=el('article',undefined,'f4-user-row'),left=el('div',undefined,'f4-user-row-content');
+     // Pertahankan keterangan asli dari Pembukuan (mis. "Humas" / "RT").
+     // Jangan tambah label "belum diisi" hanya karena salah satu periode
+     // tidak menyertakan teks keterangan.
      const description=String(row.keterangan||'').trim();
-     // Humas / RT hanya ditampilkan bila tersimpan dalam keterangan.
-     const noteIsEmpty=['iuran_rt','kebersihan','kas_lorong','arisan'].includes(kind)
-       && !!row.periode && (!description||description===row.periode);
      left.append(el('strong',description||row.periode||row.namaKegiatan||row.nama_kegiatan||row.jenis||'Catatan pribadi'));
-     if(noteIsEmpty){
-      const missing=el('span','Keterangan belum diisi','f4-user-row-note-missing');
-      missing.title='Keterangan transaksi ini belum tercatat di Pembukuan';
-      left.append(missing);
-     }
      const details=el('div',undefined,'f4-user-row-details');
      if(dateOf(row))details.append(el('time',niceDate(dateOf(row))));
      if(row.status)details.append(el('span',String(row.status),'f4-user-status-pill'));
