@@ -131,7 +131,8 @@
 .f4p-photo-arrow:first-child{left:clamp(6px,1.4vw,16px)}
 .f4p-photo-arrow:last-child{right:clamp(6px,1.4vw,16px)}
 .f4p-photo-arrow:hover{background:#494254d9}
-.f4p-photo-stage:is(:hover,:focus-within,.f4p-nav-visible)>.f4p-photo-arrow:not([hidden]){opacity:1}
+@media(hover:hover){.f4p-photo-stage:hover>.f4p-photo-arrow:not([hidden]){opacity:1}}
+.f4p-photo-stage.f4p-nav-visible>.f4p-photo-arrow:not([hidden]){opacity:1}
 .f4p-photo-arrow:focus-visible{opacity:1;outline:2px solid #fff;outline-offset:2px}
 .f4p-photo-arrow[hidden]{display:none;pointer-events:none}
 .f4p-photo-content{display:flex;flex:1;align-items:center;justify-content:center;min-width:0;
