@@ -37,16 +37,22 @@ const portalOnly=record=>(!record.portal||['portal','utama','portal-utama','flam
  !/^Bank Sampah\s*[:/]/i.test(record.category||'');
 const folderId=link=>String(link||'').match(/(?:\/folders\/|[?&]folderId=)([A-Za-z0-9_-]{12,})/)?.[1]||'';
 const photoFiles=new Map();
+function combineCommunityMedia(legacy,extra){
+ const additions=Array.isArray(extra)?extra:[];
+ const idOf=x=>String(x?.url||'').match(/\/d\/([A-Za-z0-9_-]{12,})/)?.[1]||'';
+ const uploadedIds=new Set(additions.map(idOf).filter(Boolean));
+ return [...(legacy||[]).filter(item=>!uploadedIds.has(idOf(item))),...additions];
+}
 async function listMedia(doc){
  if(doc.media)return doc.media;
  const id=folderId(doc.folder);
  if(!id){
   doc.media=String(doc.folder||'').split(',').map(s=>s.trim()).filter(Boolean)
     .map(url=>({url:driveImage(url),type:/\.(mp4|webm|mov)(?:\?|$)/i.test(url)?'video':'foto',caption:doc.title}));
-  doc.media=doc.media.concat(doc.communityPhotos||[]);
+  doc.media=combineCommunityMedia(doc.media,doc.communityPhotos);
   return doc.media;
  }
- if(photoFiles.has(id))return (await photoFiles.get(id)).concat(doc.communityPhotos||[]);
+ if(photoFiles.has(id))return combineCommunityMedia(await photoFiles.get(id),doc.communityPhotos);
  const request=(async()=>{
   const response=await fetch(FOLDER_API+'?folderId='+encodeURIComponent(id),{cache:'no-store'});
   if(!response.ok)throw Error('Folder HTTP '+response.status);
@@ -63,7 +69,7 @@ async function listMedia(doc){
   }).filter(item=>item.url);
  })();
  photoFiles.set(id,request);
- try{return (await request).concat(doc.communityPhotos||[])}catch(err){photoFiles.delete(id);throw err}
+ try{return combineCommunityMedia(await request,doc.communityPhotos)}catch(err){photoFiles.delete(id);throw err}
 }
 async function loadPortalArchive(){
  const indicator=window.F4Loading?.begin('feedback','Memeriksa pembaruan dokumentasi…');
