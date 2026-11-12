@@ -8,7 +8,7 @@ const API='https://api.flamboyan4.web.id';
 const FOLDER_API='https://script.google.com/macros/s/AKfycbyes6A9_9EQ8vIYtf75cGgC9sKAZBvMewxEhYRSThjMAlBYqnkmKpa3yoPOtN0FEG92Zg/exec';
 const icon=name=>{
  const paths={heart:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/>',
-  comment:'<path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 9 9 0 0 1-4-.9L3 21l1.8-5.2a8.5 8.5 0 0 0 0-7.8z"/>'};
+  comment:'<path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 9 9 0 0 1-4-.9L3 21l1.8-5.2a8.5 8.5 0 1 1 16.2-4.3z"/>'};
  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">'+paths[name]+'</svg>';
 };
 const el=(tag,cls,content)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(content!==undefined)x.textContent=String(content);return x};
@@ -31,8 +31,9 @@ function card(item){
  const body=el('div','f4g-home-card-content'),title=el('a','f4g-home-title',item.title||item.caption||'Dokumentasi Warga');title.href=href;
  const info=el('div','f4g-home-info');
  info.append(el('span','',item.uploader||'Dokumentasi Flamboyan 4'),el('span','',textDate(item)));
- const stats=el('div','f4g-home-stats'),likes=el('span'),comments=el('span');
+ const stats=el('div','f4g-home-stats'),likes=el('span','f4g-home-stat'),comments=el('a','f4g-home-stat f4g-home-comment-link');
  likes.innerHTML=icon('heart');likes.append(el('span','',String(item.likes||0)));
+ comments.href=href;comments.setAttribute('aria-label','Buka komentar pada '+(item.title||'album'));
  comments.innerHTML=icon('comment');comments.append(el('span','',String(item.commentCount??item.comments?.length??0)));
  stats.append(likes,comments);
  const preview=el('div','f4g-home-comments');
