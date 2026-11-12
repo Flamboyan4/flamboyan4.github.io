@@ -103,4 +103,6 @@ jobs:
             ops-audit/community-gallery-browser.json
             ops-audit/gallery-pc.png
             ops-audit/gallery-hp.png
+            ops-audit/photo-viewer-pc.png
+            ops-audit/photo-viewer-hp.png
           if-no-files-found: ignore
