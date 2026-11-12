@@ -98,6 +98,9 @@ async def validate_documentation(browser, name, width, height):
         await page.wait_for_function("!!window.f4GalleryAlbums && window.f4GalleryAlbums().length>0", timeout=25000)
         await page.wait_for_timeout(350)
         assert await page.locator(".f4g-hero-title").inner_text() == "Cerita & Momen Warga"
+        assert await page.evaluate("getComputedStyle(document.getElementById('media-albums-section')).borderTopWidth") == "0px", "Outer album frame still present"
+        cols = await page.locator("#f4g-feed-grid").evaluate("(e)=>getComputedStyle(e).gridTemplateColumns.split(' ').length")
+        assert cols == 3, "Photo grid must show 3 columns"
         assert await page.locator("[data-gallery-view=feed]").get_attribute("aria-selected") == "true"
         await page.locator("#f4g-feed-grid .f4g-feed-card").first.wait_for(timeout=25000)
         # Re-render due to gallery data and repeated auth events must never duplicate controls.
@@ -134,7 +137,7 @@ async def validate_documentation(browser, name, width, height):
         await page.locator(".f4p-album-overlay .f4p-album-tile").first.click()
         await page.wait_for_function("!!document.querySelector('.f4p-photo-overlay:not([hidden]) .f4g-photo-actions')")
         assert await page.locator(".f4p-photo-overlay .f4g-photo-actions").count() == 1
-        assert await page.locator(".f4p-photo-overlay .f4g-photo-side").count() == 1
+        assert await page.locator(".f4p-photo-overlay .f4g-photo-side").count() == 0, "Photo must remain full-screen without sidebar"
         # Album and photo share must produce direct links that survive a fresh browser page.
         await page.locator(".f4p-photo-overlay .f4g-photo-actions").get_by_role("button", name="Bagikan foto").click()
         await page.wait_for_timeout(180)
@@ -154,7 +157,8 @@ async def validate_documentation(browser, name, width, height):
         print("POST_SHARE_STATE", name, json.dumps(debug))
         assert debug["photoOpen"], "Sharing a photo unexpectedly closed the viewer"
         await page.locator(".f4p-photo-overlay .f4g-photo-actions").get_by_role("button", name=re.compile("komentar", re.I)).click()
-        await page.locator(".f4g-overlay").wait_for()
+        await page.locator(".f4g-overlay.f4g-comment-overlay").wait_for()
+        assert await page.locator(".f4g-comment-overlay .f4g-comment-list").count() == 1, "Comment sheet content missing"
         await page.keyboard.press("Escape")
         await page.wait_for_function("document.querySelectorAll('.f4g-overlay').length===0")
         assert await page.locator(".f4p-photo-overlay:not([hidden])").count() == 1, "Closing comments also closed photo"
