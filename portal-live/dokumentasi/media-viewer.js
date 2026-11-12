@@ -48,6 +48,8 @@ function ensure(){
  photo.addEventListener('click',e=>{if(e.target===photo||e.target===stage||e.target===view)closeTop()});
  document.addEventListener('keydown',e=>{
   if(!isOpen(photo)&&!isOpen(album))return;
+  // Dialog komentar, unggah, dan konfirmasi berada di atas penampil media.
+  if(document.querySelector('.f4g-overlay'))return;
   if(e.key==='Escape'||e.key==='Backspace'&&e.target===document.body){e.preventDefault();closeTop();return}
   if(isOpen(photo)&&e.key==='ArrowLeft'){e.preventDefault();shift(-1)}
   if(isOpen(photo)&&e.key==='ArrowRight'){e.preventDefault();shift(1)}
