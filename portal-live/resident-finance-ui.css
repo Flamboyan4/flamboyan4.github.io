@@ -48,7 +48,69 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
 #keuangan .f4-cash-overview #f4-private-transactions>div.overflow-x-auto {
   min-width:0;min-height:0;flex:1;overflow-x:auto;overflow-y:auto;scrollbar-width:thin;
 }
-#keuangan .f4-cash-overview #f4-private-transactions table {min-width:510px}
+#keuangan .f4-cash-overview #f4-private-transactions table {
+  min-width:600px;table-layout:fixed;font-size:12px;
+}
+#keuangan .f4-cash-overview #f4-private-transactions :is(th,td):nth-child(1) {width:42px}
+#keuangan .f4-cash-overview #f4-private-transactions :is(th,td):nth-child(2) {width:19%}
+#keuangan .f4-cash-overview #f4-private-transactions :is(th,td):nth-child(3) {width:36%}
+#keuangan .f4-cash-overview #f4-private-transactions :is(th,td):nth-child(4) {width:18%}
+#keuangan .f4-cash-overview #f4-private-transactions :is(th,td):nth-child(5) {width:21%}
+#keuangan .f4-cash-overview .f4-cash-number-cell {
+  color:#79839a;font-size:11px;font-weight:700;text-align:center;
+  font-variant-numeric:tabular-nums;
+}
+#keuangan .f4-cash-overview .f4-cash-no-results {
+  padding:20px 12px;text-align:center;color:#7f8899;font-size:12px;
+}
+#keuangan .f4-cash-overview .f4-cash-table-toolbar {
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:9px;padding:10px 13px;
+  border-bottom:1px solid #e7eaf2;background:#fff;
+}
+#keuangan .f4-cash-overview .f4-cash-last-update {
+  color:#64708a;font-size:11px;line-height:1.25;font-weight:700;
+  white-space:nowrap;
+}
+#keuangan .f4-cash-overview .f4-cash-table-actions {
+  display:flex;align-items:center;justify-content:flex-end;gap:7px;
+  margin-left:auto;min-width:0;
+}
+#keuangan .f4-cash-overview .f4-cash-date-control {
+  display:flex;align-items:center;gap:6px;min-width:0;
+  min-height:35px;padding:5px 8px;border:1px solid #dbdef0;
+  border-radius:9px;background:#f9f9ff;color:#604ec4;
+  cursor:pointer;
+}
+#keuangan .f4-cash-overview .f4-cash-date-control:focus-within {
+  border-color:#8472ee;box-shadow:0 0 0 2px #ddd8ff;
+}
+#keuangan .f4-cash-overview #f4-cash-date-filter {
+  color:#44506c;background:transparent;border:0;outline:none;
+  min-width:0;width:123px;min-height:24px;padding:0;font-size:12px;
+  font-weight:650;cursor:pointer;
+}
+#keuangan .f4-cash-overview #f4-cash-date-filter::-webkit-calendar-picker-indicator {
+  cursor:pointer;opacity:.8;
+}
+#keuangan .f4-cash-overview .f4-cash-clear-date {
+  display:grid;place-items:center;flex:none;
+  width:31px;height:35px;border-radius:9px;
+  border:1px solid #dbdef0;background:#fff;color:#63708d;
+}
+#keuangan .f4-cash-overview .f4-cash-clear-date[hidden] {display:none}
+#keuangan .f4-cash-overview .f4-cash-table-print {
+  display:flex;align-items:center;justify-content:center;
+  gap:6px;min-height:35px;padding:7px 11px;
+  background:#101a36;color:#fff;border:1px solid #101a36;
+  border-radius:9px;font-size:12px;font-weight:750;white-space:nowrap;
+}
+#keuangan .f4-cash-overview .f4-cash-table-print:hover {background:#253156}
+#keuangan .f4-cash-overview .f4-cash-loading-status {
+  display:block;padding:0 13px;font-size:11px;color:#77829a;
+}
+#keuangan .f4-cash-overview .f4-cash-loading-status:empty {display:none}
+
 #keuangan .f4-cash-overview #f4-private-transactions thead {
   position:sticky;top:0;z-index:2;background:#f1f3f9;
 }
@@ -68,7 +130,12 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
   #keuangan .f4-cash-summary {display:flex;gap:10px}
   #keuangan .f4-cash-summary>div {padding:13px 15px;min-height:0}
   #keuangan:not(.f4-finance-personal-active) .f4-cash-overview #f4-private-transactions {min-height:280px;max-height:390px}
-  #keuangan:not(.f4-finance-personal-active) .f4-cash-toolbar {margin-bottom:9px}
+  #keuangan .f4-cash-overview .f4-cash-table-toolbar {padding:9px 11px;gap:8px}
+  #keuangan .f4-cash-overview .f4-cash-date-control {min-height:34px}
+  #keuangan .f4-cash-overview #f4-cash-date-filter {width:116px;font-size:11px}
+  #keuangan .f4-cash-overview .f4-cash-table-print {min-height:34px;padding:7px 10px}
+  #keuangan .f4-cash-overview #f4-private-transactions table {min-width:0;table-layout:auto}
+  #keuangan .f4-cash-overview #f4-private-transactions thead {display:none}
 }
 
 #keuangan .f4-resident-layout {
