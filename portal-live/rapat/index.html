@@ -564,7 +564,7 @@
     });
 
     function copyCurrentRapatLink() {
-      const shareUrl=window.location.origin+'/?halaman=rapat&doc='+encodeURIComponent(currentActiveRapatId);
+      const shareUrl=window.location.origin+'/rapat/?doc='+encodeURIComponent(currentActiveRapatId);
       const share=async()=>{
         if(navigator.share){try{await navigator.share({title:'Hasil Rapat Flamboyan 4',url:shareUrl});return}catch(e){if(e.name==='AbortError')return}}
         await navigator.clipboard.writeText(shareUrl);
