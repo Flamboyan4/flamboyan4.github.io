@@ -144,7 +144,7 @@ async def validate_documentation(browser, name, width, height):
         })""")
         print("POST_SHARE_STATE", name, json.dumps(debug))
         assert debug["photoOpen"], "Sharing a photo unexpectedly closed the viewer"
-        await page.locator(".f4p-photo-overlay .f4g-photo-actions").get_by_role("button", name=re.compile("Komentar")).click()
+        await page.locator(".f4p-photo-overlay .f4g-photo-actions").get_by_role("button", name=re.compile("komentar", re.I)).click()
         await page.locator(".f4g-overlay").wait_for()
         await page.keyboard.press("Escape")
         await page.wait_for_function("document.querySelectorAll('.f4g-overlay').length===0")
