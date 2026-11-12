@@ -54,8 +54,10 @@ function enhance(personal){
  }
  const pane=mk('div','f4-resident-history-pane');
  pane.append(intro,tabs,data); // Preserve all original tab/filter click handlers.
- right.append(statusContent,actions,pane);
- layout.append(dues,right);
+ // PC has three independent cards; mobile keeps the status card visible
+ // and moves the existing dues/history nodes into bottom sheets on demand.
+ right.append(statusContent,actions);
+ layout.append(dues,right,pane);
  personal.replaceChildren(layout);
  const overlay=mk('div','f4-resident-sheet-overlay');
  overlay.id='f4-resident-sheet';
@@ -188,7 +190,7 @@ function closeSheet(){
  if(!activeSheet)return;
  const {overlay,personal,node,kind}=activeSheet;
  if(kind==='dues')personal.querySelector('.f4-resident-layout')?.prepend(node);
- else personal.querySelector('.f4-resident-right')?.append(node);
+ else personal.querySelector('.f4-resident-layout')?.append(node);
  overlay.hidden=true;
  overlay.querySelector('.f4-resident-sheet-content').replaceChildren();
  document.body.classList.remove('f4-resident-sheet-open');
