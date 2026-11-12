@@ -97,7 +97,7 @@ function renderPhoto(){
  photo.querySelector('.f4p-photo-count').textContent=(at+1)+' dari '+items.length;
  for(const b of photo.querySelectorAll('.f4p-photo-arrow'))b.hidden=items.length<2;
  if(mediaContext==='gallery')document.dispatchEvent(new CustomEvent('f4:gallery:photo',{detail:{id:item.id,albumId:currentAlbumId||item.albumId,title:albumTitle,caption:item.caption,url:item.url}}));
- else photo.querySelector('.f4g-photo-actions')?.remove();
+ else{photo.classList.remove('f4g-social-enabled');photo.querySelector('.f4g-photo-side')?.remove();photo.querySelector('.f4g-photo-actions')?.remove();}
 }
 function shift(n){if(!items.length)return;at=(at+n+items.length)%items.length;renderPhoto()}
 function openPhoto(index=0){ensure();if(!items.length)return;at=Math.max(0,Math.min(index,items.length-1));renderPhoto();
