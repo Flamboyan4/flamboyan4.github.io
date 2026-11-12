@@ -111,6 +111,15 @@ jobs:
               print('GALLERY_READ_OK albums=',len(data['albums']),'photos=',len(data['photos']),'driveConfigured=',bool(data.get('uploadEnabled')))
               print('GALLERY_DRIVE_CONNECTION_STATUS', 'READY' if data.get('uploadEnabled') else 'NOT_CONFIGURED')
               assert data.get('uploadEnabled') is True, 'New Cloudflare Google Drive secrets are not visible to production API'
+              # A public visitor must never see private OAuth and folder-write diagnostics.
+              private_url='https://api.flamboyan4.web.id/api/v2/gallery/drive-status'
+              private_req=urllib.request.Request(private_url,headers={'Origin':'https://flamboyan4.web.id'})
+              try:
+                with urllib.request.urlopen(private_req,timeout=20):
+                  raise AssertionError('Drive connection details must require superadmin')
+              except urllib.error.HTTPError as blocked:
+                assert blocked.code in (401,403),('Incorrect diagnostics permission',blocked.code)
+                print('GALLERY_DRIVE_STATUS_SUPERADMIN_ONLY_OK',blocked.code)
               portal_req=urllib.request.Request('https://api.flamboyan4.web.id/api/v2/public/portal',headers={'Origin':'https://flamboyan4.web.id','Accept':'application/json','User-Agent':'F4-gallery-smoke/1.0'})
               with urllib.request.urlopen(portal_req,timeout=20) as portal_response:
                 portal_data=json.load(portal_response)
