@@ -137,7 +137,19 @@ async def validate_documentation(browser, name, width, height):
         await page.locator(".f4p-album-overlay .f4p-album-tile").first.click()
         await page.wait_for_function("!!document.querySelector('.f4p-photo-overlay:not([hidden]) .f4g-photo-actions')")
         assert await page.locator(".f4p-photo-overlay .f4g-photo-actions").count() == 1
-        assert await page.locator(".f4p-photo-overlay .f4g-photo-side").count() == 0, "Photo must remain full-screen without sidebar"
+        assert await page.locator(".f4p-photo-overlay .f4g-photo-side").count() == 1, "Desktop/mobile photo detail component missing"
+        viewer = await page.locator(".f4p-photo-overlay").evaluate("""e => {
+          const cs=getComputedStyle(e), r=e.getBoundingClientRect();
+          return {background:cs.backgroundColor,width:r.width,height:r.height,
+                  clientWidth:innerWidth,clientHeight:innerHeight,
+                  albumHidden:getComputedStyle(document.querySelector('.f4p-album-overlay')).visibility}
+        }""")
+        assert viewer["background"] == "rgb(11, 11, 16)", "Photo background is not solid; album bleeds through"
+        assert viewer["albumHidden"] == "hidden", "Album behind photo still visible"
+        assert abs(viewer["height"]-viewer["clientHeight"]) <= 2, "Photo viewer is not full viewport height"
+        if name == "hp":
+            assert abs(viewer["width"]-viewer["clientWidth"]) <= 2, "Photo viewer is not mobile full viewport width"
+        await page.screenshot(path=str(AUDIT / ("photo-viewer-" + name + ".png")), full_page=False)
         # Album and photo share must produce direct links that survive a fresh browser page.
         await page.locator(".f4p-photo-overlay .f4g-photo-actions").get_by_role("button", name="Bagikan foto").click()
         await page.wait_for_timeout(180)
@@ -164,6 +176,7 @@ async def validate_documentation(browser, name, width, height):
         assert await page.locator(".f4p-photo-overlay:not([hidden])").count() == 1, "Closing comments also closed photo"
         await page.keyboard.press("Escape")
         await page.wait_for_function("document.querySelectorAll('.f4p-photo-overlay:not([hidden])').length===0")
+        assert await page.locator(".f4p-album-overlay").evaluate("e => getComputedStyle(e).visibility") == "visible", "Album not restored after closing photo"
         await page.keyboard.press("Escape")
         await page.wait_for_function("document.querySelectorAll('.f4p-album-overlay:not([hidden])').length===0")
         # Inventory photo should not inherit gallery reactions.
