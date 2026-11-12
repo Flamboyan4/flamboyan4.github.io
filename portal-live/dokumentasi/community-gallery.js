@@ -14,6 +14,7 @@ const icons={
  folder:'<path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10H3z"/>',
  flag:'<path d="M5 22V4m0 1q5-4 9 0t7 0v12q-4 4-9 0t-7 0"/>',
  camera:'<path d="M14 4h-4L8 7H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="14" r="3.5"/>',
+ user:'<circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/>',
  grid:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
  images:'<rect x="8" y="8" width="13" height="13" rx="2"/><path d="M4 16H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/><circle cx="13" cy="12" r="1.5"/><path d="m9 19 4-4 3 3 2-2 3 3"/>',
  sparkle:'<path d="m12 2 2.3 6.7L21 11l-6.7 2.3L12 20l-2.3-6.7L3 11l6.7-2.3L12 2z"/>'
@@ -177,8 +178,6 @@ async function openComments(target){
  text.addEventListener('input',()=>{text.style.height='46px';text.style.height=Math.min(100,Math.max(46,text.scrollHeight))+'px'});
  const send=button(null,'send',null,'primary f4g-comment-send');send.type='submit';send.setAttribute('aria-label','Kirim komentar');send.title='Kirim komentar';
  form.append(text,send);dlg.body.append(form);
- const hint=elem('p','f4g-note','Komentar akan terlihat oleh pengunjung galeri. Gunakan bahasa yang sopan.');
- dlg.body.append(hint);
  const load=async()=>{
   comments.replaceChildren(elem('p','f4g-note','Memuat komentar…'));
   try{
@@ -186,7 +185,8 @@ async function openComments(target){
    comments.replaceChildren();
    if(!data.comments.length)comments.append(elem('p','f4g-note','Belum ada komentar.'));
    for(const c of data.comments){
-    const row=elem('div','f4g-comment'),avatar=elem('div','f4g-comment-avatar',String(c.author||'W').slice(0,1).toUpperCase());
+    const row=elem('div','f4g-comment'),avatar=elem('div','f4g-comment-avatar');
+    avatar.innerHTML=svg('user');
     const content=elem('div','f4g-comment-main'),name=elem('b','',c.author||'Warga'),body=elem('p','',c.message||'');
     content.append(name,body);row.append(avatar,content);
     if(user?.role==='superadmin')row.append(button(null,'trash',async()=>{
@@ -253,7 +253,7 @@ async function uploadDialog(){
    setup.target='_blank';setup.rel='noopener noreferrer';dlg.body.append(setup);
   }
  }
- dlg.body.append(elem('p','f4g-note','Pilih satu atau beberapa foto, lalu tentukan album. Unggahan yang berhasil langsung tampil tanpa menunggu persetujuan.'));
+ dlg.body.append(elem('p','f4g-note','Pilih foto dan album.'));
  if(enabled&&user?.role==='superadmin'){
   const check=elem('div','f4g-drive-check');
   check.setAttribute('role','status');
@@ -268,7 +268,7 @@ async function uploadDialog(){
  const drop=elem('div','f4g-drop');
  const icon=elem('span');icon.innerHTML=svg('upload');drop.append(icon,elem('strong','','Pilih foto dari perangkat'));
  const picker=elem('input');picker.type='file';picker.accept='image/jpeg,image/png,image/webp';picker.multiple=true;drop.append(picker);
- drop.append(elem('p','f4g-note','Maksimal 12 foto sekali unggah. Foto dikompresi agar lebih hemat kuota.'));
+ drop.append(elem('p','f4g-note','Maks. 12 foto · JPG, PNG, WebP'));
  dlg.body.append(drop);
  const preview=elem('div','f4g-previews');dlg.body.append(preview);
  const album=field(dlg.body,'Tujuan album','select');
@@ -458,10 +458,7 @@ function buildGalleryLayout(albums){
  let hero=albums.querySelector(':scope > .f4g-hero');if(hero)return hero;
  const head=albums.querySelector('.panel-head');if(!head)return null;
  hero=elem('header','f4g-hero');const copy=elem('div','f4g-hero-copy');
- const eye=elem('div','f4g-hero-eyebrow');eye.innerHTML=svg('sparkle');eye.append(elem('span','','DOKUMENTASI FLAMBOYAN 4'));
- copy.append(eye,elem('h2','f4g-hero-title','Cerita & Momen Warga'),
-  elem('p','f4g-hero-desc','Dari arisan, kerja bakti hingga kegiatan bersama. Satu tempat untuk menyimpan dan berbagi kenangan lingkungan kita.'));
- const stats=elem('div','f4g-hero-facts');stats.append(elem('span','f4g-fact','Galeri bersama'),elem('span','f4g-fact f4g-fact-count','Album kegiatan'));copy.append(stats);
+ copy.append(elem('h2','f4g-hero-title','Cerita Warga'));
  hero.append(copy,elem('div','f4g-top-actions'));albums.insertBefore(hero,head);
  const tabs=elem('nav','f4g-view-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Tampilan galeri');
  for(const [value,name,icon] of [['feed','Foto Terbaru','grid'],['albums','Album Kegiatan','images']]){
@@ -477,11 +474,8 @@ function buildGalleryLayout(albums){
  const tools=elem('div','f4g-album-tools'),filter=albumPane.querySelector('#media-category-filters'),search=albumPane.querySelector('#media-search');
  albumPane.insertBefore(tools,filter);tools.append(filter,search);
  const feed=elem('section','f4g-feed-pane');feed.setAttribute('aria-label','Foto terbaru warga');
- const summary=elem('div','f4g-feed-heading');
- summary.append(elem('strong','f4g-feed-label','Momen yang dibagikan'),
-  elem('p','f4g-feed-description','Pilihan foto dari album kegiatan terbaru warga.'));
  const tiles=elem('div','f4g-feed-grid');tiles.id='f4g-feed-grid';
- feed.append(summary,tiles);tabs.after(feed);
+ feed.append(tiles);tabs.after(feed);
  setGalleryView(galleryView);return hero;
 }
 function mount(){
@@ -491,9 +485,6 @@ function mount(){
  const upload=button('Unggah Foto','upload',uploadDialog,'primary');
  upload.title='Unggah satu atau beberapa foto sekaligus';actions.append(upload);
  if(user?.role==='superadmin')actions.append(button('Kelola Unggahan','shield',adminDialog));
- const stat=hero.querySelector('.f4g-fact-count');
- const count=window.f4GalleryAlbums?.().length;
- if(stat)stat.textContent=Number.isFinite(count)?count+' album kegiatan':'Album kegiatan';
  if(user?.role==='superadmin'&&ready&&new URLSearchParams(location.search).get('kelola')==='1'&&!window.f4gAdminAutoOpened){
   window.f4gAdminAutoOpened=true;adminDialog();
  }
