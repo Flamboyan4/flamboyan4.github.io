@@ -7,6 +7,69 @@
 #keuangan.f4-finance-personal-active .f4-user-finance-controls {
   margin-bottom:13px;padding:4px;background:#fff;border-color:#dfe4f0;
 }
+/* Kas Warga: tab and cards use the same frameless outer structure as Kas Saya. */
+#keuangan:not(.f4-finance-personal-active) .f4-user-finance {
+  background:transparent;border:0;box-shadow:none;padding:0;margin:0 0 9px;min-width:0;
+}
+#keuangan:not(.f4-finance-personal-active) .f4-user-finance-heading {
+  margin:0 0 7px;padding:0 3px;
+}
+#keuangan:not(.f4-finance-personal-active) .f4-user-finance-controls {
+  margin:0;padding:4px;background:#fff;border:1px solid #dfe4f0;border-radius:13px;
+}
+#keuangan:not(.f4-finance-personal-active) .f4-cash-toolbar {
+  display:flex;align-items:center;justify-content:flex-end;
+  gap:8px;min-width:0;margin:0 0 10px;
+}
+#keuangan:not(.f4-finance-personal-active) .f4-cash-toolbar .f4-controls {
+  margin-left:auto;gap:8px;
+}
+#keuangan .f4-cash-overview {
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.95fr);
+  align-items:stretch;gap:14px;min-width:0;
+}
+#keuangan .f4-cash-summary {
+  display:flex;flex-direction:column;gap:10px;min-width:0;
+}
+#keuangan .f4-cash-summary>div {
+  display:flex;flex-direction:column;justify-content:space-between;
+  min-width:0;flex:1;padding:15px 17px;border-radius:16px;transform:none;
+  box-shadow:0 5px 16px rgba(34,39,91,.035);
+}
+#keuangan .f4-cash-summary>div:first-child {
+  flex:1.16;justify-content:center;gap:7px;
+}
+#keuangan .f4-cash-summary .mt-4 {margin-top:8px}
+#keuangan:not(.f4-finance-personal-active) .f4-cash-overview #f4-private-transactions {
+  min-width:0;min-height:0;display:flex;flex-direction:column;
+  overflow:hidden;border-radius:16px;box-shadow:0 5px 16px rgba(34,39,91,.035);
+}
+#keuangan .f4-cash-overview #f4-private-transactions>div.overflow-x-auto {
+  min-width:0;min-height:0;flex:1;overflow-x:auto;overflow-y:auto;scrollbar-width:thin;
+}
+#keuangan .f4-cash-overview #f4-private-transactions table {min-width:510px}
+#keuangan .f4-cash-overview #f4-private-transactions thead {
+  position:sticky;top:0;z-index:2;background:#f1f3f9;
+}
+#keuangan .f4-cash-overview #f4-private-transactions th,
+#keuangan .f4-cash-overview #f4-private-transactions td {
+  padding:9px 10px;
+}
+@media (min-width:768px) and (max-width:1150px) {
+  #keuangan .f4-cash-overview {grid-template-columns:minmax(0,1fr)}
+  #keuangan .f4-cash-summary {display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+  #keuangan .f4-cash-summary>div {padding:13px}
+  #keuangan .f4-cash-summary>div:first-child {grid-column:auto}
+  #keuangan:not(.f4-finance-personal-active) .f4-cash-overview #f4-private-transactions {min-height:300px}
+}
+@media (max-width:767px) {
+  #keuangan .f4-cash-overview {grid-template-columns:minmax(0,1fr);gap:12px}
+  #keuangan .f4-cash-summary {display:flex;gap:10px}
+  #keuangan .f4-cash-summary>div {padding:13px 15px;min-height:0}
+  #keuangan:not(.f4-finance-personal-active) .f4-cash-overview #f4-private-transactions {min-height:280px;max-height:390px}
+  #keuangan:not(.f4-finance-personal-active) .f4-cash-toolbar {margin-bottom:9px}
+}
+
 #keuangan .f4-resident-layout {
   display:grid;grid-template-columns:minmax(0,1.33fr) minmax(0,.92fr) minmax(0,1.75fr);
   align-items:stretch;gap:12px;min-width:0;
