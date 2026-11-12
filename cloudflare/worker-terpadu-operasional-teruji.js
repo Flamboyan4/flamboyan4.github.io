@@ -2223,8 +2223,15 @@ async function f4GallerySchema(db){
  return f4GallerySetup;
 }
 __name(f4GallerySchema,"f4GallerySchema");
+// Identitas folder bukan secret. OAuth tetap hanya dibaca dari binding server Worker.
+const F4_GALLERY_ROOT_FOLDER_ID="1Vfc92ToG71v2QfibvFz4p5s2d-_bMp-3";
+const F4_GALLERY_UPLOAD_FOLDER_ID="1WZ1LoNjK0S1hP14vlgGW1IY7tvYfA8_a";
+function f4GalleryUploadFolder(env){
+ return String(env.GALLERY_UPLOAD_FOLDER_ID||F4_GALLERY_UPLOAD_FOLDER_ID).trim();
+}
+__name(f4GalleryUploadFolder,"f4GalleryUploadFolder");
 function f4GalleryDriveReady(env){
- return Boolean(env.GALLERY_DRIVE_CLIENT_ID&&env.GALLERY_DRIVE_CLIENT_SECRET&&env.GALLERY_DRIVE_REFRESH_TOKEN&&env.GALLERY_UPLOAD_FOLDER_ID);
+ return Boolean(env.GALLERY_DRIVE_CLIENT_ID&&env.GALLERY_DRIVE_CLIENT_SECRET&&env.GALLERY_DRIVE_REFRESH_TOKEN);
 }
 __name(f4GalleryDriveReady,"f4GalleryDriveReady");
 async function f4GalleryDriveToken(env){
@@ -2331,7 +2338,7 @@ async function f4GalleryUpload(req,env,who,url){
  if(Number(recent?.n||0)>=40)return err("Batas 40 unggahan per jam tercapai. Coba lagi nanti.",429);
  const token=await f4GalleryDriveToken(env);
  const boundary="f4_gallery_"+crypto.randomUUID().replace(/-/g,"");
- const targetFolder=String(env.GALLERY_UPLOAD_FOLDER_ID).trim();
+ const targetFolder=f4GalleryUploadFolder(env);
  const metadata={name,parents:[targetFolder],mimeType:mime,description:caption.slice(0,300)};
  const multipart=new Blob([
   "--"+boundary+"\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n",JSON.stringify(metadata),"\r\n",
@@ -2421,7 +2428,7 @@ async function f4GalleryAdmin(req,env,who){
    if(!album.id.startsWith("galbum:"))return err("Folder album tujuan tidak tersedia.",400);
    const created=await f4GalleryDriveRequest(token,"files?fields=id",{
     method:"POST",headers:{"content-type":"application/json"},
-    body:JSON.stringify({name:album.title,mimeType:"application/vnd.google-apps.folder",parents:[String(env.GALLERY_UPLOAD_FOLDER_ID)]})
+    body:JSON.stringify({name:album.title,mimeType:"application/vnd.google-apps.folder",parents:[F4_GALLERY_ROOT_FOLDER_ID]})
    });
    target=created.id;
    await db.prepare("UPDATE f4_gallery_albums SET drive_folder_id=? WHERE id=?").bind(target,album.id).run();
