@@ -32,6 +32,7 @@
 #keuangan:not(.f4-finance-personal-active) .f4-cash-toolbar .f4-controls {
   margin-left:auto;gap:8px;
 }
+#keuangan .f4-cash-mobile-actions {display:none}
 #keuangan .f4-cash-overview {
   display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.95fr);
   align-items:stretch;gap:14px;min-width:0;height:476px;
@@ -272,75 +273,60 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
   #keuangan .f4-cash-summary .mt-4 {margin-top:7px}
   #keuangan .f4-cash-summary #total-pemasukan-all,
   #keuangan .f4-cash-summary #total-pengeluaran-all {font-size:11px}
-  /* HP: natural page scroll, never a nested scroll trap inside the journal. */
-  #keuangan:not(.f4-finance-personal-active) .f4-cash-overview #f4-private-transactions,
+  /* Mobile Kas Warga: no inline transaction table, only two actions. */
+  #keuangan .f4-cash-overview #f4-private-transactions,
   body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-finance-personal-active) .f4-cash-overview #f4-private-transactions {
-    min-width:0;min-height:0;height:auto;max-height:none;
-    display:block;overflow:visible;
-  }
-  #keuangan .f4-cash-overview #f4-private-transactions>div.overflow-x-auto {
-    height:auto;min-height:0;max-height:none;display:block;
-    overflow:visible;overscroll-behavior:auto;
-    touch-action:pan-y;
-  }
-  #keuangan .f4-cash-overview #f4-private-transactions table,
-  #keuangan .f4-cash-overview #f4-private-transactions tbody {
-    display:block;width:100%;min-width:0;table-layout:auto;
-  }
-  #keuangan .f4-cash-overview #f4-private-transactions thead {display:none}
-  #keuangan .f4-cash-overview #f4-private-transactions tbody tr {
-    display:grid;grid-template-columns:minmax(0,1fr) max-content;
-    grid-template-areas:"note amount" "date amount";
-    gap:2px 10px;align-items:center;min-width:0;height:auto;min-height:0;
-    padding:9px 11px;border-bottom:1px solid #edf0f5;
-    background:#fff;
-  }
-  #keuangan .f4-cash-overview #f4-private-transactions tbody tr>td {
-    display:block;min-width:0;width:auto;max-width:none;
-    padding:0;margin:0;line-height:1.3;
-    white-space:normal;overflow-wrap:anywhere;
-    vertical-align:middle;
-  }
-  #keuangan .f4-cash-overview #f4-private-transactions tbody tr>td:nth-child(1),
-  #keuangan .f4-cash-overview #f4-private-transactions tbody tr>td:nth-child(4) {
     display:none;
   }
-  #keuangan .f4-cash-overview #f4-private-transactions tbody tr>td:nth-child(2) {
-    grid-area:date;font-size:10px;color:#8792a9;font-weight:500;
-    white-space:nowrap;word-break:normal;overflow-wrap:normal;
-    width:max-content;max-width:100%;
+  #keuangan .f4-cash-mobile-actions {
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;min-width:0;width:100%;
   }
-  #keuangan .f4-cash-overview #f4-private-transactions tbody tr>td:nth-child(3) {
-    grid-area:note;font-size:12px;font-weight:750;color:#28364d;
-    white-space:normal;word-break:normal;overflow-wrap:break-word;
-    display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
-    overflow:hidden;line-height:1.3;
+  #keuangan .f4-cash-mobile-actions button {
+    display:flex;align-items:center;justify-content:center;gap:9px;
+    min-width:0;min-height:45px;padding:10px 12px;
+    border:1px solid #dfddf5;border-radius:12px;
+    background:#f2efff;color:#5745c5;
+    font-size:13px;font-weight:800;line-height:1.2;
+    cursor:pointer;
   }
-  #keuangan .f4-cash-overview #f4-private-transactions tbody tr>td:nth-child(5) {
-    grid-area:amount;align-self:center;justify-self:end;text-align:right;
+  #keuangan .f4-cash-mobile-actions button.f4-cash-mobile-print {
+    border-color:#121c38;background:#121c38;color:#fff;
+  }
+  #keuangan .f4-cash-mobile-actions svg {
+    display:block;width:18px;height:18px;flex:none;
+  }
+  /* Rincian opens the existing searchable modal, formatted as compact rows. */
+  #modal-keuangan .overflow-x-auto.overflow-y-auto {
+    overflow-x:hidden;padding:8px 12px;
+  }
+  #modal-keuangan table,#modal-keuangan tbody {
+    display:block;width:100%;min-width:0;border-spacing:0;
+  }
+  #modal-keuangan thead {display:none}
+  #modal-keuangan tbody tr {
+    display:grid;grid-template-columns:minmax(0,1fr) max-content;
+    grid-template-areas:"note amount" "date amount";
+    gap:3px 9px;align-items:center;min-width:0;
+    padding:10px 3px;border-bottom:1px solid #edf0f5;
+  }
+  #modal-keuangan tbody tr>td {
+    display:block;min-width:0;max-width:none;width:auto;
+    padding:0;margin:0;line-height:1.3;
+  }
+  #modal-keuangan tbody tr>td:nth-child(1) {
+    grid-area:date;color:#8992a4;font-size:11px;
+    white-space:nowrap;overflow-wrap:normal;
+  }
+  #modal-keuangan tbody tr>td:nth-child(2) {
+    grid-area:note;font-size:12px;font-weight:700;
+    color:#28364d;white-space:normal;overflow-wrap:break-word;
+  }
+  #modal-keuangan tbody tr>td:nth-child(3) {display:none}
+  #modal-keuangan tbody tr>td:nth-child(4) {
+    grid-area:amount;justify-self:end;text-align:right;
     white-space:nowrap;font-size:12px;font-weight:800;
     font-variant-numeric:tabular-nums;
-  }
-  /* The single-cell empty state must remain readable on HP. */
-  #keuangan .f4-cash-overview #f4-private-transactions tbody tr>td.f4-cash-no-results {
-    display:block;grid-column:1 / -1;grid-row:1 / -1;width:100%;
-    padding:12px 4px;text-align:center;white-space:normal;
-  }
-  #keuangan .f4-cash-overview .f4-cash-table-toolbar {
-    padding:10px 11px;gap:7px;flex-wrap:wrap;
-  }
-  #keuangan .f4-cash-overview .f4-cash-last-update {
-    font-size:10px;white-space:nowrap;
-  }
-  #keuangan .f4-cash-overview .f4-cash-table-actions {
-    min-width:0;margin-left:auto;gap:6px;
-  }
-  #keuangan .f4-cash-overview .f4-cash-date-control {
-    padding:4px 7px;min-height:34px;
-  }
-  #keuangan .f4-cash-overview .f4-cash-date-trigger {font-size:11px}
-  #keuangan .f4-cash-overview .f4-cash-table-print {
-    padding:6px 9px;min-height:34px;font-size:11px;
   }
   #keuangan .f4-user-finance-heading {margin-bottom:12px}
   #keuangan .f4-user-finance-heading h3 {font-size:19px}
@@ -547,7 +533,6 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
   #keuangan .f4-resident-payment-split {grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:767px) {
-  #keuangan.f4-finance-personal-active .f4-user-finance-heading {display:none}
   #keuangan.f4-finance-personal-active .f4-user-finance-controls {margin:0 0 11px}
   #keuangan .f4-resident-layout {display:block}
   #keuangan .f4-resident-layout>.f4-resident-dues {display:none}
