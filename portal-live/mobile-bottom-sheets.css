@@ -189,15 +189,16 @@
   content:"";display:block;flex:none;width:42px;height:4px;
   border-radius:10px;background:#d7d9e5;margin:10px auto 5px
  }
- /* Dokumentasi: album sebagai sheet; penampil foto/video tetap fullscreen. */
+ /* Dokumentasi: sheet album lebarnya selalu mengikuti layar HP,
+    tingginya mengikuti jumlah media; penampil foto tetap fullscreen. */
  .f4p-album-overlay:not([hidden]){
-  align-items:flex-end;justify-content:center;padding:0;
-  overscroll-behavior:contain
+  display:flex;align-items:flex-end;justify-content:stretch;
+  padding:0;width:100%;overscroll-behavior:contain
  }
  .f4p-album-overlay>.f4p-album-card{
-  width:100%;max-width:100%;min-width:0;min-height:0;
-  max-height:88dvh;margin:0;
-  border-radius:22px 22px 0 0;
+  flex:0 1 auto;width:100%;max-width:none;min-width:0;min-height:0;
+  height:auto;max-height:88dvh;margin:0;
+  border-radius:20px 20px 0 0;
   box-shadow:0 -15px 42px rgba(14,26,36,.24);
   animation:f4-sheet-up .23s ease-out
  }
@@ -206,7 +207,7 @@
   border-radius:10px;background:#ded8eb;margin:10px auto 0
  }
  .f4p-album-overlay .f4p-album-grid{
-  min-height:0;overflow-y:auto;overscroll-behavior:contain;
+  flex:0 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;
   padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))
  }
 
