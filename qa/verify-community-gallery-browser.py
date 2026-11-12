@@ -7,6 +7,7 @@ import json
 import pathlib
 import subprocess
 import re
+import base64
 from playwright.async_api import async_playwright
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -37,18 +38,36 @@ GALLERY = {
 }
 SOCIAL = {"ok": True, "likes": 2, "liked": False,
           "comments": [{"id": "c1", "author": "Warga A5", "message": "Terima kasih semuanya"}]}
+MOCK_POSTS = []
+TINY_PNG = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9pCGqwAAAABJRU5ErkJggg==")
 
-async def make_context(browser, width, height, suppressed=False):
+async def make_context(browser, width, height, suppressed=False, upload_enabled=False):
     ctx = await browser.new_context(viewport={"width": width, "height": height},
                                     permissions=["clipboard-read", "clipboard-write"])
     async def api(route):
         url = route.request.url
-        if "/api/v2/gallery/social?" in url:
+        if route.request.method == "OPTIONS":
+            await route.fulfill(status=204, headers={
+                "access-control-allow-origin": HOST,
+                "access-control-allow-credentials": "true",
+                "access-control-allow-methods": "GET,POST,OPTIONS",
+                "access-control-allow-headers": "Authorization,Content-Type"})
+            return
+        if route.request.method == "POST":
+            MOCK_POSTS.append({"url": url, "body": route.request.post_data or ""})
+            if "/api/v2/gallery/upload" in url:
+                data = {"ok": True, "id": "f4photo:mock", "created": True}
+            elif "/api/v2/gallery/react" in url:
+                data = {**SOCIAL, "liked": True, "likes": 3}
+            else:
+                data = {"ok": True, "created": True}
+        elif "/api/v2/gallery/social?" in url:
             data = SOCIAL
         elif "/api/v2/gallery/admin" in url:
             data = {"ok": True, "photos": [], "albums": [], "comments": [], "reports": []}
         elif re.search(r"/api/v2/gallery(?:\?|$)", url):
             data = dict(GALLERY)
+            data["uploadEnabled"] = upload_enabled
             if suppressed: data["suppressedDriveIds"] = [FILE_ID]
         elif "/api/v2/public/portal" in url:
             data = PORTAL
@@ -107,6 +126,15 @@ async def validate_documentation(browser, name, width, height):
         await page.locator(".f4p-album-overlay .f4p-album-tile").first.click()
         await page.wait_for_function("!!document.querySelector('.f4p-photo-overlay:not([hidden]) .f4g-photo-actions')")
         assert await page.locator(".f4p-photo-overlay .f4g-photo-actions").count() == 1
+        # Album and photo share must produce direct links that survive a fresh browser page.
+        await page.locator(".f4p-photo-overlay .f4g-photo-actions").get_by_role("button", name="Bagikan foto").click()
+        await page.wait_for_timeout(180)
+        direct_link = await page.evaluate("navigator.clipboard.readText()")
+        assert "album=" + ALBUM_ID in direct_link and "foto=" in direct_link, "Photo share URL incomplete"
+        shared = await context.new_page()
+        await shared.goto(direct_link, wait_until="domcontentloaded", timeout=30000)
+        await shared.wait_for_function("!!document.querySelector('.f4p-photo-overlay:not([hidden])')", timeout=25000)
+        await shared.close()
         await page.locator(".f4p-photo-overlay .f4g-photo-actions").get_by_role("button", name=re.compile("Komentar")).click()
         await page.locator(".f4g-overlay").wait_for()
         await page.keyboard.press("Escape")
@@ -126,6 +154,33 @@ async def validate_documentation(browser, name, width, height):
         await page.screenshot(path=str(AUDIT / ("gallery-" + name + ".png")), full_page=False)
         return {"viewport": name, "docs": True, "actionBar": 1, "uploadGuard": True,
                 "albumViewer": True, "photoViewer": True, "inventoryIsolation": True}
+    finally:
+        await context.close()
+
+async def validate_upload_with_mock_drive(browser):
+    """Test UI binary upload orchestration only. Never send bytes to production Drive."""
+    MOCK_POSTS.clear()
+    context = await make_context(browser, 1000, 800, upload_enabled=True)
+    page = await context.new_page()
+    try:
+        await page.goto(HOST + "/dokumentasi/", wait_until="domcontentloaded", timeout=30000)
+        await page.wait_for_function("!!window.f4GalleryCommunity && window.f4GalleryCommunity.uploadEnabled", timeout=25000)
+        await page.get_by_role("button", name="Unggah Foto", exact=True).click()
+        panel = page.locator(".f4g-overlay")
+        await panel.locator('input[type="file"]').set_input_files([
+            {"name": "audit-a.png", "mimeType": "image/png", "buffer": TINY_PNG},
+            {"name": "audit-b.png", "mimeType": "image/png", "buffer": TINY_PNG}
+        ])
+        assert await panel.locator(".f4g-previews figure").count() == 2, "Multi-file preview broken"
+        await panel.locator("select").select_option(ALBUM_ID)
+        await panel.get_by_role("button", name="Unggah 2 Foto").click()
+        await panel.get_by_text("2 foto berhasil disimpan.", exact=False).wait_for(timeout=20000)
+        upload_requests = [p for p in MOCK_POSTS if "/api/v2/gallery/upload?" in p["url"]]
+        assert len(upload_requests) == 2, "Expected exactly two mocked upload requests"
+        await page.keyboard.press("Escape")
+        await page.wait_for_function("document.querySelectorAll('.f4g-overlay').length===0")
+        assert page.url.endswith("/dokumentasi/"), "Upload close navigated away"
+        return {"uploadMock": True, "multiSelect": 2, "uploadCalls": len(upload_requests)}
     finally:
         await context.close()
 
@@ -170,6 +225,7 @@ async def main():
                 results.append(await validate_documentation(browser, "hp", 390, 844))
                 results.append(await validate_home(browser))
                 results.append(await validate_suppression(browser))
+                results.append(await validate_upload_with_mock_drive(browser))
             finally:
                 await browser.close()
     finally:
