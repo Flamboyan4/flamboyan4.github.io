@@ -37,6 +37,32 @@ const portalOnly=record=>(!record.portal||['portal','utama','portal-utama','flam
  !/^Bank Sampah\s*[:/]/i.test(record.category||'');
 const folderId=link=>String(link||'').match(/(?:\/folders\/|[?&]folderId=)([A-Za-z0-9_-]{12,})/)?.[1]||'';
 const photoFiles=new Map();
+let recentMedia=[];
+const mediaId=media=>{
+ const raw=String(media?.url||'');
+ const driveId=raw.match(/(?:\/d\/|[?&]id=)([A-Za-z0-9_-]{12,})/)?.[1]||'';
+ return String(media?.id||(driveId?'gdrive:'+driveId:''));
+};
+function publishRecentMedia(){
+ const seen=new Set(),rows=[];
+ for(const doc of docs){
+  const media=[...(doc.communityPhotos||[]),...(doc._recentMedia||[])];
+  if(!media.length&&doc.cover)media.push({url:driveImage(doc.cover),type:'foto',caption:doc.title});
+  let count=0;
+  for(const item of media){
+   if(count>=3)break;
+   if(item.type==='video'||!item.url)continue;
+   const id=mediaId(item),key=id||item.url;
+   if(seen.has(key))continue;
+   seen.add(key);count++;
+   rows.push({id,albumId:doc.id,title:doc.title,url:item.url,
+    caption:item.caption||doc.title,date:doc.date});
+  }
+ }
+ recentMedia=rows.slice(0,30);
+ window.f4GalleryRecentMedia=()=>recentMedia.slice();
+ document.dispatchEvent(new CustomEvent('f4:gallery:recent',{detail:{photos:recentMedia}}));
+}
 function combineCommunityMedia(legacy,extra){
  const additions=Array.isArray(extra)?extra:[];
  const idOf=x=>String(x?.url||'').match(/\/d\/([A-Za-z0-9_-]{12,})/)?.[1]||'';
@@ -147,6 +173,7 @@ async function loadPortalArchive(){
  }catch(e){console.warn('Galeri interaktif belum tersedia:',e.message)}
  docs.sort((a,b)=>parseDate(b.date)-parseDate(a.date));
  window.f4GalleryAlbums=()=>docs.filter(d=>d.id&&!d.id.startsWith('gfolder:')).map(d=>({id:d.id,title:d.title}));
+ publishRecentMedia();
  drawAlbums();
  document.dispatchEvent(new Event('f4:gallery:ready'));
  const targetAlbum=new URLSearchParams(location.search).get('album');
@@ -159,7 +186,7 @@ async function loadPortalArchive(){
    try{
     const media=await listMedia(doc);
     const image=media.find(x=>x.type==='foto')||media[0];
-    if(image?.url){doc.cover=image.url;drawAlbums();}
+    if(image?.url){doc.cover=image.url;doc._recentMedia=media.slice(0,4);drawAlbums();publishRecentMedia();}
    }catch{} // Source folder remains openable even when thumbnails cannot be read.
  }));
  window.F4Loading?.success('feedback',indicator);
@@ -199,11 +226,12 @@ function drawAlbums(){
  const list=$('media-albums');list.replaceChildren();
  if(!rows.length)list.append(el('p','muted','Album tidak ditemukan.'));
  for(const a of rows){
-  const btn=el('button','media-album-card');btn.type='button';
+  const btn=el('button','media-album-card f4g-album-card');btn.type='button';
   const cover=el('div','media-album-cover');if(a.cover){const img=document.createElement('img');img.src=driveImage(a.cover);img.alt='Sampul '+a.title;img.loading='lazy';img.onerror=()=>{if(img.isConnected)img.replaceWith(photoPlaceholder())};cover.append(img)}else cover.append(photoPlaceholder());
   const content=el('div','media-album-info');
   // The album index is a compact cover/title/date list. Descriptions are intentionally not displayed.
   content.append(el('small','media-category-tag',category(a)),el('strong','',a.title),el('small','muted',a.date));
+  content.append(el('span','f4g-album-open','Lihat album'));
   btn.append(cover,content);btn.onclick=()=>openAlbum(a);list.append(btn);
  }
 }
@@ -215,6 +243,13 @@ function drawFilters(){
   btn.onclick=()=>{active=kind;drawFilters();drawAlbums()};box.append(btn);
  }
 }
+window.f4GalleryOpenRecent=async(albumId,photoId)=>{
+ const album=docs.find(row=>row.id===albumId);
+ if(!album)return false;
+ await openAlbum(album);
+ if(photoId)return window.f4MediaGallery?.openPhotoById(photoId)||false;
+ return true;
+};
 function drawInventory(){
  const box=$('media-inventory-list');box.replaceChildren();
  $('inventory-total').textContent=inventory.length+' item';
@@ -244,4 +279,5 @@ $('media-tab-inventory').onclick=()=>tab('inventaris',true);
 $('media-search').oninput=drawAlbums;
 addEventListener('hashchange',()=>tab(location.hash==='#inventaris'?'inventaris':'dokumentasi',false));
 drawFilters();drawAlbums();drawInventory();tab(location.hash==='#inventaris'?'inventaris':'dokumentasi',false);
-loadPortalArchive().catch(error=>{docs.sort((a,b)=>parseDate(b.date)-parseDate(a.date));window.f4GalleryAlbums=()=>docs.filter(d=>d.id&&!d.id.startsWith('gfolder:')).map(d=>({id:d.id,title:d.title}));drawAlbums();document.dispatchEvent(new Event('f4:gallery:ready'));status('Arsip online belum dapat diperbarui ('+(error.message||error)+'). Menampilkan arsip kegiatan asli yang sudah tersedia.','error');});
+loadPortalArchive().catch(error=>{docs.sort((a,b)=>parseDate(b.date)-parseDate(a.date));window.f4GalleryAlbums=()=>docs.filter(d=>d.id&&!d.id.startsWith('gfolder:')).map(d=>({id:d.id,title:d.title}));
+ publishRecentMedia();drawAlbums();document.dispatchEvent(new Event('f4:gallery:ready'));status('Arsip online belum dapat diperbarui ('+(error.message||error)+'). Menampilkan arsip kegiatan asli yang sudah tersedia.','error');});
