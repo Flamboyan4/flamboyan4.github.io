@@ -123,9 +123,10 @@ async function fromLegacy(doc){
   if(p.status==='fulfilled')portal=p.value;
   const titles=new Map((gallery.albums||[]).map(x=>[x.id,x.title]));
   const docs=(portal.documentation||[]).filter(x=>String(x.title||'').trim())
-    .filter(x=>!x.active||Number(x.active)!==0)
+    .filter(x=>x.active===undefined||x.active===null||x.active===true||x.active===1||String(x.active)==='1')
     .filter(x=>!x.visibility||x.visibility==='publik')
-    .filter(x=>!/^Bank Sampah\s*[:/]/i.test(x.category||''));
+    .filter(x=>!/^Bank Sampah\s*[:/]/i.test(x.category||''))
+    .sort((a,b)=>String(b.event_on||b.date||'').localeCompare(String(a.event_on||a.date||'')));
   for(const d of docs)titles.set(docId(d),d.title);
   const newPhotos=(gallery.highlights||[]).map(x=>fromNew(x,titles));
   const popPhotos=(gallery.popular||[]).map(x=>fromNew(x,titles));
