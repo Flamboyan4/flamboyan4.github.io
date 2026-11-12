@@ -282,7 +282,7 @@ async def validate_legacy_home(browser):
         card = page.locator("#f4g-home-grid .f4g-home-card").first
         assert "Arisan Audit Browser" in await card.inner_text(), "Legacy album title missing"
         href = await card.locator("a.f4g-home-photo").get_attribute("href")
-        assert "album=" + ALBUM_ID in href and "foto=gdrive" in href, "Legacy photo deep link invalid"
+        assert "album=" + ALBUM_ID in href and "foto=gdrive%3A" in href, "Legacy photo deep link invalid"
         await page.locator("#f4g-home-popular").click()
         assert await page.locator("#f4g-home-grid .f4g-home-card").count() == 1, "Popular tab hid older photos"
         return {"legacyHome": True, "legacyDeepLink": True, "newUploadCount": 0}
