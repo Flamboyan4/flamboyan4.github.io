@@ -250,6 +250,9 @@ async def validate_upload_with_mock_drive(browser):
         await panel.locator("select").select_option(ALBUM_ID)
         await panel.get_by_role("button", name="Unggah 2 Foto").click()
         await panel.get_by_text("2 foto berhasil disimpan.", exact=False).wait_for(timeout=20000)
+        assert await panel.get_by_role("button", name="Lihat di Galeri").count() == 1, "Gallery result action duplicated"
+        assert await panel.get_by_role("button", name="Unggah 2 Foto").count() == 0, "Upload button remains after success"
+        assert await panel.locator('input[type="file"]').is_disabled(), "Picker remains active after completed upload"
         upload_requests = [p for p in MOCK_POSTS if "/api/v2/gallery/upload?" in p["url"]]
         assert len(upload_requests) == 2, "Expected exactly two mocked upload requests"
         await page.keyboard.press("Escape")
