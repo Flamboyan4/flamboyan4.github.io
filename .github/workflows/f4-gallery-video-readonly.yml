@@ -29,7 +29,20 @@ jobs:
           request=urllib.request.Request(url,headers={**headers,'Range':'bytes=0-4095'})
           with urllib.request.urlopen(request,timeout=30) as res:
               assert res.status==206,('Range must be partial',res.status)
-              assert re.match(r'^bytes 0-\\d+/\\d+$',res.headers.get('Content-Range','')),res.headers.get('Content-Range')
+              assert re.match(r'^bytes 0-[0-9]+/[0-9]+,res.headers.get('Content-Range','')),res.headers.get('Content-Range')
+              chunk=res.read(4096)
+              assert 0<len(chunk)<=4096,('invalid binary response',len(chunk))
+              assert not chunk.lstrip().startswith((b'<',b'{')), 'Unexpected HTML or JSON video'
+              print('VIDEO_PROXY_RANGE_OK',res.status,len(chunk),res.headers.get('Content-Range'))
+          for bad in ['not-valid','1_FmEN71Q5N7GEOY-Ufiperw6vb8LpZvX']:
+              try:
+                  urllib.request.urlopen(urllib.request.Request(base+bad,headers=headers,method='HEAD'),timeout=18)
+                  raise AssertionError('Non-video / invalid file ID became public')
+              except urllib.error.HTTPError as blocked:
+                  assert blocked.code in (403,404),('Unexpected access status',blocked.code)
+              print('VIDEO_NONPUBLIC_REJECTED',bad[:8])
+          PY
+,res.headers.get('Content-Range','')),res.headers.get('Content-Range')
               chunk=res.read(4096)
               assert 0<len(chunk)<=4096,('invalid binary response',len(chunk))
               assert not chunk.lstrip().startswith((b'<',b'{')), 'Unexpected HTML or JSON video'
