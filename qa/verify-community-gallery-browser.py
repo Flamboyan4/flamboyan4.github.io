@@ -147,6 +147,16 @@ async def validate_documentation(browser, name, width, height):
         await page.locator(".media-album-card", has_text="Arisan Audit Browser").click()
         await page.wait_for_function("!!document.querySelector('.f4p-album-overlay:not([hidden])')")
         assert await page.locator(".f4p-album-overlay .f4g-album-actions").count() == 1
+        assert await page.locator(".f4p-album-overlay .f4p-album-count svg").count() == 1, "Album counter must use SVG"
+        assert await page.locator(".f4p-album-overlay .f4p-close svg").count() == 1, "Close icon not SVG"
+        if name == "hp":
+            sheet = await page.locator(".f4p-album-overlay .f4p-album-card").evaluate("""e=>({
+              width:e.getBoundingClientRect().width,
+              height:e.getBoundingClientRect().height,
+              windowWidth:innerWidth,windowHeight:innerHeight
+            })""")
+            assert sheet["width"] >= sheet["windowWidth"]-3, "Album sheet is narrower than HP viewport"
+            assert sheet["height"] < sheet["windowHeight"]*.80, "Small album leaves excessive empty white space"
         await page.locator(".f4p-album-overlay .f4p-album-tile").first.click()
         await page.wait_for_function("!!document.querySelector('.f4p-photo-overlay:not([hidden]) .f4g-photo-actions')")
         assert await page.locator(".f4p-photo-overlay .f4g-photo-actions").count() == 1
@@ -187,6 +197,29 @@ async def validate_documentation(browser, name, width, height):
                 stage.dispatchEvent(new TouchEvent('touchend',{bubbles:true,touches:[],targetTouches:[],changedTouches:[end]}));
             }""")
             assert "2 dari" in await page.locator(".f4p-photo-count").inner_text(), "Mobile swipe did not advance to next photo"
+        zoom = page.locator(".f4p-photo-overlay .f4p-photo-zoom")
+        assert await zoom.count() == 1 and await zoom.get_attribute("aria-pressed") == "false", "SVG photo zoom control missing"
+        assert await page.locator(".f4p-photo-overlay .f4p-close svg").count() == 1, "Photo close button not SVG"
+        assert await page.locator(".f4p-photo-overlay .f4p-close").evaluate("e=>getComputedStyle(e).borderRadius") == "0px", "Photo close icon still enclosed in a circle"
+        await zoom.click()
+        assert await zoom.get_attribute("aria-pressed") == "true", "Zoom did not enlarge image"
+        assert await page.locator(".f4p-media-photo").evaluate("e=>e.style.transform.includes('scale(2.5)')"), "Photo itself was not scaled"
+        if name == "hp":
+            await page.evaluate("""() => {
+                const img=document.querySelector('.f4p-media-photo');
+                const a=new Touch({identifier:1,target:img,clientX:140,clientY:310});
+                const b=new Touch({identifier:2,target:img,clientX:240,clientY:310});
+                const c=new Touch({identifier:1,target:img,clientX:105,clientY:310});
+                const d=new Touch({identifier:2,target:img,clientX:275,clientY:310});
+                img.dispatchEvent(new TouchEvent('touchstart',{bubbles:true,touches:[a,b],targetTouches:[a,b],changedTouches:[a,b]}));
+                img.dispatchEvent(new TouchEvent('touchmove',{bubbles:true,cancelable:true,touches:[c,d],targetTouches:[c,d],changedTouches:[c,d]}));
+                img.dispatchEvent(new TouchEvent('touchend',{bubbles:true,touches:[],targetTouches:[],changedTouches:[c,d]}));
+            }""")
+            assert await zoom.get_attribute("aria-pressed") == "true", "Pinch should zoom image only"
+            assert await page.locator(".f4p-media-photo").evaluate("e => parseFloat(e.style.transform.match(/scale\\(([^)]+)\\)/)[1])>2.5"), "Pinch did not enlarge photo further"
+        await zoom.click()
+        assert await zoom.get_attribute("aria-pressed") == "false", "Zoom did not reset"
+        assert await page.locator(".f4p-media-photo").evaluate("e => e.style.transform.includes('scale(1)')"), "Photo remained enlarged after reset"
         await page.screenshot(path=str(AUDIT / ("photo-viewer-" + name + ".png")), full_page=False)
         # Album and photo share must produce direct links that survive a fresh browser page.
         await page.locator(".f4p-photo-overlay .f4g-photo-actions").get_by_role("button", name="Bagikan foto").click()
