@@ -73,22 +73,7 @@ body[data-section-page=dokumentasi] .media-search{border-radius:12px!important;b
  #keuangan #pemasukan-bulan-ini,#keuangan #pengeluaran-bulan-ini{font-size:20px!important}
  #keuangan #sisa-saldo{font-size:27px!important}
  #keuangan>div:first-child{align-items:flex-start!important}
- #f4-private-transactions .overflow-x-auto{overflow:visible!important}
- #f4-private-transactions table{display:block!important;min-width:0!important;width:100%!important}
- #f4-private-transactions thead{display:none!important}
- #f4-private-transactions tbody{display:grid!important;gap:0!important}
- #f4-private-transactions tbody tr{
-  display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:5px 8px!important;
-  padding:12px 14px!important;border-bottom:1px solid #edf0f4!important;background:white!important
- }
- #f4-private-transactions tbody td{
-  display:block!important;min-width:0!important;width:auto!important;padding:0!important;
-  font-size:12px!important;line-height:1.45!important;white-space:normal!important;overflow-wrap:anywhere!important
- }
- #f4-private-transactions tbody td:nth-child(1){font-size:11px!important;color:#8590a1!important}
- #f4-private-transactions tbody td:nth-child(2){font-weight:750!important;color:#2c3449!important}
- #f4-private-transactions tbody td:nth-child(3){display:none!important}
- #f4-private-transactions tbody td:nth-child(4){text-align:right!important;font-weight:800!important;}
+ /* Kas Warga table layout now owned by resident-finance-ui.css. */
  #container-grid-rapat{gap:10px!important}
  #container-grid-rapat>div>div:first-child,#container-grid-rapat>button>div:first-child{aspect-ratio:4/3!important;min-height:115px!important}
  #container-grid-rapat strong{font-size:12px!important;padding:10px!important}
@@ -117,36 +102,3 @@ body[data-section-page=dokumentasi] .media-top-tabs{
  body[data-section-page=dokumentasi] #media-inventory-section{scroll-margin-top:80px!important}
 }
 
-/* Preview enam transaksi: rapat dan mudah dibaca, khusus Portal Utama.
-   Riwayat lengkap di modal tidak terpengaruh. */
-#f4-private-transactions>div:first-child{
- padding:12px 14px!important;min-height:0!important
-}
-#f4-private-transactions tbody tr>td{
- padding:7px 10px!important;line-height:1.3!important
-}
-#f4-private-transactions tbody tr>td:nth-child(4){
- font-variant-numeric:tabular-nums!important
-}
-@media(max-width:760px){
- #f4-private-transactions>div:first-child{
-  padding:12px 14px!important
- }
- #f4-private-transactions tbody tr{
-  padding:8px 12px!important;gap:3px 10px!important;
-  min-height:0!important;align-items:center!important
- }
- #f4-private-transactions tbody tr td{
-  padding:0!important;line-height:1.3!important
- }
- #f4-private-transactions tbody td:nth-child(1){
-  grid-column:1!important;grid-row:2!important;margin-top:0!important
- }
- #f4-private-transactions tbody td:nth-child(2){
-  grid-column:1!important;grid-row:1!important;margin:0!important
- }
- #f4-private-transactions tbody td:nth-child(4){
-  grid-column:2!important;grid-row:1/3!important;
-  align-self:center!important;margin:0!important;white-space:nowrap!important
- }
-}
