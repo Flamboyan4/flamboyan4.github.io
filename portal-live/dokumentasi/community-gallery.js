@@ -160,7 +160,7 @@ async function imageBlob(file){
   ctx.fillStyle='#ffffff';ctx.fillRect(0,0,canvas.width,canvas.height);
   ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);
   const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.84));
-  if(!blob||blob.size>6*1024*1024)throw Error('Foto terlalu besar setelah dikompresi.');
+  if(!blob||blob.size>5*1024*1024)throw Error('Foto terlalu besar setelah dikompresi.');
   return blob;
  }finally{bitmap.close()}
 }
