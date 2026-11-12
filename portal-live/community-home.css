@@ -16,9 +16,10 @@
 .f4g-home-card-content{padding:12px;display:flex;flex-direction:column;gap:8px;flex:1}
 .f4g-home-title{font:750 13px/1.45 system-ui;color:#28354d;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
 .f4g-home-info{display:flex;justify-content:space-between;align-items:center;gap:7px;font:11px system-ui;color:#818496}
-.f4g-home-stats{display:flex;gap:12px;align-items:center;font:600 11px system-ui;color:#68728a}
-.f4g-home-stats span{display:inline-flex;gap:4px;align-items:center}
-.f4g-home-stats svg{height:15px;width:15px}
+.f4g-home-stats{display:flex;flex-wrap:nowrap;gap:14px;align-items:center;min-width:0;font:600 11px system-ui;color:#68728a}
+.f4g-home-stat{display:inline-flex;flex:0 0 auto;gap:5px;align-items:center;white-space:nowrap;line-height:1.2;color:inherit;text-decoration:none}
+.f4g-home-stat svg{display:block;flex:none;height:16px;width:16px}
+.f4g-home-comment-link{cursor:pointer}
 .f4g-home-comments{border-top:1px solid #f1eff7;padding-top:7px;display:grid;gap:5px;min-height:30px}
 .f4g-home-comment{font:11px/1.4 system-ui;color:#4d5468;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .f4g-home-comment b{color:#32374c}
