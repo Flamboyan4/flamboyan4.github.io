@@ -53,6 +53,7 @@
 .f4g-admin-row .f4g-row{justify-content:flex-end}
 .f4g-admin-row select{max-width:205px}
 .f4g-admin-note{font:12px/1.5 system-ui;background:#f7f4ff;border-radius:10px;padding:11px;color:#584c79}
+.f4g-toast{position:fixed;z-index:240;bottom:24px;left:50%;transform:translateX(-50%);background:#292344;color:#fff;border-radius:11px;box-shadow:0 8px 30px #17152d55;padding:11px 16px;font:650 12px system-ui;max-width:min(90vw,420px);text-align:center}
 @media(max-width:720px){
  .f4g-overlay{padding:0;align-items:flex-end}
  .f4g-panel,.f4g-panel.wide{width:100%;max-height:95dvh;border-radius:17px 17px 0 0}
