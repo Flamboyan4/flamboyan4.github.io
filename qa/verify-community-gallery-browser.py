@@ -147,8 +147,20 @@ async def validate_documentation(browser, name, width, height):
         assert viewer["background"] == "rgb(11, 11, 16)", "Photo background is not solid; album bleeds through"
         assert viewer["albumHidden"] == "hidden", "Album behind photo still visible"
         assert abs(viewer["height"]-viewer["clientHeight"]) <= 2, "Photo viewer is not full viewport height"
+        geometry = await page.locator(".f4p-photo-overlay").evaluate("""e => {
+          const stage=e.querySelector('.f4p-photo-stage').getBoundingClientRect();
+          const side=e.querySelector('.f4g-photo-side').getBoundingClientRect();
+          return {stageLeft:stage.left,stageRight:stage.right,stageBottom:stage.bottom,
+                  sideLeft:side.left,sideTop:side.top,sideWidth:side.width,
+                  sideBottom:side.bottom,sideHeight:side.height}
+        }""")
         if name == "hp":
             assert abs(viewer["width"]-viewer["clientWidth"]) <= 2, "Photo viewer is not mobile full viewport width"
+            assert geometry["sideTop"] >= geometry["stageBottom"]-3, "Mobile details obscures the photo instead of sitting below"
+            assert geometry["sideHeight"] < viewer["clientHeight"]*.30, "Mobile detail panel takes too much photo space"
+        else:
+            assert geometry["sideLeft"] >= geometry["stageRight"]-4, "PC comments must appear beside photo"
+            assert geometry["sideWidth"] >= 280, "PC comment panel too narrow"
         await page.screenshot(path=str(AUDIT / ("photo-viewer-" + name + ".png")), full_page=False)
         # Album and photo share must produce direct links that survive a fresh browser page.
         await page.locator(".f4p-photo-overlay .f4g-photo-actions").get_by_role("button", name="Bagikan foto").click()
