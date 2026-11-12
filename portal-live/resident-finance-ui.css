@@ -1,15 +1,15 @@
 /* Kas Saya (Portal Utama): compact three-column PC layout and mobile sheets.
    One scoped stylesheet, no !important declarations. */
 #keuangan.f4-finance-personal-active .f4-user-finance {
-  background:transparent;border:0;box-shadow:none;padding:0;min-width:0;
+  background:transparent;border:0;box-shadow:none;padding:0;margin:0 0 12px;min-width:0;
 }
 #keuangan.f4-finance-personal-active .f4-user-finance-heading {margin:0 0 7px;padding:0 3px}
 #keuangan.f4-finance-personal-active .f4-user-finance-controls {
-  margin-bottom:13px;padding:4px;background:#fff;border-color:#dfe4f0;
+  margin-bottom:0;padding:4px;background:#fff;border-color:#dfe4f0;
 }
 /* Kas Warga: tab and cards use the same frameless outer structure as Kas Saya. */
 #keuangan:not(.f4-finance-personal-active) .f4-user-finance {
-  background:transparent;border:0;box-shadow:none;padding:0;margin:0 0 9px;min-width:0;
+  background:transparent;border:0;box-shadow:none;padding:0;margin:0 0 12px;min-width:0;
 }
 #keuangan:not(.f4-finance-personal-active) .f4-user-finance-heading {
   margin:0 0 7px;padding:0 3px;
