@@ -46,6 +46,7 @@ const signedIn=async()=>{
  if(!who){window.f4ShowLogin?.();throw Error('Silakan login sebagai warga terlebih dahulu.')}
  return who;
 };
+let popupSequence=0;
 function popup(title,wide=false){
  const shade=elem('div','f4g-overlay');shade.setAttribute('role','presentation');
  const panel=elem('section','f4g-panel'+(wide?' wide':''));panel.setAttribute('role','dialog');
@@ -53,12 +54,26 @@ function popup(title,wide=false){
  const head=elem('header','f4g-head'),strong=elem('strong','',title);
  const closeBtn=button(null,'close',()=>close());closeBtn.setAttribute('aria-label','Tutup');
  const body=elem('div','f4g-body');
- const close=()=>{shade.remove();document.removeEventListener('keydown',escapeKey)};
- const escapeKey=e=>{if(e.key==='Escape'){e.preventDefault();close()}};
+ const token='gallery-dialog-'+(++popupSequence);
+ const cleanups=[];let closed=false;
+ history.pushState({...history.state,f4gDialog:token},'',location.href);
+ const close=(fromHistory=false)=>{
+  if(closed)return;
+  closed=true;
+  for(const cleanup of cleanups)try{cleanup()}catch{}
+  shade.remove();document.removeEventListener('keydown',escapeKey);
+  window.removeEventListener('popstate',onBack);
+  if(!fromHistory&&history.state?.f4gDialog===token)history.back();
+ };
+ const onBack=()=>{if(history.state?.f4gDialog!==token)close(true)};
+ const escapeKey=e=>{
+  if(e.key!=='Escape'||shade!==[...document.querySelectorAll('.f4g-overlay')].at(-1))return;
+  e.preventDefault();e.stopPropagation();close();
+ };
  head.append(strong,closeBtn);panel.append(head,body);shade.append(panel);
  shade.addEventListener('click',e=>{if(e.target===shade)close()});
- document.addEventListener('keydown',escapeKey);document.body.append(shade);
- return {body,close,panel,head};
+ document.addEventListener('keydown',escapeKey);window.addEventListener('popstate',onBack);document.body.append(shade);
+ return {body,close,panel,head,onClose:fn=>cleanups.push(fn)};
 }
 
 function toast(note){
@@ -274,9 +289,8 @@ function uploadDialog(){
   }catch(e){if(user)message(dlg.body,e.message,true)}
   finally{send.disabled=false;picker.disabled=false;album.disabled=false}
  });
- const originalClose=dlg.close;
- // URL foto pratinjau tidak dipertahankan setelah pengguna menutup panel.
- dlg.close=()=>{urls.forEach(x=>URL.revokeObjectURL(x));originalClose()};
+ // URL pratinjau dibersihkan juga saat menutup dengan Back, Escape, atau backdrop.
+ dlg.onClose(()=>urls.forEach(x=>URL.revokeObjectURL(x)));
 }
 async function adminDialog(){
  try{await signedIn();if(user.role!=='superadmin'){notice('Fitur ini khusus superadmin.');return}}
@@ -336,15 +350,16 @@ function mount(){
  const albums=document.getElementById('media-albums-section');
  if(!albums)return;
  const head=albums.querySelector('.panel-head');
- if(head&&!head.querySelector('.f4g-top-actions')){
-  const actions=elem('div','f4g-top-actions');
-  const upload=button('Unggah Foto','upload',uploadDialog,'primary');
-  upload.title='Unggah satu atau beberapa foto sekaligus';
-  actions.append(upload);
-  if(user?.role==='superadmin')actions.append(button('Kelola Unggahan','shield',adminDialog));
-  head.after(actions);
- }
- if(user?.role==='superadmin'&&new URLSearchParams(location.search).get('kelola')==='1'&&!window.f4gAdminAutoOpened){
+ if(!head)return;
+ // Aksi adalah saudara .panel-head, bukan anaknya. Pertahankan tepat satu set.
+ let actions=albums.querySelector(':scope > .f4g-top-actions');
+ if(!actions){actions=elem('div','f4g-top-actions');head.after(actions);}
+ actions.replaceChildren();
+ const upload=button('Unggah Foto','upload',uploadDialog,'primary');
+ upload.title='Unggah satu atau beberapa foto sekaligus';
+ actions.append(upload);
+ if(user?.role==='superadmin')actions.append(button('Kelola Unggahan','shield',adminDialog));
+ if(user?.role==='superadmin'&&ready&&new URLSearchParams(location.search).get('kelola')==='1'&&!window.f4gAdminAutoOpened){
   window.f4gAdminAutoOpened=true;adminDialog();
  }
 }
