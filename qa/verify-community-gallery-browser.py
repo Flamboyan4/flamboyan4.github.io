@@ -65,6 +65,8 @@ async def make_context(browser, width, height, suppressed=False, upload_enabled=
                 data = {"ok": True, "created": True}
         elif "/api/v2/gallery/social?" in url:
             data = SOCIAL
+        elif "/api/v2/gallery/drive-status" in url:
+            data = {"ok": True, "connected": True, "writable": True, "detail": "Google Drive siap"}
         elif "/api/v2/gallery/admin" in url:
             data = {"ok": True, "photos": [], "albums": [], "comments": [], "reports": []}
         elif re.search(r"/api/v2/gallery(?:\?|$)", url):
@@ -239,6 +241,7 @@ async def validate_upload_with_mock_drive(browser):
         await page.wait_for_function("!!window.f4GalleryCommunity && window.f4GalleryCommunity.uploadEnabled", timeout=25000)
         await page.get_by_role("button", name="Unggah Foto", exact=True).click()
         panel = page.locator(".f4g-overlay")
+        await panel.get_by_text("Koneksi Drive aktif: folder Upload Warga dapat ditulis.").wait_for(timeout=12000)
         await panel.locator('input[type="file"]').set_input_files([
             {"name": "audit-a.png", "mimeType": "image/png", "buffer": TINY_PNG},
             {"name": "audit-b.png", "mimeType": "image/png", "buffer": TINY_PNG}
