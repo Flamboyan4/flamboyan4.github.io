@@ -39,7 +39,7 @@ GALLERY = {
 SOCIAL = {"ok": True, "likes": 2, "liked": False,
           "comments": [{"id": "c1", "author": "Warga A5", "message": "Terima kasih semuanya"}]}
 MOCK_POSTS = []
-TINY_PNG = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9pCGqwAAAABJRU5ErkJggg==")
+TINY_PNG = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAEElEQVR4nGM44VYBRwzEcQB/EhhhaUt3dAAAAABJRU5ErkJggg==")
 
 async def make_context(browser, width, height, suppressed=False, upload_enabled=False):
     ctx = await browser.new_context(viewport={"width": width, "height": height},
