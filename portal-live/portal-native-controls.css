@@ -1,0 +1,74 @@
+/* Portal Utama mobile controls: one self-contained style for the existing native-controls.js.
+   Original select/date/month values remain in the DOM for forms and reports. */
+@media(max-width:760px){
+ .f4-modern-native-hidden{
+  position:absolute;width:1px;height:1px;min-width:1px;min-height:1px;
+  margin:0;padding:0;border:0;opacity:0;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);pointer-events:none
+ }
+ .f4-control-trigger{
+  box-sizing:border-box;display:flex;justify-content:space-between;align-items:center;gap:9px;
+  width:100%;min-width:0;min-height:44px;
+  padding:10px 13px;border:1px solid #dcd7ef;border-radius:11px;
+  color:#3d346d;background:#fff;font:600 14px/1.45 system-ui,sans-serif;
+  text-align:left;white-space:normal;cursor:pointer
+ }
+ .f4-control-trigger::after{
+  content:"";flex:none;display:block;width:17px;height:17px;
+  background:center/contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236348be' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+ }
+ .f4-control-trigger:focus-visible{outline:2px solid #7252ca;outline-offset:2px}
+ .f4-control-trigger:disabled{opacity:.55;cursor:not-allowed}
+ .f4-control-overlay{
+  position:fixed;inset:0;z-index:2147483200;
+  display:flex;align-items:flex-end;justify-content:center;
+  padding:0;background:rgba(26,24,49,.55);
+  box-sizing:border-box;overscroll-behavior:contain
+ }
+ .f4-control-overlay *{box-sizing:border-box}
+ .f4-control-panel{
+  width:100%;max-width:560px;max-height:85dvh;overflow-y:auto;
+  overscroll-behavior:contain;background:#fff;color:#32284e;
+  border-radius:21px 21px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom,0px));
+  box-shadow:0 -15px 44px #211b4055;font:14px/1.4 system-ui,sans-serif
+ }
+ .f4-control-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:11px;padding-bottom:12px;border-bottom:1px solid #eeebf7}
+ .f4-control-header strong{font-size:16px;font-weight:800}
+ .f4-control-x,.f4-control-calendar-nav button{
+  display:grid;place-items:center;flex:none;width:38px;height:38px;
+  border:1px solid #e6e1f3;border-radius:11px;color:#6047b7;background:#f7f5fc;
+  cursor:pointer
+ }
+ .f4-control-list{display:grid;gap:4px;max-height:56dvh;overflow:auto;overscroll-behavior:contain}
+ .f4-control-choice{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  width:100%;min-height:45px;padding:10px 12px;border:0;border-radius:10px;
+  background:transparent;color:#352f4a;text-align:left;
+  font:600 14px/1.45 system-ui,sans-serif;cursor:pointer
+ }
+ .f4-control-choice[aria-selected=true]{background:#eee8fb;color:#6241c0;font-weight:800}
+ .f4-control-choice:disabled{opacity:.45;cursor:not-allowed}
+ .f4-control-check{display:grid;place-items:center;flex:none;color:#6241c0}
+ .f4-control-search,.f4-control-date-input{
+  width:100%;min-height:44px;margin-bottom:12px;padding:10px 12px;
+  border:1px solid #ded9ee;border-radius:11px;background:#fff;color:#2d2942;
+  font:14px system-ui,sans-serif
+ }
+ .f4-control-empty{padding:15px;text-align:center;color:#797489}
+ .f4-control-calendar-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0 13px}
+ .f4-control-calendar-nav strong{font-size:16px;font-weight:800}
+ .f4-control-calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin-bottom:14px}
+ .f4-control-calendar.f4-month-choice{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+ .f4-control-weekday{text-align:center;padding:7px 0;color:#817b92;font-size:11px}
+ .f4-control-day{display:grid;place-items:center;min-width:0;aspect-ratio:1;
+  border:0;border-radius:10px;background:#f8f6fc;color:#3b3455;font:600 13px system-ui,sans-serif;cursor:pointer}
+ .f4-control-calendar.f4-month-choice .f4-control-day{aspect-ratio:auto;min-height:48px}
+ .f4-control-day.selected{background:#6845c4;color:#fff}
+ .f4-control-day:disabled{opacity:.25;cursor:not-allowed}
+ .f4-control-footer{display:flex;gap:9px;justify-content:flex-end}
+ .f4-control-footer button{min-height:42px;padding:9px 16px;border:1px solid #ddd6f1;border-radius:10px;background:#f7f4fe;color:#593daa;font-weight:750}
+ .f4-control-footer button:last-child{background:#6845c4;color:#fff;border-color:#6845c4}
+}
+@media(min-width:761px){
+ .f4-control-trigger{display:none}
+}
