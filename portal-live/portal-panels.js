@@ -52,6 +52,8 @@ function visiblePanel(){
  });
 }
 function showPanel(panel){
+ // Inventaris sudah memiliki halaman khusus di Dokumentasi, bukan kartu di Beranda.
+ if(panel==='inventaris'){location.assign('/dokumentasi/#inventaris');return;}
  if(!Object.hasOwn(sectionTargets,panel)||(panel==='keuangan'&&current.role==='public'))panel='beranda';
  current.panel=panel;
  if(panel==='keuangan'&&isMember(current.role))createFinanceTabs();
