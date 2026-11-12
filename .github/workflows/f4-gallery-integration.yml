@@ -33,6 +33,27 @@ jobs:
           node --check portal-live/dokumentasi/media-preview.js
           node --check portal-live/dokumentasi/media-viewer.js
           node --check portal-live/community-home.js
+      - name: Check additive Gallery D1 migration and new CSS isolation
+        run: |
+          python3 - <<'PY'
+          import sqlite3,pathlib
+          root=pathlib.Path('.')
+          sql=(root/'cloudflare/migrations/20261112_galeri_warga.sql').read_text()
+          db=sqlite3.connect(':memory:')
+          db.executescript(sql)
+          db.executescript(sql)
+          tables={v[0] for v in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+          expected={'f4_gallery_albums','f4_gallery_photos','f4_gallery_reactions','f4_gallery_comments','f4_gallery_reports'}
+          assert tables==expected,('Unexpected table modification',tables)
+          db.execute("INSERT INTO f4_gallery_albums(id,title,created_by) VALUES('a','Album','u')")
+          db.execute("INSERT INTO f4_gallery_photos(id,album_ref,drive_file_id,drive_folder_id,uploader_id,filename) VALUES('p','a','f','d','u','x.jpg')")
+          db.execute("INSERT INTO f4_gallery_reactions(target_type,target_id,account_id) VALUES('photo','p','u')")
+          db.execute("INSERT INTO f4_gallery_comments(id,target_type,target_id,account_id,message) VALUES('c','photo','p','u','Komentar')")
+          for file in ['portal-live/dokumentasi/community-gallery.css','portal-live/community-home.css']:
+              text=(root/file).read_text()
+              assert '!important' not in text,'New CSS must not introduce !important: '+file
+          print('GALLERY_D1_ADDITIVE_AND_SCOPED_CSS_OK tables=',len(tables))
+          PY
       - name: Verify read-only live gallery API
         run: |
           python3 - <<'PY'
