@@ -68,7 +68,7 @@ function createFinanceTabs(){
  if(!finance)return;
  if(!finBlock){
   finBlock=el('div',undefined,'f4-user-finance');
-  finBlock.innerHTML='<div class="f4-user-finance-heading"><span class="f4-user-eyebrow">Keuangan</span></div>'+
+  finBlock.innerHTML='<div class="f4-user-finance-heading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 10h18M16 15h2"/></svg><h3>Keuangan</h3></div>'+
    '<div class="f4-user-finance-controls" role="group" aria-label="Pilihan laporan">'+
     '<button type="button" data-finance-mode="lingkungan" class="active">Kas Warga</button>'+
     '<button type="button" data-finance-mode="saya">Kas Saya</button></div>'+
@@ -312,7 +312,7 @@ css.textContent+="\n/* Keuangan Saya — putih, ringkas, mobile-first, tanpa ang
 "#keuangan .f4-user-amount{color:#354367;font-size:14px!important;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}\n"+
 "#keuangan .f4-user-empty{background:#fbfcff;border:1px dashed #d9dfec;padding:22px 16px;border-radius:12px;text-align:center;color:#34445c}\n"+
 "#keuangan .f4-user-empty strong{font-size:14px}#keuangan .f4-user-empty p{color:#8290a3;font-size:12px;margin:7px auto 0;max-width:350px}\n"+
-"@media(max-width:760px){#keuangan .f4-user-finance{padding:13px!important;border-radius:16px}#keuangan .f4-user-finance-heading{margin-bottom:12px}#keuangan .f4-user-finance-heading p{font-size:12px}#keuangan .f4-user-finance-controls>button{font-size:12px;padding:9px 5px}#keuangan .f4-user-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#keuangan .f4-user-metric{padding:12px}#keuangan .f4-user-metric-primary{grid-column:1/-1}#keuangan .f4-user-metric strong{font-size:16px}#keuangan .f4-user-finance-intro h3{font-size:16px!important}#keuangan .f4-user-row{padding:12px 11px}#keuangan .f4-user-amount{font-size:12px!important}}\n";
+"@media(max-width:760px){#keuangan .f4-user-finance{padding:0;border-radius:0}#keuangan .f4-user-finance-heading{margin-bottom:12px}#keuangan .f4-user-finance-heading p{font-size:12px}#keuangan .f4-user-finance-controls>button{font-size:12px;padding:9px 5px}#keuangan .f4-user-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#keuangan .f4-user-metric{padding:12px}#keuangan .f4-user-metric-primary{grid-column:1/-1}#keuangan .f4-user-metric strong{font-size:16px}#keuangan .f4-user-finance-intro h3{font-size:16px!important}#keuangan .f4-user-row{padding:12px 11px}#keuangan .f4-user-amount{font-size:12px!important}}\n";
 css.textContent+=[
  '#keuangan .f4-user-category-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:7px 0 6px}',
  '#keuangan .f4-user-year-filter{display:flex;align-items:center;gap:8px;margin-left:auto;color:#6f7b8f;font-size:11px;font-weight:700}',
