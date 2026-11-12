@@ -135,6 +135,15 @@ async def validate_documentation(browser, name, width, height):
         await shared.goto(direct_link, wait_until="domcontentloaded", timeout=30000)
         await shared.wait_for_function("!!document.querySelector('.f4p-photo-overlay:not([hidden])')", timeout=25000)
         await shared.close()
+        debug = await page.evaluate("""() => ({
+            url:location.href,
+            albumOpen:!!document.querySelector('.f4p-album-overlay:not([hidden])'),
+            photoOpen:!!document.querySelector('.f4p-photo-overlay:not([hidden])'),
+            actions:[...document.querySelectorAll('.f4p-photo-overlay .f4g-photo-actions button')].map(x=>({text:x.textContent,aria:x.getAttribute('aria-label'),hidden:x.hidden})),
+            overlays:document.querySelectorAll('.f4g-overlay').length
+        })""")
+        print("POST_SHARE_STATE", name, json.dumps(debug))
+        assert debug["photoOpen"], "Sharing a photo unexpectedly closed the viewer"
         await page.locator(".f4p-photo-overlay .f4g-photo-actions").get_by_role("button", name=re.compile("Komentar")).click()
         await page.locator(".f4g-overlay").wait_for()
         await page.keyboard.press("Escape")
