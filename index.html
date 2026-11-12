@@ -50,6 +50,7 @@
 
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261110-compositor-v11">
 <script defer src="/portal-live/mobile-bottom-sheets.js?v=20261110-compositor-v11"></script>
+<link rel="stylesheet" href="/portal-live/community-home.css?v=20261112-v1">
 </head>
 
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full">
@@ -478,6 +479,19 @@
         </div>
 
       </div>
+    </section>
+
+    <!-- Cerita Warga: dari unggahan galeri D1, hanya muncul bila ada foto warga. -->
+    <section id="cerita-warga" class="f4g-home w-full" hidden>
+      <div class="f4g-home-heading">
+        <h3><i data-lucide="images" aria-hidden="true"></i>Cerita Warga</h3>
+        <a class="f4g-home-link" href="/dokumentasi/">Lihat Semua Galeri</a>
+      </div>
+      <div class="f4g-home-options" role="group" aria-label="Urutan cerita warga">
+        <button type="button" id="f4g-home-latest" aria-selected="true">Terbaru</button>
+        <button type="button" id="f4g-home-popular" aria-selected="false">Populer</button>
+      </div>
+      <div id="f4g-home-grid" class="f4g-home-grid"></div>
     </section>
 
     <!-- SECTION 5: KALENDER KEGIATAN -->
@@ -1022,5 +1036,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 })();
 </script>
 <script src="/portal-live/home-accessibility.js?v=20261028-maintenance"></script>
+<script defer src="/portal-live/community-home.js?v=20261112-v1"></script>
 </body>
 </html>
