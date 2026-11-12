@@ -5,6 +5,9 @@ on:
     paths:
       - cloudflare/worker-terpadu-operasional-teruji.js
       - portal-live/dokumentasi/community-gallery.js
+      - portal-live/dokumentasi/community-gallery.css
+      - portal-live/community-home.css
+      - qa/verify-community-gallery-browser.py
       - portal-live/dokumentasi/media-preview.js
       - portal-live/dokumentasi/media-viewer.js
       - portal-live/community-home.js
@@ -17,7 +20,7 @@ permissions:
 jobs:
   gallery:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 14
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -55,3 +58,19 @@ jobs:
             print('GALLERY_READ_HTTP_ERROR',exc.code,exc.read(700).decode('utf-8','replace'))
             raise
           PY
+      - name: Install isolated browser runner
+        run: |
+          python3 -m pip install --quiet playwright
+          python3 -m playwright install --with-deps chromium
+      - name: Browser audit of gallery controls, dialogs, album visibility and homepage
+        run: python3 qa/verify-community-gallery-browser.py
+      - name: Upload gallery browser audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f4-community-gallery-browser
+          path: |
+            ops-audit/community-gallery-browser.json
+            ops-audit/gallery-pc.png
+            ops-audit/gallery-hp.png
+          if-no-files-found: ignore
