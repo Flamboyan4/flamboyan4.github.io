@@ -56,6 +56,44 @@ jobs:
               assert not re.search(r'!\s*important\b',without_comments),'New CSS must not introduce !important: '+file
           print('GALLERY_D1_ADDITIVE_AND_SCOPED_CSS_OK tables=',len(tables))
           PY
+      - name: Inspect Gallery D1 schema and recent counts without data writes
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import json,urllib.request,os
+          account=os.environ.get('CF_ACCOUNT','')
+          token=os.environ.get('CF_TOKEN','')
+          assert token and account, 'Cloudflare audit token unavailable'
+          base='https://api.cloudflare.com/client/v4/accounts/'+account
+          def api(path,body=None):
+              headers={'Authorization':'Bearer '+token,'Accept':'application/json'}
+              if body is not None:headers['Content-Type']='application/json'
+              req=urllib.request.Request(base+path,method='POST' if body is not None else 'GET',headers=headers,
+                                         data=json.dumps(body).encode() if body is not None else None)
+              with urllib.request.urlopen(req,timeout=22) as resp:
+                  doc=json.load(resp)
+              assert doc.get('success') is True
+              return doc['result']
+          settings=api('/workers/scripts/flamboyan4-terpadu-staging/settings')
+          binding=next((x for x in settings.get('bindings',[]) if x.get('name')=='DB'),None)
+          assert binding and binding.get('type')=='d1','Production Worker DB binding missing'
+          db=binding['id']
+          def query(sql):
+              data=api('/d1/database/'+db+'/query',{'sql':sql})
+              assert isinstance(data,list) and data and data[0]['success'] is True
+              return data[0].get('results',[])
+          for table in ['f4_gallery_albums','f4_gallery_photos']:
+              cols={x['name'] for x in query('PRAGMA table_info('+table+')')}
+              required={'id','title','created_by','status'} if table.endswith('albums') else {'id','album_ref','drive_file_id','uploader_id'}
+              assert cols.issuperset(required),table+' schema mismatch'
+              print('GALLERY_D1_SCHEMA_OK',table)
+          print('GALLERY_D1_COUNTS',
+                {x['key']:x['n'] for x in query("""SELECT 'albums' AS key,COUNT(*) AS n FROM f4_gallery_albums
+                 UNION ALL SELECT 'photos',COUNT(*) FROM f4_gallery_photos
+                 UNION ALL SELECT 'recent_albums',COUNT(*) FROM f4_gallery_albums WHERE created_at>=datetime('now','-6 hours')""")})
+          PY
       - name: Verify read-only live gallery API
         run: |
           python3 - <<'PY'
