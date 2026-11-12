@@ -75,7 +75,7 @@ assert(worker.indexOf('const denied = superadmin(who);',worker.indexOf('async fu
 assert(worker.includes('if (action === "add_payer")'),'Missing authenticated create-payer route');
 assert(worker.includes("VALUES(?,?,NULL,?,'warga',1)"),'Special payer must never create Bank Sampah member/account');
 assert(worker.includes('"tambah_pembayar_iuran"'),'New iuran payer must be audit logged');
-assert(editor.includes("'+ Tambah Warga/TPQ'")||editor.includes("'+ Tambah Warga/TPQ',"),'Missing iuran payer creation control');
+assert(editor.includes("btnIcon('Tambah Warga/TPQ','plus',showAddObligationPayer"),'Missing iuran payer creation control');
 assert(editor.includes('async function removeObligation(record)'),'Missing safe obligation removal control');
 assert(editor.includes('qty_iuran_bulanan:0,qty_kebersihan:0,qty_kas_lorong:0,qty_arisan:0'),'Removal must only zero obligations');
 assert(editor.includes('showZeroObligations'),'Removed payers need a restore path');
