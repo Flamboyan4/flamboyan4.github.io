@@ -2253,6 +2253,11 @@ function f4GalleryFolder(url){
 __name(f4GalleryFolder,"f4GalleryFolder");
 async function f4GalleryAlbum(db,ref){
  if(!ref||ref.length>180)return null;
+ if(/^gfolder:[A-Za-z0-9_-]{12,100}$/.test(ref)){
+  const folder=ref.slice(8);
+  const doc=await one(db,"SELECT id,title FROM portal_documentation WHERE drive_url LIKE ? AND active=1 AND visibility='publik' LIMIT 1",["%"+folder+"%"]);
+  return doc?{id:ref,title:doc.title,folder}:null;
+ }
  if(ref.startsWith("galbum:")){
   const item=await one(db,"SELECT id,title,drive_folder_id FROM f4_gallery_albums WHERE id=? AND status='aktif'",[ref]);
   return item?{id:item.id,title:item.title,folder:item.drive_folder_id||""}:null;
