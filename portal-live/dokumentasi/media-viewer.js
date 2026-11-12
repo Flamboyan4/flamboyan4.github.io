@@ -51,6 +51,23 @@ function ensure(){
  prev.setAttribute('aria-label','Media sebelumnya');next.setAttribute('aria-label','Media berikutnya');
  prev.onclick=()=>shift(-1);next.onclick=()=>shift(1);
  const view=node('div','f4p-photo-content');stage.append(prev,view,next);
+ // Gesture horizontal hanya untuk mengganti foto, bukan menutup penampil atau album.
+ // Pasang pada stage (bukan tombol) agar foto dan video tetap bisa dikontrol.
+ let touchOrigin=null;
+ stage.addEventListener('touchstart',event=>{
+  if(!isOpen(photo)||items.length<2||event.touches.length!==1||event.target.closest('button,video,iframe,a,input,textarea')){touchOrigin=null;return;}
+  const t=event.touches[0];
+  touchOrigin={x:t.clientX,y:t.clientY,time:Date.now()};
+ },{passive:true});
+ stage.addEventListener('touchcancel',()=>{touchOrigin=null},{passive:true});
+ stage.addEventListener('touchend',event=>{
+  const start=touchOrigin;touchOrigin=null;
+  if(!start||!isOpen(photo)||items.length<2||event.changedTouches.length!==1)return;
+  const end=event.changedTouches[0],dx=end.clientX-start.x,dy=end.clientY-start.y;
+  if(Math.abs(dx)>=48&&Math.abs(dx)>Math.abs(dy)*1.35&&Date.now()-start.time<1300){
+   shift(dx<0?1:-1);
+  }
+ },{passive:true});
  const countPhoto=node('div','f4p-photo-count');photo.append(bar,stage,countPhoto);document.body.append(photo);
  photo.addEventListener('click',e=>{if(e.target===photo||e.target===stage||e.target===view)closeTop()});
  document.addEventListener('keydown',e=>{
