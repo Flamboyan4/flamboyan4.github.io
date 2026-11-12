@@ -57,8 +57,8 @@ body[data-preview-role="public"] #keuangan [onclick*="openModalKeuangan"]{cursor
 body:not([data-preview-role]) #card-pemasukan,body:not([data-preview-role]) #card-pengeluaran,
 body[data-preview-role="public"] #card-pemasukan,body[data-preview-role="public"] #card-pengeluaran{cursor:default!important}
 footer#pembayaran{scroll-margin-top:70px;padding-bottom:20px!important}
-body>div.fixed.bottom-6.right-6{right:14px!important;bottom:18px!important}
-@media(max-width:640px){body>div.fixed.bottom-6.right-6{right:9px!important;bottom:18px!important;transform:scale(.82);transform-origin:bottom right}}
+
+
 
 
 /* Former <style id="f4-footer-tight-20261022">; order preserved. */
@@ -74,7 +74,7 @@ footer#pembayaran>div>div:last-child{padding-top:0!important;margin-top:0!import
 body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-finance-personal-active) #f4-private-transactions{display:block}
 body:not([data-preview-role]) #f4-private-transactions,
 body[data-preview-role="public"] #f4-private-transactions{display:none!important}
-/* Tombol mengambang tetap terlihat; posisi dihitung relatif terhadap footer. */
+/* Tombol mengambang memiliki satu aturan posisi di bawah, bukan override bertingkat. */
 
 
 /* Former <style id="f4-mobile-proportions-v1">; order preserved. */
@@ -92,18 +92,18 @@ body[data-preview-role="public"] #f4-private-transactions{display:none!important
  #keuangan>div.grid{margin-bottom:15px}
  #keuangan>div.grid>div{min-width:0!important;width:100%!important}
  #card-pemasukan,#card-pengeluaran{padding:15px 16px!important;min-height:0!important;border-radius:14px!important}
- #keuangan h3{font-size:19px!important;line-height:1.25!important}
+
  #keuangan .grid{min-width:0!important}
  #keuangan .grid strong{max-width:100%}
  #keuangan [id^="saldo"],#keuangan [id^="total"]{overflow-wrap:normal}
  #projek,#arisan,#kegiatan,#rencana,#komentar-warga{scroll-margin-top:74px!important}
  footer#pembayaran{padding:12px 0!important}
  footer#pembayaran>div{padding:0 12px!important}
- body>div.fixed.bottom-6.right-6{transform:scale(.78)!important;transform-origin:bottom right!important;right:8px!important}
+
 }
 @media(max-width:380px){
  body>main{padding-left:10px!important;padding-right:10px!important}
- #keuangan h3{font-size:18px!important}
+
  #card-pemasukan,#card-pengeluaran{padding:13px!important}
 }
 
@@ -112,13 +112,43 @@ body[data-preview-role="public"] #f4-private-transactions{display:none!important
 
 /* No redundant external-link glyphs inside the portal cards. */
 i[data-lucide="external-link"],svg.lucide-external-link{display:none!important}
-/* Fixed until Payment, then slides up smoothly above the footer. */
-body>div.fixed.bottom-6.right-6{
- bottom:calc(18px + var(--f4-footer-lift,0px))!important;
- opacity:1!important;visibility:visible!important;
- transition:bottom .08s linear!important
+/* Portal Utama floating utilities: one source of truth, below every dialog. */
+#f4-portal-float-actions {
+  position:fixed;right:14px;bottom:calc(16px + var(--f4-footer-lift,0px));
+  z-index:22;gap:8px;opacity:.86;visibility:visible;
+  transition:bottom .08s linear,opacity .18s ease;
+}
+#f4-portal-float-actions:hover,#f4-portal-float-actions:focus-within {opacity:1}
+#f4-portal-float-actions>button {
+  display:flex;align-items:center;justify-content:center;
+  width:38px;height:38px;min-width:38px;min-height:38px;
+  padding:0;border-radius:50%;box-shadow:0 3px 10px rgba(30,38,80,.14);
+}
+#f4-portal-float-actions>button svg {width:17px;height:17px}
+#f4-portal-float-actions #btn-scroll-top {border:1px solid rgba(255,255,255,.14)}
+#f4-portal-float-actions #f4-portal-float-saran {background:#6552e6}
+body:has(
+  #modal-saran:not(.hidden),
+  #modal-keuangan:not(.hidden),
+  #modal-cetak-kas:not(.hidden),
+  #modal-event-detail:not(.hidden),
+  #modal-arisan:not(.hidden),
+  #modal-jersey:not(.hidden),
+  #modal-dokumentasi:not(.hidden),
+  #modal-gallery-grid:not(.hidden),
+  #lightbox-modal:not(.hidden),
+  #f4-resident-sheet:not([hidden]),
+  #f4-cash-calendar:not([hidden])
+) #f4-portal-float-actions {
+  opacity:0;visibility:hidden;pointer-events:none;
 }
 @media(max-width:640px){
- body>div.fixed.bottom-6.right-6{bottom:calc(18px + var(--f4-footer-lift,0px))!important}
+  #f4-portal-float-actions {
+    right:10px;bottom:calc(14px + var(--f4-footer-lift,0px));
+  }
+  #f4-portal-float-actions>button {
+    width:39px;height:39px;min-width:39px;min-height:39px;
+  }
 }
+
 
