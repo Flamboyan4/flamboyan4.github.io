@@ -240,10 +240,14 @@
         <div class="f4-cash-table-toolbar">
           <span id="label-update-kas" class="f4-cash-last-update">Data Kas</span>
           <div class="f4-cash-table-actions">
-            <label class="f4-cash-date-control" for="f4-cash-date-filter">
-              <i data-lucide="calendar-days" class="w-4 h-4" aria-hidden="true"></i>
-              <input id="f4-cash-date-filter" type="date" aria-label="Cari transaksi berdasarkan tanggal" title="Cari berdasarkan tanggal" onchange="filterKasWargaByDate()">
-            </label>
+            <div class="f4-cash-date-control">
+              <button type="button" id="f4-cash-date-trigger" class="f4-cash-date-trigger" aria-haspopup="dialog" aria-expanded="false" aria-controls="f4-cash-calendar" aria-label="Pilih tanggal transaksi">
+                <i data-lucide="calendar-days" class="w-4 h-4" aria-hidden="true"></i>
+                <span id="f4-cash-date-label">Semua tanggal</span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5" aria-hidden="true"></i>
+              </button>
+              <input id="f4-cash-date-filter" type="hidden" value="">
+            </div>
             <button id="f4-cash-date-clear" type="button" class="f4-cash-clear-date" onclick="clearKasWargaDate()" aria-label="Hapus filter tanggal" title="Tampilkan semua tanggal" hidden>
               <i data-lucide="x" class="w-4 h-4"></i>
             </button>
@@ -1044,7 +1048,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  window.addEventListener('resize',schedule,{passive:true});
  update();
 });
-</script><script src="/portal-live/portal-panels.js?v=20261112-notes-preserved-v3"></script><link rel="stylesheet" href="/portal-live/resident-finance-ui.css?v=20261112-fixed-scroll-height-v1"><script src="/portal-live/resident-finance-ui.js?v=20261112-mini-receipt-v2"></script><script src="/portal-live/direct-shell.js?v=20261110-svg-session-close-v2"></script><script src="/portal-live/unified-account.js?v=20261111-svg-return-v1"></script><script id="f4-home-project-preview-align-20261112">
+</script><script src="/portal-live/portal-panels.js?v=20261112-notes-preserved-v3"></script><link rel="stylesheet" href="/portal-live/resident-finance-ui.css?v=20261112-fixed-scroll-height-v1"><script src="/portal-live/resident-finance-ui.js?v=20261112-mini-receipt-v2"></script><script src="/portal-live/cash-date-picker.js?v=20261112-custom-v1"></script><script src="/portal-live/direct-shell.js?v=20261110-svg-session-close-v2"></script><script src="/portal-live/unified-account.js?v=20261111-svg-return-v1"></script><script id="f4-home-project-preview-align-20261112">
 (function(){
  function alignProject(){
   const image=document.getElementById('bs-step-img');
