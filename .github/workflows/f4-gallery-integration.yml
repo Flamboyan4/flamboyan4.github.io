@@ -52,8 +52,8 @@ jobs:
           for file in ['portal-live/dokumentasi/community-gallery.css','portal-live/community-home.css']:
               text=(root/file).read_text()
               import re
-              without_comments=re.sub(r'/\\*[\\s\\S]*?\\*/','',text)
-              assert not re.search(r'!\\s*important\\b',without_comments),'New CSS must not introduce !important: '+file
+              without_comments=re.sub(r'/\*.*?\*/','',text,flags=re.S)
+              assert not re.search(r'!\s*important\b',without_comments),'New CSS must not introduce !important: '+file
           print('GALLERY_D1_ADDITIVE_AND_SCOPED_CSS_OK tables=',len(tables))
           PY
       - name: Verify read-only live gallery API
