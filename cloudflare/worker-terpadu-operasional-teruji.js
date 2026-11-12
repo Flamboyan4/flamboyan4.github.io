@@ -2240,7 +2240,13 @@ async function f4GalleryDriveToken(env){
   refresh_token:env.GALLERY_DRIVE_REFRESH_TOKEN,grant_type:"refresh_token"});
  const response=await fetch("https://oauth2.googleapis.com/token",{method:"POST",headers:{"content-type":"application/x-www-form-urlencoded"},body:params});
  const data=await response.json().catch(()=>({}));
- if(!response.ok||!data.access_token)throw Error("Izin Google Drive perlu diperbarui oleh pengelola.");
+ if(!response.ok||!data.access_token){
+  const code=String(data.error||"");
+  if(code==="invalid_grant")throw Error("Refresh Token Google sudah tidak berlaku. Buat ulang token di OAuth Playground.");
+  if(code==="invalid_client")throw Error("Client ID atau Client Secret tidak cocok. Periksa secret Cloudflare.");
+  if(code==="invalid_scope")throw Error("Izin Google Drive tidak sesuai. Perbarui scope OAuth Google Drive.");
+  throw Error("Google menolak otorisasi Drive (HTTP "+response.status+").");
+ }
  return data.access_token;
 }
 __name(f4GalleryDriveToken,"f4GalleryDriveToken");
@@ -2248,7 +2254,12 @@ async function f4GalleryDriveRequest(token,path,options={}){
  const headers=new Headers(options.headers||{});headers.set("authorization","Bearer "+token);
  const response=await fetch("https://www.googleapis.com/drive/v3/"+path,{...options,headers});
  const data=await response.json().catch(()=>({}));
- if(!response.ok)throw Error("Google Drive menolak operasi ("+response.status+").");
+ if(!response.ok){
+  if(response.status===403)throw Error("Akun Google tidak memiliki izin yang diperlukan untuk operasi Google Drive (403).");
+  if(response.status===404)throw Error("Folder atau file Google Drive tidak ditemukan oleh akun ini (404).");
+  if(response.status===401)throw Error("Otorisasi Google Drive kedaluwarsa atau dicabut (401).");
+  throw Error("Google Drive menolak operasi (HTTP "+response.status+").");
+ }
  return data;
 }
 __name(f4GalleryDriveRequest,"f4GalleryDriveRequest");
@@ -2336,7 +2347,13 @@ async function f4GalleryUpload(req,env,who,url){
  if(!mime)return err("Foto harus JPG, PNG, atau WebP.",415);
  const recent=await one(env.DB,"SELECT COUNT(*) AS n FROM f4_gallery_photos WHERE uploader_id=? AND created_at>=datetime('now','-1 hour')",[who.id]);
  if(Number(recent?.n||0)>=40)return err("Batas 40 unggahan per jam tercapai. Coba lagi nanti.",429);
- const token=await f4GalleryDriveToken(env);
+ let token;
+ try{
+  token=await f4GalleryDriveToken(env);
+  const folder=await f4GalleryDriveRequest(token,"files/"+encodeURIComponent(f4GalleryUploadFolder(env))+"?fields=id,mimeType,capabilities(canAddChildren)&supportsAllDrives=true");
+  if(folder.mimeType!=="application/vnd.google-apps.folder")return err("Tujuan unggah bukan folder Google Drive.",502);
+  if(folder.capabilities?.canAddChildren!==true)return err("Akun Google tidak punya izin menambahkan foto ke folder Upload Warga.",403);
+ }catch(e){return err(String(e?.message||"Koneksi Google Drive gagal.").slice(0,240),502);}
  const boundary="f4_gallery_"+crypto.randomUUID().replace(/-/g,"");
  const targetFolder=f4GalleryUploadFolder(env);
  const metadata={name,parents:[targetFolder],mimeType:mime,description:caption.slice(0,300)};
@@ -2344,11 +2361,23 @@ async function f4GalleryUpload(req,env,who,url){
   "--"+boundary+"\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n",JSON.stringify(metadata),"\r\n",
   "--"+boundary+"\r\nContent-Type: "+mime+"\r\n\r\n",raw,"\r\n--"+boundary+"--\r\n"
  ]);
- const uploadResponse=await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,parents",{
-  method:"POST",headers:{"authorization":"Bearer "+token,"content-type":"multipart/related; boundary="+boundary},body:multipart
- });
+ let uploadResponse;
+ try{
+  uploadResponse=await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,parents",{
+   method:"POST",headers:{"authorization":"Bearer "+token,"content-type":"multipart/related; boundary="+boundary},body:multipart
+  });
+ }catch{return err("Koneksi Google Drive gagal ketika mengunggah foto.",502);}
  const uploaded=await uploadResponse.json().catch(()=>({}));
- if(!uploadResponse.ok||!uploaded.id)return err("Gagal mengunggah ke Google Drive ("+uploadResponse.status+").",502);
+ if(!uploadResponse.ok||!uploaded.id){
+  const code=String(uploaded.error?.errors?.[0]?.reason||uploaded.error?.status||"");
+  if(uploadResponse.status===403){
+   if(/storageQuotaExceeded/i.test(code))return err("Kuota penyimpanan Google Drive penuh.",507);
+   return err("Google Drive menolak upload (403). Periksa izin OAuth dan ruang penyimpanan.",403);
+  }
+  if(uploadResponse.status===401)return err("Otorisasi Google Drive tidak memiliki akses upload (401).",401);
+  if(uploadResponse.status===404)return err("Folder Upload Warga tidak ditemukan oleh akun Google (404).",404);
+  return err("Google Drive gagal menyimpan foto (HTTP "+uploadResponse.status+").",502);
+ }
  try{
   await f4GalleryDriveRequest(token,"files/"+encodeURIComponent(uploaded.id)+"/permissions?fields=id",{
    method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({type:"anyone",role:"reader"})
@@ -2452,6 +2481,17 @@ async function f4GalleryApi(req,env,who,url){
  // Pemeriksaan Origin berlaku juga untuk aksi superadmin, sebelum jalur admin.
  if(method==="POST"&&!allowedOrigin(req,env))return err("Asal permintaan tidak diizinkan.",403);
  if(path==="/api/v2/gallery/admin"&&["GET","POST"].includes(method))return f4GalleryAdmin(req,env,who);
+ // Read-only diagnostic, restricted to Superadmin. Never expose tokens or personal Drive files.
+ if(path==="/api/v2/gallery/drive-status"&&method==="GET"){
+  const denied=superadmin(who);if(denied)return denied;
+  if(!f4GalleryDriveReady(env))return ok({connected:false,writable:false,detail:"Kredensial OAuth Google Drive belum lengkap."});
+  try{
+   const token=await f4GalleryDriveToken(env);
+   const folder=await f4GalleryDriveRequest(token,"files/"+encodeURIComponent(f4GalleryUploadFolder(env))+"?fields=id,mimeType,capabilities(canAddChildren)&supportsAllDrives=true");
+   const writable=folder.mimeType==="application/vnd.google-apps.folder"&&folder.capabilities?.canAddChildren===true;
+   return ok({connected:true,writable,detail:writable?"Google Drive terhubung dan folder Upload Warga dapat ditulis.":"Akun OAuth belum memiliki izin menambahkan file ke folder Upload Warga."});
+  }catch(e){return ok({connected:false,writable:false,detail:String(e?.message||"Koneksi Drive gagal.").slice(0,240)});}
+ }
  if(!who||!["anggota","admin","superadmin"].includes(who.role))return err("Silakan masuk sebagai warga.",401);
  if(path==="/api/v2/gallery/upload"&&method==="POST")return f4GalleryUpload(req,env,who,url);
  if(path==="/api/v2/gallery/album"&&method==="POST"){
