@@ -287,10 +287,12 @@ async function uploadDialog(){
  const status=elem('p','f4g-status');status.hidden=true;dlg.body.append(status);
  const send=button(enabled?'Unggah Foto':'Menunggu Koneksi Drive','upload',null,'primary');send.disabled=true;dlg.body.append(send);
  if(!enabled)send.title='Unggah belum tersedia sampai Google Drive dihubungkan pengelola.';
- let files=[],urls=[];
+ const viewGallery=button('Lihat di Galeri','arrow',refreshGallery,'primary');
+ let files=[],urls=[],completedFiles=new Set();
  const update=()=>{
   urls.forEach(x=>URL.revokeObjectURL(x));urls=[];
   preview.replaceChildren();files=Array.from(picker.files||[]).slice(0,12);
+  completedFiles.clear();viewGallery.remove();
   if(picker.files.length>12)message(dlg.body,'Maksimal 12 foto diproses dalam satu kiriman.',true);
   files.forEach(file=>{
    const fig=elem('figure'),img=elem('img'),link=URL.createObjectURL(file);urls.push(link);img.src=link;
@@ -302,7 +304,7 @@ async function uploadDialog(){
  picker.addEventListener('change',update);
  send.addEventListener('click',async()=>{
   if(!enabled){message(dlg.body,'Google Drive belum terhubung. Foto belum dikirim.',true);return}
-  if(!files.length)return;
+  if(!files.length||completedFiles.size===files.length)return;
   if(!album.value){message(dlg.body,'Silakan pilih album tujuan.',true);return}
   send.disabled=true;picker.disabled=true;album.disabled=true;
   let albumId=album.value,done=0,errors=[];
@@ -318,7 +320,8 @@ async function uploadDialog(){
    }
    for(let i=0;i<files.length;i++){
     const file=files[i];
-    message(dlg.body,'Mengunggah foto '+(i+1)+' dari '+files.length+'…');
+    if(completedFiles.has(file))continue;
+    message(dlg.body,'Mengunggah foto '+(completedFiles.size+1)+' dari '+files.length+'…');
     try{
      const blob=await imageBlob(file);
      const params=new URLSearchParams({album:albumId,name:file.name.replace(/\.[^.]+$/,'')+'.jpg',caption:caption.value.trim()});
@@ -327,16 +330,24 @@ async function uploadDialog(){
      });
      const data=await response.json().catch(()=>({}));
      if(!response.ok||data.ok===false)throw Error(data.error||'HTTP '+response.status);
-     done++;
+     done++;completedFiles.add(file);
     }catch(e){errors.push(file.name+': '+e.message)}
    }
-   if(done){
-    message(dlg.body,done+' foto berhasil disimpan.'+(errors.length?' '+errors.length+' foto gagal.':''));
-    dlg.body.append(button('Lihat di Galeri','arrow',refreshGallery,'primary'));
-   }
-   if(errors.length)message(dlg.body,errors.slice(0,3).join(' | '),true);
+   if(done&&!viewGallery.isConnected)dlg.body.append(viewGallery);
+   if(errors.length)message(dlg.body,completedFiles.size+' dari '+files.length+' foto berhasil. '+errors.slice(0,3).join(' | '),true);
+   else if(done)message(dlg.body,completedFiles.size+' foto berhasil disimpan.');
   }catch(e){if(user)message(dlg.body,e.message,true)}
-  finally{send.disabled=false;picker.disabled=false;album.disabled=false}
+  finally{
+   const remaining=files.length-completedFiles.size;
+   if(remaining===0&&files.length){
+    // Setelah semua berhasil, hanya tombol Lihat di Galeri yang ditampilkan.
+    send.remove();picker.disabled=true;album.disabled=true;
+   }else{
+    send.disabled=!enabled||remaining===0;
+    send.querySelector('span:last-child').textContent=completedFiles.size?'Coba lagi '+remaining+' Foto':'Unggah '+remaining+' Foto';
+    picker.disabled=false;album.disabled=false;
+   }
+  }
  });
  // URL pratinjau dibersihkan juga saat menutup dengan Back, Escape, atau backdrop.
  dlg.onClose(()=>urls.forEach(x=>URL.revokeObjectURL(x)));
