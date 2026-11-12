@@ -41,7 +41,11 @@ function combineCommunityMedia(legacy,extra){
  const additions=Array.isArray(extra)?extra:[];
  const idOf=x=>String(x?.url||'').match(/\/d\/([A-Za-z0-9_-]{12,})/)?.[1]||'';
  const uploadedIds=new Set(additions.map(idOf).filter(Boolean));
- return [...(legacy||[]).filter(item=>!uploadedIds.has(idOf(item))),...additions];
+ const suppressed=new Set(window.f4GalleryCommunity?.suppressedDriveIds||[]);
+ return [...(legacy||[]).filter(item=>{
+  const id=idOf(item);
+  return !id||(!uploadedIds.has(id)&&!suppressed.has(id));
+ }),...additions.filter(item=>!suppressed.has(idOf(item)))];
 }
 async function listMedia(doc){
  if(doc.media)return doc.media;
@@ -116,7 +120,9 @@ async function loadPortalArchive(){
    date:x.date||previous.date
   }:x);
  }
- docs=[...byKey.values()].sort((a,b)=>parseDate(b.date)-parseDate(a.date));
+ docs=[...byKey.values()].map(a=>({
+  ...a,id:a.id||(folderId(a.folder)?'gfolder:'+folderId(a.folder):'')
+ })).sort((a,b)=>parseDate(b.date)-parseDate(a.date));
  // Lapisan unggahan baru dipisahkan dari arsip Google Drive lama; tidak membuat album ganda.
  try{
   const response=await fetch('https://api.flamboyan4.web.id/api/v2/gallery',{cache:'no-store'});
@@ -140,7 +146,7 @@ async function loadPortalArchive(){
   }
  }catch(e){console.warn('Galeri interaktif belum tersedia:',e.message)}
  docs.sort((a,b)=>parseDate(b.date)-parseDate(a.date));
- window.f4GalleryAlbums=()=>docs.filter(d=>d.id).map(d=>({id:d.id,title:d.title}));
+ window.f4GalleryAlbums=()=>docs.filter(d=>d.id&&!d.id.startsWith('gfolder:')).map(d=>({id:d.id,title:d.title}));
  drawAlbums();
  document.dispatchEvent(new Event('f4:gallery:ready'));
  const targetAlbum=new URLSearchParams(location.search).get('album');
@@ -238,4 +244,4 @@ $('media-tab-inventory').onclick=()=>tab('inventaris',true);
 $('media-search').oninput=drawAlbums;
 addEventListener('hashchange',()=>tab(location.hash==='#inventaris'?'inventaris':'dokumentasi',false));
 drawFilters();drawAlbums();drawInventory();tab(location.hash==='#inventaris'?'inventaris':'dokumentasi',false);
-loadPortalArchive().catch(error=>{docs.sort((a,b)=>parseDate(b.date)-parseDate(a.date));window.f4GalleryAlbums=()=>docs.filter(d=>d.id).map(d=>({id:d.id,title:d.title}));drawAlbums();document.dispatchEvent(new Event('f4:gallery:ready'));status('Arsip online belum dapat diperbarui ('+(error.message||error)+'). Menampilkan arsip kegiatan asli yang sudah tersedia.','error');});
+loadPortalArchive().catch(error=>{docs.sort((a,b)=>parseDate(b.date)-parseDate(a.date));window.f4GalleryAlbums=()=>docs.filter(d=>d.id&&!d.id.startsWith('gfolder:')).map(d=>({id:d.id,title:d.title}));drawAlbums();document.dispatchEvent(new Event('f4:gallery:ready'));status('Arsip online belum dapat diperbarui ('+(error.message||error)+'). Menampilkan arsip kegiatan asli yang sudah tersedia.','error');});
