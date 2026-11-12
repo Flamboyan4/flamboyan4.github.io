@@ -10,11 +10,7 @@
 .f4g-album-actions{display:flex;gap:6px;align-items:center;margin-left:auto}
 .f4g-album-actions .f4g-btn{min-width:37px;min-height:37px;padding:7px;border-radius:10px}
 .f4g-album-actions .f4g-btn span{font-size:11px}
-.f4g-photo-actions{display:flex;flex:none;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;padding:7px 8px 10px;color:#fff}
-.f4g-photo-actions .f4g-btn{background:#222a3b;color:#fff;border-color:#475069}
-.f4g-photo-actions .f4g-btn:hover{background:#354361}
 .f4g-liked svg{fill:currentColor;color:#ff6987}
-.f4p-photo-overlay:has(.f4g-photo-actions) .f4p-photo-stage{height:auto;flex:1;min-height:0}
 .f4g-overlay{position:fixed;inset:0;z-index:210;display:flex;align-items:center;justify-content:center;background:rgba(20,19,42,.57);padding:16px}
 .f4g-overlay[hidden]{display:none}
 .f4g-panel{box-sizing:border-box;background:#fff;color:#202443;width:min(100%,560px);max-height:92dvh;display:flex;flex-direction:column;overflow:hidden;border-radius:17px;box-shadow:0 24px 70px #0b0b2b55}
@@ -60,8 +56,6 @@
  .f4g-overlay.f4g-comment-overlay{padding:0;align-items:flex-end}
  .f4g-comment-overlay .f4g-panel{max-height:88dvh;border-radius:20px 20px 0 0}
  .f4g-body{padding:14px}
- .f4g-photo-actions{padding:4px 5px 7px;gap:6px}
- .f4g-photo-actions .f4g-btn{padding:7px 9px;font-size:11px;min-height:34px}
  .f4g-album-actions{gap:4px}
  .f4g-album-actions .f4g-btn{min-width:32px;min-height:34px}
  .f4g-admin-row{grid-template-columns:48px minmax(0,1fr);align-items:start}
@@ -183,11 +177,58 @@
 }
 
 
-/* Photo viewer keeps original full-screen media layout; only a small action row sits below. */
-.f4p-photo-overlay > .f4g-photo-actions{display:flex;justify-content:center;gap:9px;flex:none;padding:7px 6px 10px;color:#fff}
-.f4p-photo-overlay > .f4g-photo-actions .f4g-btn{background:#24273a;border-color:#505069;color:#fff;min-height:35px;border-radius:10px}
-.f4p-photo-overlay > .f4g-photo-actions .f4g-btn:hover{background:#404562}
-.f4p-photo-overlay > .f4g-photo-actions .f4g-btn.f4g-liked{color:#ff6886}
+/* Penampil foto sungguhan: layar gelap solid. Panel komentar PC; HP foto penuh. */
+.f4p-photo-overlay.f4g-social-enabled{
+ display:grid;grid-template-columns:minmax(0,1fr) minmax(285px,345px);
+ grid-template-rows:auto minmax(0,1fr) auto;
+ place-items:stretch;align-items:stretch;justify-content:stretch;
+ width:100%;height:100dvh;min-height:0;padding:0;overflow:hidden;
+ background:#0b0b10;color:#fff;
+}
+.f4p-photo-overlay.f4g-social-enabled .f4p-photo-head{
+ grid-column:1/-1;grid-row:1;box-sizing:border-box;
+ width:100%;min-height:54px;padding:9px 16px;flex:none;
+ border-bottom:1px solid #ffffff20;
+}
+.f4p-photo-overlay.f4g-social-enabled .f4p-photo-stage{
+ grid-column:1;grid-row:2;box-sizing:border-box;
+ display:flex;min-height:0;min-width:0;
+ width:100%;height:auto;max-height:none;flex:none;padding:10px 6px;gap:8px;
+}
+.f4p-photo-overlay.f4g-social-enabled .f4p-photo-content{
+ min-width:0;min-height:0;height:100%;flex:1;overflow:hidden;
+}
+.f4p-photo-overlay.f4g-social-enabled .f4p-photo-count{
+ grid-column:1;grid-row:3;padding:7px 0 10px;align-self:center;
+}
+.f4p-photo-overlay.f4g-social-enabled .f4g-photo-side{
+ grid-column:2;grid-row:2/4;
+ display:flex;flex-direction:column;gap:13px;
+ box-sizing:border-box;min-height:0;min-width:0;padding:16px 17px;
+ background:#fff;color:#28243a;overflow-y:auto;overscroll-behavior:contain;
+}
+.f4g-photo-side-head{display:flex;align-items:center;gap:9px;padding-bottom:12px;border-bottom:1px solid #f0edf5}
+.f4g-photo-side-avatar{display:grid;place-items:center;width:35px;height:35px;flex:none;border-radius:50%;background:#eee7ff;color:#6642b8}
+.f4g-photo-side-avatar svg{width:18px;height:18px}
+.f4g-photo-side-titles{display:grid;gap:3px;min-width:0}
+.f4g-photo-side-titles small{font:750 10px/1.2 system-ui;color:#8e879d;letter-spacing:.05em}
+.f4g-photo-side-titles strong{font:760 13px/1.35 system-ui;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.f4g-photo-side-caption{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.5 system-ui}
+.f4g-photo-actions{display:flex;flex-wrap:wrap;justify-content:flex-start;align-items:center;gap:7px;padding:10px 0;border-top:1px solid #f1edf5;border-bottom:1px solid #f1edf5}
+.f4g-photo-actions .f4g-btn{min-height:36px;padding:7px 9px;background:#f1edfa;color:#5434a0;border:0;border-radius:9px}
+.f4g-photo-actions .f4g-btn:hover{background:#e9e0ff}
+.f4g-photo-actions .f4g-btn.f4g-liked{color:#cd345b}
+.f4g-photo-side-comments{display:grid;gap:9px;min-height:0}
+.f4g-photo-comment-title{font:760 13px system-ui;color:inherit}
+.f4g-photo-comment-preview{display:grid;align-content:start;gap:9px;min-height:0;overflow-y:auto}
+.f4g-photo-comment{margin:0;font:12px/1.5 system-ui;color:#555064;overflow-wrap:anywhere}
+.f4g-photo-comment b{color:#302944;font-weight:750}
+.f4g-photo-no-comments{margin:0;font:12px/1.5 system-ui;color:#858091}
+.f4g-photo-all{width:max-content;min-height:29px;padding:5px 0;border:0;background:transparent;color:#6540b1;font-size:11px}
+.f4g-photo-quick-form{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin-top:auto;padding-top:11px;border-top:1px solid #eeeaf5}
+.f4g-photo-quick-form textarea{flex:1 1 100%;min-width:0;width:100%;min-height:54px;max-height:110px;resize:vertical;border:1px solid #e1dbea;border-radius:10px;padding:9px 11px;font:12px/1.5 system-ui;color:#28243a}
+.f4g-photo-quick-form .f4g-btn{margin-left:auto}
+/* Hanya panel komentar yang menjadi bottom sheet pada layar kecil. */
 .f4g-comment-overlay .f4g-head{position:relative;justify-content:center;touch-action:pan-y}
 .f4g-comment-overlay .f4g-head strong{text-align:center}
 .f4g-comment-list{display:grid;align-content:start;gap:4px;min-height:110px}
@@ -196,8 +237,47 @@
 .f4g-comment-overlay .f4g-comment-form textarea{border-radius:24px;padding:12px 15px;min-height:43px}
 .f4g-comment-overlay .f4g-comment-form .f4g-btn{min-height:43px}
 @media(max-width:720px){
+ .f4p-photo-overlay.f4g-social-enabled{
+  display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch;
+  width:100vw;height:100dvh;max-height:100dvh;
+  box-sizing:border-box;padding:0;overflow:hidden;background:#0b0b10;
+ }
+ .f4p-photo-overlay.f4g-social-enabled .f4p-photo-head{
+  width:100%;min-height:49px;padding:7px 12px;border-bottom:0;flex:0 0 auto;
+ }
+ .f4p-photo-overlay.f4g-social-enabled .f4p-photo-stage{
+  display:flex;width:100%;height:0;max-height:none;min-height:0;min-width:0;
+  flex:1 1 0;padding:0 4px;gap:4px;
+ }
+ .f4p-photo-overlay.f4g-social-enabled .f4p-photo-content{
+  flex:1;min-height:0;height:100%;overflow:hidden;
+ }
+ .f4p-photo-overlay.f4g-social-enabled .f4p-photo-count{
+  flex:0 0 auto;align-self:center;padding:4px 0 7px;font-size:11px;
+ }
+ .f4p-photo-overlay.f4g-social-enabled .f4p-photo-arrow{
+  flex:none;width:30px;height:38px;background:#2a2d38b8;
+ }
+ .f4p-photo-overlay.f4g-social-enabled .f4g-photo-side{
+  display:flex;flex:0 0 auto;gap:6px;
+  box-sizing:border-box;width:100%;min-height:0;max-height:28dvh;
+  padding:8px 13px calc(10px + env(safe-area-inset-bottom,0px));
+  overflow-y:auto;background:#14141d;color:#fff;border-top:1px solid #ffffff2b;
+ }
+ .f4g-photo-side-head{display:none}
+ .f4g-photo-side-caption{font-size:12px;line-height:1.35;max-height:2.7em;overflow:hidden}
+ .f4g-photo-actions{order:-1;gap:7px;flex-wrap:nowrap;padding:1px 0 4px;border:0}
+ .f4g-photo-actions .f4g-btn{background:transparent;color:#fff;min-height:35px;padding:5px 6px;font-size:11px;white-space:nowrap}
+ .f4g-photo-actions .f4g-btn:hover{background:#303043;color:#fff}
+ .f4g-photo-actions .f4g-btn.f4g-liked{color:#ff6987}
+ .f4g-photo-side-comments{display:flex;align-items:center;justify-content:space-between;gap:6px}
+ .f4g-photo-comment-title{display:none}
+ .f4g-photo-comment-preview{flex:1;min-width:0;max-height:22px;overflow:hidden}
+ .f4g-photo-comment{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#bdbbc9}
+ .f4g-photo-comment b{color:#f3f0f7}
+ .f4g-photo-no-comments{font-size:11px;color:#a7a4b7}
+ .f4g-photo-all{flex:none;color:#dbcdff;font-size:11px;min-height:24px;white-space:nowrap}
+ .f4g-photo-quick-form{display:none}
  .f4g-comment-overlay .f4g-head::before{content:"";position:absolute;top:6px;left:50%;transform:translateX(-50%);width:40px;height:4px;border-radius:4px;background:#afa9b8}
  .f4g-comment-overlay .f4g-head{padding-top:19px}
- .f4p-photo-overlay > .f4g-photo-actions{gap:6px;padding:5px 3px 9px}
- .f4p-photo-overlay > .f4g-photo-actions .f4g-btn{font-size:11px;min-height:33px;padding:7px 9px}
 }
