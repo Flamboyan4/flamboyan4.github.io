@@ -250,6 +250,17 @@ async function uploadDialog(){
   }
  }
  dlg.body.append(elem('p','f4g-note','Pilih satu atau beberapa foto, lalu tentukan album. Unggahan yang berhasil langsung tampil tanpa menunggu persetujuan.'));
+ if(enabled&&user?.role==='superadmin'){
+  const check=elem('div','f4g-drive-check');
+  check.setAttribute('role','status');
+  check.append(elem('span','', 'Memeriksa izin Google Drive dan folder Upload Warga…'));
+  dlg.body.append(check);
+  get('/drive-status').then(data=>{
+   if(!check.isConnected)return;
+   check.classList.toggle('error',!data.writable);
+   check.textContent=data.writable?'Koneksi Drive aktif: folder Upload Warga dapat ditulis.':(data.detail||'Koneksi Google Drive belum siap.');
+  }).catch(e=>{if(check.isConnected){check.classList.add('error');check.textContent='Gagal mengecek izin Google Drive: '+e.message;}});
+ }
  const drop=elem('div','f4g-drop');
  const icon=elem('span');icon.innerHTML=svg('upload');drop.append(icon,elem('strong','','Pilih foto dari perangkat'));
  const picker=elem('input');picker.type='file';picker.accept='image/jpeg,image/png,image/webp';picker.multiple=true;drop.append(picker);
@@ -300,6 +311,10 @@ async function uploadDialog(){
    if(albumId==='__new'){
     const created=await post('/album',{title:newTitle.value.trim()});
     albumId=created.id;
+    // Jangan membuat album duplikat jika foto pertama gagal diunggah.
+    const saved=makeOption(created.id,created.title||newTitle.value.trim());
+    album.insertBefore(saved,album.querySelector('option[value="__new"]'));
+    album.value=created.id;newWrap.hidden=true;
    }
    for(let i=0;i<files.length;i++){
     const file=files[i];
