@@ -2288,7 +2288,7 @@ async function f4GalleryPublic(db,env){
   const comments=fromLatest?.comments||await list(db,"SELECT c.message,COALESCE(pro.display_name,m.display_name,a.username,'Warga') AS nama FROM f4_gallery_comments c LEFT JOIN accounts a ON a.id=c.account_id LEFT JOIN members m ON m.id=a.member_id LEFT JOIN member_account_profiles pro ON pro.account_id=a.id WHERE c.target_type='photo' AND c.target_id=? AND c.status='aktif' ORDER BY c.created_at DESC LIMIT 2",[p.id]);
   popular.push({...p,likes:Number(row.likes||0),commentCount:Number(row.commentCount||0),comments});
  }
- return ok({albums,photos:data,highlights,popular,uploadEnabled:f4GalleryDriveReady(env),maxFiles:12,maxFileMb:6});
+ return ok({albums,photos:data,highlights,popular,uploadEnabled:f4GalleryDriveReady(env),maxFiles:12,maxFileMb:5});
 }
 __name(f4GalleryPublic,"f4GalleryPublic");
 async function f4GallerySocial(db,who,url){
@@ -2312,9 +2312,9 @@ async function f4GalleryUpload(req,env,who,url){
  const caption=String(url.searchParams.get("caption")||"").trim().slice(0,350);
  if(!name||/[^\S\r\n]*[\r\n]/.test(name)||/[\u0000-\u001f]/.test(caption))return err("Nama atau keterangan foto tidak valid.",400);
  const size=Number(req.headers.get("content-length")||0);
- if(size>6*1024*1024)return err("Ukuran foto maksimal 6 MB.",413);
+ if(size>5*1024*1024)return err("Ukuran foto maksimal 5 MB.",413);
  const raw=await req.arrayBuffer();
- if(raw.byteLength<100||raw.byteLength>6*1024*1024)return err("Ukuran foto tidak valid (maksimal 6 MB).",413);
+ if(raw.byteLength<100||raw.byteLength>5*1024*1024)return err("Ukuran foto tidak valid (maksimal 5 MB).",413);
  const bytes=new Uint8Array(raw);
  let mime="";
  if(bytes[0]===255&&bytes[1]===216&&bytes[2]===255)mime="image/jpeg";
