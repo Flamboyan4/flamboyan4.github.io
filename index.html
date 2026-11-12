@@ -480,62 +480,6 @@
       </div>
     </section>
 
-    <!-- SECTION 4: DOKUMENTASI & INVENTARIS -->
-    <section id="kegiatan" class="scroll-mt-20 w-full space-y-3">
-      <div class="flex items-center justify-between px-1">
-        <div class="flex items-center space-x-2">
-          <i data-lucide="images" class="w-6 h-6 text-indigo-600 shrink-0"></i>
-          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Galeri & Inventaris</h3>
-        </div>
-      </div>
-
-      <div class="flex lg:grid lg:grid-cols-2 gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-2">
-        <!-- Card Dokumentasi - selalu pertama di HP -->
-        <div class="snap-start shrink-0 w-[88%] sm:w-[72%] lg:w-auto bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between mb-1">
-              <h4 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
-                <i data-lucide="camera" class="w-4 h-4 text-indigo-600"></i>
-                Galeri
-              </h4>
-              <button onclick="openModalDokumentasi()" class="text-xs font-bold text-indigo-700 hover:text-indigo-800 flex items-center gap-1.5 bg-indigo-50 px-3 py-1.5 rounded-xl border border-indigo-200">
-                Galeri <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-              </button>
-            </div>
-            <div onclick="openDokumentasiPreviewAktif()" class="relative h-44 sm:h-52 rounded-xl overflow-hidden bg-slate-900 cursor-pointer group border border-slate-200">
-              <img id="dokumentasi-preview-img" src="" alt="Preview Dokumentasi" class="w-full h-full object-cover opacity-85 group-hover:scale-105 transition-all duration-500">
-              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/10 to-transparent flex items-end p-3.5">
-                <div class="text-white min-w-0 w-full">
-                  <div class="flex items-center justify-between gap-2 mb-1">
-                    <span id="dokumentasi-preview-tanggal" class="bg-indigo-600 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Memuat...</span>
-                    <span id="dokumentasi-preview-counter" class="text-[10px] bg-black/40 px-2 py-0.5 rounded-md">-</span>
-                  </div>
-                  <p id="dokumentasi-preview-judul" class="text-xs sm:text-sm font-bold line-clamp-1">Memuat album...</p>
-                  <p id="dokumentasi-preview-desc" class="text-[10px] sm:text-xs text-slate-200 mt-0.5 line-clamp-1"></p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card Inventaris -->
-        <div class="snap-start shrink-0 w-[88%] sm:w-[72%] lg:w-auto bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between mb-1">
-              <h4 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
-                <i data-lucide="box" class="w-4 h-4 text-indigo-600"></i>
-                Inventaris
-              </h4>
-              <span id="inventaris-warga-count" class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">0 Item</span>
-            </div>
-            <div id="container-inventaris-warga" class="space-y-2 max-h-52 overflow-y-auto pr-1 custom-scroll">
-              <p class="text-xs sm:text-sm text-slate-400 italic" role="status">Memuat inventaris…</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- SECTION 5: KALENDER KEGIATAN -->
     <section id="rencana" class="scroll-mt-20 w-full space-y-6">
       <div class="flex items-center space-x-2">
