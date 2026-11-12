@@ -235,6 +235,12 @@ function openMediaGallery(title,records,opts={}){
     const play=node('span','f4p-tile-play');play.innerHTML=svg('play');button.append(video,play)}
   }else{const img=node('img','f4p-tile-image');img.src=item.url;img.alt=item.caption||albumTitle;img.loading='lazy';img.onerror=()=>{if(img.isConnected)img.replaceWith(node('div','f4p-video-thumb','Foto'))};button.append(img)}
   button.onclick=()=>{lastTile=button;openPhoto(index)};
+  // Bila warga mencoba mencubit thumbnail, buka foto lalu zoom gambar,
+  // bukan memperbesar keseluruhan halaman/album.
+  if(item.type!=='video')button.addEventListener('touchstart',event=>{
+   if(event.touches.length!==2)return;
+   event.preventDefault();lastTile=button;openPhoto(index);applyPhotoZoom(2.2);
+  },{passive:false});
   grid.append(button);
  });
  if(!isOpen(album)){pushLayer('album');show(album,true)}
