@@ -1,0 +1,30 @@
+
+/* Beranda · Cerita Warga. Gaya tunggal, tanpa !important. */
+.f4g-home{scroll-margin-top:84px}
+.f4g-home[hidden]{display:none}
+.f4g-home-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.f4g-home-heading h3{font-size:21px;line-height:1.3;font-weight:800;margin:0;color:#1f2940;display:flex;align-items:center;gap:8px}
+.f4g-home-heading h3 svg{width:23px;height:23px;color:#6047c7}
+.f4g-home-link{font-size:12px;color:#5539b9;font-weight:750;display:inline-flex;align-items:center;gap:5px}
+.f4g-home-options{display:inline-flex;border:1px solid #e1dcf1;padding:3px;gap:3px;border-radius:10px;background:#faf9ff;margin-bottom:12px}
+.f4g-home-options button{border:0;border-radius:8px;background:transparent;font:700 12px system-ui;color:#6b647e;padding:7px 13px;cursor:pointer}
+.f4g-home-options button[aria-selected="true"]{background:#6045c1;color:#fff}
+.f4g-home-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.f4g-home-card{min-width:0;border:1px solid #e3e5ef;background:#fff;box-shadow:0 2px 6px #2931500c;border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.f4g-home-photo{display:block;width:100%;height:175px;background:#ddd8e8;overflow:hidden}
+.f4g-home-photo img{display:block;width:100%;height:100%;object-fit:cover}
+.f4g-home-card-content{padding:12px;display:flex;flex-direction:column;gap:8px;flex:1}
+.f4g-home-title{font:750 13px/1.45 system-ui;color:#28354d;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.f4g-home-info{display:flex;justify-content:space-between;align-items:center;gap:7px;font:11px system-ui;color:#818496}
+.f4g-home-stats{display:flex;gap:12px;align-items:center;font:600 11px system-ui;color:#68728a}
+.f4g-home-stats span{display:inline-flex;gap:4px;align-items:center}
+.f4g-home-stats svg{height:15px;width:15px}
+.f4g-home-comments{border-top:1px solid #f1eff7;padding-top:7px;display:grid;gap:5px;min-height:30px}
+.f4g-home-comment{font:11px/1.4 system-ui;color:#4d5468;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.f4g-home-comment b{color:#32374c}
+@media(max-width:760px){
+ .f4g-home-heading h3{font-size:19px}
+ .f4g-home-grid{display:flex;gap:11px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:5px;scrollbar-width:thin}
+ .f4g-home-card{flex:0 0 min(84vw,310px);scroll-snap-align:start}
+ .f4g-home-photo{height:167px}
+}
