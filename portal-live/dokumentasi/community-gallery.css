@@ -196,3 +196,30 @@
  .f4g-photo-side-comments{display:flex;align-items:center;justify-content:space-between}
  .f4g-photo-all{padding:0}
 }
+
+
+/* Komposer upload: multi-foto dengan preview dan detail seperti unggah album sosial. */
+.f4g-overlay:has(.f4g-upload-layout) .f4g-panel{width:min(100%,760px)}
+.f4g-upload-offline{display:flex;align-items:flex-start;gap:11px;background:#fff8e8;border:1px solid #f3ddad;border-radius:11px;padding:12px;color:#72561c}
+.f4g-upload-offline-icon{display:grid;place-items:center;width:32px;height:32px;flex:none;background:#fff0cf;border-radius:9px}
+.f4g-upload-offline-icon svg{width:18px;height:18px}
+.f4g-upload-offline strong{font:760 13px/1.4 system-ui}
+.f4g-upload-offline p{font:12px/1.5 system-ui;margin:4px 0 0;color:#806735}
+.f4g-upload-help{font:700 12px/1.4 system-ui;color:#6340b5;text-decoration:underline;width:max-content}
+.f4g-upload-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.f4g-upload-media,.f4g-upload-settings{min-width:0;display:grid;align-content:start;gap:12px}
+.f4g-upload-section-title{font:760 13px system-ui;color:#38304f}
+.f4g-upload-media .f4g-drop{min-height:175px;align-content:center;background:#faf8ff}
+.f4g-upload-media .f4g-drop svg{width:27px;height:27px;color:#6741c7}
+.f4g-upload-media .f4g-drop strong{font:700 13px system-ui;color:#493674}
+.f4g-upload-media .f4g-drop .f4g-note{margin:0}
+.f4g-upload-settings .f4g-field{gap:6px}
+.f4g-upload-settings .f4g-field label{font-size:12px}
+.f4g-upload-settings .f4g-field select,.f4g-upload-settings .f4g-field input{width:100%}
+.f4g-upload-media .f4g-previews{grid-template-columns:repeat(3,minmax(0,1fr))}
+.f4g-upload-media .f4g-previews figcaption{font-size:9px}
+@media(max-width:720px){
+ .f4g-upload-layout{grid-template-columns:minmax(0,1fr);gap:14px}
+ .f4g-upload-media .f4g-drop{min-height:135px}
+ .f4g-upload-media .f4g-previews{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
