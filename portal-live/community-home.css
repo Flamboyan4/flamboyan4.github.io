@@ -22,6 +22,9 @@
 .f4g-home-comments{border-top:1px solid #f1eff7;padding-top:7px;display:grid;gap:5px;min-height:30px}
 .f4g-home-comment{font:11px/1.4 system-ui;color:#4d5468;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .f4g-home-comment b{color:#32374c}
+.f4g-home-empty{grid-column:1/-1;border:1px dashed #d8d1ed;border-radius:13px;background:#faf8ff;padding:17px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font:12px system-ui;color:#697089}
+.f4g-home-empty strong{font-size:13px;color:#3d335c}
+.f4g-home-empty a{margin-left:auto;font-weight:750;color:#5637b5;text-decoration:underline}
 @media(max-width:760px){
  .f4g-home-heading h3{font-size:19px}
  .f4g-home-grid{display:flex;gap:11px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:5px;scrollbar-width:thin}
