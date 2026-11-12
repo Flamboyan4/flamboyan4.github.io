@@ -218,7 +218,7 @@ async def validate_documentation(browser, name, width, height):
                 stage.dispatchEvent(new TouchEvent('touchstart',{bubbles:true,touches:[start],targetTouches:[start],changedTouches:[start]}));
                 stage.dispatchEvent(new TouchEvent('touchend',{bubbles:true,touches:[],targetTouches:[],changedTouches:[end]}));
             }""")
-            assert "2 dari" in await page.locator(".f4p-photo-count").inner_text(), "Mobile swipe did not advance to next photo"
+            assert "2 /" in await page.locator(".f4p-photo-count").inner_text(), "Mobile swipe did not advance to next photo"
         zoom = page.locator(".f4p-photo-overlay .f4p-photo-zoom")
         assert await zoom.count() == 1 and await zoom.get_attribute("aria-pressed") == "false", "SVG photo zoom control missing"
         assert await page.locator(".f4p-photo-overlay .f4p-close svg").count() == 1, "Photo close button not SVG"
