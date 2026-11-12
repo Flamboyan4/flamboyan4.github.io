@@ -231,7 +231,10 @@ function drawAlbums(){
   const content=el('div','media-album-info');
   // The album index is a compact cover/title/date list. Descriptions are intentionally not displayed.
   content.append(el('small','media-category-tag',category(a)),el('strong','',a.title),el('small','muted',a.date));
-  content.append(el('span','f4g-album-open','Lihat album'));
+  const linkText=el('span','f4g-album-open','Lihat album');
+  const arrow=el('span','f4g-album-open-icon');
+  arrow.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>';
+  linkText.append(arrow);content.append(linkText);
   btn.append(cover,content);btn.onclick=()=>openAlbum(a);list.append(btn);
  }
 }
