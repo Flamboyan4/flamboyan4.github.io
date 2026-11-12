@@ -269,6 +269,7 @@
  .f4g-photo-actions .f4g-btn:hover{background:#303043;color:#fff}
  .f4g-photo-actions .f4g-btn.f4g-liked{color:#ff6987}
  .f4g-photo-side-comments{display:flex;align-items:center;justify-content:space-between;gap:6px}
+ .f4g-photo-side-comments.f4g-no-comments{display:none}
  .f4g-photo-comment-title{display:none}
  .f4g-photo-comment-preview{flex:1;min-width:0;max-height:22px;overflow:hidden}
  .f4g-photo-comment{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#bdbbc9}
