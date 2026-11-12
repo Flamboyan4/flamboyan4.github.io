@@ -45,6 +45,12 @@ jobs:
               assert isinstance(data.get('highlights'),list)
               assert isinstance(data.get('popular'),list)
               print('GALLERY_READ_OK albums=',len(data['albums']),'photos=',len(data['photos']),'driveConfigured=',bool(data.get('uploadEnabled')))
+              portal_req=urllib.request.Request('https://api.flamboyan4.web.id/api/v2/public/portal',headers={'Origin':'https://flamboyan4.web.id','Accept':'application/json','User-Agent':'F4-gallery-smoke/1.0'})
+              with urllib.request.urlopen(portal_req,timeout=20) as portal_response:
+                portal_data=json.load(portal_response)
+                assert portal_data.get('ok') is True and isinstance(portal_data.get('documentation'),list)
+                print('PORTAL_UNCHANGED_OK docs=',len(portal_data['documentation']))
+
           except urllib.error.HTTPError as exc:
             print('GALLERY_READ_HTTP_ERROR',exc.code,exc.read(700).decode('utf-8','replace'))
             raise
