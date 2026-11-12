@@ -60,6 +60,44 @@ function popup(title,wide=false){
  document.addEventListener('keydown',escapeKey);document.body.append(shade);
  return {body,close,panel,head};
 }
+
+function toast(note){
+ document.querySelector('.f4g-toast')?.remove();
+ const n=elem('div','f4g-toast',note);n.setAttribute('role','status');document.body.append(n);
+ setTimeout(()=>n.remove(),2600);
+}
+function notice(note){
+ const dlg=popup('Informasi');
+ dlg.body.append(elem('p','f4g-note',note),button('Tutup','close',dlg.close));
+}
+function confirmAction(question,action){
+ const dlg=popup('Konfirmasi');
+ dlg.body.append(elem('p','f4g-note',question));
+ const row=elem('div','f4g-row end');
+ row.append(button('Batal','close',dlg.close),button('Lanjutkan','arrow',async()=>{
+  dlg.close();await action();
+ },'primary'));dlg.body.append(row);
+}
+function renameAction(current,action){
+ const dlg=popup('Ubah Nama Album');
+ const control=field(dlg.body,'Nama album','input','Nama album baru');
+ control.value=current;control.maxLength=100;
+ const row=elem('div','f4g-row end');
+ row.append(button('Batal','close',dlg.close),button('Simpan','arrow',async()=>{
+  const name=control.value.trim();if(name.length<3){message(dlg.body,'Nama album minimal 3 karakter.',true);return}
+  try{await action(name);dlg.close()}catch(e){message(dlg.body,e.message,true)}
+ },'primary'));
+ dlg.body.append(row);control.focus();
+}
+function manualCopy(url){
+ const dlg=popup('Salin Tautan');
+ const input=field(dlg.body,'Tautan langsung ke galeri','input');input.value=url;input.readOnly=true;input.select();
+ dlg.body.append(button('Salin Tautan','share',async()=>{
+  try{await navigator.clipboard.writeText(url);dlg.close();toast('Tautan berhasil disalin.')}
+  catch{input.select()}
+ },'primary'));
+}
+
 const message=(container,text,bad=false)=>{
  let p=container.querySelector('.f4g-status');
  if(!p){p=elem('p','f4g-status');container.append(p)}
@@ -78,14 +116,14 @@ function photoLink(target){
 async function share(target){
  const url=photoLink(target);
  if(navigator.share){try{await navigator.share({title:target.title||'Dokumentasi Flamboyan 4',url});return}catch(e){if(e.name==='AbortError')return}}
- try{await navigator.clipboard.writeText(url);alert('Tautan berhasil disalin.')}catch{prompt('Salin tautan:',url)}
+ try{await navigator.clipboard.writeText(url);toast('Tautan berhasil disalin.')}catch{manualCopy(url)}
 }
 function socialButtons(host,target,isPhoto){
  host.replaceChildren();
  if(!target?.id)return;
  const like=button('0','heart',async()=>{
   try{await signedIn();const result=await post('/react',{type:target.type,id:target.id});updateSocial(result)}
-  catch(e){if(user)alert(e.message)}
+  catch(e){if(user)notice(e.message)}
  });
  const comments=button('Komentar','comment',()=>openComments(target));
  const shareBtn=button(isPhoto?'Bagikan':null,'share',()=>share(target));
@@ -120,8 +158,7 @@ async function openComments(target){
     const content=elem('div','f4g-comment-main'),name=elem('b','',c.author||'Warga'),body=elem('p','',c.message||'');
     content.append(name,body);row.append(avatar,content);
     if(user?.role==='superadmin')row.append(button(null,'trash',async()=>{
-     if(!confirm('Sembunyikan komentar ini?'))return;
-     try{await post('/admin',{action:'hide_comment',id:c.id});await load()}catch(e){alert(e.message)}
+     confirmAction('Sembunyikan komentar ini?',async()=>{try{await post('/admin',{action:'hide_comment',id:c.id});await load()}catch(e){notice(e.message)}})
     }));
     comments.append(row);
    }
@@ -140,7 +177,7 @@ async function report(target){
  dlg.body.append(elem('p','f4g-note','Laporkan foto atau album yang perlu ditinjau oleh superadmin.'));
  const reason=field(dlg.body,'Alasan','textarea','Contoh: Foto pribadi atau tidak sesuai kegiatan');
  const submit=button('Kirim Laporan','flag',async()=>{
-  try{await signedIn();await post('/report',{type:target.type,id:target.id,reason:reason.value.trim()||'Perlu ditinjau'});dlg.close();alert('Laporan diterima oleh pengurus.')}
+  try{await signedIn();await post('/report',{type:target.type,id:target.id,reason:reason.value.trim()||'Perlu ditinjau'});dlg.close();toast('Laporan diterima pengurus.')}
   catch(e){if(user)message(dlg.body,e.message,true)}
  },'primary');
  dlg.body.append(submit);
@@ -242,7 +279,7 @@ function uploadDialog(){
  dlg.close=()=>{urls.forEach(x=>URL.revokeObjectURL(x));originalClose()};
 }
 async function adminDialog(){
- try{await signedIn();if(user.role!=='superadmin')return alert('Khusus superadmin.')}
+ try{await signedIn();if(user.role!=='superadmin'){notice('Fitur ini khusus superadmin.');return}}
  catch{return}
  const dlg=popup('Kelola Unggahan Warga',true),listBox=elem('div');
  dlg.body.append(elem('p','f4g-admin-note','Unggahan langsung tampil. Anda dapat meninjau, memindahkan ke folder album lain, menyembunyikan, atau menghapus. Foto yang dihapus dipindahkan ke Sampah Google Drive.'));
@@ -267,11 +304,11 @@ async function adminDialog(){
     select.value=p.albumId;
     const run=async(action,rest={})=>{
      try{await post('/admin',{action,photoId:p.id,...rest});await load()}
-     catch(e){alert(e.message)}
+     catch(e){notice(e.message)}
     };
     const move=button('Pindah','folder',()=>run('move_photo',{albumId:select.value}));
     const hide=button(p.status==='disembunyikan'?'Tampilkan':'Sembunyikan','shield',()=>run(p.status==='disembunyikan'?'review_photo':'hide_photo'));
-    const trash=button('Hapus','trash',()=>{if(confirm('Pindahkan foto ini ke Sampah Google Drive?'))run('delete_photo')});
+    const trash=button('Hapus','trash',()=>confirmAction('Pindahkan foto ini ke Sampah Google Drive?',()=>run('delete_photo')));
     actions.append(select,move,hide,trash);row.append(img,content,actions);listBox.append(row);
    }
    listBox.append(elem('h3','','Album yang dibuat warga'));
@@ -280,14 +317,11 @@ async function adminDialog(){
     const icon=elem('div');icon.innerHTML=svg('folder');
     const content=elem('div');content.append(elem('b','',a.title),elem('small','',a.status));
     const actions=elem('div','f4g-row');
-    actions.append(button('Ubah Nama','folder',async()=>{
-     const renamed=prompt('Nama album baru:',a.title);
-     if(renamed===null)return;
-     try{await post('/admin',{action:'rename_album',albumId:a.id,title:renamed});await load()}catch(e){alert(e.message)}
-    }),button('Arsipkan','trash',async()=>{
-     if(!confirm('Sembunyikan album ini beserta fotonya dari publik?'))return;
-     try{await post('/admin',{action:'delete_album',albumId:a.id});await load()}catch(e){alert(e.message)}
-    }));
+    actions.append(button('Ubah Nama','folder',()=>renameAction(a.title,async renamed=>{
+     await post('/admin',{action:'rename_album',albumId:a.id,title:renamed});await load();
+    })),button('Arsipkan','trash',()=>confirmAction('Sembunyikan album ini beserta fotonya dari publik?',async()=>{
+     try{await post('/admin',{action:'delete_album',albumId:a.id});await load()}catch(e){notice(e.message)}
+    })));
     row.append(icon,content,actions);listBox.append(row);
    }
    listBox.append(elem('h3','','Laporan dari Warga'));
