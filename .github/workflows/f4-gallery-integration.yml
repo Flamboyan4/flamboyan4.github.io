@@ -51,7 +51,9 @@ jobs:
           db.execute("INSERT INTO f4_gallery_comments(id,target_type,target_id,account_id,message) VALUES('c','photo','p','u','Komentar')")
           for file in ['portal-live/dokumentasi/community-gallery.css','portal-live/community-home.css']:
               text=(root/file).read_text()
-              assert '!important' not in text,'New CSS must not introduce !important: '+file
+              import re
+              without_comments=re.sub(r'/\\*[\\s\\S]*?\\*/','',text)
+              assert not re.search(r'!\\s*important\\b',without_comments),'New CSS must not introduce !important: '+file
           print('GALLERY_D1_ADDITIVE_AND_SCOPED_CSS_OK tables=',len(tables))
           PY
       - name: Verify read-only live gallery API
