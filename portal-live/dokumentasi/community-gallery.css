@@ -122,7 +122,9 @@
 #media-albums-section .f4g-album-card .media-album-info small.muted{font-size:11px;color:#847f91}
 #media-albums-section .f4g-album-card .media-category-tag{border-radius:20px;padding:4px 9px;font-size:10px;background:#eee9ff;color:#6340b4}
 #media-albums-section .f4g-album-open{display:inline-flex;margin-top:auto;padding-top:7px;font:740 11px/1.4 system-ui;color:#6845ba}
-#media-albums-section .f4g-album-open::after{content:"›";font-size:18px;margin:-4px 0 -4px 6px}
+#media-albums-section .f4g-album-open{align-items:center;gap:6px}
+#media-albums-section .f4g-album-open-icon{display:inline-flex;align-items:center}
+#media-albums-section .f4g-album-open-icon svg{width:15px;height:15px}
 @media(max-width:760px){
  #media-albums-section{padding:12px}
  #media-albums-section .f4g-hero{min-height:0;display:block;padding:19px 17px;margin-bottom:14px;border-radius:15px}
