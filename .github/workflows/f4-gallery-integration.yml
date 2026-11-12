@@ -74,6 +74,13 @@ jobs:
                 portal_data=json.load(portal_response)
                 assert portal_data.get('ok') is True and isinstance(portal_data.get('documentation'),list)
                 print('PORTAL_UNCHANGED_OK docs=',len(portal_data['documentation']))
+              for check_path in ['/api/health','/api/v2/public/bank']:
+                route='https://api.flamboyan4.web.id'+check_path
+                check=urllib.request.Request(route,headers={'Origin':'https://flamboyan4.web.id','Accept':'application/json','User-Agent':'F4-gallery-safety-smoke/1.0'})
+                with urllib.request.urlopen(check,timeout=20) as checked:
+                  result=json.load(checked)
+                  assert result.get('ok') is True,('Existing portal failed',check_path)
+                  print('OTHER_MODULE_UNCHANGED_OK',check_path)
 
           except urllib.error.HTTPError as exc:
             print('GALLERY_READ_HTTP_ERROR',exc.code,exc.read(700).decode('utf-8','replace'))
