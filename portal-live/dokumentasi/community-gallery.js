@@ -9,6 +9,7 @@ const icons={
  close:'<path d="M18 6 6 18M6 6l12 12"/>',
  shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
  arrow:'<path d="M4 12h16m-6-6 6 6-6 6"/>',
+ send:'<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
  trash:'<path d="M3 6h18M8 6V4h8v2m3 0-1 15H6L5 6M10 10v7m4-7v7"/>',
  folder:'<path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10H3z"/>',
  flag:'<path d="M5 22V4m0 1q5-4 9 0t7 0v12q-4 4-9 0t-7 0"/>',
@@ -153,7 +154,8 @@ function socialButtons(host,target,isPhoto,onLoaded){
   try{await signedIn();const result=await post('/react',{type:target.type,id:target.id});updateSocial(result);onLoaded?.(result)}
   catch(e){if(user)notice(e.message)}
  });
- const comments=button('Komentar','comment',()=>openComments(target));
+ const comments=button('0','comment',()=>openComments(target));
+ comments.setAttribute('aria-label','Buka komentar '+(target.type==='album'?'album':'foto'));
  const shareBtn=button(isPhoto?'Bagikan':null,'share',()=>share(target));
  shareBtn.setAttribute('aria-label',isPhoto?'Bagikan foto':'Bagikan album');
  host.append(like,comments,shareBtn);
@@ -161,7 +163,7 @@ function socialButtons(host,target,isPhoto,onLoaded){
  const updateSocial=data=>{
   like.querySelector('span:last-child').textContent=String(data.likes||0);
   like.classList.toggle('f4g-liked',!!data.liked);
-  comments.querySelector('span:last-child').textContent=(data.comments?.length||0)+' komentar';
+  comments.querySelector('span:last-child').textContent=String(data.comments?.length||0);
  };
  get('/social?type='+encodeURIComponent(target.type)+'&id='+encodeURIComponent(target.id))
  .then(data=>{if(host.isConnected){updateSocial(data);onLoaded?.(data)}}).catch(()=>{like.disabled=true;comments.disabled=true});
@@ -170,8 +172,10 @@ async function openComments(target){
  const dlg=popup('Komentar '+(target.type==='album'?'Album':'Foto'),false,true);
  const comments=elem('div','f4g-comment-list');dlg.body.append(comments);
  const form=elem('form','f4g-comment-form'),text=elem('textarea');
- text.placeholder='Tulis komentar untuk warga…';text.maxLength=500;
- const send=button('Kirim','arrow',null,'primary');send.type='submit';
+ text.placeholder='Tulis komentar untuk warga…';text.maxLength=500;text.rows=1;
+ text.setAttribute('aria-label','Tulis komentar untuk warga');
+ text.addEventListener('input',()=>{text.style.height='46px';text.style.height=Math.min(100,Math.max(46,text.scrollHeight))+'px'});
+ const send=button(null,'send',null,'primary f4g-comment-send');send.type='submit';send.setAttribute('aria-label','Kirim komentar');send.title='Kirim komentar';
  form.append(text,send);dlg.body.append(form);
  const hint=elem('p','f4g-note','Komentar akan terlihat oleh pengunjung galeri. Gunakan bahasa yang sopan.');
  dlg.body.append(hint);
@@ -534,7 +538,7 @@ document.addEventListener('f4:gallery:photo',e=>{
   commentsSection.append(title,list,all);
   const form=elem('form','f4g-photo-quick-form');
   const input=elem('textarea');input.placeholder='Tulis komentar…';input.maxLength=500;input.rows=2;
-  const submit=button('Kirim','arrow',null,'primary');submit.type='submit';
+  const submit=button(null,'send',null,'primary f4g-comment-send');submit.type='submit';submit.setAttribute('aria-label','Kirim komentar');
   form.append(input,submit);
   form.addEventListener('submit',async event=>{
    event.preventDefault();
