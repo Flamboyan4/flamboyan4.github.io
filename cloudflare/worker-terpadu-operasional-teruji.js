@@ -2678,6 +2678,36 @@ async function ownPayments(db, memberId) {
 }
 __name(ownPayments, "ownPayments");
 
+/* Read-only monthly dues for the signed-in resident. Payments are grouped by
+   due month (allocation period), not transaction date or RT cash report cycle. */
+async function f4MemberPortalDues(db, memberId, requestedMonth) {
+  const period = requestedMonth || f4CurrentIuranMonth().slice(0,7);
+  if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(period))return safeError("Bulan tidak valid (YYYY-MM).",400);
+  const payers=await db.prepare("SELECT id FROM bookkeeping_payers WHERE member_id=? AND payer_type='warga' AND active=1 LIMIT 2").bind(memberId).all();
+  if((payers.results||[]).length>1)return safeError("Akun terhubung ke lebih dari satu pembayar. Hubungi pengurus.",409);
+  const payerId=payers.results?.[0]?.id;
+  if(!payerId)return json({ok:true,linked:false,configured:false,period,components:[],readOnly:true});
+  const year=Number(period.slice(0,4)),month=Number(period.slice(5,7));
+  const obligation=await f4PeriodObligation(db,payerId,year,month);
+  if(!obligation)return json({ok:true,linked:true,configured:false,period,components:[],readOnly:true});
+  let tariffs;
+  try{tariffs=await getIuranTariffs(db)}
+  catch{return safeError("Tarif iuran belum tersedia.",503)}
+  const due=f4IuranAmounts(obligation,tariffs);
+  const posted=await db.prepare("SELECT a.contribution_type AS jenis,COALESCE(SUM(a.amount_rp),0) AS jumlah FROM bookkeeping_payment_allocations a JOIN bookkeeping_payments p ON p.id=a.payment_id WHERE a.payer_id=? AND a.period_year=? AND a.period_month=? AND a.status='aktif' AND p.status='aktif' GROUP BY a.contribution_type").bind(payerId,year,month).all();
+  const paid=Object.fromEntries((posted.results||[]).map(row=>[row.jenis,Number(row.jumlah)||0]));
+  const components=Object.entries(due).map(([jenis,expected])=>{
+    const wajibRp=Math.max(0,Number(expected)||0);
+    const terbayarRp=Math.max(0,paid[jenis]||0);
+    return {jenis,wajibRp,terbayarRp,sisaRp:Math.max(0,wajibRp-terbayarRp)};
+  });
+  return json({ok:true,linked:true,configured:true,period,components,readOnly:true,
+    totalWajibRp:components.reduce((s,row)=>s+row.wajibRp,0),
+    totalTerbayarRp:components.reduce((s,row)=>s+row.terbayarRp,0),
+    totalSisaRp:components.reduce((s,row)=>s+row.sisaRp,0)});
+}
+__name(f4MemberPortalDues,"f4MemberPortalDues");
+
 /* Personal finance: the payer identity is always derived from the authenticated
    session member_id. Never accept payerId from the browser. */
 async function f4MemberPortalFinance(db, memberId, kind) {
@@ -6724,6 +6754,11 @@ async function handle(request, env) {
         ? "Total dari seluruh D1, tetapi rincian dibatasi 1500 baris. Cetak rincian harus menggunakan paginasi."
         : "Laporan arus transaksi kas yang tercatat, bukan saldo keseluruhan atau laporan tutup buku."
     });
+  }
+  if (path === "/api/member/dues" && request.method === "GET") {
+    const denied=requireRole(who,["anggota","admin","superadmin"]);if(denied)return denied;
+    if(!who.member_id)return safeError("Akun belum terhubung ke data warga.",403);
+    return f4MemberPortalDues(env.DB,who.member_id,url.searchParams.get("month")||"");
   }
   if (request.method === "GET" && ["/api/member/payments","/api/member/arisan","/api/member/fines","/api/member/loans"].includes(path)) {
     const denied=requireRole(who,["anggota","admin","superadmin"]);if(denied)return denied;
