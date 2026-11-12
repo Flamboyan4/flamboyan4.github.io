@@ -39,6 +39,7 @@
 .f4g-row.end{justify-content:flex-end}
 .f4g-comment{display:flex;gap:9px;padding:10px 0;border-bottom:1px solid #f0edf5}
 .f4g-comment-avatar{display:grid;place-items:center;width:30px;height:30px;flex:none;background:#f0eafb;color:#6746b7;border-radius:50%;font:700 12px system-ui}
+.f4g-comment-avatar svg{display:block;width:16px;height:16px}
 .f4g-comment-main{min-width:0;flex:1}
 .f4g-comment-main b{display:block;font-size:12px;color:#373151}
 .f4g-comment-main p{margin:3px 0 0;color:#3d4455;white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.5 system-ui}
@@ -75,14 +76,9 @@
 
 /* Galeri Warga 2.0: satu pemilik gaya untuk halaman Dokumentasi (tanpa prioritas paksa). */
 #media-albums-section{padding:0;background:transparent;border:0;border-radius:0;box-shadow:none;overflow:visible}
-#media-albums-section .f4g-hero{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:12px 0 18px;min-height:0;background:transparent;color:#211c35;margin-bottom:8px}
+#media-albums-section .f4g-hero{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0 11px;min-height:0;background:transparent;color:#211c35;margin-bottom:4px}
 #media-albums-section .f4g-hero-copy{max-width:660px;min-width:0}
-#media-albums-section .f4g-hero-eyebrow{display:flex;gap:7px;align-items:center;font:750 10px/1.4 system-ui;letter-spacing:.08em;color:#704bc3}
-#media-albums-section .f4g-hero-eyebrow svg{width:16px;height:16px;flex:none}
-#media-albums-section .f4g-hero-title{font:800 clamp(20px,2vw,27px)/1.25 system-ui;letter-spacing:-.025em;color:#24203a;margin:6px 0}
-#media-albums-section .f4g-hero-desc{font:400 12px/1.5 system-ui;color:#77718b;max-width:560px;margin:0}
-#media-albums-section .f4g-hero-facts{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:9px}
-#media-albums-section .f4g-fact{border:1px solid #e9e2f5;background:#f8f6fc;padding:4px 9px;border-radius:50px;font:650 11px system-ui;color:#685b84}
+#media-albums-section .f4g-hero-title{font:800 clamp(20px,2vw,27px)/1.25 system-ui;letter-spacing:-.025em;color:#24203a;margin:0}
 #media-albums-section .f4g-top-actions{display:flex;gap:8px;flex-direction:row;align-items:center;flex-wrap:wrap;margin:0}
 #media-albums-section .f4g-top-actions .f4g-btn{border-color:#e2d9f4;background:#fff;color:#633db8;min-height:38px;padding:9px 12px;box-shadow:none;white-space:nowrap}
 #media-albums-section .f4g-top-actions .f4g-btn.primary{background:#6641bd;border-color:#6641bd;color:#fff}
@@ -92,9 +88,6 @@
 #media-albums-section .f4g-view-tabs .f4g-btn.selected{color:#5937b3}
 #media-albums-section .f4g-view-tabs .f4g-btn.selected::after{content:"";height:3px;border-radius:3px 3px 0 0;background:#6743cf;position:absolute;bottom:0;left:9px;right:9px}
 #media-albums-section .f4g-view-tabs .f4g-btn:hover{color:#5937b3}
-#media-albums-section .f4g-feed-heading{display:flex;justify-content:space-between;align-items:end;gap:9px;flex-wrap:wrap;margin:0 0 13px}
-#media-albums-section .f4g-feed-label{font:800 16px/1.4 system-ui;color:#302653}
-#media-albums-section .f4g-feed-description{font:12px system-ui;color:#827e93;margin:0}
 #media-albums-section .f4g-feed-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px}
 #media-albums-section .f4g-feed-card{position:relative;display:block;padding:0;aspect-ratio:1;border:0;min-width:0;overflow:hidden;background:#f1eef9;border-radius:0;box-shadow:none}
 #media-albums-section .f4g-feed-card img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .3s ease}
@@ -132,14 +125,10 @@
  #media-albums-section{padding:0}
  #media-albums-section .f4g-hero{min-height:0;display:block;padding:11px 0 13px;margin-bottom:6px}
  #media-albums-section .f4g-hero-title{font-size:20px;margin:5px 0}
- #media-albums-section .f4g-hero-desc{font-size:12px}
- #media-albums-section .f4g-hero-facts{margin-top:10px}
  #media-albums-section .f4g-top-actions{flex-direction:row;min-width:0;margin-top:10px}
  #media-albums-section .f4g-top-actions .f4g-btn{flex:1;min-height:39px;padding:8px 9px;font-size:11px;white-space:normal}
  #media-albums-section .f4g-view-tabs{margin-bottom:11px}
  #media-albums-section .f4g-view-tabs .f4g-btn{flex:1;font-size:12px;padding:11px 8px}
- #media-albums-section .f4g-feed-heading{display:block;margin-bottom:11px}
- #media-albums-section .f4g-feed-description{margin-top:2px}
  #media-albums-section .f4g-feed-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:2px}
  #media-albums-section .f4g-feed-card{border-radius:0}
  #media-albums-section .f4g-feed-card-caption{display:none}
