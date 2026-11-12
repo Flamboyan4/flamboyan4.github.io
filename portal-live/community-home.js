@@ -40,7 +40,12 @@ function render(){
  const unique=[];const seen=new Set();
  for(const x of all){if(!x.albumId||seen.has(x.albumId))continue;seen.add(x.albumId);unique.push(x);if(unique.length>=3)break}
  grid.replaceChildren(...unique.map(card));
- section.hidden=!unique.length;
+ if(!unique.length){
+  const empty=el('div','f4g-home-empty');
+  empty.append(el('strong','','Belum ada unggahan foto warga.'),el('span','','Foto dan album yang dibagikan warga akan muncul di sini.'));
+  const link=el('a','','Buka Dokumentasi');link.href='/dokumentasi/';empty.append(link);grid.append(empty);
+ }
+ section.hidden=false;
  latest.setAttribute('aria-selected',String(mode==='terbaru'));
  popular.setAttribute('aria-selected',String(mode==='populer'));
 }
