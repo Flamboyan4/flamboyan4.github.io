@@ -51,8 +51,8 @@ const signedIn=async()=>{
  return who;
 };
 let popupSequence=0;
-function popup(title,wide=false){
- const shade=elem('div','f4g-overlay');shade.setAttribute('role','presentation');
+function popup(title,wide=false,commentSheet=false){
+ const shade=elem('div','f4g-overlay'+(commentSheet?' f4g-comment-overlay':''));shade.setAttribute('role','presentation');
  const panel=elem('section','f4g-panel'+(wide?' wide':''));panel.setAttribute('role','dialog');
  panel.setAttribute('aria-modal','true');panel.setAttribute('aria-label',title);
  const head=elem('header','f4g-head'),strong=elem('strong','',title);
@@ -77,6 +77,15 @@ function popup(title,wide=false){
  head.append(strong,closeBtn);panel.append(head,body);shade.append(panel);
  shade.addEventListener('click',e=>{if(e.target===shade)close()});
  document.addEventListener('keydown',escapeKey);window.addEventListener('popstate',onBack);document.body.append(shade);
+ if(commentSheet){
+  let startY=null;
+  head.addEventListener('touchstart',e=>{startY=e.touches[0]?.clientY??null},{passive:true});
+  head.addEventListener('touchend',e=>{
+   const finish=e.changedTouches[0]?.clientY;
+   if(startY!==null&&finish!==undefined&&finish-startY>85)close();
+   startY=null;
+  },{passive:true});
+ }
  return {body,close,panel,head,onClose:fn=>cleanups.push(fn)};
 }
 
@@ -158,8 +167,8 @@ function socialButtons(host,target,isPhoto,onLoaded){
  .then(data=>{if(host.isConnected){updateSocial(data);onLoaded?.(data)}}).catch(()=>{like.disabled=true;comments.disabled=true});
 }
 async function openComments(target){
- const dlg=popup('Komentar '+(target.type==='album'?'Album':'Foto'));
- const comments=elem('div');dlg.body.append(comments);
+ const dlg=popup('Komentar '+(target.type==='album'?'Album':'Foto'),false,true);
+ const comments=elem('div','f4g-comment-list');dlg.body.append(comments);
  const form=elem('form','f4g-comment-form'),text=elem('textarea');
  text.placeholder='Tulis komentar untuk warga…';text.maxLength=500;
  const send=button('Kirim','arrow',null,'primary');send.type='submit';
