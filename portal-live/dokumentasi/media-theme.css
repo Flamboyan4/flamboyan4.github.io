@@ -123,11 +123,17 @@
 .f4p-photo-zoom[hidden]{display:none}
 .f4p-photo-head .f4p-close{color:#fff}
 .f4p-photo-head .f4p-close:hover{color:#d4c5ff}
-.f4p-photo-stage{display:flex;align-items:center;justify-content:center;gap:8px;
+.f4p-photo-stage{position:relative;display:flex;align-items:center;justify-content:center;gap:0;
  min-height:0;width:100%;height:min(79dvh,780px);flex:none}
-.f4p-photo-arrow{width:43px;height:43px;background:#273841;color:#fff;border-radius:50%}
-.f4p-photo-arrow:hover{background:#42546a}
-.f4p-photo-arrow[hidden]{visibility:hidden;display:inline-flex!important;pointer-events:none}
+.f4p-photo-arrow{position:absolute;top:50%;z-index:5;transform:translateY(-50%);
+ width:42px;height:42px;background:#191b24bd;color:#fff;border-radius:50%;
+ opacity:0;transition:opacity .18s ease,background .18s ease}
+.f4p-photo-arrow:first-child{left:clamp(6px,1.4vw,16px)}
+.f4p-photo-arrow:last-child{right:clamp(6px,1.4vw,16px)}
+.f4p-photo-arrow:hover{background:#494254d9}
+.f4p-photo-stage:is(:hover,:focus-within,.f4p-nav-visible)>.f4p-photo-arrow:not([hidden]){opacity:1}
+.f4p-photo-arrow:focus-visible{opacity:1;outline:2px solid #fff;outline-offset:2px}
+.f4p-photo-arrow[hidden]{display:none;pointer-events:none}
 .f4p-photo-content{display:flex;flex:1;align-items:center;justify-content:center;min-width:0;
  height:100%;min-height:0;overflow:hidden;overscroll-behavior:contain}
 .f4p-photo-content img.f4p-media-photo{
@@ -135,7 +141,27 @@
  max-width:100%;max-height:100%;object-fit:contain;object-position:center;
  border:0;margin:0;padding:0;touch-action:none;user-select:none;-webkit-user-drag:none;will-change:transform}
 .f4p-photo-content iframe,.f4p-photo-content video{display:block;max-width:100%;max-height:100%;
- width:min(100%,960px);height:100%;object-fit:contain;border:0;background:black}
+ width:100%;height:100%;object-fit:contain;border:0;background:black}
+.f4p-video-shell{position:relative;display:flex;align-items:center;justify-content:center;
+ width:100%;height:100%;min-height:0;min-width:0;overflow:hidden;background:#000;color:#fff}
+.f4p-video-shell>video.f4p-media-video{display:block;width:100%;height:100%;object-fit:contain;background:#000}
+.f4p-video-big-play{position:absolute;z-index:3;left:50%;top:50%;transform:translate(-50%,-50%);
+ width:58px;height:58px;display:grid;place-items:center;padding:0;border:0;border-radius:50%;
+ color:#fff;background:#1c1c24ac;cursor:pointer}
+.f4p-video-big-play svg{width:29px;height:29px}
+.f4p-video-big-play[hidden]{display:none}
+.f4p-video-controls{position:absolute;z-index:4;left:0;right:0;bottom:0;min-height:52px;
+ display:flex;align-items:center;gap:6px;padding:16px 11px 8px;box-sizing:border-box;
+ background:linear-gradient(transparent,#000b);opacity:1;transition:opacity .2s ease}
+.f4p-video-playing:not(.f4p-video-controls-visible):not(:focus-within) .f4p-video-controls{
+ opacity:0;pointer-events:none}
+.f4p-v-btn{display:grid;place-items:center;flex:none;width:35px;height:35px;
+ padding:0;border:0;background:transparent;color:#fff;cursor:pointer}
+.f4p-v-btn svg{width:20px;height:20px}
+.f4p-v-btn:focus-visible,.f4p-video-big-play:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.f4p-v-progress{flex:1;min-width:34px;height:4px;accent-color:#fff;cursor:pointer}
+.f4p-v-time{flex:none;font:500 11px/1 system-ui;color:#fff;white-space:nowrap;font-variant-numeric:tabular-nums}
+.f4p-media-open{color:#d7caff;text-underline-offset:3px}
 .f4p-photo-count{flex:none;text-align:center;font:400 12px system-ui;color:#b7c4c9;padding:7px 0}
 .f4p-media-error{font:500 13px system-ui;color:#f8f2ff}
 .f4p-album-overlay.f4p-under-photo{visibility:hidden;pointer-events:none}
@@ -146,6 +172,6 @@
  .f4p-album-grid{padding:12px;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:142px;gap:9px}
  .f4p-photo-overlay{padding:8px 5px calc(8px + env(safe-area-inset-bottom,0px));width:100vw;height:100dvh;max-height:100dvh;box-sizing:border-box}
  .f4p-photo-stage{height:auto;flex:1;min-height:0;gap:4px}
- .f4p-photo-arrow{width:34px;height:40px}
+ .f4p-photo-arrow{width:36px;height:40px}
  .f4p-photo-name{font-size:12px}
 }
