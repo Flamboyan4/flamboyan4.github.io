@@ -21,7 +21,6 @@
   '#f4-work-notice .f4-work-notice-panel',
   '#f4-resident-sheet .f4-resident-sheet-panel',
   '.f4-pm-shade .f4-pm-dialog',
-  '#keuangan .f4-user-year-popover',
   '#modal-event-detail > div','#modal-arisan > div',
   '#modal-cetak-kas > div','#modal-keuangan > div',
   '#modal-jersey > div','#modal-dokumentasi > div',
@@ -36,7 +35,7 @@
   '#credentialModal','.v24-edit-overlay','.f4-activity-dialog',
   '.f4-warga-picker-pop','.sa-account-shade','.f4-jersey-print-veil',
   '.tc-date-overlay','.f4-ui-dialog','#f4-work-notice',
-  '.f4-pm-shade','.f4-user-year-picker','.f4-resident-sheet-overlay',
+  '.f4-pm-shade','.f4-resident-sheet-overlay',
   '#modal-event-detail','#modal-arisan','#modal-cetak-kas',
   '#modal-keuangan','#modal-jersey','#modal-dokumentasi',
   '#modal-gallery-grid','#modal-saran','#modal-edit',
@@ -69,6 +68,8 @@
  function refresh(){
   refreshFrame=0;
   if(!grip||!media.matches){if(grip)grip.hidden=true;return;}
+  // The picker and year menu are nested controls, never draggable sheets.
+  if(document.querySelector('.f4-control-overlay')){grip.hidden=true;return;}
   // Never read panel geometry or overwrite the grip while a gesture is in flight.
   if(drag?.panel?.isConnected||animating?.panel?.isConnected)return;
   // Full-screen lightbox must have no drag control on top of the photo.
