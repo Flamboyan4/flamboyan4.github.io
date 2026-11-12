@@ -223,8 +223,8 @@ async def validate_suppression(browser):
     page = await context.new_page()
     try:
         await page.goto(HOST + "/dokumentasi/", wait_until="domcontentloaded", timeout=30000)
-        await page.locator(".media-album-card", has_text="Arisan Audit Browser").wait_for(timeout=25000)
         await page.locator("[data-gallery-view=albums]").click()
+        await page.locator(".media-album-card", has_text="Arisan Audit Browser").wait_for(timeout=25000)
         await page.locator(".media-album-card", has_text="Arisan Audit Browser").click()
         await page.wait_for_function("!!document.querySelector('.f4p-album-overlay:not([hidden])')")
         assert await page.locator(".f4p-album-overlay .f4p-album-tile").count() == 0, "Hidden Drive photo leaked into gallery"
