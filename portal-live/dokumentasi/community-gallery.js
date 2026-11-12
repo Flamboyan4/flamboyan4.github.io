@@ -485,13 +485,69 @@ document.addEventListener('f4:gallery:photo',e=>{
  photoTarget=target;
  const viewer=document.querySelector('.f4p-photo-overlay');
  if(!viewer)return;
- // Foto tetap penampil media layar penuh; komentar dibuka hanya saat tombol ditekan.
- viewer.classList.remove('f4g-social-enabled');
- viewer.querySelector('.f4g-photo-side')?.remove();
- let actions=viewer.querySelector(':scope > .f4g-photo-actions');
- if(!actions){actions=elem('div','f4g-photo-actions');viewer.append(actions);}
- if(target.id)socialButtons(actions,target,true);
- else actions.replaceChildren(button('Bagikan foto','share',()=>share(target)));
+ // Foto tampil penuh, tidak pernah dijadikan bottom sheet.
+ // Di PC komentar tetap disajikan di panel sebelah foto seperti Facebook;
+ // di HP panel ringkas menyatu dengan lightbox dan "Komentar" membuka sheet.
+ viewer.classList.add('f4g-social-enabled');
+ viewer.querySelector(':scope > .f4g-photo-actions')?.remove();
+ let side=viewer.querySelector(':scope > .f4g-photo-side');
+ if(!side){
+  side=elem('aside','f4g-photo-side');
+  side.setAttribute('aria-label','Detail foto dan interaksi warga');
+  const head=elem('div','f4g-photo-side-head');
+  const avatar=elem('span','f4g-photo-side-avatar');avatar.innerHTML=svg('images');
+  const names=elem('div','f4g-photo-side-titles');
+  names.append(elem('small','','DOKUMENTASI WARGA'),elem('strong','','Album'));
+  head.append(avatar,names);
+  const caption=elem('p','f4g-photo-side-caption');
+  const actions=elem('div','f4g-photo-actions');
+  const commentsSection=elem('div','f4g-photo-side-comments');
+  const title=elem('strong','f4g-photo-comment-title','Komentar Warga');
+  const list=elem('div','f4g-photo-comment-preview');
+  const all=button('Lihat semua komentar','comment',()=>openComments(photoTarget),'f4g-photo-all');
+  commentsSection.append(title,list,all);
+  const form=elem('form','f4g-photo-quick-form');
+  const input=elem('textarea');input.placeholder='Tulis komentar…';input.maxLength=500;input.rows=2;
+  const submit=button('Kirim','arrow',null,'primary');submit.type='submit';
+  form.append(input,submit);
+  form.addEventListener('submit',async event=>{
+   event.preventDefault();
+   const value=input.value.trim(),current=photoTarget;
+   if(!value||!current?.id)return;
+   try{
+    await signedIn();submit.disabled=true;
+    await post('/comment',{type:'photo',id:current.id,message:value});
+    input.value='';
+    if(photoTarget?.id===current.id){
+     document.dispatchEvent(new CustomEvent('f4:gallery:photo',{detail:current}));
+    }
+   }catch(error){if(user)notice(error.message)}
+   finally{submit.disabled=false}
+  });
+  side.append(head,caption,actions,commentsSection,form);
+  viewer.append(side);
+ }
+ side.querySelector('.f4g-photo-side-titles strong').textContent=target.title||'Dokumentasi';
+ side.querySelector('.f4g-photo-side-caption').textContent=target.caption||'Momen dari kegiatan warga Flamboyan 4.';
+ const preview=side.querySelector('.f4g-photo-comment-preview');
+ const renderPreview=data=>{
+  if(photoTarget?.id!==target.id||!preview.isConnected)return;
+  preview.replaceChildren();
+  const rows=data.comments||[];
+  if(!rows.length){
+   preview.append(elem('p','f4g-photo-no-comments','Belum ada komentar. Bagikan cerita pertama.'));
+  }else for(const item of rows.slice(0,2)){
+   const line=elem('p','f4g-photo-comment');
+   line.append(elem('b','',(item.author||item.nama||'Warga')+': '),document.createTextNode(item.message||''));
+   preview.append(line);
+  }
+ };
+ const actions=side.querySelector('.f4g-photo-actions');
+ if(target.id)socialButtons(actions,target,true,renderPreview);
+ else{
+  actions.replaceChildren(button('Bagikan','share',()=>share(target)));
+  renderPreview({comments:[]});
+ }
 });
 document.addEventListener('f4:auth-changed',()=>activeSession().then(mount));
 mount();
