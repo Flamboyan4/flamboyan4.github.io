@@ -216,8 +216,12 @@ async function imageBlob(file){
   return blob;
  }finally{bitmap.close()}
 }
-function uploadDialog(){
- const enabled=Boolean(window.f4GalleryCommunity?.uploadEnabled);
+async function uploadDialog(){
+ if(!window.f4GalleryCommunity){
+  try{window.f4GalleryCommunity=await get('')}
+  catch(e){notice('Koneksi galeri belum siap: '+e.message);return}
+ }
+ const enabled=Boolean(window.f4GalleryCommunity.uploadEnabled);
  const dlg=popup('Unggah Foto Warga');
  if(!enabled){
   dlg.body.append(elem('p','f4g-admin-note','Upload Google Drive belum tersambung. Pengelola perlu menyiapkan izin Google Drive terlebih dahulu. Galeri dan foto lama tetap dapat dilihat.'));
@@ -296,6 +300,8 @@ async function adminDialog(){
  try{await signedIn();if(user.role!=='superadmin'){notice('Fitur ini khusus superadmin.');return}}
  catch{return}
  const dlg=popup('Kelola Unggahan Warga',true),listBox=elem('div');
+ let changed=false;
+ dlg.onClose(()=>{if(changed)location.reload()});
  dlg.body.append(elem('p','f4g-admin-note','Unggahan langsung tampil. Anda dapat meninjau, memindahkan ke folder album lain, menyembunyikan, atau menghapus. Foto yang dihapus dipindahkan ke Sampah Google Drive.'));
  dlg.body.append(listBox);
  const load=async()=>{
@@ -317,7 +323,7 @@ async function adminDialog(){
     for(const a of allAlbums){const o=elem('option','',a.title);o.value=a.id;select.append(o)}
     select.value=p.albumId;
     const run=async(action,rest={})=>{
-     try{await post('/admin',{action,photoId:p.id,...rest});await load()}
+     try{await post('/admin',{action,photoId:p.id,...rest});changed=true;await load()}
      catch(e){notice(e.message)}
     };
     const move=button('Pindah','folder',()=>run('move_photo',{albumId:select.value}));
@@ -332,9 +338,9 @@ async function adminDialog(){
     const content=elem('div');content.append(elem('b','',a.title),elem('small','',a.status));
     const actions=elem('div','f4g-row');
     actions.append(button('Ubah Nama','folder',()=>renameAction(a.title,async renamed=>{
-     await post('/admin',{action:'rename_album',albumId:a.id,title:renamed});await load();
+     await post('/admin',{action:'rename_album',albumId:a.id,title:renamed});changed=true;await load();
     })),button('Arsipkan','trash',()=>confirmAction('Sembunyikan album ini beserta fotonya dari publik?',async()=>{
-     try{await post('/admin',{action:'delete_album',albumId:a.id});await load()}catch(e){notice(e.message)}
+     try{await post('/admin',{action:'delete_album',albumId:a.id});changed=true;await load()}catch(e){notice(e.message)}
     })));
     row.append(icon,content,actions);listBox.append(row);
    }
