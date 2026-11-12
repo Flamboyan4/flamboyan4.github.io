@@ -528,7 +528,9 @@ document.addEventListener('f4:gallery:photo',e=>{
   viewer.append(side);
  }
  side.querySelector('.f4g-photo-side-titles strong').textContent=target.title||'Dokumentasi';
- side.querySelector('.f4g-photo-side-caption').textContent=target.caption||'Momen dari kegiatan warga Flamboyan 4.';
+ const caption=String(target.caption||'').trim();
+ const fileLabel=/^(WhatsApp Image|IMG[_-]|DSC[_-]|PXL[_-]|VID[_-])/i.test(caption)||/\.(?:jpe?g|png|webp)$/i.test(caption);
+ side.querySelector('.f4g-photo-side-caption').textContent=caption&&!fileLabel?caption:(target.title||'Momen dari kegiatan warga Flamboyan 4.');
  const preview=side.querySelector('.f4g-photo-comment-preview');
  const renderPreview=data=>{
   if(photoTarget?.id!==target.id||!preview.isConnected)return;
