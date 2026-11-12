@@ -84,7 +84,8 @@ function pushLayer(layer){
 }
 function renderPhoto(){
  if(!photo||!items.length)return;
- const item=items[at];photo.querySelector('.f4p-photo-name').textContent=item.caption||albumTitle;
+ const item=items[at];
+ photo.querySelector('.f4p-photo-name').textContent=mediaContext==='gallery'?'Postingan · '+albumTitle:(item.caption||albumTitle);
  const view=photo.querySelector('.f4p-photo-content');view.replaceChildren();
  if(item.type==='video'){
   if(item.embed){const frame=node('iframe','f4p-media-frame');frame.src=item.embed;frame.title=item.caption||albumTitle;frame.allowFullscreen=true;frame.allow='autoplay; fullscreen';view.append(frame)}
