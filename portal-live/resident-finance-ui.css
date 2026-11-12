@@ -97,16 +97,6 @@
   display:flex;flex:1;flex-direction:column;min-width:0;min-height:0;
 }
 #keuangan .f4-resident-history-pane .f4-user-year-context {display:none}
-#keuangan .f4-resident-history-pane .f4-user-metrics {
-  display:flex;gap:9px;margin:1px 0 8px;flex:none;
-}
-#keuangan .f4-resident-history-pane .f4-user-metric {
-  flex:1;min-width:0;border:0;border-radius:8px;
-  background:#f7f8fc;padding:6px 8px;
-}
-#keuangan .f4-resident-history-pane .f4-user-metric:last-child {display:none}
-#keuangan .f4-resident-history-pane .f4-user-metric span {font-size:10px}
-#keuangan .f4-resident-history-pane .f4-user-metric strong {font-size:12px;margin:2px 0 0}
 #keuangan .f4-resident-history-pane .f4-user-list-heading {display:none}
 #keuangan .f4-resident-history-pane .f4-user-entries {
   min-height:0;flex:1;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
