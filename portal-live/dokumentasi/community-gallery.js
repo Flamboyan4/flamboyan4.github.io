@@ -531,5 +531,6 @@ document.addEventListener('f4:gallery:photo',e=>{
  else{actions.replaceChildren(button('Bagikan foto','share',()=>share(target)));paint({comments:[]})}
 });
 document.addEventListener('f4:auth-changed',()=>activeSession().then(mount));
+mount();
 activeSession().then(mount);
 })();
