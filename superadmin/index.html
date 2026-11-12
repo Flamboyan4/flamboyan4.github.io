@@ -511,6 +511,11 @@ function renderTabs(){
    if(chosen)item.setAttribute('aria-current','page');
    moduleNav.append(item);
   }
+  if(group==='content'&&activeGroup.id==='publikasi'){
+   const galleryButton=button('Unggahan Warga',()=>location.assign('/dokumentasi/?kelola=1'));
+   galleryButton.title='Tinjau, pindahkan dan hapus foto warga';
+   moduleNav.append(galleryButton);
+  }
   tabs.after(moduleNav);
  }
 }
