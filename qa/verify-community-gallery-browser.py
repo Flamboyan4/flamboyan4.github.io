@@ -110,7 +110,7 @@ async def validate_documentation(browser, name, width, height):
         await page.locator("#media-albums-section .f4g-hero .f4g-top-actions").wait_for(timeout=25000)
         await page.wait_for_function("!!window.f4GalleryAlbums && window.f4GalleryAlbums().length>0", timeout=25000)
         await page.wait_for_timeout(350)
-        assert await page.locator(".f4g-hero-title").inner_text() == "Cerita & Momen Warga"
+        assert await page.locator(".f4g-hero-title").inner_text() == "Cerita Warga"
         assert await page.evaluate("getComputedStyle(document.getElementById('media-albums-section')).borderTopWidth") == "0px", "Outer album frame still present"
         cols = await page.locator("#f4g-feed-grid").evaluate("(e)=>getComputedStyle(e).gridTemplateColumns.split(' ').length")
         assert cols == 3, "Photo grid must show 3 columns"
