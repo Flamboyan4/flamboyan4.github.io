@@ -2473,9 +2473,70 @@ async function f4GalleryAdmin(req,env,who){
  return err("Aksi pengelolaan tidak dikenal.",400);
 }
 __name(f4GalleryAdmin,"f4GalleryAdmin");
+/* Video publik: alirkan byte Drive melalui Worker; tidak memuat iframe Google.
+   Hanya file video dalam album publik aktif yang boleh diakses. */
+async function f4GalleryVideoStream(req,env,url){
+ const segments=url.pathname.split("/");
+ const fileId=segments.length===6?segments[5]:"";
+ if(!/^[A-Za-z0-9_-]{15,110}$/.test(fileId))return err("Video tidak ditemukan.",404);
+ if(!["GET","HEAD"].includes(req.method))return err("Metode tidak didukung.",405);
+ const range=req.headers.get("range");
+ if(range&&(!/^bytes=(?:[0-9]+-[0-9]*|-[0-9]+)$/.test(range)||range.length>80))
+  return err("Rentang video tidak valid.",416);
+ if(!f4GalleryDriveReady(env))return err("Koneksi video belum tersedia.",503);
+ try{
+  const token=await f4GalleryDriveToken(env);
+  const fields="id,mimeType,parents,size,capabilities(canDownload),trashed";
+  const meta=await f4GalleryDriveRequest(token,"files/"+encodeURIComponent(fileId)+"?fields="+encodeURIComponent(fields)+"&supportsAllDrives=true");
+  if(meta.trashed||!String(meta.mimeType||"").startsWith("video/")||meta.capabilities?.canDownload===false)
+   return err("Video tidak tersedia.",404);
+  const parents=Array.isArray(meta.parents)?meta.parents.filter(p=>/^[A-Za-z0-9_-]{12,110}$/.test(p)):[];
+  let published=false;
+  for(const parent of parents){
+   const rows=await list(env.DB,"SELECT drive_url FROM portal_documentation WHERE active=1 AND visibility='publik' AND drive_url LIKE ? LIMIT 20",["%"+parent+"%"]);
+   if(rows.some(doc=>f4GalleryFolder(doc.drive_url)===parent)){published=true;break;}
+  }
+  if(!published)return err("Video tidak tersedia dalam album publik.",404);
+  const allowedMime=["video/mp4","video/webm","video/ogg","video/quicktime","video/x-m4v","video/3gpp","video/mpeg"];
+  const mime=allowedMime.includes(meta.mimeType)?meta.mimeType:"application/octet-stream";
+  const size=Number(meta.size||0);
+  const headers=new Headers({
+   "content-type":mime,
+   "accept-ranges":"bytes",
+   "cache-control":"public, max-age=900",
+   "x-content-type-options":"nosniff",
+   "cross-origin-resource-policy":"cross-origin",
+   "content-disposition":"inline"
+  });
+  if(req.method==="HEAD"){
+   if(Number.isSafeInteger(size)&&size>0)headers.set("content-length",String(size));
+   return new Response(null,{status:200,headers});
+  }
+  const upstreamHeaders=new Headers({"authorization":"Bearer "+token});
+  if(range)upstreamHeaders.set("range",range);
+  const media=await fetch("https://www.googleapis.com/drive/v3/files/"+encodeURIComponent(fileId)+"?alt=media&supportsAllDrives=true",{
+   method:"GET",headers:upstreamHeaders,redirect:"follow"
+  });
+  if(media.status===416){
+   const failureHeaders=new Headers({"cache-control":"no-store","accept-ranges":"bytes"});
+   if(size>0)failureHeaders.set("content-range","bytes */"+size);
+   return new Response(null,{status:416,headers:failureHeaders});
+  }
+  if(![200,206].includes(media.status)||!media.body)return err("Video sementara tidak dapat diputar.",502);
+  for(const name of ["content-range","content-length","etag"]){
+   const value=media.headers.get(name);
+   if(value)headers.set(name,value);
+  }
+  if(media.status===206&&!headers.has("content-range"))return err("Respons sebagian video tidak lengkap.",502);
+  // Streaming video besar: tidak pernah buffer semua byte di Worker.
+  return new Response(media.body,{status:media.status,headers});
+ }catch(_e){return err("Video belum bisa diputar. Coba lagi nanti.",502);}
+}
+__name(f4GalleryVideoStream,"f4GalleryVideoStream");
 async function f4GalleryApi(req,env,who,url){
  await f4GallerySchema(env.DB);
  const path=url.pathname,method=req.method;
+ if(path.startsWith("/api/v2/gallery/video/"))return f4GalleryVideoStream(req,env,url);
  if(path==="/api/v2/gallery"&&method==="GET")return f4GalleryPublic(env.DB,env);
  if(path==="/api/v2/gallery/social"&&method==="GET")return f4GallerySocial(env.DB,who,url);
  // Pemeriksaan Origin berlaku juga untuk aksi superadmin, sebelum jalur admin.
