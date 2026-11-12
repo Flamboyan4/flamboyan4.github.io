@@ -550,15 +550,18 @@ document.addEventListener('f4:gallery:photo',e=>{
  }
  side.querySelector('.f4g-photo-side-titles strong').textContent=target.title||'Dokumentasi';
  const caption=String(target.caption||'').trim();
- const fileLabel=/^(WhatsApp Image|IMG[_-]|DSC[_-]|PXL[_-]|VID[_-])/i.test(caption)||/\.(?:jpe?g|png|webp)$/i.test(caption);
- side.querySelector('.f4g-photo-side-caption').textContent=caption&&!fileLabel?caption:(target.title||'Momen dari kegiatan warga Flamboyan 4.');
+ const fileLabel=/^(WhatsApp (?:Image|Video)|IMG[_-]|DSC[_-]|PXL[_-]|VID[_-])/i.test(caption)||/\.(?:jpe?g|png|webp|mp4|mov|webm)$/i.test(caption);
+ const captionNode=side.querySelector('.f4g-photo-side-caption');
+ captionNode.textContent=caption&&!fileLabel?caption:'';
+ captionNode.hidden=!captionNode.textContent;
  const preview=side.querySelector('.f4g-photo-comment-preview');
  const renderPreview=data=>{
   if(photoTarget?.id!==target.id||!preview.isConnected)return;
   preview.replaceChildren();
   const rows=data.comments||[];
+  side.querySelector('.f4g-photo-side-comments')?.classList.toggle('f4g-no-comments',!rows.length);
   if(!rows.length){
-   preview.append(elem('p','f4g-photo-no-comments','Belum ada komentar. Bagikan cerita pertama.'));
+   preview.append(elem('p','f4g-photo-no-comments','Belum ada komentar.'));
   }else for(const item of rows.slice(0,2)){
    const line=elem('p','f4g-photo-comment');
    line.append(elem('b','',(item.author||item.nama||'Warga')+': '),document.createTextNode(item.message||''));
