@@ -2683,9 +2683,10 @@ __name(ownPayments, "ownPayments");
 async function f4MemberPortalDues(db, memberId, requestedMonth) {
   const period = requestedMonth || f4CurrentIuranMonth().slice(0,7);
   if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(period))return safeError("Bulan tidak valid (YYYY-MM).",400);
-  const payers=await db.prepare("SELECT id FROM bookkeeping_payers WHERE member_id=? AND payer_type='warga' AND active=1 LIMIT 2").bind(memberId).all();
+  const payers=await db.prepare("SELECT p.id,p.display_name AS nama,h.house_code AS rumah FROM bookkeeping_payers p JOIN households h ON h.id=p.household_id WHERE p.member_id=? AND p.payer_type='warga' AND p.active=1 LIMIT 2").bind(memberId).all();
   if((payers.results||[]).length>1)return safeError("Akun terhubung ke lebih dari satu pembayar. Hubungi pengurus.",409);
-  const payerId=payers.results?.[0]?.id;
+  const payer=payers.results?.[0];
+  const payerId=payer?.id;
   if(!payerId)return json({ok:true,linked:false,configured:false,period,components:[],readOnly:true});
   const year=Number(period.slice(0,4)),month=Number(period.slice(5,7));
   const obligation=await f4PeriodObligation(db,payerId,year,month);
@@ -2694,7 +2695,16 @@ async function f4MemberPortalDues(db, memberId, requestedMonth) {
   try{tariffs=await getIuranTariffs(db)}
   catch{return safeError("Tarif iuran belum tersedia.",503)}
   const due=f4IuranAmounts(obligation,tariffs);
-  const posted=await db.prepare("SELECT a.contribution_type AS jenis,COALESCE(SUM(a.amount_rp),0) AS jumlah FROM bookkeeping_payment_allocations a JOIN bookkeeping_payments p ON p.id=a.payment_id WHERE a.payer_id=? AND a.period_year=? AND a.period_month=? AND a.status='aktif' AND p.status='aktif' GROUP BY a.contribution_type").bind(payerId,year,month).all();
+  const [posted,recentPayment]=await Promise.all([
+    db.prepare("SELECT a.contribution_type AS jenis,COALESCE(SUM(a.amount_rp),0) AS jumlah FROM bookkeeping_payment_allocations a JOIN bookkeeping_payments p ON p.id=a.payment_id WHERE a.payer_id=? AND a.period_year=? AND a.period_month=? AND a.status='aktif' AND p.status='aktif' GROUP BY a.contribution_type").bind(payerId,year,month).all(),
+    db.prepare(`SELECT p.id,p.paid_on,p.payment_method,COALESCE(SUM(a.amount_rp),0) AS alokasi_rp
+       FROM bookkeeping_payment_allocations a
+       JOIN bookkeeping_payments p ON p.id=a.payment_id
+       WHERE a.payer_id=? AND a.period_year=? AND a.period_month=?
+         AND a.status='aktif' AND p.status='aktif' AND a.amount_rp>0
+       GROUP BY p.id,p.paid_on,p.payment_method
+       ORDER BY p.paid_on DESC,p.id DESC LIMIT 1`).bind(payerId,year,month).first()
+  ]);
   const paid=Object.fromEntries((posted.results||[]).map(row=>[row.jenis,Number(row.jumlah)||0]));
   const components=Object.entries(due).map(([jenis,expected])=>{
     const wajibRp=Math.max(0,Number(expected)||0);
@@ -2702,6 +2712,12 @@ async function f4MemberPortalDues(db, memberId, requestedMonth) {
     return {jenis,wajibRp,terbayarRp,sisaRp:Math.max(0,wajibRp-terbayarRp)};
   });
   return json({ok:true,linked:true,configured:true,period,components,readOnly:true,
+    nama:payer.nama,rumah:payer.rumah,
+    pembayaranTerakhir:recentPayment?{
+      id:recentPayment.id,tanggal:recentPayment.paid_on,
+      metode:recentPayment.payment_method||"",
+      alokasiPeriodeRp:Number(recentPayment.alokasi_rp||0)
+    }:null,
     totalWajibRp:components.reduce((s,row)=>s+row.wajibRp,0),
     totalTerbayarRp:components.reduce((s,row)=>s+row.terbayarRp,0),
     totalSisaRp:components.reduce((s,row)=>s+row.sisaRp,0)});
