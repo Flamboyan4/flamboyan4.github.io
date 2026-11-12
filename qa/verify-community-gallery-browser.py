@@ -41,7 +41,7 @@ SOCIAL = {"ok": True, "likes": 2, "liked": False,
 MOCK_POSTS = []
 TINY_PNG = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAEElEQVR4nGM44VYBRwzEcQB/EhhhaUt3dAAAAABJRU5ErkJggg==")
 
-async def make_context(browser, width, height, suppressed=False, upload_enabled=False):
+async def make_context(browser, width, height, suppressed=False, upload_enabled=False, no_new_photos=False):
     ctx = await browser.new_context(viewport={"width": width, "height": height},
                                     permissions=["clipboard-read", "clipboard-write"])
     async def api(route):
@@ -68,6 +68,10 @@ async def make_context(browser, width, height, suppressed=False, upload_enabled=
         elif re.search(r"/api/v2/gallery(?:\?|$)", url):
             data = dict(GALLERY)
             data["uploadEnabled"] = upload_enabled
+            if no_new_photos:
+                data["highlights"] = []
+                data["popular"] = []
+                data["photos"] = []
             if suppressed: data["suppressedDriveIds"] = [FILE_ID]
         elif "/api/v2/public/portal" in url:
             data = PORTAL
@@ -247,6 +251,24 @@ async def validate_home(browser):
     finally:
         await context.close()
 
+async def validate_legacy_home(browser):
+    """Read-only: existing Drive album appears even with zero new community uploads."""
+    context = await make_context(browser, 1365, 850, no_new_photos=True)
+    page = await context.new_page()
+    try:
+        await page.goto(HOST + "/", wait_until="domcontentloaded", timeout=30000)
+        await page.locator("#cerita-warga:not([hidden]) .f4g-home-card").first.wait_for(timeout=25000)
+        assert await page.locator("#f4g-home-grid .f4g-home-card").count() == 1, "Existing album not used on home"
+        card = page.locator("#f4g-home-grid .f4g-home-card").first
+        assert "Arisan Audit Browser" in await card.inner_text(), "Legacy album title missing"
+        href = await card.locator("a.f4g-home-photo").get_attribute("href")
+        assert "album=" + ALBUM_ID in href and "foto=gdrive" in href, "Legacy photo deep link invalid"
+        await page.locator("#f4g-home-popular").click()
+        assert await page.locator("#f4g-home-grid .f4g-home-card").count() == 1, "Popular tab hid older photos"
+        return {"legacyHome": True, "legacyDeepLink": True, "newUploadCount": 0}
+    finally:
+        await context.close()
+
 async def validate_suppression(browser):
     context = await make_context(browser, 1100, 830, suppressed=True)
     page = await context.new_page()
@@ -273,6 +295,7 @@ async def main():
                 results.append(await validate_documentation(browser, "pc", 1365, 820))
                 results.append(await validate_documentation(browser, "hp", 390, 844))
                 results.append(await validate_home(browser))
+                results.append(await validate_legacy_home(browser))
                 results.append(await validate_suppression(browser))
                 results.append(await validate_upload_with_mock_drive(browser))
             finally:
