@@ -5,7 +5,7 @@
 }
 #keuangan.f4-finance-personal-active .f4-user-finance-heading {margin:0 0 7px;padding:0 3px}
 #keuangan.f4-finance-personal-active .f4-user-finance-controls {
-  margin-bottom:0;padding:4px;background:#fff;border-color:#dfe4f0;
+  margin-bottom:14px;padding:4px;background:#fff;border-color:#dfe4f0;
 }
 /* Kas Warga: tab and cards use the same frameless outer structure as Kas Saya. */
 #keuangan:not(.f4-finance-personal-active) .f4-user-finance {
@@ -86,14 +86,113 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
 #keuangan .f4-cash-overview .f4-cash-date-control:focus-within {
   border-color:#8472ee;box-shadow:0 0 0 2px #ddd8ff;
 }
-#keuangan .f4-cash-overview #f4-cash-date-filter {
-  color:#44506c;background:transparent;border:0;outline:none;
-  min-width:0;width:123px;min-height:24px;padding:0;font-size:12px;
-  font-weight:650;cursor:pointer;
+#keuangan .f4-cash-overview .f4-cash-date-trigger {
+  display:flex;align-items:center;gap:7px;min-height:25px;
+  width:100%;padding:0;background:transparent;border:0;cursor:pointer;
+  color:#5544b5;font-size:12px;font-weight:750;
 }
-#keuangan .f4-cash-overview #f4-cash-date-filter::-webkit-calendar-picker-indicator {
-  cursor:pointer;opacity:.8;
+#keuangan .f4-cash-overview .f4-cash-date-trigger>span {
+  min-width:0;flex:1;text-align:left;white-space:nowrap;
 }
+#keuangan .f4-cash-overview .f4-cash-date-trigger svg {
+  flex:none;width:16px;height:16px;
+}
+#keuangan .f4-cash-overview .f4-cash-date-trigger svg:last-child {
+  width:14px;height:14px;
+}
+#keuangan .f4-cash-overview .f4-cash-date-trigger.has-date>span {
+  color:#2d3259;
+}
+/* Isolated calendar for Kas Warga — independent of native Firefox/Chrome pickers. */
+.f4-cash-calendar {
+  position:fixed;z-index:30001;width:326px;max-width:calc(100vw - 20px);
+  box-sizing:border-box;padding:14px;
+  border:1px solid #dcd7f2;border-radius:16px;
+  background:#fff;color:#2b3652;box-shadow:0 16px 48px rgba(41,35,92,.19);
+  font:13px/1.4 system-ui,-apple-system,Segoe UI,sans-serif;
+}
+.f4-cash-calendar * {box-sizing:border-box}
+.f4-cash-calendar button {border:0;background:transparent;color:inherit;cursor:pointer}
+.f4-cash-calendar select {font:inherit}
+.f4-cash-calendar :focus-visible {outline:2px solid #8b7df0;outline-offset:2px}
+.f4-cash-calendar-grip {display:none}
+.f4-cash-calendar-header {
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;margin-bottom:12px;
+}
+.f4-cash-calendar-header strong {font-size:14px;font-weight:850;color:#313454}
+.f4-cash-calendar-header button {
+  display:grid;place-items:center;width:30px;height:30px;
+  border-radius:9px;color:#69748b;
+}
+.f4-cash-calendar-header button:hover {background:#f3f1ff;color:#5848c5}
+.f4-cash-calendar-nav {
+  display:grid;grid-template-columns:32px minmax(0,1fr) 32px;
+  align-items:center;gap:7px;margin-bottom:10px;
+}
+.f4-cash-calendar-nav>button {
+  display:grid;place-items:center;width:32px;height:33px;
+  background:#f4f2ff;color:#5b4ac4;border-radius:9px;
+}
+.f4-cash-calendar-nav>button:hover {background:#e8e3ff}
+.f4-cash-calendar-selects {display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:7px}
+.f4-cash-calendar-selects select {
+  min-width:0;height:33px;padding:5px 6px;border:1px solid #e1def1;
+  border-radius:8px;background:#fff;color:#493f91;font-size:12px;font-weight:750;
+}
+.f4-cash-calendar-weekdays,.f4-cash-calendar-days {
+  display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;
+}
+.f4-cash-calendar-weekdays {margin-bottom:4px}
+.f4-cash-calendar-weekdays span {
+  display:grid;place-items:center;min-height:27px;
+  color:#7c849b;font-size:11px;font-weight:750;
+}
+.f4-cash-calendar-weekdays span:first-child {color:#d05e79}
+.f4-cash-calendar-day {
+  display:grid;place-items:center;min-width:0;min-height:35px;
+  padding:0;border-radius:9px;font-size:12px;font-weight:650;
+  font-variant-numeric:tabular-nums;
+}
+.f4-cash-calendar .f4-cash-calendar-day:hover {background:#efecff;color:#5340c5}
+.f4-cash-calendar .f4-cash-calendar-day.is-outside {color:#b0b6c5}
+.f4-cash-calendar .f4-cash-calendar-day.is-today {box-shadow:inset 0 0 0 1px #afa3fa}
+.f4-cash-calendar .f4-cash-calendar-day.is-selected {
+  background:#6451df;color:#fff;box-shadow:none;font-weight:800;
+}
+.f4-cash-calendar-footer {
+  display:flex;justify-content:space-between;gap:8px;
+  margin-top:12px;padding-top:11px;border-top:1px solid #ebeaf3;
+}
+.f4-cash-calendar-footer button {
+  min-height:33px;padding:7px 11px;border-radius:9px;
+  background:#f2efff;color:#5b49c2;font-size:12px;font-weight:750;
+}
+.f4-cash-calendar-footer button:last-child {background:#fff;border:1px solid #e1def1}
+.f4-cash-calendar-footer button:hover {background:#e6e0ff}
+.f4-cash-calendar-backdrop {display:none}
+@media(max-width:767px){
+  body.f4-cash-calendar-open {overflow:hidden}
+  .f4-cash-calendar-backdrop {
+    display:block;position:fixed;inset:0;z-index:30000;
+    background:rgba(21,24,45,.42);
+  }
+  .f4-cash-calendar.is-mobile {
+    left:0;right:0;top:auto;bottom:0;width:100%;max-width:none;
+    border-radius:20px 20px 0 0;
+    padding:19px 17px calc(18px + env(safe-area-inset-bottom,0px));
+    max-height:90dvh;overflow-y:auto;
+  }
+  .f4-cash-calendar-grip {
+    display:block;width:42px;height:5px;margin:-10px auto 14px;
+    border-radius:99px;background:#d5d6e2;
+  }
+  .f4-cash-calendar-header strong {font-size:17px}
+  .f4-cash-calendar-day {min-height:42px;font-size:14px}
+  .f4-cash-calendar-weekdays span {font-size:12px}
+  .f4-cash-calendar-footer button {min-height:40px;font-size:13px}
+}
+
 #keuangan .f4-cash-overview .f4-cash-clear-date {
   display:grid;place-items:center;flex:none;
   width:31px;height:35px;border-radius:9px;
@@ -133,7 +232,7 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
   #keuangan:not(.f4-finance-personal-active) .f4-cash-overview #f4-private-transactions {height:390px;max-height:390px;min-height:0}
   #keuangan .f4-cash-overview .f4-cash-table-toolbar {padding:9px 11px;gap:8px}
   #keuangan .f4-cash-overview .f4-cash-date-control {min-height:34px}
-  #keuangan .f4-cash-overview #f4-cash-date-filter {width:116px;font-size:11px}
+  #keuangan .f4-cash-overview .f4-cash-date-trigger {font-size:11px}
   #keuangan .f4-cash-overview .f4-cash-table-print {min-height:34px;padding:7px 10px}
   #keuangan .f4-cash-overview #f4-private-transactions table {min-width:0;table-layout:auto}
   #keuangan .f4-cash-overview #f4-private-transactions thead {display:none}
