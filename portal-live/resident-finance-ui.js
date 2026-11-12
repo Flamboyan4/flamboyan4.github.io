@@ -39,7 +39,7 @@ function enhance(personal){
  duesContent.setAttribute('aria-live','polite');
  dues.append(duesContent);
  const right=mk('section','f4-resident-right');
- right.innerHTML='<div class="f4-resident-status-heading"><div><h3>Status Pembayaran</h3><p id="f4-resident-period">Bulan berjalan</p></div><span id="f4-resident-badge" class="f4-resident-badge" role="status">Memuat</span></div>';
+ right.innerHTML='<div class="f4-resident-status-heading"><div><span class="f4-resident-ticket-brand">FLAMBOYAN 4</span><h3>Status Pembayaran</h3><p id="f4-resident-period">Bulan berjalan</p></div><span class="f4-resident-ticket-mark" aria-hidden="true">'+svg('check')+'</span></div>';
  const statusContent=mk('div','f4-resident-status-content','Memuat status pembayaran…');
  statusContent.id='f4-resident-status-content';
  statusContent.setAttribute('aria-live','polite');
@@ -56,7 +56,9 @@ function enhance(personal){
  pane.append(intro,tabs,data); // Preserve all original tab/filter click handlers.
  // PC has three independent cards; mobile keeps the status card visible
  // and moves the existing dues/history nodes into bottom sheets on demand.
- right.append(statusContent,actions);
+ const statusBand=mk('div','f4-resident-status-band');
+ statusBand.innerHTML='<span>Status</span><strong id="f4-resident-badge" class="f4-resident-badge" role="status">Memuat</strong>';
+ right.append(statusContent,statusBand,actions);
  layout.append(dues,right,pane);
  personal.replaceChildren(layout);
  const overlay=mk('div','f4-resident-sheet-overlay');
@@ -122,27 +124,56 @@ function writeDues(personal,data){
  const due=Math.max(0,Number(data.totalWajibRp)||0);
  const paid=Math.max(0,Number(data.totalTerbayarRp)||0);
  const remaining=Math.max(0,Number(data.totalSisaRp)||0);
- const primary=mk('div','f4-resident-payment-primary');
+ const receipt=mk('div','f4-resident-receipt-body');
+ const totalPaid=mk('div','f4-resident-receipt-total');
+ totalPaid.append(mk('span','','TOTAL DIBAYAR'),mk('strong','',money(paid)));
+ receipt.append(totalPaid);
  if(due===0){
-  badge.classList.add('is-neutral');badge.textContent='Tanpa tagihan';
-  primary.append(mk('strong','','Tidak ada kewajiban'),mk('span','','Periode ini'));
+  badge.classList.add('is-neutral');badge.textContent='TANPA TAGIHAN';
+  receipt.replaceChildren(mk('p','f4-resident-receipt-empty','Tidak ada kewajiban rutin untuk bulan ini.'));
  }else if(remaining===0){
-  badge.classList.add('is-paid');badge.textContent='Lunas';
-  primary.append(mk('strong','',money(due)),mk('span','','Telah dibayar'));
+  badge.classList.add('is-paid');badge.textContent='LUNAS';
  }else if(paid===0){
-  badge.classList.add('is-unpaid');badge.textContent='Belum bayar';
-  primary.append(mk('strong','',money(due)),mk('span','','Belum ada pembayaran'));
+  badge.classList.add('is-unpaid');badge.textContent='BELUM BAYAR';
+  receipt.append(mk('p','f4-resident-receipt-empty','Belum ada pembayaran yang tercatat.'));
  }else{
-  badge.classList.add('is-partial');badge.textContent='Kurang bayar';
-  primary.append(mk('div','f4-resident-payment-split'));
-  const split=primary.firstElementChild;
-  const left=mk('div','');
-  left.append(mk('span','','Sudah dibayar'),mk('strong','',money(paid)));
-  const right=mk('div','');
-  right.append(mk('span','','Kekurangan'),mk('strong','f4-resident-remaining',money(remaining)));
-  split.append(left,right);
+  badge.classList.add('is-partial');badge.textContent='KURANG BAYAR';
+  const missing=mk('div','f4-resident-receipt-due');
+  missing.append(mk('span','','Sisa kewajiban'),mk('strong','',money(remaining)));
+  receipt.append(missing);
  }
- status.append(primary);
+ if(due>0&&paid>0){
+  const details=mk('dl','f4-resident-receipt-details');
+  const info=(label,value)=>{
+   if(!value)return;
+   const row=mk('div','f4-resident-receipt-detail');
+   const title=mk('dt','',label);
+   const content=mk('dd','',String(value));
+   content.title=String(value);
+   row.append(title,content);
+   details.append(row);
+  };
+  const paidAt=data.pembayaranTerakhir;
+  const dateOf=value=>{
+   const match=String(value||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
+   if(!match)return String(value||'');
+   return new Date(Number(match[1]),Number(match[2])-1,Number(match[3])).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
+  };
+  info('Warga',data.nama);
+  info('Rumah',data.rumah);
+  if(paidAt){
+   info('Bayar terakhir',dateOf(paidAt.tanggal));
+   info('Metode',paidAt.metode||'Tidak tercatat');
+  }
+  receipt.append(details);
+  if(paidAt?.id){
+   const receiptId=mk('div','f4-resident-receipt-id');
+   receiptId.append(mk('span','','Transaksi terakhir'),mk('span','',String(paidAt.id)));
+   receiptId.lastElementChild.title=String(paidAt.id);
+   receipt.append(receiptId);
+  }
+ }
+ status.append(receipt);
 }
 async function loadDues(personal){
  const serial=++requestSerial;
