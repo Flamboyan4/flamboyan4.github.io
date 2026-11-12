@@ -83,6 +83,7 @@ async def make_context(browser, width, height, suppressed=False, upload_enabled=
                            "url": "https://drive.google.com/file/d/" + FILE_ID + "/view"}]}
         await route.fulfill(status=200, content_type="application/json",
                             body=json.dumps(data), headers={"access-control-allow-origin": "*"})
+    await ctx.route("https://lh3.googleusercontent.com/**", lambda route: route.fulfill(status=200, content_type="image/png", body=TINY_PNG))
     await ctx.route(GALLERY_API + "/**", api)
     await ctx.route("https://script.google.com/macros/s/**", drive)
     return ctx
@@ -93,9 +94,12 @@ async def validate_documentation(browser, name, width, height):
     try:
         response = await page.goto(HOST + "/dokumentasi/", wait_until="domcontentloaded", timeout=30000)
         assert response and response.status == 200, "Dokumentasi HTTP error"
-        await page.locator("#media-albums-section > .f4g-top-actions").wait_for(timeout=25000)
+        await page.locator("#media-albums-section .f4g-hero .f4g-top-actions").wait_for(timeout=25000)
         await page.wait_for_function("!!window.f4GalleryAlbums && window.f4GalleryAlbums().length>0", timeout=25000)
         await page.wait_for_timeout(350)
+        assert await page.locator(".f4g-hero-title").inner_text() == "Cerita & Momen Warga"
+        assert await page.locator("[data-gallery-view=feed]").get_attribute("aria-selected") == "true"
+        await page.locator("#f4g-feed-grid .f4g-feed-card").first.wait_for(timeout=25000)
         # Re-render due to gallery data and repeated auth events must never duplicate controls.
         await page.evaluate("""() => {
           document.dispatchEvent(new Event('f4:gallery:ready'));
@@ -103,13 +107,16 @@ async def validate_documentation(browser, name, width, height):
           document.dispatchEvent(new Event('f4:auth-changed'));
         }""")
         await page.wait_for_timeout(400)
-        assert await page.locator("#media-albums-section > .f4g-top-actions").count() == 1, "Duplicate action bars"
+        assert await page.locator("#media-albums-section .f4g-hero .f4g-top-actions").count() == 1, "Duplicate action bars"
         assert await page.get_by_role("button", name="Unggah Foto", exact=True).count() == 1, "Duplicate Upload buttons"
         assert await page.get_by_role("button", name="Kelola Unggahan", exact=True).count() == 1, "Duplicate Admin buttons"
         # Upload disabled until real Drive credentials exist; UI must explain instead of falsely saving.
         await page.get_by_role("button", name="Unggah Foto", exact=True).click()
         await page.locator(".f4g-overlay").wait_for()
-        assert "belum tersambung" in (await page.locator(".f4g-overlay").inner_text()).lower()
+        assert "belum terhubung" in (await page.locator(".f4g-overlay").inner_text()).lower()
+        assert await page.locator(".f4g-overlay .f4g-upload-layout").count() == 1
+        assert await page.locator(".f4g-overlay .f4g-upload-layout").locator('input[type="file"]').count() == 1
+        assert await page.locator(".f4g-overlay").get_by_role("button", name="Menunggu Koneksi Drive").is_disabled()
         assert await page.locator(".f4g-overlay").count() == 1
         await page.keyboard.press("Escape")
         await page.wait_for_function("document.querySelectorAll('.f4g-overlay').length===0")
@@ -120,12 +127,14 @@ async def validate_documentation(browser, name, width, height):
         await page.wait_for_function("document.querySelectorAll('.f4g-overlay').length===0")
         assert page.url.endswith("/dokumentasi/"), "Browser Back navigated out of Documentation"
         # Album and photo must remain accessible and show social actions once.
+        await page.locator("[data-gallery-view=albums]").click()
         await page.locator(".media-album-card", has_text="Arisan Audit Browser").click()
         await page.wait_for_function("!!document.querySelector('.f4p-album-overlay:not([hidden])')")
         assert await page.locator(".f4p-album-overlay .f4g-album-actions").count() == 1
         await page.locator(".f4p-album-overlay .f4p-album-tile").first.click()
         await page.wait_for_function("!!document.querySelector('.f4p-photo-overlay:not([hidden]) .f4g-photo-actions')")
         assert await page.locator(".f4p-photo-overlay .f4g-photo-actions").count() == 1
+        assert await page.locator(".f4p-photo-overlay .f4g-photo-side").count() == 1
         # Album and photo share must produce direct links that survive a fresh browser page.
         await page.locator(".f4p-photo-overlay .f4g-photo-actions").get_by_role("button", name="Bagikan foto").click()
         await page.wait_for_timeout(180)
@@ -158,6 +167,7 @@ async def validate_documentation(browser, name, width, height):
         await page.locator(".media-inventory-item", has_text="Dispenser Es").click()
         await page.wait_for_function("!!document.querySelector('.f4p-photo-overlay:not([hidden])')")
         assert await page.locator(".f4p-photo-overlay .f4g-photo-actions").count() == 0, "Inventory has gallery reactions"
+        assert await page.locator(".f4p-photo-overlay .f4g-photo-side").count() == 0, "Inventory retained gallery sidebar"
         await page.keyboard.press("Escape")
         await page.wait_for_timeout(150)
         await page.screenshot(path=str(AUDIT / ("gallery-" + name + ".png")), full_page=False)
@@ -214,6 +224,7 @@ async def validate_suppression(browser):
     try:
         await page.goto(HOST + "/dokumentasi/", wait_until="domcontentloaded", timeout=30000)
         await page.locator(".media-album-card", has_text="Arisan Audit Browser").wait_for(timeout=25000)
+        await page.locator("[data-gallery-view=albums]").click()
         await page.locator(".media-album-card", has_text="Arisan Audit Browser").click()
         await page.wait_for_function("!!document.querySelector('.f4p-album-overlay:not([hidden])')")
         assert await page.locator(".f4p-album-overlay .f4p-album-tile").count() == 0, "Hidden Drive photo leaked into gallery"
