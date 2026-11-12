@@ -43,6 +43,7 @@ TINY_PNG = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAEEl
 
 async def make_context(browser, width, height, suppressed=False, upload_enabled=False, no_new_photos=False):
     ctx = await browser.new_context(viewport={"width": width, "height": height},
+                                    has_touch=width<721,
                                     permissions=["clipboard-read", "clipboard-write"])
     async def api(route):
         url = route.request.url
@@ -154,7 +155,9 @@ async def validate_documentation(browser, name, width, height):
         geometry = await page.locator(".f4p-photo-overlay").evaluate("""e => {
           const stage=e.querySelector('.f4p-photo-stage').getBoundingClientRect();
           const side=e.querySelector('.f4g-photo-side').getBoundingClientRect();
+          const head=e.querySelector('.f4p-photo-head').getBoundingClientRect();
           return {stageLeft:stage.left,stageRight:stage.right,stageBottom:stage.bottom,
+                  headLeft:head.left,headRight:head.right,headTop:head.top,
                   sideLeft:side.left,sideTop:side.top,sideWidth:side.width,
                   sideBottom:side.bottom,sideHeight:side.height}
         }""")
@@ -165,6 +168,17 @@ async def validate_documentation(browser, name, width, height):
         else:
             assert geometry["sideLeft"] >= geometry["stageRight"]-4, "PC comments must appear beside photo"
             assert geometry["sideWidth"] >= 280, "PC comment panel too narrow"
+            assert abs(geometry["sideTop"]-geometry["headTop"]) <= 3, "PC comments must reach the top of the viewer"
+            assert geometry["headRight"] <= geometry["sideLeft"]+4, "PC close button must remain over photo"
+        if name == "hp":
+            await page.evaluate("""() => {
+                const stage = document.querySelector('.f4p-photo-overlay .f4p-photo-stage');
+                const start = new Touch({identifier:1,target:stage,clientX:300,clientY:325});
+                const end = new Touch({identifier:1,target:stage,clientX:70,clientY:329});
+                stage.dispatchEvent(new TouchEvent('touchstart',{bubbles:true,touches:[start],targetTouches:[start],changedTouches:[start]}));
+                stage.dispatchEvent(new TouchEvent('touchend',{bubbles:true,touches:[],targetTouches:[],changedTouches:[end]}));
+            }""")
+            assert "2 dari" in await page.locator(".f4p-photo-count").inner_text(), "Mobile swipe did not advance to next photo"
         await page.screenshot(path=str(AUDIT / ("photo-viewer-" + name + ".png")), full_page=False)
         # Album and photo share must produce direct links that survive a fresh browser page.
         await page.locator(".f4p-photo-overlay .f4g-photo-actions").get_by_role("button", name="Bagikan foto").click()
