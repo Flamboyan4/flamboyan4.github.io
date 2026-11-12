@@ -282,6 +282,11 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
     display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
     gap:10px;min-width:0;width:100%;
   }
+  /* Public visitors do not receive inactive private finance actions. */
+  body:not([data-preview-role]) #keuangan .f4-cash-mobile-actions,
+  body[data-preview-role="public"] #keuangan .f4-cash-mobile-actions {
+    display:none;
+  }
   #keuangan .f4-cash-mobile-actions button {
     display:flex;align-items:center;justify-content:center;gap:9px;
     min-width:0;min-height:45px;padding:10px 12px;
