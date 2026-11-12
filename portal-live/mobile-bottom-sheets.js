@@ -89,6 +89,9 @@
   grip.style.width=r.width+'px';
   grip.hidden=false;
   updateLabel(active);
+  // Keep the grip aligned while the sheet entrance animation is moving.
+  // Once the CSS animation ends there are no extra animation frames.
+  if(active.getAnimations?.({subtree:false}).some(animation=>animation.playState==='running'))requestRefresh();
  }
  function requestRefresh(){
   if(!refreshFrame)refreshFrame=requestAnimationFrame(refresh);
