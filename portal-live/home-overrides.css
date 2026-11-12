@@ -2,26 +2,7 @@
 
 /* Latest layout next to HTML so stylesheet version caching cannot mask it. */
 #projek #bs-step-img{opacity:1!important;filter:none!important}
-#f4-private-transactions tbody tr[hidden]{display:none!important}
-#f4-private-transactions>div:first-child{padding:10px 14px!important}
-#f4-private-transactions tbody td{line-height:1.28!important}
-@media(max-width:760px){
- #f4-private-transactions tbody tr{
-  display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
-  gap:2px 9px!important;padding:8px 12px!important;min-height:0!important;
-  margin:0!important;align-items:center!important;
- }
- #f4-private-transactions tbody tr td{padding:0!important;margin:0!important;line-height:1.27!important}
- #f4-private-transactions tbody tr td:nth-child(1){display:none}
- #f4-private-transactions tbody tr td:nth-child(2){grid-column:1!important;grid-row:2!important}
- #f4-private-transactions tbody tr td:nth-child(3){grid-column:1!important;grid-row:1!important}
- #f4-private-transactions tbody tr td:nth-child(4){display:none!important}
- #f4-private-transactions tbody tr td:nth-child(5){
-  grid-column:2!important;grid-row:1/3!important;
-  align-self:center!important;white-space:nowrap!important
- }
-}
-
+/* Transaction table responsive styles are owned by resident-finance-ui.css. */
 
 /* Former <style id="f4-finance-short-period-20261027">; order preserved. */
 
