@@ -236,6 +236,14 @@
         </div>
         </div>
 
+      <div class="f4-cash-mobile-actions" role="group" aria-label="Laporan Kas Warga">
+        <button type="button" class="f4-cash-mobile-detail" onclick="openModalKeuangan()">
+          <i data-lucide="list-filter" aria-hidden="true"></i><span>Rincian</span>
+        </button>
+        <button type="button" class="f4-cash-mobile-print" onclick="openModalCetakKas()">
+          <i data-lucide="printer" aria-hidden="true"></i><span>Cetak</span>
+        </button>
+      </div>
       <div id="f4-private-transactions" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
         <div class="f4-cash-table-toolbar">
           <span id="label-update-kas" class="f4-cash-last-update">Data Kas</span>
@@ -947,15 +955,15 @@
   </div>
 
   <!-- FLOATING ACTION BUTTON CONTAINER -->
-  <div class="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50 flex flex-col items-center space-y-3 pointer-events-none">
-    <button id="btn-scroll-top" onclick="scrollToTop()" class="bg-slate-800/95 hover:bg-indigo-600 text-white p-3 md:p-3.5 rounded-full shadow-2xl transition-all duration-300 opacity-0 pointer-events-none transform translate-y-4 hover:scale-110 group flex items-center justify-center border border-white/20 active:scale-95" title="Kembali Ke Atas">
+  <div id="f4-portal-float-actions" class="fixed bottom-6 right-6 flex flex-col items-center space-y-2 pointer-events-none" aria-label="Akses cepat">
+    <button id="btn-scroll-top" onclick="scrollToTop()" class="bg-slate-800/95 hover:bg-indigo-600 text-white rounded-full transition-all duration-300 opacity-0 pointer-events-none transform translate-y-4 group flex items-center justify-center" title="Kembali Ke Atas">
       <i data-lucide="arrow-up" class="w-5 h-5 md:w-6 md:h-6"></i>
       <span class="absolute right-full mr-3 bg-slate-800 text-white text-xs font-semibold px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
         Ke Atas
       </span>
     </button>
 
-    <button onclick="openModalSaran()" class="bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-2xl hover:shadow-indigo-500/50 transition-all transform hover:scale-110 group flex items-center justify-center pointer-events-auto active:scale-95">
+    <button id="f4-portal-float-saran" onclick="openModalSaran()" class="bg-indigo-600 hover:bg-indigo-700 text-white rounded-full transition-all group flex items-center justify-center pointer-events-auto" title="Kirim saran" aria-label="Kirim saran">
       <i data-lucide="message-square-plus" class="w-6 h-6 md:w-7 md:h-7"></i>
       <span class="absolute right-full mr-3 bg-slate-800 text-white text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
         Kirim Saran
