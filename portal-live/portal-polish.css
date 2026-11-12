@@ -1,29 +1,8 @@
 /* Flamboyan 4 — white-first polish for Portal Utama, reports, meetings and media. */
 :root{--f4-polish-border:#e2e8f0;--f4-polish-ink:#1e293b}
-#keuangan{margin-top:18px}
-#keuangan>div:first-child{margin-bottom:14px!important;gap:10px}
-#keuangan>div:first-child h3,#projek>div:first-child h3{letter-spacing:-.5px!important}
-#keuangan>div.grid{gap:var(--f4-grid-gap,16px);margin-bottom:17px;align-items:stretch}
-#card-pemasukan,#card-pengeluaran,#keuangan>div.grid>div:nth-child(3){
- border-radius:18px;padding:19px;min-width:0;min-height:152px;
- transform:none;box-shadow:0 3px 15px rgba(30,47,77,.04)
-}
-#card-pemasukan,#card-pengeluaran{border-color:var(--f4-polish-border)!important;background:#fff!important}
-#keuangan #pemasukan-bulan-ini,#keuangan #pengeluaran-bulan-ini{font-size:clamp(22px,2.4vw,30px)!important;letter-spacing:-.6px!important}
-#keuangan>div.grid>div:nth-child(3){
- background:#f5f2ff!important;border:1px solid #e2dcfd!important;color:#39347d!important
-}
-#keuangan>div.grid>div:nth-child(3) p,#keuangan>div.grid>div:nth-child(3) span{
- color:#4f4a92!important
-}
-#keuangan>div.grid>div:nth-child(3) #sisa-saldo{color:#36317a!important;font-size:clamp(25px,3vw,33px)!important}
-#keuangan>div.grid>div:nth-child(3) button{background:#ebe5fd!important;color:#6351ae!important}
-#keuangan>div.grid>div:nth-child(3) .absolute.blur-2xl{display:none!important}
-#f4-private-transactions{border-color:var(--f4-polish-border)!important;border-radius:18px!important;box-shadow:0 3px 15px rgba(30,47,77,.035)!important}
-#f4-private-transactions>div:first-child{background:#fff!important;border-color:#eef0f4!important}
-#f4-private-transactions table{border-collapse:separate!important;border-spacing:0!important}
-#f4-private-transactions thead{background:#f5f6fa!important}
-#f4-private-transactions td,#f4-private-transactions th{vertical-align:middle!important;line-height:1.45!important}
+/* Finance layout and transaction styles are owned by resident-finance-ui.css.
+   Removed the former four-column and preview-only override layer. */
+#keuangan {margin-top:18px}
 #projek #bs-status-badge{border:0!important;border-radius:999px!important}
 #projek [id^=bs-step]{overflow-wrap:break-word!important}
 #projek #bs-step-img{opacity:1!important}
@@ -65,15 +44,6 @@ body[data-section-page=dokumentasi] .media-album-cover img{object-fit:cover!impo
 body[data-section-page=dokumentasi] .media-album-card:hover{border-color:#a898e5!important}
 body[data-section-page=dokumentasi] .media-search{border-radius:12px!important;background:#fff!important}
 @media(max-width:760px){
- #keuangan>div.grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
- #card-pemasukan,#card-pengeluaran,#keuangan>div.grid>div:nth-child(3){
-  padding:15px;min-height:135px;border-radius:15px
- }
- #keuangan>div.grid>div:nth-child(3){grid-column:1/-1!important;min-height:120px!important}
- #keuangan #pemasukan-bulan-ini,#keuangan #pengeluaran-bulan-ini{font-size:20px!important}
- #keuangan #sisa-saldo{font-size:27px!important}
- #keuangan>div:first-child{align-items:flex-start!important}
- /* Kas Warga table layout now owned by resident-finance-ui.css. */
  #container-grid-rapat{gap:10px!important}
  #container-grid-rapat>div>div:first-child,#container-grid-rapat>button>div:first-child{aspect-ratio:4/3!important;min-height:115px!important}
  #container-grid-rapat strong{font-size:12px!important;padding:10px!important}
@@ -83,7 +53,6 @@ body[data-section-page=dokumentasi] .media-search{border-radius:12px!important;b
  body[data-section-page=dokumentasi] .media-album-card{border-radius:14px!important}
  body[data-section-page=dokumentasi] .media-album-card .media-album-info{padding:10px!important}
 }
-@media print{#keuangan>div.grid>div:nth-child(3){background:#f2effa!important}}
 
 /* Protect document heading and section tabs from the floating utility bar. */
 body[data-section-page=dokumentasi] main.page-stack{
