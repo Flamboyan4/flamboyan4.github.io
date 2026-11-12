@@ -14,6 +14,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 HOST = "http://127.0.0.1:8766"
 FOLDER_ID = "1AbcDefGhijkLMnOPQrSTuvw"
 FILE_ID = "1XyZAudItPhotoBcdEfGhIJKL"
+FILE_ID_SECOND = "1XyZSecondPhotoBcdEfGhIJ"
 ALBUM_ID = "doc-audit-01"
 GALLERY_API = "https://api.flamboyan4.web.id"
 AUDIT = ROOT / "ops-audit"
@@ -84,8 +85,13 @@ async def make_context(browser, width, height, suppressed=False, upload_enabled=
                             headers={"access-control-allow-origin": HOST,
                                      "access-control-allow-credentials": "true"})
     async def drive(route):
-        data = {"files": [{"id": FILE_ID, "name": "Foto Audit.jpg", "type": "image/jpeg",
-                           "url": "https://drive.google.com/file/d/" + FILE_ID + "/view"}]}
+        files = [{"id": FILE_ID, "name": "Foto Audit.jpg", "type": "image/jpeg",
+                   "url": "https://drive.google.com/file/d/" + FILE_ID + "/view"}]
+        if width < 721:  # HP test needs two media to validate a real swipe.
+            files.append({"id": FILE_ID_SECOND, "name": "Foto Audit Kedua.jpg",
+                          "type": "image/jpeg",
+                          "url": "https://drive.google.com/file/d/" + FILE_ID_SECOND + "/view"})
+        data = {"files": files}
         await route.fulfill(status=200, content_type="application/json",
                             body=json.dumps(data), headers={"access-control-allow-origin": "*"})
     await ctx.route("https://lh3.googleusercontent.com/**", lambda route: route.fulfill(status=200, content_type="image/png", body=TINY_PNG))
