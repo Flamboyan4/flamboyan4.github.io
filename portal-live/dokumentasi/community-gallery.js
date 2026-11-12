@@ -228,10 +228,19 @@ async function uploadDialog(){
  const enabled=Boolean(window.f4GalleryCommunity.uploadEnabled);
  const dlg=popup('Unggah Foto Warga');
  if(!enabled){
-  dlg.body.append(elem('p','f4g-admin-note','Upload Google Drive belum tersambung. Pengelola perlu menyiapkan izin Google Drive terlebih dahulu. Galeri dan foto lama tetap dapat dilihat.'));
-  return;
+  const note=elem('div','f4g-upload-offline');
+  const mark=elem('span','f4g-upload-offline-icon');mark.innerHTML=svg('shield');
+  const copy=elem('div');
+  copy.append(elem('strong','','Penyimpanan Google Drive belum terhubung'),
+   elem('p','','Kamu tetap bisa memilih dan melihat pratinjau foto. Pengiriman belum tersedia sampai superadmin menghubungkan penyimpanan. Tidak ada foto yang dikirim sebelum itu.'));
+  note.append(mark,copy);dlg.body.append(note);
+  if(user?.role==='superadmin'){
+   const setup=elem('a','f4g-upload-help','Panduan menghubungkan Google Drive');
+   setup.href='https://github.com/Flamboyan4/flamboyan4.github.io/blob/main/docs/galeri-warga-google-drive.md';
+   setup.target='_blank';setup.rel='noopener noreferrer';dlg.body.append(setup);
+  }
  }
- dlg.body.append(elem('p','f4g-note','Pilih satu atau beberapa foto. Foto langsung tampil tanpa persetujuan, dan superadmin dapat merapikannya kemudian.'));
+ dlg.body.append(elem('p','f4g-note','Pilih satu atau beberapa foto, lalu tentukan album. Unggahan yang berhasil langsung tampil tanpa menunggu persetujuan.'));
  const drop=elem('div','f4g-drop');
  const icon=elem('span');icon.innerHTML=svg('upload');drop.append(icon,elem('strong','','Pilih foto dari perangkat'));
  const picker=elem('input');picker.type='file';picker.accept='image/jpeg,image/png,image/webp';picker.multiple=true;drop.append(picker);
@@ -249,8 +258,15 @@ async function uploadDialog(){
  dlg.body.append(newWrap);album.addEventListener('change',()=>newWrap.hidden=album.value!=='__new');
  const caption=field(dlg.body,'Keterangan foto (opsional)','textarea','Ceritakan momen kegiatan…');
  caption.maxLength=350;
+ const composer=elem('div','f4g-upload-layout');
+ const media=elem('div','f4g-upload-media'),settings=elem('div','f4g-upload-settings');
+ const section=elem('strong','f4g-upload-section-title','Foto yang dipilih');
+ media.append(section,drop,preview);
+ settings.append(elem('strong','f4g-upload-section-title','Detail unggahan'),album.parentElement,newWrap,caption.parentElement);
+ composer.append(media,settings);dlg.body.append(composer);
  const status=elem('p','f4g-status');status.hidden=true;dlg.body.append(status);
- const send=button('Unggah Foto','upload',null,'primary');send.disabled=true;dlg.body.append(send);
+ const send=button(enabled?'Unggah Foto':'Menunggu Koneksi Drive','upload',null,'primary');send.disabled=true;dlg.body.append(send);
+ if(!enabled)send.title='Unggah belum tersedia sampai Google Drive dihubungkan pengelola.';
  let files=[],urls=[];
  const update=()=>{
   urls.forEach(x=>URL.revokeObjectURL(x));urls=[];
@@ -261,10 +277,11 @@ async function uploadDialog(){
    const label=elem('figcaption','',file.name.slice(0,24));
    fig.append(img,label);preview.append(fig);
   });
-  send.disabled=files.length===0;send.querySelector('span:last-child').textContent='Unggah '+files.length+' Foto';
+  send.disabled=!enabled||files.length===0;send.querySelector('span:last-child').textContent=enabled?'Unggah '+files.length+' Foto':'Menunggu Koneksi Drive';
  };
  picker.addEventListener('change',update);
  send.addEventListener('click',async()=>{
+  if(!enabled){message(dlg.body,'Google Drive belum terhubung. Foto belum dikirim.',true);return}
   if(!files.length)return;
   if(!album.value){message(dlg.body,'Silakan pilih album tujuan.',true);return}
   send.disabled=true;picker.disabled=true;album.disabled=true;
