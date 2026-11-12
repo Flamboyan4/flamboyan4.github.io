@@ -71,6 +71,8 @@ jobs:
               assert isinstance(data.get('highlights'),list)
               assert isinstance(data.get('popular'),list)
               print('GALLERY_READ_OK albums=',len(data['albums']),'photos=',len(data['photos']),'driveConfigured=',bool(data.get('uploadEnabled')))
+              print('GALLERY_DRIVE_CONNECTION_STATUS', 'READY' if data.get('uploadEnabled') else 'NOT_CONFIGURED')
+              assert data.get('uploadEnabled') is True, 'New Cloudflare Google Drive secrets are not visible to production API'
               portal_req=urllib.request.Request('https://api.flamboyan4.web.id/api/v2/public/portal',headers={'Origin':'https://flamboyan4.web.id','Accept':'application/json','User-Agent':'F4-gallery-smoke/1.0'})
               with urllib.request.urlopen(portal_req,timeout=20) as portal_response:
                 portal_data=json.load(portal_response)
