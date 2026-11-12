@@ -14,11 +14,11 @@ const normalize=item=>{
  const type=/video|mp4|webm/i.test(String(item.type||item.mimeType||'')+' '+raw)?'video':'foto';
  const id=raw.match(/(?:\/d\/|[?&]id=|\/d\/)([A-Za-z0-9_-]{12,})/)?.[1];
  const yt=raw.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([\w-]{11})/i)?.[1];
- return {url:safe(raw),type,caption:String(item.caption||item.nama||'').slice(0,140),
+ return {url:safe(raw),type,id:String(item.id|| (id?'gdrive:'+id:'')).slice(0,190),albumId:String(item.albumId||'').slice(0,180),caption:String(item.caption||item.nama||'').slice(0,140),
   embed:type==='video'&&id&&/drive\.google\.com/.test(raw)?'https://drive.google.com/file/d/'+id+'/preview':
    type==='video'&&yt?'https://www.youtube-nocookie.com/embed/'+yt:null};
 };
-let album=null,photo=null,items=[],at=0,albumTitle='Dokumentasi',lastTile=null,closing=false;
+let album=null,photo=null,items=[],at=0,albumTitle='Dokumentasi',currentAlbumId='',lastTile=null,closing=false;
 const isOpen=el=>!!el&&!el.hidden;
 const show=(el,on)=>{
  if(!el)return;
@@ -94,6 +94,7 @@ function renderPhoto(){
  }
  photo.querySelector('.f4p-photo-count').textContent=(at+1)+' dari '+items.length;
  for(const b of photo.querySelectorAll('.f4p-photo-arrow'))b.hidden=items.length<2;
+ document.dispatchEvent(new CustomEvent('f4:gallery:photo',{detail:{id:item.id,albumId:currentAlbumId||item.albumId,title:albumTitle,caption:item.caption,url:item.url}}));
 }
 function shift(n){if(!items.length)return;at=(at+n+items.length)%items.length;renderPhoto()}
 function openPhoto(index=0){ensure();if(!items.length)return;at=Math.max(0,Math.min(index,items.length-1));renderPhoto();
@@ -102,13 +103,13 @@ function openPhoto(index=0){ensure();if(!items.length)return;at=Math.max(0,Math.
 }
 function openMediaViewer(title,records,index=0){
  ensure();items=(records||[]).map(normalize).filter(x=>x?.url);if(!items.length)return;
- albumTitle=title||'Dokumentasi';openPhoto(index);
+ albumTitle=title||'Dokumentasi';currentAlbumId='';openPhoto(index);
 }
 function openMediaGallery(title,records,opts={}){
  ensure();
  if(isOpen(photo))return;
  items=(records||[]).map(normalize).filter(x=>x?.url);
- albumTitle=title||'Dokumentasi';
+ albumTitle=title||'Dokumentasi';currentAlbumId=String(opts.albumId||'');
  album.querySelector('.f4p-album-title').textContent=albumTitle;
  album.querySelector('.f4p-album-count').textContent=items.length+' media';
  const grid=album.querySelector('.f4p-album-grid');grid.replaceChildren();
@@ -123,7 +124,8 @@ function openMediaGallery(title,records,opts={}){
   grid.append(button);
  });
  if(!isOpen(album)){pushLayer('album');show(album,true)}
+ document.dispatchEvent(new CustomEvent('f4:gallery:album',{detail:{id:currentAlbumId,title:albumTitle}}));
  album.querySelector('.f4p-close')?.focus({preventScroll:true});
 }
-window.f4MediaGallery={openMediaViewer,openMediaGallery};
+window.f4MediaGallery={openMediaViewer,openMediaGallery,openPhotoById:(id)=>{const n=items.findIndex(x=>x.id===id);if(n>=0)openPhoto(n);return n>=0;}};
 })();
