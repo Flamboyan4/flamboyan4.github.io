@@ -2269,9 +2269,10 @@ async function f4GalleryCheckTarget(db,type,id){
 }
 __name(f4GalleryCheckTarget,"f4GalleryCheckTarget");
 async function f4GalleryPublic(db,env){
- const [albums,photos]=await Promise.all([
+ const [albums,photos,suppressed]=await Promise.all([
   list(db,"SELECT id,title,description,drive_folder_id AS folder,created_at AS date FROM f4_gallery_albums WHERE status='aktif' ORDER BY created_at DESC LIMIT 150"),
-  list(db,"SELECT p.id,p.album_ref AS albumId,p.drive_file_id AS driveId,p.caption,p.created_at AS date,p.status,p.uploader_id AS uploaderId,COALESCE(pro.display_name,m.display_name,a.username,'Warga') AS uploader FROM f4_gallery_photos p LEFT JOIN accounts a ON a.id=p.uploader_id LEFT JOIN members m ON m.id=a.member_id LEFT JOIN member_account_profiles pro ON pro.account_id=a.id WHERE p.status IN ('baru','ditinjau') ORDER BY p.created_at DESC LIMIT 500")
+  list(db,"SELECT p.id,p.album_ref AS albumId,p.drive_file_id AS driveId,p.caption,p.created_at AS date,p.status,COALESCE(pro.display_name,m.display_name,a.username,'Warga') AS uploader FROM f4_gallery_photos p LEFT JOIN accounts a ON a.id=p.uploader_id LEFT JOIN members m ON m.id=a.member_id LEFT JOIN member_account_profiles pro ON pro.account_id=a.id WHERE p.status IN ('baru','ditinjau') ORDER BY p.created_at DESC LIMIT 500"),
+  list(db,"SELECT drive_file_id AS id FROM f4_gallery_photos WHERE status NOT IN ('baru','ditinjau') LIMIT 3000")
  ]);
  const data=photos.map(p=>({...p,url:f4GalleryImageUrl(p.driveId)}));
  const highlights=[];
@@ -2288,7 +2289,7 @@ async function f4GalleryPublic(db,env){
   const comments=fromLatest?.comments||await list(db,"SELECT c.message,COALESCE(pro.display_name,m.display_name,a.username,'Warga') AS nama FROM f4_gallery_comments c LEFT JOIN accounts a ON a.id=c.account_id LEFT JOIN members m ON m.id=a.member_id LEFT JOIN member_account_profiles pro ON pro.account_id=a.id WHERE c.target_type='photo' AND c.target_id=? AND c.status='aktif' ORDER BY c.created_at DESC LIMIT 2",[p.id]);
   popular.push({...p,likes:Number(row.likes||0),commentCount:Number(row.commentCount||0),comments});
  }
- return ok({albums,photos:data,highlights,popular,uploadEnabled:f4GalleryDriveReady(env),maxFiles:12,maxFileMb:5});
+ return ok({albums,photos:data,highlights,popular,suppressedDriveIds:suppressed.map(x=>x.id),uploadEnabled:f4GalleryDriveReady(env),maxFiles:12,maxFileMb:5});
 }
 __name(f4GalleryPublic,"f4GalleryPublic");
 async function f4GallerySocial(db,who,url){
@@ -2297,7 +2298,7 @@ async function f4GallerySocial(db,who,url){
  const [likes,liked,comments]=await Promise.all([
   one(db,"SELECT COUNT(*) AS n FROM f4_gallery_reactions WHERE target_type=? AND target_id=?",[type,id]),
   who?one(db,"SELECT 1 AS yes FROM f4_gallery_reactions WHERE target_type=? AND target_id=? AND account_id=?",[type,id,who.id]):null,
-  list(db,"SELECT c.id,c.message,c.created_at AS date,COALESCE(pro.display_name,m.display_name,a.username,'Warga') AS author,c.account_id AS authorId FROM f4_gallery_comments c LEFT JOIN accounts a ON a.id=c.account_id LEFT JOIN members m ON m.id=a.member_id LEFT JOIN member_account_profiles pro ON pro.account_id=a.id WHERE c.target_type=? AND c.target_id=? AND c.status='aktif' ORDER BY c.created_at DESC,c.id DESC LIMIT 40",[type,id])
+  list(db,"SELECT c.id,c.message,c.created_at AS date,COALESCE(pro.display_name,m.display_name,a.username,'Warga') AS author FROM f4_gallery_comments c LEFT JOIN accounts a ON a.id=c.account_id LEFT JOIN members m ON m.id=a.member_id LEFT JOIN member_account_profiles pro ON pro.account_id=a.id WHERE c.target_type=? AND c.target_id=? AND c.status='aktif' ORDER BY c.created_at DESC,c.id DESC LIMIT 40",[type,id])
  ]);
  return ok({likes:Number(likes?.n||0),liked:Boolean(liked),comments});
 }
@@ -2392,6 +2393,7 @@ async function f4GalleryAdmin(req,env,who){
  }
  const photo=await one(db,"SELECT * FROM f4_gallery_photos WHERE id=?",[photoId]);
  if(!photo)return err("Foto tidak ditemukan.",404);
+ if(photo.status==="dihapus")return err("Foto sudah dihapus dari Drive dan tidak dapat ditampilkan kembali.",409);
  if(action==="hide_photo"||action==="review_photo"){
   await db.prepare("UPDATE f4_gallery_photos SET status=? WHERE id=?").bind(action==="hide_photo"?"disembunyikan":"ditinjau",photoId).run();
   return ok({updated:true});
@@ -2423,7 +2425,7 @@ async function f4GalleryAdmin(req,env,who){
    const query="files/"+encodeURIComponent(photo.drive_file_id)+"?addParents="+encodeURIComponent(target)+"&removeParents="+encodeURIComponent(photo.drive_folder_id)+"&fields=id,parents";
    await f4GalleryDriveRequest(token,query,{method:"PATCH"});
   }
-  await db.prepare("UPDATE f4_gallery_photos SET album_ref=?,drive_folder_id=?,status='ditinjau' WHERE id=?")
+  await db.prepare("UPDATE f4_gallery_photos SET album_ref=?,drive_folder_id=? WHERE id=?")
    .bind(album.id,target,photoId).run();
   return ok({updated:true});
  }
@@ -2435,10 +2437,10 @@ async function f4GalleryApi(req,env,who,url){
  const path=url.pathname,method=req.method;
  if(path==="/api/v2/gallery"&&method==="GET")return f4GalleryPublic(env.DB,env);
  if(path==="/api/v2/gallery/social"&&method==="GET")return f4GallerySocial(env.DB,who,url);
+ // Pemeriksaan Origin berlaku juga untuk aksi superadmin, sebelum jalur admin.
+ if(method==="POST"&&!allowedOrigin(req,env))return err("Asal permintaan tidak diizinkan.",403);
  if(path==="/api/v2/gallery/admin"&&["GET","POST"].includes(method))return f4GalleryAdmin(req,env,who);
  if(!who||!["anggota","admin","superadmin"].includes(who.role))return err("Silakan masuk sebagai warga.",401);
- // Mutasi wajib berasal dari halaman Flamboyan 4, bukan situs pihak ketiga.
- if(method==="POST"&&!allowedOrigin(req,env))return err("Asal permintaan tidak diizinkan.",403);
  if(path==="/api/v2/gallery/upload"&&method==="POST")return f4GalleryUpload(req,env,who,url);
  if(path==="/api/v2/gallery/album"&&method==="POST"){
   let p;try{p=await body(req)}catch{return err("Format album tidak valid.",400)}
