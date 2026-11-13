@@ -166,6 +166,22 @@ $('login-form').addEventListener('submit',async event=>{
  }catch(e){$('login-error').textContent=e.message||'Login gagal.'}
  finally{submit.disabled=false}
 });
+$('change-password-form').addEventListener('submit',async event=>{
+ event.preventDefault();
+ const form=event.currentTarget,status=$('password-status');
+ const current=form.elements.currentPassword.value;
+ const next=form.elements.newPassword.value;
+ const confirm=form.elements.confirmPassword.value;
+ if(next!==confirm){status.textContent='Pengulangan password belum sama.';return}
+ const button=form.querySelector('[type=submit]');button.disabled=true;status.textContent='';
+ try{
+  await api('/api/auth/change-password',{method:'POST',headers:{'content-type':'application/json'},
+   body:JSON.stringify({currentPassword:current,newPassword:next})});
+  form.reset();$('username').value='';$('password').value='';
+  show('signin');$('login-error').textContent='Password berhasil diganti. Silakan login kembali.';
+ }catch(e){status.textContent=e.message||'Password belum berhasil diubah.'}
+ finally{button.disabled=false}
+});
 $('logout').addEventListener('click',async()=>{
  try{await api('/api/auth/logout',{method:'POST'})}catch{}
  $('username').value='';$('password').value='';
