@@ -991,7 +991,7 @@ async def admin_docs_back_and_cross_account(browser):
 
 
 async def public_portal_real_entry_smoke(browser):
-    """Load the actual unauthenticated Bank Sampah entry point and all its local assets."""
+    """Open the real guest page with the auth API unavailable; it must not stay on a spinner."""
     for device,width in [("pc",1366),("hp",390)]:
         page=await browser.new_page(viewport={"width":width,"height":850})
         exceptions=[]
@@ -1000,21 +1000,33 @@ async def public_portal_real_entry_smoke(browser):
         page.on("response",lambda res:failed_assets.append({"status":res.status,"url":res.url})
                 if res.status>=400 and res.url.startswith(ROOT+"/") and
                 ("/portal-live/" in res.url or "/assets/" in res.url) else None)
+        # Deterministically simulate the first auth request failing.
+        await page.route("**/api/v2/auth/session",lambda route:route.abort("failed"))
         await page.goto(ROOT+"/bank-sampah/?halaman=dashboard",wait_until="load",timeout=30000)
-        await page.wait_for_timeout(1100)
-        state=await page.evaluate("""() => ({
-          title:document.title,
-          publicRoot:!!document.querySelector('#v11Public'),
-          privateRoot:!!document.querySelector('#dashboardView'),
-          publicContent:!!document.querySelector('#v18PublicContent'),
-          textLength:document.body.innerText.length,
-          overflow:document.documentElement.scrollWidth>innerWidth+3,
-          cssLoaded:[...document.styleSheets].length,
-          scripts:[...document.scripts].filter(x=>x.src&&x.src.includes('/portal-live/')).length
-        })""")
+        await page.wait_for_function("!document.documentElement.classList.contains('f4-bank-auth-pending')",timeout=7000)
+        state=await page.evaluate("""() => {
+          const pub=document.querySelector('#v11Public');
+          const priv=document.querySelector('#dashboardView');
+          return {
+            title:document.title,
+            publicRoot:!!pub,privateRoot:!!priv,
+            publicContent:!!document.querySelector('#v18PublicContent'),
+            publicVisible:!!pub&&!pub.classList.contains('hidden')&&getComputedStyle(pub).display!=='none',
+            privateHidden:!!priv&&priv.classList.contains('hidden'),
+            startupGone:!document.documentElement.classList.contains('f4-bank-auth-pending'),
+            loginAvailable:!document.querySelector('#f4-direct-login')?.hidden,
+            textLength:document.body.innerText.length,
+            overflow:document.documentElement.scrollWidth>innerWidth+3,
+            cssLoaded:[...document.styleSheets].length,
+            scripts:[...document.scripts].filter(x=>x.src&&x.src.includes('/portal-live/')).length
+          };
+        }""")
         print("BANK_REAL_PUBLIC_BOOT",device,state,"JS_EXCEPTIONS",exceptions,"FAILED_ASSETS",failed_assets,flush=True)
+        assert state["title"]=="Bank Sampah Flamboyan 4",(device,state)
         assert state["publicRoot"] and state["privateRoot"] and state["publicContent"],(device,state)
-        assert state["textLength"]>50 and state["cssLoaded"]>5 and state["scripts"]>10,(device,state)
+        assert state["publicVisible"] and state["privateHidden"] and state["startupGone"],(device,state)
+        assert state["loginAvailable"],(device,state)
+        assert state["textLength"]>180 and state["cssLoaded"]>5 and state["scripts"]>10,(device,state)
         assert not state["overflow"],(device,state)
         assert not exceptions,(device,exceptions)
         assert not failed_assets,(device,failed_assets)
