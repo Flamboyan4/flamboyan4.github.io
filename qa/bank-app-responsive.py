@@ -116,6 +116,7 @@ async def member_layout(browser):
             outerBorder:getComputedStyle(root).borderTopWidth,
             parent:card.parentElement.id,cardBackground:getComputedStyle(card).backgroundImage,
             walletGradient:getComputedStyle(bal).backgroundImage,
+            walletBackground:getComputedStyle(bal).backgroundColor,
             walletAmountColor:getComputedStyle(bal.querySelector('strong')).color,
             walletButton:bal.querySelector('.f4-bank-balance-cta')?.textContent,
             contactless:!!card.querySelector('.f4-bank-atm-contactless svg'),
@@ -133,7 +134,7 @@ async def member_layout(browser):
         assert not result["overflow"] and result["pageRight"]<=width+3,(device,result)
         assert result["parent"]=="f4BankAppHome",(device,result)
         assert "linear-gradient(" in result["cardBackground"],(device,result)
-        assert "linear-gradient(" in result["walletGradient"] and "rgb(248, 252, 244)" in result["walletGradient"],(device,result)
+        assert result["walletGradient"]=="none" and result["walletBackground"]=="rgb(255, 255, 255)",(device,result)
         assert result["walletAmountColor"]=="rgb(7, 70, 46)",(device,result)
         assert result["walletButton"]=="Cek Tabungan",(device,result)
         assert result["contactless"] and result["chipWidth"]>=35,(device,result)
