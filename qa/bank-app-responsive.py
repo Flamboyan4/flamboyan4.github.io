@@ -1237,6 +1237,22 @@ async def main():
                     })(),
                     account:document.querySelector('#f4BankAppBalance').textContent,
                     quick:[...document.querySelectorAll('#f4BankAppHome button')].map(n=>n.textContent.trim()),
+                    heroBreakdown:{
+                      display:getComputedStyle(document.querySelector('#f4BankAdminHeroBreakdown')).display,
+                      values:[document.querySelector('#f4BankAdminHeroWarga')?.textContent,
+                        document.querySelector('#f4BankAdminHeroLingkungan')?.textContent]
+                    },
+                    actions:[...document.querySelectorAll('#f4BankAdminOperations .f4-bank-admin-operation')].map(n=>{
+                      const r=n.getBoundingClientRect();
+                      return {x:r.x,y:r.y,w:r.width,h:r.height,bottom:r.bottom};
+                    }),
+                    membersTile:(()=>{
+                      const node=document.querySelector('#f4BankAppMinis .f4-bank-admin-members-link');
+                      const r=node?.getBoundingClientRect();
+                      return {tag:node?.tagName,route:node?.dataset.bankAppRoute,
+                        background:node?getComputedStyle(node).backgroundColor:null,
+                        x:r?.x,y:r?.y,w:r?.width,h:r?.height};
+                    })(),
                     overflow:document.documentElement.scrollWidth>window.innerWidth+3
                 };
             }""")
@@ -1255,7 +1271,15 @@ async def main():
                 assert state["metrics"]["x"]>=state["hero"]["right"]+8,state
                 assert abs(state["tiles"][0]["y"]-state["tiles"][2]["y"])<3,state
                 assert state["dock"]=="none",state
+                assert state["heroBreakdown"]["display"]=="none",state
             else:
+                assert state["heroBreakdown"]["display"]=="grid",state
+                assert state["heroBreakdown"]["values"]==["Rp 3.000","Rp 1.500"],state
+                assert len(state["actions"])==2 and abs(state["actions"][0]["y"]-state["actions"][1]["y"])<3,state
+                assert state["actions"][0]["y"]>=state["hero"]["y"]+state["hero"]["h"]-2,state
+                assert state["membersTile"]["tag"]=="BUTTON" and state["membersTile"]["route"]=="tabungan",state
+                assert state["membersTile"]["y"]>=state["actions"][0]["bottom"]-2,state
+                assert state["membersTile"]["background"]=="rgb(255, 255, 255)",state
                 assert state["metrics"]["y"]>=state["hero"]["y"]+state["hero"]["h"]-2,state
                 assert state["tiles"][2]["y"]>=state["tiles"][0]["y"],state
                 assert state["dock"]=="grid",state
