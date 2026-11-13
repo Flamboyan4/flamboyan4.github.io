@@ -201,8 +201,9 @@ function ensureHome(){
   house.append(el("small","","RUMAH"),el("strong","f4-bank-card-house","—"));
   identity.append(person,house);card.append(cardHead,center,identity);
   const savings=el("button","f4-bank-app-member-balance");savings.id="f4BankAppMemberBalance";savings.type="button";
-  savings.append(el("span","f4-bank-member-balance-label","Saldo terkonfirmasi"),
-    el("strong","f4-bank-member-balance-value","—"),bankIconSpan("f4-bank-member-chevron","chevron-right"));
+  savings.append(el("span","f4-bank-member-balance-label","Saldo Tersedia"),
+    el("strong","f4-bank-member-balance-value","—"),
+    el("span","f4-bank-balance-cta","Cek Tabungan"));
   savings.onclick=()=>navigate("pribadi");
   const hero=el("div","f4-bank-app-hero");hero.id="f4BankAppAdminHero";
   const heading=el("small","","BANK SAMPAH FLAMBOYAN 4"),label=el("strong","f4-bank-app-balance-title","Hasil diterima lapak"),
@@ -301,16 +302,19 @@ function arrangeMemberHomeLayout(hub){
  if(role!=="member"||!hub)return;
  const card=$("f4BankMemberCard"),balance=$("f4BankAppMemberBalance");
  if(!card||!balance)return;
- let hero=$("f4MemberHero");
- if(!hero){hero=el("section","f4-member-hero");hero.id="f4MemberHero";hero.setAttribute("aria-label","Kartu dan saldo anggota");hub.append(hero);}
- hero.append(card,balance);
+ // The ATM and wallet are separate sibling cards. There is NO green hero wrapper.
+ hub.append(card,balance);
+ $("f4MemberHero")?.remove();
  let quick=$("f4MemberQuickActions");
- if(!quick){quick=el("nav","f4-member-shortcuts");quick.id="f4MemberQuickActions";quick.setAttribute("aria-label","Akses cepat anggota");hub.append(quick);}
- const guide=memberQuickAction("f4MemberQuickGuide","Cara Setor","Panduan penimbangan","bank.svg","bank-deposit");
- const payout=memberQuickAction("f4MemberQuickPayout","Pencairan","Ajukan pencairan","pay.svg","bank-payout");
- const schedule=memberQuickAction("f4MemberQuickSchedule","Jadwal","Penimbangan berikutnya","calendar.svg","schedule");
- const price=$("f4MemberPriceShortcut");
- quick.replaceChildren(...[guide,payout,price,schedule].filter(Boolean));
+ if(!quick){
+  quick=el("section","f4-member-shortcuts");
+  quick.id="f4MemberQuickActions";
+  quick.setAttribute("aria-label","Jadwal penimbangan dan daftar harga");
+  hub.append(quick);
+ }
+ // Keep the real schedule and price nodes, not duplicate demo cards.
+ const weighing=$("f4BankWeighingSchedule"),price=$("f4MemberPriceShortcut");
+ quick.replaceChildren(...[weighing,price].filter(Boolean));
  let content=$("f4MemberContent");
  if(!content){content=el("div","f4-member-content");content.id="f4MemberContent";hub.append(content);}
  let aside=$("f4MemberAside");
@@ -318,10 +322,10 @@ function arrangeMemberHomeLayout(hub){
  const recent=$("v14Recent")?.closest(".v14-panel");
  if(recent)content.append(recent);
  content.append(aside);
- const weighing=$("f4BankWeighingSchedule"),flow=$("f4MemberFlow");
- if(weighing)aside.append(weighing);
+ const flow=$("f4MemberFlow");
  if(flow)aside.append(flow);
 }
+
 function dashboardMetrics(){
  const map=new Map();
  for(const node of $("v14Primary")?.querySelectorAll(".v14-kpi")||[]){
