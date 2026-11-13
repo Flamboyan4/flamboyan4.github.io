@@ -1,7 +1,7 @@
 name: Donatur Staging Cloudflare Readonly Check
 on:
   push:
-    branches: [fitur-donatur-terpadu-20261113]
+    branches: [donatur-akun-terpisah-aman-20261113]
     paths:
       - qa/donor_staging_preflight.py
       - .github/workflows/donor-staging-preflight.yml
