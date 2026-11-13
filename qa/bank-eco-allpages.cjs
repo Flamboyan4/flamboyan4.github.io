@@ -586,15 +586,17 @@ assert(mobile.includes('f4-bank-admin-operation-icon') &&
        mobile.includes('f4-bank-admin-operation-arrow'),
  'Admin primary task cards must include icon, copy and directional affordance');
 assert(css.includes('#f4BankAdminOperations .f4-bank-admin-operation-copy strong{') &&
-       css.includes('grid-template-columns:48px minmax(0,1fr) 28px;'),
- 'Admin primary task cards no longer use the canonical focal layout');
+       css.includes('display:flex;flex-direction:column;align-items:center;justify-content:center;') &&
+       !css.includes('grid-template-columns:48px minmax(0,1fr) 28px;'),
+ 'PC and HP Setoran/Penjualan must share the clean centered app action tiles');
 assert(css.includes('#dashboardView .section :is(#saleForm,#setoranForm)>.f4-entry-right{') &&
        h.includes('class="f4-setoran-side"') &&
        h.includes('class="f4-sale-main"') &&
        h.includes('class="f4-sale-side"') &&
-       css.includes('grid-column:1;grid-row:1;align-self:start') &&
+       css.includes('grid-column:1;grid-row:2;align-self:start') &&
+       css.includes('grid-column:1/-1;grid-row:1;') &&
        !css.includes('grid-row:1 / span 2;align-self:start'),
- 'PC Sale and Setoran entry panels must remain independent of right-side controls');
+ 'PC Setoran and Penjualan must put metadata on top and goods beside totals');
 /* Catch malformed inline CSS or JavaScript introduced by stylesheet consolidation.
    Inspect ALL styles and scripts actually referenced by the Bank Sampah entrypoint. */
 function assertBalancedCss(text,label){
