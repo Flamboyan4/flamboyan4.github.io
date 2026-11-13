@@ -1668,7 +1668,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
   background:transparent;color:#5a471c;box-shadow:none
  }
  body.f4-bank-app-member .f4-bank-app-dock-action.is-primary .f4-bank-app-action-icon{
-  position:absolute;left:50%;bottom:21px;
+  position:absolute;left:50%;bottom:29px;
   display:grid;place-items:center;
   width:52px;height:54px;min-width:52px;min-height:54px;
   padding:0;border:0;border-radius:13px;
@@ -1683,7 +1683,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
   letter-spacing:-2px;fill:#fff;stroke:none
  }
  body.f4-bank-app-member .f4-bank-app-dock-action.is-primary .f4-bank-app-action-name{
-  position:absolute;left:0;right:0;bottom:6px;
+  position:absolute;left:0;right:0;bottom:13px;
   display:block;width:100%;color:#594719;
   font-size:11px;font-weight:850;line-height:1.2;text-align:center
  }
