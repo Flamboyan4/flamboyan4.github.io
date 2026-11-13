@@ -2350,9 +2350,9 @@ function updateProfileCard(){
  if(!$("f4BankProfileDetail")){
   const wrapper=el("section","f4-bank-profile-detail");wrapper.id="f4BankProfileDetail";
   wrapper.append(el("h3","","Detail Kartu Anggota"));
-  const copy=card.cloneNode(true);
-  copy.removeAttribute("id");copy.classList.add("f4-bank-profile-card");
-  copy.type="button";copy.onclick=null;copy.tabIndex=-1;
+  // Share exactly the dashboard's ATM content, without a second clickable card.
+  const copy=el("div","f4-bank-member-card f4-bank-profile-card");
+  for(const node of card.childNodes)copy.append(node.cloneNode(true));
   copy.setAttribute("aria-label","Identitas anggota Bank Sampah Flamboyan 4");
   const number=copy.querySelector("#f4BankCardNumber");if(number)number.id="f4BankProfileNumber";
   const personName=copy.querySelector("#f4BankCardName");if(personName)personName.id="f4BankProfileName";
