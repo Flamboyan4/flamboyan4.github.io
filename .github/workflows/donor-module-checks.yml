@@ -9,6 +9,8 @@ on:
       - 'cloudflare/migrations/20261113_donatur_pendanaan.sql'
       - 'cloudflare/worker-terpadu-operasional-teruji.js'
       - 'qa/verify-donor-module.py'
+      - 'qa/verify-donor-release.py'
+      - '.github/workflows/f4-finance-guarded-deploy.yml'
       - '.github/workflows/donor-module-checks.yml'
   pull_request:
     paths:
@@ -33,6 +35,8 @@ jobs:
           python-version: '3.12'
       - name: Test D1-compatible ledger constraints
         run: python qa/verify-donor-module.py
+      - name: Check donor release safeguards
+        run: python qa/verify-donor-release.py
       - name: Check frontend scripts
         run: |
           node --check donatur/donatur.js
