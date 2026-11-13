@@ -50,7 +50,7 @@ MEMBER_HTML = """<!doctype html><html><head><meta name="viewport" content="width
 <div id="f4BankAppHome" data-bank-role="member" class="f4-bank-app-home">
 <div class="f4-bank-app-personal-greeting"><strong>Halo, Anggota!</strong><small>Rumah A5/41</small></div>
 <section id="f4MemberHero" class="f4-member-hero">
- <button id="f4BankMemberCard" class="f4-bank-member-card"><span class="f4-bank-member-card-head"><img src="/assets/logo-flamboyan.svg"><span>BANK SAMPAH · FLAMBOYAN 4</span><span class="f4-bank-member-card-chip"></span></span><span class="f4-bank-member-card-foot"><span><small>NOMOR ANGGOTA</small><strong>W017</strong><small>Rumah A5/41</small></span><span class="f4-bank-card-leaf"><img src="/assets/icons/bank.svg"></span></span></button>
+ <button id="f4BankMemberCard" class="f4-bank-member-card"><span class="f4-bank-member-card-head"><span class="f4-bank-atm-brand"><img src="/assets/logo-flamboyan.svg"><span class="f4-bank-atm-brand-label">BANK SAMPAH FLAMBOYAN 4</span></span><span class="f4-bank-atm-contactless"><svg viewBox="0 0 32 32"><path d="M8 11a8 8 0 0 1 0 10M13 7a13 13 0 0 1 0 18M18 3a19 19 0 0 1 0 26"/></svg></span></span><span class="f4-bank-atm-center"><span class="f4-bank-member-card-chip"></span><strong id="f4BankCardNumber" class="f4-bank-atm-number">W017</strong></span><span class="f4-bank-member-card-foot"><span class="f4-bank-atm-person"><small>NAMA ANGGOTA</small><strong id="f4BankCardName" class="f4-bank-atm-person-name">Heri Juwandi</strong></span><span class="f4-bank-atm-house"><small>RUMAH</small><strong class="f4-bank-card-house">A5/41</strong></span></span></button>
  <button id="f4BankAppMemberBalance" class="f4-bank-app-member-balance"><small>Saldo terkonfirmasi</small><strong>Rp 3.000</strong><span class="f4-bank-member-chevron"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span></button>
 </section>
 <nav id="f4MemberQuickActions" class="f4-member-shortcuts" aria-label="Akses cepat anggota">
@@ -133,7 +133,12 @@ async def member_layout(browser):
                 steps:steps.map(el=>el.getBoundingClientRect().y),
                 heroBackground:getComputedStyle(document.querySelector('#f4MemberHero')).backgroundImage,
                 amountColor:getComputedStyle(amount).color,
-                iconFilter:getComputedStyle(document.querySelector('#f4BankMemberCard .f4-bank-card-leaf img')).filter,
+                contactlessIcon:!!document.querySelector('#f4BankMemberCard .f4-bank-atm-contactless svg'),
+                chipVisible:document.querySelector('#f4BankMemberCard .f4-bank-member-card-chip').getBoundingClientRect().width>=35,
+                memberNumber:document.querySelector('#f4BankCardNumber').textContent.trim(),
+                memberName:document.querySelector('#f4BankCardName').textContent.trim(),
+                memberHouse:document.querySelector('#f4BankMemberCard .f4-bank-card-house').textContent.trim(),
+                cardGradient:getComputedStyle(document.querySelector('#f4BankMemberCard')).backgroundImage,
                 scheduleTitle:document.querySelector('#f4BankWeighingSchedule strong').textContent.trim(),
                 overflow:document.documentElement.scrollWidth>window.innerWidth+3
             };
@@ -142,7 +147,9 @@ async def member_layout(browser):
         assert result["pageBounds"]["right"]<=width+3,(device,result)
         assert "linear-gradient(" in result["heroBackground"],(device,result)
         assert result["amountColor"]=="rgb(255, 255, 255)",(device,result)
-        assert "invert(1)" in result["iconFilter"],(device,result)
+        assert result["contactlessIcon"] and result["chipVisible"],(device,result)
+        assert result["memberNumber"]=="W017" and result["memberName"]=="Heri Juwandi" and result["memberHouse"]=="A5/41",(device,result)
+        assert "linear-gradient(" in result["cardGradient"],(device,result)
         assert len(result["actions"])==4,(device,result)
         assert result["quick"]["y"]<result["hero"]["b"]+4,(device,result)
         assert result["recent"]["y"]>=result["quick"]["b"]-3,(device,result)
