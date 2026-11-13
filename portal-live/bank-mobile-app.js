@@ -42,9 +42,9 @@ const memberDock=[
 ];
 // Pengurus memakai dock sendiri. Rute tetap memakai goPage yang sudah menangani akses dan API.
 const adminDock=[
- ["Beranda","dashboard","home.svg"],["Saldo","tabungan","cash.svg"],
- ["Setoran","setoran","pay.svg"],["Penjualan","penjualan","bank.svg"],
- ["Laporan","laporan","book.svg"]
+ ["Beranda","dashboard","home.svg"],["Setoran","setoran","bank.svg"],
+ ["Laporan","laporan","book.svg"],["Penjualan","penjualan","cash.svg"],
+ ["Saldo","tabungan","pay.svg"]
 ];
 let role=null,screen="dashboard",historyMonth="latest",reportMonth="",reportRange=null,activePage=null;
 const routeHistory=[];let returningFromBack=false;
@@ -70,8 +70,8 @@ function action([title,route,asset],dock=false){
  const b=el("button",dock?"f4-bank-app-dock-action":"f4-bank-app-action");
  b.type="button";b.dataset.bankAppRoute=route;b.setAttribute("aria-label",title);
  const isMemberPayout=dock&&route==="bank-payout";
- const isAdminDeposit=dock&&route==="setoran";
- if(isMemberPayout||isAdminDeposit)b.classList.add("is-primary");
+ const isAdminReport=dock&&route==="laporan";
+ if(isMemberPayout||isAdminReport)b.classList.add("is-primary");
  const symbol=el("span","f4-bank-app-action-icon");
  if(isMemberPayout){
   // Match the original yellow payout badge: the white "Rp" is a crisp SVG wordmark.
