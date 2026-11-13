@@ -2215,7 +2215,8 @@ async function f4GallerySchema(db){
     "CREATE TABLE IF NOT EXISTS f4_gallery_reactions(target_type TEXT NOT NULL,target_id TEXT NOT NULL,account_id TEXT NOT NULL,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY(target_type,target_id,account_id))",
     "CREATE TABLE IF NOT EXISTS f4_gallery_comments(id TEXT PRIMARY KEY,target_type TEXT NOT NULL,target_id TEXT NOT NULL,account_id TEXT NOT NULL,message TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'aktif',created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)",
     "CREATE INDEX IF NOT EXISTS idx_f4_gallery_comments_target ON f4_gallery_comments(target_type,target_id,status,created_at)",
-    "CREATE TABLE IF NOT EXISTS f4_gallery_reports(id TEXT PRIMARY KEY,target_type TEXT NOT NULL,target_id TEXT NOT NULL,account_id TEXT NOT NULL,reason TEXT NOT NULL,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"
+    "CREATE TABLE IF NOT EXISTS f4_gallery_reports(id TEXT PRIMARY KEY,target_type TEXT NOT NULL,target_id TEXT NOT NULL,account_id TEXT NOT NULL,reason TEXT NOT NULL,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)",
+     "CREATE TABLE IF NOT EXISTS f4_gallery_share_links(code TEXT PRIMARY KEY,album_ref TEXT NOT NULL,photo_ref TEXT NOT NULL DEFAULT '',image_drive_id TEXT NOT NULL DEFAULT '',created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,UNIQUE(album_ref,photo_ref))"
    ];
    for(const statement of statements)await db.prepare(statement).run();
   })().catch(e=>{f4GallerySetup=null;throw e});
@@ -2533,6 +2534,107 @@ async function f4GalleryVideoStream(req,env,url){
  }catch(_e){return err("Video belum bisa diputar. Coba lagi nanti.",502);}
 }
 __name(f4GalleryVideoStream,"f4GalleryVideoStream");
+
+/* Public short links: metadata rendered server-side for WhatsApp. */
+function f4ShareEscape(v){return String(v||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}
+function f4ShareCode(){return btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(6)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=/g,"")}
+async function f4ShareFolderCover(env,folder){
+ if(!f4GalleryDriveReady(env)||!/^[A-Za-z0-9_-]{12,110}$/.test(folder||""))return "";
+ try{
+  const token=await f4GalleryDriveToken(env);
+  const q="'"+folder+"' in parents and mimeType contains 'image/' and trashed = false";
+  const result=await f4GalleryDriveRequest(token,"files?fields=files(id,mimeType)&pageSize=10&q="+encodeURIComponent(q));
+  return (result.files||[]).find(x=>/^[A-Za-z0-9_-]{12,110}$/.test(x.id||""))?.id||"";
+ }catch{return ""}
+}
+async function f4ShareCreate(req,env){
+ let data;try{data=await body(req)}catch{return err("Data bagikan tidak valid.",400)}
+ const albumId=String(data.albumId||""),kind=String(data.type||""),photoId=kind==="photo"?String(data.id||""):"";
+ if(!["album","photo"].includes(kind)||!albumId||albumId.length>180||photoId.length>190)return err("Referensi galeri tidak valid.",400);
+ const album=await f4GalleryAlbum(env.DB,albumId);
+ if(!album)return err("Album bukan konten publik.",404);
+ let imageId="";
+ if(kind==="photo"){
+  if(photoId.startsWith("f4photo:")){
+   const photo=await one(env.DB,"SELECT drive_file_id AS driveId FROM f4_gallery_photos WHERE id=? AND album_ref=? AND status IN ('baru','ditinjau')",[photoId,albumId]);
+   if(!photo)return err("Foto tidak tersedia.",404);
+   imageId=photo.driveId;
+  }else if(/^gdrive:[A-Za-z0-9_-]{12,110}$/.test(photoId)&&album.folder&&f4GalleryDriveReady(env)){
+   try{
+    const token=await f4GalleryDriveToken(env);
+    const meta=await f4GalleryDriveRequest(token,"files/"+encodeURIComponent(photoId.slice(7))+"?fields=id,parents,mimeType,trashed&supportsAllDrives=true");
+    if(meta.trashed||!(meta.parents||[]).includes(album.folder)||!/^(image|video)\//.test(meta.mimeType||""))return err("Foto bukan bagian dari album publik.",404);
+    if(meta.mimeType.startsWith("image/"))imageId=meta.id;
+   }catch{return err("Akses foto belum dapat diverifikasi.",503)}
+  }else return err("Foto bukan konten publik.",404);
+ }else{
+  const photo=await one(env.DB,"SELECT drive_file_id AS driveId FROM f4_gallery_photos WHERE album_ref=? AND status IN ('baru','ditinjau') ORDER BY created_at DESC LIMIT 1",[albumId]);
+  imageId=photo?.driveId||await f4ShareFolderCover(env,album.folder);
+ }
+ if(imageId&&!/^[A-Za-z0-9_-]{12,110}$/.test(imageId))imageId="";
+ let row=await one(env.DB,"SELECT code,image_drive_id AS imageId FROM f4_gallery_share_links WHERE album_ref=? AND photo_ref=?",[albumId,photoId]);
+ for(let attempt=0;!row&&attempt<5;attempt++){
+  await env.DB.prepare("INSERT OR IGNORE INTO f4_gallery_share_links(code,album_ref,photo_ref,image_drive_id) VALUES(?,?,?,?)")
+   .bind(f4ShareCode(),albumId,photoId,imageId).run();
+  row=await one(env.DB,"SELECT code,image_drive_id AS imageId FROM f4_gallery_share_links WHERE album_ref=? AND photo_ref=?",[albumId,photoId]);
+ }
+ if(!row)return err("Gagal membuat tautan.",503);
+ if(imageId&&imageId!==row.imageId)await env.DB.prepare("UPDATE f4_gallery_share_links SET image_drive_id=? WHERE code=?").bind(imageId,row.code).run();
+ return ok({url:new URL("/s/"+row.code,req.url).href,short:true});
+}
+async function f4SharePage(req,env,url){
+ const parts=/^\/s\/([A-Za-z0-9_-]{8})(\/image)?\/?$/.exec(url.pathname);
+ if(!parts)return new Response("Tautan tidak ditemukan.",{status:404});
+ if(!["GET","HEAD"].includes(req.method))return new Response("Metode tidak diizinkan.",{status:405});
+ await f4GallerySchema(env.DB);
+ const data=await one(env.DB,"SELECT album_ref AS albumId,photo_ref AS photoId,image_drive_id AS imageId FROM f4_gallery_share_links WHERE code=?",[parts[1]]);
+ if(!data)return new Response("Tautan tidak ditemukan.",{status:404});
+ const album=await f4GalleryAlbum(env.DB,data.albumId);
+ if(!album)return new Response("Album tidak tersedia.",{status:404});
+ let caption="";
+ if(data.photoId?.startsWith("f4photo:")){
+  const photo=await one(env.DB,"SELECT caption FROM f4_gallery_photos WHERE id=? AND album_ref=? AND status IN ('baru','ditinjau')",[data.photoId,data.albumId]);
+  if(!photo)return new Response("Foto tidak tersedia.",{status:404});
+  caption=String(photo.caption||"");
+ }
+ const defaultImage="https://flamboyan4.web.id/assets/og-flamboyan4.png";
+ if(parts[2]){
+  let imageId=data.imageId;
+  if(imageId){
+   const owned=await one(env.DB,"SELECT status FROM f4_gallery_photos WHERE drive_file_id=? LIMIT 1",[imageId]);
+   if(owned&&!["baru","ditinjau"].includes(owned.status))imageId="";
+  }
+  let picture;
+  if(imageId){try{picture=await fetch("https://lh3.googleusercontent.com/d/"+encodeURIComponent(imageId)+"=w720",{headers:{accept:"image/jpeg,image/png"}})}catch{}}
+  const size=Number(picture?.headers.get("content-length")||0);
+  if(!picture?.ok||!/^image\/(jpeg|png)/i.test(picture.headers.get("content-type")||"")||(size>600000)){
+   try{picture=await fetch(defaultImage)}catch{picture=null}
+  }
+  if(!picture?.ok)return new Response("Gambar tidak tersedia.",{status:404});
+  const headers={"content-type":picture.headers.get("content-type")||"image/png","cache-control":"public,max-age=900","x-content-type-options":"nosniff"};
+  return new Response(req.method==="HEAD"?null:picture.body,{headers});
+ }
+ const dest=new URL("/dokumentasi/","https://flamboyan4.web.id");
+ dest.searchParams.set("album",data.albumId);
+ if(data.photoId)dest.searchParams.set("foto",data.photoId);
+ const title=(album.title||"Dokumentasi")+" · Flamboyan 4";
+ const description=caption&&!/^(IMG|DSC|PXL|VID|WhatsApp (Image|Video))|\.(jpe?g|png|webp|mp4|mov|webm)$/i.test(caption)?caption:
+  "Lihat "+(data.photoId?"foto":"album dokumentasi")+" kegiatan warga Flamboyan 4.";
+ const shareUrl=new URL("/s/"+parts[1],url.origin).href;
+ const image=data.imageId?shareUrl+"/image":defaultImage;
+ const meta=(name,value)=>'<meta property="'+name+'" content="'+f4ShareEscape(value)+'">';
+ const html='<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
+  '<meta name="robots" content="noindex,follow"><title>'+f4ShareEscape(title)+'</title>'+
+  '<meta name="description" content="'+f4ShareEscape(description)+'">'+
+  meta("og:type","website")+meta("og:site_name","Flamboyan 4")+meta("og:title",title)+
+  meta("og:description",description)+meta("og:url",shareUrl)+meta("og:image",image)+
+  '<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="'+f4ShareEscape(image)+'">'+
+  '</head><body><p>Membuka dokumentasi Flamboyan 4…</p><a href="'+f4ShareEscape(dest.href)+'">Buka dokumentasi</a>'+
+  '<script>location.replace('+JSON.stringify(dest.href).replace(/</g,"\\u003c")+');<\/script></body></html>';
+ const headers={"content-type":"text/html; charset=utf-8","cache-control":"public,max-age=300","referrer-policy":"no-referrer","x-content-type-options":"nosniff"};
+ return new Response(req.method==="HEAD"?null:html,{headers});
+}
+
 async function f4GalleryApi(req,env,who,url){
  await f4GallerySchema(env.DB);
  const path=url.pathname,method=req.method;
@@ -2541,6 +2643,7 @@ async function f4GalleryApi(req,env,who,url){
  if(path==="/api/v2/gallery/social"&&method==="GET")return f4GallerySocial(env.DB,who,url);
  // Pemeriksaan Origin berlaku juga untuk aksi superadmin, sebelum jalur admin.
  if(method==="POST"&&!allowedOrigin(req,env))return err("Asal permintaan tidak diizinkan.",403);
+ if(path==="/api/v2/gallery/share"&&method==="POST")return f4ShareCreate(req,env);
  if(path==="/api/v2/gallery/admin"&&["GET","POST"].includes(method))return f4GalleryAdmin(req,env,who);
  // Read-only diagnostic, restricted to Superadmin. Never expose tokens or personal Drive files.
  if(path==="/api/v2/gallery/drive-status"&&method==="GET"){
@@ -7033,6 +7136,7 @@ __name(residentsApi, "residentsApi");
 async function handle(request, env) {
   if (!env.DB) return safeError("Database belum dikonfigurasi.", 503);
   const url = new URL(request.url), path = url.pathname.replace(/\/+$/, "") || "/";
+  if(path.startsWith("/s/"))return f4SharePage(request,env,url);
   if (path === "/api/health" && request.method === "GET") return json({ ok: true, service: "flamboyan4-api", mode: "migration-preview" });
   if (path === "/api/public/bank-split" && request.method === "GET") {
     try{return json({ok:true,...await getBankSplitPolicy(env.DB)})}
@@ -7444,7 +7548,7 @@ __name(handle, "handle");
 var worker_default = {
   async fetch(request, env) {
     const pathname = new URL(request.url).pathname;
-    if (!pathname.startsWith("/api/") && !["/login-staging", "/member-savings-staging", "/activate-members-staging", "/activate-admin-staging"].includes(pathname)) {
+    if (!pathname.startsWith("/api/") && !pathname.startsWith("/s/") && !["/login-staging", "/member-savings-staging", "/activate-members-staging", "/activate-admin-staging"].includes(pathname)) {
       if (pathname.includes("/legacy.html")) return new Response("Tidak tersedia", { status: 404 });
       if (pathname === "/pembukuan/" || pathname === "/pembukuan" || pathname === "/pembukuan/index.html") {
         const current = await identity(request, env.DB);
