@@ -343,7 +343,7 @@ assert(!h.includes('gulir daftar untuk melihat semuanya'),'Nested scroll instruc
 const modern=fs.readFileSync('portal-live/modern-portals.css','utf8');
 assert(!modern.includes('#v9List{max-height:390px'),'Old capped roster in shared CSS returned');
 assert(!h.includes('max-height:310px;overflow-y:auto'),'Old roster scrolling returned');
-assert(mobile.includes('svg.innerHTML=\\'<text x="36" y="45" text-anchor="middle">Rp</text>\\''),
+assert(mobile.includes(`svg.innerHTML='<text x="36" y="45" text-anchor="middle">Rp</text>'`),
  'Original white Rp logo must remain SVG in the member center button');
 // HP Pengelola: tujuh akses langsung + Lainnya; tidak ada drawer atau hamburger.
 const adminMobile=css.split('/* Pengelola HP: menu tambahan via sheet Lainnya;')[1]
