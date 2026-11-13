@@ -7353,6 +7353,12 @@ async function handle(request, env) {
   if (path === "/api/auth/bootstrap-superadmin" && request.method === "POST") return bootstrapSuperadmin(request, env);
   if (path === "/api/auth/login" && request.method === "POST") return login(request, env);
   const who = await identity(request, env.DB);
+  // Donatur bukan warga: batasi juga endpoint lama yang hanya memeriksa "sudah login".
+  // Ini mencegah akses laporan warga/bank milik anggota melalui URL API langsung.
+  const donorAllowedRoutes=new Set(["/api/donor/dashboard","/api/v2/auth/session","/api/v2/auth/renew",
+    "/api/auth/logout","/api/auth/change-password","/api/v2/public/portal","/api/v2/public/bank"]);
+  if(who?.role==="donatur"&&!donorAllowedRoutes.has(path))
+    return safeError("Akun donatur hanya dapat membuka data donasi perusahaan.",403);
   if (path === "/api/donor/dashboard" && request.method === "GET") return donorDashboardApi(env,who);
   if (path === "/api/admin/donors") return donorAdminApi(request,env,who);
   // Only explicit foreground activity renews the current browser's session.
