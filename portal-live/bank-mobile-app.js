@@ -46,6 +46,7 @@ let homeSource=null,summaryExtra=null,memberSource=null,managerQueue=null;
 let primaryNode=null,extraNode=null;
 let ready=false,requestNonce="",requestEnabled=false;
 let memberStatement=null,memberChartMode="kg",memberChartGroup="period";
+let memberSalesSummary={status:"idle",value:null},memberSalesRequest=null,memberSalesFetchedAt=0,memberSalesVersion=0;
 let adminOverview=null;
 let refreshing=false;
 const custom=["bank-history","bank-payout","bank-report","bank-prices","bank-payout-admin","bank-admin-history","bank-admin-docs","bank-admin-cash","bank-admin-progress"];
@@ -1739,6 +1740,44 @@ function memberMetricIcon(type){
  svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");
  svg.setAttribute("aria-hidden","true");svg.innerHTML=paths[type]||paths.report;return svg;
 }
+// The member dashboard must read total confirmed sales from the report, not from
+// the two DOM stats (weight and stage count) used by the public progress chart.
+function setMemberSalesPreview(){
+ const field=$("f4MemberEnvironmentStats")?.querySelector('[data-f4-progress-metric="sales"] strong');
+ if(!field)return;
+ field.textContent=memberSalesSummary.status==="ready"?rupiah(memberSalesSummary.value):
+  memberSalesSummary.status==="loading"?"Memuat…":"—";
+}
+function loadMemberSalesSummary(){
+ if(roleType()!=="member"||memberSalesRequest)return;
+ if(memberSalesFetchedAt&&Date.now()-memberSalesFetchedAt<90000)return;
+ const version=++memberSalesVersion;
+ memberSalesFetchedAt=Date.now();
+ memberSalesSummary={status:"loading",value:null};setMemberSalesPreview();
+ memberSalesRequest=api("/api/v2/public/bank/report").then(response=>{
+  if(version!==memberSalesVersion||roleType()!=="member")return;
+  const report=response?.data&&typeof response.data==="object"&&!Array.isArray(response.data)?response.data:response;
+  const summary=report?.summary||report?.ringkasan||{};
+  const sales=report?.sales||{};
+  const raw=summary.hasilPenjualan??summary.salesRp??summary.totalPenjualanRp??
+   sales.diterimaRp??sales.receivedRp;
+  const number=raw==null||raw===""?NaN:Number(raw);
+  memberSalesSummary=Number.isFinite(number)&&number>=0?
+   {status:"ready",value:number}:{status:"unavailable",value:null};
+  if(memberSalesSummary.status==="unavailable")
+   console.warn("Bank Sampah: nilai hasil jual sah belum tersedia pada ringkasan laporan.");
+  setMemberSalesPreview();
+ }).catch(error=>{
+  if(version!==memberSalesVersion)return;
+  memberSalesSummary={status:"unavailable",value:null};setMemberSalesPreview();
+  console.warn("Bank Sampah: gagal memuat hasil jual sah.",error);
+ }).finally(()=>{if(version===memberSalesVersion)memberSalesRequest=null;});
+}
+function resetMemberSalesSummary(){
+ memberSalesVersion++;
+ memberSalesSummary={status:"idle",value:null};
+ memberSalesRequest=null;memberSalesFetchedAt=0;
+}
 function progressPreview(){
  if(roleType()!=="member")return;
  const home=$("f4BankAppHome");if(!home)return;
@@ -1757,13 +1796,28 @@ function progressPreview(){
   if(history?.parentElement===home)history.before(preview);else home.append(preview);
  }
  const rows=[...($("f4DevStats")?.querySelectorAll(".f4-dev-stat")||[])];
- const values=rows.map(node=>node.querySelector(".f4-dev-stat-value")?.textContent?.trim()||"—");
+ const source=new Map(rows.map(node=>[
+  (node.querySelector(".f4-dev-stat-label")?.textContent||"").trim().toLocaleLowerCase("id-ID"),
+  node.querySelector(".f4-dev-stat-value")?.textContent?.trim()||"—"
+ ]));
+ // Read the named public metrics, never their positions: the source has only
+ // "Berat sah" and "Tahap kegiatan", not four indexed statistics.
+ const weight=source.get("berat sah")||"—";
+ let stage=source.get("tahap kegiatan")||source.get("tahap")||"—";
+ if(stage==="—"){
+  const count=($("f4DevStepCount")?.textContent||"").trim().match(/^\d+/);
+  if(count)stage=count[0];
+ }
+ const sales=memberSalesSummary.status==="ready"?rupiah(memberSalesSummary.value):
+  memberSalesSummary.status==="loading"?"Memuat…":"—";
  const stats=$("f4MemberEnvironmentStats");
- stats.replaceChildren(...[["Berat sah",values[0]||"—","weight"],["Hasil jual",values[2]||"—","sales"],["Tahap",values[3]||"—","stage"]].map(([label,value,asset])=>{
+ stats.replaceChildren(...[["Berat sah",weight,"weight"],["Hasil jual",sales,"sales"],["Tahap",stage,"stage"]].map(([label,value,asset])=>{
   const tile=el("div","f4-member-environment-stat");
+  tile.dataset.f4ProgressMetric=asset;
   tile.append(memberMetricIcon(asset));
   const data=el("span");data.append(el("small","",label),el("strong","",value));tile.append(data);return tile;
  }));
+ loadMemberSalesSummary();
  const latest=$("f4MemberEnvironmentLatest"),activity=$("v17Timeline")?.querySelector(".f4-dev-activity");
  latest.replaceChildren();
  const thumb=activity?.querySelector("img");
@@ -1989,7 +2043,7 @@ function handleRoute(route,old,args){
  return result;
 }
 function resetRoleSurface(){
- resetAdminAlerts();
+ resetAdminAlerts();resetMemberSalesSummary();
  routeHistory.length=0;returningFromBack=false;screen="dashboard";
  // Rebuild the role-specific home from source nodes, never from cached cards.
  // The old member/account must not inherit operations or cached balance widgets.
@@ -2235,7 +2289,10 @@ function init(){
  };
  window.addEventListener("f4-bank-member-statement",acceptMemberStatement);
  window.addEventListener("f4-bank-admin-overview",updateAdminOverview);
- window.addEventListener("f4-bank-data-changed",()=>refreshAdminAlerts(true));
+ window.addEventListener("f4-bank-data-changed",()=>{
+  refreshAdminAlerts(true);
+  if(roleType()==="member"){resetMemberSalesSummary();loadMemberSalesSummary();}
+ });
  window.addEventListener("focus",()=>refreshAdminAlerts());
  document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshAdminAlerts();});
  setInterval(()=>{if(!document.hidden)refreshAdminAlerts();},45000);
