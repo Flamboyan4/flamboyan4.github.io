@@ -27,7 +27,7 @@ def main() -> int:
     def call(path: str, *, sql: str | None = None):
         if sql is not None:
             cleaned = sql.strip().upper()
-            if not (cleaned.startswith("SELECT ") or cleaned.startswith("PRAGMA TABLE_INFO(")):
+            if not (cleaned.startswith("SELECT ") or cleaned.startswith(("PRAGMA TABLE_INFO(", "PRAGMA FOREIGN_KEY_LIST(", "PRAGMA INDEX_LIST("))):
                 raise ValueError("Only read-only metadata queries are permitted")
         payload = json.dumps({"sql": sql}).encode("utf-8") if sql else None
         headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
