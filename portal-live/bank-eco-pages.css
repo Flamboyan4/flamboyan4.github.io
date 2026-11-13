@@ -1766,7 +1766,8 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
   height:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px));
   padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));
   overflow:visible;background:#fff;border-top:1px solid #e4ece5;
-  box-shadow:0 -5px 16px #143c2410
+  box-shadow:0 -5px 16px #143c2410;
+  transform:translateZ(0);backface-visibility:hidden
  }
  body.f4-bank-app-private .f4-bank-app-dock-action{
   box-sizing:border-box;display:grid;grid-template-rows:27px 15px;
