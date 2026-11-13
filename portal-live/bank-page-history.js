@@ -50,8 +50,17 @@
    if(!legal.test(target)||target===route)return;
    restoring=true;
    try{
-     if(target==='public')publicFn?.();else if(!document.getElementById('dashboardView')?.classList.contains('hidden'))window.goPage(target);
-     route=target;
+     if(target==='public'){publicFn?.();route='public';return}
+     const dashboard=document.getElementById('dashboardView');
+     const visible=!dashboard?.classList.contains('hidden')||window.f4BankRevealPrivateForHistory?.();
+     if(!visible){
+       route='public';
+       history.replaceState({...history.state,f4BankRoute:'public'},'',cleanUrl('public'));
+       return;
+     }
+     window.goPage(target);
+     route=window.f4BankAppCurrentRoute?.()||current();
+     if(route!==target)history.replaceState({...history.state,f4BankRoute:route},'',cleanUrl(route));
    }finally{restoring=false}
  });
  function restoreBookmark(){
