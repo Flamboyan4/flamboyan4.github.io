@@ -9,6 +9,8 @@ const mobile=fs.readFileSync('portal-live/bank-mobile-app.js','utf8');
 const priceModule=fs.readFileSync('portal-live/bank-member-prices.js','utf8');
 const memberNav=fs.readFileSync('portal-live/bank-member-navigation.css','utf8');
 const memberPolish=fs.readFileSync('portal-live/bank-member-polish.css','utf8');
+const memberLegacyTheme=fs.readFileSync('portal-live/modern-portals.css','utf8');
+const memberDirectShell=fs.readFileSync('portal-live/direct-shell.css','utf8');
 new vm.Script(mobile,{filename:'portal-live/bank-mobile-app.js'});
 const source=[...h.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].find(x=>x[1].includes('function v14Setup()'))?.[1];
 assert(source,'Bank app inline JavaScript missing');
@@ -43,12 +45,13 @@ assert(priceModule.includes('priceTag.setAttribute("viewBox"') &&
  'Price shortcut must use a clear SVG price-tag icon');
 const bankingCss=css.split('/* Bank Sampah member dashboard: premium eco-banking composition.')[1]
  ?.split('/* Responsive Bank Sampah:')[0]||'';
-assert(bankingCss.includes('background:linear-gradient(135deg,#069a84 0%,#087450 55%,#06482f 100%)') &&
+assert(bankingCss.includes('background:linear-gradient(120deg,#079e8f 0%,#05896e 55%,#087448 100%)') &&
        !bankingCss.includes('background:linear-gradient(135deg,#09BCD3 0%,#009788 100%)'),
  'Premium member ATM should use the selected deep-leaf gradient without changing other portal pages');
-assert(css.includes('grid-area:balance') && css.includes('linear-gradient(135deg,#f8fcf4,#eff8e9 87%)') &&
-       css.includes('background:linear-gradient(105deg,#067747,#075030)'),
- 'Member balance requires its soft mint panel and functional dark green CTA');
+assert(bankingCss.includes('grid-area:balance') &&
+       bankingCss.includes('padding:23px 24px;border:1px solid #dfeae3;border-radius:22px;text-align:left;\n background:#fff;') &&
+       bankingCss.includes('background:linear-gradient(105deg,#067747,#075030)'),
+ 'Member balance requires white background and working green CTA');
 assert(publicTheme.includes('background:#43a047;color:#fff'),'Public hero stays solid green');
 assert(css.includes('"card balance"') && css.includes('"quick quick"') &&
        css.includes('"progress guide"') && css.includes('"recent info"'),
@@ -100,12 +103,29 @@ assert(memberPolish.includes('.f4-member-flow-share>span:nth-child(2)'),
  'Savings and environment split badges must have differentiated color');
 assert(mobile.includes('brand.id="f4BankMemberTopBrand"') &&
        memberNav.includes('grid-template-rows:42px 38px') &&
-       memberNav.includes('background:linear-gradient(105deg,#e2f5d6,#bff1ab)'),
- 'Desktop leaf-green sidebar and dual-row mobile header must use the selected design');
+       memberNav.includes('width:226px;height:100dvh') &&
+       memberNav.includes('background:#e8f4ea;color:#145d3b'),
+ '226px white sidebar and compact mobile header must match the main portal proportions');
 assert(memberNav.includes('.f4-member-impact-share>span:nth-child(2)') &&
        mobile.includes('sourceSplit.children') &&
        memberPolish.includes('.f4-member-flow-foot{display:none'),
  'Profit sharing must appear within progress, sourced from live configuration, not duplicated hard-coded text');
+assert(memberLegacyTheme.includes('body.f4-direct-bank #dashboardView .section>.card:not(#pageDashboard){') &&
+       memberLegacyTheme.includes('body.f4-direct-bank:not(.f4-bank-app-member) #dashboardView .section{'),
+ 'The legacy forced frame and padding must not apply to the member dashboard');
+assert(memberDirectShell.includes('body.f4-direct-bank.f4-bank-app-member #f4-direct-bar{left:226px}') &&
+       memberNav.includes('padding:0 clamp(15px,2vw,29px);gap:10px'),
+ 'Navbar must not add a second 244px sidebar offset');
+assert(memberNav.includes('border-right:1px solid #e6eae8') &&
+       memberNav.includes('border-radius:0;background:#fff;box-shadow:none;transform:none;visibility:visible') &&
+       memberNav.includes('font:700 13.5px/1.3'),
+ 'White sidebar should use readable portal-sized dark text');
+assert(bankingCss.includes('background:#fff;\n min-height:calc(100dvh - 56px)') &&
+       memberNav.includes('body.f4-bank-app-member{background:#fff}') &&
+       memberNav.includes('background:#fff;color:#1b5138;box-shadow:0 5px 16px'),
+ 'Member dashboard and its report surface need a pure white canvas');
+assert(h.includes('body.f4-bank-app-member #dashboardView #pageDashboard:not(:has(#f4BankAppHome[data-bank-role="member"]))'),
+ 'Legacy dashboard must not flash before member widgets are mounted');
 assert(css.includes('body.f4-bank-app-member #dashboardView #pageDashboard{') &&
        css.includes('margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none'),
  'Remove the enclosing dashboard frame entirely');
