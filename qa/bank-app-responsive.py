@@ -89,7 +89,7 @@ MEMBER_SAVINGS_HTML = MEMBER_HTML.replace(
 ).replace('class="card v14-home f4-member-dashboard"', 'class="v14-home f4-member-dashboard"')
 
 async def member_layout(browser):
-    """Separate ATM, yellow wallet, two shortcuts, clean mutations and how-to card."""
+    """Selected eco-fintech layout with no outer frame and true banking hierarchy."""
     for device,width in [("pc",1366),("tablet",820),("hp",390),("smallhp",360)]:
         page=await browser.new_page(viewport={"width":width,"height":850})
         await page.set_content(MEMBER_HTML,wait_until="load")
@@ -112,8 +112,10 @@ async def member_layout(browser):
             quick:rect('#f4MemberQuickActions'),
             schedule:rect('#f4BankWeighingSchedule'),price:rect('#f4MemberPriceShortcut'),
             recent:rect('#f4MemberContent>.v14-panel'),guide:rect('#f4MemberFlow'),
+            progress:rect('#f4MemberEnvironmentPreview'),info:rect('#f4MemberInfoShortcut'),
+            outerBorder:getComputedStyle(root).borderTopWidth,
             parent:card.parentElement.id,cardBackground:getComputedStyle(card).backgroundImage,
-            walletBackground:getComputedStyle(bal).backgroundColor,
+            walletGradient:getComputedStyle(bal).backgroundImage,
             walletAmountColor:getComputedStyle(bal.querySelector('strong')).color,
             walletButton:bal.querySelector('.f4-bank-balance-cta')?.textContent,
             contactless:!!card.querySelector('.f4-bank-atm-contactless svg'),
@@ -131,30 +133,34 @@ async def member_layout(browser):
         assert not result["overflow"] and result["pageRight"]<=width+3,(device,result)
         assert result["parent"]=="f4BankAppHome",(device,result)
         assert "linear-gradient(" in result["cardBackground"],(device,result)
-        assert result["walletBackground"]=="rgb(253, 192, 16)",(device,result)
-        assert result["walletAmountColor"]=="rgb(22, 42, 55)",(device,result)
+        assert "linear-gradient(" in result["walletGradient"] and "rgb(248, 252, 244)" in result["walletGradient"],(device,result)
+        assert result["walletAmountColor"]=="rgb(7, 70, 46)",(device,result)
         assert result["walletButton"]=="Cek Tabungan",(device,result)
         assert result["contactless"] and result["chipWidth"]>=35,(device,result)
         assert (result["memberNumber"],result["memberName"],result["memberHouse"])==("W017","Heri Juwandi","A5/41"),(device,result)
         assert result["scheduleTitle"]=="Minggu, 15 November 2026",(device,result)
         assert len(result["mutationRows"])==2 and all(x["svg"] and x["radius"]=="0px" and x["left"]=="0px" and x["right"]=="0px" for x in result["mutationRows"]),(device,result)
         assert not result["importantMatches"],(device,result["importantMatches"])
-        if width>780:
+        assert result["outerBorder"]=="0px",(device,result)
+        assert abs(result["schedule"]["y"]-result["price"]["y"])<3,(device,result)
+        assert result["schedule"]["right"]<=result["price"]["x"]+3,(device,result)
+        if width>=1024:
             assert abs(result["card"]["y"]-result["balance"]["y"])<3,(device,result)
             assert result["card"]["right"]<=result["balance"]["x"]+3,(device,result)
-            assert result["schedule"]["right"]<=result["price"]["x"]+3,(device,result)
-            assert abs(result["schedule"]["y"]-result["price"]["y"])<3,(device,result)
-            assert result["recent"]["right"]<=result["quick"]["x"]+3,(device,result)
-            assert result["recent"]["y"]>=result["card"]["bottom"]-3,(device,result)
-            assert result["guide"]["y"]>=result["quick"]["bottom"]-3,(device,result)
+            assert result["quick"]["y"]>=result["card"]["bottom"]-3,(device,result)
+            assert result["progress"]["y"]>=result["quick"]["bottom"]-3,(device,result)
+            assert abs(result["progress"]["y"]-result["guide"]["y"])<3,(device,result)
+            assert result["progress"]["right"]<=result["guide"]["x"]+3,(device,result)
+            assert result["recent"]["y"]>=result["progress"]["bottom"]-3,(device,result)
+            assert abs(result["recent"]["y"]-result["info"]["y"])<3,(device,result)
         else:
             assert result["balance"]["y"]>=result["card"]["bottom"]-3,(device,result)
             assert result["quick"]["y"]>=result["balance"]["bottom"]-3,(device,result)
-            assert abs(result["schedule"]["y"]-result["price"]["y"])<3,(device,result)
-            assert result["schedule"]["right"]<=result["price"]["x"]+3,(device,result)
-            assert result["recent"]["y"]>=result["quick"]["bottom"]-3,(device,result)
+            assert abs(result["quick"]["y"]-result["info"]["y"])<3,(device,result)
+            assert result["progress"]["y"]>=result["quick"]["bottom"]-3,(device,result)
+            assert result["recent"]["y"]>=result["progress"]["bottom"]-3,(device,result)
             assert result["guide"]["y"]>=result["recent"]["bottom"]-3,(device,result)
-        print("MEMBER_FLAT_REFERENCE_LAYOUT_OK",device,result,flush=True)
+        print("MEMBER_PREMIUM_BANKING_LAYOUT_OK",device,result,flush=True)
         await page.close()
 
 async def member_balance_refresh_preserves_design(browser):
@@ -190,14 +196,14 @@ async def member_balance_refresh_preserves_design(browser):
            amountFont:parseFloat(getComputedStyle(amount).fontSize),
            ctaFont:parseFloat(getComputedStyle(after).fontSize),
            amountColor:getComputedStyle(amount).color,
-           ctaBackground:getComputedStyle(after).backgroundColor,
+           ctaGradient:getComputedStyle(after).backgroundImage,
            ctaRatio:b.width/cardBox.width,overflow:document.documentElement.scrollWidth>innerWidth+3};
         }""",{"fn":fn})
         assert result["first"]=="Rp 3.000" and result["updated"]=="Rp 15.000",(device,result)
         assert result["label"]=="Saldo Tersedia" and result["cta"]=="Cek Tabungan",(device,result)
         assert result["retained"] and result["childCount"]==3,(device,result)
         assert result["amountFont"]>=30 and result["ctaFont"]>=12,(device,result)
-        assert result["amountColor"]=="rgb(22, 42, 55)" and result["ctaBackground"]=="rgb(25, 43, 55)",(device,result)
+        assert result["amountColor"]=="rgb(7, 70, 46)" and "linear-gradient(" in result["ctaGradient"],(device,result)
         assert result["ctaRatio"]>.70 and not result["overflow"],(device,result)
         print("BALANCE_UPDATE_PRESERVES_DESIGN_OK",device,result,flush=True)
         await page.close()
