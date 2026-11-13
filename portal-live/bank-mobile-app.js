@@ -201,6 +201,7 @@ function ensureHome(){
   page.prepend(hub);
  }
  hub.dataset.bankRole=role;
+ if(role!=="member")restoreMemberHomeLayout(hub);
  const name=$("pName")?.textContent?.trim()||"Anggota";
  const house=$("pHome")?.textContent?.trim()||"—";
  const welcome=$("f4BankAppWelcome");if(welcome){
@@ -229,16 +230,15 @@ function ensureHome(){
  }
  if(role==="member"){
   const chart=$("f4-member-weight-chart");if(chart&&chart.parentElement!==reservoir)reservoir.append(chart);
-  const flow=$("f4MemberFlow");if(flow){flow.hidden=false;if(flow.parentElement!==hub)hub.append(flow);}
+  const flow=$("f4MemberFlow");if(flow){flow.hidden=false;if(!hub.contains(flow))hub.append(flow);}
   const panels=page.querySelector(".v14-panels");
   const link=$("v14AllDeposits");if(link){link.textContent="Lihat semua";link.onclick=()=>navigate("bank-history");}
   const recent=$("v14Recent")?.closest(".v14-panel");
-  if(recent&&recent.parentElement!==hub){
-   hub.append(recent);
-  }
+  if(recent&&!hub.contains(recent))hub.append(recent);
   const remaining=panels?.querySelector(".v14-panel");
   if(remaining&&remaining.parentElement!==reservoir)reservoir.append(remaining);
   ensureWeighingSchedule(hub);window.F4MemberPrices?.shortcut(hub);
+  arrangeMemberHomeLayout(hub);
  }else{
   const recent=$("v14Recent")?.closest(".v14-panel");
   if(recent&&recent.parentElement!==hub)hub.append(recent);
@@ -251,6 +251,63 @@ function ensureHome(){
  if(legacyPanels&&legacyPanels.parentElement!==reservoir)reservoir.append(legacyPanels);
  updateDashboard();
  if(role==="admin")ensureAdminHome();
+}
+/* Dashboard member composition, modelled on the supplied banking references.
+   These are real, reused application nodes: no hard-coded transactions or balances.
+   Keep the layout idempotent when navigating between pages or switching accounts. */
+function memberQuickAction(id,label,detail,asset,route){
+ let b=$(id);
+ if(b)return b;
+ b=el("button","f4-member-shortcut");
+ b.id=id;b.type="button";
+ const glyph=el("span","f4-member-shortcut-icon");glyph.append(image(asset));
+ const copy=el("span","f4-member-shortcut-copy");
+ copy.append(el("strong","",label),el("small","",detail));
+ b.append(glyph,copy);
+ b.onclick=()=>{
+  if(route==="schedule"){
+   const widget=$("f4BankWeighingSchedule");
+   widget?.scrollIntoView({behavior:"smooth",block:"center"});
+  }else navigate(route);
+ };
+ return b;
+}
+function restoreMemberHomeLayout(hub){
+ if(!hub)return;
+ const card=$("f4BankMemberCard"),balance=$("f4BankAppMemberBalance");
+ const recent=$("v14Recent")?.closest(".v14-panel");
+ const flow=$("f4MemberFlow");
+ for(const node of [card,balance,recent,flow])if(node&&hub.contains(node))hub.append(node);
+ for(const id of ["f4MemberHero","f4MemberQuickActions","f4MemberContent"]){
+  $(id)?.remove();
+ }
+ $("f4BankWeighingSchedule")?.remove();
+ $("f4MemberPriceShortcut")?.remove();
+}
+function arrangeMemberHomeLayout(hub){
+ if(role!=="member"||!hub)return;
+ const card=$("f4BankMemberCard"),balance=$("f4BankAppMemberBalance");
+ if(!card||!balance)return;
+ let hero=$("f4MemberHero");
+ if(!hero){hero=el("section","f4-member-hero");hero.id="f4MemberHero";hero.setAttribute("aria-label","Kartu dan saldo anggota");hub.append(hero);}
+ hero.append(card,balance);
+ let quick=$("f4MemberQuickActions");
+ if(!quick){quick=el("nav","f4-member-shortcuts");quick.id="f4MemberQuickActions";quick.setAttribute("aria-label","Akses cepat anggota");hub.append(quick);}
+ const guide=memberQuickAction("f4MemberQuickGuide","Cara Setor","Panduan penimbangan","bank.svg","bank-deposit");
+ const payout=memberQuickAction("f4MemberQuickPayout","Pencairan","Ajukan pencairan","pay.svg","bank-payout");
+ const schedule=memberQuickAction("f4MemberQuickSchedule","Jadwal","Penimbangan berikutnya","calendar.svg","schedule");
+ const price=$("f4MemberPriceShortcut");
+ quick.replaceChildren(...[guide,payout,price,schedule].filter(Boolean));
+ let content=$("f4MemberContent");
+ if(!content){content=el("div","f4-member-content");content.id="f4MemberContent";hub.append(content);}
+ let aside=$("f4MemberAside");
+ if(!aside){aside=el("aside","f4-member-aside");aside.id="f4MemberAside";}
+ const recent=$("v14Recent")?.closest(".v14-panel");
+ if(recent)content.append(recent);
+ content.append(aside);
+ const weighing=$("f4BankWeighingSchedule"),flow=$("f4MemberFlow");
+ if(weighing)aside.append(weighing);
+ if(flow)aside.append(flow);
 }
 function dashboardMetrics(){
  const map=new Map();
