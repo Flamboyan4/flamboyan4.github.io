@@ -76,12 +76,18 @@ async def member_layout(browser):
                 guideColor:getComputedStyle(document.querySelector('#f4MemberFlow')).backgroundColor,
                 stepColors:steps.map(el=>getComputedStyle(el).backgroundColor),
                 balanceColor:getComputedStyle(document.querySelector('#f4BankAppHome>.f4-bank-app-member-balance')).backgroundColor,
+                 balanceAmountColor:getComputedStyle(document.querySelector('#f4BankAppHome>.f4-bank-app-member-balance strong')).color,
+                 priceColor:getComputedStyle(document.querySelector('#f4MemberPriceShortcut')).backgroundColor,
+                 scheduleColor:getComputedStyle(document.querySelector('#f4BankWeighingSchedule')).backgroundColor,
                 overflow:document.documentElement.scrollWidth>window.innerWidth+3
             };
         }""")
         assert not result["overflow"],(device,result)
         assert result["guideColor"]=="rgb(255, 255, 255)",(device,result)
-        assert result["balanceColor"]=="rgb(0, 151, 136)",(device,result)
+        assert result["balanceColor"]=="rgb(255, 255, 255)",(device,result)
+        assert result["balanceAmountColor"]=="rgb(0, 151, 136)",(device,result)
+        assert result["priceColor"]=="rgb(253, 192, 16)",(device,result)
+        assert result["scheduleColor"]=="rgb(255, 255, 255)",(device,result)
         assert all(c=="rgb(247, 252, 245)" for c in result["stepColors"]),(device,result)
         if device=="pc":
             assert result["price"]["y"]+result["price"]["h"]<=result["schedule"]["y"]+2,(device,result)
@@ -770,11 +776,11 @@ async def member_price_card_position(browser):
           <button class="f4-bank-member-card">Kartu Anggota</button>
           <button class="f4-bank-app-member-balance">Saldo</button>
           <button id="f4MemberPriceShortcut" class="f4-bank-price-shortcut">
-           <span class="f4-bank-price-shortcut-icon">♻</span>
+           <span class="f4-bank-price-shortcut-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 19-3-3m3 3 3-3M4 16l4-7"/></svg></span>
            <span class="f4-bank-price-shortcut-copy"><strong class="f4-bank-price-shortcut-label">Daftar Harga</strong>
-           <small>Tarif warga per kg</small></span><span class="f4-bank-price-shortcut-arrow">›</span>
+           <small>Tarif warga per kg</small></span><span class="f4-bank-price-shortcut-arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></span>
           </button>
-          <section id="f4BankWeighingSchedule" class="f4-bank-weigh-schedule">Jadwal Penimbangan</section>
+          <section id="f4BankWeighingSchedule" class="f4-bank-weigh-schedule"><span class="f4-bank-weigh-icon"><img src="/assets/icons/calendar.svg"></span><span class="f4-bank-weigh-copy"><small>JADWAL BERIKUTNYA</small><strong>Minggu, 15 November</strong></span></section>
           <section class="v14-panel">Riwayat</section><section class="f4-member-flow">Panduan</section>
           <section id="f4MemberEnvironmentPreview">Perkembangan</section>
           <section id="f4MemberInfoShortcut">Informasi</section>
@@ -784,7 +790,11 @@ async def member_price_card_position(browser):
           const p=document.querySelector('#f4MemberPriceShortcut'),s=document.querySelector('#f4BankWeighingSchedule');
           const a=p.getBoundingClientRect(),b=s.getBoundingClientRect();
           return {priceBottom:a.bottom,priceRight:a.right,priceY:a.top,scheduleX:b.left,scheduleY:b.top,priceH:a.height,
-            border:getComputedStyle(p).borderColor,
+            priceColor:getComputedStyle(p).backgroundColor,
+             scheduleColor:getComputedStyle(s).backgroundColor,
+             iconColor:getComputedStyle(s.querySelector('.f4-bank-weigh-icon')).backgroundColor,
+             priceHasSvg:!!p.querySelector('.f4-bank-price-shortcut-icon svg'),
+             border:getComputedStyle(p).borderColor,
             overflow:document.documentElement.scrollWidth>innerWidth+3};
         }""")
         if device=="hp":
@@ -793,6 +803,10 @@ async def member_price_card_position(browser):
         else:
             assert result["priceBottom"]<=result["scheduleY"]+2,(device,result)
         assert result["priceH"]>=60 and not result["overflow"],(device,result)
+        assert result["priceColor"]=="rgb(253, 192, 16)",(device,result)
+        assert result["scheduleColor"]=="rgb(255, 255, 255)",(device,result)
+        assert result["iconColor"]=="rgb(9, 188, 211)",(device,result)
+        assert result["priceHasSvg"],(device,result)
         assert result["border"]!="rgb(215, 230, 218)",(device,result)
         print("MEMBER_PRICE_SCHEDULE_RESPONSIVE_OK",device,result,flush=True)
         await page.close()

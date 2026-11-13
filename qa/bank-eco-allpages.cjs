@@ -6,6 +6,8 @@ const css=fs.readFileSync('portal-live/bank-eco-pages.css','utf8');
 const dashboard=fs.readFileSync('portal-live/bank-eco-dashboard.css','utf8');
 const publicTheme=fs.readFileSync('portal-live/bank-impact-summary.css','utf8');
 const mobile=fs.readFileSync('portal-live/bank-mobile-app.js','utf8');
+const priceModule=fs.readFileSync('portal-live/bank-member-prices.js','utf8');
+const publicTheme=fs.readFileSync('portal-live/bank-impact-summary.css','utf8');
 new vm.Script(mobile,{filename:'portal-live/bank-mobile-app.js'});
 const source=[...h.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].find(x=>x[1].includes('function v14Setup()'))?.[1];
 assert(source,'Bank app inline JavaScript missing');
@@ -29,6 +31,9 @@ assert(css.includes('background:#e4f6d5;color:#196e40;'),'Soft lime navigation m
 assert(!css.includes('border-left:4px solid #d7a517'),'Hard schedule rail returned');
 assert(!css.includes('background:linear-gradient(120deg,#ffdc78,#ffc12b)'),'Muddy yellow price gradient returned');
 assert(css.includes('bank-leaf-watermark.svg'),'Member card SVG leaf watermark missing');
+assert(priceModule.includes('recycle.setAttribute("viewBox"')&&!priceModule.includes('f4-bank-price-shortcut-icon","♻'),'Price shortcut must use SVG');
+assert(css.includes('background:#fff;border:1px solid #e2eee7;color:#174c39'),'Balance must use neutral background');
+assert(publicTheme.includes('background:#43a047;color:#fff'),'Public hero stays solid green');
 assert(css.includes('"price schedule"')&&css.includes('"card price"')&&css.includes('"card schedule"'),'Mobile shortcuts must be adjacent while desktop stays full-width');
 assert(css.includes('background:#09bcd3'),'Saturated cyan schedule color missing');
 assert(!css.includes('border-left:3px solid #087850'),'Old hard corner stripe returned');
