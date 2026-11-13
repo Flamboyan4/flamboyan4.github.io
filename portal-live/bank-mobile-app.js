@@ -83,7 +83,7 @@ function action([title,route,asset],dock=false){
   symbol.append(svg);
  }else symbol.append(image(asset));
  b.append(symbol);
- if(!isMemberPayout)b.append(el("span","f4-bank-app-action-name",title));
+ if(!b.classList.contains("is-primary"))b.append(el("span","f4-bank-app-action-name",title));
  b.onclick=()=>navigate(route);return b;
 }
 function dock(){
