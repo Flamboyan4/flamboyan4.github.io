@@ -112,6 +112,10 @@ def verify_portal_login(credentials):
                     # GitHub Pages shell. Every API request routes to LOCAL D1.
                     page.goto("https://flamboyan4.web.id/pembukuan/",wait_until="domcontentloaded")
                     book=page
+                    # The new Pembukuan input landing starts with three choices.
+                    # Enter Iuran Warga as a real user before touching its form.
+                    book.locator('#group-nav-inputdata [data-book-input-section="input"]').click(timeout=12000)
+                    book.locator("#form-iuran").wait_for(state="visible",timeout=12000)
                     book.locator("#inp-warga option").first.wait_for(state="attached",timeout=20000)
                     page.wait_for_function("""() => {
                         const doc=document;
