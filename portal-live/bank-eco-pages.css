@@ -589,52 +589,40 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
 #dashboardView #f4BankAdminOperations{
  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;min-width:0
 }
+/* Catat Setoran / Catat Penjualan: one centered app tile design on PC and HP. */
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation{
- position:relative;display:grid;grid-template-columns:48px minmax(0,1fr) 28px;
- align-items:center;column-gap:14px;min-width:0;min-height:110px;
- padding:18px 20px;border-radius:19px;border:0;
- background:#fff;color:#21442e;text-align:left;font:inherit;
- box-shadow:0 6px 19px #134e3010;cursor:pointer;
- transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:12px;min-width:0;min-height:126px;padding:18px 12px;
+ border:1px solid #e7efea;border-radius:21px;
+ background:#fff;color:#174630;text-align:center;font:inherit;
+ box-shadow:0 4px 16px #153f2a0c;cursor:pointer;
+ transition:box-shadow .16s ease,border-color .16s ease
 }
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation.is-primary{
- background:#fdc010;
- color:#21442e;box-shadow:0 5px 19px #a27b1925
+ background:#fdc010;border-color:#fdc010;color:#183826;
+ box-shadow:0 6px 18px #a179191c
 }
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-icon{
- display:grid;place-items:center;width:48px;height:48px;min-width:0;
- border-radius:14px;background:#ecf6ef;color:#43a047
+ display:grid;place-items:center;flex:none;width:36px;height:36px;
+ border:0;border-radius:0;background:transparent;color:#009788
 }
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation.is-primary .f4-bank-admin-operation-icon{
- background:#fff8df;color:#195139
+ background:transparent;color:#183826
 }
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-icon svg{
- width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.9;
+ width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.9;
  stroke-linecap:round;stroke-linejoin:round
 }
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-copy{
- display:grid;min-width:0;gap:5px;align-content:center
+ display:grid;justify-items:center;gap:0;min-width:0;align-content:center
 }
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-copy strong{
- font-size:17px;font-weight:850;line-height:1.25
+ font-size:15px;font-weight:850;line-height:1.25
 }
-#dashboardView #f4BankAdminOperations .f4-bank-admin-operation-copy small{
- font-size:12px;font-weight:500;line-height:1.35;color:inherit;opacity:.85
-}
-#dashboardView #f4BankAdminOperations .f4-bank-admin-operation-arrow{
- display:grid;place-items:center;width:28px;height:28px;border-radius:50%;
- background:#f0f7f1;color:#2a7950;font-size:22px;line-height:1
-}
-#dashboardView #f4BankAdminOperations .f4-bank-admin-operation.is-primary .f4-bank-admin-operation-arrow{
- background:#fff8df;color:#195139
-}
-#dashboardView #f4BankAdminOperations .f4-bank-admin-operation-arrow svg,
-#dashboardView .f4-bank-next-arrow svg{
- width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;
- stroke-linecap:round;stroke-linejoin:round
-}
+#dashboardView #f4BankAdminOperations .f4-bank-admin-operation-copy small,
+#dashboardView #f4BankAdminOperations .f4-bank-admin-operation-arrow{display:none}
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation:is(:hover,:focus-visible){
- transform:translateY(-2px);box-shadow:0 13px 28px #134d3533;outline-offset:3px
+ border-color:#8dcbb6;box-shadow:0 8px 22px #153f2a1a;outline-offset:3px
 }
 @media(prefers-reduced-motion:reduce){
  #dashboardView #f4BankAdminOperations .f4-bank-admin-operation{transition:none}
@@ -671,29 +659,6 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
  }
  #dashboardView #f4BankAdminHeroBreakdown>.f4-bank-admin-hero-item:last-child{padding-left:1px}
  #dashboardView #f4BankAdminOperations{gap:12px}
- /* Dua tombol mengacu ke referensi: ikon SVG 28px di tengah, tanpa kotak ikon. */
- #dashboardView #f4BankAdminOperations .f4-bank-admin-operation{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:10px;min-height:116px;padding:16px 10px;border:1px solid #ebf1ed;
-  border-radius:18px;background:#fff;text-align:center;
-  box-shadow:0 4px 15px #143c2410;transform:none
- }
- #dashboardView #f4BankAdminOperations .f4-bank-admin-operation.is-primary{
-  background:#fdc010;border-color:#fdc010;color:#1f3128;
-  box-shadow:0 6px 15px #a27b1920
- }
- #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-icon{
-  display:grid;place-items:center;flex:none;width:30px;height:30px;
-  border:0;border-radius:0;background:transparent;color:#009788
- }
- #dashboardView #f4BankAdminOperations .f4-bank-admin-operation.is-primary .f4-bank-admin-operation-icon{
-  background:transparent;color:#202e26
- }
- #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-icon svg{width:28px;height:28px}
- #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-copy{justify-items:center}
- #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-copy strong{font-size:14px;font-weight:850;line-height:1.25}
- #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-copy small{display:none}
- #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-arrow{display:none}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppMinis{
   display:grid;grid-template-columns:minmax(0,1fr);margin:0
  }
