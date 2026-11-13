@@ -1,8 +1,29 @@
 -- Donatur Flamboyan 4: 1 account = 1 donor (individual or company), no organization hierarchy.
 -- Money remains exclusively in treasury_events/treasury_entries; this is an audited reference layer.
--- Apply only on staging after checking accounts role CHECK supports 'donatur'.
+-- Additif: akun dan sesi donatur terisolasi dari akun warga / superadmin.
+-- Tidak memerlukan perubahan CHECK(role) atau memindah tabel accounts lama.
+CREATE TABLE IF NOT EXISTS donor_accounts (
+  id TEXT PRIMARY KEY,
+  username TEXT NOT NULL COLLATE NOCASE UNIQUE,
+  password_hash TEXT NOT NULL,
+  password_scheme TEXT NOT NULL DEFAULT 'pbkdf2-sha256',
+  status TEXT NOT NULL DEFAULT 'aktif' CHECK(status IN ('aktif','nonaktif')),
+  failed_attempts INTEGER NOT NULL DEFAULT 0,
+  locked_until TEXT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS donor_sessions (
+  id TEXT PRIMARY KEY,
+  account_id TEXT NOT NULL REFERENCES donor_accounts(id),
+  token_hash TEXT NOT NULL UNIQUE,
+  expires_at TEXT NOT NULL,
+  revoked_at TEXT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_donor_sessions_active ON donor_sessions(account_id,expires_at,revoked_at);
 CREATE TABLE IF NOT EXISTS donor_profiles (
-  account_id TEXT PRIMARY KEY REFERENCES accounts(id),
+  account_id TEXT PRIMARY KEY REFERENCES donor_accounts(id),
   donor_name TEXT NOT NULL,
   contact_name TEXT NOT NULL DEFAULT '',
   contact_email TEXT NOT NULL DEFAULT '',
