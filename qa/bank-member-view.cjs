@@ -16,7 +16,9 @@ for(const str of ['Perkiraan setoran','Hasil jual','function f4MemberDateID(raw)
 }
 if(/<button[^>]*f4-member-refresh[^>]*>\s*Perbarui/i.test(bank))throw Error('Visible refresh label forbidden');
 if(!bridge.includes('Tabungan masuk dari hasil penjualan'))throw Error('Member ledger label missing');
-if(!css.includes('.f4-member-recent-value')||!css.includes('.f4-member-tools'))throw Error('Member CSS missing');
+if(!css.includes('.f4-member-tools'))throw Error('Member savings CSS missing');
+const dashboardCss=fs.readFileSync('portal-live/bank-eco-pages.css','utf8');
+if(!dashboardCss.includes('#f4MemberContent #v14Recent .f4-member-recent-value'))throw Error('Mutation list must be owned by core dashboard CSS');
 if(!bank.includes("title.textContent=mode==='nilai'?'Nilai setoran saya':'Berat sampah saya'"))
   throw Error('Dynamic member value/weight chart missing');
 if(!bank.includes("sub.textContent=p.belumAda?"))throw Error('Chart status label missing');
