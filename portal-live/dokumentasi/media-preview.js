@@ -274,13 +274,15 @@ function tab(value,writeHash){
   const btn=$('media-tab-'+name);
   btn.className='btn'+(is?'':' outline');btn.setAttribute('aria-selected',String(is));
  }
- if(writeHash)history.replaceState(null,'',location.pathname+(inv?'#inventaris':''));
+ if(writeHash){const url=new URL(location.href);if(inv)url.searchParams.set('halaman','inventaris');else url.searchParams.delete('halaman');url.hash='';history.replaceState(history.state,'',url.pathname+url.search)}
  if(window!==window.top)window.parent.postMessage({type:'f4:section',target:inv?'inventaris':'dokumentasi'},location.origin);
 }
 $('media-tab-albums').onclick=()=>tab('dokumentasi',true);
 $('media-tab-inventory').onclick=()=>tab('inventaris',true);
 $('media-search').oninput=drawAlbums;
-addEventListener('hashchange',()=>tab(location.hash==='#inventaris'?'inventaris':'dokumentasi',false));
-drawFilters();drawAlbums();drawInventory();tab(location.hash==='#inventaris'?'inventaris':'dokumentasi',false);
+addEventListener('popstate',()=>tab(new URLSearchParams(location.search).get('halaman')==='inventaris'?'inventaris':'dokumentasi',false));
+drawFilters();drawAlbums();drawInventory();const legacyInventory=location.hash==='#inventaris';
+if(legacyInventory){const url=new URL(location.href);url.hash='';url.searchParams.set('halaman','inventaris');history.replaceState(history.state,'',url.pathname+url.search)}
+tab(new URLSearchParams(location.search).get('halaman')==='inventaris'?'inventaris':'dokumentasi',false);
 loadPortalArchive().catch(error=>{docs.sort((a,b)=>parseDate(b.date)-parseDate(a.date));window.f4GalleryAlbums=()=>docs.filter(d=>d.id&&!d.id.startsWith('gfolder:')).map(d=>({id:d.id,title:d.title}));
  publishRecentMedia();drawAlbums();document.dispatchEvent(new Event('f4:gallery:ready'));status('Arsip online belum dapat diperbarui ('+(error.message||error)+'). Menampilkan arsip kegiatan asli yang sudah tersedia.','error');});

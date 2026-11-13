@@ -314,7 +314,7 @@ function makePortalSide(){
    if(key==='inventaris'){
     const target=document.getElementById('kegiatan');
     if(target)window.scrollTo({top:Math.max(0,window.scrollY+target.getBoundingClientRect().top-74),behavior:'smooth'});
-    else location.assign('/dokumentasi/#inventaris');
+    else location.assign('/dokumentasi/?halaman=inventaris');
     highlight(key);return;
    }
    try{window.f4PortalSelectPanel?.(key)}catch(err){console.warn('Panel:',err)}
@@ -377,19 +377,20 @@ const legacy=new URLSearchParams(location.search).get('halaman');
 if(portal==='portal'&&legacy){
  const key=String(legacy).split('/')[0];
  if(key==='bank-sampah'||key==='pembukuan'||key==='superadmin'||key==='rapat'||key==='dokumentasi'||key==='inventaris'){
-  const destination=key==='bank-sampah'?paths.bank:key==='pembukuan'?paths.book:key==='superadmin'?paths.superadmin:key==='inventaris'?'/dokumentasi/#inventaris':paths[key];
+  const destination=key==='bank-sampah'?paths.bank:key==='pembukuan'?paths.book:key==='superadmin'?paths.superadmin:key==='inventaris'?'/dokumentasi/?halaman=inventaris':paths[key];
   const docId=key==='rapat'?new URLSearchParams(location.search).get('doc'):null;
   location.replace(docId?destination+'?doc='+encodeURIComponent(docId):destination);
   return;
  }
- if(['beranda','keuangan','projek','kalender','pembayaran','komentar'].includes(key)){
-  window.addEventListener('load',()=>window.f4PortalSelectPanel?.(key),{once:true});
+ if(['beranda','keuangan','projek','kalender','arisan','pembayaran','komentar'].includes(key)){
+  window.addEventListener('load',()=>window.f4PortalSelectPanel?.(key,false),{once:true});
  }
 }
 let restore=false;
 try{restore=sessionStorage.getItem('f4-native-account-refresh')==='1';sessionStorage.removeItem('f4-native-account-refresh')}catch{}
 refreshSession().then(()=>{
  if((location.hash==='#akun'||restore)&&role!=='public')window.f4OpenUnifiedAccount?.();
+  if(location.hash==='#akun')history.replaceState(history.state,'',location.pathname+location.search);
 });
 /* Pair search and reload in native search toolbars on every portal.
    Preserve original input and button listeners; only move their DOM nodes. */

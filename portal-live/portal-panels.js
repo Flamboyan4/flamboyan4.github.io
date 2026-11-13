@@ -15,6 +15,7 @@ const sectionTargets={
  projek:document.getElementById('projek'),
  inventaris:document.getElementById('container-inventaris-warga')||document.getElementById('kegiatan'),
  kalender:document.getElementById('rencana'),
+  arisan:document.getElementById('arisan'),
  komentar:document.getElementById('komentar-warga'),
  pembayaran:footer
 };
@@ -51,9 +52,9 @@ function visiblePanel(){
   reportVisible(active);
  });
 }
-function showPanel(panel){
+function showPanel(panel,recordHistory=true){
  // Inventaris sudah memiliki halaman khusus di Dokumentasi, bukan kartu di Beranda.
- if(panel==='inventaris'){location.assign('/dokumentasi/#inventaris');return;}
+ if(panel==='inventaris'){location.assign('/dokumentasi/?halaman=inventaris');return;}
  if(!Object.hasOwn(sectionTargets,panel)||(panel==='keuangan'&&current.role==='public'))panel='beranda';
  current.panel=panel;
  if(panel==='keuangan'&&isMember(current.role))createFinanceTabs();
@@ -63,7 +64,17 @@ function showPanel(panel){
  window.scrollTo({top,behavior:prefersReduced()?'auto':'smooth'});
  // Highlight immediately; scroll listener keeps it accurate as the view moves.
  reportVisible(panel);
+ if(recordHistory){
+  const dest=new URL(location.href);dest.hash='';
+  if(panel==='beranda')dest.searchParams.delete('halaman');else dest.searchParams.set('halaman',panel);
+  const currentPage=new URLSearchParams(location.search).get('halaman')||'beranda';
+  if(currentPage!==panel)history.pushState({...history.state,f4PortalPanel:panel},'',dest.pathname+dest.search);
+ }
 }
+window.addEventListener('popstate',event=>{
+ const page=event.state?.f4PortalPanel||new URLSearchParams(location.search).get('halaman')||'beranda';
+ if(Object.hasOwn(sectionTargets,page))showPanel(page,false);
+});
 window.addEventListener('scroll',visiblePanel,{passive:true});
 window.addEventListener('resize',visiblePanel,{passive:true});
 function createFinanceTabs(){
@@ -353,6 +364,13 @@ window.f4GoBank=()=>{
   else window.location.href='/bank-sampah/';
 };
 window.f4PortalSelectPanel=showPanel;
+document.querySelectorAll('a[href^="/?halaman="]').forEach(link=>{
+ link.addEventListener('click',event=>{
+  const panel=new URL(link.href).searchParams.get('halaman');
+  if(!Object.hasOwn(sectionTargets,panel))return;
+  event.preventDefault();showPanel(panel,true);
+ });
+});
 window.addEventListener('message',event=>{
  if(event.origin!==location.origin||event.source!==window.parent)return;
  if(event.data?.type==='f4:portal-panel')showPanel(String(event.data.panel||'beranda'));

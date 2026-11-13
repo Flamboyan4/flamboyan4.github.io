@@ -141,7 +141,7 @@ function rightsPage(){
  card.append(h('p','Mengubah role sendiri tidak tersedia. Penetapan role hanya dilakukan oleh Superadmin melalui pengelolaan akun.','ua-status'));
 }
 function close(){setAccountMenu(false);root.hidden=true;document.body.classList.remove('f4-account-open');
- if(mobileMenu){mobileMenu.setAttribute('aria-controls','portal-sidebar');mobileMenu.setAttribute('aria-label','Buka menu halaman');mobileMenu.setAttribute('aria-expanded','false')}if(location.hash==='#akun')history.replaceState(null,'',window.__f4AccountReturnHash||'#portal');if(photoUrl){URL.revokeObjectURL(photoUrl);photoUrl=''}}
+ if(mobileMenu){mobileMenu.setAttribute('aria-controls','portal-sidebar');mobileMenu.setAttribute('aria-label','Buka menu halaman');mobileMenu.setAttribute('aria-expanded','false')}if(history.state?.f4AccountOverlay)history.back();if(photoUrl){URL.revokeObjectURL(photoUrl);photoUrl=''}}
 async function open(){
  // No duplicate settings workspace for Bank Sampah members.
  if(document.body.classList.contains('f4-direct-bank')&&
@@ -150,7 +150,7 @@ async function open(){
    window.f4OpenBankProfile?.();
    return;
  }
- if(root.hidden){window.__f4AccountReturnHash=location.hash==='#akun'?(window.__f4AccountReturnHash||'#portal'):(location.hash||'#portal');if(location.hash!=='#akun')history.pushState(null,'','#akun');}
+ if(root.hidden)history.pushState({...history.state,f4AccountOverlay:true},'',location.pathname+location.search);
  const accountPanel=document.getElementById('f4-account-page'),residents=document.getElementById('f4-warga-panel');
  if(accountPanel)accountPanel.hidden=true;if(residents)residents.hidden=true;
  root.hidden=false;document.body.classList.add('f4-account-open');setAccountMenu(false);tab='identitas';
@@ -176,5 +176,5 @@ window.addEventListener('f4-account-password-updated',()=>{
  location.replace('/');
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!root.hidden){if(aside.classList.contains('open'))setAccountMenu(false);else close()}});
-window.addEventListener('popstate',()=>{if(!root.hidden&&location.hash!=='#akun')close()});
+window.addEventListener('popstate',()=>{if(!root.hidden&&!history.state?.f4AccountOverlay)close()});
 })();
