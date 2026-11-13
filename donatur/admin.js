@@ -37,26 +37,28 @@ function showList(id,arr,fn){
  arr.forEach(item=>fn(container,item));
 }
 function render(){
- $('count-org').textContent=data.organizations.length;
  $('count-users').textContent=data.accounts.length;
  $('count-programs').textContent=data.programs.length;
- const orgs=data.organizations.filter(x=>x.status==='aktif').map(x=>({id:x.id,name:x.name}));
+ const donors=data.accounts.filter(x=>x.role==='donatur'&&x.status==='aktif')
+  .map(x=>({id:x.accountId,name:x.name}));
  const programs=data.programs.filter(x=>x.status==='aktif').map(x=>({id:x.id,name:x.title}));
- const projects=data.projects.filter(x=>x.active&&!data.programs.some(p=>p.projectId===x.id)).map(x=>({id:x.id,name:x.title}));
- const funds=(data.catalog?.funds||[]).filter(f=>f.active!==false).map(f=>({id:f.id,name:f.name}));
- for(const select of document.querySelectorAll('.choose-org'))fill(select,orgs,'Pilih perusahaan');
+ const projects=data.projects.filter(x=>x.active&&!data.programs.some(p=>p.projectId===x.id))
+  .map(x=>({id:x.id,name:x.title}));
+ const funds=(data.catalog?.funds||[]).filter(f=>f.active!==false)
+  .map(f=>({id:f.id,name:f.name}));
+ for(const select of document.querySelectorAll('.choose-donor'))fill(select,donors,'Pilih akun donatur');
  for(const select of document.querySelectorAll('.choose-program'))fill(select,programs,'Pilih program');
  fill($('choose-project'),projects,'Pilih projek yang belum dihubungkan');
  fill($('choose-fund'),funds,'Pilih pos dana yang sudah ada');
- showList('organizations',data.organizations,(parent,o)=>
-  record(parent,o.name,[o.contactName,o.contactEmail].filter(Boolean).join(' · ')||'Belum ada kontak',o.status));
- const orgName=id=>data.organizations.find(x=>x.id===id)?.name||'Perusahaan';
+ const donorName=id=>data.accounts.find(x=>x.accountId===id)?.name||'Donatur';
  const programName=id=>data.programs.find(x=>x.id===id)?.title||'Program';
- showList('accounts',data.accounts,(parent,a)=>record(parent,a.username,orgName(a.organizationId),a.status));
- showList('programs',data.programs,(parent,p)=>record(parent,p.title,'Pos: '+(funds.find(f=>f.id===p.fundId)?.name||p.fundId),p.status));
+ showList('accounts',data.accounts,(parent,a)=>record(parent,a.name,
+  '@'+a.username+([a.contactName,a.contactEmail].filter(Boolean).length?' · '+[a.contactName,a.contactEmail].filter(Boolean).join(' · '):''),a.status));
+ showList('programs',data.programs,(parent,p)=>record(parent,p.title,
+  'Pos: '+(funds.find(f=>f.id===p.fundId)?.name||p.fundId),p.status));
  showList('allocations',data.links,(parent,l)=>record(parent,
   (l.kind==='incoming'?'Donasi · ':'Pengeluaran · ')+money(l.amountRp),
-  orgName(l.organizationId)+' / '+programName(l.programId)+' / '+String(l.occurredOn||'').slice(0,10)));
+  donorName(l.donorAccountId)+' / '+programName(l.programId)+' / '+String(l.occurredOn||'').slice(0,10)));
  refreshEvents();
 }
 function refreshEvents(){
@@ -99,7 +101,6 @@ async function send(action,form){
  finally{submit.disabled=false}
 }
 const actions=[
- ['form-organization','create-organization'],
  ['form-account','create-account'],
  ['form-program','create-program'],
  ['form-transaction','link-transaction'],
