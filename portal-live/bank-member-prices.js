@@ -30,24 +30,36 @@ function shortcut(home){
  arrow.append(chevron);
  b.append(icon,copy,arrow);
  b.setAttribute("aria-label","Lihat daftar harga sampah untuk warga");
- b.onclick=()=>window.goPage?.("bank-prices");
+ b.onclick=show;
  home.append(b);
 }
 function show(){
  let page=$("bank-prices");
  if(!page){
-  page=el("section","f4-bank-screen f4-bank-prices-screen");page.id="bank-prices";
-  page.append(el("h2","f4-bank-screen-title","Harga Sampah"));
-  page.append(el("p","f4-bank-prices-intro","Tarif warga, bukan harga lapak. Saldo sah setelah penjualan disahkan."));
+  page=el("dialog","f4-bank-prices-screen f4-bank-sheet-modal");page.id="bank-prices";
+  page.setAttribute("aria-label","Daftar harga sampah warga");
+  const heading=el("div","f4-bank-modal-heading");
+  heading.append(el("h2","","Daftar Harga"));
+  const close=el("button","f4-bank-modal-close");close.type="button";
+  close.setAttribute("aria-label","Tutup daftar harga");
+  const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("fill","none");
+  svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","2");
+  svg.setAttribute("stroke-linecap","round");svg.setAttribute("aria-hidden","true");
+  svg.innerHTML='<path d="M18 6 6 18M6 6l12 12"/>';close.append(svg);
+  close.onclick=()=>page.close();heading.append(close);page.append(heading);
+  page.append(el("p","f4-bank-prices-intro","Tarif khusus anggota per kg."));
   const search=el("input","f4-bank-price-search");search.type="search";search.id="f4BankPriceSearch";
   search.placeholder="Cari jenis sampah...";search.setAttribute("aria-label","Cari jenis sampah");
   const status=el("p","f4-bank-prices-status","Memuat harga warga...");status.id="f4BankPriceStatus";
   status.setAttribute("role","status");
   const list=el("div","f4-bank-prices-groups");list.id="f4BankPriceList";
   page.append(search,status,list);
-  $("dashboardView")?.querySelector(".section")?.append(page);
+  page.addEventListener("click",event=>{if(event.target===page)page.close();});
+  document.body.append(page);
  }
  page.classList.remove("hidden");
+ if(!page.open)page.showModal();
  const req=++requestId,status=$("f4BankPriceStatus"),host=$("f4BankPriceList"),search=$("f4BankPriceSearch");
  status.textContent="Memuat daftar harga terbaru...";
  fetch("https://api.flamboyan4.web.id/api/member/bank/prices",{
@@ -99,5 +111,5 @@ function show(){
   host.replaceChildren();
  });
 }
-window.F4MemberPrices={shortcut,show};
+window.F4MemberPrices={shortcut,show,close:()=>{const dialog=$("bank-prices");if(dialog?.open)dialog.close();}};
 })();
