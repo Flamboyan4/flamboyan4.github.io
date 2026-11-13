@@ -2,6 +2,23 @@
 /* Pure static validation: all Bank Sampah portal modes, desktop/mobile, no DB access. */
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const memberBannerBytes=fs.readFileSync('assets/bank-sampah-alur-penimbangan-1600x500.png');
+assert(memberBannerBytes.subarray(0,8).equals(Buffer.from('89504e470d0a1a0a','hex')) &&
+       memberBannerBytes.readUInt32BE(16)===1600 && memberBannerBytes.readUInt32BE(20)===500,
+ 'Use the original real 1600 x 500 Bank Sampah image, not a compressed placeholder');
+const h=fs.readFileSync('bank-sampah/index.html','utf8');
+const css=fs.readFileSync('portal-live/bank-eco-pages.css','utf8');
+const dashboard=fs.readFileSync('portal-live/bank-eco-dashboard.css','utf8');
+const publicTheme=fs.readFileSync('portal-live/bank-impact-summary.css','utf8');
+const mobile=fs.readFileSync('portal-live/bank-mobile-app.js','utf8');
+const priceModule=fs.readFileSync('portal-live/bank-member-prices.js','utf8');
+const memberNav=fs.readFileSync('portal-live/bank-member-navigation.css','utf8');
+const memberPolish=fs.readFileSync('portal-live/bank-member-polish.css','utf8');
+const memberLegacyTheme=fs.readFileSync('portal-live/modern-portals.css','utf8');
+const memberDirectShell=fs.readFileSync('portal-live/direct-shell.css','utf8');
+new vm.Script(mobile,{filename:'portal-live/bank-mobile-app.js'});
+const source=[...h.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].find(x=>x[1].includes('function v14Setup()'))?.[1];
+assert(source,'Bank app inline JavaScript missing');
+new vm.Script(source,{filename:'bank-sampah/index.html:inline'});
 /* Compact Tabungan history is the only member deposit list; all details live in its receipt. */
 const receiptScope=h.split("const deposits=$('v12Deposits');deposits.replaceChildren();")[1]?.split("if(!deposits.querySelector('.f4-member-tx'))")[0]||'';
 assert(receiptScope.includes("const row=document.createElement('div');row.className='f4-member-tx';") &&
@@ -22,23 +39,7 @@ assert(css.includes('linear-gradient(112deg,#009688,#008e80 56%,#43a047)') &&
        css.includes('background:#8bc34a') && css.includes('background:#ffc411'),
  'Savings page palette should use new teal, green, lime, yellow and cyan only');
 
-assert(memberBannerBytes.subarray(0,8).equals(Buffer.from('89504e470d0a1a0a','hex')) &&
-       memberBannerBytes.readUInt32BE(16)===1600 && memberBannerBytes.readUInt32BE(20)===500,
- 'Use the original real 1600 x 500 Bank Sampah image, not a compressed placeholder');
-const h=fs.readFileSync('bank-sampah/index.html','utf8');
-const css=fs.readFileSync('portal-live/bank-eco-pages.css','utf8');
-const dashboard=fs.readFileSync('portal-live/bank-eco-dashboard.css','utf8');
-const publicTheme=fs.readFileSync('portal-live/bank-impact-summary.css','utf8');
-const mobile=fs.readFileSync('portal-live/bank-mobile-app.js','utf8');
-const priceModule=fs.readFileSync('portal-live/bank-member-prices.js','utf8');
-const memberNav=fs.readFileSync('portal-live/bank-member-navigation.css','utf8');
-const memberPolish=fs.readFileSync('portal-live/bank-member-polish.css','utf8');
-const memberLegacyTheme=fs.readFileSync('portal-live/modern-portals.css','utf8');
-const memberDirectShell=fs.readFileSync('portal-live/direct-shell.css','utf8');
-new vm.Script(mobile,{filename:'portal-live/bank-mobile-app.js'});
-const source=[...h.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].find(x=>x[1].includes('function v14Setup()'))?.[1];
-assert(source,'Bank app inline JavaScript missing');
-new vm.Script(source,{filename:'bank-sampah/index.html:inline'});
+
 assert(/\/portal-live\/bank-eco-pages\.css\?v=[0-9]{8}-/.test(h),'Versioned theme stylesheet missing');
 for(const name of ["pageProfile","pageSetoran","pageRiwayat","pageRiwayatJual","pagePenjualan","pageRekonsiliasi","pageMaster","pageProgress","pagePassword","pageAdmin","pagePengesahan","pageTabungan","pageBiaya","pageLaporan","pageKegiatan","pageDokumentasi","pageInventaris","pagePribadi"].concat(['pageDashboard','v11Public'])){
  assert(h.includes(name),'Missing portal view '+name);
