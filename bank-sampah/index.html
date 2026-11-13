@@ -3488,29 +3488,43 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
         v14Stat('Perkiraan setoran',rupiah(unconfirmed.reduce((sum,x)=>sum+Number(x.estimasiRp||0),0)),'Belum sah'),
         v14Stat('Berat',weight===null?'—':kg(weight),'Sesuai status'),
         v14Stat('Setoran',String(active.length),''));
-       const recent=active.slice().sort((a,b)=>String(b.tanggal||'').localeCompare(String(a.tanggal||''))).slice(0,3);
+       // Mutasi saldo yang sah: gunakan ledger, bukan daftar setoran.
+       // Setoran estimasi belum menambah tabungan, dan pencairan wajib terlihat.
+       const recent=(Array.isArray(d.mutasi)?d.mutasi:[])
+        .filter(x=>Number(x.kredit||0)>0||Number(x.debit||0)>0)
+        .map((x,index)=>({entry:x,index}))
+        .sort((a,b)=>String(b.entry.tanggal||'').localeCompare(String(a.entry.tanggal||''))||a.index-b.index)
+        .slice(0,3);
        const recentBox=$('v14Recent');recentBox.replaceChildren();
-       if(!recent.length)recentBox.textContent='Belum ada setoran.';
-       for(const s of recent){
-        const article=document.createElement('div');article.className='f4-member-recent';
+       if(!recent.length)recentBox.textContent='Belum ada mutasi tabungan.';
+       for(const {entry:x} of recent){
+        const amountIn=Number(x.kredit||0),amountOut=Number(x.debit||0);
+        const isDebit=amountOut>0;
+        const jenis=String(x.jenis||'').toLowerCase();
+        const label=jenis==='pencairan'?'Pencairan Tabungan'
+          :jenis==='koreksi_debit'?'Penyesuaian Saldo Keluar'
+          :jenis==='koreksi_kredit'?'Penyesuaian Saldo Masuk'
+          :'Hasil Penjualan Sampah';
+        const article=document.createElement('div');
+        article.className='f4-member-recent'+(isDebit?' is-debit':'');
         const icon=document.createElement('span');icon.className='f4-member-recent-icon';
         const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
         svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');
         svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');
         svg.setAttribute('stroke-width','2');svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');
         const arrow=document.createElementNS('http://www.w3.org/2000/svg','path');
-        arrow.setAttribute('d','M17 7 7 17M7 9v8h8');svg.append(arrow);icon.append(svg);
+        arrow.setAttribute('d',isDebit?'M7 17 17 7M9 7h8v8':'M17 7 7 17M7 9v8h8');
+        svg.append(arrow);icon.append(svg);
         const summary=document.createElement('div');summary.className='f4-member-recent-copy';
-        const confirmed=/terkonfirmasi|confirmed/i.test(String(s.status||''));
-        const title=document.createElement('strong');title.textContent='Setoran Sampah';
+        const title=document.createElement('strong');title.textContent=label;
         const sub=document.createElement('small');
-        sub.textContent=f4MemberDateID(s.tanggal)+' • '+(s.beratKg==null?'Berat belum tersedia':kg(s.beratKg))+' • '+(confirmed?'Sah':'Belum sah');
+        sub.textContent=f4MemberDateID(x.tanggal)+' • '+(isDebit?'Pencairan tercatat':'Saldo masuk');
         summary.append(title,sub);
         const value=document.createElement('div');value.className='f4-member-recent-value';
-        const info=f4MemberDepositDisplay(s);
         const amount=document.createElement('b');
-        amount.textContent=confirmed&&/^Rp\s/.test(info.nominal)?'+ '+info.nominal:info.nominal;
-        const amountLabel=document.createElement('small');amountLabel.textContent=info.label;
+        amount.textContent=(isDebit?'− ':'+ ')+rupiah(isDebit?amountOut:amountIn);
+        const amountLabel=document.createElement('small');
+        amountLabel.textContent='Berhasil';
         value.append(amount,amountLabel);
         article.append(icon,summary,value);recentBox.append(article);
        }
