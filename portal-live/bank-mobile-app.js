@@ -254,7 +254,13 @@ function ensureHome(){
   const heading=el("small","","BANK SAMPAH FLAMBOYAN 4"),label=el("strong","f4-bank-app-balance-title","Hasil diterima lapak"),
     amount=el("strong","f4-bank-app-balance","—"),secondary=el("span","f4-bank-app-secondary","Memuat...");
   amount.id="f4BankAppBalance";secondary.id="f4BankAppSecondary";
-  hero.append(heading,label,amount,secondary);
+  const breakdown=el("div","f4-bank-admin-hero-breakdown");breakdown.id="f4BankAdminHeroBreakdown";
+  for(const [id,caption] of [["f4BankAdminHeroWarga","Hak warga"],["f4BankAdminHeroLingkungan","Kas lingkungan"]]){
+   const item=el("span","f4-bank-admin-hero-item");
+   item.append(el("small","",caption),Object.assign(el("strong","", "—"),{id}));
+   breakdown.append(item);
+  }
+  hero.append(heading,label,amount,secondary,breakdown);
   const minis=el("div","f4-bank-app-minis");minis.id="f4BankAppMinis";
   hub.append(welcome,card,savings,hero,minis);
   page.prepend(hub);
@@ -429,10 +435,27 @@ function updateDashboard(){
   const headline=$("f4BankAppAdminHero")?.querySelector(".f4-bank-app-balance-title");if(headline)headline.textContent="Kas milik Bank Sampah";
   text("f4BankAppBalance",Number.isFinite(owned)?rupiah(owned):"—");
   text("f4BankAppSecondary",current?"Hasil diterima lapak: "+rupiah(current.diterimaLapakRp):"Memuat posisi kas...");
+  text("f4BankAdminHeroWarga",current?rupiah(current.hakWargaBelumCairRp):"—");
+  text("f4BankAdminHeroLingkungan",current?rupiah(current.kasLingkunganRp):"—");
   const opts=current?[["Hak warga",rupiah(current.hakWargaBelumCairRp)],["Kas lingkungan",rupiah(current.kasLingkunganRp)],["Anggota aktif",current.wargaAktif]]:
    [["Hak warga","—"],["Kas lingkungan","—"],["Anggota aktif",map.get("Anggota aktif")]];
   $("f4BankAppMinis")?.replaceChildren(...opts.map(([label,value])=>{
-   const node=el("div","f4-bank-app-mini");node.append(el("small","",label),el("strong","",value||"—"));return node;
+   const members=label==="Anggota aktif";
+   const node=el(members?"button":"div","f4-bank-app-mini"+(members?" f4-bank-admin-members-link":""));
+   if(members){
+    node.type="button";node.dataset.bankAppRoute="tabungan";
+    node.setAttribute("aria-label","Lihat saldo dan daftar warga");
+    const icon=el("span","f4-bank-admin-members-icon");
+    const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+    svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("aria-hidden","true");
+    svg.innerHTML='<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2"/><path d="M17 5a3 3 0 0 1 0 6m1 5c2 0 3 2 3 4"/>';
+    icon.append(svg);node.append(icon);
+    node.onclick=()=>navigate("tabungan");
+   }
+   const copy=el("span","f4-bank-admin-mini-copy");
+   copy.append(el("small","",label),el("strong","",String(value??"—")));node.append(copy);
+   if(members)node.append(f4BankChevronIcon());
+   return node;
   }));
  }
 }
@@ -1361,7 +1384,7 @@ function ensureAdminHome(){
    adminOperation("Catat Setoran","","setoran",true),
    adminOperation("Catat Penjualan","","penjualan",false)
   );
-  $("f4BankAppAdminHero")?.before(actions);
+  $("f4BankAppAdminHero")?.after(actions);
  }
  $("f4BankAdminNext")?.remove();
  // Akses cepat sama untuk PC dan HP, dengan grid responsif masing-masing.
