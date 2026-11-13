@@ -278,7 +278,7 @@ assert(memberNav.includes('margin:0 0 0 226px;padding:10px clamp(20px,2.5vw,32px
        css.includes('box-shadow:0 6px 15px #856b2433;'),
  'Desktop top gap must be compact; eye is plain and no whole-card click or gray badge ring');
 assert(memberNav.includes('margin-inline:auto;padding:14px 15px 10px;background:#fff') &&
-       css.includes('padding-bottom:calc(var(--f4-bank-dock-height) + 8px)'),
+       css.includes('padding-bottom:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px) + 8px)'),
  'Only one bottom-dock clearance should remain on mobile');
 assert(css.includes('max-height:184px;overflow-y:auto;overflow-x:hidden'),
  'PC member mutasi must not grow beyond its dashboard card');
@@ -302,11 +302,19 @@ const dockSection=css.split('/* Navigasi bawah tunggal:')[1]?.split('body.f4-ban
 assert(dockSection,'Canonical mobile dock section missing');
 assert(!dockSection.includes('!important'),'Dock uses priority overrides');
 assert(css.includes('body.f4-bank-app-private{--f4-bank-dock-height:64px}'),'Shared bank dock dimension missing');
-assert(css.includes('height:var(--f4-bank-dock-height)'),'Dock must use shared height token');
-assert(css.includes('padding-bottom:calc(var(--f4-bank-dock-height) + 8px)'),'Page must reserve same compact dock height');
+assert(css.includes('height:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px))'),'Dock must use shared height and a single safe-area inset');
+assert(css.includes('padding-bottom:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px) + 8px)'),'Page must reserve same compact dock height');
 assert(dockSection.includes('grid-template-rows:27px 15px'),'Icon-label spacing must stay compact');
-assert(!dockSection.includes('safe-area-inset-bottom'),'Old double safe-area padding must not return');
+assert(dockSection.includes('padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))'),
+ 'Safe-area padding must be allocated once, not via competing dock overrides');
 assert((css.match(/\.f4-bank-app-dock-action\{/g)||[]).length===1,'Duplicated dock action rule');
+assert((dockSection.match(/body\.f4-bank-app-private \.f4-bank-app-dock-action\.is-primary\{/g)||[]).length===1 &&
+       !dockSection.includes('body.f4-bank-app-admin .f4-bank-app-dock-action.is-primary') &&
+       !dockSection.includes('body.f4-bank-app-member .f4-bank-app-dock-action.is-primary'),
+ 'Member and admin primary dock buttons must share one selector; no role-specific CSS stacks');
+assert(mobile.includes('isAdminReport=dock&&route==="laporan"') &&
+       mobile.includes('if(!b.classList.contains("is-primary"))b.append('),
+ 'Laporan pengelola must use the identical center button DOM structure as Pencairan warga');
 assert((css.match(/\.f4-bank-app-dock:not\(\[hidden\]\)\{/g)||[]).length===1,'Duplicated dock container rule');
 assert(!css.includes('tinggi 62px'),'Old compact dock returned');
 assert(!css.includes('border-bottom:2px solid #087850'),'Underline-only tab returned');
@@ -336,9 +344,9 @@ assert(dockSection.includes('.f4-bank-app-dock-action.is-primary') &&
        dockSection.includes('background:#ffc719') &&
        !dockSection.includes('0 0 0 1px #d9e4d9') &&
        !dockSection.includes('.f4-bank-app-dock-action.is-primary .f4-bank-app-action-name{') &&
-       mobile.includes('if(!isMemberPayout)b.append(el("span","f4-bank-app-action-name",title))') &&
+       mobile.includes('if(!b.classList.contains("is-primary"))b.append(el("span","f4-bank-app-action-name",title))') &&
        dockSection.includes('.f4-bank-payout-rp-icon text{'),
- 'Only the centered yellow Rp badge rises; Pencairan remains accessible without a visible text label');
+ 'The member and manager center buttons use the same raised gold badge; both remain accessible by aria-label');
 assert(mobile.includes('svg.innerHTML=\'<text x="36" y="45" text-anchor="middle">Rp</text>\''),
  'Original white Rp wordmark must be restored as SVG, not a stylized line icon');
 // Admin HP retains shortcut actions; desktop manager uses a compact direct sidebar.
