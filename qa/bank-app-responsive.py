@@ -32,7 +32,7 @@ if(target)target.classList.remove('hidden');
 };</script>
 </body></html>"""
 
-# Keep the member dashboard layout and white card palette under browser checks too.
+# Keep the member dashboard layout and the new fresh eco palette under browser checks too.
 MEMBER_HTML = """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
 <base href="http://127.0.0.1:8765/">
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css">
@@ -79,7 +79,7 @@ async def member_layout(browser):
         }""")
         assert not result["overflow"],(device,result)
         assert result["guideColor"]=="rgb(255, 255, 255)",(device,result)
-        assert result["balanceColor"]=="rgb(255, 255, 255)",(device,result)
+        assert result["balanceColor"]=="rgb(234, 249, 247)",(device,result)
         assert all(c=="rgb(255, 255, 255)" for c in result["stepColors"]),(device,result)
         if device=="pc":
             assert result["recent"]["x"]<result["guide"]["x"],result
