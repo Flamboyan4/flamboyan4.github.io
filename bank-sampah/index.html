@@ -568,7 +568,7 @@ body.f4-embedded-bank #sideNav #v15Footer,body.f4-embedded-bank #v19PublicAccoun
 /* Utility bar terpadu adalah satu-satunya header pada mode embedded. */
 body.f4-embedded-bank>.shell>.top{display:none!important}
 /* Every private Bank Sampah page gets the same clearance; no per-page button hacks. */
-body.f4-embedded-bank #dashboardView .section{padding-top:64px!important}
+body.f4-embedded-bank:not(.f4-bank-app-member) #dashboardView .section{padding-top:64px!important}
 body.f4-embedded-bank .v14-head{align-items:center!important}
 body.f4-embedded-bank #v14QuickAction{margin-top:0!important}
 /* Reserve utility space only above content, never above the whole sidebar grid. */
@@ -5942,7 +5942,7 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261113-clean-dashboard-v11">
 <link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261113-round-rp-clean-eye-v32">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261113-harmony3-v10">
-<link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261113-desktop-upper-gap-v21">
+<link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261113-member-desktop-offset-fix-v22">
 <script defer src="/portal-live/transaction-receipts.js?v=20261110-iuran-ticket-unified-v2"></script>
 <script src="/portal-live/bank-sale-sheet.js?v=20261109-mobile-confirm-v2"></script><script src="/portal-live/bank-sale-report.js?v=20261103-internal-v1"></script><script src="/portal-live/bank-member-prices.js?v=20261113-price-dialog-v12"></script>
 <script src="/portal-live/calendar-unified.js?v=20261105-sunday-first"></script>

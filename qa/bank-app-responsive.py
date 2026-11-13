@@ -93,9 +93,18 @@ MEMBER_SAVINGS_HTML = MEMBER_HTML.replace(
 
 async def member_layout(browser):
     """Selected eco-fintech layout with no outer frame and true banking hierarchy."""
+    # Also exercise the embedded-mode CSS that previously forced 64px above the first member card.
+    from pathlib import Path
+    import re
+    live_html=Path("bank-sampah/index.html").read_text(encoding="utf-8")
+    clearance=re.search(r"body\\.f4-embedded-bank(?:\\:not\\(\\.f4-bank-app-member\\))? #dashboardView \\.section\\{padding-top:64px!important\\}",live_html)
+    assert clearance, "Embedded clearance owner missing from site source"
     for device,width in [("pc",1366),("tablet",820),("hp",390),("smallhp",360)]:
         page=await browser.new_page(viewport={"width":width,"height":850})
         await page.set_content(MEMBER_HTML,wait_until="load")
+        if device=="pc":
+            await page.evaluate("document.body.classList.add('f4-embedded-bank')")
+            await page.add_style_tag(content=clearance.group(0))
         result=await page.evaluate("""() => {
           const rect=sel=>{const e=document.querySelector(sel),r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom}};
           const card=document.querySelector('#f4BankMemberCard');

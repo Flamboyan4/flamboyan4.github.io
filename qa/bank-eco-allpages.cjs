@@ -272,6 +272,8 @@ assert(!css.includes('@media print'),'Theme must not alter PDFs');
 // Public progress is weight-only until authentication; financial value stays private.
 assert((h.match(/id="f4DevChart"/g)||[]).length===1,'Public progress chart must be unique');
 assert(!h.includes('id="v17ValueBars"'),'Legacy value chart must not return');
+assert(h.includes('body.f4-embedded-bank:not(.f4-bank-app-member) #dashboardView .section{padding-top:64px!important}'), 'The old 64px embedded clearance must explicitly exclude member dashboard cards');
+assert(!h.includes('body.f4-embedded-bank #dashboardView .section{padding-top:64px!important}'), 'Member PC must never inherit the forced 64px top padding');
 assert(h.includes('data-dev-mode="berat" aria-pressed="true"'),'Public weight mode missing');
 assert(h.includes('data-dev-mode="nilai" aria-pressed="false" class="hidden" hidden'),
  'Financial value tab must stay hidden for guests');
