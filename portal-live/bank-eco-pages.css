@@ -1555,17 +1555,41 @@ body.f4-bank-app-admin #pageSetoran .f4-bank-own-side>.f4-bank-gold-action{
  width:100%;min-height:42px
 }
 @media(min-width:1024px){
+ /* Own-stock form uses the same top metadata + two-card desktop composition. */
  body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm{
-  grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px
+  display:grid;grid-template-columns:minmax(0,1.18fr) minmax(320px,.82fr);
+  align-items:start;gap:16px
  }
  body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm>.f4-bank-own-intro{
-  grid-column:1/-1
- }
- body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm>.f4-bank-own-main{
-  grid-column:1;grid-row:2
+  grid-column:1/-1;grid-row:1;margin:0;color:#688276;font-size:12px
  }
  body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm>.f4-bank-own-side{
-  grid-column:2;grid-row:2
+  display:contents
+ }
+ body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm .f4-bank-own-fields{
+  grid-column:1/-1;grid-row:2;display:grid;gap:12px;
+  box-sizing:border-box;padding:20px 23px;border:1px solid #e6efea;
+  border-radius:22px;background:#fff;box-shadow:0 5px 19px #153f2a0a
+ }
+ body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm>.f4-bank-own-main{
+  grid-column:1;grid-row:3;min-width:0
+ }
+ body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm .f4-bank-own-detail{
+  padding:20px 23px;border:1px solid #e6efea;border-radius:22px;
+  background:#fff;box-shadow:0 5px 19px #153f2a0a
+ }
+ body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm .f4-bank-own-side>.f4-bank-own-field{
+  grid-column:2;grid-row:3;box-sizing:border-box;display:grid;
+  align-content:start;gap:12px;margin:0;padding:20px 23px;
+  border:1px solid #e6efea;border-radius:22px;
+  background:#fff;box-shadow:0 5px 19px #153f2a0a
+ }
+ body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm .f4-bank-own-side>.f4-bank-gold-action{
+  grid-column:2;grid-row:4;justify-self:stretch;
+  min-height:50px;margin:0;border-radius:15px;background:#009788;color:#fff
+ }
+ body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm .f4-bank-own-side>.f4-bank-own-status{
+  grid-column:2;grid-row:5
  }
 }
 .f4-bank-own-intro{font-size:12px;color:#567465;margin:0}
