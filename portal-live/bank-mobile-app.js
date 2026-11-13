@@ -65,9 +65,13 @@ function action([title,route,asset],dock=false){
  if(isMemberPayout)b.classList.add("is-primary");
  const symbol=el("span","f4-bank-app-action-icon");
  if(isMemberPayout){
-  const mark=el("span","f4-bank-currency-mark","Rp");
-  mark.setAttribute("aria-hidden","true");
-  symbol.append(mark);
+  const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  svg.setAttribute("viewBox","0 0 36 32");
+  svg.setAttribute("aria-hidden","true");
+  svg.classList.add("f4-bank-payout-rp-icon");
+  // A real scalable SVG Rp mark, rather than a font glyph or a generic wallet icon.
+  svg.innerHTML='<path d="M4.5 25V7h8.8c3.7 0 5.9 2 5.9 5.1s-2.2 5.1-5.9 5.1H4.5m9.2 0 5.6 7.8"/><path d="M23 16v13m0-11c1.2-1.9 3-2.9 5.3-2.9 3.4 0 5.4 2.2 5.4 5.5s-2 5.5-5.4 5.5c-2.3 0-4.1-1-5.3-2.9"/>';
+  symbol.append(svg);
  }else symbol.append(image(asset));
  b.append(symbol,el("span","f4-bank-app-action-name",title));
  b.onclick=()=>navigate(route);return b;
