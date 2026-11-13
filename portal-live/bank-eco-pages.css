@@ -1234,39 +1234,78 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
   padding-inline:13px;border:1px solid #edf2f3;border-radius:14px;background:#f8fafc;
   color:#263d34;font-size:13px;font-weight:700
  }
- body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm>.f4-setoran-main{
+ /* Satu sistem rincian sampah pada Warga, Bank dan Penjualan (HP). */
+ body.f4-bank-app-admin #dashboardView :is(
+  #pageSetoran #setoranForm>.f4-setoran-main,
+  #pagePenjualan #saleForm>.f4-sale-main){
   padding:18px;border:1px solid #e9eff0;border-radius:23px;
   background:#fff;box-shadow:0 4px 15px #133e3310;gap:13px
  }
- body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm .f4-setoran-main .f4-entry-goods-heading{
+ body.f4-bank-app-admin #dashboardView :is(
+  #pageSetoran #setoranForm .f4-setoran-main,
+  #pagePenjualan #saleForm .f4-sale-main) .f4-entry-goods-heading{
   display:contents
  }
- body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm .f4-setoran-main .f4-entry-goods-heading>div{
+ body.f4-bank-app-admin #dashboardView :is(
+  #pageSetoran #setoranForm .f4-setoran-main,
+  #pagePenjualan #saleForm .f4-sale-main) .f4-entry-goods-heading>div{
   order:0
  }
- body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm .f4-setoran-main .f4-entry-goods-heading h3{
+ body.f4-bank-app-admin #dashboardView :is(
+  #pageSetoran #setoranForm .f4-setoran-main,
+  #pagePenjualan #saleForm .f4-sale-main) .f4-entry-goods-heading h3{
   font-size:15px;font-weight:850;color:#183a2c
  }
- body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm #setBarang{
+ body.f4-bank-app-admin #dashboardView :is(#setBarang,#saleItems){
   order:1;margin:0;overflow:visible
  }
- body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm .f4-entry-goods-heading>.f4-compact-add{
+ body.f4-bank-app-admin #dashboardView #pagePenjualan #saleForm .f4-sale-main>.summary-box{
+  order:3
+ }
+ /* Tombol tambah sama pada tiga form: di bawah baris input, selebar kartu. */
+ body.f4-bank-app-admin #dashboardView :is(
+  #pageSetoran #setoranForm .f4-entry-goods-heading>.f4-compact-add,
+  #pagePenjualan #saleForm .f4-entry-goods-heading>.f4-compact-add,
+  #pageSetoran #f4BankOwnDepositForm .f4-bank-own-detail>.f4-compact-add){
   box-sizing:border-box;order:2;justify-self:stretch;width:100%;min-height:48px;
   margin:0;padding:11px 12px;border:2px dashed #00978866;border-radius:13px;
   background:#0097880a;color:#007c70;font-size:13px;font-weight:850
  }
- body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm #setBarang .f4-compact-row{
+ body.f4-bank-app-admin #dashboardView :is(#setBarang,#f4BankOwnLines) .f4-compact-row{
   grid-template-columns:minmax(0,1fr) minmax(0,140px);gap:8px
  }
- body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm #setBarang .f4-compact-entry-group{
+ body.f4-bank-app-admin #dashboardView :is(#setBarang,#f4BankOwnLines,#saleItems) .f4-compact-entry-group{
   grid-template-columns:minmax(0,1fr) 42px;gap:7px
  }
- body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm #setBarang .f4-compact-row :is(select,input){
+ body.f4-bank-app-admin #dashboardView :is(#setBarang,#f4BankOwnLines,#saleItems) .f4-compact-row :is(select,input){
   min-height:47px;padding:8px 9px;border:1px solid #edf2f3;
   border-radius:12px;background:#f8fafc;color:#284237;font-size:13px
  }
- body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm #setBarang .f4-compact-remove{
+ body.f4-bank-app-admin #dashboardView :is(#setBarang,#f4BankOwnLines,#saleItems) .f4-compact-remove{
   min-height:47px;border:0;border-radius:12px;background:#fff0ef;color:#dc6057
+ }
+ /* Form bank sendiri: tanggal → rincian → catatan → simpan, tidak dibalik. */
+ body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm>.f4-bank-own-side{
+  display:contents
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm>.f4-bank-own-intro{order:0}
+ body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-fields{
+  order:1;box-sizing:border-box;padding:17px 18px;
+  border:1px solid #e9eff0;border-radius:23px;background:#fff;
+  box-shadow:0 4px 15px #133e3310
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm>.f4-bank-own-main{order:2}
+ body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-side>.f4-bank-own-field{
+  order:3;box-sizing:border-box;padding:17px 18px;border:1px solid #e9eff0;
+  border-radius:23px;background:#fff;box-shadow:0 4px 15px #133e3310
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-side>.f4-bank-gold-action{order:4}
+ body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-side>.f4-bank-own-status{order:5}
+ body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-detail{
+  gap:13px
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-detail-head strong{
+  color:#183a2c;font-size:15px;font-weight:850
  }
  body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm .f4-setoran-side{
   gap:14px
@@ -1303,7 +1342,7 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
   background:#f8fafc;font-size:13px;font-weight:500;line-height:1.45;resize:vertical
  }
  body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm>.f4-bank-own-intro,
- body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm :is(.f4-bank-own-detail,.f4-bank-own-side){
+ body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-detail{
   box-sizing:border-box;padding:17px 18px;border:1px solid #e9eff0;
   border-radius:23px;background:#fff;box-shadow:0 4px 15px #133e3310
  }
@@ -1622,15 +1661,7 @@ body.f4-bank-app-admin #pageSetoran .f4-bank-own-side>.f4-bank-gold-action{
 .f4-bank-own-detail-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .f4-bank-own-detail-head strong{color:#16472f}
 .f4-bank-own-lines{display:grid;gap:8px}
-.f4-bank-own-line{
- display:grid;grid-template-columns:minmax(0,1.45fr) minmax(110px,1fr) 38px;
- align-items:stretch;min-width:0;gap:9px
-}
-.f4-bank-own-line :is(input,select){
- box-sizing:border-box;width:100%;min-width:0;
- height:42px;min-height:42px;max-height:42px;padding-block:0
-}
-.f4-bank-own-remove{min-height:42px;border:1px solid #e1e5df;border-radius:10px;background:#fff;color:#915332;cursor:pointer;padding:0;font-size:20px}
+/* Setoran milik Bank memakai .f4-compact-row yang sama dengan Setoran Warga. */
 .f4-bank-own-weight{font-size:12px;font-weight:800;color:#126847}
 .f4-bank-own-status{font-size:12px;color:#2b6a4b;min-height:0;margin:0}
 body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:start}
