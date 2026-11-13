@@ -78,7 +78,7 @@ MEMBER_FIXTURE = """
       <button id="f4BankMemberCard" class="f4-bank-member-card">
        <span class="f4-bank-member-card-head"><span class="f4-bank-atm-brand">
         <img src="/assets/logo-flamboyan.svg"><span class="f4-bank-atm-brand-label">BANK SAMPAH FLAMBOYAN 4</span>
-       </span></span>
+       </span><span class="f4-bank-atm-contactless"><svg viewBox="0 0 32 32"><path d="M8 11a8 8 0 0 1 0 10"/></svg></span></span>
        <span class="f4-bank-atm-center"><span class="f4-bank-member-card-chip"></span><strong class="f4-bank-atm-number">W017</strong></span>
        <span class="f4-bank-member-card-foot"><span class="f4-bank-atm-person">
         <small>NAMA ANGGOTA</small><strong>ANGGOTA</strong></span>
