@@ -1,4 +1,4 @@
-/* Donatur Flamboyan 4 — data D1 milik organisasi yang ditentukan server. */
+/* Donatur Flamboyan 4 — satu akun, satu pemilik laporan, ditetapkan oleh server. */
 (()=>{
 'use strict';
 const API='https://api.flamboyan4.web.id';
@@ -121,7 +121,7 @@ function renderUpdates(data){
  }
 }
 function renderReport(data){
- $('report-title').textContent='Laporan Donatur — '+data.organization.name;
+ $('report-title').textContent='Laporan Donatur — '+data.donor.name;
  const times=data.transactions.map(t=>t.occurredOn).filter(Boolean).sort();
  $('report-period').textContent=times.length?'Periode '+tanggal(times[0])+' s.d. '+tanggal(times[times.length-1]):'Belum ada transaksi tercatat';
  const boxes=$('report-summary');boxes.replaceChildren();
@@ -134,7 +134,7 @@ function renderReport(data){
  if(data.historyPartial)boxes.append(node('p','Perhatian: rincian di halaman dibatasi 500 baris. Mintalah laporan lengkap kepada pengurus.','muted'));
 }
 function render(data){
- $('company-name').textContent=data.organization.name;
+ $('company-name').textContent=data.donor.name;
  $('amount-received').textContent=rupiah(data.summary.receivedRp);
  $('amount-spent').textContent=rupiah(data.summary.spentRp);
  $('amount-remaining').textContent=rupiah(data.summary.remainingRp);
