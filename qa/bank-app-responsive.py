@@ -37,70 +37,93 @@ MEMBER_HTML = """<!doctype html><html><head><meta name="viewport" content="width
 <base href="http://127.0.0.1:8765/">
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css">
 <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
-<style>body{margin:0;font-family:system-ui;background:#fff}.grid{display:grid;grid-template-columns:242px minmax(0,1fr)}
-.section{min-width:0;padding:0}#pageDashboard{padding:0}
-@media(max-width:760px){.grid{display:block}}</style></head>
+<style>body{margin:0;font-family:system-ui;background:#f7fafb}.grid{display:grid;grid-template-columns:242px minmax(0,1fr)}
+.section{min-width:0;padding:20px}#pageDashboard{padding:0}
+@media(max-width:1023px){.grid{display:block}.section{padding:14px}}</style></head>
 <body class="f4-bank-app-private f4-bank-app-member" data-f4-bank-role="warga">
 <div id="dashboardView"><div class="grid"><aside id="sideNav">Navigasi</aside><main class="section">
 <section id="pageDashboard" class="v14-home f4-member-dashboard">
-<div id="f4BankAppHome" data-bank-role="member">
-<div class="f4-bank-app-personal-greeting"><strong>Halo, Anggota!</strong></div>
-<button class="f4-bank-member-card"><span>BANK SAMPAH</span><span>W017</span></button>
-<button class="f4-bank-app-member-balance"><small>Saldo sah</small><strong>Rp 3.000</strong></button>\n<button id="f4MemberPriceShortcut" class="f4-bank-price-shortcut">Daftar Harga</button>
-<section id="f4BankWeighingSchedule" class="f4-bank-weigh-schedule"><span>Jadwal timbang</span></section>
-<details id="f4MemberFlow" class="f4-member-flow" open><summary class="f4-member-flow-head">
-<span class="f4-member-flow-icon">✦</span><span class="f4-member-flow-copy"><strong>Cara setor sampah</strong><small>Pilah → Antar → Timbang → Saldo</small></span>
-<span class="f4-member-flow-toggle">Lihat alur</span></summary><div class="f4-member-flow-body">
-<ol class="f4-member-flow-steps">
-<li><span class="f4-member-flow-number">1</span><div><strong>Pilah di rumah</strong><p>Pisahkan sesuai jenis</p></div></li>
-<li><span class="f4-member-flow-number">2</span><div><strong>Antar ke gudang</strong><p>Datang saat ada petugas</p></div></li>
-<li><span class="f4-member-flow-number">3</span><div><strong>Timbang dan catat</strong><p>Petugas mencatat</p></div></li>
-<li><span class="f4-member-flow-number">4</span><div><strong>Saldo sah</strong><p>Setelah hasil jual disahkan</p></div></li>
-</ol></div></details>
-<section class="v14-panel"><h3>Setoran pribadi terbaru</h3><div class="f4-member-recent">27 Okt 2026 — Rp 2.250</div></section>
+<div id="f4BankAppHome" data-bank-role="member" class="f4-bank-app-home">
+<div class="f4-bank-app-personal-greeting"><strong>Halo, Anggota!</strong><small>Rumah A5/41</small></div>
+<section id="f4MemberHero" class="f4-member-hero">
+ <button id="f4BankMemberCard" class="f4-bank-member-card"><span class="f4-bank-member-card-head"><img src="/assets/logo-flamboyan.svg"><span>BANK SAMPAH · FLAMBOYAN 4</span><span class="f4-bank-member-card-chip"></span></span><span class="f4-bank-member-card-foot"><span><small>NOMOR ANGGOTA</small><strong>W017</strong><small>Rumah A5/41</small></span><span class="f4-bank-card-leaf"><img src="/assets/icons/bank.svg"></span></span></button>
+ <button id="f4BankAppMemberBalance" class="f4-bank-app-member-balance"><small>Saldo terkonfirmasi</small><strong>Rp 3.000</strong><span class="f4-bank-member-chevron"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span></button>
+</section>
+<nav id="f4MemberQuickActions" class="f4-member-shortcuts" aria-label="Akses cepat anggota">
+ <button id="f4MemberQuickGuide" class="f4-member-shortcut"><span class="f4-member-shortcut-icon"><img src="/assets/icons/bank.svg"></span><span class="f4-member-shortcut-copy"><strong>Cara Setor</strong><small>Panduan penimbangan</small></span></button>
+ <button id="f4MemberQuickPayout" class="f4-member-shortcut"><span class="f4-member-shortcut-icon"><img src="/assets/icons/pay.svg"></span><span class="f4-member-shortcut-copy"><strong>Pencairan</strong><small>Ajukan pencairan</small></span></button>
+ <button id="f4MemberPriceShortcut" class="f4-bank-price-shortcut"><span class="f4-bank-price-shortcut-icon"><svg viewBox="0 0 24 24"><path d="M7 19l-3-3"/></svg></span><span class="f4-bank-price-shortcut-copy"><strong class="f4-bank-price-shortcut-label">Daftar Harga</strong><small>Tarif warga per kg</small></span><span class="f4-bank-price-shortcut-arrow">›</span></button>
+ <button id="f4MemberQuickSchedule" class="f4-member-shortcut"><span class="f4-member-shortcut-icon"><img src="/assets/icons/calendar.svg"></span><span class="f4-member-shortcut-copy"><strong>Jadwal</strong><small>Penimbangan berikutnya</small></span></button>
+</nav>
+<div id="f4MemberContent" class="f4-member-content">
+ <section class="v14-panel"><div class="v14-panel-head"><h3>Setoran pribadi terbaru</h3></div><div id="v14Recent"><div class="f4-member-recent">27 Okt 2026 — Rp 2.250</div></div></section>
+ <aside id="f4MemberAside" class="f4-member-aside">
+  <section id="f4BankWeighingSchedule" class="f4-bank-weigh-schedule"><span class="f4-bank-weigh-icon"><img src="/assets/icons/calendar.svg"></span><span class="f4-bank-weigh-copy"><small>JADWAL BERIKUTNYA</small><strong>Minggu, 15 November 2026</strong><span>Setiap 2 minggu</span></span></section>
+  <details id="f4MemberFlow" class="f4-member-flow" open><summary class="f4-member-flow-head">
+   <span class="f4-member-flow-icon"><img src="/assets/icons/bank.svg"></span><span class="f4-member-flow-copy"><strong>Cara setor sampah</strong><small>Pilah → Antar → Timbang → Saldo</small></span>
+   <span class="f4-member-flow-toggle">Lihat alur</span></summary><div class="f4-member-flow-body">
+   <ol class="f4-member-flow-steps">
+   <li><span class="f4-member-flow-number">1</span><div><strong>Pilah di rumah</strong><p>Pisahkan sesuai jenis</p></div></li>
+   <li><span class="f4-member-flow-number">2</span><div><strong>Antar ke gudang</strong><p>Datang saat ada petugas</p></div></li>
+   <li><span class="f4-member-flow-number">3</span><div><strong>Timbang dan catat</strong><p>Petugas mencatat</p></div></li>
+   <li><span class="f4-member-flow-number">4</span><div><strong>Saldo sah</strong><p>Setelah hasil jual disahkan</p></div></li>
+   </ol></div></details>
+ </aside>
+</div>
+<section id="f4MemberEnvironmentPreview">Perkembangan</section>
+<section id="f4MemberInfoShortcut">Informasi</section>
 </div></section></main></div></div></body></html>"""
 
 async def member_layout(browser):
-    for device,width in [("pc",1366),("hp",390)]:
+    """Validate real hero, four actions, activity and sidebar at both PC and HP widths."""
+    for device,width in [("pc",1366),("hp",390),("tablet",820)]:
         page=await browser.new_page(viewport={"width":width,"height":850})
         await page.set_content(MEMBER_HTML,wait_until="load")
         result=await page.evaluate("""() => {
-            const rect=sel=>{const r=document.querySelector(sel).getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}};
+            const rect=sel=>{const r=document.querySelector(sel).getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,b:r.bottom,right:r.right}};
+            const actions=[...document.querySelectorAll('#f4MemberQuickActions>button')];
+            const amount=document.querySelector('#f4BankAppMemberBalance strong');
             const steps=[...document.querySelectorAll('#f4MemberFlow .f4-member-flow-steps>li')];
             return {
-                recent:rect('#f4BankAppHome>.v14-panel'),
-                price:rect('#f4MemberPriceShortcut'),
-                schedule:rect('#f4BankWeighingSchedule'),
+                hero:rect('#f4MemberHero'),
+                member:rect('#f4BankMemberCard'),
+                wallet:rect('#f4BankAppMemberBalance'),
+                quick:rect('#f4MemberQuickActions'),
+                actions:actions.map(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}}),
+                recent:rect('#f4MemberContent>.v14-panel'),
                 guide:rect('#f4MemberFlow'),
-                steps:steps.map(el=>({x:el.getBoundingClientRect().x,y:el.getBoundingClientRect().y})),
-                guideColor:getComputedStyle(document.querySelector('#f4MemberFlow')).backgroundColor,
-                stepColors:steps.map(el=>getComputedStyle(el).backgroundColor),
-                balanceColor:getComputedStyle(document.querySelector('#f4BankAppHome>.f4-bank-app-member-balance')).backgroundColor,
-                balanceImage:getComputedStyle(document.querySelector('#f4BankAppHome>.f4-bank-app-member-balance')).backgroundImage,
-                 balanceAmountColor:getComputedStyle(document.querySelector('#f4BankAppHome>.f4-bank-app-member-balance strong')).color,
-                 priceColor:getComputedStyle(document.querySelector('#f4MemberPriceShortcut')).backgroundColor,
-                 scheduleColor:getComputedStyle(document.querySelector('#f4BankWeighingSchedule')).backgroundColor,
+                schedule:rect('#f4BankWeighingSchedule'),
+                aside:rect('#f4MemberAside'),
+                steps:steps.map(el=>el.getBoundingClientRect().y),
+                heroBackground:getComputedStyle(document.querySelector('#f4MemberHero')).backgroundImage,
+                amountColor:getComputedStyle(amount).color,
+                iconFilter:getComputedStyle(document.querySelector('#f4BankMemberCard .f4-bank-card-leaf img')).filter,
+                scheduleTitle:document.querySelector('#f4BankWeighingSchedule strong').textContent.trim(),
                 overflow:document.documentElement.scrollWidth>window.innerWidth+3
             };
         }""")
         assert not result["overflow"],(device,result)
-        assert result["guideColor"]=="rgb(255, 255, 255)",(device,result)
-        assert "linear-gradient(" in result["balanceImage"] and "255, 194, 15" in result["balanceImage"],(device,result)
-        assert result["balanceAmountColor"]=="rgb(23, 45, 61)",(device,result)
-        assert result["priceColor"]=="rgb(255, 255, 255)",(device,result)
-        assert result["scheduleColor"]=="rgb(255, 255, 255)",(device,result)
-        assert all(c=="rgb(247, 252, 245)" for c in result["stepColors"]),(device,result)
+        assert "linear-gradient(" in result["heroBackground"],(device,result)
+        assert result["amountColor"]=="rgb(255, 255, 255)",(device,result)
+        assert "invert(1)" in result["iconFilter"],(device,result)
+        assert len(result["actions"])==4,(device,result)
+        assert result["quick"]["y"]<result["hero"]["b"]+4,(device,result)
+        assert result["recent"]["y"]>=result["quick"]["b"]-3,(device,result)
+        assert result["scheduleTitle"]=="Minggu, 15 November 2026",(device,result)
         if device=="pc":
-            assert abs(result["schedule"]["y"]-result["price"]["y"])<3,(device,result)
-            assert result["schedule"]["x"]+result["schedule"]["w"]<=result["price"]["x"]+3,(device,result)
-            assert abs(result["price"]["w"]-result["schedule"]["w"])<3,(device,result)
-            assert result["recent"]["x"]<result["guide"]["x"],result
-            assert result["recent"]["w"]>result["guide"]["w"],result
-            assert abs(result["steps"][0]["y"]-result["steps"][1]["y"])<3,result
+            assert result["wallet"]["x"]>=result["member"]["right"]-3,(device,result)
+            assert all(abs(t["y"]-result["actions"][0]["y"])<3 for t in result["actions"]),(device,result)
+            assert result["recent"]["right"]<=result["aside"]["x"]+3,(device,result)
+            assert result["recent"]["w"]>result["aside"]["w"],(device,result)
+        elif device=="hp":
+            assert result["wallet"]["y"]>=result["member"]["b"]-3,(device,result)
+            assert abs(result["actions"][0]["y"]-result["actions"][1]["y"])<3,(device,result)
+            assert result["actions"][2]["y"]>result["actions"][0]["y"],(device,result)
+            assert result["schedule"]["y"]>=result["recent"]["b"]-3,(device,result)
         else:
-            assert result["recent"]["y"]<result["guide"]["y"],result
-            assert result["steps"][1]["y"]>result["steps"][0]["y"],result
-        print("MEMBER_LAYOUT_OK",device,result,flush=True)
+            assert result["wallet"]["x"]>=result["member"]["right"]-3,(device,result)
+            assert result["recent"]["b"]<=result["aside"]["y"]+3,(device,result)
+        print("MEMBER_LAYOUT_REDESIGN_OK",device,result,flush=True)
         await page.close()
 
 async def savings_chart(browser):
@@ -763,57 +786,30 @@ async def bank_cash_and_history_tabs(browser):
 
 
 async def member_price_card_position(browser):
-    """Member schedule precedes price on desktop; both shortcuts share one mobile row."""
+    """Four quick actions contain the existing price shortcut; full schedule stays readable."""
     for device,width in [("pc",1366),("hp",390)]:
         page=await browser.new_page(viewport={"width":width,"height":850})
-        await page.goto(ROOT,wait_until="domcontentloaded")
-        fixture="""<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
-         <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
-         <style>body{margin:0;font-family:system-ui}
-          #dashboardView{padding:18px;max-width:1150px;margin:auto}</style></head>
-         <body class="f4-bank-app-private f4-bank-app-member">
-         <div id="dashboardView"><main class="section">
-         <div id="f4BankAppHome" data-bank-role="member" class="f4-bank-app-home">
-          <div class="f4-bank-app-personal-greeting">Halo, Warga</div>
-          <button class="f4-bank-member-card">Kartu Anggota</button>
-          <button class="f4-bank-app-member-balance">Saldo</button>
-          <button id="f4MemberPriceShortcut" class="f4-bank-price-shortcut">
-           <span class="f4-bank-price-shortcut-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 19-3-3m3 3 3-3M4 16l4-7"/></svg></span>
-           <span class="f4-bank-price-shortcut-copy"><strong class="f4-bank-price-shortcut-label">Daftar Harga</strong>
-           <small>Tarif warga per kg</small></span><span class="f4-bank-price-shortcut-arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></span>
-          </button>
-          <section id="f4BankWeighingSchedule" class="f4-bank-weigh-schedule"><span class="f4-bank-weigh-icon"><img src="/assets/icons/calendar.svg"></span><span class="f4-bank-weigh-copy"><small>JADWAL BERIKUTNYA</small><strong>Minggu, 15 November</strong></span></section>
-          <section class="v14-panel">Riwayat</section><section class="f4-member-flow">Panduan</section>
-          <section id="f4MemberEnvironmentPreview">Perkembangan</section>
-          <section id="f4MemberInfoShortcut">Informasi</section>
-         </div></main></div></body></html>"""
-        await page.set_content(fixture,wait_until="load")
+        await page.set_content(MEMBER_HTML,wait_until="load")
         result=await page.evaluate("""() => {
-          const p=document.querySelector('#f4MemberPriceShortcut'),s=document.querySelector('#f4BankWeighingSchedule');
-          const a=p.getBoundingClientRect(),b=s.getBoundingClientRect();
-          return {priceBottom:a.bottom,priceRight:a.right,priceX:a.left,priceY:a.top,scheduleX:b.left,scheduleRight:b.right,scheduleY:b.top,scheduleBottom:b.bottom,priceH:a.height,
-            priceColor:getComputedStyle(p).backgroundColor,
-             scheduleColor:getComputedStyle(s).backgroundColor,
-             iconColor:getComputedStyle(s.querySelector('.f4-bank-weigh-icon')).backgroundColor,
-             priceHasSvg:!!p.querySelector('.f4-bank-price-shortcut-icon svg'),
-             border:getComputedStyle(p).borderColor,
-            overflow:document.documentElement.scrollWidth>innerWidth+3};
+            const p=document.querySelector('#f4MemberPriceShortcut'),
+                  s=document.querySelector('#f4BankWeighingSchedule');
+            const a=p.getBoundingClientRect(),b=s.getBoundingClientRect();
+            return {
+              priceParent:p.parentElement.id,priceX:a.x,priceY:a.y,priceW:a.width,
+              scheduleParent:s.parentElement.id,scheduleY:b.y,scheduleW:b.width,
+              iconColor:getComputedStyle(s.querySelector('.f4-bank-weigh-icon')).backgroundColor,
+              priceHasSvg:!!p.querySelector('.f4-bank-price-shortcut-icon svg'),
+              noOverflow:document.documentElement.scrollWidth<=innerWidth+3
+            };
         }""")
-        if device=="hp":
-            assert abs(result["priceY"]-result["scheduleY"])<2,(device,result)
-            assert result["scheduleRight"]<=result["priceX"]+3,(device,result)
-        else:
-            assert abs(result["scheduleY"]-result["priceY"])<3,(device,result)
-            assert result["scheduleRight"]<=result["priceX"]+3,(device,result)
-        assert result["priceH"]>=60 and not result["overflow"],(device,result)
-        assert result["priceColor"]=="rgb(255, 255, 255)",(device,result)
-        assert result["scheduleColor"]=="rgb(255, 255, 255)",(device,result)
+        assert result["noOverflow"] and result["priceHasSvg"],(device,result)
+        assert result["priceParent"]=="f4MemberQuickActions",(device,result)
+        assert result["scheduleParent"]=="f4MemberAside",(device,result)
+        assert result["scheduleY"]>result["priceY"],(device,result)
+        assert result["scheduleW"]>=200,(device,result)
         assert result["iconColor"]=="rgb(19, 180, 197)",(device,result)
-        assert result["priceHasSvg"],(device,result)
-        assert result["border"] in ("rgb(220, 232, 222)","rgb(223, 235, 236)"),(device,result)
-        print("MEMBER_PRICE_SCHEDULE_RESPONSIVE_OK",device,result,flush=True)
+        print("MEMBER_QUICK_ACTIONS_AND_SCHEDULE_OK",device,result,flush=True)
         await page.close()
-
 
 
 async def admin_docs_back_and_cross_account(browser):
