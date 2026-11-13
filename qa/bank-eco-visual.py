@@ -53,6 +53,152 @@ FIXTURE = """
 </div>
 """
 
+# Real, linked Bank Sampah CSS is applied to a synthetic authenticated-member
+# DOM. No user account, cookies or live monetary data are required for layout QA.
+MEMBER_FIXTURE = """
+<div id="f4-direct-bar">
+  <span id="f4BankMemberTopBrand" class="f4-bank-member-top-brand">
+    <img alt="" src="/assets/logo-flamboyan.svg"><strong>BANK SAMPAH FLAMBOYAN 4</strong></span>
+  <span id="f4BankMemberTopIdentity" class="f4-bank-member-top-identity">
+    <strong>Halo, Anggota</strong><small>Rumah A5/41</small></span>
+  <nav class="f4-nav-links"><a href="#" aria-label="Portal">◉</a></nav>
+  <button id="f4-direct-avatar">◉</button>
+</div>
+<section id="dashboardView">
+  <div class="grid">
+   <nav id="sideNav" class="side">
+    <div class="v16-brand"><img src="/assets/logo-flamboyan.svg"><strong>Bank Sampah Flamboyan 4</strong></div>
+    <div id="v16NavList" class="v16-nav-list">
+     <button class="v16-item active" aria-current="page">Beranda</button><button class="v16-item">Tabungan</button>
+    </div>
+   </nav>
+   <div class="section">
+    <div id="pageDashboard">
+     <section id="f4BankAppHome" data-bank-role="member">
+      <button id="f4BankMemberCard" class="f4-bank-member-card">
+       <span class="f4-bank-member-card-head"><span class="f4-bank-atm-brand">
+        <img src="/assets/logo-flamboyan.svg"><span class="f4-bank-atm-brand-label">BANK SAMPAH FLAMBOYAN 4</span>
+       </span></span>
+       <span class="f4-bank-atm-center"><span class="f4-bank-member-card-chip"></span><strong class="f4-bank-atm-number">W017</strong></span>
+       <span class="f4-bank-member-card-foot"><span class="f4-bank-atm-person">
+        <small>NAMA ANGGOTA</small><strong>ANGGOTA</strong></span>
+        <span class="f4-bank-atm-house"><small>RUMAH</small><strong>A5/41</strong></span></span>
+      </button>
+      <button id="f4BankAppMemberBalance" class="f4-bank-app-member-balance">
+       <span class="f4-bank-member-balance-label">Saldo Tersedia</span>
+       <strong class="f4-bank-member-balance-value">Rp 3.000</strong>
+       <span class="f4-bank-balance-cta">Cek Tabungan</span>
+      </button>
+      <section id="f4MemberQuickActions" class="f4-member-shortcuts">
+       <button id="f4BankWeighingSchedule" class="f4-bank-weigh-schedule">
+        <span class="f4-bank-weigh-icon"><svg viewBox="0 0 24 24"><path d="M4 6h16"/></svg></span>
+        <span class="f4-bank-weigh-copy"><small>Jadwal Berikutnya</small>
+         <strong>Minggu, 15 Nov 2026</strong><span>Setiap 2 minggu</span></span>
+       </button>
+       <button id="f4MemberPriceShortcut">
+        <span class="f4-bank-price-shortcut-icon"><svg viewBox="0 0 24 24"><path d="M4 6h16"/></svg></span>
+        <span class="f4-bank-price-shortcut-copy"><span class="f4-bank-price-shortcut-label">Daftar Harga</span>
+        <small>Tarif per kg</small></span>
+       </button>
+      </section>
+      <div id="f4MemberContent" class="f4-member-content">
+       <section class="v14-panel">
+        <header class="v14-panel-head"><h3>Mutasi Setoran Terbaru</h3></header>
+        <div id="v14Recent"><div class="f4-member-recent">
+          <span class="f4-member-recent-icon">↓</span>
+          <span class="f4-member-recent-copy"><strong>Hasil Penjualan Sampah</strong><small>Saldo masuk</small></span>
+          <span class="f4-member-recent-value"><b>+ Rp 750</b></span>
+        </div></div>
+       </section>
+       <aside id="f4MemberAside" class="f4-member-aside">
+        <details open id="f4MemberFlow" class="f4-member-flow">
+         <summary class="f4-member-flow-head">
+          <span class="f4-member-flow-icon">♻</span><span class="f4-member-flow-copy"><strong>Cara setor sampah</strong></span>
+         </summary>
+         <div class="f4-member-flow-body"><ol class="f4-member-flow-steps">
+          <li><span class="f4-member-flow-number">◉</span><div><strong>Pilah di rumah</strong></div></li>
+          <li><span class="f4-member-flow-number">◉</span><div><strong>Antar ke gudang</strong></div></li>
+          <li><span class="f4-member-flow-number">◉</span><div><strong>Timbang & catat</strong></div></li>
+          <li><span class="f4-member-flow-number">◉</span><div><strong>Saldo sah</strong></div></li>
+         </ol></div>
+        </details>
+       </aside>
+      </div>
+      <section id="f4MemberEnvironmentPreview" class="f4-member-environment-preview">
+       <header class="f4-member-environment-head"><h3>Perkembangan</h3><button>Lihat semua</button></header>
+       <div class="f4-member-environment-stats">
+        <div class="f4-member-environment-stat"><svg viewBox="0 0 24 24"><path d="M4 8h16"/></svg>
+         <span><small>Berat sah</small><strong>1,9 kg</strong></span></div>
+        <div class="f4-member-environment-stat"><svg viewBox="0 0 24 24"><path d="M4 8h16"/></svg>
+         <span><small>Hasil jual</small><strong>Rp 6.000</strong></span></div>
+        <div class="f4-member-environment-stat"><svg viewBox="0 0 24 24"><path d="M4 8h16"/></svg>
+         <span><small>Tahap</small><strong>4</strong></span></div>
+       </div>
+       <div class="f4-member-impact-share"><span><b>50%</b> Tabungan warga</span>
+       <span><b>50%</b> Lingkungan</span></div>
+       <button class="f4-member-environment-latest"><span><strong>Sosialisasi Bank Sampah</strong></span></button>
+      </section>
+      <button id="f4MemberInfoShortcut" class="f4-member-info-shortcut">
+       <span class="f4-member-info-icon"><svg viewBox="0 0 24 24"><path d="M4 8h16"/></svg></span>
+       <span class="f4-member-info-copy"><strong>Informasi &amp; Laporan</strong>
+        <small>Laporan dan transparansi kegiatan</small></span>
+      </button>
+     </section>
+    </div>
+   </div>
+  </div>
+</section>
+"""
+
+async def check_member_banking_layout(browser, mode, width):
+    page = await browser.new_page(viewport={"width": width, "height": 850}, device_scale_factor=1)
+    await page.set_content(MEMBER_FIXTURE, wait_until="load")
+    await page.evaluate("""() => {
+      document.body.className = "f4-direct-bank f4-bank-app-member f4-bank-app-private";
+    }""")
+    await page.add_style_tag(url="http://127.0.0.1:8765/portal-live/direct-shell.css")
+    await page.add_style_tag(url="http://127.0.0.1:8765/portal-live/bank-member-polish.css")
+    await page.add_style_tag(url="http://127.0.0.1:8765/portal-live/bank-eco-pages.css")
+    await page.add_style_tag(url="http://127.0.0.1:8765/portal-live/bank-member-navigation.css")
+    await page.wait_for_timeout(250)
+    state = await page.evaluate("""() => {
+      const rect = s => {
+        const n=document.querySelector(s);const r=n.getBoundingClientRect();
+        return {x:r.x,y:r.y,w:r.width,h:r.height};
+      };
+      const css=s=>getComputedStyle(document.querySelector(s));
+      return {
+        areas:css('#f4BankAppHome').gridTemplateAreas,
+        atm:rect('#f4BankMemberCard'),balance:rect('#f4BankAppMemberBalance'),
+        quick:rect('#f4MemberQuickActions'),price:rect('#f4MemberPriceShortcut'),
+        schedule:rect('#f4BankWeighingSchedule'),info:rect('#f4MemberInfoShortcut'),
+        progress:rect('#f4MemberEnvironmentPreview'),flow:rect('#f4MemberFlow'),
+        recent:rect('#f4MemberContent .v14-panel'),
+        page:rect('#pageDashboard'),
+        cardBg:css('#f4BankMemberCard').backgroundImage,
+        outerBorder:css('#pageDashboard').borderTopWidth,
+        headerHeight:rect('#f4-direct-bar').h,
+        overflow:document.documentElement.scrollWidth>window.innerWidth+4
+      };
+    }""")
+    await page.screenshot(path=str(DEST / (mode+"-member-banking.png")), full_page=True)
+    print("BANK_MEMBER_BANKING_VISUAL",mode,json.dumps(state,ensure_ascii=False),flush=True)
+    assert "linear-gradient" in state["cardBg"] and "6, 154, 132" in state["cardBg"], state
+    assert state["outerBorder"]=="0px", state
+    assert not state["overflow"], mode + ": unexpected horizontal scroll"
+    assert abs(state["atm"]["y"]-state["balance"]["y"]) < 3 if mode=="pc" else state["atm"]["y"]<state["balance"]["y"], state
+    if mode=="pc":
+        assert abs(state["progress"]["y"]-state["flow"]["y"])<3, state
+        assert abs(state["recent"]["y"]-state["info"]["y"])<3, state
+        assert state["quick"]["w"]>=state["atm"]["w"]*1.7, state
+    else:
+        assert abs(state["schedule"]["y"]-state["price"]["y"])<3, state
+        assert abs(state["price"]["y"]-state["info"]["y"])<3, state
+        assert state["atm"]["h"]<260 and state["balance"]["h"]<205, state
+        assert state["progress"]["y"]>state["quick"]["y"], state
+        assert state["headerHeight"]>=95, state
+    await page.close()
+
 async def main():
     result = {}
     async with async_playwright() as pw:
@@ -174,6 +320,8 @@ async def main():
                 rect = state["statRects"]
                 assert abs(rect[0]["y"]-rect[1]["y"]) < 2 and abs(rect[1]["y"]-rect[2]["y"]) < 2, f"PC cards not aligned: {rect}"
             await page.close()
+        await check_member_banking_layout(browser, "pc", 1366)
+        await check_member_banking_layout(browser, "hp", 390)
         await browser.close()
     (DEST / "result.json").write_text(json.dumps(result,indent=2))
     print("F4_BANK_ECO_VISUAL_OK",json.dumps(result,ensure_ascii=False))
