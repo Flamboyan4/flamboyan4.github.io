@@ -19,19 +19,19 @@ for(const phrase of ['#v18PublicSide',
  '#pageSetoran','#pagePenjualan','#pageRekonsiliasi','#pagePengesahan','#pageTabungan',
  '#pageBiaya','#pageDokumentasi','#pageInventaris','#pageMaster','#pageAdmin',
  '.f4-member-progress-modal-panel','width:min(226px,75vw)',
- 'max-width:1023px','max-width:760px','--eco-leaf:#087b51',
- 'background:#086345;border:1px solid #054d35','background:var(--eco-gold);color:#fff']){
+ 'max-width:1023px','max-width:760px','--eco-leaf:#43a047',
+ 'background:linear-gradient(115deg,#43a047,#009788);border:1px solid #43a047','background:var(--eco-gold);color:#25412d']){
  assert(css.includes(phrase),'Missing themed component '+phrase);
 }
 assert(!css.includes('#a0dcb3'),'Old mint gradient present');
-assert(css.includes('--eco-gold:#ffc026'),'Current golden yellow theme token missing');
-assert(css.includes('background:#086345;border:1px solid #054d35'),'Deep green public hero missing');
+assert(css.includes('--eco-gold:#fdc010'),'Current golden yellow theme token missing');
+assert(css.includes('background:linear-gradient(115deg,#43a047,#009788);border:1px solid #43a047'),'Fresh green-teal public hero missing');
 assert(h.includes('<section id="v17Program" class="f4-bank-program"'), 'Program must be a separate semantic section');
 assert(h.includes('#v17Program .f4-bank-program-step{'), 'Canonical unboxed program steps missing');
 assert(!h.includes('v27-banner-program'), 'Obsolete program banner layout must be removed');
 assert(!h.includes('v27CompactProgram'), 'Obsolete program DOM reparenting must be removed');
 assert(h.includes('border:0}').valueOf() || h.includes('background:transparent;border:0'), 'Public program must not use cards');
-assert(css.includes('background:var(--eco-gold);color:#fff;\n border:1px solid #E6A125'),'White text on bright gold missing');
+assert(css.includes('background:var(--eco-gold);color:#25412d;\n border:1px solid #eab40b'),'Readable dark text on bright gold missing');
 assert(h.includes('#f4-public-my-savings{display:inline-flex') &&
        h.includes('@media(max-width:700px){#f4-public-my-savings{width:100%;max-width:none;min-height:44px') &&
        h.includes("getElementById('f4-public-my-savings')"),

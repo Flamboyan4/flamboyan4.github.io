@@ -102,10 +102,10 @@ body.f4-bank-embedded #dashboardView .section,
  :is(.f4-savings-panel,.tablewrap,.v21-album-tile,.v21-inventory-row,.v17-panel){
  border-color:#d0e4d8!important;border-radius:12px!important;background:#fff!important
 }
-/* Public: LEAF GREEN hero, white text, golden primary button. */
+/* Public: fresh green-teal hero, clear white headings, readable yellow actions. */
 #v11Public .v17-public-banner{
  background:linear-gradient(115deg,#43a047,#009788);border:1px solid #43a047;
- border-radius:15px;box-shadow:none
+ border-radius:22px;box-shadow:0 10px 25px #1a825e23
 }
 #v11Public .v17-public-banner :is(h1,h2,h3,strong){color:#fff}
 #v11Public .v17-public-banner :is(p,.v17-subtle){color:#e6f6ed;opacity:1}
@@ -117,8 +117,8 @@ body.f4-bank-embedded #dashboardView .section,
 #v11Public .v17-public-banner #f4-public-my-savings,
 #v11Public .v17-public-banner #f4-public-manage-bank{
  background:var(--eco-gold);color:#25412d;
- border:1px solid #E6A125;border-radius:10px;
- font-weight:800;text-shadow:0 1px 2px #624500a6;
+ border:1px solid #eab40b;border-radius:13px;
+ font-weight:800;text-shadow:none;
  box-shadow:0 3px 9px #05432a27
 }
 #v11Public .v17-public-banner button:not(.v30-hero-photo):hover,
