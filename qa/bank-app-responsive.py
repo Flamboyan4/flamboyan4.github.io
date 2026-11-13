@@ -157,6 +157,51 @@ async def member_layout(browser):
         print("MEMBER_FLAT_REFERENCE_LAYOUT_OK",device,result,flush=True)
         await page.close()
 
+async def member_balance_refresh_preserves_design(browser):
+    """Exercise production saldo updates twice; preserve font classes and CTA button."""
+    from pathlib import Path
+    js=Path("portal-live/bank-mobile-app.js").read_text(encoding="utf-8")
+    start=js.index("function updateDashboard(){")
+    end=js.index("function updateAdminOverview(",start)
+    fn=js[start:end]
+    assert "button.replaceChildren" not in fn
+    for device,width in [("pc",1366),("hp",390)]:
+        page=await browser.new_page(viewport={"width":width,"height":850})
+        await page.set_content(MEMBER_HTML,wait_until="load")
+        result=await page.evaluate("""({fn})=>{
+          const card=document.querySelector('#f4BankAppMemberBalance');
+          const statement={saldo:3000};
+          const update=new Function('role','memberStatement','$','rupiah','dashboardMetrics',
+              fn+'return updateDashboard;')(
+             'member',statement,id=>document.getElementById(id),
+             n=>'Rp '+new Intl.NumberFormat('id-ID').format(n),
+             ()=>new Map());
+          const cta=card.querySelector('.f4-bank-balance-cta');
+          update();
+          const first=card.querySelector('.f4-bank-member-balance-value')?.textContent;
+          statement.saldo=15000;update();
+          const amount=card.querySelector('.f4-bank-member-balance-value');
+          const label=card.querySelector('.f4-bank-member-balance-label');
+          const after=card.querySelector('.f4-bank-balance-cta');
+          const a=amount.getBoundingClientRect(),b=after.getBoundingClientRect(),
+              cardBox=card.getBoundingClientRect();
+          return {first,updated:amount?.textContent,label:label?.textContent,
+           cta:after?.textContent,retained:cta===after,childCount:card.children.length,
+           amountFont:parseFloat(getComputedStyle(amount).fontSize),
+           ctaFont:parseFloat(getComputedStyle(after).fontSize),
+           amountColor:getComputedStyle(amount).color,
+           ctaBackground:getComputedStyle(after).backgroundColor,
+           ctaRatio:b.width/cardBox.width,overflow:document.documentElement.scrollWidth>innerWidth+3};
+        }""",{"fn":fn})
+        assert result["first"]=="Rp 3.000" and result["updated"]=="Rp 15.000",(device,result)
+        assert result["label"]=="Saldo Tersedia" and result["cta"]=="Cek Tabungan",(device,result)
+        assert result["retained"] and result["childCount"]==3,(device,result)
+        assert result["amountFont"]>=30 and result["ctaFont"]>=12,(device,result)
+        assert result["amountColor"]=="rgb(22, 42, 55)" and result["ctaBackground"]=="rgb(25, 43, 55)",(device,result)
+        assert result["ctaRatio"]>.70 and not result["overflow"],(device,result)
+        print("BALANCE_UPDATE_PRESERVES_DESIGN_OK",device,result,flush=True)
+        await page.close()
+
 async def member_mutation_ledger(browser):
     """Check production member ledger rendering using synthetic data only."""
     from pathlib import Path
@@ -1086,6 +1131,7 @@ async def main():
         await sale_price_field_proportions(browser)
         await note_print_is_visible(browser)
         await member_layout(browser)
+        await member_balance_refresh_preserves_design(browser)
         await member_mutation_ledger(browser)
         await savings_chart(browser)
         await admin_mobile_shell(browser)
