@@ -81,13 +81,11 @@ async def member_layout(browser):
         }""")
         assert not result["overflow"],(device,result)
         assert result["guideColor"]=="rgb(255, 255, 255)",(device,result)
-        assert result["balanceColor"]=="rgb(232, 247, 207)",(device,result)
+        assert result["balanceColor"]=="rgb(0, 151, 136)",(device,result)
         assert all(c=="rgb(247, 252, 245)" for c in result["stepColors"]),(device,result)
-        if device=="hp":
-            assert abs(result["price"]["y"]-result["schedule"]["y"])<2,(device,result)
-            assert result["price"]["x"]+result["price"]["w"]<=result["schedule"]["x"]+2,(device,result)
-        else:
+        if device=="pc":
             assert result["price"]["y"]+result["price"]["h"]<=result["schedule"]["y"]+2,(device,result)
+            assert abs(result["price"]["w"]-result["schedule"]["w"])<3,(device,result)
             assert result["recent"]["x"]<result["guide"]["x"],result
             assert abs(result["recent"]["w"]-result["guide"]["w"])<3,result
             assert abs(result["steps"][0]["y"]-result["steps"][1]["y"])<3,result

@@ -29,7 +29,7 @@ assert(css.includes('background:#e4f6d5;color:#196e40;'),'Soft lime navigation m
 assert(!css.includes('border-left:4px solid #d7a517'),'Hard schedule rail returned');
 assert(!css.includes('background:linear-gradient(120deg,#ffdc78,#ffc12b)'),'Muddy yellow price gradient returned');
 assert(css.includes('bank-leaf-watermark.svg'),'Member card SVG leaf watermark missing');
-assert(css.includes('"price schedule"')&&css.includes('"card price"'),'Mobile shortcuts must be adjacent while desktop cards remain full-width');
+assert(css.includes('"price schedule"')&&css.includes('"card price"')&&css.includes('"card schedule"'),'Mobile shortcuts must be adjacent while desktop stays full-width');
 assert(css.includes('background:#09bcd3'),'Saturated cyan schedule color missing');
 assert(!css.includes('border-left:3px solid #087850'),'Old hard corner stripe returned');
 assert(!css.includes('background:linear-gradient(125deg,#328d45,#43a047 55%,#009788)'),'Member green-teal gradient returned');
