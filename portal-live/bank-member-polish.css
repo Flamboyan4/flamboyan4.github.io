@@ -1,26 +1,16 @@
-/* Khusus Bank Sampah anggota, tanpa mengubah nilai dan laporan keuangan. */
-#dashboardView #pageDashboard.f4-member-dashboard #f4-bank-quick{display:none!important}
-#dashboardView #pageDashboard.f4-member-dashboard .f4-member-recent{display:flex;align-items:center;justify-content:space-between;gap:11px}
-#dashboardView #pageDashboard.f4-member-dashboard .f4-member-recent>div{min-width:0}
-#dashboardView #pageDashboard.f4-member-dashboard .f4-member-recent-value{
- display:flex;flex-direction:column;align-items:flex-end;text-align:right;flex:0 0 auto;
- max-width:52%;gap:3px
-}
-#dashboardView #pageDashboard.f4-member-dashboard .f4-member-recent-value>b{
- display:block;color:#176f52;line-height:1.3;overflow-wrap:anywhere;
- white-space:normal;font-variant-numeric:tabular-nums
-}
-#dashboardView #pageDashboard.f4-member-dashboard .f4-member-recent-value>small{
- display:block;color:#536f60;font-size:12px;line-height:1.35;font-weight:600
-}
-#dashboardView #pageDashboard.f4-member-dashboard .f4-member-recent strong{font-size:14px}
-#dashboardView #pageDashboard.f4-member-dashboard .f4-member-recent small{color:#526e5e;font-size:12px}
-body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primary>.v14-kpi small{
- color:#526e5f!important;font-size:12.5px!important;line-height:1.4!important
-}
+
+
+
+
+
+
+
+
+
+
 #f4-member-weight-chart .f4-member-chart-head p,
 #f4-member-weight-chart .f4-member-chart-column>small,
-#f4-member-weight-chart .f4-member-chart-note{color:#4f6c5a!important;font-size:12px!important;line-height:1.45!important}
+#f4-member-weight-chart .f4-member-chart-note{color:#4f6c5a!important;font-size:12px!important;line-height:1.45}
 #pagePribadi .f4-member-payout-help{
  margin:10px 0 12px;padding:10px 13px;background:#f4faf6;
  border:1px solid #dcebe1;border-radius:11px;color:#456554;font-size:13px;line-height:1.5
@@ -49,13 +39,13 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primar
  #pagePribadi #v12Private>.f4-member-tools>.f4-member-refresh{
   width:44px!important;min-width:44px!important;max-width:44px!important;padding:0!important
  }
- #dashboardView #pageDashboard.f4-member-dashboard .f4-member-recent-value{max-width:53%}
+
 }
 @media print{#pagePribadi .f4-member-tools,#pagePribadi .f4-member-payout-help{display:none!important}}
 
 /* Panduan setoran: satu aturan kanonis, putih + aksen hijau/emas.
    Desktop dua kolom; HP daftar satu kolom, tanpa pastel. */
-#dashboardView #pageDashboard #f4MemberFlow{display:none}
+
 #dashboardView #pageDashboard.f4-member-dashboard #f4MemberFlow.f4-member-flow{
  display:block;min-width:0;margin:0;border:1px solid #e2eee4;border-radius:20px;
  background:#fff;color:#193d2c;overflow:hidden;box-shadow:0 6px 20px #103d260b
