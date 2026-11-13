@@ -96,8 +96,8 @@ assert(!memberCss.includes('#dashboardView #pageDashboard.f4-member-dashboard .f
   'Obsolete member note override returned');
 assert(dashboardCss.includes('body #dashboardView #pageDashboard.f4-member-dashboard .f4-member-finance-note{'),
   'Canonical member note is missing');
-assert.equal(homeOverrides.split('#f4-private-transactions tbody tr[hidden]{display:none!important}').length-1,1,
-  'Duplicate responsive hidden-row override returned');
+assert.equal(homeOverrides.split('#f4-private-transactions tbody tr[hidden]{display:none!important}').length-1,0,
+  'Obsolete responsive hidden-row override returned');
 // CSS ownership: adjacent legacy overlays are coalesced at their original cascade location.
 const styleCount=source=>(source.match(/<style\b[^>]*>/gi)||[]).length;
 assert(styleCount(read('pembukuan/index.html'))<=32,'Bookkeeping legacy CSS blocks regressed');
