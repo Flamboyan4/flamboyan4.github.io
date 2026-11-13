@@ -90,7 +90,7 @@ async def member_layout(browser):
         assert result["scheduleColor"]=="rgb(255, 255, 255)",(device,result)
         assert all(c=="rgb(247, 252, 245)" for c in result["stepColors"]),(device,result)
         if device=="pc":
-            assert result["price"]["y"]+result["price"]["h"]<=result["schedule"]["y"]+2,(device,result)
+            assert result["schedule"]["y"]+result["schedule"]["h"]<=result["price"]["y"]+2,(device,result)
             assert abs(result["price"]["w"]-result["schedule"]["w"])<3,(device,result)
             assert result["recent"]["x"]<result["guide"]["x"],result
             assert abs(result["recent"]["w"]-result["guide"]["w"])<3,result
