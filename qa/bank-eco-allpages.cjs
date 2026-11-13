@@ -268,18 +268,18 @@ assert(mobile.includes('let memberBalancePrivacy={hidden:true}') &&
        mobile.includes('balanceLink.onclick=()=>navigate("pribadi")') &&
        mobile.includes('resetMemberPublicMini();memberBalancePrivacy.hidden=true;'),
  'Saldo hide and unhide must not navigate or overwrite the actual live balance');
-assert(css.includes('width:clamp(58px,17vw,68px);height:clamp(58px,17vw,68px)') &&
-       css.includes('border:3px solid #fff;border-radius:50%') &&
+assert(dockCss.includes('width:clamp(58px,17vw,68px);height:clamp(58px,17vw,68px)') &&
+       dockCss.includes('border:3px solid #fff;border-radius:50%') &&
        css.includes('.f4-bank-balance-head{'),
  'Payout must be round with a white outline and the balance has a separate eye');
 assert(memberNav.includes('margin:0 0 0 226px;padding:10px clamp(20px,2.5vw,32px) 50px;') &&
        !mobile.includes('savings.onclick=event=>') &&
        css.includes('color:var(--member-ink);cursor:default') &&
        css.includes('border:0;border-radius:0;background:transparent;') &&
-       css.includes('box-shadow:0 6px 15px #856b2433;'),
+       dockCss.includes('box-shadow:0 6px 15px #856b2433;'),
  'Desktop top gap must be compact; eye is plain and no whole-card click or gray badge ring');
 assert(memberNav.includes('margin-inline:auto;padding:14px 15px 10px;background:#fff') &&
-       css.includes('padding-bottom:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px) + 8px)'),
+       dockCss.includes('padding-bottom:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px) + 8px)'),
  'Only one bottom-dock clearance should remain on mobile');
 assert(css.includes('max-height:184px;overflow-y:auto;overflow-x:hidden'),
  'PC member mutasi must not grow beyond its dashboard card');
