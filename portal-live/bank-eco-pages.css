@@ -328,9 +328,24 @@ body :is(button,a,summary,[role="button"],[role="tab"],label[for]){
  -webkit-touch-callout:none;touch-action:manipulation
 }
 /* Compact member identity profile — 2026-10-29 */
-body:not(.f4-bank-app-admin) #dashboardView #pageProfile.f4-profile-card{
-  width:100%;max-width:780px;margin:0;
-  padding:20px 22px;background:#fff
+body:not(.f4-bank-app-admin) #dashboardView #pageProfile.f4-profile-card:not(.hidden){
+  --profile-yellow:#ffc411;--profile-lime:#8bc34a;--profile-leaf:#43a047;
+  --profile-teal:#009688;--profile-cyan:#00bcd4;
+  box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  align-items:start;align-content:start;gap:12px 22px;
+  width:100%;max-width:1160px;margin:0;padding:22px 24px;background:#fff
+}
+#dashboardView #pageProfile #f4BankProfileDetail{
+ grid-column:1;grid-row:1 / span 6;align-self:start;min-width:0;
+ margin:0;padding:0;border:0
+}
+#dashboardView #pageProfile>:not(#f4BankProfileDetail){grid-column:2;min-width:0}
+@media(max-width:1050px){
+ body:not(.f4-bank-app-admin) #dashboardView #pageProfile.f4-profile-card:not(.hidden){
+  grid-template-columns:minmax(0,1fr);gap:12px;padding:17px 16px
+ }
+ #dashboardView #pageProfile #f4BankProfileDetail{grid-column:1;grid-row:auto}
+ #dashboardView #pageProfile>:not(#f4BankProfileDetail){grid-column:1}
 }
 #dashboardView #pageProfile .f4-profile-header{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
@@ -346,12 +361,13 @@ body:not(.f4-bank-app-admin) #dashboardView #pageProfile.f4-profile-card{
   background:#f4faf6;color:#51715d;
 }
 #dashboardView #pageProfile .f4-profile-overview{
-  display:flex;align-items:center;gap:15px;min-width:0;padding:19px 0;
+  display:flex;align-items:center;gap:15px;min-width:0;padding:17px 16px;
+  border:1px solid #c9ebf0;border-radius:17px;background:#f2fbfd;
 }
 #dashboardView #pageProfile .f4-profile-avatar{
   width:76px;height:76px;flex:0 0 76px;overflow:hidden;
   display:grid;place-items:center;border-radius:50%;
-  border:2px solid #d7e9dc;background:#e6f2e9;color:#196043;
+  border:2px solid #9adee8;background:#dff7fa;color:#008796;
   font-size:23px;font-weight:800;letter-spacing:.03em;
 }
 #dashboardView #pageProfile #v15PhotoPreview{
@@ -379,9 +395,10 @@ body:not(.f4-bank-app-admin) #dashboardView #pageProfile.f4-profile-card{
 #dashboardView #pageProfile .f4-member-name-save,
 #dashboardView #pageProfile .f4-member-name-cancel{
  display:grid;place-items:center;flex:none;width:32px;height:32px;min-height:32px;
- margin:0;padding:0;border:1px solid #d5e7da;border-radius:9px;
- background:#f1f8f3;color:#0b7148;box-shadow:none;cursor:pointer
+ margin:0;padding:0;border:1px solid #b7e9ee;border-radius:9px;
+ background:#e5f9fc;color:#008e9b;box-shadow:none;cursor:pointer
 }
+#dashboardView #pageProfile .f4-member-name-save{background:#eaf6dc;border-color:#cbe4b0;color:#39782b}
 #dashboardView #pageProfile .f4-member-name-cancel{background:#fff;color:#6e8275}
 #dashboardView #pageProfile .f4-member-name-edit svg{display:block;width:17px;height:17px}
 #dashboardView #pageProfile .f4-member-name-input{
@@ -402,20 +419,20 @@ body:not(.f4-bank-app-admin) #dashboardView #pageProfile.f4-profile-card{
   color:#4d6e59;font-size:12px;line-height:1.35;
 }
 #dashboardView #pageProfile .f4-profile-house{
-  border:1px solid #dceadf;background:#f0f7f2;color:#295d41;
+  border:1px solid #d4e7b9;background:#f1f8e5;color:#386c2d;
   padding:5px 9px;border-radius:8px;
 }
 #dashboardView #pageProfile .f4-profile-id{color:#668074;overflow-wrap:anywhere}
 #dashboardView #pageProfile .f4-profile-meta b{font-size:12px;font-weight:750}
 #dashboardView #pageProfile #v15PhotoPanel.f4-profile-edit{
-  display:block!important;background:#fff!important;border:1px solid #e0eae2!important;
-  border-radius:11px!important;padding:0!important;margin:0 0 12px!important;
+  display:block!important;background:#f3fcfd!important;border:1px solid #c9eaf1!important;
+  border-radius:14px!important;padding:0!important;margin:0 0 12px!important;
   box-shadow:none!important;
 }
 /* Both profile dropdowns share the same summary and right-side chevron. */
 #dashboardView #pageProfile :is(#v15PhotoPanel,#v15PasswordBox)>summary{
   position:relative;display:block;list-style:none;cursor:pointer;
-  padding:12px 34px 12px 13px;color:#275c40;font-size:13px;font-weight:750;
+  padding:15px 36px 15px 15px;color:#146c70;font-size:13px;font-weight:750;
   line-height:1.4;
 }
 #dashboardView #pageProfile :is(#v15PhotoPanel,#v15PasswordBox)>summary::-webkit-details-marker{display:none}
@@ -442,8 +459,8 @@ body:not(.f4-bank-app-admin) #dashboardView #pageProfile.f4-profile-card{
 #dashboardView #pageProfile .f4-profile-file-button{
   display:inline-flex;align-items:center;justify-content:center;
   flex:0 0 auto;margin:0!important;min-height:37px;padding:8px 12px;
-  border:1px solid #cbded2;border-radius:9px;background:#f2f8f4;
-  color:#275b3c;font-size:12px;font-weight:750;cursor:pointer;
+  border:1px solid #f1d67c;border-radius:9px;background:#fff7df;
+  color:#735606;font-size:12px;font-weight:750;cursor:pointer;
 }
 #dashboardView #pageProfile #v15PhotoInput:focus-visible+.f4-profile-file-button{
   outline:3px solid #efb23e;outline-offset:2px;
@@ -454,7 +471,7 @@ body:not(.f4-bank-app-admin) #dashboardView #pageProfile.f4-profile-card{
 }
 #dashboardView #pageProfile #v15PhotoSave.secondary{
   flex:0 0 auto;min-height:37px;min-width:78px;padding:8px 13px!important;
-  border:1px solid #f0b522!important;background:#ffbf29!important;
+  border:1px solid #008a80!important;background:#009688!important;
   color:#fff!important;font-size:12px!important;font-weight:800!important;
   box-shadow:none!important;border-radius:9px!important;
 }
@@ -468,17 +485,17 @@ body:not(.f4-bank-app-admin) #dashboardView #pageProfile.f4-profile-card{
   font-size:12px!important;line-height:1.5!important;
 }
 #dashboardView #pageProfile #v15PasswordBox{
-  padding:0!important;margin:0!important;border:1px solid #e0eae2!important;
-  border-radius:11px!important;background:#fff!important;
+  padding:0!important;margin:0!important;border:1px solid #d5e7ba!important;
+  border-radius:14px!important;background:#f7fbf2!important;
 }
 #dashboardView #pageProfile #v15PasswordBox form{padding:13px!important;margin:0!important;
   max-width:100%!important;
 }
 @media screen and (max-width:760px){
-  body.f4-bank-app-member #dashboardView #pageProfile.f4-profile-card{padding:15px 14px;border-radius:12px}
+  body.f4-bank-app-member #dashboardView #pageProfile.f4-profile-card:not(.hidden){padding:15px 14px;border-radius:16px}
   #dashboardView #pageProfile .f4-profile-header{padding-bottom:12px}
   #dashboardView #pageProfile .f4-profile-header h2{font-size:18px!important}
-  #dashboardView #pageProfile .f4-profile-overview{gap:12px;padding:15px 0}
+  #dashboardView #pageProfile .f4-profile-overview{gap:12px;padding:14px}
   #dashboardView #pageProfile .f4-profile-avatar{width:64px;height:64px;flex-basis:64px;font-size:20px}
   #dashboardView #pageProfile #pName{font-size:18px!important;line-height:1.25!important}
   #dashboardView #pageProfile .f4-profile-meta:not([hidden]){margin-top:7px;gap:6px}
@@ -500,11 +517,11 @@ body.f4-bank-app-member #dashboardView{--bank-brand:#009788;--bank-brand-deep:#0
 #dashboardView .f4-bank-app-personal-greeting small{font-size:11px;color:var(--bank-muted)}
 /* Profile card uses the shared member ATM rules below. */
 
-#dashboardView .f4-bank-profile-detail{display:grid;gap:11px;min-width:0;margin-bottom:18px;border-bottom:1px solid #dfebe4;padding-bottom:18px}
-#dashboardView .f4-bank-profile-detail h3{font-size:16px;color:#1c5138;margin:0}
+#dashboardView .f4-bank-profile-detail{display:grid;gap:12px;min-width:0;margin-bottom:0;border-bottom:0;padding-bottom:0;align-content:start}
+#dashboardView .f4-bank-profile-detail h3{font-size:16px;color:#163d30;margin:0;font-weight:850}
 #dashboardView .f4-bank-profile-detail .f4-bank-profile-card{max-width:530px;pointer-events:none;cursor:default}
 #dashboardView .f4-bank-profile-card-note{font-size:11px;color:#6a7f70;margin:0}
-#dashboardView .f4-bank-profile-copy{justify-self:start;min-height:35px;padding:8px 11px;border:1px solid #dce9df;border-radius:10px;background:#f1f8f2;color:#196444;font-weight:750;font-size:12px}
+#dashboardView .f4-bank-profile-copy{justify-self:start;min-height:38px;padding:9px 12px;border:1px solid #b7e7ee;border-radius:11px;background:#e5f9fc;color:#007d8e;font-weight:750;font-size:12px}
 #dashboardView #pageProfile .f4-bank-profile-detail + h2{margin-top:12px}
 /* Single ATM anatomy shared by dashboard and the cloned profile card. */
 #dashboardView .f4-bank-member-card-head{
