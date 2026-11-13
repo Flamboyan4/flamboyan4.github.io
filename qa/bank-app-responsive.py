@@ -35,14 +35,18 @@ if(target)target.classList.remove('hidden');
 # Keep the member dashboard layout and the new fresh eco palette under browser checks too.
 MEMBER_HTML = """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
 <base href="http://127.0.0.1:8765/">
+<link rel="stylesheet" href="/portal-live/modern-portals.css">
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css">
+<link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css">
 <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
+<link rel="stylesheet" href="/portal-live/bank-development-app.css">
+<link rel="stylesheet" href="/portal-live/bank-member-navigation.css">
 <style>body{margin:0;font-family:system-ui;background:#f7fafb}.grid{display:grid;grid-template-columns:242px minmax(0,1fr)}
 .section{min-width:0;padding:20px}#pageDashboard{padding:0}
 @media(max-width:1023px){.grid{display:block}.section{padding:14px}}</style></head>
 <body class="f4-bank-app-private f4-bank-app-member" data-f4-bank-role="warga">
 <div id="dashboardView"><div class="grid"><aside id="sideNav">Navigasi</aside><main class="section">
-<section id="pageDashboard" class="v14-home f4-member-dashboard">
+<section id="pageDashboard" class="card v14-home f4-member-dashboard">
 <div id="f4BankAppHome" data-bank-role="member" class="f4-bank-app-home">
 <div class="f4-bank-app-personal-greeting"><strong>Halo, Anggota!</strong><small>Rumah A5/41</small></div>
 <section id="f4MemberHero" class="f4-member-hero">
@@ -94,6 +98,19 @@ async def member_layout(browser):
                 quick:rect('#f4MemberQuickActions'),
                 actions:actions.map(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}}),
                 recent:rect('#f4MemberContent>.v14-panel'),
+                importantMatches:(()=>{
+                 const root=document.querySelector('#pageDashboard'),hits=[];
+                 const walk=rules=>{for(const rule of rules){
+                  if(rule.cssRules){walk(rule.cssRules);continue;}
+                  if(!rule.selectorText||!rule.style)continue;
+                  if(![...rule.style].some(p=>rule.style.getPropertyPriority(p)==='important'))continue;
+                  try{if(root.matches(rule.selectorText)||root.querySelector(rule.selectorText)){
+                   hits.push(rule.selectorText.slice(0,160));
+                  }}catch(e){}
+                 }};
+                 for(const sheet of document.styleSheets){try{walk(sheet.cssRules)}catch(e){}}
+                 return hits.slice(0,30);
+                })(),
                 mutationRows:[...document.querySelectorAll('#v14Recent .f4-member-recent')].map(el=>{
                  const cs=getComputedStyle(el);return {background:cs.backgroundColor,borderLeft:cs.borderLeftWidth,borderRight:cs.borderRightWidth,radius:cs.borderRadius,bottom:cs.borderBottomWidth,cols:cs.gridTemplateColumns,svg:!!el.querySelector('.f4-member-recent-icon svg')};
                 }),
@@ -116,6 +133,7 @@ async def member_layout(browser):
         assert result["quick"]["y"]<result["hero"]["b"]+4,(device,result)
         assert result["recent"]["y"]>=result["quick"]["b"]-3,(device,result)
         assert result["scheduleTitle"]=="Minggu, 15 November 2026",(device,result)
+        assert not result["importantMatches"],(device,result["importantMatches"])
         assert len(result["mutationRows"])==2,(device,result)
         for row in result["mutationRows"]:
             assert row["svg"] and row["radius"]=="0px",(device,row)
