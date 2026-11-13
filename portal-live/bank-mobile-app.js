@@ -47,6 +47,7 @@ let primaryNode=null,extraNode=null;
 let ready=false,requestNonce="",requestEnabled=false;
 let memberStatement=null,memberChartMode="kg",memberChartGroup="period";
 let memberHomeChartGroup="month";
+let memberBalancePrivacy={hidden:false};
 let memberPublicMini={data:null,pending:null,loadedAt:0,version:0};
 let adminOverview=null;
 let refreshing=false;
@@ -215,11 +216,32 @@ function ensureHome(){
   const house=el("span","f4-bank-atm-house");
   house.append(el("small","","RUMAH"),el("strong","f4-bank-card-house","—"));
   identity.append(person,house);card.append(cardHead,center,identity);
-  const savings=el("button","f4-bank-app-member-balance");savings.id="f4BankAppMemberBalance";savings.type="button";
-  savings.append(el("span","f4-bank-member-balance-label","Saldo Tersedia"),
-    el("strong","f4-bank-member-balance-value","—"),
-    el("span","f4-bank-balance-cta","Cek Tabungan"));
-  savings.onclick=()=>navigate("pribadi");
+  const savings=el("div","f4-bank-app-member-balance");savings.id="f4BankAppMemberBalance";
+  savings.setAttribute("role","group");savings.setAttribute("aria-label","Ringkasan saldo Bank Sampah");
+  const balanceHead=el("div","f4-bank-balance-head");
+  const balanceEye=el("button","f4-bank-balance-eye");balanceEye.type="button";
+  balanceEye.setAttribute("aria-label","Sembunyikan saldo");
+  balanceEye.setAttribute("aria-pressed","false");
+  balanceEye.title="Sembunyikan saldo";
+  const balanceEyeSvg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  balanceEyeSvg.setAttribute("viewBox","0 0 24 24");
+  balanceEyeSvg.setAttribute("aria-hidden","true");
+  balanceEyeSvg.setAttribute("fill","none");
+  balanceEyeSvg.setAttribute("stroke","currentColor");
+  balanceEyeSvg.setAttribute("stroke-width","1.9");
+  balanceEyeSvg.setAttribute("stroke-linecap","round");
+  balanceEyeSvg.setAttribute("stroke-linejoin","round");
+  balanceEye.append(balanceEyeSvg);
+  balanceEye.onclick=event=>{
+   event.preventDefault();event.stopPropagation();
+   memberBalancePrivacy.hidden=!memberBalancePrivacy.hidden;updateDashboard();
+  };
+  balanceHead.append(el("span","f4-bank-member-balance-label","Saldo Tersedia"),balanceEye);
+  const balanceLink=el("button","f4-bank-balance-cta","Cek Tabungan");balanceLink.type="button";
+  balanceLink.onclick=()=>navigate("pribadi");
+  savings.append(balanceHead,el("strong","f4-bank-member-balance-value","—"),balanceLink);
+  // Preserve clicking the card background; the eye and CTA are independent buttons.
+  savings.onclick=event=>{if(!event.target.closest("button"))navigate("pribadi");};
   const hero=el("div","f4-bank-app-hero");hero.id="f4BankAppAdminHero";
   const heading=el("small","","BANK SAMPAH FLAMBOYAN 4"),label=el("strong","f4-bank-app-balance-title","Hasil diterima lapak"),
     amount=el("strong","f4-bank-app-balance","—"),secondary=el("span","f4-bank-app-secondary","Memuat...");
@@ -377,10 +399,21 @@ function updateDashboard(){
  const map=dashboardMetrics();
  if(role==="member"){
   const button=$("f4BankAppMemberBalance");
-  // Only update the amount: replacing the card contents destroyed its ATM-style layout,
-  // stripped the balance typography classes and removed the "Cek Tabungan" CTA.
+  // Keep the balance card and independent buttons intact on every refresh.
   const amount=button?.querySelector(".f4-bank-member-balance-value");
-  if(amount)amount.textContent=memberStatement?rupiah(memberStatement.saldo):(map.get("Saldo sah")||"—");
+  const realAmount=memberStatement?rupiah(memberStatement.saldo):(map.get("Saldo sah")||"—");
+  if(amount)amount.textContent=memberBalancePrivacy.hidden?"••••••":realAmount;
+  const eye=button?.querySelector(".f4-bank-balance-eye");
+  if(eye){
+   const label=memberBalancePrivacy.hidden?"Tampilkan saldo":"Sembunyikan saldo";
+   eye.setAttribute("aria-label",label);
+   eye.setAttribute("aria-pressed",String(memberBalancePrivacy.hidden));
+   eye.title=label;
+   const glyph=eye.querySelector("svg");
+   if(glyph)glyph.innerHTML=memberBalancePrivacy.hidden
+    ?'<path d="M3 3l18 18"/><path d="M10.6 5.1A10.7 10.7 0 0 1 12 5c5.4 0 9.2 5.5 9.2 7a15 15 0 0 1-3 3.6"/><path d="M6.6 6.6C4.4 8 2.8 10.5 2.8 12c0 1.6 3.8 7 9.2 7 1.5 0 2.9-.4 4.1-1"/><path d="M10 10a2.8 2.8 0 0 0 4 4"/>'
+    :'<path d="M2.8 12S6.6 5 12 5s9.2 7 9.2 7-3.8 7-9.2 7-9.2-7-9.2-7Z"/><circle cx="12" cy="12" r="3"/>';
+  }
   $("f4BankAppMinis")?.replaceChildren();
  }else{
   const current=adminOverview;
@@ -2123,7 +2156,7 @@ function handleRoute(route,old,args){
  return result;
 }
 function resetRoleSurface(){
- resetAdminAlerts();resetMemberPublicMini();
+ resetAdminAlerts();resetMemberPublicMini();memberBalancePrivacy.hidden=false;
  routeHistory.length=0;returningFromBack=false;screen="dashboard";
  // Rebuild the role-specific home from source nodes, never from cached cards.
  // The old member/account must not inherit operations or cached balance widgets.

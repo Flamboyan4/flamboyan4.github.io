@@ -96,7 +96,7 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
  body.f4-bank-app-member #dashboardView>.grid{display:block;min-width:0}
  body.f4-bank-app-member #dashboardView>.grid>.section{
   box-sizing:border-box;min-width:0;width:100%;max-width:780px;
-  margin-inline:auto;padding:14px 15px 90px;background:#fff
+  margin-inline:auto;padding:14px 15px 10px;background:#fff
  }
  /* One clean mobile banking bar: member identity + global actions. */
  body.f4-bank-app-member #f4-direct-bar{
