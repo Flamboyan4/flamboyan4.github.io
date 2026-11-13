@@ -42,8 +42,11 @@ assert(bank.includes("if(x.id&&Number(x.nominal)>0&&String(x.status||'').toLower
  'Bank expense receipts require settled D1 expense rows');
 assert(bank.includes("const personalMutations=(d.mutasi||[]).map(x=>"),
  'Member payout receipts must use own authenticated D1 statement');
-assert(bank.includes("content.appendChild(action)"),
- 'Member deposit details must contain a receipt action');
+assert(bank.includes("const receipt=f4BankReceiptIcon(s,()=>") &&
+       bank.includes("summary.append(receipt)") &&
+       bank.includes("row.append(summary);deposits.appendChild(row);") &&
+       !bank.includes("details.appendChild(content);deposits.appendChild(details);"),
+ 'Member deposit list must stay flat; the receipt button beside each amount opens full details');
 const logs=[];
 const ctx=new Proxy({},{
  get(object,key){
