@@ -1140,7 +1140,7 @@ body.f4-bank-app-admin #dashboardView .v14-kpi,body.f4-bank-app-admin #dashboard
 
 }
 @media screen and (min-width:761px){
- body.f4-direct-bank #dashboardView .section{padding:18px 25px 35px!important}
+ body.f4-direct-bank:not(.f4-bank-app-member) #dashboardView .section{padding:18px 25px 35px!important}
  body.f4-direct-bank #dashboardView .section>.card:not(#pageDashboard){
   border:1px solid #e1e9e4!important;border-radius:17px!important;
   padding:19px 22px!important;box-shadow:0 3px 15px rgba(30,70,49,.025)!important
