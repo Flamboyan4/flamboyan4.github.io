@@ -395,7 +395,7 @@ async def savings_chart(browser):
     await page.close()
 
 async def admin_mobile_shell(browser):
-    """Admin has no duplicated bottom dock; the slide has six complete categories."""
+    """Admin retains the shared bottom-dock layout and the separate six-category drawer."""
     from pathlib import Path
     import re
     page=await browser.new_page(viewport={"width":390,"height":820},device_scale_factor=1)
@@ -442,7 +442,7 @@ async def admin_mobile_shell(browser):
     }""")
     assert before["scroll"]>500,before
     assert before["headerPosition"]=="fixed" and abs(before["headerTop"])<1,before
-    assert before["dock"]=="none" and before["padding"]=="8px",before
+    assert before["dock"]=="none" and float(before["padding"].replace("px",""))>=72,before
     assert before["drawerVisible"]=="hidden",before
     assert before["nav"]==["home","deposit","sale","finance","management","report"],before
     assert not before["overflow"],before
@@ -460,7 +460,7 @@ async def admin_mobile_shell(browser):
     await page.evaluate('document.querySelector("#sideNav").classList.remove("open")')
     await page.wait_for_timeout(260)
     assert await page.evaluate('getComputedStyle(document.querySelector("#sideNav")).visibility')=="hidden"
-    print("ADMIN_NO_DOCK_FULL_SLIDE_OK",before,opened,flush=True)
+    print("ADMIN_SHARED_DOCK_DRAWER_OK",before,opened,flush=True)
     await page.close()
 
 async def public_chart_and_flat_roster(browser):
@@ -1221,13 +1221,30 @@ async def main():
                     home:box('#f4BankAppHome'),
                     dock:getComputedStyle(document.querySelector('#f4BankAppDock')).display,
                     labels:[...document.querySelectorAll('#f4BankAppDock .f4-bank-app-action-name')].map(n=>n.textContent),
+                    routes:[...document.querySelectorAll('#f4BankAppDock .f4-bank-app-dock-action')].map(n=>n.dataset.bankAppRoute),
+                    center:(()=>{
+                      const nav=document.querySelector('#f4BankAppDock');
+                      const action=nav?.querySelector('.f4-bank-app-dock-action:nth-child(3)');
+                      const icon=action?.querySelector('.f4-bank-app-action-icon');
+                      const rect=icon?.getBoundingClientRect();
+                      return {primary:action?.classList.contains('is-primary'),
+                        label:action?.getAttribute('aria-label'),
+                        visibleLabel:!!action?.querySelector('.f4-bank-app-action-name'),
+                        background:icon?getComputedStyle(icon).backgroundColor:null,
+                        radius:icon?getComputedStyle(icon).borderRadius:null,
+                        size:rect?.width||0,top:rect?.top||0,
+                        navTop:nav?.getBoundingClientRect().top||0};
+                    })(),
                     account:document.querySelector('#f4BankAppBalance').textContent,
                     quick:[...document.querySelectorAll('#f4BankAppHome button')].map(n=>n.textContent.trim()),
                     overflow:document.documentElement.scrollWidth>window.innerWidth+3
                 };
             }""")
             assert state["account"]=="Rp 1.500",(device,state)
-            assert state["labels"]==[],state
+            assert state["labels"]==["Beranda","Setoran","Penjualan","Saldo"],state
+            assert state["routes"]==["dashboard","setoran","laporan","penjualan","tabungan"],state
+            assert state["center"]["primary"] and state["center"]["label"]=="Laporan",state
+            assert not state["center"]["visibleLabel"],state
             assert not state["overflow"],state
             # Current manager dashboard: kas as the left hero and three useful KPI tiles,
             # not the obsolete four-tile dashboard stacked under the balance.
@@ -1241,7 +1258,11 @@ async def main():
             else:
                 assert state["metrics"]["y"]>=state["hero"]["y"]+state["hero"]["h"]-2,state
                 assert state["tiles"][2]["y"]>=state["tiles"][0]["y"],state
-                assert state["dock"]=="none",state
+                assert state["dock"]=="grid",state
+                assert state["center"]["background"]=="rgb(255, 199, 25)",state
+                assert state["center"]["radius"]=="50%",state
+                assert 58<=state["center"]["size"]<=68,state
+                assert state["center"]["top"]<state["center"]["navTop"],state
             assert any("Catat Setoran" in x for x in state["quick"]),state
             assert await page.locator("#f4BankManualPayout").count()==1
             assert not await page.locator("#f4BankManualPayout").get_attribute("open")
