@@ -223,9 +223,9 @@
 .f4g-photo-comment b{color:#302944;font-weight:750}
 .f4g-photo-no-comments{margin:0;font:12px/1.5 system-ui;color:#858091}
 .f4g-photo-all{width:max-content;min-height:29px;padding:5px 0;border:0;background:transparent;color:#6540b1;font-size:11px}
-.f4g-photo-quick-form{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin-top:auto;padding-top:11px;border-top:1px solid #eeeaf5}
-.f4g-photo-quick-form textarea{flex:1 1 100%;min-width:0;width:100%;min-height:54px;max-height:110px;resize:vertical;border:1px solid #e1dbea;border-radius:10px;padding:9px 11px;font:12px/1.5 system-ui;color:#28243a}
-.f4g-photo-quick-form .f4g-btn{margin-left:auto}
+.f4g-photo-quick-form{display:flex;flex-wrap:nowrap;gap:9px;align-items:flex-end;min-width:0;margin-top:auto;padding-top:11px;border-top:1px solid #eeeaf5}
+.f4g-photo-quick-form textarea{box-sizing:border-box;display:block;flex:1 1 0;min-width:0;width:auto;height:46px;min-height:46px;max-height:144px;overflow-y:auto;resize:none;border:1px solid #e1dbea;border-radius:10px;padding:11px 12px;font:12px/1.5 system-ui;color:#28243a}
+.f4g-photo-quick-form .f4g-btn{flex:0 0 46px;width:46px;min-width:46px;height:46px;min-height:46px;margin:0;align-self:flex-end}
 /* Hanya panel komentar yang menjadi bottom sheet pada layar kecil. */
 .f4g-comment-overlay .f4g-head{position:relative;justify-content:center;touch-action:pan-y}
 .f4g-comment-overlay .f4g-head strong{text-align:center}
