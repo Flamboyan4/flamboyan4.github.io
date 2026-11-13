@@ -119,6 +119,15 @@
  background:#fff6df;border-color:#f2e3b7;color:#8b690b
 }
 #dashboardView #f4MemberFlow .f4-member-flow-share b{font-size:12px;color:inherit;font-weight:850}
+/* Compact instruction card only on PC; the phone/tablet layout is unchanged. */
+@media(min-width:1024px){
+ #dashboardView #f4MemberFlow>.f4-member-flow-head{padding:11px 16px}
+ #dashboardView #f4MemberFlow .f4-member-flow-body{padding:0 13px 13px}
+ #dashboardView #f4MemberFlow .f4-member-flow-steps>li{min-height:86px;padding:8px 4px;gap:5px}
+ #dashboardView #f4MemberFlow .f4-member-flow-number{width:32px;height:32px}
+ #dashboardView #f4MemberFlow .f4-member-flow-number svg{width:20px;height:20px}
+ #dashboardView #f4MemberFlow .f4-member-flow-steps strong{font-size:11px;line-height:1.2}
+}
 @media(max-width:570px){
  #dashboardView #f4MemberFlow>.f4-member-flow-head{padding:13px}
  #dashboardView #f4MemberFlow .f4-member-flow-body{padding:0 12px 12px}
