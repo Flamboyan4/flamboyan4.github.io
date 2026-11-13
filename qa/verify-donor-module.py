@@ -27,10 +27,8 @@ INSERT INTO treasury_entries VALUES('line-o2','outgoing-2','project:project-1','
 """)
 db.executescript(SQL.read_text(encoding="utf-8"))
 db.executescript("""
-INSERT INTO donor_accounts(id,username,password_hash) VALUES('donor-a','company_a','test-hash');
-INSERT INTO donor_accounts(id,username,password_hash) VALUES('donor-b','company_b','test-hash');
-INSERT INTO donor_profiles(account_id,donor_name) VALUES('donor-a','Company A');
-INSERT INTO donor_profiles(account_id,donor_name) VALUES('donor-b','Company B');
+INSERT INTO donor_accounts(id,username,donor_name,password_hash) VALUES('donor-a','company_a','Company A','test-hash');
+INSERT INTO donor_accounts(id,username,donor_name,password_hash) VALUES('donor-b','company_b','Company B','test-hash');
 INSERT INTO donor_programs(id,project_id,fund_id,created_by) VALUES('prog-1','project-1','project:project-1','super');
 """)
 
@@ -55,7 +53,7 @@ linked("b-spend", "donor-b", "outgoing-1", "outgoing", 100)
 db.commit()
 
 assert db.execute("SELECT COALESCE(SUM(CASE WHEN kind='incoming' THEN amount_rp ELSE -amount_rp END),0) FROM donor_finance_links WHERE donor_account_id='donor-a'").fetchone()[0] == 200
-assert db.execute("SELECT count(*) FROM donor_profiles WHERE account_id='donor-a'").fetchone()[0] == 1
+assert db.execute("SELECT count(*) FROM donor_accounts WHERE id='donor-a'").fetchone()[0] == 1
 assert db.execute("SELECT role FROM accounts WHERE id='super'").fetchone()[0] == "superadmin"
 assert db.execute("SELECT count(*) FROM accounts").fetchone()[0] == 1
 assert db.execute("PRAGMA foreign_key_check").fetchall() == []
@@ -72,7 +70,7 @@ assert db.execute("SELECT count(*) FROM donor_finance_links WHERE donor_account_
 
 code=WORKER.read_text(encoding="utf-8")
 assert 'requireRole(who,["donatur"])' in code
-assert 'donor_profiles WHERE account_id=? LIMIT 1' in code
+assert 'FROM donor_accounts WHERE id=?' in code
 assert 'WHERE l.donor_account_id=?' in code
 assert 'const denied=superadmin(who);if(denied)return denied;' in code
 assert 'const donorAllowedRoutes=new Set(' in code
