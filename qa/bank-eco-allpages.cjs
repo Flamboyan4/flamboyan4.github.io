@@ -103,7 +103,7 @@ assert(mobile.includes('brand.id="f4BankMemberTopBrand"') &&
        memberNav.includes('background:linear-gradient(105deg,#e2f5d6,#bff1ab)'),
  'Desktop leaf-green sidebar and dual-row mobile header must use the selected design');
 assert(memberNav.includes('.f4-member-impact-share>span:nth-child(2)') &&
-       mobile.includes('splitSource.children') &&
+       mobile.includes('sourceSplit.children') &&
        memberPolish.includes('.f4-member-flow-foot{display:none'),
  'Profit sharing must appear within progress, sourced from live configuration, not duplicated hard-coded text');
 assert(css.includes('body.f4-bank-app-member #dashboardView #pageDashboard{') &&
