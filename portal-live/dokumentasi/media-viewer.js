@@ -31,6 +31,8 @@ const normalize=item=>{
    type==='video'&&yt?'https://www.youtube-nocookie.com/embed/'+yt:null};
 };
 let album=null,photo=null,items=[],at=0,albumTitle='Dokumentasi',currentAlbumId='',mediaContext='gallery',lastTile=null,closing=false;
+// A restored browser-history entry belongs to an older viewer after reload.
+const viewerSession=crypto.randomUUID();
 let photoZoom={scale:1,x:0,y:0};
 function applyPhotoZoom(scale=photoZoom.scale,x=photoZoom.x,y=photoZoom.y){
  const content=photo?.querySelector('.f4p-photo-content');
@@ -245,7 +247,7 @@ function ensure(){
  });
  window.addEventListener('popstate',()=>{
   closing=false;
-  const layer=history.state?.f4DocOverlay;
+  const layer=history.state?.f4DocSession===viewerSession?history.state?.f4DocOverlay:null;
   if(isOpen(photo)&&layer!=='photo'){
    stopVideo();show(photo,false);view.replaceChildren();
    clearClosedLink('foto');
@@ -270,7 +272,7 @@ function clearClosedLink(level){
 }
 function closeTop(){
  if(closing)return;
- const layer=history.state?.f4DocOverlay;
+ const layer=history.state?.f4DocSession===viewerSession?history.state?.f4DocOverlay:null;
  if((isOpen(photo)&&layer==='photo')||(isOpen(album)&&layer==='album')){
   closing=true;history.back();return;
  }
@@ -285,7 +287,7 @@ function closeTop(){
 }
 function pushLayer(layer){
  // Independent history entry for each level. Browser Back returns to previous level.
- history.pushState({...history.state,f4DocOverlay:layer},'',location.href);
+ history.pushState({...history.state,f4DocOverlay:layer,f4DocSession:viewerSession},'',location.href);
  closing=false;
 }
 function renderPhoto(){
