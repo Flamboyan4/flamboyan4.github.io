@@ -103,6 +103,7 @@ async def main():
             await page.add_style_tag(content="@media(max-width:760px){" + rule.group(1) + "}")
             await page.add_style_tag(url="http://127.0.0.1:8765/portal-live/bank-eco-pages.css")
             await page.add_style_tag(url="http://127.0.0.1:8765/portal-live/bank-eco-dashboard.css")
+            await page.add_style_tag(url="http://127.0.0.1:8765/portal-live/bank-impact-summary.css")
             await page.wait_for_timeout(300)
             state = await page.evaluate("""() => {
               const e = (s) => document.querySelector(s);

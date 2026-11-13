@@ -4,6 +4,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const h=fs.readFileSync('bank-sampah/index.html','utf8');
 const css=fs.readFileSync('portal-live/bank-eco-pages.css','utf8');
 const dashboard=fs.readFileSync('portal-live/bank-eco-dashboard.css','utf8');
+const publicTheme=fs.readFileSync('portal-live/bank-impact-summary.css','utf8');
 const mobile=fs.readFileSync('portal-live/bank-mobile-app.js','utf8');
 new vm.Script(mobile,{filename:'portal-live/bank-mobile-app.js'});
 const source=[...h.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].find(x=>x[1].includes('function v14Setup()'))?.[1];
@@ -20,7 +21,7 @@ for(const phrase of ['#v18PublicSide',
  '#pageBiaya','#pageDokumentasi','#pageInventaris','#pageMaster','#pageAdmin',
  '.f4-member-progress-modal-panel','width:min(226px,75vw)',
  'max-width:1023px','max-width:760px','--eco-leaf:#43a047',
- 'background:#43a047;border:0','background:var(--eco-gold);color:#25412d']){
+ 'background:#43a047;border:0']){
  assert(css.includes(phrase),'Missing themed component '+phrase);
 }
 assert(!css.includes('#a0dcb3'),'Old mint gradient present');
@@ -28,24 +29,25 @@ assert(css.includes('background:#e4f6d5;color:#196e40;'),'Soft lime navigation m
 assert(!css.includes('border-left:4px solid #d7a517'),'Hard schedule rail returned');
 assert(!css.includes('background:linear-gradient(120deg,#ffdc78,#ffc12b)'),'Muddy yellow price gradient returned');
 assert(css.includes('bank-leaf-watermark.svg'),'Member card SVG leaf watermark missing');
-assert(css.includes('"card card price schedule"'),'Price and schedule must be adjacent on desktop');
-assert(css.includes('background:#dcf8fc'),'Cyan schedule color missing');
+assert(css.includes('"price schedule"')&&css.includes('"card price"'),'Mobile shortcuts must be adjacent while desktop cards remain full-width');
+assert(css.includes('background:#09bcd3'),'Saturated cyan schedule color missing');
 assert(!css.includes('border-left:3px solid #087850'),'Old hard corner stripe returned');
 assert(!css.includes('background:linear-gradient(125deg,#328d45,#43a047 55%,#009788)'),'Member green-teal gradient returned');
 assert(css.includes('--eco-gold:#fdc010'),'Current golden yellow theme token missing');
-assert(css.includes('background:#43a047;border:0'),'Fresh green-teal public hero missing');
+assert(publicTheme.includes('background:#43a047;color:#fff'),'Public hero must use saturated green with white text');
 assert(h.includes('<section id="v17Program" class="f4-bank-program"'), 'Program must be a separate semantic section');
 assert(h.includes('#v17Program .f4-bank-program-step{'), 'Canonical unboxed program steps missing');
 assert(!h.includes('v27-banner-program'), 'Obsolete program banner layout must be removed');
 assert(!h.includes('v27CompactProgram'), 'Obsolete program DOM reparenting must be removed');
 assert(h.includes('border:0}').valueOf() || h.includes('background:transparent;border:0'), 'Public program must not use cards');
-assert(css.includes('background:var(--eco-gold);color:#25412d;\n border:0'),'Readable borderless golden action missing');
+assert(publicTheme.includes('border:0;border-radius:12px;background:#fdc010;color:#25412d'),'Borderless golden hero action missing');
+assert(!publicTheme.includes('!important'),'Public hero stylesheet may not use priority overrides');
 assert(h.includes('#f4-public-my-savings{display:inline-flex') &&
        h.includes('@media(max-width:700px){#f4-public-my-savings{width:100%;max-width:none;min-height:44px') &&
        h.includes("getElementById('f4-public-my-savings')"),
  'Responsive member CTA missing');
-assert(css.includes('#v11Public .v17-public-banner :is(h1,h2,h3,strong)'),'White title missing');
-assert(css.includes('color:#fff!important'),'Foreground contrast missing');
+assert(publicTheme.includes('#v11Public .v17-public-main>.v17-public-banner :is(h1,h2,h3){'),'Public hero must own its readable heading');
+assert(publicTheme.includes('color:#fff'),'Public hero white foreground missing');
 assert(!h.includes('.stats .stat:last-child{grid-column:1/-1}'),'Wide last savings card regression');
 const reportRule=h.match(/#v11Public #v25ReportMetrics\.v26-compact>\.v17-public-metric\{([^}]+)\}/);
 assert(reportRule,'Public mobile report source missing');
