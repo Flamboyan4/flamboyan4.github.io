@@ -56,7 +56,10 @@ MEMBER_HTML = """<!doctype html><html><head><meta name="viewport" content="width
  <button id="f4MemberQuickSchedule" class="f4-member-shortcut"><span class="f4-member-shortcut-icon"><img src="/assets/icons/calendar.svg"></span><span class="f4-member-shortcut-copy"><strong>Jadwal</strong><small>Penimbangan berikutnya</small></span></button>
 </nav>
 <div id="f4MemberContent" class="f4-member-content">
- <section class="v14-panel"><div class="v14-panel-head"><h3>Setoran pribadi terbaru</h3></div><div id="v14Recent"><div class="f4-member-recent">27 Okt 2026 — Rp 2.250</div></div></section>
+ <section class="v14-panel"><div class="v14-panel-head"><h3>Mutasi Setoran</h3></div><div id="v14Recent">
+ <div class="f4-member-recent"><span class="f4-member-recent-icon"><svg viewBox="0 0 24 24"><path d="M17 7 7 17M7 9v8h8"/></svg></span><div class="f4-member-recent-copy"><strong>Setoran Sampah</strong><small>27 Okt 2026 • 1 kg • Sah</small></div><div class="f4-member-recent-value"><b>+ Rp 2.250</b><small>Hasil jual</small></div></div>
+ <div class="f4-member-recent"><span class="f4-member-recent-icon"><svg viewBox="0 0 24 24"><path d="M17 7 7 17M7 9v8h8"/></svg></span><div class="f4-member-recent-copy"><strong>Setoran Sampah</strong><small>18 Okt 2026 • 0,9 kg • Sah</small></div><div class="f4-member-recent-value"><b>+ Rp 750</b><small>Hasil jual</small></div></div>
+ </div></section>
  <aside id="f4MemberAside" class="f4-member-aside">
   <section id="f4BankWeighingSchedule" class="f4-bank-weigh-schedule"><span class="f4-bank-weigh-icon"><img src="/assets/icons/calendar.svg"></span><span class="f4-bank-weigh-copy"><small>JADWAL BERIKUTNYA</small><strong>Minggu, 15 November 2026</strong><span>Setiap 2 minggu</span></span></section>
   <details id="f4MemberFlow" class="f4-member-flow" open><summary class="f4-member-flow-head">
@@ -91,6 +94,9 @@ async def member_layout(browser):
                 quick:rect('#f4MemberQuickActions'),
                 actions:actions.map(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}}),
                 recent:rect('#f4MemberContent>.v14-panel'),
+                mutationRows:[...document.querySelectorAll('#v14Recent .f4-member-recent')].map(el=>{
+                 const cs=getComputedStyle(el);return {background:cs.backgroundColor,borderLeft:cs.borderLeftWidth,borderRight:cs.borderRightWidth,radius:cs.borderRadius,bottom:cs.borderBottomWidth,cols:cs.gridTemplateColumns,svg:!!el.querySelector('.f4-member-recent-icon svg')};
+                }),
                 guide:rect('#f4MemberFlow'),
                 schedule:rect('#f4BankWeighingSchedule'),
                 aside:rect('#f4MemberAside'),
@@ -110,6 +116,12 @@ async def member_layout(browser):
         assert result["quick"]["y"]<result["hero"]["b"]+4,(device,result)
         assert result["recent"]["y"]>=result["quick"]["b"]-3,(device,result)
         assert result["scheduleTitle"]=="Minggu, 15 November 2026",(device,result)
+        assert len(result["mutationRows"])==2,(device,result)
+        for row in result["mutationRows"]:
+            assert row["svg"] and row["radius"]=="0px",(device,row)
+            assert row["borderLeft"]=="0px" and row["borderRight"]=="0px",(device,row)
+            assert row["bottom"] in ("0px","1px"),(device,row)
+            assert row["background"]=="rgba(0, 0, 0, 0)",(device,row)
         if device=="pc":
             assert result["wallet"]["x"]>=result["member"]["right"]-3,(device,result)
             assert all(abs(t["y"]-result["actions"][0]["y"])<3 for t in result["actions"]),(device,result)
