@@ -236,12 +236,13 @@ async function loadPersonal(kind){
     entries.replaceChildren();
     for(const row of list.slice(0,visible)){
      const item=el('article',undefined,'f4-user-row'),left=el('div',undefined,'f4-user-row-content');
-     // Pertahankan keterangan asli dari Pembukuan (mis. "Humas" / "RT").
-     // Jangan tambah label "belum diisi" hanya karena salah satu periode
-     // tidak menyertakan teks keterangan.
-     const description=String(row.keterangan||'').trim();
-     left.append(el('strong',description||row.periode||row.namaKegiatan||row.nama_kegiatan||row.jenis||'Catatan pribadi'));
+     // Pisahkan catatan Pembukuan dengan bulan kewajiban; jangan timpa
+     // keterangan asli (mis. "Humas" / "RT") dengan teks periode.
+     const description=String(row.keterangan||row.catatan||'').trim();
+     const category={IURAN_BULANAN:'Iuran RT',KEBERSIHAN:'Kebersihan',KAS_LORONG:'Kas Lorong',ARISAN:'Arisan'}[row.jenis]||labels[kind]||row.namaKegiatan||row.nama_kegiatan||'Riwayat pembayaran';
+     left.append(el('strong',description||category));
      const details=el('div',undefined,'f4-user-row-details');
+     if(row.periode)details.append(el('span','Periode '+String(row.periode)));
      if(dateOf(row))details.append(el('time',niceDate(dateOf(row))));
      if(row.status)details.append(el('span',String(row.status),'f4-user-status-pill'));
      left.append(details);
