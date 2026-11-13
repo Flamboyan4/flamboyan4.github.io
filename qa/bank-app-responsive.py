@@ -76,6 +76,7 @@ async def member_layout(browser):
                 guideColor:getComputedStyle(document.querySelector('#f4MemberFlow')).backgroundColor,
                 stepColors:steps.map(el=>getComputedStyle(el).backgroundColor),
                 balanceColor:getComputedStyle(document.querySelector('#f4BankAppHome>.f4-bank-app-member-balance')).backgroundColor,
+                balanceImage:getComputedStyle(document.querySelector('#f4BankAppHome>.f4-bank-app-member-balance')).backgroundImage,
                  balanceAmountColor:getComputedStyle(document.querySelector('#f4BankAppHome>.f4-bank-app-member-balance strong')).color,
                  priceColor:getComputedStyle(document.querySelector('#f4MemberPriceShortcut')).backgroundColor,
                  scheduleColor:getComputedStyle(document.querySelector('#f4BankWeighingSchedule')).backgroundColor,
@@ -84,16 +85,17 @@ async def member_layout(browser):
         }""")
         assert not result["overflow"],(device,result)
         assert result["guideColor"]=="rgb(255, 255, 255)",(device,result)
-        assert result["balanceColor"]=="rgb(255, 255, 255)",(device,result)
-        assert result["balanceAmountColor"]=="rgb(23, 70, 48)",(device,result)
+        assert "linear-gradient(" in result["balanceImage"] and "255, 194, 15" in result["balanceImage"],(device,result)
+        assert result["balanceAmountColor"]=="rgb(23, 45, 61)",(device,result)
         assert result["priceColor"]=="rgb(255, 255, 255)",(device,result)
         assert result["scheduleColor"]=="rgb(255, 255, 255)",(device,result)
         assert all(c=="rgb(247, 252, 245)" for c in result["stepColors"]),(device,result)
         if device=="pc":
-            assert result["schedule"]["y"]+result["schedule"]["h"]<=result["price"]["y"]+2,(device,result)
+            assert abs(result["schedule"]["y"]-result["price"]["y"])<3,(device,result)
+            assert result["schedule"]["x"]+result["schedule"]["w"]<=result["price"]["x"]+3,(device,result)
             assert abs(result["price"]["w"]-result["schedule"]["w"])<3,(device,result)
             assert result["recent"]["x"]<result["guide"]["x"],result
-            assert abs(result["recent"]["w"]-result["guide"]["w"])<3,result
+            assert result["recent"]["w"]>result["guide"]["w"],result
             assert abs(result["steps"][0]["y"]-result["steps"][1]["y"])<3,result
         else:
             assert result["recent"]["y"]<result["guide"]["y"],result
@@ -789,7 +791,7 @@ async def member_price_card_position(browser):
         result=await page.evaluate("""() => {
           const p=document.querySelector('#f4MemberPriceShortcut'),s=document.querySelector('#f4BankWeighingSchedule');
           const a=p.getBoundingClientRect(),b=s.getBoundingClientRect();
-          return {priceBottom:a.bottom,priceRight:a.right,priceY:a.top,scheduleX:b.left,scheduleY:b.top,scheduleBottom:b.bottom,priceH:a.height,
+          return {priceBottom:a.bottom,priceRight:a.right,priceX:a.left,priceY:a.top,scheduleX:b.left,scheduleRight:b.right,scheduleY:b.top,scheduleBottom:b.bottom,priceH:a.height,
             priceColor:getComputedStyle(p).backgroundColor,
              scheduleColor:getComputedStyle(s).backgroundColor,
              iconColor:getComputedStyle(s.querySelector('.f4-bank-weigh-icon')).backgroundColor,
@@ -799,15 +801,16 @@ async def member_price_card_position(browser):
         }""")
         if device=="hp":
             assert abs(result["priceY"]-result["scheduleY"])<2,(device,result)
-            assert result["priceRight"]<=result["scheduleX"]+2,(device,result)
+            assert result["scheduleRight"]<=result["priceX"]+3,(device,result)
         else:
-            assert result["scheduleBottom"]<=result["priceY"]+2,(device,result)
+            assert abs(result["scheduleY"]-result["priceY"])<3,(device,result)
+            assert result["scheduleRight"]<=result["priceX"]+3,(device,result)
         assert result["priceH"]>=60 and not result["overflow"],(device,result)
         assert result["priceColor"]=="rgb(255, 255, 255)",(device,result)
         assert result["scheduleColor"]=="rgb(255, 255, 255)",(device,result)
-        assert result["iconColor"]=="rgb(49, 134, 81)",(device,result)
+        assert result["iconColor"]=="rgb(19, 180, 197)",(device,result)
         assert result["priceHasSvg"],(device,result)
-        assert result["border"]=="rgb(220, 232, 222)",(device,result)
+        assert result["border"] in ("rgb(220, 232, 222)","rgb(223, 235, 236)"),(device,result)
         print("MEMBER_PRICE_SCHEDULE_RESPONSIVE_OK",device,result,flush=True)
         await page.close()
 
