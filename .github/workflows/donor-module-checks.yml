@@ -2,6 +2,7 @@ name: Donatur module security checks
 on:
   push:
     branches:
+      - fitur-donatur-terpadu-20261113
       - donatur-akun-terpisah-aman-20261113
     paths:
       - 'donatur/**'
