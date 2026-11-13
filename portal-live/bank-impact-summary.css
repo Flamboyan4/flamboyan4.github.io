@@ -27,6 +27,14 @@
   margin:0;max-width:550px;color:#f1fff0;opacity:1;
   font-size:clamp(12px,1.1vw,14px);line-height:1.6
 }
+#v11Public .v17-public-main>.v17-public-banner button:not(.v30-hero-photo){
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:40px;padding:9px 16px;margin:13px 9px 0 0;
+  border:0;border-radius:12px;background:#fdc010;color:#25412d;
+  box-shadow:0 4px 12px #153f2e14;font-weight:800;cursor:pointer
+}
+#v11Public .v17-public-main>.v17-public-banner button:not(.v30-hero-photo):hover{background:#f2b900}
+#v11Public .v17-public-main>.v17-public-banner button:not(.v30-hero-photo):focus-visible{outline:2px solid #fff;outline-offset:3px}
 #v11Public .v17-public-main>.v17-public-banner>.v30-hero-photo{
   display:none;box-sizing:border-box;width:100%;min-width:0;
   height:204px;padding:0;overflow:hidden;border:0;border-radius:18px;
