@@ -1735,6 +1735,7 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
   "quick quick"
   "progress recent"
   "guide info"
+  "banner banner"
 }
 #dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-bank-app-personal-greeting{display:none}
 #dashboardView #f4BankAppHome[data-bank-role="member"]>:is(#f4BankAppAdminHero,#f4BankAppMinis){display:none}
@@ -1899,6 +1900,15 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
 #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberInfoShortcut{
  grid-area:info;box-sizing:border-box;min-width:0;width:100%;height:100%;align-self:stretch
 }
+/* One member-only full-width image. Original banner aspect ratio stays untouched. */
+#dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberHowtoBanner{
+ grid-area:banner;display:block;box-sizing:border-box;min-width:0;width:100%;
+ margin:0;border:0;border-radius:20px;overflow:hidden;
+ background:#f1f8f4;box-shadow:0 5px 16px #17482a0c
+}
+#dashboardView #f4MemberHowtoBanner img{
+ display:block;width:100%;height:auto;aspect-ratio:16/5;object-fit:contain
+}
 @media(max-width:1023px){
  #dashboardView #f4BankAppHome[data-bank-role="member"]{
   width:100%;max-width:750px;grid-template-columns:repeat(3,minmax(0,1fr));
@@ -1908,7 +1918,8 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
    "quick quick info"
    "progress progress progress"
    "recent recent recent"
-   "guide guide guide";
+   "guide guide guide"
+   "banner banner banner";
   gap:12px 10px
  }
  #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankMemberCard{

@@ -320,6 +320,21 @@ function restoreMemberHomeLayout(hub){
  $("f4BankWeighingSchedule")?.remove();
  $("f4MemberPriceShortcut")?.remove();
 }
+function ensureMemberHowtoBanner(){
+ const home=$("f4BankAppHome");if(roleType()!=="member"||!home)return;
+ let banner=$("f4MemberHowtoBanner");
+ if(!banner){
+  banner=el("figure","f4-member-howto-banner");banner.id="f4MemberHowtoBanner";
+  const picture=el("img");
+  picture.src="/assets/bank-sampah-alur-penimbangan-1600x500.png";
+  picture.width=1600;picture.height=500;
+  picture.loading="lazy";picture.decoding="async";
+  picture.alt="Alur Bank Sampah: kumpulkan plastik, logam, dan kertas di rumah, antar ke Bank Sampah, timbang dan catat, kemudian cek setoran lewat akun web.";
+  banner.append(picture);
+ }
+ if(banner.parentElement!==home||banner!==home.lastElementChild)home.append(banner);
+}
+
 function arrangeMemberHomeLayout(hub){
  if(role!=="member"||!hub)return;
  const card=$("f4BankMemberCard"),balance=$("f4BankAppMemberBalance");
@@ -2189,7 +2204,7 @@ function sync(){
  syncAdminPageFrames();
  ensureHome();
  if(role==="member"){
-  ensureMemberPages();progressPreview();infoShortcut();orderMemberHome();bindMemberDocumentation();publicSnapshot();
+  ensureMemberPages();progressPreview();infoShortcut();orderMemberHome();ensureMemberHowtoBanner();bindMemberDocumentation();publicSnapshot();
  }else{
   managerRequestsPanel();
   ensureAdminHome();
