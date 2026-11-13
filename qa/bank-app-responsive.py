@@ -74,6 +74,7 @@ MEMBER_HTML = """<!doctype html><html><head><meta name="viewport" content="width
 </div>
 <section id="f4MemberEnvironmentPreview">Perkembangan</section>
 <section id="f4MemberInfoShortcut">Informasi</section>
+<figure id="f4MemberHowtoBanner" class="f4-member-howto-banner"><img src="/assets/bank-sampah-alur-penimbangan-1600x500.png" width="1600" height="500" alt="Alur Bank Sampah"></figure>
 </div></section></main></div></div></body></html>"""
 
 # Savings/chart regression intentionally uses its original focused fixture. The full
@@ -113,6 +114,7 @@ async def member_layout(browser):
             schedule:rect('#f4BankWeighingSchedule'),price:rect('#f4MemberPriceShortcut'),
             recent:rect('#f4MemberContent>.v14-panel'),guide:rect('#f4MemberFlow'),
             progress:rect('#f4MemberEnvironmentPreview'),info:rect('#f4MemberInfoShortcut'),
+            banner:rect('#f4MemberHowtoBanner'),
             outerBorder:getComputedStyle(root).borderTopWidth,
             parent:card.parentElement.id,cardBackground:getComputedStyle(card).backgroundImage,
             walletGradient:getComputedStyle(bal).backgroundImage,
@@ -156,6 +158,8 @@ async def member_layout(browser):
             assert abs(result["guide"]["y"]-result["info"]["y"])<3,(device,result)
             assert result["guide"]["right"]<=result["info"]["x"]+3,(device,result)
             assert result["guide"]["h"]<225 and result["info"]["h"]<225,(device,result)
+            assert result["banner"]["y"]>=result["info"]["bottom"]-3,(device,result)
+            assert abs(result["banner"]["w"]/result["banner"]["h"]-3.2)<0.05,(device,result)
         else:
             assert result["balance"]["y"]>=result["card"]["bottom"]-3,(device,result)
             assert result["quick"]["y"]>=result["balance"]["bottom"]-3,(device,result)
@@ -163,6 +167,8 @@ async def member_layout(browser):
             assert result["progress"]["y"]>=result["quick"]["bottom"]-3,(device,result)
             assert result["recent"]["y"]>=result["progress"]["bottom"]-3,(device,result)
             assert result["guide"]["y"]>=result["recent"]["bottom"]-3,(device,result)
+            assert result["banner"]["y"]>=result["guide"]["bottom"]-3,(device,result)
+            assert abs(result["banner"]["w"]/result["banner"]["h"]-3.2)<0.05,(device,result)
         print("MEMBER_PREMIUM_BANKING_LAYOUT_OK",device,result,flush=True)
         await page.close()
 

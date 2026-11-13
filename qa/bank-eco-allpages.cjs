@@ -1,6 +1,10 @@
 'use strict';
 /* Pure static validation: all Bank Sampah portal modes, desktop/mobile, no DB access. */
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const memberBannerBytes=fs.readFileSync('assets/bank-sampah-alur-penimbangan-1600x500.png');
+assert(memberBannerBytes.subarray(0,8).equals(Buffer.from('89504e470d0a1a0a','hex')) &&
+       memberBannerBytes.readUInt32BE(16)===1600 && memberBannerBytes.readUInt32BE(20)===500,
+ 'Use the original real 1600 x 500 Bank Sampah image, not a compressed placeholder');
 const h=fs.readFileSync('bank-sampah/index.html','utf8');
 const css=fs.readFileSync('portal-live/bank-eco-pages.css','utf8');
 const dashboard=fs.readFileSync('portal-live/bank-eco-dashboard.css','utf8');
@@ -62,6 +66,17 @@ assert(css.includes('"quick quick info"') && css.includes('grid-template-columns
  'Mobile shortcuts must show three matched actions in one row');
 assert(!css.includes('"card card card card card card card card schedule schedule price price"'), 'Broken 12-track grid must not return');
 assert(mobile.includes('function arrangeMemberHomeLayout(hub)') && mobile.includes('function restoreMemberHomeLayout(hub)'), 'Member layout must mount and unmount across role changes');
+assert(mobile.includes('function ensureMemberHowtoBanner(){') &&
+       mobile.includes('ensureMemberHowtoBanner();bindMemberDocumentation();') &&
+       mobile.includes('picture.src="/assets/bank-sampah-alur-penimbangan-1600x500.png"') &&
+       mobile.includes('picture.loading="lazy";picture.decoding="async";'),
+ 'Member-specific bottom banner must load its own permanent asset');
+assert(css.includes('"banner banner"') &&
+       css.includes('"banner banner banner"') &&
+       css.includes('grid-area:banner;display:block') &&
+       css.includes('aspect-ratio:16/5;object-fit:contain'),
+ 'Full-width banner is the final card on both desktop and phone without cropping');
+
 assert(mobile.includes('quick.replaceChildren(...[weighing,price].filter(Boolean))'), 'Schedule and tariff must remain real functional nodes');
 assert(css.includes('grid-area:progress') && css.includes('grid-area:guide') &&
        css.includes('grid-area:recent') && css.includes('grid-area:info') &&
