@@ -116,11 +116,28 @@ try:
     connection.execute("PRAGMA foreign_keys=ON")
     migration=(ROOT/"cloudflare/migrations/20261025_bank_progress_photos.sql").read_text(encoding="utf8")
     connection.executescript(migration)
-    connection.executescript((ROOT/"cloudflare/migrations/20261025_portal_legacy_arisan_jersey.sql").read_text(encoding="utf8"))
+    legacy_seed=(ROOT/"cloudflare/migrations/20261025_portal_legacy_arisan_jersey.sql").read_text(encoding="utf8")
+    connection.executescript(legacy_seed)
     connection.executescript((ROOT/"cloudflare/migrations/20261030_iuran_period_obligations.sql").read_text(encoding="utf8"))
+    # Idempotent migration: all 26 legacy entries per category must be present.
+    # Extra staging rows are valid and must not be treated as a failed migration.
+    def seeded_rows(prefix,table):
+        ids=sorted(set(re.findall(r"\('("+prefix+r":[^']+)'",legacy_seed)))
+        if not ids:return (0,0)
+        placeholders=",".join("?" for _ in ids)
+        found=connection.execute(
+            "SELECT COUNT(*) FROM "+table+" WHERE id IN ("+placeholders+")",ids
+        ).fetchone()[0]
+        return (len(ids),found)
+    arisan_seeds=seeded_rows("arisan","portal_arisan_schedule")
+    jersey_seeds=seeded_rows("jersey","portal_jersey_orders")
     portal_counts=(connection.execute("SELECT COUNT(*) FROM portal_arisan_schedule").fetchone()[0],
                    connection.execute("SELECT COUNT(*) FROM portal_jersey_orders").fetchone()[0])
-    assert_step("portal_legacy_source_to_d1_local",portal_counts==(26,26))
+    assert_step("portal_legacy_source_to_d1_local",
+        arisan_seeds==(26,26) and jersey_seeds==(26,26),
+        {"seed_arisan_expected_found":list(arisan_seeds),
+         "seed_jersey_expected_found":list(jersey_seeds),
+         "all_rows_including_additions":list(portal_counts)})
     assert_step("bank_progress_photo_migration_local_only",
       "bank_progress_photos" in {x[0] for x in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")})
     if os.environ.get("F4_BANK_PRIVATE_AUDIT","").strip().lower() in ("true","1","yes"):
