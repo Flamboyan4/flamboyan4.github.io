@@ -4,7 +4,7 @@
 @media(max-width:1023px){
  body.f4-bank-app-member #dashboardView>.grid{display:block;min-width:0}
  body.f4-bank-app-member #dashboardView>.grid>.section{
-  grid-column:auto;min-width:0;width:100%;max-width:980px;margin-inline:auto
+  box-sizing:border-box;grid-column:auto;min-width:0;width:100%;max-width:980px;margin-inline:auto
  }
 }
 @media(min-width:1024px){
