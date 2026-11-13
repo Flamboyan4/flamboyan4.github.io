@@ -210,6 +210,23 @@ async def validate_documentation(browser, name, width, height):
             assert geometry["sideWidth"] >= 280, "PC comment panel too narrow"
             assert abs(geometry["sideTop"]-geometry["headTop"]) <= 3, "PC comments must reach the top of the viewer"
             assert geometry["headRight"] <= geometry["sideLeft"]+4, "PC close button must remain over photo"
+            # The send icon stays BESIDE the input while text wraps and grows upward.
+            form = page.locator(".f4p-photo-overlay .f4g-photo-quick-form")
+            initial = await form.evaluate("""e => {
+                const text=e.querySelector('textarea').getBoundingClientRect();
+                const send=e.querySelector('button[type=submit]').getBoundingClientRect();
+                return {height:text.height,sideBySide:send.left>=text.right-2,aligned:Math.abs(send.bottom-text.bottom)<=2};
+            }""")
+            assert initial["sideBySide"] and initial["aligned"], "Send icon not beside the comment form"
+            await form.locator("textarea").fill("Kegiatan warga Flamboyan 4 " * 20)
+            expanded = await form.evaluate("""e => {
+                const text=e.querySelector('textarea').getBoundingClientRect();
+                const send=e.querySelector('button[type=submit]').getBoundingClientRect();
+                return {height:text.height,sideBySide:send.left>=text.right-2,aligned:Math.abs(send.bottom-text.bottom)<=2};
+            }""")
+            assert expanded["height"]>initial["height"], "Long comment did not grow the input"
+            assert expanded["sideBySide"] and expanded["aligned"], "Send icon moved below growing input"
+            await form.locator("textarea").fill("")
         if name == "hp":
             await page.evaluate("""() => {
                 const stage = document.querySelector('.f4p-photo-overlay .f4p-photo-stage');
@@ -406,6 +423,34 @@ async def validate_legacy_home(browser):
     finally:
         await context.close()
 
+async def validate_closed_photo_does_not_reopen(browser):
+    """A shared deep link opens once; closing it removes stale URL params on refresh."""
+    context = await make_context(browser, 1365, 820)
+    page = await context.new_page()
+    try:
+        link = HOST + "/dokumentasi/?album=" + ALBUM_ID + "&foto=gdrive%3A" + FILE_ID
+        await page.goto(link, wait_until="domcontentloaded", timeout=30000)
+        await page.locator(".f4p-photo-overlay:not([hidden])").wait_for(timeout=25000)
+        await page.locator(".f4p-photo-overlay .f4p-close").click()
+        await page.wait_for_function("""() =>
+            document.querySelector('.f4p-photo-overlay')?.hidden &&
+            !new URLSearchParams(location.search).has('foto')""", timeout=12000)
+        assert "album=" + ALBUM_ID in page.url, "Photo close should preserve the album"
+        await page.reload(wait_until="domcontentloaded")
+        await page.locator(".f4p-album-overlay:not([hidden])").wait_for(timeout=25000)
+        assert await page.locator(".f4p-photo-overlay:not([hidden])").count() == 0, "Closed photo reopened after refresh"
+        await page.locator(".f4p-album-overlay .f4p-close").click()
+        await page.wait_for_function("""() =>
+            document.querySelector('.f4p-album-overlay')?.hidden &&
+            !new URLSearchParams(location.search).has('album')""", timeout=12000)
+        await page.reload(wait_until="domcontentloaded")
+        await page.locator(".media-album-card", has_text="Arisan Audit Browser").wait_for(timeout=25000)
+        assert await page.locator(".f4p-album-overlay:not([hidden])").count() == 0, "Closed album reopened after refresh"
+        assert await page.locator(".f4p-photo-overlay:not([hidden])").count() == 0
+        return {"deepLink":True,"closePhotoRefresh":True,"closeAlbumRefresh":True}
+    finally:
+        await context.close()
+
 async def validate_suppression(browser):
     context = await make_context(browser, 1100, 830, suppressed=True)
     page = await context.new_page()
@@ -434,6 +479,7 @@ async def main():
                 results.append(await validate_native_video(browser))
                 results.append(await validate_home(browser))
                 results.append(await validate_legacy_home(browser))
+                results.append(await validate_closed_photo_does_not_reopen(browser))
                 results.append(await validate_suppression(browser))
                 results.append(await validate_upload_with_mock_drive(browser))
             finally:
