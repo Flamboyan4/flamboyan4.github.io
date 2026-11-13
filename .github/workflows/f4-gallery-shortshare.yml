@@ -1,0 +1,44 @@
+name: F4 Gallery Short Links and WhatsApp Preview
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/f4-gallery-shortshare.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  share-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Verify production short link, photo OG image and redirect
+        run: |
+          python3 - <<'PY'
+          import json,urllib.request,re,html
+          api='https://api.flamboyan4.web.id'
+          album='galbum:229942d3-474e-4083-a249-50c9cc356fe7'
+          photo='f4photo:286d485d-ebdd-415b-a6c0-ff62f1af50fb'
+          headers={'Origin':'https://flamboyan4.web.id','Content-Type':'application/json','User-Agent':'F4-gallery-share-acceptance/1.0'}
+          req=urllib.request.Request(api+'/api/v2/gallery/share',data=json.dumps({'type':'photo','id':photo,'albumId':album}).encode(),headers=headers,method='POST')
+          with urllib.request.urlopen(req,timeout=25) as r:
+              obj=json.load(r)
+          link=obj['url']
+          assert re.fullmatch(r'https://api\.flamboyan4\.web\.id/s/[A-Za-z0-9_-]{8}',link),link
+          print('SHORT_LINK_OK',link)
+          with urllib.request.urlopen(urllib.request.Request(link,headers={'User-Agent':'WhatsApp/2.26.0'}),timeout=25) as r:
+              page=r.read(25000).decode()
+              assert r.headers.get('Content-Type','').startswith('text/html')
+          for tag in ['og:title','og:description','og:image','og:url']:
+              assert 'property="'+tag+'"' in page,tag
+          assert 'foto='+photo.replace(':','%3A') in page, 'Expected photo deep link'
+          image=html.unescape(re.search(r'<meta property="og:image" content="([^"]+)"',page).group(1))
+          assert image==link+'/image',image
+          with urllib.request.urlopen(urllib.request.Request(image,headers={'User-Agent':'WhatsApp/2.26.0'}),timeout=30) as r:
+              data=r.read(650000)
+              mime=r.headers.get('Content-Type','')
+              assert r.status==200,(r.status,mime)
+              assert mime.startswith(('image/jpeg','image/png')),(mime,len(data))
+              assert 0<len(data)<600000,('Too large for WhatsApp',len(data))
+          print('WHATSAPP_OG_PHOTO_OK',mime,len(data))
+          PY
