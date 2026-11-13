@@ -55,8 +55,10 @@ function render(){
  const candidates=mode==='populer'?popularRows:newest;
  const unique=[],seen=new Set();
  for(const photo of candidates){
-  if(!photo?.url||!photo?.albumId||seen.has(photo.albumId))continue;
-  seen.add(photo.albumId);unique.push(photo);if(unique.length>=3)break;
+  // Terbaru: satu per album. Populer: foto dari album sama boleh bersaing.
+  const key=mode==='populer'?photo?.id:photo?.albumId;
+  if(!photo?.url||!photo?.albumId||!key||seen.has(key))continue;
+  seen.add(key);unique.push(photo);if(unique.length>=3)break;
  }
  grid.replaceChildren(...(unique.length?unique.map(card):[empty()]));
  section.hidden=false;
@@ -114,14 +116,16 @@ async function fromLegacy(doc){
  return item;
 }
 (async()=>{
- let gallery={highlights:[],popular:[],albums:[]},portal={documentation:[]};
+ let gallery={highlights:[],popular:[],albums:[]},portal={documentation:[]},ranking={popular:[]};
  try{
-  const [g,p]=await Promise.allSettled([
+  const [g,p,r]=await Promise.allSettled([
    json(API+'/api/v2/gallery',6500),
-   json(API+'/api/v2/public/portal',6500)
+   json(API+'/api/v2/public/portal',6500),
+   json(API+'/api/v2/gallery/popular',10000)
   ]);
   if(g.status==='fulfilled')gallery=g.value;
   if(p.status==='fulfilled')portal=p.value;
+  if(r.status==='fulfilled'&&Array.isArray(r.value.popular))ranking=r.value;
   const titles=new Map((gallery.albums||[]).map(x=>[x.id,x.title]));
   const docs=(portal.documentation||[]).filter(x=>String(x.title||'').trim())
     .filter(x=>x.active===undefined||x.active===null||x.active===true||x.active===1||String(x.active)==='1')
@@ -131,16 +135,19 @@ async function fromLegacy(doc){
   for(const d of docs)titles.set(docId(d),d.title);
   const newPhotos=(gallery.highlights||[]).map(x=>fromNew(x,titles));
   const popPhotos=(gallery.popular||[]).map(x=>fromNew(x,titles));
+  const rankedPhotos=(ranking.popular||[]).map(x=>fromNew(x,titles));
   // Batasi permintaan folder untuk mempercepat Beranda. Album tanpa unggahan baru
   // tetap terwakili agar website tidak terlihat kosong.
   const legacy=await Promise.all(docs.slice(0,8).map(fromLegacy));
   const past=legacy.filter(Boolean);
   newest=[...newPhotos,...past].sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
-  const all=new Map([...newest,...popPhotos].map(x=>[x.id,x]));
-  popularRows=[...all.values()].sort((a,b)=>{
-   const score=x=>Number(x.likes||0)*2+Number(x.commentCount||0)*3;
-   return score(b)-score(a)||String(b.date||'').localeCompare(String(a.date||''));
-  });
+  // Peringkat dari seluruh histori D1 + arsip publik terverifikasi.
+  // Like utama; jika sama, jumlah orang berbeda yang berkomentar; tanggal terakhir.
+  const fallback=new Map([...newest,...popPhotos].filter(x=>x.id).map(x=>[x.id,x]));
+  const candidates=rankedPhotos.length?rankedPhotos:[...fallback.values()];
+  popularRows=candidates.sort((a,b)=>Number(b.likes||0)-Number(a.likes||0)||
+    Number(b.commenterCount||0)-Number(a.commenterCount||0)||
+    String(b.date||'').localeCompare(String(a.date||'')));
   render();
  }catch(e){console.warn('Cerita Warga:',e.message);render()}
 })();
