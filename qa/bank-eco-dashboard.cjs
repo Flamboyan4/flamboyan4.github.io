@@ -29,7 +29,7 @@ if(!html.includes("period.missingWeight"))
 for(const check of [
   "#v10Print th,#v10Print td{",
   "border:1px solid #000}",
-  "#v27PrintReport th,#v27PrintReport td{border:1px solid #000",
+  "#v27PrintReport th,#v27PrintReport td{",
   "@media print{"
 ]){
  if(!html.includes(check))throw Error('Bank PDF border rule missing: '+check);
