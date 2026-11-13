@@ -349,21 +349,29 @@ assert(dockSection.includes('.f4-bank-app-dock-action.is-primary') &&
  'The member and manager center buttons use the same raised gold badge; both remain accessible by aria-label');
 assert(mobile.includes('svg.innerHTML=\'<text x="36" y="45" text-anchor="middle">Rp</text>\''),
  'Original white Rp wordmark must be restored as SVG, not a stylized line icon');
-// Admin HP retains shortcut actions; desktop manager uses a compact direct sidebar.
-const adminMobile=css.split('/* Pengelola HP: menu slide untuk Keuangan dan Pengelolaan;')[1]
+// HP Pengelola: tujuh akses langsung + Lainnya; tidak ada drawer atau hamburger.
+const adminMobile=css.split('/* Pengelola HP: menu tambahan via sheet Lainnya;')[1]
   ?.split('@media screen and (max-width:760px)')[0];
-assert(adminMobile,'Admin mobile navigation owner missing');
-assert(adminMobile.includes('html body.f4-bank-app-admin.v17-dashboard #sideNav.side.open') &&
-       adminMobile.includes('transform:translateX(0);visibility:visible;pointer-events:auto'),
- 'Admin mobile slide drawer must open, not remain forcibly hidden');
-assert(adminMobile.includes('html body.f4-bank-app-admin #v16Backdrop.open'),
- 'Admin slide backdrop must open with the drawer');
-assert(css.includes('grid-template-columns:repeat(4,minmax(0,1fr))'),'Admin shortcuts must be four equal columns');
-assert(mobile.includes('adminShortcuts.filter(([,route])=>route!=="bank-admin-docs").map(adminShortcut)'),
- 'HP Akses Cepat must show eight buttons without Dokumentasi');
+assert(adminMobile &&
+       adminMobile.includes('#f4-mobile-menu{display:none}') &&
+       adminMobile.includes('display:none;visibility:hidden;pointer-events:none'),
+ 'Pengelola HP must have no hamburger and no sidebar drawer');
+assert(css.includes('grid-template-columns:repeat(4,minmax(0,1fr))'),
+ 'Quick actions must be four equal columns');
+assert(mobile.includes('adminShortcuts.slice(0,7).map(adminShortcut),adminMoreShortcut()') &&
+       mobile.includes('grid.append(...adminShortcuts.map(item=>{') &&
+       mobile.includes('f4BankAdminMenuSheet') &&
+       mobile.includes('handleAdminSheetBack') &&
+       mobile.includes('history.pushState({...history.state,f4BankAdminSheet:true}') &&
+       css.includes('dialog.f4-bank-sheet-modal.f4-bank-admin-menu-sheet{'),
+ 'Seven shortcuts and nine-menu bottom sheet must work with browser Back');
 assert(mobile.includes('["Dokumentasi","bank-admin-docs","images"]') &&
-       css.includes('>.f4-bank-desktop-nav-link:not([data-bank-app-route="bank-admin-docs"]){'),
- 'Dokumentasi must remain accessible through hamburger HP and sidebar PC');
+       mobile.includes('["Laporan","laporan","file-text"]') &&
+       mobile.includes('["Saldo Warga","tabungan","coins"]'),
+ 'Laporan and Dokumentasi remain accessible through Lainnya');
+assert(!css.includes('box-shadow:0 -5px 16px #143c2410;backdrop-filter:blur(12px)') &&
+       css.includes('position:fixed;left:0;right:0;bottom:0;z-index:55;'),
+ 'Dock stays fixed to viewport and avoids scroll-related backdrop repaint');
 assert(mobile.includes('dock().hidden=!isPrivate;'),'Admin dock must be visible when authenticated');
 assert(mobile.includes('function syncAdminBack()'),'Manager screens need a back control');
 assert(mobile.includes('const adminDock=['),'Manager dock must have its own distinct five-item route list');
@@ -516,7 +524,7 @@ assert(mobile.includes('function showAdminProgress()') &&
        mobile.includes('showAdminHistory(saleHistory?"penjualan":"setoran")'),
  'Separate sale history or safe progress lifecycle is missing');
 assert(mobile.includes('f4BankAdminOperations') &&
-       mobile.includes('adminShortcuts.filter(([,route])=>route!=="bank-admin-docs").map(adminShortcut)') &&
+       mobile.includes('adminShortcuts.slice(0,7).map(adminShortcut),adminMoreShortcut()') &&
        mobile.includes('Catat Setoran') &&
        mobile.includes('Catat Penjualan'),
  'Task-first entry and eight mobile shortcuts are missing');
@@ -526,13 +534,18 @@ assert(mobile.includes('f4BankAdminHeroBreakdown') &&
        mobile.includes('node.onclick=()=>navigate("tabungan")') &&
        css.includes('#dashboardView #f4BankAdminHeroBreakdown{'),
  'Manager reference layout must use live D1 figures and clickable active-member tile, not mocked data');
-assert(css.includes('body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm #setBarang .f4-compact-row{') &&
+assert(css.includes('Satu sistem rincian sampah pada Warga, Bank dan Penjualan (HP)') &&
+       css.includes('#pagePenjualan #saleForm .f4-entry-goods-heading>.f4-compact-add') &&
+       css.includes('#pageSetoran #f4BankOwnDepositForm .f4-bank-own-detail>.f4-compact-add') &&
        css.includes('#setoranForm #saveSetoranBtn,') &&
-       css.includes('min-height:54px;margin:0;padding:13px 17px') &&
-       css.includes('border:2px dashed #00978866') &&
+       css.includes('position:static;justify-self:stretch;box-sizing:border-box') &&
+       !css.includes('position:fixed;z-index:52;left:16px') &&
        h.includes('<textarea id="setNotes" rows="3" maxlength="300"') &&
-       h.includes("catatan:$(\'setNotes\').value"),
- 'Mobile setoran reference must preserve live saved form, multiline note, item rows, and floating submit');
+       h.includes("catatan:$(\\'setNotes\\').value") &&
+       mobile.includes('const row=el("div","f4-bank-own-line f4-compact-row")') &&
+       mobile.includes('const amountGroup=el("div","f4-compact-entry-group")') &&
+       mobile.includes('detail.append(rows,add);'),
+ 'Warga, Bank and Penjualan share item fields and add action, with inline submit');
 const referenceOwner=css.split('/* Mobile Setoran reference:')[1]?.split('@media(max-width:600px)')[0];
 assert(referenceOwner && !referenceOwner.includes('!important') &&
        (css.match(/Mobile Setoran reference:/g)||[]).length===1,
