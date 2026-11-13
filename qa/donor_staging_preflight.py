@@ -77,8 +77,23 @@ def main() -> int:
             return 2
         member_nullable = not bool(cols["member_id"].get("notnull"))
         account_schema = query("SELECT sql FROM sqlite_master WHERE type='table' AND name='accounts'")
+        # Schema-only metadata for migration design; never inspect credentials or user rows.
+        import json as _json
+        fk = query("PRAGMA foreign_key_list(accounts)")
+        idx = query("PRAGMA index_list(accounts)")
+        triggers = query("SELECT name FROM sqlite_master WHERE type='trigger' AND tbl_name='accounts'")
+        print("ACCOUNT_STRUCTURE=" + _json.dumps({
+            "columns":[{"name":n,"type":str(v.get("type") or ""),"notnull":bool(v.get("notnull")),"pk":int(v.get("pk") or 0)}
+                       for n,v in cols.items()],
+            "foreign_keys":[{"from":x.get("from"),"to":x.get("to"),"table":x.get("table"),"on_delete":x.get("on_delete")}
+                            for x in fk],
+            "indexes":[{"name":x.get("name"),"unique":bool(x.get("unique"))} for x in idx],
+            "triggers":[x.get("name") for x in triggers]
+        },separators=(",",":")))
         ddl = str(account_schema[0].get("sql") or "") if account_schema else ""
         role_check = re.search(r"""CHECK\s*\(\s*["']?role["']?\s+IN\s*\(([^)]*)\)""", ddl, re.I)
+        print("ACCOUNT_ROLE_CHECK_OPTIONS=" + json.dumps(
+            re.findall(r"""['"]([a-z_-]{2,32})['"]""", role_check.group(1), re.I) if role_check else []))
         donor_allowed = role_check is None or re.search(r"""['"]donatur['"]""", role_check.group(1)) is not None
         flags = {
             "staging_worker_and_D1_binding_valid": True,
