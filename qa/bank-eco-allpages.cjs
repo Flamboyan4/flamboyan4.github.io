@@ -22,33 +22,35 @@ for(const phrase of ['#v18PublicSide',
  '#pageBiaya','#pageDokumentasi','#pageInventaris','#pageMaster','#pageAdmin',
  '.f4-member-progress-modal-panel','width:min(226px,75vw)',
  'max-width:1023px','max-width:760px','--eco-leaf:#318651',
- '#f4MemberHero.f4-member-hero']){
+ '#f4BankAppHome[data-bank-role="member"]>#f4BankMemberCard']){
  assert(css.includes(phrase),'Missing themed component '+phrase);
 }
 assert(!css.includes('#a0dcb3'),'Old mint gradient present');
 assert(css.includes('background:#e4f6d5;color:#196e40;'),'Soft lime navigation missing');
 assert(!css.includes('border-left:4px solid #d7a517'),'Hard schedule rail returned');
 assert(!css.includes('background:linear-gradient(120deg,#ffdc78,#ffc12b)'),'Muddy yellow price gradient returned');
-assert(css.includes('bank-leaf-watermark.svg'),'Member card SVG leaf watermark missing');
-assert(css.includes("background:url('/assets/icons/bank-leaf-watermark.svg") && css.includes('background-size:clamp(180px,35%,340px) auto'), 'Hero SVG must stay anchored inside its own layout');
+assert(!css.includes('#f4MemberHero'), 'No green wrapper should surround the ATM card');
+assert(css.includes('grid-area:card') && css.includes('grid-area:balance'), 'ATM and yellow wallet must be separate grid items');
 assert(!css.includes('bottom:-48px;width:min(80%,380px);height:260px'), 'Old drifting leaf offset returned');
-assert(css.includes('#f4MemberQuickActions>button') && css.includes('border:1px solid #e6eef0;border-radius:22px;background:#fff'), 'Price must use one clean shortcut tile');
+assert(css.includes('#f4MemberQuickActions>#f4MemberPriceShortcut') && css.includes('background:#fff'), 'Price should be a standalone white shortcut card');
 assert(priceModule.includes('recycle.setAttribute("viewBox"')&&!priceModule.includes('f4-bank-price-shortcut-icon","♻'),'Price shortcut must use SVG');
-assert(css.includes('background:linear-gradient(116deg,#009788 0%,#43A047 100%)') && css.includes('background:linear-gradient(135deg,#09BCD3 0%,#009788 100%)'), 'ATM must have its own cyan-teal gradient inside the existing hero');
-assert(css.includes('#f4MemberHero>.f4-bank-app-member-balance>strong') && css.includes('margin:0;color:#fff;font-size:clamp(28px,3.5vw,44px)'), 'Balance must be white on dark gradient');
+assert(css.includes('background:linear-gradient(135deg,#09BCD3 0%,#009788 100%)') && !css.includes('background:linear-gradient(116deg,#009788 0%,#43A047 100%)'), 'ATM must stand on its own without the old green gradient frame');
+assert(css.includes('grid-area:balance') && css.includes('border:0;border-radius:26px;background:#FDC010') && css.includes('color:#162a37'), 'Balance must be its own yellow card with dark text');
 assert(publicTheme.includes('background:#43a047;color:#fff'),'Public hero stays solid green');
-assert(css.includes('grid-template-areas:"welcome" "hero" "quick" "content" "progress" "info"'), 'Dashboard must have its own six-section layout');
-assert(css.includes('grid-template-columns:repeat(4,minmax(0,1fr))'), 'Four quick actions required on wide screens');
+assert(css.includes('"card balance"') && css.includes('"recent quick"') && css.includes('"recent guide"'), 'Desktop grid must match ATM, wallet, schedule and activity reference');
+assert(css.includes('grid-area:quick') && css.includes('grid-template-columns:repeat(2,minmax(0,1fr))'), 'The schedule and tariff must share the right column');
 assert(css.includes('grid-template-columns:repeat(2,minmax(0,1fr))'), 'Two-column quick actions required on phones');
 assert(!css.includes('"card card card card card card card card schedule schedule price price"'), 'Broken 12-track grid must not return');
 assert(mobile.includes('function arrangeMemberHomeLayout(hub)') && mobile.includes('function restoreMemberHomeLayout(hub)'), 'Member layout must mount and unmount across role changes');
-assert(mobile.includes('quick.replaceChildren(...[guide,payout,price,schedule].filter(Boolean))'), 'Four real member actions must exist');
-assert(css.includes('border-top:4px solid #09BCD3'), 'Schedule panel must use new cyan palette');
+assert(mobile.includes('quick.replaceChildren(...[weighing,price].filter(Boolean))'), 'Schedule and tariff must remain real functional nodes');
+assert(css.includes('background:#09BCD326;color:#00889b'), 'Schedule should use the approved cyan accent');
 assert(css.includes('#dashboardView #pageProfile .f4-bank-profile-detail .f4-bank-member-card'), 'Profile must share dashboard ATM gradient');
 assert(mobile.includes('const contactless=el("span","f4-bank-atm-contactless")'), 'ATM contactless graphic must use SVG');
 assert(mobile.includes('number.id="f4BankCardNumber"') && mobile.includes('person.querySelector("strong").id="f4BankCardName"'), 'ATM number and member name must remain bound to the real account');
 assert(mobile.includes('if(personName)personName.id="f4BankProfileName"'), 'Profile clone must not duplicate member name DOM IDs');
 assert(css.includes('f4-bank-atm-center') && css.includes('f4-bank-atm-contactless'), 'ATM must contain shared chip and contactless design');
+assert(!mobile.includes('hero.append(card,balance)'), 'ATM and balance must not be put back inside a hero frame');
+assert(mobile.includes('hub.append(card,balance)'), 'Real ATM and balance must be siblings in the dashboard');
 assert(!css.includes('border-radius:14px;background:#09bcd3'),'Legacy cyan schedule icon must not return');
 assert(!css.includes('border-left:3px solid #087850'),'Old hard corner stripe returned');
 assert(!css.includes('background:linear-gradient(125deg,#328d45,#43a047 55%,#009788)'),'Member green-teal gradient returned');
