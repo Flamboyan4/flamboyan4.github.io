@@ -2316,6 +2316,53 @@ async function f4GalleryPublic(db,env){
  return ok({albums,photos:data,highlights,popular,suppressedDriveIds:suppressed.map(x=>x.id),uploadEnabled:f4GalleryDriveReady(env),maxFiles:12,maxFileMb:5});
 }
 __name(f4GalleryPublic,"f4GalleryPublic");
+
+/* Ranking Cerita Warga: seluruh foto publik, like terbanyak lebih dahulu.
+   Arsip Drive diperiksa keanggotaan foldernya sebelum disajikan. */
+async function f4GalleryMostLiked(db,env){
+ const [uploads,archiveVotes,publicDocs,suppressed]=await Promise.all([
+  list(db,"SELECT p.id,p.album_ref AS albumId,p.drive_file_id AS driveId,p.caption,p.created_at AS date,COALESCE(pro.display_name,m.display_name,a.username,'Warga') AS uploader,(SELECT COUNT(*) FROM f4_gallery_reactions r WHERE r.target_type='photo' AND r.target_id=p.id) AS likes,(SELECT COUNT(*) FROM f4_gallery_comments c WHERE c.target_type='photo' AND c.target_id=p.id AND c.status='aktif') AS commentCount FROM f4_gallery_photos p LEFT JOIN accounts a ON a.id=p.uploader_id LEFT JOIN members m ON m.id=a.member_id LEFT JOIN member_account_profiles pro ON pro.account_id=a.id WHERE p.status IN ('baru','ditinjau') ORDER BY likes DESC,commentCount DESC,p.created_at DESC LIMIT 30"),
+  list(db,"SELECT id,(SELECT COUNT(*) FROM f4_gallery_reactions r WHERE r.target_type='photo' AND r.target_id=ids.id) AS likes,(SELECT COUNT(*) FROM f4_gallery_comments c WHERE c.target_type='photo' AND c.target_id=ids.id AND c.status='aktif') AS commentCount FROM (SELECT target_id AS id FROM f4_gallery_reactions WHERE target_type='photo' AND target_id LIKE 'gdrive:%' UNION SELECT target_id AS id FROM f4_gallery_comments WHERE target_type='photo' AND status='aktif' AND target_id LIKE 'gdrive:%') ids ORDER BY likes DESC,commentCount DESC LIMIT 30"),
+  list(db,"SELECT id,title,description,drive_url,event_on FROM portal_documentation WHERE active=1 AND visibility='publik' AND (category IS NULL OR category NOT LIKE 'Bank Sampah:%') LIMIT 300"),
+  list(db,"SELECT drive_file_id AS id FROM f4_gallery_photos WHERE status NOT IN ('baru','ditinjau') LIMIT 3000")
+ ]);
+ const deleted=new Set(suppressed.map(x=>x.id));
+ const byFolder=new Map();
+ for(const doc of publicDocs){
+  const folder=f4GalleryFolder(doc.drive_url);
+  if(folder)byFolder.set(folder,doc);
+ }
+ const photos=uploads.filter(x=>!deleted.has(x.driveId)).map(x=>({...x,url:f4GalleryImageUrl(x.driveId),
+  likes:Number(x.likes||0),commentCount:Number(x.commentCount||0),comments:[]}));
+ if(archiveVotes.length&&byFolder.size&&f4GalleryDriveReady(env)){
+  try{
+   const token=await f4GalleryDriveToken(env);
+   // Arsip lama tidak dicari dari beberapa folder terbaru saja: gunakan ID
+   // yang sudah memperoleh like/komentar, lalu validasi folder publiknya.
+   const legacy=await Promise.all(archiveVotes.slice(0,24).map(async row=>{
+    const driveId=String(row.id||"").replace(/^gdrive:/,"");
+    if(!/^[A-Za-z0-9_-]{12,110}$/.test(driveId)||deleted.has(driveId)||photos.some(x=>x.driveId===driveId))return null;
+    try{
+     const file=await f4GalleryDriveRequest(token,"files/"+encodeURIComponent(driveId)+"?fields=id,name,mimeType,parents,createdTime,trashed&supportsAllDrives=true");
+     if(file.trashed||!String(file.mimeType||"").startsWith("image/"))return null;
+     const doc=(file.parents||[]).map(id=>byFolder.get(id)).find(Boolean);
+     if(!doc)return null;
+     const comments=await list(db,"SELECT c.message,COALESCE(pro.display_name,m.display_name,a.username,'Warga') AS nama FROM f4_gallery_comments c LEFT JOIN accounts a ON a.id=c.account_id LEFT JOIN members m ON m.id=a.member_id LEFT JOIN member_account_profiles pro ON pro.account_id=a.id WHERE c.target_type='photo' AND c.target_id=? AND c.status='aktif' ORDER BY c.created_at DESC LIMIT 2",[row.id]);
+     return {id:row.id,albumId:doc.id,driveId,url:f4GalleryImageUrl(driveId),
+      title:doc.title,caption:file.name||doc.title,date:file.createdTime||doc.event_on||"",
+      uploader:"Dokumentasi Flamboyan 4",likes:Number(row.likes||0),commentCount:Number(row.commentCount||0),comments};
+    }catch{return null;}
+   }));
+   photos.push(...legacy.filter(Boolean));
+  }catch(e){console.warn("Ranking foto arsip tidak dapat dimuat",String(e?.message||""))}
+ }
+ photos.sort((a,b)=>Number(b.likes||0)-Number(a.likes||0)||
+  Number(b.commentCount||0)-Number(a.commentCount||0)||
+  String(b.date||"").localeCompare(String(a.date||"")));
+ // Dua foto dari album sama boleh sama-sama populer.
+ return ok({popular:photos.slice(0,30)});
+}
+__name(f4GalleryMostLiked,"f4GalleryMostLiked");
 async function f4GallerySocial(db,who,url){
  const type=url.searchParams.get("type")||"",id=url.searchParams.get("id")||"";
  if(!await f4GalleryCheckTarget(db,type,id))return err("Konten tidak tersedia.",404);
@@ -2640,6 +2687,7 @@ async function f4GalleryApi(req,env,who,url){
  const path=url.pathname,method=req.method;
  if(path.startsWith("/api/v2/gallery/video/"))return f4GalleryVideoStream(req,env,url);
  if(path==="/api/v2/gallery"&&method==="GET")return f4GalleryPublic(env.DB,env);
+ if(path==="/api/v2/gallery/popular"&&method==="GET")return f4GalleryMostLiked(env.DB,env);
  if(path==="/api/v2/gallery/social"&&method==="GET")return f4GallerySocial(env.DB,who,url);
  // Pemeriksaan Origin berlaku juga untuk aksi superadmin, sebelum jalur admin.
  if(method==="POST"&&!allowedOrigin(req,env))return err("Asal permintaan tidak diizinkan.",403);
