@@ -356,9 +356,11 @@ assert(mobile.includes('adminShortcuts.filter(([,route])=>route!=="bank-admin-do
 assert(mobile.includes('["Dokumentasi","bank-admin-docs","images"]') &&
        css.includes('>.f4-bank-desktop-nav-link:not([data-bank-app-route="bank-admin-docs"]){'),
  'Dokumentasi must remain accessible through hamburger HP and sidebar PC');
-assert(mobile.includes('dock().hidden=!isPrivate||next==="admin"'),'Admin dock must stay hidden');
+assert(mobile.includes('dock().hidden=!isPrivate;'),'Admin dock must be visible when authenticated');
 assert(mobile.includes('function syncAdminBack()'),'Manager screens need a back control');
-assert(!mobile.includes('const adminDock='),'Repeated manager dock routes must be removed');
+assert(mobile.includes('const adminDock=['),'Manager dock must have its own distinct five-item route list');
+assert(mobile.includes('isAdminReport=dock&&route==="laporan"'),
+ 'Manager dock central gold action must open Laporan, not Setoran');
 assert(h.includes("const v16AdminSidebar=new Set(['home','deposit','sale']);") &&
        mobile.includes('function ensureDesktopAdminSidebar()') &&
        mobile.includes('anchor.after(items);') &&
