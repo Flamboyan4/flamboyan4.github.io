@@ -112,7 +112,7 @@ async def main():
                 const x=n.getBoundingClientRect();return {x:x.x,y:x.y,w:x.width,h:x.height}
               });
               return {
-                banner:color('#v11Public .v17-public-banner','backgroundColor'),
+                banner:color('#v11Public .v17-public-banner','backgroundImage'),
                 title:color('#v11Public .v17-public-banner h2','color'),
                 button:color('#f4-public-manage-bank','backgroundColor'),
                 buttonText:color('#f4-public-manage-bank','color'),
@@ -138,12 +138,12 @@ async def main():
             await page.screenshot(path=str(DEST / (mode+"-fixture.png")), full_page=True)
             result[mode] = state
             print("VISUAL_STATE",mode,json.dumps(state,ensure_ascii=False),flush=True)
-            assert state["banner"] == "rgb(8, 99, 69)", f"{mode}: hero not deep leaf green: {state['banner']}"
+            assert "rgb(67, 160, 71)" in state["banner"] and "rgb(0, 151, 136)" in state["banner"], f"{mode}: fresh green-teal hero gradient missing: {state['banner']}"
             assert state["title"] == "rgb(255, 255, 255)", f"{mode}: title not white"
-            assert state["button"] == "rgb(255, 192, 38)", f"{mode}: CTA not bright golden yellow"
-            assert state["buttonText"] == "rgb(255, 255, 255)", f"{mode}: CTA text not white"
+            assert state["button"] == "rgb(253, 192, 16)", f"{mode}: CTA not palette yellow"
+            assert state["buttonText"] == "rgb(37, 65, 45)", f"{mode}: CTA must have readable dark green text"
             assert state["savingsButton"] == state["button"], f"{mode}: savings CTA not same gold"
-            assert state["savingsButtonText"] == "rgb(255, 255, 255)", f"{mode}: savings CTA text not white"
+            assert state["savingsButtonText"] == state["buttonText"], f"{mode}: savings CTA text must match readable dark green"
             assert state["feature"] == "rgba(0, 0, 0, 0)", f"{mode}: program steps should be unboxed"
             # Palette varies; verify leaf-green ink keeps AAA contrast on white.
             rgb = tuple(int(x) for x in re.findall(r"\d+", state["featureText"])[:3])
@@ -155,11 +155,11 @@ async def main():
             assert state["programWidth"] <= width and state["programNoOverflow"], f"{mode}: program overflows or clips"
             # Columns of the REAL page were verified above; this reduced fixture intentionally omits unrelated inline styles.
             assert state["programNoOverflow"], f"{mode}: program overflows in the fixture"
-            assert state["submenu"] == "rgb(8, 123, 81)", f"{mode}: submenu inactive color"
-            assert state["firstCard"] == "rgb(255, 255, 255)", f"{mode}: legacy member summary not white"
+            assert state["submenu"] == "rgb(67, 160, 71)", f"{mode}: submenu must use new palette green"
+            assert state["firstCard"] == "rgb(238, 248, 233)", f"{mode}: member summary not pale leaf green"
             assert state["firstText"] == "rgb(11, 87, 56)", f"{mode}: legacy member summary not deep green"
             assert state["reportColors"] == ["rgb(255, 255, 255)"]*4, f"{mode}: public report cards should be white: {state['reportColors']}"
-            assert state["lastCard"] == "rgb(255, 255, 255)", f"{mode}: member summary still pastel"
+            assert state["lastCard"] == "rgb(238, 248, 233)", f"{mode}: final member summary not pale leaf green"
             assert state["progressBg"] == "rgb(255, 255, 255)", f"{mode}: progress summary still pastel"
             assert not state["horizontalOverflow"], f"{mode}: horizontal overflow"
             if mode == "hp":
