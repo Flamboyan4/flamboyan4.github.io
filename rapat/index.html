@@ -52,44 +52,44 @@
 
     /* Jaga agar tabel dari Google Doc tampil rapi & bergaris */
     .doc-article-wrapper table {
-      width: 100% !important;
-      border-collapse: collapse !important;
-      margin: 0.85rem 0 !important;
-      font-size: 0.85rem !important;
+      width: 100% ;
+      border-collapse: collapse ;
+      margin: 0.85rem 0 ;
+      font-size: 0.85rem ;
       border-radius: 0.375rem;
       overflow: hidden;
     }
     .doc-article-wrapper td,
     .doc-article-wrapper th {
-      border: 1px solid #cbd5e1 !important;
-      padding: 6px 10px !important;
-      vertical-align: top !important;
+      border: 1px solid #cbd5e1 ;
+      padding: 6px 10px ;
+      vertical-align: top ;
     }
     .doc-article-wrapper tr:nth-child(even) {
-      background-color: #f8fafc !important;
+      background-color: #f8fafc ;
     }
     .doc-article-wrapper table tr td:first-child,
     .doc-article-wrapper th {
-      font-weight: 600 !important;
-      color: #0f172a !important;
-      width: 30% !important;
+      font-weight: 600 ;
+      color: #0f172a ;
+      width: 30% ;
     }
     .doc-article-wrapper th {
-      background-color: #f1f5f9 !important;
+      background-color: #f1f5f9 ;
     }
 
     /* Atur Gambar Dalam Artikel */
     .doc-article-wrapper img {
-      max-width: 100% !important;
-      height: auto !important;
+      max-width: 100% ;
+      height: auto ;
       border-radius: 0.5rem;
-      margin: 1rem auto !important;
+      margin: 1rem auto ;
       display: block;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     }
   </style>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; connect-src 'self' https://api.flamboyan4.web.id https://docs.google.com https://script.google.com https://*.googleusercontent.com https://*.google.com; img-src 'self' https: data: blob:; frame-src https: blob:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com; form-action 'none';">
-<style id="f4-rapat-preview">body>header,body>section:first-of-type{display:none!important}body>main{padding-top:16px!important}</style><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261113-donor-v1"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+<style id="f4-rapat-preview">body>header,body>section:first-of-type{display:none}body>main{padding-top:16px}</style><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261113-donor-v1"><link rel="stylesheet" href="/portal-live/unified-account.css?v=purple-book-20261026"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/portal-polish.css?v=20261103-unified-grid-v1"><link rel="stylesheet" href="/portal-live/rapat-file-cards.css?v=20261109-purple-v2">
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261110-compositor-v11">
 <script defer src="/portal-live/mobile-bottom-sheets.js?v=20261110-compositor-v11"></script>
@@ -180,60 +180,60 @@
   <style id="f4-rapat-compact-viewer">
     .f4-rapat-tool{width:34px;height:34px;display:inline-grid;place-items:center;border:1px solid #d9e0ea;background:white;border-radius:9px;color:#334155}
     .f4-rapat-tool:hover{background:#f1f5f9}
-    #modal-rapat-body{overscroll-behavior:contain;background:white!important}
-    #modal-rapat-body iframe{zoom:var(--f4-doc-zoom,1);max-width:none!important;background:white!important;min-height:100%}
-    #modal-doc-rapat>div{background:white!important}
+    #modal-rapat-body{overscroll-behavior:contain;background:white}
+    #modal-rapat-body iframe{zoom:var(--f4-doc-zoom,1);max-width:none;background:white;min-height:100%}
+    #modal-doc-rapat>div{background:white}
     @media(max-width:640px){#modal-doc-rapat>div{height:92dvh}#modal-rapat-body{touch-action:pan-x pan-y pinch-zoom}}
   </style>
 
   <style id="f4-rapat-mobile-viewer-fix-20261027">
     #modal-doc-rapat:not(.hidden){
-      z-index:2400!important;isolation:isolate
+      z-index:2400;isolation:isolate
     }
-    #modal-doc-rapat .f4-rapat-tool[hidden]{display:none!important}
+    #modal-doc-rapat .f4-rapat-tool[hidden]{display:none}
     /* The native portal bar formerly overlaid and clipped the modal's title. */
     body.f4-direct-simple:has(#modal-doc-rapat:not(.hidden)) #f4-direct-bar,
     body.f4-direct-simple:has(#modal-doc-rapat:not(.hidden)) #f4-direct-sidebar,
     body.f4-direct-simple:has(#modal-doc-rapat:not(.hidden)) #f4-direct-sideback{
-      visibility:hidden!important;pointer-events:none!important
+      visibility:hidden;pointer-events:none
     }
     @media(max-width:760px){
       /* Posisi panel mengikuti CSS bottom-sheet bersama; pertahankan toolbar dokumen. */
       #modal-doc-rapat>div>div:first-child{
-        display:flex!important;align-items:center!important;
-        gap:6px!important;min-width:0!important;flex:0 0 auto!important;
-        padding:8px 10px!important;background:#fff!important;
-        border-bottom:1px solid #e2e8f0!important
+        display:flex;align-items:center;
+        gap:6px;min-width:0;flex:0 0 auto;
+        padding:8px 10px;background:#fff;
+        border-bottom:1px solid #e2e8f0
       }
       #modal-doc-rapat>div>div:first-child>div:first-child{
-        flex:1 1 0!important;min-width:0!important;max-width:100%!important
+        flex:1 1 0;min-width:0;max-width:100%
       }
-      #modal-rapat-judul{overflow:hidden!important;white-space:nowrap!important;text-overflow:ellipsis!important}
+      #modal-rapat-judul{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
       #modal-doc-rapat>div>div:first-child>div:last-child{
-        display:flex!important;flex:0 0 auto!important;gap:4px!important
+        display:flex;flex:0 0 auto;gap:4px
       }
       #modal-doc-rapat .f4-rapat-tool{
-        width:32px!important;height:34px!important;min-width:32px!important;
-        padding:0!important;border-radius:8px!important;display:grid!important;place-items:center!important
+        width:32px;height:34px;min-width:32px;
+        padding:0;border-radius:8px;display:grid;place-items:center
       }
-      #f4-rapat-zoom-level{font-size:10px!important;min-width:30px!important}
+      #f4-rapat-zoom-level{font-size:10px;min-width:30px}
       #modal-rapat-body{
-        flex:1 1 0!important;min-width:0!important;min-height:0!important;
-        width:100%!important;height:auto!important;
-        max-height:none!important;overflow:auto!important;
-        overscroll-behavior:contain!important
+        flex:1 1 0;min-width:0;min-height:0;
+        width:100%;height:auto;
+        max-height:none;overflow:auto;
+        overscroll-behavior:contain
       }
       #modal-rapat-body iframe{
-        width:100%!important;height:100%!important;
-        min-height:100%!important;display:block!important;border:0!important
+        width:100%;height:100%;
+        min-height:100%;display:block;border:0
       }
     }
     @media(max-width:380px){
-      #modal-doc-rapat .f4-rapat-tool{width:30px!important;min-width:30px!important}
-      #modal-doc-rapat>div>div:first-child{padding:7px 6px!important}
-      #modal-doc-rapat>div>div:first-child>div:last-child{gap:3px!important}
-      #modal-rapat-tgl{font-size:9px!important}
-      #modal-rapat-judul{font-size:11px!important}
+      #modal-doc-rapat .f4-rapat-tool{width:30px;min-width:30px}
+      #modal-doc-rapat>div>div:first-child{padding:7px 6px}
+      #modal-doc-rapat>div>div:first-child>div:last-child{gap:3px}
+      #modal-rapat-tgl{font-size:9px}
+      #modal-rapat-judul{font-size:11px}
     }
   </style>
   <style id="f4-rapat-drive-edge-crop-20261027">
@@ -241,24 +241,24 @@
        Center-crop that edge instead of painting an opaque rectangle over PDF pages.
        The PDF remains centered; no overlay intercepts taps or obscures the document. */
     #modal-rapat-body .f4-rapat-drive-container{
-      position:relative!important;
-      isolation:isolate!important;
-      width:100%!important;height:100%!important;min-height:0!important;
-      overflow:hidden!important;background:#202020!important;
+      position:relative;
+      isolation:isolate;
+      width:100%;height:100%;min-height:0;
+      overflow:hidden;background:#202020;
     }
     #modal-rapat-body .f4-rapat-drive-container iframe{
-      display:block!important;position:relative!important;
-      width:calc(100% + 128px)!important;
-      max-width:none!important;
-      left:50%!important;
-      transform:translateX(-50%)!important;
-      height:100%!important;min-height:100%!important;
-      margin:0!important;padding:0!important;border:0!important;
-      background:#202020!important;
+      display:block;position:relative;
+      width:calc(100% + 128px);
+      max-width:none;
+      left:50%;
+      transform:translateX(-50%);
+      height:100%;min-height:100%;
+      margin:0;padding:0;border:0;
+      background:#202020;
     }
     @media(max-width:760px){
       #modal-rapat-body .f4-rapat-drive-container iframe{
-        width:calc(100% + 108px)!important;
+        width:calc(100% + 108px);
       }
     }
   </style>
@@ -399,30 +399,30 @@
                 color-scheme: light;
               }
               html {
-                background: #ffffff !important;
+                background: #ffffff ;
                 min-height: 100%;
                 touch-action: pan-x pan-y pinch-zoom;
               }
               body {
-                box-sizing: border-box !important;
-                width: min(100%, 850px) !important;
-                max-width: 850px !important;
-                min-height: 100vh !important;
-                margin: 0 auto !important;
-                padding: clamp(18px, 5vw, 72px) !important;
-                background: #ffffff !important;
+                box-sizing: border-box ;
+                width: min(100%, 850px) ;
+                max-width: 850px ;
+                min-height: 100vh ;
+                margin: 0 auto ;
+                padding: clamp(18px, 5vw, 72px) ;
+                background: #ffffff ;
                 overflow-wrap: anywhere;
-                -webkit-user-select: text !important;
-                user-select: text !important;
+                -webkit-user-select: text ;
+                user-select: text ;
                 touch-action: pan-x pan-y pinch-zoom;
                 box-shadow: 0 0 24px rgba(15, 23, 42, 0.10);
               }
               img, svg, canvas {
-                max-width: 100% !important;
-                height: auto !important;
+                max-width: 100% ;
+                height: auto ;
               }
               table {
-                max-width: 100% !important;
+                max-width: 100% ;
               }
               td, th {
                 overflow-wrap: anywhere;
@@ -431,104 +431,104 @@
               /* Desktop: beri ruang baca yang lebih nyaman tanpa mengubah layout dokumen. */
               @media (min-width: 641px) {
                 body {
-                  font-size: 15px !important;
-                  line-height: 1.55 !important;
+                  font-size: 15px ;
+                  line-height: 1.55 ;
                 }
                 body p {
-                  line-height: 1.58 !important;
-                  margin-top: 0 !important;
-                  margin-bottom: 0.72em !important;
+                  line-height: 1.58 ;
+                  margin-top: 0 ;
+                  margin-bottom: 0.72em ;
                 }
                 body li {
-                  line-height: 1.52 !important;
-                  margin-bottom: 0.28em !important;
+                  line-height: 1.52 ;
+                  margin-bottom: 0.28em ;
                 }
                 body ul, body ol {
-                  margin-top: 0.38em !important;
-                  margin-bottom: 0.82em !important;
+                  margin-top: 0.38em ;
+                  margin-bottom: 0.82em ;
                 }
                 body h1, body h2, body h3, body h4, body h5, body h6 {
-                  line-height: 1.32 !important;
-                  margin-top: 0.85em !important;
-                  margin-bottom: 0.45em !important;
+                  line-height: 1.32 ;
+                  margin-top: 0.85em ;
+                  margin-bottom: 0.45em ;
                 }
               }
 
               @media (max-width: 640px) {
                 html {
-                  background: #ffffff !important;
-                  overflow-x: hidden !important;
+                  background: #ffffff ;
+                  overflow-x: hidden ;
                 }
                 body {
-                  width: 100% !important;
-                  max-width: none !important;
-                  padding: 20px 18px 36px !important;
-                  box-shadow: none !important;
-                  overflow-x: hidden !important;
-                  font-size: 16px !important;
-                  line-height: 1.6 !important;
+                  width: 100% ;
+                  max-width: none ;
+                  padding: 20px 18px 36px ;
+                  box-shadow: none ;
+                  overflow-x: hidden ;
+                  font-size: 16px ;
+                  line-height: 1.6 ;
                 }
 
                 /* Rapikan elemen Google Docs agar terasa seperti artikel di HP. */
                 body, body * {
-                  box-sizing: border-box !important;
+                  box-sizing: border-box ;
                 }
                 body p {
-                  max-width: 100% !important;
-                  line-height: 1.62 !important;
-                  margin-top: 0 !important;
-                  margin-bottom: 0.85em !important;
+                  max-width: 100% ;
+                  line-height: 1.62 ;
+                  margin-top: 0 ;
+                  margin-bottom: 0.85em ;
                 }
                 body li {
-                  line-height: 1.58 !important;
-                  margin-bottom: 0.35em !important;
+                  line-height: 1.58 ;
+                  margin-bottom: 0.35em ;
                 }
                 body ul, body ol {
-                  max-width: 100% !important;
-                  padding-left: 1.45rem !important;
-                  margin-top: 0.35em !important;
-                  margin-bottom: 0.9em !important;
+                  max-width: 100% ;
+                  padding-left: 1.45rem ;
+                  margin-top: 0.35em ;
+                  margin-bottom: 0.9em ;
                 }
                 body div,
                 body section,
                 body article,
                 body figure {
-                  max-width: 100% !important;
+                  max-width: 100% ;
                 }
 
                 /* Gambar selalu mengikuti lebar area baca dan tidak merusak margin. */
                 img, svg, canvas {
-                  display: block !important;
-                  max-width: 100% !important;
-                  width: 100% !important;
-                  height: auto !important;
-                  object-fit: contain !important;
-                  margin-left: auto !important;
-                  margin-right: auto !important;
+                  display: block ;
+                  max-width: 100% ;
+                  width: 100% ;
+                  height: auto ;
+                  object-fit: contain ;
+                  margin-left: auto ;
+                  margin-right: auto ;
                 }
                 figure, p > span:has(img), div:has(> img), span:has(> img) {
-                  width: 100% !important;
-                  max-width: 100% !important;
-                  height: auto !important;
-                  overflow: visible !important;
-                  transform: none !important;
+                  width: 100% ;
+                  max-width: 100% ;
+                  height: auto ;
+                  overflow: visible ;
+                  transform: none ;
                 }
 
                 /* Tabel saja yang boleh digeser horizontal bila memang lebar. */
                 table {
-                  display: block !important;
-                  width: 100% !important;
-                  max-width: 100% !important;
-                  overflow-x: auto !important;
+                  display: block ;
+                  width: 100% ;
+                  max-width: 100% ;
+                  overflow-x: auto ;
                   -webkit-overflow-scrolling: touch;
-                  table-layout: auto !important;
+                  table-layout: auto ;
                   border-collapse: collapse;
                 }
                 td, th {
                   min-width: max-content;
-                  word-break: normal !important;
-                  overflow-wrap: normal !important;
-                  line-height: 1.45 !important;
+                  word-break: normal ;
+                  overflow-wrap: normal ;
+                  line-height: 1.45 ;
                 }
               }
             `;
