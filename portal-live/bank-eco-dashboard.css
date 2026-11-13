@@ -12,10 +12,10 @@ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primar
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primary>.f4-eco-kpi::after{content:none}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-icon{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:#43A047;color:#fff}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(2) .f4-eco-icon{background:#009788}
-body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(3) .f4-eco-icon{background:#FDC010;color:#244637}
-body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(4) .f4-eco-icon{background:#09BCD3;color:#174630}
+body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(3) .f4-eco-icon{background:#FDC010;color:#244637;--eco-img-filter:brightness(0) saturate(100%) invert(22%) sepia(24%) saturate(901%) hue-rotate(91deg) brightness(92%) contrast(92%)}
+body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(4) .f4-eco-icon{background:#09BCD3;color:#174630;--eco-img-filter:brightness(0) saturate(100%) invert(22%) sepia(24%) saturate(901%) hue-rotate(91deg) brightness(92%) contrast(92%)}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-icon :is(svg,img){display:block;width:21px;height:21px}
-body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-icon img{filter:brightness(0) invert(1)}
+body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-icon img{filter:var(--eco-img-filter,brightness(0) invert(1))}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primary .v14-kpi-label{font-size:12px;font-weight:700;color:#5d7364}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primary .f4-eco-kpi>strong{font-size:clamp(19px,2.1vw,27px);font-weight:850;line-height:1.18;color:#174630;overflow-wrap:anywhere}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primary .f4-eco-kpi>small{font-size:11px;color:#687e6c}
