@@ -692,16 +692,16 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
 #dashboardView .f4-bank-savings-page{min-width:0}
 #dashboardView .f4-bank-savings-page>h2{font-size:21px;margin:0 0 12px;color:#0f5537}
 #dashboardView .f4-bank-savings-page>.desc{display:none}
-#dashboardView .f4-bank-savings-hero{display:grid;gap:7px;padding:20px 17px;border-radius:20px;background:linear-gradient(112deg,#078899,#17a69e 56%,#2cbd90);color:#fff}
+#dashboardView .f4-bank-savings-hero{display:grid;gap:7px;padding:20px 17px;border-radius:20px;background:linear-gradient(112deg,#009688,#008e80 56%,#43a047);color:#fff}
 .f4-bank-savings-hero small{color:#d2eee1;font-size:11px;letter-spacing:.08em;font-weight:750}
 .f4-bank-savings-hero strong{font-size:27px;letter-spacing:-.025em;line-height:1.2;font-weight:850;color:#fff}
 .f4-bank-savings-hero span{font-size:11px;color:#e4f4eb}
 #dashboardView .f4-bank-savings-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--f4-grid-gap-compact,10px);margin:11px 0 14px}
-.f4-bank-savings-stat{display:grid;gap:5px;min-width:0;padding:13px 12px;background:#fff;border:1px solid #e2eee7;border-radius:18px}
-.f4-bank-savings-stat:nth-child(2){background:#fff}
-.f4-bank-savings-stat:nth-child(2) :is(small,strong){color:#287da9}
+.f4-bank-savings-stat{display:grid;gap:5px;min-width:0;padding:13px 12px;background:#eff9e6;border:1px solid #d5eaba;border-radius:18px}
+.f4-bank-savings-stat:nth-child(2){background:#e7f9fc;border-color:#b9e9f0}
+.f4-bank-savings-stat:nth-child(2) :is(small,strong){color:#008b9a}
 .f4-bank-savings-stat small{font-size:11px;color:#607768}
-.f4-bank-savings-stat strong{font-size:17px;line-height:1.2;overflow-wrap:anywhere;color:#078f79;font-variant-numeric:tabular-nums}
+.f4-bank-savings-stat strong{font-size:17px;line-height:1.2;overflow-wrap:anywhere;color:#2d843f;font-variant-numeric:tabular-nums}
 /* Tabungan pribadi — chart app style, one canonical set of selectors (no overrides). */
 #dashboardView #pagePribadi #f4BankSavingsChart{
  display:grid;gap:13px;margin:0 0 14px;padding:17px;
@@ -718,7 +718,7 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups,
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch{
  display:flex;grid-column:auto;gap:3px;align-items:center;flex-wrap:nowrap;
- padding:4px;margin:0;border:1px solid #e2ece5;border-radius:12px;background:#f1f6f2
+ padding:4px;margin:0;border:1px solid #d5e8da;border-radius:12px;background:#eff7f0
 }
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups{
  flex:1 1 auto;min-width:0;max-width:none
@@ -737,11 +737,11 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
 }
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups button.is-active,
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch button.is-active{
- background:#087a52;color:#fff
+ background:#009688;color:#fff
 }
 #dashboardView #pagePribadi #f4BankSavingsChart button:focus-visible,
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-private-deposit>summary:focus-visible{
- outline:2px solid #087a52;outline-offset:3px
+ outline:2px solid #009688;outline-offset:3px
 }
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-private-chart-summary{
  display:grid;gap:4px;min-width:0
@@ -790,10 +790,10 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
 #dashboardView #pagePribadi #f4BankSavingsBars .f4-bank-savings-bar-rail i{
  display:block;min-width:7px;flex:1 1 0;max-width:22px;
  border-radius:9px 9px 3px 3px;
- background:#009788
+ background:#009688
 }
 #dashboardView #pagePribadi #f4BankSavingsBars .f4-bank-savings-bar-rail i.is-estimate{
- background:#8bc24a
+ background:#8bc34a
 }
 #dashboardView #pagePribadi #f4BankSavingsBars>.f4-bank-empty{
  align-self:center;margin:auto;color:#698172
@@ -806,10 +806,10 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
  display:inline-flex;align-items:center;gap:6px
 }
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-private-chart-legend i{
- width:9px;height:9px;border-radius:3px;background:#119767
+ width:9px;height:9px;border-radius:3px;background:#009688
 }
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-private-chart-legend i.is-estimate{
- background:#e4ad3a
+ background:#ffc411
 }
 
 /* Flat account deposit list: receipt button is the only detail action. */
