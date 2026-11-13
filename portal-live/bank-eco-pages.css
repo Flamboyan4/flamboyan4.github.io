@@ -1657,33 +1657,38 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  body.f4-bank-app-private .f4-bank-app-dock-action:focus-visible{
   outline:2px solid #278655;outline-offset:-2px
  }
+ /* Only the gold badge rises; "Pencairan" stays level with the other labels. */
  body.f4-bank-app-member .f4-bank-app-dock-action.is-primary{
-  position:relative;z-index:2;transform:translateY(-17px);
-  display:grid;grid-template-rows:56px 16px;gap:3px;
-  align-content:center;justify-items:center;
-  height:76px;min-height:76px;margin:0;padding:0 1px;
-  background:transparent;color:#175439;box-shadow:none;
-  border:0;border-radius:0
+  position:relative;z-index:2;display:block;
+  width:100%;height:100%;min-height:0;margin:0;padding:0;
+  border:0;border-radius:0;background:transparent;
+  color:#5a471c;box-shadow:none;transform:none
  }
  body.f4-bank-app-member .f4-bank-app-dock-action.is-primary:is(.is-active,:hover){
-  background:transparent;color:#0c5737;box-shadow:none
+  background:transparent;color:#5a471c;box-shadow:none
  }
  body.f4-bank-app-member .f4-bank-app-dock-action.is-primary .f4-bank-app-action-icon{
+  position:absolute;left:50%;bottom:21px;
   display:grid;place-items:center;
-  width:61px;height:58px;min-width:61px;min-height:58px;
-  border:1px solid #eab90c;border-radius:20px;
-  background:#ffc719;color:#184c33;
-  box-shadow:0 8px 18px #a67d1738;transform:none
+  width:52px;height:54px;min-width:52px;min-height:54px;
+  padding:0;border:0;border-radius:13px;
+  background:#ffc719;color:#fff;box-shadow:0 6px 15px #856b2433;
+  transform:translateX(-50%)
  }
  body.f4-bank-app-member .f4-bank-app-dock-action.is-primary .f4-bank-payout-rp-icon{
-  display:block;width:33px;height:33px;fill:none;stroke:#164c34;
-  stroke-width:3.1;stroke-linecap:round;stroke-linejoin:round
+  display:block;width:38px;height:38px;fill:#fff;stroke:none
+ }
+ body.f4-bank-app-member .f4-bank-app-dock-action.is-primary .f4-bank-payout-rp-icon text{
+  font-family:Arial,Helvetica,sans-serif;font-size:39px;font-weight:850;
+  letter-spacing:-2px;fill:#fff;stroke:none
  }
  body.f4-bank-app-member .f4-bank-app-dock-action.is-primary .f4-bank-app-action-name{
-  color:#1c5a3c;font-size:10px;font-weight:850;line-height:1.2
+  position:absolute;left:0;right:0;bottom:6px;
+  display:block;width:100%;color:#594719;
+  font-size:11px;font-weight:850;line-height:1.2;text-align:center
  }
  body.f4-bank-app-member .f4-bank-app-dock-action.is-primary:focus-visible{
-  outline:2px solid #218a55;outline-offset:3px;border-radius:14px
+  outline:2px solid #218a55;outline-offset:3px;border-radius:12px
  }
 
  body.f4-bank-drawer-open{overscroll-behavior-y:contain}
