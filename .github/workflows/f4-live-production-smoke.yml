@@ -30,7 +30,9 @@ jobs:
             ("/api/v2/admin/bank/albums",401),
             ("/api/v2/public/bank/report",401),
             ("/api/member/savings",401),
-            ("/api/bookkeeping/reports/yearly?year=2026",401)
+            ("/api/bookkeeping/reports/yearly?year=2026",401),
+            ("/api/donor/dashboard",401),
+            ("/api/admin/donors",401)
           ]
           failed=[]
           for path,expected in routes:
@@ -91,4 +93,17 @@ jobs:
               if not good:failed.append((path,code))
           if failed:raise SystemExit("Live smoke incomplete: "+str(failed))
           print("ALL_PUBLIC_AND_ROLE_BOUNDARY_SMOKES_PASS")
+          pages=[
+            ("https://flamboyan4.web.id/donatur/","donatur/donatur.js"),
+            ("https://flamboyan4.web.id/donatur/admin.html","donatur/admin.js")
+          ]
+          for uri,script in pages:
+              request=urllib.request.Request(uri,headers={
+                  "User-Agent":"Mozilla/5.0 Flamboyan4-Smoke/1.0","Cache-Control":"no-cache"
+              })
+              with urllib.request.urlopen(request,timeout=25) as response:
+                  html=response.read(150000).decode("utf-8",errors="replace")
+                  if response.status!=200 or script not in html or "Donatur" not in html:
+                      raise RuntimeError("Donor frontend missing: "+uri)
+                  print("PASS DONOR_FRONTEND_LIVE "+uri)
           PY
