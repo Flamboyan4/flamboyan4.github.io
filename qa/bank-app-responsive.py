@@ -81,6 +81,18 @@ MEMBER_HTML = """<!doctype html><html><head><meta name="viewport" content="width
 <section id="f4MemberInfoShortcut">Informasi</section>
 </div></section></main></div></div></body></html>"""
 
+# Savings/chart regression intentionally uses its original focused fixture. The full
+# dashboard cascade is audited independently by member_layout().
+MEMBER_SAVINGS_HTML = MEMBER_HTML.replace(
+    '<link rel="stylesheet" href="/portal-live/modern-portals.css">\n', ''
+).replace(
+    '<link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css">\n', ''
+).replace(
+    '<link rel="stylesheet" href="/portal-live/bank-development-app.css">\n', ''
+).replace(
+    '<link rel="stylesheet" href="/portal-live/bank-member-navigation.css">\n', ''
+).replace('class="card v14-home f4-member-dashboard"', 'class="v14-home f4-member-dashboard"')
+
 async def member_layout(browser):
     """Validate real hero, four actions, activity and sidebar at both PC and HP widths."""
     for device,width in [("pc",1366),("hp",390),("tablet",820)]:
@@ -161,7 +173,7 @@ async def member_layout(browser):
 async def savings_chart(browser):
     """Ensure monthly bars are aggregated, period bars show weighings, and scroll is available."""
     page=await browser.new_page(viewport={"width":390,"height":850})
-    await page.set_content(MEMBER_HTML,wait_until="load")
+    await page.set_content(MEMBER_SAVINGS_HTML,wait_until="load")
     await page.evaluate("""() => {
       document.querySelector('#sideNav').innerHTML='<div id="v16NavList">'+
         ['home','saving','withdrawal','statement','memberreport','progress','public'].map(g=>
