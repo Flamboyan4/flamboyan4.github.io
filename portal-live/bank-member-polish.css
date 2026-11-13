@@ -75,23 +75,33 @@
  list-style:none;margin:0;padding:0;border:0
 }
 #dashboardView #f4MemberFlow .f4-member-flow-steps>li{
- display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+ --step-bg:#eaf7ee;--step-line:#d2e8d9;--step-icon:#d3ebdb;--step-ink:#24784b;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;
  min-width:0;min-height:85px;margin:0;padding:11px 6px;
- border:1px solid #e5eee8;border-radius:13px;background:#f8fbf9;
+ border:1px solid var(--step-line);border-radius:13px;background:var(--step-bg);
  box-shadow:none;text-align:center
+}
+#dashboardView #f4MemberFlow .f4-member-flow-steps>li:nth-child(2){
+ --step-bg:#eaf3fc;--step-line:#d5e6f5;--step-icon:#d8e9fb;--step-ink:#286a9d
+}
+#dashboardView #f4MemberFlow .f4-member-flow-steps>li:nth-child(3){
+ --step-bg:#fff6df;--step-line:#f2e3b7;--step-icon:#faeac0;--step-ink:#8b690b
+}
+#dashboardView #f4MemberFlow .f4-member-flow-steps>li:nth-child(4){
+ --step-bg:#f0f1fc;--step-line:#dfe3f5;--step-icon:#e0e5f9;--step-ink:#5359a0
 }
 #dashboardView #f4MemberFlow .f4-member-flow-steps>li>div{min-width:0}
 #dashboardView #f4MemberFlow .f4-member-flow-number{
  display:grid;place-items:center;position:relative;flex:none;
- width:32px;height:32px;border:0;border-radius:10px;
- background:#e2f2e7;color:#257d51
+ width:36px;height:36px;border:0;border-radius:11px;
+ background:var(--step-icon);color:var(--step-ink)
 }
 #dashboardView #f4MemberFlow .f4-member-flow-number svg{
- display:block;width:20px;height:20px;stroke:currentColor
+ display:block;width:22px;height:22px;stroke:currentColor
 }
 #dashboardView #f4MemberFlow .f4-member-flow-number b{display:none}
 #dashboardView #f4MemberFlow .f4-member-flow-steps strong{
- display:block;margin:0;color:#315f44;font-size:12px;line-height:1.3;font-weight:800
+ display:block;margin:0;color:var(--step-ink);font-size:12px;line-height:1.3;font-weight:800
 }
 #dashboardView #f4MemberFlow .f4-member-flow-steps p,
 #dashboardView #f4MemberFlow .f4-member-flow-note{display:none}
@@ -102,10 +112,13 @@
 }
 #dashboardView #f4MemberFlow .f4-member-flow-share>span{
  display:inline-flex;align-items:center;gap:5px;padding:6px 9px;
- border:1px solid #e3eae6;border-radius:9px;background:#fff;
- color:#526e5c;font-size:10px;line-height:1.25;font-weight:700
+ border:1px solid #d2e8d9;border-radius:9px;background:#eaf7ee;
+ color:#24784b;font-size:10px;line-height:1.25;font-weight:700
 }
-#dashboardView #f4MemberFlow .f4-member-flow-share b{font-size:12px;color:#247d50;font-weight:850}
+#dashboardView #f4MemberFlow .f4-member-flow-share>span:nth-child(2){
+ background:#fff6df;border-color:#f2e3b7;color:#8b690b
+}
+#dashboardView #f4MemberFlow .f4-member-flow-share b{font-size:12px;color:inherit;font-weight:850}
 @media(max-width:570px){
  #dashboardView #f4MemberFlow>.f4-member-flow-head{padding:13px}
  #dashboardView #f4MemberFlow .f4-member-flow-body{padding:0 12px 12px}
