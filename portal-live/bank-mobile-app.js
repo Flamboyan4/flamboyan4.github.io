@@ -40,6 +40,12 @@ const memberDock=[
  ["Pencairan","bank-payout","pay.svg"],["Riwayat","bank-history","clock.svg"],
  ["Laporan","bank-report","book.svg"]
 ];
+// Pengurus memakai dock sendiri. Rute tetap memakai goPage yang sudah menangani akses dan API.
+const adminDock=[
+ ["Beranda","dashboard","home.svg"],["Saldo","tabungan","cash.svg"],
+ ["Setoran","setoran","pay.svg"],["Penjualan","penjualan","bank.svg"],
+ ["Laporan","laporan","book.svg"]
+];
 let role=null,screen="dashboard",historyMonth="latest",reportMonth="",reportRange=null,activePage=null;
 const routeHistory=[];let returningFromBack=false;
 let homeSource=null,summaryExtra=null,memberSource=null,managerQueue=null;
@@ -64,7 +70,8 @@ function action([title,route,asset],dock=false){
  const b=el("button",dock?"f4-bank-app-dock-action":"f4-bank-app-action");
  b.type="button";b.dataset.bankAppRoute=route;b.setAttribute("aria-label",title);
  const isMemberPayout=dock&&route==="bank-payout";
- if(isMemberPayout)b.classList.add("is-primary");
+ const isAdminDeposit=dock&&route==="setoran";
+ if(isMemberPayout||isAdminDeposit)b.classList.add("is-primary");
  const symbol=el("span","f4-bank-app-action-icon");
  if(isMemberPayout){
   // Match the original yellow payout badge: the white "Rp" is a crisp SVG wordmark.
@@ -2216,7 +2223,7 @@ function sync(){
  document.body.classList.toggle("f4-bank-app-private",isPrivate);
  document.body.classList.toggle("f4-bank-app-member",isPrivate&&next==="member");
  document.body.classList.toggle("f4-bank-app-admin",isPrivate&&next==="admin");
- dock().hidden=!isPrivate||next==="admin";
+ dock().hidden=!isPrivate;
  if(!isPrivate){
   if(role!==null)resetRoleSurface();
   memberSide(false);
@@ -2229,7 +2236,7 @@ function sync(){
  if(next!==role){
   resetRoleSurface();
   role=next;screen="dashboard";
-  dock().replaceChildren(...(role==="member"?memberDock:[]).map(x=>action(x,true)));
+  dock().replaceChildren(...(role==="member"?memberDock:adminDock).map(x=>action(x,true)));
   if(role==="member")requestNonce="";
   memberStatement=null;adminOverview=null;
   if(role==="admin")$("f4BankProfileDetail")?.remove();
