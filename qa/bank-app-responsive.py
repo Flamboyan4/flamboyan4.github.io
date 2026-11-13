@@ -449,6 +449,73 @@ async def admin_mobile_shell(browser):
     await page.close()
 
 
+async def bank_real_mobile_dock_bidirectional_scroll(browser):
+    """Compare admin and member navigation on a Chromium mobile visual viewport.
+
+    Load the same CSS owners and the actual legacy root rule from index.html.
+    Check bottom alignment after scrolling down, back up, and changing viewport height.
+    """
+    from pathlib import Path
+    import re
+    source=Path("bank-sampah/index.html").read_text(encoding="utf-8")
+    root_rule=re.search(r"html,body,body>\\.shell,body>\\.shell>\\.content\\{[^{}]+\\}",source)
+    assert root_rule and "overflow-x:clip" in root_rule.group(0),root_rule
+    for role in ("admin","member"):
+        context=await browser.new_context(
+            viewport={"width":390,"height":844},device_scale_factor=2,
+            is_mobile=True,has_touch=True
+        )
+        page=await context.new_page()
+        await page.goto(ROOT,wait_until="domcontentloaded")
+        fixture=f"""<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="/portal-live/direct-shell.css">
+        <link rel="stylesheet" href="/portal-live/modern-portals.css">
+        <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
+        <link rel="stylesheet" href="/portal-live/bank-member-navigation.css">
+        <style>@media(max-width:720px){{{root_rule.group(0)}}}</style></head>
+        <body class="f4-direct-bank f4-bank-app-private f4-bank-app-{role} v17-dashboard">
+          <div id="f4-direct-bar">Bank Sampah</div>
+          <div class="shell"><div class="content"><div id="dashboardView">
+            <div class="grid"><main class="section">
+              <div style="height:3900px">Konten panjang</div>
+            </main></div>
+          </div></div></div>
+          <nav id="f4BankAppDock" class="f4-bank-app-dock" aria-label="Menu bawah">
+            <button class="f4-bank-app-dock-action" type="button">Beranda</button>
+            <button class="f4-bank-app-dock-action" type="button">Setoran</button>
+            <button class="f4-bank-app-dock-action is-primary" type="button">Utama</button>
+            <button class="f4-bank-app-dock-action" type="button">Riwayat</button>
+            <button class="f4-bank-app-dock-action" type="button">Laporan</button>
+          </nav></body></html>"""
+        await page.set_content(fixture,wait_until="load")
+        snapshots=[]
+        for height,scroll in [(844,0),(844,700),(844,1800),(844,500),
+                              (844,1350),(844,0),(750,900),(750,300),(844,1000)]:
+            await page.set_viewport_size({"width":390,"height":height})
+            await page.evaluate("(y)=>window.scrollTo(0,y)",scroll)
+            await page.wait_for_timeout(80)
+            value=await page.evaluate("""() => {
+              const nav=document.querySelector('#f4BankAppDock'),r=nav.getBoundingClientRect();
+              const html=getComputedStyle(document.documentElement),body=getComputedStyle(document.body);
+              return {scroll:scrollY,viewport:innerHeight,
+                fixed:getComputedStyle(nav).position,top:r.top,bottom:r.bottom,
+                transform:getComputedStyle(nav).transform,
+                overflowHTML:html.overflowX,overflowBody:body.overflowX,
+                scrollRoot:document.scrollingElement.tagName,
+                overflows:document.documentElement.scrollWidth>innerWidth+3};
+            }""")
+            assert value["fixed"]=="fixed",(role,height,scroll,value)
+            assert value["scrollRoot"]=="HTML",(role,height,scroll,value)
+            assert value["overflowHTML"]=="clip",(role,height,scroll,value)
+            assert value["overflowBody"]=="clip",(role,height,scroll,value)
+            assert not value["overflows"],(role,height,scroll,value)
+            assert abs(value["bottom"]-value["viewport"])<=1,(role,height,scroll,value)
+            assert abs(value["scroll"]-scroll)<2,(role,height,scroll,value)
+            snapshots.append({"at":scroll,"height":height,"bottom":value["bottom"]})
+        print("BANK_NATIVE_MOBILE_DOCK_STABLE_UP_DOWN_OK",role,snapshots,flush=True)
+        await context.close()
+
+
 async def public_chart_and_flat_roster(browser):
     """Actual Bank Sampah styles: 33 saldo rows follow page scroll; public chart switches units."""
     import re
@@ -1430,6 +1497,7 @@ async def main():
         await member_mutation_ledger(browser)
         await savings_chart(browser)
         await admin_mobile_shell(browser)
+        await bank_real_mobile_dock_bidirectional_scroll(browser)
         await public_chart_and_flat_roster(browser)
         await public_report_compact(browser)
         await member_profile_inline_name(browser)
