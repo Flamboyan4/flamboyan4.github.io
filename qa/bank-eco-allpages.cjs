@@ -228,10 +228,13 @@ assert(!h.includes('max-height:310px!important;overflow-y:auto!important'),'Old 
 // Mobile Bank Sampah controls must not regress into the three bugs in the 31 Oct report.
 assert(!dockSection.includes('transform:translateY(-8px)'),'Center caption must not overlap gold action');
 assert(dockSection.includes('.f4-bank-app-dock-action.is-primary') &&
-       dockSection.includes('transform:translateY(-17px)') &&
+       dockSection.includes('position:absolute;left:50%;bottom:29px') &&
+       dockSection.includes('position:absolute;left:0;right:0;bottom:13px') &&
        dockSection.includes('background:#ffc719') &&
-       dockSection.includes('.f4-bank-payout-rp-icon'),
- 'Pencairan must be the permanently raised yellow Rp CTA even when Beranda is active');
+       dockSection.includes('.f4-bank-payout-rp-icon text{'),
+ 'Only the yellow Rp badge must rise; Pencairan label stays level with sibling dock labels');
+assert(mobile.includes('svg.innerHTML=\'<text x="36" y="45" text-anchor="middle">Rp</text>\''),
+ 'Original white Rp wordmark must be restored as SVG, not a stylized line icon');
 // Admin HP retains shortcut actions; desktop manager uses a compact direct sidebar.
 const adminMobile=css.split('/* Pengelola HP: menu slide untuk Keuangan dan Pengelolaan;')[1]
   ?.split('@media screen and (max-width:760px)')[0];
