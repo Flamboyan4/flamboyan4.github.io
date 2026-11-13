@@ -6,6 +6,7 @@ from playwright.async_api import async_playwright
 ROOT = Path(__file__).resolve().parents[1]
 STYLE = ROOT / "portal-live/mobile-bottom-sheets.css"
 SCRIPT = ROOT / "portal-live/mobile-bottom-sheets.js"
+BANK_HISTORY = ROOT / "portal-live/bank-modal-history.js"
 
 MAIN = """<!doctype html><html><head>
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -63,6 +64,91 @@ async def swipe(page, handle, distance, panel=None):
         css = await panel.evaluate("(e)=>e.style.transition")
         assert "height" not in css, f"Sheet still animates height: {css}"
     await page.wait_for_timeout(290)
+
+
+async def bank_popup_back_and_unified_sheets(browser):
+    """Android/browser Back dismisses one modal layer; unchanged page and PC behavior."""
+    page=await browser.new_page(viewport={"width":390,"height":844},is_mobile=True,has_touch=True)
+    cases="""<!doctype html><html><head>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+    html,body{height:100%;margin:0}
+    .hidden,[hidden]{display:none}
+    .v21-modal{position:fixed;inset:0;display:flex;align-items:flex-end;background:#0008}
+    .v21-modal-card{width:100%;height:280px;background:#fff}
+    .v21-lightbox .v21-modal-card{height:100%;background:#111}
+    #f4-tx-receipt-dialog{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0008}
+    #f4-tx-receipt-dialog[hidden]{display:none}
+    .f4-tx-card{width:320px;height:350px;background:#fff;display:flex;flex-direction:column}
+    </style></head><body class="f4-direct-bank">
+    <button id="page-action" type="button">Menu halaman</button>
+    <div id="v21GalleryModal" class="v21-modal hidden">
+      <div class="v21-modal-card"><button class="v21-close" onclick="document.getElementById('v21GalleryModal').classList.add('hidden')">Tutup album</button></div>
+    </div>
+    <div id="v21Lightbox" class="v21-modal v21-lightbox hidden">
+      <div class="v21-modal-card"><button class="v21-close" onclick="document.getElementById('v21Lightbox').classList.add('hidden')">Tutup foto</button></div>
+    </div>
+    <div id="f4-tx-receipt-dialog" data-scope="bank" hidden>
+      <div class="f4-tx-card"><button class="f4-tx-close" onclick="window.F4TransactionReceipt.close()">Tutup resi</button><p>Resi transaksi bank sampah</p></div>
+    </div>
+    <dialog id="bank-prices" class="f4-bank-sheet-modal">
+      <button id="prices-close" onclick="document.getElementById('bank-prices').close()">Tutup harga</button>
+      <p>Harga sampah</p>
+    </dialog>
+    <script>
+    window.appBackCount=0;
+    window.F4TransactionReceipt={close:()=>{document.getElementById('f4-tx-receipt-dialog').hidden=true}};
+    window.addEventListener('popstate',()=>window.appBackCount++);
+    </script></body></html>"""
+    await page.set_content(cases,wait_until="load")
+    await page.add_style_tag(path=str(STYLE))
+    await page.add_script_tag(path=str(SCRIPT))
+    await page.add_script_tag(path=str(BANK_HISTORY))
+    await page.wait_for_function("!!window.F4BankModalHistory")
+    errors=[]
+    page.on("pageerror",lambda exc:errors.append(str(exc)))
+    async def opens(n):
+        await page.wait_for_function("(count)=>window.F4BankModalHistory.getOpenCount()===count",n)
+    await page.evaluate("document.getElementById('v21GalleryModal').classList.remove('hidden')")
+    await opens(1)
+    await page.evaluate("document.getElementById('v21Lightbox').classList.remove('hidden')")
+    await opens(2)
+    await page.evaluate("history.back()")
+    await page.wait_for_function("document.getElementById('v21Lightbox').classList.contains('hidden')")
+    assert await page.locator("#v21GalleryModal").is_visible(), "Back must close only photo, not album"
+    await page.evaluate("history.back()")
+    await page.wait_for_function("document.getElementById('v21GalleryModal').classList.contains('hidden')")
+    assert await page.evaluate("window.appBackCount")==0,"Back leaked to page routing"
+
+    await page.evaluate("document.getElementById('f4-tx-receipt-dialog').hidden=false")
+    await opens(1)
+    receipt=page.locator("#f4-tx-receipt-dialog .f4-tx-card")
+    coords=await receipt.bounding_box()
+    assert coords and coords["width"]>=380 and coords["y"]+coords["height"]>=842,coords
+    await page.evaluate("history.back()")
+    await page.wait_for_function("document.getElementById('f4-tx-receipt-dialog').hidden")
+    assert await page.evaluate("window.appBackCount")==0,"Resi Back changed underlying page"
+
+    await page.evaluate("document.getElementById('bank-prices').showModal()")
+    await opens(1)
+    price=page.locator("#bank-prices")
+    coords=await price.bounding_box()
+    assert coords and coords["y"]+coords["height"]>=842,coords
+    await page.evaluate("history.back()")
+    await page.wait_for_function("!document.getElementById('bank-prices').open")
+    assert await page.evaluate("window.appBackCount")==0,"Price Back changed underlying page"
+
+    # The ordinary close button also removes the synthetic browser history layer.
+    await page.evaluate("document.getElementById('bank-prices').showModal()")
+    await opens(1)
+    await page.locator("#prices-close").click()
+    await opens(0)
+    await page.wait_for_function("!history.state?.f4BankModalGuard")
+    assert await page.evaluate("window.appBackCount")==0,"Manual modal close leaked popstate"
+    await page.locator("#page-action").click()
+    assert not errors,errors
+    await page.close()
+    print("BANK_POPUP_BACK_BOTTOM_SHEETS_OK",flush=True)
 
 async def verify():
     async with async_playwright() as p:
@@ -125,6 +211,7 @@ async def verify():
         await install(pc,MAIN)
         assert not await pc.locator("body > .f4-sheet-handle").is_visible(), (
             "Pegangan hanya untuk HP, bukan dialog PC")
+        await bank_popup_back_and_unified_sheets(browser)
         await browser.close()
         print("PASS: bank taps, hidden overlays, swipe expand/collapse/dismiss, "
               "scroll anchoring, Pembukuan wrapper, lightbox, PC, JS errors")
