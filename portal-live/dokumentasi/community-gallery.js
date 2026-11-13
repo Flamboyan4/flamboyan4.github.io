@@ -543,7 +543,10 @@ document.addEventListener('f4:gallery:photo',e=>{
   const all=button('Lihat semua komentar','comment',()=>openComments(photoTarget),'f4g-photo-all');
   commentsSection.append(title,list,all);
   const form=elem('form','f4g-photo-quick-form');
-  const input=elem('textarea');input.placeholder='Tulis komentar…';input.maxLength=500;input.rows=2;
+  const input=elem('textarea');input.placeholder='Tulis komentar…';input.maxLength=500;input.rows=1;
+  input.setAttribute('aria-label','Tulis komentar');
+  const fitComment=()=>{input.style.height='auto';input.style.height=Math.min(144,Math.max(46,input.scrollHeight))+'px'};
+  input.addEventListener('input',fitComment);
   const submit=button(null,'send',null,'primary f4g-comment-send');submit.type='submit';submit.setAttribute('aria-label','Kirim komentar');
   form.append(input,submit);
   form.addEventListener('submit',async event=>{
@@ -553,7 +556,7 @@ document.addEventListener('f4:gallery:photo',e=>{
    try{
     await signedIn();submit.disabled=true;
     await post('/comment',{type:'photo',id:current.id,message:value});
-    input.value='';
+    input.value='';fitComment();
     if(photoTarget?.id===current.id){
      document.dispatchEvent(new CustomEvent('f4:gallery:photo',{detail:current}));
     }
