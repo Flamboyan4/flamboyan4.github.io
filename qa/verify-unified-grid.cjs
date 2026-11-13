@@ -35,7 +35,7 @@ const required=[
    '--f4-grid-gap:16px','--f4-grid-gap-compact:10px','--f4-content-max:1180px',
    '.f4-grid{display:grid;grid-template-columns:repeat(var(--f4-grid-cols,12)',
    '.f4-grid[data-cols="5"]','@media(max-width:640px)']],
- ['index.html',['class="f4-page-width','class="grid f4-grid mb-8','data-cols="3"','data-cols="2"']],
+ ['index.html',['class="f4-page-width','class="f4-cash-overview"','class="f4-cash-summary"','data-cols="2"']],
  ['pembukuan/index.html',['class="grid f4-grid mb-6" data-cols="5"',
    'class="kas-summary grid f4-grid mb-5" data-cols="4"','class="grid f4-grid mb-5" data-cols="4"']],
  ['bank-sampah/index.html',['--f4-public-grid-gap:var(--f4-grid-gap,16px)',
