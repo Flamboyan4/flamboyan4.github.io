@@ -1522,10 +1522,10 @@ function ensureOwnDepositForm(){
   const detail=el("div","f4-bank-own-detail");
   const head=el("div","f4-bank-own-detail-head");
   head.append(el("strong","","Rincian sampah"));
-  const add=el("button","f4-bank-secondary-action","Tambah jenis");add.type="button";
+  const add=el("button","f4-compact-add","Tambah jenis");add.type="button";
   add.onclick=()=>addOwnItemRow();
-  head.append(add);detail.append(head);
-  const rows=el("div","f4-bank-own-lines");rows.id="f4BankOwnLines";detail.append(rows);
+  detail.append(head);
+  const rows=el("div","f4-bank-own-lines f4-compact-rows");rows.id="f4BankOwnLines";detail.append(rows,add);
   const weight=el("small","f4-bank-own-weight","Total berat: 0 kg");weight.id="f4BankOwnWeight";detail.append(weight);
   const note=el("label","f4-bank-own-field");note.append(el("span","","Catatan (opsional)"));
   const noteInput=el("input");noteInput.id="f4BankOwnNote";noteInput.maxLength=200;noteInput.placeholder="Asal sampah / keterangan stok";
@@ -1548,7 +1548,7 @@ function updateOwnWeight(){
 function addOwnItemRow(){
  const lines=$("f4BankOwnLines");if(!lines)return;
  if(lines.childElementCount>=30)return;
- const row=el("div","f4-bank-own-line");
+ const row=el("div","f4-bank-own-line f4-compact-row");
  const select=el("select");select.required=true;select.setAttribute("aria-label","Jenis sampah");
  select.add(new Option("Pilih jenis",""));
  for(const item of ownCatalog||[])select.add(new Option(item.name,item.id));
@@ -1556,10 +1556,12 @@ function addOwnItemRow(){
  const weight=el("input");weight.type="number";weight.step="0.001";weight.min="0.001";
  weight.max="10000";weight.required=true;weight.dataset.ownWeight="1";weight.placeholder="Berat (kg)";
  weight.setAttribute("aria-label","Berat sampah kilogram");weight.oninput=updateOwnWeight;
- const del=el("button","f4-bank-own-remove");del.type="button";
+ const del=el("button","f4-compact-remove");del.type="button";
  del.title="Hapus jenis";del.setAttribute("aria-label","Hapus jenis");
- del.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';del.onclick=()=>{row.remove();updateOwnWeight();};
- row.append(select,weight,del);lines.append(row);
+ del.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';del.onclick=()=>{row.remove();if(!lines.childElementCount)addOwnItemRow();updateOwnWeight();};
+ const amountGroup=el("div","f4-compact-entry-group");
+ amountGroup.append(weight,del);
+ row.append(select,amountGroup);lines.append(row);updateOwnWeight();
 }
 async function loadOwnCatalog(){
  if(!$("f4BankOwnDepositForm")||ownFormMode!=="bank")return;
