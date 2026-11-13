@@ -211,13 +211,9 @@
     .v17-public-account{margin-left:auto;flex-shrink:0;width:41px;height:41px;border:1px solid #d8e6d6;border-radius:50%;background:#e6f0e4;color:#27583e;font-weight:850;padding:0;display:grid;place-items:center;overflow:hidden}
     .v17-public-account img{width:100%;height:100%;object-fit:cover}
     .v17-public-main{--f4-public-grid-gap:var(--f4-grid-gap,16px);max-width:1250px;margin:auto;padding:22px 20px 56px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--f4-public-grid-gap)}
-    .v17-public-banner{background:#204e38;color:#fff;border-radius:17px;padding:28px;display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,33%);align-items:center;gap:24px}
-    .v17-public-banner h1{font-size:27px;margin:6px 0 10px;color:#fff}.v17-public-banner p{font-size:14px;color:#d6e6d8;margin:0;max-width:670px}
+        .v17-public-banner p{font-size:14px;color:#d6e6d8;margin:0;max-width:670px}
     .v17-public-banner .emblem{font-size:70px;opacity:.85}
-    .v17-public-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--f4-public-grid-gap);margin:0}
-    .v17-public-metric{border:1px solid #dce8da;background:#fff;padding:16px;border-radius:12px}
-    .v17-public-metric small{display:block;font-size:12px;color:#758777}.v17-public-metric strong{display:block;font-size:23px;color:#2c5940;margin-top:7px}
-    .v17-section{margin-top:20px;scroll-margin-top:85px}.v17-section>h2{font-size:21px;margin:0 0 5px}.v17-section>.v17-subtle{margin:0 0 13px}
+                .v17-section{margin-top:20px;scroll-margin-top:85px}.v17-section>h2{font-size:21px;margin:0 0 5px}.v17-section>.v17-subtle{margin:0 0 13px}
     .v17-two{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(260px,1fr);gap:13px}
     .v17-timeline{padding:0;margin:0;list-style:none}.v17-timeline li{position:relative;border-left:2px solid #c7ddca;margin-left:5px;padding:0 0 18px 17px;font-size:13px}
     .v17-timeline li:before{content:'';position:absolute;left:-6px;top:2px;width:10px;height:10px;border-radius:50%;background:#4a9869}
@@ -329,15 +325,8 @@
       #v11Public #v18PublicContent{display:block;box-sizing:border-box;width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:hidden}
       #v11Public #v18PublicContent .v17-public-main{width:100%!important;max-width:100%!important;min-width:0!important;padding:66px 10px 32px!important;margin:0!important;box-sizing:border-box}
       #v19PublicFloatingMenu{display:grid;position:fixed;z-index:35;top:12px;left:12px;background:#fff;box-shadow:0 3px 14px #183e2624}
-      #v11Public .v17-public-banner{width:100%;max-width:100%;grid-template-columns:minmax(0,1fr);overflow:hidden;padding:20px 17px}
-      #v11Public .v17-public-banner .emblem{display:none}
-      #v11Public .v17-public-banner h1{font-size:23px;line-height:1.22;overflow-wrap:anywhere}
-      #v11Public .v17-public-banner p{font-size:13px;overflow-wrap:anywhere}
-      #v11Public .v17-public-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;width:100%;min-width:0}
-      #v11Public .v17-public-metrics>*{min-width:0;width:auto}
-      #v11Public .v17-public-metric{padding:12px 10px}
-      #v11Public .v17-public-metric strong{font-size:19px}
-      #v11Public .v17-two,#v11Public .v17-albums,#v11Public .v17-inventory{grid-template-columns:minmax(0,1fr)!important;width:100%;min-width:0}
+            #v11Public .v17-public-banner .emblem{display:none}
+                                          #v11Public .v17-two,#v11Public .v17-albums,#v11Public .v17-inventory{grid-template-columns:minmax(0,1fr)!important;width:100%;min-width:0}
       #v11Public .v17-section{scroll-margin-top:16px}
       #v18PublicSide.open{z-index:49}
       #v18PublicBackdrop.open{z-index:48}
@@ -537,20 +526,13 @@
   .v27-cancel-panel .field{margin-top:12px}.v27-cancel-panel button{background:#9a5d3a}
   #v27PrintReport{display:none}
   /* Hero foto resmi; Program berdiri sendiri di bawah banner. */
-  #v11Public .v17-public-banner>.v30-hero-photo{min-width:0;height:190px;border-radius:13px;overflow:hidden;display:none;background:#315b45}
-  #v11Public .v17-public-banner>.v30-hero-photo.has-photo{display:block}
-  #v11Public .v30-hero-photo img{width:100%;height:190px;display:block;object-fit:cover;object-position:center;transition:opacity .25s ease,transform .25s ease}
-  #v11Public .v30-hero-photo{padding:0;border:0;cursor:pointer;box-shadow:none;position:relative}
-  #v11Public .v30-hero-photo:focus-visible{outline:3px solid #f4ca6e;outline-offset:3px}
-  #v11Public .v30-hero-photo.has-photo:hover img{transform:scale(1.025)}
-  #v31ScrollTop{position:fixed;bottom:max(20px,env(safe-area-inset-bottom) + 16px);right:20px;width:48px;height:48px;border-radius:50%;padding:0;display:grid;place-items:center;background:#315c46;color:#fff;box-shadow:0 5px 18px #152b2050;z-index:90;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(10px);transition:opacity .2s ease,transform .2s ease,visibility .2s}
+          #v11Public .v30-hero-photo:focus-visible{outline:3px solid #f4ca6e;outline-offset:3px}
+    #v31ScrollTop{position:fixed;bottom:max(20px,env(safe-area-inset-bottom) + 16px);right:20px;width:48px;height:48px;border-radius:50%;padding:0;display:grid;place-items:center;background:#315c46;color:#fff;box-shadow:0 5px 18px #152b2050;z-index:90;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(10px);transition:opacity .2s ease,transform .2s ease,visibility .2s}
   #v31ScrollTop.v31-visible{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0)}
   #v31ScrollTop:hover{background:#254d38}
   @media(prefers-reduced-motion:reduce){#v11Public .v30-hero-photo img,#v31ScrollTop{transition:none!important}}
   @media(max-width:720px){
-    #v11Public .v17-public-banner>.v30-hero-photo{height:150px}
-    #v11Public .v30-hero-photo img{height:150px}
-    #v31ScrollTop{width:46px;height:46px;right:15px;bottom:max(16px,env(safe-area-inset-bottom) + 12px)}
+            #v31ScrollTop{width:46px;height:46px;right:15px;bottom:max(16px,env(safe-area-inset-bottom) + 12px)}
   }
   @page{size:A4 portrait;margin:14mm 12mm}
   @media print{

@@ -101,33 +101,6 @@ body.f4-bank-embedded #dashboardView .section,
  border-color:#d0e4d8!important;border-radius:12px!important;background:#fff!important
 }
 /* Public: fresh green-teal hero, clear white headings, readable yellow actions. */
-#v11Public .v17-public-banner{
- background:#43a047;border:0;
- border-radius:22px;box-shadow:0 10px 25px #1a825e23
-}
-#v11Public .v17-public-banner :is(h1,h2,h3,strong){color:#fff}
-#v11Public .v17-public-banner :is(p,.v17-subtle){color:#e6f6ed;opacity:1}
-#v11Public .v17-public-banner :is(.v14-eyebrow,.v17-eyebrow,.v27-eyebrow){
- color:#fff;background:#ffffff25;
- border:1px solid #ffffff50;border-radius:8px
-}
-#v11Public .v17-public-banner button:not(.v30-hero-photo),
-#v11Public .v17-public-banner #f4-public-my-savings,
-#v11Public .v17-public-banner #f4-public-manage-bank{
- background:var(--eco-gold);color:#25412d;
- border:0;border-radius:13px;
- font-weight:800;text-shadow:none;
- box-shadow:0 3px 9px #05432a27
-}
-#v11Public .v17-public-banner button:not(.v30-hero-photo):hover,
-#v11Public .v17-public-banner #f4-public-my-savings:hover,
-#v11Public .v17-public-banner #f4-public-manage-bank:hover{
- background:#f2b70b;color:#25412d
-}
-#v11Public .v17-public-banner .v30-hero-photo{
- border:1px solid #ffffff55;border-radius:12px;
- box-shadow:0 3px 12px #05432a20
-}
 #v11Public #v25ReportMetrics>.v17-public-metric{
  background:#fff!important;border:1px solid #d8e5dc!important;
  border-radius:17px!important;box-shadow:none!important

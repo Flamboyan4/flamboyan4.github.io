@@ -1,103 +1,119 @@
-/* Portal Bank Sampah: capaian publik & posisi keuangan akun anggota. */
-#v11Public .v17-public-main>.v17-public-banner {
-  grid-column:1/span 5;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:flex-start;
-  gap:18px;
-  margin:0;
-  min-height:330px;
-  padding:25px 22px;
-  border:0;
-  background:transparent;
-  color:#193b2b;
+/* ONE owner for the Bank Sampah public hero and headline metrics.
+   Five-color palette: yellow #FDC010, lime #8BC24A, green #43A047,
+   teal #009788, cyan #09BCD3. No priority hacks. */
+#v11Public .v17-public-main>.v17-public-banner{
+  grid-column:1/-1;box-sizing:border-box;display:grid;
+  grid-template-columns:minmax(0,1.17fr) minmax(0,.83fr);
+  align-items:center;gap:clamp(17px,3vw,34px);
+  width:100%;min-width:0;min-height:250px;margin:0;
+  padding:clamp(24px,3vw,36px);border:0;border-radius:24px;
+  background:#43a047;color:#fff;box-shadow:0 12px 28px #217b4124
 }
-#v11Public .v17-public-main>.v17-public-banner .v14-eyebrow {
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:7px 11px;
-  border-radius:99px;
-  color:#176a43;
-  background:#e6f2e8;
-  font-size:11px;
-  font-weight:750;
+#v11Public .v17-public-main>.v17-public-banner>div:first-child{
+  display:flex;flex-direction:column;align-items:flex-start;min-width:0
 }
-#v11Public .v17-public-main>.v17-public-banner h1 {
-  color:#123c29;
-  font-size:clamp(26px,3.2vw,42px);
-  line-height:1.17;
-  letter-spacing:-.035em;
-  margin:15px 0 8px;
+#v11Public .v17-public-main>.v17-public-banner .v14-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;padding:7px 13px;
+  background:#ffffff2a;color:#fff;border:1px solid #ffffff50;
+  border-radius:999px;font-size:11px;font-weight:800
 }
-#v11Public .v17-public-main>.v17-public-banner .f4-impact-intro {
-  color:#678072;
-  font-size:13px;
-  line-height:1.65;
-  max-width:440px;
+#v11Public .v17-public-main>.v17-public-banner .v14-eyebrow img{width:18px;height:18px;display:block}
+#v11Public .v17-public-main>.v17-public-banner :is(h1,h2,h3){
+  margin:16px 0 9px;max-width:660px;color:#fff;
+  font-size:clamp(27px,3.3vw,42px);font-weight:850;
+  line-height:1.16;letter-spacing:-.036em;text-wrap:balance
 }
-#v11Public .v17-public-banner>.v30-hero-photo.has-photo {
-  max-width:100%;
-  width:100%;
-  height:100px;
-  border-radius:12px;
+#v11Public .v17-public-main>.v17-public-banner :is(p,.f4-impact-intro){
+  margin:0;max-width:550px;color:#f1fff0;opacity:1;
+  font-size:clamp(12px,1.1vw,14px);line-height:1.6
 }
-#v11Public .v17-public-banner>.v30-hero-photo img {width:100%;height:100px;object-fit:cover}
-#v11Public .v17-public-main>.v17-public-metrics {
-  grid-column:6/-1;
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  grid-template-rows:repeat(3,minmax(0,auto));
-  gap:0;
-  align-content:start;
-  margin:0;
-  border:1px solid #dce6df;
-  border-radius:17px;
-  overflow:hidden;
-  background:white;
+#v11Public .v17-public-main>.v17-public-banner>.v30-hero-photo{
+  display:none;box-sizing:border-box;width:100%;min-width:0;
+  height:204px;padding:0;overflow:hidden;border:0;border-radius:18px;
+  background:#e3f5e7;box-shadow:0 6px 18px #164c3026;cursor:pointer
 }
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric {
-  border:0;
-  border-radius:0;
-  background:white;
-  padding:18px 20px;
-  min-height:104px;
-  border-top:1px solid #e4ebe6;
+#v11Public .v17-public-main>.v17-public-banner>.v30-hero-photo.has-photo{display:block}
+#v11Public .v17-public-main>.v17-public-banner>.v30-hero-photo img{
+  width:100%;height:100%;display:block;object-fit:cover;object-position:center;transition:transform .2s ease
 }
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:nth-child(even) {
-  border-right:1px solid #e4ebe6;
+#v11Public .v17-public-main>.v17-public-banner>.v30-hero-photo.has-photo:hover img{transform:scale(1.02)}
+#v11Public .v17-public-main>.v17-public-banner:not(:has(>.v30-hero-photo.has-photo)){
+  grid-template-columns:minmax(0,1fr)
 }
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child {
-  grid-column:1/-1;
-  min-height:126px;
-  border:0;
-  border-right:0;
-  padding:20px 24px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  background:#e5f1e9;
+#v11Public .v17-public-main>.v17-public-metrics{
+  grid-column:1/-1;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
+  grid-template-rows:none;gap:12px;align-items:stretch;
+  min-width:0;width:100%;margin:0;padding:0;border:0;border-radius:0;
+  background:transparent;overflow:visible
 }
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child strong {
-  font-size:clamp(28px,3vw,39px);
-  color:#126c47;
-  letter-spacing:-.04em;
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric{
+  display:flex;flex-direction:column;align-items:flex-start;gap:5px;
+  box-sizing:border-box;min-width:0;min-height:119px;
+  padding:15px 16px;margin:0;border:0;border-radius:19px;
+  background:#e7f7d3;box-shadow:0 5px 17px #1e6b3510
 }
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric strong {
-  font-size:24px;
-  color:#144d34;
-  margin:5px 0 0;
-  line-height:1.2;
-  overflow-wrap:anywhere;
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:nth-child(2){background:#e2f9f4}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:nth-child(3){background:#fff3c9}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:nth-child(4){background:#e0f8fb}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:nth-child(5){background:#eff9e9}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric::before{
+  content:"";display:block;flex:none;width:28px;height:28px;
+  margin:0 0 2px;border-radius:9px;
+  background:#ffffffac url('/assets/icons/bank.svg?v=lucide-recycle-20261027') center/17px no-repeat
 }
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric small {
-  font-size:12px;
-  color:#5d7466;
-  line-height:1.3;
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=user]::before{background-image:url('/assets/icons/user.svg')}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=inventory]::before{background-image:url('/assets/icons/inventory.svg')}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=calendar]::before{background-image:url('/assets/icons/calendar.svg')}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=cash]::before{background-image:url('/assets/icons/cash.svg')}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric small{
+  display:block;margin:0;font-size:12px;line-height:1.35;font-weight:600;color:#526d5e
 }
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric::before {display:none}
-
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric strong{
+  display:block;margin:1px 0 0;font-size:clamp(21px,2.1vw,29px);
+  font-weight:850;line-height:1.12;letter-spacing:-.03em;color:#145b3f;
+  overflow-wrap:anywhere;font-variant-numeric:tabular-nums
+}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child{
+  grid-column:auto;min-height:119px;padding:15px 16px;background:#e7f7d3
+}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child strong{
+  font-size:clamp(21px,2.1vw,29px);color:#126345
+}
+@media(max-width:1100px){
+  #v11Public .v17-public-main>.v17-public-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #v11Public .v17-public-main>.v17-public-banner{grid-template-columns:minmax(0,1fr) minmax(0,.72fr)}
+}
+@media(max-width:760px){
+  #v11Public .v17-public-main>.v17-public-banner{
+    grid-column:1/-1;grid-template-columns:minmax(0,1fr);
+    min-height:0;gap:17px;padding:22px 19px;border-radius:22px
+  }
+  #v11Public .v17-public-main>.v17-public-banner :is(h1,h2,h3){
+    font-size:clamp(25px,6.5vw,32px);margin:14px 0 8px
+  }
+  #v11Public .v17-public-main>.v17-public-banner>.v30-hero-photo.has-photo{
+    height:183px;border-radius:15px
+  }
+  #v11Public .v17-public-main>.v17-public-metrics{
+    grid-column:1/-1;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px
+  }
+  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric{
+    min-height:104px;padding:13px 14px;border-radius:17px
+  }
+  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child{
+    grid-column:1/-1;min-height:102px;padding:15px 17px
+  }
+  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric strong{font-size:21px}
+  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child strong{font-size:29px}
+}
+@media(max-width:360px){
+  #v11Public .v17-public-main>.v17-public-banner{padding:19px 16px}
+  #v11Public .v17-public-main>.v17-public-metrics{gap:8px}
+  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric{padding:12px}
+}
+@media(prefers-reduced-motion:reduce){
+  #v11Public .v17-public-main>.v17-public-banner>.v30-hero-photo img{transition:none}
+}
 /* Warga melihat angka rupiah di ruang akun, bukan di halaman tanpa login. */
 #f4BankPrivateFinancialSummary {
   min-width:0;
@@ -125,8 +141,7 @@
   background:#fff;
 }
 #f4BankPrivateFinancialSummary .f4-bank-private-finance-card:first-child {
-  background:#e8f3eb;
-  border-color:#cfe4d6;
+  background:#e7f7d3;border-color:#e7f7d3;
 }
 #f4BankPrivateFinancialSummary .f4-bank-private-finance-card small {
   color:#607b6b;
