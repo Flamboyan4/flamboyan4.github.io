@@ -433,7 +433,7 @@ assert(/\/portal-live\/bank-eco-pages\.css\?v=\d{8}-[a-z0-9-]+/.test(h),
  'Bank Sampah profile/dock stylesheet must be versioned');
 assert(/\/portal-live\/bank-mobile-app\.js\?v=\d{8}-[a-z0-9-]+/.test(h),
  'Bank Sampah mobile app script must be versioned');
-assert(css.includes('.f4-bank-payout-rp-icon{') &&
+assert(dockCss.includes('.f4-bank-payout-rp-icon{') &&
        mobile.includes('svg.classList.add("f4-bank-payout-rp-icon")'),
  'Payout icon must be true Rp SVG, not a generic wallet or text glyph');
 assert(h.includes('id="f4BankPageGreeting"'), 'Manager greeting must be scopeable to the home route');
