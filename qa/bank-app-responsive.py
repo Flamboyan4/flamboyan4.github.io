@@ -518,6 +518,9 @@ async def member_profile_inline_name(browser):
     icon_end=source.index("function bankIconSpan(",icon_start)
     assert icon_start>=0 and icon_end>icon_start,"Canonical SVG helper is required"
     icon_helper=source[icon_start:icon_end]
+    sync_start=source.index("function memberID(){")
+    sync_end=source.index("/* Nama tampilan diedit",sync_start)
+    card_sync=source[sync_start:sync_end]
     page=await browser.new_page(viewport={"width":390,"height":820})
     markup="""<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
     <base href="http://127.0.0.1:8765/">
@@ -525,13 +528,17 @@ async def member_profile_inline_name(browser):
     </head><body><div id="dashboardView"><section id="pageProfile">
     <div class="f4-profile-identity"><small>Nama anggota</small><strong id="pName">Heri Awal</strong></div>
     </section><span id="greeting"></span><span id="welcomeName"></span>
-    <span id="v15AccountName"></span><div id="f4BankAppHome"><div class="f4-bank-app-personal-greeting"><strong>Halo, Heri Awal!</strong></div></div>
+    <span id="pId">W017</span><span id="pHome">A5/41</span>
+    <span id="f4BankProfileName">Heri Awal</span><span id="f4BankProfileNumber"></span><span id="f4BankProfileHouse"></span>
+    <span id="v15AccountName"></span><div id="f4BankAppHome"><div class="f4-bank-app-personal-greeting"><strong>Halo, Heri Awal!</strong></div><span id="f4BankCardName">Heri Awal</span><span id="f4BankCardNumber"></span><span class="f4-bank-card-house"></span></div>
     </div></body></html>"""
     await page.goto(ROOT,wait_until='domcontentloaded')
     await page.set_content(markup,wait_until='load')
     helpers="""const role="member";const $=id=>document.getElementById(id);
     const el=(tag,cls,text)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(text!==undefined)x.textContent=text;return x};
     const roleType=()=>role;
+    const text=(id,value)=>{const e=$(id);if(e)e.textContent=String(value);};
+    const memberStatement=null;
     window.__saved=[];
     const api=async(path,payload)=>{
       window.__saved.push({path,payload});
@@ -539,7 +546,7 @@ async def member_profile_inline_name(browser):
     };
     window.__updatedName=null;
     window.addEventListener('f4-account-profile-updated',e=>{window.__updatedName=e.detail.nama});"""
-    await page.add_script_tag(content=helpers+icon_helper+script+"inlineMemberDisplayName();inlineMemberDisplayName();")
+    await page.add_script_tag(content=helpers+icon_helper+card_sync+script+"inlineMemberDisplayName();inlineMemberDisplayName();")
     assert await page.locator(".f4-member-name-save svg, .f4-member-name-cancel svg").count()==2
     assert await page.locator('.f4-member-name-edit').count()==1
     assert await page.locator('.f4-member-name-row').count()==1
@@ -554,11 +561,13 @@ async def member_profile_inline_name(browser):
       account:document.getElementById('v15AccountName').textContent,
       greeting:document.getElementById('greeting').textContent,
       alias:window.__updatedName,
+      cardName:document.getElementById('f4BankCardName').textContent,
+      profileCardName:document.getElementById('f4BankProfileName').textContent,
       saved:window.__saved,
       inputHidden:document.querySelector('.f4-member-name-input').hidden,
       overflow:document.documentElement.scrollWidth>innerWidth+3
     })""")
-    assert values['name']==values['account']==values['alias']=='Heri Tampilan',values
+    assert values['name']==values['account']==values['alias']==values['cardName']==values['profileCardName']=='Heri Tampilan',values
     assert values['greeting']=='Halo, Heri Tampilan' and values['inputHidden'],values
     assert values['saved']==[{"path":"/api/member/profile","payload":{"nama":"Heri Tampilan"}}],values
     assert not values['overflow'],values
